@@ -10,6 +10,7 @@ c
       if (.not. rtdb_get(rtdb, 'tce:pstat',
      $     MT_LOG, 1, otceps)) otceps = .false.
 c
+      call util_flush(6)
       if (.not. otceps) return
 c
       if (.not. pstat_allocate('tce:cctdbl', pstat_qstat, 0, junk,
@@ -21,8 +22,6 @@ c
       if (.not. pstat_allocate('tce:vtoffl', pstat_qstat, 0, junk,
      $     ps_vtoff)) call errquit('dft: dft_pstat_init', 0,0)
 c       
-      call pstat_on(ps_tce)
-      otceps = .true.
 c
       end
       subroutine ccsd_t_pstat_print()

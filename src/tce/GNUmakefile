@@ -39,6 +39,9 @@ endif
 ifdef TCE_CUDA
       LIB_DEFINES += -DTCE_CUDA
 endif
+ifdef USE_PSTAT
+      LIB_DEFINES += -DUSE_PSTAT
+endif
 
 OBJ = tce_input.o tce_init.o tce_energy.o tce_energy_fragment.o
 

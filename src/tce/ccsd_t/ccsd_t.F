@@ -11,6 +11,7 @@ C
 #include "tce.fh"
 #include "tce_main.fh"
 #include "offl.fh"
+#include "ccsd_t_ps.fh"
       integer d_t1
       integer k_t1_offset
       integer d_t2
@@ -107,10 +108,12 @@ c      call util_align64(size)
         call errquit('ccsd_t: MA error dbl',0,MA_ERR)
       endif
 #ifdef USE_OFFLOAD
+      if (otceps) call pstat_on(ps_sxoff)
       call offl_alloc(f_singles,size)
       triplesx1_alloced=.true.
       call offl_alloc(f_doubles,size)
       triplesx_alloced=.true.
+      if (otceps) call pstat_off(ps_sxoff)
 #endif
 #else // USE_F90_ALLOCATABLE
       if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
@@ -262,10 +265,12 @@ c
       endif
 #else
 #ifdef USE_OFFLOAD
+      if (otceps) call pstat_on(ps_sxoff)
       call offl_free(dbl_mb(k_doubles),size)
       triplesx_alloced=.false.
       call offl_free(dbl_mb(k_singles),size)
       triplesx1_alloced=.false.
+      if (otceps) call pstat_off(ps_sxoff)
 #endif
       if (.not.MA_POP_STACK(l_doubles))
      1     call errquit('ccsd_t doubles',3,MA_ERR)
@@ -363,6 +368,7 @@ CDIR$ OFFLOAD TARGET(mic:mic_device)
      &     restricted,k_evl_sorted,size)
       implicit none
 #include "mafdecls.fh"
+#include "ccsd_t_ps.fh"
       integer k
       double precision energy1,energy2
       integer k_list(7,*)
@@ -408,6 +414,7 @@ c zeroing ---
       call offl_zerofill(a_singles,size)
       call offl_zerofill(a_doubles,size)
 c -----------
+      if (otceps) call pstat_on(ps_cctsng)
 #ifdef USE_OFFLOAD
       call offl_ccsd_t_singles_l(a_singles,
      1                 k_t1_local,d_v2,k_t1_offset,k_v2_offset,
@@ -417,9 +424,14 @@ c -----------
      1                 k_t1_local,d_v2,k_t1_offset,k_v2_offset,
      1                 t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
 #endif
+      if (otceps) call pstat_off(ps_cctsng)
+
+
+      if (otceps) call pstat_on(ps_cctdbl)
       call ccsd_t_doubles_l(a_doubles,
      1                 d_t2,d_v2,k_t2_offset,k_v2_offset,
      1                 t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
+      if (otceps) call pstat_off(ps_cctdbl)
       call ccsd_t_esum(a_singles,a_doubles,restricted,
      &                 t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,
      &                 dbl_mb(offset_h1+1),dbl_mb(offset_h2+1),

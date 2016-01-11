@@ -4,6 +4,7 @@ c     pstat handles for the TCE code
 c
       integer ps_tce,
      A     ps_cctdbl,ps_sdkrnl,ps_sxoff,ps_vtoff,
+     A	   ps_cctsng,
      I     fdist_vtoff,
      I     fdist_sxoff,
      I     fdist_sdkrnl,fdist_sdcomp,
@@ -32,6 +33,7 @@ c
       common /tceps/ otceps,
      $     ps_tce,
      A     ps_cctdbl,ps_sdkrnl,ps_sxoff,ps_vtoff,
+     A	   ps_cctsng,
      I     fdist_vtoff,
      I     fdist_sxoff,
      I     fdist_sdkrnl,fdist_sdcomp,

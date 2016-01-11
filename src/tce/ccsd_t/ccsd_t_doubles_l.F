@@ -13,7 +13,6 @@ C     i0 ( p4 p5 p6 h1 h2 h3 )_vt + = -1 * P( 9 ) * Sum ( p7 ) * t ( p4 p7 h1 h2
 #include "errquit.fh"
 #include "tce.fh"
 #include "offl.fh"
-#include "ccsd_t_ps.fh"
       INTEGER t_p4b
       INTEGER t_p5b
       INTEGER t_p6b
@@ -44,7 +43,6 @@ c      write(6,*)'I am in ccsd_t_doubles',ga_nodeid()
 c      call util_flush(6)
 c *************
       call ccsd_t_v2t2lgth(t2size,v2size)
-      if (otceps) call pstat_on(ps_cctdbl)
       IF (.not.MA_PUSH_GET(mt_dbl,t2size,'t2sub',
      L     l_t2sub,k_t2sub)) CALL
      & ERRQUIT('ccsd_t_doubles t2sub',101,MA_ERR)
@@ -79,7 +77,6 @@ c *************
       endif
       IF (.not.MA_chop_stack(l_t2sub)) CALL
      & ERRQUIT('ccsd_t_doubles_1',103,MA_ERR)
-      if (otceps) call pstat_off(ps_cctdbl)
       
       RETURN
       END
