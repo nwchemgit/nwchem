@@ -205,9 +205,16 @@ void FATR util_mic_set_affinity_() {
 	
 	nthreads = nprocs / ranks_per_device * DEFAULT_OFFLOAD_THREAD_MULTIPLIER;
 	
+#if __INTEL_COMPILER > 1599
+	pos+=snprintf(affinity+pos, BUFSZ-pos, "%dc@%o,%dt",
+	              nprocs / ranks_per_device, 
+		      rank_on_dev * (nprocs / ranks_per_device),
+		      DEFAULT_OFFLOAD_THREAD_MULTIPLIER);
+#else
 	pos+=snprintf(affinity+pos, BUFSZ-pos, "%dc,%dt,%do",
 	              nprocs / ranks_per_device, DEFAULT_OFFLOAD_THREAD_MULTIPLIER,
 				  rank_on_dev * (nprocs / ranks_per_device));
+#endif
 	snprintf(num_threads, BUFSZ, "OMP_NUM_THREADS=%d", nthreads);
 	
 	printf("%02d: micdev=%d nprocs=%d rank_on_dev=%d ranks_per_device=%d affinity='%s' pos=%d\n", 
