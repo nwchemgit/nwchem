@@ -3130,12 +3130,12 @@ C --- CHECK IF CONVERGED:                                               00100000
 *
 * 1 : Bring matrix to tridiagonal form 
 *
-      CALL TRED2(NDIM,NDIM,A,EIGVAL,SCRVEC,A)
+      CALL TRED2L(NDIM,NDIM,A,EIGVAL,SCRVEC,A)
 * 
 * 2 : Obtain eigenvalues from tridiagonal form
 *
 C     TQL2(NM,N,D,E,Z,IERR)
-      CALL TQL2(NDIM,NDIM,EIGVAL,SCRVEC,A,IRETURN)
+      CALL TQL2L(NDIM,NDIM,EIGVAL,SCRVEC,A,IRETURN)
 *
       IF(IRETURN.NE.0) THEN
         WRITE(6,*) ' Problem in TQL2 diagonalization, IRETURN = ',
