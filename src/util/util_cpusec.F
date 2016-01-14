@@ -13,11 +13,7 @@ c $Id$
       double precision ibm_cputime
       external ibm_cputime
       util_cpusec = ibm_cputime()
-#elif defined(KSR)
-      real ksr_cputime
-      external ksr_cputime
-      util_cpusec = ksr_cputime()
-#elif defined(SUN) || defined(__PARAGON__) || defined(DECOSF) || defined(SOLARIS) || defined(FUJITSU_VPP)|| defined(LINUXALPHA)
+#elif defined(SUN) || defined(SOLARIS) || defined(FUJITSU_VPP)|| defined(LINUXALPHA)
       real*4 tarray(2)
       real*4 etime
 #ifndef GCC4
@@ -35,17 +31,6 @@ c $Id$
       external etime
 #endif
       util_cpusec = etime(tarray)
-#elif defined(DELTA)
-      double precision dclock
-      external dclock
-      double precision first
-      logical ofirst
-      data ofirst /.true./
-      if (ofirst) then
-        first = dclock()
-        ofirst = .false.
-      endif
-      util_cpusec = dclock() - first
 #elif (defined(LINUX) || defined(CYGNUS)) && !defined(LINUXIA64) && !defined(CATAMOUNT)
       double precision linux_cputime
       external linux_cputime

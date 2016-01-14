@@ -741,10 +741,6 @@ c
 #if defined(IBM)
       character*26 string
 #endif
-#if defined(KSR)
-      integer time
-      character*24 ctime,string
-#endif
 #if defined(SP1) || defined(CRAY_T3D) || defined(CRAY_T3E) || defined(SOLARIS)
       character*26 string
 #endif
@@ -771,24 +767,6 @@ c
       if(string(4:6).eq.'Dec') today(1:2)='12'
       today(7:8)=string(8:9)
       today(4:5)=string(1:2)
-      now=string(11:20)
-#endif
-#if defined(KSR)
-      string=ctime(time())
-      if(string(5:7).eq.'Jan') today(1:2)='01'
-      if(string(5:7).eq.'Feb') today(1:2)='02'
-      if(string(5:7).eq.'Mar') today(1:2)='03'
-      if(string(5:7).eq.'Apr') today(1:2)='04'
-      if(string(5:7).eq.'May') today(1:2)='05'
-      if(string(5:7).eq.'Jun') today(1:2)='06'
-      if(string(5:7).eq.'Jul') today(1:2)='07'
-      if(string(5:7).eq.'Aug') today(1:2)='08'
-      if(string(5:7).eq.'Sep') today(1:2)='09'
-      if(string(5:7).eq.'Oct') today(1:2)='10'
-      if(string(5:7).eq.'Nov') today(1:2)='11'
-      if(string(5:7).eq.'Dec') today(1:2)='12'
-      today(7:8)=string(23:24)
-      today(4:5)=string(9:10)
       now=string(11:20)
 #endif
 #if defined(CRAY_T3D) || defined(SP1) || defined(CRAY_T3E) || defined(SOLARIS)

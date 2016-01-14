@@ -11,12 +11,6 @@ c
       integer iseed
       if(iseed.gt.0) call srand(dble(iseed))
       util_random=rand()
-#elif defined(KSR)
-      real random
-      external random
-      integer iseed
-* on KSR if iseed != 0 it resets the sequence
-      util_random=dble/work/u13377/nwchem(random(iseed))
 #elif defined(SGI) || defined(SGITFP)
        integer iseed
        real*8 rand

@@ -210,17 +210,9 @@ c
       double precision function drandm(iflag)
       implicit none
       integer iflag
-#ifdef KSR
-      integer irandm
-      external irandm
-      double precision scale
-      parameter(scale=1.0d0/2147483647.0d0)
-      drandm = scale*irandm(iflag)
-#else
       double precision drand
       external drand
       drandm = drand(iflag)
-#endif
       end
       subroutine testpcg
       implicit none

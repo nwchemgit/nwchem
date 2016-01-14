@@ -37,13 +37,6 @@ c
 #ifdef TCGMSG
          call parerr(status)
 #endif
-#if defined(PARAGON)
-	Call Kill(0, 9)
-#elif defined(DELTA)
-         call killproc(-1,0)
-#elif defined(IPSC)
-         call killcube(-1,-1)
-#endif
 #if defined(SUN) || defined(SGI)  || defined(SOLARIS)
          call abort
 #else

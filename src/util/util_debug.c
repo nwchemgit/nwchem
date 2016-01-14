@@ -96,15 +96,6 @@ void FATR util_debug_(Integer *rtdb)
   argv[9] = 0;
   if (!xterm[0])
     strcpy(xterm, "/usr/bin/X11/xterm");
-#elif defined(DECOSF)
-//  argv[6] = "/usr/bin/dbx";
-  argv[6] = "/usr/bin/ladebug";
-  argv[7] = "-pid";
-  argv[8] = pid;
-  argv[9] = path;
-  argv[10] = 0;
-  if (!xterm[0])
-    strcpy(xterm, "/usr/bin/X11/xterm");
 #else
   GA_Error("Don't know how to debug on this machine", 0);
 #endif
@@ -136,4 +127,4 @@ void FATR util_debug_(Integer *rtdb)
 }
 #endif
 
-/* $Id: util_debug.c 21176 2011-10-10 06:35:49Z d3y133 $ */
+/* $Id$ */
