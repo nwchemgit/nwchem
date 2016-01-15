@@ -1761,7 +1761,7 @@ endif
 # only use EXPLICITF for offload because otherwise we want debugging to be easy
 #           FOPTIONS +=  -Qoption,fpp,-P -Qoption,fpp,-c_com=no  -allow nofpp_comments 
           ifdef USE_OPTREPORT
-	  FOPTIONS += -qopt-report=1 -qopt-report-phase=vec 
+	  FOPTIONS += -qopt-report=3 -qopt-report-phase=vec 
           endif
 #to avoid compiler crashes on simd directive. e.g .Version 15.0.2.164 Build 20150121
         ifdef USE_NOSIMD
@@ -1801,6 +1801,8 @@ endif
           ifeq ($(_IFCV15ORNEWER), Y)
             FOPTIONS += -qopt-report-phase=offload
             FOPTIONS += -qoffload-option,mic,compiler,"-align array64byte"
+            FOPTIONS += -offload-option,mic,compiler,"-qopt-prefetch=4 -qopt-prefetch-distance=4,1"
+            FOPTIONS += -qopt-assume-safe-padding
             FOPTIONS += -align array64byte
 	        LDOPTIONS += -qoffload-option,mic,compiler," -Wl,-zmuldefs"
             FOPTIONS += -watch=mic_cmd 
