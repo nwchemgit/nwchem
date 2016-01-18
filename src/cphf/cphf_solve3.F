@@ -529,7 +529,7 @@ c         debug=.false. ! to see entering vectors
            if (debug) write (6,*) 'calling ga_lkain_2cpl3_ext'
 
           if (ga_nodeid().eq.0)
-     &      write(*,*) 'FA-BEF-uhf-ga_lkain_2cpl3_ext'
+     &      write(*,*) 'FA-BEF-uhf-ga_lkain_2cpl3_ext', max_precond_sub
 c
            call ga_lkain_2cpl3_ext(
      &                      rtdb,
@@ -611,7 +611,7 @@ c ----- Create complex GA arrays ----------- END
      &              uhf_hessv3_cmplx1,         ! in: product routine: gen Az
      &              uhf_hessv_precond3_damp,  ! in: routines
      &              precond_tol,
-     &              11*nvec,  ! why is this 11*nvec ?
+     &              max_precond_sub, ! jochen changed this from 11*nvec
      &              maxiter, 
      &              .false., 
      &              oprint_solve,
@@ -872,7 +872,7 @@ c ----- Create complex GA arrays ----------- END
      &              rohf_hessv3_cmplx,        ! in: product routine: gen Az
      &              rohf_hessv_precond3_damp, ! in: routines
      &              precond_tol,
-     &              11*nvec,
+     &              max_precond_sub, ! jochen: changed this from 11*nvec,
      &              maxiter, 
      &              .false., oprint_solve,
      &              omega, 
