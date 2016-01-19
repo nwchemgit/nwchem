@@ -266,6 +266,9 @@ endif
 ifeq ($(ARMCI_NETWORK),MPI_PR) 
     MAYBE_ARMCI = --with-mpi-pr
 endif # MPI-PR
+ifeq ($(ARMCI_NETWORK),MPI3) 
+    MAYBE_ARMCI = --with-mpi3
+endif # MPI3
 
 # ARMCI over MPI without data server
 ifeq ($(ARMCI_NETWORK),MPI-TS) 
