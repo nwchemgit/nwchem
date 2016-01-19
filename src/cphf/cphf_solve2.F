@@ -153,6 +153,7 @@ c jochen: previously it tried to read cphf:precond_tol
 c         I changed that so that we can set this by input
       if (.not. rtdb_get(rtdb, 'cphf:thresh', mt_dbl, 1, 
      $     precond_tol)) precond_tol=1d-4
+
       if (.not. rtdb_get(rtdb,'cphf:maxiter', mt_int, 1,
      $     maxiter)) maxiter = 50
 
@@ -326,16 +327,10 @@ c        enforces that.
 c        Call the solver
          if (ndata.eq.2) then
 
-          if (ga_nodeid().eq.0)
-     &      write(*,*) 'BEF ga_lkain_ext-uhf'
-
           call ga_lkain_ext(rtdb,g_work,g_grad,uhf_hessv2,uhf_precond,
      $        precond_tol, max_precond_sub, maxiter, .false., 
      &        oprint_solve)
          else 
-
-          if (ga_nodeid().eq.0)
-     &      write(*,*) 'BEF ga_lkain-uhf'
 
           call ga_lkain(rtdb,g_work, g_grad, uhf_hessv2, uhf_precond,
      $        precond_tol, max_precond_sub, maxiter, .false., 
@@ -354,17 +349,11 @@ c        enforces that.
 c        Call the solver
          if (ndata.eq.2) then
 
-          if (ga_nodeid().eq.0)
-     &      write(*,*) 'BEF ga_lkain_ext-rhf'
-
           call ga_lkain_ext(rtdb,g_work, g_grad, rohf_hessv2,
      R         rohf_hessv_precond,
      $         precond_tol, max_precond_sub, maxiter, .false., 
      &         oprint_solve)
          else
-
-          if (ga_nodeid().eq.0)
-     &      write(*,*) 'BEF ga_lkain-rhf'
 
           call ga_lkain(rtdb,g_work, g_grad, rohf_hessv2,
      R         rohf_hessv_precond,

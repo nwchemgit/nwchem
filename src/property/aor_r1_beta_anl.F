@@ -21,6 +21,7 @@
      &      lmagpert,           ! in : logical vars
      &      g_vecE1,g_vecE1_im) ! out: 
 c $Id$     
+
 c     =================================================================
 c     purpose: analyze beta tensor. See routine
 c     aor_r1_beta.F for additional comments. 
@@ -28,12 +29,10 @@ c     Use a molecular orientation in which the chiral
 c     response tensor is diagonal!
 c     called from: aoresponse_driver_new
 c     =================================================================
-c
-c  Written by J. Autschbach, SUNY Buffalo
-c  Extension to spin-unrestricted case 
-c          by F. Aquino,     Northwestern University 
-c          03-15-12
-c --> Experimental (not published yet)
+
+c     Written by J. Autschbach, SUNY Buffalo
+c     Extension to spin-unrestricted case 
+c     by F. Aquino, Northwestern University 03-15-12
 
       implicit none
 #include "errquit.fh"
@@ -124,23 +123,16 @@ c     make sure lvelocity.ne.T., we do not support that in this
 c     subroutine to keep the clutter at a manageable level.
 c     same for lmagpert
 
-
-      if (ga_nodeid().eq.0) then
-       write(*,101) lvelocity,lmagpert,lgiao,
-     &              lquad    ,lifetime,lanalyze,lstatic
- 101     format('INPUT-3anl: (lvelocity,lmagpert,lgiao,',
-     &         'lquad,lifetime,lanalyze,lstatic)=(',L1,',',
-     &          L1,',',L1,',',L1,',',L1,',',L1,',',L1,')')
-      endif
-
       if (lvelocity) 
      &   call errquit ('aor_beta: lvelocity set',1,INPUT_ERR)
 
       if (lmagpert) 
-     &   call errquit ('aor_beta: lmagpert set',1,INPUT_ERR)
+     &  call errquit ('aor_beta: lmagpert set',1,INPUT_ERR)
+      
 c     define translation table for quadrupole indices in
 c     packed storage
 c     XX=1, XY=YX=2, XZ=ZX=3, YY=4, YZ=ZY=5, ZZ=6
+      
       qindex(1,1) = 1
       qindex(1,2) = 2
       qindex(2,1) = 2
@@ -149,17 +141,21 @@ c     XX=1, XY=YX=2, XZ=ZX=3, YY=4, YZ=ZY=5, ZZ=6
       qindex(2,2) = 4
       qindex(2,3) = 5
       qindex(3,2) = 5
-      qindex(3,3) = 6       
+      qindex(3,3) = 6
+      
 c     set parameters that control the various computational options
 c     (later we will set most of this by input)
+      
       lzora      = .false.      ! not yet available here 
 
       if (debug) write (luout,*) 'giao, velocity',
-     &    lgiao, lvelocity
+     &  lgiao, lvelocity
+      
 c     -----------------------------------------
 c     determine number of occ * virt orbitals
 c     and nmot(1:2) and fix froct, if necessary
 c     -----------------------------------------
+      
       do ispin=1,npol
         nocvir(ispin) = nocct(ispin) * nvirt(ispin)
         nmot(ispin) = nmo
@@ -168,434 +164,319 @@ c     -----------------------------------------
             froct(imo,ispin) = 0d0
           enddo
         endif
-      enddo ! end-loop-ispin
-c       ------------------------------
-c       allocate some temp. work space
-c       ------------------------------       
-        chunk(1) = nbf
-        chunk(2) = -1
-        dims(1)  = nbf
-        dims(2)  = nbf        
-        write(cstemp,'(a)') 'work'
-        if (.not.nga_create(MT_DBL,2,dims,cstemp(1:4),chunk,
-     &     g_work)) call 
-     &     errquit('aoresponse: nga_create failed: '//cstemp(1:4),
-     &     0,GA_ERR)     
-        call ga_zero (g_work)    
-         chunk(1) = nbf
-         chunk(2) = -1
-         dims(1)  = nbf
-         dims(2)  = nbf        
-         write(cstemp,'(a)') 'vectmp(1)'
-         if (.not.nga_create(MT_DBL,2,dims,cstemp(1:4),chunk,
-     &      g_vectmp(1))) call 
-     &     errquit('aoresponse: nga_create failed: '//cstemp(1:9),
-     &     0,GA_ERR)   
-c      the factor of two is for the orbital occupations,
-c      assuming that ispin is never equal to two   
-             if (npol.eq.1) then        
+      enddo                     ! ispin
+      
+c     ------------------------------
+c     allocate some temp. work space
+c     ------------------------------
+      
+      chunk(1) = nbf
+      chunk(2) = -1
+      dims(1)  = nbf
+      dims(2)  = nbf
+      
+      write(cstemp,'(a)') 'work'
+      if (.not.nga_create(MT_DBL,2,dims,cstemp(1:4),chunk,
+     &  g_work)) call 
+     &  errquit('aoresponse: nga_create failed: '//cstemp(1:4),
+     &  1,GA_ERR)     
+      call ga_zero (g_work)
+      
+      chunk(1) = nbf
+      chunk(2) = -1
+      dims(1)  = nbf
+      dims(2)  = nbf
+      
+      write(cstemp,'(a)') 'vectmp(1)'
+      if (.not.nga_create(MT_DBL,2,dims,cstemp(1:4),chunk,
+     &  g_vectmp(1))) call 
+     &  errquit('aoresponse: nga_create failed: '//cstemp(1:9),
+     &  0,GA_ERR)
+      
+c     the factor of two is for the orbital occupations,
+c     assuming that ispin is never equal to two
+      
+      if (npol.eq.1) then        
         scaling = two
         if (lstatic) scaling = four
-       else  if (npol.eq.2) then     
+      else  if (npol.eq.2) then     
         scaling = 1.0d0
         if (lstatic) scaling = 2.0d0
-       endif
-       if (ga_nodeid().eq.0) then
-        write(*,1010) npol,scaling,lstatic
- 1010   format('(npol,scaling,lstati)=(',i3,',',f15.8,',',L1,')')
-       endif
-      do ispin=1,npol   
+      endif
+
+c     ---------------------
+c     start loop over spins
+c     ---------------------
+      
+      do ispin=1,npol
+        
         nmo1 = nmot(ispin)      ! total no.of MOs for this spin
         nocc = nocct(ispin)     ! occupied MOs
         nvir = nvirt(ispin)     ! virtual MOs
-        nocv = nocvir(ispin)    ! nocc * nvir   
+        nocv = nocvir(ispin)    ! nocc * nvir
+        
 c       allocate intermediate vector for matrix multiplications
-c       used to create the final results     
+c       used to create the final results
+        
         write (cstemp,'(a)') 'aor_beta: temp1'
         if(.not.ga_create(MT_DBL, nbf, nocc, trim(cstemp),
-     &     -1,-1,g_temp))
-     &     call errquit (trim(cstemp),0,GA_ERR)
+     &    -1,-1,g_temp))
+     &    call errquit (trim(cstemp),0,GA_ERR)
         if (debug) write (luout,*) 'g_temp allocated'
-c ========== Reading localized MO: g_tran ================ START
-c     ----------------------------------------------
-c     check if we have localized MOs on file. If yes
-c     read them, assuming nspin.eq.1
-c     ----------------------------------------------
-      i = 1
-      status=rtdb_get(rtdb,'prop:pmlocalization',MT_INT,1,i)
-      lmo = (i.eq.0)
-      if (lmo) then
-        if (oprint) write (luout,*) 'analysis: LMO switch found'
-        write (cstemp,'(a)') 'aor_beta: g_tran'
-        if(.not.ga_create(MT_DBL,nocc,nocc,trim(cstemp),-1,-1,
-     &                    g_tran)) ! create g_tran
-     &     call errquit (trim(cstemp),0,GA_ERR)
-        if (debug) write (luout,*) 'g_tran allocated'
-        call util_file_name('lmotrans',.true.,.true.,lmotrans)
-        if(.not.file_read_ga(lmotrans,g_tran)) call errquit
-     $     ('aor_r1_beta_anl: could not read lmotrans',0, DISK_ERR)
-      end if ! lmo
-c ========== Reading localized MO: g_tran ================ END
-c ========== Create g_anl =================== START
+        
+c       ----------------------------------------------
+c       check if we have localized MOs on file. If yes
+c       read them, assuming nspin.eq.1
+c       ----------------------------------------------
+        
+        i = 1
+        status=rtdb_get(rtdb,'prop:pmlocalization',MT_INT,1,i)
+        lmo = (i.eq.0)
+        if (lmo) then
+          if (oprint) write (luout,*) 'analysis: LMO switch found'
+          write (cstemp,'(a)') 'aor_beta: g_tran'
+          if(.not.ga_create(MT_DBL,nocc,nocc,trim(cstemp),-1,-1,
+     &      g_tran))            ! create g_tran
+     &      call errquit (trim(cstemp),0,GA_ERR)
+          if (debug) write (luout,*) 'g_tran allocated'
+          call util_file_name('lmotrans',.true.,.true.,lmotrans)
+          if(.not.file_read_ga(lmotrans,g_tran)) call errquit
+     $      ('aor_r1_beta_anl: could not read lmotrans',0, DISK_ERR)
+        end if                  ! lmo
+        
 c       allocate matrix that accumulates the analysis data
+        
         write (cstemp,'(a)') 'aor_beta: g_anl'
         if(.not.ga_create(MT_DBL,nocc,nocc,trim(cstemp),-1,-1,
-     &                    g_anl)) ! create g_anl
-     &     call errquit (trim(cstemp),0,GA_ERR)
+     &    g_anl))               ! create g_anl
+     &    call errquit (trim(cstemp),0,GA_ERR)
         if (debug) write (luout,*) 'g_anl allocated'
         call ga_zero(g_anl)  
-c ========== Create g_anl =================== END
+        
 c       diagonal elements of the last matrix
+        
         if (.not. ma_push_get(mt_dbl,nocc,'diag', l_diag, k_diag))
-     &        call errquit('error alloc MA diag', 0, MA_ERR)
-
+     &    call errquit('error alloc MA diag', 0, MA_ERR)
+        
 c       lmos: debug transformation
+        
         if (lmo .and. debug) then
           call ga_print(g_tran)
           call ga_dgemm('t', 'n', nocc, nocc, nocc, 
-     $                   1.0d0, g_tran, g_tran, 0.0d0, g_anl)
+     $      1.0d0, g_tran, g_tran, 0.0d0, g_anl)
           call ga_print(g_anl)
-        end if       
+        end if
+        
 c       ---------------------------------------------------------
 c       solution of CPKS is in g_vecE1. Below we need
 c       only the sum of the +/- components so we add them here
 c       and store them in g_vecE1(1)
-c       ---------------------------------------------------------       
+c       ---------------------------------------------------------
+        
         if (ncomp.gt.1) then
           call ga_add(1d0, g_vecE1(ispin,1), 
-     &                1d0, g_vecE1(ispin,2),
-     &                     g_vecE1(ispin,1))
+     &      1d0, g_vecE1(ispin,2),
+     &      g_vecE1(ispin,1))
           if (lifetime) then
             call ga_add(1d0, g_vecE1_im(ispin,1), 
-     &                  1d0, g_vecE1_im(ispin,2),
-     &                       g_vecE1_im(ispin,1))
+     &        1d0, g_vecE1_im(ispin,2),
+     &        g_vecE1_im(ispin,1))
           end if
-        endif    
+        endif
+        
 c       ------------------------------------------------
 c       for Buckingham-Dunn tensor we need the traceless
 c       quadrupole tensor
 c       ------------------------------------------------
+        
         if (lquad) then 
-          if (debug) then   
-           if (ga_nodeid().eq.0)
-     &      write(*,*) '---- g_quadel-non-traceless----- START'
-           call ga_print(g_quadel)
-           if (ga_nodeid().eq.0)
-     &      write(*,*) '---- g_quadel-non-traceless----- END'    
-          endif ! end-if-debug 
-          call get_tracelessQtensor(g_quadel, ! in/out: quadrupole tensor
-     &                              nbf,      ! in: nr. basis functions
-     &                              g_work)   ! in: scratch GA array
-          if (debug) then
-           if (ga_nodeid().eq.0)
-     &      write(*,*) '---- g_quadel-traceless----- START'
-            call ga_print(g_quadel)
-           if (ga_nodeid().eq.0)
-     &      write(*,*) '---- g_quadel-traceless----- END'  
-           end if                  ! lquad    
-          endif ! end-if-debug
+          call get_tracelessQtensor(g_quadel, nbf, g_work)          
+        end if                  ! lquad    
+        
 c       ---------------------------------------------------------
 c       start loop over the components of the response tensor and 
 c       calculate the final results
-c       ---------------------------------------------------------     
+c       ---------------------------------------------------------
+        
         do idir = 1,3           ! direction of the perturbing field
+          
 c         g_anl is going to accumulate the results
           call ga_zero(g_anl)
+          
           if (oprint)
-     &       write (luout,'(1x,40(''-'')/1x,a,2i1)')
-     &       'MO analysis of OR tensor component ',idir,idir                                 
-c           -------------------------------------------------------
-c           (A) calculate optical rotation beta from C(E) S(0) C(B)
-c           ------------------------------------------------------   
-          if (debug) then 
-           if (ga_nodeid().eq.0) then
-            write(*,1) ispin
- 1          format('---- g_vecE1(',i3,')-------- START')
-           endif
-           call ga_print(g_vecE1(ispin,1))
-           if (ga_nodeid().eq.0) then
-            write(*,2) ispin
- 2          format('---- g_vecE1(',i3,')-------- END')
-           endif
-           if (ga_nodeid().eq.0)
-     &      write(*,*) '---- g_smat0-------- START'
-            call ga_print(g_smat0)
-           if (ga_nodeid().eq.0)
-     &      write(*,*) '---- g_smat0-------- END'
-           if (ga_nodeid().eq.0) then
-            write(*,3) ispin
- 3          format('---- g_vecB1(',i3,')-------- START')
-           endif
-           call ga_print(g_vecB1(ispin))
-           if (ga_nodeid().eq.0) then
-            write(*,4) ispin
- 4          format('---- g_vecB1(',i3,')-------- END')
-           endif
-          endif ! end-if-debug
+     &      write (luout,'(1x,40(''-'')/1x,a,2i1)')
+     &      'MO analysis of OR tensor component ',idir,idir                                 
+c         -------------------------------------------------------
+c         (A) calculate optical rotation beta from C(E) S(0) C(B)
+c         -------------------------------------------------------
+          
+          
+          call update_g_anl_elmag(
+     &      g_anl,              ! in/out:
+     &      g_vecE1(ispin,1),   ! in    : C(E) pert MO vect.
+     &      g_smat0,            ! in    : 0th/1st overlap deriv.
+     &      g_vecB1(ispin),     ! in    : MO vect or C(B) MO vect
+     &      scaling,            ! in    : scaling factor
+     &      idir,               ! in    : direction (x,y or z)
+     &      3,                  ! in    : 3 or 4
+     &      nbf,                ! in    : nr. basis functions
+     &      nocc,               ! in    : nr. occupied MOs
+     &      lstatic,            ! in    : flag for static calc.
+     &      debug,              ! in    : flag for debugging
+     &      g_work,             ! in    : scratch GA array
+     &      g_temp)             ! in    : scratch GA array
+          
+          
+          if (lgiao) then
+            
+c           --------------------------------------
+c           if we use GIAOs there is a second term
+c           in beta which is C(E) S(1ket) C(0)
+c           --------------------------------------  
+            
+            
+            call update_g_anl_elmag(
+     &        g_anl,            ! in/out:
+     &        g_vecE1(ispin,1), ! in    : C(E) pert MO vect.
+     &        g_sket1,          ! in    : 0th/1st overlap deriv.
+     &        g_vectors(ispin), ! in    : MO vect or C(B) MO vect
+     &        scaling,          ! in    : scaling factor
+     &        idir,             ! in    : direction (x,y or z)
+     &        4,                ! in    : 3 or 4
+     &        nbf,              ! in    : nr. basis functions
+     &        nocc,             ! in    : nr. occupied MOs
+     &        lstatic,          ! in    : flag for static calc.
+     &        debug,            ! in    : flag for debugging
+     &        g_work,           ! in    : scratch GA array
+     &        g_temp)           ! in    : scratch GA array
 
-c       if (ga_nodeid().eq.0)
-c     &  write(*,*) 'FA-BEF update_g_anl_elmag-1'
-
-       call update_g_anl_elmag(
-     &              g_anl,           ! in/out:
-     &              g_vecE1(ispin,1),! in    : C(E) pert MO vect.
-     &              g_smat0,         ! in    : 0th/1st overlap deriv.
-     &              g_vecB1(ispin),  ! in    : MO vect or C(B) MO vect
-     &              scaling,         ! in    : scaling factor
-     &              idir,            ! in    : direction (x,y or z)
-     &              3,               ! in    : 3 or 4
-     &              nbf,             ! in    : nr. basis functions
-     &              nocc,            ! in    : nr. occupied MOs
-     &              lstatic,         ! in    : flag for static calc.
-     &              debug,           ! in    : flag for debugging
-     &              g_work,          ! in    : scratch GA array
-     &              g_temp)          ! in    : scratch GA array
-
-c       if (ga_nodeid().eq.0)
-c     &  write(*,*) 'FA-AFT update_g_anl_elmag-1'
-              if (debug) then
-                if (ga_nodeid().eq.0) then
-                 write(*,71) ispin
- 71              format('---- g_anl-1st(',i3,')-------- START')
-                endif
-                call ga_print(g_anl)
-                if (ga_nodeid().eq.0) then
-                 write(*,72) ispin
- 72              format('---- g_anl-1st(',i3,')-------- END')
-                endif
-               endif
-
-            if (lgiao) then            
-c             --------------------------------------
-c             if we use GIAOs there is a second term
-c             in beta which is C(E) S(1ket) C(0)
-c             --------------------------------------  
-              if (debug) then
-               if (ga_nodeid().eq.0)
-     &          write(*,*) 'FA-ENTER-lgiao ...'
-               if (ga_nodeid().eq.0)
-     &          write(*,*) '---- g_sket1-------- START'
-               call ga_print(g_sket1)
-               if (ga_nodeid().eq.0)
-     &          write(*,*) '---- g_sket1-------- END' 
-               if (ga_nodeid().eq.0) then
-                write(*,7) ispin
- 7              format('---- g_vectors(',i3,')-------- START')
-               endif
-               call ga_print(g_vectors(ispin))
-               if (ga_nodeid().eq.0) then
-                write(*,8) ispin
- 8             format('---- g_vectors(',i3,')-------- END')
-               endif
-              endif ! end-if-debug
-
-c       if (ga_nodeid().eq.0)
-c     &  write(*,*) 'FA-BEF update_g_anl_elmag-2'
-
-              call update_g_anl_elmag(
-     &              g_anl,           ! in/out:
-     &              g_vecE1(ispin,1),! in    : C(E) pert MO vect.
-     &              g_sket1,         ! in    : 0th/1st overlap deriv.
-     &              g_vectors(ispin),! in    : MO vect or C(B) MO vect
-     &              scaling,         ! in    : scaling factor
-     &              idir,            ! in    : direction (x,y or z)
-     &              4,               ! in    : 3 or 4
-     &              nbf,             ! in    : nr. basis functions
-     &              nocc,            ! in    : nr. occupied MOs
-     &              lstatic,         ! in    : flag for static calc.
-     &              debug,           ! in    : flag for debugging
-     &              g_work,          ! in    : scratch GA array
-     &              g_temp)          ! in    : scratch GA array
-
-c       if (ga_nodeid().eq.0)
-c     &  write(*,*) 'FA-AFT update_g_anl_elmag-2'
-              if (debug) then 
-                if (ga_nodeid().eq.0) then
-                 write(*,11) ispin
- 11              format('---- g_anl-giao(',i3,')-------- START')
-                endif
-                call ga_print(g_anl)
-                if (ga_nodeid().eq.0) then
-                 write(*,12) ispin
- 12              format('---- g_anl-giao(',i3,')-------- END')
-                endif
-              endif ! end-if-debug
-            end if              ! lgiao          
-c           ----------------------------------------------------
-c           if requested by input, add to OR beta the quadrupole
-c           polarizability terms
-c           ----------------------------------------------------                  
+          end if ! lgiao
+          
+          
+c         ----------------------------------------------------
+c         if requested by input, add to OR beta the quadrupole
+c         polarizability terms
+c         ----------------------------------------------------                  
           if (lquad) then   
-c            if (ga_nodeid().eq.0)
-c     &       write(*,*) 'FA-ENTER-lquad ...'
-            if (debug)
-     &      call debug_update_g_anl_quad1(
-     &            g_quadel,
-     &            g_anl, 
-     &            g_vecE1,
-     &            g_vectors,
-     &            ispin)
-
+            
             call update_g_anl_quad(
-     &         g_anl,           ! in/out:
-     &         g_quadel,        ! in    : quadrupolo AO integral
-     &         g_vecE1(ispin,1),! in    : 1st-order elect. pert. MO vector
-     &         g_vectors(ispin),! in    : MO vector
-     &         scaling,         ! in    : scaling factor
-     &         g_temp,          ! in    : scratch GA array
-     &         g_work,          ! in    : scratch GA array
-     &         idir,            ! in    : =1,2,3=x,y,z
-     &         nocc,            ! in    : nr. occupied MOs      
-     &         nbf,             ! in    : nr. basis functions    
-     &         debug,           ! in    : debugging flag
-     &         lstatic)         ! in    : static    flag
-
-            if (debug) then
-             if (ga_nodeid().eq.0) then
-              write(*,19) ispin
- 19           format('---- g_anl-lquad-aft(',i3,')-------- START')
-             endif
-             call ga_print(g_anl)
-             if (ga_nodeid().eq.0) then
-              write(*,20) ispin
- 20           format('---- g_anl-lquad-aft(',i3,')-------- END')
-             endif
-            endif ! end-if-debug
-          endif ! lquad
+     &        g_anl,            ! in/out:
+     &        g_quadel,         ! in    : quadrupolo AO integral
+     &        g_vecE1(ispin,1), ! in    : 1st-order elect. pert. MO vector
+     &        g_vectors(ispin), ! in    : MO vector
+     &        scaling,          ! in    : scaling factor
+     &        g_temp,           ! in    : scratch GA array
+     &        g_work,           ! in    : scratch GA array
+     &        idir,             ! in    : =1,2,3=x,y,z
+     &        nocc,             ! in    : nr. occupied MOs      
+     &        nbf,              ! in    : nr. basis functions    
+     &        debug,            ! in    : debugging flag
+     &        lstatic)          ! in    : static    flag
+            
+          endif                 ! lquad
+          
 c         ---------------------
 c         Canonical MO analysis
 c         ---------------------
+          
           if (oprint) write (luout,
-     &       '(/t12,a,t26,a/t11,6(''-''),t22,12(''-''))')
-
-     &       'CMO #','contrib.'
-          if (debug) then
-           if (ga_nodeid().eq.0) then
-            write(*,21) ispin
- 21         format('---- g_anl-getdiag-bef(',i3,')-------- START')
-           endif
-           call ga_print(g_anl)
-           if (ga_nodeid().eq.0) then
-            write(*,22) ispin
- 22         format('---- g_anl-getdiag-bef(',i3,')-------- END')
-           endif
-          endif ! end-if-debug
+     &      '(/t12,a,t26,a/t11,6(''-''),t22,12(''-''))')
+     &      'CMO #','contrib.'
+          
           call ga_get_diagonal(g_anl, dbl_mb(k_diag) )
+          
           sum = zero
           do i = 1,nocc
             sum = sum + dbl_mb(k_diag+i-1)
             if (oprint) write (luout,'(t11,i6,t22,f12.4)')
-     &         i,dbl_mb(k_diag+i-1)
+     &        i,dbl_mb(k_diag+i-1)
           end do     
-
-          if (ga_nodeid().eq.0) then
-           write(*,23) ispin,sum,ga_trace_diag(g_anl)
- 23        format('g_anl-trace(',i3,')=(',f15.8,',',f15.8,')')
-          endif
-          oprint=.true.
+          
           if (oprint)
-     &       write (luout,'(1x,a,2i1,a,f12.4)') 'Component ',idir,idir,
-     &       ': Sum = ',sum
-
-          if (oprint) write (luout,'(1x,40(''-''))')
-          oprint=.false.
+     &      write (luout,'(1x,a,2i1,a,f12.4)') 'Component ',idir,idir,
+     &      ': Sum = ',sum
+          
           if (debug) then
             sum = ga_trace_diag(g_anl)
             if (oprint) write (luout,*) 'sum from ga_trace: ',sum
           end if                ! debug
-
+          
+          if (oprint) write (luout,'(1x,40(''-''))')
+          
 c         ---------------------
 c         Localized MO analysis
 c         ---------------------
-          if (ga_nodeid().eq.0)
-     &      write(*,*) 'FA-BEF lmo=',lmo
-
+          
           if (lmo) then
-            if (debug) then
-             if (ga_nodeid().eq.0) then
-              write(*,24) ispin
- 24           format('---- g_anl-lmo-bef(',i3,')-------- START')
-             endif
-             call ga_print(g_anl)
-             if (ga_nodeid().eq.0) then
-              write(*,25) ispin
- 25           format('---- g_anl-lmo-bef(',i3,')-------- END')
-             endif
-            endif ! end-if-debug
-
-            call get_trace_ganl(g_anl,  ! in/out:
-     &                          g_tran, ! in:
-     &                          idir,   ! in: =1,2,3=x,y,z
-     &                          oprint, ! in: logical var
-     &                          nocc)   ! in: nr. occupied MOs    
-              
-          end if                ! lmo          
+            
+            call get_trace_ganl(g_anl, ! in/out:
+     &        g_tran,           ! in:
+     &        idir,             ! in: =1,2,3=x,y,z
+     &        oprint,           ! in: logical var
+     &        nocc)             ! in: nr. occupied MOs    
+            
+          end if                ! lmo
+          
         end do                  ! idir = 1,3
-
+        
 c       -------------------------------------------
 c       end loop over perturbing E-field components
 c       -------------------------------------------
+        
 c       -----------------
 c       deallocate memory
 c       -----------------
-         if (.not. ma_pop_stack(l_diag))
-     &       call errquit('error deloc MA diag',0, MA_ERR)
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) 'FA-BEF-write_vects'
-c Note.- This routine must be moved either out of ispin loop
-c        or modified so that it will write ONLY ispin set
-
-         call write_vects(
-     &              rtdb,geom,basis, ! in: handles
-     &              g_vecE1(ispin,1),! in: C^(1,E)
-     &              g_vecB1(ispin),  ! in: C^(1,B)
-     &              g_tran,          ! in:
-     &              g_vectmp,        ! in: scratch GA array
-     &              npol,nocc,       ! in: nr. polariz,occ MOs
-     &              nocct,nvirt,     ! in: nr. occ,virt MOs
-     &              nopen,nmot,      ! in: nr. open shells,nmot=nocc*nvirt
-     &              froct,epst,      ! in:
-     &              nbf,             ! in: nr. basis functions
-     &              lmo,             ! in: logical flag
-     &              debug)           ! in: logical flag for debugging
-
-c         if (ga_nodeid().eq.0)
-c     &    write(*,*) 'FA-AFT-write_vects'
-c Warning: I will leave lines below because aor_r1_beta_anl routine
-c          needs further testing FA-11-14-12
-
-         if (ga_nodeid().eq.0)
-     &    write(*,*) 'STOP-test'
-         stop
-
+        
+        if (.not. ma_pop_stack(l_diag))
+     &    call errquit('error deloc MA diag',0, MA_ERR)
+        
+        
+        call write_vects(
+     &    rtdb,geom,basis,      ! in: handles
+     &    g_vecE1(ispin,1),     ! in: C^(1,E)
+     &    g_vecB1(ispin),       ! in: C^(1,B)
+     &    g_tran,               ! in:
+     &    g_vectmp,             ! in: scratch GA array
+     &    npol,nocc,            ! in: nr. polariz,occ MOs
+     &    nocct,nvirt,          ! in: nr. occ,virt MOs
+     &    nopen,nmot,           ! in: nr. open shells,nmot=nocc*nvirt
+     &    froct,epst,           ! in:
+     &    nbf,                  ! in: nr. basis functions
+     &    lmo,                  ! in: logical flag
+     &    debug)                ! in: logical flag for debugging
+        
+        
 c       -------------------------------------------------
 c       un-add the frequency components in vec_E1 in case
 c       we reuse these arrays:
 c       -------------------------------------------------
+        
         if (ncomp.gt.1) then
           call ga_add(1d0, g_vecE1(ispin,1), 
-     &               -1d0, g_vecE1(ispin,2),
-     &                     g_vecE1(ispin,1))
+     &      -1d0, g_vecE1(ispin,2),
+     &      g_vecE1(ispin,1))
           if (lifetime) then
             call ga_add(1d0, g_vecE1_im(ispin,1), 
-     &                 -1d0, g_vecE1_im(ispin,2),
-     &                       g_vecE1_im(ispin,1))
+     &        -1d0, g_vecE1_im(ispin,2),
+     &        g_vecE1_im(ispin,1))
           end if
-        endif ! end-if-ncomp         
+        endif                   ! ncomp>1
+        
         if (.not.ga_destroy(g_anl))  call errquit
-     &       ('aor_beta: ga_destroy failed g_anl',0,GA_ERR)  
+     &    ('aor_beta: ga_destroy failed g_anl',0,GA_ERR)  
         if (lmo) then
-         if (.not.ga_destroy(g_tran)) call errquit
-     &       ('aor_beta: ga_destroy failed g_tran',0,GA_ERR)
+          if (.not.ga_destroy(g_tran)) call errquit
+     &      ('aor_beta: ga_destroy failed g_tran',0,GA_ERR)
         endif     
         if (.not.ga_destroy(g_temp)) call errquit
-     &       ('aor_beta: ga_destroy failed g_temp',0,GA_ERR)
-
-      enddo                     ! ispin = 1,2 from way above   
-        if (.not.ga_destroy(g_vectmp(1))) call errquit 
-     &       ('aor_beta: ga_destroy failed g_vectmp(1)',0,GA_ERR)   
-        if (.not.ga_destroy(g_work)) call errquit
-     &       ('aoresponse: ga_destroy failed g_work',0,GA_ERR)
-
+     &    ('aor_beta: ga_destroy failed g_temp',0,GA_ERR)
+        
+      enddo                     ! ispin = 1,2 from way above
+      
+      if (.not.ga_destroy(g_vectmp(1))) call errquit 
+     &  ('aor_beta: ga_destroy failed g_vectmp(1)',0,GA_ERR)   
+      if (.not.ga_destroy(g_work)) call errquit
+     &  ('aoresponse: ga_destroy failed g_work',0,GA_ERR)
+      
       return     
       end

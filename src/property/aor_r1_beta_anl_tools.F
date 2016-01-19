@@ -3,7 +3,8 @@
      &            g_anl, 
      &            g_vecE1,
      &            g_vectors,
-     &            ispin)
+     &  ispin)
+      
 c Purpose: Debugging input to update_g_anl_quad
 c
 c Author : Fredy W. Aquino
@@ -249,8 +250,12 @@ c Note.- Modified from original aoresponse source code
 c        for extension to spin-unrestricted case
 c        original aoresponse source code was written by 
 c        J. Autschbach and appears on nwchem-devtrunk (date:03-02-12)
-c --> Experimental (not published yet)
-        
+
+c Note (JA: by whom?) .- This routine is for testing only
+c ====>  it will be better to use the idea of 
+c        trace() defined in aor_r1_tensor.F
+c        test: symmetrize the g_anl matrix before the LMO trafo:
+      
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -267,82 +272,87 @@ c --> Experimental (not published yet)
       double precision sum
       double precision ga_trace_diag,trace,ac_trace
       external ga_trace_diag
-        if (.not. ma_push_get(mt_dbl,nocc,'diag',l_diag,k_diag))
-     &        call errquit('error alloc MA diag', 0, MA_ERR)
-c Note.- This routine is for testing only
-c ====>  it will be better to use the idea of 
-c        trace() defined in aor_r1_tensor.F
-c        test: symmetrize the g_anl matrix before the LMO trafo:
-            if (oprint)
-     &         write (luout,*) 'Message from beta_anl: Symmetrizing X'
-            call ga_symmetrize(g_anl)
 
-            write (cstemp,'(a)') 'aor_beta: tmpanl'
-            if(.not.ga_create(MT_DBL,nocc,nocc,trim(cstemp),
-     &         -1,-1,g_tmpanl))
-     &         call errquit (trim(cstemp),0,GA_ERR)           
-            call ga_zero(g_tmpanl)
-            call ga_dgemm('t', 'n',nocc,nocc,nocc, 
-     $                    1.0d0,g_tran,g_anl,0.0d0,
-     &                    g_tmpanl) ! out: g_tmpanl
-            call ga_zero(g_anl)
-c ========= Added by FA to compute trace ====== START
-         trace=0.0d0
-         do i=1,nocc
-          ac_trace=ga_ddot_patch(g_tmpanl,'n',i,i   ,1,nocc,
-     &                           g_tran  ,'n',1,nocc,i,i) 
-          trace=trace+ac_trace
-
-             if (ga_nodeid().eq.0) then
-               write(*,2) i,trace
- 2             format('trace(',i3,')=',f15.8)
-              endif
-
-         enddo ! end-loop-i
-c ========= Added by FA to compute trace ====== END
-            call ga_dgemm('n', 'n',nocc,nocc,nocc, 
-     $                    1.0d0,g_tmpanl,g_tran,0.0d0,
-     &                    g_anl) ! out: g_anl
-            if (.not.ga_destroy(g_tmpanl)) call errquit
-     &         ('aor_beta: ga_destroy failed g_tmpanl',0,GA_ERR)
-
-            if (oprint) write (luout,
-     &         '(/t12,a,t26,a/t11,6(''-''),t22,12(''-''))')
-     &         'LMO #','contrib.'
-            
-            call ga_get_diagonal(g_anl,dbl_mb(k_diag))
-            
-            sum = 0.0d0
-            do i=1,nocc
-
-              sum = sum + dbl_mb(k_diag+i-1)
-
-              if (ga_nodeid().eq.0) then
-               write(*,1) i,sum
- 1             format('sum(',i3,')=',f15.8)
-              endif
-
-              if (oprint) write (luout,'(t11,i6,t22,f12.4)')
-     &           i,dbl_mb(k_diag+i-1)
-            enddo ! end-loop-i
-
-          if (ga_nodeid().eq.0) then
-           write(*,23) 1,sum,ga_trace_diag(g_anl),trace
- 23        format('g_anl-trace-lmo(',i3,')=(',
-     &            f15.8,',',f15.8,',',f15.8,')')
-          endif
-
-            if (oprint)
-     &         write (luout,'(1x,a,2i1,a,f12.4)')
-     &         'Component ',idir,idir,': Sum = ',sum
-
-            if (oprint) write (luout,'(1x,40(''-''))')
-            
-              sum = ga_trace_diag(g_anl)
-            if (oprint) write (luout,*) 'sum from ga_trace: ',sum
-
-            if (.not. ma_pop_stack(l_diag))
-     &       call errquit('error deloc MA diag',0, MA_ERR)                  
+      
+      if (.not. ma_push_get(mt_dbl,nocc,'diag',l_diag,k_diag))
+     &  call errquit('error alloc MA diag', 0, MA_ERR)
+      
+      
+      if (oprint)
+     &  write (luout,*) 'Message from beta_anl: Symmetrizing X'
+      call ga_symmetrize(g_anl)
+      
+      write (cstemp,'(a)') 'aor_beta: tmpanl'
+      if(.not.ga_create(MT_DBL,nocc,nocc,trim(cstemp),
+     &  -1,-1,g_tmpanl))
+     &  call errquit (trim(cstemp),0,GA_ERR)           
+      call ga_zero(g_tmpanl)
+      
+      call ga_dgemm('t', 'n',nocc,nocc,nocc, 
+     $  1.0d0,g_tran,g_anl,0.0d0,
+     &  g_tmpanl)               ! out: g_tmpanl
+      
+      call ga_zero(g_anl)
+      
+c     ========= Added by FA to compute trace ====== START
+      trace=0.0d0
+      do i=1,nocc
+        ac_trace=ga_ddot_patch(g_tmpanl,'n',i,i   ,1,nocc,
+     &    g_tran  ,'n',1,nocc,i,i) 
+        trace=trace+ac_trace
+        
+c$$$        if (ga_nodeid().eq.0) then
+c$$$          write(*,2) i,trace
+c$$$ 2        format('trace(',i3,')=',f15.8)
+c$$$        endif
+        
+      enddo                     ! end-loop-i
+c     ========= Added by FA to compute trace ====== END
+      
+      call ga_dgemm('n', 'n',nocc,nocc,nocc, 
+     $  1.0d0,g_tmpanl,g_tran,0.0d0,
+     &  g_anl)                  ! out: g_anl
+      if (.not.ga_destroy(g_tmpanl)) call errquit
+     &  ('aor_beta: ga_destroy failed g_tmpanl',0,GA_ERR)
+      
+      if (oprint) write (luout,
+     &  '(/t12,a,t26,a/t11,6(''-''),t22,12(''-''))')
+     &  'LMO #','contrib.'
+      
+      call ga_get_diagonal(g_anl,dbl_mb(k_diag))
+      
+      sum = 0.0d0
+      do i=1,nocc
+        
+        sum = sum + dbl_mb(k_diag+i-1)
+        
+c$$$        if (ga_nodeid().eq.0) then
+c$$$          write(*,1) i,sum
+c$$$ 1        format('sum(',i3,')=',f15.8)
+c$$$        endif
+        
+        if (oprint) write (luout,'(t11,i6,t22,f12.4)')
+     &    i,dbl_mb(k_diag+i-1)
+      enddo                     ! end-loop-i
+      
+c$$$      if (ga_nodeid().eq.0) then
+c$$$        write(*,23) 1,sum,ga_trace_diag(g_anl),trace
+c$$$ 23     format('g_anl-trace-lmo(',i3,')=(',
+c$$$     &    f15.8,',',f15.8,',',f15.8,')')
+c$$$      endif
+      
+      if (oprint)
+     &  write (luout,'(1x,a,2i1,a,f12.4)')
+     &  'Component ',idir,idir,': Sum = ',sum
+      
+      if (oprint) write (luout,'(1x,40(''-''))')
+      
+c$$$      sum = ga_trace_diag(g_anl)
+c$$$      if (oprint) write (luout,*) 'sum from ga_trace: ',sum
+      
+      if (.not. ma_pop_stack(l_diag))
+     &  call errquit('error deloc MA diag',0, MA_ERR)
+      
       return
       end
 

@@ -1542,10 +1542,10 @@ c 000000000000000 getting cphf filename to store 00000000 START
      &           g_z1,     ! ou: history matrix z
      &           g_Az1))   ! ou: history matrix Az
      &  then
-       if (ga_nodeid().eq.0)
-     &  write(*,1999) aorespfilename(1:inp_strlen(aorespfilename))
- 1999   format('File ',a,
-     &          ' does not exist, proceed to generate (z1,Az1)')
+c       if (ga_nodeid().eq.0)
+c     &  write(*,1999) aorespfilename(1:inp_strlen(aorespfilename))
+c 1999   format('File ',a,
+c     &          ' does not exist, proceed to generate (z1,Az1)')
 c ------ g_z0 --> g_z1 ----- START
 c Copying initial guess
          nsub_file=0
@@ -2766,10 +2766,10 @@ c 000000000000000 getting cphf filename to store 00000000 START
      &           g_z1,     ! ou: history matrix z
      &           g_Az1))   ! ou: history matrix Az
      &  then
-          if (ga_nodeid().eq.0)
-     &     write(*,1999) aorespfilename(1:inp_strlen(aorespfilename))
- 1999      format('File ',a,
-     &          ' does not exist, proceed to generate (z1,Az1)')
+c          if (ga_nodeid().eq.0)
+c     &     write(*,1999) aorespfilename(1:inp_strlen(aorespfilename))
+c 1999      format('File ',a,
+c     &          ' does not exist, proceed to generate (z1,Az1)')
 c ------ g_z0 --> g_z1 ----- START
 c Copying initial guess
          nsub_file=0

@@ -20,7 +20,9 @@
      &      alfare,alfaim,      ! out: electric-electric response matrices
      &      betare,betaim)      ! out: electric-magnetic response matrices       
 c $Id$     
-c     =================================================================   
+
+c     =================================================================
+c     
 c     purpose: calculate linear response tensors
 c     We assume that perturbed MO coefficients have already
 c     been computed elsewhere. 
@@ -33,7 +35,6 @@ c  Written by J. Autschbach, SUNY Buffalo
 c  Extension to spin-unrestricted case 
 c          by F. Aquino,     Northwestern University 
 c          03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -105,7 +106,7 @@ c     traceless dipole-quadrupole tensor, full storage
       integer ispin
       
       integer ipm, nocc, nvir, nocv, imo, jmo, nmo1, 
-     &  iresp, idir, i, j, k, l
+     &  iresp, idir, ndir, i, j, k, l
       
       logical debug, dbgmat, 
      &  lzora, lantisym, lroa, me
@@ -120,14 +121,13 @@ c     traceless dipole-quadrupole tensor, full storage
 c     external functions:
       
       double precision ga_trace_diag,coeffre,coeffim
-      external ga_trace_diag 
-
-      integer ndir
+      external ga_trace_diag
+      
       external get_alfaorbeta_reim
 
 c  ====================================================================
 
-      ndir=3                    ! nr directions (x,y,z)
+      ndir = 3                  ! nr of field directions (x,y,z)
       
       me = (ga_nodeid().eq.0)      
       
@@ -142,7 +142,7 @@ c     check for ROA keyword
      &   lroa)) continue
 
       if (lroa .and. me) then
-        write (luout,*) 'aor_r1_beta: roadata output requested'
+        write (luout,*) 'aor_r1_tensor: roadata output requested'
       end if
 
       if (lroa .and. (lmagpert.or.lvelocity)) 
@@ -166,6 +166,7 @@ c     initialize with zeros:
 c     -------------------------
 c     define Levi-Civita tensor for quadrupole additions
 c     -------------------------
+      
       LCtensor(:,:,:) = 0      
       LCtensor(1,2,3) = 1
       LCtensor(2,3,1) = 1
@@ -177,6 +178,7 @@ c     -------------------------
 c     define translation table for quadrupole incices in
 c     packed storage
 c     XX=1, XY=YX=2, XZ=ZX=3, YY=4, YZ=ZY=5, ZZ=6
+      
       qindex(1,1) = 1
       qindex(1,2) = 2
       qindex(2,1) = 2
@@ -203,6 +205,7 @@ c     -----------------------------------------
 c     determine number of occ * virt orbitals
 c     and nmot(1:2) and fix froct, if necessary
 c     -----------------------------------------
+      
       do ispin = 1,npol
         nocvir(ispin) = nocct(ispin) * nvirt(ispin)
         nmot(ispin) = nmo
@@ -211,7 +214,7 @@ c     -----------------------------------------
             froct(imo,ispin) = 0d0
           enddo
         endif
-      enddo                     ! end-loop-ispin
+      enddo                     ! ispin
       
 c     ------------------------------
 c     allocate some temp. work space
@@ -220,27 +223,32 @@ c     ------------------------------
       chunk(1) = nbf
       chunk(2) = -1
       dims(1)  = nbf
-      dims(2)  = nbf        
+      dims(2)  = nbf
+      
       write(cstemp,'(a)') 'work'
       if (.not.nga_create(MT_DBL,2,dims,cstemp(1:4),chunk,
      &  g_work)) call 
      &  errquit('aoresponse: nga_create failed: '//cstemp(1:4),
-     &  0,GA_ERR)     
-      call ga_zero (g_work)
-        
-c     ----------------------
-c     start loop over spins
-c     ----------------------
+     &  1,GA_ERR)
       
-      if      (npol.eq.1) then
+      call ga_zero (g_work)
+      
+      if (npol.eq.1) then
         coeffre=-2.0d0
         coeffim=+2.0d0   
       else if (npol.eq.2) then
         coeffre=-0.5d0
-        coeffim=+0.5d0  
+        coeffim=+0.5d0
+      else
+        call errquit ('aor_tens: npol value not supported',1,INPUT_ERR)
       endif
       
+c     ----------------------
+c     start loop over spins
+c     ----------------------
+      
       do ispin = 1, npol
+        
         nmo1 = nmot(ispin)      ! total no.of MOs for this spin
         nocc = nocct(ispin)     ! occupied MOs
         nvir = nvirt(ispin)     ! virtual MOs
@@ -251,8 +259,8 @@ c       used to create the final results
         
         write (cstemp,'(a)') 'aor_beta: temp1'
         if(.not.ga_create(MT_DBL, nbf, nocc, trim(cstemp),
-     &     -1,-1,g_temp))
-     &     call errquit (trim(cstemp),0,GA_ERR)
+     &    -1,-1,g_temp))
+     &    call errquit (trim(cstemp),0,GA_ERR)
         if (debug) write (luout,*) 'g_temp allocated'
         
 c       -------------------------------------------------------
@@ -266,93 +274,53 @@ c       in g_vecE1(1). If the velocity formalism is used then the
 c       perturbing field has an antisymmetric AO matrix and 
 c       we have to ADD the vectors instead. 
 c       ---------------------------------------------------------
-        if (debug) then
-         if (ga_nodeid().eq.0) then
-          write(*,100) ncomp,lantisym,lifetime
- 100      format('(comp,lantisym,lifetime)=(',i3,',',L1,',',L1,')')
-         endif
-         if (ga_nodeid().eq.0)
-     &    write(*,*) '--g_vecE1-BEF-IF ------ START'
-          call ga_print(g_vecE1(ispin,1))
-         if (ga_nodeid().eq.0)
-     &    write(*,*) '--g_vecE1-BEF-IF ------ END'
-         if (lifetime) then
-          if (ga_nodeid().eq.0)
-     &      write(*,*) '--g_vecE1-im-BEF-IF ------ START'
-            call ga_print(g_vecE1_im(ispin,1))
-          if (ga_nodeid().eq.0)
-     &      write(*,*) '--g_vecE1-im-BEF-IF ------ END'
-         endif ! end-if-lifetime
-        endif ! end-if-debug
+        
         if (ncomp.gt.1) then
           if (lantisym) then
             call ga_add(1d0, g_vecE1(ispin,1), 
-     &                  1d0, g_vecE1(ispin,2),
-     &                       g_vecE1(ispin,1))
+     &        1d0, g_vecE1(ispin,2),
+     &        g_vecE1(ispin,1))
             if (lifetime) then
               call ga_add(1d0, g_vecE1_im(ispin,1), 
-     &                    1d0, g_vecE1_im(ispin,2),
-     &                         g_vecE1_im(ispin,1))
+     &          1d0, g_vecE1_im(ispin,2),
+     &          g_vecE1_im(ispin,1))
             end if              ! lifetime
           else                  ! lantisym ? 
             call ga_add(1d0, g_vecE1(ispin,1), 
-     &                 -1d0, g_vecE1(ispin,2),
-     &                       g_vecE1(ispin,1))
+     &        -1d0, g_vecE1(ispin,2),
+     &        g_vecE1(ispin,1))
             if (lifetime) then
               call ga_add(1d0, g_vecE1_im(ispin,1),
-     &                   -1d0, g_vecE1_im(ispin,2),
-     &                         g_vecE1_im(ispin,1))
+     &          -1d0, g_vecE1_im(ispin,2),
+     &          g_vecE1_im(ispin,1))
             end if              ! lifetime
           end if                ! lantisym
-        endif                   ! ncomp.gt.1
-        if (debug) then
-         if (ga_nodeid().eq.0)
-     &    write(*,*) '--g_vecE1-AFT-IF ------ START'
-          call ga_print(g_vecE1(ispin,1))
-         if (ga_nodeid().eq.0)
-     &    write(*,*) '--g_vecE1-AFT-IF ------ END'
-         if (lifetime) then
-          if (ga_nodeid().eq.0)
-     &     write(*,*) '--g_vecE1-im-AFT-IF ------ START'
-           call ga_print(g_vecE1_im(ispin,1))
-          if (ga_nodeid().eq.0)
-     &     write(*,*) '--g_vecE1-im-AFT-IF ------ END'
-         endif ! end-if-lifetime
-        endif ! end-if-debug
-
-       ndir=3 ! nr. directions (x,y,z)
-       do idir = 1,ndir        ! direction of the perturbing field
-        do iresp = 1,3
-
-         call get_alfaorbeta_reim(
-     &            betare(idir,iresp), ! in/out: alpha or beta real part
-     &            betaim(idir,iresp), ! in/out: alpha or beta im   part
-     &            g_vecE1(ispin,1),   ! in : 1st-order pert vec RE
-     &            g_vecE1_im(ispin,1),! in : 1st-order pert vec IM
-     &            g_dipmag,           ! in : dipole electric or magnetic
-     &            g_vectors(ispin),   ! in : MO vectors
-     &            idir,               ! in : = 1,2,3=x,y,z directions
-     &            iresp,              ! in : = 1,2,3
-     &            coeffre,-coeffim,1,  ! in : (coeffre,coeffim,caseAO)
-c     &            -coeffre,coeffim,1,  ! in : (coeffre,coeffim,caseAO)
-     &            nbf,                ! in : nr. basis functions
-     &            nocc,               ! in : nr. occupied alpha or beta
-     &            lifetime,           ! in : logical var for damping
-     &            debug,              ! in : logical var for debugging
-     &            g_temp)             ! in : scratch GA array
-
-         if (debug) then 
-          if (ga_nodeid().eq.0) then
-           write(*,1) ispin,idir,iresp,
-     &                betare(idir,iresp),betaim(idir,iresp)
- 1         format('beta(',i3,',',i3,',',i3,
-     &            ')=(',f15.8,',',f15.8,')')
-          endif
-         endif ! end-if-debug
-
-        enddo  ! end-loop-iresp (responding field components)
-       enddo ! end-loop-idir    (perturbing E-field components)
-
+        endif                   ! ncomp.gt.1        
+        
+        do idir = 1,ndir        ! direction of the perturbing field
+          
+          do iresp = 1,3
+            
+            call get_alfaorbeta_reim(
+     &        betare(idir,iresp), ! in/out: alpha or beta real part
+     &        betaim(idir,iresp), ! in/out: alpha or beta im   part
+     &        g_vecE1(ispin,1), ! in : 1st-order pert vec RE
+     &        g_vecE1_im(ispin,1), ! in : 1st-order pert vec IM
+     &        g_dipmag,         ! in : dipole electric or magnetic
+     &        g_vectors(ispin), ! in : MO vectors
+     &        idir,             ! in : = 1,2,3=x,y,z directions
+     &        iresp,            ! in : = 1,2,3
+     &        coeffre,-coeffim,1, ! in : (coeffre,coeffim,caseAO)
+     &        nbf,              ! in : nr. basis functions
+     &        nocc,             ! in : nr. occupied alpha or beta
+     &        lifetime,         ! in : logical var for damping
+     &        debug,            ! in : logical var for debugging
+     &        g_temp)           ! in : scratch GA array
+            
+            
+          enddo                 ! iresp (responding field components)
+        enddo                   ! idir    (perturbing E-field components)
+        
 c       --------------------------------------
 c       (B) calculate alfa from C(E) h(E) C(0)
 c       --------------------------------------
@@ -362,124 +330,92 @@ c       if we use
 c       length or velocity gauge so we add twice the icomp=2 component
 c       back into g_vecE1(1)
 c       ---------------------------------------------------------
+        
         if (ncomp.gt.1) then
           if (lantisym) then
             continue
           else
             call ga_add(1d0, g_vecE1(ispin,1),
-     &                  2d0, g_vecE1(ispin,2),
-     &                       g_vecE1(ispin,1))
+     &        2d0, g_vecE1(ispin,2),
+     &        g_vecE1(ispin,1))
             if (lifetime) then
               call ga_add(1d0, g_vecE1_im(ispin,1), 
-     &                    2d0, g_vecE1_im(ispin,2),
-     &                         g_vecE1_im(ispin,1))
+     &          2d0, g_vecE1_im(ispin,2),
+     &          g_vecE1_im(ispin,1))
+              
             end if              ! lifetime
           end if                ! lantisym
         endif                   ! ncomp.gt.1
-
-       ndir=3 ! nr. directions (x,y,z)
-       do idir = 1,ndir        ! direction of the perturbing field
-        do iresp = 1,3
-         call get_alfaorbeta_reim(
-     &            alfare(idir,iresp), ! out: alpha or beta real part
-     &            alfaim(idir,iresp), ! out: alpha or beta im   part
-     &            g_vecE1(ispin,1),   ! in : 1st-order pert vec RE
-     &            g_vecE1_im(ispin,1),! in : 1st-order pert vec IM
-     &            g_dipel,            ! in : dipole electric or magnetic
-     &            g_vectors(ispin),   ! in : MO vectors
-     &            idir,               ! in : = 1,2,3=x,y,z directions
-     &            iresp,              ! in : = 1,2,3
-     &            coeffre,-coeffim,1,  ! in : (coeffre,coeffim,caseAO) 
-     &            nbf,                ! in : nr. basis functions
-     &            nocc,               ! in : nr. occupied alpha or beta
-     &            lifetime,           ! in : logical var for damping
-     &            debug,              ! in : logical var for debugging
-     &            g_temp)             ! in : scratch GA array
-
-         if (debug) then 
-          if (ga_nodeid().eq.0) then
-           write(*,2) ispin,idir,iresp,
-     &                alfare(idir,iresp),alfaim(idir,iresp)
- 2         format('alfa(',i3,',',i3,',',i3,
-     &            ')=(',f15.8,',',f15.8,')')
-          endif
-         endif ! end-if-debug
-
-       enddo  ! end-loop-iresp (responding field components)
-
-c      if required, calculate dipole-quadrupole polarizability:
-       
-       if (lquad) then
-        do iresp = 1,6
-         call get_alfaorbeta_reim(
-     &            dipquadre(idir,iresp), ! out: quad real part
-     &            dipquadim(idir,iresp), ! out: quad im   part
-     &            g_vecE1(ispin,1),   ! in : 1st-order pert vec RE
-     &            g_vecE1_im(ispin,1),! in : 1st-order pert vec IM
-     &            g_quadel,           ! in : dipole-quadrupole
-     &            g_vectors(ispin),   ! in : MO vectors
-     &            idir,               ! in : = 1,2,3=x,y,z directions
-     &            iresp,              ! in : = 1,2,3
-     &            coeffre,-coeffim,1,  ! in : (coeffre,coeffim,caseAO) 
-     &            nbf,                ! in : nr. basis functions
-     &            nocc,               ! in : nr. occupied alpha or beta
-     &            lifetime,           ! in : logical var for damping
-     &            debug,              ! in : logical var for debugging
-     &            g_temp)             ! in : scratch GA array       
-       end do ! iresp
-       end if ! lquad
-
-       enddo   ! end-loop-idir    (perturbing E-field components)
-
-
-       
-c ============ visualize (alfa,beta) ========== START
-         if (debug) then
-          if (ga_nodeid().eq.0) then
-           do idir=1,ndir
-            do iresp=1,3
-             write(*,10) ispin,idir,iresp,
-     &        alfare(idir,iresp),alfaim(idir,iresp),
-     &        betare(idir,iresp),betaim(idir,iresp)
- 10          format('(ispin,idir,iresp)=(',i3,',',i3',',i3,')',
-     &              ' alfa(re,im)=(',f15.8,',',f15.8,')',
-     &              ' beta(re,im)=(',f15.8,',',f15.8,')')
-            enddo ! end-loop-iresp
-           enddo ! end-loop-idir
-          endif
-         endif ! end-if-debug
-c ============ visualize (alfa,beta) ========== END
-          if (.not.ga_destroy(g_temp))
-     &       call errquit
-     &       ('aor_beta: ga_destroy failed g_temp',
-     &       0,GA_ERR)
-      enddo ! end-loop-ispin
-c       -----------------
-c       deallocate memory
-c       -----------------
-
-        if (.not.ga_destroy(g_work))
-     &     call 
-     &     errquit('aoresponse: ga_destroy failed g_work',
-     &     0,GA_ERR)
-c     it seems that if we use GIAOs everything is off by a factor of
-c     two, so we need to scale betare, betaim. If we have static
-c     response then there is a factor of two missing everywhere
-c     because we don't add C(+) and C(-) for the electric field.
-
-      if (lgiao) then
-        scaling = half
-        do idir = 1,ndir ! direction of the perturbing field (x,y,z)
+        
+        do idir = 1,ndir        ! direction of the perturbing field
+          
           do iresp = 1,3
-            betare(idir, iresp) = betare(idir, iresp) * scaling
-            betaim(idir, iresp) = betaim(idir, iresp) * scaling
-          end do
-        end do
-      end if                    ! lgiao
+            
+            call get_alfaorbeta_reim(
+     &        alfare(idir,iresp), ! out: alpha or beta real part
+     &        alfaim(idir,iresp), ! out: alpha or beta im   part
+     &        g_vecE1(ispin,1), ! in : 1st-order pert vec RE
+     &        g_vecE1_im(ispin,1), ! in : 1st-order pert vec IM
+     &        g_dipel,          ! in : dipole electric or magnetic
+     &        g_vectors(ispin), ! in : MO vectors
+     &        idir,             ! in : = 1,2,3=x,y,z directions
+     &        iresp,            ! in : = 1,2,3
+     &        coeffre,-coeffim,1, ! in : (coeffre,coeffim,caseAO) 
+     &        nbf,              ! in : nr. basis functions
+     &        nocc,             ! in : nr. occupied alpha or beta
+     &        lifetime,         ! in : logical var for damping
+     &        debug,            ! in : logical var for debugging
+     &        g_temp)           ! in : scratch GA array
+            
+            
+          enddo                 ! iresp (responding field components)
+          
+c         if required, calculate dipole-quadrupole polarizability:
+          
+          if (lquad) then
+            
+            do iresp = 1,6
+              call get_alfaorbeta_reim(
+     &          dipquadre(idir,iresp), ! out: quad real part
+     &          dipquadim(idir,iresp), ! out: quad im   part
+     &          g_vecE1(ispin,1), ! in : 1st-order pert vec RE
+     &          g_vecE1_im(ispin,1), ! in : 1st-order pert vec IM
+     &          g_quadel,       ! in : dipole-quadrupole
+     &          g_vectors(ispin), ! in : MO vectors
+     &          idir,           ! in : = 1,2,3=x,y,z directions
+     &          iresp,          ! in : = 1,2,3
+     &          coeffre,-coeffim,1, ! in : (coeffre,coeffim,caseAO) 
+     &          nbf,            ! in : nr. basis functions
+     &          nocc,           ! in : nr. occupied alpha or beta
+     &          lifetime,       ! in : logical var for damping
+     &          debug,          ! in : logical var for debugging
+     &          g_temp)         ! in : scratch GA array       
+            end do              ! iresp
+          end if                ! lquad
+          
+        enddo                   ! idir    (perturbing E-field components)
+               
+        if (.not.ga_destroy(g_temp))
+     &    call errquit
+     &    ('aor_beta: ga_destroy failed g_temp',
+     &    0,GA_ERR)
+        
+      enddo                     ! ispin
 
+c     -------------------------
+c     done with loop over spins
+c     -------------------------      
+
+c     deallocate work array
+      
+      if (.not.ga_destroy(g_work)) call errquit(
+     &  'aoresponse: ga_destroy failed g_work',1,GA_ERR)
+
+c     with static response we need to multiply by 2:      
+      
       if (lstatic) then
         scaling = two
-        do idir = 1,ndir ! direction of the perturbing field (x,y,z)
+        do idir = 1,ndir
           do iresp = 1,3
             alfare(idir, iresp) = alfare(idir, iresp) * scaling
             alfaim(idir, iresp) = alfaim(idir, iresp) * scaling
@@ -487,13 +423,13 @@ c     because we don't add C(+) and C(-) for the electric field.
             betaim(idir, iresp) = betaim(idir, iresp) * scaling
           end do
         end do
-c        ... getting tired of that ol' f77 syntax ... 
+c       ... getting tired of that ol' f77 syntax ... 
         if (lquad) then
           dipquadre(:,:) = dipquadre(:,:) * scaling
           dipquadim(:,:) = dipquadim(:,:) * scaling
         end if                
       end if                    ! lstatic
-
+      
 c     for magnetic perturbation, alfa is the G' tensor, and
 c     beta is the paramagnetic mag-mag response. 
 c     for electric field perturbations (default), alfa is the
@@ -501,21 +437,21 @@ c     polarizability and beta is G'. In the output, for nonzero
 c     omega we want the beta tensor, not G'. 
 c     also consider the case of velocity formalisms where 
 c     additional divisions by omega occur. 
-
-      do idir = 1,ndir ! direction of the perturbing field (x,y,z)
+      
+      do idir = 1,ndir 
         do iresp = 1,3
           if (lmagpert .and. .not.lstatic) then
 c           case I: magnetic perturbation. alpha = G', beta = Chi-p
-              alfare(idir,iresp) = alfare(idir,iresp) / omega
-              alfaim(idir,iresp) = alfaim(idir,iresp) / omega
+            alfare(idir,iresp) = alfare(idir,iresp) / omega
+            alfaim(idir,iresp) = alfaim(idir,iresp) / omega
             if (lvelocity) then
               alfare(idir,iresp) = alfare(idir,iresp) / omega
               alfaim(idir,iresp) = alfaim(idir,iresp) / omega
             endif
           else if (.not.lmagpert .and. .not.lstatic) then
 c           case II: alpha = polarizability, beta = G'
-              betare(idir,iresp) = betare(idir,iresp) / omega
-              betaim(idir,iresp) = betaim(idir,iresp) / omega
+            betare(idir,iresp) = betare(idir,iresp) / omega
+            betaim(idir,iresp) = betaim(idir,iresp) / omega
             if (lvelocity) then
               betare(idir,iresp) = betare(idir,iresp) / omega
               alfare(idir,iresp) = alfare(idir,iresp) / omega**2
@@ -531,22 +467,22 @@ c     if requested by input, construct traceless dipole-quadrupole
 c     polarizability tensor and contruct Buckingham-Dunn OR tensor
 c     At present we do only the real part !
 c     ------------------------------------------------------------
-
+      
       if (lquad) then
 
-        if (debug) then
-          write (luout,*) 'dip-quad polarizability:'
+        if (me) then
+          write (luout,*) 'dip-quad polarizability Re:'
           call output (dipquadre,1,3,1,6,3,6,1)
         end if
-
+        
         dqpol(:,:,:) = zero
-
+        
         do i = 1,3
           do j = 1,3
             do k = 1,j
               dqpol(i,j,k) = three * dipquadre(i,qindex(j,k))
               if (k.ne.j)
-     &           dqpol(i,k,j) = three * dipquadre(i,qindex(k,j))
+     &          dqpol(i,k,j) = three * dipquadre(i,qindex(k,j))
             end do
           end do
         end do
@@ -561,11 +497,11 @@ c         subtract trace from diagonal
           do j = 1,3
             dqpol(i,j,j) =  dqpol(i,j,j) - sum
           end do
-        end do
+        end do                  ! i
         
         dqpol(:,:,:) = dqpol(:,:,:) * half
 
-        if (debug) then
+        if (me) then
           write (luout,*) 'traceless dip-quad polarizability:'
           do i = 1,3
             call output (dqpol(i,1:3,1:3),1,3,1,3,3,3,1)
@@ -588,6 +524,7 @@ c       before the BD tensor gets assembled:
 c       assemble BD tensor in tmpmat.
 
 c       step 1: symmetrize beta tensor
+        
         tmpmat(:,:) = half * betare(:,:)
 
         do i = 1,3
@@ -613,7 +550,6 @@ c       step 2: add quadrupole contributions
         betare(:,:) = tmpmat(:,:)
         
       end if                    ! lquad      
-
       
 c     ----------------
 c     all done. return
