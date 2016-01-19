@@ -6424,7 +6424,7 @@ c      integer IMAP2(nnod)
 *
 *. Initializations
 *
-      ntest = 1
+      ntest = 10
       if (ntest.ge.10) then
        do i=1, NBLK
         imap2(i) = 0

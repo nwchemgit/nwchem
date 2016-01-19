@@ -7,7 +7,7 @@ title "RXdia"
 start c2h4
 
 charge 0
-memory total 4000 stack 200 heap 200 global 3600 mb
+memory stack 1000 heap 50 global 1000 mb
 geometry autosym units angstrom
   O     0.000000000   -1.085361600    0.221604000
   O     0.000000000    0.000000000   -0.443208100
@@ -59,7 +59,8 @@ end
 #scf; print low; end
 
 task scf ignore
-set lucia:nactel 4 
+##set lucia:nactel 18
+set lucia:nactel 4
 set lucia:ms2 0
 set lucia:sym 1    
 set lucia:nroot 1
@@ -72,20 +73,21 @@ set lucia:idensi 0
 set lucia:ciconv 1.0d-8
 set lucia:inideg 1
 set lucia:inactive 6 0 0 4
-set lucia:ngas 2
-set lucia:gassh 0 2 1 0  0 2 1 0
+##set lucia:inactive 2 0 0 1
+set lucia:ngas 1
+set lucia:gassh 1 3 2 2
+##set lucia:gassh 7 3 2 6
 #set lucia:gassh 0 2 1 0  5 2 1 5
 set lucia:second "REST"
 set lucia:machine "CRAY"
-set lucia:ncispc 2
+set lucia:ncispc 1
 set lucia:nirrep 4
 #set lucia:gsoccx 12 12 12 12 10 12 12 12
-set lucia:gsoccx 4 4 4 4 2 4 4 4
-#set lucia:gsoccx 0 12 12 12
+#set lucia:gsoccx 4 4 4 4 2 4 4 4
 set lucia:nseqci 1
 #set lucia:nseqci 1 1
 set lucia:seq_1_1 "MCSCF,20,1"
-set lucia:seq_2_1 "AKBKCI"
+#set lucia:seq_2_1 "AKBKCI"
 set lucia:mxciv 20
 set lucia:maxitm 20
 set lucia:resdim 20

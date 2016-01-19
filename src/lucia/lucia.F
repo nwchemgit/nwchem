@@ -2407,7 +2407,6 @@ CNW       CALL SWAPVE(WORK(KINT1),WORK(KINT1O),NINT1)
        END IF ! determinant diagonal should be calculated
 *
        IF(NOCSF.EQ.0.AND.IH0_CSF.EQ.1) THEN
-         print*,'do average'
 *. Average of determinant diagonal in each conf
 C?       WRITE(6,*) ' IH0_CSF = ', IH0_CSF
          CALL CSDIAG(KPVEC2,KPDIA_SD,
@@ -2428,7 +2427,6 @@ C    &         LBLOCK,LUDIA_DET,LUDIA_CSF)
        END IF
 *
        IF(NOCSF.EQ.0.AND.IH0_CSF.GE.2) THEN
-         print*,'do exact'
 *. Use exact diagonal or blocks
 C?       WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
 C?       WRITE(6,*) ' KPDIA_SD = ', KPDIA_SD
@@ -3032,7 +3030,6 @@ C           END IF
 C?     write(6,*) ' IRFROOT and NROOT ',IRFROOT, NROOT
        IF(IH0ROOT.NE.NROOT) THEN
 *. Position vectors 
-         print*,'regenerate dens form ref root'
          CALL REWINO(LUC)
          DO JROOT = 1, IH0ROOT
            IF(ICISTR.EQ.1) THEN
@@ -10056,7 +10053,7 @@ c Do four-index
 c
       CALL LUCIAQENTER('MO2')
       call moints_build_2x(luciabasis,.true.,.false.,1,1,norbt,1,
-     $     norbt,g_moreo,g_coul,.true.,g_exch,.false.,nwblen,.true.)
+     $     norbt,g_moreo,g_coul,.true.,g_coul,.false.,nwblen,.true.)
       CALL LUCIAQEXIT('MO2')
   
 c.. To write in LUCIA format
@@ -32185,9 +32182,6 @@ C
 C     Each nnode has it's bottom list, now global sum to get full list
 C
       if (ga_nnodes().gt.1) then
-      print*,'KEX',KEXSTV,ga_nnodes()
-      print*,'STVAL',(STVAL(i),i=1,KEXSTV*ga_nnodes())
-      print*,'ISTART',(ISTART(i),i=1,KEXSTV*ga_nnodes())
       call ga_dgop(1,STVAL(1),KEXSTV*ga_nnodes(),'+')
       call ga_igop(1,ISTART(1),KEXSTV*ga_nnodes(),'+')
 C
