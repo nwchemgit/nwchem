@@ -56,7 +56,7 @@ def lookup_dois(doi_table):
         str_url = 'http://dx.doi.org/'+doi
         #sys.stderr.write("DOI:%s:"%str_url)
         c.setopt(c.URL, str_url)
-        c.setopt(c.HTTPHEADER, ['Accept: text/bibliography; style=bibtex'])
+        c.setopt(c.HTTPHEADER, ['Accept: text/bibliography; style=bibtex; locale=en-US'])
         c.setopt(c.WRITEDATA, buffer)
         # For older PycURL versions:
         #c.setopt(c.WRITEFUNCTION, buffer.write)
@@ -73,8 +73,9 @@ def lookup_dois(doi_table):
             # Body is a string on Python 2 and a byte string on Python 3.
             # If we know the encoding, we can always decode the body and
             # end up with a Unicode string.
-            #print(body.decode('iso-8859-1'))
-            result.append(body)
+            #result.append(body.decode('iso-8859-1'))
+            result.append((body.decode('utf-8')).replace(u"\u2013","--"))
+            #result.append(body)
         buffer.close()
     c.close()
     return result
@@ -82,7 +83,7 @@ def lookup_dois(doi_table):
 def print_bibliography(bibliography):
     """Print the list of bibliography entries."""
     for reference in bibliography:
-        print reference+"\n"
+        print( reference )
 
 def main ():
     """Run the whole thing (limited capability at the moment)"""
