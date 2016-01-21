@@ -74,8 +74,12 @@ def lookup_dois(doi_table):
             # If we know the encoding, we can always decode the body and
             # end up with a Unicode string.
             #result.append(body.decode('iso-8859-1'))
-            result.append((body.decode('utf-8')).replace(u"\u2013","--"))
-            #result.append(body)
+            content = body.decode('utf-8')
+            content = content.replace(u"\u2013","--")
+            content = content.replace("&","\\&")
+            content = content.replace(u"\u03b1","{$\\alpha$}")
+            content = content.replace(u"\u202f","")
+            result.append(content)
         buffer.close()
     c.close()
     return result
