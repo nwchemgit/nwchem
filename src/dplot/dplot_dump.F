@@ -90,7 +90,7 @@ c
      .              No_Of_Spacings(3))
 99498          format(6E13.5)
             enddo
-            else
+         else
             Do i = 1, nGrid
                Write(Out_Unit,'(f15.10)')values(i)
             End Do
@@ -107,6 +107,7 @@ c
             End Do
             AppCh = Sum*Volume
             Write(LuOut,*)
+            Write(LuOut,'(a,e30.5)')'  Tol_rho              = ',tol_rho
             Write(LuOut,'(a,f30.5)')'  Sum of elements      = ',sum
             Write(LuOut,'(a,f30.5)')'  Integration volume   = ',volume
             Write(LuOut,'(a,f30.5)')'  Integrated Charge    = ',AppCh

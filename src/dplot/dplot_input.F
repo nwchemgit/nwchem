@@ -63,6 +63,7 @@ c
       iroot     = 1
       ltransden = .true.
       ldiffden = .false.
+      tol_rho = 1d-40
 c
 c     try to get a scf movecs
 c
@@ -263,10 +264,10 @@ c
       goto 10
 c
  1998 continue
-      tol_rho = 1d-15
       If (.not. inp_f(tol_rho))
      &  Call ErrQuit('DPlot_Input: failed to read tol_rho',0,
      &     INPUT_ERR)
+      tol_rho=max(1d-99,tol_rho)
       goto 10
 c
  1999 continue
