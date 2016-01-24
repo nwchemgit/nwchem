@@ -84,7 +84,10 @@ c          write(luout,*) S(1:lens)
         end do
 
       end do
-      screen = erfc(overlap)
+c
+      do jatom = 1, nDIM
+          screen(jatom) = erfc(overlap(jatom))
+      end do
 c      write(luout,*) "Total Overlap:"
 c      write(luout,*) overlap
 c      write(luout,*) "Screen factors:"

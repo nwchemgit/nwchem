@@ -27,6 +27,7 @@
 # If you add -DJEFF_OUTPUT to LIB_DEFINES, the dipole polarizability will be printed in the same format as the TCE.
 # This is very useful (1) if you wrote scripts to parse that particular formatting and (2) if you want the anisotrophy.
 #
+   LIB_DEFINES = -DDBLEPREC_RYS
 
    LIB_INCLUDES = -I../nwdft/include -I../ddscf -I../util -I../nwdft/grid -I../NWints/hondo
 
