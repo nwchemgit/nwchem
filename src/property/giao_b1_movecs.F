@@ -126,8 +126,10 @@ c     Integral initialization
       call hnd_giao_init(basis,1)
       call scf_get_fock_param(rtdb,tol2e)
       status = rtdb_parallel(.true.)
+      
 c     Get Unperturbed MO vectors and eigenvalues
 c     First allocate some memory for occupation numbers and eigenvalues
+
       if (.not. bas_numbf(basis,nbf)) call
      &    errquit('giao_b1: could not get nbf',0, BASIS_ERR)
       if (.not. ma_push_get(mt_dbl,2*nbf,'occ num',l_occ,k_occ)) call
@@ -136,8 +138,8 @@ c     First allocate some memory for occupation numbers and eigenvalues
      &    errquit('giao_b1: ma_push_get failed k_eval',0,MA_ERR)
 
       call hnd_prp_vec_read(rtdb,geom,basis,     ! in : handles
-     &                      nbf,                 ! out: nr basis functions
-     &                      nclosed,nopen,nvirt, ! out: occupation numbers
+     &                      nbf,                 ! out: nr basis fcts.
+     &                      nclosed,nopen,nvirt, ! out: occ/unocc
      &                      scftyp,              ! out: type calc
      &                      vectors,             ! out: MO vectors
      &                      dbl_mb(k_occ),       ! out: occupations
@@ -244,28 +246,6 @@ c      endif
      &            basis,         !in : basis handle
      &            debug)         !in : logical var for debugging
 
-      if (debug) then
-       if (ga_nodeid().eq.0)
-     &  write(*,*) 'FA-AFT update_rhs_eS10'
-       if (ga_nodeid().eq.0)
-     &  write(*,*) '---- g_rhs-AFT-eS10-------- START'
-        call ga_print(g_rhs)
-       if (ga_nodeid().eq.0)
-     &  write(*,*) '---- g_rhs-AFT-eS10--------  END'
-       if (ga_nodeid().eq.0)
-     &  write(*,*) '---- g_u-AFT-eS10-------- START'
-       do ispin=1,npol
-         call ga_print(g_u(ispin))
-       enddo ! end-loop-ispin
-       if (ga_nodeid().eq.0)
-     &  write(*,*) '---- g_u-AFT-eS10--------  END'
-       if (ga_nodeid().eq.0)
-     &  write(*,*) '---- g_sket1-AFT-eS10-------- START'
-        call ga_print(g_sket1)
-       if (ga_nodeid().eq.0)
-     &  write(*,*) '---- g_sket1-AFT-eS10--------  END'
-      endif ! end-if-debug
-
 c
 c     We also need the occupied-occupied contribution of g_u
 c     contributing to the first order density matrix. As this block does
@@ -281,22 +261,6 @@ c     it from the RHS. We will reuse g_s10 as scratch space.
      &                    nmo,    ! in : nr. MOs
      &                    debug)  ! in : =.true. for debugging
 
-      if (debug) then
-       if (ga_nodeid().eq.0)
-     &  write(*,*) '------- g_d1-aft-get_d1 ---- START'
-        call ga_print(g_d1)
-       if (ga_nodeid().eq.0)
-     &  write(*,*) '------- g_d1-aft-get_d1 ---- END'
-      endif ! end-if-debug
-c      if (ga_nodeid().eq.0)
-c     & write(*,*) 'FA-BEF update_rhs_shfock'
-c      if (ga_nodeid().eq.0) then
-c        write(*,71) nocc(1)   ,nocc(2),
-c     &              nvirt(1)  ,nvirt(2),npol,nbf,nmo
-c 71    format('BEF-update_rhs_shfock =(',i5,',',i5,') ',
-c     &        'nvirt=(',i5,',',i5,') ',
-c     &        '(npol,nbf,nmo)=(',i3,',',i3,',',i3,')')
-c      endif
 
       call update_rhs_shfock(
      &                    g_rhs,  ! in/out: RHS used for cphf2/3
@@ -315,23 +279,9 @@ c      endif
      &                    nmo,    ! in    : nr. MOs
      &                    debug)  ! in    : =.true. for debugging
 
-      if (debug) then
-       if (ga_nodeid().eq.0)
-     &  write(*,*) 'FA-AFT update_rhs_shfock'
-       if (ga_nodeid().eq.0)
-     &  write(*,*) '---- g_rhs-AFT-shfock-------- START'
-        call ga_print(g_rhs)
-       if (ga_nodeid().eq.0)
-     &  write(*,*) '---- g_rhs-AFT-shfock--------  END'
-      endif ! end-if-debug
-
-      if (.not.ga_destroy(g_d1)) call 
-     &    errquit('giao_b1: ga_destroy failed g_d1',0,GA_ERR)
-
-      if (debug) write (luout,*) 'S10 Fockop done'
-c      if (ga_nodeid().eq.0)
-c     & write(*,*) 'FA-BEF update_rhs_threeAOints'
-
+c     add the one-electron integrals for the GIAO
+c     Fock operator derivative to the RHS:
+      
       call update_rhs_threeAOints(
      &                    g_rhs,  ! in/out: RHS used for cphf2/3
      &                    vectors,! in    : MO vectors
@@ -344,15 +294,8 @@ c     & write(*,*) 'FA-BEF update_rhs_threeAOints'
      &                    nmo,    ! in    : nr. MOs
      &                    debug)  ! in    : logical for debugging
 
-      if (debug) then
-       if (ga_nodeid().eq.0)
-     &  write(*,*) 'FA-AFT update_rhs_threeAOints'
-       if (ga_nodeid().eq.0)
-     &  write(*,*) '---- g_rhs-AFT-threeAOints-------- START'
-        call ga_print(g_rhs)
-       if (ga_nodeid().eq.0)
-     &  write(*,*) '---- g_rhs-AFT-threeAOints--------  END'
-      endif ! end-if-debug
+c     add the two-electron part of the GIAO Fock matrix
+c     derivative to the RHS:
 
       call update_rhs_fock2e(
      &                    g_rhs,  ! in/out: 

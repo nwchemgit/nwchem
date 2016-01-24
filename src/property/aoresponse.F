@@ -3,7 +3,7 @@
      &   response_order, frequencies,
      &   g_smat0, g_smat1, g_sket1, g_dipel, g_dipmag, g_vectors, epst,
      &   froct, g_dens, nbf, nbfx, nmo, nocct, nvirt, deps,
-     &   lgiao, lvelocity, lmagpert, lifetime, gamwidth,
+     &   lgprime, lgiao, lvelocity, lmagpert, lifetime, gamwidth,
      &   alfare, alfaim, betare, betaim)
 
 c     $Id$
@@ -59,7 +59,7 @@ c     ---------------------
       double precision alfare(3,3), alfaim(3,3)
       double precision betare(3,3), betaim(3,3)
       double precision gamwidth
-      logical lgiao, lvelocity, lmagpert, lifetime
+      logical lgprime,lgiao, lvelocity, lmagpert, lifetime
 
 
 c     ----------------
@@ -106,8 +106,11 @@ c     other local variables:
      &   lzora, lantisym, lstatic, haveocc, limag, lzero
       logical oprint
       double precision omega, sum, scaling
-      double precision tenm8, half
-      parameter (tenm8=1d-8, half=0.5d0)
+      
+      double precision tenm8, one, two, three, zero, half, third      
+      parameter (tenm8=1d-8, one=1d0, two=2d0, three=3.0d0,
+     &  zero=0d0, half=one/two,
+     &  third=one/three)      
 
 c     nwchem file access character strings:
 
@@ -519,6 +522,7 @@ c       add amat vir-occ block to CPKF rhs
         bhi(1) = nocc*nvir
         blo(2) = 1
         bhi(2) = 3
+
         do ipm = 1,ncomp
           call nga_add_patch(1d0,g_amat(ipm),alo,ahi,
      &       1d0, g_rhs(ipm),blo,bhi, g_rhs(ipm), blo, bhi)
@@ -546,6 +550,9 @@ c   DIM/QM JEM
           end if
         enddo
         if (lzero) call ga_scale (g_rhs_zero, -4.0d0)
+
+c       ... jochen: TEST
+c        call ga_scale(g_rhs(1),-1.0d0)
  
 c       
 c       Write ga_rhs to disk (+/- and Re/Im if applicable)
@@ -1207,25 +1214,31 @@ c       also consider the case of velocity formalism
           do iresp = 1,3
             if (lmagpert .and. .not.lstatic) then
 c             case I: magnetic perturbation. alpha = G', beta = Chi-p
-              alfare(idir,iresp) = alfare(idir,iresp) / omega
-              alfaim(idir,iresp) = alfaim(idir,iresp) / omega
+              if (.not.lgprime) then
+                alfare(idir,iresp) = alfare(idir,iresp) / omega
+                alfaim(idir,iresp) = alfaim(idir,iresp) / omega
+              end if
               if (lvelocity) then
                 alfare(idir,iresp) = alfare(idir,iresp) / omega
                 alfaim(idir,iresp) = alfaim(idir,iresp) / omega
               endif
+              
             else if (.not.lmagpert .and. .not.lstatic) then
+              
 c             case II: alpha = polarizability, beta = G'
-              betare(idir,iresp) = betare(idir,iresp) / omega
-              betaim(idir,iresp) = betaim(idir,iresp) / omega
+              if (.not.lgprime .or. lvelocity) then
+                scaling = one/omega
+                if (lvelocity.and..not.lgprime) scaling = one/(omega**2)
+                betare(idir,iresp) = betare(idir,iresp) * scaling
+                betaim(idir,iresp) = betaim(idir,iresp) * scaling
+              endif
               if (lvelocity) then
-                betare(idir,iresp) = betare(idir,iresp) / omega
                 alfare(idir,iresp) = alfare(idir,iresp) / omega**2
-                betaim(idir,iresp) = betaim(idir,iresp) / omega
                 alfaim(idir,iresp) = alfaim(idir,iresp) / omega**2
               endif
-            endif
-          enddo
-        enddo
+            endif ! lmagpert or not
+          enddo                 ! iresp
+        enddo                   ! idir
         
 c       print warning in case omega=0 that we haven't divided by omega
 c       where it would have been necessary:
@@ -1241,7 +1254,7 @@ c       where it would have been necessary:
           if (oprint) write (luout,*)
      +       'NOTE: because of omega=0 the electric-magnetic response'
           if (oprint) write (luout,*)
-     +       '      is printed as G`, NOT the beta tensor'
+     +       '      is incorrect'
         endif
         
       enddo                     ! ispin = 1,2 from way above

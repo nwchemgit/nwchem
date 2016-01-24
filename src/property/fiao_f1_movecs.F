@@ -1,9 +1,10 @@
-      subroutine fiao_f1_movecs(rtdb, basis, geom,   ! IN
-     &                          omega, lstatic,      ! IN
-     &                          ncomp,  lvelocity,   ! IN
-     &                          lifetime, gamwidth,  ! IN
-     &                          g_vecF1, g_vecF1_im, ! OUT
-     &                          index4cphf)          ! IN
+      subroutine fiao_f1_movecs(
+     &  rtdb, basis, geom,      ! IN
+     &  omega, lstatic,         ! IN
+     &  ncomp,  lvelocity,      ! IN
+     &  lifetime, gamwidth,     ! IN
+     &  g_vecF1, g_vecF1_im,    ! OUT
+     &  index4cphf)             ! IN
 c $Id$ 
 c     =================================================================
 c     purpose: Calculate MO vectors perturbed by a static or dynamic
@@ -35,9 +36,11 @@ c --> Experimental (not published yet)
 #include "prop.fh"
 #include "bgj.fh"
 #include "dimqm.fh"
+      
 c     ---------------------
 c     subroutine arguments:
 c     ---------------------
+      
       integer rtdb            ! [input] run-time database handle
       integer basis           ! [input] basis handle
       integer geom            ! [input] geometry handle
@@ -46,19 +49,27 @@ c     ---------------------
       integer ncomp 
       double precision omega, gamwidth
       logical lstatic, lvelocity, lifetime
+      
 c     local variables:
+      
       integer nclosed(2), nopen(2), nvirt(2), ndens, nbf, nmo
       integer sh_atom, ixy, ix, iy, iatom, iocc, ifld, ioff
+      
       integer alo(3),ahi(3), 
      &        alo1(3),ahi1(3),shift,
      &        blo(3),bhi(3), clo(3), chi(3)
       integer dlo(3),dhi(3)
+      
       integer l_occ, k_occ, l_eval, k_eval
+      
       integer g_u(2,2),g_u_im(2,2) ! g_u(ispin,ncomp)
       integer g_rhs(2),g_rhs_im(2) ! needed for 'lifetime'
+      
       integer vectors(2), geomnew, i, j, ij, g_xc(3)
       integer vectors1(2)
+      
       double precision atn, tol2e, val
+      
       double precision a(6)
       character*255 aorespfilename
       character*3 scftyp
@@ -70,7 +81,7 @@ c     local variables:
       parameter (nat=1)
       logical skip_cphf_ev_fiaof1 
       integer index4cphf
-c ------- Added for unrestricted calc ----- START
+
       integer ndir,    ! nr directions (x,y,z)
      &        ntot,    ! sum_{i=1,npol} nocc(i)*nvirt(i)
      &        ispin,
@@ -78,13 +89,15 @@ c ------- Added for unrestricted calc ----- START
      &        npol     ! nr of polarizations =1 (  restricted) 
                        !                     =2 (unrestricted) calc
       integer m1,m2
-c ------- Added for unrestricted calc ----- END
+c
       logical     oskel, status, debug, dbgmat, limag
       data tol2e   /1.0d-10/
       integer ipm,read_grhs_fiaof1,nskip
+      
 c     nwchem file access character strings:
       character*256 cphf_rhs(2), cphf_sol(2), cphf_rhs_im(2),
-     &   cphf_sol_im(2), cstemp
+     &  cphf_sol_im(2), cstemp
+      
 c     external functions:
       logical  cphf2, cphf3, file_write_ga, file_read_ga, cphf
       external cphf2, cphf3, file_write_ga, file_read_ga, cphf

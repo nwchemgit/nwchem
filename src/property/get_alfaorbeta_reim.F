@@ -102,8 +102,6 @@ c 17       format('---- g_vectors(',i3,',',i3,')-------- END')
 c         endif
       endif ! end-if-debug
  
-      debug=.false.
-
        call get_C1MCtrace(
      &               sumre,       ! out: trace(transp(vecE1  )*g_temp)
      &               sumim,       ! out: trace(transp(vecE1im)*g_temp)

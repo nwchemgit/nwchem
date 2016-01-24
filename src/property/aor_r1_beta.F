@@ -17,7 +17,6 @@
      &      lanalyze,           ! in : logical vars
      &      lvelocity,          ! in : logical vars
      &      lifetime,           ! in : logical vars
-     &      lmagpert,           ! in : logical vars
      &      g_vecE1,g_vecE1_im, ! in : 
      &      alfare,alfaim,      ! out: electric-electric response matrices
      &      betare,betaim)      ! out: electric-magnetic response matrices      
@@ -82,7 +81,7 @@ c     ---------------------
       double precision froct(nbf,2)
       double precision gamwidth, omega
       logical lgiao,lquad,lanalyze,
-     &        lvelocity, lifetime, lmagpert,
+     &        lvelocity, lifetime,
      &        lstatic
 c     output:
       double precision alfare(3,3), alfaim(3,3)
@@ -104,15 +103,17 @@ c     traceless dipole-quadrupole tensor, full storage
       double precision dqpol(3,3,3)
       integer LCTensor(3,3,3)
       integer qindex(3,3)
-      double precision tmpmat(3,3)
+      double precision tmpre(3,3), tmpim(3,3)
       character*(256) cstemp
       character*(1) direction(3)
       data direction/'x','y','z'/
       integer ispin,nspin,ndir
       integer ipm, nocc, nvir, nocv, imo, jmo, nmo1, iresp, idir,
-     &        i,j,k,l
-      logical debug, dbgmat, 
-     &        lzora, lantisym, lroa, me
+     &  i,j,k,l
+      
+      logical debug, dbgmat, dbgsub,
+     &  lzora, lantisym, lroa, me
+      
       double precision sum, scaling,coeffre,coeffim
       double precision tenm8, one, two, three, zero, half, third
       parameter (tenm8=1d-8, one=1d0, two=2d0, three=3d0,
@@ -121,6 +122,7 @@ c     traceless dipole-quadrupole tensor, full storage
 c     external functions:
       double precision ga_trace_diag
       external ga_trace_diag
+      
 c  ====================================================================
 
       ndir = 3                  ! nr of field directions (x,y,z)
@@ -129,6 +131,7 @@ c  ====================================================================
       
       debug  = .false. .and. me ! .true. during development
       dbgmat = .false. .and. me ! debug large matrices
+      dbgsub = .false.          ! debug subroutines that are called
 
 c     check for ROA keyword
       lroa = .false.
@@ -141,16 +144,9 @@ c     check for ROA keyword
 
       if (debug) write (luout,*) 'hello from aor_r1_beta'
       
-c     the main results are collected in alfare/in, betare/im.
-c     initialize these and other tensors with zeros:
+c     initialize tensors with zeros:
       
       do idir=1,ndir
-        do iresp=1,3
-          alfare(idir,iresp)    = 0.0d0
-          alfaim(idir,iresp)    = 0.0d0
-          betare(idir,iresp)    = 0.0d0
-          betaim(idir,iresp)    = 0.0d0
-        end do
         do iresp = 1,6
           dipquadre(idir,iresp) = 0.0d0
           dipquadim(idir,iresp) = 0.0d0          
@@ -159,12 +155,9 @@ c     initialize these and other tensors with zeros:
       
 c     make sure lvelocity.ne.T., we do not support that in this
 c     subroutine to keep the clutter at a manageable level.
-c     same for lmagpert
+
       if (lvelocity) 
      &  call errquit ('aor_beta: lvelocity set',1,INPUT_ERR)
-      
-      if (lmagpert) 
-     &  call errquit ('aor_beta: lmagpert set',1,INPUT_ERR)
       
 c     -------------------------
 c     define Levi-Civita tensor for quadrupole additions
@@ -288,18 +281,20 @@ c       -------------------------------------------------------
 c       now loop over the components of the response tensor and 
 c       calculate the final results
 c       -------------------------------------------------------
+
+c       -------------------------------------------------------
+c       (A) calculate optical rotation beta from C(E) S(0) C(B)
+c       ------------------------------------------------------
+        
+        tmpre(:,:) = 0.0d0
+        tmpim(:,:) = 0.0d0
         
         do idir = 1,ndir        ! direction of the perturbing field
-
-c         -------------------------------------------------------
-c         (A) calculate optical rotation beta from C(E) S(0) C(B)
-c         ------------------------------------------------------
-                    
           do iresp = 1,3        ! responding operator direction
             
             call get_alfaorbeta_reim(
-     &        betare(idir,iresp), ! out: alpha or beta real part
-     &        betaim(idir,iresp), ! out: alpha or beta im   part
+     &        tmpre(idir,iresp), ! out: alpha or beta real part
+     &        tmpim(idir,iresp), ! out: alpha or beta im   part
      &        g_vecE1(ispin,1), ! in : 1st-order pert vec RE
      &        g_vecE1_im(ispin,1), ! in : 1st-order pert vec IM
      &        g_smat0,          ! in : dipole electric or magnetic
@@ -310,21 +305,38 @@ c         ------------------------------------------------------
      &        nbf,              ! in : nr. basis functions
      &        nocct(ispin),     ! in : nr. occupied alpha or beta
      &        lifetime,         ! in : logical var for damping
-     &        debug,            ! in : logical var for debugging
+     &        dbgsub,            ! in : logical var for debugging
      &        g_temp)           ! in : scratch GA array
-            
-            if (debug) write (luout,*) 'beta: C(E) S(0) C(B) complete'
-              
-            if (lgiao) then
-              
-c             --------------------------------------
-c             if we use GIAOs there is a second term
-c             in beta which is C(E) S(1ket) C(0)
-c             --------------------------------------  
+
+          end do
+        end do
+
+        betare(:,:) = betare(:,:) + tmpre(:,:)
+        betaim(:,:) = betaim(:,:) + tmpim(:,:)
+
+        if (debug) write (luout,*) 'aor_r1_beta: beta step A done'
+        if (debug) then
+          tmpre(:,:) = tmpre(:,:) * omega
+          call output (tmpre,1,3,1,3,3,3,1)
+          call output (betare,1,3,1,3,3,3,1)
+        end if
+        
+c       --------------------------------------
+c       if we use GIAOs there is a second term
+c       in beta which is C(E) S(1ket) C(0)
+c       --------------------------------------              
+        
+        if (lgiao) then
+
+          tmpre(:,:) = 0.0d0
+          tmpim(:,:) = 0.0d0
+          
+          do idir = 1, 3
+            do iresp = 1,3
               
               call get_alfaorbeta_reim(
-     &          betare(idir,iresp), ! out: alpha or beta real part
-     &          betaim(idir,iresp), ! out: alpha or beta im   part
+     &          tmpre(idir,iresp), ! out: alpha or beta real part
+     &          tmpim(idir,iresp), ! out: alpha or beta im   part
      &          g_vecE1(ispin,1), ! in : 1st-order pert vec RE
      &          g_vecE1_im(ispin,1), ! in : 1st-order pert vec IM
      &          g_sket1,        ! in : dipole electric or magnetic
@@ -335,20 +347,32 @@ c             --------------------------------------
      &          nbf,            ! in : nr. basis functions
      &          nocct(ispin),   ! in : nr. occupied alpha or beta
      &          lifetime,       ! in : logical var for damping
-     &          debug,          ! in : logical var for debugging
+     &          dbgsub,          ! in : logical var for debugging
      &          g_temp)         ! in : scratch GA array
 
               if (debug) write (luout,*)
      &          'beta: C(E) S(ket1) C(0) complete'
-              
-            endif               ! end-if-lgiao
 
-          end do ! iresp = 1,3
-           
-c         --------------------------------------
-c         (B) calculate alfa from C(E) h(E) C(0)
-c         --------------------------------------
+            end do
+          end do
 
+          betare(:,:) = betare(:,:) + tmpre(:,:)
+          betaim(:,:) = betaim(:,:) + tmpim(:,:)
+          
+          if (debug) write (luout,*) 'aor_r1_beta: beta step B done'
+          if (debug) then
+            tmpre(:,:) = tmpre(:,:) * omega
+            call output (tmpre,1,3,1,3,3,3,1)
+            call output (betare,1,3,1,3,3,3,1)
+          end if
+          
+        endif                   ! end-if-lgiao
+        
+c       --------------------------------------
+c       (B) calculate alfa from C(E) h(E) C(0)
+c       --------------------------------------
+        
+        do idir = 1,3
           do iresp = 1,3
             
             call get_alfaorbeta_reim(
@@ -364,7 +388,7 @@ c         --------------------------------------
      &        nbf,              ! in : nr. basis functions
      &        nocct(ispin),     ! in : nr. occupied alpha or beta
      &        lifetime,         ! in : logical var for damping
-     &        debug,            ! in : logical var for debugging
+     &        dbgsub,           ! in : logical var for debugging
      &        g_temp)           ! in : scratch GA array 
             
           enddo                 ! iresp = 1,3
@@ -391,7 +415,7 @@ c         ------------------------------------------------
      &          nbf,            ! in : nr. basis functions
      &          nocct(ispin),   ! in : nr. occupied alpha or beta
      &          lifetime,       ! in : logical var for damping
-     &          debug,          ! in : logical var for debugging
+     &          dbgsub,          ! in : logical var for debugging
      &          g_temp)         ! in : scratch GA array 
 
    
@@ -521,21 +545,21 @@ c       before the BD tensor gets assembled:
           
           do i = 1,3
             do j = 1,3
-              tmpmat(i,j) = -omega*betare(i,j)
+              tmpre(i,j) = -omega*betare(i,j)
             end do
           end do
           call aor_write_roadata
-     &      (luout, alfare, betare, tmpmat, dipquadre, dqpol)
+     &      (luout, alfare, betare, tmpre, dipquadre, dqpol)
         end if                 
         
-c       assemble BD tensor in tmpmat.
+c       assemble BD tensor in tmpre.
         
 c       step 1: symmetrize beta tensor
         
-        tmpmat(:,:) = half * betare(:,:)
+        tmpre(:,:) = half * betare(:,:)
         do i = 1,3
           do j = 1,3
-            tmpmat(i,j) = tmpmat(i,j) + half*betare(j,i)
+            tmpre(i,j) = tmpre(i,j) + half*betare(j,i)
           end do
         end do
         
@@ -545,7 +569,7 @@ c       step 2: add quadrupole contributions
           do j = 1,3
             do k = 1,3
               do l = 1,3
-                tmpmat(i,j) = tmpmat(i,j) 
+                tmpre(i,j) = tmpre(i,j) 
      &             + half * third * LCtensor(i,k,l) * dqpol(k,l,j) 
      &             + half * third * LCTensor(j,k,l) * dqpol(k,l,i)
               end do
@@ -553,7 +577,7 @@ c       step 2: add quadrupole contributions
           end do
         end do
         
-        betare(:,:) = tmpmat(:,:)
+        betare(:,:) = tmpre(:,:)
         
       end if                    ! lquad
       

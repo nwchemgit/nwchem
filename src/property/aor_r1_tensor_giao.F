@@ -1,14 +1,16 @@
-      subroutine aor_r1_tensor(
+      subroutine aor_r1_tensor_giao(
      &  rtdb,basis,geom,        ! in : handles
      &  omega,                  ! in :
      &  lstatic,                ! in :
      &  ncomp,                  ! in :  
      &  g_smat0,                ! in : AO overlap
-     &  g_dipmag,               ! in : magn -dipole mom AO
+     &  g_smat1,                ! in : GIAO overlap derivative
+     &  g_sket1,                ! in : GIAO overlap ket derivative
      &  g_dipel,                ! in : elect-dipole mom AO
      &  g_quadel,               ! in : quadrupole   AO
      &  g_vectors,              ! in : MOs
-     &  froct,                  ! in : orbital occupations 
+     &  froct,                  ! in : orbital occupations
+     &  epst,                   ! in : orbital energies     
      &  nbf, nmo,               ! in : nr basis, nr MOs
      &  npol,                   ! in : nr. polarizations
      &  nocct, nvirt,           ! in : nocc,nvirt
@@ -16,24 +18,23 @@
      &  lvelocity,              ! in : logical vars
      &  lifetime,               ! in : logical vars
      &  g_vecE1,g_vecE1_im,     ! in :
-     &  alfare,alfaim,          ! out: electric-electric response matrices
-     &  betare,betaim)          ! out: electric-magnetic response matrices       
-c $Id$     
+     &  g_vecB1,                ! in : GIAO Fock matrix derivative
+     &  alfare,alfaim,          ! out: electric-electric response
+     &  betare,betaim)          ! out: electric-magnetic response     
+
 
 c     =================================================================
 c     
 c     purpose: calculate linear response tensors
 c     We assume that perturbed MO coefficients have already
-c     been computed elsewhere. 
+c     been computed elsewhere.
+c     Similar to aor_r1_tensor.F, but using GIAOs for beta
 c     called from: aoresponse_driver_new
 c     output: alfare, alfaim - field-electric response matrices
 c             betare, betaim - field-magnetic response matrices
 c     =================================================================
 c
 c  Written by J. Autschbach, SUNY Buffalo
-c  Extension to spin-unrestricted case 
-c          by F. Aquino,     Northwestern University 
-c          03-15-12
 
       implicit none
 #include "errquit.fh"
@@ -56,12 +57,14 @@ c     ---------------------
       integer basis   ! [input] basis handle
       integer geom    ! [input] geometry handle
       integer npol,nocct(npol), nvirt(npol)
-      double precision froct(nbf,npol)
+      double precision froct(nbf,npol), epst(nbf,npol)
       
 c     GA handles:
       
-      integer g_smat0, g_vectors(npol), g_dipel, g_quadel, g_dipmag,
-     &  g_vecE1(2,2),g_vecE1_im(2,2)
+      integer g_smat0, g_smat1, g_sket1,
+     &  g_vectors(npol), g_dipel,
+     &  g_quadel, g_vecE1(2,2),g_vecE1_im(2,2),
+     &  g_vecB1(npol)
       
       integer nbf, nmo, ncomp
       double precision gamwidth, omega
@@ -96,7 +99,7 @@ c     traceless dipole-quadrupole tensor, full storage
 
       integer LCTensor(3,3,3)
       integer qindex(3,3)
-      double precision tmpmat(3,3)
+      double precision tmpre(3,3), tmpim(3,3), rtemp
       
       character*(256) cstemp
       character*(1) direction(3)
@@ -108,7 +111,7 @@ c     traceless dipole-quadrupole tensor, full storage
      &  iresp, idir, ndir, i, j, k, l
       
       logical debug, dbgmat, dbgsub,
-     &  lzora, lantisym, lroa, me
+     &  lzora, lroa, me
       
       double precision sum, scaling
       double precision tenm8, one, two, three, zero, half, third
@@ -134,7 +137,7 @@ c  ====================================================================
       dbgmat = .false. .and. me ! debug large matrices
       dbgsub = .false.          ! debug subroutines that are called
 
-      if (debug) write (luout,*) 'hello from aor_r1_tensor'
+      if (debug) write (luout,*) 'hello from aor_r1_tensor_giao'
 
 c     check for ROA keyword
       lroa = .false.
@@ -142,13 +145,14 @@ c     check for ROA keyword
      &   lroa)) continue
 
       if (lroa .and. me) then
-        write (luout,*) 'aor_r1_tensor: roadata output requested'
+        write (luout,*) 'aor_r1_tensor_giao: roadata output requested'
       end if
 
-      if (lroa .and. lvelocity) 
+      if (lvelocity)
      &   call errquit (
-     &  'aor_r1_tensor: roa option not compatible with velocity.',
+     &  'aor_r1_tensor_giao: not compatible with velocity gauge',
      &  1,INPUT_ERR)      
+
 
 c     -------------------------
 c     define Levi-Civita tensor for quadrupole additions
@@ -184,9 +188,9 @@ c     (later we will set most of this by input)
       
       lzora  = .false.      ! not yet available here 
 
-      if (debug) write (luout,*) 'giao, velocity, magpert',
+      if (debug) write (luout,*) 'giao, velocity,',
      &    lgiao, lvelocity
-      lantisym = lvelocity ! antisymm. perturbation
+
       
 c     -----------------------------------------
 c     determine number of occ * virt orbitals
@@ -235,6 +239,8 @@ c     start loop over spins
 c     ----------------------
       
       do ispin = 1, npol
+
+        if (debug) write (luout,*) 'aor_r1_giao: spin=',ispin
         
         nmo1 = nmot(ispin)      ! total no.of MOs for this spin
         nocc = nocct(ispin)     ! occupied MOs
@@ -250,50 +256,42 @@ c       used to create the final results
      &    call errquit (trim(cstemp),0,GA_ERR)
         if (debug) write (luout,*) 'g_temp allocated'
         
-c       -------------------------------------------------------
-c       (A) calculate optical rotation beta from C(E) H(B) C(0)
-c       ------------------------------------------------------
+c       -----------------------------------
+c       (A) calculate optical rotation beta
+c       -----------------------------------
 c       ---------------------------------------------------------
 c       solution of CPKS is in g_vecE1. For the OR from a length-gauge
 c       dipole response (E-field perturbation) we need the difference of
 c       the +/- components so we subtract them here and store the result
-c       in g_vecE1(1). If the velocity formalism is used then the
-c       perturbing field has an antisymmetric AO matrix and 
-c       we have to ADD the vectors instead. 
+c       in g_vecE1(1). 
 c       ---------------------------------------------------------
         
         if (ncomp.gt.1) then
-          if (lantisym) then
-            call ga_add(1d0, g_vecE1(ispin,1), 
-     &        1d0, g_vecE1(ispin,2),
-     &        g_vecE1(ispin,1))
-            if (lifetime) then
-              call ga_add(1d0, g_vecE1_im(ispin,1), 
-     &          1d0, g_vecE1_im(ispin,2),
-     &          g_vecE1_im(ispin,1))
-            end if              ! lifetime
-          else                  ! lantisym ? 
-            call ga_add(1d0, g_vecE1(ispin,1), 
-     &        -1d0, g_vecE1(ispin,2),
-     &        g_vecE1(ispin,1))
-            if (lifetime) then
-              call ga_add(1d0, g_vecE1_im(ispin,1),
-     &          -1d0, g_vecE1_im(ispin,2),
-     &          g_vecE1_im(ispin,1))
-            end if              ! lifetime
-          end if                ! lantisym
+          
+          call ga_add(1d0, g_vecE1(ispin,1), 
+     &      -1d0, g_vecE1(ispin,2),
+     &      g_vecE1(ispin,1))
+          if (lifetime) then
+            call ga_add(1d0, g_vecE1_im(ispin,1),
+     &        -1d0, g_vecE1_im(ispin,2),
+     &        g_vecE1_im(ispin,1))
+          end if                ! lifetime
+          
         endif                   ! ncomp.gt.1        
         
-        do idir = 1,ndir        ! direction of the perturbing field
-          
+        do idir = 1,ndir        ! perturbing E-field components
           do iresp = 1,3
+            
+c           ------------------
+c           (a) C(E) h(B) C(0)
+c           ------------------
             
             call get_alfaorbeta_reim(
      &        betare(idir,iresp), ! in/out: alpha or beta real part
      &        betaim(idir,iresp), ! in/out: alpha or beta im   part
      &        g_vecE1(ispin,1), ! in : 1st-order pert vec RE
      &        g_vecE1_im(ispin,1), ! in : 1st-order pert vec IM
-     &        g_dipmag,         ! in : dipole electric or magnetic
+     &        g_vecB1(ispin),   ! in : dipole electric or magnetic
      &        g_vectors(ispin), ! in : MO vectors
      &        idir,             ! in : = 1,2,3=x,y,z directions
      &        iresp,            ! in : = 1,2,3
@@ -301,41 +299,145 @@ c       ---------------------------------------------------------
      &        nbf,              ! in : nr. basis functions
      &        nocc,             ! in : nr. occupied alpha or beta
      &        lifetime,         ! in : logical var for damping
-     &        dbgsub,            ! in : logical var for debugging
+     &        dbgsub,           ! in : logical var for debugging
      &        g_temp)           ! in : scratch GA array
             
+          enddo                 ! iresp (responding field components)
+        enddo                   ! idir    (perturbing E-field comp.)
+
+        if (debug) write (luout,*) 'aor_r1_giao: beta step A done'
+        if (debug) call output (betare,1,3,1,3,3,3,1)
+        
+c       -----------------------------
+c       (b) C(E) S(B) C(0) epsilon(0)
+c       -----------------------------
+        
+c       scale MO vectors with orbital energies. We use g_work
+c       to store the scaled MO vectors
+        
+        call ga_zero(g_work)
+        alo(1) = 1
+        ahi(1) = nbf
+        alo(2) = 1
+        ahi(2) = nocc
+        call nga_copy_patch('n', g_vectors(ispin), alo, ahi,
+     &    g_work, alo, ahi)
+        
+        if (debug) write (luout,*) 'aor_r1_giao: scaling MO by ...'
+        do imo = 1, nocc
+          rtemp = epst(imo,ispin)
+          alo(2) = imo
+          ahi(2) = imo
+          call nga_scale_patch(g_work,alo,ahi,rtemp)
+          if (debug) write (luout,'(4x,f15.7)') rtemp
+        end do                  ! iocc
+        
+        tmpre(:,:) = 0.0d0
+        tmpim(:,:) = 0.0d0
+        
+        do idir = 1,ndir        ! perturbing E-field components
+          do iresp = 1,3
+            
+            call get_alfaorbeta_reim(
+     &        tmpre(idir,iresp), ! in/out: alpha or beta real part
+     &        tmpim(idir,iresp), ! in/out: alpha or beta im   part
+     &        g_vecE1(ispin,1), ! in : 1st-order pert vec RE
+     &        g_vecE1_im(ispin,1), ! in : 1st-order pert vec IM
+     &        g_smat1,          ! in : GIAO S-mat derivative
+     &        g_work,           ! in : scaled MO vectors
+     &        idir,             ! in : = 1,2,3=x,y,z directions
+     &        iresp,            ! in : = 1,2,3
+     &        coeffre,-coeffim,1, ! in : (coeffre,coeffim,caseAO)
+     &        nbf,              ! in : nr. basis functions
+     &        nocc,             ! in : nr. occupied alpha or beta
+     &        lifetime,         ! in : logical var for damping
+     &        dbgsub,           ! in : logical var for debugging
+     &        g_temp)           ! in : scratch GA array            
             
           enddo                 ! iresp (responding field components)
-        enddo                   ! idir    (perturbing E-field components)
+        enddo                   ! idir    (perturbing E-field comp.)
         
-c       --------------------------------------
-c       (B) calculate alfa from C(E) h(E) C(0)
-c       --------------------------------------
-c       --------------------------------------------------------- 
-c       For alfa we need the sum of the +/- components no matter
-c       if we use
-c       length or velocity gauge so we add twice the icomp=2 component
-c       back into g_vecE1(1)
-c       ---------------------------------------------------------
+        tmpre(:,:) = -tmpre(:,:) ! the equation has a - sign
+        tmpim(:,:) = -tmpim(:,:)
+        betare(:,:) = betare(:,:) + tmpre(:,:)
+        betaim(:,:) = betaim(:,:) + tmpim(:,:)
+        
+        if (debug) write (luout,*) 'aor_r1_giao: beta step B done'
+        if (debug) then
+          call output (tmpre,1,3,1,3,3,3,1)
+          call output (betare,1,3,1,3,3,3,1)
+        end if
+
+c       ------------------------------
+c       (c) C(E) S-ket(B) C(0) * omega
+c       ------------------------------
+
+c       this term is identical to the s-ket term of the
+c       aor_r1_beta routine, but with a factor of omega.
+c       here, we have to ADD the E-field perturbed vectors
+c       so we add
+c       twice the icomp=2 component back into g_vecE1(1)
+
         
         if (ncomp.gt.1) then
-          if (lantisym) then
-            continue
-          else
-            call ga_add(1d0, g_vecE1(ispin,1),
-     &        2d0, g_vecE1(ispin,2),
-     &        g_vecE1(ispin,1))
-            if (lifetime) then
-              call ga_add(1d0, g_vecE1_im(ispin,1), 
-     &          2d0, g_vecE1_im(ispin,2),
-     &          g_vecE1_im(ispin,1))
-              
-            end if              ! lifetime
-          end if                ! lantisym
+          call ga_add(1d0, g_vecE1(ispin,1),
+     &      2d0, g_vecE1(ispin,2),
+     &      g_vecE1(ispin,1))
+          if (lifetime) then
+            call ga_add(1d0, g_vecE1_im(ispin,1), 
+     &        2d0, g_vecE1_im(ispin,2),
+     &        g_vecE1_im(ispin,1))            
+          end if                ! lifetime
         endif                   ! ncomp.gt.1
+
+        tmpre(:,:) = 0.0d0
+        tmpim(:,:) = 0.0d0
         
-        do idir = 1,ndir        ! direction of the perturbing field
-          
+        do idir = 1,ndir        ! perturbing E-field components
+          do iresp = 1,3
+            
+            call get_alfaorbeta_reim(
+     &        tmpre(idir,iresp), ! out: alpha or beta real part
+     &        tmpim(idir,iresp), ! out: alpha or beta im   part
+     &        g_vecE1(ispin,1), ! in : 1st-order pert vec RE
+     &        g_vecE1_im(ispin,1), ! in : 1st-order pert vec IM
+     &        g_sket1,          ! in : dipole electric or magnetic
+     &        g_vectors(ispin), ! in : MO vectors
+     &        idir,             ! in : = 1,2,3=x,y,z directions
+     &        iresp,            ! in : = 1,2,3
+     &        -coeffre,coeffim,1, ! in : (coeffre,coeffim,caseAO)
+     &        nbf,              ! in : nr. basis functions
+     &        nocc,             ! in : nr. occupied alpha or beta
+     &        lifetime,         ! in : logical var for damping
+     &        dbgsub,          ! in : logical var for debugging
+     &        g_temp)           ! in : scratch GA array            
+            
+          enddo                 ! iresp (responding field components)
+        enddo                   ! idir    (perturbing E-field comp.)
+
+        tmpre(:,:) = tmpre(:,:) * omega
+        tmpim(:,:) = tmpim(:,:) * omega
+        betare(:,:) = betare(:,:) + tmpre(:,:)
+        betaim(:,:) = betaim(:,:) + tmpim(:,:)
+
+        if (debug) write (luout,*) 'aor_r1_giao: beta step C done'
+        if (debug) then
+          call output (tmpre,1,3,1,3,3,3,1)
+          call output (betare,1,3,1,3,3,3,1)
+        end if
+        
+c       ----------------------------------------------
+c       (B) calculate alfa from C(E) h(E) C(0), and in
+c       a similar fashion the dipole-quadrupole tensor
+c       ----------------------------------------------
+        
+c       ------------------------------------------------
+c       We need the sum of the +/- components, but they
+c       were already added for the S-ket GIAO term above
+c       ------------------------------------------------
+        
+        
+        do idir = 1,ndir        ! perturbing E-field components
           do iresp = 1,3
             
             call get_alfaorbeta_reim(
@@ -351,17 +453,22 @@ c       ---------------------------------------------------------
      &        nbf,              ! in : nr. basis functions
      &        nocc,             ! in : nr. occupied alpha or beta
      &        lifetime,         ! in : logical var for damping
-     &        dbgsub,            ! in : logical var for debugging
+     &        dbgsub,          ! in : logical var for debugging
      &        g_temp)           ! in : scratch GA array
             
             
-          enddo                 ! iresp (responding field components)
+          enddo                 ! iresp
+        end do                  ! idir
+        
+        if (debug) write (luout,*) 'aor_r1_giao: alpha done'
+        
+c       if required, calculate dipole-quadrupole polarizability:
+        
+        if (lquad) then
           
-c         if required, calculate dipole-quadrupole polarizability:
-          
-          if (lquad) then
-            
+          do idir = 1,3
             do iresp = 1,6
+              
               call get_alfaorbeta_reim(
      &          dipquadre(idir,iresp), ! out: quad real part
      &          dipquadim(idir,iresp), ! out: quad im   part
@@ -375,12 +482,14 @@ c         if required, calculate dipole-quadrupole polarizability:
      &          nbf,            ! in : nr. basis functions
      &          nocc,           ! in : nr. occupied alpha or beta
      &          lifetime,       ! in : logical var for damping
-     &          dbgsub,          ! in : logical var for debugging
-     &          g_temp)         ! in : scratch GA array       
+     &          dbgsub,        ! in : logical var for debugging
+     &          g_temp)         ! in : scratch GA array
+              
             end do              ! iresp
-          end if                ! lquad
-          
-        enddo                   ! idir    (perturbing E-field components)
+          end do                ! idir
+        end if                  ! lquad
+
+        if (debug) write (luout,*) 'aor_r1_giao: dip-quad done'
                
         if (.not.ga_destroy(g_temp))
      &    call errquit
@@ -416,7 +525,7 @@ c       ... getting tired of that ol' f77 syntax ...
           dipquadim(:,:) = dipquadim(:,:) * scaling
         end if                
       end if                    ! lstatic
-      
+
 c     for electric field perturbations (default), alfa is the
 c     polarizability and beta is -G'. Let's fix that sign and
 c     also consider the case of velocity formalisms where 
@@ -490,34 +599,34 @@ c       before the BD tensor gets assembled:
         if (lroa .and. me) then
           do i = 1,3
             do j = 1,3
-              tmpmat(i,j) = betare(i,j)
+              tmpre(i,j) = betare(i,j)
             end do
           end do
           call aor_write_roadata
-     &       (luout, alfare, betare, tmpmat, dipquadre, dqpol)
+     &       (luout, alfare, betare, tmpre, dipquadre, dqpol)
         end if                  ! lroa
 
-c       assemble BD tensor in tmpmat.
+c       assemble BD tensor in tmpre.
 
 c       step 1: symmetrize beta tensor
         
-        tmpmat(:,:) = half * betare(:,:)
+        tmpre(:,:) = half * betare(:,:)
 
         do i = 1,3
           do j = 1,3
-            tmpmat(i,j) = tmpmat(i,j) + half*betare(j,i)
+            tmpre(i,j) = tmpre(i,j) + half*betare(j,i)
           end do
         end do
 
-c       step 2: add quadrupole contributions
-
         scaling = -half * third * omega
+
+c       step 2: add quadrupole contributions
 
         do i = 1,3
           do j = 1,3
             do k = 1,3
               do l = 1,3
-                tmpmat(i,j) = tmpmat(i,j) 
+                tmpre(i,j) = tmpre(i,j) 
      &             + scaling * LCtensor(i,k,l) * dqpol(k,l,j) 
      &             + scaling * LCTensor(j,k,l) * dqpol(k,l,i)
               end do
@@ -525,7 +634,7 @@ c       step 2: add quadrupole contributions
           end do
         end do
 
-        betare(:,:) = tmpmat(:,:)
+        betare(:,:) = tmpre(:,:)
         
       end if                    ! lquad      
       

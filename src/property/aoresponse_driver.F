@@ -118,7 +118,7 @@ c     GA handle for magnetic field perturbed MO vectors:
       external ga_trace_diag
 
       logical debug, lgiao, lvelocity, lmagpert, lstatic, lifetime,
-     $        lbeta, lquad
+     $        lbeta, lgprime, lquad
       logical oprint
 
       double precision alfare2(3,3), alfaim2(3,3)
@@ -160,13 +160,14 @@ c     -------------------------------------------
 c     set defaults for options and read from RTDB
 c     -------------------------------------------
 
-      lgiao = .false. 
-      lmagpert = .false.
+      lgiao     = .false. 
+      lmagpert  = .false.
       lvelocity = .false.
-      lifetime = .false.
-      lbeta = .false.
-      lquad = .false.
-      gamwidth = 0d0
+      lifetime  = .false.
+      lbeta     = .false.
+      lgprime   = .false.
+      lquad     = .false.
+      gamwidth  = 0d0
 
       ntmp = 1
       if (.not.rtdb_get(rtdb, 'aoresponse:velocity', mt_int, 1,ntmp)) 
@@ -187,6 +188,11 @@ c     -------------------------------------------
       if (.not.rtdb_get(rtdb, 'aoresponse:orbeta', mt_int, 1,ntmp)) 
      &    call errquit('aor_driver: lbeta failed ',0, RTDB_ERR)
       if (ntmp.eq.0) lbeta = .true.
+
+      ntmp = 1
+      if (.not.rtdb_get(rtdb, 'aoresponse:gprime', mt_int, 1,ntmp)) 
+     &   call errquit('aor_driver: lgprime failed ',0, RTDB_ERR)
+      if (ntmp.eq.0) lgprime = .true.         
 
       ntmp = 1
       if (.not.rtdb_get(rtdb, 'aoresponse:quad', mt_int, 1,ntmp)) 
@@ -237,14 +243,14 @@ c     also check if lvelocity and lbeta are both true:
 c     for the time being, if we have GIAOs set, the code
 c     must go through the "beta" static B-field routine
 
-      if (lgiao) then 
-        lbeta = .true.
-        lmagpert = .false.
-        if (oprint) then
-          write (LuOut,*) 
-     &       '*** NOTE: enabled ORBETA because of GIAO keyword ***'
-        end if
-      end if
+c$$$      if (lgiao) then 
+c$$$        lbeta = .true.
+c$$$        lmagpert = .false.
+c$$$        if (oprint) then
+c$$$          write (LuOut,*) 
+c$$$     &       '*** NOTE: enabled ORBETA because of GIAO keyword ***'
+c$$$        end if
+c$$$      end if
 
 c     finite lifetime not yet available with the "beta" code
 
@@ -741,7 +747,7 @@ c     optical rotation G' tensor
      &        g_smat0, g_smat1, g_sket1,
      &        g_dipel, g_dipmag, g_vectors, dbl_mb(k_eval),
      &        dbl_mb(k_occ), g_dens, nbf, nbfx, nmo, nclosed, nvirt,
-     &        dbl_mb(k_deps), lgiao, lvelocity, lmagpert,
+     &        dbl_mb(k_deps), lgprime, lgiao, lvelocity, lmagpert,
      &        lifetime, gamwidth, alfare, alfaim, betare, betaim)
          if (debug) write (luout,*) 'exiting aoresponse'
          
@@ -874,12 +880,14 @@ c
         write (LuOut,*)
      &     'Magnetic Dipole Response Matrix (nonzero elements):'
         if (.not.lmagpert) then
-          if (lstatic) then
-            write (LuOut,*) 'Optical rotation tensor G`'
+          if ((lstatic .and. .not.lbeta) .or. lgprime) then
+            write (LuOut,*) 'Optical rotation tensor -G'' '
           else
             write (LuOut,*) 'Optical rotation tensor Beta'
           endif
         endif
+        if (lstatic .and. .not.lbeta) write(luout,*)
+     &  '*** static G'' is incorrect. use GPRIME input for small omega'
         call output(betare,1,3,1,3,3,3,1)
         if (lifetime) then
           write (luout,*)

@@ -278,7 +278,9 @@ c Note.- add_fock() is defined in hnd_gshift_zora.F
        if (.not.ga_destroy(g_d2)) call 
      &    errquit('giao_b1: ga_destroy failed g_fock',0,GA_ERR)
        if (.not.ga_destroy(g_fock)) call 
-     &    errquit('giao_b1: ga_destroy failed g_fock',0,GA_ERR)
+     &   errquit('giao_b1: ga_destroy failed g_fock',0,GA_ERR)
+       if (.not.ga_destroy(g_d1)) call 
+     &   errquit('giao_b1: ga_destroy failed g_d10',0,GA_ERR)
       return
       end
 
@@ -416,7 +418,7 @@ c     it in the LHS
        enddo ! end-loop-ifld
       enddo ! end-loop-ispin
       if (.not.ga_destroy(g_s10)) call 
-     &    errquit('giao_b1: ga_destroy failed g_s10',0,GA_ERR)
+     &  errquit('giao_b1: ga_destroy failed g_s10',0,GA_ERR)
       return
       end
 

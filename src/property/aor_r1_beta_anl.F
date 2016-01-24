@@ -18,7 +18,6 @@
      &      lanalyze,           ! in : logical vars
      &      lvelocity,          ! in : logical vars
      &      lifetime,           ! in : logical vars
-     &      lmagpert,           ! in : logical vars
      &      g_vecE1,g_vecE1_im) ! out: 
 c $Id$     
 
@@ -63,7 +62,7 @@ c     These are all input, too
       integer nocct(npol),nvirt(npol)
       double precision froct(nbf,2),epst(nbf,2)
       double precision gamwidth, omega
-      logical lgiao, lquad, lanalyze, lvelocity, lifetime, lmagpert,
+      logical lgiao, lquad, lanalyze, lvelocity, lifetime,
      &   lstatic
 c     ----------------
 c     local variables:
@@ -121,13 +120,9 @@ c  ====================================================================
 
 c     make sure lvelocity.ne.T., we do not support that in this
 c     subroutine to keep the clutter at a manageable level.
-c     same for lmagpert
 
       if (lvelocity) 
      &   call errquit ('aor_beta: lvelocity set',1,INPUT_ERR)
-
-      if (lmagpert) 
-     &  call errquit ('aor_beta: lmagpert set',1,INPUT_ERR)
       
 c     define translation table for quadrupole indices in
 c     packed storage

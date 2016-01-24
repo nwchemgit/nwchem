@@ -109,6 +109,7 @@ c
       double precision betare(3,3), betaim(3,3)
       double precision alfare(3,3), alfaim(3,3)
       double precision alfare2(3,3), alfaim2(3,3)
+      double precision giaowsre(3,3), giaowsim(3,3)
       
 c     GA handles for one-electron integrals and temp arrays
       integer g_dipel, g_smat0, g_temp, g_dipmag, g_smat1,
@@ -123,7 +124,9 @@ c     GA handles for perturbed MO vectors:
       integer idir, ipert       ! field directions
       
       integer ntmp
-      double precision sum, sumim, zero, one, two, half, tenm8
+      double precision sum, sumim, rtemp
+      
+      double precision zero, one, two, half, tenm8
       parameter (zero = 0d0, one = 1d0, 
      &  two  = 2d0, half=one/two, tenm8 =1d-8)
       
@@ -134,7 +137,7 @@ c     GA handles for perturbed MO vectors:
       
       logical lgiao, lvelocity, 
      &  lmagpert, lstatic, lifetime,lifetime1,
-     $  lbeta, lquad, lanalyze,
+     $  lbeta, lgprime, lquad, lanalyze,
      &  debug
       
       logical oprint
@@ -191,6 +194,7 @@ c     -------------------------------------------
       lvelocity = .false.
       lifetime  = .false.
       lbeta     = .false.
+      lgprime   = .false.
       lquad     = .false.
       lanalyze  = .false.
       gamwidth  = 0d0      
@@ -214,6 +218,11 @@ c     -------------------------------------------
       if (.not.rtdb_get(rtdb, 'aoresponse:orbeta', mt_int, 1,ntmp)) 
      &   call errquit('aor_driver: lbeta failed ',0, RTDB_ERR)
       if (ntmp.eq.0) lbeta = .true.
+
+      ntmp = 1
+      if (.not.rtdb_get(rtdb, 'aoresponse:gprime', mt_int, 1,ntmp)) 
+     &   call errquit('aor_driver: lgprime failed ',0, RTDB_ERR)
+      if (ntmp.eq.0) lgprime = .true.      
       
       ntmp = 1
       if (.not.rtdb_get(rtdb, 'aoresponse:quad', mt_int, 1,ntmp)) 
@@ -243,7 +252,7 @@ c     in this version, lmagpert must be false for the time being
           write (LuOut,'(1x,a/1x,a/1x,a/1x,a/)') 
      &      '*** WARNING: MAGNETICPERT DISABLED! You can use the',
      &      '*** older version of the response code if you want to',
-     &      '*** use MAGNETICPERT. Do so by using in the input:',
+     &      '*** use MAGNETICPERT. Do so by using the input:',
      &      '    set prop:newaoresp 0'
         endif
         lmagpert = .false.
@@ -256,6 +265,9 @@ c     in this case, velocity dipoles are incompatible.
 c     for the time being, if we have GIAOs set, the code
 c     must go through the "beta" static B-field routine.
 c     the magpert key is then incompatible.
+
+c     jochen 01/16: enable GIAO without LBETA
+c     in an attempt to implement this properly at last
 
 
       if (lgiao) then 
@@ -273,11 +285,11 @@ c     the magpert key is then incompatible.
           endif
           lvelocity = .false.
         endif      
-        if (oprint .and. .not.lbeta) then
-          write (LuOut,*) 
-     &      '*** NOTE: enabled ORBETA because of GIAO keyword ***'
-        end if
-        lbeta    = .true.
+c        if (oprint .and. .not.lbeta) then
+c          write (LuOut,*) 
+c     &      '*** NOTE: enabled ORBETA because of GIAO keyword ***'
+c        end if
+c        lbeta    = .true.
       end if                    ! giao
         
 c     also check if lvelocity and lbeta are both true. velocity trumps
@@ -294,17 +306,10 @@ c     finite lifetime: With damping, the tensors for beta are not
 c     identical to those calculated without the ORBETA functionality. In
 c     the absence of damping they happen to be identical. I was
 c     expecting the identity to hold also in the presence of damping.
-c     Yet, on the one hand the OR beta is origin dependent in the
-c     absence of GIAO functionality and this might cause non-equivalence
-c     in the presence of damping (unlikely). On the other hand, the FIAO
-c     rotatory strengths calculated with and without the ORBETA approach
-c     are the same and therefore one should expect the damped beta to be
-c     independent of the formalism used for the calculation. However, I
-c     checked for H2O2 HF/STO-3G that the damped GIAO beta is nearly
-c     origin independent which is definitely a good sign. There is
-c     perhaps some noise in the solution of the damped vectors that we
-c     need to eliminate; this is an unsolved issue anyway (CPHF is not
-c     cleanly implemented for complex vectors).
+c     However, I checked for H2O2 HF/STO-3G that the damped GIAO beta is
+c     nearly origin independent which is definitely a good sign. Most
+c     likely what is missing are the response terms from the static
+c     calculation in the case of damping.
 
 c     -----------------------
 c     general initializations (some of it adapted from hnd_giaox.F)
@@ -326,7 +331,6 @@ c     read number of frequencies from run-time database
      &   then  
         call errquit('aor_driver: nfreq failed ',0, RTDB_ERR)
       endif
-      if (debug) write (luout,*) 'nfreq',nfreq
 
 c     at present we tie the response order to the number
 c     of frequencies that the user inputs, and calculate the 
@@ -342,6 +346,8 @@ c     alpha(-sum_i \omega_i; omega_1, omega_2, omega_3, ...).
       else
         call errquit ('aor_driver: nfreq .lt. zero',nfreq,RTDB_ERR)
       end if
+
+      if (debug) write (luout,*) 'nfreq, lstatic =',nfreq, lstatic
 
 c     allocate memory for frequencies list and read values 
 c     into dbl_mb(k_fr). If nfreq = 0, assign a single frequency = 0
@@ -369,6 +375,8 @@ c     exit if response order is larger than one (TEMPORARY)
 
 c     force nfreq = 1 if response order equals 1 (no freq. input)
       if (response_order.eq.1 .and. nfreq.ne.1) nfreq = 1
+
+      if (debug) write(luout,*) 'aor_driver: setup done'
       
 c     -------------------------------------------------------
 c     assemble some data neded for response calculation:
@@ -475,8 +483,7 @@ c        first-order S-ket matrix (right-hand side S-derivative)
          call ga_zero(g_sket1)
          
          call giao_b1_movecs(rtdb,basis,geom,npol,g_vecB1,g_sket1)
-         if (debug)
-     &     write(*,*) 'FA-AFT. giao_b1_movecs ...'
+
          do ispin=1,npol
            call ga_scale(g_vecB1(ispin),0.5d0)
          enddo                  ! ispin
@@ -484,6 +491,8 @@ c        first-order S-ket matrix (right-hand side S-derivative)
        else
          call fiao_b1_movecs(rtdb,basis,geom,npol,g_vecB1)
        endif                    ! lgiao
+
+       if (debug) write(luout,*) 'aor_driver: B-field MOs done'
        
       end if                    ! lbeta
       
@@ -514,25 +523,25 @@ c     ---------------------------------------------------------
           write (luout,*) 'STATIC response calculation'
         endif                   ! nfreq ?= 0
         
-        if (lmagpert) then
-          write (luout,'(1x,a)') 'Perturbing field: magnetic'
-        else
-          write (luout,'(1x,a)') 'Perturbing field: electric'
-        end if
+c       jochen 01/16: since lmagpert has been disabled I cleaned up
+c       here and in various subroutine calls
+        
+        write (luout,'(1x,a)') 'Perturbing field: electric'
         if (lgiao) then
-          write (luout,'(1x,a)') 'Using GIAO formalism'
+          write (luout,'(1x,a)') 'Using GIAO formalism for OptRot'
         end if
         if (lquad) then
           write (luout,'(1x,a)') 'Adding quadrupole terms to OptRot'
-          write (luout,'(1x,a)') '(Buckingham-Dunn OR tensor).'
+          write (luout,'(1x,a)')
+     &      'to create an origin in dependent tensor.'
         end if
         if (lanalyze) then
           write (luout,'(1x,a)') 'MO analysis will be printed.'
         end if
         if (lvelocity) then
-          write (luout,'(1x,a)') 'Using Dipole Velocity Gauge'
+          write (luout,'(1x,a)') 'Using El. Dipole Velocity Gauge'
         else
-          write (luout,'(1x,a)') 'Using Dipole Length Gauge'
+          write (luout,'(1x,a)') 'Using El. Dipole Length Gauge'
         endif
         if (lifetime) then
           write (luout,*)
@@ -544,7 +553,6 @@ c     ---------------------------------------------------------
       
 c     ---------------------------------------------
 c     Calculate external field perturbed MO vectors
-c     (default: electric, unless lmagpert is set):
 c     ---------------------------------------------
       
       this_resporder = 1
@@ -552,19 +560,12 @@ c     ---------------------------------------------
       
 c     IMPORTANT: the arrays for g_vecF1* are allocated in 
 c     fiao_f1_movecs but deallocated here.
-c     lmagpert is not yet considered !
 c     determine frequency and number of components
       
       omega = dbl_mb(k_fr + this_resporder -1 )
       lstatic = (abs(omega).lt.tenm8) ! static response or not
       ncomp = 2                 ! no. of Fourier components to treat
-      if (lstatic) ncomp = 1 
-      
-      if (debug) then
-        write(*,100) lstatic,omega,ncomp
- 100    format('(lstatic,omega,ncomp)=(',L1,',',f15.8,',',i3,')')
-      endif
-      
+      if (lstatic) ncomp = 1
       
       call fiao_f1_movecs(
      &  rtdb,basis,geom,        ! in : handles
@@ -577,6 +578,8 @@ c     determine frequency and number of components
      &  g_vecF1,                ! out:
      &  g_vecF1_im,             ! out:
      &  1)                      ! in : index for cphf_file
+
+      if (debug) write(luout,*) 'aor_driver: F1(omega) done'
 
 c     repeat this for zero frequency if we use the modified
 c     velocity gauge:
@@ -639,30 +642,86 @@ c       memory
      &        errquit('aor_driver: ga_destroy failed g_vecF1zero',
      &                0,GA_ERR) 
           endif ! end-if-lifetime
-        enddo ! end-loop-ispin    
+        enddo                   ! end-loop-ispin
+
+        if (debug) write(luout,*) 'aor_driver: F1(0) done'
+        
       endif                    ! lvelocity  
 
 c     -----------------------------------------------
 c     Response equations solved. Now proceed to the
 c     computations of the response tensors. First,
-c     some AO integrals for the requested properties:
+c     some AO integrals for the requested properties.
+c     non-GIAO integrals
 c     -----------------------------------------------
 
-      call get_allAOints(
-     &        g_dipel,  ! out: electron dipole moment AO  integral
-     &        g_dipmag, ! out: magnetic dipole moment AO  integral
-     &        g_smat0,  ! out: zeroth-order basis overlap integral
-     &        g_smat1,  ! out: 1st-order B-field perturb  integral
-     &        g_sket1,  ! out: 1st-order S-ket matrix
-     &        g_quadel, ! out: e-quadrupole    moment AO  integral  
-     &        rtdb,     ! in : rtdb  handle
-     &        basis,    ! in : basis handle
-     &        geom,     ! in : geom  handle
-     &        lvelocity,! in : velocity flag
-     &        lbeta,    ! in : beta     flag
-     &        lgiao,    ! in : giao     flag
-     &        lquad,    ! in : quad     flag
-     &        nbf)      ! in : nr. basis functions
+      call aor_get_fiaoints(
+     &  g_dipel,                ! el-dipole moment AO matrix
+     &  g_dipmag,               ! mag-dipole moment AO matrix
+     &  g_smat0,                ! basis overlap matrix
+     &  g_quadel,               ! el-quadrupole AO matrix  
+     &  rtdb,                   ! rtdb  handle
+     &  basis,                  ! basis handle
+     &  geom,                   ! geom  handle
+     &  lvelocity,              ! velocity flag
+     &  lgiao,                  ! giao flag
+     &  lbeta,                  ! orbeta flag
+     &  lquad,                  ! quad flag
+     &  nbf)                    ! nr. of basis functions
+
+      if (debug) write(luout,*) 'aor_driver: fiaoints done'
+
+c     --------------------------------------------
+c     in case of a non-ORBETA GIAO calculation,
+c     we need additional integrals in the AO basis
+c     --------------------------------------------
+
+      if (.not.lbeta .and. lgiao) then
+
+        alo(1) = nbf
+        alo(2) = -1
+        alo(3) = -1
+        ahi(1) = nbf
+        ahi(2) = nbf
+        ahi(3) = ndir
+        
+        do ispin=1,npol
+          if (.not.nga_create(MT_DBL,3,ahi,'aor vecB1',
+     &      alo,g_vecB1(ispin))) call 
+     &      errquit('aor_driver: nga_create failed vecB1',1,GA_ERR)
+          call ga_zero(g_vecB1(ispin))
+        enddo                   ! ispin
+        
+        if (.not.nga_create(MT_DBL,3,ahi,'smat1',alo,g_smat1))
+     &    call errquit('aor_driver: nga_create failed g_smat1',1,GA_ERR)
+        call ga_zero(g_smat1)
+        
+        if (.not.nga_create(MT_DBL,3,ahi,'sket1',alo,g_sket1))
+     &    call errquit('aor_driver: nga_create failed g_sket1',1,GA_ERR)
+        call ga_zero(g_sket1)            
+
+        giaowsre(:,:) = 0.0d0
+        giaowsim(:,:) = 0.0d0
+        
+        call aor_get_giaoints(rtdb, basis, geom, npol, lifetime,
+     &    g_vecF1, g_vecF1_im,
+     &    g_vecB1, g_smat1, g_sket1, giaowsre, giaowsim)
+
+c       there is a factor of 2 missing in all those GIAO integrals.
+c       take care of that here:
+        
+        do ispin=1,npol
+          call ga_scale(g_vecB1(ispin),0.5d0)
+        enddo                   ! ispin
+        call ga_scale(g_smat1,0.5d0)
+        call ga_scale(g_sket1,0.5d0)
+        giaowsre(:,:) = 0.5d0 * giaowsre(:,:)
+        giaowsim(:,:) = 0.5d0 * giaowsim(:,:)      
+
+        if (debug) write(luout,*) 'aor_driver: giaoints done'
+        
+      endif                     ! giao and not orbeta
+      
 c
 c     DIM/QM JEM
 c     Initialize DIM and add in local field contributions
@@ -715,32 +774,71 @@ c       default call: compute dynamic polarizability and
 c       optical rotation G' tensor
         
         if (debug) write (luout,*) 'calling aor_r1_tensor'
+
         
-c       if (ga_nodeid().eq.0)
-c       &     write(*,*) 'FA-BEF. aor_r1_tensor ...'
+        if (lgiao) then
+
+c         add some GIAO terms calculated in aor_get_giaoints to
+c         beta so we don't have to pass the arrays to the subroutine
+
+          if (npol.eq.1) then
+            rtemp = 2.0d0
+          else
+            rtemp = 0.5d0
+          end if
+          betare(:,:) = betare(:,:) + rtemp * giaowsre(:,:)
+          if (lifetime) betaim(:,:) =
+     &      betaim(:,:) + rtemp * giaowsim(:,:)
+
+          call aor_r1_tensor_giao(
+     &      rtdb,basis,geom,    ! in : handles
+     &      omega,              ! in :
+     &      lstatic,            ! in :
+     &      ncomp,              ! in :  
+     &      g_smat0,            ! in :
+     &      g_smat1,            ! in :
+     &      g_sket1,            ! in :        
+     &      g_dipel,            ! in : elect-dipole mom AO
+     &      g_quadel,           ! in : quadrupole   AO
+     &      g_vectors,          ! in : MOs
+     &      dbl_mb(k_occ),      ! in : orbital occupations
+     &      dbl_mb(k_eval),     ! in : orbital energies
+     &      nbf, nmo,           ! in : nr. basis, nr. MOs
+     &      npol,               ! in : nr. polarizations
+     &      nocc, nvirt,        ! in : nocc,nvirt
+     &      lgiao, lquad,       ! in : logical vars
+     &      lvelocity,          ! in : logical vars
+     &      lifetime,           ! in : logical vars
+     &      g_vecF1,g_vecF1_im, ! in :
+     &      g_vecB1,
+     &      alfare,alfaim,      ! out: electric-electric response
+     &      betare,betaim)      ! out: electric-magnetic response
+
+        else
         
-        call aor_r1_tensor(
-     &    rtdb,basis,geom,      ! in : handles
-     &    omega,                ! in :
-     &    lstatic,              ! in :
-     &    ncomp,                ! in :  
-     &    g_smat0,              ! in :
-     &    g_dipmag,             ! in : magn -dipole mom AO
-     &    g_dipel,              ! in : elect-dipole mom AO
-     &    g_quadel,             ! in : quadrupole   AO
-     &    g_vectors,            ! in : MOs
-     &    dbl_mb(k_occ),        ! in : set of occupations
-     &    nbf, nmo,             ! in : nr. basis, nr. MOs
-     &    npol,                 ! in : nr. polarizations
-     &    nocc, nvirt,          ! in : nocc,nvirt
-     &    lgiao, lquad,         ! in : logical vars
-     &    lvelocity,            ! in : logical vars
-     &    lifetime,             ! in : logical vars
-     &    lmagpert,             ! in : logical vars
-     &    g_vecF1,g_vecF1_im,   ! in : 
-     &    alfare,alfaim,        ! out: electric-electric response matrices
-     &    betare,betaim)        ! out: electric-magnetic response matrices     
-        
+          call aor_r1_tensor(
+     &      rtdb,basis,geom,    ! in : handles
+     &      omega,              ! in :
+     &      lstatic,            ! in :
+     &      ncomp,              ! in :  
+     &      g_smat0,            ! in :     
+     &      g_dipmag,           ! in : magn -dipole mom AO
+     &      g_dipel,            ! in : elect-dipole mom AO
+     &      g_quadel,           ! in : quadrupole   AO
+     &      g_vectors,          ! in : MOs
+     &      dbl_mb(k_occ),      ! in : orbital occupations
+     &      nbf, nmo,           ! in : nr. basis, nr. MOs
+     &      npol,               ! in : nr. polarizations
+     &      nocc, nvirt,        ! in : nocc,nvirt
+     &      lgiao, lquad,       ! in : logical vars
+     &      lvelocity,          ! in : logical vars
+     &      lifetime,           ! in : logical vars
+     &      g_vecF1,g_vecF1_im, ! in :
+     &      alfare,alfaim,      ! out: electric-electric response
+     &      betare,betaim)      ! out: electric-magnetic response
+
+        end if ! lgiao
+          
         if (debug) write (luout,*) 'exiting aor_r1_tensor'
         
       else                      ! lbeta?
@@ -770,7 +868,6 @@ c       with the polarizability
      &    lanalyze,             ! in : logical vars
      &    lvelocity,            ! in : logical vars
      &    lifetime,             ! in : logical vars
-     &    lmagpert,             ! in : logical vars
      &    g_vecF1,g_vecF1_im,   ! in : 
      &    alfare,alfaim,        ! out: electric-electric response matrices
      &    betare,betaim)        ! out: electric-magnetic response matrices   
@@ -805,7 +902,6 @@ c       into contributions per MO
      &      lanalyze,           ! in : logical vars
      &      lvelocity,          ! in : logical vars
      &      lifetime,           ! in : logical vars
-     &      lmagpert,           ! in : logical vars
      &      g_vecF1,g_vecF1_im) ! out: 
 
         end if                  ! lanalyze
@@ -818,14 +914,21 @@ c     ------------
       if (oprint) then
         write (LuOut,'(/1x,a)')
      &    'Electric Dipole Response Matrix (nonzero elements):'
-        if (lmagpert) then
-          if (lstatic) then
-            write (LuOut,*) 'Optical rotation tensor G'' '
-          else
-            write (LuOut,*) 'Optical rotation tensor Beta'
-          endif
-        endif
         call output(alfare,1,3,1,3,3,3,1)
+        if (lifetime) then
+          write (luout,*)
+          write (luout,*) 'Imaginary part:'
+          call output(alfaim,1,3,1,3,3,3,1)
+        endif
+        write (LuOut,*)
+        sum = 0d0
+        sumim = 0d0
+        do idir = 1,3
+          sum = sum + alfare(idir,idir)
+          sumim = sumim + alfaim(idir,idir)
+        enddo
+        write(luout,*) 'average: ',sum/3d0,' + I ',sumim/3d0
+        write (luout,*)
       endif
       
       do idir = 1,3
@@ -876,30 +979,40 @@ c     Write polarizability information to the RTDB
      3  RTDB_ERR)
 c     
 c     
-      if (oprint) then
-        if (lifetime) then
-          write (luout,*)
-          write (luout,*) 'Imaginary part:'
-          call output(alfaim,1,3,1,3,3,3,1)
-        endif
-        write (LuOut,*)
-        sum = 0d0
-        sumim = 0d0
-        do idir = 1,3
-          sum = sum + alfare(idir,idir)
-          sumim = sumim + alfaim(idir,idir)
-        enddo
-        write(luout,*) 'average: ',sum/3d0,' + I ',sumim/3d0
-        write (luout,*)
+      if (oprint) then       
         write (LuOut,*)
      &    'Magnetic Dipole Response Matrix (nonzero elements):'
-        if (.not.lmagpert) then
-          if (lstatic .and. .not.lbeta) then
-            write (LuOut,*) 'Optical rotation tensor G'' '
-          else
-            write (LuOut,*) 'Optical rotation tensor Beta'
-          endif
+        if (lgprime) then
+          write (LuOut,*) 'Optical rotation tensor G'' '
+        else
+          write (LuOut,*) 'Optical rotation tensor Beta'
         endif
+      end if
+        
+      if (lstatic .and. .not.lbeta) then
+        if (oprint) write(luout,'(/1x,a/1x,a/)')
+     &    '*** static G''=0. Use GPRIME input with finite omega',
+     &    '*** or better ORBETA without GPRIME for small or zero freq.'
+        betare = 0.0d0
+        betaim = 0.0d0
+      end if
+
+c     the non-'lbeta' routines calculate G' directly
+      
+      if (.not.lstatic .and. .not.lgprime .and. .not.lbeta) then
+        betare(:,:) = -betare(:,:) / omega
+        betaim(:,:) = -betaim(:,:) / omega
+      end if
+      
+c     G' = -omega beta. If we calculated beta directly and the
+c     user specifies GPRIME then we can fix that here.
+          
+      if (.not.lstatic .and. lbeta .and. lgprime) then
+        betare(:,:) = -betare(:,:) * omega
+        betaim(:,:) = -betaim(:,:) * omega
+      end if
+      
+      if (oprint) then
         call output(betare,1,3,1,3,3,3,1)
         
         if (lifetime) then
@@ -916,6 +1029,12 @@ c
         enddo
         write(luout,*) 'average: ',sum/3d0, ' + I ',sumim/3d0
         write (LuOut,*)
+
+        if (.not.lstatic .and. lgprime) then
+          write(luout,*) 'OR Beta: ',
+     &      -sum/(3d0*omega), ' + I ',-sumim/(3d0*omega)
+          write (LuOut,*)
+        end if
         
 c       diagonalize real part of beta tensor
         
@@ -1020,7 +1139,7 @@ c     deallocate global arrays
      &    errquit('aor_driver: ga_destroy failed g_sket1',0,GA_ERR)
       endif
 
-      if (lbeta) then
+      if (lgiao) then
         do ispin=1,npol
           if (.not.ga_destroy(g_vecB1(ispin))) call 
      &      errquit('aor_driver: ga_destroy failed g_vecB1',0,GA_ERR)

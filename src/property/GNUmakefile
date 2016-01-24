@@ -48,13 +48,15 @@
          aoresponse_beta2.o \
          fiao_f1_movecs.o \
          aor_r1_tensor.o \
+         aor_r1_tensor_giao.o \
          aor_r1_beta.o \
          aor_r1_beta_anl.o \
          giao_b1_movecs.o \
          fiao_b1_movecs.o \
 	 get_vecB1.o \
 	 get_vecF1.o \
-	 get_allAOints.o \
+	 aor_get_fiaoints.o \
+	 aor_get_giaoints.o \
          aoresponse_giao_rhs.o \
 	 get_alfaorbeta_reim.o \
          CalcPerturbedTDPmat1.o \

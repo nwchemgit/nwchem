@@ -69,7 +69,7 @@ c     local variables:
 
 c     ==================================================================
 
-      debug = .true. .and. ga_nodeid().eq.0 ! .true. during development
+      debug = .false. .and. ga_nodeid().eq.0 ! .true. during development
       dbgmat = .false. .and. ga_nodeid().eq.0 ! debug large matrices
 
 c     THERE WAS A BUG HERE BECAUSE ONLY IF DEBUG WAS SET TO TRUE DID I
