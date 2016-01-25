@@ -142,6 +142,8 @@ c
          offt2 = 0
          if(.not.rtdb_get(rtdb, 'ccsd:corlenerg',MT_DBL, 1, eccsd))
      $      eccsd=zip
+         if(.not.rtdb_get(rtdb, 'ccsd:corlenergos',MT_DBL, 1, eccsdos))
+     $      eccsdos=zip
          call ga_sync()
          if (occsdps) then
             call pstat_off(ps_itrdrv)
@@ -206,6 +208,8 @@ c
          oconverged = .true.
          if(.not.rtdb_put(rtdb, 'ccsd:corlenerg',MT_DBL, 1, eccsd))
      $     call errquit('ccsd_iterdrv2: rtdb_put failed', 0, RTDB_ERR)
+         if(.not.rtdb_put(rtdb, 'ccsd:corlenergos',MT_DBL, 1, eccsdos))
+     $     call errquit('ccsd_iterdrv2: rtdb_put failed', 3, RTDB_ERR)
          if(.not.rtdb_put(rtdb, 'ccsd:converged',MT_LOG, 1, oconverged))
      $     call errquit('ccsd_iterdrv2: rtdb_put failed', 0, RTDB_ERR)
         if (iam.eq.0 .and. oprint)write(luout,1236)
