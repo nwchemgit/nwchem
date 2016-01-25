@@ -59,10 +59,11 @@ c     local variables:
       
       integer l_occ, k_occ, l_eval, k_eval
       
-      integer g_dens(3), g_s10, g_d1, g_fock, g_u(2)
+      integer g_dens(3), g_s10, g_d1, g_d1_im, g_fock, g_fock_im
 
       integer vectors(2), geomnew, i, j, ij, g_xc(3)
-      integer g_s1mo, g_f1mo
+      integer g_s1mo, g_f1mo, g_f1mo_im
+      integer g_temp
       
       integer ndata,m1,m2
       double precision atn, tol2e, val, rtemp
@@ -87,7 +88,8 @@ c     local variables:
       double precision origin(3)
       data origin/0d0,0d0,0d0/
    
-      logical  oskel, status, debug
+      logical  oskel, status, me
+      integer dbg
       logical  xc_gotxc
       external xc_gotxc
       double precision ppm
@@ -99,10 +101,11 @@ c     ==================================================================
       
       if (ga_nodeid().eq.0) write(luout,'(/1x,a/)')
      &  'Calculating some arrays needed for GIAO optical rotation'
-      
-      debug = .false. .and. (ga_nodeid().eq.0) ! debugging     
 
-      if (debug) then
+      me = (ga_nodeid().eq.0)
+      dbg = 0                   ! debug level
+
+      if (dbg>0 .and. me) then
         write (luout,*) 'aor_giaoints: xc_gotxc =',xc_gotxc()
         write (luout,*) 'aor_giaoints: use_theory =',use_theory
       end if
@@ -153,7 +156,8 @@ c     smat1 from d/dB <mu | nu> :
 c     sket1 from <mu | d/dB nu> :
       call int_giao_1ega(basis,basis,g_sket1,'srxRb',origin,nat,oskel)
       
-      if (debug) write (luout,*) 'aor_giaoints: GIAO S(B), S-ket done' 
+      if (dbg>0 .and. me) write (luout,*)
+     &  'aor_giaoints: GIAO S(B), S-ket done' 
 
 c     ----------------------------------------
 c     calculate the GIAO B-field Fock operator
@@ -194,7 +198,8 @@ c     get the unperturbed density matrix
      &  scftyp,              
      &  nclosed,nopen,nvirt) 
       
-      if (debug) write (luout,*) 'aor_giaoints: unpertubed Pmat done'
+      if (dbg>0 .and. me) write (luout,*)
+     &  'aor_giaoints: unpertubed Pmat done'
 
 c     sanity checks:
       
@@ -234,12 +239,14 @@ c     Get external and cosmo bq contribution
       if (nbq.gt.0) then
         call int_giao_1ega(basis,basis,g_vecB1(1),'bq10',
      &    origin,nat,oskel)
-        if (debug) write (luout,*) 'aor_giaoints: bq terms added'
+        if (dbg>0 .and. me) write (luout,*)
+     &    'aor_giaoints: bq terms added'
       end if
       
       if (npol.eq.2) call ga_copy(g_vecB1(1), g_vecB1(2))
       
-      if (debug) write (luout,*) 'aor_giaoints: F(B) GIAO 1e done'
+      if (dbg>0 .and. me) write (luout,*)
+     &  'aor_giaoints: F(B) GIAO 1e done'
       
 c     add the two-electron part of the GIAO Fock matrix
 c     derivative to g_vecB1:
@@ -291,7 +298,8 @@ c     derivative to g_vecB1:
        
       end do                    ! ispin
 
-      if (debug) write (luout,*) 'aor_giaoints: F(B) GIAO 2e done'
+      if (dbg>0 .and. me) write (luout,*)
+     &  'aor_giaoints: F(B) GIAO 2e done'
 
       do ispin = 1,npol
         if (.not.ga_destroy(g_dens(ispin))) call 
@@ -317,26 +325,49 @@ c     -----------------------------------------------------
       chi(2) = -1 
       chi(3) = -1      
       
-      if (.not.nga_create(MT_DBL,ndir,clo,'d1',
-     &  chi,g_d1)) call 
+      if (.not.nga_create(MT_DBL,ndir,clo,'d1', chi,g_d1)) call 
      &  errquit('aor_giaoints: nga_create failed g_d1',1,GA_ERR)
       call ga_zero(g_d1)
 
-      if (.not.nga_create(MT_DBL,ndir,clo,'f_fock',
-     &  chi,g_fock)) call 
+      if (.not.nga_create(MT_DBL,ndir,clo,'f_fock', chi,g_fock)) call 
      &  errquit('aor_giaoints: nga_create failed g_fock',1,GA_ERR)
-      call ga_zero(g_fock)      
+      call ga_zero(g_fock)
+
+      if (lifetime) then
+        if (.not.nga_create(MT_DBL,ndir,clo,'d1_im', chi,g_d1_im)) call 
+     &    errquit('aor_giaoints: nga_create failed g_d1_im',1,GA_ERR)
+        call ga_zero(g_d1_im)
+        
+        if (.not.nga_create(MT_DBL,ndir,clo,'f_fock_im',
+     &    chi,g_fock_im)) call 
+     &    errquit('aor_giaoints: nga_create failed g_fock_im',1,GA_ERR)
+        call ga_zero(g_fock_im)
+      end if                    ! lifetime
 
       if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 2))
      &  call errquit('hess_cphf: rtdb_put of calc_type failed',0,
      &  RTDB_ERR)
       if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
      &  call errquit('hess_cphf: rtdb_put of j_derfit failed',0,
-     &  RTDB_ERR)           
+     &  RTDB_ERR)
+
+      if (dbg>1) then
+        clo(1) = nbf
+        clo(2) = nbf
+        clo(3) = 1
+        chi(1) = 1  
+        chi(2) = -1 
+        chi(3) = -1
+
+        if (.not.nga_create(MT_DBL,ndir,clo,'temp', chi,g_temp)) call 
+     &    errquit('aor_giaoints: nga_create failed g_temp',1,GA_ERR)
+        call ga_zero(g_temp)
+      end if                    ! dbg>1
 
       do ispin = 1,npol
         
-        if (debug) write(luout,*) 'goaoints: nocc =',nocc(ispin)
+        if (dbg>0 .and. me) write(luout,*)
+     &    'goaoints: nocc =',nocc(ispin)
         
         alo(1) = -1 
         alo(2) = -1
@@ -350,10 +381,16 @@ c     -----------------------------------------------------
      &    errquit('aor_giaoints: nga_create failed s1mo',1,GA_ERR)
         call ga_zero(g_s1mo)
         
-        if (.not.nga_create(MT_DBL,ndir,ahi,'f1mo',
-     &    alo,g_f1mo)) call 
+        if (.not.nga_create(MT_DBL,ndir,ahi,'f1mo', alo,g_f1mo)) call 
      &    errquit('aor_giaoints: nga_create failed f1mo',1,GA_ERR)
         call ga_zero(g_f1mo)
+
+        if (lifetime) then
+          if (.not.nga_create(MT_DBL,ndir,ahi,'f1mo_im', alo,
+     &      g_f1mo_im)) call 
+     &    errquit('aor_giaoints: nga_create failed f1mo_im',1,GA_ERR)
+        call ga_zero(g_f1mo_im)
+        end if                  ! lifetime
 
 c       calculate S(B) derivative in MO basis, occ-occ block only.
 c       use g_dens and g_fock as scratch space
@@ -403,22 +440,24 @@ c       this is for the transpose of the MO matrix
      &      vectors(ispin), blo, bhi,
      &      g_fock        , elo, ehi)
 
-          if (debug) write(luout,*) 'goaoints: s1 trafo step 1'
+          if (dbg>0 .and. me) write(luout,*) 'goaoints: s1 trafo step 1'
           
           call nga_matmul_patch ('t','n', 1.d0, 0.d0,
      &      vectors(ispin), dlo, dhi,
      &      g_fock        , elo, ehi,          
      &      g_s1mo        , clo, chi)
           
-          if (debug) write(luout,*) 'goaoints: s1 trafo step 2'
+          if (dbg>0 .and. me) write(luout,*) 'goaoints: s1 trafo step 2'
           
-          if (debug)
-     &      call nga_print_patch(g_s1mo,clo,chi,1)
+          if (dbg>1) call nga_print_patch(g_s1mo,clo,chi,1)
 
         end do                  ! idir
 
 c       calculate the asymmetric part of the density
 c       matrix perturbation due to the dynamic electric field
+
+        call ga_zero(g_d1)
+        if (lifetime)  call ga_zero(g_d1_im)
 
         alo(1) = 1
         ahi(1) = nbf
@@ -468,58 +507,146 @@ c         density and fock matrices is the fist, not last
      &      g_vecF1(ispin,2)   , elo, ehi,
      &      g_d1           , clo, chi)
           
-          if (debug) write(luout,*) 'goaoints: dens trafo step 1'
+          if (dbg>0.and.me) write(luout,*) 'goaoints: dens trafo step 1'
 
           call nga_matmul_patch ('n','t', -0.5d0, 1.d0,
      &      g_vecF1(ispin,1)   , dlo, dhi,
      &      vectors(ispin) , blo, bhi,
      &      g_d1           , clo, chi)
 
-          if (debug) write(luout,*) 'goaoints: dens trafo step 2'
+          if (dbg>0.and.me) write(luout,*) 'goaoints: dens trafo step 2'
 
           call nga_matmul_patch ('n','t', 0.5d0, 1.d0,
      &      vectors(ispin) , alo, ahi,
      &      g_vecF1(ispin,1)   , elo, ehi,
      &      g_d1           , clo, chi)
           
-          if (debug) write(luout,*) 'goaoints: dens trafo step 3'
+          if (dbg>0.and.me) write(luout,*) 'goaoints: dens trafo step 3'
 
           call nga_matmul_patch ('n','t', 0.5d0, 1.d0,
      &      g_vecF1(ispin,2)   , dlo, dhi,
      &      vectors(ispin) , blo, bhi,
      &      g_d1           , clo, chi)
           
-          if (debug) write(luout,*) 'goaoints: dens trafo step 4'
-                   
-c          if (debug) call nga_print_patch(g_d1,clo,chi,1)
+          if (dbg>0.and.me) write(luout,*) 'goaoints: dens trafo step 4'
 
+         if (lifetime) then
+c          if (.false.) then
+            
+            
+            call nga_matmul_patch ('n','t', 0.5d0, 0.d0,
+     &        vectors(ispin) , alo, ahi,
+     &        g_vecF1_im(ispin,2)   , elo, ehi,
+     &        g_d1_im           , clo, chi)
+            
+            if (dbg>0.and.me) write(luout,*) 'densim trafo step 1'
+            
+            call nga_matmul_patch ('n','t', -0.5d0, 1.d0,
+     &        g_vecF1_im(ispin,1)   , dlo, dhi,
+     &        vectors(ispin) , blo, bhi,
+     &        g_d1_im           , clo, chi)
+            
+            if (dbg>0.and.me) write(luout,*) 'densim trafo step 2'
+            
+            call nga_matmul_patch ('n','t', -0.5d0, 1.d0,
+     &        vectors(ispin) , alo, ahi,
+     &        g_vecF1_im(ispin,1)   , elo, ehi,
+     &        g_d1_im           , clo, chi)
+            
+            if (dbg>0.and.me) write(luout,*) 'densim trafo step 3'
+            
+            call nga_matmul_patch ('n','t', 0.5d0, 1.d0,
+     &        g_vecF1_im(ispin,2)   , dlo, dhi,
+     &        vectors(ispin) , blo, bhi,
+     &        g_d1_im           , clo, chi)
+            
+            if (dbg>0.and.me) write(luout,*) 'densim trafo step 4'
+
+          end if                ! lifetime
+          
         end do                  ! idir
 
+        if (dbg>1) then
+          alo(2) = 1
+          ahi(2) = nbf
+          alo(3) = 1
+          ahi(3) = nbf
+          blo(1) = 1
+          bhi(1) = nbf
+          blo(2) = 1
+          bhi(2) = nbf
+          blo(3) = 1
+          bhi(3) = 1
+          
+          do idir = 1,3
+            alo(1) = idir
+            ahi(1) = idir
+            call nga_copy_patch('n',g_d1,alo,ahi, g_temp,blo,bhi)
+            if (me) write(luout,*) 'D1 Re AO, idir = ',idir
+            call nga_print_patch(g_temp,blo,bhi,1)
+           if (lifetime) then
+c            if (.false.) then
+              call nga_copy_patch('n',g_d1_im,alo,ahi, g_temp,blo,bhi)
+              if (me) write(luout,*) 'D1 Im AO, idir = ',idir
+              call nga_print_patch(g_temp,blo,bhi,1)
+            end if
+          end do
+        end if
+        
 c       calculate the Fock matrix
 c       Note: Just the exchange: jfac = 0.d0 (see above)
 
         call ga_zero(g_fock)
+        if (lifetime) call ga_zero(g_fock_im)
+
+        ifld = 3
         
         if (.not.cam_exch) then
-          call shell_fock_build(geom, basis, 0, 3,
+          call shell_fock_build(geom, basis, 0, ifld,
      &      jfac, kfac, tol2e, g_d1, g_fock, .false.)
         else
-          call shell_fock_build_cam(geom, basis, 0, 3,
+          call shell_fock_build_cam(geom, basis, 0, ifld,
      %      jfac, kfac, tol2e, g_d1, g_fock, .false.)
         end if
 
-        if (debug) write(luout,*) 'goaoints: fock_build done'
+        if (lifetime) then
+          if (.not.cam_exch) then
+            call shell_fock_build(geom, basis, 0, ifld,
+     &        jfac, kfac, tol2e, g_d1_im, g_fock_im, .false.)
+          else
+            call shell_fock_build_cam(geom, basis, 0, ifld,
+     %        jfac, kfac, tol2e, g_d1_im, g_fock_im, .false.)
+          end if
+        end if                  ! lifetime
 
-c$$$        alo(2) = 1
-c$$$        ahi(2) = nbf
-c$$$        alo(3) = 1
-c$$$        ahi(3) = nbf
-c$$$
-c$$$        do idir = 1,3
-c$$$          alo(1) = idir
-c$$$          ahi(1) = idir
-c$$$          call nga_print_patch(g_fock,alo,ahi,1)
-c$$$        end do
+        if (dbg>0.and.me) write(luout,*) 'goaoints: fock_build done'
+
+        if (dbg>1) then
+          alo(2) = 1
+          ahi(2) = nbf
+          alo(3) = 1
+          ahi(3) = nbf
+          blo(1) = 1
+          bhi(1) = nbf
+          blo(2) = 1
+          bhi(2) = nbf
+          blo(3) = 1
+          bhi(3) = 1
+          
+          do idir = 1,3
+            alo(1) = idir
+            ahi(1) = idir
+            call nga_copy_patch('n',g_fock,alo,ahi, g_temp,blo,bhi)
+            if (me) write(luout,*) 'F1 Re AO, idir = ',idir
+            call nga_print_patch(g_temp,blo,bhi,1)
+           if (lifetime) then
+c            if (.false.) then
+              call nga_copy_patch('n',g_fock,alo,ahi, g_temp,blo,bhi)
+              if (me) write(luout,*) 'F1 Im AO, idir = ',idir
+              call nga_print_patch(g_temp,blo,bhi,1)
+            end if
+          end do
+        end if
           
 
 c       transform to the MO basis, occ-occ block. use g_d1
@@ -561,6 +688,7 @@ c       this is for the transpose of the MO matrix
           
           alo(1) = idir
           ahi(1) = idir
+          
           clo(3) = idir
           chi(3) = idir
           
@@ -571,17 +699,40 @@ c       this is for the transpose of the MO matrix
      &      vectors(ispin), blo, bhi,
      &      g_d1        , elo, ehi)
 
-          if (debug) write(luout,*) 'goaoints: f1 trafo step 1'
+          if (dbg>0.and.me) write(luout,*) 'goaoints: f1 trafo step 1'
           
           call nga_matmul_patch ('t','n', 1.d0, 0.d0,
      &      vectors(ispin), dlo, dhi,
      &      g_d1        , elo, ehi,          
      &      g_f1mo        , clo, chi)
           
-          if (debug) write(luout,*) 'goaoints: f1 trafo step 2'
+          if (dbg>0.and.me) write(luout,*) 'goaoints: f1 trafo step 2'
           
-          if (debug)
+          if (dbg>1.and.me)
      &      call nga_print_patch(g_f1mo,clo,chi,1)
+
+          if (lifetime) then
+c          if (.false.) then            
+            
+            call ga_zero(g_d1_im)
+            
+            call nga_matmul_patch ('n','n', 1.d0, 0.d0,
+     &        g_fock_im        , alo, ahi,
+     &        vectors(ispin), blo, bhi,
+     &        g_d1_im          , elo, ehi)
+
+            if (dbg>0.and.me) write(luout,*) 'f1im trafo step 1'
+            
+            call nga_matmul_patch ('t','n', 1.d0, 0.d0,
+     &        vectors(ispin), dlo, dhi,
+     &        g_d1_im          , elo, ehi,          
+     &        g_f1mo_im     , clo, chi)
+          
+          if (dbg>0.and.me) write(luout,*) 'f1im trafo step 2'
+          
+          if (dbg>1.and.me)
+     &      call nga_print_patch(g_f1mo_im,clo,chi,1)
+          end if                ! lifetime
 
         end do                  ! idir
 
@@ -608,12 +759,22 @@ c       this is for the transpose of the MO matrix
      &        g_f1mo, 't', alo, ahi,
      &        g_s1mo, 'n', blo, bhi)
 
-            if (debug) write(luout,*) 'idir,jdir,rtemp',idir,jdir,rtemp
+            giaowsre(idir,jdir) = giaowsre(idir,jdir) + rtemp
 
-            giaowsre(idir,jdir) = giaowsre(idir,jdir) + rtemp 
+           if (lifetime) then
+c            if (.false.) then
+              
+              rtemp = nga_ddot_patch(
+     &          g_f1mo_im, 't', alo, ahi,
+     &          g_s1mo, 'n', blo, bhi)
+              
+              giaowsim(idir,jdir) = giaowsim(idir,jdir) + rtemp 
+              
+            end if              ! lifetime
 
-          end do
-        end do
+          end do                ! jdir
+          
+        end do                  ! idir
 
         
         if (.not.ga_destroy(g_f1mo)) call 
@@ -621,23 +782,42 @@ c       this is for the transpose of the MO matrix
         if (.not.ga_destroy(g_s1mo)) call 
      &    errquit('giaoints: ga_destroy failed g_s1mo',1,GA_ERR)
 
+        if (lifetime) then
+          if (.not.ga_destroy(g_f1mo_im)) call 
+     &      errquit('giaoints: ga_destroy failed g_f1moim',1,GA_ERR)
+        end if
         
       end do                    ! ispin
 
-      if (debug) then
+      if (dbg>0.and.me) then
         write(luout,*) 'goaoints: giaowsre: '
         call output (giaowsre,1,3,1,3,3,3,1)
+        write(luout,*) 'goaoints: giaowsim: '
+        call output (giaowsim,1,3,1,3,3,3,1)
       end if
         
 
 c     done with Fock matrices. deallocate GAs
+
+      if (dbg>1) then
+        if (.not.ga_destroy(g_temp)) call 
+     &    errquit('giaoints: ga_destroy failed g_temp',1,GA_ERR)
+      end if                    ! dbg>1
 
       if (.not.ga_destroy(g_fock)) call 
      &  errquit('giaoints: ga_destroy failed g_fock',1,GA_ERR)
 
       if (.not.ga_destroy(g_d1)) call 
      &  errquit('giaoints: ga_destroy failed g_d1',1,GA_ERR)
-      
+
+      if (lifetime) then
+        if (.not.ga_destroy(g_fock_im)) call 
+     &    errquit('giaoints: ga_destroy failed g_fock_im',1,GA_ERR)
+        
+        if (.not.ga_destroy(g_d1_im)) call 
+     &    errquit('giaoints: ga_destroy failed g_d1_im',1,GA_ERR)
+      end if                    ! lifetime
+        
       do ispin=1,npol
         if (.not.ga_destroy(vectors(ispin))) call 
      &    errquit('giaoints: ga_destroy failed vectors',0,GA_ERR)

@@ -703,7 +703,7 @@ c     --------------------------------------------
         giaowsre(:,:) = 0.0d0
         giaowsim(:,:) = 0.0d0
         
-        call aor_get_giaoints(rtdb, basis, geom, npol, lifetime,
+        call aor_get_giaoints(rtdb, basis, geom, npol, .true.,
      &    g_vecF1, g_vecF1_im,
      &    g_vecB1, g_smat1, g_sket1, giaowsre, giaowsim)
 
