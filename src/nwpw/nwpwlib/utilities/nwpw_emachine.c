@@ -395,7 +395,7 @@ static void nwpw_gencode(Integer code[], double fconst[], int ln, char expr[])
 
    else if ((t=nwpw_findtoken(expr,"d")) >= 0)
    {
-      nwpw_findrion(&expr[t+5],&ii,&jj);
+      nwpw_findrion(&expr[t+2],&ii,&jj);
       //printf("code: ln=%d   d[%d,%d]\n",ln,ii,jj);
       code[5*ln] = -31; code[5*ln+1] = 0; code[5*ln+2] = ii; code[5*ln+3] = jj; code[5*ln+4] = 0;
    }
