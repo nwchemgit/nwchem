@@ -934,7 +934,7 @@ c     **** bond_difference_shell ****
                f = f + (1.0/r1)**n
             end do
          end do
-         f = (f**(-1.0d0/n)) /n12
+         f = (f/n12)**(-1.0d0/n)
   
       end if
 
@@ -1397,7 +1397,7 @@ c     **** bond_difference2 ****
                f = f + (1.0/r1)**n
             end do
          end do
-         f = (f**(-1.0d0/n)) /n12
+         f = (f/n12)**(-1.0d0/n)
 
          do i=1,n1
             do j=1,n2
@@ -1412,7 +1412,7 @@ c     **** bond_difference2 ****
                dz = z1-z2
                call lattice_min_difference(dx,dy,dz)
                r1  = dsqrt(dx**2 + dy**2 + dz**2)
-               df = -((f/r1)**(n+1))/n12
+               df = ((f/r1)**(n+1))/n12
 
                fmeta(1,indx(3+i)) = fmeta(1,indx(3+i)) - (dx)*df*dv
                fmeta(2,indx(3+i)) = fmeta(2,indx(3+i)) - (dy)*df*dv
