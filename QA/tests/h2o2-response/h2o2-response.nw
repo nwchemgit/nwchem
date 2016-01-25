@@ -1,0 +1,68 @@
+echo
+
+title "h2o2"
+
+memory 128 mb
+#memory global 73 mb stack 20 mb heap 5 mb
+
+start h2o2
+
+geometry units bohr nocenter
+symmetry c1
+#
+ O     0.00000000     0.00000000     1.41178038  
+ O     0.12488360     0.00000000    -1.40614001  
+ H    -1.06625676    -1.50151179     1.65190485 
+ H    -0.91573670     1.50151179    -1.74142163 
+end
+
+basis spherical
+ * library 6-31G**
+end
+
+scf
+ direct
+end
+
+charge 0
+
+dft
+ direct
+ xc xcamb88 1.00 lyp 0.81 vwn_5 0.19 hfexch 1.00
+ cam 0.33 cam_alpha 0.19 cam_beta 0.46
+ tolerances tight
+#XC slater vwn_5
+# XC pbe0
+# XC hfexch
+# XC becke88 lyp 
+end
+
+property
+ aoresponse  1  0.077318
+ # damping 0.07
+ convergence 1e-5
+ bdtensor
+ # orbeta
+ gprime
+ giao
+end
+
+set cphf:acc 1.0d-10
+set cphf:maxsub 60
+
+task dft property
+
+tddft
+  rpa
+  singlet
+  notriplet
+  nroots 10
+  cdspectrum
+  thresh 1e-5
+  giao
+  # velocity
+end
+
+task tddft energy
+
+
