@@ -44,7 +44,7 @@ c
      >            'bond_difference2',
      >            'bond_difference_shell',
      >            'equation',
-     >            'colvar',
+     >            'group_distance',
      >            'end'/
 
       integer num_dirs2          ! No. of known directives
@@ -1837,7 +1837,7 @@ c
 
 
 c
-c  colvar
+c  group_distance
 c
  1800 if (.not.BA_push_get(mt_int,nw_max_atom,'indx_start1',
      >                    index_start1(2),index_start1(1)))
@@ -1848,11 +1848,11 @@ c
      >    call errquit(
      > 'metadynamics_input:failed allocating index_start2',0,MA_ERR)
 
-      sdist(1) = 0.00050d0
-      sdist(2) = 0.0002d0
+      sdist(1) = 0.00005d0
+      sdist(2) = 0.10000d0
       sdist(3) = 6.0d0
-      sdist(7) =  0.0d0
-      sdist(8) =  1.0d0
+      sdist(7) = -999.0d0
+      sdist(8) = -999.0d0
       sindx(1) = 501
       n1 = 0
       n2 = 0
@@ -1897,18 +1897,18 @@ c
 c
 c w
 c
- 1860 if (.not.inp_f(sdist(1))) sdist(1)=0.00050d0
+ 1860 if (.not.inp_f(sdist(1))) sdist(1)=0.000050d0
       goto 1801
 c
 c sigma
 c
- 1870 if (.not.inp_f(sdist(2))) sdist(2)=0.0002d0
+ 1870 if (.not.inp_f(sdist(2))) sdist(2)=0.1d0
       goto 1801
 c
 c range
 c
- 1880 if (.not.inp_f(sdist(7))) sdist(7)=0.0d0
-      if (.not.inp_f(sdist(8))) sdist(8)=1.0d0
+ 1880 if (.not.inp_f(sdist(7))) sdist(7)=-999.0d0
+      if (.not.inp_f(sdist(8))) sdist(8)=-999.0d0
       goto 1801
 c
 c nrange

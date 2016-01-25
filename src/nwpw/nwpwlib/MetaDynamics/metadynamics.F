@@ -517,7 +517,7 @@ c     **********************************************
      >                   /6x,A,F11.6,F11.6,
      >                   /6x,A,I5,
      >                   /6x,A,I2)')
-     >       "  - Colvar Parameters: ",
+     >       "  - Group_Distance Parameters: ",
      >           'n= ',n,
      >           'w= ',w,'sigma=   ',sigma,
      >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
@@ -532,8 +532,8 @@ c     **********************************************
  1002 FORMAT(2x,"- Coorination Number (Index2) :",10I5)
  1003 FORMAT(2x,"- Bond Difference Indexes (Index1) :",10I5)
  1004 FORMAT(2x,"- Bath Indexes            (Index2) :",10I5)
- 1005 FORMAT(2x,"- Colvar Indexes (Index1) :",10I5)
- 1006 FORMAT(2x,"- Colvar Indexes (Index2) :",10I5)
+ 1005 FORMAT(2x,"- Group Distance Indexes (Index1) :",10I5)
+ 1006 FORMAT(2x,"- Group Distance Indexes (Index2) :",10I5)
 
       end if
       value = btdb_parallel(.true.)
@@ -1414,15 +1414,15 @@ c     **** bond_difference2 ****
                r1  = dsqrt(dx**2 + dy**2 + dz**2)
                df = ((f/r1)**(n+1))/n12
 
-               fmeta(1,indx(3+i)) = fmeta(1,indx(3+i)) - (dx)*df*dv
-               fmeta(2,indx(3+i)) = fmeta(2,indx(3+i)) - (dy)*df*dv
-               fmeta(3,indx(3+i)) = fmeta(3,indx(3+i)) - (dz)*df*dv
+               fmeta(1,indx(3+i)) = fmeta(1,indx(3+i)) - (dx/r1)*df*dv
+               fmeta(2,indx(3+i)) = fmeta(2,indx(3+i)) - (dy/r1)*df*dv
+               fmeta(3,indx(3+i)) = fmeta(3,indx(3+i)) - (dz/r1)*df*dv
                fmeta(1,indx(3+n1+j)) = fmeta(1,indx(3+n1+j)) 
-     >                               + (dx)*df*dv
+     >                               + (dx/r1)*df*dv
                fmeta(2,indx(3+n1+j)) = fmeta(2,indx(3+n1+j)) 
-     >                               + (dy)*df*dv
+     >                               + (dy/r1)*df*dv
                fmeta(3,indx(3+n1+j)) = fmeta(3,indx(3+n1+j)) 
-     >                               + (dz)*df*dv
+     >                               + (dz/r1)*df*dv
 
 
             end do
