@@ -527,8 +527,11 @@ c       component 1: use sket1 vir-occ block unmodified
         
 c       component 2: use the transpose of sket 
         
+c       jochen: below used to be smat1 , not sket1.
+c       try what happens with sket1
+        
         if (ncomp.eq.2) then
-          call nga_add_patch(-1.0d0*omega,g_smat1,
+          call nga_add_patch(-1.0d0*omega,g_sket1,
      &       alo,ahi,1d0,g_rhs(2),blo,bhi,
      &       g_rhs(2),blo,bhi)             
         endif

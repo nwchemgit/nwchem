@@ -980,13 +980,15 @@ c     Write polarizability information to the RTDB
 c     
 c     
       if (oprint) then       
-        write (LuOut,*)
+        write (LuOut,'(/1x,a)')
      &    'Magnetic Dipole Response Matrix (nonzero elements):'
         if (lgprime) then
           write (LuOut,*) 'Optical rotation tensor G'' '
         else
           write (LuOut,*) 'Optical rotation tensor Beta'
         endif
+        if (lquad) write(luout,*)
+     &    '(Buckingham-Dunn version including dipole-quadrupole terms)'
       end if
         
       if (lstatic .and. .not.lbeta) then

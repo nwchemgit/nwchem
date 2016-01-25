@@ -201,32 +201,6 @@ c     ---------------------
 c     start interation loop
 c     ---------------------
 c   
-c 000000000000 check guess 000000000 START  
-        if (debug) then
-         do ipm=1,ncomp
-             if (ga_nodeid().eq.0)
-     &        write(*,51) iter,ipm
- 51           format('-------g_x-re-guess(',
-     &               i3,',',i3,')--------- START') 
-             call ga_print(g_x(ipm))
-             if (ga_nodeid().eq.0)
-     &        write(*,52) iter,ipm
- 52           format('-------g_x-re-guess(',
-     &               i3,',',i3,')--------- END') 
-             if (lifetime) then
-             if (ga_nodeid().eq.0)
-     &        write(*,53) iter,ipm
- 53           format('-------g_x-im-guess(',
-     &               i3,',',i3,')--------- START') 
-             call ga_print(g_x_im(ipm))
-             if (ga_nodeid().eq.0)
-     &        write(*,54) iter,ipm
- 54           format('-------g_x-im-guess(',
-     &               i3,',',i3,')--------- END') 
-             endif
-         enddo
-        endif ! end-if-debug
-c 000000000000 check guess 000000000 END
       do iter = 1, maxiter       
 c       
 c ... jochen: here in the iteration loops we keep track
@@ -246,96 +220,12 @@ c ... jochen: call product routine with initial or intermediate
 c       solution vector: g_x and g_Ax MUST have two components here
         
         if (debug) write (6,*) 'calling product from ga_lkain_2cpl'
-        if (debug) then 
-           if (ga_nodeid().eq.0) then
-             write(*,10) iter
- 10          format('------ g_x-BEF-product(',i3,')---START')
-           endif
-            do ipm=1,ncomp
-             if (ga_nodeid().eq.0)
-     &        write(*,31) iter,ipm
- 31           format('-------g_x-re(',i3,',',i3,')--------- START') 
-             call ga_print(g_x(ipm))
-             if (ga_nodeid().eq.0)
-     &        write(*,32) iter,ipm
- 32           format('-------g_x-re(',i3,',',i3,')--------- END') 
-             if (ga_nodeid().eq.0)
-     &        write(*,33) iter,ipm
- 33           format('-------g_Ax-re(',i3,',',i3,')--------- START') 
-             call ga_print(g_Ax(ipm))
-             if (ga_nodeid().eq.0)
-     &        write(*,34) iter,ipm
- 34           format('-------g_Ax-re(',i3,',',i3,')--------- END') 
-             if (lifetime) then
-             if (ga_nodeid().eq.0)
-     &        write(*,35) iter,ipm
- 35           format('-------g_x-im(',i3,',',i3,')--------- START') 
-              call ga_print(g_x_im(ipm))
-             if (ga_nodeid().eq.0)
-     &        write(*,36) iter,ipm
- 36           format('-------g_x-im(',i3,',',i3,')--------- END') 
-             if (ga_nodeid().eq.0)
-     &        write(*,37) iter,ipm
- 37           format('-------g_Ax-im(',i3,',',i3,')--------- START') 
-              call ga_print(g_Ax_im(ipm))
-             if (ga_nodeid().eq.0)
-     &        write(*,38) iter,ipm
- 38           format('-------g_Ax-im(',i3,',',i3,')--------- END') 
-             endif
-            enddo ! end-loop-ipm
-           if (ga_nodeid().eq.0) then
-             write(*,11) iter
- 11          format('------ g_x-BEF-product(',i3,')---END')
-           endif
-        endif ! end-if-debug
 
         call product(acc, 
      &               g_x   , g_Ax, 
      &               g_x_im, g_Ax_im, 
      &               omega, limag,
      &               lifetime, gamwidth, ncomp)
-        if (debug) then
-           if (ga_nodeid().eq.0) then
-             write(*,12) iter
- 12          format('------ g_x-AFT-product(',i3,')---START')
-           endif
-            do ipm=1,ncomp
-             if (ga_nodeid().eq.0)
-     &        write(*,41) iter,ipm
- 41           format('-------g_x-re(',i3,',',i3,')--------- START') 
-             call ga_print(g_x(ipm))
-             if (ga_nodeid().eq.0)
-     &        write(*,42) iter,ipm
- 42           format('-------g_x-re(',i3,',',i3,')--------- END') 
-             if (ga_nodeid().eq.0)
-     &        write(*,43) iter,ipm
- 43           format('-------g_Ax-re(',i3,',',i3,')--------- START') 
-             call ga_print(g_Ax(ipm))
-             if (ga_nodeid().eq.0)
-     &        write(*,44) iter,ipm
- 44           format('-------g_Ax-re(',i3,',',i3,')--------- END') 
-             if (lifetime) then
-             if (ga_nodeid().eq.0)
-     &        write(*,45) iter,ipm
- 45           format('-------g_x-im(',i3,',',i3,')--------- START') 
-              call ga_print(g_x_im(ipm))
-             if (ga_nodeid().eq.0)
-     &        write(*,46) iter,ipm
- 46           format('-------g_x-im(',i3,',',i3,')--------- END') 
-             if (ga_nodeid().eq.0)
-     &        write(*,47) iter,ipm
- 47           format('-------g_Ax-im(',i3,',',i3,')--------- START') 
-              call ga_print(g_Ax_im(ipm))
-             if (ga_nodeid().eq.0)
-     &        write(*,48) iter,ipm
- 48           format('-------g_Ax-im(',i3,',',i3,')--------- END') 
-             endif
-            enddo ! end-loop-ipm
-           if (ga_nodeid().eq.0) then
-             write(*,13) iter
- 13          format('------ g_x-AFT-product(',i3,')---END')
-           endif
-        endif ! end-if-debug
 
         call ga_sync()
         if (debug) write (6,*) 'returning product from ga_lkain_2cpl'
@@ -368,37 +258,7 @@ c         g_Ax is calculated from the initial guess
           call ga_sync()        
         enddo                   ! ipm = 1,ncomp
         call ga_sync()
-          if (debug) then
-           do ipm=1,ncomp
-            if (ga_nodeid().eq.0) then
-             write(*,49) ipm,iter
- 49          format('----g_Ax(',i3,',',i3,')-----START')
-            endif
-            call ga_print(g_Ax(ipm))
-            if (ga_nodeid().eq.0) then
-             write(*,50) ipm,iter
- 50          format('----g_Ax(',i3,',',i3,')-----END')
-            endif
-            if (ga_nodeid().eq.0) then
-             write(*,2779) ipm,iter
- 2779        format('----g_b(',i3,',',i3,')-----START')
-            endif
-            call ga_print(g_b(ipm))
-            if (ga_nodeid().eq.0) then
-             write(*,2880) ipm,iter
- 2880        format('----g_b(',i3,',',i3,')-----END')
-            endif
-            if (ga_nodeid().eq.0) then
-             write(*,2782) iter,ipm
- 2782        format('----g_r(',i3,',',i3,')-----START')
-            endif
-            call ga_print(g_r(ipm))
-            if (ga_nodeid().eq.0) then
-             write(*,2783) iter,ipm
- 2783        format('----g_r(',i3,',',i3,')-----END')
-            endif
-           enddo ! end-loop-ipm
-          endif ! end-if-debug      
+
 c       convergence checking:
 c       find the largest element of the residual either 
 c       before or after the call to the preconditioner
@@ -748,14 +608,11 @@ c     &        l_zim,k_zim
       external copy_rtor2,copy_r2tor,copy_AxxtoAyy,
      &         update_g_x1
 
-      debug1 = .false. ! FA no  printouts
-c     debug1 = .true.  ! FA yes printouts
 c
 c     =================================================================
 
       debug = (.false. .and. ga_nodeid().eq.0) ! for code development
 
-c     debug=.true. ! FA-12-01-13
 
 c     check input key if we should check for convergence
 c     after the preconditioner has been applied to the residual

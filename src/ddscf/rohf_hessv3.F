@@ -477,15 +477,7 @@ c
         
         dbl_mb(k_kfac(1)+nfock-1)    = -0.5d0*xc_xfac1 ! CV
         dbl_mb(k_kfac(2)+nfock-1)    = -0.5d0*xc_xfac1 ! CV
-c --- FA-12-02-13 -------------- START
-c        if (ga_nodeid().eq.0) then
-c         write(*,10) nfock-1,
-c     &        dbl_mb(k_kfac(1)+nfock-1),dbl_mb(k_kfac(2)+nfock-1),
-c     &        dbl_mb(k_jfac(1)+nfock-1),dbl_mb(k_jfac(2)+nfock-1)
-c 10      format('nfock,kfac1,kfac2,jfac1,jfac2)=(',
-c     &          i2,',',f14.12,',',f14.12,',',f8.6,',',f8.6,')')
-c        endif
-c --- FA-12-02-13 -------------- END
+
 c       jfac(nfock)    =  1.0d0   ! CV
 c       kfac(nfock)    = 1.0d0   ! CV
 c       jfac(nfock)    =  4.0d0   ! CV
@@ -647,7 +639,7 @@ c       the Fock operators F(+/-) afterwards from F(S) +/- F(A).
 c       If it works for the skew-symmetric density matrix of NMR then
 c       it should work for this problem here, too
 
-c       note: here is one of those ominous scalings by 1/4
+c       note: here is one of those scalings by 1/4
 c       needed to get the correct final results
         call ga_sync()
         call ga_scale(g_pmats(1),0.25d0)
