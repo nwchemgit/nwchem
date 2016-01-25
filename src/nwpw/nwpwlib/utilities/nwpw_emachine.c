@@ -29,6 +29,9 @@
 #endif
 #endif
 
+extern void lattice_min_difference_();
+
+
 
 /*************************  parser routines *******************************/
 
@@ -114,6 +117,8 @@ static void nwpw_findrion(char str[], int *s, int *e)
 
 
 
+
+
 static int nwpw_findnum(char str[])
 {
    int pstack=0;
@@ -179,7 +184,7 @@ static int nf = 0;
 
 static void nwpw_gencode(Integer code[], double fconst[], int ln, char expr[])
 {
-   int  lnl,lnr,t,t2,nt,s,e,stride,i,ii;
+   int  lnl,lnr,t,t2,nt,s,e,stride,i,ii,jj;
    char lexpr[500],rexpr[500],tmps[10],tmpss[10];
    double f;
 
@@ -387,6 +392,15 @@ static void nwpw_gencode(Integer code[], double fconst[], int ln, char expr[])
       //printf("code: ln=%d   rion[%d,%d]\n",ln,i,ii);
       code[5*ln] = -30; code[5*ln+1] = 0; code[5*ln+2] = i; code[5*ln+3] = ii; code[5*ln+4] = 0;
    }
+
+   else if ((t=nwpw_findtoken(expr,"d")) >= 0)
+   {
+      nwpw_findrion(&expr[t+5],&ii,&jj);
+      //printf("code: ln=%d   d[%d,%d]\n",ln,ii,jj);
+      code[5*ln] = -31; code[5*ln+1] = 0; code[5*ln+2] = ii; code[5*ln+3] = jj; code[5*ln+4] = 0;
+   }
+
+
    else if ((t=nwpw_findtoken(expr,"i")) >= 0)
    {
       //printf("code: ln=%d  i\n",ln);
@@ -465,7 +479,7 @@ static Integer i,j,k,ii,jj,kk;
 double nwpw_emachine(int ln, Integer code[], double fconst[], Integer nion, double rion[])
 {
    Integer op,arg1,arg2,arg3,arg4,ln1,ln2;
-   double f,a,b;
+   double f,a,b,x,y,z;
 
    f = 0.0;
    op  = code[5*ln];
@@ -603,6 +617,13 @@ double nwpw_emachine(int ln, Integer code[], double fconst[], Integer nion, doub
 
       case -30: /* rion(arg1,arg2) */
          f = rion[(arg1-1)+3*(arg2-1)];
+
+      case -31: /* d(arg1,arg2) */
+         x = rion[0+3*(arg1-1)] - rion[0+3*(arg2-1)];
+         y = rion[1+3*(arg1-1)] - rion[1+3*(arg2-1)];
+         z = rion[2+3*(arg1-1)] - rion[2+3*(arg2-1)];
+         lattice_min_difference_(&x,&y,&z);
+         f = sqrt(x*x + y*y + z*z);
          break;
 
 
@@ -649,7 +670,7 @@ double nwpw_emachine(int ln, Integer code[], double fconst[], Integer nion, doub
 double nwpw_fmachine(Integer i0, Integer ii0, Integer ln, Integer code[], double fconst[], Integer nion, double rion[])
 {
    Integer op,arg1,arg2,arg3,arg4,ln1,ln2;
-   double df,a,b,c,d,bb,aa,fac1,fac2;
+   double df,a,b,c,d,bb,aa,fac1,fac2,x,y,z,xx[3];
 
    df = 0.0;
    op  = code[5*ln];
@@ -851,6 +872,29 @@ double nwpw_fmachine(Integer i0, Integer ii0, Integer ln, Integer code[], double
          else 
             df = 0.0;
          break;
+
+
+      case -31: /* d(arg1,arg2) */
+         if (arg1==ii0)
+         {
+            x = rion[0+3*(arg1-1)] - rion[0+3*(arg2-1)];
+            y = rion[1+3*(arg1-1)] - rion[1+3*(arg2-1)];
+            z = rion[2+3*(arg1-1)] - rion[2+3*(arg2-1)];
+            lattice_min_difference_(&x,&y,&z);
+            xx[0] = x; xx[1] = y; xx[2] = z;
+            df = xx[i0]/sqrt(x*x + y*y + z*z);
+         }
+         else if (arg2==ii0)
+         {
+            x = rion[0+3*(arg2-1)] - rion[0+3*(arg1-1)];
+            y = rion[1+3*(arg2-1)] - rion[1+3*(arg1-1)];
+            z = rion[2+3*(arg2-1)] - rion[2+3*(arg1-1)];
+            lattice_min_difference_(&x,&y,&z);
+            xx[0] = x; xx[1] = y; xx[2] = z;
+            df = xx[i0]/sqrt(x*x + y*y + z*z);
+         }
+         break;
+
 
       case -40: /* i */
          df = 0.0;

@@ -40,6 +40,7 @@ c
       real*8   nwpw_gaunt,nwpw_GaussBessel,Tesseral_lm
       external nwpw_gaunt,nwpw_GaussBessel,Tesseral_lm
 
+      call nwpw_timing_start(49)
       pi = 4.0d0*datan(1.0d0)
       x = dble(nwpw_doublefactorial(2*la+1))
       y = dble(nwpw_doublefactorial(2*lb+1))
@@ -75,6 +76,7 @@ c
          tmp = tmp + fac * mtmp * nwpw_GaussBessel(la+lb,l,alpha,R)
          fac = -fac
       end do
+      call nwpw_timing_end(49)
 
       nwpw_WGaussian = c * tmp
       return
@@ -120,6 +122,7 @@ c
       real*8   nwpw_gaunt,nwpw_GaussBessel,nwpw_dGaussBessel,Tesseral_lm
       external nwpw_gaunt,nwpw_GaussBessel,nwpw_dGaussBessel,Tesseral_lm
 
+      call nwpw_timing_start(50)
       pi = 4.0d0*datan(1.0d0)
       x = dble(nwpw_doublefactorial(2*la+1))
       y = dble(nwpw_doublefactorial(2*lb+1))
@@ -170,6 +173,7 @@ c
       dW(1) = dW(1)*c
       dW(2) = dW(2)*c
       dW(3) = dW(3)*c
+      call nwpw_timing_end(50)
 
       return
       end 
@@ -208,6 +212,7 @@ c
       integer  nwpw_doublefactorial
       external nwpw_doublefactorial
 
+      call nwpw_timing_start(48)
       U = 0.0d0
       if ((la.eq.lb).and.(ma.eq.mb)) then
          twopi = 8.0d0*datan(1.0d0)
@@ -215,6 +220,7 @@ c
          y = (dsqrt(0.5d0*(sa*sa+sb*sb)))**(2*la+1)
          U = 4.0d0*dsqrt(twopi)/(x*y) 
       end if
+      call nwpw_timing_end(48)
 
       nwpw_UGaussian = U
       return

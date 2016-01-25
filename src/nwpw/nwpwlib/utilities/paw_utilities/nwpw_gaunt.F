@@ -136,6 +136,7 @@ c
       real*8   nwpw_gaunt_sub
       external nwpw_gaunt_sub
 
+      call nwpw_timing_start(51)
       if ((l1.gt.nwpw_gaunt_lmax).or.
      >    (l2.gt.nwpw_gaunt_lmax).or.
      >    (l3.gt.nwpw_gaunt_lmax).or.
@@ -152,6 +153,7 @@ c
          gg = dbl_mb(nwpw_gaunt_coeff(1)+indx)
 
       end if
+      call nwpw_timing_end(51)
       nwpw_gaunt = gg
 
       return
