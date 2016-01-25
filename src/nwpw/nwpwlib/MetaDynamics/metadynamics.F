@@ -201,7 +201,8 @@ c     **********************************************
             do d=1,nmeta
                s1 = int_mb(sindxmeta(1) +d-1)
                if ((int_mb(indxmeta(1)+s1).eq.1).or.
-     >             (int_mb(indxmeta(1)+s1).eq.5)) then
+     >             (int_mb(indxmeta(1)+s1).eq.5) .or.
+     >             (int_mb(indxmeta(1)+s1).eq.13)) then
                   if (int_mb(pmeta(1)+d-1).lt.0)
      >               int_mb(pmeta(1)+d-1) = 0
                   if (dbl_mb(ameta(1)+d-1).lt.0.0d0) 
