@@ -42,7 +42,7 @@ c     **********************************************
       metaprintcount = 0
       rtdb_name = 'metadynamics_print'
       if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,maxmetaprintcount)) 
-     >   maxmetaprintcount=100
+     >   maxmetaprintcount=10
 
       rtdb_name = 'metadynamics_nmeta'
       if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,nmeta)) nmeta = 0
@@ -505,6 +505,25 @@ c     **********************************************
      >           'nrange= ',int_mb(nxmeta(1)+d-1),
      >           'periodic=',int_mb(pmeta(1)+d-1) 
 
+            else if (ntype.eq.13) then
+             n1 = int_mb(indxmeta(1)+s1+1)
+             n2 = int_mb(indxmeta(1)+s1+2)
+             n  =  dbl_mb(parammeta(1)+s2+2)
+             write(luout,1005) (int_mb(indxmeta(1)+s1+3+j-1),j=1,n1)
+             write(luout,1006) (int_mb(indxmeta(1)+s1+3+n1+j-1),j=1,n2)
+
+             write(luout,'(A,/6x,A,F11.6,
+     >                   /6x,A,F11.6,4x,A,F11.6,
+     >                   /6x,A,F11.6,F11.6,
+     >                   /6x,A,I5,
+     >                   /6x,A,I2)')
+     >       "  - Colvar Parameters: ",
+     >           'n= ',n,
+     >           'w= ',w,'sigma=   ',sigma,
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'ngrid=  ',int_mb(nxmeta(1)+d-1),
+     >           'periodic=  ',int_mb(pmeta(1)+d-1)
+
             end if
 
          end do
@@ -513,6 +532,8 @@ c     **********************************************
  1002 FORMAT(2x,"- Coorination Number (Index2) :",10I5)
  1003 FORMAT(2x,"- Bond Difference Indexes (Index1) :",10I5)
  1004 FORMAT(2x,"- Bath Indexes            (Index2) :",10I5)
+ 1005 FORMAT(2x,"- Colvar Indexes (Index1) :",10I5)
+ 1006 FORMAT(2x,"- Colvar Indexes (Index2) :",10I5)
 
       end if
       value = btdb_parallel(.true.)
@@ -890,6 +911,31 @@ c     **** bond_difference_shell ****
       else if (ntype.eq.12) then
           nion = ion_nion()
           f = nwpw_expression_f(indx(2),nion,dbl_mb(ion_rion_ptr()))
+
+      else if (ntype.eq.13) then
+         n1=indx(2)
+         n2=indx(3)
+         f = 0.0d0
+         n  = param(3)
+         n12 = dble(n1*n2)
+         do i=1,n1
+            do j=1,n2
+               x1 = ion_rion(1,indx(3+i))
+               y1 = ion_rion(2,indx(3+i))
+               z1 = ion_rion(3,indx(3+i))
+               x2 = ion_rion(1,indx(3+n1+j))
+               y2 = ion_rion(2,indx(3+n1+j))
+               z2 = ion_rion(3,indx(3+n1+j))
+               dx1 = x1-x2
+               dy1 = y1-y2
+               dz1 = z1-z2
+               call lattice_min_difference(dx1,dy1,dz1)
+               r1  = dsqrt(dx1**2 + dy1**2 + dz1**2)
+               f = f + (1.0/r1)**n
+            end do
+         end do
+         f = (f**(-1.0d0/n)) /n12
+  
       end if
 
       meta_collective = f
@@ -918,7 +964,7 @@ c     **********************************************
       logical sprik
       integer i,j,ntype,n1,n2,nion
       real*8 x1,y1,z1,r1,vx1,vx2,vy1,vy2,vz1,vz2
-      real*8 x2,y2,z2,aa,a11,a12,a22,r,df,n,m,r0,rn,rm
+      real*8 x2,y2,z2,aa,a11,a12,a22,r,df,f,n,m,r0,rn,rm
       real*8 x3,y3,z3,r3,ctheta,stheta,denom
       real*8 dx,dy,dz,dx1,dy1,dz1,dx3,dy3,dz3,nx,ny,nz,la,lb
       real*8 x4,y4,z4,dx2,dy2,dz2,r2,df1,df2,d1a,d2a,d1b,d2b
@@ -1328,6 +1374,61 @@ c     **** bond_difference2 ****
          call nwpw_expression_fion(dv,indx(2),
      >                        nion,dbl_mb(ion_rion_ptr()),
      >                        fmeta)
+
+      else if (ntype.eq.13) then
+         n1=indx(2)
+         n2=indx(3)
+         f = 0.0d0
+         n  = param(3)
+         n12 = dble(n1*n2)
+         do i=1,n1
+            do j=1,n2
+               x1 = ion_rion(1,indx(3+i))
+               y1 = ion_rion(2,indx(3+i))
+               z1 = ion_rion(3,indx(3+i))
+               x2 = ion_rion(1,indx(3+n1+j))
+               y2 = ion_rion(2,indx(3+n1+j))
+               z2 = ion_rion(3,indx(3+n1+j))
+               dx1 = x1-x2
+               dy1 = y1-y2
+               dz1 = z1-z2
+               call lattice_min_difference(dx1,dy1,dz1)
+               r1  = dsqrt(dx1**2 + dy1**2 + dz1**2)
+               f = f + (1.0/r1)**n
+            end do
+         end do
+         f = (f**(-1.0d0/n)) /n12
+
+         do i=1,n1
+            do j=1,n2
+               x1 = ion_rion(1,indx(3+i))
+               y1 = ion_rion(2,indx(3+i))
+               z1 = ion_rion(3,indx(3+i))
+               x2 = ion_rion(1,indx(3+n1+j))
+               y2 = ion_rion(2,indx(3+n1+j))
+               z2 = ion_rion(3,indx(3+n1+j))
+               dx = x1-x2
+               dy = y1-y2
+               dz = z1-z2
+               call lattice_min_difference(dx,dy,dz)
+               r1  = dsqrt(dx**2 + dy**2 + dz**2)
+               df = -((f/r1)**(n+1))/n12
+
+               fmeta(1,indx(3+i)) = fmeta(1,indx(3+i)) - (dx)*df*dv
+               fmeta(2,indx(3+i)) = fmeta(2,indx(3+i)) - (dy)*df*dv
+               fmeta(3,indx(3+i)) = fmeta(3,indx(3+i)) - (dz)*df*dv
+               fmeta(1,indx(3+n1+j)) = fmeta(1,indx(3+n1+j)) 
+     >                               + (dx)*df*dv
+               fmeta(2,indx(3+n1+j)) = fmeta(2,indx(3+n1+j)) 
+     >                               + (dy)*df*dv
+               fmeta(3,indx(3+n1+j)) = fmeta(3,indx(3+n1+j)) 
+     >                               + (dz)*df*dv
+
+
+            end do
+         end do
+
+
 
       end if
 
