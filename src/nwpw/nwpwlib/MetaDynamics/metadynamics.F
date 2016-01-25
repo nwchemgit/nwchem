@@ -533,8 +533,8 @@ c     **********************************************
  1002 FORMAT(2x,"- Coorination Number (Index2) :",10I5)
  1003 FORMAT(2x,"- Bond Difference Indexes (Index1) :",10I5)
  1004 FORMAT(2x,"- Bath Indexes            (Index2) :",10I5)
- 1005 FORMAT(2x,"- Group Distance Indexes (Index1) :",10I5)
- 1006 FORMAT(2x,"- Group Distance Indexes (Index2) :",10I5)
+ 1005 FORMAT(2x,"- Group_Distance Indexes (Index1) :",10I5)
+ 1006 FORMAT(2x,"- Group_Distance Indexes (Index2) :",10I5)
 
       end if
       value = btdb_parallel(.true.)
