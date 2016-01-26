@@ -703,7 +703,7 @@ c     --------------------------------------------
         giaowsre(:,:) = 0.0d0
         giaowsim(:,:) = 0.0d0
         
-        call aor_get_giaoints(rtdb, basis, geom, npol, .true.,
+        call aor_get_giaoints(rtdb, basis, geom, npol, lifetime,
      &    g_vecF1, g_vecF1_im,
      &    g_vecB1, g_smat1, g_sket1, giaowsre, giaowsim)
 
@@ -920,15 +920,14 @@ c     ------------
           write (luout,*) 'Imaginary part:'
           call output(alfaim,1,3,1,3,3,3,1)
         endif
-        write (LuOut,*)
         sum = 0d0
         sumim = 0d0
         do idir = 1,3
           sum = sum + alfare(idir,idir)
           sumim = sumim + alfaim(idir,idir)
         enddo
-        write(luout,*) 'average: ',sum/3d0,' + I ',sumim/3d0
-        write (luout,*)
+        write(luout,'(/1x,42(''-'')/1x,a,3x,f13.5,1x,a,1x,f13.5/)')
+     &    'average:',sum/3d0,'+ I',sumim/3d0
       endif
       
       do idir = 1,3
@@ -1029,13 +1028,13 @@ c     user specifies GPRIME then we can fix that here.
           sum = sum + betare(idir,idir)
           sumim = sumim + betaim(idir,idir)
         enddo
-        write(luout,*) 'average: ',sum/3d0, ' + I ',sumim/3d0
-        write (LuOut,*)
+        write(luout,'(/1x,42(''-'')/1x,a,3x,f13.5,1x,a,1x,f13.5/)')
+     &    'average:',sum/3d0,'+ I',sumim/3d0
 
         if (.not.lstatic .and. lgprime) then
-          write(luout,*) 'OR Beta: ',
-     &      -sum/(3d0*omega), ' + I ',-sumim/(3d0*omega)
-          write (LuOut,*)
+          write(luout,'(1x,a,3x,f13.5,1x,a,1x,f13.5/)')
+     &    'OR Beta:',
+     &      -sum/(3d0*omega), '+ I',-sumim/(3d0*omega)
         end if
         
 c       diagonalize real part of beta tensor
@@ -1050,9 +1049,9 @@ c       diagonalize real part of beta tensor
             end do
           end do
           call hnd_diag(axs,eig,3,.true.,.true.)
-          write(luout,'(10x,f12.4)') (eig(idir),idir=1,3)
+          write(luout,'(12x,f13.5)') (eig(idir),idir=1,3)
           sum =(eig(1) + eig(2) + eig(3))/3.0d0
-          write(luout,'(1x,21(''-'')/1x,a,1x,f12.4)') 'average:', sum
+          write(luout,'(1x,24(''-'')/1x,a,3x,f13.5)') 'average:', sum
           call output(axs,1,3,1,3,3,3,1)
           
 c         if we have calculated the B.-D. tensor, also print the 
@@ -1073,9 +1072,9 @@ c         chiral response tensor. use array axs and eig for temp space
             write (luout,*) 'Principal components and PAS (Real part)'
             eig(:) = zero
             call hnd_diag(axs,eig,3,.true.,.true.)
-            write(luout,'(10x,f12.4)') (eig(idir),idir=1,3)
+            write(luout,'(12x,f13.5)') (eig(idir),idir=1,3)
             sum =(eig(1) + eig(2) + eig(3))/3.0d0
-            write(luout,'(1x,21(''-'')/1x,a,1x,f12.4)') 'average:', sum
+            write(luout,'(1x,24(''-'')/1x,a,3x,f13.5)') 'average:', sum
             call output(axs,1,3,1,3,3,3,1)
           end if                ! lquad
           

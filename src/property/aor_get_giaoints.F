@@ -108,6 +108,7 @@ c     ==================================================================
       if (dbg>0 .and. me) then
         write (luout,*) 'aor_giaoints: xc_gotxc =',xc_gotxc()
         write (luout,*) 'aor_giaoints: use_theory =',use_theory
+        write (luout,*) 'nspin, lifetime=',nspin,lifetime
       end if
 
 c     there is a possibility that this routine gets called from tddft
