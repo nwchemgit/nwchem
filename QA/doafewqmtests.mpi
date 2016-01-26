@@ -31,7 +31,7 @@ endif
 # newproperty tests
 ./runtests.mpi.unix procs $np prop_ch3f 
 #
-#--- range-separated functionals tests
+#--- range-separated functionals tests, incl. some response calcs.
 ./runtests.mpi.unix procs $np h2_bnl
 ./runtests.mpi.unix procs $np h2o_bnl
 ./runtests.mpi.unix procs $np h2o-camb3lyp-pol
@@ -43,6 +43,7 @@ endif
 #
 #--- cdspectrum tests
 ./runtests.mpi.unix procs $np dmo_tddft_cd
+./runtests.mpi.unix procs $np dmo_tddft_cd_velocity
 #
 #--- response tests
 ./runtests.mpi.unix procs $np h2o-response

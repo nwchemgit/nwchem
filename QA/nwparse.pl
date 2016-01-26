@@ -337,7 +337,7 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 	}
 	}
-	if (/Excitation energy/) {
+	if (/Excitation energy/ || /Rotatory /) {
 	    if ($debug) {print "\ndebug: $_";}
 	    @line_tokens = split(' ');
 	    $num_line_tokens = @line_tokens;
@@ -377,7 +377,7 @@ foreach $filename (@FILES_TO_PARSE) {
             }
             printf FILE_OUTPUT "%.10f\n", set_to_digits(@line_tokens[$itok],10);
         }
-	if (/isotropic =/ || /anisotropy =/) {
+	if (/isotropic =/ || /anisotropy =/ ) {
 		if ($debug) {print "\ndebug: $_";}
 		@line_tokens = split(' ');
 		$num_line_tokens = @line_tokens;
@@ -396,6 +396,27 @@ foreach $filename (@FILES_TO_PARSE) {
 		    printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 		}
 		printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+	}
+		if ( /average: /) {
+		if ($debug) {print "\ndebug: $_";}
+		@line_tokens = split(' ');
+		$num_line_tokens = @line_tokens;
+		if ($debug) {
+		    print "debug:line_tokens: @line_tokens \n";
+		    print "debug:number     : $num_line_tokens \n";
+		}
+		for($itok = 0;$itok < ($num_line_tokens-1); $itok++){
+		    if (! $quiet) {
+			printf "%s ", @line_tokens[$itok];
+		    }
+		    #printf FILE_OUTPUT "%s ", @line_tokens[$itok];
+		}
+#                                                    *** Assumes $itok was incremented above
+		if (! $quiet) {
+		    printf "%s %.3f %s %s %.3f\n", @line_tokens[0], 0+@line_tokens[1], @line_tokens[2], @line_tokens[3], 0+@line_tokens[4];
+		}
+		# zeros are added to avoid diffs resulting from -0.000 versus 0.000 after rounding 
+		printf FILE_OUTPUT "%s %.3f %s %s %.3f\n", @line_tokens[0], 0+@line_tokens[1], @line_tokens[2], @line_tokens[3], 0+@line_tokens[4];
 	}
 	if (/DMX/ || /DMY/ || /DMZ/ ) {
 		if ($debug) {print "\ndebug: $_";}

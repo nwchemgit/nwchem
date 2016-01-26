@@ -113,9 +113,9 @@ task tddft energy
 
     hostname        = ja10
     program         = /home/workspace/jochena/nwchem/nwchem-svn/bin/LINUX64/nwchem
-    date            = Mon Jan 25 10:42:10 2016
+    date            = Tue Jan 26 11:45:50 2016
 
-    compiled        = Mon_Jan_25_10:19:16_2016
+    compiled        = Tue_Jan_26_11:45:20_2016
     source          = /home/workspace/jochena/nwchem/nwchem-svn
     nwchem branch   = Development
     nwchem revision = 27992
@@ -132,10 +132,10 @@ task tddft energy
            Memory information
            ------------------
 
-    heap     =    4194298 doubles =     32.0 Mbytes
-    stack    =    4194303 doubles =     32.0 Mbytes
+    heap     =    4194304 doubles =     32.0 Mbytes
+    stack    =    4194301 doubles =     32.0 Mbytes
     global   =    8388608 doubles =     64.0 Mbytes (distinct from heap & stack)
-    total    =   16777209 doubles =    128.0 Mbytes
+    total    =   16777213 doubles =    128.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -403,36 +403,36 @@ task tddft energy
  HOMO         =      -0.358499
  LUMO         =      -0.027517
  
-   Time after variat. SCF:      0.2
-   Time prior to 1st pass:      0.2
+   Time after variat. SCF:      0.3
+   Time prior to 1st pass:      0.3
 
  Grid_pts file          = /tmp/h2o2.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     16        Max. recs in file   =     19961
+ Max. records in memory =     16        Max. recs in file   =     19738
 
   Resetting Diis
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):        4.00             3997082
-          Stack Space remaining (MW):        4.19             4193948
+           Heap Space remaining (MW):        4.00             3997088
+          Stack Space remaining (MW):        4.19             4193940
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -151.4613556409 -1.87D+02  8.27D-03  2.64D-01     0.5
- d= 0,ls=0.0,diis     2   -151.4857256551 -2.44D-02  1.38D-03  1.45D-02     0.7
- d= 0,ls=0.0,diis     3   -151.4868939981 -1.17D-03  4.88D-04  1.48D-03     1.0
- d= 0,ls=0.0,diis     4   -151.4870262699 -1.32D-04  1.13D-04  7.16D-05     1.2
- d= 0,ls=0.0,diis     5   -151.4870326653 -6.40D-06  3.63D-05  2.82D-06     1.5
- d= 0,ls=0.0,diis     6   -151.4870330584 -3.93D-07  7.69D-06  9.96D-08     1.7
+ d= 0,ls=0.0,diis     1   -151.4613556409 -1.87D+02  8.27D-03  2.64D-01     0.6
+ d= 0,ls=0.0,diis     2   -151.4857256550 -2.44D-02  1.38D-03  1.45D-02     0.8
+ d= 0,ls=0.0,diis     3   -151.4868939980 -1.17D-03  4.88D-04  1.48D-03     1.1
+ d= 0,ls=0.0,diis     4   -151.4870262698 -1.32D-04  1.13D-04  7.16D-05     1.4
+ d= 0,ls=0.0,diis     5   -151.4870326652 -6.40D-06  3.63D-05  2.82D-06     1.6
+ d= 0,ls=0.0,diis     6   -151.4870330583 -3.93D-07  7.69D-06  9.96D-08     1.9
 
 
-         Total DFT energy =     -151.487033058367
-      One electron energy =     -279.844435440588
-           Coulomb energy =      110.184526702467
-    Exchange-Corr. energy =      -17.784396611344
+         Total DFT energy =     -151.487033058303
+      One electron energy =     -279.844435440911
+           Coulomb energy =      110.184526702828
+    Exchange-Corr. energy =      -17.784396611319
  Nuclear repulsion energy =       35.957272291098
 
- Numeric. integr. density =       18.000000045392
+ Numeric. integr. density =       18.000000045323
 
      Total iterative time =      1.6s
 
@@ -700,7 +700,7 @@ task tddft energy
   tolerance =   1.0D-05
   max. iter =   50
 
- SCF residual:   2.050617225996474E-004
+ SCF residual:   2.050619820812636E-004
 
 
 Iterative solution of linear equations
@@ -708,21 +708,21 @@ Iterative solution of linear equations
   No. of equations        3
   Maximum subspace       60
        Convergence  1.0D-05
-        Start time      2.4
+        Start time      3.0
 
 
    iter   nsub   residual    time 
    ----  ------  --------  --------- 
-     1      3    3.04D+00       3.2
-     2      6    1.59D+00       4.1
-     3      9    1.37D-01       4.9
-     4     12    3.05D-02       5.8
-     5     15    6.66D-03       6.6
-     6     18    1.80D-03       7.4
-     7     21    7.42D-04       8.3
-     8     24    1.48D-04       9.1
-     9     27    3.16D-05      10.0
-    10     30    5.67D-06      10.8
+     1      3    3.04D+00       3.9
+     2      6    1.59D+00       4.7
+     3      9    1.37D-01       5.6
+     4     12    3.05D-02       6.4
+     5     15    6.66D-03       7.3
+     6     18    1.80D-03       8.1
+     7     21    7.42D-04       9.0
+     8     24    1.48D-04       9.8
+     9     27    3.16D-05      10.7
+    10     30    5.67D-06      11.5
   int_init: cando_txs set to always be  F
 
  Calculating some arrays needed for GIAO optical rotation
@@ -757,9 +757,10 @@ Iterative solution of linear equations
     1    6.7466   0.1060  -0.3670
     2    0.1060   9.2970  -2.3980
     3   -0.3670  -2.3980  15.0508
- 
- average:    10.3647616548421       + I   0.000000000000000E+000
- 
+
+ ------------------------------------------
+ average:        10.36476 + I       0.00000
+
 
  DFT Linear Response polarizability / au 
  Frequency  =       0.0773180 / au
@@ -783,16 +784,18 @@ Iterative solution of linear equations
     1    0.0741  -0.0053   0.0021
     2   -0.0053  -0.1239   0.1194
     3    0.0021   0.1194   0.0280
- average:  -7.291247266173344E-003  + I   0.000000000000000E+000
- 
- OR Beta:   9.430206764496424E-002  + I   0.000000000000000E+000
- 
+
+ ------------------------------------------
+ average:        -0.00729 + I       0.00000
+
+ OR Beta:         0.09430 + I       0.00000
+
  Principal components and PAS (Real part)
-               -0.1896
-                0.0935
-                0.0742
- ---------------------
- average:      -0.0073
+                 -0.18960
+                  0.09354
+                  0.07419
+ ------------------------
+ average:        -0.00729
 
               1        2        3      
     1    0.0215  -0.0370   0.9991
@@ -807,11 +810,11 @@ Iterative solution of linear equations
     3   -0.0010  -0.0597  -0.0249
  
  Principal components and PAS (Real part)
-                0.0839
-               -0.0577
-               -0.0480
- ---------------------
- average:      -0.0073
+                  0.08387
+                 -0.05771
+                 -0.04803
+ ------------------------
+ average:        -0.00729
 
               1        2        3      
     1    0.0215  -0.0370   0.9991
@@ -819,7 +822,7 @@ Iterative solution of linear equations
     3   -0.4811   0.8756   0.0428
  Exiting AOResponse driver routine
 
- Task  times  cpu:       11.4s     wall:       11.7s
+ Task  times  cpu:       11.6s     wall:       12.2s
  
  
                                 NWChem Input Module
@@ -921,32 +924,32 @@ Iterative solution of linear equations
 
 h2o2
 
-   Time after variat. SCF:     11.5
-   Time prior to 1st pass:     11.5
+   Time after variat. SCF:     11.7
+   Time prior to 1st pass:     11.7
 
  Grid_pts file          = /tmp/h2o2.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     16        Max. recs in file   =     19961
+ Max. records in memory =     16        Max. recs in file   =     19738
 
   Resetting Diis
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):        4.00             3997082
-          Stack Space remaining (MW):        4.19             4193948
+           Heap Space remaining (MW):        4.00             3997088
+          Stack Space remaining (MW):        4.19             4193940
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -151.4870330753 -1.87D+02  4.51D-06  2.10D-08    11.8
- d= 0,ls=0.0,diis     2   -151.4870330745  7.98D-10  5.86D-06  4.85D-08    12.0
+ d= 0,ls=0.0,diis     1   -151.4870330753 -1.87D+02  4.51D-06  2.10D-08    12.0
+ d= 0,ls=0.0,diis     2   -151.4870330745  7.97D-10  5.86D-06  4.85D-08    12.3
 
 
-         Total DFT energy =     -151.487033074504
-      One electron energy =     -279.844815709459
-           Coulomb energy =      110.184947871462
-    Exchange-Corr. energy =      -17.784437527605
+         Total DFT energy =     -151.487033074506
+      One electron energy =     -279.844815709101
+           Coulomb energy =      110.184947871065
+    Exchange-Corr. energy =      -17.784437527568
  Nuclear repulsion energy =       35.957272291098
 
- Numeric. integr. density =       18.000000045676
+ Numeric. integr. density =       18.000000045677
 
      Total iterative time =      0.5s
 
@@ -1237,10 +1240,10 @@ h2o2
   ----  ------  ------  ---------  ---------  --------- 
     1     10       0     0.42E+00   0.10+100        1.7
     2     30       0     0.58E-01   0.38E-01        2.8
-    3     50       0     0.11E-01   0.21E-02        2.9
-    4     70       0     0.18E-02   0.41E-04        2.9
-    5     90       4     0.22E-03   0.57E-06        2.9
-    6    102       9     0.20E-04   0.43E-08        2.0
+    3     50       0     0.11E-01   0.21E-02        2.8
+    4     70       0     0.18E-02   0.41E-04        2.8
+    5     90       4     0.22E-03   0.57E-06        2.8
+    6    102       9     0.20E-04   0.43E-08        1.9
     7    104      10     0.65E-05   0.55E-10        0.7
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
@@ -1270,7 +1273,7 @@ h2o2
   max iterations   =       50
   max subspace     =       60
 
- SCF residual:   5.085852438796613E-004
+ SCF residual:   5.085857251734099E-004
 
 
 Iterative solution of linear equations
@@ -1279,24 +1282,24 @@ Iterative solution of linear equations
   Maximum subspace       60
         Iterations       50
        Convergence  1.0D-05
-        Start time     29.5
+        Start time     29.9
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1      3    7.04D-01      29.9
-     2      6    1.34D-01      30.4
-     3      9    3.43D-02      30.8
-     4     12    2.90D-03      31.3
-     5     15    5.03D-04      31.7
-     6     18    4.75D-05      32.1
-     7     21    4.98D-06      32.6
+     1      3    7.04D-01      30.3
+     2      6    1.34D-01      30.7
+     3      9    3.43D-02      31.1
+     4     12    2.90D-03      31.6
+     5     15    5.03D-04      32.0
+     6     18    4.75D-05      32.4
+     7     21    4.98D-06      32.8
 
  dft_CPHF_write: Wrote aoresponse g_rhs data to ./h2o2.aoresp_giao_b1
 
   int_init: cando_txs set to always be  F
  
-  Ground state a        -151.487033074504 a.u.
+  Ground state a        -151.487033074506 a.u.
  
   ----------------------------------------------------------------------------
   Root   1 singlet a              0.206366235 a.u.                5.6155 eV 
@@ -1374,29 +1377,29 @@ Iterative solution of linear equations
   ----------------------------------------------------------------------------
   Root   4 singlet a              0.321793940 a.u.                8.7565 eV 
   ----------------------------------------------------------------------------
-     Transition Moments    X  0.13354   Y  0.00023   Z  0.00556
-     Transition Moments   XX -0.09597  XY  0.01914  XZ -0.00189
-     Transition Moments   YY  0.29792  YZ -0.44162  ZZ -0.03395
+     Transition Moments    X -0.13354   Y -0.00023   Z -0.00556
+     Transition Moments   XX  0.09597  XY -0.01914  XZ  0.00189
+     Transition Moments   YY -0.29792  YZ  0.44162  ZZ  0.03395
      Dipole Oscillator Strength                         0.00383
  
      Electric Transition Dipole:
-            X    0.1335399   Y   0.0002308   Z   0.0055619
+            X   -0.1335399   Y  -0.0002308   Z  -0.0055619
      Magnetic Transition Dipole (Length):
-            X    0.2508070   Y   0.0002618   Z   0.0112635
+            X   -0.2508070   Y  -0.0002618   Z  -0.0112635
      Magnetic Transition Dipole * 1/c :
-            X    0.0018302   Y   0.0000019   Z   0.0000822
+            X   -0.0018302   Y  -0.0000019   Z  -0.0000822
      Rotatory Strength (1E-40 esu**2cm**2):           15.8198095
      GIAO Magnetic Trans. Dipole:
-            X    0.2085608   Y   0.0003008   Z   0.0094193
+            X   -0.2085608   Y  -0.0003008   Z  -0.0094193
      GIAO Magnetic Trans. Dipole * 1/c:
-            X    0.0015219   Y   0.0000022   Z   0.0000687
+            X   -0.0015219   Y  -0.0000022   Z  -0.0000687
      GIAO Rotatory Str.(1E-40 esu**2cm**2):           13.1552522
  
-     Occ.    6  a   ---  Virt.   12  a    0.05138 X
-     Occ.    7  a   ---  Virt.   11  a   -0.08496 X
-     Occ.    8  a   ---  Virt.   11  a    0.79964 X
-     Occ.    9  a   ---  Virt.   10  a   -0.09887 X
-     Occ.    9  a   ---  Virt.   12  a   -0.58169 X
+     Occ.    6  a   ---  Virt.   12  a   -0.05138 X
+     Occ.    7  a   ---  Virt.   11  a    0.08496 X
+     Occ.    8  a   ---  Virt.   11  a   -0.79964 X
+     Occ.    9  a   ---  Virt.   10  a    0.09887 X
+     Occ.    9  a   ---  Virt.   12  a    0.58169 X
   ----------------------------------------------------------------------------
   Root   5 singlet a              0.354928638 a.u.                9.6581 eV 
   ----------------------------------------------------------------------------
@@ -1425,80 +1428,80 @@ Iterative solution of linear equations
   ----------------------------------------------------------------------------
   Root   6 singlet a              0.374515305 a.u.               10.1911 eV 
   ----------------------------------------------------------------------------
-     Transition Moments    X -0.02427   Y  0.05092   Z  0.54566
-     Transition Moments   XX -0.02767  XY -0.08326  XZ  0.31167
-     Transition Moments   YY  0.00021  YZ -0.00407  ZZ  0.02716
+     Transition Moments    X  0.02427   Y -0.05092   Z -0.54566
+     Transition Moments   XX  0.02767  XY  0.08326  XZ -0.31167
+     Transition Moments   YY -0.00021  YZ  0.00407  ZZ -0.02716
      Dipole Oscillator Strength                         0.07514
  
      Electric Transition Dipole:
-            X   -0.0242713   Y   0.0509201   Z   0.5456635
+            X    0.0242713   Y  -0.0509201   Z  -0.5456635
      Magnetic Transition Dipole (Length):
-            X   -0.0009656   Y  -0.3432400   Z   0.0029415
+            X    0.0009656   Y   0.3432400   Z  -0.0029415
      Magnetic Transition Dipole * 1/c :
-            X   -0.0000070   Y  -0.0025047   Z   0.0000215
-     Rotatory Strength (1E-40 esu**2cm**2):           -7.4721904
+            X    0.0000070   Y   0.0025047   Z  -0.0000215
+     Rotatory Strength (1E-40 esu**2cm**2):           -7.4721903
      GIAO Magnetic Trans. Dipole:
-            X   -0.0007525   Y  -0.3521270   Z  -0.0037968
+            X    0.0007525   Y   0.3521270   Z   0.0037968
      GIAO Magnetic Trans. Dipole * 1/c:
-            X   -0.0000055   Y  -0.0025696   Z  -0.0000277
-     GIAO Rotatory Str.(1E-40 esu**2cm**2):           -9.4214351
+            X    0.0000055   Y   0.0025696   Z   0.0000277
+     GIAO Rotatory Str.(1E-40 esu**2cm**2):           -9.4214350
  
-     Occ.    5  a   ---  Virt.   10  a    0.42873 X
-     Occ.    5  a   ---  Virt.   12  a   -0.13475 X
-     Occ.    7  a   ---  Virt.   10  a   -0.87909 X
-     Occ.    7  a   ---  Virt.   10  a    0.05603 Y
-     Occ.    7  a   ---  Virt.   12  a    0.06942 X
-     Occ.    8  a   ---  Virt.   10  a   -0.12871 X
-     Occ.    8  a   ---  Virt.   12  a   -0.05340 X
+     Occ.    5  a   ---  Virt.   10  a   -0.42873 X
+     Occ.    5  a   ---  Virt.   12  a    0.13475 X
+     Occ.    7  a   ---  Virt.   10  a    0.87909 X
+     Occ.    7  a   ---  Virt.   10  a   -0.05603 Y
+     Occ.    7  a   ---  Virt.   12  a   -0.06942 X
+     Occ.    8  a   ---  Virt.   10  a    0.12871 X
+     Occ.    8  a   ---  Virt.   12  a    0.05340 X
   ----------------------------------------------------------------------------
   Root   7 singlet a              0.379860200 a.u.               10.3365 eV 
   ----------------------------------------------------------------------------
-     Transition Moments    X -0.01259   Y -0.38389   Z  0.29709
-     Transition Moments   XX  0.03780  XY  0.29938  XZ -0.43286
-     Transition Moments   YY -0.00121  YZ  0.01485  ZZ -0.03923
+     Transition Moments    X  0.01259   Y  0.38389   Z -0.29709
+     Transition Moments   XX -0.03780  XY -0.29938  XZ  0.43286
+     Transition Moments   YY  0.00121  YZ -0.01485  ZZ  0.03923
      Dipole Oscillator Strength                         0.05971
  
      Electric Transition Dipole:
-            X   -0.0125950   Y  -0.3838891   Z   0.2970857
+            X    0.0125950   Y   0.3838891   Z  -0.2970857
      Magnetic Transition Dipole (Length):
-            X   -0.0045888   Y  -0.2073482   Z   0.0948092
+            X    0.0045888   Y   0.2073482   Z  -0.0948092
      Magnetic Transition Dipole * 1/c :
-            X   -0.0000335   Y  -0.0015131   Z   0.0006919
-     Rotatory Strength (1E-40 esu**2cm**2):           50.8334233
+            X    0.0000335   Y   0.0015131   Z  -0.0006919
+     Rotatory Strength (1E-40 esu**2cm**2):           50.8334232
      GIAO Magnetic Trans. Dipole:
-            X   -0.0025346   Y  -0.2497438   Z   0.0488205
+            X    0.0025346   Y   0.2497438   Z  -0.0488205
      GIAO Magnetic Trans. Dipole * 1/c:
-            X   -0.0000185   Y  -0.0018225   Z   0.0003563
+            X    0.0000185   Y   0.0018225   Z  -0.0003563
      GIAO Rotatory Str.(1E-40 esu**2cm**2):           52.0529420
  
-     Occ.    7  a   ---  Virt.   10  a   -0.08245 X
-     Occ.    8  a   ---  Virt.   10  a    0.14219 X
-     Occ.    8  a   ---  Virt.   12  a    0.96493 X
-     Occ.    9  a   ---  Virt.   11  a    0.19269 X
+     Occ.    7  a   ---  Virt.   10  a    0.08245 X
+     Occ.    8  a   ---  Virt.   10  a   -0.14219 X
+     Occ.    8  a   ---  Virt.   12  a   -0.96493 X
+     Occ.    9  a   ---  Virt.   11  a   -0.19269 X
   ----------------------------------------------------------------------------
   Root   8 singlet a              0.411461794 a.u.               11.1964 eV 
   ----------------------------------------------------------------------------
-     Transition Moments    X  0.12694   Y -0.00014   Z  0.00645
-     Transition Moments   XX -0.15346  XY -0.02043  XZ -0.02779
-     Transition Moments   YY -0.33572  YZ  0.45965  ZZ  0.47651
+     Transition Moments    X -0.12694   Y  0.00014   Z -0.00645
+     Transition Moments   XX  0.15346  XY  0.02043  XZ  0.02779
+     Transition Moments   YY  0.33572  YZ -0.45965  ZZ -0.47651
      Dipole Oscillator Strength                         0.00443
  
      Electric Transition Dipole:
-            X    0.1269448   Y  -0.0001394   Z   0.0064523
+            X   -0.1269448   Y   0.0001394   Z  -0.0064523
      Magnetic Transition Dipole (Length):
-            X    0.3742586   Y  -0.0005538   Z   0.0166049
+            X   -0.3742586   Y   0.0005538   Z  -0.0166049
      Magnetic Transition Dipole * 1/c :
-            X    0.0027311   Y  -0.0000040   Z   0.0001212
-     Rotatory Strength (1E-40 esu**2cm**2):           22.4493428
+            X   -0.0027311   Y   0.0000040   Z  -0.0001212
+     Rotatory Strength (1E-40 esu**2cm**2):           22.4493429
      GIAO Magnetic Trans. Dipole:
-            X    0.3966049   Y  -0.0005447   Z   0.0175833
+            X   -0.3966049   Y   0.0005447   Z  -0.0175833
      GIAO Magnetic Trans. Dipole * 1/c:
-            X    0.0028942   Y  -0.0000040   Z   0.0001283
+            X   -0.0028942   Y   0.0000040   Z  -0.0001283
      GIAO Rotatory Str.(1E-40 esu**2cm**2):           23.7897088
  
-     Occ.    6  a   ---  Virt.   10  a   -0.97885 X
-     Occ.    6  a   ---  Virt.   12  a    0.11614 X
-     Occ.    7  a   ---  Virt.   11  a   -0.15736 X
+     Occ.    6  a   ---  Virt.   10  a    0.97885 X
+     Occ.    6  a   ---  Virt.   12  a   -0.11614 X
+     Occ.    7  a   ---  Virt.   11  a    0.15736 X
   ----------------------------------------------------------------------------
   Root   9 singlet a              0.434874439 a.u.               11.8335 eV 
   ----------------------------------------------------------------------------
@@ -1553,12 +1556,12 @@ Iterative solution of linear equations
  
               Target root =      1
           Target symmetry = none
-      Ground state energy =   -151.487033074504
-        Excitation energy =      0.206366234545
-     Excited state energy =   -151.280666839959
+      Ground state energy =   -151.487033074506
+        Excitation energy =      0.206366234544
+     Excited state energy =   -151.280666839962
  
 
- Task  times  cpu:       20.8s     wall:       20.8s
+ Task  times  cpu:       20.3s     wall:       20.4s
  
  
                                 NWChem Input Module
@@ -1575,24 +1578,24 @@ Iterative solution of linear equations
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 3422     3422     9.43e+05 1.09e+05 3.79e+05 1690        0     3134     
-number of processes/call 1.04e+00 1.31e+00 1.09e+00 0.00e+00 0.00e+00
-bytes total:             5.41e+08 5.95e+07 2.36e+08 5.78e+03 0.00e+00 2.51e+04
-bytes remote:            9.52e+06 6.16e+06 5.38e+07 0.00e+00 0.00e+00 0.00e+00
+calls: 3422     3422     9.68e+05 1.09e+05 3.97e+05 1690        0     3142     
+number of processes/call 1.04e+00 1.31e+00 1.10e+00 0.00e+00 0.00e+00
+bytes total:             5.62e+08 5.95e+07 2.50e+08 5.78e+03 0.00e+00 2.51e+04
+bytes remote:            9.52e+06 6.16e+06 6.04e+07 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 20086376 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
-heap block 'schwarz: shells', handle 112, address 0xc4e3d90:
+heap block 'schwarz: shells', handle 82, address 0xc316d50:
 	type of elements:		integer
 	number of elements:		11
-	address of client space:	0xc4e3e00
-	index for client space:		7501553
+	address of client space:	0xc316dc0
+	index for client space:		7280881
 	total number of bytes:		208
-heap block 'schwarz: atoms', handle 111, address 0xc4e3cf8:
+heap block 'schwarz: atoms', handle 81, address 0xc316cb8:
 	type of elements:		integer
 	number of elements:		1
-	address of client space:	0xc4e3d80
-	index for client space:		7501537
+	address of client space:	0xc316d40
+	index for client space:		7280865
 	total number of bytes:		152
 MA_summarize_allocated_blocks: scan completed: 2 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -1603,7 +1606,7 @@ MA usage statistics:
 	current number of blocks	         2	         0
 	maximum number of blocks	        23	        61
 	current total bytes		       360	         0
-	maximum total bytes		   1577752	  22511512
+	maximum total bytes		   1577704	  22511560
 	maximum total K-bytes		      1578	     22512
 	maximum total M-bytes		         2	        23
  
@@ -1642,4 +1645,4 @@ MA usage statistics:
    K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
                                A. T. Wong, Z. Zhang.
 
- Total times  cpu:       32.2s     wall:       32.6s
+ Total times  cpu:       31.9s     wall:       32.9s

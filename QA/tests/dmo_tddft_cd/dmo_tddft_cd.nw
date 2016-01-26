@@ -47,5 +47,6 @@ tddft
   notriplet
   nroots 1
   cdspectrum
+  giao
 end
 task tddft energy

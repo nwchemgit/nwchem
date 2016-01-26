@@ -198,6 +198,8 @@ fi
 #
 #--- response tests
 ./runtests.mpi.unix procs $np h2o-response
+./runtests.mpi.unix procs $np h2o2-response
+./runtests.mpi.unix procs $np h2o2-prop-notrans
 #
 #--- other tests
 #./runtests.mpi.unix procs $np mep-test
@@ -213,7 +215,6 @@ fi
 ./runtests.mpi.unix procs $np dft_sicperth2o
 #./runtests.mpi.unix procs $np h2o_hcons
 #./runtests.mpi.unix procs $np etf_hcons
-./runtests.mpi.unix procs $np h2o2-prop-notrans
 ./runtests.mpi.unix procs $np cnh5_m06-2x
 ./runtests.mpi.unix procs $np bq_nio
 ./runtests.mpi.unix procs $np hess_ch4
