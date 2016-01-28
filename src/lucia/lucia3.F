@@ -1404,12 +1404,13 @@ C.. NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
 #include "mafdecls.fh"
 #include "global.fh"
       DIMENSION AUTPAK(MATDIM,MATDIM)
-      integer APAK,ICOFF,mybyte,icast,ihandle
+      integer APAK,ICOFF,mybyte,icast,ihandle,KLMAT1
 *. To get rid of annoying and incorrect compiler warnings
       IOFF = 0
       JOFF = 0
+      IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'TRIPK3')
-      CALL MEMMAN(KLMAT1,NDIM*(NDIM+1)/2,'ADDL  ',2,'ITEMP ')
+      CALL MEMMAN(ITEMP,NDIM*(NDIM+1)/2,'ADDL  ',2,'ITEMP ')
 *
 *. Packing : No problem with cache misses    
 *
