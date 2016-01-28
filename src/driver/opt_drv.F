@@ -1641,7 +1641,7 @@ c
       double precision lattice(6), scaler(3) ! periodic scaling
       double precision dum1,dum2,dum3
       double precision smalleig
-      parameter (smalleig = 1.0d-4)
+      parameter (smalleig = 1.0d-8)
       logical geom_print_zmatrix
       external geom_print_zmatrix
       logical ophigh
