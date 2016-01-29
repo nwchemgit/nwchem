@@ -281,11 +281,12 @@
       integer k_o0_offset      ! Offset for o0 file
       integer size_o0          ! File size in doubles
       integer axis             ! X=1, Y=2, & Z=3
-      double precision dipole_scf(3)     ! Dipole moment
-      double precision dipole_scf_t      ! Dipole moment
-      double precision dipole_cor(3)     ! Dipole moment
-      double precision dipole_cor_t      ! Dipole moment
-      double precision dipole_exc(3)     ! Dipole moment
+      double precision dipole_scf(3)     ! Dipole moment - SCF XYZ
+      double precision dipole_scf_t      ! Dipole moment - SCF total
+      double precision dipole_cor(3)     ! Dipole moment - CC XYZ
+      double precision dipole_cor_t      ! Dipole moment - CC total
+      double precision dipole_exc(3)     ! Dipole moment - EOM-CC
+      double precision dipole_exc_t      ! Dipole moment - EOM-CC total
       double precision cdipole           ! Dipole moment correlation
       double precision quadrupole_scf(6) ! Quadrupole moment
       double precision quadrupole_cor(6) ! Quadrupole moment
@@ -896,11 +897,10 @@
         do axis = 1, 6
           call gatoeaf(d_q1(axis))
         enddo
-#endif
+#else !!! defined(NEWDIPOLE)
 !
 !       new dipole integrals
 !
-#if defined(NEWDIPOLE)
         if (multipole.ge.1) then
           do i = 1, multipole
             if (i.eq.1) then
@@ -8943,10 +8943,14 @@ c
      3                      dsqrt(dabs(transition(3))),
      4                      (transition(1)+transition(2)+transition(3))
      5                      *dbl_mb(k_omegax+ivec-1)*2.0d0/3.0d0
+                    dipole_exc_t = dsqrt( dipole_exc(1)*dipole_exc(1) +
+     1                                    dipole_exc(2)*dipole_exc(2) +
+     2                                    dipole_exc(3)*dipole_exc(3) )
                     if (nodezero) write(LuOut,9430) "EOM-CCSD",
      1                      dipole_exc(1),dipole_exc(1)*debye,
      2                      dipole_exc(2),dipole_exc(2)*debye,
-     3                      dipole_exc(3),dipole_exc(3)*debye
+     3                      dipole_exc(3),dipole_exc(3)*debye,
+     4                      dipole_exc_t ,dipole_exc_t*debye
                     call dratoga(xc1(ivec))
                     call dratoga(xc2(ivec))
 !                    irrep_x = irrep   !! Caution !!
@@ -10680,10 +10684,14 @@ c
      3                      dsqrt(dabs(transition(3))),
      4                      (transition(1)+transition(2)+transition(3))
      5                      *dbl_mb(k_omegax+ivec-1)*2.0d0/3.0d0
+                    dipole_exc_t = dsqrt( dipole_exc(1)*dipole_exc(1) +
+     1                                    dipole_exc(2)*dipole_exc(2) +
+     2                                    dipole_exc(3)*dipole_exc(3) )
                     if (nodezero) write(LuOut,9430) "EOM-CCSDTQ",
      1                      dipole_exc(1),dipole_exc(1)*debye,
      2                      dipole_exc(2),dipole_exc(2)*debye,
-     3                      dipole_exc(3),dipole_exc(3)*debye
+     3                      dipole_exc(3),dipole_exc(3)*debye,
+     4                      dipole_exc_t ,dipole_exc_t*debye
                     call dratoga(xc1(ivec))
                     call dratoga(xc2(ivec))
                     irrep_x = irrep   !! Caution !!
@@ -10959,10 +10967,14 @@ c
      3                      dsqrt(dabs(transition(3))),
      4                      (transition(1)+transition(2)+transition(3))
      5                      *dbl_mb(k_omegax+ivec-1)*2.0d0/3.0d0
+                    dipole_exc_t = dsqrt( dipole_exc(1)*dipole_exc(1) +
+     1                                    dipole_exc(2)*dipole_exc(2) +
+     2                                    dipole_exc(3)*dipole_exc(3) )
                     if (nodezero) write(LuOut,9430) "EOM-CCSDT",
      1                      dipole_exc(1),dipole_exc(1)*debye,
      2                      dipole_exc(2),dipole_exc(2)*debye,
-     3                      dipole_exc(3),dipole_exc(3)*debye
+     3                      dipole_exc(3),dipole_exc(3)*debye,
+     4                      dipole_exc_t ,dipole_exc_t*debye
                     call dratoga(xc1(ivec))
                     call dratoga(xc2(ivec))
                     irrep_x = irrep   !! Caution !!
