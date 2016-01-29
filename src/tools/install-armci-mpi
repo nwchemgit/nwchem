@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 ARMCI_MPI_TARBALL=$1
 
@@ -9,14 +9,19 @@ then
     exit 1
 fi
 
+if [ -z "${MPICC}" ] ; then
+    MPICC=${MPI_DIR}/bin/mpicc
+fi
+
 ARMCI_MPI_DIR=${NWCHEM_TOP}/src/tools/armci-mpi
 
 if [ -d ${ARMCI_MPI_DIR} ] ; then
   # Assume that it is the right one, created previously by this script.
-  echo "Existing ARMCI-MPI source directory found!"
+  echo "Existing ARMCI-MPI source directory found - updating it"
+  cd ${ARMCI_MPI_DIR} && git checkout mpi3rma && git pull >& git.log
   echo "Step 1 of 4 succeeded."
 elif [ -x "$(command -v git)" ]; then
-  git clone -b mpi3rma http://git.mpich.org/armci-mpi.git ${ARMCI_MPI_DIR} >& git.log
+  git clone -b mpi3rma --depth 10 http://git.mpich.org/armci-mpi.git ${ARMCI_MPI_DIR} >& git.log
   stat=$?
   if [ $stat -ne 0 ] ; then
     echo "git clone failed"
@@ -60,7 +65,7 @@ if ! [ -d ${ARMCI_MPI_DIR}/build ] ; then
 fi
 cd ${ARMCI_MPI_DIR}/build
 
-${ARMCI_MPI_DIR}/configure CC=mpicc --prefix=${NWCHEM_TOP}/external-armci >& c.log
+${ARMCI_MPI_DIR}/configure CC=$MPICC --prefix=${NWCHEM_TOP}/external-armci >& c.log
 stat=$?
 if [ $stat -ne 0 ] ; then
   echo "configure failed."
