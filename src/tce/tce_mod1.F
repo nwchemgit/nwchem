@@ -151,7 +151,6 @@ c
 c
       nodezero = (ga_nodeid().eq.0)
       do axis = 1,axes
-        if (nodezero) write(6,*) 'axis = ',axis
         irrep_d = sym_abelian_axis(geom,axis+ashift) !
         sf_size=0
         do g1b = 1,noa+nob+nva+nvb
