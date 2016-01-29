@@ -14,7 +14,7 @@
       integer g_x, g_y, g_z
       integer nshell_i, nshell_j
       integer ishell, jshell, iproc, nproc, mscratch, max1e
-      integer ijshell, ilo, ihi, jlo, jhi, idim
+      integer ijshell, ilo, ihi, jlo, jhi
       integer l_buf, l_scr
       integer k_buf, k_scr
 c
@@ -44,6 +44,7 @@ c
       if(.not.MA_push_get(MT_DBL,mscratch,'int_dip_ga:scr',
      $   l_scr,k_scr))
      $  call errquit('int_dip_ga: ma failure',mscratch, MA_ERR)
+
 c
 c     loop over shells
 c
@@ -59,7 +60,7 @@ c
                if(.not.bas_cn2bfr(jbas,jshell,jlo,jhi))
      $              call errquit('int_dip_ga:bas_cn2bfr ?', jbas,
      &       BASIS_ERR)
-               idim=ihi-ilo+1
+
 c
 c     get the integrals we want
 c
@@ -136,7 +137,7 @@ c
       integer g_xx, g_xy, g_xz, g_yy, g_yz, g_zz
       integer nshell_i, nshell_j
       integer ishell, jshell, iproc, nproc, mscratch, max1e
-      integer ijshell, ilo, ihi, jlo, jhi, idim
+      integer ijshell, ilo, ihi, jlo, jhi
       integer l_buf, l_scr
       integer k_buf, k_scr
 c
@@ -186,7 +187,6 @@ c
                if(.not.bas_cn2bfr(jbas,jshell,jlo,jhi))
      $              call errquit('int_qdr_ga:bas_cn2bfr ?', jbas,
      &       BASIS_ERR)
-               idim=ihi-ilo+1
 c
 c     get the integrals we want
 c
@@ -199,7 +199,7 @@ c     bung integrals into global array
 c
                call int_qdr_put_in_g(g_xx, g_xy, g_xz,
      $              g_yy, g_yz, g_zz, ilo,ihi,jlo,jhi,
-     $              dbl_mb(k_buf+(ihi-ilo+1)*(jhi-jlo+1)))
+     $              dbl_mb(k_buf+(ihi-ilo+1)*(jhi-jlo+1)*4))
             endif
             ijshell=ijshell+1
          enddo
@@ -212,9 +212,12 @@ c
 c
       call ga_sync()
 c
-c      call ga_print(g_x)
-c      call ga_print(g_y)
-c      call ga_print(g_z)
+c      call ga_print(g_xx)
+c      call ga_print(g_xy)
+c      call ga_print(g_xz)
+c      call ga_print(g_yy)
+c      call ga_print(g_yz)
+c      call ga_print(g_zz)
 c
       if(oscfps) call pstat_off(ps_int_dip)
 c
@@ -229,17 +232,17 @@ c
 c
       integer g_xx, g_xy, g_xz, g_yy, g_yz, g_zz
       integer ilo, ihi, jlo, jhi
-      double precision buf(jlo:jhi,9,ilo:ihi)
+      double precision buf(jlo:jhi,6,ilo:ihi)
       integer i, j
 c
       do i = ilo,ihi
          do j = jlo, jhi
-            call ga_put(g_xx,i,i,j,j,buf(j,4,i),1)
-            call ga_put(g_xy,i,i,j,j,buf(j,5,i),1)
-            call ga_put(g_xz,i,i,j,j,buf(j,6,i),1)
-            call ga_put(g_yy,i,i,j,j,buf(j,7,i),1)
-            call ga_put(g_yz,i,i,j,j,buf(j,8,i),1)
-            call ga_put(g_zz,i,i,j,j,buf(j,9,i),1)
+            call ga_put(g_xx,i,i,j,j,buf(j,1,i),1)
+            call ga_put(g_xy,i,i,j,j,buf(j,2,i),1)
+            call ga_put(g_xz,i,i,j,j,buf(j,3,i),1)
+            call ga_put(g_yy,i,i,j,j,buf(j,4,i),1)
+            call ga_put(g_yz,i,i,j,j,buf(j,5,i),1)
+            call ga_put(g_zz,i,i,j,j,buf(j,6,i),1)
          end do
       end do
 c
