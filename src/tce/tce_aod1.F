@@ -158,9 +158,9 @@ c
      1  -1,-1,g_aoq1(6))) call errquit('tce_aoq1: GA problem',5,
      2  GA_ERR)
 c
-c     ====================
-c     Make dipole matrices
-c     ====================
+c     ========================
+c     Make quadrupole matrices
+c     ========================
 c
       call int_qdr_ga(ao_bas_han,ao_bas_han,
      1  g_aoq1(1),g_aoq1(2),g_aoq1(3),g_aoq1(4),g_aoq1(5),g_aoq1(6))
@@ -181,13 +181,13 @@ c
         quadrupole(1) = quadrupole(1) + ga_ddot(g_dens(i),g_aoq1(1))
         quadrupole(2) = quadrupole(2) + ga_ddot(g_dens(i),g_aoq1(2))
         quadrupole(3) = quadrupole(3) + ga_ddot(g_dens(i),g_aoq1(3))
-        quadrupole(1) = quadrupole(1) + ga_ddot(g_dens(i),g_aoq1(4))
-        quadrupole(2) = quadrupole(2) + ga_ddot(g_dens(i),g_aoq1(5))
-        quadrupole(3) = quadrupole(3) + ga_ddot(g_dens(i),g_aoq1(6))
+        quadrupole(4) = quadrupole(4) + ga_ddot(g_dens(i),g_aoq1(4))
+        quadrupole(5) = quadrupole(5) + ga_ddot(g_dens(i),g_aoq1(5))
+        quadrupole(6) = quadrupole(6) + ga_ddot(g_dens(i),g_aoq1(6))
       enddo
       do i=1,ipol
         if (.not.ga_destroy(g_dens(i)))
-     1  call errquit('tce_aod1: failed to destroy g_dens',0,GA_ERR)
+     1  call errquit('tce_aoq1: failed to destroy g_dens',0,GA_ERR)
       enddo
       return
       end
