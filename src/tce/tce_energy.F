@@ -549,7 +549,8 @@
       nodezero=ga_nodeid().eq.0
       ccsdtleft=.false.
       do_mbpt=.false.
-!     
+      filename(1:255) = '\0'
+!
 !     =========================
 !     Ground-state HF/DFT first
 !     =========================
@@ -871,7 +872,7 @@
           if (nodezero.and.util_print('mod1',print_default)) then
             write(LuOut,*)
             write(LuOut,9000) 'dipole',size_d1(axis)
-            write(LuOut,9010) 'dipole',filename(1:20)
+            write(LuOut,9010) 'dipole',filename
           endif
         enddo
         if (.not.read_integrals(3)) then
@@ -920,7 +921,7 @@
             if (nodezero.and.util_print('moq1',print_default)) then
               write(LuOut,*)
               write(LuOut,9000) 'quadrupole',size_q1(axis)
-              write(LuOut,9010) 'quadrupole',filename(1:20)
+              write(LuOut,9010) 'quadrupole',filename
             endif
           enddo
           call tce_mom1(g_aoq1,d_q1,6)
@@ -947,7 +948,7 @@
             if (nodezero.and.util_print('moo1',print_default)) then
               write(LuOut,*)
               write(LuOut,9000) 'octupole',size_o1(axis)
-              write(LuOut,9010) 'octupole',filename(1:20)
+              write(LuOut,9010) 'octupole',filename
             endif
           enddo
           call tce_mom1(g_aoo1,d_o1,10)
@@ -986,7 +987,7 @@
                 if (nodezero.and.util_print('mod1',print_default)) then
                   if (i.eq.1) write(LuOut,*)
                   write(LuOut,9000) 'dipole',size_d1(axis)
-                  write(LuOut,9010) 'dipole',filename(1:20)
+                  write(LuOut,9010) 'dipole',filename
                 endif
               elseif (i.eq.2) then
                 call tce_mod1_offset_new(l_q1_offset(axis),
@@ -996,7 +997,7 @@
                 if (nodezero.and.util_print('moq1',print_default)) then
                   if (i.eq.1) write(LuOut,*)
                   write(LuOut,9000) 'quadrupole',size_q1(axis)
-                  write(LuOut,9010) 'quadrupole',filename(1:20)
+                  write(LuOut,9010) 'quadrupole',filename
                 endif
               elseif (i.eq.3) then
                 call tce_mod1_offset_new(l_o1_offset(axis),
@@ -1006,7 +1007,7 @@
                 if (nodezero.and.util_print('moo1',print_default)) then
                   if (i.eq.1) write(LuOut,*)
                   write(LuOut,9000) 'octupole',size_o1(axis)
-                  write(LuOut,9010) 'octupole',filename(1:20)
+                  write(LuOut,9010) 'octupole',filename
                 endif
               endif
             enddo
@@ -1175,7 +1176,7 @@
           write(LuOut,9120) 'Epsilons used as Fock matrix'
         endif
         write(LuOut,9000) '1-e',size_1e
-        write(LuOut,9010) '1-e',filename(1:20)
+        write(LuOut,9010) '1-e',filename
 !       write(LuOut,9090) '1-e',d_f1
         write(LuOut,9020) cpu, wall
         call util_flush(LuOut)
@@ -1335,7 +1336,7 @@
         if (nodezero.and.util_print('mo2e',print_default)) then
           write(LuOut,*)
           write(LuOut,9000) '2-e',size_2e
-          write(LuOut,9010) '2-e',filename(1:20)
+          write(LuOut,9010) '2-e',filename
 !          write(LuOut,9090) '2-e',d_v2
           write(LuOut,9020) cpu, wall
           call util_flush(LuOut)
@@ -1806,7 +1807,7 @@
         if (nodezero.and.util_print('t1',print_default)) then
           write(LuOut,*)
           write(LuOut,9000) 't1',size_t1
-          write(LuOut,9010) 't1',filename(1:20)
+          write(LuOut,9010) 't1',filename
           write(LuOut,9090) 't1',d_t1
 !         write(LuOut,9020) cpu
           call util_flush(LuOut)
@@ -1963,7 +1964,7 @@
         if (nodezero.and.util_print('t2',print_default)) then
           write(LuOut,*)
           write(LuOut,9000) 't2',size_t2
-          write(LuOut,9010) 't2',filename(1:20)
+          write(LuOut,9010) 't2',filename
           write(LuOut,9090) 't2',d_t2
 !         write(LuOut,9020) cpu
           call util_flush(LuOut)
@@ -2003,7 +2004,7 @@
 !--        if (nodezero.and.util_print('t2',print_default)) then
 !--          write(LuOut,*)
 !--          write(LuOut,9000) 't2',size_t2
-!--          write(LuOut,9010) 't2',filename(1:20)
+!--          write(LuOut,9010) 't2',filename
 !--c         write(LuOut,9090) 't2',d_t2
 !--c         write(LuOut,9020) cpu
 !--          call util_flush(LuOut)
@@ -2109,7 +2110,7 @@
         if (nodezero.and.util_print('t3',print_default)) then
           write(LuOut,*)
           write(LuOut,9000) 't3',size_t3
-          write(LuOut,9010) 't3',filename(1:20)
+          write(LuOut,9010) 't3',filename
 !         write(LuOut,9090) 't3',d_t3
 !         write(LuOut,9020) cpu
           call util_flush(LuOut)
@@ -2199,7 +2200,7 @@
         if (nodezero.and.util_print('t3',print_default)) then
           write(LuOut,*)
           write(LuOut,9000) 't3a',size_t3
-          write(LuOut,9010) 't3a',filename(1:20)
+          write(LuOut,9010) 't3a',filename
 !         write(LuOut,9090) 't3a',d_t3
 !         write(LuOut,9020) cpu
           call util_flush(LuOut)
@@ -2222,7 +2223,7 @@
         if (nodezero.and.util_print('t4',print_default)) then
           write(LuOut,*)
           write(LuOut,9000) 't4',size_t4
-          write(LuOut,9010) 't4',filename(1:20)
+          write(LuOut,9010) 't4',filename
 !         write(LuOut,9090) 't4',d_t4
 !         write(LuOut,9020) cpu
           call util_flush(LuOut)
