@@ -191,7 +191,7 @@
 !
 ! $Id$
 !
-!     Returns a GA handle for AO quadrupole matrix.
+!     Returns a GA handle for AO octupole matrix.
 !
       implicit none
 #include "rtdb.fh"
@@ -237,31 +237,31 @@
       if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole XXX',
      1  -1,-1,g_aoo1(1))) call errquit('tce_aoo1: GA problem',0,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole XXY',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole YYY',
      1  -1,-1,g_aoo1(2))) call errquit('tce_aoo1: GA problem',1,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole XXZ',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole ZZZ',
      1  -1,-1,g_aoo1(3))) call errquit('tce_aoo1: GA problem',2,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole XYY',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole XXY',
      1  -1,-1,g_aoo1(4))) call errquit('tce_aoo1: GA problem',3,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole XYZ',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole XXZ',
      1  -1,-1,g_aoo1(5))) call errquit('tce_aoo1: GA problem',4,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole XZZ',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole YYX',
      1  -1,-1,g_aoo1(6))) call errquit('tce_aoo1: GA problem',5,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole YYY',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole YYZ',
      1  -1,-1,g_aoo1(7))) call errquit('tce_aoo1: GA problem',6,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole YYZ',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole ZZX',
      1  -1,-1,g_aoo1(8))) call errquit('tce_aoo1: GA problem',7,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole YZZ',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole ZZY',
      1  -1,-1,g_aoo1(9))) call errquit('tce_aoo1: GA problem',8,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole ZZZ',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole XYZ',
      1  -1,-1,g_aoo1(10))) call errquit('tce_aoo1: GA problem',9,
      2  GA_ERR)
 !
@@ -283,7 +283,7 @@
       endif
 !
 !     =======================
-!     Make quadrupole moments
+!     Make octupole moments
 !     =======================
 !
 !     Note: do not attempt to compute these in MO basis;
