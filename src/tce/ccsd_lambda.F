@@ -1,7 +1,6 @@
-      subroutine ccsd_lambda(d_d0,d_q0,d_o0,
+      subroutine ccsd_lambda(
      1           d_f1,d_v2,d_d1,d_q1,d_o1,
      2           d_t1,d_t2,d_lambda1,d_lambda2,
-     3           k_d0_offset,k_q0_offset,k_o0_offset,
      4           k_f1_offset,k_v2_offset,
      5           k_d1_offset,k_q1_offset,k_o1_offset,
      6           k_t1_offset,k_t2_offset,
@@ -33,45 +32,18 @@ c
       double precision r1,r2
       double precision residual
       double precision ddotfile
-      integer d_d0             ! Dipole moment
-      integer l_d0_offset      ! Offset for d0 file
-      integer k_d0_offset      ! Offset for d0 file
-      integer size_d0          ! File size in doubles
-      integer d_q0             ! Quadrupole moment
-      integer l_q0_offset      ! Offset for q0 file
-      integer k_q0_offset      ! Offset for q0 file
-      integer size_q0          ! File size in doubles
-      integer d_o0             ! Octupole moment
-      integer l_o0_offset      ! Offset for o0 file
-      integer k_o0_offset      ! Offset for o0 file
-      integer size_o0          ! File size in doubles
       integer d_d1(3)           ! MO dipole integral file
-      integer l_d1_offset(3)    ! Offset for d1 integral file
-      integer k_d1_offset(3)    ! Offset for d1 integral file
-      integer size_d1(3)        ! File size in doubles
       integer d_q1(6)           ! MO quadrupole integral file
-      integer l_q1_offset(6)    ! Offset for q1 integral file
-      integer k_q1_offset(6)    ! Offset for q1 integral file
-      integer size_q1(6)        ! File size in doubles
       integer d_o1(10)          ! MO octupole integral file
-      integer l_o1_offset(10)   ! Offset for o1 integral file
+      integer k_d1_offset(3)    ! Offset for d1 integral file
+      integer k_q1_offset(6)    ! Offset for q1 integral file
       integer k_o1_offset(10)   ! Offset for o1 integral file
-      integer size_o1(10)       ! File size in doubles
-      double precision dipole_scf_t      ! Dipole moment - SCF total
-      double precision dipole_cor_t      ! Dipole moment - CC total
       double precision dipole_scf(3)     ! Dipole moment - SCF XYZ
       double precision dipole_cor(3)     ! Dipole moment - CC XYZ
-      double precision cdipole           ! Dipole moment correlation
       double precision quadrupole_scf(6) ! Quadrupole moment
       double precision quadrupole_cor(6) ! Quadrupole moment
-      double precision cquadrupole       ! Quadrupole moment correlation
       double precision octupole_scf(10)  ! Octupole moment
       double precision octupole_cor(10)  ! Octupole moment
-      double precision coctupole         ! Octupole moment correlation
-      double precision debye,buck,octo
-      parameter (octo=0.711688d0)
-      parameter (buck=1.344911d0)
-      parameter (debye=2.54176568d0)
       double precision cpu, wall
       external ddotfile
       logical nodezero
@@ -144,10 +116,9 @@ c
      1       (perturbative.eq.'lambda[t]').or.
      2       (perturbative.eq.'2_t').or.
      3       (perturbative.eq.'2_tq')) go to 4511
-          call ccsd_dipole(d_d0,d_q0,d_o0,
+          call ccsd_dipole(
      1           d_f1,d_v2,d_d1,d_q1,d_o1,
      2           d_t1,d_t2,d_lambda1,d_lambda2,
-     3           k_d0_offset,k_q0_offset,k_o0_offset,
      4           k_f1_offset,k_v2_offset,
      5           k_d1_offset,k_q1_offset,k_o1_offset,
      6           k_t1_offset,k_t2_offset,
@@ -199,10 +170,9 @@ c
  9700 format(1x,'Skipping CCSD-Lambda altogether')
       end
 
-      subroutine ccsd_dipole(d_d0,d_q0,d_o0,
+      subroutine ccsd_dipole(
      1           d_f1,d_v2,d_d1,d_q1,d_o1,
      2           d_t1,d_t2,d_lambda1,d_lambda2,
-     3           k_d0_offset,k_q0_offset,k_o0_offset,
      4           k_f1_offset,k_v2_offset,
      5           k_d1_offset,k_q1_offset,k_o1_offset,
      6           k_t1_offset,k_t2_offset,
@@ -229,31 +199,16 @@ c
       integer k_t1_offset,k_t2_offset
       integer k_l1_offset,k_l2_offset
       integer size_l1,size_l2
-      integer d_d0             ! Dipole moment
-      integer l_d0_offset      ! Offset for d0 file
-      integer k_d0_offset      ! Offset for d0 file
-      integer size_d0          ! File size in doubles
-      integer d_q0             ! Quadrupole moment
-      integer l_q0_offset      ! Offset for q0 file
-      integer k_q0_offset      ! Offset for q0 file
-      integer size_q0          ! File size in doubles
-      integer d_o0             ! Octupole moment
-      integer l_o0_offset      ! Offset for o0 file
-      integer k_o0_offset      ! Offset for o0 file
-      integer size_o0          ! File size in doubles
-      integer d_d1(3)           ! MO dipole integral file
-      integer l_d1_offset(3)    ! Offset for d1 integral file
-      integer k_d1_offset(3)    ! Offset for d1 integral file
-      integer size_d1(3)        ! File size in doubles
-      integer d_q1(6)           ! MO quadrupole integral file
-      integer l_q1_offset(6)    ! Offset for q1 integral file
-      integer k_q1_offset(6)    ! Offset for q1 integral file
-      integer size_q1(6)        ! File size in doubles
-      integer d_o1(10)          ! MO octupole integral file
-      integer l_o1_offset(10)   ! Offset for o1 integral file
-      integer k_o1_offset(10)   ! Offset for o1 integral file
-      integer size_o1(10)       ! File size in doubles
-      double precision dipole_scf_t      ! Dipole moment - SCF total
+      integer k_s0_offset,l_s0_offset,size_s0 ! any scalar
+      integer d_d0                       ! Dipole moment
+      integer d_q0                       ! Quadrupole moment
+      integer d_o0                       ! Octupole moment
+      integer d_d1(3)                    ! MO dipole integral file
+      integer d_q1(6)                    ! MO quadrupole integral file
+      integer d_o1(10)                   ! MO octupole integral file
+      integer k_d1_offset(3)             ! Offset for d1 integral file
+      integer k_q1_offset(6)             ! Offset for q1 integral file
+      integer k_o1_offset(10)            ! Offset for o1 integral file
       double precision dipole_cor_t      ! Dipole moment - CC total
       double precision dipole_exc_t      ! Dipole moment - EOM-CC total
       double precision dipole_scf(3)     ! Dipole moment - SCF XYZ
@@ -278,7 +233,7 @@ c
       integer sym_abelian_axis
       external sym_abelian_axis
       character*255 filename
-c
+      call tce_e_offset(l_s0_offset,k_s0_offset,size_s0)
       nodezero=(ga_nodeid().eq.0)
       irrep_y=0
       call tce_diis_init()
@@ -287,7 +242,7 @@ c
         call tce_filename('d0',filename)
         call createfile(filename,d_d0,1) ! size_d0 = 1
         call ccsd_density1(d_d1(axis),d_d0,d_t1,d_t2,d_lambda1,
-     1    d_lambda2,k_d1_offset(axis),k_d0_offset,k_t1_offset,
+     1    d_lambda2,k_d1_offset(axis),k_s0_offset,k_t1_offset,
      2    k_t2_offset,k_l1_offset,k_l2_offset)
         call reconcilefile(d_d0,1)
         call get_block(d_d0,cdipole,1,0)
@@ -308,7 +263,7 @@ c
           call tce_filename('q0',filename)
           call createfile(filename,d_q0,1)
           call ccsd_density1(d_q1(axis),d_q0,d_t1,d_t2,d_lambda1,
-     1      d_lambda2,k_q1_offset(axis),k_q0_offset,k_t1_offset,
+     1      d_lambda2,k_q1_offset(axis),k_s0_offset,k_t1_offset,
      2      k_t2_offset,k_l1_offset,k_l2_offset)
           call reconcilefile(d_q0,1)
           call get_block(d_q0,cquadrupole,1,0)
@@ -329,7 +284,7 @@ c
           call tce_filename('o0',filename)
           call createfile(filename,d_o0,1)
           call ccsd_density1(d_o1(axis),d_o0,d_t1,d_t2,d_lambda1,
-     1      d_lambda2,k_o1_offset(axis),k_o0_offset,k_t1_offset,
+     1      d_lambda2,k_o1_offset(axis),k_s0_offset,k_t1_offset,
      2      k_t2_offset,k_l1_offset,k_l2_offset)
           call reconcilefile(d_o0,1)
           call get_block(d_o0,coctupole,1,0)
@@ -348,6 +303,8 @@ c
      5                octupole_cor(9), octupole_cor(9)*octo,
      6                octupole_cor(5), octupole_cor(5)*octo
       endif
+      if (.not.ma_pop_stack(l_s0_offset))
+     1     call errquit("ccsd_lambda: MA problem",307,MA_ERR)
       return
  9430 format(/,1x,A,' dipole moments / hartree & Debye',/,
      1  1x,'------------------------------------',/

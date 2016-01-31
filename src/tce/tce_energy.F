@@ -2730,18 +2730,17 @@
 ! CCSD    left
 ! -------------
         if (left) then
-          call ccsd_lambda(d_d0,d_q0,d_o0,
+          call ccsd_lambda(
      1           d_f1,d_v2,d_d1,d_q1,d_o1,
      2           d_t1,d_t2,d_lambda1,d_lambda2,
-     3           k_d0_offset,k_q0_offset,k_o0_offset,
-     4           k_f1_offset,k_v2_offset,
-     5           k_d1_offset,k_q1_offset,k_o1_offset,
-     6           k_t1_offset,k_t2_offset,
-     7           k_l1_offset,k_l2_offset,
-     8           size_l1,size_l2,
-     9           dipole_scf,    dipole_cor,
-     1           quadrupole_scf,quadrupole_cor,
-     2           octupole_scf,  octupole_cor)
+     3           k_f1_offset,k_v2_offset,
+     4           k_d1_offset,k_q1_offset,k_o1_offset,
+     5           k_t1_offset,k_t2_offset,
+     6           k_l1_offset,k_l2_offset,
+     7           size_l1,size_l2,
+     8           dipole_scf,    dipole_cor,
+     9           quadrupole_scf,quadrupole_cor,
+     1           octupole_scf,  octupole_cor)
 !
 !->d3p975
 !
@@ -3406,6 +3405,7 @@
 ! CCSD-LR
 ! -------------
         if (lineresp) then
+          ! no need to pass d_a0 as argument here
           call ccsd_lr_alpha(rtdb,d_d0,d_a0,d_f1,d_v2,d_d1,
      1         d_t1,d_t2,d_lambda1,d_lambda2,d_tr1,d_tr2,
      2         k_d0_offset,k_a0_offset,
@@ -3419,6 +3419,7 @@
 ! CCSD-YR
 ! -------------
         if (leftresp) then
+          ! no need to pass d_a0 as argument here
           call ccsd_qr_beta(rtdb,d_a0,d_b0,d_f1,d_v2,d_d1,
      1         d_t1,d_t2,d_lambda1,d_lambda2,d_yr1,d_yr2,d_tr1,d_tr2,
      2         k_a0_offset,k_b0_offset,
