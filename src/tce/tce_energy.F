@@ -774,7 +774,7 @@
         write(LuOut,*)'SLICE:     ',slice
 !cx        write(LuOut,*)'XMEM:      ',xmem
         write(LuOut,*)'D4D5:      ',d4d5
-        call util_flush(6)
+        call util_flush(LuOut)
        end if
 
 
@@ -786,8 +786,8 @@
       need_mutex=ioalg.ne.2
 #if 0
        if(ga_nodeid().eq.0) then
-          write(6,*)' value of need_mutex ',need_mutex
-          write(6,*)' value of ioalg ',ioalg
+          write(LuOut,*)' value of need_mutex ',need_mutex
+          write(LuOut,*)' value of ioalg ',ioalg
        endif
 #endif
       if(need_mutex) then
@@ -870,7 +870,6 @@
           call tce_filename(dfilename(axis),filename)
           call createfile(filename,d_d1(axis),size_d1(axis))
           if (nodezero.and.util_print('mod1',print_default)) then
-            write(LuOut,*)
             write(LuOut,9000) 'dipole',size_d1(axis)
             write(LuOut,9010) 'dipole',trim(filename)
           endif
@@ -919,7 +918,6 @@
             call tce_filename(qfilename(axis),filename)
             call createfile(filename,d_q1(axis),size_q1(axis))
             if (nodezero.and.util_print('moq1',print_default)) then
-              write(LuOut,*)
               write(LuOut,9000) 'quadrupole',size_q1(axis)
               write(LuOut,9010) 'quadrupole',trim(filename)
             endif
@@ -946,7 +944,6 @@
             call tce_filename(ofilename(axis),filename)
             call createfile(filename,d_o1(axis),size_o1(axis))
             if (nodezero.and.util_print('moo1',print_default)) then
-              write(LuOut,*)
               write(LuOut,9000) 'octupole',size_o1(axis)
               write(LuOut,9010) 'octupole',trim(filename)
             endif
@@ -985,7 +982,6 @@
                 call tce_filename(dfilename(axis),filename)
                 call createfile(filename,d_d1(axis),size_d1(axis))
                 if (nodezero.and.util_print('mod1',print_default)) then
-                  if (i.eq.1) write(LuOut,*)
                   write(LuOut,9000) 'dipole',size_d1(axis)
                   write(LuOut,9010) 'dipole',trim(filename)
                 endif
@@ -995,7 +991,6 @@
                 call tce_filename(qfilename(axis),filename)
                 call createfile(filename,d_q1(axis),size_q1(axis))
                 if (nodezero.and.util_print('moq1',print_default)) then
-                  if (i.eq.1) write(LuOut,*)
                   write(LuOut,9000) 'quadrupole',size_q1(axis)
                   write(LuOut,9010) 'quadrupole',trim(filename)
                 endif
@@ -1005,7 +1000,6 @@
                 call tce_filename(ofilename(axis),filename)
                 call createfile(filename,d_o1(axis),size_o1(axis))
                 if (nodezero.and.util_print('moo1',print_default)) then
-                  if (i.eq.1) write(LuOut,*)
                   write(LuOut,9000) 'octupole',size_o1(axis)
                   write(LuOut,9010) 'octupole',trim(filename)
                 endif
@@ -1125,7 +1119,7 @@
       if(read_int)  then
       call util_file_name('f1int',.false.,.true.,filename)
       unitn=77
-      if(nodezero) write(6,*)'size_1e',size_1e
+      if(nodezero) write(LuOut,*)'size_1e',size_1e
        call read_tensor(filename,d_f1,size_1e,unitn)
 !     re-split the int files?
        if (rtdb_get(rtdb,'tce:maxioprocs_new',
@@ -1144,7 +1138,7 @@
       if(write_int)  then
       call util_file_name('f1int',.false.,.true.,filename)
       unitn=77
-      if(nodezero) write(6,*)'size_1e',size_1e
+      if(nodezero) write(LuOut,*)'size_1e',size_1e
       call write_tensor(filename,d_f1,size_1e,unitn)
       call ga_sync()
       end if
@@ -1177,7 +1171,6 @@
         endif
         write(LuOut,9000) '1-e',size_1e
         write(LuOut,9010) '1-e',trim(filename)
-!       write(LuOut,9090) '1-e',d_f1
         write(LuOut,9020) cpu, wall
         call util_flush(LuOut)
       endif
@@ -1346,7 +1339,7 @@
         if(.not.read_in3) then ! -- read_in3 ---
 ! ==============
         if(nodezero) then
-          write(6,*)'4-electron integrals stored in orbital form'
+          write(LuOut,*)'4-electron integrals stored in orbital form'
         end if
         cpu = - util_cpusec()
         wall = - util_wallsec()
@@ -2762,7 +2755,7 @@
 ! -------------
  2234   continue
         if (imagresp) then
-          if(nodezero) write(6,*) 'YOU WILL GET WRONG RESULTS'
+          if(nodezero) write(LuOut,*) 'YOU WILL GET WRONG RESULTS'
             call ccsd_imaginary(d_a0,d_f1,d_v2,d_d1,
      1           d_t1,d_t2,d_lambda1,d_lambda2,d_tr1,d_tr2,
      2           k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
@@ -2771,10 +2764,10 @@
      7           size_tr1,size_tr2)
           call errquit('MANUAL STOP',0,CALC_ERR)
           if(nodezero) then
-            write(6,*) 'inumfreq = ',inumfreq
-            write(6,*) 'Casimir-Polder integration points are:'
+            write(LuOut,*) 'inumfreq = ',inumfreq
+            write(LuOut,*) 'Casimir-Polder integration points are:'
             do i = inumfreq,1,-1
-              write(6,999) i,ifreq(i)
+              write(LuOut,999) i,ifreq(i)
             enddo
             call util_flush(LuOut)
           endif
@@ -2806,7 +2799,7 @@
 !
             if (guess_ir_real.and.(omegacount.eq.1)) then
 !
-            if (nodezero) write(6,9121) 'Initial guess x = b/Adiag'
+            if (nodezero) write(LuOut,9121) 'Initial guess x = b/Adiag'
 !
 !           0. Create dummies
 !
@@ -3043,7 +3036,7 @@
             if (guess_ir_imag.and.(omegacount.eq.1)) then
 !
 !           Initial guess x_I = omega*x_R/(Adiag-omega)
-           if (nodezero) write(6,9121) 
+           if (nodezero) write(LuOut,9121) 
      1        'Initial guess x_I = omega*x_R/Adiag'
 !
 !           0. Create dummies
@@ -7884,8 +7877,8 @@ c
                 endif
 ! ---
             if(nodezero) then
-             write(6,*)'largest EOMCCSD amplitudes: R1 and R2'
-             call util_flush(6)
+             write(LuOut,*)'largest EOMCCSD amplitudes: R1 and R2'
+             call util_flush(LuOut)
             end if
              do jvec=1,nroots_reduced
               if((.not. eaccsd) .and. (.not. ipccsd)) then
@@ -7957,7 +7950,7 @@ c
         nroots_reduced=nroots
         if(nodezero) then
          write(LuOut,9511) nroots_reduced
-         call util_flush(6)
+         call util_flush(LuOut)
         end if
         if (.not.rtdb_get(rtdb,'tce:omg',mt_dbl,nroots,eom_excit)) then
           call errquit('tce_energy: reading omg',nroots,CALC_ERR) 
@@ -7977,7 +7970,7 @@ c
         dbl_mb(k_omegax+ivec-1)=eom_excit(ivec)
         if(nodezero) then
          write(LuOut,*)'read excit. energy: ',dbl_mb(k_omegax+ivec-1)
-         call util_flush(6)
+         call util_flush(LuOut)
         end if
         enddo
 !
@@ -8084,7 +8077,7 @@ c
 ! =============
             if(nodezero) then
              write(LuOut,*)'INITIAL STARTS -----'
-             call util_flush(6)
+             call util_flush(LuOut)
             end if
             do iroot=1,nroots_reduced
              call tce_print_x1(x1_ini(iroot),k_x1_offset,0.10d0,irrep_x)
@@ -8092,7 +8085,7 @@ c
             if(nodezero) then
              write(LuOut,*)'                    '
              write(LuOut,*)'INITIAL STARTS -----'
-             call util_flush(6)
+             call util_flush(LuOut)
             end if
         end if
 !
@@ -9291,8 +9284,8 @@ c
       if(read_xa)  then
         nroots_reduced=nroots
         if(nodezero) then
-         write(6,*)'nroots_reduced: ',nroots_reduced
-         call util_flush(6)
+         write(LuOut,*)'nroots_reduced: ',nroots_reduced
+         call util_flush(LuOut)
         end if
         if (.not.rtdb_get(rtdb,'tce:omg',mt_dbl,nroots,eom_excit)) then
           call errquit('tce_energy: reading omg',nroots,CALC_ERR) 
@@ -9304,15 +9297,16 @@ c
           else
            if(nodezero) then
            write(LuOut,*)'no R0-s restarted !!!!!'
-           call util_flush(6)
+           call util_flush(LuOut)
            end if 
           end if
         end if
         do ivec=1,nroots
         dbl_mb(k_omegax+ivec-1)=eom_excit(ivec)
         if(nodezero) then
-         write(6,*)'read excitation energy: ',dbl_mb(k_omegax+ivec-1)
-         call util_flush(6)
+         write(LuOut,*)'read excitation energy: ',
+     1                  dbl_mb(k_omegax+ivec-1)
+         call util_flush(LuOut)
         end if
         enddo
 !
@@ -9414,16 +9408,16 @@ c
 !
 !
            if(nodezero) then
-            write(6,*)'INITIAL STARTS -----'
-            call util_flush(6)
+            write(LuOut,*)'INITIAL STARTS -----'
+            call util_flush(LuOut)
            end if
            do iroot=1,nroots_reduced
             call tce_print_x1(x1_ini(iroot),k_x1_offset,0.10d0,irrep_x)
            enddo
            if(nodezero) then
-            write(6,*)'                    '
-            write(6,*)'INITIAL STARTS -----'
-            call util_flush(6)
+            write(LuOut,*)'                    '
+            write(LuOut,*)'INITIAL STARTS -----'
+            call util_flush(LuOut)
            end if
 !
 !
@@ -10120,8 +10114,8 @@ c
                 endif
 ! ---
             if(nodezero) then
-             write(6,*)'largest EOMCCSDT amplitudes: R1 and R2'
-             call util_flush(6)
+             write(LuOut,*)'largest EOMCCSDT amplitudes: R1 and R2'
+             call util_flush(LuOut)
             end if
              do jvec=1,nroots_reduced
 !              call tce_print_x1(xc1(jvec),k_x1_offset,0.10d0)
@@ -10266,8 +10260,8 @@ c
                 endif
 ! ---
             if(nodezero) then
-             write(6,*)'largest EOMCCSDt amplitudes: R1 and R2 '
-             call util_flush(6)
+             write(LuOut,*)'largest EOMCCSDt amplitudes: R1 and R2 '
+             call util_flush(LuOut)
             end if
              do jvec=1,nroots_reduced
 !              call tce_print_x1(xc1(jvec),k_x1_offset,0.10d0)
