@@ -247,6 +247,10 @@ c
         call reconcilefile(d_d0,1)
         call get_block(d_d0,cdipole,1,0)
         dipole_cor(axis)=dipole_scf(axis)+cdipole
+        if (nodezero.and.util_print('multipole',print_debug)) then
+            write(LuOut,1001) axis,dipole_scf(axis),
+     1                             dipole_cor(axis)
+        endif
         call deletefile(d_d0)
       enddo
       dipole_cor_t = dsqrt( dipole_cor(1)*dipole_cor(1) +
@@ -268,6 +272,10 @@ c
           call reconcilefile(d_q0,1)
           call get_block(d_q0,cquadrupole,1,0)
           quadrupole_cor(axis)=quadrupole_scf(axis)-cquadrupole
+          if (nodezero.and.util_print('multipole',print_debug)) then
+              write(LuOut,1002) axis,quadrupole_scf(axis),
+     1                               quadrupole_cor(axis)
+          endif
           call deletefile(d_q0)
         enddo
         if (nodezero) write(LuOut,9432) "CCSD",
@@ -280,7 +288,7 @@ c
       endif
       if (multipole.gt.2) then
         do axis=1,10
-          irrep_d=sym_abelian_axis(geom,axis)
+          irrep_d=sym_abelian_axis(geom,axis+9)
           call tce_filename('o0',filename)
           call createfile(filename,d_o0,1)
           call ccsd_density1(d_o1(axis),d_o0,d_t1,d_t2,d_lambda1,
@@ -289,6 +297,10 @@ c
           call reconcilefile(d_o0,1)
           call get_block(d_o0,coctupole,1,0)
           octupole_cor(axis)=octupole_scf(axis)+coctupole
+          if (nodezero.and.util_print('multipole',print_debug)) then
+              write(LuOut,1003) axis,octupole_scf(axis),
+     1                               octupole_cor(axis)
+          endif
           call deletefile(d_o0)
         enddo
         if (nodezero) write(LuOut,9433) "CCSD",
@@ -306,6 +318,9 @@ c
       if (.not.ma_pop_stack(l_s0_offset))
      1     call errquit("ccsd_lambda: MA problem",307,MA_ERR)
       return
+ 1001 format(/,1x,'dipole:   axis=',i1,' SCF=',f15.7,' CCSD=',f15.7)
+ 1002 format(/,1x,'quadpole: axis=',i1,' SCF=',f15.7,' CCSD=',f15.7)
+ 1003 format(/,1x,'octpole:  axis=',i1,' SCF=',f15.7,' CCSD=',f15.7)
  9430 format(/,1x,A,' dipole moments / hartree & Debye',/,
      1  1x,'------------------------------------',/
      2  1x,'  X   ',2f15.7,/
