@@ -816,7 +816,7 @@
           call tce_aoq1(rtdb,g_aoq1,quadrupole_scf)
         endif
         if (multipole.gt.2) then
-!          call tce_aoo1(rtdb,g_aoo1,octupole_scf)
+          call tce_aoo1(rtdb,g_aoo1,octupole_scf)
         endif
         cpu = cpu + util_cpusec()
         wall = wall + util_wallsec()
