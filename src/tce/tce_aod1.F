@@ -1,9 +1,9 @@
       subroutine tce_aod1(rtdb,g_aod1,dipole)
-c
-c $Id$
-c
-c     Returns a GA handle for AO dipole matrix.
-c
+!
+! $Id$
+!
+!     Returns a GA handle for AO dipole matrix.
+!
       implicit none
 #include "rtdb.fh"
 #include "global.fh"
@@ -21,21 +21,21 @@ c
       integer g_dens(2)          ! GA handle for density matrices
       double precision dipole(3) ! SCF dipole moments
       integer i
-c
-c     ===============
-c     Allocate g_dens
-c     ===============
-c
+!
+!     ===============
+!     Allocate g_dens
+!     ===============
+!
       do i=1,ipol
         if (.not.ga_create(mt_dbl,nbf,nbf,'AO density',
      1    -1,-1,g_dens(i))) call errquit('tce_aod1: GA problem',2,
      2    GA_ERR)
       enddo
-c
-c     =====================
-c     Make density matrices
-c     =====================
-c
+!
+!     =====================
+!     Make density matrices
+!     =====================
+!
       do i=1,ipol
         call ga_dgemm('N','T',nbf,nbf,nocc(i),1.0d0,
      1    g_movecs(i),g_movecs(i),0.0d0,g_dens(i))
@@ -43,11 +43,11 @@ c
         if (util_print('aod1',
      1    print_debug)) call ga_print(g_dens(i))
       enddo
-c
-c     ===============
-c     Allocate g_aod1
-c     ===============
-c
+!
+!     ===============
+!     Allocate g_aod1
+!     ===============
+!
       if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole X',
      1  -1,-1,g_aod1(1))) call errquit('tce_aod1: GA problem',0,
      2  GA_ERR)
@@ -57,24 +57,24 @@ c
       if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole Z',
      1  -1,-1,g_aod1(3))) call errquit('tce_aod1: GA problem',2,
      2  GA_ERR)
-c
-c     ====================
-c     Make dipole matrices
-c     ====================
-c
+!
+!     ====================
+!     Make dipole matrices
+!     ====================
+!
       call int_dip_ga(ao_bas_han,ao_bas_han,
      1  g_aod1(1),g_aod1(2),g_aod1(3))
       if (util_print('aod1',print_debug)) call ga_print(g_aod1(1))
       if (util_print('aod1',print_debug)) call ga_print(g_aod1(2))
       if (util_print('aod1',print_debug)) call ga_print(g_aod1(3))
-c
-c     ===================
-c     Make dipole moments
-c     ===================
-c
-c     Note: do not attempt to compute these in MO basis;
-c     frozen core approximation can give you wrong results.
-c
+!
+!     ===================
+!     Make dipole moments
+!     ===================
+!
+!     Note: do not attempt to compute these in MO basis;
+!     frozen core approximation can give you wrong results.
+!
       do i=1,ipol
         dipole(1) = dipole(1) + ga_ddot(g_dens(i),g_aod1(1))
         dipole(2) = dipole(2) + ga_ddot(g_dens(i),g_aod1(2))
@@ -90,11 +90,11 @@ c
 
 
       subroutine tce_aoq1(rtdb,g_aoq1,quadrupole)
-c
-c $Id$
-c
-c     Returns a GA handle for AO quadrupole matrix.
-c
+!
+! $Id$
+!
+!     Returns a GA handle for AO quadrupole matrix.
+!
       implicit none
 #include "rtdb.fh"
 #include "global.fh"
@@ -112,21 +112,21 @@ c
       integer g_dens(2)              ! GA handle for density matrices
       double precision quadrupole(6) ! SCF quadrupole moments
       integer i
-c
-c     ===============
-c     Allocate g_dens
-c     ===============
-c
+!
+!     ===============
+!     Allocate g_dens
+!     ===============
+!
       do i=1,ipol
         if (.not.ga_create(mt_dbl,nbf,nbf,'AO density',
      1    -1,-1,g_dens(i))) call errquit('tce_aoq1: GA problem',2,
      2    GA_ERR)
       enddo
-c
-c     =====================
-c     Make density matrices
-c     =====================
-c
+!
+!     =====================
+!     Make density matrices
+!     =====================
+!
       do i=1,ipol
         call ga_dgemm('N','T',nbf,nbf,nocc(i),1.0d0,
      1    g_movecs(i),g_movecs(i),0.0d0,g_dens(i))
@@ -134,11 +134,11 @@ c
         if (util_print('aoq1',
      1    print_debug)) call ga_print(g_dens(i))
       enddo
-c
-c     ===============
-c     Allocate g_aoq1
-c     ===============
-c
+!
+!     ===============
+!     Allocate g_aoq1
+!     ===============
+!
       if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole XX',
      1  -1,-1,g_aoq1(1))) call errquit('tce_aoq1: GA problem',0,
      2  GA_ERR)
@@ -157,11 +157,11 @@ c
       if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole ZZ',
      1  -1,-1,g_aoq1(6))) call errquit('tce_aoq1: GA problem',5,
      2  GA_ERR)
-c
-c     ========================
-c     Make quadrupole matrices
-c     ========================
-c
+!
+!     ========================
+!     Make quadrupole matrices
+!     ========================
+!
       call int_qdr_ga(ao_bas_han,ao_bas_han,
      1  g_aoq1(1),g_aoq1(2),g_aoq1(3),g_aoq1(4),g_aoq1(5),g_aoq1(6))
       if (util_print('aoq1',print_debug)) then
@@ -169,14 +169,14 @@ c
             call ga_print(g_aoq1(i))
         enddo
       endif
-c
-c     =======================
-c     Make quadrupole moments
-c     =======================
-c
-c     Note: do not attempt to compute these in MO basis;
-c     frozen core approximation can give you wrong results.
-c
+!
+!     =======================
+!     Make quadrupole moments
+!     =======================
+!
+!     Note: do not attempt to compute these in MO basis;
+!     frozen core approximation can give you wrong results.
+!
       do i=1,ipol
         quadrupole(1) = quadrupole(1) + ga_ddot(g_dens(i),g_aoq1(1))
         quadrupole(2) = quadrupole(2) + ga_ddot(g_dens(i),g_aoq1(2))
@@ -196,11 +196,11 @@ c
 
 
       subroutine tce_aoo1(rtdb,g_aoo1,octpole)
-c
-c $Id$
-c
-c     Returns a GA handle for AO quadrupole matrix.
-c
+!
+! $Id$
+!
+!     Returns a GA handle for AO quadrupole matrix.
+!
       implicit none
 #include "rtdb.fh"
 #include "global.fh"
@@ -218,22 +218,22 @@ c
       integer g_dens(2)              ! GA handle for density matrices
       double precision octpole(10)   ! SCF octupole moments
       integer i
-c
-c     ===============
-c     Allocate g_dens
-c     ===============
-c
+!
+!     ===============
+!     Allocate g_dens
+!     ===============
+!
 
       do i=1,ipol
         if (.not.ga_create(mt_dbl,nbf,nbf,'AO density',
      1    -1,-1,g_dens(i))) call errquit('tce_aoo1: GA problem',2,
      2    GA_ERR)
       enddo
-c
-c     =====================
-c     Make density matrices
-c     =====================
-c
+!
+!     =====================
+!     Make density matrices
+!     =====================
+!
       do i=1,ipol
         call ga_dgemm('N','T',nbf,nbf,nocc(i),1.0d0,
      1    g_movecs(i),g_movecs(i),0.0d0,g_dens(i))
@@ -241,11 +241,11 @@ c
         if (util_print('aoo1',
      1    print_debug)) call ga_print(g_dens(i))
       enddo
-c
-c     ===============
-c     Allocate g_aoo1
-c     ===============
-c
+!
+!     ===============
+!     Allocate g_aoo1
+!     ===============
+!
       if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole XXX',
      1  -1,-1,g_aoo1(1))) call errquit('tce_aoo1: GA problem',0,
      2  GA_ERR)
@@ -276,14 +276,14 @@ c
       if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole ZZZ',
      1  -1,-1,g_aoo1(10))) call errquit('tce_aoo1: GA problem',9,
      2  GA_ERR)
-c
-c     ======================
-c     Make octupole matrices
-c     ======================
-c
-c    octpole ao integer calculation order int_oct_ga: xxx, xxy, xxz, xyy, xyz,
-c                                                     xzz, yyy, yyz, yzz, zzz
-c
+!
+!     ======================
+!     Make octupole matrices
+!     ======================
+!
+!    octpole ao integer calculation order int_oct_ga: xxx, xxy, xxz, xyy, xyz,
+!                                                     xzz, yyy, yyz, yzz, zzz
+!
       call int_oct_ga(ao_bas_han,ao_bas_han,
      1  g_aoo1(1),g_aoo1(4),g_aoo1(5),g_aoo1(6),g_aoo1(10),g_aoo1(8),
      2  g_aoo1(2),g_aoo1(7),g_aoo1(9),g_aoo1(3))
@@ -293,14 +293,14 @@ c
             call ga_print(g_aoo1(i))
         enddo
       endif
-c
-c     =======================
-c     Make quadrupole moments
-c     =======================
-c
-c     Note: do not attempt to compute these in MO basis;
-c     frozen core approximation can give you wrong results.
-c
+!
+!     =======================
+!     Make quadrupole moments
+!     =======================
+!
+!     Note: do not attempt to compute these in MO basis;
+!     frozen core approximation can give you wrong results.
+!
       do i=1,ipol
         octpole(1)  = octpole(1)  + ga_ddot(g_dens(i),g_aoo1(1))
         octpole(2)  = octpole(2)  + ga_ddot(g_dens(i),g_aoo1(2))
