@@ -1,7 +1,7 @@
       subroutine int_dip_ga(ibas, jbas, g_x, g_y, g_z)
-*
-* $Id$
-*
+!
+! $Id$
+!
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -17,37 +17,37 @@
       integer ijshell, ilo, ihi, jlo, jhi
       integer l_buf, l_scr
       integer k_buf, k_scr
-c
+!
       double precision center(3)
-c
+!
       call dfill(3, 0.0d0, center, 1)
-c
+!
       call ga_sync()
       call ga_zero(g_x)
       call ga_zero(g_y)
       call ga_zero(g_z)
       if(oscfps) call pstat_on(ps_int_dip)
-c
-c     grab basis set info type stuff
-c
+!
+!     grab basis set info type stuff
+!
       if(.not.bas_numcont(ibas,nshell_i))call errquit
      $  ('int_dip_ga: bas_numcont failed for ibas',ibas, BASIS_ERR)
       if(.not.bas_numcont(jbas,nshell_j))call errquit
      $  ('int_dip_ga: bas_numcont failed for jbas',jbas, BASIS_ERR)
-c
-c allocate temp. arrays
-c
+!
+! allocate temp. arrays
+!
       call int_mem_dipole(max1e,mscratch,ibas,jbas,1)
-c      
+!
       if(.not.MA_push_get(MT_DBL,max1e,'int_dip_ga:buf',l_buf,k_buf))
      $  call errquit('int_dip_ga: ma failure',max1e, MA_ERR)
       if(.not.MA_push_get(MT_DBL,mscratch,'int_dip_ga:scr',
      $   l_scr,k_scr))
      $  call errquit('int_dip_ga: ma failure',mscratch, MA_ERR)
 
-c
-c     loop over shells
-c
+!
+!     loop over shells
+!
       iproc = ga_nodeid()
       nproc = ga_nnodes()
       ijshell = 0
@@ -61,36 +61,36 @@ c
      $              call errquit('int_dip_ga:bas_cn2bfr ?', jbas,
      &       BASIS_ERR)
 
-c
-c     get the integrals we want
-c
-               call int_mpole(ibas, ishell, jbas, jshell, 
+!
+!     get the integrals we want
+!
+               call int_mpole(ibas, ishell, jbas, jshell,
      $              1,
      $              center,
      $              mscratch, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
-c
-c     bung integrals into global array
-c
+!
+!     bung integrals into global array
+!
                call int_dip_put_in_g(g_x, g_y, g_z, ilo,ihi,jlo,jhi,
      $              dbl_mb(k_buf+(ihi-ilo+1)*(jhi-jlo+1)))
             endif
             ijshell=ijshell+1
          enddo
       enddo
-c
+!
       if(.not.MA_pop_stack(l_scr))
      $   call errquit('int_dip_ga:pop failed',0, MA_ERR)
-      if(.not.MA_pop_stack(l_buf)) 
+      if(.not.MA_pop_stack(l_buf))
      $   call errquit('int_dip_ga:pop failed',0, MA_ERR)
-c
+!
       call ga_sync()
-c
-c      call ga_print(g_x)
-c      call ga_print(g_y)
-c      call ga_print(g_z)
-c
+!
+!      call ga_print(g_x)
+!      call ga_print(g_y)
+!      call ga_print(g_z)
+!
       if(oscfps) call pstat_off(ps_int_dip)
-c
+!
       end
 
       subroutine int_dip_put_in_g(g_x, g_y, g_z,
@@ -111,9 +111,9 @@ c
 
       subroutine int_qdr_ga(ibas, jbas, g_xx, g_xy, g_xz,
      1                                  g_yy, g_yz, g_zz)
-*
-* $Id$
-*
+!
+! $Id$
+!
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -129,11 +129,11 @@ c
       integer ijshell, ilo, ihi, jlo, jhi
       integer l_buf, l_scr
       integer k_buf, k_scr
-c
+!
       double precision center(3)
-c
+!
       call dfill(3, 0.0d0, center, 1)
-c
+!
       call ga_sync()
 
       call ga_zero(g_xx)
@@ -144,26 +144,26 @@ c
       call ga_zero(g_zz)
 
       if(oscfps) call pstat_on(ps_int_dip)
-c
-c     grab basis set info type stuff
-c
+!
+!     grab basis set info type stuff
+!
       if(.not.bas_numcont(ibas,nshell_i))call errquit
      $  ('int_qdr_ga: bas_numcont failed for ibas',ibas, BASIS_ERR)
       if(.not.bas_numcont(jbas,nshell_j))call errquit
      $  ('int_qdr_ga: bas_numcont failed for jbas',jbas, BASIS_ERR)
-c
-c allocate temp. arrays
-c
+!
+! allocate temp. arrays
+!
       call int_mem_dipole(max1e,mscratch,ibas,jbas,2)
-c
+!
       if(.not.MA_push_get(MT_DBL,max1e,'int_qdr_ga:buf',l_buf,k_buf))
      $  call errquit('int_qdr_ga: ma failure',max1e, MA_ERR)
       if(.not.MA_push_get(MT_DBL,mscratch,'int_qdr_ga:scr',
      $   l_scr,k_scr))
      $  call errquit('int_qdr_ga: ma failure',mscratch, MA_ERR)
-c
-c     loop over shells
-c
+!
+!     loop over shells
+!
       iproc = ga_nodeid()
       nproc = ga_nnodes()
       ijshell = 0
@@ -176,16 +176,16 @@ c
                if(.not.bas_cn2bfr(jbas,jshell,jlo,jhi))
      $              call errquit('int_qdr_ga:bas_cn2bfr ?', jbas,
      &       BASIS_ERR)
-c
-c     get the integrals we want
-c
+!
+!     get the integrals we want
+!
                call int_mpole(ibas, ishell, jbas, jshell,
      $              2,
      $              center,
      $              mscratch, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
-c
-c     bung integrals into global array
-c
+!
+!     bung integrals into global array
+!
                call int_qdr_put_in_g(g_xx, g_xy, g_xz,
      $              g_yy, g_yz, g_zz, ilo,ihi,jlo,jhi,
      $              dbl_mb(k_buf+(ihi-ilo+1)*(jhi-jlo+1)*4))
@@ -193,23 +193,23 @@ c
             ijshell=ijshell+1
          enddo
       enddo
-c
+!
       if(.not.MA_pop_stack(l_scr))
      $   call errquit('int_qdr_ga:pop failed',0, MA_ERR)
-      if(.not.MA_pop_stack(l_buf)) 
+      if(.not.MA_pop_stack(l_buf))
      $   call errquit('int_qdr_ga:pop failed',0, MA_ERR)
-c
+!
       call ga_sync()
-c
-c      call ga_print(g_xx)
-c      call ga_print(g_xy)
-c      call ga_print(g_xz)
-c      call ga_print(g_yy)
-c      call ga_print(g_yz)
-c      call ga_print(g_zz)
-c
+!
+!      call ga_print(g_xx)
+!      call ga_print(g_xy)
+!      call ga_print(g_xz)
+!      call ga_print(g_yy)
+!      call ga_print(g_yz)
+!      call ga_print(g_zz)
+!
       if(oscfps) call pstat_off(ps_int_dip)
-c
+!
       end
 
       subroutine int_qdr_put_in_g(g_xx, g_xy, g_xz,
@@ -238,9 +238,9 @@ c
       subroutine int_oct_ga(ibas, jbas,
      1                       g_xxx, g_xxy, g_xxz, g_xyy, g_xyz,
      2                       g_xzz, g_yyy, g_yyz, g_yzz, g_zzz)
-*
-* $Id$
-*
+!
+! $Id$
+!
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -257,11 +257,11 @@ c
       integer ijshell, ilo, ihi, jlo, jhi
       integer l_buf, l_scr
       integer k_buf, k_scr
-c
+!
       double precision center(3)
-c
+!
       call dfill(3, 0.0d0, center, 1)
-c
+!
       call ga_sync()
 
       call ga_zero(g_xxx)
@@ -276,26 +276,26 @@ c
       call ga_zero(g_zzz)
 
       if(oscfps) call pstat_on(ps_int_dip)
-c
-c     grab basis set info type stuff
-c
+!
+!     grab basis set info type stuff
+!
       if(.not.bas_numcont(ibas,nshell_i))call errquit
      $  ('int_qdr_ga: bas_numcont failed for ibas',ibas, BASIS_ERR)
       if(.not.bas_numcont(jbas,nshell_j))call errquit
      $  ('int_qdr_ga: bas_numcont failed for jbas',jbas, BASIS_ERR)
-c
-c allocate temp. arrays
-c
+!
+! allocate temp. arrays
+!
       call int_mem_dipole(max1e,mscratch,ibas,jbas,3)
-c
+!
       if(.not.MA_push_get(MT_DBL,max1e,'int_oct_ga:buf',l_buf,k_buf))
      $  call errquit('int_oct_ga: ma failure',max1e, MA_ERR)
       if(.not.MA_push_get(MT_DBL,mscratch,'int_oct_ga:scr',
      $   l_scr,k_scr))
      $  call errquit('int_oct_ga: ma failure',mscratch, MA_ERR)
-c
-c     loop over shells
-c
+!
+!     loop over shells
+!
       iproc = ga_nodeid()
       nproc = ga_nnodes()
       ijshell = 0
@@ -308,16 +308,16 @@ c
                if(.not.bas_cn2bfr(jbas,jshell,jlo,jhi))
      $              call errquit('int_oct_ga:bas_cn2bfr ?', jbas,
      &       BASIS_ERR)
-c
-c     get the integrals we want
-c
+!
+!     get the integrals we want
+!
                call int_mpole(ibas, ishell, jbas, jshell,
      $              3,
      $              center,
      $              mscratch, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
-c
-c     bung integrals into global array
-c
+!
+!     bung integrals into global array
+!
                call int_oct_put_in_g(g_xxx, g_xxy, g_xxz,
      $              g_xyy, g_xyz, g_xzz, g_yyy, g_yyz,
      $              g_yzz, g_zzz, ilo, ihi, jlo, jhi,
@@ -326,27 +326,27 @@ c
             ijshell=ijshell+1
          enddo
       enddo
-c
+!
       if(.not.MA_pop_stack(l_scr))
      $   call errquit('int_oct_ga:pop failed',0, MA_ERR)
-      if(.not.MA_pop_stack(l_buf)) 
+      if(.not.MA_pop_stack(l_buf))
      $   call errquit('int_oct_ga:pop failed',0, MA_ERR)
-c
+!
       call ga_sync()
-c
-      call ga_print(g_xxx)
-      call ga_print(g_xxy)
-      call ga_print(g_xxz)
-      call ga_print(g_xyy)
-      call ga_print(g_xyz)
-      call ga_print(g_xzz)
-      call ga_print(g_yyy)
-      call ga_print(g_yyz)
-      call ga_print(g_yzz)
-      call ga_print(g_zzz)
-c
+!
+!      call ga_print(g_xxx)
+!      call ga_print(g_xxy)
+!      call ga_print(g_xxz)
+!      call ga_print(g_xyy)
+!      call ga_print(g_xyz)
+!      call ga_print(g_xzz)
+!      call ga_print(g_yyy)
+!      call ga_print(g_yyz)
+!      call ga_print(g_yzz)
+!      call ga_print(g_zzz)
+!
       if(oscfps) call pstat_off(ps_int_dip)
-c
+!
       end
 
       subroutine int_oct_put_in_g(
