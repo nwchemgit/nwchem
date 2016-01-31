@@ -10,11 +10,7 @@
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "util.fh"
-#include "bas.fh"
-#include "schwarz.fh"
-#include "sym.fh"
 #include "errquit.fh"
-#include "tce.fh"
 #include "tce_main.fh"
       integer rtdb               ! Run-time database
       integer g_aod1(3)          ! GA handle for AO dipole matrices
@@ -101,11 +97,7 @@
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "util.fh"
-#include "bas.fh"
-#include "schwarz.fh"
-#include "sym.fh"
 #include "errquit.fh"
-#include "tce.fh"
 #include "tce_main.fh"
       integer rtdb                   ! Run-time database
       integer g_aoq1(6)              ! GA handle for AO quadrupole matrices
@@ -207,11 +199,7 @@
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "util.fh"
-#include "bas.fh"
-#include "schwarz.fh"
-#include "sym.fh"
 #include "errquit.fh"
-#include "tce.fh"
 #include "tce_main.fh"
       integer rtdb                   ! Run-time database
       integer g_aoo1(10)             ! GA handle for AO octupole matrices
