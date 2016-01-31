@@ -10,6 +10,7 @@
 #include "bas.fh"
 #include "cscfps.fh"
 #include "sym.fh"
+#include "util.fh"
       integer ibas, jbas
       integer g_x, g_y, g_z
       integer nshell_i, nshell_j
@@ -85,9 +86,11 @@
 !
       call ga_sync()
 !
-!      call ga_print(g_x)
-!      call ga_print(g_y)
-!      call ga_print(g_z)
+      if (util_print('multipole', print_debug)) then
+          call ga_print(g_x)
+          call ga_print(g_y)
+          call ga_print(g_z)
+      endif
 !
       if(oscfps) call pstat_off(ps_int_dip)
 !
@@ -122,6 +125,7 @@
 #include "bas.fh"
 #include "cscfps.fh"
 #include "sym.fh"
+#include "util.fh"
       integer ibas, jbas
       integer g_xx, g_xy, g_xz, g_yy, g_yz, g_zz
       integer nshell_i, nshell_j
@@ -201,12 +205,14 @@
 !
       call ga_sync()
 !
-!      call ga_print(g_xx)
-!      call ga_print(g_xy)
-!      call ga_print(g_xz)
-!      call ga_print(g_yy)
-!      call ga_print(g_yz)
-!      call ga_print(g_zz)
+      if (util_print('multipole', print_debug)) then
+          call ga_print(g_xx)
+          call ga_print(g_xy)
+          call ga_print(g_xz)
+          call ga_print(g_yy)
+          call ga_print(g_yz)
+          call ga_print(g_zz)
+      endif
 !
       if(oscfps) call pstat_off(ps_int_dip)
 !
@@ -249,6 +255,7 @@
 #include "bas.fh"
 #include "cscfps.fh"
 #include "sym.fh"
+#include "util.fh"
       integer ibas, jbas
       integer g_xxx, g_xxy, g_xxz, g_xyy, g_xyz
       integer g_xzz, g_yyy, g_yyz, g_yzz, g_zzz
@@ -334,16 +341,18 @@
 !
       call ga_sync()
 !
-!      call ga_print(g_xxx)
-!      call ga_print(g_xxy)
-!      call ga_print(g_xxz)
-!      call ga_print(g_xyy)
-!      call ga_print(g_xyz)
-!      call ga_print(g_xzz)
-!      call ga_print(g_yyy)
-!      call ga_print(g_yyz)
-!      call ga_print(g_yzz)
-!      call ga_print(g_zzz)
+      if (util_print('multipole', print_debug)) then
+           call ga_print(g_xxx)
+           call ga_print(g_xxy)
+           call ga_print(g_xxz)
+           call ga_print(g_xyy)
+           call ga_print(g_xyz)
+           call ga_print(g_xzz)
+           call ga_print(g_yyy)
+           call ga_print(g_yyz)
+           call ga_print(g_yzz)
+           call ga_print(g_zzz)
+      endif
 !
       if(oscfps) call pstat_off(ps_int_dip)
 !
