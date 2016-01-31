@@ -1,9 +1,15 @@
-      subroutine ccsd_lambda(d_d0,d_f1,d_v2,d_d1,d_t1,d_t2,
-     1           d_lambda1,d_lambda2,
-     2           k_d0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
-     3           k_t1_offset,k_t2_offset,
-     4           k_l1_offset,k_l2_offset,
-     5           size_l1,size_l2,dipole_scf,dipole_cor)
+      subroutine ccsd_lambda(d_d0,d_q0,d_o0,
+     1           d_f1,d_v2,d_d1,d_q1,d_o1,
+     2           d_t1,d_t2,d_lambda1,d_lambda2,
+     3           k_d0_offset,k_q0_offset,k_o0_offset,
+     4           k_f1_offset,k_v2_offset,
+     5           k_d1_offset,k_q1_offset,k_o1_offset,
+     6           k_t1_offset,k_t2_offset,
+     7           k_l1_offset,k_l2_offset,
+     8           size_l1,size_l2,
+     9           dipole_scf,    dipole_cor,
+     1           quadrupole_scf,quadrupole_cor,
+     2           octupole_scf,  octupole_cor)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -16,19 +22,57 @@ c#include "tce_diis.fh"
 #include "tce_restart.fh"
 c
       integer iter
-      integer d_d0,d_f1,d_v2,d_d1(3),d_t1,d_t2
+      integer d_f1,d_v2,d_t1,d_t2
       integer d_lambda1,d_lambda2
       integer d_lr1,d_lr2
-      integer k_d0_offset,k_f1_offset,k_v2_offset,k_d1_offset(3)
+      integer k_f1_offset,k_v2_offset
       integer k_t1_offset,k_t2_offset
       integer k_l1_offset,k_l2_offset
       integer size_l1,size_l2
       double precision ref,corr
-      double precision cpu, wall
       double precision r1,r2
       double precision residual
       double precision ddotfile
-      double precision dipole_scf(3),dipole_cor(3)
+      integer d_d0             ! Dipole moment
+      integer l_d0_offset      ! Offset for d0 file
+      integer k_d0_offset      ! Offset for d0 file
+      integer size_d0          ! File size in doubles
+      integer d_q0             ! Quadrupole moment
+      integer l_q0_offset      ! Offset for q0 file
+      integer k_q0_offset      ! Offset for q0 file
+      integer size_q0          ! File size in doubles
+      integer d_o0             ! Octupole moment
+      integer l_o0_offset      ! Offset for o0 file
+      integer k_o0_offset      ! Offset for o0 file
+      integer size_o0          ! File size in doubles
+      integer d_d1(3)           ! MO dipole integral file
+      integer l_d1_offset(3)    ! Offset for d1 integral file
+      integer k_d1_offset(3)    ! Offset for d1 integral file
+      integer size_d1(3)        ! File size in doubles
+      integer d_q1(6)           ! MO quadrupole integral file
+      integer l_q1_offset(6)    ! Offset for q1 integral file
+      integer k_q1_offset(6)    ! Offset for q1 integral file
+      integer size_q1(6)        ! File size in doubles
+      integer d_o1(10)          ! MO octupole integral file
+      integer l_o1_offset(10)   ! Offset for o1 integral file
+      integer k_o1_offset(10)   ! Offset for o1 integral file
+      integer size_o1(10)       ! File size in doubles
+      double precision dipole_scf_t      ! Dipole moment - SCF total
+      double precision dipole_cor_t      ! Dipole moment - CC total
+      double precision dipole_scf(3)     ! Dipole moment - SCF XYZ
+      double precision dipole_cor(3)     ! Dipole moment - CC XYZ
+      double precision cdipole           ! Dipole moment correlation
+      double precision quadrupole_scf(6) ! Quadrupole moment
+      double precision quadrupole_cor(6) ! Quadrupole moment
+      double precision cquadrupole       ! Quadrupole moment correlation
+      double precision octupole_scf(10)  ! Octupole moment
+      double precision octupole_cor(10)  ! Octupole moment
+      double precision coctupole         ! Octupole moment correlation
+      double precision debye,buck,octo
+      parameter (octo=0.711688d0)
+      parameter (buck=1.344911d0)
+      parameter (debye=2.54176568d0)
+      double precision cpu, wall
       external ddotfile
       logical nodezero
       integer dummy
@@ -97,16 +141,22 @@ c
      1                           handle_l2,irrep_y)
           endif
           if((perturbative.eq.'lambda(t)').or.
-     1      (perturbative.eq.'lambda[t]').or.
-     2      (perturbative.eq.'2_t').or.
-     3      (perturbative.eq.'2_tq')) go to 4511
-          call ccsd_dipole(d_d0,d_f1,d_v2,d_d1,d_t1,d_t2,
-     1         d_lambda1,d_lambda2,
-     2         k_d0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
-     3         k_t1_offset,k_t2_offset,
-     4         k_l1_offset,k_l2_offset,
-     5         size_l1,size_l2,dipole_scf,dipole_cor)
- 4511     continue 
+     1       (perturbative.eq.'lambda[t]').or.
+     2       (perturbative.eq.'2_t').or.
+     3       (perturbative.eq.'2_tq')) go to 4511
+          call ccsd_dipole(d_d0,d_q0,d_o0,
+     1           d_f1,d_v2,d_d1,d_q1,d_o1,
+     2           d_t1,d_t2,d_lambda1,d_lambda2,
+     3           k_d0_offset,k_q0_offset,k_o0_offset,
+     4           k_f1_offset,k_v2_offset,
+     5           k_d1_offset,k_q1_offset,k_o1_offset,
+     6           k_t1_offset,k_t2_offset,
+     7           k_l1_offset,k_l2_offset,
+     8           size_l1,size_l2,
+     9           dipole_scf,    dipole_cor,
+     1           quadrupole_scf,quadrupole_cor,
+     2           octupole_scf,  octupole_cor)
+ 4511     continue
           return
         endif
       if (save_l(1).and.(mod(iter,save_interval).eq.0)) then
@@ -149,12 +199,18 @@ c
  9700 format(1x,'Skipping CCSD-Lambda altogether')
       end
 
-      subroutine ccsd_dipole(d_d0,d_f1,d_v2,d_d1,d_t1,d_t2,
-     1           d_lambda1,d_lambda2,
-     2           k_d0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
-     3           k_t1_offset,k_t2_offset,
-     4           k_l1_offset,k_l2_offset,
-     5           size_l1,size_l2,dipole_scf,dipole_cor)
+      subroutine ccsd_dipole(d_d0,d_q0,d_o0,
+     1           d_f1,d_v2,d_d1,d_q1,d_o1,
+     2           d_t1,d_t2,d_lambda1,d_lambda2,
+     3           k_d0_offset,k_q0_offset,k_o0_offset,
+     4           k_f1_offset,k_v2_offset,
+     5           k_d1_offset,k_q1_offset,k_o1_offset,
+     6           k_t1_offset,k_t2_offset,
+     7           k_l1_offset,k_l2_offset,
+     8           size_l1,size_l2,
+     9           dipole_scf,    dipole_cor,
+     1           quadrupole_scf,quadrupole_cor,
+     2           octupole_scf,  octupole_cor)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -166,21 +222,57 @@ c
 c#include "tce_diis.fh"
 c
       integer axis
-      integer d_d0,d_f1,d_v2,d_d1(3),d_t1,d_t2
+      integer d_f1,d_v2,d_t1,d_t2
       integer d_lambda1,d_lambda2
       integer d_lr1,d_lr2
-      integer k_d0_offset,k_f1_offset,k_v2_offset,k_d1_offset(3)
+      integer k_f1_offset,k_v2_offset
       integer k_t1_offset,k_t2_offset
       integer k_l1_offset,k_l2_offset
       integer size_l1,size_l2
-      double precision cpu, wall
-      double precision dipole_scf(3),dipole_cor(3)
-      double precision dipole_scf_t ,dipole_cor_t
-      double precision cdipole
+      integer d_d0             ! Dipole moment
+      integer l_d0_offset      ! Offset for d0 file
+      integer k_d0_offset      ! Offset for d0 file
+      integer size_d0          ! File size in doubles
+      integer d_q0             ! Quadrupole moment
+      integer l_q0_offset      ! Offset for q0 file
+      integer k_q0_offset      ! Offset for q0 file
+      integer size_q0          ! File size in doubles
+      integer d_o0             ! Octupole moment
+      integer l_o0_offset      ! Offset for o0 file
+      integer k_o0_offset      ! Offset for o0 file
+      integer size_o0          ! File size in doubles
+      integer d_d1(3)           ! MO dipole integral file
+      integer l_d1_offset(3)    ! Offset for d1 integral file
+      integer k_d1_offset(3)    ! Offset for d1 integral file
+      integer size_d1(3)        ! File size in doubles
+      integer d_q1(6)           ! MO quadrupole integral file
+      integer l_q1_offset(6)    ! Offset for q1 integral file
+      integer k_q1_offset(6)    ! Offset for q1 integral file
+      integer size_q1(6)        ! File size in doubles
+      integer d_o1(10)          ! MO octupole integral file
+      integer l_o1_offset(10)   ! Offset for o1 integral file
+      integer k_o1_offset(10)   ! Offset for o1 integral file
+      integer size_o1(10)       ! File size in doubles
+      double precision dipole_scf_t      ! Dipole moment - SCF total
+      double precision dipole_cor_t      ! Dipole moment - CC total
+      double precision dipole_exc_t      ! Dipole moment - EOM-CC total
+      double precision dipole_scf(3)     ! Dipole moment - SCF XYZ
+      double precision dipole_cor(3)     ! Dipole moment - CC XYZ
+      double precision dipole_exc(3)     ! Dipole moment - EOM-CC
+      double precision cdipole           ! Dipole moment correlation
+      double precision quadrupole_scf(6) ! Quadrupole moment
+      double precision quadrupole_cor(6) ! Quadrupole moment
+      double precision quadrupole_exc(6) ! Quadrupole moment
+      double precision cquadrupole       ! Quadrupole moment correlation
+      double precision octupole_scf(10)  ! Octupole moment
+      double precision octupole_cor(10)  ! Octupole moment
+      double precision octupole_exc(10)  ! Octupole moment
+      double precision coctupole         ! Octupole moment correlation
       double precision debye,buck,octo
       parameter (octo=0.711688d0)
       parameter (buck=1.344911d0)
       parameter (debye=2.54176568d0)
+      double precision cpu, wall
       logical nodezero
       integer dummy
       integer sym_abelian_axis
@@ -202,16 +294,6 @@ c
         dipole_cor(axis)=dipole_scf(axis)+cdipole
         call deletefile(d_d0)
       enddo
-#if defined(NEWDIPOLE)
-      dipole_scf_t = dsqrt( dipole_scf(1)*dipole_scf(1) +
-     1                      dipole_scf(2)*dipole_scf(2) +
-     2                      dipole_scf(3)*dipole_scf(3) )
-      if (nodezero) write(LuOut,9430) "SCF",
-     1              dipole_scf(1),dipole_scf(1)*debye,
-     2              dipole_scf(2),dipole_scf(2)*debye,
-     3              dipole_scf(3),dipole_scf(3)*debye,
-     4              dipole_scf_t ,dipole_scf_t*debye
-#endif
       dipole_cor_t = dsqrt( dipole_cor(1)*dipole_cor(1) +
      1                      dipole_cor(2)*dipole_cor(2) +
      2                      dipole_cor(3)*dipole_cor(3) )
@@ -220,10 +302,9 @@ c
      2              dipole_cor(2),dipole_cor(2)*debye,
      3              dipole_cor(3),dipole_cor(3)*debye,
      4              dipole_cor_t ,dipole_cor_t*debye
-#if defined(NEWDIPOLE)
-      if (multipole.ge.2) then
+      if (multipole.gt.1) then
         do axis=1,6
-          irrep_d=sym_abelian_axis(geom,axis)
+          irrep_d=sym_abelian_axis(geom,axis+3)
           call tce_filename('q0',filename)
           call createfile(filename,d_q0,1)
           call ccsd_density1(d_q1(axis),d_q0,d_t1,d_t2,d_lambda1,
@@ -234,13 +315,6 @@ c
           quadrupole_cor(axis)=quadrupole_scf(axis)-cquadrupole
           call deletefile(d_q0)
         enddo
-        if (nodezero) write(LuOut,9432) "SCF",
-     1                quadrupole_scf(1),quadrupole_scf(1)*buck,
-     2                quadrupole_scf(2),quadrupole_scf(2)*buck,
-     3                quadrupole_scf(3),quadrupole_scf(3)*buck,
-     4                quadrupole_scf(4),quadrupole_scf(4)*buck,
-     5                quadrupole_scf(5),quadrupole_scf(5)*buck,
-     6                quadrupole_scf(6),quadrupole_scf(6)*buck
         if (nodezero) write(LuOut,9432) "CCSD",
      1                quadrupole_cor(1),quadrupole_cor(1)*buck,
      2                quadrupole_cor(2),quadrupole_cor(2)*buck,
@@ -249,7 +323,7 @@ c
      5                quadrupole_cor(5),quadrupole_cor(5)*buck,
      6                quadrupole_cor(6),quadrupole_cor(6)*buck
       endif
-      if (multipole.ge.3) then
+      if (multipole.gt.2) then
         do axis=1,10
           irrep_d=sym_abelian_axis(geom,axis)
           call tce_filename('o0',filename)
@@ -262,17 +336,6 @@ c
           octupole_cor(axis)=octupole_scf(axis)+coctupole
           call deletefile(d_o0)
         enddo
-        if (nodezero) write(LuOut,9433) "SCF",
-     1                octupole_scf(1), octupole_scf(1)*octo,
-     2                octupole_scf(7), octupole_scf(7)*octo,
-     3                octupole_scf(10),octupole_scf(10)*octo,
-     4                octupole_scf(2), octupole_scf(2)*octo,
-     5                octupole_scf(3), octupole_scf(3)*octo,
-     2                octupole_scf(4), octupole_scf(4)*octo,
-     3                octupole_scf(8), octupole_scf(8)*octo,
-     4                octupole_scf(6), octupole_scf(6)*octo,
-     5                octupole_scf(9), octupole_scf(9)*octo,
-     6                octupole_scf(5), octupole_scf(5)*octo
         if (nodezero) write(LuOut,9433) "CCSD",
      1                octupole_cor(1), octupole_cor(1)*octo,
      2                octupole_cor(7), octupole_cor(7)*octo,
@@ -285,7 +348,6 @@ c
      5                octupole_cor(9), octupole_cor(9)*octo,
      6                octupole_cor(5), octupole_cor(5)*octo
       endif
-#endif
       return
  9430 format(/,1x,A,' dipole moments / hartree & Debye',/,
      1  1x,'------------------------------------',/

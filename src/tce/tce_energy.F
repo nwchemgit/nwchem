@@ -811,11 +811,11 @@
         wall = - util_wallsec()
         call tce_nud1(dipole_scf)
         call tce_aod1(rtdb,g_aod1,dipole_scf)
-        if (multipole.ge.1) then
+        if (multipole.gt.1) then
           call tce_aoq1(rtdb,g_aoq1,quadrupole_scf)
         endif
-        if (multipole.ge.2) then
-!         call tce_aoo1(rtdb,g_aoo1,octupole_scf)
+        if (multipole.gt.2) then
+!          call tce_aoo1(rtdb,g_aoo1,octupole_scf)
         endif
         cpu = cpu + util_cpusec()
         wall = wall + util_wallsec()
@@ -827,7 +827,7 @@
      1                            dipole_scf(2),dipole_scf(2)*debye,
      2                            dipole_scf(3),dipole_scf(3)*debye,
      3                            dipole_scf_t ,dipole_scf_t*debye
-          if (multipole.ge.1) then
+          if (multipole.gt.1) then
             write(LuOut,9432) "SCF",
      1             quadrupole_scf(1),quadrupole_scf(1)*buck,
      2             quadrupole_scf(2),quadrupole_scf(2)*buck,
@@ -837,18 +837,18 @@
      6             quadrupole_scf(6),quadrupole_scf(6)*buck
           endif
 ! octupole not evaluate yet...
-          if (multipole.ge.2) then
-!            write(LuOut,9433) "SCF",
-!     1             octupole_scf( 1),octupole_scf( 1)*octo,
-!     2             octupole_scf( 2),octupole_scf( 2)*octo,
-!     3             octupole_scf( 3),octupole_scf( 3)*octo,
-!     4             octupole_scf( 4),octupole_scf( 4)*octo,
-!     5             octupole_scf( 5),octupole_scf( 5)*octo,
-!     6             octupole_scf( 6),octupole_scf( 6)*octo,
-!     7             octupole_scf( 7),octupole_scf( 7)*octo,
-!     8             octupole_scf( 8),octupole_scf( 8)*octo,
-!     9             octupole_scf( 9),octupole_scf( 9)*octo,
-!     1             octupole_scf(10),octupole_scf(10)*octo
+          if (multipole.gt.2) then
+            write(LuOut,9433) "SCF",
+     1             octupole_scf(1), octupole_scf(1)*octo,
+     2             octupole_scf(7), octupole_scf(7)*octo,
+     3             octupole_scf(10),octupole_scf(10)*octo,
+     4             octupole_scf(2), octupole_scf(2)*octo,
+     5             octupole_scf(3), octupole_scf(3)*octo,
+     6             octupole_scf(4), octupole_scf(4)*octo,
+     7             octupole_scf(8), octupole_scf(8)*octo,
+     8             octupole_scf(6), octupole_scf(6)*octo,
+     9             octupole_scf(9), octupole_scf(9)*octo,
+     1             octupole_scf(5), octupole_scf(5)*octo
           endif
           write(LuOut,*)
           write(LuOut,9020) cpu, wall
@@ -904,54 +904,56 @@
         !
         ! quadrupole
         !
-        if (multipole.ge.1) then
-        do axis = 1, 6
-          irrep_d=sym_abelian_axis(geom,axis+3)
-          call sym_irrepname(geom,irrep_d+1,irrepname)
-          if (nodezero.and.util_print('moq1',print_default)) then
-            write(LuOut,*)
-            write(LuOut,9440) axisname(axis),irrepname
-          endif
-          call tce_mod1_offset_new(l_q1_offset(axis),k_q1_offset(axis),
-     1      size_q1(axis),irrep_d)
-          call tce_filename(qfilename(axis),filename)
-          call createfile(filename,d_q1(axis),size_q1(axis))
-          if (nodezero.and.util_print('moq1',print_default)) then
-            write(LuOut,*)
-            write(LuOut,9000) 'quadrupole',size_q1(axis)
-            write(LuOut,9010) 'quadrupole',filename(1:20)
-          endif
-        enddo
-        call tce_mom1(g_aoq1,d_q1,6)
-        do axis = 1, 6
-          call gatoeaf(d_q1(axis))
-        enddo
+        if (multipole.gt.1) then
+          do axis = 1, 6
+            irrep_d=sym_abelian_axis(geom,axis+3)
+            call sym_irrepname(geom,irrep_d+1,irrepname)
+            if (nodezero.and.util_print('moq1',print_default)) then
+              write(LuOut,*)
+              write(LuOut,9440) axisname(axis),irrepname
+            endif
+            call tce_mod1_offset_new(l_q1_offset(axis),
+     1                               k_q1_offset(axis),
+     2                               size_q1(axis),irrep_d)
+            call tce_filename(qfilename(axis),filename)
+            call createfile(filename,d_q1(axis),size_q1(axis))
+            if (nodezero.and.util_print('moq1',print_default)) then
+              write(LuOut,*)
+              write(LuOut,9000) 'quadrupole',size_q1(axis)
+              write(LuOut,9010) 'quadrupole',filename(1:20)
+            endif
+          enddo
+          call tce_mom1(g_aoq1,d_q1,6)
+          do axis = 1, 6
+            call gatoeaf(d_q1(axis))
+          enddo
         endif ! quadrupole
         !
         ! octupole
         !
-        if (multipole.ge.2) then
-!        do axis = 1, 10
-!          irrep_d=sym_abelian_axis(geom,axis+9)
-!          call sym_irrepname(geom,irrep_d+1,irrepname)
-!          if (nodezero.and.util_print('moo1',print_default)) then
-!            write(LuOut,*)
-!            write(LuOut,9440) axisname(axis),irrepname
-!          endif
-!          call tce_mod1_offset_new(l_o1_offset(axis),k_o1_offset(axis),
-!     1      size_o1(axis),irrep_d)
-!          call tce_filename(ofilename(axis),filename)
-!          call createfile(filename,d_q1(axis),size_q1(axis))
-!          if (nodezero.and.util_print('moo1',print_default)) then
-!            write(LuOut,*)
-!            write(LuOut,9000) 'octupole',size_o1(axis)
-!            write(LuOut,9010) 'octupole',filename(1:20)
-!          endif
-!        enddo
-!        call tce_mom1(g_aoo1,d_o1,10)
-!        do axis = 1, 10
-!          call gatoeaf(d_o1(axis))
-!        enddo
+        if (multipole.gt.2) then
+          do axis = 1, 10
+            irrep_d=sym_abelian_axis(geom,axis+9)
+            call sym_irrepname(geom,irrep_d+1,irrepname)
+            if (nodezero.and.util_print('moo1',print_default)) then
+              write(LuOut,*)
+              write(LuOut,9440) axisname(axis),irrepname
+            endif
+            call tce_mod1_offset_new(l_o1_offset(axis),
+     1                               k_o1_offset(axis),
+     2                               size_o1(axis),irrep_d)
+            call tce_filename(ofilename(axis),filename)
+            call createfile(filename,d_o1(axis),size_o1(axis))
+            if (nodezero.and.util_print('moo1',print_default)) then
+              write(LuOut,*)
+              write(LuOut,9000) 'octupole',size_o1(axis)
+              write(LuOut,9010) 'octupole',filename(1:20)
+            endif
+          enddo
+          call tce_mom1(g_aoo1,d_o1,10)
+          do axis = 1, 10
+            call gatoeaf(d_o1(axis))
+          enddo
         endif ! octupole
 #else !!! defined(NEWDIPOLE)
 !
@@ -2301,10 +2303,10 @@
       call tce_e_offset(l_e_offset,k_e_offset,size_e)
       if (left) then
         call tce_e_offset(l_d0_offset,k_d0_offset,size_d0)
-        if (multipole.ge.2) then
+        if (multipole.gt.1) then
           call tce_e_offset(l_q0_offset,k_q0_offset,size_q0)
         endif
-        if (multipole.ge.3) then
+        if (multipole.gt.2) then
           call tce_e_offset(l_o0_offset,k_o0_offset,size_o0)
         endif
       endif
@@ -2728,11 +2730,18 @@
 ! CCSD    left
 ! -------------
         if (left) then
-          call ccsd_lambda(d_d0,d_f1,d_v2,d_d1,d_t1,d_t2,
-     1         d_lambda1,d_lambda2,
-     2         k_d0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
-     3         k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
-     4         size_l1,size_l2,dipole_scf,dipole_cor)
+          call ccsd_lambda(d_d0,d_q0,d_o0,
+     1           d_f1,d_v2,d_d1,d_q1,d_o1,
+     2           d_t1,d_t2,d_lambda1,d_lambda2,
+     3           k_d0_offset,k_q0_offset,k_o0_offset,
+     4           k_f1_offset,k_v2_offset,
+     5           k_d1_offset,k_q1_offset,k_o1_offset,
+     6           k_t1_offset,k_t2_offset,
+     7           k_l1_offset,k_l2_offset,
+     8           size_l1,size_l2,
+     9           dipole_scf,    dipole_cor,
+     1           quadrupole_scf,quadrupole_cor,
+     2           octupole_scf,  octupole_cor)
 !
 !->d3p975
 !
@@ -7189,11 +7198,11 @@ c
      1    call errquit("tce_energy: MA problem",26,MA_ERR)
       endif
       if (left) then
-        if (multipole.ge.3) then
+        if (multipole.gt.2) then
           if (.not.ma_pop_stack(l_o0_offset))
      1      call errquit("tce_energy: MA problem",300,MA_ERR)
         endif
-        if (multipole.ge.2) then
+        if (multipole.gt.1) then
           if (.not.ma_pop_stack(l_q0_offset))
      1      call errquit("tce_energy: MA problem",200,MA_ERR)
         endif
@@ -11201,12 +11210,12 @@ c
 ! ==============
       endif
       if (left) then
-        if (multipole.ge.3) then
-!          do axis=10,1,-1
-!            call deletefile(d_o1(axis))
-!          enddo
+        if (multipole.gt.2) then
+          do axis=10,1,-1
+            call deletefile(d_o1(axis))
+          enddo
         endif
-        if (multipole.ge.2) then
+        if (multipole.gt.1) then
           do axis=6,1,-1
             call deletefile(d_q1(axis))
           enddo
@@ -11379,13 +11388,13 @@ c
       end if
 ! ==============
       if (left) then
-        if (multipole.ge.3) then
-!          do axis=10,1,-1
-!            if (.not.ma_pop_stack(l_o1_offset(axis)))
-!     1        call errquit("tce_energy: MA problem",3030+axis,MA_ERR)
-!          enddo
+        if (multipole.gt.2) then
+          do axis=10,1,-1
+            if (.not.ma_pop_stack(l_o1_offset(axis)))
+     1        call errquit("tce_energy: MA problem",3030+axis,MA_ERR)
+          enddo
         endif
-        if (multipole.ge.2) then
+        if (multipole.gt.1) then
           do axis=6,1,-1
             if (.not.ma_pop_stack(l_q1_offset(axis)))
      1        call errquit("tce_energy: MA problem",3020+axis,MA_ERR)
