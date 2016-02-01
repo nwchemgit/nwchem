@@ -278,7 +278,7 @@ c
           endif
           call deletefile(d_q0)
         enddo
-        if (nodezero) write(LuOut,9432) "CCSD",
+        if (nodezero) write(LuOut,9432) 'CCSD','second',
      1                quadrupole_cor(1),quadrupole_cor(1)*buck,
      2                quadrupole_cor(2),quadrupole_cor(2)*buck,
      3                quadrupole_cor(3),quadrupole_cor(3)*buck,
@@ -303,7 +303,7 @@ c
           endif
           call deletefile(d_o0)
         enddo
-        if (nodezero) write(LuOut,9433) "CCSD",
+        if (nodezero) write(LuOut,9433) 'CCSD','third',
      1                octupole_cor(1), octupole_cor(1)*octo,
      2                octupole_cor(2), octupole_cor(2)*octo,
      3                octupole_cor(3), octupole_cor(3)*octo,
@@ -328,7 +328,7 @@ c
      4  1x,'  Z   ',2f15.7,/
      5  1x,'Total ',2f15.7,/
      6  1x,'------------------------------------')
- 9432 format(/,1x,A,' second moments / hartree & Buckingham',/,
+ 9432 format(/,1x,A,' ',A,' moments / hartree & Buckingham',/,
      1  1x,'--------------------------------',/
      2  1x,'XX ',2f15.7,/
      3  1x,'XY ',2f15.7,/
@@ -337,7 +337,7 @@ c
      6  1x,'YZ ',2f15.7,/
      7  1x,'ZZ ',2f15.7,/
      8  1x,'--------------------------------')
- 9433 format(/,1x,A,' third moments / hartree & Octos',/,
+ 9433 format(/,1x,A,' ',A,' moments / hartree & Octos',/,
      1  1x,'--------------------------------',/
      2  1x,'XXX ',2f15.7,/
      3  1x,'XXY ',2f15.7,/

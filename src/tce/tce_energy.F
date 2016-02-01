@@ -856,7 +856,7 @@
      2                            dipole_scf(3),dipole_scf(3)*debye,
      3                            dipole_scf_t ,dipole_scf_t*debye
           if (multipole.gt.1) then
-            write(LuOut,9432) "SCF",
+            write(LuOut,9432) 'SCF','second',
      1             quadrupole_scf(1),quadrupole_scf(1)*buck,
      2             quadrupole_scf(2),quadrupole_scf(2)*buck,
      3             quadrupole_scf(3),quadrupole_scf(3)*buck,
@@ -865,7 +865,7 @@
      6             quadrupole_scf(6),quadrupole_scf(6)*buck
           endif
           if (multipole.gt.2) then
-            write(LuOut,9433) "SCF",
+            write(LuOut,9433) 'SCF','third',
      1             octupole_scf(1), octupole_scf(1)*octo,
      2             octupole_scf(2), octupole_scf(2)*octo,
      3             octupole_scf(3), octupole_scf(3)*octo,
@@ -11596,7 +11596,7 @@ c
      5  1x,'Total ',2f15.7,/
      6  1x,'------------------------------------')
  9431 format(/,1x,'Frequency = ',f15.7,' / au')
- 9432 format(/,1x,A,' second moments / hartree & Buckingham',/,
+ 9432 format(/,1x,A,' ',A,' moments / hartree & Buckingham',/,
      1  1x,'--------------------------------',/
      2  1x,'XX ',2f15.7,/
      3  1x,'XY ',2f15.7,/
@@ -11605,7 +11605,7 @@ c
      6  1x,'YZ ',2f15.7,/
      7  1x,'ZZ ',2f15.7,/
      8  1x,'--------------------------------')
- 9433 format(/,1x,A,' third moments / hartree & Octos',/,
+ 9433 format(/,1x,A,' ',A,' moments / hartree & Octos',/,
      1  1x,'--------------------------------',/
      2  1x,'XXX ',2f15.7,/
      3  1x,'XXY ',2f15.7,/
