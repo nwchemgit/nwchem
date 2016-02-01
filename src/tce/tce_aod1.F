@@ -131,22 +131,22 @@
 !     Allocate g_aoq1
 !     ===============
 !
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole XX',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO quadrupole XX',
      1  -1,-1,g_aoq1(1))) call errquit('tce_aoq1: GA problem',0,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole XY',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO quadrupole XY',
      1  -1,-1,g_aoq1(2))) call errquit('tce_aoq1: GA problem',1,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole XZ',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO quadrupole XZ',
      1  -1,-1,g_aoq1(3))) call errquit('tce_aoq1: GA problem',2,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole YY',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO quadrupole YY',
      1  -1,-1,g_aoq1(4))) call errquit('tce_aoq1: GA problem',3,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole YZ',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO quadrupole YZ',
      1  -1,-1,g_aoq1(5))) call errquit('tce_aoq1: GA problem',4,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole ZZ',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO quadrupole ZZ',
      1  -1,-1,g_aoq1(6))) call errquit('tce_aoq1: GA problem',5,
      2  GA_ERR)
 !
@@ -234,34 +234,34 @@
 !     Allocate g_aoo1
 !     ===============
 !
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole XXX',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole XXX',
      1  -1,-1,g_aoo1(1))) call errquit('tce_aoo1: GA problem',0,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole YYY',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole YYY',
      1  -1,-1,g_aoo1(2))) call errquit('tce_aoo1: GA problem',1,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole ZZZ',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole ZZZ',
      1  -1,-1,g_aoo1(3))) call errquit('tce_aoo1: GA problem',2,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole XXY',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole XXY',
      1  -1,-1,g_aoo1(4))) call errquit('tce_aoo1: GA problem',3,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole XXZ',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole XXZ',
      1  -1,-1,g_aoo1(5))) call errquit('tce_aoo1: GA problem',4,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole YYX',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole YYX',
      1  -1,-1,g_aoo1(6))) call errquit('tce_aoo1: GA problem',5,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole YYZ',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole YYZ',
      1  -1,-1,g_aoo1(7))) call errquit('tce_aoo1: GA problem',6,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole ZZX',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole ZZX',
      1  -1,-1,g_aoo1(8))) call errquit('tce_aoo1: GA problem',7,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole ZZY',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole ZZY',
      1  -1,-1,g_aoo1(9))) call errquit('tce_aoo1: GA problem',8,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO dipole XYZ',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole XYZ',
      1  -1,-1,g_aoo1(10))) call errquit('tce_aoo1: GA problem',9,
      2  GA_ERR)
 !
