@@ -226,12 +226,20 @@ c
       oNR = .not.(oirel.and.ojrel)
       orel = oirel.or.ojrel
 c
-      if (i_geom.ne.j_geom.and.WarnP.eq.0) then
-        write(luout,*)
+      if (i_geom.ne.j_geom) then
+#if defined(USE_OPENMP)
+!$omp critical(serialize_warnp)
+#endif
+        if (WarnP.eq.0) then
+          write(luout,*)
      &      'int_mpole: WARNING: possible geometry inconsistency'
-        write(luout,*)'i_basis geometry handle:',i_geom
-        write(luout,*)'j_basis geometry handle:',j_geom
-        WarnP = 1
+          write(luout,*)'i_basis geometry handle:',i_geom
+          write(luout,*)'j_basis geometry handle:',j_geom
+          WarnP = 1
+        endif
+#if defined(USE_OPENMP)
+!$omp end critical(serialize_warnp)
+#endif
       endif
 c
       if (i_gen.gt.1 .or. j_gen.gt.1) then
