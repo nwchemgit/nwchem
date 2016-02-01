@@ -11546,9 +11546,6 @@ c
      5  1x,'Total ',2f15.7,/
      6  1x,'------------------------------------')
  9431 format(/,1x,'Frequency = ',f15.7,' / au')
-!
-!     Ordering in mptval (from defNxyz):
-!     xx, xy, xz, yy, yz, zz
  9432 format(/,1x,A,' quadrupole moments / hartree & Buckingham',/,
      1  1x,'--------------------------------',/
      2  1x,'XX ',2f15.7,/
@@ -11558,21 +11555,18 @@ c
      6  1x,'YZ ',2f15.7,/
      7  1x,'ZZ ',2f15.7,/
      8  1x,'--------------------------------')
-!
-!     Ordering in mptval (from defNxyz):
-!     xxx, xxy, xxz, yyx, xyz, zzx, yyy, zzy, zzz
  9433 format(/,1x,A,' octupole moments / hartree & Octos',/,
      1  1x,'--------------------------------',/
      2  1x,'XXX ',2f15.7,/
-     3  1x,'YYY ',2f15.7,/
-     4  1x,'ZZZ ',2f15.7,/
-     5  1x,'XXY ',2f15.7,/
-     6  1x,'XXZ ',2f15.7,/
-     7  1x,'YYX ',2f15.7,/
-     8  1x,'YYZ ',2f15.7,/
-     9  1x,'ZZX ',2f15.7,/
-     1  1x,'ZZY ',2f15.7,/
-     2  1x,'XYZ ',2f15.7,/
+     3  1x,'XXY ',2f15.7,/
+     4  1x,'XXZ ',2f15.7,/
+     5  1x,'XYY ',2f15.7,/
+     6  1x,'XYZ ',2f15.7,/
+     7  1x,'XZZ ',2f15.7,/
+     8  1x,'YYY ',2f15.7,/
+     9  1x,'YYZ ',2f15.7,/
+     1  1x,'YZZ ',2f15.7,/
+     2  1x,'ZZZ ',2f15.7,/
      3  1x,'--------------------------------')
  9434 format(/,1x,A,' polarizability / au ',/
      1  1x,'Frequency  = ',f15.7,' / au',/
