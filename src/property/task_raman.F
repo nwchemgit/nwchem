@@ -59,6 +59,7 @@ c --> Experimental (not published yet)
 
       integer j,pos,first0 ! FA-06-15-12
       logical preraman     ! FA-06-18-12
+      logical linear
 
       character*32 pname
 
@@ -107,6 +108,12 @@ c     endif
      $   call errquit(pname//'rtdb_put freq_done',911, RTDB_ERR)
       endif
 c
+c --------Figure out if molecule is linear------------    
+
+c     if vib module doesn't list molecule as linear, assume it is not
+      if (.not. rtdb_get(rtdb,'vib:linear',mt_log,1,linear))
+     $      linear=.false.
+c
 c --------Create/load reference geometry to get the number of atoms------------    
 
       if (.not.geom_create(geom,'geometry')) call errquit
@@ -116,7 +123,11 @@ c --------Create/load reference geometry to get the number of atoms------------
       if (.not. geom_ncent(geom,nat)) 
      &  call errquit(pname//'geom_ncent failed?',3, GEOM_ERR)
       nc = nat*3
-      rmmodes = nc-6
+      if (linear) then
+        rmmodes = nc-5
+      else
+        rmmodes = nc-6
+      end if
 
 c      if (ga_nodeid().eq.0) then
 c       write(*,1) nat,nc,rmmodes
@@ -146,8 +157,13 @@ c ----------Load parameters from rtdb or assign defaults-----------------------
      $      low  = 0.0D+00 ! lowest wavenumber  normal mode to use
       if (.not. rtdb_get(rtdb,'raman:high',mt_dbl,1,high))
      $      high = 100000.0D+00 ! Highest wavenumber normal mode to use
-      if (.not. rtdb_get(rtdb,'raman:first',mt_int,1,first))
-     $      first = 7 ! first normal mode to use
+      if (.not. rtdb_get(rtdb,'raman:first',mt_int,1,first)) then
+            if (linear) then
+              first = 6 ! first normal mode to use
+            else
+              first = 7 ! first normal mode to use
+            end if
+      end if
       if (.not. rtdb_get(rtdb,'raman:last',mt_int,1,last))
      $      last = 10000 ! last normal mode to use
       if (.not. rtdb_get(rtdb,'raman:hyperraman',mt_log,1,hyperraman))
@@ -156,7 +172,11 @@ c ----------Load parameters from rtdb or assign defaults-----------------------
      $      vroa = .false. ! # flag to calculate vibrational 
       if (.not. rtdb_get(rtdb,'raman:preraman',mt_log,1,preraman))
      $      preraman = .false. ! # flag to do task_freq() and leave
-      first0=7 ! constant
+      if (linear) then
+        first0=6 ! constant
+      else
+        first0=7 ! constant
+      end if
 c ======== FA-debug =============== START
 c      if (ga_nodeid().eq.0) then
 c       write(*,2) plot,line,width,step_size,steps
@@ -172,8 +192,13 @@ c ======== FA-debug =============== END
          rmmodes = nc
 c
 c --- in case we want overide the defaults for modes to include ---
-         if (.not. rtdb_get(rtdb,'raman:first',mt_int,1,first))
-     $      first = 7 ! srtep size for displacement along modes
+         if (.not. rtdb_get(rtdb,'raman:first',mt_int,1,first)) then
+            if (linear) then
+              first = 6 ! srtep size for displacement along modes
+            else
+              first = 7 ! srtep size for displacement along modes
+            end if
+         end if
       endif 
 c
 c ----------alocate space for freq and normal modes----------------------------
@@ -294,7 +319,7 @@ c
 c ------------enough setup really do the calculation------------------------
       if (.not.preraman) then
       call task_raman_doit(rtdb,geom,nc,nat,
-     &                     first0, ! = 7 constant
+     &                     first0, ! = 6 or 7
      &                     first,last,rmmodes,
      &                     steps,nfreq,plot,line,width,
      &                     step_size,
@@ -336,7 +361,7 @@ c
 c
 c     == perform raman calculation ==
       subroutine task_raman_doit(rtdb,geom,nc,nat,
-     &                           first0, ! = 7 constant
+     &                           first0, ! = 6 or 7
      &                           first,last,rmmodes,
      &                           steps,nfreq,
      &                           plot,line,width,
@@ -495,7 +520,7 @@ c 0000000 Reading modes from input script 000000000 START
      &             lbl_raman,  ! in: raman label
      &             begin,      ! in: 
      &             last,       ! in: 
-     &             first0,     ! in: = 7 constant
+     &             first0,     ! in: = 6 or 7
      &             eigenvecs,  ! in: hessian data (modes)
      &             eigenvals,  ! in: hessian data (frequencies)
      &             mass,       ! in: mass(i) i=1,nat
@@ -519,7 +544,7 @@ c 0000000 Reading modes from input script 000000000 START
      &             lbl_raman,  ! in: raman label
      &             mode_ini,   ! in: 
      &             mode_end,   ! in: 
-     &             first0,     ! in: = 7 constant
+     &             first0,     ! in: = 6 or 7
      &             eigenvecs,  ! in: hessian data (modes)
      &             eigenvals,  ! in: hessian data (frequencies)
      &             mass,       ! in: mass(i) i=1,nat
@@ -541,7 +566,7 @@ c 0000000 Reading modes from input script 000000000 START
      &             lbl_raman,  ! in: raman label
      &             begin,      ! in: starting mode
      &             last,       ! in: ending   mode
-     &             first0,     ! in: = 7 constant
+     &             first0,     ! in: = 6 or 7
      &             eigenvecs,  ! in: hessian data (modes)
      &             eigenvals,  ! in: hessian data (frequencies)
      &             mass,       ! in: mass(i) i=1,nat
@@ -596,7 +621,7 @@ c 00000000000000000000000000000000000000000000000000000000000000
      &             rmmodes,    ! in: total nr. modes
      &             rminfo,     ! in: stores raman info
      &             nc,nat,     ! in: (nc,nat)=(nr coord,nr atoms)
-     &             first0,     ! in: = 7 constant
+     &             first0,     ! in: = 6 or 7
      &             eigenvecs,  ! in: hessian data (modes)
      &             eigenvals,  ! in: hessian data (frequencies)
      &             mass,       ! in: mass(i) i=1,nat
@@ -757,7 +782,8 @@ c ------------------------do finite defernced for mode ii----------------------
      &                 step_size,
      &                 rminfo,
      &                 eigenvecs,
-     &                 mass)
+     &                 mass,
+     &                 first0)
 c ======== FA: Writing to file rminfo ========= START
 c         if (ga_nodeid().eq.0)
 c     &     write(*,*) 'BEF raman_write() ...'
@@ -783,7 +809,7 @@ c 00000000000000000000000000000000000000000000000000000000000000
      &             lbl_raman,  ! in: raman label
      &             begin,      ! in: starting mode
      &             last,       ! in: ending   mode
-     &             first0,     ! in: = 7 constant
+     &             first0,     ! in: = 6 or 7
      &             eigenvecs,  ! in: hessian data (modes)
      &             eigenvals,  ! in: hessian data (frequencies)
      &             mass,       ! in: mass(i) i=1,nat
@@ -890,7 +916,7 @@ c ======== construct filename in listing mode ====== END
      &             rmmodes,    ! in: total nr. modes
      &             rminfo,     ! in: stores raman info
      &             nc,nat,     ! in: (nc,nat)=(nr coord,nr atoms)
-     &             first0,     ! in: = 7 constant
+     &             first0,     ! in: = 6 or 7
      &             eigenvecs,  ! in: hessian data (modes)
      &             eigenvals,  ! in: hessian data (frequencies)
      &             mass,       ! in: mass(i) i=1,nat
@@ -915,7 +941,7 @@ c ======== construct filename in listing mode ====== END
      &             lbl_raman,  ! in: raman label
      &             mode_ini,   ! in: 
      &             mode_end,   ! in: 
-     &             first0,     ! in: = 7 constant
+     &             first0,     ! in: = 6 or 7
      &             eigenvecs,  ! in: hessian data (modes)
      &             eigenvals,  ! in: hessian data (frequencies)
      &             mass,       ! in: mass(i) i=1,nat
@@ -1036,7 +1062,7 @@ c ************************************************************
      &             rmmodes,    ! in: total nr. modes
      &             rminfo,     ! in: stores raman info
      &             nc,nat,     ! in: (nc,nat)=(nr coord,nr atoms)
-     &             first0,     ! in: = 7 constant
+     &             first0,     ! in: = 6 or 7
      &             eigenvecs,  ! in: hessian data (modes)
      &             eigenvals,  ! in: hessian data (frequencies)
      &             mass,       ! in: mass(i) i=1,nat
@@ -1058,7 +1084,7 @@ c ************************************************************
      &             lbl_raman,  ! in: raman label
      &             begin,      ! in: 
      &             last,       ! in: 
-     &             first0,     ! in: = 7 constant
+     &             first0,     ! in: = 6 or 7
      &             eigenvecs,  ! in: hessian data (modes)
      &             eigenvals,  ! in: hessian data (frequencies)
      &             mass,       ! in: mass(i) i=1,nat
@@ -1139,7 +1165,7 @@ c        if (begin .gt. last)  go to 200
      &             rmmodes,    ! in: total nr. modes
      &             rminfo,     ! in: stores raman info
      &             nc,nat,     ! in: (nc,nat)=(nr coord,nr atoms)
-     &             first0,     ! in: = 7 constant
+     &             first0,     ! in: = 6 or 7
      &             eigenvecs,  ! in: hessian data (modes)
      &             eigenvals,  ! in: hessian data (frequencies)
      &             mass,       ! in: mass(i) i=1,nat
