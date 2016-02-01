@@ -37,22 +37,16 @@
      5         2,3,0,0,0,0,1,2,3,2,3,0,3,0,2,0,2,3,1,
      6         3,3,1,0,0,0,0,2,2,3,3,1,3,1,3,1,3,3,1,
      7         7,5,3,0,0,0,2,4,6,7,5,3,5,3,7,3,7,5,1/
-!
       if ((axis.lt.1).or.(axis.gt.19)) then
          sym_abelian_axis = -1
          return
       endif
       call sym_group_name(geom,group)
-!
       if (inp_match(nab,.false.,group,ab,ind)) then
-!
 !        real Abelian
-!
          sym_abelian_axis = air(axis,ind)
       else
-!
 !        non-Abelian or complex Abelian
-!
          sym_abelian_axis = -1
          return
       endif
