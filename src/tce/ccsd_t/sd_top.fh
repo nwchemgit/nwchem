@@ -1,6 +1,5 @@
       integer deltat
       double precision t0
-      integer div8,mod8
 #ifdef USE_OPENMP
 #ifndef OPENMP_OFFLOAD
 cdir$ ATTRIBUTES OFFLOAD : mic :: omp_get_wtime

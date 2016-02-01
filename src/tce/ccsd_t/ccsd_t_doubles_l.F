@@ -46,7 +46,7 @@ c *************
       IF (.not.MA_PUSH_GET(mt_dbl,t2size,'t2sub',
      L     l_t2sub,k_t2sub)) CALL
      & ERRQUIT('ccsd_t_doubles t2sub',101,MA_ERR)
-      IF (.not.MA_PUSH_GET(mt_dbl,max(t2size,v2size),'t2sub',
+      IF (.not.MA_PUSH_GET(mt_dbl,max(t2size,v2size),'scratch',
      L     l_scratch,k_scratch)) CALL
      & ERRQUIT('ccsd_t_doubles scratch',102,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,v2size,'v2sub',
@@ -69,7 +69,7 @@ c *************
          endif
 #ifdef USE_OFFLOAD
       call offl_free(dbl_mb(k_t2sub),t2size)
-      call offl_free(dbl_mb(k_scratch),t2size)
+      call offl_free(dbl_mb(k_scratch),max(t2size,v2size))
       t2sub_alloced=.false.
       call offl_free(dbl_mb(k_v2sub),v2size)
       v2sub_alloced=.false.
