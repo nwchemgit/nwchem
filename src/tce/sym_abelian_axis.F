@@ -19,14 +19,14 @@ c
       implicit none
 #include "inp.fh"
       integer geom              ! [input]
-      integer axis              ! [input] 
+      integer axis              ! [input]
       character*8 group
       integer nab, ind
       parameter (nab = 8)
       character*4 ab(nab)
       integer air(19,8)
       data ab/'C1','Cs','Ci','C2','D2','C2v','C2h','D2h'/
-c              x y z x y z x x y x y z x x y y z z x 
+c              x y z x y z x x y x y z x x y y z z x
 c                    x y z y z z x y z x x y y z z y
 c                                x y z y z x z x y z
       data air/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -48,7 +48,7 @@ c
 c
 c        real Abelian
 c
-         sym_abelian_axis = air(axis,ind)  
+         sym_abelian_axis = air(axis,ind)
       else
 c
 c        non-Abelian or complex Abelian

@@ -211,7 +211,6 @@
 !     Allocate g_dens
 !     ===============
 !
-
       do i=1,ipol
         if (.not.ga_create(mt_dbl,nbf,nbf,'AO density',
      1    -1,-1,g_dens(i))) call errquit('tce_aoo1: GA problem',2,
@@ -237,31 +236,31 @@
       if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole XXX',
      1  -1,-1,g_aoo1(1))) call errquit('tce_aoo1: GA problem',0,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole YYY',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole XXY',
      1  -1,-1,g_aoo1(2))) call errquit('tce_aoo1: GA problem',1,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole ZZZ',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole XXZ',
      1  -1,-1,g_aoo1(3))) call errquit('tce_aoo1: GA problem',2,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole XXY',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole XYY',
      1  -1,-1,g_aoo1(4))) call errquit('tce_aoo1: GA problem',3,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole XXZ',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole XYZ',
      1  -1,-1,g_aoo1(5))) call errquit('tce_aoo1: GA problem',4,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole YYX',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole XZZ',
      1  -1,-1,g_aoo1(6))) call errquit('tce_aoo1: GA problem',5,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole YYZ',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole YYY',
      1  -1,-1,g_aoo1(7))) call errquit('tce_aoo1: GA problem',6,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole ZZX',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole YYZ',
      1  -1,-1,g_aoo1(8))) call errquit('tce_aoo1: GA problem',7,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole ZZY',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole YZZ',
      1  -1,-1,g_aoo1(9))) call errquit('tce_aoo1: GA problem',8,
      2  GA_ERR)
-      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole XYZ',
+      if (.not.ga_create(mt_dbl,nbf,nbf,'AO octupole ZZZ',
      1  -1,-1,g_aoo1(10))) call errquit('tce_aoo1: GA problem',9,
      2  GA_ERR)
 !
@@ -273,9 +272,8 @@
 !                                                     xzz, yyy, yyz, yzz, zzz
 !
       call int_oct_ga(ao_bas_han,ao_bas_han,
-     1  g_aoo1(1),g_aoo1(4),g_aoo1(5),g_aoo1(6),g_aoo1(10),g_aoo1(8),
-     2  g_aoo1(2),g_aoo1(7),g_aoo1(9),g_aoo1(3))
-      write(*,*) "after int_oct_ga"
+     1  g_aoo1(1),g_aoo1(2),g_aoo1(3),g_aoo1(4),g_aoo1(5),g_aoo1(6),
+     2  g_aoo1(7),g_aoo1(8),g_aoo1(9),g_aoo1(10))
       if (util_print('aoo1',print_debug)) then
         do i=1,10
             call ga_print(g_aoo1(i))
