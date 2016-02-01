@@ -47,6 +47,7 @@ c ---------- FA-definitions -------- END
 c
 c  set some defaults
 c
+      field=' '
       plot = 'normal' ! normal or resonance
       line = 'lorentzian' !  lorentzian (l) or gaussian (g) lineshape
       width = 20.0D+00 ! full-width at half maximum (FWHM) in 1/cm
@@ -54,7 +55,6 @@ c
       hyperraman = .false. ! flag to calculate hyperaman terms
       vroa = .false. ! flag to calculate vibrational raman spec
       rmmodes = 0
-      first = 7
       last = 10000
       low = 0.0D+00
       high = 100000.0D+00
@@ -132,9 +132,9 @@ c        --- determine first normal mode to use ---
       else if(inp_compare(.false.,'first',test)) then
          if(.not. inp_i(first))
      $     call errquit(pname//'missing value for first',911, INPUT_ERR)
-         if (.not. rtdb_put(rtdb,'raman:first',mt_int,1,first))
-     $     call errquit(pname//'rtdb put failed',0, RTDB_ERR)
-c        --- determine first normal mode to use ---
+c        --- not setting default here, it will be set later after
+c            frequency calculation has been done so we know if we have
+c            a linear molecule or not
       else if(inp_compare(.false.,'last',test)) then
          if(.not. inp_i(last)) ! FA-06-16-12 bug-fixed (BEF: first AFT: last)
      $     call errquit(pname//'missing value for last',911, INPUT_ERR)
