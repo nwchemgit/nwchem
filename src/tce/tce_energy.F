@@ -811,12 +811,39 @@
         cpu = - util_cpusec()
         wall = - util_wallsec()
         call tce_nud1(dipole_scf)
+        if (nodezero.and.util_print('multipole',print_debug)) then
+            write(LuOut,*)
+            write(LuOut,9120) '==== tce_aod1 ===='
+            call util_flush(LuOut)
+        endif
         call tce_aod1(rtdb,g_aod1,dipole_scf)
+        if (nodezero.and.util_print('multipole',print_debug)) then
+            write(LuOut,9120) '=================='
+            call util_flush(LuOut)
+        endif
         if (multipole.gt.1) then
+          if (nodezero.and.util_print('multipole',print_debug)) then
+              write(LuOut,*)
+              write(LuOut,9120) '==== tce_aoq1 ===='
+              call util_flush(LuOut)
+          endif
           call tce_aoq1(rtdb,g_aoq1,quadrupole_scf)
+          if (nodezero.and.util_print('multipole',print_debug)) then
+              write(LuOut,9120) '=================='
+              call util_flush(LuOut)
+          endif
         endif
         if (multipole.gt.2) then
+          if (nodezero.and.util_print('multipole',print_debug)) then
+              write(LuOut,*)
+              write(LuOut,9120) '==== tce_aoo1 ===='
+              call util_flush(LuOut)
+          endif
           call tce_aoo1(rtdb,g_aoo1,octupole_scf)
+          if (nodezero.and.util_print('multipole',print_debug)) then
+              write(LuOut,9120) '=================='
+              call util_flush(LuOut)
+          endif
         endif
         cpu = cpu + util_cpusec()
         wall = wall + util_wallsec()
@@ -837,19 +864,18 @@
      5             quadrupole_scf(5),quadrupole_scf(5)*buck,
      6             quadrupole_scf(6),quadrupole_scf(6)*buck
           endif
-! octupole not evaluate yet...
           if (multipole.gt.2) then
             write(LuOut,9433) "SCF",
      1             octupole_scf(1), octupole_scf(1)*octo,
-     2             octupole_scf(7), octupole_scf(7)*octo,
-     3             octupole_scf(10),octupole_scf(10)*octo,
-     4             octupole_scf(2), octupole_scf(2)*octo,
-     5             octupole_scf(3), octupole_scf(3)*octo,
-     6             octupole_scf(4), octupole_scf(4)*octo,
-     7             octupole_scf(8), octupole_scf(8)*octo,
-     8             octupole_scf(6), octupole_scf(6)*octo,
+     2             octupole_scf(2), octupole_scf(2)*octo,
+     3             octupole_scf(3), octupole_scf(3)*octo,
+     4             octupole_scf(4), octupole_scf(4)*octo,
+     5             octupole_scf(5), octupole_scf(5)*octo,
+     6             octupole_scf(6), octupole_scf(6)*octo,
+     7             octupole_scf(7), octupole_scf(7)*octo,
+     8             octupole_scf(8), octupole_scf(8)*octo,
      9             octupole_scf(9), octupole_scf(9)*octo,
-     1             octupole_scf(5), octupole_scf(5)*octo
+     1             octupole_scf(10),octupole_scf(10)*octo
           endif
           write(LuOut,*)
           write(LuOut,9020) cpu, wall
@@ -861,21 +887,28 @@
         do axis = 1, 3
           irrep_d=sym_abelian_axis(geom,axis)
           call sym_irrepname(geom,irrep_d+1,irrepname)
-          if (nodezero.and.util_print('mod1',print_default)) then
-            write(LuOut,*)
-            write(LuOut,9440) axisname(axis),irrepname
-          endif
           call tce_mod1_offset(l_d1_offset(axis),k_d1_offset(axis),
      1      size_d1(axis))
           call tce_filename(dfilename(axis),filename)
           call createfile(filename,d_d1(axis),size_d1(axis))
           if (nodezero.and.util_print('mod1',print_default)) then
+            write(LuOut,*)
+            write(LuOut,9440) axisname(axis),irrepname
             write(LuOut,9000) 'dipole',size_d1(axis)
             write(LuOut,9010) 'dipole',trim(filename)
           endif
         enddo
         if (.not.read_integrals(3)) then
+          if (nodezero.and.util_print('multipole',print_debug)) then
+              write(LuOut,*)
+              write(LuOut,9120) '==== tce_mod1 ===='
+              call util_flush(LuOut)
+          endif
           call tce_mod1(g_aod1,d_d1)
+          if (nodezero.and.util_print('multipole',print_debug)) then
+              write(LuOut,9120) '=================='
+              call util_flush(LuOut)
+          endif
           if (save_integrals(3)) then
             if(nodezero) then
               write(LuOut,*) 'Saving dipole integrals now...'
@@ -901,6 +934,7 @@
         do axis = 1, 3
           call gatoeaf(d_d1(axis))
         enddo
+        call util_flush(LuOut)
         !
         ! quadrupole
         !
@@ -908,25 +942,33 @@
           do axis = 1, 6
             irrep_d=sym_abelian_axis(geom,axis+3)
             call sym_irrepname(geom,irrep_d+1,irrepname)
-            if (nodezero.and.util_print('moq1',print_default)) then
-              write(LuOut,*)
-              write(LuOut,9440) axisname(axis),irrepname
-            endif
             call tce_mod1_offset_new(l_q1_offset(axis),
      1                               k_q1_offset(axis),
      2                               size_q1(axis),irrep_d)
             call tce_filename(qfilename(axis),filename)
             call createfile(filename,d_q1(axis),size_q1(axis))
             if (nodezero.and.util_print('moq1',print_default)) then
+              write(LuOut,*)
+              write(LuOut,9440) axisname(axis+3),irrepname
               write(LuOut,9000) 'quadrupole',size_q1(axis)
               write(LuOut,9010) 'quadrupole',trim(filename)
             endif
           enddo
-          call tce_mom1(g_aoq1,d_q1,6)
+          if (nodezero.and.util_print('multipole',print_debug)) then
+              write(LuOut,*)
+              write(LuOut,9120) '==== tce_moq1 ===='
+              call util_flush(LuOut)
+          endif
+          call tce_moq1(g_aoq1,d_q1)
+          if (nodezero.and.util_print('multipole',print_debug)) then
+              write(LuOut,9120) '=================='
+              call util_flush(LuOut)
+          endif
           do axis = 1, 6
             call gatoeaf(d_q1(axis))
           enddo
         endif ! quadrupole
+        call util_flush(LuOut)
         !
         ! octupole
         !
@@ -934,25 +976,33 @@
           do axis = 1, 10
             irrep_d=sym_abelian_axis(geom,axis+9)
             call sym_irrepname(geom,irrep_d+1,irrepname)
-            if (nodezero.and.util_print('moo1',print_default)) then
-              write(LuOut,*)
-              write(LuOut,9440) axisname(axis),irrepname
-            endif
             call tce_mod1_offset_new(l_o1_offset(axis),
      1                               k_o1_offset(axis),
      2                               size_o1(axis),irrep_d)
             call tce_filename(ofilename(axis),filename)
             call createfile(filename,d_o1(axis),size_o1(axis))
             if (nodezero.and.util_print('moo1',print_default)) then
+              write(LuOut,*)
+              write(LuOut,9440) axisname(axis+9),irrepname
               write(LuOut,9000) 'octupole',size_o1(axis)
               write(LuOut,9010) 'octupole',trim(filename)
             endif
           enddo
-          call tce_mom1(g_aoo1,d_o1,10)
+          if (nodezero.and.util_print('multipole',print_debug)) then
+              write(LuOut,*)
+              write(LuOut,9120) '==== tce_moo1 ===='
+              call util_flush(LuOut)
+          endif
+          call tce_moo1(g_aoo1,d_o1)
+          if (nodezero.and.util_print('multipole',print_debug)) then
+              write(LuOut,9120) '=================='
+              call util_flush(LuOut)
+          endif
           do axis = 1, 10
             call gatoeaf(d_o1(axis))
           enddo
         endif ! octupole
+        call util_flush(LuOut)
 #else !!! defined(NEWDIPOLE)
 !
 !       new dipole integrals
@@ -11546,7 +11596,7 @@ c
      5  1x,'Total ',2f15.7,/
      6  1x,'------------------------------------')
  9431 format(/,1x,'Frequency = ',f15.7,' / au')
- 9432 format(/,1x,A,' quadrupole moments / hartree & Buckingham',/,
+ 9432 format(/,1x,A,' second moments / hartree & Buckingham',/,
      1  1x,'--------------------------------',/
      2  1x,'XX ',2f15.7,/
      3  1x,'XY ',2f15.7,/
@@ -11555,7 +11605,7 @@ c
      6  1x,'YZ ',2f15.7,/
      7  1x,'ZZ ',2f15.7,/
      8  1x,'--------------------------------')
- 9433 format(/,1x,A,' octupole moments / hartree & Octos',/,
+ 9433 format(/,1x,A,' third moments / hartree & Octos',/,
      1  1x,'--------------------------------',/
      2  1x,'XXX ',2f15.7,/
      3  1x,'XXY ',2f15.7,/

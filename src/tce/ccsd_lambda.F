@@ -305,15 +305,15 @@ c
         enddo
         if (nodezero) write(LuOut,9433) "CCSD",
      1                octupole_cor(1), octupole_cor(1)*octo,
-     2                octupole_cor(7), octupole_cor(7)*octo,
-     3                octupole_cor(10),octupole_cor(10)*octo,
-     4                octupole_cor(2), octupole_cor(2)*octo,
-     5                octupole_cor(3), octupole_cor(3)*octo,
-     2                octupole_cor(4), octupole_cor(4)*octo,
-     3                octupole_cor(8), octupole_cor(8)*octo,
-     4                octupole_cor(6), octupole_cor(6)*octo,
+     2                octupole_cor(2), octupole_cor(2)*octo,
+     3                octupole_cor(3), octupole_cor(3)*octo,
+     4                octupole_cor(4), octupole_cor(4)*octo,
+     5                octupole_cor(5), octupole_cor(5)*octo,
+     2                octupole_cor(6), octupole_cor(6)*octo,
+     3                octupole_cor(7), octupole_cor(7)*octo,
+     4                octupole_cor(8), octupole_cor(8)*octo,
      5                octupole_cor(9), octupole_cor(9)*octo,
-     6                octupole_cor(5), octupole_cor(5)*octo
+     6                octupole_cor(10),octupole_cor(10)*octo
       endif
       if (.not.ma_pop_stack(l_s0_offset))
      1     call errquit("ccsd_lambda: MA problem",307,MA_ERR)
@@ -328,7 +328,7 @@ c
      4  1x,'  Z   ',2f15.7,/
      5  1x,'Total ',2f15.7,/
      6  1x,'------------------------------------')
- 9432 format(/,1x,A,' quadrupole moments / hartree & Buckingham',/,
+ 9432 format(/,1x,A,' second moments / hartree & Buckingham',/,
      1  1x,'--------------------------------',/
      2  1x,'XX ',2f15.7,/
      3  1x,'XY ',2f15.7,/
@@ -337,7 +337,7 @@ c
      6  1x,'YZ ',2f15.7,/
      7  1x,'ZZ ',2f15.7,/
      8  1x,'--------------------------------')
- 9433 format(/,1x,A,' octupole moments / hartree & Octos',/,
+ 9433 format(/,1x,A,' third moments / hartree & Octos',/,
      1  1x,'--------------------------------',/
      2  1x,'XXX ',2f15.7,/
      3  1x,'XXY ',2f15.7,/
