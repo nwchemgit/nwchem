@@ -320,7 +320,7 @@ c
       return
  1001 format(1x,'dipole:   axis=',i1,' SCF=',f15.7,' CCSD=',f15.7)
  1002 format(1x,'quadpole: axis=',i1,' SCF=',f15.7,' CCSD=',f15.7)
- 1003 format(1x,'octpole:  axis=',i1,' SCF=',f15.7,' CCSD=',f15.7)
+ 1003 format(1x,'octpole:  axis=',i2,' SCF=',f15.7,' CCSD=',f15.7)
  9430 format(/,1x,A,' dipole moments / hartree & Debye',/,
      1  1x,'------------------------------------',/
      2  1x,'  X   ',2f15.7,/
