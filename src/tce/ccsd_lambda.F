@@ -318,9 +318,9 @@ c
       if (.not.ma_pop_stack(l_s0_offset))
      1     call errquit("ccsd_lambda: MA problem",307,MA_ERR)
       return
- 1001 format(/,1x,'dipole:   axis=',i1,' SCF=',f15.7,' CCSD=',f15.7)
- 1002 format(/,1x,'quadpole: axis=',i1,' SCF=',f15.7,' CCSD=',f15.7)
- 1003 format(/,1x,'octpole:  axis=',i1,' SCF=',f15.7,' CCSD=',f15.7)
+ 1001 format(1x,'dipole:   axis=',i1,' SCF=',f15.7,' CCSD=',f15.7)
+ 1002 format(1x,'quadpole: axis=',i1,' SCF=',f15.7,' CCSD=',f15.7)
+ 1003 format(1x,'octpole:  axis=',i1,' SCF=',f15.7,' CCSD=',f15.7)
  9430 format(/,1x,A,' dipole moments / hartree & Debye',/,
      1  1x,'------------------------------------',/
      2  1x,'  X   ',2f15.7,/
@@ -337,9 +337,6 @@ c
      6  1x,'YZ ',2f15.7,/
      7  1x,'ZZ ',2f15.7,/
      8  1x,'--------------------------------')
-c
-c     Ordering in mptval (from defNxyz):
-c     xxx, xxy, xxz, yyx, xyz, zzx, yyy, zzy, zzz
  9433 format(/,1x,A,' octupole moments / hartree & Octos',/,
      1  1x,'--------------------------------',/
      2  1x,'XXX ',2f15.7,/
