@@ -142,7 +142,6 @@ USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
 
 
 
-#LIB_DEFINES += -DNEWDIPOLE
 #LIB_DEFINES += -DDEBUG_PRINT
 
 #

@@ -807,7 +807,6 @@
 !     ================================
 !
       if (left) then
-#if !defined(NEWDIPOLE)
         cpu = - util_cpusec()
         wall = - util_wallsec()
         call tce_nud1(dipole_scf)
@@ -1003,140 +1002,24 @@
           enddo
         endif ! octupole
         call util_flush(LuOut)
-#else !!! defined(NEWDIPOLE)
-!
-!       new dipole integrals
-!
-        if (multipole.ge.1) then
-          do i = 1, multipole
-            if (i.eq.1) then
-              call hnd_mtpole2(rtdb,ao_bas_han,geom,1,dipole_scf)
-            elseif (i.eq.2) then
-              call hnd_mtpole2(rtdb,ao_bas_han,geom,2,quadrupole_scf)
-            elseif (i.eq.3) then
-              call hnd_mtpole2(rtdb,ao_bas_han,geom,3,octupole_scf)
-            endif
-            j = (i+1)*(i+2)/2 ! 3, 6, 10
-            do axis = 1, j
-              irrep_d=sym_abelian_axis(geom,axis)
-              call sym_irrepname(geom,irrep_d+1,irrepname)
-              if (nodezero.and.util_print('mod1',print_default)) then
-                write(LuOut,*)
-                if (i.eq.1) write(LuOut,9440) axisname(axis),irrepname
-                if (i.eq.2) write(LuOut,9440) axisname(axis+3),irrepname
-                if (i.eq.3) write(LuOut,9440) axisname(axis+9),irrepname
-              endif
-              if (i.eq.1) then
-                call tce_mod1_offset_new(l_d1_offset(axis),
-     1            k_d1_offset(axis),size_d1(axis),irrep_d)
-                call tce_filename(dfilename(axis),filename)
-                call createfile(filename,d_d1(axis),size_d1(axis))
-                if (nodezero.and.util_print('mod1',print_default)) then
-                  write(LuOut,9000) 'dipole',size_d1(axis)
-                  write(LuOut,9010) 'dipole',trim(filename)
-                endif
-              elseif (i.eq.2) then
-                call tce_mod1_offset_new(l_q1_offset(axis),
-     1            k_q1_offset(axis),size_q1(axis),irrep_d)
-                call tce_filename(qfilename(axis),filename)
-                call createfile(filename,d_q1(axis),size_q1(axis))
-                if (nodezero.and.util_print('moq1',print_default)) then
-                  write(LuOut,9000) 'quadrupole',size_q1(axis)
-                  write(LuOut,9010) 'quadrupole',trim(filename)
-                endif
-              elseif (i.eq.3) then
-                call tce_mod1_offset_new(l_o1_offset(axis),
-     1            k_o1_offset(axis),size_o1(axis),irrep_d)
-                call tce_filename(ofilename(axis),filename)
-                call createfile(filename,d_o1(axis),size_o1(axis))
-                if (nodezero.and.util_print('moo1',print_default)) then
-                  write(LuOut,9000) 'octupole',size_o1(axis)
-                  write(LuOut,9010) 'octupole',trim(filename)
-                endif
-              endif
-            enddo
-            if (i.eq.1) then
-              if (.not.read_integrals(3)) then
-                call tce_mod1_new(rtdb,d_d1,1)
-                if (save_integrals(3)) then
-                  if(nodezero) then
-                    write(LuOut,*) 'Saving dipole integrals now...'
-                  endif
-                  do axis = 1, j
-                    irrep_d=sym_abelian_axis(geom,axis)
-                    call d1_restart_save(d_d1(axis),k_d1_offset(axis),
-     &                   size_d1(axis),axis,handle_d1(axis),irrep_d)
-                  enddo
-                endif
-              elseif (read_integrals(3)) then
-                if(nodezero) then
-                  write(LuOut,*) 'Reading in dipole integrals now...'
-                endif
-                do axis = 1, j
-                  irrep_d=sym_abelian_axis(geom,axis)
-                  call d1_restart_read(d_d1(axis),k_d1_offset(axis),
-     &                 size_d1(axis),axis,handle_d1(axis),irrep_d)
-                enddo
-              endif
-              do axis = 1, j
-                call gatoeaf(d_d1(axis))
-              enddo
-            elseif (i.eq.2) then
-              if (.not.read_integrals(4)) then
-                call tce_mod1_new(rtdb,d_q1,2)
-                if (save_integrals(4)) then
-                  if(nodezero) then
-                    write(LuOut,*) 'Saving quadrupole integrals now...'
-                  endif
-                  do axis = 1, j
-                    irrep_d=sym_abelian_axis(geom,axis)
-                    call d1_restart_save(d_d1(axis),k_d1_offset(axis),
-     &                   size_d1(axis),axis,handle_d1(axis),irrep_d)
-                  enddo
-                endif
-              elseif (read_integrals(4)) then
-                if(nodezero) then
-                  write(LuOut,*)'Reading in quadrupole integrals now...'
-                endif
-                do axis = 1, j
-                  irrep_d=sym_abelian_axis(geom,axis)
-                  call d1_restart_read(d_q1(axis),k_q1_offset(axis),
-     &                 size_q1(axis),axis,handle_q1(axis),irrep_d)
-                enddo
-              endif
-              do axis = 1, j
-                call gatoeaf(d_q1(axis))
-              enddo
-            elseif (i.eq.3) then
-              if (.not.read_integrals(5)) then
-                call tce_mod1_new(rtdb,d_o1,3)
-                if (save_integrals(5)) then
-                  if(nodezero) then
-                    write(LuOut,*) 'Saving octupole integrals now...'
-                  endif
-                  do axis = 1, j
-                    irrep_d=sym_abelian_axis(geom,axis)
-                    call d1_restart_save(d_o1(axis),k_o1_offset(axis),
-     &                   size_o1(axis),axis,handle_o1(axis),irrep_d)
-                  enddo
-                endif
-              elseif (read_integrals(5)) then
-                if(nodezero) then
-                  write(LuOut,*) 'Reading in octupole integrals now...'
-                endif
-                do axis = 1, j
-                  irrep_d=sym_abelian_axis(geom,axis)
-                  call d1_restart_read(d_o1(axis),k_o1_offset(axis),
-     &                 size_o1(axis),axis,handle_o1(axis),irrep_d)
-                enddo
-              endif
-              do axis = 1, j
-                call gatoeaf(d_o1(axis))
-              enddo
-            endif !(i.eq.N)
-          enddo !(do i)
-        endif !(multipole.ge.1)
-#endif
+!!
+!!       new dipole integrals - never finished
+!!       (save the hnd_mtpole2 reference in case useful later)
+!!
+!        if (multipole.ge.1) then
+!          do i = 1, multipole
+!            if (i.eq.1) then
+!              call hnd_mtpole2(rtdb,ao_bas_han,geom,1,dipole_scf)
+!            elseif (i.eq.2) then
+!              call hnd_mtpole2(rtdb,ao_bas_han,geom,2,quadrupole_scf)
+!            elseif (i.eq.3) then
+!              call hnd_mtpole2(rtdb,ao_bas_han,geom,3,octupole_scf)
+!            endif
+!            j = (i+1)*(i+2)/2 ! 3, 6, 10
+!            do axis = 1, j
+!            enddo
+!          enddo
+!        endif
       endif
 !
 !     1-e integrals
