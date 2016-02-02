@@ -155,7 +155,8 @@
 !     ========================
 !
       call int_qdr_ga(ao_bas_han,ao_bas_han,
-     1  g_aoq1(1),g_aoq1(2),g_aoq1(3),g_aoq1(4),g_aoq1(5),g_aoq1(6))
+     1                g_aoq1(1),g_aoq1(2),g_aoq1(3),
+     2                g_aoq1(4),g_aoq1(5),g_aoq1(6))
       if (util_print('aoq1',print_debug)) then
         do i=1,6
             call ga_print(g_aoq1(i))
@@ -272,8 +273,8 @@
 !                                                     xzz, yyy, yyz, yzz, zzz
 !
       call int_oct_ga(ao_bas_han,ao_bas_han,
-     1  g_aoo1(1),g_aoo1(2),g_aoo1(3),g_aoo1(4),g_aoo1(5),g_aoo1(6),
-     2  g_aoo1(7),g_aoo1(8),g_aoo1(9),g_aoo1(10))
+     1          g_aoo1(1),g_aoo1(2),g_aoo1(3),g_aoo1(4),g_aoo1(5),
+     2          g_aoo1(6),g_aoo1(7),g_aoo1(8),g_aoo1(9),g_aoo1(10))
       if (util_print('aoo1',print_debug)) then
         do i=1,10
             call ga_print(g_aoo1(i))
