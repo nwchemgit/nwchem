@@ -50,6 +50,7 @@ zcopy      xcopy
 zdotc      xdotc         
 zdscal     xsscal        
 zgemm      xgemm         
+zgesvd     xgesvd
 zgemv      xgemv         
 zgerc      xgerc         
 zhemm      xhemm         
