@@ -10,7 +10,7 @@
                  ypotri.o ypotrf.o ysygv.o ygeev.o ygeevx.o \
                  ifily.o\
                  xscal.o xaxpy.o xgemm.o xheev.o xcopy.o xdotc.o \
-                 ixamax.o
+                 ixamax.o xgesvd.o
 
         ifeq ($(BLAS_SIZE),8)
 	LIB_DEFINES += -DUSE_INTEGER8
