@@ -87,11 +87,11 @@ c
       if (.not. ma_push_get(mt_dbl,nat,'zan pnt',l_zanpt,k_zanpt))
      &    call errquit('hnd_mtpole: ma failed',911,MA_ERR)
 c
-      do 30 iat=1,nat
+      do iat=1,nat
          if (.not.geom_cent_get(geom,iat,at_tag,
      &       dbl_mb(k_xyzpt+3*(iat-1)),dbl_mb(k_zanpt+iat-1))) call
      &       errquit('hnd_mtpole: geom_cent_get failed',911,GEOM_ERR)
-   30 continue
+      enddo ! iat
 c
 c     For quadrupole case, need electronic contribution for 
 c     diamagnetic susceptibility
@@ -100,22 +100,23 @@ c
 c
 c     Nuclear contribution 
 c
-      do 60 icomp = 1, ncomp
-      mptval(icomp,1) = -mptval(icomp,1)
-      call getNxyz(mpole,icomp,Nxyz)
-      do 60 iat = 1, nat
-         cx = 1d0
-         if(Nxyz(1).ne.0)
-     &   cx = (dbl_mb(k_xyzpt  +3*(iat-1))-cm(1))**Nxyz(1)
-         cy = 1d0
-         if(Nxyz(2).ne.0)
-     &   cy = (dbl_mb(k_xyzpt+1+3*(iat-1))-cm(2))**Nxyz(2)
-         cz = 1d0
-         if(Nxyz(3).ne.0)
-     &   cz = (dbl_mb(k_xyzpt+2+3*(iat-1))-cm(3))**Nxyz(3)
-         mptval(icomp,1) = mptval(icomp,1) + 
-     &                     dbl_mb(k_zanpt+iat-1) * cx * cy * cz
-   60 continue
+      do icomp = 1, ncomp
+        mptval(icomp,1) = -mptval(icomp,1)
+        call getNxyz(mpole,icomp,Nxyz)
+        do iat = 1, nat
+           cx = 1d0
+           cy = 1d0
+           cz = 1d0
+           if(Nxyz(1).ne.0)
+     &         cx = (dbl_mb(k_xyzpt  +3*(iat-1))-cm(1))**Nxyz(1)
+           if(Nxyz(2).ne.0)
+     &         cy = (dbl_mb(k_xyzpt+1+3*(iat-1))-cm(2))**Nxyz(2)
+           if(Nxyz(3).ne.0)
+     &         cz = (dbl_mb(k_xyzpt+2+3*(iat-1))-cm(3))**Nxyz(3)
+           mptval(icomp,1) = mptval(icomp,1) + 
+     &                       dbl_mb(k_zanpt+iat-1) * cx * cy * cz
+        enddo ! iat
+      enddo   ! icomp
 c
 c     ----- form -efc- contribution -----
 c           from cosmo point charges !!!!
@@ -134,21 +135,22 @@ c
          if (.not.rtdb_get(rtdb,'cosmo:efcz',mt_dbl,nefc,
      &      dbl_mb(k_efcz))) call
      &      errquit('hnd_mtpole: rtdb get failed efcz',913,rtdb_err)
-         do 70 icomp = 1, ncomp
+         do icomp = 1, ncomp
             call getNxyz(2,icomp,Nxyz)
-            do 70 iat=1,nefc
+            do iat=1,nefc
                cx=1d0
-               if(Nxyz(1).ne.0)
-     &         cx = (dbl_mb(k_efcc+3*(icomp-1)  )-cm(1))**Nxyz(1)
                cy=1d0
-               if(Nxyz(2).ne.0)
-     &         cy = (dbl_mb(k_efcc+3*(icomp-1)+1)-cm(2))**Nxyz(2)
                cz=1d0
+               if(Nxyz(1).ne.0)
+     &             cx = (dbl_mb(k_efcc+3*(icomp-1)  )-cm(1))**Nxyz(1)
+               if(Nxyz(2).ne.0)
+     &             cy = (dbl_mb(k_efcc+3*(icomp-1)+1)-cm(2))**Nxyz(2)
                if(Nxyz(3).ne.0)
-     &         cz = (dbl_mb(k_efcc+3*(icomp-1)+2)-cm(3))**Nxyz(3)
-               mptval(icomp,2) = mptval(icomp,2) + 
-     &                           dbl_mb(k_efcz+iat-1)*cx*cy*cz
-   70    continue
+     &             cz = (dbl_mb(k_efcc+3*(icomp-1)+2)-cm(3))**Nxyz(3)
+               mptval(icomp,2) = mptval(icomp,2)
+     &                         + dbl_mb(k_efcz+iat-1)*cx*cy*cz
+            enddo ! iat
+         enddo ! icomp
          if (.not.ma_chop_stack(l_efcc)) call
      &      errquit('hnd_mtpole: chop stack l_efcc',913,ma_err)
       endif
@@ -605,7 +607,7 @@ c     Only node 0 writing to rtdb
 c
       status = rtdb_parallel(.false.)
 c
-      if (ga_nodeid().gt.0) goto 1000     
+      if (ga_nodeid().gt.0) goto 1000
 c
 c     Allocate some local memory
 c
@@ -616,35 +618,36 @@ c
       if (.not. ma_push_get(mt_dbl,nat,'zan pnt',l_zanpt,k_zanpt))
      &    call errquit('hnd_mtpole2: ma failed',911,MA_ERR)
 c
-      do 30 iat=1,nat
+      do iat=1,nat
          if (.not.geom_cent_get(geom,iat,at_tag,
      &       dbl_mb(k_xyzpt+3*(iat-1)),dbl_mb(k_zanpt+iat-1))) call
      &       errquit('hnd_mtpole2: geom_cent_get failed',911,GEOM_ERR)
-   30 continue
+      enddo ! iat
 c
-c     For quadrupole case, need electronic contribution for 
+c     For quadrupole case, need electronic contribution for
 c     diamagnetic susceptibility
 c
       if (mpole.eq.2) rsquar=mtpval(1,1)+mtpval(4,1)+mtpval(6,1)
 c
-c     Nuclear contribution 
+c     Nuclear contribution
 c
-      do 60 icomp = 1, ncomp
-      mtpval(icomp,1) = -mtpval(icomp,1)
-      call getNxyz(mpole,icomp,Nxyz)
-      do 60 iat = 1, nat
-         cx = 1d0
-         if(Nxyz(1).ne.0)
-     &   cx = (dbl_mb(k_xyzpt  +3*(iat-1))-cm(1))**Nxyz(1)
-         cy = 1d0
-         if(Nxyz(2).ne.0)
-     &   cy = (dbl_mb(k_xyzpt+1+3*(iat-1))-cm(2))**Nxyz(2)
-         cz = 1d0
-         if(Nxyz(3).ne.0)
-     &   cz = (dbl_mb(k_xyzpt+2+3*(iat-1))-cm(3))**Nxyz(3)
-         mtpval(icomp,1) = mtpval(icomp,1) + 
-     &                     dbl_mb(k_zanpt+iat-1) * cx * cy * cz
-   60 continue
+      do icomp = 1, ncomp
+        mtpval(icomp,1) = -mtpval(icomp,1)
+        call getNxyz(mpole,icomp,Nxyz)
+        do iat = 1, nat
+           cx = 1d0
+           if(Nxyz(1).ne.0)
+     &     cx = (dbl_mb(k_xyzpt  +3*(iat-1))-cm(1))**Nxyz(1)
+           cy = 1d0
+           if(Nxyz(2).ne.0)
+     &     cy = (dbl_mb(k_xyzpt+1+3*(iat-1))-cm(2))**Nxyz(2)
+           cz = 1d0
+           if(Nxyz(3).ne.0)
+     &     cz = (dbl_mb(k_xyzpt+2+3*(iat-1))-cm(3))**Nxyz(3)
+           mtpval(icomp,1) = mtpval(icomp,1) +
+     &                       dbl_mb(k_zanpt+iat-1) * cx * cy * cz
+        enddo ! iat
+      enddo ! icomp
 c
 c     Print output for
 c     mpole = 1 : Dipole
