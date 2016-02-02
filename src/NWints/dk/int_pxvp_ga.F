@@ -51,7 +51,7 @@ c
 c     grab basis set info type stuff
 c
       if(.not.bas_numcont(ibas,nshell_i))call errquit
-     $  ('int_dip_ga: bas_numcont failed for ibas',ibas, BASIS_ERR)
+     $  ('int_pxvp_ga: bas_numcont failed for ibas',ibas, BASIS_ERR)
 c
 c      Allocate temporary arrays
 c
