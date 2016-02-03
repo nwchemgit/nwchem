@@ -575,6 +575,7 @@ c
       do ndns = 1, ndens
         ahi(2) = nocc(ndns)
         ahi(3) = nvirt(ndns)
+        blo(1) = bhi(1)+ 1
         bhi(1) = bhi(1) + nocc(ndns)*nvirt(ndns)
         do ind = 1, nc
           alo(1) = index1
@@ -585,7 +586,6 @@ c
      $      g_sol,blo,bhi)   ! put into format for current cphf
           index1 = index1 + 1
         enddo
-        blo(1) = bhi(1)
       enddo
       if (.not.ga_destroy(g_wax)) call errquit
      $  ('cannot destroy g_wax ',555, GA_ERR)
