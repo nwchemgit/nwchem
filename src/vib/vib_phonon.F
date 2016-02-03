@@ -498,7 +498,15 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
       write(luout,10019) nmax
       write(luout,*)
       write(luout,*)
-      call util_ascii_setwindow(emin,emax,gmin,gmax)
+
+      !**** scale efn ****
+      do k=1,npoints
+         efn(k,1) = efn(k,1)*autocm
+         efn(k,2) = efn(k,2)/autocm
+      end do
+
+      call util_ascii_setwindow(emin*autocm,emax*autocm,
+     >                          gmin/autocm,gmax/autocm)
       !write(luout,'(A,E10.3,A)') "gmax=",gmax/autocm," states/cm-1"
       call util_ascii_plotter(luout,npoints,efn(1,1),efn(1,2),'*',
      >                     "g(w) - Vibrational Density of States",
@@ -508,7 +516,7 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
       !write(luout,900)emin*autocm,0.5d0*(emax+emin)*autocm,emax*autocm
       write(luout,*)
       write(luout,*)
-      call util_ascii_setwindow(emin,emax,nmin,nmax)
+      call util_ascii_setwindow(emin*autocm,emax*autocm,nmin,nmax)
       !write(luout,'(A,F7.1,A)') "Nmax=",nmax," states"
       call util_ascii_plotter(luout,npoints,efn(1,1),efn(1,3),'*',
      >                     "N(w) - Number of Vibrational States",
@@ -520,6 +528,11 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
 c  900 format('wmin=',f6.1,'cm-1',18x,f6.1,'cm-1',
 c     >                           17x,'wmax=',f6.1,'cm-1')
 
+      !**** unscale efn ****
+      do k=1,npoints
+         efn(k,1) = efn(k,1)/autocm
+         efn(k,2) = efn(k,2)*autocm
+      end do
 
 *     ************************************************************
 *     *************** get the other input from rtdb       ********
