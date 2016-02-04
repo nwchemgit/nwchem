@@ -1386,10 +1386,11 @@ c
 c ... jochen: disable this error exit during debuging phase
 c     but print a warning instead
 
+#if 1
 c     error exit if this hasn't converged :-(
-c     if (.not. converged) call errquit('lkain_2cpl: not converged',0,
-c     &    CALC_ERR)
-
+      if (.not. converged) call errquit('lkain_2cpl: not converged',0,
+     &    CALC_ERR)
+#else
       if (.not. converged) then
         if (ga_nodeid().eq.0) then
           write (luout,*) 'WARNING: CPKS procedure is NOT converged'
@@ -1397,5 +1398,6 @@ c     &    CALC_ERR)
      &                       'carefully!!!'
         endif
       endif
+#endif
 c     
       end
