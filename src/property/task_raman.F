@@ -182,7 +182,7 @@ c ----------Load parameters from rtdb or assign defaults-----------------------
       end if
 c
 c     force lifetime/damping when plot=resonance
-c     default damping value 0.04 (if not assigned)
+c     default damping value 0.004 (if not assigned)
 c
       if (plot.eq.'resonance') then
          if (.not.rtdb_put(rtdb, 'aoresponse:damping', mt_int, 1,0)) 
@@ -191,7 +191,7 @@ c
          lgarbage=rtdb_get(rtdb, 'aoresponse:gamwidth',mt_dbl, 1,
      G        gamwidth)
         if(abs(gamwidth).lt.1d-6) then
-           gamwidth=0.04d0
+           gamwidth=0.004d0
            if(ga_nodeid().eq.0) write(6,1964) gamwidth
  1964 format(' Resonance Raman: Using a nonzero Damping value of',f10.4)
            if (.not.rtdb_put(rtdb, 'aoresponse:gamwidth',
