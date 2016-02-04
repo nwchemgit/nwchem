@@ -7425,6 +7425,7 @@ C?    WRITE(6,*) ' FIND_ACTIVE... ', NBLOCK
         LEN = IBLOCK(8,IBLK)
 C?      WRITE(6,*) 'ACT  IBLK, LEN = ', IBLK,LEN,IOFF
         BLK_A(IBLK) = 0.0D0
+        XBLK = 0.0d0
         if ((ioff.ge.ilo).and.(ioff.le.ihi)) then
          XBLK = INPROD(dbl_mb(ivec+ioff-1),dbl_mb(ivec+ioff-1),LEN)
 cVOG    XBLK = ga_ddot_patch(VEC,'N',IOFF,IOFF+LEN-1,1,1,
@@ -7436,7 +7437,7 @@ CNW     XBLK = INPROD(VEC(IOFF),VEC(IOFF),LEN)
       END DO
 *
       call ga_release(VEC,ilo,ihi,1,1)
-cVOG  call ga_sync()
+      call ga_sync()
       call ga_dgop(1,BLK_A,NBLOCK,'+')
 *
       NTEST = 00
