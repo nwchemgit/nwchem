@@ -7418,18 +7418,26 @@ CNW   DIMENSION VEC(*), IBLOCK(8,NBLOCK)
       DIMENSION BLK_A(NBLOCK)
 *
       call ga_distribution(VEC,ga_nodeid(),ilo,ihi,idum,idum)
+      call ga_access(VEC, ilo, ihi, 1, 1, ivec, idum)
 C?    WRITE(6,*) ' FIND_ACTIVE... ', NBLOCK
       IOFF = 1
       DO IBLK = 1, NBLOCK
         LEN = IBLOCK(8,IBLK)
 C?      WRITE(6,*) 'ACT  IBLK, LEN = ', IBLK,LEN,IOFF
         BLK_A(IBLK) = 0.0D0
-        XBLK = ga_ddot_patch(VEC,'N',IOFF,IOFF+LEN-1,1,1,
-     &                       VEC,'N',IOFF,IOFF+LEN-1,1,1)
-        IF(XBLK.NE.0.0D0) BLK_A(IBLK) = 1.0D0
+        if ((ioff.ge.ilo).and.(ioff.le.ihi)) then
+         XBLK = INPROD(dbl_mb(ivec+ioff-1),dbl_mb(ivec+ioff-1),LEN)
+cVOG    XBLK = ga_ddot_patch(VEC,'N',IOFF,IOFF+LEN-1,1,1,
+cVOG &                       VEC,'N',IOFF,IOFF+LEN-1,1,1)
+         IF(XBLK.NE.0.0D0) BLK_A(IBLK) = 1.0D0
+        end if
 CNW     XBLK = INPROD(VEC(IOFF),VEC(IOFF),LEN)
         IOFF = IOFF + LEN
       END DO
+*
+      call ga_release(VEC,ilo,ihi,1,1)
+cVOG  call ga_sync()
+      call ga_dgop(1,BLK_A,NBLOCK,'+')
 *
       NTEST = 00
       IF(NTEST.GE.100) THEN
