@@ -135,6 +135,8 @@ c        --- determine first normal mode to use ---
 c        --- not setting default here, it will be set later after
 c            frequency calculation has been done so we know if we have
 c            a linear molecule or not
+         if (.not. rtdb_put(rtdb,'raman:first',mt_int,1,first))
+     $     call errquit(pname//'rtdb put failed',0, RTDB_ERR)
       else if(inp_compare(.false.,'last',test)) then
          if(.not. inp_i(last)) ! FA-06-16-12 bug-fixed (BEF: first AFT: last)
      $     call errquit(pname//'missing value for last',911, INPUT_ERR)
