@@ -1426,7 +1426,7 @@ c
      $   ga_nodeid().eq.0
 c     
       if (.not. rtdb_get(rtdb, 'cphf:acc',    mt_dbl, 1,
-     &                            acc)) acc = 0.01d0*tol
+     &                            acc)) acc = 0.0001d0*tol
 c ------- create (zre,zim) ---------- START
 
 c ++++++ added for solve_zlineq_KAIN1 +++ START
@@ -2665,7 +2665,7 @@ c
      $   ga_nodeid().eq.0
 c     
       if (.not. rtdb_get(rtdb, 'cphf:acc',    mt_dbl, 1,
-     &                            acc)) acc = 0.01d0*tol
+     &                            acc)) acc = 0.0001d0*tol
 c ------- create (zre,zim) ---------- START
       if (.not. ga_create(MT_DCPL,n1,nvec, 'lkain_2cpl: Az', 
      $   0, 0, g_Az))
