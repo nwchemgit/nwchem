@@ -134,6 +134,7 @@ c ... jochen:
       nfreq             = 0
       cphf3write        = 0 ! FA
       checkorth         = 0 ! FA
+      gamwidth          = 0d0
 c     
 c     read inputs; store in rtdb
 c     

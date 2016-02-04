@@ -359,7 +359,7 @@ c      Double precision freq(rmmodes) ! [input] number of excitation frequencies
       parameter (amu = (one/avogadro)*1.0D-03 ) ! atomic mass unit 
       parameter (au2nm =45.563353D+00)  ! converion factor from au to nm
       parameter (nm2icm = 1.0D+07) !converion factor from nm to 1/cm
-      parameter (temp = 3.0D+02) ! tempature (k)
+      parameter (temp = 3.0D+02) ! temperature (k)
       parameter (scale = 1.0D+34)
       parameter (exparg  = (planck*speed*100.0D+00)/boltz )
       parameter (conver  = ( (two*planck*pi*pi)/speed*1.0D-40)/amu ) ! conver = 2*planck_h*pi^2/c * 10^40/atomic_mass_unit               
@@ -472,7 +472,8 @@ c xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx check-end
          dfrq   = ((frqmax-frqmin)) / (numpts-1) !energy steps determined by numpts
 c
 c ------calculate lineshape factors for the plot-----------------------
-
+         bfac=0d0
+         afac=0d0
       if (line == 'lorentzian') then
          afac = width/(two*pi)
          bfac = width/two
@@ -493,6 +494,7 @@ c ----------- make the plot---------------------------------------
          frq = frqmin + i*dfrq
          do j1=1,nrmodelist  ! loop over number of selected raman active modes
            j=rmodelist(j1)
+           factor=0d0
             if (line == 'lorentzian') then  
              factor = scale*afac/((frq-rminfo(j,1))**2 + bfac**2)
             else if (line == 'gaussian') then  

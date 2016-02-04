@@ -56,10 +56,13 @@ c --> Experimental (not published yet)
       double precision cpu, wall
       double precision step_size ! multiplictive factor for step along normal mode
       double precision laser(1)
+      double precision gamwidth
+c      logical lifetime
 
       integer j,pos,first0 ! FA-06-15-12
       logical preraman     ! FA-06-18-12
       logical linear
+      logical lgarbage
 
       character*32 pname
 
@@ -177,6 +180,26 @@ c ----------Load parameters from rtdb or assign defaults-----------------------
       else
         first0=7 ! constant
       end if
+c
+c     force lifetime/damping when plot=resonance
+c     default damping value 0.04 (if not assigned)
+c
+      if (plot.eq.'resonance') then
+         if (.not.rtdb_put(rtdb, 'aoresponse:damping', mt_int, 1,0)) 
+     &        call errquit('aor_driver: damping failed ',0, RTDB_ERR)
+         gamwidth=0d0
+         lgarbage=rtdb_get(rtdb, 'aoresponse:gamwidth',mt_dbl, 1,
+     G        gamwidth)
+        if(abs(gamwidth).lt.1d-6) then
+           gamwidth=0.04d0
+           if(ga_nodeid().eq.0) write(6,1964) gamwidth
+ 1964 format(' Resonance Raman: Using a nonzero Damping value of',f10.4)
+           if (.not.rtdb_put(rtdb, 'aoresponse:gamwidth',
+     &          mt_dbl, 1,gamwidth)) 
+     &          call errquit('aor_driver: gamwidth failed ',0, RTDB_ERR)
+        endif
+      endif
+
 c ======== FA-debug =============== START
 c      if (ga_nodeid().eq.0) then
 c       write(*,2) plot,line,width,step_size,steps
@@ -424,7 +447,7 @@ c --> Experimental (not published yet)
       double precision low, high        ! wavenumber bounds for normal modes allowed in raman calc
       character*32 pname
 c --------- FA vars ---------- START
-      character*(*) lbl_raman
+      character*5 lbl_raman
       parameter(lbl_raman='raman')
       character*255 lbl_raman1
       integer nmodes_missing,
@@ -676,9 +699,9 @@ c --> Experimental (not published yet)
      &                 alfaim(3,3)
       character*32 pname
 c --------- FA vars ---------- START
-      character*(*) lbl_ramanpol
       character*255 lbl_ramanpol1
       character*255 ramanpolfile
+      character*8 lbl_ramanpol
       parameter(lbl_ramanpol='ramanpol') 
       character*255 fname_raman
       integer modecc
@@ -858,7 +881,7 @@ c --> Experimental (not published yet)
       double precision master(3,nat)     ! saved initial coordinates
       double precision coord(3,nat)      ! displaced coordinate passed to raman_modestep
       character*32 pname
-      character*255 lbl_raman
+      character*(*) lbl_raman
       character*255 lbl_raman1
 c --------- FA vars ---------- START
       character*255 fname_raman
@@ -993,7 +1016,7 @@ c --> Experimental (not published yet)
       double precision master(3,nat)     ! saved initial coordinates
       double precision coord(3,nat)      ! displaced coordinate passed to raman_modestep
       character*32 pname
-      character*255 lbl_raman
+      character*(*) lbl_raman
       character*255 lbl_raman1
 c --------- FA vars ---------- START
       character*255 fname_raman
@@ -1133,7 +1156,7 @@ c --> Experimental (not published yet)
       double precision master(3,nat)     ! saved initial coordinates
       double precision coord(3,nat)      ! displaced coordinate passed to raman_modestep
       character*32 pname
-      character*255 lbl_raman
+      character*(*) lbl_raman
       character*255 lbl_raman1
 c --------- FA vars ---------- START
       character*255 fname_raman
