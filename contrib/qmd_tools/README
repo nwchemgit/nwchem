@@ -11,4 +11,5 @@ the first frame and a new trajectory will be output containing the aligned frame
 Running the code without supplying any command line options or with option -help
 will cause it to output a message giving all possible options.
 
-See NWChem documentation for examples.
+See NWChem documentation for examples. The trajectory file SiCl4.xyz can be used to
+generate the spectra shown in the online documentation.
