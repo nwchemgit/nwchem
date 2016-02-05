@@ -35,7 +35,7 @@ integer :: nat
 !Number of data points
 integer :: nsteps
 !Offset: Data points in input file >= nsteps+skip
-integer :: skip
+integer :: skip, step_fac
 integer :: cstep, cstep_prev, cla, ioerror
 integer,dimension(:,:),allocatable :: atgrp
 logical :: step_flag, ts_flag, xyz_flag
@@ -205,7 +205,7 @@ allocate(atmass(nat))
 mask=.true.
 atgrp=0
 !Find out if comment line is as expected
-read(9,*,iostat=ioerror) cstep, energy, scrdip
+read(9,*,iostat=ioerror) cstep_prev, energy, scrdip
 if (ioerror.ne.0) then
  write(*,*) 'Error reading comment line'
  write(*,*) 'Expecting step number, energy, dipole'
@@ -238,6 +238,9 @@ do i=1,nat
   ig=ig+1
  end if
 end do
+read(9,*)
+read(9,*,iostat=ioerror) cstep
+step_fac=cstep-cstep_prev
 write(*,*) 'Found ',ig-1,' unique elements in trajectory file'
 !Rewind xyz file
 rewind(9)
@@ -277,11 +280,12 @@ do
    stop
   end if
   read(9,*) cstep, energy, scrdip
+  cstep=cstep/step_fac
   if (cstep.lt.cstep_prev) then
    cstep=cstep_prev
    backspace(9);backspace(9)
    exit
-  else if (cstep.gt.skip .and. cstep.le.nsteps+skip) then
+  else if (cstep.gt.skip .and. cstep.le.(nsteps+skip-1)) then
    dip(:,cstep-skip)=scrdip
    do i=1,nat
     read(9,*) elem, coord(:,i), vel(:,i,cstep-skip)
@@ -302,7 +306,7 @@ do
   end if
   cstep_prev=cstep
  end do
- if (cstep.lt.nsteps+skip) then
+ if (cstep.lt.(nsteps+skip-1)) then
   write(*,*) 'End of file before reading requested number of steps'
   write(*,*) 'Make sure steps+skip is less than or equal to number of steps in trajectory'
   write(*,*) 'Aborting calculation'
