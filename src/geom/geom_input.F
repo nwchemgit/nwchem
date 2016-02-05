@@ -775,7 +775,7 @@ C     $Id$
       double precision m(nmax)
       character*16 aformat
       character*255 message
-      character*255 fname
+      character*255 fname,fname_dir
       character*30 pname 
       character*255 field       ! for character input
       integer stride
@@ -881,8 +881,10 @@ c
         aformat=fname(i+1:)
       end if
       n0=n
+      call util_file_name_noprefix(fname,.false.,.false.,
+     F        fname_dir)
       if(aformat.eq."xyz") then
-        call geom_read_file_xyz(fname,
+        call geom_read_file_xyz(fname_dir,
      +                              iframe, 
      +                              ns, 
      +                              asel, 
@@ -892,7 +894,7 @@ c
      +                              tags,
      +                               c)
       else if (aformat.eq."pdb") then
-        call geom_read_file_pdb(fname,
+        call geom_read_file_pdb(fname_dir,
      +                              iframe, 
      +                              ns, 
      +                              asel, 
