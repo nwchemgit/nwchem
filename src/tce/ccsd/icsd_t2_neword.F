@@ -153,7 +153,7 @@ c     check that everybody has been invalidated
       do i=1,tot_task
          if(kaux(5,i).ge.0) then
             write(6,*) ' kaux element ',i,
-     R           'not sorted. val = ',kaux(7,i)
+     R           'not sorted. val = ',kaux(5,i)
             call errquit('neworder error ',0,0)
             endif
       enddo
