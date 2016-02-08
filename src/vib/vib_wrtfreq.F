@@ -30,8 +30,8 @@ c
       double precision ezero,ethermal,hthermal,temp,thetav
       double precision inertia_A,inertia_B,inertia_C,thetaA,thetaB,
      ,     thetaC,M
-      double precision Strans,Srot,Svib,scalefreq
-      double precision Cv_trans,Cv_rot,Cv_vib
+      double precision Stotal,Strans,Srot,Svib,scalefreq
+      double precision Cv_total,Cv_trans,Cv_rot,Cv_vib
       integer sigma
       integer i,it,ntemp,h_actlist,l_actlist,ma_type
       logical linear
@@ -278,7 +278,19 @@ c  fix to take avoid abnormal values
         Svib   = Svib*Rgas
 
 
-        write(6,10030) (Strans+Srot+Svib)*AUKCAL*1000.0d0
+        Stotal = (Strans+Srot+Svib)*AUKCAL*1000.0d0
+        Cv_total = (Cv_trans+Cv_rot+Cv_vib)*AUKCAL*1000.0d0
+        
+        if(.not. rtdb_put(rtdb,'vib:entropy',MT_DBL,1,Stotal))
+     &       call errquit('vib_wrtfreq:rtdb_put of entropy failed',
+     &       555, RTDB_ERR)
+
+        if(.not. rtdb_put(rtdb,'vib:Cv',MT_DBL,1,Cv_total))
+     &       call errquit('vib_wrtfreq:rtdb_put of Cv failed',
+     &       555, RTDB_ERR)
+        
+        write(6,10030) Stotal
+*        write(6,10030) (Strans+Srot+Svib)*AUKCAL*1000.0d0
         write(6,10031) Strans*AUKCAL*1000.0d0,M
         write(6,10032) Srot*AUKCAL*1000.0d0,sigma
         write(6,10033) Svib*AUKCAL*1000.0d0
@@ -291,7 +303,8 @@ c  fix to take avoid abnormal values
 10033   FORMAT( 1X,'  - Vibrational                  = ',f8.3,
      .       ' cal/mol-K')
 
-        write(6,10040) (Cv_trans+Cv_rot+Cv_vib)*AUKCAL*1000.0d0
+        write(6,10030) Cv_total
+*        write(6,10040) (Cv_trans+Cv_rot+Cv_vib)*AUKCAL*1000.0d0
         write(6,10041) Cv_trans*AUKCAL*1000.0d0
         write(6,10042) Cv_rot*AUKCAL*1000.0d0
         write(6,10043) Cv_vib*AUKCAL*1000.0d0
