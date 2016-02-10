@@ -423,18 +423,18 @@ c doesn't depend on having 3-dimensional GAs.
          do isp=1,ipol
             call util_ga_mat_reduce(nbf_ao, nctrs, int_mb(icetobfr), 
      A           g_dens(1+(isp-1)*(nmat+1)),  1, 
-     A           dbl_mb(irdens_atom+(isp-1)*nctrs*nctrs), 'rms', 
+     A           dbl_mb(irdens_atom+(isp-1)*nctrs*nctrs), 'absmax', 
      &           dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
             do ii=2,(nmat+1)
                call util_ga_mat_reduce(nbf_ao,nctrs,int_mb(icetobfr), 
      A              g_dens(ii+(isp-1)*(nmat+1)),  1, 
-     A              dbl_mb(irdens_atom+(isp-1)*nctrs*nctrs), 'rms', 
+     A              dbl_mb(irdens_atom+(isp-1)*nctrs*nctrs), 'absmax', 
      &              dbl_mb(iscr), nbf_ao_mxnbf_ce,.false.)
             enddo
          enddo
       else
       call util_ga_mat_reduce(nbf_ao, nctrs, int_mb(icetobfr), g_dens, 
-     &                        ipol, dbl_mb(irdens_atom), 'rms', 
+     &                        ipol, dbl_mb(irdens_atom), 'absmax', 
      &                        dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
       endif
 c

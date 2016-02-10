@@ -1289,7 +1289,7 @@ c
       if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &   call errquit('dft_scf: cannot allocate scr',0, MA_ERR)
       call util_ga_mat_reduce(nbf_ao, natoms, int_mb(icetobfr), g_dens, 
-     &                        ipol, dbl_mb(irdens_atom), 'rms', 
+     &                        ipol, dbl_mb(irdens_atom), 'absmax', 
      &                        dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
 c      write(*,'("irdens",5f10.7)')
 c     &     (dbl_mb(irdens_atom+i),i=0,ipol*natoms*natoms-1)
@@ -1331,7 +1331,7 @@ c
      &     call errquit('dft_scf: cannot allocate scr',0, MA_ERR)
       call util_ga_mat_reduce(nbf_ao, natoms, int_mb(icetobfr), 
      &     g_dens, ipol, dbl_mb(irdens_atom), 
-     &     'rms', dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
+     &     'absmax', dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
       if (.not.ma_pop_stack(lscr))
      &  call errquit('dft_scf: cannot pop stacklscr:',0, MA_ERR)
 c     

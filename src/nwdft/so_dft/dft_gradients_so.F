@@ -330,7 +330,7 @@ c
      $     call errquit('dft_scf: cannot allocate scr',0, MA_ERR)
       call util_ga_mat_reduce(nbf_ao, nat, int_mb(icetobfr), 
      $     iga_dens, ipol, dbl_mb(irdens_atom), 
-     $     'rms', dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
+     $     'absmax', dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
       if (.not.ma_pop_stack(lscr))
      $     call errquit('dft_scf: cannot pop stack',0, MA_ERR)
 c     

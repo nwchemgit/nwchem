@@ -309,8 +309,8 @@ c
       if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &   call errquit('dft_scf: cannot allocate scr',0, MA_ERR)
       call util_ga_mat_reduce(nbf_ao, natoms, cetobfr, g_dens, 
-     &                        ipol, rdens_atom, 'rms', 
-     &                        dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
+     &                     ipol, rdens_atom, 'absmax', 
+     &                     dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
       if (.not.ma_pop_stack(lscr))
      &   call errquit('dft_scf: cannot pop stack',0, MA_ERR)
 c
@@ -374,8 +374,8 @@ c
          if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &      call errquit('dft_scf: cannot allocate scr',0, MA_ERR)
          call util_ga_mat_reduce(nbf_ao, natoms, cetobfr, 
-     &                           g_dens, ipol, rdens_atom, 
-     &                           'rms', dbl_mb(iscr), nbf_ao_mxnbf_ce,
+     &                       g_dens, ipol, rdens_atom, 
+     &                       'absmax', dbl_mb(iscr), nbf_ao_mxnbf_ce,
      A        .true.)
          if (.not.ma_pop_stack(lscr))
      &      call errquit('dft_scf: cannot pop stack',0, MA_ERR)

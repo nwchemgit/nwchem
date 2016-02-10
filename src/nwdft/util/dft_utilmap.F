@@ -66,7 +66,9 @@ c
       external util_matops
       integer ityp, ndim, dims(3)
       integer lo(3),hi(3),ld(2),ld12,offs
-      logical l3d
+      integer distr_lo(3),distr_hi(3)
+      integer get_lo(3),get_hi(3)
+      logical l3d,getdone
 c     
       call nga_inquire(g_a, ityp, ndim, dims)
       l3d=.false.
@@ -84,6 +86,9 @@ c
       itask=0
       if(lfirst)
      A     call dfill(n_a*nr*nr, 0.0d0, r, 1)
+      call nga_distribution(g_a,
+     .           ga_nodeid(), distr_lo, distr_hi)
+      if (distr_lo(1).gt.0 .and. distr_lo(1).le.distr_hi(1)) then
 
       do k = 1, n_a
 c
@@ -93,47 +98,70 @@ c
          do jr = 1, nr
 cedo            do ir = 1, nr
             do ir = 1, jr
-               itask=itask+1
-               if(mod(itask,nproc).eq.me) then
+c               itask=itask+1
+c               if(mod(itask,nproc).eq.me) then
                   ielems = map(2,ir) - map(1,ir) + 1
                   jelems = map(2,jr) - map(1,jr) + 1
                   if (ielems.gt.0 .and. jelems.gt.0) then
+                     getdone=.false.
                      if(l3d) then
                         ielems=ielems*offs
                         lo(1)=1+(k-1)*offs
                         hi(1)=lo(1)+offs-1
+#if 0
                         lo(2)=map(1,ir)
                         hi(2)=map(2,ir)
                         lo(3)=map(1,jr)
                         hi(3)=map(2,jr)
+#else
+                        lo(2)=max(map(1,ir),distr_lo(1))
+                        hi(2)=min(map(2,ir),distr_hi(1))
+                        lo(3)=max(map(1,jr),distr_lo(2))
+                        hi(3)=min(map(2,jr),distr_hi(2))
+#endif
                         ld(1)=offs
                         ld(2)=mxmap
-                        call nga_get(g_a, lo,hi,
+                        getdone=(get_lo(2).le.get_hi(2)).and.
+     A                       (get_lo(3).le.get_hi(3))
+                        if(getdone)
+     G                   call nga_get(g_a, lo,hi,
      .                       scr, ld)
                         ld12=ld(1)*ld(2)
                      else
-                        call ga_get(g_a(k), map(1,ir), map(2,ir), 
-     .                       map(1,jr), map(2,jr), scr, mxmap)
+c                        call ga_get(g_a(k), map(1,ir), map(2,ir), 
+c     .                       map(1,jr), map(2,jr), scr, mxmap)
+                        get_lo(1)=max(map(1,ir),distr_lo(1))
+                        get_hi(1)=min(map(2,ir),distr_hi(1))
+                        get_lo(2)=max(map(1,jr),distr_lo(2))
+                        get_hi(2)=min(map(2,jr),distr_hi(2))
+                        getdone=(get_lo(1).le.get_hi(1)).and.
+     A                       (get_lo(2).le.get_hi(2))
+                        if(getdone)
+     G                  call ga_get(g_a(k), get_lo(1), get_hi(1), 
+     .                       get_lo(2), get_hi(2), scr, mxmap)
                         ld12=mxmap
                      endif
+                     if(getdone) then
                      sum=util_matops(op,ielems,jelems,scr,ld12)
                      r(ir,jr,k) = max(r(ir,jr,k),sum)
 c     
 c     copy upper triangle of r(ij) to upper triangle
 c     
                      if(ir.ne.jr) r(jr,ir,k)=r(ir,jr,k)
+                     endif
                   endif
-               endif
+cc               endif
             end do
          end do
 c         write(6,*) ' util_mat_reduce: reduced matrix '
 c         call output(r(1,1,k), 1, nr, 1, nr, nr, nr, 1)
       enddo
+      endif
 c
 c     global sum
 c
 c      write(6,*) ' length ',nr*nr*n_a
-      call ga_dgop(msg_gop_rdens,r,nr*nr*n_a, '+')
+      call ga_dgop(msg_gop_rdens,r,nr*nr*n_a, 'absmax')
 c     
       end
       double precision function util_matops(op,ielems,jelems,scr,ld)
