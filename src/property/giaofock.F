@@ -812,7 +812,7 @@ c     turned off for now: needs to be debugged
             g_fock0=g_fock
             g_fock=g_fockrep
          else
-            if(dorepd) call util_mirrstop(1,g_dens)
+            if(dorepd) call util_mirrstop(g_dens)
          endif
       endif
 c     
@@ -913,10 +913,10 @@ c     call int_acc_std()
       next = nxtask(-nproc,task_size)
       call ga_sync()
       if(dorepl) then
-         call util_mirrstop(1,g_densrep)
+         call util_mirrstop(g_densrep)
          g_dens=g_dens0
          call util_mirrmerge(g_fockrep,g_fock0)
-         call util_mirrstop(1,g_fockrep)
+         call util_mirrstop(g_fockrep)
          g_fock=g_fock0
       endif
 c     

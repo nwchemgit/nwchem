@@ -24,7 +24,7 @@ c     need to add sanity check on docopy vs dozero
          else
             if(i.gt.1) then
                do ii=1,i-1
-                  call util_mirrstop(1,g_amirr(ii))
+                  call util_mirrstop(g_amirr(ii))
                enddo
             endif
             return
@@ -71,16 +71,13 @@ c
 
       return
       end
-      subroutine util_mirrstop(ndens,g_densrep)
+      subroutine util_mirrstop(g_densrep)
       implicit none
 #include "global.fh"
-      integer ndens,g_densrep(*)
+      integer ndens,g_densrep
 c
-      integer i
-      do i=1,ndens
-         if(.not.ga_destroy(g_densrep(i))) call errquit
+         if(.not.ga_destroy(g_densrep)) call errquit
      Q        (' giarepdm destroy ',0,0)
-      enddo
       return
       end
       subroutine util_mirrmerge(g_densrep,g_dens)
@@ -101,8 +98,8 @@ c
       if(.not.ga_duplicate(g_dens, g_densdis, 'GA distr'))
      C     call errquit(' utilmirr: gaduplicate failed ',0,0)
       call util_mirrmerge(g_densrep,g_densdis)
-      call util_mirrstop(1,g_densrep)
+      call util_mirrstop(g_densrep)
       call ga_add(1d0,g_densdis,1d0,g_dens,g_dens)
-      call util_mirrstop(1,g_densdis)
+      call util_mirrstop(g_densdis)
       return
       end

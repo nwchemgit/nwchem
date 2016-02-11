@@ -400,7 +400,7 @@ c
             g_fock0=g_fock
             g_fock=g_fockrep
          else
-            if(dorepd) call util_mirrstop(1,g_densrep)
+            if(dorepd) call util_mirrstop(g_densrep)
             if(ga_nodeid().eq.0) then
                write(6,*) ' no mirroring in shellfockbld'
                call util_flush(6)
@@ -650,7 +650,7 @@ c
       next = nxtask(-nproc,task_size)
       call ga_sync()
       if(dorepl) then
-         call util_mirrstop(1,g_densrep)
+         call util_mirrstop(g_densrep)
          g_dens=g_dens0
          call util_mirrmrgadd(g_fockrep,g_fock0)
          g_fock=g_fock0
