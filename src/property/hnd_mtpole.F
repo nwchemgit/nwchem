@@ -744,3 +744,205 @@ c
  3001 format(/,10x,17(1h-),/,10x,'Quadrupole Moment',/,10x,17(1h-))
  9001 format(/,10x,15(1h-),/,10x,'Octupole Moment',/,10x,15(1h-))
       end
+
+      subroutine hnd_mtpole_nuclear(rtdb,geom,mpole,mtpval)
+c
+c $Id$
+c
+c     This routine calculates the multipole moments around
+c     choosen center of expansion
+c
+c     mpole = 1 : Dipole
+c     mpole = 2 : Quadrupole
+c     mpole = 3 : Octupole
+c
+      implicit none
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "nwc_const.fh"
+#include "stdio.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "cosmo.fh"
+c
+      integer rtdb    ! [input] rtdb handle
+      integer geom    ! [input] geometry handle
+      integer mpole   ! [input] order of multipole
+      integer max_pole, maxcomp
+      parameter (max_pole = 3, maxcomp = (max_pole+1)*(max_pole+2)/2)
+c
+      double precision cm(3), mtpval(maxcomp,3)
+      double precision cx, cy, cz
+      double precision dipol, dipefc, diptot, rsquar, dum1, dum2
+      logical status
+      integer Nxyz(3)
+      integer ncomp, nat, iat, icomp, i
+      integer l_xyzpt, k_xyzpt, l_zanpt, k_zanpt
+      integer nefc, l_efcc, k_efcc, l_efcz, k_efcz
+      integer g_dens(3),ndens,nclosed(2),nopen(2),nvirt(2)
+      character*3 scftyp
+      character*16 at_tag
+      if (ga_nodeid().eq.0.and.mpole.eq.1) write(luout,2001)
+      if (ga_nodeid().eq.0.and.mpole.eq.2) write(luout,3001)
+      if (ga_nodeid().eq.0.and.mpole.eq.3) write(luout,9001)
+c
+c     Determine number of components and zero mtpval
+c
+      ncomp = (mpole+1)*(mpole+2)/2
+c
+c     It would appear dcopy screws things up be zeroing the wrong area.
+c     This bothers me but I do not care now that it is fixed.
+c      call dcopy(2*maxcomp,0.0d0,0,mtpval,1)
+c
+      do icomp = 1, ncomp
+         mtpval(icomp,1) = 0.0d0
+         mtpval(icomp,2) = 0.0d0
+         mtpval(icomp,3) = 0.0d0
+      enddo
+c
+c     Get center of expansion
+c
+      call prp_cent(rtdb,geom,cm)
+c
+c     Only node 0 writing to rtdb
+c
+      status = rtdb_parallel(.false.)
+c
+      if (ga_nodeid().gt.0) goto 1000
+c
+c     Allocate some local memory
+c
+      if (.not.geom_ncent(geom,nat)) call
+     &   errquit('hnd_efgmap: geom_ncent failed',911,GEOM_ERR)
+      if (.not. ma_push_get(mt_dbl,3*nat,'xyz pnt',l_xyzpt,k_xyzpt))
+     &    call errquit('hnd_mtpole2: ma failed',911,MA_ERR)
+      if (.not. ma_push_get(mt_dbl,nat,'zan pnt',l_zanpt,k_zanpt))
+     &    call errquit('hnd_mtpole2: ma failed',911,MA_ERR)
+c
+      do iat=1,nat
+         if (.not.geom_cent_get(geom,iat,at_tag,
+     &       dbl_mb(k_xyzpt+3*(iat-1)),dbl_mb(k_zanpt+iat-1))) call
+     &       errquit('hnd_mtpole2: geom_cent_get failed',911,GEOM_ERR)
+      enddo ! iat
+c
+c     For quadrupole case, need electronic contribution for
+c     diamagnetic susceptibility
+c
+      if (mpole.eq.2) rsquar=mtpval(1,1)+mtpval(4,1)+mtpval(6,1)
+c
+c     Nuclear contribution
+c
+      do icomp = 1, ncomp
+        mtpval(icomp,1) = -mtpval(icomp,1)
+        call getNxyz(mpole,icomp,Nxyz)
+        do iat = 1, nat
+           cx = 1d0
+           if(Nxyz(1).ne.0)
+     &     cx = (dbl_mb(k_xyzpt  +3*(iat-1))-cm(1))**Nxyz(1)
+           cy = 1d0
+           if(Nxyz(2).ne.0)
+     &     cy = (dbl_mb(k_xyzpt+1+3*(iat-1))-cm(2))**Nxyz(2)
+           cz = 1d0
+           if(Nxyz(3).ne.0)
+     &     cz = (dbl_mb(k_xyzpt+2+3*(iat-1))-cm(3))**Nxyz(3)
+           mtpval(icomp,1) = mtpval(icomp,1) +
+     &                       dbl_mb(k_zanpt+iat-1) * cx * cy * cz
+        enddo ! iat
+      enddo ! icomp
+c
+c     Print output for
+c     mpole = 1 : Dipole
+c     mpole = 2 : Quadrupole
+c     mpole = 3 : Octupole
+c
+      goto (101,102,103) mpole
+c
+c     Dipole output
+c
+  101 continue
+c
+      do icomp = 1, ncomp
+         mtpval(icomp,1) = -1.0*mtpval(icomp,1) 
+      enddo
+c
+      goto 999 
+c
+c     Quadrupole output
+c
+c     Ordering in mtpval (from defNxyz):
+c     xx, xy, xz, yy, yz, zz
+c
+  102 continue
+c
+c     Quadrupole moments
+c
+      rsquar = mtpval(1,1)+mtpval(4,1)+mtpval(6,1)
+      mtpval(1,1)=(3.0d0*mtpval(1,1)-rsquar)/2.0d0
+      mtpval(4,1)=(3.0d0*mtpval(4,1)-rsquar)/2.0d0
+      mtpval(6,1)=(3.0d0*mtpval(6,1)-rsquar)/2.0d0
+      mtpval(2,1)= 3.0d0*mtpval(2,1)/2.0d0
+      mtpval(3,1)= 3.0d0*mtpval(3,1)/2.0d0
+      mtpval(5,1)= 3.0d0*mtpval(5,1)/2.0d0
+      rsquar = mtpval(1,2)+mtpval(4,2)+mtpval(6,2)
+      mtpval(1,2)=(3.0d0*mtpval(1,2)-rsquar)/2.0d0
+      mtpval(4,2)=(3.0d0*mtpval(4,2)-rsquar)/2.0d0
+      mtpval(6,2)=(3.0d0*mtpval(6,2)-rsquar)/2.0d0
+      mtpval(2,2)= 3.0d0*mtpval(2,2)/2.0d0
+      mtpval(3,2)= 3.0d0*mtpval(3,2)/2.0d0
+      mtpval(5,2)= 3.0d0*mtpval(5,2)/2.0d0
+c
+      goto 999 
+c
+c     Octupole output
+c
+c     Ordering in mtpval (from defNxyz):
+c     xxx, xxy, xxz, yyx, xyz, zzx, yyy, zzy, zzz
+c
+  103 continue
+c
+c     Octupole moments
+c
+      do i=1,2
+         dum1=mtpval(1,i)
+         dum2=mtpval(4,i)
+         mtpval(1,i)=mtpval(1,i)-3.0d0*(mtpval(4,i)+mtpval(6,i))/2.0d0
+         mtpval(4,i)=(4.0d0*mtpval(4,i)-dum1-mtpval(6,i))/2.0d0
+         mtpval(6,i)=(4.0d0*mtpval(6,1)-dum1-dum2)/2.0d0
+         dum1=mtpval(7,i)
+         dum2=mtpval(2,i)
+         mtpval(7,i)=mtpval(7,i)-3.0d0*(mtpval(2,i)+mtpval(9,i))/2.0d0
+         mtpval(2,i)=(4.0d0*mtpval(2,i)-dum1-mtpval(9,i))/2.0d0
+         mtpval(9,i)=(4.0d0*mtpval(9,i)-dum1-dum2)/2.0d0
+         dum1=mtpval(10,i)
+         dum2=mtpval(3,i)
+         mtpval(10,i)=mtpval(10,i)-3.0d0*(mtpval(3,i)+mtpval(8,i))/2.0d0
+         mtpval(3,i)=(4.0d0*mtpval(3,i)-dum1-mtpval(8,i))/2.0d0
+         mtpval(8,i)=(4.0d0*mtpval(8,i)-dum1-dum2)/2.0d0
+         mtpval(5,i)=5.0d0*mtpval(5,i)/2.0d0
+      enddo
+c
+c     ----- release MA memory blocks -----
+c
+  999 if (.not.ma_pop_stack(l_zanpt)) call errquit
+     &   ('hnd_mtpole2, ma_pop_stack of l_zanpt failed',911,MA_ERR)
+      if (.not.ma_pop_stack(l_xyzpt)) call errquit
+     &   ('hnd_mtpole2, ma_pop_stack of l_xyzpt failed',911,MA_ERR)
+c
+c     Synchronize all nodes (as only node 0 was writing)
+c     Reset rtdb access to parallel
+c
+ 1000 call ga_sync()
+      status = rtdb_parallel(.true.)
+c
+      do i = 1, ndens
+         if (.not.ga_destroy(g_dens(i))) call
+     &       errquit('mtpole: ga_destroy failed g_dens',0,GA_ERR)
+      enddo
+c
+      return
+c
+ 2001 format(/,10x,13(1h-),/,10x,'Dipole Moment',/,10x,13(1h-))
+ 3001 format(/,10x,17(1h-),/,10x,'Quadrupole Moment',/,10x,17(1h-))
+ 9001 format(/,10x,15(1h-),/,10x,'Octupole Moment',/,10x,15(1h-))
+      end
