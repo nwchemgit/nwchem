@@ -10323,9 +10323,12 @@ C
 C
           PLL = 1.0D0
 CNW       CALL GSTTBL(LV(IOFF_L_BLOCK),SB(IOFF),IATP,IASM,IBTP,IBSM,
-          CALL GSTTBL(LV,SCLFAC_L(IL),IOFF_L_BLOCK,SB(IOFF),IATP,IASM,
+          if (IOFF_L_BLOCK.GE.ilo.AND.
+     &        (IOFF_L_BLOCK+IBLOCKL(8,IL)-1).LE.ihi) then
+          CALL GSTTBL(LV,RNORM(IR),IOFF_L_BLOCK,SB(IOFF),IATP,IASM,
      &         IBTP,IBSM,ISOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSL,ISOOSC,
      &         IDC,PLL,LUL,C2,NSMST,ISCALE,SCLFAC_L(IL))
+          endif
         END DO
 *. Loop over batches  of R vector
         IF(ICISTR.GT.1) THEN
@@ -10400,7 +10403,9 @@ C?        INTERACT = 1
           END DO
 *.          ^ End of checking whether C-block is needed
           ISCALE = 1
-          IF(INTERACT.EQ.1) THEN
+          ISLOCAL = IOFF_L_BLOCK.GE.ilo.AND.
+     &              IOFF_L_BLOCK+IBLOCKL(8,IL)-1.LE.ihi
+          IF(INTERACT.EQ.1.AND.ISLOCAL) THEN
             ISCALE = 1
 C?          WRITE(6,*) ' LUR before GSTTBL', LUR
             PLR = 1.0D0
