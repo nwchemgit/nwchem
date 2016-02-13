@@ -141,7 +141,7 @@ c
      >    (l2.gt.nwpw_gaunt_lmax).or.
      >    (l3.gt.nwpw_gaunt_lmax).or.
      >    (iscmplx.neqv.nwpw_gaunt_iscmplx)) then
-        write(*,*) "calling gaunt_sub=",l1,m1,l2,m2,l3,m3
+        !write(*,*) "calling gaunt_sub=",l1,m1,l2,m2,l3,m3
         gg = nwpw_gaunt_sub(iscmplx,l1,m1,l2,m2,l3,m3)
       else
          i = l1**2 + (l1+m1)
