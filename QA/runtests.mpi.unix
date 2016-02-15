@@ -351,6 +351,7 @@ foreach TEST ($args_2_use)
   if ($runstatus) then
     echo "     NWChem execution failed"
     set overall_status = 1
+    tail -50 $TESTOUTPUTS/$OUTPUTFILE
     continue
   endif
 
