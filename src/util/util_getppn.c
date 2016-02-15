@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <mpi.h>
 #include "ga.h"
+#include "ga-mpi.h"
 #include "typesf2c.h"
 
 #if defined(__bgq__)
