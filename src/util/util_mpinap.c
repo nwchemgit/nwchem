@@ -17,7 +17,7 @@ void FATR util_mpinap_(Integer *factor)
 #ifdef MPI
   MPI_Comm_rank(MPI_COMM_WORLD,&myid);
 #else
-  myid=ga_nodeid_();
+  myid=GA_Nodeid();
 #endif
   sleeptime=(myid+1)/((long) *factor);
 #ifdef DEBUG
