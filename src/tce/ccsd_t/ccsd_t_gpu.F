@@ -86,7 +86,7 @@ ckbn In a large cluster it is better to get and broadcast
      1      call errquit('t1_local',1,MA_ERR)
         call ma_zero(dbl_mb(k_t1_local),size_t1)
 c    copy d_t1 ==> l_t1_local
-        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),size_t1)
 c -------------------------------
 c
 
