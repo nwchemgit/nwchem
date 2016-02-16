@@ -3378,7 +3378,7 @@ c
          do i=1, num
             init_vals(i) = 0
          enddo
-         call ga_put(ctx, 1, num, 1, 1, init_vals, 1)
+         call ga_put(ctx, 1, num, 1, 1, init_vals, num)
       endif
       call ga_sync()
       end

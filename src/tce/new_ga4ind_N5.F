@@ -301,7 +301,7 @@ c     (isigma1,irho1|inu1, imu1)
 c
 c fixing offsets and sf_writing
         call ga_put(d_4af,offset_4af+1,offset_4af+size_4a,1,1,
-     1    dbl_mb(k_4a),1)
+     1    dbl_mb(k_4a),size_4a)
 c closing l_4a file
         if (.not.ma_pop_stack(l_4a))
      1   call errquit('tcc_mo2e_4af2: l_4a',15,MA_ERR)
@@ -403,7 +403,7 @@ c
          call tce_hash(int_mb(k_4af_offset),key_aaaa,offset_aaaa)
 c k_aux3: (az4 az3| az1 az2) -> (az2 az3|az1 az4)
          call ga_get(d_4af,offset_aaaa+1,offset_aaaa+size_aux3,1,1,
-     1    dbl_mb(k_aux3),1)
+     1    dbl_mb(k_aux3),size_aux3)
 c transposition (az4 az3|az1 az2) --> (az2 az3|az1 az4)
         call TCE_SORT_4KG_(dbl_mb(k_aux3),dbl_mb(k_aux2+istart),
      1   nalength(azone4),nalength(azone3),
@@ -414,7 +414,7 @@ c transposition (az4 az3|az1 az2) --> (az2 az3|az1 az4)
      &          atpart*(azone2-1+atpart*(azone1-1)))
          call tce_hash(int_mb(k_4af_offset),key_aaaa,offset_aaaa)
          call ga_get(d_4af,offset_aaaa+1,offset_aaaa+size_aux3,1,1,
-     1    dbl_mb(k_aux3),1)
+     1    dbl_mb(k_aux3),size_aux3)
 c        k_aux3: (az3 az4|az1 az2) -> (az2 az3|az1 az4)
         call TCE_SORT_4KG_(dbl_mb(k_aux3),dbl_mb(k_aux2+istart),
      1   nalength(azone3),nalength(azone4),
@@ -447,7 +447,7 @@ c TRANSPOSITION
         if (.not.ma_pop_stack(l_aux3))
      1  call errquit('f4ind:QA1',15,MA_ERR)
        call ga_put(d_agaa,offset_agaa+1,offset_agaa+size_loc_agaa,1,1,
-     1  dbl_mb(k_loc_agaa),1)
+     1  dbl_mb(k_loc_agaa),size_loc_agaa)
 c
         if (.not.ma_pop_stack(l_aux2))
      1  call errquit('g4ind:QA1',15,MA_ERR)
@@ -529,7 +529,7 @@ c
      1  l_aux2,k_aux2))
      1  call errquit('step2:1m4uu',0,MA_ERR)
         call ga_get(d_agaa,offset_agaa+1,offset_agaa+size_loc_agaa,1,1,
-     1   dbl_mb(k_aux2),1)
+     1   dbl_mb(k_aux2),size_loc_agaa)
         call TCE_SORT_4KG_(dbl_mb(k_aux2),dbl_mb(k_aux+istart),
      1   nalength(azone3),int_mb(k_range_alpha+g3b-1),
      1   nalength(azone1),nalength(azone2),4,2,3,1,1.0d0)
@@ -572,7 +572,7 @@ c   delete k_aux
      1 call errquit('g4ind:MAu3',15,MA_ERR)
 c     
        call ga_put(d_ggaa,offset_ggaa+1,offset_ggaa+size_loc_ggaa,1,1,
-     1  dbl_mb(k_loc_ggaa),1)
+     1  dbl_mb(k_loc_ggaa),size_loc_ggaa)
        if (.not.ma_pop_stack(l_loc_ggaa))
      1 call errquit('g4ind:MA1',15,MA_ERR)
 cold      next = NXTASK(nprocs, 1)
@@ -660,7 +660,7 @@ c
      &   (noa+nva)*(azone2-1+atpart*(azone1-1)))
          call tce_hash(int_mb(k_offset_ggaa),key_ggaa,offset_ggaa)
          call ga_get(d_ggaa,offset_ggaa+1,offset_ggaa+size_loc_ggaa,1,1,
-     1   dbl_mb(k_aux2+istart),1)
+     1   dbl_mb(k_aux2+istart),size_loc_ggaa)
          istart=istart+size_loc_ggaa
 c k_aux accumulates (g4 g3 |az2 az1)
         else ! azone2 <= azone1
@@ -674,7 +674,7 @@ c open k_aux3
      1   l_aux3,k_aux3))
      1   call errquit('step3:3',0,MA_ERR)
          call ga_get(d_ggaa,offset_ggaa+1,offset_ggaa+size_loc_ggaa,1,1,
-     1   dbl_mb(k_aux3),1)
+     1   dbl_mb(k_aux3),size_loc_ggaa)
 c k_aux3: (g4 g3|az1 az2) => (g4 g3|az2 az1-all)
          CALL TCE_SORT_4KG_(dbl_mb(k_aux3),dbl_mb(k_aux2+istart),
      &   int_mb(k_range_alpha+g4b-1),int_mb(k_range_alpha+g3b-1),
@@ -709,7 +709,7 @@ C TRANSPOSITION HERE (g4=>g3|az2 g2) => (g4=>g3|g2 az2)
      & nalength(azone2),int_mb(k_range_alpha+g2b-1),
      & 1,2,4,3,1.0d0)
        call ga_put(d_ggga,offset_ggga+1,offset_ggga+size_loc_ggga,1,1,
-     1  dbl_mb(k_loc_ggga),1)
+     1  dbl_mb(k_loc_ggga),size_loc_ggga)
        if (.not.ma_pop_stack(l_aux))
      1  call errquit('g4ind:MA1',15,MA_ERR)
        if (.not.ma_pop_stack(l_aux2))
@@ -796,7 +796,7 @@ c k_aux2: (g4 g3| g2 all-az2)
      &  (noa+nva)*(g2b-1+(noa+nva)*(azone2-1)))
         call tce_hash_n(int_mb(k_offset_ggga),key_ggga,offset_ggga)
         call ga_get(d_ggga,offset_ggga+1,offset_ggga+size_loc_ggga,1,1,
-     1   dbl_mb(k_aux2+istart),1)
+     1   dbl_mb(k_aux2+istart),size_loc_ggga)
         istart=istart+size_loc_ggga
 c
        ENDDO !azone2
@@ -816,7 +816,7 @@ c
      8   int_mb(k_range_alpha+g2b-1))
 c
        call ga_put(d_v2,offset_gggg+1,offset_gggg+size_loc_gggg,1,1,
-     1  dbl_mb(k_loc_gggg),1)
+     1  dbl_mb(k_loc_gggg),size_loc_gggg)
 
        if (.not.ma_pop_stack(l_aux2))
      1 call errquit('g4ppq:MA1',15,MA_ERR)
