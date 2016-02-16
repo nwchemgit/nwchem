@@ -732,10 +732,10 @@ c outer loop over roots
 c
         do i=1,ipol
           if (nov(i).gt.0) then
-            call ga_get(g_x(i),1,nov(i),n,n,dbl_mb(k_x(i)),1)
+            call ga_get(g_x(i),1,nov(i),n,n,dbl_mb(k_x(i)),nov(i))
           endif
           if (.not.tda.and.nov(i).gt.0)
-     1    call ga_get(g_y(i),1,nov(i),n,n,dbl_mb(k_y(i)),1)
+     1    call ga_get(g_y(i),1,nov(i),n,n,dbl_mb(k_y(i)),nov(i))
 c
           call ga_zero(g_td(i))  ! zero out transition density matrices
           call ga_zero(g_tdtot(i)) ! zero out total transition density matrices

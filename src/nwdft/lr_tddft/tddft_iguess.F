@@ -481,10 +481,12 @@ c
      3        +(int_mb(k_sortv+m-1)-nocc(i)-1))=1.0d0
           if ((algorithm.eq.1).or.(algorithm.eq.2)) then
             if (nov(i).gt.0) then
-              call ga_put(g_trials(i),1,nov(i),m,m,dbl_mb(k_t(i)),1)
+              call ga_put(g_trials(i),1,nov(i),m,m,dbl_mb(k_t(i)),
+     L              nov(i))
             endif
           else
-            call ga_put(g_buffer1(i),1,nov(i),1,1,dbl_mb(k_t(i)),1)
+            call ga_put(g_buffer1(i),1,nov(i),1,1,dbl_mb(k_t(i)),
+     L            nov(i))
             dummy=dra_write_section(.false.,g_buffer1(i),1,nov(i),1,1,
      1        d_trials(i),1,nov(i),m,m,request)
             dummy=dra_wait(request)
