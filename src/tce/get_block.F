@@ -78,7 +78,7 @@ c
         endif
       else if (ioalg.eq.2) then
         call ga_get(d_file,offset+1,offset+size,1,1,
-     1    array,1)
+     1    array,size)
       else if (ioalg.eq.3) then
         if (parallel) then
           call ga_lock(0)
@@ -102,7 +102,7 @@ c
       else if (ioalg.eq.5) then
         if (fileisga(d_file)) then
           call ga_get(filehandles(d_file),offset+1,offset+size,1,1,
-     1      array,1)
+     1      array,size)
         else
           write(LuOut,*) 'filehandles = ',d_file,filehandles(d_file)
           write(LuOut,*) 'filename = ',filenames(d_file)
@@ -112,7 +112,7 @@ c
       else if (ioalg.eq.6) then
         if (fileisga(d_file)) then
           call ga_get(filehandles(d_file),offset+1,offset+size,1,1,
-     1      array,1)
+     1      array,size)
         else
           if (eaf_read(filehandles(d_file),
      1      dfloat(bytes)*dfloat(offset),array,bytes*size).ne.0) then

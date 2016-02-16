@@ -80,7 +80,7 @@ c
         endif
       else if (ioalg.eq.2) then
         call ga_put(d_file,offset+1,offset+size,1,1,
-     1    array,1)
+     1    array,size)
       else if (ioalg.eq.3) then
         if (parallel) then
           call ga_lock(0)
@@ -104,7 +104,7 @@ c
       else if (ioalg.eq.5) then
         if (fileisga(d_file)) then
           call ga_put(filehandles(d_file),offset+1,offset+size,1,1,
-     1      array,1)
+     1      array,size)
         else
           call errquit('put_block: a write request to DRA',1,
      1      UNKNOWN_ERR)
@@ -112,7 +112,7 @@ c
       else if (ioalg.eq.6) then
         if (fileisga(d_file)) then
           call ga_put(filehandles(d_file),offset+1,offset+size,1,1,
-     1      array,1)
+     1      array,size)
         else
           if (eaf_write(filehandles(d_file),
      1      dfloat(bytes)*dfloat(offset),array,bytes*size).ne.0)
