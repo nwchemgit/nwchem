@@ -602,10 +602,10 @@ c
                call ga_get(g_kvec, ioff+1+(i-1)*nvir, ioff+i*nvir, 1, 1,
      $              dbl_mb(k_tmp), 1)
                call ga_put(g_kmat, nocc1, nmo, i, i,
-     $              dbl_mb(k_tmp), 1)
-               call dscal(nvir, mone, dbl_mb(k_tmp), 1)
+     $              dbl_mb(k_tmp), nmo-nocc1+1)
+               call yscal(nvir, mone, dbl_mb(k_tmp), 1)
                call ga_put(g_kmat, i, i, nocc1, nmo,
-     $              dbl_mb(k_tmp), 1)
+     $              dbl_mb(k_tmp), nmo-nocc1+1)
             end do
          endif
 c
@@ -1332,7 +1332,7 @@ c
                do i = ga_nodeid()+1, nocc(iset), ga_nnodes()
                   ioff = (i-1)*nvir + ibase
                   call ga_get(g_x, ioff, ioff+nvir-1, ivec, ivec,
-     $                 dbl_mb(k_x),1)
+     $                 dbl_mb(k_x),nvir)
                   do j=1,nvir
                      denominator = 2.d0 * (diag(j+nocc(iset)) - diag(i))
      $                    + shift
@@ -1340,7 +1340,7 @@ c
                      dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
                   end do
                   call ga_put(g_x, ioff, ioff+nvir-1, ivec, ivec,
-     $                 dbl_mb(k_x),1)
+     $                 dbl_mb(k_x),nvir)
                end do
             enddo
          endif
