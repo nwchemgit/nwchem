@@ -208,7 +208,7 @@ c - T1/X1 LOCALIZATION ----------
      1      call errquit('i1_local',1,MA_ERR)
         call ma_zero(dbl_mb(k_i1_local),size_i1)
 c    copy d_t1 ==> l_t1_local
-        call ga_get(d_i1,1,size_i1,1,1,dbl_mb(k_i1_local),1)
+        call ga_get(d_i1,1,size_i1,1,1,dbl_mb(k_i1_local),size_i1)
 c -------------------------------
 ccx      CALL ccsd_t2_4(d_t2,k_t2_offset,d_i1,k_i1_offset,d_i0,k_i0_offset)
       CALL ccsd_t2_4(d_t2,k_t2_offset,k_i1_local,k_i1_offset,
@@ -235,7 +235,7 @@ c - T1/X1 LOCALIZATION ----------
      1      call errquit('i1_local',1,MA_ERR)
         call ma_zero(dbl_mb(k_i1_local),size_i1)
 c    copy d_t1 ==> l_t1_local
-        call ga_get(d_i1,1,size_i1,1,1,dbl_mb(k_i1_local),1)
+        call ga_get(d_i1,1,size_i1,1,1,dbl_mb(k_i1_local),size_i1)
 c -------------------------------
 ccx      CALL ccsd_t2_5(d_t2,k_t2_offset,d_i1,k_i1_offset,d_i0,k_i0_offset)
       CALL ccsd_t2_5(d_t2,k_t2_offset,k_i1_local,k_i1_offset,
