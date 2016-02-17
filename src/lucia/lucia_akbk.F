@@ -5096,7 +5096,7 @@ cVOG    else
       integer totsds, ngastotmo, weyl, get_mo_occ_gas
       external weyl, get_mo_occ_gas
 *
-      ntest  = 100 !VOG 0
+      ntest  = 0
 *
 *. Print Input
 *
@@ -6077,7 +6077,7 @@ cVOG    else
 *
 * Original Values
 *
-      if(ga_nodeid().eq.0) then
+      if(ntest.ge.10.and.ga_nodeid().eq.0) then
       WRITE(*,*)
       WRITE(*,*) ' ****************************************************'
       WRITE(*,*) '  Pre-calculating supergroups for Optimum CI batches '
@@ -6383,13 +6383,16 @@ cVOG    else
 *. the GAS space
 *
       nblkratio = int(isum/nnod)
+      nblkratio = int(nblkratio/16) !TEST
       nfragagain = 0
       if (ga_nodeid().eq.0.and.ntest.ge.10)
-     & write(*,'(a,3i9)') 'isum, nnod, nblkratio', isum,nnod,nblkratio
+     & write(*,'(a,3i12)') 'isum, nnod, nblkratio', isum,nnod,nblkratio
       do iblock = 1, ncblock
        if (KCIBT(8,iblock).gt.nblkratio) nfragagain = 1
-       if (ga_nodeid().eq.0) write(*,*) 'nfragagain',nfragagain
       end do
+*
+       if (ga_nodeid().eq.0.and.ntest.ge.10)
+     &  write(*,*) 'nfragagain',nfragagain
 *
       RETURN
       END
@@ -6420,7 +6423,7 @@ c      integer IMAP2(nnod)
       integer IMAP2(NBLK)
 *
 *. Scratch
-      integer isize(nnod)
+      integer isize(nnod), ibpnod(nnod)
 *
 *. Initializations
 *
@@ -6435,7 +6438,7 @@ c       imap2(inode) = 0
        isize(inode) = 0
       end do
 *
-      fctadd = 0.15 !Think if the factor should be dependent to the nnod
+      fctadd = 0.01 !Think if the factor should be dependent to the nnod
       limitblk = int(ilen/nnod)
       limitblk = int(limitblk + limitblk * fctadd)
       isumele = 0
@@ -6444,8 +6447,13 @@ c       imap2(inode) = 0
       ilenrem = ilen
       inodrem = nnod
       imap2(1) = 1
+      ibpnod = 0
 *
       do iblks = 1, nblk
+       !
+       ! Count the number of CI blocks disctributed per processor
+       ibpnod(inode+1) = ibpnod(inode+1) + 1
+       !
        isumele  = isumele  + IBATS(8,iblks)
        iaccuele = iaccuele + IBATS(8,iblks)
        ichkblk  = isumele + IBATS(8,iblks+1)
@@ -6454,6 +6462,8 @@ c       imap2(inode) = 0
          inode = inode + 1
          isize(inode) = isumele
          imap2(inode+1) = iaccuele + 1
+         !
+         ! Dynamically modify the limit size of the block
          ilenrem = ilenrem - isumele
          inodrem = inodrem - 1
          limitblk = int(ilenrem/inodrem)
@@ -6470,25 +6480,35 @@ c       imap2(inode) = 0
       end do
 *
       if (ga_nodeid().eq.0.and.ntest.ge.10) then
-       isum = 0
+       isum    = 0
        nmaxblk = 0
+       iblksum = 0
        write(*,*)
-       write(*,*) ' =============================='
-       write(*,*) '  BATCH       SIZE     MAPPING '
-       write(*,*) ' =============================='
-       do inode = 1, nblk
-        if (inode.le.nnod) then
-         write(*,'(i8,2i11)') inode,isize(inode), IMAP2(inode)
-         isum = isum + isize(inode)
+       write(*,*) ' ==================================================='
+       write(*,*) '  BATCH          SIZE      ',
+     &            'MAPPING   BLKS-PER-BATCH'
+       write(*,*) ' ==================================================='
+       do inode = 1, ga_nnodes() !nblk
+cVOG    if (inode.le.nnod) then
+         write(*,'(i8,2i14,i9)') inode,isize(inode),
+     &                        IMAP2(inode),ibpnod(inode)
+         isum    = isum    + isize(inode)
+         iblksum = iblksum + ibpnod(inode)
          if (isize(inode).ge.nmaxblk) nmaxblk =  isize(inode)
-        else
-         write(*,'(i8,2i11)') inode,           0, IMAP2(inode)
-        end if
+         if (inode.eq.1) then
+          nminblk = isize(inode)
+         else
+          if (isize(inode).lt.nminblk) nminblk =  isize(inode)
+         end if
+cVOG    else
+cVOG     write(*,'(i8,2i11)') inode,           0, IMAP2(inode)
+cVOG    end if
        end do
-       write(*,*) ' =============================='
-       write(*,'(a5,i14)') '  SUM', isum
-       write(*,'(a5,i14)') '  MAX', nmaxblk
-       write(*,*) ' =============================='
+       write(*,*) ' ==================================================='
+       write(*,'(a5,i17,i23)') '  SUM', isum, iblksum
+       write(*,'(a5,i17)')     '  MIN', nminblk
+       write(*,'(a5,i17)')     '  MAX', nmaxblk
+       write(*,*) ' ==================================================='
        write(*,*)
       end if
 *

@@ -9687,7 +9687,7 @@ C     REAL * 8  INPROD
       DIMENSION RJKAA(*), buffer(100)
 *. Output
 cnw   DIMENSION DIAG(*)
-      integer diag
+      integer diag, ilo, ihi
 *
       integer nxtask, next, itask, icount, nproc
       external nxtask
@@ -9742,12 +9742,11 @@ cVOG      WRITE(6,'(10X,4I3,2I8)') (IBLKFO(II,IBLOCK),II=1,4)
       IDET = 0
       ITDET = 0
       IF(LUDIA.GT.0) CALL REWINO(LUDIA)
+      call ga_distribution(DIAG,ga_nodeid(),ilo,ihi,idum,idum)
 *
-      itask = 0
-      nproc = ga_nnodes()
-      next = nxtask(nproc, 1)
       DO IBLK = 1, NBLOCK
 *
+       if (((IDET+1).ge.ilo).and.((IDET+1).le.ihi)) then
         IATP = IBLKFO(1,IBLK)
         IBTP = IBLKFO(2,IBLK)
         IASM = IBLKFO(3,IBLK)
@@ -9853,9 +9852,9 @@ C    &                ITFT,NINOB,NACOB,NPHEL)
           END IF
           IASTOP = NSSOA(IASM,IATP) 
 *
-          if (itask.eq.next) then
+cVOG      if (itask.eq.next) then
           icount = 0
-          call SETVEC(buffer,0.0d0,100)
+          call SETVEC(buffer,0.0d0,IASTOP)
           DO IA = IASTRT,IASTOP
             IDET = IDET + 1
             ITDET = ITDET + 1
@@ -9875,19 +9874,14 @@ CNW         IF(IASM.EQ.IBSM.AND.IATP.EQ.IBTP.AND.
 CNW  &         IB.EQ.IA) DIAG(IDET) = DIAG(IDET) + XADD
             IF(IASM.EQ.IBSM.AND.IATP.EQ.IBTP.AND.
      &         IB.EQ.IA) buffer(icount) = buffer(icount) + XADD
-            if (icount.eq.100.OR.IA.eq.IASTOP) then
+cVOG        if (icount.eq.100.OR.IA.eq.IASTOP) then
+            if (IA.eq.IASTOP) then
                call ga_put(DIAG,IDET-icount+1,IDET,1,1,buffer,1)
-               call SETVEC(buffer,0.0d0,100)
+               call SETVEC(buffer,0.0d0,IASTOP)
                icount = 0
             endif
           END DO
 *         ^ End of loop over alpha strings|
-          next = nxtask(nproc, 1)
-          else
-          IDET = IDET + IASTOP - IASTRT + 1
-          endif
-          itask = itask + 1
-*         ^ End task loop
         END DO
 *       ^ End of loop over betastrings
 *. Yet a RAS block of the diagonal has been constructed
@@ -9900,9 +9894,12 @@ CNW  &         IB.EQ.IA) DIAG(IDET) = DIAG(IDET) + XADD
           CALL TODSC(DIAG,IDET,-1,LUDIA)
           IDET = 0
         END IF
+       else
+        IDET = IDET + IABS(IBLKFO(8,IBLK))
+       end if
       END DO
 *        ^ End of loop over blocks
-      next = nxtask(-nproc, 1)
+cVOG  next = nxtask(-nproc, 1)
       call ga_sync()
       IF(NTEST.GE.10) WRITE(6,*)
      &' Number of diagonal elements generated ',ITDET

@@ -6662,7 +6662,8 @@ CE        END DO
          CALL WRT_MINMAX_GASOCC(IGSOCC_MIN,IGSOCC_MAX,NGAS)
       END IF
 *   
-      MAXLOOP = 10000
+      MAXLOOP = 1000000
+cVOG  MAXLOOP = 10000
       NLOOP = 0
       NOCCLS = 0
       NOPEN_MAX = 0
@@ -7506,7 +7507,8 @@ C?       WRITE(6,*) ' NGAS ', NGAS
          CALL WRT_MINMAX_GASOCC(IGSOCC_MIN,IGSOCC_MAX,NGAS)
       END IF
 *   
-      MAXLOOP = 10000
+      MAXLOOP = 1000000
+cVOG  MAXLOOP = 10000
       NLOOP = 0
       NOCCLSL = 0
 *. Loop over occupation classes
