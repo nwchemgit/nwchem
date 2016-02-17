@@ -23,7 +23,7 @@ c
       parameter (irrep_g=0)
       integer d_d0,d_a0,d_f1,d_v2,d_d1(3)
       integer d_t1,d_t2,d_lambda1,d_lambda2
-      integer d_tr1(9),d_tr2(9)
+      integer d_tr1(6),d_tr2(6)
       integer k_d0_offset,k_a0_offset
       integer k_f1_offset,k_v2_offset,k_d1_offset(3)
       integer k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset
@@ -172,7 +172,7 @@ c
       integer irrep_g
       parameter (irrep_g=0)
       integer d_f1,d_v2,d_d1(3),d_t1,d_t2
-      integer d_tr1(9),d_tr2(9),d_rr1(3),d_rr2(3)
+      integer d_tr1(6),d_tr2(6),d_rr1(3),d_rr2(3)
       integer k_f1_offset,k_v2_offset,k_d1_offset(3)
       integer k_t1_offset,k_t2_offset
       integer k_tr1_offset(3),k_tr2_offset(3)
@@ -345,7 +345,7 @@ c
       integer dynfreq,dynaxis,axisA,axisB,omegasign
       integer d_a0,d_f1,d_v2,d_d1(3)
       integer d_t1,d_t2,d_lambda1,d_lambda2
-      integer d_tr1(9),d_tr2(9)
+      integer d_tr1(6),d_tr2(6)
       integer k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset(3)
       integer k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset
       integer k_tr1_offset(3),k_tr2_offset(3)
@@ -677,10 +677,10 @@ c
       integer k_t1_offset
       integer d_t2
       integer k_t2_offset
-      integer d_tr1(9)
+      integer d_tr1(6)
       integer k_tr1_offset(3)
       integer size_tr1(3)
-      integer d_tr2(9)
+      integer d_tr2(6)
       integer k_tr2_offset(3)
       integer size_tr2(3)
       integer d_rr1(3)

@@ -346,11 +346,11 @@
       character*5 yr4filename(6) ! File name stub
       data yr4filename/'yr4x+','yr4y+','yr4z+','yr4x-','yr4y-','yr4z-'/
 !     RESPONSE AMPLITUDES
-      integer d_tr1(9)             ! SF handle for tr1 amplitudes
+      integer d_tr1(6)             ! SF handle for tr1 amplitudes
       integer l_tr1_offset(3)      ! Offset for tr1 file
       integer k_tr1_offset(3)      ! Offset for tr1 file
       integer size_tr1(3)          ! File size in doubles
-      integer d_tr2(9)             ! SF handle for tr2 amplitudes
+      integer d_tr2(6)             ! SF handle for tr2 amplitudes
       integer l_tr2_offset(3)      ! Offset for tr2 file
       integer k_tr2_offset(3)      ! Offset for tr2 file
       integer size_tr2(3)          ! File size in doubles
@@ -367,23 +367,6 @@
       integer d_rr2(3)             ! SF handle for rr2 amplitudes
       integer d_rr3(3)             ! SF handle for rr3 amplitudes
       integer d_rr4(3)             ! SF handle for rr4 amplitudes
-!     =====================================================
-!               CC-T(1) Imaginary Auxilary Amplitudes
-!               Use: ir = A*x, rr = A*ir (rr=A*A*x)
-!     =====================================================
-      integer d_denom1,d_denom2
-      integer d_ir1(3)             ! SF handle for ir1 amplitudes
-      integer d_ir2(3)             ! SF handle for ir2 amplitudes
-      integer d_ir3(3)             ! SF handle for ir3 amplitudes
-      integer d_ir4(3)             ! SF handle for ir4 amplitudes
-      character*4 ir1filename(3) ! File name stub
-      data ir1filename/'ir1x','ir1y','ir1z'/
-      character*4 ir2filename(3) ! File name stub
-      data ir2filename/'ir2x','ir2y','ir1z'/
-      character*4 ir3filename(3) ! File name stub
-      data ir3filename/'ir3x','ir3y','ir3z'/
-      character*4 ir4filename(3) ! File name stub
-      data ir4filename/'ir4x','ir4y','ir4z'/
 !     LAMBDA RESPONSE AMPLITUDES
       integer d_yr1(6)             ! SF handle for yr1 amplitudes
       integer l_yr1_offset(3)      ! Offset for yr1 file
@@ -407,10 +390,6 @@
       integer d_yrr3(3)             ! SF handle for yrr3 amplitudes
       integer d_yrr4(3)             ! SF handle for yrr4 amplitudes
 !     OTHER RESPONSE STUFF
-!      double precision rr1        ! Residual tr1
-!      double precision rr2        ! Residual tr2
-!      double precision rr3        ! Residual tr3
-!      double precision rr4        ! Residual tr4
       double precision omega       ! The frequency used in (A-Iw)x=b
       double precision lambda      ! The damping of Ab in (A^2-Iw^2)+lambda*Ab=0
       double precision omega1     ! The frequency used in (A-Iw)x=b
@@ -612,7 +591,6 @@
      1   call errquit('tce_energy:rtdb_get densmat failed',0, RTDB_ERR)
       if (nodezero) call util_flush(LuOut)
 !      if (lineresp) left=.true.
-!      if (imagresp) lineresp=.false.
 !
 !      if (nodezero) then
 !        write(LuOut,*) "lineresp = ",lineresp
@@ -1755,7 +1733,7 @@
             call util_flush(LuOut)
           endif
         endif
-        if (lineresp.or.imagresp) then
+        if (lineresp) then
           do axis = 1, 3
           if (respaxis(axis)) then
             irrep_x=sym_abelian_axis(geom,axis)
@@ -1780,33 +1758,17 @@
      1          size_tr1(axis),axis,handle_tr1(axis+3),irrep_x)
             endif
             call gatoeaf(d_tr1(axis+3))
-            if(imagresp) then
-              call tce_filename(tr1filename(axis+6),filename)
-              call createfile(filename,d_tr1(axis+6),
-     &             size_tr1(axis))
-              if (read_tr(8+1)) then
-                call tr1_restart_read(d_tr1(axis+6),k_tr1_offset(axis),
-     1            size_tr1(axis),axis+6,handle_tr1(axis+6),irrep_x)
-              elseif (read_tr(1)) then
-                call tr1_restart_read(d_tr1(axis+6),k_tr1_offset(axis),
-     1            size_tr1(axis),axis,handle_tr1(axis+6),irrep_x)
-              endif
-              call gatoeaf(d_tr1(axis+6))
-            endif
             if (nodezero.and.util_print('tr1',print_debug)) then
               write(LuOut,*)
               write(LuOut,9440) axisname(axis),irrepname
               write(LuOut,9000) 'tr1',size_tr1(axis)
               write(LuOut,9090) 'tr1',d_tr1(axis)
               write(LuOut,9090) 'tr1',d_tr1(axis+3)
-              if(imagresp) then
-                write(LuOut,9090) 'tr1',d_tr1(axis+6)
-              endif
               call util_flush(LuOut)
             endif
           endif
           enddo ! axis
-        endif ! lineresp.or.imagresp
+        endif ! lineresp
         if (leftresp) then
           do axis = 1, 3
           if (respaxis(axis)) then
@@ -1942,7 +1904,7 @@
 !--          call gatoeaf(d_lambda2)
 !--        endif
 !--       endif !---
-        if (lineresp.or.imagresp) then
+        if (lineresp) then
           do axis = 1, 3
           if (respaxis(axis)) then
             irrep_x=sym_abelian_axis(geom,axis)
@@ -1967,33 +1929,17 @@
      1          size_tr2(axis),axis,handle_tr2(axis+3),irrep_x)
             endif
             call gatoeaf(d_tr2(axis+3))
-            if (imagresp) then
-              call tce_filename(tr2filename(axis+6),filename)
-              call createfile(filename,d_tr2(axis+6),
-     &             size_tr2(axis))
-              if (read_tr(8+2)) then
-                call tr2_restart_read(d_tr2(axis+6),k_tr2_offset(axis),
-     1            size_tr2(axis),axis+6,handle_tr2(axis+6),irrep_x)
-              elseif (read_tr(2)) then
-                call tr2_restart_read(d_tr2(axis+6),k_tr2_offset(axis),
-     1            size_tr2(axis),axis,handle_tr2(axis+6),irrep_x)
-              endif
-            endif
-            call gatoeaf(d_tr2(axis+6))
             if (nodezero.and.util_print('tr2',print_debug)) then
               write(LuOut,*)
               write(LuOut,9440) axisname(axis),irrepname
               write(LuOut,9000) 'tr2',size_tr1(axis)
               write(LuOut,9090) 'tr2',d_tr1(axis)
               write(LuOut,9090) 'tr2',d_tr1(axis+3)
-              if(imagresp) then
-                write(LuOut,9090) 'tr2',d_tr1(axis+6)
-              endif
               call util_flush(LuOut)
             endif
           endif
           enddo ! axis
-        endif ! lineresp.or.imagresp
+        endif ! lineresp
         if (leftresp) then
           do axis = 1, 3
           if (respaxis(axis)) then
@@ -2052,7 +1998,7 @@
           endif
           call gatoeaf(d_lambda3)
         endif
-        if (lineresp.or.imagresp) then
+        if (lineresp) then
           do axis = 1, 3
           if (respaxis(axis)) then
             irrep_x=sym_abelian_axis(geom,axis)
@@ -2076,22 +2022,9 @@
      1          size_tr3(axis),axis,handle_tr3(axis+3),irrep_x)
             endif
             call gatoeaf(d_tr3(axis+3))
-            if (imagresp) then
-              call tce_filename(tr3filename(axis+6),filename)
-              call createfile(filename,d_tr3(axis+6),
-     &             size_tr3(axis))
-              if (read_tr(8+3)) then
-                call tr3_restart_read(d_tr3(axis+6),k_tr3_offset(axis),
-     1            size_tr3(axis),axis+6,handle_tr3(axis+6),irrep_x)
-              elseif (read_tr(3)) then
-                call tr3_restart_read(d_tr3(axis+6),k_tr3_offset(axis),
-     1            size_tr3(axis),axis,handle_tr3(axis+6),irrep_x)
-              endif
-              call gatoeaf(d_tr3(axis+6))
-            endif
           endif
           enddo ! axis
-        endif ! lineresp.or.imagresp
+        endif ! lineresp
         if (leftresp) then
           do axis = 1, 3
           if (respaxis(axis)) then
@@ -2165,7 +2098,7 @@
           endif
           call gatoeaf(d_lambda4)
         endif
-        if (lineresp.or.imagresp) then
+        if (lineresp) then
           do axis = 1, 3
           if (respaxis(axis)) then
             irrep_x=sym_abelian_axis(geom,axis)
@@ -2189,22 +2122,9 @@
      1          size_tr4(axis),axis,handle_tr4(axis+3),irrep_x)
             endif
             call gatoeaf(d_tr4(axis+3))
-            if (imagresp) then
-              call tce_filename(tr4filename(axis+6),filename)
-              call createfile(filename,d_tr4(axis+6),
-     &             size_tr4(axis))
-              if (read_tr(8+4)) then
-                call tr4_restart_read(d_tr4(axis+6),k_tr4_offset(axis),
-     1            size_tr4(axis),axis+6,handle_tr4(axis+6),irrep_x)
-              elseif (read_tr(4)) then
-                call tr4_restart_read(d_tr4(axis+6),k_tr4_offset(axis),
-     1             size_tr4(axis),axis,handle_tr4(axis+6),irrep_x)
-              endif
-            endif
-            call gatoeaf(d_tr4(axis+6))
           endif
           enddo ! axis
-        endif ! lineresp.or.imagresp
+        endif ! lineresp
         if (leftresp) then
           do axis = 1, 3
           if (respaxis(axis)) then
@@ -2237,7 +2157,7 @@
           call tce_e_offset(l_o0_offset,k_o0_offset,size_o0)
         endif
       endif
-      if (lineresp.or.imagresp) then
+      if (lineresp) then
         call tce_e_offset(l_a0_offset,k_a0_offset,size_a0)
       endif
       if (leftresp) then
@@ -2683,650 +2603,6 @@
 !<-d3p975
 !
         endif ! left
-! -------------
-! CCSD-IR
-! -------------
- 2234   continue
-        if (imagresp) then
-          if(nodezero) write(LuOut,*) 'YOU WILL GET WRONG RESULTS'
-            call ccsd_imaginary(d_a0,d_f1,d_v2,d_d1,
-     1           d_t1,d_t2,d_lambda1,d_lambda2,d_tr1,d_tr2,
-     2           k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
-     4           k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
-     6           k_tr1_offset,k_tr2_offset,
-     7           size_tr1,size_tr2)
-          call errquit('MANUAL STOP',0,CALC_ERR)
-          if(nodezero) then
-            write(LuOut,*) 'inumfreq = ',inumfreq
-            write(LuOut,*) 'Casimir-Polder integration points are:'
-            do i = inumfreq,1,-1
-              write(LuOut,999) i,ifreq(i)
-            enddo
-            call util_flush(LuOut)
-          endif
-  999 format(3x,'ifreq(',i3,') = ',f14.8)
-!
-!         REAL COMPONENT
-!
-          do omegacount=inumfreq,1,-1
-            omega = ifreq(omegacount)
-!            if (omega.eq.(0.0d0)) then
-!              call errquit('tce_energy: imag(omega) is zero',0,CALC_ERR)
-!            endif
-!
-          do axis = 1, 3
-          if (respaxis(axis)) then
-            irrep_d=sym_abelian_axis(geom,axis)
-            call sym_irrepname(geom,irrep_d+1,irrepname)
-            if (nodezero.and.util_print('mod1',print_default)) then
-              write(LuOut,*)
-              write(LuOut,9440) axisname(axis),irrepname
-            endif
-            irrep_o=irrep_d
-            irrep_x=irrep_d
-!
-!           offset to the third set of response for real component
-            dynaxis = 6
-!
-            if (nodezero) write(LuOut,9431) omega
-!
-            if (guess_ir_real.and.(omegacount.eq.1)) then
-!
-            if (nodezero) write(LuOut,9121) 'Initial guess x = b/Adiag'
-!
-!           0. Create dummies
-!
-              call tce_filename(rr1filename(axis),filename)
-              call createfile(filename,d_rr1(axis),size_tr1(axis))
-              call tce_zero(d_rr1(axis),size_tr1(axis))
-!
-              call tce_filename(rr2filename(axis),filename)
-              call createfile(filename,d_rr2(axis),size_tr2(axis))
-              call tce_zero(d_rr2(axis),size_tr2(axis))
-!
-              if (nodezero.and.(util_print('rr1',print_debug)
-     1                      .or.util_print('rr2',print_debug))) then
-                write(LuOut,*)
-                write(LuOut,9440) axisname(axis),irrepname
-                write(LuOut,9000) 'rr1',size_tr1(axis)
-                write(LuOut,9000) 'rr2',size_tr2(axis)
-                write(LuOut,9090) 'rr1',d_rr1(axis)
-                write(LuOut,9090) 'rr2',d_rr2(axis)
-                call util_flush(LuOut)
-              endif
-!
-!           1. Form b
-!
-              call ccsd_o1(d_rr1(axis),d_d1(axis),d_t1,d_t2,
-     1             k_tr1_offset(axis),k_d1_offset(axis),
-     2             k_t1_offset,k_t2_offset)
-              call ccsd_o2(d_rr2(axis),d_d1(axis),d_t1,d_t2,
-     1             k_tr2_offset(axis),k_d1_offset(axis),
-     2             k_t1_offset,k_t2_offset)
-!
-!           2. Hit with preconditioner
-!
-              call tce_jacobi_tr1(d_rr1(axis),d_tr1(axis+6),
-     1                            k_tr1_offset(axis),0.0d0,0.0d0)
-              call tce_jacobi_tr2(d_rr2(axis),d_tr2(axis+6),
-     1                            k_tr2_offset(axis),0.0d0,0.0d0)
-!
-!           4. Delete dummies
-!
-              call deletefile(d_rr1(axis))
-              call deletefile(d_rr2(axis))
-!
-            endif ! guess_ir_real
-!
-            call tce_diis_init()
-            do iter=1,maxiter
-              cpu=-util_cpusec()
-              wall=-util_wallsec()
-              if (nodezero.and.(iter.eq.1))
-     &        write(LuOut,9400) "CCSD-IR (real component) - squared"
-!
-              call tce_filename(rr1filename(axis),filename)
-              call createfile(filename,d_rr1(axis),size_tr1(axis))
-              call tce_zero(d_rr1(axis),size_tr1(axis))
-!
-              call tce_filename(ir1filename(axis),filename)
-              call createfile(filename,d_ir1(axis),size_tr1(axis))
-              call tce_zero(d_ir1(axis),size_tr1(axis))
-!
-              call tce_filename(rr2filename(axis),filename)
-              call createfile(filename,d_rr2(axis),size_tr2(axis))
-              call tce_zero(d_rr2(axis),size_tr2(axis))
-!
-              call tce_filename(ir2filename(axis),filename)
-              call createfile(filename,d_ir2(axis),size_tr2(axis))
-              call tce_zero(d_ir2(axis),size_tr2(axis))
-!
-              if (nodezero.and.(util_print('rr1',print_debug)
-     1                      .or.util_print('rr2',print_debug))) then
-                write(LuOut,*)
-                write(LuOut,9440) axisname(axis),irrepname
-                write(LuOut,9000) 'rr1',size_tr1(axis)
-                write(LuOut,9090) 'rr1',d_rr1(axis)
-                write(LuOut,9090) 'ir1',d_ir1(axis)
-                write(LuOut,9000) 'rr2',size_tr2(axis)
-                write(LuOut,9090) 'rr2',d_rr2(axis)
-                write(LuOut,9090) 'ir2',d_ir2(axis)
-                call util_flush(LuOut)
-              endif
-!
-              call ccsd_o1(d_ir1(axis),d_d1(axis),d_t1,d_t2,
-     1             k_tr1_offset(axis),k_d1_offset(axis),
-     2             k_t1_offset,k_t2_offset)
-              call eomccsd_x1_old(d_f1,d_ir1(axis),d_t1,d_t2,d_v2,
-     1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),k_f1_offset,
-     2             k_tr1_offset(axis),
-     3             k_t1_offset,k_t2_offset,k_v2_offset,
-     4             k_tr1_offset(axis),k_tr2_offset(axis))
-!
-              call ccsd_o2(d_ir2(axis),d_d1(axis),d_t1,d_t2,
-     1             k_tr2_offset(axis),k_d1_offset(axis),
-     2             k_t1_offset,k_t2_offset)
-              call eomccsd_x2_old(d_f1,d_ir2(axis),d_t1,d_t2,d_v2,
-     1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
-     2             k_f1_offset,k_tr2_offset(axis),
-     3             k_t1_offset,k_t2_offset,k_v2_offset,
-     4             k_tr1_offset(axis),k_tr2_offset(axis),
-     5             size_tr1(axis),size_tr2(axis))
-!
-              call reconcilefile(d_ir1(axis),size_tr1(axis))
-              call reconcilefile(d_ir2(axis),size_tr2(axis))
-!
-              call eomccsd_x1_old(d_f1,d_rr1(axis),d_t1,d_t2,d_v2,
-     1             d_ir1(axis),d_ir2(axis),k_f1_offset,
-     2             k_tr1_offset(axis),
-     3             k_t1_offset,k_t2_offset,k_v2_offset,
-     4             k_tr1_offset(axis),k_tr2_offset(axis))
-!
-              call eomccsd_x2_old(d_f1,d_rr2(axis),d_t1,d_t2,d_v2,
-     1             d_ir1(axis),d_ir2(axis),
-     2             k_f1_offset,k_tr2_offset(axis),
-     3             k_t1_offset,k_t2_offset,k_v2_offset,
-     4             k_tr1_offset(axis),k_tr2_offset(axis),
-     5             size_tr1(axis),size_tr2(axis))
-!
-              call reconcilefile(d_rr1(axis),size_tr1(axis))
-              call reconcilefile(d_rr2(axis),size_tr2(axis))
-!
-              call deletefile(d_ir1(axis))
-              call deletefile(d_ir2(axis))
-!
-              call daxpyfile(1,omega*omega,d_tr1(axis+dynaxis),
-     1             d_rr1(axis),size_tr1(axis))
-              call reconcilefile(d_rr1(axis),size_tr1(axis))
-              call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
-!
-              call daxpyfile(1,omega*omega,d_tr2(axis+dynaxis),
-     1             d_rr2(axis),size_tr2(axis))
-              call reconcilefile(d_rr2(axis),size_tr2(axis))
-              call tce_residual_tr2(d_rr2(axis),k_tr2_offset(axis),rr2)
-!
-              residual = max(rr1,rr2)
-              cpu=cpu+util_cpusec()
-              wall=wall+util_wallsec()
-              if (nodezero) write(LuOut,9420) iter,residual,cpu,wall
-              if (residual .lt. thresh) then
-                if (nodezero) then
-                  write(LuOut,9410)
-                endif
-                if (ampnorms) then
-                  call tce_residual_tr1(d_tr1(axis+dynaxis),
-     1                                  k_tr1_offset(axis),rr1)
-                  call tce_residual_tr2(d_tr2(axis+dynaxis),
-     1                                  k_tr2_offset(axis),rr2)
-                  if (nodezero) then
-                    write(LuOut,9082) "T(1) singles",rr1
-                    write(LuOut,9082) "T(1) doubles",rr2
-                  endif
-                endif
-                call deletefile(d_rr2(axis))
-                call deletefile(d_rr1(axis))
-                call tce_diis_tidy()
-                if (save_tr(1)) then
-                  if(nodezero) then
-                    write(LuOut,*) 'Saving T1(1) now...'
-                  endif
-                  call tr1_restart_save(d_tr1(axis+dynaxis),
-     1                 k_tr1_offset(axis),size_tr1(axis),
-     2                 axis+dynaxis,handle_tr1(axis),irrep_x)
-                endif
-                if (save_tr(2)) then
-                  if(nodezero) then
-                    write(LuOut,*) 'Saving T2(1) now...'
-                  endif
-                  call tr2_restart_save(d_tr2(axis+dynaxis),
-     1                 k_tr2_offset(axis),size_tr2(axis),
-     2                 axis+dynaxis,handle_tr2(axis),irrep_x)
-                endif
-                goto 2235
-              endif
-              if (save_tr(1).and.(mod(iter,save_interval).eq.0)) then
-                if(nodezero) then
-                  write(LuOut,*) 'Saving T1(1) now...'
-                endif
-                call tr1_restart_save(d_tr1(axis+dynaxis),
-     1               k_tr1_offset(axis),size_tr1(axis),
-     2               axis+dynaxis,handle_tr1(axis),irrep_x)
-              endif
-              if (save_tr(2).and.(mod(iter,save_interval).eq.0)) then
-                if(nodezero) then
-                  write(LuOut,*) 'Saving T2(1) now...'
-                endif
-                call tr2_restart_save(d_tr2(axis+dynaxis),
-     1               k_tr2_offset(axis),size_tr2(axis),
-     2               axis+dynaxis,handle_tr2(axis),irrep_x)
-              endif
-              call tce_diis3(.false.,iter,.true.,.true.,.false.,.false.,
-     1             d_rr1(axis),d_tr1(axis+dynaxis),k_tr1_offset(axis),
-     2             size_tr1(axis),
-     3             d_rr2(axis),d_tr2(axis+dynaxis),k_tr2_offset(axis),
-     4             size_tr2(axis),
-     5             dummy,dummy,dummy,dummy,
-     6             dummy,dummy,dummy,dummy,omega,2)
-              call deletefile(d_rr2(axis))
-              call deletefile(d_rr1(axis))
-              if (nodezero) call util_flush(LuOut)
-            enddo ! iter loop
-          call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
- 2235 continue
-!
-          endif ! respaxis(axis)
-          enddo ! axis loop
-!
-!         IMAGINARY COMPONENT
-!
-          do axis = 1, 3
-          if (respaxis(axis)) then
-            irrep_d=sym_abelian_axis(geom,axis)
-            call sym_irrepname(geom,irrep_d+1,irrepname)
-            if (nodezero.and.util_print('mod1',print_default)) then
-              write(LuOut,*)
-              write(LuOut,9440) axisname(axis),irrepname
-            endif
-            irrep_o=irrep_d
-            irrep_x=irrep_d
-!
-          do omegasign=1,1 ! temporary 2
-            if (omegasign.eq.1) then
-              omega = (1.0d0)*ifreq(omegacount)
-              dynaxis = 0
-            elseif (omegasign.eq.2) then
-              omega = (-1.0d0)*ifreq(omegacount)
-              dynaxis = 3
-              call daxpyfile(1,-1.0d0,d_tr1(axis+0),
-     1             d_tr1(axis+3),size_tr1(axis))
-              call daxpyfile(1,-1.0d0,d_tr2(axis+0),
-     1             d_tr2(axis+3),size_tr2(axis))
-            endif
-            if (nodezero) write(LuOut,9431) omega
-!
-            call tce_diis_init()
-!
-            if (guess_ir_imag.and.(omegacount.eq.1)) then
-!
-!           Initial guess x_I = omega*x_R/(Adiag-omega)
-           if (nodezero) write(LuOut,9121) 
-     1        'Initial guess x_I = omega*x_R/Adiag'
-!
-!           0. Create dummies
-!
-              call tce_filename(rr1filename(axis),filename)
-              call createfile(filename,d_rr1(axis),size_tr1(axis))
-              call tce_zero(d_rr1(axis),size_tr1(axis))
-!
-              call tce_filename(rr2filename(axis),filename)
-              call createfile(filename,d_rr2(axis),size_tr2(axis))
-              call tce_zero(d_rr2(axis),size_tr2(axis))
-!
-!           1. Form w_I = omega*x_R
-!
-              call daxfile(1,omega,d_tr1(axis+6),d_rr1(axis),
-     1             size_tr1(axis))
-              call daxfile(1,omega,d_tr2(axis+6),d_rr2(axis),
-     1             size_tr2(axis))
-!
-!           3. Hit with preconditioner
-!
-              call tce_jacobi_tr1(d_rr1(axis),d_tr1(axis+dynaxis),
-     1             k_tr1_offset(axis),0.0d0,0.0d0)
-              call tce_jacobi_tr2(d_rr2(axis),d_tr2(axis+dynaxis),
-     1             k_tr2_offset(axis),0.0d0,0.0d0)
-!
-!           4. Delete dummies
-!
-              call deletefile(d_rr1(axis))
-              call deletefile(d_rr2(axis))
-!
-            endif ! guess_ir_imag
-!
-            do iter=1,maxiter
-              cpu=-util_cpusec()
-              wall=-util_wallsec()
-              if (nodezero.and.(iter.eq.1))
-     &        write(LuOut,9400) "CCSD-IR (imaginary component) - linear"
-!
-              call tce_filename(rr1filename(axis),filename)
-              call createfile(filename,d_rr1(axis),size_tr1(axis))
-!              call tce_zero(d_rr1(axis),size_tr1(axis))
-              call daxfile(1,(-1.0d0)*omega,d_tr1(axis+6),
-     1             d_rr1(axis),size_tr1(axis))
-              call eomccsd_x1_old(d_f1,d_rr1(axis),d_t1,d_t2,d_v2,
-     1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
-     2             k_f1_offset,k_tr1_offset(axis),
-     3             k_t1_offset,k_t2_offset,k_v2_offset,
-     4             k_tr1_offset(axis),k_tr2_offset(axis))
-              call reconcilefile(d_rr1(axis),size_tr1(axis))
-              call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
-!
-              call tce_filename(rr2filename(axis),filename)
-              call createfile(filename,d_rr2(axis),size_tr2(axis))
-!              call tce_zero(d_rr2(axis),size_tr2(axis))
-              call daxfile(1,(-1.0d0)*omega,d_tr2(axis+6),
-     1             d_rr2(axis),size_tr2(axis))
-              call eomccsd_x2_old(d_f1,d_rr2(axis),d_t1,d_t2,d_v2,
-     1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
-     2             k_f1_offset,k_tr2_offset(axis),
-     3             k_t1_offset,k_t2_offset,k_v2_offset,
-     4             k_tr1_offset(axis),k_tr2_offset(axis),
-     5             size_tr1(axis),size_tr2(axis))
-              call reconcilefile(d_rr2(axis),size_tr2(axis))
-              call tce_residual_tr2(d_rr2(axis),k_tr2_offset(axis),rr2)
-              residual = max(rr1,rr2)
-              cpu=cpu+util_cpusec()
-              wall=wall+util_wallsec()
-              if (nodezero) write(LuOut,9420) iter,residual,cpu,wall
-              if (residual .lt. thresh) then
-                if (nodezero) then
-                  write(LuOut,9410)
-                endif
-                if (ampnorms) then
-                  call tce_residual_tr1(d_tr1(axis+dynaxis),
-     1                                  k_tr1_offset(axis),rr1)
-                  call tce_residual_tr2(d_tr2(axis+dynaxis),
-     1                                  k_tr2_offset(axis),rr2)
-                  if (nodezero) then
-                    write(LuOut,9082) "T(1) singles",rr1
-                    write(LuOut,9082) "T(1) doubles",rr2
-                  endif
-                endif
-                call deletefile(d_rr2(axis))
-                call deletefile(d_rr1(axis))
-                call tce_diis_tidy()
-                if (save_tr(1)) then
-                  if(nodezero) then
-                    write(LuOut,*) 'Saving T1(1) now...'
-                  endif
-                  call tr1_restart_save(d_tr1(axis+dynaxis),
-     1                 k_tr1_offset(axis),size_tr1(axis),
-     2                 axis+dynaxis,handle_tr1(axis),irrep_x)
-                endif
-                if (save_tr(2)) then
-                  if(nodezero) then
-                    write(LuOut,*) 'Saving T2(1) now...'
-                  endif
-                  call tr2_restart_save(d_tr2(axis+dynaxis),
-     1                 k_tr2_offset(axis),size_tr2(axis),
-     2                 axis+dynaxis,handle_tr2(axis),irrep_x)
-                endif
-                goto 2236
-              endif
-              if (save_tr(1).and.(mod(iter,save_interval).eq.0)) then
-                if(nodezero) then
-                  write(LuOut,*) 'Saving T1(1) now...'
-                endif
-                call tr1_restart_save(d_tr1(axis+dynaxis),
-     1               k_tr1_offset(axis),size_tr1(axis),
-     2               axis+dynaxis,handle_tr1(axis),irrep_x)
-              endif
-              if (save_tr(2).and.(mod(iter,save_interval).eq.0)) then
-                if(nodezero) then
-                  write(LuOut,*) 'Saving T2(1) now...'
-                endif
-                call tr2_restart_save(d_tr2(axis+dynaxis),
-     1               k_tr2_offset(axis),size_tr2(axis),
-     2               axis+dynaxis,handle_tr2(axis),irrep_x)
-              endif
-              call tce_diis3(.false.,iter,.true.,.true.,.false.,.false.,
-     1             d_rr1(axis),d_tr1(axis+dynaxis),k_tr1_offset(axis),
-     2             size_tr1(axis),
-     3             d_rr2(axis),d_tr2(axis+dynaxis),k_tr2_offset(axis),
-     4             size_tr2(axis),
-     5             dummy,dummy,dummy,dummy,
-     6             dummy,dummy,dummy,dummy,0.0d0,1)
-              call deletefile(d_rr2(axis))
-              call deletefile(d_rr1(axis))
-              if (nodezero) call util_flush(LuOut)
-            enddo ! iter loop
-          call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
- 2236 continue
-!
-          enddo ! omegasign loop
-!
-          endif ! respaxis(axis)
-          enddo ! axis loop
-!
-! CCSD-IR evaluation step
-!
-          cpu=-util_cpusec()
-          wall=-util_wallsec()
-          do axisA = 1, 3
-          do axisB = 1, axisA
-          alpha(axisA,axisB)=0.0d0
-          if (respaxis(axisA).and.respaxis(axisB)) then
-            irrep_a=sym_abelian_axis(geom,axisA)
-            irrep_b=sym_abelian_axis(geom,axisB)
-            irrep_y=irrep_g
-!
-            call tce_filename('a0',filename)
-            call createfile(filename,d_a0,size_a0)
-!
-#ifdef DEBUG_PRINT
-            if (nodezero) write(LuOut,*) "axisA = ",axisA
-            if (nodezero) write(LuOut,*) "axisB = ",axisB
-#endif
-!
-            alpha1=0.0d0
-            alpha2=0.0d0
-!
-            irrep_d=irrep_a
-            irrep_tr=irrep_b
-!
-#ifdef DEBUG_PRINT
-            if (nodezero) write(LuOut,*) "alpha_1 AB"
-#endif
-            call alpha_1(d_d1(axisA),d_a0,d_t1,d_t2,
-     1           d_tr1(axisB+6),d_tr2(axisB+6),
-     2           d_lambda1,d_lambda2,
-     3           k_d1_offset(axisA),k_a0_offset,
-     4           k_t1_offset,k_t2_offset,
-     5           k_tr1_offset(axisB),k_tr2_offset(axisB),
-     6           k_l1_offset,k_l2_offset)
-!
-            call reconcilefile(d_a0,size_a0)
-            call get_block(d_a0,alpha1,1,0)
-            call tce_zero(d_a0,size_a0)
-#ifdef DEBUG_PRINT
-            if (nodezero) write(LuOut,*) "alpha_1 AB = ",alpha1
-#endif
-!
-            if (axisA.eq.axisB) then
-              alpha2=alpha1
-            else
-              irrep_d=irrep_b
-              irrep_tr=irrep_a
-#ifdef DEBUG_PRINT
-              if (nodezero) write(LuOut,*) "alpha_1 BA"
-#endif
-              call alpha_1(d_d1(axisB),d_a0,d_t1,d_t2,
-     1             d_tr1(axisA+6),d_tr2(axisA+6),
-     2             d_lambda1,d_lambda2,
-     3             k_d1_offset(axisB),k_a0_offset,
-     4             k_t1_offset,k_t2_offset,
-     5             k_tr1_offset(axisA),k_tr2_offset(axisA),
-     6             k_l1_offset,k_l2_offset)
-!
-              call reconcilefile(d_a0,size_a0)
-              call get_block(d_a0,alpha2,1,0)
-              call tce_zero(d_a0,size_a0)
-            endif ! axisA.eq.axisB
-#ifdef DEBUG_PRINT
-            if (nodezero) write(LuOut,*) "alpha_1 BA = ",alpha2
-#endif
-!
-            alpha(axisA,axisB)=alpha(axisA,axisB)+alpha1+alpha2
-!
-            alpha1=0.0d0
-            alpha2=0.0d0
-            alpha3=0.0d0
-!
-            irrep_tra=irrep_a
-            irrep_trb=irrep_b
-!
-#ifdef DEBUG_PRINT
-            if (nodezero) write(LuOut,*) "alpha_2 A(+i) B(-i)"
-#endif
-            call alpha_2(d_f1,d_a0,d_t1,d_t2,
-     1           d_tr1(axisA),d_tr2(axisA),
-!     2           d_tr1(axisB+3),d_tr2(axisB+3), ! temporary
-     2           d_tr1(axisB),d_tr2(axisB),
-     3           d_v2,d_lambda1,d_lambda2,k_f1_offset,k_a0_offset,
-     4           k_t1_offset,k_t2_offset,
-     5           k_tr1_offset(axisA),k_tr2_offset(axisA),
-     6           k_tr1_offset(axisB),k_tr2_offset(axisB),k_v2_offset,
-     7           k_l1_offset,k_l2_offset)
-            call reconcilefile(d_a0,size_a0)
-            call get_block(d_a0,alpha1,1,0)
-            call tce_zero(d_a0,size_a0)
-            alpha1 = -alpha1 ! temporary
-#ifdef DEBUG_PRINT
-            if (nodezero) write(LuOut,*) "alpha_2 A(+i) B(-i) = ",alpha1
-#endif
-!
-#ifdef DEBUG_PRINT
-            if (nodezero) write(LuOut,*) "alpha_2 A(-i) B(+i)"
-#endif
-            call alpha_2(d_f1,d_a0,d_t1,d_t2,
-!     1           d_tr1(axisA+3),d_tr2(axisA+3), ! temporary
-     1           d_tr1(axisA),d_tr2(axisA),
-     2           d_tr1(axisB),d_tr2(axisB),
-     3           d_v2,d_lambda1,d_lambda2,k_f1_offset,k_a0_offset,
-     4           k_t1_offset,k_t2_offset,
-     5           k_tr1_offset(axisA),k_tr2_offset(axisA),
-     6           k_tr1_offset(axisB),k_tr2_offset(axisB),k_v2_offset,
-     7           k_l1_offset,k_l2_offset)
-            call reconcilefile(d_a0,size_a0)
-            call get_block(d_a0,alpha2,1,0)
-            call tce_zero(d_a0,size_a0)
-            alpha2 = -alpha2 ! temporary
-#ifdef DEBUG_PRINT
-            if (nodezero) write(LuOut,*) "alpha_2 A(-i) B(+i) = ",alpha2
-#endif
-!
-#ifdef DEBUG_PRINT
-            if (nodezero) write(LuOut,*) "alpha_2 A(r) B(r)"
-#endif
-            call alpha_2(d_f1,d_a0,d_t1,d_t2,
-     1           d_tr1(axisA+6),d_tr2(axisA+6),
-     2           d_tr1(axisB+6),d_tr2(axisB+6),
-     3           d_v2,d_lambda1,d_lambda2,k_f1_offset,k_a0_offset,
-     4           k_t1_offset,k_t2_offset,
-     5           k_tr1_offset(axisA),k_tr2_offset(axisA),
-     6           k_tr1_offset(axisB),k_tr2_offset(axisB),k_v2_offset,
-     7           k_l1_offset,k_l2_offset)
-            call reconcilefile(d_a0,size_a0)
-            call get_block(d_a0,alpha3,1,0)
-#ifdef DEBUG_PRINT
-            if (nodezero) write(LuOut,*) "alpha_2 A(r) B(r) = ",alpha3
-#endif
-            call deletefile(d_a0)
-!
-            alpha(axisA,axisB)=alpha(axisA,axisB)-alpha1-alpha2+alpha3
-            alpha(axisA,axisB)=-1.0d0*alpha(axisA,axisB)
-!
-#ifdef DEBUG_PRINT
-            if (nodezero) write(LuOut,*) "alpha(axisA,axisB) = ",
-     1                                    alpha(axisA,axisB)
-            call util_flush(LuOut)
-#endif
-!
-          endif ! respaxis(axis)
-          enddo ! axisB loop
-          enddo ! axisA loop
-          cpu=cpu+util_cpusec()
-          wall=wall+util_wallsec()
-!
-          do i = 1, 3
-            do j = 1, i
-              alphacopy(i,j)=alpha(i,j)
-              alphacopy(j,i)=alpha(i,j)
-            enddo
-          enddo
-!
-          call hnd_diag(alphacopy,alphaevr,3,.false.,.false.)
-!
-          alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
-          alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
-     1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
-     2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
-          alphaani = dsqrt(0.5d0*alphaani)
-!
-          if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
-     1        .and.nodezero) write(LuOut,9911)
-!
-          if (nodezero) write(LuOut,9434) "CCSD Imaginary Response",
-     1      ifreq(omegacount),auXnm/ifreq(omegacount),
-     2      alpha(1,1),alpha(2,1),alpha(3,1),
-     3      au2ang3*alpha(1,1),au2ang3*alpha(2,1),au2ang3*alpha(3,1),
-     4      alpha(2,1),alpha(2,2),alpha(3,2),
-     5      au2ang3*alpha(2,1),au2ang3*alpha(2,2),au2ang3*alpha(3,2),
-     6      alpha(3,1),alpha(3,2),alpha(3,3),
-     7      au2ang3*alpha(3,1),au2ang3*alpha(3,2),au2ang3*alpha(3,3),
-     8      alphaevr(1),alphaevr(2),alphaevr(3),
-     9      au2ang3*alphaevr(1),au2ang3*alphaevr(2),au2ang3*alphaevr(3),
-     1      alphaiso,au2ang3*alphaiso,
-     2      alphaani,au2ang3*alphaani
-          if (nodezero) write(LuOut,9020) cpu, wall
-          call util_flush(LuOut)
-!
-          ifreqval(omegacount,1) = alpha(1,1)
-          ifreqval(omegacount,2) = alpha(2,2)
-          ifreqval(omegacount,3) = alpha(3,3)
-          ifreqval(omegacount,4) = alpha(2,1)
-          ifreqval(omegacount,5) = alpha(3,1)
-          ifreqval(omegacount,6) = alpha(3,2)
-          ifreqval(omegacount,7) = alphaiso
-          ifreqval(omegacount,8) = alphaani
-!
-          enddo ! omegacount loop
-!
-!       Casimir-Polder integration for determination of C6 coefficient
-!
-          do i = 1, 8
-            integral(i) = 0.0d0
-            do omegacount = 1,inumfreq-1
-              num1 = ifreqval(omegacount+1,i)
-              num0 = ifreqval(omegacount,i)
-              den1 = ifreq(omegacount+1)
-              den0 = ifreq(omegacount)
-              num1sq = num1*num1
-              num0sq = num0*num0
-              numtot = num1sq+num0sq
-              dentot = den1 - den0
-              integral(i) = integral(i) + 0.5d0*numtot*dentot
-            enddo
-            integral(i) = integral(i)*3.0d0/pi
-          enddo
-          if (nodezero) write(LuOut,9435) "CCSD Imaginary Response",
-     &       integral(1),integral(2),integral(3),
-     &       integral(4),integral(5),integral(6),
-     &       integral(7),integral(8)
-          call util_flush(LuOut)
-!
-        endif ! imagresp
  2237   continue
 ! -------------
 ! CCSD-LR
@@ -4025,576 +3301,6 @@ c
           endif
           corr = corr + pt3_1
         endif
-! -------------
-! CCSDT-IR
-! -------------
-        if (imagresp) then
-#if !defined(CCSDTLR)
-      CALL ERRQUIT('CCSDTLR not compiled (tce_energy.F)',0,CAPMIS_ERR)
-#else
-!
-!         REAL COMPONENT
-!
-          do omegacount=1,inumfreq
-            omega = ifreq(omegacount)
-!            if (omega.eq.(0.0d0)) then
-!              call errquit('tce_energy: imag(omega) is zero',0,CALC_ERR)
-!            endif
-!
-          do axis = 1, 3
-          if (respaxis(axis)) then
-            irrep_d=sym_abelian_axis(geom,axis)
-            call sym_irrepname(geom,irrep_d+1,irrepname)
-            if (nodezero.and.util_print('mod1',print_default)) then
-              write(LuOut,*)
-              write(LuOut,9440) axisname(axis),irrepname
-            endif
-            irrep_o=irrep_d
-            irrep_x=irrep_d
-!
-!           offset to the third set of response for real component
-            dynaxis = 6
-!
-            if (nodezero) write(LuOut,9431) omega
-!
-            call tce_diis_init()
-            do iter=1,maxiter
-              cpu=-util_cpusec()
-              wall=-util_wallsec()
-              if (nodezero.and.(iter.eq.1))
-     &          write(LuOut,9400) "CCSDT-IR (real component)"
-!        write(LuOut,*) "singles initialization"
-              call tce_filename(rr1filename(axis),filename)
-              call createfile(filename,d_rr1(axis),size_tr1(axis))
-              call tce_zero(d_rr1(axis),size_tr1(axis))
-              call tce_filename(ir1filename(axis),filename)
-              call createfile(filename,d_ir1(axis),size_tr1(axis))
-              call tce_zero(d_ir1(axis),size_tr1(axis))
-!        write(LuOut,*) "doubles initialization"
-              call tce_filename(rr2filename(axis),filename)
-              call createfile(filename,d_rr2(axis),size_tr2(axis))
-              call tce_zero(d_rr2(axis),size_tr2(axis))
-              call tce_filename(ir2filename(axis),filename)
-              call createfile(filename,d_ir2(axis),size_tr2(axis))
-              call tce_zero(d_ir2(axis),size_tr2(axis))
-!        write(LuOut,*) "triples initialization"
-              call tce_filename(rr3filename(axis),filename)
-              call createfile(filename,d_rr3(axis),size_tr3(axis))
-              call tce_zero(d_rr3(axis),size_tr3(axis))
-              call tce_filename(ir3filename(axis),filename)
-              call createfile(filename,d_ir3(axis),size_tr3(axis))
-              call tce_zero(d_ir3(axis),size_tr3(axis))
-!        write(LuOut,*) "ccsdt_o1"
-              call ccsdt_o1(d_ir1(axis),d_d1(axis),d_t1,d_t2,
-     &             k_tr1_offset(axis),k_d1_offset(axis),
-     &             k_t1_offset,k_t2_offset)
-!        write(LuOut,*) "ccsdt_o2"
-              call ccsdt_o2(d_ir2(axis),d_d1(axis),d_t1,d_t2,d_t3,
-     &             k_tr2_offset(axis),k_d1_offset(axis),
-     &             k_t1_offset,k_t2_offset,k_t3_offset)
-!        write(LuOut,*) "ccsdt_o3"
-              call ccsdt_o3(d_ir3(axis),d_d1(axis),d_t1,d_t2,d_t3,
-     &             k_tr3_offset(axis),k_d1_offset(axis),
-     &             k_t1_offset,k_t2_offset,k_t3_offset)
-!        write(LuOut,*) "eomccsdt_x1"
-              call eomccsdt_x1(d_f1,d_ir1(axis),d_t1,d_t2,d_v2,
-     1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
-     2             d_tr3(axis+dynaxis),k_f1_offset,k_tr1_offset(axis),
-     3             k_t1_offset,k_t2_offset,k_v2_offset,
-     4             k_tr1_offset(axis),k_tr2_offset(axis),
-     5             k_tr3_offset(axis))
-!        write(LuOut,*) "eomccsdt_x2"
-              call eomccsdt_x2(d_f1,d_ir2(axis),d_t1,d_t2,d_t3,d_v2,
-     1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
-     2             d_tr3(axis+dynaxis),k_f1_offset,k_tr2_offset(axis),
-     3             k_t1_offset,k_t2_offset,k_t3_offset,k_v2_offset,
-     4             k_tr1_offset(axis),k_tr2_offset(axis),
-     5             k_tr3_offset(axis))
-!        write(LuOut,*) "eomccsdt_x3"
-              call eomccsdt_x3(d_f1,d_ir3(axis),d_t1,d_t2,d_t3,d_v2,
-     1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
-     2             d_tr3(axis+dynaxis),k_f1_offset,k_tr3_offset(axis),
-     3             k_t1_offset,k_t2_offset,k_t3_offset,k_v2_offset,
-     4             k_tr1_offset(axis),k_tr2_offset(axis),
-     5             k_tr3_offset(axis))
-!        write(LuOut,*) "reconcilefile"
-              call reconcilefile(d_ir1(axis),size_tr1(axis))
-              call reconcilefile(d_ir2(axis),size_tr2(axis))
-              call reconcilefile(d_ir3(axis),size_tr3(axis))
-!        write(LuOut,*) "eomccsdt_x1"
-              call eomccsdt_x1(d_f1,d_rr1(axis),d_t1,d_t2,d_v2,
-     1             d_ir1(axis),d_ir2(axis),d_ir3(axis),
-     2             k_f1_offset,k_tr1_offset(axis),
-     3             k_t1_offset,k_t2_offset,k_v2_offset,
-     4             k_tr1_offset(axis),k_tr2_offset(axis),
-     5             k_tr3_offset(axis))
-!        write(LuOut,*) "eomccsdt_x2"
-              call eomccsdt_x2(d_f1,d_rr2(axis),d_t1,d_t2,d_t3,d_v2,
-     1             d_ir1(axis),d_ir2(axis),d_ir3(axis),
-     2             k_f1_offset,k_tr2_offset(axis),
-     3             k_t1_offset,k_t2_offset,k_t3_offset,k_v2_offset,
-     4             k_tr1_offset(axis),k_tr2_offset(axis),
-     5             k_tr3_offset(axis))
-!        write(LuOut,*) "eomccsdt_x3"
-              call eomccsdt_x3(d_f1,d_rr3(axis),d_t1,d_t2,d_t3,d_v2,
-     1             d_ir1(axis),d_ir2(axis),d_ir3(axis),
-     2             k_f1_offset,k_tr3_offset(axis),
-     3             k_t1_offset,k_t2_offset,k_t3_offset,k_v2_offset,
-     4             k_tr1_offset(axis),k_tr2_offset(axis),
-     5             k_tr3_offset(axis))
-!        write(LuOut,*) "deletefile"
-              call deletefile(d_ir1(axis))
-              call deletefile(d_ir2(axis))
-              call deletefile(d_ir3(axis))
-!        write(LuOut,*) "daxpyfile"
-              call daxpyfile(1,omega*omega,d_tr1(axis+dynaxis),
-     1             d_rr1(axis),size_tr1(axis))
-              call daxpyfile(1,omega*omega,d_tr2(axis+dynaxis),
-     1             d_rr2(axis),size_tr2(axis))
-              call daxpyfile(1,omega*omega,d_tr3(axis+dynaxis),
-     1             d_rr3(axis),size_tr3(axis))
-!        write(LuOut,*) "reconcilefile"
-              call reconcilefile(d_rr1(axis),size_tr1(axis))
-              call reconcilefile(d_rr2(axis),size_tr2(axis))
-              call reconcilefile(d_rr3(axis),size_tr3(axis))
-!        write(LuOut,*) "tce_residual_tr1"
-              call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
-!        write(LuOut,*) "tce_residual_tr2"
-              call tce_residual_tr2(d_rr2(axis),k_tr2_offset(axis),rr2)
-!        write(LuOut,*) "tce_residual_tr3"
-              call tce_residual_tr3(d_rr3(axis),k_tr3_offset(axis),rr3)
-              residual = max(rr1,rr2,rr3)
-              cpu=cpu+util_cpusec()
-              wall=wall+util_wallsec()
-              if (nodezero) write(LuOut,9420) iter,residual,cpu,wall
-              if (residual .lt. thresh) then
-                if (nodezero) then
-                  write(LuOut,9410)
-                endif
-                if (ampnorms) then
-                  call tce_residual_tr1(d_tr1(axis+dynaxis),
-     1                                  k_tr1_offset(axis),rr1)
-                  call tce_residual_tr2(d_tr2(axis+dynaxis),
-     1                                  k_tr2_offset(axis),rr2)
-                  call tce_residual_tr3(d_tr3(axis+dynaxis),
-     1                                  k_tr3_offset(axis),rr3)
-                  if (nodezero) then
-                    write(LuOut,9082) "T(1) singles",rr1
-                    write(LuOut,9082) "T(1) doubles",rr2
-                    write(LuOut,9082) "T(1) triples",rr3
-                  endif
-                endif
-                call deletefile(d_rr3(axis))
-                call deletefile(d_rr2(axis))
-                call deletefile(d_rr1(axis))
-                call tce_diis_tidy()
-                if (save_tr(1)) then
-                  if(nodezero) then
-                    write(LuOut,*) 'Saving T1(1) now...'
-                  endif
-                  call tr1_restart_save(d_tr1(axis+dynaxis),
-     1                 k_tr1_offset(axis),size_tr1(axis),
-     2                 axis+dynaxis,handle_tr1(axis),irrep_x)
-                endif
-                if (save_tr(2)) then
-                  if(nodezero) then
-                    write(LuOut,*) 'Saving T2(1) now...'
-                  endif
-                  call tr2_restart_save(d_tr2(axis+dynaxis),
-     1                 k_tr2_offset(axis),size_tr2(axis),
-     2                 axis+dynaxis,handle_tr2(axis),irrep_x)
-                endif
-                if (save_tr(3)) then
-                  if(nodezero) then
-                    write(LuOut,*) 'Saving T3(1) now...'
-                  endif
-                  call tr3_restart_save(d_tr3(axis),k_tr3_offset(axis),
-     1                 size_tr3(axis),axis,handle_tr3(axis),irrep_x)
-                endif
-                goto 2335
-              endif
-              if (save_tr(1).and.(mod(iter,save_interval).eq.0)) then
-                if(nodezero) then
-                  write(LuOut,*) 'Saving T1(1) now...'
-                endif
-                call tr1_restart_save(d_tr1(axis+dynaxis),
-     1               k_tr1_offset(axis),size_tr1(axis),
-     2               axis+dynaxis,handle_tr1(axis),irrep_x)
-              endif
-              if (save_tr(2).and.(mod(iter,save_interval).eq.0)) then
-                if(nodezero) then
-                  write(LuOut,*) 'Saving T2(1) now...'
-                endif
-                call tr2_restart_save(d_tr2(axis+dynaxis),
-     1               k_tr2_offset(axis),size_tr2(axis),
-     2               axis+dynaxis,handle_tr2(axis),irrep_x)
-              endif
-              if (save_tr(3).and.(mod(iter,save_interval).eq.0)) then
-                if(nodezero) then
-                  write(LuOut,*) 'Saving T3(1) now...'
-                endif
-                call tr3_restart_save(d_tr3(axis),k_tr3_offset(axis),
-     1               size_tr3(axis),axis,handle_tr3(axis),irrep_x)
-              endif
-              call tce_diis3(.false.,iter,.true.,.true.,.true.,.false.,
-     1             d_rr1(axis),d_tr1(axis+dynaxis),k_tr1_offset(axis),
-     2             size_tr1(axis),
-     3             d_rr2(axis),d_tr2(axis+dynaxis),k_tr2_offset(axis),
-     4             size_tr2(axis),
-     5             d_rr3(axis),d_tr3(axis+dynaxis),k_tr3_offset(axis),
-     6             size_tr3(axis),
-     7             dummy,dummy,dummy,dummy,omega,1)
-              call deletefile(d_rr3(axis))
-              call deletefile(d_rr2(axis))
-              call deletefile(d_rr1(axis))
-              if (nodezero) call util_flush(LuOut)
-            enddo ! iter loop
-          call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
- 2335 continue
-!
-          endif ! respaxis(axis)
-          enddo ! axis loop
-!
-!         IMAGINARY COMPONENT
-!
-          do axis = 1, 3
-          if (respaxis(axis)) then
-            irrep_d=sym_abelian_axis(geom,axis)
-            call sym_irrepname(geom,irrep_d+1,irrepname)
-            if (nodezero.and.util_print('mod1',print_default)) then
-              write(LuOut,*)
-              write(LuOut,9440) axisname(axis),irrepname
-            endif
-            irrep_o=irrep_d
-            irrep_x=irrep_d
-!
-          do omegasign=1,2
-            if (omegasign.eq.1) then
-              omega = (1.0d0)*ifreq(omegacount)
-              dynaxis = 0
-            elseif (omegasign.eq.2) then
-              omega = (-1.0d0)*ifreq(omegacount)
-              dynaxis = 3
-            endif
-            if (nodezero) write(LuOut,9431) omega
-!
-            call tce_diis_init()
-            do iter=1,maxiter
-              cpu=-util_cpusec()
-              wall=-util_wallsec()
-              if (nodezero.and.(iter.eq.1))
-     &          write(LuOut,9400) "CCSDT-IR (imaginary component)"
-!        write(LuOut,*) "singles initialization"
-              call tce_filename(rr1filename(axis),filename)
-              call createfile(filename,d_rr1(axis),size_tr1(axis))
-              call tce_zero(d_rr1(axis),size_tr1(axis))
-!        write(LuOut,*) "doubles initialization"
-              call tce_filename(rr2filename(axis),filename)
-              call createfile(filename,d_rr2(axis),size_tr2(axis))
-              call tce_zero(d_rr2(axis),size_tr2(axis))
-!        write(LuOut,*) "triples initialization"
-              call tce_filename(rr3filename(axis),filename)
-              call createfile(filename,d_rr3(axis),size_tr3(axis))
-              call tce_zero(d_rr3(axis),size_tr3(axis))
-!         write(LuOut,*) "eomccsdt_x1 rr1"
-              call eomccsdt_x1(d_f1,d_rr1(axis),d_t1,d_t2,d_v2,
-     1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
-     2             d_tr3(axis+dynaxis),k_f1_offset,k_tr1_offset(axis),
-     3             k_t1_offset,k_t2_offset,k_v2_offset,
-     4             k_tr1_offset(axis),k_tr2_offset(axis),
-     5             k_tr3_offset(axis))
-!         write(LuOut,*) "eomccsdt_x2 rr2"
-              call eomccsdt_x2(d_f1,d_rr2(axis),d_t1,d_t2,d_t3,d_v2,
-     1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
-     2             d_tr3(axis+dynaxis),k_f1_offset,k_tr2_offset(axis),
-     3             k_t1_offset,k_t2_offset,k_t3_offset,k_v2_offset,
-     4             k_tr1_offset(axis),k_tr2_offset(axis),
-     5             k_tr3_offset(axis))
-!         write(LuOut,*) "eomccsdt_x3 rr3"
-              call eomccsdt_x3(d_f1,d_rr3(axis),d_t1,d_t2,d_t3,d_v2,
-     1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
-     2             d_tr3(axis+dynaxis),k_f1_offset,k_tr3_offset(axis),
-     3             k_t1_offset,k_t2_offset,k_t3_offset,k_v2_offset,
-     4             k_tr1_offset(axis),k_tr2_offset(axis),
-     5             k_tr3_offset(axis))
-!         write(LuOut,*) "daxpyfile rr1"
-              call daxpyfile(1,(-1.0d0)*omega,d_tr1(axis+6),
-     1             d_rr1(axis),size_tr1(axis))
-!         write(LuOut,*) "daxpyfile rr2"
-              call daxpyfile(1,(-1.0d0)*omega,d_tr2(axis+6),
-     1             d_rr2(axis),size_tr2(axis))
-!         write(LuOut,*) "daxpyfile rr3"
-              call daxpyfile(1,(-1.0d0)*omega,d_tr3(axis+6),
-     1             d_rr3(axis),size_tr3(axis))
-!         write(LuOut,*) "reconcilefile rr1,rr2"
-              call reconcilefile(d_rr1(axis),size_tr1(axis))
-              call reconcilefile(d_rr2(axis),size_tr2(axis))
-              call reconcilefile(d_rr3(axis),size_tr3(axis))
-!         write(LuOut,*) "tce_residual_tr1"
-              call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
-!         write(LuOut,*) "tce_residual_tr2"
-              call tce_residual_tr2(d_rr2(axis),k_tr2_offset(axis),rr2)
-!         write(LuOut,*) "tce_residual_tr3"
-              call tce_residual_tr3(d_rr3(axis),k_tr3_offset(axis),rr3)
-              residual = max(rr1,rr2,rr3)
-              cpu=cpu+util_cpusec()
-              wall=wall+util_wallsec()
-              if (nodezero) write(LuOut,9420) iter,residual,cpu,wall
-              if (residual .lt. thresh) then
-                if (nodezero) then
-                  write(LuOut,9410)
-                endif
-                if (ampnorms) then
-                  call tce_residual_tr1(d_tr1(axis+dynaxis),
-     1                                  k_tr1_offset(axis),rr1)
-                  call tce_residual_tr2(d_tr2(axis+dynaxis),
-     1                                  k_tr2_offset(axis),rr2)
-                  call tce_residual_tr3(d_tr3(axis+dynaxis),
-     1                                  k_tr3_offset(axis),rr3)
-                  if (nodezero) then
-                    write(LuOut,9082) "T(1) singles",rr1
-                    write(LuOut,9082) "T(1) doubles",rr2
-                    write(LuOut,9082) "T(1) triples",rr3
-                  endif
-                endif
-                call deletefile(d_rr3(axis))
-                call deletefile(d_rr2(axis))
-                call deletefile(d_rr1(axis))
-                call tce_diis_tidy()
-                if (save_tr(1)) then
-                  if(nodezero) then
-                    write(LuOut,*) 'Saving T1(1) now...'
-                  endif
-                  call tr1_restart_save(d_tr1(axis+dynaxis),
-     1                 k_tr1_offset(axis),size_tr1(axis),
-     2                 axis+dynaxis,handle_tr1(axis),irrep_x)
-                endif
-                if (save_tr(2)) then
-                  if(nodezero) then
-                    write(LuOut,*) 'Saving T2(1) now...'
-                  endif
-                  call tr2_restart_save(d_tr2(axis+dynaxis),
-     1                 k_tr2_offset(axis),size_tr2(axis),
-     2                 axis+dynaxis,handle_tr2(axis),irrep_x)
-                endif
-                if (save_tr(3)) then
-                  if(nodezero) then
-                    write(LuOut,*) 'Saving T3(1) now...'
-                  endif
-                  call tr3_restart_save(d_tr3(axis),k_tr3_offset(axis),
-     1                 size_tr3(axis),axis,handle_tr3(axis),irrep_x)
-                endif
-                goto 2336
-              endif
-              if (save_tr(1).and.(mod(iter,save_interval).eq.0)) then
-                if(nodezero) then
-                  write(LuOut,*) 'Saving T1(1) now...'
-                endif
-                call tr1_restart_save(d_tr1(axis+dynaxis),
-     1               k_tr1_offset(axis),size_tr1(axis),
-     2               axis+dynaxis,handle_tr1(axis),irrep_x)
-              endif
-              if (save_tr(2).and.(mod(iter,save_interval).eq.0)) then
-                if(nodezero) then
-                  write(LuOut,*) 'Saving T2(1) now...'
-                endif
-                call tr2_restart_save(d_tr2(axis+dynaxis),
-     1               k_tr2_offset(axis),size_tr2(axis),
-     2               axis+dynaxis,handle_tr2(axis),irrep_x)
-              endif
-              if (save_tr(3).and.(mod(iter,save_interval).eq.0)) then
-                if(nodezero) then
-                  write(LuOut,*) 'Saving T3(1) now...'
-                endif
-                call tr3_restart_save(d_tr3(axis),k_tr3_offset(axis),
-     1               size_tr3(axis),axis,handle_tr3(axis),irrep_x)
-              endif
-              call tce_diis3(.false.,iter,.true.,.true.,.true.,.false.,
-     1             d_rr1(axis),d_tr1(axis+dynaxis),k_tr1_offset(axis),
-     2             size_tr1(axis),
-     3             d_rr2(axis),d_tr2(axis+dynaxis),k_tr2_offset(axis),
-     4             size_tr2(axis),
-     5             d_rr3(axis),d_tr3(axis+dynaxis),k_tr3_offset(axis),
-     6             size_tr3(axis),
-     7             dummy,dummy,dummy,dummy,0.0d0,1)
-              call deletefile(d_rr3(axis))
-              call deletefile(d_rr2(axis))
-              call deletefile(d_rr1(axis))
-              if (nodezero) call util_flush(LuOut)
-            enddo ! iter loop
-          call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
- 2336 continue
-!
-          enddo ! omegasign loop
-!
-          endif ! respaxis(axis)
-          enddo ! axis loop
-!
-! CCSDT-IR evaluation step
-!
-          cpu=-util_cpusec()
-          wall=-util_wallsec()
-          do axisA = 1, 3
-          do axisB = 1, axisA
-          alpha(axisA,axisB)=0.0d0
-          if (respaxis(axisA).and.respaxis(axisB)) then
-            irrep_a=sym_abelian_axis(geom,axisA)
-            irrep_b=sym_abelian_axis(geom,axisB)
-            irrep_y=irrep_g
-!
-            call tce_filename('a0',filename)
-            call createfile(filename,d_a0,size_a0)
-!
-!            if (nodezero) write(LuOut,*) "axisA = ",axisA
-!            if (nodezero) write(LuOut,*) "axisB = ",axisB
-!
-            alpha1=0.0d0
-            alpha2=0.0d0
-!
-            irrep_d=irrep_a
-            irrep_tr=irrep_b
-!
-!            write(LuOut,*) "alpha_1 AB"
-            call ccsdt_lr_alpha1(d_a0,d_d1(axisA),d_t1,d_t2,d_t3,
-     1           d_tr1(axisB+6),d_tr2(axisB+6),d_tr3(axisB+6),
-     2           d_lambda1,d_lambda2,d_lambda3,k_a0_offset,
-     3           k_d1_offset(axisA),k_t1_offset,k_t2_offset,
-     4           k_t3_offset,k_tr1_offset(axisB),
-     5           k_tr2_offset(axisB),k_tr3_offset(axisB),
-     6           k_l1_offset,k_l2_offset,k_l3_offset)
-!
-            call reconcilefile(d_a0,size_a0)
-            call get_block(d_a0,alpha1,1,0)
-            call tce_zero(d_a0,size_a0)
-!            write(LuOut,*) "alpha_1 AB = ",alpha1
-!
-            if (axisA.eq.axisB) then
-              alpha2=alpha1
-            else
-              irrep_d=irrep_b
-              irrep_tr=irrep_a
-!              write(LuOut,*) "alpha_1 BA"
-            call ccsdt_lr_alpha1(d_a0,d_d1(axisB),d_t1,d_t2,d_t3,
-     1           d_tr1(axisA+6),d_tr2(axisA+6),d_tr3(axisA+6),
-     2           d_lambda1,d_lambda2,d_lambda3,k_a0_offset,
-     3           k_d1_offset(axisB),k_t1_offset,k_t2_offset,
-     4           k_t3_offset,k_tr1_offset(axisA),
-     5           k_tr2_offset(axisA),k_tr3_offset(axisA),
-     6           k_l1_offset,k_l2_offset,k_l3_offset)
-!
-              call reconcilefile(d_a0,size_a0)
-              call get_block(d_a0,alpha2,1,0)
-              call tce_zero(d_a0,size_a0)
-            endif ! axisA.eq.axisB
-!            write(LuOut,*) "alpha_1 BA = ",alpha2
-!
-            alpha(axisA,axisB)=alpha(axisA,axisB)+alpha1+alpha2
-!
-            alpha1=0.0d0
-            alpha2=0.0d0
-            alpha3=0.0d0
-!
-            irrep_tra=irrep_a
-            irrep_trb=irrep_b
-!
-!            write(LuOut,*) "alpha_2 A(+i) B(-i)"
-            call ccsdt_lr_alpha2(d_f1,d_a0,d_t1,d_t2,d_t3,
-     1           d_tr1(axisA),d_tr2(axisA),d_tr3(axisA),
-     2           d_tr1(axisB+3),d_tr2(axisB+3),d_tr3(axisB+3),
-     3           d_v2,d_lambda1,d_lambda2,d_lambda3,
-     4           k_f1_offset,k_a0_offset,
-     5           k_t1_offset,k_t2_offset,k_t3_offset,
-     6           k_tr1_offset(axisA),k_tr2_offset(axisA),
-     7           k_tr3_offset(axisA),k_tr1_offset(axisB),
-     8           k_tr2_offset(axisB),k_tr3_offset(axisB),
-     9           k_v2_offset,k_l1_offset,k_l2_offset,k_l3_offset)
-            call reconcilefile(d_a0,size_a0)
-            call get_block(d_a0,alpha1,1,0)
-            call tce_zero(d_a0,size_a0)
-!            write(LuOut,*) "alpha_2 A(+i) B(-i) = ",alpha1
-!
-!            write(LuOut,*) "alpha_2 A(-i) B(+i)"
-            call ccsdt_lr_alpha2(d_f1,d_a0,d_t1,d_t2,d_t3,
-     1           d_tr1(axisA+3),d_tr2(axisA+3),d_tr3(axisA+3),
-     2           d_tr1(axisB),d_tr2(axisB),d_tr3(axisB),
-     3           d_v2,d_lambda1,d_lambda2,d_lambda3,
-     4           k_f1_offset,k_a0_offset,
-     5           k_t1_offset,k_t2_offset,k_t3_offset,
-     6           k_tr1_offset(axisA),k_tr2_offset(axisA),
-     7           k_tr3_offset(axisA),k_tr1_offset(axisB),
-     8           k_tr2_offset(axisB),k_tr3_offset(axisB),
-     9           k_v2_offset,k_l1_offset,k_l2_offset,k_l3_offset)
-            call reconcilefile(d_a0,size_a0)
-            call get_block(d_a0,alpha2,1,0)
-            call tce_zero(d_a0,size_a0)
-!            write(LuOut,*) "alpha_2 A(-i) B(+i) = ",alpha2
-!
-!            write(LuOut,*) "alpha_2 A(r) B(r)"
-            call ccsdt_lr_alpha2(d_f1,d_a0,d_t1,d_t2,d_t3,
-     1           d_tr1(axisA+6),d_tr2(axisA+6),d_tr3(axisA+6),
-     2           d_tr1(axisB+6),d_tr2(axisB+6),d_tr3(axisB+6),
-     3           d_v2,d_lambda1,d_lambda2,d_lambda3,
-     4           k_f1_offset,k_a0_offset,
-     5           k_t1_offset,k_t2_offset,k_t3_offset,
-     6           k_tr1_offset(axisA),k_tr2_offset(axisA),
-     7           k_tr3_offset(axisA),k_tr1_offset(axisB),
-     8           k_tr2_offset(axisB),k_tr3_offset(axisB),
-     9           k_v2_offset,k_l1_offset,k_l2_offset,k_l3_offset)
-            call reconcilefile(d_a0,size_a0)
-            call get_block(d_a0,alpha3,1,0)
-!            write(LuOut,*) "alpha_2 A(r) B(r) = ",alpha3
-            call deletefile(d_a0)
-!
-            alpha(axisA,axisB)=alpha(axisA,axisB)-alpha1-alpha2+alpha3
-            alpha(axisA,axisB)=-1.0d0*alpha(axisA,axisB)
-!
-!            write(LuOut,*) "alpha(axisA,axisB) = ",alpha(axisA,axisB)
-!            if (nodezero) write(LuOut,9020) cpu, wall
-!
-          endif ! respaxis(axis)
-          enddo ! axisB loop
-          enddo ! axisA loop
-          cpu=cpu+util_cpusec()
-          wall=wall+util_wallsec()
-!
-          do i = 1, 3
-            do j = 1, i
-              alphacopy(i,j)=alpha(i,j)
-              alphacopy(j,i)=alpha(i,j)
-            enddo
-          enddo
-!
-          call hnd_diag(alphacopy,alphaevr,3,.false.,.false.)
-!
-          alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
-          alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
-     1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
-     2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
-          alphaani = dsqrt(0.5d0*alphaani)
-!
-          if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
-     1        .and.nodezero) write(LuOut,9911)
-!
-          if (nodezero) write(LuOut,9434) "CCSDT Imaginary Response",
-     1      ifreq(omegacount),auXnm/ifreq(omegacount),
-     2      alpha(1,1),alpha(2,1),alpha(3,1),
-     3      au2ang3*alpha(1,1),au2ang3*alpha(2,1),au2ang3*alpha(3,1),
-     4      alpha(2,1),alpha(2,2),alpha(3,2),
-     5      au2ang3*alpha(2,1),au2ang3*alpha(2,2),au2ang3*alpha(3,2),
-     6      alpha(3,1),alpha(3,2),alpha(3,3),
-     7      au2ang3*alpha(3,1),au2ang3*alpha(3,2),au2ang3*alpha(3,3),
-     8      alphaevr(1),alphaevr(2),alphaevr(3),
-     9      au2ang3*alphaevr(1),au2ang3*alphaevr(2),au2ang3*alphaevr(3),
-     1      alphaiso,au2ang3*alphaiso,
-     2      alphaani,au2ang3*alphaani
-          if (nodezero) write(LuOut,9020) cpu, wall
-          call util_flush(LuOut)
-!
-          enddo ! omegacount loop
-!
-#endif
-        endif ! imagresp
-!
 ! -------------
 ! CCSDT-LR
 ! -------------
@@ -7121,7 +5827,7 @@ c
         if (.not.ma_pop_stack(l_b0_offset))
      1    call errquit("tce_energy: MA problem",25,MA_ERR)
       endif
-      if (lineresp.or.imagresp) then
+      if (lineresp) then
         if (.not.ma_pop_stack(l_a0_offset))
      1    call errquit("tce_energy: MA problem",26,MA_ERR)
       endif
@@ -11169,17 +9875,16 @@ c
           endif
           enddo ! axis
         endif ! leftresp
-        if (lineresp.or.imagresp) then
+        if (lineresp) then
           do axis = 3, 1, -1
           if (respaxis(axis)) then
             call deletefile(d_tr4(axis))
             call deletefile(d_tr4(axis+3))
-            if (imagresp) call deletefile(d_tr4(axis+6))
             if (.not.ma_pop_stack(l_tr4_offset(axis)))
      1        call errquit("tce_energy: MA problem",89,MA_ERR)
           endif
           enddo ! axis
-        endif ! lineresp.or.imagresp
+        endif ! lineresp
         if (left) then
           call deletefile(d_lambda4)
           if (.not.ma_pop_stack(l_l4_offset))
@@ -11200,17 +9905,16 @@ c
           endif
           enddo ! axis
         endif ! leftresp
-        if (lineresp.or.imagresp) then
+        if (lineresp) then
           do axis = 3, 1, -1
           if (respaxis(axis)) then
             call deletefile(d_tr3(axis))
             call deletefile(d_tr3(axis+3))
-            if (imagresp) call deletefile(d_tr3(axis+6))
             if (.not.ma_pop_stack(l_tr3_offset(axis)))
      1        call errquit("tce_energy: MA problem",88,MA_ERR)
           endif
           enddo ! axis
-        endif ! lineresp.or.imagresp
+        endif ! lineresp
         if (left) then
           call deletefile(d_lambda3)
           if (.not.ma_pop_stack(l_l3_offset))
@@ -11241,17 +9945,16 @@ c
           endif
           enddo ! axis
         endif ! leftresp
-        if (lineresp.or.imagresp) then
+        if (lineresp) then
           do axis = 3, 1, -1
           if (respaxis(axis)) then
             call deletefile(d_tr2(axis))
             call deletefile(d_tr2(axis+3))
-            if (imagresp) call deletefile(d_tr2(axis+6))
             if (.not.ma_pop_stack(l_tr2_offset(axis)))
      1        call errquit("tce_energy: MA problem",87,MA_ERR)
           endif
           enddo ! axis
-        endif ! lineresp.or.imagresp
+        endif ! lineresp
         if (left) then
           call deletefile(d_lambda2)
           if (.not.ma_pop_stack(l_l2_offset))
@@ -11272,17 +9975,16 @@ c
           endif
           enddo ! axis
         endif ! leftresp
-        if (lineresp.or.imagresp) then
+        if (lineresp) then
           do axis = 3, 1, -1
           if (respaxis(axis)) then
             call deletefile(d_tr1(axis))
             call deletefile(d_tr1(axis+3))
-            if (imagresp) call deletefile(d_tr1(axis+6))
             if (.not.ma_pop_stack(l_tr1_offset(axis)))
      1        call errquit("tce_energy: MA problem",86,MA_ERR)
           endif
           enddo ! axis
-        endif ! lineresp.or.imagresp
+        endif ! lineresp
         if (left) then
           call deletefile(d_lambda1)
           if (.not.ma_pop_stack(l_l1_offset))

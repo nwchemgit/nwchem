@@ -1,41 +1,26 @@
-      integer cc_ir_alg
       integer maxnumfreq
       parameter (maxnumfreq=100)
-      integer anumfreq,inumfreq,bnumfreq,gnumfreq
+      integer anumfreq,bnumfreq,gnumfreq
       integer lr_diis,yr_diis,qr_diis
       double precision lr_thresh,yr_thresh,qr_thresh
-      double precision ifreqw0                     ! effective frequency omega_0 for automatic generation of Casimer-Polder integration points
-      double precision num1,num0,den1,den0,num1sq,num0sq,numtot,dentot 
-      double precision integral(8)                 ! Casimir-Polder integral for (XX,YY,ZZ,XY,YZ,XZ,AVG,ANI) components
+      double precision num1,num0,den1,den0,num1sq,num0sq,numtot,dentot
       double precision afreq(maxnumfreq)
-      double precision ifreq(maxnumfreq)           ! needs lots of alpha(i*omega) for Casimir-Polder quadrature
-      double precision ifreqqw(maxnumfreq)       ! quadrature weights for Derevianko grid
-      double precision ifreqval(maxnumfreq,8)      ! alpha(ifreq(inumfreq)) for (XX,YY,ZZ,XY,YZ,XZ,AVG,ANI) components
       double precision bfreq(maxnumfreq)
       double precision gfreq(maxnumfreq)
       logical respaxis(3)
-      logical lineresp,imagresp,leftresp,quadresp
-      logical ifreqauto
-      logical ifreqgrdv                            ! use Derevianko grid with fixed inumfreq (50)
-      logical ifreqgrgl                            ! use Gauss-Legendre grid with fixed inumfreq (16)
-      logical ifreqgrch                            ! use Gauss-Chebychev grid with arbitrary inumfreq
-      logical ifreqgrst                            ! use Stanton grid with arbitrary inumfreq
-      logical beta_shg,beta_or,beta_eope
-      logical guess_ir_real,guess_ir_imag,guess_lr_real,guess_qr_real
+      logical lineresp,leftresp,quadresp
+      logical guess_lr_real,guess_qr_real
       logical nopolar,nohyper,nogamma
 
       common /tcepropdouble/
-     1 afreq,ifreq,bfreq,gfreq,lr_thresh,yr_thresh,qr_thresh,
-     2 ifreqval
+     1 afreq,bfreq,gfreq,lr_thresh,yr_thresh,qr_thresh
 
       common /tcepropinteger/
-     1 cc_ir_alg,anumfreq,inumfreq,bnumfreq,gnumfreq
+     1 anumfreq,bnumfreq,gnumfreq
 
       common /tceproplogical/
-     1  lineresp,imagresp,leftresp,quadresp,respaxis,
-     2  beta_shg,beta_or,beta_eope,guess_ir_real,guess_ir_imag,
+     1  lineresp,leftresp,quadresp,respaxis,
      3  guess_lr_real,guess_qr_real,
-     4  ifreqauto,ifreqgrdv,ifreqgrgl,ifreqgrch,ifreqgrst,
      5  nopolar,nohyper,nogamma
 
 c $Id$

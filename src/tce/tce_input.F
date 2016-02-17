@@ -1569,13 +1569,11 @@
       logical lineresp ! T(1) response equations - real frequency
       logical leftresp ! L(1) response equations 
       logical quadresp ! T(2) response equations
-      logical imagresp ! T(1) response equatiosn - imaginary frequency
       logical status
 !
       lineresp = .false.
       leftresp = .false.
       quadresp = .false.
-      imagresp = .false.
 !
 ! -------------------------------------
 ! What input block are we dealing with?
@@ -1648,27 +1646,6 @@
             gamm_type = 'CARS'
           else
             call errquit('tce_prop_input: invalid option for gamma',
-     1                   __LINE__,RTDB_ERR)
-          endif
-        endif
-!
-!     DISPERSION
-!
-      elseif (inp_compare(.false.,test,'dispersion').or.
-     1        inp_compare(.false.,test,'disp').or.
-     2        inp_compare(.false.,test,'c6')) then
-        imagresp = .true.
-        if (.not.inp_a(disp_opt)) then
-          disp_type = 'derevianko'
-        else
-          if (inp_compare(.false.,disp_opt,'custom')) then
-            disp_type = 'custom'
-          elseif (inp_compare(.false.,disp_opt,'gauss-legendre')) then
-            disp_type = 'gauss-leg'
-          elseif (inp_compare(.false.,disp_opt,'gauss-chebyshev')) then
-            disp_type = 'gauss-cheb'
-          else
-            call errquit('tce_prop_input: invalid option for disp',
      1                   __LINE__,RTDB_ERR)
           endif
         endif
@@ -1789,44 +1766,6 @@
           dbl_mb(k_c) = 0.0d0
         endif
   500   continue
-!
-!     IFREQ (omega for imaginary polarizability)
-!
-      elseif (inp_compare(.false.,test,'ifreq')) then
-        imagresp = .true.
-        if (inp_i(n_i)) then
-          if (.not.ma_push_get(mt_dbl,n_i,'ifreq',l_i,
-     1                         k_i)) then
-             call errquit('tce_prop_input: ma_push_get',__LINE__,MA_ERR)
-          endif
-          icount = 0
-          do i = 0, n_i-1
-            status = inp_f(dbl_mb(k_i+i))
-            if (status) then
-              icount = icount+1
-            else
-              write(6,'(a,a,i4,a)')
-     1           'Response property input found ',
-     2           'fewer frequencies than expected, only ',icount,
-     3           'will be used'
-              n_i = icount
-              if (icount.eq.0) then
-                if (.not.ma_pop_stack(l_c)) then
-                  call errquit('tce_prop_input: ma_pop_stack',__LINE__,
-     1                         MA_ERR)
-                endif
-              endif
-              goto 600
-            endif
-          enddo
-        else
-          n_i = 1
-          if (.not.ma_push_get(mt_dbl,n_i,'ifreq',l_i,k_i)) then
-             call errquit('tce_prop_input: ma_push_get',__LINE__,MA_ERR)
-          endif
-          dbl_mb(k_i) = 0.0d0
-        endif
-  600   continue
 !
 !     END
 !

@@ -350,11 +350,6 @@ c#endif
         if (.not.rtdb_put(rtdb,'tce:diis3',mt_int,1,diis3))
      1  call errquit('tce_init: failed to write diis3',0,RTDB_ERR)
       endif
-      if (.not.rtdb_get(rtdb,'tce:cc_ir_alg',mt_int,1,cc_ir_alg)) then
-        cc_ir_alg = 1
-        if (.not.rtdb_put(rtdb,'tce:cc_ir_alg',mt_int,1,cc_ir_alg))
-     2  call errquit('tce_init: failed to write cc_ir_alg',0,RTDB_ERR)
-      endif
       if (.not.rtdb_get(rtdb,'tce:guess_lr_real',mt_log,1,
      1                  guess_lr_real)) then
         guess_lr_real = .false.
@@ -369,22 +364,6 @@ c#endif
         if (.not.rtdb_put(rtdb,'tce:guess_qr_real',mt_log,1,
      1                    guess_qr_real))
      2  call errquit('tce_init: failed to write guess_qr_real',0,
-     3               RTDB_ERR)
-      endif
-      if (.not.rtdb_get(rtdb,'tce:guess_ir_real',mt_log,1,
-     1                  guess_ir_real)) then
-        guess_ir_real = .false.
-        if (.not.rtdb_put(rtdb,'tce:guess_ir_real',mt_log,1,
-     1                    guess_ir_real))
-     2  call errquit('tce_init: failed to write guess_ir_real',0,
-     3               RTDB_ERR)
-      endif
-      if (.not.rtdb_get(rtdb,'tce:guess_ir_imag',mt_log,1,
-     1                  guess_ir_imag)) then
-        guess_ir_imag = .false.
-        if (.not.rtdb_put(rtdb,'tce:guess_ir_imag',mt_log,1,
-     1                    guess_ir_imag))
-     2  call errquit('tce_init: failed to write guess_ir_imag',0,
      3               RTDB_ERR)
       endif
 c
@@ -486,20 +465,10 @@ c
         if (.not.rtdb_put(rtdb,'tce:lineresp',mt_log,1,lineresp))
      1  call errquit('tce_init: failed to write lineresp',0,RTDB_ERR)
       endif
-      if (.not.rtdb_get(rtdb,'tce:imagresp',mt_log,1,imagresp)) then
-        imagresp=.false.
-        if (.not.rtdb_put(rtdb,'tce:imagresp',mt_log,1,imagresp))
-     1  call errquit('tce_init: failed to write imagresp',0,RTDB_ERR)
-      endif
-      if (lineresp.or.imagresp) then
+      if (lineresp) then
         left=.true.
         if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
      1  call errquit('tce_init: failed to write left',0,RTDB_ERR)
-      endif
-      if (imagresp) then
-        lineresp=.false.
-        if (.not.rtdb_put(rtdb,'tce:lineresp',mt_log,1,lineresp))
-     1  call errquit('tce_init: failed to write lineresp',0,RTDB_ERR)
       endif
 c
       if (.not.rtdb_get(rtdb,'tce:leftresp',mt_log,1,leftresp)) then
@@ -539,165 +508,6 @@ c
      1    call errquit('tce_init: failed to write bfreq',0,RTDB_ERR)
       endif
 c
-      if(imagresp) then !--------------------------
-c
-      if (.not.rtdb_get(rtdb,'tce:ifreqauto',mt_log,1,ifreqauto)) then
-        ifreqauto=.true.
-        if (.not.rtdb_put(rtdb,'tce:ifreqauto',mt_log,1,ifreqauto))
-     1  call errquit('tce_init: failed to write ifreqauto',0,RTDB_ERR)
-      endif
-      if (.not.rtdb_get(rtdb,'tce:ifreqgrgl',mt_log,1,ifreqgrgl)) then
-        ifreqgrgl=.false.
-        if (.not.rtdb_put(rtdb,'tce:ifreqgrgl',mt_log,1,ifreqgrgl))
-     1  call errquit('tce_init: failed to write ifreqgrgl',0,RTDB_ERR)
-      endif
-      if (.not.rtdb_get(rtdb,'tce:ifreqgrch',mt_log,1,ifreqgrch)) then
-        ifreqgrch=.false.
-        if (.not.rtdb_put(rtdb,'tce:ifreqgrch',mt_log,1,ifreqgrch))
-     1  call errquit('tce_init: failed to write ifreqgrch',0,RTDB_ERR)
-      endif
-      if (.not.rtdb_get(rtdb,'tce:ifreqgrst',mt_log,1,ifreqgrst)) then
-        ifreqgrst=.false.
-        if (.not.rtdb_put(rtdb,'tce:ifreqgrch',mt_log,1,ifreqgrst))
-     1  call errquit('tce_init: failed to write ifreqgrst',0,RTDB_ERR)
-      endif
-#ifdef DEBUG_PRINT
-       if(nodezero) write(LuOut,*) 'ifreqauto = ',ifreqauto 
-       if(nodezero) write(LuOut,*) 'ifreqgrgl = ',ifreqgrgl 
-       if(nodezero) write(LuOut,*) 'ifreqgrch = ',ifreqgrch
-       if(nodezero) write(LuOut,*) 'ifreqgrst = ',ifreqgrst
-#endif
-c
-c     Check for valid options
-c
-      if (( ifreqgrgl.and.ifreqgrch ).or.
-     1    ( ifreqgrgl.and.ifreqgrst ).or.
-     1    ( ifreqgrch.and.ifreqgrst )) then
-        if(nodezero) then
-           write(LuOut,*) 'These are mutually-exclusive:'
-           write(LuOut,*) 'Gauss-Legendre  (ifreqgrgl = T)'
-           write(LuOut,*) 'Gauss-Chebyshev (ifreqgrgc = T)'
-           write(LuOut,*) 'Stanton         (ifreqgrst = T)'
-           call util_flush(LuOut)
-        endif
-        call errquit('tce_init: user input error',0,INPUT_ERR)
-      endif
-      if (ifreqauto) then
-c
-c     Gauss-Chebychev grid identical to Dalton 2.0
-c
-      if (ifreqgrch) then
-#ifdef DEBUG_PRINT
-        if(nodezero) write(LuOut,*) 'Gauss-Chebychev grid'
-        if(nodezero) call util_flush(LuOut)
-#endif
-        if (.not.rtdb_get(rtdb,'tce:inumfreq',mt_int,1,inumfreq)) then
-          inumfreq = 10
-          if (.not.rtdb_put(rtdb,'tce:inumfreq',mt_int,1,inumfreq))
-     1     call errquit('tce_init: failed to write inumfreq',0,RTDB_ERR)
-        endif
-        fac = pi/(4.0d0*inumfreq)
-#ifdef DEBUG_PRINT
-        if(nodezero) write(LuOut,*) 'fac = ',fac
-        if(nodezero) call util_flush(LuOut)
-#endif
-        ifreq(1) = 0.0d0
-        do i = 1, inumfreq-1
-          j = (2*inumfreq-2) - 2*(i-1)
-          xxx = fac*j
-          ifreq(i+1) = (dtan(xxx))**(-2)
-#ifdef DEBUG_PRINT
-          if(nodezero) write(LuOut,36) i,j,xxx,ifreq(i)
-   36 format(1x,'$$$',2x,i10,2x,i10,2x,f14.6,2x,f14.6)
-#endif
-        enddo 
-#ifdef DEBUG_PRINT
-        if(nodezero) call util_flush(LuOut)
-#endif
-c
-c     Automatic grid using Stanton's scheme [Phys. Rev. A 49, 1698 (1994)]
-c
-      elseif (ifreqgrst) then
-#ifdef DEBUG_PRINT
-       if(nodezero) write(LuOut,*) 'Stanton grid'
-#endif
-        if (.not.rtdb_get(rtdb,'tce:ifreqw0',mt_dbl,1,ifreqw0)) then
-          ifreqw0 = 1.0d0
-          if (.not.rtdb_put(rtdb,'tce:ifreqw0',mt_dbl,1,ifreqw0))
-     1      call errquit('tce_init: failed to write ifreqw0',0,RTDB_ERR)
-        endif
-        if (.not.rtdb_get(rtdb,'tce:inumfreq',mt_int,1,inumfreq)) then
-          inumfreq = 10
-          if (.not.rtdb_put(rtdb,'tce:inumfreq',mt_int,1,inumfreq))
-     1     call errquit('tce_init: failed to write inumfreq',0,RTDB_ERR)
-        endif
-        dt = 1.0d0/(inumfreq-1)
-        do i = inumfreq, 1, -1
-          t_i = (i-1)*dt
-          ifreq(i) = ifreqw0 * (1.0d0 - t_i)/(1.0d0 + t_i)
-#ifdef DEBUG_PRINT
-          if(nodezero) write(LuOut,37) i,t_i,ifreq(i)
-   37 format(1x,'$$$',2x,i10,2x,f14.6,2x,f14.6)
-#endif
-        enddo
-#ifdef DEBUG_PRINT
-        if(nodezero) call util_flush(LuOut)
-#endif
-        if (.not.rtdb_put(rtdb,'tce:ifreq',mt_dbl,inumfreq,ifreq))
-     1    call errquit('tce_init: failed to write ifreq',0,RTDB_ERR)
-      else ! if (ifreqgrgl) then
-c
-c     Gauss-Legendre grid with same coefficients as Dalton 2.0
-c
-#ifdef DEBUG_PRINT
-        if(nodezero) write(LuOut,*) 'Gauss-Legendre grid'
-        if(nodezero) call util_flush(LuOut)
-#endif
-        inumfreq = 17
-        if (.not.rtdb_put(rtdb,'tce:inumfreq',mt_int,1,inumfreq))
-     1     call errquit('tce_init: failed to write inumfreq',0,RTDB_ERR)
-        ifreq(1)  = 0.0000000000d0
-        ifreq(2)  = 0.0000011354d0
-        ifreq(3)  = 0.0000324954d0
-        ifreq(4)  = 0.0002074939d0
-        ifreq(5)  = 0.0007766098d0
-        ifreq(6)  = 0.0022314002d0
-        ifreq(7)  = 0.0055272185d0
-        ifreq(8)  = 0.0125684274d0
-        ifreq(9)  = 0.0273216537d0
-        ifreq(10) = 0.0585616091d0
-        ifreq(11) = 0.1273031181d0
-        ifreq(12) = 0.2894765239d0
-        ifreq(13) = 0.7170385627d0
-        ifreq(14) = 2.0602366551d0
-        ifreq(15) = 7.7110713698d0
-        ifreq(16) = 49.2377677794d0
-        ifreq(17) = 1409.1898779477d0
-        if (.not.rtdb_put(rtdb,'tce:ifreq',mt_dbl,inumfreq,ifreq))
-     1    call errquit('tce_init: failed to write ifreq',0,RTDB_ERR)
-      endif
-c
-c     User-specified grid
-c
-      else
-#ifdef DEBUG_PRINT
-        if(nodezero) write(LuOut,*) 'User-specified grid'
-        if(nodezero) call util_flush(LuOut)
-#endif
-        if (.not.rtdb_get_info(rtdb,'tce:ifreq',ma_type,inumfreq,
-     1    date)) then
-          inumfreq = 1
-          if (.not.rtdb_put(rtdb,'tce:inumfreq',mt_int,1,inumfreq))
-     1     call errquit('tce_init: failed to write inumfreq',0,RTDB_ERR)
-        endif
-        if (.not.rtdb_get(rtdb,'tce:ifreq',mt_dbl,inumfreq,ifreq)) then
-          ifreq(1) = 0.0d0
-          if (.not.rtdb_put(rtdb,'tce:ifreq',mt_dbl,inumfreq,ifreq))
-     1      call errquit('tce_init: failed to write ifreq',0,RTDB_ERR)
-        endif
-      endif
-      endif !------------------------------
-c
       if (anumfreq.gt.maxnumfreq) then
         anumfreq = maxnumfreq
         if (.not.rtdb_put(rtdb,'tce:anumfreq',mt_int,1,anumfreq))
@@ -707,11 +517,6 @@ c
         bnumfreq = maxnumfreq
         if (.not.rtdb_put(rtdb,'tce:bnumfreq',mt_int,1,bnumfreq))
      1    call errquit('tce_init: failed to write bnumfreq',0,RTDB_ERR)
-      endif
-      if (inumfreq.gt.maxnumfreq) then
-        inumfreq = maxnumfreq
-        if (.not.rtdb_put(rtdb,'tce:inumfreq',mt_int,1,inumfreq))
-     1    call errquit('tce_init: failed to write inumfreq',0,RTDB_ERR)
       endif
 c
       if (.not.rtdb_get(rtdb,'tce:respaxis',mt_log,3,respaxis)) then
@@ -805,21 +610,19 @@ c
         if (.not.rtdb_put(rtdb,'tce:save_l',mt_log,4,save_l))
      1  call errquit('tce_init: failed to write save_l',0,RTDB_ERR)
       endif
-      if (.not.rtdb_get(rtdb,'tce:save_tr',mt_log,12,save_tr)) then
-c       Real positive and negative frequency amplitudes, then
-c       the real component of imaginary response when doing CC-IR          
-c       S(+),D(+),T(+),Q(+),S(-),D(-),T(-),Q(-),S(r),D(r),T(r),Q(r)
-        do i = 1, 12
+      if (.not.rtdb_get(rtdb,'tce:save_tr',mt_log,8,save_tr)) then
+c       S(+),D(+),T(+),Q(+),S(-),D(-),T(-),Q(-)
+        do i = 1, 8
           save_tr(i)=.false.
         enddo
-        if (.not.rtdb_put(rtdb,'tce:save_tr',mt_log,12,save_tr))
+        if (.not.rtdb_put(rtdb,'tce:save_tr',mt_log,8,save_tr))
      1  call errquit('tce_init: failed to write save_tr',0,RTDB_ERR)
       endif
-      if (.not.rtdb_get(rtdb,'tce:save_lr',mt_log,12,save_lr)) then
-        do i = 1, 12
+      if (.not.rtdb_get(rtdb,'tce:save_lr',mt_log,8,save_lr)) then
+        do i = 1, 8
           save_lr(i)=.false.
         enddo
-        if (.not.rtdb_put(rtdb,'tce:save_lr',mt_log,12,save_lr))
+        if (.not.rtdb_put(rtdb,'tce:save_lr',mt_log,8,save_lr))
      1  call errquit('tce_init: failed to write save_lr',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:save_x',mt_log,4,save_x)) then
@@ -869,24 +672,20 @@ c      endif
         if (.not.rtdb_put(rtdb,'tce:read_l',mt_log,4,read_l))
      1  call errquit('tce_init: failed to write read_l',0,RTDB_ERR)
       endif
-      if (.not.rtdb_get(rtdb,'tce:read_tr',mt_log,12,read_tr)) then
-c       Real positive and negative frequency amplitudes, then
-c       the real component of imaginary response when doing CC-IR          
-c       S(+),D(+),T(+),Q(+),S(-),D(-),T(-),Q(-),S(r),D(r),T(r),Q(r)
-        do i = 1, 12
+      if (.not.rtdb_get(rtdb,'tce:read_tr',mt_log,8,read_tr)) then
+c       S(+),D(+),T(+),Q(+),S(-),D(-),T(-),Q(-)
+        do i = 1, 8
           read_tr(i)=.false.
         enddo
-        if (.not.rtdb_put(rtdb,'tce:read_tr',mt_log,12,read_tr))
+        if (.not.rtdb_put(rtdb,'tce:read_tr',mt_log,8,read_tr))
      1  call errquit('tce_init: failed to write read_tr',0,RTDB_ERR)
       endif
-      if (.not.rtdb_get(rtdb,'tce:read_lr',mt_log,12,read_lr)) then
-c       Real positive and negative frequency amplitudes, then
-c       the real component of imaginary response when doing CC-IR          
-c       S(+),D(+),T(+),Q(+),S(-),D(-),T(-),Q(-),S(r),D(r),T(r),Q(r)
-        do i = 1, 12
+      if (.not.rtdb_get(rtdb,'tce:read_lr',mt_log,8,read_lr)) then
+c       S(+),D(+),T(+),Q(+),S(-),D(-),T(-),Q(-)
+        do i = 1, 8
           read_lr(i)=.false.
         enddo
-        if (.not.rtdb_put(rtdb,'tce:read_lr',mt_log,12,read_lr))
+        if (.not.rtdb_put(rtdb,'tce:read_lr',mt_log,8,read_lr))
      1  call errquit('tce_init: failed to write read_lr',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:read_x',mt_log,4,read_x)) then
@@ -1577,13 +1376,6 @@ c ccsd_act/eomccsd_act
             write(LuOut,9162) 'Jacobi'
           endif
         endif
-        if (imagresp) then
-          if (diis3 .gt. 0) then
-            write(LuOut,9153) diis3,'-th order DIIS'
-          else
-            write(LuOut,9163) 'Jacobi'
-          endif
-        endif
         if (nroots .gt. 0) then
           write(LuOut,9170) nroots
           write(LuOut,9180) target
@@ -1646,9 +1438,6 @@ c ccsd_act/eomccsd_act
  9100 format(3x,'      Schwarz screening : ',d8.2)
  9110 format(3x,'     Residual threshold : ',d8.2)
  9115 format(5x,a4,' DIIS level shift : ',d8.2)
-c 9116 format(3x,' CC-LR DIIS level shift : ',d8.2)
-c 9117 format(3x,' CC-IR DIIS level shift : ',d8.2,' (imag part)')
-c 9118 format(3x,' CC-IR DIIS level shift : ',d8.2,' (real part)')
  9130 format(3x,'         Max iterations :',2x,i7)
  9140 format(3x,'             I/O scheme : ',a)
  9150 format(3x,'CC-T/L Amplitude update : ',i2,a)
