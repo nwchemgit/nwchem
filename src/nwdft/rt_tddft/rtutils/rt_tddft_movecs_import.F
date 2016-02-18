@@ -208,6 +208,7 @@ C
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
+#include "rtdb.fh"
 #include "rt_tddft.fh"
 
 
@@ -247,6 +248,7 @@ C     (movecs header stuff)
       integer iorb
       integer is
       double precision occ
+      character*255 rt_dmat_fname
 
       me = ga_nodeid ()
 
@@ -278,7 +280,6 @@ C     $     call errquit (pname//"invalid ispin supplied", ispin, 0)
       enddo
 
 
-
 C
 C     Allocation
 C
@@ -300,6 +301,19 @@ C      g_movecs_pad = g_movecs_ao_gs(1)
       if (.not. ga_duplicate(g_movecs_pad, g_tmp, "tmp"))
      $     call errquit ("couldnt duplicate movecs", 0, GA_ERR)
 
+c
+c     If calculation starting from density, read dmat file
+c     Else process movecs file
+c
+      if (params%use_dmat) then
+        if (.not. rtdb_cget (params%rtdb, "rt_tddft:init_dmat1",
+     $       1, rt_dmat_fname))
+     $    call errquit ("Failed to read dmat file name from rtdb",
+     $         0,RTDB_ERR)
+        call util_file_name_resolve (rt_dmat_fname, .false.)
+        call dmat_from_file(g_densre_ao,rt_dmat_fname)
+        call convert_d2z(1d0,g_densre_ao,0d0,g_densre_ao,g_zdens_ao)
+      else
 
 C
 C     Read in header to get file name, check, then read in movecs.  Note
@@ -392,7 +406,12 @@ C
       call convert_d2z(1d0, g_densre_ao, 0d0, g_densre_ao, g_zdens_ao)
 
 C      call ga_print (g_movecs_pad)
-
+      if (.not. ma_pop_stack (levals))
+     $     call errquit (pname//"Failed to pop evals", 0, ma_err)
+      
+      if (.not. ma_pop_stack (locc))
+     $     call errquit (pname//"Failed to pop occ", 0, ma_err)
+      end if !dmat
 
 C     Clean up
 C
@@ -402,11 +421,11 @@ C
       if (.not. ga_destroy (g_densre_ao))
      $     call errquit (pname//"failed to destroy densao_tmp",0,0)
 
-      if (.not. ma_pop_stack (levals))
-     $     call errquit (pname//"Failed to pop evals", 0, ma_err)
-      
-      if (.not. ma_pop_stack (locc))
-     $     call errquit (pname//"Failed to pop occ", 0, ma_err)
+c      if (.not. ma_pop_stack (levals))
+c     $     call errquit (pname//"Failed to pop evals", 0, ma_err)
+c      
+c      if (.not. ma_pop_stack (locc))
+c     $     call errquit (pname//"Failed to pop occ", 0, ma_err)
 
       if (.not. ga_destroy (g_tmp))
      $     call errquit ("couldnt destroy tmp", 0, GA_ERR)
@@ -474,6 +493,7 @@ C     (movecs header stuff)
 
       integer locc, iocc, levals, ievals  !MO occupations and eigenvalues (from movecs file)
       integer is
+      character*255 rt_dmat_fname
 
 
       call rt_tddft_os_confirm (params)
@@ -526,6 +546,24 @@ C
      $     call errquit ("couldnt duplicate movecs", 0, GA_ERR)
 
       
+      if (params%use_dmat) then
+        if (.not. rtdb_cget (params%rtdb, "rt_tddft:init_dmat1",
+     $       1, rt_dmat_fname))
+     $    call errquit ("Failed to read alpha dmat file name from rtdb",
+     $         0,RTDB_ERR)
+        call util_file_name_resolve (rt_dmat_fname, .false.)
+        call dmat_from_file(g_densao_tmp,rt_dmat_fname)
+        call convert_d2z(1d0,g_densao_tmp,0d0,g_densao_tmp,
+     $                   g_zdens_ao(1))
+        if (.not. rtdb_cget (params%rtdb, "rt_tddft:init_dmat2",
+     $       1, rt_dmat_fname))
+     $    call errquit ("Failed to read beta dmat file name from rtdb",
+     $         0,RTDB_ERR)
+        call util_file_name_resolve (rt_dmat_fname, .false.)
+        call dmat_from_file(g_densao_tmp,rt_dmat_fname)
+        call convert_d2z(1d0,g_densao_tmp,0d0,g_densao_tmp,
+     $                   g_zdens_ao(2))
+      else
 
 C
 C     Read in header to get file name, check, then read in movecs.  Note
@@ -629,7 +667,13 @@ C     (beta part)
       call convert_d2z(1d0, g_densao_tmp, 0d0, g_densao_tmp,
      $     g_zdens_ao(2))
       
+      if (.not. ma_pop_stack (levals))
+     $     call errquit (pname//"Failed to pop evals", 0, ma_err)
+      
+      if (.not. ma_pop_stack (locc))
+     $     call errquit (pname//"Failed to pop occ", 0, ma_err)
 
+      end if
 C
 C     Clean up
 C
@@ -639,11 +683,11 @@ C
       if (.not. ga_destroy (g_densao_tmp))
      $     call errquit (pname//"failed to destroy densao_tmp",0,0)
 
-      if (.not. ma_pop_stack (levals))
-     $     call errquit (pname//"Failed to pop evals", 0, ma_err)
-      
-      if (.not. ma_pop_stack (locc))
-     $     call errquit (pname//"Failed to pop occ", 0, ma_err)
+c      if (.not. ma_pop_stack (levals))
+c     $     call errquit (pname//"Failed to pop evals", 0, ma_err)
+c      
+c      if (.not. ma_pop_stack (locc))
+c     $     call errquit (pname//"Failed to pop occ", 0, ma_err)
 
 
       end subroutine
