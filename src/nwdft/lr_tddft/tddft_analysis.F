@@ -1819,6 +1819,11 @@ c
       if (.not.rtdb_put(rtdb,'tddft:energy',mt_dbl,1,energy))
      1  call errquit('tddft_analysis: failed to put tddft energy',0,
      &       RTDB_ERR)
+c     storing all calculated excited state energies on RTDB
+      if(.not.rtdb_put(rtdb,'tddft:energy-all',mt_dbl,nroots,
+     $                 apbval(1:nroots)))
+     $  call errquit('tddft_analysis: failed to put tddft all energy',0,
+     $       RTDB_ERR)
 c
 c -----------------------
 c MN solvation models --> 
@@ -1887,6 +1892,7 @@ c it is possible that the states reorder.  We can't use the character
 c of singlet and triplet states to identify states since they can be
 c similar.
 c
+      call civecs_fix_phase(g_x,g_y,ipol,tda)
       if (lcivecs) then
         if (.not.rtdb_cget(rtdb,'tddft:civecs',1,fn_civecs))
      1   call errquit('tddft_analysis: failed to read vector',0,
