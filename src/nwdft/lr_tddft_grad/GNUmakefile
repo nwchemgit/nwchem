@@ -19,7 +19,7 @@ OBJ = tddft_gradient.o tddft_grad_init.o tddft_grad_input.o tddft_grad_finalize.
       tddft_grad_store_gradient.o tddft_grad_util_print.o \
       tddft_grad_solve_load_x.o tddft_grad_solve_save_x.o \
       tddft_grad_dxcdmat.o tddft_grad_dfxc.o tddft_grad_quadv0b.o \
-      tddft_grad_dvxc.o
+      tddft_grad_dvxc.o tddft_grad_mpole.o
 
 OBJ_OPTIMIZE = 
 
