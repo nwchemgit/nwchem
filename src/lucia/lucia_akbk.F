@@ -5061,13 +5061,20 @@ cVOG    else
       end
 *======================================================================*
 *======================================================================*
-      subroutine fraggas(igasloop,ifrgasirrep,ngasadd)
+      subroutine fraggas(igasloop,ngasadd,imofromto)
 *======================================================================*
 *
 *.  Fragment the full GASspace into smaller GAS spaces for increasign
 *.  the number of CI blocks and reducing memory requirements 
 *.  
+*.  If I move one MO from a large GAS space, then I am using these
+*.  pointers:
+*.  imofromto(1): irrep of the MO that I will move
+*.  imofromto(2): igas from which I will move the MO
+*.  imofromto(3): igas to which I will move the MO
+*.
 *.  Konstantinos D. Vogiatzis, September 2015 
+*.                             February  2016 GASCI update
 *
 *======================================================================*
 *
@@ -5084,7 +5091,9 @@ cVOG    else
 *
 *. Input
       integer igasloop
-      integer ifrgasirrep, ngasadd
+*
+*. Input/Output
+      integer ngasadd, imofromto(3)
 *
 *. Scratch
       integer igsoccupd(mxpngas,2,ncispc)
@@ -5096,11 +5105,13 @@ cVOG    else
       integer totsds, ngastotmo, weyl, get_mo_occ_gas
       external weyl, get_mo_occ_gas
 *
-      ntest  = 0
+      ntest  = 100
 *
 *. Print Input
 *
-      if (ga_nodeid().eq.0) WRITE(*,*) 'igasloop', igasloop
+      if (ntets.eq.10.and.ga_nodeid().eq.0)
+     & WRITE(*,'(a,i4)') ' Times that I have entered in fraggas:',
+     &                   igasloop
       if(ntest.ge.100.and.ga_nodeid().eq.0) then
       WRITE(*,*)
       WRITE(*,*) ' ***********************************'
@@ -5249,53 +5260,123 @@ cVOG    else
         CALL ERRQUIT('fraggas: wrong number of MOs', ngasq1,667)
        end if
 *
-!       ! In how many GAS spaces shall I split CAS? 
-!        if (igasloop.eq.1) then
-!!         maxgas = 0
-!!         do irrep = 1, nirrep
-!!          if (NGSSH(IRREP,1).ne.0) maxgas = maxgas + 1
-!!         end do
-!!         write(*,*) 'maxgas', maxgas
-*
-*. Find from which irrep I will move one orbital
-*
-       if (ifrgasirrep.eq.nirrep) then
-        ifrgasirrep = 1
-       else
-        ifrgasirrep = ifrgasirrep + 1        
-       end if
-*
-*. Find in which GAS I will move the orbital
-*. If I have not reached maximum allowed number of GAS, then create a
-*. new GAS space. Otherwise, add an MO to an existing one
-*
        mxfraggas = mxpngas
        ngasold = ngas
+       icispc = 1
 *
        if (ngas.lt.mxfraggas) then
+*
+        if (ga_nodeid().eq.0) write(*,*) 'imofromto', 
+     &     (imofromto(i), i = 1, 3)
         ngasupd = ngas + 1
-        ngas    = ngasupd
-        ngasadd = ngasupd
+        !
+        ! Copy MOs (irrep/GAS space) before the reduced GAS
+        !
+        do igas = 1, imofromto(3)-1
+         do irrep = 1, nirrep
+          ngsshupd(irrep,igas) = ngssh(irrep,igas)
+         end do
+        !
+        ! Min/Max Occ
+         igsoccupd(igas,1,icispc) = igsoccx(igas,1,icispc)
+         igsoccupd(igas,2,icispc) = igsoccx(igas,2,icispc)
+         if (igas.eq.imofromto(2)) then
+          igsoccupd(igas,1,icispc) = igsoccupd(igas,1,icispc) - 2
+          if (((igas-1).gt.0).and.
+     &       (igsoccupd(igas,1,icispc).lt.igsoccupd(igas-1,1,icispc)))
+     &        igsoccupd(igas,1,icispc) = igsoccupd(igas-1,1,icispc)
+          if (igsoccupd(igas,1,icispc).lt.0)
+     &        igsoccupd(igas,1,icispc) = 0
+         end if
+        end do
+        !
+        ! Move target MO in a new GAS space
+        !
+        ngsshupd(imofromto(1),imofromto(2)) =
+     &   ngsshupd(imofromto(1),imofromto(2)) - 1
+        ngsshupd(imofromto(1),imofromto(3)) =
+     &   ngsshupd(imofromto(1),imofromto(3)) + 1
+        !
+        ! Min/Max Occ
+        igsoccupd(imofromto(3),1,icispc) = 
+     &    igsoccx(imofromto(3)-1,1,icispc)
+        igsoccupd(imofromto(3),2,icispc) =  
+     &    igsoccx(imofromto(3)-1,2,icispc)
+        !
+        ! Reduce the min occ of the intermediate GAS spaces,
+        ! from imofromto(2) till imofromto(3)
+        do igas = imofromto(2)+1, imofromto(3)-1
+         igsoccupd(igas,1,icispc) = igsoccx(igas-1,1,icispc)
+         igsoccupd(igas,2,icispc) = igsoccx(igas-1,2,icispc)
+        end do
+        !
+        ! Copy MOs (irrep/GAS space) after the reduced GAS
+        !
+        if (imofromto(3).ne.ngasupd) then
+         do igas = imofromto(3), ngas
+          do irrep = 1, nirrep
+           ngsshupd(irrep,igas+1) = ngssh(irrep,igas)
+          end do
+        !
+        ! Min/Max Occ
+          igsoccupd(igas+1,1,icispc) = igsoccx(igas,1,icispc)
+          igsoccupd(igas+1,2,icispc) = igsoccx(igas,2,icispc)
+         end do
+        end if
+*
+*. Find in which GAS I will move another orbital if I need to further
+*. fragment the original active space
+*
+        !
+        ! GAS space from/to where we will move one MO
+        !
+        do igas = imofromto(2), ngas
+         nmoings = 0
+         do irrep = 1, nirrep
+          nmoings = nmoings + ngsshupd(irrep,igas)
+         end do
+         if (nmoings.gt.1) exit
+        end do
+        !
+        if (igas.eq.imofromto(2)) then
+         imofromto(3) = imofromto(3) + 1
+        else
+         imofromto(2) = igas
+         imofromto(3) = igas + 1
+        end if
+        !
+        ! Irrep of the MO
+        !
+        do irrep = 1, nirrep
+         if ((ngsshupd(irrep,imofromto(2)).ge.1).and.
+     &       (irrep.ne.imofromto(1))) then
+          imofromto(1) = irrep
+          exit
+         end if
+        end do
+*
+*. Case that I have reached the max number of GAS spaces
+*. add an MO to an existing one (not tested for GASCI yet!)
        else 
         write(*,*) ' I will add Orb in an existing GAS'
         if (ngasadd.eq.mxfraggas) ngasadd = 1
         ngasadd = ngasadd + 1
         ngasupd = ngasadd
        end if 
-*
-*. Copy...
-*
-       do irrep = 1, nirrep
-        do igas = 1, ngasold
-         ngsshupd(irrep,igas) = ngssh(irrep,igas) 
-        end do
-       end do
-*
-*. ...and move that orbital
-*
+!*
+!*. Copy...
+!*
+!       do irrep = 1, nirrep
+!        do igas = 1, ngasold
+!         ngsshupd(irrep,igas) = ngssh(irrep,igas) 
+!        end do
+!       end do
+!*
+!*. ...and move that orbital
+!*
 !!! igas=1 means that the user requested CASSCF, not GASSCF (fix it!)
-       ngsshupd(ifrgasirrep,1)       = ngsshupd(ifrgasirrep,1)       - 1
-       ngsshupd(ifrgasirrep,ngasupd) = ngsshupd(ifrgasirrep,ngasupd) + 1
+!       ngsshupd(ifrgasirrep,1)       = ngsshupd(ifrgasirrep,1)       - 1
+!       ngsshupd(ifrgasirrep,ngasupd) = ngsshupd(ifrgasirrep,ngasupd) + 1
 
 *************************************************************************
 *** OLD Implementation based on Weyl's formula
@@ -5386,29 +5467,31 @@ cVOG    else
          ngssh(irrep,igas) = ngsshupd(irrep,igas)
         end do
        end do
-       !
-       ! And minimum/maximum ocupations
-       !
+*
+*. Overwrite Min/Max occ numbers
+*
        igsoccx = 0
        mxoccgs = 0
        icispc = 1
 *
        do igas = 1, ngas
-        ! Min
-        if (igas.eq.ngas) then
-         igsoccx(igas,1,icispc) = nactel
-        else
-         igsoccx(igas,1,icispc) = 0
-        end if
-        ! Max
-        do irrep = 1, nirrep
-         mxoccgs = mxoccgs + 2*ngssh(irrep,igas)
-        end do
-        if (mxoccgs.ge.nactel) then
-         igsoccx(igas,2,icispc) = nactel
-        else
-         igsoccx(igas,2,icispc) = mxoccgs
-        end if
+        igsoccx(igas,1,icispc) = igsoccupd(igas,1,icispc)  
+        igsoccx(igas,2,icispc) = igsoccupd(igas,2,icispc)
+!        ! Min
+!        if (igas.eq.ngas) then
+!         igsoccx(igas,1,icispc) = nactel
+!        else
+!         igsoccx(igas,1,icispc) = 0
+!        end if
+!        ! Max
+!        do irrep = 1, nirrep
+!         mxoccgs = mxoccgs + 2*ngssh(irrep,igas)
+!        end do
+!        if (mxoccgs.ge.nactel) then
+!         igsoccx(igas,2,icispc) = nactel
+!        else
+!         igsoccx(igas,2,icispc) = mxoccgs
+!        end if
        end do
 *
 *     ============
@@ -5810,7 +5893,7 @@ cVOG    else
 *. Scratch
       integer ngsshupd(nirrep), ngas_gnsymupd(nirrep,2)
 *
-      ntest = 10
+      ntest = 1
 *
 *. Gather
 *
@@ -6070,6 +6153,11 @@ cVOG    else
 #include "global.fh"
 #include "mafdecls.fh"
 *
+*. Local
+      integer imofromto(3) !imofromto(1) = irrep of the MO 
+                           !imofromto(2) = igas FROM which we will move
+                           !imofromto(3) = igas TO which we will move MO
+
       NTEST  = 1
       IPRCIX = 0
       IPRSTR = 0
@@ -6135,14 +6223,52 @@ cVOG    else
        WRITE(*,*)
       end if
 *
+*. Obtain initial values for the MO-to-be-moved pointers (imofromto)
+*
+      imofromto = 0
+      !
+      ! GAS space from where we will move one MO
+      !
+      do igas = 1, ngas
+        nmoings = 0
+       do irrep = 1, nirrep
+        nmoings = nmoings + ngssh(irrep,igas)
+       end do
+       if (nmoings.gt.1) then
+        imofromto(2) = igas
+        exit
+       end if
+      end do
+      !
+      ! GAS space in which we will move the MO
+      !
+      imofromto(3) = imofromto(2) + 1
+      !
+      ! Irrep of the MO
+      !
+      do irrep = 1, nirrep
+       if (ngssh(irrep,imofromto(2)).ge.1) then
+        if (ngssh(irrep,imofromto(2)).gt.1) then
+         imofromto(1) = irrep
+         exit
+        else
+         do jrrep = irrep + 1, nirrep
+          if (ngssh(jrrep,imofromto(2)).ge.1) then
+           imofromto(1) = jrrep
+           exit
+          end if
+         end do
+        end if
+       end if
+      end do
+*
 * ====================
 * Begin the large Loop 
 * ====================
 *
 *. Irrep from which one MO will be moved to another GAS
-      ifrgasirrep = 0
       ngasadd     = 0
-      nloop = 20 ! Arbitrary
+      nloop = 30 ! Arbitrary
       do igasloop = 1, nloop
 *
 *. Set memory pointer
@@ -6238,7 +6364,7 @@ cVOG    else
 !      if ((NCBLOCK.lt.nnod).or.(nfragagain.eq.1)) then
       if (nfragagain.eq.1) then
        if (ga_nodeid().eq.0) write(*,*) 'I will fragment the GAS space'
-       call fraggas(igasloop,ifrgasirrep,ngasadd)
+       call fraggas(igasloop,ngasadd,imofromto)
       else
        exit
       end if
@@ -6345,6 +6471,9 @@ cVOG    else
 *======================================================================*
 *
       INCLUDE 'implicit.inc'
+      INCLUDE 'mxpdim.inc'
+      INCLUDE 'lucinp.inc'
+      INCLUDE 'cgas.inc'
 #include "global.fh"
 *
 *. input
@@ -6390,6 +6519,21 @@ cVOG    else
       do iblock = 1, ncblock
        if (KCIBT(8,iblock).gt.nblkratio) nfragagain = 1
       end do
+*
+*. Check if at least one GAS space has more than 1 MO
+*
+      lallsingle = 1
+      do igas = 1, ngas
+       nmoings = 0
+       do irrep = 1, nirrep
+        nmoings = nmoings + ngssh(irrep,igas)
+       end do
+       if (nmoings.gt.1) lallsingle = 0
+       if (ga_nodeid().eq.0.and.ntest.ge.10)
+     &   write(*,*) 'in the loop', igas, nmoings, lallsingle
+      end do
+*
+      if (lallsingle.eq.1) nfragagain = 0
 *
        if (ga_nodeid().eq.0.and.ntest.ge.10)
      &  write(*,*) 'nfragagain',nfragagain
