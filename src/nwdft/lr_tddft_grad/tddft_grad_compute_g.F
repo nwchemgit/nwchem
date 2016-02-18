@@ -716,28 +716,48 @@ c
 c Here, g_p_ao contains the total density matrix (alpha plus beta), 
 c while g_d(3) (and g_d(4)) contain the alpha and beta density matrices 
 c separately.  In both cases we get the excited state density matrix.
+c
+c       Calculate and write out the excited-state dipole moment
+c
+        call tddft_grad_compute_dao(ipol,nao,nocc,g_mo,g_d) ! calculate ground state density
+        if (ipol.eq.1) call ga_scale(g_d(1),2.0d0) ! scale
+        call tddft_grad_mpole(rtdb,ihdl_bfao,ipol,g_d(1),g_d(2),g_p_ao) ! multipole analysis
+c
+c       Consolidate the ground state density with the difference density to 
+c       get the total excited state relaxed density
+c
+        call tddft_grad_compute_dao(ipol,nao,nocc,g_mo,g_d) ! calculate ground state density
         if (ipol.eq.1) then
           call ga_add(2.0d0,g_d(1),1.0d0,g_p_ao,g_p_ao)
           call ga_add(1.0d0,g_d(1),1.0d0,g_d(3),g_d(3))
         else
           call ga_add(1.0d0,g_d(1),1.0d0,g_p_ao,g_p_ao)
           call ga_add(1.0d0,g_d(2),1.0d0,g_p_ao,g_p_ao)
-          call ga_scale(g_d(1),0.5d0)
-          call ga_scale(g_d(2),0.5d0)
+c Skip scaling here so that we can output alpha and beta 
+c excited state densities
+c          call ga_scale(g_d(1),0.5d0)
+c          call ga_scale(g_d(2),0.5d0)
           call ga_add(1.0d0,g_d(1),1.0d0,g_d(3),g_d(3))
           call ga_add(1.0d0,g_d(2),1.0d0,g_d(4),g_d(4))
         endif
 c
-c       Calculate and write out the excited-state dipole moment
-c
-        call multipole_density(ihdl_bfao,cntr,1,g_p_ao,dipmom,4)
-        if (ga_nodeid().eq.0) 
-     &       write(LuOut,9200) dipmom(2),dipmom(3),dipmom(4)
-c
 c       Write excited-state density in the ao basis
 c
-        call util_file_name('dmat',.false.,.false.,dmat_file) ! get filename
-        call ao_1prdm_write(nao,g_p_ao,dmat_file)
+        if (ipol.eq.1) then
+          call util_file_name('dmat',.false.,.false.,dmat_file) ! get filename
+          call ao_1prdm_write(nao,g_p_ao,dmat_file)
+        else
+          call util_file_name('dmatA',.false.,.false.,dmat_file) ! get filename
+          call ao_1prdm_write(nao,g_d(3),dmat_file)
+          call util_file_name('dmatB',.false.,.false.,dmat_file) ! get filename
+          call ao_1prdm_write(nao,g_d(4),dmat_file)
+c Now scale g_d(1) and g_d(2) and subtract the result from
+c g_d(3) and g_d(4) so that the gradients still work out correctly
+          call ga_scale(g_d(1),0.5d0)
+          call ga_scale(g_d(2),0.5d0)
+          call ga_add(-1.d0,g_d(1),1.0d0,g_d(3),g_d(3))
+          call ga_add(-1.d0,g_d(2),1.0d0,g_d(4),g_d(4))
+        end if
 c
 c       Calculate the trace of P*S: Check normalization. Total number of electrons
 c
