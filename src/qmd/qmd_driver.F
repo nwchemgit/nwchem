@@ -51,6 +51,32 @@ c
       double precision cavity_axis(3) ! cavity axes
       double precision cavity_spring  ! cavity force spring constant
 c
+c     Surface Hopping
+      integer geom_p                     ! geometry, previous step
+      integer g_vecs(2), g_vecs_p(2)     ! movecs
+      integer l_zden, k_zden             ! density matrix handle
+      integer l_coup, k_coup             ! coupling matrix, current step
+      integer l_coup_p, k_coup_p         ! coupling matrix, previous step
+      integer l_en, k_en                 ! energies, current step
+      integer l_en_p, k_en_p             ! energies, previous step
+      integer l_so, k_so                 ! index of occupied orbitals for swaps
+      integer l_sv, k_sv                 ! index of virtual orbitals for swaps
+      integer nstates                    ! number of states
+      integer state                      ! current state
+      integer state_p                    ! previous state
+      integer nroots                     ! number of TDDFT roots
+      integer ipol                       ! 1=RHF, 2=UHF
+      integer nocc(2)                    ! number of occupied orbitals
+      integer nmo(2)                     ! number of MOs
+      integer ks_spin                    ! 1=alpha, 2=beta
+      integer ispin
+      double precision dt_elec           ! electronic time step
+      logical do_namd                    ! NAMD flag
+      logical do_tdks                    ! TDKS flag
+      logical tda                        ! TDA flag
+      logical deco                       ! decoherence flag
+c
+c
       logical status
       logical rst_exists
       logical do_none
@@ -61,9 +87,6 @@ c
       character*255 xyzfilename
       integer rstfileunit
       character*255 rstfilename
-c
-      logical task_gradient
-      external task_gradient
 c
       logical geom_centroid
       external geom_centroid
@@ -104,8 +127,8 @@ c     get rstfilename
       call util_file_name('qmdrst',.false.,.false.,rstfilename)
 c
 c     initialize parameters
-      call qmd_init(rtdb,nstep_nucl,dt_nucl,do_none,com_step,
-     &       print_xyz)
+      call qmd_init(rtdb,nstep_nucl,dt_nucl,do_none,com_step,print_xyz,
+     &       do_namd)
 c
 c     create geometry object 
       if (.not. geom_create(geom,'geometry'))
@@ -162,6 +185,20 @@ c     get the masses, initial coordinates
       if (.not.geom_cart_coords_get(geom,dbl_mb(k_r)))
      $   call errquit(pname//'geom_cart_coords_get',0,GEOM_ERR)
 c
+c     Are we doing surface hopping?
+c      ***Surface hopping only works for DFT/TDDFT currently***
+c              ***Forces DFT/TDDFT calculation***
+      if (do_namd) then
+        call qmd_namd_init(rtdb,geom_p,g_vecs,g_vecs_p,l_zden,k_zden,
+     &                     l_coup,k_coup,l_coup_p,k_coup_p,l_en,k_en,
+     &                     l_en_p,k_en_p,l_so,k_so,l_sv,k_sv,state,
+     &                     state_p,nstates,dt_elec,nroots,ipol,
+     &                     nocc,nmo,ks_spin,do_tdks,tda,deco)
+        if (mod(int(dt_nucl*1.d10),int(dt_elec*1.d10)).gt.1.d-8)
+     &   call errquit(pname//'dt_nucl and dt_elec not compatible',0,
+     &                INPUT_ERR)
+      end if
+c
 c     check for restart file in directory
 c     if it exists, read data from that and start trajectory from there
       inquire(file=rstfilename,exist=rst_exists)
@@ -174,7 +211,9 @@ c     if it exists, read data from that and start trajectory from there
 c
 c       read velocities from file
         call qmd_read_rst(rstfilename,rstfileunit,nat,dbl_mb(k_v),
-     $         dbl_mb(k_r),ekin,sstep_nucl)
+     $         dbl_mb(k_r),ekin,sstep_nucl,state,nstates,
+     $         dcpl_mb(k_zden),dbl_mb(k_coup_p),do_namd)
+        if (do_namd) state_p=state
 c
 c       remove global translations and rotations
 c       kinetic energy is the same on exit as was on entry
@@ -216,8 +255,25 @@ c
 c     target kinetic energy (only used if thermostat is rescale)
       ekin_targ=(1.d0*ndeg)*kb*targ_temp/2.d0
 c
+      if (do_namd.and.do_tdks) then
+c       get energies and movecs
+        nmo=-1
+        call qmd_tdks_enmo(rtdb,geom,state,nstates,ipol,nmo,nocc,
+     $                     int_mb(k_so),int_mb(k_sv),dbl_mb(k_en_p),
+     $                     g_vecs_p,ks_spin)
+      end if
+c
 c     perform energy gradient calculation on initial coordinates
       call qmd_gradient(rtdb,nat,dbl_mb(k_g),esys)
+c
+      if (do_namd.and.(.not.do_tdks)) then
+c       get energies and movecs
+        nmo=-1
+        call qmd_tddft_enmo(rtdb,geom,state,nstates,nroots,ipol,nmo,
+     $                      nocc,dbl_mb(k_en_p),g_vecs_p)
+c       rename civecs file so we have it later
+        call qmd_move_civecs(rtdb,ipol)
+      end if
 c
 c     calculate the centroid of the structure
       if (.not.geom_centroid(geom,dbl_mb(k_c)))
@@ -272,6 +328,17 @@ c
 c       update geom and store in rtdb
         call qmd_geom_store(rtdb,geom,nat,dbl_mb(k_r))
 c
+c       force atomic guess every step
+c        if(.not.rtdb_cput(rtdb,'dft:input vectors',1,'atomic'))
+c     &     call errquit(pname//'failed to set atomic',0,RTDB_ERR)
+c
+        if (do_namd.and.do_tdks) then
+c         get energies and movecs
+          call qmd_tdks_enmo(rtdb,geom,state,nstates,ipol,nmo,nocc,
+     $                       int_mb(k_so),int_mb(k_sv),dbl_mb(k_en),
+     $                       g_vecs,ks_spin)
+        end if
+c
 c       calculate energy and gradient
         call qmd_gradient(rtdb,nat,dbl_mb(k_g),esys)
 c
@@ -299,6 +366,40 @@ c       persist updated velocity in geom
         if (.not.geom_vel_set(geom,dbl_mb(k_v)))
      $   call errquit(pname//'geom_vel_set',0,GEOM_ERR)
 c
+        if (do_namd) then
+          if (.not.do_tdks) call qmd_tddft_enmo(rtdb,geom,state,nstates,
+     $                                          nroots,ipol,nmo,nocc,
+     $                                          dbl_mb(k_en),g_vecs)
+          esys=dbl_mb(k_en+state-1)
+c         calculate couplings
+          call qmd_coup(rtdb,geom,geom_p,ipol,nstates,dt_nucl,nmo,
+     $                  nocc,g_vecs,g_vecs_p,dbl_mb(k_coup),
+     $                  int_mb(k_so),int_mb(k_sv),dbl_mb(k_en),tda,
+     $                  do_tdks,ks_spin)
+c
+c         propagate electronic system
+          call qmd_elec_prop(rtdb,nat,dcpl_mb(k_zden),dbl_mb(k_en_p),
+     $                       dbl_mb(k_en),dbl_mb(k_coup_p),
+     $                       dbl_mb(k_coup),nstates,dbl_mb(k_v),
+     $                       dbl_mb(k_m),ekin,esys,state,dt_nucl,
+     $                       istep_nucl,dt_elec,do_tdks,deco)
+c
+c         calculate gradient for new current state
+          if (state_p.ne.state) then
+            if (do_tdks) then
+              call qmd_tdks_swap(rtdb,state,nstates,ks_spin,
+     $                           int_mb(k_so),int_mb(k_sv))
+            end if
+            call qmd_gradient(rtdb,nat,dbl_mb(k_g),esys)
+          end if
+          state_p=state
+c
+          if (.not.do_tdks) then
+c           rename civecs file so we have it later
+            call qmd_move_civecs(rtdb,ipol)
+          end if
+        end if !do_namd
+c
 c       calculate current kinetic energy
         call qmd_kinetic(nat,dbl_mb(k_m),dbl_mb(k_v),ekin)
 c       instantaneous total energy: instantaneous kinetic energy + system energy
@@ -321,6 +422,11 @@ c         write(luout,110) "Current time step:",istep_nucl
          write(luout,135) "Tot. energy (a.u.):",istep_nucl,etotal
          write(luout,125) "Target temp. (K)  :",istep_nucl,targ_temp
          write(luout,125) "Current temp. (K) :",istep_nucl,final_temp
+         if (do_namd) then
+c          inside code state runs from 1 to nstates
+c          for input and output, state runs from 0 to nstates-1
+           write(luout,145) "Current state     :",istep_nucl,state-1
+         end if
          if (dip_exists) then
            write(luout,140) "Dipole (a.u.)     :",istep_nucl,dipole(:)
          else
@@ -338,8 +444,9 @@ c          write trajectory
          end if
 c
 c        write restart
-         call qmd_write_rst(rstfilename,rstfileunit,
-     &             nat,istep_nucl,ekin,geom)
+         call qmd_write_rst(rstfilename,rstfileunit,nat,istep_nucl,ekin,
+     &                      geom,state,nstates,dcpl_mb(k_zden),
+     &                      dbl_mb(k_coup),do_namd)
 c
         end if  ! ga_nodeid()
 c
@@ -350,24 +457,25 @@ c
   130 format(A21,F29.6)
   135 format(A21,I9,F20.6)
   140 format(A21,I9,3ES15.6)
+  145 format(A21,I9,I20)
 c
 c     clear memory
-      if(.not.ma_pop_stack(l_act))! active
-     + call errquit(pname//'ma_pop_stack act',0,MA_ERR)
-      if(.not.ma_pop_stack(l_g))  ! gradient
-     + call errquit(pname//'ma_pop_stack g',0,MA_ERR)
-      if(.not.ma_pop_stack(l_v))  ! velocity
-     + call errquit(pname//'ma_pop_stack v',0,MA_ERR)
-      if(.not.ma_pop_stack(l_c))  ! positions
-     + call errquit(pname//'ma_pop_stack c',0,MA_ERR)
-      if(.not.ma_pop_stack(l_r))  ! positions
-     + call errquit(pname//'ma_pop_stack r',0,MA_ERR)
-      if(.not.ma_pop_stack(l_m))  ! masses
-     + call errquit(pname//'ma_pop_stack m',0,MA_ERR)
+      if(.not.ma_chop_stack(l_m))
+     + call errquit(pname//'ma_chop_stack m',0,MA_ERR)
       if(.not.ma_verify_allocator_stuff())
      + call errquit(pname//'ma_verify_allocator_stuff',0,MA_ERR)
       if(.not.geom_destroy(geom))
      + call errquit(pname//'geom_destroy',0,GEOM_ERR)
+      if (do_namd) then
+       if(.not.geom_destroy(geom_p))
+     +  call errquit(pname//'geom_destroy',0,GEOM_ERR)
+       do ispin=1,ipol 
+        if(.not.ga_destroy(g_vecs(ispin)))
+     +    call errquit(pname//'ga_destroy',g_vecs(ispin),GA_ERR)
+        if(.not.ga_destroy(g_vecs_p(ispin)))
+     +    call errquit(pname//'ga_destroy',g_vecs_p(ispin),GA_ERR)
+       end do
+      end if
 c
       qmd_driver = status
 c

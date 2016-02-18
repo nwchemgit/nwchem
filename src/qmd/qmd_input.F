@@ -22,7 +22,6 @@ c
 c
       double precision dt_nucl
       integer nstep_nucl
-      double precision dt_elec
       integer nstep_elec
       integer com_step
       integer print_xyz
@@ -38,6 +37,7 @@ c
       character*32 integrator_elec
       logical do_linear
       logical do_cavity
+      logical do_namd
       double precision cavity_axis(3)
       double precision cavity_spring
 c
@@ -58,16 +58,6 @@ c     Total number of nuclear time steps: nstep_nucl
       nstep_nucl = 1000
       if (.not.rtdb_put(rtdb,'qmd:nstep_nucl',mt_int,1,nstep_nucl))
      & call errquit(pname//'failed to write nstep_nucl',0,RTDB_ERR)
-c
-c     Electronic dynamics time step: dt_elec
-      dt_elec = 0.01d0
-      if (.not.rtdb_put(rtdb,'qmd:dt_elec',mt_dbl,1,dt_elec))
-     & call errquit(pname//'failed to write dt_elec',0,RTDB_ERR)
-c
-c     Total number of electronic time steps: nstep_elec
-      nstep_elec = 100
-      if (.not.rtdb_put(rtdb,'qmd:nstep_elec',mt_int,1,nstep_elec))
-     & call errquit(pname//'failed to write nstep_elec',0,RTDB_ERR)
 c
 c     Target nuclear MD temperature: targ_temp (Kelvin)
       targ_temp = 298.15d0  ! Kelvin
@@ -116,6 +106,11 @@ c     Do we need cavity constraints ?
       if (.not.rtdb_put(rtdb,'qmd:cavity',mt_log,1,do_cavity))
      & call errquit(pname//'failed to write do_cavity',0,RTDB_ERR)
 c
+c     Are we doing NAMD?
+      do_namd=.false.
+      if (.not.rtdb_put(rtdb,'qmd:namd',mt_log,1,do_namd))
+     & call errquit(pname//'failed to write do_namd',0,RTDB_ERR)
+c
 c     ----------
 c     Read input
 c     ----------
@@ -144,27 +139,6 @@ c     Total number of nuclear time steps: nstep_nucl
        endif
        if (.not.rtdb_put(rtdb,'qmd:nstep_nucl',mt_int,1,nstep_nucl))
      &  call errquit(pname//'failed to write nstep_nucl',0,RTDB_ERR)
-c
-c     Electronic dynamics time step: dt_elec
-      else if (inp_compare(.false.,test,'dt_elec')) then
-       if (.not.inp_f(dt_elec)) then
-          write(luOut,*) 'dt_elec: value not found; ',
-     1      'default value of 0.01d0 will be used'
-          dt_elec = 0.01d0
-       endif
-       if (.not.rtdb_put(rtdb,'qmd:dt_elec',mt_dbl,1,dt_elec))
-     &  call errquit(pname//'failed to write dt_elec',0,RTDB_ERR)
-c
-c     Total number of electronic time steps: nstep_elec
-      else if (inp_compare(.false.,test,'nstep_elec')) then
-       if (.not.inp_i(nstep_elec)) then
-          write(luOut,*) 'nstep_elec: value not found; ',
-     1      'default value of 100 will be used'
-          nstep_elec = 100
-       endif
-       if (.not.rtdb_put(rtdb,'qmd:nstep_elec',mt_int,1,nstep_elec))
-     &  call errquit(pname//'failed to write nstep_elec',0,
-     &     RTDB_ERR)
 c
 c     Target nuclear MD temperature: targ_temp (Kelvin)
       else if (inp_compare(.false.,test,'targ_temp')) then
@@ -254,6 +228,13 @@ c     Print xyz trajectory every print_xyz steps
        if (.not.inp_i(print_xyz)) print_xyz=1
        if (.not.rtdb_put(rtdb,'qmd:print_xyz',mt_int,1,print_xyz))
      &  call errquit(pname//'failed to write print_xyz',0,RTDB_ERR)
+c
+c     NAMD input
+      else if (inp_compare(.false.,test,'namd')) then
+       do_namd=.true.
+       if (.not.rtdb_put(rtdb,'qmd:namd',mt_log,1,do_namd))
+     &  call errquit(pname//'failed to write do_namd',0,RTDB_ERR)
+       call qmd_namd_input(rtdb)
 c
 c     Print
       else if (inp_compare(.false.,test,'print')) then

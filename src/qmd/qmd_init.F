@@ -2,7 +2,7 @@ c
 c     qmd_init: initialize parameters
 c     
       subroutine qmd_init(rtdb,nstep_nucl,dt_nucl,do_none,com_step,
-     $                    print_xyz)
+     $                    print_xyz,do_namd)
 c
       implicit none
 c
@@ -16,6 +16,7 @@ c
 #include "util.fh"
 #include "msgids.fh"
 #include "stdio.fh"
+#include "msgtypesf.h"
 c
 #include "qmd_common.fh"
 c
@@ -28,17 +29,21 @@ c
       integer tvals(8)
       integer svals
       double precision dt_nucl      ! nuclear md time step
-      double precision dt_elec      ! electronic time step
       character*32 thermostat       ! thermostat name
       character*32 integrator_nucl  ! nuclear md integrator
       character*32 integrator_elec  ! electronic dynamics integrator
       integer ichain
       double precision nh_mass(2)   ! nose-hoover mass
       logical do_none
+      logical do_namd
+      integer inntsize
 c
       character*32 pname
 c
       pname = "qmd_init: "
+c
+c
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
 c
 c     print header and general information
       if (ga_nodeid().eq.0) then
@@ -79,18 +84,6 @@ c     nuclear time step
      & call errquit(pname//'failed to read dt_nucl',0,RTDB_ERR)
       if (ga_nodeid().eq.0)
      &    write(luout,120) "Nuclear time step:",dt_nucl
-c
-c     total electronic steps
-      if(.not.rtdb_get(rtdb,'qmd:nstep_elec',mt_int,1,nstep_elec))
-     & call errquit(pname//'failed to read nstep_elec',0,RTDB_ERR)
-c      if (ga_nodeid().eq.0) 
-c     &     write(luout,110) "No. of electronic steps:",nstep_elec
-c
-c     electronic time step
-      if (.not.rtdb_get(rtdb,'qmd:dt_elec',mt_dbl,1,dt_elec))
-     & call errquit(pname//'failed to read dt_elec',0,RTDB_ERR)
-c      if (ga_nodeid().eq.0)
-c     &     write(luout,*) "Electronic time step:",dt_elec
 c
 c     target temperature
       if (.not.rtdb_get(rtdb,'qmd:targ_temp',mt_dbl,1,targ_temp))
@@ -173,7 +166,9 @@ c
 c     random number seed
       call date_and_time(values=tvals)
 c     current seconds x milliseconds + minutes
-      svals = tvals(7)*tvals(8)+tvals(6)
+      if (ga_nodeid().eq.0) svals = tvals(7)*tvals(8)+tvals(6)
+      call ga_brdcst(Msg_Vec_Stat+MSGINT,svals,inntsize,0)
+      call ga_sync()
       if (.not.rtdb_get(rtdb,'qmd:rand_seed',mt_int,1,idum))
      & idum = svals ! default
       idum = sign(idum,-1)   ! seed needs to be negative
@@ -197,6 +192,11 @@ c
 c     print xyz trajectory every print_xyz steps
       if (.not.rtdb_get(rtdb,'qmd:print_xyz',mt_int,1,print_xyz))
      $     print_xyz = 1
+c
+c     are we doing NAMD?
+      if (.not.rtdb_get(rtdb,'qmd:namd',mt_log,1,do_namd))
+     $     do_namd=.false.
+c
       if (ga_nodeid().eq.0) call util_flush(LuOut)
 c
   110 format(A25,I20)
