@@ -199,6 +199,8 @@ C     (tolerances)
          integer          :: terms_series   !num terms need to convergence in series
          integer          :: terms_interpol !num terms need to convergence in interpolation
 
+C     (flag for using dmat instead of movecs)
+         logical          :: use_dmat
 
 C     (handle for AO basis)
          integer          :: ao_bas_han
