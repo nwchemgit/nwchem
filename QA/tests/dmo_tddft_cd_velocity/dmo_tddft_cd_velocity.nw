@@ -31,7 +31,9 @@ end
 
 set int:cando_txs f
 dft
-  convergence energy 1d-8 nolevelshifting
+ tolerances tight
+ grid fine
+  convergence energy 1d-10 nolevelshifting
   xc b3lyp
   iterations 100
   direct
@@ -45,5 +47,6 @@ tddft
   nroots 1
   cdspectrum
   velocity
+  thresh 1e-6
 end
 task tddft energy

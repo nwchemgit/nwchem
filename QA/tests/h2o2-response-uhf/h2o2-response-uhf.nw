@@ -27,6 +27,8 @@ end
 charge 0
 
 dft
+ odft
+ mult 1
  direct
  xc xcamb88 1.00 lyp 0.81 vwn_5 0.19 hfexch 1.00
  cam 0.33 cam_alpha 0.19 cam_beta 0.46
@@ -54,19 +56,6 @@ set cphf:maxsub 30
 
 task dft property
 
-property
- aoresponse  1  0.077318
- damping 0.1
- convergence 1e-7
- bdtensor
- # orbeta
- gprime
- giao
-end
-
-task dft property
-
-
 tddft
   rpa
   singlet
@@ -78,6 +67,6 @@ tddft
   # velocity
 end
 
-task tddft energy
+# task tddft energy
 
 

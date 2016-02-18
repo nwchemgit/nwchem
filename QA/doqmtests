@@ -135,6 +135,13 @@ echo "qmmm frequency  test  may  fail"
 #
 #--- cdspectrum tests
 ./runtests.mpi.unix procs $np dmo_tddft_cd
+./runtests.mpi.unix procs $np dmo_tddft_cd_velocity
+#
+#--- response tests
+./runtests.mpi.unix procs $np h2o-response
+./runtests.mpi.unix procs $np h2o2-response
+./runtests.mpi.unix procs $np h2o2-response-uhf
+./runtests.mpi.unix procs $np h2o2-response-uhf-damping
 #
 #--- spherical atom symmetry test
 ./runtests.mpi.unix procs $np ptatom
