@@ -108,8 +108,9 @@ int util_mic_get_num_devices_() {
 #endif
   }
   
+    MPI_Comm ga_comm=GA_MPI_Comm_pgroup_default();
     /*get world group handle to be used later */
-    err=MPI_Comm_group(MPI_COMM_WORLD, &wgroup_handle);
+    err=MPI_Comm_group(ga_comm, &wgroup_handle);
     if (err != MPI_SUCCESS) {
       fprintf(stdout,"util_getppn: MPI_Comm_group failed\n");
       GA_Error("util_getppn error", 0L);
@@ -125,7 +126,7 @@ int util_mic_get_num_devices_() {
     }
     
     /* Create new new communicator for the newly created group */
-    err=MPI_Comm_create(MPI_COMM_WORLD, group_handle, &group_comm);
+    err=MPI_Comm_create(ga_comm, group_handle, &group_comm);
     if (err != MPI_SUCCESS) {
       fprintf(stdout,"util_micdevs: MPI_Comm_group failed\n");
       GA_Error("util_micdevs error", 0L);
