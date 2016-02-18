@@ -178,14 +178,13 @@ c
 c     Random number seed
       else if (inp_compare(.false.,test,'rand_seed')) then
        if (.not.inp_i(idum)) then
-        call date_and_time(values=tvals)
-c       current seconds x milliseconds + minutes
-        idum = tvals(7)*tvals(8)+tvals(6)
+        call errquit(pname//'failed to parse rand_seed',0,
+     &      INPUT_ERR)
+       else
+        if (.not.rtdb_put(rtdb,'qmd:rand_seed',mt_int,1,idum))
+     &   call errquit(pname//'failed to write rand_seed',0,
+     &      RTDB_ERR)
        end if
-       idum = sign(idum,-1)   ! seed needs to be negative
-       if (.not.rtdb_put(rtdb,'qmd:rand_seed',mt_int,1,idum))
-     &  call errquit(pname//'failed to write rand_seed',0,
-     &     RTDB_ERR)
 c
 c     Nuclear MD integrator
       else if (inp_compare(.false.,test,'velocity-verlet')) then
