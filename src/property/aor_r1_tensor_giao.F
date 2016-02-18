@@ -255,6 +255,13 @@ c       used to create the final results
      &    -1,-1,g_temp))
      &    call errquit (trim(cstemp),0,GA_ERR)
         if (debug) write (luout,*) 'g_temp allocated'
+
+        if (debug) write (luout,*) 'aor_r1_giao: beta before step A'
+
+        if (debug) then
+          call output (betare,1,3,1,3,3,3,1)
+          call output (betaim,1,3,1,3,3,3,1)
+        end if
         
 c       -----------------------------------
 c       (A) calculate optical rotation beta
@@ -277,7 +284,10 @@ c       ---------------------------------------------------------
      &        g_vecE1_im(ispin,1))
           end if                ! lifetime
           
-        endif                   ! ncomp.gt.1        
+        endif ! ncomp.gt.1
+
+        tmpre(:,:) = 0.0d0
+        tmpim(:,:) = 0.0d0
         
         do idir = 1,ndir        ! perturbing E-field components
           do iresp = 1,3
@@ -287,8 +297,8 @@ c           (a) C(E) h(B) C(0)
 c           ------------------
             
             call get_alfaorbeta_reim(
-     &        betare(idir,iresp), ! in/out: alpha or beta real part
-     &        betaim(idir,iresp), ! in/out: alpha or beta im   part
+     &        tmpre(idir,iresp), ! in/out: alpha or beta real part
+     &        tmpim(idir,iresp), ! in/out: alpha or beta im   part
      &        g_vecE1(ispin,1), ! in : 1st-order pert vec RE
      &        g_vecE1_im(ispin,1), ! in : 1st-order pert vec IM
      &        g_vecB1(ispin),   ! in : dipole electric or magnetic
@@ -306,7 +316,16 @@ c           ------------------
         enddo                   ! idir    (perturbing E-field comp.)
 
         if (debug) write (luout,*) 'aor_r1_giao: beta step A done'
-        if (debug) call output (betare,1,3,1,3,3,3,1)
+
+        betare(:,:) = betare(:,:) + tmpre(:,:)
+        betaim(:,:) = betaim(:,:) + tmpim(:,:)
+        if (debug) then
+          call output (tmpre,1,3,1,3,3,3,1)
+          call output (betare,1,3,1,3,3,3,1)
+          call output (tmpim,1,3,1,3,3,3,1)
+          call output (betaim,1,3,1,3,3,3,1)
+        end if
+       
         
 c       -----------------------------
 c       (b) C(E) S(B) C(0) epsilon(0)
@@ -358,7 +377,7 @@ c       to store the scaled MO vectors
         enddo                   ! idir    (perturbing E-field comp.)
         
         tmpre(:,:) = -tmpre(:,:) ! the equation has a - sign
-        tmpim(:,:) = -tmpim(:,:)
+        tmpim(:,:) = -tmpim(:,:) ! 
         betare(:,:) = betare(:,:) + tmpre(:,:)
         betaim(:,:) = betaim(:,:) + tmpim(:,:)
         
@@ -366,6 +385,8 @@ c       to store the scaled MO vectors
         if (debug) then
           call output (tmpre,1,3,1,3,3,3,1)
           call output (betare,1,3,1,3,3,3,1)
+          call output (tmpim,1,3,1,3,3,3,1)
+          call output (betaim,1,3,1,3,3,3,1)
         end if
 
 c       ------------------------------
@@ -424,6 +445,8 @@ c       twice the icomp=2 component back into g_vecE1(1)
         if (debug) then
           call output (tmpre,1,3,1,3,3,3,1)
           call output (betare,1,3,1,3,3,3,1)
+          call output (tmpim,1,3,1,3,3,3,1)
+          call output (betaim,1,3,1,3,3,3,1)
         end if
         
 c       ----------------------------------------------

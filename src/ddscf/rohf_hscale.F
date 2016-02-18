@@ -321,7 +321,10 @@ c              put elements of g_x, g_x_im to local memory:
 c
                do j=1,nvir
 c                orbital energy differences:
-                 denominator = (fcv(j+vbase) - fcv(i+cbase)) + lshift ! FA-03-10-14
+c                denominator = (fcv(j+vbase) - fcv(i+cbase)) + lshift ! FA-03-10-14
+                 denominator = 4.d0*(fcv(j+vbase) - fcv(i+cbase)) +
+     &              lshift
+
 c                check for small HOMO-LUMO gap:
                  if (abs(denominator).lt.small) then
                    sign = 1d0
@@ -334,18 +337,33 @@ c                check for small HOMO-LUMO gap:
 c                
 c                take care of the damping here: set up scale_factor
 c                and multiply instead of dividing by denominator                
-c FA-03-12-14 ------- START
-                 den=(denominator**2 + gamwidth**2)
-                 factor_re =4.0d0*denominator/den
-                 factor_im =4.0d0*gamwidth/den
-c FA-03-12-14 ------- END
+c                FA-03-12-14 ------- START
+c                 den=(denominator**2 + gamwidth**2)
+c                 factor_re =4.0d0*denominator/den
+c                 factor_im =4.0d0*gamwidth/den
+c                FA-03-12-14 ------- END
+
+                 factor_re =
+     &             denominator / (denominator**2 + gamwidth**2)
+                 factor_im = gamwidth / (denominator**2 + gamwidth**2)
+
+                 
                  tmpre = dbl_mb(k_x   +j-1)
                  tmpim = dbl_mb(k_x_im+j-1)
-                 dbl_mb(k_x   +j-1)=tmpre*factor_re+tmpim*factor_im
+
+                 dbl_mb(k_x   +j-1) =
+     &             tmpre * factor_re +
+     &             tmpim * factor_im
+                 dbl_mb(k_x_im+j-1) =
+     &             tmpim * factor_re -
+     &             tmpre * factor_im
+                 
+c                 dbl_mb(k_x   +j-1)=tmpre*factor_re+tmpim*factor_im
 c FA-03-12-14 ------- START
-                 dbl_mb(k_x_im+j-1)=tmpim*factor_re-tmpre*factor_im
+c                 dbl_mb(k_x_im+j-1)=tmpim*factor_re-tmpre*factor_im
 c FA-03-12-14 ------- END
                enddo
+               
                call ga_put(g_x, ioff, ioff+nvir-1, ivec, ivec,
      $              dbl_mb(k_x),1)
                call ga_put(g_x_im, ioff, ioff+nvir-1, ivec, ivec,

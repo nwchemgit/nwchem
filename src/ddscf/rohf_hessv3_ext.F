@@ -354,7 +354,6 @@ c
 c     Author : Fredy W. Aquino, Northwestern University (Oct 2012)
 c     Date   : 03-24-12
 c     Note.-  Modifying rohf_hessv3 to handle complex vars
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -494,7 +493,6 @@ c     Author : Fredy W. Aquino, Northwestern University (Oct 2012)
 c     Date   : 03-24-12
 c     -> modified from rohf_hessv_xx3()
 c     $Id$
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -824,7 +822,6 @@ c          ncomp=2 (+/-) n=nvir*nocc maxiter=10 (usually) nvec=3 (x,y,z)
 c          nsub, will point to next (n1,nvec) block to be updated 
 c          --> The purpose of using g_Az1 is to reduce usage of memory.
 c              by doing it I skip using g_Az(ipm) ipm=2 (n1,nvec) complex matrix.
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -1312,7 +1309,6 @@ c          two-electron integrals by putting together
 c          symmetric+antisymmetric perturbed densities: g_dens(ipm) ipm=1,2
 c          and doing a single call to shell_fock_build() when using
 c          the routine shell_fock_build2().
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -1774,7 +1770,6 @@ c
 c Purpose: Calculate perturbed density matrix
 c Author : Fredy W. Aquino, Northwestern University (Oct 2012)
 c Date   : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"

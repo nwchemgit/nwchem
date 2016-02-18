@@ -407,8 +407,8 @@ c
             endif
          endif
       endif
-      if(ga_nodeid().eq.0) 
-     W     write(6,*) ' dorepon dorepd dorepl ',dorepon,dorepd,dorepl
+c      if(ga_nodeid().eq.0) 
+c     W     write(6,*) ' dorepon dorepd dorepl ',dorepon,dorepd,dorepl
 c     write(6,*) 'nshblocks and task_size ',nshblocks,task_size
 c     
 c     Parallel loop over quartets of reordered shell blocks

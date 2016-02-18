@@ -438,15 +438,20 @@ c     by [ 4 (epsilon_a - epsilon_i) + omega ] so we should use
 c     four times omega here to be consistent with the TDDFT formalism.
 c
 c ... jochen: Note:    
-c     level shifting might have some strange effects here 
+c     level shifting might have some strange effects here
+
+c     jochen 02/2016: un-did some of the changes introduced by Lasse's
+c     student.  Fredy applied those during the spin-unrestricted
+c     extension, the code lines are marked by FA-03-12-14.  There are
+c     matching changes in rohf_hdiag_scale_damp
 c     
-c      crohf_lshift = lshift + 4d0 * omega
-      crohf_lshift = lshift + omega ! FA-03-12-14
+      crohf_lshift = lshift + 4d0 * omega
+c      crohf_lshift = lshift + omega ! FA-03-12-14
 c
 c     use 4 * lifetime parameter to be consistent with
 c     using 4 * omega
-c      crohf_gamwidth = 4d0 * gamwidth
-      crohf_gamwidth = gamwidth ! FA-03-12-14
+      crohf_gamwidth = 4d0 * gamwidth
+c      crohf_gamwidth = gamwidth ! FA-03-12-14
 c
       call rohf_hdiag_scale_damp(nmo, nclosed, nopen,
      $   crohf_lshift, crohf_gamwidth, 

@@ -6,7 +6,6 @@ c
 c     Author : Fredy W. Aquino, Northwestern University
 c     Date   : 03-24-12
 c Note.- slight modification of uhf_precond()
-c --> Experimental (not published yet)
 
       implicit none
 #include "stdio.fh"
@@ -26,7 +25,10 @@ c
       double precision diag, denominator, shift, dnrm
       integer ilo(2), ihi(2)
 c
-      logical oprint, olprint
+      logical oprint, olprint, warning
+
+      double precision small, sign
+      parameter (small = 1d-5)
 
       diag(i) = dbl_mb(k_diag + i - 1)
 c     
@@ -46,9 +48,9 @@ c
       call ga_sync()
       call ga_inquire(g_x, gtype, vlen, nvec)
 
-c      shift = lshift + 2.0d0*omega
+      shift = lshift + 2.0d0*omega ! jochen 02/2016
 
-      shift = lshift + omega ! FA-03-13-14
+c      shift = lshift + omega ! FA-03-13-14
 
       if (oprint) then
         do ivec = 1, nvec
@@ -75,14 +77,24 @@ c      shift = lshift + 2.0d0*omega
                   call ga_get(g_x, ioff, ioff+nvir-1, ivec, ivec,
      $                 dbl_mb(k_x),1)
                   do j=1,nvir
-c                     denominator = 2.d0 * (diag(j+nocc(iset)) - diag(i))
-c     $                    + shift
+                     denominator = 2.d0 * (diag(j+nocc(iset)) - diag(i))
+     $                    + shift
 
-                   denominator = (diag(j+nocc(iset))-diag(i))+shift ! FA-03-13-14
+c                   denominator = (diag(j+nocc(iset))-diag(i))+shift ! FA-03-13-14
 
-                   if (denominator .lt. 0.1d0) denominator = 0.1d0
-c                     dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
-                   dbl_mb(k_x+j-1)=2.0d0* dbl_mb(k_x+j-1)/denominator ! FA-03-13-14
+c                    if (denominator .lt. 0.1d0) denominator = 0.1d0
+
+                     if (abs(denominator).lt.small) then
+                       sign = 1d0
+                       if (denominator.lt.0d0) sign = -1d0
+                       denominator = small * sign
+                       if (ga_nodeid().eq.0 .and. .not.warning)
+     &                   write (LuOut,9000) 
+                       warning = .true.
+                     endif
+                     
+                     dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
+c                   dbl_mb(k_x+j-1)=2.0d0* dbl_mb(k_x+j-1)/denominator ! FA-03-13-14
                   end do
                   call ga_put(g_x, ioff, ioff+nvir-1, ivec, ivec,
      $                 dbl_mb(k_x),1)
@@ -110,7 +122,16 @@ c                     dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
       if (.not. ma_pop_stack(l_diag)) call errquit('uhf:pop ',0, MA_ERR)
       call ga_sync()
 
+      return
+
+ 9000 format (/' *** WARNING: SMALL OCC-VIRT ORBITAL ENERGY DIFFERENCE',
+     &  ' DETECTED'/' (Including frequency factor for response)'/
+     &  ' This is going to lead to diverging respose properties'/
+     &  ' I have adjusted the denominator to a value of 1E-5')
+      
       end
+
+c     =================================================================
 
       subroutine uhf_hessv_precond3_damp(
      &                              g_x, 
@@ -121,8 +142,10 @@ c
 c     Author : Fredy W. Aquino, Northwestern University
 c     Date   : 03-24-12
 c Note.- modification of uhf_precond() following
-c        rohf_hessv_precond3_damp()
-c --> Experimental (not published yet)
+c     rohf_hessv_precond3_damp()
+      
+c     jochen 02/16: applied a similar change here as in the
+c     closed-shell counterpart in order to get clean convergence
 
       implicit none
 #include "stdio.fh"
@@ -134,8 +157,7 @@ c --> Experimental (not published yet)
 #include "cuhf.fh"
       integer g_x,g_x_im
       double precision omega,    ! [input] frequency
-     &                 gamwidth, ! [input]
-     &                 gamwidth1
+     &                 gamwidth  ! [input]
 c      
       integer nvir, nocc(2), iset
       integer i, j, ioff, ibase
@@ -145,16 +167,22 @@ c
       integer g_f(2), ivec, nvec, gtype, vlen
       double precision diag, denominator, shift, dnrm
       integer ilo(2), ihi(2)
-      logical oprint, olprint
+      logical oprint, olprint, warning
 
       double precision tmpre,tmpim,
      &                 factor_re,factor_im,
-     &                 den
+     &                 den, gam
 
+      double precision small, sign
+      parameter (small = 1d-5)
 
       external scale_gx_jth
 
       diag(i) = dbl_mb(k_diag + i - 1)
+
+c     =================================================================
+
+      warning = .false.
      
       g_f(1) = cuhf_g_falpha
       g_f(2) = cuhf_g_fbeta
@@ -174,8 +202,11 @@ c
       call ga_sync()
       call ga_inquire(g_x, gtype, vlen, nvec)
 
-      gamwidth1= gamwidth       
-      shift    = lshift + omega 
+c     jochen 02/16: changed such that omega and gam
+c     include factors of 2
+      
+      shift    = lshift + 2.0d0 * omega
+      gam = 2.0d0 * gamwidth
 
       if (oprint) then
         do ivec = 1, nvec
@@ -205,11 +236,29 @@ c
      $                        dbl_mb(k_x_im),1)
 
                   do j=1,nvir
-                     denominator = (diag(j+nocc(iset))-diag(i))+shift
-                     if (denominator .lt. 0.1d0) denominator = 0.1d0
-                     den= denominator**2 + gamwidth1**2        
-                     factor_re =  2.0d0*denominator/den
-                     factor_im =  2.0d0*gamwidth1/den 
+                    
+c                   denominator = (diag(j+nocc(iset))-diag(i))+shift
+                    denominator =
+     &                2.0d0 * (diag(j+nocc(iset))-diag(i))+shift
+                    
+c                    if (denominator .lt. 0.1d0) denominator = 0.1d0
+
+                    if (abs(denominator).lt.small) then
+                      sign = 1d0
+                      if (denominator.lt.0d0) sign = -1d0
+                      denominator = small * sign
+                      if (ga_nodeid().eq.0 .and. .not.warning)
+     &                  write (LuOut,9000) 
+                      warning = .true.
+                    endif
+                    
+                     den= denominator**2 + gam**2        
+c                    factor_re =  2.0d0*denominator/den
+c                    factor_im =  2.0d0*gamwidth/den
+                     
+                     factor_re =  denominator/den
+                     factor_im =  gamwidth/den
+                     
                      tmpre = dbl_mb(k_x   +j-1)   
                      tmpim = dbl_mb(k_x_im+j-1)   
                      dbl_mb(k_x   +j-1)=tmpre*factor_re+tmpim*factor_im
@@ -246,6 +295,14 @@ c
      &   call errquit('uhf:pop ' ,0, MA_ERR)
 
       call ga_sync()
+
+      return
+
+ 9000 format (/' *** WARNING: SMALL OCC-VIRT ORBITAL ENERGY DIFFERENCE',
+     &  ' DETECTED'/' (Including frequency factor for response)'/
+     &  ' This is going to lead to diverging respose properties'/
+     &  ' I have adjusted the denominator to a value of 1E-5')
+
 
       end
 c++++++++++++++++++++ FA precond routines ++++++++++++++++++ END

@@ -523,7 +523,6 @@ c          by F. Aquino,     Northwestern University
 c          03-15-12
 c  Note.- Modifying/Improving ga_lkain_2cpl3_damp() as of old src code
 c         appeared on download src 11-20-12
-c --> Experimental (not published yet)
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

@@ -63,7 +63,6 @@ c        for extension to spin-unrestricted case
 c        original aoresponse source code was written by 
 c        J. Autschbach and appears on nwchem-devtrunk (date:03-02-12)
 c        Modifying original source code: CalcPerturbedTDPmat1()
-c --> Experimental (not published yet)
     
       implicit none
 #include "errquit.fh"
@@ -224,7 +223,6 @@ c Note.- Modified from original aoresponse source code
 c        for extension to spin-unrestricted case
 c        original aoresponse source code was written by 
 c        J. Autschbach and appears on nwchem-devtrunk (date:03-02-12)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"

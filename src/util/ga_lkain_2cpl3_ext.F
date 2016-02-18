@@ -12,7 +12,6 @@ c  Improvements made
 c          by F. Aquino,     Northwestern University 
 c          03-15-12
 c  Note.- Modifying/Improving ga_lkain_2cpl3()
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -225,23 +224,6 @@ c       solution vector: g_x and g_Ax MUST have two components here
         
         if (debug) write (6,*) 'calling product from ga_lkain_2cpl'
 
-c           if (ga_nodeid().eq.0) then
-c             write(*,10) iter
-c 10          format('------ g_x-BEF-product(',i3,')---START')
-c           endif
-c            do ipm=1,ncomp
-c             call ga_print(g_x(ipm))
-c             call ga_print(g_Ax(ipm))
-c             if (lifetime) then
-c              call ga_print(g_x_im(ipm))
-c              call ga_print(g_Ax_im(ipm))
-c             endif
-c            enddo ! end-loop-ipm
-c           if (ga_nodeid().eq.0) then
-c             write(*,11) iter
-c 11          format('------ g_x-BEF-product(',i3,')---END')
-c           endif
-
         call product(acc, 
      &               g_x   , g_Ax, 
      &               g_x_im, g_Ax_im, 
@@ -396,7 +378,6 @@ c
 c
 c Author: Fredy W. Aquino, Northwestern University
 c Date  : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -437,7 +418,6 @@ c --> Experimental (not published yet)
 c
 c Author: Fredy W. Aquino, Northwestern University
 c Date  : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -479,7 +459,6 @@ c --> Experimental (not published yet)
 c
 c Author: Fredy W. Aquino, Northwestern University
 c Date  : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -528,7 +507,6 @@ c --> Experimental (not published yet)
 c
 c Author: Fredy W. Aquino, Northwestern University
 c Date  : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -583,7 +561,6 @@ c          and reducing more memory cost.
 c          --> Modified from ga_lkain_2cpl3()
 c Author : Fredy W. Aquino, Northwestern University
 c Date   : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -1264,7 +1241,6 @@ c Purpose: Getting g_z by solving recursively a complex linear equation
 c          and reducing memory cost.
 c          --> Modified from ga_lkain_2cpl3()
 c Date   : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -2292,7 +2268,6 @@ c          dimension(g_Ax1) = 2 dimension(g_Az1)
 c          because structure of g_Ax1 = [ re im ...]
 c          similarly for g_x1,g_xr1
 c Date   : 03-10-14
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -2511,7 +2486,6 @@ c          and reducing more memory cost.
 c          --> Modified from ga_lkain_2cpl3()
 c Author : Fredy W. Aquino, Northwestern University
 c Date   : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -3168,7 +3142,6 @@ c             Usual values: nvec=3 (x,y,z) ncomp=2
 c
 c    Author: Fredy W. Aquino, Northwestern University
 c    Date  : 04-08-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -3229,7 +3202,6 @@ c             Usual values: nvec=3 (x,y,z) ncomp=2
 c
 c    Author: Fredy W. Aquino, Northwestern University
 c    Date  : 04-08-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -3300,7 +3272,6 @@ c             Usual values: nvec=3 (x,y,z) ncomp=2
 c
 c    Author: Fredy W. Aquino, Northwestern University
 c    Date  : 04-08-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -3371,7 +3342,6 @@ c    This routine does: g_z= g_z + g_xreim
 c
 c    Author: Fredy W. Aquino, Northwestern University
 c    Date  : 04-08-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -3454,7 +3424,6 @@ c    This routine does: g_z= g_xreim (copies either RE or IM)
 c
 c    Author: Fredy W. Aquino, Northwestern University
 c    Date  : 04-08-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -3548,7 +3517,6 @@ c
 c    dim(g_z) = (n1,maxsub)  n1=n*ncomp  maxsub=maxiter*nvec
 c               n=nocc*nvirt maxiter=10 (usually) nvec=3 (x,y,z)
 c               ncomp=2
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -3652,7 +3620,6 @@ c
 c    dim(g_z) = (n1,maxsub)  n1=n*ncomp  maxsub=maxiter*nvec
 c               n=nocc*nvirt maxiter=10 (usually) nvec=3 (x,y,z)
 c               ncomp=2
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -3756,7 +3723,6 @@ c
 c    dim(g_z) = (n1,maxsub)  n1=n*ncomp  maxsub=maxiter*nvec
 c               n=nocc*nvirt maxiter=10 (usually) nvec=3 (x,y,z)
 c               ncomp=2
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -3886,7 +3852,6 @@ c          call ga_mat_to_vec(g_tmp1,1,nvir,1,nclosed,
 c     $                       g_ax_re(ipm),1,ivec,four,'+')  [ scl=four RDFT]
 c        for complex g_z (instead of g_ax_re)
 c        g_xreim=g_tmp1
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -3993,7 +3958,6 @@ c        g_xreim=g_tmp1
 c   g_z is history matrix of dim(n1,maxsub)
 c       n1=n*ncomp maxsub=maxiter*nvec    
 c       n=nocc*nvir maxiter=10 (usually) nvec=3 (x,y,z)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -4083,7 +4047,6 @@ c             Usual values: nvec=3 (x,y,z) ncomp=2
 c
 c    Author: Fredy W. Aquino, Northwestern University
 c    Date  : 04-08-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -4138,7 +4101,6 @@ c             Usual values: nvec=3 (x,y,z) ncomp=2
 c
 c    Author: Fredy W. Aquino, Northwestern University
 c    Date  : 05-07-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -4202,7 +4164,6 @@ c             Usual values: nvec=3 (x,y,z) ncomp=2
 c
 c    Author: Fredy W. Aquino, Northwestern University
 c    Date  : 04-21-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -4279,7 +4240,6 @@ c             Usual values: nvec=3 (x,y,z) ncomp=2
 c
 c    Author: Fredy W. Aquino, Northwestern University
 c    Date  : 04-21-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -4349,7 +4309,6 @@ c    Author: Fredy W. Aquino, Northwestern University
 c    Date  : 04-08-12
 c --> This only works for closed shell where we have one single
 c     set of (nvir,nocc)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -4425,7 +4384,6 @@ c    Author: Fredy W. Aquino, Northwestern University
 c    Date  : 04-08-12
 c --> This only works for closed shell where we have one single
 c     set of (nvir,nocc)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -4505,7 +4463,6 @@ c    Author: Fredy W. Aquino, Northwestern University
 c    Date  : 04-08-12
 c --> This only works for closed shell where we have one single
 c     set of (nvir,nocc)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -4597,7 +4554,6 @@ c
 c    Author: Fredy W. Aquino, Northwestern University
 c    Date  : 04-24-12
 c    g_z : history matrix (g_Az1 or g_z1)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -4684,7 +4640,6 @@ c
 c    Author: Fredy W. Aquino, Northwestern University
 c    Date  : 04-24-12
 c    g_z : history matrix (g_Az1 or g_z1)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -4785,7 +4740,6 @@ c
 c    Author: Fredy W. Aquino, Northwestern University
 c    Date  : 04-24-12
 c    g_z : history matrix (g_Az1 or g_z1)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -4868,7 +4822,6 @@ c
 c Author : Fredy W. Aquino, Northwestern University
 c Purpose: Update (g_Az1,g_z1,g_zr1)
 c Date   : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -4918,7 +4871,6 @@ c Date   : 03-15-12
 c
 c    dim(g_Az1)=dim(z1)=(ncomp*n,maxsub)
 c    dim(g_zr1)=(ncomp*n,nvec)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -5094,7 +5046,6 @@ c Date   : 03-15-12
 c
 c    dim(g_Az1)=dim(z1)=(ncomp*n,maxsub)
 c    dim(g_zr1)=(ncomp*n,nvec)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -5322,7 +5273,6 @@ c Date   : 03-15-12
 c
 c    dim(g_Az1)=dim(z1)=(ncomp*n,maxsub)
 c    dim(g_zr1)=(ncomp*n,nvec)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -5566,7 +5516,6 @@ c Date   : 03-15-12
 c
 c    dim(g_Az1)=dim(z1)=(ncomp*n,maxsub)
 c    dim(g_zr1)=(ncomp*n,nvec)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -5777,7 +5726,6 @@ c
 c Author : Fredy W. Aquino, Northwestern University
 c Purpose: Visualize g_b with 8 decimals.
 c Date   : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -5822,7 +5770,6 @@ c
 c Author : Fredy W. Aquino, Northwestern University
 c Purpose: Visualize g_b with 8 decimals.
 c Date   : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -5871,7 +5818,6 @@ c Date  : 03-15-12
 c
 c    Note.- Adapted to do complex calc. from ga_svd_solve_seq()
 c           located in ga_it2.F
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -5971,7 +5917,6 @@ c Date  : 03-15-12
 c
 c Note.- Adapted from ga_svd_seq
 c        to handle complex g_a FA-04-08-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -6049,7 +5994,6 @@ c Date  : 03-15-12
 c
 c Note.- Adapted from ga_scale_lh in ga_extra.F
 c        to handle complex g_a FA-04-08-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "global.fh"
@@ -6105,7 +6049,6 @@ c     Extract and sum the diags local to each process
 c
 c Author: Fredy W. Aquino, Northwestern University
 c Date  : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -6137,7 +6080,6 @@ c --> Experimental (not published yet)
 c
 c Author: Fredy W. Aquino, Northwestern University
 c Date  : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -6165,7 +6107,6 @@ c --> Experimental (not published yet)
 c
 c Author: Fredy W. Aquino, Northwestern University
 c Date  : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -6203,7 +6144,6 @@ c Purpose: Compute complex conjugate of g_a
 c
 c Author: Fredy W. Aquino, Northwestern University
 c Date  : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -6252,7 +6192,6 @@ c Purpose: Compute complex conjugate of g_a
 c
 c Author: Fredy W. Aquino, Northwestern University
 c Date  : 03-15-12
-c --> Experimental (not published yet)
                 
       implicit none
 #include "errquit.fh"
@@ -6312,7 +6251,6 @@ c -------------- get_precond_rmax_re -------------- START
 c
 c Author: Fredy W. Aquino, Northwestern University
 c Date  : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -6371,7 +6309,6 @@ c -------------- get_precond_rmax_re -------------- END
 c
 c Author: Fredy W. Aquino, Northwestern University
 c Date  : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -6426,7 +6363,6 @@ c Note.- ga_maxelt ->  max(abs(a(i,j)),value)
 c
 c Author: Fredy W. Aquino, Northwestern University
 c Date  : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -6490,7 +6426,6 @@ c --> Experimental (not published yet)
 c
 c Author: Fredy W. Aquino, Northwestern University
 c Date  : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"

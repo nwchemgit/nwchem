@@ -17,7 +17,6 @@ c
 c   Purpose: Optimization of rohf_hessv_2e2()
 c   Author : Fredy W. Aquino, Northwestern University
 c   Date   : 03-28-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -391,7 +390,6 @@ c
 c   Purpose: Adaptation from rohf_hessv_2e2() for complex case.
 c   Author : Fredy W. Aquino, Northwestern University
 c   Date   : 03-28-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"

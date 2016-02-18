@@ -18,7 +18,6 @@ c        original aoresponse source code was written by
 c        J. Autschbach et.al. and appears on nwchem-devtrunk (date:03-02-12)
 c Author of changes: Fredy W. Aquino, Northwestern University
 c Date             : 03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"

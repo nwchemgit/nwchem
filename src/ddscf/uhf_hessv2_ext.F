@@ -14,7 +14,6 @@ c Author: Fredy W. Aquino, Northwestern University (Oct 2012)
 c Date  : 03-15-12
 c
 c Modified from uhf_hessv2 and following rohf_hessv3 (located in rohf_hessv3.F)
-c --> Experimental (not published yet)
 
       implicit none
 #include "stdio.fh"
@@ -256,7 +255,6 @@ c Date  : 03-15-12
 c         -> modifying uhf_hessv_2e2() for optimization
 c Note.- Mimic uhf_hessv_2e2() but including two sets RE and IM.
 c        (g_x_re,g_x_im) (g_ax_re,g_ax_im)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -665,7 +663,6 @@ c        It is being used when: g_x=g_x_re,g_x_im
 c        g_dens acummulates the transformations C g_x C^t
 c        g_dens(1) contains only transformations C g_x_re C^t
 c        g_dens(2) contains only transformations C g_x_im C^t
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -785,7 +782,6 @@ c Note.- This routine works ONLY for ncomp=2
 c        but should work for two cases:
 c        lifetime=F  --> g_x_re,g_ax_re
 c        lifetime=T  --> g_x_re,g_ax_re g_x_im,g_ax_im
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -1288,7 +1284,6 @@ c     Date   : 03-24-12
 c
 c     If nset=1 => g_fock2(ipm) ipm=1,2
 c     If nset=2 => g_fock2(ipm) ipm=1,2,3,4
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -1378,7 +1373,6 @@ c
 c     Purpose: update g_ax with MO fock matrices
 c     Author : Fredy W. Aquino, Northwestern University (Oct 2012)
 c     Date   : 03-24-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -1484,7 +1478,6 @@ c
 c     Author : Fredy W. Aquino, Northwestern University (Oct 2012)
 c     Date   : 03-24-12
 c     Note.- Modified from uhf_hessv2 and following rohf_hessv3 (located in rohf_hessv3.F)
-c --> Experimental (not published yet)
 
       implicit none
 #include "stdio.fh"
@@ -1747,7 +1740,6 @@ c Note.- This routine works ONLY for ncomp=2
 c        but should work for two cases:
 c        lifetime=F  --> g_x_re,g_ax_re
 c        lifetime=T  --> g_x_re,g_ax_re g_x_im,g_ax_im
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -2295,7 +2287,6 @@ c     Author : Fredy W. Aquino, Northwestern University (Oct 2012)
 c     Date   : 03-24-12
 c Note.- Mimic uhf_hessv_2e2() but including two sets RE and IM.
 c        (g_x_re,g_x_im) (g_ax_re,g_ax_im)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -2749,7 +2740,6 @@ c
 c     Author : Fredy W. Aquino, Northwestern University (Oct 2012)
 c     Date   : 03-24-12
 c Modified from uhf_hessv2 and following rohf_hessv3 (located in rohf_hessv3.F)
-c --> Experimental (not published yet)
 
       implicit none
 #include "stdio.fh"
@@ -2961,7 +2951,6 @@ c Note.- This routine works ONLY for ncomp=2
 c        but should work for two cases:
 c        lifetime=F  --> g_x_re,g_ax_re
 c        lifetime=T  --> g_x_re,g_ax_re g_x_im,g_ax_im
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -3498,7 +3487,6 @@ c     Author : Fredy W. Aquino, Northwestern University (Oct 2012)
 c     Date   : 03-24-12
 c Note.- Mimic uhf_hessv_2e2() but including two sets RE and IM.
 c        (g_x_re,g_x_im) (g_ax_re,g_ax_im)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"

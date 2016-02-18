@@ -97,7 +97,6 @@ c --------------------------------------------------------------------
 c
 c Authors: Jonathan Mullin, Northwestern University (ver 1: Jan. 2011)
 c          Fredy W. Aquino, Northwestern University (ver 2: Oct. 2012)
-c --> Experimental (not published yet)
 
       implicit none
 
@@ -302,7 +301,6 @@ c        For example: mode_ini=10 mode_end=20
 c        If rminfo(15,1)=0.0 (means missing 15 raman mode)
 c        It will ignore raman mode 15 values otherwise
 c        we will get NaN everywhere (FA-08-09-12)
-c --> Experimental (not published yet)
 
       implicit none
 
@@ -607,7 +605,6 @@ c
 c Authors: Jonathan Mullin, Northwestern University (ver 1: Jan. 2011)
 c          Fredy W. Aquino, Northwestern University (ver 2: Oct. 2012)
 c Note.- Modified from raman_save()
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -678,7 +675,6 @@ c===== READ/WRITE polarization tensor ===== START
      &           alfaim)     ! in: IM of alpha (polarization)
 c
 c Author: Fredy W. Aquino, Northwestern Universtiy (Oct. 2012)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -759,7 +755,6 @@ c     Broadcast status to other nodes
      &           alfaim)     ! ou: IM of alpha (polarization)
 c
 c Author: Fredy W. Aquino, Northwestern Universtiy (Oct. 2012)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -848,7 +843,6 @@ c===== READ/WRITE polarization tensor ===== END
      &           rminfo)     ! in: raman info to store
 c
 c Author: Fredy W. Aquino, Northwestern Universtiy (Oct. 2012)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -927,7 +921,6 @@ c     Broadcast status to other nodes
      &           rminfo)   ! in: raman info to store
 c
 c Author: Fredy W. Aquino, Northwestern Universtiy (Oct. 2012)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -1011,7 +1004,6 @@ c     Broadcast status to other nodes
      &           modes_missing)  ! out: list of missing modes
 c
 c Author: Fredy W. Aquino, Northwestern Universtiy (Oct. 2012)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"

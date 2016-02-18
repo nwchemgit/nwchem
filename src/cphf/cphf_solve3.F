@@ -271,7 +271,7 @@ c
        enddo ! end-loop-ipm
       endif 
 c
-      pflg=2
+      pflg = 2 ! this variable is used in rohf_hessv_xx
       if (oprint) then
          write(luout,170) scftype
  170     format('    scftype = ',a)
@@ -608,15 +608,21 @@ c ... jochen: added preconditioner that takes care of damping
 
           omg(1)=-omega
           omg(2)= omega
+          gam(1) = -gamwidth
+          gam(2) = gamwidth
+          
           if (.not.lifetime) then
            do ipm=1,ncomp
             call rohf_hessv_precond3(g_work(ipm),omg(ipm))
            enddo ! end-loop-ip
           else
-           do ipm=1,ncomp
-            call rohf_hessv_precond3_damp(
-     &           g_work(ipm),g_work_im(ipm),omg(ipm),gam(ipm))
-           enddo ! end-loop-ipm
+            do ipm=1,ncomp
+              if (debug) write (luout,*) 'cphf_solve3: calling'//
+     &          'precond3_damp with ipm, omega, gamma',
+     &          ipm, omg(ipm), gam(ipm)
+              call rohf_hessv_precond3_damp(
+     &          g_work(ipm),g_work_im(ipm),omg(ipm),gam(ipm))
+            enddo ! end-loop-ipm
           endif
 
         

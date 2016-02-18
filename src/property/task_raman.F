@@ -5,7 +5,6 @@ c     == task raman driver ==
 c
 c Authors: Jonathan Mullin, Northwestern University (ver 1: Jan. 2011)
 c          Fredy W. Aquino, Northwestern University (ver 2: Oct. 2012)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -395,7 +394,6 @@ c     == perform raman calculation ==
 c
 c Authors: Jonathan Mullin, Northwestern University (ver 1: Jan. 2011)
 c          Fredy W. Aquino, Northwestern University (ver 2: Oct. 2012)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -657,7 +655,6 @@ c 00000000000000000000000000000000000000000000000000000000000000
 c
 c Authors: Jonathan Mullin, Northwestern University (ver 1: Jan. 2011)
 c          Fredy W. Aquino, Northwestern University (ver 2: Oct. 2012)
-c --> Experimental (not published yet)
      
       implicit none
 #include "errquit.fh"
@@ -844,7 +841,6 @@ c 00000000000000000000000000000000000000000000000000000000000000
      &             rtdb,geom)  ! in: (rtdb,geom) handles
 c
 c Author: Fredy W. Aquino, Northwestern University (Oct. 2012)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -977,7 +973,6 @@ c ======== construct filename in listing mode ====== END
      &             ignore_missingmode) ! in: =1 ignore calc missing mode
 c
 c Author: Fredy W. Aquino, Northwestern University (Oct. 2012)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -1120,7 +1115,6 @@ c ************************************************************
 c
 c Authors: Jonathan Mullin, Northwestern University (ver 1: Jan. 2011)
 c          Fredy W. Aquino, Northwestern University (ver 2: Oct. 2012)
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"

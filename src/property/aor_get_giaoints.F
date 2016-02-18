@@ -103,7 +103,7 @@ c     ==================================================================
      &  'Calculating some arrays needed for GIAO optical rotation'
 
       me = (ga_nodeid().eq.0)
-      dbg = 0                   ! debug level
+      dbg = 1                   ! debug level
 
       if (dbg>0 .and. me) then
         write (luout,*) 'aor_giaoints: xc_gotxc =',xc_gotxc()
@@ -210,10 +210,6 @@ c     sanity checks:
       if (npol.ne.nspin) call errquit(
      &  'aor_giaoints: npol not in sysnc with calling routine',
      &  npol,CALC_ERR)
-      
-      if (npol.ne.ndens) call errquit(
-     &  'aor_giaoints: ndens.ne.npol in hnd_prp_get_dens',
-     &  ndens,CALC_ERR)
          
 c     calculate the one-electron integrals for the GIAO
 c     Fock operator derivative and store in g_vecB1.

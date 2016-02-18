@@ -18,7 +18,6 @@ c
 c  Extension to spin-unrestricted case 
 c          by F. Aquino,     Northwestern University 
 c          03-15-12
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"

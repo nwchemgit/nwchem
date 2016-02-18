@@ -264,12 +264,11 @@ c     cdspectrum, so we make that option dependent on cdspectrum
 c     
       reverse = (reverse.and.cdspectrum)
 c
-c     sanity check: right now we can't do unrestricted calcs with GIAOs
-      if (lgiao .and. ipol.ne.1) then
-        call errquit('TDDFT: GIAO and Unrestricted not yet supported',
-     &     0, INPUT_ERR)
-      end if
-c
+c ... jochen 01/16: UDFT should now be possible with GIAOs,
+c     but the results don't yet seem correct
+      if (lgiao .and. ipol.ne.1 .and. nodezero) write(luout,*)
+     &  '*** WARNING: UDFT GIAO Rotatory Strengths Not (yet) Correct'
+c     
 c     calculate Buckingham-Dunn rotatory strength tensor?
       if (.not.rtdb_get(rtdb,'tddft:bdtensor',mt_log,1,lquad))
      $  lquad=.false.
@@ -953,6 +952,8 @@ c       magnetic transition dipoles if that was requested by input:
         if (cdspectrum .and. lgiao) then
           
           do i = 1, ipol
+
+            if (debug) write(luout,*) 'giao: spin i = ',ipol
 
 c           step 1: calculate 'transition perturbed MOs' from the
 c           solution vectors
@@ -1736,8 +1737,10 @@ c       Clean up arrays used for CD spectra
       
       if (cdspectrum .and. lgiao) then
         do i = 1,ipol
-          if (.not.ga_destroy(g_vecB1)) call
-     &       errquit(pname//'ga_destroy failed g_vecB1',0,GA_ERR)
+          if (.not.ga_destroy(g_vecB1(i))) then
+            write(word,'(a,i1)') 'vecB1',i
+            call errquit(pname//'ga_destroy failed '//word,0,GA_ERR)
+          end if
         end do
         if (.not.ga_destroy(g_vecT)) call
      &     errquit(pname//'ga_destroy failed g_vecT',0,GA_ERR)

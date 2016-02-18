@@ -23,7 +23,6 @@ c        for extension to spin-unrestricted case
 c        original aoresponse source code was written by 
 c        J. Autschbach and appears on nwchem-devtrunk (date:03-02-12)
 c                
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -146,7 +145,6 @@ c        for extension to spin-unrestricted case
 c        original aoresponse source code was written by 
 c        J. Autschbach and appears on nwchem-devtrunk (date:03-02-12)
 c                
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -309,7 +307,6 @@ c        for extension to spin-unrestricted case
 c        original aoresponse source code was written by 
 c        J. Autschbach and appears on nwchem-devtrunk (date:03-02-12)
 c                
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
@@ -477,7 +474,6 @@ c        for extension to spin-unrestricted case
 c        original aoresponse source code was written by 
 c        J. Autschbach and appears on nwchem-devtrunk (date:03-02-12)
 c                
-c --> Experimental (not published yet)
 
       implicit none
 #include "errquit.fh"
