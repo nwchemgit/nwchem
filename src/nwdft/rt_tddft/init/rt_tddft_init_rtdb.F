@@ -78,6 +78,10 @@ c$$$     $     "failed to read nsnapshots from rtdb", 0, RTDB_ERR)
      $     mt_log, 1, params%static)) call errquit (pname//
      $     "failed to read static from rtdb", 0, RTDB_ERR)
 
+      if (.not.rtdb_get(params%rtdb, "rt_tddft:use_dmat",
+     $     mt_log, 1, params%use_dmat)) call errquit (pname//
+     $     "failed to read use_dmat from rtdb", 0, RTDB_ERR)
+
       if (.not.rtdb_get(params%rtdb, "rt_tddft:viz_active",
      $     mt_log, 1, params%viz_active)) call errquit (pname//
      $     "failed to read viz_active from rtdb", 0, RTDB_ERR)
