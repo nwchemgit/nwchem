@@ -103,7 +103,7 @@ c     ==================================================================
      &  'Calculating some arrays needed for GIAO optical rotation'
 
       me = (ga_nodeid().eq.0)
-      dbg = 1                   ! debug level
+      dbg = 0                   ! debug level
 
       if (dbg>0 .and. me) then
         write (luout,*) 'aor_giaoints: xc_gotxc =',xc_gotxc()
