@@ -134,7 +134,8 @@ c
       integer l_y(2),k_y(2)
       integer l_corr,k_corr
       integer dummy,request
-      double precision osc_str
+      double precision osc_str(3),osc_str_tot
+      logical oscstr
 c
 c     jochen 2009, 2011, 2014:
 c     rotatory strengths, CD spectra, velocity gauge:
@@ -219,8 +220,17 @@ c
       if (ipol.lt.1 .or. ipol.gt.2) call errquit(
      &   pname//'ipol out of range',0,CALC_ERR)
 c
-      osc_str = 0.0d0
       call dcopy(20,0.0d0,0,tmom,1)
+c
+      oscstr = .true. 
+      osc_str_tot = 0.0d0
+      do i=1,3
+        cntr(i)=0.0d0
+        osc_str(i) = 0.d0
+      enddo
+      do i=1,20
+        tmom(i)=0.0d0
+      enddo
 c
 c     MN solvation models
       if(cosmo_on.and.cosmo_phase.eq.2) then
@@ -314,7 +324,7 @@ c     Initialize for GMH coupling
         enddo
       end if  ! gmh  
 c        
-      if ((cdspectrum.and.lgiao) .or. gmh) then         
+      if ((cdspectrum.and.lgiao) .or. gmh. or. oscstr) then         
 c        
 c        Calculate the overlap: S matrix
          if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'AO ovl',
@@ -325,7 +335,7 @@ c        Calculate the overlap: S matrix
          if (oskel)call sym_symmetrize(geom, ao_bas_han,.false.,g_smat)
        end if
 c
-       if (cdspectrum .or. gmh) then 
+       if (cdspectrum .or. gmh .or. oscstr) then 
 c        
 c        We will create arrays for some dipole matrix elements here.
 c        adapted from dft_main0d.F
@@ -343,7 +353,7 @@ c        == Compute the dipole integrals for the 3 components ==
 c
        end if
 c
-       if (cdspectrum) then
+       if (cdspectrum .or. oscstr) then
 c
 c        magnetic dipole moment integrals (r x nabla), times 0.5:
 c
@@ -411,7 +421,7 @@ c       need to re-initialize
         call schwarz_init(geom,ao_bas_han)                
       end if                    ! cdspectrum .and. lgiao
 
-      if (cdspectrum .or. velocity) then
+      if (cdspectrum .or. velocity .or. oscstr) then
         if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_tmpdip',
      $     nbf_ao, 0, g_tmpdip))
      $     call errquit(pname//'g_tmpdip',0, GA_ERR)
@@ -455,7 +465,7 @@ c
      &       'tddft_analysis: cannot get cnc from rtdb',
      &       0,rtdb_err)
         end if
-      end if
+      end if  ! reverse
 c
 c --------------------------------
 c Number of occupied virtual pairs
@@ -718,7 +728,7 @@ c
         if (.not.ga_create(mt_dbl,n,n,'work',-1,-1,g_work)) call
      &     errquit('tddft_analysis: failed to create g_work 2',
      &     0, GA_ERR)
-      end if
+      end if  ! cdspectrum .and. lgiao
 
       if (nodezero.and.util_print('excited state',print_default))
      1  write(LuOut,*)
@@ -917,14 +927,16 @@ c --------------------------------------------------
 c Compute transition moments and oscillator strength
 c --------------------------------------------------
 c
+        osc_str_tot = 0.0d0
         do i=1,3
-           cntr(i)=0.0d0
+          cntr(i)=0.0d0
+          osc_str(i) = 0.d0
         enddo
         do i=1,20
           tmom(i)=0.0d0
         enddo
 c
-        if (cdspectrum) then           
+        if (cdspectrum .or. oscstr) then           
 c     initialize transition dipoles for this transition (mainly debug)
            do icomp = 1,3
               el_transdip (icomp) = 0d0
@@ -1128,7 +1140,7 @@ c       Continue with non-GIAO magnetic dipoles
 c       and electric multipoles in length representation
 c       ------------------------------------------------
 
-        if (cdspectrum .or. velocity) then
+        if (cdspectrum .or. velocity .or. oscstr) then
            alo(1) = 1
            ahi(1) = nbf_ao
            alo(2) = 1
@@ -1154,7 +1166,7 @@ c       g_td has X component here
 c
         do i=1,ipol
 c
-          if (cdspectrum) then
+          if (cdspectrum .or. oscstr) then
 c
 c     The following is adapted from rttdf_utils.F:
 c     recompute the electric transition dipoles (mainly to
@@ -1229,7 +1241,7 @@ c
           do i=1,ipol
 
 c     jochen: 
-            if (cdspectrum) then
+            if (cdspectrum .or. oscstr) then
 
              do icomp = 1,3
 
@@ -1298,7 +1310,7 @@ c
           enddo
 
 c     jochen:
-          if (cdspectrum) then
+          if (cdspectrum .or. oscstr) then
             do icomp = 1,3
               el_transdip(icomp) = el_transdip(icomp) *dsqrt(2.0d0)
               mag_transdip(icomp) = mag_transdip(icomp) *dsqrt(2.0d0)
@@ -1326,13 +1338,18 @@ c
      1        (triplet.and.(mult.ne.3))) then
             write(LuOut,9210)
           else
-            osc_str = 
-     &        2.0d0/3.0d0*(tmom(2)**2+tmom(3)**2+tmom(4)**2)*apbval(n)
+c            osc_str = 
+c     &        2.0d0/3.0d0*(tmom(2)**2+tmom(3)**2+tmom(4)**2)*apbval(n)
 c
+            call tddft_oscstr(tmom, apbval(n), mag_transdip, 
+     &          osc_str, osc_str_tot)
+
             write(LuOut,9200) tmom(2),tmom(3),tmom(4),
      1                        tmom(5),tmom(6),tmom(7),
      2                        tmom(8),tmom(9),tmom(10),
-     2                        osc_str
+     2                        osc_str(1),osc_str(2),osc_str(3),
+     2                        osc_str_tot
+
 c
 c           ------------------------
 c           print data related to CD
@@ -1781,7 +1798,10 @@ c
  9200 format(5x,'Transition Moments    X',f9.5,'   Y',f9.5,'   Z',f9.5
      1    ,/,5x,'Transition Moments   XX',f9.5,'  XY',f9.5,'  XZ',f9.5
      2    ,/,5x,'Transition Moments   YY',f9.5,'  YZ',f9.5,'  ZZ',f9.5
-     7    ,/,5x,'Dipole Oscillator Strength',20x,f12.5)
+     5    ,/,5x,'Dipole Oscillator Strength',20x,f12.5
+     5    ,/,5x,'Electric Quadrupole       ',20x,f12.5
+     5    ,/,5x,'Magnetic Dipole           ',20x,f12.5
+     5    ,/,5x,'Total Oscillator Strength ',20x,f12.5)
  9210 format(5x,'Transition Moments                    Spin forbidden'
      1    ,/,5x,'Oscillator Strength                   Spin forbidden')
  9120 format(5x,'Occ.',i5,2x,a4,'---  Virt.',i5,2x,a4,f10.5)
