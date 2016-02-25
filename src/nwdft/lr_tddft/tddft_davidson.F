@@ -184,6 +184,7 @@ c
       logical lowin
       integer owstart(2)
       integer owend(2)
+      logical lcheck
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -235,6 +236,9 @@ c
      1    l_residual_2,k_residual_2)) call errquit
      2    ('tddft_davidson: failed to allocate residual_2',0, MA_ERR)
       endif
+c
+      if (.not.rtdb_get(rtdb,'tddft:check',mt_log,1,lcheck))
+     &   lcheck=.true.
 c
 c --------------------------------------------
 c Get the energy cutoff on the occupied states
@@ -784,6 +788,14 @@ c
         memleft=ga_memory_avail()/ma_sizeof(mt_dbl,1,mt_byte)
         if (nodezero.and.util_print('trial vectors',print_high))
      1    write(LuOut,9200) memleft
+c
+c ----------
+c Checkpoint
+c ----------
+c
+        if (lcheck) call tddft_checkpoint(rtdb,ipol,nroots,ntrials,
+     1    nov,algorithm,dbl_mb(k_apbvec),dbl_mb(k_ambvec),g_trials,
+     2    g_buffer1,d_trials,tda)
 c
 c ---------------------------------------------------------------
 c Form residual vectors, new trial vectors, and check convergence

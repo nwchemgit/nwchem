@@ -113,6 +113,8 @@ c
       logical lowin(2)
       integer owstart(2)
       integer owend(2)
+      logical ltrials, trials_exists
+      character*(nw_max_path_len) fn_trials
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -262,6 +264,33 @@ c
      &       RTDB_ERR)
       endif
 c
+c -----------------------------------------------
+c Are we reading initial trial vectors from file?
+c -----------------------------------------------
+c
+      if (.not.rtdb_get(rtdb,'tddft:ltrials',mt_log,1,ltrials)) then
+        ltrials=.false.
+        if (.not.rtdb_put(rtdb,'tddft:ltrials',mt_log,1,ltrials))
+     1    call errquit('tddft_init: failed to write ltrials',0,RTDB_ERR)
+      endif
+      if (ltrials) then
+        if (.not.rtdb_cget(rtdb,'tddft:trials',1,fn_trials))
+     1   call errquit('tddft_energy: failed to read trials name',0,
+     2    RTDB_ERR)
+        inquire(file=fn_trials,exist=trials_exists)
+        if (.not.trials_exists) then
+          write(LuOut,*) 'Cannot find trials file, using default guess'
+          ltrials=.false.
+          if (.not.rtdb_put(rtdb,'tddft:ltrials',mt_log,1,ltrials))
+     1      call errquit('tddft_init: failed to write ltrials',0,
+     2      RTDB_ERR)
+        else
+          write(LuOut,*)
+          write(LuOut,*) 'Reading initial trial vectors from:'
+          write(LuOut,*) ' '//trim(fn_trials)
+        end if
+      end if
+c
 c Now we call tddft_davidson
 c
       if (ipol.eq.1) then
@@ -279,6 +308,9 @@ c
      2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm,
      3      targetsym,symmetry,l_irs,k_irs,tda,lecut,ecut,
      4      lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
+          if (ltrials)
+     1      call tddft_restart(ipol,nroots,ntrials,nov,algorithm,
+     2        g_trials,g_buffer1,g_buffer2,d_trials,fn_trials,tda)
           if (util_print('trial vectors',print_debug)) then
             do i=1,ntrials
               call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
@@ -316,6 +348,9 @@ c
      2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm,
      3      targetsym,symmetry,l_irs,k_irs,tda,lecut,ecut,
      4      lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
+          if (ltrials)
+     1      call tddft_restart(ipol,nroots,ntrials,nov,algorithm,
+     2        g_trials,g_buffer1,g_buffer2,d_trials,fn_trials,tda)
           if (util_print('trial vectors',print_debug)) then
             do i=1,ntrials
               call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
@@ -353,6 +388,9 @@ c
      2    g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm,
      3    targetsym,symmetry,l_irs,k_irs,tda,lecut,ecut,
      4    lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
+        if (ltrials)
+     1    call tddft_restart(ipol,nroots,ntrials,nov,algorithm,
+     2      g_trials,g_buffer1,g_buffer2,d_trials,fn_trials,tda)
         if (util_print('trial vectors',print_debug)) then
           do i=1,ntrials
             call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
