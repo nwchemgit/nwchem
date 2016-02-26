@@ -279,15 +279,18 @@ c
      2    RTDB_ERR)
         inquire(file=fn_trials,exist=trials_exists)
         if (.not.trials_exists) then
-          write(LuOut,*) 'Cannot find trials file, using default guess'
+          if (ga_nodeid().eq.0)
+     1     write(LuOut,*) 'Cannot find trials file, using default guess'
           ltrials=.false.
           if (.not.rtdb_put(rtdb,'tddft:ltrials',mt_log,1,ltrials))
      1      call errquit('tddft_init: failed to write ltrials',0,
      2      RTDB_ERR)
         else
-          write(LuOut,*)
-          write(LuOut,*) 'Reading initial trial vectors from:'
-          write(LuOut,*) ' '//trim(fn_trials)
+          if (ga_nodeid().eq.0) then
+           write(LuOut,*)
+           write(LuOut,*) 'Reading initial trial vectors from:'
+           write(LuOut,*) ' '//trim(fn_trials)
+          end if
         end if
       end if
 c
