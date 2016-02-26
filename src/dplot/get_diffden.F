@@ -73,18 +73,18 @@ c        initialization
 c
 c        Read header information from civecs file
          if (nodezero) then      
-           open(unit=69,file=filename,form='formatted',
-     &          status='old',err=1000)
+           open(unit=69,file=filename,form='unformatted',
+     &          status='unknown',err=1000)
             rewind(69)
-            read(69,*,err=1001) tda
-            read(69,*,err=1001) ipol
-            read(69,*,err=1001) nroots
-            read(69,*,err=1001) nocc(1),nocc(2)
-            read(69,*,err=1001) nmo(1),nmo(2)
-            read(69,*,err=1001) nfc(1),nfc(2)
-            read(69,*,err=1001) nfv(1),nfv(2)
-            read(69,*,err=1001) nov(1),nov(2)
-            read(69,*,err=1001)
+            read(69,err=1001) tda
+            read(69,err=1001) ipol
+            read(69,err=1001) nroots
+            read(69,err=1001) nocc(1),nocc(2)
+            read(69,err=1001) nmo(1),nmo(2)
+            read(69,err=1001) nfc(1),nfc(2)
+            read(69,err=1001) nfv(1),nfv(2)
+            read(69,err=1001) nov(1),nov(2)
+            read(69,err=1001)
 c
             if (ipol.eq.1) nocc(2)=0
             if (ipol.eq.1) nmo(2)=0
@@ -133,42 +133,42 @@ c        Set up memory for X(X+Y), Y(X-Y) vectors
 c
 c        Read remainder of the civecs file
          if (nodezero) then      
-          open(unit=69,file=filename,form='formatted',
-     &                status='old',err=1000)
+          open(unit=69,file=filename,form='unformatted',
+     &                status='unknown',err=1000)
             rewind(69)
-            read(69,*,err=1001) tda
-            read(69,*,err=1001) ipol
-            read(69,*,err=1001) nroots
-            read(69,*,err=1001) nocc(1),nocc(2)
-            read(69,*,err=1001) nmo(1),nmo(2)
-            read(69,*,err=1001) nfc(1),nfc(2)
-            read(69,*,err=1001) nfv(1),nfv(2)
-            read(69,*,err=1001) nov(1),nov(2)
-            read(69,*,err=1001)
+            read(69,err=1001) tda
+            read(69,err=1001) ipol
+            read(69,err=1001) nroots
+            read(69,err=1001) nocc(1),nocc(2)
+            read(69,err=1001) nmo(1),nmo(2)
+            read(69,err=1001) nfc(1),nfc(2)
+            read(69,err=1001) nfv(1),nfv(2)
+            read(69,err=1001) nov(1),nov(2)
+            read(69,err=1001)
 c
             do n = 1,nroots
              if (tda) then
-               read(69,*) r  ! energy of root
-               read(69,*) r  ! s2_save(n)
+               read(69) r  ! energy of root
+               read(69) r  ! s2_save(n)
                do i=1,ipol
                  do m=1,nov(i)
-                   read(69,*) r
+                   read(69) r
                    call ga_put(g_x(i),m,m,n,n,r,1)
                  end do
                end do ! ipol
              else   ! full tddft
-               read(69,*) r  ! energy of root
-               read(69,*) r  ! s2_save(n)
+               read(69) r  ! energy of root
+               read(69) r  ! s2_save(n)
                do i=1,ipol
                  do m=1,nov(i)
-                   read(69,*) r
+                   read(69) r
                    call ga_put(g_x(i),m,m,n,n,r,1)
                  end do
                end do ! ipol
 c
                do i=1,ipol
                  do m=1,nov(i)
-                   read(69,*) r
+                   read(69) r
                    call ga_put(g_y(i),m,m,n,n,r,1)
                  end do
                end do ! ipol
