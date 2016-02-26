@@ -800,6 +800,14 @@ c
        if (.not. do_s2) goto 1111
 c
         if (ipol.eq.2) then
+c
+          call tddft_s2(tda,nfc,nocc,nmo,nfv,nov,
+     &         dbl_mb(k_x(1)),dbl_mb(k_x(2)),
+     &         dbl_mb(k_y(1)),dbl_mb(k_y(2)),
+     &         dbl_mb(k_corr),s2)
+c
+#if 0
+c
           s2=na-(na-nb)/2.0d0+((na-nb)/2.0d0)**2
 c
 c alpha excitation ket
@@ -915,6 +923,7 @@ c same beta excitation bra
               endif
             enddo
           enddo
+#endif
           if (nodezero.and.util_print('excited state',print_default)
      1      .and.(nfc(1).eq.nfc(2)))
      2      write(LuOut,9180) s2
@@ -1742,7 +1751,7 @@ c
      1  util_print('excited state',print_default)) write(LuOut,*)
 
 c       jochen:
-      if (cdspectrum .or. gmh) then
+      if (cdspectrum .or. gmh .or. oscstr) then
 c       Clean up arrays used for CD spectra
         do icomp = 1,3
           if (.not. ga_destroy(g_dipole(icomp))) call errquit
@@ -1775,7 +1784,7 @@ c
       if (.not. ga_destroy(g_temp)) call errquit
      &   (pname//'Could not destroy g_temp', 0, GA_ERR)
 c     
-      if (cdspectrum .or. velocity) then
+      if (cdspectrum .or. velocity .or. oscstr) then
         if (.not. ga_destroy(g_tmpdip)) call errquit
      &     (pname//'Could not destroy g_tmpdip', 0, GA_ERR)
       endif                     ! cdspectrum .or. velocity
@@ -1804,11 +1813,11 @@ c
      5    ,/,5x,'Total Oscillator Strength ',20x,f12.5)
  9210 format(5x,'Transition Moments                    Spin forbidden'
      1    ,/,5x,'Oscillator Strength                   Spin forbidden')
- 9120 format(5x,'Occ.',i5,2x,a4,'---  Virt.',i5,2x,a4,f10.5)
+ 9120 format(5x,'Occ.',i5,2x,a4,'---  Virt.',i5,2x,a4,f12.5)
  9130 format(5x,'Occ.',i5,2x,a4,'---  Virt.',i5,2x,a4,f8.5,' X')
  9140 format(5x,'Occ.',i5,2x,a4,'---  Virt.',i5,2x,a4,f8.5,' Y')
  9150 format(5x,'Occ.',i5,1x,a5,1x,a4,'---  Virt.',
-     1  i5,1x,a5,1x,a4,f10.5)
+     1  i5,1x,a5,1x,a4,f12.5)
  9160 format(5x,'Occ.',i5,1x,a5,1x,a4,'---  Virt.',
      1  i5,1x,a5,1x,a4,f8.5,' X')
  9170 format(5x,'Occ.',i5,1x,a5,1x,a4,'---  Virt.',
@@ -2056,7 +2065,7 @@ c
        enddo
       end if ! gmh
 c
-      if (cdspectrum.and.lgiao) then
+      if ((cdspectrum.and.lgiao) .or. oscstr) then
         if (.not.ga_destroy(g_smat)) call errquit
      2     ('tddft_analysis: failed to destroy g_smat',0, GA_ERR)
       end if
