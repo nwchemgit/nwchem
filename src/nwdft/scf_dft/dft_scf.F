@@ -1962,6 +1962,13 @@ c        DIM/QM JEM
          if (abs(Edisp).gt.0.0d0) then
           write(LuOut,224)Edisp
          endif
+         if (cosmo_on.and.cosmo_phase.eq.2) then
+          if (do_cosmo_smd) then
+           write(LuOut,225) ecosmo+gcds
+          else
+           write(LuOut,225) ecosmo
+          end if
+         endif
          if (do_zora) write(luout,2221) ener_scal
          write(luout,2222) rho_n
          write(luout,2223) dft_time
@@ -2556,6 +2563,7 @@ c
      &     '       Correlation energy =', f22.12/
      &     ' Nuclear repulsion energy =', f22.12/)
  224  format('    Dispersion correction =', f22.12/)
+ 225  format('             COSMO energy =', f22.12/)
 c
  2221 format('       Scaling correction =', f22.12/)
  2222 format(' Numeric. integr. density =', f22.12/)
