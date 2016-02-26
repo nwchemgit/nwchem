@@ -1821,23 +1821,24 @@ c
        if (nodezero.and.lcivecs) then
          write(luout,*) "fn_civecs: ",fn_civecs
          call util_file_name_resolve(fn_civecs, .false.)
-         open(unit=69,file=fn_civecs,form='formatted',status='unknown')
+         open(unit=69,file=fn_civecs,form='unformatted',
+     1             status='unknown')
          write(LuOut,2010) fn_civecs
          rewind(69)
-         write(69,*) tda
-         write(69,*) ipol
-         write(69,*) nroots
+         write(69) tda
+         write(69) ipol
+         write(69) nroots
          if (ipol.eq.1) nocc(2) = 0
-         write(69,*) nocc(1),nocc(2)
+         write(69) nocc(1),nocc(2)
          if (ipol.eq.1) nmo(2) = 0
-         write(69,*) nmo(1),nmo(2)
+         write(69) nmo(1),nmo(2)
          if (ipol.eq.1) nfc(2) = 0
-         write(69,*) nfc(1),nfc(2)
+         write(69) nfc(1),nfc(2)
          if (ipol.eq.1) nfv(2) = 0
-         write(69,*) nfv(1),nfv(2)
+         write(69) nfv(1),nfv(2)
          if (ipol.eq.1) nov(2) = 0
-         write(69,*) nov(1),nov(2)
-         write(69,*)
+         write(69) nov(1),nov(2)
+         write(69)
        endif ! nodezero
 c
  2000 format(/,2x,'No CI vector file is created')
@@ -1855,12 +1856,12 @@ c       Write out solution vectors: X (Y=0 in TDA)
 c
         if (nodezero.and.lcivecs) then
          do n=1,nroots
-           write(69,*)apbval(n)  ! energy of the root
-           write(69,*)s2_save(n) ! <S2> value of the root
+           write(69)apbval(n)  ! energy of the root
+           write(69)s2_save(n) ! <S2> value of the root
            do i=1,ipol
              do m=1,nov(i)
                call ga_get(g_x(i),m,m,n,n,r,1)
-               write(69,*) r
+               write(69) r
              enddo ! nov
            enddo ! ipol
          enddo  ! nroots
@@ -1883,19 +1884,19 @@ c       Write out vectors: X+Y and X-Y
 c
         if (nodezero.and.lcivecs) then
            do n=1,nroots
-             write(69,*)apbval(n)  ! energy of the root
-             write(69,*)s2_save(n) ! <S2> value of the root
+             write(69)apbval(n)  ! energy of the root
+             write(69)s2_save(n) ! <S2> value of the root
              do i=1,ipol
                do m=1,nov(i)
                  call ga_get(g_x(i),m,m,n,n,r,1) ! X vectors
-                 write(69,*) r
+                 write(69) r
                enddo ! nov
              enddo ! ipol
 c
              do i=1,ipol
                do m=1,nov(i)
                  call ga_get(g_y(i),m,m,n,n,r,1) ! Y vectors
-                 write(69,*) r
+                 write(69) r
                enddo ! nov
              enddo ! ipol
            enddo ! nroots

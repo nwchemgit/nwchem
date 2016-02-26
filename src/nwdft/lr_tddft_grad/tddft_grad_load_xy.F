@@ -110,18 +110,18 @@ c           Restore singlet state ci vectors from file
 c
             inquire(file=fn_civecs_singlet,exist=vector_exists)
             if (vector_exists) then
-              open(unit=69,file=fn_civecs_singlet,form='formatted',
-     +             status='old',err=90000,access='sequential')
+              open(unit=69,file=fn_civecs_singlet,form='unformatted',
+     +             status='unknown',err=90000)
               rewind(69)
-              read(69,*,err=90000) tda_verify
-              read(69,*,err=90000) ipol_verify
-              read(69,*,err=90000) nroots_verify
-              read(69,*,err=90000) nocc_verify(1),nocc_verify(2)
-              read(69,*,err=90000) nmo_verify(1),nmo_verify(2)
-              read(69,*,err=90000) nfc_verify(1),nfc_verify(2)
-              read(69,*,err=90000) nfv_verify(1),nfv_verify(2)
-              read(69,*,err=90000) nov_verify(1),nov_verify(2)
-              read(69,*,err=90000)
+              read(69,err=90000) tda_verify
+              read(69,err=90000) ipol_verify
+              read(69,err=90000) nroots_verify
+              read(69,err=90000) nocc_verify(1),nocc_verify(2)
+              read(69,err=90000) nmo_verify(1),nmo_verify(2)
+              read(69,err=90000) nfc_verify(1),nfc_verify(2)
+              read(69,err=90000) nfv_verify(1),nfv_verify(2)
+              read(69,err=90000) nov_verify(1),nov_verify(2)
+              read(69,err=90000)
 c
               nrt = nroots_verify
 c
@@ -152,13 +152,13 @@ c since it is always 0.
                   do j = 1, nsroots
                     if (i.eq.isroots(j)) k = j
                   enddo
-                  read(69,*,err=90000) r
+                  read(69,err=90000) r
                   if (k.gt.0) Eroot(k) = r
 c Daniel (2-19-13): This is the <S**2> value.
-                  read(69,*,err=90000) r
+                  read(69,err=90000) r
                   do l = 1, naoc(1) 
                     do m = 1, nav(1)
-                      read(69,*,err=90000) r
+                      read(69,err=90000) r
                       if (k.gt.0) then
                         ilo(1) = k
                         ilo(2) = l
@@ -173,7 +173,7 @@ c Daniel (2-19-13): This is the <S**2> value.
                   if (.not.tda) then
                     do l = 1, naoc(1) 
                       do m = 1, nav(1)
-                        read(69,*,err=90000) r
+                        read(69,err=90000) r
                         if (k.gt.0) then
                           ilo(1) = k
                           ilo(2) = l
@@ -204,18 +204,18 @@ c           Restore triplet state ci vectors from file
 c
             inquire(file=fn_civecs_triplet,exist=vector_exists)
             if (vector_exists) then
-              open(unit=69,file=fn_civecs_triplet,form='formatted',
-     +             status='old',err=90010,access='sequential')
+              open(unit=69,file=fn_civecs_triplet,form='unformatted',
+     +             status='unknown',err=90010)
               rewind(69)
-              read(69,*,err=90000) tda_verify
-              read(69,*,err=90000) ipol_verify
-              read(69,*,err=90000) nroots_verify
-              read(69,*,err=90000) nocc_verify(1),nocc_verify(2)
-              read(69,*,err=90000) nmo_verify(1),nmo_verify(2)
-              read(69,*,err=90000) nfc_verify(1),nfc_verify(2)
-              read(69,*,err=90000) nfv_verify(1),nfv_verify(2)
-              read(69,*,err=90000) nov_verify(1),nov_verify(2)
-              read(69,*,err=90000)
+              read(69,err=90000) tda_verify
+              read(69,err=90000) ipol_verify
+              read(69,err=90000) nroots_verify
+              read(69,err=90000) nocc_verify(1),nocc_verify(2)
+              read(69,err=90000) nmo_verify(1),nmo_verify(2)
+              read(69,err=90000) nfc_verify(1),nfc_verify(2)
+              read(69,err=90000) nfv_verify(1),nfv_verify(2)
+              read(69,err=90000) nov_verify(1),nov_verify(2)
+              read(69,err=90000)
 c
               nrt = nroots_verify
 c
@@ -242,13 +242,13 @@ c since it is always 2.
                   do j = 1, ntroots
                     if (i.eq.itroots(j)) k = j+nsroots
                   enddo
-                  read(69,*,err=90000) r
+                  read(69,err=90000) r
                   if (k.gt.0) Eroot(k) = r
 c Daniel (2-19-13): This is the <S**2> value.
-                  read(69,*,err=90000) r
+                  read(69,err=90000) r
                   do l = 1, naoc(1) 
                     do m = 1, nav(1) 
-                      read(69,*,err=90010) r
+                      read(69,err=90010) r
                       if (k.gt.0) then
                         ilo(1) = k
                         ilo(2) = l
@@ -263,7 +263,7 @@ c Daniel (2-19-13): This is the <S**2> value.
                   if (.not.tda) then
                     do l = 1, naoc(1) 
                       do m = 1, nav(1) 
-                        read(69,*,err=90010) r
+                        read(69,err=90010) r
                         if (k.gt.0) then
                           ilo(1) = k
                           ilo(2) = l
@@ -295,18 +295,18 @@ c           Restore unrestricted state ci vectors from file
 c
             inquire(file=fn_civecs,exist=vector_exists)
             if (vector_exists) then
-              open(unit=69,file=fn_civecs,form='formatted',status='old',
-     +             err=90020,access='sequential')
+              open(unit=69,file=fn_civecs,form='unformatted',
+     &           status='unknown',err=90020)
               rewind(69)
-              read(69,*,err=90000) tda_verify
-              read(69,*,err=90000) ipol_verify
-              read(69,*,err=90000) nroots_verify
-              read(69,*,err=90000) nocc_verify(1),nocc_verify(2)
-              read(69,*,err=90000) nmo_verify(1),nmo_verify(2)
-              read(69,*,err=90000) nfc_verify(1),nfc_verify(2)
-              read(69,*,err=90000) nfv_verify(1),nfv_verify(2)
-              read(69,*,err=90000) nov_verify(1),nov_verify(2)
-              read(69,*,err=90000)
+              read(69,err=90000) tda_verify
+              read(69,err=90000) ipol_verify
+              read(69,err=90000) nroots_verify
+              read(69,err=90000) nocc_verify(1),nocc_verify(2)
+              read(69,err=90000) nmo_verify(1),nmo_verify(2)
+              read(69,err=90000) nfc_verify(1),nfc_verify(2)
+              read(69,err=90000) nfv_verify(1),nfv_verify(2)
+              read(69,err=90000) nov_verify(1),nov_verify(2)
+              read(69,err=90000)
 c
               nrt = nroots_verify
 c
@@ -331,14 +331,14 @@ c excited states and also the <S**2> value.
                   do j = 1, nroots
                     if (i.eq.iroots(j)) k = j
                   enddo
-                  read(69,*,err=90000) r
+                  read(69,err=90000) r
                   if (k.gt.0) Eroot(k) = r
 c Daniel (2-19-13): This is the <S**2> value.
-                  read(69,*,err=90000) r
+                  read(69,err=90000) r
                   do j = 1, ipol
                     do l = 1, naoc(j) 
                       do m = 1, nav(j) 
-                        read(69,*,err=90020) r
+                        read(69,err=90020) r
                         if (k.gt.0) then
                           ilo(1) = k
                           ilo(2) = l
@@ -355,7 +355,7 @@ c Daniel (2-19-13): This is the <S**2> value.
                     do j = 1, ipol
                       do l = 1, naoc(j) 
                         do m = 1, nav(j) 
-                          read(69,*,err=90020) r
+                          read(69,err=90020) r
                           if (k.gt.0) then
                             ilo(1) = k
                             ilo(2) = l

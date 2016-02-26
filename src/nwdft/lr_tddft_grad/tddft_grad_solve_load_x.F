@@ -106,11 +106,11 @@ c
       call ga_brdcst(1001,x_exists,ma_sizeof(MT_LOG,1,MT_BYTE),0)
       if (x_exists) then
         if (ga_nodeid().eq.0) then
-          open(unit=69,file=fn_x,form='formatted',iostat=iostatus,
-     +         status='old',access='sequential')
+          open(unit=69,file=fn_x,form='unformatted',iostat=iostatus,
+     +         status='unknown')
           ioerror = ioerror .or. iostatus.gt.0
           rewind(69)
-          read(69,*,iostat=iostatus)itpol,itnao,
+          read(69,iostat=iostatus)itpol,itnao,
      +        (itnfc(i),i=1,ipol),
      +        (itnaoc(i),i=1,ipol),
      +        (itnav(i),i=1,ipol),
@@ -146,7 +146,7 @@ c
                   idim(2) = maxi
                   if (ga_nodeid().eq.0) then
                     do k = mlo(2), mhi(2)
-                      read(69,*,iostat=iostatus)ik,ij,buf(k-mlo(2)+1)
+                      read(69,iostat=iostatus)ik,ij,buf(k-mlo(2)+1)
                       ioerror = ioerror .or. iostatus.gt.0
                       ioerror = ioerror .or. (ik.ne.k.or.ij.ne.j)
                     enddo

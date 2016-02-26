@@ -115,9 +115,8 @@ c
      +    call errquit(pname//'failed to create g_mat_ao',0,GA_ERR)
 c
         if (ga_nodeid().eq.0) then
-          open(unit=69,file=fn_x,form='formatted',err=90000,
-     +         access='sequential')
-          write(69,*,err=90010)ipol,nao,
+          open(unit=69,file=fn_x,form='unformatted',err=90000)
+          write(69,err=90010)ipol,nao,
      +         (nfc(i),i=1,ipol),
      +         (naoc(i),i=1,ipol),
      +         (nav(i),i=1,ipol),
@@ -203,7 +202,7 @@ c
                   idim(2) = maxi
                   call nga_get(g_mat_ao,mlo,mhi,buf,idim)
                   do k = mlo(2), mhi(2)
-                    write(69,*,err=90010)k,j,buf(k-mlo(2)+1)
+                    write(69,err=90010)k,j,buf(k-mlo(2)+1)
                   enddo
                 enddo
               enddo
