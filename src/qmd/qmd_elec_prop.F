@@ -329,7 +329,6 @@ c
         do j=1,i
           hopsum=hopsum+hopprob(j)
         end do
-        write(*,'(A,2I3,2ES20.10)') 'hop', ga_nodeid(), i, hopsum, zeta
         if ((hopsum-zeta).gt.thresh) then
           curr_state=i
           exit
