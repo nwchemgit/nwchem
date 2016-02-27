@@ -580,6 +580,15 @@ c
       integer lo(3)
       integer ld(2)
       double precision scr
+c
+      logical tda_ver
+      integer ipol_ver
+      integer nroots_ver
+      integer nocc_ver(2)
+      integer nmo_ver(2)
+      integer nfc_ver(2)
+      integer nfv_ver(2)
+      integer nov_ver(2)
       integer len_fn_civecs           ! length of civecs file name
       character*255 fn_civecs         ! file name for TDDFT vectors
       character*255 fn_civecs_current ! file name for TDDFT current vectors
@@ -611,41 +620,50 @@ c
       if (ga_nodeid().eq.0) then
        if (.not.util_get_io_unit(ionum1))
      $    call errquit(pname//'failed to get unit',1,DISK_ERR)
-       open(unit=ionum1,file=fn_civecs_old,form='formatted',
-     $      status='old',access='sequential')
+       open(unit=ionum1,file=fn_civecs_old,form='unformatted',
+     $      status='old')
 c
        if (.not.util_get_io_unit(ionum2))
      $    call errquit(pname//'failed to get unit',2,DISK_ERR)
-       open(unit=ionum2,file=fn_civecs_current,form='formatted',
-     $      status='old',access='sequential')
+       open(unit=ionum2,file=fn_civecs_current,form='unformatted',
+     $      status='old')
 c
 c      Read headers
 c
        rewind(ionum1)
 c      TDA flag, ipol, #roots, #occupied, #MOs, #frozen core, 
 c       #frozen virtuals, #MO pairs, blank
-       do i=1,9!*Would have to be changed is formate of civecs changes*
-         read(ionum1,*,iostat=ioerr)
-         if (ioerr.ne.0)
-     $      call errquit(pname//'failed to read civecs1',1,DISK_ERR)
-       end do
+       read(ionum1,err=90000) tda_ver
+       read(ionum1,err=90000) ipol_ver
+       read(ionum1,err=90000) nroots_ver
+       read(ionum1,err=90000) nocc_ver(1), nocc_ver(2)
+       read(ionum1,err=90000) nmo_ver(1), nmo_ver(2)
+       read(ionum1,err=90000) nfc_ver(1), nfc_ver(2)
+       read(ionum1,err=90000) nfv_ver(1), nfv_ver(2)
+       read(ionum1,err=90000) nov_ver(1), nov_ver(2)
+       read(ionum1,err=90000)
+c
        rewind(ionum2)
-       do i=1,9
-         read(ionum2,*,iostat=ioerr)
-         if (ioerr.ne.0)
-     $      call errquit(pname//'failed to read civecs2',1,DISK_ERR)
-       end do
+       read(ionum2,err=90000) tda_ver
+       read(ionum2,err=90000) ipol_ver
+       read(ionum2,err=90000) nroots_ver
+       read(ionum2,err=90000) nocc_ver(1), nocc_ver(2)
+       read(ionum2,err=90000) nmo_ver(1), nmo_ver(2)
+       read(ionum2,err=90000) nfc_ver(1), nfc_ver(2)
+       read(ionum2,err=90000) nfv_ver(1), nfv_ver(2)
+       read(ionum2,err=90000) nov_ver(1), nov_ver(2)
+       read(ionum2,err=90000)
 c
 c      Read CI vectors into GAs
 c
        do istate=1,nstates
         lo(3)=istate
 c       energy
-        read(ionum1,*)
-        read(ionum2,*)
+        read(ionum1,err=90000)
+        read(ionum2,err=90000)
 c       <S^2>
-        read(ionum1,*)
-        read(ionum2,*)
+        read(ionum1,err=90000)
+        read(ionum2,err=90000)
         do ispin=1,ipol
          ld(1)=nocc(ispin)
          ld(2)=nvir(ispin)
@@ -653,9 +671,9 @@ c       <S^2>
           lo(1)=imo
           do amo=1,nvir(ispin)
            lo(2)=amo
-           read(ionum1,*) scr
+           read(ionum1,err=90000) scr
            call nga_put(g_cix1(ispin),lo,lo,scr,ld)
-           read(ionum2,*) scr
+           read(ionum2,err=90000) scr
            call nga_put(g_cix2(ispin),lo,lo,scr,ld)
           end do !amo
          end do !imo
@@ -668,9 +686,9 @@ c       <S^2>
            lo(1)=imo
            do amo=1,nvir(ispin)
             lo(2)=amo
-            read(ionum1,*) scr
+            read(ionum1,err=90000) scr
             call nga_put(g_ciy1(ispin),lo,lo,scr,ld)
-            read(ionum2,*) scr
+            read(ionum2,err=90000) scr
             call nga_put(g_ciy2(ispin),lo,lo,scr,ld)
            end do !amo
           end do !imo
@@ -684,6 +702,11 @@ c       <S^2>
 c
       call ga_sync()
       call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
+      return
+c
+90000 continue
+      call errquit(pname//'error reading ci vectors',0,DISK_ERR)
+      return
 c
       return
       end
