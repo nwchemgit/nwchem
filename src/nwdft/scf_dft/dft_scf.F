@@ -129,8 +129,6 @@ c
       parameter(zero = 0.d0, one = 1.d0, onem = -one)
 c
       integer ilo, ihi          ! For printing movecs analysis
-      double precision eval_pr_tol_lo, eval_pr_tol_hi
-      parameter (eval_pr_tol_lo = -1.5d0, eval_pr_tol_hi=0.5)
 c
       double precision dft_dencvg, dft_time
       external dft_dencvg
@@ -364,9 +362,8 @@ c     check for FON in rtdb:
       endif
 
 c     read MO analysis threshold
-      tanalyze = 0.15d0
       if (.not.rtdb_get(rtdb,'movecs:tanalyze',MT_DBL,1,tanalyze))
-     &   tanalyze = 0.15d0
+     &   tanalyze = 0.025d0
 
 
 c
@@ -2170,39 +2167,22 @@ c     Vector analysis stolen from rohf.F
 c
       do ispin = 1, ipol
          call movecs_fix_phase(g_movecs(ispin))
-         if (util_print('final vectors analysis', print_default)) then
-            do ilo = 1,max(1,nclosed-10)
-               if (dbl_mb(k_eval(ispin)+ilo-1) .ge. eval_pr_tol_lo) 
-     &            goto 961
-            enddo
- 961        do ihi = min(nclosed+nopen+10,nmo(1)), nmo(1)
-               if (dbl_mb(k_eval(ispin)+ihi-1) .ge. eval_pr_tol_hi) 
-     &            goto 9611
-            enddo
-            ihi = max(ihi-1,1)
- 9611       continue
-            ilo = max(1, ilo-1)  ! Qin
-            if (util_print('final vectors analysis', print_high)) then
-               ilo = 1
-               ihi = nmo(1)
-            endif
-            if (ipol.eq.1) then
-               blob='DFT Final Molecular Orbital Analysis'
-            else if(ipol.eq.2.and.ispin.eq.1) then
-               blob='DFT Final Alpha Molecular Orbital Analysis' 
-            else
-               blob='DFT Final Beta Molecular Orbital Analysis' 
-            endif
-c ... jochen: replaced 0.15 at the end of the line with 'tanalyze'
-c             which can be read from input
-c            call movecs_print_anal(ao_bas_han, ilo, ihi, 0.15d0, 
-            call movecs_print_anal(ao_bas_han, ilo, ihi, tanalyze, 
-     &           g_movecs(ispin), 
-     &           blob, 
-     &           .true., dbl_mb(k_eval(ispin)), oadapt, 
-     &           int_mb(k_ir+(ispin-1)*nbf_ao),
-     &           .true., dbl_mb(k_occ+(ispin-1)*nbf_ao))
+         ilo = 1
+         ihi = nmo(ispin)
+         if (ipol.eq.1) then
+            blob='DFT Final Molecular Orbital Analysis'
+         else if(ipol.eq.2.and.ispin.eq.1) then
+            blob='DFT Final Alpha Molecular Orbital Analysis' 
+         else
+            blob='DFT Final Beta Molecular Orbital Analysis' 
          endif
+         
+         call movecs_print_anal(ao_bas_han, ilo, ihi, tanalyze, 
+     &        g_movecs(ispin), 
+     &        blob, 
+     &        .true., dbl_mb(k_eval(ispin)), oadapt, 
+     &        int_mb(k_ir+(ispin-1)*nbf_ao),
+     &        .true., dbl_mb(k_occ+(ispin-1)*nbf_ao))
       enddo
       if (oprint_final_vecs) then
          if (me .eq. 0) then
