@@ -24,43 +24,44 @@ c
       implicit none
 #include "errquit.fh"
 #include "global.fh"      
+      integer nproc  ! [in]
+      integer ichunk ! [in]
+c
+      external nxtask0
+      integer nxtask0
+c
+      nxtask=nxtask0(nproc, ichunk,0)
+      return
+      end
+      integer function nxtask0(nproc, ichunk, skipfirst)
+      implicit none
+#include "errquit.fh"
+#include "global.fh"      
       logical odlb
       common /dlbinfo/ odlb
-#ifdef GANXTVAL
       logical f1stcall
       save f1stcall
       data f1stcall /.true./
-      external util_gnxtval
-      integer util_gnxtval
-#endif
+      external util_shcount
+      integer util_shcount
 c
       integer nproc, ichunk     ! [input]
+      integer skipfirst ! [in] .eq.0 then noskipfirst
 c
       integer icount, nleft, nxtval, junk
       external nxtval
       save icount, nleft
       data nleft, icount /0, 0/
-#ifdef GANXTVAL
+c     we do not like negative values for skipfirst
+      if(skipfirst.lt.0) call errquit(
+     A     ' nxtask0: skipfirst has negative value',skipfirst,0)
       if (odlb) then
         if(f1stcall) then
 c     skip read inc for first call                                              
-#ifdef SKIPFIRST
-           junk=util_gnxtval(0)
-#else
-           junk=util_gnxtval(0)
-           f1stcall=.false.
-#endif
+           junk=util_shcount(0)
+           if(skipfirst.eq.0) f1stcall=.false.
         endif
-      else
-c       No dynamic load balancing 
-c       =========================
-c       So do not create a GA for the global counter because we will
-c       never destroy that GA. In case of subgroups the latter causes
-c       the code to crash when the subgroup is destroyed as the GA 
-c       library will check whether there are any GAs still defined on
-c       the subgroup.
       endif
-#endif
 c     
 c     wrapper round nxtval() to increase granularity
 c     and thus reduce no. of requests to shared counter
@@ -73,38 +74,27 @@ c
       if (odlb) then
       if(nproc.eq.ga_nnodes()) then
          if(nleft.eq.0) then
-#ifdef GANXTVAL
-#ifdef SKIPFIRST
 c     skip read inc for first call   
             if(f1stcall) then
                f1stcall=.false.
                icount=(ga_nodeid()) * ichunk
             else
-               icount = (util_gnxtval(nproc) +ga_nnodes()) * ichunk
+               icount = (util_shcount(nproc) +
+     C              skipfirst*ga_nnodes()) * ichunk
             endif
-#else
-            icount = util_gnxtval(nproc) * ichunk
-#endif
-#else
-            icount = nxtval(nproc) * ichunk
-#endif
             nleft = ichunk
          endif
-         nxtask = icount
+         nxtask0 = icount
          icount = icount + 1
          nleft = nleft -1
 *      else if (nproc.lt.0) then
       else if (nproc.eq.-ga_nnodes()) then
          nleft = 0
-         nxtask = -1
-#ifdef GANXTVAL
-         junk = util_gnxtval(nproc)
+         nxtask0 = -1
+         junk = util_shcount(nproc)
          f1stcall = .true.
-#else
-         junk = nxtval(nproc)
-#endif
       else 
-         call errquit('nxtask: invalid nproc ', nproc, UNKNOWN_ERR)
+         call errquit('nxtask0: invalid nproc ', nproc, UNKNOWN_ERR)
       endif
 c     
 c     following does dumb static load balancing
@@ -116,16 +106,16 @@ c
             icount = ga_nodeid()
             nleft = 1
          endif
-         nxtask = icount
+         nxtask0 = icount
          icount = icount + ga_nnodes()
       else
          nleft = 0
-         nxtask = 0
+         nxtask0 = 0
       endif
 
       endif
 c     
-*      write(6,*) ga_nodeid(), ' got task ', nxtask
+*      write(6,*) ga_nodeid(), ' got task ', nxtask0
 *      call util_flush(6)
 c     
       end
@@ -156,3 +146,19 @@ c
 
       return
       end
+      integer function util_shcount(nproc)
+      implicit none
+      integer nproc
+#ifdef GANXTVAL
+      integer util_gnxtval
+      external util_gnxtval
+      util_shcount=util_gnxtval(nproc)
+#else
+      integer nxtval
+      external nxtval
+c     no init with tcg nxtval??
+      if(nproc.eq.0) return
+      util_shcount = nxtval(nproc)
+#endif
+       return
+       end
