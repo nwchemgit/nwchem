@@ -55,6 +55,9 @@ c
 c     we do not like negative values for skipfirst
       if(skipfirst.lt.0) call errquit(
      A     ' nxtask0: skipfirst has negative value',skipfirst,0)
+      if(skipfirst.gt.1.and.ichunk.gt.1) call errquit(
+     A     ' nxtask0: case with skip1st.gt.1.and.ichunk.gt.1 not ready',
+     S     skipfirst,0)
       if (odlb) then
         if(f1stcall) then
 c     skip read inc for first call                                              
@@ -74,15 +77,16 @@ c
       if (odlb) then
       if(nproc.eq.ga_nnodes()) then
          if(nleft.eq.0) then
+            nleft = ichunk
 c     skip read inc for first call   
             if(f1stcall) then
+               nleft=nleft*skipfirst
                f1stcall=.false.
-               icount=(ga_nodeid()) * ichunk
+               icount=(ga_nodeid()) * ichunk * skipfirst
             else
                icount = (util_shcount(nproc) +
      C              skipfirst*ga_nnodes()) * ichunk
             endif
-            nleft = ichunk
          endif
          nxtask0 = icount
          icount = icount + 1
