@@ -271,19 +271,23 @@ c
       if (.not.rtdb_get(rtdb,'tddft:ltrials',mt_log,1,ltrials)) then
         ltrials=.false.
         if (.not.rtdb_put(rtdb,'tddft:ltrials',mt_log,1,ltrials))
-     1    call errquit('tddft_init: failed to write ltrials',0,RTDB_ERR)
+     1    call errquit('tddft_init: failed to write ltrials',1,RTDB_ERR)
       endif
       if (ltrials) then
         if (.not.rtdb_cget(rtdb,'tddft:trials',1,fn_trials))
      1   call errquit('tddft_energy: failed to read trials name',0,
      2    RTDB_ERR)
-        inquire(file=fn_trials,exist=trials_exists)
+        if(ga_nodeid().eq.0) then
+           inquire(file=fn_trials,exist=trials_exists)
+        endif
+        call ga_brdcst(6102, trials_exists, 
+     M       MA_sizeof(MT_LOG,1,MT_BYTE), 0)
         if (.not.trials_exists) then
           if (ga_nodeid().eq.0)
      1     write(LuOut,*) 'Cannot find trials file, using default guess'
           ltrials=.false.
           if (.not.rtdb_put(rtdb,'tddft:ltrials',mt_log,1,ltrials))
-     1      call errquit('tddft_init: failed to write ltrials',0,
+     1      call errquit('tddft_init: failed to write ltrials',2,
      2      RTDB_ERR)
         else
           if (ga_nodeid().eq.0) then
