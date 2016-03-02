@@ -668,48 +668,6 @@ c Daniel (1/14/13): This is the XC-potential gradient term (i.e. dVxc*P).
           enddo
         endif
 c
-c
-c G.T   Alternative way to get the dVxc*P contribution
-c
-c Daniel (2-7-13) This needs to be done here since we add D to P later.
-c        if (xc_gotxc()) then
-c          calc_type = 5
-c          if (ipol.eq.1) then
-c            call ga_scale(g_d(1),2.0d0)
-c            call ga_scale(g_d(3),2.0d0)
-c          else
-c            call ga_scale(g_d(1),2.0d0)
-c            call ga_scale(g_d(2),2.0d0)
-c          endif
-c          if (ipol.eq.1) then
-c            call ga_copy(g_d(1), g_dtmp(2)) ! D in g_dtmp(2)
-c            call ga_copy(g_d(3), g_dtmp(1)) ! P in g_dtmp(1)
-c          else
-c            call ga_copy(g_d(2), g_dtmp(4)) ! g_dtmp(4) stores D_beta
-c            call ga_copy(g_d(1), g_dtmp(2)) ! g_dtmp(2) stores D_alpha
-c            call ga_copy(g_d(3), g_dtmp(1)) ! g_dtmp(1) stores P_alpha
-c            call ga_copy(g_d(4), g_dtmp(3)) ! g_dtmp(3) stores P_beta
-c          endif
-c          call ga_sync()
-c          call xc_init_index(ihdl_geom,ipol,nao,ihdl_bfao,g_dtmp,
-c     &         l_cntoce, k_cntoce, l_cntobfr, k_cntobfr,
-c     &         l_cetobfr, k_cetobfr, l_rdens_atom, k_rdens_atom)
-c          grid_written=grid_reopen(ihdl_geom)
-c          call dftgh_gridv0(rtdb,ihdl_geom,ihdl_bfao, ipol,nao,
-c     &         g_dtmp, dbl_mb(k_frc_df1), dum, idum, calc_type,
-c     &         nat, log_mb(k_act), nat, dbl_mb(k_rdens_atom),
-c     &         int_mb(k_cetobfr), ipol, otriplet)
-c          call xc_exit_index(l_cntoce, l_cntobfr, l_cetobfr,
-c     &                       l_rdens_atom)
-c          if (ipol.eq.1) then
-c            call ga_scale(g_d(1),0.5d0)
-c            call ga_scale(g_d(3),0.5d0)
-c          else
-c            call ga_scale(g_d(1),0.5d0)
-c            call ga_scale(g_d(2),0.5d0)
-c          endif
-c        endif ! xc_gotxc()
-c
 c 4.    Add the ground state density matrix to the relaxed one-particle
 c       difference density matrix.  
 c
@@ -723,8 +681,13 @@ c
         if (ipol.eq.1) call ga_scale(g_d(1),2.0d0) ! scale
         call tddft_grad_mpole(rtdb,ihdl_bfao,ipol,g_d(1),g_d(2),g_p_ao) ! multipole analysis
 c
-c       Consolidate the ground state density with the difference density to 
-c       get the total excited state relaxed density
+c       Write difference density matrix in the ao basis
+c
+        call util_file_name('diffdmat',.false.,.false.,dmat_file) ! get filename
+        call ao_1prdm_write(nao,g_p_ao,dmat_file)
+c
+c       Add the ground state density to the difference density to get the 
+c       total excited state relaxed density
 c
         call tddft_grad_compute_dao(ipol,nao,nocc,g_mo,g_d) ! calculate ground state density
         if (ipol.eq.1) then
