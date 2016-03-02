@@ -33,7 +33,7 @@ C
       integer k_doubles,l_doubles
 #endif
       integer size,i
-      integer nxtask
+      integer nxtask0
       integer next
       integer nprocs
       integer count
@@ -54,10 +54,11 @@ c ---------------------------------------
       integer ccsd_t_6tasks,tot_task,w_thresh,task_thresh
       integer k,iptr,k_grain
       double precision wall
+      integer tasks_skip
       integer n_progr,pct_progr
       parameter(n_progr=20)
       logical i_progr(n_progr)
-      external nxtask,ccsd_t_6tasks
+      external nxtask0,ccsd_t_6tasks
       logical offload_master
       external offload_master
 C
@@ -158,10 +159,11 @@ c      w_thresh=10
       k_grain=min(5,nint((tot_task/15d0)/nprocs))
       k_grain=max(k_grain,1)
       if(ga_nodeid().eq.0) then
-         write(6,*) ' nxtask granularity ',k_grain
+         write(6,*) ' nxtask0 granularity ',k_grain
       endif
 #endif
-      next = nxtask(nprocs,k_grain)
+      tasks_skip=2
+      next = nxtask0(nprocs,k_grain,tasks_skip)
       do k=1,n_progr
          i_progr(k)=.true.
       enddo
@@ -199,15 +201,15 @@ c
                   call util_flush(6)
                endif
             endif
-            next = nxtask(nprocs,k_grain)
+            next = nxtask0(nprocs,k_grain,tasks_skip)
          endif
          count = count + 1
       enddo
       endif
       if(task_thresh.le.tot_task) then
-      next = nxtask(-nprocs,k_grain)
+      next = nxtask0(-nprocs,k_grain,tasks_skip)
       if(.not.offload_master()) then
-         next = nxtask(nprocs,k_grain)
+         next = nxtask0(nprocs,k_grain,tasks_skip)
          count=0
          do k=task_thresh,tot_task
             if (next.eq.count) then
@@ -227,7 +229,7 @@ c
      &                 restricted,k_evl_sorted,size)
 #endif
 c
-               next = nxtask(nprocs,k_grain)
+               next = nxtask0(nprocs,k_grain,tasks_skip)
                if(ga_nodeid().eq.2) then
                   pct_progr=(k*n_progr)/tot_task
                   if(i_progr(pct_progr)) then
@@ -277,7 +279,7 @@ c
       if (.not.MA_POP_STACK(l_singles))
      1     call errquit('ccsd_t singles',4,MA_ERR)
 #endif
-      next = nxtask(-nprocs,k_grain)
+      next = nxtask0(-nprocs,k_grain,tasks_skip)
 c      call ga_sync()
       energy(1) = energy1
       energy(2) = energy2
