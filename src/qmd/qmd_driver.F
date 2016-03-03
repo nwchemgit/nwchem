@@ -76,11 +76,10 @@ c     Surface Hopping
       logical tda                        ! TDA flag
       logical deco                       ! decoherence flag
 c
-c
       logical status
-      logical rst_exists
       logical do_none
       logical dip_exists
+      logical restart
 c
       character*32 pname
       integer xyzfileunit
@@ -128,7 +127,7 @@ c     get rstfilename
 c
 c     initialize parameters
       call qmd_init(rtdb,nstep_nucl,dt_nucl,do_none,com_step,print_xyz,
-     &       do_namd)
+     &       restart,do_namd)
 c
 c     create geometry object 
       if (.not. geom_create(geom,'geometry'))
@@ -159,12 +158,11 @@ c
       if(.not.ma_push_get(mt_dbl,3*nat,'vels',l_v,k_v))  ! vels
      $   call errquit(pname//'ma_push_get vels', 3*nat,MA_ERR)
       call dfill(3*nat, 0.0d0, dbl_mb(k_v), 1)
-      if (.not.geom_vel_set(geom,dbl_mb(k_v))) ! init vels
-     $   call errquit(pname//'geom_vel_set',0,GEOM_ERR)
 c
       if(.not.ma_push_get(mt_dbl,3*nat,'grads',l_g,k_g))  ! grads
      $   call errquit(pname//'ma_push_get grads',3*nat,MA_ERR)
       call dfill(3*nat, 0.0d0, dbl_mb(k_g), 1)
+c
 c     get the active atoms (also need a check for linearity)
 c     need to implement constraints
       if (.not. ma_push_get(mt_log,nat,'active atoms',l_act,k_act)) ! active
@@ -179,11 +177,9 @@ c
       if (ndeg.le.0)
      $   call errquit(pname//'ndeg<=0',geom,GEOM_ERR)
 c
-c     get the masses, initial coordinates
+c     get the masses
       if (.not.geom_masses_get(geom,nat,dbl_mb(k_m)))  ! masses
      $   call errquit(pname//'geom_masses_get',geom,GEOM_ERR)
-      if (.not.geom_cart_coords_get(geom,dbl_mb(k_r)))
-     $   call errquit(pname//'geom_cart_coords_get',0,GEOM_ERR)
 c
 c     Are we doing surface hopping?
 c      ***Surface hopping only works for DFT/TDDFT currently***
@@ -194,57 +190,18 @@ c              ***Forces DFT/TDDFT calculation***
      &                     l_en_p,k_en_p,l_so,k_so,l_sv,k_sv,state,
      &                     state_p,nstates,dt_elec,nroots,ipol,
      &                     nocc,nmo,ks_spin,do_tdks,tda,deco)
-        if (mod(int(dt_nucl*1.d10),int(dt_elec*1.d10)).gt.1.d-8)
+        if (mod(dt_nucl*1.d8,dt_elec*1.d8).gt.1.d-8)
      &   call errquit(pname//'dt_nucl and dt_elec not compatible',0,
      &                INPUT_ERR)
       end if
 c
-c     check for restart file in directory
-c     if it exists, read data from that and start trajectory from there
-      inquire(file=rstfilename,exist=rst_exists)
-      if (rst_exists) then
-        if (ga_nodeid().eq.0) then
-          write(luout,*) 'Restart file found'
-          write(luout,*) 'Reading positions, velocities, KE,'
-          write(luout,*) 'and last time step from file.'
-        end if
-c
-c       read velocities from file
-        call qmd_read_rst(rstfilename,rstfileunit,nat,dbl_mb(k_v),
-     $         dbl_mb(k_r),ekin,sstep_nucl,state,nstates,
-     $         dcpl_mb(k_zden),dbl_mb(k_coup_p),do_namd)
-        if (do_namd) state_p=state
-c
-c       remove global translations and rotations
-c       kinetic energy is the same on exit as was on entry
-        call qmd_fix_momentum(nat,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_r))
-        call qmd_freeze_inactive(nat,dbl_mb(k_m),dbl_mb(k_v),
-     $         log_mb(k_act))
-c
-c       update geom and store in rtdb
-        call qmd_geom_store(rtdb,geom,nat,dbl_mb(k_r))
-      else
-        if (ga_nodeid().eq.0) then
-          write(luout,*) 'No restart file found'
-          write(luout,*) 'Beginning with random velocities'
-        end if
-c
-c       randomize velocities for the given temperature
-        call qmd_randomize(nat,dbl_mb(k_m),dbl_mb(k_v))
-        sstep_nucl=1
-c
-c       remove global translations and rotations
-c       kinetic energy is the same on exit as was on entry
-        call qmd_fix_momentum(nat,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_r))
-        call qmd_freeze_inactive(nat,dbl_mb(k_m),dbl_mb(k_v),
-     $         log_mb(k_act))
-      end if ! rst_exists
-c
-c     persist updated velocity in geom
-      if (.not.geom_vel_set(geom,dbl_mb(k_v)))
-     $ call errquit(pname//'geom_vel_set',0,GEOM_ERR)
-c
-      call ga_sync()
+c     get initial coordinates and velocities
+      call qmd_coords_vels(rtdb,geom,nat,sstep_nucl,ekin,rstfilename,
+     $       rstfileunit,dbl_mb(k_r),dbl_mb(k_v),dbl_mb(k_m),
+     $       log_mb(k_act),nactive,restart,do_namd,state,nstates,
+     $       dbl_mb(k_coup_p),dcpl_mb(k_zden))
+
+      if (do_namd) state_p=state
 c
       call qmd_kinetic(nat,dbl_mb(k_m),dbl_mb(k_v),ekin)
       if (ga_nodeid().eq.0) then
@@ -286,7 +243,7 @@ c     include cavity constraints, if requested
       end if ! do_cavity
 c
 c     if starting fresh write initial structure to xyz
-      if (.not.rst_exists) then
+      if (.not.restart) then
 c
 c       pull dipole from RTDB
         if(.not.rtdb_get(rtdb,'task:dipole',mt_dbl,3,dipole))
@@ -295,10 +252,13 @@ c
 c       instantaneous total energy: instantaneous kinetic energy + system energy
         etotal = ekin + esys
 c
-c       write trajectory
-        call qmd_write_trj(xyzfilename,xyzfileunit,.false.,nat,
-     &         0,etotal,geom,dipole)
-      end if  ! rst_exists
+        if (ga_nodeid().eq.0) then
+c
+c         write trajectory
+          call qmd_write_trj(xyzfilename,xyzfileunit,.false.,nat,
+     &           0,etotal,geom,dipole)
+        end if
+      end if  ! restart
 c
 c     start nuclear molecular dynamics loop
       do istep_nucl = sstep_nucl,nstep_nucl
@@ -327,10 +287,6 @@ c       update position at dt
 c
 c       update geom and store in rtdb
         call qmd_geom_store(rtdb,geom,nat,dbl_mb(k_r))
-c
-c       force atomic guess every step
-c        if(.not.rtdb_cput(rtdb,'dft:input vectors',1,'atomic'))
-c     &     call errquit(pname//'failed to set atomic',0,RTDB_ERR)
 c
         if (do_namd.and.do_tdks) then
 c         get energies and movecs
@@ -444,11 +400,15 @@ c          write trajectory
          end if
 c
 c        write restart
-         call qmd_write_rst(rstfilename,rstfileunit,nat,istep_nucl,ekin,
-     &                      geom,state,nstates,dcpl_mb(k_zden),
+         call qmd_write_rst(rstfilename,rstfileunit,nat,istep_nucl,
+     &                      ekin,geom,state,nstates,dcpl_mb(k_zden),
      &                      dbl_mb(k_coup),do_namd)
 c
         end if  ! ga_nodeid()
+c
+c       restart file has been written so set restart flag in RTDB
+        if (.not.rtdb_put(rtdb,'qmd:restart',mt_log,1,.true.))
+     &    call errquit(pname//'failed to write restart',0,RTDB_ERR)
 c
       end do  ! istep_nucl
   110 format(A20,I20)

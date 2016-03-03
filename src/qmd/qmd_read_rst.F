@@ -2,7 +2,7 @@ c
 c     qmd_read_rst: read rstfile
 c
       subroutine qmd_read_rst(rstfilename,rstfileunit,n,v,r,ekin,iframe,
-     &                        state,nstates,zden,coup,do_namd)
+     &                        state,nstates,do_namd,zden,coup)
 c
       implicit none
 c
@@ -23,9 +23,11 @@ c
       double precision ekin    ! kinetic energy
       integer state
       integer nstates
+      logical do_namd
+c
+c     if do_namd false, these aren't allocated
       double precision coup(nstates,nstates)
       double complex zden(nstates,nstates)
-      logical do_namd
 c
       integer i,j
       integer nstates_verify

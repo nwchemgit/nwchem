@@ -2,7 +2,7 @@ c
 c     qmd_init: initialize parameters
 c     
       subroutine qmd_init(rtdb,nstep_nucl,dt_nucl,do_none,com_step,
-     $                    print_xyz,do_namd)
+     $                    print_xyz,restart,do_namd)
 c
       implicit none
 c
@@ -35,6 +35,7 @@ c
       integer ichain
       double precision nh_mass(2)   ! nose-hoover mass
       logical do_none
+      logical restart
       logical do_namd
       integer inntsize
 c
@@ -192,6 +193,10 @@ c
 c     print xyz trajectory every print_xyz steps
       if (.not.rtdb_get(rtdb,'qmd:print_xyz',mt_int,1,print_xyz))
      $     print_xyz = 1
+c
+c     are we restarting calculation?
+      if (.not.rtdb_get(rtdb,'qmd:restart',mt_log,1,restart))
+     $     restart=.false.
 c
 c     are we doing NAMD?
       if (.not.rtdb_get(rtdb,'qmd:namd',mt_log,1,do_namd))
