@@ -229,6 +229,7 @@ C     == Parameters ==
 
 C     == External ==
       logical, external  :: movecs_read_header, movecs_read
+      logical, external  :: dmat_from_file
 
       
 C     == Variables ==
@@ -311,8 +312,10 @@ c
      $    call errquit ("Failed to read dmat file name from rtdb",
      $         0,RTDB_ERR)
         call util_file_name_resolve (rt_dmat_fname, .false.)
-        call dmat_from_file(g_densre_ao,rt_dmat_fname)
+        if (.not.dmat_from_file(g_densre_ao,rt_dmat_fname))
+     $    call errquit ("Failed to read dmat file",0,RTDB_ERR)
         call convert_d2z(1d0,g_densre_ao,0d0,g_densre_ao,g_zdens_ao)
+c
       else
 
 C
@@ -322,65 +325,65 @@ C     possibly 0 (if lindep), which is how the SCF code does it, which
 C     is unlike my way, which has ns_mo x ns_mo.
 C
 C
-      call ga_zero (g_movecs_pad)
+        call ga_zero (g_movecs_pad)
 
-      call rt_tddft_movecs_fname (params, rt_movecs_fname)
+        call rt_tddft_movecs_fname (params, rt_movecs_fname)
 
-      if (.not. movecs_read_header (rt_movecs_fname, mo_title,
-     $     mo_basis_name, mo_scftype, mo_nbf, mo_nsets,
-     $     mo_ns_mo, nsets))
-     $     call errquit (pname//"Failed to read movecs header", 0, 0)
+        if (.not. movecs_read_header (rt_movecs_fname, mo_title,
+     $       mo_basis_name, mo_scftype, mo_nbf, mo_nsets,
+     $       mo_ns_mo, nsets))
+     $       call errquit (pname//"Failed to read movecs header", 0, 0)
 
 
 C
 C     Check that movecs are legit.
 C
-      if (mo_scftype .ne. "dft")
-     $     call errquit (pname//
-     $     'Initial movecs should have scftype "dft"', 0, 0)
+        if (mo_scftype .ne. "dft")
+     $       call errquit (pname//
+     $       'Initial movecs should have scftype "dft"', 0, 0)
 
-      if (mo_nbf .ne. params%ns_ao)
-     $     call errquit (pname//
-     $     'Initial movecs wrong size: mo_nbf /= ns_ao', mo_nbf, 0)
+        if (mo_nbf .ne. params%ns_ao)
+     $       call errquit (pname//
+     $       'Initial movecs wrong size: mo_nbf /= ns_ao', mo_nbf, 0)
 
-      do is = 1, nsets
-         if (mo_ns_mo(is) .ne. params%ns_mo)
-     $        call errquit (pname//
-     $        'Initial movecs wrong size: mo_ns_mo /= ns_mo',
-     $        mo_ns_mo(is), 0)
-      enddo
-      
-      if (mo_nsets .ne. nsets)
-     $     call errquit (pname//"Wrong number of initial movecs,",
-     $     mo_nsets, 0)
+        do is = 1, nsets
+           if (mo_ns_mo(is) .ne. params%ns_mo)
+     $          call errquit (pname//
+     $          'Initial movecs wrong size: mo_ns_mo /= ns_mo',
+     $          mo_ns_mo(is), 0)
+        enddo
+        
+        if (mo_nsets .ne. nsets)
+     $       call errquit (pname//"Wrong number of initial movecs,",
+     $       mo_nsets, 0)
 
-      
-      call rt_tddft_movecs_print_header (params, rt_movecs_fname,
-     $     mo_title, mo_basis_name, mo_scftype, mo_nbf,
-     $     mo_nsets, mo_ns_mo)
+        
+        call rt_tddft_movecs_print_header (params, rt_movecs_fname,
+     $       mo_title, mo_basis_name, mo_scftype, mo_nbf,
+     $       mo_nsets, mo_ns_mo)
 
 
 
 C
 C     Allocate buffers and movecs (ns_ao x ns_ao padded with zero *not* ns_mo x ns_mo).
 C
-      if (.not.ma_push_get(mt_dbl, params%ns_ao, 'occ', locc, iocc))
-     &     call errquit(pname//'cannot allocate occ',0, MA_ERR)
+        if (.not.ma_push_get(mt_dbl, params%ns_ao, 'occ', locc, iocc))
+     &       call errquit(pname//'cannot allocate occ',0, MA_ERR)
 
-      if (.not.ma_push_get(mt_dbl, params%ns_ao, 'evals',
-     $     levals, ievals))
-     &     call errquit(pname//'cannot allocate evals',0, MA_ERR)
+        if (.not.ma_push_get(mt_dbl, params%ns_ao, 'evals',
+     $       levals, ievals))
+     &       call errquit(pname//'cannot allocate evals',0, MA_ERR)
 
 
 C
 C     Read in movecs (note ispin).
 C
-      if (.not. movecs_read (rt_movecs_fname, 1, dbl_mb(iocc),  !note 1!!!
-     $     dbl_mb(ievals), g_movecs_pad))
-     $     call errquit (pname//"Failed to read movecs data", 0, 0)
+        if (.not. movecs_read (rt_movecs_fname, 1, dbl_mb(iocc),  !note 1!!!
+     $       dbl_mb(ievals), g_movecs_pad))
+     $       call errquit (pname//"Failed to read movecs data", 0, 0)
 
-      call rt_tddft_movecs_print_evals (params,
-     $     dbl_mb(iocc), dbl_mb(ievals))
+        call rt_tddft_movecs_print_evals (params,
+     $       dbl_mb(iocc), dbl_mb(ievals))
 
 
 C
@@ -388,29 +391,29 @@ C     Mask the movecs and multiply into the unmasked transposed movecs
 C     to make the real-valued dens mat in AO basis, then cast to
 C     complex.
 C
-      call ga_zero (g_tmp)
+        call ga_zero (g_tmp)
 
-      do iorb = 1, params%ns_ao
-         occ = dbl_mb(iocc + iorb - 1)
-         call ga_fill_patch (g_tmp, 1, params%ns_ao,
-     $        iorb, iorb, occ)
-      enddo
+        do iorb = 1, params%ns_ao
+           occ = dbl_mb(iocc + iorb - 1)
+           call ga_fill_patch (g_tmp, 1, params%ns_ao,
+     $          iorb, iorb, occ)
+        enddo
 
-      call ga_sync () !XXX needed?
+        call ga_sync () !XXX needed?
 
-      call ga_elem_multiply (g_tmp, g_movecs_pad, g_tmp) ! g_tmp now holds masked movecs
-      call ga_zero (g_densre_ao)
-      call ga_dgemm ("N", "T", params%ns_ao, params%ns_ao, params%ns_ao,
-     $     1d0, g_tmp, g_movecs_pad, 0d0, g_densre_ao)
+        call ga_elem_multiply (g_tmp, g_movecs_pad, g_tmp) ! g_tmp now holds masked movecs
+        call ga_zero (g_densre_ao)
+        call ga_dgemm ("N", "T", params%ns_ao, params%ns_ao,
+     $       params%ns_ao,1d0, g_tmp, g_movecs_pad, 0d0, g_densre_ao)
 
-      call convert_d2z(1d0, g_densre_ao, 0d0, g_densre_ao, g_zdens_ao)
+        call convert_d2z(1d0, g_densre_ao, 0d0, g_densre_ao, g_zdens_ao)
 
-C      call ga_print (g_movecs_pad)
-      if (.not. ma_pop_stack (levals))
-     $     call errquit (pname//"Failed to pop evals", 0, ma_err)
-      
-      if (.not. ma_pop_stack (locc))
-     $     call errquit (pname//"Failed to pop occ", 0, ma_err)
+C        call ga_print (g_movecs_pad)
+        if (.not. ma_pop_stack (levals))
+     $       call errquit (pname//"Failed to pop evals", 0, ma_err)
+        
+        if (.not. ma_pop_stack (locc))
+     $       call errquit (pname//"Failed to pop occ", 0, ma_err)
       end if !dmat
 
 C     Clean up
@@ -420,12 +423,6 @@ C
 
       if (.not. ga_destroy (g_densre_ao))
      $     call errquit (pname//"failed to destroy densao_tmp",0,0)
-
-c      if (.not. ma_pop_stack (levals))
-c     $     call errquit (pname//"Failed to pop evals", 0, ma_err)
-c      
-c      if (.not. ma_pop_stack (locc))
-c     $     call errquit (pname//"Failed to pop occ", 0, ma_err)
 
       if (.not. ga_destroy (g_tmp))
      $     call errquit ("couldnt destroy tmp", 0, GA_ERR)
@@ -477,6 +474,7 @@ C     == Parameters ==
       
 C     == External ==
       logical, external  :: movecs_read_header, movecs_read
+      logical, external  :: dmat_from_file
 
       
 C     == Variables ==
@@ -544,15 +542,18 @@ C
 
       if (.not. ga_duplicate(g_movecs_pad, g_densao_tmp, "real P"))
      $     call errquit ("couldnt duplicate movecs", 0, GA_ERR)
-
-      
+c
+c     If calculation starting from density, read dmat file
+c     Else process movecs file
+c
       if (params%use_dmat) then
         if (.not. rtdb_cget (params%rtdb, "rt_tddft:init_dmat1",
      $       1, rt_dmat_fname))
      $    call errquit ("Failed to read alpha dmat file name from rtdb",
      $         0,RTDB_ERR)
         call util_file_name_resolve (rt_dmat_fname, .false.)
-        call dmat_from_file(g_densao_tmp,rt_dmat_fname)
+        if (.not.dmat_from_file(g_densao_tmp,rt_dmat_fname))
+     $    call errquit ("Failed to read dmat file",0,RTDB_ERR)
         call convert_d2z(1d0,g_densao_tmp,0d0,g_densao_tmp,
      $                   g_zdens_ao(1))
         if (.not. rtdb_cget (params%rtdb, "rt_tddft:init_dmat2",
@@ -560,9 +561,11 @@ C
      $    call errquit ("Failed to read beta dmat file name from rtdb",
      $         0,RTDB_ERR)
         call util_file_name_resolve (rt_dmat_fname, .false.)
-        call dmat_from_file(g_densao_tmp,rt_dmat_fname)
+        if (.not.dmat_from_file(g_densao_tmp,rt_dmat_fname))
+     $    call errquit ("Failed to read dmat file",0,RTDB_ERR)
         call convert_d2z(1d0,g_densao_tmp,0d0,g_densao_tmp,
      $                   g_zdens_ao(2))
+c
       else
 
 C
@@ -571,54 +574,54 @@ C     that the g_movecs_pad_pad is ns_ao x ns_ao, with the last few columns
 C     possibly 0 (if lindep), which is how the SCF code does it, which
 C     is unlike my way, which has ns_mo x ns_mo.  The 2 is for open shell.
 C
-      call rt_tddft_movecs_fname (params, rt_movecs_fname)
+        call rt_tddft_movecs_fname (params, rt_movecs_fname)
 
 
-      if (.not. movecs_read_header (rt_movecs_fname, mo_title,
-     $     mo_basis_name, mo_scftype, mo_nbf, mo_nsets,
-     $     mo_ns_mo, 2))
-     $     call errquit (pname//"Failed to read movecs header", 0, 0)
+        if (.not. movecs_read_header (rt_movecs_fname, mo_title,
+     $       mo_basis_name, mo_scftype, mo_nbf, mo_nsets,
+     $       mo_ns_mo, 2))
+     $       call errquit (pname//"Failed to read movecs header", 0, 0)
 
-C      call rt_tddft_movecs_print_header (params, rt_movecs_fname,
-C     $     mo_title, mo_basis_name, mo_scftype, mo_nbf)
+C        call rt_tddft_movecs_print_header (params, rt_movecs_fname,
+C     $       mo_title, mo_basis_name, mo_scftype, mo_nbf)
 
 
 C
 C     Check that movecs are legit.
 C
-      if (mo_scftype .ne. "dft")
-     $     call errquit (pname//
-     $     'Initial movecs should have scftype "dft"', 0, 0)
+        if (mo_scftype .ne. "dft")
+     $       call errquit (pname//
+     $       'Initial movecs should have scftype "dft"', 0, 0)
 
-      if (mo_nbf .ne. params%ns_ao)
-     $     call errquit (pname//
-     $     'Initial movecs wrong size: mo_nbf /= ns_ao', 0, 0)
+        if (mo_nbf .ne. params%ns_ao)
+     $       call errquit (pname//
+     $       'Initial movecs wrong size: mo_nbf /= ns_ao', 0, 0)
 
-      if (mo_ns_mo(1) .ne. params%ns_mo)
-     $     call errquit (pname//
-     $     'Initial movecs wrong size: mo_ns_mo(1) /= ns_mo', 0, 0)
+        if (mo_ns_mo(1) .ne. params%ns_mo)
+     $       call errquit (pname//
+     $       'Initial movecs wrong size: mo_ns_mo(1) /= ns_mo', 0, 0)
 
-      if (mo_ns_mo(2) .ne. params%ns_mo)
-     $     call errquit (pname//
-     $     'Initial movecs wrong size: mo_ns_mo(2) /= ns_mo', 0, 0)
-      
-C      call rt_tddft_print_warning ("Didnt check mo_ns_mo(2) == ns_mo")
+        if (mo_ns_mo(2) .ne. params%ns_mo)
+     $       call errquit (pname//
+     $       'Initial movecs wrong size: mo_ns_mo(2) /= ns_mo', 0, 0)
+        
+C        call rt_tddft_print_warning ("Didnt check mo_ns_mo(2) == ns_mo")
 
-      if (mo_nsets .ne. 2)
-     $     call errquit (pname//"Wrong number of initial movecs,"//
-     $     " mo_nsets should be 2 for open shell", 0, 0)
+        if (mo_nsets .ne. 2)
+     $       call errquit (pname//"Wrong number of initial movecs,"//
+     $       " mo_nsets should be 2 for open shell", 0, 0)
 
 
 C
 C     Allocate tmp buffers for occupations and evals (ns_ao x ns_ao
 C     padded with zero *not* ns_mo x ns_mo).
 C
-      if (.not.ma_push_get(mt_dbl, params%ns_ao, 'occ', locc, iocc))
-     &     call errquit(pname//'cannot allocate occ 1',0, MA_ERR)
+        if (.not.ma_push_get(mt_dbl, params%ns_ao, 'occ', locc, iocc))
+     &       call errquit(pname//'cannot allocate occ 1',0, MA_ERR)
 
-      if (.not.ma_push_get(mt_dbl, params%ns_ao, 'evals',
-     $     levals, ievals))
-     &     call errquit(pname//'cannot allocate evals',0, MA_ERR)
+        if (.not.ma_push_get(mt_dbl, params%ns_ao, 'evals',
+     $       levals, ievals))
+     &       call errquit(pname//'cannot allocate evals',0, MA_ERR)
 
 
 C
@@ -626,54 +629,54 @@ C     Read in movecs.  Note we loop over the two spins since closed
 C     shell, and we recycle all the MA and GA space, and finally store
 C     in g_zdens_ao which has two components (alpha, beta spins).
 C
-      call ga_zero (g_zdens_ao(1))
-      call ga_zero (g_zdens_ao(2))
+        call ga_zero (g_zdens_ao(1))
+        call ga_zero (g_zdens_ao(2))
 
-C     (alpha part)
-      call ga_zero (g_movecs_pad)
-         
-      if (.not. movecs_read (rt_movecs_fname, 1, dbl_mb(iocc),
-     $     dbl_mb(ievals), g_movecs_pad))
-     $     call errquit (pname//"Failed to read movecs data", 0, 0)
-      
-      call rt_tddft_movecs_print_evals (params,
-     $     dbl_mb(iocc), dbl_mb(ievals))
-      
-      call ga_zero (g_densao_tmp)
-      call ga_dgemm ("N", "T", params%ns_ao, params%ns_ao,
-     $     params%nalpha, 1d0, g_movecs_pad, g_movecs_pad,
-     $     0d0, g_densao_tmp)
-      
-      call convert_d2z(1d0, g_densao_tmp, 0d0, g_densao_tmp,
-     $     g_zdens_ao(1))
+C       (alpha part)
+        call ga_zero (g_movecs_pad)
+           
+        if (.not. movecs_read (rt_movecs_fname, 1, dbl_mb(iocc),
+     $       dbl_mb(ievals), g_movecs_pad))
+     $       call errquit (pname//"Failed to read movecs data", 0, 0)
+        
+        call rt_tddft_movecs_print_evals (params,
+     $       dbl_mb(iocc), dbl_mb(ievals))
+        
+        call ga_zero (g_densao_tmp)
+        call ga_dgemm ("N", "T", params%ns_ao, params%ns_ao,
+     $       params%nalpha, 1d0, g_movecs_pad, g_movecs_pad,
+     $       0d0, g_densao_tmp)
+        
+        call convert_d2z(1d0, g_densao_tmp, 0d0, g_densao_tmp,
+     $       g_zdens_ao(1))
 
 
-C     (beta part)
-      call ga_zero (g_movecs_pad)
-         
-      if (.not. movecs_read (rt_movecs_fname, 2, dbl_mb(iocc),
-     $     dbl_mb(ievals), g_movecs_pad))
-     $     call errquit (pname//"Failed to read movecs data", 0, 0)
-      
-      call rt_tddft_movecs_print_evals (params,
-     $     dbl_mb(iocc), dbl_mb(ievals))
-      
-      
-      call ga_zero (g_densao_tmp)
-      call ga_dgemm ("N", "T", params%ns_ao, params%ns_ao,
-     $     params%nbeta, 1d0, g_movecs_pad, g_movecs_pad,
-     $     0d0, g_densao_tmp)
-      
-      call convert_d2z(1d0, g_densao_tmp, 0d0, g_densao_tmp,
-     $     g_zdens_ao(2))
-      
-      if (.not. ma_pop_stack (levals))
-     $     call errquit (pname//"Failed to pop evals", 0, ma_err)
-      
-      if (.not. ma_pop_stack (locc))
-     $     call errquit (pname//"Failed to pop occ", 0, ma_err)
+C       (beta part)
+        call ga_zero (g_movecs_pad)
+           
+        if (.not. movecs_read (rt_movecs_fname, 2, dbl_mb(iocc),
+     $       dbl_mb(ievals), g_movecs_pad))
+     $       call errquit (pname//"Failed to read movecs data", 0, 0)
+        
+        call rt_tddft_movecs_print_evals (params,
+     $       dbl_mb(iocc), dbl_mb(ievals))
+        
+        
+        call ga_zero (g_densao_tmp)
+        call ga_dgemm ("N", "T", params%ns_ao, params%ns_ao,
+     $       params%nbeta, 1d0, g_movecs_pad, g_movecs_pad,
+     $       0d0, g_densao_tmp)
+        
+        call convert_d2z(1d0, g_densao_tmp, 0d0, g_densao_tmp,
+     $       g_zdens_ao(2))
+        
+        if (.not. ma_pop_stack (levals))
+     $       call errquit (pname//"Failed to pop evals", 0, ma_err)
+        
+        if (.not. ma_pop_stack (locc))
+     $       call errquit (pname//"Failed to pop occ", 0, ma_err)
 
-      end if
+      end if ! dmat
 C
 C     Clean up
 C
@@ -682,12 +685,6 @@ C
 
       if (.not. ga_destroy (g_densao_tmp))
      $     call errquit (pname//"failed to destroy densao_tmp",0,0)
-
-c      if (.not. ma_pop_stack (levals))
-c     $     call errquit (pname//"Failed to pop evals", 0, ma_err)
-c      
-c      if (.not. ma_pop_stack (locc))
-c     $     call errquit (pname//"Failed to pop occ", 0, ma_err)
 
 
       end subroutine
