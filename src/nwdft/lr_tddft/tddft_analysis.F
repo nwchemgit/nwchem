@@ -1690,10 +1690,10 @@ c
  9200 format(5x,'Transition Moments    X',f9.5,'   Y',f9.5,'   Z',f9.5
      1    ,/,5x,'Transition Moments   XX',f9.5,'  XY',f9.5,'  XZ',f9.5
      2    ,/,5x,'Transition Moments   YY',f9.5,'  YZ',f9.5,'  ZZ',f9.5
-     5    ,/,5x,'Dipole Oscillator Strength',20x,f12.5
-     5    ,/,5x,'Electric Quadrupole       ',20x,f12.5
-     5    ,/,5x,'Magnetic Dipole           ',20x,f12.5
-     5    ,/,5x,'Total Oscillator Strength ',20x,f12.5)
+     5    ,/,5x,'Dipole Oscillator Strength',20x,f12.8
+     5    ,/,5x,'Electric Quadrupole       ',20x,f12.8
+     5    ,/,5x,'Magnetic Dipole           ',20x,f12.8
+     5    ,/,5x,'Total Oscillator Strength ',20x,f12.8)
  9210 format(5x,'Transition Moments                    Spin forbidden'
      1    ,/,5x,'Oscillator Strength                   Spin forbidden')
  9120 format(5x,'Occ.',i5,2x,a4,'---  Virt.',i5,2x,a4,f12.5)
