@@ -956,9 +956,16 @@ C     i0 ( p1 p2 p3 p30 h9 h10 h11 h38 )_vt1 + = 1 * P( 36 ) * t1 ( p1 p2 h9 h10
      & ERRQUIT('mbpt2_t4_4',4,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,dimb,'noname',l_b,k_b)) CALL ERRQUIT('
      &mbpt2_t4_4',5,MA_ERR)
+      if(.not.intorb) then
       CALL GET_HASH_BLOCK(d_b,dbl_mb(k_b),dimb,int_mb(k_b_offset),(h38b_
      &2 - 1 + (noab+nvab) * (h11b_2 - 1 + (noab+nvab) * (p30b_2 - 1 + (n
      &oab+nvab) * (p3b_2 - 1)))))
+      else
+      CALL GET_HASH_BLOCK_I(d_b,dbl_mb(k_b),dimb,int_mb(k_b_offset),
+     &(h38b_
+     &2 - 1 + (noab+nvab) * (h11b_2 - 1 + (noab+nvab) * (p30b_2 - 1 + (n
+     &oab+nvab) * (p3b_2 - 1)))),h38b_2,h11b_2,p30b_2,p3b_2)
+      endif
       CALL TCE_SORT_4(dbl_mb(k_b),dbl_mb(k_b_sort),int_mb(k_range+p3b-1)
      &,int_mb(k_range+p30b-1),int_mb(k_range+h11b-1),int_mb(k_range+h38b
      &-1),4,3,2,1,1.0d0)
