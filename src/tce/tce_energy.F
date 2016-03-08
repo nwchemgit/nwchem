@@ -1155,7 +1155,11 @@
             write(LuOut,*) 'half-transformed integrals in memory'
             call util_flush(LuOut)
           endif
+c
+        if(.not.read_int) then
           call tce_ao2e(rtdb,d_ao2e)
+        end if
+c
         elseif((fast2e.eq.2).or.(fast2e.eq.3)) then
           if (nodezero) then
             write(LuOut,*)
@@ -1198,8 +1202,32 @@
             write(LuOut,*) '2-e integrals stored in memory'
             call util_flush(LuOut)
           endif
+! === jaguar === SPINORB
+         if(read_int)  then
+          call util_file_name('v2int',.false.,.true.,filename)
+          unitn=78
+          call read_tensor(filename,d_v2,size_2e,unitn)
+!     re-split the int files?
+          if (rtdb_get(rtdb,'tce:maxioprocs_new',
+     M         mt_int,1,max_ioprocs_in_new))  then
+             max_ioprocs_in=max_ioprocs_in_new
+             call write_tensor(filename,d_v2,size_2e,unitn)
+          endif
+          call ga_sync()
+          go to 9003
+         end if
+! ==============
           call tce_mo2e(rtdb,d_ao2e,d_v2,k_v2_offset)
           call reconcilefile(d_v2,size_2e)
+! === jaguar ===
+         if(write_int)  then
+          call util_file_name('v2int',.false.,.true.,filename)
+          unitn=78
+          call write_tensor(filename,d_v2,size_2e,unitn)
+          call ga_sync()
+         end if
+! ==============
+ 9003    continue
         elseif(fast2e.eq.2) then
           call tce_filename('v2',filename)
           call createfile(filename,d_v2,size_2e)
