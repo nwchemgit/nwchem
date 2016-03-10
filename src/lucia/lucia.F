@@ -10066,6 +10066,9 @@ c     if (ihi.gt.0.and.jhi.gt.0) then
 c     call ga_access(g_coul,ilo,ihi,jlo,jhi,1,kint2_l,ilda)
 c.. 2e ints
 
+C THIS NEEDS TO BE FLIPPED AROUND. GET A BLOCK OF INTEGRALS AND 
+C FIGURE OUT WHERE THEY GO IN THE LOCAL ARRAY
+
       if (ga_nodeid().eq.0) then
       do ism_lu=1,nirrep
          do jsm_lu=1,ism_lu
