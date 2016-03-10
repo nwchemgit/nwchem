@@ -10135,7 +10135,8 @@ c.. look for index in ga_coul
 c
       endif
       call ga_sync()
-      call ga_dgop(1,dbl_mb(KINT2),NINT2,'+')
+      call ga_brdcst(mt_dbl,dbl_mb(KINT2),NINT2,0)
+c     call ga_dgop(1,dbl_mb(KINT2),NINT2,'+')
 c
       CALL LUCIAQEXIT('MO2GA')
 c
