@@ -10,12 +10,12 @@
 
       logical function pspw_dplot(rtdb)
       implicit none
-#include "errquit.fh"
       integer rtdb
 
 #include "global.fh"
 #include "bafdecls.fh"
 #include "btdb.fh"
+#include "errquit.fh"
 
 
       logical value,fractional
@@ -435,6 +435,7 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
          end do
          call D3dB_r_Zero_Ends(1,dn(1,ms))
       end do
+
       return
       end
 
@@ -452,7 +453,6 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
      >                      psi_r,
      >                      add_tag,tag)
       implicit none
-#include "errquit.fh"
       integer    rtdb
       integer    ispin,ne(2)
       integer    npack1,nfft3d,nemax
@@ -464,6 +464,7 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 
 #include "bafdecls.fh"
 #include "btdb.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       logical value,grid3d,grid1d
@@ -472,11 +473,11 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
       parameter (MASTER=0)
 
       integer n2ft3d
-      integer i,count,number,ia,number1,number2,ms
+      integer i,i1,i2,i3,count,number,ia,number1,number2,ms
       integer n1(2),n2(2),nn(2)
-      integer nx,ny,nz
-      integer rho(2)
-      real*8  scal1,scal2,x(3)
+      integer nx,ny,nz,indx,indxr
+      integer rho(2),rhog(2)
+      real*8  scal1,scal2,x(3),r,c
 
       character*72 cube_comment
       character*50 name1,name2
@@ -591,7 +592,7 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
         if (number.lt.0) then
            number = -number
 
-          goto ( 710, 720, 730, 740, 750, 760, 770, 780, 785 ) number
+          goto (710,720,730,740,750,760,770,780,785,786 ) number
           call errquit(
      >      'dplot_loop: unimplemented directive', number, INPUT_ERR)
        
@@ -750,6 +751,37 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
      >                                   ispin,ne,n2ft3d,
      >                                   psi_r,dbl_mb(rho(1)))
            cube_comment = 'SCF density matrix'
+           goto 790
+
+*          ***************************
+*          ***   structure factor  ***
+*          ***************************
+ 786       if(.not.BA_push_get(mt_dcpl,(nfft3d),'rhog',rhog(2),rhog(1)))
+     >        call errquit('out of stack memory',0, MA_ERR)
+
+           call D3dB_rr_Sum(1,dn(1,1),dn(1,ispin),dcpl_mb(rhog(1)))
+           call D3dB_rc_fft3f(1,dcpl_mb(rhog(1)))
+           do i3=1,nz
+           do i2=1,ny
+           do i1=1,(nx/2+1)
+              indx = (i1-1) + (nx/2+1)*(i2-1) + (nx/2+1)*ny*(i3-1)
+              r = dble(dcpl_mb(rhog(1)+indx))
+              c = dimag(dcpl_mb(rhog(1)+indx))
+              r = dsqrt(r*r + c*c)
+              indxr = (i1-1) + (nx+2)*(i2-1) + (nx+2)*ny*(i3-1)
+              dbl_mb(rho(1)+indxr) = r
+              if (i>1) then
+                 indxr = (nx-i1) + (nx+2)*(i2-1) + (nx+2)*ny*(i3-1)
+                 dbl_mb(rho(1)+indxr) = r
+              end if
+           end do
+           end do
+           end do
+           cube_comment = 'Structure Factor'
+
+           if(.not.BA_pop_stack(rhog(2)))
+     >        call errquit('popping stack memory',0, MA_ERR)
+
            goto 790
 
 
