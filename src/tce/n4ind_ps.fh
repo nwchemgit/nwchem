@@ -1,0 +1,25 @@
+C$Id$
+c
+c     pstat handles for the TCE code
+c
+      integer ps_n4ind,
+     A     ps_comm0,ps_comp0,ps_transp0,ps_int2e0,
+     A     ps_sync0,
+     A     ps_comm1,ps_comp1,
+     A	   ps_get1,ps_put1,
+     A     ps_comm2,ps_comp2,
+     A     ps_comm3,ps_comp3,
+     A     ps_comm4,ps_comp4
+     
+
+      logical on4indps            ! True if gathering stats
+      common /n4indps/ on4indps, ps_n4ind,
+     A     ps_comm0,ps_comp0,ps_transp0,ps_int2e0,
+     A	   ps_sync0,
+     A     ps_comm1,ps_comp1,
+     A	   ps_get1,ps_put1,
+     A     ps_comm2,ps_comp2,
+     A     ps_comm3,ps_comp3,
+     A     ps_comm4,ps_comp4
+
+c

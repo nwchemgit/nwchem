@@ -1,0 +1,8 @@
+      integer max_n4caches
+      parameter(max_n4caches=1000)
+      integer n4cache_indx(2,max_n4caches)
+      integer n4cache_hndl(2,max_n4caches)
+      integer n4caches
+      integer cache_hits
+      common /con4cache/n4caches,n4cache_indx,n4cache_hndl,
+     C       cache_hits
