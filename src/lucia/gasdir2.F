@@ -200,7 +200,7 @@ cVOG  IMPLICIT REAL*8(A-H,O-Z)
       INTEGER I1BATCH(*)
       INTEGER IBATCH(8,*)
 *
-      NTEST = 00 
+      NTEST = 00
       if (newciblks.eq.1) then
        IF(NTEST.GE.100.and.ga_nodeid().eq.0) write(*,*) 'You have work!'
        stop
@@ -4798,7 +4798,7 @@ CNW   DIMENSION CV(*)
       CALL LUCIAQENTER('SBLOK')
       NTEST = 000
       NTEST = MAX(NTEST,IPRCIX)
-      IF(NTEST.GE.10) THEN
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Output from SBLOCK '
         WRITE(6,*) ' =================='
         WRITE(6,*) ' IPERTOP = ', IPERTOP
@@ -4855,9 +4855,11 @@ CNW   DIMENSION CV(*)
       CALL MEMMAN(KCONSPB,NOCTPB**2,'ADDL  ',1,'CONSPB')  !done
 C     SPGRPCON(IOFSPGRP,NSPGRP,NGAS,MXPNGAS,IELFSPGRP,ISPGRPCON,IPRNT)
       CALL SPGRPCON(IOCTPA,NOCTPA,NGAS,MXPNGAS,NELFSPGP,
-     &              int_mb(KCONSPA),IPRCIX)
+     &              int_mb(KCONSPA),IPRCIX,ga_nodeid())
+cVOG &              int_mb(KCONSPA),IPRCIX)
       CALL SPGRPCON(IOCTPB,NOCTPB,NGAS,MXPNGAS,NELFSPGP,
-     &              int_mb(KCONSPB),IPRCIX)
+     &              int_mb(KCONSPB),IPRCIX,ga_nodeid())
+cVOG &              int_mb(KCONSPB),IPRCIX)
 *
 * string sym, string sym => sx sym
 * string sym, string sym => dx sym
@@ -5869,6 +5871,7 @@ C?   &          NSSOA(IASM,IATP)* NSSOB(IBSM,IBTP))
 *      (Geneva, just before darkness....)
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "global.fh"
       INCLUDE 'mxpdim.inc'
       INCLUDE 'cgas.inc'
       INCLUDE 'gasstr.inc'
@@ -5897,7 +5900,7 @@ C?   &          NSSOA(IASM,IATP)* NSSOB(IBSM,IBTP))
       IOCTPB = IBSPGPFTP(IBTP)
 *
       NTEST = 00
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         write(6,*) ' IAIBCM speaking '
         WRITE(6,*) ' =============== '
         write(6,*) ' ICISPC, LCMBSPC, ICISPC ' 
@@ -5913,7 +5916,7 @@ C?   &          NSSOA(IASM,IATP)* NSSOB(IBSM,IBTP))
      &            NELFGP,MXPNGAS,NGAS,IAIB,IPRDIA,I_RE_MS2_SPACE,
      &            I_RE_MS2_VALUE,I_CHECK_ENSGS)
 *
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) 
      &  ' Matrix giving allowed combinations of al-, be-supergroups'
         CALL IWRTMA(IAIB,NOCTPA,NOCTPB,NOCTPA,NOCTPB)

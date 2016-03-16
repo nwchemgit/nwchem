@@ -2823,7 +2823,7 @@ C?    write(6,*) ' LCISPC : NICISP ', NICISP
    50 CONTINUE
   100 CONTINUE
 *
-      NTEST = 0
+      NTEST = 10 !VOG 0
       NTEST = MAX(NTEST,IPRNT)
       if (ga_nodeid().eq.0) then
       WRITE(6,*) 
@@ -6584,7 +6584,7 @@ C     STOP'JEPPE forced me to stop in ADS1   '
       RETURN
       END
       SUBROUTINE SPGRPCON(IOFSPGRP,NSPGRP,NGAS,MXPNGAS,IELFSPGRP,
-     &                  ISPGRPCON,IPRNT)
+     &                  ISPGRPCON,IPRNT,iganodeid)
 *
 * FInd connection matrix for string types
 *
@@ -6620,7 +6620,7 @@ C     STOP'JEPPE forced me to stop in ADS1   '
         END DO
       END DO
 *
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.iganodeid.eq.0) THEN
         WRITE(6,*)
         WRITE(6,*) '==================== '
         WRITE(6,*) 'output from SPGRPCON '
@@ -6647,7 +6647,7 @@ C     STOP'JEPPE forced me to stop in ADS1   '
 *
       END IF
 *
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.iganodeid.eq.0) THEN
          WRITE(6,*) ' Supergroup connection matrix '
          CALL IWRTMA(ISPGRPCON,NSPGRP,NSPGRP,NSPGRP,NSPGRP)
       END IF
