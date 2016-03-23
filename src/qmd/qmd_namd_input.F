@@ -104,7 +104,7 @@ c     Initial state
      1     'default value of 1 will be used'
          state=1
        end if
-c      we have input and output set up so state runs from 0 to nstates-1
+c      For input/output state runs from 0 to nstates-1
 c      inside the code state runs from 1 to nstates
        state=state+1
        if (.not.rtdb_put(rtdb,'qmd:init_state',mt_int,1,state))

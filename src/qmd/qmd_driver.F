@@ -190,7 +190,7 @@ c              ***Forces DFT/TDDFT calculation***
      &                     l_en_p,k_en_p,l_so,k_so,l_sv,k_sv,state,
      &                     state_p,nstates,dt_elec,nroots,ipol,
      &                     nocc,nmo,ks_spin,do_tdks,tda,deco)
-        if (mod(dt_nucl*1.d8,dt_elec*1.d8).gt.1.d-8)
+        if (mod(int(dt_nucl*1.d8),int(dt_elec*1.d8)).gt.0)
      &   call errquit(pname//'dt_nucl and dt_elec not compatible',0,
      &                INPUT_ERR)
       end if

@@ -94,7 +94,10 @@ c
         write(LuOut,*)
         write(LuOut,110) "Elec. time step:", dt_elec
         write(LuOut,120) "Number of states:", nstates
-        write(LuOut,120) "Initial state:", state
+c    For input/output state runs 0:nstates-1
+c     Inside code states runs 1:nstates 
+        write(LuOut,120) "Initial state:", state-1
+        write(LuOut,130) "Decoherence:", deco
       end if
 c
       if (do_tdks) then
@@ -104,11 +107,11 @@ c       1=alpha,2=beta
         if ((ks_spin.gt.2).or.(ks_spin.lt.1))
      $     call errquit(pname//'invalid spin specified ',0,RTDB_ERR)
         if (ga_nodeid().eq.0) then
-          write(LuOut,130) "Will do TDKS"
+          write(LuOut,140) "Will do TDKS"
           if (ks_spin.eq.1) then
-            write(LuOut,130) "TDKS spin channel: alpha"
+            write(LuOut,140) "TDKS spin channel: alpha"
           else
-            write(LuOut,130) "TDKS spin channel: beta"
+            write(LuOut,140) "TDKS spin channel: beta"
           end if
         end if
 c
@@ -213,7 +216,8 @@ c
 c
   110 format(A25,F20.4)
   120 format(A25,I20)
-  130 format(A25)
+  130 format(A25,L20)
+  140 format(A25)
 c
       return
       end

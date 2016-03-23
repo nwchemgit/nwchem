@@ -148,6 +148,18 @@ CCC          end do
           end if
         end if
 c
+c       Check if energy of current state is lower than the energy
+c        of state below it or higher than state above it
+c        (i.e. negative excitation energy)
+        if (curr_state.gt.1) then
+          if (en2(curr_state).lt.en2(curr_state-1))
+     $      curr_state=curr_state-1
+        end if
+        if (curr_state.lt.nstates) then
+          if (en2(curr_state).gt.en2(curr_state+1))
+     $      curr_state=curr_state+1
+        end if
+c
         coup1(:,:)=coup2(:,:)
         en1(:)=en2(:)
 c

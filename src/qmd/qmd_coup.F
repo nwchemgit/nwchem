@@ -275,15 +275,11 @@ c       CI^{J}_{jb}(t),j=>occ, b=>vir
         cilo2(2)=1; cihi2(2)=nvir(ispin)
 c
 c       S_{jb}(t-dt,t)=S_{bj}(t,t-dt), j=>occ, b=>vir
-cc       ga_ddot check dimensions before transpose,
-cc         so don't transpose indices
         molo2(1)=nocc(ispin)+1; mohi2(1)=nmo(ispin)
         molo2(2)=1; mohi2(2)=nocc(ispin)
 c
         scr_co=nga_ddot_patch(g_cix2(ispin),'n',cilo2,cihi2,
      $                        g_mo(ispin),'t',molo2,mohi2)
-c
-c        if (.not.tda) scr_co=scr_co/dsqrt(en(jstate+1)-en(1))
 c
         coup(1,jstate+1)=coup(1,jstate+1)+scr_co
 c
@@ -298,8 +294,6 @@ c       S_{jb}(t,t-dt), j=>occ, b=>vir
 c
         scr_co=nga_ddot_patch(g_cix2(ispin),'n',cilo1,cihi1,
      $                          g_mo(ispin),'n',molo1,mohi1)
-c
-c        if (.not.tda) scr_co=scr_co/dsqrt(en(jstate+1)-en(1))
 c
         coup(1,jstate+1)=coup(1,jstate+1)-scr_co
 c
@@ -513,9 +507,9 @@ c
        do jstate=1,nstates
         do istate=1,nstates
          if (istate.ne.jstate) then
-          write(*,'((f14.8),$)') coup(jstate,istate)
+          write(*,'((es16.8),$)') coup(jstate,istate)
          else
-          write(*,'((f14.8),$)') en(jstate)
+          write(*,'((es16.8),$)') en(jstate)
          end if
         end do
         write(*,*)
