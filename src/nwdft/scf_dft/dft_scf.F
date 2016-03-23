@@ -2167,22 +2167,24 @@ c     Vector analysis stolen from rohf.F
 c
       do ispin = 1, ipol
          call movecs_fix_phase(g_movecs(ispin))
-         ilo = 1
-         ihi = nmo(ispin)
-         if (ipol.eq.1) then
-            blob='DFT Final Molecular Orbital Analysis'
-         else if(ipol.eq.2.and.ispin.eq.1) then
-            blob='DFT Final Alpha Molecular Orbital Analysis' 
-         else
-            blob='DFT Final Beta Molecular Orbital Analysis' 
+         if (util_print('final vectors analysis', print_default)) then
+           ilo = 1
+           ihi = nmo(ispin)
+           if (ipol.eq.1) then
+              blob='DFT Final Molecular Orbital Analysis'
+           else if(ipol.eq.2.and.ispin.eq.1) then
+              blob='DFT Final Alpha Molecular Orbital Analysis' 
+           else
+              blob='DFT Final Beta Molecular Orbital Analysis' 
+           endif
+           
+           call movecs_print_anal(ao_bas_han, ilo, ihi, tanalyze, 
+     &          g_movecs(ispin), 
+     &          blob, 
+     &          .true., dbl_mb(k_eval(ispin)), oadapt, 
+     &          int_mb(k_ir+(ispin-1)*nbf_ao),
+     &          .true., dbl_mb(k_occ+(ispin-1)*nbf_ao))
          endif
-         
-         call movecs_print_anal(ao_bas_han, ilo, ihi, tanalyze, 
-     &        g_movecs(ispin), 
-     &        blob, 
-     &        .true., dbl_mb(k_eval(ispin)), oadapt, 
-     &        int_mb(k_ir+(ispin-1)*nbf_ao),
-     &        .true., dbl_mb(k_occ+(ispin-1)*nbf_ao))
       enddo
       if (oprint_final_vecs) then
          if (me .eq. 0) then
