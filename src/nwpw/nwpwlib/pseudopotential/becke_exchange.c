@@ -10,6 +10,10 @@ exit:  - Vx[]: exchange potential
        - Px[]: variational exchange corrections for eigenvalues
 *********************************/
 
+#define tolrho 	2.0e-8
+#define minden 	1.0e-8
+#define minagr 	1.0e-8
+
 void R_Becke_Exchange(rho,Vx,Ex,Px)
 
 double rho[],
@@ -27,7 +31,8 @@ Vx[],
     double ux;
     double c;
     double norm;
-    double lap;
+    double lap,damp,ddamp;
+    double z5,z4,z3,z2,z1;
 
     double rho_fourthirds,rho_onethird, two_onethird;
 
@@ -95,114 +100,93 @@ Vx[],
     /*calculate derivatives******************************************/
 
     for (i=0; i<Ngrid; ++i)
-        rhoNRM[i] = rho[i]/(4.0*pi);        /* normalize density     */
+       rhoNRM[i] = rho[i]/(4.0*pi) + minden;        /* normalize density     */
 
 
     Derivative_LogGrid(rhoNRM,drho);           /* drho                  */
 
     for (i=0;i<Ngrid;++i)
-        if (rhoNRM[i]>1.0e-18)
-        {
-            agr[i] = fabs(drho[i]);             /* agr                   */
-        }
+       agr[i] = fabs(drho[i]) + minagr;             /* agr                   */
 
     Derivative_LogGrid(drho,ddrho);
 
 
 
     /* calculate chi chidn, chiddn ****************************/
-    for (i=0;i<Ngrid;++i)
-    {
-        if (rhoNRM[i]>1.0e-18)
-        {
+    for (i=0;i<Ngrid;++i) {
+       rho_fourthirds = pow(rhoNRM[i],4.0/3.0);
+       chi[i] =  agr[i]/rho_fourthirds;
 
-            rho_fourthirds = pow(rhoNRM[i],4.0/3.0);
-            chi[i] =  agr[i]/rho_fourthirds;
-
-            chidn[i] = (-4.0/3.0)*chi[i]/rhoNRM[i];
-            chiddn[i] = 1.0/rho_fourthirds;
-        }
+       chidn[i] = (-4.0/3.0)*chi[i]/rhoNRM[i];
+       chiddn[i] = 1.0/rho_fourthirds;
     }
 
 
     /* calculate H         ******************************************/
-    for (i=0;i<Ngrid;++i)
-    {
-        if (rhoNRM[i]>1.0e-18)
-        {
-            rho_fourthirds = pow(rhoNRM[i],4.0/3.0);
-            H[i] = 1.0*beta*pow(2.0,1.0/3.0)*rho_fourthirds;
-
-        }
+    for (i=0;i<Ngrid;++i) {
+       rho_fourthirds = pow(rhoNRM[i],4.0/3.0);
+       H[i] = 1.0*beta*pow(2.0,1.0/3.0)*rho_fourthirds;
     }
 
 
     /* calculate F  and dF/dchi *************************************/
-    for (i=0;i<Ngrid;++i)
-    {
-        if ((rhoNRM[i]>1.0e-18) && (chi[i] > 1.0e-12))
-        {
-            F[i] = chi[i]*chi[i]/(1.0+6.0*beta*c*chi[i]*log(c*chi[i] + sqrt(1+c*c*chi[i]*chi[i])));
+    for (i=0;i<Ngrid;++i) {
+       //if ((rhoNRM[i]>tolrho) && (chi[i] > 1.0e-9))
+       F[i] = chi[i]*chi[i]/(1.0+6.0*beta*c*chi[i]*log(c*chi[i] + sqrt(1.0+c*c*chi[i]*chi[i])));
 
-            Fdchi[i] = 2*F[i]/chi[i] - (F[i]*F[i]/(chi[i]*chi[i]))
-                       *(6.0*beta*c*log(c*chi[i] + sqrt(1+c*c*chi[i]*chi[i]))
-                         + 6.0*beta*c*c*chi[i]/sqrt(1+c*c*chi[i]*chi[i]));
-        }
+       Fdchi[i] = 2*F[i]/chi[i] - (F[i]*F[i]/(chi[i]*chi[i]))
+                   *(6.0*beta*c*log(c*chi[i] + sqrt(1.0+c*c*chi[i]*chi[i]))
+                    +6.0*beta*c*c*chi[i]/sqrt(1.0+c*c*chi[i]*chi[i]));
     }
 
     /* calculate fdn and fddn******************************************/
-    for (i=0;i<Ngrid;++i)
-    {
-        if (rhoNRM[i]>1.0e-18)
-        {
-            rho_onethird = pow(rhoNRM[i],1.0/3.0);
-            fdn_lda = -lda_c/c*(4.0/3.0)*rho_onethird;
-            fdn[i] = fdn_lda - (4.0/3.0)*H[i]*F[i]/rhoNRM[i] - H[i]*Fdchi[i]*chidn[i];
-            fddn[i] = -1.0*H[i]*Fdchi[i]*chiddn[i];
-        }
+    for (i=0;i<Ngrid;++i) {
+       rho_onethird = pow(rhoNRM[i],1.0/3.0);
+       fdn_lda = -lda_c/c*(4.0/3.0)*rho_onethird;
+       fdn[i] = fdn_lda - (4.0/3.0)*H[i]*F[i]/rhoNRM[i] - H[i]*Fdchi[i]*chidn[i];
+       fddn[i] = -1.0*H[i]*Fdchi[i]*chiddn[i];
     }
 
 
     /* calculate G ***************************************************/
     for (i=0;i<Ngrid;++i)
-        if ((rhoNRM[i]>1.0e-18) && (agr[i] > 1.0e-12))
-        {
-           G[i] = fddn[i]/agr[i];
-        }
+       //if (agr[i] > tolrho) 
+       G[i] = fddn[i]/agr[i];
     /* calculate dG/dr ***********************************************/
 
     Derivative_LogGrid(G,Gdr);
 
 
     /* calculate exchange potential and exchange energy density*******/
-    for (i=0;i<Ngrid;++i)
-    {
-        if (rhoNRM[i] > 1.0e-18)
-        {
-            /*exchange potential ****************************************/
-            lap     = ddrho[i] + (2.0/rgrid[i])*drho[i];
-            ux = fdn[i] - (Gdr[i]*drho[i] + G[i]*lap);
+    for (i=0;i<Ngrid;++i) {
+        if (rhoNRM[i] > tolrho) {
 
+            /*exchange potential ****************************************/
+            lap = ddrho[i] + (2.0/rgrid[i])*drho[i];
+            ux  = fdn[i] - (Gdr[i]*drho[i] + G[i]*lap);
 
             /* exchange energy density ex ****/
             rho_onethird = pow(rhoNRM[i],1.0/3.0);
             X1 = -1.0*(lda_c/c)*rho_onethird;
             X2 = c*beta*rho_onethird*chi[i]*chi[i];
-            X3 = 1.0 + 6.0*beta*c*chi[i]*log(c*chi[i] + sqrt(1+c*c*chi[i]*chi[i]));
+            X3 = 1.0 + 6.0*beta*c*chi[i]*log(c*chi[i] + sqrt(1.0+c*c*chi[i]*chi[i]));
             ex = X1 - X2/X3;
 
 
-            Vx[i] = ux;
-            ex_density[i] = ex;/*energy density*/
-
+            //Vx[i] = ux;
+            //ex_density[i] = ex;               /*energy density*/
+            Vx[i]         = ux;
+            ex_density[i] = ex;            /*energy density*/
 
             /********test output for lda************************/
+            //printf("%d %le %le %le     %le %le    %le %le\n",i,rhoNRM[i],drho[i],lap,ex,ux,G[i],Gdr[i]);
 
         }
         else
         {
-            ex_density[i] = 0.0;
-            Vx[i] = 0.0;
+            rho_onethird = pow(rhoNRM[i],1.0/3.0);
+            ex_density[i] = -1.0*(lda_c/c)*rho_onethird;
+            Vx[i]         = -lda_c/c*(4.0/3.0)*rho_onethird;
         }/* end if else */
     }/*for i*/
 
