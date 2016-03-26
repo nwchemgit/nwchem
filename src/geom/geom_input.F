@@ -48,7 +48,7 @@ c     .                           and for forcing symmetry
       double precision coords(3,max_center), velocities(3,max_center)
       double precision charge(max_center), mass(max_center)
       double precision invnucexp(max_center)
-      double precision ainv(3,3),t(3)
+      double precision ainv(3,3),t(3),tv(3)
 c
 c     Constraints in the geometry change the types of the atoms
 c     involved. E.g. in an H2O molecule the H involved in a bond of
@@ -538,16 +538,20 @@ cccc      write(*,*) "ncenter=",ncenter
       if (ecce_periodic) then
          write(*,*) "ecce periodic conversion"
          call dscal(3*ncenter, scale, coords, 1)
+         call dscal(3*ncenter, scale, velocities, 1)
          if (geom_amatinv_get(geom, ainv)) then
             do ii=1,ncenter
                do i=1,3
                   t(i) = 0.0d0
+                  tv(i) = 0.0d0
                   do j=1,3
                      t(i) = t(i) + ainv(i,j)*coords(j,ii)
+                     tv(i) = tv(i) + ainv(i,j)*velocities(j,ii)
                   end do
                end do
                do i=1, 3
                   coords(i,ii) = t(i)
+                  velocities(i,ii) = tv(i)
                end do
             end do
          end if
@@ -558,6 +562,7 @@ cccc      write(*,*) "ncenter=",ncenter
               if (geom_amatinv_get(geom, ainv)) then
                  do ii=1,ncenter
                     coords(3,ii) = coords(3,ii)*ainv(3,3)
+                    velocities(3,ii) = velocities(3,ii)*ainv(3,3)
                  end do
               end if
            end if
@@ -567,6 +572,8 @@ cccc      write(*,*) "ncenter=",ncenter
                  do ii=1,ncenter
                     coords(2,ii) = coords(2,ii)*ainv(2,2)
                     coords(3,ii) = coords(3,ii)*ainv(3,3)
+                    velocities(2,ii) = velocities(2,ii)*ainv(2,2)
+                    velocities(3,ii) = velocities(3,ii)*ainv(3,3)
                  end do
               end if
            end if
@@ -598,6 +605,7 @@ c
  1             format(/' Scaling coordinates for geometry "',a,'" by ',
      $              f12.9/' (inverse scale = ',f12.9,')',/)
                call dscal(3*ncenter, scale, coords, 1)
+               call dscal(3*ncenter, scale, velocities, 1)
             end if
          else if (isys .lt. 0) then
             call errquit('geom_input: invalid system type', 0,
