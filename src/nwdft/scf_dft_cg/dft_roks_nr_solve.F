@@ -69,8 +69,11 @@ c
       logical odbug
       logical osome
 c
+      logical do_cosmo_smd
       double precision egas
       double precision esol
+      double precision gcds
+      double precision esolv,esolv_smd
 c
       if (ga_nodeid().eq.0) call util_flush(LuOut)
 c
@@ -364,6 +367,8 @@ c     ----- if sol_phase=.T. go back and do solution phase -----
 c
       odbug=.false.
       odbug=odbug.and.ga_nodeid().eq.0
+      do_cosmo_smd = .false.
+      gcds = 0.d0
       if(cosmo_on.and.cosmo_phase.eq.1) then
          converged =.false.
          egas      =energy
@@ -375,6 +380,20 @@ c
          go to 9
       elseif(cosmo_on.and.cosmo_phase.eq.2) then
          esol      =energy
+
+         if (.not. rtdb_get(
+     $    rtdb,'cosmo:do_cosmo_smd',mt_log,1,do_cosmo_smd))
+     $    call errquit(
+     $    'dft_roks_energy: cannot get do_cosmo_smd from rtdb',
+     $    0,rtdb_err)
+
+         if (do_cosmo_smd) then
+            if (.not. rtdb_get(rtdb,'cosmo:gcds',mt_dbl,1,
+     $          gcds))
+     $      call errquit('dft_fockbld: cannot get gcds from rtdb',
+     $       0,rtdb_err)
+         endif   ! do_cosmo_smd
+c
          if(ga_nodeid().eq.0) then
             write(LuOut,915)
             write(LuOut,*) '                 COSMO solvation results'
@@ -382,12 +401,18 @@ c
             write(LuOut,915)
             write(LuOut,912) egas
             write(LuOut,913) esol
-            write(LuOut,914) (egas-esol),(egas-esol)*627.509451d+00
+            esolv = egas - esol  ! solvation energy
+            esolv_smd = 0.d0
+            if (do_cosmo_smd) esolv_smd = gcds
+            write(LuOut,914) esolv,esolv*627.509451d+00
+            write(LuOut,916) esolv_smd,esolv_smd*627.509451d+00
  912     format('                 gas phase energy = ',f20.10)
  913     format('                 sol phase energy = ',f20.10)
- 914     format(' (electrostatic) solvation energy = ',f20.10,
+ 914     format('                 solvation energy = ',f20.10,
      $          ' (',f8.2,' kcal/mol)'                       )
  915     format(' ')
+ 916     format('                G(SMD-CDS) energy = ',f20.10,
+     $          ' (',f8.2,' kcal/mol)'                       )
          endif
       endif
       if (ga_nodeid().eq.0) call util_flush(6)
