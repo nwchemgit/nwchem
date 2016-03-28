@@ -174,8 +174,8 @@
       external control_mc_ddv,control_mc_volume_step
       real*8   control_mc_pressure
       external control_mc_pressure
-      logical  control_SA,control_pressure
-      external control_SA,control_pressure
+      logical  control_SA,control_pressure,ion_makehmass2
+      external control_SA,control_pressure,ion_makehmass2
       real*8   control_SA_decay
       external control_SA_decay
       integer  ion_nconstraints,ion_ndof,ion_rion_ptr
@@ -421,6 +421,7 @@
          END IF
          call pspw_print_SIC(luout)
          call pspw_print_HFX(luout)
+         if (ion_makehmass2()) write(luout,1135)
          write(luout,1140)
          do ia = 1,ion_nkatm()
             call psp_print(ia)
@@ -1151,6 +1152,9 @@ c     >                        ratio_v,wa,wr,wa_v,wr_v
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1132 FORMAT(5X,' using fractional occupation')
+ 1135 FORMAT(/' The masses of QM H atoms converted to 2.0 amu.',
+     >       /' To turn off this default',
+     >        ' set nwpw:makehmass2 .false.')
  1140 FORMAT(/' elements involved in the cluster:')
  1150 FORMAT(5X,I2,': ',A4,'  core charge:',F4.1,'  lmax=',I3)
  1151 FORMAT(5X,'        cutoff =',4F8.3)
