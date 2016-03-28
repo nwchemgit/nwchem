@@ -24,17 +24,16 @@ c
       double precision eone, etwo, enrep, exc(2)
       integer gtype, grow, gcol
 c
-      logical odbug
+      logical odebug
       logical osome
       logical xc_gotxc
       external xc_gotxc
       double precision ecosmo,gcds
-c
       logical do_cosmo_smd
 c
-      odbug=.false.
+      odebug=.false.
       osome=.false.
-      osome=osome.or.odbug
+      osome=osome.or.odebug
 c     
 c     Check
 c     
@@ -93,8 +92,8 @@ c
 c
 c     ----- cosmo energy term ... -----
 c
-      odbug=.false.
-      odbug=odbug.and.ga_nodeid().eq.0
+      odebug=.false.
+      odebug=odebug.and.ga_nodeid().eq.0
 c
       do_cosmo_smd = .false.
       gcds = 0.d0

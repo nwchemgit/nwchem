@@ -49,9 +49,10 @@ c
       double precision xc_hfexch
       external xc_hfexch
 c
-      double precision ecosmo
       integer g_dens(2),i
       character*255 cosmo_file
+      double precision ecosmo,gcds
+      logical do_cosmo_smd
 c
       data f/8*0/
 c     
@@ -434,12 +435,35 @@ c
 c
 c     ----- cosmo energy term ... -----
 c
+      odebug=.false.
+      odebug=odebug.and.ga_nodeid().eq.0
+c
+      do_cosmo_smd = .false.
+      gcds = 0.d0
       if(cosmo_on.and.cosmo_phase.eq.2) then
          if (.not. rtdb_get(rtdb,'cosmo:energy',mt_dbl,1,ecosmo))
      $     call errquit('dft_roks_energy: rtdb get failed for ecosmo',
      $                  911, RTDB_ERR)
-         energy=energy+ecosmo
-      endif
+c
+         if (.not. rtdb_get(
+     $    rtdb,'cosmo:do_cosmo_smd',mt_log,1,do_cosmo_smd))
+     $    call errquit(
+     $    'dft_roks_energy: cannot get do_cosmo_smd from rtdb',
+     $    0,rtdb_err)
+c
+          energy=energy+ecosmo  ! add cosmo energy
+c
+          if (do_cosmo_smd) then
+            if (.not. rtdb_get
+     $        (rtdb,'cosmo:gcds',mt_dbl,1,gcds))
+     $      call errquit(
+     $      'dft_fockbld: cannot get gcds from rtdb',
+     $       0,rtdb_err)
+c
+             energy=energy+gcds  ! add smd energy
+c
+          endif   ! do_cosmo_smd
+      end if  ! cosmo_on.and.cosmo_phase.eq.2
 c
       if (odebug .and. ga_nodeid().eq.0) then
          write(6,*) ' eone, etwo, enrep, energy ',

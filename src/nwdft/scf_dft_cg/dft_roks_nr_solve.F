@@ -66,7 +66,7 @@ c
 c
 c     cosmo code
 c
-      logical odbug
+      logical odebug
       logical osome
 c
       logical do_cosmo_smd
@@ -167,14 +167,14 @@ c
       converged = .false.
 c
    9  continue
-      odbug=.false.
-      odbug=odbug.and.ga_nodeid().eq.0
+      odebug=.false.
+      odebug=odebug.and.ga_nodeid().eq.0
       if(cosmo_on.and.cosmo_phase.eq.1) then
          osome=ga_nodeid().eq.0
          if(osome) then
             write(LuOut,909)
          endif
-         if(odbug) then
+         if(odebug) then
             write(LuOut,*) 'mode = ',mode
          endif
       elseif(cosmo_on.and.cosmo_phase.eq.2) then
@@ -188,7 +188,7 @@ c
          if(osome) then
             write(LuOut,910)
          endif
-         if(odbug) then
+         if(odebug) then
             write(LuOut,*) 'mode = ',mode
          endif
       endif
@@ -203,7 +203,7 @@ c        then variable accuracy hinders things
 c
          if (oreadfile) tol2e = tol2e_save
 c
-         if(odbug) then
+         if(odebug) then
             if(ga_nodeid().eq.0) then
                write(LuOut,*) 'before calling ga_pcg_minim ...'
                write(LuOut,*) 'mode = ',mode
@@ -216,7 +216,7 @@ c
      $        g_search, step, ls_tol, ls_max, eprec, oconjugacy, 
      $        oprint_conv, oprint_ls, iwork, dwork, mode)
 c
-         if(odbug) then
+         if(odebug) then
             if(ga_nodeid().eq.0) then
                write(LuOut,*) 'after  calling ga_pcg_minim ...'
                write(LuOut,*) 'mode = ',mode
@@ -232,7 +232,7 @@ c
 *            write(LuOut,*) ' TOL2E ', tol2e
 *            call util_flush(LuOut)
 c
-            if(odbug) then
+            if(odebug) then
                if(ga_nodeid().eq.0) then
                   write(LuOut,*) 'before calling roks_step_energy ...'
                   write(LuOut,*) 'mode = ',mode
@@ -248,7 +248,7 @@ c
      $           eone, etwo, exc, enrep, energy, edisp, g_grad, nexc)
             gnorm = sqrt(ga_ddot(g_grad, g_grad))
 c
-            if(odbug) then
+            if(odebug) then
                if(ga_nodeid().eq.0) then
                   write(LuOut,*) 'after  calling roks_step_energy ...'
                   write(LuOut,*) 'mode = ',mode
@@ -365,15 +365,15 @@ c
 c
 c     ----- if sol_phase=.T. go back and do solution phase -----
 c
-      odbug=.false.
-      odbug=odbug.and.ga_nodeid().eq.0
+      odebug=.false.
+      odebug=odebug.and.ga_nodeid().eq.0
       do_cosmo_smd = .false.
       gcds = 0.d0
       if(cosmo_on.and.cosmo_phase.eq.1) then
          converged =.false.
          egas      =energy
          cosmo_phase = 2
-         if(odbug) then
+         if(odebug) then
             write(LuOut,*) 'gas_phase done, do sol-phase now ...'
          endif
          call ga_sync()
@@ -402,10 +402,12 @@ c
             write(LuOut,912) egas
             write(LuOut,913) esol
             esolv = egas - esol  ! solvation energy
-            esolv_smd = 0.d0
-            if (do_cosmo_smd) esolv_smd = gcds
             write(LuOut,914) esolv,esolv*627.509451d+00
-            write(LuOut,916) esolv_smd,esolv_smd*627.509451d+00
+            esolv_smd = 0.d0
+            if (do_cosmo_smd) then 
+              esolv_smd = gcds
+              write(LuOut,916) esolv_smd,esolv_smd*627.509451d+00
+            endif  ! do_cosmo_smd
  912     format('                 gas phase energy = ',f20.10)
  913     format('                 sol phase energy = ',f20.10)
  914     format('                 solvation energy = ',f20.10,
