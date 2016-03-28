@@ -218,18 +218,22 @@
       integer     control_code
       external    ion_aname
       external    control_code
+      logical     oprint,hmass2found
       
       logical          control_frac_coord,control_init_velocities
-      logical          parseqmmm,control_has_disp
+      logical          parseqmmm,control_has_disp,control_makehmass2
       integer          control_version
       double precision control_ion_time_step,ion_amass_geom
       external         control_frac_coord,control_init_velocities
-      external         parseqmmm,control_has_disp
+      external         parseqmmm,control_has_disp,control_makehmass2
       external         control_version
       external         control_ion_time_step,ion_amass_geom
       integer tid,Parallel_threadid
       external    Parallel_threadid
 
+
+      call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER)
       tid = Parallel_threadid()
 
       call nwpw_timing_start(50)
@@ -238,6 +242,9 @@
 *     ***** set periodic ****
       periodic = .true.
       if (control_version().eq.4) periodic = .false.
+
+*     ***** set makehmass2 ****
+      makehmass2 = control_makehmass2()
 
 *     ***** set disp_on ****
       disp_on = control_has_disp()
@@ -325,6 +332,13 @@
          dbl_mb(dti(1)  +i-1) = dt*dt/(ion_amass_geom(i))
          dbl_mb(amass(1)+i-1) = ion_amass_geom(i)
       end do
+
+*     **** turn off makehmass2 if no h atoms ****
+      hmass2found = .false.
+      do i=1,nion
+         if (ion_aname(i).eq.'H   ') hmass2found = .true.
+      end do
+      if ((.not.hmass2found).and.(makehmass2))  makehmass2 = .false.
 
 c     value = beom_destroy(geom)
 c     call ion_shift()
@@ -603,7 +617,7 @@ c         eki1=0.5d0*eki1
 #include "stdio.fh"
 #include "beom.fh"
 #include "errquit.fh"
-
+#include "ion.fh"
 
       integer geom
       common / ION2/ geom
@@ -611,9 +625,18 @@ c         eki1=0.5d0*eki1
 *     **** local variables ****
       real*8 mass
 
+*     **** external functions ****
+      character*4 ion_aname
+      external    ion_aname
+
       if(.not.beom_mass_get(geom,i,mass))
      >  call errquit(' beom_mass_get  failed ',i, GEOM_ERR)
 
+      !*** change mass of H to be 2.0 by default ***
+      if (makehmass2) then
+         if (ion_aname(i).eq.'H   ') mass = 2.0
+      end if
+      
       ion_amass_geom = mass*1822.89d0
       return
       end
@@ -633,6 +656,22 @@ c         eki1=0.5d0*eki1
 #include "ion.fh"
 
       ion_amass = dbl_mb(amass(1)+i-1)
+      return
+      end
+
+*     ***************************
+*     *                         *
+*     *      ion_makehmass2     *
+*     *                         *
+*     ***************************
+      logical function ion_makehmass2()
+      implicit none
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "ion.fh"
+
+      ion_makehmass2 = makehmass2
       return
       end
 
