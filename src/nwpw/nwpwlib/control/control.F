@@ -3082,6 +3082,34 @@ c      end
       return
       end
 
+
+*     *****************************
+*     *                           *
+*     *     control_makehmass2    *
+*     *                           *
+*     *****************************
+      logical function control_makehmass2()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "util.fh"
+
+      logical makehmass2
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      if( .not. btdb_get(rtdb,'nwpw:makehmass2',mt_log,1,makehmass2))
+     >  makehmass2 = .true.
+
+      control_makehmass2 = makehmass2
+      return
+      end
+
+
+
 *     *****************************
 *     *                           *
 *     *        control_MP2        *
