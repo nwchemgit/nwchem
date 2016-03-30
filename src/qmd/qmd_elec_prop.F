@@ -61,7 +61,7 @@ c       electronic integration will not start until ts=2
 c       take care of some initial things
         call qmd_kinetic(nat,mass,v,KE)
         instate=curr_state
-        elec_steps=int(dtn/thresh)/int(dte/thresh)
+        elec_steps=nint(dtn/dte)
 c
 c       we don't do the electronic propagation on nstep.eq.1
 c       since we don't have enough values of the couplings/energies
