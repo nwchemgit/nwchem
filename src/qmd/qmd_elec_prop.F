@@ -91,6 +91,18 @@ c       propagate
      $                    dcpl_mb(k_zham),dcpl_mb(k_ztden1),
      $                    dcpl_mb(k_ztden2),dcpl_mb(k_zrk4s),dtn,nstep)
 c
+c       Check if energy of current state is lower than the energy
+c        of state below it or higher than state above it
+c        (i.e. negative excitation energy)
+        if (curr_state.gt.1) then
+          if (en2(curr_state).lt.en2(curr_state-1))
+     $      curr_state=curr_state-1
+        end if
+        if (curr_state.lt.nstates) then
+          if (en2(curr_state).gt.en2(curr_state+1))
+     $      curr_state=curr_state+1
+        end if
+c
 c       decoherence 
         if (deco) call qmd_deco(nstates,curr_state,dtn,KE,en2,
      $                          zden)
@@ -146,18 +158,6 @@ CCC          end do
             v(:,:)=-v(:,:)
             PE=en2(curr_state)
           end if
-        end if
-c
-c       Check if energy of current state is lower than the energy
-c        of state below it or higher than state above it
-c        (i.e. negative excitation energy)
-        if (curr_state.gt.1) then
-          if (en2(curr_state).lt.en2(curr_state-1))
-     $      curr_state=curr_state-1
-        end if
-        if (curr_state.lt.nstates) then
-          if (en2(curr_state).gt.en2(curr_state+1))
-     $      curr_state=curr_state+1
         end if
 c
         coup1(:,:)=coup2(:,:)
