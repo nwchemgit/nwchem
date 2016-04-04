@@ -605,7 +605,7 @@ c
      $              dbl_mb(k_tmp), nmo-nocc1+1)
                call dscal(nvir, mone, dbl_mb(k_tmp), 1)
                call ga_put(g_kmat, i, i, nocc1, nmo,
-     $              dbl_mb(k_tmp), nmo-nocc1+1)
+     $              dbl_mb(k_tmp), 1)
             end do
          endif
 c
