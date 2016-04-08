@@ -27,6 +27,8 @@
 static short int mic_get_num_initialized=0;
 static int num_mic_devs;
 
+long __attribute__((target(mic)))  sysconf(int );
+
 extern int util_cgetppn();
 extern int util_my_smp_index();
 extern int util_my_smp_master();
