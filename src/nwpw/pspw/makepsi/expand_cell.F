@@ -15,9 +15,10 @@
 #include "bafdecls.fh"
 #include "btdb.fh"
 #include "geom.fh"
+#include "sym.fh"
 #include "errquit.fh"
 
-      logical value,default,setamatrix
+      logical value,default,setamatrix,getsym
       integer geom
       integer geom1,nion1
       integer geom2,nion2
@@ -30,8 +31,8 @@
       character*50 rtdb_unita,rtdb_ngrid
 
 *     **** external functions ****
-      logical  geom_amatrix_set,wvfnc_expand_cell
-      external geom_amatrix_set,wvfnc_expand_cell
+      logical  geom_amatrix_set,wvfnc_expand_cell,geom_P1_set
+      external geom_amatrix_set,wvfnc_expand_cell,geom_P1_set
 
 
       value = btdb_get(rtdb,'nwpw:cell_expand',mt_int,3,cell_expand)
@@ -180,10 +181,13 @@ ccc      value = value.and.btdb_put(rtdb,rtdb_ngrid,mt_int,3,ngrid)
      >                                  dbl_mb(qt2(1)))
       value = value.and.geom_masses_set(geom1,nion2,dbl_mb(mt2(1)))
       value = value.and.geom_vel_set(geom1,dbl_mb(vt2(1)))
-      
+
+*     **** set unitcell to have P1 symmetry - may want to use more intricate logic in the future ***
+      value = value.and.geom_P1_set(geom1)
 
       value = value.and.geom_rtdb_store(rtdb,geom1,'geometry')
       value = value.and.geom_destroy(geom1)
+
       value = value.and.BA_pop_stack(tt2(2))
       value = value.and.BA_pop_stack(tt1(2))
       value = value.and.BA_pop_stack(mt2(2))
