@@ -12,7 +12,7 @@ OBJ_OPTIMIZE =  qmd_init.o qmd_driver.o qmd_main.o qmd_input.o\
 		qmd_energy.o qmd_coup.o qmd_move_civecs.o\
 		qmd_elec_prop.o qmd_tdks_enmo.o qmd_tddft_enmo.o\
 		qmd_namd_init.o qmd_namd_input.o qmd_set_den.o\
-		qmd_coords_vels.o
+		qmd_coords_vels.o qmd_civecs_read.o
 
 LIBRARY=libqmd.a
 
