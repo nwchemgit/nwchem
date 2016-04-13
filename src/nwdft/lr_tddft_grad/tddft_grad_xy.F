@@ -33,6 +33,8 @@ c
       character*32 pname
 c
       pname ="tddft_grad_create_xy: "
+
+      if (ga_nodeid().eq.0) write(luout,*) "nroot: ", nroot
 c
 c     Check if full TDDFT or TDA
       if (tda) then    ! Tamm-Dancoff: B=0 and hence Y=0
@@ -47,6 +49,7 @@ c       Only need g_xpy (which equals g_x and therefore g_xmy)
          ichunk(3) = -1
          if (.not.nga_create(mt_dbl,3,idim,'vectors X',ichunk,g_xpy(i)))
      +      call errquit(pname//'failed to create g_xpy',0,GA_ERR)
+         call ga_zero(g_xpy(i))
         enddo
 c
       else
@@ -62,9 +65,12 @@ c       Only need both g_xpy and g_xmy: Full non-Hermitian matrix
          if (.not.nga_create(mt_dbl,3,idim,'vectors X+Y',ichunk,
      +             g_xpy(i)))
      +    call errquit(pname//'failed to create g_xpy',0,GA_ERR)
+         call ga_zero(g_xpy(i))
+c
          if (.not.nga_create(mt_dbl,3,idim,'vectors X-Y',ichunk,
      +             g_xmy(i)))
      +    call errquit(pname//'failed to create g_xmy',0,GA_ERR)
+         call ga_zero(g_xmy(i))
         enddo
 c
       endif

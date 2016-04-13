@@ -130,6 +130,8 @@ c
       double precision na,nb,s2
       integer ja1,ja2,ka1,ka2,jb1,jb2,kb1,kb2,la1,la2,lb1,lb2,ja3,jb3
       double precision xa1,xa2,ya1,ya2,xb1,xb2,yb1,yb2,rc1,rc2
+      integer itrial
+      integer l_trials,k_trials
       integer l_x(2),k_x(2)
       integer l_y(2),k_y(2)
       integer l_corr,k_corr
@@ -1808,6 +1810,7 @@ c of singlet and triplet states to identify states since they can be
 c similar.
 c
       call civecs_fix_phase(g_x,g_y,ipol,tda)
+c
       if (lcivecs) then
         if (.not.rtdb_cget(rtdb,'tddft:civecs',1,fn_civecs))
      1   call errquit('tddft_analysis: failed to read vector',0,
@@ -1818,7 +1821,7 @@ c
         if (triplet) fn_civecs=fn_civecs(1:len_fn_civecs)//"_triplet"
        endif  ! lcivecs
 c
-       if (nodezero.and.lcivecs) then
+      if (nodezero.and.lcivecs) then
          write(luout,*) "fn_civecs: ",fn_civecs
          call util_file_name_resolve(fn_civecs, .false.)
          open(unit=69,file=fn_civecs,form='unformatted',
@@ -1839,71 +1842,59 @@ c
          if (ipol.eq.1) nov(2) = 0
          write(69) nov(1),nov(2)
          write(69)
-       endif ! nodezero
+      endif ! nodezero
 c
  2000 format(/,2x,'No CI vector file is created')
  2010 format(/,2x,'CI vectors are stored in ',a32)
 c
-c ------------
-c Tamm-Dancoff
-c ------------
+c ------------------------------------------------
+c Write out the solution vectors for TDDFT and TDA
+c ------------------------------------------------
 c
-c Modified for RPA with B = 0
+       do i=1,ipol
+        if (.not.tda) then
+           call ga_add(1.0d0,g_x(i),1.0d0,g_y(i),g_x(i))  ! g_x = X+Y
+           call ga_add(1.0d0,g_x(i),-2.0d0,g_y(i),g_y(i)) ! g_y = X+Y-2Y = X-Y
+        endif
+       enddo ! ipol
 c
-      if (tda) then
+       do n=1,nroots
 c
-c       Write out solution vectors: X (Y=0 in TDA)
-c
-        if (nodezero.and.lcivecs) then
-         do n=1,nroots
+         if (nodezero.and.lcivecs) then
            write(69)apbval(n)  ! energy of the root
            write(69)s2_save(n) ! <S2> value of the root
-           do i=1,ipol
-             do m=1,nov(i)
-               call ga_get(g_x(i),m,m,n,n,r,1)
-               write(69) r
-             enddo ! nov
-           enddo ! ipol
-         enddo  ! nroots
-        endif  ! nodezero and lcivecs
+         endif ! nodezero
 c
-c --------------------
-c Full linear response
-c --------------------
+         do i=1,ipol
 c
-      else  ! full tddft
+c         Allocate memory
+          if (.not.ma_push_get(mt_dbl,nov(i),"slice",l_trials,k_trials))
+     1      call errquit(trim(pname)//"failed to alloc slice",0,0)
 c
-c       g_x = X+Y and g_y = X-Y
+          if (.not.tda) then
+            call ga_get(g_x(i),1,nov(i),n,n,dbl_mb(k_trials),nov(i))
+            if (nodezero.and.lcivecs) 
+     &         call swrite(69,dbl_mb(k_trials),nov(i))
 c
-        do i=1,ipol
-           call ga_add(1.0d0,g_x(i), 1.0d0,g_y(i),g_x(i)) ! X+Y
-           call ga_add(1.0d0,g_x(i),-2.0d0,g_y(i),g_y(i)) ! X+Y-2Y = X-Y
-        enddo
+            call ga_get(g_y(i),1,nov(i),n,n,dbl_mb(k_trials),nov(i))
+            if (nodezero.and.lcivecs)
+     &         call swrite(69,dbl_mb(k_trials),nov(i))
 c
-c       Write out vectors: X+Y and X-Y
+          else 
+            call ga_get(g_x(i),1,nov(i),n,n,dbl_mb(k_trials),nov(i)) ! Y = 0
+            if (nodezero.and.lcivecs) 
+     &         call swrite(69,dbl_mb(k_trials),nov(i))
+          endif ! tda
 c
-        if (nodezero.and.lcivecs) then
-           do n=1,nroots
-             write(69)apbval(n)  ! energy of the root
-             write(69)s2_save(n) ! <S2> value of the root
-             do i=1,ipol
-               do m=1,nov(i)
-                 call ga_get(g_x(i),m,m,n,n,r,1) ! X vectors
-                 write(69) r
-               enddo ! nov
-             enddo ! ipol
+c         Deallocate memory
+          if (.not.ma_pop_stack(l_trials))
+     $       call errquit(pname//"failed to pop stack",0,0)
 c
-             do i=1,ipol
-               do m=1,nov(i)
-                 call ga_get(g_y(i),m,m,n,n,r,1) ! Y vectors
-                 write(69) r
-               enddo ! nov
-             enddo ! ipol
-           enddo ! nroots
-        endif  ! nodezero or lcivecs
-      endif ! tda
+         enddo ! ipol
 c
-      if (nodezero.and.lcivecs) close(unit=69)
+       enddo ! nroots
+c
+       if (nodezero.and.lcivecs) close(unit=69)
 c
 c ------
 c Return

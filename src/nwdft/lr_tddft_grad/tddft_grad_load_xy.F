@@ -70,6 +70,8 @@ c
       integer nrts          ! total number of roots
       logical oroot
 c
+      integer itrial,ii
+      integer l_trials, k_trials
       character*32 pname
 c
       integer inntsize,ddblsize,ok
@@ -145,6 +147,13 @@ c
 c               Now for the actual reading of the roots
 c
                 do i = 1, nrt
+
+c                 Allocate memory
+                  if (.not.ma_push_get(mt_dbl,naoc(1)*nav(1),"slice",
+     &                l_trials, 
+     &                k_trials))call errquit(trim(pname)//"slice",0,0)
+
+
                   k = 0
 c Daniel (2-19-13): Here we need to account for reordering of the 
 c excited states.  The <S**2> value is irrelevant for singlet roots,
@@ -152,14 +161,18 @@ c since it is always 0.
                   do j = 1, nsroots
                     if (i.eq.isroots(j)) k = j
                   enddo
-                  read(69,err=90000) r
+                  read(69,err=90000) r  ! energy line
                   if (k.gt.0) Eroot(k) = r
-c Daniel (2-19-13): This is the <S**2> value.
-                  read(69,err=90000) r
+                  read(69,err=90000) r  ! s2 line
+c
+c                 Read in a chunk of the trials
+                  call sread(69,dbl_mb(k_trials),naoc(1)*nav(1))
+                  itrial = 0
                   do l = 1, naoc(1) 
                     do m = 1, nav(1)
-                      read(69,err=90000) r
-                      if (k.gt.0) then
+                       itrial = itrial+1 
+                       r = dbl_mb(k_trials+itrial-1)
+                       if (k.gt.0) then
                         ilo(1) = k
                         ilo(2) = l
                         ilo(3) = m
@@ -170,10 +183,16 @@ c Daniel (2-19-13): This is the <S**2> value.
                       endif
                     enddo
                   enddo
+c
                   if (.not.tda) then
+c
+c                   Read in a chunk of the trials
+                    call sread(69,dbl_mb(k_trials),naoc(1)*nav(1))
+                    itrial = 0
                     do l = 1, naoc(1) 
                       do m = 1, nav(1)
-                        read(69,err=90000) r
+                        itrial = itrial+1 
+                        r = dbl_mb(k_trials+itrial-1)
                         if (k.gt.0) then
                           ilo(1) = k
                           ilo(2) = l
@@ -185,8 +204,13 @@ c Daniel (2-19-13): This is the <S**2> value.
                         endif
                       enddo
                     enddo
-                  endif
-                enddo
+                  endif   ! .not.tda
+c
+c                 Deallocate memory
+                  if (.not.ma_pop_stack(l_trials))
+     &             call errquit(trim(pname)//"failed to pop stack",0,0)
+c
+                enddo   ! nrt
               else
                 call errquit(pname//'vectors file corrupt',0,DISK_ERR)
               endif
@@ -235,6 +259,12 @@ c
 c               Now for the actual reading of the roots
 c
                 do i = 1, nrt
+c
+c                 Allocate memory
+                  if (.not.ma_push_get(mt_dbl,naoc(1)*nav(1),"slice",
+     &                l_trials, 
+     &                k_trials))call errquit(trim(pname)//"slice",0,0)
+c
                   k = 0
 c Daniel (2-19-13): Here we need to account for reordering of the 
 c excited states.  The <S**2> value is irrelevant for triplet roots,
@@ -242,13 +272,18 @@ c since it is always 2.
                   do j = 1, ntroots
                     if (i.eq.itroots(j)) k = j+nsroots
                   enddo
-                  read(69,err=90000) r
+c
+                  read(69,err=90000) r  ! energy line
                   if (k.gt.0) Eroot(k) = r
-c Daniel (2-19-13): This is the <S**2> value.
-                  read(69,err=90000) r
+                  read(69,err=90000) r   ! s2 line
+c
+c                 Read in a chunk of the trials
+                  call sread(69,dbl_mb(k_trials),naoc(1)*nav(1))
+                  itrial = 0
                   do l = 1, naoc(1) 
                     do m = 1, nav(1) 
-                      read(69,err=90010) r
+                      itrial = itrial+1 
+                      r = dbl_mb(k_trials+itrial-1)
                       if (k.gt.0) then
                         ilo(1) = k
                         ilo(2) = l
@@ -260,10 +295,15 @@ c Daniel (2-19-13): This is the <S**2> value.
                       endif
                     enddo
                   enddo
+c
                   if (.not.tda) then
+c                   Read in a chunk of the trials
+                    call sread(69,dbl_mb(k_trials),naoc(1)*nav(1))
+                    itrial = 0
                     do l = 1, naoc(1) 
                       do m = 1, nav(1) 
-                        read(69,err=90010) r
+                        itrial = itrial+1 
+                        r = dbl_mb(k_trials+itrial-1)
                         if (k.gt.0) then
                           ilo(1) = k
                           ilo(2) = l
@@ -275,8 +315,14 @@ c Daniel (2-19-13): This is the <S**2> value.
                         endif
                       enddo
                     enddo
-                  endif
-                enddo
+                  endif    ! .not. tda
+c
+c                 Deallocate memory
+                  if (.not.ma_pop_stack(l_trials))
+     &             call errquit(trim(pname)//"failed to pop stack",0,0)
+
+                enddo  ! nrt
+
               else
                 call errquit(pname//'vectors file corrupt',0,DISK_ERR)
               endif
@@ -285,6 +331,7 @@ c Daniel (2-19-13): This is the <S**2> value.
               call errquit(pname//'triplet vectors absent',0,DISK_ERR)
             endif
           endif
+c
         else if (ipol.eq.2) then
 c
 c         Unrestricted
@@ -325,20 +372,32 @@ c
 c               Now for the actual reading of the roots
 c
                 do i = 1, nrt
+c
                   k = 0
 c Daniel (2-19-13): Here we need to account for reordering of the 
 c excited states and also the <S**2> value.
                   do j = 1, nroots
                     if (i.eq.iroots(j)) k = j
                   enddo
-                  read(69,err=90000) r
-                  if (k.gt.0) Eroot(k) = r
-c Daniel (2-19-13): This is the <S**2> value.
-                  read(69,err=90000) r
+c
+                  read(69,err=90000) r   ! energy line
+                  if (k.gt.0) Eroot(k) = r 
+                  read(69,err=90000) r   ! s2 line
+c
                   do j = 1, ipol
+c
+c                   Allocate memory
+                    if (.not.ma_push_get(mt_dbl,naoc(j)*nav(j),"slice",
+     &                l_trials, 
+     &                k_trials))call errquit(trim(pname)//"slice",0,0)
+c
+c                   Read in a chunk of the trials
+                    call sread(69,dbl_mb(k_trials),naoc(j)*nav(j))
+                    itrial = 0
                     do l = 1, naoc(j) 
                       do m = 1, nav(j) 
-                        read(69,err=90020) r
+                        itrial = itrial + 1
+                        r = dbl_mb(k_trials+itrial-1)
                         if (k.gt.0) then
                           ilo(1) = k
                           ilo(2) = l
@@ -349,13 +408,16 @@ c Daniel (2-19-13): This is the <S**2> value.
                           call nga_put(g_xpy(j),ilo,ihi,r,ld)
                         endif
                       enddo
-                    enddo
-                  enddo
-                  if (.not.tda) then
-                    do j = 1, ipol
-                      do l = 1, naoc(j) 
-                        do m = 1, nav(j) 
-                          read(69,err=90020) r
+                    enddo 
+c
+                    if (.not.tda) then
+c                     Read in a chunk of the trials
+                      call sread(69,dbl_mb(k_trials),naoc(j)*nav(j))
+                      itrial = 0
+                      do l = 1, naoc(j)
+                        do m = 1, nav(j)
+                          itrial = itrial + 1
+                          r = dbl_mb(k_trials+itrial-1)
                           if (k.gt.0) then
                             ilo(1) = k
                             ilo(2) = l
@@ -367,9 +429,15 @@ c Daniel (2-19-13): This is the <S**2> value.
                           endif
                         enddo
                       enddo
-                    enddo
-                  endif
-                enddo
+                     endif ! .not.tda
+c
+c                   Deallocate memory
+                    if (.not.ma_pop_stack(l_trials))
+     &              call errquit(trim(pname)//"failed to pop stack",0,0)
+c
+                  enddo  ! j = 1,ipol
+                enddo  ! nrt
+c
               else
                 call errquit(pname//'vector file corrupt',0,DISK_ERR)
               endif
@@ -383,18 +451,6 @@ c Daniel (2-19-13): This is the <S**2> value.
           call errquit(pname//'illegal value for ipol',0,UNKNOWN_ERR)
         endif
       endif ! oroot
-c
-c     Debug prints
-c      if (tddft_grad_util_print('tddft grad xy',print_debug)) then
-c        nrts = nroots+nsroots+ntroots
-c        if (oroot) write(luout,*) "nrts: ",nrts
-c        if (oroot) write(luout,*)'DEBUG: tddft_grad_load_xy: (X+Y)'
-c        call tddft_grad_print_array(ipol,nrts,g_xpy,dsqrt(dble(ipol)))
-c        if (.not.tda) then
-c          if (oroot) write(luout,*)'DEBUG: tddft_grad_load_xy: (X-Y)'
-c          call tddft_grad_print_array(ipol,nrts,g_xmy,dsqrt(dble(ipol)))
-c        end if
-c      endif
 c
 c     Broadcast status
       ok =1

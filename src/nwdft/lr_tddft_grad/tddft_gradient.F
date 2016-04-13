@@ -150,7 +150,7 @@ c
 c
 c     Debug flag
       odebug = .false.
-      if (rtdb_get(rtdb,'tddftgrad:debug', mt_log, 1, odebug))
+      if (rtdb_get(rtdb,'tddft_grad:debug', mt_log, 1, odebug))
      &     odebug = .true.
 c
 c     TDDFT gradient has not been computed successfully yet.
