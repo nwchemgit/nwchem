@@ -48,6 +48,17 @@ c
       integer nfc_ver(2)
       integer nfv_ver(2)
       integer nov_ver(2)
+c
+      integer l_scr1,k_scr1
+      integer l_scr2,k_scr2
+      integer iscr
+c
+      double precision scr1,scr2
+c
+      integer naoc(2)
+      integer nav(2)
+      integer nov(2)
+c
       integer len_fn_civecs           ! length of civecs file name
       character*255 fn_civecs         ! file name for TDDFT vectors
       character*255 fn_civecs_current ! file name for TDDFT current vectors
@@ -89,20 +100,18 @@ c
 c
 c      Read headers
 c
-       rewind(ionum1)
-c      TDA flag, ipol, #roots, #occupied, #MOs, #frozen core, 
-c       #frozen virtuals, #MO pairs, blank
-       read(ionum1,err=90000) tda_ver
-       read(ionum1,err=90000) ipol_ver
-       read(ionum1,err=90000) nroots_ver
-       read(ionum1,err=90000) nocc_ver(1), nocc_ver(2)
-       read(ionum1,err=90000) nmo_ver(1), nmo_ver(2)
-       read(ionum1,err=90000) nfc_ver(1), nfc_ver(2)
-       read(ionum1,err=90000) nfv_ver(1), nfv_ver(2)
-       read(ionum1,err=90000) nov_ver(1), nov_ver(2)
+       rewind(ionum1) ! civecs file 1
+       read(ionum1,err=90000) tda_ver    ! tda flag
+       read(ionum1,err=90000) ipol_ver   ! open or closed shell
+       read(ionum1,err=90000) nroots_ver  ! number of roots
+       read(ionum1,err=90000) nocc_ver(1), nocc_ver(2) !occupied 1,2 
+       read(ionum1,err=90000) nmo_ver(1), nmo_ver(2) ! mos 1,2
+       read(ionum1,err=90000) nfc_ver(1), nfc_ver(2) ! frozen core 1,2
+       read(ionum1,err=90000) nfv_ver(1), nfv_ver(2) ! frozen vir 1,2
+       read(ionum1,err=90000) nov_ver(1), nov_ver(2) ! mo pairs 1,2
        read(ionum1,err=90000)
 c
-       rewind(ionum2)
+       rewind(ionum2) ! civecs file 2
        read(ionum2,err=90000) tda_ver
        read(ionum2,err=90000) ipol_ver
        read(ionum2,err=90000) nroots_ver
@@ -113,51 +122,104 @@ c
        read(ionum2,err=90000) nov_ver(1), nov_ver(2)
        read(ionum2,err=90000)
 c
+       do ispin = 1,ipol
+        naoc(ispin)= nocc_ver(ispin)-nfc_ver(ispin)
+        nav(ispin) = nmo_ver(ispin)-nocc_ver(ispin)-nfv_ver(ispin)
+        nov(ispin) = naoc(ispin)*nav(ispin)
+        if (nocc(ispin).ne.nocc_ver(ispin)) 
+     &    call errquit(trim(pname)//"nocc problem",0,0)
+       enddo
+       if (ipol.eq.1) then 
+         naoc(2) = 0
+         nav(2)  = 0
+         nov(2)  = 0
+       endif 
+c
 c      Read CI vectors into GAs
 c
        do istate=1,nstates
-        lo(3)=istate
+c
 c       energy
         read(ionum1,err=90000) ! energy line
         read(ionum2,err=90000) ! s2 line
+c
 c       <S^2>
         read(ionum1,err=90000) ! energy line
         read(ionum2,err=90000) ! s2 line
+c
         do ispin=1,ipol
-         ld(1)=nocc(ispin)
-         ld(2)=nvir(ispin)
-         do imo=1,nocc(ispin)
-          lo(1)=imo
-          do amo=1,nvir(ispin)
+c
+         ld(1)=naoc(ispin)
+         ld(2)=nav(ispin)
+c
+c        Allocate memory
+         if (.not.ma_push_get(mt_dbl,nov(ispin),"slice 1",
+     &    l_scr1, k_scr1))call errquit(trim(pname)//"slice 1",0,0)
+         if (.not.ma_push_get(mt_dbl,nov(ispin),"slice 2",
+     &    l_scr2, k_scr2))call errquit(trim(pname)//"slice 2",0,0)
+c
+c        Read in chunks from both civec files
+         call sread(ionum1,dbl_mb(k_scr1),nov(ispin)) !read file 1
+         call sread(ionum2,dbl_mb(k_scr2),nov(ispin)) !read file 2
+c
+         iscr = 0
+         do imo=1,naoc(ispin)
+          do amo=1,nav(ispin)
+           iscr = iscr + 1
+c
+           lo(1)=imo
            lo(2)=amo
-           read(ionum1,err=90000) scr
-           call nga_put(g_cix1(ispin),lo,lo,scr,ld)
-           read(ionum2,err=90000) scr
-           call nga_put(g_cix2(ispin),lo,lo,scr,ld)
+           lo(3)=istate
+c
+           scr1 = dbl_mb(k_scr1+iscr-1)
+           call nga_put(g_cix1(ispin),lo,lo,scr1,ld)
+c
+           scr2 = dbl_mb(k_scr2+iscr-1)
+           call nga_put(g_cix2(ispin),lo,lo,scr2,ld)
+c
           end do !amo
          end do !imo
-        end do !ispin
 c
-        if (.not.tda) then
-         do ispin=1,ipol
-          ld(1)=nocc(ispin)
-          ld(2)=nvir(ispin)
-          do imo=1,nocc(ispin)
-           lo(1)=imo
-           do amo=1,nvir(ispin)
-            lo(2)=amo
-            read(ionum1,err=90000) scr
-            call nga_put(g_ciy1(ispin),lo,lo,scr,ld)
-            read(ionum2,err=90000) scr
-            call nga_put(g_ciy2(ispin),lo,lo,scr,ld)
-           end do !amo
-          end do !imo
-         end do !ispin
-        end if !tda
-       end do !istate
+         if (.not.tda) then
+c
+c          Read in chunks from both civec files
+           call sread(ionum1,dbl_mb(k_scr1),nov(ispin))! read file 1
+           call sread(ionum2,dbl_mb(k_scr2),nov(ispin))! read file 2
+c
+           iscr = 0
+           do imo=1,nocc(ispin)
+             do amo=1,nvir(ispin)
+              iscr = iscr + 1
+c
+              lo(1)=imo
+              lo(2)=amo
+              lo(3)=istate
+c
+              scr1 = dbl_mb(k_scr1+iscr-1)
+              call nga_put(g_ciy1(ispin),lo,lo,scr1,ld)
+c
+              scr2 = dbl_mb(k_scr2+iscr-1)
+              call nga_put(g_ciy2(ispin),lo,lo,scr2,ld)
+c
+             enddo !amo
+           enddo! imo
+c
+         endif ! .not.tda
+c
+c        Deallocate memory
+         if (.not.ma_pop_stack(l_scr2))
+     &    call errquit(trim(pname)//"failed to pop stack: slice 2",0,0)
+         if (.not.ma_pop_stack(l_scr1))
+     &    call errquit(trim(pname)//"failed to pop stack: slice 1",0,0)
+c
+        enddo !ispin
+c
+       enddo !istate
+c
        close(ionum1)
        close(ionum2)
        ok=1
+c
       end if !ga_nodeid
 c
       call ga_sync()
