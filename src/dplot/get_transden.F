@@ -25,6 +25,8 @@ c
          integer g_movecs(ipol)   ! MO vectors
          integer g_tdens(ipol)    ! Transition density matrix
 c
+         integer l_trials, k_trials
+c
          integer i,m,n
          logical tda
          integer nroots
@@ -130,7 +132,7 @@ c
 c
 c        Read remainder of the civecs file
          if (nodezero) then      
-          open(unit=69,file=filename,form='unformatted',
+            open(unit=69,file=filename,form='unformatted',
      &                status='unknown',err=1000)
             rewind(69)
             read(69,err=1001) tda
@@ -142,38 +144,44 @@ c        Read remainder of the civecs file
             read(69,err=1001) nfv(1),nfv(2)
             read(69,err=1001) nov(1),nov(2)
             read(69,err=1001)
+         end if ! nodezero
 c
-            do n = 1,nroots
-             if (tda) then
-               read(69) r  ! energy of root
-               read(69) r  ! s2_save(n)
-               do i=1,ipol
-                 do m=1,nov(i)
-                   read(69) r
-                   call ga_put(g_x(i),m,m,n,n,r,1)
-                 end do
-               end do ! ipol
-             else   ! full tddft
-               read(69) r  ! energy of root
-               read(69) r  ! s2_save(n)
-               do i=1,ipol
-                 do m=1,nov(i)
-                   read(69) r
-                   call ga_put(g_x(i),m,m,n,n,r,1)
-                 end do
-               end do ! ipol
+         do n = 1,nroots
 c
-               do i=1,ipol
-                 do m=1,nov(i)
-                   read(69) r
-                   call ga_put(g_y(i),m,m,n,n,r,1)
-                 end do
-               end do ! ipol
-             end if  ! tda
-            end do ! nroots
-          close(unit=69,status='keep',err=1002) ! file
-          ok = 1
-         end if  ! nodezero
+            if (nodezero) then
+               read(69) r  ! energy of root
+               read(69) r  ! s2
+            end if
+c
+            do i=1,ipol
+c
+c            Allocate memory
+             if (.not.ma_push_get(mt_dbl,nov(i),"slice",l_trials,
+     &          k_trials))
+     &          call errquit(trim(pname)//"failed to alloc slice",0,0)
+c
+             if (.not.tda) then
+               if (nodezero) then
+                call sread(69,dbl_mb(k_trials),nov(i))
+                call ga_put(g_x(i),1,nov(i),n,n,dbl_mb(k_trials),nov(i))
+                call sread(69,dbl_mb(k_trials),nov(i))
+                call ga_put(g_y(i),1,nov(i),n,n,dbl_mb(k_trials),nov(i))
+               end if ! nodezero
+             else 
+               if (nodezero) then
+                call sread(69,dbl_mb(k_trials),nov(i))
+                call ga_put(g_x(i),1,nov(i),n,n,dbl_mb(k_trials),nov(i))
+               end if ! nodezero
+             end if  !tda
+c
+c            Deallocate memory
+             if (.not.ma_pop_stack(l_trials))
+     &          call errquit(trim(pname)//"failed to pop stack",0,0)
+c
+            end do ! ipol
+         end do ! nroots
+c
+         if (nodezero) close(unit=69,status='keep',err=1002) ! file
 c
          call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0)
          call ga_sync()
