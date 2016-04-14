@@ -1117,10 +1117,15 @@ endif
         endif
         FOPTIONS += -fpp -g -no-save-temps
         FDEBUG    = -O2 -g
-        FOPTIMIZE = -O3 -xHost
+        FOPTIMIZE = -O3 -xHost	
         ifdef USE_OPENMP
-           FOPTIONS  += -openmp
-           LDOPTIONS += -openmp
+           ifeq ($(_IFCV15ORNEWER), Y)
+             FOPTIONS  += -qopenmp
+             LDOPTIONS += -qopenmp
+           else
+             FOPTIONS  += -openmp
+             LDOPTIONS += -openmp
+           endif
            DEFINES   += -DUSE_OPENMP
         endif
        ifdef  USE_FPE
