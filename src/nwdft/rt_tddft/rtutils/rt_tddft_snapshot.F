@@ -330,9 +330,11 @@ C     (title of the slice is the time in atomic units)
 
             call rt_tddft_snapshot_fname_cube (params, it, tt,
      $           fname_tail_cube)
-            call util_file_name (trim(fname_tail_cube),
-     $        .false., .false., fname_cube)
             
+C     changed to match new dplot api (no leading ./perm)
+c$$$            call util_file_name (trim(fname_tail_cube),
+c$$$     $        .false., .false., fname_cube)
+            fname_cube = trim(fname_tail_cube)
 
 C     (load dplot params in rtdb)
             if (.not.rtdb_cput(params%rtdb,'dplot:Title',1,title))
