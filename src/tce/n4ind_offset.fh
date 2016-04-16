@@ -4,7 +4,13 @@
       key_agaa_off(azone1,azone2,azone3,g3b,noa,nva,atpart) =
      =     g3b - 1 + (noa+nva) * (azone3 - 1 +
      &  (atpart) * (azone1 - 1 + atpart * (azone2 - 1)))
+cforstep2      key_agaa_off(azone1,azone2,azone3,g3b,noa,nva,atpart) =
+c     =     azone3 - 1 + (atpart) * (azone1 - 1 +
+c     &  (atpart) * (g3b - 1 + (noa+nva) * (azone2 - 1)))
+cold      key_ggaa_off(azone1,azone2,g3b,g4b,noa,nva,atpart) =
+c     =     azone1 - 1 + atpart * (g4b - 1 +
+c     &  (noa+nva) * (g3b - 1 + (noa+nva) * (azone2 - 1)))
       key_ggaa_off(azone1,azone2,g3b,g4b,noa,nva,atpart) =
-     =     azone1 - 1 + atpart * (g4b - 1 +
-     &  (noa+nva) * (g3b - 1 + (noa+nva) * (azone2 - 1)))
+     =     g4b - 1 + (noa+nva) * (g3b - 1 +
+     &  (noa+nva) * (azone1 - 1 + (atpart) * (azone2 - 1)))
 

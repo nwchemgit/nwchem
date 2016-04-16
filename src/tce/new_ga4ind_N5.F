@@ -242,6 +242,9 @@ c      call dcopy(nbf*(iha+ipa),0.0d0, 0,dbl_mb(k_movecs_orb), 1)
       call dcopy(nbf*ipa,
      c     dbl_mb(k_movecs_sorted+(iha+ihb)*nbf),1,
      C     dbl_mb(k_movecs_orb+iha*nbf),1)
+#ifdef STEP0
+c
+c
 c
 c
       call int_mem_2e4c(work1,work2)
@@ -249,8 +252,6 @@ c
      1  call errquit('tce_ao2e: MA problem work1',0,MA_ERR)
       if (.not.ma_push_get(mt_dbl,work2,'work2',l_work2,k_work2))
      1  call errquit('tce_ao2e: MA problem work2',1,MA_ERR)
-c
-c
 c 
 c 4af file formed here
 c
@@ -360,10 +361,15 @@ cold      next = NXTASK(nprocs, 1)
       endif
 c
 cold      next = NXTASK(-nprocs, 1)
+      if (.not.ma_pop_stack(l_work2))
+     1  call errquit('tcc_ao2e: MA problem',14,MA_ERR)
+c
+      if (.not.ma_pop_stack(l_work1))
+     1  call errquit('tcc_ao2e: MA problem',15,MA_ERR)
       if (on4indps) call pstat_on(ps_sync0)
       call ga_sync()
       if (on4indps) call pstat_off(ps_sync0)
-
+#endif
       max_na=0
       do i=1,atpart
        if(nalength(i).gt.max_na) max_na=nalength(i)
@@ -431,13 +437,8 @@ cstag to avoid congestion
       DO g3b = 1,noa+nva
        size_loc_agaa= nalength(azone1)*nalength(azone2)*
      1 nalength(azone3)*int_mb(k_range_alpha+g3b-1)
-#if 0
-       key_agaa=azone3-1+atpart*(g3b-1+
-     1  (noa+nva)*(azone1-1+atpart*(azone2-1)))
-#else
        key_agaa=
      =     key_agaa_off(azone1,azone2,azone3,g3b,noa,nva,atpart) 
-#endif
        call tce_hash_n(int_mb(k_offset_agaa),key_agaa,offset_agaa)
        if((ilo.le.offset_agaa+size_loc_agaa).and.
      A      (ihi.ge.offset_agaa+1)) doget3=.true.
@@ -455,15 +456,23 @@ c
      &          atpart*(azone2-1+atpart*(azone1-1)))
          call tce_hash_n(int_mb(k_4af_offset),key_aaaa,offset_aaaa)
 c k_aux3: (az4 az3| az1 az2) -> (az2 az3|az1 az4)
-      if (on4indps) call pstat_on(ps_get1)
 cdbg      if(ga_nodeid().lt.2) write(6,4691) ga_nodeid(),' gaget11',
 cdbg     1   offset_aaaa+1,offset_aaaa+size_aux3,1,1
       d4af_min=min(d4af_min,offset_aaaa+1)
       d4af_max=max(d4af_max,offset_aaaa+size_aux3)
+      d4af_min=offset_aaaa+1
+      d4af_max=offset_aaaa+size_aux3
+#if 0
+      if (on4indps) call pstat_on(ps_get1)
       call n4cache_get4af(offset_aaaa+1,offset_aaaa+size_aux3,
      D     d_4af,dbl_mb(k_aux3))
-
       if (on4indps) call pstat_off(ps_get1)
+#else
+      if (on4indps) call pstat_on(ps_int2e0)
+      call n4ind_2e4c(azone1,azone2,azone4,azone3,dbl_mb(k_aux3))
+      if (on4indps) call pstat_off(ps_int2e0)
+#endif
+
 c transposition (az4 az3|az1 az2) --> (az2 az3|az1 az4)
         call TCE_SORT_4KG_(dbl_mb(k_aux3),dbl_mb(k_aux2+istart),
      1   nalength(azone4),nalength(azone3),
@@ -473,19 +482,24 @@ c transposition (az4 az3|az1 az2) --> (az2 az3|az1 az4)
          key_aaaa=azone4-1+atpart*(azone3-1+
      &          atpart*(azone2-1+atpart*(azone1-1)))
          call tce_hash_n(int_mb(k_4af_offset),key_aaaa,offset_aaaa)
+
+#if 1
+c         call ga_get(d_4af,offset_aaaa+1,offset_aaaa+size_aux3,1,1,
+c     1    dbl_mb(k_aux3),size_aux3)
+c         load get & int2e4c and cfrt
+      if (on4indps) call pstat_on(ps_int2e0)
+      call n4ind_2e4c(azone1,azone2,azone3,azone4,dbl_mb(k_aux3))
+      if (on4indps) call pstat_off(ps_int2e0)
+#else
       if (on4indps) call pstat_on(ps_get1)
 cdbg      if(ga_nodeid().lt.2) write(6,4691) ga_nodeid(),' gaget12',
 cdbg     1    offset_aaaa+1,offset_aaaa+size_aux3,1,1
       d4af_min=min(d4af_min,offset_aaaa+1)
       d4af_max=max(d4af_max,offset_aaaa+size_aux3)
-#if 0
-         call ga_get(d_4af,offset_aaaa+1,offset_aaaa+size_aux3,1,1,
-     1    dbl_mb(k_aux3),size_aux3)
-#else
       call n4cache_get4af(offset_aaaa+1,offset_aaaa+size_aux3,
      D     d_4af,dbl_mb(k_aux3))
-#endif
       if (on4indps) call pstat_off(ps_get1)
+#endif
 c        k_aux3: (az3 az4|az1 az2) -> (az2 az3|az1 az4)
         call TCE_SORT_4KG_(dbl_mb(k_aux3),dbl_mb(k_aux2+istart),
      1   nalength(azone3),nalength(azone4),
@@ -620,30 +634,21 @@ cold      next = NXTASK(nprocs, 1)
      L      mxsize_loc_ggaa),'loc_agaa',
      1  l_aux2,k_aux2))
      1  call errquit('step2:1m4uu',0,MA_ERR)
-#if 0
 c do parallel
       DO azone2 = 1,atpart
-      DO g3b = 1,noa+nva
-      DO g4b = g3b,noa+nva
       DO azone1 = 1,azone2
-#else
-      DO azone2_in = ga_nodeid(),ga_nodeid()+atpart-1
-         azone2=mod(azone2_in,atpart)+1
-      DO g3b_in = ga_nodeid(),ga_nodeid()+noa+nva-1
-         g3b=mod(g3b_in,noa+nva)+1
-      DO g4b_in =  ga_nodeid(),ga_nodeid()+noa+nva-g3b
-         g4b=mod(g4b_in,noa+nva-g3b+1)+g3b
-      DO azone1_in = ga_nodeid(),ga_nodeid()+azone2-1
-         azone1=mod(azone1_in,azone2)+1
-#endif
+      DO g3b = 1,noa+nva
 cold      IF (next.eq.count) THEN
+         doget3=.false.
+      DO g4b = g3b,noa+nva
        key_ggaa= key_ggaa_off(azone1,azone2,g3b,g4b,noa,nva,atpart)
        call tce_hash_n(int_mb(k_offset_ggaa),key_ggaa,offset_ggaa)
        size_loc_ggaa= nalength(azone1)*nalength(azone2)*
      1 int_mb(k_range_alpha+g3b-1)*int_mb(k_range_alpha+g4b-1)
        if((ilo.le.offset_ggaa+size_loc_ggaa).and.
-     A      (ihi.ge.offset_ggaa+1)) then
-      call dfill(size_loc_ggaa,0.0d0, dbl_mb(k_loc_ggaa), 1)
+     A      (ihi.ge.offset_ggaa+1)) doget3=.true.
+       enddo ! g4b
+      if(doget3) then
 c
 c     declare (k_aux) ( nbf(az3) g3b | az1 az2)
       size_aux=nbf*int_mb(k_range_alpha+g3b-1)*nalength(azone1)
@@ -667,6 +672,15 @@ c
 c stored as (az2 g3b az1 all-az3)
 c
        ENDDO
+      DO g4b = g3b,noa+nva
+cold      IF (next.eq.count) THEN
+       key_ggaa= key_ggaa_off(azone1,azone2,g3b,g4b,noa,nva,atpart)
+       call tce_hash_n(int_mb(k_offset_ggaa),key_ggaa,offset_ggaa)
+       size_loc_ggaa= nalength(azone1)*nalength(azone2)*
+     1 int_mb(k_range_alpha+g3b-1)*int_mb(k_range_alpha+g4b-1)
+       if((ilo.le.offset_ggaa+size_loc_ggaa).and.
+     A      (ihi.ge.offset_ggaa+1)) then
+      call dfill(size_loc_ggaa,0.0d0, dbl_mb(k_loc_ggaa), 1)
 c 
 c   do global dgemm (az2 g3b az1 all-az3) C(all-az3 g4) => 
 c      (az2 g3b az1 g4)
@@ -705,8 +719,9 @@ cold      next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
       ENDDO !g4b
-      ENDDO !g3b
+      endif ! doget3
       ENDDO !azone1
+      ENDDO !g3b
       ENDDO !azone2
 cold      next = NXTASK(-nprocs, 1)
         if (.not.ma_pop_stack(l_aux2))
@@ -1061,11 +1076,6 @@ c     delete l_coeff
       if (.not.ma_pop_stack(l_coeff))
      1  call errquit('tcc_off_4a: MA problem',15,MA_ERR)
 c
-      if (.not.ma_pop_stack(l_work2))
-     1  call errquit('tcc_ao2e: MA problem',14,MA_ERR)
-c
-      if (.not.ma_pop_stack(l_work1))
-     1  call errquit('tcc_ao2e: MA problem',15,MA_ERR)
 c
       if (.not.ma_pop_stack(l_movecs_orb))
      1  call errquit('tcc_ao2e: MA problem',15,MA_ERR)
@@ -1166,10 +1176,10 @@ c      INTEGER g3b,g4b,azone1,azone2
 c ([g4]=>[g3]|[az1]<=[az2])
       length = 0
       DO azone2 = 1,atpart
-cmoved to innermost      DO azone1 = 1,azone2
+      DO azone1 = 1,azone2
       DO g3b = 1,noa+nva
       DO g4b = g3b,noa+nva
-      DO azone1 = 1,azone2
+c      DO azone1 = 1,azone2
       length = length + 1
       END DO
       END DO
@@ -1181,10 +1191,10 @@ cmoved to innermost      DO azone1 = 1,azone2
       addr = 0
       size = 0
       DO azone2 = 1,atpart
-cmoved to innermost      DO azone1 = 1,azone2
+      DO azone1 = 1,azone2
       DO g3b = 1,noa+nva
       DO g4b = g3b,noa+nva
-      DO azone1 = 1,azone2
+c      DO azone1 = 1,azone2
       addr = addr + 1
       int_mb(k_a_offset+addr) = 
      =     key_ggaa_off(azone1,azone2,g3b,g4b,noa,nva,atpart)
@@ -1723,3 +1733,83 @@ c
       endif
       return
       end
+      subroutine n4ind_2e4c(azone1,azone2,azone3,azone4,buf)
+      implicit none
+c
+      integer azone1,azone2,azone3,azone4 ! [in]
+      double precision buf ! [out]
+c
+      integer mu,nu,rho,sigma
+      integer shift_mu,shift_nu,shift_rho,shift_sigma
+      integer mu_range,nu_range,rho_range,sigma_range
+      integer mu_hi,mu_lo,nu_hi,nu_lo,rho_hi,rho_lo,sigma_hi,sigma_lo
+      integer work1,work2          ! Work array sizes
+      integer l_work1,k_work1      ! Work array 1
+      integer l_work2,k_work2      ! Work array 2
+#include "bas.fh"
+#include "errquit.fh"
+#include "tce_main.fh"
+#include "schwarz.fh"
+#include "mafdecls.fh"
+c
+      call int_mem_2e4c(work1,work2)
+      if (.not.ma_push_get(mt_dbl,work1,'work1',l_work1,k_work1))
+     1  call errquit('tce_ao2e: MA problem work1',0,MA_ERR)
+      if (.not.ma_push_get(mt_dbl,work2,'work2',l_work2,k_work2))
+     1  call errquit('tce_ao2e: MA problem work2',1,MA_ERR)
+        call dfill(nalength(azone1)*nalength(azone2)*nalength(azone3)*
+     T     nalength(azone4), 0.0d0, buf, 1)
+
+      shift_mu = 0
+      do mu    = a2length(azone2)+1,a2length(azone2+1)
+         if (.not.bas_cn2bfr(ao_bas_han,mu,mu_lo,mu_hi))
+     1        call errquit('tce_ao2e: basis fn range problem 1',0,
+     2        BASIS_ERR)
+         mu_range = mu_hi - mu_lo + 1
+         shift_nu = 0
+         do nu    = a2length(azone1)+1,a2length(azone1+1)
+            if (.not.bas_cn2bfr(ao_bas_han,nu,nu_lo,nu_hi))
+     1           call errquit('tce_ao2e: basis fn range problem 1',0,
+     2           BASIS_ERR)
+            nu_range = nu_hi - nu_lo + 1
+            shift_rho = 0
+            do rho   = a2length(azone4)+1,a2length(azone4+1)
+               if (.not.bas_cn2bfr(ao_bas_han,rho,rho_lo,rho_hi))
+     1              call errquit('tce_ao2e: basis fn range problem 1',0,
+     2              BASIS_ERR)
+               rho_range = rho_hi - rho_lo + 1
+               shift_sigma = 0
+               do sigma = a2length(azone3)+1,a2length(azone3+1)
+                  if (.not.bas_cn2bfr(ao_bas_han,sigma,
+     S                 sigma_lo,sigma_hi))
+     1                 call errquit('tce_ao2e: basis fn range prob1',0,
+     2                 BASIS_ERR)
+                  sigma_range = sigma_hi - sigma_lo + 1
+                  if (schwarz_shell(rho,sigma)*schwarz_shell(mu,nu)
+     1                 .ge. tol2e) then
+                     call int_2e4c(ao_bas_han,mu,nu,ao_bas_han,rho,
+     S                    sigma,
+     1                    work2,dbl_mb(k_work2),work1,dbl_mb(k_work1))
+c     
+                     call n4ind_transp(buf,dbl_mb(k_work1),nalength,
+     M                    mu_range,nu_range,rho_range,sigma_range,
+     S                    shift_mu,shift_nu,shift_rho,shift_sigma,
+     A                    azone1,azone3,azone4)
+                     
+                  end if        !schwarz  screening
+                  shift_sigma = shift_sigma + sigma_range
+               enddo            !sigma
+               shift_rho   = shift_rho + rho_range
+            enddo               !rho
+            shift_nu    = shift_nu + nu_range
+         enddo !nu
+         shift_mu    = shift_mu + mu_range
+         enddo !mu
+c
+      if (.not.ma_pop_stack(l_work2))
+     1  call errquit('tcc_ao2e: MA problem',14,MA_ERR)
+c
+      if (.not.ma_pop_stack(l_work1))
+     1  call errquit('tcc_ao2e: MA problem',15,MA_ERR)
+         return
+         end
