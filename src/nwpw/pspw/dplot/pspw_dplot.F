@@ -790,7 +790,10 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
 
 *       **** outputing wavefunction or wavefunction2 ****
         else
+           !*** used to get spin down homo or lumo ****
+           if (number.eq.123456789) number = ne(1)+1
 
+           !*** overlap functions ****
            if (number.eq.99999999) then
               number = -99
               if ((number1.gt.nemax).or.(number1.lt.1)) then
@@ -816,6 +819,8 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
               end if
               end if
               cube_comment = 'SCF Molecular Orbitals squared'
+
+           !*** regular molecular orbital ****
            else
               if ((number.gt.nemax).or.(number.lt.1)) then
               if (taskid.eq.MASTER) then
