@@ -26,7 +26,9 @@ C
       integer t_p6b, t_p6
 #ifdef USE_F90_ALLOCATABLE
       double precision, allocatable :: f_singles(:),f_doubles(:)
+#ifdef USE_FASTMEM
       !dec$ attributes fastmem :: f_singles, f_doubles
+#endif
       integer alloc_error
 #else
       integer k_singles,l_singles

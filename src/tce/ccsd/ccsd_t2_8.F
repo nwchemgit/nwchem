@@ -198,7 +198,9 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       double precision, allocatable :: f_b(:)
       double precision, allocatable :: f_c(:)
       double precision, allocatable :: f_t(:)
+#ifdef USE_FASTMEM
       !dec$ attributes fastmem :: f_a,f_b,f_c,f_t
+#endif
       integer :: e_a,e_b,e_c,e_t
 #else
       integer k_a, l_a

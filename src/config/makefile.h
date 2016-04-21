@@ -1882,7 +1882,7 @@ $(error )
            endif
            EXTRA_LIBS += $(FASTMEM_OPTIONS_LD)
            # we need to use ALLOCATABLE data for MEMKIND
-           DEFINES += -DUSE_F90_ALLOCATABLE
+           DEFINES += -DUSE_F90_ALLOCATABLE -DUSE_FASTMEM
        endif
 
      endif # _FC = ifort (i think)

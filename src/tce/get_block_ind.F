@@ -29,7 +29,9 @@ cccx      integer offset
       double precision array(size)
 #ifdef USE_F90_ALLOCATABLE
       double precision, allocatable :: f_a(:)
+#ifdef USE_FASTMEM
       !dec$ attributes fastmem :: f_a
+#endif
       integer alloc_error
 #else
       integer l_a,k_a
@@ -840,7 +842,9 @@ c      double precision array2(size)
 c#endif
 #ifdef USE_F90_ALLOCATABLE
       double precision, allocatable :: f_a(:)
+#ifdef USE_FASTMEM
       !dec$ attributes fastmem :: f_a
+#endif
       integer alloc_error
 #else
       integer l_a,k_a
@@ -1590,7 +1594,9 @@ c      double precision array2(size)
 c#endif
 #ifdef USE_F90_ALLOCATABLE
       double precision, allocatable :: f_a(:)
+#ifdef USE_FASTMEM
       !dec$ attributes fastmem :: f_a
+#endif
       integer alloc_error
 #else
       integer l_a,k_a

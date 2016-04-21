@@ -14,25 +14,44 @@
 !  REF2MEM(a)   - refer to memory with name "a"
 !
 #ifdef USE_F90_ALLOCATABLE
+
+#if USE_FASTMEM
 #define DECLMEM(a) \
         integer :: error_##a \
         double precision, allocatable :: f_##a(:) \
         !dec$ attributes fastmem :: f_##a
+#else
+#define DECLMEM(a) \
+        integer :: error_##a \
+        double precision, allocatable :: f_##a(:)
+#endif
+
 #define ALLOMEM(a,s) \
         allocate(f_##a(1:##s),stat=error_##a)
+
 #define FREEMEM(a) \
         deallocate(f_##a,stat=error_##a)
+
 #define CHECKMEM(a) \
         if (error_##a.ne.0) call errquit("falloc #a",0,MA_ERR)
+
 #define REF2MEM(a) f_##a
+
 #else
+
 #define DECLMEM(a) integer k_##a, l_##a; \
         logical e_##a
+
 #define ALLOMEM(a,s) \
         e_##a=MA_PUSH_GET(mt_dbl,s,#a,l_##a,k_##a)
+
+
 #define FREEMEM(a) \
         e_##a=MA_POP_STACK(l_##a)
+
 #define CHECKMEM(a) \
         if (e_##a) call errquit("MA #a",0,MA_ERR)
+
 #define REF2MEM(a) dbl_mb(k_##a)
+
 #endif
