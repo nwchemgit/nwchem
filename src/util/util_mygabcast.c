@@ -42,7 +42,7 @@ util_mygabcast2_(Integer *g_a, Integer *mlo, Integer *mhi, Integer *nlo, Integer
   for (i=0; i < nsteps; i++){
   
     len=bigint;
-    if (istart+len-1 > len8) len=((long)(len8 - istart)) + 1;
+    if (istart+len > len8) len=((long)(len8 - istart));
 
 #ifdef DEBUG   
     if(GA_Nodeid() == 0) printf(" bcast: is %11ld len %11d  step i %2d of %4d lentot %8ld\n", istart, len, istart+(long)(len-1), i+1, nsteps, len8);
