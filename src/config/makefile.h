@@ -1580,8 +1580,12 @@ endif
          FOPTIONS   = -m64
        endif
         COPTIONS += -Wall
+       ifdef  USE_FPE
+         FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
+       else
         FOPTIONS   += -ffast-math #-Wunused  
-        FOPTIMIZE  += -ffast-math -Wuninitialized
+       endif
+        FOPTIMIZE  += -Wuninitialized
         DEFINES  += -DGFORTRAN
         DEFINES  += -DCHKUNDFLW -DGCC4
         GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c22)
@@ -1983,7 +1987,10 @@ $(error )
         endif
 	    LINK.f = $(FC)  $(LDFLAGS) 
         FOPTIMIZE  += -O3 
-        FOPTIMIZE  += -mfpmath=sse -ffast-math
+        FOPTIMIZE  += -mfpmath=sse # 
+        ifndef USE_FPE
+        FOPTIMIZE  += -ffast-math #2nd time
+        endif
         FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
         ifeq ($(GNU_GE_4_8),true)
           FOPTIMIZE  += -ftree-vectorize   -fopt-info-vec
