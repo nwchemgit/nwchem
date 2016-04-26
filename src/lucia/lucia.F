@@ -10066,10 +10066,8 @@ c     if (ihi.gt.0.and.jhi.gt.0) then
 c     call ga_access(g_coul,ilo,ihi,jlo,jhi,1,kint2_l,ilda)
 c.. 2e ints
 
-C THIS NEEDS TO BE FLIPPED AROUND. GET A BLOCK OF INTEGRALS AND 
-C FIGURE OUT WHERE THEY GO IN THE LOCAL ARRAY
-
-      if (ga_nodeid().eq.0) then
+c     if (ga_nodeid().eq.0) then
+      call ga_distribution(g_coul,ga_nodeid(),ilo,ihi,jlo,jhi)
       do ism_lu=1,nirrep
          do jsm_lu=1,ism_lu
             smij=(ism_lu-1)*nirrep+jsm_lu
@@ -10127,8 +10125,11 @@ c.. add on the offset for each irep
 c.. look for index in ga_coul
                         ij = (j-1)*norbt+i 
                         kl = k*(k-1)/2 + l
-                        call ga_get(g_coul,ij,ij,kl,kl,
+                        if (ij.ge.ilo.and.ij.le.ihi) then
+                           if (kl.ge.jlo.and.kl.le.jhi) 
+     &                  call ga_get(g_coul,ij,ij,kl,kl,
      &                       dbl_mb(KINT2+ind2e-1),1)
+                        endif
                      end do
                   endif
                end do
@@ -10136,10 +10137,10 @@ c.. look for index in ga_coul
          end do
       end do
 c
-      endif
+c     endif
       call ga_sync()
-      call ga_brdcst(mt_dbl,dbl_mb(KINT2),NINT2,0)
-c     call ga_dgop(1,dbl_mb(KINT2),NINT2,'+')
+c     call ga_brdcst(mt_dbl,dbl_mb(KINT2),NINT2,0)
+      call ga_dgop(1,dbl_mb(KINT2),NINT2,'+')
 c
       CALL LUCIAQEXIT('MO2GA')
 c
