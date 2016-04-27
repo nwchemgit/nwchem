@@ -891,6 +891,10 @@ c
       n0=n
       call util_file_name_noprefix(fname,.false.,.false.,
      F        fname_dir)
+C   ---------------------------------------------------------
+C   undoing pegging extenal file to perm as it breaks our jobs
+      fname_dir = fname
+C   ---------------------------------------------------------
       if(aformat.eq."xyz") then
         call geom_read_file_xyz(fname_dir,
      +                              iframe, 
@@ -1782,8 +1786,6 @@ c           we have to go through all this work, because some files have / in th
 #include "geomP.fh"
       if (geom.le.max_geom) then
         group_number(geom) = 1
-        group_name(geom)   = 'P1'
-        sym_num_ops(geom)  = 0
         geom_P1_set = .true.
       else
         geom_P1_set = .false.
