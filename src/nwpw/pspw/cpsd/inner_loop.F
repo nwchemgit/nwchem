@@ -808,6 +808,9 @@ c     end do
 
 *     **** dealocate MA local variables ****
       call nwpw_timing_start(12)
+#ifdef PSI_OMP
+      value = BA_pop_stack(thrlmbda(2))
+#endif
       value = BA_pop_stack(sumi(2))
       value = BA_pop_stack(ftest(2))
       value = BA_pop_stack(fion(2))
