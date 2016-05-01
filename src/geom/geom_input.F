@@ -1786,6 +1786,8 @@ c           we have to go through all this work, because some files have / in th
 #include "geomP.fh"
       if (geom.le.max_geom) then
         group_number(geom) = 1
+        group_name(geom)   = 'P1'
+        sym_num_ops(geom)  = 0
         geom_P1_set = .true.
       else
         geom_P1_set = .false.
