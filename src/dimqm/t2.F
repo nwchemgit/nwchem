@@ -28,6 +28,8 @@ c     Local variables
 c
 c     Returns
       double precision tr(3,3)
+      double precision util_erf
+      external util_erf
 c 
 c     Compute powers and inverses once
       dist3 = dist * dist * dist
@@ -41,7 +43,7 @@ c     Calculate R values
       invRpp = ONE / Rpp
 c
 c     Calculate screening values
-      temp1 = derf(dist * invRpp) - TWOINVSQRTPI
+      temp1 = util_erf(dist * invRpp) - TWOINVSQRTPI
      $         * (dist * invRpp) * EXP(-(dist * invRpp)**2)
       temp2 = FOUR / (SQRTPI * Rpp**3) * EXP(-(dist * invRpp)**2)
 c     Include these prefactors into the inverse distance terms
@@ -94,6 +96,8 @@ c     Local variables
       double precision aa, ab, ag
       double precision bb, bg
       double precision gg
+      double precision util_erf
+      external util_erf
 c
 c     Returns
       double complex tc(3,3)
@@ -110,7 +114,7 @@ c     Calculate R values
       invRpp = ONE / Rpp
 c
 c     Calculate screening values
-      temp1 = derf(dist * invRpp) - TWOINVSQRTPI
+      temp1 = util_erf(dist * invRpp) - TWOINVSQRTPI
      $         * (dist * invRpp) * EXP(-(dist * invRpp)**2)
       temp2 = FOUR / (SQRTPI * Rpp**3) * EXP(-(dist * invRpp)**2)
 c     Include these prefactors into the inverse distance terms
