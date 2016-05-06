@@ -1,3 +1,6 @@
+NOTE: routines in qmd_main are from the old routines called via nwmd. 
+Not used in current qmd module
+
 == QMD TODO items ==
 
 * Applying constraints (Rattle, Shake)
