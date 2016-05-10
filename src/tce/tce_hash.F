@@ -22,6 +22,12 @@ c
       integer middle
       integer key_loop
       integer irow,icol,index_pair,index_point
+      integer sa_ij,sa_kl
+      integer ieo_kl,n
+      integer indx_pairij,indx_point
+      indx_point(i,j,n)=
+     =     (i*(2*n+1-i))/2 -n + j
+      indx_pairij(i,j)=j+(i*(i-1))/2
 c
       length = hash(1)
       middle=-1
@@ -48,11 +54,11 @@ c
 c
       offset=hash((length+1)+middle+1)
 c
-      pos1_l=index_point(i_start,j_start,noa+nva)
-      pos1_u=index_point(i_stop,j_stop,noa+nva)
+      pos1_l=indx_point(i_start,j_start,noa+nva)
+      pos1_u=indx_point(i_stop,j_stop,noa+nva)
 c
-      pos2_l=index_point(k_start,l_start,noa+nva)
-      pos2_u=index_point(k_stop,l_stop,noa+nva)
+      pos2_l=indx_point(k_start,l_start,noa+nva)
+      pos2_u=indx_point(k_stop,l_stop,noa+nva)
 c
       i=i_start
       j=j_start
@@ -60,24 +66,28 @@ c
       l=l_start
 c
       do pos1=pos1_l,pos1_u  !---------------------------------------
+      ieo_kl=ieor(int_mb(k_sym_alpha+k-1),int_mb(k_sym_alpha+l-1))
+      sa_kl=int_mb(k_spin_alpha+k-1)+int_mb(k_spin_alpha+l-1)
+#if 0
        if(pos1.ne.pos1_l) then
-        if(pos1.eq.index_point(i+1,i+1,noa+nva)) then
+        if(pos1.eq.indx_point(i+1,i+1,noa+nva)) then
           i=i+1
           j=i
         else
           j=j+1
         end if
        end if
+#endif
+       sa_ij=int_mb(k_spin_alpha+i-1)+int_mb(k_spin_alpha+j-1)
 c
   100  continue
 c
-          IF (int_mb(k_spin_alpha+i-1)+int_mb(k_spin_alpha+j-1).eq.
-     &    int_mb(k_spin_alpha+k-1)+int_mb(k_spin_alpha+l-1)) THEN
+          IF (sa_ij.eq.sa_kl) then
           IF (ieor(int_mb(k_sym_alpha+i-1),ieor(int_mb(k_sym_alpha+j-1),
-     &    ieor(int_mb(k_sym_alpha+k-1),int_mb(k_sym_alpha+l-1)))) .eq.
+     &    ieo_kl)) .eq.
      &    irrep_v) THEN
-          irow=index_pair(j,i)
-          icol=index_pair(l,k)
+          irow=indx_pairij(j,i)
+          icol=indx_pairij(l,k)
           IF(irow.ge.icol) THEN
            key_loop= l - 1 + (noa+nva) * (k - 1 + (noa+nva) * (j-
      &               1 + (noa+nva) * (i - 1)))
@@ -98,11 +108,21 @@ c if i eq j eq k eq l eq - wyskok
           else
             l=l+1
           end if
+          sa_kl=int_mb(k_spin_alpha+k-1)+int_mb(k_spin_alpha+l-1)
+          ieo_kl=ieor(int_mb(k_sym_alpha+k-1),int_mb(k_sym_alpha+l-1))
           go to 100
 c 
   200 continue
       k=1
       l=1
+          sa_kl=int_mb(k_spin_alpha+k-1)+int_mb(k_spin_alpha+l-1)
+          ieo_kl=ieor(int_mb(k_sym_alpha+k-1),int_mb(k_sym_alpha+l-1))
+        if(pos1+1.eq.indx_point(i+1,i+1,noa+nva)) then
+          i=i+1
+          j=i
+        else
+          j=j+1
+        end if
       enddo                 !---- pos1 -------------------------------
 c
 c
@@ -309,13 +329,20 @@ c
 #include "util.fh"
 #include "stdio.fh"
 #include "errquit.fh"
+#include "mafdecls.fh"
       integer hash(*)
       integer key
       integer offset
       integer length
       integer i
 c
+cedo      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2b'
       length = hash(1)
+cedo      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2b'
+      if(length.lt.0) then
+         write(6,*) key,hash(1),hash(2)
+         call errquit('tce_hash_n: negative length',length,UNKNOWN_ERR)
+      endif
        offset = -1
        do i = 1,length
         if(key.eq.hash(i+1)) then
@@ -324,8 +351,17 @@ c
         end if
        end do
    10  continue
+cedo        if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2b'
        if(offset.eq.-1) then
-         call errquit('tce_hash_n: key not found',0,UNKNOWN_ERR)
+#if 1
+      write(6,123) ' hashn: addr ',i,' key ',key
+      write(6,*) ' length ',length
+      do i=1,length
+         write(6,*) ' i ',i,' hash ',hash(i+1)
+      enddo
+ 123  format(a,i12,a,i12)
+#endif
+         call errquit('tce_hash_n: key not found',key,UNKNOWN_ERR)
        end if
 c
       return
