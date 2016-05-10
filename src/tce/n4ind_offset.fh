@@ -1,9 +1,15 @@
       integer azone1,azone2,azone3,azone4
       integer g1b,g2b,g3b,g4b
-      integer key_agaa_off,key_ggaa_off
+      integer key_agaa_off,key_ggaa_off,key_ggga_off,key_4af_off
+      integer addr_agaa,addr_ggaa,addr_ggga,addr_4af
+c     upper triang ij i*(i-1)/2+j      
+c     lower triang ij (i-1)*[2*N-i]/2+j      
       key_agaa_off(azone1,azone2,azone3,g3b,noa,nva,atpart) =
      =     g3b - 1 + (noa+nva) * (azone3 - 1 +
      &  (atpart) * (azone1 - 1 + atpart * (azone2 - 1)))
+      addr_agaa(azone1,azone2,azone3,g3b,noa,nva,atpart) =
+     =     g3b  + (noa+nva) * (azone3 - 1 +
+     &  (atpart) * (azone1 - 1 + (azone2 * (azone2 - 1))/2))
 cforstep2      key_agaa_off(azone1,azone2,azone3,g3b,noa,nva,atpart) =
 c     =     azone3 - 1 + (atpart) * (azone1 - 1 +
 c     &  (atpart) * (g3b - 1 + (noa+nva) * (azone2 - 1)))
@@ -13,4 +19,29 @@ c     &  (noa+nva) * (g3b - 1 + (noa+nva) * (azone2 - 1)))
       key_ggaa_off(azone1,azone2,g3b,g4b,noa,nva,atpart) =
      =     g4b - 1 + (noa+nva) * (g3b - 1 +
      &  (noa+nva) * (azone1 - 1 + (atpart) * (azone2 - 1)))
+      addr_ggaa(azone1,azone2,g3b,g4b,noa,nva,atpart) =
+     =     g4b +
+     +	   ((g3b - 1)*(2*(noa+nva)-g3b))/2 +
+     &  ((noa+nva)*(noa+nva+1))/2 *
+     * (azone1 - 1 + (azone2 * (azone2 - 1))/2)
+      key_ggga_off(azone2,g2b,g3b,g4b,noa,nva) =
+     =     g2b - 1 + (noa+nva) * (g4b - 1 +
+     &     (noa+nva) * (g3b - 1 + (noa+nva) * (azone2 - 1)))
+      addr_ggga(azone2,g2b,g3b,g4b,noa,nva) =
+     =     g2b +
+     +	   (noa+nva)*(g4b - 1 +
+     T     ((g3b - 1)*(2*(noa+nva)-g3b))/2 +
+     &  ((noa+nva)*(noa+nva+1))/2 *
+     * (azone2 - 1 ))
+      key_4af_off(azone1,azone2,azone3,azone4,atpart) =
+     =     azone4 - 1 + atpart * (azone3 - 1 +
+     &          atpart * (azone2 - 1 + atpart * (azone1 - 1)))
+      addr_4af(azone1,azone2,azone3,azone4,atpart) =
+     =     azone4 +
+     +	   ((azone3 - 1)*(2*(atpart)-azone3))/2 +
+     *     ((atpart)*(atpart+1))/2 *
+     L     (azone2 -1 +
+     +	   ((azone1 - 1)*(2*atpart-azone1))/2  )
 
+
+     

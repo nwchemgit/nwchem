@@ -10,7 +10,7 @@ c
      A     ps_comm2,ps_comp2,
      A	   ps_get2,ps_put2,
      A     ps_comm3,ps_comp3,ps_get3,ps_put3,ps_sync3,
-     A     ps_comm4,ps_comp4
+     A     ps_comm4,ps_comp4,ps_get4,ps_put4
      
 
       logical on4indps            ! True if gathering stats
@@ -22,6 +22,6 @@ c
      A     ps_comm2,ps_comp2,
      A	   ps_get2,ps_put2,
      A     ps_comm3,ps_comp3,ps_get3,ps_put3,ps_sync3,
-     A     ps_comm4,ps_comp4
+     A     ps_comm4,ps_comp4,ps_get4,ps_put4
 
 c
