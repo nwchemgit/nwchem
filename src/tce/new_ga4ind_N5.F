@@ -1076,22 +1076,19 @@ c
        size_loc_gggg= int_mb(k_range_alpha+g1b-1)*
      1 int_mb(k_range_alpha+g2b-1)*
      1 int_mb(k_range_alpha+g3b-1)*int_mb(k_range_alpha+g4b-1)
-#if 1
 corg
        key_gggg=g2b - 1 + (noa+nva) *
      &(g1b - 1 + (noa+nva) * (g4b-
      & 1 + (noa+nva) * (g3b - 1)))
+c       key_gggg=g1b - 1 + (noa+nva) *
+c     &(g2b - 1 + (noa+nva) * (g4b-
+c     & 1 + (noa+nva) * (g3b - 1)))
+cc       key_gggg=
+cc     =      key_gggg_off(g1b,g2b,g3b,g4b,noa,nva)
+      if (on4indps) call pstat_on(ps_has4)
        call tce_hash_v2(int_mb(k_v2_alpha_offset),key_gggg,offset_gggg)
-#else
-       key_gggg=g1b - 1 + (noa+nva) *
-     &(g2b - 1 + (noa+nva) * (g4b-
-     & 1 + (noa+nva) * (g3b - 1)))
-       call tce_hash_v2(int_mb(k_v2_alpha_offset),key_gggg,offset_gggg)
-c       key_gggg=
-c     =      g4b - 1 + (noa+nva) * (g3b - 1 +
-c     &  (noa+nva) * (g2b - 1 + (noa+nva) * (g1b - 1)))
-c       call tce_hash_n(int_mb(k_v2_alpha_offset),key_gggg,offset_gggg)
-#endif
+      if (on4indps) call pstat_off(ps_has4)
+
        if((ilo.le.offset_gggg+size_loc_gggg).and.
      A      (ihi.ge.offset_gggg+1)) then
 cold      IF (next.eq.count) THEN
@@ -1729,6 +1726,8 @@ c
      $     ps_put4)) call errquit('tce: tce_pstat_init', 0,0)
       if (.not. pstat_allocate('tce:comm4', pstat_qstat, 0, junk,
      $     ps_comm4)) call errquit('tce: tce_pstat_init', 0,0)
+      if (.not. pstat_allocate('tce:hash4', pstat_qstat, 0, junk,
+     $     ps_has4)) call errquit('tce: tce_pstat_init', 0,0)
 c       
 c
       end
@@ -1763,6 +1762,7 @@ c
          if (.not. pstat_free(ps_get4))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_comm4))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_comp4))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_has4))call errquit('dft_pstat?', 0,0)
 c
       endif
 c
