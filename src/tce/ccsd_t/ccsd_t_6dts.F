@@ -112,9 +112,9 @@ c -- 6DTS --
             dp4=1
             dp5=1
   300       continue
-            if(dp4.eq.int_mb(k_range+t_p4b-1).and.
-     1         dp5.eq.int_mb(k_range+t_p5b-1))
-     2      call errquit('6DTS error',3,MA_ERR)
+ccx            if(dp4.eq.int_mb(k_range+t_p4b-1).and.
+ccx     1         dp5.eq.int_mb(k_range+t_p5b-1))
+ccx     2      call errquit('6DTS error',3,MA_ERR)
             xlocal=dble(int_mb(k_range+t_p4b-1)
      1           * int_mb(k_range+t_p5b-1)
      2           * int_mb(k_range+t_p6b-1)
@@ -124,8 +124,10 @@ c -- 6DTS --
             if((xlocal*8.0d0)/(1024.0*1024.0).gt.dble(xmem)) then
              if(dp4.lt.int_mb(k_range+t_p4b-1)) then
               dp4=dp4+1
-             else
+             else if(dp5.lt.int_mb(k_range+t_p5b-1)) then 
               dp5=dp5+1
+             else 
+              call errquit('6DTS tilesize too big',3,MA_ERR)
              end if
              go to 300
             end if
