@@ -654,7 +654,8 @@
        end if
 ! restart files
        if (.not.rtdb_get(rtdb,'tce:tceiop',mt_int,1,recforio)) then
-        rec_mem=1
+cold        rec_mem=1
+        rec_mem=2048
        else
         rec_mem=recforio
        end if
@@ -1843,6 +1844,10 @@ c
         end if
 ! -------------
         call createfile(filename,d_t2,size_t2)
+        if(nodezero) then
+         call util_flush(LuOut)
+        end if
+        
 ! ccsd_act/eomccsd_act
         if(model.eq.'ccsd_act') go to 8712
         if (.not.read_t(2)) then
