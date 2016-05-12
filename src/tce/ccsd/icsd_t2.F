@@ -3795,7 +3795,7 @@ c ----------------
 #else
          do p5b_in=ga_nodeid()+1,ga_nodeid()+nvab
             p5b=mod(p5b_in,nvab)+noab+1
-            do p6b_in=ga_nodeid()+1,ga_nodeid()+nvab+noab-p5b
+            do p6b_in=ga_nodeid(),ga_nodeid()+nvab+noab-p5b
                p6b=mod(p6b_in,noab+nvab-p5b+1)+p5b
 #endif
       IF (int_mb(k_spin+p5b-1)+int_mb(k_spin+p6b-1) .eq. int_mb(k_spin+h
