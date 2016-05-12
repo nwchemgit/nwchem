@@ -640,7 +640,7 @@ c     open ga d_ggaa (size_ggaa)
      S     mxsize_loc_ggaa, 'd_ggaa',int_mb(k_offset_ggaa),.true.)
 #else
       call tce_gacreate_sloc(d_ggaa, size_ggaa,
-     S     mxsize_loc_ggga, 'd_ggaa',int_mb(k_offset_ggga),.true.)
+     S     mxsize_loc_ggga, 'd_ggaa',int_mb(k_offset_ggga),.false.)
 #endif
       if (on4indps) call pstat_off(ps_comm2)
 c
@@ -1598,7 +1598,9 @@ c
 c     old      i0=i1-(nblocks-ga_nnodes())+2
          i0=i1-(nblocks-ga_nnodes())+1
          nblocks=ga_nnodes()
+#ifdef DEBUG
          if(ga_nodeid().eq.0) write(6,*) 'mm32_0',int_mb(k_map+32-1)
+#endif
       endif
 cold      i0=i0-1
 c      call ga_sync()
