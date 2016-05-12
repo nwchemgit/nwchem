@@ -238,7 +238,7 @@ c
             ket_gen  = 1
           endif
 c
-          memdum = 20 000 000
+          memdum = 60 000 000
           nint = int_unint(brain,ibc,ketin,ikc,0,0,0,0)
           call hf1d(
      &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
