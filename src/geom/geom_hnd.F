@@ -3918,7 +3918,7 @@ C
          WRITE(IW,9995) IAT,(ZMT(I,IAT),I=1,5),(  ZLST(I,IAT),I=1,3),
      1                                         (FRZVAL(I,IAT),I=1,3)
       ENDIF
-      DO K=1,5
+      DO K=1,4
         IF (ZMT(K,IAT).NE.0) THEN
           DO J=1,K-1
             IF (ZMT(K,IAT).EQ.ZMT(J,IAT)) THEN
@@ -4250,7 +4250,7 @@ C
                      numd=(COS(BET)- COS(ALP)* COS(GAM))/
      /                    (SIN(ALP)* SIN(GAM))
                      if(numd.gt.1d0) numd=1d0
-                     if(numd.lt.1d0) numd=-1d0
+                     if(numd.lt.-1d0) numd=-1d0
                        THETA=ACOS(numd)
                         IF(NZMT(5,IAT).EQ.-1) THEN
                            THETA=-THETA

@@ -3446,8 +3446,10 @@ C
          IF(NUMWRD.GT.1) THEN
             GO TO 110
          ELSE
-            IF((NUMCHR(1).EQ.6.AND.PRSWRD(1)(2:5).EQ.CHREND(1:4)).OR.
-     1         (NUMCHR(1).EQ.5.AND.PRSWRD(1)(2:4).EQ.CHREND(2:4))) THEN
+            IF((NUMCHR(1).EQ.6.AND.
+     &         INP_COMPARE(.FALSE.,CHREND(1:4),PRSWRD(1)(2:5))).OR.
+     &         (NUMCHR(1).EQ.5.AND.
+     &         INP_COMPARE(.FALSE.,CHREND(2:4),PRSWRD(1)(2:4)))) THEN
                NAT = IAT -1
                GO TO 140
             ELSE
@@ -3491,8 +3493,10 @@ C
             ENDIF
             GO TO 120
          ELSE
-            IF((NUMCHR(1).EQ.6.AND.PRSWRD(1)(2:5).EQ.CHREND(1:4)).OR.
-     1         (NUMCHR(1).EQ.5.AND.PRSWRD(1)(2:4).EQ.CHREND(2:4))) THEN
+            IF((NUMCHR(1).EQ.6.AND.
+     &         INP_COMPARE(.FALSE.,CHREND(1:4),PRSWRD(1)(2:5))).OR.
+     &         (NUMCHR(1).EQ.5.AND.
+     &         INP_COMPARE(.FALSE.,CHREND(2:4),PRSWRD(1)(2:4)))) THEN
                NVAR = IVAR -1
                GO TO 140
             ELSE
@@ -3526,8 +3530,10 @@ C
                FRZVAR(  IVAR)=.TRUE.
             GO TO 130
          ELSEIF(NUMWRD.EQ.1) THEN
-            IF((NUMCHR(1).EQ.6.AND.PRSWRD(1)(2:5).EQ.CHREND(1:4)).OR.
-     1         (NUMCHR(1).EQ.5.AND.PRSWRD(1)(2:4).EQ.CHREND(2:4))) THEN
+            IF((NUMCHR(1).EQ.6.AND.
+     &         INP_COMPARE(.FALSE.,CHREND(1:4),PRSWRD(1)(2:5))).OR.
+     &         (NUMCHR(1).EQ.5.AND.
+     &         INP_COMPARE(.FALSE.,CHREND(2:4),PRSWRD(1)(2:4)))) THEN
             ELSE
                WRITE(IW,8880)
                CALL HND_HNDERR(3,ERRMSG)
