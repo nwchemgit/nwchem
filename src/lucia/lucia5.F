@@ -7417,6 +7417,7 @@ CNW   DIMENSION VEC(*), IBLOCK(8,NBLOCK)
 *. Output
       DIMENSION BLK_A(NBLOCK)
 *
+      CALL LUCIAQENTER('ACTBL')
       call ga_distribution(VEC,ga_nodeid(),ilo,ihi,idum,idum)
       call ga_access(VEC, ilo, ihi, 1, 1, ivec, idum)
 C?    WRITE(6,*) ' FIND_ACTIVE... ', NBLOCK
@@ -7440,11 +7441,15 @@ CNW     XBLK = INPROD(VEC(IOFF),VEC(IOFF),LEN)
       call ga_dgop(1,BLK_A,NBLOCK,'+')
 *
       NTEST = 00
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Array of active blocks: '
         CALL WRTMAT(BLK_A,1,NBLOCK,1,NBLOCK)
+        do i = 1, nblock
+         if (BLK_A(i).eq.1.0d0) write(*,*) 'active blk', i
+        end do
       END IF
 *
+      CALL LUCIAQEXIT('ACTBL')
       RETURN
       END
       SUBROUTINE FIND_ACTIVE_BLOCKS 

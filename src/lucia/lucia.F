@@ -1924,8 +1924,9 @@ C if we set nblcok1 to number of procs, last one gets all remianing blocks and m
 *
 *. VOGs way
 cVOG    CALL MEMMAN(IMAP2,iblk,'ADDL  ',1,'MAP2  ')
-        CALL MEMMAN(IMAP2,nblk,'ADDL  ',1,'MAP2  ')
-        call distribute_CIblks(ILEN,NBATS,IBATS,NBLK,iblk,int_mb(IMAP),
+cVOG    CALL MEMMAN(IMAP2,nblk,'ADDL  ',1,'MAP2  ')
+        CALL MEMMAN(IMAP2,NBATS,'ADDL  ',1,'MAP2  ')
+        call distribute_CIblks(ILEN,NBATS,LBATS,IBATS,NBLK,iblk,
      &                         int_mb(IMAP2))
         if ( .not. ga_create_irreg(mt_dbl,ILEN,1,'CONVC1',int_mb(IMAP2),
      &                           iblk, 1, 1, IDIST_CIVEC))
@@ -5265,7 +5266,7 @@ C
 #include "mafdecls.fh"
 #include "global.fh"
 #include "dra.fh"
-      character*64 filename
+      character*255 filename
 * =========================
 * Standard input and output
 * =========================
@@ -8815,6 +8816,7 @@ C?    END IF
 * IOCOC(IATP,IBTP)  = 1 =>      allowed combination
 * IOCOC(IATP,IBTP)  = 0 => not allowed combination
 *
+#include "global.fh"
 *.Input
       INTEGER ICMBSPC(LCMBSPC)
       INTEGER MNMXOC(MXPNGAS,2,*)
@@ -8828,7 +8830,7 @@ C     INTEGER MNOCC(NGAS),MXOCC(NGAS)
 *
       NTEST = 00
       NTEST = MAX(NTEST,IPRNT)
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' IAIBCM_GAS entered '
         WRITE(6,*) ' ==================='
         WRITE(6,*) 
@@ -8893,7 +8895,7 @@ C?          WRITE(6,*) ' IM_IN, INCLUDE = ', IM_IN, INCLUDE
    90   CONTINUE
   100 CONTINUE
 *
-      IF ( NTEST .GE. 100 ) THEN
+      IF ( NTEST .GE. 100 .and.ga_nodeid().eq.0) THEN
         WRITE(6,*)
         WRITE(6,*) ' Matrix giving allowed combinations of types '
         WRITE(6,*)
@@ -10927,7 +10929,7 @@ c      INCLUDE 'mxpdim.inc'
       external ga_create_atom_blocked, ga_create_JKblocked
 !      double precision task_cpu, task_wall !VOG
 *
-      NTEST = 0
+      NTEST = 2
 *
       CALL ISETVC(ISETVECOPS,0,10)
 * 1 => MATML7
@@ -15465,7 +15467,7 @@ CNW   DIMENSION SV(*),CV(*)
       LOGICAL ANYLOCAL
 *
       CALL LUCIAQENTER('RASSG')
-      NTEST = 0000 
+      NTEST = 20 !0000 
       NTEST = MAX(NTEST,IPRCIX)
       IF(NTEST.GE.20.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ================='
@@ -15550,7 +15552,15 @@ CNW       CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
       END DO
 *
       IF(ICISTR.NE.1) CALL ITODS(-1,1,-1,LUHC)
+      cpu_vog  = util_cpusec()
+      wall_vog = util_wallsec()
       call ga_sync()
+      cpu_vog  = util_cpusec() - cpu_vog
+      wall_vog = util_wallsec()- wall_vog
+      write(*,00002) ga_nodeid(), cpu_vog , wall_vog !VOG timings
+00002     format(/'RASSGProc',i6,' Task  times  cpu:',f11.1,
+     &           's     wall:',f11.1,'s')
+      if (ga_nodeid().eq.0) WRITE(6,*) 'Exit ga_sync of RASSG3'
       IF(NTEST.GE.200) THEN
         IF(ICISTR.NE.1) THEN
           if (ga_nodeid().eq.0) WRITE(6,*) ' Final S-vector on disc'
@@ -32357,7 +32367,9 @@ C
 * construct  STSTSX and STSTDX giving
 * symmetry of sx (dx) connecting two given string symmetries
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      INCLUDE 'wrkspc.inc'
+#include "global.fh"
+cVOG  IMPLICIT REAL*8(A-H,O-Z)
       INTEGER STSTSX(NSMST,NSMST),STSTDX(NSMST,NSMST)
 *
       DO 100 ILSTSM = 1, NSMST
@@ -32370,7 +32382,7 @@ C
   100 CONTINUE
 *
       NTEST = 0
-      IF(NTEST.NE.0) THEN
+      IF(NTEST.NE.0.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' STSTSM: STSTSX, STSTDX '
         CALL IWRTMA(STSTSX,NSMST,NSMST,NSMST,NSMST)
         CALL IWRTMA(STSTDX,NSMST,NSMST,NSMST,NSMST)
@@ -33052,6 +33064,7 @@ C     VVTOV(VECIN1,VECIN2,VECUT,NDIM)
 * = 1 : symmetry block is included , all OO types
 * = 2 : symmetry block is included , lower OO types
 *
+#include "global.fh"
 *. Input
       DIMENSION ISMOST(*),IMMLST(*)
 *. Output
@@ -33099,7 +33112,7 @@ C     VVTOV(VECIN1,VECIN2,VECUT,NDIM)
 *     ^ End of IDC switch 
 *
       NTEST = 0
-      IF ( NTEST .NE. 0 ) THEN
+      IF ( NTEST .NE. 0 .and.ga_nodeid().eq.0) THEN
          WRITE(6,*)
          WRITE(6,*) ' Output from ZBLTP '
          WRITE(6,*) ' =================='

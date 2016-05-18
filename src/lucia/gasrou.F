@@ -223,6 +223,7 @@ c..dongxia there's no WORK and MEMMAN involved.
       INCLUDE 'cgas.inc'
 *. Input and Output ( NELFSPGP(MXPNGAS,MXPSTT) )
       INCLUDE 'gasstr.inc'
+#include "global.fh"
 *
       NTESTL = 0
       NTEST = MAX(NTESTG,NTESTL)
@@ -237,7 +238,7 @@ c..dongxia there's no WORK and MEMMAN involved.
         END DO
       END DO
 *
-      IF(NTEST.GE.10) THEN
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Distribution of electrons in Active spaces '
         DO ITP = 1, NSTTP
           WRITE(6,*) ' String type ', ITP
@@ -331,13 +332,14 @@ c..dongxia there's no WORK and MEMMAN involved.
       DIMENSION NSTSSPGP(NSMST,IGRP)
       INCLUDE 'mxpdim.inc'
       INCLUDE 'multd2h.inc'
+#include "global.fh"
 *. Scratch 
       INTEGER MNSM(MXPNGAS),MXSM(MXPNGAS)
       INTEGER MSM1(MXPNSMST),MSM2(MXPNSMST)
       INTEGER ISM1(MXPNSMST),ISM2(MXPNSMST)
 *
       NTEST = 0
-      IF(NTEST.GE.10) THEN
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ==========================='
         WRITE(6,*) ' NSTPTP_GAS_NEW is speaking '
         WRITE(6,*) ' ==========================='
@@ -1784,7 +1786,7 @@ c     IDUMMY = 2*NOCOB+(NACTEL+1)*(NOCOB+1)+NSMST
         CALL ZSPGPIB(int_mb(KNSTSO(ITP)),int_mb(KISTSO(ITP)),
      &                NSPGPFTP(ITP),NSMST)
 *
-        IF(NTEST.GE.5) THEN
+        IF(NTEST.GE.5.and.ga_nodeid().eq.0) THEN
           WRITE(6,*) 
      &    ' Info on strings for type = ', ITP
           IF(NTEST.GE.10) THEN
@@ -1801,7 +1803,7 @@ c     IDUMMY = 2*NOCOB+(NACTEL+1)*(NOCOB+1)+NSMST
       END DO
 *. Number of electron in each AS for each supergroup
       CALL ZNELFSPGP(IPRNT)
-      IF(NTEST.GE.10) THEN
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) 
      &  ' Number of electrons in the GAS spaces for each supergroup '
         WRITE(6,*) 

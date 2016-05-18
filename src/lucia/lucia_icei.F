@@ -3640,6 +3640,7 @@ C            FILEMAN_MINI(IFILE,ITASK)
 *
       INCLUDE 'wrkspc.inc'
       INCLUDE 'gasstr.inc'
+#include "global.fh"
 *
       ITYP = 0
       DO ISTTP = 1, NSTTP
@@ -3655,7 +3656,7 @@ C            FILEMAN_MINI(IFILE,ITASK)
       END IF
 *
       NTEST = 00
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Number of electrons and stringtype ',
      &  NEL, ITYP
       END IF
