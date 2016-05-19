@@ -485,7 +485,7 @@
       complex*16 ctmp
       integer exi(2),xtmp(2),sw1(2),sw2(2),sw3(2),asum(2)
       logical value,sd_function
-      real*8 vmm(50)
+      real*8 vmm(150)
       integer ld_ptr
 
 *     **** external functions ****
