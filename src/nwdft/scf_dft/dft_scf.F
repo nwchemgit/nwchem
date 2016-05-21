@@ -232,6 +232,10 @@ c
       double precision gstote, estote
       integer do_cosmo_vem, istep_cosmo_vem
       logical do_cosmo_smd
+
+C     RTDB flag for printing out all matrices
+      logical lprint_mats
+
 c
       gcds = 0.d0
       do_cosmo_vem = 0
@@ -2454,6 +2458,14 @@ C     KAL
 C---------------------------------------------------------------------------
 #endif      
 
+      
+C
+C     Print out matrices to stdout (useful for development and debugging)
+C
+      if (.not.rtdb_get(rtdb, 'dft:print_mats', mt_log, 1, lprint_mats))
+     $     lprint_mats = .false.
+      if (lprint_mats) call dft_print_mats (g_s, svals, g_svecs,
+     $     nmo, g_dens, g_focks)
 
       
       if (.not. ga_destroy(g_tmp)) call errquit
