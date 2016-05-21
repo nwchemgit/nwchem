@@ -1,6 +1,6 @@
 #$Id$
 
-	OBJ=	ga_chol.o ga_inverse.o ga_chol_seq.o ga_inv_seq.o dft_invio.o
+	OBJ=	ga_chol.o ga_inverse.o ga_chol_seq.o ga_inv_seq.o dft_invio.o dft_print_mats.o
 
 
 	OBJ_OPTIMIZE=  \
