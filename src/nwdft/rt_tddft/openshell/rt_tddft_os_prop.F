@@ -218,14 +218,22 @@ C
       call canorg_trans(params,"F","AO->MO",g_zfock_ao(1),g_zfock_mo(1))
       call canorg_trans(params,"F","AO->MO",g_zfock_ao(2),g_zfock_mo(2))
 
-      if (.not. mat_is_purereal (g_zfock_mo(1), params%tol_zero))
-     $     call errquit (pname//
-     $     "initial Fock alpha matrix in MO basis is not pure real",0,0)
 
-      if (.not. mat_is_purereal (g_zfock_mo(2), params%tol_zero))
-     $     call errquit (pname//
-     $     "initial Fock beta matrix in MO basis is not pure real",0,0)
+      if (params%mocap_active) then
+         call rt_tddft_print_notice (
+     $        "MO CAP active: Disabled initial MO Fock check")
+      else
 
+         if (.not. mat_is_purereal (g_zfock_mo(1), params%tol_zero))
+     $        call errquit (pname//
+     $        "initial Fock alpha matrix in MO basis not pure real",0,0)
+
+         if (.not. mat_is_purereal (g_zfock_mo(2), params%tol_zero))
+     $        call errquit (pname//
+     $        "initial Fock beta matrix in MO basis not pure real",0,0)
+      endif
+
+      
       call rt_tddft_calc_Etot (params, energies)
       energies%gs = energies%tot
 

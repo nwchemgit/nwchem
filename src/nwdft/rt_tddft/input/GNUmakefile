@@ -5,6 +5,7 @@ rt_tddft_input_print.o \
 rt_tddft_input_excite.o \
 rt_tddft_input_tolerances.o \
 rt_tddft_input_visualization.o \
+rt_tddft_input_mocap.o \
 rt_tddft_input.o
 
 

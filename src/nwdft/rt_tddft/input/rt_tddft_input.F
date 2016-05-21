@@ -182,6 +182,13 @@ C     visualization sub-block
 C
          elseif (inp_compare(.false.,test,'visualization')) then
             call rt_tddft_input_visualization (rtdb)
+
+
+C
+C     MO CAP sub-block
+C
+         elseif (inp_compare(.false.,test,'mocap')) then
+            call rt_tddft_input_mocap (rtdb)
             
             
 C     

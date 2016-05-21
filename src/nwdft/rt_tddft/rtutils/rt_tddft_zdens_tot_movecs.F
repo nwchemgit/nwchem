@@ -184,10 +184,12 @@ C     (make diag occup matrix)
       enddo
       
 C     (project onto TD complex movecs)
-      call rt_tddft_project_check (params, g_ztmp3, g_zdens_mo)
+C     Note: only for Hermitian matrices (.true. flag)
+      call rt_tddft_project_check (params, g_ztmp3, g_zdens_mo, .true.)
       if (me.eq.0) write (luout,*) pname//"projection check passed"
       call ga_zero (g_ztmp1)
-      call rt_tddft_project (params, "R", g_ztmp3, g_zdens_mo, g_ztmp1)  ! g_ztmp1 now has projected occup mask
+      call rt_tddft_project (params, "R", g_ztmp3,
+     $     g_zdens_mo, g_ztmp1, .true.) ! g_ztmp1 now has projected occup mask
       
       call ga_zero (g_ztmp4)
       call ga_elem_multiply (g_ztmp1, g_zevecs_ao, g_ztmp4) ! g_ztmp4 now holds masked movecs in AO basis

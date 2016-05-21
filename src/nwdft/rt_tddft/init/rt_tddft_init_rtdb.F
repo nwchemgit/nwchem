@@ -206,6 +206,39 @@ C
      $        params%excite(iexcite))
       enddo
 
-      
+
+C     
+C     MO CAP
+C
+      if (.not.rtdb_get(params%rtdb, "rt_tddft:mocap_active",
+     $     mt_log, 1, params%mocap_active)) call errquit (pname//
+     $     "failed to read mocap_active from rtdb", 0, RTDB_ERR)
+
+      if (params%mocap_active) then
+         if (.not. rtdb_get (params%rtdb, "rt_tddft:mocap_emin",
+     $        mt_dbl, 1, params%mocap_emin)) call errquit (pname//
+     $        "failed to read mocap_emin from rtdb", 0, RTDB_ERR)
+
+         if (.not. rtdb_get (params%rtdb, "rt_tddft:mocap_maxval",
+     $        mt_dbl, 1, params%mocap_maxval)) call errquit (pname//
+     $        "failed to read mocap_maxval from rtdb", 0, RTDB_ERR)
+
+         if (.not. rtdb_get (params%rtdb, "rt_tddft:mocap_prefac",
+     $        mt_dbl, 1, params%mocap_prefac)) call errquit (pname//
+     $        "failed to read mocap_prefac from rtdb", 0, RTDB_ERR)
+
+         if (.not. rtdb_get (params%rtdb, "rt_tddft:mocap_expconst",
+     $        mt_dbl, 1, params%mocap_expconst)) call errquit (pname//
+     $        "failed to read mocap_expconst from rtdb", 0, RTDB_ERR)
+
+         if (.not.rtdb_get(params%rtdb, "rt_tddft:mocap_checks",
+     $        mt_log, 1, params%mocap_checks)) call errquit (pname//
+     $        "failed to read mocap_checks from rtdb", 0, RTDB_ERR)
+
+         if (.not.rtdb_get(params%rtdb, "rt_tddft:mocap_print",
+     $        mt_log, 1, params%mocap_print)) call errquit (pname//
+     $        "failed to read mocap_print from rtdb", 0, RTDB_ERR)
+      endif
+
       end subroutine
 c $Id$

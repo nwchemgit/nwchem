@@ -54,7 +54,7 @@ C     == Variables ==
       double precision dftExc(2)
       logical status
       double precision elapsed, elapsed_tot
-
+      integer g_zfock_mo, g_zcapmo ! for MO damping
       
 C     == External routines ==
       logical xc_gotxc
@@ -256,6 +256,34 @@ C     not have changed. Perhaps double check this??
       if (params%prof) call prof_start (elapsed)
       call convert_d2z (1d0, g_fockre, 1d0, g_fockim, g_zfock)
       if (params%prof) call prof_end (elapsed, "Fock CS d2z")
+
+
+
+C
+C     Apply molecular orbital complex absorbing potential (MO CAP)
+C
+      if (params%mocap_active) then
+         if (.not. ga_create(mt_dcpl, params%ns_mo, params%ns_mo,
+     $        "Fock MO tmp" , 0, 0, g_zfock_mo))
+     $        call errquit(pname//"GA alloc failed",0, GA_ERR)
+         
+         if (.not. ga_create(mt_dcpl, params%ns_mo, params%ns_mo,
+     $        "Fock MO tmp" , 0, 0, g_zcapmo))
+     $        call errquit(pname//"GA alloc failed",0, GA_ERR)
+
+         call canorg_trans (params,"F","AO->MO", g_zfock, g_zfock_mo)
+         call rt_tddft_mocap (params, g_zfock_mo, g_zcapmo)
+         call ga_zadd (z1, g_zfock_mo, z1, g_zcapmo, g_zfock_mo) 
+         call canorg_trans (params,"F","MO->AO", g_zfock_mo, g_zfock)
+         call rt_tddft_print_notice ("Applied closed shell MO CAP")
+         
+         if (.not. ga_destroy(g_zfock_mo))
+     $        call errquit(pname//"GA destroy failed",0, GA_ERR)
+
+         if (.not. ga_destroy(g_zcapmo))
+     $        call errquit(pname//"GA destroy failed",0, GA_ERR)
+      endif
+
 
 
 C

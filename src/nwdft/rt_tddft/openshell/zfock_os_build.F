@@ -62,6 +62,7 @@ C     == Variables ==
       logical status
       double precision elapsed, elapsed_tot
       integer is  !spin counter
+      integer g_zcapmo, g_zfock_mo  ! tmp GAs for MO CAP
 
 
 C     == External routines ==
@@ -250,6 +251,50 @@ C
       call convert_d2z (1d0, g_fockre(1), 1d0, g_fockim(1), g_zfock(1))
       call convert_d2z (1d0, g_fockre(2), 1d0, g_fockim(2), g_zfock(2))
       if (params%prof) call prof_end (elapsed, "Fock OS d2z")
+
+
+
+C
+C     Apply molecular orbital complex absorbing potential (MO CAP).
+C     Potential is different for alpha and beta spins, as it is
+C     built from their respective Fock matrices.
+C
+      if (params%mocap_active) then
+         if (.not. ga_create(mt_dcpl, params%ns_mo, params%ns_mo,
+     $        "Fock MO tmp" , 0, 0, g_zfock_mo))
+     $        call errquit(pname//"GA alloc failed",0, GA_ERR)
+         
+         if (.not. ga_create(mt_dcpl, params%ns_mo, params%ns_mo,
+     $        "Fock MO tmp" , 0, 0, g_zcapmo))
+     $        call errquit(pname//"GA alloc failed",0, GA_ERR)
+
+C     (alpha spin)
+         call canorg_trans (params,"F","AO->MO",
+     $        g_zfock(1), g_zfock_mo)
+         call rt_tddft_mocap (params, g_zfock_mo, g_zcapmo)
+         call ga_zadd (z1, g_zfock_mo,
+     $        z1, g_zcapmo, g_zfock_mo) 
+         call canorg_trans (params,"F","MO->AO",
+     $        g_zfock_mo, g_zfock(1))
+         call rt_tddft_print_notice ("Applied MO CAP to alpha spin")
+
+C     (beta spin)
+         call canorg_trans (params,"F","AO->MO",
+     $        g_zfock(2), g_zfock_mo)
+         call rt_tddft_mocap (params, g_zfock_mo, g_zcapmo)
+         call ga_zadd (z1, g_zfock_mo,
+     $        z1, g_zcapmo, g_zfock_mo) 
+         call canorg_trans (params,"F","MO->AO",
+     $        g_zfock_mo, g_zfock(2))
+         call rt_tddft_print_notice ("Applied MO CAP to beta spin")
+
+         
+         if (.not. ga_destroy(g_zfock_mo))
+     $        call errquit(pname//"GA destroy failed",0, GA_ERR)
+         if (.not. ga_destroy(g_zcapmo))
+     $        call errquit(pname//"GA destroy failed",0, GA_ERR)
+      endif
+
 
 
 C

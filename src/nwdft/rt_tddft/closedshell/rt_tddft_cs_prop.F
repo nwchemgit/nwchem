@@ -188,10 +188,15 @@ C
       call zfock_cs_build (params, g_zdens_ao, energies, g_zfock_ao)
       call canorg_trans (params,"F","AO->MO", g_zfock_ao, g_zfock_mo)
 
-      if (.not. mat_is_purereal (g_zfock_mo, params%tol_zero))
-     $     call errquit (pname//
-     $     "initial Fock matrix in MO basis is not pure real", 0, 0)
-C      call rt_tddft_print_notice ("Disabled init MO Fock check")
+      if (params%mocap_active) then
+         call rt_tddft_print_notice (
+     $        "MO CAP active: Disabled initial MO Fock check")
+      else
+         if (.not. mat_is_purereal (g_zfock_mo, params%tol_zero))
+     $        call errquit (pname//
+     $        "initial Fock matrix in MO basis is not pure real", 0, 0)
+      endif
+
 
       call rt_tddft_calc_Etot (params, energies)
       energies%gs = energies%tot
@@ -229,7 +234,7 @@ C      if (params%print_moocc .or. do_zora) then
          
          if (.not. mat_is_purereal (g_zfock_mo, params%tol_zero))
      $        call errquit (pname//
-     $        "initial Fock matrix in MO basis is not pure real", 0, 0)
+     $        "MO occup needs initial MO Fock mat to be pure real",0,0)
          
          call rt_tddft_movecs_gs (params, g_zfock_mo, g_movecs_mo_gs)
       endif

@@ -351,6 +351,15 @@ C     (zora stuff)
          integer          :: g_zora_sf(2)
          integer          :: g_zora_scale_sf(2)
          
+
+C     (MO complex absorbing potential stuff)
+         logical          :: mocap_active
+         logical          :: mocap_print
+         logical          :: mocap_checks
+         double precision :: mocap_emin
+         double precision :: mocap_maxval
+         double precision :: mocap_prefac
+         double precision :: mocap_expconst
          
       end type rt_params_t
 c $Id$
