@@ -45,7 +45,6 @@ C      integer nsnapshots
       
 C     (parameters that must be supplied--no defaults)
       logical got_tmin, got_tmax, got_dt
-      
       integer nfields, nexcites
       
       
@@ -153,6 +152,13 @@ c              Read beta dmat if given (i.e. doing OS)
 
             elseif (loadopts .eq. "scf") then
 C     (no need to do anything--will use SCF vectors as starting point if nothing in rtdb)
+               
+            elseif (loadopts .eq. "restart") then ! will look for *.rt_restart file
+               if (.not.rtdb_put (rtdb, "rt_tddft:restart",
+     $              mt_log, 1, .true.))
+     $              call errquit(pname//
+     $              'Write failed to rtdb',0,RTDB_ERR)
+               
             else
                call errquit (pname//"invalid 'load' option: "
      $              //loadopts,0,0)

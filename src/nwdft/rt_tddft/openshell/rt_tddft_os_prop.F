@@ -60,7 +60,7 @@ C     == Variables ==
       double complex zjunk
       
       character*60 outstr
-      logical need_canorg
+      logical lrestart
       
       integer it, rest_it
 
@@ -292,30 +292,26 @@ C     ======================
 C     == Time propagation ==
 C     ======================
 
-      need_canorg = .false.
+C
+C     If user specified "load restart" then look for restart
+C     file by name runname.rt_restart.
+C     
+      if (.not.rtdb_get (params%rtdb, "rt_tddft:restart",
+     $     mt_log, 1, lrestart))
+     $     lrestart = .false.
 
-C
-C     Check if we have restart data from previous run.  If so, load that
-C     data.  Note, if restarting we convert the newly imported dens mat
-C     to MO basis (emulates propagation from previous time step).
-C
-      if (.not.rtdb_get (params%rtdb, "rt_tddft:rest_it",
-     $     mt_int, 1, rest_it)) then  !clean start
-         it = 1
-         tt = params%tmin
-         call rt_tddft_print_msg(params, tt, "Propagation started")
-         
-      else !restart
-         call rt_tddft_print_notice ("Restart information detected")
-         call rt_tddft_os_restart_load (params, it, tt, g_zdens_ao)
-         
+      if (lrestart) then
+         call rt_tddft_restart_load (params, it, tt, 2, g_zdens_ao) ! 2 for uks
          call canorg_trans (params, "P", "AO->MO",
      $        g_zdens_ao(1), g_zdens_mo(1))
          call canorg_trans (params, "P", "AO->MO",
      $        g_zdens_ao(2), g_zdens_mo(2))
-
          call rt_tddft_print_msg (params, tt,
      $        "Propagation successfully restarted")
+      else
+         it = 1
+         tt = params%tmin
+         call rt_tddft_print_msg(params, tt, "Propagation started")
       endif
 
 
@@ -545,11 +541,8 @@ C     equally to both spins)
 C
 C     Dump restart information to disk.
 C
-         if (rt_tddft_atpoint(it, params%nt, params%nrestarts)) then
-            call rt_tddft_os_restart_save (params, it, tt, g_zdens_ao)
-            call rt_tddft_print_msg (params, tt,
-     $           "Saved restart point")
-         endif
+         if (rt_tddft_atpoint(it, params%nt, params%nrestarts))
+     $        call rt_tddft_restart_save (params, it, tt, 2, g_zdens_ao)
 
 
 C     
