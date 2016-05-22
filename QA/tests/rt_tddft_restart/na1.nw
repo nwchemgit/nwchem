@@ -1,0 +1,73 @@
+##
+## Real-time TDDFT restart example.
+##
+## File 1 of 2.
+##
+## Na atom under dummy continuous wave excitation.
+## 
+## Example consists of two input decks:
+##
+## 1: Runs simulation to completion for a short tmax
+##    and saves restart files along the way.
+##
+## 2: Runs another simulation with longer tmax starting
+##    from previously saved restart file.
+##
+## How to generate dipole moment:
+## (a) na1.nw => na1.nwo => z1.dat
+## (b) na2.nw => na2.nwo => z2.dat
+## (c) cat z1.dat z2.dat > zboth.dat
+##
+## Practically you would likely keep the old .nwo file
+## and re-run the same input deck but with "load vectors" added.
+## 
+## Note: Do NOT use the top-level "restart" option, instead
+## "start" a new run every time and let the RT-TDDFT read in
+## the self-contained run.rt_restart file
+##
+title "RT-TDDFT restarts"
+
+echo
+scratch_dir ./scratch
+permanent_dir ./perm
+
+start run
+echo
+
+charge 0
+
+geometry "system" units angstroms noautosym nocenter noautoz
+  Na  0.0  0.0  0.0
+end
+
+set geometry "system"
+
+basis
+  Na library 6-31G
+end
+
+dft
+  odft
+  mult 2
+  xc b3lyp
+end
+task dft energy
+
+rt_tddft
+  dt 0.2
+  tmax 20.0
+
+  nrestarts 10
+  
+  print dipole field energy charge
+
+  field "driver"
+    type cw
+    max 0.0001
+    frequency 0.086
+    polarization z
+  end
+
+  excite "system" with "driver"
+end
+task dft rt_tddft
