@@ -90,10 +90,10 @@ c
 c       determine if velocities were present in input file by looking
 c        for the largest element of velocities array
         if (maxval(dabs(v)).lt.1.d-8) then
-          write(*,*) 'no velocities found in input'
+         if (ga_nodeid().eq.0) write(*,*) 'no velocities found in input'
 c
-c         randomize velocities for the given temperature
-          call qmd_randomize(nat,m,v)
+c        randomize velocities for the given temperature
+         call qmd_randomize(nat,m,v)
         else
 c
 c       it appears the geometry input does not touch the units
