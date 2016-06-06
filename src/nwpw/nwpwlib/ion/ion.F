@@ -3465,12 +3465,14 @@ c      if (.not.BA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
 c     >   call errquit("ion_disp_energy:",0,MA_ERR)
 
       if (is_grimme2) then
+!$OMP DO
          do i=1,nion_grimme2
             ii = int_mb(indx_grimme2(1)+i-1)
             dbl_mb(rion_grimme2(1)+3*(i-1))   = dbl_mb(r1(1)+3*(ii-1))
             dbl_mb(rion_grimme2(1)+3*(i-1)+1) = dbl_mb(r1(1)+3*(ii-1)+1)
             dbl_mb(rion_grimme2(1)+3*(i-1)+2) = dbl_mb(r1(1)+3*(ii-1)+2)
          end do
+!$OMP END DO
       end if
 
       options1 = control_options_disp()
@@ -3488,8 +3490,11 @@ c     >   call errquit("ion_disp_energy:",0,MA_ERR)
          options = options1(1:l)//' -pbc'
       end if
 
+!$OMP MASTER
       call nwxc_vdw3_dftd3(options,nion_grimme2,int_mb(iz_grimme2(1)),
      >                     dbl_mb(rion_grimme2(1)),lat,edisp,g,g_lat)
+!$OMP END MASTER
+!$OMP BARRIER
 
 c      if (.not.BA_pop_stack(iz(2)))
 c     >   call errquit("ion_disp_energy:",1,MA_ERR)
@@ -3533,12 +3538,14 @@ c      if (.not.BA_push_get(mt_dbl,3*nion,'gtmp',gtmp(2),gtmp(1)))
 c     >   call errquit("ion_disp_energy: pushstack gtmp",1,MA_ERR)
 
       if (is_grimme2) then
+!$OMP DO
          do i=1,nion_grimme2
             ii = int_mb(indx_grimme2(1)+i-1)
             dbl_mb(rion_grimme2(1)+3*(i-1))   = dbl_mb(r1(1)+3*(ii-1))
             dbl_mb(rion_grimme2(1)+3*(i-1)+1) = dbl_mb(r1(1)+3*(ii-1)+1)
             dbl_mb(rion_grimme2(1)+3*(i-1)+2) = dbl_mb(r1(1)+3*(ii-1)+2)
          end do
+!$OMP END DO
       end if
       
       options1= control_options_disp()
@@ -3568,12 +3575,14 @@ c     >   call errquit("ion_disp_energy: pushstack gtmp",1,MA_ERR)
 !$OMP BARRIER
 
       if (is_grimme2) then
+!$OMP DO
          do i=1,nion_grimme2
             ii = int_mb(indx_grimme2(1)+i-1)
             fion(1,ii) = fion(1,ii) - dbl_mb(fion_grimme2(1)+3*(i-1))
             fion(2,ii) = fion(2,ii) - dbl_mb(fion_grimme2(1)+3*(i-1)+1)
             fion(3,ii) = fion(3,ii) - dbl_mb(fion_grimme2(1)+3*(i-1)+2)
          end do
+!$OMP END DO
       else
          call daxpy_omp(3*nion_grimme2,-1.0d0,
      >                  dbl_mb(fion_grimme2(1)),1,fion,1)
@@ -3626,12 +3635,14 @@ c         int_mb(iz(1)+ii-1) = ion_atn(ion_katm(ii))
 c      end do
 
       if (is_grimme2) then
+!$OMP DO
          do i=1,nion_grimme2
             ii = int_mb(indx_grimme2(1)+i-1)
             dbl_mb(rion_grimme2(1)+3*(i-1))   = dbl_mb(r1(1)+3*(ii-1))
             dbl_mb(rion_grimme2(1)+3*(i-1)+1) = dbl_mb(r1(1)+3*(ii-1)+1)
             dbl_mb(rion_grimme2(1)+3*(i-1)+2) = dbl_mb(r1(1)+3*(ii-1)+2)
          end do
+!$OMP END DO
       end if
 
       options1 = control_options_disp()
@@ -3649,12 +3660,18 @@ c      end do
          options = options1(1:l)//' -pbc -grad'
       end if
 
-      call dcopy(3*nion_grimme2,0.0d0,0,dbl_mb(fion_grimme2(1)),1)
-      call dcopy(9,0.0d0,0,stress,1)
+      !call dcopy(3*nion_grimme2,0.0d0,0,dbl_mb(fion_grimme2(1)),1)
+      !call dcopy(9,0.0d0,0,stress,1)
+      call Parallel_shared_vector_zero(.false.,3*nion_grimme2,
+     >                                 dbl_mb(fion_grimme2(1)))
+      call Parallel_shared_vector_zero(.true.,9,stress)
 
+!$OMP MASTER
       call nwxc_vdw3_dftd3(options,nion_grimme2,int_mb(iz_grimme2(1)),
      >               dbl_mb(rion_grimme2(1)),lat,edisp,
      >               dbl_mb(fion_grimme2(1)),stress)
+!$OMP END MASTER
+!$OMP BARRIER
 
       !call dscal(9,-1.0d0,stress,1)
 
