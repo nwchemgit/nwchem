@@ -2592,6 +2592,22 @@ c      end
       return 
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *        control_is_grimme2       *
+*     *                                 *
+*     ***********************************
+      logical function control_is_grimme2()
+      implicit none
+
+#include "control.fh"
+
+      control_is_grimme2 = is_grimme2
+      return
+      end
+
+
 *     ***********************************
 *     *                                 *
 *     *        control_has_disp         *

@@ -69,6 +69,6 @@
      >                            frac_smeartype,fractional
 
 *     **** control dispersion block ****
-      logical has_disp
+      logical has_disp,is_grimme2
       character*80 options_disp
-      common / control_dispersion / options_disp,has_disp
+      common / control_dispersion / options_disp,has_disp,is_grimme2
