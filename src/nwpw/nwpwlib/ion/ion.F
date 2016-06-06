@@ -32,6 +32,16 @@
 
       value = value.and.BA_free_heap(dti(2))
       value = value.and.BA_free_heap(amass(2))
+
+      if (disp_on) then
+         value = value.and.BA_free_heap(iz_grimme2(2))
+         value = value.and.BA_free_heap(fion_grimme2(2))
+      end if
+      if (is_grimme2) then
+         value = value.and.BA_free_heap(indx_grimme2(2))
+         value = value.and.BA_free_heap(rion_grimme2(2))
+      end if
+
       if (.not. value) call errquit('ion_end:free heap ',0, MA_ERR)
 
       call ion_hess_end()
@@ -205,7 +215,7 @@
      >               ke_total,kg_total,ke_count
 
 *     *** local variables ***
-      integer     i,nion_mm_tmp,nion_qm_tmp
+      integer     i,ia,nion_mm_tmp,nion_qm_tmp
       double precision q,dt  !,vgx,vgy,vgz
       character*16     t
       logical value
@@ -230,6 +240,10 @@
       external         control_ion_time_step,ion_amass_geom
       integer tid,Parallel_threadid
       external    Parallel_threadid
+      integer  ion_atn
+      external ion_atn
+      logical  control_is_grimme2
+      external control_is_grimme2
 
 
       call Parallel_taskid(taskid)
@@ -248,6 +262,7 @@
 
 *     ***** set disp_on ****
       disp_on = control_has_disp()
+
 
 *     *****************************************
 *     **** seperate ions and charges       ****
@@ -307,6 +322,7 @@
       end do
       nion_mm = nion_mm_tmp
       nion_qm = nion_qm_tmp
+
 
 *     **** define atom list: nkatm,katm,natm,atom ****
       call set_katm_list(1,nion,ion_aname,nkatm,katm,natm,atom)
@@ -396,6 +412,56 @@ c         eki1=0.5d0*eki1
       call FMM_start()
       call ion_scaling_atoms_start(rtdb)
       call ion_hess_init(rtdb)
+
+
+*     **** check for grimme2 and large elements ****
+      is_grimme2 = .false.
+      if (disp_on.and.control_is_grimme2()) then
+         do ia=1,nkatm
+            if (ion_atn(ia).gt.85) is_grimme2 = .true.
+         end do
+         if (is_grimme2) then
+            value = value.and.
+     >              BA_alloc_get(mt_int,(nion),'indx_grimme2',
+     >                           indx_grimme2(2),indx_grimme2(1))
+            value = value.and.
+     >              BA_alloc_get(mt_dbl,(3*nion),'rion_grimme2',
+     >                           rion_grimme2(2),rion_grimme2(1))
+             if (.not.value) 
+     >          call errquit('ion_init:out of heap memory',2,MA_ERR)
+            nion_grimme2 = 0
+            do i=1,nion
+               ia = int_mb(katm(1)+i-1)
+               if (ion_atn(ia).le.85) then
+                  nion_grimme2 = nion_grimme2+1
+                  int_mb(indx_grimme2(1)+nion_grimme2-1) = i
+               end if
+            end do
+         end if
+      end if
+      if (disp_on) then
+         value = value.and.
+     >           BA_alloc_get(mt_int,(3*nion),'iz_grimme2',
+     >                        iz_grimme2(2),iz_grimme2(1))
+         value = value.and.
+     >           BA_alloc_get(mt_dbl,(3*nion),'fion_grimme2',
+     >                        fion_grimme2(2),fion_grimme2(1))
+         if (.not.value) 
+     >       call errquit('ion_init:out of heap memory',3,MA_ERR)
+         if (is_grimme2) then
+            do i=1,nion_grimme2
+               ia = int_mb(katm(1)+int_mb(indx_grimme2(1)+i-1)-1)
+               int_mb(iz_grimme2(1)+i-1) = ion_atn(ia)
+            end do
+         else
+            rion_grimme2(1) = r1(1)
+            nion_grimme2    = nion
+            do i=1,nion_grimme2
+               ia = int_mb(katm(1)+i-1)
+               int_mb(iz_grimme2(1)+i-1) = ion_atn(ia)
+            end do
+         end if
+      end if
 
       call nwpw_timing_end(50)
       ion_init = value
@@ -3395,12 +3461,17 @@ c
       character*80 control_options_disp
       external     control_options_disp
 
-      if (.not.BA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
-     >   call errquit("ion_disp_energy:",0,MA_ERR)
+c      if (.not.BA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
+c     >   call errquit("ion_disp_energy:",0,MA_ERR)
 
-      do ii=1,nion
-         int_mb(iz(1)+ii-1) = ion_atn(ion_katm(ii))
-      end do
+      if (is_grimme2) then
+         do i=1,nion_grimme2
+            ii = int_mb(indx_grimme2(1)+i-1)
+            dbl_mb(rion_grimme2(1)+3*(i-1))   = dbl_mb(r1(1)+3*(ii-1))
+            dbl_mb(rion_grimme2(1)+3*(i-1)+1) = dbl_mb(r1(1)+3*(ii-1)+1)
+            dbl_mb(rion_grimme2(1)+3*(i-1)+2) = dbl_mb(r1(1)+3*(ii-1)+2)
+         end do
+      end if
 
       options1 = control_options_disp()
       l = inp_strlen(options1)
@@ -3417,11 +3488,11 @@ c
          options = options1(1:l)//' -pbc'
       end if
 
-      call nwxc_vdw3_dftd3(options,nion,int_mb(iz(1)),
-     >                     dbl_mb(r1(1)),lat,edisp,g,g_lat)
+      call nwxc_vdw3_dftd3(options,nion_grimme2,int_mb(iz_grimme2(1)),
+     >                     dbl_mb(rion_grimme2(1)),lat,edisp,g,g_lat)
 
-      if (.not.BA_pop_stack(iz(2)))
-     >   call errquit("ion_disp_energy:",1,MA_ERR)
+c      if (.not.BA_pop_stack(iz(2)))
+c     >   call errquit("ion_disp_energy:",1,MA_ERR)
 
       ion_disp_energy = edisp
       return
@@ -3455,17 +3526,20 @@ c
       character*80 control_options_disp
       external     control_options_disp
 
-      if (.not.BA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
-     >   call errquit("ion_disp_energy: pushstack iz",0,MA_ERR)
+c      if (.not.BA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
+c     >   call errquit("ion_disp_energy: pushstack iz",0,MA_ERR)
+c
+c      if (.not.BA_push_get(mt_dbl,3*nion,'gtmp',gtmp(2),gtmp(1)))
+c     >   call errquit("ion_disp_energy: pushstack gtmp",1,MA_ERR)
 
-      if (.not.BA_push_get(mt_dbl,3*nion,'gtmp',gtmp(2),gtmp(1)))
-     >   call errquit("ion_disp_energy: pushstack gtmp",1,MA_ERR)
-
-!$OMP DO
-      do ii=1,nion
-         int_mb(iz(1)+ii-1) = ion_atn(ion_katm(ii))
-      end do
-!$OMP END DO
+      if (is_grimme2) then
+         do i=1,nion_grimme2
+            ii = int_mb(indx_grimme2(1)+i-1)
+            dbl_mb(rion_grimme2(1)+3*(i-1))   = dbl_mb(r1(1)+3*(ii-1))
+            dbl_mb(rion_grimme2(1)+3*(i-1)+1) = dbl_mb(r1(1)+3*(ii-1)+1)
+            dbl_mb(rion_grimme2(1)+3*(i-1)+2) = dbl_mb(r1(1)+3*(ii-1)+2)
+         end do
+      end if
       
       options1= control_options_disp()
       l = inp_strlen(options1)
@@ -3483,20 +3557,32 @@ c
       end if
 
       !call dcopy(3*nion,0.0d0,0,dbl_mb(gtmp(1)),1)
-      call Parallel_shared_vector_zero(.true.,3*nion,dbl_mb(gtmp(1)))
+      call Parallel_shared_vector_zero(.true.,3*nion_grimme2,
+     >                                 dbl_mb(fion_grimme2(1)))
 
 !$OMP MASTER
-      call nwxc_vdw3_dftd3(options,nion,int_mb(iz(1)),
-     >               dbl_mb(r1(1)),lat,edisp,dbl_mb(gtmp(1)),g_lat)
+      call nwxc_vdw3_dftd3(options,nion_grimme2,int_mb(iz_grimme2(1)),
+     >               dbl_mb(rion_grimme2(1)),lat,edisp,
+     >               dbl_mb(fion_grimme2(1)),g_lat)
 !$OMP END MASTER
 !$OMP BARRIER
 
-      call daxpy_omp(3*nion,-1.0d0,dbl_mb(gtmp(1)),1,fion,1)
+      if (is_grimme2) then
+         do i=1,nion_grimme2
+            ii = int_mb(indx_grimme2(1)+i-1)
+            fion(1,ii) = fion(1,ii) - dbl_mb(fion_grimme2(1)+3*(i-1))
+            fion(2,ii) = fion(2,ii) - dbl_mb(fion_grimme2(1)+3*(i-1)+1)
+            fion(3,ii) = fion(3,ii) - dbl_mb(fion_grimme2(1)+3*(i-1)+2)
+         end do
+      else
+         call daxpy_omp(3*nion_grimme2,-1.0d0,
+     >                  dbl_mb(fion_grimme2(1)),1,fion,1)
+      end if
 
-      if (.not.BA_pop_stack(gtmp(2)))
-     >   call errquit("ion_disp_energy: popstak gtmp",1,MA_ERR)
-      if (.not.BA_pop_stack(iz(2)))
-     >   call errquit("ion_disp_energy: popstack iz",1,MA_ERR)
+c      if (.not.BA_pop_stack(gtmp(2)))
+c     >   call errquit("ion_disp_energy: popstak gtmp",1,MA_ERR)
+c      if (.not.BA_pop_stack(iz(2)))
+c     >   call errquit("ion_disp_energy: popstack iz",1,MA_ERR)
 
 
       return
@@ -3529,15 +3615,24 @@ c
       character*80 control_options_disp
       external     control_options_disp
 
-      if (.not.BA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
-     >   call errquit("ion_disp_energy: pushstack iz",0,MA_ERR)
+c      if (.not.BA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
+c     >   call errquit("ion_disp_energy: pushstack iz",0,MA_ERR)
+c
+c      if (.not.BA_push_get(mt_dbl,3*nion,'gtmp',gtmp(2),gtmp(1)))
+c     >   call errquit("ion_disp_energy: pushstack gtmp",1,MA_ERR)
 
-      if (.not.BA_push_get(mt_dbl,3*nion,'gtmp',gtmp(2),gtmp(1)))
-     >   call errquit("ion_disp_energy: pushstack gtmp",1,MA_ERR)
+c      do ii=1,nion
+c         int_mb(iz(1)+ii-1) = ion_atn(ion_katm(ii))
+c      end do
 
-      do ii=1,nion
-         int_mb(iz(1)+ii-1) = ion_atn(ion_katm(ii))
-      end do
+      if (is_grimme2) then
+         do i=1,nion_grimme2
+            ii = int_mb(indx_grimme2(1)+i-1)
+            dbl_mb(rion_grimme2(1)+3*(i-1))   = dbl_mb(r1(1)+3*(ii-1))
+            dbl_mb(rion_grimme2(1)+3*(i-1)+1) = dbl_mb(r1(1)+3*(ii-1)+1)
+            dbl_mb(rion_grimme2(1)+3*(i-1)+2) = dbl_mb(r1(1)+3*(ii-1)+2)
+         end do
+      end if
 
       options1 = control_options_disp()
       l = inp_strlen(options1)
@@ -3554,19 +3649,20 @@ c
          options = options1(1:l)//' -pbc -grad'
       end if
 
-      call dcopy(3*nion,0.0d0,0,dbl_mb(gtmp(1)),1)
+      call dcopy(3*nion_grimme2,0.0d0,0,dbl_mb(fion_grimme2(1)),1)
       call dcopy(9,0.0d0,0,stress,1)
 
-      call nwxc_vdw3_dftd3(options,nion,int_mb(iz(1)),
-     >               dbl_mb(r1(1)),lat,edisp,dbl_mb(gtmp(1)),stress)
+      call nwxc_vdw3_dftd3(options,nion_grimme2,int_mb(iz_grimme2(1)),
+     >               dbl_mb(rion_grimme2(1)),lat,edisp,
+     >               dbl_mb(fion_grimme2(1)),stress)
 
       !call dscal(9,-1.0d0,stress,1)
 
 
-      if (.not.BA_pop_stack(gtmp(2)))
-     >   call errquit("ion_disp_stress: popstak gtmp",1,MA_ERR)
-      if (.not.BA_pop_stack(iz(2)))
-     >   call errquit("ion_disp_stress: popstack iz",1,MA_ERR)
+c      if (.not.BA_pop_stack(gtmp(2)))
+c     >   call errquit("ion_disp_stress: popstak gtmp",1,MA_ERR)
+c      if (.not.BA_pop_stack(iz(2)))
+c     >   call errquit("ion_disp_stress: popstack iz",1,MA_ERR)
 
       return
       end

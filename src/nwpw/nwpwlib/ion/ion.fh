@@ -31,5 +31,13 @@ c
      >              disp_on,          !true if has dispersion corrections
      >              makehmass2        !if true convert H mass to be 2.0 amu
 
+*     **** ION_GRIMME2 Block ****
+      integer indx_grimme2(2),rion_grimme2(2),fion_grimme2(2)
+      integer iz_grimme2(2),nion_grimme2
+      logical is_grimme2
+      common / ION_GRIMME2 / indx_grimme2,rion_grimme2,fion_grimme2,
+     >                       iz_grimme2,nion_grimme2,is_grimme2
+
+*     **** ION_HESS Block ****
       integer ihesst(2),ihess(2),ihessp(2),rrq0(2),dq(2)
       common / ION_HESS / ihesst,ihess,ihessp,rrq0,dq
