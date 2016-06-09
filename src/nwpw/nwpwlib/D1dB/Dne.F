@@ -7134,6 +7134,128 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
+c     *        Dneall_gmg_Multiply           *
+c     *                                      *
+c     ****************************************
+
+*  uses rotation algorithm
+
+      subroutine Dneall_gmg_Multiply(mb,Ain,n2ft3d,
+     >                                   hml,alpha,
+     >                                   Aout,beta)
+      implicit none
+      integer    mb
+      complex*16 Ain(*)
+      integer    n2ft3d
+      real*8     hml(*)
+      real*8     alpha
+      complex*16 Aout(*)
+      real*8     beta
+
+#include "bafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,n,shift,shift2,shift3,ishift2,ishift3
+
+
+      call nwpw_timing_start(16)
+      if (parallelized) then
+       if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+            ishift3 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+            ishift3 = 0
+         end if
+
+         if (mparallelized) then
+            do ms=ms1,ms2
+               shift  = 1 + (ms-1)*neq(1)*n2ft3d
+               shift2 = 1 + (ms-1)*ishift2
+               call DMatrix_dgemm1_rot(n2ft3d_all,ne(ms),ne(ms),
+     >                alpha,
+     >                Ain(shift),int_mb(ma2(1,ms)+taskid_i),
+     >                           int_mb(ma2(1,ms)),
+     >                           int_mb(na(1,ms)),
+     >                hml(shift2),mcq(ms),
+     >                            int_mb(mc(1,ms)),
+     >                            int_mb(nc(1,ms)),
+     >                beta,
+     >                Aout(shift),int_mb(ma2(1,ms)+taskid_i),
+     >                            int_mb(ma2(1,ms)),
+     >                            int_mb(na(1,ms)),
+     >                taskid_i,taskid_j,
+     >                np_i,np_j,
+     >                comm_i, comm_j,
+     >                dbl_mb(bcolwork(1)),dbl_mb(bwork2(1)),
+     >                dbl_mb(rwork1(1)),dbl_mb(rwork2(1)))
+            end do
+         else
+            do ms=ms1,ms2
+               shift  = 1 + (ms-1)*neq(1)*n2ft3d
+               shift3 = 1 + (ms-1)*ishift3
+               call DMatrix_dgemm1_rot2(n2ft3d_all,ne(ms),ne(ms),
+     >                alpha,
+     >                Ain(shift),int_mb(ma2(1,ms)+taskid_i),
+     >                           int_mb(ma2(1,ms)),
+     >                           int_mb(na(1,ms)),
+     >                hml(shift3),mcq(ms),
+     >                            int_mb(mc(1,ms)),
+     >                            int_mb(nc(1,ms)),
+     >                beta,
+     >                Aout(shift),int_mb(ma2(1,ms)+taskid_i),
+     >                            int_mb(ma2(1,ms)),
+     >                            int_mb(na(1,ms)),
+     >                taskid_i,taskid_j,
+     >                np_i,np_j,
+     >                comm_i, comm_j,
+     >                dbl_mb(bcolwork(1)),dbl_mb(bwork2(1)),
+     >                dbl_mb(rwork1(1)),dbl_mb(rwork2(1)))
+            end do
+         end if
+
+
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+            n     = ne(ms)
+            if (n.le.0) go to 30
+            shift  = 1 + (ms-1)*ne(1)*n2ft3d
+            shift2 = 1 + (ms-1)*ishift2
+            call DGEMM_OMP('N','N',n2ft3d,n,n,
+     >                (alpha),
+     >                Ain(shift),  n2ft3d,
+     >                hml(shift2),    n,
+     >                (beta),
+     >                Aout(shift),n2ft3d)
+   30       continue
+         end do
+      end if
+
+      call nwpw_timing_end(16)
+      return
+      end
+
+
+
+
+
+c     ****************************************
+c     *                                      *
 c     *        Dneall_ggm_sym_Multiply      *
 c     *                                      *
 c     ****************************************
