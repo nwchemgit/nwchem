@@ -35,8 +35,8 @@
 
 *     ::::  iteration limit and tolerence for non-liner equations  ::::
       integer itrlmd
-      real*8  convg
-      parameter (itrlmd=120, convg=1.0d-15)
+      real*8  convg,convg2
+      parameter (itrlmd=120, convg=1.0d-15,convg2=1.0e-12)
 
 *     **** external functions ****
       real*8   Dneall_m_dmax
@@ -106,6 +106,7 @@ c        call Dne_ffm_combo_sym_Multiply(ms,psi1,psi2,npack1,tmp(s11))
           if (adiff.gt.1.0d10) go to 620
           call dcopy(nn,tmp(sa1),1,tmp(sa0),1)
         end do
+        if (adiff.lt.convg2) GO TO 630
 
   620   continue
         ierr=10 
