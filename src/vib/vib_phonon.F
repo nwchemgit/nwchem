@@ -105,7 +105,6 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
      >                    unitg(3,2),
      >                    unitg(3,3)
 
-
       end if
 
 *     **** allocate  dos grid ****
@@ -265,11 +264,6 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
      >                     full_filename(1:ind)
          open(unit=59,file=full_filename,form='formatted')
 
-         if (oprint.and.animate) then
-            write(luout,*)
-            write(luout,*) "     Animating Modes - animate_step_size=",
-     >                     animate_step
-         end if
 
          do i=1,num_kvectors
            ks(1) = dbl_mb(kvs(1)+4*(i-1))
@@ -285,7 +279,11 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
      >                          dcpl_mb(work(1)),lwork,dbl_mb(rwork(1)))
 
             if (animate) then
-               if (oprint) write(luout,*) "      - animating kvec= ",kq
+               if (oprint) 
+     >          write(luout,'(A,F6.3,A,3F12.6)') 
+     >          "      Animating Mode - animate_step_size=",
+     >          animate_step," -  kvec= ",kq
+
                call vib_writedmat(rtdb,i,animate_step,unita,kq,
      >                          nion,rion,
      >                          nion3,dcpl_mb(dmat(1)))
@@ -328,24 +326,27 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
          if (.not.MA_pop_stack(kvs(2)))
      >   call errquit('vib_phonon: failed to free stack',1,MA_ERR)
 
+      end  if
 
-c        **** animate at kq=<0,0,0> if no dispersion specified ****
-         if ((animate).and.(num_kvectors.lt.1)) then
-            kq(1) = 0.0d0
-            kq(2) = 0.0d0
-            kq(3) = 0.0d0
-            call vib_gendynamicmatrix(unita,kq,nion,rion,
-     >                         nion3,dbl_mb(hessadjust(1)),
-     >                         dcpl_mb(dmat(1)),dbl_mb(wp(1)),
-     >                         dcpl_mb(work(1)),lwork,dbl_mb(rwork(1)))
-            call vib_writedmat(rtdb,0,animate_step,unita,kq,
-     >                         nion,rion,
-     >                         nion3,dcpl_mb(dmat(1)))
-            if (oprint) write(luout,*) "      - animating kvec= ",kq
+c     **** animate at kq=<0,0,0> if no dispersion specified ****
+      if ((animate).and.(num_kvectors.lt.1)) then
+         kq(1) = 0.0d0
+         kq(2) = 0.0d0
+         kq(3) = 0.0d0
+         call vib_gendynamicmatrix(unita,kq,nion,rion,
+     >                      nion3,dbl_mb(hessadjust(1)),
+     >                      dcpl_mb(dmat(1)),dbl_mb(wp(1)),
+     >                      dcpl_mb(work(1)),lwork,dbl_mb(rwork(1)))
+         call vib_writedmat(rtdb,0,animate_step,unita,kq,
+     >                      nion,rion,
+     >                      nion3,dcpl_mb(dmat(1)))
+         if (oprint) 
+     >     write(luout,'(A,F6.3,A,3F12.6)') 
+     >     "      Animating Mode - animate_step_size=",
+     >     animate_step," -  kvec= ",kq
         end if
 
 
-      end  if
 
 *     **** deallocate stack memory ****
       value =           MA_pop_stack(work(2))
