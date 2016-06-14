@@ -34,7 +34,7 @@ c
       double precision new_mass, animate_step
       integer len, num_on_line
       integer numtemps, l_temp, k_temp, itemp
-      double precision valuetemp
+      double precision valuetemp,kv(3)
 
 
       num_mod_mass = 0
@@ -93,6 +93,7 @@ c
             o_hessfile = .false.
           endif
           goto 00010
+
 
         else if((inp_compare(.false.,test,'zone_name')).or.
      &          (inp_compare(.false.,test,'zone_structure_name'))) then

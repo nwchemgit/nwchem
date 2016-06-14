@@ -26,11 +26,12 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
       parameter (autocm=219474.6313705d0,autoTHz=6579.683920729d0)
 
 *     **** local variables ****
-      logical value,oprint,hprint
+      logical value,oprint,hprint,animate
       integer dosgrid(3),isize,i1,i2,i3,i,k,ind,num_kvectors,icount,indx
       integer npoints
       real*8  omega,unita(3,3),unitg(3,3),lattice(6),emin,emax,gmin,gmax
       real*8  xx,yy,zz,xxx,yyy,zzz,ks(3),kq(3),kold(3),pathlength,dist
+      real*8  animate_step
       complex*16 cfac
       character*50 zone_name,rtdb_name
       character*255 full_filename
@@ -47,6 +48,15 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
      >        'NWChem Phonon Spectra Analysis ',
      >        40,.true.)
          write(luout,*)
+      end if
+
+      if (.not.rtdb_get(rtdb,'vib:animate',mt_log,1,animate))
+     >    animate=.false.
+
+      if (animate) then
+          if (.not.rtdb_get(rtdb,'vib:animate:step_size',
+     >                      mt_dbl,1,animate_step)) 
+     >       animate_step = 0.15d0
       end if
 
 
@@ -255,6 +265,12 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
      >                     full_filename(1:ind)
          open(unit=59,file=full_filename,form='formatted')
 
+         if (oprint.and.animate) then
+            write(luout,*)
+            write(luout,*) "     Animating Modes - animate_step_size=",
+     >                     animate_step
+         end if
+
          do i=1,num_kvectors
            ks(1) = dbl_mb(kvs(1)+4*(i-1))
            ks(2) = dbl_mb(kvs(1)+4*(i-1)+1)
@@ -267,6 +283,13 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
      >                          nion3,dbl_mb(hessadjust(1)),
      >                          dcpl_mb(dmat(1)),dbl_mb(wp(1)),
      >                          dcpl_mb(work(1)),lwork,dbl_mb(rwork(1)))
+
+            if (animate) then
+               if (oprint) write(luout,*) "      - animating kvec= ",kq
+               call vib_writedmat(rtdb,i,animate_step,unita,kq,
+     >                          nion,rion,
+     >                          nion3,dcpl_mb(dmat(1)))
+            end if
 
             if (i.eq.1) then
                pathlength = 0.0
@@ -304,6 +327,23 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
 
          if (.not.MA_pop_stack(kvs(2)))
      >   call errquit('vib_phonon: failed to free stack',1,MA_ERR)
+
+
+c        **** animate at kq=<0,0,0> if no dispersion specified ****
+         if ((animate).and.(num_kvectors.lt.1)) then
+            kq(1) = 0.0d0
+            kq(2) = 0.0d0
+            kq(3) = 0.0d0
+            call vib_gendynamicmatrix(unita,kq,nion,rion,
+     >                         nion3,dbl_mb(hessadjust(1)),
+     >                         dcpl_mb(dmat(1)),dbl_mb(wp(1)),
+     >                         dcpl_mb(work(1)),lwork,dbl_mb(rwork(1)))
+            call vib_writedmat(rtdb,0,animate_step,unita,kq,
+     >                         nion,rion,
+     >                         nion3,dcpl_mb(dmat(1)))
+            if (oprint) write(luout,*) "      - animating kvec= ",kq
+        end if
+
 
       end  if
 
@@ -880,9 +920,132 @@ c         write(*,*) "w(",i,")=",vc(i,1),dsqrt(dabs(vc(i,1)))*wave
 c
 c      end do
 
-
       return
       end
+
+      character*7 function vib_index_name(i)
+      integer i
+
+      integer itmp,j0,j1,j2,j3,j4,j5
+      character*7 name
+
+      itmp = i
+
+      j5 = itmp/100000
+      itmp = itmp - j5*100000
+      j4 = itmp/10000
+      itmp = itmp - j4*10000
+      j3 = itmp/1000
+      itmp = itmp - j3*1000
+      j2 = itmp/100
+      itmp = itmp - j2*100
+      j1 = itmp/10
+      itmp = itmp - j1*10
+      j0 = itmp/1
+
+      name(1:1) = '_'
+      name(2:2) = CHAR(j5+ICHAR('0'))
+      name(3:3) = CHAR(j4+ICHAR('0'))
+      name(4:4) = CHAR(j3+ICHAR('0'))
+      name(5:5) = CHAR(j2+ICHAR('0'))
+      name(6:6) = CHAR(j1+ICHAR('0'))
+      name(7:7) = CHAR(j0+ICHAR('0'))
+      vib_index_name = name
+      return
+      end
+
+*     *************************************************
+*     *                                               *
+*     *                 vib_writedmat                 *
+*     *                                               *
+*     *************************************************
+
+* generates phonon animations
+
+      subroutine vib_writedmat(rtdb,ik,step,unita,q,
+     >                         nion,rion,nion3,dmat)
+      implicit none
+      integer   rtdb
+      integer   ik
+      real*8    step
+      real*8    unita(3,3),q(3)
+      integer    nion
+      real*8     rion(3,nion)
+      integer    nion3
+      complex*16 dmat(nion3,nion3)
+
+      integer    jjj,ii,i1,i2,i3,k
+      real*8     x,y,z,qr,dx,dy,dz,dd
+      complex*16 cfacp,cfacm,cpx,cpy,cpz,cmx,cmy,cmz
+      character*80  fname
+      character*255 full_filename
+      character*2 symbol
+
+      character*2 vib_getsymbol
+      external    vib_getsymbol
+      character*7 vib_index_name
+      external    vib_index_name
+
+      do jjj=1,nion3
+         fname="kcos"//vib_index_name(ik)//".mode"//vib_index_name(jjj)
+     >               //".xyz"
+         call util_file_name(fname,
+     >                    .false.,
+     >                    .false.,
+     >                    full_filename)
+         open(unit=77,file=full_filename,form='formatted')
+         fname="ksin"//vib_index_name(ik)//".mode"//vib_index_name(jjj)
+     >               //".xyz"
+         call util_file_name(fname,
+     >                    .false.,
+     >                    .false.,
+     >                    full_filename)
+         open(unit=78,file=full_filename,form='formatted')
+
+         do k=-10,10
+            dd = k*step
+            write(77,*) nion*27
+            write(78,*) nion*27
+            write(77,*) 
+            write(78,*) 
+            do ii=1,nion
+              symbol = vib_getsymbol(rtdb,ii)
+              do i3=-1,1
+              do i2=-1,1
+              do i1=-1,1
+                x = rion(1,ii)+unita(1,1)*i1+unita(1,2)*i2+unita(1,3)*i3
+                y = rion(2,ii)+unita(2,1)*i1+unita(2,2)*i2+unita(2,3)*i3
+                z = rion(3,ii)+unita(3,1)*i1+unita(3,2)*i2+unita(3,3)*i3
+                qr = q(1)*x + q(2)*y + q(3)*z
+                cfacp = dcmplx(dcos(qr),dsin(qr))
+                cpx = dmat(3*(ii-1)+1,jjj)*cfacp
+                cpy = dmat(3*(ii-1)+2,jjj)*cfacp
+                cpz = dmat(3*(ii-1)+3,jjj)*cfacp
+                dx = dble(cpx)*dd
+                dy = dble(cpy)*dd
+                dz = dble(cpz)*dd
+                write(77,'(A2,5x,3F12.6)') symbol,
+     >                                    (x+dx)*0.529177, 
+     >                                    (y+dy)*0.529177, 
+     >                                    (z+dz)*0.529177
+                dx = dimag(cpx)*dd
+                dy = dimag(cpy)*dd
+                dz = dimag(cpz)*dd
+                write(78,'(A2,5x,3F12.6)') symbol,
+     >                                    (x+dx)*0.529177, 
+     >                                    (y+dy)*0.529177, 
+     >                                    (z+dz)*0.529177
+              end do
+              end do
+              end do
+            end do
+         end do
+         close(77)
+         close(78)
+      end do
+
+      return
+      end 
 
 *     *************************************************
 *     *                                               *
@@ -1026,6 +1189,47 @@ c      end do
 
       return
       end
+
+
+*     *************************************************
+*     *                                               *
+*     *                 vib_getsymbol                 *
+*     *                                               *
+*     *************************************************
+
+      character*2 function vib_getsymbol(rtdb,ii)
+      implicit none
+      integer rtdb,ii
+
+#include "stdio.fh"
+#include "geom.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer      geom
+      character*2  symbol
+      character*16 t,tname
+      real*8 q
+
+      if (.not.geom_create(geom,'geometry')) call errquit
+     >    ('vib_getsymbol: error creating geometry',911, GEOM_ERR)
+      if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
+     >    ('vib_getsymbol: error loading geometry',911, RTDB_ERR)
+      
+      if (.not. geom_cent_tag(geom,ii,t))
+     >        call errquit('vib_getsymbol failed ',ii, GEOM_ERR)
+      if (.not. geom_tag_to_element(t,symbol,tname,q))
+     >        call errquit('vib_getsymbol failed ',ii, GEOM_ERR)
+
+      if (.not.geom_destroy(geom)) call errquit
+     >    ('vib_getsymbol: geom_destroy failed',911, GEOM_ERR)
+
+
+      vib_getsymbol = symbol
+      return
+      end
+
+
 
 *     *************************************************
 *     *                                               *

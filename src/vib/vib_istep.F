@@ -246,7 +246,7 @@ c
       call dfill(num_steps,0.0d00,step_norms,1)
       if (.not.rtdb_get(rtdb,'vib:animate:step_size',
      &                  mt_dbl,1,step_size)) then
-         step_size = 0.15
+         step_size = 0.15d0
       endif
       if (.not.rtdb_get(rtdb,'vib:animate:overwrite_files',
      &                  mt_log,1,overwrite_files)) then
