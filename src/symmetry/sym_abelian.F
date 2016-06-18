@@ -15,7 +15,7 @@ c
       data ab/ 'C1','Cs','Ci','C2','D2','C2v','C2h','D2h',
      C     'C3','C4','C5','C6','C7','C8',
      C     'C3h','C4h','C5h','C6h',
-     C     'S2,'S4','S6','S10'/
+     C     'S2','S4','S6','S10'/
 c
       call sym_group_name(geom, group)
 c
