@@ -10,11 +10,12 @@ c     Return true if the point group of the geometry is abelian
 c
       character*8 group
       integer nab, ind
-      parameter (nab = 18)
+      parameter (nab = 22)
       character*4 ab(nab)
       data ab/ 'C1','Cs','Ci','C2','D2','C2v','C2h','D2h',
      C     'C3','C4','C5','C6','C7','C8',
-     C     'C3h','C4h','C5h','C6h'/
+     C     'C3h','C4h','C5h','C6h',
+     C     'S2,'S4','S6','S10'/
 c
       call sym_group_name(geom, group)
 c
