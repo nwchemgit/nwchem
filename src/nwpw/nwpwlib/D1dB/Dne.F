@@ -1734,54 +1734,29 @@ c     ****************************************
 #include "Dne.fh"
 
 *     **** local variables ****
-      integer i,j,ms,ms1,ms2,nj,nn,ishift1,ishift2,shift1,shift2,indx
-      integer S(2)
+      integer i,j,ms,ms1,ms2,nn,ishift2,shift2,ierr
 
       if (mb.eq.0) then
          ms1 = 1
          ms2 = ispin
-         nj  = ne(1)+ne(2)
-         ishift1 = ne(1)
          ishift2 = ne(1)*ne(1)
       else
          ms1 = mb
          ms2 = mb
-         nj  = ne(mb)
-         ishift1 = 0
          ishift2 = 0
       end if
 
-      if (.not.BA_push_get(mt_dbl,nj,'Swork',S(2),S(1)))
-     >      call errquit('Dneall_m_cholesky:out of stack',
-     >                    0,MA_ERR)
-
-*     **** generate V and Sigma^2 ****
-      call Dneall_m_diagonalize(mb,A,dbl_mb(S(1)),.false.)
-      do j=1,nj
-         if (dbl_mb(S(1)+j-1).lt.0.0d0)
-     >       dbl_mb(S(1)+j-1) = dabs(dbl_mb(S(1)+j-1))
-         dbl_mb(S(1)+j-1) = dsqrt(dbl_mb(S(1)+j-1))
-      end do
 
 *     ***** WARNING : NEEDS to fixed for distributed m ****
       if (mparallelized) then
-         write(*,*) " WARNING : NEEDS to fixed for distributed m"
+         write(*,*) " WARNING : NEEDS to be fixed for distributed m"
          call errquit('WARNING Dneall_m_cholesky failed',0,MA_ERR)
       else
          do ms=ms1,ms2
-            shift1 = (ms-1)*ishift1
-            shift2 = (ms-1)*ishift2
-            do j=1,ne(ms)
-               do i=1,ne(ms)
-                  indx = i+(j-1)*ne(ms) + shift2
-                  A(indx) = A(indx) * dbl_mb(S(1)+i-1+shift1)
-               end do
-            end do
+            shift2 = (ms-1)*ishift2+1
+            call DPOTRF('L',ne(ms),A(shift2),ne(ms),ierr)
          end do
       end if
-      if (.not.BA_pop_stack(S(2)))
-     >   call errquit('error popping stack in Dneall_m_cholesky',
-     >                0,MA_ERR)
 
       return
       end
@@ -1789,24 +1764,27 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        Dneall_mf_forwardsolve        *
+c     *        Dneall_mg_forwardsolve        *
 c     *                                      *
 c     ****************************************
 
 *   This routine computes transpose(B) =  inv(L)*transpose(A)
 *  On exit A is replaced by B.
-      subroutine Dneall_mf_forwardsolve(mb,L,n2ft3d,A)
+      subroutine Dneall_mg_forwardsolve(mb,L,n2ft3d,A)
       implicit none
       integer mb,n2ft3d
       real*8 L(*),A(n2ft3d,*)
 
+#include "bafdecls.fh"           
 #include "errquit.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
-      real*8 tmp
+      !real*8 tmp
+      logical value
       integer i,j,k,ms,ms1,ms2,shift1,shift2,ishift1,ishift2,indx,indx0
       integer p,q
+      integer tmp(2)
 
       if (mb.eq.0) then
          ms1 = 1
@@ -1822,27 +1800,45 @@ c     ****************************************
 
       if (mparallelized) then
          write(*,*) " WARNING : NEEDS to fixed for distributed m"
-         call errquit('WARNING Dneall_mf_forwardsolve failed',0,MA_ERR)
+         call errquit('WARNING Dneall_mg_forwardsolve failed',0,MA_ERR)
       else
-      do k=1,n2ft3d
+
+         value = BA_push_get(mt_dbl,n2ft3d,'tmp',tmp(2),tmp(1))
+         if (.not.value)
+     >      call errquit('Dneall_mg_forwardsolve:out of stack',0,MA_ERR)
+         !do k=1,n2ft3d
          do ms=ms1,ms2
             shift1 = (ms-1)*ishift1
             shift2 = (ms-1)*ishift2
-            do j=1,ne(ms)
-               indx0 = j+(j-1)*ne(ms)+shift2
-               tmp = 0.0d0
-               do i=1,j-1
-                  call Dneall_ntoqp(i,q,p)
+            do i=1,ne(ms)
+               indx0 = i+(i-1)*ne(ms)+shift2
+               !tmp = 0.0d0
+               call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp(1)),1)
+               do j=1,i-1
+                  call Dneall_ntoqp(j,q,p)
                   if (p.eq.taskid_j) then
                      indx = i+(j-1)*ne(ms)+shift2
-                     tmp = tmp + L(indx)*A(k,q+shift1)
+                     !tmp = tmp + L(indx)*A(k,q+shift1)
+                     !write(*,*) "i,j,L=",i,j,L(indx)
+                     call daxpy(n2ft3d,L(indx),A(1,q+shift1),1,
+     >                          dbl_mb(tmp(1)),1)
                   end if
                end do
-               call D1dB_SumAll(tmp)
-               A(k,j) = (A(k,j)-tmp)/L(indx0)
+               !call D1dB_SumAll(tmp)
+               !A(k,j) = (A(k,j)-tmp)/L(indx0)
+               !write(*,*) "i,L(i,i)=",i,L(indx0)
+               call D1dB_Vector_SumAll(n2ft3d,dbl_mb(tmp(1)))
+               call daxpy(n2ft3d,-1.0d0,dbl_mb(tmp(1)),1,A(1,j),1)
+               call dscal(n2ft3d,(1.0d0/L(indx0)),A(1,j),1)
             end do
          end do
-      end do
+         !end do
+
+         value = BA_pop_stack(tmp(2))
+         if (.not. value)
+     >   call errquit('error popping stack in Dneall_mg_forwardsolve',
+     >                0,MA_ERR)
+
       end if
 
       return
