@@ -1036,6 +1036,9 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
         if (hprint) call write_stress(tstress,"HFX")
       end if
 
+*     **** DFT+U energy component : dE_dftu/dhuv ****
+
+
 *     **** Dispersion energy component : dE_disp/dhuv ****
       if (ion_disp_on()) then
         call ion_disp_stress(tstress)
