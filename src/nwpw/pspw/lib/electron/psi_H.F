@@ -14,7 +14,7 @@
 *
 *  where vall = iFFT[Vl+Vc] + Vfield
 *
-*   Entry - ispin,ne            - spin and number of electron in each spin
+*   Entry - ispin,neq           - spin and number of electron in each spin
 *           psi_k,psi_r         - orbitals in k-space and r-space
 *           vl                  - local psp in k-space
 *           v_field,field_exist - external fields (e.g. QM/MM)
@@ -24,7 +24,7 @@
 *   Exit - Hpsi_k - gradient in k-space
 *          fion   - ionic forces
 *
-      subroutine psi_H(ispin,ne,
+      subroutine psi_H(ispin,neq,
      >                 psi_k,psi_r,
      >                 vl,
      >                 v_field,field_exist,
@@ -32,7 +32,7 @@
      >                 move,fion,
      >                 fractional,occ)
       implicit none
-      integer    ispin,ne(2)
+      integer    ispin,neq(2)
       complex*16 psi_k(*)
       real*8     psi_r(*)
       complex*16 vl(*)
@@ -94,10 +94,11 @@ c     complex*16 vpsi(nfft3d)
      
       if ((dosic).or.(dohfx)) then
          value = value.and.
-     >           BA_push_get(mt_dbl,(ne(1)+ne(2))*n2ft3d,
+     >           BA_push_get(mt_dbl,(neq(1)+neq(2))*n2ft3d,
      >                        'Hpsi_r',Hpsi_r(2),Hpsi_r(1))
          !call dcopy((ne(1)+ne(2))*n2ft3d,0.0d0,0,dbl_mb(Hpsi_r(1)),1)
-         call Parallel_shared_vector_zero(.false.,(ne(1)+ne(2))*n2ft3d,
+         call Parallel_shared_vector_zero(.false.,
+     >                                    (neq(1)+neq(2))*n2ft3d,
      >                                    dbl_mb(Hpsi_r(1)))
       end if
       if (.not. value) call errquit('psi_H:out of stack memory',0,
@@ -113,27 +114,27 @@ c     complex*16 vpsi(nfft3d)
       scal2 = 1.0d0/lattice_omega()
       scal1 = 1.0d0/dble(nx*ny*nz)
       n1(1) = 1
-      n2(1) = ne(1)
-      n1(2) = ne(1) + 1
-      n2(2) = ne(1) + ne(2)
+      n2(1) = neq(1)
+      n1(2) = neq(1) + 1
+      n2(2) = neq(1) + neq(2)
 
 *     *********************************************************
 *     **** add kinetic energy - Hpsi_k = Ke*psi_k ****
 *     *********************************************************
-      call ke(ispin,ne,psi_k,Hpsi_k)
+      call ke(ispin,neq,psi_k,Hpsi_k)
 
 *     *********************************************************
 *     **** add non-local psp - Hpsi_k = Hpsi_k + Vnl*psi_k ****
 *     *********************************************************
       if (psp_pawexist()) call psp_set_vc(vc)
-      call v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion,fractional,occ)
+      call v_nonlocal(ispin,neq,psi_k,Hpsi_k,move,fion,fractional,occ)
 
 
 *     *********************************************************
 *     **** add DFT+U correction -                             *
 *     *********************************************************
       if (dodftu) then
-         call psp_U_v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion,
+         call psp_U_v_nonlocal(ispin,neq,psi_k,Hpsi_k,move,fion,
      >                         fractional,occ,.true.)
       end if
 
@@ -141,21 +142,21 @@ c     complex*16 vpsi(nfft3d)
 *     **** add Metadynamics potential                         *
 *     *********************************************************
       if (meta) then
-         call meta_force(ispin,ne,psi_k,Hpsi_k,move,fion)
+         call meta_force(ispin,neq,psi_k,Hpsi_k,move,fion)
       end if
 
 *     *********************************************************
 *     **** add TAMD potential                                 *
 *     *********************************************************
       if (tamd) then
-         call tamd_force(ispin,ne,psi_k,Hpsi_k,move,fion)
+         call tamd_force(ispin,neq,psi_k,Hpsi_k,move,fion)
       end if
 
 *     **********************************************************************
 *     **** add extra Meta GGA terms Hpsi_k += grad dot (dfdtau*gradpsi) ****
 *     **********************************************************************
       if (meta_gga) then
-         call nwpw_meta_gga_Hpsik(ispin,ne,psi_k,Hpsi_k)
+         call nwpw_meta_gga_Hpsik(ispin,neq,psi_k,Hpsi_k)
       end if
 
 
