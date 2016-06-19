@@ -12,7 +12,7 @@ C> @{
 #include "btdb.fh"
 c
       integer rtdb
-      logical value,dummy,md_only
+      logical value,dummy,md_only,wannier2
       integer MASTER
       parameter (MASTER=0)
 c
@@ -56,6 +56,7 @@ c     *** define external functions ****
       logical  wvfnc_convert_restricted,nwpw_rdf,lcaov1,pspw_et
       logical  cgmontecarlov1,cgoptimize1
       logical  task_aimd_properties,task_md_xs,task_paulsmatrix
+      logical  pspw_wannier2
       external psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
       external v_wvfnc_init,wvfnc_expander,cell_optimize,mmsdv1,mmmdv1
       external pspw_dplot,pspw_stress,pspw_noit_energy,cpmdv6
@@ -63,6 +64,7 @@ c     *** define external functions ****
       external wvfnc_convert_restricted,nwpw_rdf,lcaov1,pspw_et
       external cgmontecarlov1,cgoptimize1
       external task_aimd_properties,task_md_xs,task_paulsmatrix
+      external pspw_wannier2
 c
 c
       value = .false.
@@ -267,12 +269,18 @@ c
       end if
       if (.not.btdb_get(rtdb,'nwpw:wannier_old',mt_log,1,dummy))
      >  dummy = .false.
+      if (.not.btdb_get(rtdb,'nwpw:wannier2',mt_log,1,wannier2))
+     >  wannier2 = .false.
       value = .true.
       value = btdb_parallel(.true.)
       if (dummy) then
          value = pspw_wannier_old(rtdb)
       else
-         value = pspw_wannier(rtdb)
+         if (wannier2) then
+            value = pspw_wannier2(rtdb)
+         else
+            value = pspw_wannier(rtdb)
+         end if
       end if
       call ga_sync()
       goto 9999
