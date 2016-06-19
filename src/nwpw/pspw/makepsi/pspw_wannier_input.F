@@ -13,13 +13,14 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 6)
+      parameter (num_dirs = 7)
       character*30 dirs(num_dirs)
       data dirs / 'old_wavefunction_filename',
      >            'new_wavefunction_filename',
      >            'vectors',
      >            'maxiter',
      >            'time_step',
+     >            'algorithm',
      >            'end'/
 
       character*255 test
@@ -41,7 +42,7 @@ c
      >           'pspw_wannier_input: unknown directive', 2,0)
 
 
-      goto ( 100,  200, 300, 400, 500,
+      goto ( 100,  200, 300, 400, 500, 600,
      >      9999) ind
       call errquit(
      >   'pspw_wannier_input: unimplemented directive', ind,0)
@@ -102,6 +103,21 @@ c
  500  if (inp_f(tstep)) then
         if (.not.rtdb_put(rtdb,'wannier:time_step',mt_dbl,1,tstep))
      >  call errquit('nwpw_input: error writing to rtdb',10,0)
+      end if
+
+      goto 10
+c
+c algorithm
+c
+ 600  if (inp_a(new_wavefunction_filename)) then
+         if (inp_compare(.false.,new_wavefunction_filename,
+     >                  'Damle-Lin-Ying')) then
+            if (.not.rtdb_put(rtdb,'nwpw:wannier2',mt_log,1,.true.))
+     >        call errquit('nwpw_input: error writing to rtdb',601,0)
+         else
+            if (.not.rtdb_put(rtdb,'nwpw:wannier2',mt_log,1,.false.))
+     >        call errquit('nwpw_input: error writing to rtdb',602,0)
+         end if
       end if
 
       goto 10

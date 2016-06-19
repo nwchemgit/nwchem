@@ -1,8 +1,8 @@
 *
-* $Id$
+* $Id: pspw_wannier2.F 26433 2014-12-03 23:34:20Z mjacquelin $
 *
 
-      logical function pspw_wannier(rtdb)
+      logical function pspw_wannier2(rtdb)
       implicit none
       integer rtdb
 
@@ -10,6 +10,7 @@
 #include "btdb.fh"
 #include "stdio.fh"
 #include "errquit.fh"
+
 
 *     **** local variables ****
       integer MASTER,taskid,tmp_len
@@ -32,7 +33,7 @@
       real*8 bv(3,6),wrk(6,6),wts(6),bmat(3,3)
       real*8 b(3),ixmat(3,6)
       real*8 xx,yy,zz,tmp1(tmp_len),maxtime,pcharge
-      real*8 dx(2),dy(2),dz(2),nx,ny,nz,tx,ty,tz,alpha,scal
+      real*8 dx(2),dy(2),dz(2),nx,ny,nz,tx,ty,tz,alpha,scal,scal1
       complex*16 arg,wx
       character*2 labels(6)
 
@@ -46,7 +47,7 @@ c      character*255 full_filename,full_filename2
 
 *     **** external functions ****
       integer ion_katm,ion_nion
-      real*8 ion_rion,psp_zv
+      real*8  ion_rion,psp_zv
       logical      control_read
       integer      control_ngrid,control_ispin,control_mapping
       integer      control_mapping1d
@@ -129,11 +130,11 @@ c      character*255 full_filename,full_filename2
       call Pack_init()
       call Pack_npack(1,npack1)      
       call D3dB_pfft_init()
+      call ga_sync()
 
       call ion_init(rtdb)
       call psp_init()
       call psp_readall()
-
 
 
 *     ***** allocate psi and psi_r wavefunctions ****
@@ -159,7 +160,7 @@ c      character*255 full_filename,full_filename2
      >        BA_alloc_get(mt_dbl,3*(ne(1)+ne(2)),
      >                     'Rwav',Rwav(2),Rwav(1))
       if (.not. value) 
-     >   call errquit('pspw_wannier:out of heap memory',0,0)
+     >   call errquit('pspw_wannier2:out of heap memory',0,0)
 
 
 *     *****  read psi2 wavefunctions ****
@@ -210,7 +211,22 @@ c      character*255 full_filename,full_filename2
       end do
       call Grsm_gh_fftb(nfft3d,nemaxq,dbl_mb(psi_r(1)))
       call Grsm_h_Zero_Ends(nfft3d,nemaxq,dbl_mb(psi_r(1)))
-
+      call D3dB_nx(1,i)
+      call D3dB_ny(1,j)
+      call D3dB_nz(1,ii)
+      scal1 = 1.0d0/dble(i*j*ii)
+      call psi_dmatrix_localize(ispin,neq,n2ft3d,
+     >                          dbl_mb(psi_r(1)),
+     >                          dbl_mb(psi_r2(1)))
+      call Grsm_hh_Copy(nfft3d,nemaxq,
+     >                  dbl_mb(psi_r2(1)),
+     >                  dbl_mb(psi_r(1)))
+      call Grsm_hg_fftf(nfft3d,nemaxq,dbl_mb(psi_r2(1)))
+      do n=1,nemaxq
+         call Pack_c_Copy(1,dbl_mb(psi_r2(1)  +(n-1)*n2ft3d),
+     >                      dcpl_mb(psi2(1)+(n-1)*npack1))
+         call Pack_c_SMul1(1,scal1,dcpl_mb(psi2(1)+(n-1)*npack1))
+      end do
 
 *     ***** allocate X,Y,Z  ****
       labels(1)='X1'
@@ -237,7 +253,7 @@ c     >                     'A',A(2),A(1))
       value = value.and.Dneall_w_allocate(1,A)
       value = value.and.Dneall_m_allocate(1,Ar)
       if (.not. value) 
-     >   call errquit('pspw_wannier:out of heap memory',1,0)
+     >   call errquit('pspw_wannier2:out of heap memory',1,0)
 
 c     *** Silvestrelli G1 ***
       ixmat(1,1)=1.0d0
@@ -342,11 +358,11 @@ c     *** Silvestrelli G3 ***
       end do   
 
       dx(1)=0.0d0
-      dx(2)=0.0d0
       dy(1)=0.0d0
-      dy(2)=0.0d0
       dz(1)=0.0d0
-      dz(2)=0.0d0
+      dx(ispin)=0.0d0
+      dy(ispin)=0.0d0
+      dz(ispin)=0.0d0
 
       if (oprint) then
          write(*,1260) 
@@ -373,45 +389,37 @@ c     *** Silvestrelli G3 ***
      >                  dcpl_mb(X(1,i)))
         end do
 
-        if (oprint) then
-          write(luout,1380)
-          do i=1,ne(ms)
-            shift=(i-1)*ne(ms)+(i-1)
-            xx=0.0d0
-            yy=0.0d0
-            zz=0.0d0
-            do j=1,rank
-               arg=dcpl_mb(X(1,j)+shift)
-               arg= -wts(j)*datan2(dimag(arg),dble(arg))
-               xx=xx+bv(1,j)*arg/scal
-               yy=yy+bv(2,j)*arg/scal
-               zz=zz+bv(3,j)*arg/scal
-            end do
-            ii = ion_nearest_index(xx,yy,zz)
-
-            if (ms.eq.1)
-     >        write(luout,1390) i,xx,yy,zz,ion_aname_nocarat(ii),ii
-
-
-            if (ms.eq.2)
-     >        write(luout,1391) i+ne(1),xx,yy,zz,ion_aname_nocarat(ii),ii
-          end do
-          write(luout,1800)
-        end if
-
-        call silvestrelli_minimize(maxiter,ms,ne(ms),rank,wts,
-     >                             dcpl_mb(X(1,1)),dcpl_mb(X(1,2)),
-     >                             dcpl_mb(X(1,3)),dcpl_mb(X(1,4)),
-     >                             dcpl_mb(X(1,5)),dcpl_mb(X(1,6)),
-     >                             dcpl_mb(A(1)))
+c        if (oprint) then
+c          write(luout,1380)
+c          do i=1,ne(ms)
+c            shift=(i-1)*ne(ms)+(i-1)
+c            xx=0.0d0
+c            yy=0.0d0
+c            zz=0.0d0
+c            do j=1,rank
+c               arg=dcpl_mb(X(1,j)+shift)
+c               arg= -wts(j)*datan2(dimag(arg),dble(arg))
+c               xx=xx+bv(1,j)*arg/scal
+c               yy=yy+bv(2,j)*arg/scal
+c               zz=zz+bv(3,j)*arg/scal
+c            end do
+c            ii = ion_nearest_index(xx,yy,zz)
+c
+c            if (ms.eq.1)
+c     >        write(luout,1390) i,xx,yy,zz,ion_aname_nocarat(ii),ii
+c
+c
+c            if (ms.eq.2)
+c     >        write(luout,1391) i+ne(1),xx,yy,zz,ion_aname_nocarat(ii),ii
+c          end do
+c          write(luout,1800)
+c        end if
 
         if (oprint) then
           write(luout,1381)
-          !write(15,*) ne(ms)
-          !write(15,*)
           do i=1,ne(ms)
             shift=i-1
-            shift=shift*ne(ms)+shift
+            shift=(i-1)*ne(ms)+(i-1)
             xx=0.0d0
             yy=0.0d0
             zz=0.0d0
@@ -440,11 +448,12 @@ c     *** Silvestrelli G3 ***
               !write(15,*) "H ",xx*0.529177d0,yy*0.529177d0,zz*0.529177d0
             end if
           end do
-          !if (ispin.eq.1) then
-          !   dx=dx*2.0d0
-          !   dy=dy*2.0d0
-          !   dz=dz*2.0d0
-          !end if
+
+c          if (ispin.eq.1) then
+c             dx=dx*2.0d0
+c             dy=dy*2.0d0
+c             dz=dz*2.0d0
+c          end if
 cccccccccccccccccccccccccccccccccccccccccccccc
 c  Molecular dipoles from Resta's theory!
 ccccccccccccccccccccccccccccccccccccccccccccc
@@ -475,41 +484,15 @@ ccccccccccccccccccccccccccccccccccccccccccccc
           write(luout,1774) tx,ty,tz
           write(luout,1775) xx,xx*autoDebye
           !write(luout,1776)
-          !write(luout,1777)dx,dy,dz
+          !write(luout,1777) dx,dy,dz
           !write(luout,1780)
-          !write(luout,1777)nx,ny,nz
+          !write(luout,1777) nx,ny,nz
           !tx=nx-dx
           !ty=ny-dy
           !tz=nz-dz
           !write(luout,1785)
-          !write(luout,1777)tx,ty,tz
+          !write(luout,1777) tx,ty,tz
         end if
-
-*       **** rotate psi to produce Wannier orbitals ****
-        call Dneall_wtom_Real(ms,dcpl_mb(A(1)),dbl_mb(Ar(1)))
-        call Dneall_mm_transpose(ms,dbl_mb(Ar(1)),dcpl_mb(A(1)))
-        call Dneall_fmf_Multiply(ms,
-     >                  dcpl_mb(psi(1)),npack1,
-     >                  dcpl_mb(A(1)),1.0d0,
-     >                  dcpl_mb(psi2(1)),
-     >                  0.0d0)
-c        do i=1,ne(ms)
-c          call Pack_c_Zero(1,
-c     >                     dcpl_mb(psi2(1)+(i-1) *npack1
-c     >                                    +(ms-1)*npack1*ne(1)))
-c          do j=1,ne(ms)
-cc              wx    = dcpl_mb(A(1)+(i-1)+(j-1)*ne(ms) 
-cc     >                            +(ms-1)*ne(1)*ne(1))
-c              wx    = dcpl_mb(A(1)+(i-1)+(j-1)*ne(ms)) 
-c              alpha = dble(wx)
-c
-c              call Pack_cc_daxpy(1,alpha,
-c     >                           dcpl_mb(psi(1) +(j-1)*npack1
-c     >                                          +(ms-1)*npack1*ne(1)),
-c     >                           dcpl_mb(psi2(1)+(i-1)*npack1
-c     >                                          +(ms-1)*npack1*ne(1)))
-c          end do
-c        end do
 
       end do !* ms *
 
@@ -517,11 +500,6 @@ c        end do
 *     ***** write psi2 wavefunctions ****
       call psi_write_noocc(ispin,ne,dcpl_mb(psi2(1)))
 
-*     ***** write basis functions *****
-      call psi_makebasisfunctions(1,ispin,ne,neq,
-     >                            dbl_mb(Rwav(1)),
-     >                            dcpl_mb(psi2(1)),
-     >                            dcpl_mb(psi(1)))
 
 
 *     **** deallocate heap memory ****
@@ -551,13 +529,13 @@ c      end do
       value = value.and.BA_free_heap(psi2(2))
       value = value.and.BA_free_heap(psi(2))
       if (.not. value) 
-     >   call errquit('pspw_wannier:deallocating heap memory',2,0)
+     >   call errquit('pspw_wannier2:deallocating heap memory',2,0)
 
 
  9000 if (oprint) call nwpw_message(4)
       call Parallel2d_Finalize()
       call Parallel_Finalize()
-      pspw_wannier = value
+      pspw_wannier2 = value
       return 
 
 
@@ -568,13 +546,13 @@ c      end do
  1000 FORMAT(10X,'****************************************************')
  1010 FORMAT(10X,'*                                                  *')
  1020 FORMAT(10X,'*              PSPW Wannier Generation             *')
- 1030 FORMAT(10X,'*     [        Silvestrelli Algorithm      ]       *')
+ 1030 FORMAT(10X,'*     [        Damle-Lin-Ying Algorithm      ]     *')
  1035 FORMAT(10x,'*     [ NorthWest Chemistry implementation ]       *')
  1037 FORMAT(10x,'*     Maximally Localized General Symmetry         *')
- 1040 FORMAT(10X,'*            version #5.00   10/01/02              *')
- 1041 FORMAT(10X,'*    Developed by Eric C. Brown, Kiril Tsemekhman  *')
- 1042 FORMAT(10X,'*    (Jonsson group, U. Washington), Eric J.       *')
- 1043 FORMAT(10X,'*    Bylaska and Patrick Nichols                   *')
+ 1040 FORMAT(10X,'*            version #5.00    6/20/16              *')
+ 1041 FORMAT(10X,'*    Developed by Eric J. Bylaska and Patrick      *')
+ 1042 FORMAT(10X,'*    Nichols(PNNL), Anil Damle, Lexing Ying        *')
+ 1043 FORMAT(10X,'*    (Stanford), and Lin Lin (UC Berkeley)         *')
  1100 FORMAT(//)
  1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)
  1230 FORMAT(/' supercell:')
@@ -598,17 +576,20 @@ c      end do
  1281 FORMAT(5X, ' maximum iterations =',I8)
  1300 FORMAT(/' Wannier orbital generation for spin up orbitals')
  1301 FORMAT(/' Wannier orbital generation for spin down orbitals')
- 1380 FORMAT(/' initial position of Wannier centers:')
- 1381 FORMAT(/' final position of Wannier centers:')
+ 1380 FORMAT(/' position of Wannier centers:')
+ 1381 FORMAT(/' position of Wannier centers:')
  1390 FORMAT(5X,'psi',I5,' (',3F11.5,
      >       ' ) - spin up orbital, nearest ion=',A3,I5)
  1391 FORMAT(5X,'psi',I5,' (',3F11.5,
      >       ' ) - spin down orbital, nearest ion=',A3,I5)
+ 
  1771 FORMAT(//'== Center of Charge =='/)
  1772 FORMAT(A10,'  (',F10.4,',',F10.4,',',F10.4,' )')
  1773 FORMAT(//'== Crystal Dipole =='/)
  1774 FORMAT('mu   =  (',F10.4,',',F10.4,',',F10.4,' ) au')
  1775 FORMAT('|mu| = ',F10.4,' au,   ',F10.4,' Debye')
+
+
  1776 FORMAT(/"ELECTRONIC DIPOLES")
  1777 FORMAT("DX =",F11.5," DY= ",F11.5," DZ= ",F11.5)
  1780 FORMAT("NUCLEAR DIPOLES")
