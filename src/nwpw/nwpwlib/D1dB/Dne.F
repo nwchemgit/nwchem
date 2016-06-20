@@ -1783,7 +1783,7 @@ c     ****************************************
       !real*8 tmp
       logical value
       integer i,j,k,ms,ms1,ms2,shift1,shift2,ishift1,ishift2,indx,indx0
-      integer p,q
+      integer p,q,ii,jj
       integer tmp(2)
 
       if (mb.eq.0) then
@@ -1815,23 +1815,28 @@ c     ****************************************
                !tmp = 0.0d0
                call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp(1)),1)
                do j=1,i-1
-                  call Dneall_ntoqp(j,q,p)
+                  jj = j + shift1
+                  call Dneall_ntoqp(jj,q,p)
                   if (p.eq.taskid_j) then
                      indx = i+(j-1)*ne(ms)+shift2
                      !tmp = tmp + L(indx)*A(k,q+shift1)
                      !write(*,*) "i,j,L=",i,j,L(indx)
-                     call daxpy(n2ft3d,L(indx),A(1,q+shift1),1,
+                     call daxpy(n2ft3d,L(indx),A(1,q),1,
      >                          dbl_mb(tmp(1)),1)
                   end if
-               end do
+               end do !*j*
                !call D1dB_SumAll(tmp)
                !A(k,j) = (A(k,j)-tmp)/L(indx0)
                !write(*,*) "i,L(i,i)=",i,L(indx0)
                call D1dB_Vector_SumAll(n2ft3d,dbl_mb(tmp(1)))
-               call daxpy(n2ft3d,-1.0d0,dbl_mb(tmp(1)),1,A(1,j),1)
-               call dscal(n2ft3d,(1.0d0/L(indx0)),A(1,j),1)
-            end do
-         end do
+               ii = i + shift1
+               call Dneall_ntoqp(ii,q,p)
+               if (p.eq.taskid_j) then
+                  call daxpy(n2ft3d,-1.0d0,dbl_mb(tmp(1)),1,A(1,q),1)
+                  call dscal(n2ft3d,(1.0d0/L(indx0)),A(1,q),1)
+               end if
+            end do !*i*
+         end do !*ms*
          !end do
 
          value = BA_pop_stack(tmp(2))
