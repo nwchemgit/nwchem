@@ -394,7 +394,8 @@ c     *** Silvestrelli G3 ***
 
 
             if (ms.eq.2)
-     >        write(luout,1391) i+ne(1),xx,yy,zz,ion_aname_nocarat(ii),ii
+     >        write(luout,1391) i+ne(1),xx,yy,zz,
+     >                          ion_aname_nocarat(ii),ii
           end do
           write(luout,1800)
         end if
@@ -419,9 +420,9 @@ c     *** Silvestrelli G3 ***
               yy=yy+bv(2,j)*arg/scal
               zz=zz+bv(3,j)*arg/scal
            end do
-           dbl_mb(Rwav(1)+3*((ispin-1)*ne(1)+i-1))   = xx
-           dbl_mb(Rwav(1)+3*((ispin-1)*ne(1)+i-1)+1) = yy
-           dbl_mb(Rwav(1)+3*((ispin-1)*ne(1)+i-1)+2) = zz
+           dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+i-1))   = xx
+           dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+i-1)+1) = yy
+           dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+i-1)+2) = zz
            ii = ion_nearest_index(xx,yy,zz)
            dx(ms)=dx(ms)+xx
            dy(ms)=dy(ms)+yy

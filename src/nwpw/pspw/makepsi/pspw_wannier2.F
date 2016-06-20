@@ -391,7 +391,6 @@ c     *** Silvestrelli G3 ***
 
         if (oprint) write(luout,1381)
         do i=1,ne(ms)
-          shift=i-1
           shift=(i-1)*ne(ms)+(i-1)
           xx=0.0d0
           yy=0.0d0
@@ -403,9 +402,9 @@ c     *** Silvestrelli G3 ***
              yy=yy+bv(2,j)*arg/scal
              zz=zz+bv(3,j)*arg/scal
           end do
-          dbl_mb(Rwav(1)+3*((ispin-1)*ne(1)+i-1))   = xx
-          dbl_mb(Rwav(1)+3*((ispin-1)*ne(1)+i-1)+1) = yy
-          dbl_mb(Rwav(1)+3*((ispin-1)*ne(1)+i-1)+2) = zz
+          !dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+i-1))   = xx
+          !dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+i-1)+1) = yy
+          !dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+i-1)+2) = zz
           ii = ion_nearest_index(xx,yy,zz)
           dx(ms)=dx(ms)+xx
           dy(ms)=dy(ms)+yy
