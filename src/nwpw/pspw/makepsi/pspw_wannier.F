@@ -405,85 +405,40 @@ c     *** Silvestrelli G3 ***
      >                             dcpl_mb(X(1,5)),dcpl_mb(X(1,6)),
      >                             dcpl_mb(A(1)))
 
-        if (oprint) then
-          write(luout,1381)
-          !write(15,*) ne(ms)
-          !write(15,*)
-          do i=1,ne(ms)
-            shift=i-1
-            shift=shift*ne(ms)+shift
-            xx=0.0d0
-            yy=0.0d0
-            zz=0.0d0
-            do j=1,rank
-               arg=dcpl_mb(X(1,j)+shift)
-               arg= -wts(j)*datan2(dimag(arg),dble(arg))
-               xx=xx+bv(1,j)*arg/scal
-               yy=yy+bv(2,j)*arg/scal
-               zz=zz+bv(3,j)*arg/scal
-            end do
-            dbl_mb(Rwav(1)+3*((ispin-1)*ne(1)+i-1))   = xx
-            dbl_mb(Rwav(1)+3*((ispin-1)*ne(1)+i-1)+1) = yy
-            dbl_mb(Rwav(1)+3*((ispin-1)*ne(1)+i-1)+2) = zz
-            ii = ion_nearest_index(xx,yy,zz)
-            dx(ms)=dx(ms)+xx
-            dy(ms)=dy(ms)+yy
-            dz(ms)=dz(ms)+zz
-            if (ms.eq.1) then
-              write(luout,1390) i,xx,yy,zz,ion_aname_nocarat(ii),ii
-              !write(15,*) "H ",xx*0.529177d0,yy*0.529177d0,zz*0.529177d0
-            end if
+        if (oprint) write(luout,1381)
+        do i=1,ne(ms)
+           shift=i-1
+           shift=shift*ne(ms)+shift
+           xx=0.0d0
+           yy=0.0d0
+           zz=0.0d0
+           do j=1,rank
+              arg=dcpl_mb(X(1,j)+shift)
+              arg= -wts(j)*datan2(dimag(arg),dble(arg))
+              xx=xx+bv(1,j)*arg/scal
+              yy=yy+bv(2,j)*arg/scal
+              zz=zz+bv(3,j)*arg/scal
+           end do
+           dbl_mb(Rwav(1)+3*((ispin-1)*ne(1)+i-1))   = xx
+           dbl_mb(Rwav(1)+3*((ispin-1)*ne(1)+i-1)+1) = yy
+           dbl_mb(Rwav(1)+3*((ispin-1)*ne(1)+i-1)+2) = zz
+           ii = ion_nearest_index(xx,yy,zz)
+           dx(ms)=dx(ms)+xx
+           dy(ms)=dy(ms)+yy
+           dz(ms)=dz(ms)+zz
+           if (oprint) then
+              if (ms.eq.1) then
+                write(luout,1390) i,xx,yy,zz,ion_aname_nocarat(ii),ii
+                !write(15,*) "H ",xx*0.529177d0,yy*0.529177d0,zz*0.529177d0
+              end if
 
-
-            if (ms.eq.2) then
-              write(luout,1391) i+ne(1),xx,yy,zz,ion_aname_nocarat(ii),ii
-              !write(15,*) "H ",xx*0.529177d0,yy*0.529177d0,zz*0.529177d0
-            end if
-          end do
-          !if (ispin.eq.1) then
-          !   dx=dx*2.0d0
-          !   dy=dy*2.0d0
-          !   dz=dz*2.0d0
-          !end if
-cccccccccccccccccccccccccccccccccccccccccccccc
-c  Molecular dipoles from Resta's theory!
-ccccccccccccccccccccccccccccccccccccccccccccc
-          write(luout,1771)
-          write(luout,1772) 'spin up   ',
-     >                      dx(1)/dble(ne(1)),
-     >                      dy(1)/dble(ne(1)),
-     >                      dz(1)/dble(ne(1))
-          if (ne(ispin).ne.0)
-     >       write(luout,1772) 'spin down ',
-     >                         dx(ispin)/dble(ne(ispin)),
-     >                         dy(ispin)/dble(ne(ispin)),
-     >                         dz(ispin)/dble(ne(ispin))
-          write(luout,1772) 'electronic',
-     >                       (dx(1)+dx(ispin))/dble(ne(1)+ne(ispin)),
-     >                       (dy(1)+dy(ispin))/dble(ne(1)+ne(ispin)),
-     >                       (dz(1)+dz(ispin))/dble(ne(1)+ne(ispin))
-          write(luout,1772) 'ionic     ',
-     >                       nx/pcharge,
-     >                       ny/pcharge,
-     >                       nz/pcharge
-
-          tx=nx-dx(1)-dx(ispin)
-          ty=ny-dy(1)-dy(ispin)
-          tz=nz-dz(1)-dz(ispin)
-          xx = dsqrt(tx*tx + ty*ty + tz*tz)
-          write(luout,1773)
-          write(luout,1774) tx,ty,tz
-          write(luout,1775) xx,xx*autoDebye
-          !write(luout,1776)
-          !write(luout,1777)dx,dy,dz
-          !write(luout,1780)
-          !write(luout,1777)nx,ny,nz
-          !tx=nx-dx
-          !ty=ny-dy
-          !tz=nz-dz
-          !write(luout,1785)
-          !write(luout,1777)tx,ty,tz
-        end if
+              if (ms.eq.2) then
+                write(luout,1391) i+ne(1),xx,yy,zz,
+     >                            ion_aname_nocarat(ii),ii
+                !write(15,*) "H ",xx*0.529177d0,yy*0.529177d0,zz*0.529177d0
+              end if
+           end if
+        end do
 
 *       **** rotate psi to produce Wannier orbitals ****
         call Dneall_wtom_Real(ms,dcpl_mb(A(1)),dbl_mb(Ar(1)))
@@ -493,25 +448,39 @@ ccccccccccccccccccccccccccccccccccccccccccccc
      >                  dcpl_mb(A(1)),1.0d0,
      >                  dcpl_mb(psi2(1)),
      >                  0.0d0)
-c        do i=1,ne(ms)
-c          call Pack_c_Zero(1,
-c     >                     dcpl_mb(psi2(1)+(i-1) *npack1
-c     >                                    +(ms-1)*npack1*ne(1)))
-c          do j=1,ne(ms)
-cc              wx    = dcpl_mb(A(1)+(i-1)+(j-1)*ne(ms) 
-cc     >                            +(ms-1)*ne(1)*ne(1))
-c              wx    = dcpl_mb(A(1)+(i-1)+(j-1)*ne(ms)) 
-c              alpha = dble(wx)
-c
-c              call Pack_cc_daxpy(1,alpha,
-c     >                           dcpl_mb(psi(1) +(j-1)*npack1
-c     >                                          +(ms-1)*npack1*ne(1)),
-c     >                           dcpl_mb(psi2(1)+(i-1)*npack1
-c     >                                          +(ms-1)*npack1*ne(1)))
-c          end do
-c        end do
-
       end do !* ms *
+
+cccccccccccccccccccccccccccccccccccccccccccccc
+c  Molecular dipoles from Resta's theory!
+ccccccccccccccccccccccccccccccccccccccccccccc
+      tx=nx-dx(1)-dx(ispin)
+      ty=ny-dy(1)-dy(ispin)
+      tz=nz-dz(1)-dz(ispin)
+      xx = dsqrt(tx*tx + ty*ty + tz*tz)
+
+      if (oprint) then
+         write(luout,1771)
+         write(luout,1772) 'spin up   ',
+     >                     dx(1)/dble(ne(1)),
+     >                     dy(1)/dble(ne(1)),
+     >                     dz(1)/dble(ne(1))
+         if (ne(ispin).ne.0)
+     >      write(luout,1772) 'spin down ',
+     >                        dx(ispin)/dble(ne(ispin)),
+     >                        dy(ispin)/dble(ne(ispin)),
+     >                        dz(ispin)/dble(ne(ispin))
+         write(luout,1772) 'electronic',
+     >                      (dx(1)+dx(ispin))/dble(ne(1)+ne(ispin)),
+     >                      (dy(1)+dy(ispin))/dble(ne(1)+ne(ispin)),
+     >                      (dz(1)+dz(ispin))/dble(ne(1)+ne(ispin))
+         write(luout,1772) 'ionic     ',
+     >                      nx/pcharge,
+     >                      ny/pcharge,
+     >                      nz/pcharge
+         write(luout,1773)
+         write(luout,1774) tx,ty,tz
+         write(luout,1775) xx,xx*autoDebye
+      end if
 
 
 *     ***** write psi2 wavefunctions ****
