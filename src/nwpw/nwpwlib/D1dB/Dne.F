@@ -7141,11 +7141,11 @@ c     ****************************************
      >                                   Aout,beta)
       implicit none
       integer    mb
-      complex*16 Ain(*)
+      real*8     Ain(*)
       integer    n2ft3d
       real*8     hml(*)
       real*8     alpha
-      complex*16 Aout(*)
+      real*8     Aout(*)
       real*8     beta
 
 #include "bafdecls.fh"
@@ -7245,8 +7245,6 @@ c     ****************************************
       call nwpw_timing_end(16)
       return
       end
-
-
 
 
 
