@@ -1854,8 +1854,10 @@ c
                      group_number(geom) = 999
                      setting_number(geom) = 3
                      group_name(geom)   = test
-c                    call errquit('geom_sym_input: unknown group '//
-c     $                 'name/number', 0, GEOM_ERR)
+                     if (isystype(geom).eq.0) then
+                    call errquit('geom_sym_input: unknown group '//
+     $                 'name/number', 0, GEOM_ERR)
+                    endif
                   end if
                endif
             endif
