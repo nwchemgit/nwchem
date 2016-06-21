@@ -2,6 +2,14 @@
 * $Id: pspw_wannier2.F 26433 2014-12-03 23:34:20Z mjacquelin $
 *
 
+c     **********************************************
+c     *                                            *
+c     *                pspw_wannier2               *
+c     *                                            *
+c     **********************************************
+
+c Computes wannier orbitals using the Damle-Lin-Ying algorithm.
+
       logical function pspw_wannier2(rtdb)
       implicit none
       integer rtdb

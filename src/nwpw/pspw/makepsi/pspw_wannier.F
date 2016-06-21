@@ -2,6 +2,14 @@
 * $Id$
 *
 
+c     **********************************************
+c     *                                            *
+c     *                pspw_wannier                *
+c     *                                            *
+c     **********************************************
+
+c Computes wannier orbitals using the Silvestrelli algorithm.
+
       logical function pspw_wannier(rtdb)
       implicit none
       integer rtdb
@@ -27,12 +35,13 @@
       integer np,nion,ii
 
       integer psi(2),psi2(2),psi_r(2),psi_r2(2),Rwav(2)
-      integer X(2,6)
+      integer X(2,6),Xeig(2,6)
       integer A(2),Ar(2)
       real*8 bv(3,6),wrk(6,6),wts(6),bmat(3,3)
       real*8 b(3),ixmat(3,6)
       real*8 xx,yy,zz,tmp1(tmp_len),maxtime,pcharge
       real*8 dx(2),dy(2),dz(2),nx,ny,nz,tx,ty,tz,alpha,scal
+      real*8 dix(2),diy(2),diz(2),tix,tiy,tiz
       complex*16 arg,wx
       character*2 labels(6)
 
@@ -233,6 +242,8 @@ c     >                     'A',A(2),A(1))
 
       do j=1,6
          value = value.and.Dneall_w_allocate(1,X(1,j))
+         value = value.and.
+     >           BA_alloc_get(mt_dcpl,n,'Xeig',Xeig(2,j),Xeig(1,j))
       end do
       value = value.and.Dneall_w_allocate(1,A)
       value = value.and.Dneall_m_allocate(1,Ar)
@@ -348,6 +359,13 @@ c     *** Silvestrelli G3 ***
       dz(1)=0.0d0
       dz(2)=0.0d0
 
+      dix(1)=0.0d0
+      dix(2)=0.0d0
+      diy(1)=0.0d0
+      diy(2)=0.0d0
+      diz(1)=0.0d0
+      diz(2)=0.0d0
+
       if (oprint) then
          write(*,1260) 
          write(*,1261) rank
@@ -371,6 +389,8 @@ c     *** Silvestrelli G3 ***
      >                  dbl_mb(psi_r(1)),
      >                  dbl_mb(psi_r2(1)),
      >                  dcpl_mb(X(1,i)))
+          call Dneall_w_eigenvalues(ms,dcpl_mb(X(1,i)),
+     >                              dcpl_mb(Xeig(1,i)))
         end do
 
         if (oprint) then
@@ -381,13 +401,19 @@ c     *** Silvestrelli G3 ***
             yy=0.0d0
             zz=0.0d0
             do j=1,rank
-               arg=dcpl_mb(X(1,j)+shift)
+
+               !*** really just want complex eigenvalues of X here ***
+               !arg=dcpl_mb(X(1,j)+shift)
+               arg=dcpl_mb(Xeig(1,j)+(i-1))
                arg= -wts(j)*datan2(dimag(arg),dble(arg))
                xx=xx+bv(1,j)*arg/scal
                yy=yy+bv(2,j)*arg/scal
                zz=zz+bv(3,j)*arg/scal
             end do
             ii = ion_nearest_index(xx,yy,zz)
+            dix(ms)=dix(ms)+xx
+            diy(ms)=diy(ms)+yy
+            diz(ms)=diz(ms)+zz
 
             if (ms.eq.1)
      >        write(luout,1390) i,xx,yy,zz,ion_aname_nocarat(ii),ii
@@ -408,8 +434,9 @@ c     *** Silvestrelli G3 ***
 
         if (oprint) write(luout,1381)
         do i=1,ne(ms)
-           shift=i-1
-           shift=shift*ne(ms)+shift
+           !shift=i-1
+           !shift=shift*ne(ms)+shift
+           shift=(i-1)*ne(ms)+(i-1)
            xx=0.0d0
            yy=0.0d0
            zz=0.0d0
@@ -459,6 +486,11 @@ ccccccccccccccccccccccccccccccccccccccccccccc
       tz=nz-dz(1)-dz(ispin)
       xx = dsqrt(tx*tx + ty*ty + tz*tz)
 
+      tix=nx-dix(1)-dix(ispin)
+      tiy=ny-diy(1)-diy(ispin)
+      tiz=nz-diz(1)-diz(ispin)
+      yy = dsqrt(tix*tix + tiy*tiy + tiz*tiz)
+
       if (oprint) then
          write(luout,1771)
          write(luout,1772) 'spin up   ',
@@ -478,6 +510,10 @@ ccccccccccccccccccccccccccccccccccccccccccccc
      >                      nx/pcharge,
      >                      ny/pcharge,
      >                      nz/pcharge
+         write(luout,1778)
+         write(luout,1774) tix,tiy,tiz
+         write(luout,1775) yy,yy*autoDebye
+
          write(luout,1773)
          write(luout,1774) tx,ty,tz
          write(luout,1775) xx,xx*autoDebye
@@ -514,6 +550,7 @@ c      end do
       value = value.and.Dneall_m_free(A)
       do j=1,6
       value = value.and.Dneall_m_free(X(1,j))
+      value = value.and.BA_free_heap(Xeig(2,j))
       end do
       value = value.and.BA_free_heap(Rwav(2))
       value = value.and.BA_free_heap(psi_r2(2))
@@ -576,11 +613,12 @@ c      end do
      >       ' ) - spin down orbital, nearest ion=',A3,I5)
  1771 FORMAT(//'== Center of Charge =='/)
  1772 FORMAT(A10,'  (',F10.4,',',F10.4,',',F10.4,' )')
- 1773 FORMAT(//'== Crystal Dipole =='/)
+ 1773 FORMAT(//'== Wannier Crystal Dipole =='/)
  1774 FORMAT('mu   =  (',F10.4,',',F10.4,',',F10.4,' ) au')
  1775 FORMAT('|mu| = ',F10.4,' au,   ',F10.4,' Debye')
  1776 FORMAT(/"ELECTRONIC DIPOLES")
  1777 FORMAT("DX =",F11.5," DY= ",F11.5," DZ= ",F11.5)
+ 1778 FORMAT(//'== Resta (not localized) Crystal Dipole =='/)
  1780 FORMAT("NUCLEAR DIPOLES")
  1785 FORMAT("TOTAL DIPOLES")
  1800 FORMAT(/2x,'iter.',8x,'Omega ',6x,' maxgrad',9x,'domega ',5x,
