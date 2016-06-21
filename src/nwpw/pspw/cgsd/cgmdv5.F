@@ -48,7 +48,7 @@
 *     ***** energy variables ****
       integer ne(2),ms,ispin
       real*8  E(40),en(2)
-      real*8  dipole(3)
+      real*8  dipole(3),cdipole(3)
       real*8  stress(3,3),lstress(6)
 
 *     **** gradient variables ****
@@ -1045,7 +1045,13 @@ c      call control_up_print()
       dipole(1) = 0.0d0
       dipole(2) = 0.0d0
       dipole(3) = 0.0d0
-      if (flag.gt.-1) call rho_dipole(dipole)
+      cdipole(1) = 0.0d0
+      cdipole(2) = 0.0d0
+      cdipole(3) = 0.0d0
+      if (flag.gt.-1) then
+        call rho_dipole(dipole)
+        call psi1_crystal_dipole(cdipole)
+      end if
 
 
 *     **** calculate the stress tensor ****
@@ -1068,6 +1074,9 @@ c      call control_up_print()
       value = value.and.
      >        btdb_put(rtdb,'pspw:dipole',mt_dbl,
      >                 3,dipole)
+      value = value.and.
+     >        btdb_put(rtdb,'pspw:crystal_dipole',mt_dbl,
+     >                 3,cdipole)
       end if
       if (flag.gt.0) then
         value = value.and.

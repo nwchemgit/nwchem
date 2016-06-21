@@ -566,7 +566,7 @@ c     end if
       cdipole(3) = 0.0d0
       if (flag.gt.-1) then
         call rho_dipole(dipole)
-        call psi_crystal_dipole(cdipole)
+        call psi1_crystal_dipole(cdipole)
       end if
 
 *     ****  calculate gradient ***
