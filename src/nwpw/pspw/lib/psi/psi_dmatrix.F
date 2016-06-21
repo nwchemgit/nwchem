@@ -132,11 +132,15 @@ c
          end do
       end do
       call Parallel_Vector_SumAll(msize,dbl_mb(summ(1)))
-      !write(*,*) "dn patch="
-      !do i=1,ne(1)
-      !   write(*,*) (dbl_mb(summ(1)+(i-1) +(j-1)*ne(1)),j=1,ne(1))
+      !do ms=1,ispin
+      !write(*,*) "dn patch,ms=",ms
+      !ishift = (ms-1)*ne(1)*ne(1)
+      !do i=1,ne(ms)
+      !   write(*,*) (dbl_mb(summ(1)+(i-1) +(j-1)*ne(ms)+ishift),
+     >!               j=1,ne(ms))
       !end do
       !write(*,*)
+      !end do
 
 *     **** generate localized psi_r2 from cholesky ****
       call Dneall_m_cholesky(0,dbl_mb(summ(1)))
@@ -145,10 +149,8 @@ c
       !   write(*,*) (dbl_mb(summ(1)+(i-1) +(j-1)*ne(1)),j=1,ne(1))
       !end do
       !write(*,*)
-      !write(*,*)
-      !write(*,*) "n2ft3d=",n2ft3d
+
       call Dneall_mg_forwardsolve(0,dbl_mb(summ(1)),n2ft3d,psi_r2)
-      !write(*,*) "out forward_solve"
 
       !call D3dB_nx(1,i)
       !call D3dB_ny(1,j)

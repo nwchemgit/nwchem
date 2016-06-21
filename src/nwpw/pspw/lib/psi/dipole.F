@@ -247,7 +247,7 @@
      >    write(LuOut,1220) 'spin down ',CDX2,CDY2,CDZ2
         write(LuOut,1220) '     total',CDX3,CDY3,CDZ3
         write(LuOut,1220) 'ionic     ',qGX,qGY,qGZ
-        write(LuOut,1220) 'crystal   ',cqGX,cqGY,cqGZ
+        !write(LuOut,1220) 'crystal   ',cqGX,cqGY,cqGZ
       end if
       dtmp(1) = CDX3
       dtmp(2) = CDY3
@@ -272,20 +272,20 @@
  1200 FORMAT(//'== Center of Charge =='/)
  1220 FORMAT(A10,'  (',F10.4,',',F10.4,',',F10.4,' )')
 
-*     ***** calculate crystal dipole with respect to center of cell ****
-      pcharge   = tcharge
-      ncharge   = dble(ne(1)+ne(ispin))
-      dipole_crystal(1) = -ncharge*cdx3 + pcharge*cqGX 
-      dipole_crystal(2) = -ncharge*cdy3 + pcharge*cqGY 
-      dipole_crystal(3) = -ncharge*cdz3 + pcharge*cqGZ 
-      cdx1 = dsqrt( dipole_crystal(1)**2 
-     >            + dipole_crystal(2)**2 
-     >            + dipole_crystal(3)**2)
-      if (oprint) then
-         write(LuOut,1240)
-         write(LuOut,1231) dipole_crystal
-         write(LuOut,1232) cdx1,cdx1*autoDebye
-      end if
+c*     ***** calculate crystal dipole with respect to center of cell ****
+c      pcharge   = tcharge
+c      ncharge   = dble(ne(1)+ne(ispin))
+c      dipole_crystal(1) = -ncharge*cdx3 + pcharge*cqGX 
+c      dipole_crystal(2) = -ncharge*cdy3 + pcharge*cqGY 
+c      dipole_crystal(3) = -ncharge*cdz3 + pcharge*cqGZ 
+c      cdx1 = dsqrt( dipole_crystal(1)**2 
+c     >            + dipole_crystal(2)**2 
+c     >            + dipole_crystal(3)**2)
+c      if (oprint) then
+c         write(LuOut,1240)
+c         write(LuOut,1231) dipole_crystal
+c         write(LuOut,1232) cdx1,cdx1*autoDebye
+c      end if
 
 *     ***** calculate dipole with respect to center of mass ****
       pcharge   = tcharge
@@ -318,15 +318,18 @@
      >   call errquit('Calculate_Dipole: cannot pop stack memory',0,
      &       MA_ERR)
 
-      if (control_version().eq.3) then
-         dipole(1) = dipole_crystal(1)
-         dipole(2) = dipole_crystal(2)
-         dipole(3) = dipole_crystal(3)
-      else
-         dipole(1) = dipole_molecule(1)
-         dipole(2) = dipole_molecule(2)
-         dipole(3) = dipole_molecule(3)
-      end if
+c      if (control_version().eq.3) then
+c         dipole(1) = dipole_crystal(1)
+c         dipole(2) = dipole_crystal(2)
+c         dipole(3) = dipole_crystal(3)
+c      else
+c         dipole(1) = dipole_molecule(1)
+c         dipole(2) = dipole_molecule(2)
+c         dipole(3) = dipole_molecule(3)
+c      end if
+      dipole(1) = dipole_molecule(1)
+      dipole(2) = dipole_molecule(2)
+      dipole(3) = dipole_molecule(3)
 
       return
       end
