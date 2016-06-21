@@ -1530,11 +1530,107 @@ c     ****************************************
       end
 
 
+c     ****************************************
+c     *                                      *
+c     *        Dneall_w_determinant          *
+c     *                                      *
+c     ****************************************
 
 
 c     ****************************************
 c     *                                      *
-c     *        Dneall_m_diagonalize         *
+c     *        Dneall_w_eigenvalues          *
+c     *                                      *
+c     ****************************************
+
+c  This routine compute the complex eigenvalues of a complex matrix.
+
+      subroutine Dneall_w_eigenvalues(mb,hml,eig)
+      implicit none
+      integer    mb
+      complex*16 hml(*),eig(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "Dne.fh"
+
+*     ***** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
+      logical value
+      integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,ierr
+      integer tmp1(2),tmp2(2),tmp3(2),V(2),VV(2),Q(2),tu(2),ework(2)
+
+      call nwpw_timing_start(17)
+
+      if (mparallelized) then
+         write(*,*) " WARNING : NEEDS to be fixed for distributed m"
+         call errquit('WARNING Dneall_w_eigenvalues failed',0,MA_ERR)
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = ne(1)
+            ishift2 = ne(1)*ne(1)
+            call dcopy(2*(ne(1)+ne(2)),0.0d0,0,eig,1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+            call dcopy(2*ne(mb),0.0d0,0,eig,1)
+         end if
+
+         value = BA_push_get(mt_dbl,(2*ne(1)*ne(1)),
+     >                       'tmp1',tmp1(2),tmp1(1))
+         value = value.and.
+     >                 BA_push_get(mt_dbl,(4*ne(1)*ne(1)),
+     >                       'tmp2',tmp2(2),tmp2(1))
+         value = value.and.
+     >           BA_push_get(mt_dbl,(2*ne(1)),
+     >                       'tmp3',tmp3(2),tmp3(1))
+         if (.not. value)
+     >      call errquit('Dneall_w_eigenvalues:out of stack',
+     >                    1,MA_ERR)
+
+*        ***** diagonalize the matrix *****
+         do ms=ms1,ms2
+            shift1 = 1+(ms-1)*ishift1
+            shift2 = 1+(ms-1)*ishift2
+            if (ne(ms).le.0) go to 30
+!$OMP MASTER
+            call dcopy(2*ne(ms)*ne(ms),hml(shift1),1,dbl_mb(tmp1(1)),1)
+            call ZGEEV('N','N',ne(ms),
+     >                 dbl_mb(tmp1(1)),ne(ms),
+     >                 eig(shift1),
+     >                 dbl_mb(tmp2(1)),1,dbl_mb(tmp2(1)),1,
+     >                 dbl_mb(tmp2(1)),2*ne(1)*ne(1),
+     >                 dbl_mb(tmp3(1)),
+     >                 ierr)
+!$OMP END MASTER
+!$OMP BARRIER
+  30        continue
+         end do
+
+         value =           BA_pop_stack(tmp3(2))
+         value = value.and.BA_pop_stack(tmp2(2))
+         value = value.and.BA_pop_stack(tmp1(2))
+         if (.not.value)
+     >    call errquit('error popping stack in Dneall_w_eigenvalues',
+     >                 0,MA_ERR)
+
+      end if
+
+      call nwpw_timing_end(17)
+      return
+      end 
+
+
+
+
+c     ****************************************
+c     *                                      *
+c     *        Dneall_m_diagonalize          *
 c     *                                      *
 c     ****************************************
 
@@ -1688,13 +1784,13 @@ c     ****************************************
      >                 eig(shift1),
      >                 dbl_mb(tmp1(1)),2*ne(1)*ne(1),
      >                 ierr)
-!$OMP END MASTER
-!$OMP BARRIER
 
             if (.not.assending)
      >         call EIGSRT(eig(shift1),
      >                   hml(shift2),
      >                   ne(ms),ne(ms))
+!$OMP END MASTER
+!$OMP BARRIER
 
   30        continue
          end do
