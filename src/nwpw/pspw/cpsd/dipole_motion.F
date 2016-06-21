@@ -132,12 +132,12 @@
 *     ***************************************
 
       subroutine dipole_motion_write(periodic,time,
-     >                               ispin,ne,n2ft3d,dn,psi)
+     >                               ispin,ne,neq,npack1,nfft3d,dn,psi)
       implicit none
       logical periodic
       real*8  time
-      integer ispin,ne(2),n2ft3d
-      real*8     dn(*)
+      integer ispin,ne(2),neq(2),npack1,nfft3d
+      real*8  dn(*)
       complex*16 psi(*)
 
 *     **** local variables ****
@@ -157,10 +157,11 @@
       if (control_dipole_motion()) then
 
         if (periodic) then
-           !*** need to change this to Berry's phase calculation ***
-           call Calculate_Molecular_Dipole(ispin,ne,n2ft3d,dn,dipole)
+           call Calculate_Resta_Dipole(.false.,ispin,ne,neq,
+     >                                 npack1,nfft3d,psi,
+     >                                 dipole)
         else
-           call Calculate_Molecular_Dipole(ispin,ne,n2ft3d,dn,dipole)
+           call Calculate_Molecular_Dipole(ispin,ne,2*nfft3d,dn,dipole)
         end if
 
         call Parallel_taskid(taskid)

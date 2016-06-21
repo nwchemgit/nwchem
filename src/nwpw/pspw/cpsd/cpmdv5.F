@@ -881,7 +881,7 @@ c      call xyz_write()
 
          call dipole_motion_write((control_version().eq.3),
      >                     (icount*it_in*control_time_step()),
-     >                     ispin,ne,n2ft3d,
+     >                     ispin,ne,neq,npack1,nfft3d,
      >                     dbl_mb(dn(1)),
      >                     dcpl_mb(psi1(1)))
 
