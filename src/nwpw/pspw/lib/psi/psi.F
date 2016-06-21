@@ -5806,20 +5806,22 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
 *     ***************************
 *     *                         *
-*     *   psi_crystal_dipole    *
+*     *   psi1_crystal_dipole   *
 *     *                         *
 *     ***************************
 *     
 *     Uses - electron_crystal_dipole
 *
-      subroutine psi_crystal_dipole(dipole)
+      subroutine psi1_crystal_dipole(dipole)
       implicit none
       real*8 dipole(3)
 
 #include "bafdecls.fh"
 #include "psi.fh" 
       
-      call electron_crystal_dipole(dipole)
+      call Calculate_Resta_Dipole(.true.,ispin,ne,neq,npack1,nfft3d,
+     >                            dcpl_mb(psi1(1)),dipole)
+
       return
       end
       
