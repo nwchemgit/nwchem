@@ -7351,7 +7351,7 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        Dneall_ggm_sym_Multiply      *
+c     *        Dneall_ggm_sym_Multiply       *
 c     *                                      *
 c     ****************************************
 
@@ -7455,6 +7455,127 @@ c     ****************************************
      >                        hml(shift2))
   30        continue
          end do
+      end if
+
+      call nwpw_timing_end(15)
+      return
+      end
+
+
+
+c     ****************************************
+c     *                                      *
+c     *        Dneall_ggm_Multiply           *
+c     *                                      *
+c     ****************************************
+
+      subroutine Dneall_ggm_Multiply(mb,A1,A2,alpha,n2ft3d,hml,beta)
+      implicit none
+      integer    mb
+      real*8     A1(*),A2(*),alpha
+      integer    n2ft3d
+      real*8     hml(*),beta
+           
+#include "bafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,n,shift,shift2,ishift2,nn
+
+      call nwpw_timing_start(15)
+      if (parallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         if (mparallelized) then
+         do ms=ms1,ms2
+            if (ne(ms).le.0) go to 20
+            shift  = 1 + (ms-1)*neq(1)*n2ft3d
+            shift2 = 1 + (ms-1)*ishift2
+            call DMatrix_dgemm2(ne(ms),ne(ms),n2ft3d_all,128,
+     >             alpha,
+     >             A1(shift),int_mb(ma2(1,ms)+taskid_i), 
+     >                       int_mb(ma2(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             A2(shift),int_mb(ma2(1,ms)+taskid_i), 
+     >                       int_mb(ma2(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             beta,
+     >             hml(shift2),int_mb(mc(1,ms)+taskid_i), 
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+  20        continue
+         end do
+         else
+         do ms=ms1,ms2
+            if (ne(ms).le.0) go to 21
+            shift  = 1 + (ms-1)*neq(1)*n2ft3d
+            shift2 =     (ms-1)*ishift2
+            call DMatrix_dgemm2(ne(ms),ne(ms),n2ft3d_all,128,
+     >             alpha,
+     >             A1(shift),int_mb(ma2(1,ms)+taskid_i),
+     >                       int_mb(ma2(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             A2(shift),int_mb(ma2(1,ms)+taskid_i),
+     >                       int_mb(ma2(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             beta,
+     >             dbl_mb(mat_tmp(1)+shift2),int_mb(mc(1,ms)+taskid_i),
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+  21        continue
+         end do
+         call Dneall_m_gather(mall(mb),mpack(mb),int_mb(mindx(1,mb)),
+     >                        dbl_mb(mat_tmp(1)),hml)
+
+         end if
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+            nn      = ne(1)*ne(1) + ne(2)*ne(2)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+            nn      = ne(mb)*ne(mb)
+         end if
+
+         do ms=ms1,ms2
+            shift  = 1 + (ms-1)*ne(1)*n2ft3d
+            shift2 = 1 + (ms-1)*ishift2
+            n     = ne(ms)
+            if (n.le.0) go to 30
+
+            call DGEMM_OMP('T','N',n,n,n2ft3d,
+     >                alpha,
+     >                A1(shift), n2ft3d,
+     >                A2(shift), n2ft3d,
+     >                beta,
+     >                hml(shift2),n)
+
+  30        continue
+         end do
+         call D3dB_Vector_SumAll(nn,hml)
+
       end if
 
       call nwpw_timing_end(15)
