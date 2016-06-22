@@ -4290,6 +4290,34 @@ CDIR$ NOVECTOR
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *          D3dB_r_ABSMAX          *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_r_ABSMAX(nb,A,amax)
+      implicit none
+      integer nb
+      real*8 A(*)
+      real*8 amax
+
+#include "D3dB.fh"
+
+      integer index
+      real*8 aa
+
+      amax = 0.0d0
+      do index=1,n2ft3d_map(nb)
+         !index = i + (j-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
+         aa = dabs(A(index))
+         if (aa.gt.amax) amax = aa
+      end do
+      call D3dB_MaxAll(amax)
+
+      return
+      end
+
 
 *     ***********************************
 *     *                                 *

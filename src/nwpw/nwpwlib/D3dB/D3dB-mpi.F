@@ -807,6 +807,49 @@ c     implicit none
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *         D3dB_MaxAll             *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_MaxAll(sum)
+c     implicit none
+      real*8  sum
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+      integer msglen,mpierr,np
+      real*8 sumall
+
+*     **** external functions ****
+      integer  Parallel2d_comm_i
+      external Parallel2d_comm_i
+
+      call Parallel2d_np_i(np)
+      if (np.gt.1) then
+!$OMP MASTER
+         msglen = 1
+#ifdef MPI4
+         stupid_msglen = msglen
+         call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_double,
+     >                       stupid_max,stupid_comm_i,stupid_ierr)
+#else
+         call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
+     >                       MPI_MAX,Parallel2d_comm_i(),mpierr)
+#endif
+         sum = sumall
+!$OMP END MASTER
+!$OMP BARRIER
+      end if
+
+      return
+      end
+
+
 
 *     ***********************************
 *     *                                 *
