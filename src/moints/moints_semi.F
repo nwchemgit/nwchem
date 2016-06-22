@@ -83,6 +83,7 @@ c
        external mp2_eaftype
        external moints_numgr
        external moints_lmem
+       logical mp2cpybck
        data osym/.false./
 c
 c  General info
@@ -317,6 +318,9 @@ c
 c
 c  Call the real stuff
 c
+        if (.not. rtdb_get(rtdb, 'mp2:copyback', mt_log, 1, mp2cpybck))
+     $    mp2cpybck=.false.
+
        call moints_semi_a( basis, nbf, nsh, maxbfsh, tol2e, oseglo,
      $                   oseghi, olo, ohi, vlo, vhi, pvlo, pvhi,
      $                   mxrlen, osym, oblk, kunit, int_mb(k_shmap), 
@@ -324,7 +328,8 @@ c
      $                   int_mb(k_bfmap), int_mb(k_rbfmap),
      $                   blen, int_mb(k_gloc), 
      $                   nnbf, niofl, int_mb(k_ionext),
-     $                   int_mb(k_rlen), g_movecs, g_kbuf,g_kbuf_trans)
+     $                   int_mb(k_rlen), g_movecs, g_kbuf,g_kbuf_trans,
+     M                   mp2cpybck)
 c
 c  Clean up
 c
@@ -385,7 +390,7 @@ c
      $                           kunit, shmap, ngrp, glo, ghi, bfmap, 
      $                           rbfmap, blen, gloc, nnbf, 
      $                           niofl, ionext, rlen, g_movecs, g_kbuf,
-     G     g_kbuf_trans)
+     G     g_kbuf_trans, mp2cpybck)
        implicit none
 #include "errquit.fh"
 #include "tcgmsg.fh"
@@ -429,6 +434,7 @@ c
        integer g_movecs                       ! [input] MO coefficients
        integer g_kbuf                         ! [scratch] Buffer for half-trans exchange
        integer g_kbuf_trans                         ! [scratch] Buffer for half-trans exchange
+       logical mp2cpybck
 c
 c   Local variables
 c
@@ -709,7 +715,7 @@ c
                
                
                mi_t2k = mi_t2k + util_cpusec() - t0
-
+               
                ttask = util_cpusec() - ttask
                mi_mintask = min(mi_mintask,ttask)
                mi_maxtask = max(mi_maxtask,ttask)
@@ -734,11 +740,11 @@ c
                call summaxmin(t1, mi_aggsynch, mi_maxsynch, mi_minsynch)
                t0 = util_cpusec()
 #ifdef GAADD
-#if 1
-               call mp2_copyback(g_kbuf,g_kbuf_trans)
-#else
-               call ga_copy(g_kbuf_trans,g_kbuf)
-#endif
+               if (mp2cpybck) then
+                  call mp2_copyback(g_kbuf,g_kbuf_trans)
+               else
+                  call ga_copy(g_kbuf_trans,g_kbuf)
+               endif
 C               call ga_mask_sync(.true.,.false.)
                call ga_sync()
 c               call ga_add(1d0,g_kbuf_trans,1d0,g_kbuf,g_kbuf)
