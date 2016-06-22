@@ -356,6 +356,7 @@ c
       integer symi, symj, syma, symb, symia
       integer i, a, u, v, ush, vsh, udim, vdim, ishpair
 c
+      logical mp2cpybck
       logical scs  ! flag for SCS-MP2
       double precision fss,fos ! scaling factors for SCS-MP2
 c
@@ -465,11 +466,13 @@ c
 c     
          end do                 ! End of a
          call ga_sync()
-#if 0
-         call ga_copy(g_buf_trans,g_buf)
-#else
-      call mp2_copyback(g_buf,g_buf_trans)
-#endif
+        if (.not. rtdb_get(rtdb, 'mp2:copyback', mt_log, 1, mp2cpybck))
+     $    mp2cpybck=.false.
+         if(mp2cpybck) then
+            call mp2_copyback(g_buf,g_buf_trans)
+         else
+            call ga_copy(g_buf_trans,g_buf)
+         endif
 cc      call ga_print(g_buf_trans)
 cc      call ga_print(g_buf)
 c               call ga_sync()
@@ -1116,6 +1119,7 @@ c
       i_chunk=t_ihi-t_ilo+1
  123  format(i4,a,2i9)
       call ga_igop(123,i_chunk,1,'max')
+cmin      call ga_igop(123,i_chunk,1,'min')
       if(i_chunk.lt.1) then
          write(6,123) ga_nodeid(),'1trans ilo ihi ',t_ilo, t_ihi
          call errquit(' mp2_copyback: bad i_chunk',i_chunk,0)
