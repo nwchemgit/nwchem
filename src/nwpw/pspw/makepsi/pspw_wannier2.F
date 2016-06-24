@@ -35,7 +35,7 @@ c Computes wannier orbitals using the Damle-Lin-Ying algorithm.
       integer info
       integer np,nion,ii
 
-      integer psi(2),psi2(2),psi_r(2),psi_r2(2),Rwav(2)
+      integer psi(2),psi_r(2),psi_r2(2),Rwav(2)
       integer X(2,6)
       integer A(2),Ar(2),rotmat1(2),rotmat2(2)
       real*8 bv(3,6),wrk(6,6),wts(6),bmat(3,3)
@@ -85,8 +85,8 @@ c      character*255 full_filename,full_filename2
       external    ion_nearest_index
       character*2 ion_aname_nocarat
       external    ion_aname_nocarat
-      real*8      Dneall_m_value,coulomb_screened_e
-      external    Dneall_m_value,coulomb_screened_e
+      real*8      Dneall_m_value
+      external    Dneall_m_value
 
       value = .true.
 
@@ -163,9 +163,6 @@ c      character*255 full_filename,full_filename2
       value = BA_alloc_get(mt_dcpl,npack1*nemaxq,
      >                     'psi',psi(2),psi(1))
       value = value.and.
-     >        BA_alloc_get(mt_dcpl,npack1*nemaxq,
-     >                     'psi2',psi2(2),psi2(1))
-      value = value.and.
      >        BA_alloc_get(mt_dbl,n2ft3d*nemaxq,
      >                     'psi_r',psi_r(2),psi_r(1))
       value = value.and.
@@ -178,7 +175,7 @@ c      character*255 full_filename,full_filename2
      >   call errquit('pspw_wannier2:out of heap memory',0,0)
 
 
-*     *****  read psi2 wavefunctions ****
+*     *****  read psi wavefunctions ****
       call psi_read_noocc(ispin,ne,dcpl_mb(psi(1)))
 
 
@@ -233,142 +230,14 @@ c      character*255 full_filename,full_filename2
       call psi_dmatrix_localize(ispin,neq,n2ft3d,
      >                          dbl_mb(psi_r(1)),
      >                          dbl_mb(psi_r2(1)))
-
-      value = Dneall_m_allocate(0,rotmat1)
-      call Dneall_ggm_Multiply(0,dbl_mb(psi_r2(1)),
-     >                           dbl_mb(psi_r(1)),scal1,n2ft3d,
-     >                           dbl_mb(rotmat1(1)),0.0d0)
-
-      call Grsm_hh_Copy(nfft3d,nemaxq,
-     >                  dbl_mb(psi_r2(1)),
-     >                  dbl_mb(psi_r(1)))
-      call Grsm_hg_fftf(nfft3d,nemaxq,dbl_mb(psi_r2(1)))
+      call dcopy(n2ft3d*nemaxq,dbl_mb(psi_r2(1)),1,dbl_mb(psi_r(1)),1)
+      call Grsm_hg_fftf(nfft3d,nemaxq,dbl_mb(psi_r(1)))
       do n=1,nemaxq
-         call Pack_c_Copy(1,dbl_mb(psi_r2(1)  +(n-1)*n2ft3d),
-     >                      dcpl_mb(psi2(1)+(n-1)*npack1))
-         call Pack_c_SMul1(1,scal1,dcpl_mb(psi2(1)+(n-1)*npack1))
+         call Pack_c_Copy(1,dbl_mb(psi_r(1)+(n-1)*n2ft3d),
+     >                      dcpl_mb(psi(1) +(n-1)*npack1))
+         call Pack_c_SMul1(1,scal1, dcpl_mb(psi(1)+(n-1)*npack1))
       end do
-
-      value = Dneall_m_allocate(0,rotmat2)
-      call Dneall_ffm_Multiply(0,dcpl_mb(psi2(1)),
-     >                           dcpl_mb(psi(1)),npack1,
-     >                           dbl_mb(rotmat2(1)))
-
-*     ***** allocate X,Y,Z  ****
-      labels(1)='X1'
-      labels(2)='X2'
-      labels(3)='X3'
-      labels(4)='X4'
-      labels(5)='X5'
-      labels(6)='X6'
-      n=ne(1)
-      if (n.lt.ne(2)) n=ne(2)
-      value=.true.
-c      do j=1,6
-c      value = value.and.BA_alloc_get(mt_dcpl,
-c     >                     n*n,
-c     >                     labels(j),X(2,j),X(1,j))      
-c      end do
-c      value = value.and.
-c     >        BA_alloc_get(mt_dcpl,n*n,
-c     >                     'A',A(2),A(1))
-
-      do j=1,6
-         value = value.and.Dneall_w_allocate(1,X(1,j))
-      end do
-      value = value.and.Dneall_w_allocate(0,A)
-      value = value.and.Dneall_m_allocate(0,Ar)
-      if (.not. value) 
-     >   call errquit('pspw_wannier2:out of heap memory',1,0)
-
-c     *** Silvestrelli G1 ***
-      ixmat(1,1)=1.0d0
-      ixmat(2,1)=0.0d0
-      ixmat(3,1)=0.0d0
-
-c     *** Silvestrelli G4 ***
-      ixmat(1,2)=1.0d0
-      ixmat(2,2)=1.0d0
-      ixmat(3,2)=0.0d0
-
-c     *** Silvestrelli G5 ***
-      ixmat(1,3)=1.0d0
-      ixmat(2,3)=0.0d0
-      ixmat(3,3)=1.0d0
-
-c     *** Silvestrelli G2 ***
-      ixmat(1,4)=0.0d0
-      ixmat(2,4)=1.0d0
-      ixmat(3,4)=0.0d0
-
-c     *** Silvestrelli G6 ***
-      ixmat(1,5)=0.0d0
-      ixmat(2,5)=1.0d0
-      ixmat(3,5)=1.0d0
-
-c     *** Silvestrelli G3 ***
-      ixmat(1,6)=0.0d0
-      ixmat(2,6)=0.0d0
-      ixmat(3,6)=1.0d0
-
-      do i=1,3
-         bmat(i,1)=lattice_unitg(1,i)
-         bmat(i,2)=lattice_unitg(2,i)
-         bmat(i,3)=lattice_unitg(3,i)
-      end do
-
-      do i=1,6
-         xx=0.0d0
-         yy=0.0d0
-         zz=0.0d0
-         do j=1,3
-           xx=xx+bmat(j,1)*ixmat(j,i)
-           yy=yy+bmat(j,2)*ixmat(j,i)
-           zz=zz+bmat(j,3)*ixmat(j,i)
-         end do
-         bv(1,i)=xx
-         bv(2,i)=yy
-         bv(3,i)=zz
-      end do
-
-      do i=1,6
-         wrk(1,i)=bv(1,i)*bv(1,i)
-         wrk(2,i)=bv(1,i)*bv(2,i)
-         wrk(3,i)=bv(1,i)*bv(3,i)
-         wrk(4,i)=bv(2,i)*bv(2,i)
-         wrk(5,i)=bv(2,i)*bv(3,i)
-         wrk(6,i)=bv(3,i)*bv(3,i)
-         wts(i)=0.0d0
-      end do
-
-*     *** scal=(2*pi/L)**2 ***
-      scal = lattice_omega()**(1.0d0/3.0d0)
-      scal = 8.0*datan(1.0d0)/scal
-      scal = scal*scal
-      wts(1)=scal
-      wts(4)=scal
-      wts(6)=scal
-      call dgels('N',6,6,1,wrk,6,wts,6,tmp1,tmp_len,info)
-      if (info.ne.0) then
-        write(*,*)"Illegal argument in call to dgels"
-        call flush(6)
-      end if
-      rank=0
-      do i=1,6
-         if (dabs(wts(i)).gt.1.e-6) then
-           rank=rank+1
-           wrk(1,rank)=bv(1,i)
-           wrk(2,rank)=bv(2,i)
-           wrk(3,rank)=bv(3,i)
-           wrk(4,rank)=wts(i)
-         end if
-      end do
-      do i=1,rank
-         bv(1,i)=wrk(1,i)
-         bv(2,i)=wrk(2,i)
-         bv(3,i)=wrk(3,i)
-         wts(i)=wrk(4,i)
-      end do
+      
 
       nx=0.0d0
       ny=0.0d0
@@ -382,155 +251,14 @@ c     *** Silvestrelli G3 ***
         nz=nz+psp_zv(j)*ion_rion(3,i)
         pcharge = pcharge + psp_zv(j)
       end do   
-
-      dx(1)=0.0d0
-      dy(1)=0.0d0
-      dz(1)=0.0d0
-      dx(ispin)=0.0d0
-      dy(ispin)=0.0d0
-      dz(ispin)=0.0d0
-
-      if (oprint) then
-         write(*,1260) 
-         write(*,1261) rank
-         do i=1,rank
-            write(*,1262) i,bv(1,i),bv(2,i),bv(3,i),wts(i)
-         end do
-      end if
       
-      do ms=1,ispin
 
-        if ((oprint).and.(ms.eq.1)) write(luout,1300)
-        if ((oprint).and.(ms.eq.2)) write(luout,1301)
-
-
-        do i=1,rank
-          b(1) = bv(1,i)
-          b(2) = bv(2,i)
-          b(3) = bv(3,i)
-          call silvestrelli_overlap(
-     >                  b,ms,ne,neq,
-     >                  dbl_mb(psi_r(1)),
-     >                  dbl_mb(psi_r2(1)),
-     >                  dcpl_mb(X(1,i)))
-        end do
-
-        if (oprint) write(luout,1381)
-        do i=1,ne(ms)
-          shift=(i-1)*ne(ms)+(i-1)
-          xx=0.0d0
-          yy=0.0d0
-          zz=0.0d0
-          do j=1,rank
-             arg=dcpl_mb(X(1,j)+shift)
-             arg= -wts(j)*datan2(dimag(arg),dble(arg))
-             xx=xx+bv(1,j)*arg/scal
-             yy=yy+bv(2,j)*arg/scal
-             zz=zz+bv(3,j)*arg/scal
-          end do
-          !dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+i-1))   = xx
-          !dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+i-1)+1) = yy
-          !dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+i-1)+2) = zz
-          ii = ion_nearest_index(xx,yy,zz)
-          dx(ms)=dx(ms)+xx
-          dy(ms)=dy(ms)+yy
-          dz(ms)=dz(ms)+zz
-          if (oprint) then
-             if (ms.eq.1) then
-               write(luout,1390) i,xx,yy,zz,ion_aname_nocarat(ii),ii
-               !write(15,*)"H ",xx*0.529177d0,yy*0.529177d0,zz*0.529177d0
-             end if
-             if (ms.eq.2) then
-               write(luout,1391) i+ne(1),xx,yy,zz,
-     >                           ion_aname_nocarat(ii),ii
-               !write(15,*) "H ",xx*0.529177d0,yy*0.529177d0,zz*0.529177d0
-             end if
-          end if
-        end do
-      end do !* ms *
-
-cccccccccccccccccccccccccccccccccccccccccccccc
-c  Molecular dipoles from Resta's theory!
-ccccccccccccccccccccccccccccccccccccccccccccc
-      if (oprint) then
-          write(luout,1771)
-          write(luout,1772) 'spin up   ',
-     >                      dx(1)/dble(ne(1)),
-     >                      dy(1)/dble(ne(1)),
-     >                      dz(1)/dble(ne(1))
-          if (ne(ispin).ne.0)
-     >       write(luout,1772) 'spin down ',
-     >                         dx(ispin)/dble(ne(ispin)),
-     >                         dy(ispin)/dble(ne(ispin)),
-     >                         dz(ispin)/dble(ne(ispin))
-          write(luout,1772) 'electronic',
-     >                       (dx(1)+dx(ispin))/dble(ne(1)+ne(ispin)),
-     >                       (dy(1)+dy(ispin))/dble(ne(1)+ne(ispin)),
-     >                       (dz(1)+dz(ispin))/dble(ne(1)+ne(ispin))
-          write(luout,1772) 'ionic     ',
-     >                       nx/pcharge,
-     >                       ny/pcharge,
-     >                       nz/pcharge
-      end if
-
-      tx=nx-dx(1)-dx(ispin)
-      ty=ny-dy(1)-dy(ispin)
-      tz=nz-dz(1)-dz(ispin)
-      xx = dsqrt(tx*tx + ty*ty + tz*tz)
-
-      if (oprint) then
-         write(luout,1773)
-         write(luout,1774) tx,ty,tz
-         write(luout,1775) xx,xx*autoDebye
-       end if
-
-*     **** look at absolute overlap matrices ****
-      scal2 = 1.0d0/lattice_omega()
-      call coulomb_screened_init(0,8.0d0,8.0d0)
-      do n=1,neq(1)+neq(2)
-         call D3dB_r_ABS(1,dbl_mb(psi_r(1)+(n-1)*n2ft3d),
-     >                     dbl_mb(psi_r2(1)+(n-1)*n2ft3d))
-      end do
-      call Dneall_ggm_sym_Multiply(0,dbl_mb(psi_r2(1)),
-     >                               dbl_mb(psi_r2(1)),
-     >                               n2ft3d,dbl_mb(Ar(1)))
-      call Dneall_m_scal(0,scal1,dbl_mb(Ar(1)))
-      if (oprint) write(luout,*) 
-      if (oprint) write(luout,*) "Absolute OVERLAP MATRIX"
-      do ms=1,ispin
-         do j=1,ne(ms)
-            do i=j,ne(ms)
-
-*              **** generate dnij ****
-               call D3dB_rr_Mul(1,dbl_mb(psi_r(1)+(i-1)*n2ft3d),
-     >                            dbl_mb(psi_r(1)+(j-1)*n2ft3d),
-     >                            dbl_mb(psi_r2(1)))
-               call D3dB_r_SMul1(1,scal2,dbl_mb(psi_r2(1)))
-               call D3dB_r_Zero_Ends(1,dbl_mb(psi_r2(1)))
-
-*              ***** screened coulomb solver ****
-               call D3dB_r_SMul1(1,scal1,dbl_mb(psi_r2(1)))
-               call D3dB_rc_pfft3f(1,0,dbl_mb(psi_r2(1)))
-               call Pack_c_pack(0,dbl_mb(psi_r2(1)))
-
-*              **** get Ecoul energy ****
-               ty = coulomb_screened_e(dbl_mb(psi_r2(1)))
-               call D3dB_r_ABSMAX(1,dbl_mb(psi_r2(1)),tz)
-
-               tx = Dneall_m_value(0,ms,i,j,dbl_mb(Ar(1)))
-               if (oprint) 
-     >         write(luout,*) "ms,i,j,overlap,absmax,eh=",
-     >                         ms,i,j,tx,tz,ty
-            end do
-         end do
-      end do
-
-
+*     ***** compute the centers of the localized orbitals *****
       value = BA_push_get(mt_dbl,n2ft3d,"tmp2",tmp2(2),tmp2(1))
       value = value.and.
      >        BA_push_get(mt_dbl,6*n2ft3d,"xsgrid",xsgrid(2),xsgrid(1))
       if (.not.value)
-     >    call errquit('pspw_hfx_localize_start:push stack',1,MA_ERR)
+     >    call errquit('pspw_wannier2:push stack',1,MA_ERR)
 
       twopi = 8.0d0*datan(1.0d0)
 
@@ -561,7 +289,7 @@ ccccccccccccccccccccccccccccccccccccccccccccc
       do ms=1,ispin
          do q=n1(ms),n2(ms)
             call Dneall_qton(q,n)
-            call D3dB_rr_Sqr(1,dbl_mb(psi_r(1)+(q-1)*n2ft3d),
+            call D3dB_rr_Sqr(1,dbl_mb(psi_r2(1)+(q-1)*n2ft3d),
      >                       dbl_mb(tmp2(1)))
             call D3dB_r_Zero_Ends(1,dbl_mb(tmp2(1)))
 
@@ -579,7 +307,6 @@ ccccccccccccccccccccccccccccccccccccccccccccc
             xx = aa(1,1)*t1 + aa(1,2)*t2 + aa(1,3)*t3
             yy = aa(2,1)*t1 + aa(2,2)*t2 + aa(2,3)*t3
             zz = aa(3,1)*t1 + aa(3,2)*t2 + aa(3,3)*t3
-            write(*,*) "q,n,x,y,z=",q,n,xx,yy,zz
             dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+n-1))   = xx
             dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+n-1)+1) = yy
             dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+n-1)+2) = zz
@@ -587,11 +314,10 @@ ccccccccccccccccccccccccccccccccccccccccccccc
       end do
       call D1dB_Vector_SumAll(3*(ne(1)+ne(2)),dbl_mb(Rwav(1)))
 
-
       value =           BA_pop_stack(xsgrid(2))
       value = value.and.BA_pop_stack(tmp2(2))
       if (.not.value)
-     >    call errquit('pspw_hfx_localize_start:pop stack',2,MA_ERR)
+     >    call errquit('pspw_wannier2:pop stack',2,MA_ERR)
 
 
       dx(1) = 0.0d0
@@ -652,33 +378,17 @@ ccccccccccccccccccccccccccccccccccccccccccccc
          write(luout,1779)
          write(luout,1774) tx,ty,tz
          write(luout,1775) xx,xx*autoDebye
+         write(luout,*)
+         write(luout,*)
       end if
 
 
-
-      !if (oprint) write(luout,*) 
-      !if (oprint) write(luout,*) 
-      !if (oprint) then
-      !   write(*,*) "ROTATMAT1="
-      !   do i=1,ne(1)
-      !      write(*,*) (dbl_mb(rotmat1(1)+(i-1)+(j-1)*ne(1)),j=1,ne(1))
-      !   end do
-      !   write(*,*)
-      !   write(*,*) "ROTATMAT2="
-      !   do i=1,ne(1)
-      !      write(*,*) (dbl_mb(rotmat2(1)+(i-1)+(j-1)*ne(1)),j=1,ne(1))
-      !   end do
-!
-!      end if
-      call coulomb_screened_end()
-
-
-
 *     ***** write psi2 wavefunctions ****
-      call psi_write_noocc(ispin,ne,dcpl_mb(psi2(1)))
+      call psi_write_noocc(ispin,ne,dcpl_mb(psi(1)))
 
 *     **** deallocate heap memory ****
-      call ion_write(rtdb)
+      !call ion_write(rtdb)
+      call ion_destroy()
       call ion_end()
       call psp_end()
       call mask_end()
@@ -689,21 +399,10 @@ ccccccccccccccccccccccccccccccccccccccccccccc
       call Dne_end()
       call psi_data_end()
 
-c      value =  BA_free_heap(A(2))
-c      do j=1,6
-c        value=value.and.BA_free_heap(X(2,j))
-c      end do
-      value = Dneall_m_free(Ar)
-      value = value.and.Dneall_m_free(A)
-      value = value.and.Dneall_m_free(rotmat1)
-      value = value.and.Dneall_m_free(rotmat2)
-      do j=1,6
-      value = value.and.Dneall_m_free(X(1,j))
-      end do
+
       value = value.and.BA_free_heap(Rwav(2))
       value = value.and.BA_free_heap(psi_r2(2))
       value = value.and.BA_free_heap(psi_r(2))
-      value = value.and.BA_free_heap(psi2(2))
       value = value.and.BA_free_heap(psi(2))
       if (.not. value) 
      >   call errquit('pspw_wannier2:deallocating heap memory',2,0)

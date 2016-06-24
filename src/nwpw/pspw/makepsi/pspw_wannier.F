@@ -42,7 +42,8 @@ c Computes wannier orbitals using the Silvestrelli algorithm.
       real*8 xx,yy,zz,tmp1(tmp_len),maxtime,pcharge
       real*8 dx(2),dy(2),dz(2),nx,ny,nz,tx,ty,tz,alpha,scal
       real*8 dix(2),diy(2),diz(2),tix,tiy,tiz
-      complex*16 arg,wx
+      real*8 drx(2),dry(2),drz(2),trx,try,trz
+      complex*16 arg,wx,arg0
       character*2 labels(6)
 
 c      double precision unita(3,3),b(3),alpha
@@ -366,6 +367,13 @@ c     *** Silvestrelli G3 ***
       diz(1)=0.0d0
       diz(2)=0.0d0
 
+      drx(1)=0.0d0
+      drx(2)=0.0d0
+      dry(1)=0.0d0
+      dry(2)=0.0d0
+      drz(1)=0.0d0
+      drz(2)=0.0d0
+
       if (oprint) then
          write(*,1260) 
          write(*,1261) rank
@@ -403,8 +411,13 @@ c     *** Silvestrelli G3 ***
             do j=1,rank
 
                !*** really just want complex eigenvalues of X here ***
-               !arg=dcpl_mb(X(1,j)+shift)
-               arg=dcpl_mb(Xeig(1,j)+(i-1))
+               arg0=dcpl_mb(Xeig(1,j)+(i-1))
+               arg0= -wts(j)*datan2(dimag(arg0),dble(arg0))
+               drx(ms)=drx(ms)+bv(1,j)*arg0/scal
+               dry(ms)=dry(ms)+bv(2,j)*arg0/scal
+               drz(ms)=drz(ms)+bv(3,j)*arg0/scal
+
+               arg=dcpl_mb(X(1,j)+shift)
                arg= -wts(j)*datan2(dimag(arg),dble(arg))
                xx=xx+bv(1,j)*arg/scal
                yy=yy+bv(2,j)*arg/scal
@@ -491,6 +504,11 @@ ccccccccccccccccccccccccccccccccccccccccccccc
       tiz=nz-diz(1)-diz(ispin)
       yy = dsqrt(tix*tix + tiy*tiy + tiz*tiz)
 
+      trx=nx-drx(1)-drx(ispin)
+      try=ny-dry(1)-dry(ispin)
+      trz=nz-drz(1)-drz(ispin)
+      zz = dsqrt(trx*trx + try*try + trz*trz)
+
       if (oprint) then
          write(luout,1771)
          write(luout,1772) 'spin up   ',
@@ -510,13 +528,17 @@ ccccccccccccccccccccccccccccccccccccccccccccc
      >                      nx/pcharge,
      >                      ny/pcharge,
      >                      nz/pcharge
-         write(luout,1778)
-         write(luout,1774) tix,tiy,tiz
-         write(luout,1775) yy,yy*autoDebye
-
          write(luout,1773)
          write(luout,1774) tx,ty,tz
          write(luout,1775) xx,xx*autoDebye
+
+         write(luout,1779)
+         write(luout,1774) tix,tiy,tiz
+         write(luout,1775) yy,yy*autoDebye
+
+         write(luout,1778)
+         write(luout,1774) trx,try,trz
+         write(luout,1775) zz,zz*autoDebye
       end if
 
 
@@ -619,6 +641,7 @@ c      end do
  1776 FORMAT(/"ELECTRONIC DIPOLES")
  1777 FORMAT("DX =",F11.5," DY= ",F11.5," DZ= ",F11.5)
  1778 FORMAT(//'== Resta (not localized) Crystal Dipole =='/)
+ 1779 FORMAT(//'== Initial Wannier Crystal Dipole =='/)
  1780 FORMAT("NUCLEAR DIPOLES")
  1785 FORMAT("TOTAL DIPOLES")
  1800 FORMAT(/2x,'iter.',8x,'Omega ',6x,' maxgrad',9x,'domega ',5x,
