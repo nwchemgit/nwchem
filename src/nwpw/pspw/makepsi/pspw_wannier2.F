@@ -37,13 +37,18 @@ c Computes wannier orbitals using the Damle-Lin-Ying algorithm.
 
       integer psi(2),psi2(2),psi_r(2),psi_r2(2),Rwav(2)
       integer X(2,6)
-      integer A(2),Ar(2)
+      integer A(2),Ar(2),rotmat1(2),rotmat2(2)
       real*8 bv(3,6),wrk(6,6),wts(6),bmat(3,3)
       real*8 b(3),ixmat(3,6)
       real*8 xx,yy,zz,tmp1(tmp_len),maxtime,pcharge
-      real*8 dx(2),dy(2),dz(2),nx,ny,nz,tx,ty,tz,alpha,scal,scal1
+      real*8 dx(2),dy(2),dz(2),nx,ny,nz,tx,ty,tz,alpha,scal,scal1,scal2
       complex*16 arg,wx
       character*2 labels(6)
+      integer xs(6),xsgrid(2),tmp2(2)
+      integer q,n1(2),n2(2)
+      real*8  aa(3,3)
+      real*8  cdx1,cdx2,cdx3,cdy1,cdy2,cdy3,t1,t2,t3,twopi
+
 
 c      double precision unita(3,3),b(3),alpha
 
@@ -80,6 +85,8 @@ c      character*255 full_filename,full_filename2
       external    ion_nearest_index
       character*2 ion_aname_nocarat
       external    ion_aname_nocarat
+      real*8      Dneall_m_value,coulomb_screened_e
+      external    Dneall_m_value,coulomb_screened_e
 
       value = .true.
 
@@ -226,6 +233,12 @@ c      character*255 full_filename,full_filename2
       call psi_dmatrix_localize(ispin,neq,n2ft3d,
      >                          dbl_mb(psi_r(1)),
      >                          dbl_mb(psi_r2(1)))
+
+      value = Dneall_m_allocate(0,rotmat1)
+      call Dneall_ggm_Multiply(0,dbl_mb(psi_r2(1)),
+     >                           dbl_mb(psi_r(1)),scal1,n2ft3d,
+     >                           dbl_mb(rotmat1(1)),0.0d0)
+
       call Grsm_hh_Copy(nfft3d,nemaxq,
      >                  dbl_mb(psi_r2(1)),
      >                  dbl_mb(psi_r(1)))
@@ -235,6 +248,11 @@ c      character*255 full_filename,full_filename2
      >                      dcpl_mb(psi2(1)+(n-1)*npack1))
          call Pack_c_SMul1(1,scal1,dcpl_mb(psi2(1)+(n-1)*npack1))
       end do
+
+      value = Dneall_m_allocate(0,rotmat2)
+      call Dneall_ffm_Multiply(0,dcpl_mb(psi2(1)),
+     >                           dcpl_mb(psi(1)),npack1,
+     >                           dbl_mb(rotmat2(1)))
 
 *     ***** allocate X,Y,Z  ****
       labels(1)='X1'
@@ -258,8 +276,8 @@ c     >                     'A',A(2),A(1))
       do j=1,6
          value = value.and.Dneall_w_allocate(1,X(1,j))
       end do
-      value = value.and.Dneall_w_allocate(1,A)
-      value = value.and.Dneall_m_allocate(1,Ar)
+      value = value.and.Dneall_w_allocate(0,A)
+      value = value.and.Dneall_m_allocate(0,Ar)
       if (.not. value) 
      >   call errquit('pspw_wannier2:out of heap memory',1,0)
 
@@ -420,7 +438,7 @@ c     *** Silvestrelli G3 ***
           if (oprint) then
              if (ms.eq.1) then
                write(luout,1390) i,xx,yy,zz,ion_aname_nocarat(ii),ii
-               !write(15,*) "H ",xx*0.529177d0,yy*0.529177d0,zz*0.529177d0
+               !write(15,*)"H ",xx*0.529177d0,yy*0.529177d0,zz*0.529177d0
              end if
              if (ms.eq.2) then
                write(luout,1391) i+ne(1),xx,yy,zz,
@@ -455,16 +473,205 @@ ccccccccccccccccccccccccccccccccccccccccccccc
      >                       nz/pcharge
       end if
 
-       tx=nx-dx(1)-dx(ispin)
-       ty=ny-dy(1)-dy(ispin)
-       tz=nz-dz(1)-dz(ispin)
-       xx = dsqrt(tx*tx + ty*ty + tz*tz)
+      tx=nx-dx(1)-dx(ispin)
+      ty=ny-dy(1)-dy(ispin)
+      tz=nz-dz(1)-dz(ispin)
+      xx = dsqrt(tx*tx + ty*ty + tz*tz)
 
-       if (oprint) then
-          write(luout,1773)
-          write(luout,1774) tx,ty,tz
-          write(luout,1775) xx,xx*autoDebye
-        end if
+      if (oprint) then
+         write(luout,1773)
+         write(luout,1774) tx,ty,tz
+         write(luout,1775) xx,xx*autoDebye
+       end if
+
+*     **** look at absolute overlap matrices ****
+      scal2 = 1.0d0/lattice_omega()
+      call coulomb_screened_init(0,8.0d0,8.0d0)
+      do n=1,neq(1)+neq(2)
+         call D3dB_r_ABS(1,dbl_mb(psi_r(1)+(n-1)*n2ft3d),
+     >                     dbl_mb(psi_r2(1)+(n-1)*n2ft3d))
+      end do
+      call Dneall_ggm_sym_Multiply(0,dbl_mb(psi_r2(1)),
+     >                               dbl_mb(psi_r2(1)),
+     >                               n2ft3d,dbl_mb(Ar(1)))
+      call Dneall_m_scal(0,scal1,dbl_mb(Ar(1)))
+      if (oprint) write(luout,*) 
+      if (oprint) write(luout,*) "Absolute OVERLAP MATRIX"
+      do ms=1,ispin
+         do j=1,ne(ms)
+            do i=j,ne(ms)
+
+*              **** generate dnij ****
+               call D3dB_rr_Mul(1,dbl_mb(psi_r(1)+(i-1)*n2ft3d),
+     >                            dbl_mb(psi_r(1)+(j-1)*n2ft3d),
+     >                            dbl_mb(psi_r2(1)))
+               call D3dB_r_SMul1(1,scal2,dbl_mb(psi_r2(1)))
+               call D3dB_r_Zero_Ends(1,dbl_mb(psi_r2(1)))
+
+*              ***** screened coulomb solver ****
+               call D3dB_r_SMul1(1,scal1,dbl_mb(psi_r2(1)))
+               call D3dB_rc_pfft3f(1,0,dbl_mb(psi_r2(1)))
+               call Pack_c_pack(0,dbl_mb(psi_r2(1)))
+
+*              **** get Ecoul energy ****
+               ty = coulomb_screened_e(dbl_mb(psi_r2(1)))
+               call D3dB_r_ABSMAX(1,dbl_mb(psi_r2(1)),tz)
+
+               tx = Dneall_m_value(0,ms,i,j,dbl_mb(Ar(1)))
+               if (oprint) 
+     >         write(luout,*) "ms,i,j,overlap,absmax,eh=",
+     >                         ms,i,j,tx,tz,ty
+            end do
+         end do
+      end do
+
+
+      value = BA_push_get(mt_dbl,n2ft3d,"tmp2",tmp2(2),tmp2(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,6*n2ft3d,"xsgrid",xsgrid(2),xsgrid(1))
+      if (.not.value)
+     >    call errquit('pspw_hfx_localize_start:push stack',1,MA_ERR)
+
+      twopi = 8.0d0*datan(1.0d0)
+
+      aa(1,1) = lattice_unita(1,1)
+      aa(2,1) = lattice_unita(2,1)
+      aa(3,1) = lattice_unita(3,1)
+      aa(1,2) = lattice_unita(1,2)
+      aa(2,2) = lattice_unita(2,2)
+      aa(3,2) = lattice_unita(3,2)
+      aa(1,3) = lattice_unita(1,3)
+      aa(2,3) = lattice_unita(2,3)
+      aa(3,3) = lattice_unita(3,3)
+
+      call lattice_p_grid(dbl_mb(xsgrid(1)))
+
+      xs(1) = xsgrid(1)
+      xs(2) = xsgrid(1)+n2ft3d
+      xs(3) = xsgrid(1)+2*n2ft3d
+      xs(4) = xsgrid(1)+3*n2ft3d
+      xs(5) = xsgrid(1)+4*n2ft3d
+      xs(6) = xsgrid(1)+5*n2ft3d
+
+      n1(1) = 1
+      n1(2) = neq(1)+1
+      n2(1) = neq(1)
+      n2(2) = neq(1)+neq(2)
+      call dcopy(3*(ne(1)+ne(2)),0.0d0,0,dbl_mb(Rwav(1)),1)
+      do ms=1,ispin
+         do q=n1(ms),n2(ms)
+            call Dneall_qton(q,n)
+            call D3dB_rr_Sqr(1,dbl_mb(psi_r(1)+(q-1)*n2ft3d),
+     >                       dbl_mb(tmp2(1)))
+            call D3dB_r_Zero_Ends(1,dbl_mb(tmp2(1)))
+
+            call D3dB_rr_dot(1,dbl_mb(xs(1)),dbl_mb(tmp2(1)),cdx1)
+            call D3dB_rr_dot(1,dbl_mb(xs(2)),dbl_mb(tmp2(1)),cdy1)
+
+            call D3dB_rr_dot(1,dbl_mb(xs(3)),dbl_mb(tmp2(1)),cdx2)
+            call D3dB_rr_dot(1,dbl_mb(xs(4)),dbl_mb(tmp2(1)),cdy2)
+
+            call D3dB_rr_dot(1,dbl_mb(xs(5)),dbl_mb(tmp2(1)),cdx3)
+            call D3dB_rr_dot(1,dbl_mb(xs(6)),dbl_mb(tmp2(1)),cdy3)
+            t1 = datan2(cdy1*scal1,cdx1*scal1)/twopi
+            t2 = datan2(cdy2*scal1,cdx2*scal1)/twopi
+            t3 = datan2(cdy3*scal1,cdx3*scal1)/twopi
+            xx = aa(1,1)*t1 + aa(1,2)*t2 + aa(1,3)*t3
+            yy = aa(2,1)*t1 + aa(2,2)*t2 + aa(2,3)*t3
+            zz = aa(3,1)*t1 + aa(3,2)*t2 + aa(3,3)*t3
+            write(*,*) "q,n,x,y,z=",q,n,xx,yy,zz
+            dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+n-1))   = xx
+            dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+n-1)+1) = yy
+            dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+n-1)+2) = zz
+         end do
+      end do
+      call D1dB_Vector_SumAll(3*(ne(1)+ne(2)),dbl_mb(Rwav(1)))
+
+
+      value =           BA_pop_stack(xsgrid(2))
+      value = value.and.BA_pop_stack(tmp2(2))
+      if (.not.value)
+     >    call errquit('pspw_hfx_localize_start:pop stack',2,MA_ERR)
+
+
+      dx(1) = 0.0d0
+      dx(2) = 0.0d0
+      dy(1) = 0.0d0
+      dy(2) = 0.0d0
+      dz(1) = 0.0d0
+      dz(2) = 0.0d0
+      if (oprint) write(luout,1382)
+      do ms=1,ispin
+         do i=1,ne(ms)
+          xx = dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+i-1))  
+          yy = dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+i-1)+1)
+          zz = dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+i-1)+2)
+          ii = ion_nearest_index(xx,yy,zz)
+          dx(ms)=dx(ms)+xx
+          dy(ms)=dy(ms)+yy
+          dz(ms)=dz(ms)+zz
+          if (oprint) then
+             if (ms.eq.1) then
+               write(luout,1390) i,xx,yy,zz,ion_aname_nocarat(ii),ii
+               !write(15,*)"H ",xx*0.529177d0,yy*0.529177d0,zz*0.529177d0
+             end if
+             if (ms.eq.2) then
+               write(luout,1391) i+ne(1),xx,yy,zz,
+     >                           ion_aname_nocarat(ii),ii
+               !write(15,*) "H ",xx*0.529177d0,yy*0.529177d0,zz*0.529177d0
+             end if
+          end if
+         end do
+      end do
+      if (oprint) then
+          write(luout,1778)
+          write(luout,1772) 'spin up   ',
+     >                      dx(1)/dble(ne(1)),
+     >                      dy(1)/dble(ne(1)),
+     >                      dz(1)/dble(ne(1))
+          if (ne(ispin).ne.0)
+     >       write(luout,1772) 'spin down ',
+     >                         dx(ispin)/dble(ne(ispin)),
+     >                         dy(ispin)/dble(ne(ispin)),
+     >                         dz(ispin)/dble(ne(ispin))
+          write(luout,1772) 'electronic',
+     >                       (dx(1)+dx(ispin))/dble(ne(1)+ne(ispin)),
+     >                       (dy(1)+dy(ispin))/dble(ne(1)+ne(ispin)),
+     >                       (dz(1)+dz(ispin))/dble(ne(1)+ne(ispin))
+          write(luout,1772) 'ionic     ',
+     >                       nx/pcharge,
+     >                       ny/pcharge,
+     >                       nz/pcharge
+      end if
+      tx=nx-dx(1)-dx(ispin)
+      ty=ny-dy(1)-dy(ispin)
+      tz=nz-dz(1)-dz(ispin)
+      xx = dsqrt(tx*tx + ty*ty + tz*tz)
+
+      if (oprint) then
+         write(luout,1779)
+         write(luout,1774) tx,ty,tz
+         write(luout,1775) xx,xx*autoDebye
+      end if
+
+
+
+      !if (oprint) write(luout,*) 
+      !if (oprint) write(luout,*) 
+      !if (oprint) then
+      !   write(*,*) "ROTATMAT1="
+      !   do i=1,ne(1)
+      !      write(*,*) (dbl_mb(rotmat1(1)+(i-1)+(j-1)*ne(1)),j=1,ne(1))
+      !   end do
+      !   write(*,*)
+      !   write(*,*) "ROTATMAT2="
+      !   do i=1,ne(1)
+      !      write(*,*) (dbl_mb(rotmat2(1)+(i-1)+(j-1)*ne(1)),j=1,ne(1))
+      !   end do
+!
+!      end if
+      call coulomb_screened_end()
+
 
 
 *     ***** write psi2 wavefunctions ****
@@ -488,6 +695,8 @@ c        value=value.and.BA_free_heap(X(2,j))
 c      end do
       value = Dneall_m_free(Ar)
       value = value.and.Dneall_m_free(A)
+      value = value.and.Dneall_m_free(rotmat1)
+      value = value.and.Dneall_m_free(rotmat2)
       do j=1,6
       value = value.and.Dneall_m_free(X(1,j))
       end do
@@ -546,6 +755,7 @@ c      end do
  1301 FORMAT(/' Wannier orbital generation for spin down orbitals')
  1380 FORMAT(/' position of Wannier centers:')
  1381 FORMAT(/' position of Wannier centers:')
+ 1382 FORMAT(/' position of localized orbital centers:')
  1390 FORMAT(5X,'psi',I5,' (',3F11.5,
      >       ' ) - spin up orbital, nearest ion=',A3,I5)
  1391 FORMAT(5X,'psi',I5,' (',3F11.5,
@@ -560,6 +770,8 @@ c      end do
 
  1776 FORMAT(/"ELECTRONIC DIPOLES")
  1777 FORMAT("DX =",F11.5," DY= ",F11.5," DZ= ",F11.5)
+ 1778 FORMAT(//'== Center of Charge from localized orbitals =='/)
+ 1779 FORMAT(//'== Crystal Dipole from localized orbitals =='/)
  1780 FORMAT("NUCLEAR DIPOLES")
  1785 FORMAT("TOTAL DIPOLES")
  1800 FORMAT(/2x,'iter.',8x,'Omega ',6x,' maxgrad',9x,'domega ',5x,
