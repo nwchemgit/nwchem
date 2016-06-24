@@ -468,6 +468,7 @@ c
          call ga_sync()
         if (.not. rtdb_get(rtdb, 'mp2:copyback', mt_log, 1, mp2cpybck))
      $    mp2cpybck=.false.
+
          if(mp2cpybck) then
             call mp2_copyback(g_buf,g_buf_trans)
          else
@@ -1140,13 +1141,25 @@ c     check for remainder
             i_0=(iseg-1)*i_chunk+1
             i_1=iseg*i_chunk
             if(iseg.eq.nsegs) i_1=dim1
+c     check for boundaries of buff()
+            if((i_1-i_0).gt.(ihi-ilo)) then
+               write(6,*) ga_nodeid(),' i_1.gt.ihi ',i_1,ihi
+               call errquit(' mp2copybck: i boundary passed ',0,0)
+            endif
+#if 0
             call ga_get(g_a_trans,i_0,i_1,
      A           jlo,jhi,buff(i_0,jlo),i_ld)
+#else
+            call ga_get(g_a_trans,i_0,i_1,
+     A           jlo,jhi,buff,i_ld)
+            call ga_put(g_a, i_0, i_1, jlo, jhi, buff, i_ld)
+#endif
          enddo
       endif
 c     everybody needs to have the buffer filled
       call ga_sync()
-      if(dowork) call ga_put(g_a, ilo, ihi, jlo, jhi, buff, ihi-ilo+1)
+cold      if(dowork) call ga_put(g_a, ilo, ihi, jlo, jhi, buff, ihi-ilo+1)
+      call ga_sync()
 #if 0
       call ga_sync()
       tr=ga_ddot(g_a,g_a)
