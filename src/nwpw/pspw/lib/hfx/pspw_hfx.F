@@ -116,12 +116,17 @@
      >                       mt_log,1,orb_contribution))
      >       orb_contribution = .false.
 
-         if (.not. btdb_get(rtdb,
-     >                      'pspw:HFX_localize',
+*        **** get localization parameters ****
+         if (.not. btdb_get(rtdb,'pspw:HFX_localize',
      >                      mt_log,1,localize_on)) 
-     >       localize_on = .false.
+     >      localize_on = .false.
 
-         !write(*,*) "localize_on=",localize_on
+         if (localize_on) then
+            if (.not. btdb_get(rtdb,'pspw:HFX_localize_rcut',
+     >                         mt_dbl,1,rwav_thresh))
+     >          rwav_thresh = 7.0d0
+         end if
+
  
 
 *        **** initialize coulomb_screened ****
@@ -185,6 +190,8 @@ c     **** define extra psi and Hpsi  ****
          call dcopy(nrsize,0.0d0,0,dbl_mb(psi_r_replicated(1)),1)
          call dcopy(nrsize,0.0d0,0,dbl_mb(Hpsi_r_replicated(1)),1)
       end if
+
+      if (localize_on)  call pspw_hfx_localize_init()
    
       return
       end
@@ -237,6 +244,7 @@ c     **** define extra psi and Hpsi  ****
 
 
 *       **** deallocate memory ****
+        if (localize_on) call pspw_hfx_localize_end()
         value = .true.
         do ms=1,ispin
           value = value.and.BA_free_heap(orbital_list(2,ms)) 
@@ -315,6 +323,10 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
           write(unit,1007)
         end if
         if (hfx_parameter.ne.1.0d0) write(unit,1010) hfx_parameter
+        if (localize_on) then
+           write(unit,1020)
+           write(unit,1021) rwav_thresh
+        end if
         write(unit,*)
 
       end if
@@ -338,8 +350,9 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
      >       I2)
  1012 FORMAT(6x,"- attenuation parameter (nwpw:attenuation)       :",
      >       E10.3)
+ 1020 FORMAT(6x,"- HFX localized orbital solver")
+ 1021 FORMAT(6x,"- HFX localized orbital radius:",E10.3)
       end
-
 
 
 *     ****************************
@@ -357,6 +370,34 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 
+      call nwpw_timing_start(33)
+      if (localize_on) then
+         call pspw_hfx_localize_start(psi_r)
+         call pspw_potential_HFX0(ispin0,dbl_mb(psiloc_r(1)),Hpsi_r)
+         call pspw_hfx_localize_stop(Hpsi_r)
+      else
+         call pspw_potential_HFX0(ispin0,psi_r,Hpsi_r)
+      end if
+      call nwpw_timing_end(33)
+
+      return
+      end
+
+*     ****************************
+*     *                    	 *
+*     *    pspw_potential_HFX0   *
+*     *                          *
+*     ****************************
+      subroutine pspw_potential_HFX0(ispin0,psi_r,Hpsi_r)
+      implicit none
+      integer    ispin0
+      real*8     psi_r(*)
+      real*8     Hpsi_r(*)
+
+#include "bafdecls.fh"
+#include "pspw_hfx.fh"
+#include "errquit.fh"
+
       integer istart,iend,jstart,jend,imodn,imodtask
       integer ms,l,q,n,indx1,indx2,Levels,neq(2)
       integer requests(5),reqcnt
@@ -364,7 +405,9 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
       integer  Butter_Levels,Dneall_na_ptr
       external Butter_Levels,Dneall_na_ptr
 
-      call nwpw_timing_start(33)
+
+
+*     ***** now do exchange as normal ****
       ehfx = 0.0d0
       phfx = 0.0d0
       if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
@@ -475,20 +518,17 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
             end if
 
          else
-            if (localize_on) then
-               call pspw_potential_hfx_localize(psi_r,Hpsi_r)
-            else
+            !if (localize_on) then
+            !   !call pspw_potential_hfx_localize(psi_r,Hpsi_r)
+            !else
                call pspw_potential_HFX_sub(ispin0,psi_r,Hpsi_r)
-            end if
+            !end if
          end if
 
       end if
-      call nwpw_timing_end(33)
 
       return
       end
-
-
 
 
 *     *************************
@@ -505,14 +545,46 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
 
 #include "bafdecls.fh"
 #include "pspw_hfx.fh"
+
+      call nwpw_timing_start(33)
+      if (((norbs(1)+norbs(2)).ne.0).and.(.not.relaxed)) then
+         if (localize_on) then
+            call pspw_hfx_localize_start(psi_r)
+            call pspw_energy_HFX0(ispin0,dbl_mb(psiloc_r(1)),
+     >                            ehfx_out,phfx_out)
+         else
+            call pspw_energy_HFX0(ispin0,psi_r,ehfx_out,phfx_out)
+         end if
+      else
+         ehfx_out = ehfx
+         phfx_out = phfx
+      end if
+      call nwpw_timing_end(33)
+
+      return
+      end
+
+*     *************************
+*     *                       *
+*     *     pspw_energy_HFX0  *
+*     *                       *
+*     *************************
+      subroutine pspw_energy_HFX0(ispin0,psi_r,ehfx_out,phfx_out)
+      implicit none
+      integer ispin0
+      real*8  psi_r(*)
+      real*8 ehfx_out
+      real*8 phfx_out
+
+#include "bafdecls.fh"
+#include "pspw_hfx.fh"
 #include "errquit.fh"
 
       integer q,n,indx1,indx2
 
-      call nwpw_timing_start(33)
-c     **** calculate HFX energy  ****
       if (((norbs(1)+norbs(2)).ne.0).and.(.not.relaxed)) then
 
+c     **** calculate HFX energy  ****
          if (replicated) then
 
             call dcopy(nrsize,0.0d0,0,dbl_mb(psi_r_replicated(1)),1)
@@ -538,7 +610,6 @@ c     **** nothing to do ****
          ehfx_out = ehfx
          phfx_out = phfx
       end if
-      call nwpw_timing_end(33)
 
       return
       end
@@ -713,9 +784,11 @@ c     >                      dbl_mb(vij(1)))
       integer q,n,indx1,indx2
 
       call nwpw_timing_start(33)
-c     **** calculate HFX stress  ****
       if (((norbs(1)+norbs(2)).ne.0)) then
 
+*     ***** localize psi_r here, and generate absoverlap and rotation matrix ****
+
+c     **** calculate HFX stress  ****
          if (replicated) then
             call dcopy(nrsize,0.0d0,0,dbl_mb(psi_r_replicated(1)),1)
             do q=1,neqall
@@ -769,9 +842,11 @@ c***************** sub/replicated routines *****************************
 
 *     **** external functions ****
       real*8   lattice_omega,icoulomb_screened_e
-      logical   D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
+      logical  D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
+      logical  pspw_hfx_localize_closeenough
       external lattice_omega,icoulomb_screened_e
-      external  D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
+      external D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
+      external pspw_hfx_localize_closeenough
 
 
       ehfx = 0.0d0
@@ -816,9 +891,14 @@ c***************** sub/replicated routines *****************************
            done = .false.
            do while (.not.done)
 
-              if (k1.le.NN) then
+              if ((k1.le.NN).and.
+     >            (.not.D3dB_rc_pfft3_queue_filled())) then
 
                  if (mod(k1,npj).eq.taskid_j) then
+                 if (pspw_hfx_localize_closeenough(
+     >                   int_mb(orbital_list(1,ms)+i1-1),
+     >                   int_mb(orbital_list(1,ms)+j1-1))) then
+
                     index1 =(int_mb(orbital_list(1,ms)+i1-1)-1)*n2ft3d+1
                     index2 =(int_mb(orbital_list(1,ms)+j1-1)-1)*n2ft3d+1
 
@@ -829,8 +909,10 @@ c                    call D3dB_r_SMul(1,scal2*scal1,dbl_mb(dn(1)),
 c     >                                             dbl_mb(dn(1)))
                     call D3dB_r_SMul1(1,scal2*scal1,dbl_mb(dn(1)))
                     call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
-
+                   
                     call D3dB_rc_pfft3f_queuein(0,dbl_mb(dn(1)))
+                  
+                 end if
                  end if
 
                  k1 = k1 + 1
@@ -841,10 +923,15 @@ c     >                                             dbl_mb(dn(1)))
                  end if
               end if
  
-              if (     ((D3dB_rc_pfft3_queue_filled()).or.(k1.gt.NN))
-     >            .and.(k2.le.NN)) then
+              if ((     ((D3dB_rc_pfft3_queue_filled()).or.(k1.gt.NN))
+     >            .and.(k2.le.NN)).and.
+     >            (.not.D3dB_cr_pfft3_queue_filled())) then
 
                  if (mod(k2,npj).eq.taskid_j) then
+                 if (pspw_hfx_localize_closeenough(
+     >                   int_mb(orbital_list(1,ms)+i2-1),
+     >                   int_mb(orbital_list(1,ms)+j2-1))) then
+
                     call D3dB_rc_pfft3f_queueout(0,dbl_mb(dn(1)))
 
 *                   **** generate Vcoul ****
@@ -870,6 +957,8 @@ c     >                                             dbl_mb(dn(1)))
                     end if
 
                     call D3dB_cr_pfft3b_queuein(0,dbl_mb(vij(1)))
+                    
+                 end if
                  end if
 
                  k2 = k2 + 1
@@ -883,6 +972,10 @@ c     >                                             dbl_mb(dn(1)))
               if ((D3dB_cr_pfft3_queue_filled()).or.(k2.gt.NN)) then
 
                  if (mod(k3,npj).eq.taskid_j) then
+                 if (pspw_hfx_localize_closeenough(
+     >                   int_mb(orbital_list(1,ms)+i3-1),
+     >                   int_mb(orbital_list(1,ms)+j3-1))) then
+
                     index1 =(int_mb(orbital_list(1,ms)+i3-1)-1)*n2ft3d+1
                     index2 =(int_mb(orbital_list(1,ms)+j3-1)-1)*n2ft3d+1
 
@@ -921,6 +1014,7 @@ c     >                                 Hpsi_r(index2))
                        call D3dB_rr_Sub2(1,dbl_mb(tmp2(1)),
      >                                     Hpsi_r(index2))
                     end if
+                 end if
                  end if
 
                  k3 = k3 + 1
