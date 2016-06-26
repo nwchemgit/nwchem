@@ -3629,7 +3629,7 @@ c      call Parallel2d_np_i(np)
       call Parallel2d_np_i(np)
 
       do k=1,n
-        call DGEMM('T','N',k,1,n2ft3d(nb),
+        call DGEMM_OMP('T','N',k,1,n2ft3d(nb),
      >             1.0d0,
      >             A,n2ft3d(nb),
      >             B(1+(k-1)*n2ft3d(nb)),n2ft3d(nb),
