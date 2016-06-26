@@ -34,6 +34,8 @@
       norbs(2) = 0
       ehfx = 0.0d0
       hfx_on = .false.
+      localize_on  = .false.
+      localize2_on = .false.
       call D3dB_n2ft3d(1,n2ft3d)
 
       if (.not.btdb_get(rtdb,'pspw:HFX',mt_log,1,hfx_on))
@@ -763,6 +765,35 @@ c     >                      dbl_mb(vij(1)))
 #include "pspw_hfx.fh"
 
       pspw_HFX= hfx_on
+      return
+      end
+
+
+*     *************************
+*     *                       *
+*     *   pspw_HFX_localize   *
+*     *                       *
+*     *************************
+      logical function pspw_HFX_localize()
+      implicit none
+
+#include "pspw_hfx.fh"
+
+      pspw_HFX_localize = localize_on
+      return
+      end
+
+*     *************************
+*     *                       *
+*     *   pspw_HFX_localize2  *
+*     *                       *
+*     *************************
+      logical function pspw_HFX_localize2()
+      implicit none
+
+#include "pspw_hfx.fh"
+
+      pspw_HFX_localize2 = localize2_on
       return
       end
 
