@@ -145,6 +145,8 @@ cccc#include "frac_occ.fh"
       character*12 control_boundry
       external     control_boundry
 
+      logical      pspw_HFX_localize2
+      external     pspw_HFX_localize2
       logical      pspw_SIC,pspw_SIC_relaxed,pspw_qmmm_found
       logical      pspw_HFX,pspw_HFX_relaxed,psp_pawexist
       logical      psp_semicore,control_Mulliken
@@ -780,9 +782,11 @@ c         end do
         call Dneall_m_diagonalize(0,dbl_mb(hml(1)),
      >                              dbl_mb(eig(1)),.false.)
 
-        call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
-     >                            dbl_mb(hml(1)),  1.0d0,
-     >                            dcpl_mb(psi2(1)),0.0d0)
+*       **** do not rotate if wannier localization ***
+        if (.not.pspw_HFX_localize2())
+     >      call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
+     >                                 dbl_mb(hml(1)),  1.0d0,
+     >                                 dcpl_mb(psi2(1)),0.0d0)
       end if
 
 *                |***************************|

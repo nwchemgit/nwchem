@@ -169,8 +169,10 @@ cccc#include "frac_occ.fh"
       logical  control_out_of_time,control_new_vpsi
       external control_out_of_time,control_new_vpsi
 
+      logical  pspw_HFX_localize2
       logical  control_SA,control_Fei,pspw_SIC,pspw_HFX,control_pressure
       real*8   control_SA_decay
+      external pspw_HFX_localize2
       external control_SA,control_Fei,pspw_SIC,pspw_HFX,control_pressure
       external control_SA_decay
 
@@ -1070,19 +1072,22 @@ c         end do
 c         end if
 
 
-*        *** rotate current psi ***
-         call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
-     >                              dbl_mb(hml(1)),  1.0d0,
-     >                              dcpl_mb(psi2(1)),0.0d0)
+*        **** do not rotate for wannier localization algorithm ****
+         if (.not.pspw_HFX_localize2()) then
+*           *** rotate current psi ***
+            call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
+     >                                 dbl_mb(hml(1)),  1.0d0,
+     >                                 dcpl_mb(psi2(1)),0.0d0)
 
 
-*        *** rotate current v_psi ***
-         call dcopy(2*npack1*nemaxq,dcpl_mb(psi0(1)),1,
-     >                              dcpl_mb(psi1(1)),1)
+*           *** rotate current v_psi ***
+            call dcopy(2*npack1*nemaxq,dcpl_mb(psi0(1)),1,
+     >                                 dcpl_mb(psi1(1)),1)
 
-         call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
-     >                              dbl_mb(hml(1)),  1.0d0,
-     >                              dcpl_mb(psi0(1)),0.0d0)
+            call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
+     >                                 dbl_mb(hml(1)),  1.0d0,
+     >                                 dcpl_mb(psi0(1)),0.0d0)
+         end if
 
       end if
 

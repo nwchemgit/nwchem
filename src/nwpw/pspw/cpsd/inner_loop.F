@@ -294,6 +294,9 @@ c       these two functions are now threadsafe/multithreaded
         end do
 !$OMP END DO
 
+*       **** do a partial localization if hfx_localize2 ***
+        call pspw_hfx_localize2_n(2,psi_r,psi1,psi2,psi2)
+
 
 c       this function calls non pipelined 3d fft
         call nwpw_meta_gga_gen_tau(ispin,ne,psi1)
@@ -541,7 +544,8 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
            call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
      >                     dte,occ1,
      >                     lmd,dbl_mb(tmp_L(1)),ierr)
-        else if (sic.or.hfx) then
+        !else if (sic.or.hfx) then
+        else if (sic) then
            call psi_lmbda_sic(ispin,ne,nemax,npack1,psi1,psi2,dte,
      >                    lmd,dbl_mb(tmp_L(1)),ierr)
         else

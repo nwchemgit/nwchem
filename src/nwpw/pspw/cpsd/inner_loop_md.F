@@ -280,6 +280,8 @@ c        end do
            call D3dB_r_Zero_Ends(1,psi_r(1,n))
         end do
 
+        call pspw_hfx_localize2_n(3,psi_r,psi0,psi1,psi2)
+
         call nwpw_meta_gga_gen_tau(ispin,neq,psi1)
 
 *       *********************
