@@ -121,10 +121,22 @@
      >                      mt_log,1,localize_on)) 
      >      localize_on = .false.
 
+         if (.not. btdb_get(rtdb,'pspw:HFX_localize2',
+     >                      mt_log,1,localize2_on)) 
+     >      localize2_on = .false.
+         if (localize2_on) localize_on = .true.
+
+         if (.not. btdb_get(rtdb,'pspw:HFX_localize2:maxiter',
+     >                      mt_dbl,1,maxiter)) 
+     >      maxiter = 5
+
          if (localize_on) then
-            if (.not. btdb_get(rtdb,'pspw:HFX_localize_rcut',
-     >                         mt_dbl,1,rwav_thresh))
-     >          rwav_thresh = 7.0d0
+            if (.not. btdb_get(rtdb,'pspw:HFX_localize_rin',
+     >                         mt_dbl,1,rin_thresh))
+     >          rin_thresh = 6.5d0
+            if (.not. btdb_get(rtdb,'pspw:HFX_localize_rout',
+     >                         mt_dbl,1,rout_thresh))
+     >          rout_thresh = 7.5d0
          end if
 
  
@@ -324,8 +336,14 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
         end if
         if (hfx_parameter.ne.1.0d0) write(unit,1010) hfx_parameter
         if (localize_on) then
-           write(unit,1020)
-           write(unit,1021) rwav_thresh
+           if (localize2_on) then
+              write(unit,1023)
+              write(unit,1024) maxiter
+           else
+              write(unit,1020)
+           end if
+           write(unit,1021) rin_thresh
+           write(unit,1022) rout_thresh
         end if
         write(unit,*)
 
@@ -351,7 +369,13 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
  1012 FORMAT(6x,"- attenuation parameter (nwpw:attenuation)       :",
      >       E10.3)
  1020 FORMAT(6x,"- HFX localized orbital solver")
- 1021 FORMAT(6x,"- HFX localized orbital radius:",E10.3)
+ 1021 FORMAT(6x,"- HFX localized radius (pspw:HFX_localize_rin)   :",
+     >       E10.3)
+ 1022 FORMAT(6x,"- HFX localized radius (pspw:HFX_localize_rout)  :",
+     >       E10.3)
+ 1023 FORMAT(6x,"- HFX Wannier orbital solver")
+ 1024 FORMAT(6x,"- HFX Wannier maxiter(pspw:HFX_localize2:maxiter):",
+     >       I3)
       end
 
 
@@ -518,11 +542,7 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
             end if
 
          else
-            !if (localize_on) then
-            !   !call pspw_potential_hfx_localize(psi_r,Hpsi_r)
-            !else
-               call pspw_potential_HFX_sub(ispin0,psi_r,Hpsi_r)
-            !end if
+            call pspw_potential_HFX_sub(ispin0,psi_r,Hpsi_r)
          end if
 
       end if
@@ -838,15 +858,17 @@ c***************** sub/replicated routines *****************************
       integer i1,j1,k1,NN
       integer i2,j2,k2
       integer i3,j3,k3
-      real*8  scal1,scal2,dv,eh,ph
+      real*8  scal1,scal2,dv,eh,ph,ss
 
 *     **** external functions ****
       real*8   lattice_omega,icoulomb_screened_e
       logical  D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
       logical  pspw_hfx_localize_closeenough
+      real*8   pspw_hfx_localize_switchr
       external lattice_omega,icoulomb_screened_e
       external D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
       external pspw_hfx_localize_closeenough
+      external pspw_hfx_localize_switchr
 
 
       ehfx = 0.0d0
@@ -932,6 +954,10 @@ c     >                                             dbl_mb(dn(1)))
      >                   int_mb(orbital_list(1,ms)+i2-1),
      >                   int_mb(orbital_list(1,ms)+j2-1))) then
 
+                    ss = pspw_hfx_localize_switchr(
+     >                   int_mb(orbital_list(1,ms)+i2-1),
+     >                   int_mb(orbital_list(1,ms)+j2-1))
+
                     call D3dB_rc_pfft3f_queueout(0,dbl_mb(dn(1)))
 
 *                   **** generate Vcoul ****
@@ -942,7 +968,7 @@ c     >                                             dbl_mb(dn(1)))
 
 
 *                   **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
-                    eh = eh*hfx_parameter
+                    eh = eh*hfx_parameter*ss
                     if (ispin0.eq.1) eh = eh + eh
                     ph = 2.0d0*eh
                     ehfx = ehfx - eh
@@ -979,13 +1005,17 @@ c     >                                             dbl_mb(dn(1)))
                     index1 =(int_mb(orbital_list(1,ms)+i3-1)-1)*n2ft3d+1
                     index2 =(int_mb(orbital_list(1,ms)+j3-1)-1)*n2ft3d+1
 
+                    ss = pspw_hfx_localize_switchr(
+     >                   int_mb(orbital_list(1,ms)+i3-1),
+     >                   int_mb(orbital_list(1,ms)+j3-1))
+
                     call D3dB_cr_pfft3b_queueout(0,dbl_mb(vij(1)))
 
 *                   **** apply hfx_parameter ****
 c                    call D3dB_r_SMul(1,hfx_parameter,
 c     >                                 dbl_mb(vij(1)),
 c     >                                 dbl_mb(vij(1)))
-                    call D3dB_r_SMul1(1,hfx_parameter,dbl_mb(vij(1)))
+                    call D3dB_r_SMul1(1,hfx_parameter*ss,dbl_mb(vij(1)))
 
 *                   **** generate (Vij)*psi_r ***
                     call D3dB_rr_Mul(1,dbl_mb(vij(1)),
@@ -1040,8 +1070,16 @@ c     >                                 Hpsi_r(index2))
          dbl_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
          do j=1,i
            if (mod(k1,npj).eq.taskid_j) then
+           if (pspw_hfx_localize_closeenough(
+     >                   int_mb(orbital_list(1,ms)+i-1),
+     >                   int_mb(orbital_list(1,ms)+j-1))) then
+
               index1 = (int_mb(orbital_list(1,ms)+i-1)-1)*n2ft3d + 1
               index2 = (int_mb(orbital_list(1,ms)+j-1)-1)*n2ft3d + 1
+
+              ss = pspw_hfx_localize_switchr(
+     >             int_mb(orbital_list(1,ms)+i-1),
+     >             int_mb(orbital_list(1,ms)+j-1))
 
 *             **** generate dnij for Vij  ****
               call D3dB_rr_Mul(1,psi_r(index2),psi_r(index1),
@@ -1055,11 +1093,11 @@ c              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
               eh = 0.5d0*eh*dv
 
 *             **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
-              eh = eh*hfx_parameter
+              eh = eh*hfx_parameter*ss
 c              call D3dB_r_SMul(1,hfx_parameter,
 c     >                         dbl_mb(vij(1)),
 c     >                         dbl_mb(vij(1)))
-              call D3dB_r_SMul1(1,hfx_parameter,dbl_mb(vij(1)))
+              call D3dB_r_SMul1(1,hfx_parameter*ss,dbl_mb(vij(1)))
               if (ispin0.eq.1) eh = eh + eh
               ph = 2.0d0*eh
 
@@ -1100,8 +1138,9 @@ c     >                           Hpsi_r(index2))
                  call D3dB_rr_Sub2(1,dbl_mb(tmp2(1)),
      >                               Hpsi_r(index2))
               end if
-            end if
-            k1 = k1 + 1
+           end if
+           end if
+           k1 = k1 + 1
          end do
         end do
         !call D1dB_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
@@ -1146,11 +1185,15 @@ c     >                           Hpsi_r(index2))
       logical value
       integer i,j,n1,n2,n3,ms,k1
       integer dn(2),tmp1(2),index1,index2
-      real*8  scal1,scal2,dv,eh,ph
+      real*8  scal1,scal2,dv,eh,ph,ss
 
 *     **** external functions ****
       real*8   lattice_omega,coulomb_screened_e
       external lattice_omega,coulomb_screened_e
+      logical  pspw_hfx_localize_closeenough
+      external pspw_hfx_localize_closeenough
+      real*8   pspw_hfx_localize_switchr
+      external pspw_hfx_localize_switchr
 
       
       if (((norbs(1)+norbs(2)).ne.0).and.(.not.relaxed)) then
@@ -1179,8 +1222,17 @@ c     >                           Hpsi_r(index2))
          do j=1,i
 
             if (mod(k1,npj).eq.taskid_j) then
+            if (pspw_hfx_localize_closeenough(
+     >                   int_mb(orbital_list(1,ms)+i-1),
+     >                   int_mb(orbital_list(1,ms)+j-1))) then
+
               index1 = (int_mb(orbital_list(1,ms)+i-1)-1)*n2ft3d + 1
               index2 = (int_mb(orbital_list(1,ms)+j-1)-1)*n2ft3d + 1
+
+              ss = pspw_hfx_localize_switchr(
+     >             int_mb(orbital_list(1,ms)+i-1),
+     >             int_mb(orbital_list(1,ms)+j-1))
+
 
 *             **** generate dnij ****
               call D3dB_rr_Mul(1,psi_r(index1),psi_r(index2),
@@ -1210,7 +1262,7 @@ c     >                                   dbl_mb(dn(1)))
               end if
 
 *             **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
-              eh = eh*hfx_parameter
+              eh = eh*hfx_parameter*ss
               if (ispin0.eq.1) eh = eh + eh
               ph = 2.0d0*eh
 
@@ -1226,6 +1278,7 @@ c     >                                   dbl_mb(dn(1)))
      >                                      - eh
               end if
 
+            end if
             end if
             k1 = k1 + 1
 
@@ -1269,12 +1322,15 @@ c     >                                   dbl_mb(dn(1)))
       logical value
       integer i,j,n1,n2,n3,ms,u,v,k1
       integer dn(2),index1,index2
-      real*8  scal1,scal2,dv,eh,ph
+      real*8  scal1,scal2,dv,eh,ph,ss
       real*8  tstress(3,3)
 
 *     **** external functions ****
       real*8   lattice_omega
       external lattice_omega
+      logical  pspw_hfx_localize_closeenough
+      external pspw_hfx_localize_closeenough
+      real*8   pspw_hfx_localize_switchr
 
       
       call dcopy(9,0.0d0,0,stress,1)
@@ -1298,8 +1354,16 @@ c     >                                   dbl_mb(dn(1)))
         do i=1,norbs(ms)
          do j=1,i
             if (mod(k1,npj).eq.taskid_j) then
+            if (pspw_hfx_localize_closeenough(
+     >                   int_mb(orbital_list(1,ms)+i-1),
+     >                   int_mb(orbital_list(1,ms)+j-1))) then
+
               index1 = (int_mb(orbital_list(1,ms)+i-1)-1)*n2ft3d + 1
               index2 = (int_mb(orbital_list(1,ms)+j-1)-1)*n2ft3d + 1
+
+              ss = pspw_hfx_localize_switchr(
+     >             int_mb(orbital_list(1,ms)+i-1),
+     >             int_mb(orbital_list(1,ms)+j-1))
 
 *             **** generate dnij ****
               call D3dB_rr_Mul(1,psi_r(index1),psi_r(index2),
@@ -1323,7 +1387,7 @@ c     >                                   dbl_mb(dn(1)))
                 if (ispin.eq.1) call dscal(9,2.0d0,tstress,1)
 
 *               **** apply the hfx_parameter ****
-                call dscal(9,hfx_parameter,tstress,1)
+                call dscal(9,hfx_parameter*ss,tstress,1)
 
 *             ***** free-space coulomb solver ****
               else
@@ -1347,6 +1411,7 @@ c     >                                   dbl_mb(dn(1)))
                 end do
               end if
 
+            end if
             end if
             k1 = k1 + 1
 

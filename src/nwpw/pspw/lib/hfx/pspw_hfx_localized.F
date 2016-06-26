@@ -18,6 +18,7 @@
       external Dneall_m_allocate
 
       if (localize_on) then
+         call nwpw_timing_start(52)
          call Dneall_neq(neq)
          ne(1) = norbs(1)
          ne(2) = norbs(2)
@@ -27,15 +28,157 @@
          value = value.and.
      >           BA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
      >                        'psiloc_r',psiloc_r(2),psiloc_r(1))
+         value = BA_alloc_get(mt_dbl,(ne(1)*ne(1)+ne(2)*ne(2)),
+     >                'switchr',switchr(2),switchr(1))
+         value = value.and.Dneall_m_allocate(0,rotmat)
          value = BA_alloc_get(mt_log,(ne(1)*ne(1)+ne(2)*ne(2)),
      >                'closeenough',closeenough(2),closeenough(1))
-         value = value.and.Dneall_m_allocate(0,rotmat)
          if (.not.value)
      >      call errquit('pspw_hfx_localize_init: out of heap',3,MA_ERR)
+         call nwpw_timing_end(52)
+
+         if (localize2_on) call pspw_hfx_localize2_init()
       end if
 
       return
       end 
+
+
+*     ************************************************
+*     *                                              *
+*     *        pspw_hfx_localize2_init               *
+*     *                                              *
+*     ************************************************
+      subroutine pspw_hfx_localize2_init()
+      implicit none
+
+#include "bafdecls.fh"
+#include "pspw_hfx.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer MASTER,taskid,tmp_len
+      parameter (MASTER=0,tmp_len=140)
+
+      logical oprint
+      integer i,j,info
+      real*8 wrk(6,6),bmat(3,3)
+      real*8 b(3),ixmat(3,6)
+      real*8 scal,xx,yy,zz,tmp1(tmp_len)
+
+
+*     **** external functions ****
+      real*8   lattice_omega,lattice_unitg
+      external lattice_omega,lattice_unitg
+
+      call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER)
+      oprint = .false.
+
+      call Pack_npack(1,npack1)
+
+
+c     *** Silvestrelli G1 ***
+      ixmat(1,1)=1.0d0
+      ixmat(2,1)=0.0d0
+      ixmat(3,1)=0.0d0
+
+c     *** Silvestrelli G4 ***
+      ixmat(1,2)=1.0d0
+      ixmat(2,2)=1.0d0
+c      ixmat(3,2)=0.0d0
+
+c     *** Silvestrelli G5 ***
+      ixmat(1,3)=1.0d0
+      ixmat(2,3)=0.0d0
+      ixmat(3,3)=1.0d0
+
+c     *** Silvestrelli G2 ***
+      ixmat(1,4)=0.0d0
+      ixmat(2,4)=1.0d0
+      ixmat(3,4)=0.0d0
+
+c     *** Silvestrelli G6 ***
+      ixmat(1,5)=0.0d0
+      ixmat(2,5)=1.0d0
+      ixmat(3,5)=1.0d0
+
+c     *** Silvestrelli G3 ***
+      ixmat(1,6)=0.0d0
+      ixmat(2,6)=0.0d0
+      ixmat(3,6)=1.0d0
+
+      do i=1,3
+         bmat(i,1)=lattice_unitg(1,i)
+         bmat(i,2)=lattice_unitg(2,i)
+         bmat(i,3)=lattice_unitg(3,i)
+      end do
+
+      do i=1,6
+         xx=0.0d0
+         yy=0.0d0
+         zz=0.0d0
+         do j=1,3
+           xx=xx+bmat(j,1)*ixmat(j,i)
+           yy=yy+bmat(j,2)*ixmat(j,i)
+           zz=zz+bmat(j,3)*ixmat(j,i)
+         end do
+         bv(1,i)=xx
+         bv(2,i)=yy
+         bv(3,i)=zz
+      end do
+      do i=1,6
+         wrk(1,i)=bv(1,i)*bv(1,i)
+         wrk(2,i)=bv(1,i)*bv(2,i)
+         wrk(3,i)=bv(1,i)*bv(3,i)
+         wrk(4,i)=bv(2,i)*bv(2,i)
+         wrk(5,i)=bv(2,i)*bv(3,i)
+         wrk(6,i)=bv(3,i)*bv(3,i)
+         wts(i)=0.0d0
+      end do
+
+*     *** scal=(2*pi/L)**2 ***
+      scal = lattice_omega()**(1.0d0/3.0d0)
+      scal = 8.0*datan(1.0d0)/scal
+      scal = scal*scal
+      wts(1)=scal
+      wts(4)=scal
+      wts(6)=scal
+      call dgels('N',6,6,1,wrk,6,wts,6,tmp1,tmp_len,info)
+      if (info.ne.0) then
+        write(*,*)"Illegal argument in call to dgels"
+        call flush(6)
+      end if
+      rank=0
+      do i=1,6
+         if (dabs(wts(i)).gt.1.e-6) then
+           rank=rank+1
+           wrk(1,rank)=bv(1,i)
+           wrk(2,rank)=bv(2,i)
+           wrk(3,rank)=bv(3,i)
+           wrk(4,rank)=wts(i)
+         end if
+      end do
+      do i=1,rank
+         bv(1,i)=wrk(1,i)
+         bv(2,i)=wrk(2,i)
+         bv(3,i)=wrk(3,i)
+         wts(i)=wrk(4,i)
+      end do
+
+      if (oprint) then
+         write(*,1260)
+         write(*,1261) rank
+         do i=1,rank
+            write(*,1262) i,bv(1,i),bv(2,i),bv(3,i),wts(i)
+         end do
+      end if
+
+      return
+ 1260 FORMAT(/5x,' Silvestrelli reciprocal lattice vectors:')
+ 1261 FORMAT(5x,' rank = ',I1)
+ 1262 FORMAT(5x,' bs',I1,' =<',3f8.3,' > weight=',f8.3)
+      end
 
 
 *     ************************************************
@@ -56,13 +199,138 @@
       external Dneall_m_free
 
       if (localize_on) then
+         call nwpw_timing_start(52)
          value = BA_free_heap(rwav(2))
          value = value.and.BA_free_heap(psiloc_r(2))
-         value = value.and.BA_free_heap(closeenough(2))
+         value = value.and.BA_free_heap(switchr(2))
          value = value.and.Dneall_m_free(rotmat)
+         value = value.and.BA_free_heap(closeenough(2))
          if (.not.value)
      >    call errquit('pspw_hfx_localize_end:freeing heap',3,MA_ERR)
+         call nwpw_timing_end(52)
       end if
+      return
+      end
+
+
+
+
+*     ************************************************
+*     *                                              *
+*     *            pspw_hfx_localize2_n              *
+*     *                                              *
+*     ************************************************
+      subroutine pspw_hfx_localize2_n(npsi,psi_r,psi1,psi2,psi3)
+      implicit none
+      integer npsi
+      real*8 psi_r(*)
+      complex*16 psi1(*),psi2(*),psi3(*)
+
+#include "bafdecls.fh"
+#include "pspw_hfx.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+      integer i,ms,mshift,msize,neq(2),ne(2)
+      integer X(2,6),A(2)
+
+*     **** external functions ****
+      logical  Dneall_w_push_get,Dneall_w_pop_stack
+      external Dneall_w_push_get,Dneall_w_pop_stack
+
+      if (hfx_on) then
+      if (localize2_on) then
+
+*        **** push stack memory ****
+         value = .true.
+         do i=1,6
+            value = value.and.Dneall_w_push_get(1,X(1,i))
+         end do
+         value = value.and.Dneall_w_push_get(0,A)
+         if (.not. value)
+     >      call errquit('pspw_hfx_localize_n:push stack',1,MA_ERR)
+
+         call Dneall_neq(neq)
+         ne(1) = norbs(1)
+         ne(2) = norbs(2)
+         call Pack_npack(1,npack1)
+         call Dneall_m_size(1,msize)
+
+         do ms=1,ispin
+            mshift = (ms-1)*mshift
+            do i=1,rank
+               call silvestrelli_overlap(
+     >                     bv(1,i),ms,ne,neq,
+     >                     psi_r,
+     >                     dbl_mb(psiloc_r(1)),
+     >                     dcpl_mb(X(1,i)))
+            end do
+            call silvestrelli_iterate(maxiter,ms,ne(ms),rank,wts,
+     >                       dcpl_mb(X(1,1)),dcpl_mb(X(1,2)),
+     >                       dcpl_mb(X(1,3)),dcpl_mb(X(1,4)),
+     >                       dcpl_mb(X(1,5)),dcpl_mb(X(1,6)),
+     >                       dcpl_mb(A(1)))
+
+            call Dneall_wtom_Real(ms,dcpl_mb(A(1)),
+     >                            dbl_mb(rotmat(1)+mshift))
+         end do
+
+*        **** rotate psi to produce Wannier orbitals ****
+         call Dneall_mm_transpose(0,dbl_mb(rotmat(1)),dcpl_mb(A(1)))
+
+         call dcopy(n2ft3d*(neq(1)+neq(2)),
+     >              psi_r,1,
+     >              dbl_mb(psiloc_r(1)),1)
+         call Dneall_gmg_Multiply(0,
+     >                  dbl_mb(psiloc_r(1)),n2ft3d,
+     >                  dcpl_mb(A(1)),1.0d0,
+     >                  psi_r,
+     >                  0.0d0)
+
+         if (npsi.gt.0) then
+            call dcopy(2*npack1*(neq(1)+neq(2)),
+     >                 psi1,1,
+     >                 dbl_mb(psiloc_r(1)),1)
+            call Dneall_fmf_Multiply(0,
+     >                     dbl_mb(psiloc_r(1)),npack1,
+     >                     dcpl_mb(A(1)),1.0d0,
+     >                     psi1,
+     >                     0.0d0)
+         end if
+         if (npsi.gt.1) then
+            call dcopy(2*npack1*(neq(1)+neq(2)),
+     >                 psi2,1,
+     >                 dbl_mb(psiloc_r(1)),1)
+            call Dneall_fmf_Multiply(0,
+     >                     dbl_mb(psiloc_r(1)),npack1,
+     >                     dcpl_mb(A(1)),1.0d0,
+     >                     psi2,
+     >                     0.0d0)
+         end if
+         if (npsi.gt.2) then
+            call dcopy(2*npack1*(neq(1)+neq(2)),
+     >                 psi3,1,
+     >                 dbl_mb(psiloc_r(1)),1)
+            call Dneall_fmf_Multiply(0,
+     >                     dbl_mb(psiloc_r(1)),npack1,
+     >                     dcpl_mb(A(1)),1.0d0,
+     >                     psi3,
+     >                     0.0d0)
+         end if
+
+*        **** pop stack memory ****
+         value = Dneall_w_pop_stack(A)
+         do i=6,1,-1
+            value = value.and.Dneall_w_pop_stack(X(1,i))
+         end do
+         if (.not. value)
+     >   call errquit('pspw_hfx_localize_n:pop stack',2,MA_ERR)
+
+
+      end if
+      end if
+
       return
       end
 
@@ -100,6 +368,7 @@
       external    ion_aname_nocarat
 
       if (localize_on) then
+         call nwpw_timing_start(52)
          call Parallel_taskid(taskid)
          oprint = (taskid.eq.MASTER)
          oprint = .false.
@@ -119,13 +388,21 @@
          scal1 = 1.0d0/dble(nx*ny*nz)
          twopi = 8.0d0*datan(1.0d0)
 
-*        **** generate localize psi_r ****
-         call psi_dmatrix_localize(ispin,neq,n2ft3d,
-     >                             psi_r,dbl_mb(psiloc_r(1)))
+*        ***** localize matrix ****
+         if (localize2_on) then
+*           **** use psi_r - assumed that it is localized ***
+            call dcopy(n2ft3d*(neq(1)+neq(2)),
+     >                 psi_r,1,
+     >                 dbl_mb(psiloc_r(1)),1)
+         else
+*           **** generate localize psi_r ****
+            call psi_dmatrix_localize(ispin,neq,n2ft3d,
+     >                                 psi_r,dbl_mb(psiloc_r(1)))
 
-*        **** generate < psiloc_r|psi_r< matrix  ****
-         call Dneall_ggm_Multiply(0,dbl_mb(psiloc_r(1)),psi_r,scal1,
-     >                           n2ft3d,dbl_mb(rotmat(1)),0.0d0)
+*           **** generate < psiloc_r|psi_r> matrix  ****
+            call Dneall_ggm_Multiply(0,dbl_mb(psiloc_r(1)),psi_r,scal1,
+     >                               n2ft3d,dbl_mb(rotmat(1)),0.0d0)
+         end if
 
 *        **** Find centers of localized orbitals, rwav ****
          a(1,1) = lattice_unita(1,1)
@@ -139,6 +416,7 @@
          a(3,3) = lattice_unita(3,3)
 
          call lattice_p_grid(dbl_mb(xsgrid(1)))
+
          xs(1) = xsgrid(1)
          xs(2) = xsgrid(1)+n2ft3d
          xs(3) = xsgrid(1)+2*n2ft3d
@@ -195,16 +473,25 @@
                t2= dbl_mb(rwav(1)+3*((ms-1)*ne(1)+q-1)+1)
                t3= dbl_mb(rwav(1)+3*((ms-1)*ne(1)+q-1)+2)
                cdx1 = dsqrt((x-t1)**2 + (y-t2)**2 + (z-t3)**2)
-               if (cdx1.le.rwav_thresh) then
+               if (cdx1.lt.rout_thresh) then
                   value = .true.
+                  if (cdx1.le.rin_thresh) then
+                     cdy1 = 1.0d0
+                  else
+                     cdy1 = (rout_thresh**2 - cdx1**2)**2
+     >                     *(rout_thresh**2+2*cdx1**2-3*rin_thresh**2)
+     >                     /(rout_thresh**2 - rin_thresh**2)**3
+                  end if
                else
                   value = .false.
+                  cdy1  = 0.0d0
                end if
-
                nx = (q-1)+(n-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
                ny = (n-1)+(q-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
                log_mb(closeenough(1)+nx) = value
                log_mb(closeenough(1)+ny) = value
+               dbl_mb(switchr(1)+nx) = cdy1
+               dbl_mb(switchr(1)+ny) = cdy1
             end do
             end do
          end do
@@ -229,6 +516,7 @@
             end do
          end if
 
+      call nwpw_timing_end(52)
       end if
       return
  1382 FORMAT(/' position of localized orbital centers:')
@@ -256,13 +544,15 @@
 *     **** local variables ****
       integer neq(2)
 
-      if (localize_on) then
+      if ((localize_on).and.(.not.localize2_on)) then
+         call nwpw_timing_start(52)
          call Dneall_neq(neq)
          call Dneall_gmg_Multiply(0,Hpsi_r,n2ft3d,
      >                           dbl_mb(rotmat(1)),  1.0d0,
      >                           dbl_mb(psiloc_r(1)),0.0d0)
          call dcopy(n2ft3d*(neq(1)+neq(2)),dbl_mb(psiloc_r(1)),1,
      >              Hpsi_r,1)
+         call nwpw_timing_end(52)
       end if
 
       return
@@ -299,6 +589,41 @@
          pspw_hfx_localize_closeenough = log_mb(closeenough(1)+indx)
       else
          pspw_hfx_localize_closeenough = .true.
+      end if
+      return
+      end
+
+*     ************************************************
+*     *                                              *
+*     *        pspw_hfx_localize_switchr             *
+*     *                                              *
+*     ************************************************
+
+      real*8 function pspw_hfx_localize_switchr(i,j)
+      implicit none
+      integer i,j
+
+#include "bafdecls.fh"
+#include "pspw_hfx.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer indx,ne(2)
+
+      if (localize_on) then
+         ne(1) = norbs(1)
+         ne(2) = norbs(2)
+         indx = 0
+         if ((i.gt.ne(1)).and.(j.gt.ne(1))) then
+            indx = (i-ne(1)-1) + (j-ne(1)-1)*ne(2) + ne(1)*ne(1)
+         else if ((i.le.ne(1)).and.(j.le.ne(1))) then
+            indx = (i-1) + (j-1)*ne(1)
+         else
+           call errquit('pspw_hfx_localize_switchr: failed',0,UERR)
+         end if
+         pspw_hfx_localize_switchr = dbl_mb(switchr(1)+indx)
+      else
+         pspw_hfx_localize_switchr = 1.0d0
       end if
       return
       end

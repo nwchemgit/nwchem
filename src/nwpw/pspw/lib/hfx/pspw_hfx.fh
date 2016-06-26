@@ -19,13 +19,19 @@
      >                          relaxed,orb_contribution,hfx_on
 
 *     **** PSPW_HFX_localize common block ****
-      logical localize_on
-      integer closeenough(2),rwav(2),rotmat(2),psiloc_r(2),localize_NN
-      real*8  rwav_thresh
-      common / PSPW_HFX_localize_Block / rwav_thresh,
+      logical localize_on,localize2_on
+      integer switchr(2),closeenough(2),rwav(2),rotmat(2),psiloc_r(2)
+      real*8  rin_thresh,rout_thresh
+      common / PSPW_HFX_localize_Block / rin_thresh,rout_thresh,
      >                                   psiloc_r,rwav,rotmat,
-     >                                   closeenough,
-     >                                   localize_NN,localize_on
+     >                                   switchr,closeenough,
+     >                                   localize_on,localize2_on
+
+*     **** PSPW_HFX_localize2 common block ****
+      real*8 bv(3,6),wts(6)
+      integer rank,npack1,maxiter
+      common / PSPW_HFX_localize2_Block / bv,wts,rank,npack1,maxiter
+
 
 *     **** PSPW_HFX_frac common block ****
       logical frac_on
