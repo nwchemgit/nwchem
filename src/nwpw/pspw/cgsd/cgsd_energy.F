@@ -232,7 +232,7 @@ c          **** reset minimizer if failed ****
             !go to 3
          end if
          deltae = dabs(deltae)
-         if (deltae.lt.100*tole) then
+         if (deltae.lt.1.0d-3) then
             call pspw_hfx_localize_set_findcolumns(.false.)
          end if
          if ((deltae.lt.tole).and.
