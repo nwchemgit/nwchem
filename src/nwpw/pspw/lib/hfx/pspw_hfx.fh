@@ -19,13 +19,15 @@
      >                          relaxed,orb_contribution,hfx_on
 
 *     **** PSPW_HFX_localize common block ****
-      logical localize_on,localize2_on
+      logical localize_on,localize2_on,findcolumns
       integer switchr(2),closeenough(2),rwav(2),rotmat(2),psiloc_r(2)
+      integer dmindx(2)
       real*8  rin_thresh,rout_thresh
       common / PSPW_HFX_localize_Block / rin_thresh,rout_thresh,
      >                                   psiloc_r,rwav,rotmat,
-     >                                   switchr,closeenough,
-     >                                   localize_on,localize2_on
+     >                                   switchr,closeenough,dmindx,
+     >                                   localize_on,localize2_on,
+     >                                   findcolumns
 
 *     **** PSPW_HFX_localize2 common block ****
       real*8 bv(3,6),wts(6)

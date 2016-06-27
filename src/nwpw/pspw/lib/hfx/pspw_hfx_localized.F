@@ -22,9 +22,13 @@
          call Dneall_neq(neq)
          ne(1) = norbs(1)
          ne(2) = norbs(2)
+         findcolumns = .true.
 
          value = BA_alloc_get(mt_dbl,3*(ne(1)+ne(2)),
      >                        'rwav',rwav(2),rwav(1))
+         value = value.and.
+     >           BA_alloc_get(mt_int,2*(ne(1)+ne(2)),
+     >                        'dmindx',dmindx(2),dmindx(1))
          value = value.and.
      >           BA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
      >                        'psiloc_r',psiloc_r(2),psiloc_r(1))
@@ -201,6 +205,7 @@ c     *** Silvestrelli G3 ***
       if (localize_on) then
          call nwpw_timing_start(52)
          value = BA_free_heap(rwav(2))
+         value = value.and.BA_free_heap(dmindx(2))
          value = value.and.BA_free_heap(psiloc_r(2))
          value = value.and.BA_free_heap(switchr(2))
          value = value.and.Dneall_m_free(rotmat)
@@ -395,9 +400,19 @@ c     *** Silvestrelli G3 ***
      >                 psi_r,1,
      >                 dbl_mb(psiloc_r(1)),1)
          else
+               
 *           **** generate localize psi_r ****
-            call psi_dmatrix_localize(ispin,neq,n2ft3d,
-     >                                 psi_r,dbl_mb(psiloc_r(1)))
+            if (findcolumns)
+     >          call psi_dmatrix_maxallcolumns(ispin,ne,neq,n2ft3d,
+     >                                     psi_r,dbl_mb(psiloc_r(1)),
+     >                                     int_mb(dmindx(1)))
+
+            call psi_dmatrix_rotate(ispin,ne,neq,n2ft3d,
+     >                              int_mb(dmindx(1)),
+     >                              psi_r,dbl_mb(psiloc_r(1)))
+
+c            call psi_dmatrix_localize(ispin,neq,n2ft3d,
+c     >                                 psi_r,dbl_mb(psiloc_r(1)))
 
 *           **** generate < psiloc_r|psi_r> matrix  ****
             call Dneall_ggm_Multiply(0,dbl_mb(psiloc_r(1)),psi_r,scal1,
@@ -557,6 +572,25 @@ c     *** Silvestrelli G3 ***
 
       return
       end
+
+*     ************************************************
+*     *                                              *
+*     *        pspw_hfx_localize_set_findcolumns     *
+*     *                                              *
+*     ************************************************
+      subroutine pspw_hfx_localize_set_findcolumns(fc)
+      implicit none
+      logical fc
+
+#include "bafdecls.fh"
+#include "pspw_hfx.fh"
+#include "errquit.fh"
+
+      findcolumns = fc
+      return
+      end
+ 
+
 
 *     ************************************************
 *     *                                              *
