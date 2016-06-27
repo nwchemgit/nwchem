@@ -35,7 +35,7 @@
          value = BA_alloc_get(mt_dbl,(ne(1)*ne(1)+ne(2)*ne(2)),
      >                'switchr',switchr(2),switchr(1))
          value = value.and.Dneall_m_allocate(0,rotmat12)
-         value = value.and.Dneall_m_allocate(0,rotmat21)
+         !value = value.and.Dneall_m_allocate(0,rotmat21)
          value = BA_alloc_get(mt_log,(ne(1)*ne(1)+ne(2)*ne(2)),
      >                'closeenough',closeenough(2),closeenough(1))
          if (.not.value)
@@ -210,7 +210,7 @@ c     *** Silvestrelli G3 ***
          value = value.and.BA_free_heap(psiloc_r(2))
          value = value.and.BA_free_heap(switchr(2))
          value = value.and.Dneall_m_free(rotmat12)
-         value = value.and.Dneall_m_free(rotmat21)
+         !value = value.and.Dneall_m_free(rotmat21)
          value = value.and.BA_free_heap(closeenough(2))
          if (.not.value)
      >    call errquit('pspw_hfx_localize_end:freeing heap',3,MA_ERR)
@@ -403,27 +403,19 @@ c     *** Silvestrelli G3 ***
                call psi_dmatrix_maxallcolumns(ispin,ne,neq,n2ft3d,
      >                                     psi_r,dbl_mb(psiloc_r(1)),
      >                                     int_mb(dmindx(1)))
-               call psi_dmatrix_rotate(ispin,ne,neq,n2ft3d,
+            end if
+            call psi_dmatrix_rotate(ispin,ne,neq,n2ft3d,
      >                              int_mb(dmindx(1)),
      >                              psi_r,dbl_mb(psiloc_r(1)))
-c              call psi_dmatrix_localize(ispin,neq,n2ft3d,
-c     >                                 psi_r,dbl_mb(psiloc_r(1)))
+
 *              **** generate < psiloc_r|psi_r> matrix  ****
-               call Dneall_ggm_Multiply(0,dbl_mb(psiloc_r(1)),psi_r,
-     >                               scal1,
-     >                               n2ft3d,dbl_mb(rotmat21(1)),0.0d0)
-               call Dneall_ggm_Multiply(0,psi_r,dbl_mb(psiloc_r(1)),
-     >                               scal1,
-     >                               n2ft3d,dbl_mb(rotmat12(1)),0.0d0)
-            else
-               call Dneall_gmg_Multiply(0,psi_r,n2ft3d,
-     >                                  dbl_mb(rotmat12(1)),1.0d0,
-     >                                  dbl_mb(psiloc_r(1)),0.0d0)
-            end if
+            call Dneall_ggm_Multiply(0,dbl_mb(psiloc_r(1)),psi_r,
+     >                            scal1,
+     >                            n2ft3d,dbl_mb(rotmat21(1)),0.0d0)
          end if
 
+
 *        **** Find centers of localized orbitals, rwav ****
-         if (findcolumns) then
             value = BA_push_get(mt_dbl,n2ft3d,"tmp1",tmp1(2),tmp1(1))
             value = value.and.
      >              BA_push_get(mt_dbl,6*n2ft3d,"xsgrid",
@@ -542,8 +534,6 @@ c     >                                 psi_r,dbl_mb(psiloc_r(1)))
                end do
             end if
 
-
-         end if !**findcolumns**
 
       call nwpw_timing_end(52)
       end if
