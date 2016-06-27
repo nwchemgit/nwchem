@@ -34,7 +34,8 @@
      >                        'psiloc_r',psiloc_r(2),psiloc_r(1))
          value = BA_alloc_get(mt_dbl,(ne(1)*ne(1)+ne(2)*ne(2)),
      >                'switchr',switchr(2),switchr(1))
-         value = value.and.Dneall_m_allocate(0,rotmat)
+         value = value.and.Dneall_m_allocate(0,rotmat12)
+         value = value.and.Dneall_m_allocate(0,rotmat21)
          value = BA_alloc_get(mt_log,(ne(1)*ne(1)+ne(2)*ne(2)),
      >                'closeenough',closeenough(2),closeenough(1))
          if (.not.value)
@@ -208,7 +209,8 @@ c     *** Silvestrelli G3 ***
          value = value.and.BA_free_heap(dmindx(2))
          value = value.and.BA_free_heap(psiloc_r(2))
          value = value.and.BA_free_heap(switchr(2))
-         value = value.and.Dneall_m_free(rotmat)
+         value = value.and.Dneall_m_free(rotmat12)
+         value = value.and.Dneall_m_free(rotmat21)
          value = value.and.BA_free_heap(closeenough(2))
          if (.not.value)
      >    call errquit('pspw_hfx_localize_end:freeing heap',3,MA_ERR)
@@ -278,11 +280,11 @@ c     *** Silvestrelli G3 ***
      >                       dcpl_mb(A(1)))
 
             call Dneall_wtom_Real(ms,dcpl_mb(A(1)),
-     >                            dbl_mb(rotmat(1)+mshift))
+     >                            dbl_mb(rotmat21(1)+mshift))
          end do
 
 *        **** rotate psi to produce Wannier orbitals ****
-         call Dneall_mm_transpose(0,dbl_mb(rotmat(1)),dcpl_mb(A(1)))
+         call Dneall_mm_transpose(0,dbl_mb(rotmat21(1)),dcpl_mb(A(1)))
 
          call dcopy(n2ft3d*(neq(1)+neq(2)),
      >              psi_r,1,
@@ -397,21 +399,27 @@ c     *** Silvestrelli G3 ***
          else
                
 *           **** generate localize psi_r ****
-            if (findcolumns)
-     >          call psi_dmatrix_maxallcolumns(ispin,ne,neq,n2ft3d,
+            if (findcolumns) then
+               call psi_dmatrix_maxallcolumns(ispin,ne,neq,n2ft3d,
      >                                     psi_r,dbl_mb(psiloc_r(1)),
      >                                     int_mb(dmindx(1)))
-
-            call psi_dmatrix_rotate(ispin,ne,neq,n2ft3d,
+               call psi_dmatrix_rotate(ispin,ne,neq,n2ft3d,
      >                              int_mb(dmindx(1)),
      >                              psi_r,dbl_mb(psiloc_r(1)))
-
-c            call psi_dmatrix_localize(ispin,neq,n2ft3d,
+c              call psi_dmatrix_localize(ispin,neq,n2ft3d,
 c     >                                 psi_r,dbl_mb(psiloc_r(1)))
-
-*           **** generate < psiloc_r|psi_r> matrix  ****
-            call Dneall_ggm_Multiply(0,dbl_mb(psiloc_r(1)),psi_r,scal1,
-     >                               n2ft3d,dbl_mb(rotmat(1)),0.0d0)
+*              **** generate < psiloc_r|psi_r> matrix  ****
+               call Dneall_ggm_Multiply(0,dbl_mb(psiloc_r(1)),psi_r,
+     >                               scal1,
+     >                               n2ft3d,dbl_mb(rotmat21(1)),0.0d0)
+               call Dneall_ggm_Multiply(0,psi_r,dbl_mb(psiloc_r(1)),
+     >                               scal1,
+     >                               n2ft3d,dbl_mb(rotmat12(1)),0.0d0)
+            else
+               call Dneall_gmg_Multiply(0,psi_r,n2ft3d,
+     >                                  dbl_mb(rotmat12(1)),1.0d0,
+     >                                  dbl_mb(psiloc_r(1)),0.0d0)
+            end if
          end if
 
 *        **** Find centers of localized orbitals, rwav ****
@@ -534,6 +542,7 @@ c     >                                 psi_r,dbl_mb(psiloc_r(1)))
                end do
             end if
 
+
          end if !**findcolumns**
 
       call nwpw_timing_end(52)
@@ -568,7 +577,7 @@ c     >                                 psi_r,dbl_mb(psiloc_r(1)))
          call nwpw_timing_start(52)
          call Dneall_neq(neq)
          call Dneall_gmg_Multiply(0,Hpsi_r,n2ft3d,
-     >                           dbl_mb(rotmat(1)),  1.0d0,
+     >                           dbl_mb(rotmat21(1)),  1.0d0,
      >                           dbl_mb(psiloc_r(1)),0.0d0)
          call dcopy(n2ft3d*(neq(1)+neq(2)),dbl_mb(psiloc_r(1)),1,
      >              Hpsi_r,1)
