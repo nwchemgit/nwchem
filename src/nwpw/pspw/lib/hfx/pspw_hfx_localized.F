@@ -378,11 +378,6 @@ c     *** Silvestrelli G3 ***
          oprint = (taskid.eq.MASTER)
          oprint = .false.
 
-         value = BA_push_get(mt_dbl,n2ft3d,"tmp1",tmp1(2),tmp1(1))
-         value = value.and.
-     >        BA_push_get(mt_dbl,6*n2ft3d,"xsgrid",xsgrid(2),xsgrid(1))
-         if (.not.value)
-     >    call errquit('pspw_hfx_localize_start:push stack',1,MA_ERR)
 
          call Dneall_neq(neq)
          ne(1) = norbs(1)
@@ -420,116 +415,126 @@ c     >                                 psi_r,dbl_mb(psiloc_r(1)))
          end if
 
 *        **** Find centers of localized orbitals, rwav ****
-         a(1,1) = lattice_unita(1,1)
-         a(2,1) = lattice_unita(2,1)
-         a(3,1) = lattice_unita(3,1)
-         a(1,2) = lattice_unita(1,2)
-         a(2,2) = lattice_unita(2,2)
-         a(3,2) = lattice_unita(3,2)
-         a(1,3) = lattice_unita(1,3)
-         a(2,3) = lattice_unita(2,3)
-         a(3,3) = lattice_unita(3,3)
+         if (findcolumns) then
+            value = BA_push_get(mt_dbl,n2ft3d,"tmp1",tmp1(2),tmp1(1))
+            value = value.and.
+     >              BA_push_get(mt_dbl,6*n2ft3d,"xsgrid",
+     >                          xsgrid(2),xsgrid(1))
+            if (.not.value)
+     >      call errquit('pspw_hfx_localize_start:push stack',1,MA_ERR)
+            a(1,1) = lattice_unita(1,1)
+            a(2,1) = lattice_unita(2,1)
+            a(3,1) = lattice_unita(3,1)
+            a(1,2) = lattice_unita(1,2)
+            a(2,2) = lattice_unita(2,2)
+            a(3,2) = lattice_unita(3,2)
+            a(1,3) = lattice_unita(1,3)
+            a(2,3) = lattice_unita(2,3)
+            a(3,3) = lattice_unita(3,3)
 
-         call lattice_p_grid(dbl_mb(xsgrid(1)))
+            call lattice_p_grid(dbl_mb(xsgrid(1)))
 
-         xs(1) = xsgrid(1)
-         xs(2) = xsgrid(1)+n2ft3d
-         xs(3) = xsgrid(1)+2*n2ft3d
-         xs(4) = xsgrid(1)+3*n2ft3d
-         xs(5) = xsgrid(1)+4*n2ft3d
-         xs(6) = xsgrid(1)+5*n2ft3d
+            xs(1) = xsgrid(1)
+            xs(2) = xsgrid(1)+n2ft3d
+            xs(3) = xsgrid(1)+2*n2ft3d
+            xs(4) = xsgrid(1)+3*n2ft3d
+            xs(5) = xsgrid(1)+4*n2ft3d
+            xs(6) = xsgrid(1)+5*n2ft3d
 
-         n1(1) = 1 
-         n1(2) = neq(1)+1
-         n2(1) = neq(1)
-         n2(2) = neq(1)+neq(2)
-         call dcopy(3*(ne(1)+ne(2)),0.0d0,0,dbl_mb(Rwav(1)),1)
-         do ms=1,ispin
-            do q=n1(ms),n2(ms)
-               call Dneall_qton(q,n)
-               call D3dB_rr_Sqr(1,dbl_mb(psiloc_r(1)+(q-1)*n2ft3d),
+            n1(1) = 1 
+            n1(2) = neq(1)+1
+            n2(1) = neq(1)
+            n2(2) = neq(1)+neq(2)
+            call dcopy(3*(ne(1)+ne(2)),0.0d0,0,dbl_mb(Rwav(1)),1)
+            do ms=1,ispin
+               do q=n1(ms),n2(ms)
+                  call Dneall_qton(q,n)
+                  call D3dB_rr_Sqr(1,dbl_mb(psiloc_r(1)+(q-1)*n2ft3d),
      >                            dbl_mb(tmp1(1)))
 
-               call D3dB_rr_dot(1,dbl_mb(xs(1)),dbl_mb(tmp1(1)),cdx1)
-               call D3dB_rr_dot(1,dbl_mb(xs(2)),dbl_mb(tmp1(1)),cdy1)
+                  call D3dB_rr_dot(1,dbl_mb(xs(1)),dbl_mb(tmp1(1)),cdx1)
+                  call D3dB_rr_dot(1,dbl_mb(xs(2)),dbl_mb(tmp1(1)),cdy1)
 
-               call D3dB_rr_dot(1,dbl_mb(xs(3)),dbl_mb(tmp1(1)),cdx2)
-               call D3dB_rr_dot(1,dbl_mb(xs(4)),dbl_mb(tmp1(1)),cdy2)
+                  call D3dB_rr_dot(1,dbl_mb(xs(3)),dbl_mb(tmp1(1)),cdx2)
+                  call D3dB_rr_dot(1,dbl_mb(xs(4)),dbl_mb(tmp1(1)),cdy2)
 
-               call D3dB_rr_dot(1,dbl_mb(xs(5)),dbl_mb(tmp1(1)),cdx3)
-               call D3dB_rr_dot(1,dbl_mb(xs(6)),dbl_mb(tmp1(1)),cdy3)
-               t1 = datan2(cdy1,cdx1)/twopi
-               t2 = datan2(cdy2,cdx2)/twopi
-               t3 = datan2(cdy3,cdx3)/twopi
-               x  = a(1,1)*t1 + a(1,2)*t2 + a(1,3)*t3
-               y  = a(2,1)*t1 + a(2,2)*t2 + a(2,3)*t3
-               z  = a(3,1)*t1 + a(3,2)*t2 + a(3,3)*t3
-               dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1))   = x
-               dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1)+1) = y
-               dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1)+2) = z
+                  call D3dB_rr_dot(1,dbl_mb(xs(5)),dbl_mb(tmp1(1)),cdx3)
+                  call D3dB_rr_dot(1,dbl_mb(xs(6)),dbl_mb(tmp1(1)),cdy3)
+                  t1 = datan2(cdy1,cdx1)/twopi
+                  t2 = datan2(cdy2,cdx2)/twopi
+                  t3 = datan2(cdy3,cdx3)/twopi
+                  x  = a(1,1)*t1 + a(1,2)*t2 + a(1,3)*t3
+                  y  = a(2,1)*t1 + a(2,2)*t2 + a(2,3)*t3
+                  z  = a(3,1)*t1 + a(3,2)*t2 + a(3,3)*t3
+                  dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1))   = x
+                  dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1)+1) = y
+                  dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1)+2) = z
 
+               end do
             end do
-         end do
-         call D1dB_Vector_SumAll(3*(ne(1)+ne(2)),dbl_mb(Rwav(1)))
+            call D1dB_Vector_SumAll(3*(ne(1)+ne(2)),dbl_mb(Rwav(1)))
 
-         value =           BA_pop_stack(xsgrid(2))
-         value = value.and.BA_pop_stack(tmp1(2))
-         if (.not.value)
-     >    call errquit('pspw_hfx_localize_start:pop stack',2,MA_ERR)
+            value =           BA_pop_stack(xsgrid(2))
+            value = value.and.BA_pop_stack(tmp1(2))
+            if (.not.value)
+     >       call errquit('pspw_hfx_localize_start:pop stack',2,MA_ERR)
 
-         do ms=1,ispin
-            do n=1,ne(ms)
-            do q=1,n
-               x = dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1))
-               y = dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1)+1)
-               z = dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1)+2)
-
-               t1= dbl_mb(rwav(1)+3*((ms-1)*ne(1)+q-1))
-               t2= dbl_mb(rwav(1)+3*((ms-1)*ne(1)+q-1)+1)
-               t3= dbl_mb(rwav(1)+3*((ms-1)*ne(1)+q-1)+2)
-               cdx1 = dsqrt((x-t1)**2 + (y-t2)**2 + (z-t3)**2)
-               if (cdx1.lt.rout_thresh) then
-                  value = .true.
-                  if (cdx1.le.rin_thresh) then
-                     cdy1 = 1.0d0
-                  else
-                     cdy1 = (rout_thresh**2 - cdx1**2)**2
-     >                     *(rout_thresh**2+2*cdx1**2-3*rin_thresh**2)
-     >                     /(rout_thresh**2 - rin_thresh**2)**3
-                  end if
-               else
-                  value = .false.
-                  cdy1  = 0.0d0
-               end if
-               nx = (q-1)+(n-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
-               ny = (n-1)+(q-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
-               log_mb(closeenough(1)+nx) = value
-               log_mb(closeenough(1)+ny) = value
-               dbl_mb(switchr(1)+nx) = cdy1
-               dbl_mb(switchr(1)+ny) = cdy1
-            end do
-            end do
-         end do
-
-*        **** print out centers ****
-         if (oprint) then
-            write(luout,1382)
             do ms=1,ispin
                do n=1,ne(ms)
+               do q=1,n
                   x = dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1))
                   y = dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1)+1)
                   z = dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1)+2)
-                  ii = ion_nearest_index(x,y,z)
-                  if (ms.eq.1) then
-                     write(luout,1390) n,x,y,z,ion_aname_nocarat(ii),ii
+
+                  t1= dbl_mb(rwav(1)+3*((ms-1)*ne(1)+q-1))
+                  t2= dbl_mb(rwav(1)+3*((ms-1)*ne(1)+q-1)+1)
+                  t3= dbl_mb(rwav(1)+3*((ms-1)*ne(1)+q-1)+2)
+                  cdx1 = dsqrt((x-t1)**2 + (y-t2)**2 + (z-t3)**2)
+                  if (cdx1.lt.rout_thresh) then
+                     value = .true.
+                     if (cdx1.le.rin_thresh) then
+                        cdy1 = 1.0d0
+                     else
+                        cdy1 = (rout_thresh**2 - cdx1**2)**2
+     >                       *(rout_thresh**2+2*cdx1**2-3*rin_thresh**2)
+     >                       /(rout_thresh**2 - rin_thresh**2)**3
+                     end if
+                  else
+                     value = .false.
+                     cdy1  = 0.0d0
                   end if
-                  if (ms.eq.2) then
-                     write(luout,1391) n+ne(1),x,y,z,
-     >                              ion_aname_nocarat(ii),ii
-                  end if
+                  nx = (q-1)+(n-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
+                  ny = (n-1)+(q-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
+                  log_mb(closeenough(1)+nx) = value
+                  log_mb(closeenough(1)+ny) = value
+                  dbl_mb(switchr(1)+nx) = cdy1
+                  dbl_mb(switchr(1)+ny) = cdy1
+               end do
                end do
             end do
-         end if
+
+*           **** print out centers ****
+            if (oprint) then
+               write(luout,1382)
+               do ms=1,ispin
+                  do n=1,ne(ms)
+                     x = dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1))
+                     y = dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1)+1)
+                     z = dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1)+2)
+                     ii = ion_nearest_index(x,y,z)
+                     if (ms.eq.1) then
+                        write(luout,1390) n,x,y,z,
+     >                                    ion_aname_nocarat(ii),ii
+                     end if
+                     if (ms.eq.2) then
+                        write(luout,1391) n+ne(1),x,y,z,
+     >                                    ion_aname_nocarat(ii),ii
+                     end if
+                  end do
+               end do
+            end if
+
+         end if !**findcolumns**
 
       call nwpw_timing_end(52)
       end if
