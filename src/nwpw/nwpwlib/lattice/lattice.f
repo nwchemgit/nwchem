@@ -1123,6 +1123,78 @@ c                r(3,index) = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
       return
       end
 
+
+      subroutine lattice_r_grid_sym0(r)
+      implicit none
+      real*8 r(*)
+
+*     **** local variables ****
+      integer nfft3d,n2ft3d
+      integer i,j,k,p,taskid
+      integer index,k1,k2,k3
+      integer np1,np2,np3
+      integer nph1,nph2,nph3
+      real*8  a(3,3),dk1,dk2,dk3
+
+*     **** external functions ****
+      real*8   lattice_unita
+      external lattice_unita
+
+
+*     **** constants ****
+      call Parallel2d_taskid_i(taskid)
+      call D3dB_nfft3d(1,nfft3d)
+      n2ft3d = 2*nfft3d
+      call D3dB_nx(1,np1)
+      call D3dB_ny(1,np2)
+      call D3dB_nz(1,np3)
+
+      nph1 = np1/2
+      nph2 = np2/2
+      nph3 = np3/2
+
+*     **** elemental vectors ****
+      do i=1,3
+         a(i,1) = lattice_unita(i,1)/dble(np1)
+         a(i,2) = lattice_unita(i,2)/dble(np2)
+         a(i,3) = lattice_unita(i,3)/dble(np3)
+      end do
+
+      call dcopy(3*n2ft3d,0.0d0,0,r,1)
+
+*     **** grid points in coordination space ****
+      do k3 = -nph3+1, nph3-1
+        do k2 = -nph2+1, nph2-1
+          do k1 = -nph1+1, nph1-1
+
+               i = k1 + nph1
+               j = k2 + nph2
+               k = k3 + nph3
+
+               !call D3dB_ktoqp(1,k+1,q,p)
+               call D3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
+               if (p .eq. taskid) then
+c                 index = (q-1)*(np1+2)*np2
+c    >                  + j    *(np1+2)
+c    >                  + i+1
+                dk1=dble(k1)
+                dk2=dble(k2)
+                dk3=dble(k3)
+                r(index)          = a(1,1)*dk1 + a(1,2)*dk2 + a(1,3)*dk3
+                r(index+  n2ft3d) = a(2,1)*dk1 + a(2,2)*dk2 + a(2,3)*dk3
+                r(index+2*n2ft3d) = a(3,1)*dk1 + a(3,2)*dk2 + a(3,3)*dk3
+               end if
+          end do
+        end do
+      end do
+
+      return
+      end
+
+
+
+
+
       subroutine lattice_mask_sym(r)
       implicit none
       real*8 r(*)
