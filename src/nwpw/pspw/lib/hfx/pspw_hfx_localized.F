@@ -362,8 +362,10 @@ c     *** Silvestrelli G3 ***
 
       logical value,oprint
       integer neq(2),ii,nx,ny,nz,q,ms,n,n1(2),n2(2),ne(2)
+      integer i,j,k
       real*8  scal1,a(3,3)
       real*8  cdx1,cdx2,cdx3,cdy1,cdy2,cdy3,t1,t2,t3,x,y,z,twopi
+      real*8  xx,yy,zz,dx,dy,dz,rr
       integer tmp1(2),xsgrid(2),xs(6)
 
 *     **** external functions ****
@@ -399,11 +401,9 @@ c     *** Silvestrelli G3 ***
          else
                
 *           **** generate localize psi_r ****
-            if (findcolumns) then
-               call psi_dmatrix_maxallcolumns(ispin,ne,neq,n2ft3d,
+            call psi_dmatrix_maxallcolumns(ispin,ne,neq,n2ft3d,
      >                                     psi_r,dbl_mb(psiloc_r(1)),
      >                                     int_mb(dmindx(1)))
-            end if
             call psi_dmatrix_rotate(ispin,ne,neq,n2ft3d,
      >                              int_mb(dmindx(1)),
      >                              psi_r,dbl_mb(psiloc_r(1)))
@@ -489,7 +489,21 @@ c     *** Silvestrelli G3 ***
                   t1= dbl_mb(rwav(1)+3*((ms-1)*ne(1)+q-1))
                   t2= dbl_mb(rwav(1)+3*((ms-1)*ne(1)+q-1)+1)
                   t3= dbl_mb(rwav(1)+3*((ms-1)*ne(1)+q-1)+2)
-                  cdx1 = dsqrt((x-t1)**2 + (y-t2)**2 + (z-t3)**2)
+                  xx = x-t1
+                  yy = y-t2
+                  zz = z-t3
+                  cdx1 = 9.99e9
+                  do k = -1,1
+                  do j = -1,1
+                  do i = -1,1
+                     dx = xx+a(1,1)*i+a(1,2)*j+a(1,3)*k
+                     dy = yy+a(2,1)*i+a(2,2)*j+a(2,3)*k
+                     dz = zz+a(3,1)*i+a(3,2)*j+a(3,3)*k
+                     rr = dsqrt(dx*dx + dy*dy + dz*dz)
+                     if (rr.lt.cdx1) cdx1 = rr
+                  end do
+                  end do
+                  end do
                   if (cdx1.lt.rout_thresh) then
                      value = .true.
                      if (cdx1.le.rin_thresh) then
@@ -498,6 +512,9 @@ c     *** Silvestrelli G3 ***
                         cdy1 = (rout_thresh**2 - cdx1**2)**2
      >                       *(rout_thresh**2+2*cdx1**2-3*rin_thresh**2)
      >                       /(rout_thresh**2 - rin_thresh**2)**3
+                        if (oprint) then
+                           write(*,*) "n,q,cdx1,cdy1=",n,q,cdx1,cdy1
+                        end if
                      end if
                   else
                      value = .false.

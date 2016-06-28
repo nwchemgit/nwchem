@@ -1190,6 +1190,7 @@ c     >                           Hpsi_r(index2))
 
          call Parallel_SumAll(ehfx)
          call Parallel_SumAll(phfx)
+
       end if
 
       return
