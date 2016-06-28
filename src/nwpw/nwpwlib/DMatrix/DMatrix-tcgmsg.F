@@ -357,6 +357,136 @@ c        **** add to current rows of C ****
 
 
 
+      subroutine DMatrix_dgamm2(m,n,k,nblock,
+     >                  alpha,
+     >                  A,lda,ma,na,
+     >                  B,ldb,mb,nb,
+     >                  beta,
+     >                  C,ldc,mc,nc,
+     >                  taskid_i,taskid_j,
+     >                  np_i,np_j,
+     >                  comm_i, comm_j,
+     >                  work1,work2)
+      implicit none
+      integer m,n,k,nblock
+      real*8  alpha
+
+      integer lda,ma(*),na(*)
+      real*8  A(lda,*)
+
+      integer ldb,mb(*),nb(*)
+      real*8  B(ldb,*)
+
+      real*8  beta
+
+      integer ldc,mc(*),nc(*)
+      real*8  C(ldc,*)
+
+      integer taskid_i,taskid_j
+      integer np_i,np_j
+      integer comm_i,comm_j
+
+      real*8  work1(*),work2(*)
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
+*     **** local variables ****
+      logical docalc1,docalc2
+      integer i,j,ii,jj
+      integer kk,iwrk,icur,jcur,ierr,shift
+
+      do j=1,nc(taskid_j+1)
+         do i=1,mc(taskid_i+1)
+            C(i,j) = beta*C(i,j)
+         end do
+      end do
+
+      ii = 0
+      jj = 0
+      kk = 0
+      icur = 0
+      jcur = 0
+c     **** loop over all row pannels of C ***
+      do while (kk.lt.m)
+         iwrk = min(nblock, mc(icur+1)-ii)
+         iwrk = min(iwrk,   na(jcur+1)-jj)
+         iwrk = min(nblock, mc(icur+1)-ii)
+         iwrk = min(iwrk,   na(jcur+1)-jj)
+
+
+*        **** iwrk*nc(taskid_j+1) submatrix !=0 ****
+         if (ma(taskid_i+1).gt.0) then
+
+*           **** pack current iwrk columns of A into work1 ***
+            if (taskid_j.eq.jcur) then
+               call dlacpy("G", ma(taskid_i+1),iwrk,
+     >                   A(1,jj+1), lda,
+     >                   work1,     ma(taskid_i+1))
+            end if
+
+c           **** broadcast work1  within my row ***
+         if (np_j.gt.1)
+     >    call GA_PGROUP_BRDCST(comm_j, 9+MSGDBL,
+     >                         work1,mdtob(iwrk*ma(taskid_i+1)),
+     >                         jcur)
+
+c            if ((iwrk.gt.0)          .and.
+c     >          (nb(taskid_j+1).gt.0).and.
+c     >          (ma(taskid_i+1).gt.0))
+            if ((iwrk.gt.0)          .and.
+     >          (nb(taskid_j+1).gt.0))
+     >        call dgamm_omp('T','N',iwrk,nb(taskid_j+1),ma(taskid_i+1),
+     >                   alpha,
+     >                   work1, ma(taskid_i+1),
+     >                   B, ldb,
+     >                   0.0d0,
+     >                   work2, iwrk)
+
+*        **** iwrk*nc(taskid_j+1) submatrix ==0 ****
+         else
+            call dcopy(nc(taskid_j+1)*iwrk,0.0d0,0,work2,1)
+         end if
+
+
+c        **** summ to node that holds current rows of C ****
+        if (np_i.gt.1)
+     >   call GA_PGROUP_DGOP(comm_i, 9+MSGDBL,
+     >                       work2,nc(taskid_j+1)*iwrk,'+')
+
+
+c        **** add to current rows of C ****
+         if (taskid_i.eq.icur) then
+            shift = 1
+            do i=ii,(ii+iwrk-1)
+               call daxpy(nc(taskid_j+1),1.0d0,work2(shift),iwrk,
+     >                                    C(i+1,1),mc(taskid_i+1))
+               shift = shift + 1
+            end do
+         end if
+
+         ii = ii + iwrk
+         jj = jj + iwrk
+         kk = kk + iwrk
+
+         if (jj.ge.na(jcur+1)) then
+           jcur = jcur + 1
+           jj   = 0
+         end if
+         if (ii.ge.mc(icur+1)) then
+           icur = icur + 1
+           ii   = 0
+         end if
+
+      end do
+
+
+      return
+      end
+
+
+
+
       subroutine DMatrix_dgemm3(m,n,k,nblock,
      >                  alpha,
      >                  A,lda,ma,na,
