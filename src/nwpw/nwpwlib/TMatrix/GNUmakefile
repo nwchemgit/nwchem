@@ -3,6 +3,7 @@
 #
 
   OBJ_OPTIMIZE = dgemm_omp.o \
+		 dgamm_omp.o \
 		 daxpy_omp.o \
 		 dscal_omp.o
   OBJ = 
