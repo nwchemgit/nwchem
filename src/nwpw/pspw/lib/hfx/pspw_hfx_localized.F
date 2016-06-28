@@ -433,6 +433,7 @@ c     *** Silvestrelli G3 ***
             a(3,3) = lattice_unita(3,3)
 
             call lattice_p_grid(dbl_mb(xsgrid(1)))
+            !call lattice_r_grid_sym0(dbl_mb(xsgrid(1)))
 
             xs(1) = xsgrid(1)
             xs(2) = xsgrid(1)+n2ft3d
@@ -451,6 +452,12 @@ c     *** Silvestrelli G3 ***
                   call Dneall_qton(q,n)
                   call D3dB_rr_Sqr(1,dbl_mb(psiloc_r(1)+(q-1)*n2ft3d),
      >                            dbl_mb(tmp1(1)))
+                  !call D3dB_rr_dot(1,dbl_mb(xs(1)),dbl_mb(tmp1(1)),x)
+                  !call D3dB_rr_dot(1,dbl_mb(xs(2)),dbl_mb(tmp1(1)),y)
+                  !call D3dB_rr_dot(1,dbl_mb(xs(3)),dbl_mb(tmp1(1)),z)
+                  !x = x*scal1
+                  !y = y*scal1
+                  !z = z*scal1
 
                   call D3dB_rr_dot(1,dbl_mb(xs(1)),dbl_mb(tmp1(1)),cdx1)
                   call D3dB_rr_dot(1,dbl_mb(xs(2)),dbl_mb(tmp1(1)),cdy1)
@@ -460,9 +467,9 @@ c     *** Silvestrelli G3 ***
 
                   call D3dB_rr_dot(1,dbl_mb(xs(5)),dbl_mb(tmp1(1)),cdx3)
                   call D3dB_rr_dot(1,dbl_mb(xs(6)),dbl_mb(tmp1(1)),cdy3)
-                  t1 = datan2(cdy1,cdx1)/twopi
-                  t2 = datan2(cdy2,cdx2)/twopi
-                  t3 = datan2(cdy3,cdx3)/twopi
+                  t1 = datan2(cdy1*scal1,cdx1*scal1)/twopi
+                  t2 = datan2(cdy2*scal1,cdx2*scal1)/twopi
+                  t3 = datan2(cdy3*scal1,cdx3*scal1)/twopi
                   x  = a(1,1)*t1 + a(1,2)*t2 + a(1,3)*t3
                   y  = a(2,1)*t1 + a(2,2)*t2 + a(2,3)*t3
                   z  = a(3,1)*t1 + a(3,2)*t2 + a(3,3)*t3
@@ -512,9 +519,6 @@ c     *** Silvestrelli G3 ***
                         cdy1 = (rout_thresh**2 - cdx1**2)**2
      >                       *(rout_thresh**2+2*cdx1**2-3*rin_thresh**2)
      >                       /(rout_thresh**2 - rin_thresh**2)**3
-                        if (oprint) then
-                           write(*,*) "n,q,cdx1,cdy1=",n,q,cdx1,cdy1
-                        end if
                      end if
                   else
                      value = .false.
