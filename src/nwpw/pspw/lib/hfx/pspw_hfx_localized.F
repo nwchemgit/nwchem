@@ -34,8 +34,8 @@
      >                        'psiloc_r',psiloc_r(2),psiloc_r(1))
          value = BA_alloc_get(mt_dbl,(ne(1)*ne(1)+ne(2)*ne(2)),
      >                'switchr',switchr(2),switchr(1))
-         value = value.and.Dneall_m_allocate(0,rotmat12)
-         !value = value.and.Dneall_m_allocate(0,rotmat21)
+         value = value.and.Dneall_m_allocate(0,rotmat21)
+         value = value.and.Dneall_m_allocate(0,absmat)
          value = BA_alloc_get(mt_log,(ne(1)*ne(1)+ne(2)*ne(2)),
      >                'closeenough',closeenough(2),closeenough(1))
          if (.not.value)
@@ -209,8 +209,8 @@ c     *** Silvestrelli G3 ***
          value = value.and.BA_free_heap(dmindx(2))
          value = value.and.BA_free_heap(psiloc_r(2))
          value = value.and.BA_free_heap(switchr(2))
-         value = value.and.Dneall_m_free(rotmat12)
-         !value = value.and.Dneall_m_free(rotmat21)
+         value = value.and.Dneall_m_free(rotmat21)
+         value = value.and.Dneall_m_free(absmat)
          value = value.and.BA_free_heap(closeenough(2))
          if (.not.value)
      >    call errquit('pspw_hfx_localize_end:freeing heap',3,MA_ERR)
@@ -412,6 +412,11 @@ c     *** Silvestrelli G3 ***
             call Dneall_ggm_Multiply(0,dbl_mb(psiloc_r(1)),psi_r,
      >                            scal1,
      >                            n2ft3d,dbl_mb(rotmat21(1)),0.0d0)
+
+            call Dneall_ggm_AMultiply(0,dbl_mb(psiloc_r(1)),
+     >                                dbl_mb(psiloc_r(1)),
+     >                                scal1,
+     >                                n2ft3d,dbl_mb(absmat(1)),0.0d0)
          end if
 
 
@@ -511,25 +516,42 @@ c     *** Silvestrelli G3 ***
                   end do
                   end do
                   end do
-                  if (cdx1.lt.rout_thresh) then
+c                  if (cdx1.lt.rout_thresh) then
+c                     value = .true.
+c                     if (cdx1.le.rin_thresh) then
+c                        cdy1 = 1.0d0
+c                     else
+c                        cdy1 = (rout_thresh**2 - cdx1**2)**2
+c     >                       *(rout_thresh**2+2*cdx1**2-3*rin_thresh**2)
+c     >                       /(rout_thresh**2 - rin_thresh**2)**3
+c                     end if
+c                  else
+c                     value = .false.
+c                     cdy1  = 0.0d0
+c                  end if
+                  nx = (q-1)+(n-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
+                  ny = (n-1)+(q-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
+                  cdx1 = dbl_mb(absmat(1)+nx)
+                  if (cdx1.gt.5.0d-3) then
                      value = .true.
-                     if (cdx1.le.rin_thresh) then
-                        cdy1 = 1.0d0
+                     if (cdx1.lt.1.0e-2) then
+                        cdy1  = (cdx1**2-(5.0d-3)**2)**2
+     >                         *(3*(1.0d-2)**2-2*cdx1**2-(5.0d-3)**2)
+     >                         /((1.0d-2)**2-(5.0d-3)**2)**3
                      else
-                        cdy1 = (rout_thresh**2 - cdx1**2)**2
-     >                       *(rout_thresh**2+2*cdx1**2-3*rin_thresh**2)
-     >                       /(rout_thresh**2 - rin_thresh**2)**3
+                        cdy1  = 1.0d0
                      end if
                   else
                      value = .false.
                      cdy1  = 0.0d0
                   end if
-                  nx = (q-1)+(n-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
-                  ny = (n-1)+(q-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
                   log_mb(closeenough(1)+nx) = value
                   log_mb(closeenough(1)+ny) = value
                   dbl_mb(switchr(1)+nx) = cdy1
                   dbl_mb(switchr(1)+ny) = cdy1
+c                  write(*,*) "q,n,dist,absmat=",q,n,cdx1,
+c     >                       dbl_mb(absmat(1)+nx),
+c     >                       dbl_mb(absmat(1)+ny)
                end do
                end do
             end do

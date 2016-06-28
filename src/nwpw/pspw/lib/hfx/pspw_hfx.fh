@@ -20,12 +20,12 @@
 
 *     **** PSPW_HFX_localize common block ****
       logical localize_on,localize2_on,findcolumns
-      integer switchr(2),closeenough(2),rwav(2),rotmat12(2),rotmat21(2) 
+      integer switchr(2),closeenough(2),rwav(2),absmat(2),rotmat21(2) 
       integer psiloc_r(2),dmindx(2)
       real*8  rin_thresh,rout_thresh
       common / PSPW_HFX_localize_Block / rin_thresh,rout_thresh,
      >                                   psiloc_r,rwav,
-     >                                   rotmat12,rotmat21,
+     >                                   absmat,rotmat21,
      >                                   switchr,closeenough,dmindx,
      >                                   localize_on,localize2_on,
      >                                   findcolumns
