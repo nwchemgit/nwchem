@@ -2767,6 +2767,7 @@ C     i1 ( h10 p3 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v (
       INTEGER isuperp
       INTEGER l_c
       INTEGER k_c
+      integer p5b_in,p6b_in
       DOUBLE PRECISION FACTORIAL
       EXTERNAL NXTASK
       EXTERNAL FACTORIAL
@@ -2790,8 +2791,15 @@ C     i1 ( h10 p3 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v (
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
      & ERRQUIT('ccsd_t2_2_6',0,MA_ERR)
       CALL DFILL(dimc,0.0d0,dbl_mb(k_cs),1)
+#if 0
       DO p5b = noab+1,noab+nvab
       DO p6b = p5b,noab+nvab
+#else
+      DO p5b_in =ga_nodeid(),ga_nodeid()+nvab-1
+         p5b=mod(p5b_in,nvab)+noab+1
+         DO p6b_in=ga_nodeid(),ga_nodeid()+nvab+noab-p5b
+            p6b=mod(p6b_in,noab+nvab-p5b+1)+p5b
+#endif
       IF (int_mb(k_spin+p5b-1)+int_mb(k_spin+p6b-1) .eq. int_mb(k_spin+h
      &1b-1)+int_mb(k_spin+h2b-1)) THEN
       IF (ieor(int_mb(k_sym+p5b-1),ieor(int_mb(k_sym+p6b-1),ieor(int_mb(
@@ -4066,12 +4074,14 @@ C     i1 ( p3 p5 )_vt + = -1 * Sum ( h7 p6 ) * t ( p6 h7 )_t * v ( h7 p3 p5 p6 )
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
+      integer p6b_in,h7b_in
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
       DO p3b = noab+1,noab+nvab
       DO p5b = noab+1,noab+nvab
+
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+p5b-1
      &).ne.4)) THEN
       IF (int_mb(k_spin+p3b-1) .eq. int_mb(k_spin+p5b-1)) THEN
@@ -4082,8 +4092,15 @@ C     i1 ( p3 p5 )_vt + = -1 * Sum ( h7 p6 ) * t ( p6 h7 )_t * v ( h7 p3 p5 p6 )
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
      & ERRQUIT('ccsd_t2_5_2',0,MA_ERR)
       CALL DFILL(dimc,0.0d0,dbl_mb(k_cs),1)
+#if 0
       DO p6b = noab+1,noab+nvab
       DO h7b = 1,noab
+#else
+      do p6b_in=ga_nodeid()+1,ga_nodeid()+nvab
+         p6b=mod(p6b_in,nvab)+noab+1
+         do h7b_in=ga_nodeid(),ga_nodeid()+noab-1
+            h7b=mod(h7b_in,noab)+1
+#endif
       IF (int_mb(k_spin+p6b-1) .eq. int_mb(k_spin+h7b-1)) THEN
       IF (ieor(int_mb(k_sym+p6b-1),int_mb(k_sym+h7b-1)) .eq. irrep_t) TH
      &EN
@@ -4228,12 +4245,14 @@ C     i1 ( p3 p5 )_vt + = -1/2 * Sum ( h7 h8 p6 ) * t ( p3 p6 h7 h8 )_t * v ( h7
       INTEGER isubh
       INTEGER l_c
       INTEGER k_c
+      integer p6b_in,h7b_in,h8b_in
       DOUBLE PRECISION FACTORIAL
       EXTERNAL NXTASK
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
+
       DO p3b = noab+1,noab+nvab
       DO p5b = noab+1,noab+nvab
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+p5b-1
@@ -4246,9 +4265,19 @@ C     i1 ( p3 p5 )_vt + = -1/2 * Sum ( h7 h8 p6 ) * t ( p3 p6 h7 h8 )_t * v ( h7
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
      & ERRQUIT('ccsd_t2_5_3',0,MA_ERR)
       CALL DFILL(dimc,0.0d0,dbl_mb(k_cs),1)
+#if 0
       DO p6b = noab+1,noab+nvab
       DO h7b = 1,noab
       DO h8b = h7b,noab
+#else
+      do p6b_in=ga_nodeid()+1,ga_nodeid()+nvab
+         p6b=mod(p6b_in,nvab)+noab+1
+         do h7b_in=ga_nodeid(),ga_nodeid()+noab-1
+            h7b=mod(h7b_in,noab)+1
+            DO h8b = h7b,noab
+c            DO h8b_in = ga_nodeid(),ga_nodeid()+noab-h7b
+c            h8b = mod(h8b,noab-h7b+1)+h7b
+#endif
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+p6b-1) .eq. int_mb(k_spin+h
      &7b-1)+int_mb(k_spin+h8b-1)) THEN
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+p6b-1),ieor(int_mb(
@@ -5511,6 +5540,7 @@ C     i1 ( h6 p3 h1 p5 )_vt + = -1 * Sum ( p7 ) * t ( p7 h1 )_t * v ( h6 p3 p5 p
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
+      integer p7b_in
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
@@ -5532,7 +5562,12 @@ C     i1 ( h6 p3 h1 p5 )_vt + = -1 * Sum ( p7 ) * t ( p7 h1 )_t * v ( h6 p3 p5 p
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
      & ERRQUIT('ccsd_t2_7_2',0,MA_ERR)
       CALL DFILL(dimc,0.0d0,dbl_mb(k_cs),1)
+#if 0
       DO p7b = noab+1,noab+nvab
+#else
+      do p7b_in=ga_nodeid()+1,ga_nodeid()+nvab
+         p7b=mod(p7b_in,nvab)+noab+1
+#endif
       IF (int_mb(k_spin+p7b-1) .eq. int_mb(k_spin+h1b-1)) THEN
       IF (ieor(int_mb(k_sym+p7b-1),int_mb(k_sym+h1b-1)) .eq. irrep_t) TH
      &EN
@@ -5680,10 +5715,12 @@ C     i1 ( h6 p3 h1 p5 )_vt + = -1/2 * Sum ( h8 p7 ) * t ( p3 p7 h1 h8 )_t * v (
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
+      integer p7b_in,h8b_in
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
+
       DO p3b = noab+1,noab+nvab
       DO h1b = 1,noab
       DO p5b = noab+1,noab+nvab
@@ -5701,8 +5738,16 @@ C     i1 ( h6 p3 h1 p5 )_vt + = -1/2 * Sum ( h8 p7 ) * t ( p3 p7 h1 h8 )_t * v (
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) CALL
      & ERRQUIT('ccsd_t2_7_3',0,MA_ERR)
       CALL DFILL(dimc,0.0d0,dbl_mb(k_cs),1)
+#if 0
       DO h8b = 1,noab
       DO p7b = noab+1,noab+nvab
+#else
+      do h8b_in=ga_nodeid(),ga_nodeid()+noab-1
+         h8b=mod(h8b_in,noab)+1
+         do p7b_in=ga_nodeid()+1,ga_nodeid()+nvab
+            p7b=mod(p7b_in,nvab)+noab+1
+
+#endif
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+p7b-1) .eq. int_mb(k_spin+h
      &1b-1)+int_mb(k_spin+h8b-1)) THEN
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+p7b-1),ieor(int_mb(
