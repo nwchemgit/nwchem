@@ -2347,14 +2347,14 @@ c            call Pack_c_SMul(1,sum1,U(indxk),U(indxk))
 
 c     ****************************************
 c     *                                      *
-c     *        Dneall_mm_transpose          *
+c     *        Dneall_mm_transpose           *
 c     *                                      *
 c     ****************************************
 
-      subroutine Dneall_mm_transpose(mb,Min,Mout)
+      subroutine Dneall_mm_transpose(mb,M0,M1)
       implicit none
       integer mb
-      real*8  Min(*),Mout(*)
+      real*8  M0(*),M1(*)
 
 
 #include "bafdecls.fh"
@@ -2378,7 +2378,7 @@ c     ****************************************
            if (ne(ms).le.0) goto 20
            shift2 = 1 + (ms-1)*ishift2
            call DMatrix_mm_transpose(ne(ms),
-     >                 Min(shift2),Mout(shift2),
+     >                 M0(shift2),M1(shift2),
      >                 mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)))
  20        continue
          end do
@@ -2398,7 +2398,7 @@ c     ****************************************
            if (ne(ms).le.0) goto 30
            shift2 = 1 + (ms-1)*ishift2
            call Dneall_mm_transpose_sub(ne(ms),
-     >                 Min(shift2),Mout(shift2))
+     >                 M0(shift2),M1(shift2))
  30        continue
          end do
       end if
