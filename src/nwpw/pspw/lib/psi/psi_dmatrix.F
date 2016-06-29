@@ -354,6 +354,9 @@ c     **** project out vector ****
             psi_r(k,i) = psi_r(k,i) - ss*uv*dbl_mb(v0(1)+i-1)
          end do
       end do
+      !do i=1,nn
+      !   call D3dB_r_Zero_Ends(1,psi_r(1,i))
+      !end do
 
       if (.not.BA_pop_stack(v0(2)))
      > call errquit('psi_dmaxtrix_projectout:pop stack',0,MA_ERR)

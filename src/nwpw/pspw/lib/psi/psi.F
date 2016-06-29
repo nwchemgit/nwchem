@@ -4338,7 +4338,7 @@ c     real*8 sum1,sum2
 *     **** do a steepest descent step ****
       call electron_sd_update(dcpl_mb(psi1(1)),
      >                        dcpl_mb(psi2(1)),
-     >			      dte)
+     >                        dte)
 
 *     **** lagrange multiplier corrections ****
       nemaxq = neq(1)+neq(2)
@@ -4364,7 +4364,7 @@ c     >                 dbl_mb(tmp_L(1)),ierr)
      >                        dte,
      >                        dbl_mb(lmd(1)),
      >                        dbl_mb(tmp_L(1)),ierr)
-        else if (pspw_SIC().or.occupation_on) then
+        else if(pspw_SIC().or.occupation_on) then
            call psi_lmbda_sic(ispin,neq,nemaxq,npack1,
      >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dte,
      >                 dbl_mb(lmd(1)),
