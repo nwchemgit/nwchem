@@ -347,18 +347,20 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
         if (hfx_parameter.ne.1.0d0) write(unit,1010) hfx_parameter
         if (localize_on) then
            if (localize2_on) then
-              write(unit,1025)
-              write(unit,1026) maxiter
+              write(unit,1027)
+              write(unit,1028) maxiter
            else
               write(unit,1020)
            end if
            if (prune_algorithm.eq.0) then
               write(unit,1021)
+              write(unit,1022) rin_thresh
+              write(unit,1023) rout_thresh
            else
-              write(unit,1022)
+              write(unit,1024)
+              write(unit,1025) rin_thresh
+              write(unit,1026) rout_thresh
            end if
-           write(unit,1023) rin_thresh
-           write(unit,1024) rout_thresh
         end if
         write(unit,*)
 
@@ -384,14 +386,18 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
  1012 FORMAT(6x,"- attenuation parameter (nwpw:attenuation)       :",
      >       E10.3)
  1020 FORMAT(6x,"- HFX localized orbital solver")
- 1021 FORMAT(6x,"- HFX localized orbital overlap pruning")
- 1022 FORMAT(6x,"- HFX localized orbital distance pruning")
- 1023 FORMAT(6x,"- HFX localized radius (pspw:HFX_localize_rin)   :",
+ 1021 FORMAT(6x,"- HFX localized orbital absolute overlap pruning")
+ 1022 FORMAT(6x,"- Overlap threshold low (pspw:HFX_localize_rin)  :",
      >       E10.3)
- 1024 FORMAT(6x,"- HFX localized radius (pspw:HFX_localize_rout)  :",
+ 1023 FORMAT(6x,"- Overlap threshold high (pspw:HFX_localize_rout):",
      >       E10.3)
- 1025 FORMAT(6x,"- HFX Wannier orbital solver")
- 1026 FORMAT(6x,"- HFX Wannier maxiter(pspw:HFX_localize2:maxiter):",
+ 1024 FORMAT(6x,"- HFX localized orbital distance pruning")
+ 1025 FORMAT(6x,"- Distance cutoff low (pspw:HFX_localize_rin)    :",
+     >       E10.3)
+ 1026 FORMAT(6x,"- Distance cutoff high (pspw:HFX_localize_rout)  :",
+     >       E10.3)
+ 1027 FORMAT(6x,"- HFX Wannier orbital solver")
+ 1028 FORMAT(6x,"- HFX Wannier maxiter(pspw:HFX_localize2:maxiter):",
      >       I3)
       end
 
