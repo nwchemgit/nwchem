@@ -545,12 +545,12 @@ ccccccccccccccccccccccccccccccccccccccccccccc
 *     ***** write psi2 wavefunctions ****
       call psi_write_noocc(ispin,ne,dcpl_mb(psi2(1)))
 
-*     ***** write basis functions *****
-      call psi_makebasisfunctions(1,ispin,ne,neq,
-     >                            dbl_mb(Rwav(1)),
-     >                            dcpl_mb(psi2(1)),
-     >                            dcpl_mb(psi(1)))
-
+c*     ***** write basis functions *****
+c      call psi_makebasisfunctions(1,ispin,ne,neq,
+c     >                            dbl_mb(Rwav(1)),
+c     >                            dcpl_mb(psi2(1)),
+c     >                            dcpl_mb(psi(1)))
+c
 
 *     **** deallocate heap memory ****
       call ion_write(rtdb)
