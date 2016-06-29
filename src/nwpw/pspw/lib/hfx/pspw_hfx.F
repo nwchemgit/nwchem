@@ -132,13 +132,21 @@
      >                      mt_dbl,1,maxiter)) 
      >      maxiter = 5
 
+         if (.not. btdb_get(rtdb,'pspw:HFX_localize:prune_algorithm',
+     >                      mt_int,1,prune_algorithm)) 
+     >      prune_algorithm = 0
+
          if (localize_on) then
             if (.not. btdb_get(rtdb,'pspw:HFX_localize_rin',
-     >                         mt_dbl,1,rin_thresh))
-     >          rin_thresh = 6.5d0
+     >                         mt_dbl,1,rin_thresh)) then
+               rin_thresh = 6.5d0
+               if (prune_algorithm.eq.0) rin_thresh = 5.0d-3
+            end if
             if (.not. btdb_get(rtdb,'pspw:HFX_localize_rout',
-     >                         mt_dbl,1,rout_thresh))
-     >          rout_thresh = 7.5d0
+     >                         mt_dbl,1,rout_thresh)) then
+               rout_thresh = 7.5d0
+               if (prune_algorithm.eq.0) rout_thresh = 1.0d-2
+            end if
          end if
 
  
@@ -339,13 +347,18 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
         if (hfx_parameter.ne.1.0d0) write(unit,1010) hfx_parameter
         if (localize_on) then
            if (localize2_on) then
-              write(unit,1023)
-              write(unit,1024) maxiter
+              write(unit,1025)
+              write(unit,1026) maxiter
            else
               write(unit,1020)
            end if
-           write(unit,1021) rin_thresh
-           write(unit,1022) rout_thresh
+           if (prune_algorithm.eq.0) then
+              write(unit,1021)
+           else
+              write(unit,1022)
+           end if
+           write(unit,1023) rin_thresh
+           write(unit,1024) rout_thresh
         end if
         write(unit,*)
 
@@ -371,12 +384,14 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
  1012 FORMAT(6x,"- attenuation parameter (nwpw:attenuation)       :",
      >       E10.3)
  1020 FORMAT(6x,"- HFX localized orbital solver")
- 1021 FORMAT(6x,"- HFX localized radius (pspw:HFX_localize_rin)   :",
+ 1021 FORMAT(6x,"- HFX localized orbital overlap pruning")
+ 1022 FORMAT(6x,"- HFX localized orbital distance pruning")
+ 1023 FORMAT(6x,"- HFX localized radius (pspw:HFX_localize_rin)   :",
      >       E10.3)
- 1022 FORMAT(6x,"- HFX localized radius (pspw:HFX_localize_rout)  :",
+ 1024 FORMAT(6x,"- HFX localized radius (pspw:HFX_localize_rout)  :",
      >       E10.3)
- 1023 FORMAT(6x,"- HFX Wannier orbital solver")
- 1024 FORMAT(6x,"- HFX Wannier maxiter(pspw:HFX_localize2:maxiter):",
+ 1025 FORMAT(6x,"- HFX Wannier orbital solver")
+ 1026 FORMAT(6x,"- HFX Wannier maxiter(pspw:HFX_localize2:maxiter):",
      >       I3)
       end
 

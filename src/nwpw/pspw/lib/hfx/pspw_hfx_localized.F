@@ -368,6 +368,7 @@ c     *** Silvestrelli G3 ***
       real*8  xx,yy,zz,dx,dy,dz,rr
       integer tmp1(2),xsgrid(2),xs(6)
 
+
 *     **** external functions ****
       integer  ion_nearest_index
       external ion_nearest_index
@@ -375,6 +376,7 @@ c     *** Silvestrelli G3 ***
       external lattice_unita
       character*2 ion_aname_nocarat
       external    ion_aname_nocarat
+
 
       if (localize_on) then
          call nwpw_timing_start(52)
@@ -401,6 +403,9 @@ c     *** Silvestrelli G3 ***
          else
                
 *           **** generate localize psi_r ****
+            do i=1,neq(1)+neq(2)
+               call D3dB_r_Zero_Ends(1,psi_r(1+(i-1)*n2ft3d))
+            end do
             call psi_dmatrix_maxallcolumns(ispin,ne,neq,n2ft3d,
      >                                     psi_r,dbl_mb(psiloc_r(1)),
      >                                     int_mb(dmindx(1)))
@@ -408,19 +413,65 @@ c     *** Silvestrelli G3 ***
      >                              int_mb(dmindx(1)),
      >                              psi_r,dbl_mb(psiloc_r(1)))
 
-*              **** generate < psiloc_r|psi_r> matrix  ****
+            do i=1,neq(1)+neq(2)
+               call D3dB_r_Zero_Ends(1,dbl_mb(psiloc_r(1)+(i-1)*n2ft3d))
+            end do
+
+*           **** generate < psiloc_r|psi_r> matrix  ****
             call Dneall_ggm_Multiply(0,dbl_mb(psiloc_r(1)),psi_r,
      >                            scal1,
      >                            n2ft3d,dbl_mb(rotmat21(1)),0.0d0)
 
-            call Dneall_ggm_AMultiply(0,dbl_mb(psiloc_r(1)),
-     >                                dbl_mb(psiloc_r(1)),
-     >                                scal1,
-     >                                n2ft3d,dbl_mb(absmat(1)),0.0d0)
          end if
 
 
-*        **** Find centers of localized orbitals, rwav ****
+*        *************************************************
+*        **** prune interactions using overlap matrix ****
+*        *************************************************
+         if (prune_algorithm.eq.0) then
+
+*           **** compute overlap matrix of localized orbitals ****
+            call Dneall_ggm_AMultiply(0,dbl_mb(psiloc_r(1)),
+     >                                  dbl_mb(psiloc_r(1)),
+     >                                  scal1,
+     >                                  n2ft3d,dbl_mb(absmat(1)),0.0d0)
+            do ms=1,ispin
+               do n=1,ne(ms)
+               do q=1,n
+                  nx = (q-1)+(n-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
+                  ny = (n-1)+(q-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
+                  cdx1 = dbl_mb(absmat(1)+nx)
+
+                  ! rin_thresh  = 5.0d-3
+                  ! rout_thresh = 1.0d-2
+                  if (cdx1.gt.rin_thresh) then
+                     value = .true.
+                     if (cdx1.lt.rout_thresh) then
+                        cdy1  = (cdx1**2-(rin_thresh)**2)**2
+     >                   *(3*(rout_thresh)**2-2*cdx1**2-(rin_thresh)**2)
+     >                   /((rout_thresh)**2-(rin_thresh)**2)**3
+                     else
+                        cdy1  = 1.0d0
+                     end if
+                  else
+                     value = .false.
+                     cdy1  = 0.0d0
+                  end if
+                  log_mb(closeenough(1)+nx) = value
+                  log_mb(closeenough(1)+ny) = value
+                  dbl_mb(switchr(1)+nx) = cdy1
+                  dbl_mb(switchr(1)+ny) = cdy1
+               end do
+               end do
+            end do
+
+
+*        *****************************************************************************
+*        **** prune interactions using distance between localized orbital centers ****
+*        *****************************************************************************
+         else
+
+*           **** Find centers of localized orbitals, rwav ****
             value = BA_push_get(mt_dbl,n2ft3d,"tmp1",tmp1(2),tmp1(1))
             value = value.and.
      >              BA_push_get(mt_dbl,6*n2ft3d,"xsgrid",
@@ -438,7 +489,6 @@ c     *** Silvestrelli G3 ***
             a(3,3) = lattice_unita(3,3)
 
             call lattice_p_grid(dbl_mb(xsgrid(1)))
-            !call lattice_r_grid_sym0(dbl_mb(xsgrid(1)))
 
             xs(1) = xsgrid(1)
             xs(2) = xsgrid(1)+n2ft3d
@@ -457,12 +507,6 @@ c     *** Silvestrelli G3 ***
                   call Dneall_qton(q,n)
                   call D3dB_rr_Sqr(1,dbl_mb(psiloc_r(1)+(q-1)*n2ft3d),
      >                            dbl_mb(tmp1(1)))
-                  !call D3dB_rr_dot(1,dbl_mb(xs(1)),dbl_mb(tmp1(1)),x)
-                  !call D3dB_rr_dot(1,dbl_mb(xs(2)),dbl_mb(tmp1(1)),y)
-                  !call D3dB_rr_dot(1,dbl_mb(xs(3)),dbl_mb(tmp1(1)),z)
-                  !x = x*scal1
-                  !y = y*scal1
-                  !z = z*scal1
 
                   call D3dB_rr_dot(1,dbl_mb(xs(1)),dbl_mb(tmp1(1)),cdx1)
                   call D3dB_rr_dot(1,dbl_mb(xs(2)),dbl_mb(tmp1(1)),cdy1)
@@ -491,6 +535,7 @@ c     *** Silvestrelli G3 ***
             if (.not.value)
      >       call errquit('pspw_hfx_localize_start:pop stack',2,MA_ERR)
 
+
             do ms=1,ispin
                do n=1,ne(ms)
                do q=1,n
@@ -516,42 +561,25 @@ c     *** Silvestrelli G3 ***
                   end do
                   end do
                   end do
-c                  if (cdx1.lt.rout_thresh) then
-c                     value = .true.
-c                     if (cdx1.le.rin_thresh) then
-c                        cdy1 = 1.0d0
-c                     else
-c                        cdy1 = (rout_thresh**2 - cdx1**2)**2
-c     >                       *(rout_thresh**2+2*cdx1**2-3*rin_thresh**2)
-c     >                       /(rout_thresh**2 - rin_thresh**2)**3
-c                     end if
-c                  else
-c                     value = .false.
-c                     cdy1  = 0.0d0
-c                  end if
-                  nx = (q-1)+(n-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
-                  ny = (n-1)+(q-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
-                  cdx1 = dbl_mb(absmat(1)+nx)
-                  if (cdx1.gt.5.0d-3) then
+                  if (cdx1.lt.rout_thresh) then
                      value = .true.
-                     if (cdx1.lt.1.0e-2) then
-                        cdy1  = (cdx1**2-(5.0d-3)**2)**2
-     >                         *(3*(1.0d-2)**2-2*cdx1**2-(5.0d-3)**2)
-     >                         /((1.0d-2)**2-(5.0d-3)**2)**3
+                     if (cdx1.le.rin_thresh) then
+                        cdy1 = 1.0d0
                      else
-                        cdy1  = 1.0d0
+                        cdy1 = (rout_thresh**2 - cdx1**2)**2
+     >                       *(rout_thresh**2+2*cdx1**2-3*rin_thresh**2)
+     >                       /(rout_thresh**2 - rin_thresh**2)**3
                      end if
                   else
                      value = .false.
                      cdy1  = 0.0d0
                   end if
+                  nx = (q-1)+(n-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
+                  ny = (n-1)+(q-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
                   log_mb(closeenough(1)+nx) = value
                   log_mb(closeenough(1)+ny) = value
                   dbl_mb(switchr(1)+nx) = cdy1
                   dbl_mb(switchr(1)+ny) = cdy1
-c                  write(*,*) "q,n,dist,absmat=",q,n,cdx1,
-c     >                       dbl_mb(absmat(1)+nx),
-c     >                       dbl_mb(absmat(1)+ny)
                end do
                end do
             end do
@@ -576,10 +604,11 @@ c     >                       dbl_mb(absmat(1)+ny)
                   end do
                end do
             end if
-
+         end if
 
       call nwpw_timing_end(52)
       end if
+      
       return
  1382 FORMAT(/' position of localized orbital centers:')
  1390 FORMAT(5X,'psi',I5,' (',3F11.5,
@@ -604,16 +633,61 @@ c     >                       dbl_mb(absmat(1)+ny)
 #include "errquit.fh"
 
 *     **** local variables ****
-      integer neq(2)
+      logical value
+      integer neq(2),ne(2)
+      integer tmat1(2),tmat2(2),nx,ny,nz,ms,msize
+      real*8  scal1
 
-      if ((localize_on).and.(.not.localize2_on)) then
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      external Dneall_m_push_get,Dneall_m_pop_stack
+
+
+      if (localize_on.or.localize2_on) then
          call nwpw_timing_start(52)
+
+*        **** allocate temp matrices from stack ***
+         value =           Dneall_m_push_get(0,tmat2)
+         value = value.and.Dneall_m_push_get(0,tmat1)
+         if (.not.value)
+     >     call errquit('pspw_hfx_localize_stop:push stack',1,MA_ERR)
+
+         call Dneall_m_size(0,msize)
          call Dneall_neq(neq)
-         call Dneall_gmg_Multiply(0,Hpsi_r,n2ft3d,
-     >                           dbl_mb(rotmat21(1)),  1.0d0,
-     >                           dbl_mb(psiloc_r(1)),0.0d0)
-         call dcopy(n2ft3d*(neq(1)+neq(2)),dbl_mb(psiloc_r(1)),1,
-     >              Hpsi_r,1)
+         call D3dB_nx(1,nx)
+         call D3dB_ny(1,ny)
+         call D3dB_nz(1,nz)
+         scal1 = 1.0d0/dble(nx*ny*nz)
+         ne(1) = norbs(1)
+         ne(2) = norbs(2)
+
+*        **** Make Hpsi Hermitian ****
+         call Dneall_ggm_Multiply(0,dbl_mb(psiloc_r(1)),Hpsi_r,
+     >                            scal1,
+     >                            n2ft3d,dbl_mb(tmat1(1)),0.0d0)
+         call Dneall_mm_transpose(0,dbl_mb(tmat1(1)),dbl_mb(tmat2(1)))
+         call daxpy(msize,-1.0d0,dbl_mb(tmat1(1)),1,dbl_mb(tmat2(1)),1)
+         call dscal(msize,0.5d0,dbl_mb(tmat2(1)),1)
+
+         call Dneall_gmg_Multiply(0,dbl_mb(psiloc_r(1)),n2ft3d,
+     >                              dbl_mb(tmat2(1)), 1.0d0,
+     >                              Hpsi_r,           1.0d0)
+
+*        **** rotate Hermitian Hpsi if not localize2 ****
+         if (.not.localize2_on) then
+            call Dneall_gmg_Multiply(0,Hpsi_r,n2ft3d,
+     >                              dbl_mb(rotmat21(1)),1.0d0,
+     >                              dbl_mb(psiloc_r(1)),0.0d0)
+            call dcopy(n2ft3d*(neq(1)+neq(2)),dbl_mb(psiloc_r(1)),1,
+     >                 Hpsi_r,1)
+         end if
+
+
+*        **** pop memory from stack ****
+         value =           Dneall_m_pop_stack(tmat1)
+         value = value.and.Dneall_m_pop_stack(tmat2)
+         if (.not.value)
+     >     call errquit('pspw_hfx_localize_stop:pop stack',2,MA_ERR)
+
          call nwpw_timing_end(52)
       end if
 
