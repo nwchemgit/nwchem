@@ -392,7 +392,7 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
  1023 FORMAT(6x,"- Overlap threshold high (pspw:HFX_localize_rout):",
      >       E10.3)
  1024 FORMAT(6x,"- HFX localized orbital distance pruning")
- 1025 FORMAT(6x,"- Distance cutoff low (pspw:HFX_localize_rin)    :",
+ 1025 FORMAT(6x,"- Distance cutoff low  (pspw:HFX_localize_rin)   :",
      >       E10.3)
  1026 FORMAT(6x,"- Distance cutoff high (pspw:HFX_localize_rout)  :",
      >       E10.3)
