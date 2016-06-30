@@ -61,6 +61,7 @@
 
 *   52 - HFX localization
 *   53 - HFX DM columns
+*   54 - HFX DM Cholesky
 
 
       subroutine nwpw_timing_init()
@@ -288,6 +289,9 @@ c     **** external functions ****
          call nwpw_timing_print(
      >                 '  HFX Finding DM columns     : ',
      >                 nwpw_timing(53),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  HFX DM Cholesky      s     : ',
+     >                 nwpw_timing(54),counter,ttime)
       end if
 
 
