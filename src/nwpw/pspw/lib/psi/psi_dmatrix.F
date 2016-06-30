@@ -47,11 +47,15 @@
          call errquit('psi_dmatrix_localize:push stack',0,MA_ERR)
       end if
 
+      call nwpw_timing_start(53)
       call psi_dmatrix_maxallcolumns(ispin,ne,neq,n2ft3d,
      >                                     psi_r,psi_r2,
      >                                     int_mb(dm_indexs(1)))
+      call nwpw_timing_end(53)
+      call nwpw_timing_start(54)
       call psi_dmatrix_rotate(ispin,ne,neq,n2ft3d,int_mb(dm_indexs(1)),
      >                              psi_r,psi_r2)
+      call nwpw_timing_end(54)
 
 *     **** dealloate memory ****
       if (.not.BA_pop_stack(dm_indexs(2))) 
