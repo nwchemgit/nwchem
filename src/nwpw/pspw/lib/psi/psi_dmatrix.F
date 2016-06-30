@@ -255,12 +255,13 @@ c
 #include "errquit.fh"
 
 *     **** local variables ****
-      integer np_i,taskid_i
+      integer np_i,taskid_i,np_j
       integer i,j,k,kk
       integer maxsum0(2)
       real*8  tsum,maxsum
 
       call Parallel2d_np_i(np_i) 
+      call Parallel2d_np_j(np_j) 
       call Parallel2d_taskid_i(taskid_i) 
 
       if (.not.BA_push_get(mt_dbl,np_i,'maxsum0',maxsum0(2),maxsum0(1)))
@@ -274,7 +275,7 @@ c
          do j=1,nn
             tsum = tsum +  psi_r(k,j)**2
          end do
-         call D1dB_SumAll(tsum)
+         if (np_j.gt.1) call D1dB_SumAll(tsum)
          if (tsum.gt.maxsum) then
             maxsum = tsum
             kk = k
@@ -322,10 +323,11 @@ c
 
 *     **** local variables ****
       real*8  uv,vv,ss
-      integer taskid_i,i,k
+      integer taskid_i,i,k,np_j
       integer v0(2)
       
 
+      call Parallel2d_np_j(np_j)
       call Parallel2d_taskid_i(taskid_i)
 
       if (.not.BA_push_get(mt_dbl,nn,'v0',v0(2),v0(1)))
@@ -344,7 +346,7 @@ c     **** collect the vector across tasks ****
       do i=1,nn
          vv = vv + dbl_mb(v0(1)+i-1)**2
       end do
-      call D1dB_SumAll(vv)
+      if (np_j.gt.1) call D1dB_SumAll(vv)
       if (vv.gt.1.0d-11) then
          ss = 1.0d0/vv
       else
@@ -357,7 +359,7 @@ c     **** project out vector ****
          do i=1,nn
             uv = uv + psi_r(k,i)*dbl_mb(v0(1)+i-1)
          end do
-         call D1dB_SumAll(uv)
+         if (np_j.gt.1) call D1dB_SumAll(uv)
          do i=1,nn
             psi_r(k,i) = psi_r(k,i) - ss*uv*dbl_mb(v0(1)+i-1)
          end do
