@@ -60,6 +60,7 @@
 *   50 - io time
 
 *   52 - HFX localization
+*   53 - HFX DM columns
 
 
       subroutine nwpw_timing_init()
@@ -284,6 +285,9 @@ c     **** external functions ****
          call nwpw_timing_print(
      >                 '  HFX localization           : ',
      >                 nwpw_timing(52),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  HFX Finding DM columns     : ',
+     >                 nwpw_timing(53),counter,ttime)
       end if
 
 
