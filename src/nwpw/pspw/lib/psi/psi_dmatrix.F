@@ -47,15 +47,11 @@
          call errquit('psi_dmatrix_localize:push stack',0,MA_ERR)
       end if
 
-      call nwpw_timing_start(53)
       call psi_dmatrix_maxallcolumns(ispin,ne,neq,n2ft3d,
      >                                     psi_r,psi_r2,
      >                                     int_mb(dm_indexs(1)))
-      call nwpw_timing_end(53)
-      call nwpw_timing_start(54)
       call psi_dmatrix_rotate(ispin,ne,neq,n2ft3d,int_mb(dm_indexs(1)),
      >                              psi_r,psi_r2)
-      call nwpw_timing_end(54)
 
 *     **** dealloate memory ****
       if (.not.BA_pop_stack(dm_indexs(2))) 
@@ -105,6 +101,8 @@
 *     **** external functions ****
       logical  Dneall_m_push_get,Dneall_m_pop_stack
       external Dneall_m_push_get,Dneall_m_pop_stack
+
+      call nwpw_timing_start(54)
 
       call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
@@ -174,6 +172,8 @@ c
       if (.not.Dneall_m_pop_stack(summ))
      >   call errquit('psi_dmatrix_rotate:pop stack',0,MA_ERR)
 
+      call nwpw_timing_end(54)
+
       return
       end
 
@@ -216,6 +216,8 @@ c
       integer ms,i,neall,ishift
       integer k0,taskid_i0
 
+      call nwpw_timing_start(53)
+
       neall = neq(1) + neq(2)
       call dcopy(n2ft3d*neall,psi_r,1,psi_r2,1)
 
@@ -231,6 +233,8 @@ c
             dm_indexes(2,ms,i) = k0
          end do
       end do
+
+      call nwpw_timing_end(53)
 
       return
       end
