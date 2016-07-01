@@ -99,7 +99,7 @@ c     estimate triplesx size
       size=(range_p4**3)*(range_h1**3)
 
       triplesx_copyback=.false.
-c      call util_align64(size)
+      call util_align64(size)
       triplesx_mxlgth=size
 #ifdef USE_F90_ALLOCATABLE
       allocate( f_singles(1:size), stat=alloc_error)
