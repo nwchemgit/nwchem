@@ -2025,12 +2025,12 @@ $(error )
       endif
       ifeq ($(_FC),crayftn)
 	# Jeff: Cray Fortran supports preprocessing as of version 8.2.2 (at least)
-        #EXPLICITF = FALSE
-        #CPP = /usr/bin/cpp  -P -C -traditional
- 	#CPPFLAGS += -DCRAYFORTRAN
-        #FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+        EXPLICITF = FALSE
+        CPP = /usr/bin/cpp  -P -C -traditional
+ 	CPPFLAGS += -DCRAYFORTRAN -DUSE_POSIXF
+        FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
         # USE_POSIXF is required because getlog is provided (GNU extension)
-        FOPTIONS   +=  -Ktrap=fp -DCRAYFORTRAN -DUSE_POSIXF
+        FOPTIONS   +=  -Ktrap=fp# -DCRAYFORTRAN -DUSE_POSIXF
         FDEBUG   =    -g
 #       FOPTIMIZE = -O2 -O scalar3,thread0,vector1,ipa0
         FOPTIMIZE = -O2 -O scalar3,thread0,vector2,ipa2 #-rdm
