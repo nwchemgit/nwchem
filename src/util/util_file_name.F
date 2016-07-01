@@ -99,6 +99,25 @@ c
       logical oparallel       ! [input] true=append .nodeid
       character*(*) name      ! [output] full filename
 c
+
+      call util_file_name0(stub, oscratch, oparallel, name, -1)
+c
+      end
+      subroutine util_file_name0(stub, oscratch, oparallel, name, nodgs)
+      implicit none
+#include "errquit.fh"
+#include "util.fh"
+#include "inp.fh"      
+#include "cfileprefix.fh"
+#include "global.fh"
+#include "stdio.fh"
+c
+      character*(*) stub      ! [input] stub name for file
+      logical oscratch        ! [input] true=scratch, false=permanent
+      logical oparallel       ! [input] true=append .nodeid
+      character*(*) name      ! [output] full filename
+      integer nodgs           ! [input] no. of digits for prefix
+c
       character*(nw_max_path_len) dir, tmp
       integer ltmp, ldir, me
       logical util_file_parse_dir
@@ -138,7 +157,12 @@ c
      $           inp_strlen(name), INPUT_ERR)
          endif
          tmp = name
-         call util_pname(tmp, name)
+         if(nodgs.eq.-1) then
+            call util_pname(tmp, name)
+         else
+            call util_pname0(tmp, name,ga_nodeid(),10**nodgs)
+         endif
+            
       endif
 c
       end
@@ -800,7 +824,7 @@ c     now write 5M of doubles
 c
       if (.not.ma_push_get(MT_Dbl,l1megabyte,'cc',l_k,i_k))
      &   call errquit('utilfname: cannot allocate ',0, MA_ERR)
-      call dcopy(l1megabyte,0d0,0,dbl_mb(i_k),1)
+      call ycopy(l1megabyte,0d0,0,dbl_mb(i_k),1)
       ierr = eaf_write(fd, 0d0, dbl_mb(i_k),8*l1megabyte)
       if (.not.ma_pop_stack(l_k))
      &   call errquit('utilfname: cannot deallocate ',0, MA_ERR)

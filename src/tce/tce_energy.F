@@ -516,6 +516,7 @@
       double precision pi
       parameter(pi = 3.14159265358979323846264338327950288419D0)
       character*255 modelname
+      integer fldgts
       logical do_ccd, do_lccd, do_ccsd, do_lccsd, do_qcisd
       logical do_pt, do_lam_pt, do_cr_pt, do_lcr_pt, do_2t_pt
 !
@@ -755,6 +756,15 @@ cold        rec_mem=1
         write(LuOut,*)'D4D5:      ',d4d5
         call util_flush(LuOut)
        end if
+
+c     number of digits for parallel file prefix (util_file_name0 last arg)
+       if (.not.rtdb_get(rtdb,'tce:filedgts',mt_int,1,fldgts)) 
+     A      fldgts=5
+       if(max_ioprocs_in.gt.10**fldgts) then
+          fldgts=log10(dble(max_ioprocs_in))+1
+          if(ga_nodeid().eq.0) write(6,*) 
+     R         ' tce:filedgts redefined to ',fldgts
+       endif
 
 
 !
@@ -1029,7 +1039,7 @@ cold        rec_mem=1
         if (recompf) then
 ! === jaguar ===
       if(read_int)  then
-      call util_file_name('f1int',.false.,.true.,filename)
+      call util_file_name0('f1int',.false.,.true.,filename,fldgts)
       unitn=77
       if(nodezero) write(LuOut,*)'size_1e',size_1e
        call read_tensor(filename,d_f1,size_1e,unitn)
@@ -1048,7 +1058,8 @@ cold        rec_mem=1
           call tce_mo1e(g_ao1e,d_f1,k_f1_offset)
 ! === jaguar ===
       if(write_int)  then
-      call util_file_name('f1int',.false.,.true.,filename)
+      call util_file_name0('f1int',.false.,.true.,filename,fldgts)
+
       unitn=77
       if(nodezero) write(LuOut,*)'size_1e',size_1e
       call write_tensor(filename,d_f1,size_1e,unitn)
@@ -1205,7 +1216,8 @@ c
           endif
 ! === jaguar === SPINORB
          if(read_int)  then
-          call util_file_name('v2int',.false.,.true.,filename)
+c          call util_file_name('v2int',.false.,.true.,filename)
+          call util_file_name0('v2int',.false.,.true.,filename,fldgts)
           unitn=78
           call read_tensor(filename,d_v2,size_2e,unitn)
 !     re-split the int files?
@@ -1222,7 +1234,8 @@ c
           call reconcilefile(d_v2,size_2e)
 ! === jaguar ===
          if(write_int)  then
-          call util_file_name('v2int',.false.,.true.,filename)
+c          call util_file_name('v2int',.false.,.true.,filename)
+          call util_file_name0('v2int',.false.,.true.,filename,fldgts)
           unitn=78
           call write_tensor(filename,d_v2,size_2e,unitn)
           call ga_sync()
@@ -1458,7 +1471,8 @@ c
         elseif(fast2e.eq.13) then
 ! === jaguar ===
          if(read_int)  then
-          call util_file_name('v2int',.false.,.true.,filename)
+c          call util_file_name('v2int',.false.,.true.,filename)
+          call util_file_name0('v2int',.false.,.true.,5)
           unitn=78
           call read_tensor(filename,d_v2,size_2e,unitn)
 !     re-split the int files?
@@ -1482,7 +1496,7 @@ c
          end if
 ! === jaguar ===
          if(write_int)  then
-          call util_file_name('v2int',.false.,.true.,filename)
+          call util_file_name0('v2int',.false.,.true.,filename,fldgts)
           unitn=78
           call write_tensor(filename,d_v2,size_2e,unitn)
           call ga_sync()
@@ -1493,7 +1507,7 @@ c
         elseif(fast2e.eq.14) then
 ! === jaguar ===
          if(read_int)  then
-          call util_file_name('v2int',.false.,.true.,filename)
+          call util_file_name0('v2int',.false.,.true.,filename,fldgts)
           unitn=78
           call read_tensor(filename,d_v2,size_2e,unitn)
           call ga_sync()
@@ -1501,6 +1515,7 @@ c
          end if
 ! ==============
          if(model.ne.'ccsd_act') then
+            write(6,*) ' chop v2 '
           call  tce_mo2e_zones_4a_disk_ga_chop_N5(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
          else 
@@ -1511,7 +1526,7 @@ c
          end if
 ! === jaguar ===
          if(write_int)  then
-          call util_file_name('v2int',.false.,.true.,filename)
+          call util_file_name0('v2int',.false.,.true.,filename,fldgts)
           unitn=78
           call write_tensor(filename,d_v2,size_2e,unitn)
           call ga_sync()
@@ -1522,7 +1537,7 @@ c
         elseif(fast2e.eq.15) then
 ! === jaguar ===
          if(read_int)  then
-          call util_file_name('v2int',.false.,.true.,filename)
+          call util_file_name0('v2int',.false.,.true.,filename,fldgts)
           unitn=178
           call read_tensor(filename,d_v2,size_2e,unitn)
           call ga_sync()
@@ -1540,7 +1555,7 @@ c
      1                        size_2e)
 ! === jaguar ===
          if(write_int)  then
-          call util_file_name('v2int',.false.,.true.,filename)
+          call util_file_name0('v2int',.false.,.true.,filename,fldgts)
           unitn=178
           call write_tensor(filename,d_v2,size_2e,unitn)
           call ga_sync()
@@ -1843,6 +1858,7 @@ c
          call util_flush(LuOut)
         end if
 ! -------------
+        write(6,*) 'ccrururururur'
         call createfile(filename,d_t2,size_t2)
         if(nodezero) then
          call util_flush(LuOut)
@@ -2459,10 +2475,10 @@ c
       if(read_ta)  then
        call tce_zero(d_t1,size_t1)
        call tce_zero(d_t2,size_t2)
-       call util_file_name('t1amp',.false.,.true.,filename)
+       call util_file_name0('t1amp',.false.,.true.,filename,fldgts)
        unitn=79
        call read_tensor(filename,d_t1,size_t1,unitn)
-       call util_file_name('t2amp',.false.,.true.,filename)
+       call util_file_name0('t2amp',.false.,.true.,filename,fldgts)
        unitn=80
        call read_tensor(filename,d_t2,size_t2,unitn)
        call ga_sync()
@@ -2539,10 +2555,10 @@ c
             call tce_diis_tidy()
 ! === jaguar ===
       if(write_ta)  then
-       call util_file_name('t1amp',.false.,.true.,filename)
+       call util_file_name0('t1amp',.false.,.true.,filename,fldgts)
        unitn=79
        call write_tensor(filename,d_t1,size_t1,unitn)
-       call util_file_name('t2amp',.false.,.true.,filename)
+       call util_file_name0('t2amp',.false.,.true.,filename,fldgts)
         unitn=80
        call write_tensor(filename,d_t2,size_t2,unitn)
        call ga_sync()
@@ -2573,10 +2589,10 @@ c
           if(read_ta)  then
            call tce_zero(d_t1,size_t1)
            call tce_zero(d_t2,size_t2)
-           call util_file_name('t1amp',.false.,.true.,filename)
+           call util_file_name0('t1amp',.false.,.true.,filename,fldgts)
            unitn=79
            call read_tensor(filename,d_t1,size_t1,unitn)
-           call util_file_name('t2amp',.false.,.true.,filename)
+           call util_file_name0('t2amp',.false.,.true.,filename,fldgts)
            unitn=80
            call read_tensor(filename,d_t2,size_t2,unitn)
            call ga_sync()
@@ -2596,10 +2612,10 @@ c
 #endif
 ! === jaguar ===
          if(write_ta)  then
-          call util_file_name('t1amp',.false.,.true.,filename)
+          call util_file_name0('t1amp',.false.,.true.,filename,fldgts)
           unitn=79
           call write_tensor(filename,d_t1,size_t1,unitn)
-          call util_file_name('t2amp',.false.,.true.,filename)
+          call util_file_name0('t2amp',.false.,.true.,filename,fldgts)
           unitn=80
           call write_tensor(filename,d_t2,size_t2,unitn)
           call ga_sync()
@@ -6652,13 +6668,13 @@ c
         call tce_filenameindexed(ivec,'xc1',filename)
         call createfile(filename,xc1(ivec),size_x1)
         xc1_exist(ivec) = .true.
-        call util_file_name('x1am1',.false.,.true.,filename)
+        call util_file_name0('x1am1',.false.,.true.,filename,fldgts)
         call read_tensor(filename,xc1(ivec),size_x1,unitn)
         unitn=82
         call tce_filenameindexed(ivec,'xc2',filename)
         call createfile(filename,xc2(ivec),size_x2)
         xc2_exist(ivec) = .true.
-        call util_file_name('x2am1',.false.,.true.,filename)
+        call util_file_name0('x2am1',.false.,.true.,filename,fldgts)
         call read_tensor(filename,xc2(ivec),size_x2,unitn)
                 if(nodezero)
      &                  write(LuOut,*)'EOMCCSD root nr. ',ivec
@@ -6671,13 +6687,13 @@ c
          call tce_filenameindexed(ivec,'xc1',filename)
          call createfile(filename,xc1(ivec),size_x1)
          xc1_exist(ivec) = .true.
-         call util_file_name('x1am2',.false.,.true.,filename)
+         call util_file_name0('x1am2',.false.,.true.,filename,fldgts)
          call read_tensor(filename,xc1(ivec),size_x1,unitn)
          unitn=84
          call tce_filenameindexed(ivec,'xc2',filename)
          call createfile(filename,xc2(ivec),size_x2)
          xc2_exist(ivec) = .true.
-         call util_file_name('x2am2',.false.,.true.,filename)
+         call util_file_name0('x2am2',.false.,.true.,filename,fldgts)
          call read_tensor(filename,xc2(ivec),size_x2,unitn)
                 if(nodezero)
      &                  write(LuOut,*)'EOMCCSD root nr. ',ivec
@@ -6690,13 +6706,13 @@ c
           call tce_filenameindexed(ivec,'xc1',filename)
           call createfile(filename,xc1(ivec),size_x1)
           xc1_exist(ivec) = .true.
-          call util_file_name('x1am3',.false.,.true.,filename)
+          call util_file_name0('x1am3',.false.,.true.,filename,fldgts)
           call read_tensor(filename,xc1(ivec),size_x1,unitn)
           unitn=86
           call tce_filenameindexed(ivec,'xc2',filename)
           call createfile(filename,xc2(ivec),size_x2)
           xc2_exist(ivec) = .true.
-          call util_file_name('x2am3',.false.,.true.,filename)
+          call util_file_name0('x2am3',.false.,.true.,filename,fldgts)
           call read_tensor(filename,xc2(ivec),size_x2,unitn)
                 if(nodezero)
      &                  write(LuOut,*)'EOMCCSD root nr. ',ivec
@@ -6709,13 +6725,13 @@ c
            call tce_filenameindexed(ivec,'xc1',filename)
            call createfile(filename,xc1(ivec),size_x1)
            xc1_exist(ivec) = .true.
-           call util_file_name('x1am4',.false.,.true.,filename)
+           call util_file_name0('x1am4',.false.,.true.,filename,fldgts)
            call read_tensor(filename,xc1(ivec),size_x1,unitn)
            unitn=88
            call tce_filenameindexed(ivec,'xc2',filename)
            call createfile(filename,xc2(ivec),size_x2)
            xc2_exist(ivec) = .true.
-           call util_file_name('x2am4',.false.,.true.,filename)
+           call util_file_name0('x2am4',.false.,.true.,filename,fldgts)
            call read_tensor(filename,xc2(ivec),size_x2,unitn)
                 if(nodezero)
      &                  write(LuOut,*)'EOMCCSD root nr. ',ivec
@@ -6907,10 +6923,10 @@ c
         if(nroots_reduced.ge.1) then
         unitn=81
         ivec=1
-        call util_file_name('x1am1',.false.,.true.,filename)
+        call util_file_name0('x1am1',.false.,.true.,filename,fldgts)
         call read_tensor(filename,xc1(ivec),size_x1,unitn)
         unitn=82
-        call util_file_name('x2am1',.false.,.true.,filename)
+        call util_file_name0('x2am1',.false.,.true.,filename,fldgts)
         call read_tensor(filename,xc2(ivec),size_x2,unitn)
                 if(nodezero)
      &                  write(LuOut,*)'INI EOMCCSD root nr. ',ivec
@@ -6919,10 +6935,10 @@ c
         if(nroots_reduced.ge.2) then
          unitn=83
          ivec=2
-         call util_file_name('x1am2',.false.,.true.,filename)
+         call util_file_name0('x1am2',.false.,.true.,filename,fldgts)
          call read_tensor(filename,xc1(ivec),size_x1,unitn)
          unitn=84
-         call util_file_name('x2am2',.false.,.true.,filename)
+         call util_file_name0('x2am2',.false.,.true.,filename,fldgts)
          call read_tensor(filename,xc2(ivec),size_x2,unitn)
                 if(nodezero)
      &                  write(LuOut,*)'INI EOMCCSD root nr. ',ivec
@@ -6931,10 +6947,10 @@ c
          if(nroots_reduced.ge.3) then
           unitn=85
           ivec=3
-          call util_file_name('x1am3',.false.,.true.,filename)
+          call util_file_name0('x1am3',.false.,.true.,filename,fldgts)
           call read_tensor(filename,xc1(ivec),size_x1,unitn)
           unitn=86
-          call util_file_name('x2am3',.false.,.true.,filename)
+          call util_file_name0('x2am3',.false.,.true.,filename,fldgts)
           call read_tensor(filename,xc2(ivec),size_x2,unitn)
                 if(nodezero)
      &                  write(LuOut,*)'INI EOMCCSD root nr. ',ivec
@@ -6943,10 +6959,10 @@ c
           if(nroots_reduced.ge.4) then
            unitn=87
            ivec=4
-           call util_file_name('x1am4',.false.,.true.,filename)
+           call util_file_name0('x1am4',.false.,.true.,filename,fldgts)
            call read_tensor(filename,xc1(ivec),size_x1,unitn)
            unitn=88
-           call util_file_name('x2am4',.false.,.true.,filename)
+           call util_file_name0('x2am4',.false.,.true.,filename,fldgts)
            call read_tensor(filename,xc2(ivec),size_x2,unitn)
                 if(nodezero)
      &                  write(LuOut,*)'INI EOMCCSD root nr. ',ivec
@@ -7351,31 +7367,31 @@ c
       if(write_xa)  then
        if(nroots_reduced.ge.1) then
         unitn=81
-        call util_file_name('x1am1',.false.,.true.,filename)
+        call util_file_name0('x1am1',.false.,.true.,filename,fldgts)
         call write_tensor(filename,xc1(1),size_x1,unitn)
         unitn=82
-        call util_file_name('x2am1',.false.,.true.,filename)
+        call util_file_name0('x2am1',.false.,.true.,filename,fldgts)
         call write_tensor(filename,xc2(1),size_x2,unitn)
         if(nroots_reduced.ge.2) then
          unitn=83
-         call util_file_name('x1am2',.false.,.true.,filename)
+         call util_file_name0('x1am2',.false.,.true.,filename,fldgts)
          call write_tensor(filename,xc1(2),size_x1,unitn)
          unitn=84
-         call util_file_name('x2am2',.false.,.true.,filename)
+         call util_file_name0('x2am2',.false.,.true.,filename,fldgts)
          call write_tensor(filename,xc2(2),size_x2,unitn)
          if(nroots_reduced.ge.3) then
           unitn=85
-          call util_file_name('x1am3',.false.,.true.,filename)
+          call util_file_name0('x1am3',.false.,.true.,filename,fldgts)
           call write_tensor(filename,xc1(3),size_x1,unitn)
           unitn=86
-          call util_file_name('x2am3',.false.,.true.,filename)
+          call util_file_name0('x2am3',.false.,.true.,filename,fldgts)
           call write_tensor(filename,xc2(3),size_x2,unitn)
           if(nroots_reduced.ge.4) then
            unitn=87
-           call util_file_name('x1am4',.false.,.true.,filename)
+           call util_file_name0('x1am4',.false.,.true.,filename,fldgts)
            call write_tensor(filename,xc1(4),size_x1,unitn)
            unitn=88
-           call util_file_name('x2am4',.false.,.true.,filename)
+           call util_file_name0('x2am4',.false.,.true.,filename,fldgts)
            call write_tensor(filename,xc2(4),size_x2,unitn)
           end if
          end if
@@ -7988,13 +8004,13 @@ c
         call tce_filenameindexed(ivec,'xc1',filename)
         call createfile(filename,xc1(ivec),size_x1)
         xc1_exist(ivec) = .true.
-        call util_file_name('x1am1',.false.,.true.,filename)
+        call util_file_name0('x1am1',.false.,.true.,filename,fldgts)
         call read_tensor(filename,xc1(ivec),size_x1,unitn)
         unitn=82
         call tce_filenameindexed(ivec,'xc2',filename)
         call createfile(filename,xc2(ivec),size_x2)
         xc2_exist(ivec) = .true.
-        call util_file_name('x2am1',.false.,.true.,filename)
+        call util_file_name0('x2am1',.false.,.true.,filename,fldgts)
         call read_tensor(filename,xc2(ivec),size_x2,unitn)
           if(nodezero)
      &            write(LuOut,*)'EOMCCSD root nr. ',ivec
@@ -8007,13 +8023,13 @@ c
          call tce_filenameindexed(ivec,'xc1',filename)
          call createfile(filename,xc1(ivec),size_x1)
          xc1_exist(ivec) = .true.
-         call util_file_name('x1am2',.false.,.true.,filename)
+         call util_file_name0('x1am2',.false.,.true.,filename,fldgts)
          call read_tensor(filename,xc1(ivec),size_x1,unitn)
          unitn=84
          call tce_filenameindexed(ivec,'xc2',filename)
          call createfile(filename,xc2(ivec),size_x2)
          xc2_exist(ivec) = .true.
-         call util_file_name('x2am2',.false.,.true.,filename)
+         call util_file_name0('x2am2',.false.,.true.,filename,fldgts)
          call read_tensor(filename,xc2(ivec),size_x2,unitn)
            if(nodezero)
      &         write(LuOut,*)'EOMCCSD root nr. ',ivec
@@ -8026,13 +8042,13 @@ c
           call tce_filenameindexed(ivec,'xc1',filename)
           call createfile(filename,xc1(ivec),size_x1)
           xc1_exist(ivec) = .true.
-          call util_file_name('x1am3',.false.,.true.,filename)
+          call util_file_name0('x1am3',.false.,.true.,filename,fldgts)
           call read_tensor(filename,xc1(ivec),size_x1,unitn)
           unitn=86
           call tce_filenameindexed(ivec,'xc2',filename)
           call createfile(filename,xc2(ivec),size_x2)
           xc2_exist(ivec) = .true.
-          call util_file_name('x2am3',.false.,.true.,filename)
+          call util_file_name0('x2am3',.false.,.true.,filename,fldgts)
           call read_tensor(filename,xc2(ivec),size_x2,unitn)
             if(nodezero)
      &              write(LuOut,*)'EOMCCSD root nr. ',ivec
@@ -8045,13 +8061,13 @@ c
            call tce_filenameindexed(ivec,'xc1',filename)
            call createfile(filename,xc1(ivec),size_x1)
            xc1_exist(ivec) = .true.
-           call util_file_name('x1am4',.false.,.true.,filename)
+           call util_file_name0('x1am4',.false.,.true.,filename,fldgts)
            call read_tensor(filename,xc1(ivec),size_x1,unitn)
            unitn=88
            call tce_filenameindexed(ivec,'xc2',filename)
            call createfile(filename,xc2(ivec),size_x2)
            xc2_exist(ivec) = .true.
-           call util_file_name('x2am4',.false.,.true.,filename)
+           call util_file_name0('x2am4',.false.,.true.,filename,fldgts)
            call read_tensor(filename,xc2(ivec),size_x2,unitn)
              if(nodezero)
      &              write(LuOut,*)'EOMCCSD root nr. ',ivec
@@ -8458,31 +8474,31 @@ c
       if(write_xa)  then
        if(nroots_reduced.ge.1) then
         unitn=81
-        call util_file_name('x1am1',.false.,.true.,filename)
+        call util_file_name0('x1am1',.false.,.true.,filename,fldgts)
         call write_tensor(filename,xc1(1),size_x1,unitn)
         unitn=82
-        call util_file_name('x2am1',.false.,.true.,filename)
+        call util_file_name0('x2am1',.false.,.true.,filename,fldgts)
         call write_tensor(filename,xc2(1),size_x2,unitn)
         if(nroots_reduced.ge.2) then
          unitn=83
-         call util_file_name('x1am2',.false.,.true.,filename)
+         call util_file_name0('x1am2',.false.,.true.,filename,fldgts)
          call write_tensor(filename,xc1(2),size_x1,unitn)
          unitn=84
-         call util_file_name('x2am2',.false.,.true.,filename)
+         call util_file_name0('x2am2',.false.,.true.,filename,fldgts)
          call write_tensor(filename,xc2(2),size_x2,unitn)
          if(nroots_reduced.ge.3) then
           unitn=85
-          call util_file_name('x1am3',.false.,.true.,filename)
+          call util_file_name0('x1am3',.false.,.true.,filename,fldgts)
           call write_tensor(filename,xc1(3),size_x1,unitn)
           unitn=86
-          call util_file_name('x2am3',.false.,.true.,filename)
+          call util_file_name0('x2am3',.false.,.true.,filename,fldgts)
           call write_tensor(filename,xc2(3),size_x2,unitn)
           if(nroots_reduced.ge.4) then
            unitn=87
-           call util_file_name('x1am4',.false.,.true.,filename)
+           call util_file_name0('x1am4',.false.,.true.,filename,fldgts)
            call write_tensor(filename,xc1(4),size_x1,unitn)
            unitn=88
-           call util_file_name('x2am4',.false.,.true.,filename)
+           call util_file_name0('x2am4',.false.,.true.,filename,fldgts)
            call write_tensor(filename,xc2(4),size_x2,unitn)
           end if
          end if
