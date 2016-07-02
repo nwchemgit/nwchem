@@ -110,5 +110,6 @@ c
       integer in,alignval
       alignval=64/MA_sizeof(MT_DBL,1,MT_BYTE)
       if(mod(in,alignval).ne.0) in=(1+in/alignval)*alignval
+      in=in+alignval
       return
       end
