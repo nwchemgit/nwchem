@@ -180,6 +180,8 @@
       external control_SA_decay
       integer  ion_nconstraints,ion_ndof,ion_rion_ptr
       external ion_nconstraints,ion_ndof,ion_rion_ptr
+      logical  control_periodic_dipole
+      external control_periodic_dipole
 
 
 *                            |************|
@@ -1026,7 +1028,7 @@ c     >                        ratio_v,wa,wr,wa_v,wr_v
       cdipole(3) = 0.0d0
       if (flag.gt.-1) then
         call rho_dipole(dipole)
-        call psi1_crystal_dipole(cdipole)
+        if (control_periodic_dipole()) call psi1_crystal_dipole(cdipole)
       end if
 
 

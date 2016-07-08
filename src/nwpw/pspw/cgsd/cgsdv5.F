@@ -154,8 +154,8 @@
       external pspw_bqext,control_fast_erf
       integer  ion_nconstraints,ion_ndof
       external ion_nconstraints,ion_ndof
-      logical  control_smooth_cutoff
-      external control_smooth_cutoff
+      logical  control_smooth_cutoff,control_periodic_dipole
+      external control_smooth_cutoff,control_periodic_dipole
       real*8   control_smooth_cutoff_values
       external control_smooth_cutoff_values
 
@@ -566,7 +566,7 @@ c     end if
       cdipole(3) = 0.0d0
       if (flag.gt.-1) then
         call rho_dipole(dipole)
-        call psi1_crystal_dipole(cdipole)
+        if (control_periodic_dipole()) call psi1_crystal_dipole(cdipole)
       end if
 
 *     ****  calculate gradient ***

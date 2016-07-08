@@ -176,8 +176,8 @@
       external Nose_Mchain,Nose_Nchain
       integer  ion_nconstraints,ion_ndof
       external ion_nconstraints,ion_ndof
-      logical  ion_makehmass2
-      external ion_makehmass2
+      logical  ion_makehmass2,control_periodic_dipole
+      external ion_makehmass2,control_periodic_dipole
 
 
 *                            |************|
@@ -1050,7 +1050,7 @@ c      call control_up_print()
       cdipole(3) = 0.0d0
       if (flag.gt.-1) then
         call rho_dipole(dipole)
-        call psi1_crystal_dipole(cdipole)
+        if (control_periodic_dipole()) call psi1_crystal_dipole(cdipole)
       end if
 
 

@@ -154,8 +154,8 @@
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
 
-      logical  pspw_bqext,control_Fei
-      external pspw_bqext,control_Fei
+      logical  pspw_bqext,control_Fei,control_periodic_dipole
+      external pspw_bqext,control_Fei,control_periodic_dipole
 
       integer  control_bo_steps_in,control_bo_steps_out
       integer  control_bo_algorithm,control_opt_algorithm
@@ -687,8 +687,8 @@ c         end if
       cdipole(2) = 0.0d0
       cdipole(3) = 0.0d0
       if (flag.gt.-1) then
-         call rho_dipole(dipole)
-         call psi1_crystal_dipole(cdipole)
+        call rho_dipole(dipole)
+        if (control_periodic_dipole()) call psi1_crystal_dipole(cdipole)
       end if
 
 
