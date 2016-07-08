@@ -161,6 +161,12 @@
          fmm_lr = 1
       end if
 
+*     **** get periodic_dipole ****
+      if (.not.btdb_get(rtdb,'nwpw:periodic_dipole',
+     >                  mt_log,1,periodic_dipole)) then
+         periodic_dipole = .false.
+      end if
+
 *     **** get smooth_cuoff ****
       smooth_cutoff = .true.
       if (.not.btdb_get(rtdb,'nwpw:smooth_cutoff',
@@ -4686,6 +4692,20 @@ c      end
 #include "control.fh"
 
       control_fmm = fmm
+      return
+      end
+
+*     ************************************
+*     *                                  *
+*     *      control_periodic_dipole     *
+*     *                                  *
+*     ************************************
+      logical function control_periodic_dipole()
+      implicit none
+
+#include "control.fh"
+
+      control_periodic_dipole = periodic_dipole
       return
       end
 

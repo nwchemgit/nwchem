@@ -26,7 +26,7 @@
       logical     move,frac_coord,SA,fei,fei_quench,gram_schmidt
       logical     rotation,translation,balance,spin_orbit,dipole_motion
       logical     two_comp_ppot,frozen,pio,fast_erf,fmm,smooth_cutoff
-      logical     hess_model
+      logical     hess_model,periodic_dipole
       integer     maxit_orb,maxit_orbs,scf_algorithm,ks_algorithm
       integer     symm_number,minimizer
       common / control_block / unita,unita_frozen,tolerances,
@@ -47,7 +47,8 @@
      >                         gram_schmidt,rotation,translation,
      >                         balance,spin_orbit,dipole_motion,
      >                         two_comp_ppot,frozen,pio,fast_erf,
-     >                         fmm,smooth_cutoff,hess_model
+     >                         fmm,smooth_cutoff,hess_model,
+     >                         periodic_dipole
       common / control_blkchar / boutput_wavefunction_filename,
      >                         output_wavefunction_filename,
      >                         input_wavefunction_filename,
