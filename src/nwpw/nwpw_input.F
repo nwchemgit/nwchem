@@ -20,7 +20,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 119)
+      parameter (num_dirs = 120)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -140,6 +140,7 @@ c
      >            'initial_velocities',
      >            'temperature',
      >            'cutoff_boot_wavefunction',
+     >            'periodic_dipole',
      >            'end'/
 
       double precision kb
@@ -211,7 +212,7 @@ c
      >       5900,6000,6000,
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
-     >       7700,7800,7900,8000,8100,6650,8200,8300,8400,
+     >       7700,7800,7900,8000,8100,6650,8200,8300,8400,8500,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1945,11 +1946,27 @@ c
 c
 c cutoff_boot_wavefunction .true.||.false
 c
- 8400 if (.not.inp_a(zone_name)) move = .true.
-      move = nwpw_parse_boolean(zone_name,move)
+ 8400 if (inp_a(zone_name)) then
+         move = nwpw_parse_boolean(zone_name,.true.)
+      else
+         move = .true.
+      end if
       if (.not.rtdb_put(rtdb,'nwpw:cutoff_boot_psi',mt_log,1,
      >                  move))
      >  call errquit('nwpw_input: error writing to rtdb',8400,RTDB_ERR)
+      goto 10
+
+c
+c periodic_dipole  .true.||.false
+c
+ 8500 if (inp_a(zone_name)) then
+         move = nwpw_parse_boolean(zone_name,.true.)
+      else
+         move = .true.
+      end if
+      if (.not.rtdb_put(rtdb,'nwpw:periodic_dipole',mt_log,1,
+     >                  move))
+     >  call errquit('nwpw_input: error writing to rtdb',8500,RTDB_ERR)
       goto 10
 
 
