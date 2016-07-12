@@ -792,6 +792,8 @@ c
         scales6  = 1.0d0
         scalesr6 = 0.0d0
         scalesr8 = 0.0d0
+        a1=0d0
+        a2=0d0
 c BLYP
         if(xfac(3).eq.1.0d0.and.cfac(2).eq.1.0d0) then
            scales8  = 2.6996d0
@@ -979,6 +981,8 @@ c          scales8  = 0.000d0
 c dftb
 c          scalesr6 = 1.699d0
 c          scales8  = 1.504d0
+        else
+         call errquit(' vdw 4: scaling factors not available',0,0)
         endif
       else
         scales6 = 0.0d0

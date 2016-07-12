@@ -575,7 +575,7 @@ c
 c
       double precision delta,delta_default
 c
-      oprint = util_print('vdw', print_high)
+      oprint = util_print('vdw', print_medium)
       oprinth = util_print('vdw high', print_high)
 c
 c     Allocate memory blocks
@@ -656,29 +656,33 @@ c
          evdw=xc_vdw_e(s6,s8,sr6,sr8,a1,a2,n,dbl_mb(i_xyz),int_mb(iz))
 c
          if(oprint.and.ga_nodeid().eq.0) then
+            write(luout,*) 
+     D           '     Dispersion Parameters'
+            write(luout,*)
+     D           '     ---------------------'
            if (ivdw.eq.1.or.ivdw.eq.2) then
               write(luout,222) s6, evdw
- 222  format(//
-     &     '          s6 scale factor =', f22.12/
-     &     '              vdW contrib =', f22.12//)
+ 222  format(/
+     &     '          s6 scale factor :', f22.12/
+     &     '              vdW contrib :', f22.12/)
            endif
            if (ivdw.eq.3) then
               write(luout,223) s6, s8, sr6, sr8, evdw
- 223  format(//
-     &     '          s6 scale factor  =', f22.12/
-     &     '          s8 scale factor  =', f22.12/
-     &     '          sr6 scale factor =', f22.12/
-     &     '          sr8 scale factor =', f22.12/
-     &     '              vdW contrib  =', f22.12//)
+ 223  format(/
+     &     '          s6 scale factor  :', f22.12/
+     &     '          s8 scale factor  :', f22.12/
+     &     '          sr6 scale factor :', f22.12/
+     &     '          sr8 scale factor :', f22.12/
+     &     '              vdW contrib  :', f22.12/)
            endif
            if (ivdw.eq.4) then
               write(luout,224) s6, s8, a1, a2, evdw
- 224  format(//
-     &     '          s6 scale factor  =', f22.12/
-     &     '          s8 scale factor  =', f22.12/
-     &     '          a1 parameter     =', f22.12/
-     &     '          a2 parameter     =', f22.12/
-     &     '              vdW contrib  =', f22.12//)
+ 224  format(/
+     &     '          s6 scale factor  :', f22.12/
+     &     '          s8 scale factor  :', f22.12/
+     &     '          a1 parameter     :', f22.12/
+     &     '          a2 parameter     :', f22.12/
+     &     '              vdW contrib  :', f22.12/)
            endif
          endif
 c
