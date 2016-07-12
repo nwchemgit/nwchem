@@ -14,7 +14,7 @@
       real*8     dte
       real*8     lmbda(*)
       real*8     tmp(*)
-      integer	 ierr
+      integer    ierr
 
 *     **** parameters ****
       integer MASTER

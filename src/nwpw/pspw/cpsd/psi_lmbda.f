@@ -78,13 +78,16 @@ c        call Dne_ffm_combo_sym_Multiply(ms,psi1,psi2,npack1,tmp(s11))
 *       ***** scale the overlap matrices ****
         call Dneall_m_scale_s22(ms,dte,tmp(s22))
         call Dneall_m_scale_s21(ms,dte,tmp(s21))
-        call dcopy(nn,tmp(s21),1,tmp(s12),1)
+        !call dcopy(nn,tmp(s21),1,tmp(s12),1)
+        call Parallel_shared_vector_copy(.true.,nn,tmp(s21),tmp(s12))
         call Dneall_m_scale_s11(ms,dte,tmp(s11))
 
-        call dcopy(nn,tmp(s22),1,tmp(sa0),1)
+        !call dcopy(nn,tmp(s22),1,tmp(sa0),1)
+        call Parallel_shared_vector_copy(.true.,nn,tmp(s22),tmp(sa0))
 
         do it=1,itrlmd
-          call dcopy(nn,tmp(s22),1,tmp(sa1),1)
+          !call dcopy(nn,tmp(s22),1,tmp(sa1),1)
+          call Parallel_shared_vector_copy(.true.,nn,tmp(s22),tmp(sa1))
 
           call Dneall_mmm_Multiply(ms,
      >                              tmp(s21),tmp(sa0),1.0d0,
@@ -98,13 +101,15 @@ c        call Dne_ffm_combo_sym_Multiply(ms,psi1,psi2,npack1,tmp(s11))
           call Dneall_mmm_Multiply(ms,
      >                              tmp(sa0),tmp(st1),1.0d0,
      >                              tmp(sa1),1.0d0)
-          call dcopy(nn,tmp(sa1),1,tmp(st1),1)
-          call daxpy(nn,(-1.0d0),tmp(sa0),1,tmp(st1),1)
+          !call dcopy(nn,tmp(sa1),1,tmp(st1),1)
+          call Parallel_shared_vector_copy(.true.,nn,tmp(sa1),tmp(st1))
+          call daxpy_omp(nn,(-1.0d0),tmp(sa0),1,tmp(st1),1)
 
           adiff = Dneall_m_dmax(ms,tmp(st1))
           if(adiff.lt.convg) GO TO 630
           if (adiff.gt.1.0d10) go to 620
-          call dcopy(nn,tmp(sa1),1,tmp(sa0),1)
+          !call dcopy(nn,tmp(sa1),1,tmp(sa0),1)
+          call Parallel_shared_vector_copy(.true.,nn,tmp(sa1),tmp(sa0))
         end do
         if (adiff.lt.convg2) GO TO 630
 

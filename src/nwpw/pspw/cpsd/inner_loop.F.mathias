@@ -1,4 +1,4 @@
-* $Id$
+* $Id: inner_loop.F 28289 2016-06-26 21:41:15Z bylaska $
 *
 
 *  ************************************************************
@@ -131,8 +131,20 @@ c     real*8     fion(3,natmx)
       integer  Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
 
+#ifdef PSI_OMP
+      integer nida,nidb
+      integer  mthr
+      integer  Parallel_maxthreads
+      external Parallel_maxthreads
+      real*8 thrlmbda(2)
+#endif
 
 
+#ifdef PSI_OMP
+      mthr = Parallel_maxthreads()
+      nida = 1
+      nidb = npack1-nida
+#endif
 
       call nwpw_timing_start(42)
 
@@ -193,6 +205,11 @@ c     real*8     fion(3,natmx)
      >        BA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
       value = value.and.
      >        BA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
+#ifdef PSI_OMP
+      value = value.and.
+     >        BA_push_get(mt_dbl,(mthr*ne(1)*ne(1)*8),'thrlmbda',
+     >                                     thrlmbda(2),thrlmbda(1))
+#endif
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       call dcopy(4*nfft3d,0.0d0,0,dbl_mb(dnall(1)),1)
       call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
@@ -228,11 +245,11 @@ c     real*8     fion(3,natmx)
 *     ****   Start of steepest descent loop ****
 *     ****                                  ****
 *     ******************************************
+      do it=1,it_in
+
 !$OMP PARALLEL private(it,tid,nthreads)
       tid      = Parallel_threadid()
       nthreads = Parallel_nthreads()
-      do it=1,it_in
-
 
         call Pack_c_nCopy(1,nemax,psi2,psi1)
 
@@ -276,6 +293,9 @@ c       these two functions are now threadsafe/multithreaded
            call D3dB_r_Zero_Ends0(1,psi_r(1,n))
         end do
 !$OMP END DO
+
+*       **** do a partial localization if hfx_localize2 ***
+        call pspw_hfx_localize2_n(2,psi_r,psi1,psi2,psi2)
 
 
 c       this function calls non pipelined 3d fft
@@ -327,6 +347,10 @@ c        call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
         call D3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
 c        call mask_C(0,dcpl_mb(dng(1)))
         call Pack_c_pack(0,dcpl_mb(tmp1(1)))
+!#ifdef USE_OPENMP
+!!$OMP END PARALLEL
+!        is_par = .true.
+!#endif
         call Pack_c_Copy(0,dcpl_mb(tmp1(1)),dcpl_mb(dng(1)))
 
 
@@ -383,6 +407,8 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 *       *************************************************
 *       **** generate exchange-correlation potential ****
 *       *************************************************
+
+
         call v_bwexc_all_tmp1(gga,n2ft3d,ispin,
      >                        dbl_mb(dnall(1)),
      >                        dbl_mb(xcp(1)),
@@ -438,13 +464,19 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 *       **** do a steepest descent step ****
 *       ************************************
         call nwpw_timing_start(45)
+#ifdef USE_OPENMP
+!$OMP PARALLEL
+#endif
         do n=1,n2(ispin)
           call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
 c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
           call Pack_cc_Sum2(1,psi1(1,n),psi2(1,n))
         end do
-        call nwpw_timing_end(13)
 
+#ifdef USE_OPENMP
+!$OMP END PARALLEL
+#endif
+        call nwpw_timing_end(13)
 
 *       *******************************************
 *       **** get ewald and semicore forces     ****
@@ -496,6 +528,8 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
         end if
 
 
+!$OMP END PARALLEL
+
 *       *****************************************        
 *       **** lagrange multiplier corrections ****
 *       *****************************************        
@@ -515,8 +549,13 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
            call psi_lmbda_sic(ispin,ne,nemax,npack1,psi1,psi2,dte,
      >                    lmd,dbl_mb(tmp_L(1)),ierr)
         else
+#ifdef PSI_OMP
+           call psi_lmbda_omp(ispin,ne,nemax,nida,nidb,psi1,psi2,dte,
+     >                    lmd,dbl_mb(tmp_L(1)),ierr,dbl_mb(thrlmbda(1)))
+#else
            call psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte,
      >                    lmd,dbl_mb(tmp_L(1)),ierr)
+#endif
         end if
         call nwpw_timing_end(45)
 
@@ -534,7 +573,6 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 *     *** get orbital energies ****
       call Dneall_ffm_sym_Multiply(0,psi1,Hpsi,npack1,hml)
       call Dneall_m_scal(0,(-1.0d0),hml)
-!$OMP END PARALLEL
 
       if (fractional) then
          !call Dneall_m_diag_scal(0,dbl_mb(fweight(1)),hml)
@@ -774,6 +812,9 @@ c     end do
 
 *     **** dealocate MA local variables ****
       call nwpw_timing_start(12)
+#ifdef PSI_OMP
+      value = BA_pop_stack(thrlmbda(2))
+#endif
       value = BA_pop_stack(sumi(2))
       value = BA_pop_stack(ftest(2))
       value = BA_pop_stack(fion(2))
