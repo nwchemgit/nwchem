@@ -3396,6 +3396,7 @@ c     ****************************************
            if (ne(ms).le.0) go to 30
            shift2 = (ms-1)*ishift2
 
+!$OMP DO
            do k=1,ne(ms)
               indx = k + (k-1)*ne(ms) + shift2
               s22(indx) = (1.0d0 - s22(indx))*0.5d0/dte
@@ -3408,6 +3409,7 @@ c     ****************************************
                  s22(indxt) = s22(indx)
               end do
            end do
+!$OMP END DO
 
  30        continue
          end do
@@ -3469,6 +3471,7 @@ c     ****************************************
            if (ne(ms).le.0) go to 30
            shift2 = (ms-1)*ishift2
 
+!$OMP DO
            do k=1,ne(ms)
               indx = k + (k-1)*ne(ms) + shift2
               s21(indx) = (1.0d0 - s21(indx))*0.5d0
@@ -3481,6 +3484,7 @@ c     ****************************************
                  s21(indxt) = s21(indx)
               end do
            end do
+!$OMP END DO
 
  30        continue
          end do
@@ -3542,6 +3546,7 @@ c     ****************************************
            if (ne(ms).le.0) go to 30
            shift2 = (ms-1)*ishift2
 
+!$OMP DO
            do k=1,ne(ms)
               indx = k + (k-1)*ne(ms) + shift2
               s11(indx) = -s11(indx)*0.5d0*dte
@@ -3554,6 +3559,7 @@ c     ****************************************
                  s11(indxt) = s11(indx)
               end do
            end do
+!$OMP END DO
 
  30        continue
          end do
