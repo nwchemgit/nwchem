@@ -1,0 +1,126 @@
+#  6-31+G*-J  EMSL  Basis Set Exchange Library  7/12/16 10:32 AM
+# Elements                             References
+# --------                             ----------
+# H C N O: W. J. Hehre, R. Ditchfield and J. A. Pople, Self?Consistent Molecular Orbital Methods. XII. Further Extensions of Gaussian?Type Basis Sets for Use in Molecular Orbital Studies of Organic Molecules, J. Chem. Phys. 56, 2257-2261 (1972).
+# H C N O: P.C. Hariharan and J.A. Pople, The Influence of Polarization Functions on Molecular Orbital Hydrogenation Energies, Theoret. Chimica Acta 28, 213-222 (1973).
+# H C N O: T. Clark, J. Chandrasekhar, G.W. Spitznagel and P. von R. Schleyer, Efficient Diffuse Function- Augmented Basis Sets for Anion Calculations. III.* The 3-21+G Basis Set for First-Row Elements, Li-F, J. Comp. Chem. 4, 294-301 (1983).
+# H C N O: H. Kjær and S. P. A. Sauer, Pople style basis sets for the calculation of NMR spin-spin coupling constants: the 6-31G-J and 6-311G-J basis sets, J. Chem. Theory Comput. 7, 4070-4076 (2011).
+# 
+
+
+
+basis "H_6-31+G*-J" SPHERICAL
+H    S
+  62666.02044953             0.00000075       
+   2789.59214924             0.00003258       
+    186.51684197             0.00080054       
+     18.73113700             0.01209834       
+H    S
+      2.82539370             1.0000000        
+H    S
+      0.64012170             1.0000000        
+H    S
+      0.16127780             1.0000000        
+end
+basis "C_6-31+G*-J" SPHERICAL
+C    S
+ 10873731.5797600            0.00000010       
+ 469897.3134792              0.00000447       
+  30750.99553738             0.00011350       
+   3047.5249000              0.00173952       
+    457.3695100              0.01417686       
+    103.9486900              0.06861645       
+      9.2866630              0.43997543       
+      3.1639270              0.33485178       
+C    S
+     29.2101550              1.0000000        
+C    S
+      7.8682724              1.0000000        
+C    S
+      1.8812885              1.0000000        
+C    S
+      0.5442493              1.0000000        
+C    S
+      0.1687144              1.0000000        
+C    S
+      0.0438000              1.0000000        
+C    P
+     39.81711939             0.00449381       
+      7.8682724              0.04251455       
+      1.8812885              0.21682302       
+      0.5442493              0.46868597       
+C    P
+      0.1687144              1.0000000        
+C    P
+      0.0438000              1.0000000        
+C    D
+      0.8000000              1.0000000        
+end
+basis "N_6-31+G*-J" SPHERICAL
+N    S
+ 14841521.1725200            0.00000010       
+ 641872.0643321              0.00000447       
+  42052.27768090             0.00011327       
+   4173.51100000             0.00173321       
+    627.45790000             0.01408501       
+    142.90210000             0.06816058       
+     12.82021000             0.43256438       
+      4.39043700             0.33295616       
+N    S
+     40.23433000             1.0000000        
+N    S
+     11.62635800             1.0000000        
+N    S
+      2.71628000             1.0000000        
+N    S
+      0.77221800             1.0000000        
+N    S
+      0.21203130             1.0000000        
+N    S
+      0.0639000              1.0000000        
+N    P
+     60.55463459             0.00415870       
+     11.62635800             0.04477623       
+      2.71628000             0.22613726       
+      0.77221800             0.50789868       
+N    P
+      0.21203130             1.0000000        
+N    P
+      0.0639000              1.0000000        
+N    D
+      0.8000000              1.0000000        
+end
+basis "O_6-31+G*-J" SPHERICAL
+O    S
+ 19428536.0930000            0.00000010       
+ 841553.7695902              0.00000447       
+  55205.88661614             0.00011310       
+   5484.6717000              0.00172875       
+    825.2349500              0.01403672       
+    188.0469600              0.06800430       
+     16.8975700              0.43150790       
+      5.7996353              0.33140637       
+O    S
+     52.9645000              1.0000000        
+O    S
+     15.5396160              1.0000000        
+O    S
+      3.5999336              1.0000000        
+O    S
+      1.0137618              1.0000000        
+O    S
+      0.2700058              1.0000000        
+O    S
+      0.0845000              1.0000000        
+O    P
+     81.54048672             0.00413963       
+     15.5396160              0.04683415       
+      3.5999336              0.23554184       
+      1.0137618              0.48685655       
+O    P
+      0.2700058              1.0000000        
+O    P
+      0.0845000              1.0000000        
+O    D
+      0.8000000              1.0000000        
+end
