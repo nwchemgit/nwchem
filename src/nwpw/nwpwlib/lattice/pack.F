@@ -867,32 +867,32 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
       npack2 = 2*npack
 
       do k=1,n
-        call DGEMM('T','N',k,1,npack2,
+        call DGEMM_OMP('T','N',k,1,npack2,
      >             2.0d0,
      >             A,npack2,
      >             A(1+(k-1)*npack),npack2,
      >             0.0d0,
      >             matrix(1,k,1),k)
-        call DGEMM('T','N',k,1,npack2,
+        call DGEMM_OMP('T','N',k,1,npack2,
      >             2.0d0,
      >             A,npack2,
      >             B(1+(k-1)*npack),npack2,
      >             0.0d0,
      >             matrix(1,k,2),k)
-        call DGEMM('T','N',k,1,npack2,
+        call DGEMM_OMP('T','N',k,1,npack2,
      >             2.0d0,
      >             B,npack2,
      >             B(1+(k-1)*npack),npack2,
      >             0.0d0,
      >             matrix(1,k,3),k)
 
-        call DGEMM('T','N',k,1,2*nida(nb),
+        call DGEMM_OMP('T','N',k,1,2*nida(nb),
      >             -1.0d0,
      >             A,npack2,
      >             A(1+(k-1)*npack),npack2,
      >             1.0d0,
      >             matrix(1,k,1),k)
-        call DGEMM('T','N',k,1,2*nida(nb),
+        call DGEMM_OMP('T','N',k,1,2*nida(nb),
      >             -1.0d0,
      >             A,npack2,
      >             B(1+(k-1)*npack),npack2,
@@ -906,6 +906,7 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
      >             matrix(1,k,3),k)
       end do
 
+!$OMP MASTER
       do i=1,3
       do k=1,n
       do j=k+1,n
@@ -913,6 +914,8 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
       end do
       end do
       end do
+!$OMP END MASTER
+!$OMP BARRIER
 
       if (np.gt.1) call D3dB_Vector_SumAll(3*n*n,matrix)
 
@@ -953,13 +956,13 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
       npack2 = 2*npack
 
       do k=1,n
-        call DGEMM('T','N',k,1,npack2,
+        call DGEMM_OMP('T','N',k,1,npack2,
      >             2.0d0,
      >             A,npack2, 
      >             B(1+(k-1)*npack),npack2, 
      >             0.0d0,
      >             matrix(1,k),k)
-        call DGEMM('T','N',k,1,2*nida(nb),
+        call DGEMM_OMP('T','N',k,1,2*nida(nb),
      >             -1.0d0,
      >             A,npack2, 
      >             B(1+(k-1)*npack),npack2, 
@@ -967,11 +970,14 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
      >             matrix(1,k),k)
       end do
 
+!$OMP MASTER
       do k=1,n
       do j=k+1,n
         matrix(j,k) = matrix(k,j)
       end do
       end do
+!$OMP END MASTER
+!$OMP BARRIER
 
       if (np.gt.1) call D3dB_Vector_SumAll(m*m,matrix)
 
@@ -1054,13 +1060,13 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
 
       npack = 2*(nida(nb)+nidb(nb))
 
-        call DGEMM('T','N',m,n,npack,
+        call DGEMM_OMP('T','N',m,n,npack,
      >             2.0d0,
      >             A,npack, 
      >             B,npack, 
      >             0.0d0,
      >             matrix,m)
-        call DGEMM('T','N',m,n,2*nida(nb),
+        call DGEMM_OMP('T','N',m,n,2*nida(nb),
      >             -1.0d0,
      >             A,npack, 
      >             B,npack, 
