@@ -141,11 +141,14 @@
 *     .. Intrinsic Functions ..
       INTRINSIC MAX
 *     ..
+      INTEGER NB
+      PARAMETER (NB=32)
+
 *     .. Local Scalars ..
-      DOUBLE PRECISION TEMP
+      DOUBLE PRECISION TEMP1(NB),TEMP
       INTEGER I,INFO,J,L,NCOLA,NROWA,NROWB
       LOGICAL NOTA,NOTB
-      integer cidj,tid,nthr
+      integer cidj,tid,nthr,Mtid,Itid,r
 *     ..
 *     .. Parameters ..
       DOUBLE PRECISION ONE,ZERO
@@ -245,30 +248,18 @@
 *
 *           Form  C := alpha*A*B + beta*C.
 *
-              cidj = tid
-              IF (BETA.EQ.ZERO) THEN
-                 DO 52 J = 1,N
-                    DO 51 I = cidj+1,M,nthr
-                       C(I,J) = ZERO
-                       DO 50 L=1,K
-                           C(I,J) = C(I,J) + ALPHA*A(I,L)*B(L,J)
-  50                   CONTINUE
-  51                CONTINUE
-                    cidj = mod(cidj+M,nthr)
-  52             CONTINUE
-              !ELSE IF (BETA.NE.ONE) THEN
-              ELSE
-                 DO 62 J = 1,N
-                    DO 61 I = cidj+1,M,nthr
-                       C(I,J)=BETA*C(I,J)
-                       DO 60 L=1,K
-                          C(I,J) = C(I,J) + ALPHA*A(I,L)*B(L,J)
-  60                   CONTINUE
-  61                CONTINUE
-                    cidj = mod(cidj+M,nthr)
-  62             CONTINUE
-              END IF
-              
+            r    = mod(M,nthr)
+            if (tid.lt.r) then
+                Itid = tid*(M/nthr+1) + 1
+                Mtid = M/nthr + 1
+            else
+                Itid = r + tid*(M/nthr) + 1
+                Mtid = M/nthr 
+            end if
+            call DGEMM(TRANSA,TRANSB,Mtid,N,K,ALPHA,A(Itid,1),LDA,B,LDB,
+     >                 BETA,C(Itid,1),LDC)
+ 
+
           ELSE
 *
 *           Form  C := alpha*A'*B + beta*C
