@@ -252,28 +252,28 @@ c      end if
               DO 90 J = 1,N,NB
                   IF (BETA.EQ.ZERO) THEN
                       DO 50 I = cidj+1,M,nthr*NB
-                          DO JJ=J,J+NB-1
-                          DO II=I,I+NB-1
+                          DO JJ=J,MIN(J+NB-1,N)
+                          DO II=I,MIN(I+NB-1,M)
                              C(II,JJ) = ZERO
                           END DO
                           END DO
    50                 CONTINUE
                   ELSE IF (BETA.NE.ONE) THEN
                       DO 60 I = cidj+1,M,nthr*NB
-                          DO JJ=J,J+NB-1
-                          DO II=I,I+NB-1
+                          DO JJ=J,MIN(J+NB-1,N)
+                          DO II=I,MIN(I+NB-1,M)
                              C(II,JJ)=BETA*C(II,JJ)
                           END DO
                           END DO
    60                 CONTINUE
                   END IF
                   DO 80 L = 1,K
-                      DO JJ=J,J+NB-1
+                      DO JJ=J,MIN(J+NB-1,N)
                          TEMP1(JJ-J+1) = ALPHA*B(L,JJ)
                       END DO
                       DO 70 I = cidj+1,M,nthr*NB
-                         DO JJ=J,J+NB-1
-                         DO II=I,I+NB-1
+                         DO JJ=J,MIN(J+NB-1,N)
+                         DO II=I,MIN(I+NB-1,M)
                             C(II,JJ) = C(II,JJ) + TEMP1(JJ-J+1)*A(II,L)
                          END DO
                          END DO
