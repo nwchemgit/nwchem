@@ -245,28 +245,28 @@
 *
 *           Form  C := alpha*A*B + beta*C.
 *
+              cidj = tid
               IF (BETA.EQ.ZERO) THEN
-                 cidj = tid
-                 DO J = 1,N
-                    DO I = cidj+1,M,nthr
+                 DO 52 J = 1,N
+                    DO 51 I = cidj+1,M,nthr
                        C(I,J) = ZERO
-                       DO L=1,K
+                       DO 50 L=1,K
                            C(I,J) = C(I,J) + ALPHA*A(I,L)*B(L,J)
-                       END DO
-                    END DO
+  50                   CONTINUE
+  51                CONTINUE
                     cidj = mod(cidj+M,nthr)
-                 END DO
-              ELSE IF (BETA.NE.ONE) THEN
-                 cidj = tid
-                 DO J = 1,N
-                    DO I = cidj+1,M,nthr
+  52             CONTINUE
+              !ELSE IF (BETA.NE.ONE) THEN
+              ELSE
+                 DO 62 J = 1,N
+                    DO 61 I = cidj+1,M,nthr
                        C(I,J)=BETA*C(I,J)
-                       DO L=1,K
+                       DO 60 L=1,K
                           C(I,J) = C(I,J) + ALPHA*A(I,L)*B(L,J)
-                       END DO
-                    END DO
+  60                   CONTINUE
+  61                CONTINUE
                     cidj = mod(cidj+M,nthr)
-                 END DO
+  62             CONTINUE
               END IF
               
           ELSE
