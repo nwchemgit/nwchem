@@ -141,8 +141,11 @@
 *     .. Intrinsic Functions ..
       INTRINSIC MAX
 *     ..
+      INTEGER NB
+      PARAMETER (NB=32)
+
 *     .. Local Scalars ..
-      DOUBLE PRECISION TEMP
+      DOUBLE PRECISION TEMP1(NB),TEMP
       INTEGER I,INFO,J,L,NCOLA,NROWA,NROWB
       LOGICAL NOTA,NOTB
       integer cidj,tid,nthr
@@ -150,16 +153,14 @@
 *     .. Parameters ..
       DOUBLE PRECISION ONE,ZERO
       PARAMETER (ONE=1.0D+0,ZERO=0.0D+0)
-      INTEGER NB
-      PARAMETER (NB=32)
 *     ..
 *
       nthr = Parallel_nthreads()
-      if (nthr.le.1) then
-         call DGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,
-     >              BETA,C,LDC)
-         return
-      end if
+c      if (nthr.le.1) then
+c         call DGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,
+c     >              BETA,C,LDC)
+c         return
+c      end if
       tid  = Parallel_threadid()
 
 *     Set  NOTA  and  NOTB  as  true if  A  and  B  respectively are not
@@ -267,16 +268,16 @@
    60                 CONTINUE
                   END IF
                   DO 80 L = 1,K
-                      DO 75 JJ=J,J+NB
-                      IF (B(L,JJ).NE.ZERO) THEN
-                          TEMP = ALPHA*B(L,JJ)
-                          DO 70 I = cidj+1,M,nthr*NB
-                              DO II=I,I+NB
-                                 C(II,JJ) = C(II,JJ) + TEMP*A(II,L)
-                              END DO
-   70                     CONTINUE
-                      END IF
-   75                 CONTINUE
+                      DO JJ=J,J+NB
+                         TEMP1(JJ-J+1) = ALPHA*B(L,JJ)
+                      END DO
+                      DO 70 I = cidj+1,M,nthr*NB
+                         DO JJ=J,J+NB
+                         DO II=I,I+NB
+                            C(II,JJ) = C(II,JJ) + TEMP1(JJ-J+1)*A(II,L)
+                         END DO
+                         END DO
+   70                 CONTINUE
    80             CONTINUE
                   cidj = mod(cidj+M,nthr*NB)
    90         CONTINUE
