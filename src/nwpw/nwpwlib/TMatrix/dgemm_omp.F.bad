@@ -16,7 +16,8 @@ C     .. Parameters ..
       PARAMETER        (MB=512,NB=MB,KB=512)
 #else
 !x86 cache=256K   
-       PARAMETER        (MB=128,NB=MB,KB=96)
+       !PARAMETER        (MB=128,NB=MB,KB=96)
+       PARAMETER        (MB=128,NB=MB,KB=192)
 #endif
 C     .. Scalar Arguments ..
       DOUBLE PRECISION ALPHA, BETA
