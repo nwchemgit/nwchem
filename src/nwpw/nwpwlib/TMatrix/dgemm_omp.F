@@ -167,7 +167,7 @@
       NOTA = LSAME(TRANSA,'N')
       NOTB = LSAME(TRANSB,'N')
       IF (NOTA) THEN
-          ROWA = M
+          NROWA = M
           NCOLA = K
       ELSE
           NROWA = K
@@ -202,7 +202,7 @@
           INFO = 13
       END IF
       IF (INFO.NE.0) THEN
-          CALL XERBLA('DGEMM ',INFO)
+          CALL XERBLA('DGEMM_OMP',INFO)
           RETURN
       END IF
 *
