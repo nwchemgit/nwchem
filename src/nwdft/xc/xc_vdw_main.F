@@ -669,7 +669,7 @@ c
            if (ivdw.eq.3) then
               write(luout,223) s6, s8, sr6, sr8, evdw
  223  format(/
-     &     '          s6 scale factor  :', f22.12/
+     &     '             DFT-D3 Model   ', /
      &     '          s8 scale factor  :', f22.12/
      &     '          sr6 scale factor :', f22.12/
      &     '          sr8 scale factor :', f22.12/
@@ -678,6 +678,7 @@ c
            if (ivdw.eq.4) then
               write(luout,224) s6, s8, a1, a2, evdw
  224  format(/
+     &     '           DFT-D3BJ Model   ', /
      &     '          s6 scale factor  :', f22.12/
      &     '          s8 scale factor  :', f22.12/
      &     '          a1 parameter     :', f22.12/

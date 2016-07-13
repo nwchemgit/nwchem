@@ -613,8 +613,9 @@ c B97-D
            scalesr6 = 0.892d0
            scales8  = 0.909d0
 c revPBE
-c          scalesr6 = 0.923d0
-c          scales8  = 1.010d0
+        else if (xfac(31).eq.1.0d0.and.cfac(12).eq.1.d0) then
+          scalesr6 = 0.923d0
+          scales8  = 1.010d0
 c PBE/PBE96
         else if(xccomb(58).or.(xfac(7).eq.1d0.and.cfac(12).eq.1d0)) then
            scalesr6 = 1.217d0
@@ -675,8 +676,9 @@ c mpwlyp
 c          scalesr6 = 1.239d0
 c          scales8  = 1.098d0
 c bpbe
-c          scalesr6 = 1.087d0
-c          scales8  = 2.033d0
+       else if (xfac(3).eq.1d0.and.cfac(12).eq.1d0) then
+          scalesr6 = 1.087d0
+          scales8  = 2.033d0
 c bhlyp
         else if (xccomb(55)) then
            scalesr6 = 1.370d0
@@ -694,14 +696,17 @@ c b1b95
            scalesr6 = 1.613d0
            scales8  = 1.868d0
 c bop
-c          scalesr6 = 0.929d0
-c          scales8  = 1.975d0
+       else if (xccomb(27)) then
+          scalesr6 = 0.929d0
+          scales8  = 1.975d0
 c o-lyp
-c          scalesr6 = 0.806d0
-c          scales8  = 1.764d0
+       else if (xfac(16).eq.1d0.and.cfac(2).eq.1d0) then
+          scalesr6 = 0.806d0
+          scales8  = 1.764d0
 c o-pbe
-c          scalesr6 = 0.837d0
-c          scales8  = 1.868d0
+       else if (xfac(16).eq.1d0.and.cfac(12).eq.1d0) then
+          scalesr6 = 0.837d0
+          scales8  = 1.868d0
 c ssb
         else if (xccomb(46)) then
            scalesr6 = 1.215d0
@@ -749,12 +754,16 @@ c mpwb1k
 c bmk
 c          scalesr6 = 1.931d0
 c          scales8  = 2.168d0
-c cam-b3lyp
-c          scalesr6 = 1.378d0
-c          scales8  = 1.217d0
-c lc-wpbe
-c          scalesr6 = 1.355d0
-c          scales8  = 1.279d0
+c CAM-B3LYP
+         else if (xfac(40).eq.1.0d0.and.cfac(2).ne.0d0.
+     A          and.xfac(1).ne.0d0) then
+          scalesr6 = 1.378d0
+          scales8  = 1.217d0
+c LC-wPBE
+         else if (xfac(43).eq.1.0d0.and.cfac(12).eq.1d0.
+     A          and.xfac(1).eq.1d0) then
+          scalesr6 = 1.355d0
+          scales8  = 1.279d0
 c m05
         else if (xccomb(29)) then
            scalesr6 = 1.373d0
@@ -794,86 +803,59 @@ c
         scalesr8 = 0.0d0
         a1=0d0
         a2=0d0
-c BLYP
-        if(xfac(3).eq.1.0d0.and.cfac(2).eq.1.0d0) then
-           scales8  = 2.6996d0
-           a1       = 0.4298d0
-           a2       = 4.2359d0
-c BP86 
-c       else if(xfac(3).eq.1.0d0.and.cfac(4).eq.1.d0) then
-c          scalesr6 = 1.139d0
-c          scales8  = 1.683d0
-c B97-D
-c       else if (xccomb(37)) then
-c          scalesr6 = 0.892d0
-c          scales8  = 0.909d0
-c revPBE
-c          scalesr6 = 0.923d0
-c          scales8  = 1.010d0
-c PBE/PBE96
-c       else if(xccomb(58)) then
-c          scalesr6 = 1.217d0
-c          scales8  = 0.722d0
-c PBESOL
-c          scalesr6 = 1.320d0
-c          scales8  = 0.581d0
-c RPW86-PBE
-c          scalesr6 = 1.224d0
-c          scales8  = 0.901d0
-c rPBE
-c          scalesr6 = 0.872d0
-c          scales8  = 0.514d0
-c TPSS
-        else if(xfac(21).eq.1.0d0.and.cfac(27).eq.1.0d0) then
-           scales8  = 1.9435d0
-           a1       = 0.4535d0
-           a2       = 4.4752d0
 c B2-PLYP
-c       else if(xccomb(2).and.xfac(1).eq.0.53d0.and.
-c    &          xfac(3).eq.0.47d0.and.cfac(2).eq.0.73d0) then
-c          scales6  = 0.640d0
-c          scalesr6 = 1.094d0
-c          scales8  = 1.682d0
+        if(xccomb(2).and.xfac(1).eq.0.53d0.and.
+     &       xfac(3).eq.0.47d0.and.cfac(2).eq.0.73d0) then
+          scales6 = 0.640d0
+          a1      = 0.3065d0
+          scales8 = 0.9147d0
+          a2      = 5.0570d0
 c B3LYP
         else if (xccomb(2)) then
            scales8  = 1.9889d0
            a1       = 0.3981d0
            a2       = 4.4211d0
-c       else if (xccomb(10)) then
+c B97-D
+       else if (xccomb(37)) then
+          a1      = 0.5545d0
+          scales8 = 2.2609d0
+          a2      = 3.2297d0
+c BLYP
+       elseif(xfac(3).eq.1.0d0.and.cfac(2).eq.1.0d0) then
+           scales8  = 2.6996d0
+           a1       = 0.4298d0
+           a2       = 4.2359d0
+c BP86 
+       else if(xfac(3).eq.1.0d0.and.cfac(4).eq.1.d0) then
+          a1      = 0.3946d0
+          scales8 = 3.2822d0
+          a2      = 4.8516d0
+       else if (xccomb(10)) then
 c PBE0
-c          scalesr6 = 1.278d0
-c          scales8  = 0.928d0
-c revPBE38
-c          scalesr6 = 1.021d0
-c          scales8  = 0.862d0
+          a1      = 0.4145d0
+          scales8 = 1.2177d0
+          a2      = 4.8593d0
+c PBE/PBE96
+       else if(xccomb(58).or.
+     O         (cfac(12).eq.1d0.and.xfac(7).eq.1d0)) then
+          a1      = 0.4289d0
+          scales8 = 0.7875d0
+          a2      = 4.4407d0
 c PW6B95
-c       else if (xccomb(25)) then
-c          scalesr6 = 1.532d0
-c          scales8  = 1.682d0
-c TPSS0
-c          scalesr6 = 1.252d0
-c          scales8  = 1.242d0
-c PWPB95
-c          scales6  = 0.820d0
-c          scalesr6 = 1.557d0
-c          scales8  = 0.705d0
-c B2GP-PLYP
-c          scales6  = 0.560d0
-c          scalesr6 = 1.586d0
-c          scales8  = 0.760d0
-c PTPSS
-c          scales6  = 0.750d0
-c          scalesr6 = 1.541d0
-c          scales8  = 0.879d0
-c HF   
-c          scalesr6 = 1.158d0
-c          scales8  = 1.746d0
-c mpwlyp
-c          scalesr6 = 1.239d0
-c          scales8  = 1.098d0
-c bpbe
-c          scalesr6 = 1.087d0
-c          scales8  = 2.033d0
+       else if (xccomb(25)) then
+          a1      = 0.2076d0
+          scales8 = 0.7257d0
+          a2      = 6.3750d0
+c TPSS
+        else if(xfac(21).eq.1.0d0.and.cfac(27).eq.1.0d0) then
+           scales8  = 1.9435d0
+           a1       = 0.4535d0
+           a2       = 4.4752d0
+c revPBE
+        else if(xfac(31).eq.1.0d0.and.cfac(12).eq.1.d0) then
+          a1      = 0.5238d0
+          scales8 = 2.3550d0
+          a2      = 3.5016d0
 c bhlyp
         else if (xccomb(55)) then
            scales8  = 1.0354d0
@@ -884,103 +866,73 @@ c tpssh
            scales8  = 2.2382d0
            a1       = 0.4529d0
            a2       = 4.6550d0
-c pwb6k
-c       else if (xccomb(26)) then
-c          scalesr6 = 1.660d0
-c          scales8  = 0.550d0
-c b1b95
-c       else if (xccomb(23)) then
-c          scalesr6 = 1.613d0
-c          scales8  = 1.868d0
-c bop
-c          scalesr6 = 0.929d0
-c          scales8  = 1.975d0
-c o-lyp
-c          scalesr6 = 0.806d0
-c          scales8  = 1.764d0
-c o-pbe
-c          scalesr6 = 0.837d0
-c          scales8  = 1.868d0
-c ssb
-c       else if (xccomb(46)) then
-c          scalesr6 = 1.215d0
-c          scales8  = 0.663d0
-c revssb
-c          scalesr6 = 1.221d0
-c          scales8  = 0.560d0
-c otpss
-c          scalesr6 = 1.128d0
-c          scales8  = 1.494d0
 c b3pw91
-c       else if (xccomb(57)) then
-c          scalesr6 = 1.176d0
-c          scales8  = 1.775d0
-c s12g
-c       else if (xccomb(60)) then
-c          scalesr6 = 1.17755954d0
-c          scales8  = 0.84432515d0
-c s12h
-c       else if (xccomb(61)) then
-c          scalesr6 = 1.07735222d0
-c          scales8  = 0.37705816d0
-c cam-s12g
-c       else if (xccomb(62)) then
-c          scalesr6 = 1.20250451d0
-c          scales8  = 0.86124355d0
-c cam-s12h
-c       else if (xccomb(63)) then
-c          scalesr6 = 1.08034183d0
-c          scales8  = 0.37999939d0
-c revpbe0
-c          scalesr6 = 0.949d0
-c          scales8  = 0.792d0
-c pbe38
-c          scalesr6 = 1.333d0
-c          scales8  = 0.998d0
+       else if (xccomb(57)) then
+           scales8  = 0.4312d0
+           a1       = 2.8524d0
+           a2       = 4.4693d0
+c pwb6k
+       else if (xccomb(26)) then
+           scales8  = 0.1805d0
+           a1       = 0.9383d0
+           a2       = 7.7627d0
+c b1b95
+       else if (xccomb(23)) then
+           scales8  = 0.2092d0
+           a1       = 1.4507d0
+           a2       = 5.5545d0
+c CAM-B3LYP
+         else if (xfac(40).eq.1.0d0.and.cfac(2).ne.0d0.
+     A          and.xfac(1).ne.0d0) then
+          a1      = 0.3708d0
+          scales8 = 2.0674d0
+          a2      = 5.4743d0
+c LC-wPBE
+         else if (xfac(43).eq.1.0d0.and.cfac(12).eq.1d0.
+     A          and.xfac(1).eq.1d0) then
+          a1      = 0.3919d0
+          scales8 = 1.8541d0
+          a2      = 5.0897d0
+c hcth120
+       else if (xccomb(7)) then
+           scales8  = 0.3563d0
+           a1       = 1.0821d0
+           a2       = 4.3359d0
+c tpssh
+       else if (xccomb(18)) then
+           scales8  = 0.4529d0
+           a1       = 2.2382d0
+           a2       = 4.6550d0
 c mpw1b95
-c       else if (xccomb(21)) then
-c          scalesr6 = 1.605d0
-c          scales8  = 1.118d0
-c mpwb1k
-c       else if (xccomb(22)) then
-c          scalesr6 = 1.671d0
-c          scales8  = 1.061d0
-c bmk
-c          scalesr6 = 1.931d0
-c          scales8  = 2.168d0
-c cam-b3lyp
-c          scalesr6 = 1.378d0
-c          scales8  = 1.217d0
-c lc-wpbe
-c          scalesr6 = 1.355d0
-c          scales8  = 1.279d0
-c m05
-c       else if (xccomb(29)) then
-c          scalesr6 = 1.373d0
-c          scales8  = 0.595d0
-c m052x
-c       else if (xccomb(30)) then
-c          scalesr6 = 1.417d0
-c          scales8  = 0.000d0
-c m06l
-c       else if (xccomb(33)) then
-c          scalesr6 = 1.581d0
-c          scales8  = 0.000d0
-c m06
-c       else if (xccomb(35)) then
-c          scalesr6 = 1.325d0
-c          scales8  = 0.000d0
-c m062x
-c       else if (xccomb(36)) then
-c          scalesr6 = 1.619d0
-c          scales8  = 0.000d0
-c m06hf
-c       else if (xccomb(34)) then
-c          scalesr6 = 1.446d0
-c          scales8  = 0.000d0
-c dftb
-c          scalesr6 = 1.699d0
-c          scales8  = 1.504d0
+       else if (xccomb(21)) then
+           scales8  = 0.1955d0
+           a1       = 1.0508d0
+           a2       = 6.4177d0
+c bop
+       else if (xccomb(27)) then
+           scales8  = 0.4870d0
+           a1       = 3.2950d0
+           a2       = 3.5043d0
+c o-lyp
+       else if (xfac(16).eq.1d0.and.cfac(2).eq.1d0) then
+           scales8  = 0.5299d0
+           a1       = 2.6205d0
+           a2       = 2.8065d0
+c bpbe
+       else if (xfac(3).eq.1d0.and.cfac(12).eq.1d0) then
+           scales8  = 0.4567d0
+           a1       = 4.0728d0
+           a2       = 4.3908d0
+c o-pbe
+       else if (xfac(16).eq.1d0.and.cfac(12).eq.1d0) then
+           scales8  = 0.5512d0
+           a1       = 3.3816d0
+           a2       = 2.9444d0
+c ssb
+        else if (xccomb(46)) then
+           scales8  = -0.0952d0
+           a1       = -0.1744d0
+           a2       =  5.2170d0
         else
          call errquit(' vdw 4: scaling factors not available',0,0)
         endif
