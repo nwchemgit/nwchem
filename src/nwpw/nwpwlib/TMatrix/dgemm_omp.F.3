@@ -156,11 +156,11 @@
 *     ..
 *
       nthr = Parallel_nthreads()
-c      if (nthr.le.1) then
-c         call DGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,
-c     >              BETA,C,LDC)
-c         return
-c      end if
+      if (nthr.le.1) then
+         call DGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,
+     >              BETA,C,LDC)
+         return
+      end if
       tid  = Parallel_threadid()
 
 *     Set  NOTA  and  NOTB  as  true if  A  and  B  respectively are not
