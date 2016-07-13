@@ -279,7 +279,7 @@ c     **** external functions ****
      >                 nwpw_timing(49),counter,ttime)
          call nwpw_timing_print(
      >                 '  nwpw_dwgauss               : ',
-     >                 nwpw_timing(50),counter,ttime)
+     >                 nwpw_timing(55),counter,ttime)
          call nwpw_timing_print(
      >                 '  nwpw_gaunt                 : ',
      >                 nwpw_timing(51),counter,ttime)
@@ -292,6 +292,7 @@ c     **** external functions ****
          call nwpw_timing_print(
      >                 '  HFX DM Cholesky      s     : ',
      >                 nwpw_timing(54),counter,ttime)
+
       end if
 
 
