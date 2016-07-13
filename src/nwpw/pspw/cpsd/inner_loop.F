@@ -408,7 +408,6 @@ c        call mask_C(0,dcpl_mb(dng(1)))
            end if
         end if
 
-        call nwpw_timing_start(13)
 
 
         call nwpw_timing_start(47)
@@ -443,7 +442,6 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
           call Pack_cc_Sum2(1,psi1(1,n),psi2(1,n))
         end do
-        call nwpw_timing_end(13)
 
 
 *       *******************************************
