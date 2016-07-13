@@ -122,7 +122,7 @@ c
       real*8   nwpw_gaunt,nwpw_GaussBessel,nwpw_dGaussBessel,Tesseral_lm
       external nwpw_gaunt,nwpw_GaussBessel,nwpw_dGaussBessel,Tesseral_lm
 
-      call nwpw_timing_start(50)
+      call nwpw_timing_start(55)
       pi = 4.0d0*datan(1.0d0)
       x = dble(nwpw_doublefactorial(2*la+1))
       y = dble(nwpw_doublefactorial(2*lb+1))
@@ -173,7 +173,7 @@ c
       dW(1) = dW(1)*c
       dW(2) = dW(2)*c
       dW(3) = dW(3)*c
-      call nwpw_timing_end(50)
+      call nwpw_timing_end(55)
 
       return
       end 
