@@ -53,6 +53,12 @@ c     == local variables ==
       integer l_zora_i,i_zora_i,l_scal_i,i_scal_i
       integer ilo,ihi,jlo,jhi
       integer inntsize,ddblsize,ok
+      logical dorepl
+      integer g_densrep(2),g_dens0(2),dorep_glob
+      logical docopy,dozero,dorepd,dorepon
+      logical util_mirrmat
+      external util_mirrmat
+
       logical grid_file_rewind
       external grid_file_rewind,ga_antisymmetrize
 c
@@ -72,6 +78,41 @@ c     == allocate memory ==
 c     == preliminaries ==
       call dfill(4*nbf_ao*nbf_ao,0d0,dbl_mb(i_zora_i),1)
       call dfill(4*nbf_ao*nbf_ao,0d0,dbl_mb(i_scal_i),1)
+c mirroring
+      dorepon=.true.
+      if (.not.rtdb_get(rtdb,'fock:mirrmat',mt_log,1,dorepon)) then
+         dorepon=nbf_ao.lt.3000
+      endif
+
+      dorepl=.false.
+      if(ga_cluster_nnodes().gt.1.and.dorepon) then
+         docopy=.true.
+         dozero=.false.
+         dorepd=util_mirrmat(ipol,g_dens,g_densrep,docopy,dozero)
+         dorepl=dorepd
+         dorep_glob=0
+         if(dorepl) dorep_glob=1
+         call ga_igop(375,dorep_glob,1, '+')
+         dorepl=dorep_glob.eq.ga_nnodes()
+         if(dorepl) then
+            g_dens0(1)=g_dens(1)
+            g_dens(1)=g_densrep(1)
+            if(ipol.eq.2) then
+               g_dens0(2)=g_dens(2)
+               g_dens(2)=g_densrep(2)
+            endif
+         else
+            if(dorepd) then
+               call util_mirrstop(g_densrep(1))
+               if(ipol.eq.2) call util_mirrstop(g_densrep(2))
+            endif
+            if(ga_nodeid().eq.0) then
+               write(6,*) ' no mirroring in zora_getv_so'
+               call util_flush(6)
+            endif
+         endif
+      endif
+
 c     == generate the grid ==
       dummy(1) = 0.d0
       dummy(2) = 0.d0
@@ -217,6 +258,12 @@ c     == delete memory ==
      &     call errquit("zora_getv_sf: pop bas_cset_info", 100, MA_ERR)
       if(.not.MA_pop_stack(lbas_cent_info))
      &     call errquit("zora_getv_sf: pop bas_cent_info", 100, MA_ERR)
+      if(dorepl) then
+         call util_mirrstop(g_densrep(1))
+         if(ipol.eq.2) call util_mirrstop(g_densrep(2))
+         g_dens(1)=g_dens0(1)
+         if(ipol.eq.2) g_dens(2)=g_dens0(2)
+      endif
 c
 c     == tally up over all the nodes ==
       call ga_dgop(msg_excrho, dbl_mb(i_zora_i), 4*nbf_ao*nbf_ao, '+')
