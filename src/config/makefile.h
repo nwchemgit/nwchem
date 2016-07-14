@@ -2083,6 +2083,19 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
 #     CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas
 #     EXTRA_LIBS +=  -dynamic-linker /lib64/ld64.so.1 -melf64ppc -lxlf90_r -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lm -lc -lgcc -lm
     endif
+      ifeq ($(_FC),pgf90)
+        FOPTIONS   += -Mcache_align  # -Kieee 
+#        FOPTIMIZE   = -O3  -Mnounroll -Minfo=loop -Mipa=fast
+        FOPTIMIZE   =  -fast -O3 -Mvect=simd  -Munroll -Minfo=loop # -Mipa=fast
+        FVECTORIZE   = -fast    -O3   #-Mipa=fast
+        FDEBUG = -g -O2
+        DEFINES  += -DCHKUNDFLW -DPGLINUX
+        ifdef USE_OPENMP
+           FOPTIONS  += -mp -Minfo=mp
+           LDOPTIONS += -mp
+           DEFINES += -DUSE_OPENMP
+        endif
+      endif
 
      ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
