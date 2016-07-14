@@ -591,56 +591,47 @@ c      == get filename for zora data ==
        call util_file_name('zora_so',.false.,.false.,zorafilename)
 c
 c      == zora: scalar arrays ==
-       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_sf',0,0,
-     &    g_zora_sf(1)))
+       if(.not.ga_duplicate(g_vxc(1),g_zora_sf(1),'g_zora_sf'))
      &    call errquit('dft_scf_so: error creating g_zora_sf',0, 
      &       GA_ERR)
        call ga_zero(g_zora_sf(1))
-       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_sf',0,0,
-     &    g_zora_sf(2)))
+       if(.not.ga_duplicate(g_vxc(1),g_zora_sf(2),'g_zora_sf'))
      &    call errquit('dft_scf_so: error creating g_zora_sf',0, 
      &       GA_ERR)
        call ga_zero(g_zora_sf(2))
 c
 c      == zora: scalar energy scaling arrays ==
-       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_scale_sf',0,0,
-     &    g_zora_scale_sf(1)))
+       if(.not.ga_duplicate(g_vxc(1),g_zora_scale_sf(1),
+     G      'g_zora_scale_sf'))
      & call errquit('dft_scf_so: error creating g_zora_scale_sf',0, 
      &    GA_ERR)
        call ga_zero(g_zora_scale_sf(1))
-       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_scale_sf',0,0,
-     &    g_zora_scale_sf(2)))
+       if(.not.ga_duplicate(g_vxc(1),g_zora_scale_sf(2),
+     G      'g_zora_scale_sf'))
      & call errquit('dft_scf_so: error creating g_zora_scale_sf',0, 
      &    GA_ERR)
        call ga_zero(g_zora_scale_sf(2))
 c
-c      == zora: spin-orbit arrays ==
-       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_so 1',0,0,
-     &    g_zora_so(1)))
+       if(.not.ga_duplicate(g_vxc(1),g_zora_so(1),'g_zora_so1'))
      & call errquit('dft_scf_so: error creating g_zora_so 1',0, GA_ERR)
        call ga_zero(g_zora_so(1))
-       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_so 2',0,0,
-     & g_zora_so(2)))
+       if(.not.ga_duplicate(g_vxc(1),g_zora_so(2),'g_zora_so2'))
      & call errquit('dft_scf_so: error creating g_zora_so 2',0, GA_ERR)
        call ga_zero(g_zora_so(2))
-       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_so 3',0,0,
-     & g_zora_so(3)))
+       if(.not.ga_duplicate(g_vxc(1),g_zora_so(3),'g_zora_so3'))
      & call errquit('dft_scf_so: error creating g_zora_so 3',0, GA_ERR)
        call ga_zero(g_zora_so(3))
 c
 c      == zora: spin-orbit energy scaling arrays ==
-       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_scale_so 1',0,0,
-     & g_zora_scale_so(1)))
+       if(.not.ga_duplicate(g_vxc(1),g_zora_scale_so(1),'g_zorasc_so1'))
      & call errquit('dft_scf_so: error creating g_zora_scale_so 1',0, 
      &    GA_ERR)
        call ga_zero(g_zora_scale_so(1))
-       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_scale_so 2',0,0,
-     & g_zora_scale_so(2)))
+       if(.not.ga_duplicate(g_vxc(1),g_zora_scale_so(2),'g_zorasc_so2'))
      & call errquit('dft_scf_so: error creating g_zora_scale_so 2',0, 
      &    GA_ERR)
        call ga_zero(g_zora_scale_so(2))
-       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_scale_so 3',0,0,
-     &   g_zora_scale_so(3)))
+       if(.not.ga_duplicate(g_vxc(1),g_zora_scale_so(3),'g_zorasc_so3'))
      &   call errquit('dft_scf_so: error creating g_zora_scale_so',0, 
      &    GA_ERR)
        call ga_zero(g_zora_scale_so(3))
@@ -1257,10 +1248,8 @@ c
        if (me.eq.0.and.oprint_info)
      &     write(luout,'(1x,a,e15.7)') "Ecore+SC+SO(z+y+x) =", ecore
 c
-       call ga_zero(g_vxc(1))
-       call ga_zero(g_vxc(2))
-       call ga_dadd(1.d0,g_vxc(1),1.d0,g_zora_sf(1),g_vxc(1))
-       call ga_dadd(1.d0,g_vxc(2),1.d0,g_zora_sf(2),g_vxc(2))
+       call ga_copy(g_zora_sf(1),g_vxc(1))
+       call ga_copy(g_zora_sf(2),g_vxc(2))
 c
 c      == patch scalar zora parts into Fock matrix ==
        call ga_sync()
