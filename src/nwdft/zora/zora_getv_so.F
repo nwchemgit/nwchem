@@ -224,7 +224,7 @@ c     == tally up over all the nodes ==
 c     == pack into a ga ==
 c     == scalar contribution ==
       call ga_zero(g_zora_sf(1))
-      call ga_distribution(g_zora_sf(i),
+      call ga_distribution(g_zora_sf(1),
      .     ga_nodeid(), ilo, ihi, jlo, jhi)
       if (ilo.gt.0 .and. ilo.le.ihi) then
          do j=jlo,jhi
