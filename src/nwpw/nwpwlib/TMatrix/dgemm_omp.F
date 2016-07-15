@@ -261,7 +261,8 @@
                 Itid = r + tid*(M/nthr) + 1
                 Mtid = M/nthr 
             end if
-            if (.not.BA_push_get(mt_dbl,LDB*N,'Btid',Btid(2),Btid(1)))
+            if (.not.BA_push_get(mt_dbl,LDB*N*nthr,
+     >                           'Btid',Btid(2),Btid(1)))
      >         call errquit('DGEMM_OMP: out of stack',1,MA_ERR)
             Bshift = Btid(1)+tid*N*N
             call dcopy(LDB*N,B,1,dbl_mb(Bshift),1)
