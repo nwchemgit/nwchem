@@ -1097,7 +1097,7 @@ c      call Pack_npack(1,npack1)
             if (n.le.0) go to 30
             shift  = 1 + (ms-1)*ne(1)*npack1
             shift2 = 1 + (ms-1)*ishift2
-            call DGEMM('N','N',2*npack1,n,n,
+            call DGEMM_OMP('N','N',2*npack1,n,n,
      >                (alpha),
      >                Ain(shift),  2*npack1,
      >                hml(shift2),    n,
