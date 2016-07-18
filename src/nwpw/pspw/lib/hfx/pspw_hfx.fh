@@ -52,3 +52,7 @@
      >                                   nrsize,n2ft3d,
      >                                   replicated,butterfly
 
+*     **** PSPW_HFX_Lin common block ****
+      logical lin_on,lin_run
+      integer Lin_projectors(2)
+      common /PSPW_HFX_Lin/ Lin_projectors,lin_on,lin_run
