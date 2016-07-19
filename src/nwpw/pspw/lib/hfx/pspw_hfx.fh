@@ -53,6 +53,7 @@
      >                                   replicated,butterfly
 
 *     **** PSPW_HFX_Lin common block ****
-      logical lin_on,lin_run
-      integer Lin_projectors(2)
-      common /PSPW_HFX_Lin/ Lin_projectors,lin_on,lin_run
+      logical lin_on,lin_run,lin_off
+      integer Lin_projectors(2),lin_count1,lin_count2
+      common /PSPW_HFX_Lin/ Lin_projectors,lin_count1,lin_count2,
+     >                      lin_on,lin_off,lin_run

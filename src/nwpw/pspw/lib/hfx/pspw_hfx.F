@@ -44,6 +44,9 @@
       if (.not.btdb_get(rtdb,'pspw:HFX_Lin',mt_log,1,lin_on)) 
      >   lin_on = .false.
       lin_run = .false.
+      lin_off = .not.lin_on
+      lin_count1 = 0
+      lin_count2 = 0
 
 *     **** get the number of HFX orbitals ****
       if (hfx_on) then
@@ -312,7 +315,9 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
            if (.not. value)
      >     call errquit('pspw_end_HFX:error freeing heap memory',
      >                  0,MA_ERR)
+
         end if
+
 
 *        **** deallocate replicated space if necessary ****
         if (replicated) then
@@ -326,6 +331,32 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
       end if
 
       return
+      end
+
+*     **********************************
+*     *                                *
+*     *     pspw_print_HFX_counters    *
+*     *                                *
+*     **********************************
+      subroutine pspw_print_HFX_counters(unit)
+      implicit none
+      integer unit
+
+#include "bafdecls.fh"
+#include "pspw_hfx.fh"
+      
+      if (hfx_on) then
+         write(unit,501)
+         write(unit,502) lin_count2 
+         write(unit,503) lin_count1
+         write(unit,*) 
+         write(unit,*) 
+      end if
+
+      return
+ 501  format("== HFX Counters ==")
+ 502  format("  HFX Evalulations         =" I6)
+ 503  format("  Lin ACE HFX Evalulations =" I6)
       end
 
 *     *************************
@@ -445,9 +476,11 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
 
       call nwpw_timing_start(33)
 
+
       !**** run Lin projector HFX operator ****
-      if ((lin_run).and.(lin_on)) then
+      if ((lin_run).and.(lin_on).and.(.not.lin_off)) then
          call pspw_Lin_proj_HFX(dbl_mb(Lin_projectors(1)),psi_r,Hpsi_r)
+         lin_count1 = lin_count1 + 1
 
       !**** HFX operator ****
       else
@@ -459,12 +492,13 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
             call pspw_potential_HFX0(ispin0,psi_r,Hpsi_r)
          end if
 
-         !**** define Lin projectorsr ****
-         if (lin_on) then
+         !**** define Lin projectors ****
+         if ((lin_on).and.(.not.lin_off)) then
             call pspw_Lin_proj_HFX_set(psi_r,Hpsi_r,
      >                                 dbl_mb(Lin_projectors(1)))
             lin_run = .true.
          end if
+         lin_count2 = lin_count2 + 1
  
       end if
       call nwpw_timing_end(33)
@@ -2200,17 +2234,12 @@ c     >                                   dbl_mb(dn(1)))
 #include "errquit.fh"
 
 *     **** local variables ****
-      integer hml(2),neq(2),nsize,n1,n2,n3,i,j
-      real*8  tmp
-      real*8 scal1,scal2,dv
-      integer tmpHpsi(2)
-      logical value
+      integer hml(2),neq(2),nsize,n1,n2,n3
+      real*8 scal1
 
 *     **** external functions ****
       logical  Dneall_m_push_get,Dneall_m_pop_stack
       external Dneall_m_push_get,Dneall_m_pop_stack
-c      real*8   Dneall_m_trace,lattice_omega,Dneall_m_sqr_trace
-c      external Dneall_m_trace,lattice_omega,Dneall_m_sqr_trace
 
       call D3dB_nx(1,n1)
       call D3dB_ny(1,n2)
@@ -2231,28 +2260,6 @@ c      call Dneall_m_scal(0,scal1,dbl_mb(hml(1)))
 
       call Dneall_m_cholesky(0,dbl_mb(hml(1)))
       call Dneall_mg_forwardsolve(0,dbl_mb(hml(1)),n2ft3d,Lin_prj)
-
-
-
-c      value = BA_push_get(mt_dbl,nsize,'tmpHpsi',tmpHpsi(2),tmpHpsi(1))
-c      call Dneall_ggm_Multiply(0,Lin_prj,psi_r,scal1,n2ft3d,
-c     >                         dbl_mb(hml(1)),0.0d0)
-c      tmp = 2.0d0*Dneall_m_sqr_trace(0,dbl_mb(hml(1)))
-c      write(*,*) "HERAA ",tmp,tmp*scal1
-c
-c      call Dneall_gmg_Multiply(0,Lin_prj,n2ft3d,
-c     >                         dbl_mb(hml(1)),-1.0d0,
-c     >                         dbl_mb(tmpHpsi(1)),0.0d0)
-cc      call Dneall_ggm_sym_Multiply(0,psi_r,dbl_mb(tmpHpsi(1)),
-cc     >                             n2ft3d,dbl_mb(hml(1)))
-c      call Dneall_ggm_Multiply(0,psi_r,dbl_mb(tmpHpsi(1)),scal1,n2ft3d,
-c     >                         dbl_mb(hml(1)),0.0d0)
-c
-c      tmp = 2.0d0*Dneall_m_trace(0,dbl_mb(hml(1)))
-c      write(*,*) "HERAAA",tmp,tmp*scal1
-c
-c      value = BA_pop_stack(tmpHpsi(2))
-      
 
       if (.not.Dneall_m_pop_stack(hml))
      >   call errquit("pspw_Lin_Proj_HFX_set:pop stack",0,MA_ERR)
@@ -2278,7 +2285,7 @@ c      value = BA_pop_stack(tmpHpsi(2))
 
 *     **** local variables ****
       integer hml(2),neq(2),n1,n2,n3
-      real*8 scal1,scal2,dv,tmp
+      real*8 scal1
 
 *     **** external functions ****
       logical  Dneall_m_push_get,Dneall_m_pop_stack
@@ -2320,6 +2327,34 @@ c      value = BA_pop_stack(tmpHpsi(2))
 #include "pspw_hfx.fh"
 
       lin_run = .false.
+      return
+      end
+
+*     *****************************
+*     *                           *
+*     *   pspw_Lin_HFX_off        *
+*     *                           *
+*     *****************************
+      subroutine pspw_Lin_HFX_off(bvalue)
+      implicit none
+      logical bvalue
+
+#include "pspw_hfx.fh"
+
+      !lin_off = .true.
+      lin_off = bvalue
+      return
+      end
+
+*     *****************************
+*     *                           *
+*     *   pspw_Lin_HFX_on         *
+*     *                           *
+*     *****************************
+      logical function pspw_Lin_HFX_on()
+      implicit none
+#include "pspw_hfx.fh"
+      pspw_Lin_HFX_on = lin_on
       return
       end
 
