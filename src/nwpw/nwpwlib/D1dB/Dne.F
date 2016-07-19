@@ -1818,7 +1818,7 @@ c     *        Dneall_m_cholesky             *
 c     *                                      *
 c     ****************************************
 
-*   This routine computes teh cholesky decomposition of a postitive definate
+*   This routine computes the cholesky decomposition of a postitive definate
 *  matrix A = L*L'   On exit A is replaced by L.
       subroutine Dneall_m_cholesky(mb,A)
       implicit none
@@ -1842,7 +1842,6 @@ c     ****************************************
          ishift2 = 0
       end if
 
-
 *     ***** WARNING : NEEDS to fixed for distributed m ****
       if (mparallelized) then
          write(*,*) " WARNING : NEEDS to be fixed for distributed m"
@@ -1856,6 +1855,8 @@ c     ****************************************
 
       return
       end
+
+
 
 
 c     ****************************************
@@ -1877,7 +1878,6 @@ c     ****************************************
 
 *     **** local variables ****
       !real*8 tmp
-      logical value
       integer i,j,k,ms,ms1,ms2,shift1,shift2,ishift1,ishift2,indx,indx0
       integer p,q,ii,jj
       integer tmp(2)
@@ -1899,17 +1899,18 @@ c     ****************************************
          call errquit('WARNING Dneall_mg_forwardsolve failed',0,MA_ERR)
       else
 
-         value = BA_push_get(mt_dbl,n2ft3d,'tmp',tmp(2),tmp(1))
-         if (.not.value)
+         if (.not.BA_push_get(mt_dbl,n2ft3d,'tmp',tmp(2),tmp(1)))
      >      call errquit('Dneall_mg_forwardsolve:out of stack',0,MA_ERR)
-         !do k=1,n2ft3d
+
          do ms=ms1,ms2
             shift1 = (ms-1)*ishift1
             shift2 = (ms-1)*ishift2
             do i=1,ne(ms)
                indx0 = i+(i-1)*ne(ms)+shift2
                !tmp = 0.0d0
-               call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp(1)),1)
+               !call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp(1)),1)
+               call Parallel_shared_vector_zero(.true.,n2ft3d,
+     >                                          dbl_mb(tmp(1)))
                do j=1,i-1
                   jj = j + shift1
                   call Dneall_ntoqp(jj,q,p)
@@ -1917,8 +1918,8 @@ c     ****************************************
                      indx = i+(j-1)*ne(ms)+shift2
                      !tmp = tmp + L(indx)*A(k,q+shift1)
                      !write(*,*) "i,j,L=",i,j,L(indx)
-                     call daxpy(n2ft3d,L(indx),A(1,q),1,
-     >                          dbl_mb(tmp(1)),1)
+                     call daxpy_omp(n2ft3d,L(indx),A(1,q),1,
+     >                              dbl_mb(tmp(1)),1)
                   end if
                end do !*j*
                !call D1dB_SumAll(tmp)
@@ -1928,17 +1929,15 @@ c     ****************************************
                ii = i + shift1
                call Dneall_ntoqp(ii,q,p)
                if (p.eq.taskid_j) then
-                  call daxpy(n2ft3d,-1.0d0,dbl_mb(tmp(1)),1,A(1,q),1)
-                  call dscal(n2ft3d,(1.0d0/L(indx0)),A(1,q),1)
+                 call daxpy_omp(n2ft3d,-1.0d0,dbl_mb(tmp(1)),1,A(1,q),1)
+                 call dscal_omp(n2ft3d,(1.0d0/L(indx0)),A(1,q),1)
                end if
             end do !*i*
          end do !*ms*
-         !end do
 
-         value = BA_pop_stack(tmp(2))
-         if (.not. value)
-     >   call errquit('error popping stack in Dneall_mg_forwardsolve',
-     >                0,MA_ERR)
+         if (.not.BA_pop_stack(tmp(2)))
+     >      call errquit('Dneall_mg_forwardsolve: popping stack',
+     >                   0,MA_ERR)
 
       end if
 
@@ -3159,6 +3158,84 @@ c     ****************************************
       Dneall_m_trace = sum
       return
       end
+
+
+
+c     ****************************************
+c     *                                      *
+c     *           Dneall_m_sqr_trace         *
+c     *                                      *
+c     ****************************************
+      double precision function Dneall_m_sqr_trace(mb,M)
+      implicit none
+      integer mb
+      real*8  M(*)
+
+#include "bafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift2,ishift2,indx,i,j
+      real*8  sum
+
+*     ***** external functions ****
+      real*8   DMatrix_sqr_trace
+      external DMatrix_sqr_trace
+      if (mparallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+         sum = 0.0d0
+         do ms=ms1,ms2
+            shift2 = 1 + (ms-1)*ishift2
+            sum =  sum + DMatrix_sqr_trace(ne(ms),
+     >                                     M(shift2),mcq(ms),
+     >                                     int_mb(mc(1,ms)),
+     >                                     int_mb(nc(1,ms)),
+     >                                     taskid_i,taskid_j)
+         end do
+
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         sum = 0.0d0
+         do ms=ms1,ms2
+
+           if (ne(ms).le.0) goto 30
+           shift2 = (ms-1)*ishift2
+
+           do j=1,ne(ms)
+           do i=1,ne(ms)
+              indx = i + (j-1)*ne(ms) + shift2
+              sum = sum + M(indx)**2
+           end do
+           end do
+
+ 30        continue
+         end do
+      end if
+
+      Dneall_m_sqr_trace = sum
+      return
+      end
+
+
+
+
 
 
 c     ****************************************
