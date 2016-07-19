@@ -8,13 +8,49 @@ c     $Id$
       implicit none
 
 *     **** linesearch_counter common block ****
-      integer counter
-      common / linesearch_counter / counter
+      integer counter,maxiter
+      common / linesearch_counter / counter,maxiter
 
       counter = 0
+      maxiter = 8
 
       return
       end
+
+*     ********************************
+*     *                              *
+*     *   linesearch_maxiter_set     *
+*     *                              *
+*     ********************************
+      subroutine linesearch_maxiter_set(maxiter0)
+      implicit none
+      integer maxiter0
+
+*     **** linesearch_counter common block ****
+      integer counter,maxiter
+      common / linesearch_counter / counter,maxiter
+
+      maxiter = maxiter0
+      return
+      end
+
+
+*     ********************************
+*     *                              *
+*     *      linesearch_maxiter      *
+*     *                              *
+*     ********************************
+      integer function linesearch_maxiter()
+      implicit none
+
+*     **** linesearch_counter common block ****
+      integer counter,maxiter
+      common / linesearch_counter / counter,maxiter
+
+      linesearch_maxiter = maxiter
+      return
+      end
+
 
 *     ********************************
 *     *                              *
@@ -25,8 +61,8 @@ c     $Id$
       implicit none
 
 *     **** linesearch_counter common block ****
-      integer counter
-      common / linesearch_counter / counter
+      integer counter,maxiter
+      common / linesearch_counter / counter,maxiter
  
       linesearch_count = counter
       return
@@ -55,8 +91,9 @@ c     $Id$
 
 
 *     **** local variables ****
-      integer maxiter,iteration
-      parameter (maxiter=8)
+      !integer maxiter,iteration
+      !parameter (maxiter=8)
+      integer iteration
       logical secant,notfinished
       integer indx(3)
       real*8  t(3)
@@ -67,8 +104,8 @@ c     $Id$
       real*8 up,down,fmin,dfmin,deltaf
 
 *     **** linesearch_counter common block ****
-      integer counter
-      common / linesearch_counter / counter
+      integer counter,maxiter
+      common / linesearch_counter / counter,maxiter
 
    
       counter = counter + 1
