@@ -16,14 +16,7 @@ c
 c
       implicit real*8 (a-h,o-z)
 c
-#if 0
-      common /logic4/ nfu(1)
-      common /logic9/ nia(3,1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
-#else
 #include "texas_lpar.fh"      
-#endif
       common /big/ bl(1)
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
       common /lcases/ lcase
@@ -296,13 +289,7 @@ c=================================================================
      *                    nqij,nqkl, deriv,  xab,xcd, xyab,xycd)
       implicit real*8 (a-h,o-z)
 c
-#if 0
-      common /logic4/ nfu(1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
-#else
 #include "texas_lpar.fh"      
-#endif
 c
       dimension buf2(nbls,lnijr,lnklr,ngcd)
       dimension deriv(6,nbls,lnij,lnkl,ngcd)
@@ -385,11 +372,7 @@ c
 c
       implicit real*8 (a-h,o-z)
 c
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
       common /lcases/ lcase
       common/obarai/
@@ -720,14 +703,7 @@ c because first-derivatives are needed in the shifting procedure for
 c second-der. That's why dimension for buf2(ndim,*,*,*,*) has ndim=4
 c for first- and ndim=10 for second-derivatives.
 c
-#if 0
-      common /logic4/ nfu(1)
-      common /logic9/ nia(3,1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
-#else
 #include "texas_lpar.fh"      
-#endif
 c
 cccc  dimension buf2(4,nbls,lnijr,lnklr,ngcd) OR buf2(10,etc.)
 c2002 dimension buf2(ndim,nbls,lnijr,lnklr,ngcd)
@@ -881,11 +857,7 @@ c
 c
       implicit real*8 (a-h,o-z)
 c
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
       common /lcases/ lcase
       common/obarai/
@@ -1154,14 +1126,7 @@ c=================================================================
      *                     nqij,nqkl,der2,xab)
       implicit real*8 (a-h,o-z)
 c
-#if 0
-      common /logic4/ nfu(1)
-      common /logic9/ nia(3,1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
-#else
 #include "texas_lpar.fh"      
-#endif
 c
 c2002 dimension buf2(10,nbls,lnijr,lnklr,ngcd)
       dimension buf2(nbls,lnijr,lnklr,ngcd,10)
@@ -1413,14 +1378,7 @@ c=================================================================
      *                    nqij,nqkl,
      *                    nder_aa,der2)
       implicit real*8 (a-h,o-z)
-#if 0
-      common /logic4/ nfu(1)
-      common /logic9/ nia(3,1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
-#else
 #include "texas_lpar.fh"      
-#endif
 c
       dimension buf2(nbls,lnijr,lnklr,ngcd,10)
       dimension der2(45,nbls,lnij,lnkl,ngcd)
@@ -1493,11 +1451,7 @@ c=================================================================
      *                    nqij,nqkl,
      *                    nder_cc,der2)
       implicit real*8 (a-h,o-z)
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
 c
 c2002 dimension buf2(10,nbls,lnijr,lnklr,ngcd)
       dimension buf2(nbls,lnijr,lnklr,ngcd,10)
@@ -1565,14 +1519,7 @@ c=================================================================
      *                    nqij,nqkl,
      *                    nder_bb,der2,xab)
       implicit real*8 (a-h,o-z)
-#if 0
-      common /logic4/ nfu(1)
-      common /logic9/ nia(3,1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
-#else
 #include "texas_lpar.fh"      
-#endif
 c
 c2002 dimension buf2(10,nbls,lnijr,lnklr,ngcd)
       dimension buf2(nbls,lnijr,lnklr,ngcd,10)
@@ -1628,14 +1575,7 @@ c=================================================================
      *                    nqij,nqkl,
      *                    nder_ab,der2,xab)
       implicit real*8 (a-h,o-z)
-#if 0
-      common /logic4/ nfu(1)
-      common /logic9/ nia(3,1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
-#else
 #include "texas_lpar.fh"      
-#endif
 c
 c2002 dimension buf2(10,nbls,lnijr,lnklr,ngcd)
       dimension buf2(nbls,lnijr,lnklr,ngcd,10)
@@ -1708,14 +1648,7 @@ c=================================================================
      *                    nqij,nqkl,
      *                    nder_ac,der2)
       implicit real*8 (a-h,o-z)
-#if 0
-      common /logic4/ nfu(1)
-      common /logic9/ nia(3,1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
-#else
 #include "texas_lpar.fh"      
-#endif
 c
 c2002 dimension buf2(10,nbls,lnijr,lnklr,ngcd)
       dimension buf2(nbls,lnijr,lnklr,ngcd,10)
@@ -1786,14 +1719,7 @@ c=================================================================
      *                    nqij,nqkl,
      *                    nder_bc,der2,xab)
       implicit real*8 (a-h,o-z)
-#if 0
-      common /logic4/ nfu(1)
-      common /logic9/ nia(3,1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
-#else
 #include "texas_lpar.fh"      
-#endif
 c
 c2002 dimension buf2(10,nbls,lnijr,lnklr,ngcd)
       dimension buf2(nbls,lnijr,lnklr,ngcd,10)
