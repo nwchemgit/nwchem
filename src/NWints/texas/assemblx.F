@@ -133,11 +133,7 @@ C
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
 C
-#if 0      
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
 c
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
@@ -262,11 +258,7 @@ c-----------------------------------------------------------------------
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      *     NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
       dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
@@ -354,11 +346,7 @@ c-----------------------------------------------------------------------
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      *     NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
-#if 0      
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
       dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
@@ -440,11 +428,7 @@ c
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
 C
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
 c
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
@@ -642,11 +626,7 @@ c----------------------------------------------------------------
       character*11 scftype
       character*8 where
       common /runtype/ scftype,where
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
       common /lcases/ lcase
       common/obarai/
@@ -933,11 +913,7 @@ C***
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
 C
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
 C
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
@@ -996,11 +972,7 @@ c***************
       implicit real*8 (a-h,o-z)
       logical firstc
 c
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
 c
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
@@ -1073,11 +1045,7 @@ C
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
 C
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
 c
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
@@ -1163,11 +1131,7 @@ C
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
 C
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
 c
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
@@ -1253,11 +1217,7 @@ C
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
 C
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
 C
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2), bf3l(nbls,lt5,lt6)
@@ -1425,11 +1385,7 @@ c---------------------------------------------------------------
       character*11 scftype
       character*8 where
       common /runtype/ scftype,where
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
       common /lcases/ lcase
       common/obarai/
@@ -1703,11 +1659,7 @@ c===============================================================
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      *     NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
       dimension bfij1(nbls,lt3,lt4)
@@ -1755,11 +1707,7 @@ c================================================================
      *                    bfij3,lt3,lt4, factij, indx, ij3b,kl3b)
       implicit real*8 (a-h,o-z)
       logical firstc
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
       dimension bfij3(nbls,lt3,lt4)
@@ -1814,11 +1762,7 @@ c================================================================
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      *     NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
       dimension bf2l1(nbls,lt3,lt4)
@@ -1885,11 +1829,7 @@ c===========================================================
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      *     NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
       dimension bf3l(nbls,lt5,lt6)
@@ -1955,11 +1895,7 @@ c===============================================================
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      *     NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2), bf3l(nbls,lt5,lt6)
 cccc  dimension facti(*), factkl(*)
@@ -2082,11 +2018,7 @@ c-----------------------------------------------------------------------
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      *     NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
       dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
@@ -2178,11 +2110,7 @@ c-----------------------------------------------------------------------
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      *     NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
       dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
@@ -2268,11 +2196,7 @@ c
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
 C
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
 c
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)

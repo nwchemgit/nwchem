@@ -12,11 +12,7 @@ c
       character*11 scftype
       character*8 where
       common /runtype/ scftype,where
-#if 0
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
       common /lcases/ lcase
       common/obarai/
@@ -36,7 +32,7 @@ c
 c dimensions for assembling :
       common /dimasse/ lqij,lqkl,lqmx,lij3,lkl3,l3l,lsss
 c
-      integer bl(*)
+      dimension bl(*)
 C******************************************************
 c
       call getmem(nbls,idxnot)
@@ -282,11 +278,7 @@ c
       end
 c**************************************************************
       subroutine setnot(nbls,nbls1,indx,idxnot,idpres)
-      implicit none
-      integer nbls,nbls1
-      integer indx(*),idxnot(*),idpres(*)
-c
-      integer i,ijkl,ijkl2
+      dimension indx(*),idxnot(*),idpres(*)
 c
       do 10 i=1,nbls
       idpres(i)=0
@@ -309,14 +301,15 @@ c
 c=================================================
       subroutine zerosp(lnijkl,nbls,buf,idxnot,nbls2,ngcd)
       implicit real*8 (a-h,o-z)
-      integer idxnot(*)
-      double precision buf(nbls,lnijkl,ngcd)
+      dimension idxnot(*)
+      dimension buf(nbls,lnijkl,ngcd)
+      data zero /0.d0/
 c
             do 10 iqu=1,ngcd
             do 10 icx=1,lnijkl
             do 10 i=1,nbls2
             ijkl=idxnot(i)
-            buf(ijkl,icx,iqu)=0d0
+            buf(ijkl,icx,iqu)=zero
   10        continue
 c
       end
@@ -324,9 +317,9 @@ c=================================================
 cccc  subroutine zerout(nbls,nbls2,ngcd, idxnot, azero,l1,l2,i1,i2)
       subroutine zerout(narr,nbls,nbls2,ngcd, idxnot, azero,l1,l2,i1,i2)
       implicit real*8 (a-h,o-z)
-      integer idxnot(*)
+      dimension idxnot(*)
 c2002 dimension azero(narr,nbls,l1,l2,ngcd)
-      double precision azero(nbls,l1,l2,ngcd,narr)
+      dimension azero(nbls,l1,l2,ngcd,narr)
 c     
       if (ngcd .gt. 1) then
        do iarr=1,narr

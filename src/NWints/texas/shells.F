@@ -5,11 +5,7 @@ c--------------------------------------------------------------------
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
       common /lengt/ ilen,jlen,klen,llen, ilen1,jlen1,klen1,llen1
       common /gcont/ ngci1,ngcj1,ngck1,ngcl1,ngcd
-#if 0
-      common /logic2/ len(1)
-#else
 #include "texas_lpar.fh"      
-#endif
       dimension inx(12,*)
 c
 c This subroutine sets up TYPE and LENGTH of shells and
@@ -97,14 +93,7 @@ ctest
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
 C
-#if 0     
-      common /logic1/ ndege(1)
-      common /logic2/ len(1)
-      common /logic3/ lensm(1)
-      common /logic4/ nfu(1)
-#else
 #include "texas_lpar.fh"      
-#endif
 c
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
       common /lcases/ lcase
@@ -245,11 +234,7 @@ c     common /derivat/ ijderiv,klderiv
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      *     NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
-#if 0
-      common /logic3/ lensm(1)
-#else
 #include "texas_lpar.fh"      
-#endif
 c
 C************************************************************
 c
