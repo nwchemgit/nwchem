@@ -115,6 +115,8 @@ c      complex*16 G1(nfft3d,nemax)
       external nwpw_meta_gga_on,ion_disp_on
       real*8   psi_1meta_gga_pxc,ion_disp_energy
       external psi_1meta_gga_pxc,ion_disp_energy
+      real*8   psi_1energy
+      external psi_1energy
        
   
       call Pack_npack(1,npack1)
@@ -148,6 +150,7 @@ c     >                     'G0',G0(2),G0(1))
 
 
 *     ***** get the initial gradient and direction ****
+      call pspw_Lin_HFX_reset()
       if (pawexist) then
          call psi_1get_STgradient(dcpl_mb(R1(1)),dcpl_mb(G1(1)),E0)
          call Grsm_gg_trace(npack1,neall,
@@ -226,6 +229,7 @@ c        call rho_2to1()
 c        call dng_2to1()
 
 *        **** get the new gradient - also updates densities****
+         call pspw_Lin_HFX_reset()
          sum0  = sum1
          if (pawexist) then
             call psi_1get_STgradient(dcpl_mb(R1(1)),dcpl_mb(G1(1)),E0)
@@ -294,6 +298,7 @@ c     >                       dcpl_mb(H0(1)))
      >                          dcpl_mb(H0(1)))
          end if
 
+
       end do
 
 *     **** initialize the geoedesic line data structure ****
@@ -325,9 +330,11 @@ c    >                        0.5d0,tmin,deltae,2)
 
  30   call psi_2to1()
       call psi_1toelectron() 
+      !Enew = psi_1energy() 
 c     call rho_2to1()
 c     call dng_2to1()
 c     call psi_check()
+      write(*,*) "Elast=",Enew
 
       eion = 0.0d0
       if (control_version().eq.3) eion = ewald_e()

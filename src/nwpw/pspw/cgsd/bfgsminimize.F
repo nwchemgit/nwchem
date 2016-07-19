@@ -28,6 +28,9 @@ c
       integer G0(2),S0(2)
       real*8  E0,dE0
 
+      logical    lin_on
+      common / cgsd_block9 / lin_on
+
       logical    precondition
       common / cgsd_block2 / precondition
 
@@ -117,6 +120,10 @@ c
       external nwpw_meta_gga_on,ion_disp_on
       real*8   ion_disp_energy
       external ion_disp_energy
+      logical  pspw_Lin_HFX_on
+      external pspw_Lin_HFX_on
+      real*8   psi_1energy
+      external psi_1energy
 
 
       dt = control_time_step()
@@ -126,6 +133,8 @@ c     dte = 1.0d0
 
       if (current_iteration.eq.1) then
          precondition = control_precondition()
+         lin_on = pspw_Lin_HFX_on()
+         !if (lin_on) call linesearch_maxiter_set(4)
       end if
 
   
@@ -147,6 +156,7 @@ c     dte = 1.0d0
 
 
 *     ***** get the initial direction ****
+      if (lin_on) call pspw_Lin_HFX_reset()
       if (pawexist) then
          call psi_1get_STgradient(dcpl_mb(S0(1)),dcpl_mb(G0(1)),E0)
       else
@@ -210,10 +220,22 @@ c     >                                      dcpl_mb(S0(1)))
             deltat = deltat_min
          end if
 c         deltat = 1.0d0  !** debug **
+ 20      continue
          Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
      >                        0.50d0,tmin,deltae,2)
+
+         !*** turn off Lin HFX ****
+         if (lin_on .and.
+     >       ((dabs(deltae).lt.0.1d0*tole).or.(deltae.gt.0.0d0))) then
+            lin_on = .false.
+            call pspw_Lin_HFX_off(.true.)
+            go to 20
+         end if
+         call pspw_Lin_HFX_off(.false.)
+         lin_on = .true.
+
          call psi_geodesic_final(tmin)
          deltac = rho_error()
 
@@ -222,8 +244,10 @@ c         deltat = 1.0d0  !** debug **
             if (.not.precondition) go to 30
             precondition = .false.
          end if
+
      
 *        **** get the new gradient - also updates densities****
+         if (lin_on) call pspw_Lin_HFX_reset()
          if (pawexist) then
               call psi_2get_STgradient(2,dcpl_mb(S0(1)),
      >                                   dcpl_mb(G0(1)),E0)
@@ -231,7 +255,11 @@ c         deltat = 1.0d0  !** debug **
             if (precondition) then
               call psi_2get_TMgradient(2,dcpl_mb(G0(1)),E0)
             else
-              call psi_2get_Tgradient(2,dcpl_mb(G0(1)),E0)
+              if (pspw_Lin_HFX_on()) then
+                 call psi_2get_Tgradient(1,dcpl_mb(G0(1)),E0)
+              else
+                 call psi_2get_Tgradient(2,dcpl_mb(G0(1)),E0)
+              end if
             end if
          end if
 
@@ -275,12 +303,25 @@ c        call dng_2to1()
       end if
 c      deltat = 1.0d0  !** debug **
 c      Eold = psi_geodesic_energy(0.0d0)
+ 25   continue
       Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
      >                        0.50d0,tmin,deltae,2)
+
+      !*** turn off Lin HFX ****
+      if (lin_on .and.
+     >       ((dabs(deltae).lt.0.1d0*tole).or.(deltae.gt.0.0d0))) then
+         lin_on = .false.
+         call pspw_Lin_HFX_off(.true.)
+         go to 25
+      end if
+      call pspw_Lin_HFX_off(.false.)
+      lin_on = .true.
+
       call psi_geodesic_final(tmin)
       deltac = rho_error()
+
 
 *     **** free memory ****
  30   value = BA_pop_stack(G0(2))
@@ -291,6 +332,7 @@ c      Eold = psi_geodesic_energy(0.0d0)
 
       call psi_2to1()
       call psi_1toelectron() 
+
 c     call rho_2to1()
 c     call dng_2to1()
 c     call psi_check()

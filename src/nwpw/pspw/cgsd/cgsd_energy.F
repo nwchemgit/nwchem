@@ -133,6 +133,7 @@ c#include "global.fh"
       if (minimizer.eq.5) it_out = 1
       if (minimizer.eq.8) it_out = 1
       if (newpsi) then
+         call pspw_Lin_HFX_reset()
          call sdminimize(15)
          !call bybminimize(E,deltae,deltac,1,.true.,2)
       end if
@@ -140,6 +141,7 @@ c#include "global.fh"
          icount = icount + 1
          if (stalled) then
            !call pspw_hfx_localize_set_findcolumns(.true.)
+           call pspw_Lin_HFX_reset()
            call sdminimize(0)
            bfgscount = 0 
          end if

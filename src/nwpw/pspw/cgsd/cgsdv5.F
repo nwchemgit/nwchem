@@ -709,6 +709,7 @@ c      call frac_occ_end()
 
          call nwpw_timing_print_final(oprint,electron_count())
          write(luout,*)
+         call pspw_print_HFX_counters(luout)
          CALL nwpw_MESSAGE(4)
       end if 
 
