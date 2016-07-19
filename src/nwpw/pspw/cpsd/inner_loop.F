@@ -223,6 +223,8 @@ c     real*8     fion(3,natmx)
       if ((control_version().eq.4).or.(field_exist))
      >   call lattice_r_grid(dbl_mb(r_grid(1)))
 
+      call pspw_Lin_HFX_reset()
+
 *     ******************************************
 *     ****                                  ****
 *     ****   Start of steepest descent loop ****
