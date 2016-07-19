@@ -12,7 +12,9 @@ c
       character*11 scftype
       character*8 where
       common /runtype/ scftype,where
-      common /logic4/ nfu(1)
+      integer lpar1
+      parameter (lpar1=34)
+      common /logic4/ nfu(lpar1)
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
       common /lcases/ lcase
       common/obarai/

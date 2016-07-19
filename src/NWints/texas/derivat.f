@@ -16,7 +16,9 @@ c
 c
       implicit real*8 (a-h,o-z)
 c
-      common /logic4/ nfu(1)
+      integer lpar1
+      parameter (lpar1=34)
+      common /logic4/ nfu(lpar1)
       common /big/ bl(1)
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
       common /lcases/ lcase
@@ -289,9 +291,15 @@ c=================================================================
      *                    nqij,nqkl, deriv,  xab,xcd, xyab,xycd)
       implicit real*8 (a-h,o-z)
 c
-      common /logic4/ nfu(1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
+      integer lpar1,lpar2,lpar3,lpar4,lpar5
+      parameter(lpar1=34,lpar2=6545,lpar3=4060,lpar4=10,lpar5=33)
+      common /logic1/ ndege(lpar4)
+      common /logic2/ len(lpar4)
+      common /logic3/ lensm(lpar5)
+      common /logic4/ nfu(lpar1)
+      common /logic9/ nia(3,lpar2)
+      common /logic10/ nmxyz(3,lpar2)
+      common /logic11/ npxyz(3,lpar3)
 c
       dimension buf2(nbls,lnijr,lnklr,ngcd)
       dimension deriv(6,nbls,lnij,lnkl,ngcd)
@@ -374,7 +382,9 @@ c
 c
       implicit real*8 (a-h,o-z)
 c
-      common /logic4/ nfu(1)
+      integer lpar1
+      parameter(lpar1=34)
+      common /logic4/ nfu(lpar1)
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
       common /lcases/ lcase
       common/obarai/
@@ -705,10 +715,15 @@ c because first-derivatives are needed in the shifting procedure for
 c second-der. That's why dimension for buf2(ndim,*,*,*,*) has ndim=4
 c for first- and ndim=10 for second-derivatives.
 c
-      common /logic4/ nfu(1)
-      common /logic9/ nia(3,1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
+      integer lpar1,lpar2,lpar3,lpar4,lpar5
+      parameter(lpar1=34,lpar2=6545,lpar3=4060,lpar4=10,lpar5=33)
+      common /logic1/ ndege(lpar4)
+      common /logic2/ len(lpar4)
+      common /logic3/ lensm(lpar5)
+      common /logic4/ nfu(lpar1)
+      common /logic9/ nia(3,lpar2)
+      common /logic10/ nmxyz(3,lpar2)
+      common /logic11/ npxyz(3,lpar3)
 c
 cccc  dimension buf2(4,nbls,lnijr,lnklr,ngcd) OR buf2(10,etc.)
 c2002 dimension buf2(ndim,nbls,lnijr,lnklr,ngcd)
@@ -862,7 +877,9 @@ c
 c
       implicit real*8 (a-h,o-z)
 c
-      common /logic4/ nfu(1)
+      integer lpar1
+      parameter(lpar1=34)
+      common /logic4/ nfu(lpar1)
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
       common /lcases/ lcase
       common/obarai/
@@ -1131,10 +1148,15 @@ c=================================================================
      *                     nqij,nqkl,der2,xab)
       implicit real*8 (a-h,o-z)
 c
-      common /logic4/ nfu(1)
-      common /logic9/ nia(3,1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
+      integer lpar1,lpar2,lpar3,lpar4,lpar5
+      parameter(lpar1=34,lpar2=6545,lpar3=4060,lpar4=10,lpar5=33)
+      common /logic1/ ndege(lpar4)
+      common /logic2/ len(lpar4)
+      common /logic3/ lensm(lpar5)
+      common /logic4/ nfu(lpar1)
+      common /logic9/ nia(3,lpar2)
+      common /logic10/ nmxyz(3,lpar2)
+      common /logic11/ npxyz(3,lpar3)
 c
 c2002 dimension buf2(10,nbls,lnijr,lnklr,ngcd)
       dimension buf2(nbls,lnijr,lnklr,ngcd,10)
@@ -1386,10 +1408,15 @@ c=================================================================
      *                    nqij,nqkl,
      *                    nder_aa,der2)
       implicit real*8 (a-h,o-z)
-      common /logic4/ nfu(1)
-      common /logic9/ nia(3,1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
+      integer lpar1,lpar2,lpar3,lpar4,lpar5
+      parameter(lpar1=34,lpar2=6545,lpar3=4060,lpar4=10,lpar5=33)
+      common /logic1/ ndege(lpar4)
+      common /logic2/ len(lpar4)
+      common /logic3/ lensm(lpar5)
+      common /logic4/ nfu(lpar1)
+      common /logic9/ nia(3,lpar2)
+      common /logic10/ nmxyz(3,lpar2)
+      common /logic11/ npxyz(3,lpar3)
 c
       dimension buf2(nbls,lnijr,lnklr,ngcd,10)
       dimension der2(45,nbls,lnij,lnkl,ngcd)
@@ -1462,10 +1489,15 @@ c=================================================================
      *                    nqij,nqkl,
      *                    nder_cc,der2)
       implicit real*8 (a-h,o-z)
-      common /logic4/ nfu(1)
-      common /logic9/ nia(3,1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
+      integer lpar1,lpar2,lpar3,lpar4,lpar5
+      parameter(lpar1=34,lpar2=6545,lpar3=4060,lpar4=10,lpar5=33)
+      common /logic1/ ndege(lpar4)
+      common /logic2/ len(lpar4)
+      common /logic3/ lensm(lpar5)
+      common /logic4/ nfu(lpar1)
+      common /logic9/ nia(3,lpar2)
+      common /logic10/ nmxyz(3,lpar2)
+      common /logic11/ npxyz(3,lpar3)
 c
 c2002 dimension buf2(10,nbls,lnijr,lnklr,ngcd)
       dimension buf2(nbls,lnijr,lnklr,ngcd,10)
@@ -1533,10 +1565,15 @@ c=================================================================
      *                    nqij,nqkl,
      *                    nder_bb,der2,xab)
       implicit real*8 (a-h,o-z)
-      common /logic4/ nfu(1)
-      common /logic9/ nia(3,1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
+      integer lpar1,lpar2,lpar3,lpar4,lpar5
+      parameter(lpar1=34,lpar2=6545,lpar3=4060,lpar4=10,lpar5=33)
+      common /logic1/ ndege(lpar4)
+      common /logic2/ len(lpar4)
+      common /logic3/ lensm(lpar5)
+      common /logic4/ nfu(lpar1)
+      common /logic9/ nia(3,lpar2)
+      common /logic10/ nmxyz(3,lpar2)
+      common /logic11/ npxyz(3,lpar3)
 c
 c2002 dimension buf2(10,nbls,lnijr,lnklr,ngcd)
       dimension buf2(nbls,lnijr,lnklr,ngcd,10)
@@ -1592,10 +1629,15 @@ c=================================================================
      *                    nqij,nqkl,
      *                    nder_ab,der2,xab)
       implicit real*8 (a-h,o-z)
-      common /logic4/ nfu(1)
-      common /logic9/ nia(3,1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
+      integer lpar1,lpar2,lpar3,lpar4,lpar5
+      parameter(lpar1=34,lpar2=6545,lpar3=4060,lpar4=10,lpar5=33)
+      common /logic1/ ndege(lpar4)
+      common /logic2/ len(lpar4)
+      common /logic3/ lensm(lpar5)
+      common /logic4/ nfu(lpar1)
+      common /logic9/ nia(3,lpar2)
+      common /logic10/ nmxyz(3,lpar2)
+      common /logic11/ npxyz(3,lpar3)
 c
 c2002 dimension buf2(10,nbls,lnijr,lnklr,ngcd)
       dimension buf2(nbls,lnijr,lnklr,ngcd,10)
@@ -1668,10 +1710,15 @@ c=================================================================
      *                    nqij,nqkl,
      *                    nder_ac,der2)
       implicit real*8 (a-h,o-z)
-      common /logic4/ nfu(1)
-      common /logic9/ nia(3,1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
+      integer lpar1,lpar2,lpar3,lpar4,lpar5
+      parameter(lpar1=34,lpar2=6545,lpar3=4060,lpar4=10,lpar5=33)
+      common /logic1/ ndege(lpar4)
+      common /logic2/ len(lpar4)
+      common /logic3/ lensm(lpar5)
+      common /logic4/ nfu(lpar1)
+      common /logic9/ nia(3,lpar2)
+      common /logic10/ nmxyz(3,lpar2)
+      common /logic11/ npxyz(3,lpar3)
 c
 c2002 dimension buf2(10,nbls,lnijr,lnklr,ngcd)
       dimension buf2(nbls,lnijr,lnklr,ngcd,10)
@@ -1742,10 +1789,15 @@ c=================================================================
      *                    nqij,nqkl,
      *                    nder_bc,der2,xab)
       implicit real*8 (a-h,o-z)
-      common /logic4/ nfu(1)
-      common /logic9/ nia(3,1)
-      common /logic10/ nmxyz(3,1)
-      common /logic11/ npxyz(3,1)
+      integer lpar1,lpar2,lpar3,lpar4,lpar5
+      parameter(lpar1=34,lpar2=6545,lpar3=4060,lpar4=10,lpar5=33)
+      common /logic1/ ndege(lpar4)
+      common /logic2/ len(lpar4)
+      common /logic3/ lensm(lpar5)
+      common /logic4/ nfu(lpar1)
+      common /logic9/ nia(3,lpar2)
+      common /logic10/ nmxyz(3,lpar2)
+      common /logic11/ npxyz(3,lpar3)
 c
 c2002 dimension buf2(10,nbls,lnijr,lnklr,ngcd)
       dimension buf2(nbls,lnijr,lnklr,ngcd,10)

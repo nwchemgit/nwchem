@@ -388,7 +388,15 @@ c===============================================================
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
      * nqi,nqj,nqk,nql,nsij,nskl,
      * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbeg,klbeg
-      common /logic4/ nfu(1)
+      integer lpar1,lpar2,lpar3,lpar4,lpar5
+      parameter(lpar1=34,lpar2=6545,lpar3=4060,lpar4=10,lpar5=33)
+      common /logic1/ ndege(lpar4)
+      common /logic2/ len(lpar4)
+      common /logic3/ lensm(lpar5)
+      common /logic4/ nfu(lpar1)
+      common /logic9/ nia(3,lpar2)
+      common /logic10/ nmxyz(3,lpar2)
+      common /logic11/ npxyz(3,lpar3)
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
       dimension buf2(nbls,lt1,lt2,ngcd)
@@ -466,7 +474,15 @@ c
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
 c
-      common /logic4/ nfu(1)
+      integer lpar1,lpar2,lpar3,lpar4,lpar5
+      parameter(lpar1=34,lpar2=6545,lpar3=4060,lpar4=10,lpar5=33)
+      common /logic1/ ndege(lpar4)
+      common /logic2/ len(lpar4)
+      common /logic3/ lensm(lpar5)
+      common /logic4/ nfu(lpar1)
+      common /logic9/ nia(3,lpar2)
+      common /logic10/ nmxyz(3,lpar2)
+      common /logic11/ npxyz(3,lpar3)
 c
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
@@ -579,7 +595,15 @@ c
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
      * nqi,nqj,nqk,nql,nsij,nskl,
      * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbeg,klbeg
-      common /logic4/ nfu(1)
+      integer lpar1,lpar2,lpar3,lpar4,lpar5
+      parameter(lpar1=34,lpar2=6545,lpar3=4060,lpar4=10,lpar5=33)
+      common /logic1/ ndege(lpar4)
+      common /logic2/ len(lpar4)
+      common /logic3/ lensm(lpar5)
+      common /logic4/ nfu(lpar1)
+      common /logic9/ nia(3,lpar2)
+      common /logic10/ nmxyz(3,lpar2)
+      common /logic11/ npxyz(3,lpar3)
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
       dimension gcoef(nbls,ngcd)

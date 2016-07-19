@@ -5,7 +5,12 @@ c--------------------------------------------------------------------
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
       common /lengt/ ilen,jlen,klen,llen, ilen1,jlen1,klen1,llen1
       common /gcont/ ngci1,ngcj1,ngck1,ngcl1,ngcd
-      common /logic2/ len(1)
+      integer lpar1,lpar4,lpar5
+      parameter(lpar1=34,lpar4=10,lpar5=33)
+      common /logic1/ ndege(lpar4)
+      common /logic2/ len(lpar4)
+      common /logic3/ lensm(lpar5)
+      common /logic4/ nfu(lpar1)
       dimension inx(12,*)
 c
 c This subroutine sets up TYPE and LENGTH of shells and
@@ -93,10 +98,12 @@ ctest
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
 C
-      common /logic1/ ndege(1)
-      common /logic2/ len(1)
-      common /logic3/ lensm(1)
-      common /logic4/ nfu(1)
+      integer lpar1,lpar4,lpar5
+      parameter(lpar1=34,lpar4=10,lpar5=33)
+      common /logic1/ ndege(lpar4)
+      common /logic2/ len(lpar4)
+      common /logic3/ lensm(lpar5)
+      common /logic4/ nfu(lpar1)
 c
       COMMON/SHELL/LSHELLT,LSHELIJ,LSHELKL,LHELP,LCAS2(4),LCAS3(4)
       common /lcases/ lcase
@@ -237,7 +244,15 @@ c     common /derivat/ ijderiv,klderiv
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
-      common /logic3/ lensm(1)
+      integer lpar1,lpar2,lpar3,lpar4,lpar5
+      parameter(lpar1=34,lpar2=6545,lpar3=4060,lpar4=10,lpar5=33)
+      common /logic1/ ndege(lpar4)
+      common /logic2/ len(lpar4)
+      common /logic3/ lensm(lpar5)
+      common /logic4/ nfu(lpar1)
+      common /logic9/ nia(3,lpar2)
+      common /logic10/ nmxyz(3,lpar2)
+      common /logic11/ npxyz(3,lpar3)
 c
 C************************************************************
 c
