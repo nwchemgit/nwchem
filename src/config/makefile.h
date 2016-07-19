@@ -1594,6 +1594,7 @@ endif
         GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
         GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
         endif
+        GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
         ifeq ($(GNU_GE_4_6),true)
           DEFINES  += -DGCC46
         endif
@@ -1988,6 +1989,10 @@ $(error )
 	    LINK.f = $(FC)  $(LDFLAGS) 
         FOPTIMIZE  += -O3 
         FOPTIMIZE  += -mfpmath=sse # 
+        ifeq ($(GNU_GE_6),true)
+         FOPTIMIZE += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
+        endif
+
         ifndef USE_FPE
         FOPTIMIZE  += -ffast-math #2nd time
         endif
