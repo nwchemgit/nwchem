@@ -14,10 +14,10 @@ c
       parameter(rad=57.295779513082343d0)
 
 
-      logical bset,lset,nset
+      logical bset,lset,nset,nset_small
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 18)
+      parameter (num_dirs = 19)
       character*22 dirs(num_dirs)
       character*255 test
 
@@ -36,7 +36,7 @@ c
       parameter (ntokens=7)
       character*10 tokens(ntokens)
 
-      integer ngrid(3),l
+      integer ngrid(3),ngrid_small(3),l
       data dirs / 'cell_name:',
      >            'boundry_conditions:',
      >            'lattice_vectors:',
@@ -54,6 +54,7 @@ c
      >            'box_delta',
      >            'box_orient',
      >            'box_different_lengths',
+     >            'ngrid_small',
      >            'end'/
 
       data tokens /'lat_a', 'lat_b', 'lat_c',
@@ -88,6 +89,7 @@ c     **** intialize stuff ****
       b1set = .false.
       b2set = .false.
       b3set = .false.
+      nset_small = .false.
 c
 c
 c
@@ -108,7 +110,7 @@ c
      >       100,  200, 300, 400,
      >       200,  200,
      >       600, 700, 800, 
-     >       1000, 1100, 1200,
+     >       1000, 1100, 1200, 1300,
      >      9999) ind
       call errquit(
      >      'simulation_cell_input: unimplemented directive', ind,
@@ -347,6 +349,23 @@ c
       b3set = .true.
       goto 10
 
+c
+c  ngrid_small
+c
+ 1300 if (.not. inp_i(ngrid_small(1)))
+     >     call errquit(
+     >          'simulation_cell_input: failed to read ngrid_small', 0,
+     &       INPUT_ERR)
+      if (.not. inp_i(ngrid_small(2)))
+     >     call errquit(
+     >          'simulation_cell_input: failed to read ngrid_small', 0,
+     &       INPUT_ERR)
+      if (.not. inp_i(ngrid_small(3)))
+     >     call errquit(
+     >          'simulation_cell_input: failed to read ngrid_small', 0,
+     &       INPUT_ERR)
+      nset_small = .true.
+      goto 10
 
 
 
@@ -392,6 +411,14 @@ c
       if (.not. rtdb_put(rtdb,rtdb_name,mt_int,3,ngrid))
      >     call errquit(
      >     'simulation_cell_input: rtdb_put(ngrid) failed', 0,
+     &       INPUT_ERR)
+      end if
+
+      if (nset_small) then
+      rtdb_name = name(1:l)//':ngrid_small'
+      if (.not. rtdb_put(rtdb,rtdb_name,mt_int,3,ngrid_small))
+     >     call errquit(
+     >     'simulation_cell_input: rtdb_put(ngrid_small) failed', 0,
      &       INPUT_ERR)
       end if
 
