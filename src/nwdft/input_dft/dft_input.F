@@ -403,7 +403,7 @@ c
       if (.not.rtdb_put(rtdb, 'dft:smear_sigma',mt_dbl,1,smear_sigma))
      &   call errquit('dft_input: rtdb_put failed', 2200, RTDB_ERR)
 c
-      if (.not. inp_a(test)) test = 'nofixsz'
+      if (.not. inp_a(test)) test = 'fixsz'
       if (inp_compare(.false.,test,'nofixsz')) then
 c       this is a valid subdirective
       else if (inp_compare(.false.,test,'fixsz')) then
