@@ -591,6 +591,64 @@ c     >            work1,work2)
       return
       end
 
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         DMatrix_sqr_trace       *
+*     *                                 *
+*     ***********************************
+      double precision function DMatrix_sqr_trace(n,
+     >                           Q,ldq,mq,nq,
+     >                           taskid_i,taskid_j)
+      implicit none
+      integer n
+      integer ldq,mq(*),nq(*)
+      real*8  Q(ldq,*)
+      integer taskid_i,taskid_j
+
+*     **** local variables ****
+      integer i,j,ii,jj
+      integer icur,jcur
+      double precision sum
+
+      sum = 0.0d0
+      jj   = 1
+      jcur = 0
+      do j=1,n
+         ii   = 1
+         icur = 0
+         do i=1,n
+
+            if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
+                  sum = sum + Q(ii,jj)**2
+            end if
+
+            ii = ii + 1
+            if (ii.gt.mq(icur+1)) then
+              icur = icur + 1
+              ii   = 1
+            end if
+         end do
+
+        jj = jj + 1
+         if (jj.gt.nq(jcur+1)) then
+           jcur = jcur + 1
+           jj   = 1
+         end if
+      end do
+
+      call DMatrix_SumAll(sum)
+      DMatrix_sqr_trace = sum
+      return
+      end
+
+
+
+
+
+
 *     ***********************************
 *     *                                 *
 *     *         DMatrix_m_ijtoiijjp     *
