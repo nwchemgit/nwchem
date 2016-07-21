@@ -325,7 +325,10 @@ c
       real*8  uv,vv,ss
       integer taskid_i,i,k,np_j
       integer v0(2)
-      
+
+*     **** external functions ****
+      real*8   ddot
+      external ddot
 
       call Parallel2d_np_j(np_j)
       call Parallel2d_taskid_i(taskid_i)
@@ -337,33 +340,44 @@ c
 
 c     **** collect the vector across tasks ****
       if (taskid_i.eq.taskid_i0) then
+!$OMP DO private(i)
          do i=1,nn
             dbl_mb(v0(1)+i-1) = psi_r(k0,i)
          end do
+!$OMP END DO
       end if
       call D3dB_Vector_SumAll(nn,dbl_mb(v0(1)))
       vv = 0.0d0
       do i=1,nn
          vv = vv + dbl_mb(v0(1)+i-1)**2
       end do
+!$OMP MASTER
+      !vv = ddot(nn,dbl_mb(v0(1)),1,dbl_mb(v0(1)),1)
       if (np_j.gt.1) call D1dB_SumAll(vv)
       if (vv.gt.1.0d-11) then
          ss = 1.0d0/vv
       else
          ss = 0.0d0
       end if
+!$OMP END MASTER
+!$OMP BARRIER
 
 c     **** project out vector ****
+!$OMP DO private(k)
       do k=1,n2ft3d
          uv = 0.0d0
          do i=1,nn
             uv = uv + psi_r(k,i)*dbl_mb(v0(1)+i-1)
          end do
+         !uv = ddot(nn,psi_r(k,1),n2ft3d,dbl_mb(v0(1)),1)
+
          if (np_j.gt.1) call D1dB_SumAll(uv)
          do i=1,nn
             psi_r(k,i) = psi_r(k,i) - ss*uv*dbl_mb(v0(1)+i-1)
          end do
+         !call daxpy(nn,(-ss*uv),dbl_mb(v0(1)),1,psi_r(k,1),n2ft3d)
       end do
+!$OMP END DO
       !do i=1,nn
       !   call D3dB_r_Zero_Ends(1,psi_r(1,i))
       !end do

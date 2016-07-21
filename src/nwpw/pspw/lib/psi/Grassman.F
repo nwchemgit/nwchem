@@ -10,7 +10,7 @@
 * queue FFT added to HFX and more rigid msgtyping added to queueFFT
 * ....EJB
 *
-* Revision 1.17  2006/10/07 00:10:07  bylaska
+* Revision 1.17  2006/10/07 00:30:07  bylaska
 * Initial implementation of 2d processor grid parallelization in pspw.  Currently works with:
 *
 * task pspw steepest_descent
@@ -802,8 +802,8 @@ c       call D3dB_cc_idot(1,A(1,j),B(1,k),sum)
       real*8 sum
 
 *     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
       common / pack_blk / pack,nida,nidb
 
 
@@ -847,8 +847,8 @@ c        MM = MM + sum
       real*8 sum
 
 *     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
       common / pack_blk / pack,nida,nidb
 
 
