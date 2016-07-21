@@ -42,7 +42,7 @@
 
       !character*30 cell_name
       character*50 rtdb_unita,rtdb_unitaf,rtdb_ngrid,rtdb_boundry
-      character*50 exchange_correlation
+      character*50 exchange_correlation,rtdb_ngrid_small
       integer i,l,np
 !      integer ind ! unused
 
@@ -1081,6 +1081,7 @@ c         return
       rtdb_unitaf = cell_name(1:l)//':unita_frozen'
       rtdb_ngrid = cell_name(1:l)//':ngrid'
       rtdb_boundry = cell_name(1:l)//':boundry'
+      rtdb_ngrid_small = cell_name(1:l)//':ngrid_small'
 
            
 *     **** define unita and boundary ****
@@ -1147,6 +1148,15 @@ c         return
          !ngrid(2) = 32
          !ngrid(3) = 32
       end if
+
+
+*     **** define ngrid_small ****
+      has_ngrid_small = .false.
+      ngrid_small(1) = 0
+      ngrid_small(2) = 0
+      ngrid_small(3) = 0
+      if (btdb_get(rtdb,rtdb_ngrid_small,mt_int,3,ngrid_small))
+     >   has_ngrid_small = .true.
 
 
 *     **** set fractional (smearing) parameters ****
@@ -1862,6 +1872,34 @@ c         mtensor(3,3) = z
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *         control_ngrid_small     *
+*     *                                 *
+*     ***********************************
+      integer function control_ngrid_small(ijk)
+      implicit none
+      integer ijk
+
+#include "control.fh"
+
+      control_ngrid_small = ngrid_small(ijk)
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *     control_has_ngrid_small     *
+*     *                                 *
+*     ***********************************
+      logical function control_has_ngrid_small()
+      implicit none
+
+#include "control.fh"
+
+      control_has_ngrid_small = has_ngrid_small
+      return
+      end
 
 
 *     ***********************************

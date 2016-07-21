@@ -73,3 +73,9 @@
       logical has_disp,is_grimme2
       character*80 options_disp
       common / control_dispersion / options_disp,has_disp,is_grimme2
+
+*     **** control fact small block ****
+      logical has_ngrid_small
+      integer ngrid_small(3)
+      common /control_smallblock/ ngrid_small,has_ngrid_small
+
