@@ -125,13 +125,16 @@ c
 c
 c     fon
 c
-        if(fon.and.nocinit.eq.1) then
-           anoc(1)=ncore_fon(1)+nel_fon(1)
-           anoc(2)=ncore_fon(2)+nel_fon(2)
-           nocinit=0
-        else
-           anoc(1)=noc(1)
-           anoc(2)=noc(2)
+        if(nocinit.eq.1) then
+           if(fon) then
+              anoc(1)=ncore_fon(1)+nel_fon(1)
+              anoc(2)=ncore_fon(2)+nel_fon(2)
+              nocinit=0
+           else
+              anoc(1)=noc(1)
+              anoc(2)=noc(2)
+              nocinit=1
+           endif
         endif
         new_ntotel=rhfuhf*(anoc(1)+anoc(2))
 c       
