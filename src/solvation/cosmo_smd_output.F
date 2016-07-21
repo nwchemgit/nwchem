@@ -21,7 +21,7 @@ c
            if (dabs(egas).gt.0.d0) then
                 write(luout,912) egas
                 write(luout,913) esol
-                write(luout,914) (egas-esol),(egas-esol)*au2kcal
+                write(luout,914) (egas-esol),(egas-esol)*cau2kcal
            else
                 write(luout,915)
                 write(luout,913) esol
@@ -34,18 +34,18 @@ c
              write(luout,820) egas
              write(luout,821) (gstote-gspol)
              write(luout,822) (gstote-gspol-egas),
-     $                   (gstote-gspol-egas)*au2kcal
+     $                   (gstote-gspol-egas)*cau2kcal
              write(luout,823) gstote
-             write(luout,824) gspol,gspol*au2kcal
+             write(luout,824) gspol,gspol*cau2kcal
              write(luout,825) esol
-             write(luout,826) gcds,gcds*au2kcal
-             write(luout,827) (esol-egas),(esol-egas)*au2kcal
+             write(luout,826) gcds,gcds*cau2kcal
+             write(luout,827) (esol-egas),(esol-egas)*cau2kcal
            else
              write(luout,821) (gstote-gspol)
              write(luout,823) gstote
-             write(luout,824) gspol,gspol*au2kcal
+             write(luout,824) gspol,gspol*cau2kcal
              write(luout,825) esol
-             write(luout,826) gcds,gcds*au2kcal
+             write(luout,826) gcds,gcds*cau2kcal
            endif
         endif
 c
