@@ -1094,7 +1094,7 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
      >             B(1+(k-1)*npack),npack2,
      >             1.0d0,
      >             matrix(1,k,2),k)
-        call DGEMM('T','N',k,1,2*nida(nb),
+        call DGEMM_OMP('T','N',k,1,2*nida(nb),
      >             -1.0d0,
      >             B,npack2,
      >             B(1+(k-1)*npack),npack2,
