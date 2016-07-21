@@ -3,8 +3,9 @@
 #
    OBJ = mnsol_mem.o\
          mnsol_interface.o\
-         mnsol.o \
-         solv_data.o
+         mnsol.o\
+         solv_data.o\
+         cosmo_smd_output.o
 
    OBJ_OPTIMIZE = cosmo_input.o \
          cosmo_initialize.o\
