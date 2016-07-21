@@ -6,6 +6,8 @@
       integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
       common    / D3dB / nq,nx,ny,nz
 
+      integer nblock_max
+      common    / D3dB_nblock_max / nblock_max
 
       integer nfft3d(NBLOCKS),n2ft3d(NBLOCKS)
       integer nfft3d_map(NBLOCKS),n2ft3d_map(NBLOCKS)

@@ -1,4 +1,4 @@
-#define NBLOCKS 2
+#define NBLOCKS 3
 
 *
 * $Id$
@@ -1082,11 +1082,11 @@ c     implicit none
 #endif
 
 *     **** indexing variables ****
-      integer iq_to_i1(2,0:1)
-      integer iq_to_i2(2,0:1)
-      integer iz_to_i2(2,0:1)
-      integer i1_start(2,0:1)
-      integer i2_start(2,0:1)
+      integer iq_to_i1(2,0:3)
+      integer iq_to_i2(2,0:3)
+      integer iz_to_i2(2,0:3)
+      integer i1_start(2,0:3)
+      integer i2_start(2,0:3)
       common / ptrans_blk1 / iq_to_i1,iq_to_i2,iz_to_i2,
      >                       i1_start,i2_start
 
@@ -1101,12 +1101,18 @@ c     integer msgid
 c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       integer request(2),reqcnt
       integer taskid,np
-      integer mpierr,n1,n2
+      integer mpierr,n1,n2,id
 
 *     **** external functions ****
       integer  Parallel2d_convert_taskid_i,Parallel_comm_world
       external Parallel2d_convert_taskid_i,Parallel_comm_world
       
+      !id = 2*(nbb/2) + 1
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
 
@@ -1201,7 +1207,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
 *     **** unpack A(i) array ****
       call D3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
-      call D3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,nbb)),A)
+      call D3dB_pfft_index2_zero(nfft3d(id)-n2,
+     >                           int_mb(iz_to_i2(1,nbb)),A)
       
 
       !*** deallocate memory ***
@@ -1251,11 +1258,11 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
 
 *     **** indexing variables ****
-      integer iq_to_i1(2,0:1)
-      integer iq_to_i2(2,0:1)
-      integer iz_to_i2(2,0:1)
-      integer i1_start(2,0:1)
-      integer i2_start(2,0:1)
+      integer iq_to_i1(2,0:3)
+      integer iq_to_i2(2,0:3)
+      integer iz_to_i2(2,0:3)
+      integer i1_start(2,0:3)
+      integer i2_start(2,0:3)
       common / ptrans_blk2 / iq_to_i1,iq_to_i2,iz_to_i2,
      >                       i1_start,i2_start
 
@@ -1267,12 +1274,18 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       integer msglen
       integer request(2),reqcnt
       integer taskid,np
-      integer mpierr,n1,n2
+      integer mpierr,n1,n2,id
 
 c     **** external functions ****
       integer  Parallel2d_convert_taskid_i,Parallel_comm_world
       external Parallel2d_convert_taskid_i,Parallel_comm_world
       
+      !id = 2*(nbb/2)+1
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
 
@@ -1366,7 +1379,8 @@ c     **** external functions ****
 
 *     **** unpack A(i) array ****
       call D3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
-      call D3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,nbb)),A)
+      call D3dB_pfft_index2_zero(nfft3d(id)-n2,
+     >                           int_mb(iz_to_i2(1,nbb)),A)
       
 
       !*** deallocate memory ***
@@ -1416,12 +1430,12 @@ c     **** external functions ****
 
 
 *     **** indexing variables ****
-      integer h_iq_to_i1(2,6,0:1)
-      integer h_iq_to_i2(2,6,0:1)
-      integer h_iz_to_i2(2,6,0:1)
-      integer h_iz_to_i2_count(6,0:1)
-      integer h_i1_start(2,6,0:1)
-      integer h_i2_start(2,6,0:1)
+      integer h_iq_to_i1(2,6,0:3)
+      integer h_iq_to_i2(2,6,0:3)
+      integer h_iz_to_i2(2,6,0:3)
+      integer h_iz_to_i2_count(6,0:3)
+      integer h_i1_start(2,6,0:3)
+      integer h_i2_start(2,6,0:3)
       common / ptrans_blk_ijk / h_iq_to_i1,
      >                         h_iq_to_i2,
      >                         h_iz_to_i2,
@@ -1857,11 +1871,11 @@ c            send data....
 
 
 *     **** indexing variables ****
-      integer iq_to_i1(2,0:1)
-      integer iq_to_i2(2,0:1)
-      integer iz_to_i2(2,0:1)
-      integer i1_start(2,0:1)
-      integer i2_start(2,0:1)
+      integer iq_to_i1(2,0:3)
+      integer iq_to_i2(2,0:3)
+      integer iz_to_i2(2,0:3)
+      integer i1_start(2,0:3)
+      integer i2_start(2,0:3)
       common / ptrans_blk1 / iq_to_i1,iq_to_i2,iz_to_i2,
      >                       i1_start,i2_start
 
@@ -1997,16 +2011,23 @@ c         msgtype   = 1
 
 
 *     **** indexing variables ****
-      integer iq_to_i1(2,0:1)
-      integer iq_to_i2(2,0:1)
-      integer iz_to_i2(2,0:1)
-      integer i1_start(2,0:1)
-      integer i2_start(2,0:1)
+      integer iq_to_i1(2,0:3)
+      integer iq_to_i2(2,0:3)
+      integer iz_to_i2(2,0:3)
+      integer i1_start(2,0:3)
+      integer i2_start(2,0:3)
       common / ptrans_blk1 / iq_to_i1,iq_to_i2,iz_to_i2,
      >                       i1_start,i2_start
 
 *     **** local variables ***
-      integer np,n2
+      integer np,n2,id
+
+      !id=2*(nbb/2)+1
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
       
       call Parallel2d_np_i(np)
       if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,request)
@@ -2014,7 +2035,8 @@ c         msgtype   = 1
 *     **** unpack A(i) array ****
       n2 = int_mb(i2_start(1,nbb)+np) - 1
       call D3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
-      call D3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,nbb)),A)
+      call D3dB_pfft_index2_zero(nfft3d(id)-n2,
+     >                           int_mb(iz_to_i2(1,nbb)),A)
       return
       end
 
@@ -2059,11 +2081,11 @@ c         msgtype   = 1
 #endif
 
 *     **** indexing variables ****
-      integer iq_to_i1(2,0:1)
-      integer iq_to_i2(2,0:1)
-      integer iz_to_i2(2,0:1)
-      integer i1_start(2,0:1)
-      integer i2_start(2,0:1)
+      integer iq_to_i1(2,0:3)
+      integer iq_to_i2(2,0:3)
+      integer iz_to_i2(2,0:3)
+      integer i1_start(2,0:3)
+      integer i2_start(2,0:3)
       common / ptrans_blk2 / iq_to_i1,iq_to_i2,iz_to_i2,
      >                       i1_start,i2_start
 
@@ -2200,11 +2222,11 @@ c         msgtype   = 1
 #include "D3dB.fh"
 
 *     **** indexing variables ****
-      integer iq_to_i1(2,0:1)
-      integer iq_to_i2(2,0:1)
-      integer iz_to_i2(2,0:1)
-      integer i1_start(2,0:1)
-      integer i2_start(2,0:1)
+      integer iq_to_i1(2,0:3)
+      integer iq_to_i2(2,0:3)
+      integer iz_to_i2(2,0:3)
+      integer i1_start(2,0:3)
+      integer i2_start(2,0:3)
       common / ptrans_blk2 / iq_to_i1,iq_to_i2,iz_to_i2,
      >                       i1_start,i2_start
 
@@ -2212,15 +2234,22 @@ c         msgtype   = 1
 *     **** local variables ***
       logical value
       integer status(2),request2(2)
-      integer np,n2
-      
+      integer np,n2,id
+
+      !id=2*(nbb/2)+1      
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
       call Parallel2d_np_i(np)
       if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,request)
 
 *     **** unpack A(i) array ****
       n2 = int_mb(i2_start(1,nbb)+np) - 1
       call D3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
-      call D3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,nbb)),A)
+      call D3dB_pfft_index2_zero(nfft3d(id)-n2,
+     >                           int_mb(iz_to_i2(1,nbb)),A)
       return
       end
 
@@ -2264,12 +2293,12 @@ c         msgtype   = 1
 
 
 *     **** indexing variables ****
-      integer h_iq_to_i1(2,6,0:1)
-      integer h_iq_to_i2(2,6,0:1)
-      integer h_iz_to_i2(2,6,0:1)
-      integer h_iz_to_i2_count(6,0:1)
-      integer h_i1_start(2,6,0:1)
-      integer h_i2_start(2,6,0:1)
+      integer h_iq_to_i1(2,6,0:3)
+      integer h_iq_to_i2(2,6,0:3)
+      integer h_iz_to_i2(2,6,0:3)
+      integer h_iz_to_i2_count(6,0:3)
+      integer h_i1_start(2,6,0:3)
+      integer h_i2_start(2,6,0:3)
       common / ptrans_blk_ijk / h_iq_to_i1,
      >                         h_iq_to_i2,
      >                         h_iz_to_i2,
@@ -2418,12 +2447,12 @@ c         msgtype   = 1
 #include "D3dB.fh"
 
 *     **** indexing variables ****
-      integer h_iq_to_i1(2,6,0:1)
-      integer h_iq_to_i2(2,6,0:1)
-      integer h_iz_to_i2(2,6,0:1)
-      integer h_iz_to_i2_count(6,0:1)
-      integer h_i1_start(2,6,0:1)
-      integer h_i2_start(2,6,0:1)
+      integer h_iq_to_i1(2,6,0:3)
+      integer h_iq_to_i2(2,6,0:3)
+      integer h_iz_to_i2(2,6,0:3)
+      integer h_iz_to_i2_count(6,0:3)
+      integer h_i1_start(2,6,0:3)
+      integer h_i2_start(2,6,0:3)
       common / ptrans_blk_ijk / h_iq_to_i1,
      >                         h_iq_to_i2,
      >                         h_iz_to_i2,

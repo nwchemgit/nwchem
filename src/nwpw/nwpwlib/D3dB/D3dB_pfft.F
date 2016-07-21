@@ -1,5 +1,5 @@
 
-#define NBLOCKS 2
+#define NBLOCKS 3
 
 *
 * $Id$
@@ -36,19 +36,23 @@
       double precision eps
       parameter (eps=1d-12)
 
-      logical value,yrow,zrow,yzslab
+      logical value,yrow,zrow,yzslab,has_small
       integer nxh,nyh,nzh,q,p
       integer k1,k2,k3,ii,nb
-      integer i,j,k
+      integer i,j,k,id,nbmax
       integer index,index2
-      double precision ggcut,g1,g2,g3,gg
+      double precision ggcut,g1,g2,g3,gg,unitg(3,3)
       integer zero_arow2(2),zero_arow3(2)
 
 *     **** external functions ***
       integer  control_pfft3_qsize
       real*8   lattice_ggcut,lattice_wggcut,lattice_unitg
+      real*8   lattice_unitg_small
       external control_pfft3_qsize
       external lattice_ggcut,lattice_wggcut,lattice_unitg
+      external lattice_unitg_small
+      logical  lattice_has_small
+      external lattice_has_small
 
 
 
@@ -57,8 +61,12 @@
       nyh = ny(1)/2
       nzh = nz(1)/2
 
+      has_small = lattice_has_small()
+
       if (mapping.eq.1) then
-         
+         nxh = nx(1)/2
+         nyh = ny(1)/2
+         nzh = nz(1)/2
          value =           BA_alloc_get(mt_log,(nxh+1)*nq(1),
      >                     'zero_row3',zero_row3(2,0),zero_row3(1,0))
          value = value.and.BA_alloc_get(mt_log,(nxh+1)*nq(1),
@@ -75,26 +83,83 @@
      >               'zero_slab23',zero_slab23(2,1),zero_slab23(1,1))
          if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
+
          value = value.and.BA_push_get(mt_log,(nxh+1)*ny(1),
      >                     'zero_arow3',zero_arow3(2),zero_arow3(1))
          if (.not. value) call errquit('out of stack memory',0,MA_ERR)
 
 
-         do nb=0,1
 
+         if (has_small) then
+         nxh = nx(3)/2
+         nyh = ny(3)/2
+         nzh = nz(3)/2
+         value = value.and.BA_alloc_get(mt_log,(nxh+1)*nq(3),
+     >                     'zero_row3',zero_row3(2,2),zero_row3(1,2))
+         value = value.and.BA_alloc_get(mt_log,(nxh+1)*nq(3),
+     >                     'zero_row3',zero_row3(2,3),zero_row3(1,3))
 
+         value = value.and.BA_alloc_get(mt_log,(nxh+1)*nq(3),
+     >                     'zero_row2',zero_row2(2,2),zero_row2(1,2))
+         value = value.and.BA_alloc_get(mt_log,(nxh+1)*nq(3),
+     >                     'zero_row2',zero_row2(2,3),zero_row2(1,3))
 
-         if (nb.eq.0) then
+         value = value.and.BA_alloc_get(mt_log,(nxh+1),
+     >               'zero_slab23',zero_slab23(2,2),zero_slab23(1,2))
+         value = value.and.BA_alloc_get(mt_log,(nxh+1),
+     >               'zero_slab23',zero_slab23(2,3),zero_slab23(1,3))
+         if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+         end if
+
+         if (has_small) then
+            nbmax = 3
+         else
+            nbmax = 1
+         end if
+
+         do nb=0,nbmax
+
+         if (nb.lt.2) then
+            id = 1
+            nxh = nx(1)/2
+            nyh = ny(1)/2
+            nzh = nz(1)/2
+            unitg(1,1) = lattice_unitg(1,1)
+            unitg(2,1) = lattice_unitg(2,1)
+            unitg(3,1) = lattice_unitg(3,1)
+            unitg(1,2) = lattice_unitg(1,2)
+            unitg(2,2) = lattice_unitg(2,2)
+            unitg(3,2) = lattice_unitg(3,2)
+            unitg(1,3) = lattice_unitg(1,3)
+            unitg(2,3) = lattice_unitg(2,3)
+            unitg(3,3) = lattice_unitg(3,3)
+         else
+            id = 3
+            nxh = nx(3)/2
+            nyh = ny(3)/2
+            nzh = nz(3)/2
+            unitg(1,1) = lattice_unitg_small(1,1)
+            unitg(2,1) = lattice_unitg_small(2,1)
+            unitg(3,1) = lattice_unitg_small(3,1)
+            unitg(1,2) = lattice_unitg_small(1,2)
+            unitg(2,2) = lattice_unitg_small(2,2)
+            unitg(3,2) = lattice_unitg_small(3,2)
+            unitg(1,3) = lattice_unitg_small(1,3)
+            unitg(2,3) = lattice_unitg_small(2,3)
+            unitg(3,3) = lattice_unitg_small(3,3)
+         end if
+
+         if ((nb.eq.0).or.(nb.eq.2)) then
             ggcut = lattice_ggcut()
          else
             ggcut = lattice_wggcut()
          end if
 
 *        **** find zero_row3 - (i,j,*) rows that are zero ****
-         do q=1,(nxh+1)*nq(1)
+         do q=1,(nxh+1)*nq(id)
              log_mb(zero_row3(1,nb)+q-1) =.true.
          end do
-         do q=1,(nxh+1)*ny(1)
+         do q=1,(nxh+1)*ny(id)
            log_mb(zero_arow3(1)+q-1) =.true.
          end do
 
@@ -103,28 +168,28 @@
          do k1 = 0,nxh-1
           i=k1
           j=k2
-          if (i .lt. 0) i = i + nx(1)
-          if (j .lt. 0) j = j + ny(1)
+          if (i .lt. 0) i = i + nx(id)
+          if (j .lt. 0) j = j + ny(id)
           i=i+1
           j=j+1
           zrow = .true.
           do k3 = -nzh+1, nzh-1
-            g1 = k1*lattice_unitg(1,1)
-     >         + k3*lattice_unitg(1,2)
-     >         + k2*lattice_unitg(1,3)
-            g2 = k1*lattice_unitg(2,1)
-     >         + k3*lattice_unitg(2,2)
-     >         + k2*lattice_unitg(2,3)
-            g3 = k1*lattice_unitg(3,1)
-     >         + k3*lattice_unitg(3,2)
-     >         + k2*lattice_unitg(3,3)
+            g1 = k1*unitg(1,1)
+     >         + k3*unitg(1,2)
+     >         + k2*unitg(1,3)
+            g2 = k1*unitg(2,1)
+     >         + k3*unitg(2,2)
+     >         + k2*unitg(2,3)
+            g3 = k1*unitg(3,1)
+     >         + k3*unitg(3,2)
+     >         + k2*unitg(3,3)
             gg = g1*g1 + g2*g2 + g3*g3
             gg= gg-ggcut
             if (gg.lt.-eps) zrow = .false.
           end do
           if (.not.zrow) then
             log_mb(zero_arow3(1)+i-1+(nxh+1)*(j-1)) =.false.
-            call D3dB_ktoqp(1,j,q,p)
+            call D3dB_ktoqp(id,j,q,p)
             if (p.eq.taskid) then
               index2 = i + (nxh+1)*(q-1)
               log_mb(zero_row3(1,nb)+index2-1) =.false.
@@ -144,20 +209,20 @@
 
          do k1 = 0,nxh-1
           i=k1
-          if (i .lt. 0) i = i + nx(1)
+          if (i .lt. 0) i = i + nx(id)
           i=i+1
           yzslab = .true.
           do k3 = -nzh+1, nzh-1
           do k2 = -nyh+1, nyh-1
-            g1 = k1*lattice_unitg(1,1)
-     >         + k2*lattice_unitg(1,2)
-     >         + k3*lattice_unitg(1,3)
-            g2 = k1*lattice_unitg(2,1)
-     >         + k2*lattice_unitg(2,2)
-     >         + k3*lattice_unitg(2,3)
-            g3 = k1*lattice_unitg(3,1)
-     >         + k2*lattice_unitg(3,2)
-     >         + k3*lattice_unitg(3,3)
+            g1 = k1*unitg(1,1)
+     >         + k2*unitg(1,2)
+     >         + k3*unitg(1,3)
+            g2 = k1*unitg(2,1)
+     >         + k2*unitg(2,2)
+     >         + k3*unitg(2,3)
+            g3 = k1*unitg(3,1)
+     >         + k2*unitg(3,2)
+     >         + k3*unitg(3,3)
             gg = g1*g1 + g2*g2 + g3*g3
             gg= gg-ggcut
             if (gg.lt.-eps) yzslab = .false.
@@ -170,9 +235,9 @@
          end do
 
 *        **** find zero_row2 - (i,*,k) rows that are zero after fft of (i,j,*) ****
-         do k3 = 1,nz(1)
+         do k3 = 1,nz(id)
          do k1 = 1,nxh+1
-           call D3dB_ktoqp(1,k3,q,p)
+           call D3dB_ktoqp(id,k3,q,p)
            if (p.eq.taskid) then
             index2 = k1 + (nxh+1)*(q-1)
             log_mb(zero_row2(1,nb)+index2-1) 
@@ -181,15 +246,16 @@
          end do
          end do
 
-
-
         
-         end do
+         end do !*nb*
          value = BA_pop_stack(zero_arow3(2))
          if (.not. value) call errquit('error freeing stack',0,MA_ERR)
 
       !*** mapping == 2 ***
       else
+         nxh = nx(1)/2
+         nyh = ny(1)/2
+         nzh = nz(1)/2
          value =           BA_alloc_get(mt_log,nq3(1),
      >                     'zero_row3',zero_row3(2,0),zero_row3(1,0))
          value = value.and.BA_alloc_get(mt_log,nq3(1),
@@ -213,18 +279,80 @@
          if (.not. value) call errquit('out of stack memory',0,MA_ERR)
 
 
-         do nb=0,1
-         if (nb.eq.0) then
+         if (has_small) then
+         nxh = nx(3)/2
+         nyh = ny(3)/2
+         nzh = nz(3)/2
+         value =           BA_alloc_get(mt_log,nq3(3),
+     >                     'zero_row3',zero_row3(2,2),zero_row3(1,2))
+         value = value.and.BA_alloc_get(mt_log,nq3(3),
+     >                     'zero_row3',zero_row3(2,3),zero_row3(1,3))
+
+         value = value.and.BA_alloc_get(mt_log,nq2(3),
+     >                     'zero_row2',zero_row2(2,2),zero_row2(1,2))
+         value = value.and.BA_alloc_get(mt_log,nq2(3),
+     >                     'zero_row2',zero_row2(2,3),zero_row2(1,3))
+
+         value = value.and.BA_alloc_get(mt_log,(nxh+1),
+     >               'zero_slab23',zero_slab23(2,2),zero_slab23(1,2))
+         value = value.and.BA_alloc_get(mt_log,(nxh+1),
+     >               'zero_slab23',zero_slab23(2,3),zero_slab23(1,3))
+         if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+
+         end if
+
+
+         if (has_small) then
+            nbmax = 3
+         else
+            nbmax = 1
+         end if
+
+
+         do nb=0,nbmax
+
+         if (nb.lt.2) then
+            id = 1
+            nxh = nx(1)/2
+            nyh = ny(1)/2
+            nzh = nz(1)/2
+            unitg(1,1) = lattice_unitg(1,1)
+            unitg(2,1) = lattice_unitg(2,1)
+            unitg(3,1) = lattice_unitg(3,1)
+            unitg(1,2) = lattice_unitg(1,2)
+            unitg(2,2) = lattice_unitg(2,2)
+            unitg(3,2) = lattice_unitg(3,2)
+            unitg(1,3) = lattice_unitg(1,3)
+            unitg(2,3) = lattice_unitg(2,3)
+            unitg(3,3) = lattice_unitg(3,3)
+         else
+            id = 3
+            nxh = nx(3)/2
+            nyh = ny(3)/2
+            nzh = nz(3)/2
+            unitg(1,1) = lattice_unitg_small(1,1)
+            unitg(2,1) = lattice_unitg_small(2,1)
+            unitg(3,1) = lattice_unitg_small(3,1)
+            unitg(1,2) = lattice_unitg_small(1,2)
+            unitg(2,2) = lattice_unitg_small(2,2)
+            unitg(3,2) = lattice_unitg_small(3,2)
+            unitg(1,3) = lattice_unitg_small(1,3)
+            unitg(2,3) = lattice_unitg_small(2,3)
+            unitg(3,3) = lattice_unitg_small(3,3)
+         end if
+
+
+         if ((nb.eq.0).or.(nb.eq.2)) then
             ggcut = lattice_ggcut()
          else
             ggcut = lattice_wggcut()
          end if
 
 *        **** find zero_row3 - (i,j,*) rows that are zero ****
-         do q = 1,nq3(1)
+         do q = 1,nq3(id)
            log_mb(zero_row3(1,nb)+q-1) =.true.
          end do
-         do q = 1,(nxh+1)*ny(1)
+         do q = 1,(nxh+1)*ny(id)
            log_mb(zero_arow3(1)+q-1) =.true.
          end do
 
@@ -232,29 +360,29 @@
          do k1 = 0,nxh-1
           i=k1
           j=k2
-          if (i .lt. 0) i = i + nx(1)
-          if (j .lt. 0) j = j + ny(1)
+          if (i .lt. 0) i = i + nx(id)
+          if (j .lt. 0) j = j + ny(id)
           i=i+1
           j=j+1
           zrow = .true.
           do k3 = -nzh+1, nzh-1
-            g1 = k1*lattice_unitg(1,1)
-     >         + k2*lattice_unitg(1,2)
-     >         + k3*lattice_unitg(1,3)
-            g2 = k1*lattice_unitg(2,1)
-     >         + k2*lattice_unitg(2,2)
-     >         + k3*lattice_unitg(2,3)
-            g3 = k1*lattice_unitg(3,1)
-     >         + k2*lattice_unitg(3,2)
-     >         + k3*lattice_unitg(3,3)
+            g1 = k1*unitg(1,1)
+     >         + k2*unitg(1,2)
+     >         + k3*unitg(1,3)
+            g2 = k1*unitg(2,1)
+     >         + k2*unitg(2,2)
+     >         + k3*unitg(2,3)
+            g3 = k1*unitg(3,1)
+     >         + k2*unitg(3,2)
+     >         + k3*unitg(3,3)
             gg = g1*g1 + g2*g2 + g3*g3
             gg= gg-ggcut
             if (gg.lt.-eps) zrow = .false.
           end do
           if (.not.zrow) then
             log_mb(zero_arow3(1)+i-1+(nxh+1)*(j-1)) =.false.
-            q = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
-            p = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
+            q = int_mb(q_map3(1,id)+(i-1)+(j-1)*(nx(id)/2+1))
+            p = int_mb(p_map3(1,id)+(i-1)+(j-1)*(nx(id)/2+1))
             if (p.eq.taskid) then
               log_mb(zero_row3(1,nb)+q-1) =.false.
             end if
@@ -270,20 +398,20 @@
 
          do k1 = 0,nxh-1
           i=k1
-          if (i .lt. 0) i = i + nx(1)
+          if (i .lt. 0) i = i + nx(id)
           i=i+1
           yzslab = .true.
           do k3 = -nzh+1, nzh-1
           do k2 = -nyh+1, nyh-1
-            g1 = k1*lattice_unitg(1,1)
-     >         + k2*lattice_unitg(1,2)
-     >         + k3*lattice_unitg(1,3)
-            g2 = k1*lattice_unitg(2,1)
-     >         + k2*lattice_unitg(2,2)
-     >         + k3*lattice_unitg(2,3)
-            g3 = k1*lattice_unitg(3,1)
-     >         + k2*lattice_unitg(3,2)
-     >         + k3*lattice_unitg(3,3)
+            g1 = k1*unitg(1,1)
+     >         + k2*unitg(1,2)
+     >         + k3*unitg(1,3)
+            g2 = k1*unitg(2,1)
+     >         + k2*unitg(2,2)
+     >         + k3*unitg(2,3)
+            g3 = k1*unitg(3,1)
+     >         + k2*unitg(3,2)
+     >         + k3*unitg(3,3)
             gg = g1*g1 + g2*g2 + g3*g3
             gg= gg-ggcut
             if (gg.lt.-eps) yzslab = .false.
@@ -297,10 +425,10 @@
 
 
 *        **** find zero_row2 - (i,*,k) rows that are zero after fft of (i,j,*) ****
-         do k = 1,nz(1)
+         do k = 1,nz(id)
          do i = 1,nxh+1
-           q = int_mb(q_map2(1,1)+(k-1)+(i-1)*(nz(1)))
-           p = int_mb(p_map2(1,1)+(k-1)+(i-1)*(nz(1)))
+           q = int_mb(q_map2(1,id)+(k-1)+(i-1)*(nz(id)))
+           p = int_mb(p_map2(1,id)+(k-1)+(i-1)*(nz(id)))
 
            log_mb(zero_arow2(1)+i-1+(nxh+1)*(k-1))
      >       = log_mb(zero_slab23(1,nb)+i-1)
@@ -351,31 +479,31 @@
 
 
 *     **** indexing variables ****
-      integer iq_to_i1(2,0:1)
-      integer iq_to_i2(2,0:1)
-      integer iz_to_i2(2,0:1)
-      integer i1_start(2,0:1)
-      integer i2_start(2,0:1)
+      integer iq_to_i1(2,0:3)
+      integer iq_to_i2(2,0:3)
+      integer iz_to_i2(2,0:3)
+      integer i1_start(2,0:3)
+      integer i2_start(2,0:3)
       common / ptrans_blk1 / iq_to_i1,iq_to_i2,iz_to_i2,
      >                       i1_start,i2_start
 
 *     **** indexing variables ****
-      integer jq_to_i1(2,0:1)
-      integer jq_to_i2(2,0:1)
-      integer jz_to_i2(2,0:1)
-      integer j1_start(2,0:1)
-      integer j2_start(2,0:1)
+      integer jq_to_i1(2,0:3)
+      integer jq_to_i2(2,0:3)
+      integer jz_to_i2(2,0:3)
+      integer j1_start(2,0:3)
+      integer j2_start(2,0:3)
       common / ptrans_blk2 / jq_to_i1,jq_to_i2,jz_to_i2,
      >                       j1_start,j2_start
 
 
 *     *** hilbert tranpose data structure ****
-      integer h_iq_to_i1(2,6,0:1)
-      integer h_iq_to_i2(2,6,0:1)
-      integer h_iz_to_i2(2,6,0:1)
-      integer h_iz_to_i2_count(6,0:1)
-      integer h_i1_start(2,6,0:1)
-      integer h_i2_start(2,6,0:1)
+      integer h_iq_to_i1(2,6,0:3)
+      integer h_iq_to_i2(2,6,0:3)
+      integer h_iz_to_i2(2,6,0:3)
+      integer h_iz_to_i2_count(6,0:3)
+      integer h_i1_start(2,6,0:3)
+      integer h_i2_start(2,6,0:3)
       common / ptrans_blk_ijk / h_iq_to_i1,
      >                         h_iq_to_i2,
      >                         h_iz_to_i2,
@@ -384,8 +512,12 @@
      >                         h_i2_start
 
 
-      logical value
+      logical value,has_small
       integer i
+      logical  lattice_has_small
+      external lattice_has_small
+
+      has_small = lattice_has_small()
 
       value =           BA_free_heap(zero_row2(2,0))
       value = value.and.BA_free_heap(zero_row2(2,1))
@@ -393,6 +525,15 @@
       value = value.and.BA_free_heap(zero_row3(2,1))
       value = value.and.BA_free_heap(zero_slab23(2,0))
       value = value.and.BA_free_heap(zero_slab23(2,1))
+
+      if (has_small) then
+      value = value.and.BA_free_heap(zero_row2(2,2))
+      value = value.and.BA_free_heap(zero_row2(2,3))
+      value = value.and.BA_free_heap(zero_row3(2,2))
+      value = value.and.BA_free_heap(zero_row3(2,3))
+      value = value.and.BA_free_heap(zero_slab23(2,2))
+      value = value.and.BA_free_heap(zero_slab23(2,3))
+      end if
 
       if (mapping.eq.1) then
       value = value.and.BA_free_heap(iq_to_i1(2,0))
@@ -416,6 +557,31 @@
       value = value.and.BA_free_heap(j1_start(2,1))
       value = value.and.BA_free_heap(j2_start(2,0))
       value = value.and.BA_free_heap(j2_start(2,1))
+
+      if (has_small) then
+      value = value.and.BA_free_heap(iq_to_i1(2,2))
+      value = value.and.BA_free_heap(iq_to_i1(2,3))
+      value = value.and.BA_free_heap(iq_to_i2(2,2))
+      value = value.and.BA_free_heap(iq_to_i2(2,3))
+      value = value.and.BA_free_heap(iz_to_i2(2,2))
+      value = value.and.BA_free_heap(iz_to_i2(2,3))
+      value = value.and.BA_free_heap(i1_start(2,2))
+      value = value.and.BA_free_heap(i1_start(2,3))
+      value = value.and.BA_free_heap(i2_start(2,2))
+      value = value.and.BA_free_heap(i2_start(2,3))
+
+      value = value.and.BA_free_heap(jq_to_i1(2,2))
+      value = value.and.BA_free_heap(jq_to_i1(2,3))
+      value = value.and.BA_free_heap(jq_to_i2(2,2))
+      value = value.and.BA_free_heap(jq_to_i2(2,3))
+      value = value.and.BA_free_heap(jz_to_i2(2,2))
+      value = value.and.BA_free_heap(jz_to_i2(2,3))
+      value = value.and.BA_free_heap(j1_start(2,2))
+      value = value.and.BA_free_heap(j1_start(2,3))
+      value = value.and.BA_free_heap(j2_start(2,2))
+      value = value.and.BA_free_heap(j2_start(2,3))
+      end if
+
       end if
 
       if (mapping.eq.2) then
@@ -430,6 +596,20 @@
       value = value.and.BA_free_heap(h_iq_to_i1(2,i,1))
       value = value.and.BA_free_heap(h_iq_to_i2(2,i,1))
       value = value.and.BA_free_heap(h_iz_to_i2(2,i,1))
+
+      if (has_small) then
+      value = value.and.BA_free_heap(h_i1_start(2,i,2))
+      value = value.and.BA_free_heap(h_i2_start(2,i,2))
+      value = value.and.BA_free_heap(h_iq_to_i1(2,i,2))
+      value = value.and.BA_free_heap(h_iq_to_i2(2,i,2))
+      value = value.and.BA_free_heap(h_iz_to_i2(2,i,2))
+      value = value.and.BA_free_heap(h_i1_start(2,i,3))
+      value = value.and.BA_free_heap(h_i2_start(2,i,3))
+      value = value.and.BA_free_heap(h_iq_to_i1(2,i,3))
+      value = value.and.BA_free_heap(h_iq_to_i2(2,i,3))
+      value = value.and.BA_free_heap(h_iz_to_i2(2,i,3))
+      end if
+
       end do
       end if
 
@@ -1205,20 +1385,20 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
 *     **** indexing variables ****
-      integer iq_to_i1(2,0:1)
-      integer iq_to_i2(2,0:1)
-      integer iz_to_i2(2,0:1)
-      integer i1_start(2,0:1)
-      integer i2_start(2,0:1)
+      integer iq_to_i1(2,0:3)
+      integer iq_to_i2(2,0:3)
+      integer iz_to_i2(2,0:3)
+      integer i1_start(2,0:3)
+      integer i2_start(2,0:3)
       common / ptrans_blk1 / iq_to_i1,iq_to_i2,iz_to_i2,
      >                       i1_start,i2_start
 
 *     **** indexing variables ****
-      integer jq_to_i1(2,0:1)
-      integer jq_to_i2(2,0:1)
-      integer jz_to_i2(2,0:1)
-      integer j1_start(2,0:1)
-      integer j2_start(2,0:1)
+      integer jq_to_i1(2,0:3)
+      integer jq_to_i2(2,0:3)
+      integer jz_to_i2(2,0:3)
+      integer j1_start(2,0:3)
+      integer j2_start(2,0:3)
       common / ptrans_blk2 / jq_to_i1,jq_to_i2,jz_to_i2,
      >                       j1_start,j2_start
 
@@ -1232,35 +1412,39 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer index1,index2,index3
       integer jndex1,jndex2,jndex3
       integer itmp,ii,jj
-      integer i,j,k,it
+      integer i,j,k,it,id
       logical value
 
-
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
 
 *     **** allocate ptrans_blk1 and ptrans_blk2 common block ****
-      value = BA_alloc_get(mt_int,((nx(1)/2+1)*ny(1)*nq(1)),
+      value = BA_alloc_get(mt_int,((nx(id)/2+1)*ny(id)*nq(id)),
      >                     'piq_to_i1',iq_to_i1(2,nbb),iq_to_i1(1,nbb))
-      value=value.and.BA_alloc_get(mt_int,((nx(1)/2+1)*ny(1)*nq(1)),
+      value=value.and.BA_alloc_get(mt_int,((nx(id)/2+1)*ny(id)*nq(id)),
      >                     'piq_to_i2',iq_to_i2(2,nbb),iq_to_i2(1,nbb))
-      value=value.and.BA_alloc_get(mt_int,((nx(1)/2+1)*ny(1)*nq(1)),
+      value=value.and.BA_alloc_get(mt_int,((nx(id)/2+1)*ny(id)*nq(id)),
      >                     'piz_to_i2',iz_to_i2(2,nbb),iz_to_i2(1,nbb))
 
-      value = value.and.BA_alloc_get(mt_int,(nz(1)+1),
+      value = value.and.BA_alloc_get(mt_int,(nz(id)+1),
      >                     'pi1_start',i1_start(2,nbb),i1_start(1,nbb))
-      value = value.and.BA_alloc_get(mt_int,(nz(1)+1),
+      value = value.and.BA_alloc_get(mt_int,(nz(id)+1),
      >                     'pi2_start',i2_start(2,nbb),i2_start(1,nbb))
 
 
-      value = BA_alloc_get(mt_int,((nx(1)/2+1)*ny(1)*nq(1)),
+      value = BA_alloc_get(mt_int,((nx(id)/2+1)*ny(id)*nq(id)),
      >                     'riq_to_i1',jq_to_i1(2,nbb),jq_to_i1(1,nbb))
-      value=value.and.BA_alloc_get(mt_int,((nx(1)/2+1)*ny(1)*nq(1)),
+      value=value.and.BA_alloc_get(mt_int,((nx(id)/2+1)*ny(id)*nq(id)),
      >                     'riq_to_i2',jq_to_i2(2,nbb),jq_to_i2(1,nbb))
-      value=value.and.BA_alloc_get(mt_int,((nx(1)/2+1)*ny(1)*nq(1)),
+      value=value.and.BA_alloc_get(mt_int,((nx(id)/2+1)*ny(id)*nq(id)),
      >                     'riz_to_i2',jz_to_i2(2,nbb),jz_to_i2(1,nbb))
 
-      value = value.and.BA_alloc_get(mt_int,(nz(1)+1),
+      value = value.and.BA_alloc_get(mt_int,(nz(id)+1),
      >                     'ri1_start',j1_start(2,nbb),j1_start(1,nbb))
-      value = value.and.BA_alloc_get(mt_int,(nz(1)+1),
+      value = value.and.BA_alloc_get(mt_int,(nz(id)+1),
      >                     'ri2_start',j2_start(2,nbb),j2_start(1,nbb))
 
       if (.not. value) 
@@ -1284,18 +1468,18 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          int_mb(j1_start(1,nbb)+it) = jndex1
          int_mb(j2_start(1,nbb)+it) = jndex2
 
-         do k=1,nz(1)
-         do j=1,ny(1)
+         do k=1,nz(id)
+         do j=1,ny(id)
 
 *           **** packing scheme **** 
             call D3dB_ktoqp(1,k,qhere,phere)
             call D3dB_ktoqp(1,j,qto,pto)
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
-               do i=1,(nx(1)/2+1)
-                  ii = i + (nx(1)/2+1)*(k-1)
-                  jj = i + (nx(1)/2+1)*(j-1)
-                  itmp = i + (j-1)*(nx(1)/2+1) 
-     >                     + (qhere-1)*(nx(1)/2+1)*ny(1)
+               do i=1,(nx(id)/2+1)
+                  ii = i + (nx(id)/2+1)*(k-1)
+                  jj = i + (nx(id)/2+1)*(j-1)
+                  itmp = i + (j-1)*(nx(id)/2+1) 
+     >                     + (qhere-1)*(nx(id)/2+1)*ny(id)
 
                   if (.not.zero_arow3(ii)) then
                   int_mb(iq_to_i1(1,nbb)+index1-1) = itmp
@@ -1314,11 +1498,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             call D3dB_ktoqp(1,j,qhere,phere)
             call D3dB_ktoqp(1,k,qfrom,pfrom)
             if ((phere.eq.taskid).and.(pfrom.eq.proc_from)) then
-               do i=1,(nx(1)/2+1)
-                  ii = i + (nx(1)/2+1)*(k-1)
-                  jj = i + (nx(1)/2+1)*(j-1)
-                  itmp = i + (k-1)*(nx(1)/2+1) 
-     >                     + (qhere-1)*(nx(1)/2+1)*ny(1)
+               do i=1,(nx(id)/2+1)
+                  ii = i + (nx(id)/2+1)*(k-1)
+                  jj = i + (nx(id)/2+1)*(j-1)
+                  itmp = i + (k-1)*(nx(id)/2+1) 
+     >                     + (qhere-1)*(nx(id)/2+1)*ny(id)
                   if (zero_arow3(ii)) then
                   int_mb(iz_to_i2(1,nbb)+index3-1) = itmp
                   index3 = index3 + 1
@@ -1370,12 +1554,12 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
 *     *** hilbert tranpose data structure ****
-      integer h_iq_to_i1(2,6,0:1)
-      integer h_iq_to_i2(2,6,0:1)
-      integer h_iz_to_i2(2,6,0:1)
-      integer h_iz_to_i2_count(6,0:1)
-      integer h_i1_start(2,6,0:1)
-      integer h_i2_start(2,6,0:1)
+      integer h_iq_to_i1(2,6,0:3)
+      integer h_iq_to_i2(2,6,0:3)
+      integer h_iz_to_i2(2,6,0:3)
+      integer h_iz_to_i2_count(6,0:3)
+      integer h_i1_start(2,6,0:3)
+      integer h_i2_start(2,6,0:3)
       common / ptrans_blk_ijk / h_iq_to_i1,
      >                         h_iq_to_i2,
      >                         h_iz_to_i2,
@@ -1389,8 +1573,13 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer pto,qto,np,taskid
       integer phere,qhere
       integer index1,index2,index3,itmp
-      integer i,j,k,it
+      integer i,j,k,it,id
 
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
 
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
@@ -1403,17 +1592,17 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     ********************************************************
 
 *     **** allocate trans_blk_ijk common block ****
-      value = BA_alloc_get(mt_int,((nx(1)/2+1)*nq1(1)),
+      value = BA_alloc_get(mt_int,((nx(id)/2+1)*nq1(id)),
      >                     'h_iq_to_i1_1',
      >                      h_iq_to_i1(2,1,nbb),
      >                      h_iq_to_i1(1,1,nbb))
       value = value.and.
-     >        BA_alloc_get(mt_int,(ny(1)*nq2(1)),
+     >        BA_alloc_get(mt_int,(ny(id)*nq2(id)),
      >                     'h_iq_to_i2_1',
      >                      h_iq_to_i2(2,1,nbb),
      >                      h_iq_to_i2(1,1,nbb))
       value = value.and.
-     >        BA_alloc_get(mt_int,(ny(1)*nq2(1)),
+     >        BA_alloc_get(mt_int,(ny(id)*nq2(id)),
      >                     'h_iz_to_i2_1',
      >                      h_iz_to_i2(2,1,nbb),
      >                      h_iz_to_i2(1,1,nbb))
@@ -1439,21 +1628,21 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          int_mb(h_i1_start(1,1,nbb)+it) = index1
          int_mb(h_i2_start(1,1,nbb)+it) = index2
 
-         do k=1,nz(1)
-         do j=1,ny(1)
-         do i=1,(nx(1)/2+1)
-            iszero = zero_arow2(i+(k-1)*(nx(1)/2+1)) 
+         do k=1,nz(id)
+         do j=1,ny(id)
+         do i=1,(nx(id)/2+1)
+            iszero = zero_arow2(i+(k-1)*(nx(id)/2+1)) 
 
 *           **** packing scheme **** 
-            phere = int_mb(p_map1(1,1)+(j-1)+(k-1)*ny(1))
-            qhere = int_mb(q_map1(1,1)+(j-1)+(k-1)*ny(1))
+            phere = int_mb(p_map1(1,1)+(j-1)+(k-1)*ny(id))
+            qhere = int_mb(q_map1(1,1)+(j-1)+(k-1)*ny(id))
 
-            pto   = int_mb(p_map2(1,1)+(k-1)+(i-1)*nz(1))
-            qto   = int_mb(q_map2(1,1)+(k-1)+(i-1)*nz(1))
+            pto   = int_mb(p_map2(1,1)+(k-1)+(i-1)*nz(id))
+            qto   = int_mb(q_map2(1,1)+(k-1)+(i-1)*nz(id))
             
            
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
-               itmp = i + (qhere-1)*(nx(1)/2+1)
+               itmp = i + (qhere-1)*(nx(id)/2+1)
                if (.not.iszero) then
                int_mb(h_iq_to_i1(1,1,nbb)+index1-1) = itmp
                index1 = index1 + 1
@@ -1462,7 +1651,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
              
 *           **** unpacking scheme ****
             if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
-               itmp = j + (qto-1)*ny(1)
+               itmp = j + (qto-1)*ny(id)
                if (.not.iszero) then
                int_mb(h_iq_to_i2(1,1,nbb)+index2-1) =  itmp
                index2 = index2 + 1
@@ -1492,17 +1681,17 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     *********************************************************
 
 *     **** allocate trans_blk_ijk common block ****
-      value = BA_alloc_get(mt_int,(ny(1)*nq2(1)),
+      value = BA_alloc_get(mt_int,(ny(id)*nq2(id)),
      >                     'h_iq_to_i1_2',
      >                      h_iq_to_i1(2,2,nbb),
      >                      h_iq_to_i1(1,2,nbb))
       value = value.and.
-     >        BA_alloc_get(mt_int,(nz(1)*nq3(1)),
+     >        BA_alloc_get(mt_int,(nz(id)*nq3(1)),
      >                     'h_iq_to_i2_2',
      >                      h_iq_to_i2(2,2,nbb),
      >                      h_iq_to_i2(1,2,nbb))
       value = value.and.
-     >        BA_alloc_get(mt_int,(nz(1)*nq3(1)),
+     >        BA_alloc_get(mt_int,(nz(id)*nq3(1)),
      >                     'h_iz_to_i2_2',
      >                      h_iz_to_i2(2,2,nbb),
      >                      h_iz_to_i2(1,2,nbb))
@@ -1528,22 +1717,22 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          int_mb(h_i1_start(1,2,nbb)+it) = index1
          int_mb(h_i2_start(1,2,nbb)+it) = index2
 
-         do k=1,nz(1)
-         do j=1,ny(1)
-         do i=1,(nx(1)/2+1)
+         do k=1,nz(id)
+         do j=1,ny(id)
+         do i=1,(nx(id)/2+1)
 
-            iszero = zero_arow3(i+(j-1)*(nx(1)/2+1))
+            iszero = zero_arow3(i+(j-1)*(nx(id)/2+1))
 
 *           **** packing scheme ****
-            phere = int_mb(p_map2(1,1)+(k-1)+(i-1)*nz(1))
-            qhere = int_mb(q_map2(1,1)+(k-1)+(i-1)*nz(1))
+            phere = int_mb(p_map2(1,1)+(k-1)+(i-1)*nz(id))
+            qhere = int_mb(q_map2(1,1)+(k-1)+(i-1)*nz(id))
 
-            pto   = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
-            qto   = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
+            pto   = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(id)/2+1))
+            qto   = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(id)/2+1))
 
 
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
-               itmp = j + (qhere-1)*ny(1)
+               itmp = j + (qhere-1)*ny(id)
                if (.not.iszero) then
                int_mb(h_iq_to_i1(1,2,nbb)+index1-1) = itmp
                index1 = index1 + 1
@@ -1552,7 +1741,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 *           **** unpacking scheme ****
             if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
-               itmp = k + (qto-1)*nz(1)
+               itmp = k + (qto-1)*nz(id)
                if (.not.iszero) then
                int_mb(h_iq_to_i2(1,2,nbb)+index2-1) = itmp
                index2 = index2 + 1
@@ -1584,17 +1773,17 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     ********************************************************
 
 *     **** allocate trans_blk_ijk common block ****
-      value = BA_alloc_get(mt_int,(nz(1)*nq3(1)),
+      value = BA_alloc_get(mt_int,(nz(id)*nq3(id)),
      >                     'h_iq_to_i1_3',
      >                      h_iq_to_i1(2,3,nbb),
      >                      h_iq_to_i1(1,3,nbb))
       value = value.and.
-     >        BA_alloc_get(mt_int,(ny(1)*nq2(1)),
+     >        BA_alloc_get(mt_int,(ny(id)*nq2(id)),
      >                     'h_iq_to_i2_3',
      >                      h_iq_to_i2(2,3,nbb),
      >                      h_iq_to_i2(1,3,nbb))
       value = value.and.
-     >        BA_alloc_get(mt_int,(ny(1)*nq2(1)),
+     >        BA_alloc_get(mt_int,(ny(id)*nq2(id)),
      >                     'h_iz_to_i2_3',
      >                      h_iz_to_i2(2,3,nbb),
      >                      h_iz_to_i2(1,3,nbb))
@@ -1620,22 +1809,22 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          int_mb(h_i1_start(1,3,nbb)+it) = index1
          int_mb(h_i2_start(1,3,nbb)+it) = index2
 
-         do k=1,nz(1)
-         do j=1,ny(1)
-         do i=1,(nx(1)/2+1)
+         do k=1,nz(id)
+         do j=1,ny(id)
+         do i=1,(nx(id)/2+1)
 
-            iszero = zero_arow3(i+(j-1)*(nx(1)/2+1))
+            iszero = zero_arow3(i+(j-1)*(nx(id)/2+1))
 
 *           **** packing scheme ****
-            phere = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
-            qhere = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
+            phere = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(id)/2+1))
+            qhere = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(id)/2+1))
 
-            pto   = int_mb(p_map2(1,1)+(k-1)+(i-1)*nz(1))
-            qto   = int_mb(q_map2(1,1)+(k-1)+(i-1)*nz(1))
+            pto   = int_mb(p_map2(1,1)+(k-1)+(i-1)*nz(id))
+            qto   = int_mb(q_map2(1,1)+(k-1)+(i-1)*nz(id))
 
 
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
-               itmp = k + (qhere-1)*nz(1)
+               itmp = k + (qhere-1)*nz(id)
                if (.not.iszero) then
                int_mb(h_iq_to_i1(1,3,nbb)+index1-1) = itmp
                index1 = index1 + 1
@@ -1644,7 +1833,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 *           **** unpacking scheme ****
             if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
-               itmp = j + (qto-1)*ny(1)
+               itmp = j + (qto-1)*ny(id)
                if (.not.iszero) then
                int_mb(h_iq_to_i2(1,3,nbb)+index2-1) = itmp
                index2 = index2 + 1
@@ -1674,17 +1863,17 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     ********************************************************
 
 *     **** allocate trans_blk_ijk common block ****
-      value = BA_alloc_get(mt_int,(ny(1)*nq2(1)),
+      value = BA_alloc_get(mt_int,(ny(id)*nq2(id)),
      >                     'h_iq_to_i1_4',
      >                      h_iq_to_i1(2,4,nbb),
      >                      h_iq_to_i1(1,4,nbb))
       value = value.and.
-     >        BA_alloc_get(mt_int,((nx(1)/2+1)*nq1(1)),
+     >        BA_alloc_get(mt_int,((nx(id)/2+1)*nq1(id)),
      >                     'h_iq_to_i2_4',
      >                      h_iq_to_i2(2,4,nbb),
      >                      h_iq_to_i2(1,4,nbb))
       value = value.and.
-     >        BA_alloc_get(mt_int,((nx(1)/2+1)*nq1(1)),
+     >        BA_alloc_get(mt_int,((nx(id)/2+1)*nq1(id)),
      >                     'h_iz_to_i2_4',
      >                      h_iz_to_i2(2,4,nbb),
      >                      h_iz_to_i2(1,4,nbb))
@@ -1710,22 +1899,22 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          int_mb(h_i1_start(1,4,nbb)+it) = index1
          int_mb(h_i2_start(1,4,nbb)+it) = index2
 
-         do k=1,nz(1)
-         do j=1,ny(1)
-         do i=1,(nx(1)/2+1)
+         do k=1,nz(id)
+         do j=1,ny(id)
+         do i=1,(nx(id)/2+1)
 
-            iszero = zero_arow2(i+(k-1)*(nx(1)/2+1))
+            iszero = zero_arow2(i+(k-1)*(nx(id)/2+1))
 
 *           **** packing scheme ****
-            phere = int_mb(p_map2(1,1)+(k-1)+(i-1)*nz(1))
-            qhere = int_mb(q_map2(1,1)+(k-1)+(i-1)*nz(1))
+            phere = int_mb(p_map2(1,1)+(k-1)+(i-1)*nz(id))
+            qhere = int_mb(q_map2(1,1)+(k-1)+(i-1)*nz(id))
 
-            pto   = int_mb(p_map1(1,1)+(j-1)+(k-1)*ny(1))
-            qto   = int_mb(q_map1(1,1)+(j-1)+(k-1)*ny(1))
+            pto   = int_mb(p_map1(1,1)+(j-1)+(k-1)*ny(id))
+            qto   = int_mb(q_map1(1,1)+(j-1)+(k-1)*ny(id))
 
 
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
-               itmp = j + (qhere-1)*ny(1)
+               itmp = j + (qhere-1)*ny(id)
                if (.not.iszero) then
                int_mb(h_iq_to_i1(1,4,nbb)+index1-1) = itmp
                index1 = index1 + 1
@@ -1734,7 +1923,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 *           **** unpacking scheme ****
             if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
-               itmp = i + (qto-1)*(nx(1)/2+1)
+               itmp = i + (qto-1)*(nx(id)/2+1)
                if (.not.iszero) then
                int_mb(h_iq_to_i2(1,4,nbb)+index2-1) = itmp
                index2 = index2 + 1
@@ -1763,17 +1952,17 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     **********************************************************
 
 *     **** allocate trans_blk_ijk common block ****
-      value = BA_alloc_get(mt_int,((nx(1)/2+1)*nq1(1)),
+      value = BA_alloc_get(mt_int,((nx(id)/2+1)*nq1(id)),
      >                     'h_iq_to_i1_5',
      >                      h_iq_to_i1(2,5,nbb),
      >                      h_iq_to_i1(1,5,nbb))
       value = value.and.
-     >        BA_alloc_get(mt_int,(nz(1)*nq3(1)),
+     >        BA_alloc_get(mt_int,(nz(id)*nq3(id)),
      >                     'h_iq_to_i2_5',
      >                      h_iq_to_i2(2,5,nbb),
      >                      h_iq_to_i2(1,5,nbb))
       value = value.and.
-     >        BA_alloc_get(mt_int,(nz(1)*nq3(1)),
+     >        BA_alloc_get(mt_int,(nz(id)*nq3(id)),
      >                     'h_iz_to_i2_5',
      >                      h_iz_to_i2(2,5,nbb),
      >                      h_iz_to_i2(1,5,nbb))
@@ -1799,27 +1988,27 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          int_mb(h_i1_start(1,5,nbb)+it) = index1
          int_mb(h_i2_start(1,5,nbb)+it) = index2
 
-         do k=1,nz(1)
-         do j=1,ny(1)
-         do i=1,(nx(1)/2+1)
+         do k=1,nz(id)
+         do j=1,ny(id)
+         do i=1,(nx(id)/2+1)
 
 *           **** packing scheme ****
-            phere = int_mb(p_map1(1,1)+(j-1)+(k-1)*ny(1))
-            qhere = int_mb(q_map1(1,1)+(j-1)+(k-1)*ny(1))
+            phere = int_mb(p_map1(1,1)+(j-1)+(k-1)*ny(id))
+            qhere = int_mb(q_map1(1,1)+(j-1)+(k-1)*ny(id))
 
-            pto   = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
-            qto   = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
+            pto   = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(id)/2+1))
+            qto   = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(id)/2+1))
 
 
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
-               itmp = i + (qhere-1)*(nx(1)/2+1)
+               itmp = i + (qhere-1)*(nx(id)/2+1)
                int_mb(h_iq_to_i1(1,5,nbb)+index1-1) = itmp
                index1 = index1 + 1
             end if
 
 *           **** unpacking scheme ****
             if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
-               itmp = k + (qto-1)*nz(1)
+               itmp = k + (qto-1)*nz(id)
                int_mb(h_iq_to_i2(1,5,nbb)+index2-1) = itmp
                index2 = index2 + 1
             end if
@@ -1843,17 +2032,17 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     *************************
 
 *     **** allocate trans_blk_ijk common block ****
-      value = BA_alloc_get(mt_int,(nz(1)*nq3(1)),
+      value = BA_alloc_get(mt_int,(nz(id)*nq3(id)),
      >                     'h_iq_to_i1_6',
      >                      h_iq_to_i1(2,6,nbb),
      >                      h_iq_to_i1(1,6,nbb))
       value = value.and.
-     >        BA_alloc_get(mt_int,((nx(1)/2+1)*nq1(1)),
+     >        BA_alloc_get(mt_int,((nx(id)/2+1)*nq1(id)),
      >                     'h_iq_to_i2_6',
      >                      h_iq_to_i2(2,6,nbb),
      >                      h_iq_to_i2(1,6,nbb))
       value = value.and.
-     >        BA_alloc_get(mt_int,((nx(1)/2+1)*nq1(1)),
+     >        BA_alloc_get(mt_int,((nx(id)/2+1)*nq1(id)),
      >                     'h_iz_to_i2_6',
      >                      h_iz_to_i2(2,6,nbb),
      >                      h_iz_to_i2(1,6,nbb))
@@ -1879,27 +2068,27 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          int_mb(h_i1_start(1,6,nbb)+it) = index1
          int_mb(h_i2_start(1,6,nbb)+it) = index2
 
-         do k=1,nz(1)
-         do j=1,ny(1)
-         do i=1,(nx(1)/2+1)
+         do k=1,nz(id)
+         do j=1,ny(id)
+         do i=1,(nx(id)/2+1)
 
 *           **** packing scheme ****
-            phere = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
-            qhere = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
+            phere = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(id)/2+1))
+            qhere = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(id)/2+1))
 
-            pto   = int_mb(p_map1(1,1)+(j-1)+(k-1)*ny(1))
-            qto   = int_mb(q_map1(1,1)+(j-1)+(k-1)*ny(1))
+            pto   = int_mb(p_map1(1,1)+(j-1)+(k-1)*ny(id))
+            qto   = int_mb(q_map1(1,1)+(j-1)+(k-1)*ny(id))
 
 
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
-               itmp = k + (qhere-1)*nz(1)
+               itmp = k + (qhere-1)*nz(id)
                int_mb(h_iq_to_i1(1,6,nbb)+index1-1) = itmp
                index1 = index1 + 1
             end if
 
 *           **** unpacking scheme ****
             if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
-               itmp = i + (qto-1)*(nx(1)/2+1)
+               itmp = i + (qto-1)*(nx(id)/2+1)
                int_mb(h_iq_to_i2(1,6,nbb)+index2-1) = itmp
                index2 = index2 + 1
             end if
@@ -2305,9 +2494,9 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     *                                 *
 *     ***********************************
 *
-*     do fft along nx(1) dimension       
+*     do fft along nx(id) dimension       
 *
-*        A(kx,ny(1),nz(1)) <- fft1d[A(nx(1),ny(1),nz(1))] 
+*        A(kx,ny(id),nz(id)) <- fft1d[A(nx(id),ny(id),nz(id))] 
 *     
 
       subroutine D3dB_pfftfx(nbb,A,tmp1,tmp2,request,reqcnt)
@@ -2330,7 +2519,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       common    / D3dB_fft / tmpx,tmpy,tmpz
 
       !*** local variables ***
-      integer j,q,indx,nxh
+      integer j,q,indx,nxh,id
       integer tid,nthr,offset
       integer  Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
@@ -2338,8 +2527,13 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       tid  = Parallel_threadid()
       nthr = Parallel_nthreads()
 
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
 
-      nxh = (nx(1)/2+1)
+      nxh = (nx(id)/2+1)
 
       !**********************
       !**** slab mapping ****
@@ -2347,32 +2541,33 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       if (mapping.eq.1) then
       call nwpw_timing_start(31)
 #ifdef MLIB
-      call drcfts(A,nx(1),1,ny(1)*nq(1),
-     >                  nx(1)+2,1,ierr)
+      call drcfts(A,nx(id),1,ny(id)*nq(id),
+     >                  nx(id)+2,1,ierr)
 #else
 
 #ifdef FFTW3
-      call dfftw_execute_dft_r2c(plans(4,1),A,A)
+      call dfftw_execute_dft_r2c(plans(4,id),A,A)
 
 #else
 
 #ifdef NUSE_OPENMP
-      call D3dB_pfftfx_sub(ny(1)*nq(1),nx(1),nxh,dcpl_mb(tmpx(1,1)),A)
-      call cshift_fftf(nx(1),ny(1),nq(1),1,A)
+      call D3dB_pfftfx_sub(ny(id)*nq(id),nx(id),nxh,
+     >                    dcpl_mb(tmpx(1,id)),A)
+      call cshift_fftf(nx(id),ny(id),nq(id),1,A)
 
 #else
       indx = 1
-      do q=1,nq(1)
-      do j=1,ny(1)
-         call drfftf(nx(1),A(indx),dcpl_mb(tmpx(1,1)))
+      do q=1,nq(id)
+      do j=1,ny(id)
+         call drfftf(nx(id),A(indx),dcpl_mb(tmpx(1,id)))
          indx = indx + nxh
       end do
       end do
-      call cshift_fftf(nx(1),ny(1),nq(1),1,A)
+      call cshift_fftf(nx(id),ny(id),nq(id),1,A)
 #endif
 #endif
 #endif
-      call dcopy((nx(1)+2)*ny(1)*nq(1),A,1,tmp1,1)
+      call dcopy((nx(id)+2)*ny(id)*nq(id),A,1,tmp1,1)
       call nwpw_timing_end(31)
 
 
@@ -2383,23 +2578,23 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call nwpw_timing_start(31)
 
 #ifdef MLIB
-      call drcfts(A,nx(1),1,nq1(1),
-     >                  nx(1)+2,1,ierr)
+      call drcfts(A,nx(id),1,nq1(id),
+     >                  nx(id)+2,1,ierr)
 #else
 
 #ifdef FFTW3
-      call dfftw_execute_dft_r2c(plans(14,1),A,A)
+      call dfftw_execute_dft_r2c(plans(14,id),A,A)
 
 #else
 
       !indx = 1
-      offset = tid*(2*nx(1)+15)
-      do q=tid+1,nq1(1),nthr
+      offset = tid*(2*nx(id)+15)
+      do q=tid+1,nq1(id),nthr
          indx = 1+(q-1)*nxh
-         call drfftf(nx(1),A(indx),dcpl_mb(tmpx(1,1)+offset))
+         call drfftf(nx(id),A(indx),dcpl_mb(tmpx(1,id)+offset))
          !indx = indx + nxh
       end do
-      call cshift_fftf(nx(1),nq1(1),1,1,A)
+      call cshift_fftf(nx(id),nq1(id),1,1,A)
 
 #endif
 #endif
@@ -2436,9 +2631,9 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     *                                 *
 *     ***********************************
 *
-*     do fft along ny(1) dimension       
+*     do fft along ny(id) dimension       
 *
-*        A(kx,ny(1),nz(1)) <- fft1d[A(nx(1),ny(1),nz(1))] 
+*        A(kx,ny(id),nz(id)) <- fft1d[A(nx(id),ny(id),nz(id))] 
 *     
 
       subroutine D3dB_pfftfy(nbb,tmp1,tmp2,request,reqcnt)
@@ -2461,16 +2656,21 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
       !*** local variables ***
-      integer i,j,k,indx,indx0,indx1,indx2,q,nxh,nxhy
+      integer i,j,k,indx,indx0,indx1,indx2,q,nxh,nxhy,id
       integer tid,nthr,offset
       integer  Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
 
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
       tid  = Parallel_threadid()
       nthr = Parallel_nthreads()
 
-      nxh = (nx(1)/2+1)
-      nxhy = nxh*ny(1)
+      nxh = (nx(id)/2+1)
+      nxhy = nxh*ny(id)
 
 
       !**********************
@@ -2480,26 +2680,26 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call nwpw_timing_start(31)
 
 *     ********************************************
-*     ***     do fft along ny(1) dimension        ***
-*     ***   A(kx,ky,nz(1)) <- fft1d[A(kx,ny(1),nz(1))]  ***
+*     ***     do fft along ny(id) dimension        ***
+*     ***   A(kx,ky,nz(id)) <- fft1d[A(kx,ny(id),nz(id))]  ***
 *     ********************************************
 
 #ifdef MLIB
       indx0 = 0
       indx2 = 0
-      do q=1,nq(1)
+      do q=1,nq(id)
       do i=1,nxh
         indx2 = indx2 + 1
         if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
 
          indx  = i + indx0
          indx1 = indx
-         do j=1,ny(1)
+         do j=1,ny(id)
             tmp2(j) = tmp1(indx)
             indx = indx + nxh
          end do
-         call z1dfft(tmp2,ny(1),dcpl_mb(tmpy(1,1)),1,ierr)
-         do j=1,ny(1)
+         call z1dfft(tmp2,ny(id),dcpl_mb(tmpy(1,id)),1,ierr)
+         do j=1,ny(id)
             tmp1(indx1) = tmp2(j)
             indx1 = indx1 + nxh
          end do
@@ -2513,7 +2713,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #ifdef FFTW3
        indx0 = 0
        indx2 = 0
-       do q=1,nq(1)
+       do q=1,nq(id)
        do i=1,nxh
         indx2 = indx2 + 1
         if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
@@ -2527,18 +2727,18 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #else
        indx0 = 0
        indx2 = 0
-       do q=1,nq(1)
+       do q=1,nq(id)
        do i=1,nxh
         indx2 = indx2 + 1
         if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
           indx  = i + indx0
           indx1 = indx
-          do k=1,ny(1)
+          do k=1,ny(id)
              tmp2(k) = tmp1(indx)
              indx = indx + nxh
           end do
-          call dcfftf(ny(1),tmp2,dcpl_mb(tmpy(1,1)))
-          do k=1,ny(1)
+          call dcfftf(ny(id),tmp2,dcpl_mb(tmpy(1,id)))
+          do k=1,ny(id)
              tmp1(indx1) = tmp2(k)
              indx1 = indx1 + nxh
           end do
@@ -2552,7 +2752,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 *     ********************************************
 *     ***         Do a ptranspose of A          ***
-*     ***      A(ky,nz(1),ky) <- A(kx,ky,nz(1))      ***
+*     ***      A(ky,nz(id),ky) <- A(kx,ky,nz(id))      ***
 *     ********************************************
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
@@ -2571,36 +2771,36 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call nwpw_timing_start(31)
 
 *     ********************************************
-*     ***     do fft along ny(1) dimension        ***
-*     ***   A(ky,nz(1),kx) <- fft1d[A(ny(1),nz(1),kx)]  ***
+*     ***     do fft along ny(id) dimension        ***
+*     ***   A(ky,nz(id),kx) <- fft1d[A(ny(id),nz(id),kx)]  ***
 *     ********************************************
 #ifdef MLIB
       indx = 1
-      do q=1,nq2(1)
+      do q=1,nq2(id)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
-         call z1dfft(tmp1(indx),ny(1),dcpl_mb(tmpy(1,1)),1,ierr)
+         call z1dfft(tmp1(indx),ny(id),dcpl_mb(tmpy(1,id)),1,ierr)
          end if
-         indx = indx + ny(1)
+         indx = indx + ny(id)
       end do
 #else
 #ifdef FFTW3
       indx = 1
-      do q=1,nq2(1)
+      do q=1,nq2(id)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
          call dfftw_execute_dft(plans(19,1),tmp1(indx),tmp1(indx))
          end if
-         indx = indx + ny(1)
+         indx = indx + ny(id)
       end do
 #else
 
       !indx = 1
-      offset = tid*(2*ny(1)+15)
-      do q=tid+1,nq2(1),nthr
-         indx = 1+(q-1)*ny(1)
+      offset = tid*(2*ny(id)+15)
+      do q=tid+1,nq2(id),nthr
+         indx = 1+(q-1)*ny(id)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
-            call dcfftf(ny(1),tmp1(indx),dcpl_mb(tmpy(1,1)+offset))
+            call dcfftf(ny(id),tmp1(indx),dcpl_mb(tmpy(1,id)+offset))
          end if
-         !indx = indx + ny(1)
+         !indx = indx + ny(id)
       end do
 !$OMP BARRIER
 
@@ -2668,17 +2868,22 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
       !*** local variables ***
-      integer i,k,q,nxh,nxhz
+      integer i,k,q,nxh,nxhz,id
       integer indx,indx0,indx1,indx2
       integer tid,nthr,offset
       integer  Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
 
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
       tid  = Parallel_threadid()
       nthr = Parallel_nthreads()
 
-      nxh = (nx(1)/2+1)
-      nxhz = nxh*nz(1)
+      nxh = (nx(id)/2+1)
+      nxhz = nxh*nz(id)
 
 
 
@@ -2693,27 +2898,27 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call nwpw_timing_start(31)
 
 *     ********************************************
-*     ***     do fft along nz(1) dimension        ***
-*     ***   A(kx,kz,ky) <- fft1d[A(kx,nz(1),ky)]  ***
+*     ***     do fft along nz(id) dimension        ***
+*     ***   A(kx,kz,ky) <- fft1d[A(kx,nz(id),ky)]  ***
 *     ********************************************
 
 #ifdef MLIB
 
       indx0 = 0
       indx2 = 0
-      do q=1,nq(1)
+      do q=1,nq(id)
       do i=1,nxh
         indx2 = indx2 + 1
         if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
 
          indx  = i + indx0
          indx1 = indx
-         do k=1,nz(1)
+         do k=1,nz(id)
             tmp1(k) = tmp2(indx)
             indx = indx + nxh
          end do
-         call z1dfft(tmp1,nz(1),dcpl_mb(tmpz(1,1)),1,ierr)
-         do k=1,nz(1)
+         call z1dfft(tmp1,nz(id),dcpl_mb(tmpz(1,id)),1,ierr)
+         do k=1,nz(id)
             tmp2(indx1) = tmp1(k)
             indx1 = indx1 + nxh
          end do
@@ -2725,7 +2930,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
        indx0 = 0
        indx2 = 0
-       do q=1,nq(1)
+       do q=1,nq(id)
        do i=1,nxh
         indx2 = indx2 + 1
         if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
@@ -2737,12 +2942,12 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #else
           indx  = i + indx0
           indx1 = indx
-          do k=1,nz(1)
+          do k=1,nz(id)
              tmp1(k) = tmp2(indx)
              indx = indx + nxh
           end do
-          call dcfftf(nz(1),tmp1,dcpl_mb(tmpz(1,1)))
-          do k=1,nz(1)
+          call dcfftf(nz(id),tmp1,dcpl_mb(tmpz(1,id)))
+          do k=1,nz(id)
              tmp2(indx1) = tmp1(k)
              indx1 = indx1 + nxh
           end do
@@ -2767,16 +2972,16 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call nwpw_timing_start(31)
 
 *     ********************************************
-*     ***     do fft along nz(1) dimension        ***
-*     ***   A(kz,kx,ky) <- fft1d[A(nz(1),kx,ky)]  ***
+*     ***     do fft along nz(id) dimension        ***
+*     ***   A(kz,kx,ky) <- fft1d[A(nz(id),kx,ky)]  ***
 *     ********************************************
 #ifdef MLIB
       indx = 1
       do q=1,nq3(1)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
-         call z1dfft(tmp2(indx),nz(1),dcpl_mb(tmpz(1,1)),1,ierr)
+         call z1dfft(tmp2(indx),nz(id),dcpl_mb(tmpz(1,id)),1,ierr)
          end if
-         indx = indx + nz(1)
+         indx = indx + nz(id)
       end do
 #else
 #ifdef FFTW3
@@ -2785,18 +2990,18 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
             call dfftw_execute_dft(plans(20,1),tmp2(indx),tmp2(indx))
          end if
-         indx = indx + nz(1)
+         indx = indx + nz(id)
       end do
 #else
 
       !indx = 1
-      offset = tid*(2*nz(1)+15)
+      offset = tid*(2*nz(id)+15)
       do q=tid+1,nq3(1),nthr
-         indx = 1+(q-1)*nz(1)
+         indx = 1+(q-1)*nz(id)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
-            call dcfftf(nz(1),tmp2(indx),dcpl_mb(tmpz(1,1)+offset))
+            call dcfftf(nz(id),tmp2(indx),dcpl_mb(tmpz(1,id)+offset))
          end if
-         !indx = indx + nz(1)
+         !indx = indx + nz(id)
       end do
 !$OMP BARRIER
 
@@ -2908,7 +3113,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *      This routine performs the operation of      
 *      a three dimensional complex to complex     
 *      inverse fft                                
-*           A(nx,ny(1),nz(1)) <- FFT3^(-1)[A(kx,ky,kz)]  
+*           A(nx,ny(id),nz(id)) <- FFT3^(-1)[A(kx,ky,kz)]  
 *                                                  
 *      Entry -                                     
 *              A: a column distribuded 3d block    
@@ -2941,16 +3146,21 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
 *     *** local variables ***
-      integer i,k,q,indx,ierr
+      integer i,k,q,indx,ierr,id
       integer nxh,nxhz,indx0,indx1,indx2,tid,nthr
       integer  Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
 
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
       tid  = Parallel_threadid()
       nthr = Parallel_nthreads()
 
-       nxh = (nx(1)/2+1)
-       nxhz = nxh*nz(1)
+       nxh = (nx(id)/2+1)
+       nxhz = nxh*nz(id)
       
       !**********************
       !**** slab mapping ****
@@ -2960,25 +3170,25 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call nwpw_timing_start(31)
 *     *************************************************
 *     ***     do fft along kz dimension             ***
-*     ***   A(kx,nz(1),ky) <- fft1d^(-1)[A(kx,kz,ky)]  ***
+*     ***   A(kx,nz(id),ky) <- fft1d^(-1)[A(kx,kz,ky)]  ***
 *     *************************************************
 #ifdef MLIB
       indx0 = 0
       indx2 = 0
-      do q=1,nq(1)
+      do q=1,nq(id)
       do i=1,nxh
        indx2 = indx2 + 1
        if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
 
          indx = i+indx0
          indx1 = indx
-         do k=1,nz(1)
+         do k=1,nz(id)
             tmp2(k) = tmp1(indx)
             indx = indx + nxh
          end do
-         call z1dfft(tmp2,nz(1),
-     >               dcpl_mb(tmpz(1,1)),-2,ierr)
-         do k=1,nz(1)
+         call z1dfft(tmp2,nz(id),
+     >               dcpl_mb(tmpz(1,id)),-2,ierr)
+         do k=1,nz(id)
             tmp1(indx1) = tmp2(k)
             indx1 = indx1 + nxh
          end do
@@ -2990,7 +3200,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #else
       indx0 = 0
       indx2 = 0
-      do q=1,nq(1)
+      do q=1,nq(id)
       do i=1,nxh
        indx2 = indx2 + 1
        if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
@@ -3002,12 +3212,12 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
          indx  = i + indx0
          indx1 = indx
-         do k=1,nz(1)
+         do k=1,nz(id)
             tmp2(k) = tmp1(indx)
             indx = indx + nxh
          end do
-         call dcfftb(nz(1),tmp2,dcpl_mb(tmpz(1,1)))
-         do k=1,nz(1)
+         call dcfftb(nz(id),tmp2,dcpl_mb(tmpz(1,id)))
+         do k=1,nz(id)
             tmp1(indx1) = tmp2(k)
             indx1 = indx1 + nxh
          end do
@@ -3021,7 +3231,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 *     ********************************************
 *     ***         Do a ptranspose of A          ***
-*     ***      A(kx,ky,nz(1)) <- A(kx,nz(1),ky)      ***
+*     ***      A(kx,ky,nz(id)) <- A(kx,nz(id),ky)      ***
 *     ********************************************
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
@@ -3039,15 +3249,15 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call nwpw_timing_start(31)
 *     *************************************************
 *     ***     do fft along kz dimension             ***
-*     ***   A(nz(1),kx,ky) <- fft1d^(-1)[A(kz,kx,ky)]  ***
+*     ***   A(nz(id),kx,ky) <- fft1d^(-1)[A(kz,kx,ky)]  ***
 *     *************************************************
 #ifdef MLIB
       indx = 1
       do q=1,nq3(1)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
-         call z1dfft(tmp1(indx),nz(1),dcpl_mb(tmpz(1,1)),-2,ierr)
+         call z1dfft(tmp1(indx),nz(id),dcpl_mb(tmpz(1,id)),-2,ierr)
          end if
-         indx = indx + nz(1)
+         indx = indx + nz(id)
       end do
 #else
 #ifdef FFTW3
@@ -3056,19 +3266,19 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
             call dfftw_execute_dft(plans(17,1),tmp1(indx),tmp1(indx))
          end if
-         indx = indx + nz(1)
+         indx = indx + nz(id)
       end do
 #else
 
 
       !indx = 1
       do q=1+tid,nq3(1),nthr
-         indx = 1 + (q-1)*nz(1)
+         indx = 1 + (q-1)*nz(id)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
-            call dcfftb(nz(1),tmp1(indx),
-     >                  dcpl_mb(tmpz(1,1)+tid*(2*nz(1)+15)))
+            call dcfftb(nz(id),tmp1(indx),
+     >                  dcpl_mb(tmpz(1,id)+tid*(2*nz(id)+15)))
          end if
-         !indx = indx + nz(1)
+         !indx = indx + nz(id)
       end do
 !$OMP BARRIER
 
@@ -3128,17 +3338,22 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
 *     *** local variables ***
-      integer i,j,q,indx,ierr
+      integer i,j,q,indx,ierr,id
       integer nxh,nxhy,indx0,indx1,indx2,tid,nthr
       integer  Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
 
+       if (nbb.lt.2) then
+          id = 1
+       else
+          id = 3
+       end if
       
        tid  = Parallel_threadid()
        nthr = Parallel_nthreads()
 
-       nxh = (nx(1)/2+1)
-       nxhy = nxh*ny(1)
+       nxh = (nx(id)/2+1)
+       nxhy = nxh*ny(id)
       
       !**********************
       !**** slab mapping ****
@@ -3148,7 +3363,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 *     ********************************************
 *     ***         Do a ptranspose of A          ***
-*     ***      A(kx,ky,nz(1)) <- A(kx,nz(1),ky)      ***
+*     ***      A(kx,ky,nz(id)) <- A(kx,nz(id),ky)      ***
 *     ********************************************
       call nwpw_timing_start(32)
       call D3dB_c_ptranspose1_jk_end(nbb,tmp2,tmp1,request,reqcnt)
@@ -3157,26 +3372,26 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 *     *************************************************
 *     ***     do fft along ky dimension             ***
-*     ***   A(kx,ny(1),nz(1)) <- fft1d^(-1)[A(kx,ky,nz(1))]  ***
+*     ***   A(kx,ny(id),nz(id)) <- fft1d^(-1)[A(kx,ky,nz(id))]  ***
 *     *************************************************
 #ifdef MLIB
      
       indx0 = 0
       indx2 = 0
-      do q=1,nq(1)
+      do q=1,nq(id)
       do i=1,nxh
         indx2 = indx2 + 1
         if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
 
           indx  = i + indx0
           indx1 = indx
-          do j=1,ny(1)
+          do j=1,ny(id)
             tmp1(j) = tmp2(indx)
             indx = indx + nxh
           end do
-          call z1dfft(tmp1,ny(1),
-     >               dcpl_mb(tmpy(1,1)),-2,ierr)
-          do j=1,ny(1)
+          call z1dfft(tmp1,ny(id),
+     >               dcpl_mb(tmpy(1,id)),-2,ierr)
+          do j=1,ny(id)
             tmp2(indx1) = tmp1(j)
             indx1 = indx1 + nxh
           end do
@@ -3189,7 +3404,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
     
       indx0 = 0
       indx2 = 0
-      do q=1,nq(1)
+      do q=1,nq(id)
       do i=1,nxh
         indx2 = indx2 + 1
 
@@ -3197,17 +3412,17 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 #ifdef FFTW3
          indx  = i + indx0
-         call dfftw_execute_dft(plans(8,1),tmp2(indx),tmp2(indx))
+         call dfftw_execute_dft(plans(8,id),tmp2(indx),tmp2(indx))
 
 #else
          indx  = i + indx0
          indx1 = indx
-         do j=1,ny(1)
+         do j=1,ny(id)
             tmp1(j) = tmp2(indx)
             indx = indx + nxh
          end do
-         call dcfftb(ny(1),tmp1,dcpl_mb(tmpy(1,1)))
-         do j=1,ny(1)
+         call dcfftb(ny(id),tmp1,dcpl_mb(tmpy(1,id)))
+         do j=1,ny(id)
             tmp2(indx1) = tmp1(j)
             indx1 = indx1 + nxh
          end do
@@ -3234,34 +3449,34 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call nwpw_timing_start(31)
 *     *************************************************
 *     ***     do fft along ky dimension             ***
-*     ***   A(ny(1),nz(1),kx) <- fft1d^(-1)[A(ky,nz(1),kx)]  ***
+*     ***   A(ny(id),nz(id),kx) <- fft1d^(-1)[A(ky,nz(id),kx)]  ***
 *     *************************************************
 #ifdef MLIB
       indx = 1
-      do q=1,nq2(1)
+      do q=1,nq2(id)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
-         call z1dfft(tmp2(indx),ny(1),dcpl_mb(tmpy(1,1)),-2,ierr)
+         call z1dfft(tmp2(indx),ny(id),dcpl_mb(tmpy(1,id)),-2,ierr)
          end if
-         indx = indx + ny(1)
+         indx = indx + ny(id)
       end do
 #else
 #ifdef FFTW3
       indx = 1
-      do q=1,nq2(1)
+      do q=1,nq2(id)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
-            call dfftw_execute_dft(plans(18,1),tmp2(indx),tmp2(indx))
+            call dfftw_execute_dft(plans(18,id),tmp2(indx),tmp2(indx))
          end if
-         indx = indx + ny(1)
+         indx = indx + ny(id)
       end do
 #else
       !indx = 1
-      do q=1+tid,nq2(1),nthr
-         indx = 1 + (q-1)*ny(1)
+      do q=1+tid,nq2(id),nthr
+         indx = 1 + (q-1)*ny(id)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
-            call dcfftb(ny(1),tmp2(indx),
-     >                  dcpl_mb(tmpy(1,1)+tid*(2*ny(1)+15)))
+            call dcfftb(ny(id),tmp2(indx),
+     >                  dcpl_mb(tmpy(1,id)+tid*(2*ny(id)+15)))
          end if
-         !indx = indx + ny(1)
+         !indx = indx + ny(id)
       end do
 !$OMP BARRIER
 
@@ -3324,17 +3539,22 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
 *     *** local variables ***
-      integer j,q,indx,ierr
+      integer j,q,indx,ierr,id
       integer nxh,tid,nthr
 
 *     **** external functions ****
       integer  Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
 
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
       tid  = Parallel_threadid()
       nthr = Parallel_nthreads()
 
-      nxh = (nx(1)/2+1)
+      nxh = (nx(id)/2+1)
       
       !**********************
       !**** slab mapping ****
@@ -3344,13 +3564,13 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call nwpw_timing_start(31)
 *     *************************************************
 *     ***     do fft along kx dimension             ***
-*     ***   A(nx(1),ny(1),nz(1)) <- fft1d^(-1)[A(kx,ny(1),nz(1))]  ***
+*     ***   A(nx(id),ny(id),nz(id)) <- fft1d^(-1)[A(kx,ny(id),nz(id))]  ***
 *     *************************************************
 #ifdef MLIB
       indx = 1
-      do q=1,nq(1)
-      do j=1,ny(1)
-         call drc1ft(tmp2(indx),nx(1),dcpl_mb(tmpx(1,1)),-2,ierr)
+      do q=1,nq(id)
+      do j=1,ny(id)
+         call drc1ft(tmp2(indx),nx(id),dcpl_mb(tmpx(1,id)),-2,ierr)
          indx = indx + nxh
       end do
       end do
@@ -3358,28 +3578,28 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #else
 
 #ifdef FFTW3
-      call dfftw_execute_dft_c2r(plans(3,1),tmp2,tmp2)
+      call dfftw_execute_dft_c2r(plans(3,id),tmp2,tmp2)
 
 #else
 #ifdef NUSE_OPENMP
-      call cshift1_fftb(nx(1),ny(1),nq(1),1,tmp2)
-      call D3dB_pfftbx_sub(nq(1)*ny(1),nx(1),nxh,
-     >                     dcpl_mb(tmpx(1,1)),tmp2)
-      call zeroend_fftb(nx(1),ny(1),nq(1),1,tmp2)
+      call cshift1_fftb(nx(id),ny(id),nq(id),1,tmp2)
+      call D3dB_pfftbx_sub(nq(id)*ny(id),nx(id),nxh,
+     >                     dcpl_mb(tmpx(1,id)),tmp2)
+      call zeroend_fftb(nx(id),ny(id),nq(id),1,tmp2)
 #else
-      call cshift1_fftb(nx(1),ny(1),nq(1),1,tmp2)
+      call cshift1_fftb(nx(id),ny(id),nq(id),1,tmp2)
       indx = 1
-      do q=1,nq(1)
-      do j=1,ny(1)
-         call drfftb(nx(1),tmp2(indx),dcpl_mb(tmpx(1,1)))
+      do q=1,nq(id)
+      do j=1,ny(id)
+         call drfftb(nx(id),tmp2(indx),dcpl_mb(tmpx(1,id)))
          indx = indx + nxh
       end do
       end do
-      call zeroend_fftb(nx(1),ny(1),nq(1),1,tmp2)
+      call zeroend_fftb(nx(id),ny(id),nq(id),1,tmp2)
 #endif
 #endif
 #endif
-      call dcopy((nx(1)+2)*ny(1)*nq(1),tmp2,1,tmp1,1)
+      call dcopy((nx(id)+2)*ny(id)*nq(id),tmp2,1,tmp1,1)
 
 
 
@@ -3399,33 +3619,33 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 *     *************************************************
 *     ***     do fft along kx dimension             ***
-*     ***   A(nx(1),ny(1),nz(1)) <- fft1d^(-1)[A(kx,ny(1),nz(1))]  ***
+*     ***   A(nx(id),ny(id),nz(id)) <- fft1d^(-1)[A(kx,ny(id),nz(id))]  ***
 *     *************************************************
 #ifdef MLIB
       indx = 1
-      do q=1,nq1(1)
-         call drc1ft(tmp1(indx),nx(1),dcpl_mb(tmpx(1,1)),-2,ierr)
+      do q=1,nq1(id)
+         call drc1ft(tmp1(indx),nx(id),dcpl_mb(tmpx(1,id)),-2,ierr)
          indx = indx + nxh
       end do
 #else
 
 #ifdef FFTW3
-      call dfftw_execute_dft_c2r(plans(13,1),tmp1,tmp1)
+      call dfftw_execute_dft_c2r(plans(13,id),tmp1,tmp1)
 
 #else
 
 
-      !call cshift1_fftb(nx(1),nq1(1),1,1,tmp1)
+      !call cshift1_fftb(nx(id),nq1(id),1,1,tmp1)
       indx = 1
-      do q=1+tid,nq1(1),nthr
+      do q=1+tid,nq1(id),nthr
          indx = 1+(q-1)*nxh
-         call cshift1_fftb1(nx(1),tmp1(indx))
-         call drfftb(nx(1),tmp1(indx),
-     >               dcpl_mb(tmpx(1,1)+tid*(2*nx(1)+15))) 
-         call zeroend_fftb1(nx(1),tmp1(indx))
+         call cshift1_fftb1(nx(id),tmp1(indx))
+         call drfftb(nx(id),tmp1(indx),
+     >               dcpl_mb(tmpx(1,id)+tid*(2*nx(id)+15))) 
+         call zeroend_fftb1(nx(id),tmp1(indx))
          !indx = indx + nxh
       end do
-      !call zeroend_fftb(nx(1),nq1(1),1,1,tmp1)
+      !call zeroend_fftb(nx(id),nq1(id),1,1,tmp1)
 
 #endif
 #endif
@@ -3752,19 +3972,24 @@ c     **** allocate bqueue ****
      >                             qmax,qsize,last_index
 
       !*** local variables ***
-      integer shift1,shift2,shift3
+      integer shift1,shift2,shift3,id
       integer q,indx,status,np
 
 c      call nwpw_timing_start(1)
       call nwpw_timing_start(30)
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
       call Parallel2d_np_i(np)
 
       do q=1,qsize
          indx   = int_mb(qindx(1)+q-1)
          !int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
          status = int_mb(qstatus(1)+indx-1)+1
-         shift1=nfft3d(1)*(2*(indx-1))
-         shift2=nfft3d(1)*(2*(indx-1)+1)
+         shift1=nfft3d(id)*(2*(indx-1))
+         shift2=nfft3d(id)*(2*(indx-1)+1)
          shift3=2*np*(indx-1)
          call D3dB_pfftf_step(status,nbb,A,
      >                        dcpl_mb(tmp(1)+shift1),
@@ -3787,8 +4012,8 @@ c      int_mb(qstatus(1)+last_index-1) = 1
      >                           int_mb(qstatus(1)+last_index-1))
 
       status = 1
-      shift1=nfft3d(1)*(2*(last_index-1))
-      shift2=nfft3d(1)*(2*(last_index-1)+1)
+      shift1=nfft3d(id)*(2*(last_index-1))
+      shift2=nfft3d(id)*(2*(last_index-1)+1)
       shift3=2*np*(last_index-1)
 
       call D3dB_pfftf_step(status,nbb,A,
@@ -3832,9 +4057,14 @@ c      call nwpw_timing_end(1)
      >                             qmax,qsize,last_index
 
       !*** local variables ***
-      integer shift1,shift2,shift3
+      integer shift1,shift2,shift3,id
       integer q,indx,indx1,status,np
 
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
 c      call nwpw_timing_start(1)
       call nwpw_timing_start(30)
       call Parallel2d_np_i(np)
@@ -3859,8 +4089,8 @@ c      end do
             indx   = int_mb(qindx(1)+q-1)
             !int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
             status = int_mb(qstatus(1)+indx-1)+1
-            shift1=nfft3d(1)*(2*(indx-1))
-            shift2=nfft3d(1)*(2*(indx-1)+1)
+            shift1=nfft3d(id)*(2*(indx-1))
+            shift2=nfft3d(id)*(2*(indx-1)+1)
             shift3=2*np*(indx-1)
             call D3dB_pfftf_step(status,nbb,A,
      >                        dcpl_mb(tmp(1)+shift1),
@@ -3877,7 +4107,7 @@ c      do q=1,qsize
 c        int_mb(qindx(1)+q-1) = int_mb(qindx(1)+q)
 c      end do
 
-      shift2=nfft3d(1)*(2*(indx1-1)+1)
+      shift2=nfft3d(id)*(2*(indx1-1)+1)
       call Pack_c_Copy(nbb,dcpl_mb(tmp(1)+shift2),A)
 
       call Parallel_shared_iinc(.true.,-1,qsize)
@@ -3919,11 +4149,16 @@ c      call nwpw_timing_end(1)
      >                             qmax,qsize,last_index
 
       !*** local variables ***
-      integer shift1,shift2,shift3
+      integer shift1,shift2,shift3,id
       integer q,indx,status,np
       integer  Parallel_threadid,Parallel_nthreads,tid,nthr
       external Parallel_threadid,Parallel_nthreads
 
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
 c      call nwpw_timing_start(1)
       call nwpw_timing_start(30)
       call Parallel2d_np_i(np)
@@ -3936,8 +4171,8 @@ c      write(*,*) "hera tid,nthr,qsize = ",tid,nthr,qsize
          indx   = int_mb(qindx(1)+q-1)
          !int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
          status = int_mb(qstatus(1)+indx-1)+1
-         shift1=nfft3d(1)*(2*(indx-1))
-         shift2=nfft3d(1)*(2*(indx-1)+1)
+         shift1=nfft3d(id)*(2*(indx-1))
+         shift2=nfft3d(id)*(2*(indx-1)+1)
          shift3=2*np*(indx-1)
          call D3dB_pfftb_step(status,nbb,A,
      >                        dcpl_mb(tmp(1)+shift1),
@@ -3962,8 +4197,8 @@ c      int_mb(qstatus(1)+last_index-1) = 1
      >                           int_mb(qstatus(1)+last_index-1))
 
       status = 1
-      shift1=nfft3d(1)*(2*(last_index-1))
-      shift2=nfft3d(1)*(2*(last_index-1)+1)
+      shift1=nfft3d(id)*(2*(last_index-1))
+      shift2=nfft3d(id)*(2*(last_index-1)+1)
       shift3=2*np*(last_index-1)
 
       call D3dB_pfftb_step(status,nbb,A,
@@ -4016,11 +4251,16 @@ c      end if
 
       !*** local variables ***
       integer shift1,shift2,shift3
-      integer q,indx,indx1,status,np
+      integer q,indx,indx1,status,np,id
 c      integer  Parallel_threadid,tid
 c      external Parallel_threadid
 
 
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
 c      tid = Parallel_threadid()
 
       call Parallel2d_np_i(np)
@@ -4049,8 +4289,8 @@ c      end do
             indx   = int_mb(qindx(1)+q-1)
             !int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
             status = int_mb(qstatus(1)+indx-1) + 1
-            shift1=nfft3d(1)*(2*(indx-1))
-            shift2=nfft3d(1)*(2*(indx-1)+1)
+            shift1=nfft3d(id)*(2*(indx-1))
+            shift2=nfft3d(id)*(2*(indx-1)+1)
             shift3=2*np*(indx-1)
             call D3dB_pfftb_step(status,nbb,A,
      >                        dcpl_mb(tmp(1)+shift1),
@@ -4067,8 +4307,8 @@ c      end do
 c      call Parallel_shared_iinc(.true.,-1,qsize)
 c      call Parallel_shared_lshift(.true.,qsize,int_mb(qindx(1)))
 
-      shift1=nfft3d(1)*(2*(indx1-1))
-      call Parallel_shared_vector_copy(.true.,2*nfft3d(1),
+      shift1=nfft3d(id)*(2*(indx1-1))
+      call Parallel_shared_vector_copy(.true.,2*nfft3d(id),
      >                                 dcpl_mb(tmp(1)+shift1),
      >                                 A)
 

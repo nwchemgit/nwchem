@@ -1,4 +1,4 @@
-#define NBLOCKS 2
+#define NBLOCKS 3
 
 *
 * $Id$
@@ -864,11 +864,11 @@ c     implicit none
 #include "D3dB.fh"
 
 *     **** indexing variables ****
-      integer iq_to_i1(2,0:1)
-      integer iq_to_i2(2,0:1)
-      integer iz_to_i2(2,0:1)
-      integer i1_start(2,0:1)
-      integer i2_start(2,0:1)
+      integer iq_to_i1(2,0:3)
+      integer iq_to_i2(2,0:3)
+      integer iz_to_i2(2,0:3)
+      integer i1_start(2,0:3)
+      integer i2_start(2,0:3)
       common / ptrans_blk1 / iq_to_i1,iq_to_i2,iz_to_i2,
      >                       i1_start,i2_start
 
@@ -890,12 +890,14 @@ c     implicit none
       integer msglen
       integer pfrom,pto
       integer taskid,np
-      integer n1,n2
+      integer n1,n2,id
 
 *     **** external functions ****
       integer  Parallel2d_convert_taskid_i
       external Parallel2d_convert_taskid_i
       
+
+      id = 2*(nbb/2) + 1
 
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
@@ -956,7 +958,8 @@ c     implicit none
    
 *     **** unpack A(i) array ****
       call D3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
-      call D3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,nbb)),A)
+      call D3dB_pfft_index2_zero(nfft3d(id)-n2,
+     >                           int_mb(iz_to_i2(1,nbb)),A)
 
       
       return
@@ -992,11 +995,11 @@ c     implicit none
 #include "D3dB.fh"
 
 *     **** indexing variables ****
-      integer iq_to_i1(2,0:1)
-      integer iq_to_i2(2,0:1)
-      integer iz_to_i2(2,0:1)
-      integer i1_start(2,0:1)
-      integer i2_start(2,0:1)
+      integer iq_to_i1(2,0:3)
+      integer iq_to_i2(2,0:3)
+      integer iz_to_i2(2,0:3)
+      integer i1_start(2,0:3)
+      integer i2_start(2,0:3)
       common / ptrans_blk2 / iq_to_i1,iq_to_i2,iz_to_i2,
      >                       i1_start,i2_start
 
@@ -1018,12 +1021,14 @@ c     implicit none
       integer msglen
       integer pfrom,pto
       integer taskid,np
-      integer n1,n2
+      integer n1,n2,id
 
 *     **** external functions ****
       integer  Parallel2d_convert_taskid_i
       external Parallel2d_convert_taskid_i
       
+      id = 2*(nbb/2) + 1
+
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
 
@@ -1082,7 +1087,8 @@ c     implicit none
 
 *     **** unpack A(i) array ****
       call D3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
-      call D3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,nbb)),A)
+      call D3dB_pfft_index2_zero(nfft3d(id)-n2,
+     >                           int_mb(iz_to_i2(1,nbb)),A)
       
       return
       end
@@ -1357,11 +1363,11 @@ c     integer i2_start(NFFT3+1)
 #include "D3dB.fh"
 
 *     **** indexing variables ****
-      integer iq_to_i1(2,0:1)
-      integer iq_to_i2(2,0:1)
-      integer iz_to_i2(2,0:1)
-      integer i1_start(2,0:1)
-      integer i2_start(2,0:1)
+      integer iq_to_i1(2,0:3)
+      integer iq_to_i2(2,0:3)
+      integer iz_to_i2(2,0:3)
+      integer i1_start(2,0:3)
+      integer i2_start(2,0:3)
       common / ptrans_blk1 / iq_to_i1,iq_to_i2,iz_to_i2,
      >                       i1_start,i2_start
 
@@ -1478,23 +1484,26 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** indexing variables ****
-      integer iq_to_i1(2,0:1)
-      integer iq_to_i2(2,0:1)
-      integer iz_to_i2(2,0:1)
-      integer i1_start(2,0:1)
-      integer i2_start(2,0:1)
+      integer iq_to_i1(2,0:3)
+      integer iq_to_i2(2,0:3)
+      integer iz_to_i2(2,0:3)
+      integer i1_start(2,0:3)
+      integer i2_start(2,0:3)
       common / ptrans_blk1 / iq_to_i1,iq_to_i2,iz_to_i2,
      >                       i1_start,i2_start
 
 *     **** local variables ***
-      integer np,n2
+      integer np,n2,id
       
+      id = 2*(nbb/2) + 1
+
       call Parallel2d_np_i(np)
 
 *     **** unpack A(i) array ****
       n2 = int_mb(i2_start(1,nbb)+np) - 1
       call D3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
-      call D3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,nbb)),A)
+      call D3dB_pfft_index2_zero(nfft3d(id)-n2,
+     >                           int_mb(iz_to_i2(1,nbb)),A)
 
       return
       end
@@ -1532,11 +1541,11 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** indexing variables ****
-      integer iq_to_i1(2,0:1)
-      integer iq_to_i2(2,0:1)
-      integer iz_to_i2(2,0:1)
-      integer i1_start(2,0:1)
-      integer i2_start(2,0:1)
+      integer iq_to_i1(2,0:3)
+      integer iq_to_i2(2,0:3)
+      integer iz_to_i2(2,0:3)
+      integer i1_start(2,0:3)
+      integer i2_start(2,0:3)
       common / ptrans_blk2 / iq_to_i1,iq_to_i2,iz_to_i2,
      >                       i1_start,i2_start
 
@@ -1656,26 +1665,28 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** indexing variables ****
-      integer iq_to_i1(2,0:1)
-      integer iq_to_i2(2,0:1)
-      integer iz_to_i2(2,0:1)
-      integer i1_start(2,0:1)
-      integer i2_start(2,0:1)
+      integer iq_to_i1(2,0:3)
+      integer iq_to_i2(2,0:3)
+      integer iz_to_i2(2,0:3)
+      integer i1_start(2,0:3)
+      integer i2_start(2,0:3)
       common / ptrans_blk2 / iq_to_i1,iq_to_i2,iz_to_i2,
      >                       i1_start,i2_start
 
 
 *     **** local variables ***
-      integer np,n2
+      integer np,n2,id
       
+      id = 2*(nbb/2) + 1
+
       call Parallel2d_np_i(np)
 
 *     **** unpack A(i) array ****
       n2 = int_mb(i2_start(1,nbb)+np) - 1
       call D3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
-      call D3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,nbb)),A)
+      call D3dB_pfft_index2_zero(nfft3d(id)-n2,
+     >                           int_mb(iz_to_i2(1,nbb)),A)
       
-
       return
       end
 
@@ -1713,12 +1724,12 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** indexing variables ****
-      integer h_iq_to_i1(2,6,0:1)
-      integer h_iq_to_i2(2,6,0:1)
-      integer h_iz_to_i2(2,6,0:1)
-      integer h_iz_to_i2_count(6,0:1)
-      integer h_i1_start(2,6,0:1)
-      integer h_i2_start(2,6,0:1)
+      integer h_iq_to_i1(2,6,0:3)
+      integer h_iq_to_i2(2,6,0:3)
+      integer h_iz_to_i2(2,6,0:3)
+      integer h_iz_to_i2_count(6,0:3)
+      integer h_i1_start(2,6,0:3)
+      integer h_i2_start(2,6,0:3)
       common / ptrans_blk_ijk / h_iq_to_i1,
      >                         h_iq_to_i2,
      >                         h_iz_to_i2,
@@ -1841,12 +1852,12 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** indexing variables ****
-      integer h_iq_to_i1(2,6,0:1)
-      integer h_iq_to_i2(2,6,0:1)
-      integer h_iz_to_i2(2,6,0:1)
-      integer h_iz_to_i2_count(6,0:1)
-      integer h_i1_start(2,6,0:1)
-      integer h_i2_start(2,6,0:1)
+      integer h_iq_to_i1(2,6,0:3)
+      integer h_iq_to_i2(2,6,0:3)
+      integer h_iz_to_i2(2,6,0:3)
+      integer h_iz_to_i2_count(6,0:3)
+      integer h_i1_start(2,6,0:3)
+      integer h_i2_start(2,6,0:3)
       common / ptrans_blk_ijk / h_iq_to_i1,
      >                         h_iq_to_i2,
      >                         h_iz_to_i2,
@@ -1902,12 +1913,12 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** indexing variables ****
-      integer h_iq_to_i1(2,6,0:1)
-      integer h_iq_to_i2(2,6,0:1)
-      integer h_iz_to_i2(2,6,0:1)
-      integer h_iz_to_i2_count(6,0:1)
-      integer h_i1_start(2,6,0:1)
-      integer h_i2_start(2,6,0:1)
+      integer h_iq_to_i1(2,6,0:3)
+      integer h_iq_to_i2(2,6,0:3)
+      integer h_iz_to_i2(2,6,0:3)
+      integer h_iz_to_i2_count(6,0:3)
+      integer h_i1_start(2,6,0:3)
+      integer h_i2_start(2,6,0:3)
       common / ptrans_blk_ijk / h_iq_to_i1,
      >                         h_iq_to_i2,
      >                         h_iz_to_i2,

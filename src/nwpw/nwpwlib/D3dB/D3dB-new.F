@@ -1,5 +1,5 @@
 ccccccccccc  #define TCGMSG
-#define NBLOCKS 2
+#define NBLOCKS 3
 
 *
 * $Id$
