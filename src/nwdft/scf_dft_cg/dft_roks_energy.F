@@ -90,7 +90,7 @@ c
        call util_flush(6)
       endif 
 c
-c     ----- cosmo energy term ... -----
+c     ----- cosmo and smd energy term -----
 c
       odebug=.false.
       odebug=odebug.and.ga_nodeid().eq.0
@@ -98,8 +98,10 @@ c
       do_cosmo_smd = .false.
       gcds = 0.d0
       if(cosmo_on.and.cosmo_phase.eq.2) then
-         if (.not. rtdb_get(rtdb,'cosmo:energy',mt_dbl,1,ecosmo))
-     $     call errquit('dft_roks_energy: rtdb get failed for ecosmo',
+         if (.not. rtdb_get(
+     $     rtdb,'cosmo:energy',mt_dbl,1,ecosmo))
+     $     call errquit(
+     $     'dft_roks_energy: rtdb get failed for ecosmo',
      $                  911, RTDB_ERR)
 c
          if (.not. rtdb_get(

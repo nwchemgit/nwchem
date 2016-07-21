@@ -25,6 +25,7 @@ c
 #include "msgids.fh"
 #include "dftps.fh"
 #include "bgj.fh"
+#include "cosmo.fh"
 c
 #ifdef SCALAPACK
 #include "dft_scaleig.fh"
@@ -82,6 +83,10 @@ c
       double precision dft_time
       double precision edisp, dum
       logical disp
+      double precision ecosmo,gcds
+      logical do_cosmo_smd
+      double precision esol, egas
+      double precision gstote, gspol
 c
       logical  xc_chkdispauto
       external xc_chkdispauto
@@ -151,6 +156,32 @@ c     grid is not there yet
 c
       dft_time = dft_time + util_cpusec()
 c
+c     get the cosmo energy
+      if(cosmo_on.and.cosmo_phase.eq.2) then
+         if (.not.rtdb_get(
+     $     rtdb,'cosmo:energy',mt_dbl,1,ecosmo))
+     $     call errquit(
+     $     'dft_cg_solve: rtdb get failed for ecosmo',
+     $     0,rtdb_err)
+         if (.not. rtdb_get(
+     $     rtdb,'cosmo:do_cosmo_smd',mt_log,1,do_cosmo_smd))
+     $     call errquit(
+     $     'dft_cg_solve: cannot get do_cosmo_smd from rtdb',
+     $     0,rtdb_err)
+         if (do_cosmo_smd) then
+           if (.not. rtdb_get
+     $       (rtdb,'cosmo:gcds',mt_dbl,1,gcds))
+     $       call errquit(
+     $       'dft_cg_solve: cannot get gcds from rtdb',
+     $       0,rtdb_err)
+           if(.not.rtdb_get
+     $       (rtdb,'cosmo:gspol',mt_dbl,1,gspol))
+     $       call errquit(
+     $       'dft_cg_solve: cannot get gspol from rtdb',
+     $       0,rtdb_err)
+         endif ! do_cosmo_smd
+      endif
+c
       if (ga_nodeid().eq.0) then
         if (.not.lsuccess) then
           write(luout,*)
@@ -163,12 +194,29 @@ c
         else
           write(LuOut,210)energy,eone,etwo,exc(1),exc(2),enuc
         end if
-        if (abs(edisp).gt.0.0d0) then
-          write(luout,215) edisp
-        endif
+c
+        if (abs(edisp).gt.0.0d0) write(luout,215) edisp
+c
+        if (cosmo_on.and.cosmo_phase.eq.2) then
+          if (do_cosmo_smd) then
+           write(LuOut,216) ecosmo+gcds
+          else
+           write(LuOut,216) ecosmo
+          end if
+         endif
+c
         write(luout,220) rho_n
         write(luout,230) dft_time
       endif
+c
+c     print cosmo, smd output
+      egas = 0.d0
+      esol = 0.d0
+      if (.not. rtdb_get(rtdb,'cosmo:egas',mt_dbl,1,egas)) egas = 0.d0
+      if (.not. rtdb_get(rtdb,'cosmo:esol',mt_dbl,1,esol)) esol = 0.d0
+      gstote = esol - gcds
+      if (me.eq.0) call cosmo_smd_output(egas, esol, do_cosmo_smd, gcds,
+     $  gstote, gspol)
 c
       if (dft_cscf_equals_scftype("UHF")) then
         ipol = 2
@@ -244,8 +292,11 @@ c
      &     '          Exchange energy =', f22.12/
      &     '       Correlation energy =', f22.12/
      &     ' Nuclear repulsion energy =', f22.12/)
+c
  215  format('    Dispersion correction =', f22.12/)
+ 216  format('             COSMO energy =', f22.12/)
 c
  220  format(' Numeric. integr. density =', f22.12/)
  230  format('     Total iterative time =', f9.1,'s'//)
+c
       end
