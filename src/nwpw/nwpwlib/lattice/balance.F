@@ -10,13 +10,13 @@
 
       subroutine Balance_Init(maxsize0,nidb,nidb_out)
       implicit none
-#include "errquit.fh"
       integer maxsize0
       integer nidb(0:maxsize0-1)
       integer nidb_out(0:maxsize0-1)
 
 #include "bafdecls.fh"
 #include "balance_common.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       logical value
@@ -119,17 +119,17 @@
 
 
 *     ***********************************
-*     *                 				*
-*     *           Balance_End 		    *
-*     *                 				*
+*     *              			*
+*     *           Balance_End 		*
+*     *                 		*
 *     ***********************************
 
       subroutine Balance_End()
       implicit none
-#include "errquit.fh"
 
 #include "bafdecls.fh"
 #include "balance_common.fh"
+#include "errquit.fh"
 
 
 *     **** local variables ****
@@ -180,7 +180,6 @@
      >                          proc_to,proc_from,
      >                          packet_size,indx_start)
       implicit none
-#include "errquit.fh"
       integer nwave,np,taskid
       integer nwave_out
 
@@ -191,6 +190,7 @@
       integer indx_start(*)
 
 #include "bafdecls.fh"
+#include "errquit.fh"
 
 *     ***** local variables ****
       logical done,value
@@ -587,7 +587,6 @@ c            send data....
       integer A(*)
 
 #include "bafdecls.fh"
-
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "balance_common.fh"

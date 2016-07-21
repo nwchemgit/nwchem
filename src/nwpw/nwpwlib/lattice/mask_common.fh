@@ -3,6 +3,7 @@
 *
 
 *     **** common block for masker ****
-      integer masker(2,0:1),nwave(0:1),nwave_entire(0:1)
-      common / mask_block / masker,nwave,nwave_entire
+      logical has_small
+      integer masker(2,0:3),nwave(0:3),nwave_entire(0:3)
+      common / mask_block / masker,nwave,nwave_entire,has_small
 

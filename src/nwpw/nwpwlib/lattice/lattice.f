@@ -560,6 +560,152 @@
 
 *     ********************************************
 *     *                                          *
+*     *          lattice_unita_small             *
+*     *                                          *
+*     ********************************************
+      real*8 function lattice_unita_small(i,j)
+      implicit none
+      integer i,j
+
+*     **** common block ****
+      logical has_small
+      real*8  omega_small
+      real*8  unita_small(3,3),unitg_small(3,3)
+      common /lattice_small_block/ unita_small,unitg_small,
+     >                             omega_small,has_small
+
+      lattice_unita_small = unita_small(i,j)
+      return
+      end
+
+*     ********************************************
+*     *                                          *
+*     *          lattice_unita_frozen_small      *
+*     *                                          *
+*     ********************************************
+      real*8 function lattice_unita_frozen_small(i,j)
+      implicit none
+      integer i,j
+
+*     **** common block ****
+      real*8  omega_frozen_small
+      real*8  unita_frozen_small(3,3),unitg_frozen_small(3,3)
+      common /lattice_small_frozen_block/ unita_frozen_small,
+     >                             unitg_frozen_small,
+     >                             omega_frozen_small
+
+      lattice_unita_frozen_small = unita_frozen_small(i,j)
+      return
+      end
+
+
+*     ********************************************
+*     *                                          *
+*     *          lattice_unitg_small             *
+*     *                                          *
+*     ********************************************
+      real*8 function lattice_unitg_small(i,j)
+      implicit none
+      integer i,j
+
+*     **** common block ****
+      logical has_small
+      real*8  omega_small
+      real*8  unita_small(3,3),unitg_small(3,3)
+      common /lattice_small_block/ unita_small,unitg_small,
+     >                             omega_small,has_small
+
+      lattice_unitg_small = unitg_small(i,j)
+      return
+      end
+
+*     ********************************************
+*     *                                          *
+*     *          lattice_unitg_frozen_small      *
+*     *                                          *
+*     ********************************************
+      real*8 function lattice_unitg_frozen_small(i,j)
+      implicit none
+      integer i,j
+
+*     **** common block ****
+      real*8  omega_frozen_small
+      real*8  unita_frozen_small(3,3),unitg_frozen_small(3,3)
+      common /lattice_small_frozen_block/ unita_frozen_small,
+     >                             unitg_frozen_small,
+     >                             omega_frozen_small
+
+      lattice_unitg_frozen_small = unitg_frozen_small(i,j)
+      return
+      end
+
+
+
+*     ********************************************
+*     *                                          *
+*     *          lattice_omega_small             *
+*     *                                          *
+*     ********************************************
+      real*8 function lattice_omega_small(i,j)
+      implicit none
+      integer i,j
+
+*     **** common block ****
+      logical has_small
+      real*8  omega_small
+      real*8  unita_small(3,3),unitg_small(3,3)
+      common /lattice_small_block/ unita_small,unitg_small,
+     >                             omega_small,has_small
+
+      lattice_omega_small = omega_small
+      return
+      end
+
+*     ********************************************
+*     *                                          *
+*     *          lattice_omega_frozen_small      *
+*     *                                          *
+*     ********************************************
+      real*8 function lattice_omega_frozen_small()
+      implicit none
+      integer i,j
+
+*     **** common block ****
+      real*8  omega_frozen_small
+      real*8  unita_frozen_small(3,3),unitg_frozen_small(3,3)
+      common /lattice_small_frozen_block/ unita_frozen_small,
+     >                             unitg_frozen_small,
+     >                             omega_frozen_small
+
+      lattice_omega_frozen_small = omega_frozen_small
+      return
+      end
+
+*     ********************************************
+*     *                                          *
+*     *          lattice_has_small               *
+*     *                                          *
+*     ********************************************
+      logical function lattice_has_small()
+      implicit none
+
+*     **** common block ****
+      logical has_small
+      real*8  omega_small
+      real*8  unita_small(3,3),unitg_small(3,3)
+      common /lattice_small_block/ unita_small,unitg_small,
+     >                             omega_small,has_small
+
+      lattice_has_small = has_small
+      return
+      end
+
+
+
+
+
+*     ********************************************
+*     *                                          *
 *     *          lattice_unitg_frozen            *
 *     *                                          *
 *     ********************************************
@@ -771,6 +917,18 @@
      >                         ecut_frozen,wcut_frozen,
      >                         omega_frozen,frozen
 
+      logical has_small
+      real*8  omega_small
+      real*8  unita_small(3,3),unitg_small(3,3)
+      common /lattice_small_block/ unita_small,unitg_small,
+     >                             omega_small,has_small
+
+      real*8  omega_frozen_small
+      real*8  unita_frozen_small(3,3),unitg_frozen_small(3,3)
+      common /lattice_small_frozen_block/ unita_frozen_small,
+     >                             unitg_frozen_small,
+     >                             omega_frozen_small
+
 
 *     **** local variables ****
       integer nx,ny,nz
@@ -780,12 +938,12 @@
       real*8  ecut0,wcut0
 
 *     **** external functions ****
-      logical  control_frozen
-      integer  control_ngrid
+      logical  control_frozen,control_has_ngrid_small
+      integer  control_ngrid,control_ngrid_small
       real*8   control_unita,control_ecut,control_wcut
       real*8   control_unita_frozen
-      external control_frozen
-      external control_ngrid
+      external control_frozen,control_has_ngrid_small
+      external control_ngrid,control_ngrid_small
       external control_unita,control_ecut,control_wcut
       external control_unita_frozen
         
@@ -866,6 +1024,37 @@ c     call D3dB_nz(1,nz)
 *     **** set ecut,wcut for frozen lattice ****
       wcut_frozen = wcut
       ecut_frozen = ecut
+
+
+*     **** small cell ****
+      has_small = control_has_ngrid_small()
+      if (has_small) then
+         gg1 = dble(control_ngrid_small(1))/dble(nx)
+         gg2 = dble(control_ngrid_small(2))/dble(ny)
+         gg3 = dble(control_ngrid_small(3))/dble(nz)
+         unita_small(1,1) = unita(1,1)*gg1
+         unita_small(2,1) = unita(2,1)*gg1
+         unita_small(3,1) = unita(3,1)*gg1
+         unita_small(1,2) = unita(1,2)*gg2
+         unita_small(2,2) = unita(2,2)*gg2
+         unita_small(3,2) = unita(3,2)*gg2
+         unita_small(1,3) = unita(1,3)*gg3
+         unita_small(2,3) = unita(2,3)*gg3
+         unita_small(3,3) = unita(3,3)*gg3
+         call get_cube(unita_small,unitg_small,omega_small)
+         unita_frozen_small(1,1) = unita_frozen(1,1)*gg1
+         unita_frozen_small(2,1) = unita_frozen(2,1)*gg1
+         unita_frozen_small(3,1) = unita_frozen(3,1)*gg1
+         unita_frozen_small(1,2) = unita_frozen(1,2)*gg2
+         unita_frozen_small(2,2) = unita_frozen(2,2)*gg2
+         unita_frozen_small(3,2) = unita_frozen(3,2)*gg2
+         unita_frozen_small(1,3) = unita_frozen(1,3)*gg3
+         unita_frozen_small(2,3) = unita_frozen(2,3)*gg3
+         unita_frozen_small(3,3) = unita_frozen(3,3)*gg3
+         call get_cube(unita_frozen_small,
+     >                 unitg_frozen_small,
+     >                 omega_frozen_small)
+      end if
 
       return
       end
