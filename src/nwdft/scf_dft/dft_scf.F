@@ -1980,26 +1980,13 @@ c regular cosmo output
 c
          if(cosmo_on.and.cosmo_phase.eq.2.and.
      $ istep_cosmo_vem.eq.0.and..not.do_cosmo_smd) then
+          call cosmo_smd_output(egas, esol, do_cosmo_smd, gcds, 
+     $            gstote, gspol)
+
 c <-- MN solvation models
-           write(LuOut,*) '                 COSMO solvation results'
-           write(LuOut,*) '                 -----------------------'
-           write(LuOut,*) ' '
-           if (ocosmo_got_gasphase) then
-             write(LuOut,912) egas
-             write(LuOut,913) esol
-             write(LuOut,914) (egas-esol),(egas-esol)*627.509451d+00
-           else
-             write(LuOut,915) 
-             write(LuOut,913) esol
-           endif
-           call util_flush(LuOut)
+
          endif
       endif
- 912  format('                 gas phase energy = ',f20.10)
- 913  format('                 sol phase energy = ',f20.10)
- 914  format(' (electrostatic) solvation energy = ',f20.10,
-     $     ' (',f8.2,' kcal/mol)'                       )
- 915  format('     skipped: no gas phase energy')
 c
 c MN solvation models -->
 c
@@ -2008,26 +1995,8 @@ c
       if (me.eq.0.and.oprint)then
          if(cosmo_on.and.cosmo_phase.eq.2.and.
      $ istep_cosmo_vem.eq.0.and.do_cosmo_smd) then
-           write(LuOut,919)
-           if (ocosmo_got_gasphase) then
-             write(LuOut,920) egas
-             write(LuOut,921) (gstote-gspol)
-             write(LuOut,922) (gstote-gspol-egas),
-     $ (gstote-gspol-egas)*627.509451d+00
-             write(LuOut,923) gstote
-             write(LuOut,924) gspol,
-     $ gspol*627.509451d+00
-             write(LuOut,925) esol
-             write(LuOut,926) gcds,gcds*627.509451d+00
-             write(LuOut,927) (esol-egas),(esol-egas)*627.509451d+00
-           else
-             write(LuOut,921) (gstote-gspol)
-             write(LuOut,923) gstote
-             write(LuOut,924) gspol,
-     $ gspol*627.509451d+00
-             write(LuOut,925) esol
-             write(LuOut,926) gcds,gcds*627.509451d+00
-           endif
+          call cosmo_smd_output(egas, esol, do_cosmo_smd, gcds, 
+     $            gstote, gspol)
          endif
 c
 c cosmo-vem (emission energy) output
@@ -2047,38 +2016,6 @@ c          write (luout,937) gspol,gspol*27.211399d0
          endif
          call util_flush(LuOut)
       endif
-c
- 919  format(
-     $32x,'COSMO-SMD solvation results',/,
-     $32x,'---------------------------',/
-     $' Reference for the SMD model:',/,
-     $' Marenich, A. V.; Cramer, C. J.; Truhlar, D. G.',
-     $' J. Phys. Chem. B 2009, 113, 6378',/)
- 920  format(1x,
-     $'            internal energy in gas <Psi(g)|H|Psi(g)> = ',
-     $ f20.10)
- 921  format(1x,
-     $'        internal energy in solvent <Psi(s)|H|Psi(s)> = ',
-     $ f20.10)
- 922  format(1x,
-     $'                              delta internal energy  = ',
-     $ f20.10,' (',f8.2,' kcal/mol)')
- 923  format(1x,
-     $'  total free energy in solvent <Psi(s)|H+V/2|Psi(s)> = ',
-     $ f20.10)
- 924  format(1x,
-     $'polarization energy contribution <Psi(s)|V/2|Psi(s)> = ',
-     $ f20.10,' (',f8.2,' kcal/mol)')
- 925  format(1x,
-     $'   total free energy in solvent including G(SMD-CDS) = ',
-     $ f20.10)
- 926  format(1x,
-     $'                      G(SMD-CDS) energy contribution = ',
-     $ f20.10,
-     $     ' (',f8.2,' kcal/mol)')
- 927  format(1x,
-     $'    1 M fixed-concentration free energy of solvation = ',
-     $ f20.10,' (',f8.2,' kcal/mol)'                       )
 c
  930  format(/,
      $'                          COSMO-VEM solvation results',/,
