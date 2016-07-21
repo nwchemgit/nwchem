@@ -1811,7 +1811,7 @@ endif
           ifeq ($(_IFCV15ORNEWER), Y)
             FOPTIONS += -qopt-report-phase=offload
             FOPTIONS += -qoffload-option,mic,compiler,"-align array64byte"
-            FOPTIONS += -offload-option,mic,compiler,"-qopt-prefetch=4 -qopt-prefetch-distance=4,1"
+            FOPTIONS += -qoffload-option,mic,compiler,"-qopt-prefetch=4 -qopt-prefetch-distance=4,1"
             FOPTIONS += -qopt-assume-safe-padding
             FOPTIONS += -align array64byte
 	        LDOPTIONS += -qoffload-option,mic,compiler," -Wl,-zmuldefs"
