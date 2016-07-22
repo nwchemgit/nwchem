@@ -26,6 +26,7 @@ C>
 #include "msgids.fh"
 #include "cosmoP.fh"
 #include "cosmo_params.fh"
+#include "util_params.fh"
 c
       integer rtdb   !< [Input] the RTDB handle
       integer geom   !< [Input] the geometry handle
@@ -600,7 +601,7 @@ c        call smd model
      $ 'cosmo_initialize: cannot get areacds from rtdb',
      $ 911,rtdb_err)
          if (me.eq.0) then
-          write(luout,9976) gcds*627.509451d+00
+          write(luout,9976) gcds*cau2kcal
           write(luout,9975) areacds   
          endif 
       end if
