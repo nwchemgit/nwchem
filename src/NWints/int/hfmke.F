@@ -141,7 +141,7 @@ c            ===>   Ip = 1,Ia-2; Ia = 2,La; Ib = 0   <===
 
           do 240 Ip = 1,Ia-2
 
-           do 230 m = 1,NPP
+           do m = 1,NPP
 
             Ex1 =    E(1,m,nd,Ip-1,Ia-1,0)
             Ex2 = Rx*E(1,m,nd,Ip  ,Ia-1,0)
@@ -159,38 +159,37 @@ c            ===>   Ip = 1,Ia-2; Ia = 2,La; Ib = 0   <===
             E(2,m,nd,Ip,Ia,0) = pf(1,m)*Ey1 + pf(2,m)*Ey2 + (Ip+1)*Ey3
             E(3,m,nd,Ip,Ia,0) = pf(1,m)*Ez1 + pf(2,m)*Ez2 + (Ip+1)*Ez3
 
-  230     continue
+         enddo
 
   240    continue
 
 c            ===>   Ip = Ia-1,Ia; Ia = 2,La; Ib = 0   <===
 
          Ip = Ia-1
+cbreakakakakaka
+         do  m = 1,NPP
+            Ex1=E(1,m,nd,Ip,Ia-1,0)
+            Ey1=E(2,m,nd,Ip,Ia-1,0)
+            Ez1=E(3,m,nd,Ip,Ia-1,0)
+            E(1,m,nd,Ip+1,Ia,0) = pf(1,m)*Ex1
+            E(2,m,nd,Ip+1,Ia,0) = pf(1,m)*Ey1
+            E(3,m,nd,Ip+1,Ia,0) = pf(1,m)*Ez1
+            E(1,m,nd,Ip,Ia,0) =   pf(2,m)*Rx*Ex1
+            E(2,m,nd,Ip,Ia,0) =   pf(2,m)*Ry*Ey1
+            E(3,m,nd,Ip,Ia,0) =   pf(2,m)*Rz*Ez1
+            
+         enddo
 
-         do 250 m = 1,NPP
+         do  m = 1,NPP
+          E(1,m,nd,Ip,Ia,0) = E(1,m,nd,Ip,Ia,0) + 
+     +           pf(1,m)*E(1,m,nd,Ip-1,Ia-1,0) 
+          E(2,m,nd,Ip,Ia,0) = E(2,m,nd,Ip,Ia,0) +
+     +         pf(1,m)*E(2,m,nd,Ip-1,Ia-1,0) 
+          E(3,m,nd,Ip,Ia,0) = E(3,m,nd,Ip,Ia,0) +
+     +         pf(1,m)*E(3,m,nd,Ip-1,Ia-1,0)  
 
-          Ex1 =    E(1,m,nd,Ip-1,Ia-1,0) 
-          Ex2 = Rx*E(1,m,nd,Ip  ,Ia-1,0)
 
-          Ey1 =    E(2,m,nd,Ip-1,Ia-1,0) 
-          Ey2 = Ry*E(2,m,nd,Ip  ,Ia-1,0)
-
-          Ez1 =    E(3,m,nd,Ip-1,Ia-1,0) 
-          Ez2 = Rz*E(3,m,nd,Ip  ,Ia-1,0)
-
-          E(1,m,nd,Ip,Ia,0) = pf(1,m)*Ex1 + pf(2,m)*Ex2
-          E(2,m,nd,Ip,Ia,0) = pf(1,m)*Ey1 + pf(2,m)*Ey2
-          E(3,m,nd,Ip,Ia,0) = pf(1,m)*Ez1 + pf(2,m)*Ez2
-
-          Ex1 = E(1,m,nd,Ip,Ia-1,0)
-          Ey1 = E(2,m,nd,Ip,Ia-1,0)
-          Ez1 = E(3,m,nd,Ip,Ia-1,0)
-
-          E(1,m,nd,Ip+1,Ia,0) = pf(1,m)*Ex1
-          E(2,m,nd,Ip+1,Ia,0) = pf(1,m)*Ey1
-          E(3,m,nd,Ip+1,Ia,0) = pf(1,m)*Ez1
-
-  250    continue
+        enddo
 
   260   continue
 
@@ -445,30 +444,39 @@ c            ===>   Ip = Ia-1,Ia; Ia = 2,La; Ib = 0   <===
 
          Ip = Ia-1
 
-         do 1250 m = 1,NPP
-
-          Ex1 =    E(1,m,nd,Ip-1,Ia-1,0) 
-          Ex2 = Rx*E(1,m,nd,Ip  ,Ia-1,0) + nd*E(1,m,nd-1,Ip,Ia-1,0)
-
-          Ey1 =    E(2,m,nd,Ip-1,Ia-1,0) 
-          Ey2 = Ry*E(2,m,nd,Ip  ,Ia-1,0) + nd*E(2,m,nd-1,Ip,Ia-1,0)
-
-          Ez1 =    E(3,m,nd,Ip-1,Ia-1,0) 
-          Ez2 = Rz*E(3,m,nd,Ip  ,Ia-1,0) + nd*E(3,m,nd-1,Ip,Ia-1,0)
-
-          E(1,m,nd,Ip,Ia,0) = pf(1,m)*Ex1 + pf(2,m)*Ex2
-          E(2,m,nd,Ip,Ia,0) = pf(1,m)*Ey1 + pf(2,m)*Ey2
-          E(3,m,nd,Ip,Ia,0) = pf(1,m)*Ez1 + pf(2,m)*Ez2
+cbreak2
+         do m = 1,NPP
 
           Ex1 = E(1,m,nd,Ip,Ia-1,0)
           Ey1 = E(2,m,nd,Ip,Ia-1,0)
           Ez1 = E(3,m,nd,Ip,Ia-1,0)
 
+          E(1,m,nd,Ip,Ia,0) =  pf(2,m) * (Rx*Ex1 + 
+     +         nd*E(1,m,nd-1,Ip,Ia-1,0))
+          E(2,m,nd,Ip,Ia,0) =  pf(2,m) * (Ry*Ey1 + 
+     +         nd*E(2,m,nd-1,Ip,Ia-1,0))
+          E(3,m,nd,Ip,Ia,0) =  pf(2,m) * (Rz*Ez1 + 
+     +         nd*E(3,m,nd-1,Ip,Ia-1,0))
+
+
           E(1,m,nd,Ip+1,Ia,0) = pf(1,m)*Ex1
           E(2,m,nd,Ip+1,Ia,0) = pf(1,m)*Ey1
           E(3,m,nd,Ip+1,Ia,0) = pf(1,m)*Ez1
 
- 1250    continue
+       enddo
+         do  m = 1,NPP
+
+            Ex1 =    E(1,m,nd,Ip-1,Ia-1,0) 
+            Ey1 =    E(2,m,nd,Ip-1,Ia-1,0) 
+            Ez1 =    E(3,m,nd,Ip-1,Ia-1,0) 
+            
+
+            E(1,m,nd,Ip,Ia,0) = E(1,m,nd,Ip,Ia,0)+pf(1,m)*Ex1 
+            E(2,m,nd,Ip,Ia,0) = E(2,m,nd,Ip,Ia,0)+pf(1,m)*Ey1 
+            E(3,m,nd,Ip,Ia,0) = E(3,m,nd,Ip,Ia,0)+pf(1,m)*Ez1 
+            
+
+         enddo
 
  1260   continue
 
