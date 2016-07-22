@@ -22,8 +22,16 @@ C
       integer t_p4b, t_p4
       integer t_p5b, t_p5
       integer t_p6b, t_p6
+#ifdef USE_F90_ALLOCATABLE
+      double precision, allocatable :: f_singles(:), f_doubles(:)
+#ifdef USE_FASTMEM
+      !dec$ attributes fastmem :: f_singles, f_doubles
+#endif
+      integer alloc_error
+#else // USE_F90_ALLOCATABLE
       integer k_singles,l_singles
       integer k_doubles,l_doubles
+#endif // USE_F90_ALLOCATABLE
       integer size,i
       integer nxtask
       integer next
@@ -147,10 +155,23 @@ c
      6    int_mb(k_range+t_p5b-1)-(int_mb(k_range+t_p5b-1)/dp5)*dp5
 c
 c ----------
+#if USE_F90_ALLOCATABLE
+            allocate(f_singles(1:size), stat=alloc_error)
+            if (alloc_error.ne.0) then
+              call errquit('ccsd_t_6dts: allocate failed',
+     1                     alloc_error, MA_ERR)
+            endif
+            allocate(f_doubles(1:size), stat=alloc_error)
+            if (alloc_error.ne.0) then
+              call errquit('ccsd_t_6dts: allocate failed',
+     1                     alloc_error, MA_ERR)
+            endif
+#else  // USE_F90_ALLOCATABLE
             if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
      1        k_singles)) call errquit('ccsd_t: MA error',1,MA_ERR)
             if (.not.MA_PUSH_GET(mt_dbl,size,'(T) doubles',l_doubles,
      1        k_doubles)) call errquit('ccsd_t: MA error',2,MA_ERR)
+#endif  // USE_F90_ALLOCATABLE
 c  6DTS ----
            do ii=1,dp4 !do ii ---
            do jj=1,dp5 !do jj ---
@@ -169,15 +190,28 @@ c  6DTS ----
              jstop=int_mb(k_range+t_p5b-1)
             end if
 c zeroing ---
+#if USE_F90_ALLOCATABLE
+        call dfill(size, 0.0d0, f_singles, 1)
+        call dfill(size, 0.0d0, f_doubles, 1)
+#else  // USE_F90_ALLOCATABLE
         call dfill(size, 0.0d0, dbl_mb(k_singles), 1)
         call dfill(size, 0.0d0, dbl_mb(k_doubles), 1)
+#endif  // USE_F90_ALLOCATABLE
 c -----------
 cjeff            print*,'#DTS#',istart,istop,jstart,jstop,maxp4,maxp5
+#if USE_F90_ALLOCATABLE
+            call ccsd_t_singles_l_6dts(f_singles,
+#else  // USE_F90_ALLOCATABLE
             call ccsd_t_singles_l_6dts(dbl_mb(k_singles),
+#endif  // USE_F90_ALLOCATABLE
      1        k_t1_local,d_v2,k_t1_offset,
      1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2,
      1        istart,istop,jstart,jstop,maxp4,maxp5)
+#if USE_F90_ALLOCATABLE
+            call ccsd_t_doubles_l_6dts(f_doubles,
+#else  // USE_F90_ALLOCATABLE
             call ccsd_t_doubles_l_6dts(dbl_mb(k_doubles),
+#endif  // USE_F90_ALLOCATABLE
      1        d_t2,d_v2,k_t2_offset,
      1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2,
      1        istart,istop,jstart,jstop,maxp4,maxp5)
@@ -214,10 +248,20 @@ c
                   denom_h3 = dbl_mb(offset_h3+t_h3)
                   denom = 1.0d0 / ( ( denom_h1 + denom_h2 + denom_h3 )
      1                            - ( denom_p4 + denom_p5 + denom_p6 ) )
+#if USE_F90_ALLOCATABLE
+                  energy1 = energy1 + factor*denom
+     1                    * f_doubles(i) * f_doubles(i)
+c     1                    * dbl_mb(k_doubles+i)*dbl_mb(k_doubles+i)
+                  energy2 = energy2 + factor*denom*f_doubles(i)
+     1                    * (f_doubles(i)+f_singles(i))
+c                  energy2 = energy2 + factor*denom*dbl_mb(k_doubles+i)
+c     1                    * (dbl_mb(k_doubles+i)+dbl_mb(k_singles+i))
+#else // USE_F90_ALLOCATABLE
                   energy1 = energy1 + factor*denom
      1                    * dbl_mb(k_doubles+i)*dbl_mb(k_doubles+i)
                   energy2 = energy2 + factor*denom*dbl_mb(k_doubles+i)
      1                    * (dbl_mb(k_doubles+i)+dbl_mb(k_singles+i))
+#endif // USE_F90_ALLOCATABLE
                   i = i + 1
                  enddo
                 enddo
@@ -229,10 +273,23 @@ c
             enddo !do ii ---
             enddo !do jj ---
 c
-            if (.not.MA_POP_STACK(l_doubles)) 
+#if USE_F90_ALLOCATABLE
+            deallocate(f_singles, stat=alloc_error)
+            if (alloc_error.ne.0) then
+              call errquit('ccst_t_6dts: deallocate failed',
+     1                     , alloc_error, MA_ERR)
+            endif
+            deallocate(f_doubles, stat=alloc_error)
+            if (alloc_error.ne.0)  then
+              call errquit('ccsd_t_6dts: deallocate failed',
+     1                     alloc_error, MA_ERR)
+            endif
+#else // USE_F90_ALLOCATABLE
+            if (.not.MA_POP_STACK(l_doubles))
      1        call errquit('ccsd_t',3,MA_ERR)
-            if (.not.MA_POP_STACK(l_singles)) 
+            if (.not.MA_POP_STACK(l_singles))
      1        call errquit('ccsd_t',4,MA_ERR)
+#endif // USE_F90_ALLOCATABLE
 c
             next = nxtask(nprocs,1)
             endif
