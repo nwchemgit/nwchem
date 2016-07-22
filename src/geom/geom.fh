@@ -10,6 +10,7 @@ C$Id$
       logical geom_group_set
       logical geom_cart_set
       logical geom_cart_get
+      logical geom_cart_get2
       logical geom_cart_coords_set
       logical geom_cart_coords_get
       logical geom_coords_vels_set
@@ -119,6 +120,7 @@ c
       external geom_group_set
       external geom_cart_set
       external geom_cart_get
+      external geom_cart_get2
       external geom_cart_coords_set
       external geom_cart_coords_get
       external geom_coords_vels_set
