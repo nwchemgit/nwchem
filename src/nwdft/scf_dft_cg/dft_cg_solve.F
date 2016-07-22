@@ -88,6 +88,8 @@ c
       double precision esol, egas
       double precision gstote, gspol
 c
+      double precision tanalyze
+c
       logical  xc_chkdispauto
       external xc_chkdispauto
 c
@@ -104,6 +106,10 @@ c     == Preliminaries ==
       lsuccess = .false.
       ltried_scf = .false.
       ltried_cgmin = .false.
+c
+c     read MO analysis threshold
+      if (.not.rtdb_get(rtdb,'movecs:tanalyze',MT_DBL,1,tanalyze))
+     &        tanalyze = 0.025d0
 c
 c     == get occupancies ==
       if (.not.rtdb_get(rtdb,'dft:noc',mt_int,2,noc))
@@ -210,8 +216,6 @@ c
       endif
 c
 c     print cosmo, smd output
-      egas = 0.d0
-      esol = 0.d0
       if (.not. rtdb_get(rtdb,'cosmo:egas',mt_dbl,1,egas)) egas = 0.d0
       if (.not. rtdb_get(rtdb,'cosmo:esol',mt_dbl,1,esol)) esol = 0.d0
       gstote = esol - gcds
@@ -231,7 +235,7 @@ c
           enddo
           ihi = max(ihi-1,1)
  910      continue
-          if (util_print('final vectors analysis',print_high)) then
+          if (util_print('final vectors analysis',print_default)) then
             ilo = 1
             ihi = nmo
           endif
@@ -241,7 +245,8 @@ c
             blob = 'DFT Final Beta Molecular Orbital Analysis'
           endif
           call movecs_fix_phase(g_movecs(ispin))
-          call movecs_print_anal(basis, ilo, ihi, 0.15d0,
+c
+          call movecs_print_anal(basis, ilo, ihi, tanalyze,
      &         g_movecs(ispin),blob,
      &         .true., dbl_mb(k_eval+(ispin-1)*nbf),
      &         oadapt, int_mb(k_irs+(ispin-1)*nbf),
@@ -258,7 +263,7 @@ c
         enddo
         ihi = max(ihi-1,1)
  930    continue
-        if (util_print('final vectors analysis',print_high)) then
+        if (util_print('final vectors analysis',print_default)) then
           ilo = 1
           ihi = nmo
         endif
