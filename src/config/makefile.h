@@ -1772,7 +1772,11 @@ endif
 # only use EXPLICITF for offload because otherwise we want debugging to be easy
 #            FOPTIONS +=  -Qoption,fpp,-P -Qoption,fpp,-c_com=no  -allow nofpp_comments 
              ifdef USE_OPTREPORT
-               FOPTIONS += -qopt-report=3 -qopt-report-phase=vec 
+	  FOPTIONS += -qopt-report=3 -qopt-report-phase=vec,cg,loop,ipo
+               ifeq ($(_IFCV17), Y)
+                 FOPTIONS += -qopt-report-annotate-position=both
+               endif
+             FOPTIONS += -qopt-report-file=stderr
              endif
 #to avoid compiler crashes on simd directive. e.g .Version 15.0.2.164 Build 20150121
              ifdef USE_NOSIMD
