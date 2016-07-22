@@ -70,10 +70,6 @@ c
       external grid_reopen
       logical lsa ! Qin
 c
-      logical geom_cart_get2 
-      external geom_cart_get2 
-
-c
       integer me, nproc, nxyz, nctrs, 
      &        nbf_ao_mxnbf_ce2, nqtot, 
      &        ncoef_max,
