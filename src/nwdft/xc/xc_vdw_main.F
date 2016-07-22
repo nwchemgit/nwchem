@@ -570,9 +570,6 @@ c
       logical stat
       logical use_nwxc_disp,out1
 c
-      logical geom_cart_get2 
-      external geom_cart_get2 
-c
       double precision delta,delta_default
 c
       oprint = util_print('vdw', print_medium)
