@@ -145,10 +145,10 @@ endif
 
 set overall_status = 0
 
-foreach TEST ($args_2_use)
+foreach TEST_in ($args_2_use)
 
   cd $CURDIR
-  set TEST = tests/$TEST
+  set TEST = tests/$TEST_in
   set TESTDIR = $TEST
   set STUB    = `basename $TEST`
 #
@@ -230,12 +230,12 @@ foreach TEST ($args_2_use)
   endif
 #MV
 
-  
   if (! -f $TESTDIR/$INPUTFILE) then
     echo failed: cannot access $TESTDIR/$INPUTFILE
     set overall_status = 1
     continue
   endif
+ set INPUTFILE=$NWCHEM_TOP/QA/$TESTDIR/$INPUTFILE 
   if(! $md_test_run) then
     if (! -f $TESTDIR/$OUTPUTFILE) then
       echo failed: Could not find verified output file $TESTDIR/$OUTPUTFILE
@@ -244,7 +244,7 @@ foreach TEST ($args_2_use)
     endif
   endif
 
-  cp $TESTDIR/$INPUTFILE $SCRATCHDIR
+#  cp $TESTDIR/$INPUTFILE $SCRATCHDIR
   if (-f $TESTDIR/$STUB.xyz) cp $TESTDIR/$STUB.xyz $SCRATCHDIR
   if (-f $TESTDIR/EMBPOT) cp $TESTDIR/EMBPOT $SCRATCHDIR
   if (-f $TESTOUTPUTS/$STUB.ok.out) /bin/rm -f $TESTOUTPUTS/$STUB.ok.out
@@ -295,6 +295,7 @@ foreach TEST ($args_2_use)
 #
 # MD creates it own $STUB.out
 #
+sync
   if($md_test_run) then
     if ($NPROC) then
       if ($NONSTD_MPI) then
@@ -325,7 +326,7 @@ foreach TEST ($args_2_use)
 #if($NONSTD_MPI) then
 #echo " command is"     $MPIRUN $NWCHEM $INPUTFILE  $TESTOUTPUTS/$OUTPUTFILE
 #else
-#echo " command is"     $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $TESTOUTPUTS/$OUTPUTFILE
+#echo " command is"     $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $TESTOUTPUTS/$OUTPUTFIL
 #endif
       if ($NONSTD_MPI) then
 #       In case we are using some non-standard MPI environment (e.g. slurm)
