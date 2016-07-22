@@ -1110,6 +1110,7 @@ endif
        _IFCV12= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 12) {print "Y";exit}}')
        _IFCV14= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 14) {print "Y";exit}}')
        _IFCV15ORNEWER=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
+       _IFCV17=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 17) {print "Y";exit}}')
         DEFINES  += -DIFCV8 -DIFCLINUX
         ifdef USE_I4FLAGS
         else
@@ -1766,36 +1767,33 @@ endif
            endif
            CPP=fpp -P 
 	   ifeq ($(_IFCV15ORNEWER), Y)
-           FOPTIONS += -qopt-report-file=stderr
+             FOPTIONS += -qopt-report-file=stderr
 # fpp seems to get lost with ifort 15 in the offload bit
 # only use EXPLICITF for offload because otherwise we want debugging to be easy
-#           FOPTIONS +=  -Qoption,fpp,-P -Qoption,fpp,-c_com=no  -allow nofpp_comments 
-          ifdef USE_OPTREPORT
-	  FOPTIONS += -qopt-report=3 -qopt-report-phase=vec 
-          endif
+#            FOPTIONS +=  -Qoption,fpp,-P -Qoption,fpp,-c_com=no  -allow nofpp_comments 
+             ifdef USE_OPTREPORT
+               FOPTIONS += -qopt-report=3 -qopt-report-phase=vec 
+             endif
 #to avoid compiler crashes on simd directive. e.g .Version 15.0.2.164 Build 20150121
-        ifdef USE_NOSIMD
-          FOPTIONS  += -no-simd
-        endif
-         ifdef USE_OPENMP
-           FOPTIONS += -qopenmp
-           FOPTIONS += -qopt-report-phase=openmp
-           DEFINES+= -DUSE_OPENMP 
-         else
-	   ifeq ($(_IFCV15ORNEWER), Y)
-           else
-           FOPTIONS += -qno-openmp
-           endif
-         endif		   
+             ifdef USE_NOSIMD
+               FOPTIONS  += -no-simd
+             endif
+             ifdef USE_OPENMP
+               FOPTIONS += -qopenmp
+               FOPTIONS += -qopt-report-phase=openmp
+               DEFINES+= -DUSE_OPENMP 
+             else
+               FOPTIONS += -qno-openmp
+             endif		   
 	   else
-         FOPTIONS += -vec-report6
-         ifdef USE_OPENMP
-           FOPTIONS += -openmp
-           FOPTIONS += -openmp-report2
-           COPTIONS += -openmp
-           DEFINES+= -DUSE_OPENMP 
-         endif
-       endif
+             FOPTIONS += -vec-report6
+             ifdef USE_OPENMP
+               FOPTIONS += -openmp
+               FOPTIONS += -openmp-report2
+               COPTIONS += -openmp
+               DEFINES+= -DUSE_OPENMP 
+             endif
+           endif
            
        ifdef USE_OFFLOAD
          ifeq ($(_IFCV14), Y)
