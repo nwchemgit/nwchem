@@ -129,6 +129,8 @@ c
       do_cosmo = .true.
       do_cosmo_model = DO_COSMO_YK 
       dielec   =78.4d+00 ! default water dielectric
+      solvname_short = 'h2o'
+      solvname_long = 'water'
       cosmo_screen = COSMO_SCREEN_ST
       cosmo_sccor  = COSMO_SCCOR_LAGRA ! surface charge correction adapted for geometry optimzations
       minbem   =2
@@ -219,6 +221,10 @@ c
       else if(inp_compare(.false.,'solvent',field)) then
          if(.not. inp_a(solvname_short))
      $     call errquit('cosmo_input: solvent',911,INPUT_ERR)
+         if (solvname_short.eq.'water') then
+             solvname_short = 'h2o'
+             solvname_long = 'water'
+         end if
          if (.not.rtdb_cput(rtdb,'cosmo:solvent',1,solvname_short))
      $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
 c
