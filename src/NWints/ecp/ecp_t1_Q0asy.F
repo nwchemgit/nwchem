@@ -38,10 +38,11 @@ C $Id$
 *
     1 i = idamax(n,test,1)
       if (test(i) .ge. tol) then
+CDIR$ NOVECTOR
         do i = 1,n
           if (test(i) .ge. tol) then
             Q(i) = Q(i)+term(i)
-            term(i) = term(i)*fac1/xt(i)
+            term(i) = (term(i)*fac1)/xt(i)
             test(i) = sign(abs(term(i))/Q(i),xt(i)-fac1)
           end if
         end do
