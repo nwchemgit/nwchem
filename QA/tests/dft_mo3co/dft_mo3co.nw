@@ -108,6 +108,7 @@ set geometry mo3
 dft
 mult 3
 vectors input fragment mosing.mos motripl.mos mosing.mos output mo3.mos
+iterations 49
 end
 task dft ignore
 
