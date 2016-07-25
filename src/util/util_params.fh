@@ -3,17 +3,37 @@ c $Id$
 c
 c     conversion parameters
 c     -------------------
-      double precision ckcal2au,cau2kcal
+      double precision ckcal2au
       parameter(ckcal2au=0.00159362d00)
+c
+      double precision cau2kcal
       parameter(cau2kcal=627.509451d+00)
-      double precision cnm2au,cau2ang,cpm2au,cau2nm,cau2kj,cnm2ang
-      double precision cang2au
+c
+      double precision cnm2au
       parameter(cnm2au=1.88972598786d+01)
+c
+      double precision cau2ang
       parameter(cau2ang = 0.529177249d00)
+c
+      double precision cang2au
       parameter(cang2au = 1.889725988d00)
+c
+      double precision cau2ev
+      parameter(cau2ev=27.2113961d0)
+c
+      double precision cau2debye  ! Convert au to debye
+      parameter (cau2debye=2.541766d0)
+c
+      double precision cpm2au
       parameter(cpm2au = 1.889725988d-2)
+c
+      double precision cau2nm
       parameter(cau2nm=5.29177249d-02)
+c
+      double precision cau2kj
       parameter(cau2kj=2.625499962d+03)
+c
+      double precision cnm2ang
       parameter(cnm2ang=10.0d00)
 c
 c     Boltzman const in kcal/(mol*K)
