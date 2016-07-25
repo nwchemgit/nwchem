@@ -62,8 +62,6 @@ c
 c
       double precision two, three
       parameter (two=2.d0,three=3.d0)
-      double precision au2ev
-      parameter (au2ev=27.211396)
 c
       logical movecs_read,movecs_read_header
       external movecs_read,movecs_read_header

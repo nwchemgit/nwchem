@@ -20,6 +20,7 @@ c
 #include "tcgmsg.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "util_params.fh"
 c
       integer rtdb               ! [input]
       integer ao_bas_han         ! [input]
@@ -56,8 +57,6 @@ c
 c
       double precision scal 
       parameter (two=2.d0,three=3.d0)
-      double precision au2ev
-      parameter (au2ev=27.211396)
 c
       integer ok
 c
@@ -340,7 +339,7 @@ c
         ei = dbl_mb(k_eval(1)+i-1) ! orbital energy of the initial state
         do j=nelec+1,nbf_mo
           ea = dbl_mb(k_eval(1)+j-1) ! orbital energy of the final state
-          exen = (ea-ei)*au2ev
+          exen = (ea-ei)*cau2ev
           call ga_get(g_dpx_mo(1),i,i,j,j,tmpx1,1)
           call ga_get(g_dpx_mo(2),i,i,j,j,tmpx2,1)
           call ga_get(g_dpy_mo(1),i,i,j,j,tmpy1,1)

@@ -18,6 +18,7 @@ c
 #include "tcgmsg.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "util_params.fh"
 c
       integer rtdb               ! [input]
       integer ao_bas_han         ! [input]
@@ -63,8 +64,6 @@ c
       double precision scal
       double precision two, three
       parameter (two=2.d0,three=3.d0)
-      double precision au2ev
-      parameter (au2ev=27.211396)
 c
 c     Preliminaries
 c
@@ -274,7 +273,7 @@ c
 c     Calculate Oscillator Strengths
 c
       do i=1,nexcite_tot
-        dbl_mb(k_fosc+i-1)=two/three*au2ev*dbl_mb(k_exen+i-1)*
+        dbl_mb(k_fosc+i-1)=two/three*cau2ev*dbl_mb(k_exen+i-1)*
      &    (dbl_mb(k_dpx+i-1)**2+dbl_mb(k_dpy+i-1)**2+
      &    dbl_mb(k_dpz+i-1)**2)
         dbl_mb(k_fosc+i-1)=scal*dbl_mb(k_fosc+i-1)  ! scale oscillator strength
@@ -344,7 +343,7 @@ c
           if (i.le.nexcite_win) then
            write (unitno, "(i8,2i6,5e18.6)")
      $         i, int_mb(k_ex_occ+i-1), int_mb(k_ex_virt+i-1),
-     $         dbl_mb(k_exen+i-1)*au2ev,
+     $         dbl_mb(k_exen+i-1)*cau2ev,
      $         dbl_mb(k_dpx+i-1), dbl_mb(k_dpy+i-1), dbl_mb(k_dpz+i-1),
      $         dbl_mb(k_fosc+i-1)
           end if ! nexcite_win
