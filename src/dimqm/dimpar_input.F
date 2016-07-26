@@ -363,6 +363,14 @@ c
 c   Store in RTDB
       stat = .true.
 c      write(luout,*) "Storing"
+      stat=stat.and.rtdb_put(rtdb,'dimpar:ndim',mt_int,1,
+     $                       ndim)
+      stat=stat.and.rtdb_put(rtdb,'dimpar:ndimtypes',mt_int,1,
+     $                       ndimtypes)
+      stat=stat.and.rtdb_put(rtdb,'dimpar:norder',mt_int,1,
+     $                       norder)
+      stat=stat.and.rtdb_put(rtdb,'dimpar:name',mt_byte,nDIMTypes*2,
+     $                       typename(1:nDIMTypes))
       stat=stat.and.rtdb_put(rtdb,'dimpar:name',mt_byte,nDIMTypes*2,
      $                       typename(1:nDIMTypes))
       stat=stat.and.rtdb_put(rtdb,'dimpar:sPol',mt_dbl,nDIMTypes,

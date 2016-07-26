@@ -87,6 +87,7 @@ c   ===========
 c   First Cycle
 c   ===========
 c
+      write(6,*) ga_nodeid(), ' l1st ',lfirst,' i3 ',i3
       if(lfirst) then
 c
 c        Allocate memory for QM nuclear contribution on the heap (PERSISTANT)
@@ -104,8 +105,10 @@ c        Zero both arrays
         call dfill(i3, ZERO, dbl_mb(k_muold), 1)
         call dfill(i3, ZERO, dbl_mb(k_eqmn), 1)
 c        Build interaction matrix
+        write(6,*) ga_nodeid(),' before prep '
         call dimqm_prep(rtdb, -ONE)
 c        Generate electric field due to QM nuclei.  This doesn't change so we only do it once.
+        write(6,*) ga_nodeid(),' before eqmn '
         call dimqm_EqmN(rtdb, geom, dimxyz,
      $                  dbl_mb(k_eqmn))
         if(id.eq.0.and.ldebug) then

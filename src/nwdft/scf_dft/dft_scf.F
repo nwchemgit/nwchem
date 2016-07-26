@@ -445,6 +445,7 @@ c     Jorge Garza/End
       endif
       use_dimqm = util_module_avail("dimqm")
       if (use_dimqm) then
+         call dimqm_init(rtdb)
          call dimqm_used(ldimqm)
          call dimqm_getgo(dimqm_go)
       else
@@ -1129,6 +1130,7 @@ c     DIM/QM JEM
 c     Calculate DIM/QM dipoles
 c     We use the total density to calculate the dipoles.
 c
+      write(6,*) ga_nodeid(), ' dimqm vvv ',ldimqm ,dimqm_go
       if(ldimqm .and. dimqm_go) then
         call dimqm_main(rtdb, ao_bas_han, geom, g_dens, .false.)
       end if
@@ -1212,7 +1214,7 @@ c
 c     DIM/QM JEM
 c     Add DIM energy
       if (ldimqm .and. dimqm_go) then
-         call dimqm_energy(edimqm)
+         call dimqm_getenergy(edimqm)
          Etnew = Etnew + Edimqm
       endif
 c

@@ -84,6 +84,7 @@ c    Allocate GAs for the interaction matrix
 c   =========================================
 c
 c     Exact Solver
+      write(6,*) ga_nodeid(),'@@ norder ',norder, ' alg ',alg
       if(alg ==  0) then   
         nLength = nOrder*(nOrder+1)/2
 c

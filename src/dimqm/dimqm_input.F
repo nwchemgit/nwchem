@@ -149,9 +149,16 @@ c
       end if
 c     Some DIM/QM global variables are needed in the rtdb to
 c     reduce module dependency contamination
+      write(6,*) ga_nodeid(),' ldimqm value before rt_put ',ldimqm
       if (.not. rtdb_put(rtdb, 'dimqm:ldimqm', mt_log, 1, ldimqm))
      $  call errquit('dimqm_input: ldimqm put failed', 1, RTDB_ERR)         
       if (.not. rtdb_put(rtdb, 'dimqm:lrsp', mt_log, 1, lrsp))
      $  call errquit('dimqm_input: lrsp put failed', 1, RTDB_ERR)         
+      if (.not. rtdb_put(rtdb, 'dimqm:lfirst', mt_log, 1, lfirst))
+     $  call errquit('dimqm_input: lfirst put failed', 1, RTDB_ERR)         
+      if (.not. rtdb_put(rtdb, 'dimqm:alg', mt_int, 1, alg))
+     $  call errquit('dimqm_input: alg put failed', 1, RTDB_ERR)         
+      if (.not. rtdb_put(rtdb, 'dimqm:dimtol', mt_dbl, 1, dimtol))
+     $  call errquit('dimqm_input: dimtol put failed', 1, RTDB_ERR)         
       return
       end subroutine dimqm_input
