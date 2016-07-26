@@ -1,0 +1,1682 @@
+ argument  1 = dimqm_fd_pol.nw
+ 
+
+
+============================== echo of input deck ==============================
+
+echo
+start
+title "H2O on Ag"
+#print high
+geometry units angstrom nocenter noautoz
+ O                 8.77800          .0000000000         .0000000000
+ H                 9.30230          .0000000000         .7545655371
+ H                 9.30230          .0000000000        -.7545655371
+symmetry c1
+end
+
+basis spherical
+ * library 6-311G
+end
+
+driver
+ maxiter 100
+end
+
+dft
+ iterations 200
+ xc xpbe96 1.0 cpbe96 1.0
+ grid medium
+end
+
+dimqm
+ PIM
+ Algorithm 1
+ screen GAU 1.0d0
+ tolerance 1.0d-7
+end
+
+dimpar
+ Ag
+  rad 1.4445
+  bound 3.7180
+  drude 9.2093 0.0200 EV
+ END
+
+ xyz
+  55
+  Ag      0.0000000      0.0000000      0.0000000
+  Ag      2.8890000      0.0000000      0.0000000
+  Ag      5.7780000      0.0000000      0.0000000
+  Ag      1.2913830      2.5827660      0.0000000
+  Ag      4.1803830      2.5827660      0.0000000
+  Ag      2.5827660      5.1655320      0.0000000
+  Ag      1.2971610      0.8031420      2.4527610
+  Ag      4.1861610      0.8031420      2.4527610
+  Ag      2.5885440      3.3859080      2.4527610
+  Ag      2.5943220      1.6062840      4.9055220
+  Ag     -1.2856050      2.0916360      1.5196140
+  Ag      0.0115560      2.8918890      3.9723750
+  Ag      0.0057780      4.6744020      1.5196140
+  Ag     -2.5712100      4.1832720      3.0392280
+  Ag      1.2913830      0.7981186     -2.4563564
+  Ag      4.1803830      0.7981186     -2.4563564
+  Ag      2.5827660      1.5962373     -4.9127128
+  Ag      2.5885440      3.3790175     -2.4622450
+  Ag     -1.2856050      2.0915899     -1.5196775
+  Ag      0.0115560      4.6715960     -1.5228184
+  Ag      0.0057780      2.8897085     -3.9760339
+  Ag     -2.5712100      4.1831798     -3.0393549
+  Ag      1.2913830     -2.0895015     -1.5181119
+  Ag      4.1803830     -2.0895015     -1.5181119
+  Ag      2.5827660     -4.1790030     -3.0362237
+  Ag      2.5885440     -1.2975602     -3.9745122
+  Ag     -1.2856050     -0.7989623     -2.4588264
+  Ag      0.0115560     -0.0046837     -4.9135286
+  Ag      0.0057780     -2.8884638     -3.9769382
+  Ag     -2.5712100     -1.5979245     -4.9176528
+  Ag      1.2913830     -2.0895017      1.5181116
+  Ag      4.1803830     -2.0895017      1.5181116
+  Ag      2.5827660     -4.1790034      3.0362233
+  Ag      2.5885440     -4.1809539      0.0058612
+  Ag     -1.2856050     -2.5853758      0.0000391
+  Ag      0.0115560     -4.6744907     -1.5139095
+  Ag      0.0057780     -4.6748775      1.5181507
+  Ag     -2.5712100     -5.1707515      0.0000782
+  Ag      2.5885440     -1.2864116      3.9781346
+  Ag     -1.2856050     -0.7988879      2.4588505
+  Ag      0.0115560     -2.8843106      3.9778810
+  Ag      0.0057780     -0.0007696      4.9152070
+  Ag     -2.5712100     -1.5977759      4.9177011
+  Ag     -2.8890000      0.0000000      0.0000000
+  Ag     -5.7780000      0.0000000      0.0000000
+  Ag     -4.1803830      2.0895016     -1.5181117
+  Ag     -4.1861610      2.0914523      1.5122503
+  Ag     -2.5885440      4.1809539     -0.0058614
+  Ag     -4.1803830     -0.7981185     -2.4563565
+  Ag     -2.5885440      1.2864113     -3.9781347
+  Ag     -4.1803830     -2.5827660     -0.0000001
+  Ag     -2.5885440     -3.3859079     -2.4527612
+  Ag     -4.1803830     -0.7981188      2.4563564
+  Ag     -2.5885440     -3.3790176      2.4622448
+  Ag     -2.5885440      1.2975600      3.9745122
+ end
+END
+
+property
+ aoresponse 1 0.14
+end
+
+task dft property
+
+================================================================================
+
+
+                                         
+                                         
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 6.6
+              ------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                              Copyright (c) 1994-2015
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+ 
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+ 
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = lagrange
+    program         = /home/edo/nwchem/bin/LINUX64/nwchem
+    date            = Tue Jul 26 14:13:53 2016
+
+    compiled        = Tue_Jul_26_14:12:10_2016
+    source          = /home/edo/nwchem
+    nwchem branch   = Development
+    nwchem revision = 28369
+    ga revision     = 10684
+    input           = dimqm_fd_pol.nw
+    prefix          = dimqm_fd_pol.
+    data base       = ./dimqm_fd_pol.db
+    status          = startup
+    nproc           =        1
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   13107200 doubles =    100.0 Mbytes
+    stack    =   13107197 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428797 doubles =    400.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = .
+  0 scratch   = .
+ 
+ 
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+                                     H2O on Ag
+                                     ---------
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ Turning off AUTOSYM since
+ SYMMETRY directive was detected!
+ 
+ 
+ 
+                             Geometry "geometry" -> ""
+                             -------------------------
+ 
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000     8.77800000     0.00000000     0.00000000
+    2 H                    1.0000     9.30230000     0.00000000     0.75456554
+    3 H                    1.0000     9.30230000     0.00000000    -0.75456554
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      O                 15.994910
+      H                  1.007825
+ 
+
+ Effective nuclear repulsion energy (a.u.)       9.5653912874
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+   167.8617139492     0.0000000000     0.0000000000
+ 
+ 
+            XYZ format geometry
+            -------------------
+     3
+ geometry
+ O                     8.77800000     0.00000000     0.00000000
+ H                     9.30230000     0.00000000     0.75456554
+ H                     9.30230000     0.00000000    -0.75456554
+ 
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    2 H                |   1 O                |     1.73635  |     0.91884
+    3 H                |   1 O                |     1.73635  |     0.91884
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          2
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    2 H                |   1 O                |   3 H                |   110.41
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          1
+ ==============================================================================
+
+
+
+
+
+ Summary of "ao basis" -> "" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                           6-311G                   on all atoms 
+
+
+  pbe96 is a nonlocal functional; adding pw91lda local functional. 
+ Start Input Read
+                              NWChem Property Module
+                              ----------------------
+ 
+ 
+                                     H2O on Ag
+ 
+                     0  cgtheory = dft                             
+ 
+                                 NWChem DFT Module
+                                 -----------------
+ 
+ 
+                                     H2O on Ag
+ 
+ 
+                      Basis "ao basis" -> "ao basis" (spherical)
+                      -----
+  O (Oxygen)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  8.58850000E+03  0.001895
+  1 S  1.29723000E+03  0.014386
+  1 S  2.99296000E+02  0.070732
+  1 S  8.73771000E+01  0.240001
+  1 S  2.56789000E+01  0.594797
+  1 S  3.74004000E+00  0.280802
+ 
+  2 S  4.21175000E+01  0.113889
+  2 S  9.62837000E+00  0.920811
+  2 S  2.85332000E+00 -0.003274
+ 
+  3 P  4.21175000E+01  0.036511
+  3 P  9.62837000E+00  0.237153
+  3 P  2.85332000E+00  0.819702
+ 
+  4 S  9.05661000E-01  1.000000
+ 
+  5 P  9.05661000E-01  1.000000
+ 
+  6 S  2.55611000E-01  1.000000
+ 
+  7 P  2.55611000E-01  1.000000
+ 
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  3.38650000E+01  0.025494
+  1 S  5.09479000E+00  0.190373
+  1 S  1.15879000E+00  0.852161
+ 
+  2 S  3.25840000E-01  1.000000
+ 
+  3 S  1.02741000E-01  1.000000
+ 
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ O                           6-311G                  7       13   4s3p
+ H                           6-311G                  3        3   3s
+
+
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ O                           6-311G                  7       13   4s3p
+ H                           6-311G                  3        3   3s
+
+
+  Caching 1-el integrals 
+ 
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     3
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations: 200
+          AO basis - number of functions:    19
+                     number of shells:    13
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+ 
+              XC Information
+              --------------
+          PerdewBurkeErnzerhof Exchange Functional  1.000          
+            Perdew 1991 LDA Correlation Functional  1.000 local    
+           PerdewBurkeErnz. Correlation Functional  1.000 non-local
+ 
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          O                   0.60       49           5.0       434
+          H                   0.35       45           7.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:   139
+          Spatial weights used:  Erf1
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters        200 iters           200 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
+
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:         -75.77574266
+                     1                     1                    13
+ iat =   1 dens_norm =        8.000
+                     2                    14                    16
+ iat =   2 dens_norm =        1.000
+                     3                    17                    19
+ iat =   3 dens_norm =        1.000
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =     -76.008172
+ 1-e energy   =    -122.354579
+ 2-e energy   =      36.781016
+ HOMO         =      -0.485304
+ LUMO         =       0.080417
+ 
+   Time after variat. SCF:      0.1
+   Time prior to 1st pass:      0.1
+
+ #quartets = 4.186D+03 #integrals = 1.018D+04 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./dimqm_fd_pol.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = 233395
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+ gm                     -1 wg                     -1
+
+ Grid_pts file          = ./dimqm_fd_pol.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     23        Max. recs in file   =   1244677
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       12.69            12692072
+          Stack Space remaining (MW):       13.11            13106948
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1    -76.2789788526 -8.58D+01  3.75D-02  4.70D-01     0.2
+ User requested tolerance below  1.000000000000000E-004
+ Setting pre-seed tolerance to  1.000000000000000E-004
+ Seeding QMR
+ Converged in                    14 iterations
+ Took  1.450490951538086E-002 seconds
+ Induced dipoles:
+  0.826176283366419      -1.843959626582575E-004 -2.383861333206234E-004
+ 
+ Max error in dipoles:  0.383765466317690     
+ 
+ d= 0,ls=0.0,diis     2    -76.2556735758  2.33D-02  2.21D-02  7.91D-01     0.3
+ Seeding QMR
+ Converged in                    14 iterations
+ Took  1.448202133178711E-002 seconds
+ Induced dipoles:
+   1.22188334615786      -2.770891729166765E-004 -3.427728503729356E-004
+ 
+ Max error in dipoles:  0.172899115056942     
+ 
+ d= 0,ls=0.0,diis     3    -76.3238518135 -6.82D-02  2.69D-03  2.37D-02     0.4
+ Seeding QMR
+ Converged in                    14 iterations
+ Took  1.455998420715332E-002 seconds
+ Induced dipoles:
+   1.22797965716444      -2.786073441872259E-004 -3.452100716288095E-004
+ 
+ Max error in dipoles:  2.758611038842229E-003
+ 
+ d= 0,ls=0.0,diis     4    -76.3255957322 -1.74D-03  2.25D-04  1.02D-04     0.5
+ Seeding QMR
+ Converged in                    14 iterations
+ Took  1.454901695251465E-002 seconds
+ Induced dipoles:
+   1.22264087233748      -2.774061975508739E-004 -3.437267226148559E-004
+ 
+ Max error in dipoles:  2.270062328563527E-003
+ 
+ d= 0,ls=0.0,diis     5    -76.3256062897 -1.06D-05  8.02D-06  6.95D-08     0.6
+ Seeding QMR
+ Converged in                    14 iterations
+ Took  1.448202133178711E-002 seconds
+ Induced dipoles:
+   1.22256347837721      -2.773867148229421E-004 -3.437555368239436E-004
+ 
+ Max error in dipoles:  3.161531452944288E-005
+ 
+ Dipole error below   1.000000000000000E-004
+ Setting current system as seed
+ Reverting tolerance back to  1.000000000000000E-007
+  Resetting Diis
+ d= 0,ls=0.0,diis     6    -76.3256062957 -5.99D-09  6.93D-07  4.50D-10     0.7
+ ==================================================
+ DIM/QM Energy
+ --------------------------------------------------
+ Polarization (Dipole, el.) =         0.0000000000
+ Polarization (Dipole, nuc) =         0.0000000000
+              Total Energy  =         0.0000000000
+ ==================================================
+ ==================================================
+ DIM/QM Energy
+ --------------------------------------------------
+ Polarization (Dipole, el.) =         0.0000000000
+ Polarization (Dipole, nuc) =         0.0000000000
+              Total Energy  =         0.0000000000
+ ==================================================
+
+
+         Total DFT energy =      -76.325606295672
+      One electron energy =     -123.763583008036
+           Coulomb energy =       47.189123589826
+    Exchange-Corr. energy =       -9.313100746835
+ Nuclear repulsion energy =        9.565391287357
+
+ Numeric. integr. density =       10.000000850564
+
+     Total iterative time =      0.7s
+
+
+ Using previous dipoles
+ res_0:  1.156349261592735E-002
+ Projecting                    14 steps
+ Converged in                    12 iterations
+ Took  1.383709907531738E-002 seconds
+                                     DIM/QM Results
+                                     --------------
+ 
+ 
+ ==================================================
+ DIM/QM Energy
+ --------------------------------------------------
+ Polarization (Dipole, el.) =        -0.1128960357
+ Polarization (Dipole, nuc) =         0.1094586731
+              Total Energy  =        -0.0034373626
+ ==================================================
+ ElementsAg
+
+ ==================================================
+ DIM COORDINATES
+ --------------------------------------------------
+                 X           Y           Z
+ --------------------------------------------------
+     1 Ag     0.00000     0.00000     0.00000
+     2 Ag     5.45942     0.00000     0.00000
+     3 Ag    10.91884     0.00000     0.00000
+     4 Ag     2.44036     4.88072     0.00000
+     5 Ag     7.89978     4.88072     0.00000
+     6 Ag     4.88072     9.76144     0.00000
+     7 Ag     2.45128     1.51772     4.63505
+     8 Ag     7.91070     1.51772     4.63505
+     9 Ag     4.89164     6.39844     4.63505
+    10 Ag     4.90256     3.03544     9.27009
+    11 Ag    -2.42944     3.95262     2.87165
+    12 Ag     0.02184     5.46488     7.50670
+    13 Ag     0.01092     8.83334     2.87165
+    14 Ag    -4.85888     7.90524     5.74331
+    15 Ag     2.44036     1.50823    -4.64184
+    16 Ag     7.89978     1.50823    -4.64184
+    17 Ag     4.88072     3.01645    -9.28368
+    18 Ag     4.89164     6.38542    -4.65297
+    19 Ag    -2.42944     3.95253    -2.87177
+    20 Ag     0.02184     8.82804    -2.87771
+    21 Ag     0.01092     5.46076    -7.51362
+    22 Ag    -4.85888     7.90506    -5.74355
+    23 Ag     2.44036    -3.94859    -2.86882
+    24 Ag     7.89978    -3.94859    -2.86882
+    25 Ag     4.88072    -7.89717    -5.73763
+    26 Ag     4.89164    -2.45203    -7.51074
+    27 Ag    -2.42944    -1.50982    -4.64651
+    28 Ag     0.02184    -0.00885    -9.28522
+    29 Ag     0.01092    -5.45841    -7.51532
+    30 Ag    -4.85888    -3.01964    -9.29302
+    31 Ag     2.44036    -3.94859     2.86882
+    32 Ag     7.89978    -3.94859     2.86882
+    33 Ag     4.88072    -7.89717     5.73763
+    34 Ag     4.89164    -7.90086     0.01108
+    35 Ag    -2.42944    -4.88565     0.00007
+    36 Ag     0.02184    -8.83351    -2.86087
+    37 Ag     0.01092    -8.83424     2.86889
+    38 Ag    -4.85888    -9.77130     0.00015
+    39 Ag     4.89164    -2.43097     7.51759
+    40 Ag    -2.42944    -1.50968     4.64655
+    41 Ag     0.02184    -5.45056     7.51711
+    42 Ag     0.01092    -0.00145     9.28840
+    43 Ag    -4.85888    -3.01936     9.29311
+    44 Ag    -5.45942     0.00000     0.00000
+    45 Ag   -10.91884     0.00000     0.00000
+    46 Ag    -7.89978     3.94859    -2.86882
+    47 Ag    -7.91070     3.95227     2.85774
+    48 Ag    -4.89164     7.90086    -0.01108
+    49 Ag    -7.89978    -1.50823    -4.64184
+    50 Ag    -4.89164     2.43097    -7.51759
+    51 Ag    -7.89978    -4.88072    -0.00000
+    52 Ag    -4.89164    -6.39844    -4.63505
+    53 Ag    -7.89978    -1.50823     4.64184
+    54 Ag    -4.89164    -6.38542     4.65297
+    55 Ag    -4.89164     2.45203     7.51074
+
+ ==================================================
+ Total induced dipole moment in DIM system :
+ --------------------------------------------------
+  A.U.:        1.22260652     -0.00027555     -0.00034227
+  Debye:       3.10755569     -0.00070038     -0.00086996
+ ==================================================
+
+ ==================================================
+ Induced dipoles for each DIM atom :
+ --------------------------------------------------
+     ATOM                 Dipole
+                 X           Y           Z
+ --------------------------------------------------
+     1 Ag     0.07302     0.00001     0.00001
+     2 Ag     0.19726    -0.00007    -0.00007
+     3 Ag     0.55712    -0.00005    -0.00011
+     4 Ag     0.01812    -0.02035     0.00000
+     5 Ag     0.02667    -0.06402    -0.00006
+     6 Ag     0.00427    -0.02513     0.00001
+     7 Ag     0.01172    -0.00624    -0.01994
+     8 Ag     0.00970    -0.01902    -0.06484
+     9 Ag     0.00304    -0.00595    -0.00635
+    10 Ag     0.00189    -0.00776    -0.02444
+    11 Ag     0.00827    -0.00789    -0.00687
+    12 Ag     0.00475    -0.00533    -0.00449
+    13 Ag     0.00521    -0.00601    -0.00480
+    14 Ag     0.00700    -0.00741    -0.00547
+    15 Ag     0.01172    -0.00622     0.01984
+    16 Ag     0.00972    -0.01879     0.06448
+    17 Ag     0.00181    -0.00771     0.02430
+    18 Ag     0.00290    -0.00596     0.00629
+    19 Ag     0.00825    -0.00792     0.00690
+    20 Ag     0.00516    -0.00598     0.00488
+    21 Ag     0.00461    -0.00530     0.00452
+    22 Ag     0.00696    -0.00742     0.00549
+    23 Ag     0.01567     0.01635     0.01241
+    24 Ag     0.02024     0.05080     0.04107
+    25 Ag     0.00334     0.02024     0.01513
+    26 Ag     0.00244     0.00196     0.00958
+    27 Ag     0.00763     0.00269     0.01016
+    28 Ag     0.00461     0.00183     0.00681
+    29 Ag     0.00496     0.00214     0.00720
+    30 Ag     0.00685     0.00282     0.00884
+    31 Ag     0.01570     0.01642    -0.01236
+    32 Ag     0.02025     0.05087    -0.04098
+    33 Ag     0.00335     0.02027    -0.01509
+    34 Ag     0.00322     0.00783     0.00009
+    35 Ag     0.00863     0.01045     0.00002
+    36 Ag     0.00496     0.00735     0.00003
+    37 Ag     0.00498     0.00736    -0.00005
+    38 Ag     0.00703     0.00919     0.00001
+    39 Ag     0.00239     0.00208    -0.00951
+    40 Ag     0.00760     0.00271    -0.01016
+    41 Ag     0.00493     0.00211    -0.00721
+    42 Ag     0.00463     0.00184    -0.00683
+    43 Ag     0.00685     0.00284    -0.00883
+    44 Ag     0.02733     0.00001     0.00000
+    45 Ag     0.01313     0.00001     0.00000
+    46 Ag     0.00448    -0.00296     0.00209
+    47 Ag     0.00450    -0.00298    -0.00207
+    48 Ag     0.00400    -0.00320     0.00002
+    49 Ag     0.00433     0.00118     0.00349
+    50 Ag     0.00419    -0.00101     0.00351
+    51 Ag     0.00457     0.00361    -0.00000
+    52 Ag     0.00407     0.00260     0.00217
+    53 Ag     0.00433     0.00118    -0.00348
+    54 Ag     0.00406     0.00261    -0.00216
+    55 Ag     0.00421    -0.00096    -0.00351
+ ==================================================
+ 
+ 
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+ 
+ Vector    1  Occ=2.000000D+00  E=-1.873323D+01
+              MO Center=  8.8D+00, -4.1D-10, -3.1D-10, r^2= 1.5D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.551722  1 O  s                  2      0.469122  1 O  s          
+ 
+ Vector    2  Occ=2.000000D+00  E=-9.642339D-01
+              MO Center=  9.0D+00, -2.1D-07, -4.9D-07, r^2= 4.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.533762  1 O  s                 10      0.399536  1 O  s          
+     2     -0.183174  1 O  s                  7      0.121558  1 O  px         
+     1     -0.114836  1 O  s                 14      0.113456  2 H  s          
+    17      0.113456  3 H  s                  3      0.066660  1 O  px         
+    11      0.064711  1 O  px                15      0.044462  2 H  s          
+ 
+ Vector    3  Occ=2.000000D+00  E=-5.241756D-01
+              MO Center=  9.0D+00, -7.7D-15,  9.1D-08, r^2= 7.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.361919  1 O  pz                 5      0.238510  1 O  pz         
+    13      0.198667  1 O  pz                15      0.186025  2 H  s          
+    18     -0.186026  3 H  s                 14      0.172494  2 H  s          
+    17     -0.172494  3 H  s                 16      0.066154  2 H  s          
+    19     -0.066155  3 H  s          
+ 
+ Vector    4  Occ=2.000000D+00  E=-3.164309D-01
+              MO Center=  8.6D+00, -4.5D-07, -4.4D-07, r^2= 6.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      0.400383  1 O  px                 7      0.363305  1 O  px         
+    10     -0.318464  1 O  s                  3      0.264334  1 O  px         
+     6     -0.229745  1 O  s                 15      0.087064  2 H  s          
+    18      0.087066  3 H  s                 14      0.081211  2 H  s          
+    17      0.081211  3 H  s                  2      0.077531  1 O  s          
+ 
+ Vector    5  Occ=2.000000D+00  E=-2.581470D-01
+              MO Center=  8.8D+00,  5.0D-07,  7.8D-15, r^2= 6.2D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.498878  1 O  py                 8      0.423208  1 O  py         
+     4      0.302773  1 O  py         
+ 
+ Vector    6  Occ=0.000000D+00  E=-1.303637D-03
+              MO Center=  9.5D+00, -2.5D-07, -1.8D-05, r^2= 3.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      0.907762  1 O  s                 16     -0.741514  2 H  s          
+    19     -0.741538  3 H  s                 11      0.242939  1 O  px         
+     6      0.202466  1 O  s                  7      0.166693  1 O  px         
+    15     -0.138249  2 H  s                 18     -0.138247  3 H  s          
+     3      0.097799  1 O  px                 2     -0.072331  1 O  s          
+ 
+ Vector    7  Occ=0.000000D+00  E= 7.994416D-02
+              MO Center=  9.4D+00, -1.5D-13,  1.8D-05, r^2= 3.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      1.373065  2 H  s                 19     -1.373054  3 H  s          
+    13     -0.554384  1 O  pz                 9     -0.235662  1 O  pz         
+     5     -0.167223  1 O  pz                15      0.115522  2 H  s          
+    18     -0.115519  3 H  s                 14      0.030386  2 H  s          
+    17     -0.030385  3 H  s          
+ 
+ Vector    8  Occ=0.000000D+00  E= 3.566430D-01
+              MO Center=  8.9D+00,  3.7D-13, -3.0D-05, r^2= 2.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      1.473060  2 H  s                 18     -1.473138  3 H  s          
+    13     -1.070884  1 O  pz                16     -0.962772  2 H  s          
+    19      0.962803  3 H  s                  9     -0.208341  1 O  pz         
+     5     -0.132984  1 O  pz                14      0.121478  2 H  s          
+    17     -0.121484  3 H  s          
+ 
+ Vector    9  Occ=0.000000D+00  E= 3.706120D-01
+              MO Center=  9.4D+00,  7.1D-08,  3.0D-05, r^2= 2.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      1.639927  2 H  s                 18      1.639857  3 H  s          
+    10     -1.151880  1 O  s                 11     -0.834739  1 O  px         
+    16     -0.686199  2 H  s                 19     -0.686153  3 H  s          
+     7     -0.191761  1 O  px                 6     -0.154311  1 O  s          
+    14      0.121956  2 H  s                 17      0.121950  3 H  s          
+ 
+ Vector   10  Occ=0.000000D+00  E= 7.000042D-01
+              MO Center=  8.8D+00, -6.6D-06,  1.1D-12, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      1.120692  1 O  py                 8     -0.806319  1 O  py         
+     4     -0.273235  1 O  py         
+ 
+ Vector   11  Occ=0.000000D+00  E= 7.038613D-01
+              MO Center=  8.5D+00,  6.6D-06, -5.3D-07, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      1.417486  1 O  px                 7     -0.793719  1 O  px         
+    10      0.531288  1 O  s                 15     -0.395272  2 H  s          
+    18     -0.395274  3 H  s                  3     -0.255053  1 O  px         
+     6      0.088156  1 O  s                 16     -0.078603  2 H  s          
+    19     -0.078594  3 H  s                 14     -0.039325  2 H  s          
+ 
+ Vector   12  Occ=0.000000D+00  E= 8.313475D-01
+              MO Center=  8.7D+00, -1.1D-13,  3.8D-07, r^2= 1.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      1.862572  1 O  pz                 9     -0.836014  1 O  pz         
+    16     -0.839542  2 H  s                 19      0.839543  3 H  s          
+    15     -0.325483  2 H  s                 18      0.325488  3 H  s          
+     5     -0.255616  1 O  pz         
+ 
+ Vector   13  Occ=0.000000D+00  E= 1.092292D+00
+              MO Center=  9.0D+00,  3.2D-07,  1.6D-06, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      2.980505  1 O  s                  6     -1.814285  1 O  s          
+    11      0.690309  1 O  px                15     -0.675437  2 H  s          
+    18     -0.675436  3 H  s                 16     -0.389277  2 H  s          
+    19     -0.389274  3 H  s                  2      0.243691  1 O  s          
+     1      0.123388  1 O  s                  7     -0.076540  1 O  px         
+ 
+ Vector   14  Occ=0.000000D+00  E= 2.051179D+00
+              MO Center=  9.3D+00, -1.3D-09, -1.1D-05, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      1.687772  2 H  s                 18      1.687795  3 H  s          
+    14     -1.088444  2 H  s                 17     -1.088460  3 H  s          
+    10     -0.593618  1 O  s                 16     -0.512831  2 H  s          
+    19     -0.512842  3 H  s                 11     -0.404003  1 O  px         
+     3      0.159930  1 O  px                 6     -0.073867  1 O  s          
+ 
+ Vector   15  Occ=0.000000D+00  E= 2.105658D+00
+              MO Center=  9.3D+00, -6.6D-16,  1.2D-05, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      1.719408  2 H  s                 18     -1.719385  3 H  s          
+    14     -1.099415  2 H  s                 17      1.099400  3 H  s          
+    16     -0.834650  2 H  s                 19      0.834643  3 H  s          
+    13     -0.350552  1 O  pz                 5      0.200124  1 O  pz         
+     9     -0.039208  1 O  pz         
+ 
+ Vector   16  Occ=0.000000D+00  E= 4.618562D+00
+              MO Center=  8.8D+00,  6.6D-09,  5.0D-16, r^2= 4.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      1.393755  1 O  py                 4     -1.261295  1 O  py         
+    12     -0.546794  1 O  py         
+ 
+ Vector   17  Occ=0.000000D+00  E= 4.723593D+00
+              MO Center=  8.8D+00,  5.0D-09, -2.6D-08, r^2= 4.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      1.441554  1 O  px                 3     -1.262382  1 O  px         
+    11     -0.699058  1 O  px                15      0.366776  2 H  s          
+    18      0.366775  3 H  s                 10     -0.349390  1 O  s          
+    14     -0.242015  2 H  s                 17     -0.242015  3 H  s          
+     6      0.084895  1 O  s          
+ 
+ Vector   18  Occ=0.000000D+00  E= 4.893854D+00
+              MO Center=  8.8D+00,  4.0D-16,  4.7D-08, r^2= 4.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      1.537567  1 O  pz                 5     -1.272999  1 O  pz         
+    13     -0.894430  1 O  pz                15      0.395055  2 H  s          
+    18     -0.395055  3 H  s                 14     -0.316350  2 H  s          
+    17      0.316351  3 H  s                 16      0.166774  2 H  s          
+    19     -0.166774  3 H  s          
+ 
+ Vector   19  Occ=0.000000D+00  E= 4.933804D+01
+              MO Center=  8.8D+00,  1.4D-10,  2.1D-10, r^2= 3.6D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2     -2.330429  1 O  s                  1      2.245702  1 O  s          
+    10     -0.253518  1 O  s                  6      0.249350  1 O  s          
+    11     -0.048946  1 O  px                15      0.046308  2 H  s          
+    18      0.046308  3 H  s                 16      0.032618  2 H  s          
+    19      0.032618  3 H  s          
+ 
+
+ center of mass
+ --------------
+ x =  16.69889814 y =   0.00000000 z =   0.00000000
+
+ moments of inertia (a.u.)
+ ------------------
+           4.098328124931           0.000000000000           0.000000000000
+           0.000000000000           5.855551995131           0.000000000000
+           0.000000000000           0.000000000000           1.757223870200
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0     -0.000000     -5.000000     -5.000000     10.000000
+ 
+     1   1 0 0      0.974958    -83.443378    -83.443378    167.861714
+     1   0 1 0      0.000001      0.000000      0.000000      0.000000
+     1   0 0 1      0.000003      0.000002      0.000002      0.000000
+ 
+     2   2 0 0     27.984397  -1395.670873  -1395.670873   2819.326144
+     2   1 1 0      0.000010      0.000005      0.000005      0.000000
+     2   1 0 1      0.000054      0.000027      0.000027      0.000000
+     2   0 2 0     -5.403319     -2.701660     -2.701660      0.000000
+     2   0 1 1      0.000000      0.000000      0.000000      0.000000
+     2   0 0 2     -3.040394     -3.553451     -3.553451      4.066508
+ 
+
+ Parallel integral file used       1 records with       0 large values
+
+ *** CALLING NEW AORESP DRIVER FOR CLOSED AND OPEN SHELLS ***
+ Entering AOResponse driver routine
+
+
+--------------------------------------------------------------------------------
+
+          ****************
+          *** RESPONSE ***
+          ****************
+
+ Response module for NWChem and dynamic CPKS solver
+ developed by J. Autschbach and coworkers, SUNY Buffalo
+ The methodology used in this program is described in 
+ ChemPhysChem 12 (2011), 3224-3235 (main reference)
+ J. Chem. Phys. 123 (2005), 114103
+ J. Chem. Phys. 122 (2005), 224115
+ J. Chem. Phys. 122 (2005), 074105
+ Comp. Lett. 3 (2007), 131-150 (contact JA for a copy)
+ Please cite this work in publications based on results
+ obtained with this code. Thank you!
+
+ For extension of response module to open shell
+ calculations please acknowledge:
+ F. Aquino, Northwestern University, Schatz Rsrch Group
+ The update to the methodology is described in
+ J. Phys. Chem. A 118 (2014) 517-525
+
+
+
+          -----------------------------------------------
+          Solving response equations for perturbing field
+          -----------------------------------------------
+
+ number of frequencies:     1
+ frequency in a.u.:  0.1400000E+00
+ Perturbing field: electric
+ Using El. Dipole Length Gauge
+ 
+ Setting up CPKS with frequency omega =      0.14000000 a.u.
+
+ 
+                            NWChem Dynamic CPHF Module
+                            --------------------------
+ 
+ 
+    scftype = RHF 
+    nclosed =    5
+      nopen =    0
+  variables =      140
+  num. vecs =        3
+  tolerance =   1.0D-04
+  max. iter =   50
+
+ User requested tolerance below  1.000000000000000E-004
+ Setting pre-seed tolerance to  1.000000000000000E-004
+ Seeding QMR
+ Converged in                    14 iterations
+ Took  1.444101333618164E-002 seconds
+                                     DIM/QM Results
+                                     --------------
+ 
+ 
+ ==================================================
+ DIM/QM Energy
+ --------------------------------------------------
+ Polarization (Dipole, el.) =        -0.1128959681
+ Polarization (Dipole, nuc) =         0.1094586057
+              Total Energy  =        -0.0034373624
+ ==================================================
+ ElementsAg
+
+ ==================================================
+ DIM COORDINATES
+ --------------------------------------------------
+                 X           Y           Z
+ --------------------------------------------------
+     1 Ag     0.00000     0.00000     0.00000
+     2 Ag     5.45942     0.00000     0.00000
+     3 Ag    10.91884     0.00000     0.00000
+     4 Ag     2.44036     4.88072     0.00000
+     5 Ag     7.89978     4.88072     0.00000
+     6 Ag     4.88072     9.76144     0.00000
+     7 Ag     2.45128     1.51772     4.63505
+     8 Ag     7.91070     1.51772     4.63505
+     9 Ag     4.89164     6.39844     4.63505
+    10 Ag     4.90256     3.03544     9.27009
+    11 Ag    -2.42944     3.95262     2.87165
+    12 Ag     0.02184     5.46488     7.50670
+    13 Ag     0.01092     8.83334     2.87165
+    14 Ag    -4.85888     7.90524     5.74331
+    15 Ag     2.44036     1.50823    -4.64184
+    16 Ag     7.89978     1.50823    -4.64184
+    17 Ag     4.88072     3.01645    -9.28368
+    18 Ag     4.89164     6.38542    -4.65297
+    19 Ag    -2.42944     3.95253    -2.87177
+    20 Ag     0.02184     8.82804    -2.87771
+    21 Ag     0.01092     5.46076    -7.51362
+    22 Ag    -4.85888     7.90506    -5.74355
+    23 Ag     2.44036    -3.94859    -2.86882
+    24 Ag     7.89978    -3.94859    -2.86882
+    25 Ag     4.88072    -7.89717    -5.73763
+    26 Ag     4.89164    -2.45203    -7.51074
+    27 Ag    -2.42944    -1.50982    -4.64651
+    28 Ag     0.02184    -0.00885    -9.28522
+    29 Ag     0.01092    -5.45841    -7.51532
+    30 Ag    -4.85888    -3.01964    -9.29302
+    31 Ag     2.44036    -3.94859     2.86882
+    32 Ag     7.89978    -3.94859     2.86882
+    33 Ag     4.88072    -7.89717     5.73763
+    34 Ag     4.89164    -7.90086     0.01108
+    35 Ag    -2.42944    -4.88565     0.00007
+    36 Ag     0.02184    -8.83351    -2.86087
+    37 Ag     0.01092    -8.83424     2.86889
+    38 Ag    -4.85888    -9.77130     0.00015
+    39 Ag     4.89164    -2.43097     7.51759
+    40 Ag    -2.42944    -1.50968     4.64655
+    41 Ag     0.02184    -5.45056     7.51711
+    42 Ag     0.01092    -0.00145     9.28840
+    43 Ag    -4.85888    -3.01936     9.29311
+    44 Ag    -5.45942     0.00000     0.00000
+    45 Ag   -10.91884     0.00000     0.00000
+    46 Ag    -7.89978     3.94859    -2.86882
+    47 Ag    -7.91070     3.95227     2.85774
+    48 Ag    -4.89164     7.90086    -0.01108
+    49 Ag    -7.89978    -1.50823    -4.64184
+    50 Ag    -4.89164     2.43097    -7.51759
+    51 Ag    -7.89978    -4.88072    -0.00000
+    52 Ag    -4.89164    -6.39844    -4.63505
+    53 Ag    -7.89978    -1.50823     4.64184
+    54 Ag    -4.89164    -6.38542     4.65297
+    55 Ag    -4.89164     2.45203     7.51074
+
+ ==================================================
+ Total induced dipole moment in DIM system :
+ --------------------------------------------------
+  A.U.:        1.22255361     -0.00027738     -0.00034373
+  Debye:       3.10742121     -0.00070504     -0.00087368
+ ==================================================
+
+ ==================================================
+ Induced dipoles for each DIM atom :
+ --------------------------------------------------
+     ATOM                 Dipole
+                 X           Y           Z
+ --------------------------------------------------
+     1 Ag     0.07298     0.00001     0.00001
+     2 Ag     0.19727    -0.00007    -0.00007
+     3 Ag     0.55712    -0.00005    -0.00011
+     4 Ag     0.01813    -0.02037     0.00000
+     5 Ag     0.02667    -0.06402    -0.00006
+     6 Ag     0.00426    -0.02513     0.00001
+     7 Ag     0.01172    -0.00625    -0.01996
+     8 Ag     0.00970    -0.01901    -0.06483
+     9 Ag     0.00303    -0.00595    -0.00635
+    10 Ag     0.00188    -0.00776    -0.02444
+    11 Ag     0.00827    -0.00788    -0.00687
+    12 Ag     0.00475    -0.00533    -0.00450
+    13 Ag     0.00522    -0.00602    -0.00480
+    14 Ag     0.00699    -0.00741    -0.00547
+    15 Ag     0.01173    -0.00622     0.01986
+    16 Ag     0.00973    -0.01879     0.06447
+    17 Ag     0.00180    -0.00771     0.02430
+    18 Ag     0.00289    -0.00596     0.00628
+    19 Ag     0.00825    -0.00792     0.00690
+    20 Ag     0.00516    -0.00598     0.00489
+    21 Ag     0.00461    -0.00531     0.00452
+    22 Ag     0.00696    -0.00742     0.00549
+    23 Ag     0.01568     0.01637     0.01242
+    24 Ag     0.02024     0.05079     0.04106
+    25 Ag     0.00334     0.02024     0.01514
+    26 Ag     0.00244     0.00195     0.00958
+    27 Ag     0.00763     0.00269     0.01016
+    28 Ag     0.00461     0.00183     0.00682
+    29 Ag     0.00496     0.00215     0.00720
+    30 Ag     0.00685     0.00282     0.00884
+    31 Ag     0.01571     0.01643    -0.01237
+    32 Ag     0.02025     0.05086    -0.04098
+    33 Ag     0.00334     0.02028    -0.01510
+    34 Ag     0.00322     0.00782     0.00009
+    35 Ag     0.00864     0.01044     0.00002
+    36 Ag     0.00496     0.00735     0.00003
+    37 Ag     0.00498     0.00736    -0.00005
+    38 Ag     0.00703     0.00919     0.00001
+    39 Ag     0.00238     0.00208    -0.00951
+    40 Ag     0.00761     0.00270    -0.01016
+    41 Ag     0.00493     0.00211    -0.00722
+    42 Ag     0.00463     0.00184    -0.00683
+    43 Ag     0.00685     0.00284    -0.00883
+    44 Ag     0.02731     0.00001     0.00000
+    45 Ag     0.01311     0.00001     0.00000
+    46 Ag     0.00448    -0.00296     0.00209
+    47 Ag     0.00450    -0.00297    -0.00207
+    48 Ag     0.00400    -0.00320     0.00002
+    49 Ag     0.00433     0.00118     0.00349
+    50 Ag     0.00419    -0.00100     0.00351
+    51 Ag     0.00457     0.00361    -0.00000
+    52 Ag     0.00407     0.00261     0.00217
+    53 Ag     0.00433     0.00118    -0.00348
+    54 Ag     0.00406     0.00261    -0.00216
+    55 Ag     0.00421    -0.00096    -0.00351
+ ==================================================
+ 
+
+ #quartets = 4.186D+03 #integrals = 1.018D+04 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./dimqm_fd_pol.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = 233393
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+ gm                     -1 wg                     -1
+ SCF residual:   2.060587675005741E-006
+
+
+Iterative solution of linear equations
+  No. of variables      140
+  No. of equations        3
+  Maximum subspace       30
+       Convergence  1.0D-04
+        Start time      1.0
+
+
+   iter   nsub   residual    time 
+   ----  ------  --------  --------- 
+ DM absmax   0.445502E+00
+ DM abssum   0.168048E+02
+                     1  ps=   0.000000000000000E+000
+ DM absmax   0.362539E+00
+ DM abssum   0.950650E+01
+                     2  ps=   0.000000000000000E+000
+ DM absmax   0.486020E+00
+ DM abssum   0.213822E+02
+                     3  ps=   0.000000000000000E+000
+ First cycle, no old dipoles!
+ Requested tolerance below 1.0d-4
+ Setting x+ dir tolerance to 1.0d-4 to start
+ Seeding QMR
+ Converged in                    65 iterations
+ Took  6.200814247131348E-002 seconds
+ Total induced dipole moment for x+ perturbation
+ X:  0.136739334010378       0.268608822092356     
+ Y: -2.722093738941325E-003 -2.101124794847038E-005
+ Z:  1.189744989467894E-002 -1.882708045723824E-003
+ 
+ Max error in real dipoles:   5.55753009723405     
+ Max error in imag dipoles:  0.900571151791098     
+ First cycle, no old dipoles!
+ Requested tolerance below 1.0d-4
+ Setting x- dir tolerance to 1.0d-4 to start
+ Seeding QMR
+ Converged in                    69 iterations
+ Took  6.600713729858398E-002 seconds
+ Total induced dipole moment for x- perturbation
+ X:  -4.37539836815302      -0.145923432390985     
+ Y:  4.453817628467119E-004  1.375365449792620E-004
+ Z: -4.003140985626034E-002 -1.486757864625809E-003
+ 
+ Max error in real dipoles:  0.201537783713366     
+ Max error in imag dipoles:  2.666218482800670E-002
+ First cycle, no old dipoles!
+ Requested tolerance below 1.0d-4
+ Setting y+ dir tolerance to 1.0d-4 to start
+ Seeding QMR
+ Converged in                    70 iterations
+ Took  6.568479537963867E-002 seconds
+ Total induced dipole moment for y+ perturbation
+ X:  1.528580297569866E-003  7.902069921771364E-005
+ Y:  -1.25162195662795      -4.349488170685127E-002
+ Z:  4.839574893411788E-004 -5.415393738697847E-004
+ 
+ Max error in real dipoles:  0.220251144818526     
+ Max error in imag dipoles:  5.754375752789318E-002
+ First cycle, no old dipoles!
+ Requested tolerance below 1.0d-4
+ Setting y- dir tolerance to 1.0d-4 to start
+ Seeding QMR
+ Converged in                    70 iterations
+ Took  6.609201431274414E-002 seconds
+ Total induced dipole moment for y- perturbation
+ X:  1.530345530288552E-003  8.475533849998471E-005
+ Y:  -1.25403362882590      -4.303029607720897E-002
+ Z:  3.972470959737046E-004 -5.276921511547412E-004
+ 
+ Max error in real dipoles:  0.226356603919953     
+ Max error in imag dipoles:  5.921635414743263E-002
+ First cycle, no old dipoles!
+ Requested tolerance below 1.0d-4
+ Setting z+ dir tolerance to 1.0d-4 to start
+ Seeding QMR
+ Converged in                    72 iterations
+ Took  6.851506233215332E-002 seconds
+ Total induced dipole moment for z+ perturbation
+ X: -6.670346627858093E-003 -2.728198839075241E-004
+ Y: -2.358652906526357E-003  2.326648559198712E-003
+ Z:  -2.96181920943831      -0.104333592271396     
+ 
+ Max error in real dipoles:  0.479312910959255     
+ Max error in imag dipoles:  0.131166359912329     
+ First cycle, no old dipoles!
+ Requested tolerance below 1.0d-4
+ Setting z- dir tolerance to 1.0d-4 to start
+ Seeding QMR
+ Converged in                    74 iterations
+ Took  7.137989997863770E-002 seconds
+ Total induced dipole moment for z- perturbation
+ X: -0.241480972053958      -1.757521825848065E-002
+ Y: -9.217768328455833E-004  1.016635888845827E-003
+ Z:  -1.27138218088850      -4.589012252025459E-002
+ 
+ Max error in real dipoles:  0.250079980745126     
+ Max error in imag dipoles:  5.322006917562955E-002
+     1      3    1.85D+00       1.8
+ DM absmax   0.202622E+00
+ DM abssum   0.108874E+02
+                     1  ps=   0.000000000000000E+000
+ DM absmax   0.341695E+00
+ DM abssum   0.899739E+01
+                     2  ps=   0.000000000000000E+000
+ DM absmax   0.366600E+00
+ DM abssum   0.163049E+02
+                     3  ps=   0.000000000000000E+000
+ Seeding QMR
+ Converged in                    65 iterations
+ Took  6.236600875854492E-002 seconds
+ Total induced dipole moment for x+ perturbation
+ X:  9.929231780400019E-002  0.151325252294390     
+ Y: -1.499924537916817E-003 -1.247839599864773E-005
+ Z:  6.713344294275012E-003 -1.055674214234789E-003
+ 
+ Max error in real dipoles:   2.43761859185850     
+ Max error in imag dipoles:  0.394755418922503     
+ Seeding QMR
+ Converged in                    75 iterations
+ Took  7.151222229003906E-002 seconds
+ Total induced dipole moment for x- perturbation
+ X:  -1.43346209613346       1.313875773561797E-002
+ Y: -4.167983138683620E-004  4.909061480342530E-005
+ Z: -3.272531572918972E-002 -1.743367727751076E-003
+ 
+ Max error in real dipoles:   1.28524369918756     
+ Max error in imag dipoles:  0.223933669483264     
+ Seeding QMR
+ Converged in                    71 iterations
+ Took  6.693100929260254E-002 seconds
+ Total induced dipole moment for y+ perturbation
+ X:  1.406395068605563E-003  7.174517091025753E-005
+ Y:  -1.15355797505114      -4.014745893655017E-002
+ Z:  5.071950741597359E-004 -4.964600957166193E-004
+ 
+ Max error in real dipoles:  1.788701319396557E-002
+ Max error in imag dipoles:  4.682261286970225E-003
+ Seeding QMR
+ Converged in                    71 iterations
+ Took  6.769800186157227E-002 seconds
+ Total induced dipole moment for y- perturbation
+ X:  1.402241138455169E-003  8.035090244609862E-005
+ Y:  -1.12468648658139      -3.858528423637980E-002
+ Z:  3.799845226232154E-004 -4.728075295211253E-004
+ 
+ Max error in real dipoles:  2.329774045422489E-002
+ Max error in imag dipoles:  6.086082104986248E-003
+ Seeding QMR
+ Converged in                    72 iterations
+ Took  6.764388084411621E-002 seconds
+ Total induced dipole moment for z+ perturbation
+ X: -4.829313036673499E-003 -2.011859487292440E-004
+ Y: -1.660761155971802E-003  1.687180754984682E-003
+ Z:  -2.14952030676709      -7.577040099342865E-002
+ 
+ Max error in real dipoles:  0.131864836881270     
+ Max error in imag dipoles:  3.611800954248726E-002
+ Seeding QMR
+ Converged in                    74 iterations
+ Took  6.925511360168457E-002 seconds
+ Total induced dipole moment for z- perturbation
+ X: -0.247214386906457      -1.799730629688963E-002
+ Y: -6.314116732694143E-004  7.947714941461534E-004
+ Z: -0.989892750831350      -3.568399533491348E-002
+ 
+ Max error in real dipoles:  4.420423534422627E-002
+ Max error in imag dipoles:  1.170095424429379E-002
+     2      6    1.44D+00       2.6
+ DM absmax   0.271434E+00
+ DM abssum   0.113109E+02
+                     1  ps=   0.000000000000000E+000
+ DM absmax   0.343270E+00
+ DM abssum   0.896907E+01
+                     2  ps=   0.000000000000000E+000
+ DM absmax   0.377737E+00
+ DM abssum   0.166931E+02
+                     3  ps=   0.000000000000000E+000
+ Seeding QMR
+ Converged in                    65 iterations
+ Took  6.228995323181152E-002 seconds
+ Total induced dipole moment for x+ perturbation
+ X:  0.114469505955431       0.169009565251693     
+ Y: -1.682032076172723E-003 -6.995518183427682E-006
+ Z:  7.504354141608591E-003 -1.174410783813216E-003
+ 
+ Max error in real dipoles:  0.363766394930639     
+ Max error in imag dipoles:  5.903328084830661E-002
+ Seeding QMR
+ Converged in                    74 iterations
+ Took  7.140898704528809E-002 seconds
+ Total induced dipole moment for x- perturbation
+ X:  -2.35487184422120      -5.242075888900683E-002
+ Y: -5.006633619799965E-007  7.783627858066047E-005
+ Z: -3.098661134779480E-002 -1.374201714939578E-003
+ 
+ Max error in real dipoles:  0.731431434413580     
+ Max error in imag dipoles:  0.123325020617129     
+ Seeding QMR
+ Converged in                    71 iterations
+ Took  6.774902343750000E-002 seconds
+ Total induced dipole moment for y+ perturbation
+ X:  1.411446660579303E-003  6.926393964132218E-005
+ Y:  -1.15748619512371      -4.027402116414275E-002
+ Z:  5.087496356239590E-004 -5.031783039076265E-004
+ 
+ Max error in real dipoles:  7.952772124912577E-004
+ Max error in imag dipoles:  2.095492405959562E-004
+ Seeding QMR
+ Converged in                    70 iterations
+ Took  6.586384773254395E-002 seconds
+ Total induced dipole moment for y- perturbation
+ X:  1.431394908759320E-003  8.114804014885089E-005
+ Y:  -1.14072483319132      -3.913619128570041E-002
+ Z:  3.810763341580634E-004 -4.812255277790393E-004
+ 
+ Max error in real dipoles:  2.887831674773800E-003
+ Max error in imag dipoles:  7.513939490247645E-004
+ Seeding QMR
+ Converged in                    72 iterations
+ Took  6.792402267456055E-002 seconds
+ Total induced dipole moment for z+ perturbation
+ X: -4.978605632632083E-003 -2.110526787718059E-004
+ Y: -1.712059859462017E-003  1.736665570486587E-003
+ Z:  -2.21383389533984      -7.801898127430712E-002
+ 
+ Max error in real dipoles:  1.056108391033711E-002
+ Max error in imag dipoles:  2.894636200043404E-003
+ Seeding QMR
+ Converged in                    74 iterations
+ Took  6.967997550964355E-002 seconds
+ Total induced dipole moment for z- perturbation
+ X: -0.238796235499308      -1.738352320581278E-002
+ Y: -6.540140639813702E-004  8.095788231956393E-004
+ Z:  -1.01018873302503      -3.642807697070916E-002
+ 
+ Max error in real dipoles:  6.989453487096398E-003
+ Max error in imag dipoles:  1.173924808828303E-003
+     3      9    4.95D-02       3.4
+ DM absmax   0.270443E+00
+ DM abssum   0.113944E+02
+                     1  ps=   0.000000000000000E+000
+ DM absmax   0.343371E+00
+ DM abssum   0.897343E+01
+                     2  ps=   0.000000000000000E+000
+ DM absmax   0.377760E+00
+ DM abssum   0.166961E+02
+                     3  ps=   0.000000000000000E+000
+ Dipole error below    1.00000000000000     
+ Setting current system as seed
+ Reverting tolerance back to  1.000000000000000E-007
+ Using previous dipoles
+ res0:  1.106154096474352E-002
+ Projecting                    74 steps
+ Projected res_0:  1.254706482056777E-002
+ Converged in                   121 iterations
+ Took  0.108453035354614      seconds
+ Total induced dipole moment for x+ perturbation
+ X:  0.114041138941535       0.170329944320095     
+ Y: -1.633556615790458E-003 -3.466653234496415E-005
+ Z:  7.607083042060907E-003 -1.202427728440633E-003
+ 
+ Max error in real dipoles:  2.791814390042102E-002
+ Max error in imag dipoles:  4.510271092768470E-003
+ Using previous dipoles
+ res0:  3.943985508811354E-003
+ Projecting                    74 steps
+ Projected res_0:  7.274091123042442E-005
+ Converged in                   106 iterations
+ Took  9.706711769104004E-002 seconds
+ Total induced dipole moment for x- perturbation
+ X:  -2.35286270842777      -5.120595609456941E-002
+ Y: -1.214646822619435E-005  7.772938785722335E-005
+ Z: -3.131304765996264E-002 -1.396029253586037E-003
+ 
+ Max error in real dipoles:  2.400831172978846E-002
+ Max error in imag dipoles:  3.893691218633963E-003
+ Using previous dipoles
+ res0:  4.695259428158128E-003
+ Projecting                    70 steps
+ Projected res_0:  1.076764124899400E-004
+ Converged in                   106 iterations
+ Took  9.537410736083984E-002 seconds
+ Total induced dipole moment for y+ perturbation
+ X:  1.399682963041077E-003  6.936043104242276E-005
+ Y:  -1.15802733338421      -4.029233807948271E-002
+ Z:  4.780023841657877E-004 -5.048020858248944E-004
+ 
+ Max error in real dipoles:  1.173231238160988E-004
+ Max error in imag dipoles:  3.549532642463382E-005
+ Using previous dipoles
+ res0:  4.747930403189172E-003
+ Projecting                    70 steps
+ Projected res_0:  6.076520414135240E-006
+ Converged in                    80 iterations
+ Took  8.051800727844238E-002 seconds
+ Total induced dipole moment for y- perturbation
+ X:  1.419046843342979E-003  7.926296494682478E-005
+ Y:  -1.14105675452208      -3.914818255264171E-002
+ Z:  3.476431557885365E-004 -4.844483858774760E-004
+ 
+ Max error in real dipoles:  8.976840863589297E-005
+ Max error in imag dipoles:  2.656229454110759E-005
+ Using previous dipoles
+ res0:  8.736241244408458E-003
+ Projecting                    74 steps
+ Projected res_0:  1.723773927393722E-003
+ Converged in                   113 iterations
+ Took  0.101009130477905      seconds
+ Total induced dipole moment for z+ perturbation
+ X: -4.973852288612468E-003 -2.101120996682304E-004
+ Y: -1.739297439629181E-003  1.738613622677316E-003
+ Z:  -2.21495169213782      -7.806108225662994E-002
+ 
+ Max error in real dipoles:  1.765935907356853E-004
+ Max error in imag dipoles:  5.144452212368922E-005
+ Using previous dipoles
+ res0:  3.877031866540436E-003
+ Projecting                    74 steps
+ Projected res_0:  5.831841399492525E-006
+ Converged in                    83 iterations
+ Took  7.626199722290039E-002 seconds
+ Total induced dipole moment for z- perturbation
+ X: -0.240067843190042      -1.747682442928174E-002
+ Y: -7.139804181514123E-004  8.079352153321975E-004
+ Z:  -1.01089176136296      -3.645333737416718E-002
+ 
+ Max error in real dipoles:  1.042381892251976E-003
+ Max error in imag dipoles:  1.751442110188850E-004
+     4     12    1.02D-03       4.3
+ DM absmax   0.270447E+00
+ DM abssum   0.113940E+02
+                     1  ps=   0.000000000000000E+000
+ DM absmax   0.343371E+00
+ DM abssum   0.897341E+01
+                     2  ps=   0.000000000000000E+000
+ DM absmax   0.377753E+00
+ DM abssum   0.166960E+02
+                     3  ps=   0.000000000000000E+000
+ Using previous dipoles
+ res0:  1.106019654968688E-002
+ Projecting                    74 steps
+ Projected res_0:  1.254558723641335E-002
+ Converged in                   121 iterations
+ Took  0.108278036117554      seconds
+ Total induced dipole moment for x+ perturbation
+ X:  0.114060378716629       0.170310045720995     
+ Y: -1.632119696188834E-003 -3.462384898926096E-005
+ Z:  7.607823792536657E-003 -1.202215409118322E-003
+ 
+ Max error in real dipoles:  4.249546434547113E-004
+ Max error in imag dipoles:  6.850469278885107E-005
+ Using previous dipoles
+ res0:  3.943506854334036E-003
+ Projecting                    74 steps
+ Projected res_0:  7.395354686497553E-005
+ Converged in                   106 iterations
+ Took  9.690690040588379E-002 seconds
+ Total induced dipole moment for x- perturbation
+ X:  -2.35226755210055      -5.117210206624308E-002
+ Y: -1.121079832407546E-005  7.774740587827259E-005
+ Z: -3.130849349660925E-002 -1.395984736792301E-003
+ 
+ Max error in real dipoles:  2.942730147950101E-004
+ Max error in imag dipoles:  5.082055896517279E-005
+ Using previous dipoles
+ res0:  4.695248076680206E-003
+ Projecting                    70 steps
+ Projected res_0:  1.076774750748715E-004
+ Converged in                   104 iterations
+ Took  9.331703186035156E-002 seconds
+ Total induced dipole moment for y+ perturbation
+ X:  1.399535591028511E-003  6.995195290210960E-005
+ Y:  -1.15802491879324      -4.029226062296944E-002
+ Z:  4.774230805485793E-004 -5.048231412179381E-004
+ 
+ Max error in real dipoles:  1.230137027191663E-005
+ Max error in imag dipoles:  1.993442939809525E-006
+ Using previous dipoles
+ res0:  4.747904252001909E-003
+ Projecting                    70 steps
+ Projected res_0:  6.076864073305040E-006
+ Converged in                    78 iterations
+ Took  7.666707038879395E-002 seconds
+ Total induced dipole moment for y- perturbation
+ X:  1.410834416822423E-003  7.909048626740609E-005
+ Y:  -1.14105044438418      -3.914796685720073E-002
+ Z:  3.473270589000529E-004 -4.844556779795631E-004
+ 
+ Max error in real dipoles:  2.106579275678406E-006
+ Max error in imag dipoles:  3.441030005310597E-007
+ Using previous dipoles
+ res0:  8.736003863731740E-003
+ Projecting                    74 steps
+ Projected res_0:  1.723736501627863E-003
+ Converged in                   114 iterations
+ Took  0.103327035903931      seconds
+ Total induced dipole moment for z+ perturbation
+ X: -4.973736830698045E-003 -2.100139433130026E-004
+ Y: -1.739848048758097E-003  1.738553132795841E-003
+ Z:  -2.21488647173257      -7.805869652539502E-002
+ 
+ Max error in real dipoles:  1.026036148660259E-005
+ Max error in imag dipoles:  2.610945126158004E-006
+ Using previous dipoles
+ res0:  3.876912406996919E-003
+ Projecting                    74 steps
+ Projected res_0:  5.770000508209984E-006
+ Converged in                    83 iterations
+ Took  7.575011253356934E-002 seconds
+ Total induced dipole moment for z- perturbation
+ X: -0.240026877028956      -1.747376903198902E-002
+ Y: -7.145090030911093E-004  8.078983578887824E-004
+ Z:  -1.01086753735933      -3.645250211654485E-002
+ 
+ Max error in real dipoles:  3.533520309337290E-005
+ Max error in imag dipoles:  5.937977807811412E-006
+     5     15    5.72D-05       5.3
+
+ Parallel integral file used       1 records with       0 large values
+
+
+ Electric Dipole Response Matrix (nonzero elements):
+
+              1        2        3      
+    1    4.1951  -0.0000  -0.0001
+    2   -0.0000   3.4340  -0.0002
+    3   -0.0001  -0.0002   7.1769
+
+ ------------------------------------------
+ average:         4.93534 + I       0.00000
+
+
+ DFT Linear Response polarizability / au 
+ Frequency  =       0.1400000 / au
+ Wavelength =     325.4525214 / nm
+              X              Y              Z
+ -----------------------------------------------
+ X       4.1951088     -0.0000437     -0.0001467
+ Y      -0.0000444      3.4339777     -0.0001504
+ Z      -0.0001471     -0.0001505      7.1769454
+ -----------------------------------------------
+ Eigenvalues =       4.1951088      3.4339777      7.1769454
+ Isotropic   =       4.9353440
+ Anisotropic =       2.7976465
+ -----------------------------------------------
+
+ Magnetic Dipole Response Matrix (nonzero elements):
+ Optical rotation tensor Beta
+
+              1        2        3      
+    1    0.0000   0.0012  -0.0005
+    2    0.0000   0.0012  38.7607
+    3    0.0000 -57.5118  -0.0017
+
+ ------------------------------------------
+ average:        -0.00016 + I       0.00000
+
+ Principal components and PAS (Real part)
+                -38.76093
+                 38.76045
+                  0.00000
+ ------------------------
+ average:        -0.00016
+
+              1        2        3      
+    1    0.0000   0.0000   1.0000
+    2   -0.7071   0.7071   0.0000
+    3    0.7071   0.7071  -0.0000
+ Regular QMR
+ Converged in                   109 iterations
+ Took  9.667301177978516E-002 seconds
+ Regular QMR
+ Converged in                   108 iterations
+ Took  9.446287155151367E-002 seconds
+ Regular QMR
+ Converged in                   109 iterations
+ Took  9.523701667785645E-002 seconds
+Polarizability tensor for DIM system: Frequency-Dependent Real
+              X              Y              Z
+ -----------------------------------------------
+ X    4462.9893016     -1.2738702     -0.6846947
+ Y      -1.2738617   4484.6428218      0.8283293
+ Z      -0.6846874      0.8283400   4485.8602353
+ -----------------------------------------------
+ 
+Polarizability tensor for DIM system: Frequency-Dependent Imag
+              X              Y              Z
+ -----------------------------------------------
+ X     224.0249585     -0.0443093      0.0340476
+ Y      -0.0443117    224.9203943      0.0663582
+ Z       0.0340436      0.0663578    225.0270225
+ -----------------------------------------------
+ 
+ Total time:  0.287100076675415     
+ Exiting AOResponse driver routine
+
+ Task  times  cpu:        5.4s     wall:        5.5s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+ Summary of allocated global arrays
+-----------------------------------
+  array 0 => double complex dimqm:diagFD(165,1),  handle: -994 
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls: 1066     1065     7.71e+04 5379     2.22e+05  534        0     3842     
+number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
+bytes total:             3.39e+07 6.15e+06 2.20e+07 1.52e+02 0.00e+00 3.07e+04
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 193968 bytes
+ 
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        25	        52
+	current total bytes		         0	         0
+	maximum total bytes		   3323784	  22510664
+	maximum total K-bytes		      3324	     22511
+	maximum total M-bytes		         4	        23
+ 
+ 
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+ 
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+ 
+                                      AUTHORS
+                                      -------
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+       S. A. Fischer, S. Krishnamoorthy, W. Ma, M. Klemm, O. Villa, Y. Chen,
+    V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus, M. Malagoli,
+       A. Marenich, A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Peverati,
+     J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari, M. Williamson, R. J. Harrison,
+       J. R. Rehr, M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha,
+        V. Tipparaju, M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia,
+        L. Jensen, M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
+      L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza,
+        K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski,
+     J. Anchell, D. E. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel,
+   M. J. O. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. C. Hess,
+         J. Jaffe, B. G. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
+   R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+   K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
+                               A. T. Wong, Z. Zhang.
+
+ Total times  cpu:        5.4s     wall:        5.6s
