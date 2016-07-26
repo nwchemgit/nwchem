@@ -1854,22 +1854,27 @@ $(error )
        ifdef  USE_FPE
          FOPTIONS += -fpe0 -traceback #-fp-model  precise
        endif
-        ifeq ($(_IFCV11),Y) 
+       ifeq ($(_IFCV11),Y) 
 #next 2 lines needed for fp accuracy
-        FDEBUG += -fp-model source
-        ifeq ($(_IFCV12),Y) 
-        FOPTIONS += -fimf-arch-consistency=true
-        endif
-        FOPTIMIZE += -xHost
-        FOPTIONS += -finline-limit=250
+         FDEBUG += -fp-model source
+         ifeq ($(_IFCV12),Y) 
+           FOPTIONS += -fimf-arch-consistency=true
+         endif
+         ifdef USE_KNL
+           FOPTIMIZE += -xMIC-AVX512 
+         else
+           FOPTIMIZE += -xHost
+         endif
+         FOPTIONS += -finline-limit=250
        else
-        ifeq ($(_GOTSSE3),Y) 
-         FOPTIMIZE += -xP -no-prec-div
-        else
-         FOPTIMIZE +=  -tpp7 -ip 
-         FOPTIMIZE += -xW
-        endif
+         ifeq ($(_GOTSSE3),Y) 
+           FOPTIMIZE += -xP -no-prec-div
+         else
+           FOPTIMIZE +=  -tpp7 -ip 
+           FOPTIMIZE += -xW
+         endif
        endif
+
 
        # configuration options for MEMKIND library on Intel Xeon Phi processors
        ifdef USE_FASTMEM
