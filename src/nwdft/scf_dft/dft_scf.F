@@ -40,7 +40,7 @@ c
 #include "dftps.fh"
 #include "cosmo.fh"
 #include "zora.fh"
-#include "dimqm.fh"
+cold#include "dimqm.fh"
 c     
       Logical movecs_write, movecs_converged, movecs_read
       External movecs_write, movecs_converged, movecs_read
@@ -50,7 +50,7 @@ c
 c
       integer g_s ! [in]
 c
-      logical use_nwxc
+      logical use_nwxc,use_dimqm
       logical lvan, do_ddl, lbrak, check
       double precision dl_conv, dl2, ddl2, x1, x2, fddl, dlold
       logical lcdft
@@ -217,6 +217,8 @@ cc     AJL/Begin/FDE
       integer g_vxc_fde(4)
       integer g_xcinv_fde
       integer g_dens_fde(2)
+      logical ldimqm, dimqm_go
+      double precision edimqm
 cc     AJL/End
 c
       gotsmear(ss)=abs(ss).gt.1d-9
@@ -440,6 +442,15 @@ c     Jorge Garza/End
       use_nwxc = util_module_avail("nwxc")
       if (use_nwxc) then
          call nwxc_getvals("nwxc_is_on",use_nwxc)
+      endif
+      use_dimqm = util_module_avail("dimqm")
+      if (use_dimqm) then
+         call dimqm_used(ldimqm)
+         call dimqm_getgo(dimqm_go)
+      else
+         ldimqm=.false.
+         dimqm_go=.false.
+         edimqm=0d0
       endif
 c
 c     Set aside some memory for reduced density matrix
@@ -805,8 +816,11 @@ c     == better have static ldb at high node counts ==
           call ga_copy(g_dens(1),g_dens(2))
           call ga_dscal(g_dens(1),dble(ntotel-nclosed)/(ntotel))
           call ga_dscal(g_dens(2),dble(nclosed)/(ntotel))
-          if(oskel) call ga_symmetrize(g_dens(2))
         endif
+      if(oskel) then
+        call ga_symmetrize(g_dens(1))
+        if(ipol.eq.2) call ga_symmetrize(g_dens(2))
+      endif
         goto 1789
       endif
       if(oskel) then
@@ -1197,7 +1211,10 @@ c
 c
 c     DIM/QM JEM
 c     Add DIM energy
-      if (ldimqm .and. dimqm_go) Etnew = Etnew + Edimqm
+      if (ldimqm .and. dimqm_go) then
+         call dimqm_energy(edimqm)
+         Etnew = Etnew + Edimqm
+      endif
 c
 c     
 c     == is this a oneshot "noscf" type calculation, no diagonalization ==
@@ -1505,6 +1522,11 @@ c
          pstrace=ga_ddot(g_dens,g_s)
          if(ga_nodeid().eq.0) write (luout,'(5x,a,1x,e15.7)')
      &      'tr(P*S): ',pstrace 
+         if(ipol.eq.2) then
+            pstrace=ga_ddot(g_dens(2),g_s)
+            if(ga_nodeid().eq.0) write (luout,'(5x,a,1x,e15.7)')
+     &           'tr(P_beta*S): ',pstrace 
+         endif
       endif
 c
       if (oprint_time)
@@ -1547,6 +1569,7 @@ c
 c     check for symmetry breaking
 c
       if(oskel) then
+c      if(.false.) then
           call dft_symbr(geom,ao_bas_han,ipol,
      .     g_dens(1),g_dens(2), g_tmp)
        endif
@@ -1658,7 +1681,10 @@ c
 c     Check for SCF convergence.
 c     
 c     DIM/QM JEM
-      dimqm_go = .true.
+      if(use_dimqm) then
+         dimqm_go = .true.
+         call dimqm_setgo(dimqm_go)
+      endif
       call ga_sync
       if (oprint_time)
      &     call dft_tstamp(' calling scfcvg ')
@@ -1749,7 +1775,10 @@ c
 c
 c     DIM/QM JEM
 c     Add DIM energy
-      if(ldimqm .and. dimqm_go) Etnew = Etnew + Edimqm
+      if(ldimqm .and. dimqm_go) then
+         call dimqm_energy(edimqm)
+         Etnew = Etnew + Edimqm
+      endif
 c
 c    
       if (.not. ga_destroy(g_denso(1))) call errquit
@@ -1941,7 +1970,10 @@ c
 c        DIM/QM JEM
 c        Add DIM energy
 c        NOTE: Why are we redoing this energy sum?
-         if(ldimqm .and. dimqm_go) Etnew = Etnew + Edimqm
+         if(ldimqm .and. dimqm_go) then
+            call dimqm_energy(edimqm)
+            Etnew = Etnew + Edimqm
+         endif
 
 c        DIM/QM JEM
         

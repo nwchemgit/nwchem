@@ -5,7 +5,7 @@
 #	      $(FC) -c constants.f90
 
    OBJ = dimqm_input.o dimpar_input.o dimqm_prep.o \
-   	 dimqm_main.o dimqm_polarizability.o dimqm_f2d.o dimqm_iterative.o \
+	 dimqm_main.o dimqm_polarizability.o dimqm_f2d.o dimqm_iterative.o \
 	 qmr_real.o qmr_complex.o matvecReal.o matvecComplex.o \
          dimqm_EqmE.o t2.o \
          pphilo.o dimqm_fldpot.o dimqm_EqmN.o \
@@ -20,7 +20,7 @@
          dimqm_broadcast.o CubicSpline.o dim_fock_xc.o \
          dim_getv.o dim_tabcd.o dim_eval_fnl.o \
          dim_grid_quadv0.o dim_grid_quadv0a.o dim_grid_quadv0b.o \
-         dimqm_seeding.o dimqm_rohf.o
+         dimqm_seeding.o dimqm_rohf.o dimqm_util.o
 
    LIBRARY = libdimqm.a
 #
