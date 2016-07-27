@@ -219,8 +219,12 @@ c     print cosmo, smd output
       if (.not. rtdb_get(rtdb,'cosmo:egas',mt_dbl,1,egas)) egas = 0.d0
       if (.not. rtdb_get(rtdb,'cosmo:esol',mt_dbl,1,esol)) esol = 0.d0
       gstote = esol - gcds
-      if (me.eq.0) call cosmo_smd_output(egas, esol, do_cosmo_smd, gcds,
-     $  gstote, gspol)
+      if (me.eq.0) then
+        if(cosmo_on.and.cosmo_phase.eq.2) then
+           call cosmo_smd_output(egas, esol, do_cosmo_smd, gcds,
+     $            gstote, gspol)
+        endif
+      endif ! me.eq.0
 c
       if (dft_cscf_equals_scftype("UHF")) then
         ipol = 2
