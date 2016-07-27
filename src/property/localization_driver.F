@@ -12,7 +12,7 @@ c              basis   - basis set handle
 c              geom    - geometry handle
 c              loctype - localization type
 c                        1: Pipek-Mezey
-c                        2: Boys (not yet interfaced with this driver)
+c                        2: Boys
 c
 c     driver witten by by J. Autschbach, jochena@buffalo.edu
 
@@ -42,11 +42,12 @@ c     subroutine arguments:
       integer loctype
 
 c     local GA handles:
-      integer g_dipel, g_smat, g_sc, g_tran
+      integer g_uc(4), g_smat, g_sc, g_tran
       integer g_movecs(2), g_cmo(2), g_temp
 
 c     MA variables:
       integer l_c, k_c, l_sc, k_sc, l_eval, k_eval, l_occ, k_occ
+      integer l_dip(3), k_dip(3)
 
 c     other local variables:
 
@@ -55,7 +56,7 @@ c     other local variables:
       integer alo(3), ahi(3), blo(3), bhi(3), clo(3), chi(3)
       integer dlo(3), dhi(3)
 
-      double precision atn, tol2e, val
+      double precision atn, tol2e, val, rtmp, sumd2, dx, dy, dz
       character*3 scftyp
 
       logical     oskel, status
@@ -68,6 +69,8 @@ c     other local variables:
       double precision dummy(3)
       double precision origin(3)
       data origin/0d0,0d0,0d0/
+      double precision angstrom
+      parameter (angstrom = 0.529177d0)
 
       character*(256) lmotrans
       logical file_write_ga
@@ -101,13 +104,16 @@ c     ----------------------
       
       if (oprint) then
         write (luout,9000)
-c       write (luout,9010) 
         if (loctype.eq.1) then
           call util_print_centered(luout,
      &       'Pipek-Mezey orbital localization', 32, .true.)
         elseif (loctype.eq.2) then
           call util_print_centered(luout,
      &       'Boys orbital localization', 25, .true.)
+        else
+          write (luout,*) 'loctype =',loctype
+          write (luout,*) 'LocType value not supported. Exiting.'
+          return
         end if
       end if
       
@@ -195,9 +201,9 @@ c       PM localization needs S*C:
 c        allocate some memory used in the localization routine:
 
          if (.not. ma_push_get(mt_dbl, 2*nbf, 'sc', l_sc, k_sc))
-     $        call errquit('ma for sc', 0, MA_ERR)
+     $        call errquit('loc_driver: ma for sc', 0, MA_ERR)
          if (.not. ma_push_get(mt_dbl, 2*nbf, 'c', l_c, k_c))
-     $        call errquit('ma for c', 0, MA_ERR)
+     $        call errquit('loc_driver: ma for c', 0, MA_ERR)
 
 c        localize core and occupied orbitals
 
@@ -256,7 +262,7 @@ c        loc transform is in g_smat. Write to file
          if(.not.file_write_ga(lmotrans,g_smat)) call errquit
      $      ('loc_driver: could not write lmotrans',0, DISK_ERR)
 
-c        smat, temp not needed anymore
+c        smat not needed anymore
          if (.not. ga_destroy(g_smat)) call errquit(
      &      'loc_driver: error destroying g_smat',0, GA_ERR)
 
@@ -266,8 +272,175 @@ c       =================
 c       Boys localization
 c       =================
 
-        write (luout,*) 'Boys not yet implemented. Will do nothing :-)'
-        continue ! nothing to do right now
+c        write (luout,*) 'Boys not yet implemented. Will do nothing :-)'
+c        continue ! nothing to do right now
+
+        do i = 1,4
+          if (.not. ga_create(MT_DBL, nbf, nbf, 'uc',
+     $       nbf, 0, g_uc(i))) call errquit('loc_driver:uc'
+     &       ,i,GA_ERR)
+          call ga_zero(g_uc(i))
+         end do
+
+         if (debug) write(luout,*) 'g_uc created'
+
+c        dipole moment AO matrices -> uc(1) - uc(3)
+         call int_dip_ga(basis, basis, g_uc(1), g_uc(2), g_uc(3))
+
+         if (debug) write(luout,*) 'dipole done'
+
+c        calculate dipole-AO times C (mo-coeffs), store in uc(i)
+         if (.not. ga_create(MT_DBL, nbf, nmo, 'sc',
+     $        nbf, 0, g_sc)) call errquit('loc_driver: sc',0, GA_ERR)
+         do i = 1, 3
+            call ga_dgemm('n', 'n', nbf, nmo, nbf, 
+     $           1.0d0, g_uc(i), g_movecs, 0.0d0, g_sc)
+            call ga_copy_patch('n',g_sc,1,nbf,1,nmo,g_uc(i),1,nbf,1,nmo)
+         end do
+
+         if (debug) write(luout,*) 'g_uc complete'
+
+c       AO Overlap Matrix S:
+
+        g_smat  = ga_create_atom_blocked(geom, basis, 'loc:smat')
+        call ga_zero(g_smat)
+        call int_1e_ga(basis, basis, g_smat, 'overlap', .false.)
+
+        if (debug) write(luout,*) 'smat done'
+
+c       store S C in array uc(4)
+        call ga_dgemm('n', 'n', nbf, nmo, nbf, 
+     $     1.0d0, g_smat, g_movecs(1), 0.0d0, g_uc(4))
+
+        if (debug) write(luout,*) 'g_uc(4) done'
+c     
+         if (.not. ma_push_get(mt_dbl, 8*nbf, 'sc', l_sc, k_sc))
+     $        call errquit('loc_driver: ma for sc', 0, MA_ERR)
+         if (.not. ma_push_get(mt_dbl, 8*nbf, 'c', l_c, k_c))
+     $        call errquit('ma for c', 0, MA_ERR)
+
+         if (debug) write(luout,*) 'MA c, sc complete'
+
+c        localize core and occupied orbitals:
+
+         do i = 1, nclosed(1)
+            iloc(i) = i
+         end do
+         nloc = nclosed(1)
+
+c        calculate orbital centroids and determine B2 = the sum of 
+c        square distances of the centroids from the coordinate origin.
+c        The Boys localization maximizes B2. 
+c        we can use g_sc as a temp array as it is not further used
+
+         if (.not. ga_destroy(g_sc)) call errquit(
+     &      'loc_driver: error destroying g_sc',0, GA_ERR)
+         if (.not. ga_create(MT_DBL, nmo, nmo, 'sc',
+     $      nbf, 0, g_sc)) call errquit('loc_driver: sc',0, GA_ERR)
+
+         do i = 1,3
+           if (.not. ma_push_get(mt_dbl, nmo, 'sc', l_dip(i), k_dip(i)))
+     $        call errquit('loc_driver: ma for dip', i, MA_ERR)
+         end do
+
+         do i = 1,3
+           call ga_zero(g_sc)
+           call ga_dgemm('t','n',nmo,nmo,nbf, 1.0d0, g_movecs, g_uc(i),
+     &        0.0d0, g_sc)
+           call ga_get_diagonal(g_sc, dbl_mb(k_dip(i)))
+         end do
+
+         if (ga_nodeid().eq.0) then
+           write (luout,'(/t6,a,t15,a,t27,a,t39,a,t49,a)')
+     &        '#','<x>','<y>','<z>','<r>**2'
+           write (luout,'(1x,53(''-''))')
+         end if
+         sumd2 = 0.0d0
+         do i = 1,nmo
+           dx = dbl_mb(k_dip(1) + i-1) 
+           dy = dbl_mb(k_dip(2) + i-1) 
+           dz = dbl_mb(k_dip(3) + i-1)
+           rtmp = dx**2 + dy**2 + dz**2
+           sumd2 = sumd2 + rtmp
+           if (ga_nodeid().eq.0) then
+             write (luout,'(1x,i5,4f12.4)') i,dx,dy,dz,rtmp
+           end if
+         end do
+c         if (ga_nodeid().eq.0) then
+c           write (luout,'(1x,a,2f12.4)') 'B2 before localization, av:',
+c     &        sumd2, sumd2/float(nloc)
+c         end if
+
+         do i = 3,1,-1
+           if (.not. ma_pop_stack(l_dip(i))) call errquit(
+     &        'loc_driver: error MA pop dip',i, MA_ERR)
+         end do
+
+c        jochen: comment:
+c        the localization routines were already available
+c        in nwchem
+         call localizeFB(basis, dbl_mb(k_c), dbl_mb(k_sc), 
+     $        nloc, iloc, nbf, nmo, g_movecs, g_uc)
+
+c        calculate orbital centroids again and print information
+
+         do i = 1,3
+           if (.not. ma_push_get(mt_dbl, nmo, 'sc', l_dip(i), k_dip(i)))
+     $        call errquit('loc_driver: ma for dip', i, MA_ERR)
+         end do
+
+         do i = 1,3
+           call ga_zero(g_sc)
+           call ga_dgemm('t','n',nmo,nmo,nbf, 1.0d0, g_movecs,g_uc(i),
+     &        0.0d0, g_sc)
+           call ga_get_diagonal(g_sc, dbl_mb(k_dip(i)))
+         end do
+
+         if (ga_nodeid().eq.0) then
+           write (luout,'(/t6,a,t15,a,t27,a,t39,a,t49,a)')
+     &        '#','<x>','<y>','<z>','<r>**2'
+           write (luout,'(1x,53(''-''))')
+         end if
+         sumd2 = 0.0d0
+         do i = 1,nmo
+           dx = dbl_mb(k_dip(1) + i-1)
+           dy = dbl_mb(k_dip(2) + i-1)
+           dz = dbl_mb(k_dip(3) + i-1)
+           rtmp = dx**2 + dy**2 + dz**2
+           sumd2 = sumd2 + rtmp
+           if (ga_nodeid().eq.0) then
+             write (luout,'(1x,i5,4f12.4)') i,dx,dy,dz,rtmp
+           end if
+         end do
+c         if (ga_nodeid().eq.0) then
+c           write (luout,'(1x,a,2f12.4)') 'B2 after localization, av:',
+c     &        sumd2, sumd2/float(nloc)
+c         end if
+
+         do i = 3,1,-1
+           if (.not. ma_pop_stack(l_dip(i))) call errquit(
+     &        'loc_driver: error MA pop dip',i, MA_ERR)
+         end do
+
+c        clean up  temp arrays:
+
+         if (.not. ga_destroy(g_sc)) call errquit(
+     &      'loc_driver: error destroying g_sc',0, GA_ERR)
+
+         if (.not. ma_pop_stack(l_c)) call errquit(
+     &      'loc_driver: error MA pop c',0, MA_ERR)
+
+         if (.not. ma_pop_stack(l_sc)) call errquit(
+     &      'loc_driver: error MA pop sc',0, MA_ERR)
+
+         do i = 1, 4
+            if (.not. ga_destroy(g_uc(i)))
+     &        call errquit('loc_driver: error destroying uc',i, GA_ERR)
+         end do
+
+c        smat not needed anymore
+         if (.not. ga_destroy(g_smat)) call errquit(
+     &      'loc_driver: error destroying g_smat',0, GA_ERR)
 
       end if                    ! loctype
 
@@ -313,15 +486,7 @@ c     ==================================================================
 
  9000 format(//80(1h-)//,
      &   10x,20(1h*),/,10x,'*** LOCALIZATION ***',/,10x,20(1h*)/)
- 9010 format(' Response module for NWChem and dynamic CPKS solver'/
-     &       ' developed by J. Autschbach and coworkers, SUNY Buffalo'/
-     &       ' The methodology used in this program is described in '/
-     &       ' J. Chem. Phys. 123 (2005), 114103'/
-     &       ' J. Chem. Phys. 122 (2005), 224115'/
-     &       ' J. Chem. Phys. 122 (2005), 074105'/
-     &       ' Comp. Lett. 3 (2007), 131-150 (contact JA for a copy)'/
-     &       ' Please cite this work in publications based on results'/
-     &       ' obtained with this code. Thank you!'/)
+
  9020 format(/,10x,'Open shell calculations not yet implemented',
      &      ' for the Localization module. Exiting')
       end
