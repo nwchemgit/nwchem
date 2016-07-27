@@ -2013,8 +2013,8 @@ c
 c regular cosmo output
 c
          if(cosmo_on.and.cosmo_phase.eq.2.and.
-     $ istep_cosmo_vem.eq.0.and..not.do_cosmo_smd) then
-          call cosmo_smd_output(egas, esol, do_cosmo_smd, gcds, 
+     $            istep_cosmo_vem.eq.0) then
+            call cosmo_smd_output(egas, esol, do_cosmo_smd, gcds, 
      $            gstote, gspol)
 
 c <-- MN solvation models
@@ -2028,8 +2028,8 @@ c equilibrium GS cosmo-smd output
 c
       if (me.eq.0.and.oprint)then
          if(cosmo_on.and.cosmo_phase.eq.2.and.
-     $ istep_cosmo_vem.eq.0.and.do_cosmo_smd) then
-          call cosmo_smd_output(egas, esol, do_cosmo_smd, gcds, 
+     $           istep_cosmo_vem.eq.0) then
+            call cosmo_smd_output(egas, esol, do_cosmo_smd, gcds, 
      $            gstote, gspol)
          endif
 c
