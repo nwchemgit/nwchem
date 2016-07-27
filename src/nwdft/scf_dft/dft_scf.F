@@ -1130,7 +1130,6 @@ c     DIM/QM JEM
 c     Calculate DIM/QM dipoles
 c     We use the total density to calculate the dipoles.
 c
-      write(6,*) ga_nodeid(), ' dimqm vvv ',ldimqm ,dimqm_go
       if(ldimqm .and. dimqm_go) then
         call dimqm_main(rtdb, ao_bas_han, geom, g_dens, .false.)
       end if
