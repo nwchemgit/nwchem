@@ -144,6 +144,7 @@ c     GA handles for perturbed MO vectors:
       
       double precision auXnm   ! Conversion factor from a.u. to nm
       parameter (auXnm=45.563353d0)
+      double precision wavelgth
       double precision alphaiso     ! Isotropic dipole polarizability
       double precision alphaani     ! Anisotropic dipole polarizability
       double precision alphaevr(3)  ! Dipole polarizability tensor eigenvalues (real)
@@ -945,9 +946,13 @@ c     diagonalize
      1  + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
      2  + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
       alphaani = dsqrt(alphaani/3.d0) ! anisotropic part
-      
+      if(dbl_mb(k_fr).gt.1d-9) then
+         wavelgth=auXnm/dbl_mb(k_fr)
+      else
+         wavelgth=-999999d0
+      endif
       if (oprint) write(LuOut,9434) "DFT Linear Response",
-     1  dbl_mb(k_fr),auXnm/dbl_mb(k_fr),
+     1  dbl_mb(k_fr),wavelgth,
      2  alfare(1,1),alfare(1,2),alfare(1,3),
      3  alfare(2,1),alfare(2,2),alfare(2,3),
      4  alfare(3,1),alfare(3,2),alfare(3,3),
