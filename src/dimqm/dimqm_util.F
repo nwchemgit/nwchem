@@ -22,11 +22,25 @@ c
       dimqm_go=dimqm_go_in
       return
       end
+      subroutine dimqm_setlfirst(lfirst_in)
+      implicit none
+      logical lfirst_in
+#include "dimqm.fh"
+      lfirst=lfirst_in
+      return
+      end
       subroutine dimqm_getenergy(edimqm_out)
       implicit none
       double precision edimqm_out
 #include "dimqm.fh"
       edimqm_out=edimqm
+      return
+      end
+      subroutine dimqm_getlrsp(lrsp_out)
+      implicit none
+      logical lrsp_out
+#include "dimqm.fh"
+      lrsp_out=lrsp
       return
       end
       subroutine dimqm_init(rtdb)

@@ -18,7 +18,7 @@
 #include "cuhf.fh"
 #include "stdio.fh"
 #include "cosmo.fh"
-#include "dimqm.fh"
+c#include "dimqm.fh"
 c!!! BGJ
 #include "bgj.fh"
 c!!! BGJ
@@ -59,6 +59,7 @@ c
       external ga_lkain_ext
      
 c
+      logical use_dimqm,lrsp,ldimqm,lfirst,dimqm_go
       logical hf_job
 c
       hf_job = .not. bgj_have_xc()      
@@ -239,9 +240,18 @@ c !!! BGJ
          cosmo_phase = 2
       endif
 c     DIM/QM JEM
+      if (use_dimqm) then
+         call dimqm_used(ldimqm)
+         call dimqm_getlrsp(lrsp)
+      else
+         ldimqm=.false.
+         lrsp=.false.
+      endif
       if (ldimqm .and. lrsp) then
         lfirst = .true.
+        call dimqm_setlfirst(lfirst)
         dimqm_go = .false.
+        call dimqm_setgo(dimqm_go)
       end if
       if(scftype .eq. 'UHF')then
          call uhf_init(rtdb)

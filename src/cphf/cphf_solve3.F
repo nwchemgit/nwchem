@@ -31,7 +31,7 @@ c         parts have been added, indicated by suffix "_im"
 #include "cuhf.fh"
 #include "stdio.fh"
 #include "cosmo.fh"
-#include "dimqm.fh"
+c#include "dimqm.fh"
 c!!! BGJ
 #include "bgj.fh"
 c!!! BGJ
@@ -98,6 +98,7 @@ c
       logical hf_job, debug, limag, lstatic
       integer ipm,ncomp,ndata,m1,m2,shift
       double precision small
+      logical use_dimqm,lrsp,ldimqm,lfirst,dimqm_go
       parameter (small = 1d-8)
 c
 c     ==================================================================
@@ -107,6 +108,7 @@ c     ==================================================================
 c     debug = .true. ! to allow debugging printouts
 
       lstatic = (abs(omega).lt.small)
+      use_dimqm=util_module_avail("dimqm")
 
       hf_job = .not. bgj_have_xc()      
 c
@@ -345,9 +347,18 @@ c     Get the cosmo contribution
          cosmo_phase = 2
       endif
 c     DIM/QM JEM
+      if (use_dimqm) then
+         call dimqm_used(ldimqm)
+         call dimqm_getlrsp(lrsp)
+      else
+         ldimqm=.false.
+         lrsp=.false.
+      endif
       if (ldimqm .and. lrsp) then
         lfirst = .true.
+        call dimqm_setlfirst(lfirst)
         dimqm_go = .false.
+        call dimqm_setgo(dimqm_go)
       end if
 
       if(scftype .eq. 'UHF')then
