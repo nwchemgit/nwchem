@@ -33,8 +33,9 @@ c          03-15-12
 #include "stdio.fh"
 #include "apiP.fh"
 #include "prop.fh"
+#include "util.fh"
 #include "bgj.fh"
-#include "dimqm.fh"
+c#include "dimqm.fh"
       
 c     ---------------------
 c     subroutine arguments:
@@ -96,7 +97,7 @@ c
 c     nwchem file access character strings:
       character*256 cphf_rhs(2), cphf_sol(2), cphf_rhs_im(2),
      &  cphf_sol_im(2), cstemp
-      
+      logical lclfld,use_dimqm,ldimqm,lrsp
 c     external functions:
       logical  cphf2, cphf3, file_write_ga, file_read_ga, cphf
       external cphf2, cphf3, file_write_ga, file_read_ga, cphf
@@ -105,6 +106,7 @@ c  ====================================================================
       ndir=3 ! nr directions (x,y,z)
       debug  = .false. .and. ga_nodeid().eq.0 ! .true. during development
       dbgmat = .false. .and. ga_nodeid().eq.0 ! debug large matrices
+      use_dimqm=util_module_avail("dimqm")
 
 c      debug=.true.
 
@@ -263,6 +265,15 @@ c     get the correct magnitude of the result back
       do ipm = 1,ncomp
         call nga_scale_patch(g_rhs(ipm),blo,bhi,-4.0d0)
 c       DIM/QM JEM
+      if (use_dimqm) then
+         call dimqm_used(ldimqm)
+         call dimqm_getlrsp(lrsp)
+         call dimqm_getlclfld(lclfld)
+      else
+         ldimqm=.false.
+         lrsp=.false.
+         lclfld=.false.
+      endif
         if (ldimqm .and. lrsp .and. lclfld .and. lifetime) then
           call nga_scale_patch(g_rhs_im(ipm),blo,bhi,-4.0d0)
         end if

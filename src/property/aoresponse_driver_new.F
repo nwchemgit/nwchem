@@ -59,7 +59,7 @@ c     Cleaned up and fixed some bugs JA 01/2016
 #include "prop.fh"
 #include "bgj.fh"
 #include "util.fh"
-#include "dimqm.fh"
+c#include "dimqm.fh"
       
       integer rtdb    ! [input] rtdb handle
       integer basis   ! [input] basis handle
@@ -161,6 +161,9 @@ c     GA handles for perturbed MO vectors:
      &        nocc(2), ! store nr occupations 
      &        npol     ! nr of polarizations =1 (  restricted)                   
                        !                     =2 (unrestricted) calc  
+cdimqm
+      logical lclfld,use_dimqm,ldimqm
+
       external get_nocc,get_allAOints  
 
 c     ==================================================================
@@ -174,6 +177,8 @@ c     ==================================================================
       oprint = util_print('information', print_low)
       oprint = oprint .and. (ga_nodeid().eq.0)
       
+      use_dimqm=util_module_avail("dimqm")
+
 c     ----------------------
 c     start-up: print header
 c     ----------------------
@@ -726,6 +731,14 @@ c       take care of that here:
 c
 c     DIM/QM JEM
 c     Initialize DIM and add in local field contributions
+      if (use_dimqm) then
+         call dimqm_used(ldimqm)
+         call dimqm_getlclfld(lclfld)
+      else
+         ldimqm=.false.
+         lclfld=.false.
+      endif
+
       if (ldimqm) then
         call dimqm_prep(rtdb, omega)
       end if

@@ -39,7 +39,7 @@ c     =================================================================
 #include "prop.fh"
 #include "bgj.fh"
 #include "util.fh"
-#include "dimqm.fh"
+c#include "dimqm.fh"
 
 c     ---------------------
 c     subroutine arguments:
@@ -117,6 +117,8 @@ c     nwchem file access character strings:
       character*256 cphf_rhs(2), cphf_sol(2), cphf_rhs_im(2),
      &   cphf_sol_im(2)
 
+      logical lclfld,use_dimqm,ldimqm,lrsp
+      integer g_dipel_i
 c     external functions:
 
       double precision ga_trace_diag
@@ -129,6 +131,7 @@ c  ====================================================================
 
       oprint = util_print('information', print_low)
       oprint = oprint .and. (ga_nodeid().eq.0)
+      use_dimqm=util_module_avail("dimqm")
 
 c     -------------------
 c     determine frequency
@@ -295,6 +298,17 @@ c      DIM/QM JEM
 c      Allocate imaginary array for DIM with local fields
 c      Normally, the imaginary part of the A matrix is zero, but
 c      this is not true when working with local fields
+      if (use_dimqm) then
+         call dimqm_used(ldimqm)
+         call dimqm_getlrsp(lrsp)
+         call dimqm_getlclfld(lclfld)
+         call dimqm_getgdipeli(g_dipel_i)
+      else
+         ldimqm=.false.
+         lrsp=.false.
+         lclfld=.false.
+         g_dipel_i=999
+      endif
         if(ldimqm .and. lrsp .and. lclfld .and. lifetime) then
           if (.not.nga_create(MT_DBL,3,dims,'g_work_im',chunk,
      &     g_work_im)) call

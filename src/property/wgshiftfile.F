@@ -127,7 +127,7 @@ c              (noc_alpha = noc_beta)
      &        g_munu_rot2,nlst,g_acc2,
      &        Ndir_munu,Natoms_munu
       double precision threshold4data
-      data threshold4data /1e-40/ ! Threshhold for output data
+      data threshold4data /1d-40/ ! Threshhold for output data
       if (ga_nodeid().eq.0)
      & write(*,*) 'Using data threshold :',threshold4data
 c     --> To store ONLY munu principal components xx,yy,zz

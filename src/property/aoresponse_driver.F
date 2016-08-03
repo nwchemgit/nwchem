@@ -51,7 +51,7 @@ c     ==================================================================
 #include "prop.fh"
 #include "bgj.fh"
 #include "util.fh"
-#include "dimqm.fh"
+c#include "dimqm.fh"
 
 
       integer rtdb    ! [input] rtdb handle
@@ -131,6 +131,8 @@ c     GA handle for magnetic field perturbed MO vectors:
       double precision aeigvec(3,3) ! dummy dgeev eigenvectors
       double precision awork(9)     ! dgeev workspace
       double precision alpha_rtdb(12) ! omega, XX, XY, XZ, YY, YZ, ZZ, LL, MM, NN, Iso, Ani
+      logical lclfld,use_dimqm,ldimqm
+
       integer aeiginfo              ! dgeev information
 cccc#endif
 
@@ -140,6 +142,7 @@ c     ==================================================================
 
       oprint = util_print('information', print_low)
       oprint = oprint .and. (ga_nodeid().eq.0)
+      use_dimqm=util_module_avail("dimqm")
 
       npol = 1 ! we assume closed shell
       
@@ -512,6 +515,13 @@ c       w/ dipole-length optical rotation
 c
 c     DIM/QM JEM
 c     Add in local field perturbations to the dipole matrix
+      if (use_dimqm) then
+         call dimqm_used(ldimqm)
+         call dimqm_getlclfld(lclfld)
+      else
+         ldimqm=.false.
+         lclfld=.false.
+      endif
       write(luout,*) "OMEGA: ", dbl_mb(k_fr+response_order-1)
       write(luout,*) "DIMQM: ", ldimqm
       if (ldimqm) then

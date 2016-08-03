@@ -43,6 +43,20 @@ c
       lrsp_out=lrsp
       return
       end
+      subroutine dimqm_getlclfld(lclfld_out)
+      implicit none
+      logical lclfld_out
+#include "dimqm.fh"
+      lclfld_out=lclfld
+      return
+      end
+      subroutine dimqm_getgdipeli(g_dipel_i_out)
+      implicit none
+      integer g_dipel_i_out
+#include "dimqm.fh"
+      g_dipel_i_out=g_dipel_i
+      return
+      end
       subroutine dimqm_init(rtdb)
       implicit none
 #include "dimqm.fh"
