@@ -79,7 +79,7 @@ c           scratch = see hnd_elfder wrapper routine
       if (.not. ma_push_get(mt_dbl,maxscr,'scratch',l_scr,k_scr))
      &    call errquit('hnd_elfcon: ma 2 failed',911,MA_ERR)
       if (.not. ma_push_get(mt_dbl,maxbuf,'int buf',l_buf,k_buf))
-     &    call errquit('hnd_elfcon: ma 3 failed',911,MA_ERR)
+     &    call errquit('hnd_elfcon_symm: ma 3 failed',911,MA_ERR)
 c ------- create munu-scratch-array--- START
       if (efgfile.eq.1) then ! Do NLMO/NBO analysis
        ndir=6 ! Nr. directions xx,yy,zz,xy,xz,yz

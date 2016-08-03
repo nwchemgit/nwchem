@@ -99,9 +99,12 @@ c
       integer l_dens, k_dens, l_scr, k_scr, l_buf, k_buf
       integer maxbuf, maxscr, i
       integer nxtask, task_size,next
+      integer npasses,i_pass,avail_ma,iptr,npt_pass,mxbynpt,
+     M     maxbuf_pass
       external nxtask
       double precision thresh,pmat_max,dabsmax,schw_ij
       external dabsmax
+      logical oprint
       parameter (thresh=1d-12)
 c
       me = ga_nodeid()
@@ -124,12 +127,44 @@ c
      &    k_dens)) call errquit('hnd_elfcon: ma 1 failed',911,MA_ERR)
       if (.not. ma_push_get(mt_dbl,maxscr,'scratch',l_scr,k_scr))
      &    call errquit('hnd_elfcon: ma 2 failed',911,MA_ERR)
-      if (.not. ma_push_get(mt_dbl,maxbuf,'int buf',l_buf,k_buf))
-     &    call errquit('hnd_elfcon: ma 3 failed',911,MA_ERR)
+c
+check if enough MA mem is avail, if not then mult. passes
+c
+      avail_ma = ma_inquire_avail(mt_dbl)*9/10
+      npasses=maxbuf*1d0/avail_ma + 1d0
+      if (do_parallel) call ga_igop(msg_efgs_col-1,npasses,1,'max')
+      npt_pass=npt/npasses
+      mxbynpt=maxbuf/npt
+      oprint=npasses.gt.1.and.ga_nodeid().eq.0
+      if(oprint)  then
+         write(6,321) ' hnd_elfcon: passes      = ',npasses
+         write(6,321) ' hnd_elfcon: npt         = ',npt
+         write(6,321) ' hnd_elfcon: npt_pass    = ',npt_pass
+         write(6,321) ' hnd_elfcon: mxbynpt     = ',mxbynpt
+         write(6,321) ' hnd_elfcon: maxbuf      = ',maxbuf
+         write(6,321) ' hnd_elfcon: maxbuf_pass = ',
+     A        mxbynpt*npt_pass
+ 321     format(a,i10)
+      endif
+      call ga_sync()
 c
 c     Zero elfval result array
 c
       call dcopy(max(nder*3,1)*npt,0.0d0,0,elfval,1)
+      do i_pass=1,npasses
+      iptr=(i_pass-1)*npt_pass+1
+      if(i_pass.eq.npasses) npt_pass=npt-iptr+1
+      maxbuf_pass=mxbynpt*npt_pass
+      if(oprint)  then
+         write(6,321) '   hnd_elfcon: pass        = ',i_pass
+         write(6,321) '   hnd_elfcon: iptr        = ',iptr
+         write(6,321) '   hnd_elfcon: npt_pass    = ',npt_pass
+         write(6,321) '   hnd_elfcon: maxbuf_pass = ',maxbuf_pass
+      endif
+      if (.not. ma_push_get(mt_dbl,maxbuf_pass,'int buf',
+     L        l_buf,k_buf))
+     &    call errquit('hnd_elfcon: ma 3 failed',maxbuf_pass,MA_ERR)
+      call dcopy(maxbuf_pass,0.0d0,0,dbl_mb(k_buf),1)
 c
 c     ----- calculate electronic integral component(s) at all points -----
 c
@@ -140,7 +175,7 @@ cc AJL/Begin/FDE
       if (do_parallel) then
         next = nxtask(nproc,task_size)+1
       else
-        next = task_size
+        next = 1
       endif
 cc AJL/End
       do ishell = 1, nshell
@@ -187,14 +222,15 @@ c
 c
                call int_1eelec(basis,ishell,basis,jshell,maxscr,
      &                         dbl_mb(k_scr),nint,dbl_mb(k_buf),
-     &                         nder,points,npt)
+     &                         nder,points(1,iptr),npt_pass)
 #ifdef M12
                if(ishell.ne.jshell)
      D              call dscal(idim*jdim,2d0,dbl_mb(k_dens),1)
 #endif
 !DEC$ NOINLINE
                call multi_reduce(dbl_mb(k_buf),dbl_mb(k_dens),
-     &                           elfval,idim,jdim,npt*(max(nder*3,1)))
+     &                           elfval(iptr),idim,jdim,
+     N              npt_pass*(max(nder*3,1)))
                endif
 cc AJL/Begin/FDE
                if (do_parallel) then
@@ -208,20 +244,20 @@ cc AJL/End
          end do   ! jshell
       end do    ! ishell
       if(doschwarz) call schwarz_tidy()
+      if (.not.ma_pop_stack(l_buf)) call errquit
+     &   ('hnd_elfcon, ma_pop_stack of l_buf failed',911,MA_ERR)
+      if (do_parallel) next=nxtask(-nproc,task_size)
+      enddo ! i_pass
 c     Collect components from all the nodes for all points
 c
 cc AJL/Begin/FDE
       if (do_parallel) then
-        next = nxtask(-nproc,task_size)
-        call ga_mask_sync(.false.,.true.)
         call ga_dgop(msg_efgs_col,elfval,npt*(max(nder*3,1)),'+')
       end if
 cc AJL/End
 c
 c     Clean up MA data blocks
 c
-      if (.not.ma_pop_stack(l_buf)) call errquit
-     &   ('hnd_elfcon, ma_pop_stack of l_buf failed',911,MA_ERR)
       if (.not.ma_pop_stack(l_scr)) call errquit
      &   ('hnd_elfcon, ma_pop_stack of l_scr failed',911,MA_ERR)
       if (.not.ma_pop_stack(l_dens)) call errquit

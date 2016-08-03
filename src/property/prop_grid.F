@@ -148,7 +148,7 @@ c      un = 54
       if (.not.geom_ncent(geom,nat)) call
      &    errquit('hnd_elpmap: geom_ncent',911,GEOM_ERR)
    
-      write(un,*) "Marat"
+      write(un,*) "NWChem"
       write(un,*) "Gaussian Cube file"
 9498  format(I5,3F12.6)
       write(un,9498)
