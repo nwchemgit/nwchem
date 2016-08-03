@@ -32,8 +32,8 @@ CONFIG=$NWCHEM_TOP/src/config/makefile.h
 
 if test "x$GA_STABLE" = x
 then
-    GA_STABLE=ga-5-4
-GA_STABLE_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-5-4
+    GA_STABLE=ga-5-5
+GA_STABLE_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-5-5
 else
      GA_STABLE_SVN=https://svn.pnl.gov/svn/hpctools/branches/$GA_STABLE
 fi

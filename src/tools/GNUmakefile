@@ -286,6 +286,25 @@ ifeq ($(ARMCI_NETWORK),ARMCI)
     endif
 endif # ARMCIARMCI
 
+# libfabric port for Omnipath
+ifeq ($(ARMCI_NETWORK),OFI) 
+    OFI_COMBINED =
+    ifneq ($(LIBFABRIC_INCLUDE),)
+        OFI_COMBINED += $(LIBFABRIC_INCLUDE)
+    endif
+    ifneq ($(LIBFABRIC_LIB),)
+        OFI_COMBINED += $(LIBFABRIC_LIB)
+    endif
+    ifneq ($(LIBFABRIC_LIB_NAME),)
+        OFI_COMBINED += $(LIBFABRIC_LIB_NAME)
+    endif
+    ifeq ($(strip $(OFI_COMBINED)),)
+        MAYBE_ARMCI = --with-ofi
+    else
+        MAYBE_ARMCI = --with-ofi="$(strip $(OFI_COMBINED))"
+    endif
+endif # OFIOFI
+
 ifeq ($(ARMCI_NETWORK),OFA) 
         MAYBE_ARMCI = --with-ofa
 endif # OFAOFA
@@ -514,7 +533,7 @@ else
         ifdef GA_STABLE
            GA_DIR = $(GA_STABLE)
         else
-           GA_DIR = ga-5-4
+           GA_DIR = ga-5-5
         endif
     endif
 endif
