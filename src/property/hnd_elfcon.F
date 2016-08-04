@@ -125,13 +125,12 @@ c
 c
       if (.not. ma_push_get(mt_dbl,nbf_max*nbf_max,'dens patch',l_dens,
      &    k_dens)) call errquit('hnd_elfcon: ma 1 failed',911,MA_ERR)
-      if (.not. ma_push_get(mt_dbl,maxscr,'scratch',l_scr,k_scr))
-     &    call errquit('hnd_elfcon: ma 2 failed',911,MA_ERR)
 c
 check if enough MA mem is avail, if not then mult. passes
 c
       avail_ma = ma_inquire_avail(mt_dbl)*9/10
-      npasses=maxbuf*1d0/avail_ma + 1d0
+c maxbuf is eq to maxscr, therefore 2do factor
+      npasses=maxbuf*2d0/avail_ma + 1d0
       if (do_parallel) call ga_igop(msg_efgs_col-1,npasses,1,'max')
       npt_pass=npt/npasses
       mxbynpt=maxbuf/npt
@@ -155,12 +154,15 @@ c
       iptr=(i_pass-1)*npt_pass+1
       if(i_pass.eq.npasses) npt_pass=npt-iptr+1
       maxbuf_pass=mxbynpt*npt_pass
+      maxscr=maxbuf_pass
       if(oprint)  then
          write(6,321) '   hnd_elfcon: pass        = ',i_pass
          write(6,321) '   hnd_elfcon: iptr        = ',iptr
          write(6,321) '   hnd_elfcon: npt_pass    = ',npt_pass
          write(6,321) '   hnd_elfcon: maxbuf_pass = ',maxbuf_pass
       endif
+      if (.not. ma_push_get(mt_dbl,maxbuf_pass,'scratch',l_scr,k_scr))
+     &    call errquit('hnd_elfcon: ma 2 failed',911,MA_ERR)
       if (.not. ma_push_get(mt_dbl,maxbuf_pass,'int buf',
      L        l_buf,k_buf))
      &    call errquit('hnd_elfcon: ma 3 failed',maxbuf_pass,MA_ERR)
@@ -244,7 +246,7 @@ cc AJL/End
          end do   ! jshell
       end do    ! ishell
       if(doschwarz) call schwarz_tidy()
-      if (.not.ma_pop_stack(l_buf)) call errquit
+      if (.not.ma_chop_stack(l_scr)) call errquit
      &   ('hnd_elfcon, ma_pop_stack of l_buf failed',911,MA_ERR)
       if (do_parallel) next=nxtask(-nproc,task_size)
       enddo ! i_pass
@@ -258,8 +260,6 @@ cc AJL/End
 c
 c     Clean up MA data blocks
 c
-      if (.not.ma_pop_stack(l_scr)) call errquit
-     &   ('hnd_elfcon, ma_pop_stack of l_scr failed',911,MA_ERR)
       if (.not.ma_pop_stack(l_dens)) call errquit
      &   ('hnd_elfcon, ma_pop_stack of l_dens failed',911,MA_ERR)
       return
