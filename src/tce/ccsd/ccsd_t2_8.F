@@ -173,12 +173,6 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       RETURN
       END
 
-#ifdef USE_F90_ALLOCATABLE
-#define REF2MEM(a) f_##a
-#else
-#define REF2MEM(a) dbl_mb(k_##a)
-#endif
-
       SUBROUTINE ccsd_t2_8_test(d_a,k_a_offset,
      &                          d_b,k_b_offset,
      &                          d_c,k_c_offset,
