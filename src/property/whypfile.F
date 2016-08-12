@@ -121,7 +121,7 @@ c              (noc_alpha = noc_beta)
      &        Natoms_munu,atmnr_munu(Natoms_munu)
       logical status
       double precision threshold4data,ac_mo
-      data threshold4data /1e-40/ ! Threshhold for output data
+      data threshold4data /1d-40/ ! Threshhold for output data
       if (ga_nodeid().eq.0)
      & write(*,*) 'Using data threshold :',threshold4data
 c     --> To store ONLY munu principal components xx,yy,zz

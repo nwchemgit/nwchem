@@ -11,13 +11,16 @@ c
       double precision rmin(3)
       double precision rmax(3)
       double precision pad(3)
-
+#if 0
       double precision cnm2au,cau2ang,cau2nm,cau2kj,cnm2ang
       parameter(cnm2au=1.88972598786d+01)
       parameter(cau2ang = 0.529177249d00)
       parameter(cau2nm=5.29177249d-02)
       parameter(cau2kj=2.625499962d+03)
       parameter(cnm2ang=10.0d00)
+#else
+#include "util_params.fh"
+#endif
 
 
 
