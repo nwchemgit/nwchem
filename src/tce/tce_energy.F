@@ -1858,7 +1858,6 @@ c          call util_file_name('v2int',.false.,.true.,filename)
          call util_flush(LuOut)
         end if
 ! -------------
-        write(6,*) 'ccrururururur'
         call createfile(filename,d_t2,size_t2)
         if(nodezero) then
          call util_flush(LuOut)
