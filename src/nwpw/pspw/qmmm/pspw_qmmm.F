@@ -833,7 +833,7 @@ c
      >         (int_mb(kfrag(1)+mm-1),mm=1,nfrag)
 
            if (lmbda_flag) 
-     >        write(luout,'(2x,A,I2)') 
+     >        write(luout,'(2x,A,F6.3)') 
      >        "qmmm_lambda coupling parameter  = ",qmmm_lmbda
            write(luout,*) 
            do ia=1,nkfrag
