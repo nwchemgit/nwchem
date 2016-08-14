@@ -2977,6 +2977,65 @@ c      end
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *         dng_1vl_mm              *
+*     *                                 *
+*     ***********************************
+      real*8 function dng_1vl_mm()
+      implicit none
+      
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      integer nx,ny,nz,n2ft3d,vltmp(2),r_grid(2)
+      real*8  elocal,esum,dv
+         
+*     **** external functions ****
+      integer  control_version
+      external control_version
+      real*8   lattice_omega
+      external lattice_omega
+
+      call D3dB_n2ft3d(1,n2ft3d)
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      dv = lattice_omega()/dble(nx*ny*nz)
+
+      if (.not.BA_push_get(mt_dbl,(n2ft3d),'vltmp',vltmp(2),vltmp(1)))
+     >   call errquit('dng_1_vl_mm: out of stack memory',0,MA_ERR)
+
+*     **** average Kohn-Sham v_local energy ****
+      call v_local_mm(dbl_mb(vltmp(1)))
+      call Pack_cc_dot(0,dcpl_mb(dng1(1)),dbl_mb(vltmp(1)),elocal)
+
+*     *** add in long range part ****
+      if (control_version().eq.4) then
+         if (.not.BA_push_get(mt_dbl,(3*n2ft3d),'r_grid',
+     >                       r_grid(2),r_grid(1)))
+     >      call errquit('dng_1_vl_mm: out of stack memory',1,MA_ERR)
+         call lattice_r_grid(dbl_mb(r_grid(1)))
+
+         call v_lr_local_mm(dbl_mb(r_grid(1)),dbl_mb(vltmp(1)))
+         call D3dB_rr_dot(1,dbl_mb(rho1(1)),dbl_mb(vltmp(1)),esum)
+         elocal = elocal + esum*dv
+         if (.not.BA_pop_stack(r_grid(2)))
+     >      call errquit('dng_1_vl_mm: popping stack',0,MA_ERR)
+      end if
+
+      if (.not.BA_pop_stack(vltmp(2)))
+     >  call errquit('dng_1_vl_mm: popping stack',1,MA_ERR)
+
+         
+      dng_1vl_mm = elocal
+      return
+      end
+
+
+
 
 
 *     ***********************************
