@@ -379,6 +379,62 @@ c*        **** interaction_count=8*(8*5*5*5-98)=8*(8*125-98)=8*(1000-98)=8*902=7
       return
       end
 
+*     **********************************************
+*     *                                            *
+*     *              FMM_rion_Llm_mm               *
+*     *                                            *
+*     **********************************************
+*
+      subroutine FMM_rion_Llm_mm(lmax,nion,nion_qm,katm,rion,qatm,
+     >                           rsphere2,Llm)
+      implicit none
+      integer lmax
+      integer nion,nion_qm,katm(*)
+      real*8 rion(3,*),qatm(*),lmbda0,rsphere2,Llm(*)
+
+*     **** local variables ****
+      integer taskid,np
+      integer ii,l,m,idx
+      real*8 fourpi,r2
+
+*     **** external functions ****
+      real*8   Tesseral3_lm_over_rl
+      external Tesseral3_lm_over_rl
+
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+
+      fourpi = 16.0d0*datan(1.0d0)
+      !call dcopy((lmax+1)**2,0.0d0,0,Llm,1)
+      call Parallel_shared_vector_zero(.true.,(lmax+1)**2,Llm)
+      do ii=nion_qm+1,nion
+         if (mod(ii,np).eq.taskid) then
+            r2 = rion(1,ii)**2+rion(2,ii)**2+rion(3,ii)**2
+            if (r2.gt.rsphere2) then
+
+               !idx = 1
+!$OMP DO
+               do l=0,lmax
+               do m=-l,l
+                  idx = l*l+l+m+1
+                  Llm(idx) = Llm(idx)
+     >                     + (fourpi/dble(2*l+1))
+     >                      *qatm(katm(ii))
+     >                      *Tesseral3_lm_over_rl(l,m,rion(1,ii),
+     >                                                rion(2,ii),
+     >                                                rion(3,ii))
+                  !idx = idx + 1
+               end do
+               end do
+!$OMP END DO
+            end if
+         end if
+      end do
+      call Parallel_Vector_SumAll((lmax+1)**2,Llm)
+      return
+      end
+
+
 
 
 *     **********************************************
