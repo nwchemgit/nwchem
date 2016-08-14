@@ -60,7 +60,7 @@ ccccccc#include "frac_occ.fh"
       integer index,indext
       real*8  sum,Eold,eorbit,eion,ehartr,eke,eki,sse,ssr,sa1,sa2
       real*8  exc,exc2,pxc,pxc2,dte,dte0,scal1,scal2,dv,dt,fmass,h
-      real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx,espring,enlocal
+      real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx,espring,enlocal,elocal
       !real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       real*8   e_lj,e_q,e_spring
       real*8   ehartree_atom,ecmp_cmp,ecmp_pw,exc_atom,pxc_atom
@@ -110,8 +110,10 @@ c     real*8     fion(3,natmx)
 *     ***** QM/MM external functions ****
       logical  pspw_charge_found,pspw_qmmm_found
       real*8   pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
+      real*8   pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
       external pspw_charge_found,pspw_qmmm_found
       external pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
+      external pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
 
       logical  dplot_iteration_check
       external dplot_iteration_check
@@ -726,6 +728,20 @@ c              call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
          E(11) = e_lj
          E(12) = e_q
          E(13) = e_spring
+
+         E(14) = pspw_qmmm_LJ_Emix()
+         E(14) = E(14) + pspw_qmmm_Q_Emix()
+         call v_local_mm(dcpl_mb(vl(1)))
+         call Pack_cc_dot(0,dcpl_mb(dng(1)),dcpl_mb(vl(1)),elocal)
+         if (control_version().eq.4) then
+            call v_lr_local_mm(dbl_mb(r_grid(1)),dbl_mb(vlr_l(1)))
+            call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vlr_l(1)),sum)
+            elocal = elocal + sum*dv
+         end if
+         E(14) = E(14) + elocal
+         E(23) = E(23) + E(14)
+         E(24) = E(24) + E(14)*E(14)
+
       end if
 
 *     **** PAW ee terms ****
@@ -801,7 +817,7 @@ c              call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
       end if
 
 
-*     **** Energy and Energy**2 sum ***
+*     **** Running Sums - Energy and Energy**2 sum ***
       E(25) = E(25) + E(2)
       E(26) = E(26) + E(2)*E(2)
       E(27) = E(27) + E(2)+E(3)+E(4)

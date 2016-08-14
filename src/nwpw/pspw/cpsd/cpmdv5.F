@@ -68,7 +68,7 @@ cccc#include "frac_occ.fh"
     
 
 *     ***** energy variables ****
-      real*8  E(50),eke,eave,evar,cv,have,hvar
+      real*8  E(50),eke,eave,evar,cv,have,hvar,qave,qvar
 
 *     real*8  eig(2*nemax)
 *     real*8  hml(2*nemax*nemax)
@@ -711,9 +711,13 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
            open(unit=31,file=full_filename,form='formatted',
      >          status='old')
            do while (found)
-           read(31,*,end=100) emotion_time_shift,w,sum
+           read(31,*,end=100) emotion_time_shift,w,sum,gx,gy,gz
            E(25) = E(25) + sum                          !*** take care of running sums ***
            E(26) = E(26) + sum*sum
+           E(27) = E(27) + (sum+gx+gy)
+           E(28) = E(28) + (sum+gx+gy)**2
+           E(23) = E(23) + gz
+           E(24) = E(24) + gz*gz
            icount_shift = icount_shift + 1
            end do
   100      continue
@@ -833,6 +837,9 @@ c      call xyz_write()
            call util_flush(luout)
 
 *          **** write out EMOTION data ****
+           qave = E(23)/dble(icount+icount_shift)
+           qvar = E(24)/dble(icount+icount_shift)
+           qvar = qvar - qave*qave
            eave = E(25)/dble(icount+icount_shift)
            evar = E(26)/dble(icount+icount_shift)
            evar = evar - eave*eave
@@ -841,14 +848,16 @@ c      call xyz_write()
            hvar = hvar - have*have
            if (control_Nose()) then
              write(31,1311) icount*it_in*dt + emotion_time_shift,
-     >                    e(1),e(2),e(3),e(4),e(5),e(6),
+     >                    e(1),e(2),e(3),e(4),e(14),e(5),e(6),
      >                    e(7),e(8),e(9),e(10),
-     >                    eave,evar,have,hvar,ion_Temperature(),pressure
+     >                    eave,evar,have,hvar,qave,qvar,
+     >                    ion_Temperature(),pressure
            else
              write(31,1311) icount*it_in*dt + emotion_time_shift,
-     >                    e(1),e(2),e(3),e(4),e(5),e(6),
+     >                    e(1),e(2),e(3),e(4),e(14),e(5),e(6),
      >                    e(7),e(8),
-     >                    eave,evar,have,hvar,ion_Temperature(),pressure
+     >                    eave,evar,have,hvar,qave,qvar,
+     >                    ion_Temperature(),pressure
            end if
            call util_flush(31)
 
@@ -1173,8 +1182,11 @@ c         end if
             write(luout,1702) E(11)
             write(luout,1703) E(12)
             write(luout,1704) E(13)
-c            write(luout,1705) E(14)
-c            write(luout,1706) E(15)
+            qave = E(23)/dble(icount+icount_shift)
+            qvar = E(24)/dble(icount+icount_shift)
+            qvar = qvar - qave*qave
+            write(luout,1705) E(14),qave,qvar
+            !write(luout,1706) qave,qvar
          end if
         if (ion_disp_on()) then
             write(luout,1720) E(33)
@@ -1540,8 +1552,10 @@ c      call frac_occ_end()
  1702 FORMAT( ' LJ energy              :',E19.10)
  1703 FORMAT( ' Residual Coulomb energy:',E19.10)
  1704 FORMAT( ' MM Vibration energy    :',E19.10)
- 1705 FORMAT( ' MM Vibration energy    :',E19.10)
- 1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)
+ 1705 FORMAT( ' QM/MM coupling energy  :',E19.10, 
+     >        ' (average=',E19.10,' variance=',E19.10,')'/)
+ 1706 FORMAT( ' Average and Variance of QM/MM coupling energy :',
+     >       E19.10,E19.10)
 
  1720 FORMAT(/' Dispersion energy   :',E19.10)
 

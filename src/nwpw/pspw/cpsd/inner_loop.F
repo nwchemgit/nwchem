@@ -109,8 +109,10 @@ c     real*8     fion(3,natmx)
 *     ***** QM/MM external functions ****
       logical  pspw_charge_found,pspw_qmmm_found
       real*8   pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
+      real*8   pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
       external pspw_charge_found,pspw_qmmm_found
       external pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
+      external pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
 
       logical  psp_U_psputerm,meta_found
       external psp_U_psputerm,meta_found
@@ -649,6 +651,17 @@ c      if (ispin.eq.1) enlocal = 2.0d0*enlocal
          E(11) = e_lj
          E(12) = e_q
          E(13) = e_spring
+
+         E(14) = pspw_qmmm_LJ_Emix()
+         E(14) = E(14) + pspw_qmmm_Q_Emix()
+         call v_local_mm(dcpl_mb(vl(1)))
+         call Pack_cc_dot(0,dcpl_mb(dng(1)),dcpl_mb(vl(1)),elocal)
+         if (control_version().eq.4) then
+            call v_lr_local_mm(dbl_mb(r_grid(1)),dbl_mb(vlr_l(1)))
+            call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vlr_l(1)),sum)
+            elocal = elocal + sum*dv
+         end if
+         E(14) = E(14) + elocal
       end if
 
 *     **** PAW ee terms ****

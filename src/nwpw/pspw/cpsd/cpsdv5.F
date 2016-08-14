@@ -901,6 +901,7 @@ c        **** paw energies ****
             write(luout,1702) E(11)
             write(luout,1703) E(12)
             write(luout,1704) E(13)
+            write(luout,1705) E(14)
 c
 c            write(luout,1703) E(14)+E(15)
 c            write(luout,1710) E(14)
@@ -1235,7 +1236,7 @@ c      call frac_occ_end()
  1702 FORMAT( ' LJ energy              :',E19.10)
  1703 FORMAT( ' Residual Coulomb energy:',E19.10)
  1704 FORMAT( ' MM Vibration energy    :',E19.10)
- 1705 FORMAT( ' MM Vibration energy    :',E19.10)
+ 1705 FORMAT( ' QM/MM coupling energy  :',E19.10)
  1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)
 
  1720 FORMAT(/' Dispersion energy   :',E19.10)
