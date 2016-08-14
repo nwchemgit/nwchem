@@ -71,6 +71,32 @@
       return
       end
 
+
+      subroutine lattice_center_xyz_to_ijk(x,y,z,c1,c2,c3)
+      implicit none
+      real*8 x,y,z
+      integer c1,c2,c3
+
+      integer np1,np2,np3
+      real*8  f1,f2,f3
+
+*     **** common block ****
+      real*8 ub(3,3)
+      common / lattice_block2 / ub
+
+      call D3dB_nx(1,np1)
+      call D3dB_ny(1,np2)
+      call D3dB_nz(1,np3)
+      f1 = x*ub(1,1) + y*ub(2,1) + z*ub(3,1)
+      f2 = x*ub(1,2) + y*ub(2,2) + z*ub(3,2)
+      f3 = x*ub(1,3) + y*ub(2,3) + z*ub(3,3)
+      c1 = (f1-0.5d0+0.5d0/dble(np1))*np1
+      c2 = (f2-0.5d0+0.5d0/dble(np2))*np2 
+      c3 = (f3-0.5d0+0.5d0/dble(np3))*np3 
+      return
+      end 
+
+
       subroutine lattice_fragcell(n1,r1)
       implicit none
       real*8  rcm(3)
@@ -1553,3 +1579,62 @@ c    >                  + i+1
 
       return
       end
+
+
+
+*     *************************************
+*     *                                   *
+*     *     lattice_small_abc_abg         *
+*     *                                   *
+*     *************************************
+*
+*     This routine computes a,b,c,alpha,beta,gamma.
+*
+      subroutine lattice_small_abc_abg(a,b,c,alpha,beta,gamma)
+      implicit none
+      real*8 a,b,c
+      real*8 alpha,beta,gamma
+
+*     *** local variables ****
+      real*8 d2,pi
+
+*     **** external functions ****
+      real*8   lattice_unita_small
+      external lattice_unita_small
+
+*     **** determine a,b,c,alpha,beta,gmma ***
+      pi = 4.0d0*datan(1.0d0)
+      a = dsqrt(lattice_unita_small(1,1)**2
+     >        + lattice_unita_small(2,1)**2
+     >        + lattice_unita_small(3,1)**2)
+      b = dsqrt(lattice_unita_small(1,2)**2
+     >        + lattice_unita_small(2,2)**2
+     >        + lattice_unita_small(3,2)**2)
+      c = dsqrt(lattice_unita_small(1,3)**2
+     >        + lattice_unita_small(2,3)**2
+     >        + lattice_unita_small(3,3)**2)
+
+      d2 = (lattice_unita_small(1,2)-lattice_unita_small(1,3))**2
+     >   + (lattice_unita_small(2,2)-lattice_unita_small(2,3))**2
+     >   + (lattice_unita_small(3,2)-lattice_unita_small(3,3))**2
+      alpha = (b*b + c*c - d2)/(2.0d0*b*c)
+      alpha = dacos(alpha)*180.0d0/pi
+
+      d2 = (lattice_unita_small(1,3)-lattice_unita_small(1,1))**2
+     >   + (lattice_unita_small(2,3)-lattice_unita_small(2,1))**2
+     >   + (lattice_unita_small(3,3)-lattice_unita_small(3,1))**2
+      beta = (c*c + a*a - d2)/(2.0d0*c*a)
+      beta = dacos(beta)*180.0d0/pi
+
+      d2 = (lattice_unita_small(1,1)-lattice_unita_small(1,2))**2
+     >   + (lattice_unita_small(2,1)-lattice_unita_small(2,2))**2
+     >   + (lattice_unita_small(3,1)-lattice_unita_small(3,2))**2
+      gamma = (a*a + b*b - d2)/(2.0d0*a*b)
+      gamma = dacos(gamma)*180.0d0/pi
+
+      return
+      end
+
+
+
+
