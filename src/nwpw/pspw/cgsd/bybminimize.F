@@ -64,7 +64,7 @@ c
       real*8   rho_error,psi_1energy,psi_error
       real*8   dng_1ehartree,lattice_omega
       real*8   psi_1ke
-      real*8   psi_1vl,psi_1v_field
+      real*8   psi_1vl,psi_1v_field,dng_1vl_mm
       real*8   psi_1vnl
       real*8   rho_1exc
       real*8   rho_1pxc
@@ -78,7 +78,7 @@ c
       external rho_error,psi_1energy,psi_error
       external dng_1ehartree,lattice_omega
       external psi_1ke
-      external psi_1vl,psi_1v_field
+      external psi_1vl,psi_1v_field,dng_1vl_mm
       external psi_1vnl
       external rho_1exc
       external rho_1pxc
@@ -88,8 +88,10 @@ c
 *     ***** QM/MM external functions ****
       logical  pspw_qmmm_found
       real*8   pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
+      real*8   pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
       external pspw_qmmm_found
       external pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
+      external pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
 
 *     ***** pspw_charge external functions ****
       logical  pspw_charge_found,control_precondition,pspw_HFX
@@ -384,6 +386,12 @@ c      call psi_check()
          E(11) = e_lj
          E(12) = e_q
          E(13) = e_spring
+
+*        **** Eqm-mm energy ***
+         E(14) = pspw_qmmm_LJ_Emix()
+         E(14) = E(14) + pspw_qmmm_Q_Emix()
+         E(14) = E(14) + dng_1vl_mm()
+
       end if
 
 *     **** get pspw_charge  energies ****
