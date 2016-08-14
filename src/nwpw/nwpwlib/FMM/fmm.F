@@ -326,16 +326,17 @@ c*        **** interaction_count=8*(8*5*5*5-98)=8*(8*125-98)=8*(1000-98)=8*902=7
 *     *                                            *
 *     **********************************************
 *
-      subroutine FMM_rion_Llm(lmax,nion,katm,rion,qatm,rsphere2,Llm)
+      subroutine FMM_rion_Llm(lmax,nion,nion_qm,katm,rion,qatm,
+     >                        lmbda0,rsphere2,Llm)
       implicit none
       integer lmax
-      integer nion,katm(*)
-      real*8 rion(3,*),qatm(*),rsphere2,Llm(*)
+      integer nion,nion_qm,katm(*)
+      real*8 rion(3,*),qatm(*),lmbda0,rsphere2,Llm(*)
 
 *     **** local variables ****
       integer taskid,np
       integer ii,l,m,idx
-      real*8 fourpi,r2
+      real*8 fourpi,r2,lmbda
 
 *     **** external functions ****
       real*8   Tesseral3_lm_over_rl
@@ -351,6 +352,11 @@ c*        **** interaction_count=8*(8*5*5*5-98)=8*(8*125-98)=8*(1000-98)=8*902=7
          if (mod(ii,np).eq.taskid) then
             r2 = rion(1,ii)**2+rion(2,ii)**2+rion(3,ii)**2
             if (r2.gt.rsphere2) then
+               if (ii.gt.nion_qm) then
+                  lmbda = lmbda0
+               else
+                  lmbda = 1.0d0
+               end if
                !idx = 1
 !$OMP DO
                do l=0,lmax
@@ -358,7 +364,7 @@ c*        **** interaction_count=8*(8*5*5*5-98)=8*(8*125-98)=8*(1000-98)=8*902=7
                   idx = l*l+l+m+1
                   Llm(idx) = Llm(idx) 
      >                     + (fourpi/dble(2*l+1))
-     >                      *qatm(katm(ii))
+     >                      *qatm(katm(ii))*lmbda
      >                      *Tesseral3_lm_over_rl(l,m,rion(1,ii),
      >                                                rion(2,ii),
      >                                                rion(3,ii))
@@ -381,17 +387,18 @@ c*        **** interaction_count=8*(8*5*5*5-98)=8*(8*125-98)=8*(1000-98)=8*902=7
 *     *                                            *
 *     **********************************************
 *
-      subroutine FMM_fion_Mlm(lmax,nion,katm,rion,qatm,rsphere2,
+      subroutine FMM_fion_Mlm(lmax,nion,nion_qm,katm,rion,qatm,
+     >                        lmbda0,rsphere2,
      >                        Mlm,fion)
       implicit none
       integer lmax
-      integer nion,katm(*)
-      real*8 rion(3,*),qatm(*),rsphere2,Mlm(*),fion(3,nion)
+      integer nion,nion_qm,katm(*)
+      real*8 rion(3,*),qatm(*),lmbda0,rsphere2,Mlm(*),fion(3,nion)
 
 *     **** local variables ****
       integer taskid,np
       integer ii,l,m,idx
-      real*8 fourpi,r2,coef,dtx,dty,dtz
+      real*8 fourpi,r2,coef,dtx,dty,dtz,lmbda
 
 
       call Parallel_np(np)
@@ -402,6 +409,11 @@ c*        **** interaction_count=8*(8*5*5*5-98)=8*(8*125-98)=8*(1000-98)=8*902=7
          if (mod(ii,np).eq.taskid) then
             r2 = rion(1,ii)**2+rion(2,ii)**2+rion(3,ii)**2
             if (r2.gt.rsphere2) then
+               if (ii.gt.nion_qm) then
+                  lmbda = lmbda0
+               else
+                  lmbda = 1.0d0
+               end if
 c               idx = 1
 !$OMP DO REDUCTION(+:fion)
                do l=0,lmax
@@ -412,9 +424,9 @@ c               idx = 1
      >                                              rion(2,ii),
      >                                              rion(3,ii),
      >                                              dtx,dty,dtz)
-                     fion(1,ii) = fion(1,ii) + dtx*coef*Mlm(idx)
-                     fion(2,ii) = fion(2,ii) + dty*coef*Mlm(idx)
-                     fion(3,ii) = fion(3,ii) + dtz*coef*Mlm(idx)
+                     fion(1,ii) = fion(1,ii) + dtx*coef*Mlm(idx)*lmbda
+                     fion(2,ii) = fion(2,ii) + dty*coef*Mlm(idx)*lmbda
+                     fion(3,ii) = fion(3,ii) + dtz*coef*Mlm(idx)*lmbda
 c                     idx = idx + 1
                   end do
                end do
