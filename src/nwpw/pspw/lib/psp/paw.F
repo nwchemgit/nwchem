@@ -111,16 +111,18 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
 
 *     **** local variables ****
       integer taskid_j,np_j
-      integer i,j,ia,n2ft3d,n2ft3d_map,l,m,lm
-      real*8 x,y,z,q,c,r,sqrt_pi
+      integer i,j,ia,n2ft3d,n2ft3d_map,l,m,lm,nion_qm
+      real*8 x,y,z,q,c,r,sqrt_pi,lmbda0,lmbda
 
 *     **** external functions ****
+      logical  pspw_qmmm_lambda_flag
       logical  control_fast_erf
-      integer  ion_nion,ion_katm
-      real*8   ion_rion,psp_rlocal,psp_zv,util_erf
+      integer  ion_nion,ion_nion_qm,ion_katm
+      real*8   ion_rion,psp_rlocal,psp_zv,util_erf,pspw_qmmm_lambda
+      external pspw_qmmm_lambda_flag
       external control_fast_erf
-      external ion_nion,ion_katm
-      external ion_rion,psp_rlocal,psp_zv,util_erf
+      external ion_nion,ion_nion_qm,ion_katm
+      external ion_rion,psp_rlocal,psp_zv,util_erf,pspw_qmmm_lambda
       integer  ion_katm_ptr,ion_rion_ptr,psp_zv_ptr
       external ion_katm_ptr,ion_rion_ptr,psp_zv_ptr
 
@@ -129,6 +131,10 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
       call Parallel2d_taskid_j(taskid_j)
       call D3dB_n2ft3d(1,n2ft3d)
       call D3dB_n2ft3d_map(1,n2ft3d_map)
+      nion_qm = ion_nion_qm()
+
+      lmbda0 = 1.0d0
+      if (pspw_qmmm_lambda_flag()) lmbda0 = pspw_qmmm_lambda()
 
       sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
       !call dcopy(n2ft3d,0.0d0,0,vlr_paw,1)
@@ -137,10 +143,11 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
       call Parallel_shared_vector_zero(.true.,n2ft3d,vlr_notpaw)
 
       if (psp_fmm) then
-         call FMM_rion_Llm(psp_fmm_lmax,ion_nion(),
+         call FMM_rion_Llm(psp_fmm_lmax,ion_nion(),nion_qm,
      >                     int_mb(ion_katm_ptr()),
      >                     dbl_mb(ion_rion_ptr()),
      >                     dbl_mb(psp_zv_ptr()),
+     >                     lmbda0,
      >                     psp_fmm_rmax2,
      >                     dbl_mb(psp_fmm_Llm(1)))
 !$OMP DO
@@ -163,6 +170,11 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
       do j=1,ion_nion()
       
          if (mod(j-1,np_j).eq.taskid_j) then
+            if (j.gt.nion_qm) then
+               lmbda = lmbda0
+            else
+               lmbda = 1.0d0
+            end if
             ia= ion_katm(j)
             x = ion_rion(1,j)
             y = ion_rion(2,j)
@@ -204,9 +216,10 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
      >                    + xerf*(c3 + xerf*(c4
      >                    + xerf*(c5 + xerf*c6))))))**4
                     yerf = (1.0d0 - 1.0d0/yerf**4)
-                    vlr_notpaw(i) = vlr_notpaw(i) + (q/r)*yerf
+                    vlr_notpaw(i) = vlr_notpaw(i) + lmbda*(q/r)*yerf
                   else
-                    vlr_notpaw(i) = vlr_notpaw(i) + 2.0d0*q*c/sqrt_pi
+                    vlr_notpaw(i) = vlr_notpaw(i) 
+     >                            + lmbda*2.0d0*q*c/sqrt_pi
                   end if
                end do
 !$OMP END DO
@@ -227,6 +240,11 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
             z = ion_rion(3,j)
             q = -psp_zv(ia)
             c = 1.0d0/psp_rlocal(ia)
+            if (j.gt.nion_qm) then
+               lmbda = lmbda0
+            else
+               lmbda = 1.0d0
+            end if
 
             if ((int_mb(psp_type(1)+ia-1).eq.4)) then
 !$OMP DO
@@ -253,9 +271,10 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
                   if (r.gt.1.0d-15) then
                     xerf=r*c
                     yerf = util_erf(xerf)
-                    vlr_notpaw(i) = vlr_notpaw(i) + (q/r)*yerf
+                    vlr_notpaw(i) = vlr_notpaw(i) + lmbda*(q/r)*yerf
                   else
-                    vlr_notpaw(i) = vlr_notpaw(i) + 2.0d0*q*c/sqrt_pi
+                    vlr_notpaw(i) = vlr_notpaw(i) 
+     >                            + lmbda*2.0d0*q*c/sqrt_pi
                   end if
                end do
 !$OMP END DO
@@ -311,16 +330,20 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
       logical ispawv
       integer ftmp(2)
       integer taskid_j,np_j
-      integer i,j,ia,np1,np2,np3,n2ft3d_map,nion,l,m,lm,n2ft3d
-      real*8 x,y,z,q,c,r,sqrt_pi,dv,v,rx,ry,rz,fx,fy,fz
+      integer i,j,ia,np1,np2,np3,n2ft3d_map,nion,l,m,lm,n2ft3d,nion_qm
+      real*8 x,y,z,q,c,r,sqrt_pi,dv,v,rx,ry,rz,fx,fy,fz,lmbda0,lmbda
 
 *     **** external functions ****
+      logical  pspw_qmmm_lambda_flag
       logical  control_fast_erf
-      integer  ion_nion,ion_katm
+      integer  ion_nion,ion_nion_qm,ion_katm
       real*8   lattice_omega,ion_rion,psp_rlocal,psp_zv,util_erf
+      real*8   pspw_qmmm_lambda
+      external pspw_qmmm_lambda_flag
       external control_fast_erf
-      external ion_nion,ion_katm
+      external ion_nion,ion_nion_qm,ion_katm
       external lattice_omega,ion_rion,psp_rlocal,psp_zv,util_erf
+      external pspw_qmmm_lambda
       integer  ion_katm_ptr,ion_rion_ptr,psp_zv_ptr
       external ion_katm_ptr,ion_rion_ptr,psp_zv_ptr
 
@@ -330,6 +353,10 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
       call D3dB_n2ft3d_map(1,n2ft3d_map)
       call D3dB_n2ft3d(1,n2ft3d)
       nion = ion_nion()
+      nion_qm = ion_nion_qm()
+
+      lmbda0 = 1.0d0
+      if (pspw_qmmm_lambda_flag()) lmbda0 = pspw_qmmm_lambda()
 
 *     **** constants ****
       sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
@@ -364,10 +391,11 @@ c     >              dbl_mb(psp_fmm_Mlm(1)),1)
          end do
          call D3dB_Vector_SumAll((psp_fmm_lmax+1)**2,
      >                           dbl_mb(psp_fmm_Mlm(1)))
-         call FMM_fion_Mlm(psp_fmm_lmax,ion_nion(),
+         call FMM_fion_Mlm(psp_fmm_lmax,ion_nion(),nion_qm,
      >                     int_mb(ion_katm_ptr()),
      >                     dbl_mb(ion_rion_ptr()),
      >                     dbl_mb(psp_zv_ptr()),
+     >                     lmbda0,
      >                     psp_fmm_rmax2,
      >                     dbl_mb(psp_fmm_Mlm(1)),
      >                     dbl_mb(ftmp(1)))
@@ -383,6 +411,11 @@ c     >              dbl_mb(psp_fmm_Mlm(1)),1)
             x = ion_rion(1,j)
             y = ion_rion(2,j)
             z = ion_rion(3,j)
+            if (j.gt.nion_qm) then
+               lmbda = lmbda0
+            else
+               lmbda = 1.0d0
+            end if
             if ((.not.psp_fmm).or.((x*x+y*y+z*z).le.psp_fmm_rmax2)) then
             q = -psp_zv(ia)
             c = 1.0d0/psp_rlocal(ia)
@@ -420,9 +453,9 @@ c                 verf = util_erf(yerf)
                   fz = fz + rho_notpaw(i)*rz*v
                end if
             end do
-            dbl_mb(ftmp(1)+3*(j-1))   = -fx*dv
-            dbl_mb(ftmp(1)+3*(j-1)+1) = -fy*dv
-            dbl_mb(ftmp(1)+3*(j-1)+2) = -fz*dv
+            dbl_mb(ftmp(1)+3*(j-1))   = -fx*dv*lmbda
+            dbl_mb(ftmp(1)+3*(j-1)+1) = -fy*dv*lmbda
+            dbl_mb(ftmp(1)+3*(j-1)+2) = -fz*dv*lmbda
             end if
          end if
       end do
@@ -439,6 +472,11 @@ c                 verf = util_erf(yerf)
             x = ion_rion(1,j)
             y = ion_rion(2,j)
             z = ion_rion(3,j)
+            if (j.gt.nion_qm) then
+               lmbda = lmbda0
+            else
+               lmbda = 1.0d0
+            end if
             if ((.not.psp_fmm).or.((x*x+y*y+z*z).le.psp_fmm_rmax2)) then
             q = -psp_zv(ia)
             c = 1.0d0/psp_rlocal(ia)
@@ -476,9 +514,9 @@ c                verf = (1.0d0 - 1.0d0/fterf**4)
                   fz = fz + rho_notpaw(i)*rz*v
                end if
             end do
-            dbl_mb(ftmp(1)+3*(j-1))   = -fx*dv
-            dbl_mb(ftmp(1)+3*(j-1)+1) = -fy*dv
-            dbl_mb(ftmp(1)+3*(j-1)+2) = -fz*dv
+            dbl_mb(ftmp(1)+3*(j-1))   = -fx*dv*lmbda
+            dbl_mb(ftmp(1)+3*(j-1)+1) = -fy*dv*lmbda
+            dbl_mb(ftmp(1)+3*(j-1)+2) = -fz*dv*lmbda
 
             end if
          end if
@@ -519,24 +557,30 @@ c                verf = (1.0d0 - 1.0d0/fterf**4)
 
 *     *** local variables ***
       integer taskid_j,np_j
-      integer npack0,nion
+      integer npack0,nion,nion_qm
       integer i,ii,ia
       integer exi(2)
       logical value,periodic,inside
-      real*8  rxyz(3),fxyz(3)
+      real*8  rxyz(3),fxyz(3),lmbda0,lmbda
 
 *     **** external functions ****
-      integer  Pack_G_indx,ion_nion,ion_katm,control_version
-      real*8   ion_rion
-      external Pack_G_indx,ion_nion,ion_katm,control_version
-      external ion_rion
+      logical  pspw_qmmm_lambda_flag
+      integer  Pack_G_indx,ion_nion,ion_nion_qm,ion_katm,control_version
+      real*8   ion_rion,pspw_qmmm_lambda
+      external pspw_qmmm_lambda_flag
+      external Pack_G_indx,ion_nion,ion_nion_qm,ion_katm,control_version
+      external ion_rion,pspw_qmmm_lambda
 
       call nwpw_timing_start(5)
       call Parallel2d_np_j(np_j)
       call Parallel2d_taskid_j(taskid_j)
       call Pack_npack(0,npack0)
       nion     = ion_nion()
+      nion_qm  = ion_nion_qm()
       periodic = (control_version().eq.3)
+
+      lmbda0 = 1.0d0
+      if (pspw_qmmm_lambda_flag()) lmbda0 = pspw_qmmm_lambda()
 
       value = BA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       if (.not.value) 
@@ -565,6 +609,11 @@ c                verf = (1.0d0 - 1.0d0/fterf**4)
 
              if (inside) then
                 ia=ion_katm(ii)
+                if (ii.gt.nion_qm) then
+                   lmbda = lmbda0
+                else
+                   lmbda = 1.0d0
+                end if
 
 *               **** structure factor and local pseudopotential ****
                 call strfac_pack(0,ii,dcpl_mb(exi(1)))
@@ -575,7 +624,11 @@ c                verf = (1.0d0 - 1.0d0/fterf**4)
      >                                dcpl_mb(exi(1)),
      >                                vl_paw)
                 else
-                   call Pack_tc_MulAdd(0,dbl_mb(vl(1)+npack0*(ia-1)),
+c                   call Pack_tc_MulAdd(0,dbl_mb(vl(1)+npack0*(ia-1)),
+c     >                                dcpl_mb(exi(1)),
+c     >                                vl_notpaw)
+                   call Pack_tc_aMulAdd(0,lmbda,
+     >                                dbl_mb(vl(1)+npack0*(ia-1)),
      >                                dcpl_mb(exi(1)),
      >                                vl_notpaw)
                 end if
@@ -617,24 +670,30 @@ c                verf = (1.0d0 - 1.0d0/fterf**4)
 
 *     *** local variables ***
       integer taskid_j,np_j
-      integer npack0,nion
+      integer npack0,nion,nion_qm
       integer i,ii,ia
       integer exi(2),ftmp(2),vtmp(2),xtmp(2),G(3)
       logical value,periodic,inside
-      real*8  rxyz(3),fxyz(3)
+      real*8  rxyz(3),fxyz(3),lmbda0,lmbda
 
 *     **** external functions ****
-      integer  Pack_G_indx,ion_nion,ion_katm,control_version
-      real*8   ion_rion
-      external Pack_G_indx,ion_nion,ion_katm,control_version
-      external ion_rion
+      logical  pspw_qmmm_lambda_flag
+      integer  Pack_G_indx,ion_nion,ion_nion_qm,ion_katm,control_version
+      real*8   ion_rion,pspw_qmmm_lambda
+      external pspw_qmmm_lambda_flag
+      external Pack_G_indx,ion_nion,ion_nion_qm,ion_katm,control_version
+      external ion_rion,pspw_qmmm_lambda
 
       call nwpw_timing_start(5)
       call Parallel2d_np_j(np_j)
       call Parallel2d_taskid_j(taskid_j)
       call Pack_npack(0,npack0)
       nion     = ion_nion()
+      nion_qm  = ion_nion_qm()
       periodic = (control_version().eq.3)
+
+      lmbda0 = 1.0d0
+      if (pspw_qmmm_lambda_flag()) lmbda0 = pspw_qmmm_lambda()
 
       value = BA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
       value = value.and.
@@ -670,6 +729,11 @@ c                verf = (1.0d0 - 1.0d0/fterf**4)
              end if
 
              if (inside) then
+                if (ii.gt.nion_qm) then
+                   lmbda = lmbda0
+                else
+                   lmbda = 1.0d0
+                end if
                 ia=ion_katm(ii)
 *               **** structure factor and local pseudopotential ****
                 call strfac_pack(0,ii,dcpl_mb(exi(1)))
@@ -686,6 +750,7 @@ c                verf = (1.0d0 - 1.0d0/fterf**4)
                    call Pack_tc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
      >                                dcpl_mb(exi(1)),
      >                                dcpl_mb(vtmp(1)))
+                   call Pack_c_SMul1(0,lmbda,dcpl_mb(vtmp(1)))
                    call Pack_cct_iconjgMulb(0,dng_notpaw,
      >                                 dcpl_mb(vtmp(1)),
      >                                 dbl_mb(xtmp(1)))
