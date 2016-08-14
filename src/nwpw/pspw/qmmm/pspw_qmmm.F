@@ -71,6 +71,8 @@ c
       qmmm_found     = (ion_nion_mm().gt.0).or. value 
       auxiliary_only = (ion_nion_mm().le.0).and.value
       shake_found    = .false.
+      lmbda_flag     = .false.
+      qmmm_lmbda     = 1.0d0
       nfrag  = 0
       nkfrag = 0
       

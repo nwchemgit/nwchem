@@ -414,7 +414,7 @@ c     **** QM/MM VPower energy ****
             npair  = int_mb(npair_all(1) +(jj-1)*nkatm+ii-1)
             istart = int_mb(pair_start(1)+(jj-1)*nkatm+ii-1)
             if (npair.gt.0)
-     >         E = E + pspw_VPair_E_periodic(npair,
+     >         E = E + lmbda*pspw_VPair_E_periodic(npair,
      >                        int_mb(type_all(1) +istart),
      >                        dbl_mb(param_all(1)+6*istart),
      >                        rion(1,i),rion(1,j),
