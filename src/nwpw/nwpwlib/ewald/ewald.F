@@ -1930,7 +1930,7 @@ c      call dcopy(9,0.0d0,0,Cus,1)
          energy=0.0d0
       end if
       if (tnp.gt.1) call Parallel_SumAll(energy)
-      energy  = 0.5d0*energy/lattice_omega() + cewald_qm
+      energy  = 0.5d0*energy/lattice_omega() + cewald_mm
 
       
 *     *** made parallel  ****
