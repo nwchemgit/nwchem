@@ -531,6 +531,88 @@ c     **** MM/MM VPair image energy ****
       end
 
 
+c     *************************************
+c     *                                   *
+c     *           pspw_Pair_Emix          *
+c     *                                   *
+c     *************************************
+      real*8 function pspw_Pair_Emix(nion,nion_qm,katm,
+     >                          nfrag,indx_frag_start,size_frag,kfrag,
+     >                          self_interaction,lmbda,
+     >                          nshl3d,rcell,
+     >                          rion)
+      implicit none
+      integer nion,nion_qm
+      integer katm(*)
+      integer nfrag
+      integer indx_frag_start(*),size_frag(*)
+      integer kfrag(*)
+      logical self_interaction(*)
+      real*8  lmbda
+      integer nshl3d
+      real*8  rcell(nshl3d,3)
+      real*8  rion(3,*)
+
+#include "bafdecls.fh"
+#include "pspw_Pair.fh"
+
+*     **** local variables ****
+      integer dutask,taskid,np
+      integer i,j,ii,jj,nkatm
+      integer w1,a,k1,kk1,n1,npair,istart,k
+      integer w2,b,k2,kk2
+      real*8  E
+
+*     **** external functions ****
+      integer  ion_nkatm
+      real*8   pspw_VPair_E_periodic,pspw_VPair_E_periodic_self
+      real*8   pspw_VPair_E_onecell,pspw_VPair_E_periodic_image
+      external ion_nkatm
+      external pspw_VPair_E_periodic,pspw_VPair_E_periodic_self
+      external pspw_VPair_E_onecell,pspw_VPair_E_periodic_image
+      
+      call nwpw_timing_start(40)
+      E = 0.0d0
+
+      if (npairs.gt.0) then
+
+         call Parallel_np(np)
+         call Parallel_taskid(taskid)
+         nkatm = ion_nkatm()
+
+         dutask = 0
+
+c        **** QM/MM VPower energy ****
+         do j = nion_qm+1,nion
+            if (dutask.eq.taskid) then
+            jj = katm(j)
+            do i=1,nion_qm
+               ii = katm(i)
+               npair  = int_mb(npair_all(1) +(jj-1)*nkatm+ii-1)
+               istart = int_mb(pair_start(1)+(jj-1)*nkatm+ii-1)
+               if (npair.gt.0)
+     >            E = E + lmbda*pspw_VPair_E_periodic(npair,
+     >                        int_mb(type_all(1) +istart),
+     >                        dbl_mb(param_all(1)+6*istart),
+     >                        rion(1,i),rion(1,j),
+     >                        nshl3d,rcell)
+            end do
+            end if
+            dutask = mod(dutask+1,np)
+         end do
+
+         if (np.gt.1) call Parallel_SumAll(E)
+
+      end if !*** npairs.gt.0 ***
+
+      call nwpw_timing_end(40)
+
+      pspw_Pair_Emix = E
+      return
+      end
+
+
+
 c     *********************************************
 c     *                                           *
 c     *              pspw_VPair_fdamp             *

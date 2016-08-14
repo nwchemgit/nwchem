@@ -1377,6 +1377,46 @@ c     >                              dbl_mb(ion_rion_ptr()))
       return
       end
 
+*     **********************************
+*     *                                *
+*     *         pspw_qmmm_LJ_Emix      *
+*     *                                *
+*     **********************************
+
+      real*8 function pspw_qmmm_LJ_Emix()
+      implicit none
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "pspw_qmmm.fh"
+
+c     **** external functions ***
+      integer  ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
+      external ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
+      real*8   pspw_Pair_Emix
+      external pspw_Pair_Emix
+
+      if (auxiliary_only) then
+         pspw_qmmm_LJ_Emix = 0.0d0
+      else
+         pspw_qmmm_LJ_Emix = pspw_Pair_Emix(ion_nion(),
+     >                              ion_nion_qm(),
+     >                              int_mb(ion_katm_ptr()),
+     >                              nfrag,
+     >                              int_mb(indx_frag_start(1)),
+     >                              int_mb(size_frag(1)),
+     >                              int_mb(kfrag(1)),
+     >                              log_mb(self_interaction(1)),
+     >                              qmmm_lmbda,
+     >                              nshl3d,dbl_mb(rcell(1)),
+     >                              dbl_mb(ion_rion_ptr()))
+
+
+      end if
+
+      return
+      end
+
 
 
 *     **********************************
@@ -1441,6 +1481,47 @@ c     >                 (e1-e2+e3+e4),(e3+e4+e1)
       end if
       return
       end
+
+
+*     **********************************
+*     *                                *
+*     *         pspw_qmmm_Q_Emix       *
+*     *                                *
+*     **********************************
+      real*8 function pspw_qmmm_Q_Emix()
+      implicit none
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "pspw_qmmm.fh"
+
+      real*8 e2,e3,e4
+
+c     **** external functions ***
+      integer  control_version
+      external control_version
+      real*8   ewald_e,ewald_e_qm,ewald_e_mm
+      external ewald_e,ewald_e_qm,ewald_e_mm
+      real*8   ion_ion_e,ion_ion_e_qm,ion_ion_e_mm
+      external ion_ion_e,ion_ion_e_qm,ion_ion_e_mm
+
+
+      if (auxiliary_only) then
+         pspw_qmmm_Q_Emix = 0.0d0
+      else
+         if (control_version().eq.3) then
+            e2 = ewald_e()
+            e3 = ewald_e_qm()
+            e4 = ewald_e_mm()
+         else
+            e2 = ion_ion_e()
+            e3 = ion_ion_e_qm()
+            e4 = ion_ion_e_mm()
+         end if
+         pspw_qmmm_Q_Emix = e2-e3-e4
+      end if
+      return
+      end 
 
 
 *     **********************************
