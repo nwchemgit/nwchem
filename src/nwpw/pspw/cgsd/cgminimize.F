@@ -58,7 +58,7 @@ c      complex*16 G1(nfft3d,nemax)
       real*8   rho_error
       real*8   dng_1ehartree
       real*8   psi_1ke
-      real*8   psi_1vl,psi_1v_field
+      real*8   psi_1vl,psi_1v_field,dng_1vl_mm
       real*8   psi_1vnl
       real*8   rho_1exc
       real*8   rho_1pxc
@@ -73,7 +73,7 @@ c      complex*16 G1(nfft3d,nemax)
       external rho_error
       external dng_1ehartree
       external psi_1ke
-      external psi_1vl,psi_1v_field
+      external psi_1vl,psi_1v_field,dng_1vl_mm
       external psi_1vnl
       external rho_1exc
       external rho_1pxc
@@ -90,6 +90,8 @@ c      complex*16 G1(nfft3d,nemax)
       external pspw_qmmm_LJ_E
       external pspw_qmmm_Q_E
       external pspw_qmmm_spring_E
+      real*8   pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
+      external pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
 
 *     ***** pspw_charge external functions ****
       logical  pspw_charge_found
@@ -371,6 +373,12 @@ c     call psi_check()
          E(11) = e_lj
          E(12) = e_q
          E(13) = e_spring
+
+*        **** Eqm-mm energy ***
+         E(14) = pspw_qmmm_LJ_Emix()
+         E(14) = E(14) + pspw_qmmm_Q_Emix()
+         E(14) = E(14) + dng_1vl_mm()
+
       end if
 
 *     **** paw energies ****
