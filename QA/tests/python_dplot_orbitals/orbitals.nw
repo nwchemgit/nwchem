@@ -1,0 +1,55 @@
+##
+## Example of how to generate cube file for a range of molecular
+## orbitals using python and dplot.
+##
+
+title "Python molecular orbital dplot test"
+echo
+
+start test
+
+geometry "system" units angstroms nocenter noautoz noautosym
+  N  0.0  0.0 -0.549
+  N  0.0  0.0  0.549
+end
+
+set geometry "system"
+
+basis
+  N library 6-31G*
+end
+
+dft
+  xc pbe0
+end
+task dft energy
+
+python
+
+# plot lowest 10 orbitals, i.e, up to LUMO+2
+orbmin = 1
+orbmax = 10
+
+orbs = [i for i in range(orbmin, orbmax+1)]  # note: +1 since python lists start from 0
+
+for iorb in orbs:
+  fname = "orbital_{0:005d}.cube".format(iorb)  # formatting works up to 99999 orbitals
+
+  str = '''
+    dplot
+      title "Molecular Orbital {orb}"
+      limitxyz
+       -2.0  2.0  50
+       -2.0  2.0  50
+       -4.0  4.0  100
+       orbitals view; 1; {orb}
+       spin total
+       gaussian
+       output {out}
+    end
+  '''.format(orb=iorb, out=fname)
+  input_parse (str)
+  dplot ()
+end
+
+task python
