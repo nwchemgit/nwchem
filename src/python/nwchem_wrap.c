@@ -34,6 +34,7 @@ extern void ga_pgroup_igop_(Integer *,Integer *,Integer *,Integer *,char *);
 #define task_saddle_ TASK_SADDLE
 #define task_freq_ TASK_FREQ
 #define task_hessian_ TASK_HESSIAN
+#define dplot_ DPLOT
 #define util_sggo_ UTIL_SGGO
 #define util_sgend_ UTIL_SGEND
 #define util_sgroup_numgroups_ UTIL_SGROUP_NUMGROUPS
@@ -52,6 +53,7 @@ extern Integer FATR task_coulomb_ref_(const Integer *);
 extern Integer FATR task_saddle_(const Integer *);
 extern Integer FATR task_freq_(const Integer *);
 extern Integer FATR task_hessian_(const Integer *);
+extern Integer FATR dplot_(const Integer *);
 // Changed to add last argument
 extern void FATR util_sggo_(const Integer *, const Integer *, const Integer *, const Integer*, const Integer*);
 extern void FATR util_sgend_(const Integer *);
@@ -997,6 +999,20 @@ static PyObject *wrap_task_hessian(PyObject *self, PyObject *args)
      return Py_None;
 }
 
+// DPLOT wrapper.  Requires no theory, only rtdb handle
+static PyObject *wrap_dplot(PyObject *self, PyObject *args)
+{
+  
+  if (!dplot_(&rtdb_handle)){
+    PyErr_SetString(NwchemError, "dplot: failed");
+    return NULL;
+  }
+  
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+
 static PyObject *wrap_task_freq(PyObject *self, PyObject *args)
 {
     char *theory;
@@ -1695,6 +1711,7 @@ static struct PyMethodDef nwchem_methods[] = {
    {"task_lstress",    wrap_task_lstress, 0}, 
    {"task_optimize",   wrap_task_optimize, 0}, 
    {"task_hessian",    wrap_task_hessian, 0},
+   {"dplot",           wrap_dplot, 0},
    {"task_saddle",     wrap_task_saddle, 0},
    {"task_freq",       wrap_task_freq, 0},
    {"task_coulomb",    wrap_task_coulomb, 0}, 
