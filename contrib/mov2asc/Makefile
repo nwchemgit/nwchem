@@ -67,12 +67,12 @@ ifndef LIBMPI
 endif
 endif
 ifdef MPI_LIB 
-      CORE_LIBS += $(patsubst -L-L%,-L%,-L$(MPI_LIB))
+      LDFLAGS += $(patsubst -L-L%,-L%,-L$(MPI_LIB))
 endif 
 ifdef OLD_GA
-  CORE_LIBS += -ltcgmsg-mpi $(LIBMPI) 
+  LDFLAGS += -ltcgmsg-mpi $(LIBMPI) 
 else
-  CORE_LIBS += $(LIBMPI) 
+  LDFLAGS += $(LIBMPI)
 endif
 endif
 ifneq ($(USE_GPROF),)
