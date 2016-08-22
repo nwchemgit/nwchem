@@ -229,13 +229,13 @@ c           k_map(q_map(k)) = k
 
 !MATHIAS
       if (mapping2d.eq.1) then
-         if (nb.eq.1) then
+         if ((nb.eq.1).or.(nb.gt.2)) then
            call hilbert2d_map(ny(nb),nz(nb),int_mb(p_map1(1,nb)))
          end if
          call hilbert2d_map(nz(nb),(nx(nb)/2+1),int_mb(p_map2(1,nb)))
          call hilbert2d_map((nx(nb)/2+1),ny(nb),int_mb(p_map3(1,nb)))
       else
-         if (nb.eq.1) then
+         if ((nb.eq.1).or.(nb.gt.2)) then
            call hcurve_map(ny(nb),nz(nb),int_mb(p_map1(1,nb)))
          end if
         
@@ -270,7 +270,7 @@ c!$OMP end critical
 
       !**** double grid map1 defined wrt to single grid         ****
       !**** makes expand and contract routines trivial parallel ****
-      if (nb.eq.1) then
+      if ((nb.eq.1).or.(nb.gt.2)) then
       call generate_map_indexes(taskid,np,
      >                          ny(nb),nz(nb),
      >                          int_mb(p_map1(1,nb)),
@@ -2184,7 +2184,7 @@ c     end do
 #else
       offset=tid*(2*nx(nb)+15)
       do j=tid+1,ny(nb)*nq(nb),nthr
-         call drfftf(nx(nb),A((j-1)*nxh+1),dbl_mb(tmpx(1,nb)+offset))
+         call drfftf(nx(nb),A((j-1)*nxh+1),dcpl_mb(tmpx(1,nb)+offset))
       end do
       call cshift_fftf(nx(nb),ny(nb),nq(nb),1,A)
 #endif
@@ -2250,6 +2250,7 @@ c      end do
          end do
       end do
       end do
+
 #endif
 #endif
 
@@ -2346,6 +2347,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
         call drfftf(nx(nb),A(1+(i-1)*nxh),dcpl_mb(tmpx(1,nb)+offset))
       end do
       call cshift_fftf(nx(nb),nq1(nb),1,1,A)
+
 
 #endif
 #endif
