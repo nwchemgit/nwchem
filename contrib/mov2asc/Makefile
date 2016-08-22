@@ -40,27 +40,40 @@ else
    CPPFLAGS = -I../../src/tools/install/include			# Needs MA includes
 endif
 LDFLAGS = -L../../src/tools/install/lib -lga -larmci	# Needs MA library
-ifeq ($(USE_MPI),y)
-  LDFLAGS += -L../../lib/${NWCHEM_TARGET} -lnwcutil
-  ifndef MPI_INCLUDE
+ifdef USE_MPI 
+#ifeq ($(FC),$(findstring $(FC),mpifrt mpfort mpif77 mpxlf mpif90 ftn))
+ifeq ($(FC),$(findstring $(FC), ftn))
+  LIBMPI =
+  MPI_INCLUDE =
+  MPI_LIB =
+else
+ifndef MPI_INCLUDE
+# check if mpif90 is present
+         MPIF90YN = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
+  ifeq ($(MPIF90YN),mpif90notfound)
+  errormpif90:
+	@echo " "
+	@echo "mpif90 not found. Please add its location to PATH"
+	@echo "e.g. export PATH=/usr/local/bin:/usr/lib64/openmpi/bin:..."
+	@echo " "
+  endif
         MPI_INCLUDE = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
-  endif
-  ifndef MPI_LIB
+endif
+ifndef MPI_LIB
         MPI_LIB     = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
-  endif
-  ifndef LIBMPI
+endif
+ifndef LIBMPI
         LIBMPI      = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
-  endif
-  ifdef MPI_LIB
+endif
+endif
+ifdef MPI_LIB 
       CORE_LIBS += $(patsubst -L-L%,-L%,-L$(MPI_LIB))
-   endif
-
-  ifneq ($(MPI_LIB),)
-    LDFLAGS += $(patsubst -L-L%,-L%,-L${MPI_LIB})
-  endif
-  ifneq ($(LIBMPI),)
-    LDFLAGS += ${LIBMPI}
-  endif
+endif 
+ifdef OLD_GA
+  CORE_LIBS += -ltcgmsg-mpi $(LIBMPI) 
+else
+  CORE_LIBS += $(LIBMPI) 
+endif
 endif
 ifneq ($(USE_GPROF),)
   FFLAGS += -pg
