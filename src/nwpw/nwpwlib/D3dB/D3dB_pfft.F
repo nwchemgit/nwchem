@@ -422,7 +422,7 @@
           end if
 
          end do
-
+         
 
 *        **** find zero_row2 - (i,*,k) rows that are zero after fft of (i,j,*) ****
          do k = 1,nz(id)
@@ -438,13 +438,12 @@
            end if
          end do
          end do
-
+         
          call D3dB_c_ptranspose_ijk_init(nb,
      >                                   log_mb(zero_arow2(1)),
      >                                   log_mb(zero_arow3(1)))
 
-
-
+         
          end do
 
        value =           BA_pop_stack(zero_arow3(2))
@@ -1472,8 +1471,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          do j=1,ny(id)
 
 *           **** packing scheme **** 
-            call D3dB_ktoqp(1,k,qhere,phere)
-            call D3dB_ktoqp(1,j,qto,pto)
+            call D3dB_ktoqp(id,k,qhere,phere)
+            call D3dB_ktoqp(id,j,qto,pto)
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
                do i=1,(nx(id)/2+1)
                   ii = i + (nx(id)/2+1)*(k-1)
@@ -1495,8 +1494,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             end if
              
 *           **** unpacking scheme ****
-            call D3dB_ktoqp(1,j,qhere,phere)
-            call D3dB_ktoqp(1,k,qfrom,pfrom)
+            call D3dB_ktoqp(id,j,qhere,phere)
+            call D3dB_ktoqp(id,k,qfrom,pfrom)
             if ((phere.eq.taskid).and.(pfrom.eq.proc_from)) then
                do i=1,(nx(id)/2+1)
                   ii = i + (nx(id)/2+1)*(k-1)
@@ -1585,6 +1584,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call Parallel2d_np_i(np)
 
 
+
 *     ********************************************************
 *     **** map1to2 mapping - done - tranpose operation #1  ***
 *     ****   (ny,nz,nx/2+1)  <-- (nx/2+1,ny,nz)            ***
@@ -1634,11 +1634,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             iszero = zero_arow2(i+(k-1)*(nx(id)/2+1)) 
 
 *           **** packing scheme **** 
-            phere = int_mb(p_map1(1,1)+(j-1)+(k-1)*ny(id))
-            qhere = int_mb(q_map1(1,1)+(j-1)+(k-1)*ny(id))
+            phere = int_mb(p_map1(1,id)+(j-1)+(k-1)*ny(id))
+            qhere = int_mb(q_map1(1,id)+(j-1)+(k-1)*ny(id))
 
-            pto   = int_mb(p_map2(1,1)+(k-1)+(i-1)*nz(id))
-            qto   = int_mb(q_map2(1,1)+(k-1)+(i-1)*nz(id))
+            pto   = int_mb(p_map2(1,id)+(k-1)+(i-1)*nz(id))
+            qto   = int_mb(q_map2(1,id)+(k-1)+(i-1)*nz(id))
             
            
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
@@ -1669,8 +1669,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       int_mb(h_i1_start(1,1,nbb)+np) = index1
       int_mb(h_i2_start(1,1,nbb)+np) = index2
       h_iz_to_i2_count(1,nbb) = index3 - 1
-
-
 
 
 
@@ -1724,11 +1722,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             iszero = zero_arow3(i+(j-1)*(nx(id)/2+1))
 
 *           **** packing scheme ****
-            phere = int_mb(p_map2(1,1)+(k-1)+(i-1)*nz(id))
-            qhere = int_mb(q_map2(1,1)+(k-1)+(i-1)*nz(id))
+            phere = int_mb(p_map2(1,id)+(k-1)+(i-1)*nz(id))
+            qhere = int_mb(q_map2(1,id)+(k-1)+(i-1)*nz(id))
 
-            pto   = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(id)/2+1))
-            qto   = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(id)/2+1))
+            pto   = int_mb(p_map3(1,id)+(i-1)+(j-1)*(nx(id)/2+1))
+            qto   = int_mb(q_map3(1,id)+(i-1)+(j-1)*(nx(id)/2+1))
 
 
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
@@ -1760,9 +1758,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       int_mb(h_i1_start(1,2,nbb)+np) = index1
       int_mb(h_i2_start(1,2,nbb)+np) = index2
       h_iz_to_i2_count(2,nbb) = index3 - 1
-
-
-
 
 
 
@@ -1816,11 +1811,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             iszero = zero_arow3(i+(j-1)*(nx(id)/2+1))
 
 *           **** packing scheme ****
-            phere = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(id)/2+1))
-            qhere = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(id)/2+1))
+            phere = int_mb(p_map3(1,id)+(i-1)+(j-1)*(nx(id)/2+1))
+            qhere = int_mb(q_map3(1,id)+(i-1)+(j-1)*(nx(id)/2+1))
 
-            pto   = int_mb(p_map2(1,1)+(k-1)+(i-1)*nz(id))
-            qto   = int_mb(q_map2(1,1)+(k-1)+(i-1)*nz(id))
+            pto   = int_mb(p_map2(1,id)+(k-1)+(i-1)*nz(id))
+            qto   = int_mb(q_map2(1,id)+(k-1)+(i-1)*nz(id))
 
 
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
@@ -1852,8 +1847,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       int_mb(h_i1_start(1,3,nbb)+np) = index1
       int_mb(h_i2_start(1,3,nbb)+np) = index2
       h_iz_to_i2_count(3,nbb) = index3 - 1
-
-
 
 
 *     ********************************************************
@@ -1906,11 +1899,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             iszero = zero_arow2(i+(k-1)*(nx(id)/2+1))
 
 *           **** packing scheme ****
-            phere = int_mb(p_map2(1,1)+(k-1)+(i-1)*nz(id))
-            qhere = int_mb(q_map2(1,1)+(k-1)+(i-1)*nz(id))
+            phere = int_mb(p_map2(1,id)+(k-1)+(i-1)*nz(id))
+            qhere = int_mb(q_map2(1,id)+(k-1)+(i-1)*nz(id))
 
-            pto   = int_mb(p_map1(1,1)+(j-1)+(k-1)*ny(id))
-            qto   = int_mb(q_map1(1,1)+(j-1)+(k-1)*ny(id))
+            pto   = int_mb(p_map1(1,id)+(j-1)+(k-1)*ny(id))
+            qto   = int_mb(q_map1(1,id)+(j-1)+(k-1)*ny(id))
 
 
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
@@ -1942,8 +1935,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       int_mb(h_i1_start(1,4,nbb)+np) = index1
       int_mb(h_i2_start(1,4,nbb)+np) = index2
       h_iz_to_i2_count(4,nbb) = index3 - 1
-
-
 
 
 
@@ -1993,11 +1984,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          do i=1,(nx(id)/2+1)
 
 *           **** packing scheme ****
-            phere = int_mb(p_map1(1,1)+(j-1)+(k-1)*ny(id))
-            qhere = int_mb(q_map1(1,1)+(j-1)+(k-1)*ny(id))
+            phere = int_mb(p_map1(1,id)+(j-1)+(k-1)*ny(id))
+            qhere = int_mb(q_map1(1,id)+(j-1)+(k-1)*ny(id))
 
-            pto   = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(id)/2+1))
-            qto   = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(id)/2+1))
+            pto   = int_mb(p_map3(1,id)+(i-1)+(j-1)*(nx(id)/2+1))
+            qto   = int_mb(q_map3(1,id)+(i-1)+(j-1)*(nx(id)/2+1))
 
 
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
@@ -2021,9 +2012,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       int_mb(h_i1_start(1,5,nbb)+np) = index1
       int_mb(h_i2_start(1,5,nbb)+np) = index2
       h_iz_to_i2_count(5,nbb) = index3 - 1
-
-
-
 
 
 
@@ -2073,11 +2061,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          do i=1,(nx(id)/2+1)
 
 *           **** packing scheme ****
-            phere = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(id)/2+1))
-            qhere = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(id)/2+1))
+            phere = int_mb(p_map3(1,id)+(i-1)+(j-1)*(nx(id)/2+1))
+            qhere = int_mb(q_map3(1,id)+(i-1)+(j-1)*(nx(id)/2+1))
 
-            pto   = int_mb(p_map1(1,1)+(j-1)+(k-1)*ny(id))
-            qto   = int_mb(q_map1(1,1)+(j-1)+(k-1)*ny(id))
+            pto   = int_mb(p_map1(1,id)+(j-1)+(k-1)*ny(id))
+            qto   = int_mb(q_map1(1,id)+(j-1)+(k-1)*ny(id))
 
 
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
@@ -2101,7 +2089,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       int_mb(h_i1_start(1,6,nbb)+np) = index1
       int_mb(h_i2_start(1,6,nbb)+np) = index2
       h_iz_to_i2_count(6,nbb) = index3 - 1
-
 
       return
       end
