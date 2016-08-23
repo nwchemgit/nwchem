@@ -38,6 +38,7 @@
 
 *     **** lattice variables ****
       integer ngrid(3),nwave,nfft3d,n2ft3d
+      integer ngrid_small(3)
       real*8  a,b,c,alpha,beta,gamma
     
 
@@ -158,6 +159,14 @@
       external control_smooth_cutoff,control_periodic_dipole
       real*8   control_smooth_cutoff_values
       external control_smooth_cutoff_values
+      logical  control_has_ngrid_small
+      external control_has_ngrid_small
+      integer  control_ngrid_small
+      external control_ngrid_small
+      real*8   lattice_unita_small,lattice_unitg_small
+      real*8   lattice_omega_small
+      external lattice_unita_small,lattice_unitg_small
+      external lattice_omega_small
 
 
 *                            |************|
@@ -236,6 +245,14 @@
 *     ***** Initialize double D3dB data structure ****
       if (control_version().eq.4)
      >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),mapping)
+
+      if (control_has_ngrid_small()) then
+         ngrid_small(1) = control_ngrid_small(1)
+         ngrid_small(2) = control_ngrid_small(2)
+         ngrid_small(3) = control_ngrid_small(3)
+         call D3dB_Init(3,ngrid_small(1),ngrid_small(2),ngrid_small(3),
+     >                  mapping)
+      end if
 
 
  
@@ -481,6 +498,37 @@ c           call psp_check_print(ia)
      >                     ewald_mandelung()
      >                    *(4.0d0*pi/3.0)**(1.0d0/3.0d0),rs
          end if
+         if (control_has_ngrid_small()) then
+            write(luout,1229)
+            write(luout,1233) control_cell_name()
+            write(luout,1241) lattice_unita_small(1,1),
+     >                    lattice_unita_small(2,1),
+     >                    lattice_unita_small(3,1)
+            write(luout,1242) lattice_unita_small(1,2),
+     >                    lattice_unita_small(2,2),
+     >                    lattice_unita_small(3,2)
+            write(luout,1243) lattice_unita_small(1,3),
+     >                    lattice_unita_small(2,3),
+     >                    lattice_unita_small(3,3)
+            write(luout,1244) lattice_unitg_small(1,1),
+     >                    lattice_unitg_small(2,1),
+     >                    lattice_unitg_small(3,1)
+            write(luout,1245) lattice_unitg_small(1,2),
+     >                    lattice_unitg_small(2,2),
+     >                    lattice_unitg_small(3,2)
+            write(luout,1246) lattice_unitg_small(1,3),
+     >                    lattice_unitg_small(2,3),
+     >                    lattice_unitg_small(3,3)
+            call lattice_small_abc_abg(a,b,c,alpha,beta,gamma)
+            write(luout,1232) a,b,c,alpha,beta,gamma
+            write(luout,1231) lattice_omega_small()
+            write(luout,1250) lattice_ecut(),
+     >                 ngrid_small(1),ngrid_small(2),ngrid_small(3),
+     >                 pack_nwave_all(2),pack_nwave(2)
+            write(luout,1251) lattice_wcut(),
+     >                 ngrid_small(1),ngrid_small(2),ngrid_small(3),
+     >                 pack_nwave_all(3),pack_nwave(3)
+         end if
 
          write(luout,1270)
          write(luout,1280) control_time_step(),control_fake_mass()
@@ -684,7 +732,8 @@ c      call frac_occ_end()
       !call D3dB_n_fft_end(1)
       call D3dB_pfft_end()
       call D3dB_end(1)
-      if (control_version().eq.4) call D3dB_end(2)
+      if (control_version().eq.4)    call D3dB_end(2)
+      if (control_has_ngrid_small()) call D3dB_end(3)
       call Dne_end()
       call psi_data_end()
 
@@ -786,6 +835,7 @@ c      call frac_occ_end()
      >        '  down=',I6,
      >        ' (',I4,' per task)',
      >        A)
+ 1229 FORMAT(/' small supercell:')
  1230 FORMAT(/' supercell:')
  1231 FORMAT(5x,'             omega=',F12.1)
  1232 FORMAT(5x,' lattice:    a=    ',f8.3,' b=   ',f8.3,' c=    ',f8.3,

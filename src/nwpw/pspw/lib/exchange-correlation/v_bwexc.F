@@ -94,11 +94,9 @@ c        ***** calculate rho tmp1=rho(g) ****
          call D3dB_rr_Sum(1,dn(1,1),dn(1,1),dbl_mb(rho(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(rho(1)))
          call D3dB_r_SMul(1,scal1,dbl_mb(rho(1)),dbl_mb(rhog(1)))
-!MATHIAS OPENMP OK
          call D3dB_rc_fft3f(1,dbl_mb(rhog(1)))
          call mask_C(0,dbl_mb(rhog(1)))
 
-!MATHIAS can be threaded
 c        ***** calculated  grup= grad n ****
          call D3dB_ic_Mul(1,dbl_mb(G_indx(1)),
      >                      dbl_mb(rhog(1)),
@@ -109,12 +107,12 @@ c        ***** calculated  grup= grad n ****
          call D3dB_ic_Mul(1,dbl_mb(G_indx(3)),
      >                      dbl_mb(rhog(1)),
      >                      dbl_mb(grz(1)))
-!MATHIAS OPENMP OK
+
          call D3dB_cr_fft3b(1,dbl_mb(grx(1)))
          call D3dB_cr_fft3b(1,dbl_mb(gry(1)))
          call D3dB_cr_fft3b(1,dbl_mb(grz(1)))
 
-!MATHIAS can be threaded
+
 c        ***** calculate agr = |grad n| ****
          call D3dB_rr_Sqr(1,dbl_mb(grx(1)),
      >                      dbl_mb(agr(1)))
@@ -247,7 +245,7 @@ c     >                            dbl_mb(grz(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(grx(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(gry(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(grz(1)))
-!MATHIAS OPENMP OK
+
          call D3dB_rc_fft3f(1,dbl_mb(grx(1)))
          call D3dB_rc_fft3f(1,dbl_mb(gry(1)))
          call D3dB_rc_fft3f(1,dbl_mb(grz(1)))
@@ -276,7 +274,7 @@ c     >                      dbl_mb(fdn(1)))
          call D3dB_cc_Sum2(1,dbl_mb(grz(1)),dbl_mb(fdn(1)))
 
          call mask_C(0,dbl_mb(fdn(1)))
-!MATHIAS OPENMP OK
+
          call D3dB_cr_fft3b(1,dbl_mb(fdn(1)))
          call D3dB_rr_Minus(1,dbl_mb(fn(1)),
      >                        dbl_mb(fdn(1)),
