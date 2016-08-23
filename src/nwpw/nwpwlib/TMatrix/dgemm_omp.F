@@ -129,10 +129,6 @@
 *     Sven Hammarling, Numerical Algorithms Group Ltd.
 *
 *
-
-#include "bafdecls.fh"
-#include "errquit.fh"
-
 *     .. External Functions ..
       LOGICAL LSAME
       EXTERNAL LSAME
@@ -153,7 +149,6 @@
       INTEGER I,INFO,J,L,NCOLA,NROWA,NROWB
       LOGICAL NOTA,NOTB
       integer cidj,tid,nthr,Mtid,Itid,r
-      integer Btid(2),Bshift
 *     ..
 *     .. Parameters ..
       DOUBLE PRECISION ONE,ZERO
@@ -261,17 +256,10 @@
                 Itid = r + tid*(M/nthr) + 1
                 Mtid = M/nthr 
             end if
-            if (.not.BA_push_get(mt_dbl,LDB*N*nthr,
-     >                           'Btid',Btid(2),Btid(1)))
-     >         call errquit('DGEMM_OMP: out of stack',1,MA_ERR)
-            Bshift = Btid(1)+tid*N*N
-            call dcopy(LDB*N,B,1,dbl_mb(Bshift),1)
-            call DGEMM(TRANSA,TRANSB,Mtid,N,K,ALPHA,A(Itid,1),LDA,
-     >                 dbl_mb(Bshift),LDB,
+            call DGEMM(TRANSA,TRANSB,Mtid,N,K,ALPHA,A(Itid,1),LDA,B,LDB,
      >                 BETA,C(Itid,1),LDC)
-            if (.not.BA_pop_stack(Btid(2)))
-     >         call errquit('DGEMM_OMP: popping stack',2,MA_ERR)
  
+
           ELSE
 *
 *           Form  C := alpha*A'*B + beta*C

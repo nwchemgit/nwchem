@@ -52,21 +52,23 @@
       nthr = omp_get_num_threads()
       r    = mod(M,nthr)
       if (tid.lt.r) then
-          !Itid = tid*(M/nthr+1) + 1
-          Itid = tid*(M/nthr+1)*N + 1
+          Itid = tid*(M/nthr+1) + 1
+          !Itid = tid*(M/nthr+1)*N + 1
           Mtid = M/nthr + 1
       else
-          !Itid = r + tid*(M/nthr) + 1
-          Itid = (r + tid*(M/nthr))*N + 1
+          Itid = r + tid*(M/nthr) + 1
+          !Itid = (r + tid*(M/nthr))*N + 1
           Mtid = M/nthr
       end if
       write(*,*) tid,"  Itid,Mtid,N,K=",Itid,Mtid,N,K
       call DGEMM('N','N',Mtid,N,K,
      >        1.0d0,
-     >        A(Itid),Mtid,
+     >        A(Itid),M,
      >        B,K,
      >        0.0d0,
-     >        C(Itid),Mtid)
+     >        C(Itid),M)
      
+!$OMP BARRIER
+
        return
        end
