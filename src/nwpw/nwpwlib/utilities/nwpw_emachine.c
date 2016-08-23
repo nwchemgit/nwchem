@@ -206,6 +206,7 @@ static void nwpw_gencode(Integer code[], double fconst[], int ln, char expr[])
       nwpw_gencode(code,fconst,lnl,lexpr);
       nwpw_gencode(code,fconst,lnr,rexpr);
    }
+
    else if ((t=nwpw_findtoken(expr,"sumii")) >= 0)
    {
       nwpw_findsestride(&expr[t+6],&s,&e,&stride);
