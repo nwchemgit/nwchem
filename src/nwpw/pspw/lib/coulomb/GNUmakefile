@@ -5,7 +5,8 @@
  OBJ_OPTIMIZE = \
             coulomb.o \
 			coulomb2.o \
-			coulomb_screened.o 
+			coulomb_screened.o \
+			coulomb_screened_small.o 
 
 
 
@@ -13,7 +14,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = coulomb.F coulomb2.F coulomb_screened.F 
+    USES_BLAS = coulomb.F coulomb2.F coulomb_screened.F coulomb_screened_small.F
 
   LIB_DEFINES = 
 
