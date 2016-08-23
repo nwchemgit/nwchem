@@ -228,7 +228,7 @@
          if (.not.status) symbol = 'X'
 !
          write(MOLDEN_UNIT,300) symbol,iat,nint(qnuc),(coord(j),j=1,3)
- 300     format(1x,a4,1x,i4,1x,i4,1x,3f15.8)
+ 300     format(1x,a4,1x,i4,1x,i4,1x,3f17.10)
 !
       enddo
 !
@@ -322,7 +322,7 @@
 !
          do iprimo = 1, nprimo
             write(MOLDEN_UNIT,700) exp(iprimo),coeff(iprimo)
- 700        format(1x,f14.8,1x,f14.8)
+ 700        format(1x,f16.10,1x,f16.10)
          enddo
         enddo
         write(MOLDEN_UNIT,*)
@@ -375,8 +375,6 @@
 ! external function declarations
       logical sym_char_table
       external sym_char_table
-      logical bas_geom
-      external bas_geom
 !
       status = bas_geom(basis, geom)
       if (.not.status)
@@ -447,9 +445,9 @@
            csym = zir(sym(orb))
            write(MOLDEN_UNIT,100) csym,eval(orb),cspin,occ(orb)
  100       format('Sym= ', a12/
-     1            'Ene= ', f12.5/
+     1            'Ene= ', E22.14/
      2            'Spin= ', a11/
-     3            'Occup= ', f10.5)
+     3            'Occup= ', f18.10)
            do aof = 1, nbf
 !              write(MOLDEN_UNIT,200) aof,dbl_mb(k_vec + aof - 1)
               write(MOLDEN_UNIT,200) aof,reordered_mo(aof)

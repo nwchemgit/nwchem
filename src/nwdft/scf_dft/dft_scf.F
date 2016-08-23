@@ -237,6 +237,7 @@ c
 
 C     RTDB flag for printing out all matrices
       logical lprint_mats
+      logical molden
 
 c
       gcds = 0.d0
@@ -2122,6 +2123,16 @@ c
      &          .true., dbl_mb(k_occ+(ispin-1)*nbf_ao))
          endif
       enddo
+
+      if (.not. rtdb_get(rtdb, 'dft:molden', mt_log, 1, molden))
+     &   molden=.false.
+      if(molden) call dft_nwmolden(rtdb,geom,
+     I     ipol,dbl_mb(k_eval(1)),
+     O     dbl_mb(k_occ),
+     I     int_mb(k_ir),
+     N     nbf_ao, nmo,
+     I     g_movecs,scftype)
+
       if (oprint_final_vecs) then
          if (me .eq. 0) then
             call util_print_centered(6,'Final MO vectors',40,.true.)
