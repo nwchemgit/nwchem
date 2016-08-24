@@ -5921,3 +5921,589 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       return
       end
 
+
+
+
+*     ***********************************
+*     *                                 *
+*     *       D3dB_r_1to3_Contract      *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_r_1to3_Contract(center,A,B,tmp1,tmp2)
+      implicit none
+      integer center(3)
+      real*8 A(*),B(*)
+      real*8 tmp1(*),tmp2(*)
+
+#include "bafdecls.fh"
+#include "mpif.h"
+#include "D3dB.fh"
+#include "errquit.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
+*     **** local variables ****
+      logical value
+      integer taskid,np
+      integer proc_to,proc_from,source
+      integer indxbig,pbig,indxsmall,psmall,itmp
+      integer index1,index2,msgtype,msglen
+      integer k1,k2,k3,l1,l2,l3,i,j,k,il,jl,kl,it
+      integer nxh,nyh,nzh,nxh_small,nyh_small,nzh_small
+      integer pindex1(2),pindex2(2),ic1_start(2),ic2_start(2)
+      integer c_iq_to_i1(2),c_iq_to_i2(2)
+      integer reqcnt,request(2)
+      integer mpierr
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
+
+
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
+
+      !**** allocate temporary space from stack ****
+c     pindex1(np),pindex2(np),ic1_start(np+1),ic2_start(np+1)
+c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
+      value = BA_push_get(mt_int,np,'request',request(2),request(1))
+      value = value.and.
+     >        BA_push_get(mt_int,np,'pindex1',pindex1(2),pindex1(1))
+      value = value.and.
+     >        BA_push_get(mt_int,np,'pindex2',pindex2(2),pindex2(1))
+      value = value.and.
+     >        BA_push_get(mt_int,np+1,'ic1_start',
+     >                    ic1_start(2),ic1_start(1))
+      value = value.and.
+     >        BA_push_get(mt_int,np+1,'ic2_start',
+     >                    ic2_start(2),ic2_start(1))
+      value = value.and.
+     >        BA_push_get(mt_int,n2ft3d(1),'c_iq_to_i1',
+     >                    c_iq_to_i1(2),c_iq_to_i1(1))
+      value = value.and.
+     >        BA_push_get(mt_int,n2ft3d(1),'c_iq_to_i2',
+     >                    c_iq_to_i2(2),c_iq_to_i2(1))
+      if (.not.value)
+     >   call errquit('D3dB_r_1to3_Contract:out of stack',0,MA_ERR)
+
+
+      nxh = nx(1)/2
+      nyh = ny(1)/2
+      nzh = nz(1)/2
+
+      nxh_small = nx(3)/2
+      nyh_small = ny(3)/2
+      nzh_small = nz(3)/2
+
+!$OMP MASTER
+      do it=0,np-1
+         int_mb(pindex1(1)+it) = 0
+         int_mb(pindex2(1)+it) = 0
+      end do
+      do k3=-nzh_small,nzh_small-1
+         l3 = k3 + center(3)
+         if (l3.lt.(-nzh))  l3 = l3 + nz(1)
+         if (l3.gt.(nzh-1)) l3 = l3 - nz(1)
+         k  = k3 + nzh_small
+         kl = l3 + nzh
+
+         do k2=-nyh_small,nyh_small-1
+            l2 = k2 + center(2)
+            if (l2.lt.(-nyh))  l2 = l2 + ny(1)
+            if (l2.gt.(nyh-1)) l2 = l2 - ny(1)
+            j  = k2 + nyh_small
+            jl = l2 + nyh
+
+            do k1=-nxh_small,nxh_small-1
+               l1 = k1 + center(1)
+               if (l1.lt.(-nxh))  l1 = l1 + nx(1)
+               if (l1.gt.(nxh-1)) l1 = l1 - nx(1)
+               i  = k1 + nxh_small
+               il = l1 + nxh
+
+               call D3dB_ijktoindex2p(1,il+1,jl+1,kl+1,indxbig,pbig)
+               call D3dB_ijktoindex2p(3,i+1,j+1,k+1,indxsmall,psmall)
+
+*              **** packing scheme **** 
+               if (pbig.eq.taskid) then
+                  int_mb(pindex1(1)+psmall)=int_mb(pindex1(1)+psmall)+1
+               end if
+
+*              **** unpacking scheme **** 
+               if (psmall.eq.taskid) then
+                  int_mb(pindex2(1)+pbig) = int_mb(pindex2(1)+pbig)+1
+               end if
+
+            end do
+         end do
+      end do
+      index1 = 1
+      index2 = 1
+      do it=0,np-1
+         proc_to   = mod(taskid+it,np)
+         proc_from = mod(taskid-it+np,np)
+         int_mb(ic1_start(1)+it) = index1
+         int_mb(ic2_start(1)+it) = index2
+         index1 = index1 + int_mb(pindex1(1)+proc_to)
+         index2 = index2 + int_mb(pindex2(1)+proc_from)
+      end do
+      int_mb(ic1_start(1)+np) = index1
+      int_mb(ic2_start(1)+np) = index2
+
+      do it=0,np-1
+         int_mb(pindex1(1)+it) = 0
+         int_mb(pindex2(1)+it) = 0
+      end do
+      do k3=-nzh_small,nzh_small-1
+         l3 = k3 + center(3)
+         if (l3.lt.(-nzh))  l3 = l3 + nz(1)
+         if (l3.gt.(nzh-1)) l3 = l3 - nz(1)
+         k  = k3 + nzh_small
+         kl = l3 + nzh
+
+         do k2=-nyh_small,nyh_small-1
+            l2 = k2 + center(2)
+            if (l2.lt.(-nyh))  l2 = l2 + ny(1)
+            if (l2.gt.(nyh-1)) l2 = l2 - ny(1)
+            j  = k2 + nyh_small
+            jl = l2 + nyh
+
+            do k1=-nxh_small,nxh_small-1
+               l1 = k1 + center(1)
+               if (l1.lt.(-nxh))  l1 = l1 + nx(1)
+               if (l1.gt.(nxh-1)) l1 = l1 - nx(1)
+               i  = k1 + nxh_small
+               il = l1 + nxh
+
+               call D3dB_ijktoindex2p(1,il+1,jl+1,kl+1,indxbig,pbig)
+               call D3dB_ijktoindex2p(3,i+1,j+1,k+1,indxsmall,psmall)
+
+*              **** packing scheme **** 
+               if (pbig.eq.taskid) then
+                  itmp = int_mb(ic1_start(1)+psmall) 
+     >                 + int_mb(pindex1(1)+psmall)
+                  int_mb(c_iq_to_i1(1)+itmp-1) = indxbig
+                  int_mb(pindex1(1)+psmall)=int_mb(pindex1(1)+psmall)+1
+               end if
+
+*              **** unpacking scheme **** 
+               if (psmall.eq.taskid) then
+                  itmp = int_mb(ic2_start(1)+pbig) 
+     >                 + int_mb(pindex2(1)+pbig)
+                  int_mb(c_iq_to_i2(1)+itmp-1) = indxsmall
+                  int_mb(pindex2(1)+pbig) = int_mb(pindex2(1)+pbig)+1
+               end if
+
+            end do
+         end do
+      end do
+!$OMP END MASTER
+!$OMP BARRIER
+
+
+*     **** pack A(i) array ****
+!$OMP DO
+      do i=1,index1-1
+         tmp1(i) = A(int_mb(c_iq_to_i1(1)+i-1)) 
+      end do
+!$OMP END DO
+
+*     **** it = 0, transpose data on same thread ****  
+      msglen = int_mb(ic2_start(1)+2-1) - int_mb(ic2_start(1)+1-1)
+
+      call Parallel_shared_vector_copy(.false.,2*msglen,
+     >               tmp1(int_mb(ic1_start(1)+1-1)),
+     >               tmp2(int_mb(ic2_start(1)+1-1)))
+
+
+!$OMP MASTER
+*     **** receive packed array data ****
+      reqcnt = 0
+      do it = 1,np-1
+
+*        **** synchronous receive of tmp ****
+         proc_from = mod((taskid)-it+np, np)
+
+         msgtype = 93
+         source=proc_from
+         msglen = (int_mb(ic2_start(1)+it+2-1)
+     >          -  int_mb(ic2_start(1)+it+1-1))
+
+
+         if (msglen.gt.0) then
+            reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(source)
+            call MPI_IRECV(tmp2(int_mb(ic2_start(1)+it+1-1)),
+     >                    stupid_msglen,stupid_double,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr)
+            int_mb(request(1)+reqcnt-1) = 0
+            int_mb(request(1)+reqcnt-1) = stupid_request
+#else
+            call MPI_IRECV(tmp2(int_mb(ic2_start(1)+it+1-1)),
+     >                    msglen,MPI_DOUBLE_PRECISION,
+     >                    Parallel2d_convert_taskid_i(source),
+     >                    msgtype,Parallel_comm_world(),
+     >                    int_mb(request(1)+reqcnt-1),mpierr)
+#endif
+         end if
+
+      end do
+
+*     **** send packed array to other processors ****
+      do it = 1,np-1
+
+*        **** synchronous send of tmp ****
+         proc_to   = mod((taskid)+it, np)
+         msglen    = (int_mb(ic1_start(1)+it+2-1)
+     >              - int_mb(ic1_start(1)+it+1-1))
+         msgtype   = 93
+
+         if (msglen.gt.0) then
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
+            call MPI_SEND(tmp1(int_mb(ic1_start(1)+it+1-1)),
+     >                     stupid_msglen,stupid_double,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,stupid_ierr)
+#else
+            call MPI_SEND(tmp1(int_mb(ic1_start(1)+it+1-1)),
+     >                     msglen,MPI_DOUBLE_PRECISION,
+     >                     Parallel2d_convert_taskid_i(proc_to),
+     >                     msgtype,Parallel_comm_world(),mpierr)
+#endif
+         end if
+
+      end do
+
+
+*     **** wait for completion of mp_send, also do a sync ****
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,int_mb(request(1)))
+
+!$OMP END MASTER
+!$OMP BARRIER
+
+*     **** unpack B(i) array ****
+!$OMP DO
+      do i=1,index2-1
+         B(int_mb(c_iq_to_i2(1)+i-1)) = tmp2(i)
+      end do
+!$OMP END DO
+
+
+      !**** deallocate temporary space from stack ****
+      value =           BA_pop_stack(c_iq_to_i2(2))
+      value = value.and.BA_pop_stack(c_iq_to_i1(2))
+      value = value.and.BA_pop_stack(ic2_start(2))
+      value = value.and.BA_pop_stack(ic1_start(2))
+      value = value.and.BA_pop_stack(pindex2(2))
+      value = value.and.BA_pop_stack(pindex1(2))
+      value = value.and.BA_pop_stack(request(2))
+      if (.not.value)
+     >   call errquit('D3dB_r_1to3_Contract:popping stack',0,MA_ERR)
+
+      return
+      end
+
+
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *       D3dB_r_3to1_Expand        *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_r_3to1_Expand(center,A,B,tmp1,tmp2)
+      implicit none
+      integer center(3)
+      real*8 A(*),B(*)
+      real*8 tmp1(*),tmp2(*)
+
+#include "bafdecls.fh"
+#include "mpif.h"
+#include "D3dB.fh"
+#include "errquit.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
+
+*     **** local variables ****
+      logical value
+      integer taskid,np
+      integer proc_to,proc_from,source
+      integer indxbig,pbig,indxsmall,psmall,itmp
+      integer index1,index2,msgtype,msglen
+      integer k1,k2,k3,l1,l2,l3,i,j,k,il,jl,kl,it
+      integer nxh,nyh,nzh,nxh_small,nyh_small,nzh_small
+      integer pindex1(2),pindex2(2),ic1_start(2),ic2_start(2)
+      integer c_iq_to_i1(2),c_iq_to_i2(2)
+      integer reqcnt,request(2)
+      integer mpierr
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
+
+
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
+      call Parallel_shared_vector_zero(.false.,n2ft3d(1),B)
+
+      !**** allocate temporary space from stack ****
+      value = BA_push_get(mt_int,np,'request',request(2),request(1))
+      value = value.and.
+     >        BA_push_get(mt_int,np,'pindex1',pindex1(2),pindex1(1))
+      value = value.and.
+     >        BA_push_get(mt_int,np,'pindex2',pindex2(2),pindex2(1))
+      value = value.and.
+     >        BA_push_get(mt_int,np+1,'ic1_start',
+     >                    ic1_start(2),ic1_start(1))
+      value = value.and.
+     >        BA_push_get(mt_int,np+1,'ic2_start',
+     >                    ic2_start(2),ic2_start(1))
+      value = value.and.
+     >        BA_push_get(mt_int,n2ft3d(1),'c_iq_to_i1',
+     >                    c_iq_to_i1(2),c_iq_to_i1(1))
+      value = value.and.
+     >        BA_push_get(mt_int,n2ft3d(1),'c_iq_to_i2',
+     >                    c_iq_to_i2(2),c_iq_to_i2(1))
+      if (.not.value)
+     >   call errquit('D3dB_r_3to1_Expand:out of stack',0,MA_ERR)
+
+
+      nxh = nx(1)/2
+      nyh = ny(1)/2
+      nzh = nz(1)/2
+
+      nxh_small = nx(3)/2
+      nyh_small = ny(3)/2
+      nzh_small = nz(3)/2
+
+!$OMP MASTER
+      do it=0,np-1
+         int_mb(pindex1(1)+it) = 0
+         int_mb(pindex2(1)+it) = 0
+      end do
+      do k3=-nzh_small,nzh_small-1
+         l3 = k3 + center(3)
+         if (l3.lt.(-nzh))  l3 = l3 + nz(1)
+         if (l3.gt.(nzh-1)) l3 = l3 - nz(1)
+         k  = k3 + nzh_small
+         kl = l3 + nzh
+
+         do k2=-nyh_small,nyh_small-1
+            l2 = k2 + center(2)
+            if (l2.lt.(-nyh))  l2 = l2 + ny(1)
+            if (l2.gt.(nyh-1)) l2 = l2 - ny(1)
+            j  = k2 + nyh_small
+            jl = l2 + nyh
+
+            do k1=-nxh_small,nxh_small-1
+               l1 = k1 + center(1)
+               if (l1.lt.(-nxh))  l1 = l1 + nx(1)
+               if (l1.gt.(nxh-1)) l1 = l1 - nx(1)
+               i  = k1 + nxh_small
+               il = l1 + nxh
+
+               call D3dB_ijktoindex2p(1,il+1,jl+1,kl+1,indxbig,pbig)
+               call D3dB_ijktoindex2p(3,i+1,j+1,k+1,indxsmall,psmall)
+
+*              **** packing scheme **** 
+               if (psmall.eq.taskid) then
+                  int_mb(pindex1(1)+pbig) = int_mb(pindex1(1)+pbig)+1
+               end if
+
+*              **** unpacking scheme **** 
+               if (pbig.eq.taskid) then
+                  int_mb(pindex2(1)+psmall)=int_mb(pindex2(1)+psmall)+1
+               end if
+
+            end do
+         end do
+      end do
+      index1 = 1
+      index2 = 1
+      do it=0,np-1
+         proc_to   = mod(taskid+it,np)
+         proc_from = mod(taskid-it+np,np)
+         int_mb(ic1_start(1)+it) = index1
+         int_mb(ic2_start(1)+it) = index2
+         index1 = index1 + int_mb(pindex1(1)+proc_to)
+         index2 = index2 + int_mb(pindex2(1)+proc_from)
+      end do
+      int_mb(ic1_start(1)+np) = index1
+      int_mb(ic2_start(1)+np) = index2
+
+      do it=0,np-1
+         int_mb(pindex1(1)+it) = 0
+         int_mb(pindex2(1)+it) = 0
+      end do
+      do k3=-nzh_small,nzh_small-1
+         l3 = k3 + center(3)
+         if (l3.lt.(-nzh))  l3 = l3 + nz(1)
+         if (l3.gt.(nzh-1)) l3 = l3 - nz(1)
+         k  = k3 + nzh_small
+         kl = l3 + nzh
+
+         do k2=-nyh_small,nyh_small-1
+            l2 = k2 + center(2)
+            if (l2.lt.(-nyh))  l2 = l2 + ny(1)
+            if (l2.gt.(nyh-1)) l2 = l2 - ny(1)
+            j  = k2 + nyh_small
+            jl = l2 + nyh
+
+            do k1=-nxh_small,nxh_small-1
+               l1 = k1 + center(1)
+               if (l1.lt.(-nxh))  l1 = l1 + nx(1)
+               if (l1.gt.(nxh-1)) l1 = l1 - nx(1)
+               i  = k1 + nxh_small
+               il = l1 + nxh
+
+               call D3dB_ijktoindex2p(1,il+1,jl+1,kl+1,indxbig,pbig)
+               call D3dB_ijktoindex2p(3,i+1,j+1,k+1,indxsmall,psmall)
+
+*              **** packing scheme **** 
+               if (psmall.eq.taskid) then
+                  itmp = int_mb(ic1_start(1)+pbig) 
+     >                 + int_mb(pindex1(1)+pbig)
+                  int_mb(c_iq_to_i1(1)+itmp-1) = indxsmall
+                  int_mb(pindex1(1)+pbig) = int_mb(pindex1(1)+pbig)+1
+               end if
+
+*              **** unpacking scheme **** 
+               if (pbig.eq.taskid) then
+                  itmp = int_mb(ic2_start(1)+psmall) 
+     >                 + int_mb(pindex2(1)+psmall)
+                  int_mb(c_iq_to_i2(1)+itmp-1) = indxbig
+                  int_mb(pindex2(1)+psmall)=int_mb(pindex2(1)+psmall)+1
+               end if
+
+
+            end do
+         end do
+      end do
+!$OMP END MASTER
+!$OMP BARRIER
+
+
+*     **** pack A(i) array ****
+!$OMP DO
+      do i=1,index1-1
+         tmp1(i) = A(int_mb(c_iq_to_i1(1)+i-1)) 
+      end do
+!$OMP END DO
+
+*     **** it = 0, transpose data on same thread ****  
+      msglen = int_mb(ic2_start(1)+2-1) - int_mb(ic2_start(1)+1-1)
+
+      call Parallel_shared_vector_copy(.false.,2*msglen,
+     >               tmp1(int_mb(ic1_start(1)+1-1)),
+     >               tmp2(int_mb(ic2_start(1)+1-1)))
+
+
+!$OMP MASTER
+*     **** receive packed array data ****
+      reqcnt = 0
+      do it = 1,np-1
+
+*        **** synchronous receive of tmp ****
+         proc_from = mod((taskid)-it+np, np)
+
+         msgtype = 94
+         source=proc_from
+         msglen = (int_mb(ic2_start(1)+it+2-1)
+     >          -  int_mb(ic2_start(1)+it+1-1))
+
+
+         if (msglen.gt.0) then
+            reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(source)
+            call MPI_IRECV(tmp2(int_mb(ic2_start(1)+it+1-1)),
+     >                    stupid_msglen,stupid_double,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr)
+            int_mb(request(1)+reqcnt-1) = 0
+            int_mb(request(1)+reqcnt-1) = stupid_request
+#else
+            call MPI_IRECV(tmp2(int_mb(ic2_start(1)+it+1-1)),
+     >                    msglen,MPI_DOUBLE_PRECISION,
+     >                    Parallel2d_convert_taskid_i(source),
+     >                    msgtype,Parallel_comm_world(),
+     >                    int_mb(request(1)+reqcnt-1),mpierr)
+#endif
+         end if
+
+      end do
+
+*     **** send packed array to other processors ****
+      do it = 1,np-1
+
+*        **** synchronous send of tmp ****
+         proc_to   = mod((taskid)+it, np)
+         msglen    = (int_mb(ic1_start(1)+it+2-1)
+     >              - int_mb(ic1_start(1)+it+1-1))
+         msgtype   = 94
+
+         if (msglen.gt.0) then
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
+            call MPI_SEND(tmp1(int_mb(ic1_start(1)+it+1-1)),
+     >                     stupid_msglen,stupid_double,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,stupid_ierr)
+#else
+            call MPI_SEND(tmp1(int_mb(ic1_start(1)+it+1-1)),
+     >                     msglen,MPI_DOUBLE_PRECISION,
+     >                     Parallel2d_convert_taskid_i(proc_to),
+     >                     msgtype,Parallel_comm_world(),mpierr)
+#endif
+         end if
+
+      end do
+
+
+*     **** wait for completion of mp_send, also do a sync ****
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,int_mb(request(1)))
+
+!$OMP END MASTER
+!$OMP BARRIER
+
+*     **** unpack B(i) array ****
+!$OMP DO
+      do i=1,index2-1
+         B(int_mb(c_iq_to_i2(1)+i-1)) = tmp2(i)
+      end do
+!$OMP END DO
+
+
+      !**** deallocate temporary space from stack ****
+      value =           BA_pop_stack(c_iq_to_i2(2))
+      value = value.and.BA_pop_stack(c_iq_to_i1(2))
+      value = value.and.BA_pop_stack(ic2_start(2))
+      value = value.and.BA_pop_stack(ic1_start(2))
+      value = value.and.BA_pop_stack(pindex2(2))
+      value = value.and.BA_pop_stack(pindex1(2))
+      value = value.and.BA_pop_stack(request(2))
+      if (.not.value)
+     >   call errquit('D3dB_r_3to1_Expand:popping stack',0,MA_ERR)
+
+      return
+      end

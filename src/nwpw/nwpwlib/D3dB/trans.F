@@ -95,9 +95,9 @@ cb      write(*,*) "Thread doing the job ",Parallel_threadid()
            
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
                itmp = i + (qhere-1)*(nx(nb)/2+1)
-               if (itmp.ge.((nx(nb)/2+1)*nq1(nb))) then 
+c               if (itmp.ge.((nx(nb)/2+1)*nq1(nb))) then 
 c                 call abort()
-               end if
+c               end if
                int_mb(h_iq_to_i1(1,1,nb)+itmp-1) = index1
                index1 = index1 + 1
             end if
@@ -105,9 +105,9 @@ c                 call abort()
             if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
                itmp = j + (qto-1)*ny(nb)
 
-               if (itmp.ge.(ny(nb)*nq2(nb))) then 
+c               if (itmp.ge.(ny(nb)*nq2(nb))) then 
 c                 call abort()
-               end if
+c               end if
                int_mb(h_iq_to_i2(1,1,nb)+itmp-1) = index2
                index2 = index2 + 1
             end if

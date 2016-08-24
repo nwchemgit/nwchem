@@ -5306,9 +5306,8 @@ c      call dcopy(n2ft3d(nb1),0.0d0,0,A,1)
       integer nb
 
 #include "bafdecls.fh"
-#include "errquit.fh"
-
 #include "D3dB.fh"
+#include "errquit.fh"
 
 c     integer iq_to_i1(2*NFFT2*NSLABS)
 c     integer iq_to_i2(2*NFFT2*NSLABS)
@@ -5473,10 +5472,10 @@ c     i2_start(np+1) = index2
 *     ***********************************
       subroutine D3dB_timereverse_end(nb)
       implicit none
-#include "errquit.fh"
       integer nb
 
 #include "bafdecls.fh"
+#include "errquit.fh"
 
 c     integer iq_to_i1((NFFT1/2+1)*NFFT2*NSLABS)
 c     integer iq_to_i2((NFFT1/2+1)*NFFT2*NSLABS)
@@ -5555,3 +5554,6 @@ c     integer i2_start(NFFT3+1)
 !$OMP END DO
       return
       end
+
+
+
