@@ -253,10 +253,13 @@ endif
     endif
 
 # -U option needed for introducing timestamps in libraries
-# see https://bugzilla.redhat.com/show_bug.cgi?id=1195883
-    ifdef USE_ARUR
-        ARFLAGS = rU
-    endif
+# see https://bugzilla.redhat.com/show_bug.cgi?id=1195883  (RedHat backtracked)
+# see https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=798913                                                                     
+# see https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=798804 (Debian did not backtrack)                                          
+  USE_ARUR = $(shell rm -f aru.tmp;ar -U >&  aru.tmp; head -1 aru.tmp| awk ' /no\ operation/ {print "Y";exit};{print "N"}')                         
+      ifeq ($(USE_ARUR),$(findstring $(USE_ARUR),"Y" "1"))
+        ARFLAGS = rU                                                                                                               
+    endif           
 # strip long paths
    _FC = $(notdir $(FC))
    _CC = $(notdir $(CC))
