@@ -1020,6 +1020,7 @@ ifeq ($(TARGET),MACX64)
      FC = gfortran
      _FC = gfortran
    endif
+   _FC = $(notdir $(FC))
    ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5))
      _FC = gfortran
    endif
@@ -1499,6 +1500,7 @@ endif
 ifneq ($(TARGET),LINUX)
 ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CYGWIN64 CATAMOUNT))
      GOTMINGW64=$(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW64|cut -c21)
+   _FC = $(notdir $(FC))
 ifeq ($(GOTMINGW64),1)
      _CPU = x86_64
 else
