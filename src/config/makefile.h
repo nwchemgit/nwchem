@@ -260,9 +260,13 @@ endif
       ifeq ($(USE_ARUR),$(findstring $(USE_ARUR),"Y" "1"))
         ARFLAGS = rU                                                                                                               
     endif           
-# strip long paths
+# strip long paths when FC and/or CC are set from user
+  ifneq ($(FC),f77)
    _FC = $(notdir $(FC))
+  endif
+  ifneq ($(CC),cc)
    _CC = $(notdir $(CC))
+  endif
 #
 # Machine specific stuff
 #
