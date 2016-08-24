@@ -27,7 +27,7 @@ c
 #include "cosmo.fh"
 #include "zora.fh"
 #include "case.fh"
-#include "dimqm.fh"
+c#include "dimqm.fh"
 c
       integer g_fock,g_dens(2),g_vxc(4),g_movecs(2) ! [handle in/values out]
       integer g_focks(2)
@@ -86,6 +86,7 @@ c DIM/QM variables
 c
       double precision g_vdim
       double precision Edim
+      logical ldimqm, dimqm_go,use_dimqm
 c
 cc AJL/Begin/SPIN ECPs
       integer ecp_channels
@@ -124,6 +125,15 @@ c
 c
 c <-- MN solvation models
 c
+      use_dimqm = util_module_avail("dimqm")
+      if (use_dimqm) then
+         call dimqm_init(rtdb)
+         call dimqm_used(ldimqm)
+         call dimqm_getgo(dimqm_go)
+      else
+         ldimqm=.false.
+         dimqm_go=.false.
+      endif
 c     =========================================================================
 
       me=ga_nodeid()
