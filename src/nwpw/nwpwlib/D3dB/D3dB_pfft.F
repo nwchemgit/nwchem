@@ -1684,12 +1684,12 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
      >                      h_iq_to_i1(2,2,nbb),
      >                      h_iq_to_i1(1,2,nbb))
       value = value.and.
-     >        BA_alloc_get(mt_int,(nz(id)*nq3(1)),
+     >        BA_alloc_get(mt_int,(nz(id)*nq3(id)),
      >                     'h_iq_to_i2_2',
      >                      h_iq_to_i2(2,2,nbb),
      >                      h_iq_to_i2(1,2,nbb))
       value = value.and.
-     >        BA_alloc_get(mt_int,(nz(id)*nq3(1)),
+     >        BA_alloc_get(mt_int,(nz(id)*nq3(id)),
      >                     'h_iz_to_i2_2',
      >                      h_iz_to_i2(2,2,nbb),
      >                      h_iz_to_i2(1,2,nbb))
@@ -2964,7 +2964,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     ********************************************
 #ifdef MLIB
       indx = 1
-      do q=1,nq3(1)
+      do q=1,nq3(id)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
          call z1dfft(tmp2(indx),nz(id),dcpl_mb(tmpz(1,id)),1,ierr)
          end if
@@ -2973,7 +2973,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #else
 #ifdef FFTW3
       indx = 1
-      do q=1,nq3(1)
+      do q=1,nq3(id)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
             call dfftw_execute_dft(plans(20,1),tmp2(indx),tmp2(indx))
          end if
@@ -2983,7 +2983,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       !indx = 1
       offset = tid*(2*nz(id)+15)
-      do q=tid+1,nq3(1),nthr
+      do q=tid+1,nq3(id),nthr
          indx = 1+(q-1)*nz(id)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
             call dcfftf(nz(id),tmp2(indx),dcpl_mb(tmpz(1,id)+offset))
@@ -3240,7 +3240,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     *************************************************
 #ifdef MLIB
       indx = 1
-      do q=1,nq3(1)
+      do q=1,nq3(id)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
          call z1dfft(tmp1(indx),nz(id),dcpl_mb(tmpz(1,id)),-2,ierr)
          end if
@@ -3249,7 +3249,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #else
 #ifdef FFTW3
       indx = 1
-      do q=1,nq3(1)
+      do q=1,nq3(id)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
             call dfftw_execute_dft(plans(17,1),tmp1(indx),tmp1(indx))
          end if
@@ -3259,7 +3259,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
       !indx = 1
-      do q=1+tid,nq3(1),nthr
+      do q=1+tid,nq3(id),nthr
          indx = 1 + (q-1)*nz(id)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
             call dcfftb(nz(id),tmp1(indx),

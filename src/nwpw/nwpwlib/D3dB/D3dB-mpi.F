@@ -5969,22 +5969,22 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       !**** allocate temporary space from stack ****
 c     pindex1(np),pindex2(np),ic1_start(np+1),ic2_start(np+1)
 c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
-      value = BA_push_get(mt_int,np,'request',request(2),request(1))
+      value = BA_push_get(mt_int,np,'request_1t3',request(2),request(1))
       value = value.and.
-     >        BA_push_get(mt_int,np,'pindex1',pindex1(2),pindex1(1))
+     >        BA_push_get(mt_int,np,'pindex1_1t3',pindex1(2),pindex1(1))
       value = value.and.
-     >        BA_push_get(mt_int,np,'pindex2',pindex2(2),pindex2(1))
+     >        BA_push_get(mt_int,np,'pindex2_1t3',pindex2(2),pindex2(1))
       value = value.and.
-     >        BA_push_get(mt_int,np+1,'ic1_start',
+     >        BA_push_get(mt_int,np+1,'ic1_start_1t3',
      >                    ic1_start(2),ic1_start(1))
       value = value.and.
-     >        BA_push_get(mt_int,np+1,'ic2_start',
+     >        BA_push_get(mt_int,np+1,'ic2_start_1t3',
      >                    ic2_start(2),ic2_start(1))
       value = value.and.
-     >        BA_push_get(mt_int,n2ft3d(1),'c_iq_to_i1',
+     >        BA_push_get(mt_int,n2ft3d(1),'c_iq_to_i1_1t3',
      >                    c_iq_to_i1(2),c_iq_to_i1(1))
       value = value.and.
-     >        BA_push_get(mt_int,n2ft3d(1),'c_iq_to_i2',
+     >        BA_push_get(mt_int,n2ft3d(1),'c_iq_to_i2_1t3',
      >                    c_iq_to_i2(2),c_iq_to_i2(1))
       if (.not.value)
      >   call errquit('D3dB_r_1to3_Contract:out of stack',0,MA_ERR)
@@ -6114,12 +6114,12 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(ic2_start(1)+2-1) - int_mb(ic2_start(1)+1-1)
 
-      call Parallel_shared_vector_copy(.false.,2*msglen,
+      call Parallel_shared_vector_copy(.false.,msglen,
      >               tmp1(int_mb(ic1_start(1)+1-1)),
      >               tmp2(int_mb(ic2_start(1)+1-1)))
 
-
 !$OMP MASTER
+
 *     **** receive packed array data ****
       reqcnt = 0
       do it = 1,np-1
@@ -6131,6 +6131,7 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
          source=proc_from
          msglen = (int_mb(ic2_start(1)+it+2-1)
      >          -  int_mb(ic2_start(1)+it+1-1))
+
 
 
          if (msglen.gt.0) then
@@ -6409,7 +6410,7 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(ic2_start(1)+2-1) - int_mb(ic2_start(1)+1-1)
 
-      call Parallel_shared_vector_copy(.false.,2*msglen,
+      call Parallel_shared_vector_copy(.false.,msglen,
      >               tmp1(int_mb(ic1_start(1)+1-1)),
      >               tmp2(int_mb(ic2_start(1)+1-1)))
 
