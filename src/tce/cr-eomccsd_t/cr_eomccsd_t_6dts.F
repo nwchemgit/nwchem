@@ -68,8 +68,13 @@ c -------------
       integer k_d2_offset
 c -- 6DTS --
       integer dp4,dp5,ii,jj,istart,istop,jstart,jstop
+      integer mdp4,mdp5
       integer maxp4,maxp5
-      double precision xlocal
+      integer slice_dp4,slice_dp5,qp4,qp5
+ccx      double precision xlocal
+      integer xlocal
+      integer range_p4,range_p5,range_p6
+      integer range_h1,range_h2,range_h3
 c ----
 c === jaguar ===
       integer xmem
@@ -362,19 +367,29 @@ c
 c
 c Symmetry control (above)
 c -- 6DTS --
+            range_p4 = int_mb(k_range+t_p4b-1)
+            range_p5 = int_mb(k_range+t_p5b-1)
+            range_p6 = int_mb(k_range+t_p6b-1)
+            range_h1 = int_mb(k_range+t_h1b-1)
+            range_h2 = int_mb(k_range+t_h2b-1)
+            range_h3 = int_mb(k_range+t_h3b-1)
+c
             dp4=1
-            dp5=1 
+            dp5=1
   300       continue
-            if(dp4.eq.int_mb(k_range+t_p4b-1).and.
-     1         dp5.eq.int_mb(k_range+t_p5b-1)) 
-     2      call errquit('6DTS error',3,MA_ERR)
-            xlocal=dble(int_mb(k_range+t_p4b-1)
-     1           * int_mb(k_range+t_p5b-1)
+            xlocal=((int_mb(k_range+t_p4b-1)/dp4)
+     1           *  (int_mb(k_range+t_p5b-1)/dp5))
      2           * int_mb(k_range+t_p6b-1)
      3           * int_mb(k_range+t_h1b-1)
      4           * int_mb(k_range+t_h2b-1)
-     5           * int_mb(k_range+t_h3b-1))/(dble(dp4)*dble(dp5))
-            if((xlocal*8.0d0)/(1024.0*1024.0).gt.dble(xmem)) then
+     5           * int_mb(k_range+t_h3b-1)
+c
+            slice_dp4=range_p4/dp4
+            qp4=range_p4/slice_dp4
+            slice_dp5=range_p5/dp5
+            qp5=range_p5/slice_dp5
+c
+            if((xlocal)/((1024*1024)/8).gt.(xmem)) then
              if(dp4.lt.int_mb(k_range+t_p4b-1)) then
               dp4=dp4+1
              else
@@ -383,44 +398,47 @@ c -- 6DTS --
              go to 300
             end if
 c
-           size = (int_mb(k_range+t_p4b-1)/dp4+
-     6    int_mb(k_range+t_p4b-1)-(int_mb(k_range+t_p4b-1)/dp4)*dp4)
-     6           *(int_mb(k_range+t_p5b-1)/dp5+
-     6    int_mb(k_range+t_p5b-1)-(int_mb(k_range+t_p5b-1)/dp5)*dp5)
-     2           * int_mb(k_range+t_p6b-1)
-     3           * int_mb(k_range+t_h1b-1)
-     4           * int_mb(k_range+t_h2b-1)
-     5           * int_mb(k_range+t_h3b-1)
+            if(slice_dp4*qp4.ne.range_p4) then
+              mdp4=qp4+1
+            else
+              mdp4=qp4
+            end if
+            if(slice_dp5*qp5.ne.range_p5) then
+              mdp5=qp5+1
+            else
+              mdp5=qp5
+            end if
 c
-          maxp4=int_mb(k_range+t_p4b-1)/dp4+
-     6    int_mb(k_range+t_p4b-1)-(int_mb(k_range+t_p4b-1)/dp4)*dp4
-          maxp5=int_mb(k_range+t_p5b-1)/dp5+
-     6    int_mb(k_range+t_p5b-1)-(int_mb(k_range+t_p5b-1)/dp5)*dp5 
+           size =  slice_dp4
+     6           * slice_dp5
+     2           * range_p6
+     3           * range_h1
+     4           * range_h2
+     5           * range_h3
 c
-c ----------
+          maxp4=slice_dp4
+          maxp5=slice_dp5
 c
-c
-
             if (.not.MA_PUSH_GET(mt_dbl,size,'moment 2,3',
      1        l_right,k_right)) call errquit('eomccsd_t',3,MA_ERR)
             if (.not.MA_PUSH_GET(mt_dbl,size,'denominator',
      1        l_left,k_left)) call errquit('ccsd_t',3,MA_ERR)
 c
 c            
-           do ii=1,dp4 !do ii ---
-           do jj=1,dp5 !do jj ---
-            if(ii.ne.dp4) then
-             istart=(ii-1)*(int_mb(k_range+t_p4b-1)/dp4)+1
-             istop=ii*(int_mb(k_range+t_p4b-1)/dp4)
+           do ii=1,mdp4 !do ii ---
+           do jj=1,mdp5 !do jj ---
+            if(ii.ne.mdp4) then
+             istart=(ii-1)*(slice_dp4)+1
+             istop=ii*(slice_dp4)
             else
-             istart=(ii-1)*(int_mb(k_range+t_p4b-1)/dp4)+1
+             istart=(ii-1)*(slice_dp4)+1
              istop=int_mb(k_range+t_p4b-1)
             end if
-            if(jj.ne.dp5) then
-             jstart=(jj-1)*(int_mb(k_range+t_p5b-1)/dp5)+1
-             jstop=jj*(int_mb(k_range+t_p5b-1)/dp5)
+            if(jj.ne.mdp5) then
+             jstart=(jj-1)*(slice_dp5)+1
+             jstop=jj*(slice_dp5)
             else
-             jstart=(jj-1)*(int_mb(k_range+t_p5b-1)/dp5)+1
+             jstart=(jj-1)*(slice_dp5)+1
              jstop=int_mb(k_range+t_p5b-1)
             end if
 c zeroing ---
