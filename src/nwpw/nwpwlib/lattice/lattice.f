@@ -96,6 +96,30 @@
       return
       end 
 
+      subroutine lattice_center0_xyz_to_ijk(x,y,z,c1,c2,c3)
+      implicit none
+      real*8 x,y,z
+      integer c1,c2,c3
+
+      integer np1,np2,np3
+      real*8  f1,f2,f3
+
+*     **** common block ****
+      real*8 ub(3,3)
+      common / lattice_block2 / ub
+
+      call D3dB_nx(1,np1)
+      call D3dB_ny(1,np2)
+      call D3dB_nz(1,np3)
+      f1 = x*ub(1,1) + y*ub(2,1) + z*ub(3,1)
+      f2 = x*ub(1,2) + y*ub(2,2) + z*ub(3,2)
+      f3 = x*ub(1,3) + y*ub(2,3) + z*ub(3,3)
+      c1 = (f1+0.5d0/dble(np1))*np1
+      c2 = (f2+0.5d0/dble(np2))*np2 
+      c3 = (f3+0.5d0/dble(np3))*np3 
+      return
+      end 
+
 
       subroutine lattice_fragcell(n1,r1)
       implicit none
