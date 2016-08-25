@@ -5929,10 +5929,11 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
 *     *       D3dB_r_1to3_Contract      *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_r_1to3_Contract(center,A,B,tmp1,tmp2)
+      subroutine D3dB_r_1to3_Contract(center,A,tmp1,tmp2)
       implicit none
       integer center(3)
-      real*8 A(*),B(*)
+      !real*8 A(*),B(*)
+      real*8 A(*)
       real*8 tmp1(*),tmp2(*)
 
 #include "bafdecls.fh"
@@ -6194,7 +6195,7 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
 *     **** unpack B(i) array ****
 !$OMP DO
       do i=1,index2-1
-         B(int_mb(c_iq_to_i2(1)+i-1)) = tmp2(i)
+         A(int_mb(c_iq_to_i2(1)+i-1)) = tmp2(i)
       end do
 !$OMP END DO
 
@@ -6223,10 +6224,11 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
 *     *       D3dB_r_3to1_Expand        *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_r_3to1_Expand(center,A,B,tmp1,tmp2)
+      subroutine D3dB_r_3to1_Expand(center,A,tmp1,tmp2)
       implicit none
       integer center(3)
-      real*8 A(*),B(*)
+      !real*8 A(*),B(*)
+      real*8 A(*)
       real*8 tmp1(*),tmp2(*)
 
 #include "bafdecls.fh"
@@ -6259,7 +6261,6 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
 
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
-      call Parallel_shared_vector_zero(.false.,n2ft3d(1),B)
 
       !**** allocate temporary space from stack ****
       value = BA_push_get(mt_int,np,'request',request(2),request(1))
@@ -6412,6 +6413,7 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
      >               tmp1(int_mb(ic1_start(1)+1-1)),
      >               tmp2(int_mb(ic2_start(1)+1-1)))
 
+      call Parallel_shared_vector_zero(.false.,n2ft3d(1),A)
 
 !$OMP MASTER
 *     **** receive packed array data ****
@@ -6489,7 +6491,7 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
 *     **** unpack B(i) array ****
 !$OMP DO
       do i=1,index2-1
-         B(int_mb(c_iq_to_i2(1)+i-1)) = tmp2(i)
+         A(int_mb(c_iq_to_i2(1)+i-1)) = tmp2(i)
       end do
 !$OMP END DO
 
