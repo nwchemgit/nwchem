@@ -77,17 +77,17 @@ c           2. nuclei
 c           3. center of mass (not active)
 c
       if (.not.geom_ncent(geom,nat)) call
-     &    errquit('hnd_elpmap: geom_ncent',911,GEOM_ERR)
+     &    errquit('hnd_elpmap_gr: geom_ncent',911,GEOM_ERR)
 c
       if (.not. ma_push_get(mt_dbl,3*nat,'xyz pnt',l_xyzpt,k_xyzpt))
-     &    call errquit('hnd_elpmap: ma failed',911,MA_ERR)
+     &    call errquit('hnd_elpmap_gr: ma failed',1,MA_ERR)
       if (.not. ma_push_get(mt_dbl,nat,'zan pnt',l_zanpt,k_zanpt))
-     &    call errquit('hnd_elpmap: ma failed',911,MA_ERR)
+     &    call errquit('hnd_elpmap_gr: ma failed',2,MA_ERR)
 c
       do 30 iat=1,nat
         if(.not.geom_cent_get(geom,iat,at_tag,dbl_mb(k_xyzpt+3*(iat-1)),
      &     dbl_mb(k_zanpt+iat-1))) call
-     &     errquit('hnd_elpmap: geom_cent_get',911,GEOM_ERR)
+     &     errquit('hnd_elpmap_gr: geom_cent_get',911,GEOM_ERR)
    30 continue
 c
       if(.not.rtdb_get(rtdb,'prop:cubefile',mt_log,1,ocube)) 
@@ -105,16 +105,16 @@ c     -------------------------------------------------
      >                 nprp, prp_date)) then
         nprp = nprp/3
         if (.not. ma_push_get(mt_dbl,3*nprp,'prop:xyz',h_prp_c,i_prp_c))
-     &    call errquit('hnd_elfmap: prop:xyz',911,MA_ERR)
+     &    call errquit('hnd_elfmap_gr: prop:xyz',911,MA_ERR)
         if (.not. rtdb_get(rtdb,'prop:xyz',mt_dbl,
      >                      3*nprp,dbl_mb(i_prp_c)))
-     &    call errquit('hnd_elfmap: prop:xyz failed',911,RTDB_ERR)
+     &    call errquit('hnd_elfmap_gr: prop:xyz failed',911,RTDB_ERR)
         do_points = .true.
         do_output = .true.
       else
         nprp = nat
         if (.not. ma_push_get(mt_dbl,3*nat,'prop:xyz',h_prp_c,i_prp_c))
-     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
+     &    call errquit('hnd_eldmap_gr: ma failed',3,MA_ERR)
         call dcopy(3*nat,dbl_mb(k_xyzpt),1,dbl_mb(i_prp_c),1)
         do_points = .false.
         do_output = .true.
@@ -122,7 +122,7 @@ c     -------------------------------------------------
 c
 c     density array
       if (.not. ma_push_get(mt_dbl,4*nprp,'eden',l_eden,k_eden))
-     &    call errquit('hnd_elpmap: eden ma failed',911,MA_ERR)
+     &    call errquit('hnd_elpmap_gr: eden ma failed',4,MA_ERR)
 c
       if (spindens) then
          call hnd_elfcon(basis,geom,g_dens(ndens),dbl_mb(i_prp_c),nprp,
@@ -196,7 +196,7 @@ c
 c
       do i = 1, ndens
          if (.not.ga_destroy(g_dens(i))) call
-     &       errquit('elpmap: ga_destroy failed g_dens',0,GA_ERR)
+     &       errquit('elpmap_gr: ga_destroy failed g_dens',0,GA_ERR)
       enddo
 c
 c     Terminate integrals

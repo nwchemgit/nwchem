@@ -86,7 +86,7 @@ c
 c    2. read the data
 c
         if (.not. bas_numbf(basis,nbf)) 
-     &    call errquit('hnd_elfmap: could not get nbf',0, BASIS_ERR)
+     &    call errquit('hnd_elpmap: could not get nbf',0, BASIS_ERR)
 c
         call util_file_name('dmat',.false.,.false.,dmat_file) ! get filename
         if(.not.ao_1prdm_read(nbf,g_dens(ndens),dmat_file))
@@ -105,9 +105,9 @@ c
      &    errquit('hnd_elpmap: geom_ncent',911,GEOM_ERR)
 c
       if (.not. ma_push_get(mt_dbl,3*nat,'xyz pnt',l_xyzpt,k_xyzpt))
-     &    call errquit('hnd_elpmap: ma failed',911,MA_ERR)
+     &    call errquit('hnd_elpmap: ma failed',1,MA_ERR)
       if (.not. ma_push_get(mt_dbl,nat,'zan pnt',l_zanpt,k_zanpt))
-     &    call errquit('hnd_elpmap: ma failed',911,MA_ERR)
+     &    call errquit('hnd_elpmap: ma failed',2,MA_ERR)
 c
       do 30 iat=1,nat
         if(.not.geom_cent_get(geom,iat,at_tag,dbl_mb(k_xyzpt+3*(iat-1)),
@@ -135,28 +135,28 @@ c     -------------------------------------------------
      >                 nprp, prp_date)) then
         nprp = nprp/3
         if (.not. ma_push_get(mt_dbl,3*nprp,'prop:xyz',h_prp_c,i_prp_c))
-     &    call errquit('hnd_elfmap: prop:xyz',911,MA_ERR)
+     &    call errquit('hnd_elpmap: prop:xyz',911,MA_ERR)
         if (.not. rtdb_get(rtdb,'prop:xyz',mt_dbl,
      >                      3*nprp,dbl_mb(i_prp_c)))
-     &    call errquit('hnd_elfmap: prop:xyz failed',911,RTDB_ERR)
+     &    call errquit('hnd_elpmap: prop:xyz failed',911,RTDB_ERR)
         do_points = .true.
         do_output = .true.
       else
         nprp = nat
         if (.not. ma_push_get(mt_dbl,3*nat,'prop:xyz',h_prp_c,i_prp_c))
-     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
+     &    call errquit('hnd_elpmap: ma failed',3,MA_ERR)
         call dcopy(3*nat,dbl_mb(k_xyzpt),1,dbl_mb(i_prp_c),1)
         do_points = .false.
         do_output = .true.
       end if
 c
       if (.not. ma_push_get(mt_dbl,nprp,'epot pnt',l_epot,k_epot))
-     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
+     &    call errquit('hnd_elpmap: ma failed',4,MA_ERR)
 c
 c     total electric field array (M.V.)
 c     --------------------------------
       if (.not. ma_push_get(mt_dbl,nprp,'tot epot',l_tepot,k_tepot))
-     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
+     &    call errquit('hnd_elpmap: ma failed',5,MA_ERR)
 c
 cc
 c     ----- calculate electronic contribution at all points -----
@@ -260,12 +260,12 @@ c        -------------------------------
          if(do_output) then
          if(.not.do_points) then
          if (.not. geom_cent_tag(geom,iat,at_tag)) call
-     &      errquit('hnd_elfmap: geom_cent_tag failed',0,GEOM_ERR)
+     &      errquit('hnd_elpmap: geom_cent_tag failed',0,GEOM_ERR)
 c        geom_tag_to_element returns false for Bq elements (MV)
 c        -----------------------------------------------------
          if (.not. geom_tag_to_element(at_tag,symbol,element,atn)) then 
             if(symbol.ne."bq") call
-     &      errquit('hnd_elfmap: geom_tag_to_element failed',0,GEOM_ERR)
+     &      errquit('hnd_elpmap: geom_tag_to_element failed',0,GEOM_ERR)
          end if
          end if
 c

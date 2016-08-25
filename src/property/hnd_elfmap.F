@@ -106,9 +106,9 @@ c
      &    errquit('hnd_elfmap: geom_ncent',911,GEOM_ERR)
 c
       if (.not. ma_push_get(mt_dbl,3*nat,'xyz pnt',l_xyzpt,k_xyzpt))
-     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
+     &    call errquit('hnd_elfmap: ma failed',1,MA_ERR)
       if (.not. ma_push_get(mt_dbl,nat,'zan pnt',l_zanpt,k_zanpt))
-     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
+     &    call errquit('hnd_elfmap: ma failed',2,MA_ERR)
 c
       do 30 iat=1,nat
         if(.not.geom_cent_get(geom,iat,at_tag,dbl_mb(k_xyzpt+3*(iat-1)),
@@ -150,7 +150,7 @@ c     -------------------------------------------------
       else
         nprp = nat
         if (.not. ma_push_get(mt_dbl,3*nat,'prop:xyz',h_prp_c,i_prp_c))
-     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
+     &    call errquit('hnd_elfmap: ma failed',3,MA_ERR)
         call dcopy(3*nat,dbl_mb(k_xyzpt),1,dbl_mb(i_prp_c),1)
         do_points = .false.
         do_output = .true.
@@ -159,14 +159,14 @@ c
 c      if (.not. ma_push_get(mt_dbl,6*nprp,'efld pnt',l_efld,k_efld))
 c     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
       if (.not. ma_push_get(mt_dbl,3*nprp,'efld pnt',l_efld,k_efld))
-     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
+     &    call errquit('hnd_elfmap: ma failed',4,MA_ERR)
 c
 c     total electric field array (M.V.)
 c     --------------------------------
       if (.not. ma_push_get(mt_dbl,3*nprp,'tot field',l_tefld,k_tefld))
-     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
+     &    call errquit('hnd_elfmap: ma failed',5,MA_ERR)
       if (.not. ma_push_get(mt_dbl,nprp,'efield mag',l_tefldm,k_tefldm))
-     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
+     &    call errquit('hnd_elfmap: ma failed',6,MA_ERR)
 c
 c     ----- calculate electronic contribution at all points -----
 c
