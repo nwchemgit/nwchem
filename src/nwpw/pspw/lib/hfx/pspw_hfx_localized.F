@@ -38,6 +38,10 @@
          value = value.and.Dneall_m_allocate(0,absmat)
          value = BA_alloc_get(mt_log,(ne(1)*ne(1)+ne(2)*ne(2)),
      >                'closeenough',closeenough(2),closeenough(1))
+         value = BA_alloc_get(mt_int,3*(ne(1)*ne(1)+ne(2)*ne(2)),
+     >                'centeroverlap',centeroverlap(2),centeroverlap(1))
+         value = BA_alloc_get(mt_dbl,3*(ne(1)*ne(1)+ne(2)*ne(2)),
+     >                'roverlap',roverlap(2),roverlap(1))
          if (.not.value)
      >      call errquit('pspw_hfx_localize_init: out of heap',3,MA_ERR)
          call nwpw_timing_end(52)
@@ -212,6 +216,8 @@ c     *** Silvestrelli G3 ***
          value = value.and.Dneall_m_free(rotmat21)
          value = value.and.Dneall_m_free(absmat)
          value = value.and.BA_free_heap(closeenough(2))
+         value = value.and.BA_free_heap(centeroverlap(2))
+         value = value.and.BA_free_heap(roverlap(2))
          if (.not.value)
      >    call errquit('pspw_hfx_localize_end:freeing heap',3,MA_ERR)
          call nwpw_timing_end(52)
@@ -341,6 +347,20 @@ c     *** Silvestrelli G3 ***
       return
       end
 
+*     ************************************************
+*     *                                              *
+*     *          pspw_hfx_find_centers               *
+*     *                                              *
+*     ************************************************
+      subroutine pspw_hfx_find_centers(psi_r,rcent)
+      implicit none
+      integer ispin,ne(2),neq(2)
+      real*8  psi_r(*)
+      real*8  rcent(3,*)
+
+      return
+      end
+
 
 *     ************************************************
 *     *                                              *
@@ -362,8 +382,8 @@ c     *** Silvestrelli G3 ***
 
       logical value,oprint
       integer neq(2),ii,nx,ny,nz,q,ms,n,n1(2),n2(2),ne(2)
-      integer i,j,k
-      real*8  scal1,a(3,3)
+      integer i,j,k,center(3)
+      real*8  scal1,a(3,3),rcenter(3)
       real*8  cdx1,cdx2,cdx3,cdy1,cdy2,cdy3,t1,t2,t3,x,y,z,twopi
       real*8  xx,yy,zz,dx,dy,dz,rr
       integer tmp1(2),xsgrid(2),xs(6)
@@ -425,6 +445,107 @@ c     *** Silvestrelli G3 ***
          end if
 
 
+
+*        **************************************************
+*        **** Find centers of localized orbitals, rwav ****
+*        **************************************************
+         value = BA_push_get(mt_dbl,n2ft3d,"tmp1",tmp1(2),tmp1(1))
+         value = value.and.
+     >           BA_push_get(mt_dbl,6*n2ft3d,"xsgrid",
+     >                       xsgrid(2),xsgrid(1))
+         if (.not.value)
+     >   call errquit('pspw_hfx_localize_start:push stack',1,MA_ERR)
+         a(1,1) = lattice_unita(1,1)
+         a(2,1) = lattice_unita(2,1)
+         a(3,1) = lattice_unita(3,1)
+         a(1,2) = lattice_unita(1,2)
+         a(2,2) = lattice_unita(2,2)
+         a(3,2) = lattice_unita(3,2)
+         a(1,3) = lattice_unita(1,3)
+         a(2,3) = lattice_unita(2,3)
+         a(3,3) = lattice_unita(3,3)
+
+         call lattice_p_grid(dbl_mb(xsgrid(1)))
+
+         xs(1) = xsgrid(1)
+         xs(2) = xsgrid(1)+n2ft3d
+         xs(3) = xsgrid(1)+2*n2ft3d
+         xs(4) = xsgrid(1)+3*n2ft3d
+         xs(5) = xsgrid(1)+4*n2ft3d
+         xs(6) = xsgrid(1)+5*n2ft3d
+
+         n1(1) = 1 
+         n1(2) = neq(1)+1
+         n2(1) = neq(1)
+         n2(2) = neq(1)+neq(2)
+         call dcopy(3*(ne(1)+ne(2)),0.0d0,0,dbl_mb(rwav(1)),1)
+         do ms=1,ispin
+            do q=n1(ms),n2(ms)
+               call Dneall_qton(q,n)
+               call D3dB_rr_Sqr(1,dbl_mb(psiloc_r(1)+(q-1)*n2ft3d),
+     >                         dbl_mb(tmp1(1)))
+
+               call D3dB_rr_dot(1,dbl_mb(xs(1)),dbl_mb(tmp1(1)),cdx1)
+               call D3dB_rr_dot(1,dbl_mb(xs(2)),dbl_mb(tmp1(1)),cdy1)
+
+               call D3dB_rr_dot(1,dbl_mb(xs(3)),dbl_mb(tmp1(1)),cdx2)
+               call D3dB_rr_dot(1,dbl_mb(xs(4)),dbl_mb(tmp1(1)),cdy2)
+
+               call D3dB_rr_dot(1,dbl_mb(xs(5)),dbl_mb(tmp1(1)),cdx3)
+               call D3dB_rr_dot(1,dbl_mb(xs(6)),dbl_mb(tmp1(1)),cdy3)
+               t1 = datan2(cdy1*scal1,cdx1*scal1)/twopi
+               t2 = datan2(cdy2*scal1,cdx2*scal1)/twopi
+               t3 = datan2(cdy3*scal1,cdx3*scal1)/twopi
+               x  = a(1,1)*t1 + a(1,2)*t2 + a(1,3)*t3
+               y  = a(2,1)*t1 + a(2,2)*t2 + a(2,3)*t3
+               z  = a(3,1)*t1 + a(3,2)*t2 + a(3,3)*t3
+               dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1))   = x
+               dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1)+1) = y
+               dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1)+2) = z
+
+            end do
+         end do
+         call D1dB_Vector_SumAll(3*(ne(1)+ne(2)),dbl_mb(rwav(1)))
+
+         value =           BA_pop_stack(xsgrid(2))
+         value = value.and.BA_pop_stack(tmp1(2))
+         if (.not.value)
+     >    call errquit('pspw_hfx_localize_start:pop stack',2,MA_ERR)
+
+*        ***********************************************************************
+*        **** compute the overlap centers between localized orbital centers ****
+*        ***********************************************************************
+         do ms=1,ispin
+            do n=1,ne(ms)
+            do q=1,n
+               call pspw_hfx_localize_calc_ovlpcntr(ms,n,q,a,
+     >                  dbl_mb(rwav(1)+3*(ms-1)*ne(1)),rcenter)
+               nx = 3*((q-1)+(n-1)*ne(ms) + (ms-1)*ne(1)*ne(1))
+               ny = 3*((n-1)+(q-1)*ne(ms) + (ms-1)*ne(1)*ne(1))
+
+               call lattice_center0_xyz_to_ijk(
+     >                      rcenter(1),rcenter(2),rcenter(3),
+     >                      center(1),center(2),center(3))
+
+               dbl_mb(roverlap(1)+nx)   = rcenter(1)
+               dbl_mb(roverlap(1)+nx+1) = rcenter(2)
+               dbl_mb(roverlap(1)+nx+2) = rcenter(3)
+               dbl_mb(roverlap(1)+ny)   = rcenter(1)
+               dbl_mb(roverlap(1)+ny+1) = rcenter(2)
+               dbl_mb(roverlap(1)+ny+2) = rcenter(3)
+
+               int_mb(centeroverlap(1)+nx)   = center(1)
+               int_mb(centeroverlap(1)+nx+1) = center(2)
+               int_mb(centeroverlap(1)+nx+2) = center(3)
+               int_mb(centeroverlap(1)+ny)   = center(1)
+               int_mb(centeroverlap(1)+ny+1) = center(2)
+               int_mb(centeroverlap(1)+ny+2) = center(3)
+              
+            end do
+            end do
+         end do
+
+
 *        *************************************************
 *        **** prune interactions using overlap matrix ****
 *        *************************************************
@@ -470,71 +591,6 @@ c     *** Silvestrelli G3 ***
 *        **** prune interactions using distance between localized orbital centers ****
 *        *****************************************************************************
          else
-
-*           **** Find centers of localized orbitals, rwav ****
-            value = BA_push_get(mt_dbl,n2ft3d,"tmp1",tmp1(2),tmp1(1))
-            value = value.and.
-     >              BA_push_get(mt_dbl,6*n2ft3d,"xsgrid",
-     >                          xsgrid(2),xsgrid(1))
-            if (.not.value)
-     >      call errquit('pspw_hfx_localize_start:push stack',1,MA_ERR)
-            a(1,1) = lattice_unita(1,1)
-            a(2,1) = lattice_unita(2,1)
-            a(3,1) = lattice_unita(3,1)
-            a(1,2) = lattice_unita(1,2)
-            a(2,2) = lattice_unita(2,2)
-            a(3,2) = lattice_unita(3,2)
-            a(1,3) = lattice_unita(1,3)
-            a(2,3) = lattice_unita(2,3)
-            a(3,3) = lattice_unita(3,3)
-
-            call lattice_p_grid(dbl_mb(xsgrid(1)))
-
-            xs(1) = xsgrid(1)
-            xs(2) = xsgrid(1)+n2ft3d
-            xs(3) = xsgrid(1)+2*n2ft3d
-            xs(4) = xsgrid(1)+3*n2ft3d
-            xs(5) = xsgrid(1)+4*n2ft3d
-            xs(6) = xsgrid(1)+5*n2ft3d
-
-            n1(1) = 1 
-            n1(2) = neq(1)+1
-            n2(1) = neq(1)
-            n2(2) = neq(1)+neq(2)
-            call dcopy(3*(ne(1)+ne(2)),0.0d0,0,dbl_mb(Rwav(1)),1)
-            do ms=1,ispin
-               do q=n1(ms),n2(ms)
-                  call Dneall_qton(q,n)
-                  call D3dB_rr_Sqr(1,dbl_mb(psiloc_r(1)+(q-1)*n2ft3d),
-     >                            dbl_mb(tmp1(1)))
-
-                  call D3dB_rr_dot(1,dbl_mb(xs(1)),dbl_mb(tmp1(1)),cdx1)
-                  call D3dB_rr_dot(1,dbl_mb(xs(2)),dbl_mb(tmp1(1)),cdy1)
-
-                  call D3dB_rr_dot(1,dbl_mb(xs(3)),dbl_mb(tmp1(1)),cdx2)
-                  call D3dB_rr_dot(1,dbl_mb(xs(4)),dbl_mb(tmp1(1)),cdy2)
-
-                  call D3dB_rr_dot(1,dbl_mb(xs(5)),dbl_mb(tmp1(1)),cdx3)
-                  call D3dB_rr_dot(1,dbl_mb(xs(6)),dbl_mb(tmp1(1)),cdy3)
-                  t1 = datan2(cdy1*scal1,cdx1*scal1)/twopi
-                  t2 = datan2(cdy2*scal1,cdx2*scal1)/twopi
-                  t3 = datan2(cdy3*scal1,cdx3*scal1)/twopi
-                  x  = a(1,1)*t1 + a(1,2)*t2 + a(1,3)*t3
-                  y  = a(2,1)*t1 + a(2,2)*t2 + a(2,3)*t3
-                  z  = a(3,1)*t1 + a(3,2)*t2 + a(3,3)*t3
-                  dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1))   = x
-                  dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1)+1) = y
-                  dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1)+2) = z
-
-               end do
-            end do
-            call D1dB_Vector_SumAll(3*(ne(1)+ne(2)),dbl_mb(Rwav(1)))
-
-            value =           BA_pop_stack(xsgrid(2))
-            value = value.and.BA_pop_stack(tmp1(2))
-            if (.not.value)
-     >       call errquit('pspw_hfx_localize_start:pop stack',2,MA_ERR)
-
 
             do ms=1,ispin
                do n=1,ne(ms)
@@ -583,6 +639,7 @@ c     *** Silvestrelli G3 ***
                end do
                end do
             end do
+
 
 *           **** print out centers ****
             if (oprint) then
@@ -711,6 +768,64 @@ c     *** Silvestrelli G3 ***
       return
       end
  
+*     ************************************************
+*     *                                              *
+*     *       pspw_hfx_localize_calc_ovlpcntr        *
+*     *                                              *
+*     ************************************************
+      subroutine pspw_hfx_localize_calc_ovlpcntr(ms,i,j,a,rwav,rcenter)
+      implicit none
+      integer ms
+      integer i,j
+      real*8  a(3,3),rwav(3,*)
+      real*8  rcenter(3)
+
+*     **** local variables ****
+      integer i1,i2,i3,ii1,ii2,ii3
+      real*8 x1,y1,z1,x2,y2,z2,dx,dy,dz,xc,yc,zc,r2min,r2
+
+      rcenter(1) = 0.0d0
+      rcenter(2) = 0.0d0
+      rcenter(3) = 0.0d0
+
+      x1 = rwav(1,i)
+      y1 = rwav(2,i)
+      z1 = rwav(3,i)
+
+      x2= rwav(1,j)
+      y2= rwav(2,j)
+      z2= rwav(3,j)
+         
+      ii1 = 0
+      ii2 = 0
+      ii3 = 0
+      r2min = 99.9d99
+      do i3=-1,1 
+      do i2=-1,1 
+      do i1=-1,1 
+         dx = (x1-x2+a(1,1)*i1+a(1,2)*i2+a(1,3)*i3)
+         dy = (y1-y2+a(2,1)*i1+a(2,2)*i2+a(2,3)*i3)
+         dz = (z1-z2+a(3,1)*i1+a(3,2)*i2+a(3,3)*i3)
+         r2 = dx*dx + dy*dy + dz*dz
+         if (r2.lt.r2min) then
+            r2min = r2
+            ii1 = i1
+            ii2 = i2
+            ii3 = i3
+         end if
+      end do
+      end do
+      end do
+      xc = 0.5d0*(x1 + x2 + a(1,1)*ii1 + a(1,2)*ii2 + a(1,3)*ii3)
+      yc = 0.5d0*(y1 + y2 + a(2,1)*ii1 + a(2,2)*ii2 + a(2,3)*ii3)
+      zc = 0.5d0*(z1 + z2 + a(3,1)*ii1 + a(3,2)*ii2 + a(3,3)*ii3)
+      call lattice_min_difference(xc,yc,zc)
+      rcenter(1) = xc
+      rcenter(2) = yc
+      rcenter(3) = zc
+
+      return
+      end
 
 
 *     ************************************************
@@ -782,6 +897,87 @@ c     *** Silvestrelli G3 ***
       end if
       return
       end
+
+*     ************************************************
+*     *                                              *
+*     *        pspw_hfx_localize_rcenter_ovlp        *
+*     *                                              *
+*     ************************************************
+
+      subroutine pspw_hfx_localize_rcenter_ovlp(i,j,rcenter)
+      implicit none
+      integer i,j
+      real*8 rcenter(3)
+
+#include "bafdecls.fh"
+#include "pspw_hfx.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer indx,ne(2)
+
+      rcenter(1) = 0.0d0
+      rcenter(2) = 0.0d0
+      rcenter(3) = 0.0d0
+      if (localize_on) then
+         ne(1) = norbs(1)
+         ne(2) = norbs(2)
+         indx = 0
+         if ((i.gt.ne(1)).and.(j.gt.ne(1))) then
+            indx = (i-ne(1)-1) + (j-ne(1)-1)*ne(2) + ne(1)*ne(1)
+         else if ((i.le.ne(1)).and.(j.le.ne(1))) then
+            indx = (i-1) + (j-1)*ne(1)
+         else
+           call errquit('pspw_hfx_localize_rcenter_ovlp:failed',0,UERR)
+         end if
+         rcenter(1) = dbl_mb(roverlap(1)+3*indx)
+         rcenter(2) = dbl_mb(roverlap(1)+3*indx+1)
+         rcenter(3) = dbl_mb(roverlap(1)+3*indx+2)
+      end if
+
+      return
+      end
+
+
+*     ************************************************
+*     *                                              *
+*     *        pspw_hfx_localize_center_ovlp         *
+*     *                                              *
+*     ************************************************
+      subroutine pspw_hfx_localize_center_ovlp(i,j,center)
+      implicit none
+      integer i,j
+      integer center(3)
+
+#include "bafdecls.fh"
+#include "pspw_hfx.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer indx,ne(2)
+
+      center(1) = 0
+      center(2) = 0
+      center(3) = 0
+      if (localize_on) then
+         ne(1) = norbs(1)
+         ne(2) = norbs(2)
+         indx = 0
+         if ((i.gt.ne(1)).and.(j.gt.ne(1))) then
+            indx = (i-ne(1)-1) + (j-ne(1)-1)*ne(2) + ne(1)*ne(1)
+         else if ((i.le.ne(1)).and.(j.le.ne(1))) then
+            indx = (i-1) + (j-1)*ne(1)
+         else
+           call errquit('pspw_hfx_localize_center_ovlp:failed',0,UERR)
+         end if
+         center(1) = int_mb(centeroverlap(1)+3*indx)
+         center(2) = int_mb(centeroverlap(1)+3*indx+1)
+         center(3) = int_mb(centeroverlap(1)+3*indx+2)
+      end if
+
+      return
+      end
+
 
 
 

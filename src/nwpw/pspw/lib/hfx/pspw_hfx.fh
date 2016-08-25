@@ -21,10 +21,12 @@
 *     **** PSPW_HFX_localize common block ****
       logical localize_on,localize2_on,findcolumns
       integer switchr(2),closeenough(2),rwav(2),absmat(2),rotmat21(2) 
+      integer roverlap(2),centeroverlap(2)
       integer psiloc_r(2),dmindx(2),prune_algorithm
       real*8  rin_thresh,rout_thresh
       common / PSPW_HFX_localize_Block / rin_thresh,rout_thresh,
      >                                   psiloc_r,rwav,
+     >                                   roverlap,centeroverlap,
      >                                   absmat,rotmat21,
      >                                   switchr,closeenough,dmindx,
      >                                   prune_algorithm,

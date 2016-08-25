@@ -160,6 +160,8 @@
 *        **** initialize coulomb_screened ****
          if (solver_type.eq.1) then
               call coulomb_screened_init(flag,rcut,pp)
+              if (localize_on) 
+     >           call coulomb_screened_small_init(flag,rcut,pp)
 
 *        **** initialize free-space coulomb if necessary ****
          else
@@ -300,6 +302,7 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
 *        **** end coulomb_screened ****
         if (solver_type.eq.1) then
           call coulomb_screened_end()
+          if (localize_on) call coulomb_screened_small_end()
 
 *        **** end free-space coulomb if necessary ****
         else
@@ -982,19 +985,23 @@ c***************** sub/replicated routines *****************************
 
 *     **** local variables ****
       logical value,done
-      integer i,j,n1,n2,n3,ms
+      integer i,j,n1,n2,n3,ms,id,nbid
       integer dn(2),vij(2),tmp1(2),tmp2(2),index1,index2
       integer i1,j1,k1,NN
       integer i2,j2,k2
       integer i3,j3,k3
       real*8  scal1,scal2,dv,eh,ph,ss
+      integer center(3)
+      real*8  rcenter(3)
 
 *     **** external functions ****
       real*8   lattice_omega,icoulomb_screened_e
+      real*8   icoulomb_screened_small_e
       logical  D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
       logical  pspw_hfx_localize_closeenough
       real*8   pspw_hfx_localize_switchr
       external lattice_omega,icoulomb_screened_e
+      external icoulomb_screened_small_e
       external D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
       external pspw_hfx_localize_closeenough
       external pspw_hfx_localize_switchr
@@ -1003,9 +1010,9 @@ c***************** sub/replicated routines *****************************
       ehfx = 0.0d0
       phfx = 0.0d0
       if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
-        call D3dB_nx(1,n1)
-        call D3dB_ny(1,n2)
-        call D3dB_nz(1,n3)
+        !call D3dB_nx(1,n1)
+        !call D3dB_ny(1,n2)
+        !call D3dB_nz(1,n3)
         !call D3dB_n2ft3d(1,n2ft3d)
         value = BA_push_get(mt_dbl,(n2ft3d),'dn_hfx',dn(2),dn(1))
         value = value.and.
@@ -1020,9 +1027,24 @@ c***************** sub/replicated routines *****************************
         call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
         call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp2(1)),1)
 
+        call D3dB_nx(1,n1)
+        call D3dB_ny(1,n2)
+        call D3dB_nz(1,n3)
         scal1 = 1.0d0/dble(n1*n2*n3)
         scal2 = 1.0d0/lattice_omega()
         dv = scal1/scal2
+
+        if (localize_on) then
+           id   = 3
+           nbid = 2
+           call D3dB_nx(3,n1)
+           call D3dB_ny(3,n2)
+           call D3dB_nz(3,n3)
+           scal1 = 1.0d0/dble(n1*n2*n3)
+        else
+           id   = 1
+           nbid = 0
+        end if
 
 *       ***** screened coulomb solver ****
         if (solver_type.eq.1) then
@@ -1056,12 +1078,31 @@ c***************** sub/replicated routines *****************************
 *                   **** generate dnij for Vij  ****
                     call D3dB_rr_Mul(1,psi_r(index2),
      >                                 psi_r(index1),dbl_mb(dn(1)))
-c                    call D3dB_r_SMul(1,scal2*scal1,dbl_mb(dn(1)),
-c     >                                             dbl_mb(dn(1)))
-                    call D3dB_r_SMul1(1,scal2*scal1,dbl_mb(dn(1)))
-                    call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+
+                    !***** move from large grid to small grid here *****
+                    if (localize_on) then
+                       !**** need to fetch center, may need to precompute this in hfx_localize ****
+                       call pspw_hfx_localize_rcenter_ovlp(
+     >                          int_mb(orbital_list(1,ms)+i1-1),
+     >                          int_mb(orbital_list(1,ms)+j1-1),rcenter)
+                       call pspw_hfx_localize_center_ovlp(
+     >                          int_mb(orbital_list(1,ms)+i1-1),
+     >                          int_mb(orbital_list(1,ms)+j1-1),center)
+                       write(*,'(2I3,A,3F8.3,A,3I3)') i1,j1,
+     >                                  " rcenter=",rcenter,
+     >                                  " center=",center
+                       call  D3dB_r_1to3_Contract(center,dbl_mb(dn(1)),
+     >                                            dbl_mb(tmp1(1)),
+     >                                            dbl_mb(tmp2(1)))
+   
+                       !**** need to change scal1 to be small grid ****
+                    end if
+                    !***** move from large grid to small grid here *****
+c                   
+                    call D3dB_r_SMul1(id,scal2*scal1,dbl_mb(dn(1)))
+                    call D3dB_r_Zero_Ends(id,dbl_mb(dn(1)))
                    
-                    call D3dB_rc_pfft3f_queuein(0,dbl_mb(dn(1)))
+                    call D3dB_rc_pfft3f_queuein(nbid,dbl_mb(dn(1)))
                   
                  end if
                  end if
@@ -1087,13 +1128,20 @@ c     >                                             dbl_mb(dn(1)))
      >                   int_mb(orbital_list(1,ms)+i2-1),
      >                   int_mb(orbital_list(1,ms)+j2-1))
 
-                    call D3dB_rc_pfft3f_queueout(0,dbl_mb(dn(1)))
+
+                    call D3dB_rc_pfft3f_queueout(nbid,dbl_mb(dn(1)))
 
 *                   **** generate Vcoul ****
                     !eh = coulomb_screened_e(dbl_mb(dn(1)))
-                    eh = icoulomb_screened_e(dbl_mb(dn(1)))
-                    call coulomb_screened_v(dbl_mb(dn(1)),
+                    if (localize_on) then
+                       eh = icoulomb_screened_small_e(dbl_mb(dn(1)))
+                       call coulomb_screened_small_v(dbl_mb(dn(1)),
+     >                                               dbl_mb(vij(1)))
+                    else
+                       eh = icoulomb_screened_e(dbl_mb(dn(1)))
+                       call coulomb_screened_v(dbl_mb(dn(1)),
      >                                      dbl_mb(vij(1)))
+                    end if
 
 
 *                   **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
@@ -1111,7 +1159,7 @@ c     >                                             dbl_mb(dn(1)))
      >                  = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
                     end if
 
-                    call D3dB_cr_pfft3b_queuein(0,dbl_mb(vij(1)))
+                    call D3dB_cr_pfft3b_queuein(nbid,dbl_mb(vij(1)))
                     
                  end if
                  end if
@@ -1138,13 +1186,23 @@ c     >                                             dbl_mb(dn(1)))
      >                   int_mb(orbital_list(1,ms)+i3-1),
      >                   int_mb(orbital_list(1,ms)+j3-1))
 
-                    call D3dB_cr_pfft3b_queueout(0,dbl_mb(vij(1)))
+                    call D3dB_cr_pfft3b_queueout(nbid,dbl_mb(vij(1)))
 
 *                   **** apply hfx_parameter ****
-c                    call D3dB_r_SMul(1,hfx_parameter,
-c     >                                 dbl_mb(vij(1)),
-c     >                                 dbl_mb(vij(1)))
-                    call D3dB_r_SMul1(1,hfx_parameter*ss,dbl_mb(vij(1)))
+                    call D3dB_r_SMul1(nbid,hfx_parameter*ss,
+     >                                dbl_mb(vij(1)))
+
+                    !***** move from small grid to large grid here *****
+                    if (localize_on) then
+                       !**** need to fetch center, may need to precompute this in hfx_localize ****
+                       call pspw_hfx_localize_center_ovlp(
+     >                          int_mb(orbital_list(1,ms)+i3-1),
+     >                          int_mb(orbital_list(1,ms)+j3-1),center)
+                       call  D3dB_r_3to1_Expand(center,dbl_mb(vij(1)),
+     >                                            dbl_mb(tmp1(1)),
+     >                                            dbl_mb(tmp2(1)))
+                    end if
+                    !***** move from small grid to large grid here *****
 
 *                   **** generate (Vij)*psi_r ***
                     call D3dB_rr_Mul(1,dbl_mb(vij(1)),
