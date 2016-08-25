@@ -281,7 +281,7 @@ c     **** define extra psi and Hpsi  ****
            end if
   487   format(//,'== Orbital Contributions to HFX ==')
   488   format(/1x,'orbital',15x,
-     >         'HF_Exchange') 	
+     >         'HF_Exchange') 
   489   format(1x,i3,i7,2x,e18.6)
         end if
 
@@ -1007,6 +1007,8 @@ c***************** sub/replicated routines *****************************
       external pspw_hfx_localize_switchr
 
 
+      value = MA_set_error_print(.true.)
+      value = MA_set_auto_verify(.true.)
       ehfx = 0.0d0
       phfx = 0.0d0
       if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
@@ -1046,6 +1048,7 @@ c***************** sub/replicated routines *****************************
            nbid = 0
         end if
 
+
 *       ***** screened coulomb solver ****
         if (solver_type.eq.1) then
         do ms=1,ispin0
@@ -1082,19 +1085,12 @@ c***************** sub/replicated routines *****************************
                     !***** move from large grid to small grid here *****
                     if (localize_on) then
                        !**** need to fetch center, may need to precompute this in hfx_localize ****
-                       call pspw_hfx_localize_rcenter_ovlp(
-     >                          int_mb(orbital_list(1,ms)+i1-1),
-     >                          int_mb(orbital_list(1,ms)+j1-1),rcenter)
                        call pspw_hfx_localize_center_ovlp(
      >                          int_mb(orbital_list(1,ms)+i1-1),
      >                          int_mb(orbital_list(1,ms)+j1-1),center)
-                       write(*,'(2I3,A,3F8.3,A,3I3)') i1,j1,
-     >                                  " rcenter=",rcenter,
-     >                                  " center=",center
                        call  D3dB_r_1to3_Contract(center,dbl_mb(dn(1)),
      >                                            dbl_mb(tmp1(1)),
      >                                            dbl_mb(tmp2(1)))
-   
                        !**** need to change scal1 to be small grid ****
                     end if
                     !***** move from large grid to small grid here *****
@@ -1103,7 +1099,7 @@ c
                     call D3dB_r_Zero_Ends(id,dbl_mb(dn(1)))
                    
                     call D3dB_rc_pfft3f_queuein(nbid,dbl_mb(dn(1)))
-                  
+
                  end if
                  end if
 
@@ -1189,7 +1185,7 @@ c
                     call D3dB_cr_pfft3b_queueout(nbid,dbl_mb(vij(1)))
 
 *                   **** apply hfx_parameter ****
-                    call D3dB_r_SMul1(nbid,hfx_parameter*ss,
+                    call D3dB_r_SMul1(id,hfx_parameter*ss,
      >                                dbl_mb(vij(1)))
 
                     !***** move from small grid to large grid here *****
@@ -1201,6 +1197,7 @@ c
                        call  D3dB_r_3to1_Expand(center,dbl_mb(vij(1)),
      >                                            dbl_mb(tmp1(1)),
      >                                            dbl_mb(tmp2(1)))
+                       
                     end if
                     !***** move from small grid to large grid here *****
 
