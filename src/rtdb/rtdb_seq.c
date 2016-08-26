@@ -310,7 +310,11 @@ int rtdb_seq_open(const char *filename, const char *mode, int *handle)
   HASHINFO openinfo;
 #endif
   int flags = O_RDWR | O_CREAT;
+#if defined(__bgq__)
+  int exists = access(filename, F_OK) == 0;
+#else
   int exists = access(filename, R_OK | W_OK) == 0;
+#endif
   int new;
 
   /* See if the data base is already open ... if so return and complain */
