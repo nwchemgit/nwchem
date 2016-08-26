@@ -35,12 +35,24 @@ c
          ptx=dum+x0
          pty=dum+y0
          ptz=dum+z0
-         ax=ptx-xi
-         ay=pty-yi
-         az=ptz-zi
-         bx=ptx-xj
-         by=pty-yj
-         bz=ptz-zj
+         if(ni.gt.1) then
+            ax=ptx-xi
+            ay=pty-yi
+            az=ptz-zi
+         endif
+         if(nj.gt.1) then
+            bx=ptx-xj
+            by=pty-yj
+            bz=ptz-zj
+         endif
+         if(ni.eq.nj) then
+!DEC$ LOOP COUNT MAX=9, MIN=1
+            do ii = 1, ni-1
+               px=px*ax*bx
+               py=py*ay*by
+               pz=pz*az*bz
+            enddo
+         else
 !DEC$ LOOP COUNT MAX=9, MIN=1
          do ii = 1, ni-1
             px=px*ax
@@ -53,6 +65,7 @@ c
             py=py*by
             pz=pz*bz
          enddo
+      endif
          xint=xint+px
          yint=yint+py
          zint=zint+pz
