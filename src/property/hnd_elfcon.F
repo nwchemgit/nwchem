@@ -79,6 +79,7 @@ c
 #include "stdio.fh"
 #include "msgids.fh"
 #include "schwarz.fh"
+#include "util.fh"
 c
       integer basis    ! [input] basis set
       integer geom     ! [input] geometry
@@ -128,8 +129,8 @@ c
 c
 check if enough MA mem is avail, if not then mult. passes
 c
-      avail_ma = ma_inquire_avail(mt_dbl)*9/10
-c maxbuf is eq to maxscr, therefore 2do factor
+      avail_ma = ma_inquire_avail(mt_dbl)*7/10
+c maxbuf is eq to maxscr, therefore 2d0 factor
       npasses=maxbuf*2d0/avail_ma + 1d0
       if (do_parallel) call ga_igop(msg_efgs_col-1,npasses,1,'max')
       npt_pass=npt/npasses
@@ -139,10 +140,12 @@ c maxbuf is eq to maxscr, therefore 2do factor
          write(6,321) ' hnd_elfcon: passes      = ',npasses
          write(6,321) ' hnd_elfcon: npt         = ',npt
          write(6,321) ' hnd_elfcon: npt_pass    = ',npt_pass
+#ifdef DEBUG
          write(6,321) ' hnd_elfcon: mxbynpt     = ',mxbynpt
          write(6,321) ' hnd_elfcon: maxbuf      = ',maxbuf
          write(6,321) ' hnd_elfcon: maxbuf_pass = ',
      A        mxbynpt*npt_pass
+#endif
  321     format(a,i10)
       endif
       call ga_sync()
@@ -156,10 +159,15 @@ c
       maxbuf_pass=mxbynpt*npt_pass
       maxscr=maxbuf_pass
       if(oprint)  then
-         write(6,321) '   hnd_elfcon: pass        = ',i_pass
+         write(6,421) ' hnd_elfcon: pass = ',i_pass,
+     E        ' of ',npasses,100d0*i_pass/npasses,
+     E        '% done at ',util_wallsec(),'s.'
+ 421     format(a,i10,a,i10,f6.1,a,f16.2,a)
+#ifdef DEBUG
          write(6,321) '   hnd_elfcon: iptr        = ',iptr
          write(6,321) '   hnd_elfcon: npt_pass    = ',npt_pass
          write(6,321) '   hnd_elfcon: maxbuf_pass = ',maxbuf_pass
+#endif
       endif
       if (.not. ma_push_get(mt_dbl,maxbuf_pass,'scratch',l_scr,k_scr))
      &    call errquit('hnd_elfcon: ma 2 failed',911,MA_ERR)
