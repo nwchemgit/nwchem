@@ -201,6 +201,7 @@ c
          cz=xyzpt(3,ipt)
          yy=aa*((ax-cx)**2+(ay-cy)**2+(az-cz)**2)
          call hnd_droot
+!DEC$ LOOP COUNT MAX=20, MIN=6
          do 420 iroot=1,nroots
             uu=u9(iroot)*aa
             u4=uu*uu
@@ -254,6 +255,7 @@ c
                dumxy=0.0d0
                dumxz=0.0d0
                dumyz=0.0d0
+!DEC$ LOOP COUNT MAX=20, MIN=6
                do 430 iroot=1,nroots
                   dum=xv(ix,jx,iroot)*yv(iy,jy,iroot)*
      1                zv(iz,jz,iroot)*w2(iroot)
@@ -281,6 +283,7 @@ c
                dumx=0.0d0
                dumy=0.0d0
                dumz=0.0d0
+!DEC$ LOOP COUNT MAX=20, MIN=6
                do 431 iroot=1,nroots
                   dumx=dumx + dxv(ix,jx,iroot)*yv(iy,jy,iroot)*  
      1                 zv(iz,jz,iroot)*w2(iroot)
@@ -294,6 +297,7 @@ c
                elfder(ij,3,ipt) = elfder(ij,3,ipt) + dumz*dij
             else
                dumx=0.0d0
+!DEC$ LOOP COUNT MAX=20, MIN=6
                do 432 iroot=1,nroots
                   dumx=dumx + xv(ix,jx,iroot)*yv(iy,jy,iroot)*
      1                 zv(iz,jz,iroot)*w9(iroot)

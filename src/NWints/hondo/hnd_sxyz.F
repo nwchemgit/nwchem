@@ -25,6 +25,7 @@ c
       npts=(ni+nj-2)/2+1
       imin=hermin(npts)
       imax=hermax(npts)
+!DEC$ LOOP COUNT MAX=9, MIN=1
       do 16 i=imin,imax
          dum=w(i)
          px=dum
@@ -40,11 +41,13 @@ c
          bx=ptx-xj
          by=pty-yj
          bz=ptz-zj
+!DEC$ LOOP COUNT MAX=9, MIN=1
          do ii = 1, ni-1
             px=px*ax
             py=py*ay
             pz=pz*az
          enddo
+!DEC$ LOOP COUNT MAX=9, MIN=1
          do jj = 1, nj-1
             px=px*bx
             py=py*by

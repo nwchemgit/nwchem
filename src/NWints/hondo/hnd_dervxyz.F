@@ -42,6 +42,16 @@ c
          bx = ptx-xj
          by = pty-yj
          bz = ptz-zj
+         if(ni.eq.nj) then
+         do ii = 1, ni-1
+            px=px*ax
+            py=py*ay
+            pz=pz*az
+            px=px*bx
+            py=py*by
+            pz=pz*bz
+         enddo
+         else
          do ii = 1, ni-1
             px=px*ax
             py=py*ay
@@ -52,6 +62,7 @@ c
             py=py*by
             pz=pz*bz
          enddo
+         endif
          dum = w(i)
          xint = xint+dum*px
          yint = yint+dum*py
