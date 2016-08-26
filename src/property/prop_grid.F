@@ -100,6 +100,115 @@ c
      &      0, MA_ERR)
       end
 
+      subroutine prop_grid_writecubehead(geom,un,fname)
+c
+c
+c
+      implicit none
+#include "prop_grid_data.fh"
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "nwc_const.fh"
+#include "stdio.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+c
+      integer geom
+      character*(*) fname
+      integer i,ii
+      integer un ! [out]
+
+      integer ix,iy,iz
+      integer igrid
+      double precision charge
+      character*16 atag,element
+      character*2 symbol
+      integer atomicno,nat
+      double precision nuc_charge
+      double precision c(3)
+      character*30 pname
+      logical util_get_io_unit
+      external util_get_io_unit
+
+      pname = "grid_write_cube"
+      if(.not.util_get_io_unit(un))
+     >    call errquit(pname//"no free file unit",0,0)
+
+      open(unit=un,file=fname,
+     >       form='formatted',status='unknown')
+      charge = 0.0d0
+c      un = 54
+
+      if (.not.geom_ncent(geom,nat)) call
+     &    errquit('hnd_elpmap: geom_ncent',911,GEOM_ERR)
+   
+      write(un,*) "NWChem"
+      write(un,*) "Gaussian Cube file"
+9498  format(I5,3F12.6)
+      write(un,9498)
+     &           nat,(rmin(i),i=1,3)
+      write(un,9498)
+     &           ngrid(1),step(1),0d0,0d0
+      write(un,9498)
+     &           ngrid(2),0.0d0,step(2),0d0
+      write(un,9498)
+     &           ngrid(3),0.0d0,0.0d0,step(3)
+      do i=1,nat
+        if(.not.geom_cent_get(geom,i,atag,c,
+     &     nuc_charge)) call
+     &     errquit('geom_cent_get',911,GEOM_ERR)
+        if (.not. geom_tag_to_element(atag, symbol, 
+     &     element, atomicno)) then
+           if (symbol .ne. 'bq') call errquit
+     &          ('dplotdump: center is neither atom nor bq',
+     &          0,0)
+        endif
+        write(un,9499)
+     .        atomicno,charge,c(1),c(2),c(3)
+      end do
+ 9499 format(I5,4F12.6)
+ 
+      end subroutine
+      subroutine prop_grid_writecubegrid(n,v,un)
+c
+c
+c
+      implicit none
+#include "prop_grid_data.fh"
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "nwc_const.fh"
+#include "stdio.fh"
+#include "rtdb.fh"
+c
+      double precision v(*)
+      integer n
+      integer i,ii
+      integer un ! [in]
+
+      integer ix,iy,iz
+      integer igrid
+      character*30 pname
+      logical util_get_io_unit
+      external util_get_io_unit
+c
+      integer remaindr
+
+      pname = "grid_writecubegrid"
+      remaindr=n-(n/ngrid(3))*ngrid(3)
+      if(remaindr.ne.0)  then
+         write(6,*) ' n ngrid(3) ',n,ngrid(3)
+      call errquit(pname//'incompatible grid size',
+     N     remaindr,GEOM_ERR)
+      endif
+c
+      do i=1,n,ngrid(3)
+        write(un,1000) (v(i+ii),ii=0,ngrid(3)-1)
+      end do
+1000  format(6E13.5)       
+      end subroutine
       subroutine prop_grid_write_cube(geom,n,v,fname)
 c
 c
@@ -182,7 +291,7 @@ c      write(un,1000) (v(i),i=1,n)
       close(un)
       end subroutine
 
-      subroutine prop_grid_get_r_ptr(nr,i_r_out)
+      subroutine prop_grid_get_r_ptr(nr,i_r_out,ngrid_out)
 c
 c $Id$
 c
@@ -191,8 +300,11 @@ c
 #include "errquit.fh"
 c
       integer nr,i_r_out
+      integer ngrid_out(3)
       nr = PRODUCT(ngrid)
       i_r_out = i_r
+      ngrid_out(1)=ngrid(1)
+      ngrid_out(2)=ngrid(2)
+      ngrid_out(3)=ngrid(3)
        
       end
-

@@ -15,6 +15,7 @@ c
 #include "rtdb.fh"
 #include "cosmo.fh"
 #include "bas.fh"
+#include "msgids.fh"
 c
       integer rtdb      ! [Input] rtdb        
       integer basis     ! [Input] Basis set
@@ -54,6 +55,9 @@ c
       external ao_1prdm_read
       logical ocube
       integer nsp(3)
+      integer un_grid,avail_ma
+      integer npasses,i_pass
+      integer iptr,nprp_pass,ngrid(3)
       character*255 cube_name
       character*255 dmat_file
 c
@@ -128,7 +132,7 @@ c     either custom grid or (default) nuclei positions (M.V.)
 c     -------------------------------------------------
       if(ocube) then
          call prop_grid_initialize(rtdb,nat,dbl_mb(k_xyzpt))
-         call prop_grid_get_r_ptr(nprp,i_prp_c)
+         call prop_grid_get_r_ptr(nprp,i_prp_c,ngrid)
          do_points = .false.
          do_output = .false.
       else if(rtdb_get_info(rtdb, "prop:xyz", ma_prp_type, 
@@ -150,19 +154,52 @@ c     -------------------------------------------------
         do_output = .true.
       end if
 c
-      if (.not. ma_push_get(mt_dbl,nprp,'epot pnt',l_epot,k_epot))
+#ifndef OLDCUBE
+      call prop_grid_writecubehead(geom,un_grid,cube_name)
+#endif
+c
+c     check if enough mem is available
+c
+      avail_ma = ma_inquire_avail(mt_dbl)*9/10
+      npasses=nprp*2d0/avail_ma + 1d0
+c
+      call ga_igop(msg_efgs_col-4,npasses,1,'max')
+#ifdef OLDCUBE
+      if(npasses.gt.1) call errquit('hnd_elpmap: ma failed',0,MA_ERR)
+#endif
+      if(npasses.gt.1.and.do_points) 
+     C     call errquit('hnd_elpmap: ma failed',0,MA_ERR)
+      nprp_pass=nprp/npasses
+      if(npasses.gt.1) then
+c
+c     enforce nprp_pass to be a multiple of ngrid(3) to keep cube happy
+c
+         nprp_pass=(nprp_pass/ngrid(3))*ngrid(3)
+         npasses=nprp/nprp_pass
+         if(ga_nodeid().eq.0) then
+            write(6,'(a,i5,a,i10,a,i19)') 
+     H           ' hnd_elpmap: npasses:',npasses,
+     W           ' nprp_pass:',nprp_pass,' nprp:',nprp
+         endif
+      endif
+      iptr=0
+      do i_pass=1,npasses
+         iptr=(i_pass-1)*nprp_pass
+         if(i_pass.eq.npasses) nprp_pass=nprp-iptr
+
+      if (.not. ma_push_get(mt_dbl,nprp_pass,'epot pnt',l_epot,k_epot))
      &    call errquit('hnd_elpmap: ma failed',4,MA_ERR)
 c
 c     total electric field array (M.V.)
 c     --------------------------------
-      if (.not. ma_push_get(mt_dbl,nprp,'tot epot',l_tepot,k_tepot))
+      if (.not. ma_push_get(mt_dbl,nprp_pass,'totepot',l_tepot,k_tepot))
      &    call errquit('hnd_elpmap: ma failed',5,MA_ERR)
 c
 cc
 c     ----- calculate electronic contribution at all points -----
 c
-      call hnd_elfcon(basis,geom,g_dens(ndens),dbl_mb(i_prp_c),nprp,
-     &                dbl_mb(k_epot),0)
+      call hnd_elfcon(basis,geom,g_dens(ndens),dbl_mb(i_prp_c+iptr*3),
+     N     nprp_pass,   dbl_mb(k_epot),0)
 c
       dobq = .false.
       if(geom_extbq_on()) then
@@ -190,10 +227,10 @@ c
           write(luout,9997)
         end if
       end if
-      do 230  iat=1,nprp
-         xp = dbl_mb(i_prp_c  +3*(iat-1))
-         yp = dbl_mb(i_prp_c+1+3*(iat-1))
-         zp = dbl_mb(i_prp_c+2+3*(iat-1))
+      do 230  iat=1,nprp_pass
+         xp = dbl_mb(iptr*3+i_prp_c  +3*(iat-1))
+         yp = dbl_mb(iptr*3+i_prp_c+1+3*(iat-1))
+         zp = dbl_mb(iptr*3+i_prp_c+2+3*(iat-1))
 c
 c     ----- add nuclear contribution -----
 c
@@ -308,7 +345,13 @@ c
       if(ga_nodeid().eq.0.and.ocube) then
         call util_print_centered(luout, 
      >    "writing esp potential to "//cube_name,.true.,.true.)
+#ifdef OLDCUBE
         call prop_grid_write_cube(geom,nprp,dbl_mb(k_tepot),cube_name)
+#else
+c        call prop_grid_writecubehead(geom,un_grid,cube_name)
+        call prop_grid_writecubegrid(nprp_pass,dbl_mb(k_tepot),
+     F       un_grid)
+#endif
       end if
 c
 c     if custom grid is requested save final electric 
@@ -326,10 +369,12 @@ c
      &   ('hnd_elpmap, ma_pop_stack of l_tepot failed',911,MA_ERR)
       if (.not.ma_pop_stack(l_epot)) call errquit
      &   ('hnd_elpmap, ma_pop_stack of l_epot failed',911,MA_ERR)
+      enddo ! i_pass
       if(.not.ocube)  then
         if (.not.ma_pop_stack(h_prp_c)) call errquit
      &      ('hnd_elpmap, ma_pop_stack of h_prp_c failed',911,MA_ERR)
       else
+         close(un_grid)
          call prop_grid_destroy()
       endif
       if (.not.ma_pop_stack(l_zanpt)) call errquit
