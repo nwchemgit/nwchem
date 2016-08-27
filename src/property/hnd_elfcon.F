@@ -1,3 +1,4 @@
+#define DEBUG 1
       subroutine hnd_elfcon(basis,geom,g_dens,points,npt,elfval,nder)
 c
 c $Id$
@@ -131,13 +132,23 @@ check if enough MA mem is avail, if not then mult. passes
 c
       avail_ma = ma_inquire_avail(mt_dbl)*7/10
 c maxbuf is eq to maxscr, therefore 2d0 factor
-      npasses=maxbuf*2d0/avail_ma + 1d0
-      if (do_parallel) call ga_igop(msg_efgs_col-1,npasses,1,'max')
-      npt_pass=npt/npasses
-      mxbynpt=maxbuf/npt
+      npasses=maxbuf*2d0/avail_ma 
+ 123  npasses=npasses+1
       oprint=npasses.gt.1.and.ga_nodeid().eq.0
       if(oprint)  then
          write(6,321) ' hnd_elfcon: passes      = ',npasses
+      endif
+c     check if last loop ok
+      npt_pass=npt/npasses
+c     value of npt_pass at last loop
+      npt_pass=npt-(npasses-1)*npt_pass
+      mxbynpt=maxbuf/npt
+      maxbuf_pass=mxbynpt*npt_pass
+      if(2*maxbuf_pass.gt.avail_ma) goto 123
+      if (do_parallel) call ga_igop(msg_efgs_col-1,npasses,1,'max')
+      npt_pass=npt/npasses
+      mxbynpt=maxbuf/npt
+      if(oprint)  then
          write(6,321) ' hnd_elfcon: npt         = ',npt
          write(6,321) ' hnd_elfcon: npt_pass    = ',npt_pass
 #ifdef DEBUG
@@ -153,9 +164,24 @@ c
 c     Zero elfval result array
 c
       call dcopy(max(nder*3,1)*npt,0.0d0,0,elfval,1)
+c
+c     alloc scr and buf for ints
+c
+      maxscr=maxbuf_pass
+      if(oprint)  then
+         write(6,321) ' hnd_elfcon: maxbuf_pass2= ',maxbuf_pass
+      endif
+      if (.not. ma_push_get(mt_dbl,maxbuf_pass,'scratch',l_scr,k_scr))
+     &    call errquit('hnd_elfcon: ma 2 failed',911,MA_ERR)
+      if (.not. ma_push_get(mt_dbl,maxbuf_pass,'int buf',
+     L        l_buf,k_buf))
+     &    call errquit('hnd_elfcon: ma 3 failed',maxbuf_pass,MA_ERR)
+      if (doschwarz) call schwarz_init(geom, basis)
       do i_pass=1,npasses
       iptr=(i_pass-1)*npt_pass+1
+      npt_pass=npt/npasses
       if(i_pass.eq.npasses) npt_pass=npt-iptr+1
+
       maxbuf_pass=mxbynpt*npt_pass
       maxscr=maxbuf_pass
       if(oprint)  then
@@ -169,16 +195,10 @@ c
          write(6,321) '   hnd_elfcon: maxbuf_pass = ',maxbuf_pass
 #endif
       endif
-      if (.not. ma_push_get(mt_dbl,maxbuf_pass,'scratch',l_scr,k_scr))
-     &    call errquit('hnd_elfcon: ma 2 failed',911,MA_ERR)
-      if (.not. ma_push_get(mt_dbl,maxbuf_pass,'int buf',
-     L        l_buf,k_buf))
-     &    call errquit('hnd_elfcon: ma 3 failed',maxbuf_pass,MA_ERR)
       call dcopy(maxbuf_pass,0.0d0,0,dbl_mb(k_buf),1)
 c
 c     ----- calculate electronic integral component(s) at all points -----
 c
-      if (doschwarz) call schwarz_init(geom, basis)
       ijshell = 0
       task_size = 1
 cc AJL/Begin/FDE
@@ -253,11 +273,14 @@ cc AJL/End
             end if  ! mod parallel loop
          end do   ! jshell
       end do    ! ishell
-      if(doschwarz) call schwarz_tidy()
-      if (.not.ma_chop_stack(l_scr)) call errquit
-     &   ('hnd_elfcon, ma_pop_stack of l_buf failed',911,MA_ERR)
       if (do_parallel) next=nxtask(-nproc,task_size)
       enddo ! i_pass
+      if(doschwarz) call schwarz_tidy()
+      if (.not.ma_chop_stack(l_scr)) then
+       call ma_summarize_allocated_blocks()
+         call errquit
+     &   ('hnd_elfcon, ma_pop_stack of l_scr failed',1,MA_ERR)
+      endif
 c     Collect components from all the nodes for all points
 c
 cc AJL/Begin/FDE
