@@ -1,0 +1,34 @@
+C>
+C> \brief The parameters data type
+C>
+C> This data type stores various parameters of the calculation.
+C> These parameters are entities that do not change throughout the
+C> calculation but are also simple objects (e.g. the convergence
+C> criterion, the maximum number of iterations, etc.) which are
+C> stored in a replicated fashion. Distributed quantities are stored
+C> in a different data type.
+C>
+      type wfn1_prm
+         double precision :: convergence ! convergence criterion
+         double precision :: enuc        ! nuclear repulsion energy
+         integer          :: maxiter     ! maximum number of iterations
+         integer          :: nbf         ! number of basis functions
+         integer          :: nmo         ! number of molecular orbitals
+         integer          :: nea         ! number of alpha electrons
+         integer          :: neb         ! number of beta electrons
+      end type wfn1_prm
+C>
+C> \brief The parameter instance data type
+C>
+C> This data type stores various parameter instances of the calculation.
+C> These parameters are entities that do not change throughout the
+C> calculation but are complex instances. Typically these instances are
+C> stored in a replicated fashion. Distributed quantities are stored
+C> in a different data type. The runtime database is a bit different in
+C> it gets updated with the calculation results at the end.
+C>
+      type wfn1_prminst
+         integer :: geom  ! handle of the geometry object
+         integer :: basis ! handle of the basis set object
+         integer :: rtdb  ! handle of the runtime database
+      end type wfn1_prminst

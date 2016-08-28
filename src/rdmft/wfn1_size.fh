@@ -1,0 +1,4 @@
+      integer wfn1_ibd_proc
+      integer wfn1_ibi_proc
+      integer wfn1_ibd
+      integer wfn1_ibi

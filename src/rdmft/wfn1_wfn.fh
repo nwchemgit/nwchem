@@ -1,0 +1,25 @@
+C>
+C> \brief The wavefunction data typ
+C>
+C> This data type stores all parts that define the wavefunction overall.
+C> This includes:
+C> - the alpha natural orbitals (global array)
+C> - the beta natural orbitals (global array)
+C> - the alpha correlation functions (global array)
+C> - the beta correlation functions (global array)
+C> - the alpha electron configuration (replicated array)
+C> - the beta electron configuration (replicated array)
+C> Regarding the electron configurations the plan is to store
+C> an ordered list of the orbitals that are occupied. The plan is
+C> to exploit this for the delta-SCF.
+C>
+      type wfn1_wfn
+         integer :: g_na ! GA handle for the alpha natural orbitals
+         integer :: g_nb ! GA handle for the beta correlation functions
+         integer :: g_ca ! GA handle for the alpha natural orbitals
+         integer :: g_cb ! GA handle for the beta correlation functions
+         integer, allocatable :: icnfa(:) ! the alpha electron
+                                          ! configuration
+         integer, allocatable :: icnfb(:) ! the alpha electron
+                                          ! configuration
+      end type wfn1_wfn
