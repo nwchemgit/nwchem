@@ -3711,6 +3711,11 @@ c      tid = Parallel_threadid()
          call D3dB_pfftbx(nbb,tmp1,tmp2,request,reqcnt)
       end if
 
+      !if (nbb.eq.2) then
+      !    if      (step.eq.7) then
+      !    else if (step.eq.8) then
+      ! end if
+
       return
       end
 

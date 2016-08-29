@@ -6510,3 +6510,960 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
 
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         D3dB_r_1to3_init        *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_r_1to3_init()
+      implicit none
+
+#include "bafdecls.fh"
+#include "D3dB.fh"
+#include "errquit.fh"
+
+*     **** r_1to3_block common block ****
+      integer maxq_1t3
+      parameter (maxq_1t3=6)
+      integer qhead0_1t3,qhead1_1t3,qlast_1t3
+      integer i1_start_1t3(2),i2_start_1t3(2)
+      integer c_iq_to_i1_1t3(2),c_iq_to_i2_1t3(2)
+      integer index2_1t3(2)
+      common /r_1to3_block/ i1_start_1t3,i2_start_1t3,
+     >                      c_iq_to_i1_1t3,c_iq_to_i2_1t3,
+     >                      index2_1t3,
+     >                      qhead0_1t3,qhead1_1t3,qlast_1t3
+
+*     **** local variables ****
+      logical value
+      integer np
+
+
+      call Parallel2d_np_i(np)
+
+      !**** allocate indexing space from heap ****
+      value = BA_alloc_get(mt_int,maxq_1t3*(np+1),'i1_start_1t3',
+     >                    i1_start_1t3(2),i1_start_1t3(1))
+      value = value.and.
+     >        BA_alloc_get(mt_int,maxq_1t3*(np+1),'i2_start_1t3',
+     >                    i2_start_1t3(2),i2_start_1t3(1))
+      value = value.and.
+     >        BA_alloc_get(mt_int,maxq_1t3*n2ft3d(1),'c_iq_to_i1_1t3',
+     >                    c_iq_to_i1_1t3(2),c_iq_to_i1_1t3(1))
+      value = value.and.
+     >        BA_alloc_get(mt_int,maxq_1t3*n2ft3d(1),'c_iq_to_i2_1t3',
+     >                    c_iq_to_i2_1t3(2),c_iq_to_i2_1t3(1))
+      value = value.and.
+     >        BA_alloc_get(mt_int,maxq_1t3,'index_1t3',
+     >                     index2_1t3(2),index2_1t3(1))
+      if (.not.value)
+     >   call errquit('D3dB_r_1to3_init:out of heap',0,MA_ERR)
+
+!$OMP MASTER
+      qhead0_1t3 = 0
+      qhead1_1t3 = 0
+      qlast_1t3  = 0
+!$OMP END MASTER
+!$OMP BARRIER
+
+      return
+      end 
+
+
+*     ***********************************
+*     *                                 *
+*     *    D3dB_r_1to3_Contract_start   *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_r_1to3_Contract_start(center,A,tmp1,
+     >                                      request,reqcnt)
+      implicit none
+      integer center(3)
+      real*8 A(*)
+      real*8 tmp1(*)
+      integer request(*),reqcnt
+
+#include "bafdecls.fh"
+#include "mpif.h"
+#include "D3dB.fh"
+#include "errquit.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
+*     **** r_1to3_block common block ****
+      integer maxq_1t3
+      parameter (maxq_1t3=6)
+      integer qhead0_1t3,qhead1_1t3,qlast_1t3
+      integer i1_start_1t3(2),i2_start_1t3(2)
+      integer c_iq_to_i1_1t3(2),c_iq_to_i2_1t3(2)
+      integer index2_1t3(2)
+      common /r_1to3_block/ i1_start_1t3,i2_start_1t3,
+     >                      c_iq_to_i1_1t3,c_iq_to_i2_1t3,
+     >                      index2_1t3,
+     >                      qhead0_1t3,qhead1_1t3,qlast_1t3
+
+*     **** local variables ****
+      logical value
+      integer taskid,np
+      integer proc_to,proc_from,source
+      integer indxbig,pbig,indxsmall,psmall,itmp
+      integer index1,index2,msgtype,msglen
+      integer k1,k2,k3,l1,l2,l3,i,j,k,il,jl,kl,it
+      integer nxh,nyh,nzh,nxh_small,nyh_small,nzh_small
+      integer pindex1(2),pindex2(2)
+      integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
+      integer shift1,shift2
+      
+
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
+
+      !**** allocate temporary space from stack ****
+      value = BA_push_get(mt_int,np,'pindex1_1t3',pindex1(2),pindex1(1))
+      value = value.and.
+     >        BA_push_get(mt_int,np,'pindex2_1t3',pindex2(2),pindex2(1))
+      if (.not.value)
+     >  call errquit('D3dB_r_1to3_Contract_start:out of stack',0,MA_ERR)
+
+      shift1 = qlast_1t3*(np+1)
+      shift2 = qlast_1t3*n2ft3d(1)
+      i1_start = i1_start_1t3(1) + shift1
+      i2_start = i2_start_1t3(1) + shift1
+      c_iq_to_i1 = c_iq_to_i1_1t3(1) + shift2
+      c_iq_to_i2 = c_iq_to_i2_1t3(1) + shift2
+
+      nxh = nx(1)/2
+      nyh = ny(1)/2
+      nzh = nz(1)/2
+
+      nxh_small = nx(3)/2
+      nyh_small = ny(3)/2
+      nzh_small = nz(3)/2
+
+!$OMP MASTER
+      do it=0,np-1
+         int_mb(pindex1(1)+it) = 0
+         int_mb(pindex2(1)+it) = 0
+      end do
+      do k3=-nzh_small,nzh_small-1
+         l3 = k3 + center(3)
+         if (l3.lt.(-nzh))  l3 = l3 + nz(1)
+         if (l3.gt.(nzh-1)) l3 = l3 - nz(1)
+         k  = k3 + nzh_small
+         kl = l3 + nzh
+
+         do k2=-nyh_small,nyh_small-1
+            l2 = k2 + center(2)
+            if (l2.lt.(-nyh))  l2 = l2 + ny(1)
+            if (l2.gt.(nyh-1)) l2 = l2 - ny(1)
+            j  = k2 + nyh_small
+            jl = l2 + nyh
+
+            do k1=-nxh_small,nxh_small-1
+               l1 = k1 + center(1)
+               if (l1.lt.(-nxh))  l1 = l1 + nx(1)
+               if (l1.gt.(nxh-1)) l1 = l1 - nx(1)
+               i  = k1 + nxh_small
+               il = l1 + nxh
+
+               call D3dB_ijktoindex2p(1,il+1,jl+1,kl+1,indxbig,pbig)
+               call D3dB_ijktoindex2p(3,i+1,j+1,k+1,indxsmall,psmall)
+
+*              **** packing scheme **** 
+               if (pbig.eq.taskid) then
+                  int_mb(pindex1(1)+psmall)=int_mb(pindex1(1)+psmall)+1
+               end if
+
+*              **** unpacking scheme **** 
+               if (psmall.eq.taskid) then
+                  int_mb(pindex2(1)+pbig) = int_mb(pindex2(1)+pbig)+1
+               end if
+
+            end do
+         end do
+      end do
+      index1 = 1
+      index2 = 1
+      do it=0,np-1
+         proc_to   = mod(taskid+it,np)
+         proc_from = mod(taskid-it+np,np)
+         int_mb(i1_start+it) = index1
+         int_mb(i2_start+it) = index2
+         index1 = index1 + int_mb(pindex1(1)+proc_to)
+         index2 = index2 + int_mb(pindex2(1)+proc_from)
+      end do
+      int_mb(i1_start+np) = index1
+      int_mb(i2_start+np) = index2
+
+      do it=0,np-1
+         int_mb(pindex1(1)+it) = 0
+         int_mb(pindex2(1)+it) = 0
+      end do
+      do k3=-nzh_small,nzh_small-1
+         l3 = k3 + center(3)
+         if (l3.lt.(-nzh))  l3 = l3 + nz(1)
+         if (l3.gt.(nzh-1)) l3 = l3 - nz(1)
+         k  = k3 + nzh_small
+         kl = l3 + nzh
+
+         do k2=-nyh_small,nyh_small-1
+            l2 = k2 + center(2)
+            if (l2.lt.(-nyh))  l2 = l2 + ny(1)
+            if (l2.gt.(nyh-1)) l2 = l2 - ny(1)
+            j  = k2 + nyh_small
+            jl = l2 + nyh
+
+            do k1=-nxh_small,nxh_small-1
+               l1 = k1 + center(1)
+               if (l1.lt.(-nxh))  l1 = l1 + nx(1)
+               if (l1.gt.(nxh-1)) l1 = l1 - nx(1)
+               i  = k1 + nxh_small
+               il = l1 + nxh
+
+               call D3dB_ijktoindex2p(1,il+1,jl+1,kl+1,indxbig,pbig)
+               call D3dB_ijktoindex2p(3,i+1,j+1,k+1,indxsmall,psmall)
+
+*              **** packing scheme **** 
+               if (pbig.eq.taskid) then
+                  itmp = int_mb(i1_start+psmall) 
+     >                 + int_mb(pindex1(1)+psmall)
+                  int_mb(c_iq_to_i1+itmp-1) = indxbig
+                  int_mb(pindex1(1)+psmall) =int_mb(pindex1(1)+psmall)+1
+               end if
+
+*              **** unpacking scheme **** 
+               if (psmall.eq.taskid) then
+                  itmp = int_mb(i2_start+pbig) 
+     >                 + int_mb(pindex2(1)+pbig)
+                  int_mb(c_iq_to_i2+itmp-1) = indxsmall
+                  int_mb(pindex2(1)+pbig)   = int_mb(pindex2(1)+pbig)+1
+               end if
+
+            end do
+         end do
+      end do
+
+
+*     **** set index2 and increment qlast_1t3 ****
+      int_mb(index2_1t3(1)+qlast_1t3) = index2
+      qlast_1t3 = mod(qlast_1t3+1,maxq_1t3)
+
+!$OMP END MASTER
+!$OMP BARRIER
+
+
+*     **** pack A(i) array ****
+!$OMP DO
+      do i=1,index1-1
+         tmp1(i) = A(int_mb(c_iq_to_i1+i-1)) 
+      end do
+!$OMP END DO
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *    D3dB_r_1to3_Contract_mid     *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_r_1to3_Contract_mid(tmp1,tmp2,request,reqcnt)
+      implicit none
+      real*8 tmp1(*)
+      real*8 tmp2(*)
+      integer request(*),reqcnt
+      
+
+#include "bafdecls.fh"
+#include "mpif.h"
+#include "D3dB.fh"
+#include "errquit.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
+*     **** r_1to3_block common block ****
+      integer maxq_1t3
+      parameter (maxq_1t3=6)
+      integer qhead0_1t3,qhead1_1t3,qlast_1t3
+      integer i1_start_1t3(2),i2_start_1t3(2)
+      integer c_iq_to_i1_1t3(2),c_iq_to_i2_1t3(2)
+      integer index2_1t3(2)
+      common /r_1to3_block/ i1_start_1t3,i2_start_1t3,
+     >                      c_iq_to_i1_1t3,c_iq_to_i2_1t3,
+     >                      index2_1t3,
+     >                      qhead0_1t3,qhead1_1t3,qlast_1t3
+
+*     **** local variables ****
+      logical value
+      integer taskid,np
+      integer proc_to,proc_from,source
+      integer it,itmp,msgtype,msglen
+      integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
+      integer shift1,shift2
+
+c     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
+
+
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
+
+      shift1 = qhead0_1t3*(np+1)
+      shift2 = qhead0_1t3*n2ft3d(1)
+      i1_start = i1_start_1t3(1) + shift1
+      i2_start = i2_start_1t3(1) + shift1
+      c_iq_to_i1 = c_iq_to_i1_1t3(1) + shift2
+      c_iq_to_i2 = c_iq_to_i2_1t3(1) + shift2
+
+
+*     **** it = 0, transpose data on same thread ****  
+      msglen = int_mb(i2_start+2-1) - int_mb(i2_start+1-1)
+
+      call Parallel_shared_vector_copy(.false.,msglen,
+     >               tmp1(int_mb(i1_start+1-1)),
+     >               tmp2(int_mb(i2_start+1-1)))
+
+!$OMP MASTER
+
+*     **** receive packed array data ****
+      reqcnt = 0
+      do it = 1,np-1
+
+*        **** synchronous receive of tmp ****
+         proc_from = mod((taskid)-it+np, np)
+
+         msgtype = 93
+         source=proc_from
+         msglen = (int_mb(i2_start+it+2-1)
+     >          -  int_mb(i2_start+it+1-1))
+
+         if (msglen.gt.0) then
+            reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(source)
+            call MPI_IRECV(tmp2(int_mb(i2_start+it+1-1)),
+     >                    stupid_msglen,stupid_double,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr)
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
+            call MPI_IRECV(tmp2(int_mb(i2_start+it+1-1)),
+     >                    msglen,MPI_DOUBLE_PRECISION,
+     >                    Parallel2d_convert_taskid_i(source),
+     >                    msgtype,Parallel_comm_world(),
+     >                    request(reqcnt),mpierr)
+#endif
+         end if
+
+      end do
+
+*     **** send packed array to other processors ****
+      do it = 1,np-1
+
+*        **** synchronous send of tmp ****
+         proc_to   = mod((taskid)+it, np)
+         msglen    = (int_mb(i1_start+it+2-1)
+     >              - int_mb(i1_start+it+1-1))
+         msgtype   = 93
+
+         if (msglen.gt.0) then
+            reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
+            call MPI_ISEND(tmp1(int_mb(i1_start+it+1-1)),
+     >                     stupid_msglen,stupid_double,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,
+     >                     stupid_request,stupid_ierr)
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
+            call MPI_ISEND(tmp1(int_mb(i1_start+it+1-1)),
+     >                     msglen,MPI_DOUBLE_PRECISION,
+     >                     Parallel2d_convert_taskid_i(proc_to),
+     >                     msgtype,Parallel_comm_world(),
+     >                     request(reqcnt),mpierr)
+#endif
+         end if
+
+      end do
+
+*     *** increment qhead0_1t3
+      qhead0_1t3 = mod(qhead0_1t3+1,maxq_1t3)
+
+!$OMP END MASTER
+!$OMP BARRIER
+
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *    D3dB_r_1to3_Contract_final   *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_r_1to3_Contract_final(tmp2,A,request,reqcnt)
+      implicit none
+      real*8 tmp2(*),A(*)
+      integer request(*),reqcnt
+
+#include "bafdecls.fh"
+#include "D3dB.fh"
+#include "errquit.fh"
+
+*     **** r_1to3_block common block ****
+      integer maxq_1t3
+      parameter (maxq_1t3=6)
+      integer qhead0_1t3,qhead1_1t3,qlast_1t3
+      integer i1_start_1t3(2),i2_start_1t3(2)
+      integer c_iq_to_i1_1t3(2),c_iq_to_i2_1t3(2)
+      integer index2_1t3(2)
+      common /r_1to3_block/ i1_start_1t3,i2_start_1t3,
+     >                      c_iq_to_i1_1t3,c_iq_to_i2_1t3,
+     >                      index2_1t3,
+     >                      qhead0_1t3,qhead1_1t3,qlast_1t3
+
+*     **** local variables ****
+      logical value
+      integer taskid,np
+      integer proc_to,proc_from,source
+      integer itmp,msgtype,msglen,it,i
+      integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
+      integer shift1,shift2,index2
+
+
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
+
+      call Parallel_shared_vector_zero(.false.,n2ft3d(1),A)
+      
+      shift1 = qhead1_1t3*(np+1)
+      shift2 = qhead1_1t3*n2ft3d(1)
+      i1_start = i1_start_1t3(1) + shift1
+      i2_start = i2_start_1t3(1) + shift1
+      c_iq_to_i1 = c_iq_to_i1_1t3(1) + shift2
+      c_iq_to_i2 = c_iq_to_i2_1t3(1) + shift2
+      index2 = int_mb(index2_1t3(1)+qhead1_1t3)
+
+!$OMP MASTER
+*     **** wait for completion of mp_send, also do a sync ****
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
+
+*     *** increment qhead1_1t3
+      qhead1_1t3 = mod(qhead1_1t3+1,maxq_1t3)
+
+!$OMP END MASTER
+!$OMP BARRIER
+
+*     **** unpack tmp2(i) array ****
+!$OMP DO
+      do i=1,index2-1
+         A(int_mb(c_iq_to_i2+i-1)) = tmp2(i)
+      end do
+!$OMP END DO
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         D3dB_r_3to1_init        *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_r_3to1_init()
+      implicit none
+
+#include "bafdecls.fh"
+#include "D3dB.fh"
+#include "errquit.fh"
+
+*     **** r_3to1_block common block ****
+      integer maxq_3t1
+      parameter (maxq_3t1=6)
+      integer qhead0_3t1,qhead1_3t1,qlast_3t1
+      integer i1_start_3t1(2),i2_start_3t1(2)
+      integer c_iq_to_i1_3t1(2),c_iq_to_i2_3t1(2)
+      integer index2_3t1(2)
+      common /r_3to1_block/ i1_start_3t1,i2_start_3t1,
+     >                      c_iq_to_i1_3t1,c_iq_to_i2_3t1,
+     >                      index2_3t1,
+     >                      qhead0_3t1,qhead1_3t1,qlast_3t1
+
+*     **** local variables ****
+      logical value
+      integer np
+
+
+      call Parallel2d_np_i(np)
+
+      !**** allocate indexing space from heap ****
+      value = BA_alloc_get(mt_int,maxq_3t1*(np+1),'i1_start_3t1',
+     >                    i1_start_3t1(2),i1_start_3t1(1))
+      value = value.and.
+     >        BA_alloc_get(mt_int,maxq_3t1*(np+1),'i2_start_3t1',
+     >                    i2_start_3t1(2),i2_start_3t1(1))
+      value = value.and.
+     >        BA_alloc_get(mt_int,maxq_3t1*n2ft3d(1),'c_iq_to_i1_3t1',
+     >                    c_iq_to_i1_3t1(2),c_iq_to_i1_3t1(1))
+      value = value.and.
+     >        BA_alloc_get(mt_int,maxq_3t1*n2ft3d(1),'c_iq_to_i2_3t1',
+     >                    c_iq_to_i2_3t1(2),c_iq_to_i2_3t1(1))
+      value = value.and.
+     >        BA_alloc_get(mt_int,maxq_3t1,'index_3t1',
+     >                     index2_3t1(2),index2_3t1(1))
+      if (.not.value)
+     >   call errquit('D3dB_r_3to1_init:out of heap',0,MA_ERR)
+
+!$OMP MASTER
+      qhead0_3t1 = 0
+      qhead1_3t1 = 0
+      qlast_3t1  = 0
+!$OMP END MASTER
+!$OMP BARRIER
+
+      return
+      end 
+
+
+*     ***********************************
+*     *                                 *
+*     *    D3dB_r_3to1_Expand_start     *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_r_3to1_Expand_start(center,A,tmp1,
+     >                                      request,reqcnt)
+      implicit none
+      integer center(3)
+      real*8 A(*)
+      real*8 tmp1(*)
+      integer request(*),reqcnt
+
+#include "bafdecls.fh"
+#include "mpif.h"
+#include "D3dB.fh"
+#include "errquit.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
+*     **** r_3to1_block common block ****
+      integer maxq_3t1
+      parameter (maxq_3t1=6)
+      integer qhead0_3t1,qhead1_3t1,qlast_3t1
+      integer i1_start_3t1(2),i2_start_3t1(2)
+      integer c_iq_to_i1_3t1(2),c_iq_to_i2_3t1(2)
+      integer index2_3t1(2)
+      common /r_3to1_block/ i1_start_3t1,i2_start_3t1,
+     >                      c_iq_to_i1_3t1,c_iq_to_i2_3t1,
+     >                      index2_3t1,
+     >                      qhead0_3t1,qhead1_3t1,qlast_3t1
+
+*     **** local variables ****
+      logical value
+      integer taskid,np
+      integer proc_to,proc_from,source
+      integer indxbig,pbig,indxsmall,psmall,itmp
+      integer index1,index2,msgtype,msglen
+      integer k1,k2,k3,l1,l2,l3,i,j,k,il,jl,kl,it
+      integer nxh,nyh,nzh,nxh_small,nyh_small,nzh_small
+      integer pindex1(2),pindex2(2)
+      integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
+      integer shift1,shift2
+      
+
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
+
+      !**** allocate temporary space from stack ****
+      value = BA_push_get(mt_int,np,'pindex1_3t1',pindex1(2),pindex1(1))
+      value = value.and.
+     >        BA_push_get(mt_int,np,'pindex2_3t1',pindex2(2),pindex2(1))
+      if (.not.value)
+     >  call errquit('D3dB_r_3to1_Expand_start:out of stack',0,MA_ERR)
+
+      shift1 = qlast_3t1*(np+1)
+      shift2 = qlast_3t1*n2ft3d(1)
+      i1_start = i1_start_3t1(1) + shift1
+      i2_start = i2_start_3t1(1) + shift1
+      c_iq_to_i1 = c_iq_to_i1_3t1(1) + shift2
+      c_iq_to_i2 = c_iq_to_i2_3t1(1) + shift2
+
+      nxh = nx(1)/2
+      nyh = ny(1)/2
+      nzh = nz(1)/2
+
+      nxh_small = nx(3)/2
+      nyh_small = ny(3)/2
+      nzh_small = nz(3)/2
+
+!$OMP MASTER
+      do it=0,np-1
+         int_mb(pindex1(1)+it) = 0
+         int_mb(pindex2(1)+it) = 0
+      end do
+      do k3=-nzh_small,nzh_small-1
+         l3 = k3 + center(3)
+         if (l3.lt.(-nzh))  l3 = l3 + nz(1)
+         if (l3.gt.(nzh-1)) l3 = l3 - nz(1)
+         k  = k3 + nzh_small
+         kl = l3 + nzh
+
+         do k2=-nyh_small,nyh_small-1
+            l2 = k2 + center(2)
+            if (l2.lt.(-nyh))  l2 = l2 + ny(1)
+            if (l2.gt.(nyh-1)) l2 = l2 - ny(1)
+            j  = k2 + nyh_small
+            jl = l2 + nyh
+
+            do k1=-nxh_small,nxh_small-1
+               l1 = k1 + center(1)
+               if (l1.lt.(-nxh))  l1 = l1 + nx(1)
+               if (l1.gt.(nxh-1)) l1 = l1 - nx(1)
+               i  = k1 + nxh_small
+               il = l1 + nxh
+
+               call D3dB_ijktoindex2p(1,il+1,jl+1,kl+1,indxbig,pbig)
+               call D3dB_ijktoindex2p(3,i+1,j+1,k+1,indxsmall,psmall)
+
+*              **** packing scheme **** 
+               if (psmall.eq.taskid) then
+                  int_mb(pindex1(1)+pbig) = int_mb(pindex1(1)+pbig)+1
+               end if
+
+*              **** unpacking scheme **** 
+               if (pbig.eq.taskid) then
+                  int_mb(pindex2(1)+psmall)=int_mb(pindex2(1)+psmall)+1
+               end if
+
+
+            end do
+         end do
+      end do
+      index1 = 1
+      index2 = 1
+      do it=0,np-1
+         proc_to   = mod(taskid+it,np)
+         proc_from = mod(taskid-it+np,np)
+         int_mb(i1_start+it) = index1
+         int_mb(i2_start+it) = index2
+         index1 = index1 + int_mb(pindex1(1)+proc_to)
+         index2 = index2 + int_mb(pindex2(1)+proc_from)
+      end do
+      int_mb(i1_start+np) = index1
+      int_mb(i2_start+np) = index2
+
+      do it=0,np-1
+         int_mb(pindex1(1)+it) = 0
+         int_mb(pindex2(1)+it) = 0
+      end do
+      do k3=-nzh_small,nzh_small-1
+         l3 = k3 + center(3)
+         if (l3.lt.(-nzh))  l3 = l3 + nz(1)
+         if (l3.gt.(nzh-1)) l3 = l3 - nz(1)
+         k  = k3 + nzh_small
+         kl = l3 + nzh
+
+         do k2=-nyh_small,nyh_small-1
+            l2 = k2 + center(2)
+            if (l2.lt.(-nyh))  l2 = l2 + ny(1)
+            if (l2.gt.(nyh-1)) l2 = l2 - ny(1)
+            j  = k2 + nyh_small
+            jl = l2 + nyh
+
+            do k1=-nxh_small,nxh_small-1
+               l1 = k1 + center(1)
+               if (l1.lt.(-nxh))  l1 = l1 + nx(1)
+               if (l1.gt.(nxh-1)) l1 = l1 - nx(1)
+               i  = k1 + nxh_small
+               il = l1 + nxh
+
+               call D3dB_ijktoindex2p(1,il+1,jl+1,kl+1,indxbig,pbig)
+               call D3dB_ijktoindex2p(3,i+1,j+1,k+1,indxsmall,psmall)
+
+*              **** packing scheme **** 
+               if (psmall.eq.taskid) then
+                  itmp = int_mb(i1_start+pbig)
+     >                 + int_mb(pindex1(1)+pbig)
+                  int_mb(c_iq_to_i1+itmp-1) = indxsmall
+                  int_mb(pindex1(1)+pbig) = int_mb(pindex1(1)+pbig)+1
+               end if
+
+*              **** unpacking scheme **** 
+               if (pbig.eq.taskid) then
+                  itmp = int_mb(i2_start+psmall)
+     >                 + int_mb(pindex2(1)+psmall)
+                  int_mb(c_iq_to_i2+itmp-1) = indxbig
+                  int_mb(pindex2(1)+psmall)=int_mb(pindex2(1)+psmall)+1
+               end if
+
+
+            end do
+         end do
+      end do
+
+
+*     **** set index2 and increment qlast_3t1 ****
+      int_mb(index2_3t1(1)+qlast_3t1) = index2
+      qlast_3t1 = mod(qlast_3t1+1,maxq_3t1)
+
+!$OMP END MASTER
+!$OMP BARRIER
+
+
+*     **** pack A(i) array ****
+!$OMP DO
+      do i=1,index1-1
+         tmp1(i) = A(int_mb(c_iq_to_i1+i-1)) 
+      end do
+!$OMP END DO
+
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *    D3dB_r_3to1_Expand_mid     *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_r_3to1_Expand_mid(tmp1,tmp2,request,reqcnt)
+      implicit none
+      real*8 tmp1(*)
+      real*8 tmp2(*)
+      integer request(*),reqcnt
+      
+
+#include "bafdecls.fh"
+#include "mpif.h"
+#include "D3dB.fh"
+#include "errquit.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
+*     **** r_3to1_block common block ****
+      integer maxq_3t1
+      parameter (maxq_3t1=6)
+      integer qhead0_3t1,qhead1_3t1,qlast_3t1
+      integer i1_start_3t1(2),i2_start_3t1(2)
+      integer c_iq_to_i1_3t1(2),c_iq_to_i2_3t1(2)
+      integer index2_3t1(2)
+      common /r_3to1_block/ i1_start_3t1,i2_start_3t1,
+     >                      c_iq_to_i1_3t1,c_iq_to_i2_3t1,
+     >                      index2_3t1,
+     >                      qhead0_3t1,qhead1_3t1,qlast_3t1
+
+*     **** local variables ****
+      logical value
+      integer taskid,np
+      integer proc_to,proc_from,source
+      integer it,itmp,msgtype,msglen
+      integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
+      integer shift1,shift2
+
+c     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
+
+
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
+
+      shift1 = qhead0_3t1*(np+1)
+      shift2 = qhead0_3t1*n2ft3d(1)
+      i1_start = i1_start_3t1(1) + shift1
+      i2_start = i2_start_3t1(1) + shift1
+      c_iq_to_i1 = c_iq_to_i1_3t1(1) + shift2
+      c_iq_to_i2 = c_iq_to_i2_3t1(1) + shift2
+
+
+*     **** it = 0, transpose data on same thread ****  
+      msglen = int_mb(i2_start+2-1) - int_mb(i2_start+1-1)
+
+      call Parallel_shared_vector_copy(.false.,msglen,
+     >               tmp1(int_mb(i1_start+1-1)),
+     >               tmp2(int_mb(i2_start+1-1)))
+
+
+
+!$OMP MASTER
+
+*     **** receive packed array data ****
+      reqcnt = 0
+      do it = 1,np-1
+
+*        **** synchronous receive of tmp ****
+         proc_from = mod((taskid)-it+np, np)
+
+         msgtype = 94
+         source=proc_from
+         msglen = (int_mb(i2_start+it+2-1)
+     >          -  int_mb(i2_start+it+1-1))
+
+         if (msglen.gt.0) then
+            reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(source)
+            call MPI_IRECV(tmp2(int_mb(i2_start+it+1-1)),
+     >                    stupid_msglen,stupid_double,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr)
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
+            call MPI_IRECV(tmp2(int_mb(i2_start+it+1-1)),
+     >                    msglen,MPI_DOUBLE_PRECISION,
+     >                    Parallel2d_convert_taskid_i(source),
+     >                    msgtype,Parallel_comm_world(),
+     >                    request(reqcnt),mpierr)
+#endif
+         end if
+
+      end do
+
+*     **** send packed array to other processors ****
+      do it = 1,np-1
+
+*        **** synchronous send of tmp ****
+         proc_to   = mod((taskid)+it, np)
+         msglen    = (int_mb(i1_start+it+2-1)
+     >              - int_mb(i1_start+it+1-1))
+         msgtype   = 94
+
+         if (msglen.gt.0) then
+            reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
+            call MPI_ISEND(tmp1(int_mb(i1_start+it+1-1)),
+     >                     stupid_msglen,stupid_double,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,
+     >                     stupid_request,stupid_ierr)
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
+            call MPI_ISEND(tmp1(int_mb(i1_start+it+1-1)),
+     >                     msglen,MPI_DOUBLE_PRECISION,
+     >                     Parallel2d_convert_taskid_i(proc_to),
+     >                     msgtype,Parallel_comm_world(),
+     >                     request(reqcnt),mpierr)
+#endif
+         end if
+
+      end do
+
+*     *** increment qhead0_3t1
+      qhead0_3t1 = mod(qhead0_3t1+1,maxq_3t1)
+
+!$OMP END MASTER
+!$OMP BARRIER
+
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *    D3dB_r_3to1_Expand_final   *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_r_3to1_Expand_final(tmp2,A,request,reqcnt)
+      implicit none
+      real*8 tmp2(*),A(*)
+      integer request(*),reqcnt
+
+#include "bafdecls.fh"
+#include "D3dB.fh"
+#include "errquit.fh"
+
+*     **** r_3to1_block common block ****
+      integer maxq_3t1
+      parameter (maxq_3t1=6)
+      integer qhead0_3t1,qhead1_3t1,qlast_3t1
+      integer i1_start_3t1(2),i2_start_3t1(2)
+      integer c_iq_to_i1_3t1(2),c_iq_to_i2_3t1(2)
+      integer index2_3t1(2)
+      common /r_3to1_block/ i1_start_3t1,i2_start_3t1,
+     >                      c_iq_to_i1_3t1,c_iq_to_i2_3t1,
+     >                      index2_3t1,
+     >                      qhead0_3t1,qhead1_3t1,qlast_3t1
+
+*     **** local variables ****
+      logical value
+      integer taskid,np
+      integer proc_to,proc_from,source
+      integer itmp,msgtype,msglen,it,i
+      integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
+      integer shift1,shift2,index2
+
+
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
+
+      call Parallel_shared_vector_zero(.false.,n2ft3d(1),A)
+      
+      shift1 = qhead1_3t1*(np+1)
+      shift2 = qhead1_3t1*n2ft3d(1)
+      i1_start = i1_start_3t1(1) + shift1
+      i2_start = i2_start_3t1(1) + shift1
+      c_iq_to_i1 = c_iq_to_i1_3t1(1) + shift2
+      c_iq_to_i2 = c_iq_to_i2_3t1(1) + shift2
+      index2 = int_mb(index2_3t1(1)+qhead1_3t1)
+
+
+!$OMP MASTER
+*     **** wait for completion of mp_send, also do a sync ****
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
+
+*     *** increment qhead1_3t1
+      qhead1_3t1 = mod(qhead1_3t1+1,maxq_3t1)
+
+!$OMP END MASTER
+!$OMP BARRIER
+
+*     **** unpack tmp2(i) array ****
+!$OMP DO
+      do i=1,index2-1
+         A(int_mb(c_iq_to_i2+i-1)) = tmp2(i)
+      end do
+!$OMP END DO
+
+
+      return
+      end
+
+
+
+
+
+
+
+
