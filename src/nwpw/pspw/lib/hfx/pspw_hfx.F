@@ -160,8 +160,11 @@
 *        **** initialize coulomb_screened ****
          if (solver_type.eq.1) then
               call coulomb_screened_init(flag,rcut,pp)
-              if (localize_on) 
-     >           call coulomb_screened_small_init(flag,rcut,pp)
+              if (localize_on) then
+                 call coulomb_screened_small_init(flag,rcut,pp)
+                 call D3dB_r_1to3_init()
+                 call D3dB_r_3to1_init()
+              end if
 
 *        **** initialize free-space coulomb if necessary ****
          else
@@ -302,7 +305,11 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
 *        **** end coulomb_screened ****
         if (solver_type.eq.1) then
           call coulomb_screened_end()
-          if (localize_on) call coulomb_screened_small_end()
+          if (localize_on) then
+             call coulomb_screened_small_end()
+             call D3dB_r_1to3_end()
+             call D3dB_r_3to1_end()
+          end if
 
 *        **** end free-space coulomb if necessary ****
         else
@@ -985,7 +992,7 @@ c***************** sub/replicated routines *****************************
 
 *     **** local variables ****
       logical value,done
-      integer i,j,n1,n2,n3,ms,id,nbid
+      integer i,j,n1,n2,n3,ms
       integer dn(2),vij(2),tmp1(2),tmp2(2),index1,index2
       integer i1,j1,k1,NN
       integer i2,j2,k2
@@ -1037,15 +1044,10 @@ c***************** sub/replicated routines *****************************
         dv = scal1/scal2
 
         if (localize_on) then
-           id   = 3
-           nbid = 2
            call D3dB_nx(3,n1)
            call D3dB_ny(3,n2)
            call D3dB_nz(3,n3)
            scal1 = 1.0d0/dble(n1*n2*n3)
-        else
-           id   = 1
-           nbid = 0
         end if
 
 
@@ -1082,23 +1084,20 @@ c***************** sub/replicated routines *****************************
                     call D3dB_rr_Mul(1,psi_r(index2),
      >                                 psi_r(index1),dbl_mb(dn(1)))
 
-                    !***** move from large grid to small grid here *****
+                    call D3dB_r_SMul1(1,scal2*scal1,dbl_mb(dn(1)))
+                    call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+
                     if (localize_on) then
-                       !**** need to fetch center, may need to precompute this in hfx_localize ****
                        call pspw_hfx_localize_center_ovlp(
      >                          int_mb(orbital_list(1,ms)+i1-1),
      >                          int_mb(orbital_list(1,ms)+j1-1),center)
-                       call  D3dB_r_1to3_Contract(center,dbl_mb(dn(1)),
-     >                                            dbl_mb(tmp1(1)),
-     >                                            dbl_mb(tmp2(1)))
-                       !**** need to change scal1 to be small grid ****
+                       call D3dB_rc_pfft3f_queuein_center(2,center,
+     >                                                    dbl_mb(dn(1)))
+                    else
+                       call D3dB_rc_pfft3f_queuein(0,dbl_mb(dn(1)))
                     end if
-                    !***** move from large grid to small grid here *****
 c                   
-                    call D3dB_r_SMul1(id,scal2*scal1,dbl_mb(dn(1)))
-                    call D3dB_r_Zero_Ends(id,dbl_mb(dn(1)))
                    
-                    call D3dB_rc_pfft3f_queuein(nbid,dbl_mb(dn(1)))
 
                  end if
                  end if
@@ -1124,16 +1123,15 @@ c
      >                   int_mb(orbital_list(1,ms)+i2-1),
      >                   int_mb(orbital_list(1,ms)+j2-1))
 
-
-                    call D3dB_rc_pfft3f_queueout(nbid,dbl_mb(dn(1)))
-
-*                   **** generate Vcoul ****
                     !eh = coulomb_screened_e(dbl_mb(dn(1)))
                     if (localize_on) then
+                       call D3dB_rc_pfft3f_queueout_center(2,
+     >                                             dbl_mb(dn(1)))
                        eh = icoulomb_screened_small_e(dbl_mb(dn(1)))
                        call coulomb_screened_small_v(dbl_mb(dn(1)),
      >                                               dbl_mb(vij(1)))
                     else
+                       call D3dB_rc_pfft3f_queueout(0,dbl_mb(dn(1)))
                        eh = icoulomb_screened_e(dbl_mb(dn(1)))
                        call coulomb_screened_v(dbl_mb(dn(1)),
      >                                      dbl_mb(vij(1)))
@@ -1155,7 +1153,15 @@ c
      >                  = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
                     end if
 
-                    call D3dB_cr_pfft3b_queuein(nbid,dbl_mb(vij(1)))
+                    if (localize_on) then
+                       call pspw_hfx_localize_center_ovlp(
+     >                          int_mb(orbital_list(1,ms)+i2-1),
+     >                          int_mb(orbital_list(1,ms)+j2-1),center)
+                       call D3dB_cr_pfft3b_queuein_center(2,center,
+     >                                                   dbl_mb(vij(1)))
+                    else
+                       call D3dB_cr_pfft3b_queuein(0,dbl_mb(vij(1)))
+                    end if
                     
                  end if
                  end if
@@ -1182,24 +1188,16 @@ c
      >                   int_mb(orbital_list(1,ms)+i3-1),
      >                   int_mb(orbital_list(1,ms)+j3-1))
 
-                    call D3dB_cr_pfft3b_queueout(nbid,dbl_mb(vij(1)))
+                    if (localize_on) then
+                       call D3dB_cr_pfft3b_queueout_center(2,
+     >                                              dbl_mb(vij(1)))
+                    else
+                       call D3dB_cr_pfft3b_queueout(0,dbl_mb(vij(1)))
+                    end if
 
 *                   **** apply hfx_parameter ****
-                    call D3dB_r_SMul1(id,hfx_parameter*ss,
+                    call D3dB_r_SMul1(1,hfx_parameter*ss,
      >                                dbl_mb(vij(1)))
-
-                    !***** move from small grid to large grid here *****
-                    if (localize_on) then
-                       !**** need to fetch center, may need to precompute this in hfx_localize ****
-                       call pspw_hfx_localize_center_ovlp(
-     >                          int_mb(orbital_list(1,ms)+i3-1),
-     >                          int_mb(orbital_list(1,ms)+j3-1),center)
-                       call  D3dB_r_3to1_Expand(center,dbl_mb(vij(1)),
-     >                                            dbl_mb(tmp1(1)),
-     >                                            dbl_mb(tmp2(1)))
-                       
-                    end if
-                    !***** move from small grid to large grid here *****
 
 *                   **** generate (Vij)*psi_r ***
                     call D3dB_rr_Mul(1,dbl_mb(vij(1)),
