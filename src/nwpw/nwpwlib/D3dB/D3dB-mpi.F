@@ -6575,6 +6575,47 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
 
 *     ***********************************
 *     *                                 *
+*     *         D3dB_r_1to3_end         *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_r_1to3_end()
+      implicit none
+
+#include "bafdecls.fh"
+#include "D3dB.fh"
+#include "errquit.fh"
+
+*     **** r_1to3_block common block ****
+      integer maxq_1t3
+      parameter (maxq_1t3=6)
+      integer qhead0_1t3,qhead1_1t3,qlast_1t3
+      integer i1_start_1t3(2),i2_start_1t3(2)
+      integer c_iq_to_i1_1t3(2),c_iq_to_i2_1t3(2)
+      integer index2_1t3(2)
+      common /r_1to3_block/ i1_start_1t3,i2_start_1t3,
+     >                      c_iq_to_i1_1t3,c_iq_to_i2_1t3,
+     >                      index2_1t3,
+     >                      qhead0_1t3,qhead1_1t3,qlast_1t3
+
+*     **** local variables ****
+      logical value
+
+      !**** allocate indexing space from heap ****
+      value =           BA_free_heap(i1_start_1t3(2))
+      value = value.and.BA_free_heap(i2_start_1t3(2))
+      value = value.and.BA_free_heap(c_iq_to_i1_1t3(2))
+      value = value.and.BA_free_heap(c_iq_to_i2_1t3(2))
+      value = value.and.BA_free_heap(index2_1t3(2))
+      if (.not.value)
+     >   call errquit('D3dB_r_1to3_end:freeing heap',0,MA_ERR)
+
+      return
+      end 
+
+
+
+*     ***********************************
+*     *                                 *
 *     *    D3dB_r_1to3_Contract_start   *
 *     *                                 *
 *     ***********************************
@@ -6747,6 +6788,13 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
             end do
          end do
       end do
+
+*     **** pop stack ****
+      value =           BA_pop_stack(pindex2(2))
+      value = value.and.BA_pop_stack(pindex1(2))
+      if (.not.value)
+     >   call errquit('D3dB_r_1to3_Contract_start:popping stack',
+     >                0,MA_ERR)
 
 
 *     **** set index2 and increment qlast_1t3 ****
@@ -7044,6 +7092,50 @@ c     **** external functions ****
       end 
 
 
+
+*     ***********************************
+*     *                                 *
+*     *         D3dB_r_3to1_end         *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_r_3to1_end()
+      implicit none
+
+#include "bafdecls.fh"
+#include "D3dB.fh"
+#include "errquit.fh"
+
+*     **** r_3to1_block common block ****
+      integer maxq_3t1
+      parameter (maxq_3t1=6)
+      integer qhead0_3t1,qhead1_3t1,qlast_3t1
+      integer i1_start_3t1(2),i2_start_3t1(2)
+      integer c_iq_to_i1_3t1(2),c_iq_to_i2_3t1(2)
+      integer index2_3t1(2)
+      common /r_3to1_block/ i1_start_3t1,i2_start_3t1,
+     >                      c_iq_to_i1_3t1,c_iq_to_i2_3t1,
+     >                      index2_3t1,
+     >                      qhead0_3t1,qhead1_3t1,qlast_3t1
+
+*     **** local variables ****
+      logical value
+
+      !**** freeing indexing space from heap ****
+      value =           BA_free_heap(i1_start_3t1(2))
+      value = value.and.BA_free_heap(i2_start_3t1(2))
+      value = value.and.BA_free_heap(c_iq_to_i1_3t1(2))
+      value = value.and.BA_free_heap(c_iq_to_i2_3t1(2))
+      value = value.and.BA_free_heap(index2_3t1(2))
+      if (.not.value)
+     >   call errquit('D3dB_r_3to1_end:freeing heap',0,MA_ERR)
+
+      return
+      end
+
+
+
+
+
 *     ***********************************
 *     *                                 *
 *     *    D3dB_r_3to1_Expand_start     *
@@ -7220,6 +7312,13 @@ c     **** external functions ****
             end do
          end do
       end do
+
+*     **** pop stack ****
+      value =           BA_pop_stack(pindex2(2))
+      value = value.and.BA_pop_stack(pindex1(2))
+      if (.not.value)
+     >   call errquit('D3dB_r_1to3_Contract_start:popping stack',
+     >                0,MA_ERR)
 
 
 *     **** set index2 and increment qlast_3t1 ****

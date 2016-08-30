@@ -2612,6 +2612,134 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end
 
 
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         D3dB_pfftfx0            *
+*     *                                 *
+*     ***********************************
+*
+*     do fft along nx(id) dimension       
+*
+*        A(kx,ny(id),nz(id)) <- fft1d[A(nx(id),ny(id),nz(id))] 
+*     
+
+      subroutine D3dB_pfftfx0(nbb,tmp1,tmp2,request,reqcnt)
+      implicit none
+      integer nbb
+      complex*16 tmp1(*)
+      complex*16 tmp2(*)
+      integer    request(*),reqcnt
+
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+
+      integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
+      common    / D3dB_fft / tmpx,tmpy,tmpz
+
+      !*** local variables ***
+      integer j,q,indx,nxh,id
+      integer tid,nthr,offset
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
+
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
+
+      nxh = (nx(id)/2+1)
+
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
+      call nwpw_timing_start(31)
+#ifdef MLIB
+      call drcfts(tmp1,nx(id),1,ny(id)*nq(id),
+     >                  nx(id)+2,1,ierr)
+#else
+
+#ifdef FFTW3
+      call dfftw_execute_dft_r2c(plans(4,id),tmp1,tmp1)
+
+#else
+
+#ifdef NUSE_OPENMP
+      call D3dB_pfftfx_sub(ny(id)*nq(id),nx(id),nxh,
+     >                    dcpl_mb(tmpx(1,id)),tmp1)
+      call cshift_fftf(nx(id),ny(id),nq(id),1,tmp1)
+
+#else
+      indx = 1
+      do q=1,nq(id)
+      do j=1,ny(id)
+         call drfftf(nx(id),tmp1(indx),dcpl_mb(tmpx(1,id)))
+         indx = indx + nxh
+      end do
+      end do
+      call cshift_fftf(nx(id),ny(id),nq(id),1,tmp1)
+#endif
+#endif
+#endif
+      call nwpw_timing_end(31)
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+      call nwpw_timing_start(31)
+
+#ifdef MLIB
+      call drcfts(tmp1,nx(id),1,nq1(id),
+     >                  nx(id)+2,1,ierr)
+#else
+
+#ifdef FFTW3
+      call dfftw_execute_dft_r2c(plans(14,id),tmp1,tmp1)
+
+#else
+
+      !indx = 1
+      offset = tid*(2*nx(id)+15)
+      do q=tid+1,nq1(id),nthr
+         indx = 1+(q-1)*nxh
+         call drfftf(nx(id),tmp1(indx),dcpl_mb(tmpx(1,id)+offset))
+         !indx = indx + nxh
+      end do
+      call cshift_fftf(nx(id),nq1(id),1,1,tmp1)
+
+#endif
+#endif
+
+      call nwpw_timing_end(31)
+      call nwpw_timing_start(32)
+      call D3dB_c_ptranspose_ijk_start(nbb,1,tmp1,tmp2,tmp1,
+     >                                 request,reqcnt,40)
+      call nwpw_timing_end(32)
+
+      end if
+
+      return
+      end
+
+
+
+
+
+
+
+
 *     ***********************************
 *     *                                 *
 *     *         D3dB_pfftfy             *
@@ -3061,8 +3189,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     *         D3dB_pfftf_step         *
 *     *                                 *
 *     ***********************************
-*
-
       subroutine D3dB_pfftf_step(step,nbb,A,tmp1,tmp2,request,reqcnt)
       implicit none
       integer step
@@ -3072,7 +3198,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       complex*16 tmp2(*)
       integer    request(*),reqcnt
 
-
+     
       if (step.eq.1) then
          call D3dB_pfftfx(nbb,A,tmp1,tmp2,request,reqcnt)
       else if (step.eq.2) then
@@ -3086,6 +3212,46 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *      D3dB_pfftf_step_center     *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_pfftf_step_center(center,step,nbb,A,tmp1,tmp2,
+     >                                  request,reqcnt)
+      implicit none
+      integer center(3)
+      integer step
+      integer nbb
+      complex*16 A(*)
+      complex*16 tmp1(*)
+      complex*16 tmp2(*)
+      integer    request(*),reqcnt
+
+      if (step.eq.1) then
+         call D3dB_r_1to3_Contract_start(center,A,tmp1,request,reqcnt)
+      else if (step.eq.2) then
+         call D3dB_r_1to3_Contract_mid(tmp1,tmp2,request,reqcnt)
+      else if (step.eq.3) then
+         call D3dB_r_1to3_Contract_final(tmp2,tmp1,request,reqcnt)
+      else if (step.eq.4) then
+         call D3dB_pfftfx0(nbb,tmp1,tmp2,request,reqcnt)
+      else if (step.eq.5) then
+         call D3dB_pfftfy(nbb,tmp1,tmp2,request,reqcnt)
+      else if (step.eq.6) then
+         call D3dB_pfftfz(nbb,tmp1,tmp2,request,reqcnt)
+      else if (step.eq.7) then
+         call D3dB_pfftf_final(nbb,tmp1,tmp2,request,reqcnt)
+      end if
+
+!$OMP BARRIER
+
+      return
+      end
+
+
 
 
 
@@ -3711,10 +3877,69 @@ c      tid = Parallel_threadid()
          call D3dB_pfftbx(nbb,tmp1,tmp2,request,reqcnt)
       end if
 
-      !if (nbb.eq.2) then
-      !    if      (step.eq.7) then
-      !    else if (step.eq.8) then
-      ! end if
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      D3dB_pfftb_step_center     *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_pfftb_step_center(center,
+     >                            step,nbb,A,tmp1,tmp2,request,reqcnt)
+      implicit none
+      integer center(3)
+      integer step
+      integer nbb
+      complex*16 A(*)
+      complex*16 tmp1(*)
+      complex*16 tmp2(*)
+      integer    request(*),reqcnt
+
+
+#include "bafdecls.fh"
+
+      integer tmp1z(2),tmp2z(2)
+      common / pfft_queuez_common / tmp1z,tmp2z
+
+c      integer  Parallel_threadid,tid
+c      external Parallel_threadid
+
+c      tid = Parallel_threadid()
+
+      if (step.eq.1) then
+         call nwpw_timing_start(32)
+         call Pack_c_unpack_start(nbb,A,tmp1,request,reqcnt,47)
+         call nwpw_timing_end(32)
+      else if (step.eq.2) then
+         call nwpw_timing_start(32)
+         call Pack_c_unpack_mid(nbb,tmp1,tmp2,
+     >                          dcpl_mb(tmp1z(1)),dcpl_mb(tmp2z(1)),
+     >                          request,reqcnt,48)
+         call nwpw_timing_end(32)
+      else if (step.eq.3) then
+         call nwpw_timing_start(32)
+         call Pack_c_unpack_end(nbb,tmp1,
+     >                          dcpl_mb(tmp1z(1)),dcpl_mb(tmp2z(1)),
+     >                          request,reqcnt)
+         call nwpw_timing_end(32)
+      else if (step.eq.4) then
+         call D3dB_pfftbz(nbb,tmp1,tmp2,request,reqcnt)
+      else if (step.eq.5) then
+         call D3dB_pfftby(nbb,tmp1,tmp2,request,reqcnt)
+      else if (step.eq.6) then
+         call D3dB_pfftbx(nbb,tmp1,tmp2,request,reqcnt)
+
+      else if (step.eq.7) then
+         call D3dB_r_3to1_Expand_start(center,tmp1,tmp2,request,reqcnt)
+      else if (step.eq.8) then
+         call D3dB_r_3to1_Expand_mid(tmp2,tmp1,request,reqcnt)
+      else if (step.eq.9) then
+         call D3dB_r_3to1_Expand_final(tmp1,tmp2,request,reqcnt)
+      end if
 
       return
       end
@@ -3740,15 +3965,18 @@ c      tid = Parallel_threadid()
 
       !**** pfft_queues ****
       integer aqindx(2),aqstatus(2)
-      integer atmp(2),arequest(2),areqcnt(2)
+      integer atmp(2),arequest(2),areqcnt(2),acenter(2)
       integer aqmax,aqsize,alast_index
       common / pfft_aqueue_common / aqindx,aqstatus,atmp,arequest,
-     >                              areqcnt,aqmax,aqsize,alast_index
+     >                              areqcnt,acenter,
+     >                              aqmax,aqsize,alast_index
+
       integer bqindx(2),bqstatus(2)
-      integer btmp(2),brequest(2),breqcnt(2)
+      integer btmp(2),brequest(2),breqcnt(2),bcenter(2)
       integer bqmax,bqsize,blast_index
       common / pfft_bqueue_common / bqindx,bqstatus,btmp,brequest,
-     >                              breqcnt,bqmax,bqsize,blast_index
+     >                              breqcnt,bcenter,
+     >                              bqmax,bqsize,blast_index
       
       integer tmp1z(2),tmp2z(2)
       common / pfft_queuez_common / tmp1z,tmp2z
@@ -3774,6 +4002,9 @@ c     **** allocate aqueue ****
      >      BA_alloc_get(mt_int,size,'aqstatus',aqstatus(2),aqstatus(1))
       value = value.and.
      >        BA_alloc_get(mt_int,size,'areqcnt',areqcnt(2),areqcnt(1))
+      size  = 3*aqmax
+      value = value.and.
+     >        BA_alloc_get(mt_int,size,'acenter',acenter(2),acenter(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       call dcopy(4*nfft3d(1)*aqmax,0.0d0,0,dcpl_mb(atmp(1)),1)
@@ -3795,6 +4026,9 @@ c     **** allocate bqueue ****
      >      BA_alloc_get(mt_int,size,'bqstatus',bqstatus(2),bqstatus(1))
       value = value.and.
      >        BA_alloc_get(mt_int,size,'breqcnt',breqcnt(2),breqcnt(1))
+      size  = 3*bqmax
+      value = value.and.
+     >        BA_alloc_get(mt_int,size,'bcenter',bcenter(2),bcenter(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
       call dcopy(4*nfft3d(1)*bqmax,0.0d0,0,dcpl_mb(btmp(1)),1)
 
@@ -3836,16 +4070,18 @@ c     **** allocate bqueue ****
 
       !**** pfft_queues ****
       integer aqindx(2),aqstatus(2)
-      integer atmp(2),arequest(2),areqcnt(2)
+      integer atmp(2),arequest(2),areqcnt(2),acenter(2)
       integer aqmax,aqsize,alast_index
       common / pfft_aqueue_common / aqindx,aqstatus,atmp,arequest,
-     >                              areqcnt,aqmax,aqsize,alast_index
+     >                              areqcnt,acenter,
+     >                              aqmax,aqsize,alast_index
 
       integer bqindx(2),bqstatus(2)
-      integer btmp(2),brequest(2),breqcnt(2)
+      integer btmp(2),brequest(2),breqcnt(2),bcenter(2)
       integer bqmax,bqsize,blast_index
       common / pfft_bqueue_common / bqindx,bqstatus,btmp,brequest,
-     >                              breqcnt,bqmax,bqsize,blast_index
+     >                              breqcnt,bcenter,
+     >                              bqmax,bqsize,blast_index
 
       integer tmp1z(2),tmp2z(2)
       common / pfft_queuez_common / tmp1z,tmp2z
@@ -3857,12 +4093,14 @@ c     **** allocate bqueue ****
       value = value.and.BA_free_heap(aqindx(2))
       value = value.and.BA_free_heap(aqstatus(2))
       value = value.and.BA_free_heap(areqcnt(2))
+      value = value.and.BA_free_heap(acenter(2))
 
       value = value.and.BA_free_heap(btmp(2))
       value = value.and.BA_free_heap(brequest(2))
       value = value.and.BA_free_heap(bqindx(2))
       value = value.and.BA_free_heap(bqstatus(2))
       value = value.and.BA_free_heap(breqcnt(2))
+      value = value.and.BA_free_heap(bcenter(2))
 
       value = value.and.BA_free_heap(tmp1z(2))
       value = value.and.BA_free_heap(tmp2z(2))
@@ -3896,10 +4134,10 @@ c     **** allocate bqueue ****
 
       !**** pfft_queue ****
       integer qindx(2),qstatus(2)
-      integer tmp(2),request(2),reqcnt(2)
+      integer tmp(2),request(2),reqcnt(2),qcenter(2)
       integer qmax,qsize,last_index
       common / pfft_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
-     >                             qmax,qsize,last_index
+     >                              qcenter,qmax,qsize,last_index
 
       D3dB_cr_pfft3_queue_filled = (qsize.ge.qmax)
       return
@@ -3925,10 +4163,10 @@ c     **** allocate bqueue ****
 
       !**** pfft_queue ****
       integer qindx(2),qstatus(2)
-      integer tmp(2),request(2),reqcnt(2)
+      integer tmp(2),request(2),reqcnt(2),qcenter(2)
       integer qmax,qsize,last_index
       common / pfft_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
-     >                             qmax,qsize,last_index
+     >                              qcenter,qmax,qsize,last_index
 
       D3dB_rc_pfft3_queue_filled = (qsize.ge.qmax)
       return
@@ -3958,10 +4196,10 @@ c     **** allocate bqueue ****
 
       !**** pfft_queue ****
       integer qindx(2),qstatus(2)
-      integer tmp(2),request(2),reqcnt(2)
+      integer tmp(2),request(2),reqcnt(2),qcenter(2)
       integer qmax,qsize,last_index
       common / pfft_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
-     >                             qmax,qsize,last_index
+     >                              qcenter,qmax,qsize,last_index
 
       !*** local variables ***
       integer shift1,shift2,shift3,id
@@ -4043,10 +4281,10 @@ c      call nwpw_timing_end(1)
 
       !**** pfft_queue ****
       integer qindx(2),qstatus(2)
-      integer tmp(2),request(2),reqcnt(2)
+      integer tmp(2),request(2),reqcnt(2),qcenter(2)
       integer qmax,qsize,last_index
       common / pfft_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
-     >                             qmax,qsize,last_index
+     >                              qcenter,qmax,qsize,last_index
 
       !*** local variables ***
       integer shift1,shift2,shift3,id
@@ -4135,10 +4373,10 @@ c      call nwpw_timing_end(1)
 
       !**** pfft_queue ****
       integer qindx(2),qstatus(2)
-      integer tmp(2),request(2),reqcnt(2)
+      integer tmp(2),request(2),reqcnt(2),qcenter(2)
       integer qmax,qsize,last_index
       common / pfft_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
-     >                             qmax,qsize,last_index
+     >                              qcenter,qmax,qsize,last_index
 
       !*** local variables ***
       integer shift1,shift2,shift3,id
@@ -4236,10 +4474,10 @@ c      end if
 
       !**** pfft_queue ****
       integer qindx(2),qstatus(2)
-      integer tmp(2),request(2),reqcnt(2)
+      integer tmp(2),request(2),reqcnt(2),qcenter(2)
       integer qmax,qsize,last_index
       common / pfft_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
-     >                             qmax,qsize,last_index
+     >                              qcenter, qmax,qsize,last_index
 
       !*** local variables ***
       integer shift1,shift2,shift3
@@ -4311,4 +4549,400 @@ c      call nwpw_timing_end(1)
       call nwpw_timing_end(30)
       return
       end
+
+
+
+
+
+cccccccccccccccccccccc  queue center routines   ccccccccccccccccccccccccccccccccccccc
+
+
+
+*     ******************************************
+*     *                                        *
+*     *     D3dB_rc_pfft3f_queuein_center      *
+*     *                                        *
+*     ******************************************
+
+      subroutine D3dB_rc_pfft3f_queuein_center(nbb,center,A)
+      implicit none
+      integer nbb
+      integer center(3)
+      complex*16 A(*)
+
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+
+      !**** pfft_queue ****
+      integer qindx(2),qstatus(2)
+      integer tmp(2),request(2),reqcnt(2),qcenter(2)
+      integer qmax,qsize,last_index
+      common / pfft_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
+     >                              qcenter,qmax,qsize,last_index
+
+      !*** local variables ***
+      integer shift1,shift2,shift3,id
+      integer q,indx,status,np
+
+c      call nwpw_timing_start(1)
+      call nwpw_timing_start(30)
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
+      call Parallel2d_np_i(np)
+
+      do q=1,qsize
+         indx   = int_mb(qindx(1)+q-1)
+         !int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
+         status = int_mb(qstatus(1)+indx-1)+1
+         shift1=nfft3d(id)*(2*(indx-1))
+         shift2=nfft3d(id)*(2*(indx-1)+1)
+         shift3=2*np*(indx-1)
+         call D3dB_pfftf_step_center(int_mb(qcenter(1)+3*(indx-1)),
+     >                        status,nbb,A,
+     >                        dcpl_mb(tmp(1)+shift1),
+     >                        dcpl_mb(tmp(1)+shift2),
+     >                        int_mb(request(1)+shift3),
+     >                        int_mb(reqcnt(1)+indx-1))
+         call Parallel_shared_iinc(.true.,1,int_mb(qstatus(1)+indx-1))
+      end do
+
+c      qsize = qsize + 1
+c      last_index = last_index+1
+c      if (last_index.gt.qmax) last_index = 1
+c      int_mb(qindx(1)+qsize-1)        = last_index
+c      int_mb(qstatus(1)+last_index-1) = 1
+      call Parallel_shared_irot(.true.,qmax,last_index)
+      call Parallel_shared_iinc(.false.,1,qsize)
+      call Parallel_shared_icopy(.false.,last_index,
+     >                           int_mb(qindx(1)+qsize-1))
+      call Parallel_shared_vector_icopy(.false.,3,center,
+     >                           int_mb(qcenter(1)+3*(last_index-1)))
+      call Parallel_shared_icopy(.true.,1,
+     >                           int_mb(qstatus(1)+last_index-1))
+
+      status = 1
+      shift1=nfft3d(id)*(2*(last_index-1))
+      shift2=nfft3d(id)*(2*(last_index-1)+1)
+      shift3=2*np*(last_index-1)
+
+      call D3dB_pfftf_step_center(int_mb(qcenter(1)+3*(last_index-1)),
+     >                     status,nbb,A,
+     >                     dcpl_mb(tmp(1)+shift1),
+     >                     dcpl_mb(tmp(1)+shift2),
+     >                     int_mb(request(1)+shift3),
+     >                     int_mb(reqcnt(1)+last_index-1))
+
+c      call nwpw_timing_end(1)
+      call nwpw_timing_end(30)
+      return
+      end
+
+
+
+
+*     ******************************************
+*     *                                        *
+*     *     D3dB_rc_pfft3f_queueout_center     *
+*     *                                        *
+*     ******************************************
+
+      subroutine D3dB_rc_pfft3f_queueout_center(nbb,A)
+      implicit none
+      integer nbb
+      complex*16 A(*)
+
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+
+      !**** pfft_queue ****
+      integer qindx(2),qstatus(2)
+      integer tmp(2),request(2),reqcnt(2),qcenter(2)
+      integer qmax,qsize,last_index
+      common / pfft_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
+     >                              qcenter,qmax,qsize,last_index
+
+      !*** local variables ***
+      integer shift1,shift2,shift3,id
+      integer q,indx,indx1,status,np
+
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
+c      call nwpw_timing_start(1)
+      call nwpw_timing_start(30)
+      call Parallel2d_np_i(np)
+
+c      do q=1,qsize
+c         indx   = int_mb(qindx(1)+q-1)
+c         int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
+c         status = int_mb(qstatus(1)+indx-1)
+c         shift1=nfft3d(1)*(2*(indx-1))
+c         shift2=nfft3d(1)*(2*(indx-1)+1)
+c         shift3=2*np*(indx-1)
+c         call D3dB_pfftf_step(status,nbb,A,
+c     >                        dcpl_mb(tmp(1)+shift1),
+c     >                        dcpl_mb(tmp(1)+shift2),
+c     >                        int_mb(request(1)+shift3),
+c     >                        int_mb(reqcnt(1)+indx-1))
+c      end do
+
+      indx1   = int_mb(qindx(1))
+      do while (int_mb(qstatus(1)+indx1-1).lt.7)
+         do q=1,qsize
+            indx   = int_mb(qindx(1)+q-1)
+            !int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
+            status = int_mb(qstatus(1)+indx-1)+1
+            shift1=nfft3d(id)*(2*(indx-1))
+            shift2=nfft3d(id)*(2*(indx-1)+1)
+            shift3=2*np*(indx-1)
+            call D3dB_pfftf_step_center(int_mb(qcenter(1)+3*(indx-1)),
+     >                        status,nbb,A,
+     >                        dcpl_mb(tmp(1)+shift1),
+     >                        dcpl_mb(tmp(1)+shift2),
+     >                        int_mb(request(1)+shift3),
+     >                        int_mb(reqcnt(1)+indx-1))
+            call Parallel_shared_iinc(.true.,1,
+     >                                int_mb(qstatus(1)+indx-1))
+         end do
+      end do
+
+c      qsize = qsize -1
+c      do q=1,qsize
+c        int_mb(qindx(1)+q-1) = int_mb(qindx(1)+q)
+c      end do
+
+      shift2=nfft3d(id)*(2*(indx1-1)+1)
+      call Pack_c_Copy(nbb,dcpl_mb(tmp(1)+shift2),A)
+
+      call Parallel_shared_iinc(.true.,-1,qsize)
+      call Parallel_shared_lshift(.true.,qsize,int_mb(qindx(1)))
+
+c      call nwpw_timing_end(1)
+      call nwpw_timing_end(30)
+      return
+      end
+
+
+
+
+
+*     ******************************************
+*     *                                        *
+*     *     D3dB_cr_pfft3b_queuein_center      *
+*     *                                        *
+*     ******************************************
+
+      subroutine D3dB_cr_pfft3b_queuein_center(nbb,center,A)
+      implicit none
+      integer nbb
+      integer center(3)
+      complex*16 A(*)
+
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+
+      !**** pfft_queue ****
+      integer qindx(2),qstatus(2)
+      integer tmp(2),request(2),reqcnt(2),qcenter(2)
+      integer qmax,qsize,last_index
+      common / pfft_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
+     >                              qcenter,qmax,qsize,last_index
+
+      !*** local variables ***
+      integer shift1,shift2,shift3,id
+      integer q,indx,status,np
+      integer  Parallel_threadid,Parallel_nthreads,tid,nthr
+      external Parallel_threadid,Parallel_nthreads
+
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
+c      call nwpw_timing_start(1)
+      call nwpw_timing_start(30)
+      call Parallel2d_np_i(np)
+c      tid  = Parallel_threadid()
+c      nthr = Parallel_nthreads()
+
+c      write(*,*) "hera tid,nthr,qsize = ",tid,nthr,qsize
+
+      do q=1,qsize
+         indx   = int_mb(qindx(1)+q-1)
+         !int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
+         status = int_mb(qstatus(1)+indx-1)+1
+         shift1=nfft3d(id)*(2*(indx-1))
+         shift2=nfft3d(id)*(2*(indx-1)+1)
+         shift3=2*np*(indx-1)
+         call D3dB_pfftb_step_center(int_mb(qcenter(1)+3*(indx-1)),
+     >                        status,nbb,A,
+     >                        dcpl_mb(tmp(1)+shift1),
+     >                        dcpl_mb(tmp(1)+shift2),
+     >                        int_mb(request(1)+shift3),
+     >                        int_mb(reqcnt(1)+indx-1))
+      
+        call Parallel_shared_iinc(.true.,1,int_mb(qstatus(1)+indx-1))
+      end do
+
+c      qsize = qsize + 1
+c      last_index = last_index+1
+c      if (last_index.gt.qmax) last_index = 1
+c      int_mb(qindx(1)+qsize-1)        = last_index
+c      int_mb(qstatus(1)+last_index-1) = 1
+
+      call Parallel_shared_irot(.true.,qmax,last_index)
+      call Parallel_shared_iinc(.false.,1,qsize)
+      call Parallel_shared_icopy(.false.,last_index,
+     >                           int_mb(qindx(1)+qsize-1))
+      call Parallel_shared_vector_icopy(.false.,3,center,
+     >                           int_mb(qcenter(1)+3*(last_index-1)))
+      call Parallel_shared_icopy(.true.,1,
+     >                           int_mb(qstatus(1)+last_index-1))
+
+      status = 1
+      shift1=nfft3d(id)*(2*(last_index-1))
+      shift2=nfft3d(id)*(2*(last_index-1)+1)
+      shift3=2*np*(last_index-1)
+
+      call D3dB_pfftb_step_center(int_mb(qcenter(1)+3*(last_index-1)),
+     >                     status,nbb,A,
+     >                     dcpl_mb(tmp(1)+shift1),
+     >                     dcpl_mb(tmp(1)+shift2),
+     >                     int_mb(request(1)+shift3),
+     >                     int_mb(reqcnt(1)+last_index-1))
+
+!$OMP BARRIER
+c      call nwpw_timing_end(1)
+      call nwpw_timing_end(30)
+
+c      if (tid.eq.0) then
+c         call util_flush(6)
+c         write(*,*) "out queuein"
+c         write(*,*)
+c         call util_flush(6)
+c      end if
+      return
+      end
+
+
+
+
+*     ******************************************
+*     *                                        *
+*     *     D3dB_cr_pfft3b_queueout_center     *
+*     *                                        *
+*     ******************************************
+
+      subroutine D3dB_cr_pfft3b_queueout_center(nbb,A)
+      implicit none
+      integer nbb
+      complex*16 A(*)
+
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+
+      !**** pfft_queue ****
+      integer qindx(2),qstatus(2)
+      integer tmp(2),request(2),reqcnt(2),qcenter(2)
+      integer qmax,qsize,last_index
+      common / pfft_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
+     >                              qcenter,qmax,qsize,last_index
+
+      !*** local variables ***
+      integer shift1,shift2,shift3
+      integer q,indx,indx1,status,np,id
+c      integer  Parallel_threadid,tid
+c      external Parallel_threadid
+
+
+      if (nbb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
+c      tid = Parallel_threadid()
+
+      call Parallel2d_np_i(np)
+
+c      call nwpw_timing_start(1)
+      call nwpw_timing_start(30)
+
+c      do q=1,qsize
+c         indx   = int_mb(qindx(1)+q-1)
+c         int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
+c         status = int_mb(qstatus(1)+indx-1)
+c         shift1=nfft3d(1)*(2*(indx-1))
+c         shift2=nfft3d(1)*(2*(indx-1)+1)
+c         shift3=2*np*(indx-1)
+c         call D3dB_pfftb_step(status,nbb,A,
+c     >                        dcpl_mb(tmp(1)+shift1),
+c     >                        dcpl_mb(tmp(1)+shift2),
+c     >                        int_mb(request(1)+shift3),
+c     >                        int_mb(reqcnt(1)+indx-1))
+c      end do
+
+
+      indx1   = int_mb(qindx(1))
+      do while (int_mb(qstatus(1)+indx1-1).lt.9)
+         do q=1,qsize
+            indx   = int_mb(qindx(1)+q-1)
+            !int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
+            status = int_mb(qstatus(1)+indx-1) + 1
+            shift1=nfft3d(id)*(2*(indx-1))
+            shift2=nfft3d(id)*(2*(indx-1)+1)
+            shift3=2*np*(indx-1)
+            call D3dB_pfftb_step_center(int_mb(qcenter(1)+3*(indx-1)),
+     >                        status,nbb,A,
+     >                        dcpl_mb(tmp(1)+shift1),
+     >                        dcpl_mb(tmp(1)+shift2),
+     >                        int_mb(request(1)+shift3),
+     >                        int_mb(reqcnt(1)+indx-1))
+
+            call Parallel_shared_iinc(.true.,1,
+     >                                int_mb(qstatus(1)+indx-1))
+         end do
+      end do
+!$OMP BARRIER
+
+c      call Parallel_shared_iinc(.true.,-1,qsize)
+c      call Parallel_shared_lshift(.true.,qsize,int_mb(qindx(1)))
+
+      shift2=nfft3d(id)*(2*(indx1-1)+1)
+      call Parallel_shared_vector_copy(.true.,2*nfft3d(id),
+     >                                 dcpl_mb(tmp(1)+shift2),
+     >                                 A)
+
+      call Parallel_shared_iinc(.true.,-1,qsize)
+      call Parallel_shared_lshift(.true.,qsize,int_mb(qindx(1)))
+
+c      call nwpw_timing_end(1)
+      call nwpw_timing_end(30)
+      return
+      end
+
 
