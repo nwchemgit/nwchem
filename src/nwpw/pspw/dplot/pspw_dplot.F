@@ -883,7 +883,6 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
       subroutine dplot_gcube_write(rtdb,filename,
      >                             number,cube_comment,rho)
       implicit none
-#include "errquit.fh"
       integer rtdb
       character*50 filename
       integer      number
@@ -894,6 +893,7 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
 #include "bafdecls.fh"
 #include "btdb.fh"
 #include "geom.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       logical value
