@@ -347,7 +347,7 @@
       double precision eval(*)  ! [input] MO energies
       double precision occ(*)   ! [input] MO occupation numbers
       integer sym(*)            ! [input] MO symmetries
-      integer g_movecs          ! [input] GA with vectors
+      integer g_movecs(*)       ! [input] GA with vectors
       character*(*) scftype     ! [input] RHF, ROHF, UHF, DFT, or MCSCF
       integer numcont           ! number of mapped contractions
       integer icont             ! contraction index
@@ -371,6 +371,7 @@
       character*20 zname
       logical status
       integer nbusfunc
+      integer orb_alfabeta
       integer nwmolden_nbusfunc ! function defined in this file
 ! external function declarations
       logical sym_char_table
@@ -394,6 +395,8 @@
       if (scftype.eq.'UHF')   spinref = 2
       if (scftype.eq.'DFT')   spinref = 1 ! ambiguous
       if (scftype.eq.'MCSCF') spinref = 1
+      if(ga_nodeid().eq.0) write(6,*) ' molden scftype: ',scftype,
+     E     ' spinref: ',spinref
 !
 !     allocate local memory
 !
@@ -421,7 +424,8 @@
 !
 !          pull the MOs from a GA
 !
-           call ga_get(g_movecs, 1, nbf, orb, orb, dbl_mb(k_vec), 1)
+           call ga_get(g_movecs(alfabeta), 1, nbf, orb, orb, 
+     D           dbl_mb(k_vec), 1)
 !
 !          reorder MO
 !
@@ -442,8 +446,13 @@
 !
 !          print stuff
 !
-           csym = zir(sym(orb))
-           write(MOLDEN_UNIT,100) csym,eval(orb),cspin,occ(orb)
+           orb_alfabeta=(alfabeta-1)*nbf+orb
+           if(ga_nodeid().eq.0) write(6,*) orb,orb_alfabeta,
+     S          sym(orb_alfabeta)
+           if(ga_nodeid().eq.0) write(6,*) 'cs ',zir(sym(orb_alfabeta))
+           csym = zir(sym(orb_alfabeta))
+           write(MOLDEN_UNIT,100) csym,eval(orb_alfabeta),
+     C          cspin,occ(orb_alfabeta)
  100       format('Sym= ', a12/
      1            'Ene= ', E22.14/
      2            'Spin= ', a11/

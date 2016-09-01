@@ -32,7 +32,9 @@ c
       external nwmolden_movecs,nwmolden_basis,nwmolden_geom
       logical nwmolden_openfile,nwmolden_closefile
       external nwmolden_openfile,nwmolden_closefile
-      logical do_io
+      logical do_io,do_norm_janpa,do_norm_nwchem
+      logical int_norm_janpa,int_normalize
+      external int_norm_janpa,int_normalize
 c
 c
       do_io=ga_nodeid().eq.0
@@ -48,25 +50,41 @@ c     create internal basis handle
      &   call errquit(pname//'bas_create?', 2, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, bas, 'ao basis'))
      &   call errquit(pname//'no ao basis ', 3, BASIS_ERR)
+      if (.not. rtdb_get(rtdb,'molden:do_norm_janpa', mt_log, 1, 
+     A     do_norm_janpa))  do_norm_janpa=.false.
+      if (.not. rtdb_get(rtdb,'molden:do_norm_nwchem', mt_log, 1, 
+     A     do_norm_nwchem))  do_norm_nwchem=.false.
+      if(ga_nodeid().eq.0) then
+         write(6,*) ' do_norm_janpa ',do_norm_janpa
+         write(6,*) ' do_norm_nwchem ',do_norm_nwchem
+      endif
+      if(do_norm_janpa) then
+         if(.not.int_norm_janpa(rtdb,bas))
+     &        call errquit(pname//'norm_janpa failed ', 5, BASIS_ERR)
+      endif
+      if(do_norm_nwchem) then
+         if(.not.int_normalize(rtdb,bas))
+     &        call errquit(pname//'int_normalize failed ', 5, BASIS_ERR)
+      endif
       if(do_io) then
          if(.not.nwmolden_basis(bas))
      E        call errquit(pname//'nwmolden_basis failed ',0,0)
 c
-         do ispin=1,ipol
-            if(.not.nwmolden_movecs(bas,nbf,nmo,
-     1           eval((ispin-1)*nbf+1),occ((ispin-1)*nbf+1),
-     S           ir((ispin-1)*nbf+1),
-     G           g_movecs(ispin),scftype))
-     E           call errquit(pname//'nwmolden_movecs failed ',0,0)
-         enddo
+
+         if(.not.nwmolden_movecs(bas,nbf,nmo,
+     1        eval,occ,ir,
+     G        g_movecs,scftype))
+     E        call errquit(pname//'nwmolden_movecs failed ',0,0)
+         
       endif
 c
          if (.not. bas_destroy(bas))
-     &      call errquit(pname//'not able to destroy CD_bas:',33,
+     &      call errquit(pname//'not able to destroy bas:',33,
      &       BASIS_ERR)
          if(do_io) then
          if(.not.nwmolden_closefile())
      E        call errquit(pname//'nwmolden_closefile failed ',0,0)
+      if(.not.do_norm_janpa) then
          write(6,*) ' '
          write(6,*) ' Molden file created '
          write(6,*) ' If you plan to use JANPA '
@@ -74,7 +92,216 @@ c
          write(6,*) '   molden2molden.jar -NormalizeBF to get the'
          write(6,*) '   correct Molden normalization '
          write(6,*) '  '
+      endif
          endif
          call ga_sync()
          return
          end
+      logical function int_norm_janpa(rtdb,basisin)
+c $Id: int_norm.F 24111 2013-04-21 06:55:44Z d3y133 $
+      implicit none
+#include "apiP.fh"
+#include "errquit.fh"
+#include "bas.fh"
+#include "nwc_const.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "stdio.fh"
+      integer basisin  !< [Input] The basis set handle
+      integer rtdb     !< [Input] The runtime database handle
+      integer basis, nucont, iucont, type, nprim, ngen, ept, cpt, igen
+      integer norm_typ
+      logical norm_ok
+      logical force_norm_rel
+      character*30 pname
+c
+#include "bas_exndcf_sfn.fh"
+      pname = "int_norm_janpa"
+c
+c     Normalize the contraction coefficients in this basis.
+c     Eventually we need to store both the normalized and unnormalized
+c     coefficients so that the user can print out something recognizable
+c
+      int_norm_janpa = bas_check_handle(basisin, 'int_norm_janpa')
+      if (.not. int_norm_janpa) return
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+c
+c
+      nucont = infbs_head(HEAD_NCONT,basis)
+      do iucont = 1, nucont
+         type  = infbs_cont(CONT_TYPE, iucont,basis)
+         nprim = infbs_cont(CONT_NPRIM,iucont,basis) 
+         ngen  = infbs_cont(CONT_NGEN, iucont,basis)
+         ept   = infbs_cont(CONT_IEXP, iucont,basis)
+         cpt   = infbs_cont(CONT_ICFP, iucont,basis)
+         if (type .ge. 0) then
+            do igen = 0,ngen-1
+               call nmcoef_janpa(dbl_mb(mb_exndcf(ept, basis)),
+     &              dbl_mb(mb_exndcf(cpt+igen*nprim,basis)),
+     &              type, nprim)
+            enddo
+c....... sp
+         else if (type .eq. -1) then
+            call errquit(pname//' not ready for itype ',type,0)
+         else if (type .eq. -2) then
+c........ spd
+            call errquit(pname//' not ready for itype ',type,0)
+         else
+            call errquit(pname//'invalid contraction type', 0,
+     &       BASIS_ERR)
+         endif
+      enddo
+c
+      end
+      subroutine nmcoef_janpa(z,cc,l,np)
+c $Id: nmcoef.F 19696 2010-10-29 16:53:42Z d3y133 $
+
+      Implicit none
+c passed
+      Integer l,np
+      Double precision z(*),cc(*)
+c local
+      Double precision f     
+#include "basdeclsP.fh"
+#ifdef USE_GNORMS2
+      integer maxprim
+      parameter (maxprim=500)
+      double precision gnorms2(maxprim)
+#endif
+      double precision norm2
+      external janpa_int_1d_sphr
+      double precision janpa_int_1d_sphr
+      integer i,j
+c******************************************************************************
+#ifdef USE_GNORMS2
+      if(np.gt.maxprim) call errquit('nmcoef_janpa: maxprim lt ',
+     M     maxprim,0)
+#endif
+      write(6,'(i,a,f12.6)') np, 'in  cc(1)',cc(1)
+      if(np.gt.1) write(6,'(i,a,f12.6)') np,'in  cc(2)',cc(2)
+
+      norm2=0d0
+#ifdef USE_GNORMS2
+      do i=1,np
+         gnorms2(i)=janpa_int_1d_sphr(2*l+2,z(i)*2d0)
+      enddo
+      do i=1,np
+c         norm2 = norm2 + cc(i)*cc(i)/gnorms2(i)*
+         norm2 = norm2 + cc(i)/sqrt(gnorms2(i))*
+     X        cc(i)/sqrt(gnorms2(i))*
+     X        janpa_int_1d_sphr(2*l+2,z(i)*2d0)
+         do j=i+1,np
+            norm2 = norm2 + 2d0*(cc(i)/sqrt(gnorms2(i)))*
+     X           (cc(j)/sqrt(gnorms2(j)))*
+     X           janpa_int_1d_sphr(2*l+2,z(i)+z(j))
+         enddo
+      enddo
+#else
+      do i=1,np
+         cc(i)=cc(i)/sqrt(janpa_int_1d_sphr(2*l+2,z(i)*2d0))
+      enddo
+      do i=1,np
+         norm2 = norm2 + cc(i)*cc(i)*
+     X        janpa_int_1d_sphr(2*l+2,z(i)*2d0)
+         do j=i+1,np
+            norm2 = norm2 + 2d0*cc(i)*
+     X           cc(j)*
+     X           janpa_int_1d_sphr(2*l+2,z(i)+z(j))
+         enddo
+      enddo
+#endif
+c..
+      f = 1d0/sqrt(norm2)
+      do  i = 1,np
+#ifdef USE_GNORMS2
+         cc(i) = cc(i)*f
+#else
+         cc(i) = cc(i)*f*sqrt(janpa_int_1d_sphr(2*l+2,z(i)*2d0))
+#endif
+      enddo
+
+      write(6,'(i,a,f12.6)') np, 'out cc(1)',cc(1)
+      if(np.gt.1) write(6,'(i,a,f12.6)') np,'out cc(2)',cc(2)
+
+
+      end
+
+C     Fortran translation of a file part of the JANPA project. 
+C     T.Y.Nikolaienko, L.A.Bulavin, D.M.Hovorun; Comput.Theor.Chem. (2014)
+C     V. 1050, P. 15-22, DOI: 10.1016/j.comptc.2014.10.002
+
+      double precision function janpa_gamma_hi( n) 
+      implicit none
+      integer n ! [in]
+c
+      double precision result,pi,i
+      pi=acos(-1d0)
+      result = sqrt(pi)
+      do i=1,n
+         result = result*(0.5d0+(i-1))
+      enddo
+      janpa_gamma_hi=result
+      end
+      
+c
+c     calculates
+c     / +inf
+c     | t^n · exp(-alpha·t^2)·dt
+c     / -inf
+c     
+      double precision function janpa_int_1d(n, alpha) 
+      implicit none
+      integer n
+      double precision alpha
+c
+      external janpa_gamma_hi
+      double precision janpa_gamma_hi
+c
+      if (mod(n,2).eq.1) then
+         janpa_int_1D= 0.d0
+      else
+c     now for even n
+         janpa_int_1d=alpha**(-(n+1)*.5d0)*janpa_gamma_hi(n/2)
+      endif
+      return
+      end
+c     
+c     calculates
+c        / +inf
+c       | r^n · exp(-alpha·r^2)·dr
+c      / 0
+c    
+      double precision function janpa_int_1d_sphr(n, alpha) 
+      implicit none
+      integer n
+      double precision alpha
+c
+      double precision result
+      integer i
+      external janpa_int_1d
+      double precision janpa_int_1d
+c
+      if (mod(n,2).eq.0)  then
+         janpa_int_1d_sphr=janpa_int_1d(n,alpha)*0.5d0
+      else
+c  else:
+c  reduce integral to:
+c     / +inf
+c    | r^(n-1) · exp(-alpha·r^2)·d(r^2)*0.5
+c   / 0
+c  where n-1 = 2k, so that result will be
+c     / +inf
+c    | (alpha·t)^k · exp(-alpha·t)·d(alpha·t) * 0.5/alpha^(k+1)=0.5/alpha * k!/alpha^k
+c    / 0
+         result = 0.5d0/alpha
+         do i=1,(n-1)/2
+            result = (result*i)/alpha
+         enddo
+         janpa_int_1d_sphr=result
+      endif
+      return
+      end
