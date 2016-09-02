@@ -181,20 +181,16 @@ c     https://github.com/evaleev/libint/blob/master/doc/progman/progman.tex
 c******************************************************************************
       pi=acos(-1d0)
 
-c Normalize the GTFs so that the integral over all space of its
-c square is unity as detailed above.
-
 c compute double factorial of (2*L-1)
       f = 1.0d0
-c      if(l.gt.1) then
+      if(l.gt.1) then
          do i = (2*l-1),2,-2
             f = f*dble(i)
          end do
-c      endif
+      endif
+#ifdef SLOW
 c
-c     Normalize each primitive by
-c     dividing by square of  double factorial of (2*L-1) times
-c     (2/pi*exponent)^3/4
+c     Normalize each primitive 
 c
       do i = 1,np
         cc(i)= cc(i)/sqrt(ovlp_prim(2d0*z(i),pi,l,f))
@@ -203,13 +199,30 @@ c
 c Normalize the contractions.
 
       sum = 0.D0
-      do i = 1,np
-            sum = sum + cc(i)*cc(i)*ovlp_prim(2d0*z(i),pi,l,f)
+      do i=1,np
+         sum = sum + cc(i)*cc(i)*ovlp_prim(2d0*z(i),pi,l,f)
          do j= i+1,np
             sum = sum + 2d0*cc(i)*cc(j)*
      *           ovlp_prim(z(i)+z(j),pi,l,f)
          enddo
       enddo
+#else
+c
+c Normalize the contractions.
+c
+      sum = 0.D0
+      do i = 1,np
+         sum = sum + cc(i)*cc(i)
+c     Normalize each primitive 
+         cc(i)= cc(i)/sqrt(ovlp_prim(2d0*z(i),pi,l,f))
+      enddo
+      do i=1,np
+         do j= i+1,np
+            sum = sum + 2d0*cc(i)*cc(j)*
+     *           ovlp_prim(z(i)+z(j),pi,l,f)
+         enddo
+      enddo
+#endif
 c..   
       sum = 1d0/sqrt(sum)
       
