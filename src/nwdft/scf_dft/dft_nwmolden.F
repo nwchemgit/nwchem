@@ -140,7 +140,7 @@ c
          cpt   = infbs_cont(CONT_ICFP, iucont,basis)
          if (type .ge. 0) then
             do igen = 0,ngen-1
-               call nmcoef_janpa(dbl_mb(mb_exndcf(ept, basis)),
+               call nmcoef_janpa2(dbl_mb(mb_exndcf(ept, basis)),
      &              dbl_mb(mb_exndcf(cpt+igen*nprim,basis)),
      &              type, nprim)
             enddo
@@ -157,151 +157,67 @@ c........ spd
       enddo
 c
       end
-      subroutine nmcoef_janpa(z,cc,l,np)
-c $Id: nmcoef.F 19696 2010-10-29 16:53:42Z d3y133 $
+c     normalization compatible with JANPA softwares requirements
+C     T.Y.Nikolaienko, L.A.Bulavin, D.M.Hovorun; Comput.Theor.Chem. (2014)
+C     V. 1050, P. 15-22, DOI: 10.1016/j.comptc.2014.10.002
+      subroutine nmcoef_janpa2(z,cc,l,np)
 
       Implicit none
-c passed
-      Integer l,np
-      Double precision z(*),cc(*)
+      Integer l,np ! [in]
+      Double precision z(*)  ! [in]
+      Double precision cc(*) ! [in/out] normalized in exit
 c local
       Double precision f     
 #include "basdeclsP.fh"
-#ifdef USE_GNORMS2
-      integer maxprim
-      parameter (maxprim=500)
-      double precision gnorms2(maxprim)
-#endif
-      double precision norm2
-      external janpa_int_1d_sphr
-      double precision janpa_int_1d_sphr
+      double precision pi,sum
+      integer l_lim
       integer i,j
+      double precision ovlp_prim,z1
+c     Overlap integral for a gaussian function
+c     see M.Ho and J.M.Hernandez-Perez, The Mathematica Journal, 14(3), 2012. doi:10.3888/tmj.14-3.
+c     see Libint programmers manual at
+c     https://github.com/evaleev/libint/blob/master/doc/progman/progman.tex
+      ovlp_prim(z1,pi,l,f)=(pi/z1)**1.5d0*f/(2.d0*z1)**l
 c******************************************************************************
-#ifdef USE_GNORMS2
-      if(np.gt.maxprim) call errquit('nmcoef_janpa: maxprim lt ',
-     M     maxprim,0)
-#endif
-      write(6,'(i,a,f12.6)') np, 'in  cc(1)',cc(1)
-      if(np.gt.1) write(6,'(i,a,f12.6)') np,'in  cc(2)',cc(2)
-
-      norm2=0d0
-#ifdef USE_GNORMS2
-      do i=1,np
-         gnorms2(i)=janpa_int_1d_sphr(2*l+2,z(i)*2d0)
-      enddo
-      do i=1,np
-c         norm2 = norm2 + cc(i)*cc(i)/gnorms2(i)*
-         norm2 = norm2 + cc(i)/sqrt(gnorms2(i))*
-     X        cc(i)/sqrt(gnorms2(i))*
-     X        janpa_int_1d_sphr(2*l+2,z(i)*2d0)
-         do j=i+1,np
-            norm2 = norm2 + 2d0*(cc(i)/sqrt(gnorms2(i)))*
-     X           (cc(j)/sqrt(gnorms2(j)))*
-     X           janpa_int_1d_sphr(2*l+2,z(i)+z(j))
-         enddo
-      enddo
-#else
-      do i=1,np
-         cc(i)=cc(i)/sqrt(janpa_int_1d_sphr(2*l+2,z(i)*2d0))
-      enddo
-      do i=1,np
-         norm2 = norm2 + cc(i)*cc(i)*
-     X        janpa_int_1d_sphr(2*l+2,z(i)*2d0)
-         do j=i+1,np
-            norm2 = norm2 + 2d0*cc(i)*
-     X           cc(j)*
-     X           janpa_int_1d_sphr(2*l+2,z(i)+z(j))
-         enddo
-      enddo
-#endif
-c..
-      f = 1d0/sqrt(norm2)
-      do  i = 1,np
-#ifdef USE_GNORMS2
-         cc(i) = cc(i)*f
-#else
-         cc(i) = cc(i)*f*sqrt(janpa_int_1d_sphr(2*l+2,z(i)*2d0))
-#endif
-      enddo
-
-      write(6,'(i,a,f12.6)') np, 'out cc(1)',cc(1)
-      if(np.gt.1) write(6,'(i,a,f12.6)') np,'out cc(2)',cc(2)
-
-
-      end
-
-C     Fortran translation of a file part of the JANPA project. 
-C     T.Y.Nikolaienko, L.A.Bulavin, D.M.Hovorun; Comput.Theor.Chem. (2014)
-C     V. 1050, P. 15-22, DOI: 10.1016/j.comptc.2014.10.002
-
-      double precision function janpa_gamma_hi( n) 
-      implicit none
-      integer n ! [in]
-c
-      double precision result,pi,i
       pi=acos(-1d0)
-      result = sqrt(pi)
-      do i=1,n
-         result = result*(0.5d0+(i-1))
+
+c Normalize the GTFs so that the integral over all space of its
+c square is unity as detailed above.
+
+c compute double factorial of (2*L-1)
+      f = 1.0d0
+c      if(l.gt.1) then
+         do i = (2*l-1),2,-2
+            f = f*dble(i)
+         end do
+c      endif
+c
+c     Normalize each primitive by
+c     dividing by square of  double factorial of (2*L-1) times
+c     (2/pi*exponent)^3/4
+c
+      do i = 1,np
+        cc(i)= cc(i)/sqrt(ovlp_prim(2d0*z(i),pi,l,f))
       enddo
-      janpa_gamma_hi=result
-      end
-      
-c
-c     calculates
-c     / +inf
-c     | t^n · exp(-alpha·t^2)·dt
-c     / -inf
-c     
-      double precision function janpa_int_1d(n, alpha) 
-      implicit none
-      integer n
-      double precision alpha
-c
-      external janpa_gamma_hi
-      double precision janpa_gamma_hi
-c
-      if (mod(n,2).eq.1) then
-         janpa_int_1D= 0.d0
-      else
-c     now for even n
-         janpa_int_1d=alpha**(-(n+1)*.5d0)*janpa_gamma_hi(n/2)
-      endif
-      return
-      end
-c     
-c     calculates
-c        / +inf
-c       | r^n · exp(-alpha·r^2)·dr
-c      / 0
-c    
-      double precision function janpa_int_1d_sphr(n, alpha) 
-      implicit none
-      integer n
-      double precision alpha
-c
-      double precision result
-      integer i
-      external janpa_int_1d
-      double precision janpa_int_1d
-c
-      if (mod(n,2).eq.0)  then
-         janpa_int_1d_sphr=janpa_int_1d(n,alpha)*0.5d0
-      else
-c  else:
-c  reduce integral to:
-c     / +inf
-c    | r^(n-1) · exp(-alpha·r^2)·d(r^2)*0.5
-c   / 0
-c  where n-1 = 2k, so that result will be
-c     / +inf
-c    | (alpha·t)^k · exp(-alpha·t)·d(alpha·t) * 0.5/alpha^(k+1)=0.5/alpha * k!/alpha^k
-c    / 0
-         result = 0.5d0/alpha
-         do i=1,(n-1)/2
-            result = (result*i)/alpha
+
+c Normalize the contractions.
+
+      sum = 0.D0
+      do i = 1,np
+            sum = sum + cc(i)*cc(i)*ovlp_prim(2d0*z(i),pi,l,f)
+         do j= i+1,np
+            sum = sum + 2d0*cc(i)*cc(j)*
+     *           ovlp_prim(z(i)+z(j),pi,l,f)
          enddo
-         janpa_int_1d_sphr=result
-      endif
+      enddo
+c..   
+      sum = 1d0/sqrt(sum)
+      
+      do  i = 1,np
+         cc(i) = cc(i)*sum*
+c     take out primitive normalization factor previously used
+     *        sqrt(ovlp_prim(2d0*z(i),pi,l,f))
+      enddo
       return
       end
+

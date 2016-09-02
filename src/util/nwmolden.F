@@ -447,9 +447,6 @@
 !          print stuff
 !
            orb_alfabeta=(alfabeta-1)*nbf+orb
-           if(ga_nodeid().eq.0) write(6,*) orb,orb_alfabeta,
-     S          sym(orb_alfabeta)
-           if(ga_nodeid().eq.0) write(6,*) 'cs ',zir(sym(orb_alfabeta))
            csym = zir(sym(orb_alfabeta))
            write(MOLDEN_UNIT,100) csym,eval(orb_alfabeta),
      C          cspin,occ(orb_alfabeta)
