@@ -322,7 +322,7 @@
 !
          do iprimo = 1, nprimo
             write(MOLDEN_UNIT,700) exp(iprimo),coeff(iprimo)
- 700        format(1x,f16.10,1x,f16.10)
+ 700        format(1x,f20.10,1x,f20.10)
          enddo
         enddo
         write(MOLDEN_UNIT,*)
