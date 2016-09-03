@@ -3231,13 +3231,15 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer    request(*),reqcnt
 
       if (step.eq.1) then
-         call D3dB_r_1to3_Contract_start(center,A,tmp1,request,reqcnt)
+         call D3dB_r_1to3_Contract_start2(center,A,tmp2,request,reqcnt)
       else if (step.eq.2) then
-         call D3dB_r_1to3_Contract_mid(tmp1,tmp2,request,reqcnt)
+         call D3dB_r_1to3_Contract_mid(tmp2,tmp1,request,reqcnt)
       else if (step.eq.3) then
-         call D3dB_r_1to3_Contract_final(tmp2,tmp1,request,reqcnt)
+         call D3dB_r_1to3_Contract_final(tmp1,tmp2,request,reqcnt)
+         call D3dB_r_FormatWrite_reverse(3,29,tmp2,tmp1)
+
       else if (step.eq.4) then
-         call D3dB_pfftfx0(nbb,tmp1,tmp2,request,reqcnt)
+         call D3dB_pfftfx0(nbb,tmp2,tmp1,request,reqcnt)
       else if (step.eq.5) then
          call D3dB_pfftfy(nbb,tmp1,tmp2,request,reqcnt)
       else if (step.eq.6) then
@@ -3933,12 +3935,17 @@ c      tid = Parallel_threadid()
       else if (step.eq.6) then
          call D3dB_pfftbx(nbb,tmp1,tmp2,request,reqcnt)
 
+
+         call D3dB_r_FormatWrite_reverse(3,30,tmp1,tmp2)
+
       else if (step.eq.7) then
-         call D3dB_r_3to1_Expand_start(center,tmp1,tmp2,request,reqcnt)
+         call D3dB_r_3to1_Expand_start2(center,tmp1,tmp2,request,reqcnt)
       else if (step.eq.8) then
          call D3dB_r_3to1_Expand_mid(tmp2,tmp1,request,reqcnt)
       else if (step.eq.9) then
          call D3dB_r_3to1_Expand_final(tmp1,tmp2,request,reqcnt)
+
+         call D3dB_r_FormatWrite_reverse(1,31,tmp2,tmp1)
       end if
 
       return
@@ -4586,24 +4593,24 @@ cccccccccccccccccccccc  queue center routines   cccccccccccccccccccccccccccccccc
      >                              qcenter,qmax,qsize,last_index
 
       !*** local variables ***
-      integer shift1,shift2,shift3,id
+      integer shift1,shift2,shift3
       integer q,indx,status,np
 
 c      call nwpw_timing_start(1)
       call nwpw_timing_start(30)
-      if (nbb.lt.2) then
-         id = 1
-      else
-         id = 3
-      end if
+      !if (nbb.lt.2) then
+      !   id = 1
+      !else
+      !   id = 3
+      !end if
       call Parallel2d_np_i(np)
 
       do q=1,qsize
          indx   = int_mb(qindx(1)+q-1)
          !int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
          status = int_mb(qstatus(1)+indx-1)+1
-         shift1=nfft3d(id)*(2*(indx-1))
-         shift2=nfft3d(id)*(2*(indx-1)+1)
+         shift1=nfft3d(1)*(2*(indx-1))
+         shift2=nfft3d(1)*(2*(indx-1)+1)
          shift3=2*np*(indx-1)
          call D3dB_pfftf_step_center(int_mb(qcenter(1)+3*(indx-1)),
      >                        status,nbb,A,
@@ -4629,8 +4636,8 @@ c      int_mb(qstatus(1)+last_index-1) = 1
      >                           int_mb(qstatus(1)+last_index-1))
 
       status = 1
-      shift1=nfft3d(id)*(2*(last_index-1))
-      shift2=nfft3d(id)*(2*(last_index-1)+1)
+      shift1=nfft3d(1)*(2*(last_index-1))
+      shift2=nfft3d(1)*(2*(last_index-1)+1)
       shift3=2*np*(last_index-1)
 
       call D3dB_pfftf_step_center(int_mb(qcenter(1)+3*(last_index-1)),
@@ -4675,14 +4682,14 @@ c      call nwpw_timing_end(1)
      >                              qcenter,qmax,qsize,last_index
 
       !*** local variables ***
-      integer shift1,shift2,shift3,id
+      integer shift1,shift2,shift3
       integer q,indx,indx1,status,np
 
-      if (nbb.lt.2) then
-         id = 1
-      else
-         id = 3
-      end if
+      !if (nbb.lt.2) then
+      !   id = 1
+      !else
+      !   id = 3
+      !end if
 c      call nwpw_timing_start(1)
       call nwpw_timing_start(30)
       call Parallel2d_np_i(np)
@@ -4707,8 +4714,8 @@ c      end do
             indx   = int_mb(qindx(1)+q-1)
             !int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
             status = int_mb(qstatus(1)+indx-1)+1
-            shift1=nfft3d(id)*(2*(indx-1))
-            shift2=nfft3d(id)*(2*(indx-1)+1)
+            shift1=nfft3d(1)*(2*(indx-1))
+            shift2=nfft3d(1)*(2*(indx-1)+1)
             shift3=2*np*(indx-1)
             call D3dB_pfftf_step_center(int_mb(qcenter(1)+3*(indx-1)),
      >                        status,nbb,A,
@@ -4726,7 +4733,7 @@ c      do q=1,qsize
 c        int_mb(qindx(1)+q-1) = int_mb(qindx(1)+q)
 c      end do
 
-      shift2=nfft3d(id)*(2*(indx1-1)+1)
+      shift2=nfft3d(1)*(2*(indx1-1)+1)
       call Pack_c_Copy(nbb,dcpl_mb(tmp(1)+shift2),A)
 
       call Parallel_shared_iinc(.true.,-1,qsize)
@@ -4769,16 +4776,17 @@ c      call nwpw_timing_end(1)
      >                              qcenter,qmax,qsize,last_index
 
       !*** local variables ***
-      integer shift1,shift2,shift3,id
+      integer shift1,shift2,shift3
       integer q,indx,status,np
       integer  Parallel_threadid,Parallel_nthreads,tid,nthr
       external Parallel_threadid,Parallel_nthreads
 
-      if (nbb.lt.2) then
-         id = 1
-      else
-         id = 3
-      end if
+      !if (nbb.lt.2) then
+      !   id = 1
+      !else
+      !   id = 3
+      !end if
+      !id = 1
 c      call nwpw_timing_start(1)
       call nwpw_timing_start(30)
       call Parallel2d_np_i(np)
@@ -4787,12 +4795,13 @@ c      nthr = Parallel_nthreads()
 
 c      write(*,*) "hera tid,nthr,qsize = ",tid,nthr,qsize
 
+      write(*,*) "nfft3d,n2ft3d=",nfft3d(1)*2, n2ft3d(1)
       do q=1,qsize
          indx   = int_mb(qindx(1)+q-1)
          !int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
          status = int_mb(qstatus(1)+indx-1)+1
-         shift1=nfft3d(id)*(2*(indx-1))
-         shift2=nfft3d(id)*(2*(indx-1)+1)
+         shift1=nfft3d(1)*(2*(indx-1))
+         shift2=nfft3d(1)*(2*(indx-1)+1)
          shift3=2*np*(indx-1)
          call D3dB_pfftb_step_center(int_mb(qcenter(1)+3*(indx-1)),
      >                        status,nbb,A,
@@ -4820,8 +4829,8 @@ c      int_mb(qstatus(1)+last_index-1) = 1
      >                           int_mb(qstatus(1)+last_index-1))
 
       status = 1
-      shift1=nfft3d(id)*(2*(last_index-1))
-      shift2=nfft3d(id)*(2*(last_index-1)+1)
+      shift1=nfft3d(1)*(2*(last_index-1))
+      shift2=nfft3d(1)*(2*(last_index-1)+1)
       shift3=2*np*(last_index-1)
 
       call D3dB_pfftb_step_center(int_mb(qcenter(1)+3*(last_index-1)),
@@ -4875,16 +4884,17 @@ c      end if
 
       !*** local variables ***
       integer shift1,shift2,shift3
-      integer q,indx,indx1,status,np,id
+      integer q,indx,indx1,status,np
 c      integer  Parallel_threadid,tid
 c      external Parallel_threadid
 
 
-      if (nbb.lt.2) then
-         id = 1
-      else
-         id = 3
-      end if
+      !if (nbb.lt.2) then
+      !   id = 1
+      !else
+      !   id = 3
+      !end if
+      !id = 1
 c      tid = Parallel_threadid()
 
       call Parallel2d_np_i(np)
@@ -4913,8 +4923,8 @@ c      end do
             indx   = int_mb(qindx(1)+q-1)
             !int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
             status = int_mb(qstatus(1)+indx-1) + 1
-            shift1=nfft3d(id)*(2*(indx-1))
-            shift2=nfft3d(id)*(2*(indx-1)+1)
+            shift1=nfft3d(1)*(2*(indx-1))
+            shift2=nfft3d(1)*(2*(indx-1)+1)
             shift3=2*np*(indx-1)
             call D3dB_pfftb_step_center(int_mb(qcenter(1)+3*(indx-1)),
      >                        status,nbb,A,
@@ -4932,8 +4942,8 @@ c      end do
 c      call Parallel_shared_iinc(.true.,-1,qsize)
 c      call Parallel_shared_lshift(.true.,qsize,int_mb(qindx(1)))
 
-      shift2=nfft3d(id)*(2*(indx1-1)+1)
-      call Parallel_shared_vector_copy(.true.,2*nfft3d(id),
+      shift2=nfft3d(1)*(2*(indx1-1)+1)
+      call Parallel_shared_vector_copy(.true.,2*nfft3d(1),
      >                                 dcpl_mb(tmp(1)+shift2),
      >                                 A)
 

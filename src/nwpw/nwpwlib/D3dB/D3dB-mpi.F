@@ -6671,6 +6671,7 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
       if (.not.value)
      >  call errquit('D3dB_r_1to3_Contract_start:out of stack',0,MA_ERR)
 
+
       shift1 = qlast_1t3*(np+1)
       shift2 = qlast_1t3*n2ft3d(1)
       i1_start = i1_start_1t3(1) + shift1
@@ -6715,6 +6716,7 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
                call D3dB_ijktoindex2p(1,il+1,jl+1,kl+1,indxbig,pbig)
                call D3dB_ijktoindex2p(3,i+1,j+1,k+1,indxsmall,psmall)
 
+
 *              **** packing scheme **** 
                if (pbig.eq.taskid) then
                   int_mb(pindex1(1)+psmall)=int_mb(pindex1(1)+psmall)+1
@@ -6740,6 +6742,7 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
       end do
       int_mb(i1_start+np) = index1
       int_mb(i2_start+np) = index2
+
 
       do it=0,np-1
          int_mb(pindex1(1)+it) = 0
@@ -6769,9 +6772,11 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
                call D3dB_ijktoindex2p(1,il+1,jl+1,kl+1,indxbig,pbig)
                call D3dB_ijktoindex2p(3,i+1,j+1,k+1,indxsmall,psmall)
 
+
 *              **** packing scheme **** 
                if (pbig.eq.taskid) then
-                  itmp = int_mb(i1_start+psmall) 
+                  it = mod(psmall-taskid+np,np)
+                  itmp = int_mb(i1_start+it) 
      >                 + int_mb(pindex1(1)+psmall)
                   int_mb(c_iq_to_i1+itmp-1) = indxbig
                   int_mb(pindex1(1)+psmall) =int_mb(pindex1(1)+psmall)+1
@@ -6779,7 +6784,8 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
 
 *              **** unpacking scheme **** 
                if (psmall.eq.taskid) then
-                  itmp = int_mb(i2_start+pbig) 
+                  it = mod(taskid-pbig+np,np)
+                  itmp = int_mb(i2_start+it) 
      >                 + int_mb(pindex2(1)+pbig)
                   int_mb(c_iq_to_i2+itmp-1) = indxsmall
                   int_mb(pindex2(1)+pbig)   = int_mb(pindex2(1)+pbig)+1
@@ -6872,6 +6878,16 @@ c     **** external functions ****
       c_iq_to_i1 = c_iq_to_i1_1t3(1) + shift2
       c_iq_to_i2 = c_iq_to_i2_1t3(1) + shift2
 
+      write(*,*) taskid," qhead0_1t3=",qhead0_1t3
+      write(*,*) taskid," i1_start=",int_mb(i1_start),
+     >                               int_mb(i1_start+1),
+     >                               int_mb(i1_start+2),
+     >                               int_mb(i1_start+3)
+      write(*,*) taskid," i2_start=",int_mb(i2_start),
+     >                               int_mb(i2_start+1),
+     >                               int_mb(i2_start+2),
+     >                               int_mb(i2_start+3)
+
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start+2-1) - int_mb(i2_start+1-1)
@@ -6889,7 +6905,7 @@ c     **** external functions ****
 *        **** synchronous receive of tmp ****
          proc_from = mod((taskid)-it+np, np)
 
-         msgtype = 93
+         msgtype = 73
          source=proc_from
          msglen = (int_mb(i2_start+it+2-1)
      >          -  int_mb(i2_start+it+1-1))
@@ -6925,7 +6941,7 @@ c     **** external functions ****
          proc_to   = mod((taskid)+it, np)
          msglen    = (int_mb(i1_start+it+2-1)
      >              - int_mb(i1_start+it+1-1))
-         msgtype   = 93
+         msgtype   = 73
 
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
@@ -6953,6 +6969,25 @@ c     **** external functions ****
 
 *     *** increment qhead0_1t3
       qhead0_1t3 = mod(qhead0_1t3+1,maxq_1t3)
+
+c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
+      if (taskid.eq.1) 
+     >  write(*,*) taskid," it=1 send tmp1=",tmp1(int_mb(i1_start+1)),
+     >                                      tmp1(int_mb(i1_start+1)+100)
+
+      if (taskid.eq.2) 
+     >  write(*,*) taskid," it=1 recv tmp2=",tmp2(int_mb(i2_start+1)),
+     >                                      tmp2(int_mb(i2_start+1)+100)
+
+
+
+      if (taskid.eq.1) 
+     >  write(*,*) taskid," it=2 send tmp1=",tmp1(int_mb(i1_start+2)),
+     >                                      tmp1(int_mb(i1_start+2)+100)
+
+      if (taskid.eq.0) 
+     >  write(*,*) taskid," it=2 recv tmp2=",tmp2(int_mb(i2_start+2)),
+     >                                      tmp2(int_mb(i2_start+2)+100)
 
 !$OMP END MASTER
 !$OMP BARRIER
@@ -6995,12 +7030,12 @@ c     **** external functions ****
       integer itmp,msgtype,msglen,it,i
       integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
       integer shift1,shift2,index2
+      integer indxsmall,psmall
 
 
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
 
-      call Parallel_shared_vector_zero(.false.,n2ft3d(1),A)
       
       shift1 = qhead1_1t3*(np+1)
       shift2 = qhead1_1t3*n2ft3d(1)
@@ -7020,12 +7055,19 @@ c     **** external functions ****
 !$OMP END MASTER
 !$OMP BARRIER
 
+
 *     **** unpack tmp2(i) array ****
+      call Parallel_shared_vector_zero(.true.,n2ft3d(3),A)
 !$OMP DO
       do i=1,index2-1
          A(int_mb(c_iq_to_i2+i-1)) = tmp2(i)
       end do
 !$OMP END DO
+
+      call D3dB_ijktoindex2p(3,1,1,1,indxsmall,psmall)
+      if (psmall.eq.taskid) then
+         write(*,*) "value of A(1,1,1)=",A(indxsmall)
+      end if
 
       return
       end
@@ -7294,7 +7336,8 @@ c     **** external functions ****
 
 *              **** packing scheme **** 
                if (psmall.eq.taskid) then
-                  itmp = int_mb(i1_start+pbig)
+                  it = mod(pbig-taskid+np,np)
+                  itmp = int_mb(i1_start+it)
      >                 + int_mb(pindex1(1)+pbig)
                   int_mb(c_iq_to_i1+itmp-1) = indxsmall
                   int_mb(pindex1(1)+pbig) = int_mb(pindex1(1)+pbig)+1
@@ -7302,7 +7345,8 @@ c     **** external functions ****
 
 *              **** unpacking scheme **** 
                if (pbig.eq.taskid) then
-                  itmp = int_mb(i2_start+psmall)
+                  it = mod(taskid-psmall+np,np)
+                  itmp = int_mb(i2_start+it)
      >                 + int_mb(pindex2(1)+psmall)
                   int_mb(c_iq_to_i2+itmp-1) = indxbig
                   int_mb(pindex2(1)+psmall)=int_mb(pindex2(1)+psmall)+1
@@ -7416,7 +7460,7 @@ c     **** external functions ****
 *        **** synchronous receive of tmp ****
          proc_from = mod((taskid)-it+np, np)
 
-         msgtype = 94
+         msgtype = 54
          source=proc_from
          msglen = (int_mb(i2_start+it+2-1)
      >          -  int_mb(i2_start+it+1-1))
@@ -7452,7 +7496,7 @@ c     **** external functions ****
          proc_to   = mod((taskid)+it, np)
          msglen    = (int_mb(i1_start+it+2-1)
      >              - int_mb(i1_start+it+1-1))
-         msgtype   = 94
+         msgtype   = 54
 
          if (msglen.gt.0) then
             reqcnt = reqcnt + 1
@@ -7477,9 +7521,12 @@ c     **** external functions ****
          end if
 
       end do
+      
 
 *     *** increment qhead0_3t1
       qhead0_3t1 = mod(qhead0_3t1+1,maxq_3t1)
+
+c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
 
 !$OMP END MASTER
 !$OMP BARRIER
@@ -7527,7 +7574,6 @@ c     **** external functions ****
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
 
-      call Parallel_shared_vector_zero(.false.,n2ft3d(1),A)
       
       shift1 = qhead1_3t1*(np+1)
       shift2 = qhead1_3t1*n2ft3d(1)
@@ -7549,9 +7595,296 @@ c     **** external functions ****
 !$OMP BARRIER
 
 *     **** unpack tmp2(i) array ****
+      call Parallel_shared_vector_zero(.true.,n2ft3d(1),A)
 !$OMP DO
       do i=1,index2-1
          A(int_mb(c_iq_to_i2+i-1)) = tmp2(i)
+      end do
+!$OMP END DO
+
+
+      return
+      end
+
+
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *   D3dB_r_1to3_Contract_start2   *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_r_1to3_Contract_start2(center,A,tmp1,
+     >                                      request,reqcnt)
+      implicit none
+      integer center(3)
+      real*8 A(*)
+      real*8 tmp1(*)
+      integer request(*),reqcnt
+
+#include "bafdecls.fh"
+#include "mpif.h"
+#include "D3dB.fh"
+#include "errquit.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
+*     **** r_1to3_block common block ****
+      integer maxq_1t3
+      parameter (maxq_1t3=6)
+      integer qhead0_1t3,qhead1_1t3,qlast_1t3
+      integer i1_start_1t3(2),i2_start_1t3(2)
+      integer c_iq_to_i1_1t3(2),c_iq_to_i2_1t3(2)
+      integer index2_1t3(2)
+      common /r_1to3_block/ i1_start_1t3,i2_start_1t3,
+     >                      c_iq_to_i1_1t3,c_iq_to_i2_1t3,
+     >                      index2_1t3,
+     >                      qhead0_1t3,qhead1_1t3,qlast_1t3
+
+*     **** local variables ****
+      logical value
+      integer taskid,np
+      integer proc_to,proc_from,source
+      integer indxbig,pbig,indxsmall,psmall,itmp
+      integer index1,index2,msgtype,msglen
+      integer k1,k2,k3,l1,l2,l3,i,j,k,il,jl,kl,it
+      integer nxh,nyh,nzh,nxh_small,nyh_small,nzh_small
+      integer pindex1(2),pindex2(2)
+      integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
+      integer shift1,shift2
+
+
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
+      call Parallel_shared_vector_zero(.false.,n2ft3d(1),tmp1)
+
+      shift1 = qlast_1t3*(np+1)
+      shift2 = qlast_1t3*n2ft3d(1)
+      i1_start = i1_start_1t3(1) + shift1
+      i2_start = i2_start_1t3(1) + shift1
+      c_iq_to_i1 = c_iq_to_i1_1t3(1) + shift2
+      c_iq_to_i2 = c_iq_to_i2_1t3(1) + shift2
+
+      nxh = nx(1)/2
+      nyh = ny(1)/2
+      nzh = nz(1)/2
+
+      nxh_small = nx(3)/2
+      nyh_small = ny(3)/2
+      nzh_small = nz(3)/2
+
+!$OMP MASTER
+
+      index1 = 1
+      index2 = 1
+      do it=0,np-1
+         proc_to   = mod(taskid+it,np)
+         proc_from = mod(taskid-it+np,np)
+
+         int_mb(i1_start+it) = index1
+         int_mb(i2_start+it) = index2
+
+         do k3=-nzh_small,nzh_small-1
+            l3 = k3 + center(3)
+            if (l3.lt.(-nzh))  l3 = l3 + nz(1)
+            if (l3.gt.(nzh-1)) l3 = l3 - nz(1)
+            k  = k3 + nzh_small
+            kl = l3 + nzh
+
+            do k2=-nyh_small,nyh_small-1
+               l2 = k2 + center(2)
+               if (l2.lt.(-nyh))  l2 = l2 + ny(1)
+               if (l2.gt.(nyh-1)) l2 = l2 - ny(1)
+               j  = k2 + nyh_small
+               jl = l2 + nyh
+
+               do k1=-nxh_small,nxh_small-1
+                  l1 = k1 + center(1)
+                  if (l1.lt.(-nxh))  l1 = l1 + nx(1)
+                  if (l1.gt.(nxh-1)) l1 = l1 - nx(1)
+                  i  = k1 + nxh_small
+                  il = l1 + nxh
+
+                  call D3dB_ijktoindex2p(1,il+1,jl+1,kl+1,indxbig,pbig)
+                  call D3dB_ijktoindex2p(3,i+1,j+1,k+1,indxsmall,psmall)
+
+*                 **** packing scheme **** 
+                  if ((pbig.eq.taskid).and.(psmall.eq.proc_to)) then
+                     int_mb(c_iq_to_i1+index1-1) = indxbig
+                     index1 = index1 + 1
+                  end if
+
+*                 **** unpacking scheme **** 
+                  if ((psmall.eq.taskid).and.(pbig.eq.proc_from)) then
+                     int_mb(c_iq_to_i2+index2-1) = indxsmall
+                     index2 = index2 + 1
+                  end if
+               end do
+            end do
+         end do
+      end do
+      int_mb(i1_start+np) = index1
+      int_mb(i2_start+np) = index2
+
+*     **** set index2 and increment qlast_1t3 ****
+      int_mb(index2_1t3(1)+qlast_1t3) = index2
+      qlast_1t3 = mod(qlast_1t3+1,maxq_1t3)
+
+!$OMP END MASTER
+!$OMP BARRIER
+
+
+*     **** pack A(i) array ****
+!$OMP DO
+      do i=1,index1-1
+         tmp1(i) = A(int_mb(c_iq_to_i1+i-1))
+      end do
+!$OMP END DO
+
+
+
+      return
+      end
+
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *    D3dB_r_3to1_Expand_start2    *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_r_3to1_Expand_start2(center,A,tmp1,
+     >                                     request,reqcnt)
+      implicit none
+      integer center(3)
+      real*8 A(*)
+      real*8 tmp1(*)
+      integer request(*),reqcnt
+
+#include "bafdecls.fh"
+#include "mpif.h"
+#include "D3dB.fh"
+#include "errquit.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
+*     **** r_3to1_block common block ****
+      integer maxq_3t1
+      parameter (maxq_3t1=6)
+      integer qhead0_3t1,qhead1_3t1,qlast_3t1
+      integer i1_start_3t1(2),i2_start_3t1(2)
+      integer c_iq_to_i1_3t1(2),c_iq_to_i2_3t1(2)
+      integer index2_3t1(2)
+      common /r_3to1_block/ i1_start_3t1,i2_start_3t1,
+     >                      c_iq_to_i1_3t1,c_iq_to_i2_3t1,
+     >                      index2_3t1,
+     >                      qhead0_3t1,qhead1_3t1,qlast_3t1
+
+*     **** local variables ****
+      logical value
+      integer taskid,np
+      integer proc_to,proc_from,source
+      integer indxbig,pbig,indxsmall,psmall,itmp
+      integer index1,index2,msgtype,msglen
+      integer k1,k2,k3,l1,l2,l3,i,j,k,il,jl,kl,it
+      integer nxh,nyh,nzh,nxh_small,nyh_small,nzh_small
+      integer pindex1(2),pindex2(2)
+      integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
+      integer shift1,shift2
+
+
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
+      call Parallel_shared_vector_zero(.false.,n2ft3d(1),tmp1)
+
+      shift1 = qlast_3t1*(np+1)
+      shift2 = qlast_3t1*n2ft3d(1)
+      i1_start = i1_start_3t1(1) + shift1
+      i2_start = i2_start_3t1(1) + shift1
+      c_iq_to_i1 = c_iq_to_i1_3t1(1) + shift2
+      c_iq_to_i2 = c_iq_to_i2_3t1(1) + shift2
+
+      nxh = nx(1)/2
+      nyh = ny(1)/2
+      nzh = nz(1)/2
+
+      nxh_small = nx(3)/2
+      nyh_small = ny(3)/2
+      nzh_small = nz(3)/2
+
+!$OMP MASTER
+
+      index1 = 1
+      index2 = 1
+      do it=0,np-1
+         proc_to   = mod(taskid+it,np)
+         proc_from = mod(taskid-it+np,np)
+
+         int_mb(i1_start+it) = index1
+         int_mb(i2_start+it) = index2
+
+         do k3=-nzh_small,nzh_small-1
+            l3 = k3 + center(3)
+            if (l3.lt.(-nzh))  l3 = l3 + nz(1)
+            if (l3.gt.(nzh-1)) l3 = l3 - nz(1)
+            k  = k3 + nzh_small
+            kl = l3 + nzh
+
+            do k2=-nyh_small,nyh_small-1
+               l2 = k2 + center(2)
+               if (l2.lt.(-nyh))  l2 = l2 + ny(1)
+               if (l2.gt.(nyh-1)) l2 = l2 - ny(1)
+               j  = k2 + nyh_small
+               jl = l2 + nyh
+
+               do k1=-nxh_small,nxh_small-1
+                  l1 = k1 + center(1)
+                  if (l1.lt.(-nxh))  l1 = l1 + nx(1)
+                  if (l1.gt.(nxh-1)) l1 = l1 - nx(1)
+                  i  = k1 + nxh_small
+                  il = l1 + nxh
+
+                  call D3dB_ijktoindex2p(3,i+1,j+1,k+1,indxsmall,psmall)
+                  call D3dB_ijktoindex2p(1,il+1,jl+1,kl+1,indxbig,pbig)
+
+*                 **** packing scheme **** 
+                  if ((psmall.eq.taskid).and.(pbig.eq.proc_to)) then
+                     int_mb(c_iq_to_i1+index1-1) = indxsmall
+                     index1 = index1 + 1
+                  end if
+
+*                 **** unpacking scheme **** 
+                  if ((pbig.eq.taskid).and.(psmall.eq.proc_from)) then
+                     int_mb(c_iq_to_i2+index2-1) = indxbig
+                     index2 = index2 + 1
+                  end if
+               end do
+            end do
+         end do
+      end do
+      int_mb(i1_start+np) = index1
+      int_mb(i2_start+np) = index2
+
+*     **** set index2 and increment qlast_3t1 ****
+      int_mb(index2_3t1(1)+qlast_3t1) = index2
+      qlast_3t1 = mod(qlast_3t1+1,maxq_3t1)
+
+!$OMP END MASTER
+!$OMP BARRIER
+
+
+*     **** pack A(i) array ****
+!$OMP DO
+      do i=1,index1-1
+         tmp1(i) = A(int_mb(c_iq_to_i1+i-1))
       end do
 !$OMP END DO
 
