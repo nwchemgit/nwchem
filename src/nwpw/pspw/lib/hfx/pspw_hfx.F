@@ -997,9 +997,10 @@ c***************** sub/replicated routines *****************************
       integer i1,j1,k1,NN
       integer i2,j2,k2
       integer i3,j3,k3
-      real*8  scal1,scal2,dv,eh,ph,ss
+      real*8  scal1,scal2,dv,eh,ph,ss,teh
       integer center(3)
       real*8  rcenter(3)
+      integer taskid
 
 *     **** external functions ****
       real*8   lattice_omega,icoulomb_screened_e
@@ -1013,9 +1014,8 @@ c***************** sub/replicated routines *****************************
       external pspw_hfx_localize_closeenough
       external pspw_hfx_localize_switchr
 
+      call Parallel2d_taskid_i(taskid)
 
-      value = MA_set_error_print(.true.)
-      value = MA_set_auto_verify(.true.)
       ehfx = 0.0d0
       phfx = 0.0d0
       if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
@@ -1136,7 +1136,7 @@ c
                        call coulomb_screened_v(dbl_mb(dn(1)),
      >                                      dbl_mb(vij(1)))
                     end if
-
+                    write(*,*) "taskid,i2,j2,eh=",taskid,i2,j2,eh
 
 *                   **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
                     eh = eh*hfx_parameter*ss
@@ -1194,6 +1194,10 @@ c
                     else
                        call D3dB_cr_pfft3b_queueout(0,dbl_mb(vij(1)))
                     end if
+                    call D3dB_r_FormatWrite_reverse(1,9,dbl_mb(vij(1)),
+     >                                                  dbl_mb(tmp1(1)))
+
+
 
 *                   **** apply hfx_parameter ****
                     call D3dB_r_SMul1(1,hfx_parameter*ss,
