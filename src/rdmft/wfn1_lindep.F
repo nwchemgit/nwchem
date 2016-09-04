@@ -7,6 +7,7 @@ C> \brief Diagonalize the overlap matrix and find from the eigenvalues
 C> how many linearly independent vectors there are
 C>
 #include "errquit.fh"
+#include "stdio.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 c
@@ -22,6 +23,7 @@ c
       integer idims(ga_max_dim)
       integer nbf   ! the number of basis functions
       integer ii    ! counter
+      integer jj    ! counter
       integer nproc ! the number of processor ranks
       integer iproc ! the current processor rank
       integer ilo,ihi ! row limits on the local block
@@ -64,6 +66,13 @@ c
        do ii = 1, nbf
          if (eigval(ii).ge.tol) nindep = nindep + 1
        enddo
+       if (nbf-nindep.gt.0.and.iproc.eq.0) then
+         write(luout,'(" !! The overlap matrix has ",i5,
+     &                 " vectors deemed linearly dependent with"/
+     &                 "    eigenvalues:")')nbf-nindep
+         write(luout,'(1p,8d9.2)')(eigval(ii),ii=0,nbf-nindep-1)
+         write(luout,*)
+       endif
 c
 c      scale eigenvectors to obtained S^{-1/2}
 c

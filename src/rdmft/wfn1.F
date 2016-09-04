@@ -215,6 +215,15 @@ c     == Allocate memory for the wavefunction ==
 c
       call wfn1_allocate_wfn(wfn1_param,wfn1_inst,wfn1_wave)
 c
+c     == Populate the natural orbitals with the eigenfunctions of the
+c        S^{-1/2} matrix == 
+c
+      call ga_copy_patch('N',
+     &     g_bfbf,1,wfn1_param%nbf,
+     &            wfn1_param%nbf-wfn1_param%nmo+1,wfn1_param%nbf,
+     &     wfn1_wave%g_na,1,wfn1_param%nbf,1,wfn1_param%nmo)
+      call ga_copy(wfn1_wave%g_na,wfn1_wave%g_nb)
+c
 c     == Clean up ==
 c
       call wfn1_deallocate_wfn(wfn1_wave)
