@@ -24,6 +24,8 @@
       integer n1,n2,n3,mapping,ms,neq(2)
 
 *     **** external functions ****
+      logical  control_has_ngrid_small
+      external control_has_ngrid_small
       integer  control_version,control_mapping,Butter_size
       integer  Dneall_na_ptr
       external control_version,control_mapping,Butter_size
@@ -36,6 +38,7 @@
       hfx_on = .false.
       localize_on  = .false.
       localize2_on = .false.
+      has_smallgrid = control_has_ngrid_small()
       call D3dB_n2ft3d(1,n2ft3d)
 
       if (.not.btdb_get(rtdb,'pspw:HFX',mt_log,1,hfx_on))
@@ -160,7 +163,7 @@
 *        **** initialize coulomb_screened ****
          if (solver_type.eq.1) then
               call coulomb_screened_init(flag,rcut,pp)
-              if (localize_on) then
+              if (localize_on.and.has_smallgrid) then
                  call coulomb_screened_small_init(flag,rcut,pp)
                  call D3dB_r_1to3_init()
                  call D3dB_r_3to1_init()
@@ -305,7 +308,7 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
 *        **** end coulomb_screened ****
         if (solver_type.eq.1) then
           call coulomb_screened_end()
-          if (localize_on) then
+          if (localize_on.and.has_smallgrid) then
              call coulomb_screened_small_end()
              call D3dB_r_1to3_end()
              call D3dB_r_3to1_end()
@@ -1043,7 +1046,7 @@ c***************** sub/replicated routines *****************************
         scal2 = 1.0d0/lattice_omega()
         dv = scal1/scal2
 
-        if (localize_on) then
+        if (localize_on.and.has_smallgrid) then
            call D3dB_nx(3,n1)
            call D3dB_ny(3,n2)
            call D3dB_nz(3,n3)
@@ -1087,7 +1090,7 @@ c***************** sub/replicated routines *****************************
                     call D3dB_r_SMul1(1,scal2*scal1,dbl_mb(dn(1)))
                     call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
 
-                    if (localize_on) then
+                    if (localize_on.and.has_smallgrid) then
                        call pspw_hfx_localize_center_ovlp(
      >                          int_mb(orbital_list(1,ms)+i1-1),
      >                          int_mb(orbital_list(1,ms)+j1-1),center)
@@ -1124,7 +1127,7 @@ c
      >                   int_mb(orbital_list(1,ms)+j2-1))
 
                     !eh = coulomb_screened_e(dbl_mb(dn(1)))
-                    if (localize_on) then
+                    if (localize_on.and.has_smallgrid) then
                        call D3dB_rc_pfft3f_queueout_center(2,
      >                                             dbl_mb(dn(1)))
                        eh = icoulomb_screened_small_e(dbl_mb(dn(1)))
@@ -1136,7 +1139,6 @@ c
                        call coulomb_screened_v(dbl_mb(dn(1)),
      >                                      dbl_mb(vij(1)))
                     end if
-                    write(*,*) "taskid,i2,j2,eh=",taskid,i2,j2,eh
 
 *                   **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
                     eh = eh*hfx_parameter*ss
@@ -1153,7 +1155,7 @@ c
      >                  = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
                     end if
 
-                    if (localize_on) then
+                    if (localize_on.and.has_smallgrid) then
                        call pspw_hfx_localize_center_ovlp(
      >                          int_mb(orbital_list(1,ms)+i2-1),
      >                          int_mb(orbital_list(1,ms)+j2-1),center)
@@ -1188,15 +1190,12 @@ c
      >                   int_mb(orbital_list(1,ms)+i3-1),
      >                   int_mb(orbital_list(1,ms)+j3-1))
 
-                    if (localize_on) then
+                    if (localize_on.and.has_smallgrid) then
                        call D3dB_cr_pfft3b_queueout_center(2,
      >                                              dbl_mb(vij(1)))
                     else
                        call D3dB_cr_pfft3b_queueout(0,dbl_mb(vij(1)))
                     end if
-                    call D3dB_r_FormatWrite_reverse(1,9,dbl_mb(vij(1)),
-     >                                                  dbl_mb(tmp1(1)))
-
 
 
 *                   **** apply hfx_parameter ****

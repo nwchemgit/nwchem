@@ -19,7 +19,7 @@
      >                          relaxed,orb_contribution,hfx_on
 
 *     **** PSPW_HFX_localize common block ****
-      logical localize_on,localize2_on,findcolumns
+      logical localize_on,localize2_on,findcolumns,has_smallgrid
       integer switchr(2),closeenough(2),rwav(2),absmat(2),rotmat21(2) 
       integer roverlap(2),centeroverlap(2)
       integer psiloc_r(2),dmindx(2),prune_algorithm
@@ -31,6 +31,7 @@
      >                                   switchr,closeenough,dmindx,
      >                                   prune_algorithm,
      >                                   localize_on,localize2_on,
+     >                                   has_smallgrid,
      >                                   findcolumns
 
 *     **** PSPW_HFX_localize2 common block ****
