@@ -31,8 +31,8 @@ c
       logical oprint,oprinth
       logical       stat
 c
-      logical geom_cart_get2 
-      external geom_cart_get2 
+c      logical geom_cart_get2 
+c      external geom_cart_get2 
 c
       double precision delta,delta_default
 c
