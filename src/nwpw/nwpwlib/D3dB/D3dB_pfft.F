@@ -3236,7 +3236,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          call D3dB_r_1to3_Contract_mid(tmp2,tmp1,request,reqcnt)
       else if (step.eq.3) then
          call D3dB_r_1to3_Contract_final(tmp1,tmp2,request,reqcnt)
-         call D3dB_r_FormatWrite_reverse(3,29,tmp2,tmp1)
 
       else if (step.eq.4) then
          call D3dB_pfftfx0(nbb,tmp2,tmp1,request,reqcnt)
@@ -3935,17 +3934,12 @@ c      tid = Parallel_threadid()
       else if (step.eq.6) then
          call D3dB_pfftbx(nbb,tmp1,tmp2,request,reqcnt)
 
-
-         call D3dB_r_FormatWrite_reverse(3,30,tmp1,tmp2)
-
       else if (step.eq.7) then
          call D3dB_r_3to1_Expand_start2(center,tmp1,tmp2,request,reqcnt)
       else if (step.eq.8) then
          call D3dB_r_3to1_Expand_mid(tmp2,tmp1,request,reqcnt)
       else if (step.eq.9) then
          call D3dB_r_3to1_Expand_final(tmp1,tmp2,request,reqcnt)
-
-         call D3dB_r_FormatWrite_reverse(1,31,tmp2,tmp1)
       end if
 
       return
@@ -4402,7 +4396,6 @@ c      call nwpw_timing_start(1)
 c      tid  = Parallel_threadid()
 c      nthr = Parallel_nthreads()
 
-c      write(*,*) "hera tid,nthr,qsize = ",tid,nthr,qsize
 
       do q=1,qsize
          indx   = int_mb(qindx(1)+q-1)
@@ -4448,12 +4441,6 @@ c      int_mb(qstatus(1)+last_index-1) = 1
 c      call nwpw_timing_end(1)
       call nwpw_timing_end(30)
 
-c      if (tid.eq.0) then
-c         call util_flush(6)
-c         write(*,*) "out queuein"
-c         write(*,*)
-c         call util_flush(6)
-c      end if
       return
       end
 
@@ -4793,9 +4780,7 @@ c      call nwpw_timing_start(1)
 c      tid  = Parallel_threadid()
 c      nthr = Parallel_nthreads()
 
-c      write(*,*) "hera tid,nthr,qsize = ",tid,nthr,qsize
 
-      write(*,*) "nfft3d,n2ft3d=",nfft3d(1)*2, n2ft3d(1)
       do q=1,qsize
          indx   = int_mb(qindx(1)+q-1)
          !int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
@@ -4844,12 +4829,6 @@ c      int_mb(qstatus(1)+last_index-1) = 1
 c      call nwpw_timing_end(1)
       call nwpw_timing_end(30)
 
-c      if (tid.eq.0) then
-c         call util_flush(6)
-c         write(*,*) "out queuein"
-c         write(*,*)
-c         call util_flush(6)
-c      end if
       return
       end
 

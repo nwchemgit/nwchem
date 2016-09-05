@@ -6878,16 +6878,6 @@ c     **** external functions ****
       c_iq_to_i1 = c_iq_to_i1_1t3(1) + shift2
       c_iq_to_i2 = c_iq_to_i2_1t3(1) + shift2
 
-      write(*,*) taskid," qhead0_1t3=",qhead0_1t3
-      write(*,*) taskid," i1_start=",int_mb(i1_start),
-     >                               int_mb(i1_start+1),
-     >                               int_mb(i1_start+2),
-     >                               int_mb(i1_start+3)
-      write(*,*) taskid," i2_start=",int_mb(i2_start),
-     >                               int_mb(i2_start+1),
-     >                               int_mb(i2_start+2),
-     >                               int_mb(i2_start+3)
-
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start+2-1) - int_mb(i2_start+1-1)
@@ -6970,24 +6960,6 @@ c     **** external functions ****
 *     *** increment qhead0_1t3
       qhead0_1t3 = mod(qhead0_1t3+1,maxq_1t3)
 
-c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
-      if (taskid.eq.1) 
-     >  write(*,*) taskid," it=1 send tmp1=",tmp1(int_mb(i1_start+1)),
-     >                                      tmp1(int_mb(i1_start+1)+100)
-
-      if (taskid.eq.2) 
-     >  write(*,*) taskid," it=1 recv tmp2=",tmp2(int_mb(i2_start+1)),
-     >                                      tmp2(int_mb(i2_start+1)+100)
-
-
-
-      if (taskid.eq.1) 
-     >  write(*,*) taskid," it=2 send tmp1=",tmp1(int_mb(i1_start+2)),
-     >                                      tmp1(int_mb(i1_start+2)+100)
-
-      if (taskid.eq.0) 
-     >  write(*,*) taskid," it=2 recv tmp2=",tmp2(int_mb(i2_start+2)),
-     >                                      tmp2(int_mb(i2_start+2)+100)
 
 !$OMP END MASTER
 !$OMP BARRIER
@@ -7063,11 +7035,6 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
          A(int_mb(c_iq_to_i2+i-1)) = tmp2(i)
       end do
 !$OMP END DO
-
-      call D3dB_ijktoindex2p(3,1,1,1,indxsmall,psmall)
-      if (psmall.eq.taskid) then
-         write(*,*) "value of A(1,1,1)=",A(indxsmall)
-      end if
 
       return
       end
