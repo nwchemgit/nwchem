@@ -1,6 +1,6 @@
 c-----------------------------------------------------------------------
 c
-      subroutine wfn1_guess_corr(wfn1_param,wfn1_wave,g_t1,g_t2)
+      subroutine wfn1_guess_corr(wfn1_param,wfn1_wave)
       implicit none
 C>
 C> \brief Guess the correlation functions 
@@ -18,6 +18,12 @@ C> is flipped to ensure a linearly independent set of vectors is
 C> created. Subsequently the set of correlation functions is ortho-
 C> normalized to obtain the final guess set.
 C>
+C> In the ortho-normalization it is important that the order of the 
+C> vectors is preserved so that we can sensibly choose which orbitals
+C> to occupy. This means that diagonalization based approaches are
+C> essentially out of the question. Modified Gramm-Schmidt on the
+C> other hand would work.
+C>
 C> see also wfn1_nxt_init_occ
 C>
 #include "wfn1_param.fh"
@@ -25,9 +31,6 @@ C>
 #include "global.fh"
       type(wfn1_prm), intent(in)    :: wfn1_param
       type(wfn1_wfn), intent(inout) :: wfn1_wave
-c
-      integer, intent(inout) :: g_t1
-      integer, intent(inout) :: g_t2
 c
       integer nproc   ! the number of ranks
       integer iproc   ! the number of the current rank
@@ -100,7 +103,7 @@ c
         if (jj.gt.nea) then
           do ii = ilo, ihi
             if (ii.gt.nea) then
-              x = (ii-0.5d0)*jj*delta
+              x = (ii-nea+1-0.5d0)*(jj-nea+1)*delta
               if (sin(x).lt.0.0d0) then
                 buf(ii,jj) = -buf(ii,jj)
               endif
@@ -125,41 +128,9 @@ c
       call ga_put(wfn1_wave%g_ca,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
       deallocate(buf)
 c
-c     Compute the overlap matrix between vectors
+c     Orthonormalize the vectors
 c
-      call ga_dgemm('T','N',nmo,nmo,nmo,1.0d0,wfn1_wave%g_ca,
-     &              wfn1_wave%g_ca,0.0d0,g_t1)
-c
-c     Diagonalize the overlap matrix
-c
-      allocate(eig(nmo))
-#ifdef PARALLEL_DIAG
-#ifdef SCALAPACK
-      call ga_pdsyev(g_t1, g_t2, eig, 0)
-#else
-      call ga_diag_std(g_t1, g_t2, eig)
-#endif
-#else
-      call ga_diag_std_seq(g_t1, g_t2, eig)
-#endif
-      call ga_distribution(g_t2,iproc,ilo,ihi,jlo,jhi)
-      allocate(buf(ilo:ihi,jlo:jhi))
-      call ga_get(g_t2,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
-      do jj = jlo, jhi
-        do ii = ilo, ihi
-          buf(ii,jj) = buf(ii,jj)/sqrt(eig(jj))
-        enddo
-      enddo
-      call ga_put(g_t2,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
-      deallocate(buf)
-      deallocate(eig)
-c
-c     Transform the original vectors
-c
-      call ga_dgemm('N','N',nmo,nmo,nmo,1.0d0,wfn1_wave%g_ca,g_t2,
-     &               0.0d0,g_t1)
-      call ga_copy(g_t1,wfn1_wave%g_ca)
-c     
+      call ga_orthog(wfn1_wave%g_ca,ii,.false.)
 c
 c     Setup the beta correlation functions
 c
@@ -206,7 +177,7 @@ c
         if (jj.gt.neb) then
           do ii = ilo, ihi
             if (ii.gt.neb) then
-              x = (ii-0.5d0)*jj*delta
+              x = (ii-neb+1-0.5d0)*(jj-neb+1)*delta
               if (sin(x).lt.0.0d0) then
                 buf(ii,jj) = -buf(ii,jj)
               endif
@@ -231,40 +202,9 @@ c
       call ga_put(wfn1_wave%g_cb,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
       deallocate(buf)
 c
-c     Compute the overlap matrix between vectors
+c     Orthonormalize the vectors
 c
-      call ga_dgemm('T','N',nmo,nmo,nmo,1.0d0,wfn1_wave%g_cb,
-     &              wfn1_wave%g_cb,0.0d0,g_t1)
-c
-c     Diagonalize the overlap matrix
-c
-      allocate(eig(nmo))
-#ifdef PARALLEL_DIAG
-#ifdef SCALAPACK
-      call ga_pdsyev(g_t1, g_t2, eig, 0)
-#else
-      call ga_diag_std(g_t1, g_t2, eig)
-#endif
-#else
-      call ga_diag_std_seq(g_t1, g_t2, eig)
-#endif
-      call ga_distribution(g_t2,iproc,ilo,ihi,jlo,jhi)
-      allocate(buf(ilo:ihi,jlo:jhi))
-      call ga_get(g_t2,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
-      do jj = jlo, jhi
-        do ii = ilo, ihi
-          buf(ii,jj) = buf(ii,jj)/sqrt(eig(jj))
-        enddo
-      enddo
-      call ga_put(g_t2,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
-      deallocate(buf)
-      deallocate(eig)
-c
-c     Transform the original vectors
-c
-      call ga_dgemm('N','N',nmo,nmo,nmo,1.0d0,wfn1_wave%g_cb,g_t2,
-     &               0.0d0,g_t1)
-      call ga_copy(g_t1,wfn1_wave%g_cb)
+      call ga_orthog(wfn1_wave%g_cb,ii,.false.)
 c
       end
 c

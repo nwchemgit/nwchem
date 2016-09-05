@@ -75,6 +75,8 @@ c
       double precision ndep_tol_default ! default setting for ndep_tol
       parameter (ndep_tol_default = 1.0d-5)
 c
+      double precision, allocatable :: eig(:)
+c
       type(wfn1_prminst) :: wfn1_inst
       type(wfn1_prm)     :: wfn1_param
       type(wfn1_matcnst) :: wfn1_mat
@@ -215,14 +217,34 @@ c     == Allocate memory for the wavefunction ==
 c
       call wfn1_allocate_wfn(wfn1_param,wfn1_inst,wfn1_wave)
 c
-c     == Populate the natural orbitals with the eigenfunctions of the
-c        S^{-1/2} matrix == 
+c     == Populate the natural orbitals with the eigenfunctions of ==
+c     == the S^{-1/2} matrix                                      == 
 c
       call ga_copy_patch('N',
      &     g_bfbf,1,wfn1_param%nbf,
      &            wfn1_param%nbf-wfn1_param%nmo+1,wfn1_param%nbf,
      &     wfn1_wave%g_na,1,wfn1_param%nbf,1,wfn1_param%nmo)
       call ga_copy(wfn1_wave%g_na,wfn1_wave%g_nb)
+c
+      call guess_dens(wfn1_inst%rtdb,wfn1_inst%geom,wfn1_inst%basis,
+     &                g_bfbf)
+      allocate(eig(1:wfn1_param%nbf))
+      call rhf_dens_to_mo(wfn1_inst%rtdb,wfn1_inst%geom,wfn1_inst%basis,
+     &                    wfn1_param%nea+wfn1_param%neb,wfn1_param%nbf,
+     &                    wfn1_param%nmo,1.0d-5,g_bfbf,wfn1_wave%g_na,
+     &                    .false.,eig)
+      deallocate(eig)
+      call ga_copy(wfn1_wave%g_na,wfn1_wave%g_nb)
+c
+c     == Set up correlation functions ==
+c
+      call wfn1_guess_corr(wfn1_param,wfn1_wave)
+c
+c     == Set up electron configuration ==
+c
+      call wfn1_configuration(wfn1_param,wfn1_wave)
+c
+c     == Initial wavefunction complete ==
 c
 c     == Clean up ==
 c

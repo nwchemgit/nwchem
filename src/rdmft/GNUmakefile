@@ -4,6 +4,7 @@
    OBJ = wfn1.o \
          wfn1_allocate_mat.o \
          wfn1_allocate_wfn.o \
+         wfn1_configuration.o \
          wfn1_gen_mat.o \
          wfn1_guess_corr.o \
          wfn1_lindep.o \
