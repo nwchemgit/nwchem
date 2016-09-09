@@ -3231,7 +3231,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer    request(*),reqcnt
 
       if (step.eq.1) then
-         call D3dB_r_1to3_Contract_start2(center,A,tmp2,request,reqcnt)
+         call D3dB_r_1to3_Contract_start(center,A,tmp2,request,reqcnt)
       else if (step.eq.2) then
          call D3dB_r_1to3_Contract_mid(tmp2,tmp1,request,reqcnt)
       else if (step.eq.3) then
@@ -3935,7 +3935,7 @@ c      tid = Parallel_threadid()
          call D3dB_pfftbx(nbb,tmp1,tmp2,request,reqcnt)
 
       else if (step.eq.7) then
-         call D3dB_r_3to1_Expand_start2(center,tmp1,tmp2,request,reqcnt)
+         call D3dB_r_3to1_Expand_start(center,tmp1,tmp2,request,reqcnt)
       else if (step.eq.8) then
          call D3dB_r_3to1_Expand_mid(tmp2,tmp1,request,reqcnt)
       else if (step.eq.9) then
