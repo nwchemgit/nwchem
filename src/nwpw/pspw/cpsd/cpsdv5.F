@@ -38,8 +38,10 @@ cccc#include "frac_occ.fh"
       real*8   t1,t2,t3,t4,av
 
 *     **** lattice variables ****
-      integer ngrid(3),nwave,nfft3d,n2ft3d
+      integer ngrid(3),nwave,nfft3d,n2ft3d,ngrid_small(3)
       integer npack1
+      real*8  a,b,c,alpha,beta,gamma
+
 
 *     **** electronic variables ****
       logical first_iteration
@@ -109,20 +111,22 @@ cccc#include "frac_occ.fh"
 
 *     **** external functions ****
       real*8      psp_zv,psp_rc,ewald_rcut,ion_amass
-      real*8      ewald_mandelung
+      real*8      ewald_mandelung,lattice_omega_small
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
-      real*8      lattice_unitg
+      real*8      lattice_unitg,lattice_unitg_small,lattice_unita_small
       integer     ewald_ncut,ewald_nshl3d
       integer     psp_lmmax,psp_lmax,psp_locp
       character*4 ion_aname,ion_atom
       external    psp_zv,psp_rc,ewald_rcut,ion_amass
-      external    ewald_mandelung
+      external    ewald_mandelung,lattice_omega_small
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
-      external    lattice_unitg
+      external    lattice_unitg,lattice_unitg_small,lattice_unita_small
       external    ewald_ncut,ewald_nshl3d
       external    psp_lmmax,psp_lmax,psp_locp
       external    ion_aname,ion_atom
 
+      character*50 control_cell_name
+      external     control_cell_name
 
       real*8   control_tole,control_tolc,control_tolr,ion_rion
       external control_tole,control_tolc,control_tolr,ion_rion
@@ -176,8 +180,10 @@ cccc#include "frac_occ.fh"
       external psp_U_psputerm,meta_found,ion_disp_on
       integer  ion_nconstraints,ion_ndof
       external ion_nconstraints,ion_ndof
-      logical  control_print,ion_makehmass2
-      external control_print,ion_makehmass2
+      logical  control_print,ion_makehmass2,control_has_ngrid_small
+      external control_print,ion_makehmass2,control_has_ngrid_small
+      integer  control_ngrid_small
+      external control_ngrid_small
 c#include "Parallel.fh"
       integer  Parallel_threadid,Parallel_nthreads,Parallel_maxthreads
       external Parallel_threadid,Parallel_nthreads,Parallel_maxthreads
@@ -255,6 +261,15 @@ c#include "Parallel.fh"
 *     ***** Initialize double D3dB data structure ****
       if (control_version().eq.4) 
      >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),mapping)
+
+      if (control_has_ngrid_small()) then
+         ngrid_small(1) = control_ngrid_small(1)
+         ngrid_small(2) = control_ngrid_small(2)
+         ngrid_small(3) = control_ngrid_small(3)
+         call D3dB_Init(3,ngrid_small(1),ngrid_small(2),ngrid_small(3),
+     >                  mapping)
+      end if
+
 
 *     **** initialize lattice and packing data structure ****
       call lattice_init()
@@ -602,6 +617,39 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          write(luout,1260) ewald_rcut(),ewald_ncut()
          write(luout,1261) ewald_mandelung()
          end if
+
+         if (control_has_ngrid_small()) then
+            write(luout,1229)
+            write(luout,1233) control_cell_name()
+            write(luout,1241) lattice_unita_small(1,1),
+     >                    lattice_unita_small(2,1),
+     >                    lattice_unita_small(3,1)
+            write(luout,1242) lattice_unita_small(1,2),
+     >                    lattice_unita_small(2,2),
+     >                    lattice_unita_small(3,2)
+            write(luout,1243) lattice_unita_small(1,3),
+     >                    lattice_unita_small(2,3),
+     >                    lattice_unita_small(3,3)
+            write(luout,1244) lattice_unitg_small(1,1),
+     >                    lattice_unitg_small(2,1),
+     >                    lattice_unitg_small(3,1)
+            write(luout,1245) lattice_unitg_small(1,2),
+     >                    lattice_unitg_small(2,2),
+     >                    lattice_unitg_small(3,2)
+            write(luout,1246) lattice_unitg_small(1,3),
+     >                    lattice_unitg_small(2,3),
+     >                    lattice_unitg_small(3,3)
+            call lattice_small_abc_abg(a,b,c,alpha,beta,gamma)
+            write(luout,1232) a,b,c,alpha,beta,gamma
+            write(luout,1231) lattice_omega_small()
+            write(luout,1250) lattice_ecut(),
+     >                 ngrid_small(1),ngrid_small(2),ngrid_small(3),
+     >                 pack_nwave_all(2),pack_nwave(2)
+            write(luout,1251) lattice_wcut(),
+     >                 ngrid_small(1),ngrid_small(2),ngrid_small(3),
+     >                 pack_nwave_all(3),pack_nwave(3)
+         end if
+
          write(luout,1270)
          if (.not.control_translation()) write(luout,1271)
          if (.not.control_rotation())    write(luout,1272)
@@ -1043,6 +1091,7 @@ c      call frac_occ_end()
       call D3dB_pfft_end()
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
+      if (control_has_ngrid_small()) call D3dB_end(3)
       call Dne_end()
       call psi_data_end()
 
@@ -1141,8 +1190,12 @@ c      call frac_occ_end()
      >        '  down=',I6,
      >        ' (',I4,' per task)',
      >        A)
+ 1229 FORMAT(/' small supercell:')
  1230 FORMAT(/' supercell:')
  1231 FORMAT(5x,' volume : ',F12.1)
+ 1232 FORMAT(5x,' lattice:    a=    ',f8.3,' b=   ',f8.3,' c=    ',f8.3,
+     >      /5x,'             alpha=',f8.3,' beta=',f8.3,' gamma=',f8.3)
+ 1233 FORMAT(5x,' cell_name:  ',A)
  1241 FORMAT(5x,' lattice:    a1=<',3f8.3,' >')
  1242 FORMAT(5x,'             a2=<',3f8.3,' >')
  1243 FORMAT(5x,'             a3=<',3f8.3,' >')
