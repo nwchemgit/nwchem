@@ -6661,6 +6661,7 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
       integer shift1,shift2
       
 
+      call nwpw_timing_start(55)
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
 
@@ -6817,6 +6818,7 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
          tmp1(i) = A(int_mb(c_iq_to_i1+i-1)) 
       end do
 !$OMP END DO
+      call nwpw_timing_end(55)
 
       return
       end
@@ -7192,6 +7194,7 @@ c     **** external functions ****
       integer shift1,shift2
       
 
+      call nwpw_timing_start(55)
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
 
@@ -7347,6 +7350,7 @@ c     **** external functions ****
       end do
 !$OMP END DO
 
+      call nwpw_timing_end(55)
 
       return
       end
