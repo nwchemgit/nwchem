@@ -62,6 +62,7 @@
 *   52 - HFX localization
 *   53 - HFX DM columns
 *   54 - HFX DM Cholesky
+*   55 - re-gridding
 
 
       subroutine nwpw_timing_init()
@@ -290,8 +291,11 @@ c     **** external functions ****
      >                 '  HFX Finding DM columns     : ',
      >                 nwpw_timing(53),counter,ttime)
          call nwpw_timing_print(
-     >                 '  HFX DM Cholesky      s     : ',
+     >                 '  HFX DM Cholesky            : ',
      >                 nwpw_timing(54),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  HFX localized re-gridding  : ',
+     >                 nwpw_timing(55),counter,ttime)
 
       end if
 
