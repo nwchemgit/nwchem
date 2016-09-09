@@ -336,7 +336,7 @@ c    >                        0.5d0,tmin,deltae,2)
 c     call rho_2to1()
 c     call dng_2to1()
 c     call psi_check()
-      write(*,*) "Elast=",Enew
+      !write(*,*) "Elast=",Enew
 
       eion = 0.0d0
       if (control_version().eq.3) eion = ewald_e()
