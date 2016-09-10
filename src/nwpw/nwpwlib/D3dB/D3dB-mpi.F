@@ -6870,6 +6870,7 @@ c     **** external functions ****
       external Parallel2d_convert_taskid_i
 
 
+      call nwpw_timing_start(55)
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
 
@@ -6965,6 +6966,7 @@ c     **** external functions ****
 
 !$OMP END MASTER
 !$OMP BARRIER
+      call nwpw_timing_end(55)
 
 
       return
@@ -7007,6 +7009,7 @@ c     **** external functions ****
       integer indxsmall,psmall
 
 
+      call nwpw_timing_start(55)
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
 
@@ -7037,6 +7040,7 @@ c     **** external functions ****
          A(int_mb(c_iq_to_i2+i-1)) = tmp2(i)
       end do
 !$OMP END DO
+      call nwpw_timing_end(55)
 
       return
       end
@@ -7358,7 +7362,7 @@ c     **** external functions ****
 
 *     ***********************************
 *     *                                 *
-*     *    D3dB_r_3to1_Expand_mid     *
+*     *    D3dB_r_3to1_Expand_mid       *
 *     *                                 *
 *     ***********************************
       subroutine D3dB_r_3to1_Expand_mid(tmp1,tmp2,request,reqcnt)
@@ -7402,6 +7406,7 @@ c     **** external functions ****
       external Parallel2d_convert_taskid_i
 
 
+      call nwpw_timing_start(55)
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
 
@@ -7502,6 +7507,7 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
 !$OMP END MASTER
 !$OMP BARRIER
 
+      call nwpw_timing_end(55)
 
       return
       end
@@ -7509,7 +7515,7 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
 
 *     ***********************************
 *     *                                 *
-*     *    D3dB_r_3to1_Expand_final   *
+*     *    D3dB_r_3to1_Expand_final     *
 *     *                                 *
 *     ***********************************
       subroutine D3dB_r_3to1_Expand_final(tmp2,A,request,reqcnt)
@@ -7542,6 +7548,7 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
       integer shift1,shift2,index2
 
 
+      call nwpw_timing_start(55)
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
 
@@ -7573,6 +7580,7 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
       end do
 !$OMP END DO
 
+      call nwpw_timing_end(55)
 
       return
       end
