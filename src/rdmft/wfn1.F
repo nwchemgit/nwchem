@@ -12,6 +12,7 @@
       implicit none
 #include "wfn1_param.fh"
 #include "wfn1_wfn.fh"
+#include "wfn1_drv.fh"
 #include "wfn1_matcnst.fh"
 #include "wfn1_size.fh"
 #include "bas.fh"
@@ -77,10 +78,15 @@ c
 c
       double precision, allocatable :: eig(:)
 c
-      type(wfn1_prminst) :: wfn1_inst
-      type(wfn1_prm)     :: wfn1_param
-      type(wfn1_matcnst) :: wfn1_mat
-      type(wfn1_wfn)     :: wfn1_wave
+      type(wfn1_prminst) :: wfn1_inst    ! paramater instances
+      type(wfn1_prm)     :: wfn1_param   ! calculation parameters
+      type(wfn1_matcnst) :: wfn1_mat     ! matrix constants
+      type(wfn1_wfn)     :: wfn1_wave    ! the current wave function
+      type(wfn1_drv)     :: wfn1_deriv   ! the derivative of the current
+                                         ! wave function
+      type(wfn1_wfn)     :: wfn1_wvtrial ! the trial wave function
+      type(wfn1_drv)     :: wfn1_drtrial ! the derivative wrt the trial
+                                         ! wave function
 c
       iproc = ga_nodeid()
       nproc = ga_nnodes()
@@ -216,6 +222,12 @@ c
 c     == Allocate memory for the wavefunction ==
 c
       call wfn1_allocate_wfn(wfn1_param,wfn1_inst,wfn1_wave)
+      call wfn1_allocate_wfn(wfn1_param,wfn1_inst,wfn1_wvtrial)
+c
+c     == Allocate memory for the derivatives wrt the wavefunctions ==
+c
+      call wfn1_allocate_drv(wfn1_param,wfn1_deriv)
+      call wfn1_allocate_drv(wfn1_param,wfn1_drtrial)
 c
 c     == Populate the natural orbitals with the eigenfunctions of ==
 c     == the S^{-1/2} matrix                                      == 
@@ -248,6 +260,9 @@ c     == Initial wavefunction complete ==
 c
 c     == Clean up ==
 c
+      call wfn1_deallocate_drv(wfn1_drtrial)
+      call wfn1_deallocate_drv(wfn1_deriv)
+      call wfn1_deallocate_wfn(wfn1_wvtrial)
       call wfn1_deallocate_wfn(wfn1_wave)
       call wfn1_deallocate_mat(wfn1_mat)
 c

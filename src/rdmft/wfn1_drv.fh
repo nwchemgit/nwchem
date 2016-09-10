@@ -1,0 +1,22 @@
+C>
+C> \brief The derivative data typ
+C>
+C> This data type stores all parts that define the derivative of the 
+C> with respect to the wavefunction parameters. Note that these
+C> derivatives are transformed into the basis of the current
+C> natural orbitals or correlation functions. The latter fact is 
+C> important in the case of linear dependencies where the derivative
+C> in terms of the basis functions is larger than the derivative
+C> in terms of the natural orbitals.
+C> The derivative includes:
+C> - the alpha natural orbitals (nmo x nmo global array)
+C> - the beta natural orbitals (nmo x nmo global array)
+C> - the alpha correlation functions (nmo x nmo global array)
+C> - the beta correlation functions (nmo x nmo global array)
+C>
+      type wfn1_drv
+         integer :: g_dna ! GA handle for the alpha natural orbitals
+         integer :: g_dnb ! GA handle for the beta correlation functions
+         integer :: g_dca ! GA handle for the alpha natural orbitals
+         integer :: g_dcb ! GA handle for the beta correlation functions
+      end type wfn1_drv

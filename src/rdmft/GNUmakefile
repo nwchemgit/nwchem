@@ -2,6 +2,7 @@
 # makefile,v 1.8 1994/12/05 20:37:08 og845 Exp
 
    OBJ = wfn1.o \
+         wfn1_allocate_drv.o \
          wfn1_allocate_mat.o \
          wfn1_allocate_wfn.o \
          wfn1_configuration.o \
