@@ -3231,11 +3231,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer    request(*),reqcnt
 
       if (step.eq.1) then
-         call D3dB_r_1to3_Contract_start(center,A,tmp2,request,reqcnt)
+         call D3dB_r_1to3_Contract_start3(center,A,tmp2,request,reqcnt)
       else if (step.eq.2) then
-         call D3dB_r_1to3_Contract_mid(tmp2,tmp1,request,reqcnt)
+         call D3dB_r_1to3_Contract_mid3(tmp2,tmp1,request,reqcnt)
       else if (step.eq.3) then
-         call D3dB_r_1to3_Contract_final(tmp1,tmp2,request,reqcnt)
+         call D3dB_r_1to3_Contract_final3(tmp1,tmp2,request,reqcnt)
 
       else if (step.eq.4) then
          call D3dB_pfftfx0(nbb,tmp2,tmp1,request,reqcnt)
@@ -3995,7 +3995,8 @@ c     **** allocate aqueue ****
       value = BA_alloc_get(mt_dcpl,size,'atmp',atmp(2),atmp(1))
       size  = np*aqmax*2
       value = value.and.
-     >      BA_alloc_get(mt_int,size,'arequest',arequest(2),arequest(1))
+     >      BA_alloc_get(mt_int,2*size,'arequest',
+     >                   arequest(2),arequest(1))
       size  = aqmax
       value = value.and.
      >        BA_alloc_get(mt_int,size,'aqindx',aqindx(2),aqindx(1))
@@ -4019,7 +4020,8 @@ c     **** allocate bqueue ****
       value = BA_alloc_get(mt_dcpl,size,'btmp',btmp(2),btmp(1))
       size  = np*bqmax*2
       value = value.and.
-     >      BA_alloc_get(mt_int,size,'brequest',brequest(2),brequest(1))
+     >      BA_alloc_get(mt_int,2*size,'brequest',
+     >                   brequest(2),brequest(1))
       size  = bqmax
       value = value.and.
      >        BA_alloc_get(mt_int,size,'bqindx',bqindx(2),bqindx(1))
@@ -4598,7 +4600,7 @@ c      call nwpw_timing_start(1)
          status = int_mb(qstatus(1)+indx-1)+1
          shift1=nfft3d(1)*(2*(indx-1))
          shift2=nfft3d(1)*(2*(indx-1)+1)
-         shift3=2*np*(indx-1)
+         shift3=4*np*(indx-1)
          call D3dB_pfftf_step_center(int_mb(qcenter(1)+3*(indx-1)),
      >                        status,nbb,A,
      >                        dcpl_mb(tmp(1)+shift1),
@@ -4625,7 +4627,7 @@ c      int_mb(qstatus(1)+last_index-1) = 1
       status = 1
       shift1=nfft3d(1)*(2*(last_index-1))
       shift2=nfft3d(1)*(2*(last_index-1)+1)
-      shift3=2*np*(last_index-1)
+      shift3=4*np*(last_index-1)
 
       call D3dB_pfftf_step_center(int_mb(qcenter(1)+3*(last_index-1)),
      >                     status,nbb,A,
@@ -4703,7 +4705,7 @@ c      end do
             status = int_mb(qstatus(1)+indx-1)+1
             shift1=nfft3d(1)*(2*(indx-1))
             shift2=nfft3d(1)*(2*(indx-1)+1)
-            shift3=2*np*(indx-1)
+            shift3=4*np*(indx-1)
             call D3dB_pfftf_step_center(int_mb(qcenter(1)+3*(indx-1)),
      >                        status,nbb,A,
      >                        dcpl_mb(tmp(1)+shift1),
@@ -4787,7 +4789,7 @@ c      nthr = Parallel_nthreads()
          status = int_mb(qstatus(1)+indx-1)+1
          shift1=nfft3d(1)*(2*(indx-1))
          shift2=nfft3d(1)*(2*(indx-1)+1)
-         shift3=2*np*(indx-1)
+         shift3=4*np*(indx-1)
          call D3dB_pfftb_step_center(int_mb(qcenter(1)+3*(indx-1)),
      >                        status,nbb,A,
      >                        dcpl_mb(tmp(1)+shift1),
@@ -4816,7 +4818,7 @@ c      int_mb(qstatus(1)+last_index-1) = 1
       status = 1
       shift1=nfft3d(1)*(2*(last_index-1))
       shift2=nfft3d(1)*(2*(last_index-1)+1)
-      shift3=2*np*(last_index-1)
+      shift3=4*np*(last_index-1)
 
       call D3dB_pfftb_step_center(int_mb(qcenter(1)+3*(last_index-1)),
      >                     status,nbb,A,
@@ -4904,7 +4906,7 @@ c      end do
             status = int_mb(qstatus(1)+indx-1) + 1
             shift1=nfft3d(1)*(2*(indx-1))
             shift2=nfft3d(1)*(2*(indx-1)+1)
-            shift3=2*np*(indx-1)
+            shift3=4*np*(indx-1)
             call D3dB_pfftb_step_center(int_mb(qcenter(1)+3*(indx-1)),
      >                        status,nbb,A,
      >                        dcpl_mb(tmp(1)+shift1),
