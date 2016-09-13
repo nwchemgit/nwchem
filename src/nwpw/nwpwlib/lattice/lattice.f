@@ -1454,7 +1454,7 @@ c    >                  + i+1
       subroutine lattice_i_grid(nb,ijk)
       implicit none
       integer nb
-      integer ijk(3,*)
+      integer ijk(4,*)
 
 *     **** local variables ****
       integer nfft3d,n2ft3d
@@ -1476,7 +1476,7 @@ c    >                  + i+1
       nph2 = np2/2
       nph3 = np3/2
 
-      call icopy(3*n2ft3d,0,0,ijk,1)
+      call icopy(4*n2ft3d,0,0,ijk,1)
 
 *     **** grid points  ****
       do k3 = -nph3, nph3-1
@@ -1492,6 +1492,7 @@ c    >                  + i+1
                   ijk(1,index) = k1
                   ijk(2,index) = k2
                   ijk(3,index) = k3
+                  ijk(4,index) = 1
                end if
           end do
         end do
