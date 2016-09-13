@@ -325,10 +325,10 @@ c
               int_mb(incomp+icont-1) = 10
             elseif(sphcart.eq.1)then
               int_mb(index+4) = 251
-              int_mb(index+5) = 252
-              int_mb(index+6) = 253
-              int_mb(index+7) = 254
-              int_mb(index+8) = 255
+              int_mb(index+5) = 253
+              int_mb(index+6) = 255
+              int_mb(index+7) = 252
+              int_mb(index+8) = 254
               i = i+9
               int_mb(incomp+icont-1) = 10
             endif 
@@ -373,10 +373,13 @@ c
               i = i+6
               int_mb(incomp+icont-1) = 6
             elseif(sphcart.eq.1)then
-
-              do j = 0,4
-                int_mb(index+j) = 251+j
-              enddo 
+c
+              int_mb(index)   = 251
+              int_mb(index+1) = 253
+              int_mb(index+2) = 255
+              int_mb(index+3) = 252
+              int_mb(index+4) = 254
+c
               i = i+5
               int_mb(incomp+icont-1) = 5
             endif 
@@ -392,10 +395,15 @@ c
               i = i+10
               int_mb(incomp+icont-1) = 10
             elseif(sphcart.eq.1)then
-
-              do j = 0,6
-                int_mb(index+j) = 351+j
-              enddo 
+c
+              int_mb(index)   =  357 
+              int_mb(index+1) =  355 
+              int_mb(index+2) =  353
+              int_mb(index+3) =  351
+              int_mb(index+4) =  352 
+              int_mb(index+5) =  354
+              int_mb(index+6) =  356
+c
               i = i+7
               int_mb(incomp+icont-1) = 7
             endif 
@@ -411,9 +419,17 @@ c
               i = i+15
               int_mb(incomp+icont-1) = 15
             elseif(sphcart.eq.1)then
-              do j = 0,8
-                int_mb(index+j) = 451+j
-              enddo
+c
+              int_mb(index)   =  459
+              int_mb(index+1) =  457
+              int_mb(index+2) =  455
+              int_mb(index+3) =  453
+              int_mb(index+4) =  451
+              int_mb(index+5) =  452
+              int_mb(index+6) =  454
+              int_mb(index+7) =  456
+              int_mb(index+8) =  458
+c
               i = i+9
               int_mb(incomp+icont-1) = 9
             endif 
