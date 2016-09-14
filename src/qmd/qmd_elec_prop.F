@@ -13,6 +13,7 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "util_params.fh"
 c
       integer rtdb
       integer nat                ! number of atoms
@@ -113,7 +114,7 @@ CCCc       Hammes-Schiffer and Tully, J. Chem. Phys. 101, 4657 (1994)
 CCC         alpha=0.d0
 CCC         beta=0.d0
 CCC         do i=1,nat
-CCC          alpha=alpha+0.5d0*sum(g(:,i)*g(:,i))/(mass(i)*amu2au)
+CCC          alpha=alpha+0.5d0*sum(g(:,i)*g(:,i))/(mass(i)*camu2au)
 CCC          beta=beta+sum(v(:,i)*g(:,i))
 CCC         end do
 CCC         en_gap=state_en(instate,2)-state_en(curr_state,2)
@@ -125,7 +126,7 @@ CCC          else
 CCC           gamm=(beta-dsqrt(discrim))/(2.d0*alpha)
 CCC          end if
 CCC          do i=1,nat
-CCC           v(:,i)=v(:,i)-((gamm*g(:,i))/(mass(i)*amu2au))
+CCC           v(:,i)=v(:,i)-((gamm*g(:,i))/(mass(i)*camu2au))
 CCC          end do
           en_gap=en2(curr_state)-en2(instate)
           if ((KE-en_gap).gt.thresh) then

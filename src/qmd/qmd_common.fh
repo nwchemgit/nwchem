@@ -6,10 +6,6 @@ c
       integer lgeom,igeom,jdebug
       common/qmd_int/lgeom,igeom,jdebug
 c
-c     constants
-      double precision kb,au2fs,amu2au,au2ang
-      common/qmd_consts/kb,au2fs,amu2au,au2ang
-c
 c     nose-hoover thermostat parameters
       integer maxchain
       parameter (maxchain = 2)

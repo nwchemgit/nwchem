@@ -12,6 +12,7 @@ c
 #include "global.fh"
 #include "geom.fh"
 #include "stdio.fh"
+#include "util_params.fh"
 c
 #include "qmd_common.fh"
 c
@@ -54,7 +55,7 @@ c     get velocities
      $   call errquit(pname//'geom_vel_set',0,GEOM_ERR)
 c
       do i=1,n
-       write(xyzfileunit,4) t(i),r(:,i)*au2ang,v(:,i)*au2ang/au2fs
+       write(xyzfileunit,4) t(i),r(:,i)*cau2ang,v(:,i)*cau2ang/cau2fs
       end do
 c
       if (xyzfileunit.ne.0) close(unit=xyzfileunit)

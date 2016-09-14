@@ -15,6 +15,7 @@ c
 #include "stdio.fh"
 #include "global.fh"
 #include "geom.fh"
+#include "util_params.fh"
 c
 #include "qmd_common.fh"
 c
@@ -106,7 +107,7 @@ c        coordinates were input in atomic units
          if (dabs(gscale-1.d0).gt.1.d-8) then
            do i=1,nat
              do j=1,3
-               v(j,i)=v(j,i)*gscale*au2fs
+               v(j,i)=v(j,i)*gscale*cau2fs
              end do
            end do
          end if

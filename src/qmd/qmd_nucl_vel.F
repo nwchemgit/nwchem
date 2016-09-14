@@ -5,6 +5,7 @@ c
 c
       implicit none
 c
+#include "util_params.fh"
 #include "qmd_common.fh"
 c
       integer nat                ! number of atoms
@@ -23,13 +24,13 @@ c     preliminaries
 c
 c     Update velocity
       do i = 1,nat
-        a(1,i) = -g(1,i)/(m(i)*amu2au)
+        a(1,i) = -g(1,i)/(m(i)*camu2au)
         v(1,i) = v(1,i) + a(1,i)*dt
 c
-        a(2,i) = -g(2,i)/(m(i)*amu2au)
+        a(2,i) = -g(2,i)/(m(i)*camu2au)
         v(2,i) = v(2,i) + a(2,i)*dt
 c
-        a(3,i) = -g(3,i)/(m(i)*amu2au)
+        a(3,i) = -g(3,i)/(m(i)*camu2au)
         v(3,i) = v(3,i) + a(3,i)*dt
       end do
 c

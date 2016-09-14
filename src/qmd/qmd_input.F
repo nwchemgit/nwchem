@@ -25,6 +25,7 @@ c
       integer nstep_elec
       integer com_step
       integer print_xyz
+      integer step_property
       integer tvals(8)
       double precision targ_temp
       double precision friction
@@ -38,8 +39,10 @@ c
       logical do_linear
       logical do_cavity
       logical do_namd
+      logical do_property
       double precision cavity_axis(3)
       double precision cavity_spring
+     
 c
       character*30 pname
 c
@@ -110,6 +113,17 @@ c     Are we doing NAMD?
       do_namd=.false.
       if (.not.rtdb_put(rtdb,'qmd:namd',mt_log,1,do_namd))
      & call errquit(pname//'failed to write do_namd',0,RTDB_ERR)
+c
+c     Are we calculating any properties ?
+      do_property=.false.
+      if (.not.rtdb_put(rtdb,'qmd:property',mt_log,1,do_property))
+     & call errquit(pname//'failed to write do_property',0,RTDB_ERR)
+c
+c     Calculate molecular properties every step_property steps
+      step_property=1
+      if (.not.rtdb_put(rtdb,'qmd:step_property',mt_int,
+     &  1,step_property))
+     & call errquit(pname//'failed to write step_property',0,RTDB_ERR)
 c
 c     ----------
 c     Read input
@@ -234,6 +248,16 @@ c     NAMD input
        if (.not.rtdb_put(rtdb,'qmd:namd',mt_log,1,do_namd))
      &  call errquit(pname//'failed to write do_namd',0,RTDB_ERR)
        call qmd_namd_input(rtdb)
+c
+c     Calculate properties as specified in the property block every step_property steps
+      else if (inp_compare(.false.,test,'property')) then
+       do_property=.true.
+       if (.not.rtdb_put(rtdb,'qmd:property',mt_log,1,do_property))
+     &  call errquit(pname//'failed to write do_property',0,RTDB_ERR)
+       if (.not.inp_i(step_property)) step_property=1
+       if (.not.rtdb_put(rtdb,'qmd:step_property',mt_int,1,
+     & step_property))
+     &  call errquit(pname//'failed to write step_property',0,RTDB_ERR)
 c
 c     Print
       else if (inp_compare(.false.,test,'print')) then

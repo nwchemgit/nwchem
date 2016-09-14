@@ -5,6 +5,7 @@ c
 c
       implicit none
 c
+#include "util_params.fh"
 #include "qmd_common.fh"
 c
       integer n
@@ -19,7 +20,7 @@ c     total kinetic energy
       do i = 1,n
        ekin = ekin +  m(i)*(v(1,i)*v(1,i)+v(2,i)*v(2,i)+v(3,i)*v(3,i))
       end do
-      ekin = 0.5d0*ekin*amu2au
+      ekin = 0.5d0*ekin*camu2au
 c
       return
       end

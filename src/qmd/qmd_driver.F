@@ -13,6 +13,7 @@ c
 #include "global.fh"
 #include "geom.fh"
 #include "stdio.fh"
+#include "util_params.fh"
 c
 #include "qmd_common.fh"
 c
@@ -39,6 +40,7 @@ c
       integer istep_nucl              ! nuclear md step
       integer com_step                ! how often to remove trans/rot
       integer print_xyz               ! how often to print trajectory
+      integer step_property           ! how often to calculate properties
       double precision dt_nucl        ! nuclear md time step
       double precision eltime         ! elapsed time (in fs)
       double precision esys           ! system energy (from task_gradient)
@@ -72,6 +74,7 @@ c     Surface Hopping
       integer ispin
       double precision dt_elec           ! electronic time step
       logical do_namd                    ! NAMD flag
+      logical do_property                ! property flag
       logical do_tdks                    ! TDKS flag
       logical tda                        ! TDA flag
       logical deco                       ! decoherence flag
@@ -127,7 +130,7 @@ c     get rstfilename
 c
 c     initialize parameters
       call qmd_init(rtdb,nstep_nucl,dt_nucl,do_none,com_step,print_xyz,
-     &       restart,do_namd)
+     &       restart,do_namd,step_property,do_property)
 c
 c     create geometry object 
       if (.not. geom_create(geom,'geometry'))
@@ -205,12 +208,12 @@ c     get initial coordinates and velocities
 c
       call qmd_kinetic(nat,dbl_mb(k_m),dbl_mb(k_v),ekin)
       if (ga_nodeid().eq.0) then
-        final_temp = 2.0d0*ekin/kb/(1.d0*ndeg)
+        final_temp = 2.0d0*ekin/kb_au/(1.d0*ndeg)
         write(luout,120) "Current temp. (K):",final_temp
       end if
 c
 c     target kinetic energy (only used if thermostat is rescale)
-      ekin_targ=(1.d0*ndeg)*kb*targ_temp/2.d0
+      ekin_targ=(1.d0*ndeg)*kb_au*targ_temp/2.d0
 c
       if (do_namd.and.do_tdks) then
 c       get energies and movecs
@@ -362,7 +365,7 @@ c       instantaneous total energy: instantaneous kinetic energy + system energy
         etotal = ekin + esys
 c
 c       instantaneous temperature
-        final_temp = 2.0d0*ekin/kb/(1.d0*ndeg)
+        final_temp = 2.0d0*ekin/kb_au/(1.d0*ndeg)
 c
 c       print md run information
         if (ga_nodeid().eq.0) then
@@ -371,7 +374,7 @@ c
          write(luout,*)
          call util_print_centered(LuOut,'QMD Run Information',20,.true.)
 c         write(luout,110) "Current time step:",istep_nucl
-         eltime=dble(istep_nucl)*dt_nucl*au2fs
+         eltime=dble(istep_nucl)*dt_nucl*cau2fs
          write(luout,130) "Time elapsed (fs) :",eltime
          write(luout,135) "Kin. energy (a.u.):",istep_nucl,ekin
          write(luout,135) "Pot. energy (a.u.):",istep_nucl,esys
@@ -390,7 +393,7 @@ c          for input and output, state runs from 0 to nstates-1
          end if
          write(luout,*)
          write(luout,*)
-
+c
 c        check how often to write out the tracjectory
          if (mod(istep_nucl,print_xyz).eq.0) then
 c
@@ -405,6 +408,12 @@ c        write restart
      &                      dbl_mb(k_coup),do_namd)
 c
         end if  ! ga_nodeid()
+c
+c       check how often to calculate molecular properties
+        if (do_property) then
+          if (mod(istep_nucl,step_property).eq.0) 
+     &      call qmd_property(rtdb)
+        end if 
 c
 c       restart file has been written so set restart flag in RTDB
         if (.not.rtdb_put(rtdb,'qmd:restart',mt_log,1,.true.))

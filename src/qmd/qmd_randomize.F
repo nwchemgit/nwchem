@@ -9,6 +9,7 @@ c
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "global.fh"
+#include "util_params.fh"
 c
 #include "qmd_common.fh"
 c
@@ -26,7 +27,7 @@ c
 c
       do i = 1,n
        do j = 1,3
-         v(j,i) = dsqrt(targ_temp*kb/(m(i)*amu2au))*qmd_gasdev(idum)
+         v(j,i) = dsqrt(targ_temp*kb_au/(m(i)*camu2au))*qmd_gasdev(idum)
        end do
       end do
 c

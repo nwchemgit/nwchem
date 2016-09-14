@@ -9,6 +9,7 @@ c
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "global.fh"
+#include "util_params.fh"
 c
 #include "qmd_common.fh"
 c
@@ -56,6 +57,7 @@ c
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "global.fh"
+#include "util_params.fh"
 c
 #include "qmd_common.fh"
 c
@@ -78,7 +80,7 @@ c     preliminaries
       dt2 = 0.5d0*dt
       dt4 = 0.25d0*dt
       dt8 = 0.125d0*dt
-      kbt = kb*targ_temp
+      kbt = kb_au*targ_temp
 c
 c     nose-hoover 2 chain formula: Frenkel & Smit
       g_nh(2) = (m_nh(1)*v_nh(1)*v_nh(1)-kbt)/m_nh(2)
@@ -130,6 +132,7 @@ c
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "global.fh"
+#include "util_params.fh"
 c
 #include "qmd_common.fh"
 c
@@ -148,7 +151,7 @@ c
       pname='qmd_berendsen: '
 c
 c     instantaneous temperature
-      inst_temp = 2.0d0*KE_in/kb/(1.d0*ndeg)
+      inst_temp = 2.0d0*KE_in/kb_au/(1.d0*ndeg)
 c
 c     velocity scaling factor: Berendsen scaling
       ratio_temp = targ_temp/inst_temp
@@ -174,6 +177,7 @@ c
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "global.fh"
+#include "util_params.fh"
 c
 #include "qmd_common.fh"
 c
@@ -199,7 +203,7 @@ c     calculate c1
       c1 = exp(-friction*dt/2.d0)   
       do i = 1,n
         if (act_at(i)) then
-          c2=sqrt((1.d0-c1**2)*(kb*targ_temp)/(m(i)*amu2au)) 
+          c2=sqrt((1.d0-c1**2)*(kb_au*targ_temp)/(m(i)*camu2au)) 
           do j = 1,3
            v(j,i) = c1*v(j,i)+c2*qmd_gasdev(idum)
           end do
@@ -220,6 +224,7 @@ c
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "global.fh"
+#include "util_params.fh"
 c
 #include "qmd_common.fh"
 c
@@ -264,6 +269,7 @@ c
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "global.fh"
+#include "util_params.fh"
 c
 #include "qmd_common.fh"
 c
@@ -296,7 +302,7 @@ c
       end if
 c
       rr = qmd_gasdev(idum)
-      sigma = dble(ndeg)*kb*targ_temp/2.d0
+      sigma = dble(ndeg)*kb_au*targ_temp/2.d0
       ss = qmd_sumno(ndeg-1,idum)
 c     If temperature set to zero, then sigma=0 and scheck would diverge
 c      to positive infinity. Instead just set the value to 1 since we

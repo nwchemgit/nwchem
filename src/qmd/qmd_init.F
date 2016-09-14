@@ -2,7 +2,8 @@ c
 c     qmd_init: initialize parameters
 c     
       subroutine qmd_init(rtdb,nstep_nucl,dt_nucl,do_none,com_step,
-     $                    print_xyz,restart,do_namd)
+     $                    print_xyz,restart,do_namd,step_property,
+     $                   do_property)
 c
       implicit none
 c
@@ -26,6 +27,7 @@ c
       integer nstep_elec            ! total electronic steps
       integer com_step              ! how often to remove trans/rot
       integer print_xyz             ! how often to print xyz trajectory
+      integer step_property
       integer tvals(8)
       integer svals
       double precision dt_nucl      ! nuclear md time step
@@ -37,6 +39,7 @@ c
       logical do_none
       logical restart
       logical do_namd
+      logical do_property
       integer inntsize
 c
       character*32 pname
@@ -61,18 +64,6 @@ c
        write(LuOut,*)
        write(LuOut,*)
       endif ! ga_nodeid
-c
-c     boltzmann constant in atomic units
-      kb=3.1668114d-6
-c
-c     convert time in au to femtoseconds
-      au2fs=0.02418884326505d0
-c
-c     convert mass in amu to au
-      amu2au=1822.8884845d0
-c
-c     convert length in au to Angstrom
-      au2ang=0.52917721092d0
 c
 c     total nuclear steps
       if (.not.rtdb_get(rtdb,'qmd:nstep_nucl',mt_int,1,nstep_nucl))
@@ -201,6 +192,15 @@ c
 c     are we doing NAMD?
       if (.not.rtdb_get(rtdb,'qmd:namd',mt_log,1,do_namd))
      $     do_namd=.false.
+c
+c     are we calculating molecular properties ?
+      if (.not.rtdb_get(rtdb,'qmd:property',mt_log,1,do_property))
+     $     do_property=.false.
+c
+c     calculate molecular properties as defined in the properties block every step_property steps
+      if (.not.rtdb_get(rtdb,'qmd:step_property',mt_int,1,
+     $ step_property))
+     $     step_property = 1
 c
       if (ga_nodeid().eq.0) call util_flush(LuOut)
 c
