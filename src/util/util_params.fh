@@ -44,4 +44,12 @@ c
 c     Boltzman const in au/K
 c     -----------------------------
       double precision kb_au
-      parameter(kb_au=3.16679d-6)
+      parameter(kb_au=3.1668114d-6)
+c
+c     convert time in au to femtoseconds
+      double precision cau2fs
+      parameter(cau2fs=0.02418884326505d0)
+c
+c     convert mass in amu to au
+      double precision camu2au
+      parameter(camu2au=1822.8884845d0)
