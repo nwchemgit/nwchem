@@ -298,12 +298,9 @@ c
      1                            - ( denom_p4 + denom_p5 + denom_p6 ) )
 #if USE_F90_ALLOCATABLE
                   energy1 = energy1 + factor*denom
-     1                    * f_doubles(i) * f_doubles(i)
-c     1                    * dbl_mb(k_doubles+i)*dbl_mb(k_doubles+i)
-                  energy2 = energy2 + factor*denom*f_doubles(i)
-     1                    * (f_doubles(i)+f_singles(i))
-c                  energy2 = energy2 + factor*denom*dbl_mb(k_doubles+i)
-c     1                    * (dbl_mb(k_doubles+i)+dbl_mb(k_singles+i))
+     1                    * f_doubles(i+1) * f_doubles(i+1)
+                  energy2 = energy2 + factor*denom*f_doubles(i+1)
+     1                    * (f_doubles(i+1)+f_singles(i+1))
 #else // USE_F90_ALLOCATABLE
                   energy1 = energy1 + factor*denom
      1                    * dbl_mb(k_doubles+i)*dbl_mb(k_doubles+i)
