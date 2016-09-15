@@ -49,7 +49,7 @@ ifdef _USE_SCALAPACK
 ifeq ($(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk '/HAVE_ELPA\ 1/ {print "Y"}'),Y)
  LIB_DEFINES += -DUSE_ELPA
 endif
-GOTGAPZHEEVD= $(shell [ -e ${NWCHEM_TOP}/src/tools/build/global/src/scalapack.o ] &&  nm ${NWCHEM_TOP}/src/tools/build/global/src/scalapack.o|egrep ga_pzheevd |awk '/ga_pzheevd/ { print "Y"}')
+GOTGAPZHEEVD= $(shell [ -e ${NWCHEM_TOP}/src/tools/build/global/src/scalapack.o ] &&  nm ${NWCHEM_TOP}/src/tools/build/global/src/scalapack.o|egrep T\ ga_pzheevd_ |awk '/ga_pzheevd/ { print "Y"}')
 ifeq ($(GOTGAPZHEEVD),Y)
  LIB_DEFINES += -DUSE_GAPZHEEVD
 endif

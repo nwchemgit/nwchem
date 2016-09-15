@@ -28,7 +28,8 @@
      LIBRARY = libnwdft.a
 
  LIB_DEFINES =
-GOTGAPZHEEVD= $(shell [ -e ${NWCHEM_TOP}/src/tools/build/global/src/scalapack.o ] &&  nm ${NWCHEM_TOP}/src/tools/build/global/src/scalapack.o|egrep ga_pzheevd |awk '/ga_pzheevd/ { print "Y"}')
+GOTGAPZHEEVD= $(shell [ -e ${NWCHEM_TOP}/src/tools/build/global/src/scalapack.o ] &&  nm ${NWCHEM_TOP}/src/tools/build/global/src/scalapack.o|egrep T\ ga_pzheevd_ |awk '/ga_pzheevd/ { print "Y"}')
+
 ifeq ($(GOTGAPZHEEVD),Y)
  LIB_DEFINES += -DUSE_GAPZHEEVD
 endif
