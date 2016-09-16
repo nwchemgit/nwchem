@@ -93,6 +93,9 @@ c
       logical geom_centroid
       external geom_centroid
 c
+      logical qmd_hasproperty
+      external qmd_hasproperty
+c
 c     preliminaries
       status = .true.
       dip_exists=.true.
@@ -411,9 +414,10 @@ c
 c
 c       check how often to calculate molecular properties
         if (do_property) then
-          if (mod(istep_nucl,step_property).eq.0) 
-     &      call qmd_property(rtdb)
-        end if 
+         if (qmd_hasproperty(rtdb)) then
+          if (mod(istep_nucl,step_property).eq.0)call qmd_property(rtdb)
+         end if ! qmd_hasproperty()
+        end if  ! do_property
 c
 c       restart file has been written so set restart flag in RTDB
         if (.not.rtdb_put(rtdb,'qmd:restart',mt_log,1,.true.))
