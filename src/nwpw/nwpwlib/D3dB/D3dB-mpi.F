@@ -6798,16 +6798,6 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
       int_mb(i1_start+np) = index1
       int_mb(i2_start+np) = index2
 
-      write(*,*) taskid,
-     >           " i1_start=",int_mb(i1_start),int_mb(i1_start+1),
-     >                       int_mb(i1_start+2),
-     >                       int_mb(i1_start+3)
-      write(*,*) taskid,
-     >           " i2_start=",int_mb(i2_start),int_mb(i2_start+1),
-     >                       int_mb(i2_start+2),
-     >                       int_mb(i2_start+3)
-
-
       do it=0,np-1
          int_mb(pindex1(1)+it) = 0
          int_mb(pindex2(1)+it) = 0
@@ -6844,8 +6834,8 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
                ismall = ismall + nxh_small
                jsmall = jsmall + nyh_small
                ksmall = ksmall + nzh_small
-               call D3dB_ijktoindex2p(1,ibig+1,jbig+1,kbig+1,
-     >                             indxbig,pbig)
+c               call D3dB_ijktoindex2p(1,ibig+1,jbig+1,kbig+1,
+c     >                             indxbig,pbig)
                call D3dB_ijktoindex2p(3,ismall+1,jsmall+1,ksmall+1,
      >                             indxsmall,psmall)
 
@@ -6853,21 +6843,10 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
                !it = mod(taskid-psmall+np,np)
                itmp = int_mb(i1_start+it) 
      >              + int_mb(pindex1(1)+psmall)
-               int_mb(c_iq_to_i1+itmp-1) = indxbig
-               int_mb(pindex1(1)+psmall) = int_mb(pindex1(1)+psmall)+1
-
-               it2 = mod(taskid-pbig+np,np)
-               !it2 = mod(pbig-taskid+np,np)
-               itmp = int_mb(i2_start+it2) 
-     >              + int_mb(pindex2(1)+pbig)
+c               int_mb(c_iq_to_i1+itmp-1) = indxbig
+               int_mb(c_iq_to_i1+itmp-1) = i
                int_mb(c_iq_to_i2+itmp-1) = indxsmall
-               int_mb(pindex2(1)+pbig)   = int_mb(pindex2(1)+pbig)+1
-
-               write(*,*) taskid,i," ijk=",ismall-nxh_small,
-     >                    jsmall-nyh_small,
-     >                    ksmall-nzh_small,
-     >                    " A0=",A(i),
-     >                    psmall,indxsmall
+               int_mb(pindex1(1)+psmall) = int_mb(pindex1(1)+psmall)+1
 
             end if
          end if
@@ -6889,7 +6868,6 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
 !$OMP DO
       do i=1,index1-1
          tmp1(i) = A(int_mb(c_iq_to_i1+i-1)) 
-         write(*,*) taskid,i," initial=",tmp1(i),int_mb(c_iq_to_i2+i-1)
       end do
 !$OMP END DO
       call nwpw_timing_end(55)
@@ -6984,13 +6962,12 @@ c     **** external functions ****
          if (msglen.gt.0) then
             msgtype = 73
             reqcnt = reqcnt + 1
-            write(*,*) taskid," recv1=",source," msglen=",msglen
 #ifdef MPI4
             stupid_msglen = msglen
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(source)
             call MPI_IRECV(int_mb(c_iq_to_i1+int_mb(i2_start+it+1-1)-1),
-     >                    stupid_msglen,stupid_integer,
+     >                    2*stupid_msglen,stupid_integer,
      >                    stupid_taskid,
      >                    stupid_type,stupid_world,
      >                    stupid_request,stupid_ierr)
@@ -7006,7 +6983,7 @@ c     **** external functions ****
 
             msgtype = 74
             reqcnt = reqcnt + 1
-            write(*,*) taskid," recv2=",source," msglen=",msglen
+            !write(*,*) taskid," recv2=",source," msglen=",msglen
 #ifdef MPI4
             stupid_msglen = msglen
             stupid_type   = msgtype
@@ -7039,13 +7016,12 @@ c     **** external functions ****
          if (msglen.gt.0) then
             msgtype   = 73
             reqcnt = reqcnt + 1
-            write(*,*) taskid," send1=",proc_to," msglen=",msglen
 #ifdef MPI4
             stupid_msglen = msglen
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
             call MPI_ISEND(int_mb(c_iq_to_i2+int_mb(i1_start+it+1-1)-1),
-     >                     stupid_msglen,stupid_integer,
+     >                     2*stupid_msglen,stupid_integer,
      >                     stupid_taskid,
      >                     stupid_type,stupid_world,
      >                     stupid_request,stupid_ierr)
@@ -7053,14 +7029,14 @@ c     **** external functions ****
             request(reqcnt) = stupid_request
 #else
             call MPI_ISEND(int_mb(c_iq_to_i2+int_mb(i1_start+it+1-1)-1),
-     >                     msglen,MPI_INTEGER,
+     >                     2*msglen,MPI_INTEGER,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,Parallel_comm_world(),
      >                     request(reqcnt),mpierr)
 #endif
             msgtype   = 74
             reqcnt = reqcnt + 1
-            write(*,*) taskid," send2=",proc_to," msglen=",msglen
+            !write(*,*) taskid," send2=",proc_to," msglen=",msglen
 #ifdef MPI4
             stupid_msglen = msglen
             stupid_type   = msgtype
@@ -7165,21 +7141,10 @@ c     **** external functions ****
       call Parallel_shared_vector_zero(.true.,n2ft3d(3),A)
 !$OMP DO
       do i=1,index2-1
-         write(*,*) taskid,i," final=",tmp2(i),int_mb(c_iq_to_i1+i-1)
          A(int_mb(c_iq_to_i1+i-1)) = tmp2(i)
       end do
 !$OMP END DO
       call nwpw_timing_end(55)
-
-      do i=1,n2ft3d(3)
-         ismall = int_mb(igrid_small(1)+4*(i-1))
-         jsmall = int_mb(igrid_small(1)+4*(i-1)+1)
-         ksmall = int_mb(igrid_small(1)+4*(i-1)+2)
-         lsmall = int_mb(igrid_small(1)+4*(i-1)+3)
-         if (lsmall.gt.0) then
-            write(*,*) taskid,i," ijk=",ismall,jsmall,ksmall," A=",A(i)
-         end if
-      end do
 
       return
       end
@@ -8161,6 +8126,514 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
 
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *    D3dB_r_3to1_Expand_start3    *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_r_3to1_Expand_start3(center,A,tmp1,
+     >                                      request,reqcnt)
+      implicit none
+      integer center(3)
+      real*8 A(*)
+      real*8 tmp1(*)
+      integer request(*),reqcnt
+
+#include "bafdecls.fh"
+#include "mpif.h"
+#include "D3dB.fh"
+#include "errquit.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
+*     **** r_3to1_block common block ****
+      integer maxq_3t1
+      parameter (maxq_3t1=6)
+      integer qhead0_3t1,qhead1_3t1,qlast_3t1
+      integer i1_start_3t1(2),i2_start_3t1(2)
+      integer c_iq_to_i1_3t1(2),c_iq_to_i2_3t1(2)
+      integer index2_3t1(2)
+      common /r_3to1_block/ i1_start_3t1,i2_start_3t1,
+     >                      c_iq_to_i1_3t1,c_iq_to_i2_3t1,
+     >                      index2_3t1,
+     >                      qhead0_3t1,qhead1_3t1,qlast_3t1
+
+*     **** igrid_r_block common block ****
+      integer igrid_big(2),igrid_small(2)
+      common /igrid_r_block/ igrid_big,igrid_small
+
+*     **** local variables ****
+      logical value
+      integer taskid,np
+      integer proc_to,proc_from,source
+      integer indxbig,pbig,indxsmall,psmall,itmp
+      integer index1,index2,msgtype,msglen
+      integer ismall,jsmall,ksmall,lsmall,ibig,jbig,kbig,lbig
+      integer i,it
+      integer nxh,nyh,nzh,nxh_small,nyh_small,nzh_small
+      integer pindex1(2),pindex2(2)
+      integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
+      integer shift1,shift2
+
+
+      call nwpw_timing_start(55)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
+
+      !**** allocate temporary space from stack ****
+      value = BA_push_get(mt_int,np,'pindex1_3t1',pindex1(2),pindex1(1))
+      value = value.and.
+     >        BA_push_get(mt_int,np,'pindex2_3t1',pindex2(2),pindex2(1))
+      if (.not.value)
+     >  call errquit('D3dB_r_3to1_Expand_start3:out of stack',0,MA_ERR)
+
+      shift1 = qlast_3t1*(np+1)
+      shift2 = qlast_3t1*n2ft3d(1)
+      i1_start = i1_start_3t1(1) + shift1
+      i2_start = i2_start_3t1(1) + shift1
+      c_iq_to_i1 = c_iq_to_i1_3t1(1) + shift2
+      c_iq_to_i2 = c_iq_to_i2_3t1(1) + shift2
+
+      nxh = nx(1)/2
+      nyh = ny(1)/2
+      nzh = nz(1)/2
+
+      nxh_small = nx(3)/2
+      nyh_small = ny(3)/2
+      nzh_small = nz(3)/2
+
+!$OMP MASTER
+      do it=0,np-1
+         int_mb(pindex1(1)+it) = 0
+         int_mb(pindex2(1)+it) = 0
+      end do
+      !*** count number of sends ****
+      do i=1,n2ft3d(3)
+         ismall = int_mb(igrid_small(1)+4*(i-1))
+         jsmall = int_mb(igrid_small(1)+4*(i-1)+1)
+         ksmall = int_mb(igrid_small(1)+4*(i-1)+2)
+         lsmall = int_mb(igrid_small(1)+4*(i-1)+3)
+         if (lsmall.gt.0) then
+
+            ibig = ismall+center(1)
+            if (ibig.gt.(nxh-1)) ibig = ibig - nx(1)
+            if (ibig.lt.(-nxh))  ibig = ibig + nx(1)
+
+            jbig = jsmall+center(2)
+            if (jbig.gt.(nyh-1)) jbig = jbig - ny(1)
+            if (jbig.lt.(-nyh))  jbig = jbig + ny(1)
+
+            kbig = ksmall+center(3)
+            if (kbig.gt.(nzh-1)) kbig = kbig - nz(1)
+            if (kbig.lt.(-nzh))  kbig = kbig + nz(1)
+
+            ibig = ibig + nxh
+            jbig = jbig + nyh
+            kbig = kbig + nzh
+            call D3dB_ijktoindex2p(1,ibig+1,jbig+1,kbig+1,
+     >                             indxbig,pbig)
+               int_mb(pindex1(1)+pbig) = int_mb(pindex1(1)+pbig) + 1
+         end if
+      end do
+
+      !*** count number of recvs ****
+      do i=1,n2ft3d(1)
+         ibig = int_mb(igrid_big(1)+4*(i-1))
+         jbig = int_mb(igrid_big(1)+4*(i-1)+1)
+         kbig = int_mb(igrid_big(1)+4*(i-1)+2)
+         lbig = int_mb(igrid_big(1)+4*(i-1)+3)
+         if (lbig.gt.0) then
+
+            ismall = ibig - center(1)
+            if (ismall.lt.(-nxh))  ismall = ismall + nx(1)
+            if (ismall.gt.(nxh-1)) ismall = ismall - nx(1)
+
+            jsmall = jbig - center(2)
+            if (jsmall.lt.(-nyh))  jsmall = jsmall + ny(1)
+            if (jsmall.gt.(nyh-1)) jsmall = jsmall - ny(1)
+
+            ksmall = kbig - center(3)
+            if (ksmall.lt.(-nzh))  ksmall = ksmall + nz(1)
+            if (ksmall.gt.(nzh-1)) ksmall = ksmall - nz(1)
+
+            if ((ismall.gt.(-nxh_small-1)).and.
+     >          (ismall.lt.nxh_small).and.
+     >          (jsmall.gt.(-nzh_small-1)).and.
+     >          (jsmall.lt.nyh_small).and.
+     >          (ksmall.gt.(-nzh_small-1)).and.
+     >          (ksmall.lt.nzh_small)) then
+               ismall = ismall + nxh_small
+               jsmall = jsmall + nyh_small
+               ksmall = ksmall + nzh_small
+               call D3dB_ijktoindex2p(3,ismall+1,jsmall+1,ksmall+1,
+     >                             indxsmall,psmall)
+               int_mb(pindex2(1)+psmall) = int_mb(pindex2(1)+psmall) + 1
+            end if
+         end if
+      end do
+
+
+      index1 = 1
+      index2 = 1
+      do it=0,np-1
+         proc_to   = mod(taskid+it,np)
+         proc_from = mod(taskid-it+np,np)
+         int_mb(i1_start+it) = index1
+         int_mb(i2_start+it) = index2
+         index1 = index1 + int_mb(pindex1(1)+proc_to)
+         index2 = index2 + int_mb(pindex2(1)+proc_from)
+      end do
+      int_mb(i1_start+np) = index1
+      int_mb(i2_start+np) = index2
+
+      do it=0,np-1
+         int_mb(pindex1(1)+it) = 0
+         int_mb(pindex2(1)+it) = 0
+      end do
+
+      do i=1,n2ft3d(3)
+         ismall = int_mb(igrid_small(1)+4*(i-1))
+         jsmall = int_mb(igrid_small(1)+4*(i-1)+1)
+         ksmall = int_mb(igrid_small(1)+4*(i-1)+2)
+         lsmall = int_mb(igrid_small(1)+4*(i-1)+3)
+         if (lsmall.gt.0) then
+
+            ibig = ismall + center(1)
+            if (ibig.gt.(nxh-1)) ibig = ibig - nx(1)
+            if (ibig.lt.(-nxh))  ibig = ibig + nx(1)
+
+            jbig = jsmall + center(2)
+            if (jbig.gt.(nyh-1)) jbig = jbig - ny(1)
+            if (jbig.lt.(-nyh))  jbig = jbig + ny(1)
+
+            kbig = ksmall + center(3)
+            if (kbig.gt.(nzh-1)) kbig = kbig - nz(1)
+            if (kbig.lt.(-nzh))  kbig = kbig + nz(1)
+
+            ibig = ibig + nxh
+            jbig = jbig + nyh
+            kbig = kbig + nzh
+c            ismall = ismall + nxh_small
+c            jsmall = jsmall + nyh_small
+c            ksmall = ksmall + nzh_small
+            call D3dB_ijktoindex2p(1,ibig+1,jbig+1,kbig+1,
+     >                          indxbig,pbig)
+c            call D3dB_ijktoindex2p(3,ismall+1,jsmall+1,ksmall+1,
+c     >                          indxsmall,psmall)
+
+            it = mod(pbig-taskid+np,np)
+            itmp = int_mb(i1_start+it)
+     >           + int_mb(pindex1(1)+pbig)
+c            int_mb(c_iq_to_i1+itmp-1) = indxsmall
+            int_mb(c_iq_to_i1+itmp-1) = i
+            int_mb(c_iq_to_i2+itmp-1) = indxbig
+            int_mb(pindex1(1)+pbig) = int_mb(pindex1(1)+pbig)+1
+
+         end if
+      end do
+
+!$OMP END MASTER
+
+*     **** pop stack ****
+      value =           BA_pop_stack(pindex2(2))
+      value = value.and.BA_pop_stack(pindex1(2))
+      if (.not.value)
+     >   call errquit('D3dB_r_3to1_Expand_start3:popping stack',
+     >                0,MA_ERR)
+
+*     **** set index2 and increment qlast_1t3 ****
+      int_mb(index2_3t1(1)+qlast_3t1) = index2
+      qlast_3t1 = mod(qlast_3t1+1,maxq_3t1)
+
+!$OMP DO
+      do i=1,index1-1
+         tmp1(i) = A(int_mb(c_iq_to_i1+i-1))
+      end do
+!$OMP END DO
+      call nwpw_timing_end(55)
+
+      return
+      end 
+
+
+
+*     ***********************************
+*     *                                 *
+*     *    D3dB_r_3to1_Expand_mid3      *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_r_3to1_Expand_mid3(tmp1,tmp2,request,reqcnt)
+      implicit none
+      real*8 tmp1(*)
+      real*8 tmp2(*)
+      integer request(*),reqcnt
+
+
+#include "bafdecls.fh"
+#include "mpif.h"
+#include "D3dB.fh"
+#include "errquit.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
+*     **** r_3to1_block common block ****
+      integer maxq_3t1
+      parameter (maxq_3t1=6)
+      integer qhead0_3t1,qhead1_3t1,qlast_3t1
+      integer i1_start_3t1(2),i2_start_3t1(2)
+      integer c_iq_to_i1_3t1(2),c_iq_to_i2_3t1(2)
+      integer index2_3t1(2)
+      common /r_3to1_block/ i1_start_3t1,i2_start_3t1,
+     >                      c_iq_to_i1_3t1,c_iq_to_i2_3t1,
+     >                      index2_3t1,
+     >                      qhead0_3t1,qhead1_3t1,qlast_3t1
+
+*     **** local variables ****
+      logical value
+      integer taskid,np
+      integer proc_to,proc_from,source
+      integer it,itmp,msgtype,msglen
+      integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
+      integer shift1,shift2
+
+c     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
+
+      call nwpw_timing_start(55)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
+
+      shift1 = qhead0_3t1*(np+1)
+      shift2 = qhead0_3t1*n2ft3d(1)
+      i1_start = i1_start_3t1(1) + shift1
+      i2_start = i2_start_3t1(1) + shift1
+      c_iq_to_i1 = c_iq_to_i1_3t1(1) + shift2
+      c_iq_to_i2 = c_iq_to_i2_3t1(1) + shift2
+
+
+*     **** it = 0, transpose data on same thread ****  
+      msglen = int_mb(i2_start+2-1) - int_mb(i2_start+1-1)
+
+      call Parallel_shared_vector_copy(.false.,msglen,
+     >               tmp1(int_mb(i1_start+1-1)),
+     >               tmp2(int_mb(i2_start+1-1)))
+
+      call Parallel_shared_vector_icopy(.false.,msglen,
+     >               int_mb(c_iq_to_i2+int_mb(i1_start+1-1)-1),
+     >               int_mb(c_iq_to_i1+int_mb(i2_start+1-1)-1))
+
+!$OMP MASTER
+
+*     **** receive packed array data ****
+      reqcnt = 0
+      do it = 1,np-1
+
+*        **** synchronous receive of tmp ****
+         proc_from = mod((taskid)-it+np, np)
+
+         source=proc_from
+         msglen = (int_mb(i2_start+it+2-1)
+     >          -  int_mb(i2_start+it+1-1))
+
+         if (msglen.gt.0) then
+            msgtype = 53
+            reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(source)
+            call MPI_IRECV(int_mb(c_iq_to_i1+int_mb(i2_start+it+1-1)-1),
+     >                    2*stupid_msglen,stupid_integer,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr)
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
+            call MPI_IRECV(int_mb(c_iq_to_i1+int_mb(i2_start+it+1-1)-1),
+     >                    2*msglen,MPI_INTEGER,
+     >                    Parallel2d_convert_taskid_i(source),
+     >                    msgtype,Parallel_comm_world(),
+     >                    request(reqcnt),mpierr)
+#endif
+         end if
+
+         if (msglen.gt.0) then
+            msgtype = 54
+            reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(source)
+            call MPI_IRECV(tmp2(int_mb(i2_start+it+1-1)),
+     >                    stupid_msglen,stupid_double,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_world,
+     >                    stupid_request,stupid_ierr)
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
+            call MPI_IRECV(tmp2(int_mb(i2_start+it+1-1)),
+     >                    msglen,MPI_DOUBLE_PRECISION,
+     >                    Parallel2d_convert_taskid_i(source),
+     >                    msgtype,Parallel_comm_world(),
+     >                    request(reqcnt),mpierr)
+#endif
+         end if
+
+      end do
+
+
+*     **** send packed array to other processors ****
+      do it = 1,np-1
+
+*        **** synchronous send of tmp ****
+         proc_to   = mod((taskid)+it, np)
+         msglen    = (int_mb(i1_start+it+2-1)
+     >              - int_mb(i1_start+it+1-1))
+
+         if (msglen.gt.0) then
+            msgtype   = 53
+            reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
+            call MPI_ISEND(int_mb(c_iq_to_i2+int_mb(i1_start+it+1-1)-1),
+     >                     2*stupid_msglen,stupid_integer,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,
+     >                     stupid_request,stupid_ierr)
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
+            call MPI_ISEND(int_mb(c_iq_to_i2+int_mb(i1_start+it+1-1)-1),
+     >                     2*msglen,MPI_INTEGER,
+     >                     Parallel2d_convert_taskid_i(proc_to),
+     >                     msgtype,Parallel_comm_world(),
+     >                     request(reqcnt),mpierr)
+#endif
+         end if
+
+         if (msglen.gt.0) then
+            msgtype   = 54
+            reqcnt = reqcnt + 1
+#ifdef MPI4
+            stupid_msglen = msglen
+            stupid_type   = msgtype
+            stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
+            call MPI_ISEND(tmp1(int_mb(i1_start+it+1-1)),
+     >                     stupid_msglen,stupid_double,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_world,
+     >                     stupid_request,stupid_ierr)
+            request(reqcnt) = 0
+            request(reqcnt) = stupid_request
+#else
+            call MPI_ISEND(tmp1(int_mb(i1_start+it+1-1)),
+     >                     msglen,MPI_DOUBLE_PRECISION,
+     >                     Parallel2d_convert_taskid_i(proc_to),
+     >                     msgtype,Parallel_comm_world(),
+     >                     request(reqcnt),mpierr)
+#endif
+         end if
+      end do
+
+
+*     *** increment qhead0_3t1
+      qhead0_3t1 = mod(qhead0_3t1+1,maxq_3t1)
+
+c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
+
+!$OMP END MASTER
+!$OMP BARRIER
+
+      call nwpw_timing_end(55)
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *    D3dB_r_3to1_Expand_final3    *
+*     *                                 *
+*     ***********************************
+      subroutine D3dB_r_3to1_Expand_final3(tmp2,A,request,reqcnt)
+      implicit none
+      real*8 tmp2(*),A(*)
+      integer request(*),reqcnt
+
+#include "bafdecls.fh"
+#include "D3dB.fh"
+#include "errquit.fh"
+
+*     **** r_3to1_block common block ****
+      integer maxq_3t1
+      parameter (maxq_3t1=6)
+      integer qhead0_3t1,qhead1_3t1,qlast_3t1
+      integer i1_start_3t1(2),i2_start_3t1(2)
+      integer c_iq_to_i1_3t1(2),c_iq_to_i2_3t1(2)
+      integer index2_3t1(2)
+      common /r_3to1_block/ i1_start_3t1,i2_start_3t1,
+     >                      c_iq_to_i1_3t1,c_iq_to_i2_3t1,
+     >                      index2_3t1,
+     >                      qhead0_3t1,qhead1_3t1,qlast_3t1
+
+*     **** local variables ****
+      logical value
+      integer taskid,np
+      integer proc_to,proc_from,source
+      integer itmp,msgtype,msglen,it,i
+      integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
+      integer shift1,shift2,index2
+
+      call nwpw_timing_start(55)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
+
+      shift1 = qhead1_3t1*(np+1)
+      shift2 = qhead1_3t1*n2ft3d(1)
+      i1_start = i1_start_3t1(1) + shift1
+      i2_start = i2_start_3t1(1) + shift1
+      c_iq_to_i1 = c_iq_to_i1_3t1(1) + shift2
+      c_iq_to_i2 = c_iq_to_i2_3t1(1) + shift2
+      index2 = int_mb(index2_3t1(1)+qhead1_3t1)
+
+!$OMP MASTER
+*     **** wait for completion of mp_send, also do a sync ****
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
+
+*     *** increment qhead1_3t1
+      qhead1_3t1 = mod(qhead1_3t1+1,maxq_3t1)
+
+!$OMP END MASTER
+!$OMP BARRIER
+
+*     **** unpack tmp2(i) array ****
+      call Parallel_shared_vector_zero(.true.,n2ft3d(1),A)
+!$OMP DO
+      do i=1,index2-1
+         A(int_mb(c_iq_to_i1+i-1)) = tmp2(i)
+      end do
+!$OMP END DO
+
+      call nwpw_timing_end(55)
+
+      return
+      end
+
+
+
+
+
+
 
 
 

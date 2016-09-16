@@ -3935,11 +3935,11 @@ c      tid = Parallel_threadid()
          call D3dB_pfftbx(nbb,tmp1,tmp2,request,reqcnt)
 
       else if (step.eq.7) then
-         call D3dB_r_3to1_Expand_start(center,tmp1,tmp2,request,reqcnt)
+         call D3dB_r_3to1_Expand_start3(center,tmp1,tmp2,request,reqcnt)
       else if (step.eq.8) then
-         call D3dB_r_3to1_Expand_mid(tmp2,tmp1,request,reqcnt)
+         call D3dB_r_3to1_Expand_mid3(tmp2,tmp1,request,reqcnt)
       else if (step.eq.9) then
-         call D3dB_r_3to1_Expand_final(tmp1,tmp2,request,reqcnt)
+         call D3dB_r_3to1_Expand_final3(tmp1,tmp2,request,reqcnt)
       end if
 
       return
