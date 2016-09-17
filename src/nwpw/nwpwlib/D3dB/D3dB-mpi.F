@@ -6682,17 +6682,25 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
       integer it,i,it2
       integer nxh,nyh,nzh,nxh_small,nyh_small,nzh_small
       integer pindex1(2),pindex2(2)
+      integer small(2),small_count
       integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
       integer shift1,shift2
+c      integer nthr,thr
 
       call nwpw_timing_start(55)
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
+c      call Parallel_nthreads(nthr)
+c      call Parallel_threadid(thr)
 
       !**** allocate temporary space from stack ****
-      value = BA_push_get(mt_int,np,'pindex1_1t3',pindex1(2),pindex1(1))
+      value = BA_push_get(mt_int,np,'pindex1_1t3',
+     >                    pindex1(2),pindex1(1))
       value = value.and.
-     >        BA_push_get(mt_int,np,'pindex2_1t3',pindex2(2),pindex2(1))
+     >        BA_push_get(mt_int,np,'pindex2_1t3',
+     >                    pindex2(2),pindex2(1))
+      value = value.and.
+     >        BA_push_get(mt_int,4*n2ft3d(1),'small',small(2),small(1))
       if (.not.value)
      >  call errquit('D3dB_r_1to3_Contract_start:out of stack',0,MA_ERR)
 
@@ -6718,7 +6726,9 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
          int_mb(pindex1(1)+it) = 0
          int_mb(pindex2(1)+it) = 0
       end do
+
       !*** count number of sends ****
+      small_count = 0
       do i=1,n2ft3d(1)
          ibig = int_mb(igrid_big(1)+4*(i-1))
          jbig = int_mb(igrid_big(1)+4*(i-1)+1)
@@ -6749,6 +6759,15 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
                ksmall = ksmall + nzh_small
                call D3dB_ijktoindex2p(3,ismall+1,jsmall+1,ksmall+1,
      >                             indxsmall,psmall)
+
+               int_mb(small(1)+4*small_count)   = indxsmall
+               int_mb(small(1)+4*small_count+1) = psmall
+               int_mb(small(1)+4*small_count+2) = i
+
+               int_mb(small(1)+4*small_count+3) =
+     >         int_mb(pindex1(1)+psmall)
+
+               small_count = small_count + 1
                int_mb(pindex1(1)+psmall) = int_mb(pindex1(1)+psmall) + 1
             end if
          end if
@@ -6784,7 +6803,6 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
 
       end do
 
-
       index1 = 1
       index2 = 1
       do it=0,np-1
@@ -6798,72 +6816,88 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
       int_mb(i1_start+np) = index1
       int_mb(i2_start+np) = index2
 
-      do it=0,np-1
-         int_mb(pindex1(1)+it) = 0
-         int_mb(pindex2(1)+it) = 0
+c      do it=0,np-1
+c         int_mb(pindex1(1)+it) = 0
+c         int_mb(pindex2(1)+it) = 0
+c      end do
+c
+c      do i=1,n2ft3d(1)
+c         ibig = int_mb(igrid_big(1)+4*(i-1))
+c         jbig = int_mb(igrid_big(1)+4*(i-1)+1)
+c         kbig = int_mb(igrid_big(1)+4*(i-1)+2)
+c         lbig = int_mb(igrid_big(1)+4*(i-1)+3)
+c         if (lbig.gt.0) then
+c
+c            ismall = ibig-center(1)
+c            if (ismall.gt.(nxh-1)) ismall = ismall - nx(1)
+c            if (ismall.lt.(-nxh))  ismall = ismall + nx(1)
+c
+c            jsmall = jbig-center(2)
+c            if (jsmall.gt.(nyh-1)) jsmall = jsmall - ny(1)
+c            if (jsmall.lt.(-nyh))  jsmall = jsmall + ny(1)
+c
+c            ksmall = kbig-center(3)
+c            if (ksmall.gt.(nzh-1)) ksmall = ksmall - nz(1)
+c            if (ksmall.lt.(-nzh))  ksmall = ksmall + nz(1)
+c
+c            if ((ismall.gt.(-nxh_small-1)).and.
+c     >          (ismall.lt.nxh_small).and.
+c     >          (jsmall.gt.(-nyh_small-1)).and.
+c     >          (jsmall.lt.nyh_small).and.
+c     >          (ksmall.gt.(-nzh_small-1)).and.
+c     >          (ksmall.lt.nzh_small)) then
+cc               ibig = ibig + nxh
+cc               jbig = jbig + nyh
+cc               kbig = kbig + nzh
+cc               call D3dB_ijktoindex2p(1,ibig+1,jbig+1,kbig+1,
+cc     >                             indxbig,pbig)
+c               ismall = ismall + nxh_small
+c               jsmall = jsmall + nyh_small
+c               ksmall = ksmall + nzh_small
+c               call D3dB_ijktoindex2p(3,ismall+1,jsmall+1,ksmall+1,
+c     >                             indxsmall,psmall)
+c
+c               it = mod(psmall-taskid+np,np)
+c               !it = mod(taskid-psmall+np,np)
+c               itmp = int_mb(i1_start+it) 
+c     >              + int_mb(pindex1(1)+psmall)
+cc               int_mb(c_iq_to_i1+itmp-1) = indxbig
+c               int_mb(c_iq_to_i1+itmp-1) = i
+c               int_mb(c_iq_to_i2+itmp-1) = indxsmall
+c               int_mb(pindex1(1)+psmall) = int_mb(pindex1(1)+psmall)+1
+c
+c            end if
+c         end if
+c      end do
+
+      do i=1,small_count
+         indxsmall = int_mb(small(1)+4*(i-1))
+         psmall    = int_mb(small(1)+4*(i-1)+1)
+         indxbig   = int_mb(small(1)+4*(i-1)+2)
+         itmp      = int_mb(small(1)+4*(i-1)+3)
+         it = mod(psmall-taskid+np,np)
+         itmp = itmp + int_mb(i1_start+it)
+cc         itmp = int_mb(i1_start+it) 
+cc     >              + int_mb(pindex1(1)+psmall)
+         int_mb(c_iq_to_i1+itmp-1) = indxbig
+         int_mb(c_iq_to_i2+itmp-1) = indxsmall
+c         int_mb(pindex1(1)+psmall) = int_mb(pindex1(1)+psmall)+1
       end do
 
-      do i=1,n2ft3d(1)
-         ibig = int_mb(igrid_big(1)+4*(i-1))
-         jbig = int_mb(igrid_big(1)+4*(i-1)+1)
-         kbig = int_mb(igrid_big(1)+4*(i-1)+2)
-         lbig = int_mb(igrid_big(1)+4*(i-1)+3)
-         if (lbig.gt.0) then
-
-            ismall = ibig-center(1)
-            if (ismall.gt.(nxh-1)) ismall = ismall - nx(1)
-            if (ismall.lt.(-nxh))  ismall = ismall + nx(1)
-
-            jsmall = jbig-center(2)
-            if (jsmall.gt.(nyh-1)) jsmall = jsmall - ny(1)
-            if (jsmall.lt.(-nyh))  jsmall = jsmall + ny(1)
-
-            ksmall = kbig-center(3)
-            if (ksmall.gt.(nzh-1)) ksmall = ksmall - nz(1)
-            if (ksmall.lt.(-nzh))  ksmall = ksmall + nz(1)
-
-            if ((ismall.gt.(-nxh_small-1)).and.
-     >          (ismall.lt.nxh_small).and.
-     >          (jsmall.gt.(-nyh_small-1)).and.
-     >          (jsmall.lt.nyh_small).and.
-     >          (ksmall.gt.(-nzh_small-1)).and.
-     >          (ksmall.lt.nzh_small)) then
-               ibig = ibig + nxh
-               jbig = jbig + nyh
-               kbig = kbig + nzh
-               ismall = ismall + nxh_small
-               jsmall = jsmall + nyh_small
-               ksmall = ksmall + nzh_small
-c               call D3dB_ijktoindex2p(1,ibig+1,jbig+1,kbig+1,
-c     >                             indxbig,pbig)
-               call D3dB_ijktoindex2p(3,ismall+1,jsmall+1,ksmall+1,
-     >                             indxsmall,psmall)
-
-               it = mod(psmall-taskid+np,np)
-               !it = mod(taskid-psmall+np,np)
-               itmp = int_mb(i1_start+it) 
-     >              + int_mb(pindex1(1)+psmall)
-c               int_mb(c_iq_to_i1+itmp-1) = indxbig
-               int_mb(c_iq_to_i1+itmp-1) = i
-               int_mb(c_iq_to_i2+itmp-1) = indxsmall
-               int_mb(pindex1(1)+psmall) = int_mb(pindex1(1)+psmall)+1
-
-            end if
-         end if
-      end do
+*     **** set index2 and increment qlast_1t3 ****
+      int_mb(index2_1t3(1)+qlast_1t3) = index2
+      qlast_1t3 = mod(qlast_1t3+1,maxq_1t3)
 
 !$OMP END MASTER
 
 *     **** pop stack ****
-      value =           BA_pop_stack(pindex2(2))
+      value =           BA_pop_stack(small(2))
+      value = value.and.BA_pop_stack(pindex2(2))
       value = value.and.BA_pop_stack(pindex1(2))
       if (.not.value)
      >   call errquit('D3dB_r_1to3_Contract_start3:popping stack',
      >                0,MA_ERR)
 
-*     **** set index2 and increment qlast_1t3 ****
-      int_mb(index2_1t3(1)+qlast_1t3) = index2
-      qlast_1t3 = mod(qlast_1t3+1,maxq_1t3)
 
 !$OMP DO
       do i=1,index1-1
@@ -8176,6 +8210,7 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
       integer i,it
       integer nxh,nyh,nzh,nxh_small,nyh_small,nzh_small
       integer pindex1(2),pindex2(2)
+      integer small(2),small_count
       integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
       integer shift1,shift2
 
@@ -8188,6 +8223,8 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
       value = BA_push_get(mt_int,np,'pindex1_3t1',pindex1(2),pindex1(1))
       value = value.and.
      >        BA_push_get(mt_int,np,'pindex2_3t1',pindex2(2),pindex2(1))
+      value = value.and.
+     >        BA_push_get(mt_int,4*n2ft3d(1),'small',small(2),small(1))
       if (.not.value)
      >  call errquit('D3dB_r_3to1_Expand_start3:out of stack',0,MA_ERR)
 
@@ -8212,6 +8249,7 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
          int_mb(pindex2(1)+it) = 0
       end do
       !*** count number of sends ****
+      small_count = 0
       do i=1,n2ft3d(3)
          ismall = int_mb(igrid_small(1)+4*(i-1))
          jsmall = int_mb(igrid_small(1)+4*(i-1)+1)
@@ -8236,7 +8274,14 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
             kbig = kbig + nzh
             call D3dB_ijktoindex2p(1,ibig+1,jbig+1,kbig+1,
      >                             indxbig,pbig)
-               int_mb(pindex1(1)+pbig) = int_mb(pindex1(1)+pbig) + 1
+
+            int_mb(small(1)+4*small_count)   = indxbig
+            int_mb(small(1)+4*small_count+1) = pbig
+            int_mb(small(1)+4*small_count+2) = i
+            int_mb(small(1)+4*small_count+3) = int_mb(pindex1(1)+pbig)
+            small_count = small_count + 1
+
+            int_mb(pindex1(1)+pbig) = int_mb(pindex1(1)+pbig) + 1
          end if
       end do
 
@@ -8290,64 +8335,84 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
       int_mb(i1_start+np) = index1
       int_mb(i2_start+np) = index2
 
-      do it=0,np-1
-         int_mb(pindex1(1)+it) = 0
-         int_mb(pindex2(1)+it) = 0
+c      do it=0,np-1
+c         int_mb(pindex1(1)+it) = 0
+c         int_mb(pindex2(1)+it) = 0
+c      end do
+c
+c      do i=1,n2ft3d(3)
+c         ismall = int_mb(igrid_small(1)+4*(i-1))
+c         jsmall = int_mb(igrid_small(1)+4*(i-1)+1)
+c         ksmall = int_mb(igrid_small(1)+4*(i-1)+2)
+c         lsmall = int_mb(igrid_small(1)+4*(i-1)+3)
+c         if (lsmall.gt.0) then
+c
+c            ibig = ismall + center(1)
+c            if (ibig.gt.(nxh-1)) ibig = ibig - nx(1)
+c            if (ibig.lt.(-nxh))  ibig = ibig + nx(1)
+c
+c            jbig = jsmall + center(2)
+c            if (jbig.gt.(nyh-1)) jbig = jbig - ny(1)
+c            if (jbig.lt.(-nyh))  jbig = jbig + ny(1)
+c
+c            kbig = ksmall + center(3)
+c            if (kbig.gt.(nzh-1)) kbig = kbig - nz(1)
+c            if (kbig.lt.(-nzh))  kbig = kbig + nz(1)
+c
+c            ibig = ibig + nxh
+c            jbig = jbig + nyh
+c            kbig = kbig + nzh
+cc            ismall = ismall + nxh_small
+cc            jsmall = jsmall + nyh_small
+cc            ksmall = ksmall + nzh_small
+c            call D3dB_ijktoindex2p(1,ibig+1,jbig+1,kbig+1,
+c     >                          indxbig,pbig)
+cc            call D3dB_ijktoindex2p(3,ismall+1,jsmall+1,ksmall+1,
+cc     >                          indxsmall,psmall)
+c
+c            it = mod(pbig-taskid+np,np)
+c            itmp = int_mb(i1_start+it)
+c     >           + int_mb(pindex1(1)+pbig)
+cc            int_mb(c_iq_to_i1+itmp-1) = indxsmall
+c            int_mb(c_iq_to_i1+itmp-1) = i
+c            int_mb(c_iq_to_i2+itmp-1) = indxbig
+c            int_mb(pindex1(1)+pbig) = int_mb(pindex1(1)+pbig)+1
+c
+c         end if
+c      end do
+
+      do i=1,small_count
+         indxbig   = int_mb(small(1)+4*(i-1))
+         pbig      = int_mb(small(1)+4*(i-1)+1)
+         indxsmall = int_mb(small(1)+4*(i-1)+2)
+         itmp      = int_mb(small(1)+4*(i-1)+3)
+         it = mod(pbig-taskid+np,np)
+         itmp = itmp + int_mb(i1_start+it)
+cc         itmp = int_mb(i1_start+it) 
+cc     >              + int_mb(pindex1(1)+psmall)
+         int_mb(c_iq_to_i1+itmp-1) = indxsmall
+         int_mb(c_iq_to_i2+itmp-1) = indxbig
+c         int_mb(pindex1(1)+pbig) = int_mb(pindex1(1)+pbig)+1
       end do
 
-      do i=1,n2ft3d(3)
-         ismall = int_mb(igrid_small(1)+4*(i-1))
-         jsmall = int_mb(igrid_small(1)+4*(i-1)+1)
-         ksmall = int_mb(igrid_small(1)+4*(i-1)+2)
-         lsmall = int_mb(igrid_small(1)+4*(i-1)+3)
-         if (lsmall.gt.0) then
 
-            ibig = ismall + center(1)
-            if (ibig.gt.(nxh-1)) ibig = ibig - nx(1)
-            if (ibig.lt.(-nxh))  ibig = ibig + nx(1)
 
-            jbig = jsmall + center(2)
-            if (jbig.gt.(nyh-1)) jbig = jbig - ny(1)
-            if (jbig.lt.(-nyh))  jbig = jbig + ny(1)
 
-            kbig = ksmall + center(3)
-            if (kbig.gt.(nzh-1)) kbig = kbig - nz(1)
-            if (kbig.lt.(-nzh))  kbig = kbig + nz(1)
 
-            ibig = ibig + nxh
-            jbig = jbig + nyh
-            kbig = kbig + nzh
-c            ismall = ismall + nxh_small
-c            jsmall = jsmall + nyh_small
-c            ksmall = ksmall + nzh_small
-            call D3dB_ijktoindex2p(1,ibig+1,jbig+1,kbig+1,
-     >                          indxbig,pbig)
-c            call D3dB_ijktoindex2p(3,ismall+1,jsmall+1,ksmall+1,
-c     >                          indxsmall,psmall)
-
-            it = mod(pbig-taskid+np,np)
-            itmp = int_mb(i1_start+it)
-     >           + int_mb(pindex1(1)+pbig)
-c            int_mb(c_iq_to_i1+itmp-1) = indxsmall
-            int_mb(c_iq_to_i1+itmp-1) = i
-            int_mb(c_iq_to_i2+itmp-1) = indxbig
-            int_mb(pindex1(1)+pbig) = int_mb(pindex1(1)+pbig)+1
-
-         end if
-      end do
+*     **** set index2 and increment qlast_1t3 ****
+      int_mb(index2_3t1(1)+qlast_3t1) = index2
+      qlast_3t1 = mod(qlast_3t1+1,maxq_3t1)
 
 !$OMP END MASTER
 
 *     **** pop stack ****
-      value =           BA_pop_stack(pindex2(2))
+      value =           BA_pop_stack(small(2))
+      value = value.and.BA_pop_stack(pindex2(2))
       value = value.and.BA_pop_stack(pindex1(2))
       if (.not.value)
      >   call errquit('D3dB_r_3to1_Expand_start3:popping stack',
      >                0,MA_ERR)
 
-*     **** set index2 and increment qlast_1t3 ****
-      int_mb(index2_3t1(1)+qlast_3t1) = index2
-      qlast_3t1 = mod(qlast_3t1+1,maxq_3t1)
 
 !$OMP DO
       do i=1,index1-1
