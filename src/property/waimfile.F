@@ -334,6 +334,10 @@ c> get title
 c> wfn / wfx
       if (.not. rtdb_get(rtdb, 'prop:nowfx',mt_log, 1, nowfx))
      $      nowfx=.true.
+c theory
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit('waimfile: theory not specified',555,
+     &       INPUT_ERR)
 c
 
 c>  load geometry and symmetry info
@@ -381,8 +385,12 @@ c> READ vectors from movecs file
 c
       if (.not. rtdb_cget(rtdb, 'prop:vectors',  1,
      $     vec_file)) then
+         if (.not. rtdb_cget(rtdb, theory(1:inp_strlen(theory))//
+     A          ':output vectors', 1, vec_file)) then
            call util_file_name('movecs', .false.,.false.,vec_file )
+        endif
       endif
+           write(6,*)' using vec ',vec_file,'@@'
       call util_file_name_resolve(vec_file, .false.)
 c> movecs 
       if (.not. movecs_read_header(vec_file, title_vec, basis_name,
@@ -605,9 +613,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 
-      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('waimfile: theory not specified',555,
-     &       INPUT_ERR)
 c
       if (.not. rtdb_get(rtdb,theory(1:inp_strlen(theory))//':energy'
      $                                            , MT_DBL,1,etot))
