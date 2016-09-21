@@ -10,14 +10,17 @@ c
 c     write the string to speficied fortran unit centered about
 c     the given column.  optionally underline.
 c
-      character*80 blank, underline
+#define BLNKLGTH 80
+      character*BLNKLGTH blank, underline
       integer empty, length, i
 c
-      blank = ' '
+      do i=1,BLNKLGTH
+         blank(i:i) = ' '
+      enddo
       length = inp_strlen(string)
       empty = center - length/2
       if (empty .lt. 0) empty = 0
-      if (empty .gt. 80) empty = 80
+      if (empty .gt. BLNKLGTH) empty = BLNKLGTH
       write(unit, 1) blank(1:empty), string(1:length)
     1 format(1x,a,a)
       if (ounder) then
