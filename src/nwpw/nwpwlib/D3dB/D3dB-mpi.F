@@ -6538,8 +6538,8 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
      >                      qhead0_1t3,qhead1_1t3,qlast_1t3
 
 *     **** igrid_r_block common block ****
-      integer igrid_big(2),igrid_small(2)
-      common /igrid_r_block/ igrid_big,igrid_small
+      integer igrid_big(2),igrid_small(2),small(2),pindex1(2),pindex2(2)
+      common /igrid_r_block/ igrid_big,igrid_small,small,pindex1,pindex2
 
 *     **** local variables ****
       logical value
@@ -6570,6 +6570,13 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
       value = value.and.
      >        BA_alloc_get(mt_int,4*n2ft3d(3),'igrid_small',
      >                    igrid_small(2),igrid_small(1))
+      value = value.and.
+     >        BA_alloc_get(mt_int,4*n2ft3d(1),'small',
+     >                    small(2),small(1))
+      value = value.and.
+     >        BA_alloc_get(mt_int,np,'pindex1',pindex1(2),pindex1(1))
+      value = value.and.
+     >        BA_alloc_get(mt_int,np,'pindex2',pindex2(2),pindex2(1))
       if (.not.value)
      >   call errquit('D3dB_r_1to3_init:out of heap',0,MA_ERR)
 
@@ -6612,8 +6619,8 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
      >                      qhead0_1t3,qhead1_1t3,qlast_1t3
 
 *     **** igrid_r_block common block ****
-      integer igrid_big(2),igrid_small(2)
-      common /igrid_r_block/ igrid_big,igrid_small
+      integer igrid_big(2),igrid_small(2),small(2),pindex1(2),pindex2(2)
+      common /igrid_r_block/ igrid_big,igrid_small,small,pindex1,pindex2
 
 *     **** local variables ****
       logical value
@@ -6626,6 +6633,9 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
       value = value.and.BA_free_heap(index2_1t3(2))
       value = value.and.BA_free_heap(igrid_big(2))
       value = value.and.BA_free_heap(igrid_small(2))
+      value = value.and.BA_free_heap(small(2))
+      value = value.and.BA_free_heap(pindex1(2))
+      value = value.and.BA_free_heap(pindex2(2))
       if (.not.value)
      >   call errquit('D3dB_r_1to3_end:freeing heap',0,MA_ERR)
 
@@ -6669,8 +6679,8 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
      >                      qhead0_1t3,qhead1_1t3,qlast_1t3
 
 *     **** igrid_r_block common block ****
-      integer igrid_big(2),igrid_small(2)
-      common /igrid_r_block/ igrid_big,igrid_small
+      integer igrid_big(2),igrid_small(2),small(2),pindex1(2),pindex2(2)
+      common /igrid_r_block/ igrid_big,igrid_small,small,pindex1,pindex2
 
 *     **** local variables ****
       logical value
@@ -6681,8 +6691,7 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
       integer ismall,jsmall,ksmall,lsmall,ibig,jbig,kbig,lbig
       integer it,i,it2
       integer nxh,nyh,nzh,nxh_small,nyh_small,nzh_small
-      integer pindex1(2),pindex2(2)
-      integer small(2),small_count
+      integer small_count
       integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
       integer shift1,shift2
 c      integer nthr,thr
@@ -6692,17 +6701,6 @@ c      integer nthr,thr
       call Parallel2d_np_i(np)
 c      call Parallel_nthreads(nthr)
 c      call Parallel_threadid(thr)
-
-      !**** allocate temporary space from stack ****
-      value = BA_push_get(mt_int,np,'pindex1_1t3',
-     >                    pindex1(2),pindex1(1))
-      value = value.and.
-     >        BA_push_get(mt_int,np,'pindex2_1t3',
-     >                    pindex2(2),pindex2(1))
-      value = value.and.
-     >        BA_push_get(mt_int,4*n2ft3d(1),'small',small(2),small(1))
-      if (.not.value)
-     >  call errquit('D3dB_r_1to3_Contract_start:out of stack',0,MA_ERR)
 
 
       shift1 = qlast_1t3*(np+1)
@@ -6889,14 +6887,6 @@ c         int_mb(pindex1(1)+psmall) = int_mb(pindex1(1)+psmall)+1
       qlast_1t3 = mod(qlast_1t3+1,maxq_1t3)
 
 !$OMP END MASTER
-
-*     **** pop stack ****
-      value =           BA_pop_stack(small(2))
-      value = value.and.BA_pop_stack(pindex2(2))
-      value = value.and.BA_pop_stack(pindex1(2))
-      if (.not.value)
-     >   call errquit('D3dB_r_1to3_Contract_start3:popping stack',
-     >                0,MA_ERR)
 
 
 !$OMP DO
@@ -7132,10 +7122,6 @@ c     **** external functions ****
      >                      index2_1t3,
      >                      qhead0_1t3,qhead1_1t3,qlast_1t3
 
-*     **** igrid_r_block common block ****
-      integer igrid_big(2),igrid_small(2)
-      common /igrid_r_block/ igrid_big,igrid_small
-
 *     **** local variables ****
       logical value
       integer taskid,np
@@ -7146,11 +7132,9 @@ c     **** external functions ****
       integer indxsmall,psmall
       integer ismall,jsmall,ksmall,lsmall
 
-
       call nwpw_timing_start(55)
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
-
 
       shift1 = qhead1_1t3*(np+1)
       shift2 = qhead1_1t3*n2ft3d(1)
@@ -8197,8 +8181,8 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
      >                      qhead0_3t1,qhead1_3t1,qlast_3t1
 
 *     **** igrid_r_block common block ****
-      integer igrid_big(2),igrid_small(2)
-      common /igrid_r_block/ igrid_big,igrid_small
+      integer igrid_big(2),igrid_small(2),small(2),pindex1(2),pindex2(2)
+      common /igrid_r_block/ igrid_big,igrid_small,small,pindex1,pindex2
 
 *     **** local variables ****
       logical value
@@ -8209,8 +8193,7 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
       integer ismall,jsmall,ksmall,lsmall,ibig,jbig,kbig,lbig
       integer i,it
       integer nxh,nyh,nzh,nxh_small,nyh_small,nzh_small
-      integer pindex1(2),pindex2(2)
-      integer small(2),small_count
+      integer small_count
       integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
       integer shift1,shift2
 
@@ -8218,15 +8201,6 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
       call nwpw_timing_start(55)
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
-
-      !**** allocate temporary space from stack ****
-      value = BA_push_get(mt_int,np,'pindex1_3t1',pindex1(2),pindex1(1))
-      value = value.and.
-     >        BA_push_get(mt_int,np,'pindex2_3t1',pindex2(2),pindex2(1))
-      value = value.and.
-     >        BA_push_get(mt_int,4*n2ft3d(1),'small',small(2),small(1))
-      if (.not.value)
-     >  call errquit('D3dB_r_3to1_Expand_start3:out of stack',0,MA_ERR)
 
       shift1 = qlast_3t1*(np+1)
       shift2 = qlast_3t1*n2ft3d(1)
@@ -8404,14 +8378,6 @@ c         int_mb(pindex1(1)+pbig) = int_mb(pindex1(1)+pbig)+1
       qlast_3t1 = mod(qlast_3t1+1,maxq_3t1)
 
 !$OMP END MASTER
-
-*     **** pop stack ****
-      value =           BA_pop_stack(small(2))
-      value = value.and.BA_pop_stack(pindex2(2))
-      value = value.and.BA_pop_stack(pindex1(2))
-      if (.not.value)
-     >   call errquit('D3dB_r_3to1_Expand_start3:popping stack',
-     >                0,MA_ERR)
 
 
 !$OMP DO
