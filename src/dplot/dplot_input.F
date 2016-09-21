@@ -37,6 +37,7 @@
       Character*80  File_Vec,File_Vec2,File_Out
       Character*80  File_Mat1,File_Mat2
       Character*80  File_civecs
+      character*32  theory
       logical lgaussian,dodos,ltransden,ldiffden
       double precision tol_rho
 *
@@ -74,8 +75,14 @@ c
 !     .        File_Vec  = 'movecs'
 !      endif
 !      write(0,*) ' FIle vec is ',File_Vec
-      
-      File_Vec = ' '
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit('dplot_inp: theory not specified',555,
+     &       INPUT_ERR)
+      if (.not. rtdb_cget(rtdb, theory(1:inp_strlen(theory))//
+     A     ':output vectors', 1, file_vec)) then
+         file_vec = ' '
+      endif
+
       File_Vec2 = ' '
       File_civecs = ' '
       File_Mat1 = ' '
