@@ -1103,6 +1103,9 @@ endif
            LDOPTIONS += -fopenmp
            DEFINES += -DUSE_OPENMP
         endif
+       ifdef  USE_FPE
+         FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
+       endif
        endif # gfortran
     ifdef  USE_GPROF
       FOPTIONS += -pg
@@ -1177,11 +1180,7 @@ endif
         endif
       endif
 
-#  _GCC4= $(shell gcc -v  2>&1|egrep spec|head -n 1|awk ' / 3./  {print "N";exit}; / 2./ {print "N";exit};{print "Y"}')
-  _GCC4= $(shell $(CC) -dM -E - < /dev/null | egrep __VERS | cut -c22|awk ' /3/  {print "N";exit}; /2/ {print "N";exit};{print "Y"}')
-    ifeq ($(_GCC4),Y) 
-#      EXTRA_LIBS += 
-    else
+    ifdef USE_CCDYNAMIC
       EXTRA_LIBS += -lm -lcc_dynamic
     endif
 
