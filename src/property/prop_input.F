@@ -27,6 +27,7 @@ c
       integer nbofile, nboopt
       integer aimfile
       integer moldenfile
+      character*32 norm_style
       integer dipole
       integer quadrupole
       integer octupole
@@ -408,6 +409,11 @@ c     what NBO options will appear
          aimfile = 1
       elseif ( inp_compare(.false., 'moldenfile', test)) then
          moldenfile = 1
+      elseif ( inp_compare(.false., 'molden_norm', test)) then
+         if(.not. inp_a(norm_style))
+     $     call errquit(' prop_input: missing val for norm_stl ',0,
+     I           INPUT_ERR)
+         
       elseif ( inp_compare(.false., 'efgfile', test)) then
          efgfile = 1
 c ... Fredy: read an option (integer value) to define 
@@ -524,6 +530,20 @@ c ... jochen: also write NBO option key to RTDB:
       if (.not. rtdb_put(rtdb, 'prop:moldenfile', mt_int, 1,
      $                               moldenfile           ))
      $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+c         endif
+      if(moldenfile.ne.0) then
+       if(norm_style(1:inp_strlen(norm_style)).eq.'janpa') then
+      if (.not. rtdb_put(rtdb, 'molden:do_norm_janpa', mt_log, 1,
+     $                               .true.          ))
+     $     call errquit('prop_input: rtdb_put failed', 1, RTDB_ERR)
+       elseif (norm_style(1:inp_strlen(norm_style)).eq.'nwchem') then
+      if (.not. rtdb_put(rtdb, 'molden:do_norm_nwchem', mt_log, 1,
+     $                               .true.          ))
+     $     call errquit('prop_input: rtdb_put failed', 2, RTDB_ERR)
+       else
+          call errquit('prop_input: wrong molden_norm value',2,RTDB_ERR)
+       endif
+       endif
 c .... Fredy: write efg output for NBO program 04-24-10
       if (.not. rtdb_put(rtdb, 'prop:efgfile', mt_int, 1,
      $                               efgfile           ))
