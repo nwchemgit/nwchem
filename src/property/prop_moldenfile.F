@@ -25,9 +25,9 @@ c
       external ga_create_atom_blocked,movecs_read_header,movecs_read
       logical ga_create_atom_blocked,movecs_read_header,movecs_read
       character*15 subname
-      parameter  (subname='prop_moldenfile')
+      parameter (subname='prop_moldenfile')
 c
-c>  load geometry and symmetry info
+c  load geometry and symmetry info
       if (.not. geom_create(geom, 'geometry'))
      $     call errquit(subname//': geom_create?', 0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
@@ -58,7 +58,7 @@ c movecs
            call util_file_name('movecs', .false.,.false.,vec_file )
         endif
       endif
-           write(6,*)' using vec ',vec_file,'@@'
+
       call util_file_name_resolve(vec_file, .false.)
 c> movecs 
       if (.not. movecs_read_header(vec_file, title_vec, basis_name,
@@ -95,20 +95,17 @@ c     get irreps
       call scf_movecs_sym_adapt(basis, g_movecs, .false.,
      $     0, 'junk', .true., int_mb(k_ir))
 
-      write(6,*) ' nbf ',nbf
-      write(6,*) ' nset ',nset
-      do iset=1,nbf
-         write(6,*) ' i = ',iset, ' occ = ',dbl_mb(k_occ+iset-1),
-     R        int_mb(k_ir+iset-1)
-         enddo
-
-
       if (.not. rtdb_cget(rtdb, theory(1:inp_strlen(theory))//
      A        ':scftype', 1, scftype)) then
-         call errquit
-     &    (subname//':error need scftype',0,0)
+c     wild guess here to fix mp2
+         if (nset .eq. 1) then
+            scftype = 'RHF'
+         else
+            scftype = 'UHF'
+         endif
+         if(ga_nodeid().eq.0) write(6,*) 'missing scftype set to ',
+     c        scftype
       endif
-      write(6,*) ' scftype ',scftype,'@'
 
       call dft_nwmolden(rtdb,geom,
      I     nset,dbl_mb(k_eval),dbl_mb(k_occ),int_mb(k_ir),
