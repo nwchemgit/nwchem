@@ -145,10 +145,13 @@
       logical function nwmolden_openfile()
       implicit none
 #include "errquit.fh"
+#include "inp.fh"
       character*64 filename
 !
       call util_file_prefix('molden', filename )
 !
+      write(6,*) 'MOLDEN output will be written to the file ',
+     C     filename(1:inp_strlen(filename))
       if (MOLDEN_UNIT.gt.9) then
          open(unit=MOLDEN_UNIT,
      1        file=filename,
