@@ -26,6 +26,7 @@ c
       integer efgfile, efgopt
       integer nbofile, nboopt
       integer aimfile
+      integer moldenfile
       integer dipole
       integer quadrupole
       integer octupole
@@ -78,6 +79,7 @@ c
 c>>>  Default property settings.
 c
       aimfile           = 0
+      moldenfile        = 0
       nbofile           = 0
       nboopt            = 0
       efgfile           = 0 
@@ -404,6 +406,8 @@ c     what NBO options will appear
           end if
       elseif ( inp_compare(.false., 'aimfile', test)) then
          aimfile = 1
+      elseif ( inp_compare(.false., 'moldenfile', test)) then
+         moldenfile = 1
       elseif ( inp_compare(.false., 'efgfile', test)) then
          efgfile = 1
 c ... Fredy: read an option (integer value) to define 
@@ -516,6 +520,9 @@ c ... jochen: also write NBO option key to RTDB:
      $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:aimfile', mt_int, 1,
      $                               aimfile           ))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'prop:moldenfile', mt_int, 1,
+     $                               moldenfile           ))
      $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
 c .... Fredy: write efg output for NBO program 04-24-10
       if (.not. rtdb_put(rtdb, 'prop:efgfile', mt_int, 1,

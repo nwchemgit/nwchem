@@ -9,7 +9,7 @@ c
 *
       implicit none
       integer rtdb              ! [input]
-      integer nbofile,aimfile
+      integer nbofile,aimfile,moldenfile
       logical status
       logical  hnd_property
       external hnd_property
@@ -44,6 +44,9 @@ c
       endif 
       if (rtdb_get(rtdb,'prop:aimfile',MT_INT,1,aimfile)) then
         if(aimfile.eq.1) call waimfile(rtdb)
+      endif
+      if (rtdb_get(rtdb,'prop:moldenfile',MT_INT,1,moldenfile)) then
+        if(moldenfile.eq.1) call prop_moldenfile(rtdb)
       endif
 c
 c     finish ecce property output module
