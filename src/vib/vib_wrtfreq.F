@@ -303,7 +303,7 @@ c  fix to take avoid abnormal values
 10033   FORMAT( 1X,'  - Vibrational                  = ',f8.3,
      .       ' cal/mol-K')
 
-        write(6,10030) Cv_total
+        write(6,10040) Cv_total
 *        write(6,10040) (Cv_trans+Cv_rot+Cv_vib)*AUKCAL*1000.0d0
         write(6,10041) Cv_trans*AUKCAL*1000.0d0
         write(6,10042) Cv_rot*AUKCAL*1000.0d0
