@@ -2,7 +2,8 @@
 
 HEADERS = rel_consts.fh \
           rel_nwc.fh \
-          zora.fh
+          zora.fh \
+          modelpotential.fh
 
 OBJ_ENERGY = \
       rel_onel.o \
@@ -16,7 +17,7 @@ OBJ_ENERGY = \
       rel_SSSS.o \
       rel_init_con.o \
       dmd_input.o \
-      zora_input.o	
+      zora_input.o
 
 OBJ_GRAD = \
       rel_oneld.o \
@@ -27,7 +28,12 @@ OBJ_GRAD = \
       rel_SSSSd.o 
 
 OBJ = \
-      int_rel_init.o
+      int_rel_init.o\
+      rel_input.o \
+      modelpotential_input.o \
+      set_modelpotential_params.o \
+      get_modelpotential_params.o \
+      calc_modelpotential.o
 
 ifdef NWCHEM_DEBUG
 OBJ +=  $(OBJ_ENERGY) $(OBJ_GRAD)

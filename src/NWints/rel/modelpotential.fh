@@ -1,0 +1,5 @@
+c       Model potential parameters
+        character*2 mpelem(120)
+        double precision mpexpo(120,50),mpcoef(120,50)
+        integer mpmaxelem
+        common/modelpotential/mpelem,mpexpo,mpcoef,mpmaxelem
