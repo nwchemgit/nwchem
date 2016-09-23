@@ -4,7 +4,7 @@ c     == scalar and spin-orbit components (x,y,z)
       subroutine zora_getv_so(rtdb, g_dens,  
      &                          g_zora_sf, g_zora_scale_sf, ! out
      &                          g_zora_so, g_zora_scale_so, ! out
-     &                          nexc)
+     &                          use_modelpotential, nexc)
 c
 C$Id$
 c Modified from zora_getv_so() by FA 10-31-10
@@ -30,6 +30,7 @@ c     == arguments ==
       integer g_zora_scale_sf(2)
       integer g_zora_so(3)
       integer g_zora_scale_so(3)
+      logical use_modelpotential
       integer nexc
 c
 c     == local variables ==
@@ -61,6 +62,11 @@ c     == local variables ==
 
       logical grid_file_rewind
       external grid_file_rewind,ga_antisymmetrize
+c
+c     model potential parameters
+      character*2 gelem(ncenters)
+      double precision gexpo(ncenters,50)
+      double precision gcoef(ncenters,50)
 c
 c     == allocate memory ==
        if (.not.MA_Push_Get(mt_dbl,4*nbf_ao*nbf_ao,
@@ -112,7 +118,11 @@ c mirroring
             endif
          endif
       endif
-
+c
+c     get zora model potential parameters of geometry
+      if (use_modelpotential)
+     &  call get_modelpotential_params(rtdb,ncenters,gelem,gexpo,gcoef)
+c
 c     == generate the grid ==
       dummy(1) = 0.d0
       dummy(2) = 0.d0
@@ -223,7 +233,9 @@ c              == calculate scalar and spin-orbit zora contribution ==
      &                              dbl_mb(izora(1)),dbl_mb(iscal(1)), ! out
      &                              dbl_mb(izora(2)),dbl_mb(iscal(2)), ! out
      &                              dbl_mb(izora(3)),dbl_mb(iscal(3)), ! out
-     &                              dbl_mb(izora(4)),dbl_mb(iscal(4))) ! out
+     &                              dbl_mb(izora(4)),dbl_mb(iscal(4)), ! out
+     &                                use_modelpotential,gexpo,gcoef)     
+c
 c              == delete memory ==
                if(.not.MA_pop_stack(lchi_ao))
      &            call errquit("zora_getv: pop chi_ao", 100, MA_ERR)

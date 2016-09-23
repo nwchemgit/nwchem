@@ -13,8 +13,11 @@ c     == calculate spin-orbit zora contribution ==
      &                           zora0, scal0,! out  
      &                           zorax, scalx,! out 
      &                           zoray, scaly,! out 
-     &                           zoraz, scalz)! out
+     &                           zoraz, scalz,! out
+     &              use_modelpotential,gexpo,gcoef)
+c
       implicit none
+c
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
@@ -44,6 +47,9 @@ c
       double precision amat_tot
       double precision denom
       double precision fac1_arr(npts),fac2_arr(npts)
+      logical use_modelpotential
+      double precision gexpo(natoms,50)
+      double precision gcoef(natoms,50)
       double precision ac_sf,ac_scl,
      &                 ac_sx,ac_scl_x,
      &                 ac_sy,ac_scl_y,
@@ -59,28 +65,39 @@ c     == preliminaries ==
         closegridpts(ipt) = 0
       end do
 c
-c     == calculate the hartree potential on a supplied list of points ==
-      tol = 1d-8
-      do i=1,ipol
-       call potential_list(ao_bas_han, g_dens(i), npts, qxyz, 
+c     == use the model potential approach ==
+      if (use_modelpotential) then
+c
+c      == calculate the model density to construct the Coulomb contribution ==
+       call calc_modelpotential(geom,natoms,npts,qxyz,qwght,
+     &       closegridpts,gexpo,gcoef,amat_coul)  !amat_coul = v(modelpot)
+      else
+c
+c      == calculate the hartree potential on a supplied list of points ==
+       tol = 1d-8
+       do i=1,ipol
+          call potential_list(ao_bas_han, g_dens(i), npts, qxyz, 
      &                     amat_coul(1,i), tol)
-      enddo
-      if (ipol.gt.1) then ! enter-ONLY-if ipol>1
-       do k = 1,npts
-        amat_coul(k,1)=amat_coul(k,1)+amat_coul(k,2)
        enddo
-      endif
+       do k = 1,npts
+          if (ipol.gt.1) amat_coul(k,1)=amat_coul(k,1)+amat_coul(k,2)
+          amat_coul(k,1) = -amat_coul(k,1)
+       enddo
+      end if ! use_modelpotential
 c
 c     == calculate the total point nuclear potential on the grid ==
       call gridNuclearPotentialPoint(geom,natoms,npts,qxyz,qwght,
      &                        closegridpts,amat_nucl)
+c
+c     zero out weights of close points
       do k = 1,npts
         if (k.eq.closegridpts(k)) qwght(k) = 0.d0
       end do
+c
 c     === define fac1_arr,fac2_arr -- FA
       do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
-       amat_tot =-amat_coul(k,1)+amat_nucl(k)
+       amat_tot =amat_coul(k,1)+amat_nucl(k)
        fac1_arr(k)=amat_tot/(4.d0*clight_au2 - 2.d0*amat_tot)
      &             *qwght(k)
        denom = (2.d0*clight_au2 - amat_tot)
