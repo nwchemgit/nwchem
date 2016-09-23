@@ -40,8 +40,6 @@ c
       call grid_cleanup(.true.)
 c
       end
-
-      
 C
 C     == DFT RT_TDDFT ==
 C
@@ -68,8 +66,6 @@ C
       call grid_cleanup(.true.)
 
       end
-
-      
 C
 C     == SODFT RT_TDDFT ==
 C
@@ -96,8 +92,6 @@ C
       call grid_cleanup(.true.)
 
       end
-
-      
 c
 c     == Main DFT driver ==
       logical function nwdft(rtdb)
@@ -142,14 +136,16 @@ c
       logical lrt_tddft
       character*32 pname
       integer nclosed, nopen
-
+c
+      integer natoms
+      logical use_modelpotential
+c
 cc AJL/Begin/FDE
 c      logical frozemb_fde
 cc AJL/End
 
       logical rt_tddft
       external rt_tddft
-      
 c     
       pname = "nwdft:"
       nwdft = .false.
@@ -224,6 +220,17 @@ c
 
          endif
       endif
+c
+c     == Relativistic model potential initialization ==
+      use_modelpotential = .false.
+      if (.not. rtdb_get(rtdb, 'modelpotential', mt_log, 1,
+     &  use_modelpotential)) use_modelpotential = .false.
+      if (use_modelpotential) then
+        if (.not. geom_ncent(geom, natoms))
+     &   call errquit('nwdft: geom_ncent failed',73, GEOM_ERR)
+         if (ga_nodeid().eq.0)
+     &    call set_modelpotential_params(rtdb, geom, natoms)
+      end if 
 c
 c     == Check to see if system is already converged? ==
       if (movecs_in .eq. movecs_out) then
