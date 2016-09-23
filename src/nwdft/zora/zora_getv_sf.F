@@ -3,7 +3,7 @@ c     == compute the matrix elements for the zora corrections ==
       subroutine zora_getv_sf(rtdb, g_dens, 
      &                          g_zora_sf, g_zora_scale_sf,
      &                          ofinite,zetanuc_arr,
-     &                          Knucl,
+     &                          Knucl, use_modelpotential,
      &                          nexc)
 c
 C$Id$
@@ -29,6 +29,10 @@ c     == arguments ==
       integer g_dens(2)
       integer g_zora_sf(2)
       integer g_zora_scale_sf(2)
+      logical ofinite
+      double precision zetanuc_arr(*)!for Gaussian Nuclear Model
+      logical Knucl
+      logical use_modelpotential
       integer nexc
 c
 c     == local variables ==
@@ -36,6 +40,7 @@ c     == local variables ==
       double precision rho_n
       double precision tmat
       double precision dummy(2)
+      integer ilo,ihi,jlo,jhi
       integer iqsh, istep, nxyz, ncontrset
       integer ixyz, lxyz, icharge, lcharge, itags, ltags
       integer lrqbuf,irqbuf,lqxyz,iqxyz,lqwght,iqwght,nqpts,ncube,
@@ -53,11 +58,13 @@ c
      &     lzora0scal, izora0scal
 c
       integer inntsize,ddblsize,ok
-      logical grid_file_rewind,ofinite,Knucl
+      logical grid_file_rewind
       external grid_file_rewind
-c ------- for Gaussian Nuclear Model --- START
-      double precision zetanuc_arr(*)
-c ------- for Gaussian Nuclear Model --- START
+c
+c     model potential parameters
+      character*2 gelem(ncenters)
+      double precision gexpo(ncenters,50)
+      double precision gcoef(ncenters,50)
 c
 c     == allocate memory ==
       if (.not.MA_Push_Get(mt_dbl,nbf_ao*nbf_ao,'zora0',lzora0,izora0)) 
@@ -71,6 +78,10 @@ c     == preliminaries ==
          dbl_mb(izora0+i-1)=0.d0
          dbl_mb(izora0scal+i-1)=0.d0
       enddo
+c
+c     get zora model potential parameters of geometry
+      if (use_modelpotential) 
+     &  call get_modelpotential_params(rtdb,ncenters,gelem,gexpo,gcoef)
 c
 c     == generate the grid ==
       dummy(1) = 0.d0
@@ -188,7 +199,9 @@ c              == calculate spin-free zora contribution ==
      &              dbl_mb(iqwght), nbf_ao, nqpts, ncenters, 
      &              dbl_mb(izora0), dbl_mb(izora0scal),
      &              ofinite,zetanuc_arr,
-     &              Knucl)  ! = .true. if including ONLY nuclear part in K ZORA         
+     &              Knucl,  ! = .true. if including ONLY nuclear part in K ZORA         
+     &              use_modelpotential,gexpo,gcoef)
+c
 c              == delete memory ==
                if(.not.MA_pop_stack(lchi_ao))
      &            call errquit("zora_getv: pop chi_ao", 100, MA_ERR)
@@ -225,26 +238,38 @@ c     == delete memory ==
      &     call errquit("zora_getv_sf: pop bas_cent_info", 100, MA_ERR)
 c
 c     == tally up over all the nodes ==
-      nij = 0
-      do i = 1, nbf_ao
-        do j = 1, nbf_ao
-         nij = nij + 1
-         call ga_dgop(msg_excrho, dbl_mb(izora0+nij-1), 1, '+')
-         call ga_dgop(msg_excrho, dbl_mb(izora0scal+nij-1), 1, '+')
-        enddo
-      enddo
+      call ga_dgop(msg_excrho, dbl_mb(izora0), nbf_ao*nbf_ao, '+')
+      call ga_dgop(msg_excrho, dbl_mb(izora0scal), nbf_ao*nbf_ao, '+')
 c
-c     == pack into a ga ==
-      do i=1,ipol
-       call ga_zero(g_zora_sf(i))
-       call ga_put(g_zora_sf(i),1,nbf_ao,1,nbf_ao,
-     &             dbl_mb(izora0),nbf_ao)
-       call ga_symmetrize(g_zora_sf(i))
-       call ga_zero(g_zora_scale_sf(i))
-       call ga_put(g_zora_scale_sf(i),1,nbf_ao,1,nbf_ao,
-     &             dbl_mb(izora0scal),nbf_ao)
-       call ga_symmetrize(g_zora_scale_sf(i))
-      enddo
+c     == scalar contribution ==
+      call ga_zero(g_zora_sf(1))
+      call ga_distribution(g_zora_sf(1),
+     .     ga_nodeid(), ilo, ihi, jlo, jhi)
+      if (ilo.gt.0 .and. ilo.le.ihi) then
+         do j=jlo,jhi
+            call ga_put(g_zora_sf(1),ilo, ihi, jlo, jhi,
+     &           dbl_mb(izora0+(jlo-1)*nbf_ao+ilo-1),nbf_ao)
+         enddo
+      endif
+      call ga_symmetrize(g_zora_sf(1))
+c
+      call ga_symmetrize(g_zora_sf(1))
+      call ga_zero(g_zora_scale_sf(1))
+      call ga_distribution(g_zora_scale_sf(1),
+     .     ga_nodeid(), ilo, ihi, jlo, jhi)
+      if (ilo.gt.0 .and. ilo.le.ihi) then
+         do j=jlo,jhi
+            call ga_put(g_zora_scale_sf(1),ilo, ihi, jlo, jhi,
+     &           dbl_mb(izora0scal+(jlo-1)*nbf_ao+ilo-1),nbf_ao)
+         enddo
+      endif
+      call ga_symmetrize(g_zora_scale_sf(1))
+c
+      if(ipol.eq.2) then
+         call ga_copy(g_zora_sf(1),g_zora_sf(2))
+         call ga_copy(g_zora_scale_sf(1),g_zora_scale_sf(2))
+      endif
+c
       call ga_sync()
 c
 c     == clean memory ==

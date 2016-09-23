@@ -15,15 +15,18 @@ c     == calculate spin-free zora contribution ==
      &                           zorascal,   ! out
      &                           ofinite,    ! in: =.true. if finite Nuclear Model (Gaussian)
      &                           zetanuc_arr,! in: zetanuc(i) i=1,natoms
-     &                           Knucl)      ! in: = .true. if including ONLY nuclear part in K ZORA  
+     &                           Knucl,      ! in: = .true. if including ONLY nuclear part in K ZORA  
+     &                           use_modelpotential,gexpo,gcoef)
+c
       implicit none
+c
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "zora.fh"
 #include "global.fh"
 #include "bas.fh"
-
+c
       integer nbf, npts, ao_bas_han, natoms, geom
       integer g_dens(2),ipol
       double precision chi_ao(npts,nbf),qwght(npts),pot(npts)
@@ -40,7 +43,9 @@ c     == calculate spin-free zora contribution ==
       double precision denom
       double precision fac1_arr(npts),fac2_arr(npts)
       double precision ac_sf,ac_scl,prod
-      logical ofinite,Knucl
+      logical ofinite,Knucl,use_modelpotential
+      double precision gexpo(natoms,50)
+      double precision gcoef(natoms,50)
 c
 c ------- for Gaussian Nuclear Model --- START
       double precision zetanuc_arr(natoms)
@@ -59,34 +64,42 @@ c     == preliminaries ==
         closegridpts(ipt) = 0
       end do
 c
-c     == calculate the hartree potential on a supplied list of points ==
-      tol = 1d-8
-      do i=1,ipol
-       call potential_list(ao_bas_han, g_dens(i), npts, qxyz, 
+c     == use the model potential approach ==
+      if (use_modelpotential) then
+c
+c      == calculate the model density to construct the Coulomb contribution ==
+       call calc_modelpotential(geom,natoms,npts,qxyz,qwght,
+     &       closegridpts,gexpo,gcoef,amat_coul)  !amat_coul = v(modelpot)
+      else 
+c
+c       == calculate the hartree potential on a supplied list of points ==
+        tol = 1d-8
+        do i=1,ipol
+         call potential_list(ao_bas_han, g_dens(i), npts, qxyz, 
      &                     amat_coul(1,i), tol)
-      enddo
-      if (ipol.gt.1) then ! enter-ONLY-if ipol>1
-       do k = 1,npts
-        amat_coul(k,1)=amat_coul(k,1)+amat_coul(k,2)
-       enddo
-      endif
+        enddo
+        do k = 1,npts
+           if (ipol.gt.1) amat_coul(k,1)=amat_coul(k,1)+amat_coul(k,2)
+           amat_coul(k,1) = -amat_coul(k,1)
+        enddo
+      end if ! use_modelpotential 
 c
 c     == calculate the total nuclear potential on the grid ==
       if (ofinite) then
-c ------ Choosing Nuclear Model: erf(zetanuc^0.5 r_L)
-        call gridNuclearPotentialFinite(geom,natoms,npts,qxyz,qwght,
+c         == Choosing Nuclear Model: erf(zetanuc^0.5 r_L) ==
+          call gridNuclearPotentialFinite(geom,natoms,npts,qxyz,qwght,
      &                             zetanuc_arr,
      &                             closegridpts,amat_nucl)
-c ------ Choosing Nuclear Model: P(1/2,zetanuc r_L^2)
-c        call gridNuclearPotentialFinite2(geom,natoms,npts,qxyz,qwght,
-c     &                             closegridpts,amat_nucl)
       else ! default : point charge model for nuclei
-        call gridNuclearPotentialPoint(geom,natoms,npts,qxyz,qwght,
+          call gridNuclearPotentialPoint(geom,natoms,npts,qxyz,qwght,
      &                            closegridpts,amat_nucl)
-      endif
+      end if !ofinite
+c
+c     zero out weights of close points
       do k = 1,npts
         if (k.eq.closegridpts(k)) qwght(k) = 0.d0
       end do
+c
       if (Knucl) then ! V=Vnucl
        do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
@@ -107,7 +120,7 @@ c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c     === define fac1_arr,fac2_arr -- FA
        do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
-        amat_tot =-amat_coul(k,1)+amat_nucl(k)
+        amat_tot = amat_coul(k,1)+amat_nucl(k)
         fac1_arr(k)=amat_tot/(4.d0*clight_au2 - 2.d0*amat_tot)
      &              *qwght(k)
         denom = (2.d0*clight_au2 - amat_tot)
@@ -121,6 +134,7 @@ c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
        enddo ! end loop k grid points
       endif ! end-if-Knucl
+c
 c     == assemble zora correction ==
 c -----main diagonal --- START
       do i = 1, nbf
