@@ -195,6 +195,7 @@ c     == zora related ==
       double precision ener_scal
       integer icalczora
       logical ofinite,status,Knucl ! FA-added-09-26-11
+      logical use_modelpotential
 c
 c     virtual spectrum
       logical lvspec
@@ -734,6 +735,12 @@ c Note.- stored in rel_input.F(rel_input(rtdb))
          status=rtdb_get(rtdb,'zora:Knucl',mt_log,1,Knucl) ! Check if gaussian nucl model requested
          if (ga_nodeid().eq.0)
      &     write(*,*) 'In dft_scf:: zora:Knucl=',Knucl
+c
+c        read modelpotential flag
+         use_modelpotential = .false.
+         if (.not. rtdb_get(rtdb, 'modelpotential', mt_log, 1,
+     &          use_modelpotential)) use_modelpotential = .false.
+c
 c ------ Read Knucl   for including ONLY nuclear part in K ZORA ----- END
 c ------ Read ofinite to be used by HFine finite calc ---FA-03-21-11-- START
 c Note.- stored in geom_input.F (geom_input(rtdb))
@@ -756,11 +763,9 @@ c ------ Read ofinite to be used by HFine finite calc ---FA-03-21-11-- END
            write(*,*) 'dft_scf: ofinite=',ofinite
           endif
 c------- FA-code-added-09-26-11 --------------------------- END
-c        call zora_getv_sf(rtdb, g_dens_at, g_zora_sf,g_zora_scale_sf,
-c    &                      nexc)
          call zora_getv_sf(rtdb, g_dens_at, g_zora_sf,g_zora_scale_sf,
      &                     ofinite,dbl_mb(k_zetanuc),
-     &                     Knucl,
+     &                     Knucl,use_modelpotential,
      &                     nexc)
 c
 c       == write out the atomic zora corrections to file ==
