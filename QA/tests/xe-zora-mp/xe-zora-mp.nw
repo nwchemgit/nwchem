@@ -1,0 +1,23 @@
+echo
+
+start xe-zora-mp
+
+geometry noautoz units au
+  Xe 0 0 0
+end
+
+basis spherical
+ xe library "DZVP (DFT Orbital)"
+end
+
+dft
+ grid xfine
+ iterations 100
+end
+
+relativistic
+   zora on
+   modelpotential modbas.2c
+end
+
+task dft energy
