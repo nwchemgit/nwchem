@@ -1,0 +1,17 @@
+C>
+C> \brief The energy data type
+C>
+C> This data type stores all relevant energy contributions:
+C> - The total energy
+C> - The nuclear repulsion energy
+C> - The 1-electron energy
+C> - The 2-electron energy 
+C> It is not clear yet whether the 2-electron energy will be broken
+C> down into separate Coulomb and Exchange contributions.
+C>
+      type wfn1_en
+         double precision :: E_tot ! The total energy
+         double precision :: E_1el ! The 1-electron energy
+         double precision :: E_2el ! The 2-electron energy
+         double precision :: E_nuc ! The nuclear repulsion energy
+      end type wfn1_en
