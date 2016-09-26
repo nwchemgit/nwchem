@@ -3064,7 +3064,7 @@ c      include 'mxpdim.inc'
       include 'oper.inc'
       include 'opti.inc'
       include 'symrdc.inc'
-      common/cntdl_max/ntdl_max_act
+cVOG  common/cntdl_max/ntdl_max_act
 *. scratch 
       dimension vec1(*),vec2(*), ccvec1(*), ccvec2(*)
 *. input and output

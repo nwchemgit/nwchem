@@ -41,6 +41,7 @@
       INCLUDE 'mxpdim.inc'
       INCLUDE 'gasstr.inc'
       INCLUDE 'cgas.inc'
+#include "global.fh"
       INTEGER ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB)
 *
       INTERACT = 0
@@ -100,8 +101,14 @@ C    &                 IA_EXC, IB_EXC, INTERACT
 C     END IF
 *
       NTEST = 00
+      IF(NTEST.GE.10) THEN
+       WRITE(6,'(a,10i3)') ' PROC ', ga_nodeid(), IATP,IBTP,JATP,JBTP,
+     &       IASM, IBSM, JASM, JBSM, INTERACT
+      END IF
+*
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Output from CONBLOCKS '
+        WRITE(6,*) ' PROCESSOR ', ga_nodeid(), 'IS SPEAKING'
         WRITE(6,*) ' IATP IBTP JATP JBTP ',IATP,IBTP,JATP,JBTP
         WRITE(6,*) ' IASM IBSM, JASM, JBSM = ', IASM, IBSM, JASM, JBSM
         WRITE(6,*) ' IH_OCC_CON, INTERACT = ', IH_OCC_CON,INTERACT
@@ -4732,7 +4739,7 @@ C TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
       END
       SUBROUTINE SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,
      &                  LUCBLK,ICBAT_RES,ICBAT_INI,ICBAT_END,CV,
-     &                  ECORE,ITASK,ILEN,CNORM,SCLFAC) 
+     &                  ECORE,ITASK,ILEN,CNORM,SCLFAC,CONVOG,nnod) 
 *
 * Generate a set of sigma blocks, 
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -4770,7 +4777,7 @@ C TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
       INTEGER IBLOCK(8,*)
 *. Input (if ICISTR = 1) 
 CNW   DIMENSION CV(*)
-      integer CV,ILEN
+      integer CV,ILEN,CONVOG(nnod,2)
 *
 *./ORBINP/ : NACOB used
       INCLUDE 'orbinp.inc'
@@ -5069,8 +5076,8 @@ C     IF(ISIMSYM.EQ.0) THEN
        KSIPA = 0
        KCJPA = 0
 *. June 30 : I will try to use go through the normal route with ISIMSYM :
-cVOG  cpu_vog  = util_cpusec()
-cVOG  wall_vog = util_wallsec()
+c      cpu_vog  = util_cpusec()
+c      wall_vog = util_wallsec()
       CALL SBLOCKS(NBLOCK,IBLOCK(1,IBOFF),CB,HCB,dbl_mb(KC2),
      &     int_mb(KCIOIO),ISMOST(1,ICSM),int_mb(KCBLTP),
      &     NACOB,int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)),
@@ -5092,12 +5099,12 @@ cVOG  wall_vog = util_wallsec()
      &     LUCBLK,IPERTOP,IH0INSPC,dbl_mb(KLH0SPC),
      &     ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,I_RES_AB,
      &     IUSE_PA,int_mb(KCJPA),int_mb(KSIPA),ISIMSYM,dbl_mb(KINSCR2),
-     &     MXADKBLK,ICISTR,CV,ECORE,NCBATCH,ITASK,ILEN)
-cVOG  cpu_vog  = util_cpusec() - cpu_vog
-cVOG  wall_vog = util_wallsec()- wall_vog
-cVOG  write(*,00002) ga_nodeid(), cpu_vog , wall_vog !VOG timings
-cVOG 00002     format(/'SBLK Proc',i6,' Task  times  cpu:',f11.1,
-cVOG &           's     wall:',f11.1,'s')
+     &     MXADKBLK,ICISTR,CV,ECORE,NCBATCH,ITASK,ILEN,CONVOG,nnod)
+c      cpu_vog  = util_cpusec() - cpu_vog
+c      wall_vog = util_wallsec()- wall_vog
+c      write(*,00002) ga_nodeid(), cpu_vog , wall_vog !VOG timings
+c00002     format(/'SBLK Proc',i6,' Task  times  cpu:',f11.1,
+c     &           's     wall:',f11.1,'s')
 C     ELSE
 C     CALL SBLOCKSN(NBLOCK,IBLOCK(1,IBOFF),CB,HCB,WORK(KC2),
 C    &     WORK(KCIOIO),ISMOST(1,ICSM),WORK(KCBLTP),
@@ -5165,7 +5172,7 @@ C     END IF
      &           LUCBLK,IPERTOP,IH0INSPC,IH0SPC,
      &           ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,
      &           I_RES_AB,IUSE_PA,CJPA,SIPA,ISIMSYM,XINT2,MXADKBLK,
-     &           ICISTR,CV,ECORE,NCBATCH,ITASK,ILEN)
+     &           ICISTR,CV,ECORE,NCBATCH,ITASK,ILEN,CONVOG,nnod)
 *
 * Direct RAS routine employing combined MOC/n-1 resolution method
 *
@@ -5244,6 +5251,7 @@ CNW   DIMENSION CV(*)
       INTEGER NOBPTS(MXPNGAS,*),IOBPTS(MXPNGAS,*),ITSOB(*)
       INTEGER NELFSPGP(MXPNGAS,*)
       INTEGER ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB)
+      integer CONVOG(nnod,2)
 *
       CHARACTER*6 ITASK
       LOGICAL LOCAL
@@ -5769,8 +5777,13 @@ c?                 WRITE(6,*) ' Core energy added = ', ECORE
      &             
        CALL MEMCHK2('CHECKC')
                 IF(I_DO_EXACT_BLK.EQ.1) THEN
-cVOG  cpu_vogr  = util_cpusec()
-cVOG  wall_vogr = util_wallsec()
+!      cpu_vogr  = util_cpusec()
+!      wall_vogr = util_wallsec()
+c                 if (ga_nodeid().eq.0) then
+c                  CONVOG(nnod,1) = CONVOG(nnod,1) + 1
+c                 else
+c                  CONVOG(ga_nodeid(),1) = CONVOG(ga_nodeid(),1) + 1
+c                 end if
                  CALL RSSBCB2(IASM,IATP,IOCTPA,
      &               IBSM,IBTP,IOCTPB,
      &               LLASM,LLATP,LLBSM,LLBTP,NGAS,
@@ -5793,11 +5806,11 @@ cVOG  wall_vogr = util_wallsec()
      &               IH_OCC_CONS,ISIMSYM,XINT2,
      &               MXADKBLK,INEW_CTT,INEW_STT,IEND_CTT,CB(ICOFF_TT),
      &               ITASK,ILEN)
-cVOG  cpu_vogr  = util_cpusec() - cpu_vogr
-cVOG  wall_vogr = util_wallsec()- wall_vogr
-cVOG  write(*,00002) ga_nodeid(), cpu_vogr , wall_vogr !VOG timings
-cVOG00002     format(/'RSSB Proc',i6,' Task  times  cpu:',f11.1,
-cVOG &           's     wall:',f11.1,'s')
+!      cpu_vogr  = util_cpusec() - cpu_vogr
+!      wall_vogr = util_wallsec()- wall_vogr
+!      write(*,00002) ga_nodeid(), cpu_vogr , wall_vogr, ISBLK, ICBLK !VOG timings
+!00002     format(/'RSSB Proc',i6,' Task  times  cpu:',f11.1,
+!     &           's     wall:',f11.1,'s',2i4)
                 ELSE IF(I_DO_EXACT_BLK.EQ.-1) THEN
 *. Multiply with diagonal
 C                   ADDDIA_TERM(FACTOR,CVEC,SVEC,IASPGP,IBSPGP,IASM,IBSM,

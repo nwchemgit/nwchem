@@ -1997,7 +1997,7 @@ c      INCLUDE 'mxpdim.inc'
       call luciaqenter('gasci')
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GASCI ')
       newciblks = 0
-      NTEST = 000 ! VOG 000
+      NTEST = 000
       NTEST = MAX(NTEST,IPRNT)
       MXACJ = 0
       MXACIJ = 0
@@ -4900,7 +4900,7 @@ C?    WRITE(6,*) ' ISBSPPR_ACT = ', ISBSPPR_ACT
 C?    WRITE(6,*) ' ICISTR,LBLK = ', ICISTR,LBLK
 C?    WRITE(6,*) ' IPRT = ', IPRT
 C?    WRITE(6,*) ' ILAST in CIEIG5 ', ILAST 
-      NTEST=10000
+      NTEST=1000
       IPRT= 1
 *
 *               ====================================
@@ -11252,7 +11252,7 @@ C GET_NSD_MINMAX_SPACE(MIN_OCC,MAX_OCC,ISYM,MS2X,MULTSX, NSD,NCM,NCSF,NCONF)
          NP1 = MXP1_MAX
       END IF
       IF (NTEST.GT.10) WRITE(6,*) ' MXP1_MAX, fresh = ', MXP1_MAX
-
+*
 *. Assign diskunits
       CALL DISKUN
 *
@@ -13422,6 +13422,18 @@ COLD  DIMENSION C(*),HC(*)
 *
       CALL LUCIAQENTER('MV7  ')
 *
+*
+*. VOG RAPING LUCIA (initial guess)
+*
+!            SCALE = 1.0D0/SQRT(DFLOAT(NCVAR))
+!            if (ga_nodeid().eq.0)
+!     &        write(*,*) 'I start the Rape', SCALE, NCVAR
+!            call ga_distribution(CB,ga_nodeid(),ilo,ihi,idum,idum)
+!            do ii = ilo, ihi
+!             call ga_put(CB,ii,ii,1,1,SCALE,1)
+!            end do
+!            call ga_sync()
+*
       NTEST = 0000 !VOG 000
       NTEST = MAX(NTEST, IPRCIX)
       IF(NTEST.GE.5.AND.NTEST.LT.10) THEN
@@ -13443,6 +13455,7 @@ COLD  DIMENSION C(*),HC(*)
           CALL WRTVCD(dbl_mb(CB),LUC,1,-1)
         ELSE
           call ga_print(CB)
+          call ga_print(HCB)
 CNW       CALL WRTMAT(CB,1,NCVAR,1,NCVAR)
         END IF
       END IF
@@ -13583,7 +13596,7 @@ C            RASSG3(CB,SB,LBATS,LEBATS,I1BATS,IBATS,LUC,LUHC,C,HC,ECORE)
         CALL RASSG3(dbl_mb(CB),dbl_mb(HCB),NSBATCH,int_mb(KSLBT),
      &       int_mb(KSLEBT),
      &       int_mb(KSI1BT),int_mb(KSIBT),LLUC,LLUHC,XDUM,XDUM,ECORE,
-     &       CMV7TASK)
+     &       CMV7TASK,ga_nnodes())
       ELSE
 *. ICISTR = 1, CB, HCB are the complete vectors
         IF(NOCSF.EQ.1) THEN
@@ -13591,7 +13604,7 @@ C            RASSG3(CB,SB,LBATS,LEBATS,I1BATS,IBATS,LUC,LUHC,C,HC,ECORE)
           CALL RASSG3(dbl_mb(KVEC1P),dbl_mb(KVEC2P),NSBATCH,
      &         int_mb(KSLBT),int_mb(KSLEBT),
      &         int_mb(KSI1BT),int_mb(KSIBT),LLUC,LLUHC,CB,HCB,ECORE,
-     &         CMV7TASK)
+     &         CMV7TASK,ga_nnodes())
 *. Input is in KCOMVEC1_SD, construct output in KCOMVEC2_SD
           IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
             WRITE(6,*) ' NSVAR elements of output vector from RASSG3'
@@ -13602,7 +13615,7 @@ C            RASSG3(CB,SB,LBATS,LEBATS,I1BATS,IBATS,LUC,LUHC,C,HC,ECORE)
      &         int_mb(KSLBT),int_mb(KSLEBT),
      &         int_mb(KSI1BT),int_mb(KSIBT),LLUC,LLUHC,
      &         KCOMVEC1_SD,KCOMVEC2_SD,ECORE,
-     &        CMV7TASK)
+     &        CMV7TASK,ga_nnodes())
           IF(NTEST.GE.1000) THEN
             WRITE(6,*) ' NSVAR elements of output vector from RASSG3'
 CNW         CALL WRTMAT(WORK(KCOMVEC2_SD),1,NSVAR,1,NSVAR)
@@ -15434,7 +15447,7 @@ C
       RETURN
       END
       SUBROUTINE RASSG3(CB,SB,NBATS,LBATS,LEBATS,I1BATS,IBATS,
-     &           LUC,LUHC,CV,SV,ECORE,ITASK)
+     &           LUC,LUHC,CV,SV,ECORE,ITASK,nnod)
 *
 * Direct RAS routine employing combined MOC/n-1 resolution method
 *
@@ -15459,7 +15472,7 @@ C
 *. Batches of sigma
       INTEGER LBATS(*),LEBATS(*),I1BATS(*),IBATS(8,*),LEN
 *.Scratch
-      DIMENSION SB(*),CB(*)
+      DIMENSION SB(*),CB(*),CONVOG(nnod,2)
 *. Input/output if ICISTR = 1
 CNW   DIMENSION SV(*),CV(*)
       integer SV,CV !,CB,SB
@@ -15476,6 +15489,7 @@ CNW   DIMENSION SV(*),CV(*)
         WRITE(6,*) ' RASSG3: NBATS = ',NBATS
         WRITE(6,'(A,A6)') ' ITASK = ', ITASK
       END IF
+      CONVOG = 0
 *
 *. For scaling for each TTS block
 *
@@ -15519,9 +15533,16 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
            do isblk = 0, ncblock_t-1
               dbl_mb(KLSCLFAC+isblk) = dbl_mb(KLCNORM+isblk)
            enddo
+      cpu_vogs  = util_cpusec()
+      wall_vogs = util_wallsec()
           CALL SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,
      &         CB,SB,LUC,0,0,0,0,0,CV,ECORE,ITASK,LEN,
-     &         dbl_mb(KLCNORM),dbl_mb(KLSCLFAC))
+     &         dbl_mb(KLCNORM),dbl_mb(KLSCLFAC),CONVOG,nnod)
+      cpu_vogs  = util_cpusec() - cpu_vogs
+      wall_vogs = util_wallsec()- wall_vogs
+      write(*,00003) ga_nodeid(), cpu_vogs , wall_vogs !VOG timings
+00003     format(/'SB   Proc',i6,' Task  times  cpu:',f11.1,
+     &           's     wall:',f11.1,'s')
         endif
 *. Transfer S block to permanent storage
         DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
@@ -15560,6 +15581,13 @@ CNW       CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
       write(*,00002) ga_nodeid(), cpu_vog , wall_vog !VOG timings
 00002     format(/'RASSGProc',i6,' Task  times  cpu:',f11.1,
      &           's     wall:',f11.1,'s')
+*      if (ga_nodeid().eq.0) then
+*       write(*,'(a,i4,2i8)') 'PROC', ga_nodeid(), CONVOG(nnod,1),
+*     &                                            CONVOG(nnod,2)
+*      else
+*       write(*,'(a,i4,2i8)') 'PROC', ga_nodeid(), CONVOG(ga_nodeid(),1),
+*     &                                            CONVOG(ga_nodeid(),2)
+*      end if
       if (ga_nodeid().eq.0) WRITE(6,*) 'Exit ga_sync of RASSG3'
       IF(NTEST.GE.200) THEN
         IF(ICISTR.NE.1) THEN
@@ -36020,6 +36048,7 @@ C?   &             MAXOP, NOCCLS_MAX, LEN
 *. Array: AB supergroups => occupation class
       CALL MEMMAN(KIABSPGP_FOR_OCCLS,N_ABSPGP_MAX*2,'ADDL  ',1,
      &            'ABTOOC')
+      CALL MEMMAN(KIABSPGP_VOG,NOCCLS_MAX,'ADDL  ',1,'ABSPSV') !VOG
       CALL MEMMAN(KNABSPGP_FOR_OCCLS,NOCCLS_MAX,'ADDL  ',1,'NABTOC')
       CALL MEMMAN(KIBABSPGP_FOR_OCCLS,NOCCLS_MAX,'ADDL  ',1,'BABTOC')
 *. AB supergroups for compound space

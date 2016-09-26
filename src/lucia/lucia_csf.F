@@ -7999,7 +7999,8 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
      &           NGAS,IGSOCC_MNMX,NELFGP,
      &           NOCCLS,IOCCLS,
      &           N_ABSPGP_TOT,I_ABSPGP_FOR_OCCLS,N_ABSPGP_FOR_OCCLS,
-     &           IB_ABSPGP_FOR_OCCLS,IONLY_NABSPGP)
+     &           IB_ABSPGP_FOR_OCCLS,IONLY_NABSPGP,NNODES,N_ABSPGP_MAX,
+     &           I_ABSPGP_A,I_ABSPGP_B,N_ABSPGP,N_ABSPGP_VOG)
 *
 * Obtain the combination of A- and B- supergroups that
 * belong to a given occupation class.
@@ -8015,11 +8016,16 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
 *
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       INTEGER IASPGP(MXPNGAS,NASPGP),IBSPGP(MXPNGAS,NBSPGP)
       INTEGER IGSOCC_MNMX(MXPNGAS,2)
       INTEGER NELFGP(*)
       INTEGER IOCCLS(NGAS,*)
+      INTEGER I_ABSPGP_A(N_ABSPGP_MAX), I_ABSPGP_B(N_ABSPGP_MAX),
+     &        N_ABSPGP(NNODES), N_ABSPGP_VOG(NOCCLS) !VOG
 *. Output
       INTEGER N_ABSPGP_FOR_OCCLS(NOCCLS)
       INTEGER IB_ABSPGP_FOR_OCCLS(NOCCLS)
@@ -8027,8 +8033,9 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
 *. Local scratch
       INTEGER JAJBOC(MXPNGAS)
 *. 
-      NTEST = 000
-      IF(NTEST.GE.10) THEN
+      CALL LUCIAQENTER('ABSPG')
+      NTEST = 00
+      IF(ga_nodeid().eq.0.AND.NTEST.GE.10) THEN
         WRITE(6,*) ' Information from ABSPGP_TO_OCCLS '
         WRITE(6,*) '==================================='
         WRITE(6,*) 
@@ -8037,8 +8044,10 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
         ELSE
           WRITE(6,*) ' AB supergroups for each occlass constructed'
         END IF
+        write(*,*)
+        write(*,*) 'Max number of AB supergroups:', N_ABSPGP_MAX 
       END IF
-      IF(NTEST.GE.100) THEN
+      IF(ga_nodeid().eq.0.AND.NTEST.GE.1000) THEN
         WRITE(6,*) ' Input occupation classes '
         CALL IWRTMA(IOCCLS,NGAS,NOCCLS,NGAS,NOCCLS)
       END IF
@@ -8046,9 +8055,53 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
       N_ABSPGP_TOT = 0
       IZERO = 0
       JJOCCLS = 0
-      IF(NTEST.GE.1000) WRITE(6,*) ' NOCCLS in AB.... ', NOCCLS
+      IF(ga_nodeid().eq.0.AND.NTEST.GE.10)
+     &       WRITE(6,*) ' NOCCLS in AB.... ', NOCCLS
       CALL ISETVC(N_ABSPGP_FOR_OCCLS,IZERO,NOCCLS)
-      DO JASPGP = 1, NASPGP
+*
+*. VOG Parallelize outer loop (JASPGP)
+*
+      !
+      ! Initialize
+      !
+      N_ABSPGP = 0
+      !
+      ! Organize distribution of alpha supergroups
+      ! OCCLMAP is a GA that holds the occupation map
+      !
+      call ga_sync()
+      NUMBLOCK = INT(NASPGP / ga_nnodes())
+      NREM     = MOD(NASPGP,ga_nnodes())
+      ihi = 0
+      DO I = 1, ga_nodeid() + 1
+       IF (I.LE.NREM) THEN
+        NSIZE = NUMBLOCK + 1
+       ELSE
+        NSIZE = NUMBLOCK
+       END IF
+       ihi = ihi + NSIZE
+       ilo = ihi - NSIZE + 1
+      END DO
+      if ( .not. ga_create(mt_int, NOCCLS, NNODES, 'OCCLMAP', NOCCLS,
+     &     1, IOCCLMAP))
+     &     call errquit('OCCLMAP ga_create fail', NOCCLS*(NNODES+1),
+     &                  GA_ERR)
+      call ga_zero(IOCCLMAP)
+      call ga_sync()
+      !
+      ! Print some output (for debugging)
+      !
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0)
+     &                     write(*,*) 'NASPGP,NUMBLOCK,NREM',
+     &                                 NASPGP,NUMBLOCK,NREM
+      IF(NTEST.GE.10)
+     &  write(*,*) 'Distribution', ga_nodeid(), ilo, ihi
+*
+*. STEP 1
+*. Construct occupation map
+*
+      DO JASPGP = ilo,ihi
+cVOG  DO JASPGP = 1, NASPGP
        DO JBSPGP = 1, NBSPGP
 *. Is this combination included in combination
         I_AM_IN = IS_ABSPGP_IN_CI_SPACE(
@@ -8076,16 +8129,18 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
 *
           IF(IM_IT.EQ.1) THEN
            N_ABSPGP_FOR_OCCLS(JJOCCLS) = N_ABSPGP_FOR_OCCLS(JJOCCLS) + 1
-           N_ABSPGP_TOT = N_ABSPGP_TOT + 1
-           IF(IONLY_NABSPGP.EQ.0) THEN
-             IAB_COMB = IB_ABSPGP_FOR_OCCLS(JJOCCLS)-1+
-     &                   N_ABSPGP_FOR_OCCLS(JJOCCLS)
-             I_ABSPGP_FOR_OCCLS(1,IAB_COMB) = JASPGP
-             I_ABSPGP_FOR_OCCLS(2,IAB_COMB) = JBSPGP
-           END IF
+           N_ABSPGP(ga_nodeid()+1) = N_ABSPGP(ga_nodeid()+1) + 1
+cVOG       N_ABSPGP_TOT = N_ABSPGP_TOT + 1
+cVOG       IF(IONLY_NABSPGP.EQ.0) THEN
+cVOG         IAB_COMB = IB_ABSPGP_FOR_OCCLS(JJOCCLS)-1+
+cVOG &                   N_ABSPGP_FOR_OCCLS(JJOCCLS)
+cVOG         I_ABSPGP_FOR_OCCLS(1,IAB_COMB) = JASPGP
+cVOG         I_ABSPGP_FOR_OCCLS(2,IAB_COMB) = JBSPGP
+cVOG       END IF
           ELSE
 *. Supergroup not belonging to an occupation class- may happen
            IF(NTEST.GE.100) THEN
+             WRITE(6,*) ' STEP 1 IN ABSPGP_TO_OCCLS '
              WRITE(6,*) ' Occupation class not found for supergroup '
              WRITE(6,*) ' JASPGP, JBSPGP = ', JASPGP, JBSPGP
              WRITE(6,*) ' occupation: '
@@ -8096,12 +8151,144 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
        END DO
       END DO
 *
+*. Gather IOCCLMAP (occupation map), N_ABSPGP, N_ABSPGP_FOR_OCCLS
+*. from all processors
+*
+      call ga_sync()
+      IF ((ga_nodeid()+1).ne.NNODES) THEN
+!       DO IOCCL = 1, NOCCLS
+!        call ga_put(IOCCLMAP,IOCCL,IOCCL,ga_nodeid()+2,ga_nodeid()+2,
+!     &              N_ABSPGP_FOR_OCCLS(IOCCL),1)
+!       END DO
+       call ga_put(IOCCLMAP,1,NOCCLS,ga_nodeid()+2,ga_nodeid()+2,
+     &             N_ABSPGP_FOR_OCCLS(1),NOCCLS)
+      END IF
+      call ga_igop(1,N_ABSPGP,NNODES,'+')
+      call ga_igop(1,N_ABSPGP_FOR_OCCLS,NOCCLS,'+')
+      if (ga_nodeid().eq.0.and.NTEST.GE.100)
+     &    write(*,*) 'N_ABSPGP_FOR_OCCLS:', N_ABSPGP_FOR_OCCLS
+*
+*. Update the columns with the elements of the previous columns
+*
+      call ga_sync()
+      DO ICOL = 1, NNODES-1
+       call ga_add_patch(1, IOCCLMAP, 1, NOCCLS, ICOL,   ICOL,
+     &                   1, IOCCLMAP, 1, NOCCLS, ICOL+1, ICOL+1,
+     &                      IOCCLMAP, 1, NOCCLS, ICOL+1, ICOL+1)
+      END DO
+*
+      call ga_sync()
+      if (NTEST.GE.100) then
+       call ga_print(IOCCLMAP)
+       call ga_print_distribution(IOCCLMAP)
+      end if
+*
+*. Calculate total number of AB supergroups
+*
+      DO I = 1, NNODES
+       N_ABSPGP_TOT = N_ABSPGP_TOT + N_ABSPGP(I)
+      END DO
+*
+*. Distribute data before constructing the AB combinations
+*
+      N_ABSPGP_VOG = 0
+      DO I = 1, N_ABSPGP_TOT
+       I_ABSPGP_A(I) = 0
+       I_ABSPGP_B(I) = 0
+      END DO
+      call ga_get(IOCCLMAP,1,NOCCLS,ga_nodeid()+1,ga_nodeid()+1,
+     &            N_ABSPGP_VOG,1)
+      call ga_sync()
+*
+*. STEP 2
+*. Loop for constructing I_ABSPGP_A/I_ABSPGP_B --> I_ABSPGP_FOR_OCCLS
+*
+      DO JASPGP = ilo,ihi
+       DO JBSPGP = 1, NBSPGP
+        I_AM_IN = IS_ABSPGP_IN_CI_SPACE(
+     &            IASPGP(1,JASPGP),IBSPGP(1,JBSPGP),NGAS,
+     &            1,1,IGSOCC_MNMX,NELFGP)
+        IF(I_AM_IN.EQ.1) THEN
+          DO IGAS = 1, NGAS
+            JAJBOC(IGAS) =
+     &      NELFGP(IASPGP(IGAS,JASPGP)) + NELFGP(IBSPGP(IGAS,JBSPGP))
+          END DO
+          IM_IT = 3006
+          DO JOCCLS = 1, NOCCLS
+           IM_IT = 1
+           DO IGAS = 1, NGAS
+             IF(JAJBOC(IGAS).NE.IOCCLS(IGAS,JOCCLS))IM_IT = 0
+           END DO
+           IF(IM_IT.EQ.1) THEN
+            JJOCCLS = JOCCLS
+            GOTO 102
+           END IF
+          END DO! JOCCLS
+  102     CONTINUE
+*
+          IF(IM_IT.EQ.1) THEN
+           N_ABSPGP_VOG(JJOCCLS) = N_ABSPGP_VOG(JJOCCLS) + 1
+            
+           IF(IONLY_NABSPGP.EQ.0) THEN
+             IAB_COMB = IB_ABSPGP_FOR_OCCLS(JJOCCLS)-1+
+     &                   N_ABSPGP_VOG(JJOCCLS)
+             I_ABSPGP_A(IAB_COMB) = JASPGP
+             I_ABSPGP_B(IAB_COMB) = JBSPGP
+cVOG         I_ABSPGP_FOR_OCCLS(1,IAB_COMB) = JASPGP
+cVOG         I_ABSPGP_FOR_OCCLS(2,IAB_COMB) = JBSPGP
+           END IF
+          ELSE
+*. Supergroup not belonging to an occupation class- may happen
+           IF(NTEST.GE.100) THEN
+             WRITE(6,*) ' STEP 2 IN ABSPGP_TO_OCCLS '
+             WRITE(6,*) ' Occupation class not found for supergroup '
+             WRITE(6,*) ' JASPGP, JBSPGP = ', JASPGP, JBSPGP
+             WRITE(6,*) ' occupation: '
+             CALL IWRTMA(JAJBOC,1,NGAS,1,NGAS)
+           END IF
+          END IF! IM_IT
+        END IF ! I_AM_IN
+       END DO
+      END DO
+*
+*. Collect I_ABSPGP_A/I_ABSPGP_B data from all processors
+*. and store them in I_ABSPGP_FOR_OCCLS
+*
+      call ga_sync()
+      call ga_igop(1,I_ABSPGP_A,N_ABSPGP_TOT,'+')
+      call ga_igop(1,I_ABSPGP_B,N_ABSPGP_TOT,'+')
+      DO I = 1, N_ABSPGP_TOT
+       I_ABSPGP_FOR_OCCLS(1,I) = I_ABSPGP_A(I)
+       I_ABSPGP_FOR_OCCLS(2,I) = I_ABSPGP_B(I)
+      END DO
+*
+      if (.not. ga_destroy(IOCCLMAP)) call
+     &     errquit('ABSPG: ga_destroy IOCCLMAP failed', 0 , GA_ERR)
+*
+      IF(ga_nodeid().eq.0.and.NTEST.GE.1000) THEN
+       write(*,*) 'NOCCLS', NOCCLS
+       write(*,*) 'I_ABSPGP_FOR_OCCLS(1,*)'       
+       write(*,*)  (I_ABSPGP_FOR_OCCLS(1,I), I = 1, N_ABSPGP_TOT)
+       write(*,*) 'I_ABSPGP_FOR_OCCLS(2,*)'
+       write(*,*)  (I_ABSPGP_FOR_OCCLS(2,I), I = 1, N_ABSPGP_TOT)
+       write(*,*) 'N_ABSPGP_FOR_OCCLS'
+       write(*,*)  N_ABSPGP_FOR_OCCLS 
+       write(*,*) 'N_ABSPGP_TOT'
+       write(*,*)  N_ABSPGP_TOT
+       IF(IONLY_NABSPGP.EQ.0) THEN
+        write(*,*) 'AB COMBINATIONS:'
+        do i=1, N_ABSPGP_TOT
+         write(*,*) I, I_ABSPGP_FOR_OCCLS(1,I),I_ABSPGP_FOR_OCCLS(2,I)
+        end do
+       END IF
+      END IF
+*
       IF(IONLY_NABSPGP.EQ.1) THEN
 * Construct pointer array
         CALL ZBASE(N_ABSPGP_FOR_OCCLS,IB_ABSPGP_FOR_OCCLS,NOCCLS)
       END IF
 *
-      IF(NTEST.GE.10) THEN
+      IF(ga_nodeid().eq.0.AND.NTEST.GE.100) THEN
         WRITE(6,*)
         WRITE(6,*) ' AB supergroups for the occupation classes '
         WRITE(6,*) ' =========================================='
@@ -8122,7 +8309,9 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
           END IF
         END DO
       END IF !NTEST
+      call ga_sync()
 *
+      CALL LUCIAQEXIT('ABSPG')
       RETURN
       END
       FUNCTION IS_ABSPGP_IN_CI_SPACE(IASPGP,IBSPGP,NGAS,
@@ -8133,6 +8322,7 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
 *. Jeppe Olsen, Feb. 2012
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
+#include "global.fh"
 *. Input
       INTEGER IASPGP(NGAS),IBSPGP(NGAS)
       INTEGER NELFGP(*)
@@ -8140,21 +8330,22 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
       INTEGER MNMX_OCC(MXPNGAS,2,*), IMNMX_SPC(NMNMX_SPC)
 *
       NTEST = 000
-      IF(NTEST.GE.10) THEN
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Output from IS_ABSPGP_IN_CI_SPACE '
         WRITE(6,*) ' =================================='
       END IF
 *
       INCLUDE = 0
-      IF(NTEST.GE.1000) WRITE(6,*) ' MNMX_SPC '
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) WRITE(6,*) ' MNMX_SPC '
       DO ISPC = 1, NMNMX_SPC
         IISPC = IMNMX_SPC(ISPC)
-        IF(NTEST.GE.1000) WRITE(6,*) ' IISPC = ', IISPC
+        IF(NTEST.GE.1000.and.ga_nodeid().eq.0)
+     &   WRITE(6,*) ' IISPC = ', IISPC
         IEL = 0
         IAMOKAY = 1
         DO IGAS = 1, NGAS
           IEL = IEL + NELFGP(IASPGP(IGAS))+NELFGP(IBSPGP(IGAS))
-          IF(NTEST.GE.1000) 
+          IF(NTEST.GE.1000.and.ga_nodeid().eq.0) 
      &    WRITE(6,*) ' IGAS, IEL = ', IGAS,IEL
           IF(IEL.LT.MNMX_OCC(IGAS,1,IISPC).OR.
      &       IEL.GT.MNMX_OCC(IGAS,2,IISPC)    )  IAMOKAY = 0
@@ -8164,7 +8355,7 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
 *
       IS_ABSPGP_IN_CI_SPACE = INCLUDE
 *
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' IASPGP and IBSPGP '
         CALL IWRTMA(IASPGP,1,NGAS,1,NGAS)
         CALL IWRTMA(IBSPGP,1,NGAS,1,NGAS)

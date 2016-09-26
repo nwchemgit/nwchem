@@ -1585,7 +1585,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
 *
       CALL LUCIAQENTER('STRIN')
 *
-      NTEST = 0
+      NTEST = 00
       NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
          WRITE(6,*) ' Output from STRINF_GAS '
@@ -1774,7 +1774,7 @@ c     IDUMMY = 2*NOCOB+(NACTEL+1)*(NOCOB+1)+NSMST
 *
           MXNSTR = MAX(MXNSTR,MXNSTRFSG)
         END DO
-        IF(NTEST.GE.10) THEN
+        IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
           WRITE(6,*) ' MXNSTR, MXNSTR_AS = ',
      &                 MXNSTR, MXNSTR_AS  
         END IF
@@ -1829,7 +1829,7 @@ c     IDUMMY = 2*NOCOB+(NACTEL+1)*(NOCOB+1)+NSMST
         NPHELFSPGP(ISPGP) = NPHEL
       END DO
 *
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
        WRITE(6,*)
        WRITE(6,*) ' Number of particle-hole operators per supergroup '
        WRITE(6,*)
@@ -1848,7 +1848,7 @@ c     IDUMMY = 2*NOCOB+(NACTEL+1)*(NOCOB+1)+NSMST
         END DO
         NHLFSPGP(IISPGP) = NHOLE
       END DO
-      IF(NTEST.GE.10) THEN
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
       WRITE(6,*) ' Number of electrons in hole spaces per supergroup '
       CALL IWRTMA(NHLFSPGP,1,NTSPGP,1,NTSPGP)
       END IF
@@ -1871,7 +1871,7 @@ C?   &  = MAX(MAX_STR_OC_BLK,(NEL+4)*NSTFSMSPGP(ISTSM,ISPGP))
         END DO
       END DO 
 *     
-      IF(NTEST.GE.2) THEN
+      IF(NTEST.GE.2.and.ga_nodeid().eq.0) THEN
       WRITE(6,*)
      & ' Largest number of strings of given supergroup   ',
      &   MAX_STR_SPGP
@@ -1906,7 +1906,7 @@ C?    CALL IWRTMA(IBSPGPFTP,1,NSTTYP,1,NSTTYP)
 *
       CALL LUCIAQENTER('SPGPA')
       DO ISTTYP = 1,NSTTYP
-      IF(NTEST.GE.100) 
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) 
      &WRITE(6,*)  ' Info for SPGP_AC for ISTTYP = ', ISTTYP
       IF(NSPGPFTP(ISTTYP).GT.0) THEN
         IIEL = NELFTP(ISTTYP)
@@ -1919,7 +1919,7 @@ C?    CALL IWRTMA(IBSPGPFTP,1,NSTTYP,1,NSTTYP)
           IF(MOD(ISTTYP,2).EQ.MOD(JSTTYP,2).AND.
      &       NELFTP(JSTTYP).EQ.IIEL+1           ) ISTTYPC = JSTTYP
         END DO
-        IF(NTEST.GE.100) THEN
+        IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
           WRITE(6,*) ' ISTTYP and ISTTYPC ',ISTTYP,ISTTYPC
           WRITE(6,'(A, 2I4)') ' NEL(ISTTYP),NEL(ISTTYPC) = ',
      &    NELFTP(ISTTYP), NELFTP(ISTTYPC)
@@ -1939,7 +1939,7 @@ C?    CALL IWRTMA(IBSPGPFTP,1,NSTTYP,1,NSTTYP)
           IF(MOD(ISTTYP,2).EQ.MOD(JSTTYP,2).AND.
      &       NELFTP(JSTTYP).EQ.IIEL-1           ) ISTTYPA = JSTTYP
         END DO
-        IF(NTEST.GE.100) THEN
+        IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
           WRITE(6,*) 'ISTTYP, ISTTYPA', ISTTYP,ISTTYPA
           WRITE(6,'(A, 2I4)') ' NEL(ISTTYP),NEL(ISTTYPA) = ',
      &    NELFTP(ISTTYP), NELFTP(ISTTYPA)
@@ -1953,7 +1953,7 @@ C?    CALL IWRTMA(IBSPGPFTP,1,NSTTYP,1,NSTTYP)
       END IF ! type has a nonvanishing number of strings
       END DO !loop over types
 *
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         NSPGP_TOT = IELSUM(NSPGPFTP,NSTTYP)
         WRITE(6,*) ' NSPGP_TOT = ', NSPGP_TOT
         WRITE(6,*) ' Annihilation mappings of supergroups: '
@@ -1980,20 +1980,35 @@ C?    CALL IWRTMA(IBSPGPFTP,1,NSTTYP,1,NSTTYP)
       NBSPGP = NSPGPFTP(IBTP)
       IB_A = IBSPGPFTP(IATP)
       IB_B = IBSPGPFTP(IBTP)
+*
+*. Initiallize two variables with MEMMAN related to the parallelization of 
+*. ABSPGP_TO_OCCLS
+*
+      CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'ABSPGP')
+      CALL MEMMAN(KI_ABSPGP_A,N_ABSPGP_MAX,'ADDL  ',1,'ABSPGP_A')
+      CALL MEMMAN(KI_ABSPGP_B,N_ABSPGP_MAX,'ADDL  ',1,'ABSPGP_B')
+!      CALL MEMMAN(KI_ABSPGP_VOG,int_mb(KIOCCLS),'ADDL  ',1,'ABSPGP_V')
+      CALL MEMMAN(KI_ABSPGP,ga_nnodes(),'ADDL  ',1,'NABSPGP')
+*
+      if (ga_nodeid().eq.0) write(*,*) 'VOG: N_ABSPGP_MAX', N_ABSPGP_MAX
 *. First: offsets
       CALL ABSPGP_TO_OCCLS(
      &     ISPGPFTP(1,IB_A),NASPGP,ISPGPFTP(1,IB_B),NBSPGP,
      &     NGAS,IGSOCC,NELFGP,
      &     NOCCLS_MAX,int_mb(KIOCCLS),N_ABSPGP_TOT2,
      &     int_mb(KIABSPGP_FOR_OCCLS),int_mb(KNABSPGP_FOR_OCCLS),
-     &     int_mb(KIBABSPGP_FOR_OCCLS),1)
+     &     int_mb(KIBABSPGP_FOR_OCCLS),1,ga_nnodes(),N_ABSPGP_MAX,
+     &     int_mb(KI_ABSPGP_A),int_mb(KI_ABSPGP_B),
+     &     int_mb(KI_ABSPGP),int_mb(KI_ABSPGP_VOG))
 *. And then the actual mappings
       CALL ABSPGP_TO_OCCLS(
      &     ISPGPFTP(1,IB_A),NASPGP,ISPGPFTP(1,IB_B),NBSPGP,
      &     NGAS,IGSOCC,NELFGP,
      &     NOCCLS_MAX,int_mb(KIOCCLS),N_ABSPGP_TOT2,
      &     int_mb(KIABSPGP_FOR_OCCLS),int_mb(KNABSPGP_FOR_OCCLS),
-     &     int_mb(KIBABSPGP_FOR_OCCLS),0)
+     &     int_mb(KIBABSPGP_FOR_OCCLS),0,ga_nnodes(),N_ABSPGP_MAX,
+     &     int_mb(KI_ABSPGP_A),int_mb(KI_ABSPGP_B),
+     &     int_mb(KI_ABSPGP),int_mb(KI_ABSPGP_VOG))
 C?     WRITE(6,*) ' First two elements of KIABSPGP_FOR_OCCLS as int'
 C?     CALL IWRTMA(WORK(KIABSPGP_FOR_OCCLS),1,2,1,2)
 C ABSPGP_TO_OCCLS(
@@ -2002,6 +2017,7 @@ C      &           NGAS,IGSOCC_MNMX,NELFGP,
 C      &           NOCCLS,IOCCLS,
 C      &           N_ABSPGP_TOT,I_ABSPGP_FOR_OCCLS,N_ABSPGP_FOR_OCCLS,
 C      &           IB_ABSPGP_FOR_OCCLS,IONLY_NABSPGP)
+      CALL MEMMAN(IDUM ,IDUM,'FLUSM ',2,'ABSPGP')
 *
 *. Dimensions of PL strings
 *
@@ -2009,7 +2025,7 @@ C     GET_DIM_PLSTRINGS(MXNSTRP,MXNSTRP_AS,MXNSTRL,
 C    &           MXNSTRL_AS,MXNSTRSTRP_AS,MXNSTRSTRL_AS)
       CALL GET_DIM_PLSTRINGS(MXNSTRP,MXNSTRP_AS,MXNSTRL,
      &           MXNSTRL_AS,MXNSTRSTRP_AS,MXNSTRSTRL_AS)
-      IF (NTEST.GT.10) THEN
+      IF (NTEST.GT.10.and.ga_nodeid().eq.0) THEN
       WRITE(6,*) ' Info on PL expansion of strings and CI-space:'
       WRITE(6,'(A,2I6)') ' MXNSTRP,MXNSTRP_AS = ', MXNSTRP,MXNSTRP_AS
       WRITE(6,'(A,2I6)') ' MXNSTRL,MXNSTRL_AS = ', MXNSTRL,MXNSTRL_AS
@@ -2825,7 +2841,7 @@ C?    write(6,*) ' LCISPC : NICISP ', NICISP
    50 CONTINUE
   100 CONTINUE
 *
-      NTEST = 10 !VOG 0
+      NTEST = 10
       NTEST = MAX(NTEST,IPRNT)
       if (ga_nodeid().eq.0) then
       WRITE(6,*) 
@@ -6605,7 +6621,7 @@ C     STOP'JEPPE forced me to stop in ADS1   '
       DIMENSION ISPGRPCON(NSPGRP,NSPGRP)
 *
       NTEST = 000
-      NTEST = MAX(NTEST,IPRNT)
+cVOG  NTEST = MAX(NTEST,IPRNT)
 *
       DO ISPGRP = 1, NSPGRP
         ISPGRPA = IOFSPGRP-1+ISPGRP

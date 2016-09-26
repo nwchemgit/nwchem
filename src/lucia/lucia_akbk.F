@@ -180,14 +180,14 @@ cVOG  IF (NOCSF.EQ.1) CALL IAIBCM(1,LBLOCK)
      &     NGAS,IGSOCC,NELFGP,
      &     NOCCLS_MAX,int_mb(KIOCCLS),N_ABSPGP_TOT2,
      &     int_mb(KIABSPGP_FOR_OCCLS),int_mb(KNABSPGP_FOR_OCCLS),
-     &     int_mb(KIBABSPGP_FOR_OCCLS),1)
+     &     int_mb(KIBABSPGP_FOR_OCCLS),1,ga_nnodes(),N_ABSPGP_MAX)
 *. And then the actual mappings
       CALL ABSPGP_TO_OCCLS(
      &     ISPGPFTP(1,IB_A),NASPGP,ISPGPFTP(1,IB_B),NBSPGP,
      &     NGAS,IGSOCC,NELFGP,
      &     NOCCLS_MAX,int_mb(KIOCCLS),N_ABSPGP_TOT2,
      &     int_mb(KIABSPGP_FOR_OCCLS),int_mb(KNABSPGP_FOR_OCCLS),
-     &     int_mb(KIBABSPGP_FOR_OCCLS),0)
+     &     int_mb(KIBABSPGP_FOR_OCCLS),0,ga_nnodes(),N_ABSPGP_MAX)
       ! Order CI-vector, so AB supergroups so all supergroups belonging
       ! to the same occupation class are stored consecutively and one batch consists
       ! of one occupation class:
@@ -5109,7 +5109,7 @@ cVOG    else
 *
 *. Print Input
 *
-      if (ntets.eq.10.and.ga_nodeid().eq.0)
+      if (ntest.eq.10.and.ga_nodeid().eq.0)
      & WRITE(*,'(a,i4)') ' Times that I have entered in fraggas:',
      &                   igasloop
       if(ntest.ge.100.and.ga_nodeid().eq.0) then
@@ -6241,6 +6241,7 @@ cVOG    else
 *. belonging to the same irrep to individual GAS spaces!
 *
       IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
+      call ga_sync()
 *
 *. Obtain initial values for the MO-to-be-moved pointers (imofromto)
 *
@@ -6302,7 +6303,7 @@ cVOG    else
 *. 3. Types (two are needed, not six)
 *. 4. Supergroups
 *
-       call strtyp_gas(iprstr)
+       CALL STRTYP_GAS(IPRSTR)
        CALL ALLO_ALLO_0
 *. Divide orbital spaces into inactive/active/secondary
        CALL GASSPC
@@ -6311,7 +6312,7 @@ cVOG    else
 *
        CALL GEN_OCCLS_FOR_CISPAC(IGSOCC(1,1), IGSOCC(1,2), -1,
      &      int_mb(KIOCCLS),NOCCLS_MAX)
-       if (ntest.ge.10) call WRITE_OCCLS_AKBK(int_mb(KIOCCLS),
+       if (ntest.ge.1000) call WRITE_OCCLS_AKBK(int_mb(KIOCCLS),
      &                                        NOCCLS_MAX,NGAS)
 *
 *. 5. Strings
@@ -6366,9 +6367,9 @@ cVOG    else
 *
        nnod = ga_nnodes()
 !       nfragagain = 0
-       call CI_batches_info(int_mb(KCIBT),NCBLOCK,nnod,ntest,
-     &                      nfragagain)
-       if (ntest.eq.10. and.ga_nodeid().eq.0)
+       call CI_batches_info(NCBATCH,int_mb(KCLBT),int_mb(KCIBT),NCBLOCK,
+     &                      nnod,ntest,nfragagain)
+       if (ntest.eq.100. and.ga_nodeid().eq.0)
      &    write(*,'(a,3i10)') 'nblocks, nnod, nfragagain',
      &                         NCBLOCK, nnod, nfragagain
 *
@@ -6381,6 +6382,7 @@ cVOG    else
 *
       if (NCBLOCK.lt.nnod) nfragagain = 1
 !      if ((NCBLOCK.lt.nnod).or.(nfragagain.eq.1)) then
+!       nfragagain = 0 ! DANGER
       if (nfragagain.eq.1) then
        if (ga_nodeid().eq.0) write(*,*) 'I will fragment the GAS space'
        call fraggas(igasloop,ngasadd,imofromto)
@@ -6470,16 +6472,30 @@ cVOG    else
 #include "global.fh"
 *
 *. Scratch
-      integer NGSSHBU(NGAS)
+      integer NGSSHBU(NIRREP)
 *
       NTEST = 100
 *
 *. Distribute MOs of the same IRREP to individual GAS spaces
 *
+      if(ntest.ge.10.and.ga_nodeid().eq.0) then
+       write(*,*) 
+       write(*,*) ' NIRREP ', NIRREP
+       write(*,*) ' NGAS   ', NGAS
+      end if
+*
+!      IF (NIRREP.EQ.8) THEN
+!       ILIMIT = 1
+!      ELSE
+       ILIMIT = 0
+!      END IF
+*
       DO IRREP = 1, NIRREP-1
-       NGSSHBU = 0
-       IF (NGSSH(IRREP,NGAS).NE.0) THEN
-        DO JRREP = IRREP+1, NIRREP
+       IF (NGSSH(IRREP,NGAS).GT.ILIMIT) THEN 
+        NGSSHBU = 0
+        ISTRIRREP = IRREP+1
+        if (ga_nodeid().eq.0) write(*,*) 'ISTRIRREP', ISTRIRREP
+        DO JRREP = ISTRIRREP, NIRREP
          NGSSHBU(JRREP) = NGSSH(JRREP,NGAS)
          NGSSH(JRREP,NGAS) = 0
         END DO
@@ -6491,6 +6507,8 @@ cVOG    else
           NGSSH(JRREP,NGAS) = NGSSHBU(JRREP)
          END IF
         END DO
+        if (ga_nodeid().eq.0)
+     &    write(*,*) (NGSSH(JRREP,NGAS), JRREP = 1, NIRREP)
        END IF
       END DO
 *
@@ -6593,61 +6611,145 @@ cVOG    else
 *======================================================================*
 *======================================================================*
 *
-      SUBROUTINE CI_batches_info(KCIBT,NCBLOCK,nnod,ntest,nfragagain)
+      SUBROUTINE CI_batches_info(NBATS,LBATS,KCIBT,NCBLOCK,nnod,ntest,
+     &                           nfragagain)
 *======================================================================*
 *
       INCLUDE 'implicit.inc'
       INCLUDE 'mxpdim.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'cgas.inc'
+      INCLUDE 'gasstr.inc'
+      INCLUDE 'stinf.inc'
 #include "global.fh"
 *
 *. input
-      integer NCBLOCK, nnod, ntest
-      integer KCIBT(8,ncblock)
+      integer NCBLOCK, NBATS, nnod, ntest
+      integer LBATS(NBATS),KCIBT(8,ncblock)
 *
 *. output
       integer nfragagain
 *
+*. Scratch
+      integer NSDBATCH(NBATS)
+*
+*. Obtain number of occupied GAS spaces per supergroup
+*
+*. Number of supergroups
+      IATP = 1
+      IBTP = 2
+      NOCTPA = NOCTYP(IATP)
+      NOCTPB = NOCTYP(IBTP)
+c      NGASSPGRPA = 0
+c      NGASSPGRPB = 0
+c      !
+c      ! Loop over alpha supergroups
+c      !
+c      DO ISPGRP = 1, NOCTPA
+c       DO IGAS = 1, NGAS
+c        IF (NELFSPGP(IGAS,ISPGRP).NE.0)
+c     &      NGASSPGRPA(ISPGRP) = NGASSPGRPA(ISPGRP) + 1
+c       END DO
+c      END DO
+c      !
+c      ! Loop over  beta supergroups
+c      !
+c      DO ISPGRP = 1, NOCTPB
+c       DO IGAS = 1, NGAS
+c        IF (NELFSPGP(IGAS,ISPGRP).NE.0)
+c     &      NGASSPGRPB(ISPGRP) = NGASSPGRPB(ISPGRP) + 1
+c       END DO
+c      END DO
+*
 *. Get information of CI blocks and print them (if requested)
 *
-      if (ga_nodeid().eq.0.and.ntest.ge.10) then
+      if (ga_nodeid().eq.0.and.ntest.ge.100) then
        write(*,*)
-       write(*,*) ' ==============================================='
-       write(*,*) '  BLK         SIZE    alpha SPGRP    beta SPGRP '
-       write(*,*) ' ==============================================='
+       write(*,'(a2,a)') '  ', repeat ('=', 56)
+       write(*,*) 
+     &  '  BLK     BATCH       SIZE    alpha SPGRP    beta SPGRP ',
+     &  '  alpha occGAS    beta occGAS'
+       write(*,'(a2,a)') '  ', repeat ('=', 56)
       end if
 *
       isum = 0
       nmaxblk = 0
+      IBA = 1
+      ILCHK = LBATS(IBA)
       do iblock = 1, ncblock
-       if (ga_nodeid().eq.0.and.ntest.ge.10)
-     &     write(*,'(i8,2i10,i15)') iblock, KCIBT(8,iblock),
-     &                              KCIBT(1,iblock), KCIBT(2,iblock)
+       IA = KCIBT(1,iblock)
+       IB = KCIBT(2,iblock)
+*
+       if (ga_nodeid().eq.0.and.ntest.ge.100)
+     &     write(*,'(i6,i10,i11,a,5i2,a,5i2,a)') iblock, IBA,
+     &                                       KCIBT(8,iblock),
+     &                        '  | ', (NELFSPGP(IGAS,IA), igas = 1, 5),
+     &                        '  | ', (NELFSPGP(IGAS,IB), igas = 1, 5)
+c    &     write(*,'(i8,2i10,i15)') iblock, KCIBT(8,iblock),
+c    &                              KCIBT(1,iblock), KCIBT(2,iblock)
        isum = isum + KCIBT(8,iblock)
        if (KCIBT(8,iblock).ge.nmaxblk) nmaxblk =  KCIBT(8,iblock)
+*
+       IF (iblock.EQ.ILCHK) THEN
+        IBA = IBA + 1
+        ILCHK = ILCHK + LBATS(IBA)
+       END IF
+*
       end do
 *
-      if (ga_nodeid().eq.0.and.ntest.ge.10) then
-       write(*,*) ' ==============================================='
+      if (ga_nodeid().eq.0.and.ntest.ge.100) then
+       write(*,'(a2,a)') '  ', repeat ('=', 56)
        write(*,'(a5,i13)') '  SUM', isum
        write(*,'(a5,i13)') '  MAX', nmaxblk
-       write(*,*) ' ==============================================='
+       write(*,'(a2,a)') '  ', repeat ('=', 56)
       end if
+*
+*. New route based on the TTSS batches, not the TTSS blocks
+*
+      NSDBATCH = 0 ! Number of SDs in a given TTSS Batch
+      if (ga_nodeid().eq.0.AND.ntest.ge.100) THEN
+       write(*,*)
+       write(*,*) 'Info for each TTSS batch'
+       write(*,*)
+       write(*,*) ' BATCH   BLOCKS       LENGTH'
+      end if
+*
+*. Obtain size of each TTSS BATCH (number of SDs)
+*
+      II = 0
+      DO I = 1, NBATS
+       DO IBLK = 1, LBATS(I)
+        II = II + 1
+        NSDBATCH(I) = NSDBATCH(I) + KCIBT(8,II)
+       END DO
+       if (ga_nodeid().eq.0.and.ntest.ge.100)
+     &     write(*,'(i6,i10,i20)') I,LBATS(I), NSDBATCH(I)
+      END DO
 *
 *. Calculate blocks/nnod ratio, criterion if I will fragment further
 *. the GAS space
 *
+      NFRAG = 1
+      if (ga_nodeid().eq.0.and.ntest.ge.10) write(*,*) 'NFRAG', NFRAG
       nblkratio = int(isum/nnod)
-      nblkratio = int(nblkratio/1) !TEST - best so far for small CAS: 8 or 16
-                                   !       I keep it to 2 for testing
-                                   !       large CAS > (20,20)
+      nblkratio = int(nblkratio/NFRAG) !TEST - best so far for small CAS: 8 or 16
+                                       !       I keep it to 2 for testing
+                                       !       large CAS > (20,20)
       nfragagain = 0
       if (ga_nodeid().eq.0.and.ntest.ge.10)
      & write(*,'(a,3i12)') 'isum, nnod, nblkratio', isum,nnod,nblkratio
-      do iblock = 1, ncblock
-       if (KCIBT(8,iblock).gt.nblkratio) nfragagain = 1
-      end do
+*
+      DO I = 1, NBATS
+       IF (NSDBATCH(I).GT.nblkratio) nfragagain = 1
+      END DO
+*
+cVOG  do iblock = 1, ncblock
+cVOG   if (KCIBT(8,iblock).gt.nblkratio) nfragagain = 1
+cVOG  end do
+*
+*. Check if number of TTSS batches smaller than number of nodes
+*
+      if (NBATS.lt.nnod) nfragagain = 1
 *
 *. Check if at least one GAS space has more than 1 MO
 *
@@ -6658,7 +6760,7 @@ cVOG    else
         nmoings = nmoings + ngssh(irrep,igas)
        end do
        if (nmoings.gt.1) lallsingle = 0
-       if (ga_nodeid().eq.0.and.ntest.ge.10)
+       if (ga_nodeid().eq.0.and.ntest.ge.100)
      &   write(*,*) 'in the loop', igas, nmoings, lallsingle
       end do
 *
@@ -6684,16 +6786,23 @@ cVOG    else
 *.               TTSS Weight = (# of connections) x (size of TTSS)
 *.    2nd-order:
 *
+*
+*. Variable that holds the batch/block sizes per node:
+*  ibpnod(*,1): Number of TTSS blocks  per node
+*  ibpnod(*,2): Number of TTSS batches per node
+*
 *. Konstantinos D. Vogiatzis, Nov. 2015, Minneapolis, after Bert
 *.                                                    thretening my life
 *
 *======================================================================*
 *
       INCLUDE 'wrkspc.inc'
+      INCLUDE 'csm.inc'
       INCLUDE 'cgas.inc'
       INCLUDE 'stinf.inc'
       INCLUDE 'strinp.inc'
       INCLUDE 'gasstr.inc'
+      INCLUDE 'strbas.inc'
 #include "mafdecls.fh"
 #include "global.fh"
 *
@@ -6706,17 +6815,16 @@ c      integer IMAP2(nnod)
       integer IMAP2(NBATS)
 *
 *. Scratch
-      real ttssw(NBATS), totweight(nnod)
-      integer isize(nnod), ibpnod(nnod)
+      real ttssw(NBATS), totweight(nnod), FACTOR(NBATS)
+      integer nttssw(NBATS), NJSIZE(NBATS)
+      integer iblksum(2), isize(nnod), ibpnod(nnod,2)
 *
 *. Initializations
 *
       ntest = 10
-      if (ntest.ge.10) then
-       do i=1, NBATS
-        imap2(i) = 0
-       end do
-      end if
+      do i=1, NBATS
+       imap2(i) = 0
+      end do
       do inode = 1, nnod
 c       imap2(inode) = 0
        isize(inode) = 0
@@ -6768,114 +6876,186 @@ c       imap2(inode) = 0
       CALL SPGRPCON(IOCTPB,NOCTPB,NGAS,MXPNGAS,NELFSPGP,
      &              int_mb(KCONSPB),ntest,ga_nodeid())
 *
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
+         WRITE(6,*) ' Supergroup connection matrix '
+         CALL IWRTMA(int_mb(KCONSPA),NOCTPA,NOCTPA,NOCTPA,NOCTPA)
+         WRITE(6,*) ' Supergroup connection matrix '
+         CALL IWRTMA(int_mb(KCONSPB),NOCTPB,NOCTPB,NOCTPB,NOCTPB)
+      END IF
+*
+*. Only for PRINTING reasons
+*
+       nnod = ga_nnodes()
+       nfragagain = 0
+       call CI_batches_info(NBATS,LBATS,IBATS,NBLK,
+     &                      nnod,ntest,nfragagain)
+*
+*. For alpha beta strings
+*
+       IATP = 1
+       IBTP = 2
+*
 *. Calculate the TTSS weights
 *
+      LFIRSTORDER = 1
       if (ga_nodeid().eq.0) write(*,*) ' Calculate the TTSS weights'
-      call ttssweight0(ttssw,IBATS,NBATS,LBATS,NBLK)
-cVOG  call ttssweight(ttssw,int_mb(KCONSPA),int_mb(KCONSPB),
-cVOG &                NOCTPA,NOCTPB,IBATS,NBLK)
+      IF (LFIRSTORDER.EQ.0) THEN
+       call ttssweight0(ttssw,IBATS,NBATS,LBATS,NBLK)
+      ELSE
+       call ttssweight(nttssw,FACTOR,NJSIZE,
+     &                 int_mb(KCONSPA),int_mb(KCONSPB),
+     &                 NOCTPA,NOCTPB,IBATS,NBATS,LBATS,NBLK,NSMST,
+     &                 int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)))
+      END IF
 cVOG  call ttssweight15(ttssw,int_mb(KCONSPA),int_mb(KCONSPB),
 cVOG &                NOCTPA,NOCTPB,IBATS,NBLK)
-cVOG  call ttssweight2(ttssw,NOCTPA,NOCTPB,IBATS,NBLK)
+cVOG  call ttssweight2(ttssw,NOCTPA,NOCTPB,IBATS,NBATS,LBATS,NBLK,
+cVOG &                 int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)))
+cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
 *
 *.  Distribute TTSS Blocks in such a way that each proc has equal TTSS
 *.  weight
 *
+*. Loop that varies the sum of the TTSS block weights per processor.
+*. Important for cases that TTSS blocks are not distributed in the available nodes
+*
+      IF (LFIRSTORDER.EQ.0) THEN
+      NFRAG = 10
+110   CONTINUE
+*
       !
       ! Initialize
       !
-      remw= 100.0d0 ! size of the remaining TTSS weights
-      alimitblk = remw/nnod
       sumttssw = 0
       iaccumsd = 0
-      inode = 0
       inodrem = nnod
       imap2(1) = 1
       ibpnod = 0
       isumsd = 0
       IIBLK = 0
+      JBATS = 0
+*
+      remw= 100.0d0 ! size of the remaining TTSS weights
+      NBPNMIN = INT(NBATS/NNOD)
+      NREM    = MOD(NBATS,NNOD)
+*
+      alimitblk = remw/NBATS * NBPNMIN
+      alimitblk = alimitblk + alimitblk/NFRAG
       !
-      if (NTEST.ge.10.and.ga_nodeid().eq.0)
-     &    write(*,*) 'START limitblk', alimitblk
+      if (ga_nodeid().eq.0.and.ntest.ge.10) then
+       write(*,*) 'NEW ALGORITHM FOR THE CI DISTRIBUTION'
+       write(*,*)
+       write(*,*) 'NBatchPerNode ', NBPNMIN
+       write(*,*) 'NREM(modulo)  ', NREM 
+       write(*,*) 'NFRAG         ', NFRAG
+       write(*,*) 'START limitblk', alimitblk
+       write(*,*)
+      end if
       !
       ! Begin work
       !
-      do JBATS = 1, NBATS
-       !
-       ! Count the number of CI batches distributed per processor
-       ibpnod(inode+1) = ibpnod(inode+1) + 1
+      DO INODE = 1, NNOD
        !
        ! Sum TTSS weights
-       sumttssw = sumttssw + ttssw(JBATS)
-       chkttssw = sumttssw + ttssw(JBATS+1)
+       chkttssw = 0
+       sumttssw = 0
        !
-       ! Sum number of SDs
-       DO IBLK = 1, LBATS(JBATS) 
-        IIBLK = IIBLK + 1
-        iaccumsd = iaccumsd + IBATS(8,IIBLK)
-        isumsd   = isumsd   + IBATS(8,IIBLK)
+       DO I = 1, NBPNMIN
+        JBATS = JBATS + 1
+        sumttssw = sumttssw + ttssw(JBATS)
+        !
+        DO IBLK = 1, LBATS(JBATS)
+         IIBLK = IIBLK + 1
+         iaccumsd = iaccumsd + IBATS(8,IIBLK)
+         isumsd   = isumsd   + IBATS(8,IIBLK)
+        END DO
        END DO
        !
-       ! Check if the sum of the TTSS weights is greater than the limit
-       ! size
-       if (inode.lt.(nnod-1)) then
-        if (chkttssw.gt.alimitblk) then
-         inode = inode + 1
-         isize(inode) = isumsd
-         imap2(inode+1) = iaccumsd + 1
-         !
-         ! Dynamically modify the limit size of the block
-         remw = remw - sumttssw
-         inodrem = inodrem - 1
-         alimitblk = remw/inodrem
-         if (NTEST.gt.10.and.ga_nodeid().eq.0)
-     &       write(*,*) 'NEW   limitblk', alimitblk
-         sumttssw = 0
-         isumsd  = 0
-        end if
-       else
-        if (JBATS.eq.NBATS) isize(inode+1) = isumsd
-       end if
-      end do
+       ! Choose route
+       IF (sumttssw.lt.alimitblk.and.NREM.NE.0) THEN
+        ibpnod(INODE,2) = NBPNMIN+1
+        NREM = NREM - 1
+        JBATS = JBATS + 1
+        sumttssw = sumttssw + ttssw(JBATS)
+        DO IBLK = 1, LBATS(JBATS)
+         IIBLK = IIBLK + 1
+         iaccumsd = iaccumsd + IBATS(8,IIBLK)
+         isumsd   = isumsd   + IBATS(8,IIBLK)
+        END DO
+       ELSE
+        ibpnod(INODE,2) = NBPNMIN
+       END IF
+       !
+       ! Add SD dimensions
+       isize(INODE) = isumsd
+       IF (INODE.NE.NNOD) imap2(inode+1) = iaccumsd + 1
 *
-      do i = nnod+1,NBATS
-       imap2(i) = ilen
-      end do
+       isumsd  = 0
+*
+      END DO
+*
+      IF (NREM.NE.0) THEN
+        IF (ga_nodeid().eq.0) 
+     &   write(*,*) ' PROBLEM, TTSS BATCHES ARE MISSING!!!'
+        NFRAG = NFRAG - 1
+        IF (NFRAG.NE.0) THEN
+         GOTO 110
+        ELSE
+         STOP       ' NFRAG = 0. Something BAD has happened here!!! '
+       END IF
+      END IF
 *
 *. Sum the TTSS weights per CI batch
 *
       j = 0
       totweight = 0
       do inode = 1, ga_nnodes()
-       do i = 1, ibpnod(inode)
+       do i = 1, ibpnod(inode,2)
         j = j + 1
         totweight(inode) = totweight(inode) + ttssw(j)
        end do
       end do
 *
-      if (ga_nodeid().eq.0.and.ntest.ge.10) then
+*. Remaining IMAP2 enrties should hold the total number of SDs
+*
+      do i = nnod+1,NBATS
+       imap2(i) = ilen
+      end do
+*
+*. Calculate the number of TTSS blocks per node
+* 
+       II = 0
+       DO inode = 1, ga_nnodes()
+        DO IBATCH = 1, ibpnod(inode,2)
+         II = II + 1
+         ibpnod(inode,1) = ibpnod(inode,1) + LBATS(II)
+        END DO
+       END DO
+*
+      if (ga_nodeid().eq.0) then
        isum    = 0
        suw     = 0
        amaxw   = 0
        nmaxblk = 0
-       iblksum = 0
+       iblksum(2) = 0
 *
        aminw = totweight(1)
 *
        write(*,*)
-       write(*,'(a2,a)') '  ', repeat ('=', 67)
-       write(*,*) '  NODE           SIZE      ',
-     &            'MAPPING   BATCH-PER-NODE    TOTAL-WEIGHT'
-       write(*,'(a2,a)') '  ', repeat ('=', 67)
+       write(*,'(a2,a)') '  ', repeat ('=', 81)
+       write(*,'(a2,a81)') '  NODE           SIZE      ',
+     &     'MAPPING   BATCH-PER-NODE  BLOCK-PER-NODE  TOTAL-WEIGHT'
+       write(*,'(a2,a)') '  ', repeat ('=', 81)
        do inode = 1, ga_nnodes() !nblk
-         write(*,'(i8,i14,i13,i9,f20.2)') inode, isize(inode),
-     &                                  IMAP2(inode), ibpnod(inode),
-     &                                  totweight(inode)
+         write(*,'(i8,i14,i13,i9,i16,f20.2)') inode, isize(inode),
+     &                                  IMAP2(inode), ibpnod(inode,2),
+     &                                  ibpnod(inode,1),totweight(inode)
          !
          ! CI Block statistics
          !
          isum    = isum    + isize(inode)
-         iblksum = iblksum + ibpnod(inode)
+         iblksum(1) = iblksum(1) + ibpnod(inode,1)
+         iblksum(2) = iblksum(2) + ibpnod(inode,2)
          if (isize(inode).ge.nmaxblk) nmaxblk = isize(inode)
          if (inode.eq.1) then
           nminblk = isize(inode)
@@ -6893,17 +7073,371 @@ cVOG  call ttssweight2(ttssw,NOCTPA,NOCTPB,IBATS,NBLK)
        ! Print Statistics
        !
        ndiffblk = nmaxblk - nminblk
-       diffw    = amaxw    - aminw
-       write(*,'(a2,a)') '  ', repeat ('=', 67)
-       write(*,'(a5,i17,i22,f20.2)') '  SUM',  isum, iblksum, suw
-       write(*,'(a5,i17,f42.2)')     '  MIN',  nminblk,  aminw
-       write(*,'(a5,i17,f42.2)')     '  MAX',  nmaxblk,  amaxw
-       write(*,'(a6,i16,f42.2)')     '  DIFF', ndiffblk, diffw
-       write(*,'(a2,a)') '  ', repeat ('=', 67)
+       diffw    = amaxw   - aminw
+       write(*,'(a2,a)') '  ', repeat ('=', 81)
+       write(*,'(a5,i17,i22,i16,f20.2)') '  SUM',  isum, iblksum(2),
+     &                                                   iblksum(1), suw
+       write(*,'(a5,i17,f58.2)')        '  MIN',  nminblk,  aminw
+       write(*,'(a5,i17,f58.2)')        '  MAX',  nmaxblk,  amaxw
+       write(*,'(a6,i16,f58.2)')        '  DIFF', ndiffblk, diffw
+       write(*,'(a2,a)') '  ', repeat ('=', 81)
        write(*,*)
       end if
 *
+      ELSE
+***********
+       !
+       ! New surboutine for 1st-order distribution
+       ! TTSSweight is based on the number of connections
+       ! TTSSweight is an integer
+       !
+       CALL DIST_FIRSTORDER(NTTSSW,FACTOR,IBATS,LBATS,NBLK,NBATS,
+     &                      NNOD,IMAP2,ISIZE,ILEN) 
+      END IF
+***********
+*
+*. Release memeory
+*
       CALL MEMMAN(IDUM ,IDUM,'FLUSM ',2,'DISTCI')
+*
+      RETURN
+      END
+*======================================================================*
+*======================================================================*
+      SUBROUTINE DIST_FIRSTORDER(NTTSSW,FACTOR,IBATS,LBATS,NBLK,
+     &                           NBATS,NNOD,IMAP2,ISIZE,ILEN)
+*======================================================================*
+*
+*. Distribute the TTSS batches to the nodes by using the first-order
+*. TTSS weights (integer)
+*
+*. Konstantinos D. Vogiatzis, September 2016, Knoxville
+*
+*TODO: Think to include (1) MAX of the weights 
+*                       (2) loop that minimize te DIFF (max-min) 
+*======================================================================*
+*
+      INCLUDE 'wrkspc.inc'
+#include "mafdecls.fh"
+#include "global.fh"
+*
+*. Input
+      INTEGER NNOD, NBATS, NBLK, ILEN
+      INTEGER NTTSSW(NBATS), LBATS(NBATS), IBATS(8,NBLK)
+      REAL FACTOR(NBATS)
+*
+*. Output
+      INTEGER IMAP2(NBATS), ISIZE(NNOD)
+*
+*. Scratch
+      INTEGER IBLKSUM(2), IBPNOD(NNOD,2), NWEIGHTNOD(NNOD)
+*
+*. Print Input
+*
+      NTEST = 100
+      IF (ga_nodeid().EQ.0.and.NTEST.GE.1000) then
+       WRITE(*,*)
+       WRITE(*,*) ' ***********************************************'
+       WRITE(*,*) '  Distribution of the TTSS batches to the nodes '
+       WRITE(*,*) ' ***********************************************'
+       WRITE(*,*)
+       WRITE(*,*) '            TTSS Weights per batch'
+       WRITE(*,*)
+       DO I = 1, NBATS
+        WRITE(*,'(2I10,F8.2)') I, NTTSSW(I), FACTOR(I)
+       END DO 
+       WRITE(*,*)
+      END IF
+*
+*. Initializations
+*
+      !
+      ! Dynamic variable that controls the distribution
+      NFRAG = 100
+      !
+      ! Calculate NTOTWEIGHT
+      NTOTWEIGHT = 0
+!      TOTALF = 0
+      DO I = 1, NBATS
+       NTOTWEIGHT = NTOTWEIGHT + NTTSSW(I)
+!       TOTALF     = TOTALF     + FACTOR(I)
+      END DO
+*
+*. Begin dynamic loop
+*
+120   CONTINUE
+      !
+      ! Threshold for adding TTSS Batches in a node
+      LIMITBLK = INT(NTOTWEIGHT/NNOD)
+      LIMITBLK = INT(LIMITBLK + LIMITBLK / NFRAG)
+      !
+      ! Nullify variables
+      ISUMW   = 0
+      ISUMSD  = 0
+      IACCUSD = 0
+      INODE   = 0
+      IBPNOD  = 0
+      ISIZE   = 0
+      JBLK    = 0 
+      !
+      ! Except IMAP(1) !!!
+      IMAP2(1) = 1
+      !
+      ! Control variables
+      IREMW   = NTOTWEIGHT ! length of remaining weights
+      INODREM = NNOD       ! number of remaining nodes
+*
+*. Print intermediate details
+*
+      IF (ga_nodeid().EQ.0.and.NTEST.GE.100) then
+       WRITE(*,*) ' NEW ALGORITHM FOR THE CI DISTRIBUTION'
+       WRITE(*,*) ' BASED ON THE 1ST-ORDER TTSS WEIGHT'
+       WRITE(*,*)
+       WRITE(*,*) ' NBatches     ', NBATS
+       WRITE(*,*) ' NNodes       ', NNOD
+       WRITE(*,*) ' NFRAG        ', NFRAG
+       WRITE(*,*) ' TOTAL WEIGHT ', NTOTWEIGHT
+       WRITE(*,*) ' NODE  LIMIT  ', LIMITBLK
+       WRITE(*,*)
+      END IF
+*
+*. Begin the distribution of the TTSS Batches
+*
+      DO JBATS = 1, NBATS
+       !
+       ! Add the TTSS weights
+       ISUMW   = ISUMW   + NTTSSW(JBATS)
+       ICHKBLK = ISUMW   + NTTSSW(JBATS + 1)
+       !
+       ! Count the number of CI batches distributed per processor
+       IBPNOD(INODE+1,2) = IBPNOD(INODE+1,2) + 1 
+*
+       DO IBLKS = 1, LBATS(JBATS)
+        !
+        ! Count the number of CI blocks distributed per processor
+        IBPNOD(INODE+1,1) = IBPNOD(INODE+1,1) + 1
+        !
+        JBLK = JBLK + 1
+        IACCUSD = IACCUSD + IBATS(8,JBLK)
+        ISUMSD  = ISUMSD  + IBATS(8,JBLK)
+       END DO ! End of the blocks per batch loop
+*
+       !
+       ! Control
+       IF (INODE.LT.(NNOD-1)) THEN
+        IF (ICHKBLK.GT.LIMITBLK) THEN
+         INODE = INODE + 1
+         ISIZE(INODE) = ISUMSD
+         IMAP2(INODE+1) = IACCUSD + 1
+         !
+         ! Dynamically modify the limit size of the block
+         IREMW    = IREMW - ISUMW
+         INODREM  = INODREM - 1
+         LIMITBLK = INT(IREMW/INODREM)
+         LIMITBLK = INT(LIMITBLK + LIMITBLK / NFRAG)
+         !
+         ! Nullify sums for next node
+         ISUMW  = 0
+         ISUMSD = 0
+        END IF
+       ELSE
+        IF (JBLK.EQ.NBLK) ISIZE(INODE+1) = ISUMSD
+       END IF
+      END DO ! End of the distribution loop
+*
+!*
+!*. Begin dynamic loop
+!*
+!120   CONTINUE  
+!      !
+!      ! Nullify variables
+!      IIBLK    = 0
+!      JBATS    = 0
+!      ISUMSD   = 0
+!      IACCUMSD = 0
+!      IBPNOD   = 0 
+!      ! Except IMAP(1) !!!
+!      IMAP2(1) = 1
+!*
+!      NBPNMIN = INT(NBATS/NNOD)
+!      NREM    = MOD(NBATS,NNOD)
+!*
+!      ALIMITBLK = NTOTWEIGHT/NBATS * NBPNMIN
+!      ALIMITBLK = ALIMITBLK + ALIMITBLK/NFRAG
+!*
+!*. Print intermediate details
+!*
+!      IF (ga_nodeid().EQ.0.and.NTEST.GE.100) then
+!       WRITE(*,*) ' NEW ALGORITHM FOR THE CI DISTRIBUTION'
+!       WRITE(*,*) ' BASED ON THE 1ST-ORDER TTSS WEIGHT'
+!       WRITE(*,*)
+!       WRITE(*,*) ' NBatches     ', NBATS
+!       WRITE(*,*) ' NNodes       ', NNOD
+!       WRITE(*,*) ' NBatchPerNode', NBPNMIN
+!       WRITE(*,*) ' NREM(modulo) ', NREM
+!       WRITE(*,*) ' NFRAG        ', NFRAG
+!       WRITE(*,*) ' TOTAL WEIGHT ', NTOTWEIGHT
+!       WRITE(*,*) ' BLOCK LIMIT  ', ALIMITBLK
+!       WRITE(*,*)
+!      END IF
+!*
+!*. Begin work
+!*
+!      DO INODE = 1, NNOD
+!       !
+!       ! Sum TTSS weights
+!       !
+!       NCHKTTSSW = 0
+!       NSUMTTSSW = 0
+!       !
+!       DO I = 1, NBPNMIN
+!        JBATS = JBATS + 1
+!        NSUMTTSSW = NSUMTTSSW + NTTSSW(JBATS)
+!        !
+!        ! Add size of TTSS blocks for JBATS batch
+!        DO IBLK = 1, LBATS(JBATS)
+!         IIBLK = IIBLK + 1
+!         IACCUMSD = IACCUMSD + IBATS(8,IIBLK)
+!         ISUMSD   = ISUMSD   + IBATS(8,IIBLK)
+!        END DO
+!       END DO
+!       !
+!       ! Number of TTSS Batches per node
+!       IBPNOD(INODE,2) = NBPNMIN
+!       ! 
+!       ! If the TTSS weight is lower than the threshold, 
+!       ! add an additional TTSS Batch
+!       !
+!       IF (NSUMTTSSW.LT.ALIMITBLK.AND.NREM.NE.0) THEN
+!        IBPNOD(INODE,2) = IBPNOD(INODE,2) + 1
+!        NREM = NREM - 1
+!        JBATS = JBATS + 1
+!        NSUMTTSSW = NSUMTTSSW + NTTSSW(JBATS)
+!        !
+!        ! Add size of TTSS blocks for JBATS batch
+!        DO IBLK = 1, LBATS(JBATS)
+!         IIBLK = IIBLK + 1
+!         IACCUMSD = IACCUMSD + IBATS(8,IIBLK)
+!         ISUMSD   = ISUMSD   + IBATS(8,IIBLK)
+!        END DO
+!       END IF
+!       !
+!       ! Add SD dimensions
+!       ISIZE(INODE) = ISUMSD
+!       IF (INODE.NE.NNOD) IMAP2(inode+1) = IACCUMSD + 1
+!*
+!       ISUMSD = 0
+!*
+!      END DO
+*
+*. Check if the distribution has been done correclty.
+*. If not, reduce NFRAG and repeat the process
+*
+      if (ga_nodeid().EQ.0) write(*,*) 'NREM,INODE,NNOD',NREM,INODE,NNOD
+      IF ((NREM.NE.0) .OR. (INODE.NE.(NNOD-1))) THEN
+       IF (ga_nodeid().EQ.0)
+     &  WRITE(*,*) ' PROBLEM, TTSS BATCHES ARE MISSING!!!'
+       NFRAG = NFRAG - 1
+       IF (NFRAG.NE.0) THEN
+        GOTO 120
+       ELSE
+        STOP       ' NFRAG = 0. Something BAD has happened here!!! '
+       END IF
+      END IF
+*
+*. *** END OF LOOP ***
+*
+*
+*. Update variables
+*
+      NWEIGHTNOD = 0
+      ICHECK = 0
+      II = 1
+      !
+      ! Sum the TTSS weights per CI batch
+      DO I = 1, NBATS
+!      IF (ga_nodeid().EQ.0) write(*,*) 'NTTSSW', I, NTTSSW(I), NTTSSW(1)
+       NWEIGHTNOD(II) = NWEIGHTNOD(II) + NTTSSW(I)
+!      IF (ga_nodeid().EQ.0) write(*,*) 'NWEIGHTNOD',I, NWEIGHTNOD(II)
+       ICHECK = ICHECK + 1
+       IF (ICHECK.EQ.IBPNOD(II,2)) THEN
+        II = II + 1
+        ICHECK = 0
+       END IF
+      END DO
+!      !
+!      ! Calculate the number of TTSS blocks per node
+!      J = 0
+!      DO INODE = 1, NNOD
+!       DO I = 1, IBPNOD(INODE,2)
+!        J = J + 1
+!        IBPNOD(INODE,1) = IBPNOD(INODE,1) + LBATS(J)
+!       END DO
+!      END DO
+*
+*. Remaining IMAP2 enrties should hold the total number of SDs
+*
+      DO I = NNOD+1,NBATS
+       IMAP2(I) = ILEN
+      END DO
+*
+*. PRINT OUTPUT
+*
+      IF (ga_nodeid().EQ.0) THEN
+       !
+       ! Prepare variables for statistics
+       !
+       ISUM    = 0
+       NSUW    = 0
+       MAXW    = 0
+       NMAXBLK = 0
+       IBLKSUM = 0
+*
+       MINW = NWEIGHTNOD(1)
+*
+       WRITE(*,*)
+       WRITE(*,'(A2,A)') '  ', REPEAT ('=', 81)
+       WRITE(*,'(A2,A81)') '  NODE           SIZE      ',
+     &     'MAPPING   BATCH-PER-NODE  BLOCK-PER-NODE  TOTAL-WEIGHT'
+       WRITE(*,'(A2,A)') '  ', REPEAT ('=', 81)
+       DO INODE = 1, NNOD
+         WRITE(*,'(I8,I14,I13,I9,I16,I20)') INODE, ISIZE(INODE),
+     &                                 IMAP2(INODE), IBPNOD(INODE,2),
+     &                                 IBPNOD(INODE,1),NWEIGHTNOD(INODE)
+         !
+         ! CI Block statistics
+         !
+         ISUM    = ISUM    + ISIZE(INODE)
+         IBLKSUM(1) = IBLKSUM(1) + IBPNOD(INODE,1)
+         IBLKSUM(2) = IBLKSUM(2) + ibpnod(inode,2)
+         IF (ISIZE(INODE).GE.NMAXBLK) NMAXBLK = ISIZE(INODE)
+         IF (INODE.EQ.1) THEN
+          NMINBLK = ISIZE(INODE)
+         ELSE
+          IF (ISIZE(INODE).LT.NMINBLK) NMINBLK = ISIZE(INODE)
+         END IF
+         !
+         ! CI Block Weight statistics
+         !
+         NSUW = NSUW + NWEIGHTNOD(INODE)
+         IF (NWEIGHTNOD(INODE).GE.MAXW) MAXW = NWEIGHTNOD(INODE)
+         IF (NWEIGHTNOD(INODE).LT.MINW) MINW = NWEIGHTNOD(INODE)
+       END DO
+       !
+       ! Print Statistics
+       !
+       NDIFFBLK = NMAXBLK - NMINBLK
+       NDIFFW   = MAXW    - MINW
+       !
+       WRITE(*,'(A2,A)') '  ', REPEAT ('=', 81)
+       WRITE(*,'(A5,I17,I22,I16,I20)') '  SUM', ISUM, IBLKSUM(2),
+     &                                                IBLKSUM(1), NSUW
+       WRITE(*,'(A5,I17,I58)')        '  MIN',  NMINBLK,  MINW
+       WRITE(*,'(A5,I17,I58)')        '  MAX',  NMAXBLK,  MAXW
+       WRITE(*,'(A6,I16,I58)')        '  DIFF', NDIFFBLK, NDIFFW
+       WRITE(*,'(A2,A)') '  ', REPEAT ('=', 81)
+       WRITE(*,*)
+      END IF
 *
       RETURN
       END
@@ -6954,7 +7488,7 @@ c     real ASYM(NGAS)
 *
 *. Initializations
 *
-      ntest = 1000
+      ntest = 10
 *
       ttssw = 0.0d0
 *
@@ -7035,8 +7569,9 @@ c     real ASYM(NGAS)
 *======================================================================*
 *======================================================================*
 *
-      SUBROUTINE ttssweight(ttssw,conspa,conspb,noctpa,noctpb,
-     &                      ibats,nblk)
+      SUBROUTINE ttssweight(nttssw,FACTOR,NJSIZE,iconspa,iconspb,
+     &                      noctpa,noctpb,
+     &                      ibats,nbats,lbats,nblk,NSMST,nssoa,nssob)
 *======================================================================*
 *
 *. 1st-order
@@ -7044,10 +7579,12 @@ c     real ASYM(NGAS)
 *. Calculation of the TTSS weight based on the
 *
 *. TTSS Weight = (# of connections) x (size of TTSS)
-*  TTSS Weight = (sum(conspa(iblock)) + sum(conspb(iblock))) x
+*  TTSS Weight = (sum(iconspa(iblock)) + sum(iconspb(iblock))) x
 *  (ibats(8,iblock))
 *
+*
 *. Konstantinos D. Vogiatzis, Mar. 2016, Minneapolis
+*.                            Sep. 2016, Knoxville
 *
 *======================================================================*
 *
@@ -7056,65 +7593,243 @@ c     real ASYM(NGAS)
       INCLUDE 'stinf.inc'
       INCLUDE 'strinp.inc'
       INCLUDE 'gasstr.inc'
+      INCLUDE 'cstate.inc'
 #include "mafdecls.fh"
 #include "global.fh"
 *
 *. input
-      integer noctpa,noctpb,ngas,nblk
-      integer conspa(noctpa),conspb(noctpb)
-      integer ibats(8,nblk)
+      integer noctpa,noctpb,nbats,nblk, NSMST
+      integer iconspa(noctpa,noctpa),iconspb(noctpb,noctpb)
+      integer lbats(nbats),ibats(8,nblk)
+!      DIMENSION NSSOA(NOCTPA,NSMST),NSSOB(NOCTPB,NSMST)
+      DIMENSION NSSOA(NSMST,*),NSSOB(NSMST,*)
 *
 *. Output
-      integer ttssw(nblk)
+      integer nttssw(nbats), NJSIZE(nbats)
+      real FACTOR(NBATS)
 *
 *. Scratch
-      integer iblk, ispgrp, ncon, ioff, iblkspgrp, ntotweight
+      integer iblk, ispgrp, ncon, ioff, iblkspgrp, ntotweight, 
+     &        jatp, jbtp, jasm, jbsm, joff, jblk, IPERM
+      DIMENSION LASM(4), LBSM(4), LATP(4), LBTP(4), LSGN(5), LTRP(5)
 *
 *. Initializations
 *
-      ntest = 10
-      ttssw  = 0
+      ntest = 100
+      nttssw  = 0
       ntotweight = 0
+      NJSIZE = 0
+      !
+      FACTOR00 = 1.000
+      FACTOR11 = 1.000
+      FACTOR20 = 1.000
 *
 *. Loop over all TTSS blocks
 *
-      do iblk = 1, nblk
+      iblk = 0
+      DO I = 1, NBATS
        ncon = 0
+       DO II = 1, LBATS(I)
+        iblk = iblk + 1
+        !
+        JATP = ibats(1,iblk)
+        JBTP = ibats(2,iblk)
+        JASM = ibats(3,iblk)
+        JBSM = ibats(4,iblk)
+        JOFF = ibats(5,iblk)
+        !
+!        PS  = PSSIGN
+!        PL  = 1
+        ! PL  not needed for IDC = 1 or 2
+!        ISTRFL = 1
+!        CALL PRMBLK(IDC,ISTRFL,JASM,JBSM,JATP,JBTP,PS,PL,
+!     &             LATP,LBTP,LASM,LBSM,LSGN,LTRP,NPERM)
+!        DO IPERM = 1, NPERM
+!         LLASM = LASM(IPERM)
+!         LLBSM = LBSM(IPERM)
+!         LLATP = LATP(IPERM)
+!         LLBTP = LBTP(IPERM)
+         !
+         ! Loop over Sigma blocks
+         !
+         jblk = 0
+         DO J = 1, NBATS
+          DO JJ = 1, LBATS(J)
+           jblk = jblk + 1
+!           IF(ibats(1,jblk).GT.0) THEN
+           INTERACT = 0
+           IATP = ibats(1,jblk)
+           IBTP = ibats(2,jblk)
+           IASM = ibats(3,jblk)
+           IBSM = ibats(4,jblk)
+!           NIA = NSSOA(IASM,IATP)
+!           NIB = NSSOB(IBSM,IBTP)
+!           IF(NIA*NIB.NE.0) THEN
+            !
+            ! Are the two blocks connected by allowed excitation?
+            MXEXC = 2
+            IF((ICONSPA(IATP,JATP).LE.1.AND.
+     &          ICONSPB(IBTP,JBTP).LE.1     )   .OR.
+     &         (ICONSPA(IATP,JATP).EQ.MXEXC.AND.
+     &          IBTP.EQ.JBTP.AND.IBSM.EQ.JBSM) .OR.
+     &         (ICONSPB(IBTP,JBTP).EQ.MXEXC.AND.
+     &          IATP.EQ.JATP.AND.IASM.EQ.JASM)     )
+     &         INTERACT = 1
+!            IF((ICONSPA(IATP,LLATP).LE.1.AND.
+!     &          ICONSPB(IBTP,LLBTP).LE.1     )   .OR.
+!     &         (ICONSPA(IATP,LLATP).EQ.MXEXC.AND.
+!     &          IBTP.EQ.LLBTP.AND.IBSM.EQ.LLBSM) .OR.
+!     &         (ICONSPB(IBTP,LLBTP).EQ.MXEXC.AND.
+!     &          IATP.EQ.LLATP.AND.IASM.EQ.LLASM)     )
+!     &         INTERACT = 1
+            IF(INTERACT.NE.0) THEN
+             ncon = ncon + 1
+*
+*. My way to calculate the TTSS weights
+*
+!             IF (ICONSPA(IATP,JATP).EQ.0.AND.
+!     &           ICONSPB(IBTP,JBTP).EQ.0) 
+!     &           NTTSSW(I) = NTTSSW(I) + INT(FACTOR00 * ibats(8,jblk))
+!             IF (ICONSPA(IATP,JATP).EQ.1.AND.
+!     &           ICONSPB(IBTP,JBTP).EQ.1)
+!     &           NTTSSW(I) = NTTSSW(I) + INT(FACTOR11 * ibats(8,jblk))
+!             IF (ICONSPA(IATP,JATP).EQ.2.AND.
+!     &           ICONSPB(IBTP,JBTP).EQ.0)
+!     &           NTTSSW(I) = NTTSSW(I) + INT(FACTOR20 * ibats(8,jblk))
+!             IF (ICONSPA(IATP,JATP).EQ.0.AND.
+!     &           ICONSPB(IBTP,JBTP).EQ.2)
+!     &           NTTSSW(I) = NTTSSW(I) + INT(FACTOR20 * ibats(8,jblk))
+*
+*. Bert's suggestion for the TTSS weights: CI-size x sigma-size
+*
+             NTTSSW(I) = NTTSSW(I) + ibats(8,iblk) * ibats(8,jblk)
+!             IF (ICONSPA(IATP,JATP).EQ.0.AND.
+!     &           ICONSPB(IBTP,JBTP).EQ.0) 
+!     &           NTTSSW(I) = NTTSSW(I) + ibats(8,iblk) * ibats(8,jblk)
+!             IF (ICONSPA(IATP,JATP).EQ.1.AND.
+!     &           ICONSPB(IBTP,JBTP).EQ.1)
+!     &           NTTSSW(I) = NTTSSW(I) + ibats(8,iblk) * ibats(8,jblk)
+!             IF (ICONSPA(IATP,JATP).EQ.2.AND.
+!     &           ICONSPB(IBTP,JBTP).EQ.0)
+!     &           NTTSSW(I) = NTTSSW(I) + ibats(8,iblk) * ibats(8,jblk)
+!             IF (ICONSPA(IATP,JATP).EQ.0.AND.
+!     &           ICONSPB(IBTP,JBTP).EQ.2)
+!     &           NTTSSW(I) = NTTSSW(I) + ibats(8,iblk) * ibats(8,jblk)
+c                   JJJ = JJJ + 1
+c                   ICCTOS(JSBLOCK,JBLOCK) = 1
+c                   ICWEIGHT(JJJ) = JSBLOCK
+             if (ga_nodeid().eq.0.and.ntest.ge.1000)
+     &        write(*,'(i4,i10,10i4)') jblk,
+     &        ibats(8,jblk),
+     &        ICONSPA(IATP,JATP),
+     &        ICONSPB(IBTP,JBTP),IATP,JATP,IASM,JASM,IBTP,JBTP,IBSM,JBSM
+            END IF
+!           END IF
+!          END IF
+          !
+          ! End of jbatch
+          !
+          END DO
+         END DO
+        ! 
+        ! End of nperm
+        !
+!        END DO
+C       !
+C       ! Loop over alpha supergroups
+C       !
+C       iblkspgrp = ibats(1,iblk)
+C       do ispgrp = 1, noctpa
+C        ioff = noctpa * (iblkspgrp - 1)
+C        ncon = ncon + conspa(ioff + ispgrp)
+C        ntotcon = ntotcon + conspa(ioff + ispgrp)
+C       end do
+C       !
+C       ! Loop over  beta supergroups
+C       !
+C       iblkspgrp = ibats(2,iblk)
+C       do ispgrp = 1, noctpb
+C        ioff = noctpb * (iblkspgrp - 1)
+C        ncon = ncon + conspb(ispgrp)
+C        ntotcon = ntotcon + conspa(ioff + ispgrp)
+C       end do
        !
-       ! Loop over alpha supergroups
+       ! End do loop for ibatch
+       ! And calculate TTSS weight
+       ! I: ibatch
        !
-       iblkspgrp = ibats(1,iblk)
-       do ispgrp = 1, noctpa
-        ioff = noctpa * (iblkspgrp - 1)
-        ncon = ncon + conspa(ioff + ispgrp)
-        ntotcon = ntotcon + conspa(ioff + ispgrp)
-       end do
-       !
-       ! Loop over  beta supergroups
-       !
-       iblkspgrp = ibats(2,iblk)
-       do ispgrp = 1, noctpb
-        ioff = noctpb * (iblkspgrp - 1)
-        ncon = ncon + conspb(ispgrp)
-        ntotcon = ntotcon + conspa(ioff + ispgrp)
-       end do
-       !
-       ! Calculate TTSS weight
-       !
-       ttssw(iblk) = ncon * ibats(8,iblk)
-       ntotweight = ntotweight + ttssw(iblk) 
-      end do
+       END DO
+*
+*. My way to calculate the TTSS weights (part 2)
+*
+!       !
+!       ! Multiply the TTSS weight with the number of TTSS batches
+       NTTSSW(I) = NTTSSW(I) * LBATS(I)
+*
+*. Knecht's weights based on connectivity and the size of the CI vector
+*
+!       nttssw(I) = ncon
+!       nttssw(I) = ncon * ibats(8,I)
+       if (ga_nodeid().eq.0.and.ntest.ge.100)
+     &     write(*,*) 'ncon', I, ncon, NTTSSW(I)
+       ntotweight = ntotweight + nttssw(I) 
+      END DO
+!*
+!*. NTTSSW = NTTSSW / NBLOCKS (test)
+!*
+!      DO I = 1, NBATS
+!       nttssw(I) = INT(nttssw(I) /LBATS(I))
+!      END DO
+*
+*.  Obtain FACTOR = LENGTH x (WEIGHT/2)
+*
+      II = 0
+      FACTOR = 0
+      TOTALF = 0
+      DO I = 1, NBATS
+       NSDB = 0 ! Number of SDs in a given TTSS Batch
+       DO IBLK = 1, LBATS(I)
+        II = II + 1
+        NSDB = NSDB + ibats(8,II)
+       END DO
+       FACTOR(I) = (NSDB * nttssw(i) * 0.5) / 1000
+       TOTALF    = TOTALF + FACTOR(I)
+      END DO
+      !
+      DO I = 1, NBATS
+       FACTOR(I) = (FACTOR(I) / TOTALF) * 100
+      END DO
+      !
+      ! For testing
+      TOTALF = 0
+      DO I = 1, NBATS
+       TOTALF = TOTALF + FACTOR(I)
+      END DO
 *
 *. Print Output
 *
       if (ga_nodeid().eq.0.and.ntest.ge.10) then
-       ntottot = 0
        write(*,*)
-       do iblk = 1, nblk
-        write(*,*) iblk, ttssw(iblk)
-        ntottot = ntottot + ttssw(iblk)
-       end do
-       write(*,*) 'TOTAL         ', ntottot
+       write(*,*)
+       WRITE(6,*) '=========================== '
+       write(*,*) ' Output from ttssweight1.0  '
+       WRITE(6,*) '=========================== '
+       WRITE(*,*)
+       WRITE(*,*) '  Info for each TTSS batch  '
+       WRITE(*,*)
+       write(*,*) ' BATCH   BLOCKS              LENGTH  WEIGHT  FACTOR'
+*
+       II = 0
+       DO I = 1, NBATS
+        NSDB = 0 ! Number of SDs in a given TTSS Batch
+        DO IBLK = 1, LBATS(I)
+         II = II + 1
+         NSDB = NSDB + ibats(8,II)
+        END DO
+        WRITE(*,'(i6,i10,i20,i12,f8.2)') I, LBATS(I), NSDB, nttssw(i),  
+     &                                  FACTOR(I) 
+       END DO
+       write(*,'(a,i25,f8.2)') 'TOTAL              ', ntotweight, TOTALF
        write(*,*)
       end if
 *
@@ -7291,7 +8006,7 @@ c     real ASYM(NGAS)
 *======================================================================*
 *
       SUBROUTINE ttssweight2(ttssw,noctpa,noctpb,
-     &                       ibats,nblk)
+     &                       ibats,NBATS,LBATS,nblk,NSSOA,NSSOB)
 *======================================================================*
 *
 *. 2nd-order
@@ -7299,13 +8014,19 @@ c     real ASYM(NGAS)
 *. TTSS weight based on 1. the number of GAS spaces of each supergroup
 *.                      2. the beta/alpha ratio of each supergroup
 * 
+* NSSOA : Number of strings per type and symmetry for alpha strings
+* NSSOB : Number of strings per type and symmetry for beta strings
+*
 *. Konstantinos D. Vogiatzis, Apr. 2016, Minneapolis
 *. after Jeppe visiting Minneapolis
+*
+*. Modified on May 2016 for using TTSS Batches
 *
 *======================================================================*
 *
       INCLUDE 'wrkspc.inc'
       INCLUDE 'cgas.inc'
+      INCLUDE 'csm.inc'
       INCLUDE 'stinf.inc'
       INCLUDE 'strinp.inc'
       INCLUDE 'gasstr.inc'
@@ -7315,11 +8036,12 @@ c     real ASYM(NGAS)
 #include "global.fh"
 *
 *. input
-      integer noctpa,noctpb,nblk
-      integer ibats(8,nblk)
+      integer noctpa,noctpb,nblk,NBATS
+      integer LBATS(NBATS),ibats(8,nblk)
+      INTEGER NSSOA(NSMST ,*), NSSOB(NSMST ,*)
 *
 *. Output
-      real ttssw(nblk)
+      real ttssw(NBATS)
 *
 *. Scratch
       real TOTWEIGHT
@@ -7327,15 +8049,18 @@ c     real ASYM(NGAS)
      &        idif, ncon,
      &        ioff, iblkspgrp, icon
       integer NGASSPGRPA(NOCTPA),NGASSPGRPB(NOCTPB)
-      real ASYM(NGAS)
+      real ASYM(NGAS), AGASAB(nblk)
 *
 *. Initializations
 *
-      ntest = 1000
+      ntest = 10000
 *
       ttssw = 1.0d0
       NGASSPGRPA = 0
       NGASSPGRPB = 0
+*
+      IF (ga_nodeid().eq.0) write(*,*)
+     & 'TTSS weight = P E I R A M A T I Z O M A I '
 *
 *. Obtain number of occupied GAS spaces per supergroup
 *
@@ -7357,71 +8082,114 @@ c     real ASYM(NGAS)
      &      NGASSPGRPB(ISPGRP) = NGASSPGRPB(ISPGRP) + 1
        END DO
       END DO
-      !
-      ! Update TTSS block weight
-      !
-      DO IBLK = 1, NBLK
-       IA = ibats(1,IBLK)
-       IB = ibats(2,IBLK)
-       AX = 1.0d0
-       ttssw(iblk) = (REAL(NGAS)/REAL(NGASSPGRPA(IA)) * 
-     &                REAL(NGAS)/REAL(NGASSPGRPB(IB)))**AX
-!       ttssw(iblk) = (REAL(NGASSPGRPA(IA)) / REAL(NGASSPGRPB(IB)))**AX
-      END DO
 *
-*. Calculate beta/alpha ratio for each TTSS block and GAS
+*. Calculate TTSS weight
 *
-      DO IBLK = 1, NBLK
-       IA = ibats(1,IBLK)
-       IB = ibats(2,IBLK)
-       ASYM = 0.0d0
-       DO IGAS = 1, NGAS
-        IF ((NELFSPGP(IGAS,IA).EQ.0).OR.(NELFSPGP(IGAS,IB).EQ.0)) THEN
-         ASYM(IGAS) = 1.0d0
-        ELSE
-         ASYM(IGAS) = REAL(NELFSPGP(IGAS,IB)) / REAL(NELFSPGP(IGAS,IA))
-        END IF
+      II = 0
+      DO I = 1, NBATS
+       ISIZE = 0
+       DO IBLK = 1, LBATS(I)
+        II = II + 1
         !
-        ! Update TTSS block weight
+        ! Obtain number of alpha and beta strings per TTSS Batch
         !
-        AX = 0.5d0
-        ttssw(iblk) = ttssw(iblk) * ASYM(IGAS)**AX
+        IATP = ibats(1,II)
+        IBTP = ibats(2,II)
+        IASM = ibats(3,II)
+        IBSM = ibats(4,II)
+        NIA = NSSOA(IASM,IATP)
+        NIB = NSSOB(IBSM,IBTP)
+        FACTOR = (REAL(NIB) / REAL(NIA))**2
+        if (NTEST.GE.100.and.ga_nodeid().eq.0) write(*,'(a,2i10,f10.6)')
+     &                        'FACTOR1', NIA, NIB, FACTOR
+        !
+        ! Obtain number of ooccupied alpha and beta GAS spaces
+        !
+        FACTORR = REAL(NGASSPGRPB(IBTP)) / REAL(NGASSPGRPA(IATP))
+        if (NTEST.GE.100.and.ga_nodeid().eq.0) write(*,'(a,2i4,f10.6)')
+     &                        'FACTOR2', IATP, IBTP, FACTORR
+        !
+        ISIZE = ibats(8,II) ! FTIAXTO!
+        !
+        ! Obtain weight for specific TTSS block
+        weight = ISIZE * FACTOR * FACTORR
+        if (NTEST.GE.100.and.ga_nodeid().eq.0) write(*,*)
+     &    'Weight for Block', II, weight 
        END DO
-*
-       if (NTEST.GE.10000.and.ga_nodeid().eq.0)
-     &     write(*,'(i5,8f8.3)') IBLK, (ASYM(IGAS), IGAS = 1, NGAS) 
+       ttssw(I) = ttssw(I) + weight
       END DO
-*
-*. Print Input
-*
-      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
-        WRITE(6,*) '============================================ '
-        WRITE(6,*) ' Distribution of electrons in Active spaces '
-        WRITE(6,*) '============================================ '
-        DO ITP = 1, 2
-          WRITE(6,*) ' String type ', ITP
-          WRITE(6,*) ' Row : active space, Column: supergroup '
-          NSPGP = NSPGPFTP(ITP)
-          IBSPGP = IBSPGPFTP(ITP)
-          write(*,*) ' IBSPGP', IBSPGP
-          CALL IWRTMA(NELFSPGP(1,IBSPGP),NGAS,NSPGP,MXPNGAS,NSPGP)
-        END DO
-        WRITE(6,*)
-        !
-        IF(NTEST.GE.1000) THEN
-         WRITE(6,*) ' Info for each TTSS block'
-         DO I = 1, NBLK
-          IA = ibats(1,I)
-          IB = ibats(2,I)
-          write(*,'(3i8,a,8i2,a,8i2,f10.6)')
-     &    I, NGASSPGRPA(IA), NGASSPGRPB(IB),
-     &    ' | ', (NELFSPGP(IGAS,IA), igas = 1, 8),
-     &    ' | ', (NELFSPGP(IGAS,IB), igas = 1, 8), ttssw(I)
-         END DO
-         WRITE(6,*)
-        END IF
-      END IF
-c*
+*      ! Update TTSS block weight
+*      !
+*      II = 0
+*      DO I = 1, NBATS
+*       DO IBLK = 1, LBATS(I)
+*        II = II + 1
+*        IA = ibats(1,II)
+*        IB = ibats(2,II)
+*        AX = 1.0d0
+*        AGASAB(II) = (REAL(NGAS)/REAL(NGASSPGRPA(IA)) * 
+*     &                REAL(NGAS)/REAL(NGASSPGRPB(IB)))**AX
+*        ttssw(I) = ttssw(I) * AGASAB(II)
+*       END DO
+*      END DO
+**
+**. Calculate beta/alpha ratio for each TTSS block and GAS
+**
+*      II = 0
+*      DO I = 1, NBATS
+*       DO IBLK = 1, LBATS(I)
+*        II = II + 1
+*        IA = ibats(1,II)
+*        IB = ibats(2,II)
+*        ASYM = 0.0d0
+*        DO IGAS = 1, NGAS
+*         IF ((NELFSPGP(IGAS,IA).EQ.0).OR.(NELFSPGP(IGAS,IB).EQ.0)) THEN
+*          ASYM(IGAS) = 1.0d0
+*         ELSE
+*          ASYM(IGAS) = REAL(NELFSPGP(IGAS,IB)) / REAL(NELFSPGP(IGAS,IA))
+*         END IF
+*         !
+*         ! Update TTSS block weight
+*         !
+*         AX = 0.5d0
+*         ttssw(I) = ttssw(I) * ASYM(IGAS)**AX
+*        END DO
+**
+*        if (NTEST.GE.10000.and.ga_nodeid().eq.0)
+*     &      write(*,'(i5,8f8.3)') II, (ASYM(IGAS), IGAS = 1, NGAS) 
+*       END DO
+*      END DO
+**
+**. Print Input
+**
+*      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
+*        WRITE(6,*) '============================================ '
+*        WRITE(6,*) ' Distribution of electrons in Active spaces '
+*        WRITE(6,*) '============================================ '
+*        DO ITP = 1, 2
+*          WRITE(6,*) ' String type ', ITP
+*          WRITE(6,*) ' Row : active space, Column: supergroup '
+*          NSPGP = NSPGPFTP(ITP)
+*          IBSPGP = IBSPGPFTP(ITP)
+*          write(*,*) ' IBSPGP', IBSPGP
+*          CALL IWRTMA(NELFSPGP(1,IBSPGP),NGAS,NSPGP,MXPNGAS,NSPGP)
+*        END DO
+*        WRITE(6,*)
+*        !
+*        IF(NTEST.GE.1000) THEN
+*         WRITE(6,*) ' Info for each TTSS block'
+*         DO I = 1, NBLK
+*          IA = ibats(1,I)
+*          IB = ibats(2,I)
+*          write(*,'(3i8,a,8i2,a,8i2,f10.6)')
+*     &    I, NGASSPGRPA(IA), NGASSPGRPB(IB),
+*     &    ' | ', (NELFSPGP(IGAS,IA), igas = 1, 8),
+*     &    ' | ', (NELFSPGP(IGAS,IB), igas = 1, 8), AGASAB(I)
+*         END DO
+*         WRITE(6,*)
+*        END IF
+*      END IF
+*c*
 c*. Obtain metric for each TTSS blocks
 c*
 c      !
@@ -7477,19 +8245,19 @@ c      END DO
 *. Total weight
 *
       TOTWEIGHT = 0.0d0
-      DO IBLK = 1, NBLK
-       TOTWEIGHT = TOTWEIGHT + ttssw(IBLK)
+      DO I = 1, NBATS
+       TOTWEIGHT = TOTWEIGHT + ttssw(I)
       END DO
       if (ga_nodeid().eq.0) write(*,*) 'TOTWEIGHT', TOTWEIGHT
 *
 *. Percentage
 *
-      DO IBLK = 1, NBLK
-       TTSSW(IBLK) = 100 * TTSSW(IBLK) / TOTWEIGHT 
+      DO I = 1, NBATS
+       TTSSW(I) = 100 * TTSSW(I) / TOTWEIGHT
       END DO
       TOTWEIGHT = 0.0d0
-      DO IBLK = 1, NBLK
-       TOTWEIGHT = TOTWEIGHT + TTSSW(IBLK)
+      DO I = 1, NBATS
+       TOTWEIGHT = TOTWEIGHT + TTSSW(I)
       END DO
 *
 *. Print Output
@@ -7500,13 +8268,106 @@ c      END DO
        write(*,*) ' TTSS Weights: Output from ttssweight2  '
        WRITE(6,*) '======================================= '
        write(*,*)
-       do iblk = 1, nblk
-        write(*,'(i10,f10.3,a4)') iblk, ttssw(iblk), '   %'
+       do I = 1, NBATS
+        write(*,'(i10,f10.3,a4)') I, ttssw(I), '   %'
        end do
        write(*,*) 'TOTAL:   ', TOTWEIGHT
        write(*,*)
       end if
-**
+*
+      RETURN
+      END
+*======================================================================*
+*======================================================================*
+*
+      SUBROUTINE ttssweight3(ttssw,ibats,NBATS,LBATS,nblk)
+*======================================================================*
+*
+*. 3rd-order
+*
+*. TTSS weight based on precalculated timings from one CASCI iteration
+*. with maximized number of connections
+*
+*. Konstantinos D. Vogiatzis, May 2016, Minneapolis
+*
+*======================================================================*
+*
+      INCLUDE 'wrkspc.inc'
+      INCLUDE 'cgas.inc'
+      INCLUDE 'stinf.inc'
+      INCLUDE 'strinp.inc'
+      INCLUDE 'gasstr.inc'
+      INCLUDE 'orbinp.inc'
+      INCLUDE 'lucinp.inc'
+#include "mafdecls.fh"
+#include "global.fh"
+*
+*. input
+      integer nblk,NBATS
+      integer LBATS(NBATS),ibats(8,nblk)
+*
+*. Output
+      real ttssw(NBATS)
+*
+*. Scratch
+      real TOTWEIGHT
+      integer ITP, IGAS, ISPGRP, jspgrp, ispgrpa, ispgrpb,
+     &        idif, ncon,
+     &        ioff, iblkspgrp, icon
+      real ASYM(NGAS), AGASAB(nblk)
+*
+*. Initializations
+*
+      ntest = 10000
+*
+      ttssw = 1.0d0
+*
+      IF (ga_nodeid().eq.0) write(*,*)
+     & 'TTSS weight = precalculated timings'
+*
+*. Read precalculated timings from file
+*
+      iunit = 670
+      open(iunit,file='timings',status='unknown')
+      rewind(iunit)
+      DO I = 1, NBATS
+       READ(IUNIT,*) ttssw(I)
+      END DO
+      close(iunit)
+*
+*. Total weight
+*
+      TOTWEIGHT = 0.0d0
+      DO I = 1, NBATS
+       TOTWEIGHT = TOTWEIGHT + ttssw(I)
+      END DO
+      if (ga_nodeid().eq.0) write(*,*) 'TOTWEIGHT', TOTWEIGHT
+*
+*. Percentage
+*
+      DO I = 1, NBATS
+       TTSSW(I) = 100 * TTSSW(I) / TOTWEIGHT
+      END DO
+      TOTWEIGHT = 0.0d0
+      DO I = 1, NBATS
+       TOTWEIGHT = TOTWEIGHT + TTSSW(I)
+      END DO
+*
+*. Print Output
+*
+      if (ga_nodeid().eq.0.and.ntest.ge.10) then
+       write(*,*)
+       WRITE(6,*) '======================================= '
+       write(*,*) ' TTSS Weights: Output from ttssweight3  '
+       WRITE(6,*) '======================================= '
+       write(*,*)
+       do I = 1, NBATS
+        write(*,'(i10,f10.3,a4)') I, ttssw(I), '   %'
+       end do
+       write(*,*) 'TOTAL:   ', TOTWEIGHT
+       write(*,*)
+      end if
+*
       RETURN
       END
 *======================================================================*
