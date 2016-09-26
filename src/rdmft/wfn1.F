@@ -8,13 +8,14 @@
 !>
 !>----------------------------------------------------------------------
 !>
-      logical function wfn1_energy(rtdb)
+      logical function wfn1_task_energy(rtdb)
       implicit none
 #include "wfn1_param.fh"
 #include "wfn1_wfn.fh"
 #include "wfn1_drv.fh"
 #include "wfn1_matcnst.fh"
 #include "wfn1_size.fh"
+#include "wfn1_en.fh"
 #include "bas.fh"
 #include "errquit.fh"
 #include "geom.fh"
@@ -59,6 +60,10 @@ c
       integer nelec   ! the total number of electrons
       integer nopen   ! the number of unpaired electrons
       integer nclosed ! the number of closed shell orbitals
+      integer maxit   ! the maximum number of iterations
+      integer curit   ! the current iteration number
+c
+      logical oconverged ! is this calculation converged
 c
       double precision charge     ! the molecular charge
       double precision charge_nuc ! the total nuclear charge
@@ -66,7 +71,9 @@ c
       character*12  pname ! the subroutine name
       character*256 title ! the job title
 c
-      integer g_bfbf      ! nbf x nbf scratch global array
+      integer g_bfbf     ! nbf x nbf scratch global array
+      integer g_bfmo     ! nbf x nmo scratch global array
+      integer g_momo     ! nmo x nmo scratch global array
 c
       integer ndep_nmo          ! the number of linearly independent
                                 ! vectors set as a user parameter
@@ -87,13 +94,14 @@ c
       type(wfn1_wfn)     :: wfn1_wvtrial ! the trial wave function
       type(wfn1_drv)     :: wfn1_drtrial ! the derivative wrt the trial
                                          ! wave function
+      type(wfn1_en)      :: wfn1_energy  ! the energy terms
 c
       iproc = ga_nodeid()
       nproc = ga_nnodes()
 c
       wfn1_inst%rtdb = rtdb
       pname = "wfn1_energy:"
-      wfn1_energy = .false.
+      wfn1_task_energy = .false.
       lstatus = rtdb_parallel(.true.)
       call util_print_push
       call util_print_rtdb_load(wfn1_inst%rtdb, 'wfn1') 
@@ -212,6 +220,17 @@ c
         call errquit(pname//" allocate g_bfbf failed",
      &               wfn1_ibd_proc(wfn1_param%nbf**2,nproc),GA_ERR)
       endif
+      if (.not.ga_create(MT_DBL,wfn1_param%nbf,wfn1_param%nmo,"g_bfmo",
+     &                   -1,-1,g_bfmo)) then
+        call errquit(pname//" allocate g_bfmo failed",
+     &               wfn1_ibd_proc(wfn1_param%nbf*wfn1_param%nmo,nproc),
+     &               GA_ERR)
+      endif
+      if (.not.ga_create(MT_DBL,wfn1_param%nmo,wfn1_param%nmo,"g_momo",
+     &                   -1,-1,g_momo)) then
+        call errquit(pname//" allocate g_momo failed",
+     &               wfn1_ibd_proc(wfn1_param%nmo**2,nproc),GA_ERR)
+      endif
 c
 c     == Find the linearly independent orbitals ==
 c     == and orthonormalizing transformation    ==
@@ -258,6 +277,15 @@ c
 c
 c     == Initial wavefunction complete ==
 c
+      oconverged = .false.
+      curit      = 0
+      call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_wave,wfn1_deriv,
+     &              wfn1_energy,g_bfmo,g_momo)
+      do while ((.not.oconverged).and.(curit.lt.maxit))
+        curit = curit + 1
+      enddo
+      wfn1_task_energy = oconverged
+c
 c     == Clean up ==
 c
       call wfn1_deallocate_drv(wfn1_drtrial)
@@ -265,6 +293,16 @@ c
       call wfn1_deallocate_wfn(wfn1_wvtrial)
       call wfn1_deallocate_wfn(wfn1_wave)
       call wfn1_deallocate_mat(wfn1_mat)
+c
+      if (.not.ga_destroy(g_momo)) then
+        call errquit(pname//" deallocate g_momo failed",0,GA_ERR)
+      endif
+      if (.not.ga_destroy(g_bfmo)) then
+        call errquit(pname//" deallocate g_bfmo failed",0,GA_ERR)
+      endif
+      if (.not.ga_destroy(g_bfbf)) then
+        call errquit(pname//" deallocate g_bfbf failed",0,GA_ERR)
+      endif
 c
 c     call int_1e_uncache_ga()
 c     call schwarz_tidy
@@ -276,4 +314,4 @@ c
       if (.not.geom_destroy(wfn1_inst%geom))
      &  call errquit(pname//' Failed to destroy geometry',0,GEOM_ERR)
 c
-      end function wfn1_energy
+      end function wfn1_task_energy
