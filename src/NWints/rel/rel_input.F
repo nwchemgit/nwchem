@@ -25,6 +25,7 @@ c
       logical dmd_run             ! Dyall modified Dirac
       logical zora_run            ! ZORA
       logical use_modelpotential  ! Model Potential run
+      integer mpoption
 c
       logical status
       integer irelKey            ! Relativistic method keys
@@ -99,10 +100,11 @@ c
         if (.not. rtdb_put(rtdb, 'modelpotential', mt_log, 1, 
      &  use_modelpotential))
      &     call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
-        if (.not. inp_a(test)) test = "modbas.4c"
-        if (.not. rtdb_cput(rtdb, 'modelpotential:file', 1, test))
+        if (.not. inp_i(mpoption)) mpoption = 1 ! default modbas.4c
+        if (.not. rtdb_put(rtdb,'modelpotential:option', 
+     &                      mt_int,1,mpoption))
      &     call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
-         call modelpotential_input(rtdb)
+        call modelpotential_input(rtdb)
 c
       elseif(inp_compare(.false.,'zora:cutoff',test)) then
          if(.not. inp_f(zoracutoff)) zoracutoff = 1.0d-15  ! set a default cutoff

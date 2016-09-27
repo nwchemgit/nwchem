@@ -1,4 +1,6 @@
 c
+c     process model potential input
+c
       subroutine modelpotential_input(rtdb)
 c
       implicit none
@@ -15,12 +17,14 @@ c
 c
       integer rtdb ! [input] handle to database
 c    
+      character*255 libname
       character*255 mpfile
       character*32 pname
       character*2 atsym
       integer i,j
       integer unitno
       integer necp,igau,ngau
+      integer mpoption
 c
       integer ok
 c
@@ -37,6 +41,31 @@ c
 c
       pname = "modelpotential_input"
 c      
+c     get model potential file name
+      if(.not.rtdb_get(rtdb,'modelpotential:option',mt_int,1,mpoption)) 
+     &  call errquit(pname//'unable to access mpotion',0,RTDB_ERR)
+      call util_nwchem_srcdir(libname)
+      if (inp_strlen(libname).le.0)
+     &     call util_getenv('NWCHEM_BASIS_LIBRARY',libname) ! check the enviroment variable
+c
+c     check library name
+      if (inp_strlen(libname).le.0)         
+     &  call errquit(pname//'unable to access model potential file',
+     & 0,RTDB_ERR)
+c  
+      mpfile=libname(1:inp_strlen(libname))
+     $     //"/basis/libraries/rel-modelpotentials/"
+      if (mpoption.eq.1) then
+         mpfile=mpfile(1:inp_strlen(mpfile))
+     $     //"modbas.4c"
+      else if (mpoption.eq.2) then
+         mpfile=mpfile(1:inp_strlen(mpfile))
+     $     //"modbas.2c"
+      else
+          call errquit(pname//'unknown option',0,RTDB_ERR)
+      end if
+c
+c     initialize parameters
       necp = 0
       ngau = 0
       do i = 1,120
@@ -47,18 +76,15 @@ c
         end do
       end do
 c
+c     get a file unit
       if(.not.util_io_unit(80,90,unitno))
      +  call errquit(pname//"util_io_unit failed",0,0)
-c
-c     get model potential file
-      if (.not. rtdb_cget(rtdb,'modelpotential:file', 1,mpfile))
-     $    call errquit(pname//'rtdb_cget failed', 0, RTDB_ERR)
 c
 c     print model potential information
       write(luout,*)
       write(luout,1000)
-      write(luout,*) "Reading model potential file:",
-     &            mpfile(1:inp_strlen(mpfile))
+      write(luout,*) "Reading model potential file:"
+      write(luout,*)  mpfile(1:inp_strlen(mpfile))
       write(luout,*)
 c
 c     check if model potential file is present
