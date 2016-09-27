@@ -591,7 +591,8 @@ c
 c
 c     GRADIENT (GRAD)
 c
-      else if (inp_compare(.false.,test,'grad')) then
+      else if (inp_compare(.false.,test,'grad')
+     &    .or.inp_compare(.false.,test,'gradient')) then
         grad=.true.
         if (.not.rtdb_put(rtdb,'tddft:grad',mt_log,1,grad))
      1    call errquit('tddft_input: failed writing to rtdb',0,
