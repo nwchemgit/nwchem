@@ -768,6 +768,9 @@ c------- FA-code-added-09-26-11 --------------------------- END
      &                     Knucl,use_modelpotential,
      &                     nexc)
 c
+         if (.not. MA_free_heap(l_zetanuc))  call errquit
+     &           (' dft_scf:cannot popstack',111, MA_ERR)
+c
 c       == write out the atomic zora corrections to file ==
         if (.not.dft_zora_write(rtdb, ao_bas_han, zorafilename,
      &   nbf_ao, ipol, nmo, mult, g_zora_sf, g_zora_scale_sf))
