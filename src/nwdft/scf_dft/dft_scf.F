@@ -747,27 +747,21 @@ c Note.- stored in geom_input.F (geom_input(rtdb))
          ofinite=.false.
          status=rtdb_get(rtdb,'prop:ofinite',mt_log,1,ofinite) ! Check if gaussian nucl model requested
 c ------ Read ofinite to be used by HFine finite calc ---FA-03-21-11-- END
-         if (ofinite) then
-          if (.not.ma_alloc_get(mt_dbl,natoms,
+         if (.not.ma_alloc_get(mt_dbl,natoms,
      &                  'zetanuc',l_zetanuc,k_zetanuc))
-     &    call errquit('dft_scf: ma failed',0,MA_ERR)
-          call get_zetanuc_arr(geom,natoms,dbl_mb(k_zetanuc)) !  zetanuc_arr(i) i=1,natoms
-          do iatom = 1,natoms ! == loop over the atoms ==
-           if (ga_nodeid().eq.0)
-     &       write(*,11) iatom,dbl_mb(k_zetanuc+iatom-1)
- 11          format('In dft_scf:: zetanuc_arr(',i3,')=',f35.8)
+     &   call errquit('dft_scf: ma failed',0,MA_ERR)
+         call get_zetanuc_arr(geom,natoms,dbl_mb(k_zetanuc)) !  zetanuc_arr(i) i=1,natoms
+         do iatom = 1,natoms ! == loop over the atoms ==
+c           if (ga_nodeid().eq.0)
+c     &       write(*,11) iatom,dbl_mb(k_zetanuc+iatom-1)
+c 11          format('In dft_scf:: zetanuc_arr(',i3,')=',f35.8)
            dbl_mb(k_zetanuc+iatom-1)=dsqrt(dbl_mb(k_zetanuc+iatom-1)) !  Calc sqrt(zetanuc)
           enddo ! end-loop-iatom
-         endif
-          if (ga_nodeid().eq.0) then
-           write(*,*) 'dft_scf: ofinite=',ofinite
-          endif
 c------- FA-code-added-09-26-11 --------------------------- END
          call zora_getv_sf(rtdb, g_dens_at, g_zora_sf,g_zora_scale_sf,
      &                     ofinite,dbl_mb(k_zetanuc),
      &                     Knucl,use_modelpotential,
      &                     nexc)
-c
          if (.not. MA_free_heap(l_zetanuc))  call errquit
      &           (' dft_scf:cannot popstack',111, MA_ERR)
 c
