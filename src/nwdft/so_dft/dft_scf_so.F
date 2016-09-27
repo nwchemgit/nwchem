@@ -20,8 +20,8 @@ c
 #include "global.fh"
 #include "msgids.fh"
 #include "util.fh"
-#include "zora.fh"  ! zora contribution
-#include "case.fh"  ! coulomb attenuation
+#include "zora.fh" 
+#include "case.fh"
 #ifdef SCALAPACK
 #include "dft_scaleig.fh"
 #endif
@@ -80,7 +80,9 @@ c     zora related
       character*7 vecs_or_dens
       integer icalczora
       logical do_purescalar
-      logical use_modelpotential
+      logical use_modelpotential,KNucl
+      logical ofinite
+      integer l_zetanuc, k_zetanuc
 c
 c     virtual spectrum
       logical lvspec
@@ -134,7 +136,7 @@ c     integer nva
       external dft_n3cdbl
       Integer l_eval
       integer k_eval(2)
-      integer natoms, nTotEl
+      integer iatom,natoms, nTotEl
 c
       integer l_occ, k_occ
       integer i, j,  i1, jstart 
@@ -675,15 +677,28 @@ c
          write(LuOut,*)
         end if ! me = 0
 c
-c        read modelpotential flag
-         use_modelpotential = .false.
-         if (.not. rtdb_get(rtdb, 'modelpotential', mt_log, 1,
+c       == read modelpotential flag ==
+        use_modelpotential = .false.
+        if (.not. rtdb_get(rtdb, 'modelpotential', mt_log, 1,
      &          use_modelpotential)) use_modelpotential = .false.
 c
 c       == calculate the zora atomic corrections ==
+        Knucl=.false.
+        ofinite=.false.
+        status=rtdb_get(rtdb,'prop:ofinite',mt_log,1,ofinite) ! Check if gaussian nucl model requested
+        if (.not.ma_alloc_get(mt_dbl,natoms,
+     &                  'zetanuc',l_zetanuc,k_zetanuc))
+     &    call errquit('dft_scf: ma failed',0,MA_ERR)
+        call get_zetanuc_arr(geom,natoms,dbl_mb(k_zetanuc)) !  zetanuc_arr(i) i=1,natoms
+        do iatom = 1,natoms ! == loop over the atoms ==
+           dbl_mb(k_zetanuc+iatom-1)=dsqrt(dbl_mb(k_zetanuc+iatom-1)) !  Calc sqrt(zetanuc)
+        enddo ! end-loop-iatom
         call zora_getv_so(rtdb, g_dens_at, g_zora_sf, g_zora_scale_sf,
-     &                      g_zora_so, g_zora_scale_so, 
-     &             use_modelpotential, nexc)
+     &                    g_zora_so, g_zora_scale_so, 
+     &                    ofinite,dbl_mb(k_zetanuc),
+     &                    Knucl,use_modelpotential, nexc)
+         if (.not. MA_free_heap(l_zetanuc))  call errquit
+     &           ('dft_scf_so:cannot popstack',111, MA_ERR)
 c
 c       == write out the atomic zora corrections to file ==
         if (.not.dft_zora_write_so(rtdb, ao_bas_han, zorafilename,
