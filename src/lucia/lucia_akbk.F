@@ -7628,8 +7628,10 @@ c     real ASYM(NGAS)
 *
       iblk = 0
       DO I = 1, NBATS
-       ncon = 0
+!       ncon = 0
+       isize = 0
        DO II = 1, LBATS(I)
+        ncon = 0
         iblk = iblk + 1
         !
         JATP = ibats(1,iblk)
@@ -7637,6 +7639,7 @@ c     real ASYM(NGAS)
         JASM = ibats(3,iblk)
         JBSM = ibats(4,iblk)
         JOFF = ibats(5,iblk)
+        isize = isize + ibats(8,iblk)
         !
 !        PS  = PSSIGN
 !        PL  = 1
@@ -7702,19 +7705,7 @@ c     real ASYM(NGAS)
 *
 *. Bert's suggestion for the TTSS weights: CI-size x sigma-size
 *
-             NTTSSW(I) = NTTSSW(I) + ibats(8,iblk) * ibats(8,jblk)
-!             IF (ICONSPA(IATP,JATP).EQ.0.AND.
-!     &           ICONSPB(IBTP,JBTP).EQ.0) 
-!     &           NTTSSW(I) = NTTSSW(I) + ibats(8,iblk) * ibats(8,jblk)
-!             IF (ICONSPA(IATP,JATP).EQ.1.AND.
-!     &           ICONSPB(IBTP,JBTP).EQ.1)
-!     &           NTTSSW(I) = NTTSSW(I) + ibats(8,iblk) * ibats(8,jblk)
-!             IF (ICONSPA(IATP,JATP).EQ.2.AND.
-!     &           ICONSPB(IBTP,JBTP).EQ.0)
-!     &           NTTSSW(I) = NTTSSW(I) + ibats(8,iblk) * ibats(8,jblk)
-!             IF (ICONSPA(IATP,JATP).EQ.0.AND.
-!     &           ICONSPB(IBTP,JBTP).EQ.2)
-!     &           NTTSSW(I) = NTTSSW(I) + ibats(8,iblk) * ibats(8,jblk)
+!             NTTSSW(I) = NTTSSW(I) + ibats(8,iblk) * ibats(8,jblk)
 c                   JJJ = JJJ + 1
 c                   ICCTOS(JSBLOCK,JBLOCK) = 1
 c                   ICWEIGHT(JJJ) = JSBLOCK
@@ -7753,23 +7744,25 @@ C        ioff = noctpb * (iblkspgrp - 1)
 C        ncon = ncon + conspb(ispgrp)
 C        ntotcon = ntotcon + conspa(ioff + ispgrp)
 C       end do
+*
+*. Knecht's weights based on connectivity and the size of the CI vector
+*
+       nttssw(I) = nttssw(I) + ncon * ibats(8,iblk)
+       if (ga_nodeid().eq.0.and.ntest.ge.100)
+     &  write(*,'(a,i4,4i12)') 'Knecht', I, iblk, ncon,
+     &                          ibats(8,iblk), nttssw(I)
        !
        ! End do loop for ibatch
-       ! And calculate TTSS weight
-       ! I: ibatch
-       !
-       END DO
+       END DO ! End do loop for ibatch
 *
 *. My way to calculate the TTSS weights (part 2)
 *
 !       !
 !       ! Multiply the TTSS weight with the number of TTSS batches
-       NTTSSW(I) = NTTSSW(I) * LBATS(I)
+!       NTTSSW(I) = NTTSSW(I) * LBATS(I)
 *
-*. Knecht's weights based on connectivity and the size of the CI vector
-*
-!       nttssw(I) = ncon
-!       nttssw(I) = ncon * ibats(8,I)
+*. Number of Connections as the TTSS weight
+!       nttssw(I) = ncon * isize
        if (ga_nodeid().eq.0.and.ntest.ge.100)
      &     write(*,*) 'ncon', I, ncon, NTTSSW(I)
        ntotweight = ntotweight + nttssw(I) 
