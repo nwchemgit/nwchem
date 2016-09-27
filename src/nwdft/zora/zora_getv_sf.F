@@ -117,9 +117,8 @@ c
          log_mb(idocset+i-1)=.true.
       enddo
 c
-      if(.not.MA_push_get(MT_int, ncenters, 'iniz',
-     &     lniz, iniz))
-     &     call errquit("zora_getv_sf:iniz",0, MA_ERR)
+      if (.not.MA_push_get(MT_int, ncenters, 'iniz',
+     &  lniz, iniz)) call errquit("zora_getv_sf:iniz",0, MA_ERR)
       do i= 1, ncenters
          int_mb(iniz+i-1)=1
       enddo
@@ -185,6 +184,7 @@ c              == chi ==
                if (.not.MA_Push_Get(mt_dbl, nqpts*nbf_ao,
      &             'chi_ao', lchi_ao, ichi_ao))
      &             call errquit('zora_getv: chi_ao',0, MA_ERR)
+c
                call qdist(dbl_mb(i_rchi_atom), dbl_mb(i_rq),
      &              dbl_mb(iqxyz), dbl_mb(ixyz), nqpts, ncenters)
                call xc_eval_basis(ao_bas_han, 1, dbl_mb(ichi_ao),

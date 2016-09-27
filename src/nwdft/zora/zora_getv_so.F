@@ -4,7 +4,9 @@ c     == scalar and spin-orbit components (x,y,z)
       subroutine zora_getv_so(rtdb, g_dens,  
      &                          g_zora_sf, g_zora_scale_sf, ! out
      &                          g_zora_so, g_zora_scale_so, ! out
-     &                          use_modelpotential, nexc)
+     &                          ofinite,zetanuc_arr,
+     &                          Knucl, use_modelpotential,
+     &                          nexc)
 c
 C$Id$
 c Modified from zora_getv_so() by FA 10-31-10
@@ -30,6 +32,9 @@ c     == arguments ==
       integer g_zora_scale_sf(2)
       integer g_zora_so(3)
       integer g_zora_scale_so(3)
+      logical ofinite
+      double precision zetanuc_arr(*)!for Gaussian Nuclear Model
+      logical Knucl
       logical use_modelpotential
       integer nexc
 c
@@ -89,7 +94,7 @@ c mirroring
       if (.not.rtdb_get(rtdb,'fock:mirrmat',mt_log,1,dorepon)) then
          dorepon=nbf_ao.lt.3000
       endif
-
+c
       dorepl=.false.
       if(ga_cluster_nnodes().gt.1.and.dorepon) then
          docopy=.true.
@@ -234,7 +239,9 @@ c              == calculate scalar and spin-orbit zora contribution ==
      &                              dbl_mb(izora(2)),dbl_mb(iscal(2)), ! out
      &                              dbl_mb(izora(3)),dbl_mb(iscal(3)), ! out
      &                              dbl_mb(izora(4)),dbl_mb(iscal(4)), ! out
-     &                                use_modelpotential,gexpo,gcoef)     
+     &                              ofinite, zetanuc_arr, 
+     &                              Knucl,  ! = .true. if including ONLY nuclear part in K ZORA
+     &                              use_modelpotential,gexpo,gcoef)     
 c
 c              == delete memory ==
                if(.not.MA_pop_stack(lchi_ao))

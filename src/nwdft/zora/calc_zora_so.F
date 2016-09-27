@@ -14,7 +14,10 @@ c     == calculate spin-orbit zora contribution ==
      &                           zorax, scalx,! out 
      &                           zoray, scaly,! out 
      &                           zoraz, scalz,! out
-     &              use_modelpotential,gexpo,gcoef)
+     &                           ofinite,    ! in: =.true. if finite Nuclear Model (Gaussian)
+     &                           zetanuc_arr,! in: zetanuc(i) i=1,natoms
+     &                           Knucl,      ! in: = .true. if including ONLY nuclear part in K ZORA
+     &                           use_modelpotential,gexpo,gcoef)
 c
       implicit none
 c
@@ -50,70 +53,37 @@ c
       logical use_modelpotential
       double precision gexpo(natoms,50)
       double precision gcoef(natoms,50)
-      double precision ac_sf,ac_scl,
-     &                 ac_sx,ac_scl_x,
-     &                 ac_sy,ac_scl_y,
-     &                 ac_sz,ac_scl_z      
-      external get_ints_zora_so
-
-      clight_au2 = clight_au*clight_au
-c     == preliminaries ==
-      do ipt = 1,npts
-        amat_coul(ipt,1) = 0.d0            
-        if (ipol.gt.1) amat_coul(ipt,2) = 0.d0            
-        amat_nucl(ipt) = 0.d0
-        closegridpts(ipt) = 0
-      end do
+      logical ofinite,Knucl
+      double precision zetanuc_arr(natoms)
+      double precision ac_sf,ac_scl,      ! scalar part
+     &                 ac_sx,ac_scl_x,    ! x term
+     &                 ac_sy,ac_scl_y,    ! y term
+     &                 ac_sz,ac_scl_z     ! z term
+      logical do_so
+      external get_ints_zora
 c
-c     == use the model potential approach ==
-      if (use_modelpotential) then
+c     == calculate zora factors ==
+      call calc_zora_facs(ao_bas_han,geom,
+     &                     ipol,g_dens,natoms,npts,qxyz,qwght,
+     &                     use_modelpotential,gexpo,gcoef,
+     &                     ofinite,
+     &                     zetanuc_arr,
+     &                     Knucl,
+     &                     fac1_arr,
+     &                     fac2_arr)
 c
-c      == calculate the model density to construct the Coulomb contribution ==
-       call calc_modelpotential(geom,natoms,npts,qxyz,qwght,
-     &       closegridpts,gexpo,gcoef,amat_coul)  !amat_coul = v(modelpot)
-      else
-c
-c      == calculate the hartree potential on a supplied list of points ==
-       tol = 1d-8
-       do i=1,ipol
-          call potential_list(ao_bas_han, g_dens(i), npts, qxyz, 
-     &                     amat_coul(1,i), tol)
-       enddo
-       do k = 1,npts
-          if (ipol.gt.1) amat_coul(k,1)=amat_coul(k,1)+amat_coul(k,2)
-          amat_coul(k,1) = -amat_coul(k,1)
-       enddo
-      end if ! use_modelpotential
-c
-c     == calculate the total point nuclear potential on the grid ==
-      call gridNuclearPotentialPoint(geom,natoms,npts,qxyz,qwght,
-     &                        closegridpts,amat_nucl)
-c
-c     zero out weights of close points
-      do k = 1,npts
-        if (k.eq.closegridpts(k)) qwght(k) = 0.d0
-      end do
-c
-c     === define fac1_arr,fac2_arr -- FA
-      do k = 1,npts
-c      == assemble hartree and nuclear contributions ==
-       amat_tot =amat_coul(k,1)+amat_nucl(k)
-       fac1_arr(k)=amat_tot/(4.d0*clight_au2 - 2.d0*amat_tot)
-     &             *qwght(k)
-       denom = (2.d0*clight_au2 - amat_tot)
-       fac2_arr(k)=(clight_au2/denom/denom)
-     &             *qwght(k)
-      end do
 c     == assemble zora correction ==
-c ----- main diagonal --- START
+c     diagonal
+      do_so = .true.  ! for spin-orbit zora
       do i = 1, nbf
           j=i
-          call get_ints_zora_so(nbf,npts,delchi_ao,i,j,      
+          call get_ints_zora(do_so,nbf,npts,delchi_ao,i,j,      
      &                          fac1_arr,fac2_arr,       
      &                          ac_sf,ac_scl,   ! out
      &                          ac_sx,ac_scl_x, ! out 
      &                          ac_sy,ac_scl_y, ! out 
      &                          ac_sz,ac_scl_z) ! out 
+c
           zora0(i,j) = zora0(i,j) + ac_sf
           scal0(i,j) = scal0(i,j) + ac_scl
           zorax(i,j) = zorax(i,j) + ac_sx
@@ -123,16 +93,17 @@ c ----- main diagonal --- START
           zoraz(i,j) = zoraz(i,j) + ac_sz
           scalz(i,j) = scalz(i,j) + ac_scl_z
       enddo ! end-loop-i
-c ----- main diagonal --- END
-c ----- off diagonal --- START
+c
+c     off diagonal
       do i = 1, nbf
         do j = i+1, nbf
-          call get_ints_zora_so(nbf,npts,delchi_ao,i,j,      
+          call get_ints_zora(do_so,nbf,npts,delchi_ao,i,j,      
      &                          fac1_arr,fac2_arr,       
      &                          ac_sf,ac_scl,   ! out
      &                          ac_sx,ac_scl_x, ! out 
      &                          ac_sy,ac_scl_y, ! out 
      &                          ac_sz,ac_scl_z) ! out 
+c
           zora0(i,j) = zora0(i,j) + 2.0d0*ac_sf
           scal0(i,j) = scal0(i,j) + 2.0d0*ac_scl
           zorax(i,j) = zorax(i,j) + 2.0d0*ac_sx
@@ -143,58 +114,6 @@ c ----- off diagonal --- START
           scalz(i,j) = scalz(i,j) + 2.0d0*ac_scl_z
         enddo ! end-loop-j
       enddo ! end-loop-i
-c ----- off diagonal --- END
+c
       return
       end
-      subroutine get_ints_zora_so(nbf,            ! in: nr. basis functions
-     &                            npts,           ! in: grid points 
-     &                            delchi_ao,      ! in: deriv. of basis functions
-     &                            i,j,            ! in: (i,j) indices for delchi_ao
-     &                            fac1_arr,       ! in
-     &                            fac2_arr,       ! in 
-     &                            ac_sf,ac_scl,   ! out
-     &                            ac_sx,ac_scl_x, ! out 
-     &                            ac_sy,ac_scl_y, ! out 
-     &                            ac_sz,ac_scl_z) ! out
-      implicit none
-#include "errquit.fh"
-#include "stdio.fh"
-#include "global.fh"
-      integer nbf,npts,i,j,k
-      double precision delchi_ao(npts,3,nbf)
-      double precision fac1_arr(npts),fac2_arr(npts)
-      double precision ac_sf,ac_scl,
-     &                 ac_sx,ac_scl_x,
-     &                 ac_sy,ac_scl_y,
-     &                 ac_sz,ac_scl_z      
-      double precision prod0,prod_x,prod_y,prod_z
-          ac_sf    = 0.0d0
-          ac_sx    = 0.0d0
-          ac_sy    = 0.0d0
-          ac_sz    = 0.0d0
-          ac_scl   = 0.0d0   
-          ac_scl_x = 0.0d0
-          ac_scl_y = 0.0d0
-          ac_scl_z = 0.0d0       
-          do k = 1, npts
-           prod0 = delchi_ao(k,1,i)*delchi_ao(k,1,j)
-     &            +delchi_ao(k,2,i)*delchi_ao(k,2,j) 
-     &            +delchi_ao(k,3,i)*delchi_ao(k,3,j)  
-           prod_x= delchi_ao(k,2,i)*delchi_ao(k,3,j)
-     &            -delchi_ao(k,3,i)*delchi_ao(k,2,j) 
-           prod_y= delchi_ao(k,3,i)*delchi_ao(k,1,j)
-     &            -delchi_ao(k,1,i)*delchi_ao(k,3,j) 
-           prod_z= delchi_ao(k,1,i)*delchi_ao(k,2,j)
-     &            -delchi_ao(k,2,i)*delchi_ao(k,1,j) 
-           ac_sf    = ac_sf    + fac1_arr(k)*prod0
-           ac_scl   = ac_scl   + fac2_arr(k)*prod0   
-           ac_sx    = ac_sx    + fac1_arr(k)*prod_x
-           ac_scl_x = ac_scl_x + fac2_arr(k)*prod_x  
-           ac_sy    = ac_sy    + fac1_arr(k)*prod_y
-           ac_scl_y = ac_scl_y + fac2_arr(k)*prod_y    
-           ac_sz    = ac_sz    + fac1_arr(k)*prod_z
-           ac_scl_z = ac_scl_z + fac2_arr(k)*prod_z        
-          enddo ! end-loo-k
-      return
-      end
-c $Id$
