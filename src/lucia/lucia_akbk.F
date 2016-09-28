@@ -6816,7 +6816,7 @@ c      integer IMAP2(nnod)
 *
 *. Scratch
       real ttssw(NBATS), totweight(nnod), FACTOR(NBATS)
-      integer nttssw(NBATS), NJSIZE(NBATS)
+      integer nttssw(NBATS)
       integer iblksum(2), isize(nnod), ibpnod(nnod,2)
 *
 *. Initializations
@@ -6902,7 +6902,7 @@ c       imap2(inode) = 0
       IF (LFIRSTORDER.EQ.0) THEN
        call ttssweight0(ttssw,IBATS,NBATS,LBATS,NBLK)
       ELSE
-       call ttssweight(nttssw,FACTOR,NJSIZE,
+       call ttssweight(nttssw,
      &                 int_mb(KCONSPA),int_mb(KCONSPB),
      &                 NOCTPA,NOCTPB,IBATS,NBATS,LBATS,NBLK,NSMST,
      &                 int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)))
@@ -7091,7 +7091,7 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
        ! TTSSweight is based on the number of connections
        ! TTSSweight is an integer
        !
-       CALL DIST_FIRSTORDER(NTTSSW,FACTOR,IBATS,LBATS,NBLK,NBATS,
+       CALL DIST_FIRSTORDER(NTTSSW,IBATS,LBATS,NBLK,NBATS,
      &                      NNOD,IMAP2,ISIZE,ILEN) 
       END IF
 ***********
@@ -7104,7 +7104,7 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
       END
 *======================================================================*
 *======================================================================*
-      SUBROUTINE DIST_FIRSTORDER(NTTSSW,FACTOR,IBATS,LBATS,NBLK,
+      SUBROUTINE DIST_FIRSTORDER(NTTSSW,IBATS,LBATS,NBLK,
      &                           NBATS,NNOD,IMAP2,ISIZE,ILEN)
 *======================================================================*
 *
@@ -7124,7 +7124,6 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
 *. Input
       INTEGER NNOD, NBATS, NBLK, ILEN
       INTEGER NTTSSW(NBATS), LBATS(NBATS), IBATS(8,NBLK)
-      REAL FACTOR(NBATS)
 *
 *. Output
       INTEGER IMAP2(NBATS), ISIZE(NNOD)
@@ -7144,7 +7143,7 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
        WRITE(*,*) '            TTSS Weights per batch'
        WRITE(*,*)
        DO I = 1, NBATS
-        WRITE(*,'(2I10,F8.2)') I, NTTSSW(I), FACTOR(I)
+        WRITE(*,'(2I20)') I, NTTSSW(I)
        END DO 
        WRITE(*,*)
       END IF
@@ -7160,7 +7159,6 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
 !      TOTALF = 0
       DO I = 1, NBATS
        NTOTWEIGHT = NTOTWEIGHT + NTTSSW(I)
-!       TOTALF     = TOTALF     + FACTOR(I)
       END DO
 *
 *. Begin dynamic loop
@@ -7569,7 +7567,7 @@ c     real ASYM(NGAS)
 *======================================================================*
 *======================================================================*
 *
-      SUBROUTINE ttssweight(nttssw,FACTOR,NJSIZE,iconspa,iconspb,
+      SUBROUTINE ttssweight(nttssw,iconspa,iconspb,
      &                      noctpa,noctpb,
      &                      ibats,nbats,lbats,nblk,NSMST,nssoa,nssob)
 *======================================================================*
@@ -7605,8 +7603,7 @@ c     real ASYM(NGAS)
       DIMENSION NSSOA(NSMST,*),NSSOB(NSMST,*)
 *
 *. Output
-      integer nttssw(nbats), NJSIZE(nbats)
-      real FACTOR(NBATS)
+      integer nttssw(nbats)
 *
 *. Scratch
       integer iblk, ispgrp, ncon, ioff, iblkspgrp, ntotweight, 
@@ -7616,9 +7613,7 @@ c     real ASYM(NGAS)
 *. Initializations
 *
       ntest = 100
-      nttssw  = 0
       ntotweight = 0
-      NJSIZE = 0
       !
       FACTOR00 = 1.000
       FACTOR11 = 1.000
@@ -7628,10 +7623,11 @@ c     real ASYM(NGAS)
 *
       iblk = 0
       DO I = 1, NBATS
-!       ncon = 0
+       ncon = 0
+       NTTSSW(I) = 0
        isize = 0
        DO II = 1, LBATS(I)
-        ncon = 0
+!        ncon = 0
         iblk = iblk + 1
         !
         JATP = ibats(1,iblk)
@@ -7747,10 +7743,10 @@ C       end do
 *
 *. Knecht's weights based on connectivity and the size of the CI vector
 *
-       nttssw(I) = nttssw(I) + ncon * ibats(8,iblk)
-       if (ga_nodeid().eq.0.and.ntest.ge.100)
-     &  write(*,'(a,i4,4i12)') 'Knecht', I, iblk, ncon,
-     &                          ibats(8,iblk), nttssw(I)
+!       nttssw(I) = nttssw(I) + ncon * ibats(8,iblk)
+!       if (ga_nodeid().eq.0.and.ntest.ge.100)
+!     &  write(*,'(a,i4,4i12)') 'Knecht', I, iblk, ncon,
+!     &                          ibats(8,iblk), nttssw(I)
        !
        ! End do loop for ibatch
        END DO ! End do loop for ibatch
@@ -7762,7 +7758,7 @@ C       end do
 !       NTTSSW(I) = NTTSSW(I) * LBATS(I)
 *
 *. Number of Connections as the TTSS weight
-!       nttssw(I) = ncon * isize
+       nttssw(I) = ncon * isize
        if (ga_nodeid().eq.0.and.ntest.ge.100)
      &     write(*,*) 'ncon', I, ncon, NTTSSW(I)
        ntotweight = ntotweight + nttssw(I) 
@@ -7773,31 +7769,6 @@ C       end do
 !      DO I = 1, NBATS
 !       nttssw(I) = INT(nttssw(I) /LBATS(I))
 !      END DO
-*
-*.  Obtain FACTOR = LENGTH x (WEIGHT/2)
-*
-      II = 0
-      FACTOR = 0
-      TOTALF = 0
-      DO I = 1, NBATS
-       NSDB = 0 ! Number of SDs in a given TTSS Batch
-       DO IBLK = 1, LBATS(I)
-        II = II + 1
-        NSDB = NSDB + ibats(8,II)
-       END DO
-       FACTOR(I) = (NSDB * nttssw(i) * 0.5) / 1000
-       TOTALF    = TOTALF + FACTOR(I)
-      END DO
-      !
-      DO I = 1, NBATS
-       FACTOR(I) = (FACTOR(I) / TOTALF) * 100
-      END DO
-      !
-      ! For testing
-      TOTALF = 0
-      DO I = 1, NBATS
-       TOTALF = TOTALF + FACTOR(I)
-      END DO
 *
 *. Print Output
 *
@@ -7810,7 +7781,7 @@ C       end do
        WRITE(*,*)
        WRITE(*,*) '  Info for each TTSS batch  '
        WRITE(*,*)
-       write(*,*) ' BATCH   BLOCKS              LENGTH  WEIGHT  FACTOR'
+       write(*,*) ' BATCH   BLOCKS              LENGTH       WEIGHT'
 *
        II = 0
        DO I = 1, NBATS
@@ -7819,10 +7790,9 @@ C       end do
          II = II + 1
          NSDB = NSDB + ibats(8,II)
         END DO
-        WRITE(*,'(i6,i10,i20,i12,f8.2)') I, LBATS(I), NSDB, nttssw(i),  
-     &                                  FACTOR(I) 
+        WRITE(*,'(i6,i10,i20,i20)') I, LBATS(I), NSDB, nttssw(i)
        END DO
-       write(*,'(a,i25,f8.2)') 'TOTAL              ', ntotweight, TOTALF
+       write(*,'(a,i55)') 'TOTAL              ', ntotweight
        write(*,*)
       end if
 *
