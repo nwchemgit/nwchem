@@ -18,7 +18,7 @@ end
 relativistic
    zora on
 # 1 = modbas.4c, 2=modbas.2c
-   modelpotential 1 
+   modelpotential 2
 end
 
 task dft energy
