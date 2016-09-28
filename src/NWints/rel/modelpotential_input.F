@@ -53,6 +53,7 @@ c     check library name
      &  call errquit(pname//'unable to access model potential file',
      & 0,RTDB_ERR)
 c  
+c     build mpfile name
       mpfile=libname(1:inp_strlen(libname))
      $     //"/basis/libraries/rel-modelpotentials/"
       if (mpoption.eq.1) then
