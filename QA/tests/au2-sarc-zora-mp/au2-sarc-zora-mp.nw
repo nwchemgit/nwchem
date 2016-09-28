@@ -2,7 +2,7 @@ echo
 
 start au2-sarc-zora-mp
 
-geometry noautoz units angstrom noautosym
+geometry noautoz units angstrom
  Au   0.00000000     0.00000000    -1.25
  Au   0.00000000     0.00000000     1.25
 end
@@ -121,6 +121,6 @@ end
 relativistic
   zora on
   zora:cutoff 1d-30
-  modelpotential modbas.4c
+  modelpotential 1
 end
 task dft
