@@ -28,7 +28,7 @@ czora...
 #include "global.fh"
 #include "msgids.fh"
 #include "zora.fh"
-#include "rtdb.fh" ! FA
+#include "rtdb.fh" 
 
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -66,6 +66,12 @@ czora...
 
       double precision focc(*)  ! occupation no.
       double precision evals(*) ! eigenvalues
+      integer do_replnxn,mem_replnxn,val_in
+      integer l_evals_in, k_evals_in,
+     &          l_zora_scale_sf, k_zora_scale_sf,
+     &          l_zora_scale_so, k_zora_scale_so,
+     &          l_dens_so, k_dens_so,
+     &          l_vtmp, k_vtmp
       double precision zora_denom          ! Added by FA
       integer rtdb                         ! Added by FA
       integer nexc,g_dens_ini(2)           ! Added by FA
@@ -96,13 +102,17 @@ c ----- execute this code ONLY when EFGZ4 is requested -- START
 c ----- execute this code ONLY when EFGZ4 is requested -- END
 c     allocate memory
 
-      if (.not.MA_Push_Get(MT_Dbl, nbf_mo, 'real vec aux',
+      if (.not.MA_Push_Get(MT_Dbl, 2*nbf_mo, 'real vec aux',
      &          l_vecsre, k_vecsre))
      & call errquit('dft_zora_scale_so: cannot allocate vec',0, MA_ERR)
 c
+#if 0
       if (.not.MA_Push_Get(MT_Dbl, nbf_mo, 'imag vec aux',
      &          l_vecsim, k_vecsim))
      & call errquit('dft_zora_scale_so: cannot allocate vec',0, MA_ERR)
+#else
+      k_vecsim=k_vecsre+nbf_mo
+#endif
 c 
 c     spin-orbit vector - real
       if(.not.ga_create(mt_dbl,nbf_mo,nbf_mo,'orbs re',0,0,g_orb(1)))
@@ -137,7 +147,28 @@ c     scratch array
       ac_AB(1)=1
       ac_AB(2)=1
       ener_scal = 0.d0
-      ener_tot  = 0.d0
+cwhy??      ener_tot  = 0.d0
+c
+c     check if enough memory is available to allocate a few nxn objects
+c     
+      do_replnxn=0
+      mem_replnxn=
+     C     nbf_mo*nbf_mo*2  +   ! dens_so
+     C     nbf_ao*nbf_ao    +   ! vtmp
+     C     nbf_ao*nbf_ao*2  +   ! zora_scale_sf
+     C     nbf_ao*nbf_ao*3  +   ! zora_scale_so
+     C     nbf_mo               ! evals_in
+      if(MA_inquire_avail(mt_dbl)*8/10.gt.mem_replnxn) do_replnxn=1
+      if(noelfgZ4.eq.0) then
+         write(6,*) ' need to compute elfgZ4, do_replnxn=0 '
+         do_replnxn=0
+      endif
+      if(rtdb_get(rtdb,'zora:do_replnxn',MT_INT,1,val_in))
+     c    do_replnxn=val_in
+      call ga_igop(19481984, do_replnxn, 1, 'min')
+      if(do_replnxn.eq.0) then
+         if(ga_nodeid().eq.0)
+     c        write(6,*) ' zoraso: NOT enough mem for repl'
       do iorb = 1, nbf_mo
        call ga_get(g_moso(1),1,nbf_mo,iorb,iorb,dbl_mb(k_vecsre),1)
        call ga_zero(g_orb(1))
@@ -176,6 +207,73 @@ c ----- execute this code ONLY when EFGZ4 is requested -- START
         endif
 c ----- execute this code ONLY when EFGZ4 is requested -- END
       enddo ! end-loop-iorb 
+      else
+         if(ga_nodeid().eq.0)
+     c        write(6,*) ' zoraso: enough mem for repl'
+      if (.not.ma_push_get(mt_dbl, nbf_mo, 'evals_in',
+     &          l_evals_in, k_evals_in))
+     & call errquit('dft_zora_scale_so: cannot allocate evals',0,MA_ERR)
+      if (.not.ma_push_get(mt_dbl, nbf_ao*nbf_ao*2, 'zora_scale_sf',
+     &          l_zora_scale_sf, k_zora_scale_sf))
+     & call errquit('dft_zora_scale_so:cant all zora_scale_sf',0,MA_ERR)
+      if (.not.ma_push_get(mt_dbl, nbf_ao*nbf_ao*3, 'zora_scale_so',
+     &          l_zora_scale_so, k_zora_scale_so))
+     & call errquit('dft_zora_scale_so:cant all zora_scale_so',0,MA_ERR)
+      if (.not.ma_push_get(mt_dbl, nbf_mo*nbf_mo*2, 'dens_so',
+     &          l_dens_so, k_dens_so))
+     & call errquit('dft_zora_scale_so:cant all dens_so',0,MA_ERR)
+      if (.not.ma_push_get(mt_dbl, nbf_ao*nbf_ao, 'vtmp',
+     &          l_vtmp, k_vtmp))
+     & call errquit('dft_zora_scale_so:cant all vtmp',0,MA_ERR)
+c
+c     replicate zora_scale_sx
+c
+      call util_mygabcast(g_zora_scale_sf(1), 
+     M  nbf_ao,nbf_ao, dbl_mb(k_zora_scale_sf),nbf_ao)
+      call util_mygabcast(g_zora_scale_sf(2), 
+     M  nbf_ao,nbf_ao, dbl_mb(k_zora_scale_sf+nbf_ao*nbf_ao),nbf_ao)
+
+      call util_mygabcast(g_zora_scale_so(1), 
+     M  nbf_ao,nbf_ao, dbl_mb(k_zora_scale_so),nbf_ao)
+      call util_mygabcast(g_zora_scale_so(2), 
+     M  nbf_ao,nbf_ao, dbl_mb(k_zora_scale_so+nbf_ao*nbf_ao),nbf_ao)
+      call util_mygabcast(g_zora_scale_so(3), 
+     M  nbf_ao,nbf_ao, dbl_mb(k_zora_scale_so+2*nbf_ao*nbf_ao),nbf_ao)
+
+c     copy input evals
+      call dcopy(nbf_mo,evals,1,dbl_mb(k_evals_in),1)
+c     zero evals [output] to get dgop working
+      call dcopy(noc,0d0,0,evals,1)
+      do iorb = ga_nodeid()+1, noc, ga_nnodes()
+      call dft_zora_nogaga(iorb,nbf_ao,nbf_mo,noc,g_moso,
+     C     soxyz,
+     D     dbl_mb(k_zora_scale_sf),dbl_mb(k_zora_scale_so),
+     E     ener_tot,
+     D     dbl_mb(k_dens_so),
+     O     dbl_mb(k_vtmp),dbl_mb(k_vecsre))
+       zora_denom=1.d0+ener_tot
+       eval_scal = dbl_mb(k_evals_in+iorb-1)/zora_denom
+       ener_scal = ener_scal - eval_scal*ener_tot 
+       evals(iorb) = eval_scal
+#if 0
+NOT WORKING YET
+c ----- execute this code ONLY when EFGZ4 is requested -- START
+        if(noelfgZ4.eq.0) then
+         j1=j+1                          ! FA
+         if (ac_AB(j1).le.nocc(j1)) then ! FA
+          call ga_fill_patch(g_Ci,j1,j1,ac_AB(j1),ac_AB(j1),
+     &                       zora_denom) ! FA
+          ac_AB(j1)=ac_AB(j1)+1          ! FA
+         end if                          ! FA
+        j=1-j                            ! FA
+        endif
+#endif
+c ----- execute this code ONLY when EFGZ4 is requested -- END
+      enddo ! end-loop-iorb 
+c dgop on evals
+      call ga_dgop(20166102, evals, noc, '+')
+      call ga_dgop(20166103, ener_scal, 1, '+')
+      endif
 c ----- execute this code ONLY when EFGZ4 is requested -- START
        if(noelfgZ4.eq.0) then
 c       if (ga_nodeid().eq.0) write(*,*) "---g_Ci_so -- START"
@@ -197,8 +295,10 @@ c -------- computing EFGs --------- END
 c ----- execute this code ONLY when EFGZ4 is requested -- START
 
 c     deallocate memory
+#if 0
       if (.not. ma_chop_stack(l_vecsim)) 
      & call errquit('dft_zora_scale_so:l_vecsim', 0, MA_ERR)
+#endif
       if (.not. ma_chop_stack(l_vecsre))
      & call errquit('dft_zora_scale_so:l_vecsre', 0, MA_ERR)
 
@@ -564,3 +664,54 @@ c
 c
       end
 c $Id$
+      subroutine dft_zora_nogaga(iorb,nbf_ao,nbf_mo,noc,g_moso,
+     C     soxyz,
+     D     zora_scale_sf,zora_scale_so,
+     E     ener_tot,
+     D     dens_so,
+     O     vtmp,vecs)
+      implicit none
+      integer iorb
+      integer nbf_mo,nbf_ao ! [in] nbf_mo=2*nbf_ao
+      integer noc
+      double precision zora_scale_sf(nbf_ao,nbf_ao,2)! replicated[in]
+      double precision zora_scale_so(nbf_ao,nbf_ao,3)! replicated[in]
+      integer g_moso(2) ! [in]
+      double precision vecs(nbf_mo,2) ! [scratch]
+      double precision dens_so(nbf_mo,nbf_mo,2) ! repl [scratch]
+      double precision vtmp(nbf_ao,nbf_ao) ! repl [scratch]
+      double precision ener_tot ! [out]
+      character*1  soxyz(3)                
+
+c
+      integer xyz
+      integer j,i
+c
+      external ddot
+      double precision ddot
+c
+
+       call ga_get(g_moso(1),1,nbf_mo,iorb,iorb,vecs(1,1),1)
+       call ga_get(g_moso(2),1,nbf_mo,iorb,iorb,vecs(1,2),1)
+       call dftv_densm_so(dens_so,vecs,nbf_mo,noc)
+c        ener_sf_1
+c strided copy
+        do j=1,nbf_ao
+           call dcopy(nbf_ao,dens_so(1,j,1),1,vtmp(1,j),1)
+        enddo
+        ener_tot=ddot(nbf_ao*nbf_ao,
+     D      vtmp,1,zora_scale_sf(1,1,1),1)
+cstrided copy
+        do j=1+nbf_ao,2*nbf_ao
+           call dcopy(nbf_ao,dens_so(1+nbf_ao,j,1),1,vtmp(1,j-nbf_ao),1)
+        enddo
+c        ener_sf_2
+        ener_tot=ener_tot+ddot(nbf_ao*nbf_ao,
+     D      vtmp,1,zora_scale_sf(1,1,2),1)
+        do xyz=1,3
+         call vec_dens_so(vtmp,dens_so,nbf_ao,soxyz(xyz))
+         ener_tot=ener_tot+ddot(nbf_ao*nbf_ao,
+     &            vtmp,1,zora_scale_so(1,1,xyz),1) 
+        end do
+        return
+        end

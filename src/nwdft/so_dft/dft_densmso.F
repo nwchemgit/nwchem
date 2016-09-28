@@ -317,3 +317,81 @@ c
       return
       end
 
+
+      subroutine dftv_densm_so(dens,vecs,nbf_mo,noc)
+C$Id$
+      implicit none
+
+      integer nbf_mo
+      double precision dens(nbf_mo,nbf_mo,2)
+      double precision vecs(nbf_mo,2)
+      integer noc
+c
+      integer j
+c
+
+      call dgemm('n', 't', nbf_mo, nbf_mo, 1, 1d0, vecs(1,1), nbf_mo,
+     $  vecs(1,1), nbf_mo,0d0, dens(1,1,1),nbf_mo)
+      call dgemm('n', 't', nbf_mo, nbf_mo, 1, 1d0, vecs(1,2), nbf_mo,
+     $  vecs(1,2), nbf_mo, 1d0,  dens(1,1,1), nbf_mo) 
+      call dgemm('n', 't', nbf_mo, nbf_mo, 1, 1d0, vecs(1,1), nbf_mo,
+     $  vecs(1,2), nbf_mo, 0d0, dens(1,1,2), nbf_mo)
+      call dgemm('n', 't', nbf_mo, nbf_mo, 1,-1d0, vecs(1,2),nbf_mo,
+     $  vecs(1,1), nbf_mo, 1d0,  dens(1,1,2), nbf_mo) 
+      return
+      end 
+      subroutine vec_dens_so(vtmp, a, nbf, op)
+C$Id$
+      implicit none
+
+      double precision vtmp(nbf,nbf)
+      integer a(2*nbf,2*nbf,2)
+      integer nbf
+      character*1 op
+c
+      integer j
+c      call ga_zero(g_tmp)
+      call dcopy(nbf*nbf,0d0,0,vtmp,1)
+
+      if (op .eq. 'z') then
+         do j=1,nbf
+            call daxpy(nbf,-1d0,a(1    ,j,2),1,vtmp(1,j),1)
+         enddo
+         do j=1,nbf
+            call daxpy(nbf,1d0,a(1+nbf,j+nbf,2),1,vtmp(1,j),1)
+         enddo
+
+      else if (op .eq. 'x') then 
+         do j=1,nbf
+            call daxpy(nbf,-1d0,a(1,j+nbf,2),1,vtmp(1,j),1)
+         enddo
+         do j=1,nbf
+            call daxpy(nbf,-1d0,a(1+nbf,j,2),1,vtmp(1,j),1)
+         enddo
+
+      else if (op .eq. 'y') then 
+         do j=1,nbf
+            call daxpy(nbf,1d0,a(1,j+nbf,1),1,vtmp(1,j),1)
+         enddo
+         do j=1,nbf
+            call daxpy(nbf,-1d0,a(1+nbf,j,1),1,vtmp(1,j),1)
+         enddo
+
+      else if (op. eq. 's') then 
+         do j=1,nbf
+            call daxpy(nbf,1d0,a(1,j,1),1,vtmp(1,j),1)
+         enddo
+c         call ga_dadd_patch(1.d0, g_tmp, 1, nbf, 1, nbf, 
+c     &                      1.d0, g_a(1), 1, nbf, 1, nbf,
+c     &                            g_tmp, 1, nbf, 1, nbf)
+         do j=1,nbf
+            call daxpy(nbf,1d0,a(1+nbf,j+nbf,1),1,vtmp(1,j),1)
+         enddo
+c         call ga_dadd_patch(1.d0, g_tmp, 1, nbf, 1, nbf, 
+c     &                      1.d0, g_a(1),1+nbf,2*nbf,1+nbf,2*nbf, 
+c     &                            g_tmp, 1, nbf, 1, nbf)
+      else
+         call errquit(' vec_dens_so: op arg not valid',0,0)
+      endif
+      return
+      end
