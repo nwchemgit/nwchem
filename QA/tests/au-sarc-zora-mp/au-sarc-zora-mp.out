@@ -1,0 +1,2796 @@
+ argument  1 = au-sarc-zora-mp.nw
+
+
+
+============================== echo of input deck ==============================
+echo
+
+start au-sarc-zora-mp
+
+geometry noautoz units angstrom
+ Au   0.00000000     0.00000000     0.000000
+end
+
+basis spherical
+#BASIS SET: (22s,15p,11d,6f) -> [17s,11p,8d,3f]
+Au    S
+ 1733435.947505000           0.0590807322
+ 770415.9766690000          -0.0134645875
+ 342407.1007420000           0.1266921940
+ 152180.9336630000           0.0917367275
+  67635.9705170000           0.3301931428
+  30060.4313410000           0.5348469165
+Au    S
+  13360.1917070000           1.0000000
+Au    S
+   5937.8629810000           1.0000000
+Au    S
+   2639.0502140000           1.0000000
+Au    S
+   1172.9112060000           1.0000000
+Au    S
+    521.2938690000           1.0000000
+Au    S
+    231.6861640000           1.0000000
+Au    S
+    102.9716290000           1.0000000
+Au    S
+     45.7651680000           1.0000000
+Au    S
+     20.3400750000           1.0000000
+Au    S
+      9.0400330000           1.0000000
+Au    S
+      4.0177930000           1.0000000
+Au    S
+      1.7856860000           1.0000000
+Au    S
+      0.7936380000           1.0000000
+Au    S
+      0.3527280000           1.0000000
+Au    S
+      0.1567680000           1.0000000
+Au    S
+      0.0696750000           1.0000000
+Au    P
+  24294.8435030000           0.0115872041
+   9717.9374010000           0.0172539241
+   3887.1749600000           0.0814517242
+   1554.8699840000           0.2530078514
+    621.9479940000           0.7393090162
+Au    P
+    248.7791970000           1.0000000
+Au    P
+     99.5116790000           1.0000000
+Au    P
+     39.8046720000           1.0000000
+Au    P
+     15.9218690000           1.0000000
+Au    P
+      6.3687470000           1.0000000
+Au    P
+      2.5474990000           1.0000000
+Au    P
+      1.0190000000           1.0000000
+Au    P
+      0.4076000000           1.0000000
+Au    P
+      0.1630400000           1.0000000
+Au    P
+      0.0652160000           1.0000000
+Au    D
+   1869.1275770000           0.0077089561
+    679.6827550000           0.0438603813
+    247.1573660000           0.2453386745
+     89.8754060000           0.8060134198
+Au    D
+     32.6819660000           1.0000000
+Au    D
+     11.8843510000           1.0000000
+Au    D
+      4.3215820000           1.0000000
+Au    D
+      1.5714840000           1.0000000
+Au    D
+      0.5714490000           1.0000000
+Au    D
+      0.2078000000           1.0000000
+Au    D
+      0.0755630000           1.0000000
+Au    F
+     90.8433260000           0.0605345523
+     30.2811090000           0.2901111191
+     10.0937030000           0.5690283920
+      3.3645680000           0.3777374345
+Au    F
+      1.1215230000           1.0000000
+Au    F
+      0.3738410000           1.0000000
+end
+
+set dft:no_prune T
+set dft:job_grid_acc 1d-20
+set dft:tol_rho 1d-30
+
+dft
+ mult 2
+ grid lebedev Au 350 10
+ xc b3lyp
+ maxiter 100
+end
+
+driver
+ maxiter 100
+end
+
+relativistic
+  zora on
+  zora:cutoff 1d-30
+# use model potential modbas.4c
+  modelpotential  1
+end
+task dft
+================================================================================
+
+
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.6
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2015
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = kohn
+    program         = ../../../bin/LINUX64/nwchem
+    date            = Wed Sep 28 15:43:07 2016
+
+    compiled        = Wed_Sep_28_15:41:19_2016
+    source          = /home/niri/nwchem/nwchem-trunk
+    nwchem branch   = Development
+    nwchem revision = 28547
+    ga revision     = 10719
+    input           = au-sarc-zora-mp.nw
+    prefix          = au-sarc-zora-mp.
+    data base       = ./au-sarc-zora-mp.db
+    status          = startup
+    nproc           =        4
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   13107198 doubles =    100.0 Mbytes
+    stack    =   13107195 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428793 doubles =    400.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Au                  79.0000     0.00000000     0.00000000     0.00000000
+
+      Atomic Mass 
+      ----------- 
+
+      Au               196.966600
+
+
+ Effective nuclear repulsion energy (a.u.)       0.0000000000
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+
+            XYZ format geometry
+            -------------------
+     1
+ geometry
+ Au                    0.00000000     0.00000000     0.00000000
+
+  library name resolved from: environment
+  library file name is: </home/niri/nwchem/nwchem-trunk/src/basis/libraries/>
+  
+                      Basis "ao basis" -> "" (spherical)
+                      -----
+  Au (Gold)
+  ---------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.73343595E+06  0.059081
+  1 S  7.70415977E+05 -0.013465
+  1 S  3.42407101E+05  0.126692
+  1 S  1.52180934E+05  0.091737
+  1 S  6.76359705E+04  0.330193
+  1 S  3.00604313E+04  0.534847
+
+  2 S  1.33601917E+04  1.000000
+
+  3 S  5.93786298E+03  1.000000
+
+  4 S  2.63905021E+03  1.000000
+
+  5 S  1.17291121E+03  1.000000
+
+  6 S  5.21293869E+02  1.000000
+
+  7 S  2.31686164E+02  1.000000
+
+  8 S  1.02971629E+02  1.000000
+
+  9 S  4.57651680E+01  1.000000
+
+ 10 S  2.03400750E+01  1.000000
+
+ 11 S  9.04003300E+00  1.000000
+
+ 12 S  4.01779300E+00  1.000000
+
+ 13 S  1.78568600E+00  1.000000
+
+ 14 S  7.93638000E-01  1.000000
+
+ 15 S  3.52728000E-01  1.000000
+
+ 16 S  1.56768000E-01  1.000000
+
+ 17 S  6.96750000E-02  1.000000
+
+ 18 P  2.42948435E+04  0.011587
+ 18 P  9.71793740E+03  0.017254
+ 18 P  3.88717496E+03  0.081452
+ 18 P  1.55486998E+03  0.253008
+ 18 P  6.21947994E+02  0.739309
+
+ 19 P  2.48779197E+02  1.000000
+
+ 20 P  9.95116790E+01  1.000000
+
+ 21 P  3.98046720E+01  1.000000
+
+ 22 P  1.59218690E+01  1.000000
+
+ 23 P  6.36874700E+00  1.000000
+
+ 24 P  2.54749900E+00  1.000000
+
+ 25 P  1.01900000E+00  1.000000
+
+ 26 P  4.07600000E-01  1.000000
+
+ 27 P  1.63040000E-01  1.000000
+
+ 28 P  6.52160000E-02  1.000000
+
+ 29 D  1.86912758E+03  0.007709
+ 29 D  6.79682755E+02  0.043860
+ 29 D  2.47157366E+02  0.245339
+ 29 D  8.98754060E+01  0.806013
+
+ 30 D  3.26819660E+01  1.000000
+
+ 31 D  1.18843510E+01  1.000000
+
+ 32 D  4.32158200E+00  1.000000
+
+ 33 D  1.57148400E+00  1.000000
+
+ 34 D  5.71449000E-01  1.000000
+
+ 35 D  2.07800000E-01  1.000000
+
+ 36 D  7.55630000E-02  1.000000
+
+ 37 F  9.08433260E+01  0.060535
+ 37 F  3.02811090E+01  0.290111
+ 37 F  1.00937030E+01  0.569028
+ 37 F  3.36456800E+00  0.377737
+
+ 38 F  1.12152300E+00  1.000000
+
+ 39 F  3.73841000E-01  1.000000
+
+
+
+ Summary of "ao basis" -> "" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ Au                      user specified             39      111   17s11p8d3f
+
+
+
+ Using Relativistic Model Potential Approach
+ C. van Wullen, J. Chem. Phys. 109, 392 (1998)
+ C. van Wullen, C. Michauk, J. Chem. Phys. 123, 204113 (2005)
+
+ Reading model potential file:
+ /home/niri/nwchem/nwchem-trunk/src/basis/libraries/rel-modelpotentials/modbas.4c
+
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ Au                      user specified             39      111   17s11p8d3f
+
+
+  Caching 1-el integrals 
+  IANGQUAD =                    0
+  IANGQUAD must be in the range: 1-                   29 ; resetting. 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  spin polarized.
+          No. of atoms     :     1
+          No. of electrons :    79
+           Alpha electrons :    40
+            Beta electrons :    39
+          Charge           :     0
+          Spin multiplicity:     2
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations: 100
+          AO basis - number of functions:   111
+                     number of shells:    39
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                         B3LYP Method XC Potential
+                     Hartree-Fock (Exact) Exchange  0.200          
+                        Slater Exchange Functional  0.800 local    
+                    Becke 1988 Exchange Functional  0.720 non-local
+              Lee-Yang-Parr Correlation Functional  0.810          
+                  VWN I RPA Correlation Functional  0.190 local    
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          Au                  1.35      350          11.0       266
+          Grid pruning is: off
+          Number of quadrature shells:   350
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters        100 iters           100 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-30
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
+
+          Performing ZORA calculations
+          ----------------------------
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:      -17843.52114672
+
+ Read atomic ZORA corrections from ./au-sarc-zora-mp.zora_sf
+
+ dft_zora_read: failed to open./au-sarc-zora-mp.zora_sf
+       Generating atomic ZORA corrections
+       ----------------------------------
+
+ In dft_scf:: zora:Knucl= F
+
+ Grid_pts file          = ./au-sarc-zora-mp.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     10        Max. recs in file   =   1095861
+
+ Grid integrated density:      78.999999999999
+ Requested integration accuracy:   0.10E-19
+
+ Wrote atomic ZORA corrections to ./au-sarc-zora-mp.zora_sf
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:      -17843.52114672
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =  -17843.246984
+ 1-e energy   =  -24647.231214
+ 2-e energy   =    6803.984231
+ HOMO         =      -0.252431
+ LUMO         =       0.065626
+
+   Time after variat. SCF:      3.3
+   Time prior to 1st pass:      3.3
+
+ Integral file          = ./au-sarc-zora-mp.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =    152        Max. records in file   = 205488
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ #quartets = 2.986D+05 #integrals = 1.980D+06 #direct =  0.0% #cached =100.0%
+
+
+File balance: exchanges=     3  moved=    10  time=   0.0
+
+ Grid integrated density:      78.999999999997
+ Requested integration accuracy:   0.10E-19
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):        3.02             3018974
+          Stack Space remaining (MW):       13.08            13081492
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1 -19076.5226342517 -1.91D+04  3.88D-02  1.24D+07     5.9
+                                                     3.66D-02  1.24D+07
+ Grid integrated density:      78.999999999985
+ Requested integration accuracy:   0.10E-19
+ d= 0,ls=0.0,diis     2 -19657.0423410920 -5.81D+02  1.04D-02  5.17D+02     6.8
+                                                     9.78D-03  5.17D+02
+ Grid integrated density:      78.999999999985
+ Requested integration accuracy:   0.10E-19
+ d= 0,ls=0.0,diis     3 -19657.6551087315 -6.13D-01  1.59D-02  2.85D+01     7.7
+                                                     1.11D-02  2.85D+01
+ Grid integrated density:      78.999999999985
+ Requested integration accuracy:   0.10E-19
+ d= 0,ls=0.0,diis     4 -19657.7848176725 -1.30D-01  1.15D-02  9.90D+00     8.6
+                                                     7.19D-03  9.71D+00
+ Grid integrated density:      78.999999999985
+ Requested integration accuracy:   0.10E-19
+ d= 0,ls=0.0,diis     5 -19658.6632667153 -8.78D-01  2.95D-03  3.67D-01     9.5
+                                                     1.85D-03  3.57D-01
+ Grid integrated density:      78.999999999985
+ Requested integration accuracy:   0.10E-19
+ d= 0,ls=0.0,diis     6 -19658.7255212482 -6.23D-02  1.05D-03  1.85D-02    10.3
+                                                     4.16D-04  1.71D-02
+ Grid integrated density:      78.999999999985
+ Requested integration accuracy:   0.10E-19
+ d= 0,ls=0.0,diis     7 -19658.7303926736 -4.87D-03  5.21D-05  1.76D-04    11.2
+                                                     4.19D-05  1.65D-04
+ Grid integrated density:      79.000000000000
+ Requested integration accuracy:   0.10E-19
+  Resetting Diis
+ d= 0,ls=0.0,diis     8 -19658.7304496852 -5.70D-05  7.47D-06  2.59D-07    12.1
+                                                     2.83D-06  2.64D-07
+ Grid integrated density:      79.000000000000
+ Requested integration accuracy:   0.10E-19
+ d= 0,ls=0.0,diis     9 -19658.7304497962 -1.11D-07  2.43D-06  7.42D-09    13.0
+                                                     5.36D-07  6.77D-09
+(nogshift,skip_gshiftAOev,done_Fji)=( 1,F,F)
+
+
+         Total DFT energy =   -19658.730449796156
+      One electron energy =   -26694.285385430740
+           Coulomb energy =     7403.410139608343
+    Exchange-Corr. energy =     -367.855203973757
+ Nuclear repulsion energy =        0.000000000000
+
+       Scaling correction =      671.418623818579
+
+ Numeric. integr. density =       79.000000000000
+
+     Total iterative time =      9.8s
+
+
+
+                    DFT Final Alpha Molecular Orbital Analysis
+                    ------------------------------------------
+
+ Vector    1  Occ=1.000000D+00  E=-2.961352D+03
+              MO Center= -1.0D-20,  7.8D-21, -6.2D-21, r^2= 9.3D-05
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.327269  1 Au s                  5      0.317505  1 Au s          
+     3      0.204194  1 Au s                  6      0.117559  1 Au s          
+     2      0.113541  1 Au s                  1      0.094532  1 Au s          
+
+ Vector    2  Occ=1.000000D+00  E=-5.238285D+02
+              MO Center= -7.4D-16,  7.8D-17,  4.6D-16, r^2= 1.6D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      0.545827  1 Au s                  8      0.537603  1 Au s          
+     5     -0.196589  1 Au s                  4     -0.156381  1 Au s          
+     3     -0.080980  1 Au s                  9      0.048275  1 Au s          
+     2     -0.043640  1 Au s                  1     -0.033249  1 Au s          
+
+ Vector    3  Occ=1.000000D+00  E=-4.531754D+02
+              MO Center=  2.8D-16,  3.3D-16,  6.3D-18, r^2= 1.4D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      0.370254  1 Au py                21      0.311954  1 Au px         
+    19      0.287397  1 Au py                18      0.242143  1 Au px         
+    25      0.217167  1 Au py                24      0.182972  1 Au px         
+
+ Vector    4  Occ=1.000000D+00  E=-4.531754D+02
+              MO Center=  4.8D-16, -4.2D-16,  5.3D-18, r^2= 1.4D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      0.370265  1 Au px                22     -0.311947  1 Au py         
+    18      0.287405  1 Au px                19     -0.242138  1 Au py         
+    24      0.217174  1 Au px                25     -0.182968  1 Au py         
+
+ Vector    5  Occ=1.000000D+00  E=-4.531754D+02
+              MO Center=  8.9D-18, -5.9D-18, -5.0D-16, r^2= 1.4D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23      0.484148  1 Au pz                20      0.375803  1 Au pz         
+    26      0.283970  1 Au pz         
+
+ Vector    6  Occ=1.000000D+00  E=-1.242970D+02
+              MO Center= -9.3D-17, -4.0D-16,  1.2D-15, r^2= 1.1D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      0.790181  1 Au s                  9      0.651554  1 Au s          
+     8     -0.638918  1 Au s                  7     -0.446202  1 Au s          
+     5      0.102028  1 Au s                  4      0.077123  1 Au s          
+     3      0.038848  1 Au s                 12      0.035146  1 Au s          
+
+ Vector    7  Occ=1.000000D+00  E=-1.036901D+02
+              MO Center= -2.4D-17, -6.6D-17, -1.2D-15, r^2= 1.1D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      0.752427  1 Au pz                32      0.304601  1 Au pz         
+    23     -0.300808  1 Au pz                20     -0.202991  1 Au pz         
+    26      0.045322  1 Au pz         
+
+ Vector    8  Occ=1.000000D+00  E=-1.036901D+02
+              MO Center= -4.9D-17,  1.4D-16,  5.4D-17, r^2= 1.1D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      0.621367  1 Au px                28     -0.424324  1 Au py         
+    30      0.251545  1 Au px                21     -0.248412  1 Au px         
+    31     -0.171777  1 Au py                22      0.169638  1 Au py         
+    18     -0.167633  1 Au px                19      0.114475  1 Au py         
+    24      0.037428  1 Au px                25     -0.025559  1 Au py         
+
+ Vector    9  Occ=1.000000D+00  E=-1.036901D+02
+              MO Center=  3.1D-16,  2.3D-16,  9.4D-18, r^2= 1.1D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      0.621367  1 Au py                27      0.424328  1 Au px         
+    31      0.251544  1 Au py                22     -0.248412  1 Au py         
+    30      0.171778  1 Au px                21     -0.169639  1 Au px         
+    19     -0.167633  1 Au py                18     -0.114476  1 Au px         
+    25      0.037428  1 Au py                24      0.025559  1 Au px         
+
+ Vector   10  Occ=1.000000D+00  E=-8.166299D+01
+              MO Center= -1.1D-16, -4.3D-17, -5.3D-18, r^2= 9.2D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    53      0.584790  1 Au d  0              58      0.503277  1 Au d  0       
+    63      0.068066  1 Au d  0       
+
+ Vector   11  Occ=1.000000D+00  E=-8.166299D+01
+              MO Center= -1.2D-16,  2.1D-17, -1.4D-17, r^2= 9.2D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    55      0.582931  1 Au d  2              60      0.501678  1 Au d  2       
+    65      0.067850  1 Au d  2              52     -0.036938  1 Au d -1       
+    57     -0.031790  1 Au d -1       
+
+ Vector   12  Occ=1.000000D+00  E=-8.166299D+01
+              MO Center=  1.3D-17,  3.8D-17,  1.1D-17, r^2= 9.2D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    52      0.484788  1 Au d -1              57      0.417215  1 Au d -1       
+    51      0.303853  1 Au d -2              56      0.261499  1 Au d -2       
+    54     -0.119155  1 Au d  1              59     -0.102546  1 Au d  1       
+    62      0.056426  1 Au d -1              61      0.035367  1 Au d -2       
+
+ Vector   13  Occ=1.000000D+00  E=-8.166299D+01
+              MO Center= -5.5D-18, -1.5D-17, -6.4D-17, r^2= 9.2D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    54      0.527849  1 Au d  1              59      0.454273  1 Au d  1       
+    52      0.213270  1 Au d -1              57      0.183542  1 Au d -1       
+    51     -0.133653  1 Au d -2              56     -0.115024  1 Au d -2       
+    64      0.061438  1 Au d  1       
+
+ Vector   14  Occ=1.000000D+00  E=-8.166299D+01
+              MO Center=  6.0D-18,  2.0D-17,  5.3D-18, r^2= 9.2D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    51      0.480837  1 Au d -2              56      0.413814  1 Au d -2       
+    52     -0.245212  1 Au d -1              54      0.221243  1 Au d  1       
+    57     -0.211033  1 Au d -1              59      0.190405  1 Au d  1       
+    61      0.055967  1 Au d -2              55     -0.041395  1 Au d  2       
+    60     -0.035625  1 Au d  2              62     -0.028541  1 Au d -1       
+
+ Vector   15  Occ=1.000000D+00  E=-2.728017D+01
+              MO Center=  2.3D-17,  7.1D-17,  1.5D-17, r^2= 5.2D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11     -1.038204  1 Au s                 10      1.008983  1 Au s          
+     9      0.674789  1 Au s                 12     -0.631518  1 Au s          
+     8     -0.431678  1 Au s                  7     -0.249840  1 Au s          
+     5      0.053340  1 Au s                  4      0.038751  1 Au s          
+
+ Vector   16  Occ=1.000000D+00  E=-2.047583D+01
+              MO Center= -1.9D-16, -3.0D-16,  1.4D-16, r^2= 6.0D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    34      0.785178  1 Au py                28     -0.560296  1 Au py         
+    33      0.402886  1 Au px                27     -0.287496  1 Au px         
+    31      0.148514  1 Au py                22      0.138730  1 Au py         
+    37      0.094737  1 Au py                19      0.091226  1 Au py         
+    30      0.076205  1 Au px                21      0.071184  1 Au px         
+
+ Vector   17  Occ=1.000000D+00  E=-2.047583D+01
+              MO Center= -3.2D-16, -2.0D-16,  6.7D-17, r^2= 6.0D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    33      0.784813  1 Au px                27     -0.560036  1 Au px         
+    34     -0.402740  1 Au py                28      0.287392  1 Au py         
+    30      0.148445  1 Au px                21      0.138665  1 Au px         
+    36      0.094693  1 Au px                18      0.091184  1 Au px         
+    31     -0.076177  1 Au py                22     -0.071159  1 Au py         
+
+ Vector   18  Occ=1.000000D+00  E=-2.047583D+01
+              MO Center=  1.5D-16,  7.9D-17, -7.1D-17, r^2= 6.0D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35      0.882117  1 Au pz                29     -0.629471  1 Au pz         
+    32      0.166850  1 Au pz                23      0.155858  1 Au pz         
+    38      0.106433  1 Au pz                20      0.102489  1 Au pz         
+    26     -0.059223  1 Au pz         
+
+ Vector   19  Occ=1.000000D+00  E=-1.228787D+01
+              MO Center= -2.2D-16,  2.2D-16,  8.7D-17, r^2= 6.8D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    61      0.538121  1 Au d -2              66      0.424967  1 Au d -2       
+    65     -0.276900  1 Au d  2              51     -0.271421  1 Au d -2       
+    70     -0.218674  1 Au d  2              55      0.139664  1 Au d  2       
+    62      0.131958  1 Au d -1              56     -0.118272  1 Au d -2       
+    67      0.104210  1 Au d -1              63     -0.082042  1 Au d  0       
+
+ Vector   20  Occ=1.000000D+00  E=-1.228787D+01
+              MO Center=  1.0D-16, -1.8D-16,  9.2D-17, r^2= 6.8D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    63      0.608534  1 Au d  0              68      0.480573  1 Au d  0       
+    53     -0.306936  1 Au d  0              58     -0.133747  1 Au d  0       
+    64      0.108596  1 Au d  1              61      0.095450  1 Au d -2       
+    69      0.085761  1 Au d  1              66      0.075379  1 Au d -2       
+    54     -0.054775  1 Au d  1              51     -0.048144  1 Au d -2       
+
+ Vector   21  Occ=1.000000D+00  E=-1.228787D+01
+              MO Center=  2.0D-16,  1.6D-16, -7.9D-17, r^2= 6.8D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    65      0.487138  1 Au d  2              70      0.384704  1 Au d  2       
+    62      0.316278  1 Au d -1              67      0.249772  1 Au d -1       
+    55     -0.245706  1 Au d  2              61      0.174197  1 Au d -2       
+    52     -0.159526  1 Au d -1              64      0.146540  1 Au d  1       
+    66      0.137567  1 Au d -2              69      0.115726  1 Au d  1       
+
+ Vector   22  Occ=1.000000D+00  E=-1.228787D+01
+              MO Center=  1.6D-16, -1.4D-16, -3.0D-16, r^2= 6.8D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    62      0.497728  1 Au d -1              67      0.393067  1 Au d -1       
+    64     -0.259424  1 Au d  1              52     -0.251047  1 Au d -1       
+    61     -0.208350  1 Au d -2              69     -0.204873  1 Au d  1       
+    66     -0.164539  1 Au d -2              65     -0.163142  1 Au d  2       
+    54      0.130850  1 Au d  1              70     -0.128837  1 Au d  2       
+
+ Vector   23  Occ=1.000000D+00  E=-1.228787D+01
+              MO Center= -1.9D-16,  2.3D-16,  1.9D-16, r^2= 6.8D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    64      0.538353  1 Au d  1              69      0.425150  1 Au d  1       
+    54     -0.271538  1 Au d  1              65     -0.225011  1 Au d  2       
+    70     -0.177696  1 Au d  2              62      0.161547  1 Au d -1       
+    61     -0.137264  1 Au d -2              67      0.127577  1 Au d -1       
+    59     -0.118323  1 Au d  1              55      0.113492  1 Au d  2       
+
+ Vector   24  Occ=1.000000D+00  E=-4.135048D+00
+              MO Center=  3.5D-17,  2.6D-16,  2.9D-16, r^2= 2.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13     -0.941596  1 Au s                 11      0.889682  1 Au s          
+    12      0.791184  1 Au s                 14     -0.620491  1 Au s          
+    10     -0.593247  1 Au s                  9     -0.348526  1 Au s          
+     8      0.204081  1 Au s                  7      0.114533  1 Au s          
+    15     -0.040256  1 Au s          
+
+ Vector   25  Occ=1.000000D+00  E=-3.169442D+00
+              MO Center= -1.4D-16, -1.3D-16, -1.0D-16, r^2= 8.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    92      0.964850  1 Au f -2              96      0.169993  1 Au f  2       
+    99      0.068359  1 Au f -2       
+
+ Vector   26  Occ=1.000000D+00  E=-3.169442D+00
+              MO Center= -2.0D-16,  2.1D-16, -7.4D-18, r^2= 8.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    97      0.691127  1 Au f  3              95      0.681023  1 Au f  1       
+    93      0.110820  1 Au f -1              91      0.077773  1 Au f -3       
+   104      0.048966  1 Au f  3             102      0.048250  1 Au f  1       
+
+ Vector   27  Occ=1.000000D+00  E=-3.169442D+00
+              MO Center= -6.6D-17,  7.6D-17,  4.6D-16, r^2= 8.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    94      0.979263  1 Au f  0             101      0.069381  1 Au f  0       
+    95      0.026348  1 Au f  1       
+
+ Vector   28  Occ=1.000000D+00  E=-3.169442D+00
+              MO Center= -5.2D-17,  1.6D-16, -4.1D-18, r^2= 8.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    91      0.839371  1 Au f -3              93      0.431153  1 Au f -1       
+    97     -0.185595  1 Au f  3              96     -0.182603  1 Au f  2       
+    98      0.059469  1 Au f -3              92      0.033746  1 Au f -2       
+   100      0.030547  1 Au f -1       
+
+ Vector   29  Occ=1.000000D+00  E=-3.169442D+00
+              MO Center= -8.3D-17, -1.7D-16, -7.2D-17, r^2= 8.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    93      0.733186  1 Au f -1              95     -0.441540  1 Au f  1       
+    97      0.344734  1 Au f  3              91     -0.238589  1 Au f -3       
+    96      0.222582  1 Au f  2             100      0.051946  1 Au f -1       
+    92     -0.041830  1 Au f -2             102     -0.031283  1 Au f  1       
+
+ Vector   30  Occ=1.000000D+00  E=-3.169442D+00
+              MO Center= -6.5D-17,  3.6D-16, -1.3D-16, r^2= 8.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    97     -0.515628  1 Au f  3              95      0.493807  1 Au f  1       
+    93      0.472898  1 Au f -1              91     -0.419519  1 Au f -3       
+    96     -0.220785  1 Au f  2              92      0.037010  1 Au f -2       
+   104     -0.036532  1 Au f  3             102      0.034986  1 Au f  1       
+   100      0.033505  1 Au f -1              98     -0.029723  1 Au f -3       
+
+ Vector   31  Occ=1.000000D+00  E=-3.169442D+00
+              MO Center=  5.9D-17,  5.4D-17,  4.9D-17, r^2= 8.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    96      0.894046  1 Au f  2              97     -0.250672  1 Au f  3       
+    95      0.236797  1 Au f  1              92     -0.157014  1 Au f -2       
+    91      0.127820  1 Au f -3             103      0.063343  1 Au f  2       
+
+ Vector   32  Occ=1.000000D+00  E=-2.312180D+00
+              MO Center=  7.2D-16, -2.4D-15, -7.6D-16, r^2= 3.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    40     -0.528164  1 Au py                39      0.500965  1 Au px         
+    34      0.451203  1 Au py                33     -0.427968  1 Au px         
+    37     -0.263696  1 Au py                36      0.250116  1 Au px         
+    28     -0.207416  1 Au py                27      0.196734  1 Au px         
+    43     -0.117578  1 Au py                42      0.111523  1 Au px         
+
+ Vector   33  Occ=1.000000D+00  E=-2.312180D+00
+              MO Center= -4.8D-16, -1.5D-15, -8.8D-17, r^2= 3.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    41      0.727957  1 Au pz                35     -0.621884  1 Au pz         
+    38      0.363446  1 Au pz                29      0.285877  1 Au pz         
+    44      0.162055  1 Au pz                32     -0.131259  1 Au pz         
+    23     -0.064403  1 Au pz                20     -0.042008  1 Au pz         
+    26      0.028492  1 Au pz         
+
+ Vector   34  Occ=1.000000D+00  E=-2.312180D+00
+              MO Center=  8.6D-16,  3.5D-15, -5.1D-16, r^2= 3.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    39      0.528463  1 Au px                40      0.501297  1 Au py         
+    33     -0.451459  1 Au px                34     -0.428251  1 Au py         
+    36      0.263845  1 Au px                37      0.250282  1 Au py         
+    27      0.207533  1 Au px                28      0.196865  1 Au py         
+    42      0.117645  1 Au px                43      0.111597  1 Au py         
+
+ Vector   35  Occ=1.000000D+00  E=-3.025010D-01
+              MO Center= -4.4D-15, -2.8D-16,  1.3D-15, r^2= 8.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    78      0.493133  1 Au d  0              73      0.439947  1 Au d  0       
+    83      0.265120  1 Au d  0              63     -0.234845  1 Au d  0       
+    68     -0.096620  1 Au d  0              53      0.093260  1 Au d  0       
+    88      0.054428  1 Au d  0              58      0.032502  1 Au d  0       
+
+ Vector   36  Occ=1.000000D+00  E=-3.025010D-01
+              MO Center=  3.6D-16, -3.1D-15,  8.2D-16, r^2= 8.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    80      0.492730  1 Au d  2              75      0.439588  1 Au d  2       
+    85      0.264904  1 Au d  2              65     -0.234653  1 Au d  2       
+    70     -0.096541  1 Au d  2              55      0.093184  1 Au d  2       
+    90      0.054384  1 Au d  2              60      0.032476  1 Au d  2       
+
+ Vector   37  Occ=1.000000D+00  E=-3.025010D-01
+              MO Center=  1.1D-15,  2.1D-16,  3.5D-15, r^2= 8.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    77      0.356734  1 Au d -1              79     -0.339961  1 Au d  1       
+    72      0.318259  1 Au d -1              74     -0.303295  1 Au d  1       
+    82      0.191789  1 Au d -1              84     -0.182771  1 Au d  1       
+    62     -0.169888  1 Au d -1              64      0.161900  1 Au d  1       
+    67     -0.069895  1 Au d -1              52      0.067464  1 Au d -1       
+
+ Vector   38  Occ=1.000000D+00  E=-3.025010D-01
+              MO Center= -1.7D-15,  8.1D-16,  2.1D-15, r^2= 8.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    79      0.356171  1 Au d  1              77      0.339787  1 Au d -1       
+    74      0.317757  1 Au d  1              72      0.303140  1 Au d -1       
+    84      0.191486  1 Au d  1              82      0.182678  1 Au d -1       
+    64     -0.169620  1 Au d  1              62     -0.161817  1 Au d -1       
+    69     -0.069785  1 Au d  1              54      0.067358  1 Au d  1       
+
+ Vector   39  Occ=1.000000D+00  E=-3.025010D-01
+              MO Center= -1.8D-15, -5.8D-15,  6.7D-16, r^2= 8.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    76      0.492301  1 Au d -2              71      0.439205  1 Au d -2       
+    81      0.264673  1 Au d -2              61     -0.234449  1 Au d -2       
+    66     -0.096457  1 Au d -2              51      0.093102  1 Au d -2       
+    86      0.054337  1 Au d -2              56      0.032448  1 Au d -2       
+
+ Vector   40  Occ=1.000000D+00  E=-2.446064D-01
+              MO Center=  5.1D-16,  3.3D-15,  5.6D-15, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      0.689282  1 Au s                 14     -0.463979  1 Au s          
+    16      0.425956  1 Au s                 13     -0.413505  1 Au s          
+    11      0.287619  1 Au s                 12      0.275343  1 Au s          
+    10     -0.180102  1 Au s                 15      0.121164  1 Au s          
+     9     -0.101675  1 Au s                  8      0.058805  1 Au s          
+
+ Vector   41  Occ=0.000000D+00  E=-1.018814D-02
+              MO Center=  1.3D-14, -3.0D-15,  1.5D-14, r^2= 5.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    49      0.946862  1 Au py                40     -0.230741  1 Au py         
+    34      0.126574  1 Au py                37     -0.083184  1 Au py         
+    43      0.061762  1 Au py                46      0.057317  1 Au py         
+    28     -0.056794  1 Au py                31      0.028449  1 Au py         
+
+ Vector   42  Occ=0.000000D+00  E=-1.018814D-02
+              MO Center= -4.0D-17,  3.8D-15, -3.5D-15, r^2= 5.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    50      0.947042  1 Au pz                41     -0.230785  1 Au pz         
+    35      0.126599  1 Au pz                38     -0.083200  1 Au pz         
+    44      0.061773  1 Au pz                47      0.057327  1 Au pz         
+    29     -0.056805  1 Au pz                32      0.028454  1 Au pz         
+
+ Vector   43  Occ=0.000000D+00  E=-1.018814D-02
+              MO Center= -1.6D-14,  9.8D-15, -4.7D-15, r^2= 5.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    48      0.946908  1 Au px                39     -0.230753  1 Au px         
+    33      0.126581  1 Au px                36     -0.083188  1 Au px         
+    42      0.061765  1 Au px                45      0.057319  1 Au px         
+    27     -0.056797  1 Au px                30      0.028450  1 Au px         
+
+ Vector   44  Occ=0.000000D+00  E= 1.645587D-01
+              MO Center=  2.0D-14,  1.0D-14, -2.9D-15, r^2= 7.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    88      1.147192  1 Au d  0              83     -0.294467  1 Au d  0       
+    73     -0.153286  1 Au d  0              78     -0.086131  1 Au d  0       
+    63      0.067376  1 Au d  0              68      0.032164  1 Au d  0       
+    53     -0.027105  1 Au d  0       
+
+ Vector   45  Occ=0.000000D+00  E= 1.645587D-01
+              MO Center= -4.5D-15, -1.8D-15,  1.8D-15, r^2= 7.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    89      1.064260  1 Au d  1              87     -0.428252  1 Au d -1       
+    84     -0.273180  1 Au d  1              74     -0.142205  1 Au d  1       
+    82      0.109926  1 Au d -1              79     -0.079905  1 Au d  1       
+    64      0.062506  1 Au d  1              72      0.057222  1 Au d -1       
+    77      0.032153  1 Au d -1              69      0.029839  1 Au d  1       
+
+ Vector   46  Occ=0.000000D+00  E= 1.645587D-01
+              MO Center=  4.0D-15, -1.1D-14, -1.7D-15, r^2= 7.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    87      1.064260  1 Au d -1              89      0.428252  1 Au d  1       
+    82     -0.273180  1 Au d -1              72     -0.142205  1 Au d -1       
+    84     -0.109926  1 Au d  1              77     -0.079905  1 Au d -1       
+    62      0.062506  1 Au d -1              74     -0.057222  1 Au d  1       
+    79     -0.032153  1 Au d  1              67      0.029839  1 Au d -1       
+
+ Vector   47  Occ=0.000000D+00  E= 1.645587D-01
+              MO Center= -4.9D-15,  5.9D-15, -4.6D-17, r^2= 7.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    90      0.933270  1 Au d  2              86      0.667126  1 Au d -2       
+    85     -0.239557  1 Au d  2              81     -0.171241  1 Au d -2       
+    75     -0.124702  1 Au d  2              71     -0.089140  1 Au d -2       
+    80     -0.070070  1 Au d  2              65      0.054812  1 Au d  2       
+    76     -0.050088  1 Au d -2              61      0.039181  1 Au d -2       
+
+ Vector   48  Occ=0.000000D+00  E= 1.645587D-01
+              MO Center= -8.6D-15, -7.3D-15, -3.5D-17, r^2= 7.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    86      0.933270  1 Au d -2              90     -0.667126  1 Au d  2       
+    81     -0.239557  1 Au d -2              85      0.171241  1 Au d  2       
+    71     -0.124702  1 Au d -2              75      0.089140  1 Au d  2       
+    76     -0.070070  1 Au d -2              61      0.054812  1 Au d -2       
+    80      0.050088  1 Au d  2              65     -0.039181  1 Au d  2       
+
+ Vector   49  Occ=0.000000D+00  E= 1.813629D-01
+              MO Center= -9.1D-15,  2.3D-15,  1.3D-14, r^2= 6.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      4.193004  1 Au s                 17     -2.825145  1 Au s          
+    15     -1.743583  1 Au s                 13     -0.688072  1 Au s          
+    14      0.395085  1 Au s                 12      0.369792  1 Au s          
+    11      0.169498  1 Au s                 10     -0.118451  1 Au s          
+     9     -0.091050  1 Au s                  8      0.050820  1 Au s          
+
+ Vector   50  Occ=0.000000D+00  E= 3.051587D-01
+              MO Center=  4.2D-15, -9.7D-15, -3.9D-15, r^2= 5.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    45      1.586472  1 Au px                46     -1.501168  1 Au py         
+    48     -1.098318  1 Au px                49      1.039261  1 Au py         
+    42     -0.416138  1 Au px                43      0.393762  1 Au py         
+    33      0.157465  1 Au px                36     -0.150654  1 Au px         
+    34     -0.148998  1 Au py                37      0.142553  1 Au py         
+
+ Vector   51  Occ=0.000000D+00  E= 3.051587D-01
+              MO Center=  8.0D-15,  1.2D-14, -1.4D-14, r^2= 5.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    47      1.358275  1 Au pz                46     -1.242492  1 Au py         
+    45     -1.175457  1 Au px                50     -0.940337  1 Au pz         
+    49      0.860180  1 Au py                48      0.813771  1 Au px         
+    44     -0.356281  1 Au pz                43      0.325911  1 Au py         
+    42      0.308327  1 Au px                35      0.134815  1 Au pz         
+
+ Vector   52  Occ=0.000000D+00  E= 3.051587D-01
+              MO Center= -4.5D-15, -2.7D-15, -4.0D-15, r^2= 5.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    47      1.710405  1 Au pz                50     -1.184117  1 Au pz         
+    46      0.986462  1 Au py                45      0.933705  1 Au px         
+    49     -0.682930  1 Au py                48     -0.646406  1 Au px         
+    44     -0.448646  1 Au pz                43     -0.258753  1 Au py         
+    42     -0.244915  1 Au px                35      0.169766  1 Au pz         
+
+ Vector   53  Occ=0.000000D+00  E= 7.671763D-01
+              MO Center=  3.6D-16,  3.6D-17,  3.6D-15, r^2= 3.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    82      1.549897  1 Au d -1              87     -0.752267  1 Au d -1       
+    77     -0.702233  1 Au d -1              84     -0.598825  1 Au d  1       
+    89      0.290649  1 Au d  1              79      0.271318  1 Au d  1       
+    72     -0.225416  1 Au d -1              62      0.154065  1 Au d -1       
+    74      0.087093  1 Au d  1              64     -0.059525  1 Au d  1       
+
+ Vector   54  Occ=0.000000D+00  E= 7.671763D-01
+              MO Center= -4.3D-15,  7.0D-17,  1.8D-16, r^2= 3.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    84      1.549897  1 Au d  1              89     -0.752267  1 Au d  1       
+    79     -0.702233  1 Au d  1              82      0.598825  1 Au d -1       
+    87     -0.290649  1 Au d -1              77     -0.271318  1 Au d -1       
+    74     -0.225416  1 Au d  1              64      0.154065  1 Au d  1       
+    72     -0.087093  1 Au d -1              62      0.059525  1 Au d -1       
+
+ Vector   55  Occ=0.000000D+00  E= 7.671763D-01
+              MO Center=  1.6D-16,  1.2D-15, -3.3D-15, r^2= 3.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    85      1.429798  1 Au d  2              81     -0.846435  1 Au d -2       
+    90     -0.693975  1 Au d  2              80     -0.647818  1 Au d  2       
+    86      0.410831  1 Au d -2              76      0.383506  1 Au d -2       
+    75     -0.207949  1 Au d  2              65      0.142127  1 Au d  2       
+    71      0.123105  1 Au d -2              61     -0.084139  1 Au d -2       
+
+ Vector   56  Occ=0.000000D+00  E= 7.671763D-01
+              MO Center= -1.3D-15, -7.6D-16,  1.1D-15, r^2= 3.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    81      1.429798  1 Au d -2              85      0.846435  1 Au d  2       
+    86     -0.693975  1 Au d -2              76     -0.647818  1 Au d -2       
+    90     -0.410831  1 Au d  2              80     -0.383506  1 Au d  2       
+    71     -0.207949  1 Au d -2              61      0.142127  1 Au d -2       
+    75     -0.123105  1 Au d  2              65      0.084139  1 Au d  2       
+
+ Vector   57  Occ=0.000000D+00  E= 7.671763D-01
+              MO Center=  4.1D-16,  1.2D-15,  4.9D-16, r^2= 3.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    83      1.661557  1 Au d  0              88     -0.806463  1 Au d  0       
+    78     -0.752825  1 Au d  0              73     -0.241655  1 Au d  0       
+    63      0.165165  1 Au d  0              53     -0.061699  1 Au d  0       
+    68      0.034861  1 Au d  0       
+
+ Vector   58  Occ=0.000000D+00  E= 9.647494D-01
+              MO Center=  2.1D-16, -6.5D-16, -2.6D-15, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   108      0.963766  1 Au f  0              94     -0.100708  1 Au f  0       
+   101      0.068014  1 Au f  0       
+
+ Vector   59  Occ=0.000000D+00  E= 9.647494D-01
+              MO Center=  1.3D-15, -9.7D-16, -1.8D-16, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   106      0.883863  1 Au f -2             110     -0.384229  1 Au f  2       
+    92     -0.092359  1 Au f -2              99      0.062375  1 Au f -2       
+    96      0.040150  1 Au f  2             103     -0.027115  1 Au f  2       
+
+ Vector   60  Occ=0.000000D+00  E= 9.647494D-01
+              MO Center=  1.2D-15,  3.5D-15,  1.4D-15, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   110      0.883863  1 Au f  2             106      0.384229  1 Au f -2       
+    96     -0.092359  1 Au f  2             103      0.062375  1 Au f  2       
+    92     -0.040150  1 Au f -2              99      0.027115  1 Au f -2       
+
+ Vector   61  Occ=0.000000D+00  E= 9.647494D-01
+              MO Center=  3.9D-16, -8.1D-16,  5.0D-17, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   111      0.781474  1 Au f  3             105      0.563698  1 Au f -3       
+    97     -0.081660  1 Au f  3              91     -0.058903  1 Au f -3       
+   104      0.055149  1 Au f  3              98      0.039780  1 Au f -3       
+
+ Vector   62  Occ=0.000000D+00  E= 9.647494D-01
+              MO Center=  1.6D-15, -2.7D-15,  1.2D-17, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   105      0.774891  1 Au f -3             111     -0.557995  1 Au f  3       
+   107     -0.110165  1 Au f -1              91     -0.080972  1 Au f -3       
+   109     -0.069964  1 Au f  1              97      0.058307  1 Au f  3       
+    98      0.054684  1 Au f -3             104     -0.039378  1 Au f  3       
+
+ Vector   63  Occ=0.000000D+00  E= 9.647494D-01
+              MO Center= -4.5D-16, -2.4D-17, -2.1D-15, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   109      0.953749  1 Au f  1             107     -0.126227  1 Au f -1       
+    95     -0.099662  1 Au f  1             102      0.067307  1 Au f  1       
+   105      0.053439  1 Au f -3       
+
+ Vector   64  Occ=0.000000D+00  E= 9.647494D-01
+              MO Center=  5.6D-16, -1.1D-15, -2.2D-15, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   107      0.948975  1 Au f -1             109      0.118942  1 Au f  1       
+    93     -0.099163  1 Au f -1             105      0.088196  1 Au f -3       
+   111     -0.079791  1 Au f  3             100      0.066970  1 Au f -1       
+
+ Vector   65  Occ=0.000000D+00  E= 1.138122D+00
+              MO Center= -2.1D-15,  1.1D-14, -8.8D-15, r^2= 3.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      8.119162  1 Au s                 16     -6.423807  1 Au s          
+    14     -4.566623  1 Au s                 17      2.113230  1 Au s          
+    13      0.702313  1 Au s                 11      0.681727  1 Au s          
+    10     -0.369867  1 Au s                 12     -0.130073  1 Au s          
+     9     -0.114439  1 Au s                  8      0.072560  1 Au s          
+
+ Vector   66  Occ=0.000000D+00  E= 1.473569D+00
+              MO Center= -1.4D-15, -3.3D-16, -3.1D-17, r^2= 2.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    42      2.741409  1 Au px                45     -2.060231  1 Au px         
+    43      1.865328  1 Au py                39     -1.498026  1 Au px         
+    46     -1.401836  1 Au py                40     -1.019297  1 Au py         
+    48      0.712935  1 Au px                49      0.485100  1 Au py         
+    33      0.247079  1 Au px                34      0.168119  1 Au py         
+
+ Vector   67  Occ=0.000000D+00  E= 1.473569D+00
+              MO Center=  7.7D-15, -7.3D-15, -2.2D-16, r^2= 2.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    43      2.741106  1 Au py                46     -2.060003  1 Au py         
+    42     -1.865110  1 Au px                40     -1.497860  1 Au py         
+    45      1.401672  1 Au px                39      1.019178  1 Au px         
+    49      0.712856  1 Au py                48     -0.485043  1 Au px         
+    34      0.247052  1 Au py                33     -0.168099  1 Au px         
+
+ Vector   68  Occ=0.000000D+00  E= 1.473569D+00
+              MO Center=  4.6D-16,  6.3D-17,  7.9D-15, r^2= 2.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    44      3.315463  1 Au pz                47     -2.491646  1 Au pz         
+    41     -1.811714  1 Au pz                50      0.862224  1 Au pz         
+    35      0.298818  1 Au pz                29     -0.179081  1 Au pz         
+    32      0.118195  1 Au pz                43     -0.040759  1 Au py         
+    23      0.036386  1 Au pz                46      0.030631  1 Au py         
+
+ Vector   69  Occ=0.000000D+00  E= 2.929476D+00
+              MO Center=  2.8D-15,  2.2D-15, -4.3D-16, r^2= 8.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   103      1.217151  1 Au f  2             110     -0.682204  1 Au f  2       
+    96     -0.338450  1 Au f  2       
+
+ Vector   70  Occ=0.000000D+00  E= 2.929476D+00
+              MO Center= -8.6D-16,  3.1D-15, -1.2D-15, r^2= 8.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    99      1.217151  1 Au f -2             106     -0.682204  1 Au f -2       
+    92     -0.338450  1 Au f -2       
+
+ Vector   71  Occ=0.000000D+00  E= 2.929476D+00
+              MO Center=  8.7D-16, -3.0D-16, -7.6D-16, r^2= 8.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   101      1.217151  1 Au f  0             108     -0.682204  1 Au f  0       
+    94     -0.338450  1 Au f  0       
+
+ Vector   72  Occ=0.000000D+00  E= 2.929476D+00
+              MO Center= -3.3D-17, -5.9D-16, -1.4D-17, r^2= 8.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   104      1.208487  1 Au f  3             111     -0.677348  1 Au f  3       
+    97     -0.336041  1 Au f  3             102     -0.144400  1 Au f  1       
+   109      0.080935  1 Au f  1              95      0.040153  1 Au f  1       
+
+ Vector   73  Occ=0.000000D+00  E= 2.929476D+00
+              MO Center= -2.6D-15, -5.8D-16,  3.6D-17, r^2= 8.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    98      1.203031  1 Au f -3             105     -0.674290  1 Au f -3       
+    91     -0.334524  1 Au f -3             100      0.184414  1 Au f -1       
+   107     -0.103363  1 Au f -1              93     -0.051280  1 Au f -1       
+
+ Vector   74  Occ=0.000000D+00  E= 2.929476D+00
+              MO Center= -1.3D-16, -1.8D-16, -1.5D-15, r^2= 8.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   100      1.203098  1 Au f -1             107     -0.674327  1 Au f -1       
+    93     -0.334543  1 Au f -1              98     -0.184424  1 Au f -3       
+   105      0.103368  1 Au f -3              91      0.051282  1 Au f -3       
+
+ Vector   75  Occ=0.000000D+00  E= 2.929476D+00
+              MO Center=  9.3D-17, -2.7D-16, -8.4D-16, r^2= 8.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   102      1.208554  1 Au f  1             109     -0.677385  1 Au f  1       
+    95     -0.336060  1 Au f  1             104      0.144408  1 Au f  3       
+   111     -0.080939  1 Au f  3              97     -0.040155  1 Au f  3       
+
+ Vector   76  Occ=0.000000D+00  E= 3.081881D+00
+              MO Center= -1.6D-15, -4.4D-15,  2.1D-15, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    79      1.385551  1 Au d  1              77      1.226167  1 Au d -1       
+    74     -1.156809  1 Au d  1              72     -1.023738  1 Au d -1       
+    84     -0.783301  1 Au d  1              82     -0.693196  1 Au d -1       
+    89      0.262339  1 Au d  1              87      0.232162  1 Au d -1       
+    64      0.230842  1 Au d  1              62      0.204288  1 Au d -1       
+
+ Vector   77  Occ=0.000000D+00  E= 3.081881D+00
+              MO Center= -2.3D-15, -2.2D-15,  1.7D-15, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    77      1.385551  1 Au d -1              79     -1.226167  1 Au d  1       
+    72     -1.156809  1 Au d -1              74      1.023738  1 Au d  1       
+    82     -0.783301  1 Au d -1              84      0.693196  1 Au d  1       
+    87      0.262339  1 Au d -1              89     -0.232162  1 Au d  1       
+    62      0.230842  1 Au d -1              64     -0.204288  1 Au d  1       
+
+ Vector   78  Occ=0.000000D+00  E= 3.081881D+00
+              MO Center=  6.0D-16,  3.8D-15,  3.6D-16, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    80      1.514417  1 Au d  2              75     -1.264401  1 Au d  2       
+    76      1.062910  1 Au d -2              71     -0.887433  1 Au d -2       
+    85     -0.856154  1 Au d  2              81     -0.600900  1 Au d -2       
+    90      0.286739  1 Au d  2              65      0.252312  1 Au d  2       
+    86      0.201251  1 Au d -2              70      0.190882  1 Au d  2       
+
+ Vector   79  Occ=0.000000D+00  E= 3.081881D+00
+              MO Center=  2.4D-15, -2.9D-15,  2.1D-16, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    76      1.514417  1 Au d -2              71     -1.264401  1 Au d -2       
+    80     -1.062910  1 Au d  2              75      0.887433  1 Au d  2       
+    81     -0.856154  1 Au d -2              85      0.600900  1 Au d  2       
+    86      0.286739  1 Au d -2              61      0.252312  1 Au d -2       
+    90     -0.201251  1 Au d  2              66      0.190882  1 Au d -2       
+
+ Vector   80  Occ=0.000000D+00  E= 3.081881D+00
+              MO Center=  2.0D-16,  8.1D-16, -1.2D-15, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    78      1.850199  1 Au d  0              73     -1.544748  1 Au d  0       
+    83     -1.045983  1 Au d  0              88      0.350315  1 Au d  0       
+    63      0.308256  1 Au d  0              68      0.233205  1 Au d  0       
+    53     -0.128581  1 Au d  0              58     -0.033774  1 Au d  0       
+
+ Vector   81  Occ=0.000000D+00  E= 4.544257D+00
+              MO Center= -1.0D-15,  4.6D-15,  4.7D-15, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14     11.114032  1 Au s                 13     -9.122769  1 Au s          
+    15     -8.322616  1 Au s                 16      4.094724  1 Au s          
+    12      3.710447  1 Au s                 17     -1.105862  1 Au s          
+     9     -0.462140  1 Au s                  8      0.236136  1 Au s          
+    10     -0.159883  1 Au s                  7      0.071461  1 Au s          
+
+ Vector   82  Occ=0.000000D+00  E= 6.576208D+00
+              MO Center= -5.5D-16,  1.8D-16, -4.7D-15, r^2= 7.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    41     -3.726671  1 Au pz                38      3.588515  1 Au pz         
+    44      2.462897  1 Au pz                35     -1.714930  1 Au pz         
+    47     -1.194155  1 Au pz                50      0.368520  1 Au pz         
+    29      0.328716  1 Au pz                23     -0.088191  1 Au pz         
+    26      0.057647  1 Au pz                20     -0.053813  1 Au pz         
+
+ Vector   83  Occ=0.000000D+00  E= 6.576208D+00
+              MO Center= -1.2D-15, -5.2D-15,  1.3D-15, r^2= 7.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    40     -3.722007  1 Au py                37      3.584024  1 Au py         
+    43      2.459815  1 Au py                34     -1.712784  1 Au py         
+    46     -1.192661  1 Au py                49      0.368059  1 Au py         
+    28      0.328304  1 Au py                39     -0.186394  1 Au px         
+    36      0.179484  1 Au px                42      0.123185  1 Au px         
+
+ Vector   84  Occ=0.000000D+00  E= 6.576208D+00
+              MO Center=  2.3D-15,  2.2D-16, -3.3D-16, r^2= 7.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    39     -3.722009  1 Au px                36      3.584026  1 Au px         
+    42      2.459817  1 Au px                33     -1.712785  1 Au px         
+    45     -1.192662  1 Au px                48      0.368059  1 Au px         
+    27      0.328305  1 Au px                40      0.186396  1 Au py         
+    37     -0.179486  1 Au py                43     -0.123186  1 Au py         
+
+ Vector   85  Occ=0.000000D+00  E= 1.481383D+01
+              MO Center=  1.8D-15, -3.6D-16, -9.0D-18, r^2= 2.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    69      1.961977  1 Au d  1              74     -1.477498  1 Au d  1       
+    64     -1.336544  1 Au d  1              79      0.787334  1 Au d  1       
+    67      0.396421  1 Au d -1              84     -0.355823  1 Au d  1       
+    54      0.300743  1 Au d  1              72     -0.298532  1 Au d -1       
+    62     -0.270052  1 Au d -1              77      0.159083  1 Au d -1       
+
+ Vector   86  Occ=0.000000D+00  E= 1.481383D+01
+              MO Center=  6.4D-17,  1.2D-16,  1.3D-17, r^2= 2.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    70      1.980288  1 Au d  2              75     -1.491288  1 Au d  2       
+    65     -1.349018  1 Au d  2              80      0.794683  1 Au d  2       
+    85     -0.359144  1 Au d  2              55      0.303550  1 Au d  2       
+    67     -0.283662  1 Au d -1              72      0.213616  1 Au d -1       
+    62      0.193237  1 Au d -1              60      0.134707  1 Au d  2       
+
+ Vector   87  Occ=0.000000D+00  E= 1.481383D+01
+              MO Center= -5.1D-16, -2.3D-15, -1.2D-15, r^2= 2.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    67      1.935211  1 Au d -1              72     -1.457342  1 Au d -1       
+    62     -1.318311  1 Au d -1              77      0.776593  1 Au d -1       
+    69     -0.390071  1 Au d  1              82     -0.350969  1 Au d -1       
+    52      0.296640  1 Au d -1              74      0.293749  1 Au d  1       
+    70      0.287498  1 Au d  2              64      0.265726  1 Au d  1       
+
+ Vector   88  Occ=0.000000D+00  E= 1.481383D+01
+              MO Center=  9.0D-16, -1.6D-16, -1.2D-16, r^2= 2.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    66      1.994802  1 Au d -2              71     -1.502218  1 Au d -2       
+    61     -1.358906  1 Au d -2              76      0.800507  1 Au d -2       
+    81     -0.361777  1 Au d -2              51      0.305775  1 Au d -2       
+    67     -0.154527  1 Au d -1              56      0.135694  1 Au d -2       
+    86      0.120226  1 Au d -2              72      0.116369  1 Au d -1       
+
+ Vector   89  Occ=0.000000D+00  E= 1.481383D+01
+              MO Center=  8.8D-17, -9.1D-16, -9.2D-16, r^2= 2.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    68      2.001633  1 Au d  0              73     -1.507362  1 Au d  0       
+    63     -1.363559  1 Au d  0              78      0.803248  1 Au d  0       
+    83     -0.363015  1 Au d  0              53      0.306822  1 Au d  0       
+    58      0.136159  1 Au d  0              88      0.120638  1 Au d  0       
+
+ Vector   90  Occ=0.000000D+00  E= 1.884023D+01
+              MO Center=  2.7D-16, -2.6D-16, -1.0D-16, r^2= 3.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12     12.474750  1 Au s                 13    -11.091083  1 Au s          
+    11     -9.364909  1 Au s                 14      7.557464  1 Au s          
+    15     -4.275305  1 Au s                 10      3.670398  1 Au s          
+    16      1.926895  1 Au s                 17     -0.516242  1 Au s          
+     7     -0.338831  1 Au s                  9     -0.122871  1 Au s          
+
+ Vector   91  Occ=0.000000D+00  E= 3.666234D+01
+              MO Center= -8.3D-17, -6.5D-18, -6.2D-18, r^2= 1.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    33     -3.755184  1 Au px                30      3.582868  1 Au px         
+    36      2.711117  1 Au px                27     -1.791990  1 Au px         
+    39     -1.613709  1 Au px                42      0.871296  1 Au px         
+    34     -0.672656  1 Au py                31      0.641789  1 Au py         
+    37      0.485635  1 Au py                45     -0.411571  1 Au px         
+
+ Vector   92  Occ=0.000000D+00  E= 3.666234D+01
+              MO Center= -3.1D-17,  1.1D-16,  6.1D-17, r^2= 1.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    34     -3.755194  1 Au py                31      3.582877  1 Au py         
+    37      2.711123  1 Au py                28     -1.791995  1 Au py         
+    40     -1.613713  1 Au py                43      0.871298  1 Au py         
+    33      0.672645  1 Au px                30     -0.641779  1 Au px         
+    36     -0.485627  1 Au px                46     -0.411572  1 Au py         
+
+ Vector   93  Occ=0.000000D+00  E= 3.666234D+01
+              MO Center= -6.1D-17, -2.0D-16, -8.8D-17, r^2= 1.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35     -3.814951  1 Au pz                32      3.639891  1 Au pz         
+    38      2.754266  1 Au pz                29     -1.820511  1 Au pz         
+    41     -1.639393  1 Au pz                44      0.885163  1 Au pz         
+    47     -0.418121  1 Au pz                23      0.177438  1 Au pz         
+    20      0.145587  1 Au pz                50      0.131320  1 Au pz         
+
+ Vector   94  Occ=0.000000D+00  E= 8.747729D+01
+              MO Center=  1.9D-16,  5.0D-17,  8.5D-17, r^2= 8.9D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10     12.303551  1 Au s                 11    -11.402432  1 Au s          
+     9     -8.856018  1 Au s                 12      8.329349  1 Au s          
+    13     -5.393709  1 Au s                 14      3.265499  1 Au s          
+     8      3.224098  1 Au s                 15     -1.812123  1 Au s          
+    16      0.825280  1 Au s                  6      0.317882  1 Au s          
+
+ Vector   95  Occ=0.000000D+00  E= 8.963656D+01
+              MO Center= -1.6D-16, -2.2D-16, -3.7D-18, r^2= 4.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    60      1.780373  1 Au d  2              65     -1.503111  1 Au d  2       
+    55     -1.077749  1 Au d  2              70      0.876564  1 Au d  2       
+    75     -0.448868  1 Au d  2              80      0.220699  1 Au d  2       
+    85     -0.101099  1 Au d  2              56      0.039242  1 Au d -2       
+    90      0.034241  1 Au d  2              61     -0.033130  1 Au d -2       
+
+ Vector   96  Occ=0.000000D+00  E= 8.963656D+01
+              MO Center=  8.5D-17, -2.4D-17,  4.1D-18, r^2= 4.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    56      1.780383  1 Au d -2              61     -1.503119  1 Au d -2       
+    51     -1.077755  1 Au d -2              66      0.876569  1 Au d -2       
+    71     -0.448870  1 Au d -2              76      0.220700  1 Au d -2       
+    81     -0.101099  1 Au d -2              60     -0.039256  1 Au d  2       
+    86      0.034241  1 Au d -2              65      0.033143  1 Au d  2       
+
+ Vector   97  Occ=0.000000D+00  E= 8.963656D+01
+              MO Center=  1.2D-17, -1.8D-16,  3.2D-16, r^2= 4.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    58      1.754962  1 Au d  0              63     -1.481657  1 Au d  0       
+    53     -1.062366  1 Au d  0              68      0.864053  1 Au d  0       
+    73     -0.442461  1 Au d  0              59      0.280742  1 Au d  1       
+    64     -0.237021  1 Au d  1              78      0.217549  1 Au d  0       
+    54     -0.169947  1 Au d  1              69      0.138223  1 Au d  1       
+
+ Vector   98  Occ=0.000000D+00  E= 8.963656D+01
+              MO Center=  3.2D-16,  5.3D-16, -2.8D-16, r^2= 4.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    57      1.484856  1 Au d -1              62     -1.253616  1 Au d -1       
+    59     -0.951547  1 Au d  1              52     -0.898858  1 Au d -1       
+    64      0.803360  1 Au d  1              67      0.731067  1 Au d -1       
+    54      0.576019  1 Au d  1              69     -0.468493  1 Au d  1       
+    72     -0.374362  1 Au d -1              58      0.247145  1 Au d  0       
+
+ Vector   99  Occ=0.000000D+00  E= 8.963656D+01
+              MO Center= -7.7D-17,  2.3D-17, -1.2D-16, r^2= 4.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    59      1.478865  1 Au d  1              64     -1.248558  1 Au d  1       
+    57      0.976690  1 Au d -1              54     -0.895231  1 Au d  1       
+    62     -0.824588  1 Au d -1              69      0.728117  1 Au d  1       
+    52     -0.591239  1 Au d -1              67      0.480872  1 Au d -1       
+    74     -0.372852  1 Au d  1              72     -0.246243  1 Au d -1       
+
+ Vector  100  Occ=0.000000D+00  E= 2.171874D+02
+              MO Center= -8.3D-17, -3.4D-16, -9.1D-17, r^2= 2.6D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      3.508747  1 Au py                25     -3.071537  1 Au py         
+    31     -2.612768  1 Au py                34      1.611991  1 Au py         
+    22      1.027551  1 Au py                37     -0.934403  1 Au py         
+    40      0.529506  1 Au py                27      0.412004  1 Au px         
+    24     -0.360666  1 Au px                30     -0.306796  1 Au px         
+
+ Vector  101  Occ=0.000000D+00  E= 2.171874D+02
+              MO Center= -7.9D-16,  8.4D-17,  4.6D-18, r^2= 2.6D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      3.508749  1 Au px                24     -3.071540  1 Au px         
+    30     -2.612770  1 Au px                33      1.611992  1 Au px         
+    21      1.027552  1 Au px                36     -0.934403  1 Au px         
+    39      0.529506  1 Au px                28     -0.411990  1 Au py         
+    25      0.360654  1 Au py                31      0.306786  1 Au py         
+
+ Vector  102  Occ=0.000000D+00  E= 2.171874D+02
+              MO Center=  6.6D-17, -4.4D-17, -6.3D-16, r^2= 2.6D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      3.532846  1 Au pz                26     -3.092634  1 Au pz         
+    32     -2.630714  1 Au pz                35      1.623062  1 Au pz         
+    23      1.034609  1 Au pz                38     -0.940820  1 Au pz         
+    41      0.533143  1 Au pz                20      0.300936  1 Au pz         
+    44     -0.290047  1 Au pz                47      0.138956  1 Au pz         
+
+ Vector  103  Occ=0.000000D+00  E= 3.854279D+02
+              MO Center=  2.6D-16,  6.8D-17,  6.1D-17, r^2= 2.2D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9    -11.238743  1 Au s                  8     11.131515  1 Au s          
+    10      8.576835  1 Au s                  7     -6.665225  1 Au s          
+    11     -5.758758  1 Au s                 12      3.692658  1 Au s          
+    13     -2.319294  1 Au s                  6      1.749547  1 Au s          
+    14      1.409838  1 Au s                 15     -0.790286  1 Au s          
+
+ Vector  104  Occ=0.000000D+00  E= 1.113545D+03
+              MO Center=  1.3D-15, -3.8D-16,  1.2D-17, r^2= 4.8D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      2.573973  1 Au px                24     -2.413135  1 Au px         
+    27      1.615228  1 Au px                18     -1.446793  1 Au px         
+    30     -0.968246  1 Au px                22     -0.765968  1 Au py         
+    25      0.718105  1 Au py                33      0.565140  1 Au px         
+    28     -0.480663  1 Au py                19      0.430540  1 Au py         
+
+ Vector  105  Occ=0.000000D+00  E= 1.113545D+03
+              MO Center= -4.2D-17, -1.1D-16, -3.0D-17, r^2= 4.8D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      2.573991  1 Au py                25     -2.413152  1 Au py         
+    28      1.615240  1 Au py                19     -1.446804  1 Au py         
+    31     -0.968253  1 Au py                21      0.765980  1 Au px         
+    24     -0.718116  1 Au px                34      0.565144  1 Au py         
+    27      0.480670  1 Au px                18     -0.430546  1 Au px         
+
+ Vector  106  Occ=0.000000D+00  E= 1.113545D+03
+              MO Center=  1.8D-17,  2.5D-17,  9.6D-16, r^2= 4.8D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23      2.685524  1 Au pz                26     -2.517716  1 Au pz         
+    29      1.685229  1 Au pz                20     -1.509495  1 Au pz         
+    32     -1.010208  1 Au pz                35      0.589632  1 Au pz         
+    38     -0.341720  1 Au pz                41      0.195454  1 Au pz         
+    44     -0.107115  1 Au pz                47      0.051535  1 Au pz         
+
+ Vector  107  Occ=0.000000D+00  E= 1.412600D+03
+              MO Center= -1.1D-15,  2.0D-16, -3.4D-16, r^2= 6.1D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7     11.004537  1 Au s                  8     -9.376947  1 Au s          
+     6     -8.554115  1 Au s                  9      6.559876  1 Au s          
+    10     -4.279945  1 Au s                  5      3.259690  1 Au s          
+    11      2.747583  1 Au s                 12     -1.756545  1 Au s          
+    13      1.110686  1 Au s                 14     -0.679528  1 Au s          
+
+ Vector  108  Occ=0.000000D+00  E= 4.358449D+03
+              MO Center= -2.6D-17,  5.2D-18, -7.8D-18, r^2= 2.0D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6     10.173269  1 Au s                  5     -9.116834  1 Au s          
+     7     -7.964643  1 Au s                  8      5.371213  1 Au s          
+     4      4.189299  1 Au s                  9     -3.470885  1 Au s          
+    10      2.232251  1 Au s                 11     -1.438635  1 Au s          
+    12      0.925294  1 Au s                  3     -0.762993  1 Au s          
+
+ Vector  109  Occ=0.000000D+00  E= 1.194614D+04
+              MO Center= -6.2D-18,  1.2D-18, -1.8D-18, r^2= 7.1D-04
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5     -9.177926  1 Au s                  4      8.714735  1 Au s          
+     6      6.950278  1 Au s                  7     -4.633389  1 Au s          
+     3     -4.156881  1 Au s                  8      2.990254  1 Au s          
+     9     -1.927258  1 Au s                 10      1.247084  1 Au s          
+    11     -0.808183  1 Au s                 12      0.521674  1 Au s          
+
+ Vector  110  Occ=0.000000D+00  E= 3.004231D+04
+              MO Center= -2.8D-18,  6.2D-19, -7.5D-19, r^2= 2.6D-04
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4     -8.076743  1 Au s                  3      7.597015  1 Au s          
+     5      6.137280  1 Au s                  6     -4.111322  1 Au s          
+     2     -3.302412  1 Au s                  7      2.664853  1 Au s          
+     8     -1.722873  1 Au s                  9      1.117778  1 Au s          
+    10     -0.727011  1 Au s                 11      0.472622  1 Au s          
+
+ Vector  111  Occ=0.000000D+00  E= 8.798101D+04
+              MO Center= -7.8D-19,  4.0D-20, -1.6D-19, r^2= 8.4D-05
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      5.753327  1 Au s                  4     -4.757234  1 Au s          
+     2     -4.606588  1 Au s                  5      3.352095  1 Au s          
+     6     -2.235096  1 Au s                  1      1.943338  1 Au s          
+     7      1.466430  1 Au s                  8     -0.958628  1 Au s          
+     9      0.626349  1 Au s                 10     -0.408994  1 Au s          
+
+
+                     DFT Final Beta Molecular Orbital Analysis
+                     -----------------------------------------
+
+ Vector    1  Occ=1.000000D+00  E=-2.961351D+03
+              MO Center= -9.3D-20,  1.9D-19, -4.7D-19, r^2= 9.3D-05
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.327269  1 Au s                  5      0.317505  1 Au s          
+     3      0.204194  1 Au s                  6      0.117559  1 Au s          
+     2      0.113541  1 Au s                  1      0.094532  1 Au s          
+
+ Vector    2  Occ=1.000000D+00  E=-5.238282D+02
+              MO Center=  1.4D-15,  5.4D-16,  4.6D-16, r^2= 1.6D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      0.545826  1 Au s                  8      0.537605  1 Au s          
+     5     -0.196588  1 Au s                  4     -0.156381  1 Au s          
+     3     -0.080980  1 Au s                  9      0.048274  1 Au s          
+     2     -0.043640  1 Au s                  1     -0.033249  1 Au s          
+
+ Vector    3  Occ=1.000000D+00  E=-4.531753D+02
+              MO Center= -1.9D-16, -8.7D-16,  1.1D-17, r^2= 1.4D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      0.472658  1 Au py                19      0.366884  1 Au py         
+    25      0.277231  1 Au py                21      0.104881  1 Au px         
+    18      0.081410  1 Au px                24      0.061516  1 Au px         
+
+ Vector    4  Occ=1.000000D+00  E=-4.531753D+02
+              MO Center= -1.3D-15,  2.9D-16,  1.6D-17, r^2= 1.4D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      0.472645  1 Au px                18      0.366874  1 Au px         
+    24      0.277224  1 Au px                22     -0.104898  1 Au py         
+    19     -0.081424  1 Au py                25     -0.061527  1 Au py         
+
+ Vector    5  Occ=1.000000D+00  E=-4.531753D+02
+              MO Center= -4.8D-18, -1.5D-18, -4.8D-16, r^2= 1.4D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23      0.484139  1 Au pz                20      0.375796  1 Au pz         
+    26      0.283965  1 Au pz         
+
+ Vector    6  Occ=1.000000D+00  E=-1.242963D+02
+              MO Center= -2.2D-16, -7.3D-16, -6.0D-16, r^2= 1.1D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      0.790191  1 Au s                  9      0.651541  1 Au s          
+     8     -0.638919  1 Au s                  7     -0.446195  1 Au s          
+     5      0.102028  1 Au s                  4      0.077123  1 Au s          
+     3      0.038848  1 Au s                 12      0.035149  1 Au s          
+
+ Vector    7  Occ=1.000000D+00  E=-1.036897D+02
+              MO Center= -7.7D-17,  3.0D-17,  6.5D-16, r^2= 1.1D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      0.752429  1 Au pz                32      0.304597  1 Au pz         
+    23     -0.300805  1 Au pz                20     -0.202990  1 Au pz         
+    26      0.045319  1 Au pz         
+
+ Vector    8  Occ=1.000000D+00  E=-1.036897D+02
+              MO Center= -2.4D-16,  6.2D-16,  2.8D-17, r^2= 1.1D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      0.706999  1 Au py                31      0.286206  1 Au py         
+    22     -0.282644  1 Au py                27     -0.257509  1 Au px         
+    19     -0.190734  1 Au py                30     -0.104244  1 Au px         
+    21      0.102947  1 Au px                18      0.069471  1 Au px         
+    25      0.042583  1 Au py         
+
+ Vector    9  Occ=1.000000D+00  E=-1.036897D+02
+              MO Center=  5.0D-16,  1.7D-17, -4.0D-17, r^2= 1.1D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      0.706992  1 Au px                30      0.286203  1 Au px         
+    21     -0.282641  1 Au px                28      0.257509  1 Au py         
+    18     -0.190733  1 Au px                31      0.104244  1 Au py         
+    22     -0.102947  1 Au py                19     -0.069471  1 Au py         
+    24      0.042582  1 Au px         
+
+ Vector   10  Occ=1.000000D+00  E=-8.166281D+01
+              MO Center=  2.2D-17, -1.4D-17,  4.3D-18, r^2= 9.2D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    53      0.471295  1 Au d  0              58      0.405601  1 Au d  0       
+    51      0.334392  1 Au d -2              56      0.287781  1 Au d -2       
+    55      0.068498  1 Au d  2              60      0.058950  1 Au d  2       
+    52     -0.056710  1 Au d -1              63      0.054855  1 Au d  0       
+    57     -0.048805  1 Au d -1              61      0.038920  1 Au d -2       
+
+ Vector   11  Occ=1.000000D+00  E=-8.166281D+01
+              MO Center=  4.0D-17, -8.3D-17,  9.9D-18, r^2= 9.2D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    52      0.552663  1 Au d -1              57      0.475627  1 Au d -1       
+    54      0.179603  1 Au d  1              59      0.154568  1 Au d  1       
+    62      0.064325  1 Au d -1              51      0.054599  1 Au d -2       
+    56      0.046988  1 Au d -2              53      0.034314  1 Au d  0       
+    58      0.029531  1 Au d  0       
+
+ Vector   12  Occ=1.000000D+00  E=-8.166281D+01
+              MO Center=  9.9D-18,  2.5D-17,  1.8D-17, r^2= 9.2D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    54      0.422162  1 Au d  1              59      0.363316  1 Au d  1       
+    55     -0.359015  1 Au d  2              60     -0.308972  1 Au d  2       
+    52     -0.153554  1 Au d -1              57     -0.132150  1 Au d -1       
+    51      0.102629  1 Au d -2              56      0.088324  1 Au d -2       
+    64      0.049136  1 Au d  1              65     -0.041786  1 Au d  2       
+
+ Vector   13  Occ=1.000000D+00  E=-8.166281D+01
+              MO Center= -5.4D-17, -4.7D-18,  5.1D-17, r^2= 9.2D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    55      0.442432  1 Au d  2              60      0.380761  1 Au d  2       
+    54      0.360035  1 Au d  1              59      0.309849  1 Au d  1       
+    52     -0.098532  1 Au d -1              57     -0.084797  1 Au d -1       
+    51     -0.082837  1 Au d -2              56     -0.071290  1 Au d -2       
+    65      0.051495  1 Au d  2              64      0.041905  1 Au d  1       
+
+ Vector   14  Occ=1.000000D+00  E=-8.166281D+01
+              MO Center=  1.3D-16,  2.0D-17, -7.6D-17, r^2= 9.2D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    51      0.458048  1 Au d -2              56      0.394201  1 Au d -2       
+    53     -0.343317  1 Au d  0              58     -0.295461  1 Au d  0       
+    55      0.111906  1 Au d  2              60      0.096307  1 Au d  2       
+    61      0.053313  1 Au d -2              54     -0.041743  1 Au d  1       
+    63     -0.039959  1 Au d  0              59     -0.035924  1 Au d  1       
+
+ Vector   15  Occ=1.000000D+00  E=-2.727909D+01
+              MO Center= -5.1D-17,  8.0D-17,  4.1D-18, r^2= 5.2D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11     -1.038165  1 Au s                 10      1.009042  1 Au s          
+     9      0.674699  1 Au s                 12     -0.631592  1 Au s          
+     8     -0.431641  1 Au s                  7     -0.249841  1 Au s          
+     5      0.053337  1 Au s                  4      0.038750  1 Au s          
+
+ Vector   16  Occ=1.000000D+00  E=-2.047519D+01
+              MO Center= -8.9D-17,  3.8D-17, -5.4D-16, r^2= 6.0D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    34      0.879490  1 Au py                28     -0.627543  1 Au py         
+    31      0.166320  1 Au py                22      0.155381  1 Au py         
+    37      0.105990  1 Au py                19      0.102176  1 Au py         
+    33      0.073967  1 Au px                25     -0.059042  1 Au py         
+    27     -0.052778  1 Au px         
+
+ Vector   17  Occ=1.000000D+00  E=-2.047519D+01
+              MO Center= -1.5D-16,  9.6D-18,  3.5D-16, r^2= 6.0D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    33      0.878128  1 Au px                27     -0.626571  1 Au px         
+    30      0.166062  1 Au px                21      0.155140  1 Au px         
+    36      0.105826  1 Au px                18      0.102018  1 Au px         
+    34     -0.073906  1 Au py                24     -0.058951  1 Au px         
+    28      0.052734  1 Au py                35      0.049027  1 Au pz         
+
+ Vector   18  Occ=1.000000D+00  E=-2.047519D+01
+              MO Center= -1.9D-16,  3.3D-16, -8.4D-17, r^2= 6.0D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35      0.881232  1 Au pz                29     -0.628786  1 Au pz         
+    32      0.166649  1 Au pz                23      0.155689  1 Au pz         
+    38      0.106200  1 Au pz                20      0.102378  1 Au pz         
+    26     -0.059159  1 Au pz                33     -0.048934  1 Au px         
+    27      0.034916  1 Au px         
+
+ Vector   19  Occ=1.000000D+00  E=-1.228734D+01
+              MO Center=  1.0D-16, -1.5D-16, -4.2D-17, r^2= 6.8D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    61      0.602649  1 Au d -2              66      0.475815  1 Au d -2       
+    51     -0.303947  1 Au d -2              56     -0.132452  1 Au d -2       
+    62     -0.100722  1 Au d -1              64      0.097484  1 Au d  1       
+    65      0.090303  1 Au d  2              67     -0.079524  1 Au d -1       
+    69      0.076967  1 Au d  1              70      0.071298  1 Au d  2       
+
+ Vector   20  Occ=1.000000D+00  E=-1.228734D+01
+              MO Center=  3.5D-16, -2.6D-16,  5.4D-17, r^2= 6.8D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    63      0.621430  1 Au d  0              68      0.490643  1 Au d  0       
+    53     -0.313419  1 Au d  0              58     -0.136580  1 Au d  0       
+    64     -0.063138  1 Au d  1              69     -0.049850  1 Au d  1       
+    54      0.031844  1 Au d  1              61      0.027898  1 Au d -2       
+
+ Vector   21  Occ=1.000000D+00  E=-1.228734D+01
+              MO Center= -1.2D-16,  2.3D-16, -1.2D-16, r^2= 6.8D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    64      0.552218  1 Au d  1              69      0.435998  1 Au d  1       
+    54     -0.278512  1 Au d  1              65     -0.279675  1 Au d  2       
+    70     -0.220815  1 Au d  2              55      0.141055  1 Au d  2       
+    59     -0.121369  1 Au d  1              63      0.066345  1 Au d  0       
+    60      0.061468  1 Au d  2              68      0.052382  1 Au d  0       
+
+ Vector   22  Occ=1.000000D+00  E=-1.228734D+01
+              MO Center=  2.0D-16, -3.5D-16, -7.3D-17, r^2= 6.8D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    65      0.542775  1 Au d  2              70      0.428542  1 Au d  2       
+    55     -0.273749  1 Au d  2              64      0.253505  1 Au d  1       
+    69      0.200152  1 Au d  1              62      0.151735  1 Au d -1       
+    54     -0.127856  1 Au d  1              60     -0.119293  1 Au d  2       
+    67      0.119800  1 Au d -1              61     -0.096610  1 Au d -2       
+
+ Vector   23  Occ=1.000000D+00  E=-1.228734D+01
+              MO Center=  2.2D-16,  1.3D-17,  6.4D-16, r^2= 6.8D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    62      0.596446  1 Au d -1              67      0.470917  1 Au d -1       
+    52     -0.300818  1 Au d -1              57     -0.131089  1 Au d -1       
+    61      0.129178  1 Au d -2              66      0.101991  1 Au d -2       
+    65     -0.099927  1 Au d  2              64     -0.093061  1 Au d  1       
+    70     -0.078896  1 Au d  2              69     -0.073475  1 Au d  1       
+
+ Vector   24  Occ=1.000000D+00  E=-4.132970D+00
+              MO Center= -1.1D-16,  3.9D-16,  3.5D-16, r^2= 2.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13     -0.938504  1 Au s                 11      0.888669  1 Au s          
+    12      0.790698  1 Au s                 14     -0.624266  1 Au s          
+    10     -0.592705  1 Au s                  9     -0.348379  1 Au s          
+     8      0.203991  1 Au s                  7      0.114454  1 Au s          
+    15     -0.038071  1 Au s          
+
+ Vector   25  Occ=1.000000D+00  E=-3.168900D+00
+              MO Center= -2.0D-16, -4.5D-16,  1.0D-16, r^2= 8.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    92      0.979704  1 Au f -2              99      0.069465  1 Au f -2       
+
+ Vector   26  Occ=1.000000D+00  E=-3.168900D+00
+              MO Center= -5.5D-17,  9.1D-17, -2.9D-16, r^2= 8.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    97      0.721718  1 Au f  3              95      0.662467  1 Au f  1       
+   104      0.051173  1 Au f  3             102      0.046972  1 Au f  1       
+
+ Vector   27  Occ=1.000000D+00  E=-3.168900D+00
+              MO Center= -2.0D-16, -3.5D-17, -1.2D-16, r^2= 8.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    94      0.979673  1 Au f  0             101      0.069463  1 Au f  0       
+
+ Vector   28  Occ=1.000000D+00  E=-3.168900D+00
+              MO Center= -1.9D-16,  3.4D-17, -5.2D-17, r^2= 8.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    95      0.715618  1 Au f  1              97     -0.656152  1 Au f  3       
+    91      0.095737  1 Au f -3              96      0.079195  1 Au f  2       
+   102      0.050740  1 Au f  1             104     -0.046524  1 Au f  3       
+    93     -0.041177  1 Au f -1       
+
+ Vector   29  Occ=1.000000D+00  E=-3.168900D+00
+              MO Center=  1.1D-16, -4.6D-17, -4.7D-17, r^2= 8.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    96      0.820637  1 Au f  2              93     -0.474281  1 Au f -1       
+    91      0.222609  1 Au f -3              95     -0.080417  1 Au f  1       
+    97      0.073539  1 Au f  3             103      0.058186  1 Au f  2       
+   100     -0.033628  1 Au f -1       
+
+ Vector   30  Occ=1.000000D+00  E=-3.168900D+00
+              MO Center=  1.3D-17,  2.7D-18,  7.4D-17, r^2= 8.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    93      0.852226  1 Au f -1              96      0.430515  1 Au f  2       
+    91      0.218566  1 Au f -3             100      0.060426  1 Au f -1       
+   103      0.030525  1 Au f  2       
+
+ Vector   31  Occ=1.000000D+00  E=-3.168900D+00
+              MO Center=  7.2D-17, -1.2D-16,  1.5D-17, r^2= 8.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    91      0.923740  1 Au f -3              96     -0.307798  1 Au f  2       
+    93     -0.083050  1 Au f -1              98      0.065497  1 Au f -3       
+    97      0.053440  1 Au f  3              95     -0.045306  1 Au f  1       
+
+ Vector   32  Occ=1.000000D+00  E=-2.310831D+00
+              MO Center= -1.1D-15,  2.4D-15,  1.0D-15, r^2= 3.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    40      0.655474  1 Au py                34     -0.557471  1 Au py         
+    37      0.325022  1 Au py                41     -0.304377  1 Au pz         
+    35      0.258868  1 Au pz                28      0.256379  1 Au py         
+    38     -0.150928  1 Au pz                43      0.142356  1 Au py         
+    29     -0.119052  1 Au pz                31     -0.117761  1 Au py         
+
+ Vector   33  Occ=1.000000D+00  E=-2.310831D+00
+              MO Center= -6.8D-17,  8.8D-16, -9.4D-16, r^2= 3.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    41      0.665772  1 Au pz                35     -0.566229  1 Au pz         
+    38      0.330129  1 Au pz                40      0.300354  1 Au py         
+    29      0.260407  1 Au pz                34     -0.255446  1 Au py         
+    37      0.148933  1 Au py                44      0.144592  1 Au pz         
+    32     -0.119612  1 Au pz                28      0.117479  1 Au py         
+
+ Vector   34  Occ=1.000000D+00  E=-2.310831D+00
+              MO Center= -2.2D-15, -7.9D-16,  4.8D-16, r^2= 3.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    39      0.721003  1 Au px                33     -0.613202  1 Au px         
+    36      0.357516  1 Au px                27      0.282009  1 Au px         
+    42      0.156587  1 Au px                30     -0.129534  1 Au px         
+    40      0.126696  1 Au py                34     -0.107753  1 Au py         
+    21     -0.063527  1 Au px                37      0.062823  1 Au py         
+
+ Vector   35  Occ=1.000000D+00  E=-2.935357D-01
+              MO Center=  2.7D-15, -1.6D-15, -5.9D-15, r^2= 8.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    78      0.496706  1 Au d  0              73      0.446527  1 Au d  0       
+    83      0.253492  1 Au d  0              63     -0.237105  1 Au d  0       
+    68     -0.098005  1 Au d  0              53      0.094195  1 Au d  0       
+    88      0.054543  1 Au d  0              58      0.032790  1 Au d  0       
+
+ Vector   36  Occ=1.000000D+00  E=-2.935357D-01
+              MO Center=  8.3D-15,  3.6D-15,  2.9D-15, r^2= 8.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    76      0.466701  1 Au d -2              71      0.419553  1 Au d -2       
+    81      0.238179  1 Au d -2              61     -0.222782  1 Au d -2       
+    80     -0.169946  1 Au d  2              75     -0.152777  1 Au d  2       
+    66     -0.092085  1 Au d -2              51      0.088505  1 Au d -2       
+    85     -0.086731  1 Au d  2              65      0.081125  1 Au d  2       
+
+ Vector   37  Occ=1.000000D+00  E=-2.935357D-01
+              MO Center= -1.1D-15,  3.1D-16, -2.4D-15, r^2= 8.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    77      0.427399  1 Au d -1              72      0.384222  1 Au d -1       
+    79      0.251423  1 Au d  1              74      0.226024  1 Au d  1       
+    82      0.218122  1 Au d -1              62     -0.204022  1 Au d -1       
+    84      0.128313  1 Au d  1              64     -0.120018  1 Au d  1       
+    67     -0.084330  1 Au d -1              52      0.081052  1 Au d -1       
+
+ Vector   38  Occ=1.000000D+00  E=-2.935357D-01
+              MO Center= -4.9D-17,  2.5D-17, -4.5D-16, r^2= 8.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    79      0.425927  1 Au d  1              74      0.382899  1 Au d  1       
+    77     -0.252975  1 Au d -1              72     -0.227419  1 Au d -1       
+    84      0.217370  1 Au d  1              64     -0.203319  1 Au d  1       
+    82     -0.129105  1 Au d -1              62      0.120759  1 Au d -1       
+    69     -0.084040  1 Au d  1              54      0.080773  1 Au d  1       
+
+ Vector   39  Occ=1.000000D+00  E=-2.935357D-01
+              MO Center=  3.3D-15, -4.9D-15,  3.8D-16, r^2= 8.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    80      0.464848  1 Au d  2              75      0.417888  1 Au d  2       
+    85      0.237233  1 Au d  2              65     -0.221898  1 Au d  2       
+    76      0.168875  1 Au d -2              71      0.151815  1 Au d -2       
+    70     -0.091719  1 Au d  2              55      0.088154  1 Au d  2       
+    81      0.086185  1 Au d -2              61     -0.080614  1 Au d -2       
+
+ Vector   40  Occ=0.000000D+00  E=-1.686999D-01
+              MO Center=  1.6D-15,  3.7D-15,  5.0D-15, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      0.811184  1 Au s                 14     -0.470825  1 Au s          
+    13     -0.390306  1 Au s                 11      0.278798  1 Au s          
+    12      0.262396  1 Au s                 16      0.246644  1 Au s          
+    15      0.188547  1 Au s                 10     -0.174329  1 Au s          
+     9     -0.097896  1 Au s                  8      0.056661  1 Au s          
+
+ Vector   41  Occ=0.000000D+00  E= 6.408571D-03
+              MO Center= -1.2D-14,  3.7D-15, -5.3D-14, r^2= 5.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    50      1.011379  1 Au pz                41     -0.222720  1 Au pz         
+    35      0.116333  1 Au pz                44      0.086664  1 Au pz         
+    38     -0.074263  1 Au pz                29     -0.052731  1 Au pz         
+    47     -0.037773  1 Au pz                48     -0.028204  1 Au px         
+    32      0.026694  1 Au pz         
+
+ Vector   42  Occ=0.000000D+00  E= 6.408571D-03
+              MO Center=  1.2D-14,  1.1D-14,  3.5D-15, r^2= 5.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    48      0.988907  1 Au px                39     -0.217771  1 Au px         
+    49     -0.212659  1 Au py                33      0.113748  1 Au px         
+    42      0.084739  1 Au px                36     -0.072613  1 Au px         
+    27     -0.051559  1 Au px                40      0.046830  1 Au py         
+    45     -0.036934  1 Au px                50      0.032413  1 Au pz         
+
+ Vector   43  Occ=0.000000D+00  E= 6.408571D-03
+              MO Center=  1.1D-14, -5.2D-15, -1.1D-15, r^2= 5.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    49      0.989171  1 Au py                40     -0.217829  1 Au py         
+    48      0.213258  1 Au px                34      0.113779  1 Au py         
+    43      0.084761  1 Au py                37     -0.072632  1 Au py         
+    28     -0.051573  1 Au py                39     -0.046962  1 Au px         
+    46     -0.036944  1 Au py                31      0.026107  1 Au py         
+
+ Vector   44  Occ=0.000000D+00  E= 1.679632D-01
+              MO Center= -4.7D-15,  4.7D-15,  5.5D-14, r^2= 7.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    88      1.154194  1 Au d  0              83     -0.307133  1 Au d  0       
+    73     -0.150359  1 Au d  0              78     -0.075535  1 Au d  0       
+    63      0.064901  1 Au d  0              68      0.031675  1 Au d  0       
+    53     -0.026179  1 Au d  0       
+
+ Vector   45  Occ=0.000000D+00  E= 1.679632D-01
+              MO Center=  1.6D-15, -3.6D-15, -7.9D-15, r^2= 7.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    87      1.050246  1 Au d -1              89      0.478692  1 Au d  1       
+    82     -0.279472  1 Au d -1              72     -0.136818  1 Au d -1       
+    84     -0.127381  1 Au d  1              77     -0.068732  1 Au d -1       
+    74     -0.062360  1 Au d  1              62      0.059056  1 Au d -1       
+    79     -0.031327  1 Au d  1              67      0.028822  1 Au d -1       
+
+ Vector   46  Occ=0.000000D+00  E= 1.679632D-01
+              MO Center=  2.0D-14,  8.7D-15,  1.3D-14, r^2= 7.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    89      1.050246  1 Au d  1              87     -0.478692  1 Au d -1       
+    84     -0.279472  1 Au d  1              74     -0.136818  1 Au d  1       
+    82      0.127381  1 Au d -1              79     -0.068732  1 Au d  1       
+    72      0.062360  1 Au d -1              64      0.059056  1 Au d  1       
+    77      0.031327  1 Au d -1              69      0.028822  1 Au d  1       
+
+ Vector   47  Occ=0.000000D+00  E= 1.679632D-01
+              MO Center=  4.3D-15,  9.3D-15,  4.1D-16, r^2= 7.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    90      0.960064  1 Au d  2              86      0.640657  1 Au d -2       
+    85     -0.255474  1 Au d  2              81     -0.170480  1 Au d -2       
+    75     -0.125070  1 Au d  2              71     -0.083460  1 Au d -2       
+    80     -0.062830  1 Au d  2              65      0.053985  1 Au d  2       
+    76     -0.041927  1 Au d -2              61      0.036025  1 Au d -2       
+
+ Vector   48  Occ=0.000000D+00  E= 1.679632D-01
+              MO Center= -4.3D-15, -1.5D-14,  1.4D-16, r^2= 7.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    86      0.960064  1 Au d -2              90     -0.640657  1 Au d  2       
+    81     -0.255474  1 Au d -2              85      0.170480  1 Au d  2       
+    71     -0.125070  1 Au d -2              75      0.083460  1 Au d  2       
+    76     -0.062830  1 Au d -2              61      0.053985  1 Au d -2       
+    80      0.041927  1 Au d  2              65     -0.036025  1 Au d  2       
+
+ Vector   49  Occ=0.000000D+00  E= 1.915609D-01
+              MO Center=  6.6D-15,  4.7D-15,  1.2D-14, r^2= 5.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      4.248903  1 Au s                 17     -2.805427  1 Au s          
+    15     -1.791891  1 Au s                 13     -0.719304  1 Au s          
+    14      0.411985  1 Au s                 12      0.386985  1 Au s          
+    11      0.177046  1 Au s                 10     -0.123841  1 Au s          
+     9     -0.095286  1 Au s                  8      0.053184  1 Au s          
+
+ Vector   50  Occ=0.000000D+00  E= 3.200701D-01
+              MO Center= -1.3D-15, -8.6D-15,  1.5D-14, r^2= 5.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    46      1.924464  1 Au py                49     -1.291485  1 Au py         
+    45     -1.055311  1 Au px                48      0.708206  1 Au px         
+    43     -0.511701  1 Au py                42      0.280600  1 Au px         
+    34      0.193747  1 Au py                37     -0.186257  1 Au py         
+    40     -0.115479  1 Au py                33     -0.106245  1 Au px         
+
+ Vector   51  Occ=0.000000D+00  E= 3.200701D-01
+              MO Center= -5.0D-15,  3.8D-15, -9.1D-15, r^2= 5.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    47      2.193853  1 Au pz                50     -1.472269  1 Au pz         
+    44     -0.583330  1 Au pz                35      0.220869  1 Au pz         
+    38     -0.212330  1 Au pz                41     -0.131644  1 Au pz         
+    29     -0.082949  1 Au pz                45     -0.057273  1 Au px         
+    48      0.038435  1 Au px                32      0.034147  1 Au pz         
+
+ Vector   52  Occ=0.000000D+00  E= 3.200701D-01
+              MO Center= -3.4D-14, -4.9D-15, -1.1D-14, r^2= 5.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    45      1.923611  1 Au px                48     -1.290913  1 Au px         
+    46      1.054852  1 Au py                49     -0.707899  1 Au py         
+    42     -0.511475  1 Au px                43     -0.280478  1 Au py         
+    33      0.193662  1 Au px                36     -0.186175  1 Au px         
+    39     -0.115428  1 Au px                34      0.106198  1 Au py         
+
+ Vector   53  Occ=0.000000D+00  E= 7.808725D-01
+              MO Center=  1.2D-15, -3.3D-15, -3.2D-15, r^2= 3.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    82      1.477728  1 Au d -1              84     -0.759262  1 Au d  1       
+    87     -0.708686  1 Au d -1              77     -0.665689  1 Au d -1       
+    89      0.364125  1 Au d  1              79      0.342033  1 Au d  1       
+    72     -0.212616  1 Au d -1              62      0.145474  1 Au d -1       
+    74      0.109243  1 Au d  1              64     -0.074745  1 Au d  1       
+
+ Vector   54  Occ=0.000000D+00  E= 7.808725D-01
+              MO Center=  4.3D-15, -5.2D-15, -1.5D-15, r^2= 3.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    84      1.477728  1 Au d  1              82      0.759262  1 Au d -1       
+    89     -0.708686  1 Au d  1              79     -0.665689  1 Au d  1       
+    87     -0.364125  1 Au d -1              77     -0.342033  1 Au d -1       
+    74     -0.212616  1 Au d  1              64      0.145474  1 Au d  1       
+    72     -0.109243  1 Au d -1              62      0.074745  1 Au d -1       
+
+ Vector   55  Occ=0.000000D+00  E= 7.808725D-01
+              MO Center= -2.5D-15,  6.0D-16,  2.7D-15, r^2= 3.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    85     -1.225662  1 Au d  2              81      1.121566  1 Au d -2       
+    90      0.587800  1 Au d  2              80      0.552138  1 Au d  2       
+    86     -0.537879  1 Au d -2              76     -0.505245  1 Au d -2       
+    75      0.176349  1 Au d  2              71     -0.161371  1 Au d -2       
+    65     -0.120659  1 Au d  2              61      0.110412  1 Au d -2       
+
+ Vector   56  Occ=0.000000D+00  E= 7.808725D-01
+              MO Center=  2.4D-15,  4.3D-15,  2.6D-15, r^2= 3.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    81      1.225662  1 Au d -2              85      1.121566  1 Au d  2       
+    86     -0.587800  1 Au d -2              76     -0.552138  1 Au d -2       
+    90     -0.537879  1 Au d  2              80     -0.505245  1 Au d  2       
+    71     -0.176349  1 Au d -2              75     -0.161371  1 Au d  2       
+    61      0.120659  1 Au d -2              65      0.110412  1 Au d  2       
+
+ Vector   57  Occ=0.000000D+00  E= 7.808725D-01
+              MO Center=  3.9D-16,  1.4D-16,  6.3D-17, r^2= 3.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    83      1.661372  1 Au d  0              88     -0.796758  1 Au d  0       
+    78     -0.748417  1 Au d  0              73     -0.239039  1 Au d  0       
+    63      0.163552  1 Au d  0              53     -0.061060  1 Au d  0       
+    68      0.034234  1 Au d  0       
+
+ Vector   58  Occ=0.000000D+00  E= 9.846654D-01
+              MO Center= -7.7D-16, -1.9D-16, -1.4D-15, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   108      0.961521  1 Au f  0              94     -0.101739  1 Au f  0       
+   101      0.072015  1 Au f  0       
+
+ Vector   59  Occ=0.000000D+00  E= 9.846654D-01
+              MO Center= -8.4D-15, -9.0D-17, -7.2D-15, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   106      0.936801  1 Au f -2             110      0.216627  1 Au f  2       
+    92     -0.099123  1 Au f -2              99      0.070163  1 Au f -2       
+
+ Vector   60  Occ=0.000000D+00  E= 9.846654D-01
+              MO Center=  9.5D-16, -4.9D-15, -1.3D-15, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   110      0.936801  1 Au f  2             106     -0.216627  1 Au f -2       
+    96     -0.099123  1 Au f  2             103      0.070163  1 Au f  2       
+
+ Vector   61  Occ=0.000000D+00  E= 9.846654D-01
+              MO Center=  8.1D-16, -2.4D-15,  1.6D-17, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   105      0.960474  1 Au f -3              91     -0.101628  1 Au f -3       
+    98      0.071936  1 Au f -3             107      0.043460  1 Au f -1       
+
+ Vector   62  Occ=0.000000D+00  E= 9.846654D-01
+              MO Center= -3.3D-16, -5.7D-16, -2.9D-15, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   107      0.788437  1 Au f -1             109     -0.549024  1 Au f  1       
+    93     -0.083425  1 Au f -1             100      0.059051  1 Au f -1       
+    95      0.058092  1 Au f  1             102     -0.041120  1 Au f  1       
+   105     -0.035361  1 Au f -3       
+
+ Vector   63  Occ=0.000000D+00  E= 9.846654D-01
+              MO Center=  4.7D-16, -4.3D-16,  2.1D-15, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   109      0.789272  1 Au f  1             107      0.548037  1 Au f -1       
+    95     -0.083513  1 Au f  1             102      0.059114  1 Au f  1       
+    93     -0.057988  1 Au f -1             100      0.041046  1 Au f -1       
+
+ Vector   64  Occ=0.000000D+00  E= 9.846654D-01
+              MO Center= -1.1D-15, -1.3D-15,  1.9D-17, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   111      0.961026  1 Au f  3              97     -0.101687  1 Au f  3       
+   104      0.071978  1 Au f  3             107     -0.025627  1 Au f -1       
+
+ Vector   65  Occ=0.000000D+00  E= 1.151922D+00
+              MO Center= -6.2D-15,  1.6D-15, -6.4D-15, r^2= 3.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      8.105505  1 Au s                 16     -6.397479  1 Au s          
+    14     -4.559957  1 Au s                 17      2.096831  1 Au s          
+    13      0.694039  1 Au s                 11      0.682981  1 Au s          
+    10     -0.370830  1 Au s                 12     -0.126030  1 Au s          
+     9     -0.115268  1 Au s                  8      0.073019  1 Au s          
+
+ Vector   66  Occ=0.000000D+00  E= 1.486959D+00
+              MO Center=  3.6D-15, -1.1D-15, -8.0D-17, r^2= 2.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    42      2.963472  1 Au px                45     -2.221343  1 Au px         
+    39     -1.618922  1 Au px                43     -1.479629  1 Au py         
+    46      1.109092  1 Au py                40      0.808310  1 Au py         
+    48      0.766176  1 Au px                49     -0.382543  1 Au py         
+    33      0.268532  1 Au px                27     -0.160390  1 Au px         
+
+ Vector   67  Occ=0.000000D+00  E= 1.486959D+00
+              MO Center= -5.5D-16,  7.7D-16, -2.5D-15, r^2= 2.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    43      2.929507  1 Au py                46     -2.195883  1 Au py         
+    40     -1.600367  1 Au py                42      1.462696  1 Au px         
+    45     -1.096399  1 Au px                39     -0.799060  1 Au px         
+    49      0.757394  1 Au py                44      0.499983  1 Au pz         
+    48      0.378165  1 Au px                47     -0.374774  1 Au pz         
+
+ Vector   68  Occ=0.000000D+00  E= 1.486959D+00
+              MO Center= -9.0D-16, -3.5D-16,  3.9D-15, r^2= 2.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    44      3.274369  1 Au pz                47     -2.454382  1 Au pz         
+    41     -1.788763  1 Au pz                50      0.846555  1 Au pz         
+    43     -0.447392  1 Au py                46      0.335354  1 Au py         
+    35      0.296704  1 Au pz                40      0.244407  1 Au py         
+    42     -0.223210  1 Au px                29     -0.177216  1 Au pz         
+
+ Vector   69  Occ=0.000000D+00  E= 2.934161D+00
+              MO Center= -4.9D-16, -2.9D-16, -1.1D-15, r^2= 8.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   103      1.216918  1 Au f  2             110     -0.685364  1 Au f  2       
+    96     -0.338165  1 Au f  2       
+
+ Vector   70  Occ=0.000000D+00  E= 2.934161D+00
+              MO Center= -5.7D-16, -2.4D-16,  4.1D-16, r^2= 8.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    99      1.216918  1 Au f -2             106     -0.685364  1 Au f -2       
+    92     -0.338165  1 Au f -2       
+
+ Vector   71  Occ=0.000000D+00  E= 2.934161D+00
+              MO Center= -6.4D-17, -2.2D-16,  8.7D-17, r^2= 8.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   101      1.216918  1 Au f  0             108     -0.685364  1 Au f  0       
+    94     -0.338165  1 Au f  0       
+
+ Vector   72  Occ=0.000000D+00  E= 2.934161D+00
+              MO Center= -2.0D-17,  3.6D-16,  1.3D-16, r^2= 8.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    98      1.201471  1 Au f -3             105     -0.676665  1 Au f -3       
+    91     -0.333873  1 Au f -3             100      0.189707  1 Au f -1       
+   107     -0.106842  1 Au f -1              93     -0.052717  1 Au f -1       
+   104     -0.036702  1 Au f  3       
+
+ Vector   73  Occ=0.000000D+00  E= 2.934161D+00
+              MO Center=  5.7D-16,  1.8D-16, -9.9D-17, r^2= 8.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   104      1.204761  1 Au f  3             111     -0.678518  1 Au f  3       
+    97     -0.334787  1 Au f  3             102     -0.167181  1 Au f  1       
+   109      0.094156  1 Au f  1              95      0.046457  1 Au f  1       
+    98      0.034775  1 Au f -3       
+
+ Vector   74  Occ=0.000000D+00  E= 2.934161D+00
+              MO Center=  3.6D-17, -3.5D-16, -2.2D-15, r^2= 8.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   100      1.140511  1 Au f -1             107     -0.642332  1 Au f -1       
+   102      0.381918  1 Au f  1              93     -0.316933  1 Au f -1       
+   109     -0.215095  1 Au f  1              98     -0.180194  1 Au f -3       
+    95     -0.106130  1 Au f  1             105      0.101485  1 Au f -3       
+    91      0.050073  1 Au f -3             104      0.042350  1 Au f  3       
+
+ Vector   75  Occ=0.000000D+00  E= 2.934161D+00
+              MO Center= -8.1D-17, -3.3D-17,  3.3D-18, r^2= 8.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   102      1.143267  1 Au f  1             109     -0.643884  1 Au f  1       
+   100     -0.379283  1 Au f -1              95     -0.317698  1 Au f  1       
+   107      0.213611  1 Au f -1             104      0.162169  1 Au f  3       
+    93      0.105398  1 Au f -1             111     -0.091333  1 Au f  3       
+    98      0.060631  1 Au f -3              97     -0.045064  1 Au f  3       
+
+ Vector   76  Occ=0.000000D+00  E= 3.091226D+00
+              MO Center=  1.1D-16,  5.5D-16,  1.2D-15, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    77      1.479649  1 Au d -1              72     -1.233554  1 Au d -1       
+    79      1.112673  1 Au d  1              74     -0.927613  1 Au d  1       
+    82     -0.835595  1 Au d -1              84     -0.628355  1 Au d  1       
+    87      0.279342  1 Au d -1              62      0.246072  1 Au d -1       
+    89      0.210061  1 Au d  1              64      0.185042  1 Au d  1       
+
+ Vector   77  Occ=0.000000D+00  E= 3.091226D+00
+              MO Center=  8.5D-16,  4.4D-16,  4.1D-17, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    79      1.479649  1 Au d  1              74     -1.233554  1 Au d  1       
+    77     -1.112673  1 Au d -1              72      0.927613  1 Au d -1       
+    84     -0.835595  1 Au d  1              82      0.628355  1 Au d -1       
+    89      0.279342  1 Au d  1              64      0.246072  1 Au d  1       
+    87     -0.210061  1 Au d -1              62     -0.185042  1 Au d -1       
+
+ Vector   78  Occ=0.000000D+00  E= 3.091226D+00
+              MO Center= -2.1D-16, -7.1D-16, -3.2D-16, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    80      1.845023  1 Au d  2              75     -1.538159  1 Au d  2       
+    85     -1.041931  1 Au d  2              90      0.348321  1 Au d  2       
+    65      0.306835  1 Au d  2              70      0.231850  1 Au d  2       
+    76     -0.152618  1 Au d -2              55     -0.127951  1 Au d  2       
+    71      0.127235  1 Au d -2              81      0.086187  1 Au d -2       
+
+ Vector   79  Occ=0.000000D+00  E= 3.091226D+00
+              MO Center=  8.7D-17, -2.1D-15, -3.9D-16, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    76      1.845023  1 Au d -2              71     -1.538159  1 Au d -2       
+    81     -1.041931  1 Au d -2              86      0.348321  1 Au d -2       
+    61      0.306835  1 Au d -2              66      0.231850  1 Au d -2       
+    80      0.152618  1 Au d  2              51     -0.127951  1 Au d -2       
+    75     -0.127235  1 Au d  2              85     -0.086187  1 Au d  2       
+
+ Vector   80  Occ=0.000000D+00  E= 3.091226D+00
+              MO Center= -1.0D-16,  2.9D-16, -9.2D-16, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    78      1.851324  1 Au d  0              73     -1.543412  1 Au d  0       
+    83     -1.045490  1 Au d  0              88      0.349511  1 Au d  0       
+    63      0.307883  1 Au d  0              68      0.232641  1 Au d  0       
+    53     -0.128388  1 Au d  0              58     -0.033720  1 Au d  0       
+
+ Vector   81  Occ=0.000000D+00  E= 4.552405D+00
+              MO Center= -4.5D-15,  1.1D-16,  5.6D-15, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14     11.114555  1 Au s                 13     -9.121010  1 Au s          
+    15     -8.323895  1 Au s                 16      4.092965  1 Au s          
+    12      3.708556  1 Au s                 17     -1.104593  1 Au s          
+     9     -0.461957  1 Au s                  8      0.236068  1 Au s          
+    10     -0.160431  1 Au s                  7      0.071504  1 Au s          
+
+ Vector   82  Occ=0.000000D+00  E= 6.581303D+00
+              MO Center=  1.1D-16,  4.9D-17, -4.4D-15, r^2= 7.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    41     -3.727544  1 Au pz                38      3.588374  1 Au pz         
+    44      2.464516  1 Au pz                35     -1.714625  1 Au pz         
+    47     -1.194259  1 Au pz                50      0.368350  1 Au pz         
+    29      0.328707  1 Au pz                23     -0.088178  1 Au pz         
+    26      0.057635  1 Au pz                20     -0.053807  1 Au pz         
+
+ Vector   83  Occ=0.000000D+00  E= 6.581303D+00
+              MO Center=  4.6D-15, -1.6D-15,  6.8D-17, r^2= 7.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    39     -3.487048  1 Au px                36      3.356857  1 Au px         
+    42      2.305508  1 Au px                33     -1.604000  1 Au px         
+    40      1.317228  1 Au py                37     -1.268049  1 Au py         
+    45     -1.117207  1 Au px                43     -0.870903  1 Au py         
+    34      0.605909  1 Au py                46      0.422024  1 Au py         
+
+ Vector   84  Occ=0.000000D+00  E= 6.581303D+00
+              MO Center=  7.0D-16,  2.1D-15,  1.2D-16, r^2= 7.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    40     -3.487054  1 Au py                37      3.356863  1 Au py         
+    43      2.305513  1 Au py                34     -1.604003  1 Au py         
+    39     -1.317226  1 Au px                36      1.268046  1 Au px         
+    46     -1.117209  1 Au py                42      0.870901  1 Au px         
+    33     -0.605908  1 Au px                45     -0.422023  1 Au px         
+
+ Vector   85  Occ=0.000000D+00  E= 1.481578D+01
+              MO Center= -2.2D-16,  2.0D-16, -4.3D-17, r^2= 2.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    67      1.469782  1 Au d -1              69      1.358813  1 Au d  1       
+    72     -1.106933  1 Au d -1              74     -1.023359  1 Au d  1       
+    62     -1.001214  1 Au d -1              64     -0.925622  1 Au d  1       
+    77      0.590095  1 Au d -1              79      0.545542  1 Au d  1       
+    82     -0.266613  1 Au d -1              84     -0.246484  1 Au d  1       
+
+ Vector   86  Occ=0.000000D+00  E= 1.481578D+01
+              MO Center=  5.7D-17, -1.9D-17, -9.2D-17, r^2= 2.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    69     -1.468823  1 Au d  1              67      1.357855  1 Au d -1       
+    74      1.106210  1 Au d  1              72     -1.022638  1 Au d -1       
+    64      1.000560  1 Au d  1              62     -0.924969  1 Au d -1       
+    79     -0.589709  1 Au d  1              77      0.545158  1 Au d -1       
+    84      0.266439  1 Au d  1              82     -0.246310  1 Au d -1       
+
+ Vector   87  Occ=0.000000D+00  E= 1.481578D+01
+              MO Center= -7.6D-17, -9.5D-17,  2.1D-18, r^2= 2.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    70      2.000171  1 Au d  2              75     -1.506383  1 Au d  2       
+    65     -1.362514  1 Au d  2              80      0.803038  1 Au d  2       
+    85     -0.362824  1 Au d  2              55      0.306592  1 Au d  2       
+    60      0.136039  1 Au d  2              90      0.120533  1 Au d  2       
+    69      0.052971  1 Au d  1              67     -0.050864  1 Au d -1       
+
+ Vector   88  Occ=0.000000D+00  E= 1.481578D+01
+              MO Center= -1.6D-16, -4.3D-17, -4.0D-17, r^2= 2.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    66      2.001509  1 Au d -2              71     -1.507391  1 Au d -2       
+    61     -1.363425  1 Au d -2              76      0.803575  1 Au d -2       
+    81     -0.363066  1 Au d -2              51      0.306797  1 Au d -2       
+    56      0.136130  1 Au d -2              86      0.120613  1 Au d -2       
+
+ Vector   89  Occ=0.000000D+00  E= 1.481578D+01
+              MO Center=  1.7D-17,  1.1D-17, -6.2D-17, r^2= 2.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    68      2.001657  1 Au d  0              73     -1.507503  1 Au d  0       
+    63     -1.363527  1 Au d  0              78      0.803634  1 Au d  0       
+    83     -0.363093  1 Au d  0              53      0.306820  1 Au d  0       
+    58      0.136140  1 Au d  0              88      0.120622  1 Au d  0       
+
+ Vector   90  Occ=0.000000D+00  E= 1.884285D+01
+              MO Center= -1.8D-17, -9.2D-16,  7.3D-16, r^2= 3.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12     12.475086  1 Au s                 13    -11.092104  1 Au s          
+    11     -9.365024  1 Au s                 14      7.559011  1 Au s          
+    15     -4.276291  1 Au s                 10      3.670439  1 Au s          
+    16      1.927061  1 Au s                 17     -0.516203  1 Au s          
+     7     -0.338835  1 Au s                  9     -0.122844  1 Au s          
+
+ Vector   91  Occ=0.000000D+00  E= 3.666352D+01
+              MO Center= -1.3D-16,  7.8D-17,  1.7D-17, r^2= 1.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    33     -3.054306  1 Au px                30      2.914120  1 Au px         
+    34      2.285932  1 Au py                36      2.205189  1 Au px         
+    31     -2.181012  1 Au py                37     -1.650428  1 Au py         
+    27     -1.457507  1 Au px                39     -1.312667  1 Au px         
+    28      1.090841  1 Au py                40      0.982439  1 Au py         
+
+ Vector   92  Occ=0.000000D+00  E= 3.666352D+01
+              MO Center=  5.0D-16,  7.4D-16,  1.3D-17, r^2= 1.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    34     -3.054295  1 Au py                31      2.914110  1 Au py         
+    33     -2.285922  1 Au px                37      2.205181  1 Au py         
+    30      2.181003  1 Au px                36      1.650421  1 Au px         
+    28     -1.457502  1 Au py                40     -1.312663  1 Au py         
+    27     -1.090836  1 Au px                39     -0.982434  1 Au px         
+
+ Vector   93  Occ=0.000000D+00  E= 3.666352D+01
+              MO Center= -1.4D-17, -5.0D-19, -6.2D-16, r^2= 1.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35     -3.814991  1 Au pz                32      3.639891  1 Au pz         
+    38      2.754399  1 Au pz                29     -1.820504  1 Au pz         
+    41     -1.639592  1 Au pz                44      0.885313  1 Au pz         
+    47     -0.418155  1 Au pz                23      0.177440  1 Au pz         
+    20      0.145588  1 Au pz                50      0.131317  1 Au pz         
+
+ Vector   94  Occ=0.000000D+00  E= 8.747839D+01
+              MO Center= -2.7D-17, -4.5D-17, -1.2D-17, r^2= 8.9D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10     12.303551  1 Au s                 11    -11.402452  1 Au s          
+     9     -8.856030  1 Au s                 12      8.329423  1 Au s          
+    13     -5.393840  1 Au s                 14      3.265658  1 Au s          
+     8      3.224105  1 Au s                 15     -1.812218  1 Au s          
+    16      0.825299  1 Au s                  6      0.317881  1 Au s          
+
+ Vector   95  Occ=0.000000D+00  E= 8.963668D+01
+              MO Center= -3.1D-18,  2.2D-17,  6.4D-19, r^2= 4.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    60      1.780800  1 Au d  2              65     -1.503481  1 Au d  2       
+    55     -1.078005  1 Au d  2              70      0.876793  1 Au d  2       
+    75     -0.448991  1 Au d  2              80      0.220771  1 Au d  2       
+    85     -0.101128  1 Au d  2              90      0.034249  1 Au d  2       
+
+ Vector   96  Occ=0.000000D+00  E= 8.963668D+01
+              MO Center= -3.9D-17, -4.4D-18, -2.6D-18, r^2= 4.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    56      1.756390  1 Au d -2              61     -1.482872  1 Au d -2       
+    51     -1.063228  1 Au d -2              66      0.864774  1 Au d -2       
+    71     -0.442837  1 Au d -2              58      0.239747  1 Au d  0       
+    76      0.217745  1 Au d -2              63     -0.202412  1 Au d  0       
+    59     -0.161739  1 Au d  1              53     -0.145131  1 Au d  0       
+
+ Vector   97  Occ=0.000000D+00  E= 8.963668D+01
+              MO Center=  1.2D-18,  4.5D-18, -2.1D-17, r^2= 4.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    57      1.630628  1 Au d -1              62     -1.376694  1 Au d -1       
+    52     -0.987098  1 Au d -1              67      0.802854  1 Au d -1       
+    59     -0.715265  1 Au d  1              64      0.603878  1 Au d  1       
+    54      0.432984  1 Au d  1              72     -0.411128  1 Au d -1       
+    69     -0.352167  1 Au d  1              77      0.202154  1 Au d -1       
+
+ Vector   98  Occ=0.000000D+00  E= 8.963668D+01
+              MO Center= -2.9D-17,  1.0D-17, -1.6D-17, r^2= 4.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    58      1.388443  1 Au d  0              63     -1.172224  1 Au d  0       
+    59      1.024780  1 Au d  1              64     -0.865194  1 Au d  1       
+    53     -0.840492  1 Au d  0              68      0.683612  1 Au d  0       
+    54     -0.620349  1 Au d  1              69      0.504560  1 Au d  1       
+    57      0.431977  1 Au d -1              62     -0.364707  1 Au d -1       
+
+ Vector   99  Occ=0.000000D+00  E= 8.963668D+01
+              MO Center=  8.5D-18, -1.3D-17, -1.0D-17, r^2= 4.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    59      1.258325  1 Au d  1              58     -1.088891  1 Au d  0       
+    64     -1.062370  1 Au d  1              63      0.919321  1 Au d  0       
+    54     -0.761725  1 Au d  1              53      0.659159  1 Au d  0       
+    69      0.619548  1 Au d  1              57      0.568380  1 Au d -1       
+    68     -0.536125  1 Au d  0              62     -0.479868  1 Au d -1       
+
+ Vector  100  Occ=0.000000D+00  E= 2.171876D+02
+              MO Center= -4.9D-18,  7.2D-17,  6.6D-19, r^2= 2.6D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      3.532669  1 Au py                25     -3.092476  1 Au py         
+    31     -2.630587  1 Au py                34      1.622987  1 Au py         
+    22      1.034555  1 Au py                37     -0.940781  1 Au py         
+    40      0.533127  1 Au py                19      0.300921  1 Au py         
+    43     -0.290041  1 Au py                46      0.138951  1 Au py         
+
+ Vector  101  Occ=0.000000D+00  E= 2.171876D+02
+              MO Center=  5.9D-17,  6.7D-18,  1.8D-17, r^2= 2.6D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      3.532669  1 Au px                24     -3.092476  1 Au px         
+    30     -2.630587  1 Au px                33      1.622987  1 Au px         
+    21      1.034555  1 Au px                36     -0.940781  1 Au px         
+    39      0.533127  1 Au px                18      0.300921  1 Au px         
+    42     -0.290041  1 Au px                45      0.138951  1 Au px         
+
+ Vector  102  Occ=0.000000D+00  E= 2.171876D+02
+              MO Center= -5.9D-18,  3.2D-18,  5.1D-17, r^2= 2.6D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      3.532863  1 Au pz                26     -3.092646  1 Au pz         
+    32     -2.630732  1 Au pz                35      1.623077  1 Au pz         
+    23      1.034612  1 Au pz                38     -0.940833  1 Au pz         
+    41      0.533156  1 Au pz                20      0.300937  1 Au pz         
+    44     -0.290057  1 Au pz                47      0.138959  1 Au pz         
+
+ Vector  103  Occ=0.000000D+00  E= 3.854285D+02
+              MO Center= -1.7D-17, -2.3D-17, -1.5D-17, r^2= 2.2D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9    -11.238741  1 Au s                  8     11.131515  1 Au s          
+    10      8.576837  1 Au s                  7     -6.665227  1 Au s          
+    11     -5.758765  1 Au s                 12      3.692669  1 Au s          
+    13     -2.319309  1 Au s                  6      1.749547  1 Au s          
+    14      1.409854  1 Au s                 15     -0.790296  1 Au s          
+
+ Vector  104  Occ=0.000000D+00  E= 1.113545D+03
+              MO Center= -7.1D-20,  8.3D-18,  9.5D-19, r^2= 4.8D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      2.652218  1 Au py                25     -2.486491  1 Au py         
+    28      1.664329  1 Au py                19     -1.490774  1 Au py         
+    31     -0.997680  1 Au py                34      0.582320  1 Au py         
+    21     -0.421778  1 Au px                24      0.395423  1 Au px         
+    37     -0.337483  1 Au py                27     -0.264676  1 Au px         
+
+ Vector  105  Occ=0.000000D+00  E= 1.113545D+03
+              MO Center=  3.9D-18,  1.7D-18, -1.4D-18, r^2= 4.8D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      2.652218  1 Au px                24     -2.486491  1 Au px         
+    27      1.664329  1 Au px                18     -1.490774  1 Au px         
+    30     -0.997680  1 Au px                33      0.582320  1 Au px         
+    22      0.421778  1 Au py                25     -0.395423  1 Au py         
+    36     -0.337483  1 Au px                28      0.264676  1 Au py         
+
+ Vector  106  Occ=0.000000D+00  E= 1.113545D+03
+              MO Center=  2.7D-19, -2.1D-19,  2.9D-17, r^2= 4.8D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23      2.685546  1 Au pz                26     -2.517736  1 Au pz         
+    29      1.685243  1 Au pz                20     -1.509507  1 Au pz         
+    32     -1.010217  1 Au pz                35      0.589637  1 Au pz         
+    38     -0.341724  1 Au pz                41      0.195457  1 Au pz         
+    44     -0.107116  1 Au pz                47      0.051536  1 Au pz         
+
+ Vector  107  Occ=0.000000D+00  E= 1.412601D+03
+              MO Center=  7.3D-18, -9.1D-18, -2.2D-17, r^2= 6.1D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7     11.004536  1 Au s                  8     -9.376947  1 Au s          
+     6     -8.554116  1 Au s                  9      6.559876  1 Au s          
+    10     -4.279946  1 Au s                  5      3.259691  1 Au s          
+    11      2.747584  1 Au s                 12     -1.756546  1 Au s          
+    13      1.110689  1 Au s                 14     -0.679530  1 Au s          
+
+ Vector  108  Occ=0.000000D+00  E= 4.358450D+03
+              MO Center=  1.6D-19,  9.4D-19,  7.0D-19, r^2= 2.0D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6     10.173269  1 Au s                  5     -9.116834  1 Au s          
+     7     -7.964642  1 Au s                  8      5.371213  1 Au s          
+     4      4.189299  1 Au s                  9     -3.470885  1 Au s          
+    10      2.232251  1 Au s                 11     -1.438635  1 Au s          
+    12      0.925294  1 Au s                  3     -0.762993  1 Au s          
+
+ Vector  109  Occ=0.000000D+00  E= 1.194614D+04
+              MO Center=  2.6D-19, -4.2D-19,  1.1D-19, r^2= 7.1D-04
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5     -9.177926  1 Au s                  4      8.714735  1 Au s          
+     6      6.950278  1 Au s                  7     -4.633389  1 Au s          
+     3     -4.156882  1 Au s                  8      2.990254  1 Au s          
+     9     -1.927258  1 Au s                 10      1.247084  1 Au s          
+    11     -0.808183  1 Au s                 12      0.521675  1 Au s          
+
+ Vector  110  Occ=0.000000D+00  E= 3.004231D+04
+              MO Center= -8.5D-20, -5.8D-20, -1.4D-19, r^2= 2.6D-04
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4     -8.076743  1 Au s                  3      7.597015  1 Au s          
+     5      6.137280  1 Au s                  6     -4.111322  1 Au s          
+     2     -3.302412  1 Au s                  7      2.664853  1 Au s          
+     8     -1.722873  1 Au s                  9      1.117778  1 Au s          
+    10     -0.727011  1 Au s                 11      0.472622  1 Au s          
+
+ Vector  111  Occ=0.000000D+00  E= 8.798101D+04
+              MO Center= -9.6D-20,  4.0D-20, -8.4D-20, r^2= 8.4D-05
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      5.753327  1 Au s                  4     -4.757234  1 Au s          
+     2     -4.606588  1 Au s                  5      3.352095  1 Au s          
+     6     -2.235096  1 Au s                  1      1.943338  1 Au s          
+     7      1.466430  1 Au s                  8     -0.958628  1 Au s          
+     9      0.626349  1 Au s                 10     -0.408994  1 Au s          
+
+
+   alpha - beta orbital overlaps 
+   ----------------------------- 
+
+
+   alpha      1      2      3      4      5      6      7      8      9     10
+    beta      1      2      3      4      5      6      7      8      9     10
+ overlap   1.000  1.000  0.886  0.886  1.000  1.000  1.000  0.813  0.813  0.802
+
+
+   alpha     11     12     13     14     15     16     17     18     19     20
+    beta     13     11     11     14     15     16     17     18     19     20
+ overlap   0.775  0.769  0.600  0.607  1.000  0.925  0.925  1.000  0.727  0.955
+
+
+   alpha     21     22     23     24     25     26     27     28     29     30
+    beta     22     23     21     24     25     26     27     31     30     28
+ overlap   0.849  0.790  0.941  1.000  0.984  0.990  0.999  0.818  0.709  0.640
+
+
+   alpha     31     32     33     34     35     36     37     38     39     40
+    beta     29     32     33     34     35     39     38     37     36     40
+ overlap   0.744  0.744  0.897  0.834  1.000  0.931  0.957  0.956  0.937  0.999
+
+
+   alpha     41     42     43     44     45     46     47     48     49     50
+    beta     43     41     42     44     46     45     47     48     49     50
+ overlap   0.981  0.999  0.980  1.000  0.999  0.999  0.999  0.999  0.999  0.951
+
+
+   alpha     51     52     53     54     55     56     57     58     59     60
+    beta     52     51     53     54     55     56     57     58     59     60
+ overlap   0.726  0.764  0.994  0.994  0.979  0.979  1.000  1.000  0.804  0.804
+
+
+   alpha     61     62     63     64     65     66     67     68     69     70
+    beta     64     61     63     62     65     67     66     68     69     70
+ overlap   0.818  0.805  0.736  0.732  1.000  0.863  0.873  0.990  1.000  1.000
+
+
+   alpha     71     72     73     74     75     76     77     78     79     80
+    beta     71     73     72     74     75     76     77     78     79     80
+ overlap   1.000  0.999  0.999  0.949  0.948  0.980  0.980  0.768  0.768  1.000
+
+
+   alpha     81     82     83     84     85     86     87     88     89     90
+    beta     81     82     84     83     85     87     86     88     89     90
+ overlap   1.000  1.000  0.952  0.952  0.811  0.993  0.804  0.996  1.000  1.000
+
+
+   alpha     91     92     93     94     95     96     97     98     99    100
+    beta     92     91     93     94     95     96     98     97     99    100
+ overlap   0.731  0.731  1.000  1.000  1.000  0.986  0.844  0.980  0.821  0.992
+
+
+   alpha    101    102    103    104    105    106    107    108    109    110
+    beta    101    102    103    105    104    106    107    108    109    110
+ overlap   0.992  1.000  1.000  0.902  0.902  1.000  1.000  1.000  1.000  1.000
+
+
+   alpha    111
+    beta    111
+ overlap   1.000
+
+     --------------------------
+     Expectation value of S2:  
+     --------------------------
+      <S2> =      0.7507 (Exact =     0.7500)
+
+
+ Parallel integral file used      47 records with       0 large values
+
+
+ Task  times  cpu:       13.3s     wall:       13.5s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  array 0 => double precision sf 1(111,111),  handle: -981 
+  array 1 => double precision sf 1(111,111),  handle: -980 
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:  342      340     4336     1.01e+04  718        0        0      244     
+number of processes/call 1.35e+00 1.14e+00 1.26e+00 0.00e+00 0.00e+00
+bytes total:             1.22e+08 4.91e+07 7.08e+07 0.00e+00 0.00e+00 1.95e+03
+bytes remote:            3.92e+06 9.39e+05 4.36e+06 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 6998328 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        21	        54
+	current total bytes		         0	         0
+	maximum total bytes		  80706176	  29437688
+	maximum total K-bytes		     80707	     29438
+	maximum total M-bytes		        81	        30
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+
+                                      AUTHORS
+                                      -------
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+       S. A. Fischer, S. Krishnamoorthy, W. Ma, M. Klemm, O. Villa, Y. Chen,
+    V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler, V. Konjkov, T. Risthaus,
+       M. Malagoli, A. Marenich, A. Otero-de-la-Roza, J. Mullin, P. Nichols,
+      R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari, M. Williamson,
+      R. J. Harrison, J. R. Rehr, M. Dupuis, D. Silverstein, D. M. A. Smith,
+            J. Nieplocha, V. Tipparaju, M. Krishnan, B. E. Van Kuiken,
+        A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu, T. Van Voorhis,
+     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
+   H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman,
+    K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski, T. Clark, D. Clerc,
+   H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
+   A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
+   R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+   K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
+                               A. T. Wong, Z. Zhang.
+
+ Total times  cpu:       13.4s     wall:       13.5s
