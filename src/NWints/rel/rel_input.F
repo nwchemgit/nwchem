@@ -100,7 +100,9 @@ c
         if (.not. rtdb_put(rtdb, 'modelpotential', mt_log, 1, 
      &  use_modelpotential))
      &     call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
-        if (.not. inp_i(mpoption)) mpoption = 1 ! default modbas.4c
+        if (.not. inp_i(mpoption)) 
+     &   call errquit('rel_input: model potential option not found 1
+     & or 2', 0, RTDB_ERR)
         if (.not. rtdb_put(rtdb,'modelpotential:option', 
      &                      mt_int,1,mpoption))
      &     call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)

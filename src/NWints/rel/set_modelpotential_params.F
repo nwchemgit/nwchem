@@ -42,7 +42,7 @@ c     map the model potential onto the geometry
      &    call errquit(pname//'geom_cent_get failed:i',911, GEOM_ERR)
         status = geom_tag_to_element(tagi,symi,elemi,atni)
         call inp_lcase(symi)
-        do j = 1,120
+        do j = 1,mpmaxelem  ! in modelpotential.fh
           if (symi.eq.mpelem(j)) then
               gelem(i) = mpelem(j)
               do k = 1,50
@@ -50,7 +50,7 @@ c     map the model potential onto the geometry
                  gcoef(i,k) = mpcoef(j,k)
               end do ! k = 1,50
           end if
-        end do ! j = 1,120
+        end do ! j = 1,mpmaxelem 
       end do  ! i = 1,natoms 
 c
 c     set parameters in rtdb
