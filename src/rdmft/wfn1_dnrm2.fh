@@ -1,0 +1,2 @@
+      double precision wfn1_dnrm2
+      external wfn1_dnrm2

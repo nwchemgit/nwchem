@@ -1,0 +1,2 @@
+      double precision wfn1_trace
+      external wfn1_trace

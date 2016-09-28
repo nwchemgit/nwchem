@@ -108,6 +108,76 @@ c     Clean up memory
 c
       deallocate(v_dcb,v_dca)
 c
+c     Make derivative matrices skew-symmetric
+c
+      call ga_distribution(wfn1_deriv%g_dna,iproc,ilo,ihi,jlo,jhi)
+      allocate(buf(ilo:ihi,jlo:jhi))
+      call ga_get(wfn1_deriv%g_dna,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
+      do jj = jlo, jhi
+        do ii = ilo, ihi
+          if      (ii.lt.jj) then
+            buf(ii,jj) = -buf(ii,jj)
+          else if (ii.eq.jj) then
+            buf(ii,jj) =  0.0d0
+          else if (ii.gt.jj) then
+            buf(ii,jj) = +buf(ii,jj)
+          endif
+        enddo
+      enddo
+      call ga_put(wfn1_deriv%g_dna,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
+      deallocate(buf)
+c
+      call ga_distribution(wfn1_deriv%g_dnb,iproc,ilo,ihi,jlo,jhi)
+      allocate(buf(ilo:ihi,jlo:jhi))
+      call ga_get(wfn1_deriv%g_dnb,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
+      do jj = jlo, jhi
+        do ii = ilo, ihi
+          if      (ii.lt.jj) then
+            buf(ii,jj) = -buf(ii,jj)
+          else if (ii.eq.jj) then
+            buf(ii,jj) =  0.0d0
+          else if (ii.gt.jj) then
+            buf(ii,jj) = +buf(ii,jj)
+          endif
+        enddo
+      enddo
+      call ga_put(wfn1_deriv%g_dnb,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
+      deallocate(buf)
+c
+      call ga_distribution(wfn1_deriv%g_dca,iproc,ilo,ihi,jlo,jhi)
+      allocate(buf(ilo:ihi,jlo:jhi))
+      call ga_get(wfn1_deriv%g_dca,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
+      do jj = jlo, jhi
+        do ii = ilo, ihi
+          if      (ii.lt.jj) then
+            buf(ii,jj) = -buf(ii,jj)
+          else if (ii.eq.jj) then
+            buf(ii,jj) =  0.0d0
+          else if (ii.gt.jj) then
+            buf(ii,jj) = +buf(ii,jj)
+          endif
+        enddo
+      enddo
+      call ga_put(wfn1_deriv%g_dca,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
+      deallocate(buf)
+c
+      call ga_distribution(wfn1_deriv%g_dcb,iproc,ilo,ihi,jlo,jhi)
+      allocate(buf(ilo:ihi,jlo:jhi))
+      call ga_get(wfn1_deriv%g_dcb,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
+      do jj = jlo, jhi
+        do ii = ilo, ihi
+          if      (ii.lt.jj) then
+            buf(ii,jj) = -buf(ii,jj)
+          else if (ii.eq.jj) then
+            buf(ii,jj) =  0.0d0
+          else if (ii.gt.jj) then
+            buf(ii,jj) = +buf(ii,jj)
+          endif
+        enddo
+      enddo
+      call ga_put(wfn1_deriv%g_dcb,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
+      deallocate(buf)
+c
       end
 c
 c----------------------------------------------------------------------
