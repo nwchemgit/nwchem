@@ -236,6 +236,9 @@ c
       logical do_avg_fon
       logical do_core_fon
 c
+      logical do_zora_recalc, zora_recalc
+      external zora_recalc
+c
       integer nmoout
       logical spinor
       logical dft_mem3c
@@ -670,6 +673,15 @@ c      == try reading the zora contributions from file ==
      &     g_zora_sf, g_zora_scale_sf, g_zora_so, g_zora_scale_so)) 
      &     icalczora = 1
 c 
+c       check if zora corrections have to recalculated
+        do_zora_recalc = zora_recalc(rtdb)
+        if (do_zora_recalc) then
+           icalczora = 1
+           if (me.eq.0) then
+              write(luout,*) "Forcing recalculation of ZORA corrections"
+           endif
+        endif
+c
        if (icalczora.eq.1) then
         if (me.eq.0) then
          call util_print_centered(LuOut,
