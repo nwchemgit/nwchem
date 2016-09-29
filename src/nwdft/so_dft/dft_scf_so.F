@@ -1094,16 +1094,20 @@ c
 c     rlshift = 2.0
       endif
       iswitc = 0
+#ifdef LOOSE_START
       if (ltight)then
+#endif
          itol2e = itol_max
          iAOacc = iAOacc_max
          tol_rho = tol_rho_max
          iswitc = 1
+#ifdef LOOSE_START
       else
          itol2e = min(itol_min,itol_max)
          iAOacc = min(iAOacc_min,iAOacc_max)
          tol_rho = max(tol_rho_min,tol_rho_max)
       endif
+#endif
 c     
       tol2e = 10.d0**(-itol_max)
 c     
@@ -1691,10 +1695,9 @@ c
      &                  g_tmp, g_movecs(ispin), g_s,g_fock,
      .        noc,oprint_conv_details,homo,lumo)
 
-      call ga_zero(g_moso(1))
-      call ga_zero(g_moso(2))
       call ga_copy(g_fockso(1), g_moso(1))
       call ga_copy(g_fockso(2), g_moso(2))
+
 c        
 c     determine homo-lumo gap 
 c
@@ -1919,7 +1922,9 @@ c
      &     iter, iterations, idone, rtdb,
      &     converged, diising)
 c
+#ifdef LOOSE_START
       if (delta.lt.1.d-3)then
+#endif
 c     
 c     Set coulomb acc to max (e.g., input parameter).
 c     (note, may also require re-initializing DIIS)
@@ -1928,7 +1933,9 @@ c
          iAOacc = iAOacc_max
          tol_rho = tol_rho_max
          iswitc = iswitc+1
+#ifdef LOOSE_START
       endif
+#endif
 c     
 c     Damping implemented here.
 c    
