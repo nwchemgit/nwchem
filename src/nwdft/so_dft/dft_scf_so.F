@@ -2144,24 +2144,24 @@ c
          write(luout,2223) dft_time
 c
  222  format(//
-     &     '         Total DFT energy =', f20.12/
-     &     '      One electron energy =', f20.12/
-     &     '           Coulomb energy =', f20.12/
-     &     '    Exchange-Corr. energy =', f20.12/
-     &     ' Nuclear repulsion energy =', f20.12/)
+     &     '         Total DFT energy =', f22.12/
+     &     '      One electron energy =', f22.12/
+     &     '           Coulomb energy =', f22.12/
+     &     '    Exchange-Corr. energy =', f22.12/
+     &     ' Nuclear repulsion energy =', f22.12/)
 c
  223  format(//
-     &     '         Total DFT energy =', f20.12/
-     &     '      One electron energy =', f20.12/
-     &     '           Coulomb energy =', f20.12/
-     &     '          Exchange energy =', f20.12/
-     &     '       Correlation energy =', f20.12/
-     &     ' Nuclear repulsion energy =', f20.12/)
+     &     '         Total DFT energy =', f22.12/
+     &     '      One electron energy =', f22.12/
+     &     '           Coulomb energy =', f22.12/
+     &     '          Exchange energy =', f22.12/
+     &     '       Correlation energy =', f22.12/
+     &     ' Nuclear repulsion energy =', f22.12/)
 c
- 225  format('    Dispersion correction =', f20.12/)
+ 225  format('    Dispersion correction =', f22.12/)
 c
- 2221 format('       Scaling correction =', f20.12/)
- 2222 format(' Numeric. integr. density =', f20.12/)
+ 2221 format('       Scaling correction =', f22.12/)
+ 2222 format(' Numeric. integr. density =', f22.12/)
  2223 format('     Total iterative time =', f9.1,'s'//)
 c
          call util_flush(LuOut)
@@ -2187,22 +2187,22 @@ c     &        'Calculation failed to converge', 20, .true.)
          endif
  232     format(//
      &        '       Determinant Energy'/
-     &        '         Total DFT energy =', f20.12/
-     &        '      One electron energy =', f20.12/
-     &        '           Coulomb energy =', f20.12/
-     &        '    Exchange-Corr. energy =', f20.12/
-     &        ' Nuclear repulsion energy =', f20.12//
-     &        ' Numeric. integr. density =', f20.12//
+     &        '         Total DFT energy =', f22.12/
+     &        '      One electron energy =', f22.12/
+     &        '           Coulomb energy =', f22.12/
+     &        '    Exchange-Corr. energy =', f22.12/
+     &        ' Nuclear repulsion energy =', f22.12//
+     &        ' Numeric. integr. density =', f22.12//
      &        '     Total iterative time =', f9.1,'s'//)
  233     format(//
      &        '       Determinant Energy'/
-     &        '         Total DFT energy =', f20.12/
-     &        '      One electron energy =', f20.12/
-     &        '           Coulomb energy =', f20.12/
-     &        '          Exchange energy =', f20.12/
-     &        '       Correlation energy =', f20.12/
-     &        ' Nuclear repulsion energy =', f20.12//
-     &        ' Numeric. integr. density =', f20.12//
+     &        '         Total DFT energy =', f22.12/
+     &        '      One electron energy =', f22.12/
+     &        '           Coulomb energy =', f22.12/
+     &        '          Exchange energy =', f22.12/
+     &        '       Correlation energy =', f22.12/
+     &        ' Nuclear repulsion energy =', f22.12//
+     &        ' Numeric. integr. density =', f22.12//
      &        '     Total iterative time =', f9.1,'s'//)
          call util_flush(LuOut)
       endif 
@@ -2621,7 +2621,7 @@ c         write(*,*)'*** dft_scf: calling cphf_poliz'
 c !!! BGJ
       return
 c     
- 1111 format(15x,'Core Energy:              ',f20.10)
+ 1111 format(15x,'Core Energy:              ',f22.10)
 c     
       end
 

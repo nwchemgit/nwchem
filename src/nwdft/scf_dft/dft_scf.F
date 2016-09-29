@@ -2485,7 +2485,7 @@ c
  22   format(1x,'d=',i2,',ls=',f3.1,6x,i5,f18.10,
      &     1p,2d10.2,10x,0p,f8.1)
  23   format(51x,1p,1d10.2)
- 1111 format(15x,'Core Energy:              ',f20.10)
+ 1111 format(15x,'Core Energy:              ',f22.10)
 c
  222  format(//
      &     '         Total DFT energy =', f22.12/

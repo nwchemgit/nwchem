@@ -368,21 +368,21 @@ c
       endif
       return
  222  format(//
-     &     '         Total DFT energy =', f20.12/
-     &     '      One electron energy =', f20.12/
-     &     '           Coulomb energy =', f20.12/
-     &     '    Exchange-Corr. energy =', f20.12/
-     &     ' Nuclear repulsion energy =', f20.12//
-     &     ' Numeric. integr. density =', f20.12//
+     &     '         Total DFT energy =', f22.12/
+     &     '      One electron energy =', f22.12/
+     &     '           Coulomb energy =', f22.12/
+     &     '    Exchange-Corr. energy =', f22.12/
+     &     ' Nuclear repulsion energy =', f22.12//
+     &     ' Numeric. integr. density =', f22.12//
      &     '     Total iterative time =', f9.1,'s'//)
  223  format(//
-     &     '         Total DFT energy =', f20.12/
-     &     '      One electron energy =', f20.12/
-     &     '           Coulomb energy =', f20.12/
-     &     '          Exchange energy =', f20.12/
-     &     '       Correlation energy =', f20.12/
-     &     ' Nuclear repulsion energy =', f20.12//
-     &     ' Numeric. integr. density =', f20.12//
+     &     '         Total DFT energy =', f22.12/
+     &     '      One electron energy =', f22.12/
+     &     '           Coulomb energy =', f22.12/
+     &     '          Exchange energy =', f22.12/
+     &     '       Correlation energy =', f22.12/
+     &     ' Nuclear repulsion energy =', f22.12//
+     &     ' Numeric. integr. density =', f22.12//
      &     '     Total iterative time =', f9.1,'s'//)
  224  format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
      &     /,10x,'Significant orbital reordering with',

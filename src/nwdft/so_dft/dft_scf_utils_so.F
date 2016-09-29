@@ -263,21 +263,21 @@ c
       write(luout,2223) dft_time
 c
  222  format(//
-     &     '         Total DFT energy =', f20.12/
-     &     '      One electron energy =', f20.12/
-     &     '           Coulomb energy =', f20.12/
-     &     '    Exchange-Corr. energy =', f20.12/
-     &     ' Nuclear repulsion energy =', f20.12/)
+     &     '         Total DFT energy =', f22.12/
+     &     '      One electron energy =', f22.12/
+     &     '           Coulomb energy =', f22.12/
+     &     '    Exchange-Corr. energy =', f22.12/
+     &     ' Nuclear repulsion energy =', f22.12/)
 c
  223  format(//
-     &     '         Total DFT energy =', f20.12/
-     &     '      One electron energy =', f20.12/
-     &     '           Coulomb energy =', f20.12/
-     &     '          Exchange energy =', f20.12/
-     &     '       Correlation energy =', f20.12/
-     &     ' Nuclear repulsion energy =', f20.12/)
+     &     '         Total DFT energy =', f22.12/
+     &     '      One electron energy =', f22.12/
+     &     '           Coulomb energy =', f22.12/
+     &     '          Exchange energy =', f22.12/
+     &     '       Correlation energy =', f22.12/
+     &     ' Nuclear repulsion energy =', f22.12/)
 c
- 2222 format(' Numeric. integr. density =', f20.12/)
+ 2222 format(' Numeric. integr. density =', f22.12/)
  2223 format('     Total iterative time =', f9.1,'s'//)
 c
       return
