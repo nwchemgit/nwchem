@@ -1396,34 +1396,40 @@ c     == DZ ==
       exchZ = 0.d0
       exchZr = 0.d0
       exchZi = 0.d0
-      if (me.eq.0.and.oprint_info) write(luout,*) "calling getv_exchZ"
-      call getv_exchZ(rtdb, exchZr, g_densso, g_fockso, g_vxc, 'real')
-      call getv_exchZ(rtdb, exchZi, g_densso, g_fockso, g_vxc, 'imag')
-      exchZ = exchZr + exchZi
-      if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
+      if (.not.do_purescalar) then 
+        if (me.eq.0.and.oprint_info) write(luout,*) "calling getv_exchZ"
+        call getv_exchZ(rtdb, exchZr, g_densso, g_fockso, g_vxc, 'real')
+        call getv_exchZ(rtdb, exchZi, g_densso, g_fockso, g_vxc, 'imag')
+        exchZ = exchZr + exchZi
+        if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
      &     "ExchZRe, ExchZI, sum =", exchZr, exchZi, exchZ
+      end if 
 c
 c     == DX ==
       exchX = 0.d0
       exchXr = 0.d0
       exchXi = 0.d0
-      if (me.eq.0.and.oprint_info) write(luout,*) "calling getv_exchX"
-      call getv_exchX(rtdb, exchXr, g_densso, g_fockso, g_vxc, 'real')
-      call getv_exchX(rtdb, exchXi, g_densso, g_fockso, g_vxc, 'imag')
-      exchX = exchXr + exchXi
-      if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
+      if (.not.do_purescalar) then 
+        if (me.eq.0.and.oprint_info) write(luout,*) "calling getv_exchX"
+        call getv_exchX(rtdb, exchXr, g_densso, g_fockso, g_vxc, 'real')
+        call getv_exchX(rtdb, exchXi, g_densso, g_fockso, g_vxc, 'imag')
+        exchX = exchXr + exchXi
+        if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
      &     "ExchXRe, ExchXI, sum =", exchXr, exchXi, exchX
+      end if 
 c
 c     == DY ==
       exchY = 0.d0
       exchYr = 0.d0
       exchYi = 0.d0
-      if (me.eq.0.and.oprint_info) write(luout,*) "calling getv_exchY"
-      call getv_exchY(rtdb, exchYr, g_densso, g_fockso, g_vxc, 'real')
-      call getv_exchY(rtdb, exchYi, g_densso, g_fockso, g_vxc, 'imag')
-      exchY = exchYr + exchYi
-      if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
+      if (.not.do_purescalar) then 
+        if (me.eq.0.and.oprint_info) write(luout,*) "calling getv_exchY"
+        call getv_exchY(rtdb, exchYr, g_densso, g_fockso, g_vxc, 'real')
+        call getv_exchY(rtdb, exchYi, g_densso, g_fockso, g_vxc, 'imag')
+        exchY = exchYr + exchYi
+        if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
      &     "ExchYRe, ExchYI, sum =", exchYr, exchYi, exchY
+      end if 
 c
 c     == attenuation ==
       if (cam_exch) call case_setflags(.false.) ! turn off attenuation
