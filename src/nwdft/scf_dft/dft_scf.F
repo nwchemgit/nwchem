@@ -227,7 +227,8 @@ c
 c     misc
 c
       logical debug_fon
-      logical zora_recalc
+      logical do_zora_recalc, zora_recalc
+      external zora_recalc
 c
 c MN solvation models -->
 c
@@ -708,12 +709,9 @@ c       == try reading the zora atomic corrections from file ==
         if (.not.dft_zora_read(zorafilename, nbf_ao, ipol, nmo,
      &            mult, g_zora_sf, g_zora_scale_sf)) icalczora = 1
 c
-c     if specified, force recalculation of the zora corrections
-c
-        if (.not.rtdb_get(rtdb, 'dft:zora_recalc', mt_log, 1,
-     &       zora_recalc)) zora_recalc = .false.
-c
-        if (zora_recalc) then
+c       check if zora corrections have to recalculated
+        do_zora_recalc = zora_recalc(rtdb)
+        if (do_zora_recalc) then
            icalczora = 1
            if (me.eq.0) then
               write(luout,*) "Forcing recalculation of ZORA corrections"
