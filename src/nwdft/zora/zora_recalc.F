@@ -25,7 +25,7 @@ c
 c
 c     get operation
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
-     $ call errquit(pname//'operation not specified',0, RTDB_ERR)
+     $ operation = 'energy'
 c
       zora_recalc = (operation.eq.'opt').or.(operation.eq.'optimize')
      & .or. (operation.eq.'saddle').or. (operation.eq.'neb').or. 
