@@ -412,11 +412,9 @@ c        write restart
 c
         end if  ! ga_nodeid()
 c
-c       check how often to calculate molecular properties
+c       calculate molecular properties
         if (do_property) then
-         if (qmd_hasproperty(rtdb)) then
-          if (mod(istep_nucl,step_property).eq.0)call qmd_property(rtdb)
-         end if ! qmd_hasproperty()
+         if (mod(istep_nucl,step_property).eq.0) call qmd_property(rtdb)
         end if  ! do_property
 c
 c       restart file has been written so set restart flag in RTDB

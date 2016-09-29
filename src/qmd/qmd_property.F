@@ -15,14 +15,19 @@ c
 c
       character*30 pname
 c
+      logical qmd_hasproperty
+      external qmd_hasproperty
+c
       logical task_property
       external task_property
 c
 c     preliminaries
       pname = "qmd_property: "
 c
-      if(.not.task_property(rtdb))
+      if (qmd_hasproperty(rtdb)) then
+        if(.not.task_property(rtdb))
      &   call errquit(pname//'task_property',0,CALC_ERR)
+      end if 
 c
       return
       end
