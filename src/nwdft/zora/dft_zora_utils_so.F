@@ -158,7 +158,16 @@ c
      C     nbf_ao*nbf_ao*2  +   ! zora_scale_sf
      C     nbf_ao*nbf_ao*3  +   ! zora_scale_so
      C     nbf_mo               ! evals_in
-      if(MA_inquire_avail(mt_dbl)*8/10.gt.mem_replnxn) do_replnxn=1
+      if (MA_inquire_avail(mt_dbl)*8/10.gt.mem_replnxn) then
+         do_replnxn=1
+      else
+         if(ga_nodeid().eq.0) then
+            write(6,*) ' mem needed    in MB',mem_replnxn*
+     / 8/1024/1024
+            write(6,*) ' mem available in MB ',MA_inquire_avail(mt_dbl)*
+     / 8/1024/1024
+         endif
+      endif
       if(noelfgZ4.eq.0) then
          write(6,*) ' need to compute elfgZ4, do_replnxn=0 '
          do_replnxn=0
@@ -169,7 +178,7 @@ c
       if(do_replnxn.eq.0) then
          if(ga_nodeid().eq.0)
      c        write(6,*) ' zoraso: NOT enough mem for repl'
-      do iorb = 1, nbf_mo
+      do iorb = 1, noc
        call ga_get(g_moso(1),1,nbf_mo,iorb,iorb,dbl_mb(k_vecsre),1)
        call ga_zero(g_orb(1))
        call  ga_put(g_orb(1),1,nbf_mo,iorb,iorb,dbl_mb(k_vecsre),1)
