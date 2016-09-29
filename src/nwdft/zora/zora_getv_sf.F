@@ -1,10 +1,10 @@
 c
 c     == compute the matrix elements for the zora corrections ==
       subroutine zora_getv_sf(rtdb, g_dens, 
-     &                          g_zora_sf, g_zora_scale_sf,
-     &                          ofinite,zetanuc_arr,
-     &                          Knucl, use_modelpotential,
-     &                          nexc)
+     &                        g_zora_sf, g_zora_scale_sf,
+     &                        ofinite,zetanuc_arr,
+     &                        Knucl, use_modelpotential,
+     &                        nexc)
 c
 C$Id$
 c Modified from zora_getv_sf() by FA 10-31-10

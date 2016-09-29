@@ -76,6 +76,8 @@ c
       enddo ! end-loop-i
 c
 c     off diagonal
+      do_so = .false.  ! for scalar zora
+      tmp = 0.d0
       do i = 1, nbf
         do j = i+1, nbf
          call get_ints_zora(do_so,nbf,npts,delchi_ao,i,j,          

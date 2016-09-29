@@ -27,7 +27,7 @@
 	calc_zora_sf.o\
 	calc_zora_so.o\
 	calc_zora_facs.o\
-	get_ints_zora.o
+	get_ints_zora.o zora_recalc.o
 
      LIBRARY = libnwdft.a
 
