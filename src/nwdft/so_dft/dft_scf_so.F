@@ -268,9 +268,9 @@ c     do average fractional occupation by default
      &     do_avg_fon = .true.
 c
 c     read MO analysis threshold
-      tanalyze = 0.15d0
+      tanalyze = 0.025d0
       if (.not.rtdb_get(rtdb,'movecs:tanalyze',MT_DBL,1,tanalyze))
-     &   tanalyze = 0.15d0
+     &   tanalyze = 0.025d0
 c
 c     do average occupation starting with core orbitals
       do_core_fon = .false.
@@ -2318,23 +2318,8 @@ c
 c     Vector analysis stolen from rohf.F
 c
       if (util_print('final vectors analysis', print_default)) then
-         do ilo = 1,max(1,nTotEl-10)
-            if (dbl_mb(k_eval(1)+ilo-1) .ge. eval_pr_tol_lo) 
-     &           goto 961
-         enddo
- 961     do ihi = min(nTotEl+10,nbf_mo), nbf_mo
-            if (dbl_mb(k_eval(1)+ihi-1) .ge. eval_pr_tol_hi) 
-     &           goto 9611
-         enddo
-         ihi = max(ihi-1,1)
- 9611    continue
-         if (util_print('final vectors analysis', print_high)) then
-            ilo = 1
-            ihi = nbf_mo
-         endif
-c ... jochen: changed 0.15d0 print threshold to something that
-c             can be read from input
-c         call movecs_anal_so(ao_bas_han, ilo, ihi, 0.15d0, 
+         ilo = 1
+         ihi = nbf_mo
          call movecs_anal_so(ao_bas_han, ilo, ihi, tanalyze, 
      &        g_moso, 
      &        'DFT Final Molecular Orbital Analysis', 
