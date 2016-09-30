@@ -544,18 +544,27 @@ C
       EJI(M) = RJI(M)/DJI
       EJK(M) = RJK(M)/DJK
   120 DOTJ = DOTJ+EJI(M)*EJK(M)
-      IF (ONE- ABS(DOTJ)) 200,200,140
+      IF (ONE- ABS(DOTJ)) 200,140,140
   140 continue
       SINJ = SQRT(ONE-DOTJ*DOTJ)
       DJI=DJI*BOHR
       DJK=DJK*BOHR
       DO 160 M = 1,3
       NOCOL1 = 3*(I-1)+M
+      if(abs(dotj).eq.1) then
+      B(NOCOL1,NOINT) = DOTJ/DJI
+      else
       B(NOCOL1,NOINT) = ((DOTJ*EJI(M)-EJK(M)))/(DJI*SINJ)
+      endif
       NOCOL2 = 3*(K-1)+M
+      if(abs(dotj).eq.1) then
+      B(NOCOL2,NOINT) = DOTJ/DJK
+      else
       B(NOCOL2,NOINT) = ((DOTJ*EJK(M)-EJI(M)))/(DJK*SINJ)
+      endif
       NOCOL3 = 3*(J-1)+M
-  160 B(NOCOL3,NOINT) = -B(NOCOL1,NOINT)-B(NOCOL2,NOINT)
+      B(NOCOL3,NOINT) = -B(NOCOL1,NOINT)-B(NOCOL2,NOINT)
+ 160  continue
       DOT = ZERO
       DO 180 M = 1,3
   180 DOT = DOT+EJI(M)*EJK(M)
