@@ -6815,8 +6815,7 @@ c      integer IMAP2(nnod)
       integer IMAP2(NBATS)
 *
 *. Scratch
-      real ttssw(NBATS), totweight(nnod), FACTOR(NBATS)
-      integer nttssw(NBATS)
+      integer ntotweight(nnod), nttssw(NBATS)
       integer iblksum(2), isize(nnod), ibpnod(nnod,2)
 *
 *. Initializations
@@ -6897,16 +6896,16 @@ c       imap2(inode) = 0
 *
 *. Calculate the TTSS weights
 *
-      LFIRSTORDER = 1
+      LFIRSTORDER = 0
       if (ga_nodeid().eq.0) write(*,*) ' Calculate the TTSS weights'
-      IF (LFIRSTORDER.EQ.0) THEN
-       call ttssweight0(ttssw,IBATS,NBATS,LBATS,NBLK)
-      ELSE
-       call ttssweight(nttssw,
+!      IF (LFIRSTORDER.EQ.0) THEN
+!       call ttssweight0(ttssw,IBATS,NBATS,LBATS,NBLK)
+!      ELSE
+       call ttssweight(nttssw,nttsswsum,
      &                 int_mb(KCONSPA),int_mb(KCONSPB),
      &                 NOCTPA,NOCTPB,IBATS,NBATS,LBATS,NBLK,NSMST,
      &                 int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)))
-      END IF
+!      END IF
 cVOG  call ttssweight15(ttssw,int_mb(KCONSPA),int_mb(KCONSPB),
 cVOG &                NOCTPA,NOCTPB,IBATS,NBLK)
 cVOG  call ttssweight2(ttssw,NOCTPA,NOCTPB,IBATS,NBATS,LBATS,NBLK,
@@ -6926,7 +6925,6 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
       !
       ! Initialize
       !
-      sumttssw = 0
       iaccumsd = 0
       inodrem = nnod
       imap2(1) = 1
@@ -6935,12 +6933,16 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
       IIBLK = 0
       JBATS = 0
 *
-      remw= 100.0d0 ! size of the remaining TTSS weights
+!      remw= 100.0d0 ! size of the remaining TTSS weights
+*
+*. NBPNMIN is the minimum number of TTSS batches that each processor will get
+*
       NBPNMIN = INT(NBATS/NNOD)
       NREM    = MOD(NBATS,NNOD)
 *
-      alimitblk = remw/NBATS * NBPNMIN
-      alimitblk = alimitblk + alimitblk/NFRAG
+      limitblk = INT(nttsswsum / NNOD) !remw/NBATS * NBPNMIN
+      nwindow  = INT(limitblk/NFRAG)
+      limitblk = limitblk + nwindow
       !
       if (ga_nodeid().eq.0.and.ntest.ge.10) then
        write(*,*) 'NEW ALGORITHM FOR THE CI DISTRIBUTION'
@@ -6948,7 +6950,7 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
        write(*,*) 'NBatchPerNode ', NBPNMIN
        write(*,*) 'NREM(modulo)  ', NREM 
        write(*,*) 'NFRAG         ', NFRAG
-       write(*,*) 'START limitblk', alimitblk
+       write(*,*) 'START limitblk', limitblk
        write(*,*)
       end if
       !
@@ -6957,12 +6959,12 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
       DO INODE = 1, NNOD
        !
        ! Sum TTSS weights
-       chkttssw = 0
-       sumttssw = 0
+!       nchkttssw = 0
+       nsumttssw = 0
        !
        DO I = 1, NBPNMIN
         JBATS = JBATS + 1
-        sumttssw = sumttssw + ttssw(JBATS)
+        nsumttssw = nsumttssw + nttssw(JBATS)
         !
         DO IBLK = 1, LBATS(JBATS)
          IIBLK = IIBLK + 1
@@ -6972,11 +6974,11 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
        END DO
        !
        ! Choose route
-       IF (sumttssw.lt.alimitblk.and.NREM.NE.0) THEN
+       IF (nsumttssw.lt.limitblk.and.NREM.NE.0) THEN
         ibpnod(INODE,2) = NBPNMIN+1
         NREM = NREM - 1
         JBATS = JBATS + 1
-        sumttssw = sumttssw + ttssw(JBATS)
+        nsumttssw = nsumttssw + nttssw(JBATS)
         DO IBLK = 1, LBATS(JBATS)
          IIBLK = IIBLK + 1
          iaccumsd = iaccumsd + IBATS(8,IIBLK)
@@ -7005,14 +7007,14 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
        END IF
       END IF
 *
-*. Sum the TTSS weights per CI batch
+*. Sum the TTSS weights per node
 *
       j = 0
-      totweight = 0
+      ntotweight = 0
       do inode = 1, ga_nnodes()
        do i = 1, ibpnod(inode,2)
         j = j + 1
-        totweight(inode) = totweight(inode) + ttssw(j)
+        ntotweight(inode) = ntotweight(inode) + nttssw(j)
        end do
       end do
 *
@@ -7034,12 +7036,12 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
 *
       if (ga_nodeid().eq.0) then
        isum    = 0
-       suw     = 0
-       amaxw   = 0
+       nsuw    = 0
+       maxw    = 0
        nmaxblk = 0
        iblksum(2) = 0
 *
-       aminw = totweight(1)
+       minw = ntotweight(1)
 *
        write(*,*)
        write(*,'(a2,a)') '  ', repeat ('=', 81)
@@ -7047,9 +7049,9 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
      &     'MAPPING   BATCH-PER-NODE  BLOCK-PER-NODE  TOTAL-WEIGHT'
        write(*,'(a2,a)') '  ', repeat ('=', 81)
        do inode = 1, ga_nnodes() !nblk
-         write(*,'(i8,i14,i13,i9,i16,f20.2)') inode, isize(inode),
+         write(*,'(i8,i14,i13,i9,i16,i20)') inode, isize(inode),
      &                                  IMAP2(inode), ibpnod(inode,2),
-     &                                  ibpnod(inode,1),totweight(inode)
+     &                                 ibpnod(inode,1),ntotweight(inode)
          !
          ! CI Block statistics
          !
@@ -7065,21 +7067,21 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
          !
          ! CI Block Weight statistics
          !
-         suw  = suw    + totweight(inode)
-         if (totweight(inode).ge.amaxw) amaxw = totweight(inode)
-         if (totweight(inode).lt.aminw) aminw = totweight(inode)
+         nsuw  = nsuw    + ntotweight(inode)
+         if (ntotweight(inode).ge.maxw) maxw = ntotweight(inode)
+         if (ntotweight(inode).lt.minw) minw = ntotweight(inode)
        end do
        !
        ! Print Statistics
        !
        ndiffblk = nmaxblk - nminblk
-       diffw    = amaxw   - aminw
+       ndiffw   = maxw   - minw
        write(*,'(a2,a)') '  ', repeat ('=', 81)
-       write(*,'(a5,i17,i22,i16,f20.2)') '  SUM',  isum, iblksum(2),
-     &                                                   iblksum(1), suw
-       write(*,'(a5,i17,f58.2)')        '  MIN',  nminblk,  aminw
-       write(*,'(a5,i17,f58.2)')        '  MAX',  nmaxblk,  amaxw
-       write(*,'(a6,i16,f58.2)')        '  DIFF', ndiffblk, diffw
+       write(*,'(a5,i17,i22,i16,i20)') '  SUM',  isum, iblksum(2),
+     &                                                 iblksum(1),nsuw
+       write(*,'(a5,i17,i58)')         '  MIN',  nminblk,  minw
+       write(*,'(a5,i17,i58)')         '  MAX',  nmaxblk,  maxw
+       write(*,'(a6,i16,i58)')         '  DIFF', ndiffblk, ndiffw
        write(*,'(a2,a)') '  ', repeat ('=', 81)
        write(*,*)
       end if
@@ -7567,7 +7569,7 @@ c     real ASYM(NGAS)
 *======================================================================*
 *======================================================================*
 *
-      SUBROUTINE ttssweight(nttssw,iconspa,iconspb,
+      SUBROUTINE ttssweight(nttssw,nttsswsum,iconspa,iconspb,
      &                      noctpa,noctpb,
      &                      ibats,nbats,lbats,nblk,NSMST,nssoa,nssob)
 *======================================================================*
@@ -7603,17 +7605,18 @@ c     real ASYM(NGAS)
       DIMENSION NSSOA(NSMST,*),NSSOB(NSMST,*)
 *
 *. Output
+      integer nttsswsum
       integer nttssw(nbats)
 *
 *. Scratch
-      integer iblk, ispgrp, ncon, ioff, iblkspgrp, ntotweight, 
+      integer iblk, ispgrp, ncon, ioff, iblkspgrp,
      &        jatp, jbtp, jasm, jbsm, joff, jblk, IPERM
       DIMENSION LASM(4), LBSM(4), LATP(4), LBTP(4), LSGN(5), LTRP(5)
 *
 *. Initializations
 *
       ntest = 100
-      ntotweight = 0
+      nttsswsum = 0
       !
       FACTOR00 = 1.000
       FACTOR11 = 1.000
@@ -7761,7 +7764,7 @@ C       end do
        nttssw(I) = ncon * isize
        if (ga_nodeid().eq.0.and.ntest.ge.100)
      &     write(*,*) 'ncon', I, ncon, NTTSSW(I)
-       ntotweight = ntotweight + nttssw(I) 
+       nttsswsum = nttsswsum + nttssw(I) 
       END DO
 !*
 !*. NTTSSW = NTTSSW / NBLOCKS (test)
@@ -7792,7 +7795,7 @@ C       end do
         END DO
         WRITE(*,'(i6,i10,i20,i20)') I, LBATS(I), NSDB, nttssw(i)
        END DO
-       write(*,'(a,i55)') 'TOTAL              ', ntotweight
+       write(*,'(a,i55)') 'TOTAL              ', nttsswsum
        write(*,*)
       end if
 *
