@@ -1676,7 +1676,6 @@ c            recieve data....
          end do
       end if
 !$OMP END MASTER
-!$OMP BARRIER
 
       return
       end
@@ -1735,7 +1734,6 @@ c     **** external functions ****
       external Parallel2d_convert_taskid_i,Parallel_comm_world
 
 
-!$OMP BARRIER
 !$OMP MASTER
       reqcnt=0
       if (log_mb(sender_list(1)+nb)) then
@@ -1803,7 +1801,6 @@ c            send data....
          end do
       end if
 !$OMP END MASTER
-!$OMP BARRIER
 
 
       return
@@ -2334,7 +2331,7 @@ c     **** external functions ****
 c      call dcopy(2*msglen,
 c     >           tmp1(int_mb(h_i1_start(1,op,nbb))),1,
 c     >           tmp2(int_mb(h_i2_start(1,op,nbb))),1)
-      call Parallel_shared_vector_copy(.true.,2*msglen,
+      call Parallel_shared_vector_copy(.false.,2*msglen,
      >           tmp1(int_mb(h_i1_start(1,op,nbb))),
      >           tmp2(int_mb(h_i2_start(1,op,nbb))))
 
@@ -2411,7 +2408,6 @@ c         msgtype   = 1
 
       end do
 !$OMP END MASTER
-!$OMP BARRIER
 
       return
       end
@@ -2525,7 +2521,7 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** local variables ***
-      integer i
+      integer i,n1
       integer it
       integer source
       integer msglen
@@ -2541,29 +2537,27 @@ c     **** external functions ****
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
 
+      n1 = int_mb(i1_start(1,nb)+np) - 1
 
 *     **** pack A(i) array ****
-!$OMP BARRIER
-!$OMP MASTER
-#ifndef CRAY
-!DIR$ ivdep
-#endif
-      do index1=int_mb(i1_start(1,nb)+1-1),
-     >         (int_mb(i1_start(1,nb)+np+1-1)-1)
-         tmp1(index1) = A(int_mb(iq_to_i1(1,nb)+index1-1))
-      end do
+c      do index1=int_mb(i1_start(1,nb)+1-1),
+c     >         (int_mb(i1_start(1,nb)+np+1-1)-1)
+c         tmp1(index1) = A(int_mb(iq_to_i1(1,nb)+index1-1))
+c      end do
+      call D3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nb)),A,tmp1)
 
 *     **** it = 0, transpose data on same thread ****
       msglen = int_mb(i2_start(1,nb)+2-1) - int_mb(i2_start(1,nb)+1-1)
-#ifndef CRAY
-!DIR$ ivdep
-#endif
-      do i=1,msglen
-         tmp2(int_mb(i2_start(1,nb)+1-1)+i-1)
-     > = tmp1(int_mb(i1_start(1,nb)+1-1)+i-1)
-      end do
+c      do i=1,msglen
+c         tmp2(int_mb(i2_start(1,nb)+1-1)+i-1)
+c     > = tmp1(int_mb(i1_start(1,nb)+1-1)+i-1)
+c      end do
+      call Parallel_shared_vector_copy(.false.,2*msglen,
+     >                                 tmp1(int_mb(i1_start(1,nb))),
+     >                                 tmp2(int_mb(i2_start(1,nb))))
 
 
+!$OMP MASTER
 *     **** receive packed array data ****
       reqcnt = 0
       do it = 1,np-1
@@ -2636,7 +2630,6 @@ c         msgtype   = 1
 
       end do
 !$OMP END MASTER
-!$OMP BARRIER
 
 
       return
@@ -2678,24 +2671,26 @@ c         msgtype   = 1
 
 *     **** local variables ***
       logical value
-      integer np
+      integer np,n2
       integer index2
 
       call Parallel2d_np_i(np)
+      n2 = (int_mb(i2_start(1,nb)+np)-1)
 
       if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,request)
 
-!$OMP SINGLE
-*     **** unpack A(i) array ****
-#ifndef CRAY
-!DIR$ ivdep
-#endif
-      do index2=int_mb(i2_start(1,nb)+1-1),
-     >         (int_mb(i2_start(1,nb)+np+1-1)-1)
-        A(int_mb(iq_to_i2(1,nb)+index2-1))=dconjg(tmp2(index2))
-      end do
-!$OMP END SINGLE
+c*     **** unpack A(i) array ****
+c#ifndef CRAY
+c!DIR$ ivdep
+c#endif
+c      do index2=int_mb(i2_start(1,nb)+1-1),
+c     >         (int_mb(i2_start(1,nb)+np+1-1)-1)
+c        A(int_mb(iq_to_i2(1,nb)+index2-1))=dconjg(tmp2(index2))
+c      end do
 
+!$OMP BARRIER
+
+      call D3dB_pfft_index2_copy_conjg(n2,int_mb(iq_to_i2(1,nb)),tmp2,A)
       return
       end
 

@@ -5534,7 +5534,7 @@ c     integer i2_start(NFFT3+1)
       do i=1,n
         b(index(i)) = a(i)
       end do
-!$OMP END DO
+!$OMP END DO NOWAIT
       return
       end
 
@@ -5552,6 +5552,23 @@ c     integer i2_start(NFFT3+1)
         a(index(i)) = 0.0d0
       end do
 !$OMP END DO
+      return
+      end
+
+      subroutine D3dB_pfft_index2_copy_conjg(n,index,a,b)
+      implicit none
+      integer n
+      integer index(*)
+      complex*16  a(*),b(*)
+      integer i
+#ifndef CRAY
+!DIR$ ivdep
+#endif
+!$OMP DO 
+      do i=1,n
+        b(index(i)) = dconjg(a(i))
+      end do
+!$OMP END DO NOWAIT
       return
       end
 
