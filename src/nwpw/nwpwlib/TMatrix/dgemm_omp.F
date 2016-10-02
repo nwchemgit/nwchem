@@ -284,28 +284,17 @@
           IF (NOTA) THEN
 *
 *           Form  C := alpha*A*B' + beta*C
-*
-              cidj = tid
-              DO 170 J = 1,N
-                  IF (BETA.EQ.ZERO) THEN
-                      DO 130 I = cidj+1,M,nthr
-                          C(I,J) = ZERO
-  130                 CONTINUE
-                  ELSE IF (BETA.NE.ONE) THEN
-                      DO 140 I = cidj+1,M,nthr
-                          C(I,J) = BETA*C(I,J)
-  140                 CONTINUE
-                  END IF
-                  DO 160 L = 1,K
-                      IF (B(J,L).NE.ZERO) THEN
-                          TEMP = ALPHA*B(J,L)
-                          DO 150 I = cidj+1,M,nthr
-                             C(I,J) = C(I,J) + TEMP*A(I,L)
-  150                     CONTINUE
-                      END IF
-  160             CONTINUE
-                  cidj = mod(cidj+M,nthr)
-  170         CONTINUE
+            r    = mod(M,nthr)
+            if (tid.lt.r) then
+                Itid = tid*(M/nthr+1) + 1
+                Mtid = M/nthr + 1
+            else
+                Itid = r + tid*(M/nthr) + 1
+                Mtid = M/nthr 
+            end if
+            call DGEMM(TRANSA,TRANSB,Mtid,N,K,ALPHA,A(Itid,1),LDA,B,LDB,
+     >                 BETA,C(Itid,1),LDC)
+
           ELSE
 *
 *           Form  C := alpha*A'*B' + beta*C
