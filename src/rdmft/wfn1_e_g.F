@@ -63,8 +63,8 @@ c
       wfn1_energy%E_2el = 0.0d0
       wfn1_energy%E_nuc = wfn1_param%Enuc
 c
-c      Arrange memory for the diagonal correlation function Fock
-c      matrices in natural orbital basis
+c     Arrange memory for the diagonal correlation function Fock
+c     matrices in natural orbital basis
 c
       allocate(v_dca(1:wfn1_param%nmo))
       allocate(v_dcb(1:wfn1_param%nmo))
@@ -275,7 +275,7 @@ c
         if(wfn1_wave%icnfa(jj).ge.jclo.and.wfn1_wave%icnfa(jj).le.jchi)
      &  then
           do ii = iclo, ichi
-            occa(ii) = occa(ii) +
+            occa(ii) = occa(ii) 
      &               + buf(ii,wfn1_wave%icnfa(jj))
      &               * buf(ii,wfn1_wave%icnfa(jj))
           enddo
@@ -335,7 +335,7 @@ c
         if(wfn1_wave%icnfb(jj).ge.jclo.and.wfn1_wave%icnfb(jj).le.jchi)
      &  then
           do ii = iclo, ichi
-            occb(ii) = occb(ii) +
+            occb(ii) = occb(ii)
      &               + buf(ii,wfn1_wave%icnfb(jj))
      &               * buf(ii,wfn1_wave%icnfb(jj))
           enddo

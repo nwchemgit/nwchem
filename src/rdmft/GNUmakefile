@@ -8,6 +8,7 @@
          wfn1_configuration.o \
          wfn1_dnrm2.o \
          wfn1_e_g.o \
+         wfn1_exp.o \
          wfn1_gen_mat.o \
          wfn1_guess_corr.o \
          wfn1_lindep.o \
