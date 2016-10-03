@@ -9,9 +9,12 @@
          wfn1_dnrm2.o \
          wfn1_e_g.o \
          wfn1_exp.o \
+         wfn1_f0df0f1.o \
+         wfn1_f1f2f3.o \
          wfn1_gen_mat.o \
          wfn1_gen_trial_wfn.o \
          wfn1_guess_corr.o \
+         wfn1_insert.o \
          wfn1_lindep.o \
          wfn1_linesearch.o \
          wfn1_size.o \

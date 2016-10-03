@@ -3,7 +3,7 @@ c
       subroutine wfn1_linesearch(wfn1_param,wfn1_inst,wfn1_mat,
      &                           wfn1_wave,wfn1_deriv,wfn1_energy,
      &                           wfn1_trial_wv,wfn1_trial_drv,
-     &                           g_bfmo,g_momo)
+     &                           g_bfmo,g_momo1,g_momo2)
       implicit none
 C>
 C> \brief Perform a linesearch for the minimum total energy
@@ -35,12 +35,14 @@ c
       type(wfn1_matcnst), intent(in)    :: wfn1_mat
       type(wfn1_wfn),     intent(in)    :: wfn1_wave
       type(wfn1_drv),     intent(inout) :: wfn1_deriv
+      type(wfn1_en),      intent(inout) :: wfn1_energy
       type(wfn1_wfn),     intent(inout) :: wfn1_trial_wv
       type(wfn1_drv),     intent(inout) :: wfn1_trial_drv
-      type(wfn1_en),      intent(inout) :: wfn1_energy
+      type(wfn1_en)                     :: wfn1_trial_en
 c
-      integer, intent(inout) :: g_bfmo ! nbf x nmo scratch GA
-      integer, intent(inout) :: g_momo ! nmo x nmo scratch GA
+      integer, intent(inout) :: g_bfmo  ! nbf x nmo scratch GA
+      integer, intent(inout) :: g_momo1 ! nmo x nmo scratch GA
+      integer, intent(inout) :: g_momo2 ! nmo x nmo scratch GA
 c
       integer             npts        !< The number of points
       integer             mxpts       !< The maximum number of points
@@ -48,11 +50,30 @@ c
       double precision xx(mxpts)      !< The x-coordinates
       double precision fx(mxpts)      !< The function values
       double precision df(mxpts)      !< The function gradient
+      double precision tr             !< The trust radius
+      double precision aa, bb, cc     !< The factor of the parabola
+      double precision xm, fxm
+c
+      tr = 2.0d0
+c
+c     Store the initial point
 c
       npts = 1
       xx(npts) = 0.0d0
       fx(npts) = wfn1_energy%E_tot
       df(npts) = wfn1_trace(wfn1_deriv,wfn1_deriv)
+c
+c     Take one step
+c
+      npts = npts + 1
+      xx(npts) = 1.0d0
+      call wfn1_gen_trial_wfn(xx(npts),wfn1_param,wfn1_wave,wfn1_deriv,
+     &                        wfn1_trial_wv,g_momo1,g_momo2)
+      call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_trial_wv,
+     &              wfn1_trial_drv,wfn1_trial_en,g_bfmo,g_momo1)
+      fx(npts) = wfn1_trial_en%E_tot
+      df(npts) = wfn1_trace(wfn1_deriv,wfn1_trial_drv)
+      call wfn1_f0df0f1(xx(2),fx(1),df(1),fx(2),tr,aa,bb,cc,xm,fxm)
 c
       end subroutine wfn1_linesearch
 c
