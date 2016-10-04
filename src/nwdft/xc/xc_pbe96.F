@@ -50,10 +50,13 @@ c
       double precision TOLL
       double precision EXPTOL
       double precision EPS
+      double precision eps_argexp
 c
       parameter (TOLL = 1.0D-40)
       parameter (EXPTOL = 40.0d0)
       parameter (EPS = 1.0e-8)
+      parameter (eps_argexp = 1.0e-14)
+
 c
 c     Correlation energy
 c
@@ -915,7 +918,10 @@ c
 c        A = BETA/GAMMA [exp{-epsilon_c/(GAMMA*phi**3)}-1]**(-1)
 c
 c Daniel (7-24-12): "A" function
-         if (dabs(argexp).lt.EXPTOL) then
+c     this avoids expmone to get a zero value that will result in 1./0.
+         if (dabs(argexp).lt.eps_argexp) then
+            expinA=dexp(eps_argexp)
+         elseif (dabs(argexp).lt.EXPTOL) then
             expinA=dexp(argexp)
          else
             expinA=0.0d0
