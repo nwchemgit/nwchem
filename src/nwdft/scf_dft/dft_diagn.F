@@ -345,3 +345,101 @@ c
       endif
       return
       end
+c     
+      subroutine dft_eig_so(nbf_mo, g_fockso, g_moso, evals)
+c
+      implicit none
+c
+#include "errquit.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "rtdb.fh"
+#include "cdft.fh"
+#include "global.fh"
+#include "msgids.fh"
+#include "util.fh"
+#include "zora.fh" 
+#include "case.fh"
+c     
+c     so
+      integer nbf_mo 
+      integer g_fockso(2), g_moso(2)
+      double precision evals(*)
+c
+      integer la, ia            ! complex*16 a(nbf_ao, nbf_ao)
+      integer llwork 
+      integer lwork, iwork      ! complex*16 work(3) 
+      integer lrwork, irwork    ! double precision rwork
+      integer lbuff, ibuff
+      integer info
+      integer i,j,i1
+c
+c     ma for complex diagonalizer 
+      if (.not.MA_Push_Get(MT_DCpl,nbf_mo*nbf_mo,'cpl a',la,ia))
+     &     call errquit('dft_scf: cannot allocate cpl a',0, MA_ERR)
+      llwork = max(1, 2*nbf_mo-1)
+      if (.not.MA_Push_Get(MT_DCpl,llwork,'cpl work',lwork,iwork))
+     &     call errquit('dft_scf: cannot allocate cpl work',0, MA_ERR)
+      if (.not.MA_Push_Get(MT_Dbl,max(1,3*nbf_mo-2),'w.s',lrwork,
+     &     irwork))
+     &     call errquit('dft_scf: cannot allocate w.s',0, MA_ERR)
+      if (.not.ma_push_get(mt_dbl,nbf_mo,'buff',lbuff,ibuff))
+     &     call errquit('dft_scf:push_get failed', 13, MA_ERR)
+c
+c     call diagonalizer
+      do i = 1, nbf_mo 
+         do j = 1, nbf_mo
+            DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))=dcmplx(0.0, 0.0)
+         enddo
+      enddo
+      do i = 1, nbf_mo 
+         call ga_get(g_fockso(1), 1,i, i,i, dbl_mb(ibuff),1)
+         do j=1,i 
+            DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))=
+     &           dcmplx(dbl_mb(ibuff+j-1),0d0)
+         enddo 
+         call ga_get(g_fockso(2), 1,i, i,i, dbl_mb(ibuff),1)
+         do j=1,i 
+            DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))=
+     $               DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))
+     $           +dcmplx(0d0,dbl_mb(ibuff+j-1))
+         enddo 
+      enddo
+c
+      call zheev( 'V', 'U', nbf_mo, DCpl_mb(ia), nbf_mo, evals,
+     $            DCpl_mb(iwork), LLWORK, Dbl_mb(irwork), INFO )
+c
+      if(ga_nodeid().eq.0) then
+       do i = 1, nbf_mo
+         do j = 1, nbf_mo 
+            dbl_mb(ibuff+j-1)=0.0d0
+            dbl_mb(ibuff+j-1)=dble(DCpl_mb(ia+nbf_mo*(i-1)+(j-1)))
+         enddo 
+         i1=i
+         call ga_put(g_moso(1),1,nbf_mo,i1,i1,dbl_mb(ibuff),1)
+         do j = 1, nbf_mo 
+            dbl_mb(ibuff+j-1)=0.0d0
+            dbl_mb(ibuff+j-1)=
+     $             dimag(dcmplx(DCpl_mb(ia+nbf_mo*(i-1)+(j-1))))
+         enddo
+         i1=i 
+         call ga_put(g_moso(2),1,nbf_mo,i1,i1,dbl_mb(ibuff),1)
+       enddo
+      endif
+c
+      call ga_sync()
+c
+c     pop memory
+      if (.not.ma_pop_stack(lbuff))
+     &   call errquit('dft_eig_so: cannot pop lbuff',0, MA_ERR)
+      if (.not.ma_pop_stack(lrwork))
+     &   call errquit('dft_eig_so: cannot pop lrwork',0, MA_ERR)
+      if (.not.ma_pop_stack(lwork))
+     &   call errquit('dft_eig_so: cannot pop lwork',0, MA_ERR)
+      if (.not.ma_pop_stack(la))
+     &   call errquit('dft_eig_so: cannot pop la',0, MA_ERR)
+c     
+      return
+      end
