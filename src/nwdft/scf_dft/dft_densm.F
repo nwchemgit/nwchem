@@ -237,7 +237,7 @@ c
      $      util_print('general information',print_default) ) then 
            write(LuOut,1688) ssmear,
      ,        efermi(1),tdots,(i,ntot(i),i=1,ipol)
- 1688      format(' sigma= ',d7.2,
+ 1688      format(' sigma= ',d9.2,
      ,        ' eFermi= ',f8.5,' T*S= ',1p,e9.2,0p,
      ,        2(' nel(',i1,')=',f8.2)/) 
 C          write(LuOut,1723) (focc(i),i=1,nbf*ipol)
@@ -245,9 +245,9 @@ C          1723       format(' Foccs ',(
          endif
        endif
 c
-       if(spinset.and.ipol.eq.2) then
+       if(spinset) then
          if(search0) then
-           noc(1)=nint(ntot(1))
+           noc(1)=nint(ntot(1)*ipol*0.5d0)
            if(ipol.eq.2) noc(2)=nint(ntot(2))
          else
            noc(1)=nocsave(1)
