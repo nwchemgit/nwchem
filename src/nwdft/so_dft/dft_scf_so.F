@@ -1305,7 +1305,8 @@ c      == patch scalar zora parts into Fock matrix ==
      &     1+nbf_ao, nbf_mo)
 c
 c      == patch in spin-orbit zora part ==
-       call ga_fock_so(g_zora_so, g_fockso, nbf_ao)
+       if (.not.do_purescalar)
+     &         call ga_fock_so(g_zora_so, g_fockso, nbf_ao)
 c
       end if ! do_zora
 c
@@ -1629,47 +1630,7 @@ c      write(*,*)"compare"
       call dft_scaleig_so(g_fockso,g_moso,dbl_mb(k_eval(1)),
      A      nmoout)
 #else
-      do i = 1, nbf_mo 
-         do j = 1, nbf_mo
-            DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))=dcmplx(0.0, 0.0)
-         enddo
-      enddo
-      do i = 1, nbf_mo 
-         call ga_get(g_fockso(1), 1,i, i,i, dbl_mb(ibuff),1)
-c         write(*,*)"i=", i 
-c         write(*,*)(dbl_mb(ibuff+ijk), ijk=0,nbf_mo-1)
-         do j=1,i 
-            DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))=
-     =           dcmplx(dbl_mb(ibuff+j-1),0d0)
-         enddo 
-         call ga_get(g_fockso(2), 1,i, i,i, dbl_mb(ibuff),1)
-         do j=1,i 
-            DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))=
-     $               DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))
-     $           +dcmplx(0d0,dbl_mb(ibuff+j-1))
-         enddo 
-      enddo
-      call zheev( 'V', 'U', nbf_mo, DCpl_mb(ia), nbf_mo, 
-     $            Dbl_mb(k_eval(1)), 
-     $            DCpl_mb(iwork), LLWORK, Dbl_mb(irwork), INFO )
-      if(ga_nodeid().eq.0) then
-      do i = 1, nbf_mo
-         do j = 1, nbf_mo 
-            dbl_mb(ibuff+j-1)=0.0d0
-            dbl_mb(ibuff+j-1)=dble(DCpl_mb(ia+nbf_mo*(i-1)+(j-1)))
-         enddo 
-         i1=i
-         call ga_put(g_moso(1),1,nbf_mo,i1,i1,dbl_mb(ibuff),1)
-         do j = 1, nbf_mo 
-            dbl_mb(ibuff+j-1)=0.0d0
-            dbl_mb(ibuff+j-1)=
-     $             dimag(dcmplx(DCpl_mb(ia+nbf_mo*(i-1)+(j-1))))
-         enddo
-         i1=i 
-         call ga_put(g_moso(2),1,nbf_mo,i1,i1,dbl_mb(ibuff),1)
-      enddo
-      endif
-      call ga_sync()
+      call dft_eig_so(nbf_mo, g_fockso, g_moso, dbl_mb(k_eval(1)))
 #endif
 c      write(*,'("before transform")')
 c      write(*,*)(Dbl_mb(k_eval(1)+i),i=0,nbf_mo-1)

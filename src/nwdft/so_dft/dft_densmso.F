@@ -19,7 +19,7 @@ c
       parameter (zero=0.d0, one=1.d0, mone=-1.d0)
 c
       nbf2 = 2*nbf 
-
+c
       call ga_dgemm('n', 't', nbf2, nbf2, noc, one,  g_vecs(1),
      $  g_vecs(1), zero, g_dens(1))
       call ga_dgemm('n', 't', nbf2, nbf2, noc, one,  g_vecs(2),
@@ -28,9 +28,7 @@ c
      $  g_vecs(2), zero, g_dens(2))
       call ga_dgemm('n', 't', nbf2, nbf2, noc, mone, g_vecs(2),
      $  g_vecs(1), one,  g_dens(2)) 
-
-cso      call ga_symmetrize(g_dens(1))
-cso      call ga_symmetrize(g_dens(2))
+c
       return
       end 
 
@@ -131,7 +129,7 @@ c
      &                      1.d0, g_a(1),npone,ntwice,npone,ntwice, 
      &                            g_tmp, 1, nbf, 1, nbf)
       else
-         stop
+         call errquit('ga_dens_so: op arg not valid',0,0)
       endif
       return
       end
