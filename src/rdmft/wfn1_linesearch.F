@@ -3,6 +3,7 @@ c
       subroutine wfn1_linesearch(wfn1_param,wfn1_inst,wfn1_mat,
      &                           wfn1_wave,wfn1_deriv,wfn1_energy,
      &                           wfn1_trial_wv,wfn1_trial_drv,
+     &                           wfn1_trial_en,
      &                           g_bfmo,g_momo1,g_momo2)
       implicit none
 C>
@@ -38,11 +39,13 @@ c
       type(wfn1_en),      intent(inout) :: wfn1_energy
       type(wfn1_wfn),     intent(inout) :: wfn1_trial_wv
       type(wfn1_drv),     intent(inout) :: wfn1_trial_drv
-      type(wfn1_en)                     :: wfn1_trial_en
+      type(wfn1_en),      intent(inout) :: wfn1_trial_en
 c
       integer, intent(inout) :: g_bfmo  ! nbf x nmo scratch GA
       integer, intent(inout) :: g_momo1 ! nmo x nmo scratch GA
       integer, intent(inout) :: g_momo2 ! nmo x nmo scratch GA
+c
+      integer, external :: wfn1_idmin
 c
       integer             npts        !< The number of points
       integer             mxpts       !< The maximum number of points
@@ -52,7 +55,10 @@ c
       double precision df(mxpts)      !< The function gradient
       double precision tr             !< The trust radius
       double precision aa, bb, cc     !< The factor of the parabola
-      double precision xm, fxm
+      double precision xm, fxm, dfm
+c
+      integer indxmin
+      integer ix1, ix2, ix3
 c
       tr = 2.0d0
 c
@@ -74,6 +80,30 @@ c
       fx(npts) = wfn1_trial_en%E_tot
       df(npts) = wfn1_trace(wfn1_deriv,wfn1_trial_drv)
       call wfn1_f0df0f1(xx(2),fx(1),df(1),fx(2),tr,aa,bb,cc,xm,fxm)
+c
+c     Always select the next step (hoping that using the quadratic
+c     approximation will pay off)
+c
+      call wfn1_gen_trial_wfn(xm,wfn1_param,wfn1_wave,wfn1_deriv,
+     &                        wfn1_trial_wv,g_momo1,g_momo2)
+      call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_trial_wv,
+     &              wfn1_trial_drv,wfn1_trial_en,g_bfmo,g_momo1)
+      dfm = wfn1_trace(wfn1_deriv,wfn1_trial_drv)
+      call wfn1_insert(mxpts,npts,xx,fx,df,xm,wfn1_trial_en%E_tot,dfm)
+c
+      do while (wfn1_trial_en%E_tot > wfn1_energy%E_tot)
+        indxmin = wfn1_idmin(npts,fx,1)
+        call wfn1_closest_three(npts,xx,indxmin,ix1,ix2,ix3)
+        call wfn1_f1f2f3(xx(ix1),xx(ix2),xx(ix3),
+     &                   fx(ix1),fx(ix2),fx(ix3),
+     &                   tr,aa,bb,cc,xm,fxm)
+        call wfn1_gen_trial_wfn(xm,wfn1_param,wfn1_wave,wfn1_deriv,
+     &                          wfn1_trial_wv,g_momo1,g_momo2)
+        call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_trial_wv,
+     &                wfn1_trial_drv,wfn1_trial_en,g_bfmo,g_momo1)
+        dfm = wfn1_trace(wfn1_deriv,wfn1_trial_drv)
+        call wfn1_insert(mxpts,npts,xx,fx,df,xm,wfn1_trial_en%E_tot,dfm)
+      enddo
 c
       end subroutine wfn1_linesearch
 c
