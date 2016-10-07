@@ -15,6 +15,7 @@
 #include "wfn1_drv.fh"
 #include "wfn1_matcnst.fh"
 #include "wfn1_size.fh"
+#include "wfn1_trace.fh"
 #include "wfn1_en.fh"
 #include "bas.fh"
 #include "errquit.fh"
@@ -73,7 +74,8 @@ c
 c
       integer g_bfbf     ! nbf x nbf scratch global array
       integer g_bfmo     ! nbf x nmo scratch global array
-      integer g_momo     ! nmo x nmo scratch global array
+      integer g_momo1    ! nmo x nmo scratch global array
+      integer g_momo2    ! nmo x nmo scratch global array
 c
       integer ndep_nmo          ! the number of linearly independent
                                 ! vectors set as a user parameter
@@ -83,7 +85,10 @@ c
       double precision ndep_tol_default ! default setting for ndep_tol
       parameter (ndep_tol_default = 1.0d-5)
 c
+      double precision conv_tol ! the convergence tolerance
+c
       double precision, allocatable :: eig(:)
+      double precision              :: error
 c
       type(wfn1_prminst) :: wfn1_inst    ! paramater instances
       type(wfn1_prm)     :: wfn1_param   ! calculation parameters
@@ -91,10 +96,15 @@ c
       type(wfn1_wfn)     :: wfn1_wave    ! the current wave function
       type(wfn1_drv)     :: wfn1_deriv   ! the derivative of the current
                                          ! wave function
-      type(wfn1_wfn)     :: wfn1_wvtrial ! the trial wave function
-      type(wfn1_drv)     :: wfn1_drtrial ! the derivative wrt the trial
-                                         ! wave function
       type(wfn1_en)      :: wfn1_energy  ! the energy terms
+c
+      type(wfn1_wfn)     :: wfn1_trial_wv  ! the trial wave function
+      type(wfn1_drv)     :: wfn1_trial_drv ! the derivative wrt the trial
+                                           ! wave function
+      type(wfn1_en)      :: wfn1_trial_en  ! the trial energy
+c
+      type(wfn1_wfn) :: wfn1_t_wv  ! temporary variable
+      type(wfn1_drv) :: wfn1_t_drv ! temporary variable
 c
       iproc = ga_nodeid()
       nproc = ga_nnodes()
@@ -202,6 +212,11 @@ c
       wfn1_param%nea = nclosed + nopen
       wfn1_param%neb = nclosed
 c
+c     == Get the convergence criterion
+c
+      if (.not.rtdb_get(wfn1_inst%rtdb,"conv_tol",MT_DBL,1,conv_tol))
+     &  conv_tol = 1.0d-4
+c
 c     == Deal with 1-electron integrals ==
 c
       call wfn1_allocate_mat(wfn1_inst,wfn1_mat)
@@ -226,9 +241,14 @@ c
      &               wfn1_ibd_proc(wfn1_param%nbf*wfn1_param%nmo,nproc),
      &               GA_ERR)
       endif
-      if (.not.ga_create(MT_DBL,wfn1_param%nmo,wfn1_param%nmo,"g_momo",
-     &                   -1,-1,g_momo)) then
-        call errquit(pname//" allocate g_momo failed",
+      if (.not.ga_create(MT_DBL,wfn1_param%nmo,wfn1_param%nmo,"g_momo1",
+     &                   -1,-1,g_momo1)) then
+        call errquit(pname//" allocate g_momo1 failed",
+     &               wfn1_ibd_proc(wfn1_param%nmo**2,nproc),GA_ERR)
+      endif
+      if (.not.ga_create(MT_DBL,wfn1_param%nmo,wfn1_param%nmo,"g_momo2",
+     &                   -1,-1,g_momo2)) then
+        call errquit(pname//" allocate g_momo2 failed",
      &               wfn1_ibd_proc(wfn1_param%nmo**2,nproc),GA_ERR)
       endif
 c
@@ -241,12 +261,12 @@ c
 c     == Allocate memory for the wavefunction ==
 c
       call wfn1_allocate_wfn(wfn1_param,wfn1_inst,wfn1_wave)
-      call wfn1_allocate_wfn(wfn1_param,wfn1_inst,wfn1_wvtrial)
+      call wfn1_allocate_wfn(wfn1_param,wfn1_inst,wfn1_trial_wv)
 c
 c     == Allocate memory for the derivatives wrt the wavefunctions ==
 c
       call wfn1_allocate_drv(wfn1_param,wfn1_deriv)
-      call wfn1_allocate_drv(wfn1_param,wfn1_drtrial)
+      call wfn1_allocate_drv(wfn1_param,wfn1_trial_drv)
 c
 c     == Populate the natural orbitals with the eigenfunctions of ==
 c     == the S^{-1/2} matrix                                      == 
@@ -280,22 +300,49 @@ c
       oconverged = .false.
       curit      = 0
       call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_wave,wfn1_deriv,
-     &              wfn1_energy,g_bfmo,g_momo)
+     &              wfn1_energy,g_bfmo,g_momo1)
       do while ((.not.oconverged).and.(curit.lt.maxit))
         curit = curit + 1
+        call wfn1_linesearch(wfn1_param,wfn1_inst,wfn1_mat,wfn1_wave,
+     &                       wfn1_deriv,wfn1_energy,
+     &                       wfn1_trial_wv,wfn1_trial_drv,wfn1_trial_en,
+     &                       g_bfmo,g_momo1,g_momo2)
+
+        error = wfn1_trace(wfn1_trial_drv,wfn1_trial_drv)
+        oconverged = (error < conv_tol)
+c
+c       swap trial wavefunctions, derivatives and energies with the 
+c       regular ones.
+c
+        wfn1_t_wv      = wfn1_trial_wv
+        wfn1_trial_wv  = wfn1_wave
+        wfn1_wave      = wfn1_t_wv
+c
+        wfn1_t_drv     = wfn1_trial_drv
+        wfn1_trial_drv = wfn1_deriv
+        wfn1_deriv     = wfn1_t_drv
+c
+        wfn1_energy    = wfn1_trial_en
+
+        if (iproc.eq.0) then
+          write(luout,'(i5,f20.8,f16.6)')curit,wfn1_energy%E_tot,error
+        endif
       enddo
       wfn1_task_energy = oconverged
 c
 c     == Clean up ==
 c
-      call wfn1_deallocate_drv(wfn1_drtrial)
+      call wfn1_deallocate_drv(wfn1_trial_drv)
       call wfn1_deallocate_drv(wfn1_deriv)
-      call wfn1_deallocate_wfn(wfn1_wvtrial)
+      call wfn1_deallocate_wfn(wfn1_trial_wv)
       call wfn1_deallocate_wfn(wfn1_wave)
       call wfn1_deallocate_mat(wfn1_mat)
 c
-      if (.not.ga_destroy(g_momo)) then
-        call errquit(pname//" deallocate g_momo failed",0,GA_ERR)
+      if (.not.ga_destroy(g_momo2)) then
+        call errquit(pname//" deallocate g_momo2 failed",0,GA_ERR)
+      endif
+      if (.not.ga_destroy(g_momo1)) then
+        call errquit(pname//" deallocate g_momo1 failed",0,GA_ERR)
       endif
       if (.not.ga_destroy(g_bfmo)) then
         call errquit(pname//" deallocate g_bfmo failed",0,GA_ERR)
