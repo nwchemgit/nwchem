@@ -330,6 +330,15 @@ c
       enddo
       wfn1_task_energy = oconverged
 c
+c     == Store results ==
+c
+      if (.not.rtdb_put(rtdb,'wfn1:energy',MT_DBL,1,wfn1_energy%E_tot))
+     &  call errquit(pname//' failed to store energy in rtdb', 
+     &               0, RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'wfn1:converged',MT_LOG,1,oconverged))
+     &  call errquit(pname//' failed to store converged in rtdb', 
+     &               0, RTDB_ERR)
+c
 c     == Clean up ==
 c
       call wfn1_deallocate_drv(wfn1_trial_drv)
