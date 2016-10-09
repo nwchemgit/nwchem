@@ -226,10 +226,12 @@ c
       wfn1_param%nea = nclosed + nopen
       wfn1_param%neb = nclosed
 c
-c     == Get the convergence criterion
+c     == Get the convergence criterion and maximum number of iterations
 c
-      if (.not.rtdb_get(wfn1_inst%rtdb,"conv_tol",MT_DBL,1,conv_tol))
-     &  conv_tol = 1.0d-4
+      if (.not.rtdb_get(wfn1_inst%rtdb,"wfn1:conv_tol",MT_DBL,
+     &                  1,conv_tol)) conv_tol = 1.0d-4
+      if (.not.rtdb_get(wfn1_inst%rtdb,"wfn1:maxit",MT_INT,
+     &                  1,maxit)) maxit = 50
 c
 c     == Deal with 1-electron integrals ==
 c
@@ -315,6 +317,10 @@ c
 c
 c     == Initial wavefunction complete ==
 c
+      if (iproc.eq.0) then
+        write(luout,'(a10,a20,a16)')"iteration","energy","error"
+        write(luout,'(a10,a20,a16)')"---------","------","-----"
+      endif
       oconverged = .false.
       curit      = 0
       call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_wave,wfn1_deriv,
@@ -343,7 +349,7 @@ c
         wfn1_energy    = wfn1_trial_en
 
         if (iproc.eq.0) then
-          write(luout,'(i5,f20.8,f16.6)')curit,wfn1_energy%E_tot,error
+          write(luout,'(i10,f20.8,f16.6)')curit,wfn1_energy%E_tot,error
         endif
       enddo
       wfn1_task_energy = oconverged
@@ -379,7 +385,7 @@ c
       endif
 c
 c     call int_1e_uncache_ga()
-c     call schwarz_tidy
+      call schwarz_tidy
       call int_terminate
       call util_print_pop
 c
