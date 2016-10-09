@@ -275,7 +275,7 @@ c
         if(wfn1_wave%icnfa(jj).ge.jclo.and.wfn1_wave%icnfa(jj).le.jchi)
      &  then
           do ii = iclo, ichi
-            occa(ii) = occa(ii) 
+            occa(ii) = occa(ii)
      &               + buf(ii,wfn1_wave%icnfa(jj))
      &               * buf(ii,wfn1_wave%icnfa(jj))
           enddo
@@ -286,10 +286,12 @@ c
 c
 c     Do step 1.
 c
-      call ga_dgemm('n','n',1.0d0,wfn1_mat%g_tv,wfn1_wave%g_na,0.0d0,
-     &              g_bfmo)
-      call ga_dgemm('t','n',1.0d0,wfn1_wave%g_na,g_bfmo,0.0d0,
-     &              g_momo)
+      call ga_dgemm('n','n',wfn1_param%nbf,wfn1_param%nmo,
+     &              wfn1_param%nbf,1.0d0,wfn1_mat%g_tv,wfn1_wave%g_na,
+     &              0.0d0,g_bfmo)
+      call ga_dgemm('t','n',wfn1_param%nmo,wfn1_param%nmo,
+     &              wfn1_param%nbf,1.0d0,wfn1_wave%g_na,g_bfmo,
+     &              0.0d0,g_momo)
 c
 c     Do step 2.
 c
@@ -346,10 +348,12 @@ c
 c
 c     Do step 1.
 c
-      call ga_dgemm('n','n',1.0d0,wfn1_mat%g_tv,wfn1_wave%g_nb,0.0d0,
-     &              g_bfmo)
-      call ga_dgemm('t','n',1.0d0,wfn1_wave%g_nb,g_bfmo,0.0d0,
-     &              g_momo)
+      call ga_dgemm('n','n',wfn1_param%nbf,wfn1_param%nmo,
+     &              wfn1_param%nbf,1.0d0,wfn1_mat%g_tv,wfn1_wave%g_nb,
+     &              0.0d0,g_bfmo)
+      call ga_dgemm('t','n',wfn1_param%nmo,wfn1_param%nmo,
+     &              wfn1_param%nbf,1.0d0,wfn1_wave%g_nb,g_bfmo,
+     &              0.0d0,g_momo)
 c
 c     Do step 2.
 c

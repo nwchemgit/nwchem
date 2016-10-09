@@ -34,13 +34,13 @@ c
       double precision              :: dnrm
       double precision, allocatable :: eigval(:)
 c
-      character pname
+      character*(12) pname
       pname = "wfn1_lindep:"
 c
       nproc = ga_nnodes()
       iproc = ga_nodeid()
 c
-      call ga_inquire(g_s,itype,ndim,idims)
+      call nga_inquire(g_s,itype,ndim,idims)
       nbf = idims(1)
       if (ndim.ne.2) then
         call errquit(pname//" wrong number of dimensions",ndim,UERR)

@@ -25,6 +25,8 @@
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "util.fh"
+! For filesize and memsize
+#include "cfock.fh"
 !>
 !> \brief Minimize the free energy
 !>
@@ -136,6 +138,18 @@ c
         endif
       endif
 c
+c     == Rig some settings that we need ==
+c
+      if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 1))
+     &  call errquit(pname//" put of bgj:scf_type failed",0, RTDB_ERR)
+c     ---- Switch to DIRECT ----
+      filesize = -1
+      memsize  = -1
+      if (.not. rtdb_put(rtdb,'int2e:filesize', MT_INT, 1, filesize))
+     $  call errquit(pname//" failed to store filesize",0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'int2e:memsize', MT_INT, 1, memsize))
+     $  call errquit(pname//" failed to store filesize",0, RTDB_ERR)
+c
 c     == Load geometry and basis set ==
 c
       if (.not.geom_create(wfn1_inst%geom,'geometry'))
@@ -224,7 +238,7 @@ c
 c     == Initialize the integral code ==
 c
       call int_init(wfn1_inst%rtdb,1,wfn1_inst%basis)
-c     call schwarz_init(geom,basis)
+      call schwarz_init(wfn1_inst%geom,wfn1_inst%basis)
 c     call int_1e_cache_ga(wfn1_inst%basis,oskel)
       call wfn1_gen_mat(wfn1_inst,wfn1_mat)
 c
@@ -235,6 +249,16 @@ c
         call errquit(pname//" allocate g_bfbf failed",
      &               wfn1_ibd_proc(wfn1_param%nbf**2,nproc),GA_ERR)
       endif
+c
+c     == Find the linearly independent orbitals ==
+c     == and orthonormalizing transformation    ==
+c
+      call wfn1_lindep(wfn1_mat%g_s,g_bfbf,wfn1_param%nmo,ndep_tol)
+      if (ndep_nmo.gt.0) wfn1_param%nmo = min(wfn1_param%nbf,ndep_nmo)
+c
+c     == create other scratch global arrays that depend on ==
+c     == nbf and nmo                                       ==
+c
       if (.not.ga_create(MT_DBL,wfn1_param%nbf,wfn1_param%nmo,"g_bfmo",
      &                   -1,-1,g_bfmo)) then
         call errquit(pname//" allocate g_bfmo failed",
@@ -251,12 +275,6 @@ c
         call errquit(pname//" allocate g_momo2 failed",
      &               wfn1_ibd_proc(wfn1_param%nmo**2,nproc),GA_ERR)
       endif
-c
-c     == Find the linearly independent orbitals ==
-c     == and orthonormalizing transformation    ==
-c
-      call wfn1_lindep(wfn1_mat%g_s,g_bfbf,wfn1_param%nmo,ndep_tol)
-      if (ndep_nmo.gt.0) wfn1_param%nmo = min(wfn1_param%nbf,ndep_nmo)
 c
 c     == Allocate memory for the wavefunction ==
 c
