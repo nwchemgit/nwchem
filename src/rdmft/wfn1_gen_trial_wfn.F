@@ -14,15 +14,15 @@ C>
 #include "wfn1_drv.fh" 
 #include "wfn1_param.fh" 
 c
-      double precision, intent(in) :: alpha ! the step size
+      double precision, intent(in)  :: alpha ! the step size
 c
-      type(wfn1_wfn), intent(in)  :: wfn1_wave     ! the current wave
-                                                   ! function
-      type(wfn1_wfn), intent(out) :: wfn1_trial_wv ! the trial wave
-                                                   ! function
-      type(wfn1_drv), intent(in)  :: wfn1_deriv    ! the derivative
-      type(wfn1_prm), intent(in)  :: wfn1_param    ! the calculation 
-                                                   ! parameters
+      type(wfn1_wfn), intent(in)    :: wfn1_wave     ! the current wave
+                                                     ! function
+      type(wfn1_wfn), intent(inout) :: wfn1_trial_wv ! the trial wave
+                                                     ! function
+      type(wfn1_drv), intent(in)    :: wfn1_deriv    ! the derivative
+      type(wfn1_prm), intent(in)    :: wfn1_param    ! the calculation 
+                                                     ! parameters
 c
       integer, intent(inout) :: g_t   ! nmo x nmo scratch global array
       integer, intent(inout) :: g_exp ! nmo x nmo scratch global array
