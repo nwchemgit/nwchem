@@ -178,6 +178,9 @@ c
       call ga_put(wfn1_deriv%g_dcb,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
       deallocate(buf)
 c
+      wfn1_energy%E_tot = wfn1_energy%E_1el + wfn1_energy%E_2el
+     &                  + wfn1_energy%E_nuc
+c
       end
 c
 c----------------------------------------------------------------------
