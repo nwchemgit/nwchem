@@ -103,7 +103,7 @@ c
         if (jj.gt.nea) then
           do ii = ilo, ihi
             if (ii.gt.nea) then
-              x = (ii-nea+1-0.5d0)*(jj-nea+1)*delta
+              x = (ii-nea-0.5d0)*(jj-nea)*delta
               if (sin(x).lt.0.0d0) then
                 buf(ii,jj) = -buf(ii,jj)
               endif
@@ -177,7 +177,7 @@ c
         if (jj.gt.neb) then
           do ii = ilo, ihi
             if (ii.gt.neb) then
-              x = (ii-neb+1-0.5d0)*(jj-neb+1)*delta
+              x = (ii-neb-0.5d0)*(jj-neb)*delta
               if (sin(x).lt.0.0d0) then
                 buf(ii,jj) = -buf(ii,jj)
               endif
