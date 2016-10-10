@@ -282,6 +282,8 @@ c     == Allocate memory for the wavefunction ==
 c
       call wfn1_allocate_wfn(wfn1_param,wfn1_inst,wfn1_wave)
       call wfn1_allocate_wfn(wfn1_param,wfn1_inst,wfn1_trial_wv)
+      allocate(wfn1_t_wv%icnfa(1:wfn1_param%nea))
+      allocate(wfn1_t_wv%icnfb(1:wfn1_param%neb))
 c
 c     == Allocate memory for the derivatives wrt the wavefunctions ==
 c
@@ -291,9 +293,8 @@ c
 c     == Populate the natural orbitals with the eigenfunctions of ==
 c     == the S^{-1/2} matrix                                      == 
 c
-      call ga_copy_patch('N',
-     &     g_bfbf,1,wfn1_param%nbf,
-     &            wfn1_param%nbf-wfn1_param%nmo+1,wfn1_param%nbf,
+      call ga_copy_patch('N',g_bfbf,1,wfn1_param%nbf,
+     &     wfn1_param%nbf-wfn1_param%nmo+1,wfn1_param%nbf,
      &     wfn1_wave%g_na,1,wfn1_param%nbf,1,wfn1_param%nmo)
       call ga_copy(wfn1_wave%g_na,wfn1_wave%g_nb)
 c
@@ -314,6 +315,7 @@ c
 c     == Set up electron configuration ==
 c
       call wfn1_configuration(wfn1_param,wfn1_wave)
+      call wfn1_configuration(wfn1_param,wfn1_trial_wv)
 c
 c     == Initial wavefunction complete ==
 c
@@ -331,7 +333,7 @@ c
      &                       wfn1_deriv,wfn1_energy,
      &                       wfn1_trial_wv,wfn1_trial_drv,wfn1_trial_en,
      &                       g_bfmo,g_momo1,g_momo2)
-
+c
         error = wfn1_trace(wfn1_trial_drv,wfn1_trial_drv)
         oconverged = (error < conv_tol)
 c
@@ -367,6 +369,8 @@ c     == Clean up ==
 c
       call wfn1_deallocate_drv(wfn1_trial_drv)
       call wfn1_deallocate_drv(wfn1_deriv)
+      deallocate(wfn1_t_wv%icnfb)
+      deallocate(wfn1_t_wv%icnfa)
       call wfn1_deallocate_wfn(wfn1_trial_wv)
       call wfn1_deallocate_wfn(wfn1_wave)
       call wfn1_deallocate_mat(wfn1_mat)
