@@ -23,12 +23,12 @@ C>
 #include "wfn1_drv.fh"
 #include "wfn1_en.fh"
 c
-      type(wfn1_prm),     intent(in)  :: wfn1_param
-      type(wfn1_prminst), intent(in)  :: wfn1_inst
-      type(wfn1_matcnst), intent(in)  :: wfn1_mat
-      type(wfn1_wfn),     intent(in)  :: wfn1_wave
-      type(wfn1_drv),     intent(out) :: wfn1_deriv
-      type(wfn1_en),      intent(out) :: wfn1_energy
+      type(wfn1_prm),     intent(in)    :: wfn1_param
+      type(wfn1_prminst), intent(in)    :: wfn1_inst
+      type(wfn1_matcnst), intent(in)    :: wfn1_mat
+      type(wfn1_wfn),     intent(in)    :: wfn1_wave
+      type(wfn1_drv),     intent(inout) :: wfn1_deriv
+      type(wfn1_en),      intent(out)   :: wfn1_energy
 c
       integer, intent(in) :: g_bfmo ! nbf x nmo scratch GA
       integer, intent(in) :: g_momo ! nmo x nmo scratch GA
