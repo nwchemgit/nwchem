@@ -14,9 +14,9 @@ c
 !> Allocate global arrays for the natural orbitals, the correlation
 !> functions, as well as arrays to store the electron configuration.
 !>
-      type(wfn1_prm),     intent(in)  :: wfn1_param
-      type(wfn1_prminst), intent(in)  :: wfn1_inst
-      type(wfn1_wfn),     intent(out) :: wfn1_wave
+      type(wfn1_prm),     intent(in)    :: wfn1_param
+      type(wfn1_prminst), intent(in)    :: wfn1_inst
+      type(wfn1_wfn),     intent(inout) :: wfn1_wave
 c
       integer nblock(2) ! the number of blocks in each dimension
       integer nproc     ! the number of processor ranks
