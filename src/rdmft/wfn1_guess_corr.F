@@ -74,7 +74,7 @@ c
               buf(ii,jj) = 1.0d-3
             endif
           else
-            if (ii.le.wfn1_param%nea) then
+            if (ii.le.nea) then
               buf(ii,jj) = 1.0d-3
             else
               buf(ii,jj) = 1.0d0
