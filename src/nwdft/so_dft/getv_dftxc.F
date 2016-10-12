@@ -30,11 +30,14 @@ c
       integer nao, nexc
       double precision tmat
 c
+      character*32 pname
+c
       logical xc_gotxc, chk_dens
       external xc_gotxc, chk_dens
 c
       me=ga_nodeid()
       tol2e=10.d0**(-itol2e)
+      pname = 'getv_dftxc :'
 c
 c     check if any dft xc is present
       if (.not.xc_gotxc()) return
@@ -101,13 +104,13 @@ c
 c
 c     Deallocate scratch
       if (.not. ga_destroy(g_tmp(1))) call errquit
-     $          ('xc_getv: ga corrupt?',0, GA_ERR)
+     $          (pname//'ga corrupt?',0, GA_ERR)
       if (.not. ga_destroy(g_tmp(2))) call errquit
-     $          ('xc_getv: ga corrupt?',1, GA_ERR)
+     $          (pname//'ga corrupt?',1, GA_ERR)
       if (.not. ga_destroy(g_dens(1))) call errquit
-     $          ('xc_getv: ga corrupt?',0, GA_ERR)
+     $          (pname//'ga corrupt?',0, GA_ERR)
       if (.not. ga_destroy(g_dens(2))) call errquit
-     $          ('xc_getv: ga corrupt?',1, GA_ERR)
+     $          (pname//'ga corrupt?',1, GA_ERR)
 c
       return
       end

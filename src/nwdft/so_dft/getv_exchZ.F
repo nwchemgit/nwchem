@@ -29,6 +29,8 @@ c
       integer g_tmp(2),g_dens(2)
       integer nao
 c
+      character*32 pname
+c 
       logical chk_dens
       external chk_dens
 c
@@ -40,6 +42,9 @@ c     Check if HF is present
 c
       me=ga_nodeid()
       tol2e=10.d0**(-itol2e)
+c
+      pname = 'getv_exchZ :'
+c
       call ga_sync
 c
 c     Query the full density matrix
@@ -137,13 +142,13 @@ c
 c
 c     Deallocate scratch
       if (.not. ga_destroy(g_tmp(1))) call errquit
-     $          ('xc_getv: ga corrupt?',0, GA_ERR)
+     $          (pname//'ga corrupt?',0, GA_ERR)
       if (.not. ga_destroy(g_tmp(2))) call errquit
-     $          ('xc_getv: ga corrupt?',1, GA_ERR)
+     $          (pname//'ga corrupt?',1, GA_ERR)
       if (.not. ga_destroy(g_dens(1))) call errquit
-     $          ('xc_getv: ga corrupt?',0, GA_ERR)
+     $          (pname//'ga corrupt?',0, GA_ERR)
       if (.not. ga_destroy(g_dens(2))) call errquit
-     $          ('xc_getv: ga corrupt?',1, GA_ERR)
+     $          (pname//'ga corrupt?',1, GA_ERR)
 c
       return
       end
