@@ -868,6 +868,7 @@ c
      $           0.d0,g_moso(1),1+nbf_ao,nbf_mo,2*(i-1)+2,2*(i-1)+2,
      $           g_moso(1),1+nbf_ao,nbf_mo,2*(i-1)+2,2*(i-1)+2)
          enddo
+c
       endif  !if not spinor
 c
       if(spinor)then 
@@ -1306,7 +1307,7 @@ c      == patch scalar zora parts into Fock matrix ==
 c
 c      == patch in spin-orbit zora part ==
        if (.not.do_purescalar)
-     &         call ga_fock_so(g_zora_so, g_fockso, nbf_ao)
+     &     call ga_fock_so(g_zora_so, g_fockso, nbf_ao)
 c
       end if ! do_zora
 c
@@ -1382,7 +1383,7 @@ c     == attenuation ==
 c
 c     == HF Exchange part ==
 c
-c     == D0 ==
+c     == D0, V0(Daa + Dbb) ==
       exch0r = 0.d0
       exch0i = 0.d0
       exch0 = 0.d0
@@ -1393,20 +1394,18 @@ c     == D0 ==
       if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
      &     "Exch0Re, Exch0I, sum =", exch0r, exch0i, exch0
 c
-c     == DZ ==
+c     == DZ, i/2 Vz*(Daa - Dbb) ==
       exchZ = 0.d0
       exchZr = 0.d0
       exchZi = 0.d0
-      if (.not.do_purescalar) then 
-        if (me.eq.0.and.oprint_info) write(luout,*) "calling getv_exchZ"
-        call getv_exchZ(rtdb, exchZr, g_densso, g_fockso, g_vxc, 'real')
-        call getv_exchZ(rtdb, exchZi, g_densso, g_fockso, g_vxc, 'imag')
-        exchZ = exchZr + exchZi
-        if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
+      if (me.eq.0.and.oprint_info) write(luout,*) "calling getv_exchZ"
+      call getv_exchZ(rtdb, exchZr, g_densso, g_fockso, g_vxc, 'real')
+      call getv_exchZ(rtdb, exchZi, g_densso, g_fockso, g_vxc, 'imag')
+      exchZ = exchZr + exchZi
+      if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
      &     "ExchZRe, ExchZI, sum =", exchZr, exchZi, exchZ
-      end if 
 c
-c     == DX ==
+c     == DX, i/2 Vx*(Dab + Dba) ==
       exchX = 0.d0
       exchXr = 0.d0
       exchXi = 0.d0
@@ -1417,9 +1416,9 @@ c     == DX ==
         exchX = exchXr + exchXi
         if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
      &     "ExchXRe, ExchXI, sum =", exchXr, exchXi, exchX
-      end if 
+      end if ! .not.do_purescalar
 c
-c     == DY ==
+c     == DY, 1/2 Vy*(Dab - Dba)
       exchY = 0.d0
       exchYr = 0.d0
       exchYi = 0.d0
@@ -1430,7 +1429,7 @@ c     == DY ==
         exchY = exchYr + exchYi
         if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
      &     "ExchYRe, ExchYI, sum =", exchYr, exchYi, exchY
-      end if 
+      end if ! .not.do_purescalar
 c
 c     == attenuation ==
       if (cam_exch) call case_setflags(.false.) ! turn off attenuation
@@ -1438,7 +1437,7 @@ c
 c     == tally up exchange energy ==
       exchtot = exch0 + exchZ + exchX + exchY ! HF exchange
 c
-c     == DFT Exchange ==
+c     == DFT Exchange-Correlation ==
       edftxc(1) = 0.d0
       edftxc(2) = 0.d0
       if (me.eq.0.and.oprint_info)  write(luout,*) "calling getv_dftxc"
