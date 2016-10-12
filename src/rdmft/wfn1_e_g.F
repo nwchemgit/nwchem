@@ -69,6 +69,9 @@ c
       allocate(v_dca(1:wfn1_param%nmo))
       allocate(v_dcb(1:wfn1_param%nmo))
 c
+      v_dca = 0.0d0
+      v_dcb = 0.0d0
+c
 c     Evaluate the various Fock matrix terms
 c
       call wfn1_e_g_1el(wfn1_param,wfn1_mat,wfn1_wave,wfn1_deriv,
