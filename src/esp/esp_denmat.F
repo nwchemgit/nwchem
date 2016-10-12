@@ -14,6 +14,9 @@ c
 #include "esp_params.fh"
 #include "esp_common.fh"
 #include "util.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "inp.fh"
 c  
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -62,7 +65,12 @@ c
         else
            call util_file_name_resolve(movfil,.false.)
         end if
-        if(.not.movecs_read_header(movfil,title,basnam,scftyp,nbf,nset,
+        
+        if(ga_nodeid().eq.0) write(luout,*) ' using M.O. file = ',
+     C       movfil(1:inp_strlen(movfil))
+
+        if(.not.movecs_read_header(movfil(1:inp_strlen(movfil)),
+     R       title,basnam,scftyp,nbf,nset,
      +       nmo,2)) call md_abort('esp: movecs_read_header failed',me)
 c
 c       if nset=2, put the first set's occupation numbers and eigenvalues
@@ -84,7 +92,8 @@ c     read orbital occupations, energies and vectors from movecs
 c
       do 1 iset=1,nset
 c
-      if (.not. movecs_read(movfil, iset, dbl_mb(ioptr+ioff),
+      if (.not. movecs_read(movfil(1:inp_strlen(movfil)), 
+     I        iset, dbl_mb(ioptr+ioff),
      &     dbl_mb(ieptr+ioff), lg_v))
      & call md_abort('esp_denmat:movecs_read failed ',0)
 c

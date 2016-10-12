@@ -10,8 +10,11 @@ c
 #include "geom.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
+#include "inp.fh"
+#include "errquit.fh"
 c
       integer i
+      character*32  theory
 c
 c     get input from rtdb
 c
@@ -42,10 +45,20 @@ c
       if(.not.geom_nuc_charge(igeom,chgnuc))
      + call md_abort('esp: geom_nuc_charge failed',me)
 c
+c     guess vectors name
+c
+      if(.not.rtdb_cget(irtdb,'esp:input vectors',1,movfil))  then
+ctry dft first
+         if (.not. rtdb_cget(irtdb, 
+     A        'dft:output vectors', 1, movfil)) then
+ctry scf next
+            if (.not. rtdb_cget(irtdb, 
+     A           'scf:output vectors', 1, movfil))  movfil=' '
+         endif
+      endif
+c
 c     get cutoff radius and gridspacing
 c
-      if(.not.rtdb_cget(irtdb,"esp:input vectors",1,movfil)) 
-     +    movfil = ' '
       if(.not.rtdb_get(irtdb,'esp:probe',mt_dbl,1,probe)) probe=0.07d0
       if(.not.rtdb_get(irtdb,'esp:factor',mt_dbl,1,factor))
      +  factor=1.00d0
