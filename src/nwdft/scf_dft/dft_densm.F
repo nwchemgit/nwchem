@@ -128,11 +128,13 @@ c
         if(nocinit.eq.1) then
            if(fon) then
               anoc(1)=ncore_fon(1)+nel_fon(1)
-              anoc(2)=ncore_fon(2)+nel_fon(2)
+              anoc(2)=0d0
+              if(ipol.eq.2)anoc(2)=ncore_fon(2)+nel_fon(2)
               nocinit=0
            else
               anoc(1)=noc(1)
-              anoc(2)=noc(2)
+              anoc(2)=0d0
+              if(ipol.eq.2) anoc(2)=noc(2)
               nocinit=1
            endif
         endif
@@ -162,9 +164,9 @@ cold            call dft_zero(ipol,nbf,nmo,ntotel,efermi(1),evals,ssmear,
             efermi(2)=efermi(1)
           endif
         else
-          if(spinset.and.ipol.eq.2) then
+          if(spinset) then
             nocsave(1)=noc(1)
-            nocsave(2)=noc(2)
+            if(ipol.eq.2) nocsave(2)=noc(2)
           endif
         endif
         do isp=1,ipol
