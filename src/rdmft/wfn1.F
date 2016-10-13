@@ -355,6 +355,16 @@ c
         endif
       enddo
       wfn1_task_energy = oconverged
+      if (iproc.eq.0) then
+        write(LuOut,*)
+        if (oconverged) then
+          write(LuOut,*)'Reached Convergence'
+        else
+          write(LuOut,*)'Failed to Converge'
+        endif
+        write(LuOut,*)
+        call wfn1_print_energy(wfn1_energy)
+      endif
 c
 c     == Store results ==
 c
