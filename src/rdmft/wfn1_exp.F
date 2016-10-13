@@ -55,16 +55,16 @@ c
       dnormX = alpha*dnormX
       dnormXn = sqrt(1.0d0*nrowx)
       mxpow = 0
-      do while (dnormXn.gt.1.0d-20)
+      do while (abs(dnormXn).gt.1.0d-20)
         mxpow = mxpow + 1
-        dnormXn = dnormXn*alpha/dble(mxpow)
+        dnormXn = dnormXn*dnormX/dble(mxpow)
       enddo
 c
       call ga_copy(g_x,g_exp)
       call ga_scale(g_exp,alpha/dble(mxpow))
       call ga_distribution(g_exp,iproc,ilo,ihi,jlo,jhi)
       do ii = max(ilo,jlo),min(ihi,jhi)
-        call ga_acc(g_exp,ii,ii,ii,ii,1.0d0,0,1.0d0)
+        call ga_acc(g_exp,ii,ii,ii,ii,1.0d0,1,1.0d0)
       enddo
       do pow = mxpow-1,1,-1
 c
@@ -81,7 +81,7 @@ c
      &                0.0d0,g_exp)
         call ga_distribution(g_exp,iproc,ilo,ihi,jlo,jhi)
         do ii = max(ilo,jlo),min(ihi,jhi)
-          call ga_acc(g_exp,ii,ii,ii,ii,1.0d0,0,1.0d0)
+          call ga_acc(g_exp,ii,ii,ii,ii,1.0d0,1,1.0d0)
         enddo
       enddo
       end
@@ -127,12 +127,16 @@ c
      &              0.0d0,g_t)
       call ga_distribution(g_t,iproc,ilo,ihi,jlo,jhi)
       do ii = max(ilo,jlo),min(ihi,jhi)
-        call ga_acc(g_t,ii,ii,ii,ii,-1.0d0,0,1.0d0)
+        call ga_acc(g_t,ii,ii,ii,ii,-1.0d0,1,1.0d0)
       enddo
       call ga_normf(g_t,dnormT)
-      if (iproc.eq.0.and.(dnormT/(nrowt*ncolt)).gt.1.0d-14) then
-        write(LuOut,'(" Error in wfn1_exp: ",f24.15)')
-     &        dnormT/(nrowt*ncolt)
+      if (dnormT/(nrowt*ncolt).gt.1.0d-14) then
+        if (iproc.eq.0) then
+          write(LuOut,'(" Error in wfn1_exp: ",f24.15)')
+     &          dnormT/(nrowt*ncolt)
+        endif
+        call ga_print(g_x)
+        call ga_print(g_exp)
       endif
       end
 c
