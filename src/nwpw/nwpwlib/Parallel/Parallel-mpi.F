@@ -735,6 +735,7 @@ c     implicit none
       integer n
       real*8  sum(*)
 
+#include "mafdecls.fh"
 #include "Parallel.fh"
 #include "mpif.h"
 
