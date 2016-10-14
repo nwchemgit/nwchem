@@ -594,6 +594,42 @@ c     implicit none
 
 *     ***********************************
 *     *                                 *
+*     *  Parallel_Vector_SumAll_master  *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_Vector_SumAll_master(n,sum0,sumall)
+c     implicit none
+      integer n
+      real*8  sum0(*),sumall(*)
+
+#include "Parallel.fh"
+#include "mpif.h"
+
+*     **** local variable ****
+      logical value
+      integer msglen,mpierr
+
+
+      call nwpw_timing_start(2)
+      if (np.gt.1) then
+      msglen = n
+      call MPI_Allreduce(sum0,sumall,msglen,
+     >                MPI_DOUBLE_PRECISION,
+     >                MPI_SUM,comm_world,mpierr)
+      call dcopy(n,sumall,1,sum0,1)
+      end if
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+
+
+
+
+*     ***********************************
+*     *                                 *
 *     *         Parallel_SumAll         *
 *     *                                 *
 *     ***********************************
@@ -686,6 +722,56 @@ c     implicit none
 
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *  Parallel_Vector_SumAll_master  *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_Vector_SumAll_master(n,sum)
+c     implicit none
+      integer n
+      real*8  sum(*)
+
+#include "Parallel.fh"
+#include "mpif.h"
+
+*     **** temporary workspace ****
+      integer sumall(2)
+
+*     **** local variable ****
+      logical value
+      integer msglen,mpierr
+
+
+      call nwpw_timing_start(2)
+      if (np.gt.1) then
+
+*     ***** allocate temporary space ****
+      value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+      msglen = n
+      call MPI_Allreduce(sum,sumall(1),msglen,
+     >                MPI_DOUBLE_PRECISION,
+     >                MPI_SUM,comm_world,mpierr)
+      call dcopy(n,sumall(1),1,sum,1)
+
+
+      value = MA_pop_stack(sumall(2))
+      if (.not.value) call errquit('dealloc stack memory',0,MA_ERR)
+
+      end if
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+
+
+
 
 *     ***********************************
 *     *                                 *
