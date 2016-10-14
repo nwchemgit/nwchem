@@ -109,10 +109,8 @@ c     real*8     fion(3,natmx)
 *     ***** QM/MM external functions ****
       logical  pspw_charge_found,pspw_qmmm_found
       real*8   pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
-      real*8   pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
       external pspw_charge_found,pspw_qmmm_found
       external pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
-      external pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
 
       logical  psp_U_psputerm,meta_found
       external psp_U_psputerm,meta_found
@@ -133,8 +131,25 @@ c     real*8     fion(3,natmx)
       integer  Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
 
+#ifdef PSI_OMP
+      integer nida,nidb
+      integer  mthr
+      integer  Parallel_maxthreads
+      external Parallel_maxthreads
+      real*8 thrlmbda(2)
+
+      INTEGER(kind=omp_nest_lock_kind) reduce_lock1
+      INTEGER(kind=omp_nest_lock_kind) reduce_lock2
+      INTEGER(kind=omp_nest_lock_kind) reduce_lock3
+      common / reduce_ffm / reduce_lock1,reduce_lock2,reduce_lock3
+#endif
 
 
+#ifdef PSI_OMP
+      mthr = Parallel_maxthreads()
+      nida = 1
+      nidb = npack1-nida
+#endif
 
       call nwpw_timing_start(42)
 
@@ -195,6 +210,15 @@ c     real*8     fion(3,natmx)
      >        BA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
       value = value.and.
      >        BA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
+#ifdef PSI_OMP
+      value = value.and.
+     >        BA_push_get(mt_dbl,(mthr*ne(1)*ne(1)*8),'thrlmbda',
+     >                                     thrlmbda(2),thrlmbda(1))
+
+      call omp_init_nest_lock(reduce_lock1)
+      call omp_init_nest_lock(reduce_lock2)
+      call omp_init_nest_lock(reduce_lock3)
+#endif
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       call dcopy(4*nfft3d,0.0d0,0,dbl_mb(dnall(1)),1)
       call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
@@ -280,6 +304,7 @@ c       these two functions are now threadsafe/multithreaded
            call D3dB_r_Zero_Ends0(1,psi_r(1,n))
         end do
 !$OMP END DO
+
 
 
 c       this function calls non pipelined 3d fft
@@ -517,8 +542,13 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
            call psi_lmbda_sic(ispin,ne,nemax,npack1,psi1,psi2,dte,
      >                    lmd,dbl_mb(tmp_L(1)),ierr)
         else
+#ifdef PSI_OMP
+           call psi_lmbda_omp(ispin,ne,nemax,nida,nidb,psi1,psi2,dte,
+     >                    lmd,dbl_mb(tmp_L(1)),ierr,dbl_mb(thrlmbda(1)))
+#else
            call psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte,
      >                    lmd,dbl_mb(tmp_L(1)),ierr)
+#endif
         end if
         call nwpw_timing_end(45)
 
@@ -787,6 +817,13 @@ c     end do
 
 *     **** dealocate MA local variables ****
       call nwpw_timing_start(12)
+#ifdef PSI_OMP
+      value = BA_pop_stack(thrlmbda(2))
+
+      call omp_destroy_nest_lock(reduce_lock1)
+      call omp_destroy_nest_lock(reduce_lock2)
+      call omp_destroy_nest_lock(reduce_lock3)
+#endif
       value = BA_pop_stack(sumi(2))
       value = BA_pop_stack(ftest(2))
       value = BA_pop_stack(fion(2))
