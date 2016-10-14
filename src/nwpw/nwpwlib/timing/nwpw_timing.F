@@ -377,6 +377,12 @@ c     **** external functions ****
          call nwpw_timing_print(
      >                 '  HFX localized re-gridding  : ',
      >                 nwpw_timing(55),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  non-local psp FFM          : ',
+     >                 nwpw_timing(56),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  non-local psp FMF          : ',
+     >                 nwpw_timing(57),counter,ttime)
 
       end if
 
