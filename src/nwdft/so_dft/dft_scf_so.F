@@ -49,6 +49,7 @@ c
       integer info 
       integer lbuff, ibuff
       integer nbf_mo 
+      integer nsets
 c      logical numerical 
       integer g_s
 c
@@ -98,12 +99,11 @@ c
 c     misc
       double precision tanalyze
 c
+      Logical movecs_write, movecs_converged
+      External movecs_write, movecs_converged
 c     
-      Logical movecs_write_so, movecs_converged
-      External movecs_write_so, movecs_converged
-c     
-      Logical movecs_read_header_so, movecs_read_so
-      External movecs_read_header_so, movecs_read_so 
+      Logical movecs_read_header, movecs_read
+      External movecs_read_header, movecs_read 
 c
       Logical spinor_guess
       External spinor_guess
@@ -126,6 +126,7 @@ c
       double precision exchtot
 c
       integer nmo(2), icall(2)
+      integer nmo_vecs(2)
 c     integer nva
       integer n3c_dbl, n3c_int, n_batch
       integer iwhat_max
@@ -215,7 +216,7 @@ c     !!! BGJ
       character*255 title1       ! Returns title of job that created vectors
       character*255 basis_name1  ! Returns name of basis set
       character*255 scftype1     ! Returns the SCF type of the vectors
-      integer nbf1               ! Returns no. of functions in basis
+      integer nbf_mo_read        ! Returns no. of functions in basis
       integer g_oep
 c     integer ijk
 c     
@@ -469,7 +470,7 @@ c
 c     allocate eigenvalue array
 c     
       leneval = 4*nbf_ao 
-      if (.not.MA_Push_Get(MT_Dbl,leneval,'eval',l_eval,k_eval(1)))
+      if (.not.MA_Push_Get(MT_Dbl,4*nbf_ao,'eval',l_eval,k_eval(1)))
      &     call errquit('dft_scf_so: cannot allocate eval',0, MA_ERR)
       k_eval(2) = k_eval(1) + nbf_mo
 c     
@@ -877,24 +878,24 @@ c     read spinors from files
 c     
 c     get MO vectors from file
 c     
-c         if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
-c     $        call errquit('dft_scf_so: DFT MO vectors not defined',0)
-         status = movecs_read_header_so(movecs_in, title1, basis_name1,
-     $        scftype1, nbf1)
+      status = movecs_read_header(movecs_in, title1, basis_name1,
+     &        scftype1, nbf_mo_read, nsets, nmo_vecs, 1)
 c     
 c     Should check much more info than just nbf for consistency
 c     
 c     get mo eigevectors
 c     
-         if (2*nbf_ao .ne. nbf1)then
-            write(6,*)'dft_scf_so movecs output = ',movecs_in
+         if (ga_nodeid().eq.0)
+     &       write(6,*)'Loading movecs from: ',movecs_in
+c
+         if (2*nbf_ao .ne. nbf_mo_read)then
             call errquit('dft_scf_so: could not read mo vectors',911,
      &       DISK_ERR)
          else 
             status = .true.
             status = status .and.
-     $           movecs_read_so(movecs_in, dbl_mb(k_occ),
-     $           dbl_mb(k_eval(1)), g_moso)
+     &          movecs_read(movecs_in, 1, dbl_mb(k_occ), 
+     &            dbl_mb(k_eval(1)), g_moso)
          endif
 c     
          if (.not.status)then
@@ -1074,7 +1075,7 @@ c
       call ga_zero(g_dens(1))
       call ga_zero(g_dens(2))
       call ga_dens_sf(g_dens, g_densso(1), nbf_ao)
-
+c
 c     check fon, calculate tr[P S] and print
 c      if (debug_fon) call dft_pstrace(g_dens,ao_bas_han,nbf_ao,oskel)
       if (fon) then
@@ -1844,12 +1845,11 @@ c
 c     
 c     save eigenvectors to movecs file
 c     
-      if (.not.movecs_write_so
-     $     (rtdb, ao_bas_han, movecs_out, 'sodft', title,
-     &     nbf_mo, dbl_mb(k_occ), dbl_mb(k_eval(1)), g_moso))
-     &     call errquit('dft_scf_so: movec_write failed', 0, DISK_ERR)
-c     
-      call ga_sync
+      if (.not.movecs_write(rtdb, ao_bas_han, movecs_out, 'sodft',title,
+     &      nbf_mo, 1, nbf_mo, dbl_mb(k_occ), nbf_mo,
+     &      dbl_mb(k_eval), nbf_mo, g_moso))
+     &   call errquit('dft_scf_so: movec_write failed', 0, DISK_ERR)
+      call ga_sync()
 c     
       if (me .eq. 0.and.oprint_eval)then
          if (util_print('intermediate evals', print_default))then
@@ -2323,9 +2323,9 @@ c     &     write(*,*)"converged=", converged
 c
 c     output energies and eigenvectors to disk
 c     
-      if (.not.movecs_write_so
-     $     (rtdb, ao_bas_han, movecs_out, 'sodft', title,
-     &     nbf_mo, dbl_mb(k_occ), dbl_mb(k_eval(1)), g_moso))
+      if (.not.movecs_write(rtdb, ao_bas_han, movecs_out, 'sodft',title,
+     &      nbf_mo, 1, nbf_mo, dbl_mb(k_occ), nbf_mo,
+     &      dbl_mb(k_eval), nbf_mo, g_moso))
      &     call errquit('dft_scf_so: movec_write failed', 0, DISK_ERR)
       call ga_sync()
 c     
