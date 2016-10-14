@@ -129,7 +129,7 @@
       call nwpw_timing_start_thr(15)    
 !$OMP MASTER
         !do only one big reduce and then shift data accordingly
-        call Parallel_Vector_SumAll_master(3*n*n,tmp(s11),tmp(st2))
+        call Parallel_Vector_SumAll_master(3*n*n,tmp(s11))
         if(shift2 .ne. 0) then
           tmp(st2:st2+n*n-shift2)=tmp(st2+shift2:st2+n*n)
           tmp(sa1:sa1+n*n-shift2)=tmp(sa1+shift2:sa1+n*n)
