@@ -311,7 +311,7 @@ c        call Dneall_f_GramSchmidt(ms,psi2,npack1)
         end if
 
 !$OMP SINGLE
-        call eDneall_mm_Expand(mb,ne,tmp(sa1),lmbda)
+        call Dneall_mm_Expand(mb,tmp(sa1),lmbda)
 !$OMP END SINGLE
 
   640 continue
