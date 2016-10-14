@@ -48,8 +48,8 @@
 
       integer np
 
-      real*8   eDneall_m_dmax
-      external eDneall_m_dmax
+      real*8   Dneall_m_dmax
+      external Dneall_m_dmax
 
       integer wtid,wnthr
 
@@ -266,7 +266,7 @@
           call dcopy(nn,tmp(sa1),1,tmp(st1),1)
           !  st1 -= sa0
           call daxpy(nn,(-1.0d0),tmp(sa0),1,tmp(st1),1)
-          adiff = eDneall_m_dmax(mb,ispin,ne,tmp(st1))
+          adiff = Dneall_m_dmax(mb,tmp(st1))
 !$OMP END SINGLE 
 
           if(adiff.lt.convg) then
