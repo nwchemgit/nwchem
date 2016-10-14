@@ -2,7 +2,7 @@
 # $Id$
 #
 
- OBJ_OPTIMIZE = D1dB.o Dne.o Dnex.o skew.o
+ OBJ_OPTIMIZE = D1dB.o Dne.o Dnex.o skew.o Dne_omp.o
  OBJ = 
 
 ifeq ($(USE_MPIF),y)
@@ -15,7 +15,7 @@ endif
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = D1dB-mpi.F Dne.F skew.F
+    USES_BLAS = D1dB-mpi.F Dne.F skew.F Dne_omp.F
 
   LIB_DEFINES = 
 

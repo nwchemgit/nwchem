@@ -995,7 +995,7 @@ c     >             dbl_mb(rwork1(1)),dbl_mb(rwork2(1)))
 
 c     ****************************************
 c     *                                      *
-c     *        Dneall_fmf_Multiply          *
+c     *        Dneall_fmf_Multiply_summa     *
 c     *                                      *
 c     ****************************************
 
