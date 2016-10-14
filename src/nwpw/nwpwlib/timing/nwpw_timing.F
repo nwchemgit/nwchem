@@ -101,6 +101,34 @@
       return
       end
 
+      subroutine nwpw_timing_start_thr(counter)
+      USE omp_lib
+      implicit none
+      integer counter
+      integer tid 
+#include "nwpw_timing_common.fh"
+      tid = omp_get_thread_num()
+      call current_second(thr_nwpw_tim1(counter,tid+1))
+      return
+      end
+
+      subroutine nwpw_timing_end_thr(counter)
+      USE omp_lib
+      implicit none
+      integer counter
+#include "nwpw_timing_common.fh"
+      integer tid
+
+      
+      tid = omp_get_thread_num()
+      call current_second(thr_nwpw_tim2(counter,tid+1))
+     
+      thr_times(counter,tid+1) = thr_times(counter,tid+1) 
+     >     + (thr_nwpw_tim2(counter,tid+1)-thr_nwpw_tim1(counter,tid+1))
+      return
+      end
+
+
       real*8 function nwpw_timing(counter)
       implicit none
       integer counter
@@ -122,6 +150,59 @@
  1708 FORMAT(A,E14.6,E14.6,F12.1,' %')
       return
       end
+
+      subroutine nwpw_timing_print_thr(msg,id,counter,ttime)
+      USE omp_lib
+      implicit none
+#include "nwpw_timing_common.fh"
+      character*(*) msg
+      real*8 time,ttime
+      integer counter,tid,nthr,used_threads,id
+
+      used_threads = 0
+      nthr = omp_get_max_threads()
+      time = 0
+      do tid=1,nthr
+        if (thr_times(id,tid)>1.0d-9) then
+          time = time + thr_times(id,tid)
+          used_threads=used_threads+1
+        end if
+      end do
+      
+      if (used_threads>0) then
+        time = time / used_threads
+        if (time>1.0d-9) then
+          write(*,1708) msg,time,time/dble(counter),100*time/ttime
+        end if
+      end if
+ 1708 FORMAT(A,E14.6,E14.6,F12.1,' %')
+      return
+      end
+
+      subroutine nwpw_timing_print_thr_max(msg,id,counter,ttime)
+      USE omp_lib
+      implicit none
+#include "nwpw_timing_common.fh"
+      character*(*) msg
+      real*8 time,ttime
+      integer counter,tid,nthr,id
+
+      nthr = omp_get_max_threads()
+      time = 0
+      do tid=1,nthr
+        if (thr_times(id,tid)>1.0d-9) then
+          time = max(time,thr_times(id,tid))
+        end if
+      end do
+      
+      if (time>1.0d-9) then
+        write(*,1708) msg,time,time/dble(counter),100*time/ttime
+      end if
+ 1708 FORMAT(A,E14.6,E14.6,F12.1,' %')
+      return
+      end
+
+
 
 
       subroutine nwpw_timing_print_final(oprint,counter)
@@ -161,9 +242,9 @@ c     **** external functions ****
          call nwpw_timing_print(
      >                 '  two-electron Gaussian      : ',
      >                 nwpw_timing(13),counter,ttime)
-         call nwpw_timing_print(
+         call nwpw_timing_print_thr(
      >                 '  ffm_dgemm                  : ',
-     >                 nwpw_timing(15),counter,ttime)
+     >                 15,counter,ttime)
          call nwpw_timing_print(
      >                 '  fmf_dgemm                  : ',
      >                 nwpw_timing(16),counter,ttime)
