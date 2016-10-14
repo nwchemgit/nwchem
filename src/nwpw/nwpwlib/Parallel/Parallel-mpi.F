@@ -796,6 +796,44 @@ c     implicit none
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *      Parallel_Vector_SumAll2    *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_Vector_SumAll2(n,sum0,sumall)
+c     implicit none
+      integer n
+      real*8  sum0(*),sumall(*)
+
+#include "Parallel.fh"
+#include "mpif.h"
+
+*     **** local variable ****
+      logical value
+      integer msglen,mpierr
+
+      call nwpw_timing_start(2)
+
+!$OMP BARRIER
+!$OMP MASTER
+      if (np.gt.1) then
+      msglen = n
+      call MPI_Allreduce(sum0,sumall,msglen,
+     >                MPI_DOUBLE_PRECISION,
+     >                MPI_SUM,comm_world,mpierr)
+      else
+         call dcopy(n,sum0,1,sumall,1)
+      end if
+!$OMP END MASTER
+!$OMP BARRIER
+
+      call nwpw_timing_end(2)
+      return
+      end
+
+
 
 *     ***********************************
 *     *                                 *
@@ -2324,5 +2362,34 @@ c     implicit none
       if (.not.value) call errquit('popping stack memory',0,MA_ERR)
       return
       end
+
+
+
+*     *************************************
+*     *                                   *
+*     *        Parallel_index_1dblock     *
+*     *                                   *
+*     *************************************
+
+      integer function Parallel_index_1dblock(m,mb,i)
+      implicit none
+      integer m,mb,i
+      integer ms,r
+
+      if (i.ge.mb) then
+         ms = m
+      else
+         ms = (m/mb)*i
+         r = mod(m,mb)
+         if (i.lt.r) then
+            ms = ms + i
+         else
+            ms = ms + r
+         end if
+      end if
+      Parallel_index_1dblock = ms
+      return
+      end
+
 
 
