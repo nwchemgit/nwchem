@@ -304,7 +304,7 @@ c        call Dneall_f_GramSchmidt(ms,psi2,npack1)
 *       :::::::::::::::::  correction due to the constraint  :::::::::::::::::
         if (notgram) then
 
-          call eDneall_fmf_Multiply(mb,ispin,ne,
+          call Dneall_fmf_Multiply(mb,ispin,ne,
      >                              psi1,nida+nidb,
      >                              tmp(sa1), dte,
      >                              psi2,1.0d0)
