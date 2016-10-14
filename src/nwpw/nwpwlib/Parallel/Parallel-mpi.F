@@ -590,44 +590,6 @@ c     implicit none
       end
 
 
-
-
-*     ***********************************
-*     *                                 *
-*     *  Parallel_Vector_SumAll_master  *
-*     *                                 *
-*     ***********************************
-
-      subroutine Parallel_Vector_SumAll_master(n,sum0,sumall)
-c     implicit none
-      integer n
-      real*8  sum0(*),sumall(*)
-
-#include "Parallel.fh"
-#include "mpif.h"
-
-*     **** local variable ****
-      logical value
-      integer msglen,mpierr
-
-
-      call nwpw_timing_start(2)
-      if (np.gt.1) then
-      msglen = n
-      call MPI_Allreduce(sum0,sumall,msglen,
-     >                MPI_DOUBLE_PRECISION,
-     >                MPI_SUM,comm_world,mpierr)
-      call dcopy(n,sumall,1,sum0,1)
-      end if
-      call nwpw_timing_end(2)
-      return
-      end
-
-
-
-
-
-
 *     ***********************************
 *     *                                 *
 *     *         Parallel_SumAll         *
