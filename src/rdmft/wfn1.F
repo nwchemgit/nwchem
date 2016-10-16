@@ -369,8 +369,14 @@ c
           write(LuOut,*)'Failed to Converge'
         endif
         write(LuOut,*)
+      endif
+c
+c     == Print results ==
+c
+      if (iproc.eq.0) then
         call wfn1_print_energy(wfn1_energy)
       endif
+      call wfn1_print_analysis(wfn1_param,wfn1_inst,wfn1_wave)
 c
 c     == Store results ==
 c
