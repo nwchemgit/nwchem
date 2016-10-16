@@ -97,6 +97,12 @@ c
         call wfn1_f1f2f3(xx(ix1),xx(ix2),xx(ix3),
      &                   fx(ix1),fx(ix2),fx(ix3),
      &                   tr,aa,bb,cc,xm,fxm)
+c
+c       Shrink the trust region to avoid getting trapped generating
+c       the same unsuitable answer over and over
+c
+        tr = tr*0.95d0
+c
         call wfn1_gen_trial_wfn(xm,wfn1_param,wfn1_wave,wfn1_deriv,
      &                          wfn1_trial_wv,g_momo1,g_momo2)
         call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_trial_wv,

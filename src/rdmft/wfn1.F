@@ -232,6 +232,12 @@ c
      &                  1,conv_tol)) conv_tol = 1.0d-4
       if (.not.rtdb_get(wfn1_inst%rtdb,"wfn1:maxit",MT_INT,
      &                  1,maxit)) maxit = 50
+      if (.not.rtdb_get(wfn1_inst%rtdb,"wfn1:t_bath",MT_DBL,
+     &                  1,wfn1_param%Tbath)) wfn1_param%Tbath = 0.0d0
+      if (wfn1_param%Tbath < 0.0d0) then
+        call errquit(pname//" Bath temperature must be at least 0.0",
+     &               0,INPUT_ERR)
+      endif
 c
 c     == Deal with 1-electron integrals ==
 c

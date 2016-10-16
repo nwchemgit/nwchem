@@ -62,6 +62,7 @@ c
       wfn1_energy%E_1el = 0.0d0
       wfn1_energy%E_2el = 0.0d0
       wfn1_energy%E_nuc = wfn1_param%Enuc
+      wfn1_energy%E_ent = 0.0d0
 c
 c     Arrange memory for the diagonal correlation function Fock
 c     matrices in natural orbital basis
@@ -73,9 +74,17 @@ c
       v_dcb = 0.0d0
 c
 c     Evaluate the various Fock matrix terms
+c     --------------------------------------
+c
+c     The 1-electron terms
 c
       call wfn1_e_g_1el(wfn1_param,wfn1_mat,wfn1_wave,wfn1_deriv,
      &                  v_dca,v_dcb,g_bfmo,g_momo,wfn1_energy%E_1el)
+c
+c     The entropy term
+c
+      call wfn1_e_g_ent(wfn1_param,wfn1_wave,v_dca,v_dcb,
+     &                  wfn1_energy%E_ent)
 c
 c     Transform the correlation function Fock matrices from natural
 c     orbital to correlation function basis
@@ -182,11 +191,11 @@ c
       deallocate(buf)
 c
       wfn1_energy%E_tot = wfn1_energy%E_1el + wfn1_energy%E_2el
-     &                  + wfn1_energy%E_nuc
+     &                  + wfn1_energy%E_nuc + wfn1_energy%E_ent
 c
       end
 c
-c----------------------------------------------------------------------
+c-----------------------------------------------------------------------
 c
       subroutine wfn1_e_g_1el(wfn1_param,wfn1_mat,wfn1_wave,wfn1_deriv,
      &                        v_dca,v_dcb,g_bfmo,g_momo,E_1el)
@@ -397,6 +406,183 @@ c     Done the work, now tidy up
 c
       deallocate(e1a,e1b)
       deallocate(occa,occb)
+      end
+c
+c-----------------------------------------------------------------------
+c
+      subroutine wfn1_e_g_ent(wfn1_param,wfn1_wave,v_dca,v_dcb,E_ent)
+      implicit none
+C>
+C> \brief Calculate the entropy derived energy contribution
+C>
+C> The entropy derived contribution is given by
+C> \f{eqnarray}{
+C>   E_{\mathrm{ent}} &=& -T_{\mathrm{bath}}S \\\\
+C>   S &=& -\sum_i \rho_i\ln(\rho_i) + (1-\rho_i)ln(1-\rho_i)
+C> \f}
+C> where \f$T_{\mathrm{bath}}\f$ is the bath temperature, \f$S\f$ is
+C> the entropy, and \f$\rho_i\f$ is the occupation number of the
+C> \f$i\f$-th natural orbital.
+C>
+C> The derivative of the entropy with respect to the occupation numbers
+C> is given by
+C> \f{eqnarray}{
+C>   \frac{\partial S}{\partial\rho_i}
+C>   &=& -\ln(\rho_i)+ln(1-\rho_i)
+C> \f}
+C> Obviously if \f$\rho_i = 1\f$ or \f$\rho_i = 0\f$ both the entropy
+C> and its derivative are undefined. Hence we need to introduce a 
+C> cut-off \f$\rho_c\f$. 
+C>
+C> If \f$\rho_i \lt \rho_c\f$ then 
+C> \f{eqnarray}{
+C>   S(\rho_i) &=& 0 \\\\
+C>   \frac{\partial S}{\partial\rho_i} 
+C>   &=& -\ln(\rho_c)
+C> \f}
+C> If \f$\rho_i \gt 1-\rho_c\f$ then 
+C> \f{eqnarray}{
+C>   S(\rho_i) &=& 0 \\\\
+C>   \frac{\partial S}{\partial\rho_i} 
+C>   &=& \ln(1-\rho_c)
+C> \f}
+C>
+#include "wfn1_param.fh"
+#include "wfn1_wfn.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+c
+      type(wfn1_prm),     intent(in)    :: wfn1_param
+      type(wfn1_wfn),     intent(in)    :: wfn1_wave
+c
+      double precision, intent(inout) :: v_dca(1:wfn1_param%nmo)
+      double precision, intent(inout) :: v_dcb(1:wfn1_param%nmo)
+      double precision, intent(inout) :: E_ent
+c
+      double precision, allocatable :: occa(:)  ! the alpha-occupation
+                                                ! numbers
+      double precision, allocatable :: occb(:)  ! the beta-occupation
+                                                ! numbers
+      double precision, allocatable :: e1a(:)   ! the alpha-1-electron
+                                                ! energies
+      double precision, allocatable :: e1b(:)   ! the beta-1-electron
+                                                ! energies
+      double precision, allocatable :: buf(:,:) ! a local buffer
+c
+c     local
+c
+      double precision :: dr, d1r    ! entropy derivatives
+      double precision :: rho_c      ! cut-off for occupation numbers
+c
+      integer iclo, ichi, jclo, jchi ! related to the correlation
+                                     ! functions
+      integer ii, jj                 ! counters
+      integer iproc                  ! the current processor rank
+      integer nproc                  ! the total number of processor
+                                     ! ranks
+c
+      if (wfn1_param%Tbath.le.0.0d0) return
+c
+      iproc = ga_nodeid()
+      nproc = ga_nnodes()
+c
+      allocate(occa(1:wfn1_param%nmo),occb(1:wfn1_param%nmo))
+      allocate(e1a(1:wfn1_param%nmo),e1b(1:wfn1_param%nmo))
+c
+      rho_c = 1.0d-10
+      occa  = 0.0d0
+      occb  = 0.0d0
+      e1a   = 0.0d0
+      e1b   = 0.0d0
+c
+c     Do the ALPHA spin channel
+c     -------------------------
+c
+c     Calculate the alpha-occupation numbers
+c
+      call ga_distribution(wfn1_wave%g_ca,iproc,iclo,ichi,jclo,jchi)
+      allocate(buf(iclo:ichi,jclo:jchi))
+      call ga_get(wfn1_wave%g_ca,iclo,ichi,jclo,jchi,buf,ichi-iclo+1)
+      do jj = 1, wfn1_param%nea
+        if(wfn1_wave%icnfa(jj).ge.jclo.and.wfn1_wave%icnfa(jj).le.jchi)
+     &  then
+          do ii = iclo, ichi
+            occa(ii) = occa(ii)
+     &               + buf(ii,wfn1_wave%icnfa(jj))
+     &               * buf(ii,wfn1_wave%icnfa(jj))
+          enddo
+        endif
+      enddo
+      deallocate(buf)
+      call ga_dgop(MT_DBL,occa,wfn1_param%nmo,"+")
+c
+c     Calculate the entropy
+c
+      do ii = 1, wfn1_param%nmo
+        if      (occa(ii).lt.rho_c) then
+          dr      = log(rho_c)
+          e1a(ii) = e1a(ii) + wfn1_param%Tbath*dr
+        else if (occa(ii).gt.(1.0d0-rho_c)) then
+          d1r     = log(rho_c)
+          e1a(ii) = e1a(ii) + wfn1_param%Tbath*(-d1r)
+        else
+          dr      = log(occa(ii))
+          d1r     = log(1.0d0-occa(ii))
+          E_ent   = E_ent + wfn1_param%Tbath
+     &            * (occa(ii)*dr+(1.0d0-occa(ii))*d1r)
+          e1a(ii) = e1a(ii) + wfn1_param%Tbath*(dr-d1r)
+        endif
+      enddo
+c
+c     Do the BETA spin channel
+c     ------------------------
+c
+c     Calculate the beta-occupation numbers
+c
+      call ga_distribution(wfn1_wave%g_cb,iproc,iclo,ichi,jclo,jchi)
+      allocate(buf(iclo:ichi,jclo:jchi))
+      call ga_get(wfn1_wave%g_cb,iclo,ichi,jclo,jchi,buf,ichi-iclo+1)
+      do jj = 1, wfn1_param%neb
+        if(wfn1_wave%icnfb(jj).ge.jclo.and.wfn1_wave%icnfb(jj).le.jchi)
+     &  then
+          do ii = iclo, ichi
+            occb(ii) = occb(ii)
+     &               + buf(ii,wfn1_wave%icnfb(jj))
+     &               * buf(ii,wfn1_wave%icnfb(jj))
+          enddo
+        endif
+      enddo
+      deallocate(buf)
+      call ga_dgop(MT_DBL,occb,wfn1_param%nmo,"+")
+c
+c     Calculate the entropy
+c
+      do ii = 1, wfn1_param%nmo
+        if      (occb(ii).lt.rho_c) then
+          dr      = log(rho_c)
+          e1b(ii) = e1b(ii) + wfn1_param%Tbath*dr
+        else if (occb(ii).gt.(1.0d0-rho_c)) then
+          d1r     = log(rho_c)
+          e1b(ii) = e1b(ii) + wfn1_param%Tbath*(-d1r)
+        else
+          dr      = log(occb(ii))
+          d1r     = log(1.0d0-occb(ii))
+          E_ent   = E_ent + wfn1_param%Tbath
+     &            * (occb(ii)*dr+(1.0d0-occb(ii))*d1r)
+          e1b(ii) = e1b(ii) + wfn1_param%Tbath*(dr-d1r)
+        endif
+      enddo
+c
+c     Store the results
+c     -----------------
+c
+      v_dca = v_dca + e1a
+      v_dcb = v_dcb + e1b
+c
+c     Clean up memory
+c
+      deallocate(occa,occb,e1a,e1b)
+c
       end
 c
 c-----------------------------------------------------------------------

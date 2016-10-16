@@ -6,6 +6,7 @@ C> - The total energy
 C> - The nuclear repulsion energy
 C> - The 1-electron energy
 C> - The 2-electron energy 
+C> - The entropy dependent term (i.e. the coupling to a bath)
 C> It is not clear yet whether the 2-electron energy will be broken
 C> down into separate Coulomb and Exchange contributions.
 C>
@@ -14,4 +15,5 @@ C>
          double precision :: E_1el ! The 1-electron energy
          double precision :: E_2el ! The 2-electron energy
          double precision :: E_nuc ! The nuclear repulsion energy
+         double precision :: E_ent ! The entropy dependent term
       end type wfn1_en

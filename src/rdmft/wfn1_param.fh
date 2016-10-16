@@ -11,6 +11,7 @@ C>
       type wfn1_prm
          double precision :: convergence ! convergence criterion
          double precision :: enuc        ! nuclear repulsion energy
+         double precision :: Tbath       ! the bath temperature
          integer          :: maxiter     ! maximum number of iterations
          integer          :: nbf         ! number of basis functions
          integer          :: nmo         ! number of molecular orbitals
