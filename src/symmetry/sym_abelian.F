@@ -12,9 +12,9 @@ c     all irreps have size = 1
 c
       character*8 group
       integer nab, ind
-      character*4 ab(nab)
 #ifdef OLD
       parameter (nab = 22)
+      character*4 ab(nab)
       data ab/ 'C1','Cs','Ci','C2','D2','C2v','C2h','D2h',
      C     'C3','C4','C5','C6','C7','C8',
      C     'C3h','C4h','C5h','C6h',
@@ -22,6 +22,7 @@ c
 #else
 c     keep only 1) abelian and 2) with irrep of size 1
       parameter (nab = 9)
+      character*4 ab(nab)
       data ab/ 'C1','Cs','Ci','C2','D2','C2v','C2h','D2h',
      C     'S2'/
 #endif
