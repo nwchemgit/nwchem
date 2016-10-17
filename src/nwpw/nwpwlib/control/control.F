@@ -5051,6 +5051,33 @@ c      end
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *     control_gradient_virtual    *
+*     *                                 *
+*     ***********************************
+      logical function control_gradient_virtual()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .false.
+      if (.not.btdb_get(rtdb,'nwpw:gradient_virtual',mt_log,1,value))
+     >   value = .false.
+
+      control_gradient_virtual = value
+      return
+      end
+
+
+
 
 
 *     **********************************************
