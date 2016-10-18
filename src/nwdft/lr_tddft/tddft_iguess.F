@@ -80,6 +80,8 @@ C     logical vector_exists
       logical tda_verify
       double precision r
 c
+      logical lsimpleso,status
+c
       integer kmin,kmax
       integer necut,newin
       double precision ecut,evl_diff,ewinl,ewinh
@@ -155,6 +157,19 @@ c     initialise
         end do
       end do
 c
+c Apply simplified spin-orbit correction to eigenvalues 
+      lsimpleso = .false.
+      status = rtdb_get(rtdb,'tddft:lsimpleso',mt_log,1,lsimpleso)
+      status = status.and.lsimpleso
+      if (status) call tddft_simpleso(rtdb,ipol,nbf_ao,evl)
+c 
+c      do i = 1,ipol
+c        do j = 1,nbf_ao
+c           if (j.le.10) write(luout,*) j,evl(j,i)
+c         end do ! j
+c      end do ! i
+c
+c Calculate windows
       l=0
       necut = 0
       nowin = 0

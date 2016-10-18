@@ -5,7 +5,7 @@ tddft_dump.o tddft_davidson.o tddft_transfm.o tddft_contract.o tddft_epsilon.o \
 tddft_subspace.o tddft_diagon.o tddft_residual.o tddft_analysis.o tddft_dftinit.o \
 tddft_finalize.o tddft_schmidt.o tddft_fold.o \
 tddft_bdtensor.o tddft_patch.o tddft_civecs_phase.o tddft_oscstr.o \
-tddft_checkpoint.o tddft_restart.o tddft_s2.o
+tddft_checkpoint.o tddft_restart.o tddft_s2.o tddft_simpleso.o
 
 OBJ_OPTIMIZE = 
 

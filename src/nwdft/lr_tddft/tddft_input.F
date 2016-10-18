@@ -54,6 +54,7 @@ c
       character*(nw_max_path_len) fn_civecs
       character*(nw_max_path_len) fn_transden
       character*(nw_max_path_len) fn_trials
+      character*(nw_max_path_len) fn_simpleso
       integer ihuge
       parameter (ihuge=1000000000)
       logical singlet,triplet
@@ -73,6 +74,7 @@ c
       logical lcivecs
       logical ltrials
       logical ltransden
+      logical lsimpleso
       double precision scale_j, scale_k
 c
 c ------------------
@@ -518,8 +520,6 @@ c
      1      'default value of 1 will be used'
           target=1
         endif
-        if (target.gt.nroots) call errquit
-     1    ('tddft_input: an illegal value for target',target, INPUT_ERR)
         if (.not.rtdb_put(rtdb,'tddft:target',mt_int,1,target))
      1    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
@@ -651,6 +651,18 @@ c
      1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
        if (.not.rtdb_put(rtdb,'tddft:ltransden',mt_log,1,ltransden))
      1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+c
+c    SIMPLESO (simple spin-orbit)
+c
+      lsimpleso = .false.
+      else if (inp_compare(.false.,test,'simpleso')) then
+       if(.not.inp_a(fn_simpleso)) 
+     &  call errquit('spin-orbit parameters',0,INPUT_ERR)
+       lsimpleso = .true.
+       if (.not.rtdb_put(rtdb,'tddft:lsimpleso',mt_log,1,lsimpleso))
+     1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+       if (.not.rtdb_cput(rtdb,'tddft:simpleso',1,fn_simpleso))
+     &  call errquit('failed to store tddft:simpleso',0, RTDB_ERR)
 c
 c     PRINT
 c
