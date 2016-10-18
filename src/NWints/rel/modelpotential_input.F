@@ -44,18 +44,23 @@ c
 c     get model potential file name
       if(.not.rtdb_get(rtdb,'modelpotential:option',mt_int,1,mpoption)) 
      &  call errquit(pname//'unable to access mpotion',0,RTDB_ERR)
-      call util_nwchem_srcdir(libname)
-      if (inp_strlen(libname).le.0)
-     &     call util_getenv('NWCHEM_BASIS_LIBRARY',libname) ! check the enviroment variable
+c
+      call util_getenv('NWCHEM_BASIS_LIBRARY',libname) ! first check the enviroment variable
+      if (inp_strlen(libname).gt.0) then
+        mpfile=libname(1:inp_strlen(libname))
+     $     //"/rel-modelpotentials/"           ! build mpfile path
+      else
+        call util_nwchem_srcdir(libname)    ! look for the src directory
+        mpfile=libname(1:inp_strlen(libname))
+     $     //"/basis/libraries/rel-modelpotentials/" ! build mpfile path
+      end if 
 c
 c     check library name
       if (inp_strlen(libname).le.0)         
      &  call errquit(pname//'unable to access model potential file',
      & 0,RTDB_ERR)
-c  
+c
 c     build mpfile name
-      mpfile=libname(1:inp_strlen(libname))
-     $     //"/basis/libraries/rel-modelpotentials/"
       if (mpoption.eq.1) then
          mpfile=mpfile(1:inp_strlen(mpfile))
      $     //"modbas.4c"
