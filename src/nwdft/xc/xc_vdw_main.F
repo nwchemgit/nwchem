@@ -477,6 +477,7 @@ c
      +                     int(z(i)),UERR)
             endif
             do j=i+1,n
+               if (Z(j).ne.0) then
                rij=dsqrt(
      +            (x(1,i)-x(1,j))**2 +
      +            (x(2,i)-x(2,j))**2 +
@@ -484,6 +485,7 @@ c
                xc_vdw_e=xc_vdw_e-c6ij_sk(i,j,z)*
      *            fdmp(rij,r0(z(i))+r0(z(j)))*
      *            (rij)**(-6.0d0)
+            endif
             enddo
           endif
         enddo
@@ -505,6 +507,7 @@ c
         do i=1,n-1
           if (Z(i).ne.0) then
             do j=i+1,n
+               if (Z(j).ne.0) then
                rij=dsqrt(
      +            (x(1,i)-x(1,j))**2 +
      +            (x(2,i)-x(2,j))**2 +
@@ -517,6 +520,7 @@ c
      *            (rij)**(-6.0d0)
                e8=e8-c8*fdmp3(rij,r0AB(z(i),z(j))*sr8,alpha+2.0d0)*
      *            (rij)**(-8.0d0)
+               endif
             enddo
           endif
         enddo
@@ -525,6 +529,7 @@ c
         do i=1,n-1
           if (Z(i).ne.0) then
             do j=i+1,n
+               if (Z(j).ne.0) then
                rij=dsqrt(
      +            (x(1,i)-x(1,j))**2 +
      +            (x(2,i)-x(2,j))**2 +
@@ -536,6 +541,7 @@ c
                r0bj=dsqrt(c8/c6d3)
                e6=e6-c6d3*xc_fdmpbj(rij,r0bj,a1,a2,i6)
                e8=e8-c8*xc_fdmpbj(rij,r0bj,a1,a2,i8)
+               endif
             enddo
           endif
         enddo
