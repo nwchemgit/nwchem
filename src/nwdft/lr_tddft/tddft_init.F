@@ -265,6 +265,8 @@ c -----------
         if (.not.rtdb_put(rtdb,'tddft:target',mt_int,1,target))
      1  call errquit('tddft_init: failed to write target',0, RTDB_ERR)
       endif
+      if (target.gt.nroots) call errquit
+     1    ('tddft_init: an illegal value for target',target, INPUT_ERR)
       if (.not.rtdb_cget(rtdb,'tddft:targetsym',1,targetsym)) then
         targetsym='none'
         if (.not.rtdb_cput(rtdb,'tddft:targetsym',1,targetsym))
