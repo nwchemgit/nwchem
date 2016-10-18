@@ -111,6 +111,7 @@ c
       integer nbf               ! No. of functions in basis
       integer ok, i, j
       integer l_vecs, k_vecs
+      integer iset
       integer unitno
       parameter (unitno = 67)
 c     
@@ -141,13 +142,11 @@ c     Skip over unwanted sets
 c
          read(unitno, err=1001, end=1001) (occ(j),j=1,nbf)
          read(unitno, err=1001, end=1001) (evals(j),j=1,nbf)
-         do i = 1, nbf
+         do iset = 1, 2
+          do i = 1, nbf
             call sread(unitno, dbl_mb(k_vecs), nbf)
-            call ga_put(g_vecs(1), 1, nbf, i, i, dbl_mb(k_vecs), 1)
-         enddo
-         do i = 1, nbf
-            call sread(unitno, dbl_mb(k_vecs), nbf)
-            call ga_put(g_vecs(2), 1, nbf, i, i, dbl_mb(k_vecs), 1)
+            call ga_put(g_vecs(iset), 1, nbf, i, i, dbl_mb(k_vecs), 1)
+          enddo
          enddo
  9       close(unitno,err=1002)
          ok = 1

@@ -53,13 +53,13 @@ c     Query the full density matrix
 c
 c     Allocate some scratch space
       if(.not.ga_create(mt_dbl,nao,nao,'temp den',0,0,g_tmp(1)))
-     &        call errquit('xc_exso: error creating ga', 0, GA_ERR)
+     &        call errquit(pname//'error creating ga', 0, GA_ERR)
       if(.not.ga_create(mt_dbl,nao,nao,'temp den',0,0,g_tmp(2)))
-     &        call errquit('xc_exso: error creating ga', 0, GA_ERR)
+     &        call errquit(pname//'error creating ga', 0, GA_ERR)
       if(.not.ga_create(mt_dbl,nao,nao,'temp den',0,0,g_dens(1)))
-     &        call errquit('xc_exso: error creating ga', 0, GA_ERR)
+     &        call errquit(pname//'error creating ga', 0, GA_ERR)
       if(.not.ga_create(mt_dbl,nao,nao,'temp den',0,0,g_dens(2)))
-     &        call errquit('xc_exso: error creating ga', 0, GA_ERR)
+     &        call errquit(pname//'error creating ga', 0, GA_ERR)
 c
       jfac(1) = 0.0d0
       jfac(2) = 0.0d0

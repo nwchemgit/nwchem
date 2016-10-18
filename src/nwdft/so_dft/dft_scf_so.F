@@ -2120,14 +2120,14 @@ c
          write(luout,2223) dft_time
 c
  222  format(//
-     &     '         Total DFT energy =', f22.12/
+     &     '      Total SO-DFT energy =', f22.12/
      &     '      One electron energy =', f22.12/
      &     '           Coulomb energy =', f22.12/
      &     '    Exchange-Corr. energy =', f22.12/
      &     ' Nuclear repulsion energy =', f22.12/)
 c
  223  format(//
-     &     '         Total DFT energy =', f22.12/
+     &     '      Total SO-DFT energy =', f22.12/
      &     '      One electron energy =', f22.12/
      &     '           Coulomb energy =', f22.12/
      &     '          Exchange energy =', f22.12/
@@ -2163,7 +2163,7 @@ c     &        'Calculation failed to converge', 20, .true.)
          endif
  232     format(//
      &        '       Determinant Energy'/
-     &        '         Total DFT energy =', f22.12/
+     &        '      Total SO-DFT energy =', f22.12/
      &        '      One electron energy =', f22.12/
      &        '           Coulomb energy =', f22.12/
      &        '    Exchange-Corr. energy =', f22.12/
@@ -2172,7 +2172,7 @@ c     &        'Calculation failed to converge', 20, .true.)
      &        '     Total iterative time =', f9.1,'s'//)
  233     format(//
      &        '       Determinant Energy'/
-     &        '         Total DFT energy =', f22.12/
+     &        '      Total SO-DFT energy =', f22.12/
      &        '      One electron energy =', f22.12/
      &        '           Coulomb energy =', f22.12/
      &        '          Exchange energy =', f22.12/
