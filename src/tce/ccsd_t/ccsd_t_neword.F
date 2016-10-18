@@ -194,11 +194,16 @@ c      w_thresh=w_thresh**6
          endif
       enddo
 c
-c     task_thresh must be gt ga_nnodes because of the static nxtask for the first task
 c      
  1973 continue
-      task_thresh=max(task_thresh,ga_nnodes()+1) 
+cbaad
+c     task_thresh must be gt ga_nnodes because of the static nxtask for the first task
+cbaad      task_thresh=max(task_thresh,ga_nnodes()+1) 
       if(ga_nodeid().eq.0) then
+         if(task_thresh.lt.ga_nnodes()+1) then
+            write(6,*) ' warning: CCSD(T) oversubscribed '
+            write(6,'(a,i8)') '  warning: tip: use nproc <',task_thresh
+         endif
          write(6,33) ' thresh for no. of tasks ',task_thresh
       endif
 #ifdef DEBUG
