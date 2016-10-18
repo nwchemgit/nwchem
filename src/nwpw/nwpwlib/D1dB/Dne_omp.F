@@ -22,33 +22,6 @@ c     *                                      *
 c     *   eDneall_ffm_sym_Multiply_reduce    *
 c     *                                      *
 c     ****************************************
-      subroutine eDneall_ffm_sym_Multiply_reduce(A1,A2,
-     >                         nida,nidb,ne,hml,tmp,thrhml,
-     >                        shift,shift2,n)
-      implicit none
-      complex*16 A1(*),A2(*)
-      integer nida,nidb,ispin,ne(2)
-      real*8 hml(*),tmp(*)
-      real*8 thrhml(*)
-
-      integer n,shift,shift2
-      integer tid
-
-*     **** external functions ****
-      integer  Parallel_threadid,Parallel_nthreads
-      external Parallel_threadid,Parallel_nthreads
-
-      call nwpw_timing_start(15)    
-      tid  = Parallel_threadid()
-         call epack_ccm_sym_dot_reduce(nida,nidb,n,
-     >                     A1(shift),
-     >                     A2(shift),
-     >                     hml(shift2), tmp,
-     >                     thrhml((tid)*ne(1)*ne(1)*8+ shift2))
-      call nwpw_timing_end(15)    
-      return
-      end
-
 
       subroutine eDneall_ffm_sym_Multiply_reduce_concur(A1,A2,
      >                         nida,nidb,ne,hml,thrhml,
@@ -114,96 +87,18 @@ c     ****************************************
      >                               A2(shift),
      >                               hml(shift2), 
      >                               thrhml((tid)*ne1*ne1*8+ shift2),
-     >                      nk,bk,offsetk,bm,offsetm,reduce_lock)
+     >                      nk,bk,offsetk,bm,offsetm,reduce_lock,ftid)
         end if
       end if
       return
       end
 
 
-
-
-
-
-*     ***********************************
-*     *                                 *
-*     *      epack_ccm_sym_dot_reduce   *       
-*     *                                 *
-*     ***********************************
-      subroutine epack_ccm_sym_dot_reduce(nida,nidb,n,A,B,matrix,tmp,
-     >                                                    thrmatrix)
-      implicit none
-      integer    nida,nidb,n
-      real*8 A(*)
-      real*8 B(*)
-      real*8     matrix(n,n)
-      real*8     thrmatrix(n,n)
-      real*8     tmp(*)
-
-*     **** local variables ****
-      integer j,k,nk
-      integer np,npack,npack2
-      integer tid,nthr
-      integer offsetk,bk,bkc
-      integer offsetThread
-
-*     **** external functions ****
-      integer  Parallel_threadid,Parallel_nthreads
-      external Parallel_threadid,Parallel_nthreads
-
-
-      call nwpw_timing_start(2)
-
-      tid  = Parallel_threadid()
-      nthr = Parallel_nthreads()
-
-      npack  = (nida+nidb)
-      npack2 = 2*npack
-
-      !compute offsets in A and B
-      nk = npack2 - 2*nida
-      bk = floor(REAL(nk)/REAL(nthr))
-      offsetk = (tid)*bk
-      if(tid==nthr-1) bk = nk-offsetk
-
-      call DGEMM('T','N',n,n,bk,
-     >             2.0d0,
-     >             A(1+ 2*nida + offsetk),npack2,
-     >             B(1+ 2*nida + offsetk),npack2,
-     >             0.0d0,
-     >             thrmatrix, n)
-      if(tid.eq.0) then
-      call DGEMM('T','N',n,n,2*nida,
-     >             1.0d0,
-     >             A,npack2,
-     >             B,npack2,
-     >             1.0d0,
-     >             thrmatrix, n)
-      end if
-
-      !Do the reduction
-!$OMP CRITICAL
-      do k=1,n
-!$OMP SIMD
-      do j=1,n
-        matrix(j,k) = matrix(j,k) + thrmatrix(j,k) 
-      end do
-!$OMP END SIMD
-      end do
-!$OMP END CRITICAL
-
-      call nwpw_timing_end(2)
-      return
-      end
-
-
-
-
       subroutine epack_ccm_sym_dot_reduce_concur(nida,nidb,n,A,B,matrix,
-     >                   thrmatrix,nk,bk,offsetk,bm,offsetm,reduce_lock)
+     >             thrmatrix,nk,bk,offsetk,bm,offsetm,reduce_lock,ftid)
       USE omp_lib
       implicit none
-      integer    nida,nidb,n
+      integer    nida,nidb,n,ftid
       real*8 A(*)
       real*8 B(*)
       real*8     matrix(n,n)
@@ -229,9 +124,11 @@ c     ****************************************
       tid  = Parallel_threadid()
 
       bkk = bk
-
       npack  = (nida+nidb)
       npack2 = 2*npack
+
+
+#if 1
 
       do kk=0,bk-1,bkk
         ibkk = min(bkk,bk-kk)
@@ -253,7 +150,8 @@ c     ****************************************
         endif
       end do
 
-      if(tid.eq.0) then
+      if(tid.eq.ftid) then
+      !write(*,*) tid,"I'm doing the first thing", 2*nida
       call DGEMM('T','N',bm,n,2*nida,
      >             1.0d0,
      >             A(1 + offsetm*npack2),npack2,
@@ -264,13 +162,10 @@ c     ****************************************
 
       if(offsetm .eq. 0 .and. bm .eq. n) then
         call omp_set_nest_lock(reduce_lock)
-!!$OMP CRITICAL
         call daxpy(n*n,(1.0d0),thrmatrix,1,matrix,1)
-!!$OMP END CRITICAL
         call omp_unset_nest_lock(reduce_lock)
       else
         call omp_set_nest_lock(reduce_lock)
-!!$OMP CRITICAL
         do k=1,n
 !$OMP SIMD
           do j=1+offsetm,offsetm+bm
@@ -278,9 +173,9 @@ c     ****************************************
           end do
 !$OMP END SIMD
         end do
-!!$OMP END CRITICAL
         call omp_unset_nest_lock(reduce_lock)
       end if
+#endif
 
       return
       end
@@ -319,11 +214,11 @@ c     ****************************************
          ishift2 = 0
       end if
 
+
       do ms=ms1,ms2
         if (ne(ms).le.0) go to 30
         shift2 = (ms-1)*ishift2
-
-!$OMP DO private(k) schedule(static)
+!$OMP DO private(k)
         do k=1,ne(ms)
            indx = k + (k-1)*ne(ms) + shift2
            s22(indx) = (1.0d0 - s22(indx))*0.5d0/dte
@@ -360,14 +255,6 @@ c     ****************************************
 
 *     **** local variables ****
       integer ms,ms1,ms2,shift2,ishift2,k,j,indx,indxt
-      integer tid,nthr
-
-*     **** external functions ****
-      integer  Parallel_threadid,Parallel_nthreads
-      external Parallel_threadid,Parallel_nthreads
-
-      tid  = Parallel_threadid()
-      nthr = Parallel_nthreads()
 
       if (mb.eq.0) then
          ms1 = 1
@@ -383,7 +270,7 @@ c     ****************************************
         if (ne(ms).le.0) go to 30
         shift2 = (ms-1)*ishift2
 
-!$OMP DO private(k) schedule(static)
+!$OMP DO private(k)
         do k=1,ne(ms)
            indx = k + (k-1)*ne(ms) + shift2
            s21(indx) = (1.0d0 - s21(indx))*0.5d0
@@ -418,14 +305,6 @@ c     ****************************************
 
 *     **** local variables ****
       integer ms,ms1,ms2,shift2,ishift2,k,j,indx,indxt
-      integer tid,nthr
-
-*     **** external functions ****
-      integer  Parallel_threadid,Parallel_nthreads
-      external Parallel_threadid,Parallel_nthreads
-
-      tid  = Parallel_threadid()
-      nthr = Parallel_nthreads()
 
       if (mb.eq.0) then
          ms1 = 1
@@ -441,7 +320,7 @@ c     ****************************************
         if (ne(ms).le.0) go to 30
         shift2 = (ms-1)*ishift2
 
-!$OMP DO private(k) schedule(static)
+!$OMP DO private(k)
         do k=1,ne(ms)
            indx = k + (k-1)*ne(ms) + shift2
            s11(indx) = -s11(indx)*0.5d0*dte
@@ -558,6 +437,7 @@ c     ****************************************
       real*8 A(*),B(*),C(*)
       real*8 alpha,beta
       real*8 tmp(*)
+      integer ftid,nwthr
 
 *     **** local variables ****
       integer MASTER,taskid,np,tid,nthr
@@ -565,7 +445,6 @@ c     ****************************************
       integer ms,ms1,ms2,n,shift2,ishift2
       integer mstart,mend,nstart,nend,i,j,pindx
       integer ishiftA,ishiftB,ishiftC
-      integer ftid,nwthr
 *     **** matrix_blocking common block ****
       integer mblock(2),nblock(2),algorithm(2)
       common /matrix_blocking/ mblock,nblock,algorithm
@@ -616,11 +495,153 @@ c     ****************************************
 
 
 
+c     ****************************************
+c     *                                      *
+c     *        eDneall_fmf_Multiply          *
+c     *                                      *
+c     ****************************************
+          
+      subroutine eDneall_fmf_Multiply(mb,ispin,ne,Ain,npack1,
+     >                                hml,alpha,
+     >                                Aout,beta)
+      implicit none
+      integer    mb,ispin,ne(2)
+      complex*16 Ain(*)
+      integer    npack1
+      real*8     hml(*)
+      real*8     alpha
+      complex*16 Aout(*)
+      real*8     beta
+        
+
+*     **** local variables ****
+      integer tid,nthr,mstart,mend
+      integer ms,ms1,ms2,n,shift,shift2,shift3,ishift2,ishift3
+
+*     **** external functions ****
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
+      integer  Parallel_index_1dblock
+      external Parallel_index_1dblock
+
+      call nwpw_timing_start(16)    
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
+      mstart = Parallel_index_1dblock(npack1,nthr,tid)
+      mend   = Parallel_index_1dblock(npack1,nthr,tid+1)
+
+      if (mb.eq.0) then
+         ms1 = 1
+         ms2 = ispin
+         ishift2 = ne(1)*ne(1)
+      else
+         ms1 = mb
+         ms2 = mb
+         ishift2 = 0
+      end if
+
+      do ms=ms1,ms2
+         n     = ne(ms)
+         if (n.le.0) go to 30
+         shift  = 1 + (ms-1)*ne(1)*npack1
+         shift2 = 1 + (ms-1)*ishift2
+
+        
+         !if npack / nthr >> ne divide along npack
+        !if () then
+        !else
+         call DGEMM('N','N',2*(mend-mstart),n,n,
+     >             (alpha),
+     >             Ain(shift+mstart), 2*npack1,
+     >             hml(shift2),    n,
+     >             (beta),
+     >             Aout(shift+mstart),2*npack1)
+         !end if
+   30    continue
+      end do
+
+      call nwpw_timing_end(16)
+      return
+      end
 
 
 
 
+c     ****************************************
+c     *                                      *
+c     *        eDneall_mm_Expand             *
+c     *                                      *
+c     ****************************************
+
+      subroutine eDneall_mm_Expand(mb,ne,A,A0)
+      implicit none
+      integer mb,ne(2)
+      real*8 A(*),A0(*)
 
 
+*     **** local variables ****
+      integer shift2,nn
+
+      shift2 = 1
+      if (mb.eq.0) then
+         nn     = ne(1)*ne(1) + ne(2)*ne(2)
+         shift2 = 1
+      else if (mb.eq.1) then
+         nn     = ne(1)*ne(1)
+         shift2 = 1
+      else if (mb.eq.2) then
+         nn     = ne(2)*ne(2)
+         shift2 = 1+ne(1)*ne(1)
+      end if
 
 
+      call dcopy(nn,A,1,A0(shift2),1)
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *        eDneall_m_dmax                *
+c     *                                      *
+c     ****************************************
+
+      double precision function eDneall_m_dmax(mb,ispin,ne,A)
+      implicit none
+      integer mb,ispin,ne(2)
+      real*8 A(*)
+
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift2,ishift2
+      double precision adiff1, adiff2
+
+      integer  idamax
+      external idamax
+
+      if (mb.eq.0) then
+         ms1 = 1
+         ms2 = ispin
+         ishift2 = ne(1)*ne(1)
+      else
+         ms1 = mb
+         ms2 = mb
+         ishift2 = 0
+      end if
+
+      adiff1 = 0.0d0
+      adiff2 = 0.0d0
+      do ms=ms1,ms2
+        if (ne(ms).le.0) go to 30
+        shift2 = 1 + (ms-1)*ishift2
+
+        adiff1 = adiff2
+        adiff2 = A(shift2-1+idamax(ne(ms)*ne(ms),A(shift2),1))
+        adiff2 = dabs(adiff2)
+        if (adiff2.gt.adiff1) adiff1 = adiff2
+ 30     continue
+      end do
+
+      eDneall_m_dmax = adiff1
+      return
+      end

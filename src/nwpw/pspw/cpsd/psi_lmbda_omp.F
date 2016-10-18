@@ -7,7 +7,7 @@
       subroutine psi_lmbda_omp(ispin,ne,nemaxq,nida,nidb,
      >                     psi1,psi2,
      >                     dte,
-     >                     lmbda,tmp,ierr,thrlmbda)
+     >                     lmbda,tmp,ierr,thrlmbda,taskid,adiff,notgram)
       USE omp_lib
       implicit none
       integer ispin,ne(2),nemaxq,nida,nidb
@@ -50,6 +50,8 @@
 
       real*8   Dneall_m_dmax
       external Dneall_m_dmax
+      double precision   eDneall_m_dmax
+      external eDneall_m_dmax
 
       integer wtid,wnthr
 
@@ -57,6 +59,15 @@
       INTEGER(kind=omp_nest_lock_kind) reduce_lock2
       INTEGER(kind=omp_nest_lock_kind) reduce_lock3
       common / reduce_ffm / reduce_lock1,reduce_lock2,reduce_lock3
+
+
+      integer out_unit
+      character(len=20) :: filename
+      logical exist
+      integer j
+
+
+
       call nwpw_timing_start(3)
 
       call Parallel_np(np)
@@ -69,6 +80,27 @@
 
       tid  = Parallel_threadid()
       nthr = Parallel_nthreads()
+
+!      out_unit = tid
+!
+!   10 format(2E14.5)
+!          if (tid < 10) then
+!          write (filename, "(A8,I1)") "results.", tid
+!          else
+!          write (filename, "(A8,I2)") "results.", tid
+!          end if
+!          inquire(file=trim(filename), exist=exist)
+!          if (exist) then
+!            open(unit=out_unit,file=trim(filename),
+!     >      status="old", position="append", action="write")
+!          else
+!            open(unit=out_unit,file=trim(filename),
+!     >      action="write",status="new")
+!          end if
+
+
+
+
       DO 640 mb=1,ispin
         notgram=.true.
         IF(ne(mb).le.0) GO TO 640
@@ -105,31 +137,52 @@
 !zero out the three matrices in one operation
         call eDneall_ffm_zeroMatrix(tmp(s11),n,3*n)
 
-
       call nwpw_timing_start_thr(15)    
       call nwpw_timing_start_thr(2)
         wnthr = max(1,(nthr - mod(nthr,3))/3)
+#if 1
         call eDneall_ffm_sym_Multiply_reduce_concur(psi2,psi2,
      >                                nida,nidb,ne,
      >                                tmp(s22),thrlmbda,
      >                       shift,shift2,n,0,wnthr,reduce_lock1)
+#endif
+#if 1
         call eDneall_ffm_sym_Multiply_reduce_concur(psi2,psi1,
      >                                nida,nidb,ne,
      >                                tmp(s21),thrlmbda,
      >             shift,shift2,n,min(nthr-1,wnthr),wnthr,reduce_lock2)
+#endif
+#if 1
         call eDneall_ffm_sym_Multiply_reduce_concur(psi1,psi1,
      >                                nida,nidb,ne,
      >                                tmp(s11),thrlmbda,shift,shift2,n,
      >            min(nthr-1,2*wnthr),max(1,nthr-2*wnthr),reduce_lock3)
+#endif
       call nwpw_timing_end_thr(2)
       call nwpw_timing_end_thr(15)
 
+
+
+
+!          write(out_unit,*) 's11:'
+!          write(out_unit,10) (tmp(s11+i),i=0,nn-1)
+!          write(out_unit,*) 's21:'
+!          write(out_unit,10) (tmp(s21+i),i=0,nn-1)
+!          write(out_unit,*) 's22:'
+!          write(out_unit,10) (tmp(s22+i),i=0,nn-1)
+!!$OMP BARRIER
+
+
+
+
+#if 1
       if (np.gt.1) then
 !$OMP BARRIER
       call nwpw_timing_start_thr(15)    
 !$OMP MASTER
         !do only one big reduce and then shift data accordingly
-        call Parallel_Vector_SumAll_master(3*n*n,tmp(s11))
+        !call Parallel_Vector_SumAll_master(3*n*n,tmp(s11))
+        call Parallel_Vector_SumAll_master_tmp(3*n*n,tmp(s11),tmp(st2))
         if(shift2 .ne. 0) then
           tmp(st2:st2+n*n-shift2)=tmp(st2+shift2:st2+n*n)
           tmp(sa1:sa1+n*n-shift2)=tmp(sa1+shift2:sa1+n*n)
@@ -138,39 +191,53 @@
 !$OMP END MASTER
       call nwpw_timing_end_thr(15)    
       end if
+#endif
 
 !$OMP BARRIER
   30     continue
         end do
 
 
+
+
+
+
+
+
 !&OMP SECTIONS
+#if 1
 !&OMP SECTION
         call eDneall_m_scale_s22(mb,ispin,ne,dte,tmp(s22))
 !&OMP END SECTION
+#endif
+#if 1
 !&OMP SECTION
         call eDneall_m_scale_s21(mb,ispin,ne,dte,tmp(s21))
 !&OMP END SECTION
+#endif
+#if 1
 !&OMP SECTION
         call eDneall_m_scale_s11(mb,ispin,ne,dte,tmp(s11))
 !&OMP END SECTION
+#endif
 
 !&OMP END SECTIONS
 
+#if 1
 !$OMP SINGLE
         call dcopy(nn,tmp(s22),1,tmp(sa0),1)
 !$OMP END SINGLE NOWAIT
 !$OMP SINGLE
         call dcopy(nn,tmp(s21),1,tmp(s12),1)
 !$OMP END SINGLE
-
+#endif
 
         do it=1,itrlmd
 !$OMP SINGLE
           ! sa1 = s22
           call dcopy(nn,tmp(s22),1,tmp(sa1),1)
 !$OMP END SINGLE
-      call nwpw_timing_start(49)    
+!!!!!      call nwpw_timing_start(49)    
           wnthr = 1!(nthr - mod(nthr,3))/3
 
       do ms=ms1,ms2
@@ -259,14 +326,27 @@
      >            tmp(sa1),1.0d0,tmp(st2),ms,shift2, 0,wnthr)
 
 !$OMP BARRIER
-      call nwpw_timing_end(49)    
+
+
+
+!!!!!      call nwpw_timing_end(49)    
+
+
+!!$OMP CRITICAL
+!          write(out_unit,*) 'st1:'
+!          write(out_unit,10) (tmp(sa1+i),i=0,nn-1)
+!          write(out_unit,*) 'sa0:'
+!          write(out_unit,10) (tmp(sa0+i),i=0,nn-1)
+!!$OMP END CRITICAL
+!!$OMP BARRIER
 
 !$OMP SINGLE
           !st1 = sa1
           call dcopy(nn,tmp(sa1),1,tmp(st1),1)
           !  st1 -= sa0
           call daxpy(nn,(-1.0d0),tmp(sa0),1,tmp(st1),1)
-          adiff = Dneall_m_dmax(mb,tmp(st1))
+          !adiff = Dneall_m_dmax(mb,tmp(st1))
+          adiff = eDneall_m_dmax(mb,ispin,ne,tmp(st1))
 !$OMP END SINGLE 
 
           if(adiff.lt.convg) then
@@ -288,7 +368,6 @@
   620   continue
        
         ierr=10 
-        call Parallel_taskid(taskid)
         if (taskid.eq.MASTER) then
 !$OMP MASTER
           write(6,*) 
@@ -303,22 +382,25 @@ c        call Dneall_f_GramSchmidt(ms,psi2,npack1)
 
 *       :::::::::::::::::  correction due to the constraint  :::::::::::::::::
         if (notgram) then
-
-          call Dneall_fmf_Multiply(mb,ispin,ne,
+          call eDneall_fmf_Multiply(mb,ispin,ne,
      >                              psi1,nida+nidb,
      >                              tmp(sa1), dte,
      >                              psi2,1.0d0)
         end if
 
 !$OMP SINGLE
-        call Dneall_mm_Expand(mb,tmp(sa1),lmbda)
+        !call Dneall_mm_Expand(mb,tmp(sa1),lmbda)
+        call eDneall_mm_Expand(mb,ne,tmp(sa1),lmbda)
 !$OMP END SINGLE
 
+
   640 continue
+
 
 c*:::::::::::::::::  correction due to the constraint  :::::::::::::::::
       call nwpw_timing_end(3)
 
+!          close (out_unit)
       return
       end
 

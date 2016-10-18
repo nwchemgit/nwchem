@@ -2,8 +2,8 @@
 # $Id$
 #
 
- OBJ_OPTIMIZE = D1dB.o Dne.o Dnex.o skew.o Dne_omp.o
- OBJ = 
+ OBJ_OPTIMIZE = D1dB.o Dne.o Dnex.o skew.o 
+ OBJ_OPTIMIZE += Dne_omp.o
 
 ifeq ($(USE_MPIF),y)
   OBJ_OPTIMIZE += D1dB-mpi.o
@@ -18,6 +18,8 @@ endif
     USES_BLAS = D1dB-mpi.F Dne.F skew.F Dne_omp.F
 
   LIB_DEFINES = 
+
+
 
 include ../../../config/makefile.h
 include ../../../config/makelib.h

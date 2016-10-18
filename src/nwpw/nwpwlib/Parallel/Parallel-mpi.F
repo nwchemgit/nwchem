@@ -731,6 +731,38 @@ c     implicit none
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *  Parallel_Vector_SumAll_master_tmp  *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_Vector_SumAll_master_tmp(n,sum0,sumall)
+c     implicit none
+      integer n
+      real*8  sum0(*),sumall(*)
+
+#include "mafdecls.fh"
+#include "Parallel.fh"
+#include "mpif.h"
+
+*     **** local variable ****
+      logical value
+      integer msglen,mpierr
+
+
+      call nwpw_timing_start(2)
+      if (np.gt.1) then
+      msglen = n
+      call MPI_Allreduce(sum0,sumall,msglen,
+     >                MPI_DOUBLE_PRECISION,
+     >                MPI_SUM,comm_world,mpierr)
+      call dcopy(n,sumall,1,sum0,1)
+      end if
+      call nwpw_timing_end(2)
+      return
+      end
+
 
 
 
@@ -2390,6 +2422,50 @@ c     implicit none
       Parallel_index_1dblock = ms
       return
       end
+
+
+*     *******************************************
+*     *                                         *
+*     *        Parallel_matrixblocking          *
+*     *                                         *
+*     *******************************************
+*
+*   This routine computes mp,np such that
+*   mp*np = nthr and min |(mp/np)-(m/n)|
+*
+*   The justification for trying to keep the ratio of mp/np ~= m/n is that having
+*  the subblocks mimimic the overall matrix will produce distribution with blocks are 
+*  relatively equal in size.
+*
+      subroutine Parallel_matrixblocking(nthr,m,n,mb,nb)
+      implicit none
+      integer nthr,m,n,mb,nb
+
+*     **** local variables ****
+      integer ii,jj,mm,nn
+      real*8 ratio
+
+      ratio = dble(m)/dble(n)
+      mb = nthr
+      nb = 1
+      do nn =1,nthr
+         ii = (nthr-1)/nn - 1
+         jj = (nthr+1)/nn + 1
+         if (ii.lt.1) ii = 1
+         if (jj.gt.nthr) jj=nthr
+         do mm=ii,jj
+            if ((nn*mm).eq.nthr) then
+               if (dabs(dble(mm)/dble(nn) - ratio) .lt.
+     >             dabs(dble(mb)/dble(nb) - ratio)) then
+                  mb = mm
+                  nb = nn
+               end if
+            end if
+         end do
+      end do
+      return
+      end
+
 
 
 

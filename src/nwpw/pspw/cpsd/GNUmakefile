@@ -7,7 +7,6 @@
                 cpsdv5.o \
                 cpmdv5.o \
 		mmsdv1.o \
-                inner_loop.o \
                 inner_loop_md.o \
                 mm_loop.o \
                 psi_lmbda.o psi_lmbda_sic.o psi_lmbda_paw.o psi_lmbda2.o psi_lmbda3.o \
@@ -17,15 +16,14 @@
 ##                cpmd_qmmm_start.o cpmd_qmmm_step.o cpmd_qmmm_stop.o inner_loop_qmmm_step.o
 
 
-	  OBJ = 
-
+	  OBJ_OPTIMIZE += psi_lmbda_omp.o inner_loop.o
 
 
       LIBRARY = libpspw.a
 
     USES_BLAS = psi_lmbda.f psi_lmbda2.f psi_lmbda3.f psi_lmbda_sic.f psi_lmbda_paw.f \
                 inner_loop.F inner_loop_md.F cpsdv5.F cpmdv5.F psi_lmbda2.f \
- 		mmsdv1.F inner_loop_qmmm_step.F cpmd_qmmm_start.F cpmd_qmmm_stop.F mm_loop.F pspw_et.F
+ 		mmsdv1.F inner_loop_qmmm_step.F cpmd_qmmm_start.F cpmd_qmmm_stop.F mm_loop.F pspw_et.F psi_lmbda_omp.F
 
   LIB_DEFINES =
 

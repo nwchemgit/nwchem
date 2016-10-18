@@ -14,6 +14,7 @@
 *  *    + error checking is based on aimd.h parameters        *
 *  *      then control file                                   *
 *  ************************************************************
+#define PSI_OMP
   
       subroutine inner_loop(ispin,ne,
      >                      npack1,nfft3d,nemax,
@@ -22,6 +23,9 @@
      >                      hml,lmd,lmd1,first_iteration,
      >                      psi_r,Hpsi,
      >                      fractional,occ1,occ2)
+#ifdef PSI_OMP
+      use omp_lib
+#endif
       implicit none
       integer    ispin,ne(2)
       integer    npack1,nfft3d,nemax
@@ -109,8 +113,10 @@ c     real*8     fion(3,natmx)
 *     ***** QM/MM external functions ****
       logical  pspw_charge_found,pspw_qmmm_found
       real*8   pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
+      real*8   pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
       external pspw_charge_found,pspw_qmmm_found
       external pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
+      external pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
 
       logical  psp_U_psputerm,meta_found
       external psp_U_psputerm,meta_found
@@ -134,22 +140,26 @@ c     real*8     fion(3,natmx)
 #ifdef PSI_OMP
       integer nida,nidb
       integer  mthr
+
+      real*8  adiff
+      logical notgram
+
+      integer MASTER,taskid
+      parameter (MASTER=0)
       integer  Parallel_maxthreads
       external Parallel_maxthreads
-      real*8 thrlmbda(2)
+      integer thrlmbda(2)
 
       INTEGER(kind=omp_nest_lock_kind) reduce_lock1
       INTEGER(kind=omp_nest_lock_kind) reduce_lock2
       INTEGER(kind=omp_nest_lock_kind) reduce_lock3
       common / reduce_ffm / reduce_lock1,reduce_lock2,reduce_lock3
+
+*     **** matrix_blocking common block ****
+      integer mblock(2),nblock(2),algorithm(2)
+      common /matrix_blocking/ mblock,nblock,algorithm
 #endif
 
-
-#ifdef PSI_OMP
-      mthr = Parallel_maxthreads()
-      nida = 1
-      nidb = npack1-nida
-#endif
 
       call nwpw_timing_start(42)
 
@@ -211,6 +221,18 @@ c     real*8     fion(3,natmx)
       value = value.and.
      >        BA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
 #ifdef PSI_OMP
+      mthr = Parallel_maxthreads()
+      mthr = max(mthr,4)
+
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+      nida = 0
+      if (taskid.eq.MASTER) nida = 1
+      nidb = npack1-nida
+      
+      !write(*,*) mthr,ne(1)
+
+      value = value .and. MA_set_auto_verify(.true.)
       value = value.and.
      >        BA_push_get(mt_dbl,(mthr*ne(1)*ne(1)*8),'thrlmbda',
      >                                     thrlmbda(2),thrlmbda(1))
@@ -218,7 +240,25 @@ c     real*8     fion(3,natmx)
       call omp_init_nest_lock(reduce_lock1)
       call omp_init_nest_lock(reduce_lock2)
       call omp_init_nest_lock(reduce_lock3)
+*     **** define blocking for dgemm matrix multiply ****
+      algorithm(1) = -1
+      algorithm(2) = -1
+      do ms=1,ispin
+         if (ne(ms).gt.(mthr*np)) then
+            algorithm(ms) = 1
+            call Parallel_matrixblocking(mthr*np,ne(ms),ne(ms),
+     >                                mblock(ms),nblock(ms))
+         else if (ne(ms).gt.(mthr)) then
+            algorithm(ms) = 0
+            call Parallel_matrixblocking(mthr,ne(ms),ne(ms),
+     >                                mblock(ms),nblock(ms))
+         else
+            algorithm(ms) = -1
+         end if
+      end do
+
 #endif
+
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       call dcopy(4*nfft3d,0.0d0,0,dbl_mb(dnall(1)),1)
       call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
@@ -251,6 +291,11 @@ c     real*8     fion(3,natmx)
 
       call pspw_Lin_HFX_reset()
 
+
+
+
+
+
 *     ******************************************
 *     ****                                  ****
 *     ****   Start of steepest descent loop ****
@@ -259,6 +304,7 @@ c     real*8     fion(3,natmx)
 !$OMP PARALLEL private(it,tid,nthreads)
       tid      = Parallel_threadid()
       nthreads = Parallel_nthreads()
+!      write(*,*) 'num threads: ',nthreads
       do it=1,it_in
 
 
@@ -543,12 +589,22 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
      >                    lmd,dbl_mb(tmp_L(1)),ierr)
         else
 #ifdef PSI_OMP
+!           write(*,*) 'T',tid, ':', dbl_mb(thrlmbda(1))
            call psi_lmbda_omp(ispin,ne,nemax,nida,nidb,psi1,psi2,dte,
-     >                    lmd,dbl_mb(tmp_L(1)),ierr,dbl_mb(thrlmbda(1)))
+     >                  lmd,dbl_mb(tmp_L(1)),ierr,dbl_mb(thrlmbda(1)),
+     >                                          taskid,adiff,notgram)
+!$OMP BARRIER
+!!$OMP MASTER
+!           write(*,*) MA_verify_allocator_stuff()
+!!$OMP END MASTER
+!!$OMP BARRIER
 #else
+!#if 1
            call psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte,
      >                    lmd,dbl_mb(tmp_L(1)),ierr)
 #endif
+
+
         end if
         call nwpw_timing_end(45)
 
