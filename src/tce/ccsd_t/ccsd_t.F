@@ -157,14 +157,7 @@ c      w_thresh=10
      1     call errquit('ordering',3,MA_ERR)
       count = 0
       k_grain=1
-#if 0
-      k_grain=min(5,nint((tot_task/15d0)/nprocs))
-      k_grain=max(k_grain,1)
-      if(ga_nodeid().eq.0) then
-         write(6,*) ' nxtask0 granularity ',k_grain
-      endif
-#endif
-      tasks_skip=2
+      tasks_skip=0
       next = nxtask0(nprocs,k_grain,tasks_skip)
       do k=1,n_progr
          i_progr(k)=.true.
