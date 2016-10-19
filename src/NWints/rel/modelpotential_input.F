@@ -18,6 +18,7 @@ c
       integer rtdb ! [input] handle to database
 c    
       character*255 libname
+      character*255 mpdir
       character*255 mpfile
       character*32 pname
       character*2 atsym
@@ -35,9 +36,13 @@ c
       integer atni
       logical status
       logical fileexists
+      logical does_it_exist
 c
       logical util_io_unit
       external util_io_unit
+c
+      logical util_find_dir
+      external util_find_dir
 c
       pname = "modelpotential_input"
 c      
@@ -45,30 +50,47 @@ c     get model potential file name
       if(.not.rtdb_get(rtdb,'modelpotential:option',mt_int,1,mpoption)) 
      &  call errquit(pname//'unable to access mpotion',0,RTDB_ERR)
 c
-      call util_getenv('NWCHEM_BASIS_LIBRARY',libname) ! first check the enviroment variable
+c     first: look for the environment variable
+      does_it_exist=.false.
+      call util_getenv('NWCHEM_BASIS_LIBRARY',libname)
       if (inp_strlen(libname).gt.0) then
-        mpfile=libname(1:inp_strlen(libname))
-     $     //"/rel-modelpotentials/"           ! build mpfile path
-      else
-        call util_nwchem_srcdir(libname)    ! look for the src directory
-        mpfile=libname(1:inp_strlen(libname))
-     $     //"/basis/libraries/rel-modelpotentials/" ! build mpfile path
-      end if 
+        mpdir=libname(1:inp_strlen(libname))//"rel-modelpotentials/"
+        does_it_exist = util_find_dir(mpdir) 
+        if (does_it_exist) goto 10
+      end if
+c       
+c     second: look for the src directory
+      does_it_exist=.false.
+      call util_nwchem_srcdir(libname)
+      if (inp_strlen(libname).gt.0) then
+        mpdir=libname(1:inp_strlen(libname))
+     $     //"/basis/libraries/rel-modelpotentials/" 
+        does_it_exist = util_find_dir(mpdir) 
+        if (does_it_exist) goto 10
+      end if
 c
-c     check library name
-      if (inp_strlen(libname).le.0)         
-     &  call errquit(pname//'unable to access model potential file',
-     & 0,RTDB_ERR)
+c     third: look in the local or permanent directory
+      does_it_exist=.false.
+      call util_directory_name(mpdir, .false., ga_nodeid())
+      if (inp_strlen(mpdir).gt.0) then
+        mpdir=mpdir(1:inp_strlen(mpdir))//"/"
+        does_it_exist = util_find_dir(mpdir) 
+        if (does_it_exist) goto 10
+      end if
+c
+c     abort if the directory does not exist
+      if (.not.does_it_exist)
+     $  call errquit(pname//'modelpotential not found',0,INPUT_ERR)
+c
+  10  continue
 c
 c     build mpfile name
       if (mpoption.eq.1) then
-         mpfile=mpfile(1:inp_strlen(mpfile))
-     $     //"modbas.4c"
+        mpfile=mpdir(1:inp_strlen(mpdir))//"modbas.4c"
       else if (mpoption.eq.2) then
-         mpfile=mpfile(1:inp_strlen(mpfile))
-     $     //"modbas.2c"
+        mpfile=mpdir(1:inp_strlen(mpdir))//"modbas.2c"
       else
-          call errquit(pname//'unknown option',0,RTDB_ERR)
+        call errquit(pname//'unknown option',0,RTDB_ERR)
       end if
 c
 c     initialize parameters
@@ -97,7 +119,7 @@ c     check if model potential file is present
       fileexists = .false.
       inquire(file=mpfile,exist=fileexists)
       if (.not.fileexists) 
-     $  call errquit(pname//'modelpotential file not found',0,INPUT_ERR)
+     $  call errquit(pname//'modelpotential not found',0,INPUT_ERR)
 c
 c     open and read the file
       open(unit=unitno, file=mpfile,status='unknown')
