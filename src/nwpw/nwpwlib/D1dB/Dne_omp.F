@@ -12,7 +12,7 @@ c     ****************************************
 
 !$OMP DO schedule(static)
       do k=1,m*n
-        matrix(k) = 0.0
+        matrix(k) = 0.0d0
       end do
 !$OMP END DO
       end
@@ -25,11 +25,11 @@ c     ****************************************
 
       subroutine eDneall_ffm_sym_Multiply_reduce_concur(A1,A2,
      >                         nida,nidb,ne,hml,thrhml,
-     >           shift,shift2,n,ftid,nwthr,reduce_lock)
+     >           shift,shift2,n,ftid,nwthr,ms,reduce_lock)
       USE omp_lib
       implicit none
       complex*16 A1(*),A2(*)
-      integer nida,nidb,ispin,ne(2)
+      integer nida,nidb,ispin,ne(2),ms
       real*8 hml(*)
       real*8 thrhml(*)
 
@@ -50,44 +50,34 @@ c     ****************************************
       nk = 2*nidb
 
       if( (tid .ge. ftid) .and. (tid .lt. ftid+nwthr)) then 
-        nthrr = 1
-        nthrc = nwthr / nthrr
-        nwthr = nthrc*nthrr
-
-        bk = max(min(nk,1),floor(REAL(nk)/REAL(nthrc)))
-        nthrc = floor(REAL(nk) / REAL(bk))
-        nwthr = nthrc*nthrr
-        
+        bk = max(min(nk,1),floor(REAL(nk)/REAL(nwthr)))
+        nwthr = floor(REAL(nk) / REAL(bk))
         if(tid .lt. ftid+nwthr) then
-          tidc = mod((tid-ftid),nthrc)
-          tidr = (tid-ftid) / nthrc
+          tidc = (tid-ftid)
         
 
-          nchunkc = nthrc
+          nchunkc = nwthr
           chunkc=tidc
-
           !compute offsets in A and B
           bk = floor(REAL(nk)/REAL(nchunkc))
           offsetk = (chunkc)*bk
           if(chunkc==nchunkc-1) bk = nk-offsetk
           
-          ne1 = ne(1)
+          ne1 = ne(ms)
 
-          nchunkr = nthrr
-          chunkr = tidr
-                
-
-
-          bm = floor(REAL(n)/REAL(nchunkr))
-          offsetm = (chunkr)*bm
-          if(chunkr==nchunkr-1) bm = n-offsetm
-
+          nchunkr = 1
+          chunkr = 0
+          bm = n
+          offsetm = 0
              call epack_ccm_sym_dot_reduce_concur(nida,nidb,n,
      >                               A1(shift),
      >                               A2(shift),
      >                               hml(shift2), 
-     >                               thrhml((tid)*ne1*ne1*8+ shift2),
+     >                               thrhml(shift2+(tid)*ne1*ne1*8),
      >                      nk,bk,offsetk,bm,offsetm,reduce_lock,ftid)
+
+              !write(*,*) shift , shift2
+
         end if
       end if
       return
@@ -105,7 +95,7 @@ c     ****************************************
       real*8     thrmatrix(n,n)
 
 *     **** local variables ****
-      integer j,k,nk
+      integer j,k,nk,i
       integer np,npack,npack2
       integer tid
       integer offsetk,bk,bm,bkc,offsetm
@@ -119,62 +109,59 @@ c     ****************************************
       integer  Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
 
-
-
       tid  = Parallel_threadid()
 
-      bkk = bk
       npack  = (nida+nidb)
       npack2 = 2*npack
 
 
 #if 1
-
-      do kk=0,bk-1,bkk
-        ibkk = min(bkk,bk-kk)
-
-        if(kk.eq.0)then
-        call DGEMM('T','N',bm,n,ibkk,
-     >               2.0d0,
-     >               A(1+ 2*nida + offsetk +kk + offsetm*npack2),npack2,
-     >               B(1+ 2*nida + offsetk +kk ),npack2,
-     >               0.0d0,
-     >               thrmatrix(1+offsetm,1), n)
-        else
-        call DGEMM('T','N',bm,n,ibkk,
-     >               2.0d0,
-     >               A(1+ 2*nida + offsetk +kk + offsetm*npack2),npack2,
-     >               B(1+ 2*nida + offsetk +kk ),npack2,
-     >               1.0d0,
-     >               thrmatrix(1+offsetm,1), n)
-        endif
-      end do
+#if 1
+      call DGEMM('T','N',n,n,bk,
+     >             2.0d0,
+     >             A(1+ 2*nida + offsetk),npack2,
+     >             B(1+ 2*nida + offsetk),npack2,
+     >             0.0d0,
+     >             thrmatrix, n)
 
       if(tid.eq.ftid) then
-      !write(*,*) tid,"I'm doing the first thing", 2*nida
-      call DGEMM('T','N',bm,n,2*nida,
+      call DGEMM('T','N',n,n,2*nida,
      >             1.0d0,
-     >             A(1 + offsetm*npack2),npack2,
+     >             A,npack2,
      >             B,npack2,
      >             1.0d0,
-     >             thrmatrix(1+offsetm,1), n)
+     >             thrmatrix, n)
       end if
 
-      if(offsetm .eq. 0 .and. bm .eq. n) then
-        call omp_set_nest_lock(reduce_lock)
-        call daxpy(n*n,(1.0d0),thrmatrix,1,matrix,1)
-        call omp_unset_nest_lock(reduce_lock)
-      else
-        call omp_set_nest_lock(reduce_lock)
-        do k=1,n
-!$OMP SIMD
-          do j=1+offsetm,offsetm+bm
-            matrix(j,k) = matrix(j,k) + thrmatrix(j,k) 
-          end do
-!$OMP END SIMD
-        end do
-        call omp_unset_nest_lock(reduce_lock)
+      call omp_set_nest_lock(reduce_lock)
+      call daxpy(n*n,(1.0d0),thrmatrix,1,matrix,1)
+      call omp_unset_nest_lock(reduce_lock)
+
+#else
+      call DGEMM('T','N',n,n,npack2,
+     >               2.0d0,
+     >               A(1 + offsetk ),npack2,
+     >               B(1 + offsetk ),npack2,
+     >               0.0d0,
+     >               thrmatrix, n)
+
+      if(tid.eq.ftid) then
+      call DGEMM('T','N',n,n,2*nida,
+     >             -1.0d0,
+     >             A,npack2,
+     >             B,npack2,
+     >             1.0d0,
+     >             thrmatrix, n)
       end if
+
+      call omp_set_nest_lock(reduce_lock)
+      call daxpy(n*n,(1.0d0),thrmatrix,1,matrix,1)
+      call omp_unset_nest_lock(reduce_lock)
+#endif
+
+
+
+
 #endif
 
       return
