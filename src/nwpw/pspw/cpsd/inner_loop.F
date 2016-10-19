@@ -15,6 +15,7 @@
 *  *      then control file                                   *
 *  ************************************************************
 #define PSI_OMP
+
   
       subroutine inner_loop(ispin,ne,
      >                      npack1,nfft3d,nemax,
@@ -593,7 +594,7 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
            call psi_lmbda_omp(ispin,ne,nemax,nida,nidb,psi1,psi2,dte,
      >                  lmd,dbl_mb(tmp_L(1)),ierr,dbl_mb(thrlmbda(1)),
      >                                          taskid,adiff,notgram)
-!$OMP BARRIER
+!!$OMP BARRIER
 !!$OMP MASTER
 !           write(*,*) MA_verify_allocator_stuff()
 !!$OMP END MASTER
