@@ -778,6 +778,9 @@ c       == -> g_zora_Kinetic is defined in zora.fh ==
       end if  ! do_zora
 c
 c     == determine guess ==
+      if(.not.rtdb_get(rtdb,'forceatguess',mt_log,1,forceatguess)) 
+     .     forceatguess=.false.
+      if(forceatguess) movecs_in='atomic'
       call dft_guessin(movecs_in,ldmix,ncanorg,fon,
      ,     vecs_or_dens,
      ,     ipol,nbf_ao,g_movecs,g_gmovecs,
@@ -788,9 +791,6 @@ c     == better have static ldb at high node counts ==
       if (.not.rtdb_get(rtdb,'dft:staticguess',
      ,     mt_log,1,staticguess)) staticguess=.false.
       if(staticguess) llldb=util_statldb(.true.,rtdb)
-      if(.not.rtdb_get(rtdb,'forceatguess',mt_log,1,forceatguess)) 
-     .     forceatguess=.false.
-      if(forceatguess) movecs_in='atomic'
       call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
      &                       basis_trans, movecs_in, movecs_out, 
      &                       movecs_guess, scftype, nclosed, nopen, 
@@ -835,6 +835,7 @@ c     == better have static ldb at high node counts ==
 
       if(ldmix) then
         tdots=0.d0
+        write(6,*) ' #ll densm '
         call dft_densm(g_dens, g_movecs, 
      &       nbf_ao, nmo, ipol, 
      &       geom, AO_bas_han,noc,ntotel,
