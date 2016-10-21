@@ -131,7 +131,7 @@ endif
 
 MODULES := $(patsubst geninterface,geninterface,$(MODULES) )
 MODULES := $(patsubst dimqm,dimqm ddscf atomscf nwdft property,$(MODULES) )
-MODULES := $(patsubst property,property ddscf,$(MODULES) )
+MODULES := $(patsubst property,property cphf nwdft ddscf,$(MODULES) )
 
 #MODULES := $(patsubst plane_wave,plane_wave nwdft,$(MODULES) )
 #MODULES := $(patsubst oimp2,oimp2 rimp2 moints,$(MODULES) )
