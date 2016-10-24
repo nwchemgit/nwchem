@@ -49,14 +49,14 @@ c
       if(offload_master()) then
          CALL offl_mic_ccsd_t_singles_l_1(
      D        dbl_mb(d_t1),k_t1_offset,
-     &        d_v2,k_v
-     &        2_offset,a_i0,t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b,
+     &        d_v2,k_v2_offset,a_i0,
+     &        t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b,
      T        dbl_mb(k_v2sub),dbl_mb(k_t1sub),dbl_mb(k_scratch))
       else
          CALL offl_cpu_ccsd_t_singles_l_1(
      D        dbl_mb(d_t1),k_t1_offset,
-     &        d_v2,k_v
-     &        2_offset,a_i0,t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b,
+     &        d_v2,k_v2_offset,a_i0,
+     &        t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b,
      T        dbl_mb(k_v2sub),dbl_mb(k_t1sub),dbl_mb(k_scratch))
       endif
 #ifdef USE_OFFLOAD
