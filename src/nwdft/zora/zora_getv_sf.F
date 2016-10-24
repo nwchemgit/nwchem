@@ -58,8 +58,12 @@ c
      &     lzora0scal, izora0scal
 c
       integer inntsize,ddblsize,ok
+c
       logical grid_file_rewind
       external grid_file_rewind
+c
+      logical int_normalize
+      external int_normalize
 c
 c     model potential parameters
       character*2 gelem(ncenters)
@@ -96,6 +100,8 @@ c     == initialization ==
       if (ipol.gt.1) call ga_zero(g_zora_scale_sf(2))
 c
 c     == ao basis set info used by xc_eval_basis ==
+      if(.not.int_normalize(rtdb,AO_bas_han))
+     &  call errquit('zora_getv_sf: int_normalize failed',0, BASIS_ERR)
       if (.not.bas_numcont(AO_bas_han, ncontrset))
      &     call errquit('zora_getv_sf:bas_numcont',0, BASIS_ERR)
       if (.not.MA_Push_Get(mt_int, 3*ncenters, 'bas_cent_info',
@@ -192,6 +198,10 @@ c
      &              dbl_mb(iqxyz), dbl_mb(ixyz), nqpts, ncenters,
      &              int_mb(iniz), log_mb(idocset),
      &              int_mb(ibas_cent_info), int_mb(ibas_cset_info))
+c                
+c              calculate numerical overlap
+c               call num_ovlp(dbl_mb(ichi_ao), dbl_mb(iqwght),
+c     &           nbf_ao, nqpts, dbl_mb(izora0))
 c
 c              == calculate spin-free zora contribution ==
                call calc_zora_sf(ao_bas_han, geom, ipol, g_dens,
@@ -244,7 +254,7 @@ c
 c     == scalar contribution ==
       call ga_zero(g_zora_sf(1))
       call ga_distribution(g_zora_sf(1),
-     .     ga_nodeid(), ilo, ihi, jlo, jhi)
+     &     ga_nodeid(), ilo, ihi, jlo, jhi)
       if (ilo.gt.0 .and. ilo.le.ihi) then
          do j=jlo,jhi
             call ga_put(g_zora_sf(1),ilo, ihi, jlo, jhi,
@@ -253,10 +263,9 @@ c     == scalar contribution ==
       endif
       call ga_symmetrize(g_zora_sf(1))
 c
-      call ga_symmetrize(g_zora_sf(1))
       call ga_zero(g_zora_scale_sf(1))
       call ga_distribution(g_zora_scale_sf(1),
-     .     ga_nodeid(), ilo, ihi, jlo, jhi)
+     &     ga_nodeid(), ilo, ihi, jlo, jhi)
       if (ilo.gt.0 .and. ilo.le.ihi) then
          do j=jlo,jhi
             call ga_put(g_zora_scale_sf(1),ilo, ihi, jlo, jhi,
@@ -270,8 +279,31 @@ c
          call ga_copy(g_zora_scale_sf(1),g_zora_scale_sf(2))
       endif
 c
+c     call ga_print(g_zora_sf(1))
+c
       call ga_sync()
 c
-c     == clean memory ==
+      return
+      end
+c
+      subroutine num_ovlp(chi_ao,wght,nbf,npts,ovlp)
+
+      implicit none
+
+#include "stdio.fh"
+
+      integer nbf, npts
+      double precision chi_ao(npts,nbf),wght(npts)
+      double precision ovlp(nbf,nbf)
+      integer i, j, k
+
+      do i = 1, nbf
+        do j = 1, nbf
+          do k = 1, npts
+            ovlp(i,j)=ovlp(i,j)+chi_ao(k,i)*wght(k)*chi_ao(k,j)
+          enddo
+        enddo
+      enddo
+c
       return
       end
