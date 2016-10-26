@@ -247,7 +247,7 @@ c
       double precision dime
       
       dime = -HALF * SUM(muind * eqme)
-      dime = dime + -HALF * SUM(muind * eqmn)
+      dime = dime +(-HALF)* SUM(muind * eqmn)
       return
       end function dime
 
