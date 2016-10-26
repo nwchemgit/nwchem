@@ -238,7 +238,8 @@ c
       logical do_cosmo_smd
 
 C     RTDB flag for printing out all matrices
-      logical lprint_mats
+      logical lprint_mats  !print matrices to stdout?
+      logical lsave_mats   !save matrices to file?
       logical molden, forceatguess
 
 c
@@ -2369,43 +2370,6 @@ c !!! BGJ
 c !!! BGJ
 c
 
-#if 0
-C---------------------------------------------------------------------------
-C     KAL
-C
-C     Dump matrices to file for later comparison.  Used in the real-time
-C     TDDFT code (with "matrix_checks" option) for checking purposes.
-C
-C     NOTE: place just before destroying g_focks in dft_scf.F
-C     
-      if (ipol .eq. 1) then
-         call zmat_compare_dump_purereal(g_focks(1), "fock_cs_gs")
-         call zmat_compare_dump_purereal(g_dens(1), "dens_cs_gs")
-
-         if (do_zora) then
-            call zmat_compare_dump_purereal(g_zora_sf(1),"zora_cs_sf")
-         endif
-
-      else
-         call zmat_compare_dump_purereal(g_focks(1), "fock_alpha_gs")
-         call zmat_compare_dump_purereal(g_dens(1), "dens_alpha_gs")
-
-         call zmat_compare_dump_purereal(g_focks(2), "fock_beta_gs")
-         call zmat_compare_dump_purereal(g_dens(2), "dens_beta_gs")
-
-         if (do_zora) then
-            call zmat_compare_dump_purereal(g_zora_sf(1),
-     $           "zora_alpha_sf")
-            call zmat_compare_dump_purereal(g_zora_sf(2),
-     $           "zora_beta_sf")
-         endif
-      endif
-C
-C     KAL
-C---------------------------------------------------------------------------
-#endif      
-
-      
 C
 C     Print out matrices to stdout (useful for development and debugging)
 C
@@ -2413,6 +2377,14 @@ C
      $     lprint_mats = .false.
       if (lprint_mats) call dft_print_mats (g_s, svals, g_svecs,
      $     nmo, g_dens, g_focks)
+
+      
+C
+C     Save select matrices to file
+C     
+      if (.not.rtdb_get(rtdb, 'dft:save_mats', mt_log, 1, lsave_mats))
+     $     lsave_mats = .false.
+      if (lsave_mats) call dft_save_mats (g_dens)
 
       
       if (.not. ga_destroy(g_tmp)) call errquit
