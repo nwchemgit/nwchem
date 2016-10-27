@@ -836,7 +836,6 @@ c     == better have static ldb at high node counts ==
 
       if(ldmix) then
         tdots=0.d0
-        write(6,*) ' #ll densm '
         call dft_densm(g_dens, g_movecs, 
      &       nbf_ao, nmo, ipol, 
      &       geom, AO_bas_han,noc,ntotel,
