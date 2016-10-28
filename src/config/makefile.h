@@ -2378,7 +2378,7 @@ ifeq ($(XLFBREN),y)
 	      -brename:.pdgetrs_,.pdgetrs 
 endif
 endif
-  CORE_LIBS += $(ELPA) $(SCALAPACK)
+  CORE_LIBS += $(ELPA) $(SCALAPACK) $(SCALAPACK_LIB)
 
 ifdef USE_64TO32
       CORE_LIBS +=  -l64to32
@@ -2389,9 +2389,13 @@ ifdef BLASOPT
 endif
 ifeq ($(LAPACK_LIB),)
       CORE_LIBS +=  -lnwclapack 
+else
+     CORE_LIBS += $(LAPACK_LIB)
 endif
 ifeq ($(BLAS_LIB),)
       CORE_LIBS +=  -lnwcblas 
+else
+     CORE_LIBS += $(BLAS_LIB)
 endif
 
 ifndef BLASOPT
