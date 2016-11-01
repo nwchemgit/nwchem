@@ -35,6 +35,13 @@ USES_BLAS =
 
 HEADERS =
 
+# This has to go before makefile.h
+#OPTIMIZE = 1
+
 include ../../config/makefile.h
+
+# This has to go after makefile.h
+#FOPTIMIZE += -qopt-streaming-stores=always
+
 include ../../config/makelib.h
 
