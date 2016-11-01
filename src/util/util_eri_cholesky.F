@@ -31,46 +31,75 @@ C> The algorithm to compute the decomposition was taken from [1].
 C> It can be summarized as:
 C>
 C> - A. Set \f$k = 0\f$
-C>
 C> - B. Compute the ERI diagonal
 C>   \f$D^0_{\nu\lambda,\nu\lambda} = (\nu\lambda|\nu\lambda)\f$
-C>
 C> - C. Choose compound index \f$\nu\lambda_k\f$ such that
 C>   \f$D^k_{\nu\lambda_k,\nu\lambda_k}\f$ is maximal
-C>
 C> - D. Do While (\f$\max\left(D^{k}_{\nu\lambda,\nu\lambda}\right) 
 C>   > \delta\f$)
-C>
 C>   - E. Compute all integrals \f$R^k_{\mu\rho,\nu\lambda_k} = 
 C>     (\mu,\rho|\nu\lambda_k)\f$
-C>
 C>   - F. Compute \f$R^k_{\mu\rho,\nu\lambda_k}
 C>     = R^k_{\mu\rho,\nu\lambda_k}
 C>     - \sum_{i=1}^{k-1}B_{\mu\rho}^i B_{\nu\lambda_k}^i\f$
-C>
 C>   - G. Compute Cholesky vector \f$B_{\mu\rho}^{k+1} = 
 C>     R^k_{\mu\rho,\nu\lambda_k} /
 C>     \sqrt{D^k_{\nu\lambda_k,\nu\lambda_k}}\f$
-C>
 C>   - H. \f$k=k+1\f$
-C>
 C>   - I. Compute \f$D^k_{\nu\lambda,\nu\lambda} = 
 C>     D^{k-1}_{\nu\lambda,\nu\lambda} -
 C>     B^k_{\nu\lambda}B^k_{\nu\lambda}\f$
-C>
 C>   - J. Choose compound index \f$\nu\lambda_k\f$ such that
 C>     \f$D^k_{\nu\lambda_k,\nu\lambda_k}\f$ is maximal
-C>
 C> - K. End Do
 C>
 C> This algorithm requires \f$D\f$ and \f$R\f$ as temporary variables.
 C> The most appropriate data distribution is to distribute the vectors.
 C> I.e. if we indicate the indeces being partitioned by square brackets
-C> then the distributions are \f$D_{[\nu\lambda],[\nu\lambda]}\f$,
-C> \f$R_{[\mu\rho],\nu\lambda_k}\f$ and we assume \f$B^k_{[\mu\rho]}\f$.
+C> then the distributions are \f$D_{[\nu][\lambda],[\nu][\lambda]}\f$,
+C> \f$R_{[\mu][\rho],\nu\lambda_k}\f$ and we assume 
+C> \f$B^k_{[\mu][\rho]}\f$.
+C>
+C> Clearly the algorithm involves 3 distributed data structures \f$B\f$,
+C> \f$D\f$, and \f$R\f$. All 3 data structures are stored in global
+C> arrays. These arrays have the following properties:
+C> - \f$B^k_{[\mu][\rho]}\f$:
+C>   - A 3-dimensional global array
+C>   - The 1st dimension runs over basis functions and is distributed
+C>     over processors
+C>   - The 2nd dimension runs over basis functions and is distributed
+C>     over processors
+C>   - The 3rd dimension runs over Cholesky vectors and is not 
+C>     distributed
+C> - \f$D_{[\mu][\rho],[\mu][\rho]}\f$:
+C>   - A 2-dimensional global array representing the diagonal of a
+C>     4-dimensional tensor
+C>   - The 1st dimension runs over basis functions and is distributed
+C>     over processors, and the distribution has to be the same as
+C>     the distribution of the 1st dimension of \f$B^k_{[\mu][\rho]}\f$.
+C>   - The 2nd dimension runs over basis functions and is distributed
+C>     over processors, and the distribution has to be the same as
+C>     the distribution of the 2nd dimension of \f$B^k_{[\mu][\rho]}\f$.
+C> - \f$R_{[\mu][\rho],\nu\lambda_k}\f$:
+C>   - A 2-dimensional global array representing \f$R\f$ of all
+C>     \f$\mu\f$ and \f$\rho\f$ for a single fixed value of the 
+C>     compound index \f$\nu\lambda_k\f$.
+C>   - The 1st dimension runs over basis functions and is distributed
+C>     over processors, and the distribution has to be the same as
+C>     the distribution of the 1st dimension of \f$B^k_{[\mu][\rho]}\f$.
+C>   - The 2nd dimension runs over basis functions and is distributed
+C>     over processors, and the distribution has to be the same as
+C>     the distribution of the 2nd dimension of \f$B^k_{[\mu][\rho]}\f$.
+C>
+C> Currently the algorithm does not explicitly ensure that the data
+C> distribution of \f$D\f$ and \f$R\f$ match the one of \f$B\f$. The
+C> algorithm only tests whether the distributions match and if they do
+C> not it aborts. Of course if needed the algorithm can be enhanced to
+C> take the data distribution of \f$B\f$ and use that in the creation of
+C> \f$D\f$ and \f$R\f$.
 C>
 C> Comment: NWChem evaluates the integrals in shell blocks. So depending
-C> one which \f$\nu\lambda_k\f$ is picked a multiple of the required
+C> on which \f$\nu\lambda_k\f$ is picked a multiple of the required
 C> number of integrals is calculated. E.g. if \f$\nu\f$ and 
 C> \f$\lambda\f$ are in p-shells then to evaluate the \f$\nu\lambda_k\f$
 C> integrals all 9 shell-pair components have to be evaluated.
@@ -80,7 +109,7 @@ C>
 C> ### References ###
 C>
 C> [1] E. Epifanovsky, D. Zuev, X. Feng, K. Khistyaev, Y. Shao,
-C>     A.I. Krylov, "General implementation of the 
+C>     A. I. Krylov, "General implementation of the 
 C>     resolution-of-the-identity and Cholesky representations of 
 C>     electron repulsion integral within coupled-cluster and
 C>     equation-of-motion methods: Theory and benchmarks",
