@@ -108,7 +108,11 @@
       integer counter
       integer tid 
 #include "nwpw_timing_common.fh"
+#ifdef USE_OPENMP
       tid = omp_get_thread_num()
+#else
+      tid = 0
+#endif
       call current_second(thr_nwpw_tim1(counter,tid+1))
       return
       end
@@ -120,8 +124,11 @@
 #include "nwpw_timing_common.fh"
       integer tid
 
-      
+#ifdef USE_OPENMP
       tid = omp_get_thread_num()
+#else
+      tid = 0
+#endif
       call current_second(thr_nwpw_tim2(counter,tid+1))
      
       thr_times(counter,tid+1) = thr_times(counter,tid+1) 
@@ -161,7 +168,11 @@
       integer counter,tid,nthr,used_threads,id
 
       used_threads = 0
+#ifdef USE_OPENMP
       nthr = omp_get_max_threads()
+#else
+      nthr = 1
+#endif
       time = 0
       do tid=1,nthr
         if (thr_times(id,tid)>1.0d-9) then
@@ -188,7 +199,11 @@
       real*8 time,ttime
       integer counter,tid,nthr,id
 
+#ifdef USE_OPENMP
       nthr = omp_get_max_threads()
+#else
+      nthr = 1
+#endif
       time = 0
       do tid=1,nthr
         if (thr_times(id,tid)>1.0d-9) then
