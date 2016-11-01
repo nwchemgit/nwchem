@@ -540,7 +540,7 @@ c         eki1=0.5d0*eki1
       common / ION2/ geom
 
 *     **** local variables ****
-      integer k,kp,l
+      integer k,kp,l,ccode
       character*2  symbol
       character*4  symbol_out
       character*16 t,name
@@ -549,6 +549,9 @@ c         eki1=0.5d0*eki1
 *     **** external functions ****
       logical  parseqmmm
       external parseqmmm
+      integer  control_code
+      external control_code
+      ccode=control_code()
 
       if (.not. beom_cent_tag(geom,i,t))
      >        call errquit(' ion_aname  failed ',i, GEOM_ERR)
@@ -556,8 +559,13 @@ c         eki1=0.5d0*eki1
       if (.not. beom_tag_to_element(t,symbol,name,q))
      >        call errquit(' ion_aname  failed ',i, GEOM_ERR)
 
-      symbol_out = '    '
-      symbol_out(1:2) = symbol
+      if (ccode.eq.12) then
+         symbol_out = '    '
+         symbol_out = t(1:4)
+      else
+         symbol_out = '    '
+         symbol_out(1:2) = symbol
+      end if
       if (parseqmmm(t)) then
 
 *        *** add carat tag ***
