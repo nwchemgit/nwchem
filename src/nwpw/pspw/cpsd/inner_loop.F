@@ -14,7 +14,9 @@
 *  *    + error checking is based on aimd.h parameters        *
 *  *      then control file                                   *
 *  ************************************************************
+#ifdef USE_OPENMP
 #define PSI_OMP
+#endif
 
   
       subroutine inner_loop(ispin,ne,
