@@ -707,11 +707,21 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 #include "errquit.fh"
 #include "ewald.fh"
 
+
+*     **** Error function parameters ****
+      logical fast_erf
+      real*8 xerf,yerf,yerfc
+      real*8 c1,c2,c3,c4,c5,c6
+      parameter (c1=0.07052307840d0,c2=0.04228201230d0)
+      parameter (c3=0.00927052720d0)
+      parameter (c4=0.00015201430d0,c5=0.00027656720d0)
+      parameter (c6=0.00004306380d0)
+
+
 *     **** local variables ****
       integer dutask
       integer i,j,ii,l,nion
       real*8  w,dx,dy,dz,x,y,z,r,zz
-      real*8  yerfc
       real*8  energy,etmp,energyG,ttcr,ttci,zii
       complex*16 ttcz
 *     **** temporary workspace variables ****
@@ -725,10 +735,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       external ion_nion,ion_katm
       external lattice_omega,ewald_zv,dsum,ion_rion,util_erfc
       external ddot
+      logical  control_fast_erf
+      external control_fast_erf
 
       call nwpw_timing_start(21)
 
 *     **** allocate temp workspace ****
+      fast_erf = control_fast_erf()
       nion = ion_nion()
       
       if (notzero_enpack) then
@@ -774,7 +787,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
            y = dbl_mb(rcell(1)+(l-1)+nshl3d)   + dy
            z = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
            r = dsqrt(x*x+y*y+z*z)
-           if (r.gt.1.0d-6) then
+           if ((r.gt.1.0d-6).and.(fast_erf)) then
+              xerf=r/rcut
+              yerf = (1.0d0
+     >              + xerf*(c1 + xerf*(c2
+     >              + xerf*(c3 + xerf*(c4
+     >              + xerf*(c5 + xerf*c6))))))**4
+              !yerfc = (1.0d0 - 1.0d0/yerf**4)
+              yerfc = 1.0d0/yerf**4
+              etmp=etmp+(zz*yerfc/r)
+           else if (r.gt.1.0d-6) then
               w = (r/rcut)
               yerfc = util_erfc(w)  !*** needs to be faster
               etmp=etmp+(zz*yerfc/r)
@@ -821,12 +843,19 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 cerfc
       parameter (cerfc=1.128379167d0)
 
+*     **** Error function parameters ****
+      logical fast_erf
+      real*8 xerf,yerf,yerfc
+      real*8 c1,c2,c3,c4,c5,c6
+      parameter (c1=0.07052307840d0,c2=0.04228201230d0)
+      parameter (c3=0.00927052720d0)
+      parameter (c4=0.00015201430d0,c5=0.00027656720d0)
+      parameter (c6=0.00004306380d0)
 
 *     **** local variables ****
       integer dutask
       integer i,j,l,ii
       real*8  w,dx,dy,dz,x,y,z,r,zz
-      real*8  yerfc
       real*8  sum,scal2,f
       real*8  sw1,sw2,sw3,zii
       common /ewald_f_sw1sw2/ sw1,sw2,sw3
@@ -842,9 +871,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       external ion_nion,ion_katm,ewald_nshl3d
       real*8   lattice_omega,ewald_zv,dsum,ion_rion,util_erfc,ddot
       external lattice_omega,ewald_zv,dsum,ion_rion,util_erfc,ddot
+      logical  control_fast_erf
+      external control_fast_erf
 
       call nwpw_timing_start(21)
       nion = ion_nion()
+      fast_erf = control_fast_erf()
+
 
 *     **** allocate temp workspace ****
       value = .true.
@@ -930,7 +963,20 @@ c         end do
            y = dbl_mb(rcell(1)+(l-1)+  nshl3d) + dy
            z = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
            r = dsqrt(x*x+y*y+z*z)
-           if (r.gt.1.0d-6) then
+           if ((r.gt.1.0d-6).and.(fast_erf)) then
+              w = r/rcut
+              xerf=w
+              yerf = (1.0d0
+     >              + xerf*(c1 + xerf*(c2
+     >              + xerf*(c3 + xerf*(c4
+     >              + xerf*(c5 + xerf*c6))))))**4
+              !yerf = (1.0d0 - 1.0d0/yerf**4)
+              yerfc = 1.0d0/yerf**4
+              f = zz*(yerfc+cerfc*w*dexp(-w*w))/r**3
+              sw1=sw1+(x*f)
+              sw2=sw2+(y*f)
+              sw3=sw3+(z*f)
+           else if (r.gt.1.0d-6) then
               w = r/rcut
               yerfc = util_erfc(w)
               f = zz*(yerfc+cerfc*w*dexp(-w*w))/r**3
