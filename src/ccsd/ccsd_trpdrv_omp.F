@@ -15,7 +15,7 @@
 !
       integer ncor,nocc,nvir
       double precision t1(*)
-! TODO: f[1234][nt] should be allocated on the heap and with fastmem on KNL
+! FYI: f[1234][nt] parent routine allocates these on the heap (+fastmem)
       double precision f1n(nvir,nvir),f1t(nvir,nvir)
       double precision f2n(nvir,nvir),f2t(nvir,nvir)
       double precision f3n(nvir,nvir),f3t(nvir,nvir)
@@ -31,10 +31,9 @@
 ! used to make inline threaded tengy correct - for now
 ! TODO: allocate these on the heap and with fastmem on KNL
 #ifdef USE_F90_ALLOCATABLE
-      double precision, allocatable :: dintc1(:),dintx1(:)
-      double precision, allocatable :: dintc2(:),dintx2(:)
-      double precision, allocatable :: t1v1(:)
-      double precision, allocatable :: t1v2(:)
+      double precision, allocatable :: dintc1(:),dintc2(:)
+      double precision, allocatable :: dintx1(:),dintx2(:)
+      double precision, allocatable :: t1v1(:),t1v2(:)
 #ifdef USE_FASTMEM
 !dec$ attributes fastmem :: dintc1,dintc2,dintx1,dintx2,t1v1,t1v2
 #endif
