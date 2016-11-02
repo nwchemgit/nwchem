@@ -8,6 +8,7 @@
 !     $Id$
       implicit none
 !
+#include "errquit.fh"
 #include "global.fh"
 #include "ccsd_len.fh"
 #include "ccsdps.fh"
@@ -29,8 +30,19 @@
       double precision Dja(*), Djka(*), Djia(*)
 ! used to make inline threaded tengy correct - for now
 ! TODO: allocate these on the heap and with fastmem on KNL
-      double precision dintc1(nvir),dintx1(nvir),t1v1(nvir)
-      double precision dintc2(nvir),dintx2(nvir),t1v2(nvir)
+#ifdef USE_F90_ALLOCATABLE
+      double precision, allocatable :: dintc1(:),dintx1(:)
+      double precision, allocatable :: dintc2(:),dintx2(:)
+      double precision, allocatable :: t1v1(:)
+      double precision, allocatable :: t1v2(:)
+#ifdef USE_FASTMEM
+!dec$ attributes fastmem :: dintc1,dintc2,dintx1,dintx2,t1v1,t1v2
+#endif
+      integer :: alloc_error
+#else
+      double precision :: dintc1(nvir),dintx1(nvir),t1v1(nvir)
+      double precision :: dintc2(nvir),dintx2(nvir),t1v2(nvir)
+#endif
 !
       double precision emp4,emp5,denom
       double precision emp4i,emp5i,emp4k,emp5k
@@ -92,6 +104,21 @@
 #else
       if (ga_nodeid().eq.0) write(6,99)
    99 format(2x,'Recompile w/ USE_OPENMP=1 to use threads in CCSD(T)')
+#endif
+
+#ifdef USE_F90_ALLOCATABLE
+      allocate( dintc1(1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('dintc1',1,MA_ERR)
+      allocate( dintx1(1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('dintx1',2,MA_ERR)
+      allocate( t1v1(1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('t1v1',3,MA_ERR)
+      allocate( dintc2(1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('dintc2',4,MA_ERR)
+      allocate( dintx2(1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('dintx2',5,MA_ERR)
+      allocate( t1v2(1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('t1v2',6,MA_ERR)
 #endif
 !
       nodes = ga_nnodes()
@@ -375,5 +402,20 @@
       else
          call qexit('trpdrv',0)
       endif
+!
+#ifdef USE_F90_ALLOCATABLE
+      deallocate( dintc1, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('dintc1',11,MA_ERR)
+      deallocate( dintx1, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('dintx1',12,MA_ERR)
+      deallocate( t1v1, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('t1v1',13,MA_ERR)
+      deallocate( dintc2, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('dintc2',14,MA_ERR)
+      deallocate( dintx2, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('dintx2',15,MA_ERR)
+      deallocate( t1v2, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('t1v2',16,MA_ERR)
+#endif
 !
       end
