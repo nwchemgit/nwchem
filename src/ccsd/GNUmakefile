@@ -98,4 +98,3 @@ endif
 
 include ../config/makelib.h
 
- #FOPTIMIZE=
