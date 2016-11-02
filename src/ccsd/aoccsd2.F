@@ -42,10 +42,20 @@ c ccsd
       integer ad1,ad2,ad3,ad4
 c triples
       integer lbfo,lbfv,mem_avail
+#ifdef USE_F90_ALLOCATABLE
+      double precision, allocatable :: f1n(:,:),f1t(:,:)
+      double precision, allocatable :: f2n(:,:),f2t(:,:)
+      double precision, allocatable :: f3n(:,:),f3t(:,:)
+      double precision, allocatable :: f4n(:,:),f4t(:,:)
+#ifdef USE_FASTMEM
+!dec$ attributes fastmem :: f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t
+#endif
+      integer :: alloc_error
+#else
       integer l_f1n,l_f1t,l_f2n,l_f2t,l_f3n,l_f3t,l_f4n,l_f4t,
-     &        l_buf1,l_buf2,l_tk
       integer k_f1n,k_f1t,k_f2n,k_f2t,k_f3n,k_f3t,k_f4n,k_f4t,
-     &        k_buf1,k_buf2,k_tk
+#endif
+      integer l_buf1,l_buf2,l_tk,k_buf1,k_buf2,k_tk
       integer g_objo
       integer vchunk,noper,occ_lo,vir_lo,vir_hi,oseg_lo,oseg_hi,
      &        nvpass
@@ -741,6 +751,24 @@ c        print *,'call trpdrv ',nvpass
 *            call util_flush(luout)
 *          endif
 
+#ifdef USE_F90_ALLOCATABLE
+         allocate( f1n(1:nvir,1:nvir), stat=alloc_error)
+         if (alloc_error.ne.0) call errquit('f1n',1,MA_ERR)
+         allocate( f2n(1:nvir,1:nvir), stat=alloc_error)
+         if (alloc_error.ne.0) call errquit('f2n',2,MA_ERR)
+         allocate( f3n(1:nvir,1:nvir), stat=alloc_error)
+         if (alloc_error.ne.0) call errquit('f3n',3,MA_ERR)
+         allocate( f4n(1:nvir,1:nvir), stat=alloc_error)
+         if (alloc_error.ne.0) call errquit('f4n',4,MA_ERR)
+         allocate( f1t(1:nvir,1:nvir), stat=alloc_error)
+         if (alloc_error.ne.0) call errquit('f1t',5,MA_ERR)
+         allocate( f2t(1:nvir,1:nvir), stat=alloc_error)
+         if (alloc_error.ne.0) call errquit('f2t',6,MA_ERR)
+         allocate( f3t(1:nvir,1:nvir), stat=alloc_error)
+         if (alloc_error.ne.0) call errquit('f3t',7,MA_ERR)
+         allocate( f4t(1:nvir,1:nvir), stat=alloc_error)
+         if (alloc_error.ne.0) call errquit('f4t',8,MA_ERR)
+#else
          if (.not. ma_push_get(MT_DBL,lnvv,'f1n',l_f1n,k_f1n))
      $        call errquit('aoccsd2:triples f1n',lnvv, MA_ERR)
          if (.not. ma_push_get(MT_DBL,lnvv,'f1t',l_f1t,k_f1t))
@@ -757,6 +785,7 @@ c        print *,'call trpdrv ',nvpass
      $        call errquit('aoccsd2:triples f4n',lnvv, MA_ERR)
          if (.not. ma_push_get(MT_DBL,lnvv,'f4t',l_f4t,k_f4t))
      $        call errquit('aoccsd2:triples f4t',lnvv, MA_ERR)
+#endif
 c
       if (.not. ma_push_get(MT_DBL, lnvv,'k_trp_Tij',
      $        l_trp_Tij,k_trp_Tij))
@@ -828,11 +857,14 @@ c
             call util_flush(luout)
          endif
  1847    format(' commencing triples evaluation - non-blocking',i8)
-         call ccsd_trpdrv_nb(dbl_mb(k_t1),dbl_mb(k_f1n),
-     $        dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
-     $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),
-     $        dbl_mb(k_f4t),eorb,g_objo,g_objv,
-     $        g_coul,g_exch,ncor,nocc,nvir,iprt,
+         call ccsd_trpdrv_nb(dbl_mb(k_t1),
+#ifdef USE_F90_ALLOCATABLE
+     $        f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
+#else
+     $        dbl_mb(k_f1n),dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
+     $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),dbl_mb(k_f4t),
+#endif
+     $        eorb,g_objo,g_objv,g_coul,g_exch,ncor,nocc,nvir,iprt,
      $        empt(1),empt(2),oseg_lo,oseg_hi,kchunk,
      $        dbl_mb(k_trp_Tij), dbl_mb(k_trp_Tkj), dbl_mb(k_trp_Tia),
      $        dbl_mb(k_trp_Tka), dbl_mb(k_trp_Xia), dbl_mb(k_trp_Xka),
@@ -848,12 +880,14 @@ c
             call util_flush(luout)
          endif
  1848    format(' commencing triples evaluation - OpenMP version',i8)
-         call ccsd_trpdrv_omp(dbl_mb(k_t1),dbl_mb(k_f1n),
-     $        dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
-     $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),
-     $        dbl_mb(k_f4t),eorb,
-     $        g_objo,g_objv,g_coul,g_exch,
-     $        ncor,nocc,nvir,
+         call ccsd_trpdrv_omp(dbl_mb(k_t1),
+#ifdef USE_F90_ALLOCATABLE
+     $        f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
+#else
+     $        dbl_mb(k_f1n),dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
+     $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),dbl_mb(k_f4t),
+#endif
+     $        eorb,g_objo,g_objv,g_coul,g_exch,ncor,nocc,nvir,iprt,
      $        empt(1),empt(2),oseg_lo,oseg_hi,kchunk,
      $        dbl_mb(k_trp_Tij), dbl_mb(k_trp_Tkj), dbl_mb(k_trp_Tia),
      $        dbl_mb(k_trp_Tka), dbl_mb(k_trp_Xia), dbl_mb(k_trp_Xka),
@@ -870,12 +904,14 @@ c
             call util_flush(luout)
          endif
  1848    format(' commencing triples evaluation - offload version',i8)
-         call ccsd_trpdrv_offload(dbl_mb(k_t1),dbl_mb(k_f1n),
-     $        dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
-     $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),
-     $        dbl_mb(k_f4t),eorb,
-     $        g_objo,g_objv,g_coul,g_exch,
-     $        ncor,nocc,nvir,
+         call ccsd_trpdrv_offload(dbl_mb(k_t1),
+#ifdef USE_F90_ALLOCATABLE
+     $        f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
+#else
+     $        dbl_mb(k_f1n),dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
+     $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),dbl_mb(k_f4t),
+#endif
+     $        eorb,g_objo,g_objv,g_coul,g_exch,ncor,nocc,nvir,iprt,
      $        empt(1),empt(2),oseg_lo,oseg_hi,kchunk,
      $        dbl_mb(k_trp_Tij), dbl_mb(k_trp_Tkj), dbl_mb(k_trp_Tia),
      $        dbl_mb(k_trp_Tka), dbl_mb(k_trp_Xia), dbl_mb(k_trp_Xka),
@@ -893,11 +929,14 @@ c
             call util_flush(luout)
          endif
  1849    format(' commencing triples evaluation - Blue Gene v2',i8)
-         call ccsd_trpdrv_bgp2(dbl_mb(k_t1),dbl_mb(k_f1n),
-     $        dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
-     $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),
-     $        dbl_mb(k_f4t),eorb,g_objo,g_objv,
-     $        g_coul,g_exch,ncor,nocc,nvir,iprt,
+         call ccsd_trpdrv_bgp2(dbl_mb(k_t1),
+#ifdef USE_F90_ALLOCATABLE
+     $        f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
+#else
+     $        dbl_mb(k_f1n),dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
+     $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),dbl_mb(k_f4t),
+#endif
+     $        eorb,g_objo,g_objv,g_coul,g_exch,ncor,nocc,nvir,iprt,
      $        empt(1),empt(2),oseg_lo,oseg_hi,kchunk,
      $        dbl_mb(k_trp_Tij), dbl_mb(k_trp_Tkj), dbl_mb(k_trp_Tia),
      $        dbl_mb(k_trp_Tka), dbl_mb(k_trp_Xia), dbl_mb(k_trp_Xka),
@@ -914,11 +953,14 @@ c
             call util_flush(luout)
          endif
  1846    format(' commencing triples evaluation - blocking',i8)
-         call ccsd_trpdrv(dbl_mb(k_t1),dbl_mb(k_f1n),
-     $        dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
-     $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),
-     $        dbl_mb(k_f4t),eorb,g_objo,g_objv,
-     $        g_coul,g_exch,ncor,nocc,nvir,iprt,
+         call ccsd_trpdrv(dbl_mb(k_t1),
+#ifdef USE_F90_ALLOCATABLE
+     $        f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
+#else
+     $        dbl_mb(k_f1n),dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
+     $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),dbl_mb(k_f4t),
+#endif
+     $        eorb,g_objo,g_objv,g_coul,g_exch,ncor,nocc,nvir,iprt,
      $        empt(1),empt(2),oseg_lo,oseg_hi,kchunk,
      $        dbl_mb(k_trp_Tij), dbl_mb(k_trp_Tkj), dbl_mb(k_trp_Tia), 
      $        dbl_mb(k_trp_Tka), dbl_mb(k_trp_Xia), dbl_mb(k_trp_Xka), 
@@ -931,8 +973,29 @@ c
 c
          tx(3)=tcgtime()
 
+#ifdef USE_F90_ALLOCATABLE
+         deallocate( f1n, stat=alloc_error)
+         if (alloc_error.ne.0) call errquit('f1n',11,MA_ERR)
+         deallocate( f2n, stat=alloc_error)
+         if (alloc_error.ne.0) call errquit('f2n',12,MA_ERR)
+         deallocate( f3n, stat=alloc_error)
+         if (alloc_error.ne.0) call errquit('f3n',13,MA_ERR)
+         deallocate( f4n, stat=alloc_error)
+         if (alloc_error.ne.0) call errquit('f4n',14,MA_ERR)
+         deallocate( f1t, stat=alloc_error)
+         if (alloc_error.ne.0) call errquit('f1t',15,MA_ERR)
+         deallocate( f2t, stat=alloc_error)
+         if (alloc_error.ne.0) call errquit('f2t',16,MA_ERR)
+         deallocate( f3t, stat=alloc_error)
+         if (alloc_error.ne.0) call errquit('f3t',17,MA_ERR)
+         deallocate( f4t, stat=alloc_error)
+         if (alloc_error.ne.0) call errquit('f4t',18,MA_ERR)
+         if (.not. ma_chop_stack(l_trp_Tij)) call errquit
+     $        ('ccsd triples: stack corrupt (trp_Tij)',0, MA_ERR)
+#else
          if (.not. ma_chop_stack(l_f1n)) call errquit
      $        ('ccsd triples: stack corrupt (f1n)',0, MA_ERR)
+#endif
 
          if (iam.eq.0.and.oprint)then
             write(luout,'(1x,a,i5,f9.2)')

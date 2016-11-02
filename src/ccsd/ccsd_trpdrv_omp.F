@@ -1,7 +1,7 @@
       subroutine ccsd_trpdrv_omp(t1,
      &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,
      &     g_objo,g_objv,g_coul,g_exch,
-     &     ncor,nocc,nvir,emp4,emp5,
+     &     ncor,nocc,nvir,iprt,emp4,emp5,
      &     oseg_lo,oseg_hi,
      &     kchunk, Tij, Tkj, Tia, Tka, Xia, Xka, Jia, Jka, Kia, Kka,
      &     Jij, Jkj, Kij, Kkj, Dja, Djka, Djia)
@@ -35,6 +35,7 @@
       double precision emp4,emp5,denom
       double precision emp4i,emp5i,emp4k,emp5k
       double precision eaijk
+      integer iprt
       integer g_objo,g_objv,g_coul,g_exch
       integer inode,next,nodes,iam
       integer oseg_lo,oseg_hi
@@ -347,10 +348,10 @@
                          end if ! (i.ne.k)
                      end do    ! k
                   end do       ! i
-!                  if (iprt.gt.50)then
-!                     write(6,1234)iam,a,j,emp4,emp5
-! 1234                format(' iam aijk',3i5,2e15.5)
-!                  end if
+                  if (iprt.gt.50)then
+                     write(6,1234)iam,a,j,emp4,emp5
+ 1234                format(' iam aijk',3i5,2e15.5)
+                  end if
                   next=nxtask(nodes, 1)
                end if
             end do

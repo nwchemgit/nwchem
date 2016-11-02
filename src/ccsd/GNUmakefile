@@ -19,7 +19,6 @@ include ../config/makefile.h
         ccsd_pampt2.o \
         ccsd_pampt3.o \
 		ccsd_tengy.o \
-		ccsd_tengy_bgp.o \
         ccsd_trpdrv.o \
         ccsd_trpdrv_nb.o \
         ccsd_trpdrv_omp.o \
@@ -84,7 +83,7 @@ endif
      moints_trp.F
 
 ifeq ($(TARGET),BGP)
-  OBJ_OPTIMIZE += ccsd_trpdrv_bgp2.o ccsd_tengy_bgp2.o
+  OBJ_OPTIMIZE += ccsd_trpdrv_bgp2.o ccsd_tengy_bgp2.o ccsd_tengy_bgp.o
   USES_BLAS += ccsd_trpdrv_bgp2.F
   LIB_DEFINES += -DBGP
 endif
