@@ -1353,10 +1353,10 @@ c     >           sum,ne)
 *     *                                 *
 *     ***********************************
 
-      subroutine Pack_cc_indot_thread(nb,ne,A,B,sumt)
+      subroutine Pack_cc_indot_thread(nb,ne,nprj,A,B,sumt)
       implicit none
       integer    nb
-      integer    ne
+      integer    ne,nprj
       complex*16 A(*)
       complex*16 B(*)
       real*8     sumt(*)
@@ -1368,9 +1368,9 @@ c     >           sum,ne)
       common / pack_blk / pack,nida,nidb
 
 *     **** local variables ****
-      integer n,np,tid,nthr
+      integer i,j,m,n,np,tid,nthr
 c     integer npack, shift
-      integer npack1,shift,r,Itid,Mtid
+      integer npack1,shift,shift2,r,Itid,Mtid
 
 *     **** external functions ****
       real*8   ddot
@@ -1393,7 +1393,7 @@ c     integer npack, shift
           Mtid = npack1/nthr
       end if
 
-      call DGEMM('T','N',ne,1,(2*Mtid),
+      call DGEMM('T','N',ne,nprj,(2*Mtid),
      >           (2.0d0),
      >           A(Itid),2*npack1,
      >           B(Itid),2*npack1,
@@ -1401,9 +1401,12 @@ c     integer npack, shift
      >           sumt,ne)
 
 !$OMP DO
-      do n=1,ne
-         shift = (n-1)*npack1
-         sumt(n) = sumt(n) - ddot(2*nida(nb),A(1+shift),1,B,1)
+      do n=1,ne*nprj
+         i = mod(n-1,ne)
+         j = (n-1-i)/ne
+         shift  = i*npack1
+         shift2 = j*npack1
+         sumt(n) = sumt(n) - ddot(2*nida(nb),A(1+shift),1,B(1+shift2),1)
       end do
 !$OMP END DO
 
