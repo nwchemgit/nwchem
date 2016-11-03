@@ -399,6 +399,12 @@ c     **** external functions ****
          call nwpw_timing_print(
      >                 '  non-local psp FMF          : ',
      >                 nwpw_timing(57),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  non-local psp FFM A        : ',
+     >                 nwpw_timing(58),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  non-local psp FFM B        : ',
+     >                 nwpw_timing(59),counter,ttime)
 
       end if
 
