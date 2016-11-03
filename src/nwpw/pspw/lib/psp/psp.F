@@ -2619,7 +2619,7 @@ c           end do
 *     *** local variables ***
       integer pcount,taskid_j,np_j
       integer G(3),npack0,npack1,nion,nu,mult_l,m,ms,lm
-      integer i,j,ii,ia,l,n,nn,l1,ip,iip,iipmax,jp,swstart
+      integer i,j,ii,ia,l,n,nn,l1,ip,iip,iipmax,jp,swstart,jpl
       integer k,shift,l_prj,m_prj,nproj,Gijl_indx
       integer nx,ny,nz
       real*8  omega,scal,ff(3),scal1,dv
@@ -2692,7 +2692,6 @@ c           end do
 
 
       call nwpw_timing_start(56) 
-      call nwpw_timing_start(58) 
       jp = 0
       do ip=1,nion_prj_indx
          ii          = int_mb(ii_prj_indx(1)+ip-1)
@@ -2702,6 +2701,8 @@ c           end do
 *        **** structure factor and local pseudopotential ****
          call strfac_pack(1,ii,dcpl_mb(exi(1)))
 
+         jpl = jp
+         call nwpw_timing_start(58) 
          do l=1,nproj
             shift       = int_mb(shift_prj_indx(1)+jp)
             sd_function = log_mb(sd_function_prj_indx(1)+jp)
@@ -2718,27 +2719,32 @@ c           end do
             if (sd_function) then
                call Pack_tc_Mul(1,dbl_mb(shift),
      >                            dcpl_mb(exi(1)),
-     >                            dcpl_mb(prjtmp(1)))
+     >                            dcpl_mb(prjtmp(1)+(l-1)*npack1))
 
 *           *** current function is p or f ****
             else
                call Pack_tc_iMul(1,dbl_mb(shift),
      >                            dcpl_mb(exi(1)),
-     >                            dcpl_mb(prjtmp(1)))
+     >                            dcpl_mb(prjtmp(1)+(l-1)*npack1))
 
             end if
 c            call Pack_cc_indot(1,nn,
 c     >                       psi1,
 c     >                       dcpl_mb(prjtmp(1)),
 c     >                       dbl_mb(sw1a(1)+(jp-1)*nn))
-            call Pack_cc_indot_thread(1,nn,
+c            call Pack_cc_indot_thread(1,nn,
+c     >                   psi1,
+c     >                   dcpl_mb(prjtmp(1)),
+c     >                   dbl_mb(sw1t(1)+(jp-1)*nn+tid*nn*n_prj_indx))
+         end do
+         call nwpw_timing_end(58) 
+         call nwpw_timing_start(59) 
+         call Pack_cc_indot_thread(1,nn,nproj,
      >                   psi1,
      >                   dcpl_mb(prjtmp(1)),
-     >                   dbl_mb(sw1t(1)+(jp-1)*nn+tid*nn*n_prj_indx))
-         end do
+     >                   dbl_mb(sw1t(1)+jpl*nn+tid*nn*n_prj_indx))
+         call nwpw_timing_end(59) 
       end do
-      call nwpw_timing_end(58) 
-      call nwpw_timing_start(59) 
 !$OMP SINGLE
       call dcopy(nn*n_prj_indx,0.0d0,0,dbl_mb(sw1a(1)),1)
 !$OMP END SINGLE
@@ -2748,7 +2754,6 @@ c     >                       dbl_mb(sw1a(1)+(jp-1)*nn))
      >           dbl_mb(sw1a(1)),1)
 !$OMP END CRITICAL
       call D3dB_Vector_SumAll(nn*n_prj_indx,dbl_mb(sw1a(1)))
-      call nwpw_timing_end(59) 
       call nwpw_timing_end(56) 
 
 
