@@ -667,6 +667,13 @@ c     value = value.and.BA_free_heap(vnlnrm(2))
 
 *     **** local variables ****
       logical ok
+      integer nthr,nthr0
+      integer  Parallel_maxthreads,Parallel_nthreads
+      external Parallel_maxthreads,Parallel_nthreads
+
+      nthr  = Parallel_maxthreads()
+      nthr0 = Parallel_nthreads()
+      if (nthr0.gt.nthr) nthr = nthr0
 
       if (swaset.and.(nn.gt.swann)) then
          ok =        BA_free_heap(sw1a(2))
@@ -684,6 +691,9 @@ c     value = value.and.BA_free_heap(vnlnrm(2))
          ok = BA_alloc_get(mt_dbl,nn*n_prj_indx,'sw1a',sw1a(2),sw1a(1))
          ok = ok.and.
      >        BA_alloc_get(mt_dbl,nn*n_prj_indx,'sw2a',sw2a(2),sw2a(1))
+         ok = ok.and.
+     >        BA_alloc_get(mt_dbl,nthr*nn*n_prj_indx,
+     >                     'sw1t',sw1t(2),sw1t(1))
          if (.not.ok)
      >     call errquit('psp_prj_indx_alloc_sw1a_sw2a: out of memory',
      >                  0,MA_ERR)
@@ -725,6 +735,7 @@ c     value = value.and.BA_free_heap(vnlnrm(2))
       if (swaset) then
          value = value.and.BA_free_heap(sw1a(2))
          value = value.and.BA_free_heap(sw2a(2))
+         value = value.and.BA_free_heap(sw1t(2))
       end if
       if (.not.value)
      >  call errquit('psp_prj_indx_end:error freeing heap',0,MA_ERR)
@@ -2618,7 +2629,7 @@ c           end do
       integer vcmp(2),vcmp_smooth(2)
       logical value,sd_function,periodic
       real*8 vmm(50),eh_atom
-      integer ld_ptr
+      integer ld_ptr,r,tid,nthr,Mtid,Itid
 
 *     **** external functions ****
       logical  is_sORd
@@ -2633,6 +2644,8 @@ c           end do
       external nwpw_compcharge_mult_l,control_version
       real*8   nwpw_compcharge_Qlm
       external nwpw_compcharge_Qlm
+      integer  Parallel_nthreads,Parallel_threadid
+      external Parallel_nthreads,Parallel_threadid
 
       call nwpw_timing_start(6) 
 
@@ -2640,10 +2653,22 @@ c           end do
       call Parallel2d_taskid_j(taskid_j)
       call Parallel2d_np_j(np_j)
 
+      call Pack_npack(1,npack1)
+      nthr = Parallel_nthreads()
+      tid  = Parallel_threadid()
+      r    = mod(npack1,nthr)
+      if (tid.lt.r) then
+         Itid = tid*(npack1/nthr+1) + 1
+         Mtid = npack1/nthr + 1
+      else
+          Itid = r + tid*(npack1/nthr) + 1
+          Mtid = npack1/nthr
+      end if
+
+
 *     **** allocate local memory ****
       nion = ion_nion()
       nn = ne(1)+ne(2)
-      call Pack_npack(1,npack1)
 
       call psp_prj_indx_alloc_sw1a_sw2a(nn)
       value = BA_push_get(mt_dcpl,npack1,'exi',exi(2), exi(1))
@@ -2666,6 +2691,8 @@ c           end do
       scal = 1.0d0/(omega)
 
 
+      call nwpw_timing_start(56) 
+      call nwpw_timing_start(58) 
       jp = 0
       do ip=1,nion_prj_indx
          ii          = int_mb(ii_prj_indx(1)+ip-1)
@@ -2700,13 +2727,29 @@ c           end do
      >                            dcpl_mb(prjtmp(1)))
 
             end if
-            call Pack_cc_indot(1,nn,
-     >                       psi1,
-     >                       dcpl_mb(prjtmp(1)),
-     >                       dbl_mb(sw1a(1)+(jp-1)*nn))
+c            call Pack_cc_indot(1,nn,
+c     >                       psi1,
+c     >                       dcpl_mb(prjtmp(1)),
+c     >                       dbl_mb(sw1a(1)+(jp-1)*nn))
+            call Pack_cc_indot_thread(1,nn,
+     >                   psi1,
+     >                   dcpl_mb(prjtmp(1)),
+     >                   dbl_mb(sw1t(1)+(jp-1)*nn+tid*nn*n_prj_indx))
          end do
       end do
+      call nwpw_timing_end(58) 
+      call nwpw_timing_start(59) 
+!$OMP SINGLE
+      call dcopy(nn*n_prj_indx,0.0d0,0,dbl_mb(sw1a(1)),1)
+!$OMP END SINGLE
+!$OMP CRITICAL
+      call daxpy(nn*n_prj_indx,1.0d0,
+     >           dbl_mb(sw1t(1)+tid*nn*n_prj_indx),1,
+     >           dbl_mb(sw1a(1)),1)
+!$OMP END CRITICAL
       call D3dB_Vector_SumAll(nn*n_prj_indx,dbl_mb(sw1a(1)))
+      call nwpw_timing_end(59) 
+      call nwpw_timing_end(56) 
 
 
 *     **** Compute sw2  ****
@@ -2824,8 +2867,8 @@ c           end do
 
 *              ***** scale (sw2a) psp by factor - used for generating antiferromagnetic structures ****
 *              **** nwchem input: pspspin up/down scale l ion_numbers                              ****
-!$OMP MASTER
                if (pspspin) then
+!$OMP MASTER
                if (log_mb(pspspin_upions(1)+ii-1).and.
      >            (l_prj.eq.int_mb(pspspin_upl(1)+ii-1)) .and.
      >           ((m_prj.ne.int_mb(pspspin_upm(1)+ii-1)).or.
@@ -2838,21 +2881,28 @@ c           end do
      >            (int_mb(pspspin_downm(1)+ii-1).gt.999)))
      >            call dscal(ne(2),dbl_mb(pspspin_downscale(1)+ii-1),
      >                       dbl_mb(sw2a(1)+(swstart+l1)*nn+ne(1)),1)
-               end if
 !$OMP END MASTER
 !$OMP BARRIER
+               end if
 
                l1 = l1 + 1
             end do
          end do
 
-         call DGEMM_OMP('N','T',2*npack1,nn,l1,
+      call nwpw_timing_start(57) 
+c         call DGEMM_OMP('N','T',2*npack1,nn,l1,
+c     >             (-1.0d0),
+c     >             dcpl_mb(prjtmp(1)), 2*npack1,
+c     >             dbl_mb(sw2a(1)+swstart*nn),   nn,
+c     >             (1.0d0),
+c     >             psi2,               2*npack1)
+         call DGEMM('N','T',2*Mtid,nn,l1,
      >             (-1.0d0),
-     >             dcpl_mb(prjtmp(1)), 2*npack1,
+     >             dcpl_mb(prjtmp(1)+Itid-1), 2*npack1,
      >             dbl_mb(sw2a(1)+swstart*nn),   nn,
      >             (1.0d0),
-     >             psi2,               2*npack1)
-
+     >             psi2(Itid),               2*npack1)
+      call nwpw_timing_end(57) 
 
          if (move) then
            l1 = 0
