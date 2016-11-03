@@ -1345,6 +1345,78 @@ c     >           sum,ne)
       return
       end 
 
+
+
+*     ***********************************
+*     *                                 *
+*     *       Pack_cc_indot_thread      *       
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_cc_indot_thread(nb,ne,A,B,sumt)
+      implicit none
+      integer    nb
+      integer    ne
+      complex*16 A(*)
+      complex*16 B(*)
+      real*8     sumt(*)
+
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer n,np,tid,nthr
+c     integer npack, shift
+      integer npack1,shift,r,Itid,Mtid
+
+*     **** external functions ****
+      real*8   ddot
+      external ddot
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
+
+      call nwpw_timing_start(2)
+      call Parallel2d_np_i(np)
+      npack1 = (nida(nb)+nidb(nb))
+
+      nthr = Parallel_nthreads()
+      tid  = Parallel_threadid()
+      r    = mod(npack1,nthr)
+      if (tid.lt.r) then
+         Itid = tid*(npack1/nthr+1) + 1
+         Mtid = npack1/nthr + 1
+      else
+          Itid = r + tid*(npack1/nthr) + 1
+          Mtid = npack1/nthr
+      end if
+
+      call DGEMM('T','N',ne,1,(2*Mtid),
+     >           (2.0d0),
+     >           A(Itid),2*npack1,
+     >           B(Itid),2*npack1,
+     >           (0.0d0),
+     >           sumt,ne)
+
+!$OMP DO
+      do n=1,ne
+         shift = (n-1)*npack1
+         sumt(n) = sumt(n) - ddot(2*nida(nb),A(1+shift),1,B,1)
+      end do
+!$OMP END DO
+
+
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+
+
+
+
 *     ***********************************
 *     *                                 *
 *     *       Pack_conjg_tcc_indot      *       
