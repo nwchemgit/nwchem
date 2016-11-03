@@ -235,7 +235,7 @@ c     real*8     fion(3,natmx)
       
       !write(*,*) mthr,ne(1)
 
-      value = value .and. MA_set_auto_verify(.true.)
+c      value = value .and. MA_set_auto_verify(.true.)
       value = value.and.
      >        BA_push_get(mt_dbl,(mthr*ne(1)*ne(1)*8),'thrlmbda',
      >                                     thrlmbda(2),thrlmbda(1))
