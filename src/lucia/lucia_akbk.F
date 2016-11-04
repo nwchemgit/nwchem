@@ -6241,7 +6241,7 @@ cVOG    else
 *. LUCIA-at-NWCHEM now offers a completely free distribution of the MOs
 *. belonging to the same irrep to individual GAS spaces!
 *
-      IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
+c     IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
       call ga_sync()
 *
 *. Obtain initial values for the MO-to-be-moved pointers (imofromto)
@@ -6934,12 +6934,12 @@ c       imap2(inode) = 0
       LFIRSTORDER = 0
       if (ga_nodeid().eq.0) write(*,*) ' Calculate the TTSS weights'
 !      IF (LFIRSTORDER.EQ.0) THEN
-!       call ttssweight0(ttssw,IBATS,NBATS,LBATS,NBLK)
+       call ttssweight0(nttssw,nttsswsum,IBATS,NBATS,LBATS,NBLK)
 !      ELSE
-       call ttssweight(nttssw,nttsswsum,
-     &                 int_mb(KCONSPA),int_mb(KCONSPB),
-     &                 NOCTPA,NOCTPB,IBATS,NBATS,LBATS,NBLK,NSMST,
-     &                 int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)))
+c       call ttssweight(nttssw,nttsswsum,
+c     &                 int_mb(KCONSPA),int_mb(KCONSPB),
+c     &                 NOCTPA,NOCTPB,IBATS,NBATS,LBATS,NBLK,NSMST,
+c     &                 int_mb(KNSTSO(IATP)),int_mb(KNSTSO(IBTP)))
 !      END IF
 cVOG  call ttssweight15(ttssw,int_mb(KCONSPA),int_mb(KCONSPB),
 cVOG &                NOCTPA,NOCTPB,IBATS,NBLK)
@@ -7479,7 +7479,7 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
 *======================================================================*
 *======================================================================*
 *
-      SUBROUTINE ttssweight0(ttssw,IBATS,NBATS,LBATS,NBLK)
+      SUBROUTINE ttssweight0(ttssw,TOTWEIGHT,IBATS,NBATS,LBATS,NBLK)
 *======================================================================*
 *
 *. 0th-order
@@ -7509,12 +7509,12 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
       integer LBATS(NBATS),IBATS(8,NBLK)
 *
 *. Output
-      real ttssw(NBATS)
+      integer ttssw(NBATS)
 *
 *. Scratch
       integer I, II, IBLK
       integer ISDS(NBATS)
-      real TOTWEIGHT
+      integer TOTWEIGHT, MINBATCH
 *
       integer ITP, IGAS, ISPGRP, jspgrp, ispgrpa, ispgrpb,
      &        idif, ncon,
@@ -7523,9 +7523,7 @@ c     real ASYM(NGAS)
 *
 *. Initializations
 *
-      ntest = 10
-*
-      ttssw = 0.0d0
+      ntest = 1000
 *
 *. Obtain size of each TTSS BATCH (number of SDs)
 *
@@ -7536,7 +7534,7 @@ c     real ASYM(NGAS)
         II = II + 1
         ISDS(I) = ISDS(I) + IBATS(8,II)
        END DO
-       ttssw(I) = real(ISDS(I))
+       ttssw(I) = ISDS(I)
       END DO
 *
 *. Print Input
@@ -7560,7 +7558,7 @@ c     real ASYM(NGAS)
          DO I = 1, NBATS
           IA = ibats(1,I)
           IB = ibats(2,I)
-          write(*,'(2i8,f20.1)'), I, LBATS(I), ttssw(I)
+          write(*,'(2i8,i15)'), I, LBATS(I), ttssw(I)
          END DO
          WRITE(6,*)
         END IF
@@ -7568,16 +7566,18 @@ c     real ASYM(NGAS)
 *
 *. Total weight
 *
-      TOTWEIGHT = 0.0d0
+      TOTWEIGHT = 0
+      MINBATCH = ttssw(1)
       DO I = 1, NBATS
        TOTWEIGHT = TOTWEIGHT + ttssw(I)
+       MINBATCH = min(ttssw(I),MINBATCH)
       END DO
       if (ga_nodeid().eq.0) write(*,*) 'TOTWEIGHT', TOTWEIGHT
 *
 *. Percentage
 *
       DO I = 1, NBATS
-       TTSSW(I) = 100 * TTSSW(I) / TOTWEIGHT
+       TTSSW(I) = (TOTWEIGHT/MINBATCH) * 100 * TTSSW(I) / TOTWEIGHT
       END DO
       TOTWEIGHT = 0.0d0
       DO I = 1, NBATS
@@ -7593,7 +7593,7 @@ c     real ASYM(NGAS)
        WRITE(6,*) '======================================= '
        write(*,*)
        do I = 1, NBATS
-        write(*,'(i10,f10.3,a4)') I, ttssw(I), '   %'
+        write(*,'(i10,i10,a4)') I, ttssw(I), '   %'
        end do
        write(*,*) 'TOTAL:   ', TOTWEIGHT
        write(*,*)

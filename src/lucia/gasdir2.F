@@ -207,7 +207,7 @@ cVOG  IMPLICIT REAL*8(A-H,O-Z)
       INTEGER I1BATCH(*)
       INTEGER IBATCH(8,*)
 *
-      NTEST = 1000
+      NTEST = 0000
       if (newciblks.eq.1) then
        IF(NTEST.GE.100.and.ga_nodeid().eq.0) write(*,*) 'You have work!'
        stop
@@ -331,7 +331,7 @@ cVOG      WRITE(6,*) ' IASM IBSM IA IB LBLOCKP,LBLOCK' ,
 *
 *. Bert (and VOG). Effort to balance the number of Blocks per batch
 *
-      IF (NBLOCK.EQ.MXBLKBATCH) INCLUDE = 0
+c     IF (NBLOCK.EQ.MXBLKBATCH) INCLUDE = 0
 *
         IF(INCLUDE.EQ.1) THEN
           NBLOCK = NBLOCK + 1
@@ -361,10 +361,10 @@ cVOG      WRITE(6,*) ' IASM IBSM IA IB LBLOCKP,LBLOCK' ,
      &                 IASM, IA, NSTA, IBSM, IB, NSTB 
           CALL MEMCHK
           STOP 'Error in PART_CIV2'
-      ELSE
+        ELSE
 *. This batch is finished, goto next batch
-        GOTO 2000
-      END IF
+          GOTO 2000
+        END IF
  2002 CONTINUE
 *
       IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN

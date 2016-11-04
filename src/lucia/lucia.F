@@ -13434,14 +13434,14 @@ COLD  DIMENSION C(*),HC(*)
 *
 *. VOG RAPING LUCIA (initial guess)
 *
-            SCALE = 1.0D0/SQRT(DFLOAT(NCVAR))
-            if (ga_nodeid().eq.0)
-     &        write(*,*) 'I start the Rape', SCALE, NCVAR
-            call ga_distribution(CB,ga_nodeid(),ilo,ihi,idum,idum)
-            do ii = ilo, ihi
-             call ga_put(CB,ii,ii,1,1,SCALE,1)
-            end do
-            call ga_sync()
+c            SCALE = 1.0D0/SQRT(DFLOAT(NCVAR))
+c            if (ga_nodeid().eq.0)
+c     &        write(*,*) 'I start the Rape', SCALE, NCVAR
+c            call ga_distribution(CB,ga_nodeid(),ilo,ihi,idum,idum)
+c            do ii = ilo, ihi
+c             call ga_put(CB,ii,ii,1,1,SCALE,1)
+c            end do
+c            call ga_sync()
 *
       NTEST = 0000 !VOG 000
       NTEST = MAX(NTEST, IPRCIX)
