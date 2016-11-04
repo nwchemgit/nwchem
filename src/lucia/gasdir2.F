@@ -207,7 +207,7 @@ cVOG  IMPLICIT REAL*8(A-H,O-Z)
       INTEGER I1BATCH(*)
       INTEGER IBATCH(8,*)
 *
-      NTEST = 000
+      NTEST = 1000
       if (newciblks.eq.1) then
        IF(NTEST.GE.100.and.ga_nodeid().eq.0) write(*,*) 'You have work!'
        stop
@@ -230,6 +230,7 @@ cVOG  IMPLICIT REAL*8(A-H,O-Z)
         CALL IWRTMA(NSSOB,NSMST,NOCTPB,NSMST,NOCTPB)
         WRITE(6,*) 'ISIMSYM, ICOMP = ', ISIMSYM,ICOMP
         WRITE(6,*) ' MXLNG = ', MXLNG
+        WRITE(6,*) ' MXBLKBATCH = ', MXBLKBATCH
       END IF
 *. Tired of compiler warnings
       INCLUDE = 0
@@ -319,6 +320,18 @@ cVOG      WRITE(6,*) ' IASM IBSM IA IB LBLOCKP,LBLOCK' ,
           INCLUDE = 0
           IF(LENGTH+LBLOCK.LE.MXLNG.OR.ICOMP.EQ.1) INCLUDE = 1
         END IF
+*
+*. VOG: Modified dimension of IBATCH. Check number of blocks
+*
+      IF ((IBLOCK+1).GT.NTTSVOG) THEN
+       WRITE(*,*) 'Current number of TTSS Blocks:', IBLOCK+1
+       WRITE(*,*) 'NTTSVOG:', NTTSVOG 
+       STOP 'Number of TTSS Blocks larger than NTTSVOG'
+      END IF
+*
+*. Bert (and VOG). Effort to balance the number of Blocks per batch
+*
+      IF (NBLOCK.EQ.MXBLKBATCH) INCLUDE = 0
 *
         IF(INCLUDE.EQ.1) THEN
           NBLOCK = NBLOCK + 1

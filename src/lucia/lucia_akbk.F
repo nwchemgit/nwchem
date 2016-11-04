@@ -6162,6 +6162,7 @@ cVOG    else
       include 'cicisp.inc'
       include 'glbbas.inc' 
       include 'gasstr.inc'
+      include 'strinp.inc'
 #include "global.fh"
 #include "mafdecls.fh"
 *
@@ -6329,6 +6330,10 @@ cVOG    else
        CALL MEMMAN(KCIOIO,LEN_IOIO,'ADDL  ',1,'CIOIO ')
 *
        NTTS  = MXNTTS
+!       NTTSVOG = INT(NTTS / 10) !VOG NEW
+!       NTTSVOG = 8 * NTTSVOG     !VOG NEW
+!       NTTS = NTTSVOG            !VOG NEW
+       NTTSVOG = NTTS !VOG Back to normal
        NSMST = NIRREP
        CALL MEMMAN(KCIBT ,8*NTTS,'ADDL  ',1,'CIBT  ')
        CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',1,'CBLTP ')
@@ -6352,16 +6357,46 @@ cVOG    else
        ELSE
         LBLOCK = MXSOOB
        END IF
+       if (ga_nodeid().eq.0) write(*,*) 'CIV2, ISIMSYM', ISIMSYM
+       if (ga_nodeid().eq.0) write(*,*) 'CIV2, ICISTR ', ICISTR
+       if (ga_nodeid().eq.0) write(*,*) 'CIV2, LBLOCK ', LBLOCK
+       if (ga_nodeid().eq.0) write(*,*) 'CIV2, LCSBLK ', LCSBLK
        LBLOCK = MAX(LBLOCK,LCSBLK)
        IF(NTEST.GE.10.and.ga_nodeid().eq.0)
      &         WRITE(6,*) ' TEST: LBLOCK = ', LBLOCK
 *
+*. First Z_FLOCK and CIV2 calls
+*. Obtain TTSS batches and calculate those with very few blocks
+*
+       MXBLKBATCH = 100000
+       write(*,*) 'fixed MXBLKBATCH', MXBLKBATCH
        CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
      &       NTEST,NCBLOCK,NCBATCH,int_mb(KCIOIO),int_mb(KCBLTP),
      &       NCOCCLS_ACT,int_mb(KCIOCCLS_ACT),
      &       int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      &       int_mb(KCIBT),
      &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
+*
+       write(*,*) 'NCBATCH', NCBATCH
+       IBATCHCOUNT = NBATCHES_FEW_BLOCKS(NCBATCH,int_mb(KCLBT))
+       write(*,*) 'IBATCHCOUNT', IBATCHCOUNT
+       NDISTBATCH = NCBATCH - IBATCHCOUNT
+       IOPTBATCHPNODE = 15
+       LBPNODE    = ga_nnodes() * IOPTBATCHPNODE
+       MXBLKBATCH = INT((NCBLOCK - IBATCHCOUNT) / LBPNODE)
+       write(*,*) 'estim MXBLKBATCH', MXBLKBATCH
+       IF (MXBLKBATCH.LT.5) THEN
+        nfragagain = 1
+       ELSE
+*
+*. Second Z_FLOCK and CIV2 calls with estimated number of blocks per batch
+        CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
+     &       NTEST,NCBLOCK,NCBATCH,int_mb(KCIOIO),int_mb(KCBLTP),
+     &       NCOCCLS_ACT,int_mb(KCIOCCLS_ACT),
+     &       int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
+     &       int_mb(KCIBT),
+     &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
+       END IF
 *
 *. Calculate blocks/nnodes ratio and print size of batches
 *
@@ -6380,7 +6415,7 @@ cVOG    else
 *. Condition if I should fragment further the GAS spaces and
 *. recalculate the number of blocks
 *
-      if (NCBLOCK.lt.nnod) nfragagain = 1
+!      if (NCBLOCK.lt.nnod) nfragagain = 1
 !      if ((NCBLOCK.lt.nnod).or.(nfragagain.eq.1)) then
 !       nfragagain = 0 ! DANGER
       if (nfragagain.eq.1) then
@@ -6484,11 +6519,11 @@ cVOG    else
        write(*,*) ' NGAS   ', NGAS
       end if
 *
-!      IF (NIRREP.EQ.8) THEN
-!       ILIMIT = 1
-!      ELSE
+      IF (NIRREP.EQ.8) THEN
+       ILIMIT = 1
+      ELSE
        ILIMIT = 0
-!      END IF
+      END IF
 *
       DO IRREP = 1, NIRREP-1
        IF (NGSSH(IRREP,NGAS).GT.ILIMIT) THEN 
@@ -8336,6 +8371,28 @@ c      END DO
 *
       RETURN
       END
+*======================================================================*
+*======================================================================*
+      integer function NBATCHES_FEW_BLOCKS(NCBATCH,LBATCH)
+*======================================================================*
+*
+*. Input
+      INTEGER NCBATCH
+      INTEGER LBATCH(NCBATCH)
+*
+*. Scratch
+      INTEGER I, ITHRS
+*
+      ITHRS = 5
+*
+      NBATCHES_FEW_BLOCKS = 0
+      DO I = 1, NCBATCH
+       IF (LBATCH(I).LE.ITHRS)
+     &  NBATCHES_FEW_BLOCKS = NBATCHES_FEW_BLOCKS + 1
+      END DO
+*
+      return
+      end
 *======================================================================*
 
 c $Id$
