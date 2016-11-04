@@ -52,8 +52,8 @@ c triples
 #endif
       integer :: alloc_error
 #else
-      integer l_f1n,l_f1t,l_f2n,l_f2t,l_f3n,l_f3t,l_f4n,l_f4t,
-      integer k_f1n,k_f1t,k_f2n,k_f2t,k_f3n,k_f3t,k_f4n,k_f4t,
+      integer l_f1n,l_f1t,l_f2n,l_f2t,l_f3n,l_f3t,l_f4n,l_f4t
+      integer k_f1n,k_f1t,k_f2n,k_f2t,k_f3n,k_f3t,k_f4n,k_f4t
 #endif
       integer l_buf1,l_buf2,l_tk,k_buf1,k_buf2,k_tk
       integer g_objo
