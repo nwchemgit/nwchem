@@ -6402,8 +6402,8 @@ c     IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
 *
        nnod = ga_nnodes()
 !       nfragagain = 0
-       call CI_batches_info(NCBATCH,int_mb(KCLBT),int_mb(KCIBT),NCBLOCK,
-     &                      nnod,ntest,nfragagain)
+c      call CI_batches_info(NCBATCH,int_mb(KCLBT),int_mb(KCIBT),NCBLOCK,
+c    &                      nnod,ntest,nfragagain)
        if (ntest.eq.100. and.ga_nodeid().eq.0)
      &    write(*,'(a,3i10)') 'nblocks, nnod, nfragagain',
      &                         NCBLOCK, nnod, nfragagain
@@ -6646,7 +6646,9 @@ c     IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
 *======================================================================*
 *======================================================================*
 *
-      SUBROUTINE CI_batches_info(NBATS,LBATS,KCIBT,NCBLOCK,nnod,ntest,
+      SUBROUTINE CI_batches_info(NBATS,LBATS,KCIBT,NCBLOCK,
+     &                           iconspa,iconspb,noctpa,noctpb,
+     &                           nnod,ntest,
      &                           nfragagain)
 *======================================================================*
 *
@@ -6661,6 +6663,8 @@ c     IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
 *. input
       integer NCBLOCK, NBATS, nnod, ntest
       integer LBATS(NBATS),KCIBT(8,ncblock)
+      integer noctpa,noctpb
+      integer iconspa(noctpa,noctpa),iconspb(noctpb,noctpb)
 *
 *. output
       integer nfragagain
@@ -6714,12 +6718,33 @@ c      END DO
       do iblock = 1, ncblock
        IA = KCIBT(1,iblock)
        IB = KCIBT(2,iblock)
-*
-       if (ga_nodeid().eq.0.and.ntest.ge.100)
-     &     write(*,'(i6,i10,i11,a,5i2,a,5i2,a)') iblock, IBA,
+       IAS = KCIBT(3,iblock)
+       IBS = KCIBT(4,iblock)
+       INTERACT = 0
+       IWORK = 0
+       do jblock = 1, ncblock 
+         JA = KCIBT(1,jblock)
+         JB = KCIBT(2,jblock)
+         JAS = KCIBT(3,jblock)
+         JBS = KCIBT(4,jblock)
+         IF((ICONSPA(IATP,JATP).LE.1.AND.
+     &        ICONSPB(IBTP,JBTP).LE.1     )   .OR.
+     &       (ICONSPA(IATP,JATP).EQ.MXEXC.AND.
+     &        IBTP.EQ.JBTP.AND.IBSM.EQ.JBSM) .OR.
+     &       (ICONSPB(IBTP,JBTP).EQ.MXEXC.AND.
+     &        IATP.EQ.JATP.AND.IASM.EQ.JASM)     ) then
+                INTERACT = INTERACT+1
+                IWORK = IWORK+KCIBT(8,iblock)*KCIBT(8,jblock)
+         ENDIF
+       enddo
+      if (ga_nodeid().eq.0.and.ntest.ge.100) then
+           write(*,'(i6,i10,i11,a,5i2,a,5i2,a)') iblock, IBA,
      &                                       KCIBT(8,iblock),
      &                        '  | ', (NELFSPGP(IGAS,IA), igas = 1, 5),
      &                        '  | ', (NELFSPGP(IGAS,IB), igas = 1, 5)
+           write(*,'(a,i8,a, i20)') '     connections ',interact,
+     &                              '  work i*j sum ', iwork
+      endif
 c    &     write(*,'(i8,2i10,i15)') iblock, KCIBT(8,iblock),
 c    &                              KCIBT(1,iblock), KCIBT(2,iblock)
        isum = isum + KCIBT(8,iblock)
@@ -6732,7 +6757,7 @@ c    &                              KCIBT(1,iblock), KCIBT(2,iblock)
 *
       end do
 *
-      if (ga_nodeid().eq.0.and.ntest.ge.100) then
+      if (ga_nodeid().eq.0.and.ntest.ge.10) then
        write(*,'(a2,a)') '  ', repeat ('=', 56)
        write(*,'(a5,i13)') '  SUM', isum
        write(*,'(a5,i13)') '  MAX', nmaxblk
@@ -6855,7 +6880,7 @@ c      integer IMAP2(nnod)
 *
 *. Initializations
 *
-      ntest = 10
+      ntest = 100
       do i=1, NBATS
        imap2(i) = 0
       end do
@@ -6922,6 +6947,8 @@ c       imap2(inode) = 0
        nnod = ga_nnodes()
        nfragagain = 0
        call CI_batches_info(NBATS,LBATS,IBATS,NBLK,
+     &                      int_mb(KCONSPA),int_mb(KCONSPB),
+     &                      NOCTPA,NOCTPB,
      &                      nnod,ntest,nfragagain)
 *
 *. For alpha beta strings
