@@ -6246,7 +6246,9 @@ c     IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
 *
 *. Obtain initial values for the MO-to-be-moved pointers (imofromto)
 *
-      imofromto = 0
+      imofromto(1) = 0
+      imofromto(2) = 0
+      imofromto(3) = 0
       !
       ! GAS space from where we will move one MO
       !
@@ -6380,12 +6382,17 @@ c     IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
        write(*,*) 'NCBATCH', NCBATCH
        IBATCHCOUNT = NBATCHES_FEW_BLOCKS(NCBATCH,int_mb(KCLBT))
        write(*,*) 'IBATCHCOUNT', IBATCHCOUNT
+       write(*,*) 'NCBLOCK', NCBLOCK
        NDISTBATCH = NCBATCH - IBATCHCOUNT
-       IOPTBATCHPNODE = 15
-       LBPNODE    = ga_nnodes() * IOPTBATCHPNODE
-       MXBLKBATCH = INT((NCBLOCK - IBATCHCOUNT) / LBPNODE)
-       write(*,*) 'estim MXBLKBATCH', MXBLKBATCH
-       IF (MXBLKBATCH.LT.5) THEN
+       IOPTBATCHPNODE = 10
+       LBPNODE = INT(NCBATCH/ga_nnodes())
+       write(*,*) 'LBPNODE',LBPNODE,IOPTBATCHPNODE
+c       LBPNODE    = ga_nnodes() * IOPTBATCHPNODE
+c       MXBLKBATCH = INT((NCBLOCK - IBATCHCOUNT) / LBPNODE)
+c      write(*,*) 'estim MXBLKBATCH', MXBLKBATCH
+c      IF (MXBLKBATCH.LT.0) THEN
+       nfragagain = 0
+       IF (LBPNODE.LT.IOPTBATCHPNODE) THEN
         nfragagain = 1
        ELSE
 *
@@ -6702,7 +6709,7 @@ c      END DO
 *
 *. Get information of CI blocks and print them (if requested)
 *
-      if (ga_nodeid().eq.0.and.ntest.ge.100) then
+      if (ga_nodeid().eq.0.and.ntest.ge.10) then
        write(*,*)
        write(*,'(a2,a)') '  ', repeat ('=', 56)
        write(*,*) 
@@ -6727,24 +6734,24 @@ c      END DO
          JB = KCIBT(2,jblock)
          JAS = KCIBT(3,jblock)
          JBS = KCIBT(4,jblock)
-         IF((ICONSPA(IATP,JATP).LE.1.AND.
-     &        ICONSPB(IBTP,JBTP).LE.1     )   .OR.
-     &       (ICONSPA(IATP,JATP).EQ.MXEXC.AND.
-     &        IBTP.EQ.JBTP.AND.IBSM.EQ.JBSM) .OR.
-     &       (ICONSPB(IBTP,JBTP).EQ.MXEXC.AND.
-     &        IATP.EQ.JATP.AND.IASM.EQ.JASM)     ) then
+         IF((ICONSPA(IA,JA).LE.1.AND.
+     &        ICONSPB(IB,JB).LE.1     )   .OR.
+     &       (ICONSPA(IA,JA).EQ.MXEXC.AND.
+     &        IB.EQ.JB.AND.IBS.EQ.JBS) .OR.
+     &       (ICONSPB(IB,JB).EQ.MXEXC.AND.
+     &        IA.EQ.JA.AND.IAS.EQ.JAS)     ) then
                 INTERACT = INTERACT+1
                 IWORK = IWORK+KCIBT(8,iblock)*KCIBT(8,jblock)
          ENDIF
        enddo
-      if (ga_nodeid().eq.0.and.ntest.ge.100) then
+       if (ga_nodeid().eq.0.and.ntest.ge.10) then
            write(*,'(i6,i10,i11,a,5i2,a,5i2,a)') iblock, IBA,
      &                                       KCIBT(8,iblock),
      &                        '  | ', (NELFSPGP(IGAS,IA), igas = 1, 5),
      &                        '  | ', (NELFSPGP(IGAS,IB), igas = 1, 5)
            write(*,'(a,i8,a, i20)') '     connections ',interact,
      &                              '  work i*j sum ', iwork
-      endif
+       endif
 c    &     write(*,'(i8,2i10,i15)') iblock, KCIBT(8,iblock),
 c    &                              KCIBT(1,iblock), KCIBT(2,iblock)
        isum = isum + KCIBT(8,iblock)
