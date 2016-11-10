@@ -155,6 +155,7 @@ c
      $     call errquit('task_energy: failed storing walltime',0,
      &       RTDB_ERR)
 c
+#ifndef SKIP_ECCE
       call ecce_print1('cpu time', mt_dbl, cpu, 1)
       call ecce_print1('wall time', mt_dbl, wall, 1)
       if (theory .eq. 'md')  oecce=.false.
@@ -167,6 +168,7 @@ c
       else
          call ecce_print_module_exit('task energy', 'failed')
       endif
+#endif
 c         
       task_energy = status
 c
@@ -232,7 +234,9 @@ c
       logical dftmp2
       integer which_mp2
 c
+#ifndef SKIP_ECCE
       call ecce_print_module_entry('task energy')
+#endif
 c
       task_energy_doit = .false.
       status = .false.

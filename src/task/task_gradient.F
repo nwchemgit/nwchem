@@ -151,10 +151,12 @@ c
      $    call mm_add_egrad(rtdb,energy,nelem/3,gradient)
 c
       if (status) then
+#ifndef SKIP_ECCE
          call geom_print_rtdb_ecce(rtdb)
          call ecce_print1('total energy', mt_dbl, energy, 1)
          call ecce_print2('total gradient', mt_dbl, gradient,
      $        3,3,nelem/3)
+#endif
          gmax = 0.0d0
          gnorm = 0.0d0
          do i = 1, nelem/3
@@ -164,8 +166,10 @@ c
             end do
          enddo
          gnorm = sqrt(gnorm)
+#ifndef SKIP_ECCE
          call ecce_print1('gradient norm', mt_dbl, gnorm, 1)
          call ecce_print1('gradient max', mt_dbl, gmax, 1)
+#endif
       endif
 c
       if (.not. rtdb_put(rtdb, 'task:energy', mt_dbl, 1, energy))
@@ -189,6 +193,7 @@ c
      $     call errquit('task_gradient: failed storing walltime',0,
      &       RTDB_ERR)
 c
+#ifndef SKIP_ECCE
       call ecce_print1('cpu time', mt_dbl, cpu, 1)
       call ecce_print1('wall time', mt_dbl, wall, 1)
       if (status) then
@@ -196,6 +201,7 @@ c
       else
          call ecce_print_module_exit('task gradient', 'failed')
       endif
+#endif
 c
       task_gradient = status
 c
@@ -281,7 +287,9 @@ c
      &       RTDB_ERR)
       nelem = ncent*3
 c
+#ifndef SKIP_ECCE
       call ecce_print_module_entry('task gradient')
+#endif
 c
       task_gradient_doit = .false.
 c

@@ -12,5 +12,9 @@
 
 USES_BLAS = task_num_grad.F task_bsse.F
 
+ifdef SKIP_ECCE
+ LIB_DEFINES += -DSKIP_ECCE
+endif
+
 include ../config/makefile.h
 include ../config/makelib.h

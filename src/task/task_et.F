@@ -50,6 +50,7 @@ c
       if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
      $     call errquit('task_et: failed storing walltime',0, RTDB_ERR)
 c
+#ifndef SKIP_ECCE
       call ecce_print1('cpu time', mt_dbl, cpu, 1)
       call ecce_print1('wall time', mt_dbl, wall, 1)
       if (status) then
@@ -59,6 +60,7 @@ c
       else
          call ecce_print_module_exit('task et', 'failed')
       endif
+#endif
 c         
       task_et = status
 c
