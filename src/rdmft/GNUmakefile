@@ -9,7 +9,9 @@
          wfn1_closest_three.o \
          wfn1_configuration.o \
          wfn1_dnrm2.o \
+         wfn1_entropy.o \
          wfn1_e_g.o \
+         wfn1_e_g_2el.o \
          wfn1_exp.o \
          wfn1_f0df0f1.o \
          wfn1_f1f2f3.o \
