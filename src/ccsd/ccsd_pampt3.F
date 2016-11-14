@@ -563,7 +563,7 @@ c#warning undefining NBGET
      &                 t1ao(nbf,nocc), a_st2(lnoo,nbfdim)
 c
       integer i,j,k,l,kmax,lmax,ik,ad1,ptr
-      integer ipp,imm,ippp,ict,off1,off2,off3
+      integer ipp,imm,ict,off1,off2,off3
       integer mlkj,mkl,mkj,ii,jj
       integer blk1,blk2,ikin,ik0
 #ifdef NBGET
@@ -583,7 +583,6 @@ c
 c
       jeql=jlo.eq.llo
       ipp=nocc*(nocc+1)/2
-      ippp=ipp+1
       imm=nocc*(nocc-1)/2
       ict=1
 cstag
@@ -808,25 +807,34 @@ c
       end
       subroutine t2eri_wrk_noeq(eri1,eri2,t2,ht2,ni,nj,nk,nl,nocc,lnoo)
       implicit none
-#include "mafdecls.fh"
-#include "global.fh"
-#include "tcgmsg.fh"
-      integer ni,nj,nk,nl,nocc,lnoo
-      double precision eri1(nl,nk,nj,ni), eri2(nj,nk,nl,ni)
-      double precision t2(lnoo,nk,ni), ht2(lnoo,nl,nj)
-      integer ipp,ippp,imm,i,j,k,l
-      double precision gp, gm
+      double precision, intent(in)    :: eri1(nl,nk,nj,ni)
+      double precision, intent(in)    :: eri2(nj,nk,nl,ni)
+      double precision, intent(in)    :: t2(lnoo,nk,ni)
+      double precision, intent(inout) :: ht2(lnoo,nl,nj)
+      integer, intent(in)             :: ni,nj,nk,nl,nocc,lnoo
+      double precision                :: gp, gm
+      integer                         :: ipp,imm,i,j,k,l,q
       ipp=nocc*(nocc+1)/2
-      ippp=ipp+1
       imm=nocc*(nocc-1)/2
       do i=1,ni
         do j=1,nj
           do k=1,nk
             do l=1,nl
+#if USE_BLAS_NOT_LOOPS
               gp=(eri1(l,k,j,i)+eri2(j,k,l,i))*0.5d0
               gm=(eri1(l,k,j,i)-eri2(j,k,l,i))*0.5d0
               call daxpy(ipp,gp,t2(1,k,i),1,ht2(1,l,j),1)
-              call daxpy(imm,gm,t2(ippp,k,i),1,ht2(ippp,l,j),1)
+              call daxpy(imm,gm,t2(ipp+1,k,i),1,ht2(ipp+1,l,j),1)
+#else
+              gp=(eri1(l,k,j,i)+eri2(j,k,l,i))*0.5d0
+              gm=(eri1(l,k,j,i)-eri2(j,k,l,i))*0.5d0
+              do q=1,ipp
+                ht2(q,l,j) = ht2(q,l,j) + gp * t2(q,k,i)
+              enddo
+              do q=1,imm
+                ht2(q+ipp,l,j) = ht2(q+ipp,l,j) + gm * t2(q+ipp,k,i)
+              enddo
+#endif
             enddo
           enddo
         enddo
@@ -835,25 +843,34 @@ c
       end
       subroutine t2eri_wrk_jleq(eri1,eri2,t2,ht2,ni,nj,nk,nl,nocc,lnoo)
       implicit none
-#include "mafdecls.fh"
-#include "global.fh"
-#include "tcgmsg.fh"
-      integer ni,nj,nk,nl,nocc,lnoo
-      double precision eri1(nl,nk,nj,ni), eri2(nj,nk,nl,ni)
-      double precision t2(lnoo,nk,ni), ht2(lnoo,nl,nj)
-      integer ipp,ippp,imm,i,j,k,l
-      double precision gp, gm
+      double precision, intent(in)    :: eri1(nl,nk,nj,ni)
+      double precision, intent(in)    :: eri2(nj,nk,nl,ni)
+      double precision, intent(in)    :: t2(lnoo,nk,ni)
+      double precision, intent(inout) :: ht2(lnoo,nl,nj)
+      integer, intent(in)             :: ni,nj,nk,nl,nocc,lnoo
+      double precision                :: gp, gm
+      integer                         :: ipp,imm,i,j,k,l,q
       ipp=nocc*(nocc+1)/2
-      ippp=ipp+1
       imm=nocc*(nocc-1)/2
       do i=1,ni
         do j=1,nj
           do k=1,nk
             do l=1,j
+#if USE_BLAS_NOT_LOOPS
               gp=(eri1(l,k,j,i)+eri2(j,k,l,i))*0.5d0
               gm=(eri1(l,k,j,i)-eri2(j,k,l,i))*0.5d0
               call daxpy(ipp,gp,t2(1,k,i),1,ht2(1,l,j),1)
-              call daxpy(imm,gm,t2(ippp,k,i),1,ht2(ippp,l,j),1)
+              call daxpy(imm,gm,t2(ipp+1,k,i),1,ht2(ipp+1,l,j),1)
+#else
+              gp=(eri1(l,k,j,i)+eri2(j,k,l,i))*0.5d0
+              gm=(eri1(l,k,j,i)-eri2(j,k,l,i))*0.5d0
+              do q=1,ipp
+                ht2(q,l,j) = ht2(q,l,j) + gp * t2(q,k,i)
+              enddo
+              do q=1,imm
+                ht2(q+ipp,l,j) = ht2(q+ipp,l,j) + gm * t2(q+ipp,k,i)
+              enddo
+#endif
             enddo
           enddo
         enddo
@@ -862,25 +879,34 @@ c
       end
       subroutine t2eri_wrk_ikeq(eri1,eri2,t2,ht2,ni,nj,nk,nl,nocc,lnoo)
       implicit none
-#include "mafdecls.fh"
-#include "global.fh"
-#include "tcgmsg.fh"
-      integer ni,nj,nk,nl,nocc,lnoo
-      double precision eri1(nl,nk,nj,ni), eri2(nj,nk,nl,ni)
-      double precision t2(lnoo,nk,ni), ht2(lnoo,nl,nj)
-      integer ipp,ippp,imm,i,j,k,l
-      double precision gp, gm
+      double precision, intent(in)    :: eri1(nl,nk,nj,ni)
+      double precision, intent(in)    :: eri2(nj,nk,nl,ni)
+      double precision, intent(in)    :: t2(lnoo,nk,ni)
+      double precision, intent(inout) :: ht2(lnoo,nl,nj)
+      integer, intent(in)             :: ni,nj,nk,nl,nocc,lnoo
+      double precision                :: gp, gm
+      integer                         :: ipp,imm,i,j,k,l,q
       ipp=nocc*(nocc+1)/2
-      ippp=ipp+1
       imm=nocc*(nocc-1)/2
       do i=1,ni
         do j=1,nj
           do k=1,i
             do l=1,nl
+#if USE_BLAS_NOT_LOOPS
               gp=(eri1(l,k,j,i)+eri2(j,k,l,i))*0.5d0
               gm=(eri1(l,k,j,i)-eri2(j,k,l,i))*0.5d0
               call daxpy(ipp,gp,t2(1,k,i),1,ht2(1,l,j),1)
-              call daxpy(imm,gm,t2(ippp,k,i),1,ht2(ippp,l,j),1)
+              call daxpy(imm,gm,t2(ipp+1,k,i),1,ht2(ipp+1,l,j),1)
+#else
+              gp=(eri1(l,k,j,i)+eri2(j,k,l,i))*0.5d0
+              gm=(eri1(l,k,j,i)-eri2(j,k,l,i))*0.5d0
+              do q=1,ipp
+                ht2(q,l,j) = ht2(q,l,j) + gp * t2(q,k,i)
+              enddo
+              do q=1,imm
+                ht2(q+ipp,l,j) = ht2(q+ipp,l,j) + gm * t2(q+ipp,k,i)
+              enddo
+#endif
             enddo
           enddo
         enddo
@@ -889,25 +915,34 @@ c
       end
       subroutine t2eri_wrk_aleq(eri1,eri2,t2,ht2,ni,nj,nk,nl,nocc,lnoo)
       implicit none
-#include "mafdecls.fh"
-#include "global.fh"
-#include "tcgmsg.fh"
-      integer ni,nj,nk,nl,nocc,lnoo
-      double precision eri1(nl,nk,nj,ni), eri2(nj,nk,nl,ni)
-      double precision t2(lnoo,nk,ni), ht2(lnoo,nl,nj)
-      integer ipp,ippp,imm,i,j,k,l
-      double precision gp, gm
+      double precision, intent(in)    :: eri1(nl,nk,nj,ni)
+      double precision, intent(in)    :: eri2(nj,nk,nl,ni)
+      double precision, intent(in)    :: t2(lnoo,nk,ni)
+      double precision, intent(inout) :: ht2(lnoo,nl,nj)
+      integer, intent(in)             :: ni,nj,nk,nl,nocc,lnoo
+      double precision                :: gp, gm
+      integer                         :: ipp,imm,i,j,k,l,q
       ipp=nocc*(nocc+1)/2
-      ippp=ipp+1
       imm=nocc*(nocc-1)/2
       do i=1,ni
         do j=1,nj
           do k=1,i
             do l=1,j
+#if USE_BLAS_NOT_LOOPS
               gp=(eri1(l,k,j,i)+eri2(j,k,l,i))*0.5d0
               gm=(eri1(l,k,j,i)-eri2(j,k,l,i))*0.5d0
               call daxpy(ipp,gp,t2(1,k,i),1,ht2(1,l,j),1)
-              call daxpy(imm,gm,t2(ippp,k,i),1,ht2(ippp,l,j),1)
+              call daxpy(imm,gm,t2(ipp+1,k,i),1,ht2(ipp+1,l,j),1)
+#else
+              gp=(eri1(l,k,j,i)+eri2(j,k,l,i))*0.5d0
+              gm=(eri1(l,k,j,i)-eri2(j,k,l,i))*0.5d0
+              do q=1,ipp
+                ht2(q,l,j) = ht2(q,l,j) + gp * t2(q,k,i)
+              enddo
+              do q=1,imm
+                ht2(q+ipp,l,j) = ht2(q+ipp,l,j) + gm * t2(q+ipp,k,i)
+              enddo
+#endif
             enddo
           enddo
         enddo
