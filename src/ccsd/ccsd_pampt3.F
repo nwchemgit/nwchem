@@ -816,8 +816,21 @@ c
       integer                         :: ipp,imm,i,j,k,l,q
       ipp=nocc*(nocc+1)/2
       imm=nocc*(nocc-1)/2
-      do i=1,ni
-        do j=1,nj
+#if defined(USE_OPENMP)
+!
+! WARNING: You cannot use collapse on this loop because that will
+!          cause concurrent updates to ht2, which is a race-condition
+!          and leads to incorrectness.  In short, the J loop must be
+!          the one and only that is threaded.
+!
+!$omp parallel do schedule(static)
+!$omp& default(none)
+!$omp& private(gp,gm)
+!$omp& firstprivate(ni,nj,nk,nl,ipp,imm)
+!$omp& shared(eri1,eri2,t2,ht2)
+#endif
+      do j=1,nj
+        do i=1,ni
           do k=1,nk
             do l=1,nl
 #if USE_BLAS_NOT_LOOPS
@@ -839,6 +852,9 @@ c
           enddo
         enddo
       enddo
+#if defined(USE_OPENMP)
+!$omp end parallel do
+#endif
       return
       end
       subroutine t2eri_wrk_jleq(eri1,eri2,t2,ht2,ni,nj,nk,nl,nocc,lnoo)
@@ -852,8 +868,21 @@ c
       integer                         :: ipp,imm,i,j,k,l,q
       ipp=nocc*(nocc+1)/2
       imm=nocc*(nocc-1)/2
-      do i=1,ni
-        do j=1,nj
+#if defined(USE_OPENMP)
+!
+! WARNING: You cannot use collapse on this loop because that will
+!          cause concurrent updates to ht2, which is a race-condition
+!          and leads to incorrectness.  In short, the J loop must be
+!          the one and only that is threaded.
+!
+!$omp parallel do schedule(static)
+!$omp& default(none)
+!$omp& private(gp,gm)
+!$omp& firstprivate(ni,nj,nk,nl,ipp,imm)
+!$omp& shared(eri1,eri2,t2,ht2)
+#endif
+      do j=1,nj
+        do i=1,ni
           do k=1,nk
             do l=1,j
 #if USE_BLAS_NOT_LOOPS
@@ -875,6 +904,9 @@ c
           enddo
         enddo
       enddo
+#if defined(USE_OPENMP)
+!$omp end parallel do
+#endif
       return
       end
       subroutine t2eri_wrk_ikeq(eri1,eri2,t2,ht2,ni,nj,nk,nl,nocc,lnoo)
@@ -888,8 +920,21 @@ c
       integer                         :: ipp,imm,i,j,k,l,q
       ipp=nocc*(nocc+1)/2
       imm=nocc*(nocc-1)/2
-      do i=1,ni
-        do j=1,nj
+#if defined(USE_OPENMP)
+!
+! WARNING: You cannot use collapse on this loop because that will
+!          cause concurrent updates to ht2, which is a race-condition
+!          and leads to incorrectness.  In short, the J loop must be
+!          the one and only that is threaded.
+!
+!$omp parallel do schedule(static)
+!$omp& default(none)
+!$omp& private(gp,gm)
+!$omp& firstprivate(ni,nj,nk,nl,ipp,imm)
+!$omp& shared(eri1,eri2,t2,ht2)
+#endif
+      do j=1,nj
+        do i=1,ni
           do k=1,i
             do l=1,nl
 #if USE_BLAS_NOT_LOOPS
@@ -911,6 +956,9 @@ c
           enddo
         enddo
       enddo
+#if defined(USE_OPENMP)
+!$omp end parallel do
+#endif
       return
       end
       subroutine t2eri_wrk_aleq(eri1,eri2,t2,ht2,ni,nj,nk,nl,nocc,lnoo)
@@ -924,8 +972,21 @@ c
       integer                         :: ipp,imm,i,j,k,l,q
       ipp=nocc*(nocc+1)/2
       imm=nocc*(nocc-1)/2
-      do i=1,ni
-        do j=1,nj
+#if defined(USE_OPENMP)
+!
+! WARNING: You cannot use collapse on this loop because that will
+!          cause concurrent updates to ht2, which is a race-condition
+!          and leads to incorrectness.  In short, the J loop must be
+!          the one and only that is threaded.
+!
+!$omp parallel do schedule(static)
+!$omp& default(none)
+!$omp& private(gp,gm)
+!$omp& firstprivate(ni,nj,nk,nl,ipp,imm)
+!$omp& shared(eri1,eri2,t2,ht2)
+#endif
+      do j=1,nj
+        do i=1,ni
           do k=1,i
             do l=1,j
 #if USE_BLAS_NOT_LOOPS
@@ -947,6 +1008,9 @@ c
           enddo
         enddo
       enddo
+#if defined(USE_OPENMP)
+!$omp end parallel do
+#endif
       return
       end
 
