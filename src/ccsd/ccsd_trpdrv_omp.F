@@ -312,7 +312,7 @@
                         eaijk=eorb(a) - (  eorb(ncor+i)
      &                                    +eorb(ncor+j)
      &                                    +eorb(ncor+k) )
-!$omp do collapse(2)
+!$omp do simd collapse(2)
 !$omp& schedule(static)
 !$omp& reduction(+:emp5i,emp4i)
 !$omp& reduction(+:emp5k,emp4k)
@@ -358,7 +358,7 @@
      &                   -2*(f2t(b,c)+f3t(b,c)+f2n(c,b)))
                  enddo
                enddo
-!$omp end do
+!$omp end do simd
 !$omp end parallel
                          if (occsdps) then
                             call pstat_off(ps_tengy)
