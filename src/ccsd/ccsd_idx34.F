@@ -26,11 +26,11 @@
       endif
       iam=ga_nodeid()
       call ga_distribution(g_x,iam,g_jlo,g_jhi,g_ilo,g_ihi)
-!$omp parallel do collapse(2) schedule(dynamic,1) !!!schedule(guided)
+!$omp parallel do collapse(2) schedule(guided)
 !$omp& default(none)
-!$omp& firstprivate(nbf,nsh,ncor,nact,nocc,basis,g_ilo,g_ihi)
 !$omp& private(ilo,ihi,jlo,jhi,ad1,ad2,bufa,bufb)
-!$omp& shared(g_x,g_c,cmo)
+!$omp& shared(g_x,g_c,cmo,nbf,nsh,ncor,nact,nocc,basis)
+!$omp& shared(g_ilo,g_ihi)
       do ii=1,nocc
         do jj=1,nocc
           ad2=(ii-1)*nocc+jj
