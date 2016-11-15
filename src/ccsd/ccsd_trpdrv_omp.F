@@ -51,6 +51,13 @@
       double precision :: eaijk,denom
       integer :: inode,next,nodes,iam
       integer :: a,b,c,i,j,k,akold,av
+      ! chunking is the loop blocking size in the loop nest
+      ! formerly associated with the tengy routine.
+      ! we have not explored this paramater space but 32 is
+      ! optimal for TLB blocking in matrix transpose on most
+      ! architectures (especially x86).
+      integer, parameter :: chunking = 32
+      integer :: bb,cc
       integer :: klo, khi
       integer nxtask
       external nxtask
@@ -321,8 +328,10 @@
 !$omp& reduction(+:emp5i,emp4i)
 !$omp& reduction(+:emp5k,emp4k)
 ! WARNING: Do not add IVDEP here.  Code will be incorrect.
-               do b=1,nvir
-                 do c=1,nvir
+           do bb=1,nvir,chunking
+             do cc=1,nvir,chunking
+               do b=bb,min(bb+chunking-1,nvir)
+                 do c=cc,min(cc+chunking-1,nvir)
                    denom=-1.0d0/( eorb(ncor+nocc+b)
      &                           +eorb(ncor+nocc+c)+eaijk )
 ! fusing emp[45][ki] accumulates may help vectorization...
@@ -362,6 +371,8 @@
      &                   -2*(f2t(b,c)+f3t(b,c)+f2n(c,b)))
                  enddo
                enddo
+             enddo
+           enddo
 !$omp end do
 !$omp end parallel
                          if (occsdps) then
