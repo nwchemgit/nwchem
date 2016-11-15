@@ -324,12 +324,89 @@ c
       endif
       return
       end
+!!!!!!!!!!!!!!!!!!!!!!!! With OpenMP !!!!!!!!!!!!!!!!!!!!!!!!
+#if defined(USE_OPENMP)
       subroutine ccsd_idx1_wrk1(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nocc,
      &                     nbf,ilo,ihi,klo,khi)
       implicit none
-#include "mafdecls.fh"
-#include "global.fh"
-#include "tcgmsg.fh"
+#include "ccsdps.fh"
+      integer nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
+      integer i,j,k,l,ii
+      double precision eri1(nfl,klo:khi,nfj,ilo:ihi),
+     &                 eri2(nfj,klo:khi,nfl,ilo:ihi),
+     &                 snsi(nbf,nfj,nfl,nocc),
+     &                 sisn(nbf,nfl,nfj,nocc),
+     &                 t1ao(nbf,nocc)
+      double precision int1,int2
+      call pstat_on(ps_idx11)
+!$omp parallel do schedule(static)
+!$omp& default(none)
+!$omp& private(int1,int2)
+!$omp& firstprivate(nfj,nfl,nocc,nbf,ilo,ihi,klo,khi)
+!$omp& shared(eri1,eri2,snsi,sisn,t1ao)
+      do ii=1,nocc
+        do l=1,nfl
+          do j=1,nfj
+            do i=ilo,ihi
+              do k=klo,khi
+                int1=eri1(l,k,j,i)
+                int2=eri2(j,k,l,i)
+                snsi(i,j,l,ii)=snsi(i,j,l,ii)+t1ao(k,ii)*int1
+                snsi(k,j,l,ii)=snsi(k,j,l,ii)+t1ao(i,ii)*int2
+                sisn(k,l,j,ii)=sisn(k,l,j,ii)+t1ao(i,ii)*int1
+                sisn(i,l,j,ii)=sisn(i,l,j,ii)+t1ao(k,ii)*int2
+              enddo
+            enddo
+          enddo
+        enddo
+      enddo
+!$omp end parallel do
+      call pstat_off(ps_idx11)
+      return
+      end
+      subroutine ccsd_idx1_wrk2(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nocc,
+     &                     nbf,ilo,ihi,klo,khi)
+      implicit none
+#include "ccsdps.fh"
+      integer nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
+      integer i,j,k,l,ii
+      double precision eri1(nfl,klo:khi,nfj,ilo:ihi),
+     &                 eri2(nfj,klo:khi,nfl,ilo:ihi),
+     &                 snsi(nbf,nfj,nfl,nocc),
+     &                 sisn(nbf,nfl,nfj,nocc),
+     &                 t1ao(nbf,nocc)
+      double precision int1,int2
+      call pstat_on(ps_idx12)
+!$omp parallel do schedule(static)
+!$omp& default(none)
+!$omp& private(int1,int2)
+!$omp& firstprivate(nfj,nfl,nocc,nbf,ilo,ihi,klo,khi)
+!$omp& shared(eri1,eri2,snsi,sisn,t1ao)
+      do ii=1,nocc
+        do l=1,nfl
+          do j=1,nfj
+            do i=ilo,ihi
+              do k=klo,khi
+                int1=eri1(l,k,j,i)*0.5d0
+                int2=eri2(j,k,l,i)*0.5d0
+                snsi(i,j,l,ii)=snsi(i,j,l,ii)+t1ao(k,ii)*int1
+                snsi(k,j,l,ii)=snsi(k,j,l,ii)+t1ao(i,ii)*int2
+                sisn(k,l,j,ii)=sisn(k,l,j,ii)+t1ao(i,ii)*int1
+                sisn(i,l,j,ii)=sisn(i,l,j,ii)+t1ao(k,ii)*int2
+              enddo
+            enddo
+          enddo
+        enddo
+      enddo
+!$omp end parallel do
+      call pstat_off(ps_idx12)
+      return
+      end
+!!!!!!!!!!!!!!!!!!!!!!!! Without OpenMP !!!!!!!!!!!!!!!!!!!!!!!!
+#else // USE_OPENMP
+      subroutine ccsd_idx1_wrk1(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nocc,
+     &                     nbf,ilo,ihi,klo,khi)
+      implicit none
 #include "ccsdps.fh"
       integer nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
       integer i,j,k,l,ii
@@ -347,10 +424,10 @@ c
               int1=eri1(l,k,j,i)
               int2=eri2(j,k,l,i)
               do ii=1,nocc
-               snsi(i,j,l,ii)=snsi(i,j,l,ii)+t1ao(k,ii)*int1
-               snsi(k,j,l,ii)=snsi(k,j,l,ii)+t1ao(i,ii)*int2
-               sisn(k,l,j,ii)=sisn(k,l,j,ii)+t1ao(i,ii)*int1
-               sisn(i,l,j,ii)=sisn(i,l,j,ii)+t1ao(k,ii)*int2
+                snsi(i,j,l,ii)=snsi(i,j,l,ii)+t1ao(k,ii)*int1
+                snsi(k,j,l,ii)=snsi(k,j,l,ii)+t1ao(i,ii)*int2
+                sisn(k,l,j,ii)=sisn(k,l,j,ii)+t1ao(i,ii)*int1
+                sisn(i,l,j,ii)=sisn(i,l,j,ii)+t1ao(k,ii)*int2
               enddo
             enddo
           enddo
@@ -362,9 +439,6 @@ c
       subroutine ccsd_idx1_wrk2(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nocc,
      &                     nbf,ilo,ihi,klo,khi)
       implicit none
-#include "mafdecls.fh"
-#include "global.fh"
-#include "tcgmsg.fh"
 #include "ccsdps.fh"
       integer nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
       integer i,j,k,l,ii
@@ -382,10 +456,10 @@ c
               int1=eri1(l,k,j,i)*0.5d0
               int2=eri2(j,k,l,i)*0.5d0
               do ii=1,nocc
-               snsi(i,j,l,ii)=snsi(i,j,l,ii)+t1ao(k,ii)*int1
-               snsi(k,j,l,ii)=snsi(k,j,l,ii)+t1ao(i,ii)*int2
-               sisn(k,l,j,ii)=sisn(k,l,j,ii)+t1ao(i,ii)*int1
-               sisn(i,l,j,ii)=sisn(i,l,j,ii)+t1ao(k,ii)*int2
+                snsi(i,j,l,ii)=snsi(i,j,l,ii)+t1ao(k,ii)*int1
+                snsi(k,j,l,ii)=snsi(k,j,l,ii)+t1ao(i,ii)*int2
+                sisn(k,l,j,ii)=sisn(k,l,j,ii)+t1ao(i,ii)*int1
+                sisn(i,l,j,ii)=sisn(i,l,j,ii)+t1ao(k,ii)*int2
               enddo
             enddo
           enddo
@@ -394,6 +468,8 @@ c
       call pstat_off(ps_idx12)
       return
       end
+#endif // USE_OPENMP
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       subroutine ccsd_idx2(snsi,sisn,cmo,scra,scrb,lscr,
      &                     nfi,nfk,ncor,nocc,nact,nbf,
      &                     ilo,ihi,klo,khi,offik,offki,
@@ -420,6 +496,7 @@ c
       do ii=1,nocc
         call dgemm('t','n',nact,nfik,nbf,1.0d00,cmo(1,ncor+1),nbf,
      &             snsi(1,1,1,ii),nbf,0.0d00,scra,nact)
+        ! matrix transpose
         do jj=1,nocc
           do ik=1,nfik
             scrb((jj-1)*nfik+ik)=scra((ik-1)*nact+jj)
@@ -438,6 +515,7 @@ c
         if (ilo.ne.klo)then
           call dgemm('t','n',nact,nfik,nbf,1.0d00,cmo(1,ncor+1),nbf,
      &               sisn(1,1,1,ii),nbf,0.0d00,scra,nact)
+          ! matrix transpose
           do jj=1,nocc
             do ik=1,nfik
               scrb((jj-1)*nfik+ik)=scra((ik-1)*nact+jj)
@@ -498,6 +576,7 @@ c // here
               do jsh=1,nsh
                 if (.not. bas_cn2bfr(basis,jsh,jlo,jhi))
      $              call errquit('vvvv: bas_cn2bfr',jsh, BASIS_ERR)
+                ! matrix transpose
                 do i=ilo,ihi 
                   do j=jlo,jhi 
                     ad1=ad1+1
