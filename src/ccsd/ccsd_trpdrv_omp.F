@@ -2,8 +2,8 @@
      &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,
      &     g_objo,g_objv,g_coul,g_exch,
      &     ncor,nocc,nvir,iprt,emp4,emp5,
-     &     oseg_lo,oseg_hi,
-     &     kchunk, Tij, Tkj, Tia, Tka, Xia, Xka, Jia, Jka, Kia, Kka,
+     &     oseg_lo,oseg_hi, kchunk,
+     &     Tij, Tkj, Tia, Tka, Xia, Xka, Jia, Jka, Kia, Kka,
      &     Jij, Jkj, Kij, Kkj, Dja, Djka, Djia)
 !     $Id$
       implicit none
@@ -13,21 +13,25 @@
 #include "ccsd_len.fh"
 #include "ccsdps.fh"
 !
-      integer ncor,nocc,nvir
-      double precision t1(*)
+      double precision, intent(inout) :: emp4,emp5
+      double precision, intent(in) :: t1(*)
+      integer, intent(in) :: ncor,nocc,nvir
+      integer, intent(in) :: iprt
+      integer, intent(in) :: g_objo,g_objv,g_coul,g_exch
+      integer, intent(in) :: oseg_lo,oseg_hi, kchunk
 ! FYI: f[1234][nt] parent routine allocates these on the heap (+fastmem)
-      double precision f1n(nvir,nvir),f1t(nvir,nvir)
-      double precision f2n(nvir,nvir),f2t(nvir,nvir)
-      double precision f3n(nvir,nvir),f3t(nvir,nvir)
-      double precision f4n(nvir,nvir),f4t(nvir,nvir)
+      double precision, intent(in) :: f1n(nvir,nvir),f1t(nvir,nvir)
+      double precision, intent(in) :: f2n(nvir,nvir),f2t(nvir,nvir)
+      double precision, intent(in) :: f3n(nvir,nvir),f3t(nvir,nvir)
+      double precision, intent(in) :: f4n(nvir,nvir),f4t(nvir,nvir)
 ! TODO: allocate a copy of eorb on heap with fastmem for KNL
-      double precision eorb(*)
+      double precision, intent(in) :: eorb(*)
 ! TODO: determine if these should be allocated w/ fastmem in parent subroutine
-      double precision Tij(*), Tkj(*), Tia(*), Tka(*)
-      double precision Xia(*), Xka(*)
-      double precision Jia(*), Jka(*), Jij(*), Jkj(*)
-      double precision Kia(*), Kka(*), Kij(*), Kkj(*)
-      double precision Dja(*), Djka(*), Djia(*)
+      double precision, intent(in) :: Tij(*), Tkj(*), Tia(*), Tka(*)
+      double precision, intent(in) :: Xia(*), Xka(*)
+      double precision, intent(in) :: Jia(*), Jka(*), Jij(*), Jkj(*)
+      double precision, intent(in) :: Kia(*), Kka(*), Kij(*), Kkj(*)
+      double precision, intent(in) :: Dja(*), Djka(*), Djia(*)
 ! used to make inline threaded tengy correct - for now
 ! TODO: allocate these on the heap and with fastmem on KNL
 #ifdef USE_F90_ALLOCATABLE
@@ -43,15 +47,11 @@
       double precision :: dintc2(nvir),dintx2(nvir),t1v2(nvir)
 #endif
 !
-      double precision emp4,emp5,denom
-      double precision emp4i,emp5i,emp4k,emp5k
-      double precision eaijk
-      integer iprt
-      integer g_objo,g_objv,g_coul,g_exch
-      integer inode,next,nodes,iam
-      integer oseg_lo,oseg_hi
-      integer a,b,c,i,j,k,akold,av
-      integer klo, khi, kchunk
+      double precision :: emp4i,emp5i,emp4k,emp5k
+      double precision :: eaijk,denom
+      integer :: inode,next,nodes,iam
+      integer :: a,b,c,i,j,k,akold,av
+      integer :: klo, khi
       integer nxtask
       external nxtask
 !
@@ -101,8 +101,12 @@
       if (ga_nodeid().eq.0) write(6,99) omp_get_max_threads()
    99 format(2x,'Using ',i2,' OpenMP threads in CCSD(T)')
 #else
-      if (ga_nodeid().eq.0) write(6,99)
-   99 format(2x,'Recompile w/ USE_OPENMP=1 to use threads in CCSD(T)')
+      if (ga_nodeid().eq.0) then
+        write(6,99) 1
+        write(6,999)
+      endif
+   99 format(2x,'Using ',i2,' OpenMP thread in CCSD(T)')
+  999 format(2x,'Recompile w/ USE_OPENMP=1 to use threads in CCSD(T)')
 #endif
 
 #ifdef USE_F90_ALLOCATABLE
@@ -312,7 +316,7 @@
                         eaijk=eorb(a) - (  eorb(ncor+i)
      &                                    +eorb(ncor+j)
      &                                    +eorb(ncor+k) )
-!$omp do simd collapse(2)
+!$omp do collapse(2)
 !$omp& schedule(static)
 !$omp& reduction(+:emp5i,emp4i)
 !$omp& reduction(+:emp5k,emp4k)
@@ -358,7 +362,7 @@
      &                   -2*(f2t(b,c)+f3t(b,c)+f2n(c,b)))
                  enddo
                enddo
-!$omp end do simd
+!$omp end do
 !$omp end parallel
                          if (occsdps) then
                             call pstat_off(ps_tengy)
