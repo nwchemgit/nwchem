@@ -29,11 +29,19 @@
 !     Implemented as DAXPY calls on each column of X/Y.  Easy.
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ! LOCAL VARIABLES
-      Integer J
+      Integer J, K
 !
+#if USE_BLAS_NOT_LOOPS
       Do J = 1, N
          Call daxpy(M, Alpha, X(1, J), 1, Y(1, J), 1)
       EndDo
+#else
+      do J = 1, N
+         do K = 1, M
+            Y(K, J) = Y(K, J) + Alpha * X(K, J)
+         enddo
+      enddo
+#endif
 !
       Return
       End
