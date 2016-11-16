@@ -107,10 +107,11 @@ c     show how much memory g_st2 (a_st2) needs
          nsz_st2 = lnoo * nbfdim*ma_sizeof(MT_DBL,1,MT_BYTE)
          mem_ava=ma_inquire_avail(MT_BYTE)
          if(iam.eq.0) then
+          if (util_print('ccsd extra', print_high)) then
             write(*,'(a,i8,a)') " g_st2 size:",
      &           max(nsz_st2/1024/1024,1), " MB",
      &           " mem. avail ",max(mem_ava/1024/1024,1)," MB"
-            
+          endif
          endif
          tstart = util_wallsec()
 c       use node-replicated a_st2 instead of g_st2
@@ -121,26 +122,33 @@ c     lets grab 80% of available memory
      A           'ast2',l_ast2,k_ast2)
          else
             if(iam.eq.0) write(*,'(a,I10)')
-     &           "Not enough mem for st2. Increase MA by",
+     &           " Not enough mem for st2. Increase MA by",
      M           -mem_left/1024/1024," MB"
             use_inmem_st2 = .false.
          endif
          if(use_inmem_st2) then
-            if(iam.eq.0) write(*,'(a)') 
-     &           "Memory based method: ST2 is allocated"
+           if(iam.eq.0) then
+            if (util_print('ccsd extra', print_high)) then
+             write(*,'(a)') " Memory based method: ST2 is allocated"
+            endif
+           endif
 c     
 c     compute ST2 in parallel: expect network congestion
-            call util_mygabcast(g_st2,lnoo,nbfdim,dbl_mb(k_ast2),lnoo)
+           call util_mygabcast(g_st2,lnoo,nbfdim,dbl_mb(k_ast2),lnoo)
          else
-            if(iam.eq.0) write(*,'(a)') 
-     &           "Not Enough Memory to keep ST2 in local mem"
+          if(iam.eq.0) then
+           write(*,'(a)') " Not Enough Memory to keep ST2 in local"
+     &                    " memory - expect network congestion."
+          endif
          endif
 
          
          tused = util_wallsec() - tstart
          if (iam.eq.0.and.use_inmem_st2) then
-            write(6,'(a,f9.2,a)') " ST2 array is replicated ",tused,"s"
-            call util_flush(6)
+           if (util_print('ccsd extra', print_high)) then
+             write(6,'(a,f9.2,a)') " ST2 array is replicated ",tused,"s"
+           endif
+           call util_flush(6)
          endif
          
       endif
