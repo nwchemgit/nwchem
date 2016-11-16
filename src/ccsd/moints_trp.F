@@ -16,7 +16,7 @@ c
       status = bas_numbf(basis,nbf)
       status = status.and.bas_numcont(basis,nsh)
       status = status.and.bas_nbf_cn_max(basis,maxbfsh)
-      if (.not.status) call errquit('moints: cannot get basis info',0,
+      if (.not.status) call errquit('moints_trp: cannot get basis info',0,
      &       BASIS_ERR)
       bsize = max(blen,maxbfsh)
       call intb_mem_2e4c(max2e, mem2) ! Determine mem2 = scratch space
@@ -124,8 +124,8 @@ c
        status = bas_numbf(basis,nbf)
        status = status.and.bas_numcont(basis,nsh)
        status = status.and.bas_nbf_cn_max(basis,maxbfsh)
-       if (.not.status) call errquit('moints: cannot get basis info',0,
-     &       BASIS_ERR)
+       if (.not.status) 
+     $  call errquit('moints_trp: cannot get basis info',0,BASIS_ERR)
        nmo1 = mo1_hi - mo1_lo + 1
        nmo2 = mo2_hi - mo2_lo + 1
 c
@@ -251,9 +251,8 @@ c
                call dfill(n_ijni,0.d0,dbl_mb(k_ssni),1)
 
                if (.not. ma_push_get(MT_DBL,n_ssbb,'ssbb block',
-     $              l_ssbb,k_ssbb)) call errquit
-     $              ('moints_trp: failed to alloc ssbb',n_ssbb,
-     &       MA_ERR)
+     $                               l_ssbb,k_ssbb)) 
+     $           call errquit('moints_trp: push ssbb',n_ssbb,MA_ERR)
 
                do kgr=1,ngrp
                  kshlo = int_mb(k_glo+kgr-1)
@@ -272,14 +271,12 @@ c
                    lbfhi = int_mb(k_rbfmap+jz-1)
                    lblen = lbfhi - lbflo + 1
                    
-                   if (.not. ma_push_get(MT_DBL, max2e,'moints: buf', 
-     $                  l_eri, k_eri)) call errquit
-     $                  ('moints_trp: failed to alloc buf',max2e,
-     &       MA_ERR)
+                   if (.not. ma_push_get(MT_DBL, max2e,'moints: buf',
+     $                                   l_eri, k_eri))
+     $               call errquit('moints_trp: push buf',max2e,MA_ERR)
                    if (.not. ma_push_get(MT_DBL, mem2, 'moints: scr', 
-     $                  l_iscr, k_iscr)) call errquit
-     $                  ('moints_trp: failed to alloc scr',mem2, MA_ERR)
-
+     $                                   l_iscr, k_iscr)) 
+     $               call errquit('moints_trp: push scr',mem2,MA_ERR)
 
                    call moints_gblk( basis, ish, jsh,
      $                               kshlo, kshhi, lshlo, lshhi,
@@ -292,23 +289,20 @@ c
      $                               dbl_mb(k_ssbb) )
 
                    if (.not. ma_pop_stack(l_iscr))
-     $                  call errquit('moints: failed to pop', l_iscr,
-     &       MA_ERR)
+     $               call errquit('moints_trp: pop iscr',l_iscr,MA_ERR)
                    if (.not. ma_pop_stack(l_eri))
-     $                  call errquit('moints: failed to pop', l_eri,
-     &       MA_ERR)
-
+     $               call errquit('moints_trp: pop eri',l_eri,MA_ERR)
 
                    if (.not. ma_push_get(MT_DBL,n_hlp,'hlp block',
-     $                  l_hlp,k_hlp)) call errquit
-     $                  ('moints_trp: failed to alloc hlp',n_hlp,
-     &       MA_ERR)
+     $                                   l_hlp,k_hlp)) 
+     $               call errquit('moints_trp: push hlp',n_hlp,MA_ERR)
 
                    if (lgr.ne.kgr) then
 
                       if (.not. ma_push_get(MT_DBL,n_ssbb,'ssbbt block',
-     $                     l_ssbbt,k_ssbbt)) call errquit
-     $                     ('moints: failed ssbbt', n_ssbb, MA_ERR)
+     $                                      l_ssbbt,k_ssbbt)) 
+     $                  call errquit('moints_trp: push ssbbt',n_ssbb,
+     $                               MA_ERR)
 
                      call moints_blktr( ilen, jlen, kblen, lblen,
      $                                  dbl_mb(k_ssbb),
@@ -322,8 +316,8 @@ c
      $                                 dbl_mb(k_ssni), dbl_mb(k_hlp) )
 
                      if (.not. ma_pop_stack(l_ssbbt))
-     $                    call errquit('moints: failed to pop', l_ssbbt,
-     &       MA_ERR)
+     $                    call errquit('moints_trp: pop ssbbt',l_ssbbt,
+     $                                 MA_ERR)
 
                    else
                      call moints_trf1( nbf, 1, nbf, mo1_lo, mo1_hi,
@@ -335,27 +329,23 @@ c
                    endif
 
                    if (.not. ma_pop_stack(l_hlp))
-     $                  call errquit('moints: failed to pop', l_hlp,
-     &       MA_ERR)
+     $               call errquit('moints_trp: pop hlp',l_hlp,MA_ERR)
 
                  enddo
                enddo
 
                if (.not. ma_pop_stack(l_ssbb))
-     $              call errquit('moints: failed to pop', l_ssbb,
-     &       MA_ERR)
+     $           call errquit('moints_trp: pop ssbb',l_ssbb,MA_ERR)
 
                if (.not. ma_push_get(MT_DBL,n_hlp,'hlp block',
-     $              l_hlp,k_hlp)) call errquit
-     $              ('moints_trp: failed to alloc hlp',n_hlp,
-     &       MA_ERR)
+     $                               l_hlp,k_hlp)) 
+     $           call errquit('moints_trp: push hlp',n_hlp,MA_ERR)
 
                if (oexch) then
 
                   if (.not. ma_push_get(MT_DBL,n_hlp2,'hlp2 block',
-     $                 l_hlp2,k_hlp2)) call errquit
-     $                 ('moints_trp: failed to alloc hlp2',n_hlp2,
-     &       MA_ERR)
+     $                                  l_hlp2,k_hlp2))
+     $              call errquit('moints_trp: push hlp2',n_hlp2,MA_ERR)
 
                  call mo_trp_trf23K( nbf, occ_start,
      $                               mo1_lo, mo1_hi, nmo2,
@@ -367,16 +357,14 @@ c
      $                               g_exch, ncor, nocc)
 
                  if (.not. ma_pop_stack(l_hlp2))
-     $                call errquit('moints: failed to pop', l_hlp2,
-     &       MA_ERR)
+     $             call errquit('moints_trp: pop hlp2',l_hlp2,MA_ERR)
 
                endif
                if (ocoul) then
 
                   if (.not. ma_push_get(MT_DBL,n_hlp3,'hlp3 block',
-     $                 l_hlp3,k_hlp3)) call errquit
-     $                 ('moints_trp: failed to alloc hlp2',n_hlp3,
-     &       MA_ERR)
+     $                                  l_hlp3,k_hlp3))
+     $              call errquit('moints_trp: push hlp3',n_hlp3,MA_ERR)
 
                  call mo_trp_trf2J( nbf, occ_start, mo1_lo, mo1_hi,
      $                              ibflo, ibfhi, jbflo, jbfhi,
@@ -385,13 +373,11 @@ c
      $                              g_coul, ncor, nocc)
 
                  if (.not. ma_pop_stack(l_hlp3))
-     $                call errquit('moints: failed to pop', l_hlp3,
-     &       MA_ERR)
+     $             call errquit('moints_trp: pop hlp3',l_hlp3,MA_ERR)
 
                endif
                if (.not. ma_pop_stack(l_hlp))
-     $              call errquit('moints: failed to pop', l_hlp,
-     &       MA_ERR)
+     $           call errquit('moints_trp: pop hlp',l_hlp,MA_ERR)
                next = nxtask(num_nodes, 1)
              endif
              ploop = ploop + 1
@@ -403,7 +389,7 @@ c
 c Clean-up
 c
        if (.not. ma_chop_stack(l_shmap))
-     $     call errquit('moints: failed to pop', l_shmap, MA_ERR)
+     $     call errquit('moints_trp: failed to pop', l_shmap, MA_ERR)
 c
        status = ma_push_get(MT_DBL,(nbf*nbf),'hlp',l_hlp,k_hlp)
        if (oexch) then
@@ -424,17 +410,17 @@ c
 *       d1 = ga_ddot(g_coul,g_coul)
 *       d2 = ga_ddot(g_exch,g_exch)
 *       if (ga_nodeid() .eq. 0) then
-*	   write(6,*) ' GACOUL1 ', d1
-*	   write(6,*) ' GAEXCH1 ', d2
+*         write(6,*) ' GACOUL1 ', d1
+*         write(6,*) ' GAEXCH1 ', d2
 *       endif
 c
 c  Clean up
 c
        if (.not. ma_pop_stack(l_hlp))
-     $     call errquit('moints: failed to pop', l_hlp, MA_ERR)
+     $   call errquit('moints_trp: pop hlp', l_hlp, MA_ERR)
        if (osym) then
-          if (.not. ma_pop_stack(l_sym))
-     $         call errquit('moints_trp: memory corrupt',0, MA_ERR)
+         if (.not. ma_pop_stack(l_sym))
+     $     call errquit('moints_trp: pop sym',0, MA_ERR)
        endif
 c
 c
@@ -502,6 +488,7 @@ cstaggering to avoid congestion in ga-acc
                enddo
              enddo
 #elif USE_NEW_LOOPS
+           this code is not correct
            if (abs(scale-1.0d0).lt.(1.e-13)) then
              do j=jlo,jhi
                do i=ilo,ihi
@@ -550,6 +537,7 @@ cstaggering to avoid congestion in ga-acc
             enddo
           enddo
 #elif USE_NEW_LOOPS
+          this code is not correct
           if (abs(scale-1.0d0).lt.(1.e-13)) then
             do i=ilo,ihi
               do j=jlo,jhi
@@ -788,10 +776,10 @@ cstaggering
       icnt=0
       do i=1,nbf
         do j=1,i
+          ! icnt = i*(i-1)/2 + j
           icnt=icnt+1
           tmp(j,i) = x(icnt)
           tmp(i,j) = x(icnt)
-CRK       write(6,*)'tmp',tmp(i,j)
         enddo
       enddo
 
