@@ -251,6 +251,14 @@
 !$omp& private(b,c,eaijk,denom)
 !$omp& firstprivate(ncor,nocc,nvir,lnov,lnvv,i,j,k,klo)
 
+!
+! Performance Note:
+!
+! By definition, the following does not scale to more than 8 threads
+! unless nested parallelism (i.e. inside of DGEMM) is used.
+! It may be prudent to write a manually threaded wrapper for the
+! cases where single-threaded BLAS is used.
+!
 !$omp sections
 !$omp section
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
