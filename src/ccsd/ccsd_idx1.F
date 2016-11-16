@@ -58,18 +58,18 @@ c
       return
       end
 #if defined(USE_OPENMP)
-      subroutine ccsd_idx1_wrk1(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nocc,
-     &                     nbf,ilo,ihi,klo,khi)
+      subroutine ccsd_idx1_wrk1(snsi,sisn,eri1,eri2,t1ao,
+     &                          nfj,nfl,nocc,nbf,ilo,ihi,klo,khi)
       implicit none
 #include "ccsdps.fh"
-      integer nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
-      integer i,j,k,l,ii
-      double precision eri1(nfl,klo:khi,nfj,ilo:ihi),
-     &                 eri2(nfj,klo:khi,nfl,ilo:ihi),
-     &                 snsi(nbf,nfj,nfl,nocc),
-     &                 sisn(nbf,nfl,nfj,nocc),
-     &                 t1ao(nbf,nocc)
-      double precision int1,int2
+      double precision, intent(inout) :: snsi(nbf,nfj,nfl,nocc)
+      double precision, intent(inout) :: sisn(nbf,nfl,nfj,nocc)
+      double precision, intent(in) :: eri1(nfl,klo:khi,nfj,ilo:ihi)
+      double precision, intent(in) :: eri2(nfj,klo:khi,nfl,ilo:ihi)
+      double precision, intent(in) :: t1ao(nbf,nocc)
+      integer, intent(in) :: nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
+      double precision :: int1,int2
+      integer :: i,j,k,l,ii
       call pstat_on(ps_idx11)
 !$omp parallel do schedule(static)
 !$omp& default(none)
@@ -96,18 +96,18 @@ c
       call pstat_off(ps_idx11)
       return
       end
-      subroutine ccsd_idx1_wrk2(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nocc,
-     &                     nbf,ilo,ihi,klo,khi)
+      subroutine ccsd_idx1_wrk2(snsi,sisn,eri1,eri2,t1ao,
+     &                          nfj,nfl,nocc,nbf,ilo,ihi,klo,khi)
       implicit none
 #include "ccsdps.fh"
-      integer nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
-      integer i,j,k,l,ii
-      double precision eri1(nfl,klo:khi,nfj,ilo:ihi),
-     &                 eri2(nfj,klo:khi,nfl,ilo:ihi),
-     &                 snsi(nbf,nfj,nfl,nocc),
-     &                 sisn(nbf,nfl,nfj,nocc),
-     &                 t1ao(nbf,nocc)
+      double precision, intent(inout) :: snsi(nbf,nfj,nfl,nocc)
+      double precision, intent(inout) :: sisn(nbf,nfl,nfj,nocc)
+      double precision, intent(in) :: eri1(nfl,klo:khi,nfj,ilo:ihi)
+      double precision, intent(in) :: eri2(nfj,klo:khi,nfl,ilo:ihi)
+      double precision, intent(in) :: t1ao(nbf,nocc)
+      integer, intent(in) :: nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
       double precision int1,int2
+      integer i,j,k,l,ii
       call pstat_on(ps_idx12)
 !$omp parallel do schedule(static)
 !$omp& default(none)
