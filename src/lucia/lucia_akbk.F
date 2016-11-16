@@ -5281,7 +5281,8 @@ cVOG    else
          igsoccupd(igas,1,icispc) = igsoccx(igas,1,icispc)
          igsoccupd(igas,2,icispc) = igsoccx(igas,2,icispc)
          if (igas.eq.imofromto(2)) then
-          igsoccupd(igas,1,icispc) = igsoccupd(igas,1,icispc) - 2
+          igsoccupd(igas,1,icispc) = igsoccupd(igas,1,icispc) -
+     &                               2*ngssh(imofromto(1),imofromto(2))
           if (((igas-1).gt.0).and.
      &       (igsoccupd(igas,1,icispc).lt.igsoccupd(igas-1,1,icispc)))
      &        igsoccupd(igas,1,icispc) = igsoccupd(igas-1,1,icispc)
@@ -5292,10 +5293,9 @@ cVOG    else
         !
         ! Move target MO in a new GAS space
         !
-        ngsshupd(imofromto(1),imofromto(2)) =
-     &   ngsshupd(imofromto(1),imofromto(2)) - 1
-        ngsshupd(imofromto(1),imofromto(3)) =
-     &   ngsshupd(imofromto(1),imofromto(3)) + 1
+        ngsshupd(imofromto(1),imofromto(2)) = 0
+        ngsshupd(imofromto(1),imofromto(3)) = 
+     &     ngssh(imofromto(1),imofromto(2))
         !
         ! Min/Max Occ
         igsoccupd(imofromto(3),1,icispc) = 
@@ -5330,26 +5330,24 @@ cVOG    else
         !
         ! GAS space from/to where we will move one MO
         !
-        do igas = imofromto(2), ngas
-         nmoings = 0
-         do irrep = 1, nirrep
-          nmoings = nmoings + ngsshupd(irrep,igas)
-         end do
-         if (nmoings.gt.1) exit
+        nmoings = 0
+        do irrep = 1, nirrep
+         nmoings = nmoings + ngsshupd(irrep,1)
         end do
+        imofromto(2) = 1
         !
-        if (igas.eq.imofromto(2)) then
-         imofromto(3) = imofromto(3) + 1
-        else
-         imofromto(2) = igas
-         imofromto(3) = igas + 1
-        end if
+        imofromto(3) = imofromto(3) + 1
         !
         ! Irrep of the MO
         !
+        iminmo = 100
         do irrep = 1, nirrep
-         if ((ngsshupd(irrep,imofromto(2)).ge.1).and.
-     &       (irrep.ne.imofromto(1))) then
+         if (ngsshupd(irrep,1).ne.0) then
+          if (ngsshupd(irrep,1).lt.iminmo) iminmo = ngsshupd(irrep,1)
+         end if
+        end do
+        do irrep = 1, nirrep
+         if (ngsshupd(irrep,imofromto(2)).eq.iminmo) then
           imofromto(1) = irrep
           exit
          end if
@@ -6250,38 +6248,34 @@ cVOG    else
       imofromto(2) = 0
       imofromto(3) = 0
       !
-      ! GAS space from where we will move one MO
+      ! GAS space from where we will move the MOs
       !
-      do igas = 1, ngas
-        nmoings = 0
-       do irrep = 1, nirrep
-        nmoings = nmoings + ngssh(irrep,igas)
-       end do
-       if (nmoings.gt.1) then
-        imofromto(2) = igas
-        exit
-       end if
+      nmoings = 0
+      do irrep = 1, nirrep
+       nmoings = nmoings + ngssh(irrep,1)
       end do
+      if (nmoings.gt.1) then
+       imofromto(2) = 1
+      else
+       STOP ' GAS 1 is empty!!! No MOs to move, I QUIT!!! '
+      end if
       !
       ! GAS space in which we will move the MO
       !
-      imofromto(3) = imofromto(2) + 1
+      imofromto(3) = ngas + 1
       !
-      ! Irrep of the MO
+      ! MOs of the irrep that I will move to imofromto(3)
       !
+      iminmo = 100
       do irrep = 1, nirrep
-       if (ngssh(irrep,imofromto(2)).ge.1) then
-        if (ngssh(irrep,imofromto(2)).gt.1) then
-         imofromto(1) = irrep
-         exit
-        else
-         do jrrep = irrep + 1, nirrep
-          if (ngssh(jrrep,imofromto(2)).ge.1) then
-           imofromto(1) = jrrep
-           exit
-          end if
-         end do
-        end if
+       if (ngssh(irrep,1).ne.0) then
+        if (ngssh(irrep,1).lt.iminmo) iminmo = ngssh(irrep,1)
+       end if
+      end do
+      do irrep = 1, nirrep
+       if (ngssh(irrep,imofromto(2)).eq.iminmo) then
+        imofromto(1) = irrep
+        exit
        end if
       end do
 *
@@ -6370,8 +6364,8 @@ cVOG    else
 *. First Z_FLOCK and CIV2 calls
 *. Obtain TTSS batches and calculate those with very few blocks
 *
-       MXBLKBATCH = 100    
-c      write(*,*) 'fixed MXBLKBATCH', MXBLKBATCH
+       MXBLKBATCH = 100000
+       if (ga_nodeid().eq.0) write(*,*) 'fixed MXBLKBATCH', MXBLKBATCH
        CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
      &       NTEST,NCBLOCK,NCBATCH,int_mb(KCIOIO),int_mb(KCBLTP),
      &       NCOCCLS_ACT,int_mb(KCIOCCLS_ACT),
@@ -6379,22 +6373,27 @@ c      write(*,*) 'fixed MXBLKBATCH', MXBLKBATCH
      &       int_mb(KCIBT),
      &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
 *
-c      write(*,*) 'NCBATCH', NCBATCH
        IBATCHCOUNT = NBATCHES_FEW_BLOCKS(NCBATCH,int_mb(KCLBT))
-c      write(*,*) 'IBATCHCOUNT', IBATCHCOUNT
-c      write(*,*) 'NCBLOCK', NCBLOCK
        NDISTBATCH = NCBATCH - IBATCHCOUNT
-       IOPTBATCHPNODE = 10
+       IOPTBATCHPNODE = 10 !BE CAREFUL - might need to be revised or defined differently
        LBPNODE = INT(NCBATCH/ga_nnodes())
-c      write(*,*) 'LBPNODE',LBPNODE,IOPTBATCHPNODE
-c       LBPNODE    = ga_nnodes() * IOPTBATCHPNODE
-c       MXBLKBATCH = INT((NCBLOCK - IBATCHCOUNT) / LBPNODE)
-c      write(*,*) 'estim MXBLKBATCH', MXBLKBATCH
+
+       if (ga_nodeid().eq.0) write(*,*) 'NCBATCH', NCBATCH
+       if (ga_nodeid().eq.0) write(*,*) 'IBATCHCOUNT', IBATCHCOUNT
+       if (ga_nodeid().eq.0) write(*,*) 'NCBLOCK', NCBLOCK
+       if (ga_nodeid().eq.0) write(*,*) 'NDISTBATCH', NDISTBATCH
+       if (ga_nodeid().eq.0) write(*,*) 'LBPNODE',LBPNODE,IOPTBATCHPNODE
+*
+*. Number of Blocks per Batch
+*
+       MXBLKBATCH = 2 
+       if (ga_nodeid().eq.0) write(*,*) 'estim MXBLKBATCH', MXBLKBATCH
+*
 c      IF (MXBLKBATCH.LT.0) THEN
-       nfragagain = 0
-       IF (LBPNODE.LT.IOPTBATCHPNODE) THEN
-        nfragagain = 1
-       ELSE
+c       nfragagain = 0
+c       IF (LBPNODE.LT.IOPTBATCHPNODE) THEN
+c        nfragagain = 1
+c       ELSE
 *
 *. Second Z_FLOCK and CIV2 calls with estimated number of blocks per batch
         CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
@@ -6403,7 +6402,17 @@ c      IF (MXBLKBATCH.LT.0) THEN
      &       int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
      &       int_mb(KCIBT),
      &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
-       END IF
+c       END IF
+*
+* VOG Nov16: Check if you will split further the CAS after you have the final 
+*            number of TTSS Blocks
+*
+       if (ga_nodeid().eq.0) write(*,*) 'NCBATCH-final', NCBATCH
+       if (ga_nodeid().eq.0) write(*,*) 'NCBLOCK-final', NCBLOCK
+       LBPNODE = INT(NCBATCH/ga_nnodes())
+       if (ga_nodeid().eq.0) write(*,*) 'LBPNODE',LBPNODE,IOPTBATCHPNODE
+       nfragagain = 0
+       IF (LBPNODE.LT.IOPTBATCHPNODE) nfragagain = 1
 *
 *. Calculate blocks/nnodes ratio and print size of batches
 *
@@ -6426,6 +6435,8 @@ c    &                      nnod,ntest,nfragagain)
 !      if ((NCBLOCK.lt.nnod).or.(nfragagain.eq.1)) then
 !       nfragagain = 0 ! DANGER
       if (nfragagain.eq.1) then
+       if (NGAS.eq.nirrep)
+     &  STOP ' Maximum number of GAS spaces reached, I QUIT!!! '
        if (ga_nodeid().eq.0) write(*,*) 'I will fragment the GAS space'
        call fraggas(igasloop,ngasadd,imofromto)
       else
@@ -6888,7 +6899,7 @@ c      integer IMAP2(nnod)
 *
 *. Initializations
 *
-      ntest = 100
+      ntest = 00
       do i=1, NBATS
        imap2(i) = 0
       end do
@@ -6989,7 +7000,8 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
 *. Important for cases that TTSS blocks are not distributed in the available nodes
 *
       IF (LFIRSTORDER.EQ.0) THEN
-      NFRAG = 10
+      NPLUSONE = 0
+      MINDIFF = nttsswsum
 110   CONTINUE
 *
       !
@@ -7002,6 +7014,16 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
       isumsd = 0
       IIBLK = 0
       JBATS = 0
+cUT
+      ISUMW    = 0
+      JBLK     = 0
+      IACCUSD  = 0
+      ISUMSD   = 0
+      INODE    = 0
+      NPLUSONE = NPLUSONE + 1
+      IREMW    = nttsswsum
+      INODREM  = NNOD
+      LIMBLKCHK = limitblk
 *
 !      remw= 100.0d0 ! size of the remaining TTSS weights
 *
@@ -7011,71 +7033,217 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
       NREM    = MOD(NBATS,NNOD)
 *
       limitblk = INT(nttsswsum / NNOD) !remw/NBATS * NBPNMIN
-      nwindow  = INT(limitblk/NFRAG)
-      limitblk = limitblk + nwindow
+      limitblk = limitblk + NPLUSONE
+cUT      nwindow  = INT(limitblk/NFRAG)
+cUT      limitblk = limitblk + nwindow
       !
-      if (ga_nodeid().eq.0.and.ntest.ge.10) then
+      if (ga_nodeid().eq.0.and.ntest.ge.1000) then
        write(*,*) 'NEW ALGORITHM FOR THE CI DISTRIBUTION'
-       write(*,*)
-       write(*,*) 'NBatchPerNode ', NBPNMIN
-       write(*,*) 'NREM(modulo)  ', NREM 
-       write(*,*) 'NFRAG         ', NFRAG
-       write(*,*) 'START limitblk', limitblk
+       write(*,*) 'NBATS         ', NBATS
+       write(*,*) 'limitblk      ', limitblk
+       write(*,*) 'MINDIFF       ', MINDIFF
        write(*,*)
       end if
       !
       ! Begin work
       !
-      DO INODE = 1, NNOD
+      DO JBATS = 1, NBATS
        !
-       ! Sum TTSS weights
-!       nchkttssw = 0
-       nsumttssw = 0
+       ! Add the TTSS weights
+       ISUMW   = ISUMW   + NTTSSW(JBATS)
+       ICHKBLK = ISUMW   + NTTSSW(JBATS + 1)
        !
-       DO I = 1, NBPNMIN
-        JBATS = JBATS + 1
-        nsumttssw = nsumttssw + nttssw(JBATS)
+       ! Count the number of CI batches distributed per processor
+       IBPNOD(INODE+1,2) = IBPNOD(INODE+1,2) + 1
+*
+       DO IBLKS = 1, LBATS(JBATS)
         !
-        DO IBLK = 1, LBATS(JBATS)
-         IIBLK = IIBLK + 1
-         iaccumsd = iaccumsd + IBATS(8,IIBLK)
-         isumsd   = isumsd   + IBATS(8,IIBLK)
-        END DO
-       END DO
+        ! Count the number of CI blocks distributed per processor
+        IBPNOD(INODE+1,1) = IBPNOD(INODE+1,1) + 1
+        !
+        JBLK = JBLK + 1
+        IACCUSD = IACCUSD + IBATS(8,JBLK)
+        ISUMSD  = ISUMSD  + IBATS(8,JBLK)
+       END DO ! End of the blocks per batch loop
+*
        !
-       ! Choose route
-       IF (nsumttssw.lt.limitblk.and.NREM.NE.0) THEN
-        ibpnod(INODE,2) = NBPNMIN+1
-        NREM = NREM - 1
-        JBATS = JBATS + 1
-        nsumttssw = nsumttssw + nttssw(JBATS)
-        DO IBLK = 1, LBATS(JBATS)
-         IIBLK = IIBLK + 1
-         iaccumsd = iaccumsd + IBATS(8,IIBLK)
-         isumsd   = isumsd   + IBATS(8,IIBLK)
-        END DO
+       ! Control
+       IF (INODE.LT.(NNOD-1)) THEN
+        IF (ICHKBLK.GT.LIMBLKCHK) THEN
+         INODE = INODE + 1
+         ISIZE(INODE) = ISUMSD
+         IMAP2(INODE+1) = IACCUSD + 1
+         !
+         ! Dynamically modify the limit size of the block
+         IREMW    = IREMW - ISUMW
+         INODREM  = INODREM - 1
+         LIMBLKCHK = INT(IREMW/INODREM)
+         LIMBLKCHK = LIMBLKCHK + NPLUSONE
+         !
+         ! Nullify sums for next node
+         ISUMW  = 0
+         ISUMSD = 0
+        END IF
        ELSE
-        ibpnod(INODE,2) = NBPNMIN
+        IF (JBLK.EQ.NBLK) ISIZE(INODE+1) = ISUMSD
        END IF
-       !
-       ! Add SD dimensions
-       isize(INODE) = isumsd
-       IF (INODE.NE.NNOD) imap2(inode+1) = iaccumsd + 1
+      END DO ! End of the distribution loop
+cUT      DO INODE = 1, NNOD
+cUT       !
+cUT       ! Sum TTSS weights
+cUT!       nchkttssw = 0
+cUT       nsumttssw = 0
+cUT       !
+cUT       DO I = 1, NBPNMIN
+cUT        JBATS = JBATS + 1
+cUT        nsumttssw = nsumttssw + nttssw(JBATS)
+cUT        !
+cUT        DO IBLK = 1, LBATS(JBATS)
+cUT         IIBLK = IIBLK + 1
+cUT         iaccumsd = iaccumsd + IBATS(8,IIBLK)
+cUT         isumsd   = isumsd   + IBATS(8,IIBLK)
+cUT        END DO
+cUT       END DO
+cUT       !
+cUT       ! Choose route
+cUT       IF (nsumttssw.lt.limitblk.and.NREM.NE.0) THEN
+cUT        ibpnod(INODE,2) = NBPNMIN+1
+cUT        NREM = NREM - 1
+cUT        JBATS = JBATS + 1
+cUT        nsumttssw = nsumttssw + nttssw(JBATS)
+cUT        DO IBLK = 1, LBATS(JBATS)
+cUT         IIBLK = IIBLK + 1
+cUT         iaccumsd = iaccumsd + IBATS(8,IIBLK)
+cUT         isumsd   = isumsd   + IBATS(8,IIBLK)
+cUT        END DO
+cUT       ELSE
+cUT        ibpnod(INODE,2) = NBPNMIN
+cUT       END IF
+cUT       !
+cUT       ! Add SD dimensions
+cUT       isize(INODE) = isumsd
+cUT       IF (INODE.NE.NNOD) imap2(inode+1) = iaccumsd + 1
+cUT*
+cUT       isumsd  = 0
+cUT*
+cUT      END DO
 *
-       isumsd  = 0
+*. Sum the TTSS weights per node
 *
+      j = 0
+      ntotweight = 0
+      do inode = 1, ga_nnodes()
+       do i = 1, ibpnod(inode,2)
+        j = j + 1
+        ntotweight(inode) = ntotweight(inode) + nttssw(j)
+       end do
+      end do
+*
+*. Remaining IMAP2 enrties should hold the total number of SDs
+*
+      do i = nnod+1,NBATS
+       imap2(i) = ilen
+      end do
+*     
+*. Minimization of the MIN/MAX difference for an optimum distribution
+*
+      !
+      ! CI Block Weight statistics
+      !
+      minw = ntotweight(1)
+      maxw = 0
+      DO INODE = 1, ga_nnodes()
+       if (ntotweight(inode).ge.maxw) maxw = ntotweight(inode)
+       if (ntotweight(inode).lt.minw) minw = ntotweight(inode)
       END DO
-*
-      IF (NREM.NE.0) THEN
-        IF (ga_nodeid().eq.0) 
-     &   write(*,*) ' PROBLEM, TTSS BATCHES ARE MISSING!!!'
-        NFRAG = NFRAG - 1
-        IF (NFRAG.NE.0) THEN
-         GOTO 110
-        ELSE
-         STOP       ' NFRAG = 0. Something BAD has happened here!!! '
-       END IF
+      ndiffw = maxw - minw
+      !
+      ! Control
+      !
+      IF (ndiffw.LT.MINDIFF) THEN
+       MINDIFF = ndiffw
+       IOPTLIMIT = LIMITBLK
+       NPLUSFINAL = NPLUSONE
+       if (ga_nodeid().eq.0) write(*,*) 'NEW MIN DIFF',
+     &                                   MINDIFF,LIMITBLK,NPLUSFINAL
       END IF
+*     
+*. Set a limit that allows to examine various LIMITBLK
+*. and minimize the MIN/MAX difference
+*
+      IF (NPLUSONE.NE.(INT(limitblk/2))) GOTO 110 !Arbitrary limit in order to avoid an infinite loop!
+*
+*. Once the big loop is over and we have the optimum LIMITBLK, repeat work
+*
+      LIMITBLK = IOPTLIMIT
+      if (ga_nodeid().eq.0.and.ntest.ge.10) then
+       write(*,*) 'NEW ALGORITHM FOR THE CI DISTRIBUTION - FINAL STEP'
+       write(*,*) 'NBATS         ', NBATS
+       write(*,*) 'limitblk      ', limitblk
+       write(*,*)
+      end if   
+      !
+      ! Initializations
+      !
+      iaccumsd = 0
+      inodrem = nnod
+      imap2(1) = 1
+      ibpnod = 0
+      isumsd = 0
+      IIBLK = 0
+      JBATS = 0
+      ISUMW    = 0
+      JBLK     = 0
+      IACCUSD  = 0
+      ISUMSD   = 0
+      INODE    = 0
+      IREMW    = nttsswsum
+      INODREM  = NNOD
+      LIMBLKCHK = limitblk
+      !
+      ! Begin work
+      !
+      DO JBATS = 1, NBATS
+       !
+       ! Add the TTSS weights
+       ISUMW   = ISUMW   + NTTSSW(JBATS)
+       ICHKBLK = ISUMW   + NTTSSW(JBATS + 1)
+       !
+       ! Count the number of CI batches distributed per processor
+       IBPNOD(INODE+1,2) = IBPNOD(INODE+1,2) + 1
+*
+       DO IBLKS = 1, LBATS(JBATS)
+        !
+        ! Count the number of CI blocks distributed per processor
+        IBPNOD(INODE+1,1) = IBPNOD(INODE+1,1) + 1
+        !
+        JBLK = JBLK + 1
+        IACCUSD = IACCUSD + IBATS(8,JBLK)
+        ISUMSD  = ISUMSD  + IBATS(8,JBLK)
+       END DO ! End of the blocks per batch loop
+*
+       !
+       ! Control
+       IF (INODE.LT.(NNOD-1)) THEN
+        IF (ICHKBLK.GT.LIMBLKCHK) THEN
+         INODE = INODE + 1
+         ISIZE(INODE) = ISUMSD
+         IMAP2(INODE+1) = IACCUSD + 1
+         !
+         ! Dynamically modify the limit size of the block
+         IREMW    = IREMW - ISUMW
+         INODREM  = INODREM - 1
+         LIMBLKCHK = INT(IREMW/INODREM)
+         LIMBLKCHK = LIMBLKCHK + NPLUSFINAL
+         !
+         ! Nullify sums for next node
+         ISUMW  = 0
+         ISUMSD = 0
+        END IF
+       ELSE
+        IF (JBLK.EQ.NBLK) ISIZE(INODE+1) = ISUMSD
+       END IF
+      END DO ! End of the distribution loop
 *
 *. Sum the TTSS weights per node
 *
@@ -7094,15 +7262,7 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
        imap2(i) = ilen
       end do
 *
-*. Calculate the number of TTSS blocks per node
-* 
-       II = 0
-       DO inode = 1, ga_nnodes()
-        DO IBATCH = 1, ibpnod(inode,2)
-         II = II + 1
-         ibpnod(inode,1) = ibpnod(inode,1) + LBATS(II)
-        END DO
-       END DO
+*. Print distribution output and statistics
 *
       if (ga_nodeid().eq.0) then
        isum    = 0
@@ -7156,6 +7316,9 @@ cVOG  call ttssweight3(ttssw,IBATS,NBATS,LBATS,NBLK)
        write(*,*)
       end if
 *
+*. Self-consistent distribution
+*
+      IF (ndiffw.LT.MINDIFF) MINDIFF = ndiffw
       ELSE
 ***********
        !
@@ -7558,7 +7721,7 @@ c     real ASYM(NGAS)
 *
 *. Initializations
 *
-      ntest = 1000
+      ntest = 000
 *
 *. Obtain size of each TTSS BATCH (number of SDs)
 *
