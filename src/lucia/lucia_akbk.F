@@ -6241,7 +6241,7 @@ cVOG    else
 *. LUCIA-at-NWCHEM now offers a completely free distribution of the MOs
 *. belonging to the same irrep to individual GAS spaces!
 *
-c     IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
+      IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
       call ga_sync()
 *
 *. Obtain initial values for the MO-to-be-moved pointers (imofromto)
@@ -6370,8 +6370,8 @@ c     IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
 *. First Z_FLOCK and CIV2 calls
 *. Obtain TTSS batches and calculate those with very few blocks
 *
-       MXBLKBATCH = 100000
-       write(*,*) 'fixed MXBLKBATCH', MXBLKBATCH
+       MXBLKBATCH = 100    
+c      write(*,*) 'fixed MXBLKBATCH', MXBLKBATCH
        CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
      &       NTEST,NCBLOCK,NCBATCH,int_mb(KCIOIO),int_mb(KCBLTP),
      &       NCOCCLS_ACT,int_mb(KCIOCCLS_ACT),
@@ -6379,14 +6379,14 @@ c     IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
      &       int_mb(KCIBT),
      &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
 *
-       write(*,*) 'NCBATCH', NCBATCH
+c      write(*,*) 'NCBATCH', NCBATCH
        IBATCHCOUNT = NBATCHES_FEW_BLOCKS(NCBATCH,int_mb(KCLBT))
-       write(*,*) 'IBATCHCOUNT', IBATCHCOUNT
-       write(*,*) 'NCBLOCK', NCBLOCK
+c      write(*,*) 'IBATCHCOUNT', IBATCHCOUNT
+c      write(*,*) 'NCBLOCK', NCBLOCK
        NDISTBATCH = NCBATCH - IBATCHCOUNT
        IOPTBATCHPNODE = 10
        LBPNODE = INT(NCBATCH/ga_nnodes())
-       write(*,*) 'LBPNODE',LBPNODE,IOPTBATCHPNODE
+c      write(*,*) 'LBPNODE',LBPNODE,IOPTBATCHPNODE
 c       LBPNODE    = ga_nnodes() * IOPTBATCHPNODE
 c       MXBLKBATCH = INT((NCBLOCK - IBATCHCOUNT) / LBPNODE)
 c      write(*,*) 'estim MXBLKBATCH', MXBLKBATCH
@@ -6531,6 +6531,7 @@ c    &                      nnod,ntest,nfragagain)
       ELSE
        ILIMIT = 0
       END IF
+      ILIMIT = 0
 *
       DO IRREP = 1, NIRREP-1
        IF (NGSSH(IRREP,NGAS).GT.ILIMIT) THEN 

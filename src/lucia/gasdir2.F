@@ -331,7 +331,7 @@ cVOG      WRITE(6,*) ' IASM IBSM IA IB LBLOCKP,LBLOCK' ,
 *
 *. Bert (and VOG). Effort to balance the number of Blocks per batch
 *
-c     IF (NBLOCK.EQ.MXBLKBATCH) INCLUDE = 0
+      IF (NBLOCK.EQ.MXBLKBATCH) INCLUDE = 0
 *
         IF(INCLUDE.EQ.1) THEN
           NBLOCK = NBLOCK + 1

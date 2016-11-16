@@ -4428,7 +4428,7 @@ C?    WRITE(6,*) ' ALLO: NTTS = ', NTTS
 !       NTTSVOG = 8 * NTTSVOG     !VOG NEW
 !       NTTS = NTTSVOG            !VOG NEW
        NTTSVOG = NTTS !VOG Back to normal
-       MXBLKBATCH = 10000
+       MXBLKBATCH = 100
 *
       CALL MEMMAN(KCLBT ,NTTS  ,'ADDL  ',1,'CLBT  ')
       CALL MEMMAN(KCLBLK,NTTS  ,'ADDL  ',1,'CLBLK ')
@@ -13434,14 +13434,14 @@ COLD  DIMENSION C(*),HC(*)
 *
 *. VOG RAPING LUCIA (initial guess)
 *
-c            SCALE = 1.0D0/SQRT(DFLOAT(NCVAR))
+c           SCALE = 1.0D0/SQRT(DFLOAT(NCVAR))
 c            if (ga_nodeid().eq.0)
 c     &        write(*,*) 'I start the Rape', SCALE, NCVAR
 c            call ga_distribution(CB,ga_nodeid(),ilo,ihi,idum,idum)
 c            do ii = ilo, ihi
 c             call ga_put(CB,ii,ii,1,1,SCALE,1)
 c            end do
-c            call ga_sync()
+             call ga_sync()
 *
       NTEST = 0000 !VOG 000
       NTEST = MAX(NTEST, IPRCIX)
