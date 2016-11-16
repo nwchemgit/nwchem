@@ -78,6 +78,10 @@ c
       logical ostartup, ocontinue, orestart
       logical  input_parse
       external input_parse
+#if defined(USE_OPENMP)
+      integer omp_get_max_threads
+      external omp_get_max_threads
+#endif
 c
 c     Create parallel processes and initialize IPC layer
 c
@@ -137,6 +141,30 @@ C
      &      call errquit('nwchem.F: ma_init failed (ga_uses_ma=F)',911,
      &      MA_ERR)
       endif
+!
+!     Touch OpenMP here so that any runtime initialization happens up-front.
+!     This ensures that any printout that the OpenMP runtime generates,
+!     such as affinity information, appears at the top of the output file.
+!     Otherwise, it might not appear until e.g. the CCSD module, at which
+!     point it will pollute the output file in an undesirable way.
+!
+!     Do not move this in front of GA/MPI/TCGMSG initialization, since the
+!     OpenMP runtime may inherit affinity information from MPI that is only
+!     determined during MPI initialization.
+!
+!     Format definition is outside of preprocessor protection to ensure the
+!     label is not accidentally reused, since that will not be caught by
+!     testing that does not enable OpenMP.
+!
+ 99   format(2x,'NWChem w/ OpenMP: maximum threads = ',i2)
+#if defined(USE_OPENMP)
+      !$omp parallel
+      !$omp master
+      if (ga_nodeid().eq.0) write(luout,99) omp_get_max_threads()
+      !$omp end master
+      !$omp end parallel
+#endif
+!
       call rtdb_init()
 c
 *
