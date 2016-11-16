@@ -65,9 +65,9 @@ c       tally up zora potential at grid point
           atom_mp = 0.d0
           do j = 1,50
            rtemp = dsqrt(gexpo(i,j))*dist
-           if (rtemp.gt.zoracutoff) then
-             atom_mp = atom_mp + gcoef(i,j)*util_erf(rtemp)
-           end if 
+           rtemp2 = rtemp*rtemp
+c           atom_mp = atom_mp + gcoef(i,j)*util_erf(rtemp)
+           atom_mp = atom_mp + gcoef(i,j)*dgami(0.5d0,rtemp2)/dsqrt(pi)
           end do ! j
           amat_mp(igrid) = amat_mp(igrid) + atom_mp/dist
         else
