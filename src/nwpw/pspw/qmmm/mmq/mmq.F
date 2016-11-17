@@ -35,6 +35,7 @@
          element = ion_atom(ia)
          l = index(element,' ') - 1
          fname = element(1:l)//':zv'
+         write(*,*) "fname=",fname
          if (.not.btdb_get(rtdb,fname,mt_dbl,1,dbl_mb(zv(1)+ia-1)))
      >     dbl_mb(zv(1)+ia-1) = 0.0
       end do

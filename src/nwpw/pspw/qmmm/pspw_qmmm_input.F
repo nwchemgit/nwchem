@@ -77,7 +77,7 @@ c
       real*8        se(20),alpha,Rin,Rout,scal
       integer       nsigma
       real*8        charge,rcut
-      real*8        rxyz(3),q
+      real*8        rxyz(3),q,pi
       character*255 test,dir_name,sdir_name
       integer ind               ! Index of matched directive
 
@@ -94,6 +94,8 @@ c
 *     **** external functions ****
       character*7 c_index_name
       external    c_index_name
+
+      pi = 4.0d0*datan(1.0d0)
 
       nkf   = 0
       nfrag = 0
@@ -863,6 +865,7 @@ c
       if (inp_i(sindx(4))) then
       if (inp_f(sdist(1))) then
       if (inp_f(sdist(2))) then
+         sdist(2) = sdist(2)*pi/180.0d0
          nds = nds+1
          rtdb_name='pspw_qmmm_frag_ndihedral_spring:'//c_index_name(nkf)
          value = rtdb_put(rtdb,rtdb_name,mt_int,1,nds)
@@ -1516,6 +1519,7 @@ c
       if (inp_i(sindx(4))) then
       if (inp_f(sdist(1))) then
       if (inp_f(sdist(2))) then
+        sdist(2) = sdist(2)*pi/180.0d0
         nds = nds+1
        rtdb_name='pspw_2qmmm_frag_ndihedral_spring:'//c_index_name(nknf)
          value = rtdb_put(rtdb,rtdb_name,mt_int,1,nds)

@@ -487,6 +487,94 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
       end
 
 
+*     *************************************
+*     *                                   *
+*     *  pspw_qmmm_dihedral_value         *
+*     *                                   *
+*     *************************************
+
+      real*8 function pspw_qmmm_dihedral_value(indx,rion)
+      implicit none
+      integer indx(4)
+      real*8  rion(3,*)
+
+*     **** local variables ****
+      integer ii,jj,kk,ll,b
+      real*8  dx_ij,dy_ij,dz_ij
+      real*8  dx_ik,dy_ik,dz_ik
+      real*8  dx_jl,dy_jl,dz_jl
+      real*8  dx_kj,dy_kj,dz_kj
+      real*8  dx_kl,dy_kl,dz_kl
+      real*8  dx_ijk,dy_ijk,dz_ijk
+      real*8  dx_kjl,dy_kjl,dz_kjl
+      real*8  dx_ijkl,dy_ijkl,dz_ijkl
+      real*8  rr_ijk,rr_kjl
+      real*8  E,cosphi,phi
+
+      ii = indx(1)
+      jj = indx(2)
+      kk = indx(3)
+      ll = indx(4)
+
+      dx_ij = rion(1,ii) - rion(1,jj)
+      dy_ij = rion(2,ii) - rion(2,jj)
+      dz_ij = rion(3,ii) - rion(3,jj)
+
+      dx_ik = rion(1,ii) - rion(1,kk)
+      dy_ik = rion(2,ii) - rion(2,kk)
+      dz_ik = rion(3,ii) - rion(3,kk)
+
+      dx_jl = rion(1,jj) - rion(1,ll)
+      dy_jl = rion(2,jj) - rion(2,ll)
+      dz_jl = rion(3,jj) - rion(3,ll)
+
+      dx_kj = rion(1,kk) - rion(1,jj)
+      dy_kj = rion(2,kk) - rion(2,jj)
+      dz_kj = rion(3,kk) - rion(3,jj)
+
+      dx_kl = rion(1,kk) - rion(1,ll)
+      dy_kl = rion(2,kk) - rion(2,ll)
+      dz_kl = rion(3,kk) - rion(3,ll)
+
+      call lattice_min_difference(dx_ij,dy_ij,dz_ij)
+      call lattice_min_difference(dx_ik,dy_ik,dz_ik)
+      call lattice_min_difference(dx_jl,dy_jl,dz_jl)
+      call lattice_min_difference(dx_kj,dy_kj,dz_kj)
+      call lattice_min_difference(dx_kl,dy_kl,dz_kl)
+
+      dx_ijk = dy_ij * dz_kj - dy_kj * dz_ij
+      dy_ijk = dz_ij * dx_kj - dz_kj * dx_ij
+      dz_ijk = dx_ij * dy_kj - dx_kj * dy_ij
+
+      dx_kjl = dy_kj * dz_kl - dy_kl * dz_kj
+      dy_kjl = dz_kj * dx_kl - dz_kl * dx_kj
+      dz_kjl = dx_kj * dy_kl - dx_kl * dy_kj
+
+      dx_ijkl = dy_ijk * dz_kjl - dy_kjl * dz_ijk
+      dy_ijkl = dz_ijk * dx_kjl - dz_kjl * dx_ijk
+      dz_ijkl = dx_ijk * dy_kjl - dx_kjl * dy_ijk
+
+      rr_ijk = 1.0d0 / dsqrt( dx_ijk * dx_ijk  +
+     >                        dy_ijk * dy_ijk  +
+     >                        dz_ijk * dz_ijk )
+
+      rr_kjl = 1.0d0 / dsqrt( dx_kjl * dx_kjl  +
+     >                        dy_kjl * dy_kjl  +
+     >                        dz_kjl * dz_kjl )
+
+      cosphi =  rr_ijk * rr_kjl * ( dx_ijk * dx_kjl  +
+     >                              dy_ijk * dy_kjl  +
+     >                              dz_ijk * dz_kjl )
+
+      if (cosphi.gt.1.0d0)  cosphi =  1.0d0
+      if (cosphi.lt.-1.0d0) cosphi = -1.0d0
+
+      phi    = dacos(cosphi)
+
+      pspw_qmmm_dihedral_value = phi
+      return
+      end
+
 
 
 

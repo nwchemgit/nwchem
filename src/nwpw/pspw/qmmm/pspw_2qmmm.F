@@ -26,7 +26,7 @@ c
       logical value,oprint
       integer i,j,ii,jj,kk,ll,mm,ia,ja,ni,nj
       integer frag_size,shake_ptr,indx_ptr
-      real*8  volume,f
+      real*8  volume,f,pi
       character*80 rtdb_name
       integer natmp,nbtmp,nabsize,nindxsize,ndsqsize
       integer nbindxsize,nKr0size
@@ -46,12 +46,12 @@ c
       integer     ion_nion,ion_nion_qm,ion_nion_mm,control_version
       integer     ion_rion_ptr,inp_strlen
       character*7 c_index_name
-      real*8      lattice_unita
+      real*8      lattice_unita,pspw_qmmm_dihedral_value
       external    control_print
       external    ion_nion,ion_nion_qm,ion_nion_mm,control_version
       external    ion_rion_ptr,inp_strlen
       external    c_index_name
-      external    lattice_unita
+      external    lattice_unita,pspw_qmmm_dihedral_value
 
 
 *     **** reading number of frags ****
@@ -626,16 +626,28 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
 
                   rtdb_name = 'pspw_2qmmm_frag_indx_dihedral_spring:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,2,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,4,
      >               int_mb(indx_dihedral_spring(1)+ndindxsize)))
      >               int_mb(indx_dihedral_spring(1)+ndindxsize) = 0
                   ndindxsize = ndindxsize + 4
 
                   rtdb_name = 'pspw_2qmmm_frag_Kr0_dihedral_spring:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,3,
-     >               dbl_mb(Kr0_dihedral_spring(1)+ndKr0size)))
-     >               dbl_mb(Kr0_dihedral_spring(1)+ndKr0size) = 0.0d0
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,2,
+     >               dbl_mb(Kr0_dihedral_spring(1)+ndKr0size))) then
+                     dbl_mb(Kr0_dihedral_spring(1)+ndKr0size) = 0.001d0
+                     dbl_mb(Kr0_dihedral_spring(1)+ndKr0size+1) 
+     >                 = pspw_qmmm_dihedral_value(
+     >                    int_mb(indx_dihedral_spring(1)+ndindxsize-4),
+     >                    dbl_mb(ion_rion_ptr()))
+                  end if
+                  if (dbl_mb(Kr0_dihedral_spring(1)+ndKr0size+1)
+     >               .gt.(10.0d0)) then
+                     dbl_mb(Kr0_dihedral_spring(1)+ndKr0size+1) 
+     >                 = pspw_qmmm_dihedral_value(
+     >                    int_mb(indx_dihedral_spring(1)+ndindxsize-4),
+     >                    dbl_mb(ion_rion_ptr()))
+                  end if
                   ndKr0size = ndKr0size + 2
 
                end do
@@ -665,7 +677,7 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
 
                   rtdb_name = 'pspw_2qmmm_frag_indx_dihedral:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,2,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,4,
      >               int_mb(indx_dihedral(1)+nddindxsize)))
      >               int_mb(indx_dihedral(1)+nddindxsize) = 0
                   nddindxsize = nddindxsize + 4
@@ -992,6 +1004,7 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
                jj = jj + 6
              end do
 
+             pi = 4.0*datan(1.0d0)
              ii = int_mb(nindx_dihedral_spring_start(1)+ia-1)
              jj = int_mb(nKr0_dihedral_spring_start(1) +ia-1)
              do ja=1,int_mb(ndihedral_spring(1)+ia-1)
@@ -1002,12 +1015,13 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
      >       "   - Dihedral Spring Parameters: ",
      >                  "indexes=",
      >                  (int_mb(indx_ptr+j-1),j=1,4),
-     >                  "Kphi=", dbl_mb(shake_ptr),
-     >                  "phie=",dbl_mb(shake_ptr+1)
+     >                  "Kphi=",dbl_mb(shake_ptr),
+     >                  "phie=",dbl_mb(shake_ptr+1)*180.0d0/pi
                ii = ii + 4
                jj = jj + 2
              end do
 
+             pi = 4.0*datan(1.0d0)
              ii = int_mb(nindx_dihedral_start(1)+ia-1)
              jj = int_mb(nKr0_dihedral_start(1) +ia-1)
              do ja=1,int_mb(ndihedral(1)+ia-1)
@@ -1018,9 +1032,9 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
      >       "   - Dihedral Parameters: ",
      >                  "indexes=",
      >                  (int_mb(indx_ptr+j-1),j=1,4),
-     >                  "Vphi=", dbl_mb(shake_ptr),
+     >                  "Vphi=",dbl_mb(shake_ptr),
      >                  "nphi=",dbl_mb(shake_ptr+1),
-     >                  "phie=", dbl_mb(shake_ptr+2)
+     >                  "phie=",dbl_mb(shake_ptr+2)*180.0d0/pi
                ii = ii + 4
                jj = jj + 3
              end do
