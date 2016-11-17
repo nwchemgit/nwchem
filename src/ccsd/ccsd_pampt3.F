@@ -137,7 +137,7 @@ c     compute ST2 in parallel: expect network congestion
            call util_mygabcast(g_st2,lnoo,nbfdim,dbl_mb(k_ast2),lnoo)
          else
           if(iam.eq.0) then
-           write(*,'(a)') " Not Enough Memory to keep ST2 in local"
+           write(*,'(a)') " Not Enough Memory to keep ST2 in local",
      &                    " memory - expect network congestion."
           endif
          endif
