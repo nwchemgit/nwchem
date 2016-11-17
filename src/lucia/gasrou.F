@@ -1432,7 +1432,7 @@ C?      WRITE(6,*) ' ITYP, XNLOOP  = ', ITYP, XNLOOP
 C        IMNMX(IVEC,NDIM,MINMAX)
 *. Largest number of supergroups of any type
       NSPGPFTP_MAX = IMNMX(NSPGPFTP,NSTTYP,2)
-      if (ga_nodeid().eq.0)
+      if (NTEST.GE.10.AND.ga_nodeid().eq.0)
      &   WRITE(6,*) ' Largest number of supergroups, any type ',
      &             NSPGPFTP_MAX
 *
@@ -1990,7 +1990,7 @@ C?    CALL IWRTMA(IBSPGPFTP,1,NSTTYP,1,NSTTYP)
 !      CALL MEMMAN(KI_ABSPGP_VOG,int_mb(KIOCCLS),'ADDL  ',1,'ABSPGP_V')
       CALL MEMMAN(KI_ABSPGP,ga_nnodes(),'ADDL  ',1,'NABSPGP')
 *
-      if (ga_nodeid().eq.0) write(*,*) 'VOG: N_ABSPGP_MAX', N_ABSPGP_MAX
+!      if (ga_nodeid().eq.0) write(*,*) 'VOG: N_ABSPGP_MAX', N_ABSPGP_MAX
 *. First: offsets
       CALL ABSPGP_TO_OCCLS(
      &     ISPGPFTP(1,IB_A),NASPGP,ISPGPFTP(1,IB_B),NBSPGP,
@@ -2841,9 +2841,9 @@ C?    write(6,*) ' LCISPC : NICISP ', NICISP
    50 CONTINUE
   100 CONTINUE
 *
-      NTEST = 10
+      NTEST = 0
       NTEST = MAX(NTEST,IPRNT)
-      if (ga_nodeid().eq.0) then
+      if (NTEST.GE.10.and.ga_nodeid().eq.0) then
       WRITE(6,*) 
       WRITE(6,*) 
       WRITE(6,*) 
@@ -2886,7 +2886,7 @@ C         CALL WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
        END DO
       END DO
 *
-      if (ga_nodeid().eq.0) WRITE(6,*) 
+      if (NTEST.GE.10.AND.ga_nodeid().eq.0) WRITE(6,*) 
      &  ' Largest number of blocks in CI expansion',MXNTTS
 *
       IF(NTEST.GE.5.and.ga_nodeid().eq.0) THEN

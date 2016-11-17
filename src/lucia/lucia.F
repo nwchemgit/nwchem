@@ -15544,16 +15544,16 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
            do isblk = 0, ncblock_t-1
               dbl_mb(KLSCLFAC+isblk) = dbl_mb(KLCNORM+isblk)
            enddo
-      cpu_vogs  = util_cpusec()
-      wall_vogs = util_wallsec()
+!      cpu_vogs  = util_cpusec()
+!      wall_vogs = util_wallsec()
           CALL SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,
      &         CB,SB,LUC,0,0,0,0,0,CV,ECORE,ITASK,LEN,
      &         dbl_mb(KLCNORM),dbl_mb(KLSCLFAC),CONVOG,nnod)
-      cpu_vogs  = util_cpusec() - cpu_vogs
-      wall_vogs = util_wallsec()- wall_vogs
-      write(*,00003) ga_nodeid(), cpu_vogs , wall_vogs !VOG timings
-00003     format(/'SB   Proc',i6,' Task  times  cpu:',f11.1,
-     &           's     wall:',f11.1,'s')
+!      cpu_vogs  = util_cpusec() - cpu_vogs
+!      wall_vogs = util_wallsec()- wall_vogs
+!      write(*,00003) ga_nodeid(), cpu_vogs , wall_vogs !VOG timings
+!00003     format(/'SB   Proc',i6,' Task  times  cpu:',f11.1,
+!     &           's     wall:',f11.1,'s')
         endif
 *. Transfer S block to permanent storage
         DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
@@ -15589,14 +15589,14 @@ CNW       CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
       write(*,00004) ga_nodeid(), cpu_vogr , wall_vogr !VOG timings
 00004     format(/'RASSG TOT',i6,' Task  times  cpu:',f11.1,
      &           's     wall:',f11.1,'s')
-      cpu_vog  = util_cpusec()
-      wall_vog = util_wallsec()
+c      cpu_vog  = util_cpusec()
+c      wall_vog = util_wallsec()
       call ga_sync()
-      cpu_vog  = util_cpusec() - cpu_vog
-      wall_vog = util_wallsec()- wall_vog
-      write(*,00002) ga_nodeid(), cpu_vog , wall_vog !VOG timings
-00002     format(/'RASSGProc',i6,' Task  times  cpu:',f11.1,
-     &           's     wall:',f11.1,'s')
+c      cpu_vog  = util_cpusec() - cpu_vog
+c      wall_vog = util_wallsec()- wall_vog
+c      write(*,00002) ga_nodeid(), cpu_vog , wall_vog !VOG timings
+c00002     format(/'RASSGProc',i6,' Task  times  cpu:',f11.1,
+c     &           's     wall:',f11.1,'s')
 *      if (ga_nodeid().eq.0) then
 *       write(*,'(a,i4,2i8)') 'PROC', ga_nodeid(), CONVOG(nnod,1),
 *     &                                            CONVOG(nnod,2)

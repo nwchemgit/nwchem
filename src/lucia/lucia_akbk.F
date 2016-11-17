@@ -5105,7 +5105,7 @@ cVOG    else
       integer totsds, ngastotmo, weyl, get_mo_occ_gas
       external weyl, get_mo_occ_gas
 *
-      ntest  = 100
+      ntest  = 00
 *
 *. Print Input
 *
@@ -5266,7 +5266,7 @@ cVOG    else
 *
        if (ngas.lt.mxfraggas) then
 *
-        if (ga_nodeid().eq.0) write(*,*) 'imofromto', 
+        if (ntest.ge.100.and.ga_nodeid().eq.0) write(*,*) 'imofromto', 
      &     (imofromto(i), i = 1, 3)
         ngasupd = ngas + 1
         !
@@ -6169,7 +6169,7 @@ cVOG    else
                            !imofromto(2) = igas FROM which we will move
                            !imofromto(3) = igas TO which we will move MO
 
-      NTEST  = 10
+      NTEST  = 0
       IPRCIX = 0
       IPRSTR = 0
       IPRORB = 0
@@ -6239,7 +6239,7 @@ cVOG    else
 *. LUCIA-at-NWCHEM now offers a completely free distribution of the MOs
 *. belonging to the same irrep to individual GAS spaces!
 *
-      IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
+c     IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
       call ga_sync()
 *
 *. Obtain initial values for the MO-to-be-moved pointers (imofromto)
@@ -6353,10 +6353,6 @@ cVOG    else
        ELSE
         LBLOCK = MXSOOB
        END IF
-       if (ga_nodeid().eq.0) write(*,*) 'CIV2, ISIMSYM', ISIMSYM
-       if (ga_nodeid().eq.0) write(*,*) 'CIV2, ICISTR ', ICISTR
-       if (ga_nodeid().eq.0) write(*,*) 'CIV2, LBLOCK ', LBLOCK
-       if (ga_nodeid().eq.0) write(*,*) 'CIV2, LCSBLK ', LCSBLK
        LBLOCK = MAX(LBLOCK,LCSBLK)
        IF(NTEST.GE.10.and.ga_nodeid().eq.0)
      &         WRITE(6,*) ' TEST: LBLOCK = ', LBLOCK
@@ -6365,7 +6361,7 @@ cVOG    else
 *. Obtain TTSS batches and calculate those with very few blocks
 *
        MXBLKBATCH = 100000
-       if (ga_nodeid().eq.0) write(*,*) 'fixed MXBLKBATCH', MXBLKBATCH
+!       if (ga_nodeid().eq.0) write(*,*) 'fixed MXBLKBATCH', MXBLKBATCH
        CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
      &       NTEST,NCBLOCK,NCBATCH,int_mb(KCIOIO),int_mb(KCBLTP),
      &       NCOCCLS_ACT,int_mb(KCIOCCLS_ACT),
@@ -6378,16 +6374,16 @@ cVOG    else
        IOPTBATCHPNODE = 10 !BE CAREFUL - might need to be revised or defined differently
        LBPNODE = INT(NCBATCH/ga_nnodes())
 
-       if (ga_nodeid().eq.0) write(*,*) 'NCBATCH', NCBATCH
-       if (ga_nodeid().eq.0) write(*,*) 'IBATCHCOUNT', IBATCHCOUNT
-       if (ga_nodeid().eq.0) write(*,*) 'NCBLOCK', NCBLOCK
-       if (ga_nodeid().eq.0) write(*,*) 'NDISTBATCH', NDISTBATCH
-       if (ga_nodeid().eq.0) write(*,*) 'LBPNODE',LBPNODE,IOPTBATCHPNODE
+!       if (ga_nodeid().eq.0) write(*,*) 'NCBATCH', NCBATCH
+!       if (ga_nodeid().eq.0) write(*,*) 'IBATCHCOUNT', IBATCHCOUNT
+!       if (ga_nodeid().eq.0) write(*,*) 'NCBLOCK', NCBLOCK
+!       if (ga_nodeid().eq.0) write(*,*) 'NDISTBATCH', NDISTBATCH
+!       if (ga_nodeid().eq.0) write(*,*) 'LBPNODE',LBPNODE,IOPTBATCHPNODE
 *
 *. Number of Blocks per Batch
 *
        MXBLKBATCH = 2 
-       if (ga_nodeid().eq.0) write(*,*) 'estim MXBLKBATCH', MXBLKBATCH
+!       if (ga_nodeid().eq.0) write(*,*) 'estim MXBLKBATCH', MXBLKBATCH
 *
 c      IF (MXBLKBATCH.LT.0) THEN
 c       nfragagain = 0
@@ -6407,10 +6403,10 @@ c       END IF
 * VOG Nov16: Check if you will split further the CAS after you have the final 
 *            number of TTSS Blocks
 *
-       if (ga_nodeid().eq.0) write(*,*) 'NCBATCH-final', NCBATCH
-       if (ga_nodeid().eq.0) write(*,*) 'NCBLOCK-final', NCBLOCK
+!       if (ga_nodeid().eq.0) write(*,*) 'NCBATCH-final', NCBATCH
+!       if (ga_nodeid().eq.0) write(*,*) 'NCBLOCK-final', NCBLOCK
        LBPNODE = INT(NCBATCH/ga_nnodes())
-       if (ga_nodeid().eq.0) write(*,*) 'LBPNODE',LBPNODE,IOPTBATCHPNODE
+!       if (ga_nodeid().eq.0) write(*,*) 'LBPNODE',LBPNODE,IOPTBATCHPNODE
        nfragagain = 0
        IF (LBPNODE.LT.IOPTBATCHPNODE) nfragagain = 1
 *
@@ -6437,7 +6433,8 @@ c    &                      nnod,ntest,nfragagain)
       if (nfragagain.eq.1) then
        if (NGAS.eq.nirrep)
      &  STOP ' Maximum number of GAS spaces reached, I QUIT!!! '
-       if (ga_nodeid().eq.0) write(*,*) 'I will fragment the GAS space'
+       if (ntest.eq.10.and.ga_nodeid().eq.0)
+     &   write(*,*) 'I will fragment the GAS space'
        call fraggas(igasloop,ngasadd,imofromto)
       else
        exit
@@ -6449,7 +6446,7 @@ c    &                      nnod,ntest,nfragagain)
 *
 *. Print Output
 *
-      if(ntest.ge.10.and.ga_nodeid().eq.0) then
+      if(ga_nodeid().eq.0) then
       WRITE(*,*)
       WRITE(*,*) ' ***********************************'
       WRITE(*,*) '  Updated GAS Spaces for CI batches '
@@ -6548,7 +6545,6 @@ c    &                      nnod,ntest,nfragagain)
        IF (NGSSH(IRREP,NGAS).GT.ILIMIT) THEN 
         NGSSHBU = 0
         ISTRIRREP = IRREP+1
-        if (ga_nodeid().eq.0) write(*,*) 'ISTRIRREP', ISTRIRREP
         DO JRREP = ISTRIRREP, NIRREP
          NGSSHBU(JRREP) = NGSSH(JRREP,NGAS)
          NGSSH(JRREP,NGAS) = 0
@@ -6978,7 +6974,8 @@ c       imap2(inode) = 0
 *. Calculate the TTSS weights
 *
       LFIRSTORDER = 0
-      if (ga_nodeid().eq.0) write(*,*) ' Calculate the TTSS weights'
+      if (NTEST.GE.100.and.ga_nodeid().eq.0)
+     &             write(*,*) ' Calculate the TTSS weights'
 !      IF (LFIRSTORDER.EQ.0) THEN
        call ttssweight0(nttssw,nttsswsum,IBATS,NBATS,LBATS,NBLK)
 !      ELSE
@@ -7164,7 +7161,7 @@ cUT      END DO
        MINDIFF = ndiffw
        IOPTLIMIT = LIMITBLK
        NPLUSFINAL = NPLUSONE
-       if (ga_nodeid().eq.0) write(*,*) 'NEW MIN DIFF',
+       if (NTEST.GE.100.and.ga_nodeid().eq.0) write(*,*) 'NEW MIN DIFF',
      &                                   MINDIFF,LIMITBLK,NPLUSFINAL
       END IF
 *     
@@ -7770,7 +7767,6 @@ c     real ASYM(NGAS)
        TOTWEIGHT = TOTWEIGHT + ttssw(I)
        MINBATCH = min(ttssw(I),MINBATCH)
       END DO
-      if (ga_nodeid().eq.0) write(*,*) 'TOTWEIGHT', TOTWEIGHT
 *
 *. Percentage
 *
