@@ -581,7 +581,8 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
       if (cosphi.gt.1.0d0)  cosphi =  1.0d0
       if (cosphi.lt.-1.0d0) cosphi = -1.0d0
 
-      phi    = -sigphi*dacos(cosphi)
+      !phi    = -sigphi*dacos(cosphi)
+      phi    =         dacos(cosphi)
 
       pspw_qmmm_dihedral_value = phi
       return
@@ -682,7 +683,8 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
         if (cosphi.gt.1.0d0)  cosphi =  1.0d0
         if (cosphi.lt.-1.0d0) cosphi = -1.0d0
 
-        phi = -sigphi*dacos(cosphi)
+        !phi = -sigphi*dacos(cosphi)
+        phi = dacos(cosphi)
         E = E + Kr0(1,b)*(phi-Kr0(2,b))**2
       end do
 
@@ -792,7 +794,8 @@ c      external dmax
         if (cosphi.gt.1.0d0)  cosphi =  1.0d0
         if (cosphi.lt.-1.0d0) cosphi = -1.0d0
 
-        phi    = -sigphi*dacos(cosphi)
+        !phi    = -sigphi*dacos(cosphi)
+        phi    = dacos(cosphi)
         sinphi = dsin(phi)
         dE     = 2*Kr0(1,b) * (phi-Kr0(2,b))/max(1.0d-8,sinphi)
 
