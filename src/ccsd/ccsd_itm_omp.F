@@ -815,14 +815,16 @@
 !
       inode=-1
       call ga_sync
+!
+! There is absolutely no good reason to use NXTVAL to
+! load-balance such a trivial loop...
+!
       next=nxtask(nodes, 1)
       do a=1,nvir
        do b=1,nvir
-!
 ! -- parallel task --
         inode=inode+1
         if (inode.eq.next)then
-!
 ! term s1 n**3
          if (dos(1).ne.0)then
           call daxpy(nocc,habe(b,a),t1(1,a),1,ht1(1,b),1)
@@ -830,37 +832,27 @@
          next=nxtask(nodes, 1)
         endif
 ! -- end parallel task --
-!
        enddo
       enddo
       call ga_sync
       next=nxtask(-nodes, 1)
       call ga_sync
-!
 ! -- add some trivial terms to ht1 (nothing to ht2)
       inode=-1
       do a=1,nvir
        do i=1,nocc
-!
 ! -- parallel task --
         inode=inode+1
         if (mod(inode,nodes).eq.iam)then
-!         subroutine ccsd_fsig2_omp(nocc,nvir,bv,u,t1,ht1,hiu)
-!         if (dos(2).ne.0)then
-!          ht1(u,bv)=ht1(u,bv)-ddot(nocc,hiu(1,u),1,t1(1,bv),1)
-!         endif
-!         bv->a, u->i
 ! term s2 n**3
          if (dos(2).ne.0)then
           ht1(i,a)=ht1(i,a)-ddot(nocc,hiu(1,i),1,t1(1,a),1)
          endif
         endif
 ! -- end parallel task --
-!
        enddo
       enddo
       call ga_dgop(msg_cc_term6,ht1,lnov, '+')
-!
       if (occsdps) then
          call pstat_off(ps_itm)
       else
