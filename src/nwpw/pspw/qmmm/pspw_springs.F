@@ -509,7 +509,7 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
       real*8  dx_kjl,dy_kjl,dz_kjl
       real*8  dx_ijkl,dy_ijkl,dz_ijkl
       real*8  rr_ijk,rr_kjl
-      real*8  E,cosphi,phi,sgn
+      real*8  E,cosphi,phi,sigphi
 
       ii = indx(1)
       jj = indx(2)
@@ -559,12 +559,6 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
       dx_ijkl = dy_ijk * dz_kjl - dy_kjl * dz_ijk
       dy_ijkl = dz_ijk * dx_kjl - dz_kjl * dx_ijk
       dz_ijkl = dx_ijk * dy_kjl - dx_kjl * dy_ijk
-      sgn =  dx_ijkl*dx_kj+dy_ijkl*dy_kj+dz_ijkl*dz_kj
-      if (sgn.lt.0.0d0) then
-         sgn = -1.0d0
-      else
-         sgn =  1.0d0
-      end if
 
       rr_ijk = 1.0d0 / dsqrt( dx_ijk * dx_ijk  +
      >                        dy_ijk * dy_ijk  +
@@ -579,10 +573,15 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
      >                              dy_ijk * dy_kjl  +
      >                              dz_ijk * dz_kjl )
 
+      sigphi = dsign ( 1.0d0 , (dx_kj * dx_ijkl  +
+     >                          dy_kj * dy_ijkl  +
+     >                          dz_kj * dz_ijkl) )
+
+
       if (cosphi.gt.1.0d0)  cosphi =  1.0d0
       if (cosphi.lt.-1.0d0) cosphi = -1.0d0
 
-      phi    = -sgn*dacos(cosphi)
+      phi    = -sigphi*dacos(cosphi)
 
       pspw_qmmm_dihedral_value = phi
       return
@@ -615,7 +614,7 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
       real*8  dx_kjl,dy_kjl,dz_kjl
       real*8  dx_ijkl,dy_ijkl,dz_ijkl
       real*8  rr_ijk,rr_kjl
-      real*8  E,cosphi,phi
+      real*8  E,cosphi,phi,sgn,sigphi
 
       E = 0.0d0
       do b=1,nangle
@@ -662,6 +661,7 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
         dy_ijkl = dz_ijk * dx_kjl - dz_kjl * dx_ijk
         dz_ijkl = dx_ijk * dy_kjl - dx_kjl * dy_ijk
 
+
         rr_ijk = 1.0d0 / dsqrt( dx_ijk * dx_ijk  +
      >                          dy_ijk * dy_ijk  +
      >                          dz_ijk * dz_ijk )
@@ -675,10 +675,14 @@ c        dE =  2.0d0*Kr0(1,b)*(1.0d0-Kr0(2,b)/r)
      >                                dy_ijk * dy_kjl  +
      >                                dz_ijk * dz_kjl )
 
+        sigphi = dsign ( 1.0d0 , (dx_kj * dx_ijkl  +
+     >                            dy_kj * dy_ijkl  +
+     >                            dz_kj * dz_ijkl) )
+
         if (cosphi.gt.1.0d0)  cosphi =  1.0d0
         if (cosphi.lt.-1.0d0) cosphi = -1.0d0
 
-        phi    = dacos(cosphi)
+        phi = -sigphi*dacos(cosphi)
         E = E + Kr0(1,b)*(phi-Kr0(2,b))**2
       end do
 
@@ -781,14 +785,14 @@ c      external dmax
 
 
         sigphi = dsign ( 1.0d0 , (dx_kj * dx_ijkl  +
-     >                             dy_kj * dy_ijkl  +
-     >                             dz_kj * dz_ijkl) )
+     >                            dy_kj * dy_ijkl  +
+     >                            dz_kj * dz_ijkl) )
 
 
         if (cosphi.gt.1.0d0)  cosphi =  1.0d0
         if (cosphi.lt.-1.0d0) cosphi = -1.0d0
 
-        phi    = dacos(cosphi)
+        phi    = -sigphi*dacos(cosphi)
         sinphi = dsin(phi)
         dE     = 2*Kr0(1,b) * (phi-Kr0(2,b))/max(1.0d-8,sinphi)
 
