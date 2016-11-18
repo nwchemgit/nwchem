@@ -435,33 +435,37 @@ c
      &                     nfl,nocc,nbf,ilo,ihi,klo,khi,factor)
 
         if (use_inmem_st2) then
-          if (keqi.and.jeql) then
-           call t2eri_wrk_aleq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
-     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
-          elseif (keqi) then
-           call t2eri_wrk_ikeq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
-     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
-          elseif (jeql) then
-           call t2eri_wrk_jleq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
-     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
-          else
-           call t2eri_wrk_noeq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
-     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
-          endif
+!          if (keqi.and.jeql) then
+!           call t2eri_wrk_aleq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
+!     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
+!          elseif (keqi) then
+!           call t2eri_wrk_ikeq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
+!     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
+!          elseif (jeql) then
+!           call t2eri_wrk_jleq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
+!     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
+!          else
+!           call t2eri_wrk_noeq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
+!     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
+!          endif
+           call t2eri_wrk_all(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
+     &                        nfi,nfj,nfk,nfl,nocc,lnoo,keqi,jeql)
         else
-          if (keqi.and.jeql) then
-           call t2eri_wrk_aleq(eri1(ict),eri2(ict),t2(blk1),ht2,
-     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
-          elseif (keqi) then
-           call t2eri_wrk_ikeq(eri1(ict),eri2(ict),t2(blk1),ht2,
-     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
-          elseif (jeql) then
-           call t2eri_wrk_jleq(eri1(ict),eri2(ict),t2(blk1),ht2,
-     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
-          else
-           call t2eri_wrk_noeq(eri1(ict),eri2(ict),t2(blk1),ht2,
-     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
-          endif
+!          if (keqi.and.jeql) then
+!           call t2eri_wrk_aleq(eri1(ict),eri2(ict),t2(blk1),ht2,
+!     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
+!          elseif (keqi) then
+!           call t2eri_wrk_ikeq(eri1(ict),eri2(ict),t2(blk1),ht2,
+!     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
+!          elseif (jeql) then
+!           call t2eri_wrk_jleq(eri1(ict),eri2(ict),t2(blk1),ht2,
+!     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
+!          else
+!           call t2eri_wrk_noeq(eri1(ict),eri2(ict),t2(blk1),ht2,
+!     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
+!          endif
+           call t2eri_wrk_all(eri1(ict),eri2(ict),t2(blk1),ht2,
+     &                        nfi,nfj,nfk,nfl,nocc,lnoo,keqi,jeql)
         endif
 c
 c Increase offset of integral block to next ik block
@@ -511,33 +515,37 @@ c
      &                   nfl,nocc,nbf,ilo,ihi,klo,khi,factor)
 
       if (use_inmem_st2) then
-        if (keqi.and.jeql) then
-         call t2eri_wrk_aleq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
-     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
-        elseif (keqi) then
-         call t2eri_wrk_ikeq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
-     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
-        elseif (jeql) then
-         call t2eri_wrk_jleq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
-     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
-        else
-         call t2eri_wrk_noeq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
-     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
-        endif
+!        if (keqi.and.jeql) then
+!         call t2eri_wrk_aleq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
+!     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
+!        elseif (keqi) then
+!         call t2eri_wrk_ikeq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
+!     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
+!        elseif (jeql) then
+!         call t2eri_wrk_jleq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
+!     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
+!        else
+!         call t2eri_wrk_noeq(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
+!     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
+!        endif
+         call t2eri_wrk_all(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
+     &                      nfi,nfj,nfk,nfl,nocc,lnoo,keqi,jeql)
       else
-        if (keqi.and.jeql) then
-         call t2eri_wrk_aleq(eri1(ict),eri2(ict),t2(blk1),ht2,
-     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
-        elseif (keqi) then
-         call t2eri_wrk_ikeq(eri1(ict),eri2(ict),t2(blk1),ht2,
-     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
-        elseif (jeql) then
-         call t2eri_wrk_jleq(eri1(ict),eri2(ict),t2(blk1),ht2,
-     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
-        else
-         call t2eri_wrk_noeq(eri1(ict),eri2(ict),t2(blk1),ht2,
-     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
-        endif
+!        if (keqi.and.jeql) then
+!         call t2eri_wrk_aleq(eri1(ict),eri2(ict),t2(blk1),ht2,
+!     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
+!        elseif (keqi) then
+!         call t2eri_wrk_ikeq(eri1(ict),eri2(ict),t2(blk1),ht2,
+!     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
+!        elseif (jeql) then
+!         call t2eri_wrk_jleq(eri1(ict),eri2(ict),t2(blk1),ht2,
+!     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
+!        else
+!         call t2eri_wrk_noeq(eri1(ict),eri2(ict),t2(blk1),ht2,
+!     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
+!        endif
+         call t2eri_wrk_all(eri1(ict),eri2(ict),t2(blk1),ht2,
+     &                      nfi,nfj,nfk,nfl,nocc,lnoo,keqi,jeql)
       endif
 #endif
 c
@@ -759,3 +767,63 @@ c
       end
 
 
+      subroutine t2eri_wrk_all(eri1,eri2,t2,ht2,
+     &                         ni,nj,nk,nl,nocc,lnoo,
+     &                         keqi,jeql)
+      implicit none
+      double precision, intent(in)    :: eri1(nl,nk,nj,ni)
+      double precision, intent(in)    :: eri2(nj,nk,nl,ni)
+      double precision, intent(in)    :: t2(lnoo,nk,ni)
+      double precision, intent(inout) :: ht2(lnoo,nl,nj)
+      integer, intent(in)             :: ni,nj,nk,nl,nocc,lnoo
+      logical, intent(in)             :: keqi,jeql
+      double precision                :: gp, gm
+      integer                         :: ipp,imm
+      integer                         :: i,j,k,l,q
+      integer                         :: kmax, lmax
+      ipp=nocc*(nocc+1)/2
+      imm=nocc*(nocc-1)/2
+      kmax = nk
+      lmax = nl
+#if defined(USE_OPENMP)
+!
+! WARNING: You cannot use collapse on this loop because that will
+!          cause concurrent updates to ht2, which is a race-condition
+!          and leads to incorrectness.  In short, the J loop must be
+!          the one and only that is threaded.  Okay, we can thread over
+!          the L loop as well, but that may screw up memory access.
+!
+!          It may be appropriate to block these loops in any case.
+!
+!$omp parallel do schedule(static)
+!$omp& default(none)
+!$omp& private(gp,gm)
+!$omp& firstprivate(kmax,lmax)
+!$omp& shared(ni,nj,nk,nl,ipp,imm,keqi,jeql)
+!$omp& shared(eri1,eri2,t2,ht2)
+#endif
+      do j=1,nj
+        do i=1,ni
+          ! branch predictor should do a good job here since it will
+          ! be constant for any given invocation of the subroutine.
+          if (keqi) kmax = i
+          if (jeql) lmax = j
+          do k=1,kmax
+            do l=1,lmax
+              gp=(eri1(l,k,j,i)+eri2(j,k,l,i))*0.5d0
+              gm=(eri1(l,k,j,i)-eri2(j,k,l,i))*0.5d0
+              do q=1,ipp
+                ht2(q,l,j) = ht2(q,l,j) + gp * t2(q,k,i)
+              enddo
+              do q=1,imm
+                ht2(q+ipp,l,j) = ht2(q+ipp,l,j) + gm * t2(q+ipp,k,i)
+              enddo
+            enddo
+          enddo
+        enddo
+      enddo
+#if defined(USE_OPENMP)
+!$omp end parallel do
+#endif
+      return
+      end
