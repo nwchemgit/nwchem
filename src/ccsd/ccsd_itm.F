@@ -754,7 +754,7 @@ c
 c -- parallel task --
         inode=inode+1
         if (mod(inode,nodes).eq.iam)then
-         call fsig2(nocc,nvir,a,i,t1,ht1,hiu)
+         call ccsd_fsig2(nocc,nvir,a,i,t1,ht1,hiu)
         endif
 c -- end parallel task --
 c
@@ -766,6 +766,32 @@ c
          call pstat_off(ps_itm)
       else
          call qexit('itm',0)
+      endif
+      return
+      end
+      subroutine ccsd_fsig1(av,bv,nocc,nvir,nbf,iprt,t1,ht1,habe)
+      implicit none
+      integer av,bv,nocc,nvir,nbf,iprt
+      double precision t1(nocc,nvir),ht1(nocc,nvir),habe(nvir,nvir)
+#include "ccsd_debug.fh"
+#include "ccsd_len.fh"
+! term s1 n**3
+      if (dos(1).ne.0)then
+       call daxpy(nocc,habe(bv,av),t1(1,av),1,ht1(1,bv),1)
+      endif
+      return
+      end
+      subroutine ccsd_fsig2(nocc,nvir,bv,u,t1,ht1,hiu)
+      implicit none
+      integer nocc,nvir,bv,u
+      double precision t1(nocc,nvir),ht1(nocc,nvir),hiu(nocc,nvir)
+      double precision ddot
+      external ddot
+#include "ccsd_debug.fh"
+#include "ccsd_len.fh"
+! term s2 n**3
+      if (dos(2).ne.0)then
+       ht1(u,bv)=ht1(u,bv)-ddot(nocc,hiu(1,u),1,t1(1,bv),1)
       endif
       return
       end

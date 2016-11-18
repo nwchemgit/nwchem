@@ -15,6 +15,7 @@ include ../config/makefile.h
         ccden_interm4.o \
         aoccsd2.o \
         ccsd_itm.o \
+        ccsd_itm_omp.o \
         ccsd_t2pm.o \
         ccsd_pampt2.o \
         ccsd_pampt3.o \
@@ -28,8 +29,6 @@ include ../config/makefile.h
         moints_trp.o \
         ccsd.o \
         ccsd_aux.o \
-        ccsd_fsig1.o \
-        ccsd_fsig2.o \
         ccsd_get_param.o \
         ccsd_iterdrv2.o \
         ccsd_mktask.o \
@@ -60,9 +59,8 @@ endif
 
  USES_BLAS = \
      ccsd_itm.F \
+     ccsd_itm_omp.F \
      ccsd_t2pm.F \
-     ccsd_fsig1.F \
-     ccsd_fsig2.F \
      ccsd_iterdrv2.F \
      ccsd_pampt2.F \
      ccsd_pampt3.F \

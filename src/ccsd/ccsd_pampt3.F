@@ -248,12 +248,21 @@ c ------------------------------------------------------------
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scre',l_sc3, k_sc3)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrf',l_sc4, k_sc4)
+#if defined(USE_OPENMP)
+      call ccsd_itm_omp(nocc,nvir,nact,hiu,giu,habe,gabe,hia,
+     &                  t1,ht1,dbl_mb(k_sc1),dbl_mb(k_sc2),
+     &                  dbl_mb(k_sc1),dbl_mb(k_sc2),
+     &                  dbl_mb(k_sc3),dbl_mb(k_sc4),
+     &                  g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
+     &                  iprt)
+#else
       call ccsd_itm(nocc,nvir,nact,hiu,giu,habe,gabe,hia,
      &              t1,ht1,dbl_mb(k_sc1),dbl_mb(k_sc2),
      &              dbl_mb(k_sc1),dbl_mb(k_sc2),
      &              dbl_mb(k_sc3),dbl_mb(k_sc4),
      &              g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &              iprt)
+#endif
       stat=stat.and.ma_pop_stack(l_sc4)
       stat=stat.and.ma_pop_stack(l_sc3)
       stat=stat.and.ma_pop_stack(l_sc2)

@@ -1,4 +1,4 @@
-      subroutine fsig2(nocc,nvir,bv,u,t1,ht1,hiu)
+      subroutine ccsd_fsig2(nocc,nvir,bv,u,t1,ht1,hiu)
 C     $Id$
       implicit none
       integer nocc,nvir,bv,u
