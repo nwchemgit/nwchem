@@ -23,7 +23,7 @@ c
       integer ict,off1,off2
       integer mlkj,mkl,mkj
      
-      double precision int1, int2, scale
+      double precision int1, int2, factor
 c
       if (occsdps) then
          call pstat_on(ps_idx1)
@@ -42,12 +42,12 @@ c
         ilo=shinf(ish,2)
         ihi=shinf(ish,3)
         if (ish.eq.ksh) then
-          call ccsd_idx1_wrk2(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
-     &                        nfl,nocc,nbf,ilo,ihi,klo,khi)
+          factor = 0.5d0
         else
-          call ccsd_idx1_wrk1(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
-     &                        nfl,nocc,nbf,ilo,ihi,klo,khi)
+          factor = 1.0d0
         endif
+        call ccsd_idx1_wrk(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
+     &                     nfl,nocc,nbf,ilo,ihi,klo,khi,factor)
         ict=ict+nfk*nfl*nfi*nfj
       enddo
       if (occsdps) then
@@ -58,8 +58,9 @@ c
       return
       end
 #if defined(USE_OPENMP)
-      subroutine ccsd_idx1_wrk1(snsi,sisn,eri1,eri2,t1ao,
-     &                          nfj,nfl,nocc,nbf,ilo,ihi,klo,khi)
+      subroutine ccsd_idx1_wrk(snsi,sisn,eri1,eri2,t1ao,
+     &                         nfj,nfl,nocc,nbf,ilo,ihi,klo,khi,
+     &                         factor)
       implicit none
 #include "ccsdps.fh"
       double precision, intent(inout) :: snsi(nbf,nfj,nfl,nocc)
@@ -67,22 +68,22 @@ c
       double precision, intent(in) :: eri1(nfl,klo:khi,nfj,ilo:ihi)
       double precision, intent(in) :: eri2(nfj,klo:khi,nfl,ilo:ihi)
       double precision, intent(in) :: t1ao(nbf,nocc)
+      double precision, intent(in) :: factor
       integer, intent(in) :: nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
       double precision :: int1,int2
       integer :: i,j,k,l,ii
-      call pstat_on(ps_idx11)
 !$omp parallel do schedule(static)
 !$omp& default(none)
 !$omp& private(int1,int2)
-!$omp& firstprivate(nfj,nfl,nocc,nbf,ilo,ihi,klo,khi)
-!$omp& shared(eri1,eri2,snsi,sisn,t1ao)
+!$omp& shared(nfj,nfl,nocc,nbf,ilo,ihi,klo,khi)
+!$omp& shared(eri1,eri2,snsi,sisn,t1ao,factor)
       do ii=1,nocc
         do l=1,nfl
           do j=1,nfj
             do i=ilo,ihi
               do k=klo,khi
-                int1=eri1(l,k,j,i)
-                int2=eri2(j,k,l,i)
+                int1=eri1(l,k,j,i)*factor
+                int2=eri2(j,k,l,i)*factor
                 snsi(i,j,l,ii)=snsi(i,j,l,ii)+t1ao(k,ii)*int1
                 snsi(k,j,l,ii)=snsi(k,j,l,ii)+t1ao(i,ii)*int2
                 sisn(k,l,j,ii)=sisn(k,l,j,ii)+t1ao(i,ii)*int1
@@ -93,50 +94,11 @@ c
         enddo
       enddo
 !$omp end parallel do
-      call pstat_off(ps_idx11)
-      return
-      end
-      subroutine ccsd_idx1_wrk2(snsi,sisn,eri1,eri2,t1ao,
-     &                          nfj,nfl,nocc,nbf,ilo,ihi,klo,khi)
-      implicit none
-#include "ccsdps.fh"
-      double precision, intent(inout) :: snsi(nbf,nfj,nfl,nocc)
-      double precision, intent(inout) :: sisn(nbf,nfl,nfj,nocc)
-      double precision, intent(in) :: eri1(nfl,klo:khi,nfj,ilo:ihi)
-      double precision, intent(in) :: eri2(nfj,klo:khi,nfl,ilo:ihi)
-      double precision, intent(in) :: t1ao(nbf,nocc)
-      integer, intent(in) :: nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
-      double precision int1,int2
-      integer i,j,k,l,ii
-      call pstat_on(ps_idx12)
-!$omp parallel do schedule(static)
-!$omp& default(none)
-!$omp& private(int1,int2)
-!$omp& firstprivate(nfj,nfl,nocc,nbf,ilo,ihi,klo,khi)
-!$omp& shared(eri1,eri2,snsi,sisn,t1ao)
-      do ii=1,nocc
-        do l=1,nfl
-          do j=1,nfj
-            do i=ilo,ihi
-              do k=klo,khi
-                int1=eri1(l,k,j,i)*0.5d0
-                int2=eri2(j,k,l,i)*0.5d0
-                snsi(i,j,l,ii)=snsi(i,j,l,ii)+t1ao(k,ii)*int1
-                snsi(k,j,l,ii)=snsi(k,j,l,ii)+t1ao(i,ii)*int2
-                sisn(k,l,j,ii)=sisn(k,l,j,ii)+t1ao(i,ii)*int1
-                sisn(i,l,j,ii)=sisn(i,l,j,ii)+t1ao(k,ii)*int2
-              enddo
-            enddo
-          enddo
-        enddo
-      enddo
-!$omp end parallel do
-      call pstat_off(ps_idx12)
       return
       end
 #else // USE_OPENMP
-      subroutine ccsd_idx1_wrk1(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nocc,
-     &                     nbf,ilo,ihi,klo,khi)
+      subroutine ccsd_idx1_wrk(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nocc,
+     &                     nbf,ilo,ihi,klo,khi,factor)
       implicit none
 #include "ccsdps.fh"
       integer nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
@@ -146,14 +108,13 @@ c
      &                 snsi(nbf,nfj,nfl,nocc),
      &                 sisn(nbf,nfl,nfj,nocc),
      &                 t1ao(nbf,nocc)
-      double precision int1,int2
-      call pstat_on(ps_idx11)
+      double precision int1,int2,factor
       do l=1,nfl
         do j=1,nfj
           do i=ilo,ihi
             do k=klo,khi
-              int1=eri1(l,k,j,i)
-              int2=eri2(j,k,l,i)
+              int1=eri1(l,k,j,i)*factor
+              int2=eri2(j,k,l,i)*factor
               do ii=1,nocc
                 snsi(i,j,l,ii)=snsi(i,j,l,ii)+t1ao(k,ii)*int1
                 snsi(k,j,l,ii)=snsi(k,j,l,ii)+t1ao(i,ii)*int2
@@ -164,39 +125,6 @@ c
           enddo
         enddo
       enddo
-      call pstat_off(ps_idx11)
-      return
-      end
-      subroutine ccsd_idx1_wrk2(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nocc,
-     &                     nbf,ilo,ihi,klo,khi)
-      implicit none
-#include "ccsdps.fh"
-      integer nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
-      integer i,j,k,l,ii
-      double precision eri1(nfl,klo:khi,nfj,ilo:ihi),
-     &                 eri2(nfj,klo:khi,nfl,ilo:ihi),
-     &                 snsi(nbf,nfj,nfl,nocc),
-     &                 sisn(nbf,nfl,nfj,nocc),
-     &                 t1ao(nbf,nocc)
-      double precision int1,int2
-      call pstat_on(ps_idx12)
-      do l=1,nfl
-        do j=1,nfj
-          do i=ilo,ihi
-            do k=klo,khi
-              int1=eri1(l,k,j,i)*0.5d0
-              int2=eri2(j,k,l,i)*0.5d0
-              do ii=1,nocc
-                snsi(i,j,l,ii)=snsi(i,j,l,ii)+t1ao(k,ii)*int1
-                snsi(k,j,l,ii)=snsi(k,j,l,ii)+t1ao(i,ii)*int2
-                sisn(k,l,j,ii)=sisn(k,l,j,ii)+t1ao(i,ii)*int1
-                sisn(i,l,j,ii)=sisn(i,l,j,ii)+t1ao(k,ii)*int2
-              enddo
-            enddo
-          enddo
-        enddo
-      enddo
-      call pstat_off(ps_idx12)
       return
       end
 #endif // USE_OPENMP

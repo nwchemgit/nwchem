@@ -314,7 +314,7 @@ c
       integer kmsh,imsh,nmfi,nmfk,nbhandle
       integer kmlo,kmhi,imlo,imhi
 #endif
-      double precision gp,gm
+      double precision gp,gm,factor
       logical keqi,jeql
       integer szt
       szt = 2 * max_st2_blk - 1
@@ -427,11 +427,13 @@ c  Do the actual work
 c
         keqi=ish.eq.ksh
         if (keqi) then
-          call ccsd_idx1_wrk2(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
-     &                        nfl,nocc,nbf,ilo,ihi,klo,khi)
+          factor = 0.5d0
+          call ccsd_idx1_wrk(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
+     &                       nfl,nocc,nbf,ilo,ihi,klo,khi,factor)
         else
-          call ccsd_idx1_wrk1(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
-     &                        nfl,nocc,nbf,ilo,ihi,klo,khi)
+          factor = 1.0d0
+          call ccsd_idx1_wrk(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
+     &                       nfl,nocc,nbf,ilo,ihi,klo,khi,factor)
         endif
 
         if (use_inmem_st2) then
@@ -503,11 +505,13 @@ c
       keqi=ish.eq.ksh
       if(ik.eq.3) ict=1
       if (keqi) then
-         call ccsd_idx1_wrk2(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
-     &                       nfl,nocc,nbf,ilo,ihi,klo,khi)
+         factor = 0.5d0
+         call ccsd_idx1_wrk(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
+     &                      nfl,nocc,nbf,ilo,ihi,klo,khi,factor)
       else
-         call ccsd_idx1_wrk1(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
-     &                       nfl,nocc,nbf,ilo,ihi,klo,khi)
+         factor = 1.0d0
+         call ccsd_idx1_wrk(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
+     &                      nfl,nocc,nbf,ilo,ihi,klo,khi,factor)
       endif
 
       if (use_inmem_st2) then

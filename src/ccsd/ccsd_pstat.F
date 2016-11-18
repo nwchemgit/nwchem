@@ -59,10 +59,6 @@ c
      $     ps_itrdrv)) call errquit('ccsd: ccsd_pstat_init', 0,0)
       if (.not. pstat_allocate('ccsd:tengy', pstat_qstat, 0, junk,
      $     ps_tengy)) call errquit('ccsd: ccsd_pstat_init', 0,0)
-      if (.not. pstat_allocate('idx12', pstat_qstat, 0, junk,
-     $     ps_idx12)) call errquit('ccsd: ccsd_pstat_init', 0,0)
-      if (.not. pstat_allocate('idx11', pstat_qstat, 0, junk,
-     $     ps_idx11)) call errquit('ccsd: ccsd_pstat_init', 0,0)
       if (.not. pstat_allocate('t2eriw', pstat_qstat, 0, junk,
      $     ps_t2eriw)) call errquit('ccsd: ccsd_pstat_init', 0,0)
       if (.not. pstat_allocate('t2erin', pstat_qstat, 0, junk,
@@ -109,8 +105,6 @@ c
          if(.not.pstat_free(ps_sxy))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_itrdrv))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_tengy))call errquit('ccsd_pstat',0,0)
-         if(.not.pstat_free(ps_idx12))call errquit('ccsd_pstat',0,0)
-         if(.not.pstat_free(ps_idx11))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_t2eriw))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_t2erin))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_t2erih))call errquit('ccsd_pstat',0,0)
