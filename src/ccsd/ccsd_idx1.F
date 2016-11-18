@@ -57,21 +57,21 @@ c
       endif
       return
       end
-#if defined(USE_OPENMP)
       subroutine ccsd_idx1_wrk(snsi,sisn,eri1,eri2,t1ao,
      &                         nfj,nfl,nocc,nbf,ilo,ihi,klo,khi,
      &                         factor)
       implicit none
-#include "ccsdps.fh"
       double precision, intent(inout) :: snsi(nbf,nfj,nfl,nocc)
       double precision, intent(inout) :: sisn(nbf,nfl,nfj,nocc)
-      double precision, intent(in) :: eri1(nfl,klo:khi,nfj,ilo:ihi)
-      double precision, intent(in) :: eri2(nfj,klo:khi,nfl,ilo:ihi)
-      double precision, intent(in) :: t1ao(nbf,nocc)
-      double precision, intent(in) :: factor
-      integer, intent(in) :: nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
-      double precision :: int1,int2
-      integer :: i,j,k,l,ii
+      double precision, intent(in)    :: eri1(nfl,klo:khi,nfj,ilo:ihi)
+      double precision, intent(in)    :: eri2(nfj,klo:khi,nfl,ilo:ihi)
+      double precision, intent(in)    :: t1ao(nbf,nocc)
+      double precision, intent(in)    :: factor
+      integer, intent(in)             :: nfj,nfl,nocc,nbf
+      integer, intent(in)             :: ilo,ihi,klo,khi
+      double precision                :: int1,int2
+      integer                         :: i,j,k,l,ii
+#if defined(USE_OPENMP)
 !$omp parallel do schedule(static)
 !$omp& default(none)
 !$omp& private(int1,int2)
@@ -94,21 +94,7 @@ c
         enddo
       enddo
 !$omp end parallel do
-      return
-      end
 #else // USE_OPENMP
-      subroutine ccsd_idx1_wrk(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nocc,
-     &                     nbf,ilo,ihi,klo,khi,factor)
-      implicit none
-#include "ccsdps.fh"
-      integer nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
-      integer i,j,k,l,ii
-      double precision eri1(nfl,klo:khi,nfj,ilo:ihi),
-     &                 eri2(nfj,klo:khi,nfl,ilo:ihi),
-     &                 snsi(nbf,nfj,nfl,nocc),
-     &                 sisn(nbf,nfl,nfj,nocc),
-     &                 t1ao(nbf,nocc)
-      double precision int1,int2,factor
       do l=1,nfl
         do j=1,nfj
           do i=ilo,ihi
@@ -125,6 +111,6 @@ c
           enddo
         enddo
       enddo
+#endif // USE_OPENMP
       return
       end
-#endif // USE_OPENMP
