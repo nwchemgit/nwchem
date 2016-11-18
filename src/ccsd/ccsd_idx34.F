@@ -62,6 +62,7 @@
 !$omp critical
             call ga_put(g_x,1,nact*nact,ad2,ad2,bufb,nact*nact)
 !$omp end critical
+! cycle the critical section here to improve fairness - hopefully
 !$omp critical
             call ga_get(g_c,1,nact*nbf,ad2,ad2,bufa,nact*nbf)
 !$omp end critical
