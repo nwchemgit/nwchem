@@ -428,13 +428,11 @@ c
         keqi=ish.eq.ksh
         if (keqi) then
           factor = 0.5d0
-          call ccsd_idx1_wrk(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
-     &                       nfl,nocc,nbf,ilo,ihi,klo,khi,factor)
         else
           factor = 1.0d0
-          call ccsd_idx1_wrk(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
-     &                       nfl,nocc,nbf,ilo,ihi,klo,khi,factor)
         endif
+        call ccsd_idx1_wrk(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
+     &                     nfl,nocc,nbf,ilo,ihi,klo,khi,factor)
 
         if (use_inmem_st2) then
           if (keqi.and.jeql) then
@@ -506,13 +504,11 @@ c
       if(ik.eq.3) ict=1
       if (keqi) then
          factor = 0.5d0
-         call ccsd_idx1_wrk(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
-     &                      nfl,nocc,nbf,ilo,ihi,klo,khi,factor)
       else
          factor = 1.0d0
-         call ccsd_idx1_wrk(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
-     &                      nfl,nocc,nbf,ilo,ihi,klo,khi,factor)
       endif
+      call ccsd_idx1_wrk(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
+     &                   nfl,nocc,nbf,ilo,ihi,klo,khi,factor)
 
       if (use_inmem_st2) then
         if (keqi.and.jeql) then
