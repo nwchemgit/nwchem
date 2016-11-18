@@ -845,7 +845,15 @@
 ! -- parallel task --
         inode=inode+1
         if (mod(inode,nodes).eq.iam)then
-         call ccsd_fsig2_omp(nocc,nvir,a,i,t1,ht1,hiu)
+!         subroutine ccsd_fsig2_omp(nocc,nvir,bv,u,t1,ht1,hiu)
+!         if (dos(2).ne.0)then
+!          ht1(u,bv)=ht1(u,bv)-ddot(nocc,hiu(1,u),1,t1(1,bv),1)
+!         endif
+!         bv->a, u->i
+! term s2 n**3
+         if (dos(2).ne.0)then
+          ht1(i,a)=ht1(i,a)-ddot(nocc,hiu(1,i),1,t1(1,a),1)
+         endif
         endif
 ! -- end parallel task --
 !
@@ -857,20 +865,6 @@
          call pstat_off(ps_itm)
       else
          call qexit('itm',0)
-      endif
-      return
-      end
-      subroutine ccsd_fsig2_omp(nocc,nvir,bv,u,t1,ht1,hiu)
-      implicit none
-      integer nocc,nvir,bv,u
-      double precision t1(nocc,nvir),ht1(nocc,nvir),hiu(nocc,nvir)
-      double precision ddot
-      external ddot
-#include "ccsd_debug.fh"
-#include "ccsd_len.fh"
-! term s2 n**3
-      if (dos(2).ne.0)then
-       ht1(u,bv)=ht1(u,bv)-ddot(nocc,hiu(1,u),1,t1(1,bv),1)
       endif
       return
       end
