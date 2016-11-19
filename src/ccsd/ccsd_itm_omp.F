@@ -131,8 +131,11 @@
 !$omp end do
 !$omp end parallel
 !
+!$omp single
       call dfill(lnoo,0.0d0,hiu,1)
       call ga_distribution(g_sht2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp end single
+!
 !$omp parallel 
 !$omp& default(none)
 !$omp& shared(t1)
@@ -168,12 +171,14 @@
 !$omp end do
 !$omp end parallel
 !
+!$omp single
       call dcopy(lnoo,hiu,1,giu,1)
       call dcopy(lnvv,habe,1,gabe,1)
       call dfill(lnov,0.0d0,hia,1)
-!
       if (iprt.gt.5.and.iam.eq.0)print *,'forming aitm'
       call ga_distribution(g_x,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp end single
+!
 !$omp parallel 
 !$omp& default(none)
 !$omp& shared(t1)
@@ -390,17 +395,22 @@
 !$omp end do
 !$omp end parallel
 !
+!$omp single
       call ga_dgop(msg_cc_term1,hiu,lnoo, '+')
       call ga_dgop(msg_cc_term2,habe,lnvv, '+')
       call ga_dgop(msg_cc_term3,giu,lnoo, '+')
       call ga_dgop(msg_cc_term4,hia,lnov, '+')
       call ga_dgop(msg_cc_term5,gabe,lnvv, '+')
+!$omp end single
 !
 !-----------------------------------------------------------------------
 !  D2 (product of A intermediate and Tau)
 !-----------------------------------------------------------------------
 ! construct tau
+!
+!$omp single
       call ga_distribution(g_nt2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp end single
       do i=1,nocc
         do j=1,nocc
           ad1=(i-1)*nvir
@@ -408,8 +418,10 @@
           if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
           if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
             ij=(i-1)*nocc+j
+!$omp critical
             call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
      &                  scra,nvir)
+!$omp end critical
             ad3=0
             do a=1,nvir
               do b=1,nvir
@@ -417,16 +429,19 @@
                 scra(ad3)=scra(ad3)+t1(i,a)*t1(j,b)
               enddo
             enddo
+!$omp critical
             call ga_put(g_tmt1,1,lnvv,ij,ij,scra,lnvv)
+!$omp end critical
           endif
           endif
         enddo
       enddo
 !
+!$omp single
       call ga_dgemm('n','n',lnvv,lnoo,lnoo,
      &              1.0d0,g_tmt1,g_aitm,0.0d0,g_tmt2)
-!
       call ga_distribution(g_nht2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp end single
       do i=1,nocc
         do j=1,nocc
           ad1=(i-1)*nvir
@@ -434,9 +449,11 @@
           if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
           if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
             ij=(i-1)*nocc+j
+!$omp critical
             call ga_get(g_tmt2,1,lnvv,ij,ij,scra,lnvv)
             call ga_acc(g_nht2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
      &                  scra,nvir,1.0d0)
+!$omp end critical
           endif
           endif
         enddo
@@ -448,14 +465,18 @@
 !
 ! construct (2*t2_ij^ab - t2_ij^ba + t_i^a t_j^b)
 !
+!$omp single
       call ga_distribution(g_nt2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp end single
       do i=1,nocc
         do j=1,nocc
           ad1=(i-1)*nvir
           ad2=(j-1)*nvir
           if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
           if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
+!$omp critical
             call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scra,nvir)
+!$omp end critical
             do a=1,nvir
               do b=1,nvir
               ad3=(b-1)*nvir+a
@@ -473,7 +494,9 @@
 !  D4
 !-----------------------------------------------------------------------
 !
+!$omp single
       call ga_distribution(g_nht2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp end single
       do i=1,nocc
         do j=1,nocc
           ad1=(i-1)*nvir
@@ -503,10 +526,14 @@
           ad1=(i-1)*nvir+a
           inode=inode+1
           if (mod(inode, nodes) .eq. iam) then
+!$omp critical
             call ga_get(g_nt2,1,lnov,ad1,ad1,scre,lnov)
+!$omp end critical
             call dgemm('n','n',nvir,nocc,nocc,-1.0d0,scre,
      &                 nvir,giu,nocc,0.0d0,scrf,nvir)
+!$omp critical
             call ga_acc(g_nht2,1,lnov,ad1,ad1,scrf,lnov,1.0d0)
+!$omp end critical
           endif
         enddo
       enddo
