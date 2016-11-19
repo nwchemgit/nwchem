@@ -1,7 +1,3 @@
-#ifdef CRAYXT
-!#warning undeffing nxtval
-#undef NXT
-#endif      
       subroutine ccsd_itm_omp(nocc,nvir,nact,hiu,giu,habe,gabe,
      &                        hia,t1,ht1,
      &                        scra,scrb,scrc,scrd,scre,scrf,
@@ -64,6 +60,7 @@
       lnov=nocc*nvir
       lnvv=nvir*nvir
 !
+!$omp single
 ! - test x and c by doing its contribution to (2j-k)*(2t-t)
       if (.not.ga_create(MT_DBL,lnoo,lnoo,'aitm',
      &                   nocc,nocc,g_aitm))
@@ -79,7 +76,8 @@
 !
       call dfill(lnvv,0.0d0,habe,1)
       call ga_distribution(g_nexch,iam,g_jlo,g_jhi,g_ilo,g_ihi)
-
+!$omp end single
+!
 !$omp parallel 
 !$omp& default(none)
 !$omp& shared(t1)
@@ -500,32 +498,18 @@
 !
       inode=-1
       call ga_sync
-#ifdef NXT
-      next=nxtask(nodes, 1)
-#endif
       do a=1,nvir
-          do i=1,nocc
-            ad1=(i-1)*nvir+a
-        inode=inode+1
-#ifdef NXT
-        if (inode.eq.next)then
-#else
-            if (mod(inode, nodes) .eq. iam) then
-#endif
+        do i=1,nocc
+          ad1=(i-1)*nvir+a
+          inode=inode+1
+          if (mod(inode, nodes) .eq. iam) then
             call ga_get(g_nt2,1,lnov,ad1,ad1,scre,lnov)
             call dgemm('n','n',nvir,nocc,nocc,-1.0d0,scre,
      &                 nvir,giu,nocc,0.0d0,scrf,nvir)
             call ga_acc(g_nht2,1,lnov,ad1,ad1,scrf,lnov,1.0d0)
-#ifdef NXT
-            next=nxtask(nodes, 1)
-#endif
           endif
         enddo
       enddo
-#ifdef NXT
-      call ga_sync
-      next=nxtask(-nodes, 1)
-#endif
       call ga_sync
 !
       if (.not.ga_destroy(g_tmt2))
@@ -547,8 +531,7 @@
             ad1=(i-1)*nact
             ad2=(j-1)*nact
 !
-            call ga_get(g_nexch,ad2+1,ad2+nact,ad1+1,ad1+nact,
-     &                  scrd,nact)
+            call ga_get(g_nexch,ad2+1,ad2+nact,ad1+1,ad1+nact,scrd,nact)
             call dgemm('n','n',nvir,nvir,nocc,-1.0d0,scrd(nocc+1,1),
      &                 nact,t1,nocc,0.0d0,scrc(nocc+1,nocc+1),nact)
             call daxpy(nact*nact,1.0d0,scrc,1,scrd,1)
@@ -671,19 +654,42 @@
         enddo
       enddo
 !
+!$omp single
       call ga_dgemm('t','n',lnov,lnov,lnov,
      &              1.0d0,g_tmp2,g_tmt,0.0d0,g_tmp)
 !
 !     d9 and d10
 !
       call ga_distribution(g_nht2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp end single
+!
+!$omp parallel 
+!$omp& default(none)
+!$omp& shared(t1)
+!$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1,g_tmt2)
+!$omp& shared(g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp& shared(g_c,g_x,g_nht2,g_aitm,g_ncoul,g_tmp)
+!$omp& shared(nact,nocc,nvir,nodes,iam)
+!$omp& shared(lnoo,lnov,lnvv)
+!$omp& shared(doa,dob)
+!$omp& private(ad1,ad2,ad3,ad4)
+!$omp& private(ij)
+!$omp& private(scra,scrb,scrc,scrd,scre,scrf)
+!$omp& reduction(+:hia)
+!$omp& reduction(+:ht1)
+!$omp& reduction(+:giu)
+!$omp& reduction(+:gabe)
+!$omp& reduction(+:habe)
+!$omp do collapse(2) schedule(guided)
       do i=1,nocc
         do j=1,nocc
           ad1=(i-1)*nvir
           ad2=(j-1)*nvir
           if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
           if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
+!$omp critical
             call ga_get(g_tmp,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scra,nvir)
+!$omp end critical
             do a=1,nvir
               do b=1,nvir
                 ad3=(a-1)*nvir+b
@@ -691,17 +697,42 @@
                 scrb(ad3)=-0.5d0*scra(ad3)-scra(ad4)
               enddo
             enddo
+!$omp critical
             call ga_acc(g_nht2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
      &                  scrb,nvir,1.0d0)
+!$omp end critical
           endif
           endif
         enddo
       enddo
+!$omp end do
+!$omp end parallel
 !
+!$omp single
       call ga_sync()
 !
       if (iprt.gt.5.and.iam.eq.0)print *,'forming j - k'
       call ga_distribution(g_x,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp end single
+!
+!$omp parallel 
+!$omp& default(none)
+!$omp& shared(t1)
+!$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1,g_tmt2)
+!$omp& shared(g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp& shared(g_c,g_x,g_nht2,g_aitm,g_ncoul,g_tmp)
+!$omp& shared(nact,nocc,nvir,nodes,iam)
+!$omp& shared(lnoo,lnov,lnvv)
+!$omp& shared(doa,dob)
+!$omp& private(ad1,ad2,ad3,ad4)
+!$omp& private(ij)
+!$omp& private(scra,scrb,scrc,scrd,scre,scrf)
+!$omp& reduction(+:hia)
+!$omp& reduction(+:ht1)
+!$omp& reduction(+:giu)
+!$omp& reduction(+:gabe)
+!$omp& reduction(+:habe)
+!$omp do collapse(2) schedule(guided)
       do i=1,nocc
         do j=1,nocc
           ij=(i-1)*nocc+j
@@ -709,9 +740,13 @@
             ad1=(i-1)*nact
             ad2=(j-1)*nact
             call dfill(nact*nact,0.0d0,scra,1)
+!$omp critical
             call ga_get(g_x,1,nact*nact,ij,ij,scrb,nact*nact)
+!$omp end critical
             call daxpy(nact*nact,1.0d0,scrb,1,scra,1)
+!$omp critical
             call ga_get(g_c,1,nact*nact,ij,ij,scrb,nact*nact)
+!$omp end critical
             call daxpy(nact*nact,-0.5d0,scrb,1,scra,1)
             ad1=0
             do a=nocc+1,nact
@@ -722,24 +757,51 @@
             enddo
             ad1=(j-1)*nvir
             ad2=(i-1)*nvir
+!$omp critical
             call ga_put(g_tmp,ad1+1,ad1+nvir,ad2+1,ad2+nvir,scrb,nvir)
+!$omp end critical
           endif
         enddo
       enddo
+!$omp end do
+!$omp end parallel
 !-----------------------------------------------------------------------
 !  J4 + J5 - K4 intermediate 
 !-----------------------------------------------------------------------
 !
 ! construct (2*t2_ij^ab - t2_ij^ba - 2*t_i^a t_j^b)
 !
+!$omp single
       call ga_distribution(g_nt2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp end single
+!
+!$omp parallel 
+!$omp& default(none)
+!$omp& shared(t1)
+!$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1,g_tmt2)
+!$omp& shared(g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp& shared(g_c,g_x,g_nht2,g_aitm,g_ncoul,g_tmt)
+!$omp& shared(nact,nocc,nvir,nodes,iam)
+!$omp& shared(lnoo,lnov,lnvv)
+!$omp& shared(doa,dob)
+!$omp& private(ad1,ad2,ad3,ad4)
+!$omp& private(ij)
+!$omp& private(scra,scrb,scrc,scrd,scre,scrf)
+!$omp& reduction(+:hia)
+!$omp& reduction(+:ht1)
+!$omp& reduction(+:giu)
+!$omp& reduction(+:gabe)
+!$omp& reduction(+:habe)
+!$omp do collapse(2) schedule(guided)
       do i=1,nocc
         do j=1,nocc
           ad1=(i-1)*nvir
           ad2=(j-1)*nvir
           if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
           if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
+!$omp critical
             call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scra,nvir)
+!$omp end critical
             do a=1,nvir
               do b=1,nvir
                 ad3=(b-1)*nvir+a
@@ -748,13 +810,34 @@
      &                    -2.0d0*t1(i,a)*t1(j,b)
               enddo
             enddo
+!$omp critical
             call ga_put(g_tmt,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scrb,nvir)
+!$omp end critical
           endif
           endif
         enddo
       enddo
+!$omp end do
+!$omp end parallel
 !
+!$omp single
       call ga_distribution(g_nexch,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp end single
+!
+!$omp parallel 
+!$omp& default(none)
+!$omp& shared(t1)
+!$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt,g_tmt1,g_tmt2)
+!$omp& shared(g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp& shared(g_c,g_x,g_nht2,g_aitm,g_ncoul,g_tmp,g_tmp2)
+!$omp& shared(nact,nocc,nvir,nodes,iam)
+!$omp& shared(lnoo,lnov,lnvv)
+!$omp& shared(doa,dob)
+!$omp& private(ad1,ad2,ad3,ad4,ad5,ad6)
+!$omp& private(ij)
+!$omp& private(scra,scrb,scrc,scrd,scre,scrf)
+!
+!$omp do collapse(2) schedule(guided)
       do i=1,nocc
         do j=1,nocc
           ad1=(i-1)*nact
@@ -763,8 +846,10 @@
           if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
             ad3=(i-1)*nvir
             ad4=(j-1)*nvir
+!$omp critical
             call ga_get(g_nexch,ad2+nocc+1,ad2+nact,ad1+nocc+1,ad1+nact,
      &                  scra,nvir)
+!$omp end critical
               do a=1,nvir
                 do b=1,nvir
                   ad5=(a-1)*nvir+b
@@ -772,24 +857,33 @@
                   scrb(ad5)=scra(ad5)+scra(ad5)-scra(ad6)
                 enddo
               enddo
+!$omp critical
             call ga_put(g_tmp2,ad4+1,ad4+nvir,ad3+1,ad3+nvir,scrb,nvir)
+!$omp end critical
           endif
           endif
         enddo
       enddo
+!$omp end do
 !
+!$omp single
       call ga_dgemm('n','t',lnov,lnov,lnov,
      &              0.25d0,g_tmp2,g_tmt,1.0d0,g_tmp)
 !
 ! construct (2*t2_ij^ab - t2_ij^ba)
       call ga_distribution(g_nt2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp end single
+!
+!$omp do collapse(2) schedule(guided)
       do i=1,nocc
         do j=1,nocc
           ad1=(i-1)*nvir
           ad2=(j-1)*nvir
           if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
           if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
+!$omp critical
             call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scra,nvir)
+!$omp end critical
             do a=1,nvir
               do b=1,nvir
                 ad3=(a-1)*nvir+b
@@ -797,11 +891,15 @@
                 scrb(ad3)=scra(ad3)+scra(ad3)-scra(ad4)
               enddo
             enddo
+!$omp critical
             call ga_put(g_tmt,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scrb,nvir)
+!$omp end critical
           endif
           endif
         enddo
       enddo
+!$omp end do
+!$omp end parallel
 !
       call ga_dgemm('t','n',lnov,lnov,lnov,
      &              1.0d0,g_tmp,g_tmt,1.0d0,g_nht2)
@@ -829,7 +927,9 @@
          if (dos(1).ne.0)then
           call daxpy(nocc,habe(b,a),t1(1,a),1,ht1(1,b),1)
          endif
+!$omp critical
          next=nxtask(nodes, 1)
+!$omp end critical
         endif
 ! -- end parallel task --
        enddo
