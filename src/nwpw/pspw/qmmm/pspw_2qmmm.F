@@ -1316,7 +1316,7 @@ c     **** external functions ***
          if (nds.gt.0) then
             jj  = int_mb(nindx_dihedral_spring_start(1)+wk1-1)
             kk  = int_mb(nKr0_dihedral_spring_start(1) +wk1-1)
-            E = E + pspw_qmmm_dihedral_spring_frag(nbm,
+            E = E + pspw_qmmm_dihedral_spring_frag(nds,
      >                        int_mb(indx_dihedral_spring(1)+jj-1),
      >                        dbl_mb(Kr0_dihedral_spring(1) +kk-1),
      >                        dbl_mb(ion_rion_ptr()+3*(ks1-1)))
@@ -1324,7 +1324,7 @@ c     **** external functions ***
          if (ndds.gt.0) then
             jj  = int_mb(nindx_dihedral_start(1)+wk1-1)
             kk  = int_mb(nKr0_dihedral_start(1) +wk1-1)
-            E = E + pspw_qmmm_dihedral_frag(nbm,
+            E = E + pspw_qmmm_dihedral_frag(ndds,
      >                        int_mb(indx_dihedral(1)+jj-1),
      >                        dbl_mb(Kr0_dihedral(1) +kk-1),
      >                        dbl_mb(ion_rion_ptr()+3*(ks1-1)))
