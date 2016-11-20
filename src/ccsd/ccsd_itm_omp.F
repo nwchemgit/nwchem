@@ -106,11 +106,6 @@
 !$omp& shared(ht1,gabe,habe,giu,hiu,hia)
 !$omp& shared(doa,dob)
 !
-!!$omp single
-!      call dfill(lnvv,0.0d0,habe,1)
-!      call dfill(lnoo,0.0d0,hiu,1)
-!      call dfill(lnov,0.0d0,hia,1)
-!!$omp end single
 !$omp do collapse(2) schedule(static)
       do k=1,nvir
         do l=1,nvir
@@ -225,7 +220,6 @@
 !-----------------------------------------------------------------------
 !
 ! A1
-            !call dfill(nact*nact,0.0d0,scra,1)
             do k=1,nact*nact
                 scra(k) = 0.0d0
             enddo
@@ -234,7 +228,6 @@
               call ga_get(g_nexch,ad2+1,ad2+nocc,ad1+1,ad1+nocc,
      &                    scrb,nocc)
 !$omp end critical
-              !call daxpy(nocc*nocc,0.5d0,scrb,1,scra,1)
               do k=1,nocc*nocc
                   scra(k) = scra(k) + 0.5d0 * scrb(k)
               enddo
@@ -246,7 +239,6 @@
             call ga_get(g_nexch,ad2+nocc+1,ad2+nact,ad1+1,ad1+nact,
      &                  scre,nvir)
 !$omp end critical
-            !call dfill(nact*nact,0.0d0,scrf,1)
             do k=1,nact*nact
                 scrf(k) = 0.0d0
             enddo
@@ -373,11 +365,9 @@
 !$omp critical
             call ga_get(g_sht2,1,nact*nact,ij,ij,scrb,nact*nact)
 !$omp end critical
-            !call dfill(nact*nact,0.0d0,scre,1)
             do k=1,nact*nact
                 scre(k) = 0.0d0
             enddo
-            !call daxpy(nact*nact,2.0d0,scrb,1,scre,1)
             do k=1,nact*nact
                 scre(k) = scre(k) + 2.0d0 * scrb(k)
             enddo
@@ -621,7 +611,6 @@
 !$omp end critical
             call dgemm('n','n',nvir,nvir,nocc,-1.0d0,scrd(nocc+1,1),
      &                 nact,t1,nocc,0.0d0,scrc(nocc+1,nocc+1),nact)
-            !call daxpy(nact*nact,1.0d0,scrc,1,scrd,1)
             do k=1,nact
               do l=1,nact
                 scrd(l,k) = scrd(l,k) + scrc(l,k)
@@ -647,7 +636,6 @@
 !$omp end critical
             call dgemm('n','n',nvir,nvir,nocc,-1.0d0,scrd(nocc+1,1),
      &                 nact,t1,nocc,0.0d0,scrc(nocc+1,nocc+1),nact)
-            !call daxpy(nact*nact,1.0d0,scrc,1,scrd,1)
             do k=1,nact
               do l=1,nact
                 scrd(l,k) = scrd(l,k) + scrc(l,k)
@@ -824,21 +812,18 @@
           if (ij.ge.g_ilo_x.and.ij.le.g_ihi_x)then
             ad1=(i-1)*nact
             ad2=(j-1)*nact
-            !call dfill(nact*nact,0.0d0,scra,1)
             do k=1,nact*nact
                 scra(k) = 0.0d0
             enddo
 !$omp critical
             call ga_get(g_x,1,nact*nact,ij,ij,scrb,nact*nact)
 !$omp end critical
-            !call daxpy(nact*nact,1.0d0,scrb,1,scra,1)
             do k=1,nact*nact
                 scra(k) = scra(k) + scrb(k)
             enddo
 !$omp critical
             call ga_get(g_c,1,nact*nact,ij,ij,scrb,nact*nact)
 !$omp end critical
-            !call daxpy(nact*nact,-0.5d0,scrb,1,scra,1)
             do k=1,nact*nact
                 scra(k) = scra(k) - 0.5d0 * scrb(k)
             enddo
@@ -978,7 +963,6 @@
         if (inode.eq.next)then
 ! term s1 n**3
          if (dos(1).ne.0)then
-          !call daxpy(nocc,habe(b,a),t1(1,a),1,ht1(1,b),1)
           do k=1,nocc
             ht1(k,b) = ht1(k,b) + habe(b,a) * t1(k,a)
           enddo
