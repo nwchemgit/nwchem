@@ -228,7 +228,10 @@
               call ga_get(g_nexch,ad2+1,ad2+nocc,ad1+1,ad1+nocc,
      &                    scrb,nocc)
 !$omp end critical
-              call daxpy(nocc*nocc,0.5d0,scrb,1,scra,1)
+              !call daxpy(nocc*nocc,0.5d0,scrb,1,scra,1)
+              do k=1,nocc*nocc
+                  scra(k) = scra(k) + 0.5d0 * scrb(k)
+              enddo
             endif
 !---------------------------------------------------------
 !  S5, D1, D6 and D7 
@@ -368,7 +371,10 @@
             do k=1,nact*nact
                 scre(k) = 0.0d0
             enddo
-            call daxpy(nact*nact,2.0d0,scrb,1,scre,1)
+            !call daxpy(nact*nact,2.0d0,scrb,1,scre,1)
+            do k=1,nact*nact
+                scre(k) = scre(k) + 2.0d0 * scrb(k)
+            enddo
 !
 ! S6
             do a=nocc+1,nact
@@ -661,7 +667,12 @@
 !$omp end critical
             call dgemm('n','n',nvir,nvir,nocc,-1.0d0,scrd(nocc+1,1),
      &                 nact,t1,nocc,0.0d0,scrc(nocc+1,nocc+1),nact)
-            call daxpy(nact*nact,1.0d0,scrc,1,scrd,1)
+            !call daxpy(nact*nact,1.0d0,scrc,1,scrd,1)
+            do k=1,nact
+              do l=1,nact
+                scrd(l,k) = scrd(l,k) + scrc(l,k)
+              enddo
+            enddo
 !$omp critical
             call ga_acc(g_x,1,nact*nact,ij,ij,scrd,nact*nact,1.0d0)
 !$omp end critical
@@ -705,7 +716,12 @@
 !$omp end critical
             call dgemm('n','n',nvir,nvir,nocc,-1.0d0,scrd(nocc+1,1),
      &                 nact,t1,nocc,0.0d0,scrc(nocc+1,nocc+1),nact)
-            call daxpy(nact*nact,1.0d0,scrc,1,scrd,1)
+            !call daxpy(nact*nact,1.0d0,scrc,1,scrd,1)
+            do k=1,nact
+              do l=1,nact
+                scrd(l,k) = scrd(l,k) + scrc(l,k)
+              enddo
+            enddo
 !$omp critical
             call ga_acc(g_c,1,nact*nact,ij,ij,scrd,nact*nact,1.0d0)
 !$omp end critical
@@ -988,11 +1004,17 @@
 !$omp critical
             call ga_get(g_x,1,nact*nact,ij,ij,scrb,nact*nact)
 !$omp end critical
-            call daxpy(nact*nact,1.0d0,scrb,1,scra,1)
+            !call daxpy(nact*nact,1.0d0,scrb,1,scra,1)
+            do k=1,nact*nact
+                scra(k) = scra(k) + scrb(k)
+            enddo
 !$omp critical
             call ga_get(g_c,1,nact*nact,ij,ij,scrb,nact*nact)
 !$omp end critical
-            call daxpy(nact*nact,-0.5d0,scrb,1,scra,1)
+            !call daxpy(nact*nact,-0.5d0,scrb,1,scra,1)
+            do k=1,nact*nact
+                scra(k) = scra(k) - 0.5d0 * scrb(k)
+            enddo
             ad1=0
             do a=nocc+1,nact
               do b=nocc+1,nact
@@ -1165,7 +1187,10 @@
         if (inode.eq.next)then
 ! term s1 n**3
          if (dos(1).ne.0)then
-          call daxpy(nocc,habe(b,a),t1(1,a),1,ht1(1,b),1)
+          !call daxpy(nocc,habe(b,a),t1(1,a),1,ht1(1,b),1)
+          do k=1,nocc
+            ht1(k,b) = ht1(k,b) + habe(b,a) * t1(k,a)
+          enddo
          endif
 !$omp critical
          next=nxtask(nodes, 1)
