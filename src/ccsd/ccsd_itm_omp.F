@@ -789,12 +789,8 @@
 !$omp& shared(doa,dob)
 !$omp& private(ad1,ad2,ad3,ad4)
 !$omp& private(ij)
-!$omp& private(scra,scrb,scrc,scrd,scre,scrf)
-!$omp& reduction(+:hia)
-!$omp& reduction(+:ht1)
-!$omp& reduction(+:giu)
-!$omp& reduction(+:gabe)
-!$omp& reduction(+:habe)
+!$omp& private(scra)
+!
 !$omp do collapse(2) schedule(guided)
       do i=1,nocc
         do j=1,nocc
@@ -837,11 +833,6 @@
 !$omp& private(ad1,ad2,ad3,ad4)
 !$omp& private(ij)
 !$omp& private(scra,scrb,scrc,scrd,scre,scrf)
-!$omp& reduction(+:hia)
-!$omp& reduction(+:ht1)
-!$omp& reduction(+:giu)
-!$omp& reduction(+:gabe)
-!$omp& reduction(+:habe)
 !$omp do collapse(2) schedule(guided)
       do i=1,nocc
         do j=1,nocc
@@ -889,11 +880,6 @@
 !$omp& private(ad1,ad2,ad3,ad4)
 !$omp& private(ij)
 !$omp& private(scra,scrb,scrc,scrd,scre,scrf)
-!$omp& reduction(+:hia)
-!$omp& reduction(+:ht1)
-!$omp& reduction(+:giu)
-!$omp& reduction(+:gabe)
-!$omp& reduction(+:habe)
 !$omp do collapse(2) schedule(guided)
       do i=1,nocc
         do j=1,nocc
@@ -933,11 +919,6 @@
 !$omp& private(ad1,ad2,ad3,ad4)
 !$omp& private(ij)
 !$omp& private(scra,scrb,scrc,scrd,scre,scrf)
-!$omp& reduction(+:hia)
-!$omp& reduction(+:ht1)
-!$omp& reduction(+:giu)
-!$omp& reduction(+:gabe)
-!$omp& reduction(+:habe)
 !$omp do collapse(2) schedule(guided)
       do i=1,nocc
         do j=1,nocc
@@ -984,11 +965,6 @@
 !$omp& private(ad1,ad2,ad3,ad4)
 !$omp& private(ij)
 !$omp& private(scra,scrb,scrc,scrd,scre,scrf)
-!$omp& reduction(+:hia)
-!$omp& reduction(+:ht1)
-!$omp& reduction(+:giu)
-!$omp& reduction(+:gabe)
-!$omp& reduction(+:habe)
 !$omp do collapse(2) schedule(guided)
       do i=1,nocc
         do j=1,nocc
@@ -1044,11 +1020,6 @@
 !$omp& private(ad1,ad2,ad3,ad4)
 !$omp& private(ij)
 !$omp& private(scra,scrb,scrc,scrd,scre,scrf)
-!$omp& reduction(+:hia)
-!$omp& reduction(+:ht1)
-!$omp& reduction(+:giu)
-!$omp& reduction(+:gabe)
-!$omp& reduction(+:habe)
 !$omp do collapse(2) schedule(guided)
       do i=1,nocc
         do j=1,nocc
