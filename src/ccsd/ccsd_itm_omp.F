@@ -411,6 +411,20 @@
 !$omp single
       call ga_distribution(g_nt2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
 !$omp end single
+!
+!$omp parallel 
+!$omp& default(none)
+!$omp& shared(t1)
+!$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1)
+!$omp& shared(g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp& shared(g_c,g_x,g_nht2,g_aitm)
+!$omp& shared(nact,nocc,nvir)
+!$omp& shared(lnvv)
+!$omp& private(ad1,ad2,ad3,ad4)
+!$omp& private(ij)
+!$omp& private(scra,scrb,scrc,scrd,scre,scrf)
+!
+!$omp do collapse(2) schedule(guided)
       do i=1,nocc
         do j=1,nocc
           ad1=(i-1)*nvir
@@ -419,8 +433,7 @@
           if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
             ij=(i-1)*nocc+j
 !$omp critical
-            call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
-     &                  scra,nvir)
+            call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scra,nvir)
 !$omp end critical
             ad3=0
             do a=1,nvir
@@ -436,6 +449,8 @@
           endif
         enddo
       enddo
+!$omp end do
+!$omp end parallel
 !
 !$omp single
       call ga_dgemm('n','n',lnvv,lnoo,lnoo,
@@ -503,12 +518,12 @@
           ad2=(j-1)*nvir
           if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
           if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
-              call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
-     &                    scre,nvir)
-              call dgemm('n','n',nvir,nvir,nvir,1.0d0,gabe,
-     &                   nvir,scre,nvir,0.0d0,scrd,nvir)
-              call ga_acc(g_nht2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
-     &                    scrd,nvir,1.0d0)
+            call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
+     &                  scre,nvir)
+            call dgemm('n','n',nvir,nvir,nvir,1.0d0,gabe,
+     &                 nvir,scre,nvir,0.0d0,scrd,nvir)
+            call ga_acc(g_nht2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
+     &                  scrd,nvir,1.0d0)
           endif
           endif
         enddo
