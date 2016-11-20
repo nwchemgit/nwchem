@@ -198,10 +198,25 @@
 !$omp end do
 !
 !$omp single
-      call dcopy(lnoo,hiu,1,giu,1)
-      call dcopy(lnvv,habe,1,gabe,1)
       if (iprt.gt.5.and.iam.eq.0)print *,'forming aitm'
+      !call dcopy(lnoo,hiu,1,giu,1)
+      !call dcopy(lnvv,habe,1,gabe,1)
 !$omp end single
+!
+!$omp do collapse(2) schedule(static)
+      do k=1,nocc
+        do l=1,nocc
+          giu(l,k) = hiu(l,k)
+        enddo
+      enddo
+!$omp end do nowait
+!$omp do collapse(2) schedule(static)
+      do k=1,nvir
+        do l=1,nvir
+          gabe(l,k) = habe(l,k)
+        enddo
+      enddo
+!$omp end do
 !
 !$omp do collapse(2) schedule(guided)
 !$omp& reduction(+:hia)
