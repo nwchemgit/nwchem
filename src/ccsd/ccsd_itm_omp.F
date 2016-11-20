@@ -199,8 +199,6 @@
 !
 !$omp single
       if (iprt.gt.5.and.iam.eq.0)print *,'forming aitm'
-      !call dcopy(lnoo,hiu,1,giu,1)
-      !call dcopy(lnvv,habe,1,gabe,1)
 !$omp end single
 !
 !$omp do collapse(2) schedule(static)
@@ -274,7 +272,6 @@
 !$omp critical
             call ga_get(g_c,1,nact*nact,ad1,ad1,scrb,nact*nact)
 !$omp end critical
-            !call dcopy(nact*nact,scrb,1,scre,1)
             do k=1,nact*nact
                 scre(k) = scrb(k)
             enddo
@@ -299,7 +296,6 @@
 !$omp critical
             call ga_get(g_x,1,nact*nact,ad1,ad1,scrb,nact*nact)
 !$omp end critical
-            !call dcopy(nact*nact,scrb,1,scre,1)
             do k=1,nact*nact
                 scre(k) = scrb(k)
             enddo
