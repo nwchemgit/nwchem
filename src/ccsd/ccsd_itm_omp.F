@@ -93,10 +93,11 @@
 !$omp parallel 
 !$omp& default(none)
 !$omp& shared(t1)
-!$omp& shared(g_nexch,g_nt2,g_sht2)
+!$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1)
 !$omp& shared(g_c,g_x,g_nht2,g_aitm)
 !$omp& shared(g_jlo_nexch,g_jhi_nexch,g_ilo_nexch,g_ihi_nexch)
 !$omp& shared(g_jlo_sht2,g_jhi_sht2,g_ilo_sht2,g_ihi_sht2)
+!$omp& shared(g_jlo_nt2,g_jhi_nt2,g_ilo_nt2,g_ihi_nt2)
 !$omp& shared(g_jlo_x,g_jhi_x,g_ilo_x,g_ihi_x)
 !$omp& shared(nact,nocc,nvir,iam,iprt)
 !$omp& shared(lnoo,lnov,lnvv)
@@ -404,8 +405,6 @@
       enddo
 !$omp end do
 !
-!$omp end parallel
-!
 !$omp single
       call ga_dgop(msg_cc_term1,hiu,lnoo, '+')
       call ga_dgop(msg_cc_term2,habe,lnvv, '+')
@@ -418,18 +417,6 @@
 !  D2 (product of A intermediate and Tau)
 !-----------------------------------------------------------------------
 ! construct tau
-!
-!$omp parallel 
-!$omp& default(none)
-!$omp& shared(t1)
-!$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1)
-!$omp& shared(g_jlo_nt2,g_jhi_nt2,g_ilo_nt2,g_ihi_nt2)
-!$omp& shared(g_c,g_x,g_nht2,g_aitm)
-!$omp& shared(nact,nocc,nvir)
-!$omp& shared(lnvv)
-!$omp& private(ad1,ad2,ad3,ad4)
-!$omp& private(ij)
-!$omp& private(scra,scrb,scrc,scrd,scre,scrf)
 !
 !$omp do collapse(2) schedule(guided)
       do i=1,nocc
