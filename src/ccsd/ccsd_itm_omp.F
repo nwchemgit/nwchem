@@ -86,9 +86,11 @@
 !$omp& shared(nact,nocc,nvir)
 !$omp& private(ad1,ad2,ad3,ad4)
 !$omp& private(scrc,scre)
+!$omp& shared(ht1,habe)
+!
+!$omp do collapse(2) schedule(guided)
 !$omp& reduction(+:ht1)
 !$omp& reduction(+:habe)
-!$omp do collapse(2) schedule(guided)
       do i=1,nocc
         do j=1,nocc
           ad1=(i-1)*nact
@@ -129,6 +131,7 @@
         enddo
       enddo
 !$omp end do
+!
 !$omp end parallel
 !
 !$omp single
