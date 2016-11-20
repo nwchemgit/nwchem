@@ -68,22 +68,26 @@
 !
 !$omp single
 ! - test x and c by doing its contribution to (2j-k)*(2t-t)
-      if (.not.ga_create(MT_DBL,lnoo,lnoo,'aitm',
-     &                   nocc,nocc,g_aitm))
+      if (.not.ga_create(MT_DBL,lnoo,lnoo,'aitm',nocc,nocc,g_aitm))
      &     call errquit('ccsd_itm: ga_create g_aitm failed',0, GA_ERR)
-*ga:1:0
-      if (.not.ga_create(MT_DBL,lnvv,lnoo,'tmt1',
-     &                   lnvv,0,g_tmt1))
+      if (.not.ga_create(MT_DBL,lnvv,lnoo,'tmt1',lnvv,0,g_tmt1))
      &     call errquit('ccsd_itm: ga_create g_tmt1 failed',0, GA_ERR)
-*ga:1:0
-      if (.not.ga_create(MT_DBL,lnvv,lnoo,'tmt2',
-     &                   lnvv,0,g_tmt2))
+      if (.not.ga_create(MT_DBL,lnvv,lnoo,'tmt2',lnvv,0,g_tmt2))
      &     call errquit('ccsd_itm: ga_create g_tmt2 failed',0, GA_ERR)
 !
-      call dfill(lnvv,0.0d0,habe,1)
-! #1
       call ga_distribution(g_nexch,iam,g_jlo_nexch,g_jhi_nexch,
      &                                 g_ilo_nexch,g_ihi_nexch)
+      call ga_distribution(g_sht2,iam,g_jlo_sht2,g_jhi_sht2,
+     &                                g_ilo_sht2,g_ihi_sht2)
+      call ga_distribution(g_x,iam,g_jlo_x,g_jhi_x,
+     &                             g_ilo_x,g_ihi_x)
+      call ga_distribution(g_nt2,iam,g_jlo_nt2,g_jhi_nt2,
+     &                               g_ilo_nt2,g_ihi_nt2)
+      call ga_distribution(g_nht2,iam,g_jlo_nht2,g_jhi_nht2,
+     &                                g_ilo_nht2,g_ihi_nht2)
+      call ga_distribution(g_c,iam,g_jlo_c,g_jhi_c,g_ilo_c,g_ihi_c)
+!
+      call dfill(lnvv,0.0d0,habe,1)
 !$omp end single
 !
 !$omp parallel 
@@ -144,8 +148,6 @@
 !
 !$omp single
       call dfill(lnoo,0.0d0,hiu,1)
-      call ga_distribution(g_sht2,iam,g_jlo_sht2,g_jhi_sht2,
-     &                                g_ilo_sht2,g_ihi_sht2)
 !$omp end single
 !
 !$omp parallel 
@@ -191,9 +193,6 @@
       call dcopy(lnvv,habe,1,gabe,1)
       call dfill(lnov,0.0d0,hia,1)
       if (iprt.gt.5.and.iam.eq.0)print *,'forming aitm'
-! #1
-      call ga_distribution(g_x,iam,g_jlo_x,g_jhi_x,
-     &                             g_ilo_x,g_ihi_x)
 !$omp end single
 !
 !$omp parallel 
@@ -446,12 +445,6 @@
 !-----------------------------------------------------------------------
 ! construct tau
 !
-!$omp single
-! #1
-      call ga_distribution(g_nt2,iam,g_jlo_nt2,g_jhi_nt2,
-     &                               g_ilo_nt2,g_ihi_nt2)
-!$omp end single
-!
 !$omp parallel 
 !$omp& default(none)
 !$omp& shared(t1)
@@ -495,9 +488,6 @@
 !$omp single
       call ga_dgemm('n','n',lnvv,lnoo,lnoo,
      &              1.0d0,g_tmt1,g_aitm,0.0d0,g_tmt2)
-! #1
-      call ga_distribution(g_nht2,iam,g_jlo_nht2,g_jhi_nht2,
-     &                                g_ilo_nht2,g_ihi_nht2)
 !$omp end single
 !
 !$omp parallel 
@@ -687,11 +677,6 @@
 !$omp end do
 !$omp end parallel
 !
-!$omp single
-! #1
-      call ga_distribution(g_c,iam,g_jlo_c,g_jhi_c,g_ilo_c,g_ihi_c)
-!$omp end single
-!
 !$omp parallel 
 !$omp& default(none)
 !$omp& shared(t1)
@@ -739,15 +724,14 @@
 !$omp end parallel
 !
 !$omp single
-      if (.not.ga_create(MT_DBL,lnov,lnov,'tmt',
-     &                   nvir,nvir,g_tmt))
+      if (.not.ga_create(MT_DBL,lnov,lnov,'tmt',nvir,nvir,g_tmt))
      &     call errquit('ccsd_itm: ga_create g_tmt failed',0, GA_ERR)
-      if (.not.ga_create(MT_DBL,lnov,lnov,'tmp',
-     &                   nvir,nvir,g_tmp))
+      if (.not.ga_create(MT_DBL,lnov,lnov,'tmp',nvir,nvir,g_tmp))
      &     call errquit('ccsd_itm: ga_create g_tmp failed',0, GA_ERR)
-      if (.not.ga_create(MT_DBL,lnov,lnov,'tmp2',
-     &                   nvir,nvir,g_tmp2))
+      if (.not.ga_create(MT_DBL,lnov,lnov,'tmp2',nvir,nvir,g_tmp2))
      &     call errquit('ccsd_itm: ga_create g_tmp2 failed',0, GA_ERR)
+      call ga_distribution(g_tmp2,iam,g_jlo_tmp2,g_jhi_tmp2,
+     &                                g_ilo_tmp2,g_ihi_tmp2)
 !$omp end single
 !
 !-----------------------------------------------------------------------
@@ -841,8 +825,6 @@
 !-----------------------------------------------------------------------
 !  D9 and D10 (product of K intermediate and T2)
 !-----------------------------------------------------------------------
-      call ga_distribution(g_tmp2,iam,g_jlo_tmp2,g_jhi_tmp2,
-     &                                g_ilo_tmp2,g_ihi_tmp2)
 !$omp end single
 !
 !$omp parallel 
