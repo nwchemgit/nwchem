@@ -88,6 +88,8 @@
       call ga_distribution(g_c,iam,g_jlo_c,g_jhi_c,g_ilo_c,g_ihi_c)
 !
       call dfill(lnvv,0.0d0,habe,1)
+      call dfill(lnoo,0.0d0,hiu,1)
+      call dfill(lnov,0.0d0,hia,1)
 !$omp end single
 !
 !$omp parallel 
@@ -152,10 +154,6 @@
       enddo
 !$omp end do
 !
-!$omp single
-      call dfill(lnoo,0.0d0,hiu,1)
-!$omp end single
-!
 !$omp do collapse(2) schedule(guided)
 !$omp& reduction(+:hiu)
       do i=1,nocc
@@ -184,7 +182,6 @@
 !$omp single
       call dcopy(lnoo,hiu,1,giu,1)
       call dcopy(lnvv,habe,1,gabe,1)
-      call dfill(lnov,0.0d0,hia,1)
       if (iprt.gt.5.and.iam.eq.0)print *,'forming aitm'
 !$omp end single
 !
@@ -530,7 +527,6 @@
 !-----------------------------------------------------------------------
 !  D5
 !-----------------------------------------------------------------------
-!
 !
       inode=-1
       call ga_sync
@@ -930,22 +926,22 @@
 !$omp end do
 !$omp end parallel
 !
+!$omp single
       call ga_dgemm('t','n',lnov,lnov,lnov,
      &              1.0d0,g_tmp,g_tmt,1.0d0,g_nht2)
-!
       if (.not.ga_destroy(g_tmp2))
      &    call errquit('ga_dest g_tmp2 fail',0, GA_ERR)
       if (.not.ga_destroy(g_tmp))
      &    call errquit('ga_dest g_tmp fail',0, GA_ERR)
       if (.not.ga_destroy(g_tmt))
      &    call errquit('ga_dest g_tmt fail',0, GA_ERR)
-!
-      inode=-1
-      call ga_sync
+      call ga_sync()
+!$omp end single
 !
 ! There is absolutely no good reason to use NXTVAL to
 ! load-balance such a trivial loop...
 !
+      inode=-1
       next=nxtask(nodes, 1)
       do a=1,nvir
        do b=1,nvir
