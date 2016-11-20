@@ -1016,12 +1016,13 @@
 !$omp& default(none)
 !$omp& shared(t1)
 !$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1,g_tmt2)
+!$omp& shared(g_c,g_x,g_nht2,g_aitm,g_ncoul,g_tmt,g_tmp,g_tmp2)
 !$omp& shared(g_jlo_nt2,g_jhi_nt2,g_ilo_nt2,g_ihi_nt2)
-!$omp& shared(g_c,g_x,g_nht2,g_aitm,g_ncoul,g_tmt)
+!$omp& shared(g_jlo_nexch,g_jhi_nexch,g_ilo_nexch,g_ihi_nexch)
 !$omp& shared(nact,nocc,nvir,nodes,iam)
 !$omp& shared(lnoo,lnov,lnvv)
 !$omp& shared(doa,dob)
-!$omp& private(ad1,ad2,ad3,ad4)
+!$omp& private(ad1,ad2,ad3,ad4,ad5,ad6)
 !$omp& private(ij)
 !$omp& private(scra,scrb,scrc,scrd,scre,scrf)
 !$omp do collapse(2) schedule(guided)
@@ -1050,21 +1051,6 @@
         enddo
       enddo
 !$omp end do
-!$omp end parallel
-!
-!$omp parallel 
-!$omp& default(none)
-!$omp& shared(t1)
-!$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt,g_tmt1,g_tmt2)
-!$omp& shared(g_jlo_nexch,g_jhi_nexch,g_ilo_nexch,g_ihi_nexch)
-!$omp& shared(g_jlo_nt2,g_jhi_nt2,g_ilo_nt2,g_ihi_nt2)
-!$omp& shared(g_c,g_x,g_nht2,g_aitm,g_ncoul,g_tmp,g_tmp2)
-!$omp& shared(nact,nocc,nvir,nodes,iam)
-!$omp& shared(lnoo,lnov,lnvv)
-!$omp& shared(doa,dob)
-!$omp& private(ad1,ad2,ad3,ad4,ad5,ad6)
-!$omp& private(ij)
-!$omp& private(scra,scrb,scrc,scrd,scre,scrf)
 !
 !$omp do collapse(2) schedule(guided)
       do i=1,nocc
