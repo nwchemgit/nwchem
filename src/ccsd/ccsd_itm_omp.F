@@ -93,12 +93,18 @@
 !$omp parallel 
 !$omp& default(none)
 !$omp& shared(t1)
-!$omp& shared(g_nexch,g_nt2)
+!$omp& shared(g_nexch,g_nt2,g_sht2)
+!$omp& shared(g_c,g_x,g_nht2,g_aitm)
 !$omp& shared(g_jlo_nexch,g_jhi_nexch,g_ilo_nexch,g_ihi_nexch)
-!$omp& shared(nact,nocc,nvir)
-!$omp& private(ad1,ad2,ad3,ad4)
-!$omp& private(scrc,scre)
-!$omp& shared(ht1,habe)
+!$omp& shared(g_jlo_sht2,g_jhi_sht2,g_ilo_sht2,g_ihi_sht2)
+!$omp& shared(g_jlo_x,g_jhi_x,g_ilo_x,g_ihi_x)
+!$omp& shared(nact,nocc,nvir,iam,iprt)
+!$omp& shared(lnoo,lnov,lnvv)
+!$omp& private(ij)
+!$omp& private(ad1,ad2,ad3,ad4,ad5,ad6)
+!$omp& private(scra,scrb,scrc,scrd,scre,scrf)
+!$omp& shared(ht1,gabe,habe,giu,hiu,hia)
+!$omp& shared(doa,dob)
 !
 !$omp do collapse(2) schedule(guided)
 !$omp& reduction(+:ht1)
@@ -144,22 +150,9 @@
       enddo
 !$omp end do
 !
-!$omp end parallel
-!
 !$omp single
       call dfill(lnoo,0.0d0,hiu,1)
 !$omp end single
-!
-!$omp parallel 
-!$omp& default(none)
-!$omp& shared(t1)
-!$omp& shared(g_nexch,g_nt2,g_sht2)
-!$omp& shared(g_jlo_sht2,g_jhi_sht2,g_ilo_sht2,g_ihi_sht2)
-!$omp& shared(nact,nocc,nvir)
-!$omp& private(ad1,ad2,ad3,ad4)
-!$omp& private(ij)
-!$omp& private(scrc,scre)
-!$omp& shared(hiu)
 !
 !$omp do collapse(2) schedule(guided)
 !$omp& reduction(+:hiu)
@@ -186,31 +179,12 @@
       enddo
 !$omp end do
 !
-!$omp end parallel
-!
 !$omp single
       call dcopy(lnoo,hiu,1,giu,1)
       call dcopy(lnvv,habe,1,gabe,1)
       call dfill(lnov,0.0d0,hia,1)
       if (iprt.gt.5.and.iam.eq.0)print *,'forming aitm'
 !$omp end single
-!
-!$omp parallel 
-!$omp& default(none)
-!$omp& shared(t1)
-!$omp& shared(g_nexch,g_nt2,g_sht2)
-!$omp& shared(g_jlo_x,g_jhi_x,g_ilo_x,g_ihi_x)
-!$omp& shared(g_c,g_x,g_nht2,g_aitm)
-!$omp& shared(nact,nocc,nvir)
-!$omp& shared(lnoo)
-!$omp& shared(doa,dob)
-!$omp& private(ad1,ad2,ad3,ad4)
-!$omp& private(ij)
-!$omp& private(scra,scrb,scrc,scrd,scre,scrf)
-!$omp& shared(hia)
-!$omp& shared(ht1)
-!$omp& shared(giu)
-!$omp& shared(gabe)
 !
 !$omp do collapse(2) schedule(guided)
 !$omp& reduction(+:hia)
