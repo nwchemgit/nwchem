@@ -86,10 +86,6 @@
       call ga_distribution(g_nht2,iam,g_jlo_nht2,g_jhi_nht2,
      &                                g_ilo_nht2,g_ihi_nht2)
       call ga_distribution(g_c,iam,g_jlo_c,g_jhi_c,g_ilo_c,g_ihi_c)
-!
-      call dfill(lnvv,0.0d0,habe,1)
-      call dfill(lnoo,0.0d0,hiu,1)
-      call dfill(lnov,0.0d0,hia,1)
 !$omp end single
 !
 !$omp parallel 
@@ -109,6 +105,33 @@
 !$omp& private(scra,scrb,scrc,scrd,scre,scrf)
 !$omp& shared(ht1,gabe,habe,giu,hiu,hia)
 !$omp& shared(doa,dob)
+!
+!!$omp single
+!      call dfill(lnvv,0.0d0,habe,1)
+!      call dfill(lnoo,0.0d0,hiu,1)
+!      call dfill(lnov,0.0d0,hia,1)
+!!$omp end single
+!$omp do collapse(2) schedule(static)
+      do k=1,nvir
+        do l=1,nvir
+          habe(l,k) = 0.0d0
+        enddo
+      enddo
+!$omp end do nowait
+!$omp do collapse(2) schedule(static)
+      do k=1,nocc
+        do l=1,nocc
+          hiu(l,k) = 0.0d0
+        enddo
+      enddo
+!$omp end do nowait
+!$omp do collapse(2) schedule(static)
+      do k=1,nvir
+        do l=1,nocc
+          hia(l,k) = 0.0d0
+        enddo
+      enddo
+!$omp end do nowait
 !
 !$omp do collapse(2) schedule(guided)
 !$omp& reduction(+:ht1)
@@ -525,6 +548,10 @@
       enddo
 !$omp end do
 !
+!$omp single
+      call ga_sync()
+!$omp end single
+!
 !$omp end parallel
 !
 !-----------------------------------------------------------------------
@@ -532,7 +559,6 @@
 !-----------------------------------------------------------------------
 !
       inode=-1
-      call ga_sync
       do a=1,nvir
         do i=1,nocc
           ad1=(i-1)*nvir+a
@@ -549,7 +575,6 @@
           endif
         enddo
       enddo
-      call ga_sync
 !
 !$omp single
       call ga_sync()
