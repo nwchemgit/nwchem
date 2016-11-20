@@ -148,8 +148,10 @@
 !$omp& private(ad1,ad2,ad3,ad4)
 !$omp& private(ij)
 !$omp& private(scrc,scre)
-!$omp& reduction(+:hiu)
+!$omp& shared(hiu)
+!
 !$omp do collapse(2) schedule(guided)
+!$omp& reduction(+:hiu)
       do i=1,nocc
         do j=1,nocc
           ij=(i-1)*nocc+j
@@ -172,6 +174,7 @@
         enddo
       enddo
 !$omp end do
+!
 !$omp end parallel
 !
 !$omp single
@@ -194,11 +197,16 @@
 !$omp& private(ad1,ad2,ad3,ad4)
 !$omp& private(ij)
 !$omp& private(scra,scrb,scrc,scrd,scre,scrf)
+!$omp& shared(hia)
+!$omp& shared(ht1)
+!$omp& shared(giu)
+!$omp& shared(gabe)
+!
+!$omp do collapse(2) schedule(guided)
 !$omp& reduction(+:hia)
 !$omp& reduction(+:ht1)
 !$omp& reduction(+:giu)
 !$omp& reduction(+:gabe)
-!$omp do collapse(2) schedule(guided)
       do i=1,nocc
         do j=1,nocc
           ij=(i-1)*nocc+j
@@ -396,6 +404,7 @@
         enddo
       enddo
 !$omp end do
+!
 !$omp end parallel
 !
 !$omp single
