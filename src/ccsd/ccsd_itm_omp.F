@@ -498,18 +498,18 @@
       enddo
 !$omp end do
 !
-!$omp end parallel
 !
 !-----------------------------------------------------------------------
 !  D4
 !-----------------------------------------------------------------------
 !
+!$omp do collapse(2) schedule(guided)
       do i=1,nocc
         do j=1,nocc
           ad1=(i-1)*nvir
           ad2=(j-1)*nvir
-          if (ad1+1.ge.g_ilo_nht2.and.ad1+1.le.g_ihi_nht2)then
-          if (ad2+1.ge.g_jlo_nht2.and.ad2+1.le.g_jhi_nht2)then
+          if ((ad1+1).ge.g_ilo_nht2.and.(ad1+1).le.g_ihi_nht2)then
+          if ((ad2+1).ge.g_jlo_nht2.and.(ad2+1).le.g_jhi_nht2)then
 !$omp critical
             call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scre,nvir)
 !$omp end critical
@@ -523,6 +523,9 @@
           endif
         enddo
       enddo
+!$omp end do
+!
+!$omp end parallel
 !
 !-----------------------------------------------------------------------
 !  D5
