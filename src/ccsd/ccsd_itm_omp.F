@@ -50,8 +50,9 @@
       integer :: nxtask
       external nxtask
 !
-      double precision :: ddot
-      external ddot
+      !double precision :: ddot
+      !external ddot
+      double precision :: temp
 !
       Nodes = GA_NNodes()
       IAm = GA_NodeID()
@@ -997,7 +998,12 @@
         if (mod(inode,nodes).eq.iam)then
 ! term s2 n**3
          if (dos(2).ne.0)then
-          ht1(i,a)=ht1(i,a)-ddot(nocc,hiu(1,i),1,t1(1,a),1)
+          !ht1(i,a)=ht1(i,a)-ddot(nocc,hiu(1,i),1,t1(1,a),1)
+          temp = 0.0d0
+          do k=1,nocc
+            temp = temp + hiu(k,i) * t1(k,a)
+          enddo
+          ht1(i,a) = ht1(i,a) - temp
          endif
         endif
 ! -- end parallel task --
