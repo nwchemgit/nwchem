@@ -633,12 +633,13 @@
 !$omp& shared(doa,dob)
 !$omp& private(ad1,ad2,ad3,ad4)
 !$omp& private(ij)
-!$omp& private(scra,scrb,scrc,scrd,scre,scrf)
-!$omp& reduction(+:hia)
-!$omp& reduction(+:ht1)
-!$omp& reduction(+:giu)
-!$omp& reduction(+:gabe)
-!$omp& reduction(+:habe)
+!$omp& private(scrc,scrd)
+!$omp& shared(hia)
+!$omp& shared(ht1)
+!$omp& shared(giu)
+!$omp& shared(gabe)
+!$omp& shared(habe)
+!
 !$omp do collapse(2) schedule(guided)
       do i=1,nocc
         do j=1,nocc
@@ -676,12 +677,13 @@
 !$omp& shared(doa,dob)
 !$omp& private(ad1,ad2,ad3,ad4)
 !$omp& private(ij)
-!$omp& private(scra,scrb,scrc,scrd,scre,scrf)
-!$omp& reduction(+:hia)
-!$omp& reduction(+:ht1)
-!$omp& reduction(+:giu)
-!$omp& reduction(+:gabe)
-!$omp& reduction(+:habe)
+!$omp& private(scrc,scrd)
+!$omp& shared(hia)
+!$omp& shared(ht1)
+!$omp& shared(giu)
+!$omp& shared(gabe)
+!$omp& shared(habe)
+!
 !$omp do collapse(2) schedule(guided)
       do i=1,nocc
         do j=1,nocc
@@ -702,8 +704,10 @@
         enddo
       enddo
 !$omp end do
+!
 !$omp end parallel
 !
+!$omp single
       if (.not.ga_create(MT_DBL,lnov,lnov,'tmt',
      &                   nvir,nvir,g_tmt))
      &     call errquit('ccsd_itm: ga_create g_tmt failed',0, GA_ERR)
@@ -713,6 +717,8 @@
       if (.not.ga_create(MT_DBL,lnov,lnov,'tmp2',
      &                   nvir,nvir,g_tmp2))
      &     call errquit('ccsd_itm: ga_create g_tmp2 failed',0, GA_ERR)
+!$omp end single
+!
 !-----------------------------------------------------------------------
 !  K4 intermediate
 !-----------------------------------------------------------------------
@@ -734,12 +740,13 @@
 !$omp& shared(doa,dob)
 !$omp& private(ad1,ad2,ad3,ad4)
 !$omp& private(ij)
-!$omp& private(scra,scrb,scrc,scrd,scre,scrf)
-!$omp& reduction(+:hia)
-!$omp& reduction(+:ht1)
-!$omp& reduction(+:giu)
-!$omp& reduction(+:gabe)
-!$omp& reduction(+:habe)
+!$omp& private(scra)
+!$omp& shared(hia)
+!$omp& shared(ht1)
+!$omp& shared(giu)
+!$omp& shared(gabe)
+!$omp& shared(habe)
+!
 !$omp do collapse(2) schedule(guided)
       do i=1,nocc
         do j=1,nocc
@@ -764,6 +771,7 @@
         enddo
       enddo
 !$omp end do
+!
 !$omp end parallel
 !
 !$omp single
