@@ -18,7 +18,7 @@ c
       double precision time_iter_start
       integer time_prev_iter
       logical oconverged        ! Return convergence status
-      logical occd
+      logical occd, use_itm_omp
 c
        double precision cmo(nbf,nbf),eorb(nbf),t1(*),
      &                  ht1(*),scra(*),scrb(*),
@@ -63,6 +63,14 @@ c
 c
       double precision util_scratch_dir_avail_for_me
       external util_scratch_dir_avail_for_me
+#if defined(USE_OPENMP)
+      integer  omp_get_thread_num
+      external omp_get_thread_num
+      integer  omp_get_num_threads
+      external omp_get_num_threads
+      integer  omp_get_max_threads
+      external omp_get_max_threads
+#endif
 c
       IAm = GA_NodeID()
 c
@@ -152,6 +160,25 @@ c
          endif
          return
       endif
+
+      if (.not.rtdb_get(rtdb,'ccsd:use_itm_omp',mt_log,1,use_itm_omp))
+     &         use_itm_omp = .false. 
+      if (ga_nodeid().eq.0) then
+#if defined(USE_OPENMP)
+        if (use_itm_omp) then
+          write(6,33) omp_get_max_threads()
+        else
+          write(6,33) 1
+        endif
+#else
+        write(6,33) 1
+        if (use_itm_omp) then
+          write(6,333)
+        endif
+#endif
+      endif
+   33 format(2x,'Using ',i2,' OpenMP thread(s) in CCSD')
+  333 format(2x,'Recompile w/ USE_OPENMP=1 to use threads in CCSD')
 c
 c ------------------------------------------------------------
 c create square GAs with proposed final ordering
@@ -276,7 +303,8 @@ c ----------------------------------------------------------
      &                iprt,cmo,eorb,t1,ht1,
      $                scra,scrb,hiu,hia,habe,giu,gabe,
      &                g_t2,g_ht2,g_nt2,g_nht2,eccsd,
-     &                g_ncoul,g_nexch,tklst, Tol2E, occd, eccsdos)
+     &                g_ncoul,g_nexch,tklst, Tol2E, occd, eccsdos,
+     &                use_itm_omp)
       call ga_sync()
 *
 *     RJH more CCD hacks

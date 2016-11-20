@@ -1,7 +1,7 @@
       subroutine ccsd_pampt3(basis,nsh,ncor,nocc,nvir,nact,nbf,
      &                       tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,
      &                       hia,t1,ht1,idiis,g_nt2,g_nht2,
-     &                       g_ncoul,g_nexch,tklst)
+     &                       g_ncoul,g_nexch,tklst,use_itm_omp)
 C     $Id$
       implicit none
 #include "errquit.fh"
@@ -41,6 +41,7 @@ C
       double precision tstart, tused
       logical dorep
       integer g_st2rep,g_st2keep,dorep_glob,gmem0
+      logical use_itm_omp
 c
       Nodes = GA_NNodes()
       IAm = GA_NodeID()
@@ -236,8 +237,7 @@ c ------------------------------------------------------------
       if (use_inmem_st2 ) then
       if(.not.ma_pop_stack(l_ast2)) then
          call ma_summarize_allocated_blocks()
-         call
-     E       errquit('ccsdmampt3: ma pop stack fails ',11,MA_ERR)
+         call errquit('ccsd_pampt3: ma pop stack fails ',11,MA_ERR)
          endif
       endif
 c ------------------------------------------------------------
@@ -248,21 +248,24 @@ c ------------------------------------------------------------
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scre',l_sc3, k_sc3)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrf',l_sc4, k_sc4)
-#if defined(USE_OPENMP)
+!
+! WARNING: dbl_mb(k_sc[12]) are aliased below, which violates Fortran...
+!
+      if (use_itm_omp) then
       call ccsd_itm_omp(nocc,nvir,nact,hiu,giu,habe,gabe,hia,
      &                  t1,ht1,dbl_mb(k_sc1),dbl_mb(k_sc2),
      &                  dbl_mb(k_sc1),dbl_mb(k_sc2),
      &                  dbl_mb(k_sc3),dbl_mb(k_sc4),
      &                  g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &                  iprt)
-#else
+      else
       call ccsd_itm(nocc,nvir,nact,hiu,giu,habe,gabe,hia,
      &              t1,ht1,dbl_mb(k_sc1),dbl_mb(k_sc2),
      &              dbl_mb(k_sc1),dbl_mb(k_sc2),
      &              dbl_mb(k_sc3),dbl_mb(k_sc4),
      &              g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &              iprt)
-#endif
+      endif
       stat=stat.and.ma_pop_stack(l_sc4)
       stat=stat.and.ma_pop_stack(l_sc3)
       stat=stat.and.ma_pop_stack(l_sc2)

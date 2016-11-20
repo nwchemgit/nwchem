@@ -3,7 +3,7 @@
      $                      scra,scrb,hiu,hia,habe,giu,gabe,
      $                      g_t2,g_ht2,g_nt2,g_nht2,
      $                      eccsd,g_ncoul,g_nexch,
-     &                      tklst, Tol2E, occd, eccsdos)
+     &                      tklst, Tol2E, occd, eccsdos,use_itm_omp)
 C     $Id$
       implicit none
       integer basis,idiis,nsh,ncor,nocc,nvir,nact,nbf,iprt,
@@ -15,13 +15,12 @@ c
      &                 ht1(*),scra(*),scrb(*),
      &                 hiu(*),hia(*),habe(*),giu(*),gabe(*)
       double precision tol2e
-      logical occd
+      logical occd, use_itm_omp
 c
       integer nodes,iam
 #include "mafdecls.fh"
 #include "ccsd_debug.fh"
 #include "bas.fh"
-#include "rtdb.fh"
 #include "msgids.fh"
 #include "global.fh"
 #include "ccsdps.fh"
@@ -118,7 +117,7 @@ c
       call ccsd_pampt3(basis,nsh,ncor,nocc,nvir,nact,nbf,
      &                 tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,hia,
      &                 t1,ht1,idiis,g_nt2,g_nht2,
-     &                 g_ncoul,g_nexch,tklst)
+     &                 g_ncoul,g_nexch,tklst,use_itm_omp)
       if (iam.eq.0.and.iprt.gt.50)then
        print *,'after pampt3 sym ht1 '
        write(6,189)(ht1(i),i=1,lnov)
