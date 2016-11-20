@@ -498,6 +498,23 @@
 !$omp single
       call ga_distribution(g_nt2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
 !$omp end single
+!
+!$omp parallel 
+!$omp& default(none)
+!$omp& shared(t1)
+!$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1,g_tmt2)
+!$omp& shared(g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp& shared(g_c,g_x,g_nht2,g_aitm)
+!$omp& shared(nact,nocc,nvir)
+!$omp& shared(lnoo,lnov,lnvv)
+!$omp& shared(doa,dob)
+!$omp& shared(hia,ht1)
+!$omp& private(ad1,ad2,ad3,ad4)
+!$omp& private(ij)
+!$omp& private(scra,scrb,scrc,scrd,scre,scrf)
+!
+!$omp do collapse(2) schedule(guided)
+!$omp& reduction(+:ht1)
       do i=1,nocc
         do j=1,nocc
           ad1=(i-1)*nvir
@@ -519,6 +536,9 @@
           endif
         enddo
       enddo
+!$omp end do
+!
+!$omp end parallel
 !
 !-----------------------------------------------------------------------
 !  D4
