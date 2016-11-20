@@ -35,6 +35,9 @@
 !
       integer :: g_aitm,g_tmt1,g_tmt2,g_tmt,g_tmp,g_tmp2
       integer :: g_jlo,g_jhi,g_ilo,g_ihi
+      integer :: g_jlo1,g_jhi1,g_ilo1,g_ihi1
+      integer :: g_jlo2,g_jhi2,g_ilo2,g_ihi2
+      integer :: g_jlo3,g_jhi3,g_ilo3,g_ihi3
       integer :: i,j,k,l,ij,a,b,c
       integer :: ad1,ad2,ad3,ad4,ad5,ad6
       integer :: lnoo,lnov,lnvv
@@ -436,14 +439,14 @@
 ! construct tau
 !
 !$omp single
-      call ga_distribution(g_nt2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+      call ga_distribution(g_nt2,iam,g_jlo1,g_jhi1,g_ilo1,g_ihi1)
 !$omp end single
 !
 !$omp parallel 
 !$omp& default(none)
 !$omp& shared(t1)
 !$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1)
-!$omp& shared(g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp& shared(g_jlo1,g_jhi1,g_ilo1,g_ihi1)
 !$omp& shared(g_c,g_x,g_nht2,g_aitm)
 !$omp& shared(nact,nocc,nvir)
 !$omp& shared(lnvv)
@@ -456,8 +459,8 @@
         do j=1,nocc
           ad1=(i-1)*nvir
           ad2=(j-1)*nvir
-          if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
-          if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
+          if (ad1+1.ge.g_ilo1.and.ad1+1.le.g_ihi1)then
+          if (ad2+1.ge.g_jlo1.and.ad2+1.le.g_jhi1)then
             ij=(i-1)*nocc+j
 !$omp critical
             call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scra,nvir)
@@ -482,14 +485,14 @@
 !$omp single
       call ga_dgemm('n','n',lnvv,lnoo,lnoo,
      &              1.0d0,g_tmt1,g_aitm,0.0d0,g_tmt2)
-      call ga_distribution(g_nht2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+      call ga_distribution(g_nht2,iam,g_jlo2,g_jhi2,g_ilo2,g_ihi2)
 !$omp end single
 !
 !$omp parallel 
 !$omp& default(none)
 !$omp& shared(t1)
 !$omp& shared(g_tmt2,g_nht2)
-!$omp& shared(g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp& shared(g_jlo2,g_jhi2,g_ilo2,g_ihi2)
 !$omp& shared(nact,nocc,nvir)
 !$omp& shared(lnoo,lnov,lnvv)
 !$omp& shared(doa,dob)
@@ -501,8 +504,8 @@
         do j=1,nocc
           ad1=(i-1)*nvir
           ad2=(j-1)*nvir
-          if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
-          if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
+          if (ad1+1.ge.g_ilo2.and.ad1+1.le.g_ihi2)then
+          if (ad2+1.ge.g_jlo2.and.ad2+1.le.g_jhi2)then
             ij=(i-1)*nocc+j
 !$omp critical
             call ga_get(g_tmt2,1,lnvv,ij,ij,scra,lnvv)
@@ -523,14 +526,14 @@
 ! construct (2*t2_ij^ab - t2_ij^ba + t_i^a t_j^b)
 !
 !$omp single
-      call ga_distribution(g_nt2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+      call ga_distribution(g_nt2,iam,g_jlo3,g_jhi3,g_ilo3,g_ihi3)
 !$omp end single
 !
 !$omp parallel 
 !$omp& default(none)
 !$omp& shared(t1)
 !$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1,g_tmt2)
-!$omp& shared(g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp& shared(g_jlo3,g_jhi3,g_ilo3,g_ihi3)
 !$omp& shared(g_c,g_x,g_nht2,g_aitm)
 !$omp& shared(nact,nocc,nvir)
 !$omp& shared(lnoo,lnov,lnvv)
@@ -546,8 +549,8 @@
         do j=1,nocc
           ad1=(i-1)*nvir
           ad2=(j-1)*nvir
-          if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
-          if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
+          if (ad1+1.ge.g_ilo3.and.ad1+1.le.g_ihi3)then
+          if (ad2+1.ge.g_jlo3.and.ad2+1.le.g_jhi3)then
 !$omp critical
             call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scra,nvir)
 !$omp end critical
