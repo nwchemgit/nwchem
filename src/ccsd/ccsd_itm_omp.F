@@ -219,7 +219,10 @@
 !-----------------------------------------------------------------------
 !
 ! A1
-            call dfill(nact*nact,0.0d0,scra,1)
+            !call dfill(nact*nact,0.0d0,scra,1)
+            do k=1,nact*nact
+                scra(k) = 0.0d0
+            enddo
             if (doa(1).eq.2)then
 !$omp critical
               call ga_get(g_nexch,ad2+1,ad2+nocc,ad1+1,ad1+nocc,
@@ -234,7 +237,10 @@
             call ga_get(g_nexch,ad2+nocc+1,ad2+nact,ad1+1,ad1+nact,
      &                  scre,nvir)
 !$omp end critical
-            call dfill(nact*nact,0.0d0,scrf,1)
+            !call dfill(nact*nact,0.0d0,scrf,1)
+            do k=1,nact*nact
+                scrf(k) = 0.0d0
+            enddo
 !
 ! D1,D7
             ad1=0
@@ -358,7 +364,10 @@
 !$omp critical
             call ga_get(g_sht2,1,nact*nact,ij,ij,scrb,nact*nact)
 !$omp end critical
-            call dfill(nact*nact,0.0d0,scre,1)
+            !call dfill(nact*nact,0.0d0,scre,1)
+            do k=1,nact*nact
+                scre(k) = 0.0d0
+            enddo
             call daxpy(nact*nact,2.0d0,scrb,1,scre,1)
 !
 ! S6
@@ -972,7 +981,10 @@
           if (ij.ge.g_ilo.and.ij.le.g_ihi)then
             ad1=(i-1)*nact
             ad2=(j-1)*nact
-            call dfill(nact*nact,0.0d0,scra,1)
+            !call dfill(nact*nact,0.0d0,scra,1)
+            do k=1,nact*nact
+                scra(k) = 0.0d0
+            enddo
 !$omp critical
             call ga_get(g_x,1,nact*nact,ij,ij,scrb,nact*nact)
 !$omp end critical
