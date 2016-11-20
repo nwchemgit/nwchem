@@ -37,11 +37,10 @@
       integer :: g_jlo_nexch,g_jhi_nexch,g_ilo_nexch,g_ihi_nexch
       integer :: g_jlo_sht2,g_jhi_sht2,g_ilo_sht2,g_ihi_sht2
       integer :: g_jlo_x,g_jhi_x,g_ilo_x,g_ihi_x
+      integer :: g_jlo_c,g_jhi_c,g_ilo_c,g_ihi_c
       integer :: g_jlo_nt2,g_jhi_nt2,g_ilo_nt2,g_ihi_nt2
-      !
-      integer :: g_jlo,g_jhi,g_ilo,g_ihi
-      integer :: g_jlo1,g_jhi1,g_ilo1,g_ihi1
       integer :: g_jlo_nht2,g_jhi_nht2,g_ilo_nht2,g_ihi_nht2
+      integer :: g_jlo_tmp2,g_jhi_tmp2,g_ilo_tmp2,g_ihi_tmp2
       integer :: i,j,k,l,ij,a,b,c
       integer :: ad1,ad2,ad3,ad4,ad5,ad6
       integer :: lnoo,lnov,lnvv
@@ -191,8 +190,10 @@
       call dcopy(lnvv,habe,1,gabe,1)
       call dfill(lnov,0.0d0,hia,1)
       if (iprt.gt.5.and.iam.eq.0)print *,'forming aitm'
+#if 1
       call ga_distribution(g_x,iam,g_jlo_x,g_jhi_x,
      &                             g_ilo_x,g_ihi_x)
+#endif
 !$omp end single
 !
 !$omp parallel 
@@ -534,7 +535,7 @@
 !
 ! construct (2*t2_ij^ab - t2_ij^ba + t_i^a t_j^b)
 !
-#if 0
+#if 1
 !$omp single
 ! this is redundant the prior call at line ~449
       call ga_distribution(g_nt2,iam,g_jlo_nt2,g_jhi_nt2,
@@ -587,7 +588,7 @@
 !  D4
 !-----------------------------------------------------------------------
 !
-#if 0
+#if 1
 !$omp single
 ! this is redundant with the previous call at line 496
       call ga_distribution(g_nht2,iam,g_jlo_nht2,g_jhi_nht2,
@@ -653,15 +654,18 @@
 !  J1, J2, J3 and K1, K2, K3 intermediates
 !-----------------------------------------------------------------------
 !
+#if 1
 !$omp single
-      call ga_distribution(g_x,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+      call ga_distribution(g_x,iam,g_jlo_x,g_jhi_x,
+     &                             g_ilo_x,g_ihi_x)
 !$omp end single
+#endif
 !
 !$omp parallel 
 !$omp& default(none)
 !$omp& shared(t1)
 !$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1,g_tmt2)
-!$omp& shared(g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp& shared(g_jlo_x,g_jhi_x,g_ilo_x,g_ihi_x)
 !$omp& shared(g_c,g_x,g_nht2,g_aitm,g_ncoul)
 !$omp& shared(nact,nocc,nvir,nodes,iam)
 !$omp& shared(lnoo,lnov,lnvv)
@@ -679,7 +683,7 @@
       do i=1,nocc
         do j=1,nocc
           ij=(i-1)*nocc+j
-          if (ij.ge.g_ilo.and.ij.le.g_ihi)then
+          if (ij.ge.g_ilo_x.and.ij.le.g_ihi_x)then
             ad1=(i-1)*nact
             ad2=(j-1)*nact
 !$omp critical
@@ -703,14 +707,14 @@
 !$omp end parallel
 !
 !$omp single
-      call ga_distribution(g_c,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+      call ga_distribution(g_c,iam,g_jlo_c,g_jhi_c,g_ilo_c,g_ihi_c)
 !$omp end single
 !
 !$omp parallel 
 !$omp& default(none)
 !$omp& shared(t1)
 !$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1,g_tmt2)
-!$omp& shared(g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp& shared(g_jlo_c,g_jhi_c,g_ilo_c,g_ihi_c)
 !$omp& shared(g_c,g_x,g_nht2,g_aitm,g_ncoul)
 !$omp& shared(nact,nocc,nvir,nodes,iam)
 !$omp& shared(lnoo,lnov,lnvv)
@@ -728,7 +732,7 @@
       do i=1,nocc
         do j=1,nocc
           ij=(i-1)*nocc+j
-          if (ij.ge.g_ilo.and.ij.le.g_ihi)then
+          if (ij.ge.g_ilo_c.and.ij.le.g_ihi_c)then
             ad1=(i-1)*nact
             ad2=(j-1)*nact
 !$omp critical
@@ -770,7 +774,7 @@
 !
 ! construct (t2_ij^ab + 2*t_i^a*t_j^b)
 !
-#if 0
+#if 1
 !$omp single
       call ga_distribution(g_nt2,iam,g_jlo_nt2,g_jhi_nt2,
      &                               g_ilo_nt2,g_ihi_nt2)
@@ -822,7 +826,7 @@
 !
 !$omp end parallel
 !
-#if 0
+#if 1
 !$omp single
       call ga_distribution(g_nexch,iam,g_jlo_nexch,g_jhi_nexch,
      &                                 g_ilo_nexch,g_ihi_nexch)
@@ -869,14 +873,15 @@
 !-----------------------------------------------------------------------
 !  D9 and D10 (product of K intermediate and T2)
 !-----------------------------------------------------------------------
-      call ga_distribution(g_tmp2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+      call ga_distribution(g_tmp2,iam,g_jlo_tmp2,g_jhi_tmp2,
+     &                                g_ilo_tmp2,g_ihi_tmp2)
 !$omp end single
 !
 !$omp parallel 
 !$omp& default(none)
 !$omp& shared(t1)
 !$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1,g_tmt2)
-!$omp& shared(g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp& shared(g_jlo_tmp2,g_jhi_tmp2,g_ilo_tmp2,g_ihi_tmp2)
 !$omp& shared(g_c,g_x,g_nht2,g_aitm,g_ncoul,g_tmp2)
 !$omp& shared(nact,nocc,nvir,nodes,iam)
 !$omp& shared(lnoo,lnov,lnvv)
@@ -889,8 +894,8 @@
         do j=1,nocc
           ad1=(i-1)*nvir
           ad2=(j-1)*nvir
-          if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
-          if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
+          if (ad1+1.ge.g_ilo_tmp2.and.ad1+1.le.g_ihi_tmp2)then
+          if (ad2+1.ge.g_jlo_tmp2.and.ad2+1.le.g_jhi_tmp2)then
             ij=(i-1)*nocc+j
 !$omp critical
             call ga_get(g_c,1,nact*nact,ij,ij,scrb,nact*nact)
@@ -915,7 +920,7 @@
 !
 ! construct (t2_ij^ba)
 !
-#if 0
+#if 1
 !$omp single
       call ga_distribution(g_nt2,iam,g_jlo_nt2,g_jhi_nt2,
      &                               g_ilo_nt2,g_ihi_nt2)
@@ -958,14 +963,15 @@
 !
 !     d9 and d10
 !
-      call ga_distribution(g_nht2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+      call ga_distribution(g_nht2,iam,g_jlo_nht2,g_jhi_nht2,
+     &                                g_ilo_nht2,g_ihi_nht2)
 !$omp end single
 !
 !$omp parallel 
 !$omp& default(none)
 !$omp& shared(t1)
 !$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1,g_tmt2)
-!$omp& shared(g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp& shared(g_jlo_nht2,g_jhi_nht2,g_ilo_nht2,g_ihi_nht2)
 !$omp& shared(g_c,g_x,g_nht2,g_aitm,g_ncoul,g_tmp)
 !$omp& shared(nact,nocc,nvir,nodes,iam)
 !$omp& shared(lnoo,lnov,lnvv)
@@ -978,8 +984,8 @@
         do j=1,nocc
           ad1=(i-1)*nvir
           ad2=(j-1)*nvir
-          if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
-          if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
+          if (ad1+1.ge.g_ilo_nht2.and.ad1+1.le.g_ihi_nht2)then
+          if (ad2+1.ge.g_jlo_nht2.and.ad2+1.le.g_jhi_nht2)then
 !$omp critical
             call ga_get(g_tmp,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scra,nvir)
 !$omp end critical
@@ -1004,14 +1010,17 @@
 !$omp single
       call ga_sync()
       if (iprt.gt.5.and.iam.eq.0)print *,'forming j - k'
-      call ga_distribution(g_x,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+#if 1
+      call ga_distribution(g_x,iam,g_jlo_x,g_jhi_x,
+     &                             g_ilo_x,g_ihi_x)
+#endif
 !$omp end single
 !
 !$omp parallel 
 !$omp& default(none)
 !$omp& shared(t1)
 !$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1,g_tmt2)
-!$omp& shared(g_jlo,g_jhi,g_ilo,g_ihi)
+!$omp& shared(g_jlo_x,g_jhi_x,g_ilo_x,g_ihi_x)
 !$omp& shared(g_c,g_x,g_nht2,g_aitm,g_ncoul,g_tmp)
 !$omp& shared(nact,nocc,nvir,nodes,iam)
 !$omp& shared(lnoo,lnov,lnvv)
@@ -1023,7 +1032,7 @@
       do i=1,nocc
         do j=1,nocc
           ij=(i-1)*nocc+j
-          if (ij.ge.g_ilo.and.ij.le.g_ihi)then
+          if (ij.ge.g_ilo_x.and.ij.le.g_ihi_x)then
             ad1=(i-1)*nact
             ad2=(j-1)*nact
             !call dfill(nact*nact,0.0d0,scra,1)
@@ -1067,7 +1076,7 @@
 !
 ! construct (2*t2_ij^ab - t2_ij^ba - 2*t_i^a t_j^b)
 !
-#if 0
+#if 1
 !$omp single
       call ga_distribution(g_nt2,iam,g_jlo_nt2,g_jhi_nt2,
      &                               g_ilo_nt2,g_ihi_nt2)
@@ -1114,7 +1123,7 @@
 !$omp end do
 !$omp end parallel
 !
-#if 0
+#if 1
 !$omp single
       call ga_distribution(g_nexch,iam,g_jlo_nexch,g_jhi_nexch,
      &                                 g_ilo_nexch,g_ihi_nexch)
@@ -1169,7 +1178,7 @@
      &              0.25d0,g_tmp2,g_tmt,1.0d0,g_tmp)
 !
 ! construct (2*t2_ij^ab - t2_ij^ba)
-#if 0
+#if 1
       call ga_distribution(g_nt2,iam,g_jlo_nt2,g_jhi_nt2,
      &                               g_ilo_nt2,g_ihi_nt2)
 #endif
