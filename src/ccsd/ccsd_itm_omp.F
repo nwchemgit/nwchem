@@ -566,24 +566,24 @@
 !  J1, J2, J3 and K1, K2, K3 intermediates
 !-----------------------------------------------------------------------
 !
-!
 !$omp parallel 
 !$omp& default(none)
 !$omp& shared(t1)
 !$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1,g_tmt2)
+!$omp& shared(g_c,g_x,g_nht2,g_aitm,g_ncoul,g_tmt,g_tmp,g_tmp2)
+!$omp& shared(g_jlo_c,g_jhi_c,g_ilo_c,g_ihi_c)
 !$omp& shared(g_jlo_x,g_jhi_x,g_ilo_x,g_ihi_x)
-!$omp& shared(g_c,g_x,g_nht2,g_aitm,g_ncoul)
-!$omp& shared(nact,nocc,nvir,nodes,iam)
+!$omp& shared(g_jlo_nt2,g_jhi_nt2,g_ilo_nt2,g_ihi_nt2)
+!$omp& shared(g_jlo_nht2,g_jhi_nht2,g_ilo_nht2,g_ihi_nht2)
+!$omp& shared(g_jlo_tmp2,g_jhi_tmp2,g_ilo_tmp2,g_ihi_tmp2)
+!$omp& shared(g_jlo_nexch,g_jhi_nexch,g_ilo_nexch,g_ihi_nexch)
+!$omp& shared(nact,nocc,nvir,nodes,iam,iprt)
 !$omp& shared(lnoo,lnov,lnvv)
 !$omp& shared(doa,dob)
-!$omp& private(ad1,ad2,ad3,ad4)
+!$omp& shared(hia,ht1,giu,gabe,habe)
+!$omp& private(ad1,ad2,ad3,ad4,ad5,ad6)
 !$omp& private(ij)
-!$omp& private(scrc,scrd)
-!$omp& shared(hia)
-!$omp& shared(ht1)
-!$omp& shared(giu)
-!$omp& shared(gabe)
-!$omp& shared(habe)
+!$omp& private(scra,scrb,scrc,scrd,scre,scrf)
 !
 !$omp do collapse(2) schedule(guided)
       do i=1,nocc
@@ -610,25 +610,6 @@
         enddo
       enddo
 !$omp end do
-!$omp end parallel
-!
-!$omp parallel 
-!$omp& default(none)
-!$omp& shared(t1)
-!$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1,g_tmt2)
-!$omp& shared(g_jlo_c,g_jhi_c,g_ilo_c,g_ihi_c)
-!$omp& shared(g_c,g_x,g_nht2,g_aitm,g_ncoul)
-!$omp& shared(nact,nocc,nvir,nodes,iam)
-!$omp& shared(lnoo,lnov,lnvv)
-!$omp& shared(doa,dob)
-!$omp& private(ad1,ad2,ad3,ad4)
-!$omp& private(ij)
-!$omp& private(scrc,scrd)
-!$omp& shared(hia)
-!$omp& shared(ht1)
-!$omp& shared(giu)
-!$omp& shared(gabe)
-!$omp& shared(habe)
 !
 !$omp do collapse(2) schedule(guided)
       do i=1,nocc
@@ -656,8 +637,6 @@
       enddo
 !$omp end do
 !
-!$omp end parallel
-!
 !$omp single
       if (.not.ga_create(MT_DBL,lnov,lnov,'tmt',nvir,nvir,g_tmt))
      &     call errquit('ccsd_itm: ga_create g_tmt failed',0, GA_ERR)
@@ -674,24 +653,6 @@
 !-----------------------------------------------------------------------
 !
 ! construct (t2_ij^ab + 2*t_i^a*t_j^b)
-!
-!$omp parallel 
-!$omp& default(none)
-!$omp& shared(t1)
-!$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1,g_tmt2)
-!$omp& shared(g_jlo_nt2,g_jhi_nt2,g_ilo_nt2,g_ihi_nt2)
-!$omp& shared(g_c,g_x,g_nht2,g_aitm,g_ncoul,g_tmt)
-!$omp& shared(nact,nocc,nvir,nodes,iam)
-!$omp& shared(lnoo,lnov,lnvv)
-!$omp& shared(doa,dob)
-!$omp& private(ad1,ad2,ad3,ad4)
-!$omp& private(ij)
-!$omp& private(scra)
-!$omp& shared(hia)
-!$omp& shared(ht1)
-!$omp& shared(giu)
-!$omp& shared(gabe)
-!$omp& shared(habe)
 !
 !$omp do collapse(2) schedule(guided)
       do i=1,nocc
@@ -717,25 +678,6 @@
         enddo
       enddo
 !$omp end do
-!
-!$omp end parallel
-!
-!$omp parallel 
-!$omp& default(none)
-!$omp& shared(t1)
-!$omp& shared(g_nexch,g_nt2,g_sht2,g_tmt1,g_tmt2)
-!$omp& shared(g_c,g_x,g_nht2,g_aitm,g_ncoul,g_tmt,g_tmp,g_tmp2)
-!$omp& shared(g_jlo_x,g_jhi_x,g_ilo_x,g_ihi_x)
-!$omp& shared(g_jlo_nt2,g_jhi_nt2,g_ilo_nt2,g_ihi_nt2)
-!$omp& shared(g_jlo_nht2,g_jhi_nht2,g_ilo_nht2,g_ihi_nht2)
-!$omp& shared(g_jlo_tmp2,g_jhi_tmp2,g_ilo_tmp2,g_ihi_tmp2)
-!$omp& shared(g_jlo_nexch,g_jhi_nexch,g_ilo_nexch,g_ihi_nexch)
-!$omp& shared(nact,nocc,nvir,nodes,iam,iprt)
-!$omp& shared(lnoo,lnov,lnvv)
-!$omp& shared(doa,dob)
-!$omp& private(ad1,ad2,ad3,ad4,ad5,ad6)
-!$omp& private(ij)
-!$omp& private(scra,scrb,scrc,scrd,scre,scrf)
 !
 !$omp do collapse(2) schedule(guided)
       do i=1,nocc
