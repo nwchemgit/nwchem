@@ -81,6 +81,7 @@
      &     call errquit('ccsd_itm: ga_create g_tmt2 failed',0, GA_ERR)
 !
       call dfill(lnvv,0.0d0,habe,1)
+! #1
       call ga_distribution(g_nexch,iam,g_jlo_nexch,g_jhi_nexch,
      &                                 g_ilo_nexch,g_ihi_nexch)
 !$omp end single
@@ -190,10 +191,9 @@
       call dcopy(lnvv,habe,1,gabe,1)
       call dfill(lnov,0.0d0,hia,1)
       if (iprt.gt.5.and.iam.eq.0)print *,'forming aitm'
-#if 1
+! #1
       call ga_distribution(g_x,iam,g_jlo_x,g_jhi_x,
      &                             g_ilo_x,g_ihi_x)
-#endif
 !$omp end single
 !
 !$omp parallel 
@@ -447,6 +447,7 @@
 ! construct tau
 !
 !$omp single
+! #1
       call ga_distribution(g_nt2,iam,g_jlo_nt2,g_jhi_nt2,
      &                               g_ilo_nt2,g_ihi_nt2)
 !$omp end single
@@ -494,6 +495,7 @@
 !$omp single
       call ga_dgemm('n','n',lnvv,lnoo,lnoo,
      &              1.0d0,g_tmt1,g_aitm,0.0d0,g_tmt2)
+! #1
       call ga_distribution(g_nht2,iam,g_jlo_nht2,g_jhi_nht2,
      &                                g_ilo_nht2,g_ihi_nht2)
 !$omp end single
@@ -535,9 +537,9 @@
 !
 ! construct (2*t2_ij^ab - t2_ij^ba + t_i^a t_j^b)
 !
-#if 1
+#if 0
 !$omp single
-! this is redundant the prior call at line ~449
+! #2
       call ga_distribution(g_nt2,iam,g_jlo_nt2,g_jhi_nt2,
      &                               g_ilo_nt2,g_ihi_nt2)
 !$omp end single
@@ -588,9 +590,9 @@
 !  D4
 !-----------------------------------------------------------------------
 !
-#if 1
+#if 0
 !$omp single
-! this is redundant with the previous call at line 496
+! #2
       call ga_distribution(g_nht2,iam,g_jlo_nht2,g_jhi_nht2,
      &                                g_ilo_nht2,g_ihi_nht2)
 !$omp end single
@@ -654,8 +656,9 @@
 !  J1, J2, J3 and K1, K2, K3 intermediates
 !-----------------------------------------------------------------------
 !
-#if 1
+#if 0
 !$omp single
+! #2
       call ga_distribution(g_x,iam,g_jlo_x,g_jhi_x,
      &                             g_ilo_x,g_ihi_x)
 !$omp end single
@@ -707,6 +710,7 @@
 !$omp end parallel
 !
 !$omp single
+! #1
       call ga_distribution(g_c,iam,g_jlo_c,g_jhi_c,g_ilo_c,g_ihi_c)
 !$omp end single
 !
@@ -774,8 +778,9 @@
 !
 ! construct (t2_ij^ab + 2*t_i^a*t_j^b)
 !
-#if 1
+#if 0
 !$omp single
+! #3
       call ga_distribution(g_nt2,iam,g_jlo_nt2,g_jhi_nt2,
      &                               g_ilo_nt2,g_ihi_nt2)
 !$omp end single
@@ -826,8 +831,9 @@
 !
 !$omp end parallel
 !
-#if 1
+#if 0
 !$omp single
+! #2
       call ga_distribution(g_nexch,iam,g_jlo_nexch,g_jhi_nexch,
      &                                 g_ilo_nexch,g_ihi_nexch)
 !$omp end single
@@ -920,8 +926,9 @@
 !
 ! construct (t2_ij^ba)
 !
-#if 1
+#if 0
 !$omp single
+! #4
       call ga_distribution(g_nt2,iam,g_jlo_nt2,g_jhi_nt2,
      &                               g_ilo_nt2,g_ihi_nt2)
 !$omp end single
@@ -963,8 +970,11 @@
 !
 !     d9 and d10
 !
+#if 0
+! #3
       call ga_distribution(g_nht2,iam,g_jlo_nht2,g_jhi_nht2,
      &                                g_ilo_nht2,g_ihi_nht2)
+#endif
 !$omp end single
 !
 !$omp parallel 
@@ -1010,7 +1020,8 @@
 !$omp single
       call ga_sync()
       if (iprt.gt.5.and.iam.eq.0)print *,'forming j - k'
-#if 1
+#if 0
+! #3
       call ga_distribution(g_x,iam,g_jlo_x,g_jhi_x,
      &                             g_ilo_x,g_ihi_x)
 #endif
@@ -1076,8 +1087,9 @@
 !
 ! construct (2*t2_ij^ab - t2_ij^ba - 2*t_i^a t_j^b)
 !
-#if 1
+#if 0
 !$omp single
+! #5
       call ga_distribution(g_nt2,iam,g_jlo_nt2,g_jhi_nt2,
      &                               g_ilo_nt2,g_ihi_nt2)
 !$omp end single
@@ -1123,8 +1135,9 @@
 !$omp end do
 !$omp end parallel
 !
-#if 1
+#if 0
 !$omp single
+! #3
       call ga_distribution(g_nexch,iam,g_jlo_nexch,g_jhi_nexch,
      &                                 g_ilo_nexch,g_ihi_nexch)
 !$omp end single
@@ -1178,7 +1191,8 @@
      &              0.25d0,g_tmp2,g_tmt,1.0d0,g_tmp)
 !
 ! construct (2*t2_ij^ab - t2_ij^ba)
-#if 1
+#if 0
+! #6
       call ga_distribution(g_nt2,iam,g_jlo_nt2,g_jhi_nt2,
      &                               g_ilo_nt2,g_ihi_nt2)
 #endif
