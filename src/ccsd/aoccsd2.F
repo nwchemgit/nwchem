@@ -257,7 +257,10 @@ c     mem needed for x c sht2 (see pampt3)
       if (.not.ga_create(MT_DBL,mxvec*lhoov,nvir+1,'g_ht2', 
      &                   mxvec*lhoov,0,g_ht2))
      &     call errquit('ga_create failed for g_ht2',0, GA_ERR)
-c      
+c
+!
+! TODO parse use_ccsd_omp here instead of inside of ccsd_iterdrv2
+!
       call ccsd_iterdrv2(rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,
      &                  maxit,convi,iprt,cmo,eorb,
      &                  dbl_mb(k_t1),dbl_mb(k_ht1),
@@ -268,9 +271,9 @@ c
      &                  g_t2,g_ht2,
      &                  mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
      &                  int_mb(k_tk),offt2,nvp1, refener, Tol2E, 
-     $     occd, oconverged, eccsdos)
+     &                  occd, oconverged, eccsdos) ! use_ccsd_omp
 c     
-      call ga_sync
+      call ga_sync()
 c
          if (.not.ga_create(MT_DBL,lnov,lnov,'g_nt2',
      &      nvir,nvir,g_nt2))
@@ -294,6 +297,7 @@ c
      G     MA_sizeof(MT_DBL,1,MT_BYTE)*lnov, 0)
 #endif
 c
+! TODO use OpenMP here
       call ga_distribution(g_t2,iam,jlo,jhi,ilo,ihi)
       do a=1,nvir
         if (a.ge.ilo.and.a.le.ihi)then
@@ -316,8 +320,9 @@ cstaggering
           enddo
         endif
       enddo
-      call ga_sync
+      call ga_sync()
 c
+! TODO use OpenMP here
       call ga_distribution(g_nt2,iam,jlo,jhi,ilo,ihi)
       do i=1,nocc
         ad1=(i-1)*nvir
@@ -340,7 +345,7 @@ c
           enddo
         endif
       enddo
-      call ga_sync
+      call ga_sync()
 c
          if (iam.eq.0.and.iprt.gt.5.and.oprint)then
             print *,'starting t1 vector'
@@ -423,8 +428,7 @@ C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       stat=stat.and.ma_pop_stack(l_hiu)
       stat=stat.and.ma_pop_stack(l_ht1)
       stat=stat.and.ma_pop_stack(l_t1)
-      if (.not.stat)call errquit('ccsd: cannot pop stack?',0,
-     &       MA_ERR)
+      if (.not.stat)call errquit('ccsd: cannot pop stack?',0,MA_ERR)
       call ga_sync()
       if (.not. ga_destroy(g_nt2))
      &     call errquit('ga_destroy failed',0, GA_ERR)
@@ -542,6 +546,7 @@ C
      $         Call ErrQuit('CCDen (prep): can''t allocate sa', lsab,0)
             If (.NOT. ma_push_get(MT_DBL,lsab,'sb',l_sb, k_sb) )
      $         Call ErrQuit('CCDen (prep): can''t allocate sb', lsab,0)
+! TODO use OpenMP here
             do a=1,nvir
                call ga_get(g_ObjV,lnobj+1, lnobj+lnoov,a,a,
      &            dbl_mb(k_sa),lnoov)
@@ -562,7 +567,7 @@ C
             If ( .NOT. MA_Pop_Stack(L_Sa)) Call ErrQuit(
      $         'CCDen (prep): freeing sa', 0,0)
          EndIf
-         Call GA_Sync
+         Call GA_Sync()
          Call GA_Copy(G_DenT2, G_DenZ2)
 C
 C        Now call the Density driver routine
