@@ -25,7 +25,7 @@
       double precision, intent(in) :: scrc(nact,nact)
       double precision, intent(in) :: scrd(nact,nact)
       double precision, intent(in) :: scre(nact*nact)
-      double precision, intent(inout) :: scrf(nact*nact)
+      double precision, intent(in) :: scrf(nact*nact)
       ! if stack buffers, may segfault if large.
       ! allocating these hits IFRTL global lock issue.
       ! allocate num_max_thrd*nbf*nbf array outside and
@@ -143,7 +143,6 @@
 !$omp& shared(lnoo,lnov,lnvv)
 !$omp& private(ij,tid)
 !$omp& private(ad1,ad2,ad3,ad4,ad5,ad6)
-!$omp& private(scrf)
 !$omp& shared(bufa,bufb,bufc,bufd,bufe,buff)
 !$omp& shared(ht1,gabe,habe,giu,hiu,hia)
 !$omp& shared(doa,dob)
@@ -303,7 +302,7 @@
      &                  bufe(1,tid),nvir)
 !$omp end critical
             do k=1,nact*nact
-                scrf(k) = 0.0d0
+                buff(k,tid) = 0.0d0
             enddo
 !
 ! D1,D7
@@ -311,9 +310,9 @@
             do a=1,nvir
               do b=nocc+1,nact
                 ad1=ad1+1
-                scrf(ad1)=scrf(ad1)+0.5d0*bufe((b-1)*nvir+a,tid)
+                buff(ad1,tid)=buff(ad1,tid)+0.5d0*bufe((b-1)*nvir+a,tid)
                 do k=1,nocc
-                  scrf(ad1)=scrf(ad1)
+                  buff(ad1,tid)=buff(ad1,tid)
      &                     -bufe((k-1)*nvir+a,tid)*t1(k,b-nocc)
                 enddo
               enddo
@@ -389,11 +388,11 @@
             do a=nocc+1,nact
               do b=nocc+1,nact
                 ad1=ad1+1
-                scrf(ad1)=scrf(ad1)+bufe((b-1)*nact+a,tid)
+                buff(ad1,tid)=buff(ad1,tid)+bufe((b-1)*nact+a,tid)
                 do k=1,nocc
-                  scrf(ad1)=scrf(ad1)
+                  buff(ad1,tid)=buff(ad1,tid)
      &                     -bufe((b-1)*nact+k,tid)*t1(k,a-nocc)
-                  scrf(ad1)=scrf(ad1)
+                  buff(ad1,tid)=buff(ad1,tid)
      &                     -bufe((k-1)*nact+a,tid)*t1(k,b-nocc)
                 enddo
               enddo
@@ -402,7 +401,7 @@
             ad2=(j-1)*nvir
 !$omp critical
             call ga_acc(g_nht2,ad1+1,ad1+nvir,ad2+1,ad2+nvir,
-     &                  scrf,nvir,1.0d0)
+     &                  buff(1,tid),nvir,1.0d0)
 !$omp end critical
 !
             if (doa(2).eq.2.and.doa(3).eq.2) then
@@ -626,9 +625,9 @@
      &                  bufe(1,tid),lnov)
 !$omp end critical
             call dgemm('n','n',nvir,nocc,nocc,-1.0d0,bufe(1,tid),
-     &                 nvir,giu,nocc,0.0d0,scrf,nvir)
+     &                 nvir,giu,nocc,0.0d0,buff(1,tid),nvir)
 !$omp critical
-            call ga_acc(g_nht2,1,lnov,ad1,ad1,scrf,lnov,1.0d0)
+            call ga_acc(g_nht2,1,lnov,ad1,ad1,buff(1,tid),lnov,1.0d0)
 !$omp end critical
           endif
         enddo
@@ -665,7 +664,6 @@
 !$omp& shared(hia,ht1,giu,gabe,habe)
 !$omp& private(ad1,ad2,ad3,ad4,ad5,ad6)
 !$omp& private(ij,tid)
-!$omp& private(scrf)
 !$omp& shared(bufa,bufb,bufc,bufd,bufe,buff)
 !
 #if defined(USE_OPENMP)
