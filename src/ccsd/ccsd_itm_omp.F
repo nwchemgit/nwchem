@@ -18,12 +18,25 @@
       double precision, intent(inout) :: habe(nvir,nvir)
       double precision, intent(inout) :: gabe(nvir,nvir)
       double precision, intent(inout) :: ht1(nocc,nvir)
+      ! allocated externally, challenge for thread-safety
+      ! unused in the OpenMP version of this function
       double precision, intent(inout) :: scra(nact*nact)
       double precision, intent(inout) :: scrb(nact*nact)
       double precision, intent(inout) :: scrc(nact,nact)
       double precision, intent(inout) :: scrd(nact,nact)
       double precision, intent(inout) :: scre(nact*nact)
       double precision, intent(inout) :: scrf(nact*nact)
+      ! if stack buffers, may segfault if large.
+      ! allocating these hits IFRTL global lock issue.
+      ! allocate num_max_thrd*nbf*nbf array outside and
+      ! index to private portion using thread id.
+      double precision, allocatable :: bufa(:,:)
+      double precision, allocatable :: bufb(:,:)
+      double precision, allocatable :: bufc(:,:,:)
+      double precision, allocatable :: bufd(:,:,:)
+      double precision, allocatable :: bufe(:,:)
+      double precision, allocatable :: buff(:,:)
+      integer :: alloc_error
 !
 #include "mafdecls.fh"
 #include "global.fh"
@@ -47,6 +60,17 @@
       integer :: inode,next
       integer :: nodes, iam
       double precision :: temp
+      !
+      integer :: nt, tid
+#if defined(USE_OPENMP)
+      integer  :: omp_get_thread_num
+      external :: omp_get_thread_num
+      integer  :: omp_get_num_threads
+      external :: omp_get_num_threads
+      integer  :: omp_get_max_threads
+      external :: omp_get_max_threads
+#endif
+      !
 !
       integer :: nxtask
       external nxtask
@@ -64,7 +88,6 @@
       lnov=nocc*nvir
       lnvv=nvir*nvir
 !
-!$omp single
 ! - test x and c by doing its contribution to (2j-k)*(2t-t)
       if (.not.ga_create(MT_DBL,lnoo,lnoo,'aitm',nocc,nocc,g_aitm))
      &     call errquit('ccsd_itm: ga_create g_aitm failed',0, GA_ERR)
@@ -72,7 +95,26 @@
      &     call errquit('ccsd_itm: ga_create g_tmt1 failed',0, GA_ERR)
       if (.not.ga_create(MT_DBL,lnvv,lnoo,'tmt2',lnvv,0,g_tmt2))
      &     call errquit('ccsd_itm: ga_create g_tmt2 failed',0, GA_ERR)
-!
+      !
+#if defined(USE_OPENMP)
+      nt = omp_get_max_threads()
+#else
+      nt = 1
+#endif
+      !
+      allocate( bufa(nact*nact,nt), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufa',1,MA_ERR)
+      allocate( bufb(nact*nact,nt), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufb',2,MA_ERR)
+      allocate( bufc(nact,nact,nt), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufc',3,MA_ERR)
+      allocate( bufd(nact,nact,nt), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufd',4,MA_ERR)
+      allocate( bufe(nact*nact,nt), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufe',5,MA_ERR)
+      allocate( buff(nact*nact,nt), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('ccsd_itm_omp: buff',6,MA_ERR)
+      !
       call ga_distribution(g_nexch,iam,g_jlo_nexch,g_jhi_nexch,
      &                                 g_ilo_nexch,g_ihi_nexch)
       call ga_distribution(g_sht2,iam,g_jlo_sht2,g_jhi_sht2,
@@ -84,7 +126,6 @@
       call ga_distribution(g_nht2,iam,g_jlo_nht2,g_jhi_nht2,
      &                                g_ilo_nht2,g_ihi_nht2)
       call ga_distribution(g_c,iam,g_jlo_c,g_jhi_c,g_ilo_c,g_ihi_c)
-!$omp end single
 !
 !$omp parallel 
 !$omp& default(none)
@@ -1055,6 +1096,20 @@
       call ga_sync()
 #endif
       call ga_dgop(msg_cc_term6,ht1,lnov, '+')
+      !
+      deallocate( bufa, stat=alloc_error)
+      deallocate( bufb, stat=alloc_error)
+      deallocate( bufc, stat=alloc_error)
+      deallocate( bufd, stat=alloc_error)
+      deallocate( bufe, stat=alloc_error)
+      deallocate( buff, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufa', 7,MA_ERR)
+      if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufb', 8,MA_ERR)
+      if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufc', 9,MA_ERR)
+      if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufd',10,MA_ERR)
+      if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufe',11,MA_ERR)
+      if (alloc_error.ne.0) call errquit('ccsd_itm_omp: buff',12,MA_ERR)
+      !
       if (occsdps) then
          call pstat_off(ps_itm)
       else
