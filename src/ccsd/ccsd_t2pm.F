@@ -464,7 +464,7 @@ c
          offjl=offsh(jsh,lsh,1)
          offlj=offsh(lsh,jsh,1)
          if (use_ccsd_omp) then
-           call ccsd_idx2_omp(snsi,sisn,cmo,scra,scrb,lscr,
+           call ccsd_idx2_omp(snsi,sisn,cmo,lscr,
      &                        nfj,nfl,ncor,nocc,nact,nbf,
      &                        jlo,jhi,llo,lhi,offjl,offlj,g_x,g_c)
          else
@@ -678,7 +678,7 @@ c
             offjl=offsh(jsh,lsh,1)
             offlj=offsh(lsh,jsh,1)
             if (use_ccsd_omp) then
-              call ccsd_idx2_omp(snsi,sisn,cmo,scra,scrb,lscr,
+              call ccsd_idx2_omp(snsi,sisn,cmo,lscr,
      &                           nfj,nfl,ncor,nocc,nact,nbf,
      &                           jlo,jhi,llo,lhi,offjl,offlj,g_x,g_c)
             else
@@ -698,7 +698,7 @@ cedo
       call ga_sync()
 c sync before 3 and 4 index transformation
       if (use_ccsd_omp) then
-        call ccsd_idx34_omp(basis,cmo,scra,scrb,
+        call ccsd_idx34_omp(basis,cmo,
      &                      nsh,ncor,nocc,nact,nbf,
      &                      g_x,g_c)
       else

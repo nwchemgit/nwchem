@@ -1,6 +1,5 @@
       subroutine ccsd_itm_omp(nocc,nvir,nact,hiu,giu,habe,gabe,
      &                        hia,t1,ht1,
-     &                        scra,scrb,scrc,scrd,scre,scrf,
      &                        g_nt2,g_nht2,g_ncoul,g_nexch,
      &                        g_x,g_c,g_sht2,
      &                        iprt)
@@ -18,14 +17,6 @@
       double precision, intent(inout) :: habe(nvir,nvir)
       double precision, intent(inout) :: gabe(nvir,nvir)
       double precision, intent(inout) :: ht1(nocc,nvir)
-      ! allocated externally, challenge for thread-safety
-      ! unused in the OpenMP version of this function
-      double precision, intent(in) :: scra(nact*nact)
-      double precision, intent(in) :: scrb(nact*nact)
-      double precision, intent(in) :: scrc(nact,nact)
-      double precision, intent(in) :: scrd(nact,nact)
-      double precision, intent(in) :: scre(nact*nact)
-      double precision, intent(in) :: scrf(nact*nact)
       ! if stack buffers, may segfault if large.
       ! allocating these hits IFRTL global lock issue.
       ! allocate num_max_thrd*nbf*nbf array outside and

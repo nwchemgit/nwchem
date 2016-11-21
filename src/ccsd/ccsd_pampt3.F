@@ -254,15 +254,12 @@ c ------------------------------------------------------------
 ! WARNING: dbl_mb(k_sc[12]) are aliased below, which violates Fortran...
 !
       if (use_ccsd_omp) then
-      call ccsd_itm_omp(nocc,nvir,nact,hiu,giu,habe,gabe,hia,
-     &                  t1,ht1,dbl_mb(k_sc1),dbl_mb(k_sc2),
-     &                  dbl_mb(k_sc1),dbl_mb(k_sc2),
-     &                  dbl_mb(k_sc3),dbl_mb(k_sc4),
+      call ccsd_itm_omp(nocc,nvir,nact,hiu,giu,habe,gabe,hia,t1,ht1,
      &                  g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &                  iprt)
       else
-      call ccsd_itm(nocc,nvir,nact,hiu,giu,habe,gabe,hia,
-     &              t1,ht1,dbl_mb(k_sc1),dbl_mb(k_sc2),
+      call ccsd_itm(nocc,nvir,nact,hiu,giu,habe,gabe,hia,t1,ht1,
+     &              dbl_mb(k_sc1),dbl_mb(k_sc2),
      &              dbl_mb(k_sc1),dbl_mb(k_sc2),
      &              dbl_mb(k_sc3),dbl_mb(k_sc4),
      &              g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,g_sht2,

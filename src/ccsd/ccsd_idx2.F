@@ -1,4 +1,4 @@
-      subroutine ccsd_idx2_omp(snsi,sisn,cmo,scra,scrb,lscr,
+      subroutine ccsd_idx2_omp(snsi,sisn,cmo,lscr,
      &                         nfi,nfk,ncor,nocc,nact,nbf,
      &                         ilo,ihi,klo,khi,offik,offki,
      &                         g_x,g_c)
@@ -15,9 +15,6 @@
       double precision, intent(in) :: snsi(nbf,nfi,nfk,nocc)
       double precision, intent(in) :: sisn(nbf,nfk,nfi,nocc)
       double precision, intent(in) :: cmo(nbf,nbf)
-      ! allocated externally, challenge for thread-safety
-      ! unused in the OpenMP version of this function
-      double precision, intent(inout) :: scra(lscr),scrb(lscr)
       ! if stack buffers, may segfault if large.
       ! allocating these hits IFRTL global lock issue.
       ! allocate num_max_thrd*nbf*nbf array outside and

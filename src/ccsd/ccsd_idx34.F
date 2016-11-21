@@ -1,14 +1,10 @@
       subroutine ccsd_idx34_omp(basis,cmo,
-     &                          scra,scrb, ! unused
      &                          nsh,ncor,nocc,nact,nbf,
      &                          g_x,g_c)
       implicit none
 #include "errquit.fh"
       integer, intent(in) ::  basis,nsh,ncor,nocc,nact,nbf,g_x,g_c
       double precision, intent(in) :: cmo(nbf,nbf)
-      ! allocated externally, challenge for thread-safety
-      ! unused in the OpenMP version of this function
-      double precision, intent(inout) :: scra(nbf*nbf),scrb(nbf*nbf)
       ! if stack buffers, may segfault if large.
       ! allocating these hits IFRTL global lock issue.
       ! allocate num_max_thrd*nbf*nbf array outside and
