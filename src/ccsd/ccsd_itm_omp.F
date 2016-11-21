@@ -226,7 +226,8 @@
           ij=(i-1)*nocc+j
           if (ij.ge.g_ilo_sht2.and.ij.le.g_ihi_sht2)then
 !$omp critical
-            call ga_get(g_sht2,1,nact*nact,ij,ij,scre,nact*nact)
+            call ga_get(g_sht2,1,nact*nact,ij,ij,
+     &                  scre,nact*nact)
 !$omp end critical
             !call dscal(nact*nact,2.0d0,scre,1)
             do k=1,nact*nact
@@ -310,7 +311,8 @@
                 ad1=ad1+1
                 scrf(ad1)=scrf(ad1)+0.5d0*scre((b-1)*nvir+a)
                 do k=1,nocc
-                  scrf(ad1)=scrf(ad1)-scre((k-1)*nvir+a)*t1(k,b-nocc)
+                  scrf(ad1)=scrf(ad1)
+     &                     -scre((k-1)*nvir+a)*t1(k,b-nocc)
                 enddo
               enddo
             enddo
@@ -387,8 +389,10 @@
                 ad1=ad1+1
                 scrf(ad1)=scrf(ad1)+scre((b-1)*nact+a)
                 do k=1,nocc
-                  scrf(ad1)=scrf(ad1)-scre((b-1)*nact+k)*t1(k,a-nocc)
-                  scrf(ad1)=scrf(ad1)-scre((k-1)*nact+a)*t1(k,b-nocc)
+                  scrf(ad1)=scrf(ad1)
+     &                     -scre((b-1)*nact+k)*t1(k,a-nocc)
+                  scrf(ad1)=scrf(ad1)
+     &                     -scre((k-1)*nact+a)*t1(k,b-nocc)
                 enddo
               enddo
             enddo
@@ -584,7 +588,8 @@
           if ((ad1+1).ge.g_ilo_nht2.and.(ad1+1).le.g_ihi_nht2)then
           if ((ad2+1).ge.g_jlo_nht2.and.(ad2+1).le.g_jhi_nht2)then
 !$omp critical
-            call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scre,nvir)
+            call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
+     &                  scre,nvir)
 !$omp end critical
             call dgemm('n','n',nvir,nvir,nvir,1.0d0,gabe,
      &                 nvir,scre,nvir,0.0d0,bufd(1,1,tid),nvir)
@@ -615,7 +620,8 @@
           inode=inode+1
           if (mod(inode, nodes) .eq. iam) then
 !$omp critical
-            call ga_get(g_nt2,1,lnov,ad1,ad1,scre,lnov)
+            call ga_get(g_nt2,1,lnov,ad1,ad1,
+     &                  scre,lnov)
 !$omp end critical
             call dgemm('n','n',nvir,nocc,nocc,-1.0d0,scre,
      &                 nvir,giu,nocc,0.0d0,scrf,nvir)
@@ -657,7 +663,7 @@
 !$omp& shared(hia,ht1,giu,gabe,habe)
 !$omp& private(ad1,ad2,ad3,ad4,ad5,ad6)
 !$omp& private(ij,tid)
-!$omp& private(scre,scrf)
+!$omp& private(scrf)
 !$omp& shared(bufa,bufb,bufc,bufd,bufe,buff)
 !
 #if defined(USE_OPENMP)
