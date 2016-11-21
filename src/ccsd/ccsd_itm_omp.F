@@ -1009,23 +1009,47 @@
 ! term s1 n**3
       if (iam.eq.0) then
         if (dos(1).ne.0)then
-          do a=1,nvir
+#if 0
+          do k=1,nocc
             do b=1,nvir
-              do k=1,nocc
-                ht1(k,b) = ht1(k,b) + habe(b,a) * t1(k,a)
+              do a=1,nvir
+                ht1(k,b) = ht1(k,b) + t1(k,a) * habe(b,a)
               enddo
             enddo
           enddo
+#else
+          ! DGEMM: A * B^T
+          ! alpha = 1.0d0
+          ! A = t1
+          ! B = habe
+          ! beta = 1.0d0
+          ! C = ht1
+          call dgemm('n','t',nocc,nvir,nvir,
+     &               1.0d0,t1,nocc,habe,nvir,
+     &               1.0d0,ht1,nocc)
+#endif
         endif ! dos(1)
 ! term s2 n**3
         if (dos(2).ne.0)then
-          do a=1,nvir
-            do i=1,nocc
+#if 0
+          do i=1,nocc
+            do a=1,nvir
               do k=1,nocc
                 ht1(i,a) = ht1(i,a) - hiu(k,i) * t1(k,a)
               enddo
             enddo
           enddo
+#else
+          ! DGEMM: A^T * B
+          ! alpha = -1.0d0
+          ! A = hiu
+          ! B = t1
+          ! beta = 1.0d0
+          ! C = ht1
+          call dgemm('t','n',nocc,nvir,nocc,
+     &               -1.0d0,hiu,nocc,t1,nocc,
+     &               1.0d0,ht1,nocc)
+#endif
         endif ! dos(2)
       endif ! iam.eq.0
       call ga_sync()
