@@ -6936,10 +6936,11 @@ c         int_mb(pindex1(1)+psmall) = int_mb(pindex1(1)+psmall)+1
       integer it,itmp,msgtype,msglen
       integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
       integer shift1,shift2
+      integer mpierr
 
 c     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
 
 
       call nwpw_timing_start(55)
@@ -7419,10 +7420,11 @@ c     **** external functions ****
       integer it,itmp,msgtype,msglen
       integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
       integer shift1,shift2
+      integer mpierr
 
 c     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
 
 
       call nwpw_timing_start(55)
@@ -7955,10 +7957,11 @@ c     **** external functions ****
       integer it,itmp,msgtype,msglen
       integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
       integer shift1,shift2
+      integer mpierr
 
 c     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
 
 
       call nwpw_timing_start(55)
@@ -8427,10 +8430,11 @@ c         int_mb(pindex1(1)+pbig) = int_mb(pindex1(1)+pbig)+1
       integer it,itmp,msgtype,msglen
       integer i1_start,i2_start,c_iq_to_i1,c_iq_to_i2
       integer shift1,shift2
+      integer mpierr
 
 c     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
 
       call nwpw_timing_start(55)
       call Parallel2d_taskid_i(taskid)
