@@ -23,7 +23,7 @@
       double precision, intent(in) :: scra(nact*nact)
       double precision, intent(in) :: scrb(nact*nact)
       double precision, intent(in) :: scrc(nact,nact)
-      double precision, intent(inout) :: scrd(nact,nact)
+      double precision, intent(in) :: scrd(nact,nact)
       double precision, intent(inout) :: scre(nact*nact)
       double precision, intent(inout) :: scrf(nact*nact)
       ! if stack buffers, may segfault if large.
@@ -141,7 +141,7 @@
 !$omp& shared(lnoo,lnov,lnvv)
 !$omp& private(ij,tid)
 !$omp& private(ad1,ad2,ad3,ad4,ad5,ad6)
-!$omp& private(scrd,scre,scrf)
+!$omp& private(scre,scrf)
 !$omp& shared(bufa,bufb,bufc,bufd,bufe,buff)
 !$omp& shared(ht1,gabe,habe,giu,hiu,hia)
 !$omp& shared(doa,dob)
@@ -587,10 +587,10 @@
             call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scre,nvir)
 !$omp end critical
             call dgemm('n','n',nvir,nvir,nvir,1.0d0,gabe,
-     &                 nvir,scre,nvir,0.0d0,scrd,nvir)
+     &                 nvir,scre,nvir,0.0d0,bufd(1,1,tid),nvir)
 !$omp critical
             call ga_acc(g_nht2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
-     &                  scrd,nvir,1.0d0)
+     &                  bufd(1,1,tid),nvir,1.0d0)
 !$omp end critical
           endif
           endif
@@ -657,7 +657,7 @@
 !$omp& shared(hia,ht1,giu,gabe,habe)
 !$omp& private(ad1,ad2,ad3,ad4,ad5,ad6)
 !$omp& private(ij,tid)
-!$omp& private(scrd,scre,scrf)
+!$omp& private(scre,scrf)
 !$omp& shared(bufa,bufb,bufc,bufd,bufe,buff)
 !
 #if defined(USE_OPENMP)
@@ -675,17 +675,19 @@
             ad1=(i-1)*nact
             ad2=(j-1)*nact
 !$omp critical
-            call ga_get(g_nexch,ad2+1,ad2+nact,ad1+1,ad1+nact,scrd,nact)
+            call ga_get(g_nexch,ad2+1,ad2+nact,ad1+1,ad1+nact,
+     &                  bufd(1,1,tid),nact)
 !$omp end critical
-            call dgemm('n','n',nvir,nvir,nocc,-1.0d0,scrd(nocc+1,1),
+            call dgemm('n','n',nvir,nvir,nocc,-1.0d0,bufd(nocc+1,1,tid),
      &                 nact,t1,nocc,0.0d0,bufc(nocc+1,nocc+1,tid),nact)
             do k=1,nact
               do l=1,nact
-                scrd(l,k) = scrd(l,k) + bufc(l,k,tid)
+                bufd(l,k,tid) = bufd(l,k,tid) + bufc(l,k,tid)
               enddo
             enddo
 !$omp critical
-            call ga_acc(g_x,1,nact*nact,ij,ij,scrd,nact*nact,1.0d0)
+            call ga_acc(g_x,1,nact*nact,ij,ij,bufd(1,1,tid),
+     &                  nact*nact,1.0d0)
 !$omp end critical
           endif
         enddo
@@ -700,17 +702,19 @@
             ad1=(i-1)*nact
             ad2=(j-1)*nact
 !$omp critical
-            call ga_get(g_ncoul,ad2+1,ad2+nact,ad1+1,ad1+nact,scrd,nact)
+            call ga_get(g_ncoul,ad2+1,ad2+nact,ad1+1,ad1+nact,
+     &                  bufd(1,1,tid),nact)
 !$omp end critical
-            call dgemm('n','n',nvir,nvir,nocc,-1.0d0,scrd(nocc+1,1),
+            call dgemm('n','n',nvir,nvir,nocc,-1.0d0,bufd(nocc+1,1,tid),
      &                 nact,t1,nocc,0.0d0,bufc(nocc+1,nocc+1,tid),nact)
             do k=1,nact
               do l=1,nact
-                scrd(l,k) = scrd(l,k) + bufc(l,k,tid)
+                bufd(l,k,tid) = bufd(l,k,tid) + bufc(l,k,tid)
               enddo
             enddo
 !$omp critical
-            call ga_acc(g_c,1,nact*nact,ij,ij,scrd,nact*nact,1.0d0)
+            call ga_acc(g_c,1,nact*nact,ij,ij,bufd(1,1,tid),
+     &                  nact*nact,1.0d0)
 !$omp end critical
           endif
         enddo
