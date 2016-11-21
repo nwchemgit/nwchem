@@ -20,8 +20,8 @@
       double precision, intent(inout) :: ht1(nocc,nvir)
       ! allocated externally, challenge for thread-safety
       ! unused in the OpenMP version of this function
-      double precision, intent(inout) :: scra(nact*nact)
-      double precision, intent(inout) :: scrb(nact*nact)
+      double precision, intent(in) :: scra(nact*nact)
+      double precision, intent(in) :: scrb(nact*nact)
       double precision, intent(inout) :: scrc(nact,nact)
       double precision, intent(inout) :: scrd(nact,nact)
       double precision, intent(inout) :: scre(nact*nact)
@@ -141,7 +141,7 @@
 !$omp& shared(lnoo,lnov,lnvv)
 !$omp& private(ij,tid)
 !$omp& private(ad1,ad2,ad3,ad4,ad5,ad6)
-!$omp& private(scra,scrb,scrc,scrd,scre,scrf)
+!$omp& private(scrc,scrd,scre,scrf)
 !$omp& shared(bufa,bufb,bufc,bufd,bufe,buff)
 !$omp& shared(ht1,gabe,habe,giu,hiu,hia)
 !$omp& shared(doa,dob)
@@ -317,10 +317,10 @@
 !
             ad1=(i-1)*nocc+j
 !$omp critical
-            call ga_get(g_c,1,nact*nact,ad1,ad1,scrb,nact*nact)
+            call ga_get(g_c,1,nact*nact,ad1,ad1,bufb(1,tid),nact*nact)
 !$omp end critical
             do k=1,nact*nact
-                scre(k) = scrb(k)
+                scre(k) = bufb(k,tid)
             enddo
 !
 ! H8
@@ -341,10 +341,10 @@
 !
             ad1=(i-1)*nocc+j
 !$omp critical
-            call ga_get(g_x,1,nact*nact,ad1,ad1,scrb,nact*nact)
+            call ga_get(g_x,1,nact*nact,ad1,ad1,bufb(1,tid),nact*nact)
 !$omp end critical
             do k=1,nact*nact
-                scre(k) = scrb(k)
+                scre(k) = bufb(k,tid)
             enddo
 !
 ! H8
@@ -404,30 +404,30 @@
             do k=1,nocc
               do l=1,nocc
                 ad1=ad1+1
-                bufa(ad1,tid)=bufa(ad1,tid)+0.5d0*scrb((k-1)*nact+l)
+                bufa(ad1,tid)=bufa(ad1,tid)+0.5d0*bufb((k-1)*nact+l,tid)
               enddo
             enddo
             ad1=(j-1)*nocc+i
 !$omp critical
-            call ga_get(g_x,1,nact*nact,ad1,ad1,scrb,nact*nact)
+            call ga_get(g_x,1,nact*nact,ad1,ad1,bufb(1,tid),nact*nact)
 !$omp end critical
             ad1=0
             do k=1,nocc
               do l=1,nocc
                 ad1=ad1+1
-                bufa(ad1,tid)=bufa(ad1,tid)+0.5d0*scrb((l-1)*nact+k)
+                bufa(ad1,tid)=bufa(ad1,tid)+0.5d0*bufb((l-1)*nact+k,tid)
               enddo
             enddo
             endif
 !
 !$omp critical
-            call ga_get(g_sht2,1,nact*nact,ij,ij,scrb,nact*nact)
+            call ga_get(g_sht2,1,nact*nact,ij,ij,bufb(1,tid),nact*nact)
 !$omp end critical
             do k=1,nact*nact
                 scre(k) = 0.0d0
             enddo
             do k=1,nact*nact
-                scre(k) = scre(k) + 2.0d0 * scrb(k)
+                scre(k) = scre(k) + 2.0d0 * bufb(k,tid)
             enddo
 !
 ! S6
@@ -444,7 +444,7 @@
              do k=1,nocc
                do l=1,nocc
                  ad1=ad1+1
-                 bufa(ad1,tid)=bufa(ad1,tid)+scrb((k-1)*nact+l)
+                 bufa(ad1,tid)=bufa(ad1,tid)+bufb((k-1)*nact+l,tid)
                enddo
              enddo
             endif
@@ -456,11 +456,11 @@
 !-----------------------------------------------------------------------
             if (dob(2).eq.2)then
             ad1=nocc+1
-            call dgemm('n','n',nvir,nvir,nocc,1.0d0,scrb(ad1),
+            call dgemm('n','n',nvir,nvir,nocc,1.0d0,bufb(ad1,tid),
      &                 nact,t1,nocc,0.0d0,bufa(1,tid),nvir)
             ad1=nocc*nact+1
             call dgemm('t','n',nvir,nvir,nocc,1.0d0,t1,nocc,
-     &                 scrb(ad1),nact,1.0d0,bufa(1,tid),nvir)
+     &                 bufb(ad1,tid),nact,1.0d0,bufa(1,tid),nvir)
             ad1=(i-1)*nvir
             ad2=(j-1)*nvir
 !$omp critical
@@ -657,7 +657,7 @@
 !$omp& shared(hia,ht1,giu,gabe,habe)
 !$omp& private(ad1,ad2,ad3,ad4,ad5,ad6)
 !$omp& private(ij,tid)
-!$omp& private(scra,scrb,scrc,scrd,scre,scrf)
+!$omp& private(scrc,scrd,scre,scrf)
 !$omp& shared(bufa,bufb,bufc,bufd,bufe,buff)
 !
 #if defined(USE_OPENMP)
@@ -799,13 +799,13 @@
           if (ad2+1.ge.g_jlo_tmp2.and.ad2+1.le.g_jhi_tmp2)then
             ij=(i-1)*nocc+j
 !$omp critical
-            call ga_get(g_c,1,nact*nact,ij,ij,scrb,nact*nact)
+            call ga_get(g_c,1,nact*nact,ij,ij,bufb(1,tid),nact*nact)
 !$omp end critical
             ad3=0
             do a=nocc+1,nact
               do b=nocc+1,nact
                 ad3=ad3+1
-                bufa(ad3,tid)=scrb((a-1)*nact+b)
+                bufa(ad3,tid)=bufb((a-1)*nact+b,tid)
               enddo
             enddo
 !$omp critical
@@ -861,12 +861,12 @@
               do b=1,nvir
                 ad3=(a-1)*nvir+b
                 ad4=(b-1)*nvir+a
-                scrb(ad3)=-0.5d0*bufa(ad3,tid)-bufa(ad4,tid)
+                bufb(ad3,tid)=-0.5d0*bufa(ad3,tid)-bufa(ad4,tid)
               enddo
             enddo
 !$omp critical
             call ga_acc(g_nht2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
-     &                  scrb,nvir,1.0d0)
+     &                  bufb(1,tid),nvir,1.0d0)
 !$omp end critical
           endif
           endif
@@ -890,28 +890,29 @@
                 bufa(k,tid) = 0.0d0
             enddo
 !$omp critical
-            call ga_get(g_x,1,nact*nact,ij,ij,scrb,nact*nact)
+            call ga_get(g_x,1,nact*nact,ij,ij,bufb(1,tid),nact*nact)
 !$omp end critical
             do k=1,nact*nact
-                bufa(k,tid) = bufa(k,tid) + scrb(k)
+                bufa(k,tid) = bufa(k,tid) + bufb(k,tid)
             enddo
 !$omp critical
-            call ga_get(g_c,1,nact*nact,ij,ij,scrb,nact*nact)
+            call ga_get(g_c,1,nact*nact,ij,ij,bufb(1,tid),nact*nact)
 !$omp end critical
             do k=1,nact*nact
-                bufa(k,tid) = bufa(k,tid) - 0.5d0 * scrb(k)
+                bufa(k,tid) = bufa(k,tid) - 0.5d0 * bufb(k,tid)
             enddo
             ad1=0
             do a=nocc+1,nact
               do b=nocc+1,nact
                 ad1=ad1+1
-                scrb(ad1)=bufa((a-1)*nact+b,tid)
+                bufb(ad1,tid)=bufa((a-1)*nact+b,tid)
               enddo
             enddo
             ad1=(j-1)*nvir
             ad2=(i-1)*nvir
 !$omp critical
-            call ga_put(g_tmp,ad1+1,ad1+nvir,ad2+1,ad2+nvir,scrb,nvir)
+            call ga_put(g_tmp,ad1+1,ad1+nvir,ad2+1,ad2+nvir,
+     &                  bufb(1,tid),nvir)
 !$omp end critical
           endif
         enddo
@@ -938,12 +939,13 @@
               do b=1,nvir
                 ad3=(b-1)*nvir+a
                 ad4=(a-1)*nvir+b
-                scrb(ad3)=bufa(ad3,tid)+bufa(ad3,tid)-bufa(ad4,tid)
+                bufb(ad3,tid)=bufa(ad3,tid)+bufa(ad3,tid)-bufa(ad4,tid)
      &                    -2.0d0*t1(i,a)*t1(j,b)
               enddo
             enddo
 !$omp critical
-            call ga_put(g_tmt,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scrb,nvir)
+            call ga_put(g_tmt,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
+     &                  bufb(1,tid),nvir)
 !$omp end critical
           endif
           endif
@@ -968,11 +970,13 @@
                 do b=1,nvir
                   ad5=(a-1)*nvir+b
                   ad6=(b-1)*nvir+a
-                  scrb(ad5)=bufa(ad5,tid)+bufa(ad5,tid)-bufa(ad6,tid)
+                  bufb(ad5,tid)=bufa(ad5,tid)+bufa(ad5,tid)
+     &                         -bufa(ad6,tid)
                 enddo
               enddo
 !$omp critical
-            call ga_put(g_tmp2,ad4+1,ad4+nvir,ad3+1,ad3+nvir,scrb,nvir)
+            call ga_put(g_tmp2,ad4+1,ad4+nvir,ad3+1,ad3+nvir,
+     &                  bufb(1,tid),nvir)
 !$omp end critical
           endif
           endif
@@ -1002,11 +1006,12 @@
               do b=1,nvir
                 ad3=(a-1)*nvir+b
                 ad4=(b-1)*nvir+a
-                scrb(ad3)=bufa(ad3,tid)+bufa(ad3,tid)-bufa(ad4,tid)
+                bufb(ad3,tid)=bufa(ad3,tid)+bufa(ad3,tid)-bufa(ad4,tid)
               enddo
             enddo
 !$omp critical
-            call ga_put(g_tmt,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scrb,nvir)
+            call ga_put(g_tmt,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
+     &                  bufb(1,tid),nvir)
 !$omp end critical
           endif
           endif
