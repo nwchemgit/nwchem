@@ -1,7 +1,7 @@
       subroutine ccsd_pzamp(basis,nsh,ncor,nocc,nvir,nact,nbf,
      &                       tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,
      &                       hia,t1,z1,hz1,idiis,g_nt2,g_nz2,
-     &                       g_nhz2,g_ncoul,g_nexch,tklst)
+     &                       g_nhz2,g_ncoul,g_nexch,tklst,use_ccsd_omp)
       implicit none
 #include "errquit.fh"
 C     $Id$
@@ -33,6 +33,10 @@ c
       logical stat
 c
       Integer Nodes, IAm
+      logical, optional, intent(in) :: use_ccsd_omp
+      if (.not.present(use_ccsd_omp)) then
+          call errquit('ccsd_pzamp: use_ccsd_omp not present!',0,0)
+      endif
       Nodes = GA_NNodes()
       IAM = GA_NodeID()
 c
@@ -158,7 +162,7 @@ c ------------------------------------------------------------
      &              dbl_mb(k_sisn),lssni,dbl_mb(k_scre),
      &              mem2,max2e,dbl_mb(k_eri1),
      &              dbl_mb(k_eri2),t1,cmo,dbl_mb(k_t1ao),dbl_mb(k_sc1),
-     &              dbl_mb(k_sc2),lscr,tol2e,iprt,tklst)
+     &              dbl_mb(k_sc2),lscr,tol2e,iprt,tklst,use_ccsd_omp)
       stat=stat.and.ma_pop_stack(l_t1ao)
       stat=stat.and.ma_pop_stack(l_sc4)
       stat=stat.and.ma_pop_stack(l_sc3)
@@ -215,7 +219,7 @@ c
      &              dbl_mb(k_sisn),lssni,dbl_mb(k_scre),
      &              mem2,max2e,dbl_mb(k_eri1),
      &              dbl_mb(k_eri2),z1,cmo,dbl_mb(k_t1ao),dbl_mb(k_sc1),
-     &              dbl_mb(k_sc2),lscr,tol2e,iprt,tklst)
+     &              dbl_mb(k_sc2),lscr,tol2e,iprt,tklst,use_ccsd_omp)
       stat=stat.and.ma_pop_stack(l_t1ao)
       stat=stat.and.ma_push_get(MT_DBL,nvir*nbf,'t1ao',l_t1ao, k_t1ao)
       call ccsd_aosig(basis,nsh,nocc,nvir,nbf,cmo,dbl_mb(k_scre),

@@ -286,7 +286,8 @@ c
      &                    g_sht2,g_c,g_x,offsh,snsi,sisn,lssni,scre,
      &                    mem2,max2e,eri1,eri2,t1,cmo,t1ao,scra,
      &                    scrb,lscr,kscr,tol2e,iprt,tklst,maxints,
-     &                    ish_idx,shinf,max_sht2_blk,nbfdim,a_st2)
+     &                    ish_idx,shinf,max_sht2_blk,nbfdim,a_st2,
+     &                    use_ccsd_omp)
       implicit none
 #include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,g_st2,g_sht2,
@@ -323,6 +324,10 @@ c
       double precision faddr,kaddr
       external nxtask, cart_2e4c
       integer trishel,iamoff,iii,jjj,istart
+      logical, optional, intent(in) :: use_ccsd_omp
+      if (.not.present(use_ccsd_omp)) then
+          call errquit('ccsd_pzamp: use_ccsd_omp not present!',0,0)
+      endif
 c
       if (occsdps) then
          call pstat_on(ps_sxy)
@@ -451,15 +456,22 @@ c
             call qexit('r_read',0)
             call t2eri(ish_idx(1),ish_idx,jlo,jhi,nfj,llo,lhi,nfl,nsh,
      &                 eri1,eri2,scra,scrb,lnoo,nocc,offsh,nbf,g_st2,
-     &                 shinf,max_sht2_blk,snsi,sisn,t1ao,nbfdim,a_st2)
+     &                 shinf,max_sht2_blk,snsi,sisn,t1ao,nbfdim,a_st2,
+     &                 use_ccsd_omp)
          enddo
          ad1=offsh(jsh,lsh,1)
          call ga_put(g_sht2,1,lnoo,ad1+1,ad1+nfj*nfl,scrb,lnoo)
          offjl=offsh(jsh,lsh,1)
          offlj=offsh(lsh,jsh,1)
-         call ccsd_idx2(snsi,sisn,cmo,scra,scrb,lscr,
-     &                  nfj,nfl,ncor,nocc,nact,nbf,jlo,jhi,llo,lhi,
-     &                  offjl,offlj,g_x,g_c)
+         if (use_ccsd_omp) then
+           call ccsd_idx2_omp(snsi,sisn,cmo,scra,scrb,lscr,
+     &                        nfj,nfl,ncor,nocc,nact,nbf,
+     &                        jlo,jhi,llo,lhi,offjl,offlj,g_x,g_c)
+         else
+           call ccsd_idx2(snsi,sisn,cmo,scra,scrb,lscr,
+     &                    nfj,nfl,ncor,nocc,nact,nbf,
+     &                    jlo,jhi,llo,lhi,offjl,offlj,g_x,g_c)
+         endif
       enddo
 c
 c     End reading integrals from disk in repeat iteration
@@ -599,7 +611,8 @@ c
      &                        nsh,eri1,
      &                        eri2,scra,scrb,lnoo,nocc,offsh,nbf,g_st2,
      &                        shinf,max_sht2_blk,snsi,sisn,t1ao,
-     &                        nbfdim,a_st2)
+     &                        nbfdim,a_st2,
+     &                        use_ccsd_omp)
 c     
 c Reset some indices
 c
@@ -664,9 +677,15 @@ c
             call ga_put(g_sht2,1,lnoo,ad1+1,ad1+nfj*nfl,scrb,lnoo)
             offjl=offsh(jsh,lsh,1)
             offlj=offsh(lsh,jsh,1)
-            call ccsd_idx2(snsi,sisn,cmo,scra,scrb,lscr,
-     &                     nfj,nfl,ncor,nocc,nact,nbf,jlo,jhi,llo,lhi,
-     &                     offjl,offlj,g_x,g_c)
+            if (use_ccsd_omp) then
+              call ccsd_idx2_omp(snsi,sisn,cmo,scra,scrb,lscr,
+     &                           nfj,nfl,ncor,nocc,nact,nbf,
+     &                           jlo,jhi,llo,lhi,offjl,offlj,g_x,g_c)
+            else
+              call ccsd_idx2(snsi,sisn,cmo,scra,scrb,lscr,
+     &                       nfj,nfl,ncor,nocc,nact,nbf,
+     &                       jlo,jhi,llo,lhi,offjl,offlj,g_x,g_c)
+            endif
       enddo
       faddr=0.d0
       if (.not.repeat.and.use_disk) then
@@ -678,8 +697,15 @@ c
 cedo
       call ga_sync()
 c sync before 3 and 4 index transformation
-      call ccsd_idx34(basis,cmo,scra,scrb,nsh,ncor,nocc,nact,nbf,
-     &                g_x,g_c)
+      if (use_ccsd_omp) then
+        call ccsd_idx34_omp(basis,cmo,scra,scrb,
+     &                      nsh,ncor,nocc,nact,nbf,
+     &                      g_x,g_c)
+      else
+        call ccsd_idx34(basis,cmo,scra,scrb,
+     &                  nsh,ncor,nocc,nact,nbf,
+     &                  g_x,g_c)
+      endif
 c
       call ga_sync()
       tx(2)=tcgtime()

@@ -1,7 +1,7 @@
       subroutine ccsd_pampt3(basis,nsh,ncor,nocc,nvir,nact,nbf,
      &                       tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,
      &                       hia,t1,ht1,idiis,g_nt2,g_nht2,
-     &                       g_ncoul,g_nexch,tklst,use_itm_omp)
+     &                       g_ncoul,g_nexch,tklst,use_ccsd_omp)
 C     $Id$
       implicit none
 #include "errquit.fh"
@@ -41,8 +41,10 @@ C
       double precision tstart, tused
       logical dorep
       integer g_st2rep,g_st2keep,dorep_glob,gmem0
-      logical use_itm_omp
-c
+      logical, optional, intent(in) :: use_ccsd_omp
+      if (.not.present(use_ccsd_omp)) then
+          call errquit('ccsd_pampt2: use_ccsd_omp not present!',0,0)
+      endif
       Nodes = GA_NNodes()
       IAm = GA_NodeID()
       lnoo = nocc * nocc
@@ -202,7 +204,7 @@ c     leave 10 pct available
      &              dbl_mb(k_eri2),t1,cmo,dbl_mb(k_t1ao),dbl_mb(k_sc1),
      &              dbl_mb(k_sc2),lscr,kscr,tol2e,iprt,tklst,nrints,
      &              int_mb(k_ish),int_mb(k_shinf),max_sht2_blk,
-     &              nbfdim,dbl_mb(k_ast2))
+     &              nbfdim,dbl_mb(k_ast2),use_ccsd_omp)
       stat=stat.and.ma_pop_stack(l_eri2)
       stat=stat.and.ma_pop_stack(l_eri1)
       stat=stat.and.ma_pop_stack(l_ish)
@@ -251,7 +253,7 @@ c ------------------------------------------------------------
 !
 ! WARNING: dbl_mb(k_sc[12]) are aliased below, which violates Fortran...
 !
-      if (use_itm_omp) then
+      if (use_ccsd_omp) then
       call ccsd_itm_omp(nocc,nvir,nact,hiu,giu,habe,gabe,hia,
      &                  t1,ht1,dbl_mb(k_sc1),dbl_mb(k_sc2),
      &                  dbl_mb(k_sc1),dbl_mb(k_sc2),
@@ -287,7 +289,8 @@ c
       end
       subroutine t2eri(idim,idx,jlo,jhi,nfj,llo,lhi,nfl,nsh,eri1,eri2,
      &                 t2,ht2,lnoo,nocc,offsh,nbf,g_st2,
-     &                 shinf,max_st2_blk,snsi,sisn,t1ao,nbfdim,a_st2)
+     &                 shinf,max_st2_blk,snsi,sisn,t1ao,nbfdim,a_st2,
+     &                 use_ccsd_omp)
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -317,6 +320,7 @@ c#warning undefining NBGET
      &                 snsi(nbf,nfj,nfl,nocc),
      &                 sisn(nbf,nfl,nfj,nocc),
      &                 t1ao(nbf,nocc), a_st2(lnoo,nbfdim)
+      logical use_ccsd_omp
 c
       integer i,j,k,l,kmax,lmax,ik,ad1,ptr
       integer ipp,imm,ict,off1,off2,off3
@@ -444,13 +448,16 @@ c
           factor = 1.0d0
         endif
         call ccsd_idx1_wrk(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
-     &                     nfl,nocc,nbf,ilo,ihi,klo,khi,factor)
+     &                     nfl,nocc,nbf,ilo,ihi,klo,khi,factor,
+     &                     use_ccsd_omp)
         if (use_inmem_st2) then
            call t2eri_wrk_all(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
-     &                        nfi,nfj,nfk,nfl,nocc,lnoo,keqi,jeql)
+     &                        nfi,nfj,nfk,nfl,nocc,lnoo,keqi,jeql,
+     &                        use_ccsd_omp)
         else
            call t2eri_wrk_all(eri1(ict),eri2(ict),t2(blk1),ht2,
-     &                        nfi,nfj,nfk,nfl,nocc,lnoo,keqi,jeql)
+     &                        nfi,nfj,nfk,nfl,nocc,lnoo,keqi,jeql,
+     &                        use_ccsd_omp)
         endif
 c
 c Increase offset of integral block to next ik block
@@ -497,13 +504,16 @@ c
          factor = 1.0d0
       endif
       call ccsd_idx1_wrk(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
-     &                   nfl,nocc,nbf,ilo,ihi,klo,khi,factor)
+     &                   nfl,nocc,nbf,ilo,ihi,klo,khi,factor,
+     &                   use_ccsd_omp)
       if (use_inmem_st2) then
          call t2eri_wrk_all(eri1(ict),eri2(ict),a_st2(1,ptr),ht2,
-     &                      nfi,nfj,nfk,nfl,nocc,lnoo,keqi,jeql)
+     &                      nfi,nfj,nfk,nfl,nocc,lnoo,keqi,jeql,
+     &                      use_ccsd_omp)
       else
          call t2eri_wrk_all(eri1(ict),eri2(ict),t2(blk1),ht2,
-     &                      nfi,nfj,nfk,nfl,nocc,lnoo,keqi,jeql)
+     &                      nfi,nfj,nfk,nfl,nocc,lnoo,keqi,jeql,
+     &                      use_ccsd_omp)
       endif
 #endif
 c
@@ -519,14 +529,14 @@ c
 
       subroutine t2eri_wrk_all(eri1,eri2,t2,ht2,
      &                         ni,nj,nk,nl,nocc,lnoo,
-     &                         keqi,jeql)
+     &                         keqi,jeql,use_ccsd_omp)
       implicit none
       double precision, intent(in)    :: eri1(nl,nk,nj,ni)
       double precision, intent(in)    :: eri2(nj,nk,nl,ni)
       double precision, intent(in)    :: t2(lnoo,nk,ni)
       double precision, intent(inout) :: ht2(lnoo,nl,nj)
       integer, intent(in)             :: ni,nj,nk,nl,nocc,lnoo
-      logical, intent(in)             :: keqi,jeql
+      logical, intent(in)             :: keqi,jeql,use_ccsd_omp
       double precision                :: gp, gm
       integer                         :: ipp,imm
       integer                         :: i,j,k,l,q
@@ -535,7 +545,7 @@ c
       imm=nocc*(nocc-1)/2
       kmax = nk
       lmax = nl
-#if defined(USE_OPENMP)
+      if (use_ccsd_omp) then
 !
 ! WARNING: You cannot use collapse on this loop because that will
 !          cause concurrent updates to ht2, which is a race-condition
@@ -551,29 +561,48 @@ c
 !$omp& firstprivate(kmax,lmax)
 !$omp& shared(ni,nj,nk,nl,ipp,imm,keqi,jeql)
 !$omp& shared(eri1,eri2,t2,ht2)
-#endif
-      do j=1,nj
-        do i=1,ni
-          ! branch predictor should do a good job here since it will
-          ! be constant for any given invocation of the subroutine.
-          if (keqi) kmax = i
-          if (jeql) lmax = j
-          do k=1,kmax
-            do l=1,lmax
-              gp=(eri1(l,k,j,i)+eri2(j,k,l,i))*0.5d0
-              gm=(eri1(l,k,j,i)-eri2(j,k,l,i))*0.5d0
-              do q=1,ipp
-                ht2(q,l,j) = ht2(q,l,j) + gp * t2(q,k,i)
-              enddo
-              do q=1,imm
-                ht2(q+ipp,l,j) = ht2(q+ipp,l,j) + gm * t2(q+ipp,k,i)
+        do j=1,nj
+          do i=1,ni
+            ! branch predictor should do a good job here since it will
+            ! be constant for any given invocation of the subroutine.
+            if (keqi) kmax = i
+            if (jeql) lmax = j
+            do k=1,kmax
+              do l=1,lmax
+                gp=(eri1(l,k,j,i)+eri2(j,k,l,i))*0.5d0
+                gm=(eri1(l,k,j,i)-eri2(j,k,l,i))*0.5d0
+                do q=1,ipp
+                  ht2(q,l,j) = ht2(q,l,j) + gp * t2(q,k,i)
+                enddo
+                do q=1,imm
+                  ht2(q+ipp,l,j) = ht2(q+ipp,l,j) + gm * t2(q+ipp,k,i)
+                enddo
               enddo
             enddo
           enddo
         enddo
-      enddo
-#if defined(USE_OPENMP)
 !$omp end parallel do
-#endif
+      else
+        do j=1,nj
+          do i=1,ni
+            ! branch predictor should do a good job here since it will
+            ! be constant for any given invocation of the subroutine.
+            if (keqi) kmax = i
+            if (jeql) lmax = j
+            do k=1,kmax
+              do l=1,lmax
+                gp=(eri1(l,k,j,i)+eri2(j,k,l,i))*0.5d0
+                gm=(eri1(l,k,j,i)-eri2(j,k,l,i))*0.5d0
+                do q=1,ipp
+                  ht2(q,l,j) = ht2(q,l,j) + gp * t2(q,k,i)
+                enddo
+                do q=1,imm
+                  ht2(q+ipp,l,j) = ht2(q+ipp,l,j) + gm * t2(q+ipp,k,i)
+                enddo
+              enddo
+            enddo
+          enddo
+        enddo
+      endif
       return
       end

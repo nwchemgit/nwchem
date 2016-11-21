@@ -1,8 +1,7 @@
-#if defined(USE_OPENMP)
-      subroutine ccsd_idx2(snsi,sisn,cmo,scra,scrb,lscr,
-     &                     nfi,nfk,ncor,nocc,nact,nbf,
-     &                     ilo,ihi,klo,khi,offik,offki,
-     &                     g_x,g_c)
+      subroutine ccsd_idx2_omp(snsi,sisn,cmo,scra,scrb,lscr,
+     &                         nfi,nfk,ncor,nocc,nact,nbf,
+     &                         ilo,ihi,klo,khi,offik,offki,
+     &                         g_x,g_c)
       implicit none
 #include "errquit.fh"
 #include "ccsdps.fh"
@@ -54,9 +53,9 @@
 #endif
       !
       allocate( bufa(lscr,nt), stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('ccsd_idx2: bufa',1,MA_ERR)
+      if (alloc_error.ne.0) call errquit('ccsd_idx2_omp: bufa',1,MA_ERR)
       allocate( bufb(lscr,nt), stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('ccsd_idx2: bufb',2,MA_ERR)
+      if (alloc_error.ne.0) call errquit('ccsd_idx2_omp: bufb',2,MA_ERR)
       !
 !$omp parallel
 !$omp& default(none)
@@ -123,9 +122,9 @@
 !$omp end parallel
       !
       deallocate( bufa, stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('ccsd_idx2: bufa',3,MA_ERR)
+      if (alloc_error.ne.0) call errquit('ccsd_idx2_omp: bufa',3,MA_ERR)
       deallocate( bufb, stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('ccsd_idx2: bufb',4,MA_ERR)
+      if (alloc_error.ne.0) call errquit('ccsd_idx2_omp: bufb',4,MA_ERR)
       !
       if (occsdps) then
          call pstat_off(ps_idx2)
@@ -134,7 +133,6 @@
       endif
       return
       end     
-#else
       subroutine ccsd_idx2(snsi,sisn,cmo,scra,scrb,lscr,
      &                     nfi,nfk,ncor,nocc,nact,nbf,
      &                     ilo,ihi,klo,khi,offik,offki,
@@ -200,4 +198,3 @@
       endif
       return
       end     
-#endif

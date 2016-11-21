@@ -3,7 +3,7 @@
      $                      scra,scrb,hiu,hia,habe,giu,gabe,
      $                      g_t2,g_ht2,g_nt2,g_nht2,
      $                      eccsd,g_ncoul,g_nexch,
-     &                      tklst, Tol2E, occd, eccsdos,use_itm_omp)
+     &                      tklst, Tol2E, occd, eccsdos,use_ccsd_omp)
 C     $Id$
       implicit none
       integer basis,idiis,nsh,ncor,nocc,nvir,nact,nbf,iprt,
@@ -15,7 +15,8 @@ c
      &                 ht1(*),scra(*),scrb(*),
      &                 hiu(*),hia(*),habe(*),giu(*),gabe(*)
       double precision tol2e
-      logical occd, use_itm_omp
+      logical occd
+      logical, optional, intent(in) :: use_ccsd_omp
 c
       integer nodes,iam
 #include "mafdecls.fh"
@@ -34,6 +35,9 @@ c
 c
       data zip/0.0d00/,one/1.0d00/,half/0.5d00/,two/2.0d00/
 c
+      if (.not.present(use_ccsd_omp)) then
+          call errquit('ccsd_pampt2: use_ccsd_omp not present!',0,0)
+      endif
       Nodes = GA_NNodes()
       IAm = GA_NodeID()
       call ga_sync()
@@ -117,7 +121,7 @@ c
       call ccsd_pampt3(basis,nsh,ncor,nocc,nvir,nact,nbf,
      &                 tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,hia,
      &                 t1,ht1,idiis,g_nt2,g_nht2,
-     &                 g_ncoul,g_nexch,tklst,use_itm_omp)
+     &                 g_ncoul,g_nexch,tklst,use_ccsd_omp)
       if (iam.eq.0.and.iprt.gt.50)then
        print *,'after pampt3 sym ht1 '
        write(6,189)(ht1(i),i=1,lnov)

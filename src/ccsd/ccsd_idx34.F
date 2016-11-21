@@ -1,8 +1,7 @@
-#if defined(USE_OPENMP)
-      subroutine ccsd_idx34(basis,cmo,
-     &                      scra,scrb, ! unused
-     &                      nsh,ncor,nocc,nact,nbf,
-     &                      g_x,g_c)
+      subroutine ccsd_idx34_omp(basis,cmo,
+     &                          scra,scrb, ! unused
+     &                          nsh,ncor,nocc,nact,nbf,
+     &                          g_x,g_c)
       implicit none
 #include "errquit.fh"
       integer, intent(in) ::  basis,nsh,ncor,nocc,nact,nbf,g_x,g_c
@@ -45,9 +44,11 @@
 #endif
       !
       allocate( bufa(nbf*nbf,nt), stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('ccsd_idx34: bufa',1,MA_ERR)
+      if (alloc_error.ne.0)
+     &       call errquit('ccsd_idx34_omp: bufa',1,MA_ERR)
       allocate( bufb(nbf*nbf,nt), stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('ccsd_idx34: bufb',2,MA_ERR)
+      if (alloc_error.ne.0)
+     &       call errquit('ccsd_idx34_omp: bufb',2,MA_ERR)
       !
       iam=ga_nodeid()
       call ga_distribution(g_x,iam,g_jlo,g_jhi,g_ilo,g_ihi)
@@ -119,7 +120,6 @@
       endif
       return
       end     
-#else
       subroutine ccsd_idx34(basis,cmo,scra,scrb,nsh,
      &                      ncor,nocc,nact,nbf,
      &                      g_x,g_c)
@@ -178,4 +178,3 @@
       endif
       return
       end     
-#endif

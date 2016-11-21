@@ -18,7 +18,7 @@ c
       double precision time_iter_start
       integer time_prev_iter
       logical oconverged        ! Return convergence status
-      logical occd, use_itm_omp
+      logical occd, use_ccsd_omp
 c
        double precision cmo(nbf,nbf),eorb(nbf),t1(*),
      &                  ht1(*),scra(*),scrb(*),
@@ -161,18 +161,18 @@ c
          return
       endif
 
-      if (.not.rtdb_get(rtdb,'ccsd:use_itm_omp',mt_log,1,use_itm_omp))
-     &         use_itm_omp = .false. 
+      if (.not.rtdb_get(rtdb,'ccsd:use_ccsd_omp',mt_log,1,use_ccsd_omp))
+     &         use_ccsd_omp = .false. 
       if (ga_nodeid().eq.0) then
 #if defined(USE_OPENMP)
-        if (use_itm_omp) then
+        if (use_ccsd_omp) then
           write(6,33) omp_get_max_threads()
         else
           write(6,33) 1
         endif
 #else
         write(6,33) 1
-        if (use_itm_omp) then
+        if (use_ccsd_omp) then
           write(6,333)
         endif
 #endif
@@ -304,7 +304,7 @@ c ----------------------------------------------------------
      $                scra,scrb,hiu,hia,habe,giu,gabe,
      &                g_t2,g_ht2,g_nt2,g_nht2,eccsd,
      &                g_ncoul,g_nexch,tklst, Tol2E, occd, eccsdos,
-     &                use_itm_omp)
+     &                use_ccsd_omp)
       call ga_sync()
 *
 *     RJH more CCD hacks
