@@ -237,9 +237,11 @@
       enddo
 !$omp end do
 !
+#if 0
 !$omp single
       if (iprt.gt.5.and.iam.eq.0)print *,'forming aitm'
 !$omp end single
+#endif
 !
 !$omp do collapse(2) schedule(static)
       do k=1,nocc
@@ -595,11 +597,9 @@
       enddo
 !$omp end do
 !
-!$omp single
-      call ga_sync()
-!$omp end single
-!
 !$omp end parallel
+!
+      call ga_sync()
 !
 !-----------------------------------------------------------------------
 !  D5
@@ -624,7 +624,11 @@
         enddo
       enddo
 !
-!$omp single
+      deallocate( bufe, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufe',11,MA_ERR)
+      deallocate( buff, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('ccsd_itm_omp: buff',12,MA_ERR)
+!
       call ga_sync()
       if (.not.ga_destroy(g_tmt2))
      &    call errquit('ga_dest g_tmt2 fail',0, GA_ERR)
@@ -632,7 +636,6 @@
      &    call errquit('ga_dest g_tmt1 fail',0, GA_ERR)
       if (.not.ga_destroy(g_aitm))
      &    call errquit('ga_dest g_aitm fail',0, GA_ERR)
-!$omp end single
 !
 !-----------------------------------------------------------------------
 !  J1, J2, J3 and K1, K2, K3 intermediates
@@ -655,7 +658,7 @@
 !$omp& shared(hia,ht1,giu,gabe,habe)
 !$omp& private(ad1,ad2,ad3,ad4,ad5,ad6)
 !$omp& private(ij,tid)
-!$omp& shared(bufa,bufb,bufc,bufd,bufe,buff)
+!$omp& shared(bufa,bufb,bufc,bufd)
 !
 #if defined(USE_OPENMP)
       ! OpenMP thread ids run from 0 to nt-1
@@ -1021,7 +1024,6 @@
 !$omp end do
 !$omp end parallel
 !
-!$omp single
       call ga_dgemm('t','n',lnov,lnov,lnov,
      &              1.0d0,g_tmp,g_tmt,1.0d0,g_nht2)
       if (.not.ga_destroy(g_tmp2))
@@ -1031,7 +1033,6 @@
       if (.not.ga_destroy(g_tmt))
      &    call errquit('ga_dest g_tmt fail',0, GA_ERR)
       call ga_sync()
-!$omp end single
 !
 #if 0
 !
@@ -1137,10 +1138,6 @@
       if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufc', 9,MA_ERR)
       deallocate( bufd, stat=alloc_error)
       if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufd',10,MA_ERR)
-      deallocate( bufe, stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufe',11,MA_ERR)
-      deallocate( buff, stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('ccsd_itm_omp: buff',12,MA_ERR)
       !
       if (occsdps) then
          call pstat_off(ps_itm)
