@@ -268,6 +268,8 @@ c     mem needed for x c sht2 (see pampt3)
      &                   mxvec*lhoov,0,g_ht2))
      &     call errquit('ga_create failed for g_ht2',0, GA_ERR)
 !
+! Determine if OpenMP should be used in CCSD code
+!
       if (.not.rtdb_get(rtdb,'ccsd:use_ccsd_omp',mt_log,1,use_ccsd_omp))
      &         use_ccsd_omp = .false. 
       if (ga_nodeid().eq.0) then
@@ -286,6 +288,7 @@ c     mem needed for x c sht2 (see pampt3)
       endif
    33 format(2x,'Using ',i2,' OpenMP thread(s) in CCSD')
   333 format(2x,'Recompile w/ USE_OPENMP=1 to use threads in CCSD')
+!
       call ccsd_iterdrv2(rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,
      &                  maxit,convi,iprt,cmo,eorb,
      &                  dbl_mb(k_t1),dbl_mb(k_ht1),
@@ -297,9 +300,9 @@ c     mem needed for x c sht2 (see pampt3)
      &                  mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
      &                  int_mb(k_tk),offt2,nvp1, refener, Tol2E, 
      &                  occd, oconverged, eccsdos, use_ccsd_omp)
-c     
+!     
       call ga_sync()
-c
+!
          if (.not.ga_create(MT_DBL,lnov,lnov,'g_nt2',
      &      nvir,nvir,g_nt2))
      &      call errquit('ga_create failed g_nt2',0, GA_ERR)
@@ -315,38 +318,37 @@ c
       call ga_get(g_t2,offt2+1,offt2+lnov,nvp1,nvp1,
      $            dbl_mb(k_t1),lnov)
 #else
-      if(ga_nodeid().eq.0)
-     G      call ga_get(g_t2,offt2+1,offt2+lnov,nvp1,nvp1,
-     $            dbl_mb(k_t1),lnov)
-      call ga_brdcst(65537, dbl_mb(k_t1), 
-     G     MA_sizeof(MT_DBL,1,MT_BYTE)*lnov, 0)
+      if (ga_nodeid().eq.0) then
+          call ga_get(g_t2,offt2+1,offt2+lnov,nvp1,nvp1,
+     &                dbl_mb(k_t1),lnov)
+      endif
+      call ga_brdcst(65537, dbl_mb(k_t1),
+     &               ma_sizeof(MT_DBL,1,MT_BYTE)*lnov, 0)
 #endif
-c
 ! TODO use OpenMP here
       call ga_distribution(g_t2,iam,jlo,jhi,ilo,ihi)
       do a=1,nvir
         if (a.ge.ilo.and.a.le.ihi)then
           call ga_get(g_t2,offt2+1,offt2+lhoov,a,a,
      &                 dbl_mb(k_scra),lhoov)
-cstaggering
+! staggering
           do iin=ga_nodeid()+1,ga_nodeid()+nocc
-             i=mod(iin,nocc)+1
-             call dcopy(lnov,0.0d00,0,dbl_mb(k_scrb),1)
+            i=mod(iin,nocc)+1
+            call dcopy(lnov,0.0d00,0,dbl_mb(k_scrb),1)
             do jin=1+ga_nodeid(),i+ga_nodeid()
-               j=mod(jin,i)+1
+              j=mod(jin,i)+1
               do b=1,nvir
                 ad1=(b-1)*lhoo+i*(i-1)/2+j
                 dbl_mb(k_scrb+b-1)=dbl_mb(k_scra+ad1-1)
               enddo
             ad1=(i-1)*nvir+a
             call ga_put(g_nt2,(j-1)*nvir+1,j*nvir,ad1,ad1,
-     D           dbl_mb(k_scrb),nvir)
+     &                  dbl_mb(k_scrb),nvir)
             enddo
           enddo
         endif
       enddo
       call ga_sync()
-c
 ! TODO use OpenMP here
       call ga_distribution(g_nt2,iam,jlo,jhi,ilo,ihi)
       do i=1,nocc
@@ -358,11 +360,11 @@ c
               call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
      &                    dbl_mb(k_scra),nvir)
               do a=1,nvir
-              do b=1,nvir
-                ad3=(b-1)*nvir+a
-                ad4=(a-1)*nvir+b
-                dbl_mb(k_scrb+ad4-1)=dbl_mb(k_scra+ad3-1)
-              enddo
+                do b=1,nvir
+                  ad3=(b-1)*nvir+a
+                  ad4=(a-1)*nvir+b
+                  dbl_mb(k_scrb+ad4-1)=dbl_mb(k_scra+ad3-1)
+                enddo
               enddo
               call ga_put(g_nt2,ad1+1,ad1+nvir,ad2+1,ad2+nvir,
      &                    dbl_mb(k_scrb),nvir)
@@ -574,7 +576,7 @@ C
 ! TODO use OpenMP here
             do a=1,nvir
                call ga_get(g_ObjV,lnobj+1, lnobj+lnoov,a,a,
-     &            dbl_mb(k_sa),lnoov)
+     &                     dbl_mb(k_sa),lnoov)
                do i=1,nocc
                   do j=1,nocc
                      do b=1,nvir
@@ -630,11 +632,13 @@ C
      $      Call ErrQuit('CCSD: Cannot write to RTDB', 3,0)
          Goto 999
       EndIf
-c
-c ----------------------------
-c the new parallel triples
-c ----------------------------
-c
+!
+! ----------------------------
+! the new parallel triples
+! ----------------------------
+!
+! Determine if OpenMP, etc. should be used in (T) code
+!
       if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_nb', mt_log, 1,
      1                   use_trpdrv_nb))
      2    use_trpdrv_nb=.false.
@@ -647,7 +651,7 @@ c
       if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_bgp2', mt_log, 1,
      1                   use_trpdrv_bgp2))
      2    use_trpdrv_bgp2=.false.
-c
+!
       mem_avail = ma_inquire_avail(MT_DBL)
       if(iam.eq.0.and.oprint)write(luout,*)'memory',mem_avail
       if (occsdps) then
@@ -674,17 +678,15 @@ c
       if (.not.ga_create(MT_DBL,lbfo,nocc,'objo',lbfo,1,g_objo))
      &     call errquit('ga_create failed for g_objo',0, GA_ERR)
       else
-         if(.not.ccsd_createg(g_objo, lbfo, nocc,
-     R        lnovv, lnoov, lnoov,min(nocc,nvir),
-     O        oprinthigh))
+         if(.not.ccsd_createg(g_objo, lbfo, nocc, lnovv, lnoov, lnoov,
+     &                        min(nocc,nvir), oprinthigh))
      &     call errquit('ga_create g_objo failed',0, GA_ERR)
       endif
 c
 c
       call ga_zero(g_objo)
-      call ccsd_rdtrpo
-     $     (dbl_mb(k_t1),dbl_mb(k_buf1),dbl_mb(k_buf2),
-     $                 g_objo,g_objv,nocc,nvir,iprt)
+      call ccsd_rdtrpo(dbl_mb(k_t1),dbl_mb(k_buf1),dbl_mb(k_buf2),
+     &                 g_objo,g_objv,nocc,nvir,iprt)
       stat=.true.
       stat=stat.and.ma_pop_stack(l_buf2)
       stat=stat.and.ma_pop_stack(l_buf1)
