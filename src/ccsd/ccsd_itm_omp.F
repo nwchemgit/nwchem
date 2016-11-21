@@ -1021,11 +1021,9 @@
         if (dos(2).ne.0)then
           do a=1,nvir
             do i=1,nocc
-              temp = 0.0d0
               do k=1,nocc
-                temp = temp + hiu(k,i) * t1(k,a)
+                ht1(i,a) = ht1(i,a) - hiu(k,i) * t1(k,a)
               enddo
-              ht1(i,a) = ht1(i,a) - temp
             enddo
           enddo
         endif ! dos(2)
