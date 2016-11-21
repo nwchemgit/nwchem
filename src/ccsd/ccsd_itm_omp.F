@@ -30,12 +30,12 @@
       ! allocating these hits IFRTL global lock issue.
       ! allocate num_max_thrd*nbf*nbf array outside and
       ! index to private portion using thread id.
-      double precision, allocatable :: bufa(:,:)
-      double precision, allocatable :: bufb(:,:)
-      double precision, allocatable :: bufc(:,:,:)
-      double precision, allocatable :: bufd(:,:,:)
-      double precision, allocatable :: bufe(:,:)
-      double precision, allocatable :: buff(:,:)
+      double precision, allocatable   :: bufa(:,:)
+      double precision, allocatable   :: bufb(:,:)
+      double precision, allocatable   :: bufc(:,:,:)
+      double precision, allocatable   :: bufd(:,:,:)
+      double precision, allocatable   :: bufe(:,:)
+      double precision, allocatable   :: buff(:,:)
       integer :: alloc_error
 !
 #include "mafdecls.fh"
@@ -139,11 +139,19 @@
 !$omp& shared(g_jlo_nexch,g_jhi_nexch,g_ilo_nexch,g_ihi_nexch)
 !$omp& shared(nact,nocc,nvir,iam,iprt)
 !$omp& shared(lnoo,lnov,lnvv)
-!$omp& private(ij)
+!$omp& private(ij,tid)
 !$omp& private(ad1,ad2,ad3,ad4,ad5,ad6)
 !$omp& private(scra,scrb,scrc,scrd,scre,scrf)
+!$omp& shared(bufa,bufb,bufc,bufd,bufe,buff)
 !$omp& shared(ht1,gabe,habe,giu,hiu,hia)
 !$omp& shared(doa,dob)
+!
+#if defined(USE_OPENMP)
+      ! OpenMP thread ids run from 0 to nt-1
+      tid = omp_get_thread_num() + 1
+#else
+      tid = 1
+#endif
 !
 !$omp do collapse(2) schedule(static)
       do k=1,nvir
@@ -273,15 +281,15 @@
 !
 ! A1
             do k=1,nact*nact
-                scra(k) = 0.0d0
+                bufa(k,tid) = 0.0d0
             enddo
             if (doa(1).eq.2)then
 !$omp critical
               call ga_get(g_nexch,ad2+1,ad2+nocc,ad1+1,ad1+nocc,
-     &                    scrb,nocc)
+     &                    bufb(1,tid),nocc)
 !$omp end critical
               do k=1,nocc*nocc
-                  scra(k) = scra(k) + 0.5d0 * scrb(k)
+                  bufa(k,tid) = bufa(k,tid) + 0.5d0 * bufb(k,tid)
               enddo
             endif
 !---------------------------------------------------------
@@ -396,7 +404,7 @@
             do k=1,nocc
               do l=1,nocc
                 ad1=ad1+1
-                scra(ad1)=scra(ad1)+0.5d0*scrb((k-1)*nact+l)
+                bufa(ad1,tid)=bufa(ad1,tid)+0.5d0*scrb((k-1)*nact+l)
               enddo
             enddo
             ad1=(j-1)*nocc+i
@@ -407,7 +415,7 @@
             do k=1,nocc
               do l=1,nocc
                 ad1=ad1+1
-                scra(ad1)=scra(ad1)+0.5d0*scrb((l-1)*nact+k)
+                bufa(ad1,tid)=bufa(ad1,tid)+0.5d0*scrb((l-1)*nact+k)
               enddo
             enddo
             endif
@@ -436,12 +444,12 @@
              do k=1,nocc
                do l=1,nocc
                  ad1=ad1+1
-                 scra(ad1)=scra(ad1)+scrb((k-1)*nact+l)
+                 bufa(ad1,tid)=bufa(ad1,tid)+scrb((k-1)*nact+l)
                enddo
              enddo
             endif
 !$omp critical
-            call ga_put(g_aitm,1,lnoo,ij,ij,scra,lnoo)
+            call ga_put(g_aitm,1,lnoo,ij,ij,bufa(1,tid),lnoo)
 !$omp end critical
 !-----------------------------------------------------------------------
 !  B2 and B3 intermediate and their contribution to D3
@@ -449,15 +457,15 @@
             if (dob(2).eq.2)then
             ad1=nocc+1
             call dgemm('n','n',nvir,nvir,nocc,1.0d0,scrb(ad1),
-     &                 nact,t1,nocc,0.0d0,scra,nvir)
+     &                 nact,t1,nocc,0.0d0,bufa(1,tid),nvir)
             ad1=nocc*nact+1
             call dgemm('t','n',nvir,nvir,nocc,1.0d0,t1,nocc,
-     &                 scrb(ad1),nact,1.0d0,scra,nvir)
+     &                 scrb(ad1),nact,1.0d0,bufa(1,tid),nvir)
             ad1=(i-1)*nvir
             ad2=(j-1)*nvir
 !$omp critical
             call ga_acc(g_nht2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
-     &                  scra,nvir,-1.0d0)
+     &                  bufa(1,tid),nvir,-1.0d0)
 !$omp end critical
             endif
 !
@@ -488,17 +496,18 @@
           if (ad2+1.ge.g_jlo_nt2.and.ad2+1.le.g_jhi_nt2)then
             ij=(i-1)*nocc+j
 !$omp critical
-            call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scra,nvir)
+            call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
+     &                  bufa(1,tid),nvir)
 !$omp end critical
             ad3=0
             do a=1,nvir
               do b=1,nvir
                 ad3=ad3+1
-                scra(ad3)=scra(ad3)+t1(i,a)*t1(j,b)
+                bufa(ad3,tid)=bufa(ad3,tid)+t1(i,a)*t1(j,b)
               enddo
             enddo
 !$omp critical
-            call ga_put(g_tmt1,1,lnvv,ij,ij,scra,lnvv)
+            call ga_put(g_tmt1,1,lnvv,ij,ij,bufa(1,tid),lnvv)
 !$omp end critical
           endif
           endif
@@ -520,9 +529,9 @@
           if (ad2+1.ge.g_jlo_nht2.and.ad2+1.le.g_jhi_nht2)then
             ij=(i-1)*nocc+j
 !$omp critical
-            call ga_get(g_tmt2,1,lnvv,ij,ij,scra,lnvv)
+            call ga_get(g_tmt2,1,lnvv,ij,ij,bufa(1,tid),lnvv)
             call ga_acc(g_nht2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
-     &                  scra,nvir,1.0d0)
+     &                  bufa(1,tid),nvir,1.0d0)
 !$omp end critical
           endif
           endif
@@ -545,14 +554,15 @@
           if (ad1+1.ge.g_ilo_nt2.and.ad1+1.le.g_ihi_nt2)then
           if (ad2+1.ge.g_jlo_nt2.and.ad2+1.le.g_jhi_nt2)then
 !$omp critical
-            call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scra,nvir)
+            call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
+     &                  bufa(1,tid),nvir)
 !$omp end critical
             do a=1,nvir
               do b=1,nvir
               ad3=(b-1)*nvir+a
               ad4=(a-1)*nvir+b
-              ht1(i,a)=ht1(i,a)+(scra(ad4)+scra(ad4)-scra(ad3)
-     &                           +t1(i,b)*t1(j,a))*hia(j,b)
+              ht1(i,a)=ht1(i,a)+(bufa(ad4,tid)+bufa(ad4,tid)
+     &                     -bufa(ad3,tid)+t1(i,b)*t1(j,a))*hia(j,b)
               enddo
             enddo
           endif
@@ -646,8 +656,16 @@
 !$omp& shared(doa,dob)
 !$omp& shared(hia,ht1,giu,gabe,habe)
 !$omp& private(ad1,ad2,ad3,ad4,ad5,ad6)
-!$omp& private(ij)
+!$omp& private(ij,tid)
 !$omp& private(scra,scrb,scrc,scrd,scre,scrf)
+!$omp& shared(bufa,bufb,bufc,bufd,bufe,buff)
+!
+#if defined(USE_OPENMP)
+      ! OpenMP thread ids run from 0 to nt-1
+      tid = omp_get_thread_num() + 1
+#else
+      tid = 1
+#endif
 !
 !$omp do collapse(2) schedule(guided)
       do i=1,nocc
@@ -724,16 +742,18 @@
           if (ad1+1.ge.g_ilo_nt2.and.ad1+1.le.g_ihi_nt2)then
           if (ad2+1.ge.g_jlo_nt2.and.ad2+1.le.g_jhi_nt2)then
 !$omp critical
-            call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scra,nvir)
+            call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
+     &                  bufa(1,tid),nvir)
 !$omp end critical
             do a=1,nvir
               do b=1,nvir
               ad3=(a-1)*nvir+b
-              scra(ad3)=scra(ad3)+2.0d0*t1(i,a)*t1(j,b)
+              bufa(ad3,tid)=bufa(ad3,tid)+2.0d0*t1(i,a)*t1(j,b)
               enddo
             enddo
 !$omp critical
-            call ga_put(g_tmt,ad1+1,ad1+nvir,ad2+1,ad2+nvir,scra,nvir)
+            call ga_put(g_tmt,ad1+1,ad1+nvir,ad2+1,ad2+nvir,
+     &                  bufa(1,tid),nvir)
 !$omp end critical
           endif
           endif
@@ -752,8 +772,9 @@
             ad4=(j-1)*nvir
 !$omp critical
             call ga_get(g_nexch,ad2+nocc+1,ad2+nact,ad1+nocc+1,ad1+nact,
-     &                  scra,nvir)
-            call ga_put(g_tmp,ad3+1,ad3+nvir,ad4+1,ad4+nvir,scra,nvir)
+     &                  bufa(1,tid),nvir)
+            call ga_put(g_tmp,ad3+1,ad3+nvir,ad4+1,ad4+nvir,
+     &                  bufa(1,tid),nvir)
 !$omp end critical
           endif
           endif
@@ -784,12 +805,12 @@
             do a=nocc+1,nact
               do b=nocc+1,nact
                 ad3=ad3+1
-                scra(ad3)=scrb((a-1)*nact+b)
+                bufa(ad3,tid)=scrb((a-1)*nact+b)
               enddo
             enddo
 !$omp critical
             call ga_acc(g_tmp2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
-     &                  scra,nvir,1.0d0)
+     &                  bufa(1,tid),nvir,1.0d0)
 !$omp end critical
           endif
           endif
@@ -807,8 +828,10 @@
           if (ad1+1.ge.g_ilo_nt2.and.ad1+1.le.g_ihi_nt2)then
           if (ad2+1.ge.g_jlo_nt2.and.ad2+1.le.g_jhi_nt2)then
 !$omp critical
-            call ga_get(g_nt2,ad1+1,ad1+nvir,ad2+1,ad2+nvir,scra,nvir)
-            call ga_put(g_tmt,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scra,nvir)
+            call ga_get(g_nt2,ad1+1,ad1+nvir,ad2+1,ad2+nvir,
+     &                  bufa(1,tid),nvir)
+            call ga_put(g_tmt,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
+     &                  bufa(1,tid),nvir)
 !$omp end critical
           endif
           endif
@@ -831,13 +854,14 @@
           if (ad1+1.ge.g_ilo_nht2.and.ad1+1.le.g_ihi_nht2)then
           if (ad2+1.ge.g_jlo_nht2.and.ad2+1.le.g_jhi_nht2)then
 !$omp critical
-            call ga_get(g_tmp,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scra,nvir)
+            call ga_get(g_tmp,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
+     &                  bufa(1,tid),nvir)
 !$omp end critical
             do a=1,nvir
               do b=1,nvir
                 ad3=(a-1)*nvir+b
                 ad4=(b-1)*nvir+a
-                scrb(ad3)=-0.5d0*scra(ad3)-scra(ad4)
+                scrb(ad3)=-0.5d0*bufa(ad3,tid)-bufa(ad4,tid)
               enddo
             enddo
 !$omp critical
@@ -863,25 +887,25 @@
             ad1=(i-1)*nact
             ad2=(j-1)*nact
             do k=1,nact*nact
-                scra(k) = 0.0d0
+                bufa(k,tid) = 0.0d0
             enddo
 !$omp critical
             call ga_get(g_x,1,nact*nact,ij,ij,scrb,nact*nact)
 !$omp end critical
             do k=1,nact*nact
-                scra(k) = scra(k) + scrb(k)
+                bufa(k,tid) = bufa(k,tid) + scrb(k)
             enddo
 !$omp critical
             call ga_get(g_c,1,nact*nact,ij,ij,scrb,nact*nact)
 !$omp end critical
             do k=1,nact*nact
-                scra(k) = scra(k) - 0.5d0 * scrb(k)
+                bufa(k,tid) = bufa(k,tid) - 0.5d0 * scrb(k)
             enddo
             ad1=0
             do a=nocc+1,nact
               do b=nocc+1,nact
                 ad1=ad1+1
-                scrb(ad1)=scra((a-1)*nact+b)
+                scrb(ad1)=bufa((a-1)*nact+b,tid)
               enddo
             enddo
             ad1=(j-1)*nvir
@@ -907,13 +931,14 @@
           if (ad1+1.ge.g_ilo_nt2.and.ad1+1.le.g_ihi_nt2)then
           if (ad2+1.ge.g_jlo_nt2.and.ad2+1.le.g_jhi_nt2)then
 !$omp critical
-            call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scra,nvir)
+            call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
+     &                  bufa(1,tid),nvir)
 !$omp end critical
             do a=1,nvir
               do b=1,nvir
                 ad3=(b-1)*nvir+a
                 ad4=(a-1)*nvir+b
-                scrb(ad3)=scra(ad3)+scra(ad3)-scra(ad4)
+                scrb(ad3)=bufa(ad3,tid)+bufa(ad3,tid)-bufa(ad4,tid)
      &                    -2.0d0*t1(i,a)*t1(j,b)
               enddo
             enddo
@@ -937,13 +962,13 @@
             ad4=(j-1)*nvir
 !$omp critical
             call ga_get(g_nexch,ad2+nocc+1,ad2+nact,ad1+nocc+1,ad1+nact,
-     &                  scra,nvir)
+     &                  bufa(1,tid),nvir)
 !$omp end critical
               do a=1,nvir
                 do b=1,nvir
                   ad5=(a-1)*nvir+b
                   ad6=(b-1)*nvir+a
-                  scrb(ad5)=scra(ad5)+scra(ad5)-scra(ad6)
+                  scrb(ad5)=bufa(ad5,tid)+bufa(ad5,tid)-bufa(ad6,tid)
                 enddo
               enddo
 !$omp critical
@@ -970,13 +995,14 @@
           if (ad1+1.ge.g_ilo_nt2.and.ad1+1.le.g_ihi_nt2)then
           if (ad2+1.ge.g_jlo_nt2.and.ad2+1.le.g_jhi_nt2)then
 !$omp critical
-            call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,scra,nvir)
+            call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
+     &                  bufa(1,tid),nvir)
 !$omp end critical
             do a=1,nvir
               do b=1,nvir
                 ad3=(a-1)*nvir+b
                 ad4=(b-1)*nvir+a
-                scrb(ad3)=scra(ad3)+scra(ad3)-scra(ad4)
+                scrb(ad3)=bufa(ad3,tid)+bufa(ad3,tid)-bufa(ad4,tid)
               enddo
             enddo
 !$omp critical
