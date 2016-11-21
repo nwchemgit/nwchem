@@ -22,7 +22,7 @@
       ! unused in the OpenMP version of this function
       double precision, intent(in) :: scra(nact*nact)
       double precision, intent(in) :: scrb(nact*nact)
-      double precision, intent(inout) :: scrc(nact,nact)
+      double precision, intent(in) :: scrc(nact,nact)
       double precision, intent(inout) :: scrd(nact,nact)
       double precision, intent(inout) :: scre(nact*nact)
       double precision, intent(inout) :: scrf(nact*nact)
@@ -141,7 +141,7 @@
 !$omp& shared(lnoo,lnov,lnvv)
 !$omp& private(ij,tid)
 !$omp& private(ad1,ad2,ad3,ad4,ad5,ad6)
-!$omp& private(scrc,scrd,scre,scrf)
+!$omp& private(scrd,scre,scrf)
 !$omp& shared(bufa,bufb,bufc,bufd,bufe,buff)
 !$omp& shared(ht1,gabe,habe,giu,hiu,hia)
 !$omp& shared(doa,dob)
@@ -191,15 +191,15 @@
 !-----------------------------------------------------------------------
 !$omp critical
             call ga_get(g_nexch,ad2+1,ad2+nact,ad1+1,ad1+nact,
-     &                  scrc,nact)
+     &                  bufc(1,1,tid),nact)
             call ga_get(g_nt2,ad4+1,ad4+nvir,ad3+1,ad3+nvir,
      &                  scre,nvir)
 !$omp end critical
             do k=1,nocc
             do a=1,nvir
             do b=1,nvir
-            ht1(k,a)=ht1(k,a)-(2.0d0*scrc(nocc+b,k)
-     &                              -scrc(k,nocc+b))*
+            ht1(k,a)=ht1(k,a)-(2.0d0*bufc(nocc+b,k,tid)
+     &                              -bufc(k,nocc+b,tid))*
      &                        (scre((a-1)*nvir+b)+t1(i,a)*t1(j,b))
             enddo
             enddo
@@ -207,8 +207,8 @@
             do c=1,nvir
             do a=1,nvir
             do b=1,nvir
-            habe(a,b)=habe(a,b)-(2.0d0*scrc(nocc+b,nocc+c)
-     &                                -scrc(nocc+c,nocc+b))*
+            habe(a,b)=habe(a,b)-(2.0d0*bufc(nocc+b,nocc+c,tid)
+     &                                -bufc(nocc+c,nocc+b,tid))*
      &                          (scre((c-1)*nvir+a)+t1(i,c)*t1(j,a))
             enddo
             enddo
@@ -657,7 +657,7 @@
 !$omp& shared(hia,ht1,giu,gabe,habe)
 !$omp& private(ad1,ad2,ad3,ad4,ad5,ad6)
 !$omp& private(ij,tid)
-!$omp& private(scrc,scrd,scre,scrf)
+!$omp& private(scrd,scre,scrf)
 !$omp& shared(bufa,bufb,bufc,bufd,bufe,buff)
 !
 #if defined(USE_OPENMP)
@@ -678,10 +678,10 @@
             call ga_get(g_nexch,ad2+1,ad2+nact,ad1+1,ad1+nact,scrd,nact)
 !$omp end critical
             call dgemm('n','n',nvir,nvir,nocc,-1.0d0,scrd(nocc+1,1),
-     &                 nact,t1,nocc,0.0d0,scrc(nocc+1,nocc+1),nact)
+     &                 nact,t1,nocc,0.0d0,bufc(nocc+1,nocc+1,tid),nact)
             do k=1,nact
               do l=1,nact
-                scrd(l,k) = scrd(l,k) + scrc(l,k)
+                scrd(l,k) = scrd(l,k) + bufc(l,k,tid)
               enddo
             enddo
 !$omp critical
@@ -703,10 +703,10 @@
             call ga_get(g_ncoul,ad2+1,ad2+nact,ad1+1,ad1+nact,scrd,nact)
 !$omp end critical
             call dgemm('n','n',nvir,nvir,nocc,-1.0d0,scrd(nocc+1,1),
-     &                 nact,t1,nocc,0.0d0,scrc(nocc+1,nocc+1),nact)
+     &                 nact,t1,nocc,0.0d0,bufc(nocc+1,nocc+1,tid),nact)
             do k=1,nact
               do l=1,nact
-                scrd(l,k) = scrd(l,k) + scrc(l,k)
+                scrd(l,k) = scrd(l,k) + bufc(l,k,tid)
               enddo
             enddo
 !$omp critical
