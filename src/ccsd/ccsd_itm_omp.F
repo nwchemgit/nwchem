@@ -275,16 +275,20 @@
 !-----------------------------------------------------------------------
 !
 ! A1
-            do k=1,nact*nact
-                bufa(k,tid) = 0.0d0
-            enddo
+            !do k=1,nact*nact
+            !    bufa(k,tid) = 0.0d0
+            !enddo
             if (doa(1).eq.2)then
 !$omp critical
               call ga_get(g_nexch,ad2+1,ad2+nocc,ad1+1,ad1+nocc,
      &                    bufb(1,tid),nocc)
 !$omp end critical
               do k=1,nocc*nocc
-                  bufa(k,tid) = bufa(k,tid) + 0.5d0 * bufb(k,tid)
+                  bufa(k,tid) = 0.5d0 * bufb(k,tid)
+              enddo
+            else
+              do k=1,nact*nact
+                  bufa(k,tid) = 0.0d0
               enddo
             endif
 !---------------------------------------------------------
@@ -294,16 +298,17 @@
             call ga_get(g_nexch,ad2+nocc+1,ad2+nact,ad1+1,ad1+nact,
      &                  bufe(1,tid),nvir)
 !$omp end critical
-            do k=1,nact*nact
-                buff(k,tid) = 0.0d0
-            enddo
+            !do k=1,nact*nact
+            !    buff(k,tid) = 0.0d0
+            !enddo
 !
 ! D1,D7
             ad1=0
             do a=1,nvir
               do b=nocc+1,nact
                 ad1=ad1+1
-                buff(ad1,tid)=buff(ad1,tid)+0.5d0*bufe((b-1)*nvir+a,tid)
+                !buff(ad1,tid)=buff(ad1,tid)+0.5d0*bufe((b-1)*nvir+a,tid)
+                buff(ad1,tid)=0.5d0*bufe((b-1)*nvir+a,tid)
                 do k=1,nocc
                   buff(ad1,tid)=buff(ad1,tid)
      &                     -bufe((k-1)*nvir+a,tid)*t1(k,b-nocc)
@@ -421,11 +426,14 @@
 !$omp critical
             call ga_get(g_sht2,1,nact*nact,ij,ij,bufb(1,tid),nact*nact)
 !$omp end critical
+            !do k=1,nact*nact
+            !    bufe(k,tid) = 0.0d0
+            !enddo
+            !do k=1,nact*nact
+            !    bufe(k,tid) = bufe(k,tid) + 2.0d0 * bufb(k,tid)
+            !enddo
             do k=1,nact*nact
-                bufe(k,tid) = 0.0d0
-            enddo
-            do k=1,nact*nact
-                bufe(k,tid) = bufe(k,tid) + 2.0d0 * bufb(k,tid)
+                bufe(k,tid) = 2.0d0 * bufb(k,tid)
             enddo
 !
 ! S6
@@ -890,14 +898,17 @@
           if (ij.ge.g_ilo_x.and.ij.le.g_ihi_x)then
             ad1=(i-1)*nact
             ad2=(j-1)*nact
-            do k=1,nact*nact
-                bufa(k,tid) = 0.0d0
-            enddo
 !$omp critical
             call ga_get(g_x,1,nact*nact,ij,ij,bufb(1,tid),nact*nact)
 !$omp end critical
+            !do k=1,nact*nact
+            !    bufa(k,tid) = 0.0d0
+            !enddo
+            !do k=1,nact*nact
+            !    bufa(k,tid) = bufa(k,tid) + bufb(k,tid)
+            !enddo
             do k=1,nact*nact
-                bufa(k,tid) = bufa(k,tid) + bufb(k,tid)
+                bufa(k,tid) = bufb(k,tid)
             enddo
 !$omp critical
             call ga_get(g_c,1,nact*nact,ij,ij,bufb(1,tid),nact*nact)
