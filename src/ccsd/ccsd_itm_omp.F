@@ -1130,16 +1130,16 @@
       call ga_dgop(msg_cc_term6,ht1,lnov, '+')
       !
       deallocate( bufa, stat=alloc_error)
-      deallocate( bufb, stat=alloc_error)
-      deallocate( bufc, stat=alloc_error)
-      deallocate( bufd, stat=alloc_error)
-      deallocate( bufe, stat=alloc_error)
-      deallocate( buff, stat=alloc_error)
       if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufa', 7,MA_ERR)
+      deallocate( bufb, stat=alloc_error)
       if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufb', 8,MA_ERR)
+      deallocate( bufc, stat=alloc_error)
       if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufc', 9,MA_ERR)
+      deallocate( bufd, stat=alloc_error)
       if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufd',10,MA_ERR)
+      deallocate( bufe, stat=alloc_error)
       if (alloc_error.ne.0) call errquit('ccsd_itm_omp: bufe',11,MA_ERR)
+      deallocate( buff, stat=alloc_error)
       if (alloc_error.ne.0) call errquit('ccsd_itm_omp: buff',12,MA_ERR)
       !
       if (occsdps) then
