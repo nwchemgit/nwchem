@@ -64,6 +64,16 @@ c triples
       double precision eccsdt,eccsd,empt(2),tx(3)
       double precision eccsdos,eccsdss,fos,fss
       Integer Nodes, IAm, memdrv, memtrn
+
+      logical use_ccsd_omp
+#if defined(USE_OPENMP)
+      integer  omp_get_thread_num
+      external omp_get_thread_num
+      integer  omp_get_num_threads
+      external omp_get_num_threads
+      integer  omp_get_max_threads
+      external omp_get_max_threads
+#endif
 c
       integer kchunk,nkpass,    ! For reduced-memory triples
      $        k_trp_Tij, k_trp_Tkj, k_trp_Tia, 
@@ -257,10 +267,25 @@ c     mem needed for x c sht2 (see pampt3)
       if (.not.ga_create(MT_DBL,mxvec*lhoov,nvir+1,'g_ht2', 
      &                   mxvec*lhoov,0,g_ht2))
      &     call errquit('ga_create failed for g_ht2',0, GA_ERR)
-c
 !
-! TODO parse use_ccsd_omp here instead of inside of ccsd_iterdrv2
-!
+      if (.not.rtdb_get(rtdb,'ccsd:use_ccsd_omp',mt_log,1,use_ccsd_omp))
+     &         use_ccsd_omp = .false. 
+      if (ga_nodeid().eq.0) then
+#if defined(USE_OPENMP)
+        if (use_ccsd_omp) then
+          write(6,33) omp_get_max_threads()
+        else
+          write(6,33) 1
+        endif
+#else
+        write(6,33) 1
+        if (use_ccsd_omp) then
+          write(6,333)
+        endif
+#endif
+      endif
+   33 format(2x,'Using ',i2,' OpenMP thread(s) in CCSD')
+  333 format(2x,'Recompile w/ USE_OPENMP=1 to use threads in CCSD')
       call ccsd_iterdrv2(rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,
      &                  maxit,convi,iprt,cmo,eorb,
      &                  dbl_mb(k_t1),dbl_mb(k_ht1),
@@ -271,7 +296,7 @@ c
      &                  g_t2,g_ht2,
      &                  mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
      &                  int_mb(k_tk),offt2,nvp1, refener, Tol2E, 
-     &                  occd, oconverged, eccsdos) ! use_ccsd_omp
+     &                  occd, oconverged, eccsdos, use_ccsd_omp)
 c     
       call ga_sync()
 c

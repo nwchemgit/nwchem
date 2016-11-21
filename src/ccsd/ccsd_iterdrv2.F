@@ -4,7 +4,8 @@
      &                        bbkp,bb,g_t2,g_ht2,
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
-     $     refener, Tol2E, occd, oconverged, eccsdos)
+     &                        refener, Tol2E, occd, oconverged,
+     &                        eccsdos, use_ccsd_omp)
 C     $Id$
       implicit none
 #include "errquit.fh"
@@ -18,7 +19,8 @@ c
       double precision time_iter_start
       integer time_prev_iter
       logical oconverged        ! Return convergence status
-      logical occd, use_ccsd_omp
+      logical occd
+      logical, optional, intent(in) :: use_ccsd_omp
 c
        double precision cmo(nbf,nbf),eorb(nbf),t1(*),
      &                  ht1(*),scra(*),scrb(*),
@@ -63,14 +65,9 @@ c
 c
       double precision util_scratch_dir_avail_for_me
       external util_scratch_dir_avail_for_me
-#if defined(USE_OPENMP)
-      integer  omp_get_thread_num
-      external omp_get_thread_num
-      integer  omp_get_num_threads
-      external omp_get_num_threads
-      integer  omp_get_max_threads
-      external omp_get_max_threads
-#endif
+      if (.not.present(use_ccsd_omp)) then
+          call errquit('ccsd_iterdrv2: use_ccsd_omp not present!',0,0)
+      endif
 c
       IAm = GA_NodeID()
 c
@@ -160,25 +157,6 @@ c
          endif
          return
       endif
-
-      if (.not.rtdb_get(rtdb,'ccsd:use_ccsd_omp',mt_log,1,use_ccsd_omp))
-     &         use_ccsd_omp = .false. 
-      if (ga_nodeid().eq.0) then
-#if defined(USE_OPENMP)
-        if (use_ccsd_omp) then
-          write(6,33) omp_get_max_threads()
-        else
-          write(6,33) 1
-        endif
-#else
-        write(6,33) 1
-        if (use_ccsd_omp) then
-          write(6,333)
-        endif
-#endif
-      endif
-   33 format(2x,'Using ',i2,' OpenMP thread(s) in CCSD')
-  333 format(2x,'Recompile w/ USE_OPENMP=1 to use threads in CCSD')
 c
 c ------------------------------------------------------------
 c create square GAs with proposed final ordering
