@@ -963,14 +963,13 @@
 ! There is absolutely no good reason to use NXTVAL to
 ! load-balance such a trivial loop...
 !
+! term s1 n**3
       inode=-1
       next=nxtask(nodes, 1)
       do a=1,nvir
        do b=1,nvir
-! -- parallel task --
         inode=inode+1
         if (inode.eq.next)then
-! term s1 n**3
          if (dos(1).ne.0)then
           do k=1,nocc
             ht1(k,b) = ht1(k,b) + habe(b,a) * t1(k,a)
@@ -980,20 +979,19 @@
          next=nxtask(nodes, 1)
 !$omp end critical
         endif
-! -- end parallel task --
        enddo
       enddo
-      call ga_sync
-      next=nxtask(-nodes, 1)
-      call ga_sync
-! -- add some trivial terms to ht1 (nothing to ht2)
+      call ga_sync()
+!
       inode=-1
+      next=nxtask(-nodes, 1)
+      call ga_sync()
+! -- add some trivial terms to ht1 (nothing to ht2)
+! term s2 n**3
       do a=1,nvir
        do i=1,nocc
-! -- parallel task --
         inode=inode+1
         if (mod(inode,nodes).eq.iam)then
-! term s2 n**3
          if (dos(2).ne.0)then
           temp = 0.0d0
           do k=1,nocc
@@ -1002,7 +1000,6 @@
           ht1(i,a) = ht1(i,a) - temp
          endif
         endif
-! -- end parallel task --
        enddo
       enddo
       call ga_dgop(msg_cc_term6,ht1,lnov, '+')
