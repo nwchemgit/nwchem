@@ -5281,8 +5281,8 @@ cVOG    else
          igsoccupd(igas,1,icispc) = igsoccx(igas,1,icispc)
          igsoccupd(igas,2,icispc) = igsoccx(igas,2,icispc)
          if (igas.eq.imofromto(2)) then
-          igsoccupd(igas,1,icispc) = igsoccupd(igas,1,icispc) -
-     &                               2*ngssh(imofromto(1),imofromto(2))
+          igsoccupd(igas,1,icispc) = 0 !igsoccupd(igas,1,icispc) -
+!     &                               2*ngssh(imofromto(1),imofromto(2))
           if (((igas-1).gt.0).and.
      &       (igsoccupd(igas,1,icispc).lt.igsoccupd(igas-1,1,icispc)))
      &        igsoccupd(igas,1,icispc) = igsoccupd(igas-1,1,icispc)
@@ -6168,8 +6168,8 @@ cVOG    else
       integer imofromto(3) !imofromto(1) = irrep of the MO 
                            !imofromto(2) = igas FROM which we will move
                            !imofromto(3) = igas TO which we will move MO
-
-      NTEST  = 0
+*
+      NTEST  = 10
       IPRCIX = 0
       IPRSTR = 0
       IPRORB = 0
@@ -6241,6 +6241,11 @@ cVOG    else
 *
 c     IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
       call ga_sync()
+*
+*. Cheat LUCIA for testing performance with large number of processors
+*
+      NNOD = ga_nnodes()
+!      NNOD = 1024
 *
 *. Obtain initial values for the MO-to-be-moved pointers (imofromto)
 *
@@ -6371,8 +6376,8 @@ c     IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
 *
        IBATCHCOUNT = NBATCHES_FEW_BLOCKS(NCBATCH,int_mb(KCLBT))
        NDISTBATCH = NCBATCH - IBATCHCOUNT
-       IOPTBATCHPNODE = 10 !BE CAREFUL - might need to be revised or defined differently
-       LBPNODE = INT(NCBATCH/ga_nnodes())
+       IOPTBATCHPNODE = 5 !BE CAREFUL - might need to be revised or defined differently
+       LBPNODE = INT(NCBATCH/NNOD)
 
 !       if (ga_nodeid().eq.0) write(*,*) 'NCBATCH', NCBATCH
 !       if (ga_nodeid().eq.0) write(*,*) 'IBATCHCOUNT', IBATCHCOUNT
@@ -6382,7 +6387,7 @@ c     IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
 *
 *. Number of Blocks per Batch
 *
-       MXBLKBATCH = 2 
+       MXBLKBATCH = 4 
 !       if (ga_nodeid().eq.0) write(*,*) 'estim MXBLKBATCH', MXBLKBATCH
 *
 c      IF (MXBLKBATCH.LT.0) THEN
@@ -6403,22 +6408,24 @@ c       END IF
 * VOG Nov16: Check if you will split further the CAS after you have the final 
 *            number of TTSS Blocks
 *
-!       if (ga_nodeid().eq.0) write(*,*) 'NCBATCH-final', NCBATCH
-!       if (ga_nodeid().eq.0) write(*,*) 'NCBLOCK-final', NCBLOCK
-       LBPNODE = INT(NCBATCH/ga_nnodes())
-!       if (ga_nodeid().eq.0) write(*,*) 'LBPNODE',LBPNODE,IOPTBATCHPNODE
+       LBPNODE = INT(NCBATCH/NNOD)
+       if (NTEST.EQ.10.AND.ga_nodeid().eq.0)
+     &     write(*,*) 'NCBATCH-final', NCBATCH
+       if (NTEST.EQ.10.AND.ga_nodeid().eq.0)
+     &     write(*,*) 'NCBLOCK-final', NCBLOCK
+       if (NTEST.EQ.10.AND.ga_nodeid().eq.0)
+     &      write(*,*) 'LBPNODE',LBPNODE,IOPTBATCHPNODE
        nfragagain = 0
        IF (LBPNODE.LT.IOPTBATCHPNODE) nfragagain = 1
 *
 *. Calculate blocks/nnodes ratio and print size of batches
 *
-       nnod = ga_nnodes()
 !       nfragagain = 0
 c      call CI_batches_info(NCBATCH,int_mb(KCLBT),int_mb(KCIBT),NCBLOCK,
 c    &                      nnod,ntest,nfragagain)
        if (ntest.eq.100. and.ga_nodeid().eq.0)
      &    write(*,'(a,3i10)') 'nblocks, nnod, nfragagain',
-     &                         NCBLOCK, nnod, nfragagain
+     &                         NCBLOCK, NNOD, nfragagain
 *
 *. Flush memory
 *
@@ -6427,12 +6434,13 @@ c    &                      nnod,ntest,nfragagain)
 *. Condition if I should fragment further the GAS spaces and
 *. recalculate the number of blocks
 *
-!      if (NCBLOCK.lt.nnod) nfragagain = 1
-!      if ((NCBLOCK.lt.nnod).or.(nfragagain.eq.1)) then
+!      if (NCBLOCK.lt.NNOD) nfragagain = 1
+!      if ((NCBLOCK.lt.NNOD).or.(nfragagain.eq.1)) then
 !       nfragagain = 0 ! DANGER
       if (nfragagain.eq.1) then
        if (NGAS.eq.nirrep)
      &  STOP ' Maximum number of GAS spaces reached, I QUIT!!! '
+! TODO:        CALL BREAK_IRREP()
        if (ntest.eq.10.and.ga_nodeid().eq.0)
      &   write(*,*) 'I will fragment the GAS space'
        call fraggas(igasloop,ngasadd,imofromto)
@@ -7729,7 +7737,11 @@ c     real ASYM(NGAS)
         II = II + 1
         ISDS(I) = ISDS(I) + IBATS(8,II)
        END DO
-       ttssw(I) = ISDS(I)
+       !
+       ! Diffenent 0th-order approximations driven by...
+!      ttssw(I) = ISDS(I)   ! Driven by size (number of SDs)
+!      ttssw(I) = LBATS(I)  ! Driven by number of BLOCKS
+       ttssw(I) = 1         ! Driven by number of BATCHES
       END DO
 *
 *. Print Input
