@@ -960,6 +960,8 @@
       call ga_sync()
 !$omp end single
 !
+#if 0
+!
 ! There is absolutely no good reason to use NXTVAL to
 ! load-balance such a trivial loop...
 !
@@ -1002,6 +1004,34 @@
         endif
        enddo
       enddo
+#else
+! -- add some trivial terms to ht1 (nothing to ht2)
+! term s1 n**3
+      if (iam.eq.0) then
+        if (dos(1).ne.0)then
+          do a=1,nvir
+            do b=1,nvir
+              do k=1,nocc
+                ht1(k,b) = ht1(k,b) + habe(b,a) * t1(k,a)
+              enddo
+            enddo
+          enddo
+        endif ! dos(1)
+! term s2 n**3
+        if (dos(2).ne.0)then
+          do a=1,nvir
+            do i=1,nocc
+              temp = 0.0d0
+              do k=1,nocc
+                temp = temp + hiu(k,i) * t1(k,a)
+              enddo
+              ht1(i,a) = ht1(i,a) - temp
+            enddo
+          enddo
+        endif ! dos(2)
+      endif ! iam.eq.0
+      call ga_sync()
+#endif
       call ga_dgop(msg_cc_term6,ht1,lnov, '+')
       if (occsdps) then
          call pstat_off(ps_itm)
