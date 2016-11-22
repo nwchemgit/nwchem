@@ -612,6 +612,12 @@ c
       call ga_sync
       my_id = ga_nodeid()
       call ga_distribution(g_exch, my_id, rlo, rhi, clo, chi )
+#ifdef BAD_GACCESS
+      ld=rhi-rlo+1
+      if(.not.ma_push_get(MT_DBL,ld,
+     $     'scratch buff2x', l_local, k_local)) call
+     $     errquit('moints2x: pushget failed',0,0)
+#endif
       aoff = ((olo-ofroz)*(olo-ofroz-1))/2
       do a1=olo,ohi
         aa1 = a1 - ofroz
@@ -619,11 +625,7 @@ c
           aa = (a1-olo)*nocc+a2-ostart+1
           if ((aa.ge.clo).and.(aa.le.chi)) then
 #ifdef BAD_GACCESS
-             ld=rhi-rlo+1
-             if(.not.ma_push_get(MT_DBL,ld,
-     $            'scratch buff2x', l_local, k_local)) call
-     $            errquit('moints2x: pushget failed',0,0)
-             call ga_get(g_exch,rlo,rhi,aa,aa,dbl_mb(k_local),ld)
+            call ga_get(g_exch,rlo,rhi,aa,aa,dbl_mb(k_local),ld)
 #else 
             call ga_access(g_exch,rlo,rhi,aa,aa,k_local,ld)
 #endif
@@ -642,6 +644,10 @@ c
           endif
         enddo
       enddo
+#ifdef BAD_GACCESS
+      if(.not.ma_pop_stack(l_local)) call 
+     $     errquit('moints2x: popstack failed',0,0)
+#endif
       call ga_sync
       return
       end
@@ -748,16 +754,18 @@ cstaggering
       aoff = ((olo-ofroz)*(olo-ofroz-1))/2
       my_id = ga_nodeid()
       call ga_distribution(g_coul, my_id, rlo, rhi, clo, chi )
+#ifdef BAD_GACCESS
+      ld=rhi-rlo+1
+      if(.not.ma_push_get(MT_DBL,ld,'scratch buff2x', 
+     &                     l_local, k_local)) 
+     &  call errquit('moints2x: pushget failed',0,MA_ERR)
+#endif
       do a1=olo,ohi
         do a2=ostart,ostart+nocc-1
           aa = (a1-olo)*nocc+a2-ostart+1
           if ((aa.ge.clo).and.(aa.le.chi)) then
 #ifdef BAD_GACCESS
-             ld=rhi-rlo+1
-             if(.not.ma_push_get(MT_DBL,ld,
-     $            'scratch buff2x', l_local, k_local)) call
-     $            errquit('moints2x: pushget failed',0,0)
-             call ga_get(g_coul,rlo,rhi,aa,aa,dbl_mb(k_local),ld)
+            call ga_get(g_coul,rlo,rhi,aa,aa,dbl_mb(k_local),ld)
 #else
             call ga_access(g_coul,rlo,rhi,aa,aa,k_local,ld)
 #endif
@@ -767,15 +775,17 @@ cstaggering
      $                                     dbl_mb(k_local))
 #ifdef BAD_GACCESS
             call ga_put(g_coul,rlo,rhi,aa,aa,dbl_mb(k_local),ld)
-            if(.not.ma_pop_stack(l_local)) call 
-     $           errquit('moints2x: popstack failed',0,0)
 #else 
             call ga_release(g_coul,rlo,rhi,aa,aa)
 #endif
           endif
         enddo
       enddo
-      call ga_sync
+#ifdef BAD_GACCESS
+      if(.not.ma_pop_stack(l_local)) 
+     &       call errquit('moints2x: popstack failed',0,MA_ERR)
+#endif
+      call ga_sync()
       return
       end
       subroutine mo_trp_Jtrf34a( nbf, c, x, tmp, ncor, nocc, nvir)
