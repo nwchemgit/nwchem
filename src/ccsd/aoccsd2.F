@@ -765,6 +765,43 @@ c
       oseg_hi = vir_lo - 1
       empt(1)=zip
       empt(2)=zip
+
+#ifdef USE_F90_ALLOCATABLE
+      allocate( f1n(1:nvir,1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f1n',1,MA_ERR)
+      allocate( f2n(1:nvir,1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f2n',2,MA_ERR)
+      allocate( f3n(1:nvir,1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f3n',3,MA_ERR)
+      allocate( f4n(1:nvir,1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f4n',4,MA_ERR)
+      allocate( f1t(1:nvir,1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f1t',5,MA_ERR)
+      allocate( f2t(1:nvir,1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f2t',6,MA_ERR)
+      allocate( f3t(1:nvir,1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f3t',7,MA_ERR)
+      allocate( f4t(1:nvir,1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f4t',8,MA_ERR)
+#else
+      if (.not. ma_push_get(MT_DBL,lnvv,'f1n',l_f1n,k_f1n))
+     $     call errquit('aoccsd2:triples f1n',lnvv, MA_ERR)
+      if (.not. ma_push_get(MT_DBL,lnvv,'f1t',l_f1t,k_f1t))
+     $     call errquit('aoccsd2:triples f1t',lnvv, MA_ERR)
+      if (.not. ma_push_get(MT_DBL,lnvv,'f2n',l_f2n,k_f2n))
+     $     call errquit('aoccsd2:triples f2n',lnvv, MA_ERR)
+      if (.not. ma_push_get(MT_DBL,lnvv,'f2t',l_f2t,k_f2t))
+     $     call errquit('aoccsd2:triples f2t',lnvv, MA_ERR)
+      if (.not. ma_push_get(MT_DBL,lnvv,'f3n',l_f3n,k_f3n))
+     $     call errquit('aoccsd2:triples f3n',lnvv, MA_ERR)
+      if (.not. ma_push_get(MT_DBL,lnvv,'f3t',l_f3t,k_f3t))
+     $     call errquit('aoccsd2:triples f3t',lnvv, MA_ERR)
+      if (.not. ma_push_get(MT_DBL,lnvv,'f4n',l_f4n,k_f4n))
+     $     call errquit('aoccsd2:triples f4n',lnvv, MA_ERR)
+      if (.not. ma_push_get(MT_DBL,lnvv,'f4t',l_f4t,k_f4t))
+     $     call errquit('aoccsd2:triples f4t',lnvv, MA_ERR)
+#endif
+
       do while (oseg_hi.lt.vir_hi)
          nvpass = nvpass + 1
          oseg_lo = oseg_hi + 1
@@ -783,42 +820,6 @@ c        print *,'call trpdrv ',nvpass
 *            call util_flush(luout)
 *          endif
 
-#ifdef USE_F90_ALLOCATABLE
-         allocate( f1n(1:nvir,1:nvir), stat=alloc_error)
-         if (alloc_error.ne.0) call errquit('f1n',1,MA_ERR)
-         allocate( f2n(1:nvir,1:nvir), stat=alloc_error)
-         if (alloc_error.ne.0) call errquit('f2n',2,MA_ERR)
-         allocate( f3n(1:nvir,1:nvir), stat=alloc_error)
-         if (alloc_error.ne.0) call errquit('f3n',3,MA_ERR)
-         allocate( f4n(1:nvir,1:nvir), stat=alloc_error)
-         if (alloc_error.ne.0) call errquit('f4n',4,MA_ERR)
-         allocate( f1t(1:nvir,1:nvir), stat=alloc_error)
-         if (alloc_error.ne.0) call errquit('f1t',5,MA_ERR)
-         allocate( f2t(1:nvir,1:nvir), stat=alloc_error)
-         if (alloc_error.ne.0) call errquit('f2t',6,MA_ERR)
-         allocate( f3t(1:nvir,1:nvir), stat=alloc_error)
-         if (alloc_error.ne.0) call errquit('f3t',7,MA_ERR)
-         allocate( f4t(1:nvir,1:nvir), stat=alloc_error)
-         if (alloc_error.ne.0) call errquit('f4t',8,MA_ERR)
-#else
-         if (.not. ma_push_get(MT_DBL,lnvv,'f1n',l_f1n,k_f1n))
-     $        call errquit('aoccsd2:triples f1n',lnvv, MA_ERR)
-         if (.not. ma_push_get(MT_DBL,lnvv,'f1t',l_f1t,k_f1t))
-     $        call errquit('aoccsd2:triples f1t',lnvv, MA_ERR)
-         if (.not. ma_push_get(MT_DBL,lnvv,'f2n',l_f2n,k_f2n))
-     $        call errquit('aoccsd2:triples f2n',lnvv, MA_ERR)
-         if (.not. ma_push_get(MT_DBL,lnvv,'f2t',l_f2t,k_f2t))
-     $        call errquit('aoccsd2:triples f2t',lnvv, MA_ERR)
-         if (.not. ma_push_get(MT_DBL,lnvv,'f3n',l_f3n,k_f3n))
-     $        call errquit('aoccsd2:triples f3n',lnvv, MA_ERR)
-         if (.not. ma_push_get(MT_DBL,lnvv,'f3t',l_f3t,k_f3t))
-     $        call errquit('aoccsd2:triples f3t',lnvv, MA_ERR)
-         if (.not. ma_push_get(MT_DBL,lnvv,'f4n',l_f4n,k_f4n))
-     $        call errquit('aoccsd2:triples f4n',lnvv, MA_ERR)
-         if (.not. ma_push_get(MT_DBL,lnvv,'f4t',l_f4t,k_f4t))
-     $        call errquit('aoccsd2:triples f4t',lnvv, MA_ERR)
-#endif
-c
       if (.not. ma_push_get(MT_DBL, lnvv,'k_trp_Tij',
      $        l_trp_Tij,k_trp_Tij))
      $     call errquit('aoccsd2: triples: k_trp_Tij ', lnvv, MA_ERR)
@@ -1005,29 +1006,6 @@ c
 c
          tx(3)=tcgtime()
 
-#ifdef USE_F90_ALLOCATABLE
-         deallocate( f1n, stat=alloc_error)
-         if (alloc_error.ne.0) call errquit('f1n',11,MA_ERR)
-         deallocate( f2n, stat=alloc_error)
-         if (alloc_error.ne.0) call errquit('f2n',12,MA_ERR)
-         deallocate( f3n, stat=alloc_error)
-         if (alloc_error.ne.0) call errquit('f3n',13,MA_ERR)
-         deallocate( f4n, stat=alloc_error)
-         if (alloc_error.ne.0) call errquit('f4n',14,MA_ERR)
-         deallocate( f1t, stat=alloc_error)
-         if (alloc_error.ne.0) call errquit('f1t',15,MA_ERR)
-         deallocate( f2t, stat=alloc_error)
-         if (alloc_error.ne.0) call errquit('f2t',16,MA_ERR)
-         deallocate( f3t, stat=alloc_error)
-         if (alloc_error.ne.0) call errquit('f3t',17,MA_ERR)
-         deallocate( f4t, stat=alloc_error)
-         if (alloc_error.ne.0) call errquit('f4t',18,MA_ERR)
-         if (.not. ma_chop_stack(l_trp_Tij)) call errquit
-     $        ('ccsd triples: stack corrupt (trp_Tij)',0, MA_ERR)
-#else
-         if (.not. ma_chop_stack(l_f1n)) call errquit
-     $        ('ccsd triples: stack corrupt (f1n)',0, MA_ERR)
-#endif
 
          if (iam.eq.0.and.oprint)then
             write(luout,'(1x,a,i5,f9.2)')
@@ -1039,7 +1017,33 @@ c
             call util_flush(luout)
          endif
 
+         if (.not. ma_chop_stack(l_trp_Tij)) call errquit
+     $        ('ccsd triples: stack corrupt (l_trp_Tij)',0, MA_ERR)
+
       enddo
+
+#ifdef USE_F90_ALLOCATABLE
+      deallocate( f1n, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f1n',11,MA_ERR)
+      deallocate( f2n, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f2n',12,MA_ERR)
+      deallocate( f3n, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f3n',13,MA_ERR)
+      deallocate( f4n, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f4n',14,MA_ERR)
+      deallocate( f1t, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f1t',15,MA_ERR)
+      deallocate( f2t, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f2t',16,MA_ERR)
+      deallocate( f3t, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f3t',17,MA_ERR)
+      deallocate( f4t, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f4t',18,MA_ERR)
+#else
+      if (.not. ma_chop_stack(l_f1n)) call errquit
+     $     ('ccsd triples: stack corrupt (f1n)',0, MA_ERR)
+#endif
+
       empt(1)=empt(1)+empt(1)
       empt(2)=empt(2)+empt(2)
       call ga_dgop(msg_cc_emp2,empt,2, '+')
