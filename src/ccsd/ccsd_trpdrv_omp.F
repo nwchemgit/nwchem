@@ -248,7 +248,7 @@
 !$omp& shared(f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t)
 !$omp& shared(t1v1,dintc1,dintx1)
 !$omp& shared(t1v2,dintc2,dintx2)
-!$omp& private(b,c,eaijk,denom)
+!$omp& private(eaijk,denom)
 !$omp& firstprivate(ncor,nocc,nvir,lnov,lnvv,i,j,k,klo)
 
 !
