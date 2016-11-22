@@ -802,24 +802,6 @@ c
      $     call errquit('aoccsd2:triples f4t',lnvv, MA_ERR)
 #endif
 
-      do while (oseg_hi.lt.vir_hi)
-         nvpass = nvpass + 1
-         oseg_lo = oseg_hi + 1
-         oseg_hi = min(oseg_hi+vchunk,vir_hi)
-         tx(1)=tcgtime()
-         if (iam.eq.0)write(*,846)nvpass,tx(1)
- 846     format(' commencing integral evaluation ',i8,' at ',f14.2)
-         call moints_trp(rtdb,basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
-     &      vir_lo, vir_hi,
-     &      g_coul, ocoul, g_exch, oexch,
-     &      blen, cmo, ncor, nocc, nvir, ndel, Tol2E)
-c        print *,'call trpdrv ',nvpass
-
-*          if (iam .eq. 0.and.oprint) then
-*            write(luout,*) ' Out of MOINTS '
-*            call util_flush(luout)
-*          endif
-
       if (.not. ma_push_get(MT_DBL, lnvv,'k_trp_Tij',
      $        l_trp_Tij,k_trp_Tij))
      $     call errquit('aoccsd2: triples: k_trp_Tij ', lnvv, MA_ERR)
@@ -880,6 +862,24 @@ c        print *,'call trpdrv ',nvpass
      $     l_trp_Djia,k_trp_Djia))
      $     call errquit('aoccsd2: triples: k_trp_Djia ', nvir, MA_ERR)
 c
+      do while (oseg_hi.lt.vir_hi)
+         nvpass = nvpass + 1
+         oseg_lo = oseg_hi + 1
+         oseg_hi = min(oseg_hi+vchunk,vir_hi)
+         tx(1)=tcgtime()
+         if (iam.eq.0)write(*,846)nvpass,tx(1)
+ 846     format(' commencing integral evaluation ',i8,' at ',f14.2)
+         call moints_trp(rtdb,basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
+     &      vir_lo, vir_hi,
+     &      g_coul, ocoul, g_exch, oexch,
+     &      blen, cmo, ncor, nocc, nvir, ndel, Tol2E)
+c        print *,'call trpdrv ',nvpass
+
+*          if (iam .eq. 0.and.oprint) then
+*            write(luout,*) ' Out of MOINTS '
+*            call util_flush(luout)
+*          endif
+
          call ga_sync
          tx(2)=tcgtime()
 c
@@ -1017,10 +1017,10 @@ c
             call util_flush(luout)
          endif
 
-         if (.not. ma_chop_stack(l_trp_Tij)) call errquit
-     $        ('ccsd triples: stack corrupt (l_trp_Tij)',0, MA_ERR)
-
       enddo
+
+      if (.not. ma_chop_stack(l_trp_Tij)) call errquit
+     $     ('ccsd triples: stack corrupt (l_trp_Tij)',0, MA_ERR)
 
 #ifdef USE_F90_ALLOCATABLE
       deallocate( f1n, stat=alloc_error)
