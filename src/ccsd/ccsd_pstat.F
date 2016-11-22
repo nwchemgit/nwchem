@@ -65,6 +65,10 @@ c
      $     ps_t2erin)) call errquit('ccsd: ccsd_pstat_init', 0,0)
       if (.not. pstat_allocate('t2erih', pstat_qstat, 0, junk,
      $     ps_t2erih)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('rdtrpo', pstat_qstat, 0, junk,
+     $     ps_rdtrpo)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('trpmos', pstat_qstat, 0, junk,
+     $     ps_trpmos)) call errquit('ccsd: ccsd_pstat_init', 0,0)
 c       
       call pstat_on(ps_ccsd)
       occsdps = .true.
@@ -108,6 +112,8 @@ c
          if(.not.pstat_free(ps_t2eriw))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_t2erin))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_t2erih))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_rdtrpo))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_trpmos))call errquit('ccsd_pstat',0,0)
 c
       endif
 c

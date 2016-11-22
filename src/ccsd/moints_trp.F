@@ -68,6 +68,7 @@ c
 #include "schwarz.fh"
 #include "rtdb.fh"
 #include "msgids.fh"
+#include "ccsdps.fh"
 c
 c Arguments
 c
@@ -115,6 +116,13 @@ c
        double precision half
        data half/0.5d00/
        data oblk/.true./    ! toggle whether to use Texas blocking or shell quartet AO ints
+c
+      if (occsdps) then
+         call pstat_on(ps_trpmos)
+      else
+         call qenter('trpmos',0)
+      endif
+
 c
 c  General basis info
 c
@@ -430,6 +438,12 @@ c
  334   format(/,10x,'**** COMMUNICATION DISABLED ****')
 #endif
 c
+       if (occsdps) then
+          call pstat_off(ps_trpmos)
+       else
+          call qexit('trpmos',0)
+       endif
+
        return
        end
 
