@@ -25,7 +25,7 @@ c     - [io|ov], [oo|iv], t2(io:vv) / [ao|vo], t2(oo:av), t2(oo,va)
 c     
       lbfo=lnovv+lnoov+lnoov
 c     
-c     do av ... uses 2*oov+ooo memory.  Don't use locality
+c     do av ... uses 2*oov+ooo memory.  Do not use locality
 c     so that we can distribute more uniformly across nodes.
 c     Locality is not used in the triples driver.
 c     
