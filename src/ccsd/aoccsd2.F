@@ -874,39 +874,10 @@ c
      &      g_coul, ocoul, g_exch, oexch,
      &      blen, cmo, ncor, nocc, nvir, ndel, Tol2E)
 c        print *,'call trpdrv ',nvpass
-
-*          if (iam .eq. 0.and.oprint) then
-*            write(luout,*) ' Out of MOINTS '
-*            call util_flush(luout)
-*          endif
-
-         call ga_sync
+         call ga_sync()
          tx(2)=tcgtime()
 c
-         if (use_trpdrv_nb) then
-c
-         if (iam.eq.0.and.oprint) then
-            write(luout,1847) nvpass
-            call util_flush(luout)
-         endif
- 1847    format(' commencing triples evaluation - non-blocking',i8)
-         call ccsd_trpdrv_nb(dbl_mb(k_t1),
-#ifdef USE_F90_ALLOCATABLE
-     $        f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
-#else
-     $        dbl_mb(k_f1n),dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
-     $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),dbl_mb(k_f4t),
-#endif
-     $        eorb,g_objo,g_objv,g_coul,g_exch,ncor,nocc,nvir,iprt,
-     $        empt(1),empt(2),oseg_lo,oseg_hi,kchunk,
-     $        dbl_mb(k_trp_Tij), dbl_mb(k_trp_Tkj), dbl_mb(k_trp_Tia),
-     $        dbl_mb(k_trp_Tka), dbl_mb(k_trp_Xia), dbl_mb(k_trp_Xka),
-     $        dbl_mb(k_trp_Jia), dbl_mb(k_trp_Jka), dbl_mb(k_trp_Kia),
-     $        dbl_mb(k_trp_Kka), dbl_mb(k_trp_Jij), dbl_mb(k_trp_Jkj),
-     $        dbl_mb(k_trp_Kij), dbl_mb(k_trp_Kkj), dbl_mb(k_trp_Dja),
-     $        dbl_mb(k_trp_Djka), dbl_mb(k_trp_Djia))
-c
-         elseif (use_trpdrv_omp) then
+         if (use_trpdrv_omp) then
 c
          if (iam.eq.0.and.oprint) then
             write(luout,1848) nvpass
@@ -929,14 +900,37 @@ c
      $        dbl_mb(k_trp_Kij), dbl_mb(k_trp_Kkj), dbl_mb(k_trp_Dja),
      $        dbl_mb(k_trp_Djka), dbl_mb(k_trp_Djia))
 c
+         elseif (use_trpdrv_nb) then
+c
+         if (iam.eq.0.and.oprint) then
+            write(luout,1847) nvpass
+            call util_flush(luout)
+         endif
+ 1847    format(' commencing triples evaluation - non-blocking',i8)
+         call ccsd_trpdrv_nb(dbl_mb(k_t1),
+#ifdef USE_F90_ALLOCATABLE
+     $        f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
+#else
+     $        dbl_mb(k_f1n),dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
+     $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),dbl_mb(k_f4t),
+#endif
+     $        eorb,g_objo,g_objv,g_coul,g_exch,ncor,nocc,nvir,iprt,
+     $        empt(1),empt(2),oseg_lo,oseg_hi,kchunk,
+     $        dbl_mb(k_trp_Tij), dbl_mb(k_trp_Tkj), dbl_mb(k_trp_Tia),
+     $        dbl_mb(k_trp_Tka), dbl_mb(k_trp_Xia), dbl_mb(k_trp_Xka),
+     $        dbl_mb(k_trp_Jia), dbl_mb(k_trp_Jka), dbl_mb(k_trp_Kia),
+     $        dbl_mb(k_trp_Kka), dbl_mb(k_trp_Jij), dbl_mb(k_trp_Jkj),
+     $        dbl_mb(k_trp_Kij), dbl_mb(k_trp_Kkj), dbl_mb(k_trp_Dja),
+     $        dbl_mb(k_trp_Djka), dbl_mb(k_trp_Djia))
+c
 #ifdef USE_MIC_TRPDRV
          elseif (use_trpdrv_offload) then
 c
          if (iam.eq.0.and.oprint) then
-            write(luout,1848) nvpass
+            write(luout,1849) nvpass
             call util_flush(luout)
          endif
- 1848    format(' commencing triples evaluation - offload version',i8)
+ 1849    format(' commencing triples evaluation - offload version',i8)
          call ccsd_trpdrv_offload(dbl_mb(k_t1),
 #ifdef USE_F90_ALLOCATABLE
      $        f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
@@ -1005,7 +999,6 @@ c
          endif
 c
          tx(3)=tcgtime()
-
 
          if (iam.eq.0.and.oprint)then
             write(luout,'(1x,a,i5,f9.2)')
