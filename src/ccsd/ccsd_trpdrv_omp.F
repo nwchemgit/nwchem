@@ -33,7 +33,6 @@
       double precision, intent(in) :: Kia(*), Kka(*), Kij(*), Kkj(*)
       double precision, intent(in) :: Dja(*), Djka(*), Djia(*)
 ! used to make inline threaded tengy correct - for now
-! TODO: allocate these on the heap and with fastmem on KNL
 #ifdef USE_F90_ALLOCATABLE
       double precision, allocatable :: dintc1(:),dintc2(:)
       double precision, allocatable :: dintx1(:),dintx2(:)
