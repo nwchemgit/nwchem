@@ -8,8 +8,8 @@
 
       Logical GENCON
 
-      Parameter (PI=3.1415926535898D0)
-      Parameter (EXPLIM=100.D0)
+      Parameter (PI=3.1415926535898d0)
+      Parameter (EXPLIM=100.d0)
 #include "apiP.fh"
 
 !--> Cartesian Coordinates, Primitives & Contraction Coefficients
@@ -39,92 +39,58 @@
 !
 !******************************************************************************
  
-      logical test1, test2
-
+      ! Python: 1.5*math.log(math.pi) = 1.7170948287741004
+      parameter (LOGPIx15=1.7170948287741d0)
+      parameter (N3OVER2=-1.5d0)
       double precision const
-      const = 1.5d0 * log(PI) - log(val_int_acc)
-
-      !m1 = 0
-      !do mpa = 1,NPA
-      !do mpb = 1,NPB
-      ! m1 = m1 + 1
-      !
-      ! ipair(1,m1) = mpa
-      ! ipair(2,m1) = mpb
-      !
-      !enddo ! mpb
-      !enddo ! mpa
+      const = LOGPIx15 - log(val_int_acc)
 
       Rx2 = (Axyz(1) - Bxyz(1))**2
       Ry2 = (Axyz(2) - Bxyz(2))**2
       Rz2 = (Axyz(3) - Bxyz(3))**2
 
       m2 = 0
-      !do m1 = 1,(NPA*NPB)
       do mpa = 1,NPA
-       a = Aprims(mpa)
-      do mpb = 1,NPB
+        a = Aprims(mpa)
+        do mpb = 1,NPB
+          b = Bprims(mpb)
+         
+          abi = 1.0d0/(a+b)
+          beta = a*b*abi
+         
+          if ( ( beta*(Rx2+Ry2+Rz2) ) .lt.
+     &         ( const + N3OVER2 * log(a+b) ) ) then
+         
+            m2 = m2 + 1
+            
+            alpha(1,m2) = a
+            alpha(2,m2) = b
+            
+            ipair(1,m2) = mpa
+            ipair(2,m2) = mpb
+            
+            s = sqrt(PI*abi)
 
-       !mpa = ipair(1,m1)
-       !mpb = ipair(2,m1)
-
-       b = Bprims(mpb)
-
-       abi = 1.0d0/(a+b)
-       beta = a*b*abi
-
-       test2 = (
-     &          ( beta*(Rx2+Ry2+Rz2) ) .lt.
-     &          (  !1.5d0 * log(PI) - log(val_int_acc)
-     &            const - 1.5d0 * log(a+b) )              
-     &         )  
-       !test1 = ( (ESx*ESy*ESz).gt.val_int_acc )
-       !if (test1 .ne. test2) then
-       !    print*,'JEFF: test1=',test1
-       !    print*,'JEFF: ESx*ESy*ESz=',ESx*ESy*ESz
-       !    print*,'JEFF: val_int_acc=',val_int_acc
-       !    print*,'JEFF:  test2=',test2
-       !    print*,'JEFF: beta*(Rx2+Ry2+Rz2)=',beta*(Rx2+Ry2+Rz2)
-       !    print*,'JEFF: (3/2)*log(PI)',1.5d0*log(PI)
-       !    print*,'JEFF: log(val_int_acc)=',log(val_int_acc)
-       !    print*,'JEFF: (3/2)*log(a+b)=',1.5d0*log(a+b)
-       !endif
-
-       !if( (ESx*ESy*ESz).gt.val_int_acc )then
-       if (test2) then
-
-        m2 = m2 + 1
-
-        alpha(1,m2) = a
-        alpha(2,m2) = b
-
-        ipair(1,m2) = mpa
-        ipair(2,m2) = mpb
-
-        ! moved inside of thresholded loop because
-        ! transcendentals are expensive
-        s = sqrt(PI*abi)
-        ESx = s*exp(-min(EXPLIM,beta*Rx2))
-        ESy = s*exp(-min(EXPLIM,beta*Ry2))
-        ESz = s*exp(-min(EXPLIM,beta*Rz2))
-
-        ! GENCON is an easy branch to predict but should
-        ! still be hoisted out of the loops.
-        if( GENCON )then
-         ES(1,m2) = ESx
-         ES(2,m2) = ESy
-         ES(3,m2) = ESz
-        else ! GENCON
-         ES(1,m2) = ESx*(Acoefs(mpa,1)*Bcoefs(mpb,1))
-         ES(2,m2) = ESy
-         ES(3,m2) = ESz
-        end if ! GENCON
-
-       end if ! val_int_acc
-
-      enddo ! mpb
+            ESx = s*exp(-min(EXPLIM,beta*Rx2))
+            ESy = s*exp(-min(EXPLIM,beta*Ry2))
+            ESz = s*exp(-min(EXPLIM,beta*Rz2))
+            
+            ! GENCON is an easy branch to predict but should
+            ! still be hoisted out of the loops.
+            if( GENCON )then
+              ES(1,m2) = ESx
+              ES(2,m2) = ESy
+              ES(3,m2) = ESz
+            else ! GENCON
+              ES(1,m2) = ESx*(Acoefs(mpa,1)*Bcoefs(mpb,1))
+              ES(2,m2) = ESy
+              ES(3,m2) = ESz
+            end if ! GENCON
+         
+          end if ! threshold
+        
+        enddo ! mpb
       enddo ! mpa
-      !enddo ! m1
 
       NPP = m2
 
