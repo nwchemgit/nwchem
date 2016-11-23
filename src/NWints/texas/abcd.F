@@ -18,7 +18,7 @@ c numerical stability :
       double precision avexp
       common /stability_2/ stable_2,stable_kind_1,stable_kind_2   ! use here and in num_s..
       logical stable 
-!      common /tracy_stability/ stable(5000) ! this is limit limblks
+      common /tracy_stability/ stable(5000) ! this is limit limblks
 c
       common /allow_lost/ lost_allow
 c
@@ -217,7 +217,7 @@ c
 c used only here and in trobsa.f :
 c
       logical stable 
-!      common /tracy_stability/ stable(5000) ! this is limit limblks
+      common /tracy_stability/ stable(5000) ! this is limit limblks
       common /allow_lost/ lost_allow
 c---------------------------------------------------------------
 c For test only : counter of all & unstable blocks of primitive quartets
