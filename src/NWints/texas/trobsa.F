@@ -60,7 +60,7 @@ c trobsa_2 is used for iroute=2 only
 C-----------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
       logical stable 
-      common /tracy_stability/ stable(5000) ! this is limit limblks
+!      common /tracy_stability/ stable(5000) ! this is limit limblks
 c
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
@@ -189,7 +189,7 @@ c trobsa_1 is used for iroute=1 only
 C-----------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
       logical stable 
-      common /tracy_stability/ stable(5000) ! this is limit limblks
+!      common /tracy_stability/ stable(5000) ! this is limit limblks
 c
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
