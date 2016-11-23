@@ -49,6 +49,10 @@
       Ry2 = (Axyz(2) - Bxyz(2))**2
       Rz2 = (Axyz(3) - Bxyz(3))**2
 
+#if 0
+
+      ! ORIGINAL CODE BELOW
+
       m2 = 0
       do mpa = 1,NPA
         a = Aprims(mpa)
@@ -91,8 +95,77 @@
         
         enddo ! mpb
       enddo ! mpa
-
       NPP = m2
+
+#else
+
+      m2 = 0
+      do mpa = 1,NPA
+        a = Aprims(mpa)
+        do mpb = 1,NPB
+          b = Bprims(mpb)
+         
+          abi = 1.0d0/(a+b)
+          beta = a*b*abi
+         
+          if ( ( beta*(Rx2+Ry2+Rz2) ) .lt.
+     &         ( const + N3OVER2 * log(a+b) ) ) then
+         
+            m2 = m2 + 1
+            
+            alpha(1,m2) = a
+            alpha(2,m2) = b
+            
+            ipair(1,m2) = mpa
+            ipair(2,m2) = mpb
+            
+          end if ! threshold
+        enddo ! mpb
+      enddo ! mpa
+      NPP = m2
+
+      if (GENCON) then
+        do m2 = 1, NPP
+       
+          a = alpha(1,m2)
+          b = alpha(2,m2)
+       
+          abi = 1.0d0/(a+b)
+          beta = a*b*abi
+          
+          s = sqrt(PI*abi)
+          
+          ES(1,m2) = s*exp(-min(EXPLIM,beta*Rx2))
+          ES(2,m2) = s*exp(-min(EXPLIM,beta*Ry2))
+          ES(3,m2) = s*exp(-min(EXPLIM,beta*Rz2))
+           
+        enddo ! m2
+      else ! GENCON
+        do m2 = 1, NPP
+       
+          a = alpha(1,m2)
+          b = alpha(2,m2)
+       
+          abi = 1.0d0/(a+b)
+          beta = a*b*abi
+          
+          mpa = ipair(1,m2)
+          mpb = ipair(2,m2)
+
+          s = sqrt(PI*abi)
+       
+          ESx = s*exp(-min(EXPLIM,beta*Rx2))
+          ESy = s*exp(-min(EXPLIM,beta*Ry2))
+          ESz = s*exp(-min(EXPLIM,beta*Rz2))
+          
+          ES(1,m2) = ESx*(Acoefs(mpa,1)*Bcoefs(mpb,1))
+          ES(2,m2) = ESy
+          ES(3,m2) = ESz
+           
+        enddo ! m2
+      endif ! GENCON
+
+#endif
 
 !      write(6,*)'-----start------ pair matrix '
 !      do i=1,NPP
