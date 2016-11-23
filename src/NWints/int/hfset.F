@@ -154,11 +154,15 @@
 
           s = sqrt(PI*abi)
        
+          c = Acoefs(mpa,1)
+          d = Bcoefs(mpb,1)
+
           ESx = s*exp(-min(EXPLIM,beta*Rx2))
           ESy = s*exp(-min(EXPLIM,beta*Ry2))
           ESz = s*exp(-min(EXPLIM,beta*Rz2))
           
-          ES(1,m2) = ESx*(Acoefs(mpa,1)*Bcoefs(mpb,1))
+          !ES(1,m2) = ESx*(Acoefs(mpa,1)*Bcoefs(mpb,1))
+          ES(1,m2) = ESx*c*d
           ES(2,m2) = ESy
           ES(3,m2) = ESz
            
