@@ -3866,22 +3866,10 @@ c
 c     Modified October 1990 by Brett M. Averick.
 c
 c     **********
-      real temp
-      real tarray(2)
-      real etime
-
       double precision util_cpusec
       external util_cpusec
-
-c     The first element of the array tarray specifies user time
-
-c      temp = etime(tarray) 
-c
-c      ttime = dble(tarray(1))
-       ttime = util_cpusec()
- 
+      ttime = util_cpusec()
       return
-
       end
       
 c====================== The end of my_timer ===============================
