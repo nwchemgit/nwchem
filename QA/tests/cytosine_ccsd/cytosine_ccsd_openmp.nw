@@ -1,0 +1,52 @@
+# $Id: cytosine_ccsd.nw 22501 2012-05-20 06:00:35Z d3y133 $
+
+echo
+
+start cytosine
+ 
+title "cytosine CCDB geometry"
+
+geometry
+  C     -0.21392   1.48233  -2.56453
+  C      1.70616   2.50220  -1.71935
+  C      2.22400   1.26962  -1.26854
+  C      1.47919   0.17758  -1.49356
+  H     -0.16957  -0.54127  -2.42952
+  H      2.00878   4.39665  -1.75063
+  H      3.23491   3.58949  -1.32727
+  H      3.09143   1.21549  -0.77806
+  H      1.72181  -0.74069  -1.17471
+  N      0.28958   0.27064  -2.13203
+  N      0.52437   2.60665  -2.33531
+  N      2.40270   3.63507  -1.53819
+  O     -1.30179   1.51461  -3.16181
+end
+
+basis spherical
+  C  library cc-pvdz
+  H  library cc-pvdz
+  N  library cc-pvdz
+  O  library cc-pvdz
+end
+
+scf
+  rhf
+  singlet
+  thresh 1e-8
+end
+
+ccsd
+  freeze atomic
+  thresh 1e-8
+  maxiter 100
+end
+
+set ccsd:use_ccsd_omp T
+set ccsd:use_trpdrv_omp T
+
+task ccsd(t)
+
+set ccsd:use_ccsd_omp F
+set ccsd:use_trpdrv_omp F
+
+task ccsd(t)
