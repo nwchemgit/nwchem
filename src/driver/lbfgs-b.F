@@ -3,7 +3,7 @@ c
       subroutine setulb(n, m,nfmax, x, l, u, 
      +                 nbd, f, g, factr, pgtol, wa, iwa,
      +                 task, iprint,  csave, lsave, isave, dsave)
- 
+      implicit none 
       character*60     task, csave
       logical          lsave(4)
       integer          n, m,nfmax, iprint, 
@@ -257,6 +257,7 @@ c======================= The end of setulb =============================
      +                  sgo, yg, ygo, index, iwhere, indx2, task,
      +                  iprint, csave, lsave, isave, dsave)
 CDEC$ OPTIMIZE :1 
+      implicit none 
       character*60     task, csave
       logical          lsave(4)
       integer          n, m,nfmax, iprint, nbd(n), index(n),
@@ -455,9 +456,11 @@ c     ************
       double precision theta,fold,ddot,dr,rr,tol,dpmeps,dlamch
      +                 xstep,sbgnrm,ddum,dnorm,dtd,epsmch,
      +                 cpu1,cpu2,cachyt,sbtime,lnscht,time1,time2,
-     +                 gd,gdold,stp,stpmx,time
+     +                 gd,gdold,stp,stpmx,time,xstep
       double precision one,zero
       parameter        (one=1.0d0,zero=0.0d0)
+      double precision dlamch
+      external dlamch
       
       if (task .eq. 'START') then
 
@@ -980,7 +983,7 @@ c======================= The end of mainlb =============================
 
       subroutine active(n, l, u, nbd, x, iwhere, iprint,
      +                  prjctd, cnstnd, boxed)
-
+      implicit none 
       logical          prjctd, cnstnd, boxed
       integer          n, iprint, nbd(n), iwhere(n)
       double precision x(n), l(n), u(n)
@@ -1080,7 +1083,7 @@ c                   this variable is always fixed
 c======================= The end of active =============================
  
       subroutine bmv(m, sy, wt, col, v, p, info)
-
+      implicit none 
       integer m, col, info
       double precision sy(m, m), wt(m, m), v(2*col), p(2*col)
 
@@ -1198,6 +1201,7 @@ c======================== The end of bmv ===============================
       subroutine cauchy(n, x, l, u, nbd, g, iorder, iwhere, t, d, xcp, 
      +                  m, wy, ws, sy, wt, theta, col, head, p, c, wbp, 
      +                  v, nint, sg, yg, iprint, sbgnrm, info)
+      implicit none 
       integer          n, m, head, col, nint, iprint, info, 
      +                 nbd(n), iorder(n), iwhere(n)
       double precision theta,
@@ -1691,7 +1695,7 @@ c====================== The end of cauchy ==============================
 
       subroutine cmprlb(n, m, x, g, ws, wy, sy, wt, z, r, wa, index, 
      +                 theta, col, head, nfree, cnstnd, info)
- 
+      implicit none 
       logical          cnstnd
       integer          n, m, col, head, nfree, info, index(n)
       double precision theta, 
@@ -1758,7 +1762,7 @@ c     ************
 c======================= The end of cmprlb =============================
 
       subroutine errclb(n, m, factr, l, u, nbd, task, info, k)
- 
+      implicit none 
       character*60     task
       integer          n, m, info, k, nbd(n)
       double precision factr, l(n), u(n)
@@ -1820,7 +1824,7 @@ c======================= The end of errclb =============================
       subroutine formk(n, nsub, ind, nenter, ileave, indx2, iupdat, 
      +                 updatd, wn, wn1, m, ws, wy, sy, theta, col,
      +                 head, info)
-
+      implicit none 
       integer          n, nsub, m, col, head, nenter, ileave, iupdat,
      +                 info, ind(n), indx2(n)
       double precision theta, wn(2*m, 2*m), wn1(2*m, 2*m),
@@ -2143,7 +2147,7 @@ c     Cholesky factorization of (2,2) block of wn.
 c======================= The end of formk ==============================
 
       subroutine formtt(m, wt, sy, ss, col, theta, info)
- 
+      implicit none 
       integer          m, col, info
       double precision theta, wt(m, m), sy(m, m), ss(m, m)
 
@@ -2212,7 +2216,7 @@ c======================= The end of formtt ==============================
  
       subroutine freev(n, nfree, index, nenter, ileave, indx2, 
      +                 iwhere, wrk, updatd, cnstnd, iprint, iter)
-
+      implicit none 
       integer n, nfree, nenter, ileave, iprint, iter, 
      +        index(n), indx2(n), iwhere(n)
       logical wrk, updatd, cnstnd
@@ -2307,6 +2311,7 @@ c     Find the index set of free and active variables at the GCP.
 c======================= The end of freev ==============================
 
       subroutine hpsolb(n, t, iorder, iheap)
+      implicit none 
       integer          iheap, n, iorder(n)
       double precision t(n)
   
@@ -2422,7 +2427,7 @@ c====================== The end of hpsolb ==============================
      +                  z, stp, dnorm, dtd, xstep, stpmx, iter, ifun,
      +                  iback, nfgv, info, task, boxed, cnstnd, csave,
      +                  isave, dsave)
-
+      implicit none 
       character*60     task, csave
       logical          boxed, cnstnd
       integer          n, iter, ifun, iback, nfgv, info,
@@ -2550,7 +2555,7 @@ c======================= The end of lnsrlb =============================
 
       subroutine matupd(n, m, ws, wy, sy, ss, d, r, itail, 
      +                  iupdat, col, head, theta, rr, dr, stp, dtd)
- 
+      implicit none 
       integer          n, m, itail, iupdat, col, head
       double precision theta, rr, dr, stp, dtd, d(n), r(n), 
      +                 ws(n, m), wy(n, m), sy(m, m), ss(m, m)
@@ -2636,7 +2641,7 @@ c                                             and the last column of SS:
 c======================= The end of matupd =============================
 
       subroutine prn1lb(n, m, l, u, x, iprint, itfile, epsmch)
- 
+      implicit none 
       integer n, m, iprint, itfile
       double precision epsmch, x(n), l(n), u(n)
 
@@ -2708,7 +2713,7 @@ c======================= The end of prn1lb =============================
 
       subroutine prn2lb(n, x, f, g, iprint, itfile, iter, nfgv, nact, 
      +                  sbgnrm, nint, word, iword, iback, stp, xstep)
- 
+      implicit none 
       character*3      word
       integer          n, iprint, itfile, iter, nfgv, nact, nint,
      +                 iword, iback
@@ -2778,7 +2783,7 @@ c======================= The end of prn2lb =============================
      +                  iter, nfgv, nintol, nskip, nact, sbgnrm, 
      +                  time, nint, word, iback, stp, xstep, k, 
      +                  cachyt, sbtime, lnscht)
- 
+      implicit none 
       character*60     task
       character*3      word
       integer          n, iprint, info, itfile, iter, nfgv, nintol,
@@ -2908,7 +2913,7 @@ c     ************
 c======================= The end of prn3lb =============================
 
       subroutine projgr(n, l, u, nbd, x, g, sbgnrm)
-
+      implicit none 
       integer          n, nbd(n)
       double precision sbgnrm, x(n), l(n), u(n), g(n)
 
@@ -2958,7 +2963,7 @@ c======================= The end of projgr =============================
 
       subroutine subsm(n, m, nsub, ind, l, u, nbd, x, d, ws, wy, theta, 
      +                 col, head, iword, wv, wn, iprint, info)
- 
+      implicit none 
       integer          n, m, nsub, col, head, iword, iprint, info, 
      +                 ind(nsub), nbd(n)
       double precision theta, 
@@ -3241,6 +3246,7 @@ c====================== The end of subsm ===============================
 
       subroutine dcsrch(f,g,stp,ftol,gtol,xtol,stpmin,stpmax,
      +                  task,isave,dsave)
+      implicit none 
       character*(*) task
       integer isave(2)
       double precision f,g,stp,ftol,gtol,xtol,stpmin,stpmax
@@ -3587,6 +3593,7 @@ c====================== The end of dcsrch ==============================
 
       subroutine dcstep(stx,fx,dx,sty,fy,dy,stp,fp,dp,brackt,
      +                  stpmin,stpmax)
+      implicit none 
       logical brackt
       double precision stx,fx,dx,sty,fy,dy,stp,fp,dp,stpmin,stpmax
 c     **********
@@ -3843,6 +3850,7 @@ c     Compute the new step.
 c====================== The end of dcstep ==============================
 
       subroutine my_timer(ttime)
+      implicit none 
       double precision ttime
 c     *********
 c
@@ -3933,6 +3941,7 @@ cc====================== The end of dnrm2 ===============================
 
       double precision function dpmeps()
 CDEC$ NOOPTIMIZE
+      implicit none 
 c     **********
 c
 c     Subroutine dpeps
@@ -4180,6 +4189,7 @@ c
 cc====================== The end of ddot ================================
 
       subroutine dpofa(a,lda,n,info)
+      implicit none 
       integer lda,n,info
       double precision a(lda,1)
 c
@@ -4300,6 +4310,7 @@ c
 cc====================== The end of dscal ===============================
 
       subroutine dtrsl(t,ldt,n,b,job,info)
+      implicit none 
       integer ldt,n,job,info
       double precision t(ldt,1),b(1)
 c
