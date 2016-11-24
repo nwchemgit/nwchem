@@ -3939,6 +3939,7 @@ c      end
 c      
 cc====================== The end of dnrm2 ===============================
 
+#if UNUSED
       double precision function dpmeps()
 CDEC$ NOOPTIMIZE
       implicit none 
@@ -4032,6 +4033,7 @@ c     determine dpmeps.
    70 return
 
       end
+#endif
       
 c====================== The end of dpmeps ==============================
 c
