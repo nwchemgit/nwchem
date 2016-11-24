@@ -453,13 +453,12 @@ c     ************
      +                 head,col,iter,itail,iupdat,
      +                 nint,nfgv,info,ifun,
      +                 iword,nfree,nact,ileave,nenter
-      double precision theta,fold,ddot,dr,rr,tol,dpmeps,dlamch
+      double precision theta,fold,ddot,dr,rr,tol,dpmeps,dlamch,
      +                 xstep,sbgnrm,ddum,dnorm,dtd,epsmch,
      +                 cpu1,cpu2,cachyt,sbtime,lnscht,time1,time2,
-     +                 gd,gdold,stp,stpmx,time,xstep
+     +                 gd,gdold,stp,stpmx,time
       double precision one,zero
       parameter        (one=1.0d0,zero=0.0d0)
-      double precision dlamch
       external dlamch
       
       if (task .eq. 'START') then
