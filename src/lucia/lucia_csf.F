@@ -11973,6 +11973,7 @@ C?        WRITE(6,*) ' IAMOKAY = ', IAMOKAY
       INTEGER NOCCLS_BAT(*), IBOCCLS_BAT(*)
 *
       NTEST = 000 !VOG 000
+      IPRNT = 0
       NTEST = MAX(NTEST,IPRNT)
 *
       IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN

@@ -4424,10 +4424,11 @@ C?    WRITE(6,*) ' ALLO: NTTS = ', NTTS
 *
 *. VOG; Reduce the dimension of the NTTS - important for large CAS spaces
 *
-!       NTTSVOG = INT(NTTS / 10) !VOG NEW
+       NTTSVOG = INT(NTTS / 2) !VOG NEW
 !       NTTSVOG = 8 * NTTSVOG     !VOG NEW
-!       NTTS = NTTSVOG            !VOG NEW
-       NTTSVOG = NTTS !VOG Back to normal
+       NTTS = NTTSVOG            !VOG NEW
+!       NTTSVOG = NTTS !VOG Back to normal
+       IF (ga_nodeid().eq.0) write(*,*) 'NTTS', MXNTTS, NTTSVOG
        MXBLKBATCH = 100
 *
       CALL MEMMAN(KCLBT ,NTTS  ,'ADDL  ',1,'CLBT  ')
@@ -13434,14 +13435,14 @@ COLD  DIMENSION C(*),HC(*)
 *
 *. VOG RAPING LUCIA (initial guess)
 *
-           SCALE = 1.0D0/SQRT(DFLOAT(NCVAR))
-            if (ga_nodeid().eq.0)
-     &        write(*,*) 'I start the Rape', SCALE, NCVAR
-            call ga_distribution(CB,ga_nodeid(),ilo,ihi,idum,idum)
-            do ii = ilo, ihi
-             call ga_put(CB,ii,ii,1,1,SCALE,1)
-            end do
-             call ga_sync()
+!           SCALE = 1.0D0/SQRT(DFLOAT(NCVAR))
+!            if (ga_nodeid().eq.0)
+!     &        write(*,*) 'I start the Rape', SCALE, NCVAR
+!            call ga_distribution(CB,ga_nodeid(),ilo,ihi,idum,idum)
+!            do ii = ilo, ihi
+!             call ga_put(CB,ii,ii,1,1,SCALE,1)
+!            end do
+!             call ga_sync()
 *
       NTEST = 0000 !VOG 000
       NTEST = MAX(NTEST, IPRCIX)
@@ -15587,7 +15588,7 @@ CNW       CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
       cpu_vogr  = util_cpusec() - cpu_vogr
       wall_vogr = util_wallsec()- wall_vogr
       write(*,00004) ga_nodeid(), cpu_vogr , wall_vogr !VOG timings
-00004     format(/'RASSG TOT',i6,' Task  times  cpu:',f11.1,
+00004     format('RASSG TOT',i6,' Task  times  cpu:',f11.1,
      &           's     wall:',f11.1,'s')
 c      cpu_vog  = util_cpusec()
 c      wall_vog = util_wallsec()
