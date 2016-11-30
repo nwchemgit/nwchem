@@ -462,12 +462,21 @@ c    $                    jbflo, jbfhi, bledo)
      $                    ibflo, ibfhi, lbflo, lbfhi, d_il, kfac)
                      call new_get_dens_block(g_dens, ndens, bledo, 
      $                    jbflo, jbfhi, kbflo, kbfhi, d_jk, kfac)
+#if 1
+                     call hess_zerofij(f_ij,bledo,nfock,idim,jdim)
+                     call hess_zerofij(f_kl,bledo,nfock,kdim,ldim)
+                     call hess_zerofij(f_ik,bledo,nfock,idim,kdim)
+                     call hess_zerofij(f_jl,bledo,nfock,jdim,ldim)
+                     call hess_zerofij(f_il,bledo,nfock,idim,ldim)
+                     call hess_zerofij(f_jk,bledo,nfock,jdim,kdim)
+#else
                      call dcopy(nfock*bledo*bledo, 0d0, 0,f_ij, 1)
                      call dcopy(nfock*bledo*bledo, 0d0, 0,f_kl, 1)
                      call dcopy(nfock*bledo*bledo, 0d0, 0,f_ik, 1)
                      call dcopy(nfock*bledo*bledo, 0d0, 0,f_jl, 1)
                      call dcopy(nfock*bledo*bledo, 0d0, 0,f_il, 1)
                      call dcopy(nfock*bledo*bledo, 0d0, 0,f_jk, 1)
+#endif
 c
 c     
 c     Build the list of integral shell quartets in NWChem shell labelling
@@ -611,8 +620,8 @@ c
                         endif
                      endif
 
-                     if (.not. ma_verify_allocator_stuff())
-     $                    call errquit(' ',0, MA_ERR)
+c                     if (.not. ma_verify_allocator_stuff())
+c     $                    call errquit(' ',0, MA_ERR)
 
                      if (omore) goto 10
 c                                      
@@ -731,21 +740,58 @@ c
       implicit none
       integer nfock, g_fock, blen 
       integer ibflo, ibfhi, jbflo, jbfhi
-      double precision buf(*)
+      double precision buf(nfock,blen,*)
 c
       integer i, index
       integer lo(3), hi(3), ld(2)
       integer hand
       logical first
       double precision eps
+#define FOCK0 1
+      integer j,nf
+      double precision maxf
+
       parameter(eps=1d-14)
+c     
+      integer fock_0,fock_1
       double precision dabsmax
       external dabsmax
 c
-      if(dabsmax(blen*blen*nfock,buf).lt.eps)
+#ifdef FOCK0
+      fock_1=0
+      fock_0=nfock+1
+      do nf=1,nfock
+         maxf=-1d0
+c         if(dabsmax(blen*(jbfhi-jbflo+1),buf(i,1,1)).gt.eps)  then
+         do j=1,jbfhi-jbflo+1
+            do i=1,ibfhi-ibflo+1
+               maxf=max(maxf,abs(buf(nf,i,j)))
+            enddo
+         enddo
+         if(maxf.gt.eps)  then
+            fock_0=min(nf,fock_0)
+            fock_1=max(nf,fock_1)
+         endif
+      enddo
+      if(fock_1.eq.0.and.fock_0.eq.nfock+1) return
+      lo(1) = fock_0
+      hi(1) = fock_1
+#else
+#if 0
+      if(dabsmax(blen*(jbfhi-jbflo+1)*nfock,buf).lt.eps)
+#else
+      maxf=-1d0
+      do j=1,jbfhi-jbflo+1
+         do i=1,ibfhi-ibflo+1
+            maxf=max(maxf,dabsmax(nfock,buf(1,i,j)))
+         enddo
+      enddo
+      if(maxf.lt.eps)
+#endif
      R     return
       lo(1) = 1
       hi(1) = nfock
+#endif
       lo(2) = ibflo
       hi(2) = ibfhi
       lo(3) = jbflo
@@ -757,9 +803,17 @@ c
          call ga_nbwait(hand)
       endif
       first=.false.
+#ifdef FOCK0
+      call nga_nbacc(g_fock,lo,hi,buf(fock_0,1,1),ld,1d0,hand)
+#else
       call nga_nbacc(g_fock,lo,hi,buf,ld,1d0,hand)
+#endif
+#else
+#ifdef FOCK0
+      call nga_acc(g_fock, lo, hi, buf(fock_0,1,1), ld, 1d0)
 #else
       call nga_acc(g_fock, lo, hi, buf, ld, 1d0)
+#endif
 #endif
 c
       end
@@ -984,6 +1038,18 @@ c
      &       GA_ERR)
       endif
 
+      return
+      end
+      subroutine hess_zerofij(f_ij,bledo,nfock,idim,jdim)
+      implicit none
+      integer bledo,nfock,idim,jdim
+      double precision f_ij(nfock,bledo,*)
+c
+      integer j
+c
+      do j=1,jdim
+         call dcopy(nfock*idim, 0d0, 0,f_ij(1,1,j), 1)
+      enddo
       return
       end
 C> @}
