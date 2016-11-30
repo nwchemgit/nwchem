@@ -351,6 +351,15 @@ c
       logical docopy,dozero,dorepd,dorepf,dorepon
       logical util_mirrmat
       external util_mirrmat
+      integer
+     $     cache_ij,  cache_kl,  
+     $     cache_ik,  cache_jl,  
+     $     cache_il,  cache_jk
+      integer
+     $     ptr_ij,  ptr_kl,  
+     $     ptr_ik,  ptr_jl,  
+     $     ptr_il,  ptr_jk
+      integer cache_hit,cache_miss
       integer bgj_get_rtdb_handle
       external bgj_get_rtdb_handle
       integer rtdb_out
@@ -410,6 +419,26 @@ c
 c      if(ga_nodeid().eq.0) 
 c     W     write(6,*) ' dorepon dorepd dorepl ',dorepon,dorepd,dorepl
 c     write(6,*) 'nshblocks and task_size ',nshblocks,task_size
+c
+c     caching to reduce get dm blocks
+c
+      cache_ij=-1
+      cache_kl=-1
+      cache_ik=-1  
+      cache_jl=-1
+      cache_il=-1  
+      cache_jk=-1
+      cache_hit=0
+      cache_miss=0
+c   get max blk lentgh
+      bledo=0
+      do ishblock = nshblocks, 1, -1
+         ibflo = bfglo(ishblock)
+         ibfhi = bfghi(ishblock)
+         idim  = ibfhi - ibflo + 1
+         bledo=max(bledo,idim)
+      enddo
+      
 c     
 c     Parallel loop over quartets of reordered shell blocks
 c     
@@ -422,6 +451,7 @@ c
          ibfhi = bfghi(ishblock)
          idim  = ibfhi - ibflo + 1
          do jshblock = 1, ishblock
+          ptr_ij=(jshblock-1)*nshblocks+ishblock
             jshlo = shglo(jshblock)
             jshhi = shghi(jshblock)
             jbflo = bfglo(jshblock)
@@ -429,6 +459,8 @@ c
             jdim  = jbfhi - jbflo + 1
             bledoij=max(idim,jdim)
             do kshblock = ishblock, 1, -1
+               ptr_ik=(kshblock-1)*nshblocks+ishblock
+               ptr_jk=(kshblock-1)*nshblocks+jshblock
                kshlo = shglo(kshblock)
                kshhi = shghi(kshblock)
                kbflo = bfglo(kshblock)
@@ -438,6 +470,9 @@ c
                lblockhi = kshblock
                if (ishblock .eq. kshblock) lblockhi = jshblock
                do lshblock = 1, lblockhi
+                  ptr_kl=(lshblock-1)*nshblocks+kshblock
+                  ptr_jl=(lshblock-1)*nshblocks+jshblock
+                  ptr_il=(lshblock-1)*nshblocks+ishblock
                   lshlo = shglo(lshblock)
                   lshhi = shghi(lshblock)
                   lbflo = bfglo(lshblock)
@@ -447,21 +482,56 @@ c
 c     
 c     Get blocks of the one-particle densities
 c     
-                     bledo=max(bledoijk,ldim)
-                     call new_get_dens_block(g_dens, ndens, bledo, 
-     $                    ibflo, ibfhi, jbflo, jbfhi, d_ij, jfac)
+                     if(ptr_ij.eq.cache_ij) then
+                        cache_hit=cache_hit+1
+                     else
+                        call new_get_dens_block(g_dens, ndens, bledo, 
+     $                       ibflo, ibfhi, jbflo, jbfhi, d_ij, jfac)
+                        cache_ij=ptr_ij
+                        cache_miss=cache_miss+1
+                     endif
 c                    call print_dens_bit(d_ij, ndens, ibflo, ibfhi,
 c    $                    jbflo, jbfhi, bledo)
-                     call new_get_dens_block(g_dens, ndens, bledo, 
-     $                    kbflo, kbfhi, lbflo, lbfhi, d_kl, jfac)
-                     call new_get_dens_block(g_dens, ndens, bledo, 
-     $                    ibflo, ibfhi, kbflo, kbfhi, d_ik, kfac)
-                     call new_get_dens_block(g_dens, ndens, bledo, 
-     $                    jbflo, jbfhi, lbflo, lbfhi, d_jl, kfac)
-                     call new_get_dens_block(g_dens, ndens, bledo, 
-     $                    ibflo, ibfhi, lbflo, lbfhi, d_il, kfac)
-                     call new_get_dens_block(g_dens, ndens, bledo, 
-     $                    jbflo, jbfhi, kbflo, kbfhi, d_jk, kfac)
+                     if(ptr_kl.eq.cache_kl) then
+                        cache_hit=cache_hit+1
+                     else
+                        call new_get_dens_block(g_dens, ndens, bledo, 
+     $                       kbflo, kbfhi, lbflo, lbfhi, d_kl, jfac)
+                        cache_kl=ptr_kl
+                        cache_miss=cache_miss+1
+                     endif
+                     if(ptr_ik.eq.cache_ik) then
+                        cache_hit=cache_hit+1
+                     else
+                        call new_get_dens_block(g_dens, ndens, bledo, 
+     $                       ibflo, ibfhi, kbflo, kbfhi, d_ik, kfac)
+                        cache_ik=ptr_ik
+                        cache_miss=cache_miss+1
+                     endif
+                     if(ptr_jl.eq.cache_jl) then
+                        cache_hit=cache_hit+1
+                     else
+                        call new_get_dens_block(g_dens, ndens, bledo, 
+     $                       jbflo, jbfhi, lbflo, lbfhi, d_jl, kfac)
+                        cache_jl=ptr_jl
+                        cache_miss=cache_miss+1
+                     endif
+                     if(ptr_il.eq.cache_il) then
+                        cache_hit=cache_hit+1
+                     else
+                        call new_get_dens_block(g_dens, ndens, bledo, 
+     $                       ibflo, ibfhi, lbflo, lbfhi, d_il, kfac)
+                        cache_il=ptr_il
+                        cache_miss=cache_miss+1
+                     endif
+                     if(ptr_jk.eq.cache_jk) then
+                        cache_hit=cache_hit+1
+                     else
+                        call new_get_dens_block(g_dens, ndens, bledo, 
+     $                       jbflo, jbfhi, kbflo, kbfhi, d_jk, kfac)
+                        cache_jk=ptr_jk
+                        cache_miss=cache_miss+1
+                     endif
 #if 1
                      call hess_zerofij(f_ij,bledo,nfock,idim,jdim)
                      call hess_zerofij(f_kl,bledo,nfock,kdim,ldim)
@@ -657,6 +727,10 @@ c
       call int_acc_std()
 c
       next = nxtask(-nproc,task_size)
+      write(6,14) ga_nodeid(), ' cache hit: ',100d0*cache_hit/
+     C     (cache_hit+cache_miss), '% out of ',cache_hit+cache_miss,
+     C ' ga_gets'
+ 14   format(i7,a,f8.2,a,i12,a)
       call ga_sync()
       if(dorepl) then
          call util_mirrstop(g_densrep)
