@@ -1225,6 +1225,7 @@ c
        bhi1(3) = nocc(ndns) + nvirt(ndns)
        bhi2(2) = nocc(ndns)
        bhi2(3) = nocc(ndns)
+#if 0
        do in = 1, n3xyz
         ind = ind+1
         alo1(1) = ind
@@ -1243,7 +1244,26 @@ c
      $                     one,g_rhs,blo2,bhi2,
      $                         g_aa,alo2,ahi2)
        enddo
+#else
+        alo1(1) = ind+1
+        ahi1(1) = ind+n3xyz
+        blo1(1) = ind+1    
+        bhi1(1) = ind+n3xyz 
+        blo2(1) = ind+1    
+        bhi2(1) = ind+n3xyz
+        alo2(1) = ind+1    
+        ahi2(1) = ind+n3xyz
+        call nga_add_patch(one,g_wax,alo1,ahi1,
+     $                     two,g_rhs,blo1,bhi1,
+     $                         g_wax,alo1,ahi1)
+
+        call nga_add_patch(one,g_aa,alo2,ahi2,
+     $                     one,g_rhs,blo2,bhi2,
+     $                         g_aa,alo2,ahi2)
+        ind = ind+n3xyz
+#endif
       enddo
+
 c
       return
       end
