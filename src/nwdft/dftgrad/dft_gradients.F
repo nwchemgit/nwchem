@@ -89,6 +89,7 @@ c     integer noc(2)
 c
 c     vdw
       double precision dum
+      logical cgmin
       logical disp
       logical xc_chkdispauto
       external xc_chkdispauto
@@ -136,6 +137,12 @@ c
       if (.not.status)then
          call errquit('dft_gradient: no nuclear charge',0, GEOM_ERR)
       endif 
+c
+c     check for cgmin since it breaks cdfit
+c
+      if (.not.rtdb_get(rtdb,'dft:cgmin', mt_log, 1, cgmin))
+     &   cgmin=.false.
+
 c     if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
 c    $     call errquit('dft_gradient: rtdb_get of noc failed', 0,
 c    &       RTDB_ERR)
@@ -390,7 +397,7 @@ c
       endif 
       status = ma_free_heap (l_evals(1))
 c
-      if (CDFIT) then
+      if (CDFIT.and.(.not.cgmin)) then
 c     
 c     determine memory requirements for integral gradients
 c     

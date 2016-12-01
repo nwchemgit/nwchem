@@ -29,6 +29,7 @@ c
       character*30 tag
       character*255 theory
       integer mult
+      integer cd_basis
 c
 c     hf_job = .not. bgj_have_xc()
 c     if (bgj_print() .gt. 0)
@@ -81,6 +82,18 @@ c
         nriscf = 0
         riscf_basis = 0
       endif
+c
+c     check for CD fitting
+c
+      if (.not. bas_create(cd_basis, 'cd basis'))
+     &     call errquit('dft_cg_init: bas_create?', 0, BASIS_ERR)
+       if(bas_rtdb_load(rtdb, geom, cd_basis, 'cd basis')) then
+          if(ga_nodeid().eq.0) write(6,*) 
+     C         'WARNING: CD fitting not available for cgmin yet'
+        if (.not. bas_destroy(cd_basis)) call errquit
+     $         ('dftcginfo: basis destroy failed',0, BASIS_ERR)
+
+       endif
 c     
 c     load the basis set and get info about it
 c
