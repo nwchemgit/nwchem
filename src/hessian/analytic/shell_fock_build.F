@@ -170,7 +170,6 @@ c
      &     int_mb(k_shmap),
      $     int_mb(k_bfmap), int_mb(k_rbfmap), int_mb(k_bfglo),
      $     int_mb(k_bfghi), int_mb(k_shbflo), int_mb(k_shbfhi))
-c
       call intb_mem_2e4c(max2e, lscr) ! blocking algorithm
       if (nder.eq.0) then
         leri = max(max2e,1296*100) ! 100 D quartets
@@ -319,7 +318,7 @@ c
 c      logical oactive(*)        ! [input] T if atom is active
       double precision jfac(*), kfac(*) ! [input] DFT scaling for Coulomb/Exchange
 c
-      integer  next, nint, ijklblock
+      integer  next, nint, ijklblock,ijkblock
       double precision scale
 c
       integer nxtask, task_size
@@ -332,6 +331,7 @@ c
       integer ishlo, ishhi, jshlo, jshhi, kshlo, kshhi, lshlo, lshhi
       integer lblockhi, jshtop, kshtop, lshtop
       integer ishblock, jshblock, kshblock, lshblock
+      integer i0, j0, k0
       integer iish, jjsh, kksh, llsh
       integer nq, atoms(4)
       integer id, jd
@@ -343,7 +343,7 @@ c
       external intbd_init4c, intbd_2e4c
       external intb_init4c, intb_2e4c
 c
-      integer nproc,bledo,bledoij,bledoijk
+      integer nproc,bledo,bledoij,bledoijk,bledo_dm
       logical firstij,firstkl,firstik,firstjl,firstil,firstjk
       integer handij,handkl,handik,handjl,handil,handjk
       logical dorepl
@@ -359,10 +359,15 @@ c
      $     ptr_ij,  ptr_kl,  
      $     ptr_ik,  ptr_jl,  
      $     ptr_il,  ptr_jk
+      integer
+     $     nbhandle_ij,  nbhandle_kl,  
+     $     nbhandle_ik,  nbhandle_jl,  
+     $     nbhandle_il,  nbhandle_jk
       integer cache_hit,cache_miss
       integer bgj_get_rtdb_handle
       external bgj_get_rtdb_handle
       integer rtdb_out
+      integer idone,iskipped,jj
 c     
       firstij=.true.
       firstkl=.true.
@@ -431,34 +436,47 @@ c
       cache_hit=0
       cache_miss=0
 c   get max blk lentgh
-      bledo=0
+      bledo_dm=0
       do ishblock = nshblocks, 1, -1
          ibflo = bfglo(ishblock)
          ibfhi = bfghi(ishblock)
          idim  = ibfhi - ibflo + 1
-         bledo=max(bledo,idim)
+         bledo_dm=max(bledo_dm,idim)
       enddo
-      
+c      idone=0
+c      iskipped=0
 c     
 c     Parallel loop over quartets of reordered shell blocks
 c     
       ijklblock = 0
+      ijkblock=0
       next = nxtask(nproc,task_size)
-      do ishblock = nshblocks, 1, -1
+!      do ishblock = nshblocks, 1, -1
+c      do ishblock = 1, nshblocks
+      do i0 = ga_nodeid(), nshblocks+ga_nodeid()-1
+         ishblock = mod(i0,nshblocks)+1
          ishlo = shglo(ishblock)
          ishhi = shghi(ishblock)
          ibflo = bfglo(ishblock)
          ibfhi = bfghi(ishblock)
          idim  = ibfhi - ibflo + 1
-         do jshblock = 1, ishblock
+c         do jshblock = 1, ishblock
+         do j0 = ga_nodeid(), ishblock+ga_nodeid()-1
+            jshblock=mod(j0,ishblock)+1
           ptr_ij=(jshblock-1)*nshblocks+ishblock
             jshlo = shglo(jshblock)
             jshhi = shghi(jshblock)
             jbflo = bfglo(jshblock)
             jbfhi = bfghi(jshblock)
             jdim  = jbfhi - jbflo + 1
+c            iskipped=iskipped+1
+c            else
+c               idone=idone+1
             bledoij=max(idim,jdim)
-            do kshblock = ishblock, 1, -1
+c            do kshblock = ishblock, 1, -1
+c            do kshblock = 1, ishblock
+            do k0 = ga_nodeid(), ishblock+ga_nodeid()-1
+               kshblock=mod(k0,ishblock)+1
                ptr_ik=(kshblock-1)*nshblocks+ishblock
                ptr_jk=(kshblock-1)*nshblocks+jshblock
                kshlo = shglo(kshblock)
@@ -468,6 +486,13 @@ c
                kdim  = kbfhi - kbflo + 1
                bledoijk=max(bledoij,kdim)
                lblockhi = kshblock
+               ijkblock=(jshblock-1)*ishblock+kshblock-1
+               do jj=1,ishblock-1
+                  ijkblock=ijkblock+jj*jj
+               enddo
+c               if (next .eq. ijkblock) then
+cstatic load balancing
+               if (mod(ijkblock,ga_nnodes()).eq.ga_nodeid()) then
                if (ishblock .eq. kshblock) lblockhi = jshblock
                do lshblock = 1, lblockhi
                   ptr_kl=(lshblock-1)*nshblocks+kshblock
@@ -478,24 +503,25 @@ c
                   lbflo = bfglo(lshblock)
                   lbfhi = bfghi(lshblock)
                   ldim  = lbfhi - lbflo + 1
-                  if (next .eq. ijklblock) then
+c                  if (next .eq. ijklblock) then
+                     bledo=max(bledoijk,ldim)
 c     
 c     Get blocks of the one-particle densities
 c     
                      if(ptr_ij.eq.cache_ij) then
                         cache_hit=cache_hit+1
                      else
-                        call new_get_dens_block(g_dens, ndens, bledo, 
+                        call new_get_dens_block(g_dens, ndens, bledo_dm, 
      $                       ibflo, ibfhi, jbflo, jbfhi, d_ij, jfac)
                         cache_ij=ptr_ij
                         cache_miss=cache_miss+1
                      endif
 c                    call print_dens_bit(d_ij, ndens, ibflo, ibfhi,
-c    $                    jbflo, jbfhi, bledo)
+c    $                    jbflo, jbfhi, bledo_dm)
                      if(ptr_kl.eq.cache_kl) then
                         cache_hit=cache_hit+1
                      else
-                        call new_get_dens_block(g_dens, ndens, bledo, 
+                        call new_get_dens_block(g_dens, ndens, bledo_dm, 
      $                       kbflo, kbfhi, lbflo, lbfhi, d_kl, jfac)
                         cache_kl=ptr_kl
                         cache_miss=cache_miss+1
@@ -503,7 +529,7 @@ c    $                    jbflo, jbfhi, bledo)
                      if(ptr_ik.eq.cache_ik) then
                         cache_hit=cache_hit+1
                      else
-                        call new_get_dens_block(g_dens, ndens, bledo, 
+                        call new_get_dens_block(g_dens, ndens, bledo_dm, 
      $                       ibflo, ibfhi, kbflo, kbfhi, d_ik, kfac)
                         cache_ik=ptr_ik
                         cache_miss=cache_miss+1
@@ -511,7 +537,7 @@ c    $                    jbflo, jbfhi, bledo)
                      if(ptr_jl.eq.cache_jl) then
                         cache_hit=cache_hit+1
                      else
-                        call new_get_dens_block(g_dens, ndens, bledo, 
+                        call new_get_dens_block(g_dens, ndens, bledo_dm, 
      $                       jbflo, jbfhi, lbflo, lbfhi, d_jl, kfac)
                         cache_jl=ptr_jl
                         cache_miss=cache_miss+1
@@ -519,7 +545,7 @@ c    $                    jbflo, jbfhi, bledo)
                      if(ptr_il.eq.cache_il) then
                         cache_hit=cache_hit+1
                      else
-                        call new_get_dens_block(g_dens, ndens, bledo, 
+                        call new_get_dens_block(g_dens, ndens, bledo_dm, 
      $                       ibflo, ibfhi, lbflo, lbfhi, d_il, kfac)
                         cache_il=ptr_il
                         cache_miss=cache_miss+1
@@ -527,7 +553,7 @@ c    $                    jbflo, jbfhi, bledo)
                      if(ptr_jk.eq.cache_jk) then
                         cache_hit=cache_hit+1
                      else
-                        call new_get_dens_block(g_dens, ndens, bledo, 
+                        call new_get_dens_block(g_dens, ndens, bledo_dm, 
      $                       jbflo, jbfhi, kbflo, kbfhi, d_jk, kfac)
                         cache_jk=ptr_jk
                         cache_miss=cache_miss+1
@@ -677,14 +703,16 @@ c
                           call new_fock_doit(nint,labels,leri,eri,tol2e,
      $                    d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
      $                    f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
-     $                    ndens, nfock, bledo, rbfmap,
+     $                    ndens, nfock, bledo, bledo_dm,
+     R                         rbfmap,
      $                    ibflo, jbflo, kbflo, lbflo)
                         else
                           call new_fock_doit_der(nint,labels,leri,
      $                    eri,tol2e,
      $                    d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
      $                    f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
-     $                    ndens, nfock/ndens, bledo, rbfmap, bftoat,
+     $                    ndens, nfock/ndens, bledo, bledo_dm,
+     R                          rbfmap, bftoat,
      $                    ibflo, jbflo, kbflo, lbflo)
 c                                      
                         endif
@@ -714,13 +742,13 @@ c
      $                 bledo, jbflo, jbfhi, kbflo, kbfhi, f_jk,
      F                    handjk, firstjk)
 c
-                     next = nxtask(nproc,task_size)
-                  end if
 c     
                   ijklblock = ijklblock + 1
 c     
-               end do
-            end do
+               end do ! lshblock
+                     next = nxtask(nproc,task_size)
+                  end if
+            end do ! kshblock
          end do
       end do
 c
@@ -766,6 +794,35 @@ c
       call nga_get(g_dens, lo, hi, buf, ld) 
       call scale_dens_block(buf,ndens,blen,ibflo,ibfhi,
      *   jbflo,jbfhi,fac)
+c
+      return
+      end
+      subroutine new_nbget_dens_block(
+     $     g_dens, ndens, blen, ibflo, ibfhi, jbflo, jbfhi, buf, fac,
+     N     nbhandle)
+      implicit none
+      integer  ndens, g_dens, blen, ibflo, ibfhi, jbflo, jbfhi
+      double precision buf(*)
+      double precision fac(ndens) ! [ignored]
+      integer nbhandle ! [out]
+c
+      integer lo(3), hi(3), ld(3)
+      integer idens
+c
+cedo      call dcopy(ndens*blen*blen,0d0,0,buf,1)
+      lo(1) = 1
+      hi(1) = ndens
+      lo(2) = ibflo
+      hi(2) = ibfhi
+      lo(3) = jbflo
+      hi(3) = jbfhi
+      ld(1) = ndens
+      ld(2) = blen
+c
+      call nga_nbget(g_dens, lo, hi, buf, ld,nbhandle) 
+c                  call ga_nbwait(nbhandl)
+c      call scale_dens_block(buf,ndens,blen,ibflo,ibfhi,
+c     *   jbflo,jbfhi,fac)
 c
       return
       end
@@ -895,25 +952,25 @@ C
       subroutine new_fock_doit(nint,labels,leri,eri,tol2e,
      $     d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
      $     f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
-     $     ndens, nfock, blen, rbfmap,
+     $     ndens, nfock, blen, blen_dm, rbfmap,
      $     ibflo, jbflo, kbflo, lbflo)
       implicit none
 #include "errquit.fh"
 c
-      integer ndens, nfock, blen
+      integer ndens, nfock, blen, blen_dm
       integer nint
       integer leri
       integer labels(leri,4)
       double precision eri(*)
       double precision tol2e
       double precision
-     $     d_ij(ndens,blen,blen), d_kl(ndens,blen,blen), 
-     $     d_ik(ndens,blen,blen), d_jl(ndens,blen,blen), 
-     $     d_il(ndens,blen,blen), d_jk(ndens,blen,blen)
+     $     d_ij(ndens,blen_dm,*), d_kl(ndens,blen_dm,*), 
+     $     d_ik(ndens,blen_dm,*), d_jl(ndens,blen_dm,*), 
+     $     d_il(ndens,blen_dm,*), d_jk(ndens,blen_dm,*)
       double precision
-     $     f_ij(nfock,blen,blen), f_kl(nfock,blen,blen), 
-     $     f_ik(nfock,blen,blen), f_jl(nfock,blen,blen), 
-     $     f_il(nfock,blen,blen), f_jk(nfock,blen,blen)
+     $     f_ij(nfock,blen,*), f_kl(nfock,blen,*), 
+     $     f_ik(nfock,blen,*), f_jl(nfock,blen,*), 
+     $     f_il(nfock,blen,*), f_jk(nfock,blen,*)
       integer rbfmap(*)
       integer ibflo, jbflo, kbflo, lbflo
 c
@@ -953,27 +1010,27 @@ c
       subroutine new_fock_doit_der(nint,labels,leri,eri,tol2e,
      $     d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
      $     f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
-     $     ndens, nfock, blen, rbfmap, bftoat, 
+     $     ndens, nfock, blen, blen_dm, rbfmap, bftoat, 
      $     ibflo, jbflo, kbflo, lbflo)
       implicit none
 c
 c Note that nfock is the number of alpha or beta fock matrices for UHF
 c and not the full number of fock matrices (as in the rest of the code)
 c
-      integer ndens, nfock, blen
+      integer ndens, nfock, blen, blen_dm
       integer nint
       integer leri
       integer labels(leri,4)
       double precision eri(*)
       double precision tol2e
       double precision
-     $     d_ij(ndens,blen,blen), d_kl(ndens,blen,blen), 
-     $     d_ik(ndens,blen,blen), d_jl(ndens,blen,blen), 
-     $     d_il(ndens,blen,blen), d_jk(ndens,blen,blen)
+     $     d_ij(ndens,blen_dm,*), d_kl(ndens,blen_dm,*), 
+     $     d_ik(ndens,blen_dm,*), d_jl(ndens,blen_dm,*), 
+     $     d_il(ndens,blen_dm,*), d_jk(ndens,blen_dm,*)
       double precision
-     $     f_ij(nfock*ndens,blen,blen), f_kl(nfock*ndens,blen,blen), 
-     $     f_ik(nfock*ndens,blen,blen), f_jl(nfock*ndens,blen,blen), 
-     $     f_il(nfock*ndens,blen,blen), f_jk(nfock*ndens,blen,blen)
+     $     f_ij(nfock*ndens,blen,*), f_kl(nfock*ndens,blen,*), 
+     $     f_ik(nfock*ndens,blen,*), f_jl(nfock*ndens,blen,*), 
+     $     f_il(nfock*ndens,blen,*), f_jk(nfock*ndens,blen,*)
       integer rbfmap(*)
       integer bftoat(*)       ! [input] Map from old basis func to atom
       integer ibflo, jbflo, kbflo, lbflo
