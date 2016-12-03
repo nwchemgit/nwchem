@@ -1,0 +1,134 @@
+echo
+
+start Ne_scs-mp2_cc-vqz
+
+memory total 1000 mb
+
+geometry
+ Ne     0.0 0.0 0.0
+end
+
+basis "ao basis" spherical
+  * library cc-pvqz
+end
+
+basis "cc-pVQZ-RI" spherical
+#BASIS SET: (8s,7p,6d,5f,3g,1h)
+Ne    S
+    537.49100000             1.0000000        
+Ne    S
+    116.22800000             1.0000000        
+Ne    S
+     34.986200000            1.0000000        
+Ne    S
+      8.0017500000           1.0000000        
+Ne    S
+      4.4437800000           1.0000000        
+Ne    S
+      2.4229600000           1.0000000        
+Ne    S
+      1.1501200000           1.0000000        
+Ne    S
+      0.47590500000          1.0000000        
+Ne    P
+     99.166000000            1.0000000        
+Ne    P
+     28.822000000            1.0000000        
+Ne    P
+      8.4094200000           1.0000000        
+Ne    P
+      5.5649600000           1.0000000        
+Ne    P
+      2.6574400000           1.0000000        
+Ne    P
+      1.3281700000           1.0000000        
+Ne    P
+      0.73485000000          1.0000000        
+Ne    D
+     28.745200000            1.0000000        
+Ne    D
+      8.9240100000           1.0000000        
+Ne    D
+      5.9214600000           1.0000000        
+Ne    D
+      2.7948000000           1.0000000        
+Ne    D
+      1.6289400000           1.0000000        
+Ne    D
+      0.59989500000          1.0000000        
+Ne    F
+     13.309000000            1.0000000        
+Ne    F
+      6.5987600000           1.0000000        
+Ne    F
+      3.0465600000           1.0000000        
+Ne    F
+      2.0938000000           1.0000000        
+Ne    F
+      1.0360700000           1.0000000        
+Ne    G
+      8.2858100000           1.0000000        
+Ne    G
+      4.2402700000           1.0000000        
+Ne    G
+      2.2925000000           1.0000000        
+Ne    H
+      4.4923100000           1.0000000        
+end
+
+set "ri-mp2 basis" "cc-pVQZ-RI"
+
+mp2
+  scs
+  freeze 0
+  scratchdisk 4096
+end
+task mp2 energy
+task direct_mp2 energy
+task rimp2 energy
+
+mp2
+  scs; fos 1.0; fss 1.0
+  freeze 0
+  scratchdisk 4096
+end
+task mp2 energy
+task direct_mp2 energy
+task rimp2 energy
+
+mp2
+  scs; fos 0.0; fss 0.0
+  freeze 0
+  scratchdisk 4096
+end
+task mp2 energy
+task direct_mp2 energy
+task rimp2 energy
+
+mp2
+  scs; fos 1.0; fss 0.0
+  freeze 0
+  scratchdisk 4096
+end
+task mp2 energy
+task direct_mp2 energy
+task rimp2 energy
+
+mp2
+  scs; fos 0.0; fss 1.0
+  freeze 0
+  scratchdisk 4096
+end
+task mp2 energy
+task direct_mp2 energy
+task rimp2 energy
+
+mp2
+  scs; fos 1000.0; fss 1000.0
+  freeze 0
+  scratchdisk 4096
+end
+task mp2 energy
+task direct_mp2 energy
+task rimp2 energy
+

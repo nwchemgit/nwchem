@@ -1,0 +1,102 @@
+echo
+
+start He_scs-mp2_cc-vqz
+
+memory total 1000 mb
+
+geometry
+ He     0.0 0.0 0.0
+end
+
+basis "ao basis" spherical
+  * library cc-pvqz
+end
+
+basis "cc-pVQZ-RI" spherical
+#BASIS SET: (5s,4p,3d,2f)
+He    S
+     29.251976741            1.0000000        
+He    S
+      6.3479959175           1.0000000        
+He    S
+      3.0141166013           1.0000000        
+He    S
+      0.83396087296          1.0000000        
+He    S
+      0.47964730615          1.0000000        
+He    P
+      8.6905135631           1.0000000        
+He    P
+      2.5796767548           1.0000000        
+He    P
+      1.1943303704           1.0000000        
+He    P
+      0.71278867940          1.0000000        
+He    D
+      7.2944834617           1.0000000        
+He    D
+      4.3632208275           1.0000000        
+He    D
+      1.7345900404           1.0000000        
+He    F
+      4.3507069127           1.0000000        
+He    F
+      2.7082979618           1.0000000        
+end
+
+set "ri-mp2 basis" "cc-pVQZ-RI"
+
+mp2
+  scs
+  freeze 0
+  scratchdisk 4096
+end
+task mp2 energy
+task direct_mp2 energy
+task rimp2 energy
+
+mp2
+  scs; fos 1.0; fss 1.0
+  freeze 0
+  scratchdisk 4096
+end
+task mp2 energy
+task direct_mp2 energy
+task rimp2 energy
+
+mp2
+  scs; fos 0.0; fss 0.0
+  freeze 0
+  scratchdisk 4096
+end
+task mp2 energy
+task direct_mp2 energy
+task rimp2 energy
+
+mp2
+  scs; fos 1.0; fss 0.0
+  freeze 0
+  scratchdisk 4096
+end
+task mp2 energy
+task direct_mp2 energy
+task rimp2 energy
+
+mp2
+  scs; fos 0.0; fss 1.0
+  freeze 0
+  scratchdisk 4096
+end
+task mp2 energy
+task direct_mp2 energy
+task rimp2 energy
+
+mp2
+  scs; fos 1000.0; fss 1000.0
+  freeze 0
+  scratchdisk 4096
+end
+task mp2 energy
+task direct_mp2 energy
+task rimp2 energy
+

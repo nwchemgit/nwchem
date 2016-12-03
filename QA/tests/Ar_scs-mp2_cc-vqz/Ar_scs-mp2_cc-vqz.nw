@@ -1,0 +1,149 @@
+echo
+
+start Ar_scs-mp2_cc-vqz
+
+memory total 1000 mb
+
+geometry
+ Ar     0.0 0.0 0.0
+end
+
+basis "ao basis" spherical
+  * library cc-pvqz
+end
+
+basis "cc-pVQZ-RI" spherical
+Ar    S
+    454.94536896             1.0000000        
+Ar    S
+    143.62193954             1.0000000        
+Ar    S
+     46.487619905            1.0000000        
+Ar    S
+     13.704394361            1.0000000        
+Ar    S
+      7.6145898914           1.0000000        
+Ar    S
+      4.0833294831           1.0000000        
+Ar    S
+      1.9433229906           1.0000000        
+Ar    S
+      1.0761390638           1.0000000        
+Ar    S
+      0.71072310170          1.0000000        
+Ar    S
+      0.33356013404          1.0000000        
+Ar    S
+      0.19668425832          1.0000000        
+Ar    P
+    205.38210726             1.0000000        
+Ar    P
+     96.617853308            1.0000000        
+Ar    P
+     17.159044646            1.0000000        
+Ar    P
+      8.9961485293           1.0000000        
+Ar    P
+      3.6489071036           1.0000000        
+Ar    P
+      2.0299171020           1.0000000        
+Ar    P
+      1.1284797803           1.0000000        
+Ar    P
+      0.67453887012          1.0000000        
+Ar    P
+      0.39749115679          1.0000000        
+Ar    D
+     56.190604701            1.0000000        
+Ar    D
+     19.414750893            1.0000000        
+Ar    D
+     10.235531027            1.0000000        
+Ar    D
+      5.2549227602           1.0000000        
+Ar    D
+      2.1151960863           1.0000000        
+Ar    D
+      1.3079469525           1.0000000        
+Ar    D
+      0.66777819068          1.0000000        
+Ar    D
+      0.30010790814          1.0000000        
+Ar    F
+     18.300657914            1.0000000        
+Ar    F
+      7.9615730273           1.0000000        
+Ar    F
+      3.5545083768           1.0000000        
+Ar    F
+      1.9293748974           1.0000000        
+Ar    F
+      1.1202405566           1.0000000        
+Ar    F
+      0.54978931186          1.0000000        
+Ar    G
+      5.1967675263           1.0000000        
+Ar    G
+      1.8512921158           1.0000000        
+Ar    G
+      0.91144690895          1.0000000        
+Ar    H
+      1.5143551014           1.0000000        
+end
+
+set "ri-mp2 basis" "cc-pVQZ-RI"
+
+mp2
+  scs
+  freeze 0
+  scratchdisk 4096
+end
+task mp2 energy
+task direct_mp2 energy
+task rimp2 energy
+
+mp2
+  scs; fos 1.0; fss 1.0
+  freeze 0
+  scratchdisk 4096
+end
+task mp2 energy
+task direct_mp2 energy
+task rimp2 energy
+
+mp2
+  scs; fos 0.0; fss 0.0
+  freeze 0
+  scratchdisk 4096
+end
+task mp2 energy
+task direct_mp2 energy
+task rimp2 energy
+
+mp2
+  scs; fos 1.0; fss 0.0
+  freeze 0
+  scratchdisk 4096
+end
+task mp2 energy
+task direct_mp2 energy
+task rimp2 energy
+
+mp2
+  scs; fos 0.0; fss 1.0
+  freeze 0
+  scratchdisk 4096
+end
+task mp2 energy
+task direct_mp2 energy
+task rimp2 energy
+
+mp2
+  scs; fos 1000.0; fss 1000.0
+  freeze 0
+  scratchdisk 4096
+end
+task mp2 energy
+task direct_mp2 energy
+task rimp2 energy
+
