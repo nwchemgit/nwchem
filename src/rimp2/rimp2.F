@@ -471,27 +471,38 @@ c
 c       same format as MP2 and directMP2
 c
         if (Me.eq.0) then
-          if (dftmp2) then
-            write(6,998) RefEner,CorEner,TotEner
- 998        format(//,10x,43('-'),
-     $              /,10x,'DFT energy             ',f20.12,
-     $              /,10x,'Unscaled MP2 energy    ',f20.12,
-     $              /,10x,'Total DFT+MP2 energy   ',f20.12,
-     $              /,10x,43('-'),/)
-          else if (.not.scs) then
-            write(6,999) RefEner,CorEner,TotEner
- 999        format(//,10x,43('-'),
-     $              /,10x,'SCF energy         ',f24.12,
-     $              /,10x,'Correlation energy ',f24.12,
-     $              /,10x,'Total MP2 energy   ',f24.12,
-     $              /,10x,43('-'),/)
-          else
-            write(6,997) RefEner,CorEner,TotEner
- 997        format(//,10x,47('-'),
-     $              /,10x,'SCF energy             ',f24.12,
-     $              /,10x,'SCS Correlation energy ',f24.12,
-     $              /,10x,'Total SCS-MP2 energy   ',f24.12,
-     $              /,10x,47('-'),/)
+          if (dftmp2) then ! DHDF
+            if (scs) then
+              write(6,996) RefEner,CorEner,TotEner
+ 996          format(//,10x,43('-'),
+     $                /,10x,'DFT energy               ',f24.12,
+     $                /,10x,'Unscaled SCS-MP2 energy  ',f24.12,
+     $                /,10x,'Total DFT+SCS-MP2 energy ',f24.12,
+     $                /,10x,43('-'),/)
+            else
+              write(6,998) RefEner,CorEner,TotEner
+ 998          format(//,10x,43('-'),
+     $                /,10x,'DFT energy             ',f24.12,
+     $                /,10x,'Unscaled MP2 energy    ',f24.12,
+     $                /,10x,'Total DFT+MP2 energy   ',f24.12,
+     $                /,10x,43('-'),/)
+            endif
+          else ! HF-based MP2
+            if (scs) then
+              write(6,997) RefEner,CorEner,TotEner
+ 997          format(//,10x,47('-'),
+     $                /,10x,'SCF energy             ',f24.12,
+     $                /,10x,'SCS Correlation energy ',f24.12,
+     $                /,10x,'Total SCS-MP2 energy   ',f24.12,
+     $                /,10x,47('-'),/)
+              write(6,999) RefEner,CorEner,TotEner
+            else
+ 999          format(//,10x,43('-'),
+     $                /,10x,'SCF energy         ',f24.12,
+     $                /,10x,'Correlation energy ',f24.12,
+     $                /,10x,'Total MP2 energy   ',f24.12,
+     $                /,10x,43('-'),/)
+            endif
           endif
         endif
 C
