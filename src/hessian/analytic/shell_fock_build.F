@@ -318,7 +318,7 @@ c
 c      logical oactive(*)        ! [input] T if atom is active
       double precision jfac(*), kfac(*) ! [input] DFT scaling for Coulomb/Exchange
 c
-      integer  next, nint, ijklblock,ijkblock
+      integer  next, nint, ijklblock,ijkblock,ijblock
       double precision scale
 c
       integer nxtask, task_size
@@ -331,7 +331,7 @@ c
       integer ishlo, ishhi, jshlo, jshhi, kshlo, kshhi, lshlo, lshhi
       integer lblockhi, jshtop, kshtop, lshtop
       integer ishblock, jshblock, kshblock, lshblock
-      integer i0, j0, k0
+      integer i0, j0, k0, l0
       integer iish, jjsh, kksh, llsh
       integer nq, atoms(4)
       integer id, jd
@@ -351,18 +351,20 @@ c
       logical docopy,dozero,dorepd,dorepf,dorepon
       logical util_mirrmat
       external util_mirrmat
+#define IJ 1
+#define IK 2
+#define JK 3
+#define IL 4
+#define JL 5
+#define KL 6
+
+      integer cache_ij(6)
+      integer ptr_ij(6)
       integer
-     $     cache_ij,  cache_kl,  
-     $     cache_ik,  cache_jl,  
-     $     cache_il,  cache_jk
-      integer
-     $     ptr_ij,  ptr_kl,  
-     $     ptr_ik,  ptr_jl,  
-     $     ptr_il,  ptr_jk
-      integer
-     $     nbhandle_ij,  nbhandle_kl,  
-     $     nbhandle_ik,  nbhandle_jl,  
-     $     nbhandle_il,  nbhandle_jk
+     $     nbh_ij,  nbh_kl,  
+     $     nbh_ik,  nbh_jl,  
+     $     nbh_il,  nbh_jk
+      integer cache_hitmiss(2,6),ij
       integer cache_hit,cache_miss
       integer bgj_get_rtdb_handle
       external bgj_get_rtdb_handle
@@ -425,16 +427,22 @@ c      if(ga_nodeid().eq.0)
 c     W     write(6,*) ' dorepon dorepd dorepl ',dorepon,dorepd,dorepl
 c     write(6,*) 'nshblocks and task_size ',nshblocks,task_size
 c
-c     caching to reduce get dm blocks
+c     caching to reduce get dm blocks data movement
 c
-      cache_ij=-1
-      cache_kl=-1
-      cache_ik=-1  
-      cache_jl=-1
-      cache_il=-1  
-      cache_jk=-1
-      cache_hit=0
-      cache_miss=0
+cuseless assignments
+      nbh_ij=1
+      nbh_ik=2
+      nbh_jk=3
+      nbh_il=4
+      nbh_jl=5
+      nbh_kl=6
+      do ij=1,6
+c first row = hit
+c 2nd   row = miss
+         cache_ij(ij)=-1
+         cache_hitmiss(1,ij)=0
+         cache_hitmiss(2,ij)=0
+      enddo
 c   get max blk lentgh
       bledo_dm=0
       do ishblock = nshblocks, 1, -1
@@ -450,7 +458,8 @@ c     Parallel loop over quartets of reordered shell blocks
 c     
       ijklblock = 0
       ijkblock=0
-      next = nxtask(nproc,task_size)
+      ijblock=0
+!      next = nxtask(nproc,task_size)
 !      do ishblock = nshblocks, 1, -1
 c      do ishblock = 1, nshblocks
       do i0 = ga_nodeid(), nshblocks+ga_nodeid()-1
@@ -463,7 +472,7 @@ c      do ishblock = 1, nshblocks
 c         do jshblock = 1, ishblock
          do j0 = ga_nodeid(), ishblock+ga_nodeid()-1
             jshblock=mod(j0,ishblock)+1
-          ptr_ij=(jshblock-1)*nshblocks+ishblock
+          ptr_ij(IJ)=(jshblock-1)*nshblocks+ishblock
             jshlo = shglo(jshblock)
             jshhi = shghi(jshblock)
             jbflo = bfglo(jshblock)
@@ -475,10 +484,17 @@ c               idone=idone+1
             bledoij=max(idim,jdim)
 c            do kshblock = ishblock, 1, -1
 c            do kshblock = 1, ishblock
+               ijblock= (ishblock*(ishblock-1))/2+jshblock-1
+c     distribute work on ij
+#define DISTR_IJK 1
+#define DISTR_IJ_ 1
+#ifdef DISTR_IJ
+               if (mod(ijblock,ga_nnodes()).eq.ga_nodeid()) then
+#endif
             do k0 = ga_nodeid(), ishblock+ga_nodeid()-1
                kshblock=mod(k0,ishblock)+1
-               ptr_ik=(kshblock-1)*nshblocks+ishblock
-               ptr_jk=(kshblock-1)*nshblocks+jshblock
+               ptr_ij(IK)=(kshblock-1)*nshblocks+ishblock
+               ptr_ij(JK)=(kshblock-1)*nshblocks+jshblock
                kshlo = shglo(kshblock)
                kshhi = shghi(kshblock)
                kbflo = bfglo(kshblock)
@@ -492,12 +508,17 @@ c            do kshblock = 1, ishblock
                enddo
 c               if (next .eq. ijkblock) then
 cstatic load balancing
+c     distribute work on ijk
+#ifdef DISTR_IJK
                if (mod(ijkblock,ga_nnodes()).eq.ga_nodeid()) then
+#endif
                if (ishblock .eq. kshblock) lblockhi = jshblock
-               do lshblock = 1, lblockhi
-                  ptr_kl=(lshblock-1)*nshblocks+kshblock
-                  ptr_jl=(lshblock-1)*nshblocks+jshblock
-                  ptr_il=(lshblock-1)*nshblocks+ishblock
+c               do lshblock = 1, lblockhi
+               do l0 = ga_nodeid(), lblockhi+ga_nodeid()-1
+                  lshblock=mod(l0,lblockhi)+1
+                  ptr_ij(KL)=(lshblock-1)*nshblocks+kshblock
+                  ptr_ij(JL)=(lshblock-1)*nshblocks+jshblock
+                  ptr_ij(IL)=(lshblock-1)*nshblocks+ishblock
                   lshlo = shglo(lshblock)
                   lshhi = shghi(lshblock)
                   lbflo = bfglo(lshblock)
@@ -508,71 +529,76 @@ c                  if (next .eq. ijklblock) then
 c     
 c     Get blocks of the one-particle densities
 c     
-                     if(ptr_ij.eq.cache_ij) then
-                        cache_hit=cache_hit+1
+                     if(ptr_ij(IJ).eq.cache_ij(IJ)) then
+                        cache_hitmiss(1,IJ)=cache_hitmiss(1,IJ)+1
                      else
                         call new_get_dens_block(g_dens, ndens, bledo_dm, 
      $                       ibflo, ibfhi, jbflo, jbfhi, d_ij, jfac)
-                        cache_ij=ptr_ij
-                        cache_miss=cache_miss+1
+                        cache_ij(IJ)=ptr_ij(IJ)
+                        cache_hitmiss(2,IJ)=cache_hitmiss(2,IJ)+1
                      endif
-c                    call print_dens_bit(d_ij, ndens, ibflo, ibfhi,
-c    $                    jbflo, jbfhi, bledo_dm)
-                     if(ptr_kl.eq.cache_kl) then
-                        cache_hit=cache_hit+1
-                     else
-                        call new_get_dens_block(g_dens, ndens, bledo_dm, 
-     $                       kbflo, kbfhi, lbflo, lbfhi, d_kl, jfac)
-                        cache_kl=ptr_kl
-                        cache_miss=cache_miss+1
-                     endif
-                     if(ptr_ik.eq.cache_ik) then
-                        cache_hit=cache_hit+1
+                     if(ptr_ij(IK).eq.cache_ij(IK)) then
+                        cache_hitmiss(1,IK)=cache_hitmiss(1,IK)+1
                      else
                         call new_get_dens_block(g_dens, ndens, bledo_dm, 
      $                       ibflo, ibfhi, kbflo, kbfhi, d_ik, kfac)
-                        cache_ik=ptr_ik
-                        cache_miss=cache_miss+1
+                        cache_ij(IK)=ptr_ij(IK)
+                        cache_hitmiss(2,IK)=cache_hitmiss(2,IK)+1
                      endif
-                     if(ptr_jl.eq.cache_jl) then
-                        cache_hit=cache_hit+1
-                     else
-                        call new_get_dens_block(g_dens, ndens, bledo_dm, 
-     $                       jbflo, jbfhi, lbflo, lbfhi, d_jl, kfac)
-                        cache_jl=ptr_jl
-                        cache_miss=cache_miss+1
-                     endif
-                     if(ptr_il.eq.cache_il) then
-                        cache_hit=cache_hit+1
-                     else
-                        call new_get_dens_block(g_dens, ndens, bledo_dm, 
-     $                       ibflo, ibfhi, lbflo, lbfhi, d_il, kfac)
-                        cache_il=ptr_il
-                        cache_miss=cache_miss+1
-                     endif
-                     if(ptr_jk.eq.cache_jk) then
-                        cache_hit=cache_hit+1
+                     if(ptr_ij(JK).eq.cache_ij(JK)) then
+                        cache_hitmiss(1,JK)=cache_hitmiss(1,JK)+1
                      else
                         call new_get_dens_block(g_dens, ndens, bledo_dm, 
      $                       jbflo, jbfhi, kbflo, kbfhi, d_jk, kfac)
-                        cache_jk=ptr_jk
-                        cache_miss=cache_miss+1
+                        cache_ij(JK)=ptr_ij(JK)
+                        cache_hitmiss(2,JK)=cache_hitmiss(2,JK)+1
                      endif
-#if 1
+                     if(ptr_ij(IL).eq.cache_ij(IL)) then
+                        cache_hitmiss(1,IL)=cache_hitmiss(1,IL)+1
+                     else
+                        call new_get_dens_block(g_dens, ndens, bledo_dm, 
+     $                       ibflo, ibfhi, lbflo, lbfhi, d_il, kfac)
+                        cache_ij(IL)=ptr_ij(IL)
+                        cache_hitmiss(2,IL)=cache_hitmiss(2,IL)+1
+                     endif
+                     if(ptr_ij(JL).eq.cache_ij(JL)) then
+                        cache_hitmiss(1,JL)=cache_hitmiss(1,JL)+1
+                     else
+#define NBG_JL_ 0
+#ifdef NBG_JL
+                        call new_get_dens_block(g_dens, ndens, bledo_dm, 
+     $                       jbflo, jbfhi, lbflo, lbfhi, d_jl, kfac,
+     N                       nbh_jl)
+#else
+                        call new_get_dens_block(g_dens, ndens, bledo_dm, 
+     $                       jbflo, jbfhi, lbflo, lbfhi, d_jl, kfac)
+#endif
+                        cache_ij(JL)=ptr_ij(JL)
+                        cache_hitmiss(2,JL)=cache_hitmiss(2,JL)+1
+                     endif
+                     if(ptr_ij(KL).eq.cache_ij(KL)) then
+                        cache_hitmiss(1,KL)=cache_hitmiss(1,KL)+1
+                     else
+#define NBG_KL_ 0
+#ifdef NBG_KL
+                     call new_nbget_dens_block(g_dens, ndens, bledo_dm, 
+     $                       kbflo, kbfhi, lbflo, lbfhi, 
+     D                       d_kl, jfac,nbh_kl)
+#else
+                        call new_get_dens_block(g_dens, ndens, bledo_dm, 
+     $                       kbflo, kbfhi, lbflo, lbfhi, d_kl, jfac)
+#endif
+                        cache_ij(KL)=ptr_ij(KL)
+                        cache_hitmiss(2,KL)=cache_hitmiss(2,KL)+1
+                     endif
+
                      call hess_zerofij(f_ij,bledo,nfock,idim,jdim)
                      call hess_zerofij(f_kl,bledo,nfock,kdim,ldim)
                      call hess_zerofij(f_ik,bledo,nfock,idim,kdim)
                      call hess_zerofij(f_jl,bledo,nfock,jdim,ldim)
                      call hess_zerofij(f_il,bledo,nfock,idim,ldim)
                      call hess_zerofij(f_jk,bledo,nfock,jdim,kdim)
-#else
-                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_ij, 1)
-                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_kl, 1)
-                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_ik, 1)
-                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_jl, 1)
-                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_il, 1)
-                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_jk, 1)
-#endif
+
 c
 c     
 c     Build the list of integral shell quartets in NWChem shell labelling
@@ -698,6 +724,24 @@ c
 c                    if (.not. ma_verify_allocator_stuff())
 c    $                    call errquit(' ',0, MA_ERR)
 c     
+#ifdef NBG_JL
+                     if(nbh_jl.ne.0) then
+                        call ga_nbwait(nbh_jl)
+                        call scale_dens_block(d_jl,ndens,bledo_dm,
+     $                       jbflo, jbfhi, jbflo, jbfhi, 
+     *                       jfac)
+                     endif
+                     nbh_jl=0
+#endif
+#ifdef NBG_KL
+                     if(nbh_kl.ne.0) then
+                        call ga_nbwait(nbh_kl)
+                        call scale_dens_block(d_kl,ndens,bledo_dm,
+     $                       kbflo, kbfhi, lbflo, lbfhi, 
+     *                       jfac)
+                     endif
+                     nbh_kl=0
+#endif
                      if (nint .gt. 0) then
                        if (nder.eq.0) then
                           call new_fock_doit(nint,labels,leri,eri,tol2e,
@@ -746,19 +790,57 @@ c
                   ijklblock = ijklblock + 1
 c     
                end do ! lshblock
-                     next = nxtask(nproc,task_size)
-                  end if
+!                     next = nxtask(nproc,task_size)
+#ifdef DISTR_IJK
+                  end if ! work distr on ijk
+#endif
             end do ! kshblock
+#ifdef DISTR_IJ
+            end if ! work distr on ij
+#endif
          end do
       end do
 c
       call int_acc_std()
 c
-      next = nxtask(-nproc,task_size)
-      write(6,14) ga_nodeid(), ' cache hit: ',100d0*cache_hit/
-     C     (cache_hit+cache_miss), '% out of ',cache_hit+cache_miss,
-     C ' ga_gets'
- 14   format(i7,a,f8.2,a,i12,a)
+!      next = nxtask(-nproc,task_size)
+      call ga_igop(65331, cache_hitmiss, 12, '+')
+      cache_hit=0
+      cache_miss=0
+      do ij=1,6
+         cache_hit=cache_hit+cache_hitmiss(1,ij)
+         cache_miss=cache_miss+cache_hitmiss(2,ij)
+      enddo
+      if(ga_nodeid().eq.0) then
+         if((cache_hit+cache_miss).ne.0) then
+            write(6,14) ' cache hit: ',100d0*cache_hit/
+     C           (cache_hit+cache_miss), '% out of ',
+     C           cache_hit+cache_miss, ' ga_gets'
+         else
+            write(6,*) 'cm ',cache_hitmiss
+         endif
+#if 1
+      write(6,14) ' cacij hit: ',100d0*cache_hitmiss(1,1)/
+     C     (cache_hitmiss(1,1)+cache_hitmiss(2,1)), '% out of ',
+     C     cache_hitmiss(1,1)+cache_hitmiss(2,1), ' ga_gets'
+      write(6,14) ' cacik hit: ',100d0*cache_hitmiss(1,2)/
+     C     (cache_hitmiss(1,2)+cache_hitmiss(2,2)), '% out of ',
+     C     cache_hitmiss(1,2)+cache_hitmiss(2,2), ' ga_gets'
+      write(6,14) ' cacjk hit: ',100d0*cache_hitmiss(1,3)/
+     C     (cache_hitmiss(1,3)+cache_hitmiss(2,3)), '% out of ',
+     C     cache_hitmiss(1,3)+cache_hitmiss(2,3), ' ga_gets'
+      write(6,14)  ' cacil hit: ',100d0*cache_hitmiss(1,4)/
+     C     (cache_hitmiss(1,4)+cache_hitmiss(2,4)), '% out of ',
+     C     cache_hitmiss(1,4)+cache_hitmiss(2,4), ' ga_gets'
+      write(6,14)  ' cacjl hit: ',100d0*cache_hitmiss(1,5)/
+     C     (cache_hitmiss(1,5)+cache_hitmiss(2,5)), '% out of ',
+     C     cache_hitmiss(1,5)+cache_hitmiss(2,5), ' ga_gets'
+      write(6,14)  ' cackl hit: ',100d0*cache_hitmiss(1,6)/
+     C     (cache_hitmiss(1,6)+cache_hitmiss(2,6)), '% out of ',
+     C     cache_hitmiss(1,6)+cache_hitmiss(2,6), ' ga_gets'
+#endif
+      endif
+ 14   format(a,f8.2,a,i12,a)
       call ga_sync()
       if(dorepl) then
          call util_mirrstop(g_densrep)
@@ -819,8 +901,9 @@ cedo      call dcopy(ndens*blen*blen,0d0,0,buf,1)
       ld(1) = ndens
       ld(2) = blen
 c
+!      call nga_get(g_dens, lo, hi, buf, ld)
       call nga_nbget(g_dens, lo, hi, buf, ld,nbhandle) 
-c                  call ga_nbwait(nbhandl)
+!                  call ga_nbwait(nbhandle)
 c      call scale_dens_block(buf,ndens,blen,ibflo,ibfhi,
 c     *   jbflo,jbfhi,fac)
 c
