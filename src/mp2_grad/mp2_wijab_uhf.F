@@ -104,8 +104,10 @@ c     flag and scaling factors for SCS-MP2
         if (.not. rtdb_get(rtdb, 'mp2:fos', mt_dbl, 1, fos))
      $    fos = 1.2d0         ! opposite spin scaling factor for SCS-MP2
       else
-        fss=one
-        fos=one
+        if (.not. rtdb_get(rtdb, 'mp2:fss', mt_dbl, 1, fss))
+     $    fss = one
+        if (.not. rtdb_get(rtdb, 'mp2:fos', mt_dbl, 1, fos))
+     $    fos = one
       endif
       hfss=half*fss
 c
