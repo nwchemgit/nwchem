@@ -16,6 +16,7 @@ c
       integer geomnew, filesize, memsize
       double precision ithresh,tol_rho,tol_rho_rd,e_conv,
      .     job_grid_acc
+      integer itol2e
       logical xc_got2nd      
       external xc_got2nd
       logical grid_clinit,gstatus
@@ -102,6 +103,17 @@ c
          if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
      $        call errquit('hessinit:rtdbcput failed',0, RTDB_ERR)
 c
+c     tighten itol2e to avoid cphf  residual woes to lt 1d-12
+c
+      if (.not. rtdb_get(rtdb, 'dft:itol2e', mt_int, 1, 
+     &   itol2e)) then
+          itol2e =12
+      else
+         itol2e = max(itol2e,12)
+      endif
+      if (.not. rtdb_put(rtdb, 'dft:itol2e', mt_int, 1, 
+     &   itol2e))call errquit('hessint:rtdbput failed',1,
+     &       RTDB_ERR)
 c     set grid_acc consistent with fine (at least), ie 1d-7
 c     make it even tighter for cases with diffuse basis sets and
 c     low frequencies ... > 1d-14. (Edo 04/08/2015)

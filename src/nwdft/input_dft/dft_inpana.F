@@ -983,6 +983,8 @@ c     requested convergence tolerances.
 c
 c     make sure itol2e is less than 0.1*e_conv or (0.01*g_conv**2)
 c
+      if (.not. rtdb_get(rtdb, 'dft:itol2e',
+     &      mt_int, 1, itol2e)) itol2e=8
       if (10.d0**(-itol2e).gt.(1.0d-1*e_conv))then
          itol2e = -nint(log10(1.0d-1*e_conv))
          if (.not. rtdb_put(rtdb, 'dft:itol2e',
