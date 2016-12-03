@@ -1020,6 +1020,7 @@ c
       integer ndns, jnd, ind, jindex, index
       integer alo1(3), ahi1(3), alo2(3), ahi2(3)
       integer blo1(3), bhi1(3), blo2(3), bhi2(3)
+      double precision vtrace
 c
       alo1(2) = 1
       alo1(3) = 1
@@ -1043,21 +1044,27 @@ c
         jindex = jindex + 1
         alo2(1) = jindex
         ahi2(1) = jindex
-        blo2(1) = jindex
-        bhi2(1) = jindex
         index = (ndns-1)*n3xyz
-        do ind = 1, n3xyz
+c        do ind = 1, n3xyz
+        do ind = 1, jnd
           index = index + 1
           alo1(1) = index
           ahi1(1) = index
-          blo1(1) = index
-          bhi1(1) = index
+          vtrace=
+     $      nga_ddot_patch(g_rhs,'N',alo1,ahi1,
+     $         g_aa, 'N',alo2,ahi2) 
+          if(ind.ne.jnd) then
+             vtrace=vtrace+
+     $      nga_ddot_patch(g_rhs,'N',alo2,ahi2,
+     $            g_aa, 'N',alo1,ahi1)
+          else
+             vtrace=vtrace*2d0
+          endif
           exy(ind, jnd) = 
-     $      exy(ind, jnd) +
-     $      nga_ddot_patch(g_rhs,'N',blo1,bhi1,
-     $                    g_aa, 'N',alo2,ahi2) +
-     $      nga_ddot_patch(g_rhs,'N',blo2,bhi2,
-     $                    g_aa, 'N',alo1,ahi1)
+     $      exy(ind, jnd) + vtrace
+          if(ind.ne.jnd) exy(jnd, ind) = 
+     $      exy(jnd, ind) + vtrace
+
         enddo
       enddo
       enddo
