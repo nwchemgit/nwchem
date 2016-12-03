@@ -572,22 +572,39 @@ c
             write(LuOut,*) 'dft:pt2fac not found, using 1.0'
           endif
         endif
-        e_total = escf + mp2fac*e2   ! scale mp2 energy with mp2fac
       else
         if(.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,escf))
      $       call errquit('could not get scf energy',1, RTDB_ERR)
-        e_total = escf + e2
       endif
 c
       if (util_print('information',print_low).and.ga_nodeid().eq.0) then
         if (dftmp2) then
-          write(6,998) escf, e2, e_total
- 998      format(//,10x,43('-'),
-     $            /,10x,'DFT energy             ',f20.12,
-     $            /,10x,'Unscaled MP2 energy    ',f20.12,
-     $            /,10x,'Total DFT+MP2 energy   ',f20.12,
-     $            /,10x,43('-'),/)
-        else
+          if (scs) then
+            ! DHDF with MP2 scaling
+            e2      = fss*ess+fos*eos
+            e_total = escf + mp2fac*e2
+            write(6,996) escf, ess, fss, eos, fos, e2, e_total
+ 996        format(//,10x,43('-'),
+     $              /,10x,'DFT energy                 ',f24.12,
+     $              /,10x,'Same spin pairs            ',f24.12,
+     $              /,10x,'Same spin scaling factor   ',f24.12,
+     $              /,10x,'Opposite spin pairs        ',f24.12,
+     $              /,10x,'Opposite spin scaling fact.',f24.12,
+     $              /,10x,'SCS-MP2 correlation energy ',f24.12,
+     $              /,10x,'Total DFT+SCS-MP2 energy   ',f24.12,
+     $              /,10x,43('-'),/)
+          else
+            ! DHDF with no MP2 scaling
+            e_total = escf + e2
+            write(6,998) escf, e2, e_total
+ 998        format(//,10x,43('-'),
+     $              /,10x,'DFT energy             ',f24.12,
+     $              /,10x,'Unscaled MP2 energy    ',f24.12,
+     $              /,10x,'Total DFT+MP2 energy   ',f24.12,
+     $              /,10x,43('-'),/)
+          endif
+        else ! HF-based MP2
+          e_total = escf + e2
           write(6,999) escf, e2, esing, etrip, e_total
  999      format(//,10x,43('-'),
      $            /,10x,'SCF energy         ',f24.12,
@@ -597,8 +614,13 @@ c
      $            /,10x,'Total MP2 energy   ',f24.12,
      $            /,10x,43('-'),/)
 
-                  ! SCS-MP2
+          ! there should really be an if (scs) here...
 
+          ! SCS-MP2
+
+          ! why are we not setting e2 and e_total for SCS?
+          ! (same for esing and etrip)
+          ! these are written to RTDB and ECCE...
           write(6,997) ess, fss, eos, fos, fss*ess+fos*eos,
      $                 escf+fss*ess+fos*eos
  997      format(//,10x,51('-'),
