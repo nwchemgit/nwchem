@@ -102,13 +102,17 @@ echo 'This test requires 16 processors to run quickly'
 #--- dft + dispersion tests
 ./runtests.mpi.unix procs $1 disp_dimer_ch4
 #
-#--- double hybrid tests
+#--- double hybrid and SCS-MP2 tests
 ./runtests.mpi.unix procs $1 Ne_scf-mp2_cc-vqz
-./runtests.mpi.unix procs $1 Ne_b2plyp_cc-vqz
 ./runtests.mpi.unix procs $1 He_scf-mp2_cc-vqz
-./runtests.mpi.unix procs $1 He_b2plyp_cc-vqz
 ./runtests.mpi.unix procs $1 Ar_scf-mp2_cc-vqz
+./runtests.mpi.unix procs $1 Ne_b2plyp_cc-vqz
+./runtests.mpi.unix procs $1 He_b2plyp_cc-vqz
 ./runtests.mpi.unix procs $1 Ar_b2plyp_cc-vqz
+./runtests.mpi.unix procs $1 Ne_scs-mp2_cc-vqz
+./runtests.mpi.unix procs $1 He_scs-mp2_cc-vqz
+./runtests.mpi.unix procs $1 Ar_scs-mp2_cc-vqz
+./runtests.mpi.unix procs $1 h2o_dftmp2_cgmin h2o_udftmp2_cgmin
 #
 #--- cdspectrum tests
 ./runtests.mpi.unix procs $1 dmo_tddft_cd

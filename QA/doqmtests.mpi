@@ -207,13 +207,16 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np disp_dimer_ch4
 ./runtests.mpi.unix procs $np h2o-b3lyp-disp
 #
-#--- double hybrid tests
+#--- double hybrid and SCS-MP2 tests
 ./runtests.mpi.unix procs $np Ne_scf-mp2_cc-vqz
-./runtests.mpi.unix procs $np Ne_b2plyp_cc-vqz
 ./runtests.mpi.unix procs $np He_scf-mp2_cc-vqz
-./runtests.mpi.unix procs $np He_b2plyp_cc-vqz
 ./runtests.mpi.unix procs $np Ar_scf-mp2_cc-vqz
+./runtests.mpi.unix procs $np Ne_b2plyp_cc-vqz
+./runtests.mpi.unix procs $np He_b2plyp_cc-vqz
 ./runtests.mpi.unix procs $np Ar_b2plyp_cc-vqz
+./runtests.mpi.unix procs $np Ne_scs-mp2_cc-vqz
+./runtests.mpi.unix procs $np He_scs-mp2_cc-vqz
+./runtests.mpi.unix procs $np Ar_scs-mp2_cc-vqz
 ./runtests.mpi.unix procs $np h2o_dftmp2_cgmin h2o_udftmp2_cgmin
 #
 #--- cdspectrum tests
