@@ -115,6 +115,12 @@ c     flag and scaling factors for SCS-MP2
      $    fss = one
         if (.not. rtdb_get(rtdb, 'mp2:fos', mt_dbl, 1, fos))
      $    fos = one
+        if ((fss.ne.one).or.(fos.ne.one)) then
+          if (ga_nodeid().eq.0) then
+            write(6,*) "You set fss or fos but not scs; setting scs=T"
+          endif
+          scs = .true.
+        endif
       endif
       hfss=half*fss
       mhfss=mhalf*fss
