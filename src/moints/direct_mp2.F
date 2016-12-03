@@ -449,27 +449,38 @@ c
  980      format(8f10.5)
         endif
         if (oprint) then
-          if (dftmp2) then
-            write(6,998) scf_energy,emp2,scf_energy+mp2fac*emp2
- 998        format(//,10x,43('-'),
-     $              /,10x,'DFT energy             ',f20.12,
-     $              /,10x,'Unscaled MP2 energy    ',f20.12,
-     $              /,10x,'Total DFT+MP2 energy   ',f20.12,
-     $              /,10x,43('-'),/)
-          else if (.not.scs) then
-            write(6,999) scf_energy, emp2, scf_energy+emp2
- 999        format(//,10x,43('-'),
-     $              /,10x,'SCF energy         ',f24.12,
-     $              /,10x,'Correlation energy ',f24.12,
-     $              /,10x,'Total MP2 energy   ',f24.12,
-     $              /,10x,43('-'),/)
-          else
-            write(6,997) scf_energy, emp2, scf_energy+emp2
- 997        format(//,10x,47('-'),
-     $              /,10x,'SCF energy             ',f24.12,
-     $              /,10x,'SCS Correlation energy ',f24.12,
-     $              /,10x,'Total SCS-MP2 energy   ',f24.12,
-     $              /,10x,47('-'),/)
+          if (dftmp2) then ! DHDF
+            if (scs) then
+              write(6,996) scf_energy,emp2,scf_energy+mp2fac*emp2
+ 996          format(//,10x,43('-'),
+     $                /,10x,'DFT energy               ',f24.12,
+     $                /,10x,'Unscaled SCS-MP2 energy  ',f24.12,
+     $                /,10x,'Total DFT+SCS-MP2 energy ',f24.12,
+     $                /,10x,43('-'),/)
+            else
+              write(6,998) scf_energy,emp2,scf_energy+mp2fac*emp2
+ 998          format(//,10x,43('-'),
+     $                /,10x,'DFT energy             ',f24.12,
+     $                /,10x,'Unscaled MP2 energy    ',f24.12,
+     $                /,10x,'Total DFT+MP2 energy   ',f24.12,
+     $                /,10x,43('-'),/)
+            endif
+          else ! HF-based MP2
+            if (scs) then
+              write(6,997) scf_energy, emp2, scf_energy+emp2
+ 997          format(//,10x,47('-'),
+     $                /,10x,'SCF energy             ',f24.12,
+     $                /,10x,'SCS Correlation energy ',f24.12,
+     $                /,10x,'Total SCS-MP2 energy   ',f24.12,
+     $                /,10x,47('-'),/)
+            else
+              write(6,999) scf_energy, emp2, scf_energy+emp2
+ 999          format(//,10x,43('-'),
+     $                /,10x,'SCF energy         ',f24.12,
+     $                /,10x,'Correlation energy ',f24.12,
+     $                /,10x,'Total MP2 energy   ',f24.12,
+     $                /,10x,43('-'),/)
+            endif
           endif
         endif
         status = ma_pop_stack(l_epair)
