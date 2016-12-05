@@ -5,11 +5,11 @@
 *     *************************
       subroutine ion_init_FixIon(rtdb)
       implicit none
-#include "errquit.fh"
       integer rtdb
 
 #include "bafdecls.fh"
 #include "btdb.fh"
+#include "errquit.fh"
 
 
 *     **** FixIon common block ****
@@ -18,9 +18,10 @@
       common / FixIon_Block / ion_number,count
 
 *     **** FixIonz common block ****
-      integer countz
-      integer ion_numberz(2)
-      common / FixIonz_Block / ion_numberz,countz
+      integer countx,county,countz
+      integer ion_numberx(2),ion_numbery(2),ion_numberz(2)
+      common / FixIonz_Block / ion_numberx,ion_numbery,ion_numberz,
+     >                         countx,county,countz
 
 
 *     **** FixIon2 common block - inverse forces ****
@@ -46,6 +47,8 @@
 *     *** initialize the  number of constraints ****
       count  = 0
       count2 = 0
+      countx = 0
+      county = 0
       countz = 0
 
 *     **** get the nions, including charges and qmmm ****
@@ -191,6 +194,79 @@
          end if
       end if
 
+*     ******************************************************************
+*     **** nwpw:xfreezelist constraints have been imposed           ****
+*     ******************************************************************
+      if (rtdb_ma_get(rtdb, 'nwpw:xfreezelist', ma_type,
+     >        nconstraints, h_actlist)) then
+
+         if (.not.BA_get_index(h_actlist,l_actlist))
+     >      call errquit(
+     >       'ion_init_FixIon: ma_get_index failed for actlist',911,
+     >       MA_ERR)
+
+           countx = nconstraints
+*          ***** allocate constraint list, ion_number, from heap ****
+           if (.not. BA_alloc_get(mt_int,nconstraints,
+     >       'ion_numberx',ion_numberx(2),ion_numberx(1)))
+     >         call errquit('out of heap memory',0, MA_ERR)
+
+           do i=1,countx
+              int_mb(ion_numberx(1)+i-1)  = int_mb(l_actlist+i-1)
+           end do
+
+*        *** free heap ***
+         if (.not. BA_free_heap(h_actlist))
+     >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
+      end if
+
+      if (countx.ne.0) then
+         call ion_add_constraint(countx)
+         call Parallel_taskid(taskid)
+         if (taskid.eq.MASTER) then
+          write(*,*)
+          write(*,1005) (int_mb(ion_numberx(1)+i-1),i=1,countx)
+          write(*,*)
+         end if
+      end if
+
+*     ******************************************************************
+*     **** nwpw:yfreezelist constraints have been imposed           ****
+*     ******************************************************************
+      if (rtdb_ma_get(rtdb, 'nwpw:yfreezelist', ma_type,
+     >        nconstraints, h_actlist)) then
+
+         if (.not.BA_get_index(h_actlist,l_actlist))
+     >      call errquit(
+     >       'ion_init_FixIon: ma_get_index failed for actlist',911,
+     >       MA_ERR)
+
+           county = nconstraints
+*          ***** allocate constraint list, ion_number, from heap ****
+           if (.not. BA_alloc_get(mt_int,nconstraints,
+     >       'ion_numbery',ion_numbery(2),ion_numbery(1)))
+     >         call errquit('out of heap memory',0, MA_ERR)
+
+           do i=1,county
+              int_mb(ion_numbery(1)+i-1)  = int_mb(l_actlist+i-1)
+           end do
+
+*        *** free heap ***
+         if (.not. BA_free_heap(h_actlist))
+     >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
+      end if
+
+      if (county.ne.0) then
+         call ion_add_constraint(county)
+         call Parallel_taskid(taskid)
+         if (taskid.eq.MASTER) then
+          write(*,*)
+          write(*,1006) (int_mb(ion_numbery(1)+i-1),i=1,county)
+          write(*,*)
+         end if
+      end if
+
+
 
 *     ******************************************************************
 *     **** nwpw:zfreezelist constraints have been imposed           ****
@@ -223,10 +299,12 @@
          call Parallel_taskid(taskid)
          if (taskid.eq.MASTER) then
           write(*,*)
-          write(*,1005) (int_mb(ion_numberz(1)+i-1),i=1,countz)
+          write(*,1007) (int_mb(ion_numberz(1)+i-1),i=1,countz)
           write(*,*)
          end if
       end if
+
+
 
 
 *     ******************************************************************
@@ -281,7 +359,9 @@
       return
  1003 FORMAT(1x,"Fixed ion positions:",10I5)
  1004 FORMAT(1x,"Inversion constraints:",10I5)
- 1005 FORMAT(1x,"Fixed ion z-positions:",10I5)
+ 1005 FORMAT(1x,"Fixed ion x-positions:",10I5)
+ 1006 FORMAT(1x,"Fixed ion y-positions:",10I5)
+ 1007 FORMAT(1x,"Fixed ion z-positions:",10I5)
       end
 
 
@@ -303,9 +383,10 @@
       common / FixIon_Block / ion_number,count
 
 *     **** FixIonz common block ****
-      integer countz
-      integer ion_numberz(2)
-      common / FixIonz_Block / ion_numberz,countz
+      integer countx,county,countz
+      integer ion_numberx(2),ion_numbery(2),ion_numberz(2)
+      common / FixIonz_Block / ion_numberx,ion_numbery,ion_numberz,
+     >                         countx,county,countz
 
 
 *     **** FixIon2 common block - inverse forces ****
@@ -324,6 +405,22 @@
             force(1,int_mb(ion_number(1)+i-1)) = 0.0d0
             force(2,int_mb(ion_number(1)+i-1)) = 0.0d0
             force(3,int_mb(ion_number(1)+i-1)) = 0.0d0
+         end do
+!$OMP END DO
+      end if
+
+      if (countx.ne.0) then
+!$OMP DO
+         do i=1,countx
+            force(1,int_mb(ion_numberx(1)+i-1)) = 0.0d0
+         end do
+!$OMP END DO
+      end if
+
+      if (county.ne.0) then
+!$OMP DO
+         do i=1,county
+            force(2,int_mb(ion_numbery(1)+i-1)) = 0.0d0
          end do
 !$OMP END DO
       end if
@@ -410,17 +507,15 @@
       common / FixIon_Block / ion_number,count
 
 *     **** FixIonz common block ****
-      integer countz
-      integer ion_numberz(2)
-      common / FixIonz_Block / ion_numberz,countz
-
+      integer countx,county,countz
+      integer ion_numberx(2),ion_numbery(2),ion_numberz(2)
+      common / FixIonz_Block / ion_numberx,ion_numbery,ion_numberz,
+     >                         countx,county,countz
 
 *     **** FixIon2 common block - inverse forces ****
       integer count2
       integer ion_number1(2),ion_number1r(2)
       common / FixIon2_Block / ion_number1,ion_number1r,count2
-
-
 
       logical value
 
@@ -429,6 +524,20 @@
         if (.not. value)
      >  call errquit('ion_number(2):error freeing heap memory',0,
      &       MA_ERR)
+      end if
+
+      if (countx.gt.0) then
+        value =  BA_free_heap(ion_numberx(2)) 
+        if (.not. value)
+     >  call errquit('ion_numberx(2):error freeing heap memory',0,
+     >       MA_ERR)
+      end if
+
+      if (county.gt.0) then
+        value =  BA_free_heap(ion_numbery(2)) 
+        if (.not. value)
+     >  call errquit('ion_numbery(2):error freeing heap memory',0,
+     >       MA_ERR)
       end if
 
       if (countz.gt.0) then
@@ -488,10 +597,70 @@
 
 *     ***************************
 *     *                         *
-*     *         ion_q_zFixIon    *
+*     *       ion_q_xFixIon     *
 *     *                         *
 *     ***************************
+      logical function ion_q_xFixIon(i)
+      implicit none
+      integer i
 
+#include "bafdecls.fh"
+
+*     **** FixIonz common block ****
+      integer countx,county,countz
+      integer ion_numberx(2),ion_numbery(2),ion_numberz(2)
+      common / FixIonz_Block / ion_numberx,ion_numbery,ion_numberz,
+     >                         countx,county,countz
+
+*     **** local variables ***
+      logical found
+      integer j
+
+      found = .false.
+      do j=1,countx
+         if (i .eq. int_mb(ion_numberx(1)+j-1)) found = .true.
+      end do
+
+      ion_q_xFixIon = found
+      return
+      end
+
+*     ***************************
+*     *                         *
+*     *       ion_q_yFixIon     *
+*     *                         *
+*     ***************************
+      logical function ion_q_yFixIon(i)
+      implicit none
+      integer i
+
+#include "bafdecls.fh"
+
+*     **** FixIonz common block ****
+      integer countx,county,countz
+      integer ion_numberx(2),ion_numbery(2),ion_numberz(2)
+      common / FixIonz_Block / ion_numberx,ion_numbery,ion_numberz,
+     >                         countx,county,countz
+
+*     **** local variables ***
+      logical found
+      integer j
+
+      found = .false.
+      do j=1,county
+         if (i .eq. int_mb(ion_numbery(1)+j-1)) found = .true.
+      end do
+
+      ion_q_yFixIon = found
+      return
+      end
+
+
+*     ***************************
+*     *                         *
+*     *       ion_q_zFixIon     *
+*     *                         *
+*     ***************************
       logical function ion_q_zFixIon(i)
       implicit none
       integer i
@@ -499,9 +668,10 @@
 #include "bafdecls.fh"
 
 *     **** FixIonz common block ****
-      integer countz
-      integer ion_numberz(2)
-      common / FixIonz_Block / ion_numberz,countz
+      integer countx,county,countz
+      integer ion_numberx(2),ion_numbery(2),ion_numberz(2)
+      common / FixIonz_Block / ion_numberx,ion_numbery,ion_numberz,
+     >                         countx,county,countz
 
 *     **** local variables ***
       logical found
@@ -519,6 +689,10 @@
 
 
 
+
+
+
+
 *     ***********************************
 *     *				        *
 *     *	    zFixIon_force_average	*
@@ -532,9 +706,10 @@
 #include "errquit.fh"
 
 *     **** FixIonz common block ****
-      integer countz
-      integer ion_numberz(2)
-      common / FixIonz_Block / ion_numberz,countz
+      integer countx,county,countz
+      integer ion_numberx(2),ion_numbery(2),ion_numberz(2)
+      common / FixIonz_Block / ion_numberx,ion_numbery,ion_numberz,
+     >                         countx,county,countz
 
 
 *     **** local variables ****
