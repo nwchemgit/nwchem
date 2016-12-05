@@ -42,8 +42,8 @@ c     **********************************************
 
 
 *     **** external functions ****
-      logical  ion_init,ion_q_FixIon,ion_q_zFixIon
-      external ion_init,ion_q_FixIon,ion_q_zFixIon
+      logical  ion_init,ion_q_FixIon,ion_q_xyzFixIon
+      external ion_init,ion_q_FixIon,ion_q_xyzFixIon
       integer  Parallel2d_convert_taskid_i
       external Parallel2d_convert_taskid_i
       integer  ion_nion,ion_natm,ion_katm,ion_nkatm
@@ -60,6 +60,8 @@ c     **********************************************
       external control_rotation,control_translation
       integer  control_bo_steps_in,control_bo_steps_out
       external control_bo_steps_in,control_bo_steps_out
+      character*14 ion_q_xyzFixIon_label
+      external     ion_q_xyzFixIon_label
 
       real*8   ion_amass,ion_rion
       external ion_amass,ion_rion
@@ -252,9 +254,9 @@ c     **********************************************
            if (ion_q_FixIon(I)) then
            write(luout,191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
      >                   ion_amass(I)/1822.89d0,ion_amm(i)
-           else if (ion_q_zFixIon(I)) then
-           write(luout,193) I,ion_aname(I),(ion_rion(K,I),K=1,3),
-     >                   ion_amass(I)/1822.89d0
+           else if (ion_q_xyzFixIon(I)) then
+           write(luout,194) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0,ion_q_xyzFixIon_label(I)
            else
            write(luout,190) I,ion_aname(I),(ion_rion(K,I),K=1,3),
      >                   ion_amass(I)/1822.89d0,ion_amm(i)
@@ -334,6 +336,8 @@ c        **** deallocate stack ****
      >       ' ) - atomic mass= ',F7.3,' - fixed ',A)
   193 FORMAT(5X, I4, A5, ' (',3F11.5,
      >       ' ) - atomic mass= ',F7.3,' - z fixed')
+  194 FORMAT(5X, I4, A5, ' (',3F11.5,
+     >       ' ) - atomic mass= ',F7.3,A)
   200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
   210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
  1130 FORMAT(/' supercell:')
