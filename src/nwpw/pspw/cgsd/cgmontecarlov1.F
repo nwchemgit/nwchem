@@ -144,8 +144,8 @@
       external ion_TotalCharge
       logical  control_check_charge_multiplicity
       external control_check_charge_multiplicity
-      logical   pspw_charge_found,ion_q_FixIon,ion_q_zFixIon
-      external  pspw_charge_found,ion_q_FixIon,ion_q_zFixIon
+      logical   pspw_charge_found,ion_q_FixIon,ion_q_xyzFixIon
+      external  pspw_charge_found,ion_q_FixIon,ion_q_xyzFixIon
       integer  control_minimizer,control_scf_algorithm
       external control_minimizer,control_scf_algorithm
       integer  control_ks_algorithm
@@ -158,6 +158,8 @@
       external control_mapping,control_mapping1d,control_np_orbital
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
+      character*14 ion_q_xyzFixIon_label
+      external     ion_q_xyzFixIon_label
 
       logical  pspw_bqext,control_Fei
       external pspw_bqext,control_Fei
@@ -443,9 +445,9 @@
            if (ion_q_FixIon(I)) then
            write(luout,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
      >                   ion_amass(I)/1822.89d0
-           else if (ion_q_zFixIon(I)) then
-           write(luout,1193) I,ion_aname(I),(ion_rion(K,I),K=1,3),
-     >                   ion_amass(I)/1822.89d0
+           else if (ion_q_xyzFixIon(I)) then
+           write(luout,1194) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0,ion_q_xyzFixIon_label(I)
            else
            write(luout,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3),
      >                   ion_amass(I)/1822.89d0
@@ -975,9 +977,9 @@ c     >                        ratio_v,wa,wr,wa_v,wr_v
            if (ion_q_FixIon(I)) then
            write(luout,1191) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0
-           else if (ion_q_zFixIon(I)) then
-           write(luout,1193) I,ion_aname(I),(ion_rion(k,i),K=1,3),
-     >                   ion_amass(I)/1822.89d0
+           else if (ion_q_xyzFixIon(I)) then
+           write(luout,1194) I,ion_aname(I),(ion_rion(k,i),K=1,3),
+     >                   ion_amass(I)/1822.89d0,ion_q_xyzFixIon_label(I)
            else
            write(luout,1190) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0
@@ -1190,6 +1192,8 @@ c     >                        ratio_v,wa,wr,wa_v,wr_v
  1192 FORMAT(5X, I4, A5  ,' (',3F11.5,' )')
  1193 FORMAT(5X, I4, A5, ' (',3F11.5,
      >       ' ) - atomic mass= ',F7.3,' - z fixed')
+ 1194 FORMAT(5X, I4, A5, ' (',3F11.5,
+     >       ' ) - atomic mass= ',F7.3,A)
 
  1200 FORMAT(5X,'    G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
