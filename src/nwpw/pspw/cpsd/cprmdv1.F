@@ -129,8 +129,10 @@ CDEC$ OPTIMIZE:0
       external control_time_step,control_fake_mass
       logical  control_read,control_move,ion_init,ion_q_FixIon
       external control_read,control_move,ion_init,ion_q_FixIon
-      logical  ion_q_zFixIon
-      external ion_q_zFixIon
+      logical  ion_q_xyzFixIon
+      external ion_q_xyzFixIon
+      character*14 ion_q_xyzFixIon_label
+      external     ion_q_xyzFixIon_label
 
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
@@ -535,9 +537,9 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
            if (ion_q_FixIon(I)) then
            write(luout,1191) I,ion_aname(I),
      >                    (ion_rion(K,I),K=1,3),ion_amass(i)/1822.89d0
-           else if (ion_q_zFixIon(I)) then
-           write(luout,1193) I,ion_aname(I),(ion_rion(K,I),K=1,3),
-     >                   ion_amass(I)/1822.89d0
+           else if (ion_q_xyzFixIon(I)) then
+           write(luout,1194) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0,ion_q_xyzFixIon_label(I)
            else
            write(luout,1190) I,ion_aname(I),
      >                    (ion_rion(K,I),K=1,3),ion_amass(i)/1822.89d0
@@ -1052,9 +1054,9 @@ c         end if
            if (ion_q_FixIon(I)) then
            write(luout,1191) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0
-           else if (ion_q_zFixIon(I)) then
-           write(6,1193) I,ion_aname(I),(ion_rion(k,i),K=1,3),
-     >                   ion_amass(I)/1822.89d0
+           else if (ion_q_xyzFixIon(I)) then
+           write(6,1194) I,ion_aname(I),(ion_rion(k,i),K=1,3),
+     >                   ion_amass(I)/1822.89d0,ion_q_xyzFixIon_label(I)
            else
            write(luout,1190) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0
@@ -1346,6 +1348,8 @@ c      call frac_occ_end()
  1192 FORMAT(5X, I4, A5  ,' (',3F11.5,' )')
  1193 FORMAT(5X, I4, A5, ' (',3F11.5,
      >       ' ) - atomic mass= ',F7.3,' - z fixed')
+ 1194 FORMAT(5X, I4, A5, ' (',3F11.5,
+     >       ' ) - atomic mass= ',F7.3,A)
 
  1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
  1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
