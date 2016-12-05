@@ -686,10 +686,399 @@
       return
       end
 
+*     ***************************
+*     *                         *
+*     *     ion_q_xyzFixIon     *
+*     *                         *
+*     ***************************
+      logical function ion_q_xyzFixIon(i)
+      implicit none
+      integer i
+
+#include "bafdecls.fh"
+
+*     **** FixIonz common block ****
+      integer countx,county,countz
+      integer ion_numberx(2),ion_numbery(2),ion_numberz(2)
+      common / FixIonz_Block / ion_numberx,ion_numbery,ion_numberz,
+     >                         countx,county,countz
+
+*     **** local variables ***
+      logical found
+      integer j
+
+      found = .false.
+      do j=1,countx
+         if (i .eq. int_mb(ion_numberx(1)+j-1)) found = .true.
+      end do
+      do j=1,county
+         if (i .eq. int_mb(ion_numbery(1)+j-1)) found = .true.
+      end do
+      do j=1,countz
+         if (i .eq. int_mb(ion_numberz(1)+j-1)) found = .true.
+      end do
+
+      ion_q_xyzFixIon = found
+      return
+      end
+
+*     *********************************
+*     *                               *
+*     *     ion_q_xyzFixIon_label     *
+*     *                               *
+*     *********************************
+      character*14 function ion_q_xyzFixIon_label(i)
+      implicit none
+      integer i
+
+#include "bafdecls.fh"
+
+*     **** FixIonz common block ****
+      integer countx,county,countz
+      integer ion_numberx(2),ion_numbery(2),ion_numberz(2)
+      common / FixIonz_Block / ion_numberx,ion_numbery,ion_numberz,
+     >                         countx,county,countz
+
+*     **** local variables ***
+      logical foundx,foundy,foundz
+      integer j
+      character*14 label
+
+      foundx = .false.
+      foundy = .false.
+      foundz = .false.
+      do j=1,countx
+         if (i .eq. int_mb(ion_numberx(1)+j-1)) foundx = .true.
+      end do
+      do j=1,county
+         if (i .eq. int_mb(ion_numbery(1)+j-1)) foundy = .true.
+      end do
+      do j=1,countz
+         if (i .eq. int_mb(ion_numberz(1)+j-1)) foundz = .true.
+      end do
+      
+      label = "              "
+      if      (foundx.and.foundy.and.foundz) then
+         label = " - x,y,z fixed"
+      else if (foundx.and.foundy) then
+         label = " - x,y   fixed"
+      else if (foundx.and.foundz) then
+         label = " - x,z   fixed"
+      else if (foundy.and.foundz) then
+         label = " - y,z   fixed"
+      else if (foundx) then
+         label = " - x     fixed"
+      else if (foundy) then
+         label = " - y f   fixed"
+      else if (foundz) then
+         label = " - z     fixed"
+      end if
+
+      ion_q_xyzFixIon_label = label
+      return
+      end 
 
 
 
 
+*     ***********************************
+*     *				        *
+*     *	    xFixIon_force_average	*
+*     *	 		                *
+*     ***********************************
+      subroutine xFixIon_force_average(filename)
+      implicit none
+      character*(*) filename
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** FixIonz common block ****
+      integer countx,county,countz
+      integer ion_numberx(2),ion_numbery(2),ion_numberz(2)
+      common / FixIonz_Block / ion_numberx,ion_numbery,ion_numberz,
+     >                         countx,county,countz
+
+
+*     **** local variables ****
+      logical ok
+      integer nion
+      integer m,indx,indx2,indx3,ii,iii,nframe,l
+      double precision E
+      double precision a1x,a1y,a1z
+      double precision a2x,a2y,a2z
+      double precision a3x,a3y,a3z
+      integer r1(2),f1(2),af1(2),af2(2),ac1(2)
+      character*2 tag2
+      character*4 tag4
+
+      if (countx.gt.0) then
+         l = index(filename,' ') - 1
+         write(*,*)
+         write(*,*) "Force Energy File:",filename(1:l)
+
+         open(unit=35,file=filename,form='formatted',status='old')
+         read(35,*) nion
+         close(unit=35)
+
+         ok =        BA_push_get(mt_dbl,3*nion,'r1',r1(2),r1(1))
+         ok = ok.and.BA_push_get(mt_dbl,3*nion,'f1',f1(2),f1(1))
+         ok = ok.and.BA_push_get(mt_dbl,countx,'af1',af1(2),af1(1))
+         ok = ok.and.BA_push_get(mt_dbl,countx,'af2',af2(2),af2(1))
+         ok = ok.and.BA_push_get(mt_dbl,countx,'ac1',ac1(2),ac1(1))
+         if (.not.ok)
+     >    call errquit('xFixIon_force_average: out of stack',1,MA_ERR)
+         call dcopy(countx,0.0d0,0,dbl_mb(af1(1)),1)
+         call dcopy(countx,0.0d0,0,dbl_mb(af2(1)),1)
+         call dcopy(countx,0.0d0,0,dbl_mb(ac1(1)),1)
+
+         open(unit=35,file=filename,form='formatted',status='old')
+         nframe = 0
+         do while (.true.)
+            read(35,*,ERR=30,END=30) nion
+            read(35,*,ERR=30,END=30) E
+            read(35,*,ERR=30,END=30) a1x,a1y,a1z
+            read(35,*,ERR=30,END=30) a2x,a2y,a2z
+            read(35,*,ERR=30,END=30) a3x,a3y,a3z
+            indx = 0
+            do ii=1,nion
+              read(35,*,ERR=30,END=30) iii,tag2,tag4,
+     >                                 dbl_mb(r1(1)+indx),
+     >                                 dbl_mb(r1(1)+indx+1),
+     >                                 dbl_mb(r1(1)+indx+2),
+     >                                 dbl_mb(f1(1)+indx),
+     >                                 dbl_mb(f1(1)+indx+1),
+     >                                 dbl_mb(f1(1)+indx+2)
+              indx = indx + 3
+            end do
+
+            nframe = nframe + 1
+            call xFixIon_sub_force_average(dbl_mb(r1(1)),
+     >                                     dbl_mb(f1(1)),
+     >                                     countx,
+     >                                     int_mb(ion_numberx(1)), 
+     >                                     dbl_mb(af1(1)),
+     >                                     dbl_mb(af2(1)),
+     >                                     dbl_mb(ac1(1)))
+         end do
+
+  30     continue
+         close(unit=35)
+
+         if (nframe.eq.0) then
+            E = 0.0d0
+         else
+            E = 1.0d0/dble(nframe)
+         end if
+         call dscal(countx,E,dbl_mb(af1(1)),1)
+         call dscal(countx,E,dbl_mb(af2(1)),1)
+         call dscal(countx,E,dbl_mb(ac1(1)),1)
+
+         write(*,110) nframe
+         write(*,111) countx
+         write(*,112) nion
+  110    format(1x,'frames used           =',I8)
+  111    format(1x,'number of constraints =',I8)
+  112    format(1x,'number of atoms       =',I8)
+         do m=1,countx
+            write(*,120) int_mb(ion_numberx(1)+m-1),
+     >                   dbl_mb(ac1(1)+m-1),
+     >                   dbl_mb(af1(1)+m-1),
+     >                   dbl_mb(af2(1)+m-1)-dbl_mb(af1(1)+m-1)**2
+         end do
+  120    format(1x,'atom=',I5,
+     >          1x,'<x>=', E14.6,
+     >          4x,'<Fx>=',E14.6,
+     >          1x,'(<F**2>-<F>**2=',E10.3,')')
+
+         ok =        BA_pop_stack(ac1(2))
+         ok = ok.and.BA_pop_stack(af2(2))
+         ok = ok.and.BA_pop_stack(af1(2))
+         ok = ok.and.BA_pop_stack(f1(2))
+         ok = ok.and.BA_pop_stack(r1(2))
+         if (.not.ok)
+     >    call errquit(
+     >         'xFixIon_force_average: error popping stack',1,MA_ERR)
+
+      end if
+
+      return
+      end
+
+      subroutine xFixIon_sub_force_average(rion,fion,
+     >                                     nindx,indx,
+     >                                     af,af2,ac)
+      implicit none
+      real*8 rion(3,*)
+      real*8 fion(3,*)
+      integer nindx,indx(*)
+      real*8 af(*)
+      real*8 af2(*)
+      real*8 ac(*)
+
+*     **** local variables
+      integer m
+      real*8 ff
+
+      do m=1,nindx
+         ff = fion(1,indx(m)) 
+         af(m)  = af(m)  + ff
+         af2(m) = af2(m) + ff*ff
+         ac(m)  = ac(m)  + rion(1,indx(m))
+      end do
+
+      return
+      end
+
+
+*     ***********************************
+*     *				        *
+*     *	    yFixIon_force_average	*
+*     *	 		                *
+*     ***********************************
+      subroutine yFixIon_force_average(filename)
+      implicit none
+      character*(*) filename
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** FixIonz common block ****
+      integer countx,county,countz
+      integer ion_numberx(2),ion_numbery(2),ion_numberz(2)
+      common / FixIonz_Block / ion_numberx,ion_numbery,ion_numberz,
+     >                         countx,county,countz
+
+
+*     **** local variables ****
+      logical ok
+      integer nion
+      integer m,indx,indx2,indx3,ii,iii,nframe,l
+      double precision E
+      double precision a1x,a1y,a1z
+      double precision a2x,a2y,a2z
+      double precision a3x,a3y,a3z
+      integer r1(2),f1(2),af1(2),af2(2),ac1(2)
+      character*2 tag2
+      character*4 tag4
+
+      if (county.gt.0) then
+         l = index(filename,' ') - 1
+         write(*,*)
+         write(*,*) "Force Energy File:",filename(1:l)
+
+         open(unit=35,file=filename,form='formatted',status='old')
+         read(35,*) nion
+         close(unit=35)
+
+         ok =        BA_push_get(mt_dbl,3*nion,'r1',r1(2),r1(1))
+         ok = ok.and.BA_push_get(mt_dbl,3*nion,'f1',f1(2),f1(1))
+         ok = ok.and.BA_push_get(mt_dbl,county,'af1',af1(2),af1(1))
+         ok = ok.and.BA_push_get(mt_dbl,county,'af2',af2(2),af2(1))
+         ok = ok.and.BA_push_get(mt_dbl,county,'ac1',ac1(2),ac1(1))
+         if (.not.ok)
+     >    call errquit('yFixIon_force_average: out of stack',1,MA_ERR)
+         call dcopy(county,0.0d0,0,dbl_mb(af1(1)),1)
+         call dcopy(county,0.0d0,0,dbl_mb(af2(1)),1)
+         call dcopy(county,0.0d0,0,dbl_mb(ac1(1)),1)
+
+         open(unit=35,file=filename,form='formatted',status='old')
+         nframe = 0
+         do while (.true.)
+            read(35,*,ERR=30,END=30) nion
+            read(35,*,ERR=30,END=30) E
+            read(35,*,ERR=30,END=30) a1x,a1y,a1z
+            read(35,*,ERR=30,END=30) a2x,a2y,a2z
+            read(35,*,ERR=30,END=30) a3x,a3y,a3z
+            indx = 0
+            do ii=1,nion
+              read(35,*,ERR=30,END=30) iii,tag2,tag4,
+     >                                 dbl_mb(r1(1)+indx),
+     >                                 dbl_mb(r1(1)+indx+1),
+     >                                 dbl_mb(r1(1)+indx+2),
+     >                                 dbl_mb(f1(1)+indx),
+     >                                 dbl_mb(f1(1)+indx+1),
+     >                                 dbl_mb(f1(1)+indx+2)
+              indx = indx + 3
+            end do
+
+            nframe = nframe + 1
+            call yFixIon_sub_force_average(dbl_mb(r1(1)),
+     >                                     dbl_mb(f1(1)),
+     >                                     county,
+     >                                     int_mb(ion_numberx(1)), 
+     >                                     dbl_mb(af1(1)),
+     >                                     dbl_mb(af2(1)),
+     >                                     dbl_mb(ac1(1)))
+         end do
+
+  30     continue
+         close(unit=35)
+
+         if (nframe.eq.0) then
+            E = 0.0d0
+         else
+            E = 1.0d0/dble(nframe)
+         end if
+         call dscal(county,E,dbl_mb(af1(1)),1)
+         call dscal(county,E,dbl_mb(af2(1)),1)
+         call dscal(county,E,dbl_mb(ac1(1)),1)
+
+         write(*,110) nframe
+         write(*,111) county
+         write(*,112) nion
+  110    format(1x,'frames used           =',I8)
+  111    format(1x,'number of constraints =',I8)
+  112    format(1x,'number of atoms       =',I8)
+         do m=1,county
+            write(*,120) int_mb(ion_numbery(1)+m-1),
+     >                   dbl_mb(ac1(1)+m-1),
+     >                   dbl_mb(af1(1)+m-1),
+     >                   dbl_mb(af2(1)+m-1)-dbl_mb(af1(1)+m-1)**2
+         end do
+  120    format(1x,'atom=',I5,
+     >          1x,'<y>=', E14.6,
+     >          4x,'<Fy>=',E14.6,
+     >          1x,'(<F**2>-<F>**2=',E10.3,')')
+
+         ok =        BA_pop_stack(ac1(2))
+         ok = ok.and.BA_pop_stack(af2(2))
+         ok = ok.and.BA_pop_stack(af1(2))
+         ok = ok.and.BA_pop_stack(f1(2))
+         ok = ok.and.BA_pop_stack(r1(2))
+         if (.not.ok)
+     >    call errquit(
+     >         'xFixIon_force_average: error popping stack',1,MA_ERR)
+
+      end if
+
+      return
+      end
+
+      subroutine yFixIon_sub_force_average(rion,fion,
+     >                                     nindx,indx,
+     >                                     af,af2,ac)
+      implicit none
+      real*8 rion(3,*)
+      real*8 fion(3,*)
+      integer nindx,indx(*)
+      real*8 af(*)
+      real*8 af2(*)
+      real*8 ac(*)
+
+*     **** local variables
+      integer m
+      real*8 ff
+
+      do m=1,nindx
+         ff = fion(2,indx(m)) 
+         af(m)  = af(m)  + ff
+         af2(m) = af2(m) + ff*ff
+         ac(m)  = ac(m)  + rion(2,indx(m))
+      end do
+
+      return
+      end
 
 
 
