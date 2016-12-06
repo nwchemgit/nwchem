@@ -182,8 +182,12 @@ c
 c        filename=
 c     >   libname(1:inp_strlen(libname))//library(1:ind)//element(1:l)
 c     >   //'_basis'
-        filename=
+        if (library(1:1).eq.'/') then
+             filename=library(1:ind)//element(1:l)
+        else
+           filename=
      >   libname(1:inp_strlen(libname))//library(1:ind)//element(1:l)
+       end if
 
         if (hprint) then
         write(luout,*)
@@ -219,8 +223,12 @@ c     >   //'_basis'
           library = library_name(1:ind)//'/'
           ind = index(library,' ')  -1
 
-          filename=
+          if (library(1:1).eq.'/') then
+             filename=library(1:ind)//element(1:l)
+          else
+             filename=
      >     libname(1:inp_strlen(libname))//library(1:ind)//element(1:l)
+          end if
 
         !*** cpi filename ***
         else if (library_type.eq.2) then
