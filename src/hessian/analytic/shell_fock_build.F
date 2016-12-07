@@ -370,6 +370,7 @@ c
       external bgj_get_rtdb_handle
       integer rtdb_out
       integer idone,iskipped,jj
+      logical skipk,skipk2
 c     
       firstij=.true.
       firstkl=.true.
@@ -378,6 +379,14 @@ c
       firstil=.true.
       firstjk=.true.
       smax  = schwarz_max()
+      skipk=.true.
+c     this allows to skip Exchange K Terms
+c     jk il jl
+      do jj=1,ndens
+         if(abs(kfac(jj)).gt.1d-8) skipk=.false.
+      enddo
+      skipk2=.false.
+      skipk2=skipk
       call int_acc_std()
       g_dens0 = 0
       g_fock0 = 0
@@ -437,9 +446,9 @@ cuseless assignments
       nbh_jl=5
       nbh_kl=6
       do ij=1,6
+         cache_ij(ij)=-1
 c first row = hit
 c 2nd   row = miss
-         cache_ij(ij)=-1
          cache_hitmiss(1,ij)=0
          cache_hitmiss(2,ij)=0
       enddo
@@ -513,21 +522,6 @@ c     distribute work on ijk
                if (mod(ijkblock,ga_nnodes()).eq.ga_nodeid()) then
 #endif
                if (ishblock .eq. kshblock) lblockhi = jshblock
-c               do lshblock = 1, lblockhi
-               do l0 = ga_nodeid(), lblockhi+ga_nodeid()-1
-                  lshblock=mod(l0,lblockhi)+1
-                  ptr_ij(KL)=(lshblock-1)*nshblocks+kshblock
-                  ptr_ij(JL)=(lshblock-1)*nshblocks+jshblock
-                  ptr_ij(IL)=(lshblock-1)*nshblocks+ishblock
-                  lshlo = shglo(lshblock)
-                  lshhi = shghi(lshblock)
-                  lbflo = bfglo(lshblock)
-                  lbfhi = bfghi(lshblock)
-                  ldim  = lbfhi - lbflo + 1
-c                  if (next .eq. ijklblock) then
-                     bledo=max(bledoijk,ldim)
-c     
-c     Get blocks of the one-particle densities
 c     
                      if(ptr_ij(IJ).eq.cache_ij(IJ)) then
                         cache_hitmiss(1,IJ)=cache_hitmiss(1,IJ)+1
@@ -548,38 +542,53 @@ c
                      if(ptr_ij(JK).eq.cache_ij(JK)) then
                         cache_hitmiss(1,JK)=cache_hitmiss(1,JK)+1
                      else
+                       if(.not.skipk) then
                         call new_get_dens_block(g_dens, ndens, bledo_dm, 
      $                       jbflo, jbfhi, kbflo, kbfhi, d_jk, kfac)
                         cache_ij(JK)=ptr_ij(JK)
                         cache_hitmiss(2,JK)=cache_hitmiss(2,JK)+1
+                        endif
                      endif
+c               do lshblock = 1, lblockhi
+               do l0 = ga_nodeid(), lblockhi+ga_nodeid()-1
+                  lshblock=mod(l0,lblockhi)+1
+                  ptr_ij(KL)=(lshblock-1)*nshblocks+kshblock
+                  ptr_ij(JL)=(lshblock-1)*nshblocks+jshblock
+                  ptr_ij(IL)=(lshblock-1)*nshblocks+ishblock
+                  lshlo = shglo(lshblock)
+                  lshhi = shghi(lshblock)
+                  lbflo = bfglo(lshblock)
+                  lbfhi = bfghi(lshblock)
+                  ldim  = lbfhi - lbflo + 1
+c                  if (next .eq. ijklblock) then
+                     bledo=max(bledoijk,ldim)
+c     
+c     Get blocks of the one-particle densities
                      if(ptr_ij(IL).eq.cache_ij(IL)) then
                         cache_hitmiss(1,IL)=cache_hitmiss(1,IL)+1
                      else
+                       if(.not.skipk) then
                         call new_get_dens_block(g_dens, ndens, bledo_dm, 
      $                       ibflo, ibfhi, lbflo, lbfhi, d_il, kfac)
                         cache_ij(IL)=ptr_ij(IL)
                         cache_hitmiss(2,IL)=cache_hitmiss(2,IL)+1
                      endif
+                     endif
                      if(ptr_ij(JL).eq.cache_ij(JL)) then
                         cache_hitmiss(1,JL)=cache_hitmiss(1,JL)+1
                      else
-#define NBG_JL_ 0
-#ifdef NBG_JL
-                        call new_get_dens_block(g_dens, ndens, bledo_dm, 
-     $                       jbflo, jbfhi, lbflo, lbfhi, d_jl, kfac,
-     N                       nbh_jl)
-#else
+                       if(.not.skipk) then
                         call new_get_dens_block(g_dens, ndens, bledo_dm, 
      $                       jbflo, jbfhi, lbflo, lbfhi, d_jl, kfac)
-#endif
+
                         cache_ij(JL)=ptr_ij(JL)
                         cache_hitmiss(2,JL)=cache_hitmiss(2,JL)+1
+                        endif
                      endif
                      if(ptr_ij(KL).eq.cache_ij(KL)) then
                         cache_hitmiss(1,KL)=cache_hitmiss(1,KL)+1
                      else
-#define NBG_KL_ 0
+#define NBG_KL_ 1
 #ifdef NBG_KL
                      call new_nbget_dens_block(g_dens, ndens, bledo_dm, 
      $                       kbflo, kbfhi, lbflo, lbfhi, 
@@ -724,15 +733,6 @@ c
 c                    if (.not. ma_verify_allocator_stuff())
 c    $                    call errquit(' ',0, MA_ERR)
 c     
-#ifdef NBG_JL
-                     if(nbh_jl.ne.0) then
-                        call ga_nbwait(nbh_jl)
-                        call scale_dens_block(d_jl,ndens,bledo_dm,
-     $                       jbflo, jbfhi, jbflo, jbfhi, 
-     *                       jfac)
-                     endif
-                     nbh_jl=0
-#endif
 #ifdef NBG_KL
                      if(nbh_kl.ne.0) then
                         call ga_nbwait(nbh_kl)
@@ -749,7 +749,7 @@ c
      $                    f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
      $                    ndens, nfock, bledo, bledo_dm,
      R                         rbfmap,
-     $                    ibflo, jbflo, kbflo, lbflo)
+     $                    ibflo, jbflo, kbflo, lbflo, skipk2)
                         else
                           call new_fock_doit_der(nint,labels,leri,
      $                    eri,tol2e,
@@ -757,7 +757,7 @@ c
      $                    f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
      $                    ndens, nfock/ndens, bledo, bledo_dm,
      R                          rbfmap, bftoat,
-     $                    ibflo, jbflo, kbflo, lbflo)
+     $                    ibflo, jbflo, kbflo, lbflo, skipk2)
 c                                      
                         endif
                      endif
@@ -771,20 +771,22 @@ c
      $                 bledo, ibflo, ibfhi, jbflo, jbfhi, f_ij,
      F                    handij, firstij)
                      call new_acc_fock_block(g_fock, nfock, 
-     $                 bledo, kbflo, kbfhi, lbflo, lbfhi, f_kl,
-     F                    handkl, firstkl)
-                     call new_acc_fock_block(g_fock, nfock, 
-     $                 bledo, ibflo, ibfhi, kbflo, kbfhi, f_ik,
-     F                    handik, firstik)
-                     call new_acc_fock_block(g_fock, nfock, 
      $                 bledo, jbflo, jbfhi, lbflo, lbfhi, f_jl,
      F                    handjl, firstjl)
+                     if(.not.skipk2) then
+                     call new_acc_fock_block(g_fock, nfock, 
+     $                 bledo, jbflo, jbfhi, kbflo, kbfhi, f_jk,
+     F                    handjk, firstjk)
                      call new_acc_fock_block(g_fock, nfock, 
      $                 bledo, ibflo, ibfhi, lbflo, lbfhi, f_il,
      F                    handil, firstil)
                      call new_acc_fock_block(g_fock, nfock, 
-     $                 bledo, jbflo, jbfhi, kbflo, kbfhi, f_jk,
-     F                    handjk, firstjk)
+     $                 bledo, ibflo, ibfhi, kbflo, kbfhi, f_ik,
+     F                    handik, firstik)
+                     endif
+                     call new_acc_fock_block(g_fock, nfock, 
+     $                 bledo, kbflo, kbfhi, lbflo, lbfhi, f_kl,
+     F                    handkl, firstkl)
 c
 c     
                   ijklblock = ijklblock + 1
@@ -819,7 +821,7 @@ c
          else
             write(6,*) 'cm ',cache_hitmiss
          endif
-#if 1
+#if 0
       write(6,14) ' cacij hit: ',100d0*cache_hitmiss(1,1)/
      C     (cache_hitmiss(1,1)+cache_hitmiss(2,1)), '% out of ',
      C     cache_hitmiss(1,1)+cache_hitmiss(2,1), ' ga_gets'
@@ -935,6 +937,7 @@ c
             enddo
          enddo
       else
+#if 0
          do idens = 1, ndens
             factor = fac(idens)
             do i = 1, ibfhi-ibflo+1
@@ -943,6 +946,16 @@ c
                enddo
             enddo
          enddo
+#else
+         do j = 1, jbfhi-jbflo+1
+            do i = 1, ibfhi-ibflo+1
+               do idens = 1, ndens
+                  factor = fac(idens)
+                  buf(idens,i,j) = buf(idens,i,j) * fac(idens)
+               enddo
+            enddo
+         enddo
+#endif
       endif
 c
       return
@@ -1036,7 +1049,7 @@ C
      $     d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
      $     f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
      $     ndens, nfock, blen, blen_dm, rbfmap,
-     $     ibflo, jbflo, kbflo, lbflo)
+     $     ibflo, jbflo, kbflo, lbflo, skipk)
       implicit none
 #include "errquit.fh"
 c
@@ -1056,6 +1069,7 @@ c
      $     f_il(nfock,blen,*), f_jk(nfock,blen,*)
       integer rbfmap(*)
       integer ibflo, jbflo, kbflo, lbflo
+      logical skipk ![in]
 c
       integer integ, i, j, k, l, nf
       double precision g
@@ -1078,6 +1092,13 @@ c
             j = rbfmap(j) - jbflo + 1
             k = rbfmap(k) - kbflo + 1
             l = rbfmap(l) - lbflo + 1
+            if(skipk) then
+            do nf = 1, nfock
+               f_ij(nf,i,j)=f_ij(nf,i,j)+g*d_kl(nf,k,l)
+               f_kl(nf,k,l)=f_kl(nf,k,l)+g*d_ij(nf,i,j)
+               f_jl(nf,j,l)=f_jl(nf,j,l)+g*d_ik(nf,i,k)
+            end do
+            else
             do nf = 1, nfock
                f_ij(nf,i,j)=f_ij(nf,i,j)+g*d_kl(nf,k,l)
                f_kl(nf,k,l)=f_kl(nf,k,l)+g*d_ij(nf,i,j)
@@ -1086,6 +1107,7 @@ c
                f_jl(nf,j,l)=f_jl(nf,j,l)+g*d_ik(nf,i,k)
                f_jk(nf,j,k)=f_jk(nf,j,k)+g*d_il(nf,i,l)
             end do
+            endif
          end if
       end do
 c
@@ -1094,7 +1116,7 @@ c
      $     d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
      $     f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
      $     ndens, nfock, blen, blen_dm, rbfmap, bftoat, 
-     $     ibflo, jbflo, kbflo, lbflo)
+     $     ibflo, jbflo, kbflo, lbflo, skipk)
       implicit none
 c
 c Note that nfock is the number of alpha or beta fock matrices for UHF
@@ -1117,6 +1139,7 @@ c
       integer rbfmap(*)
       integer bftoat(*)       ! [input] Map from old basis func to atom
       integer ibflo, jbflo, kbflo, lbflo
+      logical skipk ! [in]
 c
       integer integ, i, j, k, l, v
       integer nbuf, iiat, iat, nstart
@@ -1155,6 +1178,15 @@ c
               nstart = nbuf
               do v = 1, ndens
               nbuf = nstart
+              if(skipk) then
+              do xyz=nfockder+(nfock*(v-1)),nfockder+2+(nfock*(v-1))
+               g = eri(nbuf)
+               nbuf = nbuf + 1
+               f_ij(xyz,i,j)=f_ij(xyz,i,j)+g*d_kl(v,k,l)
+               f_kl(xyz,k,l)=f_kl(xyz,k,l)+g*d_ij(v,i,j)
+               f_jl(xyz,j,l)=f_jl(xyz,j,l)+g*d_ik(v,i,k)
+              end do
+              else
               do xyz=nfockder+(nfock*(v-1)),nfockder+2+(nfock*(v-1))
                g = eri(nbuf)
                f_ij(xyz,i,j)=f_ij(xyz,i,j)+g*d_kl(v,k,l)
@@ -1165,6 +1197,7 @@ c
                f_jk(xyz,j,k)=f_jk(xyz,j,k)+g*d_il(v,i,l)
                nbuf = nbuf + 1
               end do
+              endif
               end do
             end do
 c        end if
