@@ -4,7 +4,7 @@ OBJ_OPTIMIZE = ccsd_e.o ccsd_t1.o ccsd_t2.o cc2_t1.o cc2_t2.o \
                ccsd_1prdm.o ccsd_1prdm_hh.o ccsd_1prdm_hp.o \
                ccsd_1prdm_ph.o ccsd_1prdm_pp.o \
                icsd_t1.o icsd_t2.o \
-	       ccsd_kernels.o ccsd_t2_8.o
+	       ccsd_kernels.o ccsd_t2_8.o tce_1b_dens_print.o
 
 LIB_INCLUDES = -I../include
 
