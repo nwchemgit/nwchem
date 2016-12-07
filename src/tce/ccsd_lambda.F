@@ -28,6 +28,13 @@ c
       integer k_t1_offset,k_t2_offset
       integer k_l1_offset,k_l2_offset
       integer size_l1,size_l2
+c DM
+      integer l_hh_offset,k_hh_offset,size_hh
+      integer l_hp_offset,k_hp_offset,size_hp
+      integer l_ph_offset,k_ph_offset,size_ph
+      integer l_pp_offset,k_pp_offset,size_pp
+      integer d_hh,d_hp,d_ph,d_pp
+c
       double precision ref,corr
       double precision r1,r2
       double precision residual
@@ -85,6 +92,76 @@ c
           if (nodezero) then
             write(LuOut,9410)
           endif
+c
+c  density matrix calculations: 1-body density matrix
+c 
+c
+c     ====================
+c     1PDM Hole-Hole Block
+c     ====================
+      if(nodezero) then 
+       write(LuOut,9531)
+       call util_flush(LuOut)
+      endif
+      call tce_filename('hh',filename)
+      call tce_dens_hh_offset(l_hh_offset,k_hh_offset,size_hh)
+      call createfile(filename,d_hh,size_hh)
+      call ccsd_1pdm_hh_mo(d_hh,d_t1,d_t2,
+     1     d_lambda1,d_lambda2,
+     2     k_hh_offset,k_t1_offset,k_t2_offset,
+     1     k_l1_offset,k_l2_offset)
+      call reconcilefile(d_hh,size_hh)
+      call tce_dens_hh_print(d_hh,k_hh_offset,printtol,irrep_y)
+c     ============================
+c     1PDM Particle-Particle Block
+c     ============================
+      if(nodezero) then
+       write(LuOut,9532)
+       call util_flush(LuOut)
+      endif
+      call tce_filename('pp',filename)
+      call tce_dens_pp_offset(l_pp_offset,k_pp_offset,size_pp)
+      call createfile(filename,d_pp,size_pp)
+      call ccsd_1pdm_pp_mo(d_pp,d_t1,d_t2,
+     1     d_lambda1,d_lambda2,
+     2     k_pp_offset,k_t1_offset,k_t2_offset,
+     3     k_l1_offset,k_l2_offset)
+      call reconcilefile(d_pp,size_pp)
+      call tce_dens_pp_print(d_pp,k_pp_offset,printtol,irrep_y)
+c     ========================
+c     1PDM Hole-Particle Block
+c     ========================
+      if(nodezero) then
+       write(LuOut,9533)
+       call util_flush(LuOut)
+      endif
+      call tce_filename('hp',filename)
+      call tce_dens_hp_offset(l_hp_offset,k_hp_offset,size_hp)
+      call createfile(filename,d_hp,size_hp)
+      call ccsd_1pdm_hp_mo(d_hp,d_lambda1,k_hp_offset,k_l1_offset)
+      call reconcilefile(d_hp,size_hp)
+      call tce_dens_hp_print(d_hp,k_hp_offset,printtol,irrep_y)
+c     ========================
+c     1PDM Particle-Hole Block
+c     ========================
+      if(nodezero) then
+       write(LuOut,9534)
+       call util_flush(LuOut)
+      endif
+      call tce_filename('ph',filename)
+      call tce_dens_ph_offset(l_ph_offset,k_ph_offset,size_ph)
+      call createfile(filename,d_ph,size_ph)
+      call ccsd_1pdm_ph_mo(d_ph,d_t1,d_t2,d_lambda1,d_lambda2,
+     1     k_ph_offset,k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset)
+      call reconcilefile(d_ph,size_ph)
+      call tce_dens_ph_print(d_ph,k_ph_offset,printtol,irrep_y)
+c
+      if(nodezero) then
+       write(LuOut,9535)
+       call util_flush(6)
+      endif
+c
+c
           if (ampnorms) then
             r1 = ddotfile(d_lambda1,d_lambda1,size_l1)
             r2 = ddotfile(d_lambda2,d_lambda2,size_l2)
@@ -96,6 +173,11 @@ c
           call deletefile(d_lr2)
           call deletefile(d_lr1)
           call tce_diis_tidy()
+c        endif
+          if(nodezero) then 
+           write(LuOut,9002)
+           call util_flush(6)
+          end if
           call tce_print_y1(d_lambda1,k_l1_offset,printtol,irrep_y)
           call tce_print_y2(d_lambda2,k_l2_offset,printtol,irrep_y)
           if (save_l(1)) then
@@ -155,6 +237,7 @@ c
       enddo
       call errquit('ccsd_lambda: maxiter exceeded',iter,CALC_ERR)
       return
+ 9002 format('Lambda-CCSD leading excitations:')
  9400 format(/,1x,A,' iterations',/,
      1  1x,'---------------------------------------------',/
      2  1x,'Iter          Residuum            Cpu    Wall',/
@@ -168,6 +251,13 @@ c
  9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
  9100 format(1x,i4,2f18.13,2f8.1)
  9700 format(1x,'Skipping CCSD-Lambda altogether')
+c
+ 9531 format('1-PDM CCSD : h-h block')
+ 9532 format('1-PDM CCSD : p-p block')
+ 9533 format('1-PDM CCSD : h-p block')
+ 9534 format('1-PDM CCSD : p-h block')
+ 9535 format('1-PDM CCSD : all done',//)
+c
       end
 
       subroutine ccsd_dipole(
@@ -350,5 +440,10 @@ c
      1  1x,'YZZ ',2f15.7,/
      2  1x,'ZZZ ',2f15.7,/
      3  1x,'--------------------------------')
+ 9531 format('1-body CC density matrix: h-h block: correlated part',/)
+ 9532 format('1-body CC density matrix: p-p block: correlated part',/)
+ 9533 format('1-body CC density matrix: h-p block: correlated part',/)
+ 9534 format('1-body CC density matrix: p-h block: correlated part',/)
+ 9535 format('1-body CC density matrix: all done',/)
       end
 c $Id$
