@@ -962,34 +962,31 @@ c
       logical ocphfprint
       integer ndens, n3xyz, nocc(ndens), nvirt(ndens), nbf
       integer g_rhs, g_wax
-      integer ind, ndns, in, i
+      integer ndns,  i
       integer alo(3), ahi(3), blo(3), bhi(3)
+      integer ind0,ind1
       double precision evals(*)
-      double precision one, eight
-      data one, eight /1.0d+00, 8.0d+00/
 c
-      ind = 0
+      blo(3) = 1
       do ndns = 1, ndens
-       alo(3) = nocc(ndns) + 1
-       ahi(3) = nocc(ndns) + nvirt(ndns)
-       blo(3) = 1
-       bhi(3) = nvirt(ndns)
-       do in =1,n3xyz
-         ind = ind + 1
-         alo(1) = ind
-         ahi(1) = ind
-         blo(1) = ind
-         bhi(1) = ind
+         alo(3) = nocc(ndns) + 1
+         ahi(3) = nocc(ndns) + nvirt(ndns)
+         bhi(3) = nvirt(ndns)
+         ind0 = (ndns-1)*n3xyz+1
+         ind1 = ndns*n3xyz
+         alo(1) = ind0
+         ahi(1) = ind1
+         blo(1) = ind0
+         bhi(1) = ind1
          do i = 1, nocc(ndns)
-           alo(2) = i
-           ahi(2) = i
-           blo(2) = i
-           bhi(2) = i
-           call nga_add_patch(one,g_wax,blo,bhi,
-     $       eight*evals((ndns-1)*nbf+i),g_rhs,alo,ahi,
-     $       g_wax,blo,bhi)
+            alo(2) = i
+            ahi(2) = i
+            blo(2) = i
+            bhi(2) = i
+            call nga_add_patch(1d0,g_wax,blo,bhi,
+     $           8d0*evals((ndns-1)*nbf+i),g_rhs,alo,ahi,
+     $           g_wax,blo,bhi)
          enddo
-       enddo
       enddo
 c
       if (ocphfprint) then
