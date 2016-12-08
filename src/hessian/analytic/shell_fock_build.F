@@ -369,8 +369,8 @@ c
       integer bgj_get_rtdb_handle
       external bgj_get_rtdb_handle
       integer rtdb_out
-      integer idone,iskipped,jj
-      logical skipk,skipk2
+      integer jj
+      logical skipk
 c     
       firstij=.true.
       firstkl=.true.
@@ -385,8 +385,6 @@ c     ik jk il jl
       do jj=1,ndens
          if(abs(kfac(jj)).gt.1d-8) skipk=.false.
       enddo
-      skipk2=.false.
-      skipk2=skipk
       call int_acc_std()
       g_dens0 = 0
       g_fock0 = 0
@@ -460,8 +458,6 @@ c   get max blk lentgh
          idim  = ibfhi - ibflo + 1
          bledo_dm=max(bledo_dm,idim)
       enddo
-c      idone=0
-c      iskipped=0
 c     
 c     Parallel loop over quartets of reordered shell blocks
 c     
@@ -518,9 +514,6 @@ c      do ishblock = 1, nshblocks
             jbflo = bfglo(jshblock)
             jbfhi = bfghi(jshblock)
             jdim  = jbfhi - jbflo + 1
-c            iskipped=iskipped+1
-c            else
-c               idone=idone+1
             bledoij=max(idim,jdim)
 #ifdef NXT
             do kshblock = ishblock, 1, -1
@@ -554,7 +547,6 @@ cstatic load balancing
 c     distribute work on ijk
 #endif
 #ifdef DISTR_IJK
-#warning IJK
                if (mod(ijkblock,ga_nnodes()).eq.ga_nodeid()) then
 #endif
 
@@ -786,7 +778,7 @@ c
      $                    f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
      $                    ndens, nfock, bledo, bledo_dm,
      R                         rbfmap,
-     $                    ibflo, jbflo, kbflo, lbflo, skipk2)
+     $                    ibflo, jbflo, kbflo, lbflo, skipk)
                         else
                           call new_fock_doit_der(nint,labels,leri,
      $                    eri,tol2e,
@@ -794,7 +786,7 @@ c
      $                    f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
      $                    ndens, nfock/ndens, bledo, bledo_dm,
      R                          rbfmap, bftoat,
-     $                    ibflo, jbflo, kbflo, lbflo, skipk2)
+     $                    ibflo, jbflo, kbflo, lbflo, skipk)
 c                                      
                         endif
                      endif
@@ -807,7 +799,7 @@ c
                      call new_acc_fock_block(g_fock, nfock, 
      $                 bledo, ibflo, ibfhi, jbflo, jbfhi, f_ij,
      F                    handij, firstij)
-                     if(.not.skipk2) then
+                     if(.not.skipk) then
                      call new_acc_fock_block(g_fock, nfock, 
      $                 bledo, jbflo, jbfhi, lbflo, lbfhi, f_jl,
      F                    handjl, firstjl)
@@ -985,16 +977,6 @@ c
             enddo
          enddo
       else
-#if 0
-         do idens = 1, ndens
-            factor = fac(idens)
-            do i = 1, ibfhi-ibflo+1
-               do j = 1, jbfhi-jbflo+1
-                  buf(idens,i,j) = buf(idens,i,j) * factor
-               enddo
-            enddo
-         enddo
-#else
          do j = 1, jbfhi-jbflo+1
             do i = 1, ibfhi-ibflo+1
                do idens = 1, ndens
@@ -1003,7 +985,6 @@ c
                enddo
             enddo
          enddo
-#endif
       endif
 c
       return
@@ -1052,9 +1033,6 @@ c         if(dabsmax(blen*(jbfhi-jbflo+1),buf(i,1,1)).gt.eps)  then
       lo(1) = fock_0
       hi(1) = fock_1
 #else
-#if 0
-      if(dabsmax(blen*(jbfhi-jbflo+1)*nfock,buf).lt.eps)
-#else
       maxf=-1d0
       do j=1,jbfhi-jbflo+1
          do i=1,ibfhi-ibflo+1
@@ -1062,7 +1040,6 @@ c         if(dabsmax(blen*(jbfhi-jbflo+1),buf(i,1,1)).gt.eps)  then
          enddo
       enddo
       if(maxf.lt.eps)
-#endif
      R     return
       lo(1) = 1
       hi(1) = nfock
