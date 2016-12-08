@@ -412,6 +412,7 @@ C>
 #include "global.fh"
 #include "util.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 c
       integer g_x          !< [Input/Output] Initial guess/solution
       integer g_b          !< [Input] Right-hand side vectors
@@ -452,6 +453,13 @@ c
       double complex zero, one, mone
       logical converged
       logical odebug
+      character*255 filestub,filesoln
+c
+      logical  file_write_ga, file_read_ga
+      external file_write_ga, file_read_ga
+c
+      logical solver_restart
+      external solver_restart
 c
       zero = cmplx(0.0d0,0.0d0)
       one  = cmplx(1.0d0,0.0d0)
@@ -526,6 +534,26 @@ c
       call ga_zero(g_r)
       call ga_sync()
 c
+c     Solution file
+c
+      if (.not. rtdb_cget(rtdb, 'solver:filestub', 1, filestub))
+     &       filestub = 'lkain_soln'
+      if (.not. rtdb_cget(rtdb, 'solver:filesoln', 1, filesoln))
+     &       filesoln = 'lkain_soln'
+      call util_file_name(filestub,.true.,.true.,filesoln)
+c     if (ga_nodeid().eq.0) write(luout,*) "ga_lkain filestub:",filestub
+c     if (ga_nodeid().eq.0) write(luout,*) "ga_lkain filesoln:",filesoln
+c
+c     Check if this is a restart
+c
+      if (solver_restart(rtdb)) then
+        if(.not.file_read_ga(filesoln,g_x)) goto 50
+        if (ga_nodeid().eq.0) 
+     &    write(luout,*) "Restarting solution from: ", filesoln
+      end if
+c
+ 50   continue
+c
       if (oprint .and. ga_nodeid().eq.0) then
          write(6,2)
          call util_flush(6)
@@ -551,16 +579,23 @@ c
          call ga_add(one, g_b, mone, g_Ax, g_r) ! The residual
          call ga_sync()
          call ga_maxelt(g_r, rmax)
-
-c        JEM: Putting rmax into rtdb
+c
          if (.not. rtdb_put(rtdb, 'lkain:rmax', mt_dbl, 1, rmax))
      $     call errquit('ga_lkain: rmax put failed', 1, RTDB_ERR)
-
+c
          if (oprint .and. ga_nodeid().eq.0) then
             write(6,3) iter, nsub+nvec, rmax, util_wallsec()
             call util_flush(6)
  3          format(' ', i5, i7, 3x,1p,d9.2,0p,f10.1)
          end if
+c
+c        Save intermediate solution
+c
+         if(.not.file_write_ga(filesoln,g_x)) call errquit
+     $     ('ga_lkain:could not write solution',1, DISK_ERR)
+c 
+c        Check convergence
+c
          if (rmax .lt. tol) then
             converged = .true.
             goto 100
@@ -569,7 +604,7 @@ c        JEM: Putting rmax into rtdb
          call precond(g_r,0.0d0)
          call ga_sync()
 c
-c     Copy the vectors to the subspace work area
+c        Copy the vectors to the subspace work area
 c
          call ga_copy_patch('n', 
      $        g_Ax, 1, n, 1, nvec, 
@@ -579,8 +614,8 @@ c
      $        g_y, 1, n, nsub+1, nsub+nvec)
          nsub = nsub + nvec
 c
-c     Form and solve the subspace equations using SVD in order
-c     to manage near linear dependence in the subspace.
+c        Form and solve the subspace equations using SVD in order
+c        to manage near linear dependence in the subspace.
 c     
          if (.not. ga_create(typex, nsub, nsub, 'lkain: A', 0, 0, g_a))
      $        call errquit('lkain: allocating g_a?', nsub, GA_ERR)
@@ -1215,4 +1250,29 @@ c
       call ga_sync()
 c     
       end
+c
+      logical function solver_restart(rtdb)
+c
+      implicit none
+c
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "util.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+c
+      integer rtdb
+c
+      integer restr
+c
+c     Check for the restart flag
+c
+      solver_restart = .false.
+      if (.not.rtdb_get(rtdb,'solver:restart',mt_int,1,restr))
+     &     restr= 0
+      if (restr.gt.0) solver_restart = .true.
+c
+      return
+      end  
 C> @}
