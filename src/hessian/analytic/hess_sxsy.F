@@ -30,8 +30,9 @@ c
       integer icent, idir, ipert, jcent, jdir, jpert, iocc, jocc
       integer ioff, joff, l_scr, k_scr
       integer lo(3), hi(3), ld(2)
+      integer mylo(3),myhi(3)
       double precision deltah, fac
-      integer nproc, icount, itask, mytask
+      integer nproc, icount, itask, mytask,off2
       integer nxtask
       external nxtask
 c
@@ -39,6 +40,8 @@ c     Setup some arrays
 c
       lo(2) = 1
       hi(2) = nocc
+      lo(3) = 1
+      hi(3) = nocc
       ld(1) = 1
       ld(2) = nocc
 c
@@ -77,7 +80,7 @@ c
                do jdir = 1, 3
                   jpert = jpert + 1
                   if (jpert .gt. ipert) goto 30
-                  if (itask .ne. mytask) goto 25
+                  if (itask .eq. mytask) then
 c
 c     Compute increment to hess(ipert,jpert)
 c
@@ -87,20 +90,24 @@ c     Loop over occupied MO's and compute contribution a column at a time
 c
                      lo(1) = ipert + noffset
                      hi(1) = ipert + noffset
-                     lo(3) = 1
-                     hi(3) = nocc
                      call nga_get(g_tx, lo, hi,
      &                    dbl_mb(ioff+1), ld)
                      lo(1) = jpert + noffset
                      hi(1) = jpert + noffset
-                     call nga_get(g_tx, lo, hi,
-     &                    dbl_mb(joff+1), ld)
+                     if(ipert.eq.jpert) then
+                        off2=ioff
+                     else
+                        off2=joff
+                        call nga_get(g_tx, lo, hi,
+     &                       dbl_mb(joff+1), ld)
+                     endif
                      do iocc = 1, nocc
                         do jocc = 1, nocc
                            deltah = deltah
      &                          + (e(iocc)+e(jocc)) *
      &                          dbl_mb(ioff+(jocc-1)*nocc+iocc) * 
-     *                          dbl_mb(joff+(jocc-1)*nocc+iocc)
+     *                          dbl_mb(off2+(jocc-1)*nocc+iocc)
+c     *                          dbl_mb(joff+(jocc-1)*nocc+iocc)
                         enddo
                      enddo
 c     
@@ -114,7 +121,8 @@ c
                   endif
 c
                   mytask = nxtask(nproc,icount)
- 25               continue
+
+                  endif ! my task
                   itask = itask + 1
 c
  30               continue
