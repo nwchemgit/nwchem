@@ -40,6 +40,9 @@ c
       external bgj_get_scf_method, hess_check
       double precision t0
 c
+      logical ostart,ocont,orestart
+      logical status
+c
       hess_anal = .false.
 c
 c  Broadcast information to all of the nodes on read
@@ -97,10 +100,13 @@ c  not sufficient for the Hessian calculation.
 c
       call hess_energyinit(rtdb)
 c
-c     find out if this is a restart
+c  Find out if this is a restart
 c
-      if (.not. rtdb_get(rtdb,'hessian:restart',mt_int,1,restr))
-     *  restr = 0
+      restr = 0
+      if (.not. rtdb_get(rtdb,'hess:restart',mt_int,1,restr))
+     &  restr = 0
+      if (restr.gt.0.and. ga_nodeid().eq.0) 
+     &    write(luout,*) 'Restarting calculation'
 c
 c  Get theory type
 c
@@ -112,15 +118,9 @@ c
 c
 c  Check to make sure that the energy and wavefunction are calculated
 c
-      if (restr.lt.1.or.theory.eq.'dft') then
-c
-c     disabled restart when using DFT
-c
-         if(theory.eq.'dft') restr=0
-        if(.not.task_energy(rtdb)) call errquit 
+      if(.not.task_energy(rtdb)) call errquit
      *    ('hess_anal: energy failure', 555, CALC_ERR)
-        if (oprint) write(LuOut,*) 'HESS: after the task_energy call'
-      endif
+      if (oprint) write(LuOut,*) 'HESS: after the task_energy call'
 c
 c  2nd check to see if we should fail the calculation because
 c  the code can't handle it.
@@ -162,13 +162,10 @@ c
         endif
  11     format(/' HESSIAN: the one electron ',
      $    'contributions are done in ',f9.1,'s'/)
-      else 
-        call hess_getrestart(restr)
-      endif
 c
 c  Get the two-electron second derivative contributions
 c
-      if (restr.lt.2) then
+c      if (restr.lt.2) then
         if (oprint) write(LuOut,*) 'HESS: before the twodd_cont call'
         if (ohessprof) call pstat_on(ps_twodd)
         t0=util_wallsec()
@@ -178,6 +175,13 @@ c
         if (oprintsome) write(LuOut,12) util_wallsec()-t0
  12     format(/' HESSIAN: the two electron ',
      $    'contributions are done in ',f9.1,'s'/)
+c
+c  Write out fock derivatives to disk
+c
+        call sx_write(g_rhs,n3xyz*ndens,nbf,fx_dra_handle)
+
+      else 
+        call hess_getrestart(restr)
       endif
 c
 c  solve the CPSCF problem
@@ -235,9 +239,7 @@ c
 c  Reset restart info so that future calculations don't get
 c  confused.
 c
-      if (.not. rtdb_delete(rtdb,'hessian:restart'))
-     *  call errquit('hess_anal: could not delete restart',555,
-     &       RTDB_ERR)
+      status =rtdb_delete(rtdb,'hess:restart')
 c
       return 
       end

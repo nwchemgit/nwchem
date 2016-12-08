@@ -41,6 +41,7 @@ c
       double precision dnrm
       data pt5, four, zero/0.5d+00, 4.0d+00, 0.0d+00/
 c
+      integer  restr
       logical  cphf2, file_write_ga, file_read_ga, movecs_read
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -58,13 +59,11 @@ c
 c 
 c     ----- define parameters -----
 c
- 
       nc   = n3xyz
 c
-c may need to pick up hessian off of disk, but for now assuming it is 
-c in memory
+c     some parameters for the cphf solver (ga_lkain())
 c
-
+      call solver_setup(rtdb)
 c
 c Get MO vectors, first figure out name of movecs file, get memory, and
 c then get actual data
@@ -1271,6 +1270,45 @@ c
 #endif
       enddo
 
+c
+      return
+      end
+c
+c     some parameters for the cphf solver (ga_lkain())
+c
+      subroutine solver_setup(rtdb)
+c
+      implicit none
+#include "errquit.fh"
+c
+#include "global.fh"
+#include "hess_info.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "nwc_const.fh"
+#include "msgids.fh"
+#include "stdio.fh"
+#include "util.fh"
+c
+      integer rtdb
+c
+      integer restr
+      character*256 cphf_sol
+c
+c     check hessian restart flag
+c
+      if (.not. rtdb_get(rtdb,'hess:restart',mt_int,1,restr))
+     &  restr = 0
+c
+c     set up the files for the cphf solution
+c
+      if (.not. rtdb_cput(rtdb, 'solver:filestub', 1, 'cphf_sol'))
+     *  call errquit('hess_cphf: file stub',555,RTDB_ERR)
+      if (.not. rtdb_cput(rtdb, 'solver:filesoln', 1, cphf_sol))
+     *  call errquit('hess_cphf: intermediate solution file',555,
+     &       RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'solver:restart', MT_int, 1, restr))
+     *    call errquit('hess_cphf: solver restart flag',555, RTDB_ERR)
 c
       return
       end

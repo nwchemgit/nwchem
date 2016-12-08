@@ -103,13 +103,13 @@ c
 c
 c  Write out fock derivatives to disk
 c
-      call sx_write(g_rhs,n3xyz*ndens,nbf,fx_dra_handle)
+c      call sx_write(g_rhs,n3xyz*ndens,nbf,fx_dra_handle)
 c
 c  Write out restr to the database
 c
-      if (.not. rtdb_put(rtdb, 'hessian:restart',mt_int,1,restr))
-     $  call errquit('hess_restart: could not save restr to rtdb',
-     $  555, RTDB_ERR)
+c      if (.not. rtdb_put(rtdb, 'hess:restart',mt_int,1,restr))
+c     $  call errquit('hess_restart: could not save restr to rtdb',
+c     $  555, RTDB_ERR)
 c
       return
       end
@@ -224,7 +224,7 @@ c
 c
 c  Get rid of density allocation if we are done with the 2e- contribution
 c
-      if (irestart.ge.2) then
+cng      if (irestart.ge.2) then
         do i = 1, ndens
           if (.not.ga_destroy(g_dens(i)))
      &     call errquit('hess_getrestart: failed to delete density',i,
@@ -238,7 +238,7 @@ c
      &                 555, GA_ERR)
         call schwarz_tidy()
         call intdd_terminate()
-      endif
+cng      endif
 c
       return
       end
