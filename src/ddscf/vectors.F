@@ -1362,7 +1362,7 @@ c
       ok = 0
       goto 10
 c
- 1001 write(6,*) ' file_read_ga: failing writing to ',
+ 1001 write(6,*) ' file_read_ga: failing reading from ',
      $     fname(1:inp_strlen(fname))
       call util_flush(luout)
       ok = 0
