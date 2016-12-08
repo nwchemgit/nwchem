@@ -381,7 +381,7 @@ c
       smax  = schwarz_max()
       skipk=.true.
 c     this allows to skip Exchange K Terms
-c     jk il jl
+c     ik jk il jl
       do jj=1,ndens
          if(abs(kfac(jj)).gt.1d-8) skipk=.false.
       enddo
@@ -468,19 +468,50 @@ c
       ijklblock = 0
       ijkblock=0
       ijblock=0
-!      next = nxtask(nproc,task_size)
-!      do ishblock = nshblocks, 1, -1
+#define NXT_ 1
+#define DISTR_IJK 1
+#define DISTR_IJ_ 1
+#ifdef NXT
+      task_size=1
+      ijkblock=-1
+#if 1
+c     bcast dij i=nshblock,j=1
+         ishblock=nshblocks
+         ibflo = bfglo(ishblock)
+         ibfhi = bfghi(ishblock)
+         idim  = ibfhi - ibflo + 1
+         jshblock=1
+         jbflo = bfglo(jshblock)
+         jbfhi = bfghi(jshblock)
+         jdim  = jbfhi - jbflo + 1
+      if(ga_nodeid().eq.0) then
+         call new_get_dens_block(g_dens, ndens, bledo_dm, 
+     $        ibflo, ibfhi, jbflo, jbfhi, d_ij, jfac)
+      endif
+      CALL ga_brdcst(987651,d_ij,
+     L     ndens*bledo_dm*jdim*ma_sizeof(mt_dbl,1,mt_byte),0)
+      next = nxtask(nproc,task_size)
+      ptr_ij(IJ)=(jshblock-1)*nshblocks+ishblock
+      cache_ij(IJ)=ptr_ij(IJ)
+      cache_hitmiss(2,IJ)=cache_hitmiss(2,IJ)+1
+#endif      
+      do ishblock = nshblocks, 1, -1
+#else
 c      do ishblock = 1, nshblocks
       do i0 = ga_nodeid(), nshblocks+ga_nodeid()-1
          ishblock = mod(i0,nshblocks)+1
+#endif
          ishlo = shglo(ishblock)
          ishhi = shghi(ishblock)
          ibflo = bfglo(ishblock)
          ibfhi = bfghi(ishblock)
          idim  = ibfhi - ibflo + 1
-c         do jshblock = 1, ishblock
+#ifdef NXT
+         do jshblock = 1, ishblock
+#else
          do j0 = ga_nodeid(), ishblock+ga_nodeid()-1
             jshblock=mod(j0,ishblock)+1
+#endif
           ptr_ij(IJ)=(jshblock-1)*nshblocks+ishblock
             jshlo = shglo(jshblock)
             jshhi = shghi(jshblock)
@@ -491,17 +522,17 @@ c            iskipped=iskipped+1
 c            else
 c               idone=idone+1
             bledoij=max(idim,jdim)
-c            do kshblock = ishblock, 1, -1
-c            do kshblock = 1, ishblock
+#ifdef NXT
+            do kshblock = ishblock, 1, -1
+#else
                ijblock= (ishblock*(ishblock-1))/2+jshblock-1
 c     distribute work on ij
-#define DISTR_IJK 1
-#define DISTR_IJ_ 1
 #ifdef DISTR_IJ
                if (mod(ijblock,ga_nnodes()).eq.ga_nodeid()) then
 #endif
             do k0 = ga_nodeid(), ishblock+ga_nodeid()-1
                kshblock=mod(k0,ishblock)+1
+#endif
                ptr_ij(IK)=(kshblock-1)*nshblocks+ishblock
                ptr_ij(JK)=(kshblock-1)*nshblocks+jshblock
                kshlo = shglo(kshblock)
@@ -511,16 +542,22 @@ c     distribute work on ij
                kdim  = kbfhi - kbflo + 1
                bledoijk=max(bledoij,kdim)
                lblockhi = kshblock
+#ifndef NXT
                ijkblock=(jshblock-1)*ishblock+kshblock-1
                do jj=1,ishblock-1
                   ijkblock=ijkblock+jj*jj
                enddo
-c               if (next .eq. ijkblock) then
+#else
+               ijkblock=ijkblock+1
+               if (next .eq. ijkblock) then
 cstatic load balancing
 c     distribute work on ijk
+#endif
 #ifdef DISTR_IJK
+#warning IJK
                if (mod(ijkblock,ga_nnodes()).eq.ga_nodeid()) then
 #endif
+
                if (ishblock .eq. kshblock) lblockhi = jshblock
 c     
                      if(ptr_ij(IJ).eq.cache_ij(IJ)) then
@@ -531,6 +568,7 @@ c
                         cache_ij(IJ)=ptr_ij(IJ)
                         cache_hitmiss(2,IJ)=cache_hitmiss(2,IJ)+1
                      endif
+                     if(.not.skipk) then
                      if(ptr_ij(IK).eq.cache_ij(IK)) then
                         cache_hitmiss(1,IK)=cache_hitmiss(1,IK)+1
                      else
@@ -542,13 +580,12 @@ c
                      if(ptr_ij(JK).eq.cache_ij(JK)) then
                         cache_hitmiss(1,JK)=cache_hitmiss(1,JK)+1
                      else
-                       if(.not.skipk) then
                         call new_get_dens_block(g_dens, ndens, bledo_dm, 
      $                       jbflo, jbfhi, kbflo, kbfhi, d_jk, kfac)
                         cache_ij(JK)=ptr_ij(JK)
                         cache_hitmiss(2,JK)=cache_hitmiss(2,JK)+1
-                        endif
                      endif
+                     endif !skipk
 c               do lshblock = 1, lblockhi
                do l0 = ga_nodeid(), lblockhi+ga_nodeid()-1
                   lshblock=mod(l0,lblockhi)+1
@@ -564,31 +601,29 @@ c                  if (next .eq. ijklblock) then
                      bledo=max(bledoijk,ldim)
 c     
 c     Get blocks of the one-particle densities
+                     if(.not.skipk) then
                      if(ptr_ij(IL).eq.cache_ij(IL)) then
                         cache_hitmiss(1,IL)=cache_hitmiss(1,IL)+1
                      else
-                       if(.not.skipk) then
                         call new_get_dens_block(g_dens, ndens, bledo_dm, 
      $                       ibflo, ibfhi, lbflo, lbfhi, d_il, kfac)
                         cache_ij(IL)=ptr_ij(IL)
                         cache_hitmiss(2,IL)=cache_hitmiss(2,IL)+1
                      endif
-                     endif
                      if(ptr_ij(JL).eq.cache_ij(JL)) then
                         cache_hitmiss(1,JL)=cache_hitmiss(1,JL)+1
                      else
-                       if(.not.skipk) then
                         call new_get_dens_block(g_dens, ndens, bledo_dm, 
      $                       jbflo, jbfhi, lbflo, lbfhi, d_jl, kfac)
 
                         cache_ij(JL)=ptr_ij(JL)
                         cache_hitmiss(2,JL)=cache_hitmiss(2,JL)+1
-                        endif
                      endif
+                     endif ! skipk
                      if(ptr_ij(KL).eq.cache_ij(KL)) then
                         cache_hitmiss(1,KL)=cache_hitmiss(1,KL)+1
                      else
-#define NBG_KL_ 1
+#define NBG_KL 1
 #ifdef NBG_KL
                      call new_nbget_dens_block(g_dens, ndens, bledo_dm, 
      $                       kbflo, kbfhi, lbflo, lbfhi, 
@@ -603,10 +638,12 @@ c     Get blocks of the one-particle densities
 
                      call hess_zerofij(f_ij,bledo,nfock,idim,jdim)
                      call hess_zerofij(f_kl,bledo,nfock,kdim,ldim)
-                     call hess_zerofij(f_ik,bledo,nfock,idim,kdim)
-                     call hess_zerofij(f_jl,bledo,nfock,jdim,ldim)
-                     call hess_zerofij(f_il,bledo,nfock,idim,ldim)
-                     call hess_zerofij(f_jk,bledo,nfock,jdim,kdim)
+                     if(.not.skipk) then
+                        call hess_zerofij(f_jl,bledo,nfock,jdim,ldim)
+                        call hess_zerofij(f_ik,bledo,nfock,idim,kdim)
+                        call hess_zerofij(f_il,bledo,nfock,idim,ldim)
+                        call hess_zerofij(f_jk,bledo,nfock,jdim,kdim)
+                     endif
 
 c
 c     
@@ -770,10 +807,10 @@ c
                      call new_acc_fock_block(g_fock, nfock, 
      $                 bledo, ibflo, ibfhi, jbflo, jbfhi, f_ij,
      F                    handij, firstij)
+                     if(.not.skipk2) then
                      call new_acc_fock_block(g_fock, nfock, 
      $                 bledo, jbflo, jbfhi, lbflo, lbfhi, f_jl,
      F                    handjl, firstjl)
-                     if(.not.skipk2) then
                      call new_acc_fock_block(g_fock, nfock, 
      $                 bledo, jbflo, jbfhi, kbflo, kbfhi, f_jk,
      F                    handjk, firstjk)
@@ -792,9 +829,12 @@ c
                   ijklblock = ijklblock + 1
 c     
                end do ! lshblock
-!                     next = nxtask(nproc,task_size)
 #ifdef DISTR_IJK
                   end if ! work distr on ijk
+#endif
+#ifdef NXT
+                  next = nxtask(nproc,task_size)
+                  end if ! work distr on nxtask
 #endif
             end do ! kshblock
 #ifdef DISTR_IJ
@@ -805,7 +845,9 @@ c
 c
       call int_acc_std()
 c
-!      next = nxtask(-nproc,task_size)
+#ifdef NXT
+      next = nxtask(-nproc,task_size)
+#endif
       call ga_igop(65331, cache_hitmiss, 12, '+')
       cache_hit=0
       cache_miss=0
@@ -821,23 +863,29 @@ c
          else
             write(6,*) 'cm ',cache_hitmiss
          endif
-#if 0
-      write(6,14) ' cacij hit: ',100d0*cache_hitmiss(1,1)/
-     C     (cache_hitmiss(1,1)+cache_hitmiss(2,1)), '% out of ',
-     C     cache_hitmiss(1,1)+cache_hitmiss(2,1), ' ga_gets'
-      write(6,14) ' cacik hit: ',100d0*cache_hitmiss(1,2)/
-     C     (cache_hitmiss(1,2)+cache_hitmiss(2,2)), '% out of ',
-     C     cache_hitmiss(1,2)+cache_hitmiss(2,2), ' ga_gets'
-      write(6,14) ' cacjk hit: ',100d0*cache_hitmiss(1,3)/
+#if 1
+         if((cache_hitmiss(1,IJ)+cache_hitmiss(2,IJ)).gt.0)
+     W        write(6,14) ' cacij hit: ',100d0*cache_hitmiss(1,IJ)/
+     C     (cache_hitmiss(1,IJ)+cache_hitmiss(2,IJ)), '% out of ',
+     C     cache_hitmiss(1,IJ)+cache_hitmiss(2,IJ), ' ga_gets'
+         if((cache_hitmiss(1,IK)+cache_hitmiss(2,IK)).gt.0)
+     W        write(6,14) ' cacik hit: ',100d0*cache_hitmiss(1,IK)/
+     C     (cache_hitmiss(1,IK)+cache_hitmiss(2,IK)), '% out of ',
+     C     cache_hitmiss(1,IK)+cache_hitmiss(2,IK), ' ga_gets'
+         if((cache_hitmiss(1,JK)+cache_hitmiss(2,JK)).gt.0)
+     W        write(6,14) ' cacjk hit: ',100d0*cache_hitmiss(1,3)/
      C     (cache_hitmiss(1,3)+cache_hitmiss(2,3)), '% out of ',
      C     cache_hitmiss(1,3)+cache_hitmiss(2,3), ' ga_gets'
-      write(6,14)  ' cacil hit: ',100d0*cache_hitmiss(1,4)/
+         if((cache_hitmiss(1,IL)+cache_hitmiss(2,IL)).gt.0)
+     W        write(6,14)  ' cacil hit: ',100d0*cache_hitmiss(1,4)/
      C     (cache_hitmiss(1,4)+cache_hitmiss(2,4)), '% out of ',
      C     cache_hitmiss(1,4)+cache_hitmiss(2,4), ' ga_gets'
-      write(6,14)  ' cacjl hit: ',100d0*cache_hitmiss(1,5)/
+         if((cache_hitmiss(1,JL)+cache_hitmiss(2,JL)).gt.0)
+     W        write(6,14)  ' cacjl hit: ',100d0*cache_hitmiss(1,5)/
      C     (cache_hitmiss(1,5)+cache_hitmiss(2,5)), '% out of ',
      C     cache_hitmiss(1,5)+cache_hitmiss(2,5), ' ga_gets'
-      write(6,14)  ' cackl hit: ',100d0*cache_hitmiss(1,6)/
+         if((cache_hitmiss(1,KL)+cache_hitmiss(2,KL)).gt.0)
+     W        write(6,14)  ' cackl hit: ',100d0*cache_hitmiss(1,6)/
      C     (cache_hitmiss(1,6)+cache_hitmiss(2,6)), '% out of ',
      C     cache_hitmiss(1,6)+cache_hitmiss(2,6), ' ga_gets'
 #endif
@@ -1096,7 +1144,6 @@ c
             do nf = 1, nfock
                f_ij(nf,i,j)=f_ij(nf,i,j)+g*d_kl(nf,k,l)
                f_kl(nf,k,l)=f_kl(nf,k,l)+g*d_ij(nf,i,j)
-               f_jl(nf,j,l)=f_jl(nf,j,l)+g*d_ik(nf,i,k)
             end do
             else
             do nf = 1, nfock
@@ -1184,7 +1231,6 @@ c
                nbuf = nbuf + 1
                f_ij(xyz,i,j)=f_ij(xyz,i,j)+g*d_kl(v,k,l)
                f_kl(xyz,k,l)=f_kl(xyz,k,l)+g*d_ij(v,i,j)
-               f_jl(xyz,j,l)=f_jl(xyz,j,l)+g*d_ik(v,i,k)
               end do
               else
               do xyz=nfockder+(nfock*(v-1)),nfockder+2+(nfock*(v-1))
