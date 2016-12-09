@@ -1,11 +1,11 @@
-      subroutine ccsd_trpdrv_omp(t1,
+      subroutine ccsd_trpdrv_omp_mixprec(t1,
      &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,
      &     g_objo,g_objv,g_coul,g_exch,
      &     ncor,nocc,nvir,iprt,emp4,emp5,
      &     oseg_lo,oseg_hi, kchunk,
      &     Tij, Tkj, Tia, Tka, Xia, Xka, Jia, Jka, Kia, Kka,
      &     Jij, Jkj, Kij, Kkj, Dja, Djka, Djia)
-!     $Id: ccsd_trpdrv_omp.F 28839 2016-11-22 21:26:48Z jhammond $
+!     $Id: ccsd_trpdrv_omp_mixprec.F 28839 2016-11-22 21:26:48Z jhammond $
       implicit none
 !
 #include "errquit.fh"
