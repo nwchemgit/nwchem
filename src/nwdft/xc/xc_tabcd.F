@@ -209,6 +209,8 @@ ccc     lhs: l3d=.true. & n3d=1
 c
       call starttimer(monitor_tabcd)
       call starttimer(monitor_screen0)
+      nbhandl1=0
+      nbhandl2=0
       l3d = ga_ndim(g_vxc).eq.3
       natleft=0
       do  iat = 1, natoms
@@ -606,6 +608,10 @@ c     Monitoring
   430   continue ! iat0 loop
   500 continue ! imat loop
       call endtimer(monitor_tabcd)
+c     lingering nbacc
+      if(nbhandl1.ne.0) call ga_nbwait(nbhandl1)
+      if(nbhandl2.ne.0) call ga_nbwait(nbhandl2)
+
       return
       end
       subroutine upd_atombl_nb(g_array, basis, iat, jat, buf,
@@ -632,6 +638,10 @@ c
       idim = ihi - ilo + 1
       jdim = jhi - jlo + 1
 c     
+c     clearing lingering nbacc
+c
+c      if(nbhandle.ne.0) call ga_nbwait(nbhandle)
+      nbhandle=0
       if (idim.gt.0 .and. jdim.gt.0) 
      $     call ga_nbacc(g_array, ilo, ihi, jlo, jhi, buf, idim,
      $        1.0d0,nbhandle)
