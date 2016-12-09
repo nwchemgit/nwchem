@@ -436,13 +436,12 @@ c     write(6,*) 'nshblocks and task_size ',nshblocks,task_size
 c
 c     caching to reduce get dm blocks data movement
 c
-cuseless assignments
-      nbh_ij=1
-      nbh_ik=2
-      nbh_jk=3
-      nbh_il=4
-      nbh_jl=5
-      nbh_kl=6
+      nbh_ij=0
+      nbh_ik=0
+      nbh_jk=0
+      nbh_il=0
+      nbh_jl=0
+      nbh_kl=0
       do ij=1,6
          cache_ij(ij)=-1
 c first row = hit
@@ -590,6 +589,10 @@ c               do lshblock = 1, lblockhi
                   lbfhi = bfghi(lshblock)
                   ldim  = lbfhi - lbflo + 1
 c                  if (next .eq. ijklblock) then
+                     oij = ishblock.eq.jshblock
+                     okl = kshblock.eq.lshblock
+                     oikjl = ishblock.eq.kshblock .and. 
+     $                    jshblock.eq.lshblock
                      bledo=max(bledoijk,ldim)
 c     
 c     Get blocks of the one-particle densities
@@ -614,6 +617,13 @@ c     Get blocks of the one-particle densities
                      endif ! skipk
                      if(ptr_ij(KL).eq.cache_ij(KL)) then
                         cache_hitmiss(1,KL)=cache_hitmiss(1,KL)+1
+!                     elseif(.false.) then
+                     elseif(oikjl) then
+c   ij.eq.kl   copy dm_ij to dm_kl
+                        call dcopy(ndens*bledo_dm*ldim,
+     D                       d_ij,1,d_kl,1)
+                        cache_hitmiss(1,KL)=cache_hitmiss(1,KL)+1
+                        cache_ij(KL)=ptr_ij(KL)
                      else
 #define NBG_KL 1
 #ifdef NBG_KL
@@ -641,10 +651,6 @@ c
 c     
 c     Build the list of integral shell quartets in NWChem shell labelling
 c     
-                     oij = ishblock.eq.jshblock
-                     okl = kshblock.eq.lshblock
-                     oikjl = ishblock.eq.kshblock .and. 
-     $                    jshblock.eq.lshblock
 c     
                      nq = 0
 c     
