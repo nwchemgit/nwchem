@@ -26,6 +26,7 @@ include ../config/makefile.h
         ccsd_trpdrv.o \
         ccsd_trpdrv_nb.o \
         ccsd_trpdrv_omp.o \
+	ccsd_trpdrv_omp_mixprec.o \
         moints_trp.o \
         ccsd.o \
         ccsd_aux.o \
@@ -70,7 +71,9 @@ endif
      ccsd_pdiis.F \
      ccsd_sortmo.F \
      ccsd_trpdrv.F \
+     ccsd_trpdrv_nb.F \
      ccsd_trpdrv_omp.F \
+     ccsd_trpdrv_omp_mixprec.F \
      moints_trp.F \
      ccsd_zvecs.F \
      ccsd_z2pm.F \
