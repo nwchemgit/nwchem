@@ -581,6 +581,7 @@ c
           ahi(1) = index1
           blo(2) = ind
           bhi(2) = ind
+          call ga_mask_sync(.true.,.false.)
           call nga_copy_patch('T',g_wax,alo,ahi,
      $      g_sol,blo,bhi)   ! put into format for current cphf
           index1 = index1 + 1
@@ -941,12 +942,15 @@ c
         ahi2(1) = ind
         clo(1)  = ind
         chi(1)  = ind
+          call ga_mask_sync(.true.,.false.)
         call nga_copy_patch('N',g_rhs,alo1, ahi1,
      $     g_wax,blo, bhi)
+          call ga_mask_sync(.true.,.false.)
         call nga_copy_patch('N',g_rhs,alo2, ahi2,
      $     g_aa, clo, chi)
        enddo
       enddo
+      call ga_sync()
 c
       if (ocphf) then
         if(ga_nodeid().eq.0) write(LuOut,*) 'g_wax'
@@ -1056,10 +1060,12 @@ c        do ind = 1, n3xyz
           index = index + 1
           alo1(1) = index
           ahi1(1) = index
+          call ga_mask_sync(.true.,.false.)
           vtrace=
      $      nga_ddot_patch(g_rhs,'N',alo1,ahi1,
      $         g_aa, 'N',alo2,ahi2) 
           if(ind.ne.jnd) then
+          call ga_mask_sync(.true.,.false.)
              vtrace=vtrace+
      $      nga_ddot_patch(g_rhs,'N',alo2,ahi2,
      $            g_aa, 'N',alo1,ahi1)
@@ -1074,6 +1080,7 @@ c        do ind = 1, n3xyz
         enddo
       enddo
       enddo
+      call ga_sync()
 c
       return
       end
