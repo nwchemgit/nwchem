@@ -18,8 +18,8 @@ c
       integer i
 c
       do i = 1,ndens
-        alo(1) = 1
-        ahi(1) = ndim1 !n3xyz
+        alo(1) = 1 + (i-1)*ndim1 ! n3xyz + 1
+        ahi(1) = i * ndim1     ! 2 * n3xyz
         alo(2) = 1
         ahi(2) = ndim2 !nbf
         alo(3) = 1
