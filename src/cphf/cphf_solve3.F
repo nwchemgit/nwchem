@@ -381,6 +381,10 @@ c !!! BGJ
 c
 c     == check the residual ==
       residual = sqrt(ga_ddot(g_work(1), g_work(1)))
+      if(.not.rtdb_put(rtdb,'cphf_solve:residual',mt_dbl,1,residual))
+     $   call errquit('cphf_solve: rtdb_put of residual failed',0,
+     &     RTDB_ERR)
+c
       if (ga_nodeid().eq.0) then
        write(luout,*) 'SCF residual: ', residual
       endif

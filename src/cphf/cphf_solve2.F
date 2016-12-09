@@ -158,7 +158,7 @@ c         I changed that so that we can set this by input
       if (.not. rtdb_get(rtdb,'cphf:maxiter', mt_int, 1,
      $     maxiter)) maxiter = 50
 
-      call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)        
+      call util_file_name('cphf_rhs',.false.,.true.,cphf_rhs)        
       if (.not. file_read_ga_info(cphf_rhs, rhs_title, ncol, nvec1))
      $     call errquit('cphf_solve: reading rhs info failed?',0,
      &       UNKNOWN_ERR)
@@ -273,6 +273,10 @@ c !!! BGJ
 c
 c     == check the residual ==
       residual = sqrt(ga_ddot(g_work, g_work))
+      if(.not.rtdb_put(rtdb,'cphf_solve:residual',mt_dbl,1,residual))
+     $   call errquit('cphf_solve: rtdb_put of residual failed',0,
+     &     RTDB_ERR)
+c
       if (ga_nodeid().eq.0) then  
        write(luout,*) 'SCF residual: ', residual
       endif
@@ -410,12 +414,12 @@ c == copy solution (g_work) --> g_grad 2nd subspace===START
           call ga_copy_patch('n',g_work,1,vlen,1 ,nvec,
      &                           g_grad,1,vlen,m1,m2)
 c == copy solution (g_work) --> g_grad 2nd subspace===END
-        call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
+        call util_file_name('cphf_sol',.false.,.true.,cphf_sol)
         if(.not.file_write_ga(cphf_sol,g_grad))
      $     call errquit('cphf_solve: could not write cphf_sol',1,
      &       UNKNOWN_ERR)
        else
-        call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
+        call util_file_name('cphf_sol',.false.,.true.,cphf_sol)
         if(.not.file_write_ga(cphf_sol,g_work))
      $     call errquit('cphf_solve: could not write cphf_sol',1,
      &       UNKNOWN_ERR)
