@@ -540,7 +540,7 @@ c
      &       filestub = 'lkain_soln'
       if (.not. rtdb_cget(rtdb, 'solver:filesoln', 1, filesoln))
      &       filesoln = 'lkain_soln'
-      call util_file_name(filestub,.false.,.true.,filesoln)
+      call util_file_name(filestub,.false.,.false.,filesoln)
 c     if (ga_nodeid().eq.0) write(luout,*) "ga_lkain filestub:",filestub
 c     if (ga_nodeid().eq.0) write(luout,*) "ga_lkain filesoln:",filesoln
 c
