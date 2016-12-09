@@ -2034,7 +2034,7 @@ $(error )
           FOPTIONS +=  -ff2c -fno-second-underscore
         endif
         ifeq ($(GNU_GE_4_6),true) 
-          FOPTIMIZE += -march=native -mtune=native
+          FOPTIMIZE +=  -mtune=native
           FOPTIONS += -finline-functions
         else
         ifeq ($(_GOT3DNOW),Y) 
