@@ -41,13 +41,13 @@ c
 c
 c  Get rid of temporary DRAs and terminate DRA interface
 c
-      if (dra_delete(fx_dra_handle).ne.0) call errquit
-     *   ('hess_tidy: unable to delete the fx DRA',555, UNKNOWN_ERR)
-      if (dra_delete(sx_dra_handle).ne.0) call errquit
-     *   ('hess_tidy: unable to delete the sx DRA',555, UNKNOWN_ERR)
-      if (dra_terminate().ne.0) call errquit
-     *   ('hess_tidy: unable to terminate DRA interface',555,
-     &       UNKNOWN_ERR)
+c      if (dra_delete(fx_dra_handle).ne.0) call errquit
+c     *   ('hess_tidy: unable to delete the fx DRA',555, UNKNOWN_ERR)
+c      if (dra_delete(sx_dra_handle).ne.0) call errquit
+c     *   ('hess_tidy: unable to delete the sx DRA',555, UNKNOWN_ERR)
+c      if (dra_terminate().ne.0) call errquit
+c     *   ('hess_tidy: unable to terminate DRA interface',555,
+c     &       UNKNOWN_ERR)
 c
 c
       return

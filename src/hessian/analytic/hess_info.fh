@@ -38,6 +38,7 @@ c
       integer cd_basis,basis_list,nbasis
       integer  nclosed, nopen, nalpha, nbeta, nmo, nocc, nvirt, vlen
       integer qy, g_dens, g_wdens, g_rhs, g_rhs_xc, ndens
+      integer g_rhs_sx, g_rhs_fx
       integer l_hess_xc, k_hess_xc, k_act, l_act, nactive
       integer l_dder, k_dder
       integer sx_dra_handle, fx_dra_handle
@@ -61,7 +62,8 @@ c
      *   k_hess_xc, k_act, l_act, l_dder, k_dder, ncent, nactive,
      *   nclosed, nopen, nalpha, nbeta, nmo, nocc(2), nvirt(2), vlen,
      *   nbf, sx_dra_handle, fx_dra_handle, qy(2),
-     *   g_dens(4),g_wdens,ndens,g_rhs,g_rhs_xc, geomold
+     *   g_dens(4),g_wdens,ndens,g_rhs,g_rhs_xc, geomold, 
+     *   g_rhs_sx, g_rhs_fx
 c
 c  Characters
 c

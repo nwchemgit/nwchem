@@ -61,9 +61,15 @@ c     ----- define parameters -----
 c
       nc   = n3xyz
 c
+c     check hessian restart flag
+c
+      restr = 0
+      if (.not. rtdb_get(rtdb,'hess:restart',mt_int,1,restr))
+     &  restr = 0
+c
 c     some parameters for the cphf solver (ga_lkain())
 c
-      call solver_setup(rtdb)
+      call solver_setup(rtdb,restr)
 c
 c Get MO vectors, first figure out name of movecs file, get memory, and
 c then get actual data
@@ -183,6 +189,7 @@ c
 c  Transform the current AO based Fock derivatives to the MO basis,
 c  scale by four, and populate g_aa and g_wax 
 c
+      call hess_copymat(ndens,n3xyz,nbf,nbf,g_rhs_fx,g_rhs)
       call hess_aotomo(g_rhs, g_vecs, g_modx,
      $          olprint, ocphfprint,
      $          nocc, nvirt, ndens, n3xyz, nbf)
@@ -196,7 +203,8 @@ c We are now done with the Fock derivatives.
 c Will reuse g_rhs for the ds/dx term.
 c Transform ds/dx term into MO basis and scale by -0.5.
 c
-      call sx_read(g_rhs,nc*ndens,nbf,sx_dra_handle)
+      call hess_copymat(ndens,n3xyz,nbf,nbf,g_rhs_sx,g_rhs)
+cng      call sx_read(g_rhs,nc*ndens,nbf,sx_dra_handle)
 c
       if (olprint) write(LuOut,*) 'HESS: Ta contribution to Wax'
       call hess_aotomo(g_rhs, g_vecs, g_modx,
@@ -323,7 +331,17 @@ c
         write(LuOut,*) 'Getting Ta again'
         call util_flush(LuOut)
       endif
-      call sx_read(g_rhs,nc*ndens,nbf,sx_dra_handle)
+      call hess_copymat(ndens,n3xyz,nbf,nbf,g_rhs_sx,g_rhs)
+cng      call sx_read(g_rhs,nc*ndens,nbf,sx_dra_handle)
+
+      if (.not.ga_destroy(g_rhs_sx))
+     $  call errquit('hess_cphf: problem destroying g_rhs',555, GA_ERR)
+
+      if (.not.ga_destroy(g_rhs_fx))
+     $  call errquit('hess_cphf: problem destroying g_rhs',555, GA_ERR)
+
+
+
 c
       call hess_aotomo(g_rhs, g_vecs, g_modx,
      $          olprint, ocphfprint,
@@ -529,6 +547,13 @@ c We can now get rid of the RHS memory
 c
       if (.not.ga_destroy(g_rhs))
      $  call errquit('hess_cphf: problem destroying g_rhs',555, GA_ERR)
+
+c      if (.not.ga_destroy(g_rhs_sx))
+c     $  call errquit('hess_cphf: problem destroying g_rhs',555, GA_ERR)
+c
+c      if (.not.ga_destroy(g_rhs_fx))
+c     $  call errquit('hess_cphf: problem destroying g_rhs',555, GA_ERR)
+
 c
 c Print intermediate result
 c
@@ -1290,7 +1315,7 @@ c
 c
 c     some parameters for the cphf solver (ga_lkain())
 c
-      subroutine solver_setup(rtdb)
+      subroutine solver_setup(rtdb,restr)
 c
       implicit none
 #include "errquit.fh"
@@ -1305,14 +1330,9 @@ c
 #include "util.fh"
 c
       integer rtdb
-c
       integer restr
+c
       character*256 cphf_sol
-c
-c     check hessian restart flag
-c
-      if (.not. rtdb_get(rtdb,'hess:restart',mt_int,1,restr))
-     &  restr = 0
 c
 c     set up the files for the cphf solution
 c

@@ -371,27 +371,37 @@ c
      &   call errquit('hess_init: could not allocate g_rhs_xc',555,
      &       GA_ERR)
       call ga_zero(g_rhs_xc)
+      if (.not. nga_create (MT_DBL, 3, dims, 'DFT CPKS RHS',chunk, 
+     &     g_rhs_sx))
+     &   call errquit('hess_init: could not allocate g_rhs_xc',555,
+     &       GA_ERR)
+      call ga_zero(g_rhs_sx)
+      if (.not. nga_create (MT_DBL, 3, dims, 'DFT CPKS RHS',chunk, 
+     &     g_rhs_fx))
+     &   call errquit('hess_init: could not allocate g_rhs_xc',555,
+     &       GA_ERR)
+      call ga_zero(g_rhs_fx)
 c
 c  Initialize the Disk Resident Array (DRA) interface which will be needed
 c  to hold the overlap derivatives.
 c
-      if (oprint) write(LuOut,*) 'HESS: getting dra_handles'
-      call util_file_name('sxmatrices',.true.,.false.,sx_name)
-      call util_file_name('fxmatrices',.true.,.false.,fx_name)
-      nbsize = ma_sizeof(mt_dbl,ndens*ncent*3*nbf*nbf,mt_byte)
+c      if (oprint) write(LuOut,*) 'HESS: getting dra_handles'
+c      call util_file_name('sxmatrices',.true.,.false.,sx_name)
+c      call util_file_name('fxmatrices',.true.,.false.,fx_name)
+c      nbsize = ma_sizeof(mt_dbl,ndens*ncent*3*nbf*nbf,mt_byte)
 c     if (dra_init(1,nbsize,nbsize,-1).ne.0) call errquit
 c    &    ('hess_init: Failed to initialize DRA interface',555)
-      if (dra_init(2,nbsize,2*nbsize,-1).ne.0) call errquit
-     &    ('hess_init: Failed to initialize DRA interface',555,
-     &       INT_ERR)
-      if (dra_create(mt_dbl,ndens*nbf*ncent*3,nbf,'Sx matrices',
-     &    sx_name,
-     &    DRA_RW,nbf,nbf,sx_dra_handle).ne.0) call errquit
-     &   ('hess_init: Failed to create sx DRA',555, INT_ERR)
-      if (dra_create(mt_dbl,ndens*nbf*ncent*3,nbf,'Fx matrices',
-     &    fx_name,
-     &    DRA_RW,nbf,nbf,fx_dra_handle).ne.0) call errquit
-     &   ('hess_init: Failed to create fx DRA',555, INPUT_ERR)
+c      if (dra_init(2,nbsize,2*nbsize,-1).ne.0) call errquit
+c     &    ('hess_init: Failed to initialize DRA interface',555,
+c     &       INT_ERR)
+c      if (dra_create(mt_dbl,ndens*nbf*ncent*3,nbf,'Sx matrices',
+c     &    sx_name,
+c     &    DRA_RW,nbf,nbf,sx_dra_handle).ne.0) call errquit
+c     &   ('hess_init: Failed to create sx DRA',555, INT_ERR)
+c      if (dra_create(mt_dbl,ndens*nbf*ncent*3,nbf,'Fx matrices',
+c     &    fx_name,
+c     &    DRA_RW,nbf,nbf,fx_dra_handle).ne.0) call errquit
+c     &   ('hess_init: Failed to create fx DRA',555, INPUT_ERR)
 
 
       return
