@@ -573,8 +573,8 @@ c
 c Now actually set up the CPHF matrices 
 c
       if (olprint) write(LuOut,*) 'HESS: CPHF contributions'
-      call util_file_name('cphf_rhs',.false.,.true.,cphf_rhs)
-      call util_file_name('cphf_sol',.false.,.true.,cphf_sol)
+      call util_file_name('cphf_rhs',.false.,.false.,cphf_rhs)
+      call util_file_name('cphf_sol',.false.,.false.,cphf_sol)
 c
 c quick and dirty scale of g_wax for UHF
 c
