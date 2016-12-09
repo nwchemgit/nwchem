@@ -772,20 +772,23 @@ c
       do ndns = 1, ndens
         nmo = nocc(ndns) + nvirt(ndns)
         ahi(2) = nmo  ! g_vecs and g_modx dimensions
-        dhi(1) = nmo
         chi(2) = nmo
-        chi(3) = nmo
+        chi(3) = nmo 
+        dhi(1) = nmo
         do in = 1, n3xyz
           ind = ind + 1
           blo(1) = ind
           bhi(1) = ind
           clo(1) = ind
           chi(1) = ind
+          call ga_mask_sync(.true.,.false.)
           call ga_zero(g_modx)
+          call ga_mask_sync(.true.,.false.)
           call nga_matmul_patch ('t','n', 1.D0, 0.D0,
      $                           g_vecs(ndns), dlo, dhi,
      $                           g_rhs_x     , blo, bhi,
      $                           g_modx      , dlo, dhi)
+          call ga_mask_sync(.true.,.false.)
           call nga_matmul_patch ('n','n', 1.D0, 0.D0,
      $                           g_modx      , dlo, dhi,
      $                           g_vecs(ndns), alo, ahi,
@@ -793,6 +796,7 @@ c
 c
         enddo
       enddo
+      call ga_sync()
 c
       if (ocphf) then
         if(ga_nodeid().eq.0) then
@@ -862,12 +866,15 @@ c
         if (nocc(ndns).le.0) then
           call nga_zero_patch(g_rhs_x,blo2,bhi2)
         else ! nocc(ndns).le.0
+           call ga_mask_sync(.true.,.false.)
         call ga_zero(g_modx)
         
+           call ga_mask_sync(.true.,.false.)
         call nga_matmul_patch ('n','n', 1.D0, 0.D0,
      $                g_vecs(ndns), alo1, ahi1,
      $                g_rhs_x     , blo1, bhi1,
      $                g_modx      , alo1, ahi1)
+           call ga_mask_sync(.true.,.false.)
         call nga_matmul_patch ('n','t', 1.D0, 0.D0,
      $                g_modx      , alo1, ahi1,
      $                g_vecs(ndns), alo2, ahi2,
@@ -877,6 +884,7 @@ c
 c
        enddo
       enddo
+      call ga_sync()
 c
       if (ocphf) then
         if(ga_nodeid().eq.0) then
@@ -983,11 +991,13 @@ c
             ahi(2) = i
             blo(2) = i
             bhi(2) = i
+            call ga_mask_sync(.true.,.false.)
             call nga_add_patch(1d0,g_wax,blo,bhi,
      $           8d0*evals((ndns-1)*nbf+i),g_rhs,alo,ahi,
      $           g_wax,blo,bhi)
          enddo
       enddo
+      call ga_sync()
 c
       if (ocphfprint) then
         if(ga_nodeid().eq.0) then
