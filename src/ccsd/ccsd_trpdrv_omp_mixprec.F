@@ -13,25 +13,27 @@
 #include "ccsd_len.fh"
 #include "ccsdps.fh"
 !
-      double precision, intent(inout) :: emp4,emp5
-      double precision, intent(in) :: t1(*)
+      integer, parameter :: sp = selected_real_kind(6, 37)
+      integer, parameter :: dp = selected_real_kind(15, 307)
+      real(kind=dp), intent(inout) :: emp4,emp5
+      real(kind=dp), intent(in) :: t1(*)
       integer, intent(in) :: ncor,nocc,nvir
       integer, intent(in) :: iprt
       integer, intent(in) :: g_objo,g_objv,g_coul,g_exch
       integer, intent(in) :: oseg_lo,oseg_hi, kchunk
 ! FYI: f[1234][nt] parent routine allocates these on the heap (+fastmem)
-      double precision, intent(in) :: f1n(nvir,nvir),f1t(nvir,nvir)
-      double precision, intent(in) :: f2n(nvir,nvir),f2t(nvir,nvir)
-      double precision, intent(in) :: f3n(nvir,nvir),f3t(nvir,nvir)
-      double precision, intent(in) :: f4n(nvir,nvir),f4t(nvir,nvir)
+      real(kind=dp), intent(in) :: f1n(nvir,nvir),f1t(nvir,nvir)
+      real(kind=dp), intent(in) :: f2n(nvir,nvir),f2t(nvir,nvir)
+      real(kind=dp), intent(in) :: f3n(nvir,nvir),f3t(nvir,nvir)
+      real(kind=dp), intent(in) :: f4n(nvir,nvir),f4t(nvir,nvir)
 ! TODO: allocate a copy of eorb on heap with fastmem for KNL
-      double precision, intent(in) :: eorb(*)
+      real(kind=dp), intent(in) :: eorb(*)
 ! TODO: determine if these should be allocated w/ fastmem in parent subroutine
-      double precision, intent(in) :: Xia(*), Xka(*)
-      double precision, intent(in) :: Tij(*), Tkj(*), Tia(*), Tka(*)
-      double precision, intent(in) :: Jia(*), Jka(*), Jij(*), Jkj(*)
-      double precision, intent(in) :: Kia(*), Kka(*), Kij(*), Kkj(*)
-      double precision, intent(in) :: Dja(*), Djka(*), Djia(*)
+      real(kind=dp), intent(in) :: Xia(*), Xka(*)
+      real(kind=dp), intent(in) :: Tij(*), Tkj(*), Tia(*), Tka(*)
+      real(kind=dp), intent(in) :: Jia(*), Jka(*), Jij(*), Jkj(*)
+      real(kind=dp), intent(in) :: Kia(*), Kka(*), Kij(*), Kkj(*)
+      real(kind=dp), intent(in) :: Dja(*), Djka(*), Djia(*)
 !
 ! These arrays are touched by GEMM:
 !
@@ -42,7 +44,6 @@
 !    f1n f2n f3n f4n
 !    f1t f2t f3t f4t
 !
-      integer, parameter :: sp = selected_real_kind(6, 37)
       real(kind=sp), allocatable :: sXia(:), sXka(:)
       real(kind=sp), allocatable :: sTij(:), sTkj(:), sTia(:), sTka(:)
       real(kind=sp), allocatable :: sJia(:), sJka(:), sJij(:), sJkj(:)
@@ -55,20 +56,20 @@
 
 ! used to make inline threaded tengy correct - for now
 #ifdef USE_F90_ALLOCATABLE
-      double precision, allocatable :: dintc1(:),dintc2(:)
-      double precision, allocatable :: dintx1(:),dintx2(:)
-      double precision, allocatable :: t1v1(:),t1v2(:)
+      real(kind=dp), allocatable :: dintc1(:),dintc2(:)
+      real(kind=dp), allocatable :: dintx1(:),dintx2(:)
+      real(kind=dp), allocatable :: t1v1(:),t1v2(:)
 #ifdef USE_FASTMEM
 !dec$ attributes fastmem :: dintc1,dintc2,dintx1,dintx2,t1v1,t1v2
 #endif
       integer :: alloc_error(6)
 #else
-      double precision :: dintc1(nvir),dintx1(nvir),t1v1(nvir)
-      double precision :: dintc2(nvir),dintx2(nvir),t1v2(nvir)
+      real(kind=dp) :: dintc1(nvir),dintx1(nvir),t1v1(nvir)
+      real(kind=dp) :: dintc2(nvir),dintx2(nvir),t1v2(nvir)
 #endif
 !
-      double precision :: emp4i,emp5i,emp4k,emp5k
-      double precision :: eaijk,denom
+      real(kind=dp) :: emp4i,emp5i,emp4k,emp5k
+      real(kind=dp) :: eaijk,denom
       integer :: inode,next,nodes,iam
       integer :: a,b,c,i,j,k,akold,av
       ! chunking is the loop blocking size in the loop nest
@@ -255,10 +256,10 @@
                         call dcopy(nvir,Dja(1+(k-1)*nvir),1,dintc2,1)
                         call ga_nbwait(nbh_objv4(k)) ! Djka
                         call dcopy(nvir,Djka(1+(k-klo)*nvir),1,dintx2,1)
-                        emp4i = 0.0d0
-                        emp5i = 0.0d0
-                        emp4k = 0.0d0
-                        emp5k = 0.0d0
+                        emp4i = 0
+                        emp5i = 0
+                        emp4k = 0
+                        emp5k = 0
                         if (occsdps) then
                            call pstat_on(ps_doxxx)
                         else
@@ -430,7 +431,8 @@
      &                           +eorb(ncor+nocc+c)+eaijk )
 ! fusing emp[45][ki] accumulates may help vectorization...
                    emp4i=emp4i+denom*
-     &                  (f1t(b,c)+f1n(c,b)+f2t(c,b)+f3n(b,c)+f4n(c,b))*
+     &                  (f1t(b,c)+f1n(c,b)+f2t(c,b)
+     &                           +f3n(b,c)+f4n(c,b))*
      &                  (f1t(b,c)-2*f2t(b,c)-2*f3t(b,c)+f4t(b,c))
      &                        -denom*
      &                  (f1n(b,c)+f1t(c,b)+f2n(c,b)+f3n(c,b))*
@@ -439,7 +441,8 @@
      &                  f1n(b,c)*(f1n(b,c)+f3n(c,b)+2*f4t(c,b))+
      &                  f2n(b,c)*f2t(c,b)+f3n(b,c)*f4t(b,c))
                    emp4k=emp4k+denom*
-     &                  (f1n(b,c)+f1t(c,b)+f2n(c,b)+f3t(b,c)+f4t(c,b))*
+     &                  (f1n(b,c)+f1t(c,b)+f2n(c,b)
+     &                           +f3t(b,c)+f4t(c,b))*
      &                  (f1n(b,c)-2*f2n(b,c)-2*f3n(b,c)+f4n(b,c))
      &                        -denom*
      &                  (f1t(b,c)+f1n(c,b)+f2t(c,b)+f3t(c,b))*
@@ -475,11 +478,11 @@
                             call qexit('tengy',0)
                          endif
 
-                         emp4 = emp4 + emp4i
-                         emp5 = emp5 + emp5i
+                         emp4 = real(emp4 + emp4i,kind=dp)
+                         emp5 = real(emp5 + emp5i,kind=dp)
                          if (i.ne.k) then
-                             emp4 = emp4 + emp4k
-                             emp5 = emp5 + emp5k
+                             emp4 = real(emp4 + emp4k,kind=dp)
+                             emp5 = real(emp5 + emp5k,kind=dp)
                          end if ! (i.ne.k)
                      end do    ! k
                   end do       ! i
