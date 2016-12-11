@@ -416,9 +416,9 @@
                         endif
 !$omp end master
 
-                        eaijk=eorb(a) - (  eorb(ncor+i)
-     &                                    +eorb(ncor+j)
-     &                                    +eorb(ncor+k) )
+                        eaijk=real(eorb(a) - (  eorb(ncor+i)
+     &                                         +eorb(ncor+j)
+     &                                         +eorb(ncor+k) ),kind=sp)
 !$omp do collapse(2)
 !$omp& schedule(static)
 !$omp& reduction(+:emp5i,emp4i)
