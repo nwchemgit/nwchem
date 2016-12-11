@@ -1,6 +1,6 @@
       subroutine ccsd_trpdrv_omp_mixprec(t1,
-     &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,
-     &     g_objo,g_objv,g_coul,g_exch,
+     &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
+     &     eorb,g_objo,g_objv,g_coul,g_exch,
      &     ncor,nocc,nvir,iprt,emp4,emp5,
      &     oseg_lo,oseg_hi, kchunk,
      &     Tij, Tkj, Tia, Tka, Xia, Xka, Jia, Jka, Kia, Kka,
@@ -15,6 +15,7 @@
 !
       integer, parameter :: sp = selected_real_kind(6, 37)
       integer, parameter :: dp = selected_real_kind(15, 307)
+!
       real(kind=dp), intent(inout) :: emp4,emp5
       real(kind=dp), intent(in) :: t1(*)
       integer, intent(in) :: ncor,nocc,nvir
