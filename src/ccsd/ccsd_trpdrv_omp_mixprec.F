@@ -411,6 +411,7 @@
              do cc=1,nvir,chunking
                do b=bb,min(bb+chunking-1,nvir)
                  do c=cc,min(cc+chunking-1,nvir)
+                   ! the reciprocal is done in DP, then truncated.
                    denom=real(-1.0d0/(eorb(ncor+nocc+b)
      &                               +eorb(ncor+nocc+c)+eaijk),kind=sp)
 ! fusing emp[45][ki] accumulates may help vectorization...
