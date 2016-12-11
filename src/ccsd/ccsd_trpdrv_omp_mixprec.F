@@ -65,8 +65,8 @@
 #endif
       integer :: alloc_error(6)
 #else
-      real(kind=dp) :: dintc1(nvir),dintx1(nvir),t1v1(nvir)
-      real(kind=dp) :: dintc2(nvir),dintx2(nvir),t1v2(nvir)
+      real(kind=sp) :: dintc1(nvir),dintx1(nvir),t1v1(nvir)
+      real(kind=sp) :: dintc2(nvir),dintx2(nvir),t1v2(nvir)
 #endif
 !
       real(kind=dp) :: emp4i,emp5i,emp4k,emp5k
@@ -245,18 +245,27 @@
                      call ga_nbget(g_objv,1+2*lnoov+(i-1)*lnov,
      &                    2*lnoov+i*lnov,av,av,Xia,lnov,nbh_objv7)
 
-                     call dcopy(nvir,t1((i-1)*nvir+1),1,t1v2,1)
+                     !call dcopy(nvir,t1((i-1)*nvir+1),1,t1v2,1)
+                     call copy_64_to_32(nvir, t1((i-1)*nvir+1),t1v2)
                      call ga_nbwait(nbh_objv1) ! Dja
-                     call dcopy(nvir,Dja(1+(i-1)*nvir),1,dintc1,1)
+                     !call dcopy(nvir,Dja(1+(i-1)*nvir),1,dintc1,1)
+                     call copy_64_to_32(nvir,Dja(1+(i-1)*nvir),dintc1)
                      call ga_nbwait(nbh_objv5) ! Djia
-                     call dcopy(nvir,Djia,1,dintx1,1)
+                     !call dcopy(nvir,Djia,1,dintx1,1)
+                     call copy_64_to_32(nvir,Djia,dintx1)
 
                      do k=klo,min(khi,i)
 
-                        call dcopy(nvir,t1((k-1)*nvir+1),1,t1v1,1)
-                        call dcopy(nvir,Dja(1+(k-1)*nvir),1,dintc2,1)
+                        !call dcopy(nvir,t1((k-1)*nvir+1),1,t1v1,1)
+                        call copy_64_to_32(nvir,t1((k-1)*nvir+1),
+     &                                          t1v1)
+                        !call dcopy(nvir,Dja(1+(k-1)*nvir),1,dintc2,1)
+                        call copy_64_to_32(nvir,Dja(1+(k-1)*nvir),
+     &                                          dintc2)
                         call ga_nbwait(nbh_objv4(k)) ! Djka
-                        call dcopy(nvir,Djka(1+(k-klo)*nvir),1,dintx2,1)
+                        !call dcopy(nvir,Djka(1+(k-klo)*nvir),1,dintx2,1)
+                        call copy_64_to_32(nvir,Djka(1+(k-klo)*nvir),
+     &                                          dintx2)
                         emp4i = 0
                         emp5i = 0
                         emp4k = 0
