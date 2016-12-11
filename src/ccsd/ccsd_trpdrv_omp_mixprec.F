@@ -1,5 +1,4 @@
       subroutine ccsd_trpdrv_omp_mixprec(t1,
-     &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
      &     eorb,g_objo,g_objv,g_coul,g_exch,
      &     ncor,nocc,nvir,iprt,emp4,emp5,
      &     oseg_lo,oseg_hi, kchunk,
@@ -22,11 +21,6 @@
       integer, intent(in) :: iprt
       integer, intent(in) :: g_objo,g_objv,g_coul,g_exch
       integer, intent(in) :: oseg_lo,oseg_hi, kchunk
-! FYI: f[1234][nt] parent routine allocates these on the heap (+fastmem)
-      real(kind=dp), intent(in) :: f1n(nvir,nvir),f1t(nvir,nvir)
-      real(kind=dp), intent(in) :: f2n(nvir,nvir),f2t(nvir,nvir)
-      real(kind=dp), intent(in) :: f3n(nvir,nvir),f3t(nvir,nvir)
-      real(kind=dp), intent(in) :: f4n(nvir,nvir),f4t(nvir,nvir)
 ! TODO: allocate a copy of eorb on heap with fastmem for KNL
       real(kind=dp), intent(in) :: eorb(*)
 ! TODO: determine if these should be allocated w/ fastmem in parent subroutine
@@ -42,17 +36,15 @@
 !    Jka Tka Kka Xka
 !    Jij Tij Kij
 !    Jkj Tkj Kkj
-!    f1n f2n f3n f4n
-!    f1t f2t f3t f4t
 !
       real(kind=sp), allocatable :: sXia(:), sXka(:)
       real(kind=sp), allocatable :: sTij(:), sTkj(:), sTia(:), sTka(:)
       real(kind=sp), allocatable :: sJia(:), sJka(:), sJij(:), sJkj(:)
       real(kind=sp), allocatable :: sKia(:), sKka(:), sKij(:), sKkj(:)
-      real(kind=sp), allocatable :: sf1n(:,:), sf1t(:,:)
-      real(kind=sp), allocatable :: sf2n(:,:), sf2t(:,:)
-      real(kind=sp), allocatable :: sf3n(:,:), sf3t(:,:)
-      real(kind=sp), allocatable :: sf4n(:,:), sf4t(:,:)
+      real(kind=sp), allocatable :: f1n(:,:), f1t(:,:)
+      real(kind=sp), allocatable :: f2n(:,:), f2t(:,:)
+      real(kind=sp), allocatable :: f3n(:,:), f3t(:,:)
+      real(kind=sp), allocatable :: f4n(:,:), f4t(:,:)
       integer :: alloc_error_sp(22)
 
 ! used to make inline threaded tengy correct - for now
@@ -152,14 +144,14 @@
       allocate( sKka(kchunk*lnvv), stat=alloc_error_sp(12) )
       allocate( sKij(lnov*nocc),   stat=alloc_error_sp(13) )
       allocate( sKkj(kchunk*lnov), stat=alloc_error_sp(14) )
-      allocate( sf1n(nvir,nvir),   stat=alloc_error_sp(15) )
-      allocate( sf2n(nvir,nvir),   stat=alloc_error_sp(16) )
-      allocate( sf3n(nvir,nvir),   stat=alloc_error_sp(17) )
-      allocate( sf4n(nvir,nvir),   stat=alloc_error_sp(18) )
-      allocate( sf1t(nvir,nvir),   stat=alloc_error_sp(19) )
-      allocate( sf2t(nvir,nvir),   stat=alloc_error_sp(20) )
-      allocate( sf3t(nvir,nvir),   stat=alloc_error_sp(21) )
-      allocate( sf4t(nvir,nvir),   stat=alloc_error_sp(22) )
+      allocate( f1n(nvir,nvir),    stat=alloc_error_sp(15) )
+      allocate( f2n(nvir,nvir),    stat=alloc_error_sp(16) )
+      allocate( f3n(nvir,nvir),    stat=alloc_error_sp(17) )
+      allocate( f4n(nvir,nvir),    stat=alloc_error_sp(18) )
+      allocate( f1t(nvir,nvir),    stat=alloc_error_sp(19) )
+      allocate( f2t(nvir,nvir),    stat=alloc_error_sp(20) )
+      allocate( f3t(nvir,nvir),    stat=alloc_error_sp(21) )
+      allocate( f4t(nvir,nvir),    stat=alloc_error_sp(22) )
       ! see https://gcc.gnu.org/onlinedocs/gfortran/ALL.html
       if (.not.all(alloc_error_sp.eq.0)) then
           call errquit('allocate sp',1,MA_ERR)
@@ -300,7 +292,6 @@
 !$omp parallel
 !$omp& shared(eorb)
 !$omp& shared(f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t)
-!$omp& shared(sf1n,sf2n,sf3n,sf4n,sf1t,sf2t,sf3t,sf4t)
 !$omp& shared(t1v1,dintc1,dintx1)
 !$omp& shared(t1v2,dintc2,dintx2)
 !$omp& private(eaijk,denom)
@@ -321,98 +312,82 @@
            call copy_64_to_32(nvir*nvir, Jia, sJia)
            call copy_64_to_32(nvir*nvir, Tkj(offv), sTkj(offv))
            call sgemm('n','t',nvir,nvir,nvir,1.0,sJia,nvir,
-     1                sTkj(offv),nvir,0.0,sf1n,nvir)
+     1                sTkj(offv),nvir,0.0,f1n,nvir)
 
            call copy_64_to_32(nvir*nocc, Tia, sTia)
            call copy_64_to_32(nvir*nocc, Kkj(offo), sKkj(offo))
            call sgemm('n','n',nvir,nvir,nocc,-1.0,sTia,nvir,
-     1                sKkj(offo),nocc,1.0,sf1n,nvir)
-
-           call copy_32_to_64(nvir*nvir, sf1n, f1n)
+     1                sKkj(offo),nocc,1.0,f1n,nvir)
 !$omp section
            call copy_64_to_32(nvir*nvir, Kia, sKia)
            call copy_64_to_32(nvir*nvir, Tkj(offv), sTkj(offv))
            call sgemm('n','t',nvir,nvir,nvir,1.0,sKia,nvir,
-     1                sTkj(offv),nvir,0.0,sf2n,nvir)
+     1                sTkj(offv),nvir,0.0,f2n,nvir)
 
            call copy_64_to_32(nvir*nocc, Xia, sXia)
            call copy_64_to_32(nvir*nocc, Kkj(offo), sKkj(offo))
            call sgemm('n','n',nvir,nvir,nocc,-1.0,sXia,nvir,
-     1                sKkj(offo),nocc,1.0,sf2n,nvir)
-
-           call copy_32_to_64(nvir*nvir, sf2n, f2n)
+     1                sKkj(offo),nocc,1.0,f2n,nvir)
 !$omp section
            call copy_64_to_32(nvir*nvir, Jia, sJia)
            call copy_64_to_32(nvir*nvir, Tkj(offv), sTkj(offv))
            call sgemm('n','n',nvir,nvir,nvir,1.0,sJia,nvir,
-     1                sTkj(offv),nvir,0.0,sf3n,nvir)
+     1                sTkj(offv),nvir,0.0,f3n,nvir)
 
            call copy_64_to_32(nvir*nocc, Tia, sTia)
            call copy_64_to_32(nvir*nocc, Jkj(offo), sJkj(offo))
            call sgemm('n','n',nvir,nvir,nocc,-1.0,sTia,nvir,
-     1                sJkj(offo),nocc,1.0,sf3n,nvir)
-
-           call copy_32_to_64(nvir*nvir, sf3n, f3n)
+     1                sJkj(offo),nocc,1.0,f3n,nvir)
 !$omp section
            call copy_64_to_32(nvir*nvir, Kia, sKia)
            call copy_64_to_32(nvir*nvir, Tkj(offv), sTkj(offv))
            call sgemm('n','n',nvir,nvir,nvir,1.0,sKia,nvir,
-     1                sTkj(offv),nvir,0.0,sf4n,nvir)
+     1                sTkj(offv),nvir,0.0,f4n,nvir)
 
            call copy_64_to_32(nvir*nocc, Xia, sXia)
            call copy_64_to_32(nvir*nocc, Jkj(offo), sJkj(offo))
            call sgemm('n','n',nvir,nvir,nocc,-1.0,sXia,nvir,
-     1                sJkj(offo),nocc,1.0,sf4n,nvir)
-
-           call copy_32_to_64(nvir*nvir, sf4n, f4n)
+     1                sJkj(offo),nocc,1.0,f4n,nvir)
 !$omp section
            call copy_64_to_32(nvir*nvir, Jka(offv), sJka(offv))
            call copy_64_to_32(nvir*nvir, Tij, sTij)
            call sgemm('n','t',nvir,nvir,nvir,1.0,sJka(offv),
-     1                nvir,sTij,nvir,0.0,sf1t,nvir)
+     1                nvir,sTij,nvir,0.0,f1t,nvir)
 
            call copy_64_to_32(nvir*nocc, Tka(offo), sTka(offo))
            call copy_64_to_32(nvir*nocc, Kij, sKij)
            call sgemm('n','n',nvir,nvir,nocc,-1.0,sTka(offo),
-     1                nvir,sKij,nocc,1.0,sf1t,nvir)
-
-           call copy_32_to_64(nvir*nvir, sf1t, f1t)
+     1                nvir,sKij,nocc,1.0,f1t,nvir)
 !$omp section
            call copy_64_to_32(nvir*nvir, Kka(offv), sKka(offv))
            call copy_64_to_32(nvir*nvir, Tij, sTij)
            call sgemm('n','t',nvir,nvir,nvir,1.0,sKka(offv),
-     1                nvir,sTij,nvir,0.0,sf2t,nvir)
+     1                nvir,sTij,nvir,0.0,f2t,nvir)
 
            call copy_64_to_32(nvir*nocc, Xka(offo), sXka(offo))
            call copy_64_to_32(nvir*nocc, Kij, sKij)
            call sgemm('n','n',nvir,nvir,nocc,-1.0,sXka(offo),
-     1                nvir,sKij,nocc,1.0,sf2t,nvir)
-
-           call copy_32_to_64(nvir*nvir, sf2t, f2t)
+     1                nvir,sKij,nocc,1.0,f2t,nvir)
 !$omp section
            call copy_64_to_32(nvir*nvir, Jka(offv), sJka(offv))
            call copy_64_to_32(nvir*nvir, Tij, sTij)
            call sgemm('n','n',nvir,nvir,nvir,1.0,sJka(offv),
-     1                nvir,sTij,nvir,0.0,sf3t,nvir)
+     1                nvir,sTij,nvir,0.0,f3t,nvir)
 
            call copy_64_to_32(nvir*nocc, Tka(offo), sTka(offo))
            call copy_64_to_32(nvir*nocc, Jij, sJij)
            call sgemm('n','n',nvir,nvir,nocc,-1.0,sTka(offo),
-     1                nvir,sJij,nocc,1.0,sf3t,nvir)
-
-           call copy_32_to_64(nvir*nvir, sf3t, f3t)
+     1                nvir,sJij,nocc,1.0,f3t,nvir)
 !$omp section
            call copy_64_to_32(nvir*nvir, Kka(offv), sKka(offv))
            call copy_64_to_32(nvir*nvir, Tij, sTij)
            call sgemm('n','n',nvir,nvir,nvir,1.0,sKka(offv),
-     1                nvir,sTij,nvir,0.0,sf4t,nvir)
+     1                nvir,sTij,nvir,0.0,f4t,nvir)
 
            call copy_64_to_32(nvir*nocc, Xka(offo), sXka(offo))
            call copy_64_to_32(nvir*nocc, Jij, sJij)
            call sgemm('n','n',nvir,nvir,nocc,-1.0,sXka(offo),
-     1                nvir,sJij,nocc,1.0,sf4t,nvir)
-
-           call copy_32_to_64(nvir*nvir, sf4t, f4t)
+     1                nvir,sJij,nocc,1.0,f4t,nvir)
 !$omp end sections
 
 !$omp master
@@ -549,14 +524,14 @@
       deallocate( sKka, stat=alloc_error_sp(12) )
       deallocate( sKij, stat=alloc_error_sp(13) )
       deallocate( sKkj, stat=alloc_error_sp(14) )
-      deallocate( sf1n, stat=alloc_error_sp(15) )
-      deallocate( sf2n, stat=alloc_error_sp(16) )
-      deallocate( sf3n, stat=alloc_error_sp(17) )
-      deallocate( sf4n, stat=alloc_error_sp(18) )
-      deallocate( sf1t, stat=alloc_error_sp(19) )
-      deallocate( sf2t, stat=alloc_error_sp(20) )
-      deallocate( sf3t, stat=alloc_error_sp(21) )
-      deallocate( sf4t, stat=alloc_error_sp(22) )
+      deallocate( f1n,  stat=alloc_error_sp(15) )
+      deallocate( f2n,  stat=alloc_error_sp(16) )
+      deallocate( f3n,  stat=alloc_error_sp(17) )
+      deallocate( f4n,  stat=alloc_error_sp(18) )
+      deallocate( f1t,  stat=alloc_error_sp(19) )
+      deallocate( f2t,  stat=alloc_error_sp(20) )
+      deallocate( f3t,  stat=alloc_error_sp(21) )
+      deallocate( f4t,  stat=alloc_error_sp(22) )
       if (.not.all(alloc_error_sp.eq.0)) then
           call errquit('deallocate sp',2,MA_ERR)
       endif

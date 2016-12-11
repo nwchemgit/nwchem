@@ -913,12 +913,6 @@ c
  1850    format(' commencing triples evaluation - OpenMP',
      $          ' mixed-precision version',i8)
          call ccsd_trpdrv_omp_mixprec(dbl_mb(k_t1),
-#ifdef USE_F90_ALLOCATABLE
-     $        f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
-#else
-     $        dbl_mb(k_f1n),dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
-     $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),dbl_mb(k_f4t),
-#endif
      $        eorb,g_objo,g_objv,g_coul,g_exch,ncor,nocc,nvir,iprt,
      $        empt(1),empt(2),oseg_lo,oseg_hi,kchunk,
      $        dbl_mb(k_trp_Tij), dbl_mb(k_trp_Tkj), dbl_mb(k_trp_Tia),
