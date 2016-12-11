@@ -49,9 +49,9 @@
 
 ! used to make inline threaded tengy correct - for now
 #ifdef USE_F90_ALLOCATABLE
-      real(kind=dp), allocatable :: dintc1(:),dintc2(:)
-      real(kind=dp), allocatable :: dintx1(:),dintx2(:)
-      real(kind=dp), allocatable :: t1v1(:),t1v2(:)
+      real(kind=sp), allocatable :: dintc1(:),dintc2(:)
+      real(kind=sp), allocatable :: dintx1(:),dintx2(:)
+      real(kind=sp), allocatable :: t1v1(:),t1v2(:)
 #ifdef USE_FASTMEM
 !dec$ attributes fastmem :: dintc1,dintc2,dintx1,dintx2,t1v1,t1v2
 #endif
@@ -62,7 +62,7 @@
 #endif
 !
       real(kind=dp) :: emp4i,emp5i,emp4k,emp5k
-      real(kind=dp) :: eaijk,denom
+      real(kind=sp) :: eaijk,denom
       integer :: inode,next,nodes,iam
       integer :: a,b,c,i,j,k,akold,av
       ! chunking is the loop blocking size in the loop nest
@@ -412,8 +412,8 @@
              do cc=1,nvir,chunking
                do b=bb,min(bb+chunking-1,nvir)
                  do c=cc,min(cc+chunking-1,nvir)
-                   denom=-1.0d0/( eorb(ncor+nocc+b)
-     &                           +eorb(ncor+nocc+c)+eaijk )
+                   denom=-1.0/( eorb(ncor+nocc+b)
+     &                         +eorb(ncor+nocc+c)+eaijk )
 ! fusing emp[45][ki] accumulates may help vectorization...
                    emp4i=emp4i+denom*
      &                  (f1t(b,c)+f1n(c,b)+f2t(c,b)
