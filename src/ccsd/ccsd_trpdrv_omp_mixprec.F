@@ -411,7 +411,8 @@
              do cc=1,nvir,chunking
                do b=bb,min(bb+chunking-1,nvir)
                  do c=cc,min(cc+chunking-1,nvir)
-                   denom=-1./(eorb(ncor+nocc+b)+eorb(ncor+nocc+c)+eaijk)
+                   denom=real(-1.0d0/(eorb(ncor+nocc+b)
+     &                               +eorb(ncor+nocc+c)+eaijk),kind=sp)
 ! fusing emp[45][ki] accumulates may help vectorization...
                    emp4i=emp4i+denom*
      &                  (f1t(b,c)+f1n(c,b)+f2t(c,b)
@@ -461,11 +462,11 @@
                             call qexit('tengy',0)
                          endif
 
-                         emp4 = real(emp4 + emp4i,kind=dp)
-                         emp5 = real(emp5 + emp5i,kind=dp)
+                         emp4 = emp4 + real(emp4i,kind=dp)
+                         emp5 = emp5 + real(emp5i,kind=dp)
                          if (i.ne.k) then
-                             emp4 = real(emp4 + emp4k,kind=dp)
-                             emp5 = real(emp5 + emp5k,kind=dp)
+                             emp4 = emp4 + real(emp4k,kind=dp)
+                             emp5 = emp5 + real(emp5k,kind=dp)
                          end if ! (i.ne.k)
                      end do    ! k
                   end do       ! i
