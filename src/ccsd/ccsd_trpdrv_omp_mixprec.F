@@ -61,8 +61,9 @@
       real(kind=sp) :: dintc2(nvir),dintx2(nvir),t1v2(nvir)
 #endif
 !
-      real(kind=dp) :: emp4i,emp5i,emp4k,emp5k
-      real(kind=sp) :: eaijk,denom
+      real(kind=sp) :: emp4i,emp5i,emp4k,emp5k
+      real(kind=dp) :: eaijk
+      real(kind=sp) :: denom
       integer :: inode,next,nodes,iam
       integer :: a,b,c,i,j,k,akold,av
       ! chunking is the loop blocking size in the loop nest
@@ -391,18 +392,16 @@
 !$omp end sections
 
 !$omp master
-                        if (occsdps) then
-                           call pstat_off(ps_doxxx)
-                           call pstat_on(ps_tengy)
-                        else
-                           call qexit('doxxx',0)
-                           call qenter('tengy',0)
-                        endif
+           if (occsdps) then
+              call pstat_off(ps_doxxx)
+              call pstat_on(ps_tengy)
+           else
+              call qexit('doxxx',0)
+              call qenter('tengy',0)
+           endif
 !$omp end master
 
-                        eaijk=real(eorb(a) - (  eorb(ncor+i)
-     &                                         +eorb(ncor+j)
-     &                                         +eorb(ncor+k) ),kind=sp)
+           eaijk=eorb(a)-eorb(ncor+i)-eorb(ncor+j)-eorb(ncor+k)
 !$omp do collapse(2)
 !$omp& schedule(static)
 !$omp& reduction(+:emp5i,emp4i)
@@ -412,8 +411,7 @@
              do cc=1,nvir,chunking
                do b=bb,min(bb+chunking-1,nvir)
                  do c=cc,min(cc+chunking-1,nvir)
-                   denom=-1.0/( eorb(ncor+nocc+b)
-     &                         +eorb(ncor+nocc+c)+eaijk )
+                   denom=-1./(eorb(ncor+nocc+b)+eorb(ncor+nocc+c)+eaijk)
 ! fusing emp[45][ki] accumulates may help vectorization...
                    emp4i=emp4i+denom*
      &                  (f1t(b,c)+f1n(c,b)+f2t(c,b)
