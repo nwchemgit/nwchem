@@ -259,10 +259,6 @@
                         !call dcopy(nvir,Djka(1+(k-klo)*nvir),1,dintx2,1)
                         call copy_64_to_32(nvir,Djka(1+(k-klo)*nvir),
      &                                          dintx2)
-                        emp4i = 0
-                        emp5i = 0
-                        emp4k = 0
-                        emp5k = 0
                         if (occsdps) then
                            call pstat_on(ps_doxxx)
                         else
@@ -399,9 +395,14 @@
               call qexit('doxxx',0)
               call qenter('tengy',0)
            endif
+
+           emp4i = 0.
+           emp5i = 0.
+           emp4k = 0.
+           emp5k = 0.
 !$omp end master
 
-           eaijk=eorb(a)-eorb(ncor+i)-eorb(ncor+j)-eorb(ncor+k)
+           eaijk = eorb(a) - eorb(ncor+i) - eorb(ncor+j) - eorb(ncor+k)
 !$omp do collapse(2)
 !$omp& schedule(static)
 !$omp& reduction(+:emp5i,emp4i)
@@ -411,9 +412,14 @@
              do cc=1,nvir,chunking
                do b=bb,min(bb+chunking-1,nvir)
                  do c=cc,min(cc+chunking-1,nvir)
-                   ! the reciprocal is done in DP, then truncated.
-                   denom=real(-1.0d0/(eorb(ncor+nocc+b)
-     &                               +eorb(ncor+nocc+c)+eaijk),kind=sp)
+! less accurate
+!                   denom=real(-1.0d0/(eorb(ncor+nocc+b)
+!     &                               +eorb(ncor+nocc+c)+eaijk),kind=sp)
+! more accurate
+!                   denom=-1./(eorb(ncor+nocc+b)+eorb(ncor+nocc+c)+eaijk)
+! most accurate
+                   denom=-1.0d0/(eorb(ncor+nocc+b)
+     &                          +eorb(ncor+nocc+c)+eaijk)
 ! fusing emp[45][ki] accumulates may help vectorization...
                    emp4i=emp4i+denom*
      &                  (f1t(b,c)+f1n(c,b)+f2t(c,b)
