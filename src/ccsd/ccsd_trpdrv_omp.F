@@ -33,6 +33,9 @@
       double precision, intent(in) :: Kia(*), Kka(*), Kij(*), Kkj(*)
       double precision, intent(in) :: Dja(*), Djka(*), Djia(*)
 ! used to make inline threaded tengy correct - for now
+! it is correct that dint[cx]1 are paired with t1v2 and vice versa
+! in the inlined tengy loops.  see ccsd_tengy in ccsd_trpdrv.F for
+! verification of the i-k and k-i pairing of these.
 #ifdef USE_F90_ALLOCATABLE
       double precision, allocatable :: dintc1(:),dintc2(:)
       double precision, allocatable :: dintx1(:),dintx2(:)
