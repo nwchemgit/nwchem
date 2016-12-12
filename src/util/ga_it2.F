@@ -460,6 +460,8 @@ c
 c
       logical solver_restart
       external solver_restart
+c 
+      logical do_restart
 c
       zero = cmplx(0.0d0,0.0d0)
       one  = cmplx(1.0d0,0.0d0)
@@ -547,10 +549,17 @@ c
 c     Check if this is a restart
 c
       if (solver_restart(rtdb)) then
-        if(.not.file_read_ga(filesoln,g_x)) goto 50
-        if (ga_nodeid().eq.0) 
-     &    write(luout,*) "Restarting solution from: ", filesoln
-      end if
+        do_restart = .true.
+        if(.not.file_read_ga(filesoln,g_x)) do_restart = .false.
+        if (do_restart) then
+          if (ga_nodeid().eq.0) 
+     &     write(luout,*) "Restarting solution from: ", filesoln
+        else
+          if (ga_nodeid().eq.0)
+     &     write(luout,*) "Error in restart solution: ", filesoln
+          goto 50
+        end if  ! do_restart
+      end if  ! solver_restart
 c
  50   continue
 c
@@ -588,11 +597,6 @@ c
             call util_flush(6)
  3          format(' ', i5, i7, 3x,1p,d9.2,0p,f10.1)
          end if
-c
-c        Save intermediate solution
-c
-         if(.not.file_write_ga(filesoln,g_x)) call errquit
-     $     ('ga_lkain:could not write solution',1, DISK_ERR)
 c 
 c        Check convergence
 c
@@ -676,6 +680,11 @@ c
          call ga_sync()
          call ga_add(one, g_r, one, g_x, g_x)
          call ga_sync()
+c
+c        Save intermediate solution
+c
+         if(.not.file_write_ga(filesoln,g_x)) call errquit
+     $     ('ga_lkain:could not write solution',1, DISK_ERR)
 c
          if (.not. ga_destroy(g_a)) call errquit('lkain: a',0, GA_ERR)
          if (.not. ga_destroy(g_bb))call errquit('lkain: b',0, GA_ERR)
