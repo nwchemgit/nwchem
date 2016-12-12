@@ -339,9 +339,6 @@ cng      call sx_read(g_rhs,nc*ndens,nbf,sx_dra_handle)
 
       if (.not.ga_destroy(g_rhs_fx))
      $  call errquit('hess_cphf: problem destroying g_rhs',555, GA_ERR)
-
-
-
 c
       call hess_aotomo(g_rhs, g_vecs, g_modx,
      $          olprint, ocphfprint,
@@ -586,6 +583,17 @@ c
      $    0,0,g_sol))
      $    call errquit('hess_cphf: could not create g_sol',555, GA_ERR)
 c
+c Try reading RHS if it is available
+c
+      if (restr.gt.0) then
+       if(.not.file_read_ga(cphf_rhs,g_sol)) goto 50
+       if (ga_nodeid().eq.0) 
+     &      write(luout,*) "Restarting rhs from: ", cphf_rhs
+       goto 100  ! jump to cphf call
+      end if ! restr 
+c
+ 50   continue
+c
 c Put the CPHF matrices into one GA in the correct format
 c Note that the alpha and beta matrices are concatenated
 c (not one after the other)
@@ -611,8 +619,6 @@ c
           index1 = index1 + 1
         enddo
       enddo
-      if (.not.ga_destroy(g_wax)) call errquit
-     $  ('cannot destroy g_wax ',555, GA_ERR)
 c
       if (ocphfprint) then
         if(ga_nodeid().eq.0)then
@@ -650,10 +656,14 @@ c
         enddo
       endif
 c
+ 100  continue
+c
       if(.not.file_write_ga(cphf_rhs,g_sol)) call errquit
      $  ('hess_cphf:could not write cphf_rhs',ind, DISK_ERR)
       if (.not.ga_destroy(g_sol)) call errquit
      $  ('cannot destroy g_sol ',555, GA_ERR)
+      if (.not.ga_destroy(g_wax)) call errquit
+     $  ('cannot destroy g_wax ',555, GA_ERR)
 c
 c Actually run the CPHF on all rhs
 c
