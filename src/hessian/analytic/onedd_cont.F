@@ -171,10 +171,9 @@ c
         call ga_print(g_rhs)
       endif
 c
-c write out Sx terms to disk
+c Copy overlap contribution to g_rhs_sx
 c
       call hess_copymat(ndens,n3xyz,nbf,nbf,g_rhs,g_rhs_sx)
-cng      call sx_write(g_rhs_sx,n3xyz*ndens,nbf,sx_dra_handle)
 c
 c Clear g_rhs again
 c

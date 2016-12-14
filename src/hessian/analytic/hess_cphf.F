@@ -204,7 +204,6 @@ c Will reuse g_rhs for the ds/dx term.
 c Transform ds/dx term into MO basis and scale by -0.5.
 c
       call hess_copymat(ndens,n3xyz,nbf,nbf,g_rhs_sx,g_rhs)
-cng      call sx_read(g_rhs,nc*ndens,nbf,sx_dra_handle)
 c
       if (olprint) write(LuOut,*) 'HESS: Ta contribution to Wax'
       call hess_aotomo(g_rhs, g_vecs, g_modx,
@@ -332,8 +331,7 @@ c
         call util_flush(LuOut)
       endif
       call hess_copymat(ndens,n3xyz,nbf,nbf,g_rhs_sx,g_rhs)
-cng      call sx_read(g_rhs,nc*ndens,nbf,sx_dra_handle)
-
+c
       if (.not.ga_destroy(g_rhs_sx))
      $  call errquit('hess_cphf: problem destroying g_rhs',555, GA_ERR)
 

@@ -141,49 +141,42 @@ c
 c
 c  Get the one-electron second derivative contributions
 c
-c      if (restr.lt.1) then
-        if (oprint) write(LuOut,*) 'HESS: before the onedd_cont call'
-        if (ohessprof) call pstat_on(ps_onedd)
-        t0=util_wallsec()
-        call onedd_cont(rtdb)
-        if (ohessprof) call pstat_off(ps_onedd)
+      if (oprint) write(LuOut,*) 'HESS: before the onedd_cont call'
+      if (ohessprof) call pstat_on(ps_onedd)
+      t0=util_wallsec()
+      call onedd_cont(rtdb)
+      if (ohessprof) call pstat_off(ps_onedd)
 c
 c  Get the nuclear contribution to the hessian
 c
-        if (oprint) write(LuOut,*) 'HESS: before the nucdd_cont call'
-        if (ohessprof) call pstat_on(ps_nucdd)
-        call nucdd_cont(rtdb)
-        if (ohessprof) call pstat_off(ps_nucdd)
-        call hess_restart(rtdb,1)
+      if (oprint) write(LuOut,*) 'HESS: before the nucdd_cont call'
+      if (ohessprof) call pstat_on(ps_nucdd)
+      call nucdd_cont(rtdb)
+      if (ohessprof) call pstat_off(ps_nucdd)
+      call hess_restart(rtdb,1)
         
-        if (oprintsome) then
+      if (oprintsome) then
            write(LuOut,11) util_wallsec()-t0
            call util_flush(luout)
-        endif
- 11     format(/' HESSIAN: the one electron ',
+      endif
+ 11   format(/' HESSIAN: the one electron ',
      $    'contributions are done in ',f9.1,'s'/)
 c
 c  Get the two-electron second derivative contributions
 c
-c      if (restr.lt.2) then
-        if (oprint) write(LuOut,*) 'HESS: before the twodd_cont call'
-        if (ohessprof) call pstat_on(ps_twodd)
-        t0=util_wallsec()
-        call twodd_cont(rtdb)
-        if (ohessprof) call pstat_off(ps_twodd)
-        call hess_restart(rtdb,2)
-        if (oprintsome) write(LuOut,12) util_wallsec()-t0
+      if (oprint) write(LuOut,*) 'HESS: before the twodd_cont call'
+      if (ohessprof) call pstat_on(ps_twodd)
+      t0=util_wallsec()
+      call twodd_cont(rtdb)
+      if (ohessprof) call pstat_off(ps_twodd)
+      call hess_restart(rtdb,2)
+      if (oprintsome) write(LuOut,12) util_wallsec()-t0
  12     format(/' HESSIAN: the two electron ',
      $    'contributions are done in ',f9.1,'s'/)
 c
-c  Write out fock derivatives to disk
+c  Copy fock matrix bits to g_rhs
 c
-        call hess_copymat(ndens,n3xyz,nbf,nbf,g_rhs,g_rhs_fx)
-cng        call sx_write(g_rhs_fx,n3xyz*ndens,nbf,fx_dra_handle)
-
-c      else 
-c        call hess_getrestart(restr)
-c      endif
+      call hess_copymat(ndens,n3xyz,nbf,nbf,g_rhs,g_rhs_fx)
 c
 c  solve the CPSCF problem
 c
@@ -203,8 +196,6 @@ c
      P        ' Derivative Dipole ',
      A       ncent,-1.0d00)
       endif
-
-
 c     
 c  clean up any hessian specific stuff
 c
