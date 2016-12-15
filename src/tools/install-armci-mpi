@@ -1,16 +1,29 @@
-#!/bin/bash -x
+#!/bin/bash #-x
 
 ARMCI_MPI_TARBALL=$1
 
-export NWCHEM_TOP=${NWCHEM_TOP:-"`pwd`/../"}
+export NWCHEM_TOP=${NWCHEM_TOP:-"`pwd`/../../"}
 if test "x$NWCHEM_TOP" = x
 then
     echo You must set NWCHEM_TOP to use this script.
     exit 1
 fi
 
-if [ -z "${MPICC}" ] ; then
-    MPICC=${MPI_DIR}/bin/mpicc
+if [ ! -z "${MPICC}" ] ; then
+    echo "Found MPICC=${MPICC} in your environment.  Using that."
+    ARMCIMPICC=${MPICC}
+elif [ -d /opt/cray ] ; then
+    echo "You appear to be on a Cray machine."
+    echo "If you don't want to use Cray MPI wrappers, "
+    echo "run again with MPICC=\$YOUR_MPI ./install-armci-mpi"
+    ARMCIMPICC=cc
+elif [ ! -z "${MPI_DIR}" ] ; then
+    echo "Found MPI_DIR=${MPI_DIR} in your environment."
+    echo "Using MPICC=${MPI_DIR}/bin/mpicc."
+    ARMCIMPICC=${MPI_DIR}/bin/mpicc
+else
+    echo "Defaulting to the mpicc in your path."
+    ARMCIMPICC=mpicc
 fi
 
 ARMCI_MPI_DIR=${NWCHEM_TOP}/src/tools/armci-mpi
@@ -20,7 +33,7 @@ if [ -d ${ARMCI_MPI_DIR} ] ; then
   echo "Existing ARMCI-MPI source directory found - updating it"
   cd ${ARMCI_MPI_DIR} && git checkout mpi3rma && git pull >& git.log
   echo "Step 1 of 4 succeeded."
-elif [ -x "$(command -v git)" ]; then
+elif [ -x "$(command -v git)" ] ; then
   git clone -b mpi3rma --depth 10 http://git.mpich.org/armci-mpi.git ${ARMCI_MPI_DIR} >& git.log
   stat=$?
   if [ $stat -ne 0 ] ; then
@@ -65,7 +78,7 @@ if ! [ -d ${ARMCI_MPI_DIR}/build ] ; then
 fi
 cd ${ARMCI_MPI_DIR}/build
 
-${ARMCI_MPI_DIR}/configure CC=$MPICC --prefix=${NWCHEM_TOP}/external-armci >& c.log
+${ARMCI_MPI_DIR}/configure CC=$ARMCIMPICC --prefix=${NWCHEM_TOP}/external-armci >& c.log
 stat=$?
 if [ $stat -ne 0 ] ; then
   echo "configure failed."
