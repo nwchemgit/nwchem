@@ -322,7 +322,7 @@ c
             deallocate(f_singles, stat=alloc_error)
             if (alloc_error.ne.0) then
               call errquit('ccst_t_6dts: deallocate failed',
-     1                     , alloc_error, MA_ERR)
+     1                     alloc_error, MA_ERR)
             endif
             deallocate(f_doubles, stat=alloc_error)
             if (alloc_error.ne.0)  then
