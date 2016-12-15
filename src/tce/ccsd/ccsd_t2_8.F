@@ -209,7 +209,7 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       integer k_b, l_b
       integer k_c, l_c
       integer k_t, l_t
-      logical e_a,e_b,e_c,e_t
+      integer e_a,e_b,e_c,e_t
 #endif
       double precision alpha
       integer p5b_in,p6b_in
@@ -241,10 +241,10 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       e_t=.false.
 # endif
 #endif
-      if (e_a) call errquit("MA a",dimhhpp,MA_ERR)
-      if (e_b) call errquit("MA b",dimpppp,MA_ERR)
-      if (e_c) call errquit("MA c",dimhhpp,MA_ERR)
-      if (e_t) call errquit("MA t",dimtemp,MA_ERR)
+      if (e_a.ne.0) call errquit("MA a",dimhhpp,MA_ERR)
+      if (e_b.ne.0) call errquit("MA b",dimpppp,MA_ERR)
+      if (e_c.ne.0) call errquit("MA c",dimhhpp,MA_ERR)
+      if (e_t.ne.0) call errquit("MA t",dimtemp,MA_ERR)
       DO p3b = noab+1,noab+nvab
        DO p4b = p3b,noab+nvab
         DO h1b = 1,noab
@@ -497,10 +497,10 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       l_t=-12345
       e_t=.false.
 # endif
-      e_a=.not.MA_chOP_STACK(l_a)
+      e_a=.not.MA_CHOP_STACK(l_a)
 #endif
-      if (e_a) call errquit("MA pops a",0,MA_ERR)
-      if (e_t) call errquit("MA pops t",1,MA_ERR)
+      if (e_a.ne.0) call errquit("MA pops a",0,MA_ERR)
+      if (e_t.ne.0) call errquit("MA pops t",1,MA_ERR)
       RETURN
       END
 
