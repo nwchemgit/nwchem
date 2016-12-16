@@ -193,15 +193,7 @@
      &nge+p6b-1) * int_mb(k_range+h1b-1) * int_mb(k_range+h2b-1) * int_m
      &b(k_range+h3b-1)
 !
-!cx      IF (.not.MA_PUSH_GET(mt_dbl,dimc,'noname',l_c_sort,k_c_sort)) CALL
-!cx     & ERRQUIT('ccsd_t_doubles_omp_1',0,MA_ERR)
-!cx      CALL DFILL(dimc,0.0d0,dbl_mb(k_c_sort),1) !not created here
-!
       DO h7b = 1,noab
-! *** debug ***
-!        write(6,*)'step3-h7b loop',ga_nodeid()
-!        call util_flush(6)
-! *************
       IF (int_mb(k_spin+p4b-1)+int_mb(k_spin+p5b-1) .eq. int_mb(k_spin+h
      &1b-1)+int_mb(k_spin+h7b-1)) THEN
       IF (ieor(int_mb(k_sym+p4b-1),ieor(int_mb(k_sym+p5b-1),ieor(int_mb(
@@ -220,10 +212,6 @@
      & ERRQUIT('ccsd_t_doubles_omp_1',1,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a,k_a)) CALL ERRQUIT('
      &ccsd_t_doubles_omp_1',2,MA_ERR)
-! *** debug ***
-!        write(6,*)'step4-h7b loop',ga_nodeid()
-!        call util_flush(6)
-! *************
       IF ((h7b .lt. h1b)) THEN
       CALL GET_HASH_BLOCK(d_a,dbl_mb(k_a),dima,int_mb(k_a_offset),(h1b_1
      & - 1 + noab * (h7b_1 - 1 + noab * (p5b_1 - noab - 1 + nvab * (p4b_
@@ -232,13 +220,6 @@
      &,int_mb(k_range+p5b-1),int_mb(k_range+h7b-1),int_mb(k_range+h1b-1)
      &,4,2,1,3,-1.0d0)
       END IF
-! *** debug ***
-!        write(6,*)'step5-h7b loop',ga_nodeid()
-!        call util_flush(6)
-! *************
-!       Wenjing
-!        call initmemmodule()
-
       IF ((h1b .le. h7b)) THEN
       CALL GET_HASH_BLOCK(d_a,dbl_mb(k_a),dima,int_mb(k_a_offset),(h7b_1
      & - 1 + noab * (h1b_1 - 1 + noab * (p5b_1 - noab - 1 + nvab * (p4b_
