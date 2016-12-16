@@ -4,8 +4,8 @@ C$Id$
 #else
       subroutine ccsd_t_dot(
 #endif
-     A     a_singles, a_doubles,
-     C     restricted,
+     &                      a_singles, a_doubles,
+     &                      restricted,
      &                      h1b,h2b,h3b,p4b,p5b,p6b,
      &                      o_h1,o_h2,o_h3,
      &                      o_p4,o_p5,o_p6,
