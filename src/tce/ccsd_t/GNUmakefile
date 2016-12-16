@@ -35,7 +35,7 @@ ifdef TCE_CUDA
 endif
 
 ifdef TCE_NEW_OPENMP
- OBJ_OPTIMIZE += ccsd_t_omp.o ccsd_t_singles_omp.o ccsd_t_doubles_omp.o
+ OBJ_OPTIMIZE += ccsd_t_omp.o #ccsd_t_singles_omp.o ccsd_t_doubles_omp.o
 endif
 
 LIB_DEFINES += -DDEBUG_PRINT
