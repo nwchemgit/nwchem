@@ -49,9 +49,6 @@ c - T1/X1 LOCALIZATION -------------------
 c ---------------------------------------
       double precision energy(2)
       double precision energy1,energy2
-      double precision factor,denom
-      double precision denom_p4,denom_p5,denom_p6
-      double precision denom_h1,denom_h2,denom_h3
       integer k_aux,k_list,l_aux,l_list
       integer ccsd_t_6tasks,tot_task,w_thresh,task_thresh
       integer k,iptr,k_grain
