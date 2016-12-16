@@ -102,12 +102,12 @@
             range_h1  = int_mb(k_range+t_h1b-1)
             range_h2  = int_mb(k_range+t_h2b-1)
             range_h3  = int_mb(k_range+t_h3b-1)
-            offset_p4 = k_evl_sorted+int_mb(k_offset+t_p4b-1)+t_p4-1
-            offset_p5 = k_evl_sorted+int_mb(k_offset+t_p5b-1)+t_p5-1
-            offset_p6 = k_evl_sorted+int_mb(k_offset+t_p6b-1)+t_p6-1
-            offset_h1 = k_evl_sorted+int_mb(k_offset+t_h1b-1)+t_h1-1
-            offset_h2 = k_evl_sorted+int_mb(k_offset+t_h2b-1)+t_h2-1
-            offset_h3 = k_evl_sorted+int_mb(k_offset+t_h3b-1)+t_h3-1
+            offset_p4 = k_evl_sorted+int_mb(k_offset+t_p4b-1)+t_p4
+            offset_p5 = k_evl_sorted+int_mb(k_offset+t_p5b-1)+t_p5
+            offset_p6 = k_evl_sorted+int_mb(k_offset+t_p6b-1)+t_p6
+            offset_h1 = k_evl_sorted+int_mb(k_offset+t_h1b-1)+t_h1
+            offset_h2 = k_evl_sorted+int_mb(k_offset+t_h2b-1)+t_h2
+            offset_h3 = k_evl_sorted+int_mb(k_offset+t_h3b-1)+t_h3
             call ccsd_t_dot(dbl_mb(k_singles),dbl_mb(k_doubles),
      &                      restricted,
      &                      t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,
