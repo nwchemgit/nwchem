@@ -13,12 +13,12 @@
 #include "stdio.fh"
       integer, intent(in) :: d_t1, d_t2, d_v2
       integer, intent(in) :: k_t1_offset, k_t2_offset, k_v2_offset
-      integer t_h1b, t_h1
-      integer t_h2b, t_h2
-      integer t_h3b, t_h3
-      integer t_p4b, t_p4
-      integer t_p5b, t_p5
-      integer t_p6b, t_p6
+      integer h1b
+      integer h2b
+      integer h3b
+      integer p4b
+      integer p5b
+      integer p6b
       double precision, allocatable :: f_singles(:),f_doubles(:)
 #ifdef USE_FASTMEM
       !dec$ attributes fastmem :: f_singles, f_doubles
@@ -35,10 +35,16 @@
       double precision factor
       external nxtask
       logical nodezero
-      integer range_p4,range_p5,range_p6
-      integer range_h1,range_h2,range_h3
-      integer offset_p4,offset_p5,offset_p6
-      integer offset_h1,offset_h2,offset_h3
+      integer off4,off5,off6
+      integer off1,off2,off3
+      !
+      integer dim1,dim2,dim3,dim4,dim5,dim6
+      integer spn1,spn2,spn3,spn4,spn5,spn6
+      integer sym1,sym2,sym3,sym4,sym5,sym6
+      integer dim12,dim34,dim56
+      integer spn12,spn34,spn56
+      integer sym12,sym34,sym56
+      !
       nodezero=(ga_nodeid().eq.0)
       if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
      1                     l_t1_local,k_t1_local))
@@ -47,15 +53,15 @@
       call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),size_t1)
       nprocs = GA_NNODES()
       !
-      range_p4=0
-      do t_p4b = noab+1,noab+nvab
-         range_p4 = max(range_p4,int_mb(k_range+t_p4b-1))
+      dim4=0
+      do p4b = noab+1,noab+nvab
+         dim4 = max(dim4,int_mb(k_range+p4b-1))
       enddo
-      range_h1=0
-      do t_h1b = 1,noab
-         range_h1 = max(range_h1,int_mb(k_range+t_h1b-1))
+      dim1=0
+      do h1b = 1,noab
+         dim1 = max(dim1,int_mb(k_range+h1b-1))
       enddo
-      size_t3=(range_p4**3)*(range_h1**3)
+      size_t3=(dim4**3)*(dim1**3)
       !
       allocate( f_singles(1:size_t3), stat=alloc_error)
       if (alloc_error.ne.0) then
@@ -70,66 +76,58 @@
       next = nxtask(nprocs,1)
       energy1=0.0d0
       energy2=0.0d0
-      do t_p4b = noab+1,noab+nvab
-       do t_p5b = t_p4b,noab+nvab
-        do t_p6b = t_p5b,noab+nvab
-         do t_h1b = 1,noab
-          do t_h2b = t_h1b,noab
-           do t_h3b = t_h2b,noab
-            if (int_mb(k_spin+t_p4b-1)
-     1         +int_mb(k_spin+t_p5b-1)
-     2         +int_mb(k_spin+t_p6b-1)
-     3      .eq.int_mb(k_spin+t_h1b-1)
-     4         +int_mb(k_spin+t_h2b-1)
-     5         +int_mb(k_spin+t_h3b-1)) then
+      do p4b = noab+1,noab+nvab
+       dim4=int_mb(k_range+p4b-1)
+       spn4=int_mb(k_spin +p4b-1)
+       sym4=int_mb(k_sym  +p4b-1)
+       off4 = k_evl_sorted+int_mb(k_offset+p4b-1)
+       do p5b = p4b,noab+nvab
+        dim5=int_mb(k_range+p5b-1)
+        spn5=int_mb(k_spin +p5b-1)
+        sym5=int_mb(k_sym  +p5b-1)
+        off5 = k_evl_sorted+int_mb(k_offset+p5b-1)
+        do p6b = p5b,noab+nvab
+         dim6=int_mb(k_range+p6b-1)
+         spn6=int_mb(k_spin +p6b-1)
+         sym6=int_mb(k_sym  +p6b-1)
+         off6 = k_evl_sorted+int_mb(k_offset+p6b-1)
+         do h1b = 1,noab
+          dim1=int_mb(k_range+h1b-1)
+          spn1=int_mb(k_spin +h1b-1)
+          sym1=int_mb(k_sym  +h1b-1)
+          off1 = k_evl_sorted+int_mb(k_offset+h1b-1)
+          do h2b = h1b,noab
+           dim2=int_mb(k_range+h2b-1)
+           spn2=int_mb(k_spin +h2b-1)
+           sym2=int_mb(k_sym  +h2b-1)
+           off2 = k_evl_sorted+int_mb(k_offset+h2b-1)
+           do h3b = h2b,noab
+            dim3=int_mb(k_range+h3b-1)
+            spn3=int_mb(k_spin +h3b-1)
+            sym3=int_mb(k_sym  +h3b-1)
+            off3 = k_evl_sorted+int_mb(k_offset+h3b-1)
+            if ((spn4+spn5+spn6).eq.(spn1+spn2+spn3)) then
             if ((.not.restricted).or.
-     1         (int_mb(k_spin+t_p4b-1)
-     1         +int_mb(k_spin+t_p5b-1)
-     2         +int_mb(k_spin+t_p6b-1)
-     3         +int_mb(k_spin+t_h1b-1)
-     4         +int_mb(k_spin+t_h2b-1)
-     5         +int_mb(k_spin+t_h3b-1).le.8)) then
-            if (ieor(int_mb(k_sym+t_p4b-1),
-     1          ieor(int_mb(k_sym+t_p5b-1),
-     2          ieor(int_mb(k_sym+t_p6b-1),
-     3          ieor(int_mb(k_sym+t_h1b-1),
-     4          ieor(int_mb(k_sym+t_h2b-1),
-     5               int_mb(k_sym+t_h3b-1)))))).eq.0) then
+     &          (spn4+spn5+spn6+spn1+spn2+spn3.le.8)) then
+            if (ieor(sym4,ieor(sym5,ieor(sym6,ieor(sym1,
+     &               ieor(sym2,sym3))))).eq.0) then
             if (next.eq.count) then
-            size_t3 = int_mb(k_range+t_p4b-1)
-     1              * int_mb(k_range+t_p5b-1)
-     2              * int_mb(k_range+t_p6b-1)
-     3              * int_mb(k_range+t_h1b-1)
-     4              * int_mb(k_range+t_h2b-1)
-     5              * int_mb(k_range+t_h3b-1)
+            size_t3 = dim4 * dim5 * dim6 * dim1 * dim2 * dim3
             call dfill(size_t3, 0.0d0, f_singles, 1)
             call dfill(size_t3, 0.0d0, f_doubles, 1)
-            call ccsd_t_singles_omp(f_singles,
-     1        k_t1_local,d_v2,k_t1_offset,k_v2_offset,
-     2        t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
+            call ccsd_t_singles_omp(f_singles,k_t1_local,d_v2,
+     1                              k_t1_offset,k_v2_offset,
+     2                              h1b,h2b,h3b,p4b,p5b,p6b,2)
             call ccsd_t_doubles_omp(f_doubles,d_t2,d_v2,
-     1        k_t2_offset,k_v2_offset,
-     2        t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
-            range_p4  = int_mb(k_range+t_p4b-1)
-            range_p5  = int_mb(k_range+t_p5b-1)
-            range_p6  = int_mb(k_range+t_p6b-1)
-            range_h1  = int_mb(k_range+t_h1b-1)
-            range_h2  = int_mb(k_range+t_h2b-1)
-            range_h3  = int_mb(k_range+t_h3b-1)
-            offset_p4 = k_evl_sorted+int_mb(k_offset+t_p4b-1)+t_p4
-            offset_p5 = k_evl_sorted+int_mb(k_offset+t_p5b-1)+t_p5
-            offset_p6 = k_evl_sorted+int_mb(k_offset+t_p6b-1)+t_p6
-            offset_h1 = k_evl_sorted+int_mb(k_offset+t_h1b-1)+t_h1
-            offset_h2 = k_evl_sorted+int_mb(k_offset+t_h2b-1)+t_h2
-            offset_h3 = k_evl_sorted+int_mb(k_offset+t_h3b-1)+t_h3
+     1                              k_t2_offset,k_v2_offset,
+     2                              h1b,h2b,h3b,p4b,p5b,p6b,2)
             call ccsd_t_dot_omp(f_singles,f_doubles,
      &                          restricted,
-     &                          t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,
-     &                          dbl_mb(offset_h1),dbl_mb(offset_h2),
-     &                          dbl_mb(offset_h3),dbl_mb(offset_p4),
-     &                          dbl_mb(offset_p5),dbl_mb(offset_p6),
-     &                          range_h1,range_h2,range_h3,
-     &                          range_p4,range_p5,range_p6,
+     &                          h1b,h2b,h3b,p4b,p5b,p6b,
+     &                          dbl_mb(off1),dbl_mb(off2),
+     &                          dbl_mb(off3),dbl_mb(off4),
+     &                          dbl_mb(off5),dbl_mb(off6),
+     &                          dim1,dim2,dim3,dim4,dim5,dim6,
      &                          energy1,energy2)
             next = nxtask(nprocs,1)
             endif
