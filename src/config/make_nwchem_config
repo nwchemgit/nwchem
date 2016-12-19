@@ -66,7 +66,7 @@ MODULES := $(NWCHEM_MODULES)
 # For convenience, we define some shorthand "module" names which are
 # expanded below.
 
-EXPANSIONS = all qm md classical tps alldev pnnl pnnldev smallqm smallqmmm
+EXPANSIONS = all qm md classical tps alldev pnnl pnnldev smallqm smallqmmm notce
 
 EXP_all = $(filter-out argos leps smd uccsdt python develop scfaux rimp2_grad geninterface diana nbo rism lucia nwxc,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) python dntmc
@@ -80,6 +80,8 @@ EXP_smallqm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons
 EXP_smallqmmm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           optim stepper driver vib qmd mcscf property solvation selci dplot \
            mp2_grad esp etrans vscf nwmd qmmm prepar analyz dimqm
+EXP_notce = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
+            optim stepper driver ccsd vib mcscf property solvation selci dplot mp2_grad esp etrans vscf dimqm
 EXP_ver2 = prepar gradients mp2_grad stepper vib mcscf \
            optim driver analyz diana
 #plane_wave ... broken? RJH
@@ -101,6 +103,7 @@ MODULES := $(patsubst pnnl,$(EXP_pnnl),$(MODULES) )
 MODULES := $(patsubst qm,$(EXP_qm),$(MODULES) )
 MODULES := $(patsubst smallqm,$(EXP_smallqm),$(MODULES) )
 MODULES := $(patsubst smallqmmm,$(EXP_smallqmmm),$(MODULES) )
+MODULES := $(patsubst notce,$(EXP_notce),$(MODULES) )
 MODULES := $(patsubst classical,$(EXP_classical),$(MODULES))
 MODULES := $(patsubst md,$(EXP_md),$(MODULES))
 MODULES := $(patsubst qmmm_valiev,$(EXP_qmmm_valiev),$(MODULES))
