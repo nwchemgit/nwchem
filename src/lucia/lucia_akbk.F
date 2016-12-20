@@ -6169,7 +6169,7 @@ cVOG    else
                            !imofromto(2) = igas FROM which we will move
                            !imofromto(3) = igas TO which we will move MO
 *
-      NTEST  = 10
+      NTEST  = 100
       IPRCIX = 0
       IPRSTR = 0
       IPRORB = 0
@@ -6239,8 +6239,8 @@ cVOG    else
 *. LUCIA-at-NWCHEM now offers a completely free distribution of the MOs
 *. belonging to the same irrep to individual GAS spaces!
 *
-      IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
-      call ga_sync()
+c     IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
+c     call ga_sync()
 *
 *. Cheat LUCIA for testing performance with large number of processors
 *
@@ -6380,18 +6380,18 @@ cVOG    else
        IOPTBATCHPNODE = 1 !BE CAREFUL - might need to be revised or defined differently
        LBPNODE = INT(NCBATCH/NNOD)
 
-!       if (ga_nodeid().eq.0) write(*,*) 'NCBATCH', NCBATCH
-!       if (ga_nodeid().eq.0) write(*,*) 'IBATCHCOUNT', IBATCHCOUNT
-!       if (ga_nodeid().eq.0) write(*,*) 'NCBLOCK', NCBLOCK
-!       if (ga_nodeid().eq.0) write(*,*) 'NDISTBATCH', NDISTBATCH
-!       if (ga_nodeid().eq.0) write(*,*) 'LBPNODE',LBPNODE,IOPTBATCHPNODE
+       if (ga_nodeid().eq.0) write(*,*) 'NCBATCH', NCBATCH
+       if (ga_nodeid().eq.0) write(*,*) 'IBATCHCOUNT', IBATCHCOUNT
+       if (ga_nodeid().eq.0) write(*,*) 'NCBLOCK', NCBLOCK
+       if (ga_nodeid().eq.0) write(*,*) 'NDISTBATCH', NDISTBATCH
+       if (ga_nodeid().eq.0) write(*,*) 'LBPNODE',LBPNODE,IOPTBATCHPNODE
 *
 *. Start loop that finds the optimum numer of BATCHES.
 *. The logic is based on the number of Blocks per Batch
 *
        MXBLKBATCH = 10000
        DO I = 1, 190 ! = MXBLKBATCH nevel less than 10
-*        if (ga_nodeid().eq.0) write(*,*) 'estim MXBLKBATCH', MXBLKBATCH
+        if (ga_nodeid().eq.0) write(*,*) 'estim MXBLKBATCH', MXBLKBATCH
 *
 *. Second Z_BLOCK and CIV2 calls with estimated number of blocks per batch
 *
@@ -6419,11 +6419,11 @@ c       END IF
 *            number of TTSS Blocks
 *
        LBPNODE = INT(NCBATCH/NNOD)
-       if (NTEST.EQ.10.AND.ga_nodeid().eq.0)
+       if (NTEST.GE.10.AND.ga_nodeid().eq.0)
      &     write(*,*) 'NCBATCH-final', NCBATCH
-       if (NTEST.EQ.10.AND.ga_nodeid().eq.0)
+       if (NTEST.GE.10.AND.ga_nodeid().eq.0)
      &     write(*,*) 'NCBLOCK-final', NCBLOCK
-       if (NTEST.EQ.10.AND.ga_nodeid().eq.0)
+       if (NTEST.GE.10.AND.ga_nodeid().eq.0)
      &      write(*,*) 'LBPNODE',LBPNODE,IOPTBATCHPNODE
        nfragagain = 0
         IF (LBPNODE.LT.IOPTBATCHPNODE) nfragagain = 1
@@ -6433,7 +6433,7 @@ c       END IF
 !       nfragagain = 0
 c      call CI_batches_info(NCBATCH,int_mb(KCLBT),int_mb(KCIBT),NCBLOCK,
 c    &                      nnod,ntest,nfragagain)
-       if (ntest.eq.100. and.ga_nodeid().eq.0)
+       if (ntest.ge.100. and.ga_nodeid().eq.0)
      &    write(*,'(a,3i10)') 'nblocks, nnod, nfragagain',
      &                         NCBLOCK, NNOD, nfragagain
 *
@@ -6464,6 +6464,7 @@ c    &                      nnod,ntest,nfragagain)
 *
 *. Print Output
 *
+12345 continue
       if(ga_nodeid().eq.0) then
       WRITE(*,*)
       WRITE(*,*) ' ***********************************'

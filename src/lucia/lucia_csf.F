@@ -8034,7 +8034,7 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
       INTEGER JAJBOC(MXPNGAS)
 *. 
       CALL LUCIAQENTER('ABSPG')
-      NTEST = 00
+      NTEST = 0
       IF(ga_nodeid().eq.0.AND.NTEST.GE.10) THEN
         WRITE(6,*) ' Information from ABSPGP_TO_OCCLS '
         WRITE(6,*) '==================================='
@@ -8064,7 +8064,7 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
       !
       ! Initialize
       !
-      N_ABSPGP = 0
+      call dfill(NNODES, 0.0d0, N_ABSPGP, 1)
       !
       ! Organize distribution of alpha supergroups
       ! OCCLMAP is a GA that holds the occupation map
@@ -8171,6 +8171,7 @@ cVOG       END IF
 *. Update the columns with the elements of the previous columns
 *
       call ga_sync()
+! BERT THIS IS A GATHER THAT CAN BE DONE MORE EFFICIENTLY!!!!
       DO ICOL = 1, NNODES-1
        call ga_add_patch(1, IOCCLMAP, 1, NOCCLS, ICOL,   ICOL,
      &                   1, IOCCLMAP, 1, NOCCLS, ICOL+1, ICOL+1,
@@ -8191,7 +8192,7 @@ cVOG       END IF
 *
 *. Distribute data before constructing the AB combinations
 *
-      N_ABSPGP_VOG = 0
+      call dfill(NOCCLS, 0.0d0, N_ABSPGP_VOG, 1)
       DO I = 1, N_ABSPGP_TOT
        I_ABSPGP_A(I) = 0
        I_ABSPGP_B(I) = 0

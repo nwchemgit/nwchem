@@ -2160,6 +2160,7 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
      &               KCNOCCLS_BAT, KCIBOCCLS_BAT 
       END IF
 *
+      if (ga_nodeid().eq.0) print*,'NTTSVOG GASCI',NTTSVOG
       CALL Z_BLKFO_FOR_CISPACE(ISPC,ISM,LBLOCK,ICOMP,
      &     IPRNT,NCBLOCK,NCBATCH,
      &     int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
@@ -2627,6 +2628,7 @@ C?    CALL IWRTMA(WORK(KCI1BT),1,1,1,1)
 *. An additional file
 CNW   CALL FILEMAN_MINI(LU8,'ASSIGN')
       ILAST = -3006
+      if (ga_nodeid().eq.0) print*,'NTTSVOG CIEIG',NTTSVOG
       CALL CIEIG5(MV7,INICI,EROOT,KPVEC1,KPVEC2,
      & MINST,LUDIA,LUC,LUHC,LUSC1,LUSC2,LUSC3,LUSC34,LUSC35,LU8,
      & NVAR,NBLK,NROOT,MXCIV,MAXIT,LUCIVI,IPRNT,dbl_mb(KLH0_EIGVEC),
@@ -4424,13 +4426,14 @@ C?    WRITE(6,*) ' ALLO: NTTS = ', NTTS
 *
 *. VOG; Reduce the dimension of the NTTS - important for large CAS spaces
 *
-       NTTSVOG = INT(NTTS / 2) !VOG NEW
+!       NTTSVOG = INT(NTTS / 10) !VOG NEW
 !       NTTSVOG = 8 * NTTSVOG     !VOG NEW
-       NTTS = NTTSVOG            !VOG NEW
-!       NTTSVOG = NTTS !VOG Back to normal
+!       NTTS = NTTSVOG            !VOG NEW
+        NTTSVOG = NTTS !VOG Back to normal
        IF (ga_nodeid().eq.0) write(*,*) 'NTTS', MXNTTS, NTTSVOG
        MXBLKBATCH = 100
 *
+      if (ga_nodeid().eq.0) call MA_summarize_allocated_blocks()
       CALL MEMMAN(KCLBT ,NTTS  ,'ADDL  ',1,'CLBT  ')
       CALL MEMMAN(KCLBLK,NTTS  ,'ADDL  ',1,'CLBLK ')
       CALL MEMMAN(KCLEBT,NTTS  ,'ADDL  ',1,'CLEBT ')

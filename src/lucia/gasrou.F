@@ -1732,7 +1732,7 @@ c     IDUMMY = 2*NOCOB+(NACTEL+1)*(NOCOB+1)+NSMST
 *
         IF(ISTAC(IGRP,2).NE.0) THEN
           JGRP = ISTAC(IGRP,2)
-          IF (NTETS.GT.5) WRITE(6,*) ' Creation group = ', JGRP
+          IF (NTEST.GT.5) WRITE(6,*) ' Creation group = ', JGRP
           CALL CRESTR_GAS(int_mb(KOCSTR(IGRP)),NSTFGP(IGRP),
      &         NSTFGP(JGRP),IEL,NGSOBP,IGSOB,int_mb(KZ(JGRP)),
      &         int_mb(KSTREO(JGRP)),0,IDUM,IDUM,
@@ -1987,10 +1987,11 @@ C?    CALL IWRTMA(IBSPGPFTP,1,NSTTYP,1,NSTTYP)
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'ABSPGP')
       CALL MEMMAN(KI_ABSPGP_A,N_ABSPGP_MAX,'ADDL  ',1,'ABSPGP_A')
       CALL MEMMAN(KI_ABSPGP_B,N_ABSPGP_MAX,'ADDL  ',1,'ABSPGP_B')
-!      CALL MEMMAN(KI_ABSPGP_VOG,int_mb(KIOCCLS),'ADDL  ',1,'ABSPGP_V')
+      CALL MEMMAN(KI_ABSPGP_VOG,NOCCLS_MAX,'ADDL  ',1,'ABSPGP_V')
       CALL MEMMAN(KI_ABSPGP,ga_nnodes(),'ADDL  ',1,'NABSPGP')
 *
-!      if (ga_nodeid().eq.0) write(*,*) 'VOG: N_ABSPGP_MAX', N_ABSPGP_MAX
+      if (ga_nodeid().eq.0) write(*,*) 'VOG: N_ABSPGP_MAX', N_ABSPGP_MAX
+      if (ga_nodeid().eq.0) write(*,*) 'VOG: KI_ABSPGP_VOG', NOCCLS_MAX
 *. First: offsets
       CALL ABSPGP_TO_OCCLS(
      &     ISPGPFTP(1,IB_A),NASPGP,ISPGPFTP(1,IB_B),NBSPGP,
