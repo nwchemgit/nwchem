@@ -1,0 +1,5 @@
+#ifdef USE_VTUNE
+	external vtune_resume
+	external vtune_pause
+#endif 
+

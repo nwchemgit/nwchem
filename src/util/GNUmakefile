@@ -157,7 +157,9 @@ ifneq ($(MPI_INCLUDE),)
    LIB_INCLUDES += $(patsubst -I-I%,-I%,-I$(MPI_INCLUDE))
 endif
 
-
+ifdef USE_VTUNE
+  EXTRA_OBJ += vtune_bind.o vtune.o
+endif
 
        BLAS = dfill.o ifill.o  mabyte_fill.o zfill.o
 
@@ -232,6 +234,9 @@ endif
               printlevels.fh bitops.fh bitops_decls.fh bitops_funcs.fh \
               bgj.fh bgj_common.fh nwc_const.fh errquit.fh util_sgroup.fh \
 	      util_params.fh utilc_nwchem_srcdir.fh
+#if USE_VTUNE
+    HEADERS += vtune.fh
+#endif
 
     USES_BLAS = util.fh ga_it_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
                 ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F ga_it2.F ga_lkain_ext.F util_file_name.F dgefa.f util_patch_test.F stpr_sjacobi.F util_dgeev.F \

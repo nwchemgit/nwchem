@@ -1817,7 +1817,16 @@ endif
                DEFINES+= -DUSE_OPENMP 
              endif
            endif
-           
+       ifdef USE_VTUNE
+         ifeq ($(VTUNE_AMPLIFIER_XE_DIR),)
+          $(info USE_VTUNE requires VTUNE_AMPLIFIER_XE_DIR to be set)
+          $(error )
+         endif
+         COPTIONS += -I$(VTUNE_AMPLIFIER_XE_DIR)/include
+         FOPTIONS += -DUSE_VTUNE
+         LDOPTIONS += -L$(VTUNE_AMPLIFIER_XE_DIR)/lib64 
+         EXTRA_LIBS += -littnotify
+       endif
        ifdef USE_OFFLOAD
          ifeq ($(_IFCV14), Y)
           ### extra mic compile stuff; make FC=ifort CC=icc  AR=xiar
