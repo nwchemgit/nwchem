@@ -975,7 +975,7 @@ endif
     _FC=ifort
 #ifort 9.1
 #        LINK.f = ifort  $(LDFLAGS) 
-        FOPTIONS   += -align    -mp1 -w -g -vec-report1
+        FOPTIONS   += -align    -mp1 -w -g #-vec-report1
   ifdef  USE_GPROF
     FOPTIONS += -qp
   endif
@@ -1349,7 +1349,7 @@ endif
      _FC=ifc
  endif
   ifeq ($(_FC),ifc)
-  FOPTIONS   =  -align    -mp1 -w -g -vec-report1
+  FOPTIONS   =  -align    -mp1 -w -g #-vec-report1
   ifdef  USE_GPROF
     FOPTIONS += -qp
   endif
@@ -1411,7 +1411,7 @@ endif
       endif
 
   ifeq ($(CC),icc)
-    COPTIONS   =   -mp1 -w -g -vec-report1
+    COPTIONS   =   -mp1 -w -g #-vec-report1
     COPTIMIZE = -O3   -unroll 
     ifeq ($(_CPU),i586)
       COPTIMIZE +=  -tpp5 -xi # this are for PentiumII
