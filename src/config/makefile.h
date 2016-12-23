@@ -1961,7 +1961,11 @@ $(error )
       endif
       ifeq ($(_CC),icc)
 	 ICCV15ORNEWER=$(shell icc -V  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
-         COPTIONS   +=   -xHOST -ftz
+         ifdef USE_KNL
+            COPTIONS   +=   -xMIC-AVX512 -ftz
+         else
+            COPTIONS   +=   -xHost -ftz
+         endif
          ifeq ($(ICCV15ORNEWER), Y)
    	    COPTIONS   += -qopt-report-phase=vec  -qopt-report-file=stderr
             ifdef USE_OPENMP
