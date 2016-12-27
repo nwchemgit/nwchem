@@ -1,0 +1,24 @@
+
+      integer nbtot
+      integer nbqm
+      integer nbmm
+      integer h_br, h_bt, h_indx
+      integer i_br, i_bt, i_indx
+      integer h_addqm, h_addmm
+      integer i_addqm, i_addmm
+      integer h_ibqm, h_ibmm
+      integer i_ibqm, i_ibmm
+      integer h_lqm, i_lqm      
+
+      common /mm_bond_coords_data/
+     &                           nbtot,
+     &                           nbqm,
+     &                           nbmm,
+     &                           h_br, h_bt, h_indx,
+     &                           i_br, i_bt, i_indx,
+     &                           h_addqm, h_addmm,
+     &                           i_addqm, i_addmm,
+     &                           h_ibqm, h_ibmm,
+     &                           i_ibqm, i_ibmm,
+     &                           h_lqm,
+     &                           i_lqm

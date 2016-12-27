@@ -1,0 +1,12 @@
+      integer nbq
+      integer h_ibq
+      integer i_ibq
+c     integer h_cbq, h_qbq
+c     integer i_cbq, i_qbq
+      double precision e_bq
+
+      common /mm_bq_data/ nbq, 
+     &                    h_ibq, i_ibq,
+c    &                    h_cbq, h_qbq,
+c    &                    i_cbq, i_qbq,
+     &                    e_bq

@@ -2,16 +2,28 @@
 * $Id: mm_data.fh 19697 2010-10-29 16:57:34Z d3y133 $
 *
 
-      integer nvdw
+      integer nvdw, nvdw14
       integer h_ivdw,i_ivdw
       integer h_jvdw,i_jvdw
       integer h_avdw,i_avdw
       integer h_bvdw,i_bvdw
+      integer h_ivdw14,i_ivdw14
+      integer h_jvdw14,i_jvdw14
+      integer h_avdw14,i_avdw14
+      integer h_bvdw14,i_bvdw14
+      integer h_scnb,i_scnb
+      integer h_scee,i_scee
 
       common /mm_vdw_data/ 
-     &                   nvdw,
+     &                   nvdw,nvdw14,
      &                   h_ivdw,i_ivdw,
      &                   h_jvdw,i_jvdw,
      &                   h_avdw,i_avdw,
-     &                   h_bvdw,i_bvdw
+     &                   h_bvdw,i_bvdw,
+     &                   h_ivdw14,i_ivdw14,
+     &                   h_jvdw14,i_jvdw14,
+     &                   h_avdw14,i_avdw14,
+     &                   h_bvdw14,i_bvdw14,
+     &                   h_scnb,i_scnb,
+     &                   h_scee,i_scee
 

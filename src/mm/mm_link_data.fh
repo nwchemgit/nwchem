@@ -1,0 +1,32 @@
+
+      integer nlink
+      integer xc_maxatm
+      integer i_lb,h_lb
+      integer nqml
+      integer h_rqml
+      integer i_rqml
+      integer h_iqml
+      integer i_iqml
+      integer h_tqml
+      integer i_tqml
+      integer h_lxc
+      integer i_lxc
+      integer h_nxc
+      integer i_nxc
+      integer h_lnkchg
+      integer i_lnkchg
+      integer h_lnkatn
+      integer i_lnkatn
+      logical qmlink
+
+      common /mm_link_data/ nlink,nqml,xc_maxatm,
+     &                      i_lb,h_lb,
+     &                      i_rqml,h_rqml,
+     &                      i_iqml,h_iqml,
+     &                      i_tqml,h_tqml,
+     &                      i_lxc,h_lxc,
+     &                      i_nxc,h_nxc,
+     &                      i_lnkchg,h_lnkchg,
+     &                      i_lnkatn,h_lnkatn,
+     &                      qmlink
+

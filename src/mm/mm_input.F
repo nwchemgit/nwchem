@@ -62,6 +62,10 @@ c    ---------------------------
          else if (inp_compare(.false., 'vdw', field)) then
              call mm_input_vdw(rtdb)
              goto 20
+c        TP: add
+         else if (inp_compare(.false., 'crdparms', field)) then
+             call mm_input_crdparms(rtdb)
+             goto 20
          else if (inp_compare(.false., 'load', field)) then
             np = inp_n_field()
             if(np.lt.3) goto 911
@@ -229,6 +233,79 @@ c             goto 10
              goto 10
         else
           if(afile.eq. " " ) afile = field 
+        end if
+        goto 10
+      end if
+      return
+
+911   call errquit("error "//message,0,
+     >        -1)
+
+      end
+
+      subroutine mm_input_crdparms(rtdb)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+      integer rtdb
+c     
+      integer nmax,n
+      character*255 message
+      character*255 field
+      character*255 svalue
+c      character*255 afile_coords 
+c     character*255 afile_charges
+c     character*255 afile
+c     logical oscale
+c     integer iloc(4)
+c     double precision charge_scale
+      integer i,k,n0,ipos
+c     integer dn
+c     double precision scale
+      character*30 pname
+      character*84 tag
+
+      pname = "mm_input_crdparms" 
+c     iloc = [2,3,4,5]
+c      afile_coords  = " "
+c     afile_charges = " "
+c     afile = " "
+c     oscale = .false.
+c     charge_scale = 1.0
+
+10    continue
+      if (inp_a(field)) then
+        message = "processing field "//trim(field)
+c        if (inp_compare(.false., 'coords', field)) then
+c           if (.not.inp_a(afile)) goto 911
+c             goto 10
+        if (inp_contains(.false.,'load',field,ipos)) then
+          message = "reading load"
+          if (.not. inp_a(svalue)) goto 911
+          tag="mm:crdparms:load"
+c         write(*,*) 'crdparms= ', svalue
+          if (.not.rtdb_cput(rtdb,tag,1,svalue)) 
+     >          call errquit(pname//'failed to store'//tag,0,
+     >           RTDB_ERR)
+           goto 10
+c       else if (inp_compare(.false., 'charges', field)) then
+c          if (.not.inp_a(afile_charges)) goto 911
+c            goto 10
+c       else if (inp_compare(.false., 'format', field)) then
+c          do k=1,4
+c            if (.not.inp_i(iloc(k))) goto 911
+c          end do
+c          goto 10
+c       else if (inp_compare(.false., 'scale', field)) then
+c          if (.not.inp_f(charge_scale)) goto 911
+c            oscale = .true.
+c            goto 10
+c       else
+c         if(afile.eq. " " ) afile = field 
         end if
         goto 10
       end if

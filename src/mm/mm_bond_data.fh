@@ -1,0 +1,42 @@
+      integer nbon
+      integer nang
+      integer ndih
+
+      integer h_ibon, i_ibon
+      integer h_jbon, i_jbon
+      integer h_kb, i_kb
+      integer h_rb, i_rb
+
+      integer h_iang, i_iang
+      integer h_jang, i_jang
+      integer h_kang, i_kang
+      integer h_kthe, i_kthe
+      integer h_thet, i_thet
+
+      integer h_idih, i_idih
+      integer h_jdih, i_jdih
+      integer h_kdih, i_kdih
+      integer h_ldih, i_ldih
+      integer h_kphi, i_kphi
+      integer h_peri, i_peri
+      integer h_phas, i_phas
+
+      common /mm_bond_data/
+     &                    nbon, nang, ndih,
+     &                    h_ibon, i_ibon,
+     &                    h_jbon, i_jbon,
+     &                    h_kb  , i_kb,
+     &                    h_rb  , i_rb,
+     &                    h_iang, i_iang,
+     &                    h_jang, i_jang,
+     &                    h_kang, i_kang,
+     &                    h_kthe, i_kthe,
+     &                    h_thet, i_thet,
+     &                    h_idih, i_idih,
+     &                    h_jdih, i_jdih,
+     &                    h_kdih, i_kdih,
+     &                    h_ldih, i_ldih,
+     &                    h_kphi, i_kphi,
+     &                    h_peri, i_peri,
+     &                    h_phas, i_phas
+

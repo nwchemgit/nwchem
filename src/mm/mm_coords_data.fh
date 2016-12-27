@@ -7,11 +7,27 @@
       integer nmm
       integer h_r,h_t
       integer i_r,i_t
-
+      integer h_iqm,h_imm
+      integer i_iqm,i_imm
+      integer h_rmm,h_rqm
+      integer i_rmm,i_rqm
+      integer h_tqm,h_tmm
+      integer i_tqm,i_tmm
+      integer h_chgmm
+      integer i_chgmm
+      integer h_ityp
+      integer i_ityp
       common /mm_coords_data/ 
      &                   ntot,
      &                   nmm,
      &                   nqm,
      &                   h_r,h_t,
-     &                   i_r,i_t
-
+     &                   i_r,i_t,
+     &                   h_rmm,h_rqm,
+     &                   i_rmm,i_rqm,
+     &                   h_iqm,h_imm,
+     &                   i_iqm,i_imm,
+     &                   h_ityp,i_ityp,
+     &                   h_tqm,h_tmm,
+     &                   i_tqm,i_tmm,
+     &                   h_chgmm,i_chgmm

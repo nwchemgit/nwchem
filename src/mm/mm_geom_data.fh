@@ -1,0 +1,22 @@
+        
+      character*256 oldgeom  
+      logical aux_geom
+c     integer ng
+      integer nfg
+      integer i_ig,h_ig
+      integer i_ifg,h_ifg
+c     integer i_g,h_g
+c     integer i_q,h_q
+      integer nact
+      integer h_iact,i_iact
+      
+      common /mm_geom_data/ oldgeom,
+     &                   aux_geom,
+c    &                   ng,
+     &                   nfg,
+     &                   i_ig,h_ig,
+     &                   i_ifg,h_ifg,
+c    &                   i_g,h_g,
+c    &                   i_q,h_q,
+     &                   nact, 
+     &                   h_iact,i_iact

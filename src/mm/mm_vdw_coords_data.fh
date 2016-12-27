@@ -1,0 +1,36 @@
+      integer nvtot,nv14tot
+      integer nvqm, nv14qm
+      integer nvmm, nv14mm
+      integer h_rvdw, h_rvdw14
+      integer i_rvdw, i_rvdw14
+      integer h_icvdw, h_icvdw14
+      integer i_icvdw, i_icvdw14
+      integer h_chgmm14, i_chgmm14
+      integer h_advdw,h_advdw14
+      integer h_advqm,h_advqm14
+      integer h_advmm,h_advmm14
+      integer i_advdw,i_advdw14
+      integer i_advqm,i_advqm14
+      integer i_advmm,i_advmm14
+      integer h_lvqm,h_lv14qm
+      integer i_lvqm,i_lv14qm
+
+      common/mm_vdw_coords_data/
+     &                         nvtot,nv14tot,
+     &                         nvqm, nv14qm,
+     &                         nvmm, nv14mm,
+     &                         h_rvdw, h_rvdw14,
+     &                         i_rvdw, i_rvdw14,
+     &                         h_icvdw, h_icvdw14,
+     &                         i_icvdw, i_icvdw14,
+     &                         h_chgmm14, i_chgmm14,
+     &                         h_advdw,h_advdw14,
+     &                         h_advqm,h_advqm14,
+     &                         h_advmm,h_advmm14,
+     &                         i_advdw,i_advdw14,
+     &                         i_advqm,i_advqm14,
+     &                         i_advmm,i_advmm14,
+     &                         h_lvqm,h_lv14qm,
+     &                         i_lvqm,i_lv14qm
+
+
