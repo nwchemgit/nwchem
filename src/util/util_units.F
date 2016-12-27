@@ -19,7 +19,7 @@ c
         return
       end if
       test = trim(test1)//"_"//trim(test2)
-      write(*,*) "test=",test
+c     write(*,*) "test=",test
       select case (test)
       case('au_boh')
         scale = 1.0d0

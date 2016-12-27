@@ -67,4 +67,4 @@ int linux_unsetaff_(){
   return 0;
 }
 #endif
-/* $Id: linux_printaff.c 26101 2014-08-29 01:28:49Z edo $ */
+/* $Id$ */
