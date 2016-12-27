@@ -48,6 +48,8 @@ c
       external cons_active
       logical  task_ccca_energy
       external task_ccca_energy
+c     TP: added variable
+      character*30 operation
 c
 c      logical task_embed
 c      logical  embed_energy
@@ -113,7 +115,19 @@ cc
          else if (theory.eq.'ccca') then
             status = task_ccca_energy(rtdb,theory,energy)
          else
+c       TP: modified here
+        if(omm) then
+          ignore = rtdb_cget(rtdb,'task:operation',1,operation)
+          if(operation.eq."neb")
+     >       call mm_neb_update_ibead(rtdb)
+          call mm_geom_push_active(rtdb)
+          call mm_geom_create_full(rtdb)
+          call mm_link_update_bq_coords(rtdb)
             status = task_energy_doit(rtdb,theory,energy)
+        else
+            status = task_energy_doit(rtdb,theory,energy)
+        endif ! if(omm)
+c       TP: end modification
         endif
 cc
       else
@@ -135,8 +149,10 @@ cc
 c      if(.not.rtdb_get(rtdb, 'cons:active', mt_log, 1, ocons)) then
 c        ocons=.false.
 c      end if
-      if(ocons) call cons_add_energy(rtdb,energy)
+c     TP: moved omm above ocons
       if(omm) call mm_add_energy(rtdb,energy)
+      if(ocons) call cons_add_energy(rtdb,energy)
+c     if(omm) call mm_add_energy(rtdb,energy)
 
 c     write(*,*) "putting energy into rtdb",energy
       if (.not. rtdb_put(rtdb, 'task:energy', mt_dbl, 1, energy))

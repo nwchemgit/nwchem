@@ -49,6 +49,8 @@ c
       logical task_bsse
       logical bsse_gradient
       external bsse_gradient
+c     TP: added variable
+      character*30 operation
 c
 c      logical task_embed
 c      logical embed_gradient
@@ -111,7 +113,21 @@ c
       else if(theory .ne. 'oniom' .or. numerical) then
 c
         if(.not.task_bsse) then
+c       TP: modified here
+        if(omm) then
+          ignore = rtdb_cget(rtdb,'task:operation',1,operation)
+          if(operation.eq."neb")
+     >      call mm_neb_update_ibead(rtdb)
+          call mm_geom_push_active(rtdb)
+          call mm_geom_create_full(rtdb)
+          call mm_map_fixed_atoms(rtdb)
+          call mm_link_update_bq_coords(rtdb)
           status = task_gradient_doit(rtdb,theory,energy, gradient)
+          call mm_restore_fixed_atoms(rtdb)
+        else 
+          status = task_gradient_doit(rtdb,theory,energy, gradient)
+        end if ! if(omm)
+c       TP: end modification       
         else
           status = bsse_gradient(rtdb,theory,energy,gradient)
           if(.not.status)
@@ -139,6 +155,9 @@ c
          endif
       endif
 c
+c     TP: moved omm above ocons
+      if(omm.and.(.not.numerical)) 
+     $    call mm_add_egrad(rtdb,energy,nelem/3,gradient)
        ocons = cons_active(rtdb)
 c      if(.not.rtdb_get(rtdb, 'cons:active',mt_log, 1, ocons)) then
 c        ocons = .false.
@@ -147,8 +166,8 @@ c      end if
 c
       call bq_force(rtdb)
 c
-      if(omm.and.(.not.numerical)) 
-     $    call mm_add_egrad(rtdb,energy,nelem/3,gradient)
+c     if(omm.and.(.not.numerical)) 
+c    $    call mm_add_egrad(rtdb,energy,nelem/3,gradient)
 c
       if (status) then
 #ifndef SKIP_ECCE
