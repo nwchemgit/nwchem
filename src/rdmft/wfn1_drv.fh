@@ -16,7 +16,7 @@ C> - the beta correlation functions (nmo x nmo global array)
 C>
       type wfn1_drv
          integer :: g_dna ! GA handle for the alpha natural orbitals
-         integer :: g_dnb ! GA handle for the beta correlation functions
-         integer :: g_dca ! GA handle for the alpha natural orbitals
+         integer :: g_dnb ! GA handle for the beta natural orbitals
+         integer :: g_dca ! GA handle for the alpha correlation functions
          integer :: g_dcb ! GA handle for the beta correlation functions
       end type wfn1_drv
