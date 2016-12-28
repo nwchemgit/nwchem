@@ -844,3 +844,70 @@ c     write(*,*) 'filename = ', filename
 10    format('nwchem_',i3.3,'.crdparms')
 
       end
+
+      subroutine mm_task_gradient(rtdb,theory,e,g,status)
+#include "util.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "msgids.fh"
+#include "global.fh"
+#include "stdio.fh"
+
+c     input variables
+      integer rtdb
+      character*32 theory
+      double precision e
+      double precision g(3,*)
+      logical status
+
+c     output variables
+      logical ignore
+      character*30 operation
+   
+      logical task_gradient_doit
+      external task_gradient_doit
+
+      ignore = rtdb_cget(rtdb,'task:operation',1,operation)
+      if(operation.eq."neb")
+     >   call mm_neb_update_ibead(rtdb)
+      call mm_geom_push_active(rtdb)
+      call mm_geom_create_full(rtdb)
+      call mm_map_fixed_atoms(rtdb)
+      call mm_link_update_bq_coords(rtdb)
+      status = task_gradient_doit(rtdb,theory,e,g)
+      call mm_restore_fixed_atoms(rtdb)
+
+      end
+
+      subroutine mm_task_energy(rtdb,theory,e,status)
+#include "util.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "msgids.fh"
+#include "global.fh"
+#include "stdio.fh"
+
+c     input variables
+      integer rtdb
+      character*32 theory
+      double precision e
+      logical status
+
+c     output variables
+      logical ignore
+      character*30 operation
+
+      logical task_energy_doit
+      external task_energy_doit
+  
+      ignore = rtdb_cget(rtdb,'task:operation',1,operation)
+      if(operation.eq."neb")
+     >   call mm_neb_update_ibead(rtdb)
+      call mm_geom_push_active(rtdb)
+      call mm_geom_create_full(rtdb)
+      call mm_link_update_bq_coords(rtdb)
+      status = task_energy_doit(rtdb,theory,e)
+
+      end
