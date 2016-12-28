@@ -290,23 +290,23 @@ c
                 occijb(iiblo:iibhi,ijblo:ijbhi)=>bufijb
                 call ga_get(g_2aa,iialo,iiahi,ijalo,ijahi,occija,nia)
                 call ga_get(g_2bb,iiblo,iibhi,ijblo,ijbhi,occijb,nib)
-                d3a(ialo:iahi,iclo:ichi,ijalo:ijahi)=>buf3a
-                d3b(ialo:iahi,iclo:ichi,ijblo:ijbhi)=>buf3b
+                d3a(iblo:ibhi,idlo:idhi,iialo:iiahi)=>buf3a
+                d3b(iblo:ibhi,idlo:idhi,iiblo:iibhi)=>buf3b
                 d3a = 0.0d0
                 d3b = 0.0d0
-                do ic = iclo, ichi
-                  do ia = ialo, iahi
-                    do jj = ijalo, ijahi
-                      do ii = iialo, iiahi
-                        d3a(ia,ic,jj) = d3a(ia,ic,jj) 
-     &                                + naia(ia,ii)*ncia(ic,ii)*
+                do id = idlo, idhi
+                  do ib = iblo, ibhi
+                    do ii = iialo, iiahi
+                      do jj = ijalo, ijahi
+                        d3a(ib,id,ii) = d3a(ib,id,ii) 
+     &                                + nbia(ib,jj)*ndia(id,jj)*
      &                                  occija(ii,jj)
                       enddo
                     enddo
-                    do jj = ijblo, ijbhi
-                      do ii = iiblo, iibhi
-                        d3b(ia,ic,jj) = d3b(ia,ic,jj) 
-     &                                + naib(ia,ii)*ncib(ic,ii)*
+                    do ii = iiblo, iibhi
+                      do jj = ijblo, ijbhi
+                        d3b(ib,id,ii) = d3b(ib,id,ii) 
+     &                                + nbib(ib,jj)*ndib(id,jj)*
      &                                  occijb(ii,jj)
                       enddo
                     enddo
@@ -316,15 +316,15 @@ c
                   do ib = iblo, ibhi
                     do ic = iclo, ichi
                       do ia = ialo, iahi
-                        do jj = ijalo, ijahi
+                        do ii = iialo, iiahi
                           den(ia,ic,ib,id) = den(ia,ic,ib,id) 
-     &                                     + nbia(ib,jj)*ndia(id,jj)*
-     &                                       d3a(ia,ic,jj)
-                        enddo ! jj
-                        do jj = ijblo, ijbhi
+     &                                     + naia(ia,ii)*ncia(id,ii)*
+     &                                       d3a(ib,id,ii)
+                        enddo ! ii
+                        do ii = iiblo, iibhi
                           den(ia,ic,ib,id) = den(ia,ic,ib,id) 
-     &                                     + nbib(ib,jj)*ndib(id,jj)*
-     &                                       d3b(ia,ic,jj)
+     &                                     + naib(ia,ii)*ncib(ic,ii)*
+     &                                       d3b(ib,id,ii)
                         enddo ! jj
                       enddo ! ia
                     enddo ! ic
