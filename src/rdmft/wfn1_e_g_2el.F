@@ -94,10 +94,16 @@ c
       integer :: maxsbf         ! maximum no. of shell basis functions
       integer :: nshell         ! the number of shells
 c
+      integer, parameter :: msg_null = 0
+c
       double precision, pointer :: buf(:)
       double precision, pointer :: eri(:,:,:,:)
       double precision, pointer :: buf2(:)
       double precision, pointer :: den(:,:,:,:)
+      double precision, pointer :: buf3a(:)
+      double precision, pointer :: d3a(:,:,:)
+      double precision, pointer :: buf3b(:)
+      double precision, pointer :: d3b(:,:,:)
       double precision, pointer :: bufaa(:)
       double precision, pointer :: naia(:,:)
       double precision, pointer :: bufba(:)
@@ -118,12 +124,15 @@ c
       double precision, pointer :: occija(:,:)
       double precision, pointer :: bufijb(:)
       double precision, pointer :: occijb(:,:)
+      double precision, pointer :: bufaca(:)
+      double precision, pointer :: daca(:,:) ! a,c 1-RDM alpha
+      double precision, pointer :: bufacb(:)
+      double precision, pointer :: dacb(:,:) ! a,c 1-RDM beta
+      double precision, pointer :: bufbda(:)
+      double precision, pointer :: dbda(:,:) ! b,d 1-RDM alpha
+      double precision, pointer :: bufbdb(:)
+      double precision, pointer :: dbdb(:,:) ! b,d 1-RDM beta
       double precision, allocatable :: scr(:)
-c
-      double precision :: daca ! a,c 1-RDM alpha
-      double precision :: dbda ! b,d 1-RDM alpha
-      double precision :: dacb ! a,c 1-RDM beta
-      double precision :: dbdb ! b,d 1-RDM beta
 c
       nproc = ga_nnodes()
       iproc = ga_nodeid()
@@ -152,6 +161,10 @@ c
       allocate(bufab(maxsbf*nmo),bufbb(maxsbf*nmo))
       allocate(bufcb(maxsbf*nmo),bufdb(maxsbf*nmo))
       allocate(bufija(nia*nja),bufijb(nib*njb))
+      allocate(bufaca(maxsbf*maxsbf),bufacb(maxsbf*maxsbf))
+      allocate(bufbda(maxsbf*maxsbf),bufbdb(maxsbf*maxsbf))
+      allocate(buf3a(maxsbf*maxsbf*max(nia,nja)))
+      allocate(buf3b(maxsbf*maxsbf*max(nib,njb)))
       occa = 0.0d0
       occb = 0.0d0
 c
@@ -224,25 +237,41 @@ c
 c
 c             calculate the 1RDM terms
 c
+              daca(ialo:iahi,iclo:ichi)=>bufaca
+              dacb(ialo:iahi,iclo:ichi)=>bufacb
+              dbda(iblo:ibhi,idlo:idhi)=>bufbda
+              dbdb(iblo:ibhi,idlo:idhi)=>bufbdb
+              dbda = 0.0d0
+              dbdb = 0.0d0
               do id = idlo, idhi
                 do ib = iblo, ibhi
-                  dbda = 0.0d0
-                  dbdb = 0.0d0
                   do ii = 1, nmo
-                    dbda = dbda + nbia(ia,ii)*ndia(ic,ii)*occa(ii)
-                    dbdb = dbdb + nbib(ib,ii)*ndib(id,ii)*occb(ii)
+                    dbda(ib,id) = dbda(ib,id)
+     &                          + nbia(ib,ii)*ndia(id,ii)*occa(ii)
+                    dbdb(ib,id) = dbdb(ib,id)
+     &                          + nbib(ib,ii)*ndib(id,ii)*occb(ii)
                   enddo
+                enddo
+              enddo
+              daca = 0.0d0
+              dacb = 0.0d0
+              do ic = iclo, ichi
+                do ia = ialo, iahi
+                  do ii = 1, nmo
+                    daca(ia,ic) = daca(ia,ic)
+     &                          + naia(ia,ii)*ncia(ic,ii)*occa(ii)
+                    dacb(ia,ic) = dacb(ia,ic)
+     &                          + naib(ia,ii)*ncib(ic,ii)*occb(ii)
+                  enddo
+                enddo
+              enddo
+              do id = idlo, idhi
+                do ib = iblo, ibhi
                   do ic = iclo, ichi
                     do ia = ialo, iahi
-                      daca = 0.0d0
-                      dacb = 0.0d0
-                      do ii = 1, nmo
-                        daca = daca + naia(ia,ii)*ncia(ic,ii)*occa(ii)
-                        dacb = dacb + naib(ib,ii)*ncib(id,ii)*occb(ii)
-                      enddo
                       den(ia,ic,ib,id) = den(ia,ic,ib,id) 
-     &                                 + daca*dbdb
-     &                                 + dacb*dbda
+     &                                 + daca(ia,ic)*dbdb(ib,id)
+     &                                 + dacb(ia,ic)*dbda(ib,id)
                     enddo ! ia
                   enddo ! ic
                 enddo ! ib
@@ -261,25 +290,41 @@ c
                 occijb(iiblo:iibhi,ijblo:ijbhi)=>bufijb
                 call ga_get(g_2aa,iialo,iiahi,ijalo,ijahi,occija,nia)
                 call ga_get(g_2bb,iiblo,iibhi,ijblo,ijbhi,occijb,nib)
+                d3a(ialo:iahi,iclo:ichi,ijalo:ijahi)=>buf3a
+                d3b(ialo:iahi,iclo:ichi,ijblo:ijbhi)=>buf3b
+                d3a = 0.0d0
+                d3b = 0.0d0
+                do ic = iclo, ichi
+                  do ia = ialo, iahi
+                    do jj = ijalo, ijahi
+                      do ii = iialo, iiahi
+                        d3a(ia,ic,jj) = d3a(ia,ic,jj) 
+     &                                + naia(ia,ii)*ncia(ic,ii)*
+     &                                  occija(ii,jj)
+                      enddo
+                    enddo
+                    do jj = ijblo, ijbhi
+                      do ii = iiblo, iibhi
+                        d3b(ia,ic,jj) = d3b(ia,ic,jj) 
+     &                                + naib(ia,ii)*ncib(ic,ii)*
+     &                                  occijb(ii,jj)
+                      enddo
+                    enddo
+                  enddo
+                enddo
                 do id = idlo, idhi
                   do ib = iblo, ibhi
                     do ic = iclo, ichi
                       do ia = ialo, iahi
                         do jj = ijalo, ijahi
-                          do ii = iialo, iiahi
-                            den(ia,ic,ib,id) = den(ia,ic,ib,id) 
-     &                                       + naia(ia,ii)*ncia(ic,ii)*
-     &                                         nbia(ib,jj)*ndia(id,jj)*
-     &                                         occija(ii,jj)
-                          enddo ! ii
+                          den(ia,ic,ib,id) = den(ia,ic,ib,id) 
+     &                                     + nbia(ib,jj)*ndia(id,jj)*
+     &                                       d3a(ia,ic,jj)
                         enddo ! jj
                         do jj = ijblo, ijbhi
-                          do ii = iiblo, iibhi
-                            den(ia,ic,ib,id) = den(ia,ic,ib,id) 
-     &                                       + naib(ia,ii)*ncib(ic,ii)*
-     &                                         nbib(ib,jj)*ndib(id,jj)*
-     &                                         occijb(ii,jj)
-                          enddo ! ii
+                          den(ia,ic,ib,id) = den(ia,ic,ib,id) 
+     &                                     + nbib(ib,jj)*ndib(id,jj)*
+     &                                       d3b(ia,ic,jj)
                         enddo ! jj
                       enddo ! ia
                     enddo ! ic
@@ -299,6 +344,9 @@ c
 c     Clean up memory
 c     ---------------
 c
+      deallocate(buf3a,  buf3b)
+      deallocate(bufbda, bufbdb)
+      deallocate(bufaca, bufacb)
       deallocate(bufija, bufijb)
       deallocate(bufcb,  bufdb)
       deallocate(bufab,  bufbb)
@@ -306,6 +354,12 @@ c
       deallocate(bufaa,  bufba)
       deallocate(buf,    buf2, scr)
       deallocate(occa,   occb)
+c
+c     Global sums
+c     -----------
+c
+      call ga_dgop(msg_null,E_2el,1,'+')
+c
       end subroutine wfn1_e_g_2el
 c
 c-----------------------------------------------------------------------
