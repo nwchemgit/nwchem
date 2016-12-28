@@ -114,20 +114,11 @@ c
 c
         if(.not.task_bsse) then
 c       TP: modified here
-        if(omm) then
-          ignore = rtdb_cget(rtdb,'task:operation',1,operation)
-          if(operation.eq."neb")
-     >      call mm_neb_update_ibead(rtdb)
-          call mm_geom_push_active(rtdb)
-          call mm_geom_create_full(rtdb)
-          call mm_map_fixed_atoms(rtdb)
-          call mm_link_update_bq_coords(rtdb)
-          status = task_gradient_doit(rtdb,theory,energy, gradient)
-          call mm_restore_fixed_atoms(rtdb)
-        else 
-          status = task_gradient_doit(rtdb,theory,energy, gradient)
-        end if ! if(omm)
-c       TP: end modification       
+          if(omm) then
+            call mm_task_gradient(rtdb,theory,energy,gradient,status)
+          else 
+            status = task_gradient_doit(rtdb,theory,energy, gradient)
+          end if ! if(omm)
         else
           status = bsse_gradient(rtdb,theory,energy,gradient)
           if(.not.status)

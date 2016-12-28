@@ -115,19 +115,12 @@ cc
          else if (theory.eq.'ccca') then
             status = task_ccca_energy(rtdb,theory,energy)
          else
-c       TP: modified here
-        if(omm) then
-          ignore = rtdb_cget(rtdb,'task:operation',1,operation)
-          if(operation.eq."neb")
-     >       call mm_neb_update_ibead(rtdb)
-          call mm_geom_push_active(rtdb)
-          call mm_geom_create_full(rtdb)
-          call mm_link_update_bq_coords(rtdb)
+c          TP: modified here
+           if(omm) then
+             call mm_task_energy(rtdb,theory,energy,status)
+          else
             status = task_energy_doit(rtdb,theory,energy)
-        else
-            status = task_energy_doit(rtdb,theory,energy)
-        endif ! if(omm)
-c       TP: end modification
+          endif ! if(omm)
         endif
 cc
       else
