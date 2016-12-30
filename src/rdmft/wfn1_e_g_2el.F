@@ -100,10 +100,12 @@ c
       double precision, pointer :: eri(:,:,:,:)
       double precision, pointer :: buf2(:)
       double precision, pointer :: den(:,:,:,:)
+c
       double precision, pointer :: buf3a(:)
       double precision, pointer :: d3a(:,:,:)
       double precision, pointer :: buf3b(:)
       double precision, pointer :: d3b(:,:,:)
+c
       double precision, pointer :: bufaa(:)
       double precision, pointer :: naia(:,:)
       double precision, pointer :: bufba(:)
@@ -112,6 +114,7 @@ c
       double precision, pointer :: ncia(:,:)
       double precision, pointer :: bufda(:)
       double precision, pointer :: ndia(:,:)
+c
       double precision, pointer :: bufab(:)
       double precision, pointer :: naib(:,:)
       double precision, pointer :: bufbb(:)
@@ -120,10 +123,12 @@ c
       double precision, pointer :: ncib(:,:)
       double precision, pointer :: bufdb(:)
       double precision, pointer :: ndib(:,:)
+c
       double precision, pointer :: bufija(:)
       double precision, pointer :: occija(:,:)
       double precision, pointer :: bufijb(:)
       double precision, pointer :: occijb(:,:)
+c
       double precision, pointer :: bufaca(:)
       double precision, pointer :: daca(:,:) ! a,c 1-RDM alpha
       double precision, pointer :: bufacb(:)
@@ -132,6 +137,20 @@ c
       double precision, pointer :: dbda(:,:) ! b,d 1-RDM alpha
       double precision, pointer :: bufbdb(:)
       double precision, pointer :: dbdb(:,:) ! b,d 1-RDM beta
+c
+      double precision, pointer :: buffnad(:)
+      double precision, pointer :: fnad(:,:)
+      double precision, pointer :: buffnbd(:)
+      double precision, pointer :: fnbd(:,:)
+      double precision, pointer :: buffnac(:)
+      double precision, pointer :: fnac(:,:)
+      double precision, pointer :: buffnbc(:)
+      double precision, pointer :: fnbc(:,:)
+      double precision, pointer :: buffna(:)
+      double precision, pointer :: fna(:,:)
+      double precision, pointer :: buffnb(:)
+      double precision, pointer :: fnb(:,:)
+c
       double precision, allocatable :: scr(:)
 c
       nproc = ga_nnodes()
@@ -165,6 +184,12 @@ c
       allocate(bufbda(maxsbf*maxsbf),bufbdb(maxsbf*maxsbf))
       allocate(buf3a(maxsbf*maxsbf*max(nia,nja)))
       allocate(buf3b(maxsbf*maxsbf*max(nib,njb)))
+      allocate(buffnad(maxsbf*maxsbf))
+      allocate(buffnbd(maxsbf*maxsbf))
+      allocate(buffnac(max(nia,nja,maxsbf)*nmo))
+      allocate(buffnbc(max(nib,njb,maxsbf)*nmo))
+      allocate(buffna(max(nia,nja)*nmo))
+      allocate(buffnb(max(nib,njb)*nmo))
       occa = 0.0d0
       occb = 0.0d0
 c
@@ -237,6 +262,10 @@ c
 c
 c             calculate the 1RDM terms
 c
+              fnad(ialo:iahi,iclo:ichi)=>buffnad
+              fnbd(ialo:iahi,iclo:ichi)=>buffnbd
+              fnad = 0.0d0
+              fnbd = 0.0d0
               daca(ialo:iahi,iclo:ichi)=>bufaca
               dacb(ialo:iahi,iclo:ichi)=>bufacb
               dbda(iblo:ibhi,idlo:idhi)=>bufbda
@@ -276,6 +305,60 @@ c
                   enddo ! ic
                 enddo ! ib
               enddo ! id
+              do id = idlo, idhi
+                do ib = iblo, ibhi
+                  do ic = iclo, ichi
+                    do ia = ialo, iahi
+                      fnad(ia,ic) = fnad(ia,ic)
+     &                            + eri(ia,ic,ib,id)*dbdb(ib,id)
+                      fnbd(ia,ic) = fnbd(ia,ic)
+     &                            + eri(ia,ic,ib,id)*dbda(ib,id)
+                    enddo ! ia
+                  enddo ! ic
+                enddo ! ib
+              enddo ! id
+              fnac(1:nmo,iclo:ichi)=>buffnac
+              fnbc(1:nmo,iclo:ichi)=>buffnbc
+              fnac = 0.0d0
+              fnbc = 0.0d0
+              do ic = iclo, ichi
+                do ia = ialo, iahi
+                  do ii = 1, nmo
+                    fnac(ii,ic) = fnac(ii,ic)
+     &                          + naia(ia,ii)*occa(ii)*fnad(ia,ic)
+                    fnbc(ii,ic) = fnbc(ii,ic)
+     &                          + naib(ia,ii)*occb(ii)*fnbd(ia,ic)
+                  enddo
+                enddo
+              enddo
+              do jj = 1, nmo, nja
+                fna(1:nmo,jj:min(nmo,jj+nja-1))=>buffna
+                fna = 0.0d0
+                do kk = jj, min(nmo,jj+nja-1)
+                  do ic = iclo, ichi
+                    do ii = 1, nmo
+                      fna(ii,kk) = fna(ii,kk) 
+     &                           + fnac(ii,ic)*ncia(ic,kk)
+                    enddo ! ii
+                  enddo ! ic
+                enddo ! kk
+                call ga_acc(wfn1_deriv%g_dna,1,nmo,jj,min(nmo,jj+nja-1),
+     &                      fna,nmo,1.0d0)
+              enddo ! jj
+              do jj = 1, nmo, njb
+                fnb(1:nmo,jj:min(nmo,jj+njb-1))=>buffnb
+                fnb = 0.0d0
+                do kk = jj, min(nmo,jj+njb-1)
+                  do ic = iclo, ichi
+                    do ii = 1, nmo
+                      fnb(ii,kk) = fnb(ii,kk) 
+     &                           + fnbc(ii,ic)*ncib(ic,kk)
+                    enddo ! ii
+                  enddo ! ic
+                enddo ! kk
+                call ga_acc(wfn1_deriv%g_dnb,1,nmo,jj,min(nmo,jj+njb-1),
+     &                      fnb,nmo,1.0d0)
+              enddo
 c
 c             calculate the 2RDM terms
 c
@@ -294,6 +377,14 @@ c
                 d3b(iblo:ibhi,idlo:idhi,iiblo:iibhi)=>buf3b
                 d3a = 0.0d0
                 d3b = 0.0d0
+                fnac(iialo:iiahi,iclo:ichi)=>buffnac
+                fnbc(iiblo:iibhi,iclo:ichi)=>buffnbc
+                fnac = 0.0d0
+                fnbc = 0.0d0
+                fna(iialo:iiahi,1:nmo)=>buffna
+                fnb(iiblo:iibhi,1:nmo)=>buffnb
+                fna = 0.0d0
+                fnb = 0.0d0
                 do id = idlo, idhi
                   do ib = iblo, ibhi
                     do ii = iialo, iiahi
@@ -318,18 +409,46 @@ c
                       do ia = ialo, iahi
                         do ii = iialo, iiahi
                           den(ia,ic,ib,id) = den(ia,ic,ib,id) 
-     &                                     + naia(ia,ii)*ncia(id,ii)*
+     &                                     + naia(ia,ii)*ncia(ic,ii)*
      &                                       d3a(ib,id,ii)
                         enddo ! ii
                         do ii = iiblo, iibhi
                           den(ia,ic,ib,id) = den(ia,ic,ib,id) 
      &                                     + naib(ia,ii)*ncib(ic,ii)*
      &                                       d3b(ib,id,ii)
-                        enddo ! jj
+                        enddo ! ii
+                        do ii = iialo, iiahi
+                          fnac(ii,ic) = fnac(ii,ic) 
+     &                                + naia(ia,ii)*d3a(ib,id,ii)*
+     &                                  eri(ia,ic,ib,id)
+                        enddo ! ii
+                        do ii = iiblo, iibhi
+                          fnbc(ii,ic) = fnbc(ii,ic) 
+     &                                + nbia(ia,ii)*d3b(ib,id,ii)*
+     &                                  eri(ia,ic,ib,id)
+                        enddo ! ii
                       enddo ! ia
                     enddo ! ic
                   enddo ! ib
                 enddo ! id
+                do jj = 1, nmo
+                  do ii = iialo, iiahi
+                    do ic = iclo, ichi
+                      fna(ii,jj) = fna(ii,jj) + fnac(ii,ic)*ncia(ic,jj)
+                    enddo
+                  enddo
+                enddo
+                do jj = 1, nmo
+                  do ii = iiblo, iibhi
+                    do ic = iclo, ichi
+                      fnb(ii,jj) = fnb(ii,jj) + fnbc(ii,ic)*ncib(ic,jj)
+                    enddo
+                  enddo
+                enddo
+                call ga_acc(wfn1_deriv%g_dna,iialo,iiahi,1,nmo,
+     &                      fna,nia,1.0d0)
+                call ga_acc(wfn1_deriv%g_dnb,iiblo,iibhi,1,nmo,
+     &                      fnb,nib,1.0d0)
               enddo ! jproc
 c
 c             Add the 2-electron energy
