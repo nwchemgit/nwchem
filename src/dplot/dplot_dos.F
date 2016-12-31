@@ -48,10 +48,12 @@ c     basis 2nd
      &   call errquit('dplotdos: bas_numbf failed',0,0)
 c     get evals and evecs
       ldnmo=2
+      call util_file_name_resolve(filename,.false.)
       if(.not.movecs_read_header(filename(1:inp_strlen(filename)), 
      A     title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo))
-     E     call errquit('mreadh failed ',0,0)
+     E     call errquit(filename(1:inp_strlen(filename))//
+     F     ': mreadh failed ',0,0)
       g_vecs(1) = ga_create_atom_blocked(geom, basis, 'Scr')
       if(nsets.eq.2) 
      G     g_vecs(2) = ga_create_atom_blocked(geom, basis, 'scr2')
@@ -88,6 +90,7 @@ c
      &   1,traslx)) traslx=0d0
       If (.not.rtdb_cget(rtdb,'dplot:File_Out',1,dfile))
      &   dfile='fort.16'
+      call util_file_name_resolve(dfile,.false.)
       If (ga_nodeid().eq.0 ) Then
          open(unit=16,file=dfile(1:inp_strlen(dfile)),
      &        status='unknown', access='sequential',form='formatted',
