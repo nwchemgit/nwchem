@@ -408,7 +408,7 @@ c
 c     step1
 c
 c     open ga d_agaa (size_agaa)
-       d4af_min= int(1d10)
+       d4af_min=1000000000
        d4af_max=-99999
        if(nodezero) then
           write(6,'(A,F20.2,A)') ' starting step 1 at ',
@@ -817,7 +817,7 @@ c     open ga d_ggga (size_ggga)
      S     mxsize_loc_ggga, 'd_ggga',int_mb(k_offset_ggga),.false.)
       if (on4indps) call pstat_off(ps_comm3)
 c
-       d4af_min= int(1d10)
+       d4af_min= 1000000000
        d4af_max=-99999
       nprocs = GA_NNODES()
       count = 0
