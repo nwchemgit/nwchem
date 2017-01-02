@@ -46,6 +46,67 @@ c
 c
 c-----------------------------------------------------------------------
 c
+      subroutine wfn1_calc_ocx(g_c,nmo,ne,icnf,ocx)
+      implicit none
+C>
+C> \brief Calculate average exchange occupation numbers from a set of
+C> correlation functions
+C>
+C> In the 2-electron occupation numbers there are two terms. One
+C> corresponds to the Coulomb part and the other to the exchange.
+C> When the 2-electron occupation numbers are differentiated wrt
+C> the correlation functions something akin to the 1-electron 
+C> occupation numbers remains. The Coulomb is simply identical to the
+C> 1-electron occupation numbers. The term coming from the exchange
+C> is, however, different for every correlation function unless we
+C> average this term over all occupied correlation functions.
+C>
+#include "global.fh"
+#include "mafdecls.fh"
+c
+      integer, intent(in) :: g_c      ! the correlation functions
+      integer, intent(in) :: nmo      ! the number of molecular orbitals
+      integer, intent(in) :: ne       ! the number of electrons
+      integer, intent(in) :: icnf(nmo)! the electron configuration
+c
+      double precision, intent(out) :: ocx(nmo) ! the average exchange
+                                                ! occupation numbers
+c
+      integer iproc ! the processor rank
+      integer nproc ! the number of processor ranks
+c
+      integer ilo, ihi, jlo, jhi ! patch limits
+      integer ii,  ir,  is       ! counters
+c
+      double precision, allocatable :: buf(:,:)
+c
+      iproc = ga_nodeid()
+      nproc = ga_nnodes()
+c
+      ocx = 0.0d0
+      call ga_distribution(g_c,iproc,ilo,ihi,jlo,jhi)
+      allocate(buf(ilo:ihi,1:nmo))
+      call ga_get(g_c,ilo,ihi,1,nmo,buf,ihi-ilo+1)
+      do ir = 1, ne
+        if(icnf(ir).ge.jlo.and.icnf(ir).le.jhi)
+     &  then
+          do is = 1, ne
+            do ii = ilo, ihi
+              ocx(ii) = ocx(ii) - buf(ii,icnf(ir)) * buf(ii,icnf(is))
+            enddo
+          enddo
+        endif
+      enddo
+      deallocate(buf)
+      do ii = ilo, ihi
+        ocx(ii) = ocx(ii)/dble(ne)
+      enddo
+      call ga_dgop(MT_DBL,ocx,nmo,"+")
+c
+      end subroutine wfn1_calc_ocx
+c
+c-----------------------------------------------------------------------
+c
       subroutine wfn1_calc_occ2(g_c,nmo,ne,icnf,g_occ)
       implicit none
 C>

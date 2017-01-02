@@ -64,6 +64,13 @@ c
       double precision, allocatable :: occa(:)  ! a-occupation numbers
       double precision, allocatable :: occb(:)  ! b-occupation numbers
 c
+      double precision, allocatable :: ocxa(:)  ! a-average exchange 
+                                                ! occupation numbers
+                                                ! of 2RDM
+      double precision, allocatable :: ocxb(:)  ! b-average exchange
+                                                ! occupation numbers
+                                                ! of 2RDM
+c
       integer :: nproc
       integer :: iproc
       integer :: jproc
@@ -137,6 +144,10 @@ c
       double precision, pointer :: dbda(:,:) ! b,d 1-RDM alpha
       double precision, pointer :: bufbdb(:)
       double precision, pointer :: dbdb(:,:) ! b,d 1-RDM beta
+      double precision, pointer :: bufxbda(:)
+      double precision, pointer :: xbda(:,:) ! b,d 1-RDM alpha
+      double precision, pointer :: bufxbdb(:)
+      double precision, pointer :: xbdb(:,:) ! b,d 1-RDM beta
 c
       double precision, pointer :: buffnad(:)
       double precision, pointer :: fnad(:,:)
@@ -174,6 +185,7 @@ c
       njb = ijbhi-ijblo+1
       call int_mem_2e4c(max2e,mem2)
       allocate(occa(1:nmo),occb(1:nmo))
+      allocate(ocxa(1:nmo),ocxb(1:nmo))
       allocate(buf(max2e),buf2(max2e),scr(mem2))
       allocate(bufaa(maxsbf*nmo),bufba(maxsbf*nmo))
       allocate(bufca(maxsbf*nmo),bufda(maxsbf*nmo))
@@ -182,6 +194,7 @@ c
       allocate(bufija(nia*nja),bufijb(nib*njb))
       allocate(bufaca(maxsbf*maxsbf),bufacb(maxsbf*maxsbf))
       allocate(bufbda(maxsbf*maxsbf),bufbdb(maxsbf*maxsbf))
+      allocate(bufxbda(maxsbf*maxsbf),bufxbdb(maxsbf*maxsbf))
       allocate(buf3a(maxsbf*maxsbf*max(nia,nja)))
       allocate(buf3b(maxsbf*maxsbf*max(nib,njb)))
       allocate(buffnad(maxsbf*maxsbf))
@@ -190,8 +203,6 @@ c
       allocate(buffnbc(max(nib,njb,maxsbf)*nmo))
       allocate(buffna(max(nia,nja)*nmo))
       allocate(buffnb(max(nib,njb)*nmo))
-      occa = 0.0d0
-      occb = 0.0d0
 c
 c     Calculate occupation numbers
 c     ----------------------------
@@ -199,10 +210,12 @@ c
 c     Calculate alpha-occupation numbers
 c
       call wfn1_calc_occ(wfn1_wave%g_ca,nmo,nea,wfn1_wave%icnfa,occa)
+      call wfn1_calc_ocx(wfn1_wave%g_ca,nmo,nea,wfn1_wave%icnfa,ocxa)
 c
 c     Calculate beta-occupation numbers
 c
       call wfn1_calc_occ(wfn1_wave%g_cb,nmo,neb,wfn1_wave%icnfb,occb)
+      call wfn1_calc_ocx(wfn1_wave%g_cb,nmo,neb,wfn1_wave%icnfb,ocxb)
 c
 c     Calculate alpha-alpha-occupation numbers
 c
@@ -270,8 +283,15 @@ c
               dacb(ialo:iahi,iclo:ichi)=>bufacb
               dbda(iblo:ibhi,idlo:idhi)=>bufbda
               dbdb(iblo:ibhi,idlo:idhi)=>bufbdb
+              xbda(iblo:ibhi,idlo:idhi)=>bufxbda
+              xbdb(iblo:ibhi,idlo:idhi)=>bufxbdb
               dbda = 0.0d0
               dbdb = 0.0d0
+              xbda = 0.0d0
+              xbdb = 0.0d0
+c
+c             Construct the 1RDM and 2RDM density matrix terms
+c
               do id = idlo, idhi
                 do ib = iblo, ibhi
                   do ii = 1, nmo
@@ -279,6 +299,10 @@ c
      &                          + nbia(ib,ii)*ndia(id,ii)*occa(ii)
                     dbdb(ib,id) = dbdb(ib,id)
      &                          + nbib(ib,ii)*ndib(id,ii)*occb(ii)
+                    xbda(ib,id) = xbda(ib,id)
+     &                          + nbia(ib,ii)*ndia(id,ii)*ocxa(ii)
+                    xbdb(ib,id) = xbdb(ib,id)
+     &                          + nbib(ib,ii)*ndib(id,ii)*ocxb(ii)
                   enddo
                 enddo
               enddo
@@ -305,6 +329,9 @@ c
                   enddo ! ic
                 enddo ! ib
               enddo ! id
+c
+c             Derivatives wrt the natural orbitals
+c
               do id = idlo, idhi
                 do ib = iblo, ibhi
                   do ic = iclo, ichi
@@ -358,6 +385,33 @@ c
                 enddo ! kk
                 call ga_acc(wfn1_deriv%g_dnb,1,nmo,jj,min(nmo,jj+njb-1),
      &                      fnb,nmo,1.0d0)
+              enddo
+c
+c             Derivatives wrt the correlation functions
+c
+              do id = idlo, idhi
+                do ib = iblo, ibhi
+                  do ic = iclo, ichi
+                    do ia = ialo, iahi
+                      fnad(ia,ic) = fnad(ia,ic)
+     &                            + eri(ia,ic,ib,id)*
+     &                              (dbda(ib,id)+xbda(ib,id))
+                      fnbd(ia,ic) = fnbd(ia,ic)
+     &                            + eri(ia,ic,ib,id)*
+     &                              (dbdb(ib,id)+xbdb(ib,id))
+                    enddo ! ia
+                  enddo ! ic
+                enddo ! ib
+              enddo ! id
+              do ii = 1, nmo
+                do ic = iclo, ichi
+                  do ia = ialo, iahi
+                    v_dca(ii) = v_dca(ii)
+     &                        + naia(ia,ii)*fnad(ia,ic)*ncia(ic,ii)
+                    v_dcb(ii) = v_dcb(ii)
+     &                        + naib(ia,ii)*fnbd(ia,ic)*ncib(ic,ii)
+                  enddo
+                enddo
               enddo
 c
 c             calculate the 2RDM terms
@@ -463,16 +517,18 @@ c
 c     Clean up memory
 c     ---------------
 c
-      deallocate(buf3a,  buf3b)
-      deallocate(bufbda, bufbdb)
-      deallocate(bufaca, bufacb)
-      deallocate(bufija, bufijb)
-      deallocate(bufcb,  bufdb)
-      deallocate(bufab,  bufbb)
-      deallocate(bufca,  bufda)
-      deallocate(bufaa,  bufba)
-      deallocate(buf,    buf2, scr)
-      deallocate(occa,   occb)
+      deallocate(buf3a,   buf3b)
+      deallocate(bufxbda, bufxbdb)
+      deallocate(bufbda,  bufbdb)
+      deallocate(bufaca,  bufacb)
+      deallocate(bufija,  bufijb)
+      deallocate(bufcb,   bufdb)
+      deallocate(bufab,   bufbb)
+      deallocate(bufca,   bufda)
+      deallocate(bufaa,   bufba)
+      deallocate(buf,     buf2, scr)
+      deallocate(ocxa,    ocxb)
+      deallocate(occa,    occb)
 c
 c     Global sums
 c     -----------
