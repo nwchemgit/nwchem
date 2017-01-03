@@ -20,10 +20,9 @@
 
       pname = "mm_links_init"
 c     write(*,*) pname
-c     write(*,*) 'qmlink = ', qmlink
+
       if(.not.rtdb_get(rtdb,'mm:qmlink',mt_log,1,qmlink))
      >    qmlink = .true.
-c     write(*,*) 'qmlink = ', qmlink
 
 c     deallocate all previous allocated arrays just in case
       call mm_links_end()
@@ -31,9 +30,7 @@ c     deallocate all previous allocated arrays just in case
       call mm_find_links()
 
       nqml = nqm + nlink
-c     write(*,*) 'nqml in link init= ', nqml
       
-
       if(.not.ma_alloc_get(mt_dbl,3*nqml,'qmlink coords',h_rqml,i_rqml))
      & call errquit(pname//'Failed to allocate heap',3*nqml,
      &       MA_ERR)
@@ -65,18 +62,13 @@ c     write(*,*) 'nqml in link init= ', nqml
         int_mb(i_iqml+i-1) = int_mb(i_iqm+i-1)
         call mm_coords_tag_set(byte_mb(i_tqm+16*(i-1)),
      &                         byte_mb(i_tqml+16*(i-1)))
-c       write(*,*) int_mb(i_iqml+i-1), (dbl_mb(i_rqml+3*(i-1)+j),j=0,2)
       end do
 
       do i=1,nlink
         lnk_indx = int_mb(i_lb+nlink+i-1) 
         int_mb(i_iqml+nqm+i-1) = lnk_indx
-c       write(*,*) 'lnk_indx = ', lnk_indx
-c       do j=1,nbmm
         do j=1,nmm
-c         mm_indx = int_mb(i_indx+nbqm+j-1)
           mm_indx = int_mb(i_imm+j-1)
-c         write(*,*) 'mm_indx = ', mm_indx
           if(mm_indx.eq.lnk_indx) then
             dbl_mb(i_rqml+3*(nqm+i-1))     = dbl_mb(i_rmm+3*(j-1))
             dbl_mb(i_rqml+3*(nqm+i-1)+1)   = dbl_mb(i_rmm+3*(j-1)+1)
@@ -84,25 +76,16 @@ c         write(*,*) 'mm_indx = ', mm_indx
             dbl_mb(i_lnkchg+i-1)           = dbl_mb(i_chgmm+j-1)
             call mm_coords_tag_set(byte_mb(i_tmm+16*(j-1)),
      &                             byte_mb(i_tqml+16*(nqm+i-1)))
-c           write(*,*) 'lnk charge = ', dbl_mb(i_lnkchg+i-1)
-c           write(*,*) 'tag mmlink = ', byte_mb(i_tqml+16*(nqm+i-1))
-c           write(*,*) int_mb(i_iqml+nqm+i-1), 
-c    &      (dbl_mb(i_rqml+3*(nqm+i-1)+k),k=0,2)
             exit
           end if
         end do
       end do
 
-c     if(nlink.ne.0) then
       if(nlink.gt.0) then
         if(.not.geom_tag_to_atn(nlink,byte_mb(i_tqml+16*nqm),
      &                          int_mb(i_lnkatn)))
      &  call errquit('mm: Failed to get lnkatn from tag',nlink,MA_ERR)
       end if
-
-c     do i=1,nlink
-c       write(*,*) 'lnkatn= ', int_mb(i_lnkatn+i-1)
-c     end do
 
       call mm_link_excluded_list_init()
  
@@ -117,7 +100,6 @@ c     end do
 #include "mm_link_data.fh"
 #include "mm_vdw_data.fh"
 #include "mm_bond_data.fh"
-c#include "mm_coords_data.fh"
 
       integer n0
       integer i, j
@@ -155,16 +137,12 @@ c#include "mm_coords_data.fh"
         call mm_link_find_excluded_atoms(lnk_indx,
      >                  int_mb(i_excld),
      >                  nnb_i)
-c    >                  int_mb(i_nxc+i-1))
         do j=1,nnb_i
           int_mb(i_lxc+(i-1)*xc_maxatm+j-1) = int_mb(i_excld+j-1)
-c         write(*,*) 'excld atm = ', int_mb(i_lxc+(i-1)*xc_maxatm+j-1)
         end do
         int_mb(i_nxc+i-1) = nnb_i
-c       write(*,*) 'n_excld = ', int_mb(i_nxc+i-1)
       end do
 
-c     pop stack    
       if(.not.ma_pop_stack(h_excld))
      >   call errquit('mm: Failed to pop stack excl_atoms',
      >                 xc_maxatm, MA_ERR)
@@ -192,8 +170,6 @@ c     pop stack
       pname = "mm_link_find_excluded_atoms"
 c     write(*,*) pname
       
-c     nnb_i = 0
-
 c     Find excluded atoms for bond
       do i = 1, nbon
         ii = int_mb(i_ibon+i-1)
@@ -210,13 +186,9 @@ c     Find excluded atoms for angle
         ii = int_mb(i_iang+i-1)
         jj = int_mb(i_jang+i-1)
         kk = int_mb(i_kang+i-1)
-c       write(*,*) 'lnk_indx = ', indx_i
-c       write(*,*) 'i j k = ', ii, jj, kk
         if(indx_i.eq.ii) then
           call mm_link_add_excluded_list(jj,i_excl_atom,nnb_i)
           call mm_link_add_excluded_list(kk,i_excl_atom,nnb_i)
-c         write(*,*) 'nnb_i = ', nnb_i
-c         write(*,*) 'i_excl_atoms = ', i_excl_atom(1:nnb_i)
         else if(indx_i.eq.jj) then
           call mm_link_add_excluded_list(ii,i_excl_atom,nnb_i)
           call mm_link_add_excluded_list(kk,i_excl_atom,nnb_i)
@@ -262,9 +234,6 @@ c     Find excluded atoms for 1-4 VDW
         end if
       end do
 
-c     write(*,*) 'nnb_i = ', nnb_i
-c     write(*,*) 'i_excl_atoms = ', i_excl_atom(1:nnb_i)
-
       end 
  
       subroutine mm_link_add_excluded_list(indx,excl_list,n)
@@ -283,8 +252,6 @@ c     write(*,*) 'i_excl_atoms = ', i_excl_atom(1:nnb_i)
   
       pname = "mm_link_add_excluded_list"
 c     write(*,*) pname
-
-c     write(*,*) 'nnb_i before = ', n
 
       add_indx = .true.
        
@@ -306,8 +273,6 @@ c       if not already in the list, add it
           excl_list(n) = indx
         end if
       end if
-c     write(*,*) 'nnb_i = ', n
-c     write(*,*) 'excl_list = ', excl_list(1:n)
 
       end
 
@@ -344,7 +309,7 @@ c     write(*,*) 'excl_list = ', excl_list(1:n)
     
       character*30 pname
 
-c     parameter(scee = 0.833333d0)
+      parameter(scee = 0.833333d0)
 
       pname = "mm_links_bq_scaled_add_egrad"
 c     write(*,*) pname
@@ -358,7 +323,7 @@ c     write(*,*) pname
       do i = 1,nvdw14
         i1 = int_mb(i_ivdw14+i-1)
         i2 = int_mb(i_jvdw14+i-1)
-        scee = dbl_mb(i_scee+i-1)
+c       scee = dbl_mb(i_scee+i-1)
 
         i_is_lnk = .false.
         j_is_lnk = .false.
@@ -388,26 +353,11 @@ c     write(*,*) pname
 
         if((i_is_lnk.and..not.j_is_qm).or.
      >     (j_is_lnk.and..not.i_is_qm)) then
-c         write(*,*) 'i1 = ', i1, 'i2 = ', i2
           do k = 1,nv14tot
             indx = int_mb(i_icvdw14+k-1)
             if(i1.eq.indx) i_i = k
             if(i2.eq.indx) i_j = k
           end do
-
-c         cnt = 0
-c         do m = 1,nmm
-c           imm = int_mb(i_imm+m-1)
-c           if(i1.eq.imm) then
-c            z1 = dbl_mb(i_chgmm+m-1)
-c            cnt = cnt + 1
-c           end if
-c           if(i2.eq.imm) then
-c            z2 = dbl_mb(i_chgmm+m-1)
-c            cnt = cnt + 1
-c           end if
-c           if(cnt.eq.2) exit
-c         end do
 
           z1 = dbl_mb(i_chgmm14+i_i-1)
           z2 = dbl_mb(i_chgmm14+i_j-1)
@@ -419,11 +369,6 @@ c         end do
           r2(2) = dbl_mb(i_rvdw14+(i_j-1)*3+1)*scale
           r2(3) = dbl_mb(i_rvdw14+(i_j-1)*3+2)*scale
 
-c         write(*,*) 'r1 = ', r1(1:3)/scale
-c         write(*,*) 'r2 = ', r2(1:3)/scale
-c         write(*,*) 'z1 = ', z1
-c         write(*,*) 'z2 = ', z2
-          
           dx = r1(1) - r2(1)
           dy = r1(2) - r2(2)
           dz = r1(3) - r2(3)
@@ -436,8 +381,6 @@ c         write(*,*) 'z2 = ', z2
           gy   =  z1*z2*dy/dr3*scee
           gz   =  z1*z2*dz/dr3*scee
           eel14 = z1*z2/dr*scee
-
-c         write(*,*) 'eel14 = ', eel14*627.51d0
 
           e_el14 = e_el14 + eel14
 
@@ -454,10 +397,7 @@ c         write(*,*) 'eel14 = ', eel14*627.51d0
         end if
       end do 
 
-c     write(*,*) 'e before = ', e
-c     write(*,*) 'e_el14 = ', e_el14
       e = e + e_el14
-c     write(*,*) 'e after = ', e
 
       end
 
@@ -491,7 +431,7 @@ c     write(*,*) 'e after = ', e
     
       character*30 pname
 
-c     parameter(scee = 0.833333d0)
+      parameter(scee = 0.833333d0)
 
       pname = "mm_links_bq_scaled_add_energy"
 c     write(*,*) pname
@@ -505,7 +445,7 @@ c     write(*,*) pname
       do i = 1,nvdw14
         i1 = int_mb(i_ivdw14+i-1)
         i2 = int_mb(i_jvdw14+i-1)
-        scee = dbl_mb(i_scee+i-1)
+c       scee = dbl_mb(i_scee+i-1)
 
         i_is_lnk = .false.
         j_is_lnk = .false.
@@ -541,23 +481,8 @@ c     write(*,*) pname
             if(i2.eq.indx) i_j = k
           end do
 
-c         cnt = 0
-c         do m = 1,nmm
-c           imm = int_mb(i_imm+m-1)
-c           if(i1.eq.imm) then
-c            z1 = dbl_mb(i_chgmm+m-1)
-c            cnt = cnt + 1
-c           end if
-c           if(i2.eq.imm) then
-c            z2 = dbl_mb(i_chgmm+m-1)
-c            cnt = cnt + 1
-c           end if
-c           if(cnt.eq.2) exit
-c         end do
-
           z1 = dbl_mb(i_chgmm14+i_i-1)
           z2 = dbl_mb(i_chgmm14+i_j-1)
-c         write(*,*) 'z1 = ', z1 , 'z2 = ', z2
 
           r1(1) = dbl_mb(i_rvdw14+(i_i-1)*3)*scale
           r1(2) = dbl_mb(i_rvdw14+(i_i-1)*3+1)*scale
@@ -579,7 +504,7 @@ c         write(*,*) 'z1 = ', z1 , 'z2 = ', z2
 
         end if
       end do 
-c     write(*,*) 'e_el14 = ', e_el14*627.51d0, 'kcal/mol'
+
       e = e + e_el14
 
       end
@@ -621,12 +546,6 @@ c     write(*,*) pname
  
       if(nlink.eq.0) return
 
-c     nn = nbon + nang + ndih + nvdw14
-c     write(*,*) 'nn = ', nn
-
-c     if(.not.ma_push_get(mt_int,nn,'excl_atoms',h_xcl,i_xcl))
-c    >   call errquit('mm: Failed to push stack excl_atoms',nn,MA_ERR)
-
 c     cutoff in angstrom
       if(.not.rtdb_get(rtdb,'mm:cutoff',mt_dbl,1,cut))
      >   cut = 999.0d0
@@ -636,30 +555,23 @@ c
 
       cut = cut*scale
       cut2 = cut*cut
-c     write(*,*) 'cut2 = ', cut2
 
       e_lbq = 0.0d0
       elbq = 0.0d0
       do i=1,nlink
         indx_i = int_mb(i_lb+nlink+i-1)  
-c       nnb_i = 0
         nnb_i = int_mb(i_nxc+i-1)
-c       call ifill(nn,0.0,int_mb(i_xcl),1)
-c       call mm_link_find_excluded_atoms(indx_i,int_mb(i_xcl),nnb_i)
         do j=1,nmm
           indx_j = int_mb(i_imm+j-1)
           j_xcl = .false.
           do k=1,nnb_i
-c           i_excl = int_mb(i_xcl+k-1)
             i_excl = int_mb(i_lxc+(i-1)*xc_maxatm+k-1)
             if(indx_j.eq.i_excl) then
               j_xcl = .true.
               exit
             end if
           end do
-c         write(*,*) 'indx_j = ', indx_j, j_xcl
           if(indx_i.ne.indx_j.and..not.j_xcl) then
-c           write(*,*) 'indx_j = ', indx_j, j_xcl
             lnk_coord(1) = dbl_mb(i_rqml+(nqm+i-1)*3)*scale
             lnk_coord(2) = dbl_mb(i_rqml+(nqm+i-1)*3+1)*scale 
             lnk_coord(3) = dbl_mb(i_rqml+(nqm+i-1)*3+2)*scale
@@ -688,21 +600,12 @@ c
               g(2,nqm+i) = g(2,nqm+i) - gy
               g(3,nqm+i) = g(3,nqm+i) - gz
               e_lbq = e_lbq + elbq
-c             write(*,*) 'elbq = ', elbq*627.51d0
             end if
           end if           
         end do
       end do
 
-c     write(*,*) 'e_lbq = ', e_lbq
-c     write(*,*) 'e before = ', e
-
       e = e + e_lbq
-
-c     write(*,*) 'e after = ', e
-c     pop stack    
-c     if(.not.ma_pop_stack(h_xcl))
-c    >   call errquit('mm: Failed to pop stack excl_atoms',nn,MA_ERR)
 
       end
 
@@ -740,11 +643,6 @@ c     write(*,*) pname
  
       if(nlink.eq.0) return
 
-c     nn = nbon + nang + ndih + nvdw14
-c     if(.not.ma_push_get(mt_int,nn,'excl_atoms',h_xcl,i_xcl))
-c    >   call errquit('mm: Failed to push stack excl_atoms',nn,MA_ERR)
-
-c     call ifill(nn,0.0,int_mb(i_excl),1)
 c     cutoff in angstrom
       if(.not.rtdb_get(rtdb,'mm:cutoff',mt_dbl,1,cut))
      >   cut = 999.0d0
@@ -754,29 +652,23 @@ c     write(*,*) 'cutoff = ', cut, 'A'
 
       cut = cut*scale
       cut2 = cut*cut
-c     write(*,*) 'cut2 = ', cut2
 
       e_lbq = 0.0d0
       elbq = 0.0d0
       do i=1,nlink
         indx_i = int_mb(i_lb+nlink+i-1)  
         nnb_i = int_mb(i_nxc+i-1)
-c       call ifill(nn,0.0,int_mb(i_xcl),1)
-c       call mm_link_find_excluded_atoms(indx_i,int_mb(i_xcl),nnb_i)
         do j=1,nmm
           indx_j = int_mb(i_imm+j-1)
           j_xcl = .false.
           do k=1,nnb_i
             i_excl = int_mb(i_lxc+(i-1)*xc_maxatm+k-1)
-c           i_excl = int_mb(i_xcl+k-1)
             if(indx_j.eq.i_excl) then
               j_xcl = .true.
               exit
             end if
           end do
-c         write(*,*) 'indx_j = ', indx_j, j_xcl
           if(indx_i.ne.indx_j.and..not.j_xcl) then
-c           write(*,*) 'indx_j = ', indx_j, j_xcl
             lnk_coord(1) = dbl_mb(i_rqml+(nqm+i-1)*3)*scale
             lnk_coord(2) = dbl_mb(i_rqml+(nqm+i-1)*3+1)*scale 
             lnk_coord(3) = dbl_mb(i_rqml+(nqm+i-1)*3+2)*scale
@@ -796,21 +688,12 @@ c           write(*,*) 'indx_j = ', indx_j, j_xcl
               dr   = sqrt(dr2)
               elbq = zlnk*zbq/dr   
               e_lbq = e_lbq + elbq
-c             write(*,*) 'elbq = ', elbq*627.51d0
             end if           
           end if
         end do
       end do
 
-c     write(*,*) 'e_lbq = ', e_lbq*627.51d0, 'kcal/mol'
-c     write(*,*) 'e before = ', e
-
       e = e + e_lbq
-
-c     write(*,*) 'e after = ', e
-c     pop stack    
-c     if(.not.ma_pop_stack(h_xcl))
-c    >   call errquit('mm: Failed to pop stack excl_atoms',nn,MA_ERR)
 
       end
 
@@ -826,7 +709,6 @@ c    >   call errquit('mm: Failed to pop stack excl_atoms',nn,MA_ERR)
       character*30 pname
       pname = "mm_links_end"
 
-c     if(nlink.gt.0) then
       if(nqml.gt.0) then
           if (.not.ma_free_heap(h_rqml))     goto 911
           if (.not.ma_free_heap(h_iqml))     goto 911
@@ -870,7 +752,6 @@ c
       pname = "qmmm_init_hlinks"
 c     write(*,*) pname
 
-c     nlink = nbon
       nlink = 0
       do i = 1, nbon
         indx_i = int_mb(i_ibon+i-1)
@@ -881,7 +762,6 @@ c     nlink = nbon
      &        nlink = nlink + 1
         end do
       end do
-c     write(*,*) 'nlink = ', nlink
 
       if(nlink.gt.0) then
         if(.not.ma_alloc_get(mt_int,2*nlink,'link bond index',
@@ -894,20 +774,16 @@ c     write(*,*) 'nlink = ', nlink
       do i=1,nbon
         indx_i = int_mb(i_ibon+i-1)
         indx_j = int_mb(i_jbon+i-1)
-c       write(*,*) 'i j =', indx_i, indx_j
         do j=1,nqm
           indx_crd = int_mb(i_iqm+j-1)
-c         write(*,*) 'iqm =', indx_crd
           if(indx_i.eq.indx_crd) then 
             cnt = cnt + 1
             int_mb(i_lb+cnt-1) = indx_i
             int_mb(i_lb+nlink+cnt-1) = indx_j
-c           write(*,*) int_mb(i_lb+cnt-1), int_mb(i_lb+nlink+cnt-1)
           else if(indx_j.eq.indx_crd) then
             cnt = cnt + 1
             int_mb(i_lb+cnt-1) = indx_j
             int_mb(i_lb+nlink+cnt-1) = indx_i
-c           write(*,*) int_mb(i_lb+cnt-1), int_mb(i_lb+nlink+cnt-1)
           end if
         end do
       end do
@@ -940,26 +816,18 @@ c     local variables
 c     write(*,*) pname 
  
       a = 0.709d0
-c     write(*,*) 'n = ', n
-c     write(*,*) 'nlink = ', nlink
       do i=1,nlink
         icq = int_mb(i_lb+i-1)
         icl = int_mb(i_lb+nlink+i-1)
-c       write(*,*) 'icq = ', icq, 'icl = ', icl
         do k=1,3
           do m=1,nqml
-c         do m=1,nbtot
             icrd = int_mb(i_iqml+m-1)
             if(icq.eq.icrd) rq = dbl_mb(i_rqml+3*(m-1)+k-1)
             if(icl.eq.icrd) rl = dbl_mb(i_rqml+3*(m-1)+k-1)
           end do
-c         write(*,*) 'rq = ', rq
-c         write(*,*) 'rl = ', rl
           rh = rq - (rq-rl)*a
-c         write(*,*) 'rh = ', rh
           c(k,nqm+i) = rh
         end do
-c       write(*,*) 'link coord = ', c(1:3,nqm+i)
         q(nqm+i) = 1.0d0
         atn(nqm+i) = int_mb(i_lnkatn+i-1)
         t(nqm+i) = "H_L"
@@ -989,7 +857,7 @@ c       write(*,*) 'link coord = ', c(1:3,nqm+i)
       pname = "mm_link_ebq_add_grad"
 c     write(*,*) pname
 
-      if(.not.qmlink) return 
+      if(.not.qmlink.or.nlink.eq.0) return 
 
       bq_ncent = nlink 
 
@@ -1012,20 +880,15 @@ c     write(*,*) pname
       call util_convert_units("angstrom","au",scale)
       call dscal(3*bq_ncent, scale,dbl_mb(i_c),1)
 
-c     write(*,*) 'call qmmm_bq_forces'
       call qmmm_bq_forces(rtdb,bq_ncent,
      &                     dbl_mb(i_c),
      &                     dbl_mb(i_lnkchg),
      &                     dbl_mb(i_g))
 
-c     write(*,*) 'update grad'
       do i=1,nlink
         g(1,nqm+i) = g(1,nqm+i) + dbl_mb(i_g+(i-1)*3)
         g(2,nqm+i) = g(2,nqm+i) + dbl_mb(i_g+(i-1)*3+1)
         g(3,nqm+i) = g(3,nqm+i) + dbl_mb(i_g+(i-1)*3+2)
-c       write(*,*) 'f = ', dbl_mb(i_g+(i-1)*3),
-c    &                     dbl_mb(i_g+(i-1)*3+1),
-c    &                     dbl_mb(i_g+(i-1)*3+2)
       end do
 
       if(.not.ma_pop_stack(h_g))
@@ -1034,7 +897,6 @@ c    &                     dbl_mb(i_g+(i-1)*3+2)
       if(.not.ma_pop_stack(h_c))
      & call errquit('mm: Failed to deallocate stack c_all',3*bq_ncent,
      &       MA_ERR)
-
 
       end
 
@@ -1046,7 +908,6 @@ c    &                     dbl_mb(i_g+(i-1)*3+2)
 #include "mm_link_data.fh"
 #include "mm_coords_data.fh"
 #include "mm_bq_data.fh"
-c#include "bq.fh"
       integer rtdb     
  
       logical  bq_ncenter
@@ -1087,32 +948,20 @@ c     ------------------
      >   call errquit(pname//':no bq centers',0,0)
       if(.not.bq_index_coord(bq_handle,i_cbq))
      >   call errquit(pname//':no bq coords',0,0)
-c     if(.not.bq_index_charge(bq_handle,i_qbq))
-c    >   call errquit(pname//':no bq coords',0,0)
 
       call util_convert_units("angstrom","au",scale)
 
-c     write(*,*) 'bq_ncent =', bq_ncent
       do i=1,nlink
         indx_lnk = int_mb(i_lb+nlink+i-1)
         do j=1, bq_ncent
           indx_bq = int_mb(i_ibq+j-1)
           if(indx_bq.eq.indx_lnk) then
-c           write(*,*) 'j = ', j
-c           write(*,*) 'lnk coords before = ', 
-c    &                 dbl_mb(i_cbq+(j-1)*3),
-c    &                 dbl_mb(i_cbq+(j-1)*3+1),
-c    &                 dbl_mb(i_cbq+(j-1)*3+2)
             coord(1) = dbl_mb(i_rqml+(nqm+i-1)*3)*scale
             coord(2) = dbl_mb(i_rqml+(nqm+i-1)*3+1)*scale
             coord(3) = dbl_mb(i_rqml+(nqm+i-1)*3+2)*scale
             dbl_mb(i_cbq+(j-1)*3)   = coord(1)
             dbl_mb(i_cbq+(j-1)*3+1) = coord(2)
             dbl_mb(i_cbq+(j-1)*3+2) = coord(3)
-c           write(*,*) 'lnk coords after = ', 
-c    &                 dbl_mb(i_cbq+(j-1)*3),
-c    &                 dbl_mb(i_cbq+(j-1)*3+1),
-c    &                 dbl_mb(i_cbq+(j-1)*3+2)
             exit
           end if
         end do
@@ -1144,22 +993,13 @@ c     write(*,*) pname
 
       a = 0.709d0
  
-c     write(*,*) 'n=  ',n , 'nlink= ', nlink    
- 
-c     do i=1,n
-c       write(*,*) 'g = ', g(1,i) ,g(2,i), g(3,i)
-c     end do
-      
       do i=1,nlink
         il = 0
         iq = 0
         do j=1,nqml
-c         write(*,*) 'ai = ', ai(j), 'i_lb = ', int_mb(i_lb+i-1),
-c    &    'i_lb+nlink =', int_mb(i_lb+nlink+i-1)
           if(ai(j).eq.int_mb(i_lb+i-1)) iq = j
           if(ai(j).eq.int_mb(i_lb+nlink+i-1)) il = j
         end do
-c       write(*,*) 'iq = ', iq, 'il = ', il
         if(iq.ne.0 .and. il.ne.0) then
           do k=1,3
              gq  = g(k,iq)
@@ -1167,8 +1007,6 @@ c       write(*,*) 'iq = ', iq, 'il = ', il
              g(k,il) = a*gl
              g(k,iq) = gq+(1.0d0-a)*gl
           end do
-c         write(*,*) 'iq = ', iq, 'gq = ',g(1:3,iq)
-c         write(*,*) 'il = ', il, 'gl = ',g(1:3,il)
         end if
       end do
 

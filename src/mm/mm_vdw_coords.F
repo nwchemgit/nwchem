@@ -13,10 +13,6 @@
       integer nvtot0,nvqm0,nvmm0
       integer nv14tot0,nv14qm0,nv14mm0
       character*30 pname     
-c     integer h_advqm,h_advqm14
-c     integer h_advmm,h_advmm14
-c     integer i_advqm,i_advqm14
-c     integer i_advmm,i_advmm14
  
       pname="mm_vdw_coords_init"
 c     write(*,*) pname
@@ -44,9 +40,6 @@ c     write(*,*) pname
 
       call mm_vdw_coords_map(nv14mm0,nmm,log_mb(i_advmm14),
      &   int_mb(i_imm),nvdw14,int_mb(i_ivdw14),int_mb(i_jvdw14))
-
-c     write(*,*) 'nvdwqm = ',nvqm0, 'nvdwmm = ',nvmm0
-c     write(*,*) 'nvdw14qm = ',nv14qm0, 'nvdw14mm = ',nv14mm0
 
       call mm_vdw_coords_allocate(nvqm0,nvmm0)
       call mm_vdw14_coords_allocate(nv14qm0,nv14mm0)
@@ -94,7 +87,6 @@ c     write(*,*) 'nvdw14qm = ',nv14qm0, 'nvdw14mm = ',nv14mm0
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
-c#include "mm_vdw_data.fh"
       integer nvt
       integer nt
       logical addtyp(nt)
@@ -108,13 +100,10 @@ c#include "mm_vdw_data.fh"
       nvt = 0
       addtyp(1:nt) = .false.      
  
-c     write(*,*) 'nt = ', nt
-c     write(*,*) 'nvdw = ', nij
       do i=1,nt
         do j=1,nij
           indx_i = i_i(j)
           indx_j = i_j(j)
-c         write(*,*) 'i j =', indx_i, indx_j, indx_typ(i)
           if(indx_i.eq.indx_typ(i)) then
             if(.not.addtyp(i)) then
               addtyp(i) = .true.
@@ -130,8 +119,6 @@ c         write(*,*) 'i j =', indx_i, indx_j, indx_typ(i)
           end if
         end do
       end do
-
-c     write(*,*) 'nvt = ', nvt    
 
       end
 
@@ -165,7 +152,6 @@ c     write(*,*) 'nvt = ', nvt
       nvtot = nvtot0
       nvqm = nvqm0
       nvmm = nvmm0
-c     write(*,*) 'nvtot =',nvtot, 'nvqm =',nvqm, 'nvmm =', nvmm
       call dfill(3*nvtot,0.0d0,dbl_mb(i_rvdw),1)
       call ifill(nvtot,0.0,int_mb(i_icvdw),1)
 
@@ -206,7 +192,6 @@ c     write(*,*) 'nvtot =',nvtot, 'nvqm =',nvqm, 'nvmm =', nvmm
       nv14tot = nv14tot0
       nv14qm = nv14qm0
       nv14mm = nv14mm0
-c     write(*,*) 'nvtot =',nv14tot, 'nvqm =',nv14qm, 'nvmm =', nv14mm
       call dfill(3*nv14tot,0.0d0,dbl_mb(i_rvdw14),1)
       call dfill(nv14tot,0.0d0,dbl_mb(i_chgmm14),1)
       call ifill(nv14tot,0.0,int_mb(i_icvdw14),1)
@@ -344,8 +329,6 @@ c     write(*,*) 'nvtot =',nv14tot, 'nvqm =',nv14qm, 'nvmm =', nv14mm
           c(3*(nvq+n-1)+3)   = coord(3)
           if(load_mmchg) then
             dbl_mb(i_chgmm14+nvq+n-1) = dbl_mb(i_chgmm+i-1)
-c           write(*,*) 'charge mm14 = ', indx_mm, 
-c    >                  dbl_mb(i_chgmm14+nvq+n-1)
           end if
         end if
         if(n == nvm) exit
@@ -379,10 +362,6 @@ c     call mm_vdw_coords_test(nvt,c,ic)
       character*30 message
       character*30 pname
       double precision scale
-c     logical geom_cart_get1
-c     external geom_cart_get1
-c     logical geom_cart_coords_get
-c     external geom_cart_coords_get
 
 c     local variables
       character*16 t(nqm)
@@ -404,8 +383,6 @@ c     get cart coordinates
 c     --------------------
       status=geom_ncent(geom,nat)
 
-c     write(*,*) 'nat = ', nat
-
       if(.not.ma_push_get(mt_dbl,3*nat,'ctmp',h_ctmp,i_ctmp))
      & call errquit( pname//'Failed to allocate memory for ctmp',
      & 3*nat, MA_ERR)
@@ -413,41 +390,21 @@ c     write(*,*) 'nat = ', nat
       if(.not. geom_cart_coords_get(geom,dbl_mb(i_ctmp))) 
      &    call errquit("mm:geom_cart_coords_get",0,0)
 
-c     if(.not.status) 
-c    & call errquit('cons_init: geom_create?',70, GEOM_ERR)
-c     if(.not.geom_cart_coords_get(geom,dbl_mb(i_rqm)))
-c     if(.not.geom_cart_get1(geom,nqm,t,dbl_mb(i_rqm)))
-c    &    goto 911
-
-
       call util_convert_units("au","angstrom",scale)
-c     call dscal(3*nqm, scale,dbl_mb(i_rqm),1)
       call dscal(3*nact, scale,dbl_mb(i_ctmp),1)
 
-c     do i=1,nqm
       do i=1,nact
-c       iqm = int_mb(i_iqm+i-1)
         iqm = int_mb(i_iact+i-1)
-c       do j=1,nvqm
         do j=1,nvtot
           ivqm = int_mb(i_icvdw+j-1)
           if(ivqm.eq.iqm) then
             dbl_mb(i_rvdw+3*(j-1)) = dbl_mb(i_ctmp+3*(i-1))
             dbl_mb(i_rvdw+3*(j-1)+1) = dbl_mb(i_ctmp+3*(i-1)+1)
             dbl_mb(i_rvdw+3*(j-1)+2) = dbl_mb(i_ctmp+3*(i-1)+2)
-c           dbl_mb(i_rvdw+3*(j-1)) = dbl_mb(i_rqm+3*(i-1))
-c           dbl_mb(i_rvdw+3*(j-1)+1) = dbl_mb(i_rqm+3*(i-1)+1)
-c           dbl_mb(i_rvdw+3*(j-1)+2) = dbl_mb(i_rqm+3*(i-1)+2)
-c           write(*,*) 'vdw updated coords = ', iqm,
-c    &                                     dbl_mb(i_rvdw+3*(j-1)),
-c    &                                     dbl_mb(i_rvdw+3*(j-1)+1) ,
-c    &                                     dbl_mb(i_rvdw+3*(j-1)+2)
           end if
         end do
       end do
  
-c     write(*,*) pname
-
       if(.not.ma_pop_stack(h_ctmp))
      & call errquit('mm: 
      &              Failed to deallocate stack c_tmp',nat,
@@ -483,10 +440,6 @@ c     write(*,*) pname
       character*30 message
       character*30 pname
       double precision scale
-c     logical geom_cart_get1
-c     external geom_cart_get1
-c     logical geom_cart_coords_get
-c     external geom_cart_coords_get
 
 c     local variables
       character*16 t(nqm)
@@ -508,8 +461,6 @@ c     get cart coordinates
 c     --------------------
       status=geom_ncent(geom,nat)
 
-c     write(*,*) 'nat = ', nat
-
       if(.not.ma_push_get(mt_dbl,3*nat,'ctmp',h_ctmp,i_ctmp))
      & call errquit( pname//'Failed to allocate memory for ctmp',
      & 3*nat, MA_ERR)
@@ -517,40 +468,21 @@ c     write(*,*) 'nat = ', nat
       if(.not. geom_cart_coords_get(geom,dbl_mb(i_ctmp))) 
      &    call errquit("mm:geom_cart_coords_get",0,0)
 
-c     if(.not.status) 
-c    & call errquit('cons_init: geom_create?',70, GEOM_ERR)
-c     if(.not.geom_cart_coords_get(geom,dbl_mb(i_rqm)))
-c     if(.not.geom_cart_get1(geom,nqm,t,dbl_mb(i_rqm)))
-c    &    goto 911
-
-
       call util_convert_units("au","angstrom",scale)
-c     call dscal(3*nqm, scale,dbl_mb(i_rqm),1)
       call dscal(3*nact, scale,dbl_mb(i_ctmp),1)
 
-c     do i=1,nqm
       do i=1,nact
-c       iqm = int_mb(i_iqm+i-1)
         iqm = int_mb(i_iact+i-1)
-c       do j=1,nv14qm
         do j=1,nv14tot
           ivqm = int_mb(i_icvdw14+j-1)
           if(ivqm.eq.iqm) then
             dbl_mb(i_rvdw14+3*(j-1)) = dbl_mb(i_ctmp+3*(i-1))
             dbl_mb(i_rvdw14+3*(j-1)+1) = dbl_mb(i_ctmp+3*(i-1)+1)
             dbl_mb(i_rvdw14+3*(j-1)+2) = dbl_mb(i_ctmp+3*(i-1)+2)
-c           dbl_mb(i_rvdw+3*(j-1)) = dbl_mb(i_rqm+3*(i-1))
-c           dbl_mb(i_rvdw+3*(j-1)+1) = dbl_mb(i_rqm+3*(i-1)+1)
-c           dbl_mb(i_rvdw+3*(j-1)+2) = dbl_mb(i_rqm+3*(i-1)+2)
-c           write(*,*) 'rvdw14 = ', dbl_mb(i_rvdw14+3*(j-1)),
-c    &                 dbl_mb(i_rvdw14+3*(j-1)+1) ,
-c    &                 dbl_mb(i_rvdw14+3*(j-1)+2)
           end if
         end do
       end do
  
-c     write(*,*) pname
-
       if(.not.ma_pop_stack(h_ctmp))
      & call errquit('mm: 
      &              Failed to deallocate stack c_tmp',nat,
@@ -575,11 +507,8 @@ c     write(*,*) pname
       integer ic(nvt)
 
       integer i,j
-c     write(*,*) 'nvtot = ', nvt
       do i=1,nvt
-c        write(6,'(16A1,1X,3(1X,F10.6),I5)') 
          write(6,'(1X,3(1X,F10.6),I5)') 
-c    $        (byte_mb(i_bt+16*(i-1)+j),j=0,15),
      $        (c(3*(i-1)+j),j=1,3),
      $        ic(i)
       end do

@@ -27,35 +27,15 @@
 
       pname = "mm_bndparm_load"
 c     write(*,*) pname
-c     filename = "nwchem.bndparms"
-c     if(.not.rtdb_cget(rtdb,"mm:bndparm",1,filename))
-c    & goto 911
-c     write(*,*) "filename in mm_bndparm_init= ", filename
 
 c     deallocate all previous allocated arrays just in case
       call mm_bonded_deallocate()
           
-c     call mm_open_file(filename,fn)
-
-c     call inp_init(fn,LuOut)
-c     nb = 0
-c     na = 0
-c     nd = 0
-      
       call mm_get_nbon(rtdb,nb)
       call mm_get_nang(rtdb,na)
       call mm_get_ndih(rtdb,nd)
 
-c     do 
-c       if(.not.inp_read()) exit
-c       if(inp_n_field().eq.4) nb = nb + 1
-c       if(inp_n_field().eq.5) na = na + 1
-c       if(inp_n_field().eq.7) nd = nd + 1
-c     end do     
-c     rewind(fn)
-c     call inp_init(LuIn,LuOut)
 c     write(*,*) 'nbon = ', nb, 'nang = ', na, 'ndih = ', nd
-
 
       if(nb.gt.0) call mm_bond_allocate(nb)
       if(na.gt.0) call mm_angl_allocate(na)
@@ -68,54 +48,9 @@ c     write(*,*) 'nbon = ', nb, 'nang = ', na, 'ndih = ', nd
 c     call mm_bond_test()
 c     call mm_angl_test()
 c     call mm_dihe_test()
-c     loading parameters
-c      call inp_init(fn,LuOut)
-c      nb = 0
-c      na = 0
-c      nd = 0
-c10    continue
-c     if (.not.inp_read()) goto 30
-c     message = "checking for number of fields"
-c     if(inp_n_field().eq.4) then
-c       message = "checking for nbon bounds"
-c       if(nb.gt.nbon) goto 911
-c       nb = nb + 1
-c       if(.not.inp_i(int_mb(i_ibon+nb-1))) goto 911 
-c       if(.not.inp_i(int_mb(i_jbon+nb-1))) goto 911 
-c       if(.not.inp_f(dbl_mb(i_kb+nb-1)))   goto 911 
-c       if(.not.inp_f(dbl_mb(i_rb+nb-1)))   goto 911
-c       goto 10 
-c     else if(inp_n_field().eq.5) then
-c       message = "checking for nang bounds"
-c       if(na.gt.nang) goto 911
-c       na = na + 1
-c       if(.not.inp_i(int_mb(i_iang+na-1))) goto 911 
-c       if(.not.inp_i(int_mb(i_jang+na-1))) goto 911 
-c       if(.not.inp_i(int_mb(i_kang+na-1))) goto 911 
-c       if(.not.inp_f(dbl_mb(i_kthe+na-1))) goto 911 
-c       if(.not.inp_f(dbl_mb(i_thet+na-1))) goto 911 
-c       goto 10 
-c     else if(inp_n_field().eq.7) then
-c       message = "checking for ndih bounds"
-c       if(nd.gt.ndih) goto 911
-c       nd = nd + 1
-c       if(.not.inp_i(int_mb(i_idih+nd-1))) goto 911 
-c       if(.not.inp_i(int_mb(i_jdih+nd-1))) goto 911 
-c       if(.not.inp_i(int_mb(i_kdih+nd-1))) goto 911 
-c       if(.not.inp_i(int_mb(i_ldih+nd-1))) goto 911 
-c       if(.not.inp_f(dbl_mb(i_kphi+nd-1))) goto 911 
-c       if(.not.inp_f(dbl_mb(i_peri+nd-1))) goto 911 
-c       if(.not.inp_f(dbl_mb(i_phas+nd-1))) goto 911 
-c       goto 10 
-c     else
-c       goto 911
-c     end if
-c30    continue
-c     close(fn)
-
-c     call inp_init(LuIn,LuOut)
 
       return
+
 911   call errquit("error "//trim(message),0,
      >        -1)
       end
@@ -142,7 +77,6 @@ c     call inp_init(LuIn,LuOut)
    
       if(.not.rtdb_cget(rtdb,"mm:crdparms:load",1,filename))
      & goto 911
-c     write(*,*) "filename in mm_get_nbon= ", filename
 
       call mm_open_file(filename,fn)
       
@@ -199,7 +133,6 @@ c     write(*,*) "filename in mm_get_nbon= ", filename
    
       if(.not.rtdb_cget(rtdb,"mm:crdparms:load",1,filename))
      & goto 911
-c     write(*,*) "filename in mm_get_nang= ", filename
 
       call mm_open_file(filename,fn)
       
@@ -256,7 +189,6 @@ c     write(*,*) "filename in mm_get_nang= ", filename
    
       if(.not.rtdb_cget(rtdb,"mm:crdparms:load",1,filename))
      & goto 911
-c     write(*,*) "filename in mm_get_ndih= ", filename
 
       call mm_open_file(filename,fn)
       
@@ -313,7 +245,6 @@ c     write(*,*) "filename in mm_get_ndih= ", filename
    
       if(.not.rtdb_cget(rtdb,"mm:crdparms:load",1,filename))
      & goto 911
-c     write(*,*) "filename in mm_bond_parm_load= ", filename
 
       call mm_open_file(filename,fn)
       
@@ -376,7 +307,6 @@ c     write(*,*) "filename in mm_bond_parm_load= ", filename
    
       if(.not.rtdb_cget(rtdb,"mm:crdparms:load",1,filename))
      & goto 911
-c     write(*,*) "filename in mm_angle_parm_load= ", filename
 
       call mm_open_file(filename,fn)
       
@@ -440,7 +370,6 @@ c     write(*,*) "filename in mm_angle_parm_load= ", filename
    
       if(.not.rtdb_cget(rtdb,"mm:crdparms:load",1,filename))
      & goto 911
-c     write(*,*) "filename in mm_angle_parm_load= ", filename
 
       call mm_open_file(filename,fn)
       
@@ -502,7 +431,6 @@ c     write(*,*) "filename in mm_angle_parm_load= ", filename
       if(n.ne.nbon) then
         call mm_bond_end()
         nbon = n
-c       write(*,*) "allocating bond data" 
  
         if (.not. ma_alloc_get(MT_INT, nbon,
      &       'bond scratch i',
@@ -555,7 +483,6 @@ c       write(*,*) "allocating bond data"
       if(n.ne.nang) then
         call mm_angl_end()
         nang = n
-c       write(*,*) "allocating angle data" 
  
         if (.not. ma_alloc_get(MT_INT, nang,
      &       'angle scratch i',
@@ -614,7 +541,6 @@ c       write(*,*) "allocating angle data"
       if(n.ne.ndih) then
         call mm_dihe_end()
         ndih = n
-c       write(*,*) "allocating dihedral data" 
  
         if (.not. ma_alloc_get(MT_INT, ndih,
      &       'dihedral scratch i',
@@ -882,7 +808,6 @@ c     write(*,*) pname
       pname = "mm_bond_add_egrad"
 c     write(*,*) pname 
 
-c     if ( .not. ma_push_get( MT_DBL, 3*nqm, 
       if ( .not. ma_push_get( MT_DBL, 3*n, 
      &      'bond grad scratch ',
      &      h_g, i_g) ) call errquit(
@@ -890,9 +815,7 @@ c     if ( .not. ma_push_get( MT_DBL, 3*nqm,
      &      nqm, MA_ERR)
 
       call dfill(3*n,0.0d0,dbl_mb(i_g),1)
-c     call dfill(3*nqm,0.0d0,dbl_mb(i_g),1)
             
-c     call mm_bond_egrad(nqm,nbtot,dbl_mb(i_br),log_mb(i_lqm),
       call mm_bond_egrad(n,nbtot,dbl_mb(i_br),log_mb(i_lqm),
      &                   int_mb(i_indx),nbon,int_mb(i_ibon),
      &                   int_mb(i_jbon),dbl_mb(i_kb),
@@ -905,27 +828,7 @@ c     call mm_bond_egrad(nqm,nbtot,dbl_mb(i_br),log_mb(i_lqm),
       e = e + ebon
       scale_force = scale_energy/scale_length      
 
-c     call daxpy(3*nqm,scale_force,dbl_mb(i_g),1,g,1)
       call daxpy(3*n,scale_force,dbl_mb(i_g),1,g,1)
-
-c     write(6,1000) "MM/DIHEDRAL",
-c    $     'x','y','z','x','y','z'
-c     do i = 1, nqm
-c        write(6,2000) i, byte_mb(i_t+16*(i-1)),
-c    $        (dbl_mb(i_r+3*(i-1)+j),j=0,2),
-c    $        (scale_force*dbl_mb(i_g +3*(i-1)+j),j=0,2)
-c     enddo
-c     write(6,*)
-
-
-c     write(6,1000) "QM + MM/VDW",
-c    $     'x','y','z','x','y','z'
-c     do i = 1, nqm
-c        write(6,2000) i, byte_mb(i_t+16*(i-1)),
-c    $        (dbl_mb(i_r+3*(i-1)+j),j=0,2),
-c     $        (g(j,i),j=1,3)
-c    $        g(1,i),g(2,i),g(3,i)
-c     enddo
 
       message = "memory deallocation"
       if(.not.ma_pop_stack(h_g)) goto 911
@@ -954,7 +857,6 @@ c     enddo
       integer jbon(nbon)
       double precision kb(nbon)
       double precision rb(nbon)
-c     integer ng
       double precision ebon
 
       character*16 tag
@@ -973,8 +875,6 @@ c     integer ng
       pname = "mm_bond_energy"
 c     write(*,*) pname
       
-c     write(*,*) 'ng= ',ng
-c     write(*,*) 'nbtot= ',nbtot
       ebon = 0.0d0
       i1 = 0 
       i2 = 0
@@ -984,12 +884,9 @@ c     write(*,*) 'nbtot= ',nbtot
         j_indx = jbon(n)
 c       first obtain indx i1, i2 in bond coord array
         do m=1,nbtot
-c         write(*,*) 'i_indx=', i_indx, 'j_indx=', j_indx, 
-c    &    'indx =', indx(m)
           if(i_indx.eq.indx(m)) i1 = m
           if(j_indx.eq.indx(m)) i2 = m
         end do
-
 
 c       Now doing energy and grad calculations
         message = "checking bounds for bond"
@@ -997,10 +894,6 @@ c       Now doing energy and grad calculations
 c         write(*,*) i1,i2
           goto 911
         end if
-c       write(*,*) 'MM coords = ', br(1:3,i2)
-c       write(*,*) 'QM coords = ', br(1:3,i1)
-c       write(*,*) 'rb = ', rb(n)
-c       write(*,*) 'kb = ', kb(n)
 
         xij = br(1,i2) - br(1,i1)
         yij = br(2,i2) - br(2,i1)
@@ -1009,14 +902,9 @@ c       write(*,*) 'kb = ', kb(n)
         rr = xij*xij + yij*yij + zij*zij
         rr = sqrt(rr)
           
-c       write(*,*) 'rr = ', rr
-
         da = rr - rb(n)
-c       write(*,*) 'da = ', da
         de = kb(n)*da
-c       write(*,*) 'de = ', de
         e_bon = de*da
-c       write(*,*) 'e_bon = ', e_bon
         ebon = ebon + e_bon
       end do
        
@@ -1047,7 +935,6 @@ c     write(*,*) 'ebon = ', ebon, ' kcal/mol'
       integer jbon(nbon)
       double precision kb(nbon)
       double precision rb(nbon)
-c     integer ng
       double precision ebon
       double precision g(3,ng)
 
@@ -1067,9 +954,6 @@ c     integer ng
       pname = "mm_bond_egrad"
 c     write(*,*) pname
       
-c     write(*,*) 'nbon = ', nbon      
-c     write(*,*) 'ng= ',ng
-c     write(*,*) 'nbtot= ',nbtot
       ebon = 0.0d0
 
       do n=1,nbon
@@ -1079,8 +963,6 @@ c     write(*,*) 'nbtot= ',nbtot
         i2 = 0
 c       first obtain indx i1, i2 in bond coord array
         do m=1,nbtot
-c         write(*,*) 'i_indx=', i_indx, 'j_indx=', j_indx, 
-c    &    'indx =', indx(m)
           if(i_indx.eq.indx(m)) i1 = m
           if(j_indx.eq.indx(m)) i2 = m
         end do
@@ -1091,10 +973,6 @@ c       Now doing energy and grad calculations
 c         write(*,*) i1,i2
           goto 911
         end if
-c       write(*,*) 'MM coords = ', br(1:3,i2)
-c       write(*,*) 'QM coords = ', br(1:3,i1)
-c       write(*,*) 'rb = ', rb(n)
-c       write(*,*) 'kb = ', kb(n)
 
         xij = br(1,i2) - br(1,i1)
         yij = br(2,i2) - br(2,i1)
@@ -1103,34 +981,24 @@ c       write(*,*) 'kb = ', kb(n)
         rr = xij*xij + yij*yij + zij*zij
         rr = sqrt(rr)
           
-c       write(*,*) 'rr = ', rr
-
         da = rr - rb(n)
-c       write(*,*) 'da = ', da
         de = kb(n)*da
-c       write(*,*) 'de = ', de
         e_bon = de*da
-c       write(*,*) 'e_bon = ', e_bon
         ebon = ebon + e_bon
         
         df = (de+de)/rr
 
-c       write(*,*) 'ebon = ', ebon
-c       do i=1,ng
         do i=1,nact
-c         iqm = int_mb(i_iqm+i-1)
           iqm = int_mb(i_iact+i-1)
           if(iqm.eq.i_indx) then
             g(1,i) = g(1,i) - df*xij     
             g(2,i) = g(2,i) - df*yij     
             g(3,i) = g(3,i) - df*zij
-c           write(*,*) 'bond grad= ', df*xij, df*yij, df*zij
           end if
           if(iqm.eq.j_indx) then
             g(1,i) = g(1,i) + df*xij     
             g(2,i) = g(2,i) + df*yij     
             g(3,i) = g(3,i) + df*zij
-c           write(*,*) 'bond grad= ', df*xij, df*yij, df*zij
           end if
         end do     
       end do
@@ -1210,19 +1078,15 @@ c     write(*,*) pname
 
       pname = "mm_ang_add_egrad"
 c     write(*,*) pname
-c     write(*,*) 'n = ', n      
 
       if ( .not. ma_push_get( MT_DBL, 3*n, 
-c     if ( .not. ma_push_get( MT_DBL, 3*nqm, 
      &      'angl grad scratch ',
      &      h_g, i_g) ) call errquit(
      &      'failed scratch space ',
      &      nqm, MA_ERR)
 
       call dfill(3*n,0.0d0,dbl_mb(i_g),1)
-c     call dfill(3*nqm,0.0d0,dbl_mb(i_g),1)
             
-c     call mm_angl_egrad(nqm,nbtot,dbl_mb(i_br),log_mb(i_lqm), 
       call mm_angl_egrad(n,nbtot,dbl_mb(i_br),log_mb(i_lqm), 
      &                   int_mb(i_indx),nang,int_mb(i_iang),
      &                   int_mb(i_jang),int_mb(i_kang),
@@ -1236,7 +1100,6 @@ c     call mm_angl_egrad(nqm,nbtot,dbl_mb(i_br),log_mb(i_lqm),
       e = e + eang
       scale_force = scale_energy/scale_length      
 
-c     call daxpy(3*nqm,scale_force,dbl_mb(i_g),1,g,1)
       call daxpy(3*n,scale_force,dbl_mb(i_g),1,g,1)
 
       message = "memory deallocation"
@@ -1286,15 +1149,12 @@ c     call daxpy(3*nqm,scale_force,dbl_mb(i_g),1,g,1)
       double precision sth
       double precision cii, cik, ckk
       double precision dt1,dt2,dt3,dt4,dt5,dt6,dt7,dt8,dt9
-c     double precision scale_length
     
       data pt999 /0.9990d0/
 
       pname = "mm_angl_energy"
 c     write(*,*) pname
         
-c     call util_convert_units("ang","nm",scale_length)
-
       eang = 0.0d0
       do n=1,nang
         i_indx = iang(n)
@@ -1306,7 +1166,6 @@ c     call util_convert_units("ang","nm",scale_length)
           if(j_indx.eq.indx(m)) i2 = m
           if(k_indx.eq.indx(m)) i3 = m
         end do
-c       write(*,*) 'i1 = ', i1, 'i2 = ', i2, 'i3 = ', i3
 
         xij = br(1,i1) - br(1,i2)
         yij = br(2,i1) - br(2,i2)
@@ -1319,20 +1178,15 @@ c       write(*,*) 'i1 = ', i1, 'i2 = ', i2, 'i3 = ', i3
         rkj = xkj**2 + ykj**2 + zkj**2      
         rik = sqrt(rij*rkj)
         ct0 = (xij*xkj+yij*ykj+zij*zkj)/rik
-c       write(*,*) 'cphi =', ct0
-c       if(ct0.lt.-1.0d0) ct2 = -1.0d0
-c       if(ct0.gt.1.0d0) ct2 = 1.0d0
         ct1 = max(-pt999,ct0)
         ct2 = min(pt999,ct1)
         cst = ct2
         ant = acos(ct2)
-c       write(*,*) 'phi= ', ant     
 
         da = ant - thet(n)
         de = kthe(n)*da
         e_ang = de*da
         eang = eang + e_ang
-c       write(*,*) "e_ang =", e_ang
       end do
  
 c     write(*,*) 'eang = ', eang, ' kcal/mol'
@@ -1381,11 +1235,8 @@ c     write(*,*) 'eang = ', eang, ' kcal/mol'
       double precision sth
       double precision cii, cik, ckk
       double precision dt1,dt2,dt3,dt4,dt5,dt6,dt7,dt8,dt9
-c     double precision small
       double precision sphi     
-c     double precision scale_length  
     
-c     parameter (small = 1.0d-6)
       data pt999 /0.9990d0/
 
       pname = "mm_angl_egrad"
@@ -1393,10 +1244,7 @@ c     write(*,*) pname
       
       eang = 0.0d0
       
-c     write(*,*) 'nang = ', nang       
-
       do n=1,nang
-c       write(*,*) 'n = ', n
         i_indx = iang(n)
         j_indx = jang(n)
         k_indx = kang(n)
@@ -1406,7 +1254,6 @@ c       write(*,*) 'n = ', n
           if(j_indx.eq.indx(m)) i2 = m
           if(k_indx.eq.indx(m)) i3 = m
         end do
-c       write(*,*) 'i1 = ', i1, 'i2 = ', i2, 'i3 = ', i3
 
         xij = br(1,i1) - br(1,i2)
         yij = br(2,i1) - br(2,i2)
@@ -1419,25 +1266,20 @@ c       write(*,*) 'i1 = ', i1, 'i2 = ', i2, 'i3 = ', i3
         rkj = xkj**2 + ykj**2 + zkj**2      
         rik = sqrt(rij*rkj)
         ct0 = (xij*xkj+yij*ykj+zij*zkj)/rik
-c       if(ct0.lt.-1.0d0) ct2 = -1.0d0
-c       if(ct0.gt.1.0d0) ct2 = 1.0d0
         ct1 = max(-pt999,ct0)
         ct2 = min(pt999,ct1)
         cst = ct2
         ant = acos(ct2)
-c       write(*,*) 'phi= ', ant     
      
         da = ant - thet(n)
         de = kthe(n)*da
         e_ang = de*da
         eang = eang + e_ang
-c       write(*,*) 'e_ang = ', e_ang
-C     doing gradients and add to QM atoms
+
+C       doing gradients and add to QM atoms
 C       
         sphi = sin(ant)
-c       if(abs(sphi).lt.small) sphi=small   
         df = -(de+de)/sphi
-c       df = -(de+de)/sin(ant)
         sth = df*cst
         cik = df/rik
         cii = sth/rij
@@ -1452,27 +1294,22 @@ c       df = -(de+de)/sin(ant)
         dt5 = -dt2-dt8
         dt6 = -dt3-dt9
 
-c       do i=1,ng
         do i=1,nact
-c         iqm = int_mb(i_iqm+i-1)
           iqm = int_mb(i_iact+i-1)
           if(i_indx.eq.iqm) then        
             g(1,i) = g(1,i) + dt1
             g(2,i) = g(2,i) + dt2
             g(3,i) = g(3,i) + dt3
-c           write(*,*) 'angl grad= ',i_indx, dt1, dt2, dt3
           end if
           if(j_indx.eq.iqm) then        
             g(1,i) = g(1,i) + dt4
             g(2,i) = g(2,i) + dt5
             g(3,i) = g(3,i) + dt6
-c           write(*,*) 'angl grad= ',j_indx, dt4, dt5, dt6
           end if
           if(k_indx.eq.iqm) then        
             g(1,i) = g(1,i) + dt7
             g(2,i) = g(2,i) + dt8
             g(3,i) = g(3,i) + dt9
-c           write(*,*) 'angl grad= ',k_indx, dt7, dt8, dt9
           end if
         end do
       end do
@@ -1552,7 +1389,6 @@ c     write(*,*) pname
       pname = "mm_dihe_add_egrad"
 c     write(*,*) pname
  
-c     if ( .not. ma_push_get( MT_DBL, 3*nqm, 
       if ( .not. ma_push_get( MT_DBL, 3*n, 
      &      'dih grad scratch ',
      &      h_g, i_g) ) call errquit(
@@ -1560,9 +1396,7 @@ c     if ( .not. ma_push_get( MT_DBL, 3*nqm,
      &      nqm, MA_ERR)
 
       call dfill(3*n,0.0d0,dbl_mb(i_g),1)
-c     call dfill(3*nqm,0.0d0,dbl_mb(i_g),1)
             
-c     call mm_dihe_egrad(nqm,nbtot,dbl_mb(i_br),log_mb(i_lqm), 
       call mm_dihe_egrad(n,nbtot,dbl_mb(i_br),log_mb(i_lqm), 
      &                   int_mb(i_indx),ndih,int_mb(i_idih),
      &                   int_mb(i_jdih),int_mb(i_kdih),
@@ -1578,7 +1412,6 @@ c     call mm_dihe_egrad(nqm,nbtot,dbl_mb(i_br),log_mb(i_lqm),
       scale_force = scale_energy/scale_length      
 
       call daxpy(3*n,scale_force,dbl_mb(i_g),1,g,1)
-c     call daxpy(3*nqm,scale_force,dbl_mb(i_g),1,g,1)
 
       message = "memory deallocation"
       if(.not.ma_pop_stack(h_g)) goto 911
@@ -1671,9 +1504,6 @@ c     write(*,*) pname
           if(k_indx.eq.indx(m)) i3 = m
           if(l_indx.eq.indx(m)) i4 = m
         end do
-c       write(*,*) 'i = ', i_indx, 'j = ', j_indx, 'k = ', k_indx, 
-c    &             'l = ', l_indx
-c       write(*,*) 'i1 = ', i1, 'i2 = ', i2, 'i3 = ', i3, 'i4 = ', i4
         
         xij = br(1,i1)-br(1,i2)
         yij = br(2,i1)-br(2,i2)
@@ -1803,11 +1633,9 @@ c     write(*,*) 'edih = ', edih, ' kcal/mol'
 
       pname = "mm_dihe_egrad"
 c     write(*,*) pname
-c     write(*,*) 'ndih = ', ndih
 
       edih = 0.0d0
       do n=1,ndih
-c       write(*,*) 'n = ', n
         i_indx = idih(n)
         j_indx = jdih(n)
         k_indx = kdih(n)
@@ -1819,9 +1647,6 @@ c       write(*,*) 'n = ', n
           if(k_indx.eq.indx(m)) i3 = m
           if(l_indx.eq.indx(m)) i4 = m
         end do
-c       write(*,*) 'i = ', i_indx, 'j = ', j_indx, 'k = ', k_indx, 
-c    &             'l = ', l_indx
-c       write(*,*) 'i1 = ', i1, 'i2 = ', i2, 'i3 = ', i3, 'i4 = ', i4
         
         xij = br(1,i1)-br(1,i2)
         yij = br(2,i1)-br(2,i2)
@@ -1873,7 +1698,7 @@ c       write(*,*) 'i1 = ', i1, 'i2 = ', i2, 'i3 = ', i3, 'i4 = ', i4
      &                   sinnp*kphi(n)*sin(phas(n)))*fzi
 
         edih = edih + e_dih
-c       write(*,*) 'e_dih =', e_dih
+
 C       doing gradients and add to qm atoms    
 C
         inc = int(peri(n))
@@ -1921,39 +1746,27 @@ C
         fyl = - dr5
         fzl = - dr6
       
-c       write(*,*) 'n = ', n
-c       write(*,*) 'f_i = ', fxi, fyi, fzi
-c       write(*,*) 'f_j = ', fxj, fyj, fzj
-c       write(*,*) 'f_k = ', fxk, fyk, fzk
-c       write(*,*) 'f_l = ', fxl, fyl, fzl
-
-c       do i=1,ng
         do i=1,nact
-c         iqm = int_mb(i_iqm+i-1)
           iqm = int_mb(i_iact+i-1)
           if(i_indx.eq.iqm) then
             g(1,i) = g(1,i) - fxi
             g(2,i) = g(2,i) - fyi
             g(3,i) = g(3,i) - fzi
-c           write(*,*) 'dih grad= ', i_indx,fxi, fyi, fzi
           end if
           if(j_indx.eq.iqm) then
             g(1,i) = g(1,i) - fxj
             g(2,i) = g(2,i) - fyj
             g(3,i) = g(3,i) - fzj
-c           write(*,*) 'dih grad= ', j_indx,fxj, fyj, fzj
           end if 
           if(k_indx.eq.iqm) then
             g(1,i) = g(1,i) - fxk
             g(2,i) = g(2,i) - fyk
             g(3,i) = g(3,i) - fzk
-c           write(*,*) 'dih grad= ', k_indx,fxk, fyk, fzk
           end if
           if(l_indx.eq.iqm) then
             g(1,i) = g(1,i) - fxl
             g(2,i) = g(2,i) - fyl
             g(3,i) = g(3,i) - fzl
-c           write(*,*) 'dih grad= ', l_indx,fxl, fyl, fzl
           end if
         end do
          

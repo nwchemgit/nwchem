@@ -29,61 +29,24 @@
       character*2  tag
       double precision  coords(3)
       integer indx
-c     integer nqm, nmm
       integer nbqm0, nbmm0
-c     integer h_addqm, h_addmm
-c     integer i_addqm, i_addmm
  
       pname = "mm_bond_coords_init"   
             
-c     filename = "bndcoords.xyz"
-
-c     call mm_open_file(filename,fn)
-c     
-c     nqm = 0
-c     nmm = 0
-c 
-c     call inp_init(fn,LuOut)
-c     do
-c       if(.not.inp_read()) exit
-c       if(inp_n_field().eq.6) then
-c         message = "loading bondcoords from file"
-c         if(.not.inp_a(card)) goto 911
-c         if(.not.inp_f(coords(1))) goto 911
-c         if(.not.inp_f(coords(2))) goto 911
-c         if(.not.inp_f(coords(3))) goto 911
-c         if(.not.inp_i(indx)) goto 911
-c         if(.not.inp_a(tag)) goto 911
-c         if(inp_compare(.false.,tag,"QM")) nqm = nqm + 1 
-c         if(inp_compare(.false.,tag,"MM")) nmm = nmm + 1 
-c       end if
-c     end do
-c     close(fn)
-
 c     deallocate all previous allocated arrays just in case
       call mm_bond_coords_end()
 
-c     call inp_init(LuIn,LuOut)
       if(.not.ma_alloc_get(MT_LOG,nqm,"add qm to bond list",
      &         h_addqm,i_addqm))  goto 911
 
-c     if(.not.ma_alloc_get(MT_INT,nqm,"qm bonded indx",h_ibqm,i_ibqm))  
-c    &       goto 911
-
       if(.not.ma_alloc_get(MT_LOG,nmm,"add mm to bond list",
      &         h_addmm,i_addmm))  goto 911
-
-c     if(.not.ma_alloc_get(MT_INT,nmm,"mm bonded indx",h_ibmm,i_ibmm))  
-c    &       goto 911
 
       call mm_bond_coords_map(nbqm0,nqm,log_mb(i_addqm),
      &     int_mb(i_iqm))
 
       call mm_bond_coords_map(nbmm0,nmm,log_mb(i_addmm),
      &     int_mb(i_imm))
-
-c     write(*,*) 'nb_qm = ',nbqm0, 'nb_mm = ',nbmm0
-
 
       call mm_bond_coords_allocate(nbqm0,nbmm0)
       call mm_bond_coords_load()
@@ -213,11 +176,8 @@ c     loop over ndih
         end do
       end do
        
-c     write(*,*) 'nbond type = ', nb    
-
       end
  
-
       subroutine mm_bond_coords_allocate(nbqm0,nbmm0)
       implicit none
 #include "errquit.fh"
@@ -276,13 +236,9 @@ c
 c
       if(nbtot.gt.0) then
           if (.not.ma_free_heap(h_bt))   goto 911
-c         write(*,*) 'done free bt'
           if (.not.ma_free_heap(h_br))   goto 911
-c         write(*,*) 'done free br'
           if (.not.ma_free_heap(h_indx)) goto 911
-c         write(*,*) 'done free indx'
           if (.not.ma_free_heap(h_lqm)) goto 911
-c         write(*,*) 'done free lqm'
           nbtot = 0
           nbqm  = 0
           nbmm = 0
@@ -317,33 +273,6 @@ c         write(*,*) 'done free lqm'
 
       pname = "mm_bond_coords_load"
       
-
-c     filename = "bndcoords.xyz"
-
-c     n = 0
-
-c     call mm_open_file(filename,fn)
-c     call inp_init(fn,LuOut)
-c     
-c     write(*,*) pname
-c     do 
-c       if(.not.inp_read()) exit
-c       if(inp_n_field().eq.6) then
-c         n = n + 1
-c         if(.not.inp_a(card)) goto 911
-c         write(*,*) 'passed reading card'
-c         if(.not.inp_f(dbl_mb(i_br+(n-1)*3)))   goto 911
-c         if(.not.inp_f(dbl_mb(i_br+(n-1)*3+1))) goto 911
-c         if(.not.inp_f(dbl_mb(i_br+(n-1)*3+2))) goto 911
-c         if(.not.inp_i(int_mb(i_indx+n-1)))     goto 911
-c         write(*,*) 'passed reading indx'
-c       end if
-c     end do
-c     close(fn)
-c     call inp_init(LuIn,LuOut)
-c    
-c     call mm_coords_tags_set(nbqm,"QM",byte_mb(i_bt))
-c     call mm_coords_tags_set(nbmm,"MM",byte_mb(i_btmm))
       i_btmm = i_bt+16*nbqm
 
       log_mb(i_lqm:i_lqm+nbtot-1) = .false.
@@ -386,8 +315,8 @@ c     call mm_coords_tags_set(nbmm,"MM",byte_mb(i_btmm))
 
       call mm_coords_tags_set(nbqm,"QM",byte_mb(i_bt))
       call mm_coords_tags_set(nbmm,"MM",byte_mb(i_btmm))
-
 c     call mm_bond_coords_test()
+
       return
 911   call errquit("error "//trim(pname),0,
      >        -1)
@@ -432,8 +361,6 @@ c     get cart coordinates
 c     --------------------
       status=geom_ncent(geom,nat)
 
-c     write(*,*) 'nat = ', nat
-
       if(.not.ma_push_get(mt_dbl,3*nat,'ctmp',h_ctmp,i_ctmp))
      & call errquit( pname//'Failed to allocate memory for ctmp',
      & 3*nat, MA_ERR)
@@ -442,33 +369,21 @@ c     write(*,*) 'nat = ', nat
      &    call errquit("mm:geom_cart_coords_get",0,0)
 
       call util_convert_units("au","angstrom",scale)
-c     call dscal(3*nqm, scale,dbl_mb(i_ctmp),1)
       call dscal(3*nat, scale,dbl_mb(i_ctmp),1)
   
       
-c     do i=1,nat
-c       write(*,*) (dbl_mb(i_ctmp+3*(i-1)+j), j=0,2)
-c     end do
-      
-c     write(*,*) "start loop"
-c     do i=1,nqm
       do i=1,nact
-c       iqm = int_mb(i_iqm+i-1)
         iqm = int_mb(i_iact+i-1)
-c       do j=1,nbqm
         do j=1,nbtot
           ibqm = int_mb(i_indx+j-1)
           if(ibqm.eq.iqm) then
             dbl_mb(i_br+3*(j-1)) = dbl_mb(i_ctmp+3*(i-1))
             dbl_mb(i_br+3*(j-1)+1) = dbl_mb(i_ctmp+3*(i-1)+1)
             dbl_mb(i_br+3*(j-1)+2) = dbl_mb(i_ctmp+3*(i-1)+2)
-c           write(*,*) 'bond coord = ', dbl_mb(i_br+3*(j-1)),
-c    &                                  dbl_mb(i_br+3*(j-1)+1) ,
-c    &                                  dbl_mb(i_br+3*(j-1)+2)
           end if
         end do
       end do
-c     write(*,*) 'end loop'
+
       if(.not.ma_pop_stack(h_ctmp))
      & call errquit('mm: 
      &              Failed to deallocate stack c_tmp',nat,
@@ -489,10 +404,9 @@ c     write(*,*) 'end loop'
 #include "mafdecls.fh"
 
       integer i,j
-c     write(*,*) 'no. bonded coords total = ', nbtot
+
       do i=1,nbtot
          write(6,'(16A1,1X,3(1X,F10.6),I5)') 
-c        write(6,'(1X,3(1X,F10.6),I5)') 
      $        (byte_mb(i_bt+16*(i-1)+j),j=0,15),
      $        (dbl_mb(i_br+3*(i-1)+j),j=0,2),
      $        (int_mb(i_indx+i-1))

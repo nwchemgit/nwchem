@@ -32,7 +32,7 @@ c     integer i_g,i_ifg
 
       master = 0
 c
-      if (.not. rtdb_get(irtdb,'mm:n_spring',mt_int,1,ns))
+      if (.not. rtdb_get(irtdb,'qmmm:n_spring',mt_int,1,ns))
      $     ns = 0
 
       if(ns.eq.0) return
@@ -45,35 +45,35 @@ c    + write(*,*) "in",pname
 
 c     nfg = qmmm_geom_get_nfg()
 
-      if(.not.ma_alloc_get(mt_int,2*ns,'mm rcons ind',h_is,i_is))
+      if(.not.ma_alloc_get(mt_int,2*ns,'qmmm rcons ind',h_is,i_is))
      + call errquit(pname//'Failed to allocate memory for is',
      + 2*ns, MA_ERR)
 
-      if(.not.ma_alloc_get(mt_dbl,ns,'mm rcons r',h_rs,i_rs))
+      if(.not.ma_alloc_get(mt_dbl,ns,'qmmm rcons r',h_rs,i_rs))
      + call errquit(pname//'Failed to allocate memory for rs',
      + ns, MA_ERR)
         call dfill(ns,0.0d0,dbl_mb(i_rs),1)
 
-      if(.not.ma_alloc_get(mt_dbl,ns,'mm rcons coeff',h_as,i_as))
+      if(.not.ma_alloc_get(mt_dbl,ns,'qmmm rcons coeff',h_as,i_as))
      + call errquit(pname//'Failed to allocate memory for as',
      + ns, MA_ERR)
 
 
-      if (.not. rtdb_get(irtdb,'mm:i_spring',mt_int,
+      if (.not. rtdb_get(irtdb,'qmmm:i_spring',mt_int,
      +                    2*ns,int_mb(i_is)))
      + call errquit(pname//'Failed to allocate memory for is',
      + 3*ns, MA_ERR)
 
-      if (.not. rtdb_get(irtdb,'mm:a_spring',mt_dbl,
+      if (.not. rtdb_get(irtdb,'qmmm:a_spring',mt_dbl,
      +                    ns,dbl_mb(i_as)))
      +  call dfill(ns,1.0d0,dbl_mb(i_as),1)
 
-      if (.not. rtdb_get(irtdb,'mm:k_spring',mt_dbl,
+      if (.not. rtdb_get(irtdb,'qmmm:k_spring',mt_dbl,
      +                    1,k0))
      + call errquit(pname//'Failed to get k0',
      + 1, RTDB_ERR)
 
-      if (.not. rtdb_get(irtdb,'mm:r_spring',mt_dbl,
+      if (.not. rtdb_get(irtdb,'qmmm:r_spring',mt_dbl,
      +                    1,r0))
      + call errquit(pname//'Failed to get r0',
      + 1, RTDB_ERR)
@@ -91,9 +91,6 @@ c    --------------------------------------
       if(.not. geom_ncent(igeom, ncent) ) 
      >    call errquit("mm:geom_ncent",0,0)
 
-c     write(*,*) 'TP: nact = ', nact
-c     write(*,*) 'TP: nfg = ', nfg
-c     write(*,*) 'TP: ncent = ', ncent
       if(nact.ne.ncent) 
      + call errquit(pname//': geometry mismatch',0, GEOM_ERR)
 
@@ -121,18 +118,18 @@ c     write(*,*) 'TP: ncent = ', ncent
      >                       g)
       etot  = etot + econs
 c
-      if (.not. rtdb_put(irtdb,'mm:spring_e',mt_dbl,
+      if (.not. rtdb_put(irtdb,'qmmm:spring_e',mt_dbl,
      +                    1,econs))
      + call errquit(pname//'Failed to set spring_e',
      + 1, RTDB_ERR)
 
-      if (.not. rtdb_put(irtdb,'mm:spring_s',mt_dbl,
+      if (.not. rtdb_put(irtdb,'qmmm:spring_s',mt_dbl,
      +                    1,s))
      + call errquit(pname//'Failed to set spring_s',
      + 1, RTDB_ERR)
 
 
-      if (.not. rtdb_put(irtdb,'mm:spring_deds',mt_dbl,
+      if (.not. rtdb_put(irtdb,'qmmm:spring_deds',mt_dbl,
      +                    1,deds))
      + call errquit(pname//'Failed to set spring_deds',
      + 1, RTDB_ERR)

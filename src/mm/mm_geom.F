@@ -20,7 +20,6 @@
       character*32 pname
       character*30 operation
       logical orestrt
-c     logical qmlink
       integer geom
       integer i, j      
       logical ignore      
@@ -40,20 +39,12 @@ c     logical qmlink
 c     write(*,*) pname 
        
       ignore = rtdb_cget(rtdb,'task:operation',1,operation)
-c     write(*,*) 'operation = ', operation
-c     TP: force qmlink to be true
-c     qmlink = .true.
-c     write(*,*) 'qmlink = ', qmlink
-c     write(*,*) 'geomname = ', aname
 
 c     deallocate all previous allocated arrays just in case
       call mm_geom_end()
 
-c     nfg = nbqm + nlink
-c     write(*,*) 'nqml in geom init= ', nqml
       nact = nqm
       if(qmlink) nact = nqm + nlink
-c     write(*,*) 'nact = ', nact
 
       nfg = nqm + nlink
 
@@ -81,7 +72,6 @@ c     initialize indexing for a full qm geometry
        
       do i=1,nact
         int_mb(i_iact+i-1) = int_mb(i_iqml+i-1)
-c       write(*,*) 'active indx = ', int_mb(i_iact+i-1)
       end do
 
       if(operation.eq."neb") then
@@ -121,10 +111,6 @@ c     assign coordinates for active atoms
 
       if(.not.geom_tag_to_charge(nact,byte_mb(i_tag),dbl_mb(i_dbq)))
      & call errquit('mm: Failed to get charge from tag',nact,MA_ERR)
-c     do i=1,nact
-c       write(*,*) 'tag = ', byte_mb(i_tag+(i-1)*16)
-c       write(*,*) 'q = ', dbl_mb(i_dbq+i-1)
-c     end do
       
       if(.not.geom_tag_to_atn(nact,byte_mb(i_tag),int_mb(i_atn)))
      & call errquit('mm: Failed to get atn from tag',nact,MA_ERR)
@@ -137,72 +123,30 @@ c     if nlink > 0 assign empirical charge to mmlink
       end if
  
       call mm_atn_get_mass(nact,int_mb(i_atn),dbl_mb(i_m))
-c     do i=1,nact
-c       write(*,*) 'tag = ', byte_mb(i_tag+(i-1)*16)
-c       write(*,*) 'atn = ', int_mb(i_atn+i-1)
-c       write(*,*) 'q = ', dbl_mb(i_dbq+i-1)
-c       write(*,*) 'mass = ', dbl_mb(i_m+i-1)
-c     end do
 
-c     create geom for active atom
-c     if (.not. geom_create(geom, 'geometry'))
-c    &     call errquit('cons_load_geom',0, GEOM_ERR)
-c     if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-c    &     call errquit('cons_load_geom',0, RTDB_ERR)
-
-c     write(*,*) 'delete geom'
 c     ignore = rtdb_delete(rtdb,"geometry")
       ignore = rtdb_delete(rtdb,geomname(1:inp_strlen(geomname)))
-c     write(*,*) 'geomname= ', geomname(1:inp_strlen(geomname))
  
-c     write(*,*) 'create geom'
-c     create new geom
 c     if(.not.geom_create(geom,"geometry"))
       if(.not.geom_create(geom,geomname(1:inp_strlen(geomname))))
      & call errquit('mm: Failed to create geometry',0, GEOM_ERR)
 
-c     write(*,*) 'set cart coords'
       if(.not.geom_cart_set(geom,nact,byte_mb(i_tag),
      &                                dbl_mb(i_c),
      &                                dbl_mb(i_dbq)))
      & call errquit('mm: Failed to initialize geometry',0, GEOM_ERR)
 
-c     write(*,*) 'set mass'
       if(.not.geom_masses_set(geom,nact,dbl_mb(i_m)))
      & call errquit('mm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(geom)
 
-c     write(*,*) 'store geom'
       if(.not.geom_rtdb_store(rtdb,geom,
      &        geomname(1:inp_strlen(geomname))))
      & call errquit('mm: Failed to store geom to rtdb',0, RTDB_ERR)
 
-c     write(*,*) 'destroy geom'
       if(.not.geom_destroy(geom))
      & call errquit('mm: Failed to destroy geometry',0, GEOM_ERR)
 
-c     allocate gradient array
-c     -----------------------
-c     if(.not.ma_alloc_get(MT_DBL, 3*nfg, 'mm grad array',
-c    &      h_g, i_g) ) call errquit(
-c    &      pname//'unable to allocate heap space',
-c    &      3*nfg, MA_ERR)
-c     call dfill(3*nfg,0,dbl_mb(i_g),1)
-
-c     allocate esp charges
-c     --------------------
-c     if(.not.ma_alloc_get(MT_DBL, 3*nfg, 'mm esp charges',
-c    &      h_q, i_q) ) call errquit(
-c    &      pname//'unable to allocate heap space',
-c    &      3*nfg, MA_ERR)
-c     call dfill(3*nfg,0,dbl_mb(i_q),1)
-
-c     ng = nfg
-c     i_ig = i_ifg
-c     if(nfg.ne.0) then
-c       call mm_geom_create_full(rtdb)
-c     end if
-c     write(*,*) 'pop stack '
       if(.not.ma_pop_stack(h_tag))
      & call errquit('mm: Failed to deallocate stack t_all',nact,
      &       MA_ERR)
@@ -238,7 +182,6 @@ c     write(*,*) 'pop stack '
         if (.not.ma_free_heap(h_ifg))    goto 911
         if (.not.ma_free_heap(h_iact))   goto 911
         nfg = 0
-c       ng = 0
         nact = 0
         aux_geom = .false.
       end if
@@ -285,15 +228,12 @@ c     write(*,*) 'in ', pname
      & call errquit('mm: Failed to allocate memory for t',nfg,
      &       MA_ERR)
        
-c     write(*,*) 'nfg in create_geom_full= ', nfg
       call mm_get_geom(rtdb,nfg,int_mb(i_ifg),dbl_mb(i_c),
      &                 dbl_mb(i_dbq),dbl_mb(i_m),
      &                 int_mb(i_atn),byte_mb(i_t))
 
-c     write(*,*) 'oldgeom = ', oldgeom
       if(.not.rtdb_cget(rtdb,'geometry',1,oldgeom))
      & oldgeom = ' '
-c     write(*,*) 'oldgeom = ', oldgeom
 
       if(.not.rtdb_cput(rtdb,'geometry',1,'full_geom'))
      & call errquit(pname//' storing geom name to rtdb',0, RTDB_ERR)
@@ -316,7 +256,6 @@ c     ------------------------
      & call errquit('mm: Failed to deallocate stack c_all',nfg,
      &       MA_ERR)
 
-c     write(*,*) 'out ', pname
 
       end
 
@@ -346,74 +285,39 @@ c     write(*,*) 'out ', pname
       logical status
       logical ignore
       character*30 message
-c     logical geom_cart_get2
-c     external geom_cart_get2
       character*30 pname
 
       pname = "mm_get_geom"
-c     write(*,*) 'in ', pname
       
-c     write(*,*) 'create full geom'
-      if (.not. geom_create(geom, 'geometry'))
 c     if (.not. geom_create(geom, 'full_geom'))
+      if (.not. geom_create(geom, 'geometry'))
      &     call errquit('cons_create_geom',0, GEOM_ERR)
-c     write(*,*) 'load full geom'
-      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+
 c     if (.not. geom_rtdb_load(rtdb, geom, 'full_geom'))
+      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      &     call errquit('cons_load_geom',0, RTDB_ERR)
 
       status=geom_ncent(geom,nat)
-c     message = "nat not eauals nmax"
-c     if(nat.ne.nt) then
-c         write(*,*) nat,nt
-c         goto 911
-c     end if
-c     write(*,*) 'nat = ', nat
-c     write(*,*) 'status = ', status
 
       if(.not.status) 
      & call errquit('cons_init: geom_create?',70, GEOM_ERR)
 
-c     write(*,*) 'cart_get before'       
       if(.not.geom_cart_get2(geom,nat,t,c,dbq,atn))
      &    goto 911
-c     write(*,*) 'cart_get after'       
 
       call util_convert_units("au","angstrom",scale)
       call dscal(3*nat, scale,c,1)
-c     do i=1,nat
-c       write(*,*) t(i),c(1:3,i),dbq(i),atn(i)
-c     end do    
 
-c     write(*,*) 'destroy geom'
       if(.not.geom_destroy(geom)) 
      &    goto 911
 
-c     write(*,*) 'delete geom'
-c     ignore = rtdb_delete(rtdb,"geometry")
-c     write(*,*) 'delete full_geom'
       ignore = geom_rtdb_delete(rtdb,"full_geom")
-c     write(*,*) 'ignore= ', ignore
 
-c     write(*,*) 'create full geom'
       if(.not.geom_create(geom,"full_geom"))
      & call errquit('mm: Failed to create geometry',0, GEOM_ERR)
 
-c     write(*,*) 'geom= ', geom
-c     status=geom_ncent(geom,nat)
-c     write(*,*) 'nat fg= ', nat
-c     write(*,*) 'nt= ', nt
-c     write(*,*) 'status fg= ', status
-         
-c     call mm_atn_get_mass(nt,atn,m) 
-c     write(*,*) 'link adj'
       call mm_links_adjust(nt,ifg,atn,t,c,dbq)
 
-      do i=1,nt
-c       write(*,*) t(i),c(1:3,i)
-c       write(*,*) t(i),c(1:3,i),atn(i)
-c       write(*,*) t(i),c(1:3,i),dbq(i),atn(i)
-      end do    
 
       call util_convert_units("angstrom","au",scale)
       call dscal(3*nt, scale,c,1)
@@ -422,11 +326,6 @@ c       write(*,*) t(i),c(1:3,i),dbq(i),atn(i)
      & call errquit('mm: Failed to initialize geometry',0, GEOM_ERR)
 
       call mm_atn_get_mass(nt,atn,m) 
-
-c     do i=1,nt
-c       write(*,*) 'atn =', atn(i)
-c       write(*,*) 'mass =', m(i)
-c     end do
 
       if(.not.geom_masses_set(geom,nt,m))
      & call errquit('mm: Failed to initialize masses',0, GEOM_ERR)
@@ -437,8 +336,6 @@ c     end do
 
       if(.not.geom_destroy(geom))
      & call errquit('mm: Failed to destroy geometry',0, GEOM_ERR)
-
-c     write(*,*) 'out ', pname
 
       return
 911   call errquit("error "//trim(message),0,-1)
@@ -491,7 +388,7 @@ c     local variables
        
       pname = "mm_geom_push_active"
 c     write(*,*) 'in ', pname
-c     nt = nqm 
+
       nt = nact
 
 c     --------------------------------------
@@ -506,8 +403,6 @@ c     --------------------------------------
       if(.not. geom_ncent(geom, ncent) ) 
      &    call errquit("mm:geom_ncent",0,0)
 
-c     write(*,*) 'ncent in push active = ', ncent
-
       if(.not.ma_push_get(mt_dbl,3*ncent,'ctmp',h_ctmp,i_ctmp))
      & call errquit( pname//'Failed to allocate memory for ctmp',
      & 3*ncent, MA_ERR)
@@ -515,21 +410,10 @@ c     write(*,*) 'ncent in push active = ', ncent
       if(.not. geom_cart_coords_get(geom,dbl_mb(i_ctmp))) 
      &    call errquit("mm:geom_cart_coords_get",0,0)
  
-c     write(*,*) 'ncent = ', ncent
-c  
-c     do i=1,ncent
-c       write(*,*) (dbl_mb(i_ctmp+3*(i-1)+j)*0.52917721092, j=0,2)
-c     end do
-c     if(ncent.ne.nt) 
-c    &    call errquit(pname//"mismatch in geometries",
-c    &                 ncent+10000*nt,0)
  
       call util_convert_units("au","angstrom",scale)
-c     call dscal(3*nt, scale,dbl_mb(i_ctmp),1)
       call dscal(3*ncent, scale,dbl_mb(i_ctmp),1)
-c     write(*,*) 'set_coord'
       call mm_set_coord(nt,int_mb(i_iact),dbl_mb(i_ctmp))
-c     write(*,*) 'set_coord'
       call mm_vdw_qmcoords_load(rtdb)     
       call mm_vdw14_qmcoords_load(rtdb)     
       call mm_bond_qmcoords_load(rtdb)     
@@ -542,7 +426,6 @@ c     write(*,*) 'set_coord'
       if(.not.geom_destroy(geom))
      & call errquit('mm: Failed to destroy geometry',0, GEOM_ERR)
 
-c     write(*,*) 'out ', pname
   
       end     
 
@@ -571,18 +454,13 @@ c     write(*,*) 'out ', pname
       pname = "mm_set_coord"
 c     write(*,*) 'in ', pname
 
-c     write(*,*) 'nt =', nt
-c     write(*,*) 'nqml =', nqml
       do i=1,nt
         do j=1,nqml
-c       do j=1,nbtot
           indx = int_mb(i_iqml+j-1)
-c         write(*,*) 'indx= ', indx, 'ai= ', ai(i)
           if(ai(i).eq.indx) then
             do k = 1,3
               dbl_mb(i_rqml+3*(j-1)+k-1) = c(k,i)
             end do
-c           write(*,*) ai(i), (dbl_mb(i_rqml+3*(j-1)+k-1), k=1,3)
           end if
         end do
       end do
@@ -599,7 +477,6 @@ c     -------------------
             do k = 1,3
               dbl_mb(i_rqm+3*(i-1)+k-1) = dbl_mb(i_rqml+3*(j-1)+k-1)
             end do
-c           write(*,*) iqm, (dbl_mb(i_rqm+3*(i-1)+k-1), k=1,3)
             exit
           end if
         end do
@@ -618,14 +495,11 @@ c     -------------------
                 dbl_mb(i_rmm+3*(j-1)+k-1) = dbl_mb(i_rqml+
      >                                      (nqm+i-1)*3+k-1)
               end do
-c             write(*,*) imm, (dbl_mb(i_rmm+3*(j-1)+k-1), k=1,3)
               exit 
             end if
           end do
         end do
       end if
-
-c     write(*,*) 'out ', pname
 
       end 
 
@@ -643,11 +517,9 @@ c     write(*,*) 'out ', pname
       pname = "mm_restore_geom"
 c     write(*,*) pname
       
-c     write(*,*) 'aux_geom = ', aux_geom
       if(.not.aux_geom) return
 
       ignore = rtdb_delete(rtdb,'geometry')
-c     write(*,*) 'ignore = ', ignore
 
       if(oldgeom.ne.' ') then
         if(.not.rtdb_cput(rtdb,'geometry',1,oldgeom))
@@ -678,16 +550,9 @@ c     write(*,*) 'ignore = ', ignore
       integer ncent
       logical status
       logical ignore
-c     logical geom_print_xyz
 
       pname = "mm_geom_create_xyz_file"
-c     write(*,*) pname      
-c     ignore = rtdb_cget(rtdb,'task:operation',1,operation)
-c     if(operation.eq."energy") then
-c       geomname = "full_geom"
-c     else
       geomname = "geometry"
-c     end if
       
 
       if (ga_nodeid().eq.0) then
@@ -696,15 +561,11 @@ c     end if
      >                                .false.,
      >                                full_filename)
          
-c       write(*,*) 'filename after = ', filename
-c       write(*,*) 'full_filename = ', full_filename
         if(.not.geom_create(geom,'geom_tmp'))
      >    call errquit('mm: Failed to create geometry',0, GEOM_ERR)
-c       if(.not.geom_rtdb_load(rtdb,geom,"geometry"))
         if(.not.geom_rtdb_load(rtdb,geom,geomname))
      >    call errquit('mm: Failed to load geometry',0, GEOM_ERR)
         status =  geom_ncent(geom,ncent)
-c       write(*,*) 'ncent = ', ncent 
         open(88,file=full_filename,form='formatted')
         if (.not. geom_print_xyz(geom, 88))
      $    call errquit('mm:geom_print_xyz?',0, GEOM_ERR)
@@ -749,7 +610,6 @@ c     get active list
 c     ---------------
       if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type,
      $        nact0, h_cons)) then
-c       write(*,*) 'nact = ', nact0
         if (.not. ma_get_index(h_cons, i_cons))
      $           call errquit(pname,h_cons,
      &       MA_ERR)
@@ -758,7 +618,6 @@ c       write(*,*) 'nact = ', nact0
      $       call errquit(pname,0,
      &       RTDB_ERR)
         do i=1,nact0
-c         write(*,*) 'int_mb(i_cons) = ', int_mb(i_cons+i-1)
         end do
         if (.not.rtdb_put(rtdb, 'qmmm:actlist',
      >       mt_int,nact0,int_mb(i_cons)))
@@ -767,7 +626,6 @@ c         write(*,*) 'int_mb(i_cons) = ', int_mb(i_cons+i-1)
 
       else
         nact0 = nact
-c       write(*,*) 'else nact =', nact0
         if(.not.ma_alloc_get(mt_int, nact0, 'qmmm actlist',
      &      h_cons, i_cons) ) call errquit(
      &      'qmmm_data_alloc: unable to allocate heap space',
@@ -812,27 +670,26 @@ c     --------------------------------------------
 
         nal=0
         do i=1,nact0
-c        get global index next active atom in the auxilary geometry
-         ii0 = int_mb(i_cons+i-1)
-         ii  = int_mb(i_iqml+ii0-1)
-c        aflag = log_mb(i_am+ii0-1)
-         aflag = .true.
-         if(aflag) then
-           do j=1,nlink
-c            get index of qm atom bonded to a link atom
-             jj  = int_mb(i_lb+j-1)
-c            if qm atom bonded to a link atom is active
-c            store corresponding index of the link atom
-             if(aflag.and.(jj.eq.ii)) then
-               nal=nal+1
-               int_mb(i_al+nal-1)=int_mb(i_lb+nlink+j-1)
-             end if
-           end do 
-         end if
+c         get global index next active atom in the auxilary geometry
+          ii0 = int_mb(i_cons+i-1)
+          ii  = int_mb(i_iqml+ii0-1)
+          aflag = .true.
+          if(aflag) then
+            do j=1,nlink
+c             get index of qm atom bonded to a link atom
+              jj  = int_mb(i_lb+j-1)
+c             if qm atom bonded to a link atom is active
+c             store corresponding index of the link atom
+              if(aflag.and.(jj.eq.ii)) then
+                nal=nal+1
+                int_mb(i_al+nal-1)=int_mb(i_lb+nlink+j-1)
+              end if
+            end do 
+          end if
         end do
-       else
+      else
         nal = 0
-       end if
+      end if
 
 c     ------------------------------------------------
 

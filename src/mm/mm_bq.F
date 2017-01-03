@@ -28,19 +28,6 @@
 
       pname = "mm_bq_init"
 c     write(*,*) pname
-c     prefix = "mm:coords:load"
-
-c     tag=trim(prefix)//":name"
-c     if (.not. rtdb_cget(rtdb, tag, 1, filename))
-c    &     goto 911
-
-c     if(.not.rtdb_cget(rtdb,"mm:bq",1,filename))
-c    & goto 911
-c     write(*,*) "filename in mm_bq_init= ", filename
-
-c     call mm_open_file(filename,fn)
-c     call util_xyz_nlines(nbq0,fn)
-c     close(fn)
 
 c     deallocate all previous allocated arrays just in case
       call mm_bq_end()
@@ -55,15 +42,6 @@ c
      &   call errquit(pname//'Failed to allocate heap',nbq0,
      &         MA_ERR)
 
-c       if(.not.ma_alloc_get(mt_int,nbq0,'mm bq chg',
-c    &                       h_qbq,i_qbq))
-c    &   call errquit(pname//'Failed to allocate heap',nbq0,
-c    &         MA_ERR)
-c     
-c       if(.not.ma_alloc_get(mt_int,3*nbq0,'mm bq coord',
-c    &                       h_cbq,i_cbq))
-c    &   call errquit(pname//'Failed to allocate heap',nbq0,
-c    &         MA_ERR)
       end if
 c     
       nbq = nbq0
@@ -145,33 +123,6 @@ c     write(*,*) pname
  
       prefix = "mm:coords:load"
 
-c     tag=trim(prefix)//":name"
-c     if (.not. rtdb_cget(rtdb, tag, 1, filename))
-c    $     goto 911
-
-c     if(.not.rtdb_cget(rtdb,"mm:bq",1,filename))
-c    & goto 911
-c     write(*,*) "filename in mm_bq_load= ", filename
-
-c     call mm_open_file(filename,fn)
-c     call inp_init(fn,LuOut)
-
-c     n = 0
-c     do
-c       if(.not.inp_read()) exit
-c       if(inp_n_field().ge.1) then
-c         n = n + 1
-c         if(.not.inp_i(int_mb(i_ibq+n-1)))    goto 911
-c         write(*,*) 'ibq = ', int_mb(i_ibq+n-1)
-c       end if
-c     end do
-
-c     close(fn)
-c     call inp_init(LuIn,LuOut)
-
-c     checking bound
-c     if (n.ne.nbq) goto 911
-
       do n=1,nbq
         int_mb(i_ibq+n-1) = int_mb(i_imm+n-1)
       end do
@@ -217,7 +168,6 @@ c     if (n.ne.nbq) goto 911
 c     write(*,*) pname
 
       namespace = bq_default
-c     write(*,*) 'namespace = ', namespace
 
       aunit = "ang"
 
@@ -247,16 +197,12 @@ c
          dbl_mb(i_cbq+3*(i-1)+2) = dbl_mb(i_rmm+3*(i-1)+2)*scale
          dbl_mb(i_qbq+i-1)       = dbl_mb(i_chgmm+i-1)
          
-c        write(*,*) 'bq coords= ', (dbl_mb(i_cbq+3*(i-1)+j),j=0,2),
-c    >                              dbl_mb(i_qbq+i-1)
       end do
 
       call bq_rtdb_delete(rtdb,namespace)
  
-c     write(*,*) 'bq_create'
       if(.not.bq_create(namespace,handle))   
      &       call errquit('bq_create failed',0,0)
-c     write(*,*) 'handle= ', handle
 
       if(.not.bq_set(handle,ncenter,dbl_mb(i_qbq),dbl_mb(i_cbq)))
      &       call errquit('bq_set failed',0,0)
@@ -269,16 +215,12 @@ c     call bq_print_info(handle)
       if(.not.bq_destroy(handle))
      &       call errquit('bq_destroy failed',0,0)
       
-c     write(*,*) 'trying put bq into rtdb'
       if(ncenter.ne.0 .and. namespace.eq.bq_default) then
-c       write(*,*) 'rtdb_cput'
         if(.not. rtdb_cput(rtdb,"bq" , 1,bq_default)) then
           call errquit(pname//'failed to set default namespace',
      >                 0,RTDB_ERR)
         end if
-c       write(*,*) 'calling bq_init'
         status = bq_init(rtdb)
-c       write(*,*) 'status in bq create= ', status
         if ((ga_nodeid().eq.0) .and. (.not. status)) then
           call errquit("failed to initialize bq", 0, CALC_ERR)
         end if
@@ -292,6 +234,5 @@ c       write(*,*) 'status in bq create= ', status
      &      'failed to free scratch space '//pname,
      &      ncenter, MA_ERR)
           
-c     write(*,*) 'out', pname  
 
       end
