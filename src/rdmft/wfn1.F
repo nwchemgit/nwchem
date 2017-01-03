@@ -333,6 +333,7 @@ c
       curit      = 0
       call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_wave,wfn1_deriv,
      &              wfn1_energy,g_bfmo,g_momo1)
+      call wfn1_zero_vv(wfn1_param,wfn1_wave,wfn1_deriv)
       do while ((.not.oconverged).and.(curit.lt.maxit))
         curit = curit + 1
         call wfn1_linesearch(wfn1_param,wfn1_inst,wfn1_mat,wfn1_wave,
