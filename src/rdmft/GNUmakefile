@@ -25,6 +25,7 @@
          wfn1_linesearch.o \
          wfn1_print.o \
          wfn1_print_analysis.o \
+         wfn1_print_occ.o \
          wfn1_size.o \
          wfn1_trace.o
 

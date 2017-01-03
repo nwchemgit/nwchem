@@ -39,6 +39,8 @@ c
       call wfn1_calc_occ(wfn1_wave%g_cb,wfn1_param%nmo,wfn1_param%neb,
      &                   wfn1_wave%icnfb,occb)
 c
+      call wfn1_print_occ(wfn1_param%nmo,occa,occb)
+c
       blob = "WFN1 Final Alpha Natural Orbital Analysis"
       call movecs_print_anal(wfn1_inst%basis,ilo,ihi,tanalyze,
      &                       wfn1_wave%g_na,blob,.true.,e1a,.false.,
