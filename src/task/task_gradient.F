@@ -113,7 +113,7 @@ c
       else if(theory .ne. 'oniom' .or. numerical) then
 c
         if(.not.task_bsse) then
-c       TP: modified here
+c       TP: added the case where mm is present in task directive
           if(omm) then
             call mm_task_gradient(rtdb,theory,energy,gradient,status)
           else 

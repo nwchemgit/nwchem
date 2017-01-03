@@ -115,7 +115,7 @@ cc
          else if (theory.eq.'ccca') then
             status = task_ccca_energy(rtdb,theory,energy)
          else
-c          TP: modified here
+c          TP: added the case where mm is present in task directive
            if(omm) then
              call mm_task_energy(rtdb,theory,energy,status)
           else
