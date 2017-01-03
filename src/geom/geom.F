@@ -3380,9 +3380,8 @@ c
       logical match
       character*2 symbols(nelements)
       character*16 elements(nelements)
-c     TP: changed
+c     TP: changed from character*(*) tag(nt) to character*(16) tag(nt)
       character*(16) tag(nt)         ! [input]
-c     character*(*) tag(nt)         ! [input]
       integer atn(nt)            ! [output]
 c
 c     attempt to figure out which element a tag refers to
@@ -3441,9 +3440,8 @@ c
       match = .false.
       do i=1,nt
         match = .false.
-c       TP: changed
+c       TP: changed from buf = tag(nt) to buf = tag(i)
         buf = tag(i)
-c       buf = tag(nt)
         lbuf = inp_strlen(buf)
         if (lbuf .eq. 0) goto 100 
 c
