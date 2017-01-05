@@ -73,6 +73,7 @@ c     Define the c array.
 c
       call dcopy(nhist+1,0d0,0,Dbl_MB(i_cc), 1)
       Dbl_MB(i_cc) = -1.0d0
+      info=0
 #ifdef DEBUG
       if(ga_nodeid().eq.0)then
         write(6,*)'nhist ',nhist,' pulay matrix '
