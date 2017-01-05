@@ -2,9 +2,7 @@ c-----------------------------------------------------------------------
 c
       subroutine wfn1_e_g_2el(wfn1_param,wfn1_inst,
      &                        wfn1_wave,wfn1_deriv,
-     &                        v_dca,v_dcb,g_2aa,g_2bb,
-     &                        g_waa,g_wab,g_wba,g_wbb,
-     &                        g_bfmo,g_momo,E_2el)
+     &                        v_dca,v_dcb,g_2aa,g_2bb,E_2el)
       implicit none
 C>
 C> \brief Calculate the 2-electron terms
@@ -43,17 +41,6 @@ c
       integer, intent(inout) :: g_2bb  ! nmo x nmo matrix for bb-block
                                        ! of the 2-electron density
                                        ! matrix diagonal
-      integer, intent(inout) :: g_waa  ! nea x nea matrix for aa-block
-                                       ! of the 2-electron interaction
-      integer, intent(inout) :: g_wab  ! nea x neb matrix for ab-block
-                                       ! of the 2-electron interaction
-      integer, intent(inout) :: g_wba  ! neb x nea matrix for ba-block
-                                       ! of the 2-electron interaction
-      integer, intent(inout) :: g_wbb  ! neb x nea matrix for ba-block
-                                       ! of the 2-electron interaction
-c
-      integer, intent(inout) :: g_bfmo ! nbf x nmo matrix
-      integer, intent(inout) :: g_momo ! nmo x nmo matrix
 c
       double precision, intent(out) :: E_2el ! the two-electron energy
 c

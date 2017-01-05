@@ -1,7 +1,8 @@
 c-----------------------------------------------------------------------
 c
       subroutine wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_wave,
-     &                    wfn1_deriv,wfn1_energy,g_bfmo,g_momo)
+     &                    wfn1_deriv,wfn1_energy,g_bfmo,g_momo,
+     &                    g_momo2)
       implicit none
 C>
 C> \brief Calculate the energy and the derivative of the energy wrt
@@ -30,8 +31,9 @@ c
       type(wfn1_drv),     intent(inout) :: wfn1_deriv
       type(wfn1_en),      intent(out)   :: wfn1_energy
 c
-      integer, intent(in) :: g_bfmo ! nbf x nmo scratch GA
-      integer, intent(in) :: g_momo ! nmo x nmo scratch GA
+      integer, intent(in) :: g_bfmo  ! nbf x nmo scratch GA
+      integer, intent(in) :: g_momo  ! nmo x nmo scratch GA
+      integer, intent(in) :: g_momo2 ! nmo x nmo scratch GA
 c
       double precision, allocatable :: v_dca(:)
       double precision, allocatable :: v_dcb(:)
@@ -80,6 +82,11 @@ c     The 1-electron terms
 c
       call wfn1_e_g_1el(wfn1_param,wfn1_mat,wfn1_wave,wfn1_deriv,
      &                  v_dca,v_dcb,g_bfmo,g_momo,wfn1_energy%E_1el)
+c
+c     The 2-electron terms
+c
+      call wfn1_e_g_2el(wfn1_param,wfn1_inst,wfn1_wave,wfn1_deriv,
+     &                  v_dca,v_dcb,g_momo,g_momo2,wfn1_energy%E_2el)
 c
 c     The entropy term
 c

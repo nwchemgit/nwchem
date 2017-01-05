@@ -108,6 +108,8 @@ c
       type(wfn1_wfn) :: wfn1_t_wv  ! temporary variable
       type(wfn1_drv) :: wfn1_t_drv ! temporary variable
 c
+      logical, external :: int_normalize
+c
       iproc = ga_nodeid()
       nproc = ga_nnodes()
 c
@@ -163,6 +165,8 @@ c
      &  call errquit(pname//' no ao basis found',0, RTDB_ERR)
       if (.not.bas_numbf(wfn1_inst%basis,wfn1_param%nbf))
      &  call errquit(pname//" no basis functions",0,BASIS_ERR)
+      if (.not.int_normalize(wfn1_inst%rtdb,wfn1_inst%basis))
+     &  call errquit(pname//' int_normalize failed', 0, INT_ERR)
 c
 c     == Load linearly independence settings ==
 c
@@ -332,7 +336,7 @@ c
       oconverged = .false.
       curit      = 0
       call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_wave,wfn1_deriv,
-     &              wfn1_energy,g_bfmo,g_momo1)
+     &              wfn1_energy,g_bfmo,g_momo1,g_momo2)
       call wfn1_zero_vv(wfn1_param,wfn1_wave,wfn1_deriv)
       do while ((.not.oconverged).and.(curit.lt.maxit))
         curit = curit + 1
