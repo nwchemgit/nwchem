@@ -512,6 +512,8 @@ c     on BGP/BGQ all fs are parallel, therefore we need only node0
       iocheckk=ga_nodeid().eq.0
 #endif     
 c
+      rtdb_name  = ' '
+      
       if (ga_nodeid() .gt. 0) goto 10000
 c
 c     default is a startup with name extracted from that of the input
@@ -522,7 +524,6 @@ c
       ostartup   = .true.
       ocontinue  = .false.
       echo       = .false.
-      rtdb_name  = ' '
       call input_default_file_prefix(input_filename,file_prefix)
 c
       rewind LuIn
