@@ -211,7 +211,7 @@ c
 c
 c     Calculate beta-beta-occupation numbers
 c
-      call wfn1_calc_occ2(wfn1_wave%g_cb,nmo,nea,wfn1_wave%icnfb,
+      call wfn1_calc_occ2(wfn1_wave%g_cb,nmo,neb,wfn1_wave%icnfb,
      &                    g_2bb)
 c
 c     Shell loops
