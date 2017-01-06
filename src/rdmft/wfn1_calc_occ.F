@@ -98,9 +98,11 @@ c
         endif
       enddo
       deallocate(buf)
-      do ii = ilo, ihi
-        ocx(ii) = ocx(ii)/dble(ne)
-      enddo
+      if (ne.gt.0) then
+        do ii = ilo, ihi
+          ocx(ii) = ocx(ii)/dble(ne)
+        enddo
+      endif
       call ga_dgop(MT_DBL,ocx,nmo,"+")
 c
       end subroutine wfn1_calc_ocx
@@ -116,12 +118,12 @@ C>
 #include "global.fh"
 #include "mafdecls.fh"
 c
-      integer, intent(in) :: g_c      ! the correlation functions
-      integer, intent(in) :: nmo      ! the number of molecular orbitals
-      integer, intent(in) :: ne       ! the number of electrons
-      integer, intent(in) :: icnf(nmo)! the electron configuration
-      integer, intent(inout) :: g_occ ! the 2-electron occupation 
-                                      ! numbers
+      integer, intent(in) :: g_c       ! the correlation functions
+      integer, intent(in) :: nmo       ! the number of molecular orbitals
+      integer, intent(in) :: ne        ! the number of electrons
+      integer, intent(in) :: icnf(1:ne)! the electron configuration
+      integer, intent(inout) :: g_occ  ! the 2-electron occupation 
+                                       ! numbers
 c
       integer :: iolo, iohi, jolo, johi ! block limits of occupation GA
 c

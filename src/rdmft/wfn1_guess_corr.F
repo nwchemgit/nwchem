@@ -57,6 +57,7 @@ c
       nea = wfn1_param%nea
       neb = wfn1_param%neb
       nmo = wfn1_param%nmo
+      delta = 0.0d0
 c
 c     Setup the alpha correlation functions
 c
@@ -85,7 +86,9 @@ c
 c
 c     Flip signs to make linearly independent functions
 c
-      delta = pi/nea
+      if (nea.gt.0) then
+        delta = pi/nea
+      endif
       do jj = jlo, jhi
         if (jj.le.nea) then
           do ii = ilo, ihi
@@ -98,7 +101,9 @@ c
           enddo
         endif
       enddo
-      delta = pi/(nmo-nea)
+      if (nmo-nea.gt.0) then
+        delta = pi/(nmo-nea)
+      endif
       do jj = jlo, jhi
         if (jj.gt.nea) then
           do ii = ilo, ihi
@@ -159,7 +164,9 @@ c
 c
 c     Flip signs to make linearly independent functions
 c
-      delta = pi/neb
+      if (neb.gt.0) then
+        delta = pi/neb
+      endif
       do jj = jlo, jhi
         if (jj.le.neb) then
           do ii = ilo, ihi
@@ -172,7 +179,9 @@ c
           enddo
         endif
       enddo
-      delta = pi/(nmo-neb)
+      if (nmo-neb.gt.0) then
+        delta = pi/(nmo-neb)
+      endif
       do jj = jlo, jhi
         if (jj.gt.neb) then
           do ii = ilo, ihi
