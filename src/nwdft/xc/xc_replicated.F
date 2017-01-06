@@ -262,8 +262,9 @@ c
           if(.not.ga_destroy(g_repdm(ii))) then
 c           we do not need to do anything
           end if
-          if(.not.ga_destroy(k_repxc(ii))) then
-c           we do not need to do anything
+          if(k_repxc(ii).ne.-1) then
+          if(.not.ga_destroy(k_repxc(ii))) 
+     *            call errquit(' xc_rep: gadestr xc failed',0,GA_ERR)
           end if
         end do
       endif
