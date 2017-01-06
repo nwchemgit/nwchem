@@ -63,6 +63,7 @@ c
       logical hf_job
 c
       hf_job = .not. bgj_have_xc()      
+      use_dimqm=util_module_avail("dimqm")
 c
 c     Print levels assume that CPHF is being invoked from within
 c     another application.  By default be informative.
@@ -158,7 +159,7 @@ c         I changed that so that we can set this by input
       if (.not. rtdb_get(rtdb,'cphf:maxiter', mt_int, 1,
      $     maxiter)) maxiter = 50
 
-      call util_file_name('cphf_rhs',.false.,.false.,cphf_rhs)        
+      call util_file_name0('cphf_rhs',.false.,.false.,cphf_rhs,1)        
       if (.not. file_read_ga_info(cphf_rhs, rhs_title, ncol, nvec1))
      $     call errquit('cphf_solve: reading rhs info failed?',0,
      &       UNKNOWN_ERR)
@@ -406,6 +407,7 @@ c$$$  911        format(//,15x,40('-'),
 c$$$  $           /,15x,'UHF Polarizability is:',f16.6,
 c$$$  $           /,15x,40('-'),/)
 c$$$  endif
+      call util_file_name0('cphf_sol',.false.,.false.,cphf_sol,1)
        if (ndata.eq.2) then
 c == copy solution (g_work) --> g_grad 2nd subspace===START
           shift=3 ! skip first subspace that corresponds to g_b
@@ -414,12 +416,10 @@ c == copy solution (g_work) --> g_grad 2nd subspace===START
           call ga_copy_patch('n',g_work,1,vlen,1 ,nvec,
      &                           g_grad,1,vlen,m1,m2)
 c == copy solution (g_work) --> g_grad 2nd subspace===END
-        call util_file_name('cphf_sol',.false.,.false.,cphf_sol)
         if(.not.file_write_ga(cphf_sol,g_grad))
      $     call errquit('cphf_solve: could not write cphf_sol',1,
      &       UNKNOWN_ERR)
        else
-        call util_file_name('cphf_sol',.false.,.false.,cphf_sol)
         if(.not.file_write_ga(cphf_sol,g_work))
      $     call errquit('cphf_solve: could not write cphf_sol',1,
      &       UNKNOWN_ERR)

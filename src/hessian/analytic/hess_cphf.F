@@ -60,6 +60,8 @@ c
 c     ----- define parameters -----
 c
       nc   = n3xyz
+      call util_file_name0('cphf_rhs',.false.,.false.,cphf_rhs,1)
+      call util_file_name0('cphf_sol',.false.,.false.,cphf_sol,1)
 c
 c     check hessian restart flag
 c
@@ -568,8 +570,6 @@ c
 c Now actually set up the CPHF matrices 
 c
       if (olprint) write(LuOut,*) 'HESS: CPHF contributions'
-      call util_file_name('cphf_rhs',.false.,.false.,cphf_rhs)
-      call util_file_name('cphf_sol',.false.,.false.,cphf_sol)
 c
 c quick and dirty scale of g_wax for UHF
 c
@@ -1335,6 +1335,7 @@ c
 #include "msgids.fh"
 #include "stdio.fh"
 #include "util.fh"
+#include "inp.fh"
 c
       integer rtdb
       integer restr
@@ -1343,9 +1344,11 @@ c
 c
 c     set up the files for the cphf solution
 c
+      call util_file_name0('cphf_sol',.false.,.false.,cphf_sol,1)
       if (.not. rtdb_cput(rtdb, 'solver:filestub', 1, 'cphf_sol'))
      *  call errquit('hess_cphf: file stub',555,RTDB_ERR)
-      if (.not. rtdb_cput(rtdb, 'solver:filesoln', 1, cphf_sol))
+      if (.not. rtdb_cput(rtdb, 'solver:filesoln', 1, 
+     C     cphf_sol(1:inp_strlen(cphf_sol))))
      *  call errquit('hess_cphf: intermediate solution file',555,
      &       RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'solver:restart', MT_int, 1, restr))
