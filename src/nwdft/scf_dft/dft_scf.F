@@ -242,6 +242,9 @@ C     RTDB flag for printing out all matrices
       logical lsave_mats   !save matrices to file?
       logical molden, forceatguess
 
+c     == initialize DIIS call counter ==
+      icall(1) = 0
+      icall(2) = 0
 c
       gcds = 0.d0
       do_cosmo_vem = 0
@@ -599,9 +602,6 @@ c
          diising = .true.
       endif
 c     
-c     == initialize DIIS call counter ==
-      icall(1) = 0
-      icall(2) = 0
 c     
 c     == Begin the SCF cycle ==
 c     

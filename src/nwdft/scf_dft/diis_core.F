@@ -9,7 +9,7 @@ c
       integer g_diis(mxhist)
       integer g_err
       double precision pulay((mxhist+1)*(mxhist+2)/2)
-      Integer nhist(2), icall(2)
+      Integer nhist(2), icall
 c***********************************************************************
 c
 c     subroutine diis
@@ -63,7 +63,7 @@ c
       me=ga_nodeid()
       nproc=ga_nnodes()
 c
-      if(icall(ispin).eq.1) then
+      if(icall.eq.1) then
          if(ispin.eq.1) then
 c
 c       Initialize the Pulay matrix.  Store -1 on the 1st row and column.
@@ -82,7 +82,7 @@ c
 c
         nhist(ispin)=0
       endif 
-      ii=(ipol+ispin-1)*mxhist + irow(icall(1))
+      ii=(ipol+ispin-1)*mxhist + irow(icall)
 c
 C     Store new errvec
 c
@@ -119,7 +119,7 @@ c
          enddo
       endif
       do jj = 1,nhist(1)
-        ii=(ipol+ispin-1)*mxhist+irow(icall(1)-jj+1)
+        ii=(ipol+ispin-1)*mxhist+irow(icall-jj+1)
         ijlast = ijcanon(nhist(1)+1,nhist(1)+2-jj)
         pulay(ijlast)=pulay(ijlast)+ga_ddot(g_diis(ii),g_err)
       enddo

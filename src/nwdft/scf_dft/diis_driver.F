@@ -20,7 +20,7 @@ c
       double precision mult(nconstr),mult_diis(nconstr,mxhist)
       integer g_diis(mxhist)
       double precision svals(*)
-      Integer nhist(2), icall(2)
+      integer nhist(2), icall(*)
       integer geom, AO_bas_han
       double precision derr(2) ! Diis error norm [output]
       double precision toll_s
@@ -53,6 +53,7 @@ c
       if(reset) then
          if( icall(1).eq.0 ) return
          icall(1) = -1
+         icall(2) = -1
       endif
       if (icall(1).lt.0 )then
          if (.not.MA_Free_Heap(lpulay))
