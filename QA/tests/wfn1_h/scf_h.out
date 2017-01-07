@@ -1,0 +1,621 @@
+ argument  1 = scf_h.nw
+
+
+
+============================== echo of input deck ==============================
+echo
+start wfn1_h_dat
+
+geometry
+  h 0 0 0
+end
+basis
+  * library 6-31g*
+end
+
+dft
+  odft
+  mult 2
+  smear 0.0
+  xc hfexch
+end
+
+task dft energy
+
+dft
+  odft
+  mult 2
+  smear 1.50
+  xc hfexch
+  maxiter 50
+end
+
+task dft energy
+================================================================================
+
+
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.6
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2015
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = ldc-153112.home
+    program         = ../../../bin/MACX64/nwchem
+    date            = Fri Jan  6 23:13:35 2017
+
+    compiled        = Thu_Jan_05_23:21:47_2017
+    source          = /Users/vandam/nwchem-wfn1-dev
+    nwchem branch   = Development
+    nwchem revision = 28658
+    ga revision     = 10724
+    input           = scf_h.nw
+    prefix          = wfn1_h_dat.
+    data base       = ./wfn1_h_dat.db
+    status          = startup
+    nproc           =        1
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   13107196 doubles =    100.0 Mbytes
+    stack    =   13107201 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428797 doubles =    400.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 h                    1.0000     0.00000000     0.00000000     0.00000000
+
+      Atomic Mass 
+      ----------- 
+
+      h                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)       0.0000000000
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+
+            XYZ format geometry
+            -------------------
+     1
+ geometry
+ h                     0.00000000     0.00000000     0.00000000
+
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                           6-31g*                   on all atoms 
+
+
+  xc_inp: hfexch multiplicative factor not found.
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+                      Basis "ao basis" -> "ao basis" (cartesian)
+                      -----
+  h (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.87311370E+01  0.033495
+  1 S  2.82539370E+00  0.234727
+  1 S  6.40121700E-01  0.813757
+
+  2 S  1.61277800E-01  1.000000
+
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ h                           6-31g*                  2        2   2s
+
+
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ h                           6-31g*                  2        2   2s
+
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  spin polarized.
+          No. of atoms     :     1
+          No. of electrons :     1
+           Alpha electrons :     1
+            Beta electrons :     0
+          Charge           :     0
+          Spin multiplicity:     2
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          AO basis - number of functions:     2
+                     number of shells:     2
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  1.000          
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+          Smearing applied:  0.00D+00 (hartree)
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:          -0.49823254
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =      -0.498233
+ 1-e energy   =      -0.498233
+ 2-e energy   =       0.000000
+ HOMO         =      -0.498233
+ LUMO         =       0.460935
+
+   Time after variat. SCF:      0.4
+   Time prior to 1st pass:      0.4
+
+ #quartets = 6.000D+00 #integrals = 6.000D+00 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./wfn1_h_dat.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  46821
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       12.98            12975588
+          Stack Space remaining (MW):       13.11            13107068
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1     -0.4982329107 -4.98D-01  1.50D-16  6.16D-33     0.4
+                                                     0.00D+00  0.00D+00
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Resetting Diis
+ d= 0,ls=0.0,diis     2     -0.4982329107  1.67D-16  8.40D-16  1.54D-33     0.4
+                                                     0.00D+00  0.00D+00
+
+
+         Total DFT energy =       -0.498232910729
+      One electron energy =       -0.498232910729
+           Coulomb energy =        0.314355826776
+    Exchange-Corr. energy =       -0.314355826776
+ Nuclear repulsion energy =        0.000000000000
+
+ Numeric. integr. density =        0.000000000000
+
+     Total iterative time =      0.1s
+
+
+
+                    DFT Final Alpha Molecular Orbital Analysis
+                    ------------------------------------------
+
+ Vector    1  Occ=1.000000D+00  E=-4.982329D-01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 8.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      0.665449  1 H  s                  1      0.427430  1 H  s          
+
+ Vector    2  Occ=0.000000D+00  E= 9.161928D-01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      1.257798  1 H  s                  2     -1.149752  1 H  s          
+
+
+                     DFT Final Beta Molecular Orbital Analysis
+                     -----------------------------------------
+
+ Vector    1  Occ=0.000000D+00  E=-4.982329D-01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 8.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      0.665449  1 H  s                  1      0.427430  1 H  s          
+
+ Vector    2  Occ=0.000000D+00  E= 4.609347D-01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      1.257798  1 H  s                  2     -1.149752  1 H  s          
+
+
+   alpha - beta orbital overlaps 
+   ----------------------------- 
+
+
+   alpha      1      2
+    beta      1      2
+ overlap   1.000  1.000
+
+     --------------------------
+     Expectation value of S2:  
+     --------------------------
+      <S2> =      0.7500 (Exact =     0.7500)
+
+
+ Parallel integral file used       1 records with       0 large values
+
+
+ Task  times  cpu:        0.3s     wall:        0.3s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+  xc_inp: hfexch multiplicative factor not found.
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ h                           6-31g*                  2        2   2s
+
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  spin polarized.
+          No. of atoms     :     1
+          No. of electrons :     1
+           Alpha electrons :     1
+            Beta electrons :     0
+          Charge           :     0
+          Spin multiplicity:     2
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  50
+          AO basis - number of functions:     2
+                     number of shells:     2
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  1.000          
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         50 iters            50 iters 
+
+          Smearing applied:  0.15D+01 (hartree)
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
+
+
+ Loading old vectors from job with title :
+
+
+
+   Time after variat. SCF:      0.5
+ sigma=  0.15D+01 eFermi=  0.00000 T*S= -1.43E+00 nel(1)=    1.00 nel(2)=    0.00
+
+   Time prior to 1st pass:      0.5
+
+ #quartets = 6.000D+00 #integrals = 6.000D+00 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./wfn1_h_dat.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  46821
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+ sigma=  0.15D+01 eFermi=  0.20898 T*S= -6.78E-01 nel(1)=    1.00 nel(2)=    0.00
+
+  Resetting Diis
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       12.98            12975668
+          Stack Space remaining (MW):       13.11            13107036
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1     -1.1758392896 -1.18D+00  3.73D-01  1.39D-30     0.6
+                                                     0.00D+00  0.00D+00
+ sigma=  0.15D+01 eFermi=  0.20898 T*S= -7.24E-01 nel(1)=    1.00 nel(2)=    0.00
+
+ d= 0,ls=0.0,diis     2     -0.8942755175  2.82D-01  5.29D-02  1.58D-30     0.6
+                                                     0.00D+00  0.00D+00
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ sigma=  0.15D+01 eFermi=  0.20898 T*S= -7.30E-01 nel(1)=    1.00 nel(2)=    0.00
+
+ d= 0,ls=0.0,diis     3     -0.8585828122  3.57D-02  7.78D-03  1.58D-30     0.7
+                                                     0.00D+00  0.00D+00
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ sigma=  0.15D+01 eFermi=  0.20898 T*S= -7.31E-01 nel(1)=    1.00 nel(2)=    0.00
+
+ d= 0,ls=0.0,diis     4     -0.8534194292  5.16D-03  1.15D-03  2.00D-30     0.7
+                                                     0.00D+00  0.00D+00
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ sigma=  0.15D+01 eFermi=  0.20898 T*S= -7.31E-01 nel(1)=    1.00 nel(2)=    0.00
+
+ d= 0,ls=0.0,diis     5     -0.8526579382  7.61D-04  1.70D-04  1.89D-30     0.7
+                                                     0.00D+00  0.00D+00
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ sigma=  0.15D+01 eFermi=  0.20898 T*S= -7.31E-01 nel(1)=    1.00 nel(2)=    0.00
+
+ d= 0,ls=0.0,diis     6     -0.8525453136  1.13D-04  2.52D-05  1.78D-30     0.8
+                                                     0.00D+00  0.00D+00
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ sigma=  0.15D+01 eFermi=  0.20898 T*S= -7.31E-01 nel(1)=    1.00 nel(2)=    0.00
+
+ d= 0,ls=0.0,diis     7     -0.8525286493  1.67D-05  3.73D-06  1.48D-30     0.8
+                                                     0.00D+00  0.00D+00
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ sigma=  0.15D+01 eFermi=  0.20898 T*S= -7.31E-01 nel(1)=    1.00 nel(2)=    0.00
+
+ d= 0,ls=0.0,diis     8     -0.8525261835  2.47D-06  5.52D-07  1.68D-30     0.8
+                                                     0.00D+00  0.00D+00
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ sigma=  0.15D+01 eFermi=  0.20898 T*S= -7.31E-01 nel(1)=    1.00 nel(2)=    0.00
+
+ d= 0,ls=0.0,diis     9     -0.8525258186  3.65D-07  8.16D-08  1.58D-30     0.9
+                                                     0.00D+00  0.00D+00
+
+
+         Total DFT energy =       -0.121204161433
+      One electron energy =       -0.215787300311
+           Coulomb energy =        0.311409150809
+    Exchange-Corr. energy =       -0.216826011932
+ Nuclear repulsion energy =        0.000000000000
+
+ Numeric. integr. density =        0.000000000000
+
+     Total iterative time =      0.3s
+
+
+
+                    DFT Final Alpha Molecular Orbital Analysis
+                    ------------------------------------------
+
+ Vector    1  Occ=7.055305D-01  E=-3.641733D-01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 8.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      0.665449  1 H  s                  1      0.427430  1 H  s          
+
+ Vector    2  Occ=2.944695D-01  E= 7.821332D-01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      1.257798  1 H  s                  2     -1.149752  1 H  s          
+
+
+                     DFT Final Beta Molecular Orbital Analysis
+                     -----------------------------------------
+
+ Vector    1  Occ=0.000000D+00  E=-4.982329D-01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 8.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      0.665449  1 H  s                  1      0.427430  1 H  s          
+
+ Vector    2  Occ=0.000000D+00  E= 4.609347D-01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      1.257798  1 H  s                  2     -1.149752  1 H  s          
+
+
+   alpha - beta orbital overlaps 
+   ----------------------------- 
+
+
+   alpha      1      2
+    beta      1      2
+ overlap   1.000  1.000
+
+     --------------------------
+     Expectation value of S2:  
+     --------------------------
+      <S2> =      0.7500 (Exact =     0.7500)
+
+
+ Parallel integral file used       1 records with       0 large values
+
+
+ Task  times  cpu:        0.5s     wall:        0.5s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:  396      396      938      486      249        0        0      100     
+number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
+bytes total:             2.80e+04 1.38e+04 7.97e+03 0.00e+00 0.00e+00 8.00e+02
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 2080 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        19	        25
+	current total bytes		         0	         0
+	maximum total bytes		   1052888	  22509672
+	maximum total K-bytes		      1053	     22510
+	maximum total M-bytes		         2	        23
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+
+                                      AUTHORS
+                                      -------
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+       S. A. Fischer, S. Krishnamoorthy, W. Ma, M. Klemm, O. Villa, Y. Chen,
+    V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler, V. Konjkov, T. Risthaus,
+       M. Malagoli, A. Marenich, A. Otero-de-la-Roza, J. Mullin, P. Nichols,
+      R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari, M. Williamson,
+      R. J. Harrison, J. R. Rehr, M. Dupuis, D. Silverstein, D. M. A. Smith,
+            J. Nieplocha, V. Tipparaju, M. Krishnan, B. E. Van Kuiken,
+        A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu, T. Van Voorhis,
+     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
+   H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman,
+    K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski, T. Clark, D. Clerc,
+   H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
+   A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
+   R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+   K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
+                               A. T. Wong, Z. Zhang.
+
+ Total times  cpu:        1.0s     wall:        1.0s

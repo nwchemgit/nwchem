@@ -1,0 +1,28 @@
+echo
+start wfn1_h_dat
+
+geometry
+  h 0 0 0
+end
+basis
+  * library 6-31g*
+end
+
+dft
+  odft
+  mult 2
+  smear 0.0
+  xc hfexch
+end
+
+task dft energy
+
+dft
+  odft
+  mult 2
+  smear 1.50
+  xc hfexch
+  maxiter 50
+end
+
+task dft energy
