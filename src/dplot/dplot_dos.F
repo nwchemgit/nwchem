@@ -150,7 +150,8 @@ c     neeed to generalize to uhf
       if(.not.bas_destroy(basis)) call errquit
      A ('dplotdos: basdestr failed ',0,0)
       return
- 111  call errquit(' failed to open file ',0,0)
+ 111  call errquit(' failed to open file '//dfile(1:inp_strlen(dfile)),
+     C   0,0)
       end
       subroutine dplot_dos(nbf,span,traslx,nstep,sigma,
      P     doproj,nproj,shproj,fproj,trasly,
@@ -158,6 +159,7 @@ c     neeed to generalize to uhf
      A     foccs,evals)
       implicit none
 #include "global.fh"
+#include "stdio.fh"
       integer nbf ![in]
       double precision traslx,sigma,trasly ! [in]
       double precision span ![in]
@@ -204,8 +206,8 @@ c
              if(foccs(i,spin).gt.eps.and.foccs(i+1,spin).lt.eps) then
                  nocc(spin)=i
                  efermi=evals(i,spin)
-            if(ga_nodeid().eq.0) write(0,*)' homo eval no. ',nocc(spin),
-     A                ' energy (eV)=',efermi*au2ev
+            if(ga_nodeid().eq.0) write(luout,*)' homo eval no. ',
+     N                nocc(spin),' energy (eV)=',efermi*au2ev
 
                 endif
 c     HOMO
@@ -214,8 +216,11 @@ c     HOMO
       enddo
       emin=efermi-span/au2ev
       emax=efermi+span/au2ev
-      if(ga_nodeid().eq.0) write(0,*) ' au extrm ',emin,emax
-      if(ga_nodeid().eq.0) write(0,*) ' ev extrm ',emin*au2ev,emax*au2ev
+      if(ga_nodeid().eq.0) write(luout,*) ' au extrm ',emin,emax
+      if(ga_nodeid().eq.0) write(luout,*) ' ev extrm ',emin*au2ev,
+     E     emax*au2ev
+      if(ga_nodeid().eq.0) write(luout,*) ' traslx trasly ',traslx,
+     E     trasly,change
       if(change.eq.1) then
          emax=(-e1+traslx)/au2ev
          emin=(-e2+traslx)/au2ev
@@ -257,8 +262,8 @@ c           adde=exp(-((eval-ei)/sigma)**2)/sigma/sqrt(acos(-1d0))
       if(ga_nodeid().eq.0) then
       renrm=dble(nelec)/tinteg
       if(ga_nodeid().eq.0) then
-         write(0,'(A,F14.2)') '  no. electrons in energy range ',nelec
-         write(0,'(A,F14.2)') ' integrated PDOS ',pinteg*renrm
+         write(luout,'(A,F14.2)')' no. electrons in energy range ',nelec
+         write(luout,'(A,F14.2)')' integrated PDOS ',pinteg*renrm
       endif
       do ien=1,nstep
 c        write(6,11) ei,dos(ien+1,1)*fac,dos(ien+1,2)*fac
