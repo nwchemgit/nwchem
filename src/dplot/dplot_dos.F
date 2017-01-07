@@ -119,7 +119,7 @@ c
      A     call errquit(' pushget failed ',0,0)
          if(.not.MA_Push_Get(MT_dbl,nbf,'ccc',l_c,k_c))
      A     call errquit(' pushget failed ',0,0)
-         if(.not.MA_Push_Get(MT_dbl,nbf,'sscc',l_sc,k_sc))
+         if(.not.MA_Push_Get(MT_dbl,,'sscc',l_sc,k_sc))
      A     call errquit(' pushget failed ',0,0)
 c     neeed to generalize to uhf
          call dplot_pmull(geom,basis,g_vecs(1),nbf,
@@ -132,7 +132,7 @@ c     neeed to generalize to uhf
             doproj=.false.
          endif
       endif
-      call dplot_dos(nbf,span,traslx,nstep,sigma,
+      call dplot_dos(nbf,nmo,span,traslx,nstep,sigma,
      P     doproj,nproj,int_mb(k_proj),dbl_mb(k_fproj),trasly,
      C     change,e1,e2,nsets,
      A     dbl_mb(k_focc),dbl_mb(k_eval))
@@ -153,7 +153,7 @@ c     neeed to generalize to uhf
  111  call errquit(' failed to open file '//dfile(1:inp_strlen(dfile)),
      C   0,0)
       end
-      subroutine dplot_dos(nbf,span,traslx,nstep,sigma,
+      subroutine dplot_dos(nbf,nmo,span,traslx,nstep,sigma,
      P     doproj,nproj,shproj,fproj,trasly,
      C     change,e1,e2,ipol,
      A     foccs,evals)
@@ -161,6 +161,7 @@ c     neeed to generalize to uhf
 #include "global.fh"
 #include "stdio.fh"
       integer nbf ![in]
+      integer nmo ![in]
       double precision traslx,sigma,trasly ! [in]
       double precision span ![in]
       integer nstep,change ! [in]
@@ -189,7 +190,7 @@ c
       if(nstep.gt.maxn) call errquit(
      A     ' edo lazy ',0,0)
       i1=1
-      i2=nbf
+      i2=nmo
 c
 c     traslx=-[E(N)-E(N-1)-e_HOMO]
 c
