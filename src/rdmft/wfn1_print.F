@@ -111,7 +111,7 @@ c
         write(LuOut,'(" 1-Electron energy = ",f22.10)')wfn1_energy%E_1el
         write(LuOut,'(" 2-Electron energy = ",f22.10)')wfn1_energy%E_2el
         write(LuOut,'(" Entropy energy    = ",f22.10)')wfn1_energy%E_ent
-        write(LuOut,'(" Nuclear energy    = ",f22.10)')wfn1_energy%E_2el
+        write(LuOut,'(" Nuclear energy    = ",f22.10)')wfn1_energy%E_nuc
       endif
 c
       end subroutine wfn1_print_energy
