@@ -38,6 +38,7 @@ c
       double precision, allocatable :: v_dca(:)
       double precision, allocatable :: v_dcb(:)
       double precision, allocatable :: buf(:,:)
+      double precision, allocatable :: bufji(:,:)
 c
       integer ilo, ihi ! range limits
       integer jlo, jhi ! range limits
@@ -131,35 +132,42 @@ c     Make derivative matrices skew-symmetric
 c
       call ga_distribution(wfn1_deriv%g_dna,iproc,ilo,ihi,jlo,jhi)
       allocate(buf(ilo:ihi,jlo:jhi))
+      allocate(bufji(jlo:jhi,ilo:ihi))
       call ga_get(wfn1_deriv%g_dna,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
+      call ga_get(wfn1_deriv%g_dna,jlo,jhi,ilo,ihi,bufji,jhi-jlo+1)
       do jj = jlo, jhi
         do ii = ilo, ihi
           if      (ii.lt.jj) then
-            buf(ii,jj) = -buf(ii,jj)
+            buf(ii,jj) = -0.5d0*(buf(ii,jj)+bufji(jj,ii))
           else if (ii.eq.jj) then
             buf(ii,jj) =  0.0d0
           else if (ii.gt.jj) then
-            buf(ii,jj) = +buf(ii,jj)
+            buf(ii,jj) = +0.5d0*(buf(ii,jj)+bufji(jj,ii))
           endif
         enddo
       enddo
+      call ga_sync()
       call ga_put(wfn1_deriv%g_dna,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
+      deallocate(bufji)
       deallocate(buf)
 c
       call ga_distribution(wfn1_deriv%g_dnb,iproc,ilo,ihi,jlo,jhi)
       allocate(buf(ilo:ihi,jlo:jhi))
+      allocate(bufji(jlo:jhi,ilo:ihi))
       call ga_get(wfn1_deriv%g_dnb,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
+      call ga_get(wfn1_deriv%g_dnb,jlo,jhi,ilo,ihi,bufji,jhi-jlo+1)
       do jj = jlo, jhi
         do ii = ilo, ihi
           if      (ii.lt.jj) then
-            buf(ii,jj) = -buf(ii,jj)
+            buf(ii,jj) = -0.5d0*(buf(ii,jj)+bufji(jj,ii))
           else if (ii.eq.jj) then
             buf(ii,jj) =  0.0d0
           else if (ii.gt.jj) then
-            buf(ii,jj) = +buf(ii,jj)
+            buf(ii,jj) = +0.5d0*(buf(ii,jj)+bufji(jj,ii))
           endif
         enddo
       enddo
+      call ga_sync()
       call ga_put(wfn1_deriv%g_dnb,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
       deallocate(buf)
 c
@@ -335,13 +343,13 @@ c
       call ga_get(g_momo,imlo,imhi,jmlo,jmhi,buf,imhi-imlo+1)
       do jj = jmlo, jmhi
         do ii = imlo, imhi
-          buf(ii,jj) = 0.5d0*buf(ii,jj)*(occa(ii)+occa(jj))
+          buf(ii,jj) = buf(ii,jj)*occa(ii)
         enddo
       enddo
       call ga_put(g_momo,imlo,imhi,jmlo,jmhi,buf,imhi-imlo+1)
       deallocate(buf)
       call ga_add(1.0d0,wfn1_deriv%g_dna,
-     &            1.0d0,wfn1_deriv%g_dna,g_momo)
+     &            1.0d0,g_momo,wfn1_deriv%g_dna)
 c
 c     Do step 5.
 c
@@ -397,13 +405,13 @@ c
       call ga_get(g_momo,imlo,imhi,jmlo,jmhi,buf,imhi-imlo+1)
       do jj = jmlo, jmhi
         do ii = imlo, imhi
-          buf(ii,jj) = 0.5d0*buf(ii,jj)*(occb(ii)+occb(jj))
+          buf(ii,jj) = buf(ii,jj)*occb(ii)
         enddo
       enddo
       call ga_put(g_momo,imlo,imhi,jmlo,jmhi,buf,imhi-imlo+1)
       deallocate(buf)
       call ga_add(1.0d0,wfn1_deriv%g_dnb,
-     &            1.0d0,wfn1_deriv%g_dnb,g_momo)
+     &            1.0d0,g_momo,wfn1_deriv%g_dnb)
 c
 c     Do step 5.
 c
@@ -413,6 +421,7 @@ c     Done the work, now tidy up
 c
       deallocate(e1a,e1b)
       deallocate(occa,occb)
+      call ga_sync()
       end
 c
 c-----------------------------------------------------------------------
