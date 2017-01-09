@@ -352,7 +352,7 @@ c
                   do ic = iclo, ichi
                     do ii = 1, nmo
                       fna(ii,kk) = fna(ii,kk) 
-     &                           + fnac(ii,ic)*ncia(ic,kk)
+     &                           + 1.0d0*fnac(ii,ic)*ncia(ic,kk)
                     enddo ! ii
                   enddo ! ic
                 enddo ! kk
@@ -366,7 +366,7 @@ c
                   do ic = iclo, ichi
                     do ii = 1, nmo
                       fnb(ii,kk) = fnb(ii,kk) 
-     &                           + fnbc(ii,ic)*ncib(ic,kk)
+     &                           + 1.0d0*fnbc(ii,ic)*ncib(ic,kk)
                     enddo ! ii
                   enddo ! ic
                 enddo ! kk
@@ -394,9 +394,11 @@ c
                 do ic = iclo, ichi
                   do ia = ialo, iahi
                     v_dca(ii) = v_dca(ii)
-     &                        + naia(ia,ii)*fnad(ia,ic)*ncia(ic,ii)
+     &                        + 1.0d0*naia(ia,ii)*
+     &                          fnad(ia,ic)*ncia(ic,ii)
                     v_dcb(ii) = v_dcb(ii)
-     &                        + naib(ia,ii)*fnbd(ia,ic)*ncib(ic,ii)
+     &                        + 1.0d0*naib(ia,ii)*
+     &                          fnbd(ia,ic)*ncib(ic,ii)
                   enddo
                 enddo
               enddo
@@ -494,7 +496,7 @@ c
 c
 c             Add the 2-electron energy
 c
-              E_2el = E_2el + ddot(na*nb*nc*nd,eri,1,den,1)
+              E_2el = E_2el + 0.5d0*ddot(na*nb*nc*nd,eri,1,den,1)
 c
             enddo ! la
           enddo ! lb
