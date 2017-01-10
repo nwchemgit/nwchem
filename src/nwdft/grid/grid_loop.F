@@ -1,3 +1,4 @@
+#define NO_FDE_ARGS 1
 c     $Id$
 c
       subroutine grid_loop(dogradient,
@@ -26,8 +27,8 @@ c
      I     nbf_ao_mxnbf_ce2,nactive,
      1     do_gxc, Amat3, Cmat3, ngxc,
      2     rhosave, delrhosave,
-cc AJL/Begin/FDE
 c     3     do_tddftvxc)
+cc AJL/Begin/FDE
      &     do_tddftvxc, fde_option, g_dens_fde, ncenters_fde, 
      &     rdens_atom_fde, Fmat_fde, Pmat_fde, Bmat_fde,
      &     ttau_fde, rho_fde, delrho_fde, cetobfr_fde,
@@ -233,6 +234,9 @@ c Daniel (1-11-13): Added XC-third derivative stuff
      I                    nbf_ao_mxnbf_ce2,nactive,
      1                    do_gxc, Amat3, Cmat3, ngxc,
      2                    rhosave, delrhosave, triplet,
+#ifdef NO_FDE_ARGS
+     &                    do_tddftvxc)
+#else
 cc AJL/Begin/FDE
      &                    do_tddftvxc, fde_option, g_dens_fde, 
      &                    ncenters_fde, rdens_atom_fde,
@@ -244,6 +248,7 @@ cc AJL/Begin/FDE
      &                    len_ttau, g_fde, iniz_fde, ifin_fde, ibf_fde, 
      &                    xyz_fde, rchi_atom_fde, rdelchi_atom_fde, 
      &                    rq_fde, rho_int_fde)
+#endif
 c
 cc AJL/End
 c

@@ -1,3 +1,4 @@
+#define NO_FDE_ARGS 1
       Subroutine dftg_loop(
      ,     nq_out,iqsh,irsh,rad_sh,dosympts,
      ,     fnxyz,nxyz,nops,grad,
@@ -25,8 +26,10 @@
      I     nbf_ao_mxnbf_ce2,nactive,
      1     do_gxc, Amat3, Cmat3, ngxc,
      2     rhosave, delrhosave, triplet,
+#ifdef NO_FDE_ARGS
+     3     do_tddftvxc)
+#else
 cc AJL/Begin/FDE
-c     3     do_tddftvxc)
      &     do_tddftvxc, fde_option,
      &     g_dens_fde, ncenters_fde, rdens_atom_fde,
      &     Fmat_fde, Pmat_fde, Bmat_fde,
@@ -42,6 +45,7 @@ c     3     do_tddftvxc)
 c
 cc AJL/End
 c
+#endif
 c$Id$
 c
       implicit none
@@ -56,6 +60,7 @@ c
 #include "sym.fh"
 #include "errquit.fh"
 #include "bas.fh"
+#define NO_FDE_INCL
 #include "grid_quad.fh"
 #include "grid_cube.fh"
 c

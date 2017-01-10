@@ -50,6 +50,8 @@ c
       double precision Amat3(*)
       double precision Cmat3(*)
 c AJL/Begin/FDE
+#ifdef NO_FDE_INCL
+#else
       integer fde_option
       integer ncenters_fde
       double precision rdens_atom_fde(ipol*ncenters_fde*ncenters_fde)
@@ -73,11 +75,12 @@ c AJL/Begin/FDE
       double precision ttau_qmfde(*)
       double precision rho_qmfde(*)
       double precision delrho_qmfde(*)
-      integer len_ttau
       integer g_fde(*)
 
       integer iniz_fde(*), ifin_fde(*), ibf_fde(*)
       double precision xyz_fde(*), rq_fde(*)
       double precision rchi_atom_fde(*),rdelchi_atom_fde(*)
       double precision rho_int_fde
+#endif
+      integer len_ttau
 cc AJL/End
