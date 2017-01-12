@@ -12,6 +12,7 @@ C $Id$
       double precision traslx,sigma ! [in]
       integer nstep,change ! [in]
       double precision e1,e2 ![in]
+      double precision scalex,scaley
 c
       logical movecs_read,movecs_read_header,int_normalize
       external movecs_read,movecs_read_header,int_normalize
@@ -88,6 +89,10 @@ c
      &   1,trasly)) trasly=0d0
       if (.not.rtdb_get(rtdb,'dplot:dos_traslx',mt_dbl,
      &   1,traslx)) traslx=0d0
+      if (.not.rtdb_get(rtdb,'dplot:dos_scalex',mt_dbl,
+     &   1,scalex)) scalex=1d0
+      if (.not.rtdb_get(rtdb,'dplot:dos_scaley',mt_dbl,
+     &   1,scaley)) scaley=1d0
       If (.not.rtdb_cget(rtdb,'dplot:File_Out',1,dfile))
      &   dfile='fort.16'
       call util_file_name_resolve(dfile,.false.)
@@ -133,6 +138,7 @@ c     neeed to generalize to uhf
          endif
       endif
       call dplot_dos(nbf,nmo,span,traslx,nstep,sigma,
+     C     scalex,scaley,
      P     doproj,nproj,int_mb(k_proj),dbl_mb(k_fproj),trasly,
      C     change,e1,e2,nsets,
      A     dbl_mb(k_focc),dbl_mb(k_eval))
@@ -154,6 +160,7 @@ c     neeed to generalize to uhf
      C   0,0)
       end
       subroutine dplot_dos(nbf,nmo,span,traslx,nstep,sigma,
+     S     scalex,scaley,
      P     doproj,nproj,shproj,fproj,trasly,
      C     change,e1,e2,ipol,
      A     foccs,evals)
@@ -163,6 +170,7 @@ c     neeed to generalize to uhf
       integer nbf ![in]
       integer nmo ![in]
       double precision traslx,sigma,trasly ! [in]
+      double precision scalex,scaley
       double precision span ![in]
       integer nstep,change ! [in]
       integer ipol ![in]
@@ -270,10 +278,14 @@ c           adde=exp(-((eval-ei)/sigma)**2)/sigma/sqrt(acos(-1d0))
 c        write(6,11) ei,dos(ien+1,1)*fac,dos(ien+1,2)*fac
 c        write(6,11) ei*au2ev+trasl,(dos(ien+1,1)+dos(ien+1,2))*fac
          if(ipol.eq.1) then
-            write(16,11) ei*au2ev+traslx,dos(ien+1,1)*renrm+trasly
+            write(16,11) 
+     X           scalex*(ei*au2ev+traslx),
+     Y           scaley*(dos(ien+1,1)*renrm+trasly)
          else
-            write(16,11) ei*au2ev+traslx,
-     V           dos(ien+1,1)*renrm+trasly,dos(ien+1,2)*renrm+trasly
+            write(16,11) 
+     X           scalex*(ei*au2ev+traslx),
+     Y           scaley*(dos(ien+1,1)*renrm+trasly),
+     Y           scaley*(dos(ien+1,2)*renrm+trasly)
          endif
    11   format(3(2x,1pe14.6))
         ei=ei+de
