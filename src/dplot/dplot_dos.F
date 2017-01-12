@@ -124,7 +124,7 @@ c
      A     call errquit(' pushget failed ',0,0)
          if(.not.MA_Push_Get(MT_dbl,nbf,'ccc',l_c,k_c))
      A     call errquit(' pushget failed ',0,0)
-         if(.not.MA_Push_Get(MT_dbl,,'sscc',l_sc,k_sc))
+         if(.not.MA_Push_Get(MT_dbl,nbf,'sscc',l_sc,k_sc))
      A     call errquit(' pushget failed ',0,0)
 c     neeed to generalize to uhf
          call dplot_pmull(geom,basis,g_vecs(1),nbf,
