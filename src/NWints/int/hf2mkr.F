@@ -124,11 +124,13 @@ c Define the initial auxiliary functions (i.e., R000j, j=1,Lr).
         do 130 mr = 1,(NPP*NPQ)
              R(mr,j,1) = ff(1,mr)*R(mr,j,1)
              ff(1,mr) = ff(1,mr)*ff(2,mr)
-             if (doscreen) then
-               Rscr(mr,j,1) = ffscr(1,mr)*Rscr(mr,j,1)
-               ffscr(1,mr) = ffscr(1,mr)*ffscr(2,mr)
-             end if
   130   continue
+             if (doscreen) then
+                do  mr = 1,(NPP*NPQ)
+                   Rscr(mr,j,1) = ffscr(1,mr)*Rscr(mr,j,1)
+                   ffscr(1,mr) = ffscr(1,mr)*ffscr(2,mr)
+                enddo
+             endif
   135 continue
 
 c Recursively build the remaining auxiliary functions (i.e., RIJKj, j=0).
