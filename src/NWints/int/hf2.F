@@ -305,16 +305,20 @@ c   If insufficient memory, do multipassing.
           if( DryRun )then
             MaxMem = max( MaxMem, i_top )
           else
-             nvals=1
-             if(doscreen) nvals=2*MPP*MPQ
-             if (.not.MA_Push_get(mt_dbl,nvals,'ffscr',
-     C            l_ffscr,i_ffscr)) call errquit(
-     E            'hf2: ran out of MA memory',0,MEM_ERR)
-             nvals=1
-             if(doscreen) nvals=2*MPP*MPQ*lr3*(lr+1)
-             if (.not.MA_Push_get(mt_dbl,nvals,'rscr',
-     C            l_rscr,i_rscr)) call errquit(
-     E            'hf2: ran out of MA memory',1,MEM_ERR)
+             if(doscreen) then
+                nvals=2*MPP*MPQ
+                if (.not.MA_Push_get(mt_dbl,nvals,'ffscr',
+     C               l_ffscr,i_ffscr)) call errquit(
+     E               'hf2: ran out of MA memory',0,MEM_ERR)
+                nvals=2*MPP*MPQ*lr3*(lr+1)
+                if (.not.MA_Push_get(mt_dbl,nvals,'rscr',
+     C               l_rscr,i_rscr)) call errquit(
+     E               'hf2: ran out of MA memory',1,MEM_ERR)
+                else
+                   nvals=1
+                   i_rscr=0
+                   i_ffscr=0
+                endif
             if (doit_PQ) then
               call hf2mkr(Axyz,Bxyz,Cxyz,Dxyz,
      &            W0(i_ALPHAp+2*ipp),W0(i_ALPHAq+2*ipq),
@@ -330,8 +334,10 @@ c   If insufficient memory, do multipassing.
      &            dbl_mb(i_ffscr),dbl_mb(i_rscr),
      &            MPQ,MPP,Lr,Lr3)
             end if
-             if (.not.ma_chop_stack(l_ffscr)) call errquit(
-     E            'hf2: machopstack failed',0,MEM_ERR)
+            if(doscreen) then
+               if (.not.ma_chop_stack(l_ffscr)) call errquit(
+     E              'hf2: machopstack failed',0,MEM_ERR)
+            endif
           end if
 
 c Compute the ERI.
