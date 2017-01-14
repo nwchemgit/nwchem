@@ -1003,7 +1003,8 @@ c***************** sub/replicated routines *****************************
       real*8  scal1,scal2,dv,eh,ph,ss,teh
       integer center(3)
       real*8  rcenter(3)
-      integer taskid
+      integer taskid,icount
+      real*8 cpu0,cpu1
 
 *     **** external functions ****
       real*8   lattice_omega,icoulomb_screened_e
@@ -1018,6 +1019,8 @@ c***************** sub/replicated routines *****************************
       external pspw_hfx_localize_switchr
 
       call Parallel2d_taskid_i(taskid)
+      icount = 0
+      call current_second(cpu0)
 
       ehfx = 0.0d0
       phfx = 0.0d0
@@ -1089,6 +1092,14 @@ c***************** sub/replicated routines *****************************
 
                     call D3dB_r_SMul1(1,scal2*scal1,dbl_mb(dn(1)))
                     call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+
+c                    if (taskid.eq.0) then
+c                       call current_second(cpu1)
+c                       icount = icount + 1
+c                       write(*,*) "into hfx=",i1,j1,
+c     >                            " count,rate,NN=",icount,
+c     >                            dble(icount)/(cpu1-cpu0),NN
+c                    end if
 
                     if (localize_on.and.has_smallgrid) then
                        call pspw_hfx_localize_center_ovlp(

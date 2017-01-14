@@ -499,9 +499,12 @@ c     *** Silvestrelli G3 ***
                x  = a(1,1)*t1 + a(1,2)*t2 + a(1,3)*t3
                y  = a(2,1)*t1 + a(2,2)*t2 + a(2,3)*t3
                z  = a(3,1)*t1 + a(3,2)*t2 + a(3,3)*t3
-               dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1))   = x
-               dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1)+1) = y
-               dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1)+2) = z
+               !dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1))   = x
+               !dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1)+1) = y
+               !dbl_mb(rwav(1)+3*((ms-1)*ne(1)+n-1)+2) = z
+               dbl_mb(rwav(1)+3*(n-1))   = x
+               dbl_mb(rwav(1)+3*(n-1)+1) = y
+               dbl_mb(rwav(1)+3*(n-1)+2) = z
 
             end do
          end do
