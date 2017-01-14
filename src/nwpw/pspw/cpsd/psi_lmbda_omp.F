@@ -129,9 +129,9 @@
         st1  = 7*nn + 1
 #endif
 
-      if (tid.eq.0) then
-          write(*,*) 'Reduce FFMs'
-      end if
+c      if (tid.eq.0) then
+c          write(*,*) 'Reduce FFMs'
+c      end if
 
       if (ms.eq.0) then
          mb1 = 1
