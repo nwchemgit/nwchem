@@ -160,7 +160,7 @@
 
 
          value = value.and.BA_alloc_get(mt_dbl,
-     >                                  2*2*64*int_mb(ma(1,1)+taskid_i),
+     >                                 2*2*64*int_mb(ma2(1,1)+taskid_i),
      >                                  'work1',work1(2),work1(1))
 
          nework = 2*64*int_mb(nc(1,1)+taskid_j)
@@ -177,10 +177,10 @@
      >                              'bwork2',bwork2(2),bwork2(1))
          nework = int_mb(na(1,1))
          value = value.and.BA_alloc_get(mt_dbl,
-     >                              2*nework*int_mb(ma(1,1)+taskid_i),
+     >                              2*nework*int_mb(ma2(1,1)+taskid_i),
      >                              'rwork1',rwork1(2),rwork1(1))
          value = value.and.BA_alloc_get(mt_dbl,
-     >                              2*nework*int_mb(ma(1,1)+taskid_i),
+     >                              2*nework*int_mb(ma2(1,1)+taskid_i),
      >                              'rwork2',rwork2(2),rwork2(1))
          nework = mcq(1)*ncq(1) + mcq(2)*ncq(2)
          value = value.and.BA_alloc_get(mt_dbl,3*nework,
