@@ -1005,6 +1005,7 @@ c***************** sub/replicated routines *****************************
       real*8  rcenter(3)
       integer taskid,icount
       real*8 cpu0,cpu1
+      integer ktaskjid,kcompute(2)
 
 *     **** external functions ****
       real*8   lattice_omega,icoulomb_screened_e
@@ -1036,7 +1037,12 @@ c***************** sub/replicated routines *****************************
      >          BA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
         value = value.and.
      >          BA_push_get(mt_dbl,(n2ft3d),'tmp2_hfx',tmp2(2),tmp2(1))
-        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+        NN = norbs(1)*(norbs(1)+1)/2
+        value = value.and.
+     >          BA_push_get(mt_int,NN,'kcmpute',kcompute(2),kcompute(1))
+        if (.not.value) 
+     >     call errquit('pspw_potential_HFX_sub:out of stack memory',
+     >                  0,MA_ERR)
         call dcopy(n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
         call dcopy(n2ft3d,0.0d0,0,dbl_mb(vij(1)),1)
         call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
@@ -1056,6 +1062,8 @@ c***************** sub/replicated routines *****************************
            scal1 = 1.0d0/dble(n1*n2*n3)
         end if
 
+*       **** compute kcompute ****
+        ktaskjid = 0
 
 *       ***** screened coulomb solver ****
         if (solver_type.eq.1) then
@@ -1063,6 +1071,26 @@ c***************** sub/replicated routines *****************************
            if (norbs(ms).eq.0) go to 898
            call dcopy(norbs(ms),0.0d0,0,dbl_mb(ehfx_orb(1,ms)),1)
            NN = norbs(ms)*(norbs(ms)+1)/2
+
+*          **** compute kcompute ****
+           i1 = 1
+           j1 = 1
+           do k1=1,NN
+              if (pspw_hfx_localize_closeenough(
+     >                   int_mb(orbital_list(1,ms)+i1-1),
+     >                   int_mb(orbital_list(1,ms)+j1-1))) then
+                 int_mb(kcompute(1)+k1-1) = ktaskjid
+                 ktaskjid = mod(ktaskjid+1,npj)
+              else
+                 int_mb(kcompute(1)+k1-1) = npj+1
+              end if
+              j1 = j1 + 1
+              if (j1.gt.i1) then
+                 j1 = 1
+                 i1 = i1 + 1
+              end if
+           end do
+
            i1 = 1
            j1 = 1
            k1 = 1
@@ -1078,7 +1106,8 @@ c***************** sub/replicated routines *****************************
               if ((k1.le.NN).and.
      >            (.not.D3dB_rc_pfft3_queue_filled())) then
 
-                 if (mod(k1,npj).eq.taskid_j) then
+                 !if (mod(k1,npj).eq.taskid_j) then
+                 if (int_mb(kcompute(1)+k1-1).eq.taskid_j) then
                  if (pspw_hfx_localize_closeenough(
      >                   int_mb(orbital_list(1,ms)+i1-1),
      >                   int_mb(orbital_list(1,ms)+j1-1))) then
@@ -1128,7 +1157,8 @@ c
      >            .and.(k2.le.NN)).and.
      >            (.not.D3dB_cr_pfft3_queue_filled())) then
 
-                 if (mod(k2,npj).eq.taskid_j) then
+                 !if (mod(k2,npj).eq.taskid_j) then
+                 if (int_mb(kcompute(1)+k2-1).eq.taskid_j) then
                  if (pspw_hfx_localize_closeenough(
      >                   int_mb(orbital_list(1,ms)+i2-1),
      >                   int_mb(orbital_list(1,ms)+j2-1))) then
@@ -1189,7 +1219,8 @@ c
 
               if ((D3dB_cr_pfft3_queue_filled()).or.(k2.gt.NN)) then
 
-                 if (mod(k3,npj).eq.taskid_j) then
+                 !if (mod(k3,npj).eq.taskid_j) then
+                 if (int_mb(kcompute(1)+k3-1).eq.taskid_j) then
                  if (pspw_hfx_localize_closeenough(
      >                   int_mb(orbital_list(1,ms)+i3-1),
      >                   int_mb(orbital_list(1,ms)+j3-1))) then
@@ -1345,7 +1376,8 @@ c     >                           Hpsi_r(index2))
 
         end if
 
-        value =           BA_pop_stack(tmp2(2))
+        value =           BA_pop_stack(kcompute(2))
+        value = value.and.BA_pop_stack(tmp2(2))
         value = value.and.BA_pop_stack(tmp1(2))
         value = value.and.BA_pop_stack(vij(2))
         value = value.and.BA_pop_stack(dn(2))
