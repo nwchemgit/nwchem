@@ -207,7 +207,7 @@ cVOG  IMPLICIT REAL*8(A-H,O-Z)
       INTEGER I1BATCH(*)
       INTEGER IBATCH(8,*)
 *
-      NTEST = 0000
+      NTEST = 0
       if (newciblks.eq.1) then
        IF(NTEST.GE.100.and.ga_nodeid().eq.0) write(*,*) 'You have work!'
        stop
@@ -323,11 +323,11 @@ cVOG      WRITE(6,*) ' IASM IBSM IA IB LBLOCKP,LBLOCK' ,
 *
 *. VOG: Modified dimension of IBATCH. Check number of blocks
 *
-      IF ((IBLOCK+1).GT.NTTSVOG) THEN
-       WRITE(*,*) 'Current number of TTSS Blocks:', IBLOCK+1
-       WRITE(*,*) 'NTTSVOG:', NTTSVOG 
-       STOP 'Number of TTSS Blocks larger than NTTSVOG'
-      END IF
+c      IF ((IBLOCK+1).GT.NTTSVOG) THEN
+c       WRITE(*,*) 'Current number of TTSS Blocks:', IBLOCK+1
+c       WRITE(*,*) 'NTTSVOG:', NTTSVOG 
+c       STOP 'Number of TTSS Blocks larger than NTTSVOG'
+c      END IF
 *
 *. Bert (and VOG). Effort to balance the number of Blocks per batch
 *

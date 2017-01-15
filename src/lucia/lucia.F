@@ -1997,7 +1997,7 @@ c      INCLUDE 'mxpdim.inc'
       call luciaqenter('gasci')
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GASCI ')
       newciblks = 0
-      NTEST = 000
+      NTEST = 1
       NTEST = MAX(NTEST,IPRNT)
       MXACJ = 0
       MXACIJ = 0
@@ -4429,7 +4429,7 @@ C?    WRITE(6,*) ' ALLO: NTTS = ', NTTS
 !       NTTSVOG = INT(NTTS / 10) !VOG NEW
 !       NTTSVOG = 8 * NTTSVOG     !VOG NEW
 !       NTTS = NTTSVOG            !VOG NEW
-        NTTSVOG = NTTS !VOG Back to normal
+!       NTTSVOG = NTTS !VOG Back to normal
        IF (ga_nodeid().eq.0) write(*,*) 'NTTS', MXNTTS, NTTSVOG
        MXBLKBATCH = 100
 *

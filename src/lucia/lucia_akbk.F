@@ -5281,8 +5281,8 @@ cVOG    else
          igsoccupd(igas,1,icispc) = igsoccx(igas,1,icispc)
          igsoccupd(igas,2,icispc) = igsoccx(igas,2,icispc)
          if (igas.eq.imofromto(2)) then
-          igsoccupd(igas,1,icispc) = 0 !igsoccupd(igas,1,icispc) -
-!     &                               2*ngssh(imofromto(1),imofromto(2))
+          igsoccupd(igas,1,icispc) = igsoccupd(igas,1,icispc) -
+     &                               2*ngssh(imofromto(1),imofromto(2))
           if (((igas-1).gt.0).and.
      &       (igsoccupd(igas,1,icispc).lt.igsoccupd(igas-1,1,icispc)))
      &        igsoccupd(igas,1,icispc) = igsoccupd(igas-1,1,icispc)
@@ -5291,7 +5291,7 @@ cVOG    else
          end if
         end do
         !
-        ! Move target MO in a new GAS space
+        ! Move target MOs in a new GAS space
         !
         ngsshupd(imofromto(1),imofromto(2)) = 0
         ngsshupd(imofromto(1),imofromto(3)) = 
@@ -5327,31 +5327,33 @@ cVOG    else
 *. Find in which GAS I will move another orbital if I need to further
 *. fragment the original active space
 *
-        !
-        ! GAS space from/to where we will move one MO
-        !
-        nmoings = 0
-        do irrep = 1, nirrep
-         nmoings = nmoings + ngsshupd(irrep,1)
-        end do
-        imofromto(2) = 1
-        !
-        imofromto(3) = imofromto(3) + 1
-        !
-        ! Irrep of the MO
-        !
-        iminmo = 100
-        do irrep = 1, nirrep
-         if (ngsshupd(irrep,1).ne.0) then
-          if (ngsshupd(irrep,1).lt.iminmo) iminmo = ngsshupd(irrep,1)
-         end if
-        end do
-        do irrep = 1, nirrep
-         if (ngsshupd(irrep,imofromto(2)).eq.iminmo) then
-          imofromto(1) = irrep
-          exit
-         end if
-        end do
+*      
+*. Have I reached the total numger of IRREPs?
+*      
+        IF (ngasupd.LT.NIRREP) THEN
+         !
+         ! GAS space from/to where we will move one MO
+         !
+         nmoings = 0
+         do irrep = 1, nirrep
+          nmoings = nmoings + ngsshupd(irrep,1)
+         end do
+         imofromto(2) = 1
+         !
+         imofromto(3) = imofromto(3) + 1
+         !
+         ! Irrep of the MO
+         !
+         imaxmo = 0
+         do irrep = 1, nirrep
+          if (ngsshupd(irrep,imofromto(2)).gt.imaxmo) then
+           imaxmo = ngsshupd(irrep,imofromto(2))
+           imofromto(1) = irrep
+          end if
+         end do
+        ELSE
+         imofromto = 0
+        END IF
 *
 *. Case that I have reached the max number of GAS spaces
 *. add an MO to an existing one (not tested for GASCI yet!)
@@ -6239,50 +6241,51 @@ cVOG    else
 *. LUCIA-at-NWCHEM now offers a completely free distribution of the MOs
 *. belonging to the same irrep to individual GAS spaces!
 *
-c     IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
-c     call ga_sync()
+*      IF (NGAS.EQ.1.AND.NIRREP.NE.1) CALL ONE_IRREP_PER_GAS
+*      call ga_sync()
 *
 *. Cheat LUCIA for testing performance with large number of processors
 *
       NNOD = ga_nnodes()
 !      NNOD = 2048
 *
-*. Obtain initial values for the MO-to-be-moved pointers (imofromto)
+*. Only for cases that are not with C1 symmetry
 *
-      imofromto(1) = 0
-      imofromto(2) = 0
-      imofromto(3) = 0
-      !
-      ! GAS space from where we will move the MOs
-      !
-      nmoings = 0
-      do irrep = 1, nirrep
-       nmoings = nmoings + ngssh(irrep,1)
-      end do
-      if (nmoings.gt.1) then
-       imofromto(2) = 1
-      else
-       STOP ' GAS 1 is empty!!! No MOs to move, I QUIT!!! '
-      end if
-      !
-      ! GAS space in which we will move the MO
-      !
-      imofromto(3) = ngas + 1
-      !
-      ! MOs of the irrep that I will move to imofromto(3)
-      !
-      iminmo = 100
-      do irrep = 1, nirrep
-       if (ngssh(irrep,1).ne.0) then
-        if (ngssh(irrep,1).lt.iminmo) iminmo = ngssh(irrep,1)
+      IF (NGAS.LT.NIRREP) THEN
+*
+*. Obtain initial values for the MOs-to-be-moved pointers (imofromto)
+*
+       imofromto(1) = 0
+       imofromto(2) = 0
+       imofromto(3) = 0
+       !
+       ! GAS space from where we will move the MOs
+       !
+       nmoings = 0
+       do irrep = 1, nirrep
+        nmoings = nmoings + ngssh(irrep,1)
+       end do
+       if (nmoings.gt.1) then
+        imofromto(2) = 1
+       else
+        STOP ' GAS 1 is empty!!! No MOs to move, I QUIT!!! '
        end if
-      end do
-      do irrep = 1, nirrep
-       if (ngssh(irrep,imofromto(2)).eq.iminmo) then
-        imofromto(1) = irrep
-        exit
-       end if
-      end do
+       !
+       ! GAS space in which we will move the MO
+       !
+       imofromto(3) = ngas + 1
+       !
+       ! MOs of the irrep that I will move to imofromto(3)
+       !
+       imaxmo = 0
+       do irrep = 1, nirrep
+        if (ngssh(irrep,imofromto(2)).gt.imaxmo) then
+         imaxmo = ngssh(irrep,imofromto(2))
+         imofromto(1) = irrep
+        end if
+       end do
+*
+      END IF
 *
 * ====================
 * Begin the large Loop 
@@ -6331,10 +6334,10 @@ c     call ga_sync()
        CALL MEMMAN(KCIOIO,LEN_IOIO,'ADDL  ',1,'CIOIO ')
 *
        NTTS  = MXNTTS
+       NTTSVOG = INT(NTTS / 2) !VOG NEW
 !       NTTSVOG = INT(NTTS / 10) !VOG NEW
 !       NTTSVOG = 8 * NTTSVOG     !VOG NEW
 !       NTTS = NTTSVOG            !VOG NEW
-       NTTSVOG = NTTS !VOG Back to normal
        NSMST = NIRREP
        CALL MEMMAN(KCIBT ,8*NTTS,'ADDL  ',1,'CIBT  ')
        CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',1,'CBLTP ')
@@ -6450,10 +6453,11 @@ c    &                      nnod,ntest,nfragagain)
       if (nfragagain.eq.1) then
        if (ntest.eq.10.and.ga_nodeid().eq.0)
      &   write(*,*) 'I will fragment the GAS space'
+       if (NGAS.lt.NIRREP) THEN
+        call fraggas(igasloop,ngasadd,imofromto)
+       else
         CALL BREAK_GAS()
-!        if (NGAS.eq.NIRREP)
-!     &  STOP ' Maximum number of GAS spaces reached, I QUIT!!! '
-!       call fraggas(igasloop,ngasadd,imofromto)
+       end if
       else
        exit
       end if
@@ -6646,7 +6650,8 @@ c    &                      nnod,ntest,nfragagain)
 *. of IRREPs 
 *. eg. when I need more than 8 GAS for a D2h case
 *
-*. Konstantinos D. Vogiatzis, Nov 2016, UCLA
+*. Konstantinos D. Vogiatzis, Nov 2016, while sitting in a
+*.                                      biochemistry lab at UCLA
 * 
 *======================================================================*
 *
@@ -7094,6 +7099,7 @@ c       imap2(inode) = 0
 *
 *. Only for PRINTING reasons
 *
+       call ga_sync() !DEC
        nnod = ga_nnodes()
        nfragagain = 0
        call CI_batches_info(NBATS,LBATS,IBATS,NBLK,

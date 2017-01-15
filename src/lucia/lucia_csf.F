@@ -6662,7 +6662,7 @@ CE        END DO
          CALL WRT_MINMAX_GASOCC(IGSOCC_MIN,IGSOCC_MAX,NGAS)
       END IF
 *   
-      MAXLOOP = 1000000
+      MAXLOOP = 10000000
 cVOG  MAXLOOP = 10000
       NLOOP = 0
       NOCCLS = 0
@@ -6700,8 +6700,9 @@ C?          WRITE(6,*) ' IGAS, NEL, NORB = ', IGAS, NEL, NORB
         END IF! NO_NEW = 0
       IF(NONEW.EQ.0.AND.NLOOP.LT.MAXLOOP) GOTO 1000
       IF(NLOOP.EQ.MAXLOOP) THEN
-        WRITE(6,*) ' Forced MAXLOOP exit in MAXOP...'
-        WRITE(6,*) ' Bug or test to be removed, Jeppe!!! '
+       if (ga_nodeid().eq.0) WRITE(6,*) ' Forced MAXLOOP exit in MAXOP.'
+       if (ga_nodeid().eq.0)
+     &    WRITE(6,*) ' Bug or test to be removed, Jeppe!!! '
 cVOG    STOP ' Forced MAXLOOP exit in MAXOP... '
       END IF
 *
@@ -8000,7 +8001,7 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
      &           NOCCLS,IOCCLS,
      &           N_ABSPGP_TOT,I_ABSPGP_FOR_OCCLS,N_ABSPGP_FOR_OCCLS,
      &           IB_ABSPGP_FOR_OCCLS,IONLY_NABSPGP,NNODES,N_ABSPGP_MAX,
-     &           I_ABSPGP_A,I_ABSPGP_B,N_ABSPGP,N_ABSPGP_VOG)
+     &           I_ABSPGP_A,I_ABSPGP_B,N_ABSPGP)
 *
 * Obtain the combination of A- and B- supergroups that
 * belong to a given occupation class.
@@ -8025,13 +8026,13 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
       INTEGER NELFGP(*)
       INTEGER IOCCLS(NGAS,*)
       INTEGER I_ABSPGP_A(N_ABSPGP_MAX), I_ABSPGP_B(N_ABSPGP_MAX),
-     &        N_ABSPGP(NNODES), N_ABSPGP_VOG(NOCCLS) !VOG
+     &        N_ABSPGP(NNODES)
 *. Output
       INTEGER N_ABSPGP_FOR_OCCLS(NOCCLS)
       INTEGER IB_ABSPGP_FOR_OCCLS(NOCCLS)
       INTEGER I_ABSPGP_FOR_OCCLS(2,*)
 *. Local scratch
-      INTEGER JAJBOC(MXPNGAS)
+      INTEGER JAJBOC(MXPNGAS), N_ABSPGP_VOG(NOCCLS) !VOG
 *. 
       CALL LUCIAQENTER('ABSPG')
       NTEST = 0
@@ -11973,7 +11974,7 @@ C?        WRITE(6,*) ' IAMOKAY = ', IAMOKAY
 *. Number of occupation classes per batch and offset
       INTEGER NOCCLS_BAT(*), IBOCCLS_BAT(*)
 *
-      NTEST = 000 !VOG 000
+      NTEST = 000
       IPRNT = 0
       NTEST = MAX(NTEST,IPRNT)
 *

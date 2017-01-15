@@ -1990,8 +1990,8 @@ C?    CALL IWRTMA(IBSPGPFTP,1,NSTTYP,1,NSTTYP)
       CALL MEMMAN(KI_ABSPGP_VOG,NOCCLS_MAX,'ADDL  ',1,'ABSPGP_V')
       CALL MEMMAN(KI_ABSPGP,ga_nnodes(),'ADDL  ',1,'NABSPGP')
 *
-      if (ga_nodeid().eq.0) write(*,*) 'VOG: N_ABSPGP_MAX', N_ABSPGP_MAX
-      if (ga_nodeid().eq.0) write(*,*) 'VOG: KI_ABSPGP_VOG', NOCCLS_MAX
+!      if (ga_nodeid().eq.0) write(*,*) 'VOG: N_ABSPGP_MAX', N_ABSPGP_MAX
+!      if (ga_nodeid().eq.0) write(*,*) 'VOG: KI_ABSPGP_VOG', NOCCLS_MAX
 *. First: offsets
       CALL ABSPGP_TO_OCCLS(
      &     ISPGPFTP(1,IB_A),NASPGP,ISPGPFTP(1,IB_B),NBSPGP,
