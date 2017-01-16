@@ -6285,6 +6285,8 @@ cVOG    else
         end if
        end do
 *
+      ELSE
+       imofromto(2) = 1
       END IF
 *
 * ====================
@@ -6383,18 +6385,17 @@ cVOG    else
        IOPTBATCHPNODE = 1 !BE CAREFUL - might need to be revised or defined differently
        LBPNODE = INT(NCBATCH/NNOD)
 
-       if (ga_nodeid().eq.0) write(*,*) 'NCBATCH', NCBATCH
-       if (ga_nodeid().eq.0) write(*,*) 'IBATCHCOUNT', IBATCHCOUNT
-       if (ga_nodeid().eq.0) write(*,*) 'NCBLOCK', NCBLOCK
-       if (ga_nodeid().eq.0) write(*,*) 'NDISTBATCH', NDISTBATCH
-       if (ga_nodeid().eq.0) write(*,*) 'LBPNODE',LBPNODE,IOPTBATCHPNODE
+!       if (ga_nodeid().eq.0) write(*,*) 'NCBATCH', NCBATCH
+!       if (ga_nodeid().eq.0) write(*,*) 'IBATCHCOUNT', IBATCHCOUNT
+!       if (ga_nodeid().eq.0) write(*,*) 'NCBLOCK', NCBLOCK
+!       if (ga_nodeid().eq.0) write(*,*) 'NDISTBATCH', NDISTBATCH
+!       if (ga_nodeid().eq.0) write(*,*) 'LBPNODE',LBPNODE,IOPTBATCHPNODE
 *
 *. Start loop that finds the optimum numer of BATCHES.
 *. The logic is based on the number of Blocks per Batch
 *
        MXBLKBATCH = 10000
        DO I = 1, 190 ! = MXBLKBATCH nevel less than 10
-        if (ga_nodeid().eq.0) write(*,*) 'estim MXBLKBATCH', MXBLKBATCH
 *
 *. Second Z_BLOCK and CIV2 calls with estimated number of blocks per batch
 *
@@ -6453,7 +6454,14 @@ c    &                      nnod,ntest,nfragagain)
       if (nfragagain.eq.1) then
        if (ntest.eq.10.and.ga_nodeid().eq.0)
      &   write(*,*) 'I will fragment the GAS space'
-       if (NGAS.lt.NIRREP) THEN
+       !
+       ! Check if you have a GAS with MOs in more than one IRREP
+       !
+       IOCCGAS = 0
+       DO IRREP = 1, NIRREP
+        IF (NGSSH(IRREP,imofromto(2)).NE.0) IOCCGAS = IOCCGAS + 1
+       END DO
+       if (IOCCGAS.GT.1) THEN
         call fraggas(igasloop,ngasadd,imofromto)
        else
         CALL BREAK_GAS()
