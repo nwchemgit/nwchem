@@ -193,6 +193,7 @@ c
       double precision au2ev,efermi,fval
       double precision tinteg,pinteg,adde,renrm
       double precision nelec 
+      integer stepsz,ien_0,ien_1
       parameter(au2ev=27.21d0)
 c
       if(nstep.gt.maxn) call errquit(
@@ -230,6 +231,7 @@ c     HOMO
      E     emax*au2ev
       if(ga_nodeid().eq.0) write(luout,*) ' sigma ',sigma,
      E sigma*au2ev*2d0
+      if(ga_nodeid().eq.0) write(luout,*) ' scalex ',scalex
       if(ga_nodeid().eq.0) write(luout,*) ' traslx trasly ',traslx,
      E     trasly,change
       if(change.eq.1) then
@@ -276,9 +278,19 @@ c           adde=exp(-((eval-ei)/sigma)**2)/sigma/sqrt(acos(-1d0))
          write(luout,'(A,F14.2)')' no. electrons in energy range ',nelec
          write(luout,'(A,F14.2)')' integrated PDOS ',pinteg*renrm
       endif
-      do ien=1,nstep
+      if(scalex.lt.0d0) then
+         stepsz=-1
+         ien_0=nstep
+         ien_1=1
+      else
+         stepsz=1
+         ien_0=1
+         ien_1=nstep
+      endif
+      do ien=ien_0,ien_1,stepsz
 c        write(6,11) ei,dos(ien+1,1)*fac,dos(ien+1,2)*fac
 c        write(6,11) ei*au2ev+trasl,(dos(ien+1,1)+dos(ien+1,2))*fac
+        ei=emin+(ien-1)*de
          if(ipol.eq.1) then
             write(16,11) 
      X           scalex*(ei*au2ev+traslx),
@@ -290,7 +302,7 @@ c        write(6,11) ei*au2ev+trasl,(dos(ien+1,1)+dos(ien+1,2))*fac
      Y           scaley*(dos(ien+1,2)*renrm+trasly)
          endif
    11   format(3(2x,1pe14.6))
-        ei=ei+de
+cold        ei=ei+de
       enddo
       endif
       call ga_sync()
