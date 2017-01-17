@@ -17,6 +17,7 @@
       integer dng2(2)
       integer hml(2)
       integer eig(2)
+      integer hml_excited(2)
       integer eig_excited(2)
       integer lmd_cpmd(2),tmp_L_cpmd(2)
       common / psi_block / psi1,occ1,psi2,occ2,
@@ -28,7 +29,8 @@
       common / psi_paw_block / spsi1,spsi2
 
       common / epsi_block / psi1_excited,psi2_excited,
-     >                      eig_excited,ne_excited,neq_excited
+     >                      hml_excited,eig_excited,
+     >                      ne_excited,neq_excited
 
 *     **** psi smearing block ****
       integer smearoccupation,smeartype

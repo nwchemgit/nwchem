@@ -734,6 +734,104 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
 
 
 
+************************ gradient virtural orbital Part ************************
+*     ***********************************
+*     *                                 *
+*     *      psi_gen_hml_virtual        *
+*     *                                 *
+*     ***********************************
+      subroutine psi_gen_hml_virtual()
+      implicit none
+
+#include "bafdecls.fh"
+#include "psi.fh"
+#include "errquit.fh"
+
+      !*** local variables ***
+      integer ii,jj,jjstart,jjend,ms,mshift,indx,indxt
+      integer Horb(2)
+      real*8  tsum
+
+*     **** allocate temporary memory from stack ****
+      if (.not.BA_push_get(mt_dcpl,npack1,'Horb',Horb(2),Horb(1)))
+     >   call errquit('psi_gen_hml_virtual:pusing stack',0,MA_ERR)
+
+      do ii=1,(ne_excited(1)+ne_excited(2))
+
+         !*** orthogonalize to lower orbitals  ****
+         call psi_project_out_virtual1(
+     >           ii,
+     >           dcpl_mb(psi1_excited(1)+(ii-1)*npack1))
+
+         !*** normalize ****
+         call Pack_cc_dot(1,
+     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
+     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
+     >            tsum)
+         tsum = 1.0d0/dsqrt(tsum)
+         call Pack_c_SMul1(1,tsum,
+     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
+
+         if (ii.le.ne_excited(1)) then
+            ms = 1
+            jjstart = 1
+            jjend   = ii
+            mshift = 0
+         else
+            ms = 2
+            jjstart = ne_excited(1)+1
+            jjend   = ii
+            mshift = ne_excited(1)*ne_excited(1)
+         end if
+         call Pack_cc_dot(1,
+     >               dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
+     >               dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
+     >               tsum)
+         write(*,*) "ii,norm=",ii,tsum
+
+         call electron_get_gradient_virtual(ms,
+     >             dcpl_mb(psi1_excited(1)+(ii-1)*npack1),
+     >             dcpl_mb(Horb(1)))
+
+         do jj=jjstart,jjend
+            call Pack_cc_dot(1,
+     >               dcpl_mb(psi1_excited(1) +(jj-1)*npack1),
+     >               dcpl_mb(Horb(1)),
+     >               tsum)
+            write(*,*) "ii,jj,e=",ii,jj,tsum
+            indx  = (ii-jjstart)+(jj-jjstart)*ne_excited(ms)+mshift
+            dbl_mb(hml_excited(1)+indx)  = tsum
+            if (ii.ne.jj) then
+               indxt = (jj-jjstart)+(ii-jjstart)*ne_excited(ms)+mshift
+               dbl_mb(hml_excited(1)+indxt) = tsum
+            end if
+         end do
+      end do
+
+*     **** deallocate temporary memory from stack ****
+      if (.not.BA_pop_stack(Horb(2)))
+     >   call errquit('psi_gen_hml_virtual:popping stack',0,MA_ERR)
+
+      call Dnexall_m_diagonalize(0,ispin,ne_excited,
+     >                           dbl_mb(hml_excited(1)),
+     >                           dbl_mb(eig_excited(1)),.true.)
+      call  Dnexall_fmf_Multiply(0,ispin,ne_excited,
+     >                           dcpl_mb(psi1_excited(1)),npack1,
+     >                           dbl_mb(hml_excited(1)),1.0d0,
+     >                           dcpl_mb(psi2_excited(1)),0.0)
+      indx = psi1_excited(1)
+      psi1_excited(1) = psi2_excited(1)
+      psi2_excited(1) = indx
+c      call dcopy(2*npack1,
+c     >           dcpl_mb(psi1_excited(1)+3*npack1),1,
+c     >           dcpl_mb(psi1(1)),1)
+
+
+      return
+      end
+
+
+
 
 ************************ virtural orbital Part ************************
 *     ***********************************
@@ -795,10 +893,10 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
 
       subroutine psi_sort_virtual()
       implicit none
-#include "errquit.fh"
 
 #include "bafdecls.fh"
 #include "psi.fh"
+#include "errquit.fh"
 
       logical value
       integer i,j,ii,jj,ms
@@ -6416,17 +6514,79 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
 
 *     ***************************
 *     *				*
+*     *   psi_2epsi_gradients	*
+*     *				*
+*     ***************************
+      logical function psi_2epsi_gradients(gn)
+      implicit none
+      integer gn
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "psi.fh"
+#include "errquit.fh"
+      
+*     **** local variables ****
+      logical value
+      integer nfac,nex(2),nemax,nexmax,ii,n
+      real*8 tsum,tsum0
+      
+      nfac = 3
+      if (gn.eq.2) then
+         nfac = 9
+      else if (gn.eq.3) then
+         nfac = 19
+      end if
+      nex(1) = ne(1)*nfac
+      nex(2) = ne(2)*nfac
+      nemax   = ne(1) + ne(2)
+      nexmax  = nex(1) + nex(2)
+
+*     **** allocate memory ****
+      value = BA_alloc_get(mt_dcpl,npack1*(nexmax),
+     >         'psi1_excited',psi1_excited(2),psi1_excited(1))
+      if (.not.value) 
+     >  call errquit('psi_2epsi_gradients: out of heap memory',0,MA_ERR)
+
+      do ii=1,nfac
+         do n=1,nemax
+            call Pack_cc_multiplegradients(1,ii,
+     >             dcpl_mb(psi1(1)+(n-1)*npack1),
+     >             dcpl_mb(psi1_excited(1)+((n-1)+(ii-1)*nemax)*npack1))
+            call Pack_cc_dot(1,
+     >             dcpl_mb(psi1_excited(1)+((n-1)+(ii-1)*nemax)*npack1),
+     >             dcpl_mb(psi1_excited(1)+((n-1)+(ii-1)*nemax)*npack1),
+     >             tsum)
+            call Pack_cc_dot(1,
+     >             dcpl_mb(psi1(1)+(n-1)*npack1),
+     >             dcpl_mb(psi1(1)+(n-1)*npack1),
+     >             tsum0)
+            write(*,*) "ii,n,tsum=",ii,n,tsum,tsum0
+         end do
+      end do
+
+      call epsi_write(ispin,nex,dcpl_mb(psi1_excited(1)))
+      value = BA_free_heap(psi1_excited(2))
+      if (.not.value) 
+     >  call errquit('psi_2epsi_gradients:freeing heap',0,MA_ERR)
+
+      return
+      end
+
+
+*     ***************************
+*     *				*
 *     *     epsi_initialize 	*
 *     *				*
 *     ***************************
 
       logical function epsi_initialize()
       implicit none 
-#include "errquit.fh"
 
 #include "bafdecls.fh"
 #include "btdb.fh"
 #include "psi.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
@@ -6436,7 +6596,7 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
 
       integer hversion,hnfft(3),hispin,hne(2)
       real*8 hunita(3,3),sum1,sum2
-      integer rtdb,ind
+      integer rtdb,ind,nn
       integer  control_rtdb,control_ngrid
       external control_rtdb,control_ngrid
       character*50 filename
@@ -6451,6 +6611,7 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
 *     ***** get ispin, and ne, and nfft3d ****
       call psi_get_ne_excited(ispin0,ne_excited)
       nemax  = ne_excited(1)  + ne_excited(2)
+      nn = ne_excited(1)*ne_excited(1) + ne_excited(2)*ne_excited(2)
 
 *     **** allocate memory ****
       value = BA_alloc_get(mt_dcpl,npack1*(nemax),
@@ -6461,11 +6622,16 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
       value = value.and.
      >        BA_alloc_get(mt_dbl,(2*nemax),'eig_excited',
      >                     eig_excited(2),eig_excited(1))
-      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+      value = value.and.
+     >        BA_alloc_get(mt_dbl,nn,'hml_excited',
+     >                     hml_excited(2),hml_excited(1))
+      if (.not.value) 
+     >   call errquit('epsi_initialize: out of heap memory',0,MA_ERR)
 
       call dcopy(2*npack1*nemax,0.0d0,0,dcpl_mb(psi2_excited(1)),1)
       call dcopy(2*npack1*nemax,0.0d0,0,dcpl_mb(psi1_excited(1)),1)
       call dcopy(2*nemax,0.0d0,0,dbl_mb(eig_excited(1)),1)
+      call dcopy(nn,0.0d0,0,dbl_mb(hml_excited(1)),1)
 
 
 *     *****  read initial wavefunctions into psi1  ****
@@ -6598,7 +6764,8 @@ c      end if
       if (writepsi)
      >  call epsi_write(ispin,ne_excited,dcpl_mb(psi1_excited(1)))
     
-      value = BA_free_heap(eig_excited(2))
+      value = BA_free_heap(hml_excited(2))
+      value = value.and.BA_free_heap(eig_excited(2))
       value = value.and.BA_free_heap(psi2_excited(2))
       value = value.and.BA_free_heap(psi1_excited(2))
       if (.not. value) 
