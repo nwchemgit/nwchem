@@ -2,6 +2,8 @@
 # makefile,v 1.8 1994/12/05 20:37:08 og845 Exp
 
    OBJ = wfn1.o \
+         wfn1_2el_hf.o \
+         wfn1_2el_wfn1.o \
          wfn1_allocate_drv.o \
          wfn1_allocate_mat.o \
          wfn1_allocate_wfn.o \
@@ -28,7 +30,7 @@
          wfn1_print_occ.o \
          wfn1_size.o \
          wfn1_trace.o \
-         wfn1_zero_vv.o
+         wfn1_zero_vv.o 
 
    LIBRARY = librdmft.a
 
