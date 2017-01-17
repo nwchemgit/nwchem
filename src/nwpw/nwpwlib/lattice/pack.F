@@ -3061,6 +3061,160 @@ c      end do
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *          Pack_cc_xyzgradient    *
+*     *                                 *
+*     ***********************************
+      subroutine Pack_cc_xyzgradient(nb,xyz,A,B)
+      implicit none
+      integer    nb,xyz
+      complex*16 A(*)
+      complex*16 B(*)
+
+#include "bafdecls.fh"
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb
+
+*     **** common block for G_pack ****
+      integer G_pack(3,0:3),G_pack_hndl
+      common / G_pack_blk / G_pack,G_pack_hndl
+
+      call Pack_tc_iMul(nb,dbl_mb(G_pack(xyz,nb)),A,B)
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *       Pack_cc_xyzgradient1      *
+*     *                                 *
+*     ***********************************
+      subroutine Pack_cc_xyzgradient1(nb,xyz,B)
+      implicit none
+      integer    nb,xyz
+      complex*16 B(*)
+
+#include "bafdecls.fh"
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb
+
+*     **** common block for G_pack ****
+      integer G_pack(3,0:3),G_pack_hndl
+      common / G_pack_blk / G_pack,G_pack_hndl
+
+      call Pack_tc_iMul2(nb,dbl_mb(G_pack(xyz,nb)),B)
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *    Pack_cc_multiplegradients    *
+*     *                                 *
+*     ***********************************
+      subroutine Pack_cc_multiplegradients(nb,ii,A,B)
+      implicit none
+      integer    nb,ii
+      complex*16 A(*)
+      complex*16 B(*)
+
+c     **** one derivatives ****
+      if (ii.eq.1) call Pack_cc_xyzgradient(nb,1,A,B)
+      if (ii.eq.2) call Pack_cc_xyzgradient(nb,2,A,B)
+      if (ii.eq.3) call Pack_cc_xyzgradient(nb,3,A,B)
+
+c     **** two derivatives ****
+      if (ii.eq.4) then
+         call Pack_cc_xyzgradient(nb,1,A,B)
+         call Pack_cc_xyzgradient1(nb,2,B)
+      end if
+      if (ii.eq.5) then
+         call Pack_cc_xyzgradient(nb,1,A,B)
+         call Pack_cc_xyzgradient1(nb,3,B)
+      end if
+      if (ii.eq.6) then
+         call Pack_cc_xyzgradient(nb,2,A,B)
+         call Pack_cc_xyzgradient1(nb,3,B)
+      end if
+      if (ii.eq.7) then
+         call Pack_cc_xyzgradient(nb,1,A,B)
+         call Pack_cc_xyzgradient1(nb,1,B)
+      end if
+      if (ii.eq.8) then
+         call Pack_cc_xyzgradient(nb,2,A,B)
+         call Pack_cc_xyzgradient1(nb,2,B)
+      end if
+      if (ii.eq.9) then
+         call Pack_cc_xyzgradient(nb,3,A,B)
+         call Pack_cc_xyzgradient1(nb,3,B)
+      end if
+
+c     **** three derivatives ****
+      if (ii.eq.10) then
+         call Pack_cc_xyzgradient(nb,1,A,B)
+         call Pack_cc_xyzgradient1(nb,2,B)
+         call Pack_cc_xyzgradient1(nb,3,B)
+      end if
+      if (ii.eq.11) then
+         call Pack_cc_xyzgradient(nb,1,A,B)
+         call Pack_cc_xyzgradient1(nb,1,B)
+         call Pack_cc_xyzgradient1(nb,2,B)
+      end if
+      if (ii.eq.12) then
+         call Pack_cc_xyzgradient(nb,1,A,B)
+         call Pack_cc_xyzgradient1(nb,1,B)
+         call Pack_cc_xyzgradient1(nb,3,B)
+      end if
+      if (ii.eq.13) then
+         call Pack_cc_xyzgradient(nb,1,A,B)
+         call Pack_cc_xyzgradient1(nb,2,B)
+         call Pack_cc_xyzgradient1(nb,2,B)
+      end if
+      if (ii.eq.14) then
+         call Pack_cc_xyzgradient(nb,3,A,B)
+         call Pack_cc_xyzgradient1(nb,2,B)
+         call Pack_cc_xyzgradient1(nb,2,B)
+      end if
+      if (ii.eq.15) then
+         call Pack_cc_xyzgradient(nb,1,A,B)
+         call Pack_cc_xyzgradient1(nb,3,B)
+         call Pack_cc_xyzgradient1(nb,3,B)
+      end if
+      if (ii.eq.16) then
+         call Pack_cc_xyzgradient(nb,2,A,B)
+         call Pack_cc_xyzgradient1(nb,3,B)
+         call Pack_cc_xyzgradient1(nb,3,B)
+      end if
+      if (ii.eq.17) then
+         call Pack_cc_xyzgradient(nb,1,A,B)
+         call Pack_cc_xyzgradient1(nb,1,B)
+         call Pack_cc_xyzgradient1(nb,1,B)
+      end if
+      if (ii.eq.18) then
+         call Pack_cc_xyzgradient(nb,2,A,B)
+         call Pack_cc_xyzgradient1(nb,2,B)
+         call Pack_cc_xyzgradient1(nb,2,B)
+      end if
+      if (ii.eq.19) then
+         call Pack_cc_xyzgradient(nb,3,A,B)
+         call Pack_cc_xyzgradient1(nb,3,B)
+         call Pack_cc_xyzgradient1(nb,3,B)
+      end if
+
+      return 
+      end
+
+
+
+
 
 
 *     ***********************************
