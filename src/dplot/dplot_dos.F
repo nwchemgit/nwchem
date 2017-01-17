@@ -228,6 +228,8 @@ c     HOMO
       if(ga_nodeid().eq.0) write(luout,*) ' au extrm ',emin,emax
       if(ga_nodeid().eq.0) write(luout,*) ' ev extrm ',emin*au2ev,
      E     emax*au2ev
+      if(ga_nodeid().eq.0) write(luout,*) ' sigma ',sigma,
+     E sigma*au2ev*2d0
       if(ga_nodeid().eq.0) write(luout,*) ' traslx trasly ',traslx,
      E     trasly,change
       if(change.eq.1) then
