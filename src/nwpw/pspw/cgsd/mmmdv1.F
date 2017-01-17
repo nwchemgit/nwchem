@@ -211,7 +211,7 @@
       value = ion_init(rtdb)
 
 *     **** read in ion charges ****
-      call mmq_init()
+      call mmq_init(rtdb)
 
 *     **** initialize ewald data structures ****
       if (control_version().eq.3) call ewald_init()
@@ -700,7 +700,7 @@ c      call cpmd_properties(rtdb)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1132 FORMAT(5X,' using fractional occupation')
  1140 FORMAT(/' elements involved in the cluster:')
- 1150 FORMAT(5X,I2,': ',A4,'  core charge:',F4.1)
+ 1150 FORMAT(5X,I2,': ',A4,'  core charge:',F9.6)
  1151 FORMAT(5X,'        cutoff =',4F8.3)
  1152 FORMAT(12X,' highest angular component      : ',i3)
  1153 FORMAT(12X,' local potential used           : ',i3)
