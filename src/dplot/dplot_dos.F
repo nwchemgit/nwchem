@@ -13,6 +13,7 @@ C $Id$
       integer nstep,change ! [in]
       double precision e1,e2 ![in]
       double precision scalex,scaley
+      double precision vde
 c
       logical movecs_read,movecs_read_header,int_normalize
       external movecs_read,movecs_read_header,int_normalize
@@ -93,6 +94,8 @@ c
      &   1,scalex)) scalex=1d0
       if (.not.rtdb_get(rtdb,'dplot:dos_scaley',mt_dbl,
      &   1,scaley)) scaley=1d0
+      if (.not.rtdb_get(rtdb,'dplot:dos_vde',mt_dbl,
+     &   1,vde)) vde=-999d0
       If (.not.rtdb_cget(rtdb,'dplot:File_Out',1,dfile))
      &   dfile='fort.16'
       call util_file_name_resolve(dfile,.false.)
@@ -138,7 +141,7 @@ c     neeed to generalize to uhf
          endif
       endif
       call dplot_dos(nbf,nmo,span,traslx,nstep,sigma,
-     C     scalex,scaley,
+     C     scalex,scaley,vde,
      P     doproj,nproj,int_mb(k_proj),dbl_mb(k_fproj),trasly,
      C     change,e1,e2,nsets,
      A     dbl_mb(k_focc),dbl_mb(k_eval))
@@ -160,7 +163,7 @@ c     neeed to generalize to uhf
      C   0,0)
       end
       subroutine dplot_dos(nbf,nmo,span,traslx,nstep,sigma,
-     S     scalex,scaley,
+     S     scalex,scaley,vde,
      P     doproj,nproj,shproj,fproj,trasly,
      C     change,e1,e2,ipol,
      A     foccs,evals)
@@ -170,7 +173,7 @@ c     neeed to generalize to uhf
       integer nbf ![in]
       integer nmo ![in]
       double precision traslx,sigma,trasly ! [in]
-      double precision scalex,scaley
+      double precision scalex,scaley,vde
       double precision span ![in]
       integer nstep,change ! [in]
       integer ipol ![in]
@@ -226,12 +229,18 @@ c     HOMO
       enddo
       emin=efermi-span/au2ev
       emax=efermi+span/au2ev
+c shift to match vde
+      if(abs(traslx).lt.1d-9.and.vde.ne.-999d0) then
+c     e_homo+traslx=vde
+         traslx=-efermi*au2ev-vde
+      endif
       if(ga_nodeid().eq.0) write(luout,*) ' au extrm ',emin,emax
       if(ga_nodeid().eq.0) write(luout,*) ' ev extrm ',emin*au2ev,
      E     emax*au2ev
       if(ga_nodeid().eq.0) write(luout,*) ' sigma ',sigma,
      E sigma*au2ev*2d0
       if(ga_nodeid().eq.0) write(luout,*) ' scalex ',scalex
+      if(ga_nodeid().eq.0) write(luout,*) ' vde ',vde
       if(ga_nodeid().eq.0) write(luout,*) ' traslx trasly ',traslx,
      E     trasly,change
       if(change.eq.1) then
