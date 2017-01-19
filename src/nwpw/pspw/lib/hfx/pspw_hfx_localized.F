@@ -271,7 +271,7 @@ c     *** Silvestrelli G3 ***
          call Dneall_m_size(1,msize)
 
          do ms=1,ispin
-            mshift = (ms-1)*mshift
+            mshift = (ms-1)*msize
             do i=1,rank
                call silvestrelli_overlap(
      >                     bv(1,i),ms,ne,neq,
