@@ -605,6 +605,9 @@ c         call nwxc_print()
 *     **** pspw_dplot: stuff ****
 *     ***************************
       else if (code.eq.4) then
+         if (.not.btdb_cget(rtdb,'cgsd:cell_name',1,cell_name)) then
+           cell_name = 'cell_default'
+         end if
          value = .true.
          if (.not.btdb_cget(rtdb,'pspw_dplot:wavefunction_filename',
      >                  1,input_wavefunction_filename))
@@ -961,6 +964,10 @@ c         call nwxc_print()
 *     **********************
       else if (code.eq.9) then
 
+      if (.not.btdb_cget(rtdb,'cgsd:cell_name',1,cell_name)) then
+        cell_name = 'cell_default'
+      end if
+
 c     **** Figure input/output MO vectors ****
 
       if (.not.btdb_cget(rtdb,'wannier:input vectors',
@@ -1020,6 +1027,11 @@ c         return
 *     **** band_dplot: stuff ****
 *     ***************************
       else if (code.eq.10) then
+
+         if (.not.btdb_cget(rtdb,'band:cell_name',1,cell_name)) then
+           cell_name = 'cell_default'
+         end if
+
          value = .true.
          if (.not.btdb_cget(rtdb,'band_dplot:wavefunction_filename',
      >                  1,input_wavefunction_filename))
