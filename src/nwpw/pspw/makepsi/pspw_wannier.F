@@ -28,7 +28,7 @@ c Computes wannier orbitals using the Silvestrelli algorithm.
 
       logical value,oprint
       integer mapping,mapping1d,maxiter
-      integer i,j,ms,n,ne(2),ispin,ngrid(3),nemax
+      integer i,j,ms,n,ne(2),ispin,ngrid(3),nemax,ngrid_small(3)
       integer neq(2),nemaxq,shift,rank
       integer nfft3d,n2ft3d,npack1
       integer info
@@ -81,6 +81,10 @@ c      character*255 full_filename,full_filename2
       external    ion_nearest_index
       character*2 ion_aname_nocarat
       external    ion_aname_nocarat
+      logical  control_has_ngrid_small
+      external control_has_ngrid_small
+      integer  control_ngrid_small
+      external control_ngrid_small
 
       value = .true.
 
@@ -130,6 +134,14 @@ c      character*255 full_filename,full_filename2
       call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
+
+      if (control_has_ngrid_small()) then
+         ngrid_small(1) = control_ngrid_small(1)
+         ngrid_small(2) = control_ngrid_small(2)
+         ngrid_small(3) = control_ngrid_small(3)
+         call D3dB_Init(3,ngrid_small(1),ngrid_small(2),ngrid_small(3),
+     >                  mapping)
+      end if
 
 
 *     **** initialize lattice and packing data structure ****
@@ -561,6 +573,7 @@ c
       call G_end()
       call D3dB_pfft_end()
       call D3dB_end(1)
+      if (control_has_ngrid_small()) call D3dB_end(3)
       call Dne_end()
       call psi_data_end()
 
