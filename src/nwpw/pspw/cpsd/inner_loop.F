@@ -355,6 +355,7 @@ c       these two functions are now threadsafe/multithreaded
 !$OMP END DO
 
 
+        call pspw_hfx_localize2_n(2,psi_r,psi1,psi2,psi2)
 
 c       this function calls non pipelined 3d fft
         call nwpw_meta_gga_gen_tau(ispin,ne,psi1)
