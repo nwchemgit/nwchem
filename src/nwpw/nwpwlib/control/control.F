@@ -1170,6 +1170,10 @@ c         return
       if (btdb_get(rtdb,rtdb_ngrid_small,mt_int,3,ngrid_small))
      >   has_ngrid_small = .true.
 
+*     *** set to false if wannier or dplot code ***
+      if ((code.eq.4) .or.(code.eq.9).or.(code.eq.10))
+     >   has_ngrid_small = .false.
+
 
 *     **** set fractional (smearing) parameters ****
       if (.not.
