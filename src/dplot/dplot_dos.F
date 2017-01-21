@@ -14,6 +14,7 @@ C $Id$
       double precision e1,e2 ![in]
       double precision scalex,scaley
       double precision vde
+      logical do_gaussbr
 c
       logical movecs_read,movecs_read_header,int_normalize
       external movecs_read,movecs_read_header,int_normalize
@@ -29,7 +30,8 @@ c
       integer g_vecs(2)
       integer l_eval,k_eval,l_focc,k_focc,
      K     k_proj,l_proj,k_c,l_c,k_sc,l_sc,k_fproj,l_fproj
-      double precision span,trasly
+      integer l_dos,k_dos
+      double precision span,trasly,emin,emax
       character*80 dfile
       integer nproj,angproj
       logical doproj
@@ -84,6 +86,10 @@ c
      &   1,sigma)) sigma=0.025d0
       if (.not.rtdb_get(rtdb,'dplot:dos_span',mt_dbl,
      &   1,span)) span=5d0
+      if (.not.rtdb_get(rtdb,'dplot:dos_emin',mt_dbl,
+     &   1,emin)) emin=0d0
+      if (.not.rtdb_get(rtdb,'dplot:dos_emax',mt_dbl,
+     &   1,emax)) emax=0d0
       if (.not.rtdb_get(rtdb,'dplot:dos_doproj',mt_log,
      &   1,doproj)) doproj=.false.
       if (.not.rtdb_get(rtdb,'dplot:dos_trasly',mt_dbl,
@@ -96,6 +102,8 @@ c
      &   1,scaley)) scaley=1d0
       if (.not.rtdb_get(rtdb,'dplot:dos_vde',mt_dbl,
      &   1,vde)) vde=-999d0
+      if (.not.rtdb_get(rtdb,'dplot:do_gaussbr',mt_log,
+     &   1,do_gaussbr)) do_gaussbr=.false.
       If (.not.rtdb_cget(rtdb,'dplot:File_Out',1,dfile))
      &   dfile='fort.16'
       call util_file_name_resolve(dfile,.false.)
@@ -140,8 +148,11 @@ c     neeed to generalize to uhf
             doproj=.false.
          endif
       endif
+      if(.not.MA_Push_Get(MT_dbl,2*nstep,'evals',l_dos,k_dos))
+     A     call errquit(' pushget failed ',0,0)
       call dplot_dos(nbf,nmo,span,traslx,nstep,sigma,
-     C     scalex,scaley,vde,
+     C     scalex,scaley,vde,do_gaussbr,dbl_mb(k_dos),
+     E     emin,emax,
      P     doproj,nproj,int_mb(k_proj),dbl_mb(k_fproj),trasly,
      C     change,e1,e2,nsets,
      A     dbl_mb(k_focc),dbl_mb(k_eval))
@@ -163,7 +174,8 @@ c     neeed to generalize to uhf
      C   0,0)
       end
       subroutine dplot_dos(nbf,nmo,span,traslx,nstep,sigma,
-     S     scalex,scaley,vde,
+     S     scalex,scaley,vde,do_gaussbr,dos,
+     E     emin,emax,
      P     doproj,nproj,shproj,fproj,trasly,
      C     change,e1,e2,ipol,
      A     foccs,evals)
@@ -172,6 +184,7 @@ c     neeed to generalize to uhf
 #include "stdio.fh"
       integer nbf ![in]
       integer nmo ![in]
+      logical do_gaussbr ! [in]
       double precision traslx,sigma,trasly ! [in]
       double precision scalex,scaley,vde
       double precision span ![in]
@@ -182,16 +195,17 @@ c     neeed to generalize to uhf
       integer nproj,shproj(*)
       double precision fproj(*)
       double precision evals(nbf,2),
-     * foccs(nbf,2)
+     * foccs(nbf,2),dos(nstep,*)
+      double precision emin,emax ! [in]
 c
       integer i1,i2 ![in] 1,nmo?
       integer nocc(2)
-      integer maxn,spin,i
+      integer spin,i
       double precision eps
-      parameter(maxn=10000,eps=1d-12)
-      double precision focc,eval,dos(maxn,2)
+      parameter(eps=1d-12)
+      double precision focc,eval
       integer ien
-      double precision emin,emax,de,ei
+      double precision de,ei
       double precision sqpi,factpi
       double precision au2ev,efermi,fval
       double precision tinteg,pinteg,adde,renrm
@@ -199,8 +213,6 @@ c
       integer stepsz,ien_0,ien_1
       parameter(au2ev=27.21d0)
 c
-      if(nstep.gt.maxn) call errquit(
-     A     ' edo lazy ',0,0)
       i1=1
       i2=nmo
 c
@@ -209,8 +221,6 @@ c
       sigma=sigma/au2ev*0.5d0
       factpi=0.5d0/acos(-1d0)
       sqpi=sigma*sqrt(acos(-1d0))
-      emax=-200000d0
-      emin=20000d0
       nelec=0d0
       do spin=1,ipol
         do i=i1,i2
@@ -227,12 +237,19 @@ c     HOMO
           endif
        enddo
       enddo
-      emin=efermi-span/au2ev
-      emax=efermi+span/au2ev
 c shift to match vde
       if(abs(traslx).lt.1d-9.and.vde.ne.-999d0) then
 c     e_homo+traslx=vde
          traslx=-efermi*au2ev-vde
+      endif
+      if(abs(emin).lt.1d-5.and.abs(emax).lt.1d-5) then
+c     use span to define energy range
+         emin=efermi-span/au2ev
+         emax=efermi+span/au2ev
+      else
+c     user defined emin emax in eV
+         emin=(emin-traslx)/au2ev
+         emax=(emax-traslx)/au2ev
       endif
       if(ga_nodeid().eq.0) write(luout,*) ' au extrm ',emin,emax
       if(ga_nodeid().eq.0) write(luout,*) ' ev extrm ',emin*au2ev,
@@ -264,13 +281,16 @@ c     e_homo+traslx=vde
           if(doproj) fval=fproj(i)
           do ien=0,nstep-1
 c
-c lorentzian broadening
-c
-            adde=sigma/(sigma*sigma+(eval-ei)**2)*factpi
-c
 c gaussian
 c
-c           adde=exp(-((eval-ei)/sigma)**2)/sigma/sqrt(acos(-1d0))
+             if(do_gaussbr) then
+                adde=exp(-((eval-ei)/sigma)**2)/sigma/sqrt(acos(-1d0))
+c
+c lorentzian broadening
+c
+             else
+                adde=sigma/(sigma*sigma+(eval-ei)**2)*factpi
+             endif
            if(foccs(i,spin).gt.eps) then
               tinteg=tinteg+adde
               pinteg=pinteg+adde*fval
