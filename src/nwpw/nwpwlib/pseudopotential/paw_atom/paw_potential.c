@@ -564,7 +564,8 @@ void  paw_print_paw_potential_information(FILE *fp)
     fprintf(fp,"\n");
 
     n = paw_get_pointer_paw_n_array();
-    l = paw_get_pointer_l_array();
+    //l = paw_get_pointer_l_array();
+    l = paw_get_pointer_paw_l_array();
 
     fprintf(fp,"   nl     c[i]        rcut[i] \n");
 
