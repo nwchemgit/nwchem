@@ -63,6 +63,7 @@ C
       integer itag
       integer narg !< The number of command line arguments
       integer istatus !< The status of the command reader
+      integer mpistat(MPI_STATUS_SIZE) !< The MPI status
       integer ii, jj !< Counters
       character*(80) carg !< A particular command line argument
       integer ilo, jlo, ihi, jhi !< Lower and upper limits of matrix
@@ -101,11 +102,12 @@ C
       if (icore.eq.0) then
         narg = command_argument_count() !< Fortran 2003
         ii = 1
+        ndim = icore_dim
         do while (ii .le. narg)
           call get_command_argument(ii,carg,status=istatus) !< Fortran 2003
           if (carg(1:strlen(carg)).eq."--ndim") then
             call get_command_argument(ii+1,carg,status=istatus)
-            read(carg,'(i)',iostat=istatus) ndim
+            read(carg,'(i10)',iostat=istatus) ndim
             if (istatus.ne.0) then
               write(*,*)'*** ERROR: read failed, iostat = ',istatus,
      &                  ' carg = ',carg(1:strlen(carg))
@@ -172,11 +174,11 @@ C
         itst = 0
         itag = 888
         call MPI_Recv(a(:,:),ldim*ldim,
-     &                MPI_DOUBLE_PRECISION,itst,itag,world,istatus,ierr)
+     &                MPI_DOUBLE_PRECISION,itst,itag,world,mpistat,ierr)
         itst = 0
         itag = 889
         call MPI_Recv(b(:,:),ldim*ldim,
-     &                MPI_DOUBLE_PRECISION,itst,itag,world,istatus,ierr)
+     &                MPI_DOUBLE_PRECISION,itst,itag,world,mpistat,ierr)
       endif
 C
 C     Get everyone on the same page, then do the work
@@ -201,16 +203,16 @@ C
             jhi =   (jj+1)*ldim
             itst = jj*icore_dim+ii
             if (ii.ne.0.or.jj.ne.0) then
-              itag = 888
+              itag = 890
               call MPI_Recv(c(:,:),ldim*ldim,MPI_DOUBLE_PRECISION,
-     &                      itst,itag,world,istatus,ierr)
+     &                      itst,itag,world,mpistat,ierr)
               c1(ilo:ihi,jlo:jhi) = c(1:ldim,1:ldim)
             endif
           enddo
         enddo
       else
         itst = 0
-        itag = 888
+        itag = 890
         call MPI_Send(c(:,:),ldim*ldim,
      &                MPI_DOUBLE_PRECISION,itst,itag,world,ierr)
       endif
@@ -262,12 +264,12 @@ C>
 C
 cinclude "mpif.h"
 C
-      integer ndim !< [Input] The dimension of the distributed matrices
-      integer ldim !< [Input] The dimension of the local blocks
+      integer, intent(in) :: ndim !< [Input] The dimension of the distributed matrices
+      integer, intent(in) :: ldim !< [Input] The dimension of the local blocks
 C
 C     Sort out data types
 C
-      integer, parameter :: w = 8
+      integer, parameter :: w = selected_real_kind(12)
 C
 C     Local blocks of matrices A, B, and C
 C
