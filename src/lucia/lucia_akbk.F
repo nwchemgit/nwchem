@@ -5105,7 +5105,7 @@ cVOG    else
       integer totsds, ngastotmo, weyl, get_mo_occ_gas
       external weyl, get_mo_occ_gas
 *
-      ntest  = 00
+      ntest  = 100
 *
 *. Print Input
 *
@@ -5281,8 +5281,8 @@ cVOG    else
          igsoccupd(igas,1,icispc) = igsoccx(igas,1,icispc)
          igsoccupd(igas,2,icispc) = igsoccx(igas,2,icispc)
          if (igas.eq.imofromto(2)) then
-          igsoccupd(igas,1,icispc) = igsoccupd(igas,1,icispc) -
-     &                               2*ngssh(imofromto(1),imofromto(2))
+          igsoccupd(igas,1,icispc) = igsoccupd(igas,1,icispc) - 2
+!     &                               2*ngssh(imofromto(1),imofromto(2))
           if (((igas-1).gt.0).and.
      &       (igsoccupd(igas,1,icispc).lt.igsoccupd(igas-1,1,icispc)))
      &        igsoccupd(igas,1,icispc) = igsoccupd(igas-1,1,icispc)
@@ -5293,9 +5293,9 @@ cVOG    else
         !
         ! Move target MOs in a new GAS space
         !
-        ngsshupd(imofromto(1),imofromto(2)) = 0
-        ngsshupd(imofromto(1),imofromto(3)) = 
-     &     ngssh(imofromto(1),imofromto(2))
+        ngsshupd(imofromto(1),imofromto(2)) = 
+     &  ngsshupd(imofromto(1),imofromto(2)) - 1
+        ngsshupd(imofromto(1),imofromto(3)) = 1
         !
         ! Min/Max Occ
         igsoccupd(imofromto(3),1,icispc) = 
@@ -5324,36 +5324,30 @@ cVOG    else
          end do
         end if
 *
-*. Find in which GAS I will move another orbital if I need to further
+*. Find from which GAS I will move the next orbital if I need to further
 *. fragment the original active space
 *
-*      
-*. Have I reached the total numger of IRREPs?
-*      
-        IF (ngasupd.LT.NIRREP) THEN
-         !
-         ! GAS space from/to where we will move one MO
-         !
-         nmoings = 0
-         do irrep = 1, nirrep
-          nmoings = nmoings + ngsshupd(irrep,1)
-         end do
-         imofromto(2) = 1
-         !
-         imofromto(3) = imofromto(3) + 1
-         !
-         ! Irrep of the MO
-         !
-         imaxmo = 0
-         do irrep = 1, nirrep
-          if (ngsshupd(irrep,imofromto(2)).gt.imaxmo) then
-           imaxmo = ngsshupd(irrep,imofromto(2))
-           imofromto(1) = irrep
-          end if
-         end do
-        ELSE
-         imofromto = 0
-        END IF
+        MAXMOINGAS = 0
+        DO IRREP = 1, NIRREP
+         IF (IRREP.NE.imofromto(1)) THEN
+          IF (ngssh(irrep,imofromto(2)).GT.MAXMOINGAS) THEN
+           imofromto(1) = IRREP
+          END IF
+         END IF
+        END DO
+!        DO IRREP = 1, NIRREP
+!         IF (IRREP.NE.imofromto(1)) THEN
+!          IF (ngssh(irrep,imofromto(2)).GT.1) THEN
+!           imofromto(1) = IRREP
+!           exit
+!          END IF
+!         END IF
+!        END DO
+        !
+        ! By moving only 1 MO in a new GAS, the imofromto(2) is always 1
+        ! (i.e. we move always a MO from GAS 1)
+        imofromto(2) = 1
+        imofromto(3) = ngasupd + 1
 *
 *. Case that I have reached the max number of GAS spaces
 *. add an MO to an existing one (not tested for GASCI yet!)
@@ -6336,10 +6330,6 @@ cVOG    else
        CALL MEMMAN(KCIOIO,LEN_IOIO,'ADDL  ',1,'CIOIO ')
 *
        NTTS  = MXNTTS
-       NTTSVOG = INT(NTTS / 2) !VOG NEW
-!       NTTSVOG = INT(NTTS / 10) !VOG NEW
-!       NTTSVOG = 8 * NTTSVOG     !VOG NEW
-!       NTTS = NTTSVOG            !VOG NEW
        NSMST = NIRREP
        CALL MEMMAN(KCIBT ,8*NTTS,'ADDL  ',1,'CIBT  ')
        CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',1,'CBLTP ')
@@ -6457,15 +6447,7 @@ c    &                      nnod,ntest,nfragagain)
        !
        ! Check if you have a GAS with MOs in more than one IRREP
        !
-       IOCCGAS = 0
-       DO IRREP = 1, NIRREP
-        IF (NGSSH(IRREP,imofromto(2)).NE.0) IOCCGAS = IOCCGAS + 1
-       END DO
-       if (IOCCGAS.GT.1) THEN
-        call fraggas(igasloop,ngasadd,imofromto)
-       else
-        CALL BREAK_GAS()
-       end if
+       call fraggas(igasloop,ngasadd,imofromto)
       else
        exit
       end if
@@ -6525,8 +6507,8 @@ c    &                      nnod,ntest,nfragagain)
         END DO
        END DO
        WRITE(*,*)
-       WRITE(*,*)  'Total number of TTSS BLOCKS :',NCBLOCK
-       WRITE(*,*)  'Total number of TTSS BATCHES:',NCBATCH
+       WRITE(*,*)  'Total number of TTSS BLOCKS :', NCBLOCK
+       WRITE(*,*)  'Total number of TTSS BATCHES:', NCBATCH
        WRITE(*,*)
        WRITE(*,*) ' Exiting optimum_gas_for_blocks '
        WRITE(*,*)

@@ -321,14 +321,6 @@ cVOG      WRITE(6,*) ' IASM IBSM IA IB LBLOCKP,LBLOCK' ,
           IF(LENGTH+LBLOCK.LE.MXLNG.OR.ICOMP.EQ.1) INCLUDE = 1
         END IF
 *
-*. VOG: Modified dimension of IBATCH. Check number of blocks
-*
-c      IF ((IBLOCK+1).GT.NTTSVOG) THEN
-c       WRITE(*,*) 'Current number of TTSS Blocks:', IBLOCK+1
-c       WRITE(*,*) 'NTTSVOG:', NTTSVOG 
-c       STOP 'Number of TTSS Blocks larger than NTTSVOG'
-c      END IF
-*
 *. Bert (and VOG). Effort to balance the number of Blocks per batch
 *
       IF (NBLOCK.EQ.MXBLKBATCH) INCLUDE = 0

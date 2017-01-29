@@ -2842,7 +2842,7 @@ C?    write(6,*) ' LCISPC : NICISP ', NICISP
    50 CONTINUE
   100 CONTINUE
 *
-      NTEST = 0
+      NTEST = 10
       NTEST = MAX(NTEST,IPRNT)
       if (NTEST.GE.10.and.ga_nodeid().eq.0) then
       WRITE(6,*) 

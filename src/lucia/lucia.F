@@ -2160,7 +2160,6 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
      &               KCNOCCLS_BAT, KCIBOCCLS_BAT 
       END IF
 *
-      if (ga_nodeid().eq.0) print*,'NTTSVOG GASCI',NTTSVOG
       CALL Z_BLKFO_FOR_CISPACE(ISPC,ISM,LBLOCK,ICOMP,
      &     IPRNT,NCBLOCK,NCBATCH,
      &     int_mb(KCIOIO),int_mb(KCBLTP),NCOCCLS_ACT,
@@ -2183,7 +2182,7 @@ C?    CALL IWRTMA(WORK(KCI1BT),1,1,1,1)
       NBLOCK = NCBLOCK
       NBATCH = NCBATCH
       IPRINT = 10
-      IF(IPRNT.GT.10.and.ga_nodeid().eq.0) THEN 
+      IF(IPRINT.GE.10.and.ga_nodeid().eq.0) THEN 
          WRITE(6,'(A,I9)') ' Number of blocks ', NBLOCK
          WRITE(6,'(A,I9)') ' Number of batches ', NBATCH
       END IF
@@ -2287,6 +2286,18 @@ C?      WRITE(6,*) ' MAXA1 1', MAXA1
      &  'MXCJ,MXCIJA,MXCIJB,MXCIJAB = ',
      &   MXCJ,MXCIJA,MXCIJB,MXCIJAB
 *
+      IF(IPRINT.GE.10.and.ga_nodeid().eq.0) THEN !VOG_KNOX
+       write(*,*) 'LBLOCK',     LBLOCK
+       write(*,*) ' MXSOOB',    MXSOOB
+       write(*,*) ' MXSOOB_AS', MXSOOB_AS
+       write(*,*) ' ICISTR',    ICISTR
+       write(*,*) ' ISIMSYM',   ISIMSYM
+       write(*,*) ' LCSBLK',    LCSBLK
+       write(*,*) ' ICNFBAT',   ICNFBAT
+       write(*,*) ' NOCSF',     NOCSF
+       write(*,*) ' NCBLOCK',   NCBLOCK
+      END IF
+      call ga_sync()
       CALL MEMMAN(KVEC1,LBLOCK,'ADDL  ',2,'VEC1  ')
       CALL MEMMAN(KVEC2,LBLOCK,'ADDL  ',2,'VEC2  ')
 C...dongxia  so KVEC1P and KVEC2P also local
@@ -2628,7 +2639,6 @@ C?    CALL IWRTMA(WORK(KCI1BT),1,1,1,1)
 *. An additional file
 CNW   CALL FILEMAN_MINI(LU8,'ASSIGN')
       ILAST = -3006
-      if (ga_nodeid().eq.0) print*,'NTTSVOG CIEIG',NTTSVOG
       CALL CIEIG5(MV7,INICI,EROOT,KPVEC1,KPVEC2,
      & MINST,LUDIA,LUC,LUHC,LUSC1,LUSC2,LUSC3,LUSC34,LUSC35,LU8,
      & NVAR,NBLK,NROOT,MXCIV,MAXIT,LUCIVI,IPRNT,dbl_mb(KLH0_EIGVEC),
@@ -4423,14 +4433,6 @@ C?    WRITE(6,*) ' TEST: NOCTPA, NOCTPB = ',  NOCTPA, NOCTPB
 *
       NTTS = MXNTTS
 C?    WRITE(6,*) ' ALLO: NTTS = ', NTTS
-*
-*. VOG; Reduce the dimension of the NTTS - important for large CAS spaces
-*
-!       NTTSVOG = INT(NTTS / 10) !VOG NEW
-!       NTTSVOG = 8 * NTTSVOG     !VOG NEW
-!       NTTS = NTTSVOG            !VOG NEW
-!       NTTSVOG = NTTS !VOG Back to normal
-       IF (ga_nodeid().eq.0) write(*,*) 'NTTS', MXNTTS, NTTSVOG
        MXBLKBATCH = 100
 *
       if (ga_nodeid().eq.0) call MA_summarize_allocated_blocks()
