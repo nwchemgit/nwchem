@@ -5331,6 +5331,7 @@ cVOG    else
         DO IRREP = 1, NIRREP
          IF (IRREP.NE.imofromto(1)) THEN
           IF (ngssh(irrep,imofromto(2)).GT.MAXMOINGAS) THEN
+           MAXMOINGAS = ngssh(irrep,imofromto(2))
            imofromto(1) = IRREP
           END IF
          END IF
