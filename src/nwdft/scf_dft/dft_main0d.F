@@ -228,11 +228,31 @@ c
       if (cam_exch .and. (.not.CDFIT) ) then
        if (rtdb_get(rtdb, 'dft:direct', mt_log, 1, ldirect)) then
         if (.not.ldirect) then
+#if 1
+c     force direct
+           ldirect=.true.
+           if (.not. rtdb_put(rtdb, 'dft:direct',mt_log,1,ldirect))
+     &          call errquit('dftmain0d: rtdb_put failed',400,RTDB_ERR)
+           if (.not. rtdb_put(rtdb,'int2e:filesize',mt_int,1,-1))
+     $          call errquit('dftmain0d: failed to store filesize',401,
+     &          RTDB_ERR)
+           if (.not. rtdb_put(rtdb,'int2e:memsize',mt_int,1,-1))
+     $          call errquit('dftmain0d: failed to store filesize',402,
+     &          RTDB_ERR)
+           if (ga_nodeid().eq.0) then
+              write(luout,*) " "
+              write(luout,*) " CAM type calculations without CDFIT are"
+              write(luout,*) " only available with the direct option."
+              write(luout,*) " Forcing Direct SCF"
+              write(luout,*) " "
+          end if
+#else
           if (ga_nodeid().eq.0) then
            write(luout,*) "CAM type calculations without CDFIT are only"
            write(luout,*) "available with the direct option"
           end if
           call errquit('Please use the direct option',4, INPUT_ERR)
+#endif
         end if
        end if
       end if
