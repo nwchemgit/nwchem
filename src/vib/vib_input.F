@@ -10,6 +10,7 @@ c    reuse [<string> hessian_filename]
 c    mass <integer> lexical_index <real> new_mass
 c    mass <string> tag_identifier <real> new_mass
 c    animate [<real> step_size_for_animation]     
+c    fd_delta [<real> step_size_for_fd_hessian]     
 c    filename <string> file_set_name [overwrite]
 c  end
 c  
@@ -31,7 +32,7 @@ c
       integer lexical_index
       integer old_num_mod_mass
       integer num_mod_mass
-      double precision new_mass, animate_step
+      double precision new_mass, animate_step,fd_step
       integer len, num_on_line
       integer numtemps, l_temp, k_temp, itemp
       double precision valuetemp,kv(3)
@@ -82,6 +83,18 @@ c
             call inp_outrec()
             goto 01001
           endif
+          goto 00010
+        else if (inp_compare(.false.,test,'fd_delta')) then
+            if (inp_f(fd_step)) then
+              if (.not.rtdb_put(rtdb,
+     &            'stpr_gen:delta',mt_dbl,1,fd_step))
+     &            call errquit('freq_vib_input: rtdb_put failed',911,
+     &       RTDB_ERR)
+            else
+              write(luout,*)' could not read fd_delta step size '
+              call inp_outrec()
+              goto 01001
+            endif
           goto 00010
         else if (inp_compare(.false.,test,'reuse')) then
           o_reuse = .true.
