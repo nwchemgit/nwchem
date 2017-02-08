@@ -230,7 +230,6 @@ cVOG  IMPLICIT REAL*8(A-H,O-Z)
         CALL IWRTMA(NSSOB,NSMST,NOCTPB,NSMST,NOCTPB)
         WRITE(6,*) 'ISIMSYM, ICOMP = ', ISIMSYM,ICOMP
         WRITE(6,*) ' MXLNG = ', MXLNG
-        WRITE(6,*) ' MXBLKBATCH = ', MXBLKBATCH
       END IF
 *. Tired of compiler warnings
       INCLUDE = 0
@@ -320,10 +319,6 @@ cVOG      WRITE(6,*) ' IASM IBSM IA IB LBLOCKP,LBLOCK' ,
           INCLUDE = 0
           IF(LENGTH+LBLOCK.LE.MXLNG.OR.ICOMP.EQ.1) INCLUDE = 1
         END IF
-*
-*. Bert (and VOG). Effort to balance the number of Blocks per batch
-*
-      IF (NBLOCK.EQ.MXBLKBATCH) INCLUDE = 0
 *
         IF(INCLUDE.EQ.1) THEN
           NBLOCK = NBLOCK + 1

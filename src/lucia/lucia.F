@@ -4433,7 +4433,6 @@ C?    WRITE(6,*) ' TEST: NOCTPA, NOCTPB = ',  NOCTPA, NOCTPB
 *
       NTTS = MXNTTS
 C?    WRITE(6,*) ' ALLO: NTTS = ', NTTS
-       MXBLKBATCH = 100
 *
       if (ga_nodeid().eq.0) call MA_summarize_allocated_blocks()
       CALL MEMMAN(KCLBT ,NTTS  ,'ADDL  ',1,'CLBT  ')
@@ -15671,7 +15670,7 @@ CNW       CALL WRTMAT(SV,1,LEN_S,1,LEN_S)
       CHARACTER*10 CARDX
       COMMON/CTITLE/ TITLEC(3)
       CHARACTER*6 KEYWOR
-      PARAMETER(MXPKW = 202)
+      PARAMETER(MXPKW = 203)
       DIMENSION KEYWOR(MXPKW)
       DIMENSION ISETKW(MXPKW)
 *. Local  scratch for decoding multi-item lines, atmost 32 items per line
@@ -15786,7 +15785,8 @@ COLD  INTEGER CITYP
 *. Stupid compiler warning 
       ICI = -3006
       ISECFILL = 0
-
+*. Default value for MAX GAS spaces for parallel calculations
+      NPARGAS = 0
 *****************************************************************
 *                                                               *
 * Part 1: Read in Keywords and perform some preliminary checks *
@@ -16816,6 +16816,14 @@ cnw         READ(LUIN,'(A)') CARD1
 cnw         GOTO 999
        END IF
        ENDIF
+*
+* =====================================================================
+* 203: Manual definition of GAS spaces for parallel MCSCF (VOG)
+* =====================================================================
+*
+       if(rtdb_get(rtdb,'lucia:pargas',mt_int,1,npargas)) then
+         ISETKW(203) = 1
+       END IF
 *
 * =====================================================================
 * 50: Generalized active space concept invoked, orbital spaces
@@ -21822,7 +21830,16 @@ C            ISTVC2(IVEC,IBASE,IFACT,NDIM)
          IAKBK_MET = 1
          ISETKW(202) = 2
       END IF
-
+*
+* 203: Manual definition of GAS spaces for parallel MCSCF (VOG)
+*
+      IF (ISETKW(203).EQ.0) THEN
+       if (ga_nodeid().eq.0) write(*,*) 
+     &     ' Default algorithm for MO distribution to multiple GAS' 
+      ELSE
+       if (ga_nodeid().eq.0) write(*,*) 
+     &     ' MAX number of GAS spaces defined by user is', npargas
+      END IF
 *
 *. Largest number of active irreps in super or normal symmetry
       IF(I_USE_SUPSYM.EQ.0) THEN

@@ -6289,8 +6289,8 @@ cVOG    else
 * ====================
 *
 *. Irrep from which one MO will be moved to another GAS
-      ngasadd     = 0
-      nloop = 30 ! Arbitrary
+      ngasadd = 0
+      nloop = 15 
       do igasloop = 1, nloop
 *
 *. Set memory pointer
@@ -6360,10 +6360,8 @@ cVOG    else
 *
 *. First Z_FLOCK and CIV2 calls
 *. Obtain TTSS batches and calculate those with very few blocks
-* TODO: remove first Z_BLK is obselete now
+* TODO: remove first Z_BLK is obsolete now
 *
-       MXBLKBATCH = 100000
-!       if (ga_nodeid().eq.0) write(*,*) 'fixed MXBLKBATCH', MXBLKBATCH
        CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
      &       NTEST,NCBLOCK,NCBATCH,int_mb(KCIOIO),int_mb(KCBLTP),
      &       NCOCCLS_ACT,int_mb(KCIOCCLS_ACT),
@@ -6382,12 +6380,6 @@ cVOG    else
 !       if (ga_nodeid().eq.0) write(*,*) 'NDISTBATCH', NDISTBATCH
 !       if (ga_nodeid().eq.0) write(*,*) 'LBPNODE',LBPNODE,IOPTBATCHPNODE
 *
-*. Start loop that finds the optimum numer of BATCHES.
-*. The logic is based on the number of Blocks per Batch
-*
-       MXBLKBATCH = 10000
-       DO I = 1, 190 ! = MXBLKBATCH nevel less than 10
-*
 *. Second Z_BLOCK and CIV2 calls with estimated number of blocks per batch
 *
         CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
@@ -6400,14 +6392,7 @@ cVOG    else
         IBATCHCOUNT = NBATCHES_FEW_BLOCKS(NCBATCH,int_mb(KCLBT))
         NDISTBATCH = NCBATCH - IBATCHCOUNT
         LBPNODE = INT(NCBATCH/NNOD)
-        IF (LBPNODE.GE.IOPTBATCHPNODE) EXIT
-        IF (I.LE.99) THEN
-         MXBLKBATCH = MXBLKBATCH - 100
-        ELSE
-         MXBLKBATCH = MXBLKBATCH - 1
-         IF (MXBLKBATCH.EQ.0) EXIT
-        END IF
-       END DO
+!        IF (LBPNODE.GE.IOPTBATCHPNODE) EXIT
 c       END IF
 *
 * VOG Nov16: Check if you will split further the CAS after you have the final 
@@ -6425,9 +6410,10 @@ c       END IF
 *
 *. Calculate blocks/nnodes ratio and print size of batches
 *
-!       nfragagain = 0
-c      call CI_batches_info(NCBATCH,int_mb(KCLBT),int_mb(KCIBT),NCBLOCK,
-c    &                      nnod,ntest,nfragagain)
+c       call CI_batches_info(NCBATCH,int_mb(KCLBT),int_mb(KCIBT),NCBLOCK,
+c     &                      nnod,ntest,nfragagain)
+       call CI_batches_info_OLD(int_mb(KCIBT),NCBLOCK,nnod,ntest,
+     &                          nfragagain,NGAS,NPARGAS)
        if (ntest.ge.100. and.ga_nodeid().eq.0)
      &    write(*,'(a,3i10)') 'nblocks, nnod, nfragagain',
      &                         NCBLOCK, NNOD, nfragagain
@@ -6786,6 +6772,75 @@ c    &                      nnod,ntest,nfragagain)
         WRITE(6,'(A, 16(2X,I4))') '       ', (IOCCLS(I,KOCCLS),I=1,NGAS)
        END DO
       end if
+*
+      RETURN
+      END
+*======================================================================*
+*======================================================================*
+*
+      SUBROUTINE CI_batches_info_OLD(KCIBT,NCBLOCK,nnod,ntest,
+     &                               nfragagain,NGAS,NPARGAS)
+*======================================================================*
+*
+*. Criterion that was used successfully for the CAS(24,24) - Feb 2016
+*. Re-introduced on Feb. 2017.
+*
+*. Konstantinos Vogiatzis, Feb. 2016, UMN
+*.                         Feb. 2017, UTK
+*
+*======================================================================*
+      INCLUDE 'implicit.inc'
+#include "global.fh"
+*
+*. input
+      integer NCBLOCK, nnod, ntest
+      integer KCIBT(8,ncblock)
+*
+*. output
+      integer nfragagain
+*
+*. Get information of CI blocks and print them (if requested)
+*
+      if (ga_nodeid().eq.0.and.ntest.ge.10) then
+       write(*,*) ' =================='
+       write(*,*) '  CI_batches_info  '
+      end if
+      if (ga_nodeid().eq.0.and.ntest.ge.1000) then
+       write(*,*)
+       write(*,*) ' =================='
+       write(*,*) '  BLK         SIZE '
+       write(*,*) ' =================='
+      end if
+*
+      isum = 0
+      nmaxblk = 0
+      do iblock = 1, ncblock
+       if (ga_nodeid().eq.0.and.ntest.ge.1000)
+     &     write(*,'(i8,i10)') iblock, KCIBT(8,iblock)
+       isum = isum + KCIBT(8,iblock)
+       if (KCIBT(8,iblock).ge.nmaxblk) nmaxblk =  KCIBT(8,iblock)
+      end do
+*
+      if (ga_nodeid().eq.0.and.ntest.ge.10) then
+       write(*,*) ' =================='
+       write(*,'(a5,i14)') '  SUM', isum
+       write(*,'(a5,i14)') '  MAX', nmaxblk
+       write(*,*) ' =================='
+      end if
+*
+*. Calculate blocks/nnod ratio, criterion if I will fragment further
+*. the GAS space
+*
+      nblkratio = int(isum/nnod)
+      if (ga_nodeid().eq.0.and.ntest.ge.10)
+     &    write(*,'(a,i20,2i9)') 'ISUM, NNOD, NBLKRATIO',
+     &                            isum, nnod, nblkratio
+      do iblock = 1, NCBLOCK
+       if (KCIBT(8,iblock).gt.nblkratio) nfragagain = 1
+      end do
+      !
+      ! Case that user has requested a MAX number of GAS spaces
+      IF (NGAS.LT.NPARGAS) nfragagain = 1
 *
       RETURN
       END

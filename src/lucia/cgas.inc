@@ -16,4 +16,4 @@
      &            NOCSBCLST,IBOCSBCLS(MXPNGAS),
      &            NOCSBSLS(MXPNGAS),MINOPGAS(MXPNGAS),
      &            ngas_bu,ihpvgas_bu(mxpngas),ngssh_bu(mxpirr,mxpngas),
-     &            igsoccx_bu(mxpngas,2,mxpici)
+     &            igsoccx_bu(mxpngas,2,mxpici),NPARGAS
