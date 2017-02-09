@@ -231,11 +231,15 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       allocate(f_t(1:dimtemp),stat=e_t)
 # endif
 #else
-      e_a=.not.MA_PUSH_GET(mt_dbl,dimhhpp,"a",l_a,k_a)
-      e_b=.not.MA_PUSH_GET(mt_dbl,dimpppp,"b",l_b,k_b)
-      e_c=.not.MA_PUSH_GET(mt_dbl,dimhhpp,"c",l_c,k_c)
+      e_a=0
+      if(.not.MA_PUSH_GET(mt_dbl,dimhhpp,"a",l_a,k_a)) e_a=-1
+      e_b=0
+      if(.not.MA_PUSH_GET(mt_dbl,dimpppp,"b",l_b,k_b)) e_b=-1
+      e_c=0
+      if(.not.MA_PUSH_GET(mt_dbl,dimhhpp,"c",l_c,k_c)) e_c=-1
 # ifndef USE_LOOPS_NOT_DGEMM
-      e_t=.not.MA_PUSH_GET(mt_dbl,dimtemp,"t",l_t,k_t)
+      e_t=0
+      if(.not.MA_PUSH_GET(mt_dbl,dimtemp,"t",l_t,k_t)) e_t=-1
 # else
       dimtemp=-12345
       e_t=.false.
@@ -370,7 +374,8 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
      &             int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
      &             (p4b-noab-1+nvab*(p3b-noab-1)))))
 #endif
-#else // USE_F90_ALLOCATABLE
+#else 
+celse// USE_F90_ALLOCATABLE
               CALL DFILL(dimc,0.0d0,dbl_mb(k_c),1)
               DO p5b = noab+1,noab+nvab
                DO p6b = p5b,noab+nvab
@@ -469,7 +474,8 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
      &             int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
      &             (p4b-noab-1+nvab*(p3b-noab-1)))))
 #endif
-#endif // USE_F90_ALLOCATABLE
+#endif 
+cendif// USE_F90_ALLOCATABLE
               next = NXTASK(nprocs, 1)
              END IF
              count = count + 1
@@ -492,12 +498,14 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
 # endif
 #else
 # ifndef USE_LOOPS_NOT_DGEMM
-      e_t=.not.MA_POP_STACK(l_t)
+      e_t=0
+      if(.not.MA_POP_STACK(l_t)) e_t=-1
 # else
       l_t=-12345
-      e_t=.false.
+      e_t=0
 # endif
-      e_a=.not.MA_CHOP_STACK(l_a)
+      e_a=0
+      if(.not.MA_CHOP_STACK(l_a)) e_a=-1
 #endif
       if (e_a.ne.0) call errquit("MA pops a",0,MA_ERR)
       if (e_t.ne.0) call errquit("MA pops t",1,MA_ERR)
