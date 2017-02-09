@@ -101,6 +101,9 @@ ifdef USE_MIC_TRPDRV
   USES_BLAS    += ccsd_trpdrv_offload.F
   LIB_DEFINES += -DUSE_MIC_TRPDRV
 endif
+ifeq ($(_FC),xlf)
+  LIB_DEFINES += -DTRPMIXP_OFF
+endif
 
  LIBRARY = libccsd.a
 

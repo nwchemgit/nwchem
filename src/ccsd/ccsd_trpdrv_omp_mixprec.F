@@ -1,3 +1,4 @@
+#ifndef TRPMIXP_OFF
       subroutine ccsd_trpdrv_omp_mixprec(t1,
      &     eorb,g_objo,g_objv,g_coul,g_exch,
      &     ncor,nocc,nvir,iprt,emp4,emp5,
@@ -543,3 +544,4 @@
       endif
 !
       end
+#endif

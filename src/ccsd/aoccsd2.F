@@ -905,6 +905,7 @@ c
      $        dbl_mb(k_trp_Djka), dbl_mb(k_trp_Djia))
 c
          elseif (use_trpdrv_omp_mp) then
+#ifndef TRPMIXP_OFF
 c
          if (iam.eq.0.and.oprint) then
             write(luout,1850) nvpass
@@ -921,6 +922,8 @@ c
      $        dbl_mb(k_trp_Kka), dbl_mb(k_trp_Jij), dbl_mb(k_trp_Jkj),
      $        dbl_mb(k_trp_Kij), dbl_mb(k_trp_Kkj), dbl_mb(k_trp_Dja),
      $        dbl_mb(k_trp_Djka), dbl_mb(k_trp_Djia))
+#else
+#endif
 c
          elseif (use_trpdrv_nb) then
 c
