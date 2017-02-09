@@ -3,7 +3,7 @@
 !     GEAXPY -- Matrix Y <-- a*X + Y
 !
 ! REVISION
-!     $Id$
+!     $Id: geaxpy.f 28747 2016-11-15 22:44:47Z jhammond $
 !
 ! SYNOPSIS
       Subroutine GEAXPY(M, N, Alpha, X, LDX, Y, LDY)
