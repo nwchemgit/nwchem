@@ -48,7 +48,7 @@ c
 c   Print atoms and their coordinates
       write(luout,'(/1x,a)') dd
       write(luout,'(1x,a)')  "DIM COORDINATES"
-      write(luout,'(1x,a)'), d
+      write(luout,'(1x,a)')  d
       f = '(17X,A1,11X,A1,11X,A1)'
       write (luout,f) 'X', 'Y', 'Z'
       f = '(1X,A)'

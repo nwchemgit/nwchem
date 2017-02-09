@@ -7,7 +7,7 @@ c      integer k_muind,  l_muind  ! Induced dipoles
       integer k_eqmn,   l_eqmn   ! E-field due to QM nuclei
       integer k_scrn,   l_scrn
       common /dimqmMA/  k_muold, l_muold, k_eqmn,
-     #                  l_eqmn, k_scrn, l_scrn
+     C                  l_eqmn, k_scrn, l_scrn
 c
 c     DIM/QM Common Logicals
 c
