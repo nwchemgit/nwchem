@@ -508,12 +508,12 @@ c     this summary is probably going to be most useful for
 c     linear response, not for higher orders to be implemented
 c     ---------------------------------------------------------
       
-      if (oprint) write (luout,
-     &  '(
+      if (oprint) write (luout,987)
+     &  'Solving response equations for perturbing field'
+ 987  format(
      &  /,10x,47(1h-),/,
      &  10x,a,/,
-     &  10x,47(1h-),/)'),
-     &  'Solving response equations for perturbing field'
+     &  10x,47(1h-),/)
       
       if (oprint) then
         if (nfreq.ne.0) then
