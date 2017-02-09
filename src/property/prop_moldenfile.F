@@ -23,7 +23,8 @@ c
       integer l_eval,k_eval,l_ir,k_ir,k_occ,l_occ
       integer iset,iptr
       external ga_create_atom_blocked,movecs_read_header,movecs_read
-      logical ga_create_atom_blocked,movecs_read_header,movecs_read
+      integer ga_create_atom_blocked
+      logical movecs_read_header,movecs_read
       character*15 subname
       parameter (subname='prop_moldenfile')
 c
