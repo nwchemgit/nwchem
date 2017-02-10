@@ -426,7 +426,7 @@ c     depends on the tolerance and the tasks must be identical.
 c
       if (owritefile) semi_direct_tol2e = dentol
 c     
-c     There is a BIG speed gain from agressive reduction of accuracy
+c     There is a BIG speed gain from aggressive reduction of accuracy
 c     in the actual computation of the integrals. However, the screening
 c     on primitive integrals is done on radial prefactors not using
 c     the Schwarz inequality, hence the extra factor of 0.01d0.
@@ -436,7 +436,7 @@ c     Michel uses a factor of 1d-6 in HONDO (compared to our 10^-3) ->
 c     more experiments are needed.
 c
 c     C60 has trouble with max value for integ_acc less than 1d-9
-c     (using texas integrals, don't know about nwchem)
+c     (using texas integrals, do not know about nwchem)
 c
 c     More testing shows that NWchem integrals can be wrong with
 c     an accuracy coarser than 1d-15 which is now the standard accuracy.
@@ -943,7 +943,7 @@ c     Scaling by 100 to make an integer, 0 - 100.  Use this
 c     as the leading value in the sort criterion.  The most expensive 
 c     single integrals will have a non-zero cost and will be done first,
 c     but most others will have a zero integer cost and will be sorted
-c     by other criteria. And we'll make these in the order of angular
+c     by other criteria. And we will make these in the order of angular
 c     momentum.
 c
 c     Fun and games here to handle centers with no functions

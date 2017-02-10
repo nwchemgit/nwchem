@@ -11,7 +11,7 @@ C$Id$
 c
 c     Convenience routine that allocates temporary global memory,
 c     makes the overlap matrix and orthogonalizes the MOs in
-c     g_ves
+c     g_vecs
 c
       integer g_over, nbf, geom
       integer ga_create_atom_blocked

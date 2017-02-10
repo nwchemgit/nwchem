@@ -18,7 +18,7 @@ c
 c     ROHF module.
 c
 c     Currently performs closed-shell and high-spin open-shell
-c     restricted Hatree-Fock calculations
+c     restricted Hartree-Fock calculations
 c
       integer rtdb              ! [input] database handle
       logical converged

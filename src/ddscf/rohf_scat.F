@@ -150,7 +150,7 @@ c
       if (.not. bas_numbf(basis, nbf))
      $     call errquit('rohf_scat: bas_numbf failed',0, BASIS_ERR)
 c     
-c     Project the mo's to the whole orbital space
+c     Project the MOs to the whole orbital space
 c
       if(.not.ga_create(MT_DBL, nbf_all, nbf_all, 'Total MO',
      &     nbf_all, 0, g_all))
@@ -383,7 +383,7 @@ c
       call ga_diag_seq(g_scat, g_over, g_tmpscat, dbl_mb(k_evals+nbf))
 #endif
 c
-c     Transform the mo's to atomic basis
+c     Transform the MOs to atomic basis
 c
       call ga_dgemm('n','n',nbf_all,nscat,nscat,
      &     1.0d0, g_tran, g_tmpscat, 0.0d0, g_scatmo)
