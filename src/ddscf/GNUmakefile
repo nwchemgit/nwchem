@@ -47,7 +47,8 @@
         fock_xc.o fock_j_fit.o rohf_jkfac.o uhf_jkfac.o \
         rohf_hessv3.o \
 	fock_2e_cam.o ga_get2eri.o scf_frozemb.o print_integrals.o \
-	rohf_hessv2_ext.o rohf_hessv3_ext.o uhf_hessv2_ext.o uhf_precond_ext.o
+	rohf_hessv2_ext.o rohf_hessv3_ext.o uhf_hessv2_ext.o uhf_precond_ext.o \
+	scf_dump_evp_input.o
 
 
  OBJ_OPTIMIZE = \

@@ -43,7 +43,7 @@ c
       logical converged, odo_diis
       integer vlen, ndiis
       integer voff, aoff, aend
-      logical oprint_parm
+      logical oprint_parm, nodezero
       integer mxdiisbas
 c     
 c     Functions
@@ -79,7 +79,8 @@ c
 c
 c   Print info
 c
-      if (ga_nodeid().eq.0.and. oprint_parm) then
+      nodezero = ga_nodeid().eq.0
+      if (nodezero.and. oprint_parm) then
          write(6,1) gnorm_tol, maxiter, tol2e, mxdiisbas
          write(6,111)
  1       format(//,
@@ -178,15 +179,15 @@ c   Print energy
 c
         if(iter.eq.1) then
            if(cosmo_on.and.cosmo_phase.eq.1) then
-              if(ga_nodeid().eq.0) write(6,909)
+              if(nodezero) write(6,909)
            else
-              if(ga_nodeid().eq.0) write(6,910)
+              if(nodezero) write(6,910)
            endif
         endif
  909    format(2x,'   COSMO gas phase')
  910    format(2x,'   COSMO solvation phase')
 c
-        if(ga_nodeid().eq.0) then
+        if(nodezero) then
            write(6,911) iter, ndiis, energy, gnorm, diis_emax
         endif
  911    format(5x,i5,i3,5x,f20.12,5x,2e10.2)
@@ -199,6 +200,9 @@ c
 c
 c   Diagonalize
 c
+        if ( util_print('evp_input', print_never) ) then
+            call scf_dump_evp_input(g_fock,g_over)
+        endif
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
         call ga_pdsygv(g_fock,g_over, g_tmp, dbl_mb(k_eval))
@@ -214,9 +218,9 @@ c
 c     End SCF minimisation
 c     
  333  continue
-      if (ga_nodeid().eq.0) call util_flush(6)
+      if (nodezero) call util_flush(6)
 c     
-c     *ALWAYS* return canonical MOs ... don't do aufbau
+c     *ALWAYS* return canonical MOs ... do not do aufbau
 c     
       if (.not. ga_destroy(g_tmp)) call errquit
      $     ('rohf_diis_solve: ga_destroy tmp', 0, GA_ERR)
@@ -261,7 +265,7 @@ c
          go to 1000
       elseif(cosmo_on.and.cosmo_phase.eq.2) then
          esol      =energy
-         if(ga_nodeid().eq.0) then
+         if(nodezero) then
             write(6,*) '                 COSMO solvation results'
             write(6,*) '                 -----------------------'
             write(6,*) 
@@ -291,7 +295,7 @@ c
       if (.not. ga_destroy(g_xorth)) call errquit
      $     ('rohf_diis_solve: ga_destroy xorth', 0, GA_ERR)
 c     
-      if (ga_nodeid().eq.0) call util_flush(6)
+      if (nodezero) call util_flush(6)
       call ga_sync()
 c     
       rohf_diis_solve = converged
