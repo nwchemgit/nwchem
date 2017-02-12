@@ -200,8 +200,8 @@ c
 c
 c   Diagonalize
 c
-        if ( util_print('evp_input', print_never) ) then
-            call scf_dump_evp_input(g_fock,g_over)
+        if (nodezero .and. util_print('evp_input', print_never) ) then
+            call scf_dump_evp_input(rtdb,g_fock,g_over)
         endif
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
