@@ -13,7 +13,9 @@
       integer, intent(in) :: g_f ! Fock matrix
       integer, intent(in) :: g_s ! overlap matrix
 !
-      integer :: style, funit
+      integer :: style
+      double precision :: thresh
+      integer :: funit
       integer :: ga_type
       integer :: dimfx, dimfy
       integer :: dimsx, dimsy
@@ -28,6 +30,8 @@
       if (.not.rtdb_get(rtdb,'scf:evp_format', MT_INT, 1, style)) then
           style = 0
       endif
+      ! make this configurable later
+      thresh = 1.e-20
 !
 ! do some basic consistency checks
 !
@@ -58,11 +62,15 @@
               open(unit=funit,file="eigensystem.dat",
      &             action="write",status="replace")
               ! gather and print F
+              write(funit,*) 'Fock matrix'
               call ga_get(g_f, 1, dimfx, 1, dimfy, local, dimfx)
-              call scf_dump_local(dimfx, dimfy, local, style, funit)
+              call scf_dump_local(dimfx, dimfy, local,
+     &                            style, funit, thresh)
               ! gather and print S
+              write(funit,*) 'Overlap matrix'
               call ga_get(g_s, 1, dimsx, 1, dimsy, local, dimsx)
-              call scf_dump_local(dimfx, dimfy, local, style, funit)
+              call scf_dump_local(dimfx, dimfy, local,
+     &                            style, funit, thresh)
               ! free memory
               deallocate( local, stat=alloc_error)
               if (alloc_error .ne. 0) then
@@ -78,18 +86,22 @@
       endif
       end subroutine
 
-      subroutine scf_dump_local(dimx, dimy, local, style, fileunit)
+      subroutine scf_dump_local(dimx, dimy, local,
+     &                          style, fileunit, thresh)
       implicit none
       integer, intent(in)  :: dimx, dimy
       double precision, intent(in) :: local(dimx*dimy)
       integer, intent(in) :: style, fileunit
+      double precision, intent(in) :: thresh
       integer :: i, j
       do i = 1, dimx
-          do j = 1, dimy
-              write(fileunit, 1) i,',',j,',',local(i*dimy+j)
-          enddo
+        do j = 1, dimy
+          if ( dabs(local(i*dimy+j)) .ge. thresh) then
+            write(fileunit, 1) i,' , ',j,' , ',local(i*dimy+j)
+          endif
+        enddo
       enddo
-    1 format(i6,a1,i6,a1,e30.20e5)
+    1 format(i6,a3,i6,a3,e30.20e2)
       end subroutine scf_dump_local
 
 
