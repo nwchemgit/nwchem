@@ -19,7 +19,7 @@
 ! Landing has added AVX-512ER instructions to perform exponentiations
 ! of the form 2^x. These might help boost the performance of the exp
 ! function well beyond what a Taylor series brings. These instructions
-! are not available on all Knights Landing processors though.
+! are not available on all Intel processors though.
 !
 ! [1] Simen Reine, Trygve Helgaker, Roland Lindh, "Multi-electron
 !     integrals", WIREs Comput. Mol. Sci. 2012, 2:290-303,
