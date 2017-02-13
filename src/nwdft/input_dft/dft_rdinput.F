@@ -710,6 +710,7 @@ c
       xcname(62)='           CAM-S12g Method XC Functional'
       xcname(63)='           CAM-S12h Method XC Functional'
       xcname(64)=' MadeVerySimple MVS Method XC Functional'
+      xcname(65)='              HLE16 Method XC Functional'
 c     
 c     place character XC parameters in rtdb
 c     

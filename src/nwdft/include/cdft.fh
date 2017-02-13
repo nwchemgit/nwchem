@@ -18,8 +18,9 @@ c     Common for xc parameters
 c     Note: This is repeated in xc.fh
 c     It is duplicated here to address some build issues
 c
-      integer numfunc
-      parameter(numfunc=64)
+cold      integer numfunc
+cold      parameter(numfunc=65)
+#include "xc.fh"
 cc AJL/Begin/FDE
       integer numfunc_fde
       parameter(numfunc_fde=2)

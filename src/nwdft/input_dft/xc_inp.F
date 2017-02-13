@@ -121,6 +121,11 @@ c     sogga11-x  => 9200
 c     xsogga11-x => 9210
 c     csogga11-x => 9220
 c
+c
+c     n12 numfunc=45 > 9245
+c     
+c     cn12-sx numfunc=  > 9248
+c
 c     srexch ==> 9310
 c     hse03 ==> 9320
 c
@@ -130,7 +135,7 @@ c     xperde86 ==> 9520
 c
 c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=137)
+      parameter (num_dirs=142)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -172,12 +177,14 @@ c
      &     'sogga','xsogga','csogga',
      &     'sogga11','xsogga11','csogga11',
      &     'sogga11-x','xsogga11-x','csogga11-x',
+     %     'n12','xn12','cn12','cn12-sx',
      &     'xbnl07',
      &     'becke97-d','xcamb88','xcampbe96','mp2','b2plyp',
      &     'xcamlsd','xwpbe','ssb-d','kt1','kt2','bhlyp','b3p86',
      &     'b3pw91','pbe96','dldf','srhfexch','hse03',
      &     's12g','s12h','cam-s12g','cam-s12h',
-     &     'becke86b','xperdew86','xmvs15','cvpbe09','mvs'/
+     &     'becke86b','xperdew86','xmvs15','cvpbe09','mvs',
+     &     'hle16'/
 c     becke97-d, ssb-d
       logical disp, dumdirect
       integer ivdw
@@ -242,9 +249,10 @@ c
      &  7000,7100,7200,7300,7400,7500,7600,7700,7800,7900,8000,8100,
      &  8600,8610,8620,8700,8710,8720,8800,8810,8820,8900,8910,8920,
      &  9000,9010,9020,9100,9110,9120,9200,9210,9220,
+     N  9245,9246,9247,9248,
      &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,8531,
      &  8532,8533,8534,9300,9310,9320,4610,4620,4630,4640,
-     &  9510,9520,4115,2109,4124,1999) ind
+     &  9510,9520,4115,2109,4124,3101,1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -562,6 +570,21 @@ c
          lcfac(20) = .true.
          nlcfac(20) = .true.
          cfac(20) = 1.0d0
+       goto 10
+c     
+c     HLE16 aka modified HCTH407 by Truhlar and Verma
+c     
+ 3101  continue
+c
+c        assume total wanted
+c     
+       xccomb(65) = .true.
+         lxfac(14) = .true.
+         nlxfac(14) = .true.
+         xfac(14) = 1.25d0
+         lcfac(20) = .true.
+         nlcfac(20) = .true.
+         cfac(20) = 0.5d0
        goto 10
 c     
 c     HCTH407p by Boese
@@ -1647,7 +1670,7 @@ c
       goto 10
 
 
-
+c     bc95
 
 
  5000 if (inp_a(test)) then
@@ -1695,7 +1718,7 @@ c
 c
       goto 10
 
-
+c     mpw1b95
  5100  xccomb(21) = .true.
          xfac(19)= 0.69d0
         lxfac(19)=.true.
@@ -1708,7 +1731,7 @@ c
       nlxfac(1) = .true.
 c
       goto 10
-
+c     mpwb1k
  5200  xccomb(22) = .true.
          xfac(19)= 0.56d0
         lxfac(19)=.true.
@@ -1721,7 +1744,7 @@ c
       nlxfac(1) = .true.
 c     
       goto 10
-
+c     b1b95
  5300  xccomb(23) = .true.
          xfac(3)= 0.72d0
         lxfac(3)=.true.
@@ -1734,7 +1757,7 @@ c
       nlxfac(1) = .true.
 c
       goto 10
-
+c     bb1k
  5400  xccomb(24) = .true.
          xfac(3)= 0.58d0
         lxfac(3)=.true.
@@ -1747,7 +1770,7 @@ c
       nlxfac(1) = .true.
 c
       goto 10
-
+c     pw6b95
  5500  xccomb(25) = .true.
          xfac(26)= 0.72d0
         lxfac(26)=.true.
@@ -1760,7 +1783,7 @@ c
       nlxfac(1) = .true.
 c
       goto 10
-
+c     pwb6k
  5600  xccomb(26) = .true.
          xfac(27)= 0.54d0
         lxfac(27)=.true.
@@ -3249,6 +3272,49 @@ c
          cfac(54) = 1.0d0
       endif
       goto 10  
+c
+c  N12 xc
+c
+ 9245 xccomb(45) = .true.
+         xfac(45)= 1.0d0
+        lxfac(45)=.true.
+       nlxfac(45)=.true.
+        cfac(45) = 1.0d0
+       lcfac(45) = .true.
+      nlcfac(45) = .true.
+c
+      goto 10
+
+c
+c  N12 x
+c
+ 9246  continue
+        xfac(45) = 1.0d0
+       lxfac(45) = .true.
+      nlxfac(45) = .true.
+c
+      goto 10
+
+c
+c  N12 c
+c
+ 9247 continue
+         cfac(45)= 1.0d0
+        lcfac(45)=.true.
+       nlcfac(45)=.true.
+c
+      goto 10
+
+c
+c  N12-sx c
+c
+ 9248 continue
+         cfac(44)= 1.0d0
+        lcfac(44)=.true.
+       nlcfac(44)=.true.
+c
+      goto 10
+
 c     
 c     becke86b; Perdew-Burke-Ernzerhof exchange functional 
 c     
