@@ -95,15 +95,15 @@ c#include "bafdecls.fh"
             end if
          end if
 
-      write(*,*) "HERA"
+      !write(*,*) "HERA"
       call psi_get_ne_excited(ispin,nexcited)
-      write(*,*) "HERB",ispin,nexcited
+      !write(*,*) "HERB",ispin,nexcited
 ccccc      call Dnex_init(ispin,nexcited,control_mapping1d())
 
       value = epsi_initialize()
       call psi_gen_density_potentials(1)
       if (gvirtual) then
-         write(*,*) "determing H matrix"
+         !write(*,*) "determing H matrix"
          call psi_gen_hml_virtual()
          call psi_minimize_virtual()
       else
