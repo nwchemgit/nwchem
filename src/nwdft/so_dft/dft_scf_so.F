@@ -20,6 +20,7 @@ c
 #include "global.fh"
 #include "msgids.fh"
 #include "util.fh"
+#include "cosmo.fh"
 #include "zora.fh" 
 #include "case.fh"
 #ifdef SCALAPACK
@@ -244,11 +245,45 @@ c
       logical dft_mem3c
       external dft_mem3c
 c
+c     ----- cosmo -----
+c
+      logical odbug
+      logical ocosmo_got_gasphase
+      double precision egas
+      double precision esol
+      double precision ecosmo ! intra energy between cosmo charges
+      logical cosmo_esp
+      character*255 cosmo_file
+c
+      double precision gcds, gspol, espol, gspoldyn, gspolneq
+      double precision gstote, estote
+      integer do_cosmo_vem, istep_cosmo_vem
+      logical do_cosmo_smd
+c
       icd_coef = 0
       k_3cERI  = 0
       k_3cwhat = 0
       me = ga_nodeid()
       nproc = ga_nnodes()
+c
+      gcds = 0.0
+      gspol = 0.0
+      gstote = 0.0
+      do_cosmo_smd = .false.
+      if (cosmo_on) then
+       if (.not. rtdb_get
+     $ (rtdb,'cosmo:do_cosmo_smd',mt_log,1,do_cosmo_smd))
+     $ call errquit('
+     $ dft_scf: cannot get do_cosmo_smd from rtdb',
+     $ 0,rtdb_err)
+       if (do_cosmo_smd) then
+         if (.not. rtdb_get
+     $   (rtdb,'cosmo:gcds',mt_dbl,1,gcds))
+     $    call errquit(
+     $    'dft_scf: cannot get gcds from rtdb',
+     $    0,rtdb_err)
+       endif
+      endif
 c
 c     to do scalar relativistic calculations within the two-component framework
 c
@@ -301,6 +336,7 @@ c
       oprint_interm_overlap = util_print('intermediate overlap',
      &     print_high)
       oprint_final_vecs = util_print('final vectors', print_high)
+      odbug = util_print('cosmo', print_high)
 c
       ispin=1
       call int_1e_uncache_ga()      
@@ -1192,6 +1228,8 @@ c
 c
       if (oprint_time)
      &     call dft_tstamp('   Before SCF iter loop. ')
+c 
+ 3000 continue
 c
       last_time_energy = .false.
 c
@@ -1223,14 +1261,32 @@ c
       call ga_zero(g_fock)
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'kinetic', oskel)
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'potential', oskel)
-      call ga_fock_sf(g_fock, g_fockso(1), nbf_ao) 
 c
 c     Re(Dsf)=Re(Daa)+Re(Dbb)=g_dens(1), Re(Dbb) = g_dens(2)
 c     <Hsf> = Re(Dsf) dot T+Vsf 
       Ecore = ga_ddot(g_dens(1), g_fock)
       if (me.eq.0.and.oprint_info)
      &     write(luout,'(1x,a,e15.7)') "Ecore =", ecore
-c  
+c
+c     Restore alpha and beta densities 
+c     g_dens(1) = Re(Daa), g_dens(2) = Re(Dbb)
+      call ga_dadd(one, g_dens(1), onem, g_dens(2), g_dens(1))
+c
+c     Calculate cosmo charges
+      if (cosmo_on.and.cosmo_phase.eq.2) then
+       cosmo_file = "cosmo.xyz"
+       call cosmo_charges_from_dmat(rtdb, ao_bas_han, geom,
+     &          ecosmo, odbug, ipol, g_dens, cosmo_file)
+       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock,
+     &    'cos_chg_pot',.false.)
+       call ga_dadd(one, g_dens(1), one, g_dens(2), g_dens(1))
+       Ecore = ga_ddot(g_dens(1), g_fock)
+       call ga_dadd(one, g_dens(1), onem, g_dens(2), g_dens(1))
+      end if ! cosmo check
+c
+c     Incorporate g_fock into supermatrix g_fockso
+      call ga_fock_sf(g_fock, g_fockso(1), nbf_ao) 
+c
 c     Accumulate s.o. contribution to fock matrix 
 c   
       call ga_zero(g_so(1))
@@ -1261,10 +1317,6 @@ c
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'x') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(3))
-c
-c     Restore alpha and beta densities 
-c     g_dens(1) = Re(Daa), g_dens(2) = Re(Dbb)
-      call ga_dadd(one, g_dens(1), onem, g_dens(2), g_dens(1))
 c
       if (do_zora) then
        call ga_zero(g_tmp) 
@@ -1468,6 +1520,16 @@ c
          Etnew = Ecore + Ecoul + exchtot + Exc(1) + Exc(2) + Edisp
          if(det_eng)goto 2001
       endif
+c
+c     Add in cosmo contributions
+c
+      if (cosmo_on.and.cosmo_phase.eq.2) then
+        if (do_cosmo_smd) then
+             etnew = etnew + ecosmo + gcds
+        else
+             etnew = etnew + ecosmo
+        end if
+      end if
 c
 c     == is this a oneshot "noscf" type calculation, no diagonalization ==
       noscf = .false.
@@ -1801,6 +1863,17 @@ c
      &        'Stack Space remaining (MW):  ',dble(nstack)*1.D-06,nstack
          call util_flush(LuOut)
          write(LuOut,1)
+c
+c     ----- cosmo message -----
+c
+         if(cosmo_on.and.cosmo_phase.eq.1) then
+            write(LuOut,909)
+         elseif(cosmo_on) then
+            write(LuOut,910)
+         endif
+ 909     format(2x,'   COSMO gas phase')
+ 910     format(2x,'   COSMO solvation phase')
+c
       endif
  21   format(/,10x,' Memory utilization after 1st SCF pass: ')
     1 format(/,
@@ -2025,8 +2098,38 @@ c
          elapsed_wall = current_wall - start_wall
          save_wall = current_wall
       endif
-c     
+c
+cng
       if (converged)then
+c     
+c     ----- if cosmo ... after gas_phase, do sol_phase ... -----
+c
+        if(cosmo_on.and.cosmo_phase.eq.1) then
+         converged           = .false.
+         egas                = etnew+enuc
+         cosmo_phase         = 2
+         ocosmo_got_gasphase = .true.
+         if(odbug) write(LuOut,*)
+     &     'gas_phase done, do sol-phase now ...'
+c
+c     ----- reset convergence aids -----
+c
+         iter = 0
+         if(diising) then
+            call diis_driver_so(toll_s, derr, icall, nfock, 
+     &           nbf_mo, g_fockso, g_densso, 
+     &           g_svecs, svals, diising, nodiis)
+         endif
+         damping=.true.
+         if(damping) then
+         endif
+c
+         call ga_sync()
+         go to 3000
+        else if(cosmo_on) then
+         esol      =etnew+enuc
+        endif
+c
 c     
 c     If converged probably need a few seconds to clean things up 
 c     and calculate a few properties.
@@ -2073,6 +2176,7 @@ c
             goto 2000
          endif
       endif
+c
       if (idone.eq.0.or.(iswitc.lt.2.and.iter.lt.iterations))
      &     go to 1000           ! begin new iteration
       if (idone.eq.1.and.(.not.last_time_energy))then
@@ -2082,6 +2186,16 @@ c
 c     
  2000 continue
 c    
+      if(cosmo_on.and.cosmo_phase.eq.2) then
+          gstote = esol - gcds
+          if (do_cosmo_smd) then
+           if(.not.rtdb_get(rtdb,'cosmo:gspol',mt_dbl,1,gspol))
+     $     call errquit(
+     $     'dft_scf: cannot get gspol from rtdb',
+     $     0,rtdb_err)
+          endif
+      endif
+c
       if (me.eq.0.and.oprint)then
          if (.not.converged)then
             write(LuOut,*)
@@ -2097,6 +2211,16 @@ c        Tally up last energy
          else
             Etnew = Ecore + Ecoul + exchtot + Exc(1) + Exc(2) + Edisp
          endif
+c
+c        Add in cosmo contributions
+c
+         if (cosmo_on.and.cosmo_phase.eq.2) then
+           if (do_cosmo_smd) then
+             etnew = etnew + ecosmo + gcds
+           else
+             etnew = etnew + ecosmo
+           end if
+         end if
 c
          if (nexc.le.1)then
           write(LuOut,222)etnew+enuc,
@@ -2115,9 +2239,24 @@ c
          if (abs(Edisp).gt.0.0d0) 
      &            write(LuOut,225)Edisp
 c
+         if (cosmo_on.and.cosmo_phase.eq.2) then
+          if (do_cosmo_smd) then
+           write(LuOut,226) ecosmo+gcds
+          else
+           write(LuOut,226) ecosmo
+          end if
+         endif
+c
          if (do_zora) write(luout,2221) ener_scal
          write(luout,2222) rho_n
          write(luout,2223) dft_time
+c
+         if (me.eq.0.and.oprint) then
+          if(cosmo_on.and.cosmo_phase.eq.2) then
+           call cosmo_smd_output(egas, esol, do_cosmo_smd, gcds,
+     $          gstote, gspol)
+          endif
+         endif
 c
  222  format(//
      &     '      Total SO-DFT energy =', f22.12/
@@ -2135,6 +2274,8 @@ c
      &     ' Nuclear repulsion energy =', f22.12/)
 c
  225  format('    Dispersion correction =', f22.12/)
+c
+ 226  format('             COSMO energy =', f22.12/)
 c
  2221 format('       Scaling correction =', f22.12/)
  2222 format(' Numeric. integr. density =', f22.12/)
@@ -2162,6 +2303,7 @@ c     &        'Calculation failed to converge', 20, .true.)
             if (do_zora) write(luout,2221) ener_scal
          endif
  232     format(//
+     &        '       Determinant Energy'/
      &        '       Determinant Energy'/
      &        '      Total SO-DFT energy =', f22.12/
      &        '      One electron energy =', f22.12/
