@@ -435,10 +435,10 @@ c
      $ 0,rtdb_err)
 c    
       if (do_cosmo_vem.ne.0.or.do_cosmo_smd) then
-        if (theory.ne.'dft'.and.theory.ne.'tddft')
-     $     call errquit(
-     $ ' cosmo-vem and cosmo-smd can be used only with dft and tddft',
-     $ 0,0)
+        if (theory.ne.'dft'.and.theory.ne.'tddft'.and.
+     $      theory.ne.'sodft')
+     $    call errquit('cosmo-smd can be used only with dft and sodft. 
+     $ cosmo-vem can only be used with tddft', 0,0)
       endif
 c
       if (do_cosmo_vem.ne.0) then
