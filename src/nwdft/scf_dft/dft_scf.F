@@ -158,7 +158,7 @@ c
       logical ocosmo_got_gasphase
       double precision egas
       double precision esol
-      double precision ecosmo
+      double precision ecosmo ! intra cosmo charges energy
       logical cosmo_esp
       character*255 cosmo_file
 c
@@ -2012,18 +2012,6 @@ c        DIM/QM JEM
          write(luout,2222) rho_n
          write(luout,2223) dft_time
 c
-c MN solvation models -->
-c
-c regular cosmo output
-c
-         if(cosmo_on.and.cosmo_phase.eq.2.and.
-     $            istep_cosmo_vem.eq.0) then
-            call cosmo_smd_output(egas, esol, do_cosmo_smd, gcds, 
-     $            gstote, gspol)
-
-c <-- MN solvation models
-
-         endif
       endif
 c
 c MN solvation models -->
