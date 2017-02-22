@@ -29,7 +29,7 @@
       external file_write_ga
       integer g_lai_a_tr,g_lai_b_tr
 c     
-      call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
+      call cphf_fname('cphf_rhs',cphf_rhs)
 *ga:1:0
       if(.not.ga_create(mt_dbl,nva,noa,'temp',0,0,g_lai_a_tr))
      $     call errquit('could not alloc tran array',1, GA_ERR)

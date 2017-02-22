@@ -758,7 +758,7 @@ c
 c     
 c...  the g_rhs will now hold the solution         
 c     
-         call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
+         call cphf_fname('cphf_sol',cphf_sol)
          if(.not.file_read_ga(cphf_sol,g_rhs))
      $        call errquit('could not read cphf_rhs',1, DISK_ERR)
 c     
@@ -910,9 +910,9 @@ c...
 c
 c     Clean up the files (CPHF RHS and solution, densities)
 c
-         call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
+         call cphf_fname('cphf_sol',cphf_sol)
          if (ga_nodeid() .eq. 0) call util_file_unlink(cphf_sol)
-         call util_file_name('cphf_rhs',.true.,.true.,cphf_sol)
+         call cphf_fname('cphf_rhs',cphf_sol)
          if (ga_nodeid() .eq. 0) call util_file_unlink(cphf_sol)
          call util_file_name('p_a_ao',.true.,.true.,cphf_sol)
          if (ga_nodeid() .eq. 0) call util_file_unlink(cphf_sol)
