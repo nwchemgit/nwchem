@@ -159,7 +159,7 @@ c         I changed that so that we can set this by input
       if (.not. rtdb_get(rtdb,'cphf:maxiter', mt_int, 1,
      $     maxiter)) maxiter = 50
 
-      call util_file_name('cphf_rhs',.false.,.false.,cphf_rhs)        
+      call cphf_fname('cphf_rhs',cphf_rhs)        
       if (.not. file_read_ga_info(cphf_rhs, rhs_title, ncol, nvec1))
      $     call errquit('cphf_solve: reading rhs info failed?',0,
      &       UNKNOWN_ERR)
@@ -407,7 +407,7 @@ c$$$  911        format(//,15x,40('-'),
 c$$$  $           /,15x,'UHF Polarizability is:',f16.6,
 c$$$  $           /,15x,40('-'),/)
 c$$$  endif
-      call util_file_name('cphf_sol',.false.,.false.,cphf_sol)
+      call cphf_fname('cphf_sol',cphf_sol)
        if (ndata.eq.2) then
 c == copy solution (g_work) --> g_grad 2nd subspace===START
           shift=3 ! skip first subspace that corresponds to g_b

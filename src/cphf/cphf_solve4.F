@@ -142,7 +142,7 @@ c
       if (.not. rtdb_get(rtdb, 'cphf:maxiter', mt_int, 1,
      $     max_precond_iter)) max_precond_iter = 100
 c
-      call util_file_name('cphf_rhs',.false.,.false.,cphf_rhs)         
+      call cphf_fname('cphf_rhs',cphf_rhs)         
       if (.not. file_read_ga_info(cphf_rhs, rhs_title, ncol, nvec))
      $     call errquit('cphf_solve: reading rhs info failed?',0,
      &       UNKNOWN_ERR)
@@ -319,7 +319,7 @@ c$$$  $           /,15x,'UHF Polarizability is:',f16.6,
 c$$$  $           /,15x,40('-'),/)
 c$$$  endif
 c
-      call util_file_name('cphf_sol',.false.,.false.,cphf_sol)
+      call cphf_fname('cphf_sol',cphf_sol)
       if(.not.file_write_ga(cphf_sol,g_work))
      $     call errquit('cphf_solve: could not write cphf_sol',1,
      &       UNKNOWN_ERR)

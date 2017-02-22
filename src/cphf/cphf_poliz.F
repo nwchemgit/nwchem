@@ -216,14 +216,14 @@ c
             call ga_copy_patch('n', g_tmp, nob+1, nmo, 1, nob,
      $           g_rhs, noa*nva+1, vlen, 1, 1)
          endif
-         call util_file_name('cphf_rhs',.true.,.true.,fname)
+         call cphf_fname('cphf_rhs',fname)
          call ga_print(g_rhs)
          if(.not.file_write_ga(fname,g_rhs))
      $        call errquit('cphf_poliz: could not write cphf_rhs',1,
      &       UNKNOWN_ERR)
          if (.not. cphf(rtdb)) call errquit('cphf_poliz: cphf?',0,
      &       RTDB_ERR)
-         call util_file_name('cphf_sol',.true.,.true.,fname)
+         call cphf_fname('cphf_sol',fname)
          if(.not.file_read_ga(fname,g_sol))
      $        call errquit('cphf_poliz: could not read cphf_rhs',1,
      &       INPUT_ERR)
