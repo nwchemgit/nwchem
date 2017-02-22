@@ -220,12 +220,12 @@ c
 c
 c ... jochen: open second rhs file first and check if it has data
       if (ncomp.gt.1) then
-        call util_file_name('cphf_rhs_2',.true.,.true.,cphf_rhs(2)) 
+        call util_file_name('cphf_rhs_2',.false.,.false.,cphf_rhs(2)) 
         if (.not. file_read_ga_info(cphf_rhs(2),rhs_title,ncol,nvec))
      $     call errquit('cphf_solve3: reading rhs 2 info failed?',0,
      &     UNKNOWN_ERR)
       endif
-      call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs(1))         
+      call util_file_name('cphf_rhs',.false.,.false.,cphf_rhs(1))
       if (.not. file_read_ga_info(cphf_rhs(1), rhs_title, ncol, nvec))
      $     call errquit('cphf_solve3: reading rhs info failed?',0,
      &       UNKNOWN_ERR)
@@ -236,7 +236,7 @@ c
 c ... jochen: open data file(s) with "imaginary" data
       if (lifetime) then
         if (ncomp.gt.1) then
-          call util_file_name('cphf_rhs_im_2',.true.,.true.,
+          call util_file_name('cphf_rhs_im_2',.false.,.false.,
      +       cphf_rhs_im(2)) 
           if (.not. file_read_ga_info(cphf_rhs_im(2), rhs_title,
      +       ncol, nvec))
@@ -244,7 +244,7 @@ c ... jochen: open data file(s) with "imaginary" data
      &       ('cphf_solve3: reading rhs_im 2 info failed?',0,
      &       UNKNOWN_ERR)
         endif
-        call util_file_name('cphf_rhs_im',.true.,.true.,
+        call util_file_name('cphf_rhs_im',.false.,.false.,
      +     cphf_rhs_im(1)) 
         if (.not. file_read_ga_info(cphf_rhs_im(1), rhs_title,
      +     ncol, nvec))
@@ -757,26 +757,26 @@ c !!! BGJ
      $   call errquit('cphf_solve3: rtdb_put of j_derfit failed',0,
      &   RTDB_ERR)
 c ======== writing (g_b,g_rhs_sol) ======== START
-      call util_file_name('cphf_sol',.true.,.true.,cphf_sol(1))
+      call util_file_name('cphf_sol',.false.,.false.,cphf_sol(1))
       if(.not.file_write_ga(cphf_sol(1),g_work(1)))
      $     call errquit('cphf_solve3: could not write cphf_sol',1,
      &       UNKNOWN_ERR)
 c ... jochen: also write second component of solution vector to file
       if (ncomp.gt.1) then
-        call util_file_name('cphf_sol_2',.true.,.true.,cphf_sol(2))
+        call util_file_name('cphf_sol_2',.false.,.false.,cphf_sol(2))
         if(.not.file_write_ga(cphf_sol(2),g_work(2)))
      $     call errquit('cphf_solve3: could not write cphf_sol',2,
      &     UNKNOWN_ERR)
       endif
 c ... jochen: and write imaginary parts to file as well
       if (lifetime) then
-        call util_file_name('cphf_sol_im',.true.,.true.,
+        call util_file_name('cphf_sol_im',.false.,.false.,
      &     cphf_sol_im(1))
         if(.not.file_write_ga(cphf_sol_im(1),g_work_im(1)))
      $     call errquit('cphf_solve3: could not write cphf_sol_im',1,
      &       UNKNOWN_ERR)
         if (ncomp.gt.1) then
-          call util_file_name('cphf_sol_im_2',.true.,.true.,
+          call util_file_name('cphf_sol_im_2',.false.,.false.,
      &       cphf_sol_im(2))
           if(.not.file_write_ga(cphf_sol_im(2),g_work_im(2)))
      $       call errquit

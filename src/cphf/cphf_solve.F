@@ -170,7 +170,7 @@ c
       if(.not.ga_create(mt_dbl,vlen,1,'cphf_solve: rhs',0,1,g_grad))
      $     call errquit('cphf_solve: ga_cre grad',vlen, GA_ERR)
 c
-      call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)         
+      call util_file_name('cphf_rhs',.false.,.false.,cphf_rhs)         
       if(.not.file_read_ga(cphf_rhs, g_grad))
      $     call errquit('cphf_solve: could not read cphf_rhs',1,
      &       INPUT_ERR)
@@ -290,7 +290,7 @@ c$$$  $           /,15x,'UHF Polarizability is:',f16.6,
 c$$$  $           /,15x,40('-'),/)
 c$$$  endif
 c
-      call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
+      call util_file_name('cphf_sol',.false.,.false.,cphf_sol)
       if(.not.file_write_ga(cphf_sol,g_work))
      $     call errquit('cphf_solve: could not write cphf_sol',1,
      &       UNKNOWN_ERR)
