@@ -493,8 +493,8 @@ c
 c
 c     Write ga_rhs to disk 
 c
-      call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
-      call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
+      call util_file_name('cphf_rhs',.false.,.false.,cphf_rhs)
+      call util_file_name('cphf_sol',.false.,.false.,cphf_sol)
       if(.not.file_write_ga(cphf_rhs,g_rhs)) call errquit
      $  ('hnd_giaox: could not write cphf_rhs',0, DISK_ERR)
 c

@@ -685,8 +685,8 @@ c -------free allocated memory -------------- END
 c       if (ga_nodeid().eq.0)
 c     &  write(*,*) 'COMPUTE cphf shield data ...'
 c     Write ga_rhs to disk 
-       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
-       call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
+       call util_file_name('cphf_rhs',.false.,.false.,cphf_rhs)
+       call util_file_name('cphf_sol',.false.,.false.,cphf_sol)
        if(.not.file_write_ga(cphf_rhs,g_rhs)) call errquit
      $  ('hnd_giaox_zora: could not write cphf_rhs',0, DISK_ERR)
        call schwarz_tidy()
