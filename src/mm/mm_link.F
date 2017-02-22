@@ -1,4 +1,4 @@
- 
+c $Id: bq_data.F 23019 2012-10-30 00:59:12Z d3y133 $
       subroutine mm_links_init(rtdb)
       implicit none
 #include "mafdecls.fh"
@@ -870,12 +870,15 @@ c     write(*,*) pname
      & 3*bq_ncent, MA_ERR)
 
       call dfill(3*bq_ncent,0.0d0,dbl_mb(i_g),1)
-       
+#ifdef USE_BLASMOD
+      call dcopy( 3*nlink,dbl_mb(i_c),1,dbl_mb(i_rqml+nqm*3),1)
+#else
       do i=1,nlink
         dbl_mb(i_c+(i-1)*3)   = dbl_mb(i_rqml+(nqm+i-1)*3)
         dbl_mb(i_c+(i-1)*3+1) = dbl_mb(i_rqml+(nqm+i-1)*3+1)
         dbl_mb(i_c+(i-1)*3+2) = dbl_mb(i_rqml+(nqm+i-1)*3+2)
       end do
+#endif
 
       call util_convert_units("angstrom","au",scale)
       call dscal(3*bq_ncent, scale,dbl_mb(i_c),1)
@@ -884,12 +887,16 @@ c     write(*,*) pname
      &                     dbl_mb(i_c),
      &                     dbl_mb(i_lnkchg),
      &                     dbl_mb(i_g))
-
+#ifdef USE_BLASMOD
+      call daxpy(3*nlink,1d0,dbl_mb(i_g),1,g(1,nqm+1))
+#else
+CDIR$ NOVECTOR
       do i=1,nlink
         g(1,nqm+i) = g(1,nqm+i) + dbl_mb(i_g+(i-1)*3)
         g(2,nqm+i) = g(2,nqm+i) + dbl_mb(i_g+(i-1)*3+1)
         g(3,nqm+i) = g(3,nqm+i) + dbl_mb(i_g+(i-1)*3+2)
       end do
+#endif
 
       if(.not.ma_pop_stack(h_g))
      & call errquit('mm: Failed to deallocate stack g_all',3*bq_ncent,
