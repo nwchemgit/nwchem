@@ -676,8 +676,8 @@ c       *** jochen 01/11: we might have to double check if the results
 c       are affected by the GIAO occ-occ block !!! ***
 c       --------------------------------------------------------------
 
-        call cphf_fname('cphf_rhs',,cphf_rhs(1))
-        call cphf_fname('cphf_sol',,cphf_sol(1))
+        call cphf_fname('cphf_rhs',cphf_rhs(1))
+        call cphf_fname('cphf_sol',cphf_sol(1))
         if(.not.file_write_ga(cphf_rhs(1),g_rhs_beta)) call errquit
      $     ('aoresponse: could not write cphf_rhs beta',0, DISK_ERR)
         
