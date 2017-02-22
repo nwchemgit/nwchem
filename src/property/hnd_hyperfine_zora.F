@@ -310,8 +310,8 @@ c        goto 123
 c       if (ga_nodeid().eq.0)
 c     &  write(*,*) 'COMPUTE cphf hyp data ...'
 c     Write ga_rhs to disk 
-       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
-       call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
+       call cphf_fname('cphf_rhs',cphf_rhs)
+       call cphf_fname('cphf_sol',cphf_sol)
        if(.not.file_write_ga(cphf_rhs,g_rhs)) call errquit
      $  ('hnd_hfine: could not write cphf_rhs',0, DISK_ERR)
        call schwarz_tidy()

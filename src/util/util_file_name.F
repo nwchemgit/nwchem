@@ -1069,3 +1069,17 @@ c
       endif
 c
       end
+      subroutine cphf_fname(cphf_str1,cphf_str2)
+      implicit none
+#include "inp.fh"
+      character*(*) cphf_str1 ! [in]
+      character*(*) cphf_str2 ! [out]
+c
+      integer str1len
+c     
+      str1len=inp_strlen(cphf_str1)
+      call util_file_name0(cphf_str1(1:str1len),
+     L     .false.,.false.,
+     S     cphf_str2,1)
+      return
+      end

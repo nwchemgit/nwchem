@@ -289,13 +289,13 @@ c         if (ga_nodeid().eq.0)
 c     &   write(*,*) 'COMPUTE cphf fiao_f1 data ...'
 c ====== writing g_rhs to file ============== START
 c     Write ga_rhs to disk 
-       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs(1))
-       call util_file_name('cphf_sol',.true.,.true.,cphf_sol(1))
+       call cphf_fname('cphf_rhs',cphf_rhs(1))
+       call cphf_fname('cphf_sol',cphf_sol(1))
        if(.not.file_write_ga(cphf_rhs(1),g_rhs(1))) call errquit
      $   ('fiao_f1: could not write cphf_rhs(1)',0, DISK_ERR)
        if (ncomp.gt.1) then
-        call util_file_name('cphf_rhs_2',.true.,.true.,cphf_rhs(2))
-        call util_file_name('cphf_sol_2',.true.,.true.,cphf_sol(2))
+        call cphf_fname('cphf_rhs_2',cphf_rhs(2))
+        call cphf_fname('cphf_sol_2',cphf_sol(2))
         if(.not.file_write_ga(cphf_rhs(2),g_rhs(2))) call errquit
      $     ('fiao_f1: could not write cphf_rhs 2',0, DISK_ERR)
        endif
@@ -304,18 +304,14 @@ c       mainly, there are only zeros written to file here. i.e.
 c       we start up the CPKS with zero imaginary parts. Probably
 c       not the best guess near resonance but the preconditioner
 c       should take some care of that    
-        call util_file_name('cphf_rhs_im',.true.,.true.,
-     +     cphf_rhs_im(1))
-        call util_file_name('cphf_sol_im',.true.,.true.,
-     +     cphf_sol_im(1))
+        call cphf_fname('cphf_rhs_im',cphf_rhs_im(1))
+        call cphf_fname('cphf_sol_im',cphf_sol_im(1))
         if(.not.file_write_ga(cphf_rhs_im(1),g_rhs_im(1)))
      +     call errquit
      $     ('fiao_f1: could not write cphf_rhs_im 1',0, DISK_ERR)      
         if (ncomp.gt.1) then
-          call util_file_name('cphf_rhs_im_2',.true.,.true.,
-     +       cphf_rhs_im(2))
-          call util_file_name('cphf_sol_im_2',.true.,.true.,
-     +       cphf_sol_im(2))
+          call cphf_fname('cphf_rhs_im_2',cphf_rhs_im(2))
+          call cphf_fname('cphf_sol_im_2',cphf_sol_im(2))
           if(.not.file_write_ga(cphf_rhs_im(2),g_rhs_im(2)))
      +       call errquit
      $       ('fiao_e2: could not write cphf_rhs_im 2',0, DISK_ERR)

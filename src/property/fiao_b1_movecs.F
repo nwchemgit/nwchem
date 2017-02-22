@@ -221,8 +221,8 @@ c 0000000000000 read (g_rhs,g_rhs_im) from file 000000 END
 c       if (ga_nodeid().eq.0)
 c     &  write(*,*) 'COMPUTE cphf fiao_b1 data ...'    
 c     Write ga_rhs to disk 
-       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
-       call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
+       call cphf_fname('cphf_rhs',cphf_rhs)
+       call cphf_fname('cphf_sol',cphf_sol)
        if(.not.file_write_ga(cphf_rhs,g_rhs)) call errquit
      $  ('fiao_b1: could not write cphf_rhs',0, DISK_ERR)
 

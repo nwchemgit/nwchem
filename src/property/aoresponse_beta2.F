@@ -393,14 +393,14 @@ c       get the correct magnitude of the result back
 c       
 c       Write ga_rhs to disk (+/- and Re/Im if applicable)
 c         
-        call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs(1))
-        call util_file_name('cphf_sol',.true.,.true.,cphf_sol(1))
+        call cphf_fname('cphf_rhs',cphf_rhs(1))
+        call cphf_fname('cphf_sol',cphf_sol(1))
         if(.not.file_write_ga(cphf_rhs(1),g_rhs(1))) call errquit
      $     ('aoresponse: could not write cphf_rhs 1',0, DISK_ERR)
 
         if (ncomp.gt.1) then
-          call util_file_name('cphf_rhs_2',.true.,.true.,cphf_rhs(2))
-          call util_file_name('cphf_sol_2',.true.,.true.,cphf_sol(2))
+        call cphf_fname('cphf_rhs_2',cphf_rhs(2))
+        call cphf_fname('cphf_sol_2',cphf_sol(2))
           if(.not.file_write_ga(cphf_rhs(2),g_rhs(2))) call errquit
      $       ('aoresponse: could not write cphf_rhs 2',0, DISK_ERR)
         endif
@@ -411,19 +411,15 @@ c         mainly, there are only zeros written to file here. i.e.
 c         we start up the CPKS with zero imaginary parts (the
 c         perturbation itself is always treated as real). 
 c         
-          call util_file_name('cphf_rhs_im',.true.,.true.,
-     +       cphf_rhs_im(1))
-          call util_file_name('cphf_sol_im',.true.,.true.,
-     +       cphf_sol_im(1))
+          call cphf_fname('cphf_rhs_im',cphf_rhs_im(1))
+          call cphf_fname('cphf_sol_im',cphf_sol_im(1))
           if(.not.file_write_ga(cphf_rhs_im(1),g_rhs_im(1)))
      +       call errquit
      $       ('aoresponse: could not write cphf_rhs_im 1',0, DISK_ERR)
           
           if (ncomp.gt.1) then
-            call util_file_name('cphf_rhs_im_2',.true.,.true.,
-     +         cphf_rhs_im(2))
-            call util_file_name('cphf_sol_im_2',.true.,.true.,
-     +         cphf_sol_im(2))
+            call cphf_fname('cphf_rhs_im_2',cphf_rhs_im(2))
+            call cphf_fname('cphf_sol_im_2',cphf_sol_im(2))
             if(.not.file_write_ga(cphf_rhs_im(2),g_rhs_im(2)))
      +         call errquit
      $         ('aoresponse: could not write cphf_rhs_im 2',0, DISK_ERR)

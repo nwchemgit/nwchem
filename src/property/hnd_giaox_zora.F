@@ -76,7 +76,7 @@ c ----- Definitions for NLMO analysis ---- END
       external get_prelim_fock,get_P10,add_H10,add_fock,
      &         get_P10_1,skip_cphf,get_par,get_dia,
      &         skip_cphf_JK,get_P10_JK,new_giao_2e_JK,
-     &         util_file_name,get_par_JK,
+     &         get_par_JK,
      &         dft_zoraCPHF_write,dft_zoraCPHF_read
       integer ntot,ispin,indA,indB,nocc(2),nind_jk,
      &        typeprop,nat_slc,nat
@@ -685,8 +685,8 @@ c -------free allocated memory -------------- END
 c       if (ga_nodeid().eq.0)
 c     &  write(*,*) 'COMPUTE cphf shield data ...'
 c     Write ga_rhs to disk 
-       call util_file_name('cphf_rhs',.false.,.false.,cphf_rhs)
-       call util_file_name('cphf_sol',.false.,.false.,cphf_sol)
+       call cphf_fname('cphf_rhs',cphf_rhs)
+       call cphf_fname('cphf_sol',cphf_sol)
        if(.not.file_write_ga(cphf_rhs,g_rhs)) call errquit
      $  ('hnd_giaox_zora: could not write cphf_rhs',0, DISK_ERR)
        call schwarz_tidy()
