@@ -60,8 +60,8 @@ c
 c     ----- define parameters -----
 c
       nc   = n3xyz
-      call util_file_name0('cphf_rhs',.false.,.false.,cphf_rhs,1)
-      call util_file_name0('cphf_sol',.false.,.false.,cphf_sol,1)
+      call cphf_fname('cphf_rhs',cphf_rhs)
+      call cphf_fname('cphf_sol',cphf_sol)
 c
 c     check hessian restart flag
 c
@@ -1344,7 +1344,7 @@ c
 c
 c     set up the files for the cphf solution
 c
-      call util_file_name0('cphf_sol',.false.,.false.,cphf_sol,1)
+      call cphf_fname('cphf_sol',cphf_sol)
       if (.not. rtdb_cput(rtdb, 'solver:filestub', 1, 'cphf_sol'))
      *  call errquit('hess_cphf: file stub',555,RTDB_ERR)
       if (.not. rtdb_cput(rtdb, 'solver:filesoln', 1, 
