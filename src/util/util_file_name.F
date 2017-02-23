@@ -1074,6 +1074,7 @@ c
 #include "inp.fh"
       character*(*) cphf_str1 ! [in]
       character*(*) cphf_str2 ! [out]
+c     file is managed serially (node 0) on perm_dir
 c
       integer str1len
 c     
@@ -1081,5 +1082,21 @@ c
       call util_file_name0(cphf_str1(1:str1len),
      L     .false.,.false.,
      S     cphf_str2,1)
+      return
+      end
+      subroutine cphf_fname_parallel(cphf_str1,cphf_str2)
+      implicit none
+#include "inp.fh"
+      character*(*) cphf_str1 ! [in]
+      character*(*) cphf_str2 ! [out]
+c     file is managed in parallel on scratch_dir
+c
+      integer str1len
+c     
+      str1len=inp_strlen(cphf_str1)
+      call util_file_name(cphf_str1(1:str1len),
+c      scratch_dir, parallel
+     L     .true.,.true.,
+     S     cphf_str2)
       return
       end
