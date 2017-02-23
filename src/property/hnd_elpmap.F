@@ -155,7 +155,8 @@ c     -------------------------------------------------
       end if
 c
 #ifndef OLDCUBE
-      call prop_grid_writecubehead(geom,un_grid,cube_name)
+      if(ocube)
+     c     call prop_grid_writecubehead(geom,un_grid,cube_name)
 #endif
 c
 c     check if enough mem is available
@@ -341,7 +342,7 @@ c
 c     ----- release memory block -----
 c
   300 call ga_sync()
-
+      
       if(ga_nodeid().eq.0.and.ocube) then
         call util_print_centered(luout, 
      >    "writing esp potential to "//cube_name,.true.,.true.)
