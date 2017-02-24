@@ -66,11 +66,8 @@ c     &                           fcsdzy,       ! out
       double precision fcsdxx(nbf,nbf),
      &                 fcsdxy(nbf,nbf),
      &                 fcsdxz(nbf,nbf),
-     &                 fcsdyx(nbf,nbf),
      &                 fcsdyy(nbf,nbf),
      &                 fcsdyz(nbf,nbf),
-     &                 fcsdzx(nbf,nbf),
-     &                 fcsdzy(nbf,nbf),
      &                 fcsdzz(nbf,nbf)
       double precision ac_fcsd(3,3)
       integer i,j,k,n
@@ -90,10 +87,6 @@ c ------- for Gaussian Nuclear Model --- START
       double precision zetanuc_arr(natoms)
 c ------- for Gaussian Nuclear Model --- START
 
-      external get_ints_zora_hfine_slow,
-     &         gridNMRPotential,get_Pnucl,
-     &         gridNuclearPotentialFinite,
-     &         gridNuclearPotentialFinite2
 c
 c     == preliminaries ==
       clight_au2 = clight_au*clight_au

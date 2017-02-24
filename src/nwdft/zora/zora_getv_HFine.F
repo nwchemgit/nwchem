@@ -72,18 +72,12 @@ c     == allocate memory ==
           enddo
       enddo ! end-loop-i
 c     == preliminaries ==
-       do j=1,3
-         do i= 1, nbf_ao*nbf_ao
-          dbl_mb(izpso(j)+i-1)=0.d0
-         enddo  
-       enddo ! end-loop-j
-       do k=1,3
-        do j=k,3
-         do i= 1, nbf_ao*nbf_ao
-         dbl_mb(ifcsd(k,j)+i-1)=0.d0
+      call dfill(3*nbf_ao*nbf_ao,0d0,dbl_mb(izpso(j)),1)
+      do k=1,3
+         do j=k,3
+            call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(ifcsd(k,j)),1)
          enddo
-        enddo
-       enddo
+      enddo
 c     == generate the grid ==
       dummy(1) = 0.d0
       dummy(2) = 0.d0
