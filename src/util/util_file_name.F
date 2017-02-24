@@ -1072,6 +1072,7 @@ c
       subroutine cphf_fname(cphf_str1,cphf_str2)
       implicit none
 #include "inp.fh"
+#include "global.fh"
       character*(*) cphf_str1 ! [in]
       character*(*) cphf_str2 ! [out]
 c     file is managed serially (node 0) on perm_dir
@@ -1087,6 +1088,7 @@ c
       subroutine cphf_fname_parallel(cphf_str1,cphf_str2)
       implicit none
 #include "inp.fh"
+#include "global.fh"
       character*(*) cphf_str1 ! [in]
       character*(*) cphf_str2 ! [out]
 c     file is managed in parallel on scratch_dir
@@ -1098,5 +1100,7 @@ c
 c      scratch_dir, parallel
      L     .true.,.true.,
      S     cphf_str2)
+      write(6,*) ga_nodeid(),' fparal ',cphf_str1(1:str1len),
+     A     cphf_str2(1:inp_strlen(cphf_str2))
       return
       end
