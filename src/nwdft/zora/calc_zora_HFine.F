@@ -41,11 +41,11 @@ c      approaches')
      &                           fcsdxx,       ! out
      &                           fcsdxy,       ! out
      &                           fcsdxz,       ! out
-     &                           fcsdyx,       ! out
+c     &                           fcsdyx,       ! out
      &                           fcsdyy,       ! out
      &                           fcsdyz,       ! out
-     &                           fcsdzx,       ! out
-     &                           fcsdzy,       ! out
+c     &                           fcsdzx,       ! out
+c     &                           fcsdzy,       ! out
      &                           fcsdzz)       ! out
       implicit none
 #include "errquit.fh"
@@ -194,11 +194,11 @@ c ---- full matrix calc -------- START
           fcsdxx(i,j) = fcsdxx(i,j) + ac_fcsd(1,1)
           fcsdxy(i,j) = fcsdxy(i,j) + ac_fcsd(1,2)
           fcsdxz(i,j) = fcsdxz(i,j) + ac_fcsd(1,3)
-          fcsdyx(i,j) = fcsdyx(i,j) + ac_fcsd(2,1)
+c         fcsdyx(i,j) = fcsdyx(i,j) + ac_fcsd(2,1)
           fcsdyy(i,j) = fcsdyy(i,j) + ac_fcsd(2,2)
           fcsdyz(i,j) = fcsdyz(i,j) + ac_fcsd(2,3)
-          fcsdzx(i,j) = fcsdzx(i,j) + ac_fcsd(3,1)
-          fcsdzy(i,j) = fcsdzy(i,j) + ac_fcsd(3,2)
+c         fcsdzx(i,j) = fcsdzx(i,j) + ac_fcsd(3,1)
+c         fcsdzy(i,j) = fcsdzy(i,j) + ac_fcsd(3,2)
           fcsdzz(i,j) = fcsdzz(i,j) + ac_fcsd(3,3)
         enddo ! end-loop-j
       enddo ! end-loop-i
@@ -249,7 +249,7 @@ c ---- full matrix calc -------- END
         ac_zpso(n) = ac_zpso(n) + 
      &               fac2_arr(a,k)*prod(b)-
      &               fac2_arr(b,k)*prod(a) 
-        do m=1,3
+        do m=n,3
          ac_fcsd(n,m) = ac_fcsd(n,m) +
      &                  fac2_arr(n,k)*prod1(m)         
         enddo ! end-loop-m

@@ -60,14 +60,16 @@ c     == local variables ==
 c
 c     == allocate memory ==
       do i=1,3
-       if (.not. ma_alloc_get(mt_dbl,nbf_ao*nbf_ao,
+       if (.not. ma_pop_stack(mt_dbl,nbf_ao*nbf_ao,
      &                      'lnmr',lzpso(i),izpso(i)))
      &    call errquit('zora_getv_HFine: zpso',911,MA_ERR)
-       do j=1,3
-        if (.not. ma_alloc_get(mt_dbl,nbf_ao*nbf_ao,
-     &                      'lfcsd',lfcsd(i,j),ifcsd(i,j)))
-     &    call errquit('zora_getv_HFine: fcsd',911,MA_ERR)
        enddo
+       do i=1,3
+          do j=i,3
+             if (.not. ma_pop_stack(mt_dbl,nbf_ao*nbf_ao,
+     &            'lfcsd',lfcsd(i,j),ifcsd(i,j)))
+     &            call errquit('zora_getv_HFine: fcsd',911,MA_ERR)
+          enddo
       enddo ! end-loop-i
 c     == preliminaries ==
        do j=1,3
@@ -76,7 +78,7 @@ c     == preliminaries ==
          enddo  
        enddo ! end-loop-j
        do k=1,3
-        do j=1,3
+        do j=k,3
          do i= 1, nbf_ao*nbf_ao
          dbl_mb(ifcsd(k,j)+i-1)=0.d0
          enddo
@@ -195,11 +197,11 @@ c              == chi ==
      &                                  dbl_mb(ifcsd(1,1)),! out
      &                                  dbl_mb(ifcsd(1,2)),! out
      &                                  dbl_mb(ifcsd(1,3)),! out
-     &                                  dbl_mb(ifcsd(2,1)),! out
+c     &                                  dbl_mb(ifcsd(2,1)),! out
      &                                  dbl_mb(ifcsd(2,2)),! out
      &                                  dbl_mb(ifcsd(2,3)),! out
-     &                                  dbl_mb(ifcsd(3,1)),! out
-     &                                  dbl_mb(ifcsd(3,2)),! out
+c     &                                  dbl_mb(ifcsd(3,1)),! out
+c     &                                  dbl_mb(ifcsd(3,2)),! out
      &                                  dbl_mb(ifcsd(3,3)))! out
 
 c              == delete memory ==
@@ -238,42 +240,35 @@ c     == delete memory ==
      &     call errquit("zora_getv_sf: pop bas_cent_info", 100, MA_ERR)
 c
 c     == tally up over all the nodes ==
-      nij = 0
-      do i = 1, nbf_ao
-        do j = 1, nbf_ao
-         nij = nij + 1
-         do k=1,3
-          call ga_dgop(msg_excrho, dbl_mb(izpso(k)+nij-1), 1, '+')
-          do t=1,3
-           call ga_dgop(msg_excrho,dbl_mb(ifcsd(k,t)+nij-1), 1, '+')
-          enddo ! end-loop-t
-         enddo ! end-loop-k
-        enddo ! end-loop-j
-      enddo ! end-loop-i
+      do k=1,3
+         call ga_dgop(msg_excrho, dbl_mb(izpso(k)), nbf_ao*nbf_ao, '+')
+         do t=k,3
+c     do t=1,3
+          call ga_dgop(msg_excrho,dbl_mb(ifcsd(k,t)),nbf_ao*nbf_ao, '+')
+         enddo                  ! end-loop-t
+      enddo                     ! end-loop-k
 c
 c     == pack into a ga all HFine AOs ==
+      if(ga_nodeid().eq.0) then
       do i=1,3 
        call ga_zero(g_zpso(i)) 
        call ga_put(g_zpso(i),
      &             1,nbf_ao,1,nbf_ao,dbl_mb(izpso(i)),nbf_ao)
-       do j=1,3
+       do j=i,3
         call ga_zero(g_fcsd(i,j)) 
         call ga_put(g_fcsd(i,j),
      &              1,nbf_ao,1,nbf_ao,dbl_mb(ifcsd(i,j)),nbf_ao)
+        if(i.ne.j) then
+           call ga_copy(g_fcsd(i,j),g_fcsd(j,i))
+        endif
        enddo ! end-loop-j
       enddo ! end-loop-i
+      endif
       call ga_sync()
 c ---- Free memory
-      do i=1,3
-        if (.not.ma_free_heap(lzpso(i))) call errquit
-     &   ('zora_getv_HFine: ma_free_heap of lzpso failed',
-     &    911,MA_ERR)
-       do j=1,3
-        if (.not.ma_free_heap(lfcsd(i,j))) call errquit
-     &   ('zora_getv_HFine: ma_free_heap of lfcsd failed',
-     &    911,MA_ERR)
-       enddo
-      enddo
+      if (.not.ma_chop_stack(lzpso(1))) call errquit
+     &     ('zora_getv_HFine: ma_chop_stack of lzpso failed',
+     &     911,MA_ERR)
       return
       end
 c ++++++++++++++++++++++++++++++++
