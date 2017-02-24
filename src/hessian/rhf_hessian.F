@@ -17085,9 +17085,9 @@ c     ----- create ga blocks -----
       if(.not.ga_create(mt_dbl,nocc,nvir,'g_ya_tr',0,0,g_ya_tr))
      &     call errquit('could not alloc ya_tr arrayy',1, GA_ERR)
 
-      call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
+      call cphf_fname('cphf_rhs',cphf_rhs)
 
-      call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
+      call cphf_fname('cphf_sol',cphf_sol)
 
 c     ----- copy W_x^a from local memory to the global array ----
 
