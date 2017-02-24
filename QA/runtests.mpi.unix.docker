@@ -279,7 +279,7 @@ sync
 #       In the case of standard MPI we construct the appropriate command here.
 #        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
 echo docker run  -v  "$TESTDIR":/data --entrypoint='/usr/bin/mpirun'  edoapra/nwchem-dev $NPOPT $NPROC $NWCHEM $INPUTFILE 
-docker run  -v  "$TESTDIR":/data --entrypoint='/usr/bin/mpirun'  edoapra/nwchem-dev $NPOPT $NPROC $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
+docker run --rm=true  -v  "$TESTDIR":/data --entrypoint='/usr/bin/mpirun'  edoapra/nwchem-dev $NPOPT $NPROC $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
         @ runstatus = $status
     else
 echo executing2
