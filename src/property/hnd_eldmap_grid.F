@@ -54,6 +54,7 @@ c
       external ao_1prdm_read
       logical ocube, spindens
       integer nsp(3)
+      integer iptr,nprp_pass,ngrid(3)
       character*255 cube_name
       character*255 cube_name_total
       character*255 cube_name_spin
@@ -98,7 +99,7 @@ c     either custom grid or (default) nuclei positions (M.V.)
 c     -------------------------------------------------
       if(ocube) then
          call prop_grid_initialize(rtdb,nat,dbl_mb(k_xyzpt))
-         call prop_grid_get_r_ptr(nprp,i_prp_c)
+         call prop_grid_get_r_ptr(nprp,i_prp_c,ngrid)
          do_points = .false.
          do_output = .false.
       else if(rtdb_get_info(rtdb, "prop:xyz", ma_prp_type, 

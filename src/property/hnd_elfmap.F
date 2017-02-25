@@ -50,6 +50,7 @@ c->d3p975
 c<-d3p975
       logical ocube
       logical do_output
+      integer iptr,nprp_pass,ngrid(3)
       character*255 cube_name
       character*255 dmat_file
 c
@@ -134,7 +135,7 @@ c     either custom grid or (default) nuclei positions (M.V.)
 c     -------------------------------------------------
       if(ocube) then
          call prop_grid_initialize(rtdb,nat,dbl_mb(k_xyzpt))
-         call prop_grid_get_r_ptr(nprp,i_prp_c)
+         call prop_grid_get_r_ptr(nprp,i_prp_c,ngrid)
          do_points = .false.
          do_output = .false.
       else if(rtdb_get_info(rtdb, "prop:xyz", ma_prp_type, 
