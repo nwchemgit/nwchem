@@ -1,0 +1,14 @@
+C>
+C> \brief The error data type
+C>
+C> This data type stores the overall error as well as the components
+C> of the error associated with the various different classes of 
+C> variables.
+C>
+      type wfn1_error
+        double precision :: total ! The total error
+        double precision :: errna ! The error for the alpha nat orbs
+        double precision :: errnb ! The error for the beta nat orbs
+        double precision :: errca ! The error for the alpha corr func
+        double precision :: errcb ! The error for the beta corr func
+      end type wfn1_error
