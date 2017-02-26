@@ -9,6 +9,8 @@ C> stored in a replicated fashion. Distributed quantities are stored
 C> in a different data type.
 C>
       type wfn1_prm
+         character*256    :: movecs_in   ! input movecs (file) name
+         character*256    :: movecs_out  ! output movecs (file) name
          double precision :: convergence ! convergence criterion
          double precision :: enuc        ! nuclear repulsion energy
          double precision :: Tbath       ! the bath temperature
@@ -17,6 +19,10 @@ C>
          integer          :: nmo         ! number of molecular orbitals
          integer          :: nea         ! number of alpha electrons
          integer          :: neb         ! number of beta electrons
+         integer          :: ncorea      ! number of alpha core orbitals
+         integer          :: ncoreb      ! number of beta core orbitals
+         integer          :: nvirta      ! number of alpha virtual orbitals
+         integer          :: nvirtb      ! number of beta virtual orbitals
       end type wfn1_prm
 C>
 C> \brief The parameter instance data type

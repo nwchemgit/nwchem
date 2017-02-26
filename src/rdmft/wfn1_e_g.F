@@ -169,44 +169,55 @@ c
       enddo
       call ga_sync()
       call ga_put(wfn1_deriv%g_dnb,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
+      deallocate(bufji)
       deallocate(buf)
 c
       call ga_distribution(wfn1_deriv%g_dca,iproc,ilo,ihi,jlo,jhi)
       allocate(buf(ilo:ihi,jlo:jhi))
+      allocate(bufji(jlo:jhi,ilo:ihi))
       call ga_get(wfn1_deriv%g_dca,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
+      call ga_get(wfn1_deriv%g_dca,jlo,jhi,ilo,ihi,bufji,jhi-jlo+1)
       do jj = jlo, jhi
         do ii = ilo, ihi
           if      (ii.lt.jj) then
-            buf(ii,jj) = -buf(ii,jj)
+            buf(ii,jj) = -0.5d0*(buf(ii,jj)+bufji(jj,ii))
           else if (ii.eq.jj) then
             buf(ii,jj) =  0.0d0
           else if (ii.gt.jj) then
-            buf(ii,jj) = +buf(ii,jj)
+            buf(ii,jj) = +0.5d0*(buf(ii,jj)+bufji(jj,ii))
           endif
         enddo
       enddo
+      call ga_sync()
       call ga_put(wfn1_deriv%g_dca,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
+      deallocate(bufji)
       deallocate(buf)
 c
       call ga_distribution(wfn1_deriv%g_dcb,iproc,ilo,ihi,jlo,jhi)
       allocate(buf(ilo:ihi,jlo:jhi))
+      allocate(bufji(jlo:jhi,ilo:ihi))
       call ga_get(wfn1_deriv%g_dcb,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
+      call ga_get(wfn1_deriv%g_dcb,jlo,jhi,ilo,ihi,bufji,jhi-jlo+1)
       do jj = jlo, jhi
         do ii = ilo, ihi
           if      (ii.lt.jj) then
-            buf(ii,jj) = -buf(ii,jj)
+            buf(ii,jj) = -0.5d0*(buf(ii,jj)+bufji(jj,ii))
           else if (ii.eq.jj) then
             buf(ii,jj) =  0.0d0
           else if (ii.gt.jj) then
-            buf(ii,jj) = +buf(ii,jj)
+            buf(ii,jj) = +0.5d0*(buf(ii,jj)+bufji(jj,ii))
           endif
         enddo
       enddo
+      call ga_sync()
       call ga_put(wfn1_deriv%g_dcb,ilo,ihi,jlo,jhi,buf,ihi-ilo+1)
+      deallocate(bufji)
       deallocate(buf)
 c
       wfn1_energy%E_tot = wfn1_energy%E_1el + wfn1_energy%E_2el
      &                  + wfn1_energy%E_nuc + wfn1_energy%E_ent
+c
+      call ga_sync()
 c
       end
 c

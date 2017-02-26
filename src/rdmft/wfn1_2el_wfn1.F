@@ -47,7 +47,7 @@ c     Coulomb term
 c
       do ii = 1, nmo
         do jj = 1, nmo
-          occ = bufo(ii,jj)
+          occ = 0.5d0*bufo(ii,jj)
           do ia = 1, nbf
             do ib = 1, nbf
               do ic = 1, nbf
@@ -55,15 +55,20 @@ c
                   d2el(ia,ib,ic,id) = d2el(ia,ib,ic,id)
      &                              + bufw(ia,ii)*bufw(ib,ii)*
      &                                bufw(ic,jj)*bufw(id,jj)*occ
+     &                              + bufw(ia,jj)*bufw(ib,jj)*
+     &                                bufw(ic,ii)*bufw(id,ii)*occ
                 enddo
               enddo
             enddo
           enddo
         enddo
       enddo
+c
+c     exchange term
+c
       do ii = 1, nmo
         do jj = 1, nmo
-          occ = bufo(ii,jj)
+          occ = 0.5d0*bufo(ii,jj)
           do ia = 1, nbf
             do ib = 1, nbf
               do ic = 1, nbf
@@ -71,6 +76,8 @@ c
                   d2el(ia,ib,ic,id) = d2el(ia,ib,ic,id)
      &                              - bufw(ia,ii)*bufw(ib,jj)*
      &                                bufw(ic,jj)*bufw(id,ii)*occ
+     &                              - bufw(ia,jj)*bufw(ib,ii)*
+     &                                bufw(ic,ii)*bufw(id,jj)*occ
                 enddo
               enddo
             enddo

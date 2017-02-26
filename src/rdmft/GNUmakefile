@@ -21,6 +21,7 @@
          wfn1_gen_mat.o \
          wfn1_gen_trial_wfn.o \
          wfn1_guess_corr.o \
+         wfn1_guess_movecs.o \
          wfn1_idmin.o \
          wfn1_insert.o \
          wfn1_lindep.o \

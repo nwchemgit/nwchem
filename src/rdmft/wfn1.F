@@ -58,6 +58,7 @@ c     Local variables
 c
       logical lstatus ! the status of the runtime database
       logical oprint  ! should something be printed
+      logical oprerr  ! should error be printed
       integer iproc   ! the processor rank
       integer nproc   ! the number of processors
       integer nelec   ! the total number of electrons
@@ -73,6 +74,7 @@ c
 c
       character*12  pname ! the subroutine name
       character*256 title ! the job title
+      character*30  tag   ! the RTDB key word
 c
       integer g_bfbf     ! nbf x nbf scratch global array
       integer g_bfmo     ! nbf x nmo scratch global array
@@ -90,7 +92,7 @@ c
       double precision conv_tol ! the convergence tolerance
 c
       double precision, allocatable :: eig(:)
-      double precision              :: error
+      type(wfn1_error)              :: error
 c
       type(wfn1_prminst) :: wfn1_inst    ! paramater instances
       type(wfn1_prm)     :: wfn1_param   ! calculation parameters
@@ -219,8 +221,23 @@ c
      &               0,GEOM_ERR)
       if (.not.rtdb_get(wfn1_inst%rtdb,"charge",MT_DBL,1,charge))
      &  charge = 0.0d0
+      if (.not. rtdb_get(wfn1_inst%rtdb,'wfn1:print_error',MT_LOG,1,
+     &                   oprerr))
+     &  oprerr = .false.
       if (.not. rtdb_get(wfn1_inst%rtdb,'wfn1:nopen',MT_INT,1,nopen))
      &  nopen = 0
+      if (.not. rtdb_get(wfn1_inst%rtdb,'wfn1:ncorea',MT_INT,1,
+     &                   wfn1_param%ncorea))
+     &  wfn1_param%ncorea = 0
+      if (.not. rtdb_get(wfn1_inst%rtdb,'wfn1:ncoreb',MT_INT,1,
+     &                   wfn1_param%ncoreb))
+     &  wfn1_param%ncoreb = 0
+      if (.not. rtdb_get(wfn1_inst%rtdb,'wfn1:nvirta',MT_INT,1,
+     &                   wfn1_param%nvirta))
+     &  wfn1_param%nvirta = 0
+      if (.not. rtdb_get(wfn1_inst%rtdb,'wfn1:nvirtb',MT_INT,1,
+     &                   wfn1_param%nvirtb))
+     &  wfn1_param%nvirtb = 0
       nelec = int(charge_nuc - charge)
       if (nelec.lt.0) then
         call errquit(pname//" negative number of electrons",
@@ -241,6 +258,31 @@ c
       if (wfn1_param%Tbath < 0.0d0) then
         call errquit(pname//" Bath temperature must be at least 0.0",
      &               0,INPUT_ERR)
+      endif
+c
+c     == Get input/output vectors selection ==
+c
+      tag = "wfn1:input vectors"
+      if (.not.rtdb_cget(rtdb, tag, 1, wfn1_param%movecs_in)) then
+        tag = "scf:output vectors"
+        if (.not.rtdb_cget(rtdb, tag, 1, wfn1_param%movecs_in)) then
+          tag = "dft:output vectors"
+          if (.not.rtdb_cget(rtdb, tag, 1, wfn1_param%movecs_in)) then
+            tag = "mcscf:output vectors"
+            if (.not.rtdb_cget(rtdb, tag, 1, wfn1_param%movecs_in)) then
+              wfn1_param%movecs_in = 'atomic'
+            endif
+          endif
+        endif
+      endif
+      tag = "wfn1:output vectors"
+      if (.not.rtdb_cget(rtdb, tag, 1, wfn1_param%movecs_out)) then
+        if (wfn1_param%movecs_in.eq.'atomic') then
+          call util_file_name('movecs',.false.,.false.,
+     &                        wfn1_param%movecs_out)
+        else
+          wfn1_param%movecs_out = wfn1_param%movecs_in
+        endif
       endif
 c
 c     == Deal with 1-electron integrals ==
@@ -308,19 +350,31 @@ c
      &     wfn1_wave%g_na,1,wfn1_param%nbf,1,wfn1_param%nmo)
       call ga_copy(wfn1_wave%g_na,wfn1_wave%g_nb)
 c
-      call guess_dens(wfn1_inst%rtdb,wfn1_inst%geom,wfn1_inst%basis,
-     &                g_bfbf)
-      allocate(eig(1:wfn1_param%nbf))
-      call rhf_dens_to_mo(wfn1_inst%rtdb,wfn1_inst%geom,wfn1_inst%basis,
-     &                    wfn1_param%nea+wfn1_param%neb,wfn1_param%nbf,
-     &                    wfn1_param%nmo,1.0d-5,g_bfbf,wfn1_wave%g_na,
-     &                    .false.,eig)
-      deallocate(eig)
-      call ga_copy(wfn1_wave%g_na,wfn1_wave%g_nb)
+c     == Set up initial wave functions ==
 c
-c     == Set up correlation functions ==
+      if (wfn1_param%movecs_in == "atomic") then
 c
-      call wfn1_guess_corr(wfn1_param,wfn1_wave)
+c       == Set up natural orbitals ==
+c
+        call guess_dens(wfn1_inst%rtdb,wfn1_inst%geom,wfn1_inst%basis,
+     &                  g_bfbf)
+c
+        allocate(eig(1:wfn1_param%nbf))
+        call rhf_dens_to_mo(wfn1_inst%rtdb,wfn1_inst%geom,
+     &                      wfn1_inst%basis,
+     &                      wfn1_param%nea+wfn1_param%neb,
+     &                      wfn1_param%nbf,wfn1_param%nmo,1.0d-7,
+     &                      g_bfbf,wfn1_wave%g_na,.false.,eig)
+        deallocate(eig)
+        call ga_copy(wfn1_wave%g_na,wfn1_wave%g_nb)
+c
+c       == Set up correlation functions == 
+c
+        call wfn1_guess_corr(wfn1_param,wfn1_wave)
+c
+      else
+        call wfn1_guess_movecs(wfn1_param,wfn1_wave)
+      endif
 c
 c     == Set up electron configuration ==
 c
@@ -330,8 +384,15 @@ c
 c     == Initial wavefunction complete ==
 c
       if (iproc.eq.0) then
-        write(luout,'(a10,a20,a16)')"iteration","energy","error"
-        write(luout,'(a10,a20,a16)')"---------","------","-----"
+        if (.not.oprerr) then
+          write(luout,'(a10,a20,a16)')"iteration","energy","error"
+          write(luout,'(a10,a20,a16)')"---------","------","-----"
+        else
+          write(luout,'(a10,a20,a16,4a16)')"iteration","energy","error",
+     &          "err Na","err Nb","err Ca","err Cb"
+          write(luout,'(a10,a20,a16,4a16)')"---------","------","-----",
+     &          "------","------","------","------"
+        endif
       endif
       oconverged = .false.
       curit      = 0
@@ -346,7 +407,7 @@ c
      &                       g_bfmo,g_momo1,g_momo2)
 c
         error = wfn1_trace(wfn1_trial_drv,wfn1_trial_drv)
-        oconverged = (error < conv_tol)
+        oconverged = (error%total < conv_tol)
 c
 c       swap trial wavefunctions, derivatives and energies with the 
 c       regular ones.
@@ -362,7 +423,15 @@ c
         wfn1_energy    = wfn1_trial_en
 
         if (iproc.eq.0) then
-          write(luout,'(i10,f20.8,f16.6)')curit,wfn1_energy%E_tot,error
+          if (.not.oprerr) then
+            write(luout,'(i10,f20.8,f16.6)')curit,wfn1_energy%E_tot,
+     &                                      error%total
+          else
+            write(luout,'(i10,f20.8,5f16.6)')curit,wfn1_energy%E_tot,
+     &                                       error%total,
+     &                                       error%errna,error%errnb,
+     &                                       error%errca,error%errcb
+          endif
         endif
       enddo
       wfn1_task_energy = oconverged

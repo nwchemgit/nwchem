@@ -42,6 +42,10 @@ c
       integer nea     ! local number of alpha electrons
       integer neb     ! local number of alpha electrons
       integer nmo     ! local number of molecular orbitals
+      integer ncorea  ! local number of alpha core orbitals
+      integer ncoreb  ! local number of beta core orbitals
+      integer nvirta  ! local number of alpha virtual orbitals
+      integer nvirtb  ! local number of beta virtual orbitals
 c
       double precision, allocatable :: buf(:,:)
       double precision, allocatable :: eig(:)
@@ -57,6 +61,10 @@ c
       nea = wfn1_param%nea
       neb = wfn1_param%neb
       nmo = wfn1_param%nmo
+      ncorea = wfn1_param%ncorea
+      ncoreb = wfn1_param%ncoreb
+      nvirta = wfn1_param%nvirta
+      nvirtb = wfn1_param%nvirtb
       delta = 0.0d0
 c
 c     Setup the alpha correlation functions
@@ -66,18 +74,35 @@ c
 c
 c     Put initial values in
 c
+      buf = 0.0d0
       do jj = jlo, jhi
         do ii = ilo, ihi
-          if (jj.le.nea) then
-            if (ii.le.nea) then
+          if (jj.le.ncorea) then
+            if (ii.eq.jj) then
+              buf(ii,jj) = 1.0d0
+            endif
+          else if (jj.le.nea) then
+            if (ii.le.ncorea) then
+              buf(ii,jj) = 0.0d0
+            else if (ii.le.nea) then
+              buf(ii,jj) = 1.0d0
+            else if (ii.le.nmo-nvirta) then
+              buf(ii,jj) = 1.0d-3
+            else
+              buf(ii,jj) = 0.0d0
+            endif
+          else if (jj.le.nmo-nvirta) then
+            if (ii.le.ncorea) then
+              buf(ii,jj) = 0.0d0
+            else if (ii.le.nea) then
+              buf(ii,jj) = 1.0d-3
+            else if (ii.le.nmo-nvirta) then
               buf(ii,jj) = 1.0d0
             else
-              buf(ii,jj) = 1.0d-3
+              buf(ii,jj) = 0.0d0
             endif
           else
-            if (ii.le.nea) then
-              buf(ii,jj) = 1.0d-3
-            else
+            if (ii.eq.jj) then
               buf(ii,jj) = 1.0d0
             endif
           endif
@@ -120,10 +145,16 @@ c
 c     Normalize vectors
 c
       do jj = jlo, jhi
-        if (jj.le.nea) then
-          dnrm = nea*(1.0d0**2)+(nmo-nea)*(1.0d-3**2)
+        if (jj.le.ncorea) then
+          dnrm = 1.0d0 ! already normalized
+        else if (jj.le.nea) then
+          dnrm = max(0,nea-ncorea)*(1.0d0**2)
+     &         + max(0,nmo-nea-nvirta)*(1.0d-3**2)
+        else if (jj.le.nmo-nvirta) then
+          dnrm = max(0,nea-ncorea)*(1.0d-3**2)
+     &         + max(0,nmo-nea-nvirta)*(1.0d0**2)
         else
-          dnrm = nea*(1.0d-3**2)+(nmo-nea)*(1.0d0**2)
+          dnrm = 1.0d0 ! already normalized
         endif
         dnrm = 1.0d0/sqrt(dnrm)
         do ii = ilo, ihi
@@ -144,18 +175,35 @@ c
 c
 c     Put initial values in
 c
+      buf = 0.0d0
       do jj = jlo, jhi
         do ii = ilo, ihi
-          if (jj.le.neb) then
-            if (ii.le.neb) then
+          if (jj.le.ncoreb) then
+            if (ii.eq.jj) then
+              buf(ii,jj) = 1.0d0
+            endif
+          else if (jj.le.neb) then
+            if (ii.le.ncoreb) then
+              buf(ii,jj) = 0.0d0
+            else if (ii.le.neb) then
+              buf(ii,jj) = 1.0d0
+            else if (ii.le.nmo-nvirtb) then
+              buf(ii,jj) = 1.0d-3
+            else
+              buf(ii,jj) = 0.0d0
+            endif
+          else if (jj.le.nmo-nvirtb) then
+            if (ii.le.ncoreb) then
+              buf(ii,jj) = 0.0d0
+            else if (ii.le.neb) then
+              buf(ii,jj) = 1.0d-3
+            else if (ii.le.nmo-nvirtb) then
               buf(ii,jj) = 1.0d0
             else
-              buf(ii,jj) = 1.0d-3
+              buf(ii,jj) = 0.0d0
             endif
           else
-            if (ii.le.wfn1_param%neb) then
-              buf(ii,jj) = 1.0d-3
-            else
+            if (ii.eq.jj) then
               buf(ii,jj) = 1.0d0
             endif
           endif
@@ -198,10 +246,16 @@ c
 c     Normalize vectors
 c
       do jj = jlo, jhi
-        if (jj.le.neb) then
-          dnrm = neb*(1.0d0**2)+(nmo-neb)*(1.0d-3**2)
+        if (jj.le.ncoreb) then
+          dnrm = 1.0d0 ! already normalized
+        else if (jj.le.neb) then
+          dnrm = max(0,neb-ncoreb)*(1.0d0**2)
+     &         + max(0,nmo-neb-nvirtb)*(1.0d-3**2)
+        else if (jj.le.nmo-nvirtb) then
+          dnrm = max(0,neb-ncoreb)*(1.0d-3**2)
+     &         + max(0,nmo-neb-nvirtb)*(1.0d0**2)
         else
-          dnrm = neb*(1.0d-3**2)+(nmo-neb)*(1.0d0**2)
+          dnrm = 1.0d0 ! already normalized
         endif
         dnrm = 1.0d0/sqrt(dnrm)
         do ii = ilo, ihi

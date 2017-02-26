@@ -1,2 +1,3 @@
-      double precision wfn1_trace
+#include "wfn1_error.fh"
+      type(wfn1_error) :: wfn1_trace
       external wfn1_trace

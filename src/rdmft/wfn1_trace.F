@@ -1,6 +1,6 @@
 c-----------------------------------------------------------------------
 c
-      double precision function wfn1_trace(wfn1_drva,wfn1_drvb)
+      function wfn1_trace(wfn1_drva,wfn1_drvb)
       implicit none
 C>
 C> \brief Compute the trace of the gradients
@@ -9,9 +9,11 @@ C>
 #include "mafdecls.fh"
 #include "global.fh"
 #include "wfn1_drv.fh"
+#include "wfn1_error.fh"
 c
       type(wfn1_drv), intent(in) :: wfn1_drva
       type(wfn1_drv), intent(in) :: wfn1_drvb
+      type(wfn1_error)           :: wfn1_trace
 c
       integer ilo, ihi, jlo, jhi
       integer ii, jj
@@ -21,13 +23,19 @@ c
       integer iproc
       integer nproc
 c
-      double precision :: trace
+      type(wfn1_error) :: error
 c
       double precision, allocatable :: bufa(:,:)
       double precision, allocatable :: bufb(:,:)
 c
       iproc = ga_nodeid()
       nproc = ga_nnodes()
+c
+      error%total = 0.0d0
+      error%errna = 0.0d0
+      error%errnb = 0.0d0
+      error%errca = 0.0d0
+      error%errcb = 0.0d0
 c
       call ga_inquire(wfn1_drva%g_dna,itypa,nrowa,ncola)
       call ga_inquire(wfn1_drvb%g_dna,itypb,nrowb,ncolb)
@@ -53,7 +61,6 @@ c
       if (nrowa.ne.nrowb) call errquit("wrong nrow g_dcb",0,UERR)
       if (ncola.ne.ncolb) call errquit("wrong ncol g_dcb",0,UERR)
 c
-      trace = 0.0d0
       call ga_distribution(wfn1_drva%g_dna,iproc,ilo,ihi,jlo,jhi)
       allocate(bufa(ilo:ihi,jlo:jhi))
       allocate(bufb(ilo:ihi,jlo:jhi))
@@ -61,7 +68,7 @@ c
       call ga_get(wfn1_drvb%g_dna,ilo,ihi,jlo,jhi,bufb,ihi-ilo+1)
       do jj = jlo, jhi
         do ii = ilo, ihi
-          trace = trace + bufa(ii,jj)*bufb(ii,jj)
+          error%errna = error%errna + bufa(ii,jj)*bufb(ii,jj)
         enddo
       enddo
       deallocate(bufb)
@@ -74,7 +81,7 @@ c
       call ga_get(wfn1_drvb%g_dnb,ilo,ihi,jlo,jhi,bufb,ihi-ilo+1)
       do jj = jlo, jhi
         do ii = ilo, ihi
-          trace = trace + bufa(ii,jj)*bufb(ii,jj)
+          error%errnb = error%errnb + bufa(ii,jj)*bufb(ii,jj)
         enddo
       enddo
       deallocate(bufb)
@@ -87,7 +94,7 @@ c
       call ga_get(wfn1_drvb%g_dca,ilo,ihi,jlo,jhi,bufb,ihi-ilo+1)
       do jj = jlo, jhi
         do ii = ilo, ihi
-          trace = trace + bufa(ii,jj)*bufb(ii,jj)
+          error%errca = error%errca + bufa(ii,jj)*bufb(ii,jj)
         enddo
       enddo
       deallocate(bufb)
@@ -100,14 +107,17 @@ c
       call ga_get(wfn1_drvb%g_dcb,ilo,ihi,jlo,jhi,bufb,ihi-ilo+1)
       do jj = jlo, jhi
         do ii = ilo, ihi
-          trace = trace + bufa(ii,jj)*bufb(ii,jj)
+          error%errcb = error%errcb + bufa(ii,jj)*bufb(ii,jj)
         enddo
       enddo
       deallocate(bufb)
       deallocate(bufa)
 c
-      call ga_dgop(MT_DBL,trace,1,"+")
-      wfn1_trace = trace
+      error%total = error%errna + error%errnb 
+     &            + error%errca + error%errcb
+c
+      call ga_dgop(MT_DBL,error,5,"+")
+      wfn1_trace = error
 c
       return
       end function wfn1_trace
