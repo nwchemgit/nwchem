@@ -164,6 +164,7 @@ c
         enddo
       enddo
       call ga_put(g_occ,iolo,iohi,jolo,johi,bocc,iohi-iolo+1)
+c
       deallocate(bcorj)
       deallocate(bcori)
       deallocate(bocc)
