@@ -42,15 +42,26 @@ c     map the model potential onto the geometry
      &    call errquit(pname//'geom_cent_get failed:i',911, GEOM_ERR)
         status = geom_tag_to_element(tagi,symi,elemi,atni)
         call inp_lcase(symi)
+cinit
+        do k = 1,50
+           gexpo(i,k) = 1d6
+           gcoef(i,k) = 0d0
+        end do                  ! k = 1,50
+        status=.false.
         do j = 1,mpmaxelem  ! in modelpotential.fh
-          if (symi.eq.mpelem(j)) then
+          status=symi.eq.mpelem(j)
+          if(status) then
               gelem(i) = mpelem(j)
               do k = 1,50
                  gexpo(i,k) = mpexpo(j,k)
                  gcoef(i,k) = mpcoef(j,k)
               end do ! k = 1,50
+              goto 1984
           end if
         end do ! j = 1,mpmaxelem 
+ 1984   continue
+        if(ga_nodeid().eq.0.and.(.not.status)) write(6,'(a,i3,2x,a)') 
+     W       ' moldepot warning: no entry found for atom ',i,tagi
       end do  ! i = 1,natoms 
 c
 c     set parameters in rtdb
