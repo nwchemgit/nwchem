@@ -853,6 +853,7 @@ c
          cache_hit=cache_hit+cache_hitmiss(1,ij)
          cache_miss=cache_miss+cache_hitmiss(2,ij)
       enddo
+#ifdef PRINT_CACHE
       if(ga_nodeid().eq.0) then
          if((cache_hit+cache_miss).ne.0) then
             write(6,14) ' cache hit: ',100d0*cache_hit/
@@ -861,7 +862,6 @@ c
          else
             write(6,*) 'cm ',cache_hitmiss
          endif
-#if 1
          if((cache_hitmiss(1,IJ)+cache_hitmiss(2,IJ)).gt.0)
      W        write(6,14) ' cacij hit: ',100d0*cache_hitmiss(1,IJ)/
      C     (cache_hitmiss(1,IJ)+cache_hitmiss(2,IJ)), '% out of ',
@@ -886,9 +886,9 @@ c
      W        write(6,14)  ' cackl hit: ',100d0*cache_hitmiss(1,6)/
      C     (cache_hitmiss(1,6)+cache_hitmiss(2,6)), '% out of ',
      C     cache_hitmiss(1,6)+cache_hitmiss(2,6), ' ga_gets'
-#endif
       endif
  14   format(a,f8.2,a,i12,a)
+#endif
       call ga_sync()
       if(dorepl) then
          call util_mirrstop(g_densrep)
