@@ -231,10 +231,20 @@ c ---- full matrix calc -------- END
       enddo    
       do k = 1, npts
        do n=1,3
-        prod(n)  = chi_ao(k,i)*delchi_ao(k,n,j)
-     &            -chi_ao(k,j)*delchi_ao(k,n,i)
         prod1(n) = chi_ao(k,i)*delchi_ao(k,n,j)
      &            +chi_ao(k,j)*delchi_ao(k,n,i)
+       enddo ! end-loop-n
+       do m=n,3
+          do n=1,3
+         ac_fcsd(n,m) = ac_fcsd(n,m) +
+     &                  fac2_arr(n,k)*prod1(m)         
+        enddo ! end-loop-m
+       enddo ! end-loop-n
+      enddo ! end-loo-k
+      do k = 1, npts
+       do n=1,3
+        prod(n)  = chi_ao(k,i)*delchi_ao(k,n,j)
+     &            -chi_ao(k,j)*delchi_ao(k,n,i)
        enddo ! end-loop-n
        do n=1,3
         a=ind_nab(1,n)
@@ -242,10 +252,6 @@ c ---- full matrix calc -------- END
         ac_zpso(n) = ac_zpso(n) + 
      &               fac2_arr(a,k)*prod(b)-
      &               fac2_arr(b,k)*prod(a) 
-        do m=n,3
-         ac_fcsd(n,m) = ac_fcsd(n,m) +
-     &                  fac2_arr(n,k)*prod1(m)         
-        enddo ! end-loop-m
        enddo ! end-loop-n
       enddo ! end-loo-k
       return

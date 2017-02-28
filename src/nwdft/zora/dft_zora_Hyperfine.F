@@ -222,7 +222,6 @@ c +++++++++ definitions for NLMO analysis ++++++++ START
       logical dft_zoraHYP_NLMOAnalysis_write
 c +++++++++ definitions for NLMO analysis ++++++++ END
       external zora_getv_HFine,    
-     &         get_chi_centers_ga,
      &         zora_getv_HFine_fast,
      &         get_zetanuc_arr,get_znuc,
      &         fill_munuFCSD,fill_munuPSOSO,
@@ -557,7 +556,6 @@ c    Date   : 11-06-10
      &        l_buf1,k_buf1     
       external zora_getv_HFine,    
      &         read_SLCTD_HFine_Atoms,
-     &         get_chi_centers_ga,
      &         zora_getv_HFine1
       if(.not.ma_alloc_get(mt_dbl,3*3,'HTensor:buf',
      &                    l_buf,k_buf))

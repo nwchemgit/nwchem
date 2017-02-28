@@ -258,6 +258,8 @@ c     == spin-orbit contributions ==
        call ga_antisymmetrize(g_efgz4_so(i))
        ind=ind-1
       enddo
+      if (.not.MA_chop_stack(lscal(1)))
+     &    call errquit('zora_getv_so: scali chop_stack',0, MA_ERR)
       call ga_sync()
       return
       end

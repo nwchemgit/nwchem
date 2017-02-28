@@ -288,6 +288,8 @@ c     == pack into a ga all EPR AOs ==
      &               1,nbf_ao,1,nbf_ao,dbl_mb(iepr4(i,j)),nbf_ao)
         enddo ! end-loop-j
       enddo ! end-loop-i
+      if (.not.MA_chop_stack(lepr1(1)))
+     &    call errquit('zora_getv_so: scali chop_stack',0, MA_ERR)
       call ga_sync()
       return
       end

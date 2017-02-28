@@ -25,14 +25,14 @@ c Author : Fredy W. Aquino, Northwestern University (Oct 2012)
       integer ictr,ic1,ic2,icset
       integer l,nprim,ncontr,isphere,nshbf
       integer mcenters,i,n1
-      integer iniz(mcenters),ifin(mcenters)
+      integer iniz,ifin
       character*16 at_tag  
       integer lo1(3),hi1(3),ld(2)
       logical status     
-      call ifill(mcenters,0,iniz,1)
-      call ifill(mcenters,0,ifin,1)
       n1=0
         do ictr=1,mcenters
+           iniz=0
+           ifin=0
          if (.not.bas_ce2cnr(basis,ictr,ic1,ic2))
      &       call errquit('Exiting in get_chi_centers_ga.',
      &                    11, BASIS_ERR)
@@ -46,17 +46,20 @@ c ----- get info about current contraction set
           if(isphere.eq.1) then
             nshbf=ncontr*(2*l+1)
           endif
-          if (iniz(ictr).eq.0) iniz(ictr)=n1+1
+          if (iniz.eq.0) iniz=n1+1
           n1=n1+nshbf
          enddo ! end loop icset
-         ifin(ictr)= n1
+         ifin= n1
          status=geom_cent_get(geom,ictr,at_tag,
      &                        cnt,valZ)
-         do i=iniz(ictr),ifin(ictr)
+c if iniz=0, must be a bq or bare ecp
+         if(iniz.ne.0) then
+         do i=iniz,ifin
            chi_cntr(1,i)=cnt(1)
            chi_cntr(2,i)=cnt(2)
            chi_cntr(3,i)=cnt(3)
          enddo ! end loop i 
+         endif
         enddo ! end loop ictr
       return
       end
@@ -84,7 +87,7 @@ c Author : Fredy W. Aquino, Northwestern University (Oct 2012)
       integer ictr,ic1,ic2,icset
       integer l,nprim,ncontr,isphere,nshbf
       integer mcenters,i,n1
-      integer iniz(mcenters),ifin(mcenters)
+      integer iniz,ifin
       character*16 at_tag  
       integer l_buf,k_buf
       integer lo1(3),hi1(3),ld(2)
@@ -95,10 +98,10 @@ c ----- allocate array to store centers ---- START
      $     call errquit('get_chi_centers_ga: ma failed',
      &                  3*nbf, MA_ERR) 
 c ----- allocate array to store centers ---- END
-        call ifill(mcenters,0,iniz,1)
-        call ifill(mcenters,0,ifin,1)
         n1=0
         do ictr=1,mcenters
+           iniz=0
+           ifin=0
          if (.not.bas_ce2cnr(basis,ictr,ic1,ic2))
      &       call errquit('Exiting in get_chi_centers_ga.',
      &                    11, BASIS_ERR)
@@ -112,17 +115,20 @@ c ----- get info about current contraction set
           if(isphere.eq.1) then
             nshbf=ncontr*(2*l+1)
           endif
-          if (iniz(ictr).eq.0) iniz(ictr)=n1+1
+          if (iniz.eq.0) iniz=n1+1
           n1=n1+nshbf
          enddo ! end loop icset
-         ifin(ictr)= n1
+         ifin= n1
          status=geom_cent_get(geom,ictr,at_tag,
      &                        cnt,valZ)
-         do i=iniz(ictr),ifin(ictr)
+c if iniz=0, must be a bq or bare ecp
+         if(iniz.ne.0) then
+         do i=iniz,ifin
            dbl_mb(k_buf      +i-1)=cnt(1)
            dbl_mb(k_buf+nbf  +i-1)=cnt(2)
            dbl_mb(k_buf+2*nbf+i-1)=cnt(3)
          enddo ! end loop i 
+         endif
         enddo ! end loop ictr
 c ----- store in g_chi_cntr() --- START
 c       dbl_mb() ---> g_chi_cntr()

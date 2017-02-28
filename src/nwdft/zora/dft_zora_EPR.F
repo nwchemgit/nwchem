@@ -40,7 +40,7 @@
       external get_par1_EPR,
      &         get_H11munu_EPR,get_R01munu_EPR,
      &         get_Fji,zora_getv_EPR,
-     &         get_chi_centers,dft_zoraNMR_write,
+     &         dft_zoraNMR_write,
      &         dft_zoraNMR_write_AB
       logical done_Fji,do_prntNMRCS
       if(.not.rtdb_get(rtdb,'zora:do_prntNMRCS',        ! FA
@@ -294,7 +294,7 @@ c    ga output:
 #include "msgids.fh"
 #include "rtdb.fh" 
 #include "geom.fh" 
-      external get_chi_centers_ga,
+      external
      &        fill_munuFCSD,fill_munuPSOSO,
      &        dft_zoraGshift_NLMOAnalysis_write,
      &        util_file_name
@@ -367,11 +367,11 @@ c      if (noc(1) .ne. noc(2)) then
 c      coeffpol=4.0d0/(noc(1)-noc(2))
        coeffpol=4.0d0/(ac_occ(1)-ac_occ(2))
       else
-       write(*,1) noc(1),noc(2)
+       write(6,1) noc(1),noc(2)
  1     format('Error in get_H11munu_EPR(): ', 
      &        'noc=(',i3,',',i3,') ',
      &        '-> closed shell system not allowed!')
-       stop
+       call errquit('get_dia12_par1_EPR error ',0,0)
       endif 
       factor=(-0.25d0)*coeffpol*ppt
 c     if (ga_nodeid().eq.0)
