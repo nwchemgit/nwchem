@@ -60,13 +60,13 @@ c     == local variables ==
 c
 c     == allocate memory ==
       do i=1,3
-       if (.not. ma_pop_stack(mt_dbl,nbf_ao*nbf_ao,
+       if (.not. ma_push_get(mt_dbl,nbf_ao*nbf_ao,
      &                      'lnmr',lzpso(i),izpso(i)))
      &    call errquit('zora_getv_HFine: zpso',911,MA_ERR)
        enddo
        do i=1,3
           do j=i,3
-             if (.not. ma_pop_stack(mt_dbl,nbf_ao*nbf_ao,
+             if (.not. ma_push_get(mt_dbl,nbf_ao*nbf_ao,
      &            'lfcsd',lfcsd(i,j),ifcsd(i,j)))
      &            call errquit('zora_getv_HFine: fcsd',911,MA_ERR)
           enddo
@@ -316,7 +316,7 @@ c     == allocate memory ==
        do t=1,3
         m=ind_tmn(1,t)
         n=ind_tmn(2,t)
-        if (.not. ma_alloc_get(mt_dbl,nbf_ao*nbf_ao,
+        if (.not. ma_push_get(mt_dbl,nbf_ao*nbf_ao,
      &                'lnmr',lzpso(m,n),izpso(m,n)))
      &    call errquit('zora_getv_NMR: zpso',911,MA_ERR)
         if (.not. ma_alloc_get(mt_dbl,nbf_ao*nbf_ao,
@@ -324,27 +324,23 @@ c     == allocate memory ==
      &    call errquit('zora_getv_NMR: zpso',911,MA_ERR)
        enddo ! end-loop-t
        do i=1,3
-        do j=1,3
-          if (.not. ma_alloc_get(mt_dbl,nbf_ao*nbf_ao,
+        do j=k,3
+          if (.not. ma_push_get(mt_dbl,nbf_ao*nbf_ao,
      &                      'lfcsd',lfcsd(i,j),ifcsd(i,j)))
      &    call errquit('zora_getv_HFine: fcsd',911,MA_ERR)
         enddo
        enddo ! end-loop-i
 c     == preliminaries ==
        do t=1,3
-        m=ind_tmn(1,t)
-        n=ind_tmn(2,t)     
-         do i= 1, nbf_ao*nbf_ao
-          dbl_mb(izpso(m,n)+i-1)=0.d0
-          dbl_mb(izpso(n,m)+i-1)=0.d0
-         enddo ! end-loop-i   
-       enddo ! end-loop-t
+          m=ind_tmn(1,t)
+          n=ind_tmn(2,t)     
+          call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(izpso(m,n)),1)
+          call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(izpso(n,m)),1)
+       enddo                    ! end-loop-t
        do k=1,3
-        do j=1,3
-         do i= 1, nbf_ao*nbf_ao
-         dbl_mb(ifcsd(k,j)+i-1)=0.d0
-         enddo
-        enddo
+          do j=k,3
+             call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(izpso(k,j)),1)
+          enddo
        enddo
 c     == generate the grid ==
       dummy(1) = 0.d0
@@ -456,19 +452,13 @@ c              == chi ==
      &                                Knucl,
      &                                xyz_NMRcoords,
      &                                dbl_mb(izpso(1,2)),! out
-     &                                dbl_mb(izpso(1,3)),! out
-     &                                dbl_mb(izpso(2,1)),! out
      &                                dbl_mb(izpso(2,3)),! out
      &                                dbl_mb(izpso(3,1)),! out
-     &                                dbl_mb(izpso(3,2)),! out
      &                                dbl_mb(ifcsd(1,1)),! out
      &                                dbl_mb(ifcsd(1,2)),! out
      &                                dbl_mb(ifcsd(1,3)),! out
-c     &                                dbl_mb(ifcsd(2,1)),! out
      &                                dbl_mb(ifcsd(2,2)),! out
      &                                dbl_mb(ifcsd(2,3)),! out
-c     &                                dbl_mb(ifcsd(3,1)),! out
-c     &                                dbl_mb(ifcsd(3,2)),! out
      &                                dbl_mb(ifcsd(3,3)))! out
 c              == delete memory ==
                if(.not.MA_chop_stack(l_rchi_atom))
@@ -526,23 +516,12 @@ c     == pack into a ga all HFine AOs ==
       enddo ! end-loop-i
       call ga_sync()
 c ----- free memory ----------- START
-      do i=1,3
-       do j=1,3
-        if (.not.ma_free_heap(lfcsd(i,j))) call errquit
-     &   ('zora_getv_HFine: ma_free_heap of lfcsd failed',
+       m=ind_tmn(1,1)
+       n=ind_tmn(2,1) 
+      if (.not.ma_chop_stack(lzpso(m,n))) call errquit
+     &   ('zora_getv_HFine: ma_chop_stack of lzpso failed',
      &    911,MA_ERR)
-       enddo
-      enddo
-      do t=1,3
-       m=ind_tmn(1,t)
-       n=ind_tmn(2,t) 
-      if (.not.ma_free_heap(lzpso(m,n))) call errquit
-     &   ('zora_getv_HFine: ma_free_heap of lzpso failed',
-     &    911,MA_ERR)
-      if (.not.ma_free_heap(lzpso(n,m))) call errquit
-     &   ('zora_getv_HFine: ma_free_heap of lzpso failed',
-     &    911,MA_ERR)
-      enddo ! end-loop-t
+
 c ----- free memory ----------- END
       return
       end
