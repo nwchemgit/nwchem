@@ -457,8 +457,11 @@ c              == chi ==
      &                                dbl_mb(ifcsd(1,1)),! out
      &                                dbl_mb(ifcsd(1,2)),! out
      &                                dbl_mb(ifcsd(1,3)),! out
+c     &                                dbl_mb(ifcsd(2,1)),! out
      &                                dbl_mb(ifcsd(2,2)),! out
      &                                dbl_mb(ifcsd(2,3)),! out
+c     &                                dbl_mb(ifcsd(3,1)),! out
+c     &                                dbl_mb(ifcsd(3,2)),! out
      &                                dbl_mb(ifcsd(3,3)))! out
 c              == delete memory ==
                if(.not.MA_chop_stack(l_rchi_atom))

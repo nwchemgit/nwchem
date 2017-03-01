@@ -276,19 +276,13 @@ c +++++++++++++++++++++++++++++++++++++++
      &                           Knucl,
      &                           xyz_NMRcoords,! in: nuclear coordinates
      &                           zpsoxy,       ! out 
-     &                           zpsoxz,       ! out 
-     &                           zpsoyx,       ! out 
      &                           zpsoyz,       ! out 
      &                           zpsozx,       ! out 
-     &                           zpsozy,       ! out      
      &                           fcsdxx,       ! out
      &                           fcsdxy,       ! out
      &                           fcsdxz,       ! out
-c     &                           fcsdyx,       ! out
      &                           fcsdyy,       ! out
      &                           fcsdyz,       ! out
-c     &                           fcsdzx,       ! out
-c     &                           fcsdzy,       ! out
      &                           fcsdzz)       ! out
       implicit none
 #include "errquit.fh"
