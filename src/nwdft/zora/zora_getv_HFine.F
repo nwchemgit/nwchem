@@ -322,26 +322,17 @@ c     == allocate memory ==
         if (.not. ma_alloc_get(mt_dbl,nbf_ao*nbf_ao,
      &                'lnmr',lzpso(n,m),izpso(n,m)))
      &    call errquit('zora_getv_NMR: zpso',911,MA_ERR)
+          call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(izpso(m,n)),1)
+          call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(izpso(n,m)),1)
        enddo ! end-loop-t
        do i=1,3
-        do j=k,3
+        do j=i,3
           if (.not. ma_push_get(mt_dbl,nbf_ao*nbf_ao,
      &                      'lfcsd',lfcsd(i,j),ifcsd(i,j)))
      &    call errquit('zora_getv_HFine: fcsd',911,MA_ERR)
+          call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(ifcsd(i,j)),1)
         enddo
        enddo ! end-loop-i
-c     == preliminaries ==
-       do t=1,3
-          m=ind_tmn(1,t)
-          n=ind_tmn(2,t)     
-          call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(izpso(m,n)),1)
-          call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(izpso(n,m)),1)
-       enddo                    ! end-loop-t
-       do k=1,3
-          do j=k,3
-             call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(izpso(k,j)),1)
-          enddo
-       enddo
 c     == generate the grid ==
       dummy(1) = 0.d0
       dummy(2) = 0.d0
