@@ -41,7 +41,7 @@ c
       character*255 zorafilename
 
       external get_Htensor_slow,get_HFine_F1ji,
-     &         get_Htensor_fast,dft_zoraNMR_write,
+     &         dft_zoraNMR_write,
      &         get_slctd_atoms
       logical do_prntNMRCS
       if(.not.rtdb_get(rtdb,'zora:do_prntNMRCS',        ! FA

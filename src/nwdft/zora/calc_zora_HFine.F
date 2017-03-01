@@ -284,11 +284,11 @@ c +++++++++++++++++++++++++++++++++++++++
      &                           fcsdxx,       ! out
      &                           fcsdxy,       ! out
      &                           fcsdxz,       ! out
-     &                           fcsdyx,       ! out
+c     &                           fcsdyx,       ! out
      &                           fcsdyy,       ! out
      &                           fcsdyz,       ! out
-     &                           fcsdzx,       ! out
-     &                           fcsdzy,       ! out
+c     &                           fcsdzx,       ! out
+c     &                           fcsdzy,       ! out
      &                           fcsdzz)       ! out
       implicit none
 #include "errquit.fh"
@@ -312,11 +312,11 @@ c +++++++++++++++++++++++++++++++++++++++
       double precision fcsdxx(nbf,nbf),
      &                 fcsdxy(nbf,nbf),
      &                 fcsdxz(nbf,nbf),
-     &                 fcsdyx(nbf,nbf),
+c     &                 fcsdyx(nbf,nbf),
      &                 fcsdyy(nbf,nbf),
      &                 fcsdyz(nbf,nbf),
-     &                 fcsdzx(nbf,nbf),
-     &                 fcsdzy(nbf,nbf),
+c     &                 fcsdzx(nbf,nbf),
+c     &                 fcsdzy(nbf,nbf),
      &                 fcsdzz(nbf,nbf)
       double precision ac_fcsd(3,3)
       integer i,j,k,n
@@ -495,11 +495,11 @@ c ---- full matrix calc -------- START
           fcsdxx(i,j) = fcsdxx(i,j) + ac_fcsd(1,1)
           fcsdxy(i,j) = fcsdxy(i,j) + ac_fcsd(1,2)
           fcsdxz(i,j) = fcsdxz(i,j) + ac_fcsd(1,3)
-          fcsdyx(i,j) = fcsdyx(i,j) + ac_fcsd(2,1)
+c          fcsdyx(i,j) = fcsdyx(i,j) + ac_fcsd(2,1)
           fcsdyy(i,j) = fcsdyy(i,j) + ac_fcsd(2,2)
           fcsdyz(i,j) = fcsdyz(i,j) + ac_fcsd(2,3)
-          fcsdzx(i,j) = fcsdzx(i,j) + ac_fcsd(3,1)
-          fcsdzy(i,j) = fcsdzy(i,j) + ac_fcsd(3,2)
+c          fcsdzx(i,j) = fcsdzx(i,j) + ac_fcsd(3,1)
+c          fcsdzy(i,j) = fcsdzy(i,j) + ac_fcsd(3,2)
           fcsdzz(i,j) = fcsdzz(i,j) + ac_fcsd(3,3)
         enddo ! end-loop-j
       enddo ! end-loop-i
@@ -526,7 +526,7 @@ c ---- full matrix calc -------- END
       double precision fac2_arr(3,npts)
       double precision ac_zpso(3,3),
      &                 ac_fcsd(3,3)
-      double precision prod(3),prod1(3)
+      double precision prod(3),prod1(3),prod13
       integer ind_nab(2,3)
       data ind_nab / 2, 3,  ! nab=123
      &               3, 1,  ! nab=231
@@ -538,19 +538,30 @@ c ---- full matrix calc -------- END
         enddo
       enddo    
       do k = 1, npts
+            prod13 = chi_ao(k,i)*delchi_ao(k,1,j)
+     &           +chi_ao(k,j)*delchi_ao(k,1,i)
+               ac_fcsd(1,1) = ac_fcsd(1,1)+fac2_arr(1,k)*prod13
+               ac_fcsd(1,2) = ac_fcsd(1,2)+fac2_arr(2,k)*prod13
+               ac_fcsd(1,3) = ac_fcsd(1,3)+fac2_arr(3,k)*prod13
+            prod13 = chi_ao(k,i)*delchi_ao(k,2,j)
+     &           +chi_ao(k,j)*delchi_ao(k,2,i)
+               ac_fcsd(2,2) = ac_fcsd(2,2)+fac2_arr(2,k)*prod13
+               ac_fcsd(2,3) = ac_fcsd(2,3)+fac2_arr(3,k)*prod13
+
+            prod13 = chi_ao(k,i)*delchi_ao(k,3,j)
+     &           +chi_ao(k,j)*delchi_ao(k,3,i)
+               ac_fcsd(3,3) = ac_fcsd(3,3)+fac2_arr(3,k)*prod13
+      enddo ! end-loo-k
+
+      do k = 1, npts
        do n=1,3
         prod(n)  = chi_ao(k,i)*delchi_ao(k,n,j)
-        prod1(n) = chi_ao(k,i)*delchi_ao(k,n,j)
-     &            +chi_ao(k,j)*delchi_ao(k,n,i)
        enddo ! end-loop-n
        do n=1,3
          a=ind_nab(1,n)
          b=ind_nab(2,n)      
          ac_zpso(a,b) = ac_zpso(a,b)+fac2_arr(a,k)*prod(b)
          ac_zpso(b,a) = ac_zpso(b,a)+fac2_arr(b,k)*prod(a)
-        do m=1,3
-         ac_fcsd(n,m) = ac_fcsd(n,m)+fac2_arr(n,k)*prod1(m)         
-        enddo ! end-loop-m
        enddo ! end-loop-n
       enddo ! end-loo-k
       return
