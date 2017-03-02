@@ -1,0 +1,35 @@
+echo
+start dft_zorahyperf_zno
+title dft_zorahyperf_zno
+
+
+start zno_g
+geometry 
+zn 0. 0. 0.
+o 0. 0. 2.5
+end
+
+BASIS "ao basis" spherical 
+* library def2-svp
+end
+
+charge 0
+dft
+ odft
+ mult 3
+ xc pbe0
+ grid fine
+ convergence energy 1d-8
+ end
+task dft
+relativistic
+ zora on
+ zora:cutoff_NMR 1d-8
+ zora:cutoff 1d-30
+end
+
+property
+ hyperfine 1 1
+ gshift
+end
+task dft property
