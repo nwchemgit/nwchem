@@ -50,10 +50,12 @@ c
       external movecs_read_header, cphf_poliz
       logical int_normalize
       external int_normalize
+      logical xc_gotxc
+      external xc_gotxc
 c
       logical hf_job
 c
-      hf_job = .not. bgj_have_xc()      
+      hf_job = .not. xc_gotxc()      
 c
 c     Print levels assume that CPHF is being invoked from within
 c     another application.  By default be informative.
@@ -73,12 +75,14 @@ c
       else
          if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
      $        call errquit('cphf_solve: no DFT MO vectors',0, RTDB_ERR)
+#if 0
 c !!! Hack to set up scftype properly for later code !!! ? need this?
          if (bgj_restricted()) then
             scftype = 'RHF'
          else
             scftype = 'UHF'
          endif
+#endif
       endif
 c      write(*,*)'*** cphf_solve: scftype ',scftype
 c     
@@ -104,6 +108,12 @@ c
      $     scftype_vecs, nbf_vecs,nsets,nmos,2))
      $     call errquit('cphf: problem with movecs_read_header',1,
      &       UNKNOWN_ERR)
+cnew hack replacing bgj-isms
+      if (nsets.eq.1) then
+         scftype = 'RHF'
+      else
+         scftype = 'UHF'
+      endif
       if(nbf.ne.nbf_vecs)call errquit('cphf: MO vectors mismatch?',0,
      &       UNKNOWN_ERR)
       nmo = nmos(1)

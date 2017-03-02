@@ -99,6 +99,8 @@ c
       integer ipm,ncomp,ndata,m1,m2,shift
       double precision small
       logical use_dimqm,lrsp,ldimqm,lfirst,dimqm_go
+      logical xc_gotxc
+      external xc_gotxc
       parameter (small = 1d-8)
 c
 c     ==================================================================
@@ -110,7 +112,7 @@ c     debug = .true. ! to allow debugging printouts
       lstatic = (abs(omega).lt.small)
       use_dimqm=util_module_avail("dimqm")
 
-      hf_job = .not. bgj_have_xc()      
+      hf_job = .not. xc_gotxc()      
 c
 c     Print levels assume that CPHF is being invoked from within
 c     another application.  By default be informative.
@@ -145,12 +147,14 @@ c     Must use the same vectors as the converged SCF
       else
          if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
      $        call errquit('cphf_solve3: no DFT MO vectors',0, RTDB_ERR)
+#if 0
 c !!! Hack to set up scftype properly for later code !!! ? need this?
          if (bgj_restricted()) then
             scftype = 'RHF'
          else
             scftype = 'UHF'
          endif
+#endif
       endif
 c      write(*,*)'*** cphf_solve3: scftype ',scftype
 c     
@@ -176,6 +180,12 @@ c
      $     scftype_vecs, nbf_vecs,nsets,nmos,2))
      $     call errquit('cphf: problem with movecs_read_header',1,
      &       UNKNOWN_ERR)
+cnew hack replacing bgj-isms
+      if (nsets.eq.1) then
+         scftype = 'RHF'
+      else
+         scftype = 'UHF'
+      endif
       if(nbf.ne.nbf_vecs)call errquit('cphf: MO vectors mismatch?',0,
      &       UNKNOWN_ERR)
       nmo = nmos(1)
