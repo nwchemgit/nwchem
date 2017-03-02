@@ -1,0 +1,53 @@
+echo
+start dft_zorahyperf_zno6bq
+title dft_zorahyperf_zno6bq
+
+
+start zno_g
+geometry 
+symmetry c4
+zn 0. 0. 0.
+O  2. 0. 0
+O -2. 0. 0
+O  0. 2. 0.
+O  0. -2. 0.
+O  0. 0. 2.1
+O  0. 0. -2.1 
+bqZn  4.  0.  0. charge 1d-20
+bqZn -4.  0.  0. charge 1d-20
+bqZn  0.  4.  0. charge 1d-20
+bqZn  0. -4.  0. charge 1d-20
+bqZn  0.  0. -4.2 charge 1d-20
+bqZn  0.  0.  4.2 charge 1d-20
+end
+charge -10
+BASIS "ao basis" spherical 
+* library def2-svp
+end
+set tolguess 1d-3
+charge 0
+dft
+# sym off
+# adapt off
+ maxiter 199
+ odft
+ mult 3
+ xc pbe0
+ grid xfine
+ tolerances tight
+ convergence energy 1d-8 lshift 0.17
+ vectors input atomic 
+ end
+task dft
+set dft:no_prune t
+relativistic
+ zora on
+ zora:cutoff_NMR 1d-8
+ zora:cutoff 1d-30
+end
+
+property
+ hyperfine 1 1
+ gshift
+end
+task dft property
