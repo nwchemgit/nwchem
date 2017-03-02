@@ -6,6 +6,7 @@
 	dft_zora_rhos.o\
 	dft_zora_rhos_so.o\
 	gridNuclearPotential.o\
+	gridHartreePotential.o\
 	gridQpqPotential.o\
 	zora_getv_EFGZ4_SR.o\
 	calc_zora_EFGZ4_SR.o\
