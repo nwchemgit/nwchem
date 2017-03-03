@@ -319,7 +319,7 @@ c     == allocate memory ==
         if (.not. ma_push_get(mt_dbl,nbf_ao*nbf_ao,
      &                'lnmr',lzpso(m,n),izpso(m,n)))
      &    call errquit('zora_getv_NMR: zpso',911,MA_ERR)
-        if (.not. ma_alloc_get(mt_dbl,nbf_ao*nbf_ao,
+        if (.not. ma_push_get(mt_dbl,nbf_ao*nbf_ao,
      &                'lnmr',lzpso(n,m),izpso(n,m)))
      &    call errquit('zora_getv_NMR: zpso',911,MA_ERR)
           call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(izpso(m,n)),1)
