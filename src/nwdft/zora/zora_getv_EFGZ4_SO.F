@@ -195,49 +195,19 @@ c                write(*,*) 'enter calc_EFG() ...'
      &                        dbl_mb(iscal(1))) ! out   
                endif
 c              == delete memory ==
-               if(.not.MA_pop_stack(lchi_ao))
-     &            call errquit("zora_getv: pop chi_ao", 100, MA_ERR)
-               if(.not.MA_pop_stack(ldelchi_ao))
-     &            call errquit("zora_getv: pop delchi_ao", 100, MA_ERR)
-               if(.not.MA_pop_stack(l_rq))
-     &            call errquit("zora_getv: pop rq", 100, MA_ERR)
-               if(.not.MA_pop_stack(l_rchi_atom))
+               if(.not.MA_chop_stack(l_rchi_atom))
      &            call errquit("zora_getv: pop rchi_atom",100,MA_ERR)
             endif ! nqpts
          enddo ! ncube
       end do ! iqsh
 c
 c     == delete memory ==
-      if(.not.MA_pop_stack(lrqbuf))
-     &     call errquit("zora_getv_sf: pop rqbuf", 100, MA_ERR)
-      if(.not.MA_pop_stack(lqwght))
-     &     call errquit("zora_getv_sf: pop qwght", 100, MA_ERR)
-      if(.not.MA_pop_stack(lqxyz))
-     &     call errquit("zora_getv_sf: pop qxyz", 100, MA_ERR)
-      if(.not.MA_pop_stack(ltags))
-     &     call errquit("zora_getv_sf: pop tags", 100, MA_ERR)
-      if(.not.MA_pop_stack(lcharge))
-     &     call errquit("zora_getv_sf: pop charge", 100, MA_ERR)
-      if(.not.MA_pop_stack(lxyz))
-     &     call errquit("zora_getv_sf: pop xyz", 100, MA_ERR)
-      if(.not.MA_pop_stack(lniz))
-     &     call errquit("zora_getv_sf: pop niz", 100, MA_ERR)
-      if(.not.MA_pop_stack(ldocset))
-     &     call errquit("zora_getv_sf: pop docset", 100, MA_ERR)
-      if(.not.MA_pop_stack(lbas_cset_info))
-     &     call errquit("zora_getv_sf: pop bas_cset_info", 100, MA_ERR)
-      if(.not.MA_pop_stack(lbas_cent_info))
+      if(.not.MA_chop_stack(lbas_cent_info))
      &     call errquit("zora_getv_sf: pop bas_cent_info", 100, MA_ERR)
 c
 c     == tally up over all the nodes ==
-      nij = 0
-      do i = 1, nbf_ao
-        do j = 1, nbf_ao
-         nij = nij + 1
-         do k=1,4
-          call ga_dgop(msg_excrho, dbl_mb(iscal(k)+nij-1), 1, '+')
-         enddo
-        enddo
+      do k=1,4
+         call ga_dgop(msg_excrho, dbl_mb(iscal(k)), nbf_ao*nbf_ao, '+')
       enddo
 c
 c     == pack into a ga ==
