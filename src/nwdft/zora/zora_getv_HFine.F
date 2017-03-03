@@ -473,8 +473,9 @@ c     == tally up over all the nodes ==
          call ga_dgop(msg_excrho,dbl_mb(izpso(n,m)),nbf_ao*nbf_ao,'+')
          do t=k,3
            call ga_dgop(msg_excrho,dbl_mb(ifcsd(k,t)),nbf_ao*nbf_ao,'+')
-           if(t.ne.k) call dcopy(
-     D          nbf_ao*nbf_ao,dbl_mb(ifcsd(k,t)),1,dbl_mb(ifcsd(t,k)),1)
+c ifcsd upper triangle gone
+c           if(t.ne.k) call dcopy(
+c     D          nbf_ao*nbf_ao,dbl_mb(ifcsd(k,t)),1,dbl_mb(ifcsd(t,k)),1)
          enddo                  ! end-loop-t
       enddo                     ! end-loop-k
 c     
