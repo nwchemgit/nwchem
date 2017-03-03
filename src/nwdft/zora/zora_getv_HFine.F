@@ -726,15 +726,9 @@ c     == delete memory ==
      &     call errquit("zora_getv_sf: pop bas_cent_info", 100, MA_ERR)
 c
 c     == tally up over all the nodes ==
-      nij = 0
-      do i = 1, nbf_ao
-        do j = 1, nbf_ao
-         nij = nij + 1
-         do k=1,3
-          call ga_dgop(msg_excrho,dbl_mb(ihfine(k) +nij-1), 1, '+')
-         enddo ! end-loop-k
-        enddo ! end-loop-j
-      enddo ! end-loop-i
+      do k=1,3
+         call ga_dgop(msg_excrho,dbl_mb(ihfine(k)), nbf_ao*nbf_ao, '+')
+      enddo                     ! end-loop-k
 c
 c     == pack into a ga all NMR AOs ==
       do i=1,3 
