@@ -27,16 +27,12 @@ end
 set tolguess 1d-3
 charge 0
 dft
-# sym off
-# adapt off
- maxiter 199
- odft
+ direct
  mult 3
  xc pbe0
  grid xfine
  tolerances tight
- convergence energy 1d-8 lshift 0.17
- vectors input atomic 
+ convergence energy 1d-8 lshift 0.
  end
 task dft
 set dft:no_prune t
@@ -50,4 +46,5 @@ property
  hyperfine 1 1
  gshift
 end
-task dft property
+
+task dft property 
