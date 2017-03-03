@@ -77,15 +77,11 @@ c     == allocate memory ==
       enddo ! end-loop-i
 c     == preliminaries ==
        do j=1,3
-         do i= 1, nbf_ao*nbf_ao
-          dbl_mb(iepr1(j)+i-1)=0.d0
-          dbl_mb(iepr3(j)+i-1)=0.d0
-         enddo  
+          call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(iepr1(j)),1)
+          call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(iepr3(j)),1)
         do k=1,3
-         do i= 1, nbf_ao*nbf_ao
-          dbl_mb(iepr2(j,k)+i-1)=0.d0
-          dbl_mb(iepr4(j,k)+i-1)=0.d0
-         enddo
+          call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(iepr2(j,k)),1)
+          call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(iepr4(j,k)),1)
         enddo ! end-loop-k
        enddo ! end-loop-j
 c     == generate the grid ==
@@ -219,72 +215,48 @@ c              == chi ==
      &                                  dbl_mb(iepr4(3,2)),! out
      &                                  dbl_mb(iepr4(3,3)))  ! out
 c              == delete memory ==
-               if(.not.MA_pop_stack(lchi_ao))
-     &            call errquit("zora_getv: pop chi_ao", 100, MA_ERR)
-               if(.not.MA_pop_stack(ldelchi_ao))
-     &            call errquit("zora_getv: pop delchi_ao", 100, MA_ERR)
-               if(.not.MA_pop_stack(l_rq))
-     &            call errquit("zora_getv: pop rq", 100, MA_ERR)
-               if(.not.MA_pop_stack(l_rchi_atom))
+               if(.not.MA_chop_stack(l_rchi_atom))
      &            call errquit("zora_getv: pop rchi_atom",100,MA_ERR)
             endif ! nqpts
          enddo ! ncube
       end do ! iqsh
 c
 c     == delete memory ==
-      if(.not.MA_pop_stack(lrqbuf))
-     &     call errquit("zora_getv_sf: pop rqbuf", 100, MA_ERR)
-      if(.not.MA_pop_stack(lqwght))
-     &     call errquit("zora_getv_sf: pop qwght", 100, MA_ERR)
-      if(.not.MA_pop_stack(lqxyz))
-     &     call errquit("zora_getv_sf: pop qxyz", 100, MA_ERR)
-      if(.not.MA_pop_stack(ltags))
-     &     call errquit("zora_getv_sf: pop tags", 100, MA_ERR)
-      if(.not.MA_pop_stack(lcharge))
-     &     call errquit("zora_getv_sf: pop charge", 100, MA_ERR)
-      if(.not.MA_pop_stack(lxyz))
-     &     call errquit("zora_getv_sf: pop xyz", 100, MA_ERR)
-      if(.not.MA_pop_stack(lniz))
-     &     call errquit("zora_getv_sf: pop niz", 100, MA_ERR)
-      if(.not.MA_pop_stack(ldocset))
-     &     call errquit("zora_getv_sf: pop docset", 100, MA_ERR)
-      if(.not.MA_pop_stack(lbas_cset_info))
-     &     call errquit("zora_getv_sf: pop bas_cset_info", 100, MA_ERR)
-      if(.not.MA_pop_stack(lbas_cent_info))
+      if(.not.MA_chop_stack(lbas_cent_info))
      &     call errquit("zora_getv_sf: pop bas_cent_info", 100, MA_ERR)
 c
 c     == tally up over all the nodes ==
-      nij = 0
-      do i = 1, nbf_ao
-        do j = 1, nbf_ao
-         nij = nij + 1
-         do k=1,3
-          call ga_dgop(msg_excrho, dbl_mb(iepr1(k)+nij-1), 1, '+')
-          call ga_dgop(msg_excrho, dbl_mb(iepr3(k)+nij-1), 1, '+')
-          do n=1,3
-           call ga_dgop(msg_excrho, dbl_mb(iepr2(k,n)+nij-1), 1, '+')
-           call ga_dgop(msg_excrho, dbl_mb(iepr4(k,n)+nij-1), 1, '+')
-          enddo ! end-loop-n
-         enddo ! end-loop-k
-        enddo ! end-loop-j
-      enddo ! end-loop-i
+      do k=1,3
+         call ga_dgop(msg_excrho, dbl_mb(iepr1(k)),nbf_ao*nbf_ao, '+')
+         call ga_dgop(msg_excrho, dbl_mb(iepr3(k)),nbf_ao*nbf_ao, '+')
+         do n=1,3
+            call ga_dgop(msg_excrho, dbl_mb(iepr2(k,n)), 
+     N           nbf_ao*nbf_ao, '+')
+            call ga_dgop(msg_excrho, dbl_mb(iepr4(k,n)), 
+     N           nbf_ao*nbf_ao, '+')
+         enddo                  ! end-loop-n
+      enddo                     ! end-loop-k
 c
 c     == pack into a ga all EPR AOs ==
       do i=1,3 
-       call ga_zero(g_epr1(i)) 
-       call ga_put(g_epr1(i),
-     &             1,nbf_ao,1,nbf_ao,dbl_mb(iepr1(i)),nbf_ao)
-       call ga_antisymmetrize(g_epr1(i)) 
-       call ga_zero(g_epr3(i)) 
-       call ga_put(g_epr3(i),
-     &             1,nbf_ao,1,nbf_ao,dbl_mb(iepr3(i)),nbf_ao)
+         call ga_zero(g_epr1(i)) 
+         if(ga_nodeid().eq.0)
+     c        call ga_put(g_epr1(i),
+     &        1,nbf_ao,1,nbf_ao,dbl_mb(iepr1(i)),nbf_ao)
+         call ga_antisymmetrize(g_epr1(i)) 
+         call ga_zero(g_epr3(i)) 
+         if(ga_nodeid().eq.0)
+     c        call ga_put(g_epr3(i),
+     &        1,nbf_ao,1,nbf_ao,dbl_mb(iepr3(i)),nbf_ao)
         do j=1,3 
          call ga_zero(g_epr2(i,j)) 
-         call ga_put(g_epr2(i,j),
-     &               1,nbf_ao,1,nbf_ao,dbl_mb(iepr2(i,j)),nbf_ao)
+         if(ga_nodeid().eq.0)
+     G        call ga_put(g_epr2(i,j),
+     &        1,nbf_ao,1,nbf_ao,dbl_mb(iepr2(i,j)),nbf_ao)
          call ga_antisymmetrize(g_epr2(i,j)) 
          call ga_zero(g_epr4(i,j)) 
-         call ga_put(g_epr4(i,j),
+         if(ga_nodeid().eq.0)
+     G        call ga_put(g_epr4(i,j),
      &               1,nbf_ao,1,nbf_ao,dbl_mb(iepr4(i,j)),nbf_ao)
         enddo ! end-loop-j
       enddo ! end-loop-i
