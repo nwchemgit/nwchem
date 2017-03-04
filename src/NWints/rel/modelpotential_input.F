@@ -108,18 +108,17 @@ c     get a file unit
       if(.not.util_io_unit(80,90,unitno))
      +  call errquit(pname//"util_io_unit failed",0,0)
 c
-c     print model potential information
-      write(luout,*)
-      write(luout,1000)
-      write(luout,*) "Reading model potential file:"
-      write(luout,*)  mpfile(1:inp_strlen(mpfile))
-      write(luout,*)
-c
 c     check if model potential file is present
       fileexists = .false.
       inquire(file=mpfile,exist=fileexists)
       if (.not.fileexists) 
      $  call errquit(pname//'modelpotential not found',0,INPUT_ERR)
+c
+c     print model potential information
+      write(luout,*)
+      write(luout,*) "Reading model potential file:"
+      write(luout,*)  mpfile(1:inp_strlen(mpfile))
+      write(luout,*)
 c
 c     open and read the file
       open(unit=unitno, file=mpfile,status='unknown')
@@ -142,11 +141,6 @@ c
       if(.not.rtdb_put(rtdb,'modelpotential:mpmaxelem',mt_int,1,
      &   mpmaxelem))
      $    call errquit(pname//'rtdb_put failed', 0, RTDB_ERR)
-c
-c
- 1000 format(' Using Relativistic Model Potential Approach'/
-     & ' C. van Wullen, J. Chem. Phys. 109, 392 (1998)'/
-     & ' C. van Wullen, C. Michauk, J. Chem. Phys. 123, 204113 (2005)'/)
 c
       return
       end

@@ -74,6 +74,14 @@ c     set parameters in rtdb
      & gcoef)) call errquit(pname//'unable to set gcoef',0,RTDB_ERR)
       status = rtdb_parallel(.true.)
 c
+c     print model potential information
+      write(luout,*)
+      write(luout,1000)
+c
+ 1000 format(' Using Relativistic Model Potential Approach'/
+     & ' C. van Wullen, J. Chem. Phys. 109, 392 (1998)'/
+     & ' C. van Wullen, C. Michauk, J. Chem. Phys. 123, 204113 (2005)'/)
+c
 c     test set model potential parameters
 c      do i = 1,natoms
 c        write(luout,*) "gelem:",gelem(i)
