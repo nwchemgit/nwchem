@@ -328,10 +328,6 @@ c     &                 fcsdzy(nbf,nbf),
       data threehalf /1.5/
       logical ofinite,Knucl
 c
-      external get_ints_zora_hfine_fast,
-     &         gridNMRPotential,get_Pnucl1,
-     &         gridNuclearPotentialFinite,
-     &         gridNuclearPotentialFinite2
 c
       double precision zetanuc_arr(natoms),Pnucl
       double precision zetanuc_slc
@@ -474,7 +470,7 @@ c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c     == assemble zora correction ==
 c ---- full matrix calc -------- START
       do i = 1, nbf
-        do j = 1, nbf
+        do j = i, nbf
           call get_ints_zora_hfine_fast(
      &                  nbf,npts,chi_ao,delchi_ao,i,j,      
      &                  fac2_arr,  
@@ -495,6 +491,23 @@ c          fcsdyx(i,j) = fcsdyx(i,j) + ac_fcsd(2,1)
 c          fcsdzx(i,j) = fcsdzx(i,j) + ac_fcsd(3,1)
 c          fcsdzy(i,j) = fcsdzy(i,j) + ac_fcsd(3,2)
           fcsdzz(i,j) = fcsdzz(i,j) + ac_fcsd(3,3)
+        enddo ! end-loop-j
+      enddo ! end-loop-i
+crecover upper triangle
+      do i = 1, nbf
+        do j = i+1, nbf
+          zpsoxy(j,i) = zpsoxy(i,j)
+          zpsoxz(j,i) = zpsoxz(i,j)
+          zpsoyx(j,i) = zpsoyx(i,j)
+          zpsoyz(j,i) = zpsoyz(i,j)
+          zpsozx(j,i) = zpsozx(i,j)
+          zpsozy(j,i) = zpsozy(i,j)
+          fcsdxx(j,i) = fcsdxx(i,j)
+          fcsdxy(j,i) = fcsdxy(i,j)
+          fcsdxz(j,i) = fcsdxz(i,j)
+          fcsdyy(j,i) = fcsdyy(i,j)
+          fcsdyz(j,i) = fcsdyz(i,j)
+          fcsdzz(j,i) = fcsdzz(i,j)
         enddo ! end-loop-j
       enddo ! end-loop-i
 c ---- full matrix calc -------- END
@@ -546,7 +559,7 @@ c ---- full matrix calc -------- END
      &           +chi_ao(k,j)*delchi_ao(k,3,i)
                ac_fcsd(3,3) = ac_fcsd(3,3)+fac2_arr(3,k)*prod13
       enddo ! end-loo-k
-
+#if 0
       do k = 1, npts
        do n=1,3
         prod(n)  = chi_ao(k,i)*delchi_ao(k,n,j)
@@ -558,6 +571,18 @@ c ---- full matrix calc -------- END
          ac_zpso(b,a) = ac_zpso(b,a)+fac2_arr(b,k)*prod(a)
        enddo ! end-loop-n
       enddo ! end-loo-k
+#else
+      do n=1,3
+         a=ind_nab(1,n)
+         b=ind_nab(2,n)      
+         do k = 1, npts
+            ac_zpso(a,b) = ac_zpso(a,b)+fac2_arr(a,k)*
+     B           chi_ao(k,i)*delchi_ao(k,b,j)
+            ac_zpso(b,a) = ac_zpso(b,a)+fac2_arr(b,k)*
+     A           chi_ao(k,i)*delchi_ao(k,a,j)
+         enddo                  ! end-loop-n
+      enddo                     ! end-loo-k
+#endif
       return
       end
 
