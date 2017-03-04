@@ -44,8 +44,8 @@ c     Put zora parameters in rtdb
       if (.not. rtdb_put(rtdb, 'zora:calc', mt_log, 1,
      & do_zora_get_correction))
      & call errquit('zora_input: rtdb_put failed', 0, RTDB_ERR)
-
-      if (.not. rtdb_put(rtdb, 'zora:on', mt_log, 1,do_zora))
+c
+      if (.not. rtdb_put(rtdb, 'zora', mt_log, 1,do_zora))
      & call errquit('zora_input: rtdb_put failed', 0, RTDB_ERR)
 c
       return

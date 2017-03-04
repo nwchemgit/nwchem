@@ -90,9 +90,6 @@ c
          call dmd_input(rtdb)
 c
       elseif (inp_compare(.false.,'zora', test)) then
-        zora_run = .true.
-        if (.not. rtdb_put(rtdb, 'zora', mt_log, 1, zora_run))
-     &     call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
          call zora_input(rtdb)
 c
       elseif (inp_compare(.false.,'modelpotential', test)) then
