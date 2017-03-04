@@ -221,12 +221,8 @@ c +++++++++ definitions for NLMO analysis ++++++++ START
      &        g_c1,ndata
       logical dft_zoraHYP_NLMOAnalysis_write
 c +++++++++ definitions for NLMO analysis ++++++++ END
-      external zora_getv_HFine,    
-     &         zora_getv_HFine_fast,
-     &         get_zetanuc_arr,get_znuc,
-     &         fill_munuFCSD,fill_munuPSOSO,
-     &         dft_zoraHYP_NLMOAnalysis_write,
-     &         util_file_name
+      external util_wallsec
+      double precision util_wallsec
       if(.not.ma_alloc_get(mt_dbl,3*3,'HTensor:buf',
      &                    l_buf,k_buf))
      &    call errquit('HTensor: ma failed',911,MA_ERR)
@@ -339,6 +335,8 @@ c +++++++++ NLMO analysis : create diag matrix ++++++++ END
        xyz_NMRQcoords(3)= dbl_mb(k_xyzpt+2+3*(iat1-1))
 
        if (ga_nodeid().eq.0) then
+          write(luout,'(a,f10.2,a)') ' starting at time ',
+     &         util_wallsec(),'s'
         write(*,153) iat,ofinite,atmass,zetanuc_slc
  153    format('CHECK:(atom,ofinite,atmass,zetanucl_slc)=(',
      &         i4,',',l1,',',f15.8,',',f35.8,')')
