@@ -507,9 +507,21 @@ c     == tally up over all the nodes ==
       do k=1,3
          m=ind_tmn(1,k)
          n=ind_tmn(2,k) 
+         if(k.eq.1) then
+            call ga_mask_sync(.true.,.false.)
+         else
+            call ga_mask_sync(.false.,.false.)
+         endif
          call ga_dgop(msg_excrho,dbl_mb(izpso(m,n)),nbf_ao*nbf_ao,'+')
-         call ga_dgop(msg_excrho,dbl_mb(izpso(n,m)),nbf_ao*nbf_ao,'+')
+         call dcopy(
+     D          nbf_ao*nbf_ao,dbl_mb(izpso(n,m)),1,dbl_mb(izpso(m,n)),1)
+c         call ga_dgop(msg_excrho,dbl_mb(izpso(n,m)),nbf_ao*nbf_ao,'+')
          do t=k,3
+         if(t.eq.3) then
+            call ga_mask_sync(.false.,.true.)
+         else
+            call ga_mask_sync(.false.,.false.)
+         endif
            call ga_dgop(msg_excrho,dbl_mb(ifcsd(k,t)),nbf_ao*nbf_ao,'+')
 c ifcsd upper triangle gone
 c           if(t.ne.k) call dcopy(
