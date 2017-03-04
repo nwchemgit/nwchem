@@ -13,6 +13,7 @@
 #include "rel_consts.fh"
 #include "errquit.fh"
 #include "zora.fh"
+#include "modelpotential.fh"
 c     
 c     Read input for the relativistic block
 c     
@@ -24,7 +25,6 @@ c
       logical dk_run              ! Douglas-Kroll
       logical dmd_run             ! Dyall modified Dirac
       logical zora_run            ! ZORA
-      logical use_modelpotential  ! Model Potential run
       integer mpoption
 c
       logical status
