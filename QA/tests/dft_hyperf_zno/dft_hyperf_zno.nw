@@ -3,7 +3,6 @@ start dft_zorahyperf_zno
 title dft_zorahyperf_zno
 
 
-start zno_g
 geometry 
 zn 0. 0. 0.
 o 0. 0. 2.5
