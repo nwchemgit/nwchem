@@ -70,8 +70,6 @@ c     == preliminaries ==
       enddo
 c
 c     get zora model potential parameters of geometry
-      if (ga_nodeid().eq.0) 
-     &   write(luout,*) "use_modelpotential", use_modelpotential
       if (use_modelpotential)
      &  call get_modelpotential_params(rtdb,ncenters,gelem,gexpo,gcoef)
 c
