@@ -24,6 +24,7 @@ c Adapted from zora_getv
 #include "stdio.fh"
 #include "cgridfile.fh"
 #include "grid_cube.fh"
+#include "modelpotential.fh"
 c
 c     == arguments ==
       integer rtdb
@@ -55,6 +56,11 @@ c     == local variables ==
       logical grid_file_rewind
       external grid_file_rewind,calc_zora_EFGZ4_SR,calc_EFG
 c
+c     model potential parameters
+      character*2 gelem(ncenters)
+      double precision gexpo(ncenters,50)
+      double precision gcoef(ncenters,50)
+c
 c     == allocate memory ==
       if (.not.MA_Push_Get(mt_dbl,nbf_ao*nbf_ao,'zora0',lzora0,izora0)) 
      &   call errquit('zora_getv: zorasf',0, MA_ERR)
@@ -62,6 +68,12 @@ c     == preliminaries ==
       do i= 1, nbf_ao*nbf_ao
          dbl_mb(izora0+i-1)=0.d0
       enddo
+c
+c     get zora model potential parameters of geometry
+      if (ga_nodeid().eq.0) 
+     &   write(luout,*) "use_modelpotential", use_modelpotential
+      if (use_modelpotential)
+     &  call get_modelpotential_params(rtdb,ncenters,gelem,gexpo,gcoef)
 c
 c     == generate the grid ==
       dummy(1) = 0.d0
@@ -168,11 +180,13 @@ c              == chi ==
      &              int_mb(ibas_cent_info), int_mb(ibas_cset_info))
                if (zora_calc_type.eq.3) then
 c                write(*,*) 'enter calc_zora_EFGZ4_SR() ...'
-                call calc_zora_EFGZ4_SR(ao_bas_han,geom,ipol,g_dens,       
+                call calc_zora_EFGZ4_SR(ao_bas_han,geom,ipol,g_dens,   
      &                                  dbl_mb(idelchi_ao),
-     &                                  dbl_mb(iqxyz),dbl_mb(iqwght),        
+     &                                  dbl_mb(iqxyz),dbl_mb(iqwght), 
      &                                  nbf_ao,nqpts,ncenters,      
      &                                  zora_Qpq,xyz_EFGcoords,
+     &                                  use_modelpotential,
+     &                                  gexpo, gcoef,
      &                                  dbl_mb(izora0)) ! out   
                else if (zora_calc_type.eq.4) then
 c                write(*,*) 'enter calc_EFG() ...'

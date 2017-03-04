@@ -3,8 +3,7 @@ c     == compute the matrix elements for the zora corrections ==
       subroutine zora_getv_sf(rtdb, g_dens, 
      &                        g_zora_sf, g_zora_scale_sf,
      &                        ofinite,zetanuc_arr,
-     &                        Knucl, use_modelpotential,
-     &                        nexc)
+     &                        Knucl, nexc)
 c
 C$Id$
 c Modified from zora_getv_sf() by FA 10-31-10
@@ -23,6 +22,7 @@ c
 #include "stdio.fh"
 #include "cgridfile.fh"
 #include "grid_cube.fh"
+#include "modelpotential.fh"
 c
 c     == arguments ==
       integer rtdb
@@ -32,7 +32,6 @@ c     == arguments ==
       logical ofinite
       double precision zetanuc_arr(*)!for Gaussian Nuclear Model
       logical Knucl
-      logical use_modelpotential
       integer nexc
 c
 c     == local variables ==

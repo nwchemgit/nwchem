@@ -180,9 +180,7 @@ c     == ZORA options ==
       if (rtdb_get(rtdb,'zora:calc',mt_log,1,
      &    do_zora_get_correction)) 
      &    do_zora_get_correction=.true.
-      do_zora = .false.
-      if (rtdb_get(rtdb,'zora:on',mt_log,1,do_zora)) 
-     &     do_zora = .true.
+      if (.not.rtdb_get(rtdb,'zora',mt_log,1,do_zora)) do_zora = .false.
 c
 c     turn off grid nodisk with zora
       if (.not.rtdb_get(rtdb,'dft:largenode', mt_log, 1, largenode))

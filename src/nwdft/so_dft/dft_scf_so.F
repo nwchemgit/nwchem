@@ -23,6 +23,7 @@ c
 #include "cosmo.fh"
 #include "zora.fh" 
 #include "case.fh"
+#include "modelpotential.fh"
 #ifdef SCALAPACK
 #include "dft_scaleig.fh"
 #endif
@@ -81,7 +82,7 @@ c     zora related
       character*7 vecs_or_dens
       integer icalczora
       logical do_purescalar
-      logical use_modelpotential,KNucl
+      logical KNucl
       logical ofinite
       integer l_zetanuc, k_zetanuc
 c
@@ -621,6 +622,9 @@ c     extra arrays
      &     call errquit('dft_scf_so: error creating damp ga', 0, GA_ERR)
       call ga_zero(g_damp_so(2))
 c
+c     == get atomic zora contributions ==
+      if (.not.rtdb_get(rtdb,'zora',mt_log,1,do_zora)) do_zora = .false.
+c
 c     == zora arrays ==
       if (do_zora) then
        if (me.eq.0) then
@@ -744,7 +748,7 @@ c       == calculate the zora atomic corrections ==
         call zora_getv_so(rtdb, g_dens_at, g_zora_sf, g_zora_scale_sf,
      &                    g_zora_so, g_zora_scale_so, 
      &                    ofinite,dbl_mb(k_zetanuc),
-     &                    Knucl,use_modelpotential, nexc)
+     &                    Knucl,nexc)
          if (.not. MA_free_heap(l_zetanuc))  call errquit
      &           ('dft_scf_so:cannot popstack',111, MA_ERR)
 c

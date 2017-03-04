@@ -25,6 +25,7 @@ c Adapted from zora_getv_so
 #include "stdio.fh"
 #include "cgridfile.fh"
 #include "grid_cube.fh"
+#include "modelpotential.fh"
 c
 c     == arguments ==
       integer rtdb
@@ -62,6 +63,11 @@ c     == local variables ==
       external grid_file_rewind,calc_zora_EFGZ4_SO,calc_EFG,
      &         ga_antisymmetrize
 c
+c     model potential parameters
+      character*2 gelem(ncenters)
+      double precision gexpo(ncenters,50)
+      double precision gcoef(ncenters,50)
+c
 c     == allocate memory ==
       do i=1,4
        if (.not.MA_Push_Get(mt_dbl,nbf_ao*nbf_ao,
@@ -74,6 +80,11 @@ c     == preliminaries ==
          dbl_mb(iscal(j)+i-1)=0.d0
        enddo
       enddo
+c
+c     get zora model potential parameters of geometry
+      if (use_modelpotential)
+     &  call get_modelpotential_params(rtdb,ncenters,gelem,gexpo,gcoef)
+c
 c     == generate the grid ==
       dummy(1) = 0.d0
       dummy(2) = 0.d0
@@ -181,6 +192,8 @@ c                write(*,*) 'enter calc_zora_EFGZ4_so() ...'
      &                                  dbl_mb(iqxyz),dbl_mb(iqwght),        
      &                                  nbf_ao,nqpts,ncenters,      
      &                                  zora_Qpq,xyz_EFGcoords,
+     &                                  use_modelpotential,
+     &                                  gexpo, gcoef,
      &                                  dbl_mb(iscal(1)), ! out
      &                                  dbl_mb(iscal(2)), ! out
      &                                  dbl_mb(iscal(3)), ! out

@@ -114,6 +114,8 @@ c
 #include "util.fh"
 #include "cgridfile.fh"
 #include "cosmo.fh"
+#include "modelpotential.fh"
+#include "zora.fh"
 cinclude "crohf.fh"
 c
       integer rtdb
@@ -138,7 +140,6 @@ c
       integer nclosed, nopen
 c
       integer natoms
-      logical use_modelpotential
 c
 cc AJL/Begin/FDE
 c      logical frozemb_fde
@@ -222,15 +223,20 @@ c
       endif
 c
 c     == Relativistic model potential initialization ==
+      if (.not. (rtdb_get(rtdb,'zora',mt_log,1,do_zora))) 
+     &        do_zora = .false.
+c
       use_modelpotential = .false.
-      if (.not. rtdb_get(rtdb, 'modelpotential', mt_log, 1,
+      if (do_zora) then
+       if (.not. rtdb_get(rtdb, 'modelpotential', mt_log, 1,
      &  use_modelpotential)) use_modelpotential = .false.
-      if (use_modelpotential) then
+       if (use_modelpotential) then
         if (.not. geom_ncent(geom, natoms))
      &   call errquit('nwdft: geom_ncent failed',73, GEOM_ERR)
          if (ga_nodeid().eq.0)
      &    call set_modelpotential_params(rtdb, geom, natoms)
-      end if 
+       end if 
+      end if  ! do_zora
 c
 c     == Check to see if system is already converged? ==
       if (movecs_in .eq. movecs_out) then

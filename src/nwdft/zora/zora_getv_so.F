@@ -5,8 +5,7 @@ c     == scalar and spin-orbit components (x,y,z)
      &                          g_zora_sf, g_zora_scale_sf, ! out
      &                          g_zora_so, g_zora_scale_so, ! out
      &                          ofinite,zetanuc_arr,
-     &                          Knucl, use_modelpotential,
-     &                          nexc)
+     &                          Knucl, nexc)
 c
 C$Id$
 c Modified from zora_getv_so() by FA 10-31-10
@@ -24,6 +23,7 @@ c Modified from zora_getv_so() by FA 10-31-10
 #include "stdio.fh"
 #include "cgridfile.fh"
 #include "grid_cube.fh"
+#include "modelpotential.fh"
 c
 c     == arguments ==
       integer rtdb
@@ -35,7 +35,6 @@ c     == arguments ==
       logical ofinite
       double precision zetanuc_arr(*)!for Gaussian Nuclear Model
       logical Knucl
-      logical use_modelpotential
       integer nexc
 c
 c     == local variables ==

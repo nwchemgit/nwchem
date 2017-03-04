@@ -40,6 +40,7 @@ c
 #include "dftps.fh"
 #include "cosmo.fh"
 #include "zora.fh"
+#include "modelpotential.fh"
 cold#include "dimqm.fh"
 c     
       Logical movecs_write, movecs_converged, movecs_read
@@ -195,7 +196,6 @@ c     == zora related ==
       double precision ener_scal
       integer icalczora
       logical ofinite,status,Knucl ! FA-added-09-26-11
-      logical use_modelpotential
 c
 c     virtual spectrum
       logical lvspec
@@ -647,6 +647,8 @@ c     == force sleazy SCF into "direct" mode ==
       call fock_force_direct(rtdb)
 c
 c     == get atomic zora contributions ==
+      if (.not.rtdb_get(rtdb,'zora',mt_log,1,do_zora)) do_zora = .false.
+c
       if (do_zora) then
         if (me.eq.0) then
          call util_print_centered(LuOut,
@@ -759,8 +761,7 @@ c 11          format('In dft_scf:: zetanuc_arr(',i3,')=',f35.8)
 c------- FA-code-added-09-26-11 --------------------------- END
          call zora_getv_sf(rtdb, g_dens_at, g_zora_sf,g_zora_scale_sf,
      &                     ofinite,dbl_mb(k_zetanuc),
-     &                     Knucl,use_modelpotential,
-     &                     nexc)
+     &                     Knucl, nexc)
          if (.not. MA_free_heap(l_zetanuc))  call errquit
      &           (' dft_scf:cannot popstack',111, MA_ERR)
 c
