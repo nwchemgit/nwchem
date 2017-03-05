@@ -35,6 +35,9 @@ c      approaches')
      &                           zetanuc_arr,  ! in: zetanuc(i) i=1,natoms for Gaussian Nuclear Model
      &                           atmass,       ! in: atomic mass
      &                           xyz_NMRcoords,! in : nuclear coordinates
+     &                           use_modelpotential,
+     &                           gexpo,
+     &                           gcoef,
      &                           zpsox,        ! out 
      &                           zpsoy,        ! out 
      &                           zpsoz,        ! out          
@@ -86,7 +89,10 @@ c     &                           fcsdzy,       ! out
 c ------- for Gaussian Nuclear Model --- START
       double precision zetanuc_arr(natoms)
 c ------- for Gaussian Nuclear Model --- START
-
+c
+      logical use_modelpotential
+      double precision gexpo(natoms,50)
+      double precision gcoef(natoms,50)
 c
 c     == preliminaries ==
       clight_au2 = clight_au*clight_au
@@ -102,17 +108,10 @@ c     == preliminaries ==
         enddo
       end do
 c
-c     == calculate the hartree potential on a supplied list of points ==
-      tol = 1d-8
-      do i=1,ipol
-       call potential_list(ao_bas_han, g_dens(i), npts, qxyz, 
-     &                     amat_coul(1,i), tol)
-      enddo
-      if (ipol.gt.1) then ! enter-ONLY-if ipol>1
-       do k = 1,npts
-        amat_coul(k,1)=amat_coul(k,1)+amat_coul(k,2)
-       enddo
-      endif
+c     == calculate the total hartree potential on the grid ==
+      call gridHartreePotential(use_modelpotential,
+     &    ao_bas_han, geom, natoms, ipol, g_dens, npts, qxyz, qwght,
+     &    closegridpts, gexpo, gcoef, amat_coul)
 c
 c     == calculate the total nuclear potential on the grid ==
       if (ofinite) then
@@ -143,7 +142,7 @@ c     &                             closegridpts,amat_nucl)
 c     === define fac_arr
        do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
-        amat_tot =+amat_nucl(k)-amat_coul(k,1)
+        amat_tot = amat_nucl(k) + amat_coul(k,1)
         Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) 
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
         if (do_NonRel) then             ! remove it after TEST
@@ -159,7 +158,7 @@ c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c     === define fac_arr
        do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
-        amat_tot =+amat_nucl(k)-amat_coul(k,1)
+        amat_tot = amat_nucl(k) + amat_coul(k,1)
         Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) 
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
         if (do_NonRel) then             ! remove it after TEST
@@ -275,6 +274,9 @@ c +++++++++++++++++++++++++++++++++++++++
      &                           zetanuc_slc,  ! in: zetanuc(i) 
      &                           Knucl,
      &                           xyz_NMRcoords,! in: nuclear coordinates
+     &                           use_modelpotential,
+     &                           gexpo,
+     &                           gcoef,
      &                           zpsoxy,       ! out 
      &                           zpsoyz,       ! out 
      &                           zpsozx,       ! out 
@@ -328,10 +330,13 @@ c     &                 fcsdzy(nbf,nbf),
       data threehalf /1.5/
       logical ofinite,Knucl
 c
-c
       double precision zetanuc_arr(natoms),Pnucl
       double precision zetanuc_slc
       integer count_pt ! ONLY for checking get_Pnucl
+c
+      logical use_modelpotential
+      double precision gexpo(natoms,50)
+      double precision gcoef(natoms,50)
 c
 c     == preliminaries ==
       clight_au2 = clight_au*clight_au
@@ -346,17 +351,10 @@ c     == preliminaries ==
         enddo
       end do
 c
-c     == calculate the hartree potential on a supplied list of points ==
-      tol = 1d-8
-      do i=1,ipol
-       call potential_list(ao_bas_han, g_dens(i), npts, qxyz, 
-     &                     amat_coul(1,i), tol)
-      enddo
-      if (ipol.gt.1) then ! enter-ONLY-if ipol>1
-       do k = 1,npts
-        amat_coul(k,1)=amat_coul(k,1)+amat_coul(k,2)
-       enddo
-      endif
+c     == calculate the total hartree potential on the grid ==
+      call gridHartreePotential(use_modelpotential,
+     &    ao_bas_han, geom, natoms, ipol, g_dens, npts, qxyz, qwght,
+     &    closegridpts, gexpo, gcoef, amat_coul)
 c
 c     == calculate the total nuclear potential on the grid ==
       if (ofinite) then
@@ -394,7 +392,7 @@ c
      &                   threehalf,
      &                   npts,qxyz1,count_pt)
 c      == assemble hartree and nuclear contributions ==
-         amat_tot =+amat_nucl(k) ! V = Vnucl (ONLY)
+         amat_tot = amat_nucl(k) ! V = Vnucl (ONLY)
          Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) 
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
          if (do_NonRel) then             ! remove it after TEST
@@ -419,7 +417,7 @@ c     === define fac_arr
      &                   threehalf,
      &                   npts,qxyz1,count_pt)
 c      == assemble hartree and nuclear contributions ==
-         amat_tot =+amat_nucl(k)-amat_coul(k,1) ! V=Vnucl+Vee
+         amat_tot = amat_nucl(k) + amat_coul(k,1) ! V=Vnucl+Vee
          Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) 
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
          if (do_NonRel) then             ! remove it after TEST
@@ -437,7 +435,7 @@ c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c     === define fac_arr
          do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
-          amat_tot =+amat_nucl(k) ! V=Vnucl (ONLY)
+          amat_tot = amat_nucl(k) ! V=Vnucl (ONLY)
           Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) 
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
           if (do_NonRel) then             ! remove it after TEST
@@ -453,7 +451,7 @@ c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c     === define fac_arr
          do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
-          amat_tot =+amat_nucl(k)-amat_coul(k,1) ! V=Vnucl+Vee
+          amat_tot = amat_nucl(k) + amat_coul(k,1) ! V=Vnucl+Vee
           Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) 
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
           if (do_NonRel) then             ! remove it after TEST
@@ -600,6 +598,9 @@ c ---- full matrix calc -------- END
      &                           ofinite,      ! in: = .true. if Gaussian Nucl. Model of charges requested
      &                           zetanuc_arr,  ! in: sqrt(zetanuc(i)) i=1,natoms for Gaussian Nuclear Model
      &                           Knucl,
+     &                           use_modelpotential,
+     &                           gexpo,
+     &                           gcoef,
      &                           zsrkineticx,  ! out 
      &                           zsrkineticy,  ! out 
      &                           zsrkineticz)  ! out
@@ -634,6 +635,11 @@ c           [\vec{p} K x \vec{p}]_v  v=1,2,3=x,y,z
       external get_ints_zora_hfine_F1ji, 
      &         gridNuclearPotentialFinite,
      &         gridNuclearPotentialPoint
+c
+      logical use_modelpotential
+      double precision gexpo(natoms,50)
+      double precision gcoef(natoms,50)
+c
       clight_au2 = clight_au*clight_au
 c     == preliminaries ==
       do ipt = 1,npts
@@ -643,17 +649,12 @@ c     == preliminaries ==
         amat_nucl(ipt) = 0.d0
         closegridpts(ipt) = 0
       end do
-c     == calculate the hartree potential on a supplied list of points ==
-      tol = 1d-8
-      do i=1,ipol
-       call potential_list(ao_bas_han, g_dens(i), npts, qxyz, 
-     &                     amat_coul(1,i), tol)
-      enddo
-      if (ipol.gt.1) then ! enter-ONLY-if ipol>1
-       do k = 1,npts
-        amat_coul(k,1)=amat_coul(k,1)+amat_coul(k,2)
-       enddo
-      endif
+c
+c     == calculate the total hartree potential on the grid ==
+      call gridHartreePotential(use_modelpotential,
+     &    ao_bas_han, geom, natoms, ipol, g_dens, npts, qxyz, qwght,
+     &    closegridpts, gexpo, gcoef, amat_coul)
+c
 c     == calculate the total nuclear potential on the grid ==
       if (ofinite) then
 c
@@ -675,7 +676,7 @@ c     === define fac_arr
       if (Knucl) then !-- V=Vnucl     (amat_tot) 
        do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
-        amat_tot =+amat_nucl(k)
+        amat_tot = amat_nucl(k)
         Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2)-1.0d0 ! Alternative expression
                                                             ! gives same value as K for this AO
                                                             ! but it is suppose to cancel noise
@@ -689,7 +690,7 @@ c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
       else ! default  V=Vnucl+Vhartee
        do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
-        amat_tot =+amat_nucl(k)-amat_coul(k,1)
+        amat_tot = amat_nucl(k) + amat_coul(k,1)
         Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2)-1.0d0 ! Alternative expression
                                                             ! gives same value as K for this AO
                                                             ! but it is suppose to cancel noise

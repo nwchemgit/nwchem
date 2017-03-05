@@ -22,6 +22,7 @@ c Adapted from zora_getv_sf
 #include "stdio.fh"
 #include "cgridfile.fh"
 #include "grid_cube.fh"
+#include "modelpotential.fh"
 c
 c     == arguments ==
       integer rtdb
@@ -61,7 +62,11 @@ c     == local variables ==
       logical grid_file_rewind
       external grid_file_rewind,calc_zora_NMRCS_SR,
      &         ga_antisymmetrize,grid_quadv0
-
+c
+c     model potential parameters
+      character*2 gelem(ncenters)
+      double precision gexpo(ncenters,50)
+      double precision gcoef(ncenters,50)
 c
 c     == allocate memory ==
        do t=1,3
@@ -125,6 +130,11 @@ c     == preliminaries ==
            enddo ! end-loop-i    
          enddo ! end-loop-a
        enddo ! end-loop-t
+c
+c     get zora model potential parameters of geometry
+      if (use_modelpotential)
+     &  call get_modelpotential_params(rtdb,ncenters,gelem,gexpo,gcoef)
+c
 c     == generate the grid ==
       dummy(1) = 0.d0
       dummy(2) = 0.d0
@@ -225,6 +235,8 @@ c              == chi ==
      &                                  dbl_mb(iqxyz),dbl_mb(iqwght),        
      &                                  nbf_ao,nqpts,ncenters,     
      &                                  xyz_NMRcoords,
+     &                                  use_modelpotential,
+     &                                  gexpo, gcoef,
      &                                  dbl_mb(idia1),       ! out 
      &                                  dbl_mb(idia2(1)),    ! out
      &                                  dbl_mb(idia2(2)),    ! out
@@ -426,6 +438,7 @@ c Adapted from zora_getv_sf
 #include "stdio.fh"
 #include "cgridfile.fh"
 #include "grid_cube.fh"
+#include "modelpotential.fh"
 c
 c     == arguments ==
       integer rtdb
@@ -463,6 +476,11 @@ c     == local variables ==
       external grid_file_rewind,calc_zora_NMRCS_SR,
      &         ga_antisymmetrize,grid_quadv0
 c
+c     model potential parameters
+      character*2 gelem(ncenters)
+      double precision gexpo(ncenters,50)
+      double precision gcoef(ncenters,50)
+c
 c     == allocate memory ==
        do t=1,3
         m=ind_tmn(1,t)
@@ -497,6 +515,11 @@ c     == preliminaries ==
           dbl_mb(inmr4(n,m)+i-1)=0.d0
          enddo ! end-loop-i   
        enddo ! end-loop-t
+c
+c     get zora model potential parameters of geometry
+      if (use_modelpotential)
+     &  call get_modelpotential_params(rtdb,ncenters,gelem,gexpo,gcoef)
+c
 c     == generate the grid ==
       dummy(1) = 0.d0
       dummy(2) = 0.d0
@@ -591,6 +614,8 @@ c              == chi ==
      &                                  dbl_mb(idelchi_ao),
      &                                  dbl_mb(iqxyz),dbl_mb(iqwght),        
      &                                  nbf_ao,nqpts,ncenters,     
+     &                                  use_modelpotential,
+     &                                  gexpo, gcoef,
      &                                  dbl_mb(inmr(1)),     ! out
      &                                  dbl_mb(inmr(2)),     ! out
      &                                  dbl_mb(inmr(3)),     ! out

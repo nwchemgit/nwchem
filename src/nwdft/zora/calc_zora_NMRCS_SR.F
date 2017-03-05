@@ -15,6 +15,9 @@ c     +++++++++++++++++++++++++++++++++++++++++++++++++++++++
      &                              npts,          ! in: nr. grid points
      &                              natoms,        ! in: nr. atoms 
      &                              xyz_NMRcoords, ! in : nuclear coordinates
+     &                              use_modelpotential,
+     &                              gexpo,
+     &                              gcoef,
      &                              dia1,          ! out
      &                              dia2x,         ! out
      &                              dia2y,         ! out
@@ -134,6 +137,11 @@ c     FA-11-07-10
       external get_ints_zorasr_nmr12,
      &         get_ints_zora_nmr_dia,
      &         gridNMRPotential,gridNMRPotential_dia
+c
+      logical use_modelpotential
+      double precision gexpo(natoms,50)
+      double precision gcoef(natoms,50)
+c
       clight_au2 = clight_au*clight_au
 c     == preliminaries ==
       do ipt = 1,npts
@@ -148,17 +156,11 @@ c     == preliminaries ==
         enddo
       enddo
 c
-c     == calculate the hartree potential on a supplied list of points ==
-      tol = 1d-8
-      do i=1,ipol
-       call potential_list(ao_bas_han, g_dens(i), npts, qxyz, 
-     &                     amat_coul(1,i), tol)
-      enddo
-      if (ipol.gt.1) then ! enter-ONLY-if ipol>1
-       do k = 1,npts
-        amat_coul(k,1)=amat_coul(k,1)+amat_coul(k,2)
-       enddo
-      endif
+c     == calculate the total hartree potential on the grid ==
+      call gridHartreePotential(use_modelpotential,
+     &    ao_bas_han, geom, natoms, ipol, g_dens, npts, qxyz, qwght,
+     &    closegridpts, gexpo, gcoef, amat_coul)
+c
 c     == calculate the total nuclear potential on the grid ==
       call gridNuclearPotentialPoint(geom,natoms,npts,qxyz,qwght,
      &                          closegridpts,amat_nucl)
@@ -180,7 +182,7 @@ c     == calculate the total nuclear potential on the grid ==
 c     === define fac_arr
       do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
-        amat_tot =-amat_coul(k,1)+amat_nucl(k)
+        amat_tot = amat_coul(k,1) + amat_nucl(k)
         Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) 
 c       Kzora=1.0d0+0.5d0*amat_tot/clight_au2 ! Using Pauli approx
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -292,6 +294,9 @@ c ++++++++++++++++++++++++++++++++++++++++++++++++
      &                              nbf,           ! in: nr. basis functions
      &                              npts,          ! in: nr. grid points
      &                              natoms,        ! in: nr. atoms 
+     &                              use_modelpotential,
+     &                              gexpo,
+     &                              gcoef,
      &                              scalx,         ! out 
      &                              scaly,         ! out 
      &                              scalz,         ! out
@@ -353,7 +358,11 @@ c     FA-11-07-10
       double precision ac_nmr3(3),ac_nmr4(3,3)
       double precision ac_nmrsf(3) 
       external get_ints_zora_nmr_sf,get_ints_zorasr_nmr34
-
+c
+      logical use_modelpotential
+      double precision gexpo(natoms,50)
+      double precision gcoef(natoms,50)
+c
       clight_au2 = clight_au*clight_au
 c     == preliminaries ==
       do ipt = 1,npts
@@ -364,17 +373,11 @@ c     == preliminaries ==
         closegridpts(ipt) = 0
       enddo
 c
-c     == calculate the hartree potential on a supplied list of points ==
-      tol = 1d-8
-      do i=1,ipol
-       call potential_list(ao_bas_han, g_dens(i), npts, qxyz, 
-     &                     amat_coul(1,i), tol)
-      enddo
-      if (ipol.gt.1) then ! enter-ONLY-if ipol>1
-       do k = 1,npts
-        amat_coul(k,1)=amat_coul(k,1)+amat_coul(k,2)
-       enddo
-      endif
+c     == calculate the total hartree potential on the grid ==
+      call gridHartreePotential(use_modelpotential,
+     &    ao_bas_han, geom, natoms, ipol, g_dens, npts, qxyz, qwght,
+     &    closegridpts, gexpo, gcoef, amat_coul)
+c
 c     == calculate the total nuclear potential on the grid ==
       call gridNuclearPotentialPoint(geom,natoms,npts,qxyz,qwght,
      &                          closegridpts,amat_nucl)
@@ -384,7 +387,7 @@ c     == calculate the total nuclear potential on the grid ==
 c     === define fac_arr
       do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
-        amat_tot =-amat_coul(k,1)+amat_nucl(k)
+        amat_tot = amat_coul(k,1) + amat_nucl(k)
         Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) 
 c        Kzora=1.0d0+0.5d0*amat_tot/clight_au2 ! Using Pauli
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

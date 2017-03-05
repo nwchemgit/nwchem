@@ -24,6 +24,7 @@ c Adapted from zora_getv_so
 #include "stdio.fh"
 #include "cgridfile.fh"
 #include "grid_cube.fh"
+#include "modelpotential.fh"
 c
 c     == arguments ==
       integer rtdb
@@ -58,6 +59,11 @@ c     == local variables ==
       external grid_file_rewind,calc_zora_HFine_slow,
      &         ga_antisymmetrize
 c
+c     model potential parameters
+      character*2 gelem(ncenters)
+      double precision gexpo(ncenters,50)
+      double precision gcoef(ncenters,50)
+c
 c     == allocate memory ==
       do i=1,3
        if (.not. ma_push_get(mt_dbl,nbf_ao*nbf_ao,
@@ -78,6 +84,11 @@ c     == preliminaries ==
             call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(ifcsd(k,j)),1)
          enddo
       enddo
+c
+c     get zora model potential parameters of geometry
+      if (use_modelpotential)
+     &  call get_modelpotential_params(rtdb,ncenters,gelem,gexpo,gcoef)
+c
 c     == generate the grid ==
       dummy(1) = 0.d0
       dummy(2) = 0.d0
@@ -185,6 +196,9 @@ c              == chi ==
      &                                  ofinite,
      &                                  atmass,
      &                                  xyz_NMRcoords,
+     &                                  use_modelpotential,
+     &                                  gexpo,
+     &                                  gcoef,
      &                                  dbl_mb(izpso(1)),  ! out
      &                                  dbl_mb(izpso(2)),  ! out
      &                                  dbl_mb(izpso(3)),  ! out
@@ -273,6 +287,7 @@ c Adapted from zora_getv_so
 #include "stdio.fh"
 #include "cgridfile.fh"
 #include "grid_cube.fh"
+#include "modelpotential.fh"
 c
 c     == arguments ==
       integer rtdb
@@ -317,6 +332,11 @@ c     == local variables ==
       external grid_file_rewind,calc_zora_HFine_fast,
      &         ga_antisymmetrize
 c
+c     model potential parameters
+      character*2 gelem(ncenters)
+      double precision gexpo(ncenters,50)
+      double precision gcoef(ncenters,50)
+c
 c     == allocate memory ==
        do t=1,3
         m=ind_tmn(1,t)
@@ -338,6 +358,11 @@ c     == allocate memory ==
           call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(ifcsd(i,j)),1)
         enddo
        enddo ! end-loop-i
+c
+c     get zora model potential parameters of geometry
+      if (use_modelpotential)
+     &  call get_modelpotential_params(rtdb,ncenters,gelem,gexpo,gcoef)
+c
 c     == generate the grid ==
       dummy(1) = 0.d0
       dummy(2) = 0.d0
@@ -473,6 +498,9 @@ c              == chi ==
      &                                zetanuc_slc,
      &                                Knucl,
      &                                xyz_NMRcoords,
+     &                                use_modelpotential,
+     &                                gexpo,
+     &                                gcoef,
      &                                dbl_mb(izpso(1,2)),! out
      &                                dbl_mb(izpso(2,3)),! out
      &                                dbl_mb(izpso(3,1)),! out
@@ -597,6 +625,7 @@ c Adapted from zora_getv_sf
 #include "stdio.fh"
 #include "cgridfile.fh"
 #include "grid_cube.fh"
+#include "modelpotential.fh"
 c
 c     == arguments ==
       integer rtdb
@@ -630,6 +659,11 @@ c     == local variables ==
       external grid_file_rewind,calc_NMRHFine_F1ij,
      &         ga_antisymmetrize,grid_quadv0
 c
+c     model potential parameters
+      character*2 gelem(ncenters)
+      double precision gexpo(ncenters,50)
+      double precision gcoef(ncenters,50)
+c
 c     == allocate memory ==
       do i=1,3
       if (.not. ma_alloc_get(mt_dbl,nbf_ao*nbf_ao,
@@ -642,6 +676,11 @@ c     == preliminaries ==
           dbl_mb(ihfine(j)+i-1) =0.d0
          enddo  
        enddo
+c
+c     get zora model potential parameters of geometry
+      if (use_modelpotential)
+     &  call get_modelpotential_params(rtdb,ncenters,gelem,gexpo,gcoef)
+c
 c     == generate the grid ==
       dummy(1) = 0.d0
       dummy(2) = 0.d0
@@ -738,6 +777,9 @@ c              == chi ==
      &                                 ofinite,      ! in: = .true. if Gaussian Nucl. Model of charges requested
      &                                 zetanuc_arr,  ! in: sqrt(zetanuc(i)) i=1,natoms for Gaussian Nuclear Model
      &                                 Knucl,
+     &                                 use_modelpotential,
+     &                                 gexpo,
+     &                                 gcoef,
      &                                 dbl_mb(ihfine(1)),  ! out
      &                                 dbl_mb(ihfine(2)),  ! out
      &                                 dbl_mb(ihfine(3)))  ! out

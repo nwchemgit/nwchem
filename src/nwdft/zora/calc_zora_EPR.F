@@ -36,6 +36,9 @@ c     (tmn)=123,231,312=xyz,yzx,zxy
      &                         natoms,       ! in: nr. atoms 
      &                         chi_cntr,     ! in: basis centers
      &                         Knucl,        ! in: flag =T do Kzora with Nucl pot ONLY
+     &                         use_modelpotential,
+     &                         gexpo,
+     &                         gcoef,
      &                         scalx1,       ! out 
      &                         scaly1,       ! out 
      &                         scalz1,       ! out
@@ -109,7 +112,10 @@ c     (tmn)=123,231,312=xyz,yzx,zxy
       double precision ac_epr1(3),ac_epr2(3,3),
      &                 ac_epr3(3),ac_epr4(3,3)
       double precision chi_cntr(3,nbf)
-
+      logical use_modelpotential
+      double precision gexpo(natoms,50)
+      double precision gcoef(natoms,50)
+c
       external get_ints_zora_epr_12,get_ints_zora_epr_34
       clight_au2 = clight_au*clight_au
 c     == preliminaries ==
@@ -120,17 +126,12 @@ c     == preliminaries ==
         amat_nucl(ipt) = 0.d0
         closegridpts(ipt) = 0
       end do
-c     == calculate the hartree potential on a supplied list of points ==
-      tol = 1d-8
-      do i=1,ipol
-       call potential_list(ao_bas_han, g_dens(i), npts, qxyz, 
-     &                     amat_coul(1,i), tol)
-      enddo
-      if (ipol.gt.1) then ! enter-ONLY-if ipol>1
-       do k = 1,npts
-        amat_coul(k,1)=amat_coul(k,1)+amat_coul(k,2)
-       enddo
-      endif
+c
+c     == calculate the total hartree potential on the grid ==
+      call gridHartreePotential(use_modelpotential,
+     &    ao_bas_han, geom, natoms, ipol, g_dens, npts, qxyz, qwght,
+     &    closegridpts, gexpo, gcoef, amat_coul)
+c
 c     == calculate the total nuclear potential on the grid ==
       call gridNuclearPotentialPoint(geom,natoms,npts,qxyz,qwght,
      &                          closegridpts,amat_nucl)
@@ -141,7 +142,7 @@ c     === define fac_arr
       if (.not.(Knucl)) then
        do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
-         amat_tot =+amat_nucl(k)-amat_coul(k,1)
+         amat_tot = amat_nucl(k) + amat_coul(k,1)
 c        Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) ! for g-factors
          Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2)-1.0d0 ! for g-shifts
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -158,7 +159,7 @@ c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
       else if (Knucl) then
        do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
-          amat_tot =+amat_nucl(k)
+          amat_tot = amat_nucl(k)
 c         Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) ! for g-factors
           Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2)-1.0d0 ! for g-shifts
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++

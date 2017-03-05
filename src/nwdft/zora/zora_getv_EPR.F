@@ -22,6 +22,7 @@ c Adapted from zora_getv_so
 #include "stdio.fh"
 #include "cgridfile.fh"
 #include "grid_cube.fh"
+#include "modelpotential.fh"
 c
 c     == arguments ==
       logical Knucl
@@ -58,6 +59,11 @@ c     == local variables ==
       external grid_file_rewind,calc_zora_EPR,
      &         ga_antisymmetrize
 c
+c     model potential parameters
+      character*2 gelem(ncenters)
+      double precision gexpo(ncenters,50)
+      double precision gcoef(ncenters,50)
+c
 c     == allocate memory ==
       do i=1,3
        if (.not.MA_Push_Get(mt_dbl,nbf_ao*nbf_ao,
@@ -84,6 +90,11 @@ c     == preliminaries ==
           call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(iepr4(j,k)),1)
         enddo ! end-loop-k
        enddo ! end-loop-j
+c
+c     get zora model potential parameters of geometry
+      if (use_modelpotential)
+     &  call get_modelpotential_params(rtdb,ncenters,gelem,gexpo,gcoef)
+c
 c     == generate the grid ==
       dummy(1) = 0.d0
       dummy(2) = 0.d0
@@ -190,6 +201,8 @@ c              == chi ==
      &                                  nbf_ao,nqpts,ncenters,   
      &                                  chi_cntr, ! in : basis centers   
      &                                  Knucl,    ! in : flag for Knucl
+     &                                  use_modelpotential,
+     &                                  gexpo, gcoef,
      &                                  dbl_mb(iepr1(1)),  ! out
      &                                  dbl_mb(iepr1(2)),  ! out
      &                                  dbl_mb(iepr1(3)),  ! out
