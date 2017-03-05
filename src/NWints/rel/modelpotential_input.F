@@ -18,8 +18,6 @@ c
       integer rtdb ! [input] handle to database
 c    
       character*255 libname
-      character*255 mpdir
-      character*255 mpfile
       character*32 pname
       character*2 atsym
       integer i,j
@@ -113,12 +111,6 @@ c     check if model potential file is present
       inquire(file=mpfile,exist=fileexists)
       if (.not.fileexists) 
      $  call errquit(pname//'modelpotential not found',0,INPUT_ERR)
-c
-c     print model potential information
-      write(luout,*)
-      write(luout,*) "Reading model potential file:"
-      write(luout,*)  mpfile(1:inp_strlen(mpfile))
-      write(luout,*)
 c
 c     open and read the file
       open(unit=unitno, file=mpfile,status='unknown')

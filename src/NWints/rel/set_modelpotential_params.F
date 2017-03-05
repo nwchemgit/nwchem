@@ -8,6 +8,8 @@ c
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "errquit.fh"
+#include "util.fh"
+#include "inp.fh"
 #include "modelpotential.fh"
 c
       integer rtdb ! [input] handle to database
@@ -77,10 +79,14 @@ c
 c     print model potential information
       write(luout,*)
       write(luout,1000)
+      write(luout,*)
+      write(luout,*) "Reading Model Potential File:"
+      write(luout,*)  mpfile(1:inp_strlen(mpfile))
+      write(luout,*)
 c
- 1000 format(' Using Relativistic Model Potential Approach'/
+ 1000 format(' Using Relativistic ZORA Model Potential Approach'/
      & ' C. van Wullen, J. Chem. Phys. 109, 392 (1998)'/
-     & ' C. van Wullen, C. Michauk, J. Chem. Phys. 123, 204113 (2005)'/)
+     & ' C. van Wullen, C. Michauk, J. Chem. Phys. 123, 204113 (2005)')
 c
 c     test set model potential parameters
 c      do i = 1,natoms

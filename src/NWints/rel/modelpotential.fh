@@ -1,8 +1,14 @@
+c
 c       Model potential parameters
+c
         character*2 mpelem(120)
         double precision mpexpo(120,50),mpcoef(120,50)
         integer mpmaxelem
-        logical use_modelpotential
-c
         common/modelpotential1/mpelem,mpexpo,mpcoef,mpmaxelem
+c
+        logical use_modelpotential
         common/modelpotential2/use_modelpotential
+c
+        character*255 mpdir
+        character*255 mpfile
+        common/modelpotential3/mpdir,mpfile
