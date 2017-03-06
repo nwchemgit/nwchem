@@ -774,8 +774,9 @@ c
       integer ijhand,jihand,ikhand,jlhand,ilhand,jkhand
       integer dklhand,dikhand,djlhand,dilhand,djkhand
       integer g_densrep,g_dens0,g_fockrep,g_fock0,dorep_glob
-      integer nproc
+      integer nproc,shells_tot,shells_done
       logical dorepl,dorepd,dorepf,dorepon
+      double precision sij,sijkl
       logical util_mirrmat
       external util_mirrmat
 c
@@ -820,6 +821,8 @@ c     Parallel loop over shells
 c     
       ijblock = 0
       next = nxtask(nproc,task_size)
+      shells_tot=0
+      shells_done=0
       do ish = 1, nshell
          if (.not. bas_cn2bfr(basis, ish, ibflo, ibfhi))
      $        call errquit('giaofock: bas_cn2bfr ?', basis,
@@ -833,6 +836,7 @@ c
             call dcopy(3*idim*jdim, 0d0, 0, f_ij, 1)
             call dcopy(3*jdim*idim, 0d0, 0, f_ji, 1)
             if (next .eq. ijblock) then
+               sij = schwarz_shell(ish,jsh)
                do ksh = 1, nshell
                   if (.not. bas_cn2bfr(basis, ksh, kbflo, kbfhi))
      $                 call errquit('giaofock: bas_cn2bfr ?', basis,
@@ -849,6 +853,10 @@ c
                      call ga_nbwait(djkhand)
 #endif
                   do lsh = 1, ksh 
+                     shells_tot=shells_tot+1
+                     sijkl = sij*schwarz_shell(ksh,lsh)
+                     if (sijkl .gt. tol2e) then
+                        shells_done=shells_done+1
                      if (.not. bas_cn2bfr(basis, lsh, lbflo, lbfhi))
      $                   call errquit('giaofock: bas_cn2bfr ?', basis,
      $                                 BASIS_ERR)
@@ -888,6 +896,7 @@ c
                      call new_acc_giaofock_block(g_fock, blen, 
      $                    ibflo, ibfhi, lbflo, lbfhi, f_il,
      F                    ilfirst,ilhand)
+                  endif
                   end do
                   call new_acc_giaofock_block(g_fock, blen, 
      $                 ibflo, ibfhi, kbflo, kbfhi, f_ik,
@@ -911,6 +920,10 @@ c
 c     call int_acc_std()
 
       next = nxtask(-nproc,task_size)
+      if(ga_nodeid().eq.0)
+     c     write(6,'(i5,a,f10.2,a)') ga_nodeid(),
+     G     ' giaofock schwarz done = ',
+     C     (100d0*shells_done)/shells_tot,'%'
       call ga_sync()
       if(dorepl) then
          call util_mirrstop(g_densrep)
