@@ -60,8 +60,11 @@ c     == local variables ==
      &               1, 2 / ! tmn=312 
       integer inntsize,ddblsize,ok
       logical grid_file_rewind
-      external grid_file_rewind,calc_zora_NMRCS_SR,
-     &         ga_antisymmetrize,grid_quadv0
+      logical dft_mirrdens_start,dorepl
+      integer g_dens0(2),g_densrep(2),ii
+      integer nn
+      external dft_mirrdens_start
+      external grid_file_rewind
 c
 c     model potential parameters
       character*2 gelem(ncenters)
@@ -101,33 +104,23 @@ c     == allocate memory ==
        enddo
       enddo ! end-loop-i
 c     == preliminaries ==
-       do i= 1, nbf_ao*nbf_ao
-          dbl_mb(idia1+i-1)=0.d0
-       enddo  
+      call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(idia1),1)
        do k=1,3
         do j=1,3
-         do i= 1, nbf_ao*nbf_ao
-         dbl_mb(idia3(k,j)+i-1)=0.d0
-         enddo
+           call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(idia3(k,j)),1)
         enddo
        enddo
        do j=1,3
-         do i= 1, nbf_ao*nbf_ao
-          dbl_mb(idia2(j)+i-1)=0.d0
-         enddo  
+          call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(idia2(j)),1)
        enddo
        do t=1,3
         m=ind_tmn(1,t)
         n=ind_tmn(2,t)     
-         do i= 1, nbf_ao*nbf_ao
-          dbl_mb(inmr1(m,n)+i-1)=0.d0
-          dbl_mb(inmr1(n,m)+i-1)=0.d0
-         enddo ! end-loop-i   
+          call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(inmr1(m,n)),1)
+          call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(inmr1(n,m)),1)
          do a=1,3
-           do i= 1, nbf_ao*nbf_ao
-           dbl_mb(inmr2(a,m,n)+i-1)=0.d0
-           dbl_mb(inmr2(a,n,m)+i-1)=0.d0
-           enddo ! end-loop-i    
+            call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(inmr2(a,m,n)),1)
+            call dfill(nbf_ao*nbf_ao,0d0,dbl_mb(inmr2(a,n,m)),1)
          enddo ! end-loop-a
        enddo ! end-loop-t
 c
@@ -138,6 +131,8 @@ c
 c     == generate the grid ==
       dummy(1) = 0.d0
       dummy(2) = 0.d0
+      dorepl = dft_mirrdens_start(g_dens,g_densrep,g_dens0,
+     i     ipol)
       call grid_quadv0(rtdb,g_dens,g_dia2,nexc,rho_n,dummy,tmat)
 c     == ao basis set info used by xc_eval_basis ==
       if (.not.bas_numcont(AO_bas_han, ncontrset))
@@ -309,29 +304,31 @@ c     == delete memory ==
      &     call errquit("zora_getv_sf: pop bas_cent_info", 100, MA_ERR)
 c
 c     == tally up over all the nodes ==
-      nij = 0
-      do i = 1, nbf_ao
-        do j = 1, nbf_ao
-         nij = nij + 1
-         call ga_dgop(msg_excrho,dbl_mb(idia1 +nij-1), 1, '+')
-         do k=1,3
-          call ga_dgop(msg_excrho,dbl_mb(idia2(k)+nij-1), 1, '+')
-          do t=1,3
-          call ga_dgop(msg_excrho,dbl_mb(idia3(k,t)+nij-1), 1, '+')
-          enddo ! end-loop-t
-         enddo ! end-loop-k
+      call ga_sync()
+      if(dorepl) then
+         do ii=1,ipol
+            call util_mirrstop(g_densrep(ii))
+            g_dens(ii)=g_dens0(ii)
+         enddo
+      endif
+      nn=nbf_ao*nbf_ao
+      call ga_dgop(msg_excrho,dbl_mb(idia1),nn, '+')
+      do k=1,3
+         call ga_dgop(msg_excrho,dbl_mb(idia2(k)),nn, '+')
          do t=1,3
-          m=ind_tmn(1,t)
-          n=ind_tmn(2,t) 
-          call ga_dgop(msg_excrho,dbl_mb(inmr1(m,n)+nij-1), 1, '+')
-          call ga_dgop(msg_excrho,dbl_mb(inmr1(n,m)+nij-1), 1, '+')
-          do a=1,3
-          call ga_dgop(msg_excrho,dbl_mb(inmr2(a,m,n)+nij-1), 1, '+')
-          call ga_dgop(msg_excrho,dbl_mb(inmr2(a,n,m)+nij-1), 1, '+')
+           call ga_dgop(msg_excrho,dbl_mb(idia3(k,t)),nn,'+')
+         enddo ! end-loop-t
+      enddo                     ! end-loop-k
+      do t=1,3
+         m=ind_tmn(1,t)
+         n=ind_tmn(2,t) 
+         call ga_dgop(msg_excrho,dbl_mb(inmr1(m,n)),nn, '+')
+         call ga_dgop(msg_excrho,dbl_mb(inmr1(n,m)),nn, '+')
+         do a=1,3
+            call ga_dgop(msg_excrho,dbl_mb(inmr2(a,m,n)),nn, '+')
+            call ga_dgop(msg_excrho,dbl_mb(inmr2(a,n,m)),nn, '+')
           enddo ! end-loop-a
          enddo ! end-loop-t
-        enddo ! end-loop-j
-      enddo ! end-loop-i
 c
 c     == pack into a ga all NMR AOs ==
        call ga_zero(g_dia1) 
@@ -355,7 +352,8 @@ c     == pack into a ga all NMR AOs ==
        m=ind_tmn(1,t)
        n=ind_tmn(2,t) 
        call ga_zero(g_nmr1(ac)) 
-       call ga_put(g_nmr1(ac),
+       if(ga_nodeid().eq.0)
+     G      call ga_put(g_nmr1(ac),
      &             1,nbf_ao,1,nbf_ao,dbl_mb(inmr1(m,n)),nbf_ao)
        ac=ac+1
       enddo ! end-loop-t
@@ -363,7 +361,8 @@ c     == pack into a ga all NMR AOs ==
        m=ind_tmn(2,t)
        n=ind_tmn(1,t) 
        call ga_zero(g_nmr1(ac)) 
-       call ga_put(g_nmr1(ac),
+       if(ga_nodeid().eq.0)
+     G      call ga_put(g_nmr1(ac),
      &             1,nbf_ao,1,nbf_ao,dbl_mb(inmr1(m,n)),nbf_ao)
        ac=ac+1
       enddo ! end-loop-t
@@ -373,7 +372,8 @@ c     == pack into a ga all NMR AOs ==
        m=ind_tmn(1,t)
        n=ind_tmn(2,t) 
        call ga_zero(g_nmr2(ac)) 
-       call ga_put(g_nmr2(ac),
+       if(ga_nodeid().eq.0)
+     G      call ga_put(g_nmr2(ac),
      &             1,nbf_ao,1,nbf_ao,dbl_mb(inmr2(a,m,n)),nbf_ao)
        ac=ac+1
        enddo ! end-loop-t
@@ -381,7 +381,8 @@ c     == pack into a ga all NMR AOs ==
        m=ind_tmn(2,t)
        n=ind_tmn(1,t) 
        call ga_zero(g_nmr2(ac)) 
-       call ga_put(g_nmr2(ac),
+       if(ga_nodeid().eq.0)
+     G      call ga_put(g_nmr2(ac),
      &             1,nbf_ao,1,nbf_ao,dbl_mb(inmr2(a,m,n)),nbf_ao)
        ac=ac+1
        enddo ! end-loop-t
@@ -473,8 +474,10 @@ c     == local variables ==
      &               1, 2 / ! tmn=312 
       integer inntsize,ddblsize,ok
       logical grid_file_rewind
-      external grid_file_rewind,calc_zora_NMRCS_SR,
-     &         ga_antisymmetrize,grid_quadv0
+      logical dft_mirrdens_start,dorepl
+      integer g_dens0(2),g_densrep(2),ii
+      integer nn
+      external grid_file_rewind
 c
 c     model potential parameters
       character*2 gelem(ncenters)
@@ -523,6 +526,8 @@ c
 c     == generate the grid ==
       dummy(1) = 0.d0
       dummy(2) = 0.d0
+      dorepl = dft_mirrdens_start(g_dens,g_densrep,g_dens0,
+     i     ipol)
       call grid_quadv0(rtdb,g_dens,g_nmr(1),nexc,rho_n,dummy,tmat)
 c     == ao basis set info used by xc_eval_basis ==
       if (.not.bas_numcont(AO_bas_han, ncontrset))
@@ -663,31 +668,35 @@ c     == delete memory ==
      &     call errquit("zora_getv_sf: pop bas_cent_info", 100, MA_ERR)
 c
 c     == tally up over all the nodes ==
-      nij = 0
-      do i = 1, nbf_ao
-        do j = 1, nbf_ao
-         nij = nij + 1
-         do k=1,3
-          call ga_dgop(msg_excrho,dbl_mb(inmr(k) +nij-1), 1, '+')
-          call ga_dgop(msg_excrho,dbl_mb(inmr3(k)+nij-1), 1, '+')
-         enddo ! end-loop-k
-         do t=1,3
-          m=ind_tmn(1,t)
-          n=ind_tmn(2,t) 
-          call ga_dgop(msg_excrho,dbl_mb(inmr4(m,n)+nij-1), 1, '+')
-          call ga_dgop(msg_excrho,dbl_mb(inmr4(n,m)+nij-1), 1, '+')
-         enddo ! end-loop-t
-        enddo ! end-loop-j
-      enddo ! end-loop-i
+      call ga_sync()
+      if(dorepl) then
+         do ii=1,ipol
+            call util_mirrstop(g_densrep(ii))
+            g_dens(ii)=g_dens0(ii)
+         enddo
+      endif
+      nn=nbf_ao*nbf_ao
+      do k=1,3
+         call ga_dgop(msg_excrho,dbl_mb(inmr(k)), nn, '+')
+         call ga_dgop(msg_excrho,dbl_mb(inmr3(k)), nn, '+')
+      enddo                     ! end-loop-k
+      do t=1,3
+         m=ind_tmn(1,t)
+         n=ind_tmn(2,t) 
+         call ga_dgop(msg_excrho,dbl_mb(inmr4(m,n)), nn, '+')
+         call ga_dgop(msg_excrho,dbl_mb(inmr4(n,m)), nn, '+')
+      enddo                     ! end-loop-t
 c
 c     == pack into a ga all NMR AOs ==
       do i=1,3 
        call ga_zero(g_nmr(i)) 
-       call ga_put(g_nmr(i),
+       if(ga_nodeid().eq.0)
+     G      call ga_put(g_nmr(i),
      &             1,nbf_ao,1,nbf_ao,dbl_mb(inmr(i)),nbf_ao)
        call ga_symmetrize(g_nmr(i)) 
        call ga_zero(g_nmr3(i)) 
-       call ga_put(g_nmr3(i),
+       if(ga_nodeid().eq.0)
+     G      call ga_put(g_nmr3(i),
      &             1,nbf_ao,1,nbf_ao,dbl_mb(inmr3(i)),nbf_ao)
       enddo ! end-loop-i
       ac=1
@@ -695,7 +704,8 @@ c     == pack into a ga all NMR AOs ==
        m=ind_tmn(1,t)
        n=ind_tmn(2,t) 
        call ga_zero(g_nmr4(ac)) 
-       call ga_put(g_nmr4(ac),
+       if(ga_nodeid().eq.0)
+     G      call ga_put(g_nmr4(ac),
      &             1,nbf_ao,1,nbf_ao,dbl_mb(inmr4(m,n)),nbf_ao)
        ac=ac+1
       enddo ! end-loop-t
@@ -703,7 +713,8 @@ c     == pack into a ga all NMR AOs ==
        m=ind_tmn(2,t)
        n=ind_tmn(1,t) 
        call ga_zero(g_nmr4(ac)) 
-       call ga_put(g_nmr4(ac),
+       if(ga_nodeid().eq.0)
+     G      call ga_put(g_nmr4(ac),
      &             1,nbf_ao,1,nbf_ao,dbl_mb(inmr4(m,n)),nbf_ao)
        ac=ac+1
       enddo ! end-loop-t

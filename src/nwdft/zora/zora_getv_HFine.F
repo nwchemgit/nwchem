@@ -320,17 +320,14 @@ c     == local variables ==
       double precision xyz_NMRcoords(3),atmass   
       double precision chi_cntr(3,nbf_ao)
       logical grid_file_rewind,ofinite,Knucl
-      integer dorep_glob,ii
-      integer g_dens0(2),g_densrep(2)
-      logical dorepd,dorepl,docopy,dozero
-      logical util_mirrmat
-      external util_mirrmat
       integer ind_tmn(2,3) 
       data ind_tmn / 2, 3,  ! tmn=123
      &               3, 1,  ! tmn=231
      &               1, 2 / ! tmn=312 
-      external grid_file_rewind,calc_zora_HFine_fast,
-     &         ga_antisymmetrize
+      logical dft_mirrdens_start,dorepl
+      integer g_dens0(2),g_densrep(2),ii
+      external dft_mirrdens_start
+      external grid_file_rewind
 c
 c     model potential parameters
       character*2 gelem(ncenters)
@@ -366,32 +363,8 @@ c
 c     == generate the grid ==
       dummy(1) = 0.d0
       dummy(2) = 0.d0
-      dorepl=.false.
-      call ga_sync()
-      if(ga_cluster_nnodes().gt.1) then
-         docopy=.true.
-         dozero=.false.
-         dorepd=util_mirrmat(ipol,g_dens,g_densrep,docopy,dozero)
-         dorep_glob=0
-         if(dorepd) dorep_glob=1
-         call ga_igop(375,dorep_glob,1, '+')
-         dorepl=dorep_glob.eq.ga_nnodes()
-         if(dorepl) then
-            do ii=1,ipol
-               g_dens0(ii)=g_dens(ii)
-               g_dens(ii)=g_densrep(ii)
-            enddo
-         else
-            if(dorepd) then
-               call util_mirrstop(g_densrep(1))
-               if(ipol.eq.2) call util_mirrstop(g_densrep(2))
-            endif
-            if(ga_nodeid().eq.0) then
-               write(6,*) ' no DM mirroring in zora_getv'
-               call util_flush(6)
-            endif
-         endif
-      endif
+      dorepl = dft_mirrdens_start(g_dens,g_densrep,g_dens0,
+     i     ipol)
       call grid_quadv0(rtdb,g_dens,g_zpso,nexc,rho_n,dummy,tmat)
 c     == ao basis set info used by xc_eval_basis ==
       if (.not.bas_numcont(AO_bas_han, ncontrset))
@@ -836,5 +809,46 @@ c ----- free memory ----------- START
      &   ('zora_getv_NMR: ma_free_heap of lhfine failed',911,MA_ERR)
       enddo
 c ----- free memory ----------- END
+      return
+      end
+      logical function dft_mirrdens_start(g_dens,g_densrep,g_dens0,
+     i     ipol)
+      implicit none
+#include "global.fh"
+      integer g_dens(2) ! [in/out]
+      integer g_dens0(2),g_densrep(2) ! [in/out]
+      integer ipol ! [in]
+c
+      integer dorep_glob,ii
+      logical dorepd,dorepl,docopy,dozero
+      logical util_mirrmat
+      external util_mirrmat
+      dorepl=.false.
+      call ga_sync()
+      if(ga_cluster_nnodes().gt.1) then
+         docopy=.true.
+         dozero=.false.
+         dorepd=util_mirrmat(ipol,g_dens,g_densrep,docopy,dozero)
+         dorep_glob=0
+         if(dorepd) dorep_glob=1
+         call ga_igop(375,dorep_glob,1, '+')
+         dorepl=dorep_glob.eq.ga_nnodes()
+         if(dorepl) then
+            do ii=1,ipol
+               g_dens0(ii)=g_dens(ii)
+               g_dens(ii)=g_densrep(ii)
+            enddo
+         else
+            if(dorepd) then
+               call util_mirrstop(g_densrep(1))
+               if(ipol.eq.2) call util_mirrstop(g_densrep(2))
+            endif
+            if(ga_nodeid().eq.0) then
+               write(6,*) ' no DM mirroring in zora_getv'
+               call util_flush(6)
+            endif
+         endif
+      endif
+      dft_mirrdens_start=dorepl
       return
       end
