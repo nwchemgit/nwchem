@@ -63,7 +63,7 @@ cinit
         end do ! j = 1,mpmaxelem 
  1984   continue
         if(ga_nodeid().eq.0.and.(.not.status)) write(6,'(a,i3,2x,a)') 
-     W       ' moldepot warning: no entry found for atom ',i,tagi
+     W       ' modelpotential warning: no entry found for atom ',i,tagi
       end do  ! i = 1,natoms 
 c
 c     set parameters in rtdb
