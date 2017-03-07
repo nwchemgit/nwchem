@@ -855,7 +855,7 @@ c
                   do lsh = 1, ksh 
                      shells_tot=shells_tot+1
                      sijkl = sij*schwarz_shell(ksh,lsh)
-                     if (sijkl .gt. tol2e) then
+                     if (sijkl .gt. min(0.1*tol2e,1d-12)) then
                         shells_done=shells_done+1
                      if (.not. bas_cn2bfr(basis, lsh, lbflo, lbfhi))
      $                   call errquit('giaofock: bas_cn2bfr ?', basis,
@@ -1019,6 +1019,11 @@ c
          do i = 1, idim
             do j = 1, jdim
                facij = 1.0d0
+               doit = .true.
+               if (ieqj.and.j.gt.i) doit = .false.
+               if(.not.doit) then
+                  integ=integ+ldim*kdim
+               else
                if (ieqj.and.i.eq.j) facij = 0.5d0
                do k = 1, kdim
                   do l= 1, ldim
@@ -1026,7 +1031,6 @@ c
 c
 c  Needs the following if statements, otherwise integrals are included double
                      doit = .true.
-                     if (ieqj.and.j.gt.i) doit = .false.
                      if (keql.and.l.gt.k) doit = .false.
                      if (doit) then
                         fac = facij
@@ -1043,8 +1047,9 @@ c  Needs the following if statements, otherwise integrals are included double
                         f_jk(j,k,v) = f_jk(j,k,v) + d_il(i,l)*errsum
                         f_jl(j,l,v) = f_jl(j,l,v) + d_ik(i,k)*errdif
                      endif 
-                  end do
-               end do
+                  end do ! l
+               end do ! k
+               endif
             end do
          end do
       end do
