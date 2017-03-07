@@ -93,7 +93,7 @@ c
       integer nxtask_static,icount,ipoint
       integer ishd_0,ishd_1
       integer l_at,k_at
-      integer atom_c_in,atom_d_in
+      integer atom_c_in,atom_d_in,natoms_used
       logical dowork,use_nxtask,lschw_pmax1,doshell
       double precision dabsmax
       external nxtask_static,dabsmax
@@ -127,7 +127,9 @@ c
       if(.not.MA_Push_Get(MT_int,natoms,'at list',l_at,k_at))
      &  call errquit('dft_3cinc: cannot allocate at list',0, MA_ERR)
 c     sort atoms list based on decreasing atomic weight
-      call dft_sortatbyz(geom,natoms,int_mb(k_at))
+      natoms_used=natoms
+      call dft_sortatbyz_screen(ao_bas_han,geom,
+     N     natoms_used,int_mb(k_at))
 c
 c     invalidate iwhat for procs that might remain out of work
       if(compute.and.(.not.dryrun)) then
@@ -145,7 +147,7 @@ c
       ndone = 1
       n_batch_done = 1
       ipoint=1
-      do atom_c_in = 1,natoms
+      do atom_c_in = 1,natoms_used
          atom_c=int_mb(k_at+atom_c_in-1)
         if (.not. bas_ce2cnr( AO_bas_han, atom_c, sh_lo_c, sh_hi_c)) 
      &       call errquit('Exiting in dft_fitcd',110, BASIS_ERR)
@@ -429,6 +431,51 @@ c        call errquit('neworder error ',0,0)
 #endif
       if(.not.ma_chop_stack(l_z))
      &  call errquit('dft_fitcd: cannot pop stack',13, MA_ERR)
+      return
+      end
+      subroutine dft_sortatbyz_screen(basis,geom,natoms,klist)
+      implicit none
+c     sort atoms list based on decreasing atomic weight
+c     and
+c     screen out atoms with no basis
+#include "errquit.fh"
+c
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "global.fh"
+#include "bas.fh"
+      integer basis ![in]
+      integer geom     ! [in]
+      integer natoms   ! [in] 
+      integer klist(*) ! [out]
+c
+      integer atom_c_in,atom_c,new_natoms,new_ptr
+      integer bf_lo_c, bf_hi_c
+c
+      call dft_sortatbyz(geom,natoms,klist)
+      new_natoms=0
+      do atom_c_in = 1,natoms
+         atom_c=klist(atom_c_in)
+         if (.not. bas_ce2bfr( basis, atom_c, bf_lo_c, bf_hi_c)) 
+     &        call errquit('Exiting in dft_fitcd',110, BASIS_ERR)
+c     invalidate 
+         if(bf_lo_c.eq.0)   then
+            klist(atom_c_in)=-1
+         else
+            new_natoms=new_natoms+1
+         endif
+      enddo
+c     compress list ... verrry slow
+      new_ptr=0
+      if(new_natoms.ne.natoms) then
+         do atom_c_in = 1,natoms
+            if(klist(atom_c_in).ne.-1)  then
+               new_ptr=new_ptr+1
+               klist(new_ptr)=klist(atom_c_in)
+            endif
+         enddo
+         natoms=new_natoms
+      endif
       return
       end
       integer function nxtask_static(nproc,ichunk)
