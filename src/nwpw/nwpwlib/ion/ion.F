@@ -104,6 +104,7 @@
       if ((control_code().eq.2).or.
      >    (control_code().eq.7).or.
      >    (control_code().eq.11).or.
+     >    (control_code().eq.12).or.
      >    (control_code().eq.14)) then
          value = beom_vel_set(geom,dbl_mb(r0(1)))
          value = btdb_put(rtdb,"nwpw:ke_total",mt_dbl,1,ke_total)
@@ -121,6 +122,7 @@
      >    (control_code().eq.6).or.
      >    (control_code().eq.7).or.
      >    (control_code().eq.11).or.
+     >    (control_code().eq.12).or.
      >    (control_code().eq.13).or.
      >    (control_code().eq.14)) then
         value = beom_rtdb_store(rtdb,geom,'pspwgeometry')
@@ -137,6 +139,7 @@
      >    (control_code().eq.6).or.
      >    (control_code().eq.7).or.
      >    (control_code().eq.11).or.
+     >    (control_code().eq.12).or.
      >    (control_code().eq.13).or.
      >    (control_code().eq.14)) then
 
@@ -363,6 +366,7 @@ c     call ion_shift()
       if ((control_code().eq.2).or. 
      >    (control_code().eq.7).or.
      >    (control_code().eq.11).or.
+     >    (control_code().eq.12).or.
      >    (control_code().eq.14)) then
 *         **** get velocities ****
          value = beom_vel_get(geom,dbl_mb(r0(1)))
