@@ -36,6 +36,8 @@ c     (tmn)=123,231,312=xyz,yzx,zxy
      &                         natoms,       ! in: nr. atoms 
      &                         chi_cntr,     ! in: basis centers
      &                         Knucl,        ! in: flag =T do Kzora with Nucl pot ONLY
+     C     mbf,ibf,
+c     do we need atoms definition from  grid_nbfm ??
      &                         use_modelpotential,
      &                         gexpo,
      &                         gcoef,
@@ -115,6 +117,8 @@ c     (tmn)=123,231,312=xyz,yzx,zxy
       logical use_modelpotential
       double precision gexpo(natoms,50)
       double precision gcoef(natoms,50)
+      integer mbf,ibf(*)
+      integer i0,j0
 c
       external get_ints_zora_epr_12,get_ints_zora_epr_34
       clight_au2 = clight_au*clight_au
@@ -179,10 +183,12 @@ c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
       endif
 c     == assemble zora correction ==
 c ----- main diagonal --- START
-      do i = 1, nbf
+c      do i = 1, nbf
+      do i0 = 1, mbf
+         i=ibf(i0)
           j=i
           call get_ints_zora_epr_12(nbf,npts,
-     &                              delchi_ao,i,j,      
+     &                              delchi_ao,i,j,i0,i0,      
      &                              fac1_arr,
      &                              fac2_arr,  
      &                              ac_epr1, ! out 
@@ -202,10 +208,12 @@ c ----- main diagonal --- START
       enddo ! end-loop-i
 c ----- main diagonal --- END
 c ----- off diagonal --- START
-      do i = 1, nbf
-        do j = i+1, nbf
+      do i0 = 1, mbf
+         i=ibf(i0)
+        do j0 = i0+1, mbf
+           j=ibf(j0)
           call get_ints_zora_epr_12(nbf,npts,
-     &                              delchi_ao,i,j,      
+     &                              delchi_ao,i,j,i0,j0,      
      &                              fac1_arr,
      &                              fac2_arr,  
      &                              ac_epr1, ! out 
@@ -226,9 +234,11 @@ c ----- off diagonal --- START
       enddo ! end-loop-i
 c ----- off diagonal --- END
 c ---- full matrix calc -------- START
-      do i = 1, nbf
-        do j = 1, nbf
-          call get_ints_zora_epr_34(nbf,npts,chi_ao,delchi_ao,i,j,      
+      do i0 = 1, mbf
+         i=ibf(i0)
+        do j0 = 1, mbf
+           j=ibf(j0)
+          call get_ints_zora_epr_34(nbf,npts,chi_ao,delchi_ao,i,j,i0,j0,      
      &                              fac1_arr,
      &                              fac2_arr,  
      &                              fac3_arr,  
@@ -257,6 +267,7 @@ c ---- full matrix calc -------- END
      &                             chi_ao,    ! in:           basis functions
      &                             delchi_ao, ! in: deriv. of basis functions
      &                             i,j,       ! in: (i,j) indices for delchi_ao
+     &                                i0,j0,     ! restricted indices after grid_nbfm
      &                             fac1_arr,  ! in
      &                             fac2_arr,  ! in
      &                             ac_epr1,   ! out 
@@ -267,7 +278,7 @@ c ---- full matrix calc -------- END
 #include "errquit.fh"
 #include "stdio.fh"
 #include "global.fh"
-      integer nbf,npts,i,j,k,m,n
+      integer nbf,npts,i,j,k,m,n,i0,j0
       double precision chi_ao(npts,nbf)
       double precision delchi_ao(npts,3,nbf)
       double precision fac1_arr(npts),fac2_arr(3,npts)
@@ -283,14 +294,14 @@ c ---- full matrix calc -------- END
        enddo
       enddo    
       do k = 1, npts
-       prod(1)= delchi_ao(k,2,i)*delchi_ao(k,3,j)
-     &         -delchi_ao(k,3,i)*delchi_ao(k,2,j) 
-       prod(2)= delchi_ao(k,3,i)*delchi_ao(k,1,j)
-     &         -delchi_ao(k,1,i)*delchi_ao(k,3,j) 
-       prod(3)= delchi_ao(k,1,i)*delchi_ao(k,2,j)
-     &         -delchi_ao(k,2,i)*delchi_ao(k,1,j) 
+       prod(1)= delchi_ao(k,2,i0)*delchi_ao(k,3,j0)
+     &         -delchi_ao(k,3,i0)*delchi_ao(k,2,j0) 
+       prod(2)= delchi_ao(k,3,i0)*delchi_ao(k,1,j0)
+     &         -delchi_ao(k,1,i0)*delchi_ao(k,3,j0) 
+       prod(3)= delchi_ao(k,1,i0)*delchi_ao(k,2,j0)
+     &         -delchi_ao(k,2,i0)*delchi_ao(k,1,j0) 
        do n=1,3
-        prod1(n) = chi_ao(k,i)*delchi_ao(k,n,j)
+        prod1(n) = chi_ao(k,i0)*delchi_ao(k,n,j0)
        enddo
        do n=1,3
         ac_epr1(n) = ac_epr1(n) + fac1_arr(k)*prod(n)
@@ -307,6 +318,7 @@ c ---- full matrix calc -------- END
      &                                npts,      ! in: grid points 
      &                                delchi_ao, ! in: deriv. of basis functions
      &                                i,j,       ! in: (i,j) indices for delchi_ao
+     &                                i0,j0,     ! restricted indices after grid_nbfm
      &                                fac1_arr,  ! in
      &                                fac2_arr,  ! in
      &                                ac_epr1,   ! out 
@@ -315,7 +327,7 @@ c ---- full matrix calc -------- END
 #include "errquit.fh"
 #include "stdio.fh"
 #include "global.fh"
-      integer nbf,npts,i,j,k,m,n
+      integer nbf,npts,i,j,k,m,n,i0,j0
       double precision delchi_ao(npts,3,nbf)
       double precision fac1_arr(npts),fac2_arr(3,npts)
       double precision fac3_arr(3,npts)
@@ -329,12 +341,12 @@ c ---- full matrix calc -------- END
        enddo
       enddo    
       do k = 1, npts
-       prod(1)= delchi_ao(k,2,i)*delchi_ao(k,3,j)
-     &         -delchi_ao(k,3,i)*delchi_ao(k,2,j) 
-       prod(2)= delchi_ao(k,3,i)*delchi_ao(k,1,j)
-     &         -delchi_ao(k,1,i)*delchi_ao(k,3,j) 
-       prod(3)= delchi_ao(k,1,i)*delchi_ao(k,2,j)
-     &         -delchi_ao(k,2,i)*delchi_ao(k,1,j) 
+       prod(1)= delchi_ao(k,2,i0)*delchi_ao(k,3,j0)
+     &         -delchi_ao(k,3,i0)*delchi_ao(k,2,j0) 
+       prod(2)= delchi_ao(k,3,i0)*delchi_ao(k,1,j0)
+     &         -delchi_ao(k,1,i0)*delchi_ao(k,3,j0) 
+       prod(3)= delchi_ao(k,1,i0)*delchi_ao(k,2,j0)
+     &         -delchi_ao(k,2,i0)*delchi_ao(k,1,j0) 
        do n=1,3
         ac_epr1(n) = ac_epr1(n) + fac1_arr(k)*prod(n)
         do m=1,3
@@ -350,6 +362,7 @@ c ---- full matrix calc -------- END
      &                                chi_ao,    ! in:           basis functions
      &                                delchi_ao, ! in: deriv. of basis functions
      &                                i,j,       ! in: (i,j) indices for delchi_ao
+     &                                i0,j0,     ! restricted indices after grid_nbfm
      &                                fac1_arr,  ! in
      &                                fac2_arr,  ! in
      &                                fac3_arr,  ! in 
@@ -360,7 +373,7 @@ c ---- full matrix calc -------- END
 #include "errquit.fh"
 #include "stdio.fh"
 #include "global.fh"
-      integer nbf,npts,i,j,k,m,n
+      integer nbf,npts,i,j,k,m,n,i0,j0
       double precision chi_ao(npts,nbf)
       double precision delchi_ao(npts,3,nbf)
       double precision fac1_arr(npts),fac2_arr(3,npts)
@@ -377,11 +390,11 @@ c ---- full matrix calc -------- END
        enddo
       enddo    
       do k = 1, npts
-       prod1 = chi_ao(k,i)*chi_ao(k,j)
+       prod1 = chi_ao(k,i0)*chi_ao(k,j0)
        do n=1,3
-        prod(n) = chi_ao(k,i)*delchi_ao(k,n,j)
+        prod(n) = chi_ao(k,i0)*delchi_ao(k,n,j0)
         ac_epr3(n) = ac_epr3(n) + fac1_arr(k)*prod(n)
-        prod(n)=prod(n)+chi_ao(k,j)*delchi_ao(k,n,i)
+        prod(n)=prod(n)+chi_ao(k,j0)*delchi_ao(k,n,i0)
         do m=1,3
          ac_epr4(m,n)=ac_epr4(m,n)+(fac2_arr(m,k)-
      &                              fac1_arr(k)*chi_cntr(m,j))*
