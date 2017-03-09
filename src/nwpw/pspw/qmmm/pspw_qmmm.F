@@ -835,7 +835,7 @@ c
      >         (int_mb(kfrag(1)+mm-1),mm=1,nfrag)
 
            if (lmbda_flag) 
-     >        write(luout,'(2x,A,F6.3)') 
+     >        write(luout,'(2x,A,E19.10)') 
      >        "qmmm_lambda coupling parameter  = ",qmmm_lmbda
            write(luout,*) 
            do ia=1,nkfrag
@@ -1537,31 +1537,52 @@ c     **** external functions ***
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
          
+*     **** local variables ****
+      real*8 e1,e2,e3,e4
+
 c     **** external functions ***
       integer  ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
       external ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
-      integer  mmq_zv_ptr,ion_amass_ptr
-      external mmq_zv_ptr,ion_amass_ptr
+      integer  mmq_zv_ptr,ion_amass_ptr,control_version
+      external mmq_zv_ptr,ion_amass_ptr,control_version
+      real*8   ewald_e,ewald_e_qm,ewald_e_mm
+      external ewald_e,ewald_e_qm,ewald_e_mm
+      real*8   ion_ion_e,ion_ion_e_qm,ion_ion_e_mm
+      external ion_ion_e,ion_ion_e_qm,ion_ion_e_mm
       real*8   pspw_Q_E
       external pspw_Q_E
 
       if (auxiliary_only) then
          pspw_qmmm_mmq_Q_E = 0.0d0
       else
-         pspw_qmmm_mmq_Q_E = pspw_Q_E(ion_nion(),
-     >                            ion_nion_qm(),
-     >                            int_mb(ion_katm_ptr()),
-     >                            dbl_mb(mmq_zv_ptr()),
-     >                            dbl_mb(ion_amass_ptr()),
-     >                            nfrag,
-     >                            int_mb(indx_frag_start(1)),
-     >                            int_mb(size_frag(1)),
-     >                            int_mb(kfrag(1)),
-     >                            dbl_mb(switch_Rin(1)),
-     >                            dbl_mb(switch_Rout(1)),
-     >                            log_mb(self_interaction(1)),
-     >                            nshl3d,dbl_mb(rcell(1)),
-     >                            dbl_mb(ion_rion_ptr()))
+         e1 = pspw_Q_E(ion_nion(),
+     >                 ion_nion_qm(),
+     >                 int_mb(ion_katm_ptr()),
+     >                 dbl_mb(mmq_zv_ptr()),
+     >                 dbl_mb(ion_amass_ptr()),
+     >                 nfrag,
+     >                 int_mb(indx_frag_start(1)),
+     >                 int_mb(size_frag(1)),
+     >                 int_mb(kfrag(1)),
+     >                 dbl_mb(switch_Rin(1)),
+     >                 dbl_mb(switch_Rout(1)),
+     >                 log_mb(self_interaction(1)),
+     >                 nshl3d,dbl_mb(rcell(1)),
+     >                 dbl_mb(ion_rion_ptr()))
+         if (lmbda_flag.and.(dabs(qmmm_lmbda-1.0d0).gt.1.0d-6)) then
+            if (control_version().eq.3) then
+               e2 = ewald_e()
+               e3 = ewald_e_qm()
+               e4 = ewald_e_mm()
+            else
+               e2 = ion_ion_e()
+               e3 = ion_ion_e_qm()
+               e4 = ion_ion_e_mm()
+            end if
+            e1 = e1 + (qmmm_lmbda-1.0d0)*(e2-e3-e4)
+         end if
+         pspw_qmmm_mmq_Q_E = e1
+
       end if
       return
       end
@@ -1966,11 +1987,14 @@ c     **** external functions ***
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
+*     **** local variables ****
+      integer nion3,f3(2),f4(2)
+
 c     **** external functions ***
       integer  ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
       external ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
-      integer  mmq_zv_ptr,ion_amass_ptr
-      external mmq_zv_ptr,ion_amass_ptr
+      integer  mmq_zv_ptr,ion_amass_ptr,control_version
+      external mmq_zv_ptr,ion_amass_ptr,control_version
       real*8   pspw_Q_E
       external pspw_Q_E
 
@@ -1989,6 +2013,39 @@ c     **** external functions ***
      >                    log_mb(self_interaction(1)),
      >                    nshl3d,dbl_mb(rcell(1)),
      >                    dbl_mb(ion_rion_ptr()),fion)
+         if (lmbda_flag.and.(dabs(qmmm_lmbda-1.0d0).gt.1.0d-6)) then
+           nion3 = 3*ion_nion()
+c           if (.not.BA_push_get(mt_dbl,nion3,'f2',f2(2),f2(1)))
+c     >     call errquit('pspw_mmq_Q_fion:push stack memory',2,MA_ERR)
+           if (.not.BA_push_get(mt_dbl,nion3,'f3',f3(2),f3(1)))
+     >     call errquit('pspw_mmq_Q_fion:push stack memory',3,MA_ERR)
+           if (.not.BA_push_get(mt_dbl,nion3,'f4',f4(2),f4(1)))
+     >     call errquit('pspw_mmq_Q_fion:push stack memory',4,MA_ERR)
+           !call Parallel_shared_vector_zero(.false.,nion3,dbl_mb(f2(1)))
+           call Parallel_shared_vector_zero(.false.,nion3,dbl_mb(f3(1)))
+           call Parallel_shared_vector_zero(.true., nion3,dbl_mb(f4(1)))
+           if (control_version().eq.3) then
+               !call ewald_f_async(dbl_mb(f2(1)))
+               call ewald_f_qm_async(dbl_mb(f3(1)))
+               call ewald_f_mm_async(dbl_mb(f4(1)))
+           else
+               !call ion_ion_f_async(dbl_mb(f2(1)))
+               call ion_ion_f_qm_async(dbl_mb(f3(1)))
+               call ion_ion_f_mm_async(dbl_mb(f4(1)))
+           end if
+c           call daxpy_omp(nion3,(qmmm_lmbda-1.0d0),dbl_mb(f2(1)),1,
+c     >                    fion,1)
+           call daxpy_omp(nion3,(1.0d0-qmmm_lmbda),dbl_mb(f3(1)),1,
+     >                    fion,1)
+           call daxpy_omp(nion3,(1.0d0-qmmm_lmbda),dbl_mb(f4(1)),1,
+     >                    fion,1)
+           if (.not.BA_pop_stack(f4(2)))
+     >     call errquit('pspw_mmq_Q_fion:pop stack memory',4,MA_ERR)
+           if (.not.BA_pop_stack(f3(2)))
+     >     call errquit('pspw_mmq_Q_fion:pop stack memory',3,MA_ERR)
+c           if (.not.BA_pop_stack(f2(2)))
+c     >     call errquit('pspw_mmq_Q_fion:pop stack memory',2,MA_ERR)
+         end if
       end  if
       return
       end
@@ -2068,6 +2125,11 @@ c     **** external functions ***
       external ion_nion
       call Parallel_np(np)
 
+      nion3 = 3*ion_nion()
+
+      if (lmbda_flag.and.(dabs(qmmm_lmbda-1.0d0).gt.1.0d-6)) 
+     >    call dscal_omp(nion3,qmmm_lmbda,fion,1)
+      
       if (np.eq.1) then
          if (.not.auxiliary_only) then
             call pspw_qmmm_LJ_fion(fion)
@@ -2075,9 +2137,9 @@ c     **** external functions ***
          end if
          call pspw_qmmm_spring_fion(fion)
       else
-         nion3 = 3*ion_nion()
+         !nion3 = 3*ion_nion()
          if (.not.BA_push_get(mt_dbl,nion3,'ftmp',ftmp(2),ftmp(1)))
-     >  call errquit('pspw_qmmm_fion:cannot push stack memory',0,MA_ERR)
+     >  call errquit('pspw_mmq_fion:cannot push stack memory',0,MA_ERR)
 
          call dcopy(nion3,0.0,0,dbl_mb(ftmp(1)),1)
          if (.not.auxiliary_only) then
@@ -2090,7 +2152,7 @@ c     **** external functions ***
          call daxpy(nion3,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
 
          if (.not.BA_pop_stack(ftmp(2)))
-     >   call errquit('pspw_qmmm_fion:cannot pop stack memory',0,MA_ERR)
+     >   call errquit('pspw_mmq_fion:cannot pop stack memory',0,MA_ERR)
       end if
       return
       end
