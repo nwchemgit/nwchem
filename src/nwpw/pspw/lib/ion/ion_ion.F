@@ -30,7 +30,7 @@
       integer  ion_nion,ion_katm
       real*8   psp_zv,ion_rion
       external ion_nion,ion_katm
-      external psp_zv,ion_rion
+      external psp_Zv,ion_rion
 
       e = 0.0d0
       do j=1,ion_nion()
