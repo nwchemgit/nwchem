@@ -1,4 +1,4 @@
-#!/bin/bash #-x
+#!/bin/bash
 
 ARMCI_MPI_TARBALL=$1
 
