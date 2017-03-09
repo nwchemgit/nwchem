@@ -7,8 +7,9 @@ c
 *     *		md_energy	*
 *     *				*
 *     ***************************
-      real*8 function md_energy()
+      real*8 function md_energy(E)
       implicit none
+      real*8 E(*)
 
 #include "stdio.fh"
 #include "util.fh"
@@ -26,7 +27,7 @@ c
       real*8  cx,cy,cz
       real*8  gx,gy,gz
       real*8  en(2)
-      real*8  E(30),e_lj,e_q,e_spring,eion
+      real*8  e_lj,e_q,e_spring,eion
       integer rtdb
 
 *     **** external functions ****
@@ -43,8 +44,10 @@ c
 *     ***** QM/MM external functions ****
       logical  pspw_qmmm_found
       real*8   pspw_qmmm_LJ_E,pspw_qmmm_mmq_Q_E,pspw_qmmm_spring_E
+      real*8   pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
       external pspw_qmmm_found
       external pspw_qmmm_LJ_E,pspw_qmmm_mmq_Q_E,pspw_qmmm_spring_E
+      external pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
 
 *     ***** pspw_charge external functions ****
       logical  pspw_charge_found
@@ -56,10 +59,10 @@ c
       oprint = ((taskid.eq.MASTER).and.control_print(print_medium))
 
 *     **** set the minimizer ****
-      call dcopy(30,0.0d0,0,E,1)
+      !call dcopy(30,0.0d0,0,E,1)
 
 *     **** generate phaze factors ****
-      if (control_version().eq.3) call ewald_phafac()
+      !if (control_version().eq.3) call ewald_phafac()
 
 *     :::::::::::  get energy  :::::::::::::::::::::::
       eion = 0.0d0
@@ -67,8 +70,8 @@ c
       if (control_version().eq.4) eion = ion_ion_e()
 
 
-      E(1)  = eion
-      E(2)  = 0.0d0
+      E(1)  = 0.0d0
+      E(2)  = eion
       E(3)  = 0.0d0
       E(4)  = 0.0d0
       E(5)  = eion
@@ -81,11 +84,21 @@ c
          e_lj     = pspw_qmmm_LJ_E()
          e_q      = pspw_qmmm_mmq_Q_E()
          e_spring = pspw_qmmm_spring_E()
-         E(1)  = E(1) + e_lj + e_q + e_spring
+         E(2)  = E(2) + e_lj + e_q + e_spring
          E(11) = e_lj
          E(12) = e_q
          E(13) = e_spring
+         E(14) = pspw_qmmm_LJ_Emix()
+         E(14) = E(14) + pspw_qmmm_Q_Emix()
+         !E(23) = E(23) + E(14)
+         !E(24) = E(24) + E(14)*E(14)
+
       end if
+
+      !E(25) = E(25) + E(1)
+      !E(26) = E(26) + E(1)*E(1)
+
+
 
 *     **** get pspw_charge energies ****
 c      if (pspw_charge_found()) then
@@ -96,30 +109,30 @@ c         E(1)   = E(1) + E(20) + E(21)
 c      end if
 
 
-*:::::::::::::::::   report summary of results  :::::::::::::::::::::::
-      if (oprint) then
-         write(luout,1304)
-         write(luout,1410)
-
-         write(luout,*)
-         write(luout,1430) E(1),E(1)/ion_nion()
-
-
-         if (pspw_charge_found()) then
-            write(luout,1431)
-            write(luout,1432)
-            write(luout,1433) (E(1)-E(19)-E(20)-E(21)),
-     >         (E(1)-E(19)-E(20)-E(21))/ion_nion()
-         end if
-
-         write(luout,1470) E(5),E(5)/ion_nion()
-         if (pspw_qmmm_found()) then
-            write(luout,1700)
-            write(luout,1701)
-            write(luout,1702) E(11)
-            write(luout,1703) E(12)
-            write(luout,1704) E(13)
-         end if
+c*:::::::::::::::::   report summary of results  :::::::::::::::::::::::
+c      if (oprint) then
+c         write(luout,1304)
+c         write(luout,1410)
+c
+c         write(luout,*)
+c         write(luout,1430) E(1),E(1)/ion_nion()
+c
+c
+c         if (pspw_charge_found()) then
+c            write(luout,1431)
+c            write(luout,1432)
+c            write(luout,1433) (E(1)-E(19)-E(20)-E(21)),
+c     >         (E(1)-E(19)-E(20)-E(21))/ion_nion()
+c         end if
+c
+c         write(luout,1470) E(5),E(5)/ion_nion()
+c         if (pspw_qmmm_found()) then
+c            write(luout,1700)
+c            write(luout,1701)
+c            write(luout,1702) E(11)
+c            write(luout,1703) E(12)
+c            write(luout,1704) E(13)
+c         end if
 c         if (pspw_charge_found()) then
 c            write(luout,1800)
 c            write(luout,1801)
@@ -128,12 +141,12 @@ c            write(luout,1802) E(19)
 c            write(luout,1803) E(20)
 c            write(luout,1804) E(21)
 c         end if
+c
+c      end if
+c      call ecce_print1 ('total energy', mt_dbl, E(1), 1)
+c      call ecce_print1 ('nuclear repulsion energy', mt_dbl, E(5), 1)
 
-      end if
-      call ecce_print1 ('total energy', mt_dbl, E(1), 1)
-      call ecce_print1 ('nuclear repulsion energy', mt_dbl, E(5), 1)
-
-      md_energy = E(1)
+      md_energy = E(2)
       return
 
  1190 FORMAT(5X, I4, A5  ,' (',3F11.5,' ) - atomic mass= ',F6.3,' ')
@@ -253,6 +266,9 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
       nion = ion_nion()
       if (pspw_charge_found().and.
      >    (.not.pspw_bqext())) nion = nion + pspw_charge_nion()
+
+*     **** generate phaze factors ****
+      if (control_version().eq.3) call ewald_phafac()
 
       call dcopy(3*nion,0.0d0,0,G1,1)
       if (control_version().eq.3) call ewald_f(G1)

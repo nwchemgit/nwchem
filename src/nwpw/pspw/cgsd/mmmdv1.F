@@ -44,24 +44,24 @@
     
 
 *     ***** energy variables ****
-      real*8  E(30),en(2)
+      real*8  en(2),E(50)
       real*8  dipole(3)
       real*8  stress(3,3),lstress(6)
 
 *     **** gradient variables ****
-      integer fion(2)
+      integer fion(2),fion1(2)
 
 *     **** error variables ****
       logical value,newpsi
       integer ierr
 
 *     **** local variables ****
-      logical oprint,lprint,hprint,qmmm,found,nose,SA
+      logical oprint,lprint,hprint,qmmm,found,nose,SA,vverlet
       logical calc_pressure
       real*8  gx,gy,gz,cx,cy,cz
       real*8  vgx,vgy,vgz,vcx,vcy,vcz,ekg,eki0,eki1,dt
-      real*8  sum,w,emotion_time_shift,wa,wr
-      real*8  EV,EV0,pi,esum1,esum2,eave,evar,dr
+      real*8  sum0,sum1,sum2,sum3,w,emotion_time_shift,wa,wr
+      real*8  EV,EV0,pi,esum1,esum2,eave,evar,dr,qave,qvar,have,hvar
       real*8  ratio,aratio
       real*8  icharge,r,cv,E25,E26
       real*8  sa_alpha(2),sa_decay(2),ssr,tt2
@@ -133,8 +133,8 @@
       integer  control_mapping
       external control_mapping
 
-      logical pspw_bqext
-      external pspw_bqext
+      logical pspw_bqext,pspw_qmmm_found
+      external pspw_bqext,pspw_qmmm_found
 
       integer  control_bo_steps_in,control_bo_steps_out
       integer  control_bo_algorithm
@@ -144,16 +144,20 @@
       external control_bo_time_step,control_rti,ion_ke,ion_Temperature
       real*8   ion_com_Temperature
       external ion_com_Temperature
-      logical  control_Nose,control_SA,control_pressure
+      logical  control_Nose,control_SA,control_pressure,Nose_restart
       real*8   control_Nose_Te,control_Nose_Tr,control_SA_decay,Nose_ssr
       real*8   Nose_Pr,Nose_Pe,Nose_Ee0,Nose_Er0,Nose_dXr
       real*8   Nose_Tr,Nose_Te,Nose_Qr,Nose_Qe,Nose_r_energy
       integer  Nose_Mchain,Nose_Nchain
-      external control_Nose,control_SA,control_pressure
+      external control_Nose,control_SA,control_pressure,Nose_restart
       external control_Nose_Te,control_Nose_Tr,control_SA_decay,Nose_ssr
       external Nose_Pr,Nose_Pe,Nose_Ee0,Nose_Er0,Nose_dXr
       external Nose_Tr,Nose_Te,Nose_Qr,Nose_Qe,Nose_r_energy
       external Nose_Mchain,Nose_Nchain
+      integer  ion_nconstraints,ion_ndof
+      external ion_nconstraints,ion_ndof
+      real*8   pspw_qmmm_lambda
+      external pspw_qmmm_lambda
 
 
 *                            |************|
@@ -163,8 +167,8 @@
       value = .true.
       pi = 4.0d0*datan(1.0d0)
 
+
       call nwpw_timing_init()
-      call dcopy(30,0.0d0,0,E,1)
 
 
 *     **** get parallel variables ****
@@ -258,6 +262,9 @@
          end if
       end if
 
+      vverlet = (control_bo_algorithm().eq.1)
+
+
 
 *                |**************************|
 ******************   summary of input data  **********************
@@ -297,6 +304,7 @@
          end do
          write(luout,1200) cx,cy,cz
          write(luout,1210) gx,gy,gz
+         write(luout,1211) ion_nconstraints(),ion_ndof()
 
          call pspw_charge_Print(luout)
 
@@ -337,11 +345,11 @@
      >        ewald_npack(),ewald_npack()
          end if
 
-         write(luout,1270)
-         write(luout,1280) control_time_step(),control_fake_mass()
-         write(luout,1290) control_tole(),control_tolc()
-         write(luout,1281) control_it_in()*control_it_out(),
-     >                 control_it_in(),control_it_out()
+c         write(luout,1270)
+c         write(luout,1280) control_time_step(),control_fake_mass()
+c         write(luout,1290) control_tole(),control_tolc()
+c         write(luout,1281) control_it_in()*control_it_out(),
+c     >                 control_it_in(),control_it_out()
 
          write(luout,1310)
          if (.not.control_translation()) write(luout,1271)
@@ -349,7 +357,10 @@
          write(luout,1320) control_bo_time_step(),
      >    control_bo_steps_in()*control_bo_steps_out(),
      >    control_bo_steps_in(),control_bo_steps_out()
-         if (control_bo_algorithm().eq.0) write(luout,1330) "Verlet"
+         if(control_bo_algorithm().eq.0) write(6,1330) "Position Verlet"
+         if(control_bo_algorithm().eq.1) write(6,1330) "Velocity Verlet"
+         if(control_bo_algorithm().eq.2) write(6,1330) "Leap Frog"
+
 
          write(luout,1340) control_rti()
          call ion_scaling_atoms_print(luout)
@@ -358,6 +369,11 @@
          write(luout,1224) (eki1-eki0)
          if (nose) then
            write(luout,1395)
+           if (Nose_restart()) then
+              write(luout,*) "    thermostats resused"
+           else
+              write(luout,*) "    thermostats initialized"
+           end if
            do i=1,Nose_Nchain()
              write(luout,1398) i,control_Nose_Tr(),Nose_Qr(i),
      >                   Nose_Pr(i),Nose_Er0(i)
@@ -376,6 +392,7 @@
 *                |***************************|
 ******************     simple MD loop        **********************
 *                |***************************|
+      call dcopy(50,0.0d0,0,E,1)
       if (taskid.eq.MASTER) call current_second(cpu2)
       if (taskid.eq.MASTER) call nwpw_message(10)
 
@@ -388,8 +405,10 @@
 *     **** open up other MOTION files ****
 *     ************************************
 *     **** open EMOTION file ****
-      E25=0.0d0
-      E26=0.0d0
+      E(23)=0.0d0
+      E(24)=0.0d0
+      E(25)=0.0d0
+      E(26)=0.0d0
       icount_shift = 0
       if (.not.btdb_cget(rtdb,'nwpw:emotion_filename',1,filename))
      >  call util_file_prefix('emotion',filename)
@@ -405,9 +424,13 @@
            open(unit=31,file=full_filename,form='formatted',
      >          status='old')
            do while (found)
-           read(31,*,end=100) emotion_time_shift,w,sum
-           E25 = E25 + sum   !*** take care of running sums ***
-           E26 = E26 + sum*sum
+           read(31,*,end=100) emotion_time_shift,w,sum0,sum1,sum2,sum3
+           E(25) = E(25) + sum0   !*** take care of running sums ***
+           E(26) = E(26) + sum0*sum0
+           E(27) = E(27) + (sum0+sum1+sum2)
+           E(28) = E(28) + (sum0+sum1+sum2)**2
+           E(23) = E(23) + sum3
+           E(24) = E(24) + sum3*sum3
            icount_shift = icount_shift + 1
            end do
   100      continue
@@ -430,6 +453,10 @@
 
       value = BA_push_get(mt_dbl,(3*nion),
      >                       'fion',fion(2),fion(1))
+      if (vverlet) then
+         value = value.and.BA_push_get(mt_dbl,(3*nion),
+     >                                'fion1',fion1(2),fion1(1))
+      end if
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
@@ -437,13 +464,13 @@
 *     ***** do a simple md loop ***
       dt = control_bo_time_step()
       call control_reduce_print()
-      EV = md_energy()
+      !EV = md_energy(E)
       call md_energy_gradient(dbl_mb(fion(1)))
-      eki1 = ion_ke()
 
       r = 1.0d0 
       if (nose) r =  (1.0d0-0.5d0*dt*Nose_dXr())
       call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2)*r)
+      eki1 = ion_ke()
       if (nose) call Nose_Newton_Step(0.01d0,eki1)
 
       call xyz_write()
@@ -459,42 +486,88 @@
 
 c       **** inner loop ****
         do i=1,it_in
-           call ion_shift()
-          if (nose) call Nose_shift()
+           if (vverlet) then
+              call dcopy(3*nion,dbl_mb(fion(1)),1,dbl_mb(fion1(1)),1)
+              call ion_shift21()
+           else
+              call ion_shift()
+              if (nose) call Nose_shift()
+           end if
 
-           EV = md_energy()
+           !EV = md_energy(E)
            call md_energy_gradient(dbl_mb(fion(1)))
-           eki1 = ion_ke()
            if (nose) then
               ssr = Nose_ssr()
               call ion_nose_step(ssr,dbl_mb(fion(1)))
+              eki1 = ion_ke()
               call Nose_Verlet_Step(0.01d0,eki1)
+           else if (vverlet) then
+              call ion_vverlet_step(dbl_mb(fion(1)),
+     >                              dbl_mb(fion1(1)))
+              call ion_vshift()
+              call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2))
+              eki1 = ion_ke()
            else
               call ion_verlet_step(dbl_mb(fion(1)),sa_alpha(2))
+              eki1 = ion_ke()
            end if
         end do
-        eki1 = ion_ke()
-        E25 = E25 + EV
-        E26 = E26 + EV*EV
 
+        !**** calculate energies ****
+        EV = md_energy(E)
+        E(1) = E(2) + eki1
+        E(4) = eki1
+        if (nose) then
+           E(10) = Nose_r_energy()
+           E(1) = E(1) + E(10)
+        end if
+
+        !*** take care of running sums ***
+        E(23) = E(23) + E(14)
+        E(24) = E(24) + E(14)*E(14)
+        E(25) = E(25) + E(2)
+        E(26) = E(26) + E(2)*E(2)
+        E(27) = E(27) + E(1)
+        E(28) = E(28) + E(1)*E(1)
 
         if (oprint) then
            if (nose) then
-           write(luout,1350) icount*it_in,EV+eki1+Nose_r_energy(),
-     >                       EV,eki1,ion_Temperature()
-           write(31,1360) icount*it_in*dt+emotion_time_shift,
-     >                    EV+eki1+Nose_r_energy(),
-     >                    EV,eki1,ion_Temperature()
+              write(luout,1350) icount*it_in,E(1),
+     >                          E(2),E(4),ion_Temperature()
            else
-           write(luout,1350) icount*it_in,EV+eki1,EV,eki1,
-     >                       ion_Temperature()
-           write(31,1360) icount*it_in*dt+emotion_time_shift,
-     >                    EV+eki1,EV,eki1,ion_Temperature()
+              write(luout,1350) icount*it_in,E(1),E(2),E(4),
+     >                          ion_Temperature()
            end if
            call util_flush(luout)
-           call util_flush(31)
         end if
 
+*       **** write out EMOTION data ****
+        qave = E(23)/dble(icount+icount_shift)
+        qvar = E(24)/dble(icount+icount_shift)
+        qvar = qvar - qave*qave
+        eave = E(25)/dble(icount+icount_shift)
+        evar = E(26)/dble(icount+icount_shift)
+        evar = evar - eave*eave
+        have = E(27)/dble(icount+icount_shift)
+        hvar = E(28)/dble(icount+icount_shift)
+        hvar = hvar - have*have
+        if (nose) then
+           write(31,1360) icount*it_in*dt+emotion_time_shift,
+     >                    E(1),E(2),E(3),E(4),E(14),E(5),E(6),
+     >                    E(7),E(8),E(9),E(10),
+     >                    eave,evar,have,hvar,qave,qvar,
+     >                    ion_Temperature()
+        else
+           write(31,1360) icount*it_in*dt+emotion_time_shift,
+     >                    E(1),E(2),E(3),E(4),E(14),E(5),E(6),
+     >                    E(7),E(8),
+     >                    eave,evar,have,hvar,qave,qvar,
+     >                    ion_Temperature()
+
+        end if
+        call util_flush(31)
+
+*       **** write xyz, MOTION data ****
         call xyz_write()
         call MOTION_write(icount*it_in*dt)
 
@@ -556,15 +629,43 @@ c       **** inner loop ****
          end do
          write(luout,1200) cx,cy,cz
          write(luout,1210) gx,gy,gz
+         write(luout,1211) ion_nconstraints(),ion_ndof()
 
          write(luout,1421)
          write(luout,1192) (I,ion_aname(I),
      >                  (ion_vion(K,I),K=1,3),I=1,ion_nion())
          write(luout,1200) vcx,vcy,vcz
          write(luout,1210) vgx,vgy,vgz
-      end if
 
-      EV = md_energy()
+         write(luout,1304)
+         write(luout,1410)
+         write(luout,*)
+         write(luout,1430) E(1),E(1)/ion_nion()
+
+         if (pspw_charge_found()) then
+            write(luout,1431)
+            write(luout,1432)
+            write(luout,1433) (E(1)-E(19)-E(20)-E(21)),
+     >         (E(1)-E(19)-E(20)-E(21))/ion_nion()
+         end if
+
+         write(luout,1470) E(5),E(5)/ion_nion()
+         if (pspw_qmmm_found()) then
+            write(luout,1700)
+            write(luout,1701)
+            write(luout,1702) E(11)
+            write(luout,1703) E(12)
+            write(luout,1704) E(13)
+            qave = E(23)/dble(icount+icount_shift)
+            qvar = E(24)/dble(icount+icount_shift)
+            qvar = qvar - qave*qave
+            write(luout,1706) pspw_qmmm_lambda()
+            write(luout,1705) E(14),qave,qvar
+         end if
+      end if
+      call ecce_print1 ('total energy', mt_dbl, E(1), 1)
+      call ecce_print1 ('nuclear repulsion energy', mt_dbl, E(5), 1)
+
 
       if (oprint) then
 
@@ -576,15 +677,17 @@ c       **** inner loop ****
          write(luout,1480) eki0
          write(luout,1490) ion_com_Temperature()
 
-         eave = E25/dble(icount+icount_shift)
-         evar = E26/dble(icount+icount_shift)
+         eave = E(25)/dble(icount+icount_shift)
+         evar = E(26)/dble(icount+icount_shift)
          evar = evar - eave*eave
+         have = E(27)/dble(icount+icount_shift)
+         hvar = E(28)/dble(icount+icount_shift)
+         hvar = hvar - have*have
          cv = (evar)/(kb*ion_Temperature()**2)
          cv = cv/dble(ion_nion())
-         write(luout,1492) eave
-         write(luout,1493) evar
+         write(luout,1492) eave,have
+         write(luout,1493) evar,hvar
          write(luout,1494) cv
-
       end if
 
 
@@ -621,6 +724,7 @@ c       **** inner loop ****
      >        btdb_put(rtdb,'pspw:lstress',mt_dbl,
      >                 6,lstress)
       end if
+      if (vverlet) value = value.and.BA_pop_stack(fion1(2))
       value = value.and.BA_pop_stack(fion(2))
       if (.not. value) call errquit('cgmdv5: error writing rtdb',0,
      &       RTDB_ERR)
@@ -682,7 +786,7 @@ c      call cpmd_properties(rtdb)
 *:::::::::::::::::::::::::::  format  :::::::::::::::::::::::::::::::::
  1000 FORMAT(10X,'****************************************************')
  1010 FORMAT(10X,'*                                                  *')
- 1020 FORMAT(10X,'*               NWPW PSPW Calculation              *')
+ 1020 FORMAT(10X,'*               NWPW MD   Calculation              *')
  1030 FORMAT(10X,'*     [      Born-Oppenheimer molecular       ]    *')
  1031 FORMAT(10X,'*     [          dynamics simulation          ]    *')
  1035 FORMAT(10x,'*     [  NorthWest Chemistry implementation   ]    *')
@@ -724,6 +828,7 @@ c      call cpmd_properties(rtdb)
 
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
+ 1211 FORMAT(5X,'   number of constraints = ', I6,' ( DOF = ',I6,' )' )
  1219 FORMAT(/' number of active electrons: spin up=',F6.2,
      >        '  down=',F6.2,A)
  1220 FORMAT(/' number of active electrons: spin up=',I6,  
@@ -774,6 +879,7 @@ c      call cpmd_properties(rtdb)
  1295 FORMAT(5X, ' Kohn-Sham iterations = ',I3,
      >           ' (',I3,' outer)')
  1300 FORMAT(//)
+ 1304 FORMAT(/)
  1310 FORMAT(/' molecular dynamics parameters:')
  1320 FORMAT(5X, ' time step=',F10.2,5X,'iterations=',I8,
      >           ' ( ',I4,' inner ',I4,' outer )')
@@ -796,6 +902,11 @@ c      call cpmd_properties(rtdb)
  1410 FORMAT(10X,'=============  summary of results  =================')
  1420 FORMAT(/' final position of ions:')
  1421 FORMAT(/' final velocity of ions:')
+ 1430 FORMAT(/' total     energy    :',E19.10,' (',E15.5,'/ion)')
+ 1431 FORMAT(/' MD Energies')
+ 1432 FORMAT( '------------')
+ 1433 FORMAT( ' total  MD energy    :',E19.10,' (',E15.5,'/ion)')
+ 1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
  1471 FORMAT(/' Kinetic energy (elc)    :',E19.10,' (',E15.5,'/elc)')
  1472 FORMAT( ' Kinetic energy (ion)    :',E19.10,' (',E15.5,'/ion)')
  1473 FORMAT( ' thermostat energy (elc) :',E19.10,' (',E15.5,'/elc)')
@@ -803,10 +914,23 @@ c      call cpmd_properties(rtdb)
  1480 FORMAT(' Temperature :    ',F10.1,' K (ion)')
  1490 FORMAT('             :    ',F10.1,' K (c.o.m.)')
  1491 FORMAT(' Temperature :    ',F10.1,' K (elc)')
- 1492 FORMAT(/' Eaverage           :    ',E19.10)
- 1493 FORMAT( ' Evariance          :    ',E19.10)
+ 1492 FORMAT(/' Vaverage  Eaverage :    ',E19.10, E19.10)
+ 1493 FORMAT( ' Vvariance Evariance:    ',E19.10, E19.10)
  1494 FORMAT( ' Cv - f*kb/(2*nion) :    ',E19.10)
- 1600 FORMAT(/' Total PSPW energy   :',E19.10)
+ 1600 FORMAT(/' Total MD   energy   :',E19.10)
+ 1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
+ 1701 FORMAT( ' --------------------------')
+ 1702 FORMAT( ' LJ energy              :',E19.10)
+ 1703 FORMAT( ' Residual Coulomb energy:',E19.10)
+ 1704 FORMAT( ' MM Vibration energy    :',E19.10)
+ 1705 FORMAT( ' QM/MM coupling energy  :',E19.10,
+     >        ' (average=',E19.10,' variance=',E19.10,')'/)
+ 1706 FORMAT(/' QM/MM coupling lambda  :',E19.10)
+ 1707 FORMAT( ' - MM Charge Field/QM Electron    :',E19.10)
+ 1708 FORMAT( ' - MM Charge Field/QM Ion         :',E19.10)
+ 1709 FORMAT( ' - MM LJ/QM LJ                    :',E19.10)
+ 1710 FORMAT( ' - MM Charge Field/MM Charge Field:',E19.10)
+ 1711 FORMAT( ' - MM LJ/MM LJ                    :',E19.10)
  1801 FORMAT(//'== Timing ==')
  1802 FORMAT(/'cputime in seconds')
  1803 FORMAT( '  prologue    : ',E14.6)

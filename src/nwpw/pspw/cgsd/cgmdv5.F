@@ -760,11 +760,11 @@ c         end if
       call control_reduce_print()
       EV = cgsd_energy(newpsi)
       call cgsd_energy_gradient_md(dbl_mb(fion(1)))
-      eki1 = ion_ke()
 
       r = 1.0d0
       if (nose) r =  (1.0d0-0.5d0*dt*Nose_dXr())
       call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2)*r) 
+      eki1 = ion_ke()
       if (nose) call Nose_Newton_Step(0.01d0,eki1)
 
       call xyz_write()
@@ -801,21 +801,22 @@ c       **** inner loop ****
            call cgsd_energy_gradient_md(dbl_mb(fion(1)))
 
 
-           eki1 = ion_ke()
            if (nose) then
               ssr = Nose_ssr()
               call ion_nose_step(ssr,dbl_mb(fion(1)))
+              eki1 = ion_ke()
               call Nose_Verlet_Step(0.01d0,eki1)
            else if (vverlet) then
               call ion_vverlet_step(dbl_mb(fion(1)),
      >                              dbl_mb(fion1(1)))  
               call ion_vshift()  
               call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2))
+              eki1 = ion_ke()
            else
               call ion_verlet_step(dbl_mb(fion(1)),sa_alpha(2))
+              eki1 = ion_ke()
            end if
         end do
-        eki1 = ion_ke()
         E25 = E25 + EV
         E26 = E26 + EV*EV
 
