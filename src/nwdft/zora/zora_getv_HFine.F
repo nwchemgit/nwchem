@@ -46,7 +46,7 @@ c     == local variables ==
      &        lbas_cent_info, ibas_cent_info,
      &        ldocset, idocset,
      &        l_rchi_atom,i_rchi_atom,
-     &        l_rq,i_rq,lniz, iniz,
+     &        l_rq,i_rq,l_iniz, k_iniz,
      &        lchi_ao, ichi_ao,
      &        ldelchi_ao, idelchi_ao
       integer lzpso(3),izpso(3),
@@ -114,10 +114,10 @@ c     == ao basis set info used by xc_eval_basis ==
          log_mb(idocset+i-1)=.true.
       enddo
       if(.not.MA_push_get(MT_int, ncenters, 'iniz',
-     &     lniz, iniz))
+     &     l_iniz, k_iniz))
      &     call errquit("zora_getv_sf:iniz",0, MA_ERR)
       do i= 1, ncenters
-         int_mb(iniz+i-1)=1
+         int_mb(k_iniz+i-1)=1
       enddo
       nxyz = 3*ncenters
       if (.not.MA_push_Get(MT_Dbl,nxyz,'xyz',lxyz,ixyz))
@@ -185,7 +185,7 @@ c              == chi ==
                call xc_eval_basis(ao_bas_han, 1, dbl_mb(ichi_ao),
      &              dbl_mb(idelchi_ao), 0d0, 0d0, dbl_mb(i_rq),
      &              dbl_mb(iqxyz), dbl_mb(ixyz), nqpts, ncenters,
-     &              int_mb(iniz), log_mb(idocset),
+     &              int_mb(k_iniz), log_mb(idocset),
      &              int_mb(ibas_cent_info), int_mb(ibas_cset_info))
                 call calc_zora_HFine_slow(
      &                                  ao_bas_han,geom,ipol,g_dens,     
@@ -311,7 +311,7 @@ c     == local variables ==
      &        lbas_cent_info, ibas_cent_info,
      &        ldocset, idocset,
      &        l_rchi_atom,i_rchi_atom,
-     &        l_rq,i_rq,lniz, iniz,
+     &        l_rq,i_rq,
      &        lchi_ao, ichi_ao,
      &        ldelchi_ao, idelchi_ao
       integer lzpso(3,3),izpso(3,3),
@@ -333,6 +333,14 @@ c     model potential parameters
       character*2 gelem(ncenters)
       double precision gexpo(ncenters,50)
       double precision gcoef(ncenters,50)
+c     mbf
+      logical grid_nbfm
+      external grid_nbfm
+      character*32 pname
+      double precision acc_ao_gauss
+      integer mbf_ao,k_expo,l_expo,l_ifin,k_ifin,l_iniz,k_iniz,
+     k     k_ibf_ao,l_ibf_ao
+      pname = 'zora_getv_hfine: '
 c
 c     == allocate memory ==
        do t=1,3
@@ -379,19 +387,6 @@ c     == ao basis set info used by xc_eval_basis ==
      &       MA_ERR)
       call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), ncenters)
-      if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
-     &     ldocset, idocset))
-     &     call errquit('zora_getv_sf: cannot allocate ccdocset',
-     .     ncontrset, MA_ERR)
-      do i=1,ncontrset
-         log_mb(idocset+i-1)=.true.
-      enddo
-      if(.not.MA_push_get(MT_int, ncenters, 'iniz',
-     &     lniz, iniz))
-     &     call errquit("zora_getv_sf:iniz",0, MA_ERR)
-      do i= 1, ncenters
-         int_mb(iniz+i-1)=1
-      enddo
       nxyz = 3*ncenters
       if (.not.MA_push_Get(MT_Dbl,nxyz,'xyz',lxyz,ixyz))
      &   call errquit('zora_getv_sf: cannot allocate xyz',0, MA_ERR)
@@ -414,6 +409,26 @@ c     == ao basis set info used by xc_eval_basis ==
       if (.not. grid_file_rewind())
      $     call errquit('zora_getv_sf: rewinding gridpts?', 0,
      &       UNKNOWN_ERR)
+      if (.not.MA_Push_Get(MT_Dbl,nbf_ao_mxprim,'expo',l_expo,k_expo))
+     &   call errquit(pname//'cannot allocate expo',0, MA_ERR)
+      if (.not.MA_Push_Get(mt_int, nbf_ao, 'ibf_ao', l_ibf_ao,
+     &     k_ibf_ao))
+     &     call errquit(pname//'cannot allocate ibf_ao',2,
+     &       MA_ERR)
+      if (.not.MA_Push_get(MT_int,ncenters,'atom list',l_iniz,k_iniz))
+     &   call errquit(pname//'cannot allocate iniz',0, MA_ERR)
+      if (.not.MA_Push_get(MT_int,ncenters,'atom list',l_ifin,k_ifin))
+     &   call errquit(pname//'cannot allocate fin',0, MA_ERR)
+      do i= 1, ncenters
+         int_mb(k_iniz+i-1)=1
+      enddo
+      if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
+     &     ldocset, idocset))
+     &     call errquit('zora_getv_sf: cannot allocate ccdocset',
+     .     ncontrset, MA_ERR)
+      do i=1,ncontrset
+         log_mb(idocset+i-1)=.true.
+      enddo
 c
 c     == loop over records in the grid file ==
       do iqsh = 1, n_rec_in_file
@@ -434,6 +449,19 @@ c           put buf into currently used arrays qxyz and qwght
      &           dbl_mb(iqwght), nqpts, rad,istep)
 
             if(nqpts.ne.0) then
+               mbf_ao=nbf_ao
+
+crestrict to mbf_ao subset 
+c               acc_ao_gauss = dble(max(iaoacc,25))
+               acc_ao_gauss = dble(iaoacc)
+                 call icopy(mbf_ao, 0,0, int_mb(k_ibf_ao), 1)  
+                  mbf_ao=grid_nbfm(ao_bas_han,  ncenters, 
+     &                 ictr_buf,rad,
+     Q                 dbl_mb(ixyz),dbl_mb(iqxyz),nqpts,
+     &                 int_mb(k_ibf_ao), log_mb(idocset), 
+     I                 int_mb(k_iniz), int_mb(k_ifin), dbl_mb(k_expo), 
+     &                 minexp,ldiff,acc_ao_gauss,iatype_pt_chg)
+
 c
 c              == compute the basis functions over the grid ==
                if(.not.MA_Push_get(MT_dbl, ncenters, 'rchi_atom',
@@ -458,14 +486,15 @@ c              == chi ==
                call xc_eval_basis(ao_bas_han, 1, dbl_mb(ichi_ao),
      &              dbl_mb(idelchi_ao), 0d0, 0d0, dbl_mb(i_rq),
      &              dbl_mb(iqxyz), dbl_mb(ixyz), nqpts, ncenters,
-     &              int_mb(iniz), log_mb(idocset),
+     &              int_mb(k_iniz), log_mb(idocset),
      &              int_mb(ibas_cent_info), int_mb(ibas_cset_info))
                 call calc_zora_HFine_fast(
      &                                ao_bas_han,geom,ipol,g_dens,     
      &                                dbl_mb(ichi_ao),  
      &                                dbl_mb(idelchi_ao),
      &                                dbl_mb(iqxyz),dbl_mb(iqwght),        
-     &                                nbf_ao,nqpts,ncenters,   
+     &                                nbf_ao,mbf_ao,int_mb(k_ibf_ao),
+     N              nqpts,ncenters,   
      &                                ofinite,
      &                                zetanuc_arr,
      &                                zetanuc_slc,

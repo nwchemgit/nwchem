@@ -266,7 +266,7 @@ c +++++++++++++++++++++++++++++++++++++++
      &                           delchi_ao,    ! in: deriv. of basis functions
      &                           qxyz,         ! in: grid points 
      &                           qwght,        ! in: weighting coeffs.
-     &                           nbf,          ! in: nr. basis functions
+     &                           nbf, mbf,ibf,          ! in: nr. basis functions
      &                           npts,         ! in: nr. grid points
      &                           natoms,       ! in: nr. atoms 
      &                           ofinite,      ! in: = .true. if Gaussian Nucl. Model of charges requested
@@ -294,6 +294,7 @@ c +++++++++++++++++++++++++++++++++++++++
 #include "bas.fh"
 #include "zora.fh"
       integer nbf,npts,ao_bas_han,natoms,geom
+      integer mbf,ibf(*)
       integer g_dens(2),ipol
       double precision qwght(npts)
       double precision qxyz(3,npts)
@@ -334,6 +335,7 @@ c
       double precision zetanuc_slc
       integer count_pt ! ONLY for checking get_Pnucl
 c
+      integer i0,j0
       logical use_modelpotential
       double precision gexpo(natoms,50)
       double precision gcoef(natoms,50)
@@ -467,10 +469,12 @@ c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
       endif              ! ====> POINT charge nuclear model (default)---END
 c     == assemble zora correction ==
 c ---- full matrix calc -------- START
-      do i = 1, nbf
-        do j = i, nbf
+      do i0 = 1, mbf
+         i=ibf(i0)
+        do j0 = i0, mbf
+           j=ibf(j0)
           call get_ints_zora_hfine_fast(
-     &                  nbf,npts,chi_ao,delchi_ao,i,j,      
+     &                  nbf,npts,chi_ao,delchi_ao,i0,j0,      
      &                  fac2_arr,  
      &                  ac_zpso,  ! out
      &                  ac_fcsd)  ! out
@@ -492,8 +496,10 @@ c          fcsdzy(i,j) = fcsdzy(i,j) + ac_fcsd(3,2)
         enddo ! end-loop-j
       enddo ! end-loop-i
 crecover upper triangle
-      do i = 1, nbf
-        do j = i+1, nbf
+      do i0 = 1, mbf
+         i=ibf(i0)
+        do j0 = i0+1, mbf
+           j=ibf(j0)
           zpsoxy(j,i) = zpsoxy(i,j)
           zpsoxz(j,i) = zpsoxz(i,j)
           zpsoyx(j,i) = zpsoyx(i,j)
