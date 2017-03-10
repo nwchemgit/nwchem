@@ -1,10 +1,11 @@
+# Steps to run this test
+# Step 1: Run normal hessian calculation
+# Step 2: Run after commenting out start line, uncommenting restart line, noscf and hessian block
+
 echo 
 
-start hess_nh3_ub3lyp
-#restart hess_nh3_ub3lyp
-
-# to restart uncomment the commented sections and change start to restart at
-# top of the input file
+start hess_nh3_ub3lyp_restart
+#restart hess_nh3_ub3lyp_restart
 
 title "open shell hessian calculation: restart"
 
