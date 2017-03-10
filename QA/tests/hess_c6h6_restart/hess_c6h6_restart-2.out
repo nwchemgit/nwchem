@@ -1,0 +1,2737 @@
+ argument  1 = hess_c6h6_restart.nw
+
+
+
+============================== echo of input deck ==============================
+echo
+restart hess_c6h6_restart
+
+title "benzene in sto-3g"
+geometry noautoz noautosym nocenter
+ C                     0.98755658     0.98755658     0.00000000
+ C                    -1.34902737     0.36147080     0.00000000
+ C                     0.36147080    -1.34902737     0.00000000
+ C                    -0.98755658    -0.98755658     0.00000000
+ C                     1.34902737    -0.36147080     0.00000000
+ C                    -0.36147080     1.34902737     0.00000000
+ H                     1.75619098     1.75619098     0.00000000
+ H                    -2.39900149     0.64281051     0.00000000
+ H                     0.64281051    -2.39900149     0.00000000
+ H                    -1.75619098    -1.75619098     0.00000000
+ H                     2.39900149    -0.64281051     0.00000000
+ H                    -0.64281051     2.39900149     0.00000000
+end
+
+basis
+  * library "6-31g*"
+end
+
+dft
+ xc b3lyp
+ noscf
+end
+
+hessian
+ cphf_restart
+end
+
+task dft freq
+================================================================================
+
+
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.6
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2015
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = kohn
+    program         = ../../../bin/LINUX64/nwchem
+    date            = Wed Mar  8 17:30:42 2017
+
+    compiled        = Wed_Mar_08_11:55:55_2017
+    source          = /home/niri/nwchem/nwchem-trunk
+    nwchem branch   = Development
+    nwchem revision = 28547
+    ga revision     = 10719
+    input           = hess_c6h6_restart.nw
+    prefix          = hess_c6h6_restart.
+    data base       = ./hess_c6h6_restart.db
+    status          = restart
+    nproc           =        4
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   13107194 doubles =    100.0 Mbytes
+    stack    =   13107199 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428793 doubles =    400.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+           Previous task information
+           -------------------------
+
+    Theory    = dft                             
+    Operation = freq                          
+    Status    = ok                            
+    Qmmm      = F
+    Ignore    = F
+
+
+           Geometries in the database
+           --------------------------
+
+       Name                              Natoms  Last Modified
+       --------------------------------  ------  ------------------------
+    1  geometry                              12  Wed Mar  8 17:21:39 2017  
+
+  The geometry named "geometry" is the default for restart
+
+
+
+           Basis sets in the database
+           --------------------------
+
+       Name                              Natoms  Last Modified
+        --------------------------------  ------  ------------------------
+    1  ao basis                               0  Wed Mar  8 17:15:42 2017  
+
+  The basis set named "ao basis" is the default AO basis for restart
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                                 benzene in sto-3g
+                                 -----------------
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 C                    6.0000     0.98755658     0.98755658     0.00000000
+    2 C                    6.0000    -1.34902737     0.36147080     0.00000000
+    3 C                    6.0000     0.36147080    -1.34902737     0.00000000
+    4 C                    6.0000    -0.98755658    -0.98755658     0.00000000
+    5 C                    6.0000     1.34902737    -0.36147080     0.00000000
+    6 C                    6.0000    -0.36147080     1.34902737     0.00000000
+    7 H                    1.0000     1.75619098     1.75619098     0.00000000
+    8 H                    1.0000    -2.39900149     0.64281051     0.00000000
+    9 H                    1.0000     0.64281051    -2.39900149     0.00000000
+   10 H                    1.0000    -1.75619098    -1.75619098     0.00000000
+   11 H                    1.0000     2.39900149    -0.64281051     0.00000000
+   12 H                    1.0000    -0.64281051     2.39900149     0.00000000
+
+      Atomic Mass 
+      ----------- 
+
+      C                 12.000000
+      H                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)     203.1867088610
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+    -0.0000000000     0.0000000000     0.0000000000
+
+
+            XYZ format geometry
+            -------------------
+    12
+ geometry
+ C                     0.98755658     0.98755658     0.00000000
+ C                    -1.34902737     0.36147080     0.00000000
+ C                     0.36147080    -1.34902737     0.00000000
+ C                    -0.98755658    -0.98755658     0.00000000
+ C                     1.34902737    -0.36147080     0.00000000
+ C                    -0.36147080     1.34902737     0.00000000
+ H                     1.75619098     1.75619098     0.00000000
+ H                    -2.39900149     0.64281051     0.00000000
+ H                     0.64281051    -2.39900149     0.00000000
+ H                    -1.75619098    -1.75619098     0.00000000
+ H                     2.39900149    -0.64281051     0.00000000
+ H                    -0.64281051     2.39900149     0.00000000
+
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    4 C                |   2 C                |     2.63922  |     1.39662
+    4 C                |   3 C                |     2.63922  |     1.39662
+    5 C                |   1 C                |     2.63922  |     1.39662
+    5 C                |   3 C                |     2.63922  |     1.39662
+    6 C                |   1 C                |     2.63922  |     1.39662
+    6 C                |   2 C                |     2.63922  |     1.39662
+    7 H                |   1 C                |     2.05416  |     1.08701
+    8 H                |   2 C                |     2.05416  |     1.08701
+    9 H                |   3 C                |     2.05416  |     1.08701
+   10 H                |   4 C                |     2.05416  |     1.08701
+   11 H                |   5 C                |     2.05416  |     1.08701
+   12 H                |   6 C                |     2.05416  |     1.08701
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:         12
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    5 C                |   1 C                |   6 C                |   120.00
+    5 C                |   1 C                |   7 H                |   120.00
+    6 C                |   1 C                |   7 H                |   120.00
+    4 C                |   2 C                |   6 C                |   120.00
+    4 C                |   2 C                |   8 H                |   120.00
+    6 C                |   2 C                |   8 H                |   120.00
+    4 C                |   3 C                |   5 C                |   120.00
+    4 C                |   3 C                |   9 H                |   120.00
+    5 C                |   3 C                |   9 H                |   120.00
+    2 C                |   4 C                |   3 C                |   120.00
+    2 C                |   4 C                |  10 H                |   120.00
+    3 C                |   4 C                |  10 H                |   120.00
+    1 C                |   5 C                |   3 C                |   120.00
+    1 C                |   5 C                |  11 H                |   120.00
+    3 C                |   5 C                |  11 H                |   120.00
+    1 C                |   6 C                |   2 C                |   120.00
+    1 C                |   6 C                |  12 H                |   120.00
+    2 C                |   6 C                |  12 H                |   120.00
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:         18
+ ==============================================================================
+
+
+
+  library name resolved from: environment
+  library file name is: </home/niri/nwchem/nwchem-trunk/src/basis/libraries/>
+  
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                           6-31g*                   on all atoms 
+
+
+
+
+                   NWChem Nuclear Hessian and Frequency Analysis
+                   ---------------------------------------------
+
+
+
+ here 1
+                              NWChem Analytic Hessian
+                              -----------------------
+
+ calling hess_anal()
+ Restarting calculation
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+                                 benzene in sto-3g
+
+
+                      Basis "ao basis" -> "ao basis" (cartesian)
+                      -----
+  C (Carbon)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  3.04752490E+03  0.001835
+  1 S  4.57369510E+02  0.014037
+  1 S  1.03948690E+02  0.068843
+  1 S  2.92101550E+01  0.232184
+  1 S  9.28666300E+00  0.467941
+  1 S  3.16392700E+00  0.362312
+
+  2 S  7.86827240E+00 -0.119332
+  2 S  1.88128850E+00 -0.160854
+  2 S  5.44249300E-01  1.143456
+
+  3 P  7.86827240E+00  0.068999
+  3 P  1.88128850E+00  0.316424
+  3 P  5.44249300E-01  0.744308
+
+  4 S  1.68714400E-01  1.000000
+
+  5 P  1.68714400E-01  1.000000
+
+  6 D  8.00000000E-01  1.000000
+
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.87311370E+01  0.033495
+  1 S  2.82539370E+00  0.234727
+  1 S  6.40121700E-01  0.813757
+
+  2 S  1.61277800E-01  1.000000
+
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ C                           6-31g*                  6       15   3s2p1d
+ H                           6-31g*                  2        2   2s
+
+
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ C                           6-31g*                  6       15   3s2p1d
+ H                           6-31g*                  2        2   2s
+
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :    12
+          No. of electrons :    42
+           Alpha electrons :    21
+            Beta electrons :    21
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          AO basis - number of functions:   102
+                     number of shells:    48
+          Convergence on energy requested:  1.00D-07
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  1.00D-06
+
+              XC Information
+              --------------
+                         B3LYP Method XC Potential
+                     Hartree-Fock (Exact) Exchange  0.200          
+                        Slater Exchange Functional  0.800 local    
+                    Becke 1988 Exchange Functional  0.720 non-local
+              Lee-Yang-Parr Correlation Functional  0.810          
+                  VWN I RPA Correlation Functional  0.190 local    
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  fine      
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          C                   0.70       70          12.0       590
+          H                   0.35       60          13.0       590
+          Grid pruning is: on 
+          Number of quadrature shells:   780
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-11
+          AO Gaussian exp screening on grid/accAOfunc:  16
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-12
+
+
+ Loading old vectors from job with title :
+
+benzene in sto-3g
+
+   Time after variat. SCF:      0.1
+   Time prior to 1st pass:      0.1
+
+ Integral file          = ./hess_c6h6_restart.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =    109        Max. records in file   = 150029
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ #quartets = 6.674D+05 #integrals = 7.670D+06 #direct =  0.0% #cached =100.0%
+
+
+File balance: exchanges=     3  moved=    39  time=   0.0
+
+
+ Grid_pts file          = ./hess_c6h6_restart.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     43        Max. recs in file   =    800093
+
+ Grid integrated density:      42.000025880210
+ Requested integration accuracy:   0.10E-13
+
+
+         Total DFT energy =     -232.248652104226
+      One electron energy =     -713.785081346910
+           Coulomb energy =      313.118501468373
+    Exchange-Corr. energy =      -34.768781086707
+ Nuclear repulsion energy =      203.186708861019
+
+ Numeric. integr. density =       42.000025880210
+
+     Total iterative time =      2.1s
+
+
+
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+
+ Vector    1  Occ=2.000000D+00  E=-1.018774D+01
+              MO Center= -2.5D-04,  1.2D-03, -1.5D-12, r^2= 2.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.405425   1 C  s                16      0.405240   2 C  s         
+    31      0.404706   3 C  s                46      0.405031   4 C  s         
+    61      0.404931   5 C  s                76      0.405460   6 C  s         
+
+ Vector    2  Occ=2.000000D+00  E=-1.018747D+01
+              MO Center= -6.0D-04, -2.4D-04, -1.3D-12, r^2= 2.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.573036   1 C  s                46     -0.573231   4 C  s         
+    16     -0.289889   2 C  s                61      0.289376   5 C  s         
+    31     -0.283375   3 C  s                76      0.283221   6 C  s         
+     2      0.028426   1 C  s                47     -0.028435   4 C  s         
+
+ Vector    3  Occ=2.000000D+00  E=-1.018747D+01
+              MO Center=  7.3D-04, -4.1D-04, -1.4D-12, r^2= 2.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    31     -0.498201   3 C  s                76      0.498033   6 C  s         
+    16      0.494215   2 C  s                61     -0.494710   5 C  s         
+
+ Vector    4  Occ=2.000000D+00  E=-1.018692D+01
+              MO Center=  6.0D-04,  2.3D-04, -1.5D-12, r^2= 2.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.573313   1 C  s                46      0.573119   4 C  s         
+    16     -0.289394   2 C  s                61     -0.289907   5 C  s         
+    31     -0.283691   3 C  s                76     -0.283845   6 C  s         
+     2      0.028889   1 C  s                47      0.028878   4 C  s         
+
+ Vector    5  Occ=2.000000D+00  E=-1.018692D+01
+              MO Center= -7.3D-04,  4.1D-04, -1.7D-12, r^2= 2.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    31     -0.498093   3 C  s                76     -0.498262   6 C  s         
+    16      0.495026   2 C  s                61      0.494531   5 C  s         
+    32     -0.025098   3 C  s                77     -0.025107   6 C  s         
+
+ Vector    6  Occ=2.000000D+00  E=-1.018666D+01
+              MO Center=  2.5D-04, -1.2D-03, -1.4D-12, r^2= 2.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.405267   1 C  s                16      0.405452   2 C  s         
+    31      0.405985   3 C  s                46     -0.405659   4 C  s         
+    61     -0.405760   5 C  s                76     -0.405232   6 C  s         
+
+ Vector    7  Occ=2.000000D+00  E=-8.463276D-01
+              MO Center= -3.4D-07,  1.8D-06, -1.0D-09, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      0.179691   1 C  s                17      0.179692   2 C  s         
+    32      0.179692   3 C  s                47      0.179691   4 C  s         
+    62      0.179692   5 C  s                77      0.179692   6 C  s         
+     6      0.114017   1 C  s                21      0.114009   2 C  s         
+    36      0.114009   3 C  s                51      0.114017   4 C  s         
+
+ Vector    8  Occ=2.000000D+00  E=-7.398319D-01
+              MO Center= -8.7D-07,  6.7D-08, -6.3D-10, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      0.258157   1 C  s                47     -0.258157   4 C  s         
+     6      0.193021   1 C  s                51     -0.193021   4 C  s         
+     1     -0.130767   1 C  s                46      0.130767   4 C  s         
+    17     -0.129342   2 C  s                32     -0.128815   3 C  s         
+    62      0.129342   5 C  s                77      0.128815   6 C  s         
+
+ Vector    9  Occ=2.000000D+00  E=-7.398314D-01
+              MO Center=  9.1D-07, -1.9D-07, -5.3D-10, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      0.223419   2 C  s                32     -0.223724   3 C  s         
+    62     -0.223419   5 C  s                77      0.223724   6 C  s         
+    21      0.167045   2 C  s                36     -0.167273   3 C  s         
+    66     -0.167046   5 C  s                81      0.167273   6 C  s         
+    16     -0.113170   2 C  s                31      0.113325   3 C  s         
+
+ Vector   10  Occ=2.000000D+00  E=-5.974905D-01
+              MO Center=  8.4D-08,  1.0D-07, -4.2D-10, r^2= 3.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      0.212070   1 C  s                47      0.212070   4 C  s         
+    19     -0.180667   2 C  py               33     -0.180352   3 C  px        
+    64      0.180667   5 C  py               78      0.180353   6 C  px        
+     6      0.160776   1 C  s                51      0.160776   4 C  s         
+    91      0.114196   7 H  s                97      0.114196  10 H  s         
+
+ Vector   11  Occ=2.000000D+00  E=-5.974905D-01
+              MO Center= -9.4D-08,  5.9D-08, -5.1D-10, r^2= 3.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      0.183859   2 C  s                32     -0.183458   3 C  s         
+    62      0.183859   5 C  s                77     -0.183458   6 C  s         
+     3      0.144750   1 C  px                4     -0.144940   1 C  py        
+    48     -0.144750   4 C  px               49      0.144940   4 C  py        
+    21      0.139388   2 C  s                36     -0.139083   3 C  s         
+
+ Vector   12  Occ=2.000000D+00  E=-5.185538D-01
+              MO Center= -3.4D-07,  1.9D-06, -8.9D-11, r^2= 4.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18      0.192269   2 C  px               34      0.192269   3 C  py        
+    63     -0.192269   5 C  px               79     -0.192269   6 C  py        
+     3     -0.140752   1 C  px                4     -0.140751   1 C  py        
+    48      0.140751   4 C  px               49      0.140751   4 C  py        
+    91     -0.108320   7 H  s                93     -0.108319   8 H  s         
+
+ Vector   13  Occ=2.000000D+00  E=-4.592880D-01
+              MO Center= -1.7D-08,  1.7D-07, -3.5D-10, r^2= 5.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.161422   1 C  s                21      0.161422   2 C  s         
+    36      0.161422   3 C  s                51     -0.161422   4 C  s         
+    66     -0.161422   5 C  s                81     -0.161422   6 C  s         
+    91      0.140636   7 H  s                93      0.140636   8 H  s         
+    95      0.140636   9 H  s                97     -0.140636  10 H  s         
+
+ Vector   14  Occ=2.000000D+00  E=-4.381063D-01
+              MO Center= -4.2D-08,  2.0D-07, -1.3D-10, r^2= 2.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19      0.265728   2 C  py               33     -0.265728   3 C  px        
+    64      0.265728   5 C  py               78     -0.265728   6 C  px        
+     3      0.194526   1 C  px                4     -0.194526   1 C  py        
+    48      0.194526   4 C  px               49     -0.194526   4 C  py        
+    23      0.089412   2 C  py               37     -0.089412   3 C  px        
+
+ Vector   15  Occ=2.000000D+00  E=-4.172566D-01
+              MO Center= -1.1D-06,  2.7D-07, -1.1D-10, r^2= 4.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      0.216294   1 C  px                4      0.216352   1 C  py        
+    48      0.216293   4 C  px               49      0.216353   4 C  py        
+    91      0.166214   7 H  s                97     -0.166214  10 H  s         
+    92      0.157711   7 H  s                98     -0.157711  10 H  s         
+    18      0.128545   2 C  px               34      0.128286   3 C  py        
+
+ Vector   16  Occ=2.000000D+00  E=-4.172555D-01
+              MO Center=  1.0D-06,  2.7D-08, -1.4D-10, r^2= 4.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18      0.267015   2 C  px               34     -0.267139   3 C  py        
+    63      0.267015   5 C  px               79     -0.267139   6 C  py        
+    93     -0.143906   8 H  s                95      0.143986   9 H  s         
+    99      0.143906  11 H  s               101     -0.143986  12 H  s         
+    94     -0.136547   8 H  s                96      0.136623   9 H  s         
+
+ Vector   17  Occ=2.000000D+00  E=-3.593991D-01
+              MO Center= -3.0D-07,  1.6D-06,  1.0D-09, r^2= 2.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.222030   1 C  pz               20      0.222030   2 C  pz        
+    35      0.222029   3 C  pz               50      0.222030   4 C  pz        
+    65      0.222030   5 C  pz               80      0.222030   6 C  pz        
+     9      0.128830   1 C  pz               24      0.128828   2 C  pz        
+    39      0.128827   3 C  pz               54      0.128830   4 C  pz        
+
+ Vector   18  Occ=2.000000D+00  E=-3.402711D-01
+              MO Center=  3.7D-07, -2.0D-06, -1.2D-10, r^2= 4.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19      0.195140   2 C  py               33      0.195459   3 C  px        
+    64     -0.195140   5 C  py               78     -0.195459   6 C  px        
+    92      0.195198   7 H  s                98      0.195198  10 H  s         
+    91      0.170733   7 H  s                97      0.170733  10 H  s         
+    18      0.169234   2 C  px               34      0.168962   3 C  py        
+
+ Vector   19  Occ=2.000000D+00  E=-3.402710D-01
+              MO Center=  3.7D-07, -2.2D-06, -1.3D-10, r^2= 4.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      0.189621   1 C  px                4     -0.189904   1 C  py        
+    48     -0.189622   4 C  px               49      0.189904   4 C  py        
+    19     -0.180345   2 C  py               33      0.179999   3 C  px        
+    64      0.180345   5 C  py               78     -0.179999   6 C  px        
+    94     -0.168962   8 H  s                96      0.169135   9 H  s         
+
+ Vector   20  Occ=2.000000D+00  E=-2.462939D-01
+              MO Center= -7.4D-07, -3.2D-07,  4.0D-11, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.339835   1 C  pz               50     -0.339835   4 C  pz        
+     9      0.243969   1 C  pz               54     -0.243969   4 C  pz        
+    20     -0.170063   2 C  pz               35     -0.169773   3 C  pz        
+    65      0.170062   5 C  pz               80      0.169773   6 C  pz        
+    24     -0.122089   2 C  pz               39     -0.121880   3 C  pz        
+
+ Vector   21  Occ=2.000000D+00  E=-2.462928D-01
+              MO Center=  9.1D-07, -5.7D-07, -2.5D-10, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20      0.294224   2 C  pz               35     -0.294391   3 C  pz        
+    65     -0.294224   5 C  pz               80      0.294391   6 C  pz        
+    24      0.211222   2 C  pz               39     -0.211342   3 C  pz        
+    69     -0.211222   5 C  pz               84      0.211342   6 C  pz        
+
+ Vector   22  Occ=0.000000D+00  E= 3.619315D-03
+              MO Center=  5.0D-07,  9.6D-08, -3.3D-10, r^2= 3.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.484957   1 C  pz               54      0.484956   4 C  pz        
+     5      0.364690   1 C  pz               50      0.364690   4 C  pz        
+    24     -0.246057   2 C  pz               69     -0.246057   5 C  pz        
+    39     -0.238898   3 C  pz               84     -0.238898   6 C  pz        
+    20     -0.185039   2 C  pz               65     -0.185039   5 C  pz        
+
+ Vector   23  Occ=0.000000D+00  E= 3.619357D-03
+              MO Center= -5.7D-07,  2.6D-07, -1.1D-10, r^2= 3.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    39     -0.422051   3 C  pz               84     -0.422051   6 C  pz        
+    24      0.417918   2 C  pz               69      0.417917   5 C  pz        
+    35     -0.317386   3 C  pz               80     -0.317386   6 C  pz        
+    20      0.314278   2 C  pz               65      0.314278   5 C  pz        
+    12      0.036869   1 C  dxz              57     -0.036869   4 C  dxz       
+
+ Vector   24  Occ=0.000000D+00  E= 9.073861D-02
+              MO Center= -5.8D-07,  3.6D-06, -1.1D-10, r^2= 8.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    92      0.731180   7 H  s                94      0.731171   8 H  s         
+    96      0.731170   9 H  s                98      0.731179  10 H  s         
+   100      0.731170  11 H  s               102      0.731172  12 H  s         
+     6     -0.512046   1 C  s                21     -0.512075   2 C  s         
+    36     -0.512074   3 C  s                51     -0.512045   4 C  s         
+
+ Vector   25  Occ=0.000000D+00  E= 1.446882D-01
+              MO Center= -2.0D-06,  3.0D-07, -8.0D-11, r^2= 8.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    92      1.226565   7 H  s                98     -1.226565  10 H  s         
+     6     -0.965263   1 C  s                51      0.965263   4 C  s         
+    94     -0.613847   8 H  s                96     -0.612720   9 H  s         
+   100      0.613845  11 H  s               102      0.612720  12 H  s         
+    21      0.483077   2 C  s                36      0.482189   3 C  s         
+
+ Vector   26  Occ=0.000000D+00  E= 1.446890D-01
+              MO Center=  2.0D-06,  6.2D-08, -7.9D-11, r^2= 8.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    94      1.061908   8 H  s                96     -1.062559   9 H  s         
+   100     -1.061910  11 H  s               102      1.062560  12 H  s         
+    21     -0.835696   2 C  s                36      0.836208   3 C  s         
+    66      0.835697   5 C  s                81     -0.836209   6 C  s         
+    22      0.532103   2 C  px               38     -0.532361   3 C  py        
+
+ Vector   27  Occ=0.000000D+00  E= 1.639455D-01
+              MO Center=  1.9D-07, -1.0D-06, -1.3D-09, r^2= 3.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.540144   1 C  pz               24      0.540145   2 C  pz        
+    39      0.540145   3 C  pz               54     -0.540145   4 C  pz        
+    69     -0.540145   5 C  pz               84     -0.540144   6 C  pz        
+     5      0.291770   1 C  pz               20      0.291770   2 C  pz        
+    35      0.291770   3 C  pz               50     -0.291770   4 C  pz        
+
+ Vector   28  Occ=0.000000D+00  E= 1.818532D-01
+              MO Center=  8.9D-06,  6.5D-06,  1.9D-11, r^2= 8.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.583417   1 C  s                51      1.583418   4 C  s         
+    92     -1.257458   7 H  s                98     -1.257452  10 H  s         
+    21     -0.843599   2 C  s                66     -0.843598   5 C  s         
+    36     -0.739818   3 C  s                81     -0.739816   6 C  s         
+    94      0.669930   8 H  s               100      0.669940  11 H  s         
+
+ Vector   29  Occ=0.000000D+00  E= 1.818533D-01
+              MO Center= -1.2D-05,  1.1D-05, -1.5D-14, r^2= 8.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    36     -1.401238   3 C  s                81     -1.401236   6 C  s         
+    21      1.341318   2 C  s                66      1.341319   5 C  s         
+    96      1.112775   9 H  s               102      1.112785  12 H  s         
+    94     -1.065202   8 H  s               100     -1.065190  11 H  s         
+    38      0.412230   3 C  py               83     -0.412241   6 C  py        
+
+ Vector   30  Occ=0.000000D+00  E= 1.902615D-01
+              MO Center=  3.7D-06, -2.1D-05,  2.7D-10, r^2= 9.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    92      1.218356   7 H  s                94      1.218357   8 H  s         
+    96      1.218368   9 H  s                98     -1.218365  10 H  s         
+   100     -1.218363  11 H  s               102     -1.218353  12 H  s         
+    22      1.201591   2 C  px               38      1.201595   3 C  py        
+    67      1.201592   5 C  px               83      1.201589   6 C  py        
+
+ Vector   31  Occ=0.000000D+00  E= 3.026612D-01
+              MO Center= -6.5D-07,  3.6D-06,  3.1D-11, r^2= 5.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.938580   1 C  s                51      1.938574   4 C  s         
+     7     -1.084000   1 C  px                8     -1.083784   1 C  py        
+    52      1.083994   4 C  px               53      1.083789   4 C  py        
+    21     -0.968994   2 C  s                36     -0.969571   3 C  s         
+    66     -0.968984   5 C  s                81     -0.969576   6 C  s         
+
+ Vector   32  Occ=0.000000D+00  E= 3.026616D-01
+              MO Center= -5.9D-07,  3.4D-06,  5.5D-11, r^2= 5.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      1.679019   2 C  s                36     -1.678676   3 C  s         
+    66      1.679018   5 C  s                81     -1.678686   6 C  s         
+    22      1.392816   2 C  px               38     -1.392622   3 C  py        
+    67     -1.392813   5 C  px               83      1.392624   6 C  py        
+    94      0.834879   8 H  s                96     -0.834712   9 H  s         
+
+ Vector   33  Occ=0.000000D+00  E= 3.191431D-01
+              MO Center=  3.4D-07, -3.3D-06, -6.8D-11, r^2= 4.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.953005   1 C  s                51     -1.953011   4 C  s         
+    23     -1.607716   2 C  py               37     -1.607496   3 C  px        
+    68     -1.607713   5 C  py               82     -1.607494   6 C  px        
+    21     -0.976306   2 C  s                36     -0.976690   3 C  s         
+    66      0.976316   5 C  s                81      0.976686   6 C  s         
+
+ Vector   34  Occ=0.000000D+00  E= 3.191442D-01
+              MO Center=  8.2D-07, -3.2D-06, -8.0D-11, r^2= 4.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      1.691454   2 C  s                36     -1.691240   3 C  s         
+    66     -1.691453   5 C  s                81      1.691231   6 C  s         
+     7      1.380716   1 C  px                8     -1.380689   1 C  py        
+    52      1.380721   4 C  px               53     -1.380686   4 C  py        
+    23     -0.987515   2 C  py               37      0.987877   3 C  px        
+
+ Vector   35  Occ=0.000000D+00  E= 4.748804D-01
+              MO Center= -7.3D-08,  3.7D-07, -7.9D-13, r^2= 5.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23      0.485118   2 C  py               37     -0.485118   3 C  px        
+    68      0.485118   5 C  py               82     -0.485118   6 C  px        
+     7      0.355132   1 C  px                8     -0.355131   1 C  py        
+    52      0.355131   4 C  px               53     -0.355132   4 C  py        
+    19     -0.317203   2 C  py               33      0.317203   3 C  px        
+
+ Vector   36  Occ=0.000000D+00  E= 5.273477D-01
+              MO Center= -4.1D-07,  2.2D-06, -1.6D-08, r^2= 3.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.424987   1 C  pz               20      0.424975   2 C  pz        
+    35      0.424975   3 C  pz               50      0.424986   4 C  pz        
+    65      0.424975   5 C  pz               80      0.424976   6 C  pz        
+     9     -0.305278   1 C  pz               24     -0.305263   2 C  pz        
+    39     -0.305262   3 C  pz               54     -0.305278   4 C  pz        
+
+ Vector   37  Occ=0.000000D+00  E= 5.490445D-01
+              MO Center= -2.2D-07,  1.2D-06,  6.1D-10, r^2= 4.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      3.743839   1 C  s                21      3.743839   2 C  s         
+    36      3.743840   3 C  s                51     -3.743839   4 C  s         
+    66     -3.743838   5 C  s                81     -3.743837   6 C  s         
+    22      2.736322   2 C  px               38      2.736323   3 C  py        
+    67      2.736322   5 C  px               83      2.736321   6 C  py        
+
+ Vector   38  Occ=0.000000D+00  E= 5.502792D-01
+              MO Center=  8.6D-09, -4.1D-08,  8.2D-09, r^2= 3.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      0.318029   1 C  s                17      0.318018   2 C  s         
+    32      0.318018   3 C  s                47      0.318029   4 C  s         
+    62      0.318018   5 C  s                77      0.318018   6 C  s         
+     6     -0.244727   1 C  s                21     -0.244712   2 C  s         
+    36     -0.244713   3 C  s                51     -0.244749   4 C  s         
+
+ Vector   39  Occ=0.000000D+00  E= 5.639745D-01
+              MO Center=  4.8D-08, -2.9D-07, -7.0D-11, r^2= 5.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23      3.197683   2 C  py               37     -3.197684   3 C  px        
+    68     -3.197684   5 C  py               82      3.197682   6 C  px        
+     7      2.340864   1 C  px                8     -2.340865   1 C  py        
+    52     -2.340865   4 C  px               53      2.340865   4 C  py        
+    22      0.856816   2 C  px               38     -0.856816   3 C  py        
+
+ Vector   40  Occ=0.000000D+00  E= 5.925120D-01
+              MO Center= -6.2D-07,  3.7D-06,  7.3D-09, r^2= 4.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.535605   1 C  s                21      0.535610   2 C  s         
+    36      0.535609   3 C  s                51      0.535604   4 C  s         
+    66      0.535610   5 C  s                81      0.535611   6 C  s         
+     2     -0.433298   1 C  s                17     -0.433301   2 C  s         
+    32     -0.433300   3 C  s                47     -0.433298   4 C  s         
+
+ Vector   41  Occ=0.000000D+00  E= 6.020124D-01
+              MO Center= -1.3D-06,  4.2D-07, -9.2D-09, r^2= 4.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.605858   1 C  pz                9     -0.604605   1 C  pz        
+    50     -0.605858   4 C  pz               54      0.604604   4 C  pz        
+    20     -0.302988   2 C  pz               24      0.302364   2 C  pz        
+    35     -0.302873   3 C  pz               39      0.302248   3 C  pz        
+    65      0.302987   5 C  pz               69     -0.302362   5 C  pz        
+
+ Vector   42  Occ=0.000000D+00  E= 6.020165D-01
+              MO Center=  1.1D-06,  2.5D-07, -9.5D-09, r^2= 4.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20      0.524655   2 C  pz               24     -0.523572   2 C  pz        
+    35     -0.524721   3 C  pz               39      0.523638   3 C  pz        
+    65     -0.524656   5 C  pz               69      0.523573   5 C  pz        
+    80      0.524722   6 C  pz               84     -0.523639   6 C  pz        
+    27      0.076575   2 C  dxz              44     -0.076581   3 C  dyz       
+
+ Vector   43  Occ=0.000000D+00  E= 6.020669D-01
+              MO Center= -6.1D-07,  2.7D-06, -1.3D-10, r^2= 4.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23      0.517238   2 C  py               37      0.516732   3 C  px        
+    68     -0.517240   5 C  py               82     -0.516735   6 C  px        
+    19     -0.467297   2 C  py               33     -0.466926   3 C  px        
+    64      0.467297   5 C  py               78      0.466928   6 C  px        
+    91      0.243430   7 H  s                97      0.243430  10 H  s         
+
+ Vector   44  Occ=0.000000D+00  E= 6.020671D-01
+              MO Center= -3.1D-07,  2.4D-06,  3.1D-10, r^2= 4.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      0.430415   1 C  px                8     -0.430488   1 C  py        
+    52     -0.430410   4 C  px               53      0.430490   4 C  py        
+     3     -0.371198   1 C  px                4      0.371472   1 C  py        
+    48      0.371197   4 C  px               49     -0.371471   4 C  py        
+    23     -0.280079   2 C  py               37      0.281008   3 C  px        
+
+ Vector   45  Occ=0.000000D+00  E= 6.267894D-01
+              MO Center= -9.4D-07, -5.3D-06,  8.9D-09, r^2= 4.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23      0.513542   2 C  py               37      0.513578   3 C  px        
+    68      0.513538   5 C  py               82      0.513580   6 C  px        
+     2     -0.419842   1 C  s                47      0.419843   4 C  s         
+    19     -0.394163   2 C  py               33     -0.394193   3 C  px        
+    64     -0.394163   5 C  py               78     -0.394191   6 C  px        
+
+ Vector   46  Occ=0.000000D+00  E= 6.267918D-01
+              MO Center=  2.9D-06, -5.6D-06,  9.4D-09, r^2= 4.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      0.434628   1 C  px                8     -0.434628   1 C  py        
+    52      0.434627   4 C  px               53     -0.434627   4 C  py        
+    17      0.363573   2 C  s                32     -0.363601   3 C  s         
+    62     -0.363574   5 C  s                77      0.363600   6 C  s         
+     3     -0.330251   1 C  px                4      0.330250   1 C  py        
+
+ Vector   47  Occ=0.000000D+00  E= 6.675369D-01
+              MO Center= -1.1D-06, -2.9D-07, -1.7D-09, r^2= 4.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24      0.900120   2 C  pz               39     -0.898165   3 C  pz        
+    69      0.900118   5 C  pz               84     -0.898166   6 C  pz        
+    20     -0.546167   2 C  pz               35      0.544981   3 C  pz        
+    65     -0.546166   5 C  pz               80      0.544981   6 C  pz        
+    12     -0.032270   1 C  dxz              14      0.032204   1 C  dyz       
+
+ Vector   48  Occ=0.000000D+00  E= 6.675371D-01
+              MO Center=  1.2D-06, -4.4D-07, -4.9D-10, r^2= 4.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      1.038237   1 C  pz               54      1.038236   4 C  pz        
+     5     -0.629970   1 C  pz               50     -0.629970   4 C  pz        
+    39     -0.520814   3 C  pz               84     -0.520815   6 C  pz        
+    24     -0.517431   2 C  pz               69     -0.517433   5 C  pz        
+    35      0.316018   3 C  pz               80      0.316018   6 C  pz        
+
+ Vector   49  Occ=0.000000D+00  E= 7.448674D-01
+              MO Center=  3.8D-07, -2.1D-06,  6.4D-12, r^2= 5.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      1.174224   1 C  pz               24      1.174222   2 C  pz        
+    39      1.174224   3 C  pz               54     -1.174225   4 C  pz        
+    69     -1.174223   5 C  pz               84     -1.174222   6 C  pz        
+     5     -0.447300   1 C  pz               20     -0.447299   2 C  pz        
+    35     -0.447300   3 C  pz               50      0.447301   4 C  pz        
+
+ Vector   50  Occ=0.000000D+00  E= 8.400024D-01
+              MO Center=  7.1D-05,  7.5D-05,  2.3D-11, r^2= 6.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      1.792714   1 C  px                8      1.793567   1 C  py        
+    52     -1.792544   4 C  px               53     -1.793401   4 C  py        
+    92     -1.730380   7 H  s                98     -1.730270  10 H  s         
+    22      1.190622   2 C  px               67     -1.190845   5 C  px        
+    38      1.176449   3 C  py               83     -1.176679   6 C  py        
+
+ Vector   51  Occ=0.000000D+00  E= 8.400025D-01
+              MO Center= -1.1D-04,  1.2D-04,  8.3D-12, r^2= 6.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      2.141160   2 C  px               38     -2.148617   3 C  py        
+    67     -2.140801   5 C  px               83      2.148982   6 C  py        
+    94      1.495726   8 H  s                96     -1.501270   9 H  s         
+   100      1.495558  11 H  s               102     -1.501444  12 H  s         
+    21      0.714146   2 C  s                36     -0.716572   3 C  s         
+
+ Vector   52  Occ=0.000000D+00  E= 8.411036D-01
+              MO Center=  4.1D-05, -1.8D-04, -6.1D-10, r^2= 5.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      3.138763   2 C  px               38      3.139008   3 C  py        
+    67      3.138922   5 C  px               83      3.138676   6 C  py        
+     6      2.646001   1 C  s                21      2.646004   2 C  s         
+    36      2.646086   3 C  s                51     -2.646061   4 C  s         
+    66     -2.646056   5 C  s                81     -2.645973   6 C  s         
+
+ Vector   53  Occ=0.000000D+00  E= 8.650067D-01
+              MO Center=  2.4D-06, -2.8D-06,  6.6D-11, r^2= 6.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    92      1.342507   7 H  s                98     -1.342509  10 H  s         
+     7     -0.816864   1 C  px                8     -0.816323   1 C  py        
+    52     -0.816866   4 C  px               53     -0.816327   4 C  py        
+    22     -0.742441   2 C  px               38     -0.741650   3 C  py        
+    67     -0.742451   5 C  px               83     -0.741646   6 C  py        
+
+ Vector   54  Occ=0.000000D+00  E= 8.650081D-01
+              MO Center= -1.2D-06, -3.1D-06,  2.6D-11, r^2= 6.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    94      1.162331   8 H  s                96     -1.162956   9 H  s         
+   100     -1.162329  11 H  s               102      1.162950  12 H  s         
+    22      0.859267   2 C  px               38     -0.859959   3 C  py        
+    67      0.859264   5 C  px               83     -0.859950   6 C  py        
+    23     -0.656213   2 C  py               37      0.655715   3 C  px        
+
+ Vector   55  Occ=0.000000D+00  E= 9.390401D-01
+              MO Center= -3.0D-07,  9.3D-06,  6.4D-10, r^2= 4.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      3.601985   1 C  s                51     -3.601970   4 C  s         
+    23     -2.397216   2 C  py               37     -2.396930   3 C  px        
+    68     -2.397193   5 C  py               82     -2.396958   6 C  px        
+    21     -1.800681   2 C  s                36     -1.801279   3 C  s         
+    66      1.800690   5 C  s                81      1.801293   6 C  s         
+
+ Vector   56  Occ=0.000000D+00  E= 9.390420D-01
+              MO Center= -2.9D-06,  9.7D-06,  7.4D-10, r^2= 4.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      3.119618   2 C  s                36     -3.119253   3 C  s         
+    66     -3.119601   5 C  s                81      3.119273   6 C  s         
+     7      2.014565   1 C  px                8     -2.014571   1 C  py        
+    52      2.014543   4 C  px               53     -2.014566   4 C  py        
+    23     -1.351700   2 C  py               37      1.352164   3 C  px        
+
+ Vector   57  Occ=0.000000D+00  E= 9.406140D-01
+              MO Center=  2.2D-06, -1.3D-05,  9.7D-11, r^2= 6.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.884188   1 C  s                21      0.884277   2 C  s         
+    36      0.884339   3 C  s                51      0.884240   4 C  s         
+    66      0.884314   5 C  s                81      0.884252   6 C  s         
+    92     -0.849816   7 H  s                94     -0.849830   8 H  s         
+    96     -0.849839   9 H  s                98     -0.849823  10 H  s         
+
+ Vector   58  Occ=0.000000D+00  E= 9.579878D-01
+              MO Center=  1.3D-06, -7.8D-06, -2.3D-11, r^2= 5.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23      4.171560   2 C  py               37     -4.171574   3 C  px        
+    68     -4.171568   5 C  py               82      4.171554   6 C  px        
+     7      3.053792   1 C  px                8     -3.053792   1 C  py        
+    52     -3.053801   4 C  px               53      3.053801   4 C  py        
+    22      1.117765   2 C  px               38     -1.117768   3 C  py        
+
+ Vector   59  Occ=0.000000D+00  E= 1.082614D+00
+              MO Center=  5.6D-07, -9.0D-08,  8.6D-10, r^2= 5.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      4.280900   1 C  s                51      4.280900   4 C  s         
+    21     -2.145247   2 C  s                36     -2.135633   3 C  s         
+    66     -2.145250   5 C  s                81     -2.135633   6 C  s         
+     2     -1.136714   1 C  s                47     -1.136714   4 C  s         
+    23      0.914267   2 C  py               37      0.915689   3 C  px        
+
+ Vector   60  Occ=0.000000D+00  E= 1.082614D+00
+              MO Center= -5.4D-07,  7.1D-08,  1.7D-09, r^2= 5.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      3.704584   2 C  s                36     -3.710134   3 C  s         
+    66      3.704582   5 C  s                81     -3.710134   6 C  s         
+    17     -0.983683   2 C  s                32      0.985157   3 C  s         
+    62     -0.983683   5 C  s                77      0.985157   6 C  s         
+     7     -0.780665   1 C  px                8      0.780788   1 C  py        
+
+ Vector   61  Occ=0.000000D+00  E= 1.142387D+00
+              MO Center= -6.5D-08,  5.5D-08,  6.1D-11, r^2= 4.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.667794   1 C  s                51     -1.667794   4 C  s         
+    23     -1.597633   2 C  py               37     -1.597642   3 C  px        
+    68     -1.597633   5 C  py               82     -1.597642   6 C  px        
+     7      1.092678   1 C  px                8      1.092701   1 C  py        
+    52      1.092677   4 C  px               53      1.092701   4 C  py        
+
+ Vector   62  Occ=0.000000D+00  E= 1.142402D+00
+              MO Center=  2.2D-08,  4.1D-08,  2.3D-11, r^2= 4.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22     -1.508874   2 C  px               38      1.508881   3 C  py        
+    67     -1.508874   5 C  px               83      1.508882   6 C  py        
+    21      1.444275   2 C  s                36     -1.444292   3 C  s         
+    66     -1.444275   5 C  s                81      1.444291   6 C  s         
+     7      1.181399   1 C  px                8     -1.181378   1 C  py        
+
+ Vector   63  Occ=0.000000D+00  E= 1.201004D+00
+              MO Center=  1.8D-07, -1.0D-06,  8.4D-10, r^2= 5.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      1.223427   2 C  px               38      1.223426   3 C  py        
+    67      1.223426   5 C  px               83      1.223427   6 C  py        
+     7     -0.895609   1 C  px                8     -0.895609   1 C  py        
+    52     -0.895608   4 C  px               53     -0.895609   4 C  py        
+     6     -0.787466   1 C  s                21     -0.787468   2 C  s         
+
+ Vector   64  Occ=0.000000D+00  E= 1.261891D+00
+              MO Center= -1.3D-07,  7.0D-07,  1.0D-10, r^2= 2.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      0.566915   2 C  dyz              42     -0.566914   3 C  dxz       
+    74      0.566915   5 C  dyz              87     -0.566915   6 C  dxz       
+    12      0.415011   1 C  dxz              14     -0.415010   1 C  dyz       
+    57      0.415010   4 C  dxz              59     -0.415010   4 C  dyz       
+    27      0.151905   2 C  dxz              44     -0.151904   3 C  dyz       
+
+ Vector   65  Occ=0.000000D+00  E= 1.396281D+00
+              MO Center= -3.0D-07,  1.6D-06,  8.5D-12, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      0.619722   2 C  dxz              44      0.619721   3 C  dyz       
+    72     -0.619721   5 C  dxz              89     -0.619722   6 C  dyz       
+    12     -0.453668   1 C  dxz              14     -0.453668   1 C  dyz       
+    57      0.453667   4 C  dxz              59      0.453668   4 C  dyz       
+    29     -0.166054   2 C  dyz              42     -0.166054   3 C  dxz       
+
+ Vector   66  Occ=0.000000D+00  E= 1.436377D+00
+              MO Center=  5.2D-08, -1.9D-07,  6.2D-11, r^2= 4.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      3.055665   1 C  s                51      3.055664   4 C  s         
+     7     -2.758946   1 C  px                8     -2.758946   1 C  py        
+    52      2.758946   4 C  px               53      2.758946   4 C  py        
+    22     -1.891815   2 C  px               38     -1.891732   3 C  py        
+    67      1.891815   5 C  px               83      1.891732   6 C  py        
+
+ Vector   67  Occ=0.000000D+00  E= 1.436379D+00
+              MO Center= -5.0D-09, -1.9D-07, -2.4D-09, r^2= 4.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      3.259593   2 C  px               38     -3.259641   3 C  py        
+    67     -3.259592   5 C  px               83      3.259641   6 C  py        
+    21      2.646264   2 C  s                36     -2.646301   3 C  s         
+    66      2.646262   5 C  s                81     -2.646303   6 C  s         
+    94      1.016112   8 H  s                96     -1.016127   9 H  s         
+
+ Vector   68  Occ=0.000000D+00  E= 1.486976D+00
+              MO Center= -8.7D-09,  1.4D-06,  1.2D-10, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      0.603680   2 C  dyz              74     -0.603681   5 C  dyz       
+    42      0.600105   3 C  dxz              87     -0.600105   6 C  dxz       
+    44      0.386581   3 C  dyz              89     -0.386583   6 C  dyz       
+    27      0.384630   2 C  dxz              72     -0.384627   5 C  dxz       
+    14      0.308523   1 C  dyz              59     -0.308521   4 C  dyz       
+
+ Vector   69  Occ=0.000000D+00  E= 1.486976D+00
+              MO Center= -5.7D-07,  1.7D-06,  2.4D-09, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.557335   1 C  dxz              14     -0.555037   1 C  dyz       
+    57     -0.557333   4 C  dxz              59      0.555039   4 C  dyz       
+    42      0.479274   3 C  dxz              87     -0.479275   6 C  dxz       
+    29     -0.474764   2 C  dyz              74      0.474763   5 C  dyz       
+    27      0.262176   2 C  dxz              72     -0.262176   5 C  dxz       
+
+ Vector   70  Occ=0.000000D+00  E= 1.515425D+00
+              MO Center= -2.6D-07, -2.3D-06,  1.3D-10, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.639167   1 C  dxz              14      0.639602   1 C  dyz       
+    57      0.639170   4 C  dxz              59      0.639602   4 C  dyz       
+    27      0.393139   2 C  dxz              72      0.393140   5 C  dxz       
+    44      0.390739   3 C  dyz              89      0.390738   6 C  dyz       
+    29     -0.284259   2 C  dyz              42     -0.283935   3 C  dxz       
+
+ Vector   71  Occ=0.000000D+00  E= 1.515425D+00
+              MO Center=  1.2D-06, -2.7D-06,  1.6D-10, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      0.781646   2 C  dxz              44     -0.782851   3 C  dyz       
+    72      0.781647   5 C  dxz              89     -0.782849   6 C  dyz       
+    12     -0.142214   1 C  dxz              57     -0.142215   4 C  dxz       
+    14      0.140251   1 C  dyz              59      0.140253   4 C  dyz       
+    20     -0.114457   2 C  pz               35      0.114661   3 C  pz        
+
+ Vector   72  Occ=0.000000D+00  E= 1.756887D+00
+              MO Center= -9.4D-08,  5.0D-07,  2.0D-10, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      0.427831   1 C  dzz              30      0.427829   2 C  dzz       
+    45      0.427828   3 C  dzz              60      0.427830   4 C  dzz       
+    75      0.427829   5 C  dzz              90      0.427829   6 C  dzz       
+     6     -0.319373   1 C  s                21     -0.319392   2 C  s         
+    36     -0.319391   3 C  s                51     -0.319373   4 C  s         
+
+ Vector   73  Occ=0.000000D+00  E= 1.789873D+00
+              MO Center= -1.1D-07,  5.5D-07,  2.5D-11, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26      0.551683   2 C  dxy              41     -0.551683   3 C  dxy       
+    71     -0.551683   5 C  dxy              86      0.551683   6 C  dxy       
+    10     -0.318514   1 C  dxx              13      0.318514   1 C  dyy       
+    55      0.318514   4 C  dxx              58     -0.318514   4 C  dyy       
+    23      0.257141   2 C  py               37     -0.257141   3 C  px        
+
+ Vector   74  Occ=0.000000D+00  E= 1.857275D+00
+              MO Center= -2.6D-07,  1.4D-06,  1.1D-10, r^2= 3.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      0.652680   1 C  dxy              56      0.652680   4 C  dxy       
+    91     -0.343388   7 H  s                93     -0.343399   8 H  s         
+    95     -0.343398   9 H  s                97     -0.343388  10 H  s         
+    99     -0.343399  11 H  s               101     -0.343399  12 H  s         
+    26     -0.326340   2 C  dxy              41     -0.326339   3 C  dxy       
+
+ Vector   75  Occ=0.000000D+00  E= 1.895604D+00
+              MO Center=  4.2D-08, -1.4D-07,  4.0D-11, r^2= 5.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6     10.885253   1 C  s                21     10.885251   2 C  s         
+    36     10.885252   3 C  s                51    -10.885253   4 C  s         
+    66    -10.885252   5 C  s                81    -10.885251   6 C  s         
+    22      6.689861   2 C  px               38      6.689862   3 C  py        
+    67      6.689861   5 C  px               83      6.689861   6 C  py        
+
+ Vector   76  Occ=0.000000D+00  E= 1.973535D+00
+              MO Center= -6.7D-07, -3.4D-07,  1.8D-11, r^2= 3.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.861167   1 C  s                51     -0.861167   4 C  s         
+    11      0.849167   1 C  dxy              56     -0.849167   4 C  dxy       
+    23     -0.602075   2 C  py               37     -0.602490   3 C  px        
+    68     -0.602075   5 C  py               82     -0.602489   6 C  px        
+    91     -0.562627   7 H  s                97      0.562627  10 H  s         
+
+ Vector   77  Occ=0.000000D+00  E= 1.973535D+00
+              MO Center=  8.3D-07, -5.6D-07,  2.7D-11, r^2= 3.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      0.745479   2 C  s                36     -0.746103   3 C  s         
+    66     -0.745479   5 C  s                81      0.746103   6 C  s         
+     7      0.486595   1 C  px                8     -0.486384   1 C  py        
+    52      0.486595   4 C  px               53     -0.486384   4 C  py        
+    93     -0.487045   8 H  s                95      0.487453   9 H  s         
+
+ Vector   78  Occ=0.000000D+00  E= 2.066011D+00
+              MO Center=  3.3D-07, -2.3D-07,  8.2D-11, r^2= 2.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26      0.620713   2 C  dxy              41      0.619054   3 C  dxy       
+    71      0.620713   5 C  dxy              86      0.619054   6 C  dxy       
+     6     -0.515211   1 C  s                51     -0.515210   4 C  s         
+     2      0.499649   1 C  s                47      0.499649   4 C  s         
+     7      0.302762   1 C  px                8      0.303377   1 C  py        
+
+ Vector   79  Occ=0.000000D+00  E= 2.066011D+00
+              MO Center= -2.6D-07, -1.6D-07,  1.6D-10, r^2= 2.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26      0.526810   2 C  dxy              41     -0.528758   3 C  dxy       
+    71      0.526810   5 C  dxy              86     -0.528758   6 C  dxy       
+    10      0.462359   1 C  dxx              13     -0.462240   1 C  dyy       
+    55      0.462359   4 C  dxx              58     -0.462240   4 C  dyy       
+    21     -0.446591   2 C  s                36      0.445781   3 C  s         
+
+ Vector   80  Occ=0.000000D+00  E= 2.151644D+00
+              MO Center=  3.5D-07,  5.7D-07,  1.7D-10, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.719968   1 C  dxz              14      0.720806   1 C  dyz       
+    57     -0.719967   4 C  dxz              59     -0.720806   4 C  dyz       
+    29     -0.605693   2 C  dyz              42     -0.605787   3 C  dxz       
+    74      0.605693   5 C  dyz              87      0.605788   6 C  dxz       
+    27      0.366020   2 C  dxz              72     -0.366020   5 C  dxz       
+
+ Vector   81  Occ=0.000000D+00  E= 2.151644D+00
+              MO Center= -6.0D-07,  7.2D-07,  1.6D-10, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      0.925158   2 C  dxz              44     -0.925921   3 C  dyz       
+    72     -0.925157   5 C  dxz              89      0.925922   6 C  dyz       
+    12     -0.401342   1 C  dxz              14      0.399834   1 C  dyz       
+    57      0.401341   4 C  dxz              59     -0.399835   4 C  dyz       
+    24      0.276111   2 C  pz               39     -0.276444   3 C  pz        
+
+ Vector   82  Occ=0.000000D+00  E= 2.154419D+00
+              MO Center= -2.0D-07, -1.8D-07,  6.0D-11, r^2= 2.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.778676   1 C  s                51     -0.778676   4 C  s         
+     2     -0.549517   1 C  s                15     -0.547877   1 C  dzz       
+    47      0.549517   4 C  s                60      0.547877   4 C  dzz       
+    11     -0.504197   1 C  dxy              56      0.504197   4 C  dxy       
+     7     -0.484778   1 C  px                8     -0.484757   1 C  py        
+
+ Vector   83  Occ=0.000000D+00  E= 2.154427D+00
+              MO Center=  2.8D-07, -2.6D-07,  1.1D-10, r^2= 2.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      0.674331   2 C  s                36     -0.674380   3 C  s         
+    66     -0.674331   5 C  s                81      0.674381   6 C  s         
+    22      0.543402   2 C  px               38     -0.543451   3 C  py        
+    67      0.543403   5 C  px               83     -0.543452   6 C  py        
+    17     -0.475889   2 C  s                30     -0.474456   2 C  dzz       
+
+ Vector   84  Occ=0.000000D+00  E= 2.309489D+00
+              MO Center= -2.8D-07, -6.4D-08,  1.5D-10, r^2= 2.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      0.953588   2 C  dyz              42      0.951233   3 C  dxz       
+    74      0.953587   5 C  dyz              87      0.951234   6 C  dxz       
+    27      0.424067   2 C  dxz              44      0.424501   3 C  dyz       
+    72      0.424067   5 C  dxz              89      0.424501   6 C  dyz       
+    14      0.232509   1 C  dyz              59      0.232510   4 C  dyz       
+
+ Vector   85  Occ=0.000000D+00  E= 2.309489D+00
+              MO Center=  3.2D-07, -1.4D-07,  4.5D-11, r^2= 2.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.841224   1 C  dxz              14     -0.840385   1 C  dyz       
+    57      0.841224   4 C  dxz              59     -0.840384   4 C  dyz       
+    42      0.649229   3 C  dxz              87      0.649229   6 C  dxz       
+    29     -0.645766   2 C  dyz              74     -0.645767   5 C  dyz       
+    27      0.120145   2 C  dxz              72      0.120145   5 C  dxz       
+
+ Vector   86  Occ=0.000000D+00  E= 2.321640D+00
+              MO Center=  1.7D-07, -9.2D-07,  3.1D-10, r^2= 2.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      0.822325   2 C  dxz              44      0.822326   3 C  dyz       
+    72      0.822326   5 C  dxz              89      0.822325   6 C  dyz       
+    12     -0.601982   1 C  dxz              14     -0.601982   1 C  dyz       
+    57     -0.601983   4 C  dxz              59     -0.601983   4 C  dyz       
+     9      0.376733   1 C  pz               24      0.376734   2 C  pz        
+
+ Vector   87  Occ=0.000000D+00  E= 2.545745D+00
+              MO Center=  2.7D-07,  3.1D-07,  1.1D-10, r^2= 3.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      3.042431   1 C  s                51      3.042427   4 C  s         
+    21     -1.521723   2 C  s                36     -1.520698   3 C  s         
+    66     -1.521727   5 C  s                81     -1.520702   6 C  s         
+     7     -1.023468   1 C  px                8     -1.023635   1 C  py        
+    52      1.023466   4 C  px               53      1.023633   4 C  py        
+
+ Vector   88  Occ=0.000000D+00  E= 2.545746D+00
+              MO Center= -4.2D-07,  4.1D-07,  1.3D-10, r^2= 3.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      2.634533   2 C  s                36     -2.635119   3 C  s         
+    66      2.634528   5 C  s                81     -2.635125   6 C  s         
+    22      1.289443   2 C  px               38     -1.289659   3 C  py        
+    67     -1.289440   5 C  px               83      1.289662   6 C  py        
+    30     -0.604974   2 C  dzz              45      0.605109   3 C  dzz       
+
+ Vector   89  Occ=0.000000D+00  E= 2.656913D+00
+              MO Center=  1.1D-07, -5.7D-07,  9.2D-11, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      0.925957   2 C  dyz              42     -0.925958   3 C  dxz       
+    74     -0.925957   5 C  dyz              87      0.925957   6 C  dxz       
+    12      0.677848   1 C  dxz              14     -0.677848   1 C  dyz       
+    57     -0.677848   4 C  dxz              59      0.677848   4 C  dyz       
+    27      0.248109   2 C  dxz              44     -0.248110   3 C  dyz       
+
+ Vector   90  Occ=0.000000D+00  E= 2.705414D+00
+              MO Center=  1.8D-07, -3.9D-08,  2.5D-12, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      1.322997   1 C  dxy              56      1.322997   4 C  dxy       
+     6     -0.874953   1 C  s                51     -0.874954   4 C  s         
+    21      0.438182   2 C  s                36      0.436773   3 C  s         
+    66      0.438181   5 C  s                81      0.436772   6 C  s         
+    26      0.396408   2 C  dxy              41      0.395413   3 C  dxy       
+
+ Vector   91  Occ=0.000000D+00  E= 2.705414D+00
+              MO Center= -1.7D-07, -4.7D-09,  6.4D-13, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      0.757320   2 C  s                36     -0.758134   3 C  s         
+    66      0.757321   5 C  s                81     -0.758133   6 C  s         
+    28      0.574014   2 C  dyy              40     -0.574584   3 C  dxx       
+    73      0.574014   5 C  dyy              85     -0.574584   6 C  dxx       
+    26      0.534885   2 C  dxy              41     -0.535621   3 C  dxy       
+
+ Vector   92  Occ=0.000000D+00  E= 2.721927D+00
+              MO Center= -3.7D-07,  7.9D-08,  1.2D-11, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.208077   1 C  s                51     -1.208078   4 C  s         
+    26     -1.151998   2 C  dxy              41     -1.151001   3 C  dxy       
+    71      1.151997   5 C  dxy              86      1.151001   6 C  dxy       
+    23     -1.063218   2 C  py               37     -1.062173   3 C  px        
+    68     -1.063217   5 C  py               82     -1.062174   6 C  px        
+
+ Vector   93  Occ=0.000000D+00  E= 2.721928D+00
+              MO Center=  3.6D-07, -1.6D-08,  2.5D-11, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      1.046691   2 C  s                36     -1.045712   3 C  s         
+    66     -1.046691   5 C  s                81      1.045711   6 C  s         
+     7      0.909508   1 C  px                8     -0.909391   1 C  py        
+    52      0.909508   4 C  px               53     -0.909390   4 C  py        
+    10     -0.753212   1 C  dxx              13      0.752975   1 C  dyy       
+
+ Vector   94  Occ=0.000000D+00  E= 2.760060D+00
+              MO Center=  1.5D-07, -7.3D-07,  1.3D-10, r^2= 3.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      7.363581   1 C  s                21      7.363590   2 C  s         
+    36      7.363591   3 C  s                51     -7.363582   4 C  s         
+    66     -7.363591   5 C  s                81     -7.363589   6 C  s         
+    22      3.968362   2 C  px               38      3.968363   3 C  py        
+    67      3.968363   5 C  px               83      3.968362   6 C  py        
+
+ Vector   95  Occ=0.000000D+00  E= 3.016980D+00
+              MO Center=  1.3D-07, -6.9D-07,  1.1D-12, r^2= 3.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23      1.713427   2 C  py               37     -1.713427   3 C  px        
+    68     -1.713427   5 C  py               82      1.713426   6 C  px        
+     7      1.254315   1 C  px                8     -1.254315   1 C  py        
+    52     -1.254316   4 C  px               53      1.254316   4 C  py        
+    26      1.073892   2 C  dxy              41     -1.073893   3 C  dxy       
+
+ Vector   96  Occ=0.000000D+00  E= 3.410181D+00
+              MO Center=  5.0D-08, -2.7D-07,  6.2D-12, r^2= 3.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      4.162524   1 C  s                21      4.162524   2 C  s         
+    36      4.162524   3 C  s                51     -4.162524   4 C  s         
+    66     -4.162524   5 C  s                81     -4.162524   6 C  s         
+    22      2.253605   2 C  px               38      2.253605   3 C  py        
+    67      2.253605   5 C  px               83      2.253605   6 C  py        
+
+ Vector   97  Occ=0.000000D+00  E= 4.085195D+00
+              MO Center= -1.4D-06,  7.3D-06, -1.6D-11, r^2= 2.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      1.303441   1 C  s                17      1.303442   2 C  s         
+    32      1.303433   3 C  s                47      1.303434   4 C  s         
+    62      1.303437   5 C  s                77      1.303446   6 C  s         
+    25     -0.739722   2 C  dxx              43     -0.739717   3 C  dyy       
+    70     -0.739719   5 C  dxx              88     -0.739725   6 C  dyy       
+
+ Vector   98  Occ=0.000000D+00  E= 4.117737D+00
+              MO Center= -3.1D-06, -2.5D-06,  2.3D-11, r^2= 2.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      1.724875   1 C  s                47     -1.724880   4 C  s         
+    15     -1.091609   1 C  dzz              60      1.091612   4 C  dzz       
+    10     -1.055543   1 C  dxx              13     -1.055427   1 C  dyy       
+    55      1.055545   4 C  dxx              58      1.055429   4 C  dyy       
+    17     -0.863128   2 C  s                32     -0.861754   3 C  s         
+
+ Vector   99  Occ=0.000000D+00  E= 4.117739D+00
+              MO Center=  4.3D-06, -3.8D-06,  3.9D-11, r^2= 2.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      1.493385   2 C  s                32     -1.494185   3 C  s         
+    62     -1.493393   5 C  s                77      1.494179   6 C  s         
+    28     -0.941505   2 C  dyy              30     -0.945110   2 C  dzz       
+    40      0.941942   3 C  dxx              45      0.945616   3 C  dzz       
+    73      0.941509   5 C  dyy              75      0.945115   5 C  dzz       
+
+ Vector  100  Occ=0.000000D+00  E= 4.330340D+00
+              MO Center=  4.2D-07, -2.4D-07,  3.3D-12, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.786107   1 C  s                51      1.786106   4 C  s         
+     2      1.648962   1 C  s                47      1.648962   4 C  s         
+    10     -1.234322   1 C  dxx              13     -1.234680   1 C  dyy       
+    55     -1.234322   4 C  dxx              58     -1.234680   4 C  dyy       
+    15     -1.049738   1 C  dzz              60     -1.049738   4 C  dzz       
+
+ Vector  101  Occ=0.000000D+00  E= 4.330340D+00
+              MO Center= -3.3D-07, -2.2D-07, -3.6D-11, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      1.545564   2 C  s                36     -1.548063   3 C  s         
+    66      1.545562   5 C  s                81     -1.548065   6 C  s         
+    17      1.426887   2 C  s                32     -1.429196   3 C  s         
+    62      1.426886   5 C  s                77     -1.429196   6 C  s         
+    28     -1.123393   2 C  dyy              40      1.125418   3 C  dxx       
+
+ Vector  102  Occ=0.000000D+00  E= 4.665892D+00
+              MO Center=  1.2D-07, -6.5D-07,  1.4D-12, r^2= 3.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      3.541591   1 C  s                21      3.541591   2 C  s         
+    36      3.541591   3 C  s                51     -3.541591   4 C  s         
+    66     -3.541591   5 C  s                81     -3.541590   6 C  s         
+    22      1.429363   2 C  px               38      1.429363   3 C  py        
+    67      1.429363   5 C  px               83      1.429363   6 C  py        
+
+
+ center of mass
+ --------------
+ x =  -0.00000000 y =   0.00000000 z =   0.00000000
+
+ moments of inertia (a.u.)
+ ------------------
+         317.358127126875           0.000000453688           0.000000000000
+           0.000000453688         317.358127126875           0.000000000000
+           0.000000000000           0.000000000000         634.716254253751
+
+     Multipole analysis of the density
+     ---------------------------------
+
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0     -0.000000    -21.000000    -21.000000     42.000000
+
+     1   1 0 0      0.000001      0.000000      0.000000     -0.000000
+     1   0 1 0     -0.000003     -0.000002     -0.000002      0.000000
+     1   0 0 1      0.000000      0.000000      0.000000      0.000000
+
+     2   2 0 0    -23.347072   -107.404643   -107.404643    191.462214
+     2   1 1 0     -0.000001     -0.000000     -0.000000     -0.000000
+     2   1 0 1     -0.000000     -0.000000     -0.000000      0.000000
+     2   0 2 0    -23.347072   -107.404643   -107.404643    191.462214
+     2   0 1 1     -0.000000     -0.000000     -0.000000      0.000000
+     2   0 0 2    -28.698773    -14.349386    -14.349386      0.000000
+
+
+ Parallel integral file used     178 records with       0 large values
+
+  stpr_wrt_fd_from_sq: overwrite of existing file:./hess_c6h6_restart.hess
+ stpr_wrt_fd_dipole: overwrite of existing file./hess_c6h6_restart.fd_ddipole
+
+ HESSIAN: the one electron contributions are done in       0.2s
+
+
+ HESSIAN: 2-el 1st deriv. term done in                     3.1s
+
+
+ HESSIAN: 2-el 2nd deriv. term done in                    14.9s
+
+  stpr_wrt_fd_from_sq: overwrite of existing file:./hess_c6h6_restart.hess
+ stpr_wrt_fd_dipole: overwrite of existing file./hess_c6h6_restart.fd_ddipole
+
+ HESSIAN: the two electron contributions are done in      64.8s
+
+ Restarting rhs from: ./hess_c6h6_restart.cphf_rhs                                                                                                                                                                                                                                    
+                                NWChem CPHF Module
+                                ------------------
+
+
+  scftype          =     RHF 
+  nclosed          =       21
+  nopen            =        0
+  variables        =     1701
+  # of vectors     =       36
+  tolerance        = 0.10D-03
+  level shift      = 0.00D+00
+  max iterations   =       50
+  max subspace     =      360
+
+
+ Integral file          = ./hess_c6h6_restart.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =    109        Max. records in file   = 150029
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ #quartets = 6.674D+05 #integrals = 7.670D+06 #direct =  0.0% #cached =100.0%
+
+
+File balance: exchanges=     3  moved=    41  time=   0.0
+
+ Grid integrated density:      42.000025880210
+ Requested integration accuracy:   0.10E-13
+ SCF residual:    2.3202739586043358E-006
+
+
+Iterative solution of linear equations
+  No. of variables     1701
+  No. of equations       36
+  Maximum subspace      360
+        Iterations       50
+       Convergence  1.0D-04
+        Start time    125.4
+
+ Restarting solution from: ./hess_c6h6_restart.cphf_sol                                                                                                                                                                                                                                   
+
+   iter   nsub   residual    time
+   ----  ------  --------  ---------
+     1     36    4.03D-05     179.7
+
+ Parallel integral file used     177 records with       0 large values
+
+ HESSIAN: the CPHF contributions are done
+  stpr_wrt_fd_from_sq: overwrite of existing file:./hess_c6h6_restart.hess
+ stpr_wrt_fd_dipole: overwrite of existing file./hess_c6h6_restart.fd_ddipole
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0351     [    0.1686]
+ d_dipole_x/<atom=   1,y> =     0.1020     [    0.4899]
+ d_dipole_x/<atom=   1,z> =    -0.0000     [   -0.0000]
+ d_dipole_x/<atom=   2,x> =     0.1234     [    0.5928]
+ d_dipole_x/<atom=   2,y> =    -0.0510     [   -0.2449]
+ d_dipole_x/<atom=   2,z> =    -0.0000     [   -0.0000]
+ d_dipole_x/<atom=   3,x> =    -0.0532     [   -0.2556]
+ d_dipole_x/<atom=   3,y> =    -0.0510     [   -0.2449]
+ d_dipole_x/<atom=   3,z> =    -0.0000     [   -0.0000]
+ d_dipole_x/<atom=   4,x> =     0.0351     [    0.1686]
+ d_dipole_x/<atom=   4,y> =     0.1020     [    0.4899]
+ d_dipole_x/<atom=   4,z> =    -0.0000     [   -0.0000]
+ d_dipole_x/<atom=   5,x> =     0.1234     [    0.5928]
+ d_dipole_x/<atom=   5,y> =    -0.0510     [   -0.2449]
+ d_dipole_x/<atom=   5,z> =    -0.0000     [   -0.0000]
+ d_dipole_x/<atom=   6,x> =    -0.0532     [   -0.2556]
+ d_dipole_x/<atom=   6,y> =    -0.0510     [   -0.2449]
+ d_dipole_x/<atom=   6,z> =    -0.0000     [   -0.0000]
+ d_dipole_x/<atom=   7,x> =    -0.0351     [   -0.1687]
+ d_dipole_x/<atom=   7,y> =    -0.0918     [   -0.4410]
+ d_dipole_x/<atom=   7,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   8,x> =    -0.1146     [   -0.5505]
+ d_dipole_x/<atom=   8,y> =     0.0459     [    0.2205]
+ d_dipole_x/<atom=   8,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   9,x> =     0.0444     [    0.2132]
+ d_dipole_x/<atom=   9,y> =     0.0459     [    0.2205]
+ d_dipole_x/<atom=   9,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=  10,x> =    -0.0351     [   -0.1687]
+ d_dipole_x/<atom=  10,y> =    -0.0918     [   -0.4410]
+ d_dipole_x/<atom=  10,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=  11,x> =    -0.1146     [   -0.5505]
+ d_dipole_x/<atom=  11,y> =     0.0459     [    0.2205]
+ d_dipole_x/<atom=  11,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=  12,x> =     0.0444     [    0.2132]
+ d_dipole_x/<atom=  12,y> =     0.0459     [    0.2205]
+ d_dipole_x/<atom=  12,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.1020     [    0.4899]
+ d_dipole_y/<atom=   1,y> =     0.0351     [    0.1686]
+ d_dipole_y/<atom=   1,z> =    -0.0000     [   -0.0000]
+ d_dipole_y/<atom=   2,x> =    -0.0510     [   -0.2449]
+ d_dipole_y/<atom=   2,y> =    -0.0532     [   -0.2556]
+ d_dipole_y/<atom=   2,z> =    -0.0000     [   -0.0000]
+ d_dipole_y/<atom=   3,x> =    -0.0510     [   -0.2449]
+ d_dipole_y/<atom=   3,y> =     0.1234     [    0.5928]
+ d_dipole_y/<atom=   3,z> =    -0.0000     [   -0.0000]
+ d_dipole_y/<atom=   4,x> =     0.1020     [    0.4899]
+ d_dipole_y/<atom=   4,y> =     0.0351     [    0.1686]
+ d_dipole_y/<atom=   4,z> =    -0.0000     [   -0.0000]
+ d_dipole_y/<atom=   5,x> =    -0.0510     [   -0.2449]
+ d_dipole_y/<atom=   5,y> =    -0.0532     [   -0.2556]
+ d_dipole_y/<atom=   5,z> =    -0.0000     [   -0.0000]
+ d_dipole_y/<atom=   6,x> =    -0.0510     [   -0.2449]
+ d_dipole_y/<atom=   6,y> =     0.1234     [    0.5928]
+ d_dipole_y/<atom=   6,z> =    -0.0000     [   -0.0000]
+ d_dipole_y/<atom=   7,x> =    -0.0918     [   -0.4410]
+ d_dipole_y/<atom=   7,y> =    -0.0351     [   -0.1687]
+ d_dipole_y/<atom=   7,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   8,x> =     0.0459     [    0.2205]
+ d_dipole_y/<atom=   8,y> =     0.0444     [    0.2132]
+ d_dipole_y/<atom=   8,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   9,x> =     0.0459     [    0.2205]
+ d_dipole_y/<atom=   9,y> =    -0.1146     [   -0.5505]
+ d_dipole_y/<atom=   9,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=  10,x> =    -0.0918     [   -0.4410]
+ d_dipole_y/<atom=  10,y> =    -0.0351     [   -0.1687]
+ d_dipole_y/<atom=  10,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=  11,x> =     0.0459     [    0.2205]
+ d_dipole_y/<atom=  11,y> =     0.0444     [    0.2132]
+ d_dipole_y/<atom=  11,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=  12,x> =     0.0459     [    0.2205]
+ d_dipole_y/<atom=  12,y> =    -0.1146     [   -0.5505]
+ d_dipole_y/<atom=  12,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =    -0.0000     [   -0.0000]
+ d_dipole_z/<atom=   1,y> =    -0.0000     [   -0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.1110     [   -0.5332]
+ d_dipole_z/<atom=   2,x> =    -0.0000     [   -0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =    -0.1110     [   -0.5331]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =    -0.0000     [   -0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.1110     [   -0.5331]
+ d_dipole_z/<atom=   4,x> =    -0.0000     [   -0.0000]
+ d_dipole_z/<atom=   4,y> =    -0.0000     [   -0.0000]
+ d_dipole_z/<atom=   4,z> =    -0.1110     [   -0.5332]
+ d_dipole_z/<atom=   5,x> =    -0.0000     [   -0.0000]
+ d_dipole_z/<atom=   5,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   5,z> =    -0.1110     [   -0.5331]
+ d_dipole_z/<atom=   6,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   6,y> =    -0.0000     [   -0.0000]
+ d_dipole_z/<atom=   6,z> =    -0.1110     [   -0.5331]
+ d_dipole_z/<atom=   7,x> =    -0.0000     [   -0.0000]
+ d_dipole_z/<atom=   7,y> =    -0.0000     [   -0.0000]
+ d_dipole_z/<atom=   7,z> =     0.1110     [    0.5331]
+ d_dipole_z/<atom=   8,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   8,y> =    -0.0000     [   -0.0000]
+ d_dipole_z/<atom=   8,z> =     0.1110     [    0.5331]
+ d_dipole_z/<atom=   9,x> =    -0.0000     [   -0.0000]
+ d_dipole_z/<atom=   9,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   9,z> =     0.1110     [    0.5331]
+ d_dipole_z/<atom=  10,x> =    -0.0000     [   -0.0000]
+ d_dipole_z/<atom=  10,y> =    -0.0000     [   -0.0000]
+ d_dipole_z/<atom=  10,z> =     0.1110     [    0.5331]
+ d_dipole_z/<atom=  11,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=  11,y> =    -0.0000     [   -0.0000]
+ d_dipole_z/<atom=  11,z> =     0.1110     [    0.5331]
+ d_dipole_z/<atom=  12,x> =    -0.0000     [   -0.0000]
+ d_dipole_z/<atom=  12,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=  12,z> =     0.1110     [    0.5331]
+  
+  
+ HESSIAN: the Hessian is done
+
+
+  Vibrational analysis via the FX method 
+
+  See chapter 2 in "Molecular Vibrations" by Wilson, Decius and Cross
+
+  Vib: Default input used 
+
+  Nuclear Hessian passed symmetry test 
+
+
+
+ ---------------------------- Atom information ----------------------------
+     atom    #        X              Y              Z            mass
+ --------------------------------------------------------------------------
+    C        1  1.8662113D+00  1.8662113D+00  0.0000000D+00  1.2000000D+01
+    C        2 -2.5492921D+00  6.8308076D-01  0.0000000D+00  1.2000000D+01
+    C        3  6.8308076D-01 -2.5492921D+00  0.0000000D+00  1.2000000D+01
+    C        4 -1.8662113D+00 -1.8662113D+00  0.0000000D+00  1.2000000D+01
+    C        5  2.5492921D+00 -6.8308076D-01  0.0000000D+00  1.2000000D+01
+    C        6 -6.8308076D-01  2.5492921D+00  0.0000000D+00  1.2000000D+01
+    H        7  3.3187197D+00  3.3187197D+00  0.0000000D+00  1.0078250D+00
+    H        8 -4.5334555D+00  1.2147357D+00  0.0000000D+00  1.0078250D+00
+    H        9  1.2147357D+00 -4.5334555D+00  0.0000000D+00  1.0078250D+00
+    H       10 -3.3187197D+00 -3.3187197D+00  0.0000000D+00  1.0078250D+00
+    H       11  4.5334555D+00 -1.2147357D+00  0.0000000D+00  1.0078250D+00
+    H       12 -1.2147357D+00  4.5334555D+00  0.0000000D+00  1.0078250D+00
+ --------------------------------------------------------------------------
+
+
+
+
+          ----------------------------------------------------
+          MASS-WEIGHTED NUCLEAR HESSIAN (Hartree/Bohr/Bohr/Kamu)
+          ----------------------------------------------------
+
+
+               1            2            3            4            5            6            7            8            9           10
+   ----- ----- ----- ----- -----
+    1    5.90383D+01
+    2    2.94901D+00  5.90382D+01
+    3   -1.63837D-08  2.20343D-08  1.09514D+01
+    4   -4.10313D+00 -4.90077D-01 -1.42091D-07  6.15921D+01
+    5   -4.64837D+00  4.79680D+00 -2.26202D-07 -1.47441D+00  5.64841D+01
+    6   -2.90618D-08  1.18533D-08  6.59930D-01  1.38316D-07 -2.22422D-08  1.09514D+01
+    7    4.79680D+00 -4.64837D+00 -2.51049D-07  3.46423D-01  7.21777D+00  5.68078D-08  5.64841D+01
+    8   -4.90082D-01 -4.10313D+00 -4.87228D-08  3.06024D+00  3.46580D-01 -1.27587D-07 -1.47443D+00  6.15921D+01
+    9   -1.71625D-08 -1.04765D-08  6.59936D-01  8.37576D-08 -6.34508D-08  6.60150D-01 -2.52871D-08 -2.63851D-08  1.09514D+01
+   10   -2.95150D+00  2.84608D+00 -2.94963D-07 -1.19982D+01  1.61255D+00  7.15748D-08 -2.72296D+01  7.18143D+00  1.51748D-07  5.90382D+01
+   11    2.84609D+00 -2.95150D+00 -2.46118D-07  7.18143D+00 -2.72296D+01 -1.00092D-07  1.61254D+00 -1.19982D+01  3.24566D-07  2.94901D+00
+   12   -3.28674D-08  3.26458D-09 -7.16957D-01  1.05267D-07 -1.95575D-08 -5.06959D+00  6.47413D-09  5.26280D-08 -5.06960D+00 -9.56287D-09
+   13   -1.19982D+01  7.18148D+00 -1.84257D-07 -4.87186D-01 -1.42284D+00  6.42869D-08 -1.96141D+01 -1.15779D+01  5.86289D-08 -4.10313D+00
+   14    1.61258D+00 -2.72296D+01 -2.61540D-07 -1.42283D+00 -5.41647D+00 -2.41698D-09 -6.00933D+00 -1.96141D+01  8.80559D-08 -4.64837D+00
+   15   -5.76292D-08  5.74025D-09 -5.06959D+00  1.59956D-08 -5.48659D-08 -7.16954D-01 -8.45747D-08  5.67814D-08 -5.06953D+00  6.42800D-08
+   16   -2.72297D+01  1.61258D+00 -2.83287D-07 -1.96141D+01 -6.00936D+00  8.88679D-08 -5.41647D+00 -1.42283D+00 -6.71244D-09  4.79680D+00
+   17    7.18148D+00 -1.19982D+01 -1.30114D-07 -1.15780D+01 -1.96141D+01 -1.75131D-07 -1.42284D+00 -4.87184D-01  2.78072D-07 -4.90075D-01
+   18   -4.00603D-08 -2.09385D-08 -5.06958D+00  9.86641D-08 -9.74769D-08 -5.06951D+00 -4.01095D-08 -1.17809D-08 -7.16954D-01  2.26957D-08
+   19   -5.72833D+01 -3.98512D+01  1.64707D-06 -1.32741D+00  1.00130D+00  1.97885D-07  1.50584D-01  5.93733D-01 -1.19451D-06 -8.43464D-02
+   20   -3.98512D+01 -5.72833D+01  1.70029D-06  5.93744D-01  1.50580D-01  1.09217D-08  1.00130D+00 -1.32742D+00 -1.01192D-06  3.08204D-01
+   21    8.95066D-08  9.23273D-09 -1.02515D+01 -1.64061D-07  1.30195D-07  2.02686D+00  5.77170D-08 -5.73209D-08  2.02687D+00 -7.73801D-08
+   22   -2.67285D-01 -1.24257D+00  1.23639D-06 -9.17955D+01  1.99255D+01 -5.11600D-07  4.71737D-01  4.45031D-01 -1.72798D-07 -1.21396D+00
+   23   -8.34983D-01 -9.09646D-01 -5.18603D-07  1.99256D+01 -2.27713D+01  2.56656D-08  3.74404D-02 -1.64867D+00  3.24918D-07  9.06924D+00
+   24    6.08878D-08 -2.67608D-08  2.02686D+00 -5.92034D-08  1.76822D-07 -1.02514D+01  1.24397D-07 -9.65694D-08  2.02691D+00 -1.93904D-07
+   25   -9.09646D-01 -8.34981D-01 -4.19357D-07 -1.64868D+00  3.74348D-02 -2.05853D-07 -2.27713D+01  1.99256D+01  5.50302D-07 -8.09566D-01
+   26   -1.24258D+00 -2.67279D-01  7.11040D-07  4.45035D-01  4.71736D-01  7.23847D-07  1.99255D+01 -9.17955D+01 -1.35812D-06 -6.17985D-02
+   27    9.44211D-08 -6.14868D-08  2.02685D+00 -2.03408D-07  1.31861D-07  2.02690D+00  1.60444D-07 -3.24736D-08 -1.02515D+01 -7.73463D-08
+   28   -8.43345D-02  3.08216D-01  1.63738D-06  2.78762D+00  2.13847D+00  1.66573D-07 -4.81094D+00 -6.99253D+00 -1.18493D-06 -5.72833D+01
+   29    3.08214D-01 -8.43355D-02  1.69603D-06 -6.99251D+00 -4.81093D+00  1.04985D-08  2.13848D+00  2.78762D+00 -1.02688D-06 -3.98512D+01
+   30    1.03071D-07  1.19251D-08 -6.47941D-02 -2.44437D-07  9.78299D-08  6.90761D-01  2.98109D-08 -1.78508D-07  6.90764D-01 -2.33475D-08
+   31   -1.21395D+00 -6.17887D-02  1.24253D-06  1.82410D-01 -1.54066D-01 -4.98193D-07 -5.01316D+00  2.48873D+00 -2.00126D-07 -2.67288D-01
+   32    9.06924D+00 -8.09567D-01 -5.21118D-07 -1.54050D-01 -3.51274D-01  4.80926D-08 -6.64225D+00  2.98974D+00  3.35841D-07 -8.34976D-01
+   33    1.17270D-07 -1.92436D-09  6.90763D-01 -1.30881D-07  1.58648D-07 -6.47122D-02  1.71504D-07 -1.49930D-07  6.90695D-01 -8.82546D-08
+   34   -8.09571D-01  9.06922D+00 -4.27146D-07  2.98973D+00 -6.64223D+00 -2.00579D-07 -3.51273D-01 -1.54047D-01  5.53971D-07 -9.09638D-01
+   35   -6.17858D-02 -1.21394D+00  7.68727D-07  2.48872D+00 -5.01313D+00  7.07317D-07 -1.54066D-01  1.82401D-01 -1.36568D-06 -1.24258D+00
+   36    1.19869D-07  1.80005D-08  6.90753D-01 -2.64351D-07  1.95639D-07  6.90682D-01  1.16916D-07 -4.25222D-08 -6.47225D-02 -2.92793D-08
+
+
+              11           12           13           14           15           16           17           18           19           20
+   ----- ----- ----- ----- -----
+   11    5.90383D+01
+   12   -2.31684D-08  1.09514D+01
+   13   -4.90080D-01 -6.46711D-10  6.15921D+01
+   14    4.79680D+00 -2.87634D-07 -1.47443D+00  5.64841D+01
+   15    1.72684D-08  6.59939D-01  9.81646D-09  7.23802D-09  1.09514D+01
+   16   -4.64837D+00 -3.08676D-07  3.46427D-01  7.21776D+00  2.15102D-07  5.64841D+01
+   17   -4.10313D+00 -1.63857D-08  3.06024D+00  3.46578D-01 -1.62009D-07 -1.47443D+00  6.15921D+01
+   18    6.67841D-08  6.59932D-01 -6.98536D-09  4.77380D-08  6.60145D-01  1.09262D-08 -2.66878D-09  1.09514D+01
+   19    3.08207D-01  1.12540D-06  2.78761D+00  2.13848D+00 -1.79282D-07 -4.81093D+00 -6.99250D+00 -1.13825D-06  2.07584D+02
+   20   -8.43417D-02  1.12062D-06 -6.99251D+00 -4.81093D+00 -3.54066D-07  2.13847D+00  2.78762D+00 -1.01542D-06  1.48784D+02  2.07584D+02
+   21   -1.12423D-07 -6.48019D-02  1.83838D-07 -1.08295D-07  6.90755D-01 -1.16629D-07  2.26562D-07  6.90752D-01 -3.22039D-07 -1.83427D-07
+   22   -6.17967D-02  5.69298D-07  1.82405D-01 -1.54070D-01 -6.67090D-07 -5.01314D+00  2.48872D+00 -2.59896D-07 -1.00684D+00  4.69145D-01
+   23   -8.09572D-01 -2.07597D-07 -1.54050D-01 -3.51271D-01  7.36972D-08 -6.64222D+00  2.98974D+00  2.43227D-07 -1.27793D+00  3.93949D-01
+   24   -6.22454D-08  6.90759D-01 -2.56287D-08 -6.11820D-08 -6.47183D-02 -1.30674D-07  4.72585D-08  6.90685D-01 -2.44003D-07 -1.44282D-07
+   25    9.06926D+00 -2.00612D-07  2.98975D+00 -6.64224D+00 -1.52693D-07 -3.51271D-01 -1.54051D-01  3.71569D-07  3.93949D-01 -1.27794D+00
+   26   -1.21396D+00  5.14709D-07  2.48873D+00 -5.01316D+00  5.72603D-07 -1.54071D-01  1.82408D-01 -1.00774D-06  4.69144D-01 -1.00685D+00
+   27   -1.53298D-07  6.90770D-01  1.25344D-08 -1.19193D-07  6.90698D-01 -1.22858D-07  3.33292D-08 -6.47080D-02 -1.61715D-07 -2.70946D-07
+   28   -3.98512D+01  1.16001D-06 -1.32742D+00  1.00130D+00 -1.53274D-07  1.50575D-01  5.93741D-01 -1.13431D-06  8.67160D-02 -1.75461D-01
+   29   -5.72833D+01  1.14660D-06  5.93732D-01  1.50580D-01 -3.56431D-07  1.00130D+00 -1.32741D+00 -9.92511D-07 -1.75460D-01  8.67171D-02
+   30   -3.63779D-08 -1.02515D+01  1.07474D-07 -1.09490D-07  2.02686D+00 -1.25607D-07  1.76522D-07  2.02686D+00 -1.64897D-07 -1.74854D-07
+   31   -1.24259D+00  5.92274D-07 -9.17955D+01  1.99255D+01 -6.39575D-07  4.71733D-01  4.45032D-01 -2.85869D-07  8.76762D-01  3.15954D-01
+   32   -9.09640D-01 -2.18676D-07  1.99256D+01 -2.27713D+01  6.20051D-08  3.74402D-02 -1.64868D+00  2.30165D-07 -4.24084D-01  1.06340D+00
+   33   -4.02924D-08  2.02686D+00  5.33066D-08 -5.01315D-08 -1.02515D+01 -7.56137D-08  3.39282D-08  2.02690D+00 -3.58854D-07 -2.73092D-07
+   34   -8.34983D-01 -1.99253D-07 -1.64867D+00  3.74440D-02 -1.70447D-07 -2.27713D+01  1.99256D+01  3.68117D-07  1.06340D+00 -4.24085D-01
+   35   -2.67284D-01  5.53142D-07  4.45025D-01  4.71735D-01  5.62301D-07  1.99255D+01 -9.17955D+01 -9.82696D-07  3.15949D-01  8.76758D-01
+   36   -1.93903D-08  2.02686D+00 -1.03358D-08 -2.23307D-08  2.02691D+00 -6.80350D-08  1.87091D-08 -1.02514D+01 -3.35705D-07 -3.50824D-07
+
+
+              21           22           23           24           25           26           27           28           29           30
+   ----- ----- ----- ----- -----
+   21    2.52448D+01
+   22   -1.48330D-06  3.36435D+02
+   23    5.92685D-07 -7.43922D+01  7.87328D+01
+   24    3.50105D-01  9.47764D-07 -3.38841D-07  2.52446D+01
+   25    4.74418D-07 -3.06564D-01  1.68236D+00  2.59596D-07  7.87328D+01
+   26   -7.87520D-07 -6.44763D-02 -3.06524D-01 -4.06091D-07 -7.43921D+01  3.36435D+02
+   27    3.50101D-01  6.01956D-07 -2.13096D-07  3.50176D-01 -2.24571D-07  7.52544D-07  2.52446D+01
+   28   -2.03929D-06  8.76398D-01 -4.23738D-01 -4.06878D-07  1.06362D+00  3.16116D-01  1.70191D-06  2.07584D+02
+   29   -2.09783D-06  3.16109D-01  1.06362D+00 -4.38393D-07 -4.23734D-01  8.76400D-01  1.75273D-06  1.48784D+02  2.07584D+02
+   30   -1.34335D+00  5.87455D-07 -2.27912D-07 -3.87957D+00 -1.57043D-07  5.19056D-07 -3.87957D+00  2.32742D-07  2.86434D-07  2.52448D+01
+   31   -1.57509D-06 -6.47338D-02  8.75896D-02 -2.31867D-07  9.70132D-01 -2.61911D-01  1.05093D-06 -1.00684D+00  4.69150D-01 -4.84793D-07
+   32    5.69667D-07  8.75123D-02  2.38734D-01  2.08359D-07  4.77893D-01  9.69807D-01 -7.60379D-07 -1.27794D+00  3.93948D-01  6.58958D-08
+   33   -3.87955D+00  4.33679D-07 -1.91252D-07 -1.34337D+00 -1.30296D-07  5.32131D-07 -3.87952D+00  1.14830D-07  9.40021D-08  3.50100D-01
+   34    4.32396D-07  9.69805D-01  4.77896D-01  2.38318D-07  2.38733D-01  8.75122D-02 -8.28000D-07  3.93948D-01 -1.27794D+00  1.09516D-07
+   35   -8.83108D-07 -2.61897D-01  9.70129D-01 -4.21075D-07  8.75888D-02 -6.47265D-02  1.58001D-06  4.69144D-01 -1.00685D+00 -7.63630D-07
+   36   -3.87955D+00  6.70315D-07 -2.16629D-07 -3.87952D+00 -1.00498D-07  2.38991D-07 -1.34337D+00  6.90192D-08  4.41440D-08  3.50104D-01
+
+
+              31           32           33           34           35           36
+   ----- ----- ----- ----- -----
+   31    3.36435D+02
+   32   -7.43922D+01  7.87328D+01
+   33   -2.67278D-07  1.21758D-07  2.52446D+01
+   34   -3.06562D-01  1.68235D+00  4.62166D-07  7.87327D+01
+   35   -6.44741D-02 -3.06517D-01 -1.11683D-06 -7.43921D+01  3.36435D+02
+   36    2.35380D-08  9.37572D-08  3.50179D-01  6.62606D-08 -3.31029D-07  2.52446D+01
+
+
+
+          -------------------------------------------------
+          NORMAL MODE EIGENVECTORS IN CARTESIAN COORDINATES
+          -------------------------------------------------
+                 (Frequencies expressed in cm-1)
+
+                    1           2           3           4           5           6
+ 
+ Frequency         -6.41       -1.56       -0.44        2.89        3.94        4.34
+ 
+           1    -0.08330    -0.07721     0.00011     0.00007     0.07349    -0.00002
+           2     0.07793    -0.08279     0.00014     0.00006    -0.07330    -0.00002
+           3    -0.00000    -0.00015     0.00001    -0.14736     0.00001     0.11422
+           4    -0.08291    -0.07727     0.00011     0.00007     0.02652    -0.00002
+           5     0.07645    -0.08254     0.00012     0.00007     0.10195    -0.00002
+           6     0.00001    -0.00016    -0.12831     0.07485    -0.00001     0.11267
+           7    -0.08183    -0.07745     0.00013     0.00006    -0.10177    -0.00001
+           8     0.07754    -0.08272     0.00014     0.00007    -0.02634    -0.00002
+           9     0.00000     0.00024     0.12830     0.07486     0.00001     0.11268
+          10    -0.08205    -0.07742     0.00012     0.00007    -0.07466    -0.00001
+          11     0.07668    -0.08258     0.00012     0.00007     0.07484    -0.00002
+          12     0.00001     0.00010    -0.00001     0.14893    -0.00001     0.11217
+          13    -0.08245    -0.07735     0.00012     0.00007    -0.02770    -0.00001
+          14     0.07816    -0.08282     0.00014     0.00006    -0.10042    -0.00002
+          15    -0.00001     0.00011     0.12830    -0.07328     0.00002     0.11370
+          16    -0.08353    -0.07716     0.00011     0.00008     0.10060    -0.00002
+          17     0.07708    -0.08264     0.00013     0.00007     0.02788    -0.00002
+          18     0.00001    -0.00029    -0.12830    -0.07330    -0.00001     0.11370
+          19    -0.08378    -0.07712     0.00010     0.00008     0.13114    -0.00002
+          20     0.07840    -0.08287     0.00015     0.00006    -0.13096    -0.00002
+          21    -0.00001    -0.00025     0.00001    -0.26267     0.00002     0.11503
+          22    -0.08309    -0.07724     0.00011     0.00007     0.04763    -0.00002
+          23     0.07579    -0.08242     0.00011     0.00008     0.18071    -0.00002
+          24     0.00002    -0.00027    -0.22818     0.13250    -0.00003     0.11228
+          25    -0.08116    -0.07756     0.00013     0.00006    -0.18053    -0.00001
+          26     0.07772    -0.08275     0.00014     0.00006    -0.04745    -0.00002
+          27    -0.00000     0.00044     0.22816     0.13253     0.00002     0.11228
+          28    -0.08156    -0.07750     0.00013     0.00006    -0.13231    -0.00001
+          29     0.07619    -0.08249     0.00012     0.00007     0.13249    -0.00002
+          30     0.00002     0.00020    -0.00002     0.26424    -0.00001     0.11138
+          31    -0.08228    -0.07738     0.00012     0.00007    -0.04880    -0.00001
+          32     0.07882    -0.08293     0.00015     0.00006    -0.17917    -0.00002
+          33    -0.00001     0.00022     0.22817    -0.13093     0.00003     0.11411
+          34    -0.08419    -0.07705     0.00010     0.00008     0.17935    -0.00002
+          35     0.07690    -0.08261     0.00013     0.00007     0.04898    -0.00002
+          36     0.00001    -0.00049    -0.22816    -0.13096    -0.00001     0.11410
+
+                    7           8           9          10          11          12
+ 
+ Frequency        415.07      415.08      621.90      621.92      694.58      717.76
+ 
+           1    -0.00000     0.00000     0.04888     0.10130     0.00000     0.00000
+           2    -0.00000     0.00000    -0.03967     0.10525     0.00000    -0.00000
+           3    -0.00001    -0.14144     0.00000     0.00000     0.03280    -0.10611
+           4    -0.00000    -0.00000    -0.12775     0.06231     0.00000    -0.00000
+           5     0.00000    -0.00000    -0.00068    -0.07139    -0.00000     0.00000
+           6     0.12249     0.07072     0.00000     0.00000     0.03281    -0.10611
+           7     0.00000    -0.00000    -0.00568    -0.07117     0.00000     0.00000
+           8    -0.00000    -0.00000     0.13280     0.05069    -0.00000     0.00000
+           9    -0.12249     0.07073     0.00000    -0.00000     0.03281    -0.10611
+          10     0.00000    -0.00000    -0.04888    -0.10130    -0.00000    -0.00000
+          11     0.00000    -0.00000     0.03967    -0.10525    -0.00000     0.00000
+          12    -0.00001    -0.14144    -0.00000    -0.00000     0.03280     0.10611
+          13     0.00000    -0.00000     0.12775    -0.06231    -0.00000     0.00000
+          14     0.00000    -0.00000     0.00069     0.07139     0.00000    -0.00000
+          15     0.12249     0.07072     0.00000     0.00000     0.03281     0.10611
+          16    -0.00000    -0.00000     0.00568     0.07117     0.00000    -0.00000
+          17     0.00000    -0.00000    -0.13280    -0.05069     0.00000    -0.00000
+          18    -0.12249     0.07073    -0.00000    -0.00000     0.03281     0.10611
+          19    -0.00000     0.00000    -0.05952     0.10585     0.00000    -0.00000
+          20    -0.00000     0.00000     0.06871     0.10012     0.00000     0.00000
+          21    -0.00002    -0.30421    -0.00000     0.00000    -0.39059    -0.17693
+          22     0.00000     0.00000    -0.10605     0.09557     0.00000    -0.00000
+          23     0.00000    -0.00000     0.07897     0.05359     0.00000     0.00000
+          24     0.26346     0.15210     0.00000     0.00000    -0.39059    -0.17693
+          25     0.00000    -0.00000    -0.07389     0.06041     0.00000    -0.00000
+          26    -0.00000    -0.00000     0.11414     0.08575     0.00000     0.00000
+          27    -0.26345     0.15212    -0.00000     0.00000    -0.39059    -0.17693
+          28    -0.00000     0.00000     0.05952    -0.10585    -0.00000     0.00000
+          29     0.00000    -0.00000    -0.06871    -0.10012    -0.00000    -0.00000
+          30    -0.00002    -0.30421    -0.00000     0.00000    -0.39059     0.17693
+          31     0.00000    -0.00000     0.10605    -0.09557    -0.00000     0.00000
+          32     0.00000    -0.00000    -0.07897    -0.05358     0.00000    -0.00000
+          33     0.26346     0.15210    -0.00000     0.00000    -0.39059     0.17693
+          34     0.00000    -0.00000     0.07389    -0.06040    -0.00000    -0.00000
+          35     0.00000    -0.00000    -0.11414    -0.08575    -0.00000     0.00000
+          36    -0.26345     0.15212    -0.00000     0.00000    -0.39059     0.17693
+
+                   13          14          15          16          17          18
+ 
+ Frequency        864.72      864.72      969.29      969.29     1010.97     1019.89
+ 
+           1    -0.00000    -0.00000     0.00000    -0.00000     0.00000    -0.08010
+           2    -0.00000    -0.00000     0.00000    -0.00000     0.00000    -0.08010
+           3    -0.00008     0.07635     0.00002     0.08816     0.05127    -0.00000
+           4    -0.00000    -0.00000     0.00000    -0.00000    -0.00000     0.10941
+           5     0.00000     0.00000    -0.00000     0.00000     0.00000    -0.02931
+           6     0.06616    -0.03811    -0.07636    -0.04406     0.05127    -0.00000
+           7     0.00000     0.00000    -0.00000     0.00000     0.00000    -0.02931
+           8    -0.00000    -0.00000     0.00000    -0.00000    -0.00000     0.10941
+           9    -0.06608    -0.03825     0.07634    -0.04410     0.05128    -0.00000
+          10    -0.00000    -0.00000     0.00000    -0.00000    -0.00000    -0.08010
+          11     0.00000    -0.00000    -0.00000    -0.00000    -0.00000    -0.08010
+          12     0.00008    -0.07635     0.00002     0.08816    -0.05128     0.00000
+          13     0.00000     0.00000    -0.00000    -0.00000     0.00000     0.10941
+          14     0.00000     0.00000    -0.00000     0.00000    -0.00000    -0.02931
+          15    -0.06616     0.03810    -0.07636    -0.04406    -0.05127     0.00000
+          16     0.00000     0.00000    -0.00000     0.00000    -0.00000    -0.02931
+          17    -0.00000     0.00000     0.00000     0.00000     0.00000     0.10942
+          18     0.06608     0.03825     0.07634    -0.04410    -0.05127     0.00000
+          19    -0.00000    -0.00000     0.00000    -0.00000     0.00000    -0.07937
+          20    -0.00000    -0.00000    -0.00000    -0.00000     0.00000    -0.07937
+          21     0.00056    -0.51121    -0.00013    -0.48806    -0.36615     0.00000
+          22    -0.00000    -0.00000    -0.00000    -0.00000    -0.00000     0.10841
+          23     0.00000     0.00000    -0.00000     0.00000     0.00000    -0.02904
+          24    -0.44299     0.25513     0.42274     0.24391    -0.36615     0.00000
+          25     0.00000     0.00000    -0.00000     0.00000     0.00000    -0.02903
+          26    -0.00000    -0.00000     0.00000    -0.00000    -0.00000     0.10841
+          27     0.44244     0.25609    -0.42260     0.24414    -0.36616     0.00000
+          28    -0.00000    -0.00000     0.00000    -0.00000    -0.00000    -0.07937
+          29    -0.00000    -0.00000    -0.00000    -0.00000    -0.00000    -0.07937
+          30    -0.00055     0.51120    -0.00014    -0.48806     0.36616    -0.00000
+          31     0.00000     0.00000    -0.00000     0.00000     0.00000     0.10842
+          32     0.00000     0.00000    -0.00000     0.00000    -0.00000    -0.02904
+          33     0.44300    -0.25512     0.42273     0.24392     0.36615    -0.00000
+          34     0.00000     0.00000    -0.00000     0.00000    -0.00000    -0.02903
+          35    -0.00000     0.00000     0.00000     0.00000     0.00000     0.10842
+          36    -0.44244    -0.25609    -0.42261     0.24414     0.36615    -0.00000
+
+                   19          20          21          22          23          24
+ 
+ Frequency       1020.55     1069.12     1069.13     1185.68     1207.87     1207.87
+ 
+           1     0.07946     0.04788     0.06234     0.02259     0.04005    -0.01108
+           2     0.07946    -0.04260     0.06606    -0.02259    -0.03887     0.01468
+           3    -0.00000    -0.00000     0.00000     0.00000     0.00000    -0.00000
+           4    -0.10855    -0.08302     0.03298     0.00827    -0.01303    -0.00823
+           5     0.02909    -0.01323    -0.06483     0.03086    -0.04173    -0.03840
+           6    -0.00000     0.00000     0.00000     0.00000    -0.00000    -0.00000
+           7     0.02909     0.00786    -0.06570    -0.03086     0.01103    -0.05563
+           8    -0.10855     0.08545     0.02605    -0.00827     0.00567    -0.01433
+           9    -0.00000    -0.00000    -0.00000    -0.00000     0.00000     0.00000
+          10    -0.07946     0.04788     0.06234     0.02259    -0.04005     0.01108
+          11    -0.07946    -0.04260     0.06606    -0.02259     0.03887    -0.01469
+          12     0.00000     0.00000     0.00000    -0.00000    -0.00000    -0.00000
+          13     0.10855    -0.08302     0.03298     0.00827     0.01304     0.00823
+          14    -0.02909    -0.01323    -0.06483     0.03086     0.04173     0.03840
+          15     0.00000     0.00000    -0.00000     0.00000    -0.00000    -0.00000
+          16    -0.02909     0.00786    -0.06570    -0.03086    -0.01103     0.05563
+          17     0.10855     0.08544     0.02605    -0.00827    -0.00567     0.01433
+          18     0.00000    -0.00000    -0.00000    -0.00000    -0.00000     0.00000
+          19     0.08660     0.29763     0.05678     0.27679     0.36230    -0.11641
+          20     0.08660    -0.29195     0.08105    -0.27679    -0.36119     0.11980
+          21     0.00000     0.00000    -0.00000    -0.00000    -0.00000    -0.00000
+          22    -0.11830    -0.13738    -0.04079     0.10131    -0.10527    -0.09124
+          23     0.03170    -0.19437    -0.35396     0.37810    -0.38636    -0.34776
+          24     0.00000    -0.00000    -0.00000    -0.00000     0.00000    -0.00000
+          25     0.03170     0.16462    -0.36874    -0.37809     0.10671    -0.50876
+          26    -0.11830     0.13357    -0.05194    -0.10131     0.03115    -0.13578
+          27     0.00000     0.00000     0.00000     0.00000    -0.00000    -0.00000
+          28    -0.08660     0.29762     0.05678     0.27678    -0.36230     0.11642
+          29    -0.08660    -0.29195     0.08105    -0.27678     0.36119    -0.11981
+          30    -0.00000    -0.00000    -0.00000     0.00000     0.00000     0.00000
+          31     0.11830    -0.13738    -0.04079     0.10131     0.10527     0.09124
+          32    -0.03170    -0.19437    -0.35396     0.37809     0.38636     0.34777
+          33    -0.00000    -0.00000     0.00000    -0.00000     0.00000     0.00000
+          34    -0.03170     0.16462    -0.36873    -0.37811    -0.10671     0.50875
+          35     0.11830     0.13357    -0.05194    -0.10131    -0.03115     0.13578
+          36    -0.00000     0.00000     0.00000     0.00000     0.00000     0.00000
+
+                   25          26          27          28          29          30
+ 
+ Frequency       1356.68     1387.19     1531.45     1531.45     1656.08     1656.08
+ 
+           1     0.08021    -0.03818     0.07740     0.03987    -0.09422     0.05841
+           2    -0.08021     0.03818    -0.06940     0.05258     0.01829    -0.10934
+           3    -0.00000     0.00000     0.00000     0.00000    -0.00000    -0.00000
+           4     0.02936    -0.01397    -0.06739     0.01420    -0.07235    -0.00566
+           5     0.10957    -0.05215    -0.04373    -0.09222    -0.04578    -0.13121
+           6     0.00000     0.00000     0.00000    -0.00000     0.00000    -0.00000
+           7    -0.10957     0.05215     0.02723    -0.09836    -0.13877     0.00743
+           8    -0.02936     0.01397     0.06883     0.00241    -0.03269    -0.06479
+           9    -0.00000    -0.00000    -0.00000    -0.00000     0.00000     0.00000
+          10     0.08021     0.03818     0.07740     0.03986     0.09422    -0.05841
+          11    -0.08021    -0.03818    -0.06940     0.05258    -0.01829     0.10934
+          12    -0.00000     0.00000     0.00000     0.00000    -0.00000    -0.00000
+          13     0.02936     0.01397    -0.06739     0.01420     0.07235     0.00566
+          14     0.10957     0.05215    -0.04373    -0.09222     0.04578     0.13121
+          15    -0.00000    -0.00000     0.00000    -0.00000     0.00000    -0.00000
+          16    -0.10957    -0.05215     0.02723    -0.09836     0.13877    -0.00743
+          17    -0.02936    -0.01397     0.06883     0.00241     0.03269     0.06479
+          18    -0.00000     0.00000    -0.00000    -0.00000     0.00000     0.00000
+          19    -0.07795     0.25560    -0.26228     0.07955     0.02910    -0.13489
+          20     0.07795    -0.25560     0.27205     0.03328    -0.11376     0.07810
+          21     0.00000    -0.00000     0.00000    -0.00000    -0.00000    -0.00000
+          22    -0.02853     0.09356    -0.00717     0.12476    -0.04181     0.07282
+          23    -0.10648     0.34916     0.22684     0.28838     0.09395     0.14901
+          24     0.00000    -0.00000    -0.00000     0.00000    -0.00000    -0.00000
+          25     0.10648    -0.34916    -0.17388     0.32308     0.17352     0.03038
+          26     0.02853    -0.09356     0.02851     0.12167     0.05150    -0.06632
+          27     0.00000     0.00000     0.00000     0.00000     0.00000     0.00000
+          28    -0.07795    -0.25560    -0.26228     0.07955    -0.02910     0.13489
+          29     0.07795     0.25560     0.27205     0.03328     0.11376    -0.07810
+          30     0.00000    -0.00000     0.00000    -0.00000     0.00000    -0.00000
+          31    -0.02853    -0.09356    -0.00717     0.12476     0.04181    -0.07282
+          32    -0.10648    -0.34916     0.22683     0.28838    -0.09395    -0.14901
+          33     0.00000    -0.00000    -0.00000    -0.00000    -0.00000    -0.00000
+          34     0.10648     0.34916    -0.17388     0.32308    -0.17352    -0.03038
+          35     0.02853     0.09356     0.02851     0.12167    -0.05150     0.06632
+          36     0.00000    -0.00000     0.00000    -0.00000    -0.00000    -0.00000
+
+                   31          32          33          34          35          36
+ 
+ Frequency       3174.42     3184.07     3184.07     3199.83     3199.83     3210.51
+ 
+           1     0.02301     0.00011     0.03333    -0.00494     0.03437    -0.02510
+           2     0.02301     0.00270     0.03322    -0.00039     0.03472    -0.02510
+           3    -0.00000     0.00000     0.00000    -0.00000    -0.00000    -0.00000
+           4    -0.03141    -0.03815     0.02479     0.03953     0.02607     0.03428
+           5     0.00842     0.01124    -0.00504    -0.00870    -0.00975    -0.00919
+           6     0.00000    -0.00000     0.00000     0.00000    -0.00000     0.00000
+           7     0.00842    -0.01162    -0.00408     0.01009    -0.00830    -0.00919
+           8    -0.03141     0.04010     0.02149    -0.04306     0.01970     0.03428
+           9    -0.00000    -0.00000    -0.00000    -0.00000     0.00000     0.00000
+          10     0.02300    -0.00011    -0.03333    -0.00494     0.03437     0.02510
+          11     0.02300    -0.00270    -0.03322    -0.00039     0.03472     0.02510
+          12    -0.00000     0.00000     0.00000     0.00000    -0.00000     0.00000
+          13    -0.03142     0.03815    -0.02478     0.03952     0.02606    -0.03428
+          14     0.00842    -0.01124     0.00504    -0.00870    -0.00974     0.00919
+          15     0.00000     0.00000     0.00000     0.00000     0.00000     0.00000
+          16     0.00842     0.01162     0.00408     0.01009    -0.00829     0.00919
+          17    -0.03142    -0.04010    -0.02148    -0.04306     0.01969    -0.03428
+          18     0.00000    -0.00000    -0.00000    -0.00000     0.00000     0.00000
+          19    -0.27646    -0.01489    -0.38976     0.03308    -0.38714     0.27422
+          20    -0.27646    -0.01796    -0.38963     0.02671    -0.38764     0.27422
+          21    -0.00000    -0.00000    -0.00000     0.00000     0.00000     0.00000
+          22     0.37750     0.44951    -0.28612    -0.43859    -0.29908    -0.37455
+          23    -0.10115    -0.12165     0.07476     0.11488     0.08400     0.10036
+          24     0.00000     0.00000    -0.00000    -0.00000     0.00000    -0.00000
+          25    -0.10115     0.12751     0.06426    -0.12640     0.06538     0.10036
+          26     0.37750    -0.47199    -0.24727     0.47927    -0.22828    -0.37456
+          27     0.00000     0.00000     0.00000     0.00000    -0.00000    -0.00000
+          28    -0.27640     0.01489     0.38979     0.03307    -0.38718    -0.27418
+          29    -0.27640     0.01797     0.38967     0.02670    -0.38767    -0.27418
+          30    -0.00000    -0.00000    -0.00000    -0.00000     0.00000    -0.00000
+          31     0.37753    -0.44951     0.28606    -0.43858    -0.29905     0.37459
+          32    -0.10116     0.12165    -0.07475     0.11487     0.08399    -0.10037
+          33    -0.00000    -0.00000    -0.00000    -0.00000     0.00000    -0.00000
+          34    -0.10116    -0.12751    -0.06424    -0.12640     0.06537    -0.10037
+          35     0.37754     0.47200     0.24722     0.47927    -0.22823     0.37457
+          36     0.00000     0.00000    -0.00000    -0.00000    -0.00000    -0.00000
+
+
+
+ ----------------------------------------------------------------------------
+ Normal Eigenvalue ||         Derivative Dipole Moments (debye/angs)
+  Mode   [cm**-1]  ||      [d/dqX]             [d/dqY]           [d/dqZ]
+ ------ ---------- || ------------------ ------------------ -----------------
+    1       -6.414 ||       0.000              -0.000            -0.000
+    2       -1.560 ||      -0.000              -0.000             0.000
+    3       -0.442 ||      -0.000              -0.000             0.000
+    4        2.888 ||      -0.000              -0.000             0.000
+    5        3.940 ||       0.000              -0.000            -0.000
+    6        4.342 ||      -0.000               0.000             0.000
+    7      415.070 ||       0.000               0.000            -0.000
+    8      415.078 ||      -0.000              -0.000             0.000
+    9      621.901 ||       0.000              -0.000             0.000
+   10      621.916 ||      -0.000               0.000             0.000
+   11      694.575 ||       0.000               0.000             1.354
+   12      717.763 ||      -0.000              -0.000             0.000
+   13      864.717 ||      -0.000               0.000            -0.000
+   14      864.717 ||       0.000               0.000            -0.000
+   15      969.286 ||      -0.000              -0.000             0.000
+   16      969.292 ||      -0.000              -0.000            -0.000
+   17     1010.971 ||       0.000               0.000             0.000
+   18     1019.887 ||      -0.000              -0.000            -0.000
+   19     1020.553 ||       0.000              -0.000             0.000
+   20     1069.116 ||       0.188              -0.205            -0.000
+   21     1069.126 ||      -0.205              -0.188            -0.000
+   22     1185.680 ||      -0.000               0.000            -0.000
+   23     1207.867 ||      -0.000               0.000            -0.000
+   24     1207.868 ||       0.000               0.000            -0.000
+   25     1356.684 ||      -0.000               0.000            -0.000
+   26     1387.191 ||       0.000               0.000            -0.000
+   27     1531.447 ||      -0.253               0.301            -0.000
+   28     1531.450 ||       0.301               0.253            -0.000
+   29     1656.078 ||       0.000              -0.000            -0.000
+   30     1656.079 ||      -0.000               0.000            -0.000
+   31     3174.419 ||       0.000               0.000             0.000
+   32     3184.073 ||       0.000              -0.000            -0.000
+   33     3184.075 ||       0.000              -0.000            -0.000
+   34     3199.832 ||       0.721              -0.842            -0.000
+   35     3199.832 ||      -0.842              -0.721             0.000
+   36     3210.505 ||      -0.000              -0.000            -0.000
+ ----------------------------------------------------------------------------
+
+
+
+  
+  
+ ----------------------------------------------------------------------------
+ Normal Eigenvalue ||                 Infra Red Intensities
+  Mode   [cm**-1]  || [atomic units] [(debye/angs)**2] [(KM/mol)] [arbitrary]
+ ------ ---------- || -------------- ----------------- ---------- -----------
+    1       -6.414 ||    0.000000           0.000         0.000       0.000
+    2       -1.560 ||    0.000000           0.000         0.000       0.000
+    3       -0.442 ||    0.000000           0.000         0.000       0.000
+    4        2.888 ||    0.000000           0.000         0.000       0.000
+    5        3.940 ||    0.000000           0.000         0.000       0.000
+    6        4.342 ||    0.000000           0.000         0.000       0.000
+    7      415.070 ||    0.000000           0.000         0.000       0.000
+    8      415.078 ||    0.000000           0.000         0.000       0.000
+    9      621.901 ||    0.000000           0.000         0.000       0.000
+   10      621.916 ||    0.000000           0.000         0.000       0.000
+   11      694.575 ||    0.079509           1.834        77.509     138.831
+   12      717.763 ||    0.000000           0.000         0.000       0.000
+   13      864.717 ||    0.000000           0.000         0.000       0.000
+   14      864.717 ||    0.000000           0.000         0.000       0.000
+   15      969.286 ||    0.000000           0.000         0.000       0.000
+   16      969.292 ||    0.000000           0.000         0.000       0.000
+   17     1010.971 ||    0.000000           0.000         0.000       0.000
+   18     1019.887 ||    0.000000           0.000         0.000       0.000
+   19     1020.553 ||    0.000000           0.000         0.000       0.000
+   20     1069.116 ||    0.003350           0.077         3.266       5.850
+   21     1069.126 ||    0.003350           0.077         3.266       5.850
+   22     1185.680 ||    0.000000           0.000         0.000       0.000
+   23     1207.867 ||    0.000000           0.000         0.000       0.000
+   24     1207.868 ||    0.000000           0.000         0.000       0.000
+   25     1356.684 ||    0.000000           0.000         0.000       0.000
+   26     1387.191 ||    0.000000           0.000         0.000       0.000
+   27     1531.447 ||    0.006708           0.155         6.539      11.712
+   28     1531.450 ||    0.006707           0.155         6.538      11.711
+   29     1656.078 ||    0.000000           0.000         0.000       0.000
+   30     1656.079 ||    0.000000           0.000         0.000       0.000
+   31     3174.419 ||    0.000000           0.000         0.000       0.000
+   32     3184.073 ||    0.000000           0.000         0.000       0.000
+   33     3184.075 ||    0.000000           0.000         0.000       0.000
+   34     3199.832 ||    0.053272           1.229        51.932      93.019
+   35     3199.832 ||    0.053276           1.229        51.936      93.026
+   36     3210.505 ||    0.000000           0.000         0.000       0.000
+ ----------------------------------------------------------------------------
+
+
+
+
+
+        Vibrational analysis via the FX method 
+  --- with translations and rotations projected out ---
+  --- via the Eckart algorithm                      ---
+ Projected Nuclear Hessian trans-rot subspace norm:5.6413D-33
+                         (should be close to zero!) 
+
+          --------------------------------------------------------
+          MASS-WEIGHTED PROJECTED HESSIAN (Hartree/Bohr/Bohr/Kamu)
+          --------------------------------------------------------
+
+
+               1            2            3            4            5            6            7            8            9           10
+   ----- ----- ----- ----- -----
+    1    5.90382D+01
+    2    2.94918D+00  5.90382D+01
+    3   -4.93408D-08 -1.30239D-08  1.09512D+01
+    4   -4.10300D+00 -4.90149D-01 -1.52315D-07  6.15924D+01
+    5   -4.64839D+00  4.79685D+00 -2.23005D-07 -1.47465D+00  5.64841D+01
+    6   -2.97089D-08 -1.72909D-09  6.59877D-01  1.13411D-07 -2.11482D-08  1.09512D+01
+    7    4.79686D+00 -4.64839D+00 -2.47658D-07  3.46612D-01  7.21767D+00  4.08598D-08  5.64841D+01
+    8   -4.90157D-01 -4.10300D+00 -6.25283D-08  3.05993D+00  3.46741D-01 -1.06713D-07 -1.47466D+00  6.15924D+01
+    9    5.05260D-09  4.38410D-08  6.59883D-01  1.02844D-07 -2.65936D-09  6.60035D-01  2.69950D-09  3.90704D-08  1.09512D+01
+   10   -2.95147D+00  2.84620D+00 -2.90711D-07 -1.19981D+01  1.61259D+00  6.89079D-08 -2.72296D+01  7.18134D+00  1.63648D-07  5.90382D+01
+   11    2.84621D+00 -2.95147D+00 -2.48278D-07  7.18133D+00 -2.72297D+01 -9.36330D-08  1.61258D+00 -1.19981D+01  3.49271D-07  2.94919D+00
+   12   -7.57479D-08 -4.23167D-08 -7.16962D-01  3.62244D-08 -6.25715D-08 -5.06972D+00 -5.60940D-08  3.06846D-08 -5.06972D+00 -7.40997D-08
+   13   -1.19981D+01  7.18138D+00 -2.06366D-07 -4.86887D-01 -1.42304D+00  5.01608D-08 -1.96139D+01 -1.15783D+01  6.68738D-08 -4.10300D+00
+   14    1.61261D+00 -2.72297D+01 -2.51704D-07 -1.42304D+00 -5.41640D+00  2.99452D-08 -6.00950D+00 -1.96139D+01  1.86352D-07 -4.64839D+00
+   15   -3.16456D-08 -1.68188D-09 -5.06971D+00  6.28903D-08 -3.64517D-08 -7.17025D-01 -2.63205D-08  5.97116D-08 -5.06965D+00  1.08098D-07
+   16   -2.72297D+01  1.61262D+00 -2.89180D-07 -1.96139D+01 -6.00953D+00  1.37373D-07 -5.41638D+00 -1.42304D+00  5.12446D-08  4.79686D+00
+   17    7.18138D+00 -1.19981D+01 -1.39883D-07 -1.15783D+01 -1.96139D+01 -1.71985D-07 -1.42305D+00 -4.86909D-01  3.04962D-07 -4.90145D-01
+   18   -4.25208D-10  4.78604D-08 -5.06970D+00  1.39774D-07 -9.54009D-10 -5.06963D+00  1.70386D-08  8.89959D-08 -7.17025D-01  9.37976D-08
+   19   -5.72835D+01 -3.98508D+01  1.51145D-06 -1.32705D+00  1.00111D+00  1.78282D-07  1.50667D-01  5.93328D-01 -1.09420D-06 -8.43521D-02
+   20   -3.98508D+01 -5.72835D+01  1.55762D-06  5.93362D-01  1.50628D-01 -5.84855D-08  1.00110D+00 -1.32706D+00 -7.98816D-07  3.08497D-01
+   21    1.32916D-07 -1.45348D-08 -1.02517D+01  2.12239D-08  2.94655D-07  2.02684D+00  2.93494D-07 -8.73131D-09  2.02684D+00  1.66452D-07
+   22   -2.67337D-01 -1.24226D+00  1.10957D-06 -9.17951D+01  1.99253D+01 -6.33289D-07  4.71827D-01  4.44552D-01 -1.61851D-07 -1.21395D+00
+   23   -8.34809D-01 -9.09603D-01 -6.22359D-07  1.99250D+01 -2.27714D+01  5.02745D-08  3.73495D-02 -1.64824D+00  4.97769D-07  9.06964D+00
+   24    8.69551D-08 -1.50026D-08  2.02688D+00 -1.64326D-07  1.75097D-07 -1.02517D+01  8.29262D-08  5.32814D-08  2.02675D+00 -1.59929D-07
+   25   -9.09618D-01 -8.34809D-01 -5.34331D-07 -1.64818D+00  3.73301D-02 -2.54299D-07 -2.27714D+01  1.99251D+01  6.40211D-07 -8.09742D-01
+   26   -1.24226D+00 -2.67319D-01  5.86942D-07  4.44559D-01  4.71794D-01  6.50144D-07  1.99253D+01 -9.17951D+01 -1.24223D-06 -6.15189D-02
+   27    8.45638D-08 -7.57761D-08  2.02687D+00 -2.35188D-07  1.29816D-07  2.02674D+00  1.36294D-07 -3.13736D-08 -1.02517D+01 -1.94492D-07
+   28   -8.43316D-02  3.08471D-01  1.57478D-06  2.78810D+00  2.13840D+00  9.28107D-08 -4.81100D+00 -6.99301D+00 -1.22290D-06 -5.72835D+01
+   29    3.08468D-01 -8.43170D-02  1.64456D-06 -6.99302D+00 -4.81102D+00 -4.04815D-08  2.13842D+00  2.78804D+00 -9.85480D-07 -3.98507D+01
+   30    1.68450D-07  5.82981D-08 -6.47006D-02 -3.27583D-07  7.74932D-08  6.90507D-01 -2.03463D-08 -5.47744D-08  6.90510D-01 -8.83745D-08
+   31   -1.21397D+00 -6.15275D-02  1.16579D-06  1.82886D-01 -1.54221D-01 -4.93424D-07 -5.01314D+00  2.48823D+00 -1.42266D-07 -2.67358D-01
+   32    9.06962D+00 -8.09714D-01 -6.43562D-07 -1.54469D-01 -3.51190D-01 -3.40146D-08 -6.64252D+00  2.99011D+00  5.43390D-07 -8.34766D-01
+   33    7.50071D-08  8.99308D-10  6.90642D-01 -4.92623D-08  2.98934D-07 -6.47525D-02  2.71151D-07 -1.34822D-07  6.90562D-01 -7.04886D-08
+   34   -8.09733D-01  9.06960D+00 -5.63753D-07  2.99009D+00 -6.64250D+00 -2.04786D-07 -3.51149D-01 -1.54501D-01  6.27111D-07 -9.09602D-01
+   35   -6.15266D-02 -1.21394D+00  7.14946D-07  2.48820D+00 -5.01314D+00  6.92951D-07 -1.54215D-01  1.82838D-01 -1.19210D-06 -1.24224D+00
+   36    7.94869D-08 -6.75818D-08  6.90632D-01 -2.89815D-07  2.20649D-07  6.90549D-01  1.66339D-07  6.57752D-09 -6.47623D-02  1.06528D-07
+
+
+              11           12           13           14           15           16           17           18           19           20
+   ----- ----- ----- ----- -----
+   11    5.90382D+01
+   12   -8.50674D-08  1.09513D+01
+   13   -4.90146D-01 -6.61463D-08  6.15924D+01
+   14    4.79685D+00 -2.88420D-07 -1.47468D+00  5.64841D+01
+   15    6.12494D-09  6.59886D-01  3.76865D-08  4.36083D-08  1.09512D+01
+   16   -4.64839D+00 -3.03793D-07  3.46621D-01  7.21766D+00  2.66713D-07  5.64841D+01
+   17   -4.10300D+00 -7.68254D-08  3.05993D+00  3.46743D-01 -1.75908D-07 -1.47467D+00  6.15923D+01
+   18    1.76178D-07  6.59880D-01  3.86732D-08  1.63272D-07  6.60031D-01  8.86220D-08  1.00164D-07  1.09512D+01
+   19    3.08500D-01  9.90307D-07  2.78811D+00  2.13841D+00 -8.16255D-08 -4.81099D+00 -6.99299D+00 -1.04168D-06  2.07583D+02
+   20   -8.43343D-02  9.71274D-07 -6.99303D+00 -4.81102D+00 -3.70549D-07  2.13841D+00  2.78805D+00 -8.09936D-07  1.48785D+02  2.07583D+02
+   21    5.04395D-08 -6.47079D-02  3.04826D-07  2.16958D-08  6.90501D-01 -6.34466D-09  3.48766D-07  6.90498D-01 -2.85087D-07 -3.89546D-07
+   22   -6.15151D-02  3.01637D-07  1.82907D-01 -1.54235D-01 -5.90614D-07 -5.01310D+00  2.48820D+00 -1.86847D-07 -1.00720D+00  4.69631D-01
+   23   -8.09732D-01 -3.26593D-07 -1.54472D-01 -3.51201D-01  3.05678D-08 -6.64252D+00  2.99008D+00  5.17581D-07 -1.27735D+00  3.93323D-01
+   24    9.03869D-09  6.90640D-01 -3.83349D-08  1.19606D-07 -6.47587D-02  8.89904D-08  1.19532D-07  6.90552D-01 -3.03835D-07 -1.68229D-07
+   25    9.06965D+00 -3.76228D-07  2.99008D+00 -6.64253D+00 -4.41757D-08 -3.51162D-01 -1.54511D-01  4.99308D-07  3.93278D-01 -1.27736D+00
+   26   -1.21394D+00  2.93502D-07  2.48820D+00 -5.01315D+00  5.06622D-07 -1.54231D-01  1.82868D-01 -7.69220D-07  4.69627D-01 -1.00717D+00
+   27   -3.48463D-07  6.90650D-01 -8.30247D-08  1.17155D-08  6.90565D-01 -9.64397D-09 -1.47486D-07 -6.47489D-02 -7.39533D-09 -1.75274D-07
+   28   -3.98507D+01  8.65962D-07 -1.32706D+00  1.00109D+00 -8.58001D-08  1.50661D-01  5.93323D-01 -9.51035D-07  8.60880D-02 -1.74728D-01
+   29   -5.72835D+01  8.70989D-07  5.93340D-01  1.50629D-01 -4.28000D-07  1.00108D+00 -1.32706D+00 -6.84740D-07 -1.74728D-01  8.61391D-02
+   30   -1.35770D-07 -1.02517D+01  6.58224D-08  9.56015D-08  2.02684D+00  1.28106D-07  1.01750D-07  2.02684D+00  1.20450D-07  8.37356D-08
+   31   -1.24225D+00  4.21185D-07 -9.17951D+01  1.99253D+01 -5.42317D-07  4.71805D-01  4.44545D-01 -1.00503D-07  8.76289D-01  3.16499D-01
+   32   -9.09592D-01 -3.88089D-07  1.99250D+01 -2.27714D+01  5.86767D-08  3.73477D-02 -1.64821D+00  4.47651D-07 -4.23699D-01  1.06306D+00
+   33   -5.40493D-08  2.02688D+00  1.89462D-08  9.57578D-08 -1.02517D+01 -5.58828D-08  2.48438D-09  2.02674D+00 -4.05201D-07 -2.27154D-07
+   34   -8.34774D-01 -3.40709D-07 -1.64814D+00  3.73378D-02 -9.58336D-08 -2.27714D+01  1.99251D+01  4.78217D-07  1.06301D+00 -4.23702D-01
+   35   -2.67341D-01  3.88829D-07  4.44545D-01  4.71775D-01  5.63607D-07  1.99253D+01 -9.17951D+01 -6.87232D-07  3.16483D-01  8.76337D-01
+   36    1.17884D-07  2.02688D+00  4.77162D-09  5.91616D-08  2.02675D+00  2.39251D-08  1.25241D-07 -1.02517D+01 -7.14973D-07 -8.18146D-07
+
+
+              21           22           23           24           25           26           27           28           29           30
+   ----- ----- ----- ----- -----
+   21    2.52456D+01
+   22   -1.23981D-06  3.36435D+02
+   23    5.83308D-07 -7.43919D+01  7.87325D+01
+   24    3.50306D-01  5.07827D-07 -1.77881D-07  2.52453D+01
+   25    6.13820D-07 -3.06963D-01  1.68238D+00  3.48463D-07  7.87325D+01
+   26   -7.94447D-07 -6.41745D-02 -3.06876D-01 -4.64962D-07 -7.43918D+01  3.36435D+02
+   27    3.50295D-01  3.29141D-07 -2.89680D-07  3.50377D-01 -2.75167D-07  3.68183D-07  2.52453D+01
+   28   -1.48193D-06  8.76012D-01 -4.23455D-01 -4.30901D-07  1.06322D+00  3.16586D-01  9.81217D-07  2.07583D+02
+   29   -1.65412D-06  3.16586D-01  1.06327D+00 -5.54929D-07 -4.23453D-01  8.76062D-01  9.83669D-07  1.48785D+02  2.07583D+02
+   30   -1.34333D+00  2.70958D-07 -4.57455D-08 -3.87897D+00  7.59509D-08  3.62778D-07 -3.87897D+00 -1.98555D-07 -3.26096D-07  2.52457D+01
+   31   -1.23699D-06 -6.49986D-02  8.78044D-02 -2.45596D-10  9.69765D-01 -2.61593D-01  8.17152D-07 -1.00723D+00  4.69575D-01 -3.53131D-07
+   32    4.79580D-07  8.77896D-02  2.38096D-01  1.52519D-07  4.78342D-01  9.69550D-01 -7.24942D-07 -1.27736D+00  3.93379D-01  2.27371D-07
+   33   -3.87896D+00  3.68092D-07 -1.94798D-07 -1.34337D+00 -2.90347D-07  4.01364D-07 -3.87897D+00 -1.76330D-07  2.40007D-08  3.50293D-01
+   34    4.81058D-07  9.69507D-01  4.78341D-01  2.36583D-07  2.38055D-01  8.77834D-02 -8.04616D-07  3.93334D-01 -1.27736D+00  3.39417D-07
+   35   -6.13608D-07 -2.61581D-01  9.69805D-01 -3.79165D-07  8.77981D-02 -6.49464D-02  1.43074D-06  4.69566D-01 -1.00719D+00 -7.94097D-07
+   36   -3.87896D+00  3.20713D-07 -3.83277D-07 -3.87898D+00 -2.32851D-07  3.81969D-08 -1.34337D+00  3.61681D-07  2.27110D-07  3.50304D-01
+
+
+              31           32           33           34           35           36
+   ----- ----- ----- ----- -----
+   31    3.36435D+02
+   32   -7.43918D+01  7.87326D+01
+   33   -4.66330D-07  2.16170D-07  2.52453D+01
+   34   -3.06997D-01  1.68247D+00  3.16324D-07  7.87324D+01
+   35   -6.41758D-02 -3.06903D-01 -9.41469D-07 -7.43917D+01  3.36435D+02
+   36    1.75161D-07 -2.95664D-07  3.50381D-01 -2.24553D-07 -3.62174D-07  2.52453D+01
+
+ center of mass
+ --------------
+ x =  -0.00000000 y =   0.00000000 z =   0.00000000
+
+ moments of inertia (a.u.)
+ ------------------
+         317.358127126875           0.000000453688           0.000000000000
+           0.000000453688         317.358127126875           0.000000000000
+           0.000000000000           0.000000000000         634.716254253751
+
+ Rotational Constants
+ --------------------
+ A=   0.189692 cm-1  (  0.272918 K)
+ B=   0.189692 cm-1  (  0.272918 K)
+ C=   0.094846 cm-1  (  0.136459 K)
+
+
+ Temperature                      =   298.15K
+ frequency scaling parameter      =   1.0000
+
+ Zero-Point correction to Energy  =   63.181 kcal/mol  (  0.100686 au)
+ Thermal correction to Energy     =   65.933 kcal/mol  (  0.105070 au)
+ Thermal correction to Enthalpy   =   66.525 kcal/mol  (  0.106014 au)
+
+ Total Entropy                    =   68.986 cal/mol-K
+   - Translational                =   38.962 cal/mol-K (mol. weight =  78.0469)
+   - Rotational                   =   25.650 cal/mol-K (symmetry #  =        1)
+   - Vibrational                  =    4.375 cal/mol-K
+
+ Cv (constant volume heat capacity) =   17.119 cal/mol-K
+   - Translational                  =    2.979 cal/mol-K
+   - Rotational                     =    2.979 cal/mol-K
+   - Vibrational                    =   11.160 cal/mol-K
+
+
+
+          -------------------------------------------------
+          NORMAL MODE EIGENVECTORS IN CARTESIAN COORDINATES
+          -------------------------------------------------
+             (Projected Frequencies expressed in cm-1)
+
+                    1           2           3           4           5           6
+ 
+ P.Frequency       -0.00       -0.00       -0.00        0.00        0.00        0.00
+ 
+           1     0.01303     0.00248     0.00000     0.00000     0.00000    -0.13463
+           2     0.05836     0.11200     0.00000     0.00000     0.00000     0.04847
+           3     0.00000     0.00000    -0.12787     0.13244    -0.02948    -0.00000
+           4     0.04967     0.00174    -0.00000    -0.00000     0.00000    -0.10525
+           5    -0.07836     0.11477    -0.00000    -0.00000     0.00000    -0.06115
+           6    -0.00000     0.00000     0.06851     0.10989     0.13413    -0.00000
+           7     0.14975    -0.00029    -0.00000    -0.00000    -0.00000    -0.02501
+           8     0.02173     0.11274     0.00000     0.00000    -0.00000     0.01910
+           9    -0.00000     0.00000    -0.11550    -0.06889     0.12914    -0.00000
+          10     0.12860     0.00014    -0.00000     0.00000    -0.00000    -0.04196
+          11    -0.05721     0.11434    -0.00000     0.00000    -0.00000    -0.04419
+          12     0.00000    -0.00000     0.01130    -0.01681     0.18534     0.00000
+          13     0.09197     0.00088     0.00000     0.00000    -0.00000    -0.07134
+          14     0.07951     0.11157    -0.00000    -0.00000     0.00000     0.06543
+          15    -0.00000    -0.00000    -0.18508     0.00574     0.02173     0.00000
+          16    -0.00812     0.00291    -0.00000    -0.00000    -0.00000    -0.15158
+          17    -0.02057     0.11360    -0.00000     0.00000     0.00000    -0.01482
+          18    -0.00000    -0.00000    -0.00107     0.18451     0.02673     0.00000
+          19    -0.03194     0.00339     0.00000     0.00000     0.00000    -0.17069
+          20     0.10334     0.11109     0.00000     0.00000    -0.00000     0.08453
+          21     0.00000     0.00000    -0.18203     0.19053    -0.11308     0.00000
+          22     0.03320     0.00207    -0.00000    -0.00000     0.00000    -0.11845
+          23    -0.13980     0.11602    -0.00000    -0.00000    -0.00000    -0.11041
+          24    -0.00000     0.00000     0.16721     0.15042     0.17788     0.00000
+          25     0.21119    -0.00154    -0.00000    -0.00000     0.00000     0.02425
+          26     0.03819     0.11241     0.00000    -0.00000    -0.00000     0.03230
+          27    -0.00000     0.00000    -0.16003    -0.16750     0.16899     0.00000
+          28     0.17358    -0.00077     0.00000     0.00000    -0.00000    -0.00590
+          29    -0.10218     0.11525    -0.00000     0.00000     0.00000    -0.08025
+          30    -0.00000    -0.00000     0.06546    -0.07490     0.26894    -0.00000
+          31     0.10843     0.00055    -0.00000     0.00000    -0.00000    -0.05814
+          32     0.14095     0.11033    -0.00000    -0.00000    -0.00000     0.11469
+          33     0.00000    -0.00000    -0.28377    -0.03479    -0.02202    -0.00000
+          34    -0.06956     0.00415    -0.00000    -0.00000    -0.00000    -0.20084
+          35    -0.03704     0.11393    -0.00000     0.00000     0.00000    -0.02802
+          36     0.00000    -0.00000     0.04346     0.28313    -0.01313    -0.00000
+
+                    7           8           9          10          11          12
+ 
+ P.Frequency      415.07      415.08      621.90      621.92      694.62      717.76
+ 
+           1    -0.00000     0.00000     0.04888     0.10130     0.00000     0.00000
+           2    -0.00000     0.00000    -0.03967     0.10525     0.00000    -0.00000
+           3    -0.00001    -0.14144     0.00000     0.00000     0.03280    -0.10611
+           4    -0.00000     0.00000    -0.12775     0.06231     0.00000    -0.00000
+           5     0.00000    -0.00000    -0.00068    -0.07139     0.00000     0.00000
+           6     0.12249     0.07071     0.00000     0.00000     0.03281    -0.10611
+           7     0.00000    -0.00000    -0.00568    -0.07117     0.00000     0.00000
+           8    -0.00000     0.00000     0.13280     0.05069    -0.00000     0.00000
+           9    -0.12249     0.07073     0.00000    -0.00000     0.03281    -0.10611
+          10     0.00000    -0.00000    -0.04888    -0.10130    -0.00000    -0.00000
+          11     0.00000    -0.00000     0.03967    -0.10525    -0.00000     0.00000
+          12    -0.00001    -0.14144     0.00000     0.00000     0.03280     0.10611
+          13     0.00000     0.00000     0.12775    -0.06231    -0.00000     0.00000
+          14    -0.00000    -0.00000     0.00068     0.07139     0.00000    -0.00000
+          15     0.12249     0.07071    -0.00000     0.00000     0.03281     0.10611
+          16    -0.00000    -0.00000     0.00568     0.07117     0.00000    -0.00000
+          17     0.00000    -0.00000    -0.13280    -0.05069     0.00000    -0.00000
+          18    -0.12249     0.07073    -0.00000    -0.00000     0.03281     0.10611
+          19    -0.00000     0.00000    -0.05952     0.10585     0.00000    -0.00000
+          20    -0.00000     0.00000     0.06871     0.10012    -0.00000     0.00000
+          21    -0.00002    -0.30420    -0.00000     0.00000    -0.39060    -0.17692
+          22     0.00000     0.00000    -0.10605     0.09557     0.00000    -0.00000
+          23     0.00000    -0.00000     0.07897     0.05359    -0.00000     0.00000
+          24     0.26346     0.15210    -0.00000     0.00000    -0.39059    -0.17693
+          25     0.00000    -0.00000    -0.07389     0.06041     0.00000    -0.00000
+          26    -0.00000     0.00000     0.11414     0.08575    -0.00000     0.00000
+          27    -0.26345     0.15213    -0.00000    -0.00000    -0.39059    -0.17694
+          28    -0.00000     0.00000     0.05951    -0.10585    -0.00000     0.00000
+          29     0.00000     0.00000    -0.06870    -0.10012    -0.00000    -0.00000
+          30    -0.00002    -0.30420    -0.00000     0.00000    -0.39060     0.17692
+          31     0.00000    -0.00000     0.10605    -0.09557    -0.00000     0.00000
+          32     0.00000    -0.00000    -0.07897    -0.05358     0.00000    -0.00000
+          33     0.26346     0.15210    -0.00000     0.00000    -0.39059     0.17694
+          34     0.00000    -0.00000     0.07389    -0.06040    -0.00000    -0.00000
+          35     0.00000    -0.00000    -0.11414    -0.08575     0.00000     0.00000
+          36    -0.26345     0.15213    -0.00000     0.00000    -0.39059     0.17693
+
+                   13          14          15          16          17          18
+ 
+ P.Frequency      864.73      864.74      969.29      969.29     1010.97     1019.89
+ 
+           1     0.00000     0.00000     0.00000    -0.00000     0.00000    -0.08010
+           2     0.00000     0.00000     0.00000    -0.00000     0.00000    -0.08010
+           3     0.00001     0.07635     0.00002     0.08816     0.05127    -0.00000
+           4     0.00000    -0.00000     0.00000    -0.00000    -0.00000     0.10941
+           5    -0.00000     0.00000    -0.00000     0.00000     0.00000    -0.02931
+           6    -0.06613    -0.03817    -0.07636    -0.04406     0.05127    -0.00000
+           7    -0.00000     0.00000    -0.00000     0.00000     0.00000    -0.02931
+           8     0.00000     0.00000     0.00000    -0.00000    -0.00000     0.10941
+           9     0.06612    -0.03819     0.07634    -0.04410     0.05128    -0.00000
+          10     0.00000    -0.00000     0.00000    -0.00000    -0.00000    -0.08010
+          11     0.00000    -0.00000     0.00000    -0.00000    -0.00000    -0.08010
+          12    -0.00001    -0.07635     0.00002     0.08816    -0.05128     0.00000
+          13     0.00000    -0.00000    -0.00000    -0.00000     0.00000     0.10941
+          14    -0.00000     0.00000    -0.00000     0.00000    -0.00000    -0.02931
+          15     0.06613     0.03817    -0.07636    -0.04406    -0.05127     0.00000
+          16    -0.00000     0.00000    -0.00000     0.00000    -0.00000    -0.02931
+          17     0.00000    -0.00000     0.00000    -0.00000     0.00000     0.10941
+          18    -0.06612     0.03819     0.07634    -0.04410    -0.05127     0.00000
+          19     0.00000    -0.00000     0.00000    -0.00000     0.00000    -0.07937
+          20     0.00000     0.00000    -0.00000    -0.00000    -0.00000    -0.07937
+          21    -0.00008    -0.51121    -0.00013    -0.48806    -0.36615     0.00000
+          22    -0.00000    -0.00000    -0.00000    -0.00000    -0.00000     0.10842
+          23    -0.00000     0.00000    -0.00000     0.00000     0.00000    -0.02902
+          24     0.44276     0.25554     0.42274     0.24391    -0.36615     0.00000
+          25    -0.00000     0.00000    -0.00000     0.00000     0.00000    -0.02902
+          26     0.00000     0.00000     0.00000    -0.00000    -0.00000     0.10842
+          27    -0.44268     0.25567    -0.42260     0.24414    -0.36616     0.00000
+          28    -0.00000    -0.00000     0.00000    -0.00000    -0.00000    -0.07937
+          29     0.00000    -0.00000    -0.00000    -0.00000    -0.00000    -0.07937
+          30     0.00008     0.51121    -0.00014    -0.48806     0.36616    -0.00000
+          31     0.00000    -0.00000    -0.00000     0.00000     0.00000     0.10842
+          32    -0.00000     0.00000    -0.00000     0.00000    -0.00000    -0.02902
+          33    -0.44276    -0.25553     0.42273     0.24392     0.36615    -0.00000
+          34    -0.00000     0.00000    -0.00000     0.00000     0.00000    -0.02902
+          35     0.00000    -0.00000     0.00000     0.00000     0.00000     0.10842
+          36     0.44268    -0.25567    -0.42261     0.24415     0.36615    -0.00000
+
+                   19          20          21          22          23          24
+ 
+ P.Frequency     1020.55     1069.08     1069.12     1185.68     1207.87     1207.87
+ 
+           1     0.07946    -0.04540     0.06416     0.02259     0.04005    -0.01108
+           2     0.07946     0.04514     0.06434    -0.02259    -0.03887     0.01468
+           3    -0.00000     0.00000     0.00000     0.00000     0.00000     0.00000
+           4    -0.10855     0.08424     0.02972     0.00827    -0.01303    -0.00823
+           5     0.02909     0.01068    -0.06530     0.03086    -0.04173    -0.03840
+           6    -0.00000    -0.00000     0.00000     0.00000    -0.00000     0.00000
+           7     0.02909    -0.01042    -0.06534    -0.03086     0.01103    -0.05563
+           8    -0.10855    -0.08436     0.02937    -0.00827     0.00567    -0.01433
+           9    -0.00000     0.00000    -0.00000    -0.00000     0.00000     0.00000
+          10    -0.07946    -0.04540     0.06416     0.02259    -0.04005     0.01108
+          11    -0.07946     0.04514     0.06434    -0.02259     0.03887    -0.01469
+          12     0.00000    -0.00000     0.00000    -0.00000    -0.00000    -0.00000
+          13     0.10855     0.08424     0.02972     0.00827     0.01304     0.00823
+          14    -0.02909     0.01068    -0.06530     0.03086     0.04173     0.03840
+          15     0.00000    -0.00000    -0.00000     0.00000    -0.00000    -0.00000
+          16    -0.02909    -0.01042    -0.06534    -0.03086    -0.01103     0.05563
+          17     0.10855    -0.08436     0.02938    -0.00827    -0.00567     0.01433
+          18     0.00000     0.00000    -0.00000    -0.00000     0.00000     0.00000
+          19     0.08660    -0.29519     0.06836     0.27678     0.36230    -0.11641
+          20     0.08660     0.29491     0.06957    -0.27678    -0.36119     0.11980
+          21     0.00000    -0.00000    -0.00000    -0.00000    -0.00000    -0.00000
+          22    -0.11830     0.13568    -0.04613     0.10132    -0.10527    -0.09124
+          23     0.03170     0.18039    -0.36129     0.37810    -0.38636    -0.34776
+          24     0.00000     0.00000    -0.00000    -0.00000     0.00000     0.00000
+          25     0.03170    -0.17890    -0.36203    -0.37809     0.10671    -0.50876
+          26    -0.11830    -0.13549    -0.04668    -0.10131     0.03115    -0.13578
+          27     0.00000    -0.00000     0.00000     0.00000    -0.00000    -0.00000
+          28    -0.08660    -0.29519     0.06836     0.27678    -0.36230     0.11642
+          29    -0.08660     0.29490     0.06957    -0.27678     0.36119    -0.11981
+          30    -0.00000    -0.00000    -0.00000     0.00000     0.00000     0.00000
+          31     0.11830     0.13568    -0.04612     0.10131     0.10527     0.09124
+          32    -0.03169     0.18038    -0.36128     0.37809     0.38636     0.34777
+          33    -0.00000     0.00000     0.00000    -0.00000     0.00000     0.00000
+          34    -0.03169    -0.17890    -0.36202    -0.37811    -0.10671     0.50875
+          35     0.11830    -0.13549    -0.04668    -0.10132    -0.03115     0.13578
+          36    -0.00000    -0.00000     0.00000     0.00000     0.00000    -0.00000
+
+                   25          26          27          28          29          30
+ 
+ P.Frequency     1356.68     1387.20     1531.45     1531.45     1656.08     1656.08
+ 
+           1     0.08021    -0.03818     0.07075    -0.05074    -0.09422     0.05841
+           2    -0.08021     0.03818    -0.07633    -0.04188     0.01829    -0.10934
+           3    -0.00000     0.00000    -0.00000    -0.00000    -0.00000    -0.00000
+           4     0.02936    -0.01397    -0.06875    -0.00421    -0.07235    -0.00566
+           5     0.10957    -0.05215    -0.02979     0.09762    -0.04578    -0.13121
+           6     0.00000     0.00000     0.00000     0.00000     0.00000    -0.00000
+           7    -0.10957     0.05215     0.04130     0.09333    -0.13877     0.00743
+           8    -0.02936     0.01397     0.06775    -0.01243    -0.03269    -0.06479
+           9    -0.00000    -0.00000     0.00000    -0.00000     0.00000     0.00000
+          10     0.08021     0.03817     0.07075    -0.05074     0.09422    -0.05841
+          11    -0.08021    -0.03817    -0.07633    -0.04188    -0.01829     0.10934
+          12    -0.00000     0.00000    -0.00000    -0.00000    -0.00000    -0.00000
+          13     0.02936     0.01397    -0.06875    -0.00421     0.07235     0.00566
+          14     0.10957     0.05215    -0.02979     0.09762     0.04578     0.13121
+          15    -0.00000    -0.00000    -0.00000     0.00000     0.00000    -0.00000
+          16    -0.10957    -0.05215     0.04130     0.09333     0.13877    -0.00743
+          17    -0.02936    -0.01397     0.06775    -0.01243     0.03269     0.06479
+          18    -0.00000     0.00000     0.00000    -0.00000     0.00000     0.00000
+          19    -0.07795     0.25560    -0.27107    -0.04039     0.02910    -0.13489
+          20     0.07795    -0.25560     0.26426    -0.07266    -0.11376     0.07811
+          21     0.00000    -0.00000     0.00000     0.00000    -0.00000    -0.00000
+          22    -0.02853     0.09356    -0.02533    -0.12238    -0.04181     0.07282
+          23    -0.10648     0.34917     0.18228    -0.31842     0.09395     0.14901
+          24     0.00000    -0.00000    -0.00000     0.00000    -0.00000     0.00000
+          25     0.10648    -0.34916    -0.21921    -0.29422     0.17352     0.03038
+          26     0.02853    -0.09356     0.01044    -0.12453     0.05150    -0.06632
+          27     0.00000     0.00000     0.00000     0.00000     0.00000     0.00000
+          28    -0.07795    -0.25560    -0.27107    -0.04039    -0.02910     0.13489
+          29     0.07795     0.25560     0.26426    -0.07266     0.11376    -0.07811
+          30     0.00000    -0.00000     0.00000    -0.00000     0.00000    -0.00000
+          31    -0.02853    -0.09356    -0.02533    -0.12238     0.04181    -0.07282
+          32    -0.10648    -0.34916     0.18227    -0.31842    -0.09395    -0.14901
+          33     0.00000     0.00000     0.00000     0.00000    -0.00000    -0.00000
+          34     0.10648     0.34917    -0.21920    -0.29422    -0.17352    -0.03038
+          35     0.02853     0.09356     0.01044    -0.12453    -0.05150     0.06632
+          36    -0.00000    -0.00000     0.00000     0.00000     0.00000     0.00000
+
+                   31          32          33          34          35          36
+ 
+ P.Frequency     3174.42     3184.07     3184.07     3199.82     3199.83     3210.51
+ 
+           1     0.02301     0.00011     0.03333    -0.00163     0.03469    -0.02510
+           2     0.02301     0.00270     0.03322     0.00294     0.03460    -0.02510
+           3    -0.00000     0.00000     0.00000    -0.00000    -0.00000    -0.00000
+           4    -0.03141    -0.03815     0.02479     0.04184     0.02216     0.03428
+           5     0.00842     0.01124    -0.00504    -0.00959    -0.00887    -0.00919
+           6     0.00000    -0.00000     0.00000     0.00000    -0.00000     0.00000
+           7     0.00842    -0.01162    -0.00408     0.00925    -0.00922    -0.00919
+           8    -0.03141     0.04010     0.02149    -0.04097     0.02373     0.03428
+           9    -0.00000    -0.00000    -0.00000    -0.00000     0.00000     0.00000
+          10     0.02300    -0.00011    -0.03333    -0.00163     0.03469     0.02510
+          11     0.02300    -0.00270    -0.03322     0.00294     0.03460     0.02510
+          12    -0.00000    -0.00000     0.00000    -0.00000    -0.00000     0.00000
+          13    -0.03142     0.03815    -0.02478     0.04184     0.02216    -0.03428
+          14     0.00842    -0.01124     0.00504    -0.00959    -0.00887     0.00919
+          15     0.00000     0.00000     0.00000     0.00000     0.00000     0.00000
+          16     0.00842     0.01162     0.00408     0.00925    -0.00922     0.00919
+          17    -0.03142    -0.04010    -0.02149    -0.04097     0.02372    -0.03428
+          18     0.00000    -0.00000     0.00000    -0.00000     0.00000     0.00000
+          19    -0.27647    -0.01489    -0.38975    -0.00413    -0.38854     0.27422
+          20    -0.27647    -0.01796    -0.38962    -0.01052    -0.38842     0.27422
+          21    -0.00000     0.00000    -0.00000     0.00000     0.00000     0.00000
+          22     0.37749     0.44950    -0.28611    -0.46521    -0.25574    -0.37455
+          23    -0.10115    -0.12165     0.07476     0.12239     0.07262     0.10036
+          24     0.00000     0.00000    -0.00000    -0.00000     0.00000    -0.00000
+          25    -0.10115     0.12751     0.06426    -0.11956     0.07718     0.10036
+          26     0.37749    -0.47198    -0.24727     0.45523    -0.27311    -0.37456
+          27     0.00000     0.00000     0.00000     0.00000    -0.00000     0.00000
+          28    -0.27641     0.01489     0.38980    -0.00413    -0.38855    -0.27419
+          29    -0.27641     0.01797     0.38967    -0.01053    -0.38843    -0.27419
+          30    -0.00000    -0.00000    -0.00000    -0.00000     0.00000    -0.00000
+          31     0.37753    -0.44952     0.28606    -0.46519    -0.25571     0.37458
+          32    -0.10116     0.12166    -0.07475     0.12238     0.07261    -0.10037
+          33    -0.00000    -0.00000    -0.00000    -0.00000     0.00000    -0.00000
+          34    -0.10116    -0.12752    -0.06425    -0.11956     0.07717    -0.10037
+          35     0.37753     0.47200     0.24722     0.45522    -0.27307     0.37457
+          36     0.00000    -0.00000     0.00000    -0.00000     0.00000    -0.00000
+
+
+
+ ----------------------------------------------------------------------------
+ Normal Eigenvalue ||    Projected Derivative Dipole Moments (debye/angs)
+  Mode   [cm**-1]  ||      [d/dqX]             [d/dqY]           [d/dqZ]
+ ------ ---------- || ------------------ ------------------ -----------------
+    1       -0.000 ||      -0.000               0.000             0.000
+    2       -0.000 ||       0.000              -0.000            -0.000
+    3       -0.000 ||       0.000               0.000             0.000
+    4        0.000 ||      -0.000              -0.000            -0.000
+    5        0.000 ||       0.000               0.000            -0.000
+    6        0.000 ||      -0.000               0.000             0.000
+    7      415.070 ||       0.000               0.000            -0.000
+    8      415.078 ||      -0.000              -0.000             0.000
+    9      621.901 ||       0.000              -0.000             0.000
+   10      621.916 ||      -0.000               0.000             0.000
+   11      694.622 ||       0.000               0.000             1.354
+   12      717.763 ||      -0.000              -0.000             0.000
+   13      864.732 ||       0.000              -0.000             0.000
+   14      864.738 ||       0.000               0.000            -0.000
+   15      969.286 ||      -0.000              -0.000             0.000
+   16      969.292 ||      -0.000               0.000            -0.000
+   17     1010.971 ||       0.000               0.000             0.000
+   18     1019.887 ||       0.000               0.000            -0.000
+   19     1020.553 ||       0.000               0.000             0.000
+   20     1069.083 ||      -0.196               0.197            -0.000
+   21     1069.118 ||      -0.197              -0.196            -0.000
+   22     1185.680 ||      -0.000               0.000            -0.000
+   23     1207.867 ||      -0.000               0.000            -0.000
+   24     1207.868 ||       0.000               0.000            -0.000
+   25     1356.684 ||      -0.000               0.000            -0.000
+   26     1387.204 ||       0.000               0.000            -0.000
+   27     1531.449 ||      -0.294               0.261             0.000
+   28     1531.454 ||      -0.261              -0.294             0.000
+   29     1656.078 ||      -0.000              -0.000            -0.000
+   30     1656.079 ||      -0.000               0.000            -0.000
+   31     3174.419 ||       0.000               0.000             0.000
+   32     3184.073 ||       0.000              -0.000            -0.000
+   33     3184.075 ||      -0.000              -0.000            -0.000
+   34     3199.820 ||       0.799              -0.769            -0.000
+   35     3199.833 ||       0.769               0.799            -0.000
+   36     3210.505 ||      -0.000              -0.000            -0.000
+ ----------------------------------------------------------------------------
+
+
+
+  
+  
+ ----------------------------------------------------------------------------
+ Normal Eigenvalue ||           Projected Infra Red Intensities
+  Mode   [cm**-1]  || [atomic units] [(debye/angs)**2] [(KM/mol)] [arbitrary]
+ ------ ---------- || -------------- ----------------- ---------- -----------
+    1       -0.000 ||    0.000000           0.000         0.000       0.000
+    2       -0.000 ||    0.000000           0.000         0.000       0.000
+    3       -0.000 ||    0.000000           0.000         0.000       0.000
+    4        0.000 ||    0.000000           0.000         0.000       0.000
+    5        0.000 ||    0.000000           0.000         0.000       0.000
+    6        0.000 ||    0.000000           0.000         0.000       0.000
+    7      415.070 ||    0.000000           0.000         0.000       0.000
+    8      415.078 ||    0.000000           0.000         0.000       0.000
+    9      621.901 ||    0.000000           0.000         0.000       0.000
+   10      621.916 ||    0.000000           0.000         0.000       0.000
+   11      694.622 ||    0.079509           1.834        77.509     138.831
+   12      717.763 ||    0.000000           0.000         0.000       0.000
+   13      864.732 ||    0.000000           0.000         0.000       0.000
+   14      864.738 ||    0.000000           0.000         0.000       0.000
+   15      969.286 ||    0.000000           0.000         0.000       0.000
+   16      969.292 ||    0.000000           0.000         0.000       0.000
+   17     1010.971 ||    0.000000           0.000         0.000       0.000
+   18     1019.887 ||    0.000000           0.000         0.000       0.000
+   19     1020.553 ||    0.000000           0.000         0.000       0.000
+   20     1069.083 ||    0.003351           0.077         3.266       5.850
+   21     1069.118 ||    0.003350           0.077         3.266       5.850
+   22     1185.680 ||    0.000000           0.000         0.000       0.000
+   23     1207.867 ||    0.000000           0.000         0.000       0.000
+   24     1207.868 ||    0.000000           0.000         0.000       0.000
+   25     1356.684 ||    0.000000           0.000         0.000       0.000
+   26     1387.204 ||    0.000000           0.000         0.000       0.000
+   27     1531.449 ||    0.006707           0.155         6.538      11.711
+   28     1531.454 ||    0.006707           0.155         6.538      11.711
+   29     1656.078 ||    0.000000           0.000         0.000       0.000
+   30     1656.079 ||    0.000000           0.000         0.000       0.000
+   31     3174.419 ||    0.000000           0.000         0.000       0.000
+   32     3184.073 ||    0.000000           0.000         0.000       0.000
+   33     3184.075 ||    0.000000           0.000         0.000       0.000
+   34     3199.820 ||    0.053272           1.229        51.933      93.020
+   35     3199.833 ||    0.053276           1.229        51.936      93.026
+   36     3210.505 ||    0.000000           0.000         0.000       0.000
+ ----------------------------------------------------------------------------
+
+
+
+ vib:animation  F
+
+ Task  times  cpu:      179.7s     wall:      179.9s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls: 2369     2369     4.78e+05 4.27e+04 5.66e+05  290        0     2130     
+number of processes/call 1.03e+00 1.29e+00 1.20e+00 0.00e+00 0.00e+00
+bytes total:             4.33e+08 3.77e+07 5.18e+08 0.00e+00 0.00e+00 1.70e+04
+bytes remote:            2.33e+08 1.40e+07 3.13e+08 -5.04e+03 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 11422672 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        25	        52
+	current total bytes		         0	         0
+	maximum total bytes		  61413440	  82811416
+	maximum total K-bytes		     61414	     82812
+	maximum total M-bytes		        62	        83
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+
+                                      AUTHORS
+                                      -------
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+       S. A. Fischer, S. Krishnamoorthy, W. Ma, M. Klemm, O. Villa, Y. Chen,
+    V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler, V. Konjkov, T. Risthaus,
+       M. Malagoli, A. Marenich, A. Otero-de-la-Roza, J. Mullin, P. Nichols,
+      R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari, M. Williamson,
+      R. J. Harrison, J. R. Rehr, M. Dupuis, D. Silverstein, D. M. A. Smith,
+            J. Nieplocha, V. Tipparaju, M. Krishnan, B. E. Van Kuiken,
+        A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu, T. Van Voorhis,
+     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
+   H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman,
+    K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski, T. Clark, D. Clerc,
+   H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
+   A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
+   R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+   K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
+                               A. T. Wong, Z. Zhang.
+
+ Total times  cpu:      179.7s     wall:      179.9s

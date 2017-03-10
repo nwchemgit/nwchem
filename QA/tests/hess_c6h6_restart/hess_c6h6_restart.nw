@@ -1,0 +1,39 @@
+# Steps to run this test
+# Step 1: Run normal hessian calculation
+# Step 2: Run after commenting out start line, uncommenting restart line, noscf and hessian block 
+
+echo
+
+start hess_c6h6_restart
+#restart hess_c6h6_restart
+
+title "benzene in sto-3g"
+geometry noautoz noautosym nocenter
+ C                     0.98755658     0.98755658     0.00000000
+ C                    -1.34902737     0.36147080     0.00000000
+ C                     0.36147080    -1.34902737     0.00000000
+ C                    -0.98755658    -0.98755658     0.00000000
+ C                     1.34902737    -0.36147080     0.00000000
+ C                    -0.36147080     1.34902737     0.00000000
+ H                     1.75619098     1.75619098     0.00000000
+ H                    -2.39900149     0.64281051     0.00000000
+ H                     0.64281051    -2.39900149     0.00000000
+ H                    -1.75619098    -1.75619098     0.00000000
+ H                     2.39900149    -0.64281051     0.00000000
+ H                    -0.64281051     2.39900149     0.00000000
+end
+
+basis 
+  * library "6-31g*"
+end
+
+dft
+ xc b3lyp
+# noscf
+end
+
+#hessian
+# cphf_restart
+#end
+
+task dft freq
