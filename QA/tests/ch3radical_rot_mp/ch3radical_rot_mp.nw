@@ -1,0 +1,39 @@
+# Performs zora property calculations with the model potential
+
+echo
+
+start ch3radical_rot_mp
+title ch3radical_rot_mp
+
+geometry noautoz units angstrom nocenter
+symmetry c1
+c +0.00000000   +0.00000000   +0.00000000
+h -0.21385373   +0.98738914   +0.39826283
+h -0.78597592   -0.69448290   +0.28059107
+h +0.09050298   +0.04455726   -1.08102723
+end
+
+BASIS "ao basis" PRINT
+ * library 6-311G
+END
+
+relativistic
+ zora on
+ zora:cutoff_NMR 1d-8
+ zora:cutoff 1d-30
+ modelpotential 1
+end
+
+dft
+ odft
+ mult 2
+ xc b3lyp
+end
+task dft
+
+property
+ gshift
+ hyperfine 
+ shielding
+end
+task dft property
