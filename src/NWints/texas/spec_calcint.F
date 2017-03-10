@@ -19,8 +19,8 @@ c It can be extanded for other targets.
 c----------------------------------------------------------------
       common /runtype/ scftype,where
       common /txs_time/ timprep2,timcalc2,timblok2
-!      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
+      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,
+     &                p1i,acc
       common /infor/ icheck,firstd,ndirect,nprint,iblok,nbeg,nend
       common /memor1/ npard,mxsize,nblock1,nblock1_back
       common /memor1b/ nbl2
@@ -300,8 +300,8 @@ c------------------------------------------------------
       common /howmany/ ntotal,noijkl,nopres,nospec,nrimtot,nrimret
       common /infor/ icheck,firstd,ndirect,nprint,iblok,nbeg,nend
       common /infob/ inuc,ibas,na,nbf,nsh,ncf,ncs
-!      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
+      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,
+     &                p1i,acc
 c
 ctime
       common /timex/ tconv1,tconv2,ttrobs
