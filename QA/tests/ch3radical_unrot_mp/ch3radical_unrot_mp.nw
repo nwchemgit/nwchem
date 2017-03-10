@@ -1,0 +1,38 @@
+echo
+
+start ch3radical_unrot_mp
+title ch3radical_unrot_mp
+
+geometry noautoz units angstrom nocenter
+symmetry c1
+c  0.0    0.0    0.0
+h  1.028  0.0   -0.350
+h -0.514  0.890 -0.350
+h -0.514 -0.890 -0.350
+end
+
+BASIS "ao basis" PRINT
+ * library 6-311G
+END
+
+relativistic
+ zora on
+ zora:cutoff_NMR 1d-8
+ zora:cutoff 1d-30
+# modelpotentia 1 = 4c density, 2 = 2c density
+ modelpotential 2
+end
+
+dft
+ odft
+ mult 2
+ xc b3lyp
+end
+task dft
+
+property
+ gshift
+ hyperfine 
+ shielding
+end
+task dft property
