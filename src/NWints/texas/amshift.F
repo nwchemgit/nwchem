@@ -465,8 +465,6 @@ c------------------------------------
       implicit real*8 (a-h,o-z)
 #include "texas_lpar.fh"
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
       common/shell/lshellt,lshelij,lshelkl,lhelp,lcas2(4),lcas3(4)
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
@@ -556,9 +554,6 @@ c***********************************************************
 #include "texas_lpar.fh"
 cxxx
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
-c
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
 c
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
@@ -753,9 +748,6 @@ c***********************************************************
 #include "texas_lpar.fh"
 cxxxx
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
-c
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
 c
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
@@ -1047,9 +1039,6 @@ c***********************************************************
 #include "texas_lpar.fh"
 cxxx
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
-c
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
 c
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
@@ -1424,8 +1413,6 @@ ctest
       common /runtype/ scftype,where
 ctest
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
 c
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
@@ -1689,8 +1676,6 @@ c------------------------------------
       implicit real*8 (a-h,o-z)
 #include "texas_lpar.fh"
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
       common/shell/lshellt,lshelij,lshelkl,lhelp,lcas2(4),lcas3(4)
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
@@ -1923,8 +1908,6 @@ c  when l-shells are not present
 c------------------------------------
       implicit real*8 (a-h,o-z)
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
       common/shell/lshellt,lshelij,lshelkl,lhelp,lcas2(4),lcas3(4)
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
