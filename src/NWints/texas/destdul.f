@@ -47,8 +47,6 @@ c
 c     
       double precision threshold ! For screening output integrals
 c--------------------------------
-      data zero,half /0.d0,0.5d0/
-c----------------------------
 c     do not zero out integ_n0 here
 c----------------------------
 c     loop over quartets belonging to the block IKBL :
