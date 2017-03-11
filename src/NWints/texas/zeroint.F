@@ -303,13 +303,12 @@ c=================================================
       implicit real*8 (a-h,o-z)
       dimension idxnot(*)
       dimension buf(nbls,lnijkl,ngcd)
-      data zero /0.d0/
 c
             do 10 iqu=1,ngcd
             do 10 icx=1,lnijkl
             do 10 i=1,nbls2
             ijkl=idxnot(i)
-            buf(ijkl,icx,iqu)=zero
+            buf(ijkl,icx,iqu)=0.0d0
   10        continue
 c
       end
