@@ -83,8 +83,6 @@ Cedo      parameter (lpar1=30,lpar2=4495,lpar3=4060,lpar4=9,lpar5=29)
 #include "texas_lpar.fh"
 cxx
 c
-      data half /0.5d0/
-c
 c     lensm(nsij)=total number of functions up to given nsij
 c************************************************************
 c
@@ -248,9 +246,9 @@ c
 c* hnia matrix :
 c
       do 55 i=1,nfun
-      hnia(1,i)=half*dble(nia(1,i))
-      hnia(2,i)=half*dble(nia(2,i))
-      hnia(3,i)=half*dble(nia(3,i))
+      hnia(1,i)=0.5d0*dble(nia(1,i))
+      hnia(2,i)=0.5d0*dble(nia(2,i))
+      hnia(3,i)=0.5d0*dble(nia(3,i))
    55 continue
 c
 c* nmxyz and npxyz matrices :
