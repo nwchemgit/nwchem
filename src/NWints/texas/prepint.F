@@ -30,9 +30,6 @@ c
       logical firstd
       character*11 scftype
 c
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
-c
 #include "texas_lpar.fh"
 cxx
       common /cpu/ intsize,iacc,icache,memreal
@@ -106,28 +103,26 @@ c
       common /time4/ tderiv
       common /time5/ tcheck,tuniq2,tmap4u
 c
-      data zero /0.d0/
-c
-      if(tblock.eq.zero) then
+      if(tblock.eq.0.0d0) then
 ctime
-        tprec2=zero
-        tconv1=zero
-        tconv2=zero
-        ttrobs=zero
-        tpre4n=zero
-        txwpq =zero
-        tassem=zero
-        tamshf=zero
-        tdesti=zero
-        terint=zero
-        tzeroi=zero
-        tspeci=zero
-        ttrans=zero
-        tderiv=zero
+        tprec2=0.0d0
+        tconv1=0.0d0
+        tconv2=0.0d0
+        ttrobs=0.0d0
+        tpre4n=0.0d0
+        txwpq =0.0d0
+        tassem=0.0d0
+        tamshf=0.0d0
+        tdesti=0.0d0
+        terint=0.0d0
+        tzeroi=0.0d0
+        tspeci=0.0d0
+        ttrans=0.0d0
+        tderiv=0.0d0
 c
-        tcheck=zero   
-        tuniq2=zero   
-        tmap4u=zero
+        tcheck=0.0d0
+        tuniq2=0.0d0
+        tmap4u=0.0d0
 ctime
       else
 c
@@ -206,10 +201,10 @@ c----------------------------------------------------------------
 c pi256=pi/256
 c
       common /neglect/ eps,eps1,epsr
-      data one,pi256 /1.d0 , 0.012271846d0 /
+      data pi256 / 0.012271846d0 /
 c
       eps =thres
-      eps1=one/eps
+      eps1=1.0d0/eps
       epsr=pi256*eps*eps
 c
 ccc   write(6,*)' integ thresh from setup_thresh()=',eps
