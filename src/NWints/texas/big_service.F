@@ -766,8 +766,6 @@ c
       subroutine spur (a,b,ncf,s)
       implicit real*8 (a-h,o-z)
       dimension a(1), b(1)
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
 c
 c     ....    spur(ab) - both are synmmetrical triangular matrices
 c
@@ -778,9 +776,9 @@ cccc  n=ncf
       do 10 j=1,i
          ij=ij+1
          s=s+a(ij)*b(ij)
-         if (i.eq.j) s=s-a(ij)*b(ij)*half
+         if (i.eq.j) s=s-a(ij)*b(ij)*0.5d0
    10 continue
-      s=s*two
+      s=2*s
       return
 c
       end
