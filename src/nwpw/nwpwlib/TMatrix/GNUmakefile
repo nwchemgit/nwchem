@@ -5,14 +5,15 @@
   OBJ_OPTIMIZE = dgemm_omp.o \
 		 dgamm_omp.o \
 		 daxpy_omp.o \
-		 dscal_omp.o
+		 dscal_omp.o \
+		 ffm_multiply_omp_group.o
   OBJ = 
 
 
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = 
+    USES_BLAS = dgemm_omp.F ffm_multiply_omp_group.F
 
   LIB_DEFINES = 
 
