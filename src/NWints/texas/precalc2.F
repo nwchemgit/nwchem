@@ -152,8 +152,6 @@ c====================================================================
       subroutine ab_prim_1(ibl, datnuc,datbas,inx, abprim,ijcont,
      *                     nij_uniqe,ij_uniqe )
       implicit real*8 (a-h,o-z)
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
 c
       dimension inx(12,*)
       dimension datbas(13,*),datnuc(5,*)
@@ -183,15 +181,15 @@ c
         je=inx(5,jcs)
         jat=inx(2,jcs)
 c
-c center23 (atom number 0 is the one with s-orbital/zero-exp.)
+c center23 (atom number 0 is the one with s-orbital/one-exp.)
 c
         if(iat.eq.0) iat=jat
         if(jat.eq.0) jat=iat
 c
         if(iat.eq.0 .and. jat.eq.0) then
-           xab=zero
-           yab=zero
-           zab=zero
+           xab=0.0d0
+           yab=0.0d0
+           zab=0.0d0
         else
            xab=datnuc(2,iat)-datnuc(2,jat)
            yab=datnuc(3,iat)-datnuc(3,jat)
@@ -210,10 +208,10 @@ c----------------------------------
 c----------------------------------
 c Sab=(a*b)**3/4 * (a+b)**-1 * exp( -ab/(a+b) * Rab**2)
 c
-             if(aa.gt.zero .and. bb.gt.zero) then
+             if(aa.gt.0.0d0 .and. bb.gt.0.0d0) then
 cold            axb=aa*bb
 cold            apb=aa+bb
-cold            apb1=one/apb
+cold            apb1=1.0d0/apb
 cold            e=axb*apb1
 cold            abprim(ijpar,ij,1)=apb
 cold            abprim(ijpar,ij,2)=apb1
@@ -222,7 +220,7 @@ cnew98.......................................................
 c
                 axb=aa*bb
                 apb=aa+bb
-                apb1=one/apb
+                apb1=1.0d0/apb
                 e=axb*apb1
 c98
                 err=e*rr
@@ -238,29 +236,29 @@ c98
 cnew98.......................................................
              else
 c center23:
-                if(aa.le.zero .and. bb.gt.zero) then
+                if(aa.le.0.0d0 .and. bb.gt.0.0d0) then
 c>>>>>>>>>         write(8,*)' exp_a=zero ; ics=',ics
                    apb=aa+bb
-                   apb1=one/apb
+                   apb1=1.0d0/apb
                    abprim(ijpar,ij,1)=apb
                    abprim(ijpar,ij,2)=apb1
 c>>*a-3/4          abprim(ijpar,ij,3)=     sqrt(bb)             !Sbb
-                   abprim(ijpar,ij,3)=one/sqrt(sqrt(bb))   !sqrt(Sbb)
+                   abprim(ijpar,ij,3)=1.0d0/sqrt(sqrt(bb))   !sqrt(Sbb)
                 endif
-                if(aa.gt.zero .and. bb.le.zero) then
+                if(aa.gt.0.0d0 .and. bb.le.0.0d0) then
 c>>>>>>>>          write(8,*)' exp_b=zero ; jcs=',jcs
                    apb=aa+bb
-                   apb1=one/apb
+                   apb1=1.0d0/apb
                    abprim(ijpar,ij,1)=apb
                    abprim(ijpar,ij,2)=apb1
 c>>>>>>>>>>>>      abprim(ijpar,ij,3)=sqrt(sqrt(aa)) ! sqrt(Saa)
 c>>*a-3/4          abprim(ijpar,ij,3)=     sqrt(aa)             !Saa
-                   abprim(ijpar,ij,3)=one/sqrt(sqrt(aa))   !sqrt(Saa)
+                   abprim(ijpar,ij,3)=1.0d0/sqrt(sqrt(aa))   !sqrt(Saa)
                 endif
-                if(aa.le.zero .and. bb.le.zero) then
-                   abprim(ijpar,ij,1)=zero
-                   abprim(ijpar,ij,2)=zero
-                   abprim(ijpar,ij,3)=zero
+                if(aa.le.0.0d0 .and. bb.le.0.0d0) then
+                   abprim(ijpar,ij,1)=0.0d0
+                   abprim(ijpar,ij,2)=0.0d0
+                   abprim(ijpar,ij,3)=0.0d0
                 endif
              endif
 c----------------------------------
@@ -371,8 +369,6 @@ c
 c
       COMMON /types/itype,jtype,ktype,ltype,ityp,jtyp,ktyp,ltyp
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lc12,lc34
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
@@ -442,9 +438,9 @@ c
         ijcs=ij_uniqe(ijpar)
         call get_ij_half(ijcs,ics,jcs)
 c
-        fact1=one
+        fact1=1.0d0
 cpnl    if(ics.eq.jcs) then
-cpnl       if(ngctot.eq.0) fact1=fact1*half
+cpnl       if(ngctot.eq.0) fact1=fact1*0.5d0
 cpnl    endif
 c
 c      starting contr
@@ -469,8 +465,8 @@ c
 c
           do 150 i=1,3
           if(iatom.eq.0 .and. jatom.eq.0) then
-            xa(i)=zero
-            xb(i)=zero
+            xa(i)=0.0d0
+            xb(i)=0.0d0
           else
             xa(i)=datnuc(1+i,iatom)
             xb(i)=datnuc(1+i,jatom)
@@ -501,7 +497,7 @@ c
                   cis(ijpar,is1)=csi
                else              
 c gen.contr. shell is somewhere
-                  est_is=one
+                  est_is=1.0d0
                   do 210 ig=0,ngcii
                   gci(ijpar,ig+1,is1)=datbas(ig+2,is)
   210             continue
@@ -534,8 +530,8 @@ c
                      cjs(ijpar,js1)=csj
                else              
 c gen.contr.
-                  coefij(ijpar,ji )=one
-                  est_js=one
+                  coefij(ijpar,ji )=1.0d0
+                  est_js=1.0d0
                   if(which.eq.'right') coefij(ijpar,ji)=par268
 c
                   do 220 jg=0,ngcjj
@@ -555,8 +551,8 @@ c
             xparij(ijpar,l,ji,2)=xparij(ijpar,l,ji,1)-xxl  ! xpn
             xparij(ijpar,l,ji,3)=aa*xa(l)+bb*xb(l)         ! xpp
 c center23:
-            if(aa.le.zero .or. bb.le.zero) then
-               xparij(ijpar,l,ji,2)=zero
+            if(aa.le.0.0d0 .or. bb.le.0.0d0) then
+               xparij(ijpar,l,ji,2)=0.0d0
             endif
   230       continue
 c------------------------------------------------------------------
@@ -609,10 +605,10 @@ c
             txab(ijpar,3,ijs1)=-bbb(ijpar,js1)*xab(ijpar,3)
 c center23:
             aa=aaa(ijpar,is1)
-            if(aa.le.zero) then
-               txab(ijpar,1,ijs1)=zero
-               txab(ijpar,2,ijs1)=zero
-               txab(ijpar,3,ijs1)=zero
+            if(aa.le.0.0d0) then
+               txab(ijpar,1,ijs1)=0.0d0
+               txab(ijpar,2,ijs1)=0.0d0
+               txab(ijpar,3,ijs1)=0.0d0
             endif
   151    continue
          
@@ -627,10 +623,10 @@ c center23:
             txab(ijpar,3,ijs1)= aaa(ijpar,is1)*xab(ijpar,3)
 c center23:
             bb=bbb(ijpar,js1)
-            if(bb.le.zero) then
-               txab(ijpar,1,ijs1)=zero
-               txab(ijpar,2,ijs1)=zero
-               txab(ijpar,3,ijs1)=zero
+            if(bb.le.0.0d0) then
+               txab(ijpar,1,ijs1)=0.0d0
+               txab(ijpar,2,ijs1)=0.0d0
+               txab(ijpar,3,ijs1)=0.0d0
             endif
   152    continue
       endif
@@ -677,11 +673,10 @@ c-------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
       dimension rapb(nij_uniqe,*),abnia(nij_uniqe,mmax1,*)
       dimension ij_uniqe(nij_uniqe)
-      data half /0.5d0/
 c--------------------------
       do 150 ij=1,lcij
          do 200 ijpar=1,nij_uniqe
-            apb2=half*rapb(ijpar,ij)
+            apb2=0.5d0*rapb(ijpar,ij)
             abnia(ijpar,1,ij)=apb2
                do 250 i=2,mmax1
                   abnia(ijpar,i,ij)=abnia(ijpar,i-1,ij)+apb2
@@ -710,7 +705,7 @@ c  is constant and is set up in BLOCK DATA logobsa. For example :
 c
 c     habcd(klpar,1=x,ifu,kl)=hnia(1,ifu)*rcpd(klpar,kl)
 c
-c  HABCD is used only in TRACY's recursive in routines TRACIJ, TRACKL
+c  HABCD is used only in Tracy recursion in routines TRACIJ, TRACKL
 c-----------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
@@ -763,12 +758,11 @@ c-------
 c----output
       dimension rppq(*),rhoapb(*),rhocpd(*),rys(*),const(*)
 c
-      data zero,one /0.d0 , 1.d0/
 c---------------------------------------------------------------
-      sqrpold=one
-      rpold=one
-      abpcd1r=zero
-      abpcdr=zero
+      sqrpold=1.0d0
+      rpold=1.0d0
+      abpcd1r=0.0d0
+      abpcdr=0.0d0
 c-----------------------------------------------------------------
 c     ijkl1=0
 c     ijklp=0
@@ -791,7 +785,7 @@ c
          abpcd1=apb1+cpd1
          if(abpcd1.ne.abpcd1r) then
             abpcd1r=abpcd1
-            abpcdr=one/abpcd1r
+            abpcdr=1.0d0/abpcd1r
          endif
 c
          estim=estab(ijpar,ij)*estcd(klpar,kl)*abpcdr
@@ -854,13 +848,12 @@ c
       dimension rys(*),const(*)
       dimension xpqr(3,*),txxr(3,*)
 c
-      data zero,one /0.d0 , 1.d0/
 c---------------------------------------------------------------
-      sqrpold=one
-      rpold=one
+      sqrpold=1.0d0
+      rpold=1.0d0
 c
-      abpcd1r=zero
-      abpcdr=zero
+      abpcd1r=0.0d0
+      abpcdr=0.0d0
 c-----------------------------
 c2002 ijkl1=0
 c     ijklp=0
@@ -884,7 +877,7 @@ c
          abpcd1=apb1+cpd1
          if(abpcd1.ne.abpcd1r) then
             abpcd1r=abpcd1
-            abpcdr=one/abpcd1r
+            abpcdr=1.0d0/abpcd1r
          endif
 c
          estim=estab(ijpar,ij)*estcd(klpar,kl)*abpcdr
@@ -1001,7 +994,7 @@ c
             XWQ(i,2)=YWL-XQ(klpar,2,lckl)
             XWQ(i,3)=ZWL-XQ(klpar,3,lckl)
 c
-c for Tracy's recursive :
+c for Tracy recursion:
 c
             rcpd1=rcpd(klpar,lckl)
 c
@@ -1022,8 +1015,6 @@ c*
       implicit real*8 (a-h,o-z)
       logical first
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
       common /rys/ xrys,rysr(10),rysw(10),t,f0,f1,f2,f3,f4,f5,nroots
 c
       common/obarai/
@@ -1196,8 +1187,6 @@ c====================================================================
      *                     nij_uniqe,ij_uniqe )
       implicit real*8 (a-h,o-z)
       common /neglect/ eps,eps1,epsr
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
 c
       dimension inx(12,*)
       dimension datbas(13,*),datnuc(5,*)
@@ -1230,9 +1219,9 @@ c
         if(jat.eq.0) jat=iat
 c
         if(iat.eq.0 .and. jat.eq.0) then
-           xab=zero
-           yab=zero
-           zab=zero
+           xab=0.0d0
+           yab=0.0d0
+           zab=0.0d0
         else
            xab=datnuc(2,iat)-datnuc(2,jat)
            yab=datnuc(3,iat)-datnuc(3,jat)
@@ -1252,11 +1241,11 @@ c----------------------------------
              bb=datbas(1,js)
              ij=ij+1
 c----------------------------------
-             if(aa.gt.zero .and. bb.gt.zero) then
+             if(aa.gt.0.0d0 .and. bb.gt.0.0d0) then
                 if(ijpar.eq.1) then
                   axb=aa*bb
                   apb(ij)=aa+bb
-                  rapb(ij)=one/apb(ij)
+                  rapb(ij)=1.0d0/apb(ij)
                   e=axb*rapb(ij)
                   eexx(ij)=e
                   sqrtx(ij)=sqrt(sqrt(axb))**3
@@ -1276,36 +1265,36 @@ cnew98......
 cnew98......
              else
 c center23:
-                if(aa.le.zero .and. bb.gt.zero) then
+                if(aa.le.0.0d0 .and. bb.gt.0.0d0) then
 c>>>>>>>>>         write(8,*)' exp_a=zero ; ics=',ics
                    if(ijpar.eq.1) then
                       apb(ij)=aa+bb
-                      rapb(ij)=one/apb(ij)
+                      rapb(ij)=1.0d0/apb(ij)
 c>>*b-3/4             sqrtx(ij)=     sqrt(bb)       ! Sbb 
-                      sqrtx(ij)=one/sqrt(sqrt(bb))  ! sqrt(Sbb)
+                      sqrtx(ij)=1.0d0/sqrt(sqrt(bb))  ! sqrt(Sbb)
                       sqrt3=sqrtx(ij)
                    else
                       sqrt3=sqrtx(ij)
                    endif
                    sab(ijpar,ij)=sqrt3               ! Sbb
                 endif
-                if(aa.gt.zero .and. bb.le.zero) then
+                if(aa.gt.0.0d0 .and. bb.le.0.0d0) then
 c>>>>>>>           write(8,*)' exp_b=zero ; jcs=',jcs
                    if(ijpar.eq.1) then
                       apb(ij)=aa+bb
-                      rapb(ij)=one/apb(ij)
+                      rapb(ij)=1.0d0/apb(ij)
 c>>>*a-3/4            sqrtx(ij)=     sqrt(aa)       ! Saa 
-                      sqrtx(ij)=one/sqrt(sqrt(aa))  ! sqrt(Saa)
+                      sqrtx(ij)=1.0d0/sqrt(sqrt(aa))  ! sqrt(Saa)
                       sqrt3=sqrtx(ij)
                    else
                       sqrt3=sqrtx(ij)
                    endif
                    sab(ijpar,ij)=sqrt3              ! Saa
                 endif
-                if(aa.le.zero .and. bb.le.zero) then
-                   apb(ij)=zero
-                   rapb(ij)=zero
-                   sab(ijpar,ij)=zero
+                if(aa.le.0.0d0 .and. bb.le.0.0d0) then
+                   apb(ij)=0.0d0
+                   rapb(ij)=0.0d0
+                   sab(ijpar,ij)=0.0d0
                 endif
              endif
 c
@@ -1419,8 +1408,6 @@ c for gradient derivatives only :
 c
       COMMON /types/itype,jtype,ktype,ltype,ityp,jtyp,ktyp,ltyp
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lc12,lc34
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
@@ -1486,9 +1473,9 @@ c
         ijcs=ij_uniqe(ijpar)
         call get_ij_half(ijcs,ics,jcs)
 c
-        fact1=one
+        fact1=1.0d0
 cpnl    if(ics.eq.jcs) then
-cpnl       if(ngctot.eq.0) fact1=fact1*half
+cpnl       if(ngctot.eq.0) fact1=fact1*0.5d0
 cpnl    endif
 c
 c      starting contr
@@ -1512,8 +1499,8 @@ c
 c
           do 150 i=1,3
           if(iatom.eq.0 .and. jatom.eq.0) then
-            xa(i)=zero
-            xb(i)=zero
+            xa(i)=0.0d0
+            xb(i)=0.0d0
           else
             xa(i)=datnuc(1+i,iatom)
             xb(i)=datnuc(1+i,jatom)
@@ -1534,7 +1521,7 @@ cmoved down if(where.eq.'hess') aaa(ijpar,is1)=aa
                   cpi=datbas(3,is)
                   coefi=csi
                   est_is=csi
-                  est_ip=one
+                  est_ip=1.0d0
                   if(itypp.eq.3) then
                      est_ip=cpi
                      coefi=cpi
@@ -1559,7 +1546,7 @@ cmoved down if(where.eq.'hess' .and. which.eq.'left ') bbb(ijpar,js1)=bb
                   cpj=datbas(3,js)
                   coefj=csj
                   est_js=csj
-                  est_jp=one
+                  est_jp=1.0d0
                   if(jtypp.eq.3) est_jp=cpj
                   if(jtypp.eq.3) coefj=cpj
                   coefij(ijpar,ji )=coefi*coefj
@@ -1573,9 +1560,9 @@ cmoved down if(where.eq.'hess' .and. which.eq.'left ') bbb(ijpar,js1)=bb
                   cjs(js1)=csj
                else              
 c                 gen.contr.
-                  est_is=one
-                  est_js=one
-                  coefij(ijpar,ji )=one
+                  est_is=1.0d0
+                  est_js=1.0d0
+                  coefij(ijpar,ji )=1.0d0
                   if(which.eq.'right') coefij(ijpar,ji)=par268
                endif
 c
@@ -1607,8 +1594,8 @@ c
             xparij(ijpar,l,ji,2)=xparij(ijpar,l,ji,1)-xxl  ! xpn
             xparij(ijpar,l,ji,3)=aa*xa(l)+bb*xb(l)         ! xpp
 c center23:
-            if(aa.le.zero .or. bb.le.zero) then
-               xparij(ijpar,l,ji,2)=zero
+            if(aa.le.0.0d0 .or. bb.le.0.0d0) then
+               xparij(ijpar,l,ji,2)=0.0d0
             endif
 c
   230       continue
@@ -1663,10 +1650,10 @@ c
             txab(ijpar,2,ijs1)=-bb1*xab(ijpar,2)
             txab(ijpar,3,ijs1)=-bb1*xab(ijpar,3)
 c center23:
-            if(aa1.le.zero) then
-               txab(ijpar,1,ijs1)=zero
-               txab(ijpar,2,ijs1)=zero
-               txab(ijpar,3,ijs1)=zero
+            if(aa1.le.0.0d0) then
+               txab(ijpar,1,ijs1)=0.0d0
+               txab(ijpar,2,ijs1)=0.0d0
+               txab(ijpar,3,ijs1)=0.0d0
             endif
   151    continue
       else
@@ -1681,10 +1668,10 @@ c center23:
             txab(ijpar,2,ijs1)= aa1*xab(ijpar,2)
             txab(ijpar,3,ijs1)= aa1*xab(ijpar,3)
 c center23:
-            if(bb1.le.zero) then
-               txab(ijpar,1,ijs1)=zero
-               txab(ijpar,2,ijs1)=zero
-               txab(ijpar,3,ijs1)=zero
+            if(bb1.le.0.0d0) then
+               txab(ijpar,1,ijs1)=0.0d0
+               txab(ijpar,2,ijs1)=0.0d0
+               txab(ijpar,3,ijs1)=0.0d0
             endif
   152    continue
       endif
@@ -1722,10 +1709,9 @@ c====================================================================
       subroutine precal2b_2(mmax1,lcij, rapb, abnia)
       implicit real*8 (a-h,o-z)
       dimension rapb(*), abnia(mmax1,*)
-      data half /0.5d0/
 c
       do 150 ij=1,lcij
-            apb2=half*rapb(ij)
+            apb2=0.5d0*rapb(ij)
             abnia(1,ij)=apb2
                do 250 i=2,mmax1
                abnia(i,ij)=abnia(i-1,ij)+apb2
@@ -1788,7 +1774,6 @@ ccc   dimension rppq(*),rhoapb(*),rhocpd(*),rys(*),const(*)
 c now scalars:  rppq,rhoapb,rhocpd  
       dimension rys(*),const(*)
 c
-      data one /1.d0/
 c---------------------------------------------------------------
 c NEWER
          apb1=apb(ij)
@@ -1796,7 +1781,7 @@ c NEWER
 c
          abpcd1=apb1+cpd1
          abxcd=apb1*cpd1
-         abpcdr=one/abpcd1
+         abpcdr=1.0d0/abpcd1
          rho1=abxcd*abpcdr
 c        
          sqrpold=sqrt(abpcdr)
@@ -1870,7 +1855,6 @@ c
       dimension rys(*),const(*)
       dimension xpqr(3,*),txxr(3,*)
 c     
-      data one /1.d0/
 c---------------------------------------------------------------
       apb1=apb(ij)
       cpd1=cpd(kl)
@@ -1878,7 +1862,7 @@ c
       abpcd1=apb1+cpd1
       abxcd=apb1*cpd1
       abpcd1r=abpcd1
-      abpcdr=one/abpcd1r
+      abpcdr=1.0d0/abpcd1r
       rho1=abxcd*abpcdr
 c     
       sqrpold=sqrt(abpcdr)
@@ -2003,7 +1987,7 @@ c
          XWQ(i,2)=YWL-XQ(klpar,2,lckl)
          XWQ(i,3)=ZWL-XQ(klpar,3,lckl)
 c
-c for Tarcy's recursive :
+c for Tracy recursion :
 c
          p1234(i,1)=(txab(ijpar,1,lcij)+txcd(klpar,1,lckl))*rcpd1
          p1234(i,2)=(txab(ijpar,2,lcij)+txcd(klpar,2,lckl))*rcpd1
@@ -2021,8 +2005,6 @@ c====================================================================
       implicit real*8 (a-h,o-z)
       logical first
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
       common /rys/ xrys,rysr(10),rysw(10),t,f0,f1,f2,f3,f4,f5,nroots
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
@@ -2208,26 +2190,26 @@ c
       dimension coefij(nij_uniqe,*),coefkl(nkl_uniqe,*)
 c-------------------------------------------------------------
 c June 1998
-c Numerical stability of Tracy's recursive depends on the relative
+c Numerical stability of Tracy recursion depends on the relative
 c value of exponents involved. For (ab/cd) instability occurs when
 c the second exponent (b) is much bigger than others.
 c In such a case one has to proceed as follows:
 c construct (s,s|i+j+k+l,s) integrals and then shift ang.mom.
 c (s,s|i+j+k+l,s) ---> (i+j,s|k+l,s)
-c from center 3 to center 1 (tracy's recursive) 
+c from center 3 to center 1 (Tracy recursion) 
 c 
-c Before numerical instability in Tracy's recursive has been
+c Before numerical instability in Tracy recursion has been
 c realized the program calculated (i+j+k+l,s|s,s) for nsij.GE.nskl
 c and onother way aroubd for nsij.LT.nskl .
 c then shifted ang. mom. from 1 to 3 or fro 3 to 1.
 c-------------------------------------------------------------
 c calculate maximum of 2*b/max(1,a) and maximum of 1/(c+d)
 c these two above will determine numerical stability in
-c Tracy's recursive 
+c Tracy recursion
 c-------------------------------------------------------------
 c Lost digit :
 c 
-c in one recursive step :
+c in one recursion step :
 c
 c
 c                    2*b
@@ -2470,7 +2452,7 @@ c for description see num_stability_2()
 c-------------------------------------------------------------
 c calculate maximum of 2*b/max(1,a) and maximum of 1/(c+d)
 c these two above will determine numerical stability in
-c Tracy's recursive 
+c Tracy recursion
 c-------------------------------------------------------------
 c const=c_ij*c_kl*Sij*Skl/(a+b+c+d)  - S -radial overlap.
 c maximum of it is needed
