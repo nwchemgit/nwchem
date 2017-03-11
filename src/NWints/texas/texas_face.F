@@ -860,8 +860,7 @@ c----------------------------------------
       common /inde1/ inxx
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nsym,nganz(35),lopt(30)
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
+      common /number/ acc
 c------------------------------------
       common /cpu/ intsize,iacc,icache,memreal
       common /intgop/ ncache,maxprice,iprint,iblock
@@ -950,14 +949,14 @@ c
 c------------------------------pnl time--------------------------
 c zero out timings
 c
-      time4texas_hf2_m=zero
-      time4mul_quart  =zero
+      time4texas_hf2_m=0.0d0
+      time4mul_quart  =0.0d0
 c
-      timprep2=zero
-      timcalc2=zero
-      timblok4=zero
+      timprep2=0.0d0
+      timcalc2=0.0d0
+      timblok4=0.0d0
 c
-      call timepr(zero)
+      call timepr(0.0d0)
 c------------------------------pnl time--------------------------
 c
       do 20 i=1,4
@@ -1156,8 +1155,7 @@ c------------------------------------
      1pl(9),nbl(9),nen(9),lentry(9),nam(200),num(200),irec(200),icode(20
      20),inpf,ioutf
       common /tx_unit/ ang,debye,cbm,ajoule,evolt,ckalmo,dkel,cmm1,hertz
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
+      common /number/ acc
       common /ganz/ lcore,iov,last,nganz(67)
       common /ctxs_index/ maxsh,ifp,inx(1)
 c------------------------------------
@@ -1189,16 +1187,6 @@ c------------------------------------
 c------------------------------------
       iov=1
 c
-      zero=0.0d0
-      half=0.5d0
-      one=1.0d0
-      two=2.0d0
-      three=3.0d0
-      four=4.0d0
-      five=5.0d0
-      ten=10.0d0
-      ten6=1.0d+6
-      tenm8=1.0d-8
       pi=3.1415926535898d0
       ix=5
 c-----------

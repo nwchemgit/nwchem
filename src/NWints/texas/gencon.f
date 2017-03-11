@@ -187,8 +187,6 @@ c====================================================================
       implicit real*8 (a-h,o-z)
       logical first
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
       common /rys/ xrys,rysr(10),rysw(10),t,f0,f1,f2,f3,f4,f5,nroots
 c
       common/obarai/
@@ -474,7 +472,6 @@ c2002 dimension buf2(4,nbls,lt1,lt2,ngcd)
       dimension buf2(nbls,lt1,lt2,ngcd,4)
       dimension gcoef(nbls,ngcd)
       dimension gc_ax(nbls,ngcd),gc_bx(nbls,ngcd),gc_cx(nbls,ngcd)
-      data zero /0.d0/
 c-----------------------------------------------------------------------
 c               buf2(1,nbls,lt1,lt2) - ordinary contraction
 c               buf2(2,nbls,lt1,lt2) - rescaled with 2*a_exp
@@ -492,16 +489,16 @@ c
                  do i=1,nbls1
                     ijkl=indx(i)
                     xint=xt1(i,ij,kl)
-                    if(abs(xint).gt.zero) then
+                    if(abs(xint).gt.0.0d0) then
                        buf2(ijkl,ij,kl,iqu,1)=xint*gcoef(ijkl,iqu)
                        buf2(ijkl,ij,kl,iqu,2)=xint*gc_ax(ijkl,iqu)
                        buf2(ijkl,ij,kl,iqu,3)=xint*gc_bx(ijkl,iqu)
                        buf2(ijkl,ij,kl,iqu,4)=xint*gc_cx(ijkl,iqu)
                     else
-                       buf2(ijkl,ij,kl,iqu,1)=zero
-                       buf2(ijkl,ij,kl,iqu,2)=zero
-                       buf2(ijkl,ij,kl,iqu,3)=zero
-                       buf2(ijkl,ij,kl,iqu,4)=zero
+                       buf2(ijkl,ij,kl,iqu,1)=0.0d0
+                       buf2(ijkl,ij,kl,iqu,2)=0.0d0
+                       buf2(ijkl,ij,kl,iqu,3)=0.0d0
+                       buf2(ijkl,ij,kl,iqu,4)=0.0d0
                     endif
                  enddo
               enddo
@@ -516,7 +513,7 @@ c...... region I
                  do i=1,nbls1
                     ijkl=indx(i)
                     xint=xt1(i,ij,kl)
-                    if(abs(xint).gt.zero) then
+                    if(abs(xint).gt.0.0d0) then
                        buf2(ijkl,ij,kl,iqu,1)=buf2(ijkl,ij,kl,iqu,1)
      *                                        + xint*gcoef(ijkl,iqu)
                        buf2(ijkl,ij,kl,iqu,2)=buf2(ijkl,ij,kl,iqu,2)
@@ -537,7 +534,7 @@ c...... region II
                  do i=1,nbls1
                     ijkl=indx(i)
                     xint=xt1(i,ij,kl)
-                    if(abs(xint).gt.zero) then
+                    if(abs(xint).gt.0.0d0) then
                        buf2(ijkl,ij,kl,iqu,4)=buf2(ijkl,ij,kl,iqu,4)
      *                                        + xint*gc_cx(ijkl,iqu)
                     endif
@@ -552,7 +549,7 @@ c...... region III
                  do i=1,nbls1
                     ijkl=indx(i)
                     xint=xt1(i,ij,kl)
-                    if(abs(xint).gt.zero) then
+                    if(abs(xint).gt.0.0d0) then
                        buf2(ijkl,ij,kl,iqu,2)=buf2(ijkl,ij,kl,iqu,2)
      *                                        + xint*gc_ax(ijkl,iqu)
                        buf2(ijkl,ij,kl,iqu,3)=buf2(ijkl,ij,kl,iqu,3)

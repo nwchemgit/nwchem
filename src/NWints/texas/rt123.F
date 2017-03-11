@@ -121,20 +121,19 @@ c     in t.  x must be non-negative, m is a non-negative integer
       dimension f(0:*)
       common /fmtable/fx(5,600),gx(5,600)
 c
-      data twopi,half,zero,one,two/1.128379167096d0,0.5d0,0.0d0,
-     & 1.0d0,2.0d0/
+      data twopi/1.128379167096d0/
 c
-      if (x.le.zero) then
+      if (x.le.0.0d0) then
 c       write(*,*) 'Fm(x) called with negative argument, x=',x
         do 100 i=0,m
           f(i)=twopi/(2*i+1)
  100    continue
         return
       else if (x.gt.30.0d0) then
-        f(0)=one/sqrt(x)
-        rx=one/x
+        f(0)=1.0d0/sqrt(x)
+        rx=1.0d0/x
         do 300 i=1,m
-           f(i)=f(i-1)*rx*(i-half)
+           f(i)=f(i-1)*rx*(i-0.5d0)
  300    continue
         return
       else
@@ -161,7 +160,7 @@ c      m between 6 and 9
      1       gx(1,ix)
           end if
           jj=j+j+1
-          twox=two*x
+          twox=2*x
  200        j=j-1
             jj=jj-2
             ff=(ex+twox*ff)/jj
@@ -173,14 +172,13 @@ c      m between 6 and 9
       end
       subroutine ft05 (t,f0,f1,f2,f3,f4,f5)
       implicit real*8 (a-h,o-z)
-      data cmul/1.0d0/
       data cst/.564189583548d0/
       k=idint(t)+1
       if (k.ge.35) go to 10
       go to (40,50,60,70,80,90,100,110,120,130,140,150,160,160,170,170,1
      180,190,200,200,210,210,210,220,220,220,230,230,230,230,240,240,240
      2,240), k
-   10 f0=cmul/dsqrt(t)
+   10 f0=1.0d0/dsqrt(t)
       rt=1.0d0/t
       f1=f0*rt*0.5d0
       f2=f1*rt*1.5d0
@@ -292,9 +290,8 @@ c
       subroutine fm0(x,m,f)
       implicit real*8 (a-h,o-z)
       dimension f(0:*)
-      data twopi,half,zero,one,two/1.128379167096d0,0.5d0,0.0d0,
-     & 1.0d0,2.0d0/
-      if (x.le.zero) then
+      data twopi/1.128379167096d0/
+      if (x.le.0.0d0) then
 c       write(*,*) 'Fm(x) called with negative argument, x=',x
         do 100 i=0,m
           f(i)=twopi/(2*i+1)
@@ -304,7 +301,7 @@ c       write(*,*) 'Fm(x) called with negative argument, x=',x
         ex=exp(-x)*twopi
         jj=j+j+1
         ff=ex/jj
-        twox=two*x
+        twox=2*x
  200      j=j-1
           jj=jj-2
 c         ff=(ex+twox*ff)*rj(jj)
@@ -312,10 +309,10 @@ c         ff=(ex+twox*ff)*rj(jj)
           if(j.le.m) f(j)=ff
           if(j.gt.0) go to 200
       else
-        f(0)=one/sqrt(x)
-        rx=one/x
+        f(0)=1.0d0/sqrt(x)
+        rx=1.0d0/x
         do 300 i=1,m
-           f(i)=f(i-1)*rx*(i-half)
+           f(i)=f(i-1)*rx*(i-0.5d0)
  300    continue
       end if
       end
