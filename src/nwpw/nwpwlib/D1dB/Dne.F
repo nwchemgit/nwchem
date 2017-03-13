@@ -6482,11 +6482,11 @@ c     ****************************************
 c
 c   warning - ms==0 not allowed
 
-      subroutine Dne_ffm_combo_sym_Multiply(ms,A1,A2,npack1,hml3,tmp2)
+      subroutine Dne_ffm_combo_sym_Multiply(ms,A1,A2,npack1,hml3)
       implicit none
       complex*16 A1(*),A2(*)
       integer    ms,npack1
-      real*8     hml3(*),tmp2(*)
+      real*8     hml3(*)
            
 #include "bafdecls.fh"
 #include "Dne.fh"
@@ -6601,12 +6601,9 @@ c     >                     hml3)
      >                     A2(shift),
      >                     hml3,dbl_mb(thrwork1(1)+tid*nn))
 
-         write(*,*) "COMBO OUT=",tid,tmp2(49)
-
   30     continue
       end if
       call nwpw_timing_end(15)
-      write(*,*) "COMBO OUT2=",tid,tmp2(49)
       return
       end
 
