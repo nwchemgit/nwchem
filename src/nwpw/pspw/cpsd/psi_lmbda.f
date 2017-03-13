@@ -72,6 +72,8 @@ c      call dcopy(8*nn,0.0d0,0,tmp,1)
         sa1  = 5*nn + 1
         st1  = 6*nn + 1
         st2  = 7*nn + 1
+
+ccccccccc Uncomment in this block and then run ch3cl-pspw-sd.nw cccccccccccc
         call Dneall_ffm_sym_Multiply(ms,psi2,psi2,npack1,tmp(s22))
         write(*,*) "AAIF3=",tmp(s22+48)
         call Dneall_ffm_sym_Multiply(ms,psi2,psi1,npack1,tmp(s21))
@@ -83,6 +85,7 @@ c      call dcopy(8*nn,0.0d0,0,tmp,1)
         write(*,*) "DDIF3=",Parallel_threadid(),
      >             tmp(s22+48),s22,sa1,st1,st2
 
+        write(*,*) "DEIF3=",tmp(s22+48),s22
         if (Parallel_threadid().eq.0) then
         write(*,*) "EEIF3=",tmp(s22+48),s22
         write(*,*) "diff1=",nn,((tmp(s11+it-1)-tmp(sa1+it-1)),it=1,nn)
@@ -90,6 +93,7 @@ c      call dcopy(8*nn,0.0d0,0,tmp,1)
         write(*,*) "diff3=",nn,((tmp(s22+it-1)-tmp(st2+it-1)),it=1,nn)
         write(*,*) "ZZIF3=",tmp(s22+48),tmp(st2+48)
         end if
+ccccccccc Uncomment in this block and then run ch3cl-pspw-sd.nw cccccccccccc
 
 *       ***** scale the overlap matrices ****
         call Dneall_m_scale_s22(ms,dte,tmp(s22))
