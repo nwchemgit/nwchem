@@ -994,7 +994,6 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
       integer j,k
       integer np,npack,npack2
 
-
       call nwpw_timing_start(2)
       call Parallel2d_np_i(np)
 
@@ -1016,20 +1015,81 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
      >             matrix(1,k),k)
       end do
 
-!$OMP MASTER
+!$OMP DO
       do k=1,n
       do j=k+1,n
         matrix(j,k) = matrix(k,j)
       end do
       end do
-!$OMP END MASTER
-!$OMP BARRIER
+!$OMP END DO
 
       if (np.gt.1) call D3dB_Vector_SumAll(n*n,matrix)
 
       call nwpw_timing_end(2)
       return
       end 
+
+
+*     ***********************************
+*     *                                 *
+*     *          Pack_ccm_sym_dot_omp   *       
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_ccm_sym_dot_omp(nb,n,A,B,matrix,privatetmp)
+      implicit none
+      integer    nb,n
+      complex*16 A(*)
+      complex*16 B(*)
+      real*8     matrix(n,n)
+      real*8     privatetmp(*)
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer j,k
+      integer np,npack,npack2
+      integer tid,nthr
+
+*     **** external functions
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
+
+      call nwpw_timing_start(2)
+      call Parallel2d_np_i(np)
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
+
+      npack  = (nida(nb)+nidb(nb))
+      npack2 = 2*npack
+      call Parallel_shared_vector_zero(.true.,n*n,matrix)
+
+      call dgemm2c_omp_group(1,tid,nthr,n,n,npack2,2*nida(nb),
+     >                       A,B,matrix,privatetmp)
+!$OMP BARRIER
+
+!$OMP DO
+      do k=1,n
+      do j=k+1,n
+        matrix(j,k) = matrix(k,j)
+      end do
+      end do
+!$OMP END DO
+
+      if (np.gt.1) call D3dB_Vector_SumAll(n*n,matrix)
+
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+
+
+
+
 
 
 *     ***********************************
@@ -1118,6 +1178,98 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
       call nwpw_timing_end(2)
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *    Pack_ccm_combo_sym_dot_omp   *
+*     *                                 *
+*     ***********************************
+      subroutine Pack_ccm_combo_sym_dot_omp(nb,n,A,B,matrix,privatetmp)
+      implicit none
+      integer    nb,n
+      complex*16 A(*)
+      complex*16 B(*)
+      real*8     matrix(n,n,3)
+      real*8     privatetmp(*)
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i,j,k,ik
+      integer np,npack2
+      integer tid,nthr,nthr3,nthr3l,ftid1,ftid2,ftid3
+
+*     **** external functions ****
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
+
+      call nwpw_timing_start(2)
+      call Parallel2d_np_i(np)
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
+
+      if (nthr.eq.2) then
+         nthr3  = 2
+         nthr3l = 2
+         ftid1 = 0
+         ftid2 = 0
+         ftid3 = 0
+      else
+         nthr3  = max(1,(nthr - mod(nthr,3))/3)
+         nthr3l = max(1,nthr-2*nthr3)
+         ftid1 = 0
+         ftid2 = min(nthr-1,nthr3)
+         ftid3 = min(nthr-1,2*nthr3)
+      end if
+
+      npack2 = 2*(nida(nb)+nidb(nb))
+      call Parallel_shared_vector_zero(.true.,3*n*n,matrix)
+      !write(*,*) "tid=",tid," matrix3=",((matrix(i,j,3),i=1,n), j=1,n)
+
+      if ((tid.ge.ftid1).and.(tid.lt.(ftid1+nthr3))) then
+         call dgemm2c_omp_group(1,tid-ftid1,nthr3,
+     >                          n,n,npack2,2*nida(nb),
+     >                          A,A,matrix(1,1,1),privatetmp)
+      end if
+
+      if ((tid.ge.ftid2).and.(tid.lt.(ftid2+nthr3))) then
+         call dgemm2c_omp_group(2,tid-ftid2,nthr3,
+     >                          n,n,npack2,2*nida(nb),
+     >                          B,A,matrix(1,1,2),privatetmp)
+      end if
+
+      if ((tid.ge.ftid3).and.(tid.lt.(ftid3+nthr3l))) then
+         call dgemm2c_omp_group(3,tid-ftid3,nthr3l,
+     >                          n,n,npack2,2*nida(nb),
+     >                          B,B,matrix(1,1,3),privatetmp)
+      end if
+!$OMP BARRIER
+      !do i=1,3
+      !do k=1,n
+
+!$OMP DO
+      do ik=1,3*n
+         i = (ik-1)/n + 1
+         k = mod(ik-1,n)+1
+         do j=k+1,n
+            matrix(j,k,i) = matrix(k,j,i)
+         end do
+      end do
+!$OMP END DO
+      write(*,*) "LASTM=",tid,matrix(7,7,1),matrix(7,7,2),matrix(7,7,3)
+
+      if (np.gt.1) call D3dB_Vector_SumAll(3*n*n,matrix)
+      call nwpw_timing_end(2)
+
+      return
+      end
+
+
 
 
 
@@ -1228,6 +1380,59 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
       call nwpw_timing_end(2)
       return
       end 
+
+
+
+*     ***********************************
+*     *                                 *
+*     *          Pack_ccm_dot_omp       *       
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_ccm_dot_omp(nb,n,A,B,matrix,privatetmp)
+      implicit none
+      integer    nb,n
+      complex*16 A(*)
+      complex*16 B(*)
+      real*8     matrix(n,n)
+      real*8     privatetmp(*)
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer np,npack
+      integer tid,nthr
+
+*     **** external functions
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
+
+
+      call nwpw_timing_start(2)
+      call Parallel2d_np_i(np)
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
+
+      npack = 2*(nida(nb)+nidb(nb))
+      call Parallel_shared_vector_zero(.true.,n*n,matrix)
+
+      call dgemm2c_omp_group(1,tid,nthr,n,n,npack,2*nida(nb),
+     >                       A,B,matrix,privatetmp)
+!$OMP BARRIER
+
+      if (np.gt.1) call D3dB_Vector_SumAll(n*n,matrix)
+
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+
+
+
 
 *     ***********************************
 *     *					*
