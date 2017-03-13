@@ -1229,7 +1229,6 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
 
       npack2 = 2*(nida(nb)+nidb(nb))
       call Parallel_shared_vector_zero(.true.,3*n*n,matrix)
-      !write(*,*) "tid=",tid," matrix3=",((matrix(i,j,3),i=1,n), j=1,n)
 
       if ((tid.ge.ftid1).and.(tid.lt.(ftid1+nthr3))) then
          call dgemm2c_omp_group(1,tid-ftid1,nthr3,
@@ -1261,7 +1260,6 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
          end do
       end do
 !$OMP END DO
-      write(*,*) "LASTM=",tid,matrix(7,7,1),matrix(7,7,2),matrix(7,7,3)
 
       if (np.gt.1) call D3dB_Vector_SumAll(3*n*n,matrix)
       call nwpw_timing_end(2)
