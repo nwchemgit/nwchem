@@ -43,7 +43,10 @@
      >                      npack1_all,nida1_all,n2ft3d_all,
      >                      parallelized,mparallelized,mreplicate
 
+
       integer mpack(0:2),mall(0:2),mindx(2,0:2)
       integer smpack,small,smindx(2)
       common / Dne_gathscat / mindx,smindx,mpack,mall,smpack,small
 
+      integer thrwork1(2)
+      common    / Dne_sub2 / thrwork1

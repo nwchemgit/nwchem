@@ -24,17 +24,17 @@
 
 *     **** local variables ****
       logical value
-      integer ms,k,i,j,npack1,nida1,n2ft3d
+      integer ms,k,i,j,npack1,nida1,n2ft3d,nthr
       integer nework,ncqmax
-      integer ii,jj,icur,jcur,indx0,indx1,indx2
+      integer ii,jj,icur,jcur,indx0,indx1,indx2,nn
 
 *     **** external functions ****
       logical  control_mparallelized
       external control_mparallelized
       integer  Parallel2d_comm_i,Parallel2d_comm_j
       external Parallel2d_comm_i,Parallel2d_comm_j
-      integer  control_mreplicate_size
-      external control_mreplicate_size
+      integer  control_mreplicate_size,Parallel_maxthreads
+      external control_mreplicate_size,Parallel_maxthreads
 
       ispin   = ispin_in
       ne(1)   = ne_in(1)
@@ -50,6 +50,7 @@
         call D1dB_nq(2,neq(2))
       end if
 
+      nthr =  Parallel_maxthreads()
       call Parallel2d_np_i(np_i)
       call Parallel2d_np_j(np_j)
       call Parallel2d_taskid_i(taskid_i)
@@ -292,6 +293,13 @@
          end if
 
       end if
+      if (mparallelized) then
+         nn =  (mcq(1)*ncq(1)+mcq(2)*ncq(2))*nthr
+      else
+         nn = (ne(1)*ne(1)+ne(2)*ne(2))*nthr
+      end if
+      value = BA_alloc_get(mt_dbl,nn,'thrwork1',thrwork1(2),thrwork1(1))
+      if (.not.value) call errquit('Dne_init:out of heap',9,MA_ERR)
 
       return
       end
@@ -315,6 +323,10 @@
       integer ms
 
       call D1dB_end(1)
+      value = BA_free_heap(thrwork1(2))
+      if (.not.value) 
+     >   call errquit('Dne_end:error deallocating heap',0,MA_ERR)
+
       if ((ispin.eq.2).and.(ne(2).gt.0)) call D1dB_end(2)
       if (parallelized) then
          value = .true.
@@ -341,10 +353,9 @@
          value = value.and.BA_free_heap(mindx(2,0))
          value = value.and.BA_free_heap(mindx(2,1))
          if (ispin.eq.2) value = value.and.BA_free_heap(mindx(2,2))
-        if (.not.value) then
-           call errquit('Dne_end: error deallocating heap memory',
-     >                  0,MA_ERR)
-        end if
+         if (.not.value) then
+           call errquit('Dne_end:error deallocating heap',1,MA_ERR)
+         end if
       end if
 
       return
@@ -1130,6 +1141,13 @@ c     ****************************************
 
 *     **** local variables ****
       integer ms,ms1,ms2,n,shift,shift2,ishift2
+      integer tid,nn
+
+*     **** external functions ****
+      integer  Parallel_threadid
+      external Parallel_threadid
+
+      tid = Parallel_threadid()
 
       call nwpw_timing_start(15)
       if (parallelized) then
@@ -1234,10 +1252,12 @@ c     ****************************************
             ms1 = 1
             ms2 = ispin
             ishift2 = ne(1)*ne(1)
+            nn = ne(1)*ne(1) + ne(2)*ne(2)
          else
             ms1 = mb
             ms2 = mb
             ishift2 = 0
+            nn = ne(mb)*ne(mb)
          end if
 
          do ms=ms1,ms2
@@ -1246,10 +1266,14 @@ c     ****************************************
             n     = ne(ms)
             if (n.le.0) go to 30
 
-            call Pack_ccm_sym_dot(1,n,
+            call Pack_ccm_sym_dot_omp(1,n,
      >                        A1(shift),
      >                        A2(shift),
-     >                        hml(shift2))
+     >                        hml(shift2),dbl_mb(thrwork1(1)+tid*nn))
+c            call Pack_ccm_sym_dot(1,n,
+c     >                        A1(shift),
+c     >                        A2(shift),
+c     >                        hml(shift2))
   30        continue
          end do
       end if
@@ -1277,6 +1301,13 @@ c     ****************************************
 
 *     **** local variables ****
       integer ms,ms1,ms2,n,shift2,ishift2,shift
+      integer tid,nn
+
+*     **** external functions ****
+      integer  Parallel_threadid
+      external Parallel_threadid
+
+      tid = Parallel_threadid(tid)
 
       call nwpw_timing_start(15)
       if (parallelized) then
@@ -1381,10 +1412,12 @@ c     ****************************************
             ms1 = 1
             ms2 = ispin
             ishift2 = ne(1)*ne(1)
+            nn = ne(1)*ne(1) + ne(2)*ne(2)
          else
             ms1 = mb
             ms2 = mb
             ishift2 = 0
+            nn = ne(mb)*ne(mb)
          end if
 
          do ms=ms1,ms2
@@ -1393,10 +1426,10 @@ c     ****************************************
             n     = ne(ms)
             if (n.le.0) go to 30
 
-            call Pack_ccm_dot(1,n,
+            call Pack_ccm_dot_omp(1,n,
      >                        A1(shift),
      >                        A2(shift),
-     >                        hml(shift2))
+     >                        hml(shift2),dbl_mb(thrwork1(1)+tid*nn))
   30        continue
          end do
       end if
@@ -6449,19 +6482,26 @@ c     ****************************************
 c
 c   warning - ms==0 not allowed
 
-      subroutine Dne_ffm_combo_sym_Multiply(ms,A1,A2,npack1,hml3)
+      subroutine Dne_ffm_combo_sym_Multiply(ms,A1,A2,npack1,hml3,tmp2)
       implicit none
       complex*16 A1(*),A2(*)
       integer    ms,npack1
-      real*8     hml3(*)
+      real*8     hml3(*),tmp2(*)
            
 #include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
       integer n,shift
+      integer tid,nn
+
+*     **** external functions ****
+      integer  Parallel_threadid
+      external Parallel_threadid
 
       call nwpw_timing_start(15)
+      tid = Parallel_threadid()
+
       if (parallelized) then
 
          if (mparallelized) then
@@ -6549,16 +6589,24 @@ c   warning - ms==0 not allowed
          end if
       else
 
+         nn = ne(ms)*ne(ms)
          if (ne(ms).le.0) go to 30
          shift  = 1 + (ms-1)*ne(1)*npack1
-         call Pack_ccm_combo_sym_dot(1,ne(ms),
+c         call Pack_ccm_combo_sym_dot(1,ne(ms),
+c     >                     A1(shift),
+c     >                     A2(shift),
+c     >                     hml3)
+         call Pack_ccm_combo_sym_dot_omp(1,ne(ms),
      >                     A1(shift),
      >                     A2(shift),
-     >                     hml3)
+     >                     hml3,dbl_mb(thrwork1(1)+tid*nn))
+
+         write(*,*) "COMBO OUT=",tid,tmp2(49)
 
   30     continue
       end if
       call nwpw_timing_end(15)
+      write(*,*) "COMBO OUT2=",tid,tmp2(49)
       return
       end
 
@@ -6576,6 +6624,10 @@ c   warning - ms==0 not allowed
       call Parallel_Vector_SumAll(3*nall,B)
       return
       end
+
+
+
+
 
 
 
