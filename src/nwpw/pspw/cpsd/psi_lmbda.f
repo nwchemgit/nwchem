@@ -74,25 +74,11 @@ c      call dcopy(8*nn,0.0d0,0,tmp,1)
         st2  = 7*nn + 1
 
 ccccccccc Uncomment in this block and then run ch3cl-pspw-sd.nw cccccccccccc
-        call Dneall_ffm_sym_Multiply(ms,psi2,psi2,npack1,tmp(s22))
-c        write(*,*) "AAIF3=",tmp(s22+48)
-        call Dneall_ffm_sym_Multiply(ms,psi2,psi1,npack1,tmp(s21))
-c        write(*,*) "BBIF3=",tmp(s22+48)
-        call Dneall_ffm_sym_Multiply(ms,psi1,psi1,npack1,tmp(s11))
-c        write(*,*) "CCIF3=",tmp(s22+48)
-c        call Dne_ffm_combo_sym_Multiply(ms,psi1,psi2,npack1,tmp(sa1),
-c     >                                  tmp(s22))
-c        write(*,*) "DDIF3=",Parallel_threadid(),
-c     >             tmp(s22+48),s22,sa1,st1,st2
-c
-c        write(*,*) "DEIF3=",tmp(s22+48),s22
-c        if (Parallel_threadid().eq.0) then
-c        write(*,*) "EEIF3=",tmp(s22+48),s22
-c        write(*,*) "diff1=",nn,((tmp(s11+it-1)-tmp(sa1+it-1)),it=1,nn)
-c        write(*,*) "diff2=",nn,((tmp(s21+it-1)-tmp(st1+it-1)),it=1,nn)
-c        write(*,*) "diff3=",nn,((tmp(s22+it-1)-tmp(st2+it-1)),it=1,nn)
-c        write(*,*) "ZZIF3=",tmp(s22+48),tmp(st2+48)
-c        end if
+        !call Dneall_ffm_sym_Multiply(ms,psi2,psi2,npack1,tmp(s22))
+        !call Dneall_ffm_sym_Multiply(ms,psi2,psi1,npack1,tmp(s21))
+        !call Dneall_ffm_sym_Multiply(ms,psi1,psi1,npack1,tmp(s11))
+        call Dne_ffm_combo_sym_Multiply(ms,psi1,psi2,npack1,tmp(s11))
+
 ccccccccc Uncomment in this block and then run ch3cl-pspw-sd.nw cccccccccccc
 
 *       ***** scale the overlap matrices ****
