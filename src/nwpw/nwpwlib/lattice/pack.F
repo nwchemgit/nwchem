@@ -1248,8 +1248,6 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
      >                          B,B,matrix(1,1,3),privatetmp)
       end if
 !$OMP BARRIER
-      !do i=1,3
-      !do k=1,n
 
 !$OMP DO
       do ik=1,3*n
