@@ -345,6 +345,9 @@ c       these two functions are now threadsafe/multithreaded
 
         call Grsm_gh_fftb(nfft3d,n2(ispin),psi_r)
 
+        call util_flush(6)
+!$OMP BARRIER
+
 
         call nwpw_timing_end(44)
 
@@ -597,15 +600,10 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
            call psi_lmbda_omp(ispin,ne,nemax,nida,nidb,psi1,psi2,dte,
      >                  lmd,dbl_mb(tmp_L(1)),ierr,dbl_mb(thrlmbda(1)),
      >                                          taskid,adiff,notgram)
-!!$OMP BARRIER
-!!$OMP MASTER
-!           write(*,*) MA_verify_allocator_stuff()
-!!$OMP END MASTER
-!!$OMP BARRIER
 #else
-!#if 1
            call psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte,
      >                    lmd,dbl_mb(tmp_L(1)),ierr)
+
 #endif
 
 
@@ -626,7 +624,9 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 *     *** get orbital energies ****
       call Dneall_ffm_sym_Multiply(0,psi1,Hpsi,npack1,hml)
       call Dneall_m_scal(0,(-1.0d0),hml)
-!$OMP END PARALLEL
+!$OMP END PARALLEL 
+
+
 
       if (fractional) then
          !call Dneall_m_diag_scal(0,dbl_mb(fweight(1)),hml)

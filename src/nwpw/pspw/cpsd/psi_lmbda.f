@@ -135,12 +135,12 @@ c        call Dneall_f_ortho(ms,psi2,npack1)
   630   continue
 
 *       :::::::::::::::::  correction due to the constraint  :::::::::::::::::
-        if (notgram)
-     >     call Dneall_fmf_Multiply(ms,
+        if (notgram) then
+           call Dneall_fmf_Multiply(ms,
      >                              psi1,npack1,
      >                              tmp(sa1), dte,
      >                              psi2,1.0d0)
-
+        end if
         call Dneall_mm_Expand(ms,tmp(sa1),lmbda)
   640 continue
 
