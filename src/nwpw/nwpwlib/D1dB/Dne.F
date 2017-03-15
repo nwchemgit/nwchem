@@ -6547,6 +6547,7 @@ c   warning - ms==0 not allowed
             if (ne(ms).le.0) go to 21
             shift  = 1 + (ms-1)*neq(1)*npack1
             
+            call Parallel_shared_vector_zero(.false.,3*mall(ms),hml3)
             call DMatrix_combo_dgemm2(ne(ms),ne(ms),npack1_all,128,
      >             2.0d0,
      >             A1(shift),A2(shift),
@@ -6612,12 +6613,14 @@ c     >                     hml3)
       integer nall,npack,indx(*)
       real*8 A(npack,*),B(nall,*)
       integer i
-      call dcopy(3*nall,0.0d0,0,B,1)
+      !call dcopy(3*nall,0.0d0,0,B,1)
+!$OMP DO
       do i=1,npack
          B(indx(i),1) = A(i,1)
          B(indx(i),2) = A(i,2)
          B(indx(i),3) = A(i,3)
       end do  
+!$OMP END DO
       call Parallel_Vector_SumAll(3*nall,B)
       return
       end
