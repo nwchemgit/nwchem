@@ -1,0 +1,122 @@
+#!/bin/bash
+#
+# $Id: get-tools 28436 2016-08-03 19:50:05Z edo $
+#
+
+unalias -a
+
+export NWCHEM_TOP=${NWCHEM_TOP:-"`pwd`/../"}
+if test "x$NWCHEM_TOP" = x
+then
+    echo You must set NWCHEM_TOP to use this script.
+    exit 1
+fi
+
+ga_version=0
+while [ $# -gt 0 ]
+do
+   case "$1" in
+      --ga-version) ga_version=1;;
+      *)
+         echo >&2 "usage: $0 [--ga-version]"
+         exit 1;;
+   esac
+   shift 
+done
+
+TOOLDIR=`pwd`
+TOOLGIT=`which git`
+CONFIG=$NWCHEM_TOP/src/config/makefile.h
+   GA_DEV_GIT=https://github.com/GlobalArrays/ga.git
+       GA_DEV=ga-dev
+
+if test "x$GA_STABLE" = x
+then
+    GA_STABLE=5.6
+GA_STABLE_GIT="https://github.com/GlobalArrays/ga.git  -b release/$GA_STABLE"
+else
+     GA_STABLE_GIT=https://github.com/GlobalArrays/ga.git -b release/$GA_STABLE
+fi
+
+   GA_EXP_GIT="https://github.com/GlobalArrays/ga.git -b develop"
+       GA_EXP=ga-exp1
+
+# If EXP_GA is set at all in the user's environment then it means 'yes'
+if test "x$EXP_GA" != x
+then
+    EXP_GA=yes
+fi
+if [ $ga_version == 0 ] ; then
+  echo "EXP_GA=$EXP_GA"
+  echo "GA_STABLE=$GA_STABLE"
+fi
+
+# If DEV_GA is set at all in the user's environment then it means 'yes'
+#    DEV_GA=y
+if test "x$DEV_GA" != x
+then
+    GA_GIT=$GA_DEV_GIT
+    GA_DIRNAME=$GA_DEV
+elif test "x$EXP_GA" != x
+then
+    GA_GIT=$GA_EXP_GIT
+    GA_DIRNAME=$GA_EXP
+else
+    GA_GIT=$GA_STABLE_GIT
+    GA_DIRNAME="ga-$GA_STABLE"
+fi
+
+if [ $ga_version == 1 ] ; then
+  echo $GA_DIRNAME
+  exit 0
+fi
+
+if [ ${#TOOLGIT} -eq 0 ] ; then
+  echo "No Subversion found!"
+  echo "Giving up and hoping for the best..."
+  exit 0
+fi
+svn log ./get-tools 2>&1 > /dev/null
+stat=$?
+if [ $stat -ne 0 ] ; then
+  echo "No access to repository!"
+  echo "Giving up and hoping for the best..."
+  exit 0
+fi
+
+
+# Update the autotools build of GA.
+#if test -e $TOOLDIR/build
+#then
+#    echo "You have an old copy of the ga tools using configure"
+#    echo "Deleting it now"
+#    rm -rf $TOOLDIR/build
+#    rm -rf $TOOLDIR/install
+#fi
+if test -d $GA_DIRNAME
+then
+    echo "Updating existing $GA_DIRNAME"
+    cd $GA_DIRNAME
+#    git cleanup
+    if git pull 
+    then
+        echo "Finished updating existing $GA_DIRNAME"
+    else
+        echo "Failed updating existing $GA_DIRNAME"
+        echo "Attempting to remove $GA_DIRNAME"
+        cd $TOOLDIR
+        if rm -rf $GA_DIRNAME
+        then
+            echo "Checking out $GA_GIT"
+            git clone $GA_GIT $GA_DIRNAME
+        else
+            echo "Failed to remove $GA_DIRNAME"
+            echo "get-tools has failed"
+        fi
+    fi
+    cd $TOOLDIR
+else
+    echo "Checking out $GA_GIT"
+    git clone $GA_GIT $GA_DIRNAME
+fi
+exit 0
