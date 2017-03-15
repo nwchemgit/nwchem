@@ -42,7 +42,7 @@ cdump garbage on next record to invalidate fields
       if (otrace) then
          write(LuOut,125) '1INFO ' // what(1:4)// ' from ',
      A        grinfo(1:inp_strlen(grinfo)), ' enuc ',enuc_in
- 125     format(A,A,A,e14.8)
+ 125     format(A,A,A,e15.8)
       endif
       return
       end
