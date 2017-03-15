@@ -100,6 +100,7 @@ c Loop over the components of the "A" and "B" shells.
       nqmx=0
       do Iq = 0,Lqmax
          do Jq = 0,Lqmax-Iq
+!DEC$ LOOP COUNT MAX=10, MIN=1
             do Kq = 0,Lqmax-Iq-Jq
                nqmx = max(IJK(Iq,Jq,Kq),nqmx)
             enddo
@@ -145,6 +146,7 @@ c Sum across (Ip,Jp,Kp) for each value of (Iq,Jq,Kq).
                       
 c Define the product of the Hermite expansions coefficients for 
 c overlap distribution "P".
+!DEC$ LOOP COUNT MAX=30, MIN=1
                       do mp = 1,MPP
                          E3(mp) = Ep(1,mp,0,Ip,Ia,Ib)*
      &                        Ep(2,mp,0,Jp,Ja,Jb)*
@@ -173,12 +175,14 @@ c Include the factor of (-1)**(Iq+Jq+Kq).
                       if(AND(Lq,1).eq.1)then
 #endif
                         if(MPQ.eq.1) then
+!DEC$ LOOP COUNT MAX=30, MIN=1
                            do mp = 1,MPP
                               sum(1,nq) = sum(1,nq)-E3(mp)*R0(1,mp,nr)
                            end do
                         else
                         do mp = 1,MPP
                            zot=-E3(mp)
+!DEC$ LOOP COUNT MAX=30, MIN=1
                           do mq = 1,MPQ
                             sum(mq,nq) = sum(mq,nq)+zot*R0(mq,mp,nr)
                           end do
@@ -186,12 +190,14 @@ c Include the factor of (-1)**(Iq+Jq+Kq).
                         endif
                       else
                         if(MPQ.eq.1) then
+!DEC$ LOOP COUNT MAX=30, MIN=1
                            do mp = 1,MPP
                               sum(1,nq) = sum(1,nq)+E3(mp)*R0(1,mp,nr)
                            end do
                         else
                         do mp = 1,MPP
                            zot=E3(mp)
+!DEC$ LOOP COUNT MAX=30, MIN=1
                           do mq = 1,MPQ
                             sum(mq,nq) = sum(mq,nq)+zot*R0(mq,mp,nr)
                           end do
@@ -246,6 +252,7 @@ c overlap distribution "Q" and calculate eri
               if(MPQ.eq.1) then
                  do Iq = 0,Ic+Id
                     do Jq = 0,Jc+Jd
+!DEC$ LOOP COUNT MAX=30, MIN=1
                        do Kq = 0,Kc+Kd
                           nq = IJK(Iq,Jq,Kq)
                           ERInn = ERInn + 
@@ -274,6 +281,7 @@ c overlap distribution "Q" and calculate eri
                           do Kq = 0,Kc+Kd
                              nq = IJK(Iq,Jq,Kq)
                              nq1 = IJK(Iq1,Jq,Kq)
+!DEC$ LOOP COUNT MAX=30, MIN=1
                              do mq = 1,MPQ
                                 ERInn = ERInn + 
      &                               (Eq(1,mq,0,Iq,Ic,Id)*sum(mq,nq)+
@@ -289,6 +297,7 @@ c overlap distribution "Q" and calculate eri
                     do Jq = 0,Jc+Jd
                        do Kq = 0,Kc+Kd
                           nq = IJK(Iqfin,Jq,Kq)
+!DEC$ LOOP COUNT MAX=30, MIN=1
                           do mq = 1,MPQ
                              ERInn = ERInn + 
      &                            Eq(1,mq,0,Iqfin,Ic,Id)*
