@@ -46,8 +46,8 @@ c
 c
 c-----------------------------------------------------------------------
 c
-      subroutine wfn1_calc_ocx(g_c,nmo,ne,icnf,ocx)
-      implicit none
+c     subroutine wfn1_calc_ocx(g_c,nmo,ne,icnf,ocx)
+c     implicit none
 C>
 C> \brief Calculate average exchange occupation numbers from a set of
 C> correlation functions
@@ -61,51 +61,51 @@ C> 1-electron occupation numbers. The term coming from the exchange
 C> is, however, different for every correlation function unless we
 C> average this term over all occupied correlation functions.
 C>
-#include "global.fh"
-#include "mafdecls.fh"
+cinclude "global.fh"
+cinclude "mafdecls.fh"
 c
-      integer, intent(in) :: g_c      ! the correlation functions
-      integer, intent(in) :: nmo      ! the number of molecular orbitals
-      integer, intent(in) :: ne       ! the number of electrons
-      integer, intent(in) :: icnf(nmo)! the electron configuration
+c     integer, intent(in) :: g_c      ! the correlation functions
+c     integer, intent(in) :: nmo      ! the number of molecular orbitals
+c     integer, intent(in) :: ne       ! the number of electrons
+c     integer, intent(in) :: icnf(nmo)! the electron configuration
 c
-      double precision, intent(out) :: ocx(nmo) ! the average exchange
-                                                ! occupation numbers
+c     double precision, intent(out) :: ocx(nmo) ! the average exchange
+c                                               ! occupation numbers
 c
-      integer iproc ! the processor rank
-      integer nproc ! the number of processor ranks
+c     integer iproc ! the processor rank
+c     integer nproc ! the number of processor ranks
 c
-      integer ilo, ihi, jlo, jhi ! patch limits
-      integer ii,  ir,  is       ! counters
+c     integer ilo, ihi, jlo, jhi ! patch limits
+c     integer ii,  ir,  is       ! counters
 c
-      double precision, allocatable :: buf(:,:)
+c     double precision, allocatable :: buf(:,:)
 c
-      iproc = ga_nodeid()
-      nproc = ga_nnodes()
+c     iproc = ga_nodeid()
+c     nproc = ga_nnodes()
 c
-      ocx = 0.0d0
-      call ga_distribution(g_c,iproc,ilo,ihi,jlo,jhi)
-      allocate(buf(ilo:ihi,1:nmo))
-      call ga_get(g_c,ilo,ihi,1,nmo,buf,ihi-ilo+1)
-      do ir = 1, ne
-        if(icnf(ir).ge.jlo.and.icnf(ir).le.jhi)
-     &  then
-          do is = 1, ne
-            do ii = ilo, ihi
-              ocx(ii) = ocx(ii) - buf(ii,icnf(ir)) * buf(ii,icnf(is))
-            enddo
-          enddo
-        endif
-      enddo
-      deallocate(buf)
-      if (ne.gt.0) then
-        do ii = ilo, ihi
-          ocx(ii) = ocx(ii)/dble(ne)
-        enddo
-      endif
-      call ga_dgop(MT_DBL,ocx,nmo,"+")
+c     ocx = 0.0d0
+c     call ga_distribution(g_c,iproc,ilo,ihi,jlo,jhi)
+c     allocate(buf(ilo:ihi,1:nmo))
+c     call ga_get(g_c,ilo,ihi,1,nmo,buf,ihi-ilo+1)
+c     do ir = 1, ne
+c       if(icnf(ir).ge.jlo.and.icnf(ir).le.jhi)
+c    &  then
+c         do is = 1, ne
+c           do ii = ilo, ihi
+c             ocx(ii) = ocx(ii) - buf(ii,icnf(ir)) * buf(ii,icnf(is))
+c           enddo
+c         enddo
+c       endif
+c     enddo
+c     deallocate(buf)
+c     if (ne.gt.0) then
+c       do ii = ilo, ihi
+c         ocx(ii) = ocx(ii)/dble(ne)
+c       enddo
+c     endif
+c     call ga_dgop(MT_DBL,ocx,nmo,"+")
 c
-      end subroutine wfn1_calc_ocx
+c     end subroutine wfn1_calc_ocx
 c
 c-----------------------------------------------------------------------
 c
@@ -170,5 +170,67 @@ c
       deallocate(bocc)
 c
       end subroutine wfn1_calc_occ2
+c
+c-----------------------------------------------------------------------
+c
+      subroutine wfn1_calc_docx2(g_c,nmo,ne,icnf,g_ocx)
+      implicit none
+C>
+C> \brief Calculate the derivative of the 2-electron exchange 
+C> occupation numbers
+C>
+C> These quantities are the sum_s Cjs Cks terms in the derivative of 
+C> the 2-electron density matrix.
+C>
+#include "global.fh"
+#include "mafdecls.fh"
+c
+      integer, intent(in) :: g_c       ! the correlation functions
+      integer, intent(in) :: nmo       ! the number of molecular orbitals
+      integer, intent(in) :: ne        ! the number of electrons
+      integer, intent(in) :: icnf(1:ne)! the electron configuration
+      integer, intent(inout) :: g_ocx  ! the 2-electron occupation 
+                                       ! numbers
+c
+      integer :: iolo, iohi, jolo, johi ! block limits of occupation GA
+c
+      double precision, allocatable :: bocc(:,:)  ! buffer for 
+                                                  ! occupation numbers
+      double precision, allocatable :: bcori(:,:) ! buffer for 
+                                                  ! correlation function
+      double precision, allocatable :: bcorj(:,:) ! buffer for 
+                                                  ! correlation function
+c
+      integer iproc ! the current processor rank
+      integer nproc ! the number of processor ranks
+c
+      integer is     ! counters for the correlation functions
+      integer ii, ij ! counters for the natural orbitals
+c
+      nproc = ga_nnodes()
+      iproc = ga_nodeid()
+c
+      call ga_distribution(g_ocx,iproc,iolo,iohi,jolo,johi)
+      allocate(bocc(iolo:iohi,jolo:johi))
+      allocate(bcori(iolo:iohi,1:nmo))
+      allocate(bcorj(jolo:johi,1:nmo))
+      bocc = 0.0d0
+      call ga_get(g_c,iolo,iohi,1,nmo,bcori,iohi-iolo+1)
+      call ga_get(g_c,jolo,johi,1,nmo,bcorj,johi-jolo+1)
+      do ij = jolo, johi
+        do ii = iolo, iohi
+          do is = 1, ne
+            bocc(ii,ij) = bocc(ii,ij) 
+     +                    + bcori(ii,icnf(is))*bcorj(ij,icnf(is))
+          enddo
+        enddo
+      enddo
+      call ga_put(g_ocx,iolo,iohi,jolo,johi,bocc,iohi-iolo+1)
+c
+      deallocate(bcorj)
+      deallocate(bcori)
+      deallocate(bocc)
+c
+      end subroutine wfn1_calc_docx2
 c
 c-----------------------------------------------------------------------

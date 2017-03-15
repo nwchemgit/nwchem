@@ -80,6 +80,8 @@ c
       integer g_bfmo     ! nbf x nmo scratch global array
       integer g_momo1    ! nmo x nmo scratch global array
       integer g_momo2    ! nmo x nmo scratch global array
+      integer g_momo3    ! nmo x nmo scratch global array
+      integer g_momo4    ! nmo x nmo scratch global array
 c
       integer ndep_nmo          ! the number of linearly independent
                                 ! vectors set as a user parameter
@@ -309,6 +311,22 @@ c     == and orthonormalizing transformation    ==
 c
       call wfn1_lindep(wfn1_mat%g_s,g_bfbf,wfn1_param%nmo,ndep_tol)
       if (ndep_nmo.gt.0) wfn1_param%nmo = min(wfn1_param%nbf,ndep_nmo)
+      if (wfn1_param%ncorea.gt.wfn1_param%nea) then
+        call errquit(pname//" alpha #core orbitals exceeds #electrons",
+     &               0,UERR)
+      endif
+      if (wfn1_param%ncoreb.gt.wfn1_param%neb) then
+        call errquit(pname//" beta #core orbitals exceeds #electrons",
+     &               0,UERR)
+      endif
+      if (wfn1_param%nvirta.gt.wfn1_param%nmo-wfn1_param%nea) then
+        call errquit(pname//" alpha too many virtual orbitals",
+     &               0,UERR)
+      endif
+      if (wfn1_param%nvirtb.gt.wfn1_param%nmo-wfn1_param%neb) then
+        call errquit(pname//" beta too many virtual orbitals",
+     &               0,UERR)
+      endif
 c
 c     == create other scratch global arrays that depend on ==
 c     == nbf and nmo                                       ==
@@ -327,6 +345,16 @@ c
       if (.not.ga_create(MT_DBL,wfn1_param%nmo,wfn1_param%nmo,"g_momo2",
      &                   -1,-1,g_momo2)) then
         call errquit(pname//" allocate g_momo2 failed",
+     &               wfn1_ibd_proc(wfn1_param%nmo**2,nproc),GA_ERR)
+      endif
+      if (.not.ga_create(MT_DBL,wfn1_param%nmo,wfn1_param%nmo,"g_momo3",
+     &                   -1,-1,g_momo3)) then
+        call errquit(pname//" allocate g_momo3 failed",
+     &               wfn1_ibd_proc(wfn1_param%nmo**2,nproc),GA_ERR)
+      endif
+      if (.not.ga_create(MT_DBL,wfn1_param%nmo,wfn1_param%nmo,"g_momo4",
+     &                   -1,-1,g_momo4)) then
+        call errquit(pname//" allocate g_momo4 failed",
      &               wfn1_ibd_proc(wfn1_param%nmo**2,nproc),GA_ERR)
       endif
 c
@@ -397,14 +425,14 @@ c
       oconverged = .false.
       curit      = 0
       call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_wave,wfn1_deriv,
-     &              wfn1_energy,g_bfmo,g_momo1,g_momo2)
+     &              wfn1_energy,g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4)
       call wfn1_zero_vv(wfn1_param,wfn1_wave,wfn1_deriv)
       do while ((.not.oconverged).and.(curit.lt.maxit))
         curit = curit + 1
         call wfn1_linesearch(wfn1_param,wfn1_inst,wfn1_mat,wfn1_wave,
      &                       wfn1_deriv,wfn1_energy,
      &                       wfn1_trial_wv,wfn1_trial_drv,wfn1_trial_en,
-     &                       g_bfmo,g_momo1,g_momo2)
+     &                       g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4)
 c
         error = wfn1_trace(wfn1_trial_drv,wfn1_trial_drv)
         oconverged = (error%total < conv_tol)
@@ -471,6 +499,12 @@ c
       call wfn1_deallocate_wfn(wfn1_wave)
       call wfn1_deallocate_mat(wfn1_mat)
 c
+      if (.not.ga_destroy(g_momo4)) then
+        call errquit(pname//" deallocate g_momo4 failed",0,GA_ERR)
+      endif
+      if (.not.ga_destroy(g_momo3)) then
+        call errquit(pname//" deallocate g_momo3 failed",0,GA_ERR)
+      endif
       if (.not.ga_destroy(g_momo2)) then
         call errquit(pname//" deallocate g_momo2 failed",0,GA_ERR)
       endif
