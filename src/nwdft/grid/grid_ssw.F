@@ -20,7 +20,7 @@ c
       integer iscr(*)
       integer indx(*)
       character*8 whichfunc ! [input]
-      double precision p(*)
+      double precision p(nctrs_pruned)
       double precision rq(nq,*)  ! sum of p(n) [ output]
 
 c
@@ -105,7 +105,10 @@ c
 32     continue
 c
 #ifdef USE_OPENMP
-!$omp parallel do private(n)
+!$omp parallel do 
+!$omp&  private(n,p) 
+c1!$omp& default(shared) private(n,p) 
+cc!$omp& reduction(+:wsum)
 #endif
       do n=n1,n2
          call grid_ssw0(nq,n,nctrs_pruned,
@@ -149,20 +152,45 @@ c
       parameter(leps=1d-6,toll_scr=1d-10)
 #include "xc_erftab.fh"
 c
+#ifdef USE_VEC
+      call dfill(nctrs_pruned,1.d0,p,1)
+      do  i = 1, nctrs_pruned
+#else
       call dcopy(nctrs_pruned,1.d0,0,p,1)
       do  i = 2, nctrs_pruned
+#endif
          ij = (i*(i-1))/2
          rag=rq(n,i)
+#ifdef USE_VEC
+CDIR$IVDEP
+         do  j = 1, nctrs_pruned
+            if(i.ne.j) then
+               if(j.lt.i) then
+                  ij=(i*(i-1))/2+j
+               else
+                  ij=(j*(j-1))/2+i
+               endif
+#else         
          do  j = 1, i-1
             ij=ij+1
+#endif
                if(
+#ifndef USE_VEC
+     .           abs(p(i)).ge.toll_scr.or.
+#endif
      .           abs(p(j)).ge.toll_scr) then
             mu = (rag - rq(n,j))*rij(ij)
+#ifdef USE_VEC
+                  if (mu.lt.-ass) then
+                     p(j)=0.d0
+                  elseif(mu.lt.ass) then
+#else
             if (mu.gt.ass) then
                p(i)=0.d0
             elseif (mu.lt.-ass) then
                p(j)=0.d0
             else
+#endif
 c     
 c     use interpolation for erfs
 c
@@ -173,9 +201,14 @@ c
                endif
                if(mu.gt.0d0) sk = 1d0 - sk
                p(j) = p(j)*sk
+#ifndef USE_VEC
                p(i) = p(i)*(1d0 - sk)
+#endif
             endif
         endif
+#ifdef USE_VEC
+        endif
+#endif
       enddo                     ! end loop over j
       enddo                     ! end loop over i
 
