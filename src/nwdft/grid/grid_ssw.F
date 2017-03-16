@@ -106,7 +106,7 @@ c
 c
 #ifdef USE_OPENMP
 !$omp parallel do 
-!$omp&  private(n,p) 
+!$omp&  private(n,p)  shared(xyzw)
 c1!$omp& default(shared) private(n,p) 
 cc!$omp& reduction(+:wsum)
 #endif

@@ -19,7 +19,7 @@ c
 c
       double precision Rij(*) !interatomic distances [input]
       integer ictr ! [in] ctr of quadr
-      double precision p(*)
+      double precision p(nctrs_pruned)
       double precision rq(nq_orig,*)  ! sum of p(n) [ output]
       double precision qwght(nq_orig) ! weights [output]
       double precision d_qwght(3,nq_orig,*) ! weight deriv [output]
@@ -128,6 +128,9 @@ c     all inside
          endif
       enddo
 32     continue
+#ifdef USE_OPENMP
+!$omp parallel do private(n,p)
+#endif
       do n=n1,n2
 c
 c       compute mu_AN
@@ -302,6 +305,9 @@ c
          endif
       enddo
       enddo ! n loop
+#ifdef USE_OPENMP
+!$omp end parallel do
+#endif
       return
       end
 
