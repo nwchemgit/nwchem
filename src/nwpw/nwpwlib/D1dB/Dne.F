@@ -1141,13 +1141,14 @@ c     ****************************************
 
 *     **** local variables ****
       integer ms,ms1,ms2,n,shift,shift2,ishift2
-      integer tid,nn
+      integer tid,nthr,nn
 
 *     **** external functions ****
-      integer  Parallel_threadid
-      external Parallel_threadid
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
 
-      tid = Parallel_threadid()
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
 
       call nwpw_timing_start(15)
       if (parallelized) then
@@ -1155,10 +1156,12 @@ c     ****************************************
             ms1 = 1
             ms2 = ispin
             ishift2 = mcq(1)*ncq(1)
+            nn = mcq(1)*ncq(1) + mcq(2)*ncq(2)
          else
             ms1 = mb
             ms2 = mb
             ishift2 = 0
+            nn = mcq(mb)*ncq(mb)
          end if
 
          if (mparallelized) then
@@ -1207,39 +1210,54 @@ c     ****************************************
             if (ne(ms).le.0) go to 21
             shift  = 1 + (ms-1)*neq(1)*npack1
             shift2 =     (ms-1)*ishift2
-            call DMatrix_dgemm2(ne(ms),ne(ms),npack1_all,128,
-     >             2.0d0,
-     >             A1(shift),int_mb(ma(1,ms)+taskid_i),
-     >                       int_mb(ma(1,ms)),
-     >                       int_mb(na(1,ms)),
-     >             A2(shift),int_mb(ma(1,ms)+taskid_i),
-     >                       int_mb(ma(1,ms)),
-     >                       int_mb(na(1,ms)),
-     >             0.0d0,
-     >             dbl_mb(mat_tmp(1)+shift2),int_mb(mc(1,ms)+taskid_i),
-     >                         int_mb(mc(1,ms)),
-     >                         int_mb(nc(1,ms)),
-     >             taskid_i,taskid_j,
-     >             np_i,np_j,
-     >             comm_i, comm_j,
-     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+c            call DMatrix_dgemm2(ne(ms),ne(ms),npack1_all,128,
+c     >             2.0d0,
+c     >             A1(shift),int_mb(ma(1,ms)+taskid_i),
+c     >                       int_mb(ma(1,ms)),
+c     >                       int_mb(na(1,ms)),
+c     >             A2(shift),int_mb(ma(1,ms)+taskid_i),
+c     >                       int_mb(ma(1,ms)),
+c     >                       int_mb(na(1,ms)),
+c     >             0.0d0,
+c     >             dbl_mb(mat_tmp(1)+shift2),int_mb(mc(1,ms)+taskid_i),
+c     >                         int_mb(mc(1,ms)),
+c     >                         int_mb(nc(1,ms)),
+c     >             taskid_i,taskid_j,
+c     >             np_i,np_j,
+c     >             comm_i, comm_j,
+c     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+c
+c            call DMatrix_dgemm2(ne(ms),ne(ms),nida1_all,128,
+c     >             -1.0d0,
+c     >             A1(shift),int_mb(ma(1,ms)+taskid_i),
+c     >                       int_mb(ma1(1,ms)),
+c     >                       int_mb(na(1,ms)),
+c     >             A2(shift),int_mb(ma(1,ms)+taskid_i),
+c     >                       int_mb(ma1(1,ms)),
+c     >                       int_mb(na(1,ms)),
+c     >             1.0d0,
+c     >             dbl_mb(mat_tmp(1)+shift2),int_mb(mc(1,ms)+taskid_i),
+c     >                         int_mb(mc(1,ms)),
+c     >                         int_mb(nc(1,ms)),
+c     >             taskid_i,taskid_j,
+c     >             np_i,np_j,
+c     >             comm_i, comm_j,
+c     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
 
-            call DMatrix_dgemm2(ne(ms),ne(ms),nida1_all,128,
-     >             -1.0d0,
-     >             A1(shift),int_mb(ma(1,ms)+taskid_i),
-     >                       int_mb(ma1(1,ms)),
-     >                       int_mb(na(1,ms)),
-     >             A2(shift),int_mb(ma(1,ms)+taskid_i),
-     >                       int_mb(ma1(1,ms)),
-     >                       int_mb(na(1,ms)),
-     >             1.0d0,
-     >             dbl_mb(mat_tmp(1)+shift2),int_mb(mc(1,ms)+taskid_i),
-     >                         int_mb(mc(1,ms)),
-     >                         int_mb(nc(1,ms)),
-     >             taskid_i,taskid_j,
-     >             np_i,np_j,
-     >             comm_i, comm_j,
-     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+            call DMatrix_dgemm2c_omp(ne(ms),ne(ms),npack1_all,128,
+     >              A1(shift),A2(shift),int_mb(ma(1,ms)+taskid_i),
+     >                                  int_mb(ma(1,ms)),
+     >                                  int_mb(ma1(1,ms)),
+     >                                  int_mb(na(1,ms)),
+     >              dbl_mb(mat_tmp(1)+shift2),int_mb(mc(1,ms)+taskid_i),
+     >                                        int_mb(mc(1,ms)),
+     >                                        int_mb(nc(1,ms)),
+     >              taskid_i,taskid_j,
+     >              np_i,np_j,
+     >              comm_i, comm_j,
+     >              tid,nthr,
+     >              dbl_mb(work1(1)),dbl_mb(work2(1)),
+     >              dbl_mb(thrwork1(1)+tid*nn))
 
   21        continue
          end do
@@ -6493,16 +6511,18 @@ c   warning - ms==0 not allowed
 
 *     **** local variables ****
       integer n,shift
-      integer tid,nn
+      integer tid,nthr,nn
 
 *     **** external functions ****
-      integer  Parallel_threadid
-      external Parallel_threadid
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
 
       call nwpw_timing_start(15)
-      tid = Parallel_threadid()
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
 
       if (parallelized) then
+         nn = mcq(ms)*ncq(ms)
 
          if (mparallelized) then
             if (ne(ms).le.0) go to 20
@@ -6548,39 +6568,55 @@ c   warning - ms==0 not allowed
             shift  = 1 + (ms-1)*neq(1)*npack1
             
             call Parallel_shared_vector_zero(.false.,3*mall(ms),hml3)
-            call DMatrix_combo_dgemm2(ne(ms),ne(ms),npack1_all,128,
-     >             2.0d0,
-     >             A1(shift),A2(shift),
-     >                       int_mb(ma(1,ms)+taskid_i),
-     >                       int_mb(ma(1,ms)),
-     >                       int_mb(na(1,ms)),
-     >             0.0d0,
-     >             dbl_mb(mat_tmp(1)),
-     >                         int_mb(mc(1,ms)+taskid_i),
-     >                         int_mb(nc(1,ms)+taskid_j),
-     >                         int_mb(mc(1,ms)),
-     >                         int_mb(nc(1,ms)),
-     >             taskid_i,taskid_j,
-     >             np_i,np_j,
-     >             comm_i, comm_j,
-     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+c            call DMatrix_combo_dgemm2(ne(ms),ne(ms),npack1_all,128,
+c     >             2.0d0,
+c     >             A1(shift),A2(shift),
+c     >                       int_mb(ma(1,ms)+taskid_i),
+c     >                       int_mb(ma(1,ms)),
+c     >                       int_mb(na(1,ms)),
+c     >             0.0d0,
+c     >             dbl_mb(mat_tmp(1)),
+c     >                         int_mb(mc(1,ms)+taskid_i),
+c     >                         int_mb(nc(1,ms)+taskid_j),
+c     >                         int_mb(mc(1,ms)),
+c     >                         int_mb(nc(1,ms)),
+c     >             taskid_i,taskid_j,
+c     >             np_i,np_j,
+c     >             comm_i, comm_j,
+c     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+c
+c            call DMatrix_combo_dgemm2(ne(ms),ne(ms),nida1_all,128,
+c     >             -1.0d0,
+c     >             A1(shift),A2(shift),
+c     >                       int_mb(ma(1,ms)+taskid_i),
+c     >                       int_mb(ma1(1,ms)),
+c     >                       int_mb(na(1,ms)),
+c     >             1.0d0,
+c     >             dbl_mb(mat_tmp(1)),
+c     >                         int_mb(mc(1,ms)+taskid_i),
+c     >                         int_mb(nc(1,ms)+taskid_j),
+c     >                         int_mb(mc(1,ms)),
+c     >                         int_mb(nc(1,ms)),
+c     >             taskid_i,taskid_j,
+c     >             np_i,np_j,
+c     >             comm_i, comm_j,
+c     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
 
-            call DMatrix_combo_dgemm2(ne(ms),ne(ms),nida1_all,128,
-     >             -1.0d0,
-     >             A1(shift),A2(shift),
-     >                       int_mb(ma(1,ms)+taskid_i),
-     >                       int_mb(ma1(1,ms)),
-     >                       int_mb(na(1,ms)),
-     >             1.0d0,
-     >             dbl_mb(mat_tmp(1)),
-     >                         int_mb(mc(1,ms)+taskid_i),
-     >                         int_mb(nc(1,ms)+taskid_j),
-     >                         int_mb(mc(1,ms)),
-     >                         int_mb(nc(1,ms)),
+            call DMatrix_combo_dgemm2c_omp(ne(ms),ne(ms),npack1_all,128,
+     >             A1(shift),A2(shift),int_mb(ma(1,ms)+taskid_i),
+     >                                 int_mb(ma(1,ms)),
+     >                                 int_mb(ma1(1,ms)),
+     >                                 int_mb(na(1,ms)),
+     >             dbl_mb(mat_tmp(1)),int_mb(mc(1,ms)+taskid_i),
+     >                                int_mb(nc(1,ms)+taskid_j),
+     >                                int_mb(mc(1,ms)),
+     >                                int_mb(nc(1,ms)),
      >             taskid_i,taskid_j,
      >             np_i,np_j,
      >             comm_i, comm_j,
-     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+     >             tid,nthr,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)),
+     >             dbl_mb(thrwork1(1)+tid*nn))
 
   21        continue
             call Dne_m_combo_gather(mall(ms),
