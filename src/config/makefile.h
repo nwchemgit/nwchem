@@ -1890,6 +1890,7 @@ $(error )
          endif
          ifdef USE_KNL
            FOPTIMIZE += -xMIC-AVX512 
+           DEFINES+= -DINTEL_64ALIGN
          else
            FOPTIMIZE += -xHost
          endif
@@ -1963,6 +1964,7 @@ $(error )
 	 ICCV15ORNEWER=$(shell icc -V  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
          ifdef USE_KNL
             COPTIONS   +=   -xMIC-AVX512 -ftz
+            DEFINES+= -DINTEL_64ALIGN
          else
             COPTIONS   +=   -xHost -ftz
          endif

@@ -488,6 +488,9 @@ ifdef USE_GPROF
     CXXFLAGS_FORGA+="-pg"
 endif
 
+ifdef USE_KNL
+    MAYBE_OFFLOAD= INTEL_64ALIGN=1
+endif
 ifdef USE_OFFLOAD
     MAYBE_OFFLOAD= INTEL_64ALIGN=1
 endif
