@@ -804,7 +804,7 @@ c     == better have static ldb at high node counts ==
       call dft_guessout(nmo,nbf_ao,g_gmovecs,g_movecs,ipol)
       if (me.eq.0.and.oprint)
      &     write(LuOut,'(2x," Time after variat. SCF: ",f8.1)')
-     &     util_cpusec()
+     &     util_wallsec()
       if (odftps) call pstat_off(ps_guess)
 
       if(.not.rtdb_get(rtdb,'quickguess',mt_log,1,quickguess)) 
@@ -995,8 +995,8 @@ c
 c     Write prep time required
 c
       if (me.eq.0.and.oprint)then
-         current_cpu = util_cpusec()
-         write(LuOut,20)current_cpu
+         current_wall = util_wallsec()
+         write(LuOut,20)current_wall
    20    format(2x,' Time prior to 1st pass: ',f8.1)
       endif
 c     
@@ -1004,7 +1004,7 @@ c     start DFT_SCF timer
 c     
       start_wall = util_wallsec()
       start_cpu = util_cpusec()
-      dft_time = -start_cpu
+      dft_time = -start_wall
 c
       if (oprint_time)
      &     call dft_tstamp('   Before SCF iter loop. ')
@@ -1165,7 +1165,7 @@ c
 c     build DFT Fock matrix
 c
       if(util_print('dft timings', print_high))
-     &      time1=util_cpusec()  ! start fock matrix build time
+     &      time1=util_wallsec()  ! start fock matrix build time
       call dft_fockbld(rtdb,natoms,ntotel,
      ,     g_fock,g_focks,g_dens,g_vxc,g_movecs,g_xcinv, 
      ,     g_tmp,g_nq,g_wght,g_xyz,
@@ -1183,7 +1183,7 @@ c     &     g_zora_sf,g_frozemb)
      &     g_zora_sf,g_frozemb,g_vxc_fde,g_xcinv_fde,g_dens_fde)
 cc AJL/End
       if(util_print('dft timings', print_high))
-     &      time2=util_cpusec()  ! end fock matrix build time
+     &      time2=util_wallsec()  ! end fock matrix build time
 c
 c     print fock matrix build time
       if(util_print('dft timings', print_high)) then
@@ -1625,16 +1625,16 @@ c
 c
       endif
       if (oprint_conv.and.me.eq.0)then
-         current_cpu = util_cpusec()
+         current_wall = util_wallsec()
          if (diising)then
             write(LuOut,2)ndamp,rlshift,
      &           iter, Etnew+Enuc,
-     &           delta,sqrt(rms(1)),derr(1),current_cpu
+     &           delta,sqrt(rms(1)),derr(1),current_wall
             if (ipol.eq.2)write(LuOut,3)sqrt(rms(2)),derr(2)
          else
             write(LuOut,22)ndamp,rlshift,
      &           iter, Etnew+Enuc,
-     &           delta,sqrt(rms(1)), current_cpu
+     &           delta,sqrt(rms(1)), current_wall
             if (ipol.eq.2)write(LuOut,23)sqrt(rms(2))
          endif
          call util_flush(LuOut)
@@ -1984,7 +1984,7 @@ c        NOTE: Why are we redoing this energy sum?
 
 c        DIM/QM JEM
         
-         dft_time = dft_time+util_cpusec()
+         dft_time = dft_time+util_wallsec()
          if (nexc.le.1)then
           write(LuOut,222)etnew+enuc, 
      &                      ecore, 
