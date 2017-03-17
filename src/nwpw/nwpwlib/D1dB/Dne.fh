@@ -17,9 +17,11 @@
       !*** used for ne(ms) x ne(ms) matrices ***
       integer mc(2,NBLOCKS),nc(2,NBLOCKS)
       integer mcq(NBLOCKS),ncq(NBLOCKS)
+      integer mcqmax(NBLOCKS),ncqmax(NBLOCKS)
 
       integer m2c(2,NBLOCKS),n2c(2,NBLOCKS)
       integer m2cq(NBLOCKS),n2cq(NBLOCKS)
+
 
       !*** used for ne(1) x ne(2) matrices ***
       integer md(2),nd(2)
@@ -31,7 +33,7 @@
       integer mat_tmp(2)
       integer npack1_all,nida1_all,n2ft3d_all
       common    / Dne_sub / ma,ma1,ma2,na,mc,nc,
-     >                      mcq,ncq,
+     >                      mcq,ncq,mcqmax,ncqmax,
      >                      m2c,n2c,m2cq,n2cq,
      >                      md,nd,mdq,ndq,
      >                      work1,work2,
