@@ -4203,6 +4203,9 @@ c     **************************************************************
 *     *                psp_efg_solve                         *
 *     *                                                      *
 *     ********************************************************
+******************************************************************************************
+*** Warning! This routine is not functioning. Need to rederive the efg for atoms...EJB ***
+******************************************************************************************
       subroutine psp_efg_solve(ia,lmax,l_prj,m_prj,
      >                          r3_matrix,
      >                          ispin,ne,nprj,sw1,
@@ -4231,29 +4234,30 @@ c     **************************************************************
          coeflm(lm) = 0.0d0
       end do
 
-      do j=1,nprj
-         lj=l_prj(j)
-         mj=m_prj(j)
-         do i=1,nprj
-            li=l_prj(i)
-            mi=m_prj(i)
-
-            tmp = 0.0d0
-            do n=1,(ne(1)+ne(2))
-               tmp = tmp + sw1(n,i)*sw1(n,j)
-            end do
-            tmp = tmp*scal*r3_matrix(li,lj)
-
-            lm = 1
-            do l=0,2,2
-               do m=-l,l
-                  coeflm(lm) = coeflm(lm) 
-     >                       + tmp*nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
-                  lm = lm + 1
-               end do
-            end do
-         end do
-      end do
+cccc these formulas need to be redirived!!!
+c      do j=1,nprj
+c         lj=l_prj(j)
+c         mj=m_prj(j)
+c         do i=1,nprj
+c            li=l_prj(i)
+c            mi=m_prj(i)
+c
+c            tmp = 0.0d0
+c            do n=1,(ne(1)+ne(2))
+c               tmp = tmp + sw1(n,i)*sw1(n,j)
+c            end do
+c            tmp = tmp*scal*r3_matrix(li,lj)
+c
+c            lm = 1
+c            do l=0,2,2
+c               do m=-l,l
+c                  coeflm(lm) = coeflm(lm) 
+c     >                       + tmp*nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
+c                  lm = lm + 1
+c               end do
+c            end do
+c         end do
+c      end do
 
       c1 = 2.0d0*dsqrt(pi)
       c2 = 6.0d0*dsqrt(pi/15.0d0)
