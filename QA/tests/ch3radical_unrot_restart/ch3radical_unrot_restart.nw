@@ -1,0 +1,33 @@
+# Steps to run this test
+# Step 1: Run normal hessian calculation
+# Step 2: Run after commenting out start line, uncommenting restart line, noscf and hessian block
+
+echo
+
+start ch3radical_unrot_restart
+title ch3radical_unrot_restart
+
+geometry noautoz units angstrom nocenter
+symmetry c1
+c  0.0    0.0    0.0
+h  1.028  0.0   -0.350
+h -0.514  0.890 -0.350
+h -0.514 -0.890 -0.350
+end
+
+BASIS "ao basis" PRINT
+ * library 6-31G*
+END
+
+dft
+ odft
+ mult 2
+ xc b3lyp
+# noscf
+end
+
+#hessian
+# cphf_restart
+#end
+
+task dft freq
