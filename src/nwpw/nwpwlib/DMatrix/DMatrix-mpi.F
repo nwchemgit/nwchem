@@ -924,12 +924,13 @@ c        **** add to current rows of C ****
       integer i,j,ii,jj
       integer kk,iwrk,icur,jcur,ierr,shift
       integer npack2,nida2,n2
+
       n2     = na(taskid_j+1)
       npack2 = ma(taskid_i+1)
       nida2  = ma1(taskid_i+1)
 
       call Parallel_shared_vector_zero(.false.,
-     >                                 nc(taskid_j+1)*mc(taskid_i+1),
+     >                                 mc(taskid_i+1)*nc(taskid_j+1),
      >                                 C)
 
       ii = 0
@@ -942,10 +943,9 @@ c     **** loop over all row pannels of C ***
          iwrk = min(nblock, mc(icur+1)-ii)
          iwrk = min(iwrk,   na(jcur+1)-jj)
 
-*        **** set iwrk*nc(taskid_j+1) submatrix =0 ****
+
          call Parallel_shared_vector_zero(.false.,
      >                                    nc(taskid_j+1)*iwrk,work2)
-
 *        **** iwrk*nc(taskid_j+1) submatrix !=0 ****
          if (ma(taskid_i+1).gt.0) then
 
@@ -954,7 +954,7 @@ c     **** loop over all row pannels of C ***
             if (taskid_j.eq.jcur) then
                call dlacpy("G", ma(taskid_i+1),iwrk,
      >                   A(1,jj+1), lda,
-     >                   work1,     ma(taskid_i+1))
+     >                   work1, ma(taskid_i+1))
             end if
 
 c           **** broadcast work1  within my row ***
@@ -971,16 +971,11 @@ c           **** broadcast work1  within my row ***
 !$OMP END MASTER
 !$OMP BARRIER
 
-            if ((iwrk.gt.0)          .and.
-     >          (na(taskid_j+1).gt.0)) then
-
+            if ((iwrk.gt.0).and.(na(taskid_j+1).gt.0)) then
               call dgemm2c_omp_group(1,tid,nthr,iwrk,n2,npack2,nida2,
      >                       work1,B,work2,privatetmp)
-
             end if
-
          end if
-
 
 c        **** summ to node that holds current rows of C ****
 !$OMP BARRIER
