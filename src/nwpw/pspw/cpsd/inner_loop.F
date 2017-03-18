@@ -15,7 +15,7 @@
 *  *      then control file                                   *
 *  ************************************************************
 #ifdef USE_OPENMP
-#define PSI_OMP
+#define NO_PSI_OMP
 #endif
 
   
@@ -595,7 +595,7 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
            call psi_lmbda_sic(ispin,ne,nemax,npack1,psi1,psi2,dte,
      >                    lmd,dbl_mb(tmp_L(1)),ierr)
         else
-#ifdef NO_PSI_OMP
+#ifdef PSI_OMP
 !           write(*,*) 'T',tid, ':', dbl_mb(thrlmbda(1))
            call psi_lmbda_omp(ispin,ne,nemax,nida,nidb,psi1,psi2,dte,
      >                  lmd,dbl_mb(tmp_L(1)),ierr,dbl_mb(thrlmbda(1)),
