@@ -5,6 +5,18 @@
  OBJ_OPTIMIZE = D1dB.o Dne.o Dnex.o skew.o 
  OBJ_OPTIMIZE += Dne_omp.o
 
+### make defaults USE_MPIF and USE_MPIF4 ###
+ifeq ($(USE_MPIF),n)
+ USE_MPIF = n
+else
+ USE_MPIF = y
+endif
+ifeq ($(USE_MPIF4),n)
+ USE_MPIF4 = n
+else
+ USE_MPIF4 = y
+endif
+
 ifeq ($(USE_MPIF),y)
   OBJ_OPTIMIZE += D1dB-mpi.o
 else

@@ -5,6 +5,19 @@
  OBJ_OPTIMIZE = D3dB-new.o generate_map_indexes.o hilbert.o hcurve.o olist.o trans.o D3dB_pfft.o
  OBJ = 
 
+### make defaults USE_MPIF and USE_MPIF4 ###
+ifeq ($(USE_MPIF),n)
+ USE_MPIF = n
+else
+ USE_MPIF = y
+endif
+ifeq ($(USE_MPIF4),n)
+ USE_MPIF4 = n
+else
+ USE_MPIF4 = y
+endif
+
+
 ifeq ($(USE_MPIF),y)
   OBJ_OPTIMIZE += D3dB-mpi.o
 else

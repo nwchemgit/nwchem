@@ -5,6 +5,19 @@
  OBJ_OPTIMIZE = C3dB-new.o c_trans.o C3dB_pfft.o
 	  OBJ = 
 
+### make defaults USE_MPIF and USE_MPIF4 ###
+ifeq ($(USE_MPIF),n)
+ USE_MPIF = n
+else
+ USE_MPIF = y
+endif
+ifeq ($(USE_MPIF4),n)
+ USE_MPIF4 = n
+else
+ USE_MPIF4 = y
+endif
+
+
 ifeq ($(USE_MPIF),y)
   OBJ_OPTIMIZE += C3dB-mpi.o
 else

@@ -459,7 +459,7 @@ c     >                    tmp2(int_mb(i2_start(1,nb))),1)
 !DIR$ ivdep
 #endif
 
-c      tid = Parallel_threadid()
+      tid = Parallel_threadid()
 c      nthr = Parallel_nthreads()
 
  

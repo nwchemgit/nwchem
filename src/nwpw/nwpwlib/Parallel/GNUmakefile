@@ -7,6 +7,19 @@
  	OBJ = 
 	HEADERS = stupid_mpi4.fh
 
+### make defaults USE_MPIF and USE_MPIF4 ###
+ifeq ($(USE_MPIF),n)
+ USE_MPIF = n
+else
+ USE_MPIF = y
+endif
+ifeq ($(USE_MPIF4),n)
+ USE_MPIF4 = n
+else
+ USE_MPIF4 = y
+endif
+
+
 ifeq ($(USE_MPIF),y)
   OBJ_OPTIMIZE += Parallel-mpi.o
 else
