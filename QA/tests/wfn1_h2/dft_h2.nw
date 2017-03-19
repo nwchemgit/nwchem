@@ -1,0 +1,24 @@
+echo 
+start dft_h2_dat
+
+geometry
+  h 0 0 -1000
+  h 0 0  1000
+end
+basis 
+  * library sto-3g
+end
+
+dft
+  xc hfexch
+end
+
+task dft energy
+
+dft
+  xc hfexch
+  smear 0.1 fixsz
+end
+
+task dft energy
+

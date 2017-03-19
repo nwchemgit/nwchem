@@ -1,0 +1,24 @@
+echo 
+start wfn1_h2_dat
+
+geometry
+  h 0 0 -1000
+  h 0 0  1000
+end
+basis 
+  * library sto-3g
+end
+
+task scf energy
+
+set wfn1:print_error T
+set wfn1:maxit 20
+set wfn1:t_bath 0.0
+
+task wfn1 energy
+
+set wfn1:print_error T
+set wfn1:maxit 50
+set wfn1:t_bath 0.1
+
+task wfn1 energy

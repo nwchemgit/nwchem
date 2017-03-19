@@ -1,0 +1,560 @@
+ argument  1 = dft_h2.nw
+
+
+
+============================== echo of input deck ==============================
+echo
+start wfn1_h2_dat
+
+geometry
+  h 0 0 -1000
+  h 0 0  1000
+end
+basis
+  * library sto-3g
+end
+
+dft
+  xc hfexch
+end
+
+task dft energy
+
+dft
+  xc hfexch
+  smear 0.1 fixsz
+end
+
+task dft energy
+
+================================================================================
+
+
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.6
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2015
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = LDC-153112.home
+    program         = ../../../bin/MACX64/nwchem
+    date            = Sun Mar 19 17:53:55 2017
+
+    compiled        = Sun_Mar_19_00:01:50_2017
+    source          = /Users/vandam/nwchem-wfn1-dev
+    nwchem branch   = Development
+    nwchem revision = 28658
+    ga revision     = 10724
+    input           = dft_h2.nw
+    prefix          = wfn1_h2_dat.
+    data base       = ./wfn1_h2_dat.db
+    status          = startup
+    nproc           =        1
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   13107196 doubles =    100.0 Mbytes
+    stack    =   13107201 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428797 doubles =    400.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ ORDER OF PRIMARY AXIS IS BEING SET TO 4
+ D4H symmetry detected
+
+          ------
+          auto-z
+          ------
+     1 autoz failed with cvr_scaling = 1.2 changing to 1.3
+     2 autoz failed with cvr_scaling = 1.3 changing to 1.4
+     3 autoz failed with cvr_scaling = 1.4 changing to 1.5
+     4 autoz failed with cvr_scaling = 1.5 changing to 1.6
+     5 autoz failed with cvr_scaling = 1.6 changing to 1.7
+
+ AUTOZ failed to generate good internal coordinates.
+ Cartesian coordinates will be used in optimizations.
+
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 h                    1.0000     0.00000000     0.00000000 -1000.00000000
+    2 h                    1.0000     0.00000000     0.00000000  1000.00000000
+
+      Atomic Mass 
+      ----------- 
+
+      h                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)       0.0002645886
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+      Symmetry information
+      --------------------
+
+ Group name             D4h       
+ Group number             28
+ Group order              16
+ No. of unique centers     1
+
+      Symmetry unique atoms
+
+     1
+
+
+            XYZ format geometry
+            -------------------
+     2
+ geometry
+ h                     0.00000000     0.00000000 -1000.00000000
+ h                     0.00000000     0.00000000  1000.00000000
+
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                           sto-3g                   on all atoms 
+
+
+  xc_inp: hfexch multiplicative factor not found.
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+                      Basis "ao basis" -> "ao basis" (cartesian)
+                      -----
+  h (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  3.42525091E+00  0.154329
+  1 S  6.23913730E-01  0.535328
+  1 S  1.68855400E-01  0.444635
+
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ h                           sto-3g                  1        1   1s
+
+
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ h                           sto-3g                  1        1   1s
+
+
+      Symmetry analysis of basis
+      --------------------------
+
+        a1g         1
+        a1u         0
+        a2g         0
+        a2u         1
+        b1g         0
+        b1u         0
+        b2g         0
+        b2u         0
+        eg          0
+        eu          0
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     2
+          No. of electrons :     2
+           Alpha electrons :     1
+            Beta electrons :     1
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: on ; symmetry adaption is: on 
+          Maximum number of iterations:  30
+          AO basis - number of functions:     2
+                     number of shells:     2
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  1.000          
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:          -0.93316370
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =      -0.545861
+ 1-e energy   =      -0.933693
+ 2-e energy   =       0.387568
+ HOMO         =      -0.079279
+ LUMO         =      -0.079279
+
+
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ Warning - the HOMO and LUMO are degenerate and you are using symmetry.
+ This can lead to non-variational energies and poor convergence.
+ Modify the initial guess, or use an open-shell wavefunction, or turn
+ off symmetry.
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+ Initial wavefunction
+
+ global array: alpha evecs[1:2,1:2],  handle: -995 
+
+            1           2  
+       ----------- -----------
+   1       1.00000     0.00000
+   2       0.00000     1.00000
+
+      Symmetry analysis of molecular orbitals - initial
+      -------------------------------------------------
+
+
+ !! scf_movecs_sym_adapt:    2 vectors were symmetry contaminated
+
+  Symmetry fudging
+
+ !! scf_movecs_sym_adapt:    2 vectors were symmetry contaminated
+
+  Numbering of irreducible representations: 
+
+     1 a1g         2 a1u         3 a2g         4 a2u         5 b1g     
+     6 b1u         7 b2g         8 b2u         9 eg         10 eu      
+
+  Orbital symmetries:
+
+     1 a1g         2 a2u     
+
+   Time after variat. SCF:      0.1
+   Time prior to 1st pass:      0.1
+
+ #quartets = 2.000D+00 #integrals = 2.000D+00 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./wfn1_h2_dat.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      1        Max. records in file   =  34150
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       13.04            13041068
+          Stack Space remaining (MW):       13.11            13107068
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1     -0.5459930215 -5.46D-01  3.14D-16  0.00D+00     0.1
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+  Resetting Diis
+ d= 0,ls=0.5,diis     2     -0.5459930215  0.00D+00  0.00D+00  0.00D+00     0.1
+
+
+         Total DFT energy =       -0.545993021469
+      One electron energy =       -0.933692876363
+           Coulomb energy =        0.774870532540
+    Exchange-Corr. energy =       -0.387435266270
+ Nuclear repulsion energy =        0.000264588624
+
+ Numeric. integr. density =        0.000000000000
+
+     Total iterative time =      0.0s
+
+
+
+                  Occupations of the irreducible representations
+                  ----------------------------------------------
+
+                     irrep           alpha         beta
+                     --------     --------     --------
+                     a1g               1.0          1.0
+                     a1u               0.0          0.0
+                     a2g               0.0          0.0
+                     a2u               0.0          0.0
+                     b1g               0.0          0.0
+                     b1u               0.0          0.0
+                     b2g               0.0          0.0
+                     b2u               0.0          0.0
+                     eg                0.0          0.0
+                     eu                0.0          0.0
+
+
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+
+ Vector    1  Occ=2.000000D+00  E=-7.941117D-02  Symmetry=a1g
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.0D+06
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.707107  1 H  s                  2      0.707107  2 H  s          
+
+ Vector    2  Occ=0.000000D+00  E=-7.914658D-02  Symmetry=a2u
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.0D+06
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.707107  1 H  s                  2     -0.707107  2 H  s          
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =   0.00000000
+
+ moments of inertia (a.u.)
+ ------------------
+     7198015.780310783535           0.000000000000           0.000000000000
+           0.000000000000     7198015.780310783535           0.000000000000
+           0.000000000000           0.000000000000           0.000000000000
+
+     Multipole analysis of the density
+     ---------------------------------
+
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0     -0.000000     -1.000000     -1.000000      2.000000
+
+     1   1 0 0      0.000000      0.000000      0.000000      0.000000
+     1   0 1 0      0.000000      0.000000      0.000000      0.000000
+     1   0 0 1      0.000000      0.000000      0.000000      0.000000
+
+     2   2 0 0     -1.299048     -0.649524     -0.649524      0.000000
+     2   1 1 0      0.000000      0.000000      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000      0.000000      0.000000
+     2   0 2 0     -1.299048     -0.649524     -0.649524      0.000000
+     2   0 1 1      0.000000      0.000000      0.000000      0.000000
+     2   0 0 2     -1.299049****************************7142128.623829
+
+
+ Parallel integral file used       1 records with       0 large values
+
+
+ Task  times  cpu:        0.1s     wall:        0.1s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+  xc_inp: hfexch multiplicative factor not found.
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ h                           sto-3g                  1        1   1s
+
+
+      Symmetry analysis of basis
+      --------------------------
+
+        a1g         1
+        a1u         0
+        a2g         0
+        a2u         1
+        b1g         0
+        b1u         0
+        b2g         0
+        b2u         0
+        eg          0
+        eu          0
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     2
+          No. of electrons :     2
+           Alpha electrons :     1
+            Beta electrons :     1
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: on ; symmetry adaption is: on 
+          Maximum number of iterations:  30
+          AO basis - number of functions:     2
+                     number of shells:     2
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  1.000          
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+          Smearing applied:  0.10D+00 (hartree)
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
+
+
+ Loading old vectors from job with title :
+
+
+
+
+      Symmetry analysis of molecular orbitals - initial
+      -------------------------------------------------
+
+  Numbering of irreducible representations: 
+
+     1 a1g         2 a1u         3 a2g         4 a2u         5 b1g     
+     6 b1u         7 b2g         8 b2u         9 eg         10 eu      
+
+  Orbital symmetries:
+
+     1 a1g         2 a2u     
+
+   Time after variat. SCF:      0.2
+ sigma=  0.10D+00 eFermi=  0.00000 T*S= -6.02E-02 nel(1)=    2.00 nel(
+   Time prior to 1st pass:      0.2
+
+ #quartets = 2.000D+00 #integrals = 2.000D+00 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./wfn1_h2_dat.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      1        Max. records in file   =  34150
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+ ------------------------------------------------------------------------
+ dft_zero: extrema:too many attempts                 200
+ ------------------------------------------------------------------------
+ ------------------------------------------------------------------------
+  current input line : 
+    23: task dft energy
+ ------------------------------------------------------------------------
+ ------------------------------------------------------------------------
+ This type of error is most commonly associated with calculations not reaching convergence criteria
+ ------------------------------------------------------------------------
+ For more information see the NWChem manual at http://www.nwchem-sw.org/index.php/NWChem_Documentation
+
+
+ For further details see manual section:                                                                                                                                                                                                                                                                

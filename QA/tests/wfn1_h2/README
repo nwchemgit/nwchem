@@ -1,0 +1,30 @@
+README WFN1_H2
+==============
+
+This test case demonstrates that the WFN1 method maintains degeneracy even when
+degenerate determinants are mixed. The case in question is H2 at large bond
+distances in a minimal basis RHF wavefunction. In this case the determinant
+with both bonding orbitals occupied is degenerate with the one that has both
+anti-bonding orbitals occupied. In principle if we mix these two states
+(without introducing electron correlation) then the mixed state should be
+degenerate with these two determinants as well. In the conventional Hartree-
+Fock method the mixed state will be too high in energy as spurious electron
+self-interaction effect emerge. In the WFN1 method these self-interaction
+artifacts are rigorously eliminated. 
+
+This calculation performs a conventional Hartree-Fock calculation to generate
+the initial RHF wavefunction. Then a calculation within the WFN1 method on
+the RHF wavefunction is performed (the correlation functions will be optimized) 
+(WFN1 T=0). Subsequently a calculation to generate the mixed state is performed.
+A finite temperature is imposed to drive the mixing (WFN1 T>0). This also
+introduces an entropy related energy term that needs to be subtracted to
+generate the mixed state energy.
+
+The results are:
+
+RHF     : -0.545993021469
+WFN1 T=0: -0.5459930215
+WFN1 T>0: -0.5459930215   (Tot en -0.8232014916 plus entropy 0.2772084701)
+
+Clearly the WFN1 method maintains the degeneracy of two determinants when
+generating a state that mixes them.

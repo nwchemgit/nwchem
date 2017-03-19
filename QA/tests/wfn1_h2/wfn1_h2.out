@@ -1,0 +1,630 @@
+ argument  1 = wfn1_h2.nw
+
+
+
+============================== echo of input deck ==============================
+echo
+start wfn1_h2_dat
+
+geometry
+  h 0 0 -1000
+  h 0 0  1000
+end
+basis
+  * library sto-3g
+end
+
+task scf energy
+
+set wfn1:print_error T
+set wfn1:maxit 20
+set wfn1:t_bath 0.0
+
+task wfn1 energy
+
+set wfn1:print_error T
+set wfn1:maxit 50
+set wfn1:t_bath 0.1
+
+task wfn1 energy
+================================================================================
+
+
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.6
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2015
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = LDC-153112.home
+    program         = ../../../bin/MACX64/nwchem
+    date            = Sun Mar 19 16:59:14 2017
+
+    compiled        = Sun_Mar_19_00:01:50_2017
+    source          = /Users/vandam/nwchem-wfn1-dev
+    nwchem branch   = Development
+    nwchem revision = 28658
+    ga revision     = 10724
+    input           = wfn1_h2.nw
+    prefix          = wfn1_h2_dat.
+    data base       = ./wfn1_h2_dat.db
+    status          = startup
+    nproc           =        1
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   13107196 doubles =    100.0 Mbytes
+    stack    =   13107201 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428797 doubles =    400.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ ORDER OF PRIMARY AXIS IS BEING SET TO 4
+ D4H symmetry detected
+
+          ------
+          auto-z
+          ------
+     1 autoz failed with cvr_scaling = 1.2 changing to 1.3
+     2 autoz failed with cvr_scaling = 1.3 changing to 1.4
+     3 autoz failed with cvr_scaling = 1.4 changing to 1.5
+     4 autoz failed with cvr_scaling = 1.5 changing to 1.6
+     5 autoz failed with cvr_scaling = 1.6 changing to 1.7
+
+ AUTOZ failed to generate good internal coordinates.
+ Cartesian coordinates will be used in optimizations.
+
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 h                    1.0000     0.00000000     0.00000000 -1000.00000000
+    2 h                    1.0000     0.00000000     0.00000000  1000.00000000
+
+      Atomic Mass 
+      ----------- 
+
+      h                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)       0.0002645886
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+      Symmetry information
+      --------------------
+
+ Group name             D4h       
+ Group number             28
+ Group order              16
+ No. of unique centers     1
+
+      Symmetry unique atoms
+
+     1
+
+
+            XYZ format geometry
+            -------------------
+     2
+ geometry
+ h                     0.00000000     0.00000000 -1000.00000000
+ h                     0.00000000     0.00000000  1000.00000000
+
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                           sto-3g                   on all atoms 
+
+
+                      Basis "ao basis" -> "ao basis" (cartesian)
+                      -----
+  h (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  3.42525091E+00  0.154329
+  1 S  6.23913730E-01  0.535328
+  1 S  1.68855400E-01  0.444635
+
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ h                           sto-3g                  1        1   1s
+
+
+                                 NWChem SCF Module
+                                 -----------------
+
+
+
+  ao basis        = "ao basis"
+  functions       =     2
+  atoms           =     2
+  closed shells   =     1
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = atomic
+  output vectors  = ./wfn1_h2_dat.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ h                           sto-3g                  1        1   1s
+
+
+      Symmetry analysis of basis
+      --------------------------
+
+        a1g         1
+        a1u         0
+        a2g         0
+        a2u         1
+        b1g         0
+        b1u         0
+        b2g         0
+        b2u         0
+        eg          0
+        eu          0
+
+
+ Forming initial guess at       0.2s
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:          -0.93316370
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =      -0.545861
+ 1-e energy   =      -0.933693
+ 2-e energy   =       0.387568
+ HOMO         =      -0.079279
+ LUMO         =      -0.079279
+
+
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ Warning - the HOMO and LUMO are degenerate and you are using symmetry.
+ This can lead to non-variational energies and poor convergence.
+ Modify the initial guess, or use an open-shell wavefunction, or turn
+ off symmetry.
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+ Initial wavefunction
+
+ global array: scf_init: MOs[1:2,1:2],  handle: -1000 
+
+            1           2  
+       ----------- -----------
+   1       1.00000     0.00000
+   2       0.00000     1.00000
+
+      Symmetry analysis of molecular orbitals - initial
+      -------------------------------------------------
+
+
+ !! scf_movecs_sym_adapt:    2 vectors were symmetry contaminated
+
+  Symmetry fudging
+
+ !! scf_movecs_sym_adapt:    2 vectors were symmetry contaminated
+
+  Numbering of irreducible representations: 
+
+     1 a1g         2 a1u         3 a2g         4 a2u         5 b1g     
+     6 b1u         7 b2g         8 b2u         9 eg         10 eu      
+
+  Orbital symmetries:
+
+     1 a1g         2 a2u     
+
+
+ Starting SCF solution at       0.2s
+
+ SCFTYPE=RHF 
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-04
+ Maximum no. of iterations :           30
+ Final Fock-matrix accuracy:          1.000E-07
+ ----------------------------------------------
+
+
+ #quartets = 2.000D+00 #integrals = 2.000D+00 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./wfn1_h2_dat.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      1        Max. records in file   =  34150
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1       -0.5459930215  0.00D+00  0.00D+00      0.3
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =     -0.545993021469
+      One-electron energy =     -0.933692876363
+      Two-electron energy =      0.387435266270
+ Nuclear repulsion energy =      0.000264588624
+
+        Time for solution =      0.1s
+
+
+
+       Symmetry analysis of molecular orbitals - final
+       -----------------------------------------------
+
+  Numbering of irreducible representations: 
+
+     1 a1g         2 a1u         3 a2g         4 a2u         5 b1g     
+     6 b1u         7 b2g         8 b2u         9 eg         10 eu      
+
+  Orbital symmetries:
+
+     1 a1g         2 a2u     
+
+             Final eigenvalues
+             -----------------
+
+              1      
+    1   -0.0794
+    2   -0.0791
+
+                       ROHF Final Molecular Orbital Analysis
+                       -------------------------------------
+
+ Vector    1  Occ=2.000000D+00  E=-7.941117D-02  Symmetry=a1g
+              MO Center=  0.0D+00,  0.0D+00,  5.1D-13, r^2= 1.0D+06
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.707107  1 H  s                  2      0.707107  2 H  s          
+
+ Vector    2  Occ=0.000000D+00  E=-7.914658D-02  Symmetry=a2u
+              MO Center=  0.0D+00,  0.0D+00, -6.8D-13, r^2= 1.0D+06
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.707107  1 H  s                  2     -0.707107  2 H  s          
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =   0.00000000
+
+ moments of inertia (a.u.)
+ ------------------
+     7198015.780310783535           0.000000000000           0.000000000000
+           0.000000000000     7198015.780310783535           0.000000000000
+           0.000000000000           0.000000000000           0.000000000000
+
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 H    1     1.00   1.00
+    2 H    1     1.00   1.00
+
+       Multipole analysis of the density wrt the origin
+       ------------------------------------------------
+
+     L   x y z        total         open         nuclear
+     -   - - -        -----         ----         -------
+     0   0 0 0     -0.000000      0.000000      2.000000
+
+     1   1 0 0      0.000000      0.000000      0.000000
+     1   0 1 0      0.000000      0.000000      0.000000
+     1   0 0 1     -0.000000      0.000000      0.000000
+
+     2   2 0 0     -1.299048      0.000000      0.000000
+     2   1 1 0      0.000000      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000      0.000000
+     2   0 2 0     -1.299048      0.000000      0.000000
+     2   0 1 1      0.000000      0.000000      0.000000
+     2   0 0 2     -1.299049      0.0000007142128.623829
+
+
+ Parallel integral file used       1 records with       0 large values
+
+
+ Task  times  cpu:        0.2s     wall:        0.2s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+                                NWChem WFN1 Module
+                                ------------------
+
+
+  movecs_read_header: failed to open ./wfn1_h2_dat.covecs IERR =                     2
+ iteration              energy           error          err Na          err Nb          err Ca          err Cb
+ ---------              ------           -----          ------          ------          ------          ------
+         1         -0.54599302        0.000000        0.000000        0.000000        0.000000        0.000000
+
+ Reached Convergence
+
+ Total energy      =          -0.5459930215
+ 1-Electron energy =          -0.9336928764
+ 2-Electron energy =           0.3874352663
+ Entropy energy    =           0.0000000000
+ Nuclear energy    =           0.0002645886
+
+
+      Natural orbital occupation numbers
+
+          Alpha     Beta
+         ------   ------
+     1   1.0000   1.0000
+     2   0.0000   0.0000
+
+                     WFN1 Final Alpha Natural Orbital Analysis
+                     -----------------------------------------
+
+ Vector    1  Occ=9.999990D-01  E= 0.000000D+00
+              MO Center=  0.0D+00,  0.0D+00,  1.7D-13, r^2= 1.0D+06
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.707107  1 H  s                  2      0.707107  2 H  s          
+
+ Vector    2  Occ=9.994699D-07  E= 0.000000D+00
+              MO Center=  0.0D+00,  0.0D+00, -3.4D-13, r^2= 1.0D+06
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.707107  1 H  s                  2     -0.707107  2 H  s          
+
+
+                     WFN1 Final Beta Natural Orbital Analysis
+                     ----------------------------------------
+
+ Vector    1  Occ=9.999990D-01  E= 0.000000D+00
+              MO Center=  0.0D+00,  0.0D+00,  1.7D-13, r^2= 1.0D+06
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.707107  1 H  s                  2      0.707107  2 H  s          
+
+ Vector    2  Occ=9.994699D-07  E= 0.000000D+00
+              MO Center=  0.0D+00,  0.0D+00, -3.4D-13, r^2= 1.0D+06
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.707107  1 H  s                  2     -0.707107  2 H  s          
+
+
+ Task  times  cpu:        0.0s     wall:        0.0s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+                                NWChem WFN1 Module
+                                ------------------
+
+
+  movecs_read_header: failed to open ./wfn1_h2_dat.covecs IERR =                     2
+ iteration              energy           error          err Na          err Nb          err Ca          err Cb
+ ---------              ------           -----          ------          ------          ------          ------
+         1         -0.54606192        0.000282        0.000000        0.000000        0.000141        0.000141
+         2         -0.54657413        0.001840        0.000000        0.000000        0.000920        0.000920
+         3         -0.54951020        0.008306        0.000000        0.000000        0.004153        0.004153
+         4         -0.56118667        0.025536        0.000000        0.000000        0.012768        0.012768
+         5         -0.59289406        0.052390        0.000000        0.000000        0.026195        0.026195
+         6         -0.65049452        0.069872        0.000000        0.000000        0.034936        0.034936
+         7         -0.71901714        0.060037        0.000000        0.000000        0.030019        0.030019
+         8         -0.77266798        0.035149        0.000000        0.000000        0.017575        0.017575
+         9         -0.80225934        0.015882        0.000000        0.000000        0.007941        0.007941
+        10         -0.81523550        0.006276        0.000000        0.000000        0.003138        0.003138
+        11         -0.82029890        0.002342        0.000000        0.000000        0.001171        0.001171
+        12         -0.82217919        0.000855        0.000000        0.000000        0.000427        0.000427
+        13         -0.82286424        0.000309        0.000000        0.000000        0.000155        0.000155
+        14         -0.82311207        0.000112        0.000000        0.000000        0.000056        0.000056
+        15         -0.82320149        0.000040        0.000000        0.000000        0.000020        0.000020
+
+ Reached Convergence
+
+ Total energy      =          -0.8232014916
+ 1-Electron energy =          -0.9336928764
+ 2-Electron energy =           0.3874352663
+ Entropy energy    =          -0.2772084701
+ Nuclear energy    =           0.0002645886
+
+
+      Natural orbital occupation numbers
+
+          Alpha     Beta
+         ------   ------
+     1   0.5079   0.5079
+     2   0.4921   0.4921
+
+                     WFN1 Final Alpha Natural Orbital Analysis
+                     -----------------------------------------
+
+ Vector    1  Occ=5.079373D-01  E= 0.000000D+00
+              MO Center=  0.0D+00,  0.0D+00,  1.7D-13, r^2= 1.0D+06
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.707107  1 H  s                  2      0.707107  2 H  s          
+
+ Vector    2  Occ=4.920627D-01  E= 0.000000D+00
+              MO Center=  0.0D+00,  0.0D+00, -3.4D-13, r^2= 1.0D+06
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.707107  1 H  s                  2     -0.707107  2 H  s          
+
+
+                     WFN1 Final Beta Natural Orbital Analysis
+                     ----------------------------------------
+
+ Vector    1  Occ=5.079373D-01  E= 0.000000D+00
+              MO Center=  0.0D+00,  0.0D+00,  1.7D-13, r^2= 1.0D+06
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.707107  1 H  s                  2      0.707107  2 H  s          
+
+ Vector    2  Occ=4.920627D-01  E= 0.000000D+00
+              MO Center=  0.0D+00,  0.0D+00, -3.4D-13, r^2= 1.0D+06
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.707107  1 H  s                  2     -0.707107  2 H  s          
+
+
+ Task  times  cpu:        0.3s     wall:        0.3s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:  138      138     8602     1582     4476        0        0       46     
+number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
+bytes total:             2.32e+05 4.71e+04 9.83e+04 0.00e+00 0.00e+00 3.68e+02
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 1056 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        18	        14
+	current total bytes		         0	         0
+	maximum total bytes		    528136	  22509032
+	maximum total K-bytes		       529	     22510
+	maximum total M-bytes		         1	        23
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+
+                                      AUTHORS
+                                      -------
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+       S. A. Fischer, S. Krishnamoorthy, W. Ma, M. Klemm, O. Villa, Y. Chen,
+    V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler, V. Konjkov, T. Risthaus,
+       M. Malagoli, A. Marenich, A. Otero-de-la-Roza, J. Mullin, P. Nichols,
+      R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari, M. Williamson,
+      R. J. Harrison, J. R. Rehr, M. Dupuis, D. Silverstein, D. M. A. Smith,
+            J. Nieplocha, V. Tipparaju, M. Krishnan, B. E. Van Kuiken,
+        A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu, T. Van Voorhis,
+     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
+   H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman,
+    K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski, T. Clark, D. Clerc,
+   H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
+   A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
+   R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+   K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
+                               A. T. Wong, Z. Zhang.
+
+ Total times  cpu:        0.6s     wall:        0.6s
