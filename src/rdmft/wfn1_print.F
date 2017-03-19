@@ -131,8 +131,8 @@ c
       nproc = ga_nnodes()
 c
       if (iproc.eq.0) then
-        write(LuOut,'(" Tot:",f16.6," Na:",f16.6," Nb:",f16.6,
-     &                              " Ca:",f16.6," Cb:",f16.6)')
+        write(LuOut,'(" Tot:",f16.6," Na:",e16.6," Nb:",e16.6,
+     &                              " Ca:",e16.6," Cb:",e16.6)')
      &    wfn1_err%total,wfn1_err%errna,wfn1_err%errnb,wfn1_err%errca,
      &    wfn1_err%errcb
       endif

@@ -57,22 +57,37 @@ c
       double precision xx(mxpts)      !< The x-coordinates
       double precision fx(mxpts)      !< The function values
       double precision df(mxpts)      !< The function gradient
+      double precision de             !< The energy gradient
       double precision tr             !< The trust radius
       double precision aa, bb, cc     !< The factor of the parabola
       double precision xm, fxm, dfm
+      double precision tol
+      double precision dnrm           !< Normalization factor
 c
       integer indxmin
       integer ix1, ix2, ix3
+      logical o_eminimized  !< If b=0 then only redundant
+                            !< transformations remain.
+                            !< Interestingly even if a!=0 and b=0 the
+                            !< only reasonable step size is 0. So b=0 is
+                            !< the critical condition beyond which no
+                            !< progress can be made minimizing the 
+                            !< energy.
 c
-      tr = 2.0d0
+      tol = wfn1_param%convergence
+      tr = 1.0d0
 c
 c     Store the initial point
 c
       npts = 1
-      xx(npts) = 0.0d0
+      xx       = 0.0d0
       fx(npts) = wfn1_energy%E_tot
+      error = wfn1_etrace(wfn1_param,wfn1_wave,wfn1_deriv,wfn1_deriv)
+      de = error%total
       error = wfn1_trace(wfn1_deriv,wfn1_deriv)
-      df(npts) = error%total
+      dnrm = error%total**2
+      dnrm = 1.0d0/dnrm
+      df(npts) = 1.0d0
 c
 c     Take one step
 c
@@ -83,11 +98,17 @@ c
       call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_trial_wv,
      &              wfn1_trial_drv,wfn1_trial_en,
      &              g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4)
-      call wfn1_zero_vv(wfn1_param,wfn1_wave,wfn1_trial_drv)
+c     call wfn1_zero_vv(wfn1_param,wfn1_wave,wfn1_trial_drv)
       fx(npts) = wfn1_trial_en%E_tot
       error = wfn1_trace(wfn1_deriv,wfn1_trial_drv)
-      df(npts) = error%total
-      call wfn1_f0df0f1(xx(2),fx(1),df(1),fx(2),tr,aa,bb,cc,xm,fxm)
+      df(npts) = dnrm*(error%total**2)
+      call wfn1_f0df0f1(xx(2),fx(1),de,fx(2),tr,aa,bb,cc,xm,fxm)
+      if (xm.lt.-tr) then
+        xm = -tr
+      else if (xm.gt.tr) then
+        xm =  tr
+      endif
+      call wfn1_fix_xm(npts,xx,xm)
 c
 c     Always select the next step (hoping that using the quadratic
 c     approximation will pay off)
@@ -97,17 +118,22 @@ c
       call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_trial_wv,
      &              wfn1_trial_drv,wfn1_trial_en,
      &              g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4)
-      call wfn1_zero_vv(wfn1_param,wfn1_wave,wfn1_trial_drv)
       error = wfn1_trace(wfn1_deriv,wfn1_trial_drv)
-      dfm = error%total
+      dfm = dnrm*(error%total**2)
       call wfn1_insert(mxpts,npts,xx,fx,df,xm,wfn1_trial_en%E_tot,dfm)
 c
-      do while (wfn1_trial_en%E_tot > wfn1_energy%E_tot)
+      o_eminimized = .false.
+c
+c     Minimize the energy
+c
+      do while (.not.o_eminimized .and. 
+     &          wfn1_trial_en%E_tot > wfn1_energy%E_tot)
         indxmin = wfn1_idmin(npts,fx,1)
         call wfn1_closest_three(npts,xx,indxmin,ix1,ix2,ix3)
         call wfn1_f1f2f3(xx(ix1),xx(ix2),xx(ix3),
      &                   fx(ix1),fx(ix2),fx(ix3),
      &                   tr,aa,bb,cc,xm,fxm)
+        call wfn1_fix_xm(npts,xx,xm)
 c
 c       Shrink the trust region to avoid getting trapped generating
 c       the same unsuitable answer over and over
@@ -119,9 +145,38 @@ c
         call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_trial_wv,
      &                wfn1_trial_drv,wfn1_trial_en,
      &                g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4)
-        call wfn1_zero_vv(wfn1_param,wfn1_wave,wfn1_trial_drv)
+c       call wfn1_zero_vv(wfn1_param,wfn1_wave,wfn1_trial_drv)
         error = wfn1_trace(wfn1_deriv,wfn1_trial_drv)
-        dfm = error%total
+        dfm = dnrm*(error%total**2)
+        o_eminimized = (abs(bb).lt.tol)
+        call wfn1_insert(mxpts,npts,xx,fx,df,xm,wfn1_trial_en%E_tot,dfm)
+      enddo
+c
+c     If the energy is minimized already and only redundant
+c     transformations remain then minimize the norm of the Fock 
+c     matrices
+c
+      do while (o_eminimized .and. dfm >=1.0d0)
+        indxmin = wfn1_idmin(npts,df,1)
+        call wfn1_closest_three(npts,xx,indxmin,ix1,ix2,ix3)
+        call wfn1_df1df2df3(xx(ix1),xx(ix2),xx(ix3),
+     &                      df(ix1),df(ix2),df(ix3),
+     &                      tr,aa,bb,cc,xm,fxm)
+        call wfn1_fix_xm(npts,xx,xm)
+c
+c       Shrink the trust region to avoid getting trapped generating
+c       the same unsuitable answer over and over
+c
+        tr = tr*0.95d0
+c
+        call wfn1_gen_trial_wfn(xm,wfn1_param,wfn1_wave,wfn1_deriv,
+     &                          wfn1_trial_wv,g_momo1,g_momo2)
+        call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_trial_wv,
+     &                wfn1_trial_drv,wfn1_trial_en,
+     &                g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4)
+c       call wfn1_zero_vv(wfn1_param,wfn1_wave,wfn1_trial_drv)
+        error = wfn1_trace(wfn1_deriv,wfn1_trial_drv)
+        dfm = dnrm*(error%total**2)
         call wfn1_insert(mxpts,npts,xx,fx,df,xm,wfn1_trial_en%E_tot,dfm)
       enddo
 c

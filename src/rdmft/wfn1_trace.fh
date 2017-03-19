@@ -1,3 +1,5 @@
 #include "wfn1_error.fh"
       type(wfn1_error) :: wfn1_trace
       external wfn1_trace
+      type(wfn1_error) :: wfn1_etrace
+      external wfn1_etrace

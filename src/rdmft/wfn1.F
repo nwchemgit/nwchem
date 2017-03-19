@@ -261,6 +261,7 @@ c
         call errquit(pname//" Bath temperature must be at least 0.0",
      &               0,INPUT_ERR)
       endif
+      wfn1_param%convergence = conv_tol
 c
 c     == Get input/output vectors selection ==
 c
@@ -426,7 +427,7 @@ c
       curit      = 0
       call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_wave,wfn1_deriv,
      &              wfn1_energy,g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4)
-      call wfn1_zero_vv(wfn1_param,wfn1_wave,wfn1_deriv)
+c     call wfn1_zero_vv(wfn1_param,wfn1_wave,wfn1_deriv)
       do while ((.not.oconverged).and.(curit.lt.maxit))
         curit = curit + 1
         call wfn1_linesearch(wfn1_param,wfn1_inst,wfn1_mat,wfn1_wave,

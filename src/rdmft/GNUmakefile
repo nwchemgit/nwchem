@@ -10,6 +10,7 @@
          wfn1_calc_occ.o \
          wfn1_closest_three.o \
          wfn1_configuration.o \
+         wfn1_df1df2df3.o \
          wfn1_dnrm2.o \
          wfn1_entropy.o \
          wfn1_e_g.o \
@@ -18,6 +19,7 @@
          wfn1_f0df0f1.o \
          wfn1_f1f2f3.o \
          wfn1_fix_phase.o \
+         wfn1_fix_xm.o \
          wfn1_gen_mat.o \
          wfn1_gen_trial_wfn.o \
          wfn1_guess_corr.o \
