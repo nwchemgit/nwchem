@@ -13,14 +13,17 @@ basis
   * library 6-31g*
 end
 
+set wfn1:print_error T
+#set wfn1:ncorea 1
 set wfn1:nopen  1
-set wfn1:maxit  20
+set wfn1:maxit  50
 set wfn1:t_bath 0.0
 
 task wfn1 energy
 
+set wfn1:print_error T
 set wfn1:nopen  1
-set wfn1:maxit  20
+set wfn1:maxit  1000
 set wfn1:t_bath 0.5
 
 task wfn1 energy
@@ -64,11 +67,11 @@ task wfn1 energy
            Job information
            ---------------
 
-    hostname        = ldc-153112.home
+    hostname        = LDC-153112.home
     program         = ../../../bin/MACX64/nwchem
-    date            = Fri Jan  6 23:13:48 2017
+    date            = Sun Mar 19 00:04:13 2017
 
-    compiled        = Thu_Jan_05_23:21:47_2017
+    compiled        = Sun_Mar_19_00:01:50_2017
     source          = /Users/vandam/nwchem-wfn1-dev
     nwchem branch   = Development
     nwchem revision = 28658
@@ -192,14 +195,16 @@ task wfn1 energy
  HOMO         =      -0.498233
  LUMO         =       0.460935
 
- iteration              energy           error
- ---------              ------           -----
-         1         -0.49823291        0.000000
+ iteration              energy           error          err Na          err Nb          err Ca          err Cb
+ ---------              ------           -----          ------          ------          ------          ------
+         1         -0.49823275        0.153477        0.000000        0.000000        0.000001        0.153477
+         2         -0.49823288        0.002467        0.000000        0.000000        0.000000        0.002467
+         3         -0.49823291        0.000009        0.000000        0.000000        0.000000        0.000009
 
  Reached Convergence
 
- Total energy      =          -0.4982329107
- 1-Electron energy =          -0.4982329107
+ Total energy      =          -0.4982329059
+ 1-Electron energy =          -0.4982329059
  2-Electron energy =           0.0000000000
  Entropy energy    =           0.0000000000
  Nuclear energy    =           0.0000000000
@@ -221,90 +226,7 @@ task wfn1 energy
   ----- ------------  ---------------      ----- ------------  ---------------
      2     -0.665449  1 H  s                  1     -0.427430  1 H  s          
 
- Vector    2  Occ=8.519763D-18  E= 0.000000D+00
-              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.2D+00
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     1     -1.257798  1 H  s                  2      1.149752  1 H  s          
-
-
-                     WFN1 Final Beta Natural Orbital Analysis
-                     ----------------------------------------
-
- Vector    1  Occ=0.000000D+00  E= 0.000000D+00
-              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 8.0D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     2     -0.665449  1 H  s                  1     -0.427430  1 H  s          
-
- Vector    2  Occ=0.000000D+00  E= 0.000000D+00
-              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.2D+00
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     1     -1.257798  1 H  s                  2      1.149752  1 H  s          
-
-
- Task  times  cpu:        0.3s     wall:        0.3s
-
-
-                                NWChem Input Module
-                                -------------------
-
-
-
-                                NWChem WFN1 Module
-                                ------------------
-
-
-
-      Superposition of Atomic Density Guess
-      -------------------------------------
-
- Sum of atomic energies:          -0.49823254
-
-      Non-variational initial energy
-      ------------------------------
-
- Total energy =      -0.498233
- 1-e energy   =      -0.498233
- 2-e energy   =       0.000000
- HOMO         =      -0.498233
- LUMO         =       0.460935
-
- iteration              energy           error
- ---------              ------           -----
-         1         -0.50343068        0.056330
-         2         -0.75575564        0.211350
-         3         -0.81211493        0.039537
-         4         -0.82227414        0.001480
-         5         -0.82264098        0.000000
-
- Reached Convergence
-
- Total energy      =          -0.8226409764
- 1-Electron energy =          -0.2323459747
- 2-Electron energy =           0.0000000000
- Entropy energy    =          -0.5902950018
- Nuclear energy    =           0.0000000000
-
-
-      Natural orbital occupation numbers
-
-          Alpha     Beta
-         ------   ------
-     1   0.7228   0.0000
-     2   0.2772   0.0000
-
-                     WFN1 Final Alpha Natural Orbital Analysis
-                     -----------------------------------------
-
- Vector    1  Occ=7.227941D-01  E= 0.000000D+00
-              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 8.0D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     2     -0.665449  1 H  s                  1     -0.427430  1 H  s          
-
- Vector    2  Occ=2.772059D-01  E= 0.000000D+00
+ Vector    2  Occ=5.066114D-09  E= 0.000000D+00
               MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
@@ -334,6 +256,104 @@ task wfn1 energy
                                 -------------------
 
 
+
+                                NWChem WFN1 Module
+                                ------------------
+
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:          -0.49823254
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =      -0.498233
+ 1-e energy   =      -0.498233
+ 2-e energy   =       0.000000
+ HOMO         =      -0.498233
+ LUMO         =       0.460935
+
+ iteration              energy           error          err Na          err Nb          err Ca          err Cb
+ ---------              ------           -----          ------          ------          ------          ------
+         1         -0.49978907        0.172149        0.000000        0.000000        0.018669        0.153479
+         2         -0.55191475        0.217230        0.000000        0.000000        0.214760        0.002470
+         3         -0.79678647        0.021150        0.000000        0.000000        0.021141        0.000009
+         4         -0.80753456        0.006751        0.000000        0.000000        0.006746        0.000005
+         5         -0.81090737        0.003306        0.000000        0.000000        0.003303        0.000003
+         6         -0.81255976        0.001941        0.000000        0.000000        0.001938        0.000002
+         7         -0.81353076        0.001268        0.000000        0.000000        0.001266        0.000002
+         8         -0.81416577        0.000891        0.000000        0.000000        0.000889        0.000002
+         9         -0.81461175        0.000658        0.000000        0.000000        0.000657        0.000001
+        10         -0.81494134        0.000505        0.000000        0.000000        0.000504        0.000001
+        11         -0.81519442        0.000400        0.000000        0.000000        0.000399        0.000001
+        12         -0.81539464        0.000324        0.000000        0.000000        0.000323        0.000001
+        13         -0.81555684        0.000268        0.000000        0.000000        0.000267        0.000001
+        14         -0.81569084        0.000225        0.000000        0.000000        0.000224        0.000001
+        15         -0.81580335        0.000192        0.000000        0.000000        0.000191        0.000001
+        16         -0.81589912        0.000165        0.000000        0.000000        0.000164        0.000001
+        17         -0.81598161        0.000144        0.000000        0.000000        0.000143        0.000001
+        18         -0.81605337        0.000126        0.000000        0.000000        0.000126        0.000001
+        19         -0.81611636        0.000112        0.000000        0.000000        0.000111        0.000000
+        20         -0.81617210        0.000099        0.000000        0.000000        0.000099        0.000000
+
+ Reached Convergence
+
+ Total energy      =          -0.8161720955
+ 1-Electron energy =          -0.2803418578
+ 2-Electron energy =           0.0000000000
+ Entropy energy    =          -0.5358302378
+ Nuclear energy    =           0.0000000000
+
+
+      Natural orbital occupation numbers
+
+          Alpha     Beta
+         ------   ------
+     1   0.7728   0.0000
+     2   0.2272   0.0000
+
+                     WFN1 Final Alpha Natural Orbital Analysis
+                     -----------------------------------------
+
+ Vector    1  Occ=7.728332D-01  E= 0.000000D+00
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 8.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2     -0.665449  1 H  s                  1     -0.427430  1 H  s          
+
+ Vector    2  Occ=2.271668D-01  E= 0.000000D+00
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1     -1.257798  1 H  s                  2      1.149752  1 H  s          
+
+
+                     WFN1 Final Beta Natural Orbital Analysis
+                     ----------------------------------------
+
+ Vector    1  Occ=0.000000D+00  E= 0.000000D+00
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 8.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2     -0.665449  1 H  s                  1     -0.427430  1 H  s          
+
+ Vector    2  Occ=0.000000D+00  E= 0.000000D+00
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1     -1.257798  1 H  s                  2      1.149752  1 H  s          
+
+
+ Task  times  cpu:        0.5s     wall:        0.5s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -344,11 +364,11 @@ task wfn1 energy
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:   82       82     2792      570     1592        0        0        4     
+calls:   86       86     1.10e+04 1745     5460        0        0        4     
 number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             7.20e+04 1.66e+04 4.05e+04 0.00e+00 0.00e+00 3.20e+01
+bytes total:             3.00e+05 5.42e+04 1.30e+05 0.00e+00 0.00e+00 3.20e+01
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 992 bytes
+Max memory consumed for GA by this process: 1056 bytes
 
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -399,4 +419,4 @@ MA usage statistics:
    K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
                                A. T. Wong, Z. Zhang.
 
- Total times  cpu:        0.6s     wall:        0.6s
+ Total times  cpu:        0.8s     wall:        0.8s

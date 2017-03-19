@@ -1,0 +1,34 @@
+echo
+start wfn1_he_dat
+
+geometry
+  he 0 0 0
+end
+basis
+He    S
+     38.4216340              1.0000000
+He    S
+      5.7780300              1.0000000
+He    S
+      1.2417740              1.0000000
+He    S
+      0.2979640              1.0000000
+end
+
+dft
+  odft
+  mult 3
+  xc hfexch
+end
+
+task dft energy
+
+dft
+  odft
+  mult 3
+  xc hfexch
+  smear 1.5
+end
+
+task dft energy
+

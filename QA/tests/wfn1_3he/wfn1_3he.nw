@@ -1,0 +1,40 @@
+echo
+start wfn1_he_dat
+
+geometry
+  he 0 0 0
+end
+basis
+He    S
+     38.4216340              1.0000000        
+He    S
+      5.7780300              1.0000000        
+He    S
+      1.2417740              1.0000000        
+He    S
+      0.2979640              1.0000000
+end
+
+dft
+  odft
+  mult 3
+  direct
+  xc hfexch
+end
+
+task dft energy
+
+set wfn1:nopen 2
+set wfn1:maxit 100
+set wfn1:t_bath 0.0
+set wfn1:print_error T
+#set wfn1:ncorea 2
+#set wfn1:ncoreb 2
+
+task wfn1 energy
+
+set wfn1:nopen 2
+set wfn1:maxit 1000
+set wfn1:t_bath 0.5
+
+task wfn1 energy
