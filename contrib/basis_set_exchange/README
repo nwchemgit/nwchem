@@ -1,0 +1,30 @@
+Dumps the content of http://bse.pnl.gov
+
+To execute
+ java -jar bsebatch.jar
+
+You need to provides username and password you got from registering at
+https://bse.pnl.gov/bse/portal 
+
+Snippet of example run
+
+$java -jar bsebatch.jar
+
+Gettng basis set info from:
+	https://bse.pnl.gov/sam/files/projects/Basis_Set_Curators/Gaussian
+Mar 20, 2017 3:41:59 PM com.sourceforge.knecs.dsm.dsi.DSI setURL
+INFO: ***Using HTTPS
+Mar 20, 2017 3:42:10 PM com.sourceforge.knecs.util.CMCSProperties <init>
+INFO: CmcsPropertie loaded 219
+Exception on parseXlink: null
+Getting file /home/edo/nwchem/contrib/basis_set_exchange/bsedata/orbitals/g3mp2largexp
+Saving file (1 of 569): 	/home/edo/nwchem/contrib/basis_set_exchange/bsedata/orbitals/g3mp2largexp
+Getting file /home/edo/nwchem/contrib/basis_set_exchange/bsedata/orbitals/cc-pv8z
+Saving file (2 of 569): 	/home/edo/nwchem/contrib/basis_set_exchange/bsedata/orbitals/cc-pv8z
+Getting file /home/edo/nwchem/contrib/basis_set_exchange/bsedata/orbitals/cc-pvdzfi_sf_sc
+Saving file (3 of 569): 	/home/edo/nwchem/contrib/basis_set_exchange/bsedata/orbitals/cc-pvdzfi_sf_sc
+Getting file /home/edo/nwchem/contrib/basis_set_exchange/bsedata/orbitals/cc-pv5zfi_sf_sc
+Saving file (4 of 569): 	/home/edo/nwchem/contrib/basis_set_exchange/bsedata/orbitals/cc-pv5zfi_sf_sc
+Getting file /home/edo/nwchem/contrib/basis_set_exchange/bsedata/orbitals/dhf-qzvp
+....
+....
