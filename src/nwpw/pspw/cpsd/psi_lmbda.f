@@ -95,13 +95,13 @@ ccccccccc Uncomment in this block and then run ch3cl-pspw-sd.nw cccccccccccc
           !call dcopy(nn,tmp(s22),1,tmp(sa1),1)
           call Parallel_shared_vector_copy(.true.,nn,tmp(s22),tmp(sa1))
 
-          call Dneall_mmm_Multiply(ms,
+          call Dneall_mmm_Multiply0(ms,
      >                              tmp(s21),tmp(sa0),1.0d0,
      >                              tmp(sa1),1.0d0)
-          call Dneall_mmm_Multiply(ms,
+          call Dneall_mmm_Multiply0(ms,
      >                              tmp(sa0),tmp(s12),1.0d0,
      >                              tmp(sa1),1.0d0)
-          call Dneall_mmm_Multiply(ms,
+          call Dneall_mmm_Multiply0(ms,
      >                              tmp(s11),tmp(sa0),1.0d0,
      >                              tmp(st1),0.0d0)
           call Dneall_mmm_Multiply(ms,
