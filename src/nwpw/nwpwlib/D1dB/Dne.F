@@ -3077,6 +3077,91 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
+c     *        Dneall_mmm_Multiply0          *
+c     *                                      *
+c     ****************************************
+
+      subroutine Dneall_mmm_Multiply0(mb,A,B,alpha,C,beta)
+      implicit none
+      integer mb
+      real*8 A(*),B(*),C(*)
+      real*8 alpha,beta
+
+#include "bafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
+      integer ms,ms1,ms2,n,shift2,ishift2
+
+      if (mparallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+            if (ne(ms).le.0) go to 20
+            shift2 = 1 + (ms-1)*ishift2
+            call DMatrix_dgemm1(ne(ms),ne(ms),ne(ms),64,
+     >             alpha,
+     >             A(shift2),mcq(ms),
+     >                       int_mb(mc(1,ms)),
+     >                       int_mb(nc(1,ms)),
+     >             B(shift2),mcq(ms),
+     >                       int_mb(mc(1,ms)),
+     >                       int_mb(nc(1,ms)),
+     >             beta,
+     >             C(shift2),mcq(ms),
+     >                       int_mb(mc(1,ms)),
+     >                       int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+   20       continue
+         end do
+
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+            n     = ne(ms)
+            if (n.le.0) go to 30
+            shift2 = 1 + (ms-1)*ishift2
+            call DGEMM_OMP('N','N',n,n,n,
+     >                alpha,
+     >                A(shift2), n,
+     >                B(shift2), n,
+     >                beta,
+     >                C(shift2), n)
+   30       continue
+         end do
+      end if
+
+      return
+      end
+
+
+
+
+c     ****************************************
+c     *                                      *
 c     *        Dneall_mmm_replicated         *
 c     *                                      *
 c     ****************************************
