@@ -5,7 +5,11 @@
 static long long device_id=-1;
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef OLD_CUDA
 #include <cuda_runtime_api.h>
+#else
+#include <cuda.h>
+#endif
 #include "ga.h"
 #include "typesf2c.h"
 

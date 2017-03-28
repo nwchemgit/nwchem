@@ -8,7 +8,11 @@ extern "C" {
 #endif
 
 #include <stdio.h>
+#ifdef OLD_CUDA
 #include <cuda_runtime_api.h>
+#else
+#include <cuda.h>
+#endif
 #include <sys/types.h>
 #include <sys/time.h>
 #include <assert.h>
