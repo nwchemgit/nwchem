@@ -82,7 +82,7 @@ cccc#include "frac_occ.fh"
       integer ierr
 
 *     **** local variables ****
-      logical oprint,lprint,hprint
+      logical oprint,lprint,hprint,mparallelized
       integer ms,mapping,mapping1d
       real*8  deltae,deltac,deltar
       real*8  gx,gy,gz,cx,cy,cz,sum1,sum2
@@ -191,6 +191,9 @@ c#include "Parallel.fh"
       external Parallel_threadid,Parallel_nthreads,Parallel_maxthreads
       integer tid
 
+      logical  control_mparallelized
+      external control_mparallelized
+
 *                            |************|
 *****************************|  PROLOGUE  |****************************
 *                            |************|
@@ -238,6 +241,7 @@ c#include "Parallel.fh"
       
       value = control_read(1,rtdb)
 
+      mparallelized = control_mparallelized()
       call Parallel2d_Init(control_np_orbital())
       call Parallel2d_np_i(np_i)
       call Parallel2d_np_j(np_j)
@@ -805,7 +809,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
       end if
 
 *     ***** do not diagonalize the hamiltonian matrix *****
-      if (pspw_SIC()) then
+      if (pspw_SIC().or.mparallelized) then
         call dcopy(2*npack1*nemaxq,
      >             dcpl_mb(psi1(1)),1,
      >             dcpl_mb(psi2(1)),1)
@@ -967,7 +971,7 @@ c            write(luout,1706) E(18)
 
 
 *        **** write out diagonal <psi|H|psi> matrix ****
-         if (pspw_SIC()) then
+         if (pspw_SIC().or.mparallelized) then
 
           n = ne(1)
           nn = n*n
