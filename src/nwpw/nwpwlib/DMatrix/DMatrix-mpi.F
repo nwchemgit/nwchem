@@ -1946,11 +1946,13 @@ c     implicit none
 
       integer msglen,mpierr,np
       real*8  sumall
+      common /DMatrix_MaxAll_shared/ sumall
 
 *     **** external functions ****
 
       call Parallel_np(np)
       if (np.gt.1) then
+!$OMP MASTER
         msglen = 1
 #ifdef MPI4
         stupid_msglen = 1
@@ -1960,6 +1962,8 @@ c     implicit none
         call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
      >                      MPI_MAX,MPI_COMM_WORLD,mpierr)
 #endif
+!$OMP END MASTER
+!$OMP BARRIER
         sum = sumall
       end if
 

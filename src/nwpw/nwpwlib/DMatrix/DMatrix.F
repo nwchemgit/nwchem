@@ -287,6 +287,7 @@ c     >            work1,work2)
       integer i,j,ii,jj
       integer icur,jcur
 
+!$OMP SINGLE
       jj   = 1
       jcur = 0
       do j=1,n
@@ -315,6 +316,7 @@ c     >            work1,work2)
            jj   = 1
          end if
       end do
+!$OMP END SINGLE NOWAIT
 
       return
       end
@@ -342,6 +344,7 @@ c     >            work1,work2)
       integer i,j,ii,jj
       integer icur,jcur
 
+!$OMP SINGLE
       jj   = 1
       jcur = 0
       do j=1,n
@@ -370,6 +373,7 @@ c     >            work1,work2)
            jj   = 1
          end if
       end do
+!$OMP END SINGLE NOWAIT
 
       return
       end
@@ -397,6 +401,7 @@ c     >            work1,work2)
       integer i,j,ii,jj
       integer icur,jcur
 
+!$OMP SINGLE
       jj   = 1
       jcur = 0
       do j=1,n
@@ -421,6 +426,7 @@ c     >            work1,work2)
            jj   = 1
          end if
       end do
+!$OMP END SINGLE NOWAIT
 
       return
       end
