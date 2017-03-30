@@ -3157,6 +3157,70 @@ c     ****************************************
       return
       end
 
+c      subroutine Dneall_mmm_Multiply_sub0(N,Nb,A,B,alpha,C,beta,Ctmp)
+c      implicit none
+c      integer N,Nb
+c      real*8 A(N,N),B(N,N),alpha,
+c      real*8 C(N,N),beta
+c      real*8 Ctmp(N,N)
+c
+c*     **** local variables ****
+c      integer  s,r,i,j,k,shifti,shiftj,shiftk
+c      integer  taskid,np,ic,taskcount
+c
+c*     **** external functions ****
+c      integer  Parallel2d_taskid_i,Parallel2d_taskid_j
+c      external Parallel2d_taskid_i,Parallel2d_taskid_j
+c      integer  Parallel2d_np_i,Parallel2d_np_j
+c      external Parallel2d_np_i,Parallel2d_np_j
+c
+c      np_i = Parallel2d_np_i()
+c      np_j = Parallel2d_np_j()
+c      Nb = np_i*np_j
+c      if (np_i*np_j).gt.
+c
+c      taskid_i = Parallel_taskid_i()
+c      taskid_j = Parallel_taskid_i()
+c      taskcount = 0
+c      call Parallel_shared_vector_zero(.true.,N*N,Ctmp)
+c      s = N/Nb
+c      r = mod(N,Nb)
+c      do k=1,Nb
+c         shiftk = 1 + (k-1)*s + min(k,r)
+c         nk = s
+c         if (k.lt.r) nk = nk + 1
+c
+c         do j=1,Nb
+c            shiftj = 1 + (j-1)*s + min(j,r)
+c            nj = s
+c            if (j.lt.r) nj = nj + 1
+c
+c            do i=1,Nb
+c               shifti = 1 + (i-1)*s + min(i,r)
+c               ni = s
+c               if (i.lt.r) ni = ni + 1
+c         
+c               if (taskid.eq.taskcount) 
+c     >             call DGEMM_OMP0('N','N',ni,nj,nk,
+c     >                alpha,
+c     >                A(shifti,shiftk), N,
+c     >                B(shiftk,shiftj), N,
+c     >                0.0d0,
+c     >                Ctmp(shifti,shiftj), N)
+c               taskcount = taskcount + 1
+c            end do
+c         end do
+c!$OMP BARRIER
+c      end do
+c
+c      call Parallela_Vector_SumAll(ic,N*N,Ctmp)
+c
+c      call dscal_omp(N*N,beta,C)
+c      call daxpy_omp(N*N,1.0d0,Ctmp,1,C)
+c
+c
+c      return
+c      end 
 
 
 
