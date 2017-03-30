@@ -295,6 +295,16 @@ c
      >                    dbl_mb(param_all(1)+6*(nn+k-1)+1),
      >                    ' C:',
      >                    dbl_mb(param_all(1)+6*(nn+k-1)+2)
+
+                     else if (int_mb(type_all(1)+nn+k-1).eq.11) then
+                        write(luout,'(4x,A49,E14.6,A5,E14.6,A5,E14.6)')
+     >              '- Potential=A*(1-tanh((r-B)/C))                A:',
+     >                    dbl_mb(param_all(1)+6*(nn+k-1)),
+     >                    ' B:',
+     >                    dbl_mb(param_all(1)+6*(nn+k-1)+1),
+     >                    ' C:',
+     >                    dbl_mb(param_all(1)+6*(nn+k-1)+2)
+
                      end if
                   end do
                endif
@@ -749,6 +759,8 @@ c     *********************************************
             E = E + p(1,k)*dexp(-(r/p(2,k))**p(3,k))
          else if (t(k).eq.10) then
             E = E + p(1,k)*dexp(-(r/p(2,k))**p(3,k))/r
+         else if (t(k).eq.11) then
+            E = E + p(1,k)*(1.0d0-dtanh((r-p(2,k))/p(3,k)))
          endif
       end do
 
@@ -818,6 +830,8 @@ c     *********************************************
                 E = E + p(1,k)*dexp(-(r/p(2,k))**p(3,k))
             else if (t(k).eq.10) then
                 E = E + p(1,k)*dexp(-(r/p(2,k))**p(3,k))/r
+            else if (t(k).eq.11) then
+               E = E + p(1,k)*(1.0d0-dtanh((r-p(2,k))/p(3,k)))
             endif
          end do
       end do
@@ -886,6 +900,8 @@ c     *********************************************
                E = E + p(1,k)*dexp(-(r/p(2,k))**p(3,k))
             else if (t(k).eq.10) then
                E = E + p(1,k)*dexp(-(r/p(2,k))**p(3,k))/r
+            else if (t(k).eq.11) then
+               E = E + p(1,k)*(1.0d0-dtanh((r-p(2,k))/p(3,k)))
             endif
          end do
       end do
@@ -947,6 +963,8 @@ c     *********************************************
                E = E + p(1,k)*dexp(-(r/p(2,k))**p(3,k))
             else if (t(k).eq.10) then
                E = E + p(1,k)*dexp(-(r/p(2,k))**p(3,k))/r
+            else if (t(k).eq.11) then
+               E = E + p(1,k)*(1.0d0-dtanh((r-p(2,k))/p(3,k)))
             endif
          end do
       end do
@@ -1204,6 +1222,9 @@ c     *********************************************
                dVPair = -p(1,k)*dexp(-(r/p(2,k))**p(3,k))
      >                         *(p(3,k)*(r/p(2,k))**p(3,k)+1.0d0)
      >                         /(r**2)
+            else if (t(k).eq.11) then
+               dVPair = -p(1,k)*(1.0d0-dtanh((r-p(2,k))/p(3,k))**2)
+     >                  /p(3,k)
             else
                dVPair = 0.0d0
             endif
@@ -1284,10 +1305,13 @@ c     *********************************************
             else if (t(k).eq.9) then
                dVPair = -(p(1,k)*p(3,k)*(r/p(2,k))**p(3,k))
      >                   *dexp(-(r/p(2,k))**p(3,k))/r
-           else if (t(k).eq.10) then
+            else if (t(k).eq.10) then
                dVPair = -p(1,k)*dexp(-(r/p(2,k))**p(3,k))
      >                         *(p(3,k)*(r/p(2,k))**p(3,k)+1.0d0)
      >                         /(r**2)
+            else if (t(k).eq.11) then
+               dVPair = -p(1,k)*(1.0d0-dtanh((r-p(2,k))/p(3,k))**2)
+     >                  /p(3,k)
             else
                dVPair = 0.0d0
             endif
@@ -1358,10 +1382,13 @@ c     *********************************************
          else if (t(k).eq.9) then
             dVPair = -(p(1,k)*p(3,k)*(r/p(2,k))**p(3,k))
      >                *dexp(-(r/p(2,k))**p(3,k))/r
-        else if (t(k).eq.10) then
+         else if (t(k).eq.10) then
             dVPair = -p(1,k)*dexp(-(r/p(2,k))**p(3,k))
      >                      *(p(3,k)*(r/p(2,k))**p(3,k)+1.0d0)
      >                      /(r**2)
+         else if (t(k).eq.11) then
+            dVPair = -p(1,k)*(1.0d0-dtanh((r-p(2,k))/p(3,k))**2)
+     >               /p(3,k)
          else
             dVpair = 0.0d0
          endif

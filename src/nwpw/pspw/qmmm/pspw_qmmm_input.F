@@ -211,6 +211,8 @@ c                            5 - Aij*exp(-rij/Bij)
 c                            6 - Aij*(1-exp(-Bij*(rij-Cij)))**2
 c                            7 - ???
 c                            8 - Aij*exp(-(rij/Bij)**2)
+c                            
+c                            11- Aij*(1-tanh((rij/Bij)/Cij))
 c
  160  element  = '    '
       element2 = '    '
@@ -1044,6 +1046,8 @@ c                           5 - Aij*exp(-rij/Bij)
 c                           6 - Aij*(1-exp(-Bij*(rij-Cij)))**2
 c                           7 - ???
 c                           8 - Aij*exp(-(rij/Bij)**2)
+c                           
+c                           11 - Aij*(1-tanh((rij-Bij)/Cij))
 
  614  if (inp_i(sindx(1))) then
       if (inp_i(sindx(2))) then
