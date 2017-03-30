@@ -189,8 +189,8 @@ cccc#include "frac_occ.fh"
       logical  Dneall_m_allocate,Dneall_m_free,control_parallel_io
       external Dneall_m_allocate,Dneall_m_free,control_parallel_io
 
-      real*8   Dneall_m_value
-      external Dneall_m_value
+      real*8   Dneall_m_value,pspw_qmmm_lambda
+      external Dneall_m_value,pspw_qmmm_lambda
 
       logical  meta_found,tamd_found,psp_U_psputerm,ion_disp_on
       external meta_found,tamd_found,psp_U_psputerm,ion_disp_on
@@ -1232,6 +1232,7 @@ c         end if
             qave = E(23)/dble(icount+icount_shift)
             qvar = E(24)/dble(icount+icount_shift)
             qvar = qvar - qave*qave
+            write(luout,1707) pspw_qmmm_lambda()
             write(luout,1705) E(14),qave,qvar
             !write(luout,1706) qave,qvar
          end if
@@ -1610,6 +1611,7 @@ c      call frac_occ_end()
      >        ' (average=',E19.10,' variance=',E19.10,')'/)
  1706 FORMAT( ' Average and Variance of QM/MM coupling energy :',
      >       E19.10,E19.10)
+ 1707 FORMAT( ' QM/MM coupling param.  :',E19.10)
 
  1720 FORMAT(/' Dispersion energy   :',E19.10)
 
