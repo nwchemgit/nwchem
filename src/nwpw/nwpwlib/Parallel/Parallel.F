@@ -750,6 +750,69 @@ c     **** external functions ****
       end 
 
 
+*     *************************************
+*     *                                   *
+*     *    Parallel_shared_matrix_zero    *
+*     *                                   *
+*     *************************************
+      subroutine Parallel_shared_matrix_zero(barrier,n1,n2,ldc,c)
+      implicit none
+      logical barrier
+      integer n1,n2,ldc
+      real*8 c(ldc,*)
+
+#ifdef USE_OPENMP
+      integer nbig,tid,nthr,nsz,istart,i,j
+      parameter (nbig=30)
+
+c     **** external functions ****
+      integer  Parallel_nthreads,Parallel_threadid
+      external Parallel_nthreads,Parallel_threadid
+
+      nthr = Parallel_nthreads()
+      if (nthr.eq.1) then
+         do j=1,n2
+            call dcopy(n1,0.0d0,0,c(1,j),1)
+         end do
+      else
+         if (n2.gt.nbig) then
+            tid    = Parallel_threadid()
+            if (barrier) then
+               do j=1+tid,n2,nthr
+                  call dcopy(n1,0.0d0,0,c(1,j),1)
+               end do
+!$OMP BARRIER
+            else
+               do j=1+tid,n2,nthr
+                  call dcopy(n1,0.0d0,0,c(1,j),1)
+               end do
+            end if
+         else
+            if (barrier) then
+!$OMP MASTER
+               do j=1,n2
+                  call dcopy(n1,0.0d0,0,c(1,j),1)
+               end do
+!$OMP END MASTER
+!$OMP BARRIER
+            else
+!$OMP MASTER
+               do j=1,n2
+                  call dcopy(n1,0.0d0,0,c(1,j),1)
+               end do
+!$OMP END MASTER
+            end if
+         end if
+      end if
+#else
+ 
+      do j=1,n2
+         call dcopy(n1,0.0d0,0,c(1,j),1)
+      end do
+#endif
+      return
+      end 
+
 
 
 
