@@ -141,9 +141,8 @@
 *     **** get parallel io ****
       if (.not.btdb_get(rtdb,'nwpw:parallel_io',mt_log,1,pio)) then
          pio = .false.
-      else
-         pio = pio.and.(np_dimensions(2).gt.1)
       end if
+      !pio = pio.and.(np_dimensions(2).gt.1)
 
 *     **** get fast_erf ****
       if (.not.btdb_get(rtdb,'nwpw:fast_erf',mt_log,1,fast_erf)) then
@@ -1258,6 +1257,7 @@ cccc set to some reasonable default !
             end do
          end if
       end if
+      pio = pio.and.(np_dimensions(2).gt.1)
 
 *     **** minimizer ****
       if (.not.btdb_get(rtdb,'nwpw:minimizer',mt_int,1,minimizer)) then
