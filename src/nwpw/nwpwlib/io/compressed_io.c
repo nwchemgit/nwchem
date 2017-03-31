@@ -26,6 +26,8 @@
 */
 
 #include <stdio.h>
+#include <unistd.h>
+
 #include <stdlib.h>
 #include <string.h>
 #include "typesf2c.h"
@@ -46,6 +48,7 @@
 #define dread_  DREAD
 #define dshift_fileptr_  DSHIFT_FILEPTR
 #define ishift_fileptr_  ISHIFT_FILEPTR
+#define flush_fileptr_  FLUSH_FILEPTR
 #define openfile_  OPENFILE
 #define closefile_ CLOSEFILE
 #endif
@@ -180,6 +183,11 @@ void FATR dshift_fileptr_(const Integer *unit, const Integer *n)
 void FATR ishift_fileptr_(const Integer *unit, const Integer *n)
 {
    (void) fseek(fd[*unit], ((long) (*n)*sizeof(Integer)),SEEK_CUR);
+}
+void FATR flush_fileptr_(const Integer *unit)
+{
+   (void) fflush(fd[*unit]);
+   (void) fsync(fileno(fd[*unit]));
 }
 
 /*
