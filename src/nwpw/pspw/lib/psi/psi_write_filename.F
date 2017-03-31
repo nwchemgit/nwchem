@@ -31,7 +31,7 @@
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
-      logical value,pio
+      logical value,pio,doflush
 
 *     ***** local functions ****
       double precision control_unita
@@ -48,6 +48,7 @@ c     complex*16 tmp(*)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
 
+      doflush = .false.
       pio = control_parallel_io()
       if (pio) then
          taskid_p = taskid_i
@@ -84,6 +85,7 @@ c     complex*16 tmp(*)
      >                                .false.,
      >                       full_filename)
          l = index(full_filename,' ') -1
+         doflush = .true.
          call openfile(6,full_filename,l,'w',l)
          if (taskid.eq.MASTER) then
             call iwrite(6,version,1)
@@ -118,10 +120,15 @@ c     complex*16 tmp(*)
          end if
       end do
 
+*     **** flush the filepointers ****
+      if (pio.and.doflush) call flush_fileptr(6)
+
 *     *** close ELCIN binary file ***
+      call ga_sync()
       if (taskid_p.eq.MASTER) then
         call closefile(6)
       end if
+      call ga_sync()
 
       value =           BA_pop_stack(tmp2(2))
       value = value.and.BA_pop_stack(tmp(2))

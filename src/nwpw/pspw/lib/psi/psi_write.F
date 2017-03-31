@@ -133,7 +133,7 @@ c     complex*16 tmp(*)
       end do
 
 *     **** flush the filepointers ****
-      if (pio.and.doflush.and.(taskid.ne.MASTER)) call flush_fileptr(6)
+      if (pio.and.doflush) call flush_fileptr(6)
 
 *     **** write the occupations - ****
       if (occupation.gt.0) then
@@ -194,7 +194,7 @@ c     complex*16 tmp(*)
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
-      logical value,lprint,pio
+      logical value,lprint,pio,doflush
 
 *     ***** local functions ****
       character*50 control_output_epsi
@@ -206,6 +206,7 @@ c     complex*16 tmp(*)
       logical  control_print,control_parallel_io
       external control_print,control_parallel_io
 
+      doflush = .false.
       call nwpw_timing_start(50)
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_i(taskid_i)
@@ -256,6 +257,7 @@ c     complex*16 tmp(*)
          l = index(full_filename,' ') -1
          if (lprint) write(LuOut,1220) full_filename(1:l)
  1220    FORMAT(/' output epsi filename:',A)
+         doflush = .true.
          call openfile(6,full_filename,l,'w',l)
          if (taskid.eq.MASTER) then
             call iwrite(6,version,1)
@@ -298,10 +300,16 @@ c      end do
       end do
       end if
 
+*     **** flush the filepointers ****
+      if (pio.and.doflush) call flush_fileptr(6)
+
+
 *     *** close ELCIN binary file ***
+      call ga_sync()
       if (taskid_p.eq.MASTER) then
         call closefile(6)
       end if
+      call ga_sync()
 
       value =           BA_pop_stack(tmp2(2))
       value = value.and.BA_pop_stack(tmp(2))
@@ -345,7 +353,7 @@ c      end do
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
-      logical value,lprint,pio
+      logical value,lprint,pio,doflush
 
 *     ***** local functions ****
       character*50 control_output_psi
@@ -364,6 +372,7 @@ c     complex*16 tmp(*)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
 
+      doflush = .false.
       pio = control_parallel_io()
       if (pio) then
          taskid_p = taskid_i
@@ -409,6 +418,7 @@ c    >                       full_filename)
          if (lprint) write(LuOut,1210) full_filename(1:l)
  1210    FORMAT(/' output psi filename:',A)
 
+         doflush = .true.
          call openfile(6,full_filename,l,'w',l)
          if (taskid.eq.MASTER) then
             call iwrite(6,version,1)
@@ -451,10 +461,16 @@ c         end if
 c      end if
 
 
+*     **** flush the filepointers ****
+      if (pio.and.doflush) call flush_fileptr(6)
+
+
 *     *** close ELCIN binary file ***
+      call ga_sync()
       if (taskid_p.eq.MASTER) then
         call closefile(6)
       end if
+      call ga_sync()
 
       value =           BA_pop_stack(tmp2(2))
       value = value.and.BA_pop_stack(tmp(2))

@@ -32,7 +32,7 @@
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
-      logical value,lprint,pio
+      logical value,lprint,pio,doflush
 
 *     ***** local functions ****
       character*50 control_output_v_psi
@@ -52,6 +52,7 @@ c     complex*16 tmp(*)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
 
+      doflush = .false.
       pio = control_parallel_io()
       if (pio) then
          taskid_p = taskid_i
@@ -92,6 +93,7 @@ c     complex*16 tmp(*)
  1210    FORMAT(/' output vpsi filename:',A)
 
          l = index(full_filename,' ') -1
+         doflush = .true.
          call openfile(6,full_filename,l,'w',l)
 
          if (taskid.eq.MASTER) then
@@ -127,6 +129,9 @@ c     complex*16 tmp(*)
          end if
     
       end do
+
+*     **** flush the filepointers ****
+      if (pio.and.doflush) call flush_fileptr(6)
 
 *     *** close ELCIN binary file ***
       call ga_sync()
