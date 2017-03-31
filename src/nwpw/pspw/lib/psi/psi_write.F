@@ -34,7 +34,7 @@
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
-      logical value,lprint,pio
+      logical value,lprint,pio,doflush
 
 *     ***** local functions ****
       character*50 control_output_psi
@@ -54,6 +54,7 @@ c     complex*16 tmp(*)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
 
+      doflush = .false.
       pio = control_parallel_io()
       if (pio) then
          taskid_p = taskid_i
@@ -96,6 +97,7 @@ c     complex*16 tmp(*)
          if (lprint) write(LuOut,1210) full_filename(1:l)
  1210    FORMAT(/' output psi filename:',A)
 
+         doflush = .true.
          call openfile(6,full_filename,l,'w',l)
 
          if (taskid.eq.MASTER) then
@@ -129,6 +131,9 @@ c     complex*16 tmp(*)
      >                            dcpl_mb(tmp(1)),pj)
          end if 
       end do
+
+*     **** flush the filepointers ****
+      if (pio.and.doflush.and.(taskid.ne.MASTER)) call flush_fileptr(6)
 
 *     **** write the occupations - ****
       if (occupation.gt.0) then
