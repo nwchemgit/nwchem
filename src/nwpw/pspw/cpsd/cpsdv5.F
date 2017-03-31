@@ -970,8 +970,9 @@ c            write(luout,1706) E(18)
         end if
 
 
+         if (.not.mparallelized) then
 *        **** write out diagonal <psi|H|psi> matrix ****
-         if (pspw_SIC().or.mparallelized) then
+         if (pspw_SIC()) then
 
           n = ne(1)
           nn = n*n
@@ -1017,10 +1018,27 @@ c            write(luout,1706) E(18)
          end if
 
          end if
+         end if
 
+      end if
+
+      if (mparallelized) then
+          do ms=1,ispin
+             if ((ms.eq.1).and.(oprint)) write(luout,1333)
+             if ((ms.eq.2).and.(oprint)) write(luout,1334)
+             do i=1,ne(ms)
+                w = Dneall_m_value(0,ms,i,i,dbl_mb(hml(1)))
+                if (oprint) write(luout,1510) w,w*EV
+             end do
+          end do
+      end if
+
+      if (oprint) then
 *        ***** extra energy output for QA test ****
          write(luout,1600) E(1)
       end if
+
+   
 
 *                |***************************|
 ******************         Prologue          **********************
@@ -1236,6 +1254,8 @@ c      call frac_occ_end()
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
  1331 FORMAT(/' Elements of Hamiltonian matrix (up/restricted)')
  1332 FORMAT(/' Elements of Hamiltonian matrix (down)')
+ 1333 FORMAT(/' Diagonal Elements of Hamiltonian matrix(up/restricted)')
+ 1334 FORMAT(/' Diagonal Elements of Hamiltonian matrix(down)')
  1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
  1341 FORMAT(I3,2I3,' H=',E16.6)
  1350 FORMAT(/' orthonormality')
