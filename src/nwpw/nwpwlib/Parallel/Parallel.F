@@ -806,6 +806,7 @@ c     **** external functions ****
       end if
 #else
  
+      integer j
       do j=1,n2
          call dcopy(n1,0.0d0,0,c(1,j),1)
       end do
