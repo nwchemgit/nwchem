@@ -667,9 +667,7 @@ c
       if (odftps) call pstat_off(ps_scfdft)
 c     
 c     == Clean up memory usage ==
-      if (.not.ma_pop_stack(lsvals))
-     &     call errquit(pname//'Cannot pop stack', 12, MA_ERR)
-         if (.not. ga_destroy(g_s)) call errquit
+      if (.not. ga_destroy(g_s)) call errquit
      &      (pname//'Could not destroy g_s', 0, GA_ERR)
       if (me.eq.0) then
          if (CDFIT.and.IOLGC) then
@@ -727,6 +725,9 @@ c     Clean up time propagation arrays
        if (.not. ga_destroy(g_ddotE)) call errquit
      &   (pname//'Could not destroy g_ddotE', 0, GA_ERR)
       end if
+c
+      if (.not.ma_chop_stack(lsvals))
+     &  call errquit(pname//'Cannot chop stack lsvals', 12, MA_ERR)
 c
       return
       end
