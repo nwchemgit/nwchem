@@ -477,8 +477,8 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
 *     ***********************************************
 *     **** generate projected DENSITY OF STATES *****
 *     ***********************************************
-      write(*,*) "into mulliken DOS"
       if (control_DOS()) then
+      if (taskid.eq.MASTER) write(*,*) "into mulliken DOS"
 
       value = BA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
       if (.not. value)
@@ -523,11 +523,13 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
            fixatoms = .true.
       end if
 
-      write(6,1800)
-      if (.not.fixatoms) write(6,1801)
-      if (fixatoms) then
-        write(6,1802)
-        write(6,1803) (int_mb(l_actlist+j-1),j=1,nactive_atoms)
+      if (taskid.eq.MASTER) then
+         write(6,1800)
+         if (.not.fixatoms) write(6,1801)
+         if (fixatoms) then
+           write(6,1802)
+           write(6,1803) (int_mb(l_actlist+j-1),j=1,nactive_atoms)
+         end if
       end if
  1800 FORMAT(///'=== PROJECTED DENSITY OF STATES ==='/)
  1801 FORMAT('  All atoms were used to determine weights')
