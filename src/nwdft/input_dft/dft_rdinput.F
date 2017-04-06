@@ -970,15 +970,6 @@ c
       if (.not. bas_create(CD_bas_han, 'cd basis'))
      &   call errquit(pname//'bas_create?',102, BASIS_ERR)
       CDFIT=bas_rtdb_load(rtdb, geom, CD_bas_han, 'cd basis')
-      if(theory.eq.'sodft') then
-         if (me.eq.0) then
-           write(luout,*)
-     &        ' WARNING: CD fitting not compatible with spinorbit'
-           write(luout,*)
-     &        ' WARNING: disabling CD fitting'
-         end if
-         CDFIT=.false.
-      endif
       if (CDFIT)then
          if (.not. int_norm_2c(rtdb,CD_bas_han))
      &      call errquit('rdinput: int_norm_2c failed', 208, BASIS_ERR)
