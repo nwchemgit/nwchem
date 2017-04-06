@@ -49,9 +49,8 @@ c
       integer lwork, iwork      ! complex*16 work(3) 
       integer lrwork, irwork    ! double precision rwork
       integer info 
-      integer lbuff, ibuff
+c      integer lbuff, ibuff
       integer nbf_mo 
-c      logical numerical 
       integer g_s
 c
 c     declarations for fractional occupation 
@@ -155,7 +154,7 @@ c     so
       integer itol_min, iAOacc_min
       double precision tol_rho_min, tol_rho_max
       integer npol
-      integer leneval, lcd_coef, icd_coef
+      integer leneval
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      &     lcetobfr, icetobfr, lrdens_atom, irdens_atom,
      &     nscr, lscr, iscr
@@ -261,12 +260,42 @@ c
       integer do_cosmo_vem, istep_cosmo_vem
       logical do_cosmo_smd
 c
-      icd_coef = 0
-      k_3cERI  = 0
-      k_3cwhat = 0
+c     Preliminaries
       me = ga_nodeid()
       nproc = ga_nnodes()
 c
+      npol = (ipol*(ipol+1))/2
+      itol_max = itol2e
+      iaoacc_max = iaoacc
+      tol_rho_max = tol_rho
+c
+      call ecce_print_module_entry('dft')
+      dft_scf_so = .false.
+      nbf_mo = 2*nbf_ao
+      lmaxov_sv = lmaxov
+      oprint = util_print('information', print_low)
+      oprint_info = util_print('common', print_debug)
+      oprint_parm = util_print('parameters', print_default)
+      oprint_3c2e = util_print('3c 2e integrals', print_default)
+      oprint_conv = util_print('convergence', print_default)
+      oprint_conv_details = util_print('convergence details',
+     &     print_high)
+      oprint_vecs = util_print('intermediate vectors', print_high)
+      oprint_eval = util_print('intermediate evals', print_high)
+      oprint_syma = util_print('interm vector symm', print_high)
+      oprint_time = util_print('dft timings', print_high)
+      oprint_tol = util_print('screening parameters', print_high)
+      oprint_energy_step = util_print('intermediate energy info',
+     &     print_high)
+      oprint_intermediate_fock = util_print('intermediate fock matrix',
+     &     print_high)
+      oprint_interm_S2 = util_print('intermediate S2',print_high)
+      oprint_interm_overlap = util_print('intermediate overlap',
+     &     print_high)
+      oprint_final_vecs = util_print('final vectors', print_high)
+      odbug = util_print('cosmo', print_high)
+c
+c     Solvation related
       gcds = 0.0
       gspol = 0.0
       gstote = 0.0
@@ -286,8 +315,7 @@ c
        endif
       endif
 c
-c     to do scalar relativistic calculations within the two-component framework
-c
+c     Scalar relativistic calculations within the two-component framework
       do_purescalar = .false.
       if (.not.rtdb_get(rtdb,'sodft:scalar',mt_log,1,do_purescalar))
      &     do_purescalar = .false.
@@ -313,32 +341,6 @@ c     do average occupation starting with core orbitals
       if (.not.rtdb_get(rtdb,'dft:core_fon',mt_log,1,do_core_fon))
      &     do_core_fon = .false.
 c
-      call ecce_print_module_entry('dft')
-      dft_scf_so = .false.
-      nbf_mo = 2*nbf_ao
-      lmaxov_sv = lmaxov
-      oprint = util_print('information', print_low)
-      oprint_info = util_print('common', print_debug)
-      oprint_parm = util_print('parameters', print_default)
-      oprint_3c2e = util_print('3c 2e integrals', print_default)
-      oprint_conv = util_print('convergence', print_default)
-      oprint_conv_details = util_print('convergence details', 
-     &     print_high)
-      oprint_vecs = util_print('intermediate vectors', print_high)
-      oprint_eval = util_print('intermediate evals', print_high)
-      oprint_syma = util_print('interm vector symm', print_high)
-      oprint_time = util_print('dft timings', print_high)
-      oprint_tol = util_print('screening parameters', print_high)
-      oprint_energy_step = util_print('intermediate energy info',
-     &     print_high)
-      oprint_intermediate_fock = util_print('intermediate fock matrix',
-     &     print_high)
-      oprint_interm_S2 = util_print('intermediate S2',print_high)
-      oprint_interm_overlap = util_print('intermediate overlap',
-     &     print_high)
-      oprint_final_vecs = util_print('final vectors', print_high)
-      odbug = util_print('cosmo', print_high)
-c
       ispin=1
       call int_1e_uncache_ga()      
 c     !!! BGJ
@@ -349,7 +351,6 @@ c     Store SCF hamiltonian type as DFT for use in BGJ routines
 c     !!! BGJ
 c     
 c     see if levelshifting monitoring is desired
-c     
       if (.not. rtdb_get(rtdb, 'dft:check_shift', mt_log, 1,
      &     check_shift))then
          check_shift = .false.      
@@ -362,9 +363,35 @@ c
      & 0, GEOM_ERR)
 c     
       anel = int(anucl_charg) - rcharge
+c
+c     Determine whether to fit the electronic charge density.
+      k_3cERI  = 0
+      k_3cwhat = 0
+      CDFIT = .FALSE.
+      if (iVcoul_opt.eq.1)CDFIT = .TRUE.
+      XCFIT = .FALSE.
+      if (iVxc_opt.eq.1)XCFIT = .TRUE.
+c
+      if (CDFIT)then
+         if (oprint_time)
+     &     call dft_tstamp(' Before 3c-2e initialize.')
+c
+         if(dft_mem3c(rtdb,natoms,npol,oprint_parm,oprint_3c2e,
+     O                n3c_int,n3c_dbl,
+     O                l_3ceri,k_3ceri, l_3cwhat,k_3cwhat)) then
+            incore = .false.
+            call dft_3cincor(n_batch, n3c_int, int_mb(k_3cwhat),
+     &                       dbl_mb(k_3cERI), n3c_dbl)
+            incore=.true.
+         else
+            if (me.eq.0 .and. oprint_3c2e)write(LuOut,3230)
+            incore=.false.
+         endif
+      endif
+ 3230 format(/,10x,'Incore memory use for 3-center 2e- integrals is ',
+     &     'turned off. ')
 c     
 c     Pre-compute mapping vectors
-c     
       if (.not.ma_push_get
      &     (mt_int,nshells_ao,'cntoce map',lcntoce,icntoce))
      &     call errquit('dft_scf_so:push_get failed', 13, MA_ERR)
@@ -377,21 +404,40 @@ c
 c     
       call build_maps(ao_bas_han, int_mb(icntoce), int_mb(icntobfr), 
      &     int_mb(icetobfr), natoms, nshells_ao)
-c     
-c     Set aside some memory for reduced density matrix
-c     
-      if (.not.MA_Push_Get(MT_Dbl,2*natoms*natoms,'rdens_atom',
+c
+c     Memory for reduced density matrix
+      if (.not.ma_push_get(MT_Dbl,2*natoms*natoms,'rdens_atom',
      &     lrdens_atom,irdens_atom))
      &     call errquit('dft_scf_so: cannot allocate rdens_atom',
      & 0, MA_ERR)
 c     
-c     determine pattern of orbitals' occupancy
-c     
-      if (.not. MA_Push_Get(MT_Dbl,nbf_ao*2,'mo occ',l_occ,k_occ))
+c     Memory for occupancy
+      if (.not. ma_push_get(MT_Dbl,nbf_ao*2,'mo occ',l_occ,k_occ))
      &     call errquit('dft_scf_so: failed to alloc',999, MA_ERR)
 c     
-c     get orbital overlap tolerance
-c     
+c     Allocate eigenvalue array
+      leneval = 4*nbf_ao 
+      if (.not.ma_push_get(MT_Dbl,leneval,'eval',l_eval,k_eval(1)))
+     &     call errquit('dft_scf_so: cannot allocate eval',0, MA_ERR)
+      k_eval(2) = k_eval(1) + nbf_mo
+c
+c     Allocate array for irreps
+      if (.not.ma_push_get(mt_int,2*nbf_ao,'dft:irreps',l_ir,k_ir))
+     &     call errquit('dft_scf_so: cannot allocate irreps',0, MA_ERR)
+
+c     Memory for complex diagonalizer 
+      if (.not.ma_push_get(MT_DCpl,nbf_mo*nbf_mo,'cpl a',la,ia))
+     &     call errquit('dft_scf: cannot allocate cpl a',0, MA_ERR)
+      if (.not.ma_push_get(MT_Dbl,nbf_mo,'cpl eval',lw,iw))
+     &     call errquit('dft_scf: cannot allocate cpl eval',0, MA_ERR)
+      llwork = max(1, 2*nbf_mo-1)
+      if (.not.ma_push_get(MT_DCpl,llwork,'cpl work',lwork,iwork))
+     &     call errquit('dft_scf: cannot allocate cpl work',0, MA_ERR)
+      if (.not.ma_push_get(MT_Dbl,max(1,3*nbf_mo-2),'w.s',lrwork,
+     &     irwork))
+     &     call errquit('dft_scf: cannot allocate w.s',0, MA_ERR)
+c
+c     Get orbital overlap tolerance
       if (.not. rtdb_get(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))
      .     call errquit('dft_scf_so: lost toll_s ',0, RTDB_ERR)
 c     
@@ -413,40 +459,7 @@ c
       enddo
 c     
       wght_GA = .false.
-c     
-c     Determine whether to fit the electronic charge density.
-c     
-      CDFIT = .FALSE.
-      if (iVcoul_opt.eq.1)CDFIT = .TRUE.
-      XCFIT = .FALSE.
-      if (iVxc_opt.eq.1)XCFIT = .TRUE.
 c
-c     Define various constants.
-c     
-      npol = (ipol*(ipol+1))/2
-c     
-      itol_max = itol2e
-      iaoacc_max = iaoacc
-      tol_rho_max = tol_rho
-      if (oprint_time)
-     &     call dft_tstamp(' Before 3c-2e initialize.')
-c     
-      if (CDFIT)then
-            incore=.false.
-         if(dft_mem3c(
-     I     natoms,npol,oprint_parm,oprint_3c2e,
-     O     n3c_int,n3c_dbl,n_semi_bufs,
-     O     l_3ceri,k_3ceri, l_3cwhat,k_3cwhat)) then
-            call dft_3cincor(n_batch, n3c_int, int_mb(k_3cwhat), 
-     &                       dbl_mb(k_3cERI), n3c_dbl, iwhat_max)
-            incore=.true.
-         else
-            if (me.eq.0 .and. oprint_3c2e)write(LuOut,3230)
-            incore=.false.
-         endif
-      endif
- 3230 format(/,10x,'Incore memory use for 3-center 2e- integrals is ',
-     &     'turned off. ')
       mulliken = .false.
       if (imull.eq.1)mulliken = .true.
       IOLGC = .TRUE.
@@ -503,13 +516,6 @@ c
 c     
 c     Begin the SCF cycle.
 c     
-c     allocate eigenvalue array
-c     
-      leneval = 4*nbf_ao 
-      if (.not.MA_Push_Get(MT_Dbl,leneval,'eval',l_eval,k_eval(1)))
-     &     call errquit('dft_scf_so: cannot allocate eval',0, MA_ERR)
-      k_eval(2) = k_eval(1) + nbf_mo
-c     
 c     Dump DFT parameters (if debugging) to see if they make sense
 c     
       if (me.eq.0.and.oprint_info)call dft_dump_info(me)
@@ -520,10 +526,6 @@ c
      &     call dft_tstamp(' Before call to DFT_INIT.')
       scftype = 'UHF'
 c     
-c     allocate array for irreps
-c     
-      if (.not.MA_Push_Get(mt_int,2*nbf_ao,'dft:irreps',l_ir,k_ir))
-     &     call errquit('dft_scf_so: cannot allocate irreps',0, MA_ERR)
       nopen = mult - 1
       nclosed = (nTotEl - nopen) / 2
 c     
@@ -1191,20 +1193,6 @@ c
       endif  ! mulliken
  
       iter = 1   ! iteration counter
- 
-c     ma for complex diagonalizer 
-      if (.not.MA_Push_Get(MT_DCpl,nbf_mo*nbf_mo,'cpl a',la,ia))
-     &     call errquit('dft_scf: cannot allocate cpl a',0, MA_ERR)
-      if (.not.MA_Push_Get(MT_Dbl,nbf_mo,'cpl eval',lw,iw))
-     &     call errquit('dft_scf: cannot allocate cpl eval',0, MA_ERR)
-      llwork = max(1, 2*nbf_mo-1)
-      if (.not.MA_Push_Get(MT_DCpl,llwork,'cpl work',lwork,iwork))
-     &     call errquit('dft_scf: cannot allocate cpl work',0, MA_ERR)
-      if (.not.MA_Push_Get(MT_Dbl,max(1,3*nbf_mo-2),'w.s',lrwork,
-     &     irwork))
-     &     call errquit('dft_scf: cannot allocate w.s',0, MA_ERR)
-      if (.not.ma_push_get(mt_dbl,nbf_mo,'buff',lbuff,ibuff))
-     &     call errquit('dft_scf:push_get failed', 13, MA_ERR)
 c
 c     dispersion bit
       Edisp = 0.d0
@@ -1369,40 +1357,29 @@ c     Pre-compute reduced total density matrices over atoms
 c 
       call dfill(ipol*natoms*natoms, 0.0d0, dbl_mb(irdens_atom), 1)
       nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
-      if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
-     &   call errquit('dft_scf: cannot allocate scr',0, MA_ERR)
+      if (.not.ma_push_get(MT_Dbl,nscr,'scr',lscr,iscr)) ! allocate lscr
+     &   call errquit('dft_scf: cannot allocate scr',0, MA_ERR) 
       call util_ga_mat_reduce(nbf_ao, natoms, int_mb(icetobfr), g_dens, 
      &                        ipol, dbl_mb(irdens_atom), 'absmax', 
      &                        dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
 c      write(*,'("irdens",5f10.7)')
 c     &     (dbl_mb(irdens_atom+i),i=0,ipol*natoms*natoms-1)
-      if (.not.ma_pop_stack(lscr))
+      if (.not.ma_pop_stack(lscr))  ! free lscr
      &   call errquit('dft_scf: cannot pop stack:lscr',0, MA_ERR)
 c
+      g_vxc(1) = g_tmp
+      call ga_zero(g_vxc(1))
+      rho_n = 0.0d0
+      call ga_zero(g_vxc(2))
 c
+      ecoul = 0.d0
+      if (cam_exch) call case_setflags(.false.) ! unset attenuation for coulomb
       if (CDFIT)then
+        call getv_coul_cd(rtdb, ecoul, g_densso, g_fockso, g_vxc,
+     &     dbl_mb(k_3cERI), nTotEl, n_batch, n3c_int,
+     &     int_mb(k_3cwhat), n3c_dbl, IOLGC, natoms, iVcoul_opt)
+      endif  ! CDFIT
 c
-c        == attenuation == 
-         if (cam_exch) call case_setflags(.false.)
-c     
-c        Fit the electron charge density.
-c     
-         if (.not.MA_Push_Get(MT_Dbl,nbf_cd,'cd_coef',lcd_coef,
-     &        icd_coef))
-     &        call errquit('dft_scf: cannot allocate cd_coef',0, MA_ERR)
-         if (oprint_time)
-     &        call dft_tstamp(' Before call to FITCD.   ')
-         call dft_fitcd(1,Dbl_MB(icd_coef), dbl_mb(k_3cERI), Ecoul, 
-     &        g_dens, nTotEl, n_batch, n3c_int,
-     &        int_mb(k_3cwhat), n3c_dbl, iwhat_max, 
-     &        n_semi_bufs, fd, IOLGC, 
-     .        natoms,
-     &        .false., 0d0, .false.)
-         if (.not.ma_pop_stack(lcd_coef))
-     &        call errquit('dft_scf: cannot pop stacklcd_coef',0,
-     &       MA_ERR)
-      endif  ! cdfit
-c     
 c     Note that g_dens(1) now contains the alpha density
 c     matrix and g_dens(2) contains the beta
 c     
@@ -1410,32 +1387,27 @@ c     Pre-compute reduced alpha and beta density matrices over atoms
 c     
       call dfill(ipol*natoms*natoms, 0.0d0, dbl_mb(irdens_atom), 1)
       nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
-      if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
+      if (.not.ma_push_get(MT_Dbl,nscr,'scr',lscr,iscr)) ! allocate lscr
      &     call errquit('dft_scf: cannot allocate scr',0, MA_ERR)
       call util_ga_mat_reduce(nbf_ao, natoms, int_mb(icetobfr), 
      &     g_dens, ipol, dbl_mb(irdens_atom), 
      &     'absmax', dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
-      if (.not.ma_pop_stack(lscr))
+      if (.not.ma_pop_stack(lscr))  ! free lscr
      &  call errquit('dft_scf: cannot pop stacklscr:',0, MA_ERR)
 c     
-c     Compute the XC potential and energy.
-c     
-      g_vxc(1) = g_tmp
-      call ga_zero(g_vxc(1))
-      rho_n = 0.0d0
-      call ga_zero(g_vxc(2))
+c     == Coulomb part via traditional 4c approach ==
 c
-c     == Coulomb part ==
-      ecoul = 0.d0
-      if (cam_exch) call case_setflags(.false.) ! unset attenuation for coulomb
-      call getv_coul(rtdb, ecoul, g_densso, g_fockso, g_vxc)
+      if (.not.CDFIT) 
+     &    call getv_coul(rtdb, ecoul, g_densso, g_fockso, g_vxc)
       if (me.eq.0.and.oprint_info) write(luout,'(1x,a,e15.7)')
      &   "ECoul =", ecoul
 c
-c     == attenuation ==
-      if (cam_exch) call case_setflags(.true.) ! set attenuation, if needed
+c     Compute the XC potential and energy.
 c
 c     == HF Exchange part ==
+
+c     == attenuation ==
+      if (cam_exch) call case_setflags(.true.) ! set attenuation, if needed
 c
 c     == D0, V0(Daa + Dbb) ==
       exch0r = 0.d0
@@ -1492,6 +1464,7 @@ c     == tally up exchange energy ==
       exchtot = exch0 + exchZ + exchX + exchY ! HF exchange
 c
 c     == DFT Exchange-Correlation ==
+c
       edftxc(1) = 0.d0
       edftxc(2) = 0.d0
       if (me.eq.0.and.oprint_info)  write(luout,*) "calling getv_dftxc"
@@ -2103,7 +2076,6 @@ c
          save_wall = current_wall
       endif
 c
-cng
       if (converged)then
 c     
 c     ----- if cosmo ... after gas_phase, do sol_phase ... -----
@@ -2557,11 +2529,6 @@ c
          endif
       endif
 c
-      if (oprint_final_vecs)then
-cso         call ga_print(g_movecs)
-cso         if (ipol.eq.2)call ga_print(g_movecs(2))
-      endif
-c     
 c     ECCE printout
 c     
       call movecs_ecce(nbf_ao, nmo, 1, nmo(1), dbl_mb(k_eval(1)),
@@ -2580,25 +2547,7 @@ c
          call ecce_print1 ('correlation energy', mt_dbl, Exc(2), 1)
       endif
 c
-      if (.not.ma_chop_stack(lbuff)) then
-        call ma_summarize_allocated_blocks()
-        call util_flush(6)
-        call util_flush(0)
-        call errquit('dft_scf: cannot pop stack:lbuff',lbuff, MA_ERR)
-      endif
-c
-      if (.not.ma_pop_stack(lrwork))
-     &   call errquit('dft_scf: cannot pop stacklrwork',0, MA_ERR)
-      if (.not.ma_pop_stack(lwork))
-     &   call errquit('dft_scf: cannot pop stack:lwork',0, MA_ERR)
-      if (.not.ma_pop_stack(lw))
-     &   call errquit('dft_scf: cannot pop stack:lw',0, MA_ERR)
-      if (.not.ma_pop_stack(la))
-cso
-     &   call errquit('dft_scf: cannot pop stack:la',0, MA_ERR)
-      if (.not.ma_pop_stack(l_ir))
-     &   call errquit('dft_scf: cannot pop stack:l_ir',0, MA_ERR)
-c     
+c     free memory 
       if (ipol.gt.1)then
          if (.not. ga_destroy(g_fockt)) call errquit
      &      ('dft_scf: could not destroy g_fockt', 0, GA_ERR)
@@ -2614,26 +2563,39 @@ c
          call ecce_print_module_exit('dft', 'failed')
       endif
 c     
-c     eval deallocation moved here from inside iteration loop
-c     
+c     call ma_summarize_allocated_blocks()
+c
+      if (.not.ma_pop_stack(lrwork))
+     &   call errquit('dft_scf: cannot pop stack:lrwork',0, MA_ERR)
+      if (.not.ma_pop_stack(lwork))
+     &   call errquit('dft_scf: cannot pop stack:lwork',0, MA_ERR)
+      if (.not.ma_pop_stack(lw))
+     &   call errquit('dft_scf: cannot pop stack:lw',0, MA_ERR)
+      if (.not.ma_pop_stack(la))
+     &   call errquit('dft_scf: cannot pop stack:la',0, MA_ERR)
+      if (.not.ma_pop_stack(l_ir))
+     &   call errquit('dft_scf: cannot pop stack:l_ir',0, MA_ERR)
       if (.not.ma_pop_stack(l_eval))
      &   call errquit('dft_scf: cannot pop stack:l_eval',0, MA_ERR)
-      if (CDFIT)then
-         if (.not.ma_pop_stack(l_3cwhat))
-     &      call errquit('dft_scf: cannot pop stack:l_3cwhat',0, MA_ERR)
-         if (.not.ma_pop_stack(l_3cERI))
-     &      call errquit('dft_scf: cannot pop stack:l_3cERI',0, MA_ERR)
-      endif
       if (.not.ma_pop_stack(l_occ))
      &   call errquit('dft_scf: cannot pop stack:l_occ',0, MA_ERR)
       if (.not.ma_pop_stack(lrdens_atom))
      &   call errquit('dft_scf: cannot pop stack:lrdens_atom',0, MA_ERR)
+      if (.not. ma_verify_allocator_stuff())
+     $     call errquit('dft_scf: ma corrupt',0, MA_ERR)
       if (.not.ma_pop_stack(lcetobfr))
      &   call errquit('dft_scf: cannot pop stack:lcetobfr',0, MA_ERR)
       if (.not.ma_pop_stack(lcntobfr))
      &   call errquit('dft_scf: cannot pop stack:lcntobfr',0, MA_ERR)
       if (.not.ma_pop_stack(lcntoce))
      &   call errquit('dft_scf: cannot pop stack:lcntoce',0, MA_ERR)
+c
+      if (CDFIT) then
+       if (.not.ma_pop_stack(l_3cwhat))
+     &      call errquit('dft_scf: cannot pop stack:l_3cwhat',0, MA_ERR)
+       if (.not.ma_pop_stack(l_3cERI))
+     &      call errquit('dft_scf: cannot pop stack:l_3cERI',0, MA_ERR)
+      endif
 c
 #if 0
 C---------------------------------------------------------------------------
@@ -2731,4 +2693,3 @@ c
  1111 format(15x,'Core Energy:              ',f22.10)
 c     
       end
-
