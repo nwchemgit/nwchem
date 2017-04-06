@@ -410,11 +410,11 @@ c
      $        call errquit('dftg_force: could not alloc svec',0, MA_ERR)
          ippp=k_wdens
 c     
-         call  dftg_cdfit(ao_bas_han, cd_bas_han,
-     $        nbf_cd, nat, tol2e, dbl_mb(k_scr), 
+         call dftg_cdfit(geom,ao_bas_han, cd_bas_han,
+     $        nbf_cd, nat, tol2e, dbl_mb(k_scr),
      $        lscratch, dbl_mb(k_buf), lbuf,
      $        dbl_mb(isvec), dbl_mb(ippp), max_sh_bf,
-     $        iga_dens, dbl_mb(k_frc_2el), 
+     $        iga_dens, dbl_mb(k_frc_2el),
      $        DBL_MB(i_cdcoef), oskel)
 c     
          call ga_dgop(msg_grad_2el, dbl_mb(k_frc_2el), lforce, '+')
