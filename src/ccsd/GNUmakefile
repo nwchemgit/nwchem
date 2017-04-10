@@ -84,7 +84,7 @@ endif
      ccsd_zsig2.F \
      ccden_interm2.F \
      ccden_1pdm.F \
-     geaxpy.f \
+     geaxpy.F \
      ccsd_mktau_ga.F \
      ccden_2pdmb.F \
      aoccsd2.F \
