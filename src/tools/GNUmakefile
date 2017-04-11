@@ -528,6 +528,20 @@ ifdef CXXFLAGS_FORGA
 endif
 # End conversion of env vars to configure options
 
+ifdef USE_GAGITHUB
+	GET_TOOLS=./get-tools-github
+  ifdef DEV_GA
+    GA_DIR = ga-dev
+    GA_BRANCH = develop
+  else
+    ifdef GA_BRANCH
+     GA_DIR = ga-$(GA_BRANCH)
+    else
+     GA_DIR = ga-5-6
+     GA_BRANCH = release/5.6
+    endif
+  endif
+else
 ifdef DEV_GA
     GA_DIR = ga-dev
 else
@@ -541,11 +555,7 @@ else
         endif
     endif
 endif
-ifdef USE_GAGITHUB
-	GET_TOOLS=./get-tools-github
-           GA_DIR = ga-5.6
 endif
-
 ifndef ARMCI_NETWORK
     ARMCI_NETWORK=MPI-TS
     MAYBE_ARMCI = --with-mpi-ts

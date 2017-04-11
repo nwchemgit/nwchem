@@ -27,47 +27,28 @@ done
 TOOLDIR=`pwd`
 TOOLGIT=`which git`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
-   GA_DEV_GIT=https://github.com/GlobalArrays/ga.git
-       GA_DEV=ga-dev
 
-if test "x$GA_STABLE" = x
-then
-    GA_STABLE=5.6
-GA_STABLE_GIT="https://github.com/GlobalArrays/ga.git  -b release/$GA_STABLE"
-else
-     GA_STABLE_GIT=https://github.com/GlobalArrays/ga.git -b release/$GA_STABLE
-fi
-
-   GA_EXP_GIT="https://github.com/GlobalArrays/ga.git -b develop"
-       GA_EXP=ga-exp1
-
-# If EXP_GA is set at all in the user's environment then it means 'yes'
-if test "x$EXP_GA" != x
-then
-    EXP_GA=yes
-fi
-if [ $ga_version == 0 ] ; then
-  echo "EXP_GA=$EXP_GA"
-  echo "GA_STABLE=$GA_STABLE"
-fi
-
-# If DEV_GA is set at all in the user's environment then it means 'yes'
-#    DEV_GA=y
 if test "x$DEV_GA" != x
 then
-    GA_GIT=$GA_DEV_GIT
-    GA_DIRNAME=$GA_DEV
-elif test "x$EXP_GA" != x
-then
-    GA_GIT=$GA_EXP_GIT
-    GA_DIRNAME=$GA_EXP
+    GA_DIR=ga-dev
+    GA_BRANCH=develop
 else
-    GA_GIT=$GA_STABLE_GIT
-    GA_DIRNAME="ga-$GA_STABLE"
+  if test "x$GA_BRANCH" != x
+  then
+    if test "x$GA_DIR" = x
+    then
+       GA_DIR=ga-"$GA_BRANCH"
+    fi
+  else
+     GA_DIR=ga-5-6
+     GA_BRANCH=release/5.6
+  fi
 fi
+GA_GIT="https://github.com/GlobalArrays/ga.git  -b $GA_BRANCH"
+echo "Using GA_GIT" $GA_GIT "and GA_DIR" $GA_DIR
 
 if [ $ga_version == 1 ] ; then
-  echo $GA_DIRNAME
+  echo $GA_DIR
   exit 0
 fi
 
@@ -76,57 +57,40 @@ if [ ${#TOOLGIT} -eq 0 ] ; then
   echo "Giving up and hoping for the best..."
   exit 0
 fi
-#svn log ./get-tools 2>&1 > /dev/null
-#stat=$?
-#if [ $stat -ne 0 ] ; then
-#  echo "No access to repository!"
-#  echo "Giving up and hoping for the best..."
-#  exit 0
-#fi
-
-
-# Update the autotools build of GA.
-#if test -e $TOOLDIR/build
-#then
-#    echo "You have an old copy of the ga tools using configure"
-#    echo "Deleting it now"
-#    rm -rf $TOOLDIR/build
-#    rm -rf $TOOLDIR/install
-#fi
-if test -d $GA_DIRNAME
+if test -d $GA_DIR
 then
-    echo "Updating existing $GA_DIRNAME"
-    cd $GA_DIRNAME
+    echo "Updating existing $GA_DIR"
+    cd $GA_DIR
 #    git cleanup
     if git pull 
     then
-        echo "Finished updating existing $GA_DIRNAME"
+        echo "Finished updating existing $GA_DIR"
     else
-        echo "Failed updating existing $GA_DIRNAME"
-        echo "Attempting to remove $GA_DIRNAME"
+        echo "Failed updating existing $GA_DIR"
+        echo "Attempting to remove $GA_DIR"
         cd $TOOLDIR
-        if rm -rf $GA_DIRNAME
+        if rm -rf $GA_DIR
         then
-            echo "Checking out $GA_GIT"
-            git clone $GA_GIT $GA_DIRNAME
+            echo "Checking out $GA_GIT" $GA_BRANCH $GA_DIR
+            git clone $GA_GIT $GA_DIR
         else
-            echo "Failed to remove $GA_DIRNAME"
+            echo "Failed to remove $GA_DIR"
             echo "get-tools has failed"
         fi
     fi
     cd $TOOLDIR
 else
-    echo "Checking out $GA_GIT"
-    git clone $GA_GIT $GA_DIRNAME
+    echo "Checking out $GA_GIT into dir $GA_DIR"
+    git clone $GA_GIT $GA_DIR
 fi
 # check if configure is there
-if test -e $GA_DIRNAME/configure
+if test -e $GA_DIR/configure
 then
         echo "configure present. no autogen.sh required"
 else
         echo "configure missing. running autogen.sh"
         pwd
-        echo $GA_DIRNAME/configure $GA_DIRNAME/autogen.sh
-        cd  $GA_DIRNAME;sh ./autogen.sh
+        echo $GA_DIR/configure $GA_DIR/autogen.sh
+        cd  $GA_DIR;sh ./autogen.sh
 fi
 exit 0
