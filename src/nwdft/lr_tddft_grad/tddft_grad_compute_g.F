@@ -704,12 +704,15 @@ c          call ga_scale(g_d(2),0.5d0)
           call ga_add(1.0d0,g_d(2),1.0d0,g_d(4),g_d(4))
         endif
 c
-c       Write excited-state density in the ao basis
+c       Write total excited-state density in the ao basis 
+c       (g_p_ao = total excited state density)
 c
-        if (ipol.eq.1) then
-          call util_file_name('dmat',.false.,.false.,dmat_file) ! get filename
-          call ao_1prdm_write(nao,g_p_ao,dmat_file)
-        else
+        call util_file_name('dmat',.false.,.false.,dmat_file) ! get filename
+        call ao_1prdm_write(nao,g_p_ao,dmat_file)
+c
+c       Write excited-state density components in the ao basis
+c
+        if (ipol.gt.1) then
           call util_file_name('dmatA',.false.,.false.,dmat_file) ! get filename
           call ao_1prdm_write(nao,g_d(3),dmat_file)
           call util_file_name('dmatB',.false.,.false.,dmat_file) ! get filename
