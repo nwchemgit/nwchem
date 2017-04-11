@@ -63,8 +63,6 @@
          CalcPerturbedTDPmat1_opt.o \
          localization_driver.o \
          hnd_vec_write.o \
-         ao_1prdm_read.o \
-         ao_1prdm_write.o \
       	 giao_b1_movecs_tools.o \
          aor_r1_beta_anl_tools.o\
 	 task_raman.o \

@@ -40,14 +40,14 @@ c     property grid points variables (MV)
       integer l_tefld,k_tefld
       logical rtdb_par
       logical bqprint
-c->d3p975
+c
       character*30 theory
       integer nbf
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
       logical ao_1prdm_read
       external ao_1prdm_read
-c<-d3p975
+c
       logical ocube
       logical do_output
       integer iptr,nprp_pass,ngrid(3)
@@ -57,49 +57,46 @@ c
       if(.not.rtdb_get(rtdb,'bqforceprint',mt_log,1,bqprint))
      + bqprint = .false.
 c
-c
 c     Initialize integrals
 c
       call int_init(rtdb,1, basis)
       call schwarz_init(geom, basis)
 c
-c     Get density matrix
+c     Get the density matrix
 c
       if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
      + call errquit('task: no task input for theory?',0, RTDB_ERR)
+      if (.not. rtdb_cget(rtdb,'scf:scftype',1,scftyp)) scftyp = "RHF"
+      ndens = 1
+      if (scftyp.eq.'UHF') ndens = 3
 c
+      if (ga_nodeid().eq.0) write(luout,*) "scftyp:",scftyp
+      if (ga_nodeid().eq.0) write(luout,*) "theory:",theory
 c
-c->d3p975
+c     Read density matrix from a file   
 c
-c    reading g_dens from a file   
-c    1. allocate the memory
-      if(theory.eq.'tce') then
-         ndens = 1
+      if (theory.eq.'tce'.or.theory.eq.'tddft') then
 c
         do i = 1, ndens
          g_dens(i) = ga_create_atom_blocked(geom,basis,'density matrix')
          call ga_zero(g_dens(i))
         enddo
 c
-c    2. read the data 
-c
-        if (.not. bas_numbf(basis,nbf)) call
-     &    errquit('hnd_elfmap: could not get nbf',0, BASIS_ERR)
+        if (.not. bas_numbf(basis,nbf)) 
+     &    call errquit('hnd_elfmap: could not get nbf',0, BASIS_ERR)
 c
         call util_file_name('dmat',.false.,.false.,dmat_file) ! get filename
+        if (ga_nodeid().eq.0) 
+     &        write(luout,*) "Reading file from:",dmat_file
         if(.not.ao_1prdm_read(nbf,g_dens(ndens),dmat_file))
-     1  call errquit('hnd_elfmap: ao_1prdm_read failed',0,0)
-
-      else 
+     &      call errquit('hnd_elfmap: ao_1prdm_read failed',0,0)
+c
+      else  ! generate from movecs for scf or dft
          call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
      &                      nclosed,nopen,nvirt)
       endif
 c 
-c<-d3p975
-c
-c
 c     ----- calculate electric field -----
-c
 c
        call ecce_print_module_entry('EField')
 c
@@ -125,10 +122,6 @@ c        call util_file_prefix("elf.cube",cube_name)
         if (.not. rtdb_cget(rtdb, "prop:grid:output",1,cube_name))
      >     call util_file_prefix("elf.cube",cube_name)
       end if
-cc     
-
-
-
 c     
 c     define points for the calculation now 
 c     either custom grid or (default) nuclei positions (M.V.)

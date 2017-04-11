@@ -71,34 +71,37 @@ c     Get density matrix
 c
       if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
      + call errquit('task: no task input for theory?',0, RTDB_ERR)
-
-      if (theory.ne.'tce') then
-         call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
-     &                      nclosed,nopen,nvirt)
-      endif
+      if (.not. rtdb_cget(rtdb,'scf:scftype',1,scftyp)) scftyp = "RHF"
+      ndens = 1
+      if (scftyp.eq.'UHF') ndens = 3
 c
-c     read CC denisty matrix
+c     if (ga_nodeid().eq.0) write(luout,*) "scftyp:",scftyp
+c     if (ga_nodeid().eq.0) write(luout,*) "theory:",theory
 c
-      if(theory.eq.'tce') then
-         ndens = 1
+c     Read density matrix from a file
+c
+      if (theory.eq.'tce'.or.theory.eq.'tddft') then
 c
         do i = 1, ndens
          g_dens(i) = ga_create_atom_blocked(geom,basis,'density matrix')
          call ga_zero(g_dens(i))
         enddo
 c
-c    2. read the data
-c
-        if (.not. bas_numbf(basis,nbf)) 
-     &    call errquit('hnd_elpmap: could not get nbf',0, BASIS_ERR)
+        if (.not. bas_numbf(basis,nbf))
+     &    call errquit('hnd_elfmap: could not get nbf',0, BASIS_ERR)
 c
         call util_file_name('dmat',.false.,.false.,dmat_file) ! get filename
+        if (ga_nodeid().eq.0)
+     &        write(luout,*) "Reading file from:",dmat_file
         if(.not.ao_1prdm_read(nbf,g_dens(ndens),dmat_file))
-     1  call errquit('hnd_elpmap: ao_1prdm_read failed',0,0)
+     &      call errquit('hnd_elfmap: ao_1prdm_read failed',0,0)
+c
+      else  ! generate from movecs for scf or dft
+         call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
+     &                      nclosed,nopen,nvirt)
       endif
 c
-
-       call ecce_print_module_entry('Elpoten')
+      call ecce_print_module_entry('Elpoten')
 c
 c     ----- define points for calculation -----
 c           1. grid points    (not active)
@@ -203,6 +206,9 @@ c
      N     nprp_pass,   dbl_mb(k_epot),0)
 c
       dobq = .false.
+      bq_ncent = 0
+      i_cbq = 0
+      i_qbq = 0
       if(geom_extbq_on()) then
         dobq = .true.
         bq_ncent = geom_extbq_ncenter()

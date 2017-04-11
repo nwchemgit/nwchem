@@ -38,7 +38,8 @@ c
       integer geom, basis       ! handles
       logical status, usec1
       character*255 title, vectors_in
-      character*3 theory
+      character*32 theory
+      character*32 operation
       character*8 gridtype
       integer giao, spinspin, geomold, noaoresponse
       integer gshift
