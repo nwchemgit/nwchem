@@ -232,6 +232,9 @@ c            oembed = .true.
          else if (inp_compare(.false.,test,
      >                        'pauls_matrix_diag')) then
             operation='pauls_matrix_diag'
+         else if (inp_compare(.false.,test,
+     >                        'translate')) then
+            operation='translate'
 
          else if (theory .eq. ' ') then
             theory = test
