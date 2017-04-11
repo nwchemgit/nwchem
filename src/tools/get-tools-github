@@ -76,13 +76,13 @@ if [ ${#TOOLGIT} -eq 0 ] ; then
   echo "Giving up and hoping for the best..."
   exit 0
 fi
-svn log ./get-tools 2>&1 > /dev/null
-stat=$?
-if [ $stat -ne 0 ] ; then
-  echo "No access to repository!"
-  echo "Giving up and hoping for the best..."
-  exit 0
-fi
+#svn log ./get-tools 2>&1 > /dev/null
+#stat=$?
+#if [ $stat -ne 0 ] ; then
+#  echo "No access to repository!"
+#  echo "Giving up and hoping for the best..."
+#  exit 0
+#fi
 
 
 # Update the autotools build of GA.
@@ -118,5 +118,15 @@ then
 else
     echo "Checking out $GA_GIT"
     git clone $GA_GIT $GA_DIRNAME
+fi
+# check if configure is there
+if test -e $GA_DIRNAME/configure
+then
+        echo "configure present. no autogen.sh required"
+else
+        echo "configure missing. running autogen.sh"
+        pwd
+        echo $GA_DIRNAME/configure $GA_DIRNAME/autogen.sh
+        cd  $GA_DIRNAME;sh ./autogen.sh
 fi
 exit 0

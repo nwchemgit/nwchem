@@ -8,6 +8,7 @@ SHELL = /bin/sh
 #
 # GNU Autotools-based build of GA
 #
+	GET_TOOLS=./get-tools
 
 # Conversion of ARMCI env vars to configure options
 ifeq ($(ARMCI_NETWORK),OPENIB)
@@ -540,6 +541,11 @@ else
         endif
     endif
 endif
+ifdef USE_GAGITHUB
+	GET_TOOLS=./get-tools-github
+           GA_DIR = ga-5.6
+endif
+
 ifndef ARMCI_NETWORK
     ARMCI_NETWORK=MPI-TS
     MAYBE_ARMCI = --with-mpi-ts
@@ -596,19 +602,19 @@ $(BUILDDIR)/config.status: $(GA_DIR)/configure $(STAMP_FC) $(STAMP_CC) $(STAMP_D
 	@(cd $(BUILDDIR) && echo $(CONFIGURE_PATH) $(CONFIGURE_ARGS) && $(CONFIGURE_PATH) $(CONFIGURE_ARGS)) || exit 1
 $(GA_DIR)/Makefile.in:
 	@echo "No Global Arrays found: Attempting running ./get-tools"
-	./get-tools
+	$(GET_TOOLS)
 $(GA_DIR)/configure: $(GA_DIR)/Makefile.in
 	@echo "No Global Arrays found: Attempting running ./get-tools"
-	./get-tools
+	$(GET_TOOLS)
 	touch $(GA_DIR)/configure
 ifndef DONTCARE
 $(GA_DIR)/armci/Makefile.in: $(GA_DIR)/configure
 	@echo "No Global Arrays found: Attempting running ./get-tools"
-	./get-tools
+	$(GET_TOOLS)
 	touch $(GA_DIR)/armci/Makefile.in
 $(GA_DIR)/armci/configure: $(GA_DIR)/armci/Makefile.in
 	@echo "No Global Arrays found: Attempting running ./get-tools"
-	./get-tools
+	$(GET_TOOLS)
 	touch $(GA_DIR)/armci/configure
 endif # DONTCARE
 $(STAMP_FC): 
