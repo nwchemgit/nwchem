@@ -27,11 +27,11 @@ c
       write(*,*)' direct = ', direct
       write(*,*)' oskel = ', oskel
       write(*,*)' oadapt = ', oadapt
-      write(*,*)' lcfac(i) = ', (lcfac(i),i=1,15)
-      write(*,*)' nlcfac(i) = ', (nlcfac(i),i=1,15)
-      write(*,*)' lxfac(i) = ', (lxfac(i),i=1,15)
-      write(*,*)' nlxfac(i) = ', (nlxfac(i),i=1,15)
-      write(*,*)' xccomb(i) = ', (xccomb(i),i=1,15)
+      write(*,*)' lcfac(i) = ', (lcfac(i),i=1,numfunc)
+      write(*,*)' nlcfac(i) = ', (nlcfac(i),i=1,numfunc)
+      write(*,*)' lxfac(i) = ', (lxfac(i),i=1,numfunc)
+      write(*,*)' nlxfac(i) = ', (nlxfac(i),i=1,numfunc)
+      write(*,*)' xccomb(i) = ', (xccomb(i),i=1,numfunc)
 c
 c     Integers
 c
@@ -95,8 +95,8 @@ c
       write(*,*)' diisoff = ', diisoff
       write(*,*)' rcharge = ', rcharge
       write(*,*)' tol_rho = ', tol_rho
-      write(*,*)' cfac = ', (cfac(i),i=1,15)
-      write(*,*)' xfac =', (xfac(i),i=1,15)
+      write(*,*)' cfac = ', (cfac(i),i=1,numfunc)
+      write(*,*)' xfac =', (xfac(i),i=1,numfunc)
       write(*,*)' hl_tol = ', hl_tol
       write(*,*)' e_conv = ', e_conv
       write(*,*)' d_conv = ', d_conv
