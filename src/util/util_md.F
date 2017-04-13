@@ -741,7 +741,7 @@ c
 #if defined(IBM)
       character*26 string
 #endif
-#if defined(SP1) || defined(CRAY_T3D) || defined(CRAY_T3E) || defined(SOLARIS)
+#if defined(SP1) || defined(SOLARIS)
       character*26 string
 #endif
 #if defined(SGI)
@@ -769,7 +769,7 @@ c
       today(4:5)=string(1:2)
       now=string(11:20)
 #endif
-#if defined(CRAY_T3D) || defined(SP1) || defined(CRAY_T3E) || defined(SOLARIS)
+#if defined(SP1) || defined(SOLARIS)
       call util_date(string)
       if(string(5:7).eq.'Jan') today(1:2)='01'
       if(string(5:7).eq.'Feb') today(1:2)='02'
@@ -1579,13 +1579,6 @@ c      corerr=ratio*stderr
 cc
       return
       end
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      integer function util_nint(x)
-      real*8 x
-      util_nint=nint(x)
-      return
-      end
-#endif
       logical function md_zmat(x1,x2,x3,x4,d,a,t)
 c
       implicit none

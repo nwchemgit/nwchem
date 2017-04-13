@@ -1,10 +1,3 @@
-      block data bfileprefix
-      implicit none
-#include "cfileprefix.fh"
-      data file_prefix /'calc'/
-      data scratch_dir/' '/, permanent_dir/' '/
-c
-      end
       subroutine util_file_info_rtdb(rtdb)
       implicit none
 #include "errquit.fh"
@@ -44,7 +37,6 @@ c
       implicit none
 #include "cfileprefix.fh"
       character*(*) fullname
-      external bfileprefix  ! This for T3D linker
 
       fullname = file_prefix
 c
@@ -53,7 +45,6 @@ c
       implicit none
 #include "cfileprefix.fh"
       character*(*) fullname
-      external bfileprefix  ! This for T3D linker
 
       file_prefix = fullname
 c
@@ -65,7 +56,6 @@ c
 #include "inp.fh"
 #include "stdio.fh"
       character*(*) name, fullname
-      external bfileprefix  ! This for T3D linker
 c
 c     prepend the file_prefix onto name as <file_prefix>.name
 c     returning the result in fullname.

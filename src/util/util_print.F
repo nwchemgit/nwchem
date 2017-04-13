@@ -1,13 +1,3 @@
-      block data bd_printcommon
-      implicit none
-#include "printlevels.fh"
-#include "printcommon.fh"
-c
-      data depth /1/, print_level(1)/print_default/ ! In common
-      data n_print(1) /0/, n_no_print(1) /0/
-      data oprint_print(1) /.false./
-c     
-      end
       logical function util_print(name, level)
 C$Id$
       implicit none
@@ -16,7 +6,6 @@ C$Id$
 #include "inp.fh"
 #include "stdio.fh"
       character*(*) name
-      external bd_printcommon  ! block data for T3D linker
       integer level
       integer ind
 c     

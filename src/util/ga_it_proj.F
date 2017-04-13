@@ -1,14 +1,4 @@
-      block data ga_block_project
 C$Id$
-      implicit none
-#include "cproject.fh"
-c
-      data oproject/.false./
-      data nroot_proj/0/
-      data g_proj/-9999/
-      data n_proj/-1/
-c
-      end
       subroutine ga_init_project(n, nroot, maxiter, maxsub, tol,
      $     precond, product, oprint, eval0)
       implicit none

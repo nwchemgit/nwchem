@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#if (defined(CRAY) || defined(CRAY_T3D))&& !defined(__crayx1)
-#define FATR 
+#if defined(CRAY) && !defined(__crayx1)
+#define FATR
 #include <fortran.h>
 #endif
 #include "typesf2c.h"
