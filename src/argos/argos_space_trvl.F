@@ -36,10 +36,6 @@ c
       integer itemps,nfold
       logical lend
       character*255 string
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      real*8 util_nint
-      external util_nint
-#endif
 c
       boxi(1)=one/box(1)
       boxi(2)=one/box(2)
@@ -694,27 +690,15 @@ c
       xscz=factor*xscz
       if(npbtyp.ne.0) then
       if(abs(xscx).gt.boxh(1)) then
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      xscx=xscx-util_nint(xscx*boxi(1))*box(1)
-#else
       xscx=xscx-nint(xscx*boxi(1))*box(1)
-#endif
       nfold=1
       endif
       if(abs(xscy).gt.boxh(2)) then
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      xscy=xscy-util_nint(xscy*boxi(2))*box(2)
-#else
       xscy=xscy-nint(xscy*boxi(2))*box(2)
-#endif
       nfold=1
       endif
       if(abs(xscz).gt.boxh(3)) then
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      xscz=xscz-util_nint(xscz*boxi(3))*box(3)
-#else
       xscz=xscz-nint(xscz*boxi(3))*box(3)
-#endif
       nfold=1
       endif
       endif

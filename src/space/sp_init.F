@@ -675,11 +675,6 @@ c
       integer l,m,ib(3),nbox,nb(3),joff,npars,icount,lasts
       real*8 xtmin,xtmax,xtx,xt(3)
 c
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      real*8 util_nint
-      external util_nint
-#endif
-c
       if(.not.ma_verify_allocator_stuff()) then
       call md_abort('ERROR IN MEMORY USE ENTERING SP_RDRST',0)
       endif
@@ -1048,11 +1043,7 @@ c
       xtx=0.5d0*(xtmax+xtmin)
       if(npbtyp.ne.0) then
       if(abs(xtx).gt.boxh(l)) then
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      xtx=xtx-util_nint(xtx*boxi(l))*box(l)
-#else
       xtx=xtx-nint(xtx*boxi(l))*box(l)
-#endif
       endif
       endif
       ib(l)=0

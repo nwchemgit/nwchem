@@ -4,10 +4,6 @@ c
 c
 #include "argos_space_common.fh"
 c
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      real*8 util_nint
-      external util_nint
-#endif
 c
       real*8 xs(msa,3)
       real*8 boxsiz(maxbox,3)
@@ -69,27 +65,15 @@ cx
 c
       if(npbtyp.ne.0) then
       if(abs(xcgx).gt.boxh(1)) then
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      xcgx=xcgx-util_nint(xcgx*boxi(1))*box(1)
-#else
       xcgx=xcgx-nint(xcgx*boxi(1))*box(1)
-#endif
       nfold=1
       endif
       if(abs(xcgy).gt.boxh(2)) then
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      xcgy=xcgy-util_nint(xcgy*boxi(2))*box(2)
-#else
       xcgy=xcgy-nint(xcgy*boxi(2))*box(2)
-#endif
       nfold=1
       endif
       if(abs(xcgz).gt.boxh(3)) then
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      xcgz=xcgz-util_nint(xcgz*boxi(3))*box(3)
-#else
       xcgz=xcgz-nint(xcgz*boxi(3))*box(3)
-#endif
       nfold=1
       endif
       endif

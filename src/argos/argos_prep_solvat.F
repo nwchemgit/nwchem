@@ -8,10 +8,6 @@ c
 c
 #include "util.fh"
 c
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      integer util_nint
-      external util_nint
-#endif
       integer islv,mwms,mwa,nwms,nwa,mwm,nwm,msa,nsa,lfnout
       integer nwmc,mwmc
       integer iwmr(mwm)
@@ -66,15 +62,9 @@ c
       dx=x-xs(1,i)
       dy=y-xs(2,i)
       dz=z-xs(3,i)
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      dx=dx-util_nint(dx/box(1))*box(1)
-      dy=dy-util_nint(dy/box(2))*box(2)
-      dz=dz-util_nint(dz/box(3))*box(3)
-#else
       dx=dx-nint(dx/box(1))*box(1)
       dy=dy-nint(dy/box(2))*box(2)
       dz=dz-nint(dz/box(3))*box(3)
-#endif
       if(dx*dx+dy*dy+dz*dz.lt.touch2) goto 9
    10 continue
       if(nwmc.gt.0) then
@@ -83,15 +73,9 @@ c
       dx=x-xwc(1,j,i)
       dy=y-xwc(2,j,i)
       dz=z-xwc(3,j,i)
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      dx=dx-util_nint(dx/box(1))*box(1)
-      dy=dy-util_nint(dy/box(2))*box(2)
-      dz=dz-util_nint(dz/box(3))*box(3)
-#else
       dx=dx-nint(dx/box(1))*box(1)
       dy=dy-nint(dy/box(2))*box(2)
       dz=dz-nint(dz/box(3))*box(3)
-#endif
       if(dx*dx+dy*dy+dz*dz.lt.touch2) goto 9
    12 continue
    11 continue

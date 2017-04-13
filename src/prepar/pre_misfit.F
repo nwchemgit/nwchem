@@ -9,10 +9,6 @@ c
 c
 #include "util.fh"
 c
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      integer util_nint
-      external util_nint
-#endif
       logical md_zmat
       external md_zmat
 c
@@ -459,18 +455,9 @@ c      write(*,'(a,4i5)') 'grid ',ix,iy,iz
       distx=grid(1,ngrid)-xs(1,k)
       disty=grid(2,ngrid)-xs(2,k)
       distz=grid(3,ngrid)-xs(3,k)
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      if(abs(distx).gt.boxh(1))
-     + distx=distx-util_nint(distx/box(1))*box(1)
-      if(abs(disty).gt.boxh(2))
-     + disty=disty-util_nint(distx/box(2))*box(2)
-      if(abs(distz).gt.boxh(3))
-     + distz=distz-util_nint(distx/box(3))*box(3)
-#else
       if(abs(distx).gt.boxh(1)) distx=distx-nint(distx/box(1))*box(1)
       if(abs(disty).gt.boxh(2)) disty=disty-nint(distx/box(2))*box(2)
       if(abs(distz).gt.boxh(3)) distz=distz-nint(distx/box(3))*box(3)
-#endif
       dist2=distx**2+disty**2+distz**2
       endif
       if(dist2.lt.gdist2) goto 16
@@ -487,18 +474,9 @@ c      write(*,'(a,4i5)') 'grid ',ix,iy,iz
       distx=grid(1,ngrid)-xw(1,l,k)
       disty=grid(2,ngrid)-xw(2,l,k)
       distz=grid(3,ngrid)-xw(3,l,k)
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      if(abs(distx).gt.boxh(1))
-     + distx=distx-util_nint(distx/box(1))*box(1)
-      if(abs(disty).gt.boxh(2))
-     + disty=disty-util_nint(distx/box(2))*box(2)
-      if(abs(distz).gt.boxh(3))
-     + distz=distz-util_nint(distx/box(3))*box(3)
-#else
       if(abs(distx).gt.boxh(1)) distx=distx-nint(distx/box(1))*box(1)
       if(abs(disty).gt.boxh(2)) disty=disty-nint(distx/box(2))*box(2)
       if(abs(distz).gt.boxh(3)) distz=distz-nint(distx/box(3))*box(3)
-#endif
       dist2=distx**2+disty**2+distz**2
       endif
       if(dist2.lt.gdist2) goto 16
@@ -527,18 +505,9 @@ c
       distx=grid(1,ngrid)-xs(1,k)
       disty=grid(2,ngrid)-xs(2,k)
       distz=grid(3,ngrid)-xs(3,k)
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      if(abs(distx).gt.boxh(1))
-     + distx=distx-util_nint(distx/box(1))*box(1)
-      if(abs(disty).gt.boxh(2))
-     + disty=disty-util_nint(distx/box(2))*box(2)
-      if(abs(distz).gt.boxh(3))
-     + distz=distz-util_nint(distx/box(3))*box(3)
-#else
       if(abs(distx).gt.boxh(1)) distx=distx-nint(distx/box(1))*box(1)
       if(abs(disty).gt.boxh(2)) disty=disty-nint(distx/box(2))*box(2)
       if(abs(distz).gt.boxh(3)) distz=distz-nint(distx/box(3))*box(3)
-#endif
       dist2=distx**2+disty**2+distz**2
       endif
       grid(4,k)=grid(4,k)+fcount*qsa(j)/dist2
@@ -555,18 +524,9 @@ c
       distx=grid(1,ngrid)-xw(1,l,m)
       disty=grid(2,ngrid)-xw(2,l,m)
       distz=grid(3,ngrid)-xw(3,l,m)
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      if(abs(distx).gt.boxh(1))
-     + distx=distx-util_nint(distx/box(1))*box(1)
-      if(abs(disty).gt.boxh(2))
-     + disty=disty-util_nint(distx/box(2))*box(2)
-      if(abs(distz).gt.boxh(3))
-     + distz=distz-util_nint(distx/box(3))*box(3)
-#else
       if(abs(distx).gt.boxh(1)) distx=distx-nint(distx/box(1))*box(1)
       if(abs(disty).gt.boxh(2)) disty=disty-nint(distx/box(2))*box(2)
       if(abs(distz).gt.boxh(3)) distz=distz-nint(distx/box(3))*box(3)
-#endif
       dist2=distx**2+disty**2+distz**2
       endif
       grid(4,k)=grid(4,k)+qwa(l)/dist2
@@ -622,18 +582,9 @@ c
       distx=grid(1,j)-d(1)
       disty=grid(2,j)-d(2)
       distz=grid(3,j)-d(3)
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      if(abs(distx).gt.boxh(1))
-     + distx=distx-util_nint(distx/box(1))*box(1)
-      if(abs(disty).gt.boxh(2))
-     + disty=disty-util_nint(distx/box(2))*box(2)
-      if(abs(distz).gt.boxh(3))
-     + distz=distz-util_nint(distx/box(3))*box(3)
-#else
       if(abs(distx).gt.boxh(1)) distx=distx-nint(distx/box(1))*box(1)
       if(abs(disty).gt.boxh(2)) disty=disty-nint(distx/box(2))*box(2)
       if(abs(distz).gt.boxh(3)) distz=distz-nint(distx/box(3))*box(3)
-#endif
       dist2=distx**2+disty**2+distz**2
       endif
       if(dist2.ge.gdist2) then
