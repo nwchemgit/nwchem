@@ -5846,26 +5846,26 @@ c
      1    call errquit("tce_energy: MA problem",35,MA_ERR)
       endif
       if (do_mbpt) then
-      if (needt4) then
-        if (.not.ma_pop_stack(l_r4_offset))
-     1    call errquit("tce_energy: MA problem",27,MA_ERR)
-      endif
-      if (needt3) then
-        if (.not.ma_pop_stack(l_r3_offset))
-     1    call errquit("tce_energy: MA problem",21,MA_ERR)
-      endif
-      if (needt3a) then
-        if (.not.ma_pop_stack(l_r3_offset))
-     1    call errquit("tce_energy: MA problem",21,MA_ERR)
-      endif
-      if (needt2) then
-        if (.not.ma_pop_stack(l_r2_offset))
-     1    call errquit("tce_energy: MA problem",22,MA_ERR)
-      endif
-      if (needt1) then
-        if (.not.ma_pop_stack(l_r1_offset))
-     1    call errquit("tce_energy: MA problem",23,MA_ERR)
-      endif
+        if (needt4) then
+          if (.not.ma_pop_stack(l_r4_offset))
+     1      call errquit("tce_energy: MA problem",27,MA_ERR)
+        endif
+        if (needt3) then
+          if (.not.ma_pop_stack(l_r3_offset))
+     1      call errquit("tce_energy: MA problem",21,MA_ERR)
+        endif
+        if (needt3a) then
+          if (.not.ma_pop_stack(l_r3_offset))
+     1      call errquit("tce_energy: MA problem",21,MA_ERR)
+        endif
+        if (needt2) then
+          if (.not.ma_pop_stack(l_r2_offset))
+     1      call errquit("tce_energy: MA problem",22,MA_ERR)
+        endif
+        if (needt1) then
+          if (.not.ma_pop_stack(l_r1_offset))
+     1      call errquit("tce_energy: MA problem",23,MA_ERR)
+        endif
       endif
       if (quadresp) then
         if (.not.ma_pop_stack(l_g0_offset))
