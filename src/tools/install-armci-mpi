@@ -31,10 +31,11 @@ ARMCI_MPI_DIR=${NWCHEM_TOP}/src/tools/armci-mpi
 if [ -d ${ARMCI_MPI_DIR} ] ; then
   # Assume that it is the right one, created previously by this script.
   echo "Existing ARMCI-MPI source directory found - updating it"
-  cd ${ARMCI_MPI_DIR} && git checkout mpi3rma && git pull >& git.log
+  cd ${ARMCI_MPI_DIR} && git checkout master && git pull >& git.log
   echo "Step 1 of 4 succeeded."
 elif [ -x "$(command -v git)" ] ; then
-  git clone -b mpi3rma --depth 10 http://git.mpich.org/armci-mpi.git ${ARMCI_MPI_DIR} >& git.log
+  #git clone -b mpi3rma --depth 10 http://git.mpich.org/armci-mpi.git ${ARMCI_MPI_DIR} >& git.log
+  git clone -b master --depth 10 https://github.com/jeffhammond/armci-mpi.git ${ARMCI_MPI_DIR} >& git.log
   stat=$?
   if [ $stat -ne 0 ] ; then
     echo "git clone failed"
