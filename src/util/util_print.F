@@ -1,11 +1,22 @@
-      logical function util_print(name, level)
 C$Id$
+
+      block data bd_printcommon
+      implicit none
+#include "printlevels.fh"
+#include "printcommon.fh"
+      data depth /1/, print_level(1)/print_default/ ! In common
+      data n_print(1) /0/, n_no_print(1) /0/
+      data oprint_print(1) /.false./
+      end
+
+      logical function util_print(name, level)
       implicit none
 #include "printlevels.fh"
 #include "printcommon.fh"
 #include "inp.fh"
 #include "stdio.fh"
       character*(*) name
+      external bd_printcommon
       integer level
       integer ind
 c     
