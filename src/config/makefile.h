@@ -1163,7 +1163,7 @@ endif
             # TODO: Test minor version number above when major=11.
             # https://software.intel.com/en-us/articles/using-mkl-in-intel-compiler-mkl-qmkl-options
             ifndef BLASOPT
-              ifneq ($(USE_INTERNALBLAS),Y)
+              ifndef USE_INTERNALBLAS
                 # When user requests OpenMP, MKL should use it, otherwise not (to avoid oversubscription).
                 ifdef USE_OPENMP
                     BLASOPT = -mkl=parallel
