@@ -1032,7 +1032,7 @@ ifeq ($(TARGET),MACX64)
      FC = gfortran
      _FC = gfortran
    endif
-   ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5))
+   ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran-6 gfortran-7 gfortran-8 gfortran-9))
      _FC = gfortran
    endif
 #
