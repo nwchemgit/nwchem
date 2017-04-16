@@ -2825,6 +2825,7 @@ c     ****************************************
       parameter (MASTER=0)
       integer ms,ms1,ms2,n,shift2,ishift2
   
+      call nwpw_timing_start(18)
       if (mparallelized) then
         if (mb.eq.0) then
             ms1 = 1
@@ -2891,6 +2892,7 @@ c     ****************************************
 
       end if
 
+      call nwpw_timing_end(18)
       return
       end
 
@@ -2914,6 +2916,7 @@ c     ****************************************
       parameter (MASTER=0)
       integer ms,ms1,ms2,n,shift2,ishift2
 
+      call nwpw_timing_start(18)
       if (mparallelized) then
         if (mb.eq.0) then
             ms1 = 1
@@ -2978,6 +2981,7 @@ c     ****************************************
          end if
 
       end if 
+      call nwpw_timing_end(18)
 
       return
       end
@@ -3006,6 +3010,7 @@ c     ****************************************
       parameter (MASTER=0)
       integer ms,ms1,ms2,n,shift2,ishift2
   
+      call nwpw_timing_start(18)
       if (mparallelized) then
          if (mb.eq.0) then
             ms1 = 1
@@ -3071,6 +3076,7 @@ c     ****************************************
          end if
 
       end if
+      call nwpw_timing_end(18)
 
       return
       end
@@ -3095,6 +3101,7 @@ c     ****************************************
       parameter (MASTER=0)
       integer ms,ms1,ms2,n,shift2,ishift2
 
+      call nwpw_timing_start(18)
       if (mparallelized) then
          if (mb.eq.0) then
             ms1 = 1
@@ -3153,6 +3160,7 @@ c     ****************************************
    30       continue
          end do
       end if
+      call nwpw_timing_end(18)
 
       return
       end
