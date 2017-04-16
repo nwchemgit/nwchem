@@ -24,6 +24,7 @@
 *   15 - ffm_dgemm
 *   16 - fmf_dgemm
 *   17 - m_diagonalize
+*   18 - mmm_dgemm
 
 *
 *   20 - phase factors
@@ -258,12 +259,15 @@ c     **** external functions ****
          call nwpw_timing_print(
      >                 '  two-electron Gaussian      : ',
      >                 nwpw_timing(13),counter,ttime)
-         call nwpw_timing_print_thr(
+         call nwpw_timing_print(
      >                 '  ffm_dgemm                  : ',
-     >                 15,counter,ttime)
+     >                 nwpw_timing(15),counter,ttime)
          call nwpw_timing_print(
      >                 '  fmf_dgemm                  : ',
      >                 nwpw_timing(16),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  mmm_dgemm                  : ',
+     >                 nwpw_timing(18),counter,ttime)
          call nwpw_timing_print(
      >                 '  m_diagonalize              : ',
      >                 nwpw_timing(17),counter,ttime)
