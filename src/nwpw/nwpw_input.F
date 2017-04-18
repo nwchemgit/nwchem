@@ -20,7 +20,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 120)
+      parameter (num_dirs = 121)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -141,6 +141,7 @@ c
      >            'temperature',
      >            'cutoff_boot_wavefunction',
      >            'periodic_dipole',
+     >            'translate_vector',
      >            'end'/
 
       double precision kb
@@ -212,7 +213,7 @@ c
      >       5900,6000,6000,
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
-     >       7700,7800,7900,8000,8100,6650,8200,8300,8400,8500,
+     >       7700,7800,7900,8000,8100,6650,8200,8300,8400,8500,8600,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -858,7 +859,7 @@ c
 
 
 c
-c  DOS - density of states input
+c  DOS - density of states input, alpha,npoints, emin,emax
 c
  4000 if (.not.inp_f(alpha)) alpha = 0.05d0/27.2116d0
       value = rtdb_put(rtdb,'dos:alpha',mt_dbl,1,alpha)
@@ -1967,6 +1968,18 @@ c
       if (.not.rtdb_put(rtdb,'nwpw:periodic_dipole',mt_log,1,
      >                  move))
      >  call errquit('nwpw_input: error writing to rtdb',8500,RTDB_ERR)
+      goto 10
+
+c
+c translate_vector x y z
+c
+ 8600 if (inp_f(tolerances(1))) then
+         if (.not.inp_f(tolerances(2))) tolerances(2) = tolerances(1)
+         if (.not.inp_f(tolerances(3))) tolerances(3) = tolerances(2)
+         if (.not.rtdb_put(rtdb,'nwpw:translate_vector',
+     >                     mt_dbl,3,tolerances))
+     >   call errquit('nwpw_input: error writing to rtdb',8600,RTDB_ERR)
+      end if
       goto 10
 
 
