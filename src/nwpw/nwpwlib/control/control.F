@@ -409,7 +409,7 @@ c         call nwxc_print()
 *     **** cgsd: stuff or  paw: stuff ****
 *     ************************************
       else if ((code.eq.3).or.(code.eq.8).or.
-     >         (code.eq.11).or.(code.eq.12)) then
+     >         (code.eq.11).or.(code.eq.12).or.(code.eq.15)) then
       if (.not.btdb_cget(rtdb,'cgsd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
@@ -1772,6 +1772,31 @@ c         mtensor(3,3) = z
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *    control_translate_vector     *
+*     *                                 *
+*     ***********************************
+      subroutine control_translate_vector(rtrans)
+      implicit none
+      real*8 rtrans(3)
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      if (.not.btdb_get(rtdb,'nwpw:translate_vector',
+     >                  mt_dbl,3,rtrans)) then
+         rtrans(1) = 0.0d0
+         rtrans(2) = 0.0d0
+         rtrans(3) = 0.0d0
+      end if
+      return
+      end
 
 
 
