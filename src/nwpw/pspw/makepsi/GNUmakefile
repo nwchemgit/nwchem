@@ -22,6 +22,7 @@
 		silvestrelli_overlap_old.o \
                 silvestrelli_minimize_old.o \
 		pspw_wannier2.o \
+		pspw_translate.o \
 		expand_cell.o \
 		wvfnc_expand_cell.o \
                 band_reformat_c_wvfnc.o \
