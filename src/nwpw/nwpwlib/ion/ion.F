@@ -124,7 +124,8 @@
      >    (control_code().eq.11).or.
      >    (control_code().eq.12).or.
      >    (control_code().eq.13).or.
-     >    (control_code().eq.14)) then
+     >    (control_code().eq.14).or.
+     >    (control_code().eq.15)) then
         value = beom_rtdb_store(rtdb,geom,'pspwgeometry')
       end if
       value = beom_destroy(geom)
@@ -141,7 +142,8 @@
      >    (control_code().eq.11).or.
      >    (control_code().eq.12).or.
      >    (control_code().eq.13).or.
-     >    (control_code().eq.14)) then
+     >    (control_code().eq.14).or.
+     >    (control_code().eq.15)) then
 
 
 *       *****************************************
