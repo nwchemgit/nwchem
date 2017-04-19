@@ -121,6 +121,7 @@ c Translates the ions and wavefunctions
       call ion_init(rtdb)
       call center_geom(cx,cy,cz)
       call center_mass(gx,gy,gz)
+      call strfac_init()
       !call psp_init()
       !call psp_readall()
 
@@ -229,6 +230,7 @@ c Translates the ions and wavefunctions
 *     **** deallocate heap memory ****
       !call ion_destroy()
       call ion_end()
+      call strfac_end()
       !call psp_end()
       call mask_end()
       call Pack_end()
