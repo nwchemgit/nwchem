@@ -1451,12 +1451,12 @@ c         call Pack_cc_Sum(0,dng,dcpl_mb(exi(1)),dng)
 *     ********************************
       subroutine psi_translate(trans,npack1,nemax,psi)
       implicit none
-#include "errquit.fh"
       real*8 trans(3)
       integer npack1,nemax
       complex*16 psi(npack1,nemax)
 
 #include "bafdecls.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       logical value
