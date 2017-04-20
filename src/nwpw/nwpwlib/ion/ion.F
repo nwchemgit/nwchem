@@ -124,8 +124,7 @@
      >    (control_code().eq.11).or.
      >    (control_code().eq.12).or.
      >    (control_code().eq.13).or.
-     >    (control_code().eq.14).or.
-     >    (control_code().eq.15)) then
+     >    (control_code().eq.14)) then
         value = beom_rtdb_store(rtdb,geom,'pspwgeometry')
       end if
       value = beom_destroy(geom)
@@ -142,8 +141,7 @@
      >    (control_code().eq.11).or.
      >    (control_code().eq.12).or.
      >    (control_code().eq.13).or.
-     >    (control_code().eq.14).or.
-     >    (control_code().eq.15)) then
+     >    (control_code().eq.14)) then
 
 
 *       *****************************************
@@ -881,6 +879,34 @@ c         eki1=0.5d0*eki1
       ion_q = q
       return
       end
+
+*     ***********************
+*     *	  	            *
+*     *	     ion_tandq	    *
+*     *			    *
+*     ***********************
+      subroutine ion_tandq(i,t,q)
+      implicit none
+      integer i
+      character*16 t
+      real*8 q
+
+#include "stdio.fh"
+#include "beom.fh"
+#include "errquit.fh"
+
+      integer geom
+      common / ION2/ geom
+
+*     **** local variables ****
+      real*8 rxyz(3)
+
+      if (.not.beom_cent_get(geom,i,t,rxyz,q))
+     >  call errquit('ion_tandq:beom_cent_get failed ',i,GEOM_ERR)
+
+      return
+      end 
+
 
 
 
@@ -1808,6 +1834,80 @@ c      end do
         r1(i,ii) = r1(i,ii) + t(i)
       end do
       end do
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *      ion_translate_reorder	*
+*     *					*
+*     ***********************************
+
+      subroutine ion_translate_reorder(trans)
+      implicit none
+      real*8 trans(3)
+
+#include "bafdecls.fh"
+#include "ion.fh"
+
+      integer  ion_katm_ptr
+      external ion_katm_ptr
+
+      call ion_trans_reorder_sub(nion,int_mb(ion_katm_ptr()),
+     >                   trans,dbl_mb(r1(1)),dbl_mb(r2(1)))
+
+*     *** make sure ions are in the cell ***
+      if (periodic) then
+         call incell1(nion_qm,dbl_mb(r1(1)))
+         call pspw_qmmm_incell1(dbl_mb(r1(1)))
+      end if
+
+      return
+      end
+      subroutine ion_trans_reorder_sub(nion,katm,t,r1,r2)
+      integer nion,katm(*)
+      real*8 t(3)
+      real*8 r1(3,nion)
+      real*8 r2(3,nion)
+      integer i,ii,jj,ia,ja,jjmin
+      real*8  x,y,z,d2,d2min
+      do ii=1,nion
+      do i=1,3
+        r2(i,ii) = r1(i,ii) + t(i)
+      end do
+      end do
+
+      do ii=1,nion
+         ia = katm(ii)
+         d2min = 9.9d9
+         jjmin = ii
+         do jj=1,nion
+            ja = katm(jj)
+            if ((ia.eq.ja).and.(r2(1,jj).lt.8.0d9)) then
+               x = r1(1,ii)-r2(1,jj)
+               y = r1(2,ii)-r2(2,jj)
+               z = r1(3,ii)-r2(3,jj)
+               d2 = x*x+y*y+z*z
+               if (d2.lt.d2min) then
+                  d2min = d2
+                  jjmin = jj
+               end if
+            end if
+         end do
+         r1(1,ii) = r2(1,jjmin)
+         r1(2,ii) = r2(2,jjmin)
+         r1(3,ii) = r2(3,jjmin)
+         r2(1,jjmin) = 9.9d9
+         r2(2,jjmin) = 9.9d9
+         r2(3,jjmin) = 9.9d9
+      end do
+
+      do ii=1,nion
+      do i=1,3
+        r2(i,ii) = 0.0d0
+      end do
+      end do
+
       return
       end
 
@@ -3246,6 +3346,119 @@ c
       return
       end
 
+*     ***************************
+*     *                         *
+*     *      ion_rion_load      *
+*     *                         *
+*     ***************************
+      subroutine ion_rion_load(rtdb,name1)
+      implicit none
+      integer rtdb
+      character*(*) name1
+
+#include "stdio.fh"
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "beom.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+      logical oprint
+      integer nion1,geom1,r11
+
+*     **** external functions ****
+      integer  ion_rion_ptr
+      external ion_rion_ptr
+
+      call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER)
+      r11 = ion_rion_ptr()
+
+*     **** load name1 geometry ****
+      if (.not.beom_create(geom1,name1))
+     >   call errquit('ion_rion_load: beom_create?',1,GEOM_ERR)
+
+      if (.not.beom_rtdb_load(rtdb,geom1,name1)) then
+         if (oprint)
+     >      write(luout,*) "ion_rion_load: Cannot load geometry:",
+     >                 name1
+         if (.not.beom_destroy(geom1))
+     >      call errquit('ion_rion_load:beom_destroy?',2,GEOM_ERR)
+         return
+      end if
+
+      if (.not.beom_ncent(geom1,nion1))
+     >   call errquit('ion_rion_load: beom_ncent?',3,GEOM_ERR)
+
+      call dcopy(3*nion1,0.0d0,0,dbl_mb(r11),1)
+
+      if (.not. beom_cart_coords_get(geom1,
+     >                          dbl_mb(r11)))
+     >   call errquit('ion_rion_load: geom cart?',4,GEOM_ERR)
+
+      if (.not.beom_destroy(geom1))
+     >   call errquit('ion_rion_load: beom_destroy?',5,GEOM_ERR)
+
+      return
+      end 
+
+
+*     ***************************
+*     *                         *
+*     *      ion_rion_save      *
+*     *                         *
+*     ***************************
+      subroutine ion_rion_save(rtdb,name1)
+      implicit none
+      integer rtdb
+      character*(*) name1
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "beom.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer nion1,geom1,r11,ii
+      real*8 q
+      character*16 t
+
+
+*     **** external functions ****
+      integer  ion_rion_ptr,ion_nion
+      external ion_rion_ptr,ion_nion
+
+      r11 = ion_rion_ptr()
+      nion1 = ion_nion()
+
+*     **** create name1 geometry ****
+      if (.not.beom_create(geom1,name1))
+     >   call errquit('ion_rion_save: beom_create?',1,GEOM_ERR)
+
+      if (.not.beom_ncent_set(geom1,nion1))
+     >   call errquit('ion_rion_save: beom_ncent_set?',2,GEOM_ERR)
+
+      do ii=1,nion1
+         call ion_tandq(ii,t,q)
+         if (.not.beom_cent_set(geom1,ii,t,dbl_mb(r11+(ii-1)*3),q))
+     >      call errquit('ion_rion_save: beom_cent_set?',3,GEOM_ERR)
+      end do
+
+      if (.not.beom_rtdb_delete(rtdb,name1))
+     >   call errquit('ion_rion_save: beom_rtdb_delete?',4,GEOM_ERR)
+
+      if (.not.beom_rtdb_store(rtdb,geom1,name1))
+     >   call errquit('ion_rion_save: beom_rtdb_store?',5,GEOM_ERR)
+
+      if (.not.beom_destroy(geom1))
+     >   call errquit('ion_rion_save: beom_destroy?',6,GEOM_ERR)
+
+      return
+      end 
+
 
 
 *     ***************************
@@ -3259,6 +3472,7 @@ c
       integer rtdb
       character*(*) name1
 
+#include "stdio.fh"
 #include "bafdecls.fh"
 #include "btdb.fh"
 #include "beom.fh"
@@ -3285,7 +3499,7 @@ c
 
       if (.not.beom_rtdb_load(rtdb,geom,name1)) then
          if (oprint)
-     >      write(*,*) "ion_load_extra_geom: Cannot load geometry:",
+     >      write(luout,*) "ion_load_extra_geom: Cannot load geometry:",
      >                 name1
          if (.not.beom_destroy(geom))
      >      call errquit('ion_load_extra_geom:beom_destroy?',1,GEOM_ERR)

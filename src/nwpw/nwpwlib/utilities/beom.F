@@ -164,6 +164,37 @@
 
 *     ******************************************
 *     *                                        *
+*     *             beom_ncent_set             *
+*     *                                        *
+*     ******************************************
+
+*   This is a wrapper around geom_ncent_set to make it thread safe.
+      
+      logical function beom_ncent_set(geom, ncent)
+      implicit none
+      integer geom
+      integer ncent
+
+
+#include "geom.fh"
+
+      !integer omp_geom
+      !logical omp_ok
+      !common / omp_memhandle_geom / omp_geom,omp_ok
+      logical ok
+
+!$OMP SINGLE
+      ok = geom_ncent_set(geom, ncent)
+!$OMP END SINGLE copyprivate(ok)
+      beom_ncent_set = ok
+      return
+      end
+
+
+
+
+*     ******************************************
+*     *                                        *
 *     *             beom_cent_get              *
 *     *                                        *
 *     ******************************************

@@ -22,6 +22,9 @@
       logical beom_cent_set
       external beom_cent_set
 
+      logical beom_ncent_set
+      external beom_ncent_set
+
       logical beom_cent_get
       external beom_cent_get
 

@@ -1799,6 +1799,32 @@ c         mtensor(3,3) = z
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *  control_translate_geom_name    *
+*     *                                 *
+*     ***********************************
+      subroutine control_translate_geom_name(geom_name)
+      implicit none
+      character*(*) geom_name
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+
+      if (.not.btdb_cget(rtdb,'nwpw:translate_geom_name',
+     >                  1,geom_name)) then
+         geom_name = "translated_geometry"
+      end if
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *					*
