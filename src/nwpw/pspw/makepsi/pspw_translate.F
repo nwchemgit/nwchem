@@ -36,6 +36,8 @@ c Translates the ions and wavefunctions
       real*8  rshift(3)
       real*8  cx,cy,cz,gx,gy,gz
 
+      character*50 geom_name
+
 *     **** psi smearing block ****
       logical fractional
       integer smearoccupation
@@ -64,8 +66,8 @@ c Translates the ions and wavefunctions
       character*9 ion_amm
       external    ion_amm
 
-      !character*50 control_input_psi,control_output_psi
-      !external     control_input_psi,control_output_psi
+      character*50 control_input_psi,control_output_psi
+      external     control_input_psi,control_output_psi
 
       value = .true.
 
@@ -148,14 +150,16 @@ c Translates the ions and wavefunctions
       call psi_read(ispin,ne,dcpl_mb(psi(1)),
      >              smearoccupation,dbl_mb(occ(1)))
 
-*     ****  get the translate vector ****
+*     ****  get the translate vector and output geom_name ****
       call control_translate_vector(rshift)
+      call control_translate_geom_name(geom_name)
+
 
 
       if (oprint) then
-         !write(luout,109) control_input_psi()
-         !write(luout,110) control_output_psi()
-
+         write(luout,109) control_input_psi()
+         write(luout,110) control_output_psi()
+         write(luout,115) geom_name
          write(luout,120) rshift
 
 
@@ -198,7 +202,7 @@ c Translates the ions and wavefunctions
       end if
 
 *     ****  translate the ions and wavefunctions ****
-      call ion_translate(rshift)
+      call ion_translate_reorder(rshift)
       call psi_translate(rshift,
      >                   npack1,(ne(1)+ne(2)),
      >                   dcpl_mb(psi(1)))
@@ -225,10 +229,10 @@ c Translates the ions and wavefunctions
      >               smearoccupation,dbl_mb(occ(1)))
 
 *     ***** write the ions positions *****
-      call ion_write(rtdb)
+      call ion_rion_save(rtdb,geom_name)
 
 *     **** deallocate heap memory ****
-      !call ion_destroy()
+      call ion_write(rtdb)
       call ion_end()
       call strfac_end()
       !call psp_end()
@@ -257,6 +261,7 @@ c Translates the ions and wavefunctions
 *:::::::::::::::::::::::::::  format  :::::::::::::::::::::::::::::::::
   109 format(/' input filename : ',A)
   110 format(' output filename: ',A)
+  115 format(/' geometry name: ',A)
   120 format(/,' translate vector=<',3f8.3,' >')
 
  1000 FORMAT(10X,'****************************************************')
