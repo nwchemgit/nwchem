@@ -1062,8 +1062,14 @@ c         eki1=0.5d0*eki1
       integer dof
       double precision ave,T
 
+*     **** external functions ****
+      logical  control_dof_translation,control_dof_rotation
+      external control_dof_translation,control_dof_rotation
+
       T = 0.0d0
       dof = 3*nion-6-nconstraints
+      if (control_dof_translation()) dof = dof + 3
+      if (control_dof_rotation())    dof = dof + 3
       if (dof<1) dof = 1
       ave = (ke_total/dble(ke_count))
       T = 2.0d0*ave/dble(dof)/kb
@@ -2860,8 +2866,15 @@ c      end do
 
       integer dof
 
+*     **** external functions ****
+      logical  control_dof_translation,control_dof_rotation
+      external control_dof_translation,control_dof_rotation
+
 !$OMP MASTER
       dof = 3*nion - 6 - nconstraints
+      if (control_dof_translation()) dof = dof + 3
+      if (control_dof_rotation())    dof = dof + 3
+
       if (dof<1) dof = 1
 
       ion_ndof = dof

@@ -22,7 +22,7 @@
       integer MASTER,taskid
       parameter (MASTER=0)
 
-      logical value,np_default,value2
+      logical value,np_default,value2,value3
       integer ispin0,ne(2),nbrill,np1,np2
       integer nmult(5)
       real*8  error,thresh
@@ -263,8 +263,19 @@ c         call nwxc_print()
       if(.not.btdb_get(rtdb,'cpsd:ispin',mt_int,1,ispin))
      >    ispin=1
 
-      if (.not.btdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
-     >  rotation = .true.
+      value3 = .false.
+      if (.not.btdb_get(rtdb,'nwpw:dof_rotation',mt_log,1,dof_rotation))
+     >    then
+        dof_rotation = .false.
+        value3= .true.
+      end if
+
+      if (.not.btdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation)) then
+         rotation = .true.
+      else
+         if (value3) dof_rotation = rotation
+      end if
+
 
       if (.not.btdb_get(rtdb,'nwpw:spin_orbit',mt_log,1,spin_orbit))
      > spin_orbit=.false.
@@ -384,8 +395,18 @@ c         call nwxc_print()
       if (.not.btdb_get(rtdb,'cpmd:fei_quench',mt_log,1,fei_quench))
      >  fei_quench = .false.
 
-      if (.not.btdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
-     >  rotation = .true.
+      value3 = .false.
+      if (.not.btdb_get(rtdb,'nwpw:dof_rotation',mt_log,1,dof_rotation))
+     >    then
+        dof_rotation = .false.
+        value3= .true.
+      end if
+
+      if (.not.btdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation)) then
+         rotation = .true.
+      else
+         if (value3) dof_rotation = rotation
+      end if
 
 
 *     **** get thermostat information ****
@@ -565,8 +586,19 @@ c         call nwxc_print()
       if (.not.btdb_get(rtdb,'nwpw:bo_fake_mass',mt_dbl,1,bo_fake_mass))
      >   bo_fake_mass = 500.0d0
 
-      if (.not.btdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
-     >  rotation = .true.
+      value3 = .false.
+      if (.not.btdb_get(rtdb,'nwpw:dof_rotation',mt_log,1,dof_rotation))
+     >    then
+        dof_rotation = .false.
+        value3= .true.
+      end if
+
+      if (.not.btdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))  then
+         rotation = .true.
+      else
+         if (value3) dof_rotation = rotation
+      end if
+
 
       SA = .true.
       if (.not.btdb_get(rtdb,'nwpw:sa_decay',mt_dbl,2,sa_decay)) then
@@ -942,8 +974,18 @@ c         call nwxc_print()
       if (.not.btdb_get(rtdb,'cpmd:fei_quench',mt_log,1,fei_quench))
      >  fei_quench = .false.
 
-      if (.not.btdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
-     >  rotation = .true.
+      value3 = .false.
+      if (.not.btdb_get(rtdb,'nwpw:dof_rotation',mt_log,1,dof_rotation))
+     >    then
+        dof_rotation = .false.
+        value3= .true.
+      end if
+
+      if (.not.btdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation)) then
+         rotation = .true.
+      else
+         if (value3) dof_rotation = rotation
+      end if
 
 *     **** get thermostat information ****
       if (.not.btdb_get(rtdb,'cpmd:nose',mt_log,1,nose))
@@ -1207,6 +1249,7 @@ c         return
 
 *     **** set translation ***
       translation = control_allow_translation()
+      dof_translation = translation
       
 *     **** set two component pseudopotential
       two_comp_ppot = .false.      
@@ -1756,7 +1799,19 @@ c         mtensor(3,3) = z
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *      control_dof_rotation       *
+*     *                                 *
+*     ***********************************
+      logical function control_dof_rotation()
+      implicit none
 
+#include "control.fh"
+
+      control_dof_rotation = dof_rotation
+      return
+      end
 
 *     ***********************************
 *     *                                 *
@@ -1771,6 +1826,23 @@ c         mtensor(3,3) = z
       control_translation = translation
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *     control_dof_translation     *
+*     *                                 *
+*     ***********************************
+      logical function control_dof_translation()
+      implicit none
+
+#include "control.fh"
+
+      control_dof_translation = dof_translation
+      return
+      end
+
+
+
 
 
 *     ***********************************

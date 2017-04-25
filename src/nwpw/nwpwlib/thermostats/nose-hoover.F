@@ -39,7 +39,7 @@
       real*8   control_Nose_Pr
       real*8   control_Nose_Tr
       real*8   ion_amass
-      integer  ion_nion,control_rtdb,ion_nconstraints
+      integer  ion_nion,control_rtdb,ion_nconstraints,ion_ndof
       
       external control_fake_mass
       external control_Nose_Pe
@@ -47,7 +47,7 @@
       external control_Nose_Pr
       external control_Nose_Tr
       external ion_amass
-      external ion_nion,control_rtdb,ion_nconstraints
+      external ion_nion,control_rtdb,ion_nconstraints,ion_ndof
      
 
 *     ************************************
@@ -122,7 +122,8 @@ c      Xr2 = 0.0d0
 
 *     **** Set Er0(1) = (1/2)*(g*k*T), where g=number of degrees of freedom ****
 *     **** Dimer molecule. note that the above formula may not work for linear molecules with more than two atoms. ****
-      g = 3*ion_nion()-6-ion_nconstraints()
+      !g = 3*ion_nion()-6-ion_nconstraints()
+      g = ion_ndof()
       if (g.lt.1) g = 1
       dbl_mb(Er0(1)) = 0.5d0*g*kb*Tr
 
