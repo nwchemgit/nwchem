@@ -1798,6 +1798,30 @@ c         mtensor(3,3) = z
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *    control_translate_reorder    *
+*     *                                 *
+*     ***********************************
+      subroutine control_translate_reorder(reorder)
+      implicit none
+      logical reorder
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      if (.not.btdb_get(rtdb,'nwpw:translate_reorder',
+     >                  mt_log,1,reorder)) then
+         reorder = .true.
+      end if
+      return
+      end
+
+
 
 *     ***********************************
 *     *                                 *

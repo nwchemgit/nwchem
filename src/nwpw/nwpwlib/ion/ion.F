@@ -1870,7 +1870,8 @@ c      end do
       real*8 r1(3,nion)
       real*8 r2(3,nion)
       integer i,ii,jj,ia,ja,jjmin
-      real*8  x,y,z,d2,d2min
+      real*8  x,y,z,dd,ddmin
+
       do ii=1,nion
       do i=1,3
         r2(i,ii) = r1(i,ii) + t(i)
@@ -1879,17 +1880,18 @@ c      end do
 
       do ii=1,nion
          ia = katm(ii)
-         d2min = 9.9d9
+         ddmin = 9.9d9
          jjmin = ii
          do jj=1,nion
             ja = katm(jj)
-            if ((ia.eq.ja).and.(r2(1,jj).lt.8.0d9)) then
+            if ((ia.eq.ja).and.(r2(1,jj).lt.8.0d6)) then
                x = r1(1,ii)-r2(1,jj)
                y = r1(2,ii)-r2(2,jj)
                z = r1(3,ii)-r2(3,jj)
-               d2 = x*x+y*y+z*z
-               if (d2.lt.d2min) then
-                  d2min = d2
+               call lattice_min_difference(x,y,z)
+               dd = x*x + y*y + z*z
+               if (dd.lt.ddmin) then
+                  ddmin = dd
                   jjmin = jj
                end if
             end if
