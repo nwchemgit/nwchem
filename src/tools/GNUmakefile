@@ -535,7 +535,8 @@ ifdef USE_GAGITHUB
     GA_BRANCH = develop
   else
     ifdef GA_BRANCH
-     GA_DIR = ga-$(GA_BRANCH)
+      GA_DIR0=ga-$(GA_BRANCH)
+      GA_DIR=$(shell echo $(GA_DIR0) | sed -e 's/\//_/g')
     else
      GA_DIR = ga-5-6
      GA_BRANCH = release/5.6
