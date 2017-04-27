@@ -648,7 +648,7 @@ C
      2    use_trpdrv_omp=.false.
       if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_omp_mp', mt_log, 1,
      1                   use_trpdrv_omp_mp))
-     2    use_trpdrv_omp=.false.
+     2    use_trpdrv_omp_mp=.false.
       if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_offload', mt_log, 1,
      1                   use_trpdrv_offload))
      2    use_trpdrv_offload=.false.
@@ -923,6 +923,7 @@ c
      $        dbl_mb(k_trp_Kij), dbl_mb(k_trp_Kkj), dbl_mb(k_trp_Dja),
      $        dbl_mb(k_trp_Djka), dbl_mb(k_trp_Djia))
 #else
+         call errquit('aoccsd: trpdrv_omp_mixprec disabled ',0,0)
 #endif
 c
          elseif (use_trpdrv_nb) then
