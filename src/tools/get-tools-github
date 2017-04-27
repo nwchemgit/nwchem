@@ -37,7 +37,8 @@ else
   then
     if test "x$GA_DIR" = x
     then
-       GA_DIR=ga-"$GA_BRANCH"
+       GA_DIR0=ga-"$GA_BRANCH"
+       GA_DIR=`echo $GA_DIR0 | sed -e 's/\//_/g'`
     fi
   else
      GA_DIR=ga-5-6
