@@ -210,9 +210,9 @@ c
       double precision function drandm(iflag)
       implicit none
       integer iflag
-      double precision drand
-      external drand
-      drandm = drand(iflag)
+      double precision util_random
+      external util_random
+      drandm = util_random(iflag)
       end
       subroutine testpcg
       implicit none

@@ -199,7 +199,6 @@ c     if (me.eq.0) print*,' '
       parameter (m = 2*n)
       double precision a(n,n),  err
       integer g_a, g_b,  d_a
-      double precision drand
       integer i,j, req, loop
       integer dilo,dihi,djlo,djhi
       integer gilo,gihi,gjlo,gjhi
@@ -207,9 +206,10 @@ c     if (me.eq.0) print*,' '
       integer me, nproc
       integer iran
       logical status
-      external  drand
+      double precision util_random
+      external  util_random
       intrinsic int, dble
-      iran(i) = int(drand(0)*dble(i-1)) + 1
+      iran(i) = int(util_random(0)*dble(i-1)) + 1
 c    
       loop  = 30
       nproc = ga_nnodes()
