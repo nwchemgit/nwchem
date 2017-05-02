@@ -62,8 +62,8 @@ c     Variables for vector projection
 c
       integer natoms, iat, ihi, ilo, jlo, jhi, i, j
       double precision temp
-      double precision drand
-      external drand
+      double precision util_random
+      external util_random
 c     
 c     variables for reading movecs
 c
@@ -251,10 +251,10 @@ c      if (.not. ma_push_get(mt_dbl, nbf_all, 'diag elements',
 c     $     l_ran, k_ran)) call errquit
 c     $     ('rohf_scat: ma diag elements', nbf_all)
 c
-      temp = drand(ga_nodeid()*314159+1)
+      temp = util_random(ga_nodeid()*314159+1)
       do i = nbf+1+ga_nodeid(), nbf_all, ga_nnodes()
          do j = 1, nbf_all
-            dbl_mb(k_ran+j-1) = (drand(0) - 0.5d0)
+            dbl_mb(k_ran+j-1) = (util_random(0) - 0.5d0)
          enddo
          call ga_put(g_all, 1, nbf_all, i, i, dbl_mb(k_ran), 1)
       end do
