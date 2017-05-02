@@ -55,8 +55,8 @@ c
       double precision oversample, total_time
 c
       double precision fastj_gaussian_range, potential
-      double precision drand, fastj_r_neglected
-      external fastj_gaussian_range, potential, drand
+      double precision  fastj_r_neglected
+      external fastj_gaussian_range, potential
       external fastj_r_neglected
 c
 c     Initialize radial fits of potentials due to gaussians
@@ -368,12 +368,12 @@ c
          errrelrms = 0.0d0
          nbig = 0
          do i = 1, ntest
-*            x = xlo + 2.0d0*hx_fmm + drand(0)*(xhi-xlo-4.0d0*hx_fmm)
-*            y = ylo + 2.0d0*hy_fmm + drand(0)*(yhi-ylo-4.0d0*hy_fmm)
-*            z = zlo + 2.0d0*hz_fmm + drand(0)*(zhi-zlo-4.0d0*hz_fmm)
- 333        x = xlo + hx_fmm + drand(0)*(xhi-xlo-2.0d0*hx_fmm)
-            y = ylo + hy_fmm + drand(0)*(yhi-ylo-2.0d0*hy_fmm)
-            z = zlo + hz_fmm + drand(0)*(zhi-zlo-2.0d0*hz_fmm)
+*            x = xlo + 2.0d0*hx_fmm + util_random(0)*(xhi-xlo-4.0d0*hx_fmm)
+*            y = ylo + 2.0d0*hy_fmm + util_random(0)*(yhi-ylo-4.0d0*hy_fmm)
+*            z = zlo + 2.0d0*hz_fmm + util_random(0)*(zhi-zlo-4.0d0*hz_fmm)
+ 333        x = xlo + hx_fmm + util_random(0)*(xhi-xlo-2.0d0*hx_fmm)
+            y = ylo + hy_fmm + util_random(0)*(yhi-ylo-2.0d0*hy_fmm)
+            z = zlo + hz_fmm + util_random(0)*(zhi-zlo-2.0d0*hz_fmm)
             if ((x-xlo).lt.2*hx_fmm .or. (y-ylo).lt.2*hy_fmm .or.
      $           (z-zlo).lt.2*hz_fmm .or. (xhi-x).lt.2*hx_fmm .or.
      $           (yhi-y).lt.2*hy_fmm .or. (zhi-z).lt.2*hz_fmm) then
@@ -436,9 +436,9 @@ c
          stop
 c$$$         start = util_cpusec()
 c$$$         do i = 1, 100
-c$$$            x = xlo + 2.0d0*hx_fmm + drand(0)*(xhi-xlo-4.0d0*hx_fmm)
-c$$$            y = ylo + 2.0d0*hy_fmm + drand(0)*(yhi-ylo-4.0d0*hy_fmm)
-c$$$            z = zlo + 2.0d0*hz_fmm + drand(0)*(zhi-zlo-4.0d0*hz_fmm)
+c$$$            x = xlo + 2.0d0*hx_fmm + util_random(0)*(xhi-xlo-4.0d0*hx_fmm)
+c$$$            y = ylo + 2.0d0*hy_fmm + util_random(0)*(yhi-ylo-4.0d0*hy_fmm)
+c$$$            z = zlo + 2.0d0*hz_fmm + util_random(0)*(zhi-zlo-4.0d0*hz_fmm)
 c$$$            test1 = fastj_eval_point(data, x, y, z)
 c$$$         end do
 c$$$         used = (util_cpusec()-start)/100

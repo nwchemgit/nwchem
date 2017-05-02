@@ -3,8 +3,8 @@
 * $Id$
 *
       integer lmax, npoly, numl, lmax2
-      double precision drand
-      external drand
+      double precision util_random
+      external util_random
       parameter (lmax = 3, npoly = 7)
       parameter (lmax2 = lmax+lmax)
       parameter (numl = (lmax+1)*(lmax+2)*(lmax+3)/6)
@@ -22,7 +22,7 @@
      $     dinv(((lmax2+1)*(lmax2+2)*(lmax2+3))/6, -lmax2:lmax2,0:lmax2)
       double precision q(-lmax2:lmax2,0:lmax2)
 c
-      junk = drand(55512121)
+      junk = util_random(55512121)
       call xlm_init
       call xlm_coeff_inv(lmax2,d,dinv)
 c
@@ -33,19 +33,19 @@ c
                do j = l-i,0,-1
                   k = l-i-j
                   ijk = ijk + 1
-                  scoeff(m,ijk) = drand(0) - 0.5d0
+                  scoeff(m,ijk) = util_random(0) - 0.5d0
                   coeff(m,ijk) = scoeff(m,ijk)
                enddo
             enddo
          enddo
       enddo
 c
-      a = drand(0)-0.5d0
-      b = drand(0)-0.5d0
-      c = drand(0)-0.5d0
-      x = drand(0)-0.5d0
-      y = drand(0)-0.5d0
-      z = drand(0)-0.5d0
+      a = util_random(0)-0.5d0
+      b = util_random(0)-0.5d0
+      c = util_random(0)-0.5d0
+      x = util_random(0)-0.5d0
+      y = util_random(0)-0.5d0
+      z = util_random(0)-0.5d0
       write(6,1) ' New center ', a, b, c
       write(6,1) ' Target     ', x, y, z
  1    format(a,3f12.6)
@@ -74,14 +74,14 @@ c
       write(6,*) ' Err from translation of poly ', err
 c
       do i = 1, numl**2
-         dens(i) = drand(0) - 0.5d0
+         dens(i) = util_random(0) - 0.5d0
       enddo
-      x1 = drand(0)-0.5d0
-      y1 = drand(0)-0.5d0
-      z1 = drand(0)-0.5d0
-      x2 = drand(0)-0.5d0
-      y2 = drand(0)-0.5d0
-      z2 = drand(0)-0.5d0
+      x1 = util_random(0)-0.5d0
+      y1 = util_random(0)-0.5d0
+      z1 = util_random(0)-0.5d0
+      x2 = util_random(0)-0.5d0
+      y2 = util_random(0)-0.5d0
+      z2 = util_random(0)-0.5d0
 c
       write(6,1) ' New center ', a, b, c
       write(6,1) ' Center1    ', x1, y1, z1

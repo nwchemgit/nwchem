@@ -9,7 +9,7 @@ c
       double precision g(n,n,n), f(n)
       integer i, j, k
       double precision x, y, z, value, tn_interp_3d_point, test
-      double precision drand, tn_cube_eval, xx, yy, zz, maxerr
+      double precision util_random, tn_cube_eval, xx, yy, zz, maxerr
 c
       do i = 1, n
          f(i) = 1 + 0.5d0*(i-1 + 0.5d0*(i-1))
@@ -28,9 +28,9 @@ c
 c
       maxerr = 0.0d0
       do i = 1, 2000
-         x = drand(0)*n + 1
-         y = drand(0)*n + 1
-         z = drand(0)*n + 1
+         x = util_random(0)*n + 1
+         y = util_random(0)*n + 1
+         z = util_random(0)*n + 1
 *         value = tn_interp_3d_point(g,n,n,n,x,y,z,order)
          test = exp(-dble(x+y+z)**2 / dble(n)**2)
 

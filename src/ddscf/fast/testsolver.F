@@ -33,7 +33,7 @@ c
       integer order, ninterp, ilo, jlo, klo
 c     
       double precision fnlm, vnlm, fmm_potential,
-     $     tn_interp_3d_point, drand
+     $     tn_interp_3d_point, util_random
       external fnlm, vnlm, fmm_potential
 c     
       if (.not. ma_init(mt_dbl, 64000000, 64000000)) call errquit
@@ -115,13 +115,16 @@ c
       kk = 0
       do order = 3,maxorder,2
          call tn_fitting_matrix(order,order+3,qfit)
-         errmax = drand(12345)  ! So that always look at the same points
+         errmax = util_random(12345)  ! So that always look at the same points
          errmax = 0.0d0
          errrms = 0.0d0
          do lll = 1, numsample
-            x = xlo + 2.0d0*hx_fmm + drand(0)*(xhi-xlo-4.0d0*hx_fmm)
-            y = ylo + 2.0d0*hy_fmm + drand(0)*(yhi-ylo-4.0d0*hy_fmm)
-            z = zlo + 2.0d0*hz_fmm + drand(0)*(zhi-zlo-4.0d0*hz_fmm)
+            x = xlo + 2.0d0*hx_fmm + util_random(0)*
+     X           (xhi-xlo-4.0d0*hx_fmm)
+            y = ylo + 2.0d0*hy_fmm + util_random(0)*
+     Y           (yhi-ylo-4.0d0*hy_fmm)
+            z = zlo + 2.0d0*hz_fmm + util_random(0)*
+     Z           (zhi-zlo-4.0d0*hz_fmm)
 c     
             ninterp = order+1+2 ! Works best of all options tried
             ilo = max(1, int((x-xlo)/hx)-ninterp/2)

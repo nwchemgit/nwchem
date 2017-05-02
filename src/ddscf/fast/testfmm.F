@@ -13,10 +13,10 @@ c
       double precision poles((lmax+1)**2,
      $     0:2**depth-1,0:2**depth-1,0:2**depth-1)
       double precision work(lwork), poles0(-lmax:lmax,0:lmax)
-      double precision fmm_potential, direct_sum, drand
+      double precision fmm_potential, direct_sum, util_random
       double precision fmm_direct_potential
       external fmm_potential, fmm_direct_potential, direct_sum, 
-     $     drand
+     $     util_random
       double precision x, y, z, dimx, dimy, dimz, time
       real*4 etime, stuff(2)
 c
@@ -39,10 +39,10 @@ c
       dimy = 1.0d0
       dimz = 1.0d0
       do i = 1, ncharge
-         charges(i) = drand(0)-0.5d0
-         coords(1,i)= drand(0)
-         coords(2,i)= drand(0)
-         coords(3,i)= drand(0)
+         charges(i) = util_random(0)-0.5d0
+         coords(1,i)= util_random(0)
+         coords(2,i)= util_random(0)
+         coords(3,i)= util_random(0)
 *         write(6,77) charges(i), (coords(j,i),j=1,3)
 * 77      format(f12.6,2x,3f12.6)
       enddo
@@ -84,9 +84,9 @@ c
       err = 0.0d0
       relerr = 0.0d0
       do i = 1, ntest
-         x = drand(0)
-         y = drand(0)
-         z = drand(0)
+         x = util_random(0)
+         y = util_random(0)
+         z = util_random(0)
          far = fmm_potential(lmax,depth,dimx,dimy,dimz,poles,x,y,z)
          near = fmm_direct_potential(
      $        lmax, depth, dimx, dimy, dimz, x, y, z,
