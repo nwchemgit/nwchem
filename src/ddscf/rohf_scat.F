@@ -62,8 +62,6 @@ c     Variables for vector projection
 c
       integer natoms, iat, ihi, ilo, jlo, jhi, i, j
       double precision temp
-      double precision util_random
-      external util_random
 c     
 c     variables for reading movecs
 c
