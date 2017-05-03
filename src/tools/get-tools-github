@@ -41,8 +41,10 @@ else
        GA_DIR=`echo $GA_DIR0 | sed -e 's/\//_/g'`
     fi
   else
-     GA_DIR=ga-5-6
-     GA_BRANCH=release/5.6
+#     GA_DIR=ga-5-6
+#     GA_BRANCH=release/5.6
+     GA_DIR=ga-5-6-1
+     GA_BRANCH=hotfix/5.6.1
   fi
 fi
 GA_GIT="https://github.com/GlobalArrays/ga.git  -b $GA_BRANCH"
@@ -68,16 +70,7 @@ then
         echo "Finished updating existing $GA_DIR"
     else
         echo "Failed updating existing $GA_DIR"
-        echo "Attempting to remove $GA_DIR"
-        cd $TOOLDIR
-        if rm -rf $GA_DIR
-        then
-            echo "Checking out $GA_GIT" $GA_BRANCH $GA_DIR
-            git clone $GA_GIT $GA_DIR
-        else
-            echo "Failed to remove $GA_DIR"
-            echo "get-tools has failed"
-        fi
+        exit 1
     fi
     cd $TOOLDIR
 else

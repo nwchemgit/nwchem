@@ -538,8 +538,10 @@ ifdef USE_GAGITHUB
       GA_DIR0=ga-$(GA_BRANCH)
       GA_DIR=$(shell echo $(GA_DIR0) | sed -e 's/\//_/g')
     else
-     GA_DIR = ga-5-6
-     GA_BRANCH = release/5.6
+#     GA_DIR = ga-5-6
+#     GA_BRANCH = release/5.6
+     GA_DIR = ga-5-6-1
+     GA_BRANCH = hotfix/5.6.1
     endif
   endif
 else
@@ -593,7 +595,7 @@ $(INSTALLDIR)/lib/libga.a: $(BUILDDIR)/.libs/libga.a
 	@echo ''
 	@(cd $(BUILDDIR) && $(MAKE) install) || exit 1
 
-$(BUILDDIR)/.libs/libga.a: update_ga $(BUILDDIR)/Makefile $(BUILDDIR)/armci/Makefile
+$(BUILDDIR)/.libs/libga.a:  $(BUILDDIR)/Makefile $(BUILDDIR)/armci/Makefile
 	@echo ''
 	@echo '*** Building Parallel Tools ****'
 	@echo ''
@@ -648,8 +650,6 @@ clean:
 
 realclean:
 	@rm -rf $(BUILDDIR) $(INSTALLDIR)
-update_ga:
-	@ $(GET_TOOLS)
 
 
 #
