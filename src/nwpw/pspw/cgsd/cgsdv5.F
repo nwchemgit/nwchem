@@ -859,7 +859,7 @@ c      call frac_occ_end()
  1262 FORMAT(5X,' paw integration: xc lmax=',I3,
      >          ' compensation charge= ',A)
  1270 FORMAT(/' technical parameters:')
- 1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
+ 1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
  1290 FORMAT(5X, ' tolerance=',E9.3,' (energy)',E12.3,

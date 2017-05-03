@@ -876,7 +876,7 @@ c         end if
  1270 FORMAT(/' technical parameters for electronic minimizer:')
  1271 FORMAT(5x, ' translation constrained')
  1272 FORMAT(5x, ' rotation constrained')
- 1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
+ 1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10, 
      >           ' ( ',I4,' inner ',I6,' outer )')
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
@@ -893,7 +893,7 @@ c         end if
  1311 FORMAT(5X, ' Optimization Algorithm= ',A,A)
  1320 FORMAT(5X, ' MC displacement=',F10.2,5X,' iterations=',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
- 1321 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1,
+ 1321 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1,
      >       /5X,' iterations=',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
  1322 FORMAT(5X, ' temperature='F10.3,5x,' beta=',E10.3,' seed=',I10)

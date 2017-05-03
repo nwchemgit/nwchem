@@ -1295,7 +1295,7 @@ c      call frac_occ_end()
  1270 FORMAT(/' technical parameters for minimizer:')
  1271 FORMAT(5x, ' translation constrained')
  1272 FORMAT(5x, ' rotation constrained')
- 1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
+ 1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10, 
      >           ' ( ',I4,' inner ',I6,' outer )')
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
@@ -1311,7 +1311,7 @@ c      call frac_occ_end()
  1310 FORMAT(/' molecular dynamics parameters:')
  1320 FORMAT(5X, ' time step=',F10.2,5X,' iterations=',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
- 1321 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1,
+ 1321 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1,
      >       /5X,' iterations=',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
  1330 FORMAT(5X, ' integration algorithm=   ',A)
