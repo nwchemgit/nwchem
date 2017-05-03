@@ -581,7 +581,11 @@ SPACE :=
 SPACE +=
 STAMP_FC = $(subst /,-,$(subst $(SPACE),-,$(strip $(FC))).FC.stamp)
 STAMP_CC = $(subst /,-,$(subst $(SPACE),-,$(strip $(CC))).CC.stamp)
+ifdef ARMCI_NETWORK
+STAMP_DIR = $(subst $(SPACE),-,$(strip $(GA_DIR))).$(subst $(SPACE),-,$(strip $(ARMCI_NETWORK))).DIR.stamp
+else
 STAMP_DIR = $(subst $(SPACE),-,$(strip $(GA_DIR))).DIR.stamp
+endif
 
 $(INSTALLDIR)/lib/libga.a: $(BUILDDIR)/.libs/libga.a
 	@echo ''
@@ -589,7 +593,7 @@ $(INSTALLDIR)/lib/libga.a: $(BUILDDIR)/.libs/libga.a
 	@echo ''
 	@(cd $(BUILDDIR) && $(MAKE) install) || exit 1
 
-$(BUILDDIR)/.libs/libga.a: $(BUILDDIR)/Makefile $(BUILDDIR)/armci/Makefile
+$(BUILDDIR)/.libs/libga.a: update_ga $(BUILDDIR)/Makefile $(BUILDDIR)/armci/Makefile
 	@echo ''
 	@echo '*** Building Parallel Tools ****'
 	@echo ''
@@ -644,6 +648,9 @@ clean:
 
 realclean:
 	@rm -rf $(BUILDDIR) $(INSTALLDIR)
+update_ga:
+	@ $(GET_TOOLS)
+
 
 #
 # Common targets shared between GNUmakefile's and automake Makefiles
