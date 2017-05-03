@@ -21,7 +21,7 @@ c
       integer iseed
       if(iseed.gt.0) call ranset(iseed)
       util_random=ranf()
-#elif defined(LINUX) 
+#elif defined(LINUX)  || defined (MACX)
       integer iseed
       double precision linux_rand
       external linux_rand
