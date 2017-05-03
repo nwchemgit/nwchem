@@ -1172,7 +1172,7 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
  1261 FORMAT(5X,'                   madelung=',f11.8)
  
  1270 FORMAT(/' technical parameters:')
- 1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
+ 1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (density)')
  1300 FORMAT(//)
