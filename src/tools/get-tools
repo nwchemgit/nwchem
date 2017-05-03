@@ -96,6 +96,7 @@ fi
 if test -d $GA_DIRNAME
 then
     echo "Updating existing $GA_DIRNAME"
+    svn cleanup
     cd $GA_DIRNAME
     svn cleanup
     if svn update --username nwchem --password nwchem
@@ -103,16 +104,17 @@ then
         echo "Finished updating existing $GA_DIRNAME"
     else
         echo "Failed updating existing $GA_DIRNAME"
-        echo "Attempting to remove $GA_DIRNAME"
-        cd $TOOLDIR
-        if rm -rf $GA_DIRNAME
-        then
+        exit 1
+        #echo "Attempting to remove $GA_DIRNAME"
+        #cd $TOOLDIR
+        #if rm -rf $GA_DIRNAME
+        #then
             echo "Checking out $GA_SVN"
             svn checkout $GA_SVN $GA_DIRNAME --username nwchem --password nwchem
-        else
-            echo "Failed to remove $GA_DIRNAME"
-            echo "get-tools has failed"
-        fi
+        #else
+        #    echo "Failed to remove $GA_DIRNAME"
+        #    echo "get-tools has failed"
+        #fi
     fi
     cd $TOOLDIR
 else
