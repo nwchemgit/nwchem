@@ -469,6 +469,22 @@ ifeq ($(SCALAPACK_LIB),)
     endif
 endif
 
+ifeq ($(TARGET),$(findstring $(TARGET),MACX MACX64))
+#gtimeout from brew coreutils is required
+#  GTIMEOUT_YES=$(shell rm -f gtimeout.tmp ;/usr/local/bin/gtimeout  --version > gtimeout.tmp 2>&1; head -1 gtimeout.tmp | awk ' /GNU/ {print "Y";exit};{print "N"}')
+  GTIMEOUT_YES=$(shell /usr/local/bin/zgtimeout  --version 2>&1 | head -1  | awk ' /GNU/ {print "Y";exit};{print "N"}')
+  ifdef USE_GAGITHUB
+  ifeq ($(GTIMEOUT_YES),N)
+    gtimeout_fail:
+	@echo " "
+	@echo "   gtimeout missing"
+	@echo "   Please install coreutils from Homebrew "
+	@echo " "
+	exit 1
+  endif
+  endif
+endif
+
 ifeq ($(TARGET),BGQ)
     FFLAGS_FORGA+=-qsmp
 endif
