@@ -1186,11 +1186,12 @@ c
       integer mapr(3),l_mapc,k_mapc,i,nproc,
      C     nblocks,blksize,nblocksr,
      R     l_mapr,k_mapr,j
+      integer blksize_0,i_switch
 c
       nproc=ga_nnodes()
 c
       nblocks=min(nproc/3,cols)
-      blksize=max(cols/nblocks,1)
+      blksize_0=max(cols/nblocks,1)
 c
       if(ga_nodeid().eq.0.and.oprint) then
          write(6,1) 'nprocs ',nproc
@@ -1258,9 +1259,24 @@ c
             write(6,'(" MM ",5I13)')  i,int_mb(k_mapr+i-1)
          enddo
       endif
+#if 0
+      blksize=blksize_0
       do i=1,nblocks
          int_mb(k_mapc+i-1)=(i-1)*blksize+1
       enddo
+#else
+c     finer load distribution since we might get very large blocks for last proc
+c     with the previous distribution
+      blksize=blksize_0+1
+      i_switch=cols-blksize_0*nblocks
+      int_mb(k_mapc)=1
+      do i=2,nblocks
+         if(i.ge.i_switch) blksize=blksize_0
+         int_mb(k_mapc+i-1)=int_mb(k_mapc+i-2)+blksize
+!         if(ga_nodeid().eq.0)write(6,'(5i6)') i,blksize,
+!     I        int_mb(k_mapc+i-1),cols-((i-1)*blksize+1),nblocks-i
+      enddo
+#endif
       if(ga_nodeid().eq.0.and.oprint) then
          write(6,*) ' after maps nblocksr ',nblocksr
          write(6,1) 'rows cols nprocs ',rows,cols,nproc
