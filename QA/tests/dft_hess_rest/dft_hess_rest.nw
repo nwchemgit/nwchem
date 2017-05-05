@@ -1,0 +1,34 @@
+echo
+
+start rest
+
+geometry units au
+ O 0.00000000     0.00000000     0.22170860
+ H 0.00000000     1.43758081    -0.88575430
+ H 0.00000000    -1.43758081    -0.88575430
+end
+
+basis 
+ * library 6-31g
+end
+
+task dft optimize
+
+task dft freq
+
+dft
+ noscf
+end
+
+hessian 
+ cphf_restart
+end
+
+task dft freq
+
+geometry
+ he 0 0 0 
+ he 0 0 1.9
+end
+
+task dft optimize
