@@ -334,7 +334,7 @@ c     model potential parameters
       double precision gexpo(ncenters,50)
       double precision gcoef(ncenters,50)
 c     mbf
-      logical grid_nbfm
+      integer grid_nbfm
       external grid_nbfm
       character*32 pname
       double precision acc_ao_gauss

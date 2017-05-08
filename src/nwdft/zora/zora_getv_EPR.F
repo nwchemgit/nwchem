@@ -55,7 +55,8 @@ c     == local variables ==
      &        lepr4(3,3),iepr4(3,3)
       integer inntsize,ddblsize,ok
       double precision chi_cntr(3,nbf_ao)
-      logical grid_file_rewind,grid_nbfm
+      integer grid_nbfm
+      logical grid_file_rewind
       external grid_file_rewind,grid_nbfm
       character*32 pname
 c

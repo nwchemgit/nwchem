@@ -310,7 +310,7 @@ c ----- execute this code ONLY when EPR-gshift is requested -- START
       if (ga_nodeid().eq.0)
      &  write(*,22) nogshift,skip_gshiftAOev,done_Fji
  22   format('(nogshift,skip_gshiftAOev,done_Fji)=(',
-     &        i2,',',L,',',L,')')
+     &        i2,',',L1,',',L1,')')
 
       if (nogshift.eq.0 .and. .not.(skip_gshiftAOev)) then
        call get_EPRg(rtdb,g_dens_at,nexc,

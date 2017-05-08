@@ -1620,7 +1620,7 @@ c     Broadcast status to other nodes
          write(6,22) filename(1:inp_strlen(filename)),
      &               iter,nsub,nsub_file             
  22      format(' dft_CPHF2_write: Wrote ',a,
-     &           ' (iter,nsub,nsub_file)=('
+     &           ' (iter,nsub,nsub_file)=(',
      &          i4,',',i5,',',i5,')')
          call util_flush(luout)
       endif
