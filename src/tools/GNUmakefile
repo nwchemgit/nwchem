@@ -507,6 +507,15 @@ endif
 
 ifdef USE_KNL
     MAYBE_OFFLOAD= INTEL_64ALIGN=1
+    ifeq ($(_FC),ifort)
+    FFLAGS_FORGA+="-no-vec"
+    endif
+    ifeq ($(_CC),icc)
+    CFLAGS_FORGA+="-no-vec"
+    endif
+    ifeq ($(FC),ftn)
+    MAYBE_HOST=--host=x86_64-pc-linux-gnu 
+    endif
 endif
 ifdef USE_OFFLOAD
     MAYBE_OFFLOAD= INTEL_64ALIGN=1
