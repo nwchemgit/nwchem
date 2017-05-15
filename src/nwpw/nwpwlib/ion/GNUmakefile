@@ -27,6 +27,7 @@
 
   LIB_DEFINES = 
 
+      HEADERS = ../../nwpwlib/utilities/beom.fh
 
 include ../../../config/makefile.h
 include ../../../config/makelib.h
