@@ -7,6 +7,8 @@ start cytosine
  
 title "cytosine CCDB geometry"
 
+memory stack 500 mb heap 100 mb global 1000 mb
+
 geometry
   C     -0.21392   1.48233  -2.56453
   C      1.70616   2.50220  -1.71935
