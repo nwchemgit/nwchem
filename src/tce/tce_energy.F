@@ -1640,18 +1640,30 @@ c          call util_file_name('v2int',.false.,.true.,filename)
         needt1 = .true.
         needt2 = .true.
       elseif ((model.eq.'ccsdt').or.(model.eq.'cisdt')) then
+#if !defined(CCSDT)
+      CALL ERRQUIT('CCSDT not compiled (tce_energy.F)',0,CAPMIS_ERR)
+#else
         needt1 = .true.
         needt2 = .true.
         needt3 = .true.
+#endif
       elseif (model.eq.'ccsdta') then
+#if !defined(CCSDT)
+      CALL ERRQUIT('CCSDT not compiled (tce_energy.F)',0,CAPMIS_ERR)
+#else
         needt1  = .true.
         needt2  = .true.
         needt3a = .true.
+#endif
       elseif ((model.eq.'ccsdtq').or.(model.eq.'cisdtq')) then
+#if !defined(CCSDTQ)
+      CALL ERRQUIT('CCSDTQ not compiled (tce_energy.F)',0,CAPMIS_ERR)
+#else
         needt1 = .true.
         needt2 = .true.
         needt3 = .true.
         needt4 = .true.
+#endif
       elseif ((model.eq.'mbpt2').or.
      1         (model.eq.'mbpt3').or.
      2         (model.eq.'mbpt4').or.
@@ -2017,6 +2029,9 @@ c          call util_file_name('v2int',.false.,.true.,filename)
 !     t3 amplitudes
 !
       if (needt3) then
+#if !defined(CCSDT)
+        CALL ERRQUIT('CCSDT not compiled (tce_energy.F)',0,CAPMIS_ERR)
+#else
         cpu = - util_cpusec()
         call tce_filename('t3',filename)
         call tce_t3_offset(l_t3_offset,k_t3_offset,size_t3)
@@ -2089,11 +2104,15 @@ c          call util_file_name('v2int',.false.,.true.,filename)
           endif
           enddo ! axis
         endif ! leftresp
+#endif
       endif
 !
 !     t3a amplitudes
 !
       if (needt3a) then
+#if !defined(CCSDT)
+        CALL ERRQUIT('CCSDT not compiled (tce_energy.F)',0,CAPMIS_ERR)
+#else
         cpu = - util_cpusec()
         call tce_filename('t3',filename)
         call tce_t3a_offset(l_t3_offset,k_t3_offset,size_t3)
@@ -2112,11 +2131,15 @@ c          call util_file_name('v2int',.false.,.true.,filename)
 !         write(LuOut,9020) cpu
           call util_flush(LuOut)
         endif
+#endif
       endif
 !
 !     t4 amplitudes
 !
       if (needt4) then
+#if !defined(CCSDTQ)
+      CALL ERRQUIT('CCSDTQ not compiled (tce_energy.F)',0,CAPMIS_ERR)
+#else
         cpu = - util_cpusec()
         call tce_filename('t4',filename)
         call tce_t4_offset(l_t4_offset,k_t4_offset,size_t4)
@@ -2189,6 +2212,7 @@ c          call util_file_name('v2int',.false.,.true.,filename)
           endif
           enddo ! axis
         endif ! leftresp
+#endif
       endif
 !
 !     =======================
@@ -2656,6 +2680,9 @@ c          call util_file_name('v2int',.false.,.true.,filename)
 ! CCSD-LR
 ! -------------
         if (lineresp) then
+#if !defined(CCSDLR)
+        call errquit('CCSDLR not compiled (tce_energy.F)',0,CAPMIS_ERR)
+#else
           ! no need to pass d_a0 as argument here
           call ccsd_lr_alpha(rtdb,d_d0,d_a0,d_f1,d_v2,d_d1,
      1         d_t1,d_t2,d_lambda1,d_lambda2,d_tr1,d_tr2,
@@ -2664,12 +2691,15 @@ c          call util_file_name('v2int',.false.,.true.,filename)
      4         k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
      5         k_tr1_offset,k_tr2_offset,
      6         size_tr1,size_tr2,dipole_scf,dipole_cor)
-!
+#endif
         endif ! lineresp
 ! -------------
 ! CCSD-YR
 ! -------------
         if (leftresp) then
+#if !defined(CCSDLR)
+        call errquit('CCSDLR not compiled (tce_energy.F)',0,CAPMIS_ERR)
+#else
           ! no need to pass d_a0 as argument here
           call ccsd_qr_beta(rtdb,d_a0,d_b0,d_f1,d_v2,d_d1,
      1         d_t1,d_t2,d_lambda1,d_lambda2,d_yr1,d_yr2,d_tr1,d_tr2,
@@ -2678,7 +2708,7 @@ c          call util_file_name('v2int',.false.,.true.,filename)
      4         k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
      5         k_tr1_offset,k_tr2_offset,k_yr1_offset,k_yr2_offset,
      6         size_yr1,size_yr2)
-!
+#endif
         endif ! leftresp
       endif ! (model.eq.'ccsd').or.do_ccsd
 ! -------------------
@@ -3065,6 +3095,9 @@ c
   104 continue
       endif
       if (model.eq.'ccsdt') then
+#if !defined(CCSDT)
+        CALL ERRQUIT('CCSDT not compiled (tce_energy.F)',0,CAPMIS_ERR)
+#else
 ! -------------
 ! CCSDT   right
 ! -------------
@@ -4195,12 +4228,16 @@ c
           call util_flush(LuOut)
 !
           enddo ! omegacount loop
-!
+! CCSDTLR
 #endif
         endif ! leftresp
-!
+! CCSDT
+#endif
       endif
       if (model.eq.'ccsdta') then
+#if !defined(CCSDT)
+        CALL ERRQUIT('CCSDT not compiled (tce_energy.F)',0,CAPMIS_ERR)
+#else
 ! -----------------------------
 ! CCSDt (CCSDT-active)   right
 ! -----------------------------
@@ -4310,6 +4347,7 @@ c
           if (nodezero) call util_flush(LuOut)
         enddo
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
+#endif
       endif
       if (model.eq.'ccsdtq') then
 #if !defined(CCSDTQ)
@@ -8673,6 +8711,9 @@ c
 !
 !
           elseif (model.eq.'ccsdt') then
+#if !defined(CCSDT)
+      CALL ERRQUIT('CCSDT not compiled (tce_energy.F)',0,CAPMIS_ERR)
+#else
 ! -------------
 ! EOM-CCSDT   right
 ! -------------
@@ -8818,11 +8859,15 @@ c
               endif
             enddo
             call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
+#endif
 !
 !
 !
 !
           elseif (model.eq.'ccsdta') then
+#if !defined(CCSDT)
+      CALL ERRQUIT('CCSDT not compiled (tce_energy.F)',0,CAPMIS_ERR)
+#else
 ! -----------------------
 ! EOM-CCSDt  right
 ! -----------------------
@@ -8964,6 +9009,7 @@ c
               endif
             enddo
             call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
+#endif
 !
 !
 !
@@ -9470,6 +9516,9 @@ c
 ! EOM-CCSDT   left
 ! -------------
           if(ccsdtleft) then
+#if !defined(CCSDT)
+        CALL ERRQUIT('CCSDT not compiled (tce_energy.F)',0,CAPMIS_ERR)
+#else
             if (left) then
             call tce_eom_yguess(needt1,needt2,needt3,needt4,
      1        size_y1,size_y2,size_y3,size_y4,
@@ -9739,6 +9788,7 @@ c
             enddo
             call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
             endif
+#endif
          endif
 !     done with 2nd ccsdtleft
  4400    ccsdtleft=.false.

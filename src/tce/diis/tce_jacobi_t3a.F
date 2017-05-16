@@ -13,6 +13,11 @@ c
 #include "tce_main.fh"
       integer d_r3
       integer d_t3
+      integer k_t3_offset
+      double precision shift
+#if !defined(CCSDT)
+      CALL ERRQUIT('CCSDT not compiled (tce_energy.F)',0,CAPMIS_ERR)
+#else
       integer p1b
       integer p2b
       integer p3b
@@ -25,7 +30,6 @@ c
       integer h4
       integer h5
       integer h6
-      integer k_t3_offset
       integer size
       integer l_r3,k_r3
       integer i
@@ -37,7 +41,6 @@ c
       logical nodezero
       logical noloadbalance
       logical acolo
-      double precision shift
 c
 c     ================
 c     Loop over blocks
@@ -144,5 +147,6 @@ c
       enddo
       next = nxtask(-nprocs,1)
       call ga_sync()
+#endif
       return
       end

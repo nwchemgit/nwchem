@@ -12,7 +12,12 @@
 #include "tce_main.fh"
 #include "tce_restart.fh"
       INTEGER d_x3,k_x3_offset,size_x3
-      INTEGER chunk_x3,hand_x3
+      integer state,irrep
+      INTEGER hand_x3
+#if !defined(CCSDT)
+      CALL ERRQUIT('CCSDT not compiled (tce_energy.F)',0,CAPMIS_ERR)
+#else
+      INTEGER chunk_x3
       INTEGER l_aux,k_aux
       INTEGER p2b,p3b,p4b,h1b,h5b,h6b
       INTEGER key
@@ -25,7 +30,6 @@
       INTEGER next
       INTEGER nprocs
       INTEGER count
-      integer state,irrep
       EXTERNAL NXTASK
 c
       nodezero=(ga_nodeid().eq.0)
@@ -1389,6 +1393,7 @@ c
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
 c
+#endif
       return 
       end 
 c $Id$

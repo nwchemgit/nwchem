@@ -4,12 +4,11 @@
 SUBDIRS = include diis diis2 gradients \
           ccsd ccsd_lambda eomccsd \
           ccsd_t cr-eomccsd_t lrh emb \
-          response ccsd_yr ccsd_alpha ccsd_beta \
           ccd lccd lccsd qcisd cc3 \
           mbpt1 mbpt2 mbpt3 mbpt4 cis cisd cisdt cisdtq \
-          ccsdt ccsdt_lambda eomccsdt \
           ccsd_act eomccsd_act cr_eomccsd_t_act \
 	  sort
+          #response ccsd_yr ccsd_alpha ccsd_beta \
 
 ifdef EACCSD
       SUBDIRS +=eaccsd
@@ -20,14 +19,32 @@ ifdef IPCCSD
       LIB_DEFINES += -DIPCCSD
 endif
 
+# to be backwards compatible, these must be on by default
+CCSDLR=1
+CCSDT=1
+
 ifdef CCSDTLR
-      SUBDIRS += ccsdt_alpha_offdiag ccsdt_alpha_new ccsdt_yr ccsdt_beta
-      LIB_DEFINES += -DCCSDTLR
+    CCSDT=1
+    CCSDLR=1
+    SUBDIRS += ccsdt_alpha_offdiag ccsdt_alpha_new ccsdt_yr ccsdt_beta
+    LIB_DEFINES += -DCCSDTLR
+endif
+
+ifdef CCSDT
+    SUBDIRS += ccsdt ccsdt_lambda eomccsdt
+    LIB_DEFINES += -DCCSDT
+endif
+
+ifdef CCSDLR
+    SUBDIRS += ccsd_alpha ccsd_beta ccsd_yr #ccsd_qr
+    SUBDIRS += response
+    LIB_DEFINES += -DCCSDLR
 endif
 
 ifdef CCSDTQ
-      SUBDIRS += ccsdtq ccsdtq_lambda eomccsdtq ccsdtq_alpha_offdiag
-      LIB_DEFINES += -DCCSDTQ
+    SUBDIRS += ccsdtq ccsdtq_lambda eomccsdtq ccsdtq_alpha_offdiag
+    SUBDIRS += response
+    LIB_DEFINES += -DCCSDTQ
 endif
 
 ifdef MRCC_METHODS

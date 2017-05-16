@@ -12,6 +12,9 @@ C     t ( p2 p3 p4 h1 h5 h6 )_t
       INTEGER l_a_offset
       INTEGER k_a_offset
       INTEGER size
+#if !defined(CCSDT)
+      CALL ERRQUIT('CCSDT not compiled (tce_energy.F)',0,CAPMIS_ERR)
+#else
       INTEGER length
       INTEGER addr
       INTEGER p2b
@@ -88,5 +91,6 @@ C     t ( p2 p3 p4 h1 h5 h6 )_t
       END DO
       END DO
       END DO
+#endif
       RETURN
       END
