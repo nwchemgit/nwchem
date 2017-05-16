@@ -20,6 +20,20 @@ C> to sum a set of numbers in finite precision is to sum them in the
 C> order of increasing value. The reason is that this preserves the
 C> least significant digits as much as possible.
 C>
+C> Note that despite the above considerations calculating the
+C> exponent of a matrix is notoriously difficult [1]. Hence this 
+C> method is effective only under special conditions, in particular
+C> alpha*||g_x|| should be less than some bound to ensure that the
+C> Taylor series has no "hump". Even then the result cannot be expected
+C> to be accurate to machine precision, the result may only be expected
+C> to be an non-defective matrix.
+C>
+C> References
+C>
+C> [1] C. Moler, C. van Loan, "Nineteen dubious ways to compute the
+C>     exponential of a matrix, twenty-five years later." 
+C>     SIAM reviews (2003) 45, pp. 3-49. Doi: 10.1137/S00361445024180
+C>
 #include "errquit.fh"
 #include "global.fh"
 c
