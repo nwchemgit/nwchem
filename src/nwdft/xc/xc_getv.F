@@ -63,6 +63,7 @@ c
 #include "sym.fh"
 #include "stdio.fh"
 #include "case.fh"
+#include "dftps.fh"
 c
       integer cetobfr(2,natoms) !< [Unused]
       double precision rho_n    !< [Output] The number of electrons
@@ -167,6 +168,7 @@ c        Compute the exact exchange potential (as in Hartree-Fock calculations).
 c       
          tol2e=10.d0**(-itol2e)
          call ga_sync
+         if (odftps) call pstat_on(ps_f2e)
          if (oprint_time)call dft_tstamp(' Before call to fock_2e. ')
          if (ipol.eq.1) then
             if (.not. CDFIT) then
@@ -241,17 +243,10 @@ c             set up prefactors
               jfac(1) = 0.0d0
 c
 c             calculate the non-CAM exchange
-              if (.not.cam_exch) then ! for regular calculations with CDFIT
+              if (cam_exch) call case_setflags(.true.)
                 call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
      &             tol2e, oskel, g_dens(1), g_vxc(1), .false.)
-              else
-c
-c               calculate the CAM exchange
-                call case_setflags(.true.)  ! turn on attenuation
-                call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
-     &             tol2e, oskel, g_dens(1), g_vxc(1), .false.)
-                call case_setflags(.false.) ! turn off attenuation
-              end if
+              if (cam_exch)  call case_setflags(.false.) ! turn off attenuation
               Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
             endif
          else  ! spin-polarized calculations
@@ -260,17 +255,10 @@ c               calculate the CAM exchange
               jfac(2)=0.d0
               kfac(1)=-1.0d0*xfac(1)
               kfac(2)=-1.0d0*xfac(1)
-              if (.not.cam_exch) then ! for regular calculations
-               call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+              if (cam_exch) call case_setflags(.true.)
+              call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
      &              tol2e, oskel, g_dens, g_vxc, .false.)
-              else
-c 
-c              calculate the CAM exchange
-               call case_setflags(.true.)  ! turn on attenuation
-               call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
-     &              tol2e, oskel, g_dens, g_vxc, .false.)
-               call case_setflags(.false.) ! turn off attenuation
-              end if
+              if (cam_exch) call case_setflags(.false.) ! turn off attenuation
               Exc(1) = Exc(1)+0.5d0*(ga_ddot(g_dens(1),g_vxc(1)) +
      &              ga_ddot(g_dens(2),g_vxc(2)))
             else
@@ -371,6 +359,7 @@ c
               end if
             endif
          endif
+         if (odftps) call pstat_off(ps_f2e)
          if (oprint_time)call dft_tstamp('  After call to fock_2e. ')
          call ga_sync
       endif
@@ -464,8 +453,10 @@ cc
 c         endif
 c      endif
 cc
+      if (odftps) call pstat_on(ps_getvxc)
       call xc_getvxc(rtdb, Exc, nExc, iVxc_opt, g_xcinv,
      &                   g_dens, g_vxc, IOLGC, rho_n, 0, 0)
+      if (odftps) call pstat_off(ps_getvxc)
 c last two inputs -------------------------------->.fde_option., g_dens_fde
 c
 cc AJL/End
