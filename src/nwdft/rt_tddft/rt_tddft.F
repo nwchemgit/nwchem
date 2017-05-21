@@ -50,10 +50,19 @@ C     == Variables ==
       rt_tddft = .false.
 
       me = ga_nodeid ()
-
-
-
-C
+c
+c     == Coulomb Attenuation Method (CAM/LC) parameters ==
+      if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1,
+     &   cam_exch)) cam_exch=.false.
+      if (.not.rtdb_get(rtdb, 'dft:cam_srhf', mt_log, 1,
+     &   cam_srhf)) cam_srhf=.false.
+      if (.not.rtdb_get(rtdb, 'dft:cam_omega', mt_dbl, 1,
+     &   cam_omega)) cam_omega=0.d0
+      if (.not.rtdb_get(rtdb, 'dft:cam_alpha', mt_dbl, 1,
+     &   cam_alpha)) cam_alpha=0.d0
+      if (.not.rtdb_get(rtdb, 'dft:cam_beta', mt_dbl, 1,
+     &   cam_beta)) cam_beta=0.d0
+c
 C     Store rtdb in params struct, then determine the theory we are using.
 C
       params%rtdb = rtdb
