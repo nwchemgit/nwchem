@@ -385,6 +385,7 @@ c
 c
 c       == Set up natural orbitals ==
 c
+        call ga_zero(g_bfbf)
         call guess_dens(wfn1_inst%rtdb,wfn1_inst%geom,wfn1_inst%basis,
      &                  g_bfbf)
 c
