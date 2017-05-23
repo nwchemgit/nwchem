@@ -513,9 +513,16 @@ c     >                           dbl_mb(itmp(1)))
          do n=n1(ms),n2(ms)
             S12(ms) = S12(ms)*dbl_mb(Sigma_ab(1)+n-1)
             dbl_mb(Cigma_ab(1)+n-1) = dacos(dbl_mb(Sigma_ab(1)+n-1))
+            !if (taskid.eq.MASTER) then
+            !   write(*,*) "ms,n,S12=",ms,n,dbl_mb(Sigma_ab(1)+n-1)
+            !end if
          end do
       end do
       Sab = S12(1)*S12(ispin)
+      !if (taskid.eq.MASTER) then
+      !   write(*,*)
+      !   write(*,*) "Sab=",Sab,S12(1),S12(ispin)
+      !end if
 
 *     **** rotate psi1f=psi1*V_ab and psi2f = psi2*U_ab ****
       call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
@@ -1317,32 +1324,32 @@ c
  1800 format( ' Reactant  psi filename: ',A,'  geometry: ',A)
  1801 format( ' Product   psi filename: ',A,'  geometry: ',A)
  1810 format(/' Electron Overlaps:')
- 1811 format( '    Reactants/Reactant overlap          S(RR) : ',E19.10)
- 1812 format( '    Reactants/Reactant overlap          S(PP) : ',E19.10)
- 1813 format( '    Reactants/Products overlap          S(RP) : ',E19.10)
+ 1811 format( '    Reactants/Reactant overlap          S(RR) : ',E20.10)
+ 1812 format( '    Reactants/Reactant overlap          S(PP) : ',E20.10)
+ 1813 format( '    Reactants/Products overlap          S(RP) : ',E20.10)
  1820 format(/' One-electron reactants/product interation energies:')
- 1821 format( '    Electron energy of reactant         H1(RR): ',E19.10)
- 1822 format( '    Electron energy of product          H1(PP): ',E19.10)
- 1823 format( '    Electron energy of reactant/product H1(RP): ',E19.10)
- 1824 format( '    Ion-Ion energy                      Eion  : ',E19.10)
- 1825 format( '    Charge correction    0.5*q**2*mandelung/rs: ',E19.10)
+ 1821 format( '    Electron energy of reactant         H1(RR): ',E20.10)
+ 1822 format( '    Electron energy of product          H1(PP): ',E20.10)
+ 1823 format( '    Electron energy of reactant/product H1(RP): ',E20.10)
+ 1824 format( '    Ion-Ion energy                      Eion  : ',E20.10)
+ 1825 format( '    Charge correction    0.5*q**2*mandelung/rs: ',E20.10)
  1830 format(/' Two-electron reactants/product interation energies:')
- 1831 format( '    Electron energy of reactant         H2(RR): ',E19.10)
- 1832 format( '    Electron energy of product          H2(PP): ',E19.10)
- 1833 format( '    Electron energy of reactant/product H2(RP): ',E19.10)
+ 1831 format( '    Electron energy of reactant         H2(RR): ',E20.10)
+ 1832 format( '    Electron energy of product          H2(PP): ',E20.10)
+ 1833 format( '    Electron energy of reactant/product H2(RP): ',E20.10)
  1840 format(/' Total reactants/product interation energies:')
- 1841 format( '    Electron energy of reactant         H(RR) : ',E19.10)
- 1842 format( '    Electron energy of product          H(PP) : ',E19.10)
- 1843 format( '    Electron energy of reactant/product H(RP) : ',E19.10)
+ 1841 format( '    Electron energy of reactant         H(RR) : ',E20.10)
+ 1842 format( '    Electron energy of product          H(PP) : ',E20.10)
+ 1843 format( '    Electron energy of reactant/product H(RP) : ',E20.10)
  1850 format(/' Electron Transfer Coupling:')
- 1851 format( '    reactant/product coupling energy  |V(RP)| : ',E19.10,
+ 1851 format( '    reactant/product coupling energy  |V(RP)| : ',E20.10,
      >        /,48x,F19.3, ' cm-1',
      >        /,48x,F19.3, ' eV',
      >        /,48x,F19.3, ' kcal/mol')
  1900 format(//' Electron Transfer Geodesic Path at geometry: ',A)
  1905 format(/A12,2A19)
  1906 format('    ----------------------------------------------')
- 1910 format(F12.6,2E19.10)
+ 1910 format(F12.6,2E20.10)
 
 
 !Electronic energy of reactants     H(RR)      -5.3402392824
