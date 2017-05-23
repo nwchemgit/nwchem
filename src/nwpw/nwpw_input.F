@@ -1971,11 +1971,28 @@ c
       goto 10
 
 c
-c translate_vector x y z
+c translate_vector x y z [geom_name [reorder]]
 c
  8600 if (inp_f(tolerances(1))) then
          if (.not.inp_f(tolerances(2))) tolerances(2) = tolerances(1)
          if (.not.inp_f(tolerances(3))) tolerances(3) = tolerances(2)
+         if (inp_a(zone_name)) then
+            ind = index(zone_name,' ') - 1
+            if (.not.rtdb_cput(rtdb,'nwpw:translate_geom_name',
+     >                         1,zone_name(1:ind)))
+     >      call errquit(
+     >       'nwpw_input: error writing to rtdb', 8600, RTDB_ERR)
+         end if
+         if (inp_a(zone_name)) then
+            move = .false.
+            if (inp_compare(.false.,zone_name,'reorder'))   move=.true.
+            if (inp_compare(.false.,zone_name,'noreorder')) move=.false.
+            if (.not.rtdb_put(rtdb,'nwpw:translate_reorder',
+     >                        mt_log,1,move))
+     >      call errquit('nwpw_input: error writing to rtdb',
+     >                    8600,RTDB_ERR)
+
+         end if
          if (.not.rtdb_put(rtdb,'nwpw:translate_vector',
      >                     mt_dbl,3,tolerances))
      >   call errquit('nwpw_input: error writing to rtdb',8600,RTDB_ERR)
