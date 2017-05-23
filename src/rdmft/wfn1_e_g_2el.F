@@ -388,8 +388,8 @@ c
               naib(ialo:iahi,1:nmo)=>bufab
               call ga_get(wfn1_wave%g_na,ialo,iahi,1,nmo,naia,na)
               call ga_get(wfn1_wave%g_nb,ialo,iahi,1,nmo,naib,na)
-              eri(ialo:iahi,iclo:ichi,iblo:ibhi,idlo:idhi)=>buf
-              den(ialo:iahi,iclo:ichi,iblo:ibhi,idlo:idhi)=>buf2
+              eri(idlo:idhi,iblo:ibhi,iclo:ichi,ialo:iahi)=>buf
+              den(idlo:idhi,iblo:ibhi,iclo:ichi,ialo:iahi)=>buf2
 c
 c             calculate the 2-electron integrals
 c
@@ -475,7 +475,7 @@ c    &                          + nbib(ib,ii)*ndib(id,ii)*ocxb(ii)
                 do ib = iblo, ibhi
                   do ic = iclo, ichi
                     do ia = ialo, iahi
-                      den(ia,ic,ib,id) = den(ia,ic,ib,id) 
+                      den(id,ib,ic,ia) = den(id,ib,ic,ia) 
      &                                 + daca(ia,ic)*dbdb(ib,id)
      &                                 + dacb(ia,ic)*dbda(ib,id)
                     enddo ! ia
@@ -490,9 +490,9 @@ c
                   do ic = iclo, ichi
                     do ia = ialo, iahi
                       fn1aca(ia,ic) = fn1aca(ia,ic)
-     &                              + eri(ia,ic,ib,id)*dbdb(ib,id)
+     &                              + eri(id,ib,ic,ia)*dbdb(ib,id)
                       fn1acb(ia,ic) = fn1acb(ia,ic)
-     &                              + eri(ia,ic,ib,id)*dbda(ib,id)
+     &                              + eri(id,ib,ic,ia)*dbda(ib,id)
                     enddo ! ia
                   enddo ! ic
                 enddo ! ib
@@ -566,34 +566,34 @@ c
 c                     Fock matrix Coulomb terms a-a and a-b
 c
                       fc1aca(ia,ic) = fc1aca(ia,ic)
-     &                              + eri(ia,ic,ib,id)*
+     &                              + eri(id,ib,ic,ia)*
      &                                (0.50d0*dbda(ib,id)+
      &                                 0.50d0*dbdb(ib,id))
                       fc1ada(ia,id) = fc1ada(ia,id)
-     &                              + eri(ia,ic,ib,id)*
+     &                              + eri(id,ib,ic,ia)*
      &                                0.50d0*dbca(ib,ic)
                       fc1bca(ib,ic) = fc1bca(ib,ic)
-     &                              + eri(ia,ic,ib,id)*
+     &                              + eri(id,ib,ic,ia)*
      &                                0.50d0*dada(ia,id)
                       fc1bda(ib,id) = fc1bda(ib,id)
-     &                              + eri(ia,ic,ib,id)*
+     &                              + eri(id,ib,ic,ia)*
      &                                (0.50d0*daca(ia,ic)+
      &                                 0.50d0*dacb(ia,ic))
 c
 c                     Fock matrix Coulomb terms b-b and b-a
 c
                       fc1acb(ia,ic) = fc1acb(ia,ic)
-     &                              + eri(ia,ic,ib,id)*
+     &                              + eri(id,ib,ic,ia)*
      &                                (0.5d0*dbdb(ib,id)+
      &                                 0.5d0*dbda(ib,id))
                       fc1adb(ia,id) = fc1adb(ia,id)
-     &                              + eri(ia,ic,ib,id)*
+     &                              + eri(id,ib,ic,ia)*
      &                                0.5d0*dbcb(ib,ic)
                       fc1bcb(ib,ic) = fc1bcb(ib,ic)
-     &                              + eri(ia,ic,ib,id)*
+     &                              + eri(id,ib,ic,ia)*
      &                                0.5d0*dadb(ia,id)
                       fc1bdb(ib,id) = fc1bdb(ib,id)
-     &                              + eri(ia,ic,ib,id)*
+     &                              + eri(id,ib,ic,ia)*
      &                                (0.5d0*dacb(ia,ic)+
      &                                 0.5d0*daca(ia,ic))
                     enddo ! ia
@@ -801,7 +801,7 @@ c
                     do ic = iclo, ichi
                       do ia = ialo, iahi
                         do ii = iialo, iiahi
-                          den(ia,ic,ib,id) = den(ia,ic,ib,id) 
+                          den(id,ib,ic,ia) = den(id,ib,ic,ia) 
      &                                     + naia(ia,ii)*ncia(ic,ii)*
      &                                       d3abd(ib,id,ii)*0.5d0
      &                                     + nbia(ib,ii)*ndia(id,ii)*
@@ -812,7 +812,7 @@ c
      &                                       d3abc(ib,ic,ii)*0.5d0
                         enddo ! ii
                         do ii = iiblo, iibhi
-                          den(ia,ic,ib,id) = den(ia,ic,ib,id) 
+                          den(id,ib,ic,ia) = den(id,ib,ic,ia) 
      &                                     + naib(ia,ii)*ncib(ic,ii)*
      &                                       d3bbd(ib,id,ii)*0.5d0
      &                                     + nbib(ib,ii)*ndib(id,ii)*
@@ -825,30 +825,30 @@ c
                         do ii = iialo, iiahi
                           fn2ica(ii,ic) = fn2ica(ii,ic) 
      &                                  + naia(ia,ii)*d3abd(ib,id,ii)*
-     &                                    eri(ia,ic,ib,id)*0.5d0
+     &                                    eri(id,ib,ic,ia)*0.5d0
      &                                  - nbia(ib,ii)*d3aad(ia,id,ii)*
-     &                                    eri(ia,ic,ib,id)*0.5d0
+     &                                    eri(id,ib,ic,ia)*0.5d0
                           fn2ida(ii,id) = fn2ida(ii,id) 
      &                                  - naia(ia,ii)*d3abc(ib,ic,ii)*
-     &                                    eri(ia,ic,ib,id)*0.5d0
+     &                                    eri(id,ib,ic,ia)*0.5d0
      &                                  + nbia(ib,ii)*d3aac(ia,ic,ii)*
-     &                                    eri(ia,ic,ib,id)*0.5d0
+     &                                    eri(id,ib,ic,ia)*0.5d0
                         enddo ! ii
                         do ii = iiblo, iibhi
                           fn2icb(ii,ic) = fn2icb(ii,ic) 
      &                                  + naib(ia,ii)*d3bbd(ib,id,ii)*
-     &                                    eri(ia,ic,ib,id)*0.5d0
+     &                                    eri(id,ib,ic,ia)*0.5d0
      &                                  - nbib(ib,ii)*d3bad(ia,id,ii)*
-     &                                    eri(ia,ic,ib,id)*0.5d0
+     &                                    eri(id,ib,ic,ia)*0.5d0
                           fn2idb(ii,id) = fn2idb(ii,id) 
      &                                  - naib(ia,ii)*d3bbc(ib,ic,ii)*
-     &                                    eri(ia,ic,ib,id)*0.5d0
+     &                                    eri(id,ib,ic,ia)*0.5d0
      &                                  + nbib(ib,ii)*d3bac(ia,ic,ii)*
-     &                                    eri(ia,ic,ib,id)*0.5d0
+     &                                    eri(id,ib,ic,ia)*0.5d0
                         enddo ! ii
                         do ii = iialo, iiahi
                           v_dca(ii) = v_dca(ii)
-     &                              - 0.5d0*eri(ia,ic,ib,id)*
+     &                              - 0.5d0*eri(id,ib,ic,ia)*
      &                                (
      &                                 dx3aac(ia,ic,ii)*nbia(ib,ii)*
      &                                 ndia(id,ii)
@@ -863,7 +863,7 @@ c
                         enddo ! ii
                         do ii = iiblo, iibhi
                           v_dcb(ii) = v_dcb(ii)
-     &                              - 0.5d0*eri(ia,ic,ib,id)*
+     &                              - 0.5d0*eri(id,ib,ic,ia)*
      &                                (
      &                                 dx3bac(ia,ic,ii)*nbib(ib,ii)*
      &                                 ndib(id,ii)
