@@ -25,7 +25,7 @@ c Translates the ions and wavefunctions
       parameter (MASTER=0)
 
 
-      logical value,oprint
+      logical value,oprint,reorder
       integer mapping,mapping1d
       integer i,j,k,ms,n,ne(2),ispin,ngrid(3),nemax
       integer neq(2),nemaxq,shift
@@ -153,6 +153,7 @@ c Translates the ions and wavefunctions
 *     ****  get the translate vector and output geom_name ****
       call control_translate_vector(rshift)
       call control_translate_geom_name(geom_name)
+      call control_translate_reorder(reorder)
 
 
 
@@ -160,7 +161,11 @@ c Translates the ions and wavefunctions
          write(luout,109) control_input_psi()
          write(luout,110) control_output_psi()
          write(luout,115) geom_name
-         write(luout,120) rshift
+         if (reorder) then
+            write(luout,120) rshift
+         else
+            write(luout,121) rshift
+         end if
 
 
          write(luout,1160)
@@ -202,7 +207,11 @@ c Translates the ions and wavefunctions
       end if
 
 *     ****  translate the ions and wavefunctions ****
-      call ion_translate_reorder(rshift)
+      if (reorder) then
+         call ion_translate_reorder(rshift)
+      else
+         call ion_translate(rshift)
+      end if
       call psi_translate(rshift,
      >                   npack1,(ne(1)+ne(2)),
      >                   dcpl_mb(psi(1)))
@@ -262,7 +271,9 @@ c Translates the ions and wavefunctions
   109 format(/' input filename : ',A)
   110 format(' output filename: ',A)
   115 format(/' geometry name: ',A)
-  120 format(/,' translate vector=<',3f8.3,' >')
+  120 format(/,' translate vector=<',3f8.3,' >',
+     >         ' - reordering atom indexes')
+  121 format(/,' translate vector=<',3f8.3,' >')
 
  1000 FORMAT(10X,'****************************************************')
  1010 FORMAT(10X,'*                                                  *')
