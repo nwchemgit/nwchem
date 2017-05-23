@@ -4,7 +4,6 @@
 #
 
 unalias -a
-
 export NWCHEM_TOP=${NWCHEM_TOP:-"`pwd`/../"}
 if test "x$NWCHEM_TOP" = x
 then
@@ -62,7 +61,7 @@ if [ $ga_version == 1 ] ; then
 fi
 
 if [ ${#TOOLGIT} -eq 0 ] ; then
-  echo "No Subversion found!"
+  echo "No Git found!"
   echo "Giving up and hoping for the best..."
   exit 0
 fi
@@ -71,7 +70,7 @@ then
     echo "Updating existing $GA_DIR"
     cd $GA_DIR
 #    git cleanup
-    if git pull 
+    if git fetch 
     then
         echo "Finished updating existing $GA_DIR"
     else
