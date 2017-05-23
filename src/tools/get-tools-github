@@ -47,7 +47,13 @@ else
      GA_BRANCH=hotfix/5.6.1
   fi
 fi
-GA_GIT="https://github.com/GlobalArrays/ga.git  -b $GA_BRANCH"
+if test "x$GA_URL" != x
+then
+    echo "Using GA_URL" $GA_URL
+else
+GA_URL="https://github.com/GlobalArrays/ga.git"
+fi
+GA_GIT="$GA_URL  -b $GA_BRANCH"
 echo "Using GA_GIT" $GA_GIT "and GA_DIR" $GA_DIR
 
 if [ $ga_version == 1 ] ; then
