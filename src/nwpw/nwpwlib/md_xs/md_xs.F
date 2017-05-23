@@ -352,7 +352,7 @@ c        **** deallocate stack ****
  1311 FORMAT(5X, ' MC Algorithm= ',A,A)
  1320 FORMAT(5X, ' MC displacement=',F10.2,5X,' iterations=',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
- 1321 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1,
+ 1321 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1,
      >       /5X,' iterations=',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
  1322 FORMAT(5X, ' temperature='F10.3,5x,' beta=',E10.3,' seed=',I10)
@@ -622,6 +622,7 @@ c     **********************************************
          write(luout,*) 'w               : ',iw
       end if
 
+
 *     **** allocate memory from stack ****
       value =  BA_push_get(mt_dbl,nkf0,'kf',kf(2),kf(1))
       value = value.and.
@@ -657,6 +658,7 @@ c     **********************************************
             rmin = md_xs_find_rmin(unita,natoms1,dbl_mb(rion(1)))
          end if
          call Parallela_Brdcst_value(1,MASTER,rmin)
+
 
          runfeff = ((k-first).ge.0)
          runfeff = runfeff.and.(mod(k-first,stride).eq.0)
@@ -1661,6 +1663,18 @@ c
       rmin = 999.999d9
       n1 = -1
       n2 =  1
+      if ((dabs(unita(1,1)-1.0d0).lt.1.0d-6) .and.
+     >    (dabs(unita(2,1))      .lt.1.0d-6) .and.
+     >    (dabs(unita(3,1))      .lt.1.0d-6) .and.
+     >    (dabs(unita(1,2))      .lt.1.0d-6) .and.
+     >    (dabs(unita(2,2)-1.0d0).lt.1.0d-6) .and.
+     >    (dabs(unita(3,2))      .lt.1.0d-6) .and.
+     >    (dabs(unita(1,3))      .lt.1.0d-6) .and.
+     >    (dabs(unita(2,3))      .lt.1.0d-6) .and.
+     >    (dabs(unita(3,3)-1.0d0).lt.1.0d-6) ) then
+         n1 = 0
+         n2 = 0
+      end if
 
       do jj=1,nion-1
          do ii=jj+1,nion
