@@ -42,10 +42,8 @@
       ! Python: 1.5*math.log(math.pi) = 1.7170948287741004
       parameter (LOGPIx15=1.7170948287741d0)
       parameter (N3OVER2=-1.5d0)
-      double precision conspix
       double precision const
       const = LOGPIx15 - log(val_int_acc)
-      conspix=val_int_acc/sqrt(pi)
       
 
       Rx2 = (Axyz(1) - Bxyz(1))**2
@@ -110,13 +108,8 @@
          
           abi = 1.0d0/(a+b)
           beta = a*b*abi
-#if 1
-          if ( sqrt(abi)*exp(-beta*(Rx2+Ry2+Rz2) ) .gt.                                                            
-     &         conspix) then 
-#else
           if ( ( beta*(Rx2+Ry2+Rz2) ) .lt.
      &         ( const + N3OVER2 * log(a+b) ) ) then
-#endif
          
             m2 = m2 + 1
             
