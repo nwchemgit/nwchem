@@ -91,9 +91,12 @@ c
         if (nrowx.ne.ncolx) then
           call errquit(pname//" matrix g_x not square",0,UERR)
         endif
-        call ga_distribution(g_x,0,ilo,ihi,jlo,jhi)
+        call ga_distribution(g_exp,0,ilo,ihi,jlo,jhi)
         idim = ihi-ilo+1
         jdim = jhi-jlo+1
+        call ga_distribution(g_x,0,ilo,ihi,jlo,jhi)
+        idim = max(idim,ihi-ilo+1)
+        jdim = max(idim,jhi-jlo+1)
 c
         allocate(skew(nrowx,nrowx))
 c       allocate(skvl(nrowx,nrowx))
@@ -314,11 +317,11 @@ c
       do ii = max(ilo,jlo),min(ihi,jhi)
         call ga_acc(g_t,ii,ii,ii,ii,-1.0d0,1,1.0d0)
       enddo
-      call ga_normf(g_t,dnormT)
-      if (dnormT/(nrowt*ncolt).gt.1.0d-14) then
+      call ga_norm_infinity(g_t,dnormT)
+      if (dnormT.gt.1.0d-10) then
         if (iproc.eq.0) then
           write(LuOut,'(" Error in wfn1_exp: ",f24.15)')
-     &          dnormT/(nrowt*ncolt)
+     &          dnormT
         endif
         call ga_print(g_x)
         call ga_print(g_exp)
