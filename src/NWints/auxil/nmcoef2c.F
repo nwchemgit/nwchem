@@ -46,23 +46,23 @@ c... number of integrals
 *...
 *
          factor = 1.0d00
-          l_lim = 2*l - 1
-          do i = l_lim,2,-2
+         l_lim = 2*l - 1
+         do i = l_lim,2,-2
             factor = factor*dble(i)
-          enddo
-          if(l.eq.0) then
-         do ip = 1,np
-          cc(ip) = cc(ip) *
-     &        ((2.D0*z(ip)/PI)**0.75D0)/ sqrt(factor)
-        enddo
-        else
-         do ip = 1,np
-          cc(ip) = cc(ip) *
-     &        ((2.D0*z(ip)/PI)**0.75D0)*(4.D0*z(ip))**(0.5D0*l)
-          cc(ip) = cc(ip) / sqrt(factor)
-        enddo
-        endif
-*
+         enddo
+         if(l.eq.0) then
+            do ip = 1,np
+               cc(ip) = cc(ip) *
+     &              ((2.D0*z(ip)/PI)**0.75D0)/ sqrt(factor)
+            enddo
+         else
+            do ip = 1,np
+               cc(ip) = cc(ip) *
+     &              ((2.D0*z(ip)/PI)**0.75D0)*(4.D0*z(ip))**(0.5D0*l)
+               cc(ip) = cc(ip) / sqrt(factor)
+            enddo
+         endif
+*     
 *...
 * normalize contraction coefficients to make (a|a) = 1 
 *...
