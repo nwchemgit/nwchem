@@ -71,6 +71,10 @@ c
       double precision, allocatable, target :: buf(:)
       double precision, pointer :: block(:,:)
 c
+      double precision, allocatable :: u(:,:) ! the unitary matrix
+      double precision              :: dnrm
+      double precision, external    :: ddot
+c
       integer :: itypx, nrowx, ncolx
       integer :: info ! status flag returned by LAPACK
 c
@@ -78,6 +82,8 @@ c
       integer :: ip, ii, jj, kk ! counters
       integer :: ilo, ihi, jlo, jhi ! local block limits
       integer :: idim, jdim
+c
+      logical :: o_repeat
 c
       character*9 pname
       parameter(pname="wfn1_exp:")
@@ -105,6 +111,7 @@ c       allocate(skvl(nrowx,nrowx))
         allocate(work(10*nrowx)   )
         allocate(rwork(10*nrowx)  )
         allocate(buf(idim*jdim))
+        allocate(u(nrowx,nrowx))
 c
         do ip = 0, nproc-1
           call ga_distribution(g_x,ip,ilo,ihi,jlo,jhi)
@@ -128,34 +135,60 @@ c
           skev(ii) = exp(alpha*skev(ii))
         enddo
 c
+c       Construct initial guess of U
+c
+        u = 0.0d0
+        do jj = 1, nrowx
+          do ii = 1, nrowx
+            do kk = 1, nrowx
+c
+c             Note that the phases of the left and right eigenvectors
+c             are independent of eachother. Therefore using both 
+c             left and right eigenvectors may not result in a 
+c             unitary matrix. Hence only the right eigenvectors are
+c             used here.
+c
+c             Note that the eigenvalues of skew-symmetric matrices
+c             come in conjugate pairs. Therefore, when summing over
+c             all eigenvectors, the imaginary parts cancel, and we
+c             may just use the real part only.
+c
+              u(ii,jj) = u(ii,jj)
+     &                 + real(skvr(ii,kk)*skev(kk)*conjg(skvr(jj,kk)))
+            enddo
+          enddo
+        enddo
+c
+c       Do repeated modified Gramm-Schmidt just to make sure
+c
+        o_repeat = .true.
+        do while (o_repeat)
+          o_repeat = .false.
+          do kk = 1, nrowx
+            dnrm = ddot(nrowx,u(1,kk),1,u(1,kk),1)
+            dnrm = 1.0d0/sqrt(dnrm)
+            call dscal(nrowx,dnrm,u(1,kk),1)
+            do jj = 1, kk-1
+              dnrm = ddot(nrowx,u(1,jj),1,u(1,kk),1)
+              call daxpy(nrowx,-dnrm,u(1,jj),1,u(1,kk),1)
+            enddo ! jj
+            dnrm = ddot(nrowx,u(1,kk),1,u(1,kk),1)
+            o_repeat = o_repeat .or. (dnrm.lt.0.5d0)
+          enddo
+        enddo ! while
+c
         do ip = 0, nproc-1
           call ga_distribution(g_exp,ip,ilo,ihi,jlo,jhi)
           block(ilo:ihi,jlo:jhi)=>buf
-          block = 0.0d0
           do jj = jlo, jhi
             do ii = ilo, ihi
-              do kk = 1, nrowx
-c
-c               Note that the phases of the left and right eigenvectors
-c               are independent of eachother. Therefore using both 
-c               left and right eigenvectors may not result in a 
-c               unitary matrix. Hence only the right eigenvectors are
-c               used here.
-c
-c               Note that the eigenvalues of skew-symmetric matrices
-c               come in conjugate pairs. Therefore, when summing over
-c               all eigenvectors, the imaginary parts cancel, and we
-c               may just use the real part only.
-c
-                block(ii,jj) = block(ii,jj)
-     &                       + real(skvr(ii,kk)*skev(kk)*
-     &                              conjg(skvr(jj,kk)))
-              enddo
+              block(ii,jj) = u(ii,jj) 
             enddo
           enddo
           call ga_put(g_exp,ilo,ihi,jlo,jhi,block,ihi-ilo+1)
         enddo
 c
+        deallocate(u)
         deallocate(rwork)
         deallocate(work)
         deallocate(skew)
