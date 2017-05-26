@@ -24,6 +24,7 @@ C> for the next linesearch (or the final solution if the calculation
 C> is converged).
 C>
 #include "global.fh"
+#include "errquit.fh"
 #include "wfn1_trace.fh"
 #include "wfn1_matcnst.fh"
 #include "wfn1_param.fh"
@@ -73,6 +74,9 @@ c
                             !< the critical condition beyond which no
                             !< progress can be made minimizing the 
                             !< energy.
+c
+      character*17 pname
+      parameter(pname = "wfn1_linesearch: ")
 c
       tol = wfn1_param%convergence
       tr = 1.0d0
@@ -162,7 +166,17 @@ c
         call wfn1_df1df2df3(xx(ix1),xx(ix2),xx(ix3),
      &                      df(ix1),df(ix2),df(ix3),
      &                      tr,aa,bb,cc,xm,fxm)
-        call wfn1_fix_xm(npts,xx,xm)
+        if (aa.lt.0.0d0) then
+          if (indxmin.eq.ix1) then
+            xm = 0.5d0*(xx(ix1)+xx(ix2))
+          else if (indxmin.eq.ix3) then
+            xm = 0.5d0*(xx(ix2)+xx(ix3))
+          else
+            call errquit(pname//" messed up",0,UERR)
+          endif
+        else
+          call wfn1_fix_xm(npts,xx,xm)
+        endif
 c
 c       Shrink the trust region to avoid getting trapped generating
 c       the same unsuitable answer over and over
