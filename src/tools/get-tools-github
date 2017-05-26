@@ -26,7 +26,25 @@ done
 TOOLDIR=`pwd`
 TOOLGIT=`which git`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
-
+if test "x$USE_GA_RELEASE" != x
+then
+if test "x$GA_RELNO" != x
+then
+    GA_RELEASE_NO=5.6.1
+fi
+    GA_DIR=ga-"$GA_RELEASE_NO"
+if [ ! -f ga-"$GA_RELEASE_NO".tar.gz ]; then
+ wget  -O ga-"$GA_RELEASE_NO".tar.gz https://github.com/GlobalArrays/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
+fi
+if [ ! -f ga-"$GA_RELEASE_NO".tar.gz ]; then 
+    echo "Failed to download" ga-$GA_RELEASE_NO.tar.gz
+    exit 1
+else
+if [ ! -f "$GA_DIR"/configure ]; then 
+ tar xvzf ga-"$GA_RELEASE_NO".tar.gz
+fi
+fi
+else #USE_GA_RELEASE
 if test "x$DEV_GA" != x
 then
     GA_DIR=ga-dev
@@ -80,15 +98,20 @@ then
     cd $TOOLDIR
 else
     echo "Checking out $GA_GIT into dir $GA_DIR"
-    git clone $GA_GIT $GA_DIR
+    git clone $GA_GIT $GA_DIR 2> /dev/null
+    if [ $? -ne 0 ]
+    then
+	echo "Git clone failed" >&2
+	exit 1
+    fi
 fi
+fi #USE_GA_RELEASE
 # check if configure is there
 if test -e $GA_DIR/configure
 then
         echo "configure present. no autogen.sh required"
 else
         echo "configure missing. running autogen.sh"
-        pwd
         echo $GA_DIR/configure $GA_DIR/autogen.sh
         cd  $GA_DIR;sh ./autogen.sh
 fi

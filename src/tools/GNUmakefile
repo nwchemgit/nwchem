@@ -555,6 +555,12 @@ endif
 
 ifdef USE_GAGITHUB
 	GET_TOOLS=./get-tools-github
+  ifdef USE_GA_RELEASE
+    ifndef GA_RELEASE_NO
+      GA_RELEASE_NO=5.6.1
+    endif
+    GA_DIR=ga-$(GA_RELEASE_NO)
+  else
   ifdef DEV_GA
     GA_DIR = ga-dev
     GA_BRANCH = develop
@@ -568,6 +574,7 @@ ifdef USE_GAGITHUB
      GA_DIR = ga-5-6-1
      GA_BRANCH = hotfix/5.6.1
     endif
+  endif
   endif
 else
 ifdef DEV_GA
