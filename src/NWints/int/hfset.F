@@ -42,8 +42,14 @@
       ! Python: 1.5*math.log(math.pi) = 1.7170948287741004
       parameter (LOGPIx15=1.7170948287741d0)
       parameter (N3OVER2=-1.5d0)
+      double precision eps_small
+      parameter (eps_small=1d-32)
       double precision const
-      const = LOGPIx15 - log(val_int_acc)
+      if(val_int_acc.lt.eps_small)  then
+         const = LOGPIx15 - log(eps_small)
+      else
+         const = LOGPIx15 - log(val_int_acc)
+      endif
       
 
       Rx2 = (Axyz(1) - Bxyz(1))**2
