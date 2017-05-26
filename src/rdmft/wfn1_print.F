@@ -107,11 +107,20 @@ c
       nproc = ga_nnodes()
 c
       if (iproc.eq.0) then
+        write(LuOut,'(" WFN1                     :")')
+        write(LuOut,'(" --------------------------")')
         write(LuOut,'(" Total energy      = ",f22.10)')wfn1_energy%E_tot
         write(LuOut,'(" 1-Electron energy = ",f22.10)')wfn1_energy%E_1el
         write(LuOut,'(" 2-Electron energy = ",f22.10)')wfn1_energy%E_2el
         write(LuOut,'(" Entropy energy    = ",f22.10)')wfn1_energy%E_ent
         write(LuOut,'(" Nuclear energy    = ",f22.10)')wfn1_energy%E_nuc
+        write(LuOut,*)
+        write(LuOut,'(" conventional Hartree-Fock:")')
+        write(LuOut,'(" --------------------------")')
+        write(LuOut,'(" Total energy      = ",f22.10)')
+     &        wfn1_energy%E_tot-wfn1_energy%E_2el+wfn1_energy%E_2el_hf
+        write(LuOut,'(" 2-Electron energy = ",f22.10)')
+     &        wfn1_energy%E_2el_hf
       endif
 c
       end subroutine wfn1_print_energy

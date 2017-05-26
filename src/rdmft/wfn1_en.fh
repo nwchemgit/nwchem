@@ -11,9 +11,11 @@ C> It is not clear yet whether the 2-electron energy will be broken
 C> down into separate Coulomb and Exchange contributions.
 C>
       type wfn1_en
-         double precision :: E_tot ! The total energy
-         double precision :: E_1el ! The 1-electron energy
-         double precision :: E_2el ! The 2-electron energy
-         double precision :: E_nuc ! The nuclear repulsion energy
-         double precision :: E_ent ! The entropy dependent term
+         double precision :: E_tot    ! The total energy
+         double precision :: E_1el    ! The 1-electron energy
+         double precision :: E_2el    ! The 2-electron energy
+         double precision :: E_nuc    ! The nuclear repulsion energy
+         double precision :: E_ent    ! The entropy dependent term
+         double precision :: E_2el_hf ! The conventional Hartree-Fock
+                                      ! 2-electron energy
       end type wfn1_en

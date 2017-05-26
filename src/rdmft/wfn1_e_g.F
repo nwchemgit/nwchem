@@ -90,7 +90,7 @@ c     The 2-electron terms
 c
       call wfn1_e_g_2el(wfn1_param,wfn1_inst,wfn1_wave,wfn1_deriv,
      &                  v_dca,v_dcb,g_momo,g_momo2,g_momo3,g_momo4,
-     &                  wfn1_energy%E_2el)
+     &                  wfn1_energy%E_2el,wfn1_energy%E_2el_hf)
 c
 c     The entropy term
 c

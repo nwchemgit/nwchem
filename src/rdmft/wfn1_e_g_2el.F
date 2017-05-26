@@ -3,7 +3,7 @@ c
       subroutine wfn1_e_g_2el(wfn1_param,wfn1_inst,
      &                        wfn1_wave,wfn1_deriv,
      &                        v_dca,v_dcb,g_2aa,g_2bb,
-     &                        g_x2aa,g_x2bb,E_2el)
+     &                        g_x2aa,g_x2bb,E_2el,E_2el_hf)
       implicit none
 C>
 C> \brief Calculate the 2-electron terms
@@ -52,7 +52,9 @@ c
                                         ! 2-electron density matrix
                                         ! bb-block
 c
-      double precision, intent(out) :: E_2el ! the two-electron energy
+      double precision, intent(out) :: E_2el    ! the two-electron energy
+      double precision, intent(out) :: E_2el_hf ! the two-electron energy
+                                                ! of conventional Hartree-Fock
 c
 c     Local
 c
@@ -104,6 +106,8 @@ c
       double precision, pointer :: eri(:,:,:,:)
       double precision, pointer :: buf2(:)
       double precision, pointer :: den(:,:,:,:)
+      double precision, pointer :: buf_hf(:)
+      double precision, pointer :: den_hf(:,:,:,:)
       double precision, pointer :: denx(:,:,:,:)
 c
       double precision, pointer :: buf3aad(:)
@@ -254,6 +258,7 @@ c
       iproc = ga_nodeid()
 c
       E_2el = 0.0d0
+      E_2el_hf = 0.0d0
       nmo = wfn1_param%nmo
       nea = wfn1_param%nea
       neb = wfn1_param%neb
@@ -272,7 +277,7 @@ c
       call int_mem_2e4c(max2e,mem2)
       allocate(occa(1:nmo),occb(1:nmo))
 c     allocate(ocxa(1:nmo),ocxb(1:nmo))
-      allocate(buf(max2e),buf2(max2e),scr(mem2))
+      allocate(buf(max2e),buf2(max2e),buf_hf(max2e),scr(mem2))
       allocate(bufaa(maxsbf*nmo),bufba(maxsbf*nmo))
       allocate(bufca(maxsbf*nmo),bufda(maxsbf*nmo))
       allocate(bufab(maxsbf*nmo),bufbb(maxsbf*nmo))
@@ -390,6 +395,7 @@ c
               call ga_get(wfn1_wave%g_nb,ialo,iahi,1,nmo,naib,na)
               eri(idlo:idhi,iblo:ibhi,iclo:ichi,ialo:iahi)=>buf
               den(idlo:idhi,iblo:ibhi,iclo:ichi,ialo:iahi)=>buf2
+              den_hf(idlo:idhi,iblo:ibhi,iclo:ichi,ialo:iahi)=>buf_hf
 c
 c             calculate the 2-electron integrals
 c
@@ -397,6 +403,7 @@ c
      &                      wfn1_inst%basis, lc, la,
      &                      mem2, scr, max2e, eri)
               den = 0.0d0
+              den_hf = 0.0d0
 c
 c             calculate the 1RDM terms
 c
@@ -478,6 +485,13 @@ c    &                          + nbib(ib,ii)*ndib(id,ii)*ocxb(ii)
                       den(id,ib,ic,ia) = den(id,ib,ic,ia) 
      &                                 + daca(ia,ic)*dbdb(ib,id)
      &                                 + dacb(ia,ic)*dbda(ib,id)
+                      den_hf(id,ib,ic,ia) = den_hf(id,ib,ic,ia) 
+     &                                    + daca(ia,ic)*dbda(ib,id)
+     &                                    + daca(ia,ic)*dbdb(ib,id)
+     &                                    + dacb(ia,ic)*dbda(ib,id)
+     &                                    + dacb(ia,ic)*dbdb(ib,id)
+     &                                    - dada(ia,id)*dbca(ib,ic)
+     &                                    - dadb(ia,id)*dbcb(ib,ic)
                     enddo ! ia
                   enddo ! ic
                 enddo ! ib
@@ -912,6 +926,7 @@ c
 c             Add the 2-electron energy
 c
               E_2el = E_2el + 0.5d0*ddot(na*nb*nc*nd,eri,1,den,1)
+              E_2el_hf = E_2el_hf+0.5d0*ddot(na*nb*nc*nd,eri,1,den_hf,1)
 c
             enddo ! la
           enddo ! lb
@@ -951,7 +966,7 @@ c
       deallocate(bufca,    bufda)
       deallocate(bufaa,    bufba)
 c
-      deallocate(buf,      buf2, scr)
+      deallocate(buf,      buf2, buf_hf, scr)
 c     deallocate(ocxa,     ocxb)
       deallocate(occa,     occb)
 c
