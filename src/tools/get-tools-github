@@ -28,13 +28,21 @@ TOOLGIT=`which git`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
 if test "x$USE_GA_RELEASE" != x
 then
-if test "x$GA_RELNO" != x
+if test "x$GA_RELEASE_NO" = x
 then
     GA_RELEASE_NO=5.6.1
 fi
     GA_DIR=ga-"$GA_RELEASE_NO"
 if [ ! -f ga-"$GA_RELEASE_NO".tar.gz ]; then
- wget  -O ga-"$GA_RELEASE_NO".tar.gz https://github.com/GlobalArrays/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
+ echo "downloading" ga-"$GA_RELEASE_NO".tar.gz 
+ wget  -O ga-"$GA_RELEASE_NO".tar.gz https://github.com/GlobalArrays/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz 
+    if [ $? -ne 0 ]
+    then
+	rm -f ga-"$GA_RELEASE_NO".tar.gz
+	echo "wget failed for"  ga-"$GA_RELEASE_NO".tar.gz
+	echo " " 
+	exit 1
+    fi
 fi
 if [ ! -f ga-"$GA_RELEASE_NO".tar.gz ]; then 
     echo "Failed to download" ga-$GA_RELEASE_NO.tar.gz
