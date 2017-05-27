@@ -109,7 +109,7 @@ c
       if (iproc.eq.0) then
         write(LuOut,'(" WFN1                     :")')
         write(LuOut,'(" --------------------------")')
-        write(LuOut,'(" Total energy      = ",f22.10)')wfn1_energy%E_tot
+        write(LuOut,'(" Total WFN1 energy = ",f22.10)')wfn1_energy%E_tot
         write(LuOut,'(" 1-Electron energy = ",f22.10)')wfn1_energy%E_1el
         write(LuOut,'(" 2-Electron energy = ",f22.10)')wfn1_energy%E_2el
         write(LuOut,'(" Entropy energy    = ",f22.10)')wfn1_energy%E_ent
@@ -117,7 +117,7 @@ c
         write(LuOut,*)
         write(LuOut,'(" conventional Hartree-Fock:")')
         write(LuOut,'(" --------------------------")')
-        write(LuOut,'(" Total energy      = ",f22.10)')
+        write(LuOut,'(" Total SCF energy  = ",f22.10)')
      &        wfn1_energy%E_tot-wfn1_energy%E_2el+wfn1_energy%E_2el_hf
         write(LuOut,'(" 2-Electron energy = ",f22.10)')
      &        wfn1_energy%E_2el_hf
