@@ -1,4 +1,4 @@
- argument  1 = wfn1_he.nw
+ argument  1 = /Users/vandam/nwchem-wfn1-dev/QA/../QA/tests/wfn1_he/wfn1_he.nw
 
 
 
@@ -64,18 +64,18 @@ task wfn1 energy
            Job information
            ---------------
 
-    hostname        = LDC-153112.home
-    program         = ../../../bin/MACX64/nwchem
-    date            = Sun Mar 19 00:05:18 2017
+    hostname        = 10-4-27-16.user.vpn.bnl.local
+    program         = /Users/vandam/nwchem-wfn1-dev/QA/../bin/MACX64/nwchem
+    date            = Fri May 26 09:27:56 2017
 
-    compiled        = Sun_Mar_19_00:01:50_2017
+    compiled        = Fri_May_26_09:27:12_2017
     source          = /Users/vandam/nwchem-wfn1-dev
     nwchem branch   = Development
     nwchem revision = 28658
     ga revision     = 10724
-    input           = wfn1_he.nw
+    input           = /Users/vandam/nwchem-wfn1-dev/QA/../QA/tests/wfn1_he/wfn1_he.nw
     prefix          = wfn1_he_dat.
-    data base       = ./wfn1_he_dat.db
+    data base       = /Users/vandam/nwchem-wfn1-dev/QA/scratchdir/wfn1_he_dat.db
     status          = startup
     nproc           =        1
     time left       =     -1s
@@ -96,8 +96,8 @@ task wfn1 energy
            Directory information
            ---------------------
 
-  0 permanent = .
-  0 scratch   = .
+  0 permanent = /Users/vandam/nwchem-wfn1-dev/QA/scratchdir
+  0 scratch   = /Users/vandam/nwchem-wfn1-dev/QA/scratchdir
 
 
 
@@ -142,6 +142,9 @@ task wfn1 energy
  geometry
  he                    0.00000000     0.00000000     0.00000000
 
+  library name resolved from: environment
+  library file name is: </Users/vandam/nwchem-wfn1-dev/QA/../src/basis/libraries/>
+  
 
 
  Summary of "ao basis" -> "" (cartesian)
@@ -198,11 +201,18 @@ task wfn1 energy
 
  Reached Convergence
 
- Total energy      =          -2.8551604262
+ WFN1                     :
+ --------------------------
+ Total WFN1 energy =          -2.8551604262
  1-Electron energy =          -3.8820676078
  2-Electron energy =           1.0269071817
  Entropy energy    =           0.0000000000
  Nuclear energy    =           0.0000000000
+
+ conventional Hartree-Fock:
+ --------------------------
+ Total SCF energy  =          -2.8551604262
+ 2-Electron energy =           1.0269071817
 
 
       Natural orbital occupation numbers
@@ -221,7 +231,7 @@ task wfn1 energy
   ----- ------------  ---------------      ----- ------------  ---------------
      1     -0.592081  1 He s                  2     -0.513586  1 He s          
 
- Vector    2  Occ=2.389180D-21  E= 0.000000D+00
+ Vector    2  Occ=2.393441D-21  E= 0.000000D+00
               MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 7.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
@@ -237,7 +247,7 @@ task wfn1 energy
   ----- ------------  ---------------      ----- ------------  ---------------
      1     -0.592081  1 He s                  2     -0.513586  1 He s          
 
- Vector    2  Occ=2.389180D-21  E= 0.000000D+00
+ Vector    2  Occ=2.393441D-21  E= 0.000000D+00
               MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 7.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
@@ -286,11 +296,18 @@ task wfn1 energy
 
  Reached Convergence
 
- Total energy      =          -3.1665303773
+ WFN1                     :
+ --------------------------
+ Total WFN1 energy =          -3.1665303773
  1-Electron energy =          -3.5170510450
  2-Electron energy =           0.9949653577
  Entropy energy    =          -0.6444446900
  Nuclear energy    =           0.0000000000
+
+ conventional Hartree-Fock:
+ --------------------------
+ Total SCF energy  =          -3.0543581856
+ 2-Electron energy =           1.1071375494
 
 
       Natural orbital occupation numbers
@@ -332,7 +349,7 @@ task wfn1 energy
      2      1.187280  1 He s                  1     -1.149447  1 He s          
 
 
- Task  times  cpu:        0.3s     wall:        0.3s
+ Task  times  cpu:        0.1s     wall:        0.1s
 
 
                                 NWChem Input Module
@@ -349,9 +366,9 @@ task wfn1 energy
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:   88       88     6090     1120     3160        0        0        8     
+calls:   88       88     5138      598     1932        0        0        8     
 number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             1.67e+05 3.42e+04 7.11e+04 0.00e+00 0.00e+00 6.40e+01
+bytes total:             1.36e+05 1.75e+04 6.12e+04 0.00e+00 0.00e+00 6.40e+01
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 1056 bytes
 
@@ -404,4 +421,4 @@ MA usage statistics:
    K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
                                A. T. Wong, Z. Zhang.
 
- Total times  cpu:        0.6s     wall:        0.6s
+ Total times  cpu:        0.2s     wall:        0.2s

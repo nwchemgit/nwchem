@@ -1,4 +1,4 @@
- argument  1 = wfn1_h.nw
+ argument  1 = /Users/vandam/nwchem-wfn1-dev/QA/../QA/tests/wfn1_h/wfn1_h.nw
 
 
 
@@ -67,18 +67,18 @@ task wfn1 energy
            Job information
            ---------------
 
-    hostname        = LDC-153112.home
-    program         = ../../../bin/MACX64/nwchem
-    date            = Sun Mar 19 00:04:13 2017
+    hostname        = 10-4-27-16.user.vpn.bnl.local
+    program         = /Users/vandam/nwchem-wfn1-dev/QA/../bin/MACX64/nwchem
+    date            = Fri May 26 09:27:54 2017
 
-    compiled        = Sun_Mar_19_00:01:50_2017
+    compiled        = Fri_May_26_09:27:12_2017
     source          = /Users/vandam/nwchem-wfn1-dev
     nwchem branch   = Development
     nwchem revision = 28658
     ga revision     = 10724
-    input           = wfn1_h.nw
+    input           = /Users/vandam/nwchem-wfn1-dev/QA/../QA/tests/wfn1_h/wfn1_h.nw
     prefix          = wfn1_h_dat.
-    data base       = ./wfn1_h_dat.db
+    data base       = /Users/vandam/nwchem-wfn1-dev/QA/scratchdir/wfn1_h_dat.db
     status          = startup
     nproc           =        1
     time left       =     -1s
@@ -99,8 +99,8 @@ task wfn1 energy
            Directory information
            ---------------------
 
-  0 permanent = .
-  0 scratch   = .
+  0 permanent = /Users/vandam/nwchem-wfn1-dev/QA/scratchdir
+  0 scratch   = /Users/vandam/nwchem-wfn1-dev/QA/scratchdir
 
 
 
@@ -145,6 +145,9 @@ task wfn1 energy
  geometry
  h                     0.00000000     0.00000000     0.00000000
 
+  library name resolved from: environment
+  library file name is: </Users/vandam/nwchem-wfn1-dev/QA/../src/basis/libraries/>
+  
 
 
  Summary of "ao basis" -> "" (cartesian)
@@ -203,11 +206,18 @@ task wfn1 energy
 
  Reached Convergence
 
- Total energy      =          -0.4982329059
+ WFN1                     :
+ --------------------------
+ Total WFN1 energy =          -0.4982329059
  1-Electron energy =          -0.4982329059
  2-Electron energy =           0.0000000000
  Entropy energy    =           0.0000000000
  Nuclear energy    =           0.0000000000
+
+ conventional Hartree-Fock:
+ --------------------------
+ Total SCF energy  =          -0.4982329036
+ 2-Electron energy =           0.0000000023
 
 
       Natural orbital occupation numbers
@@ -301,11 +311,18 @@ task wfn1 energy
 
  Reached Convergence
 
- Total energy      =          -0.8161720955
+ WFN1                     :
+ --------------------------
+ Total WFN1 energy =          -0.8161720955
  1-Electron energy =          -0.2803418578
  2-Electron energy =           0.0000000000
  Entropy energy    =          -0.5358302378
  Nuclear energy    =           0.0000000000
+
+ conventional Hartree-Fock:
+ --------------------------
+ Total SCF energy  =          -0.7362460623
+ 2-Electron energy =           0.0799260333
 
 
       Natural orbital occupation numbers
@@ -347,7 +364,7 @@ task wfn1 energy
      1     -1.257798  1 H  s                  2      1.149752  1 H  s          
 
 
- Task  times  cpu:        0.5s     wall:        0.5s
+ Task  times  cpu:        0.1s     wall:        0.1s
 
 
                                 NWChem Input Module
@@ -364,9 +381,9 @@ task wfn1 energy
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:   86       86     1.10e+04 1745     5460        0        0        4     
+calls:   86       86     9708     1010     3622        0        0        4     
 number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             3.00e+05 5.42e+04 1.30e+05 0.00e+00 0.00e+00 3.20e+01
+bytes total:             2.58e+05 3.07e+04 1.15e+05 0.00e+00 0.00e+00 3.20e+01
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 1056 bytes
 
@@ -419,4 +436,4 @@ MA usage statistics:
    K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
                                A. T. Wong, Z. Zhang.
 
- Total times  cpu:        0.8s     wall:        0.8s
+ Total times  cpu:        0.4s     wall:        0.4s

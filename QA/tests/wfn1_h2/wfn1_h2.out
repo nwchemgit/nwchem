@@ -1,4 +1,4 @@
- argument  1 = wfn1_h2.nw
+ argument  1 = /Users/vandam/nwchem-wfn1-dev/QA/../QA/tests/wfn1_h2/wfn1_h2.nw
 
 
 
@@ -67,18 +67,18 @@ task wfn1 energy
            Job information
            ---------------
 
-    hostname        = LDC-153112.home
-    program         = ../../../bin/MACX64/nwchem
-    date            = Sun Mar 19 16:59:14 2017
+    hostname        = 10-4-27-16.user.vpn.bnl.local
+    program         = /Users/vandam/nwchem-wfn1-dev/QA/../bin/MACX64/nwchem
+    date            = Fri May 26 09:27:55 2017
 
-    compiled        = Sun_Mar_19_00:01:50_2017
+    compiled        = Fri_May_26_09:27:12_2017
     source          = /Users/vandam/nwchem-wfn1-dev
     nwchem branch   = Development
     nwchem revision = 28658
     ga revision     = 10724
-    input           = wfn1_h2.nw
+    input           = /Users/vandam/nwchem-wfn1-dev/QA/../QA/tests/wfn1_h2/wfn1_h2.nw
     prefix          = wfn1_h2_dat.
-    data base       = ./wfn1_h2_dat.db
+    data base       = /Users/vandam/nwchem-wfn1-dev/QA/scratchdir/wfn1_h2_dat.db
     status          = startup
     nproc           =        1
     time left       =     -1s
@@ -99,8 +99,8 @@ task wfn1 energy
            Directory information
            ---------------------
 
-  0 permanent = .
-  0 scratch   = .
+  0 permanent = /Users/vandam/nwchem-wfn1-dev/QA/scratchdir
+  0 scratch   = /Users/vandam/nwchem-wfn1-dev/QA/scratchdir
 
 
 
@@ -174,6 +174,9 @@ task wfn1 energy
  h                     0.00000000     0.00000000 -1000.00000000
  h                     0.00000000     0.00000000  1000.00000000
 
+  library name resolved from: environment
+  library file name is: </Users/vandam/nwchem-wfn1-dev/QA/../src/basis/libraries/>
+  
 
 
  Summary of "ao basis" -> "" (cartesian)
@@ -215,7 +218,7 @@ task wfn1 energy
   charge          =   0.00
   wavefunction    = RHF 
   input vectors   = atomic
-  output vectors  = ./wfn1_h2_dat.movecs
+  output vectors  = /Users/vandam/nwchem-wfn1-dev/QA/scratchdir/wfn1_h2_dat.movecs
   use symmetry    = T
   symmetry adapt  = T
 
@@ -242,7 +245,7 @@ task wfn1 energy
         eu          0
 
 
- Forming initial guess at       0.2s
+ Forming initial guess at       0.1s
 
 
       Superposition of Atomic Density Guess
@@ -313,15 +316,15 @@ task wfn1 energy
  #quartets = 2.000D+00 #integrals = 2.000D+00 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./wfn1_h2_dat.aoints.0
+ Integral file          = /Users/vandam/nwchem-wfn1-dev/QA/scratchdir/wfn1_h2_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      1        Max. records in file   =  34150
+ Max. records in memory =      1        Max. records in file   =  45605
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1       -0.5459930215  0.00D+00  0.00D+00      0.3
+                 1       -0.5459930215  0.00D+00  0.00D+00      0.2
 
 
        Final RHF  results 
@@ -423,18 +426,25 @@ task wfn1 energy
                                 ------------------
 
 
-  movecs_read_header: failed to open ./wfn1_h2_dat.covecs IERR =                     2
+  movecs_read_header: failed to open /Users/vandam/nwchem-wfn1-dev/QA/scratchdir/wfn1_h2_dat.covecs IERR =                     2
  iteration              energy           error          err Na          err Nb          err Ca          err Cb
  ---------              ------           -----          ------          ------          ------          ------
          1         -0.54599302        0.000000        0.000000        0.000000        0.000000        0.000000
 
  Reached Convergence
 
- Total energy      =          -0.5459930215
+ WFN1                     :
+ --------------------------
+ Total WFN1 energy =          -0.5459930215
  1-Electron energy =          -0.9336928764
  2-Electron energy =           0.3874352663
  Entropy energy    =           0.0000000000
  Nuclear energy    =           0.0002645886
+
+ conventional Hartree-Fock:
+ --------------------------
+ Total SCF energy  =          -0.5459930209
+ 2-Electron energy =           0.3874352668
 
 
       Natural orbital occupation numbers
@@ -488,7 +498,7 @@ task wfn1 energy
                                 ------------------
 
 
-  movecs_read_header: failed to open ./wfn1_h2_dat.covecs IERR =                     2
+  movecs_read_header: failed to open /Users/vandam/nwchem-wfn1-dev/QA/scratchdir/wfn1_h2_dat.covecs IERR =                     2
  iteration              energy           error          err Na          err Nb          err Ca          err Cb
  ---------              ------           -----          ------          ------          ------          ------
          1         -0.54606192        0.000282        0.000000        0.000000        0.000141        0.000141
@@ -509,11 +519,18 @@ task wfn1 energy
 
  Reached Convergence
 
- Total energy      =          -0.8232014916
+ WFN1                     :
+ --------------------------
+ Total WFN1 energy =          -0.8232014916
  1-Electron energy =          -0.9336928764
  2-Electron energy =           0.3874352663
  Entropy energy    =          -0.2772084701
  Nuclear energy    =           0.0002645886
+
+ conventional Hartree-Fock:
+ --------------------------
+ Total SCF energy  =          -0.8230692306
+ 2-Electron energy =           0.3875675272
 
 
       Natural orbital occupation numbers
@@ -527,13 +544,13 @@ task wfn1 energy
                      -----------------------------------------
 
  Vector    1  Occ=5.079373D-01  E= 0.000000D+00
-              MO Center=  0.0D+00,  0.0D+00,  1.7D-13, r^2= 1.0D+06
+              MO Center=  0.0D+00,  0.0D+00,  5.1D-13, r^2= 1.0D+06
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.707107  1 H  s                  2      0.707107  2 H  s          
 
  Vector    2  Occ=4.920627D-01  E= 0.000000D+00
-              MO Center=  0.0D+00,  0.0D+00, -3.4D-13, r^2= 1.0D+06
+              MO Center=  0.0D+00,  0.0D+00, -6.8D-13, r^2= 1.0D+06
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.707107  1 H  s                  2     -0.707107  2 H  s          
@@ -543,19 +560,19 @@ task wfn1 energy
                      ----------------------------------------
 
  Vector    1  Occ=5.079373D-01  E= 0.000000D+00
-              MO Center=  0.0D+00,  0.0D+00,  1.7D-13, r^2= 1.0D+06
+              MO Center=  0.0D+00,  0.0D+00,  5.1D-13, r^2= 1.0D+06
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.707107  1 H  s                  2      0.707107  2 H  s          
 
  Vector    2  Occ=4.920627D-01  E= 0.000000D+00
-              MO Center=  0.0D+00,  0.0D+00, -3.4D-13, r^2= 1.0D+06
+              MO Center=  0.0D+00,  0.0D+00, -6.8D-13, r^2= 1.0D+06
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.707107  1 H  s                  2     -0.707107  2 H  s          
 
 
- Task  times  cpu:        0.3s     wall:        0.3s
+ Task  times  cpu:        0.1s     wall:        0.1s
 
 
                                 NWChem Input Module
@@ -572,9 +589,9 @@ task wfn1 energy
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  138      138     8602     1582     4476        0        0       46     
+calls:  138      138     7394      914     2884        0        0       46     
 number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             2.32e+05 4.71e+04 9.83e+04 0.00e+00 0.00e+00 3.68e+02
+bytes total:             1.93e+05 2.57e+04 8.55e+04 0.00e+00 0.00e+00 3.68e+02
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 1056 bytes
 
@@ -627,4 +644,4 @@ MA usage statistics:
    K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
                                A. T. Wong, Z. Zhang.
 
- Total times  cpu:        0.6s     wall:        0.6s
+ Total times  cpu:        0.5s     wall:        0.5s
