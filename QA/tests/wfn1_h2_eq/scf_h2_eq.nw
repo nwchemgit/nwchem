@@ -1,0 +1,13 @@
+echo 
+start scf_h2_dat
+
+geometry
+  h 0 0 -0.366269
+  h 0 0  0.366269
+end
+basis 
+  * library 6-31g**
+end
+
+task scf energy
+
