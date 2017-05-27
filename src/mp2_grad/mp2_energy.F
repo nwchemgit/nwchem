@@ -89,6 +89,7 @@ c
       double precision mp2fac   ! coefficient on MP2 contribution to total energy
       double precision ess,  fss, eos, fos ! Spin Component Scaled (SCS) MP2
       logical scs                          ! SCS gradient
+      logical doprint
 c
 c     Check for dftmp2
 c
@@ -345,8 +346,9 @@ c
       if (.not. rtdb_get(rtdb, 'mp2:backtol', mt_dbl, 1, backtol))
      $     backtol = 1d-9  ! For screening derivative integrals
 c
-      if (util_print('information',print_low).and.ga_nodeid().eq.0) then
-         write(6,123) nbf, nmo, noa_frozen, nva_frozen, 
+      doprint=util_print('information',print_low).and.ga_nodeid().eq.0
+      if(doprint) then
+        write(6,123) nbf, nmo, noa_frozen, nva_frozen, 
      $        noa_active, nob_active, nva_active, nvb_active,
      $        osym, oskel, tol2e, tol2e_fock, backtol
  123     format(
@@ -389,8 +391,7 @@ c     flag and scaling factors for SCS-MP2
      $  fos = 1.2d0         ! opposite spin scaling factor for SCS-MP2
       if (.not. rtdb_get(rtdb, 'mp2:scs', mt_log, 1, scs))
      $  scs = .false.       ! flag for SCS gradient
-      if (util_print('information',print_low).and.ga_nodeid().eq.0
-     $     .and.scs) then
+      if (doprint.and.scs) then
          write(6,'(''  SCS-MP2               = '', l1)') scs
          call util_flush(6)
       endif
@@ -577,13 +578,13 @@ c
      $       call errquit('could not get scf energy',1, RTDB_ERR)
       endif
 c
-      if (util_print('information',print_low).and.ga_nodeid().eq.0) then
         if (dftmp2) then
           if (scs) then
             ! DHDF with MP2 scaling
             e2      = fss*ess+fos*eos
             e_total = escf + mp2fac*e2
-            write(6,996) escf, ess, fss, eos, fos, e2, e_total
+      if (doprint) 
+     W      write(6,996) escf, ess, fss, eos, fos, e2, e_total
  996        format(//,10x,43('-'),
      $              /,10x,'DFT energy                 ',f24.12,
      $              /,10x,'Same spin pairs            ',f24.12,
@@ -596,7 +597,7 @@ c
           else
             ! DHDF with no MP2 scaling
             e_total = escf + e2
-            write(6,998) escf, e2, e_total
+            if(doprint) write(6,998) escf, e2, e_total
  998        format(//,10x,43('-'),
      $              /,10x,'DFT energy             ',f24.12,
      $              /,10x,'Unscaled MP2 energy    ',f24.12,
@@ -605,7 +606,7 @@ c
           endif
         else ! HF-based MP2
           e_total = escf + e2
-          write(6,999) escf, e2, esing, etrip, e_total
+          if(doprint)write(6,999) escf, e2, esing, etrip, e_total
  999      format(//,10x,43('-'),
      $            /,10x,'SCF energy         ',f24.12,
      $            /,10x,'Correlation energy ',f24.12,
@@ -621,7 +622,7 @@ c
           ! why are we not setting e2 and e_total for SCS?
           ! (same for esing and etrip)
           ! these are written to RTDB and ECCE...
-          write(6,997) ess, fss, eos, fos, fss*ess+fos*eos,
+          if(doprint)write(6,997) ess, fss, eos, fos, fss*ess+fos*eos,
      $                 escf+fss*ess+fos*eos
  997      format(//,10x,51('-'),
      $            /,20x,'Spin Component Scaled (SCS) MP2'
@@ -633,8 +634,8 @@ c
      $            /,10x,'Total SCS-MP2 energy       ',f24.12,
      $            /,10x,51('-'),/)
         endif
-        call util_flush(6)
-      end if 
+        if(doprint) call util_flush(6)
+
 c
       call ecce_print1('total energy', mt_dbl, e_total, 1)
       call ecce_print1('correlation energy', mt_dbl, e2, 1)
