@@ -84,3 +84,21 @@ c
       end
 c
 c-----------------------------------------------------------------------
+c
+c Note: x*ln(x) is the Sterling approximation to ln(Gamma(x+1)) which 
+c       the generalization of ln(x!) to real numbers. The latter is
+c       referred to as the log-gamma function and its derivative is
+c       called the digamma function. The Sterling approximation is very
+c       accurate for large x, but we are interested in 0 <= x <= 1.
+c       In that domain the Sterling approximation is not very accurate.
+c       Worse the digamma function has a finite value at x=0 whereas the
+c       derivative of the Stirling approximation has an asymptote at
+c       x=0. The latter makes optimizations very hard. Nevertheless
+c       we cannot carelessly switch to the log-gamma and digamma 
+c       functions as there are few implementations of these functions.
+c       The most commonly available one resides in the GNU scientific
+c       library (GSL) which is released under the GPL. Hence we cannot
+c       use that implementation in NWChem. So we are between a rock and
+c       a hard place here.
+c
+c-----------------------------------------------------------------------
