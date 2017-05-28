@@ -755,7 +755,7 @@ c
                     do ii = iiblo, iibhi
                       do jj = ijblo, ijbhi
                         d3bad(ia,id,ii)  = d3bad(ia,id,ii) 
-     &                                   + naib(ib,jj)*ndib(id,jj)*
+     &                                   + naib(ia,jj)*ndib(id,jj)*
      &                                     occijb(ii,jj)
                         dx3bad(ia,id,ii) = dx3bad(ia,id,ii) 
      &                                   + naib(ia,jj)*ndib(id,jj)*
@@ -801,7 +801,7 @@ c
                     do ii = iiblo, iibhi
                       do jj = ijblo, ijbhi
                         d3bac(ia,ic,ii)  = d3bac(ia,ic,ii) 
-     &                                   + naib(ib,jj)*ncib(ic,jj)*
+     &                                   + naib(ia,jj)*ncib(ic,jj)*
      &                                     occijb(ii,jj)
                         dx3bac(ia,ic,ii) = dx3bac(ia,ic,ii) 
      &                                   + naib(ia,jj)*ncib(ic,jj)*
