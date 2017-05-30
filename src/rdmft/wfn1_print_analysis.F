@@ -35,9 +35,9 @@ c
       irrep = 0
 c
       call wfn1_calc_occ(wfn1_wave%g_ca,wfn1_param%nmo,wfn1_param%nea,
-     &                   wfn1_wave%icnfa,occa)
+     &                   wfn1_wave%icnfa,wfn1_wave%dcnta,occa)
       call wfn1_calc_occ(wfn1_wave%g_cb,wfn1_param%nmo,wfn1_param%neb,
-     &                   wfn1_wave%icnfb,occb)
+     &                   wfn1_wave%icnfb,wfn1_wave%dcntb,occb)
 c
       call wfn1_print_occ(wfn1_param%nmo,occa,occb)
 c

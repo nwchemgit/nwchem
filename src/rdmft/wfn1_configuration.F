@@ -14,10 +14,20 @@ c
 c
       do ii = 1, wfn1_param%nea
         wfn1_wave%icnfa(ii) = ii
+        wfn1_wave%dcnta(ii) = 1.0d0
       enddo
+      if (wfn1_param%nea.gt.0) then
+        wfn1_wave%dcnta(wfn1_param%nea) = wfn1_param%fraca
+      endif
 c
       do ii = 1, wfn1_param%neb
         wfn1_wave%icnfb(ii) = ii
+        wfn1_wave%dcntb(ii) = 1.0d0
       enddo
+      if (wfn1_param%neb.gt.0) then
+        wfn1_wave%dcntb(wfn1_param%neb) = wfn1_param%fracb
+      endif
 c
       end
+c
+c-----------------------------------------------------------------------

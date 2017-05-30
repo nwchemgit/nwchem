@@ -54,7 +54,7 @@ c
 c
       integer             npts        !< The number of points
       integer             mxpts       !< The maximum number of points
-      parameter          (mxpts = 10) !< Set the number points
+      parameter          (mxpts = 20) !< Set the number points
       double precision xx(mxpts)      !< The x-coordinates
       double precision fx(mxpts)      !< The function values
       double precision df(mxpts)      !< The function gradient
@@ -160,7 +160,7 @@ c     If the energy is minimized already and only redundant
 c     transformations remain then minimize the norm of the Fock 
 c     matrices
 c
-      do while (o_eminimized .and. dfm >=1.0d0)
+      do while (o_eminimized .and. dfm>=1.0d0 .and. npts.lt.mxpts)
         indxmin = wfn1_idmin(npts,df,1)
         call wfn1_closest_three(npts,xx,indxmin,ix1,ix2,ix3)
         call wfn1_df1df2df3(xx(ix1),xx(ix2),xx(ix3),

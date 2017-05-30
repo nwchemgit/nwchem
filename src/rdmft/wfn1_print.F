@@ -149,3 +149,49 @@ c
       end subroutine wfn1_print_error
 c
 c-----------------------------------------------------------------------
+c
+      subroutine wfn1_print_mat(dmat,nr,nc)
+      implicit none
+c
+c     A simple serial matrix print routine
+c
+#include "global.fh"
+#include "stdio.fh"
+c
+      integer, intent(in) :: nr ! the number of rows
+      integer, intent(in) :: nc ! the number of columns
+c
+      double precision, intent(in) :: dmat(nr,nc)
+c
+      integer :: ir, ic, kk ! counters
+      integer :: iproc, nproc
+c
+      integer, parameter :: mxc = 8 ! the maximum number of columns
+                                    ! printed at a time
+c
+      iproc = ga_nodeid()
+      nproc = ga_nnodes()
+      if (iproc.eq.0) then
+c
+        do ic = 1, nc, mxc
+          write(LuOut,*)
+          write(LuOut,'(5x,$)')
+          do kk = ic, min(ic+mxc-1,nc)
+            write(LuOut,'(i12,$)')kk
+          enddo
+          write(LuOut,*)
+          write(LuOut,*)
+          do ir = 1, nr
+            write(LuOut,'(i4,$)')ir
+            do kk = ic, min(ic+mxc-1,nc)
+              write(LuOut,'(f12.6,$)')dmat(ir,kk)
+            enddo
+            write(LuOut,*)
+          enddo
+        enddo
+c
+      endif
+c
+      end subroutine wfn1_print_mat
+c
+c-----------------------------------------------------------------------

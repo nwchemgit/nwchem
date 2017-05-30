@@ -324,33 +324,35 @@ c     ----------------------------
 c
 c     Calculate alpha-occupation numbers
 c
-      call wfn1_calc_occ(wfn1_wave%g_ca,nmo,nea,wfn1_wave%icnfa,occa)
+      call wfn1_calc_occ(wfn1_wave%g_ca,nmo,nea,wfn1_wave%icnfa,
+     &                   wfn1_wave%dcnta,occa)
 c     call wfn1_calc_ocx(wfn1_wave%g_ca,nmo,nea,wfn1_wave%icnfa,ocxa)
 c
 c     Calculate beta-occupation numbers
 c
-      call wfn1_calc_occ(wfn1_wave%g_cb,nmo,neb,wfn1_wave%icnfb,occb)
+      call wfn1_calc_occ(wfn1_wave%g_cb,nmo,neb,wfn1_wave%icnfb,
+     &                   wfn1_wave%dcntb,occb)
 c     call wfn1_calc_ocx(wfn1_wave%g_cb,nmo,neb,wfn1_wave%icnfb,ocxb)
 c
 c     Calculate alpha-alpha-occupation numbers
 c
       call wfn1_calc_occ2(wfn1_wave%g_ca,nmo,nea,wfn1_wave%icnfa,
-     &                    g_2aa)
+     &                    wfn1_wave%dcnta,g_2aa)
 c
 c     Calculate beta-beta-occupation numbers
 c
       call wfn1_calc_occ2(wfn1_wave%g_cb,nmo,neb,wfn1_wave%icnfb,
-     &                    g_2bb)
+     &                    wfn1_wave%dcntb,g_2bb)
 c
 c     Calculate exchange alpha-alpha-occupation number derivative
 c
       call wfn1_calc_docx2(wfn1_wave%g_ca,nmo,nea,wfn1_wave%icnfa,
-     &                     g_x2aa)
+     &                     wfn1_wave%dcnta,g_x2aa)
 c
 c     Calculate exchange beta-beta-occupation number derivative
 c
       call wfn1_calc_docx2(wfn1_wave%g_cb,nmo,neb,wfn1_wave%icnfb,
-     &                     g_x2bb)
+     &                     wfn1_wave%dcntb,g_x2bb)
 c
       call ga_sync()
 c

@@ -1,6 +1,6 @@
 c-----------------------------------------------------------------------
 c
-      subroutine wfn1_calc_occ(g_c,nmo,ne,icnf,occ)
+      subroutine wfn1_calc_occ(g_c,nmo,ne,icnf,dcnt,occ)
       implicit none
 C>
 C> \brief Calculate occupation numbers from a set of correlation
@@ -13,6 +13,8 @@ c
       integer, intent(in) :: nmo      ! the number of molecular orbitals
       integer, intent(in) :: ne       ! the number of electrons
       integer, intent(in) :: icnf(nmo)! the electron configuration
+c
+      double precision, intent(in)  :: dcnt(nmo)! the electron fraction
 c
       double precision, intent(out) :: occ(nmo) ! the occupation numbers
 c
@@ -35,7 +37,8 @@ c
         if(icnf(ir).ge.jlo.and.icnf(ir).le.jhi)
      &  then
           do ii = ilo, ihi
-            occ(ii) = occ(ii) + buf(ii,icnf(ir)) * buf(ii,icnf(ir))
+            occ(ii) = occ(ii) + buf(ii,icnf(ir)) * buf(ii,icnf(ir)) *
+     &                          dcnt(ir)
           enddo
         endif
       enddo
@@ -109,7 +112,7 @@ c     end subroutine wfn1_calc_ocx
 c
 c-----------------------------------------------------------------------
 c
-      subroutine wfn1_calc_occ2(g_c,nmo,ne,icnf,g_occ)
+      subroutine wfn1_calc_occ2(g_c,nmo,ne,icnf,dcnt,g_occ)
       implicit none
 C>
 C> \brief Calculate the 2-electron occupation numbers from a set of
@@ -124,6 +127,8 @@ c
       integer, intent(in) :: icnf(1:ne)! the electron configuration
       integer, intent(inout) :: g_occ  ! the 2-electron occupation 
                                        ! numbers
+c
+      double precision, intent(in) :: dcnt(1:ne)! the electron fraction
 c
       integer :: iolo, iohi, jolo, johi ! block limits of occupation GA
 c
@@ -157,8 +162,10 @@ c
               bocc(ii,ij) = bocc(ii,ij) 
      +                    + bcori(ii,icnf(is))*bcori(ii,icnf(is))
      +                    * bcorj(ij,icnf(it))*bcorj(ij,icnf(it))
+     +                    * dcnt(is)*dcnt(it)
      +                    - bcori(ii,icnf(is))*bcori(ii,icnf(it))
      +                    * bcorj(ij,icnf(it))*bcorj(ij,icnf(is))
+     +                    * dcnt(is)*dcnt(it)
             enddo
           enddo
         enddo
@@ -173,7 +180,7 @@ c
 c
 c-----------------------------------------------------------------------
 c
-      subroutine wfn1_calc_docx2(g_c,nmo,ne,icnf,g_ocx)
+      subroutine wfn1_calc_docx2(g_c,nmo,ne,icnf,dcnt,g_ocx)
       implicit none
 C>
 C> \brief Calculate the derivative of the 2-electron exchange 
@@ -189,6 +196,9 @@ c
       integer, intent(in) :: nmo       ! the number of molecular orbitals
       integer, intent(in) :: ne        ! the number of electrons
       integer, intent(in) :: icnf(1:ne)! the electron configuration
+c
+      double precision, intent(in) :: dcnt(1:ne)! the electron fraction
+c
       integer, intent(inout) :: g_ocx  ! the 2-electron occupation 
                                        ! numbers
 c
@@ -222,6 +232,7 @@ c
           do is = 1, ne
             bocc(ii,ij) = bocc(ii,ij) 
      +                    + bcori(ii,icnf(is))*bcorj(ij,icnf(is))
+     +                    * dcnt(is)
           enddo
         enddo
       enddo

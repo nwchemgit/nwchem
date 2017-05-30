@@ -322,6 +322,7 @@ c
             occa(ii) = occa(ii)
      &               + buf(ii,wfn1_wave%icnfa(jj))
      &               * buf(ii,wfn1_wave%icnfa(jj))
+     &               * wfn1_wave%dcnta(jj)
           enddo
         endif
       enddo
@@ -384,6 +385,7 @@ c
             occb(ii) = occb(ii)
      &               + buf(ii,wfn1_wave%icnfb(jj))
      &               * buf(ii,wfn1_wave%icnfb(jj))
+     &               * wfn1_wave%dcntb(jj)
           enddo
         endif
       enddo
@@ -540,6 +542,7 @@ c
             occa(ii) = occa(ii)
      &               + buf(ii,wfn1_wave%icnfa(jj))
      &               * buf(ii,wfn1_wave%icnfa(jj))
+     &               * wfn1_wave%dcnta(jj)
           enddo
         endif
       enddo
@@ -579,6 +582,7 @@ c
             occb(ii) = occb(ii)
      &               + buf(ii,wfn1_wave%icnfb(jj))
      &               * buf(ii,wfn1_wave%icnfb(jj))
+     &               * wfn1_wave%dcntb(jj)
           enddo
         endif
       enddo

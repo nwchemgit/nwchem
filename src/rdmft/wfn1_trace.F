@@ -214,13 +214,15 @@ c
       occ_ca = 0.0d0
       occ_cb = 0.0d0
       do ii = 1, nea
-        occ_ca(wfn1_wave%icnfa(ii)) = 1.0d0
+        occ_ca(wfn1_wave%icnfa(ii)) = wfn1_wave%dcnta(ii)
       enddo
       do ii = 1, neb
-        occ_cb(wfn1_wave%icnfb(ii)) = 1.0d0
+        occ_cb(wfn1_wave%icnfb(ii)) = wfn1_wave%dcntb(ii)
       enddo
-      call wfn1_calc_occ(wfn1_wave%g_ca,nmo,nea,wfn1_wave%icnfa,occ_na)
-      call wfn1_calc_occ(wfn1_wave%g_cb,nmo,neb,wfn1_wave%icnfb,occ_nb)
+      call wfn1_calc_occ(wfn1_wave%g_ca,nmo,nea,wfn1_wave%icnfa,
+     &                   wfn1_wave%dcnta,occ_na)
+      call wfn1_calc_occ(wfn1_wave%g_cb,nmo,neb,wfn1_wave%icnfb,
+     &                   wfn1_wave%dcntb,occ_nb)
 c
       call ga_distribution(wfn1_drva%g_dna,iproc,ilo,ihi,jlo,jhi)
       allocate(bufa(ilo:ihi,jlo:jhi))

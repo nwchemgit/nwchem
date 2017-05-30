@@ -14,6 +14,8 @@ C>
          double precision :: convergence ! convergence criterion
          double precision :: enuc        ! nuclear repulsion energy
          double precision :: Tbath       ! the bath temperature
+         double precision :: fraca       ! fraction of alpha electron
+         double precision :: fracb       ! fraction of beta electron
          integer          :: maxiter     ! maximum number of iterations
          integer          :: nbf         ! number of basis functions
          integer          :: nmo         ! number of molecular orbitals

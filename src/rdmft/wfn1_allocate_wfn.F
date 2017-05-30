@@ -73,6 +73,8 @@ c
 c
       deallocate(map)
 c
+      allocate(wfn1_wave%dcnta(1:wfn1_param%nea))
+      allocate(wfn1_wave%dcntb(1:wfn1_param%neb))
       allocate(wfn1_wave%icnfa(1:wfn1_param%nea))
       allocate(wfn1_wave%icnfb(1:wfn1_param%neb))
 c
@@ -94,6 +96,8 @@ c
 !>
       deallocate(wfn1_wave%icnfa)
       deallocate(wfn1_wave%icnfb)
+      deallocate(wfn1_wave%dcnta)
+      deallocate(wfn1_wave%dcntb)
       if (.not.ga_destroy(wfn1_wave%g_na)) then
         call errquit(pname//" failed to dealloc g_na",0,GA_ERR)
       endif

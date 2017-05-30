@@ -240,6 +240,28 @@ c
       if (.not. rtdb_get(wfn1_inst%rtdb,'wfn1:nvirtb',MT_INT,1,
      &                   wfn1_param%nvirtb))
      &  wfn1_param%nvirtb = 0
+      if (.not. rtdb_get(wfn1_inst%rtdb,'wfn1:fraca',MT_DBL,1,
+     &                   wfn1_param%fraca))
+     &  wfn1_param%fraca = 1.0d0
+      if (.not. rtdb_get(wfn1_inst%rtdb,'wfn1:fracb',MT_DBL,1,
+     &                   wfn1_param%fracb))
+     &  wfn1_param%fracb = 1.0d0
+      if (wfn1_param%fraca.lt.0.0d0) then
+        call errquit(pname//" negative fractional alpha electron",
+     &               0,INPUT_ERR)
+      endif
+      if (wfn1_param%fraca.gt.1.0d0) then
+        call errquit(pname//" fractional alpha electron greater "//
+     &               "than one",0,INPUT_ERR)
+      endif
+      if (wfn1_param%fracb.lt.0.0d0) then
+        call errquit(pname//" negative fractional beta electron",
+     &               0,INPUT_ERR)
+      endif
+      if (wfn1_param%fracb.gt.1.0d0) then
+        call errquit(pname//" fractional beta electron greater "//
+     &               "than one",0,INPUT_ERR)
+      endif
       nelec = int(charge_nuc - charge)
       if (nelec.lt.0) then
         call errquit(pname//" negative number of electrons",
@@ -363,6 +385,8 @@ c     == Allocate memory for the wavefunction ==
 c
       call wfn1_allocate_wfn(wfn1_param,wfn1_inst,wfn1_wave)
       call wfn1_allocate_wfn(wfn1_param,wfn1_inst,wfn1_trial_wv)
+      allocate(wfn1_t_wv%dcnta(1:wfn1_param%nea))
+      allocate(wfn1_t_wv%dcntb(1:wfn1_param%neb))
       allocate(wfn1_t_wv%icnfa(1:wfn1_param%nea))
       allocate(wfn1_t_wv%icnfb(1:wfn1_param%neb))
 c
@@ -495,6 +519,8 @@ c     == Clean up ==
 c
       call wfn1_deallocate_drv(wfn1_trial_drv)
       call wfn1_deallocate_drv(wfn1_deriv)
+      deallocate(wfn1_t_wv%dcntb)
+      deallocate(wfn1_t_wv%dcnta)
       deallocate(wfn1_t_wv%icnfb)
       deallocate(wfn1_t_wv%icnfa)
       call wfn1_deallocate_wfn(wfn1_trial_wv)
