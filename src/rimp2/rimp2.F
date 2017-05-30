@@ -470,7 +470,7 @@ c      EndIf
 c
 c       same format as MP2 and directMP2
 c
-        if (Me.eq.0) then
+       if (Me.eq.0) then
           if (dftmp2) then ! DHDF
             if (scs) then
               write(6,996) RefEner,CorEner,TotEner
@@ -495,8 +495,8 @@ c
      $                /,10x,'SCS Correlation energy ',f24.12,
      $                /,10x,'Total SCS-MP2 energy   ',f24.12,
      $                /,10x,47('-'),/)
-              write(6,999) RefEner,CorEner,TotEner
             else
+              write(6,999) RefEner,CorEner,TotEner
  999          format(//,10x,43('-'),
      $                /,10x,'SCF energy         ',f24.12,
      $                /,10x,'Correlation energy ',f24.12,
