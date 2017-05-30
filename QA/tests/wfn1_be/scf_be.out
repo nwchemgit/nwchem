@@ -1,0 +1,461 @@
+ argument  1 = scf_be.nw
+
+
+
+============================== echo of input deck ==============================
+echo
+start wfn1_be_dat
+
+geometry
+  be 0 0 0
+end
+basis
+  * library 6-31g
+end
+
+dft
+  xc hfexch
+end
+
+task dft energy
+================================================================================
+
+
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.6
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2015
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = 10-4-27-60.user.vpn.bnl.local
+    program         = ../../../bin/MACX64/nwchem
+    date            = Mon May 29 22:15:57 2017
+
+    compiled        = Mon_May_29_21:56:35_2017
+    source          = /Users/vandam/nwchem-wfn1-dev
+    nwchem branch   = Development
+    nwchem revision = 28658
+    ga revision     = 10724
+    input           = scf_be.nw
+    prefix          = wfn1_be_dat.
+    data base       = ./wfn1_be_dat.db
+    status          = startup
+    nproc           =        1
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   13107196 doubles =    100.0 Mbytes
+    stack    =   13107201 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428797 doubles =    400.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 be                   4.0000     0.00000000     0.00000000     0.00000000
+
+      Atomic Mass 
+      ----------- 
+
+      be                 9.012180
+
+
+ Effective nuclear repulsion energy (a.u.)       0.0000000000
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+
+            XYZ format geometry
+            -------------------
+     1
+ geometry
+ be                    0.00000000     0.00000000     0.00000000
+
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                           6-31g                    on all atoms 
+
+
+  xc_inp: hfexch multiplicative factor not found.
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+                      Basis "ao basis" -> "ao basis" (cartesian)
+                      -----
+  be (Beryllium)
+  --------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.26458570E+03  0.001945
+  1 S  1.89936810E+02  0.014835
+  1 S  4.31590890E+01  0.072091
+  1 S  1.20986630E+01  0.237154
+  1 S  3.80632320E+00  0.469199
+  1 S  1.27289030E+00  0.356520
+
+  2 S  3.19646310E+00 -0.112649
+  2 S  7.47813300E-01 -0.229506
+  2 S  2.19966300E-01  1.186917
+
+  3 P  3.19646310E+00  0.055980
+  3 P  7.47813300E-01  0.261551
+  3 P  2.19966300E-01  0.793972
+
+  4 S  8.23099000E-02  1.000000
+
+  5 P  8.23099000E-02  1.000000
+
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ be                          6-31g                   5        9   3s2p
+
+
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ be                          6-31g                   5        9   3s2p
+
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     1
+          No. of electrons :     4
+           Alpha electrons :     2
+            Beta electrons :     2
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          AO basis - number of functions:     9
+                     number of shells:     5
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  1.000          
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:         -14.56676403
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =     -14.566764
+ 1-e energy   =     -19.117157
+ 2-e energy   =       4.550393
+ HOMO         =      -0.301295
+ LUMO         =       0.082435
+
+ Initial wavefunction
+
+ global array: alpha evecs[1:9,1:9],  handle: -995 
+
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1      -0.99800    -0.22266    -0.00000    -0.00000     0.00000     0.00339
+   2      -0.01614     0.28877     0.00000    -0.00000     0.00000     2.01724
+   3       0.00000     0.00000     0.00321    -0.00013     0.26413     0.00000
+   4      -0.00000    -0.00000     0.26412     0.00246    -0.00321     0.00000
+   5       0.00000     0.00000    -0.00246     0.26414     0.00016    -0.00000
+   6       0.00548     0.76098     0.00000     0.00000    -0.00000    -1.89832
+   7       0.00000     0.00000     0.00976    -0.00038     0.80374    -0.00000
+   8      -0.00000    -0.00000     0.80370     0.00748    -0.00976    -0.00000
+   9       0.00000     0.00000    -0.00747     0.80376     0.00047     0.00000
+
+            7           8           9  
+       ----------- ----------- -----------
+   1       0.00000     0.00000    -0.00000
+   2      -0.00000    -0.00000    -0.00000
+   3       1.22865     0.47413     0.08021
+   4      -0.47864     1.22700     0.07879
+   5       0.04628     0.10246    -1.31460
+   6       0.00000     0.00000     0.00000
+   7      -1.00490    -0.38779    -0.06560
+   8       0.39147    -1.00355    -0.06444
+   9      -0.03785    -0.08380     1.07520
+   Time after variat. SCF:      0.5
+   Time prior to 1st pass:      0.5
+
+ #quartets = 1.200D+02 #integrals = 2.640D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./wfn1_be_dat.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  46199
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       12.98            12975116
+          Stack Space remaining (MW):       13.11            13107028
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1    -14.5667640335 -1.46D+01  3.66D-08  9.74D-15     0.7
+  Resetting Diis
+ d= 0,ls=0.0,diis     2    -14.5667640335 -2.66D-14  1.03D-08  4.70D-16     0.7
+
+
+         Total DFT energy =      -14.566764033507
+      One electron energy =      -19.117156304246
+           Coulomb energy =        7.232946363033
+    Exchange-Corr. energy =       -2.682554092294
+ Nuclear repulsion energy =        0.000000000000
+
+ Numeric. integr. density =        0.000000000000
+
+     Total iterative time =      0.2s
+
+
+
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+
+ Vector    1  Occ=2.000000D+00  E=-4.706891D+00
+              MO Center= -3.3D-17, -2.7D-17, -5.2D-18, r^2= 6.5D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.997996  1 Be s          
+
+ Vector    2  Occ=2.000000D+00  E=-3.012954D-01
+              MO Center=  1.4D-15, -1.3D-16, -5.0D-17, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.760980  1 Be s                  2      0.288767  1 Be s          
+     1     -0.222660  1 Be s          
+
+ Vector    3  Occ=0.000000D+00  E= 8.243534D-02
+              MO Center= -7.1D-16,  5.3D-16, -4.9D-18, r^2= 3.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      0.644488  1 Be px                 8     -0.480318  1 Be py         
+     3      0.211798  1 Be px                 4     -0.157847  1 Be py         
+
+ Vector    4  Occ=0.000000D+00  E= 8.243534D-02
+              MO Center= -3.3D-16, -4.4D-16,  2.7D-18, r^2= 3.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      0.644477  1 Be py                 7      0.480337  1 Be px         
+     4      0.211795  1 Be py                 3      0.157853  1 Be px         
+
+ Vector    5  Occ=0.000000D+00  E= 8.243534D-02
+              MO Center= -9.9D-20,  4.7D-19,  6.5D-17, r^2= 3.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.803775  1 Be pz                 5      0.264145  1 Be pz         
+
+ Vector    6  Occ=0.000000D+00  E= 4.397543D-01
+              MO Center=  4.5D-14,  2.2D-14, -2.3D-15, r^2= 3.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      2.017245  1 Be s                  6     -1.898320  1 Be s          
+
+ Vector    7  Occ=0.000000D+00  E= 4.649310D-01
+              MO Center= -1.1D-14, -3.3D-14,  2.3D-15, r^2= 3.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      1.253271  1 Be py                 8     -1.025036  1 Be py         
+     3      0.402866  1 Be px                 7     -0.329499  1 Be px         
+     5     -0.088513  1 Be pz                 9      0.072394  1 Be pz         
+
+ Vector    8  Occ=0.000000D+00  E= 4.649310D-01
+              MO Center= -3.5D-14,  1.1D-14, -1.6D-16, r^2= 3.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      1.256207  1 Be px                 7     -1.027437  1 Be px         
+     4     -0.403402  1 Be py                 8      0.329938  1 Be py         
+
+ Vector    9  Occ=0.000000D+00  E= 4.649310D-01
+              MO Center= -1.2D-18, -4.9D-18, -7.5D-17, r^2= 3.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      1.316417  1 Be pz                 9     -1.076683  1 Be pz         
+     4      0.086038  1 Be py                 8     -0.070369  1 Be py         
+
+
+ Parallel integral file used       1 records with       0 large values
+
+
+ Task  times  cpu:        0.5s     wall:        0.5s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:   70       70      251      194       34        0        0       62     
+number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
+bytes total:             7.45e+04 3.75e+04 2.20e+04 0.00e+00 0.00e+00 4.96e+02
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 23328 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        19	        19
+	current total bytes		         0	         0
+	maximum total bytes		   1056664	  22509992
+	maximum total K-bytes		      1057	     22510
+	maximum total M-bytes		         2	        23
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+
+                                      AUTHORS
+                                      -------
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+       S. A. Fischer, S. Krishnamoorthy, W. Ma, M. Klemm, O. Villa, Y. Chen,
+    V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler, V. Konjkov, T. Risthaus,
+       M. Malagoli, A. Marenich, A. Otero-de-la-Roza, J. Mullin, P. Nichols,
+      R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari, M. Williamson,
+      R. J. Harrison, J. R. Rehr, M. Dupuis, D. Silverstein, D. M. A. Smith,
+            J. Nieplocha, V. Tipparaju, M. Krishnan, B. E. Van Kuiken,
+        A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu, T. Van Voorhis,
+     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
+   H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman,
+    K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski, T. Clark, D. Clerc,
+   H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
+   A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
+   R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+   K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
+                               A. T. Wong, Z. Zhang.
+
+ Total times  cpu:        0.7s     wall:        0.7s

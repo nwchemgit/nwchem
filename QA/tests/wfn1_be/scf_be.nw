@@ -1,0 +1,15 @@
+echo
+start wfn1_be_dat
+
+geometry
+  be 0 0 0
+end
+basis
+  * library 6-31g
+end
+
+dft
+  xc hfexch
+end
+
+task dft energy
