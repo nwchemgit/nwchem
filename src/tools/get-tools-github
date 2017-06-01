@@ -26,6 +26,10 @@ done
 TOOLDIR=`pwd`
 TOOLGIT=`which git`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
+if test "x$GA_BRANCH" = x 
+then
+USE_GA_RELEASE=1
+fi
 if test "x$USE_GA_RELEASE" != x
 then
 if test "x$GA_RELEASE_NO" = x

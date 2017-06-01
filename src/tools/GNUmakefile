@@ -552,6 +552,14 @@ ifdef CXXFLAGS_FORGA
     MAYBE_CXXFLAGS=CXXFLAGS="$(CXXFLAGS_FORGA)"
 endif
 # End conversion of env vars to configure options
+USE_GAGITHUB=1
+ifdef USE_GASVN
+ USE_GAGITHUB=
+endif
+USE_GA_RELEASE=1
+ifdef GA_BRANCH
+ USE_GA_RELEASE=
+endif
 
 ifdef USE_GAGITHUB
 	GET_TOOLS=./get-tools-github
@@ -571,7 +579,7 @@ ifdef USE_GAGITHUB
     else
 #     GA_DIR = ga-5-6
 #     GA_BRANCH = release/5.6
-     GA_DIR = ga-5-6-1
+     GA_DIR = ga-5.6.1
      GA_BRANCH = hotfix/5.6.1
     endif
   endif
