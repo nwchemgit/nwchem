@@ -560,6 +560,9 @@ USE_GA_RELEASE=1
 ifdef GA_BRANCH
  USE_GA_RELEASE=
 endif
+ifdef DEV_GA
+ USE_GA_RELEASE=
+endif
 
 ifdef USE_GAGITHUB
 	GET_TOOLS=./get-tools-github
@@ -569,20 +572,15 @@ ifdef USE_GAGITHUB
     endif
     GA_DIR=ga-$(GA_RELEASE_NO)
   else
-  ifdef DEV_GA
-    GA_DIR = ga-dev
-    GA_BRANCH = develop
-  else
-    ifdef GA_BRANCH
+#DEV_GA=1 gives the current "best" dev branch, not develop
+#to get develop, set GA_BRANCH-develop
+    ifdef DEV_GA
+      GA_DIR = ga-5.6.2
+      GA_BRANCH = hotfix/5.6.2
+    else
       GA_DIR0=ga-$(GA_BRANCH)
       GA_DIR=$(shell echo $(GA_DIR0) | sed -e 's/\//_/g')
-    else
-#     GA_DIR = ga-5-6
-#     GA_BRANCH = release/5.6
-     GA_DIR = ga-5.6.1
-     GA_BRANCH = hotfix/5.6.1
     endif
-  endif
   endif
 else
 ifdef DEV_GA
@@ -670,7 +668,7 @@ $(GA_DIR)/armci/Makefile.in: $(GA_DIR)/configure
 	$(GET_TOOLS)
 	touch $(GA_DIR)/armci/Makefile.in
 $(GA_DIR)/armci/configure: $(GA_DIR)/armci/Makefile.in
-	@echo "No Global Arrays found: Attempting running ./get-tools"
+	@echo "3No Global Arrays found: Attempting running ./get-tools"
 	$(GET_TOOLS)
 	touch $(GA_DIR)/armci/configure
 endif # DONTCARE
