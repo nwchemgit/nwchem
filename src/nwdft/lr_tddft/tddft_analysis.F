@@ -1736,6 +1736,7 @@ c
       if (.not.rtdb_put(rtdb,'tddft:energy',mt_dbl,1,energy))
      1  call errquit('tddft_analysis: failed to put tddft energy',0,
      &       RTDB_ERR)
+      if(ga_nodeid().eq.0) write(6,*) ' stored tddft:energy ',energy
 c     storing all calculated excited state energies on RTDB
       if(.not.rtdb_put(rtdb,'tddft:energy-all',mt_dbl,nroots,
      $                 apbval(1:nroots)))

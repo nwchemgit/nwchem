@@ -453,8 +453,18 @@ c
       if(.not.rtdb_put(rtdb,'fock_xc:triplet',mt_log,1,.false.))
      1  call errquit('tddft_energy: failed to unset triplet',0,
      &       RTDB_ERR)
+#if 0
       if (rtdb_get(rtdb,'tddft:energy',mt_dbl,1,energy))
      1  tddft_energy=.true.
+#else
+      if (rtdb_get(rtdb,'tddft:energy',mt_dbl,1,energy)) then
+       tddft_energy=.true.
+      else
+       call errquit('tddft_energy: failed to get tddft:energy',0,
+     &       RTDB_ERR)
+      endif
+#endif
+         
       call tddft_finalize(geom,ao_bas_han,ipol,g_movecs,l_evl,k_evl,
      1  l_occ,k_occ,l_irs,k_irs)
       if ((algorithm.eq.1).or.(algorithm.eq.2)) then
