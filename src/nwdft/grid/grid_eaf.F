@@ -172,6 +172,13 @@ c
      A        ' kgridp ',k_gridp
          call util_flush(luout)
       endif
+c     return because gridpts not allocated
+      if(fd.eq.-1) then
+      if(otrace)  write(luout,*) ' quick return for fd= ',fd
+         grid_ptsdel=.true.
+         return
+      endif
+
 csanity check
       if(fd.ne.k_gridp) call errquit(
      A     'gridptsdel: fd ne kgridp',0,MA_ERR)

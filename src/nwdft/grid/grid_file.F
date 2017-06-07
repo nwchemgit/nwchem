@@ -48,6 +48,10 @@ c
       external grid_file_rewind,grid_file_close
       logical grid_grinfoinit,grid_grinfo2,grid_ptsalloc
       external grid_grinfoinit,grid_grinfo2,grid_ptsalloc
+#ifdef EAFHACK
+      logical grid_ptsdel
+      external grid_ptsdel
+#endif
 c     Open file returning CHEMIO filehandle (not yet)
 c     Return true on success, false on failure
 c
@@ -188,6 +192,11 @@ c        l_cache = -1
          if(abs(enuc-enuc_in).gt.1d-7) then
             if (otrace)
      T           write(Luout,*) ' GRIDFILE: wrong enucs ',enuc,enuc_in
+c     de-allocate heap
+#ifdef EAFHACK
+            if(.not.grid_ptsdel(fd)) call errquit(
+     A           ' grfileopen: grid_ptsdel failed fd ',fd,HEAP_ERR)
+#endif
             return
 	 endif
          if (otrace) then
