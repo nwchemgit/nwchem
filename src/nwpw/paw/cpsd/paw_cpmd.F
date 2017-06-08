@@ -1442,7 +1442,7 @@ c    .   ' (',F6.3,' smooth)')
  1270 FORMAT(/' technical parameters:')
  1271 FORMAT(5x, ' translation constrained')
  1272 FORMAT(5x, ' rotation constrained')
- 1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
+ 1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
  1290 FORMAT(5X, ' cooling/heatting rates: ',e12.5,' (psi)',2x,
      >                                       e12.5,' (ion)')
  1294 format(/' Constant Energy Simulation                     ')

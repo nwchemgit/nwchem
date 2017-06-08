@@ -1180,7 +1180,7 @@ c    .   ' (',F6.3,' smooth)')
  1261 FORMAT(5X,'                   madelung=',f11.8)
  1262 FORMAT(5X,' core integration lmax=',I2)
  1270 FORMAT(/' technical parameters:')
- 1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
+ 1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (electron)',E12.3,' (ion)')
  1300 FORMAT(//)
