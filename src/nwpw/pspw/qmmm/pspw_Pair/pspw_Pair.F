@@ -425,23 +425,25 @@ c     **** QM/QM VPower energy ****
       end if
 
 c     **** QM/MM VPower energy ****
-      do j = nion_qm+1,nion
-         if (dutask.eq.taskid) then
-         jj = katm(j)
-         do i=1,nion_qm
-            ii = katm(i)
-            npair  = int_mb(npair_all(1) +(jj-1)*nkatm+ii-1)
-            istart = int_mb(pair_start(1)+(jj-1)*nkatm+ii-1)
-            if (npair.gt.0)
-     >         E = E + lmbda*pspw_VPair_E_periodic(npair,
+      if (nion_qm.gt.0) then
+         do j = nion_qm+1,nion
+            if (dutask.eq.taskid) then
+            jj = katm(j)
+            do i=1,nion_qm
+               ii = katm(i)
+               npair  = int_mb(npair_all(1) +(jj-1)*nkatm+ii-1)
+               istart = int_mb(pair_start(1)+(jj-1)*nkatm+ii-1)
+               if (npair.gt.0)
+     >            E = E + lmbda*pspw_VPair_E_periodic(npair,
      >                        int_mb(type_all(1) +istart),
      >                        dbl_mb(param_all(1)+6*istart),
      >                        rion(1,i),rion(1,j),
      >                        nshl3d,rcell)
+            end do
+            end if
+            dutask = mod(dutask+1,np)
          end do
-         end if
-         dutask = mod(dutask+1,np)
-      end do
+      end if
 
 c     **** MM/MM VPower 1 cell energy ****
       do w1 = 1,nfrag-1

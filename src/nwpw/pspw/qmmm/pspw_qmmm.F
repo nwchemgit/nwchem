@@ -1396,7 +1396,7 @@ c     **** external functions ***
       real*8   pspw_Pair_Emix
       external pspw_Pair_Emix
 
-      if (auxiliary_only) then
+      if ((auxiliary_only).or.(ion_nion_qm().eq.0)) then
          pspw_qmmm_LJ_Emix = 0.0d0
       else
          pspw_qmmm_LJ_Emix = pspw_Pair_Emix(ion_nion(),
@@ -1498,15 +1498,15 @@ c     >                 (e1-e2+e3+e4),(e3+e4+e1)
       real*8 e2,e3,e4
 
 c     **** external functions ***
-      integer  control_version
-      external control_version
+      integer  control_version,ion_nion_qm
+      external control_version,ion_nion_qm
       real*8   ewald_e,ewald_e_qm,ewald_e_mm
       external ewald_e,ewald_e_qm,ewald_e_mm
       real*8   ion_ion_e,ion_ion_e_qm,ion_ion_e_mm
       external ion_ion_e,ion_ion_e_qm,ion_ion_e_mm
 
 
-      if (auxiliary_only) then
+      if ((auxiliary_only).or.(ion_nion_qm().eq.0)) then
          pspw_qmmm_Q_Emix = 0.0d0
       else
          if (control_version().eq.3) then
