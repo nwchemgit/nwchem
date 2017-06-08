@@ -261,6 +261,8 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
       external pspw_charge_charge
       logical  pspw_bqext
       external pspw_bqext
+      !integer  ion_nion_mm,ion_nion_qm
+      !external ion_nion_mm,ion_nion_qm
 
       allow_translation = control_allow_translation()
       nion = ion_nion()
