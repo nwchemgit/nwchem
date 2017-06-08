@@ -65,8 +65,9 @@ c
       integer l_sorta,k_sorta  ! MA handles for work array
       integer l_t(2),k_t(2)    ! MA handles for work array
       integer l_irrep,k_irrep  ! MA handles for work array
-      integer isym,jsym
-      character*4 oname
+      integer isym,jsym,maxireps
+      parameter (maxireps=20)
+      character*4 oname,oname_ir(maxireps)
       integer i,j,k,l,m,n
       logical nodezero
       integer request
@@ -94,6 +95,10 @@ c
       parameter (au2ev=27.2113961d0)
 c
       nodezero=(ga_nodeid().eq.0)
+c     init irreps names
+      do isym=1,maxireps
+         oname_ir(isym)='jnk'
+      enddo
 c
 c Determine the length of the trial vector: Occ*Virt
       call tddft_lentrialvec(ipol,nocc,nmo,nfc,nfv,nov)
@@ -221,6 +226,7 @@ c ... frozen cores are irrelevant
         enddo
       endif
       call sym_irrepname(geom,isym,oname)
+      oname_ir(isym)=oname
       if (nodezero.and.util_print('initial guess',print_debug))
      1  write(LuOut,*) 'Ground state symmetry ',oname
 c
@@ -277,7 +283,12 @@ c
 c
              jsym=ieor(isym-1,int_mb(k_irs(i)+j-1)-1)+1
              jsym=ieor(jsym-1,int_mb(k_irs(i)+k-1)-1)+1
-             call sym_irrepname(geom,jsym,oname)
+             if(oname_ir(jsym).eq.'jnk') then
+                call sym_irrepname(geom,jsym,oname)
+                oname_ir(jsym)=oname
+             else
+                oname=oname_ir(jsym)
+             endif
 c
              if (((.not.symmetry).or.(targetsym.eq.oname))
      1             .and.(dbl_mb(k_ediff+l-1).lt.swap)) then
@@ -311,7 +322,13 @@ c
         write(LuOut,9010)
         write(LuOut,9020)
         do m=1,n
-          call sym_irrepname(geom,int_mb(k_irrep+m-1),oname)
+           jsym=int_mb(k_irrep+m-1)
+           if(oname_ir(jsym).eq.'jnk') then
+                call sym_irrepname(geom,jsym,oname)
+                oname_ir(jsym)=oname
+             else
+                oname=oname_ir(jsym)
+             endif
           write(LuOut,9030) m,int_mb(k_sortp+m-1),
      1      int_mb(k_sorto+m-1),int_mb(k_sortv+m-1),oname,
      2      evl(int_mb(k_sorto+m-1),int_mb(k_sortp+m-1)),
@@ -320,6 +337,7 @@ c
      5      evl(int_mb(k_sorto+m-1),int_mb(k_sortp+m-1)))*au2ev
         enddo
         write(LuOut,9020)
+        call util_flush(LuOut)
       endif
  9000 format(i5,' smallest eigenvalue differences (eV) ')
  9010 format('  No. Spin  Occ  Vir  Irrep   E(Occ)    E(Vir)   E(Diff)')
@@ -367,11 +385,13 @@ c
      3        +(int_mb(k_sortv+m-1)-nocc(i)-1))=1.0d0
           if ((algorithm.eq.1).or.(algorithm.eq.2)) then
             if (nov(i).gt.0) then
-              call ga_put(g_trials(i),1,nov(i),m,m,dbl_mb(k_t(i)),
+               if(nodezero)
+     Z         call ga_put(g_trials(i),1,nov(i),m,m,dbl_mb(k_t(i)),
      L              nov(i))
             endif
           else
-            call ga_put(g_buffer1(i),1,nov(i),1,1,dbl_mb(k_t(i)),
+               if(nodezero)
+     Z       call ga_put(g_buffer1(i),1,nov(i),1,1,dbl_mb(k_t(i)),
      L            nov(i))
             dummy=dra_write_section(.false.,g_buffer1(i),1,nov(i),1,1,
      1        d_trials(i),1,nov(i),m,m,request)
