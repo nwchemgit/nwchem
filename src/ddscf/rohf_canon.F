@@ -78,9 +78,9 @@ c
 c     Apply rotation to orbitals and fock matrix
 c
 *ga:1:0
-      if (.not. ga_create(MT_DBL, nbf, nmo, 'rohf_canon: tmp',
-     $     0, 0, g_tmp)) call errquit
-     $     ('rohf_canon: ga failed for tmp', 0, GA_ERR)
+      if (.not. ga_duplicate(g_movecs, g_tmp, 'rohf_canon: tmp'))
+     $     call errquit
+     $     ('rohf_canon: ga_dup for tmp', 0, GA_ERR)
 c
       call ga_copy(g_movecs, g_tmp)
       call ga_dgemm('n', 'n', nbf, nmo, nmo, one, g_tmp, g_u,
