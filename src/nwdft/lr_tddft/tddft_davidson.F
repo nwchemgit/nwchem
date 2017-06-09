@@ -139,7 +139,7 @@ c
       character*4 targetsym    ! Symmetry of target excited state
       double precision cwall   ! Wall timings
       double precision ccpu    ! CPU timings
-      double precision dcpu    ! CPU timings
+      double precision dcpu,dwall ! Davidson    ! CPU timings
       integer algorithm        ! =1 multiple fock build; =2: conventional
       integer mult             ! Ground state spin multiplicity
       integer l_irs(2),k_irs(2)! Irreps
@@ -292,6 +292,7 @@ c Top of Davidson iteration
 c -------------------------
 c
       dcpu=-util_cpusec()
+      dwall=-util_wallsec()
       ccpu=-util_cpusec()
       cwall=-util_wallsec()
       if (nodezero.and.util_print('iteration',print_default)) then
@@ -820,12 +821,14 @@ c
         if (nodezero.and.util_print('trial vectors',print_high))
      1    write(LuOut,9200) memleft
         dcpu=dcpu+util_cpusec()
+        dwall=dwall+util_wallsec()
         if (nodezero.and.util_print('iteration',print_default)) then
           write(LuOut,9110) iter,ntrials,nconverged,maxresidual,
-     1      maxomega,dcpu
+     1      maxomega,dwall
           call util_flush(LuOut)
         endif
         dcpu=-util_cpusec()
+        dwall=-util_wallsec()
  9110   format(i5,2x,i5,3x,i5,4x,e9.2,2x,e9.2,2x,f9.1)
 c
 c ---------
