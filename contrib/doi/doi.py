@@ -81,6 +81,7 @@ def lookup_dois(doi_table):
             content = content.replace(u"\u202f","")
             content = content.replace(u"\xf3","{\\'o}")
             content = content.replace(u"\xf6",'{\\"o}')
+            content = content.replace(u"\xf8",'{\\o}')
             content = content.replace(u"\xfc",'{\\"u}')
             result.append(content)
         buffer.close()
