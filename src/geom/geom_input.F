@@ -1106,6 +1106,7 @@ c
       character*16 asel0
       character*16 a16
       character*3 resn
+      character*1 chainID
       integer  id,ir
       character*1 xchar(10)
       data xchar /'0','1','2','3','4','5','6','7','8','9'/
@@ -1128,6 +1129,7 @@ c     yes it should be one
       end do
       message = "reading coordinates"
       buffer = " "
+      n=0
       do while (buffer.ne."END")
         read(fn,'(A180)',ERR=40,END=40) buffer
         if(buffer(1:6).ne."ATOM".and.
@@ -1138,7 +1140,7 @@ c     yes it should be one
           goto 40
         end if
         read(buffer,*,ERR=40,END=40) a16,id,tags(n),
-     +     resn,ir
+     +     resn,chainID,ir
 c     +     resn,ir,c(1,n),c(2,n),c(3,n)
         read(buffer(13:14),*) tags(n)
         read(buffer(31:38),*) c(1,n)
