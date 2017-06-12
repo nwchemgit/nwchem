@@ -146,7 +146,8 @@ c === jaguar ===
       lr0 = .true.
       if(dabs(r0xx).lt.1.0d-7) lr0 = .false.
 c === jaguar ===
-      if(nodezero) write(6,*)'R0: ',r0xx
+      if(nodezero) write(6,2000)
+      if(nodezero) write(6,2001) r0xx
       call util_flush(6)
 c ==============
 c 
@@ -555,6 +556,8 @@ c - T1/X1 LOCALIZATION ------
      &      call errquit('l_t1_local',4,MA_ERR)
 c ---------------------------
  1000    format('corresponding excitation energy = 0')
+ 2000    format('======= CR-EOMCCSD(T) calculation ======')
+ 2001    format('corresponding R0 value = ',f12.6)
 c
       return
       end
