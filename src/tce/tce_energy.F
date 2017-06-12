@@ -6601,11 +6601,24 @@ c
                   call util_flush(LuOut)
                 endif
 ! ---
+cx            if(nodezero) then
+cx             write(LuOut,*)'largest EOMCCSD amplitudes: R1 and R2'
+cx             call util_flush(LuOut)
+cx            end if
+             do jvec=1,nroots_reduced
+c right EOMCCSD  printout
+             if (nodezero) then
+               write(LuOut,*)'------------------'
+               write(LuOut,9460)
+     1           jvec,dbl_mb(k_omegax+jvec-1),
+     2           dbl_mb(k_omegax+jvec-1)*au2ev
+             endif
+c
             if(nodezero) then
              write(LuOut,*)'largest EOMCCSD amplitudes: R1 and R2'
              call util_flush(LuOut)
             end if
-             do jvec=1,nroots_reduced
+c
               if((.not. eaccsd) .and. (.not. ipccsd)) then
                call tce_print_x1(xc1(jvec),k_x1_offset,0.10d0,irrep_x)
                call tce_print_x2(xc2(jvec),k_x2_offset,0.10d0,irrep_x)
@@ -7257,8 +7270,21 @@ c
              enddo
 !
                do iroot=1,nroots_reduced
-                if(nodezero)
-     &                  write(LuOut,*)'EOMCCSD root nr. ',iroot
+ccx                if(nodezero)
+ccx     &                  write(LuOut,*)'EOMCCSD root nr. ',iroot
+c right EOMCCSD  printout
+             if (nodezero) then
+               write(LuOut,*)'------------------'
+               write(LuOut,9460)
+     1           iroot,dbl_mb(k_omegax+iroot-1),
+     2           dbl_mb(k_omegax+iroot-1)*au2ev
+             endif
+c
+               if(nodezero) then
+                write(LuOut,*)'largest EOMCCSD amplitudes: R1 and R2'
+                call util_flush(LuOut)
+               end if
+c
                 call tce_print_x1(xc1(iroot),k_x1_offset,0.10d0,irrep_x)
                 call tce_print_x2(xc2(iroot),k_x2_offset,0.10d0,irrep_x)
                enddo
