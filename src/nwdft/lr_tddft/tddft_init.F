@@ -719,35 +719,35 @@ c
  9170 format(3x,
      1'      Wavefunction type : Restricted singlets & triplets')
  9020 format(3x,'      Wavefunction type : Unrestricted')
- 9030 format(3x,'       No. of electrons :',2x,i4,/,
-     1       3x,'        Alpha electrons :',2x,i4,/,
-     2       3x,'         Beta electrons :',2x,i4)
- 9410 format(3x,'        No. of orbitals :',2x,i4,/,
-     1       3x,'         Alpha orbitals :',2x,i4,/,
-     2       3x,'          Beta orbitals :',2x,i4)
- 9430 format(3x,'     Alpha frozen cores :',2x,i4,/,
-     1       3x,'      Beta frozen cores :',2x,i4)
- 9440 format(3x,'  Alpha frozen virtuals :',2x,i4,/,
-     1       3x,'   Beta frozen virtuals :',2x,i4)
- 9420 format(3x,'      Spin multiplicity :',2x,i4)
+ 9030 format(3x,'       No. of electrons :',2x,i6,/,
+     1       3x,'        Alpha electrons :',2x,i6,/,
+     2       3x,'         Beta electrons :',2x,i6)
+ 9410 format(3x,'        No. of orbitals :',2x,i6,/,
+     1       3x,'         Alpha orbitals :',2x,i6,/,
+     2       3x,'          Beta orbitals :',2x,i6)
+ 9430 format(3x,'     Alpha frozen cores :',2x,i6,/,
+     1       3x,'      Beta frozen cores :',2x,i6)
+ 9440 format(3x,'  Alpha frozen virtuals :',2x,i6,/,
+     1       3x,'   Beta frozen virtuals :',2x,i6)
+ 9420 format(3x,'      Spin multiplicity :',2x,i6)
  9040 format(3x,'     Use of symmetry is : ',a3,/,
      1       3x,'   Symmetry adaption is : ',a3)
- 9050 format(3x,' Number of AO functions :',2x,i4)
- 9060 format(3x,'           No. of roots :',2x,i4)
- 9061 format(3x,'          Virtual shift :',2x,i4)
- 9070 format(3x,'       Max subspacesize :',2x,i4)
- 9100 format(3x,'      Schwarz screening : ',d8.2)
- 9110 format(3x,'     Davidson threshold : ',d8.2)
- 9120 format(3x,'            Target root :',2x,i4)
+ 9050 format(3x,' Number of AO functions :',2x,i6)
+ 9060 format(3x,'           No. of roots :',2x,i6)
+ 9061 format(3x,'          Virtual shift :',2x,i6)
+ 9070 format(3x,'       Max subspacesize :',2x,i6)
+ 9100 format(3x,'      Schwarz screening : ',d9.2)
+ 9110 format(3x,'     Davidson threshold : ',d9.2)
+ 9120 format(3x,'            Target root :',2x,i6)
  9150 format(3x,'        Target symmetry :',1x,a4)
  9160 format(3x,'   Symmetry restriction :',1x,a3)
- 9130 format(3x,'         Max iterations :',2x,i4)
+ 9130 format(3x,'         Max iterations :',2x,i6)
  9140 format(3x,'              Algorithm : ',a)
- 9180 format(3x,'           Alpha Window :',2x,i4,2x,i4)
- 9190 format(3x,'            Beta Window :',2x,i4,2x,i4)
- 9195 format(3x,'          Energy Cutoff :',d8.2)
- 9196 format(3x,'    Energy Window Lower :',d8.2)
- 9197 format(3x,'   Energy Window Higher :',d8.2)
+ 9180 format(3x,'           Alpha Window :',2x,i6,2x,i6)
+ 9190 format(3x,'            Beta Window :',2x,i6,2x,i6)
+ 9195 format(3x,'          Energy Cutoff :',d9.2)
+ 9196 format(3x,'    Energy Window Lower :',d9.2)
+ 9197 format(3x,'   Energy Window Higher :',d9.2)
  9300 format(3x,a40)
  9310 format(3x,a40,1x,f6.2,1x,a9)
  9320 format(3x,a44,1x,f10.6,1x,a2)
