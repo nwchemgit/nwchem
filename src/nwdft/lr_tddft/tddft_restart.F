@@ -41,8 +41,11 @@ c
       integer nov_verify(2)
 c
       double precision r
+      integer l_rr,k_rr
+      integer ilo,ihi,jlo,jhi
       double precision tga_ddot
       character*32 pname
+      integer adrc,ldc
 c
 c     IO UNIT NUMBER
       integer ioun
@@ -127,6 +130,8 @@ c
 c     Allocate memory
         if (.not.ma_push_get(mt_dbl,nlen(i),"mat slice",l_trsl,k_trsl))
      1      call errquit(trim(pname)//"failed to alloc mat slice",0,0)
+        if (.not.ma_push_get(mt_dbl,ntrials,"renorm",l_rr,k_rr))
+     1      call errquit(trim(pname)//"failed to alloc renorm",0,0)
 c
 c     Read trials vectors from file and store
        do j=1,ntrials_old
@@ -148,7 +153,7 @@ c     Read trials vectors from file and store
        end do ! ntrials_old
 c
 c     Deallocate memory
-       if (.not.ma_pop_stack(l_trsl))
+       if (.not.ma_chop_stack(l_trsl))
      1   call errquit(trim(pname)//"failed to pop stack",0,0)
       end do ! ipol
 c
@@ -187,8 +192,9 @@ c     Normalize
         end do ! ipol
 c
 c     Orthogonalize
-        do m=n+1,ntrials
-          if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+        if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+#if 0
+           do m=n+1,ntrials
             r=0.d0
             do i=1,ipol
               r=r+ga_ddot_patch(g_trials(i),'n',1,nlen(i),n,n,
@@ -198,7 +204,33 @@ c     Orthogonalize
               call ga_add_patch(1.d0,g_trials(i),1,nlen(i),m,m,-r,
      1          g_trials(i),1,nlen(i),n,n,g_trials(i),1,nlen(i),m,m)
             end do
-          else
+         enddo ! m
+#else
+         do i=1,ipol
+            call ga_distribution(g_trials(i),ga_nodeid(),
+     C           ilo,ihi,jlo,jhi)
+            call dfill(ntrials,0d0,dbl_mb(k_rr),1)
+            if (ilo.gt.0 .and. ilo.le.ihi) then
+               call ga_access(g_trials(i), ilo, ihi, jlo, jhi, 
+     C              adrc, ldc)
+               call tddft_trdot(n+1,ntrials,dbl_mb(k_rr),
+     A              dbl_mb(adrc),  n,
+     C                 ilo, ihi, jlo, jhi, ldc)
+            endif
+            call ga_dgop(9876,dbl_mb(k_rr+n),ntrials-n,'+')
+c     store trial_m=trial_m - r * trial_n
+            if (ilo.gt.0 .and. ilo.le.ihi) then
+               call tddft_trstore(n+1,ntrials,
+     A              dbl_mb(k_rr),dbl_mb(adrc),  n,
+     C              ilo, ihi, jlo, jhi)
+               call ga_release_update(g_trials(i), ilo, ihi, jlo, jhi)
+            endif
+            call ga_sync()
+            enddo
+             
+#endif
+      else
+         do m=n+1,ntrials
             r=0.d0
             do i=1,ipol
               dummy=dra_read_section(.false.,g_buffer1(i),1,nlen(i),1,1,
@@ -217,9 +249,62 @@ c     Orthogonalize
      1          1,d_trials(i),1,nlen(i),m,m,request)
               dummy=dra_wait(request)
             end do
-          end if
         end do ! ntrials (m)
+          end if
       end do ! ntrials (n)
 c
+      return
+      end
+      double precision function tddft_trdoz(a,  m, n,
+     C     ilo, ihi, jlo, jhi, ld)
+      implicit none
+      integer m,n
+      integer ld
+      integer  ilo, ihi, jlo, jhi
+      double precision a(ilo:ihi,jlo:jhi)
+c
+      double precision ddot
+      external ddot
+c      
+      
+      tddft_trdoz=ddot(ihi-ilo+1,a(ilo,m),1,a(ilo,n),1)
+      return
+      end
+      subroutine tddft_trdot(mlo,mhi, rr, a,  n,
+     C     ilo, ihi, jlo, jhi, ld)
+      implicit none
+      integer mlo, mhi ![in]
+      double precision rr(*) ! [out]
+      integer n
+      integer ld
+      integer  ilo, ihi, jlo, jhi
+      double precision a(ilo:ihi,jlo:jhi) ! [in]
+c
+      double precision ddot
+      external ddot
+      integer m
+c      
+      do m=mlo,mhi
+         rr(m)=ddot(ihi-ilo+1,a(ilo,m),1,a(ilo,n),1)
+      enddo
+      return
+      end
+      subroutine tddft_trstore(mlo,mhi,rr, a, n,
+     C              ilo, ihi, jlo, jhi)
+      implicit none
+      integer mlo, mhi
+      double precision  rr(*)
+      integer n
+      integer ld
+      integer  ilo, ihi, jlo, jhi
+      double precision a(ilo:ihi,jlo:jhi)
+c
+      integer m
+c      
+c     store trial_m=trial_m - r * trial_n
+      
+      do m=mlo,mhi
+         call daxpy(ihi-ilo+1,-rr(m),a(ilo,n),1,a(ilo,m),1)
+      enddo
       return
       end
