@@ -199,10 +199,6 @@ declare -a LIST_COMPFLAGS
 LIST_COMPFLAGS=( '-q64' ' ' )
 export LIST_COMPFLAGS
 #
-declare -a LIST_LINLIBS
-#LIST_LINLIBS=( '-lsci_gnu' '-lsci_gnu_mp' '-lmkl' '-lacml' '-lcxml' '-lscs' '-lcomplib.sgimath' '-lsunmath' '-latlas' '-lgoto2' '-lgoto' '-lessl' '-lscalapack' '-llapack' '-lcblas' '-lblas' '-lf77blas' )
-LIST_LINLIBS=( )
-export LIST_LINLIBS
 declare -a LIST_MPIFWRAP
 LIST_MPIFWRAP=( 'mpiifort' 'mpifc' 'mpixlf_r' 'mpixlf' 'mpif90' 'mpif77' )
 export LIST_MPIFWRAP
@@ -622,16 +618,8 @@ function get_blas_lib()
        return
    fi
    lib=""
-   length=${#LIST_LINLIBS[*]}
-   indx=0
-   while [ "${indx}" -lt "${length}" ] ; do
-     candidate="${LIST_LINLIBS[${indx}]}"
-     ((indx++))
-     # echo "blas: trying ${candidate}" > /dev/stderr
-     if [ "${blasopt}" != "0" ] ; then
-       candidate="${blasopt}"
-     fi
-     if [ ${#lib} -eq 0 ] ; then
+   candidate="${blasopt}"
+   if [ ${#lib} -eq 0 ] ; then
        echo "      program testblas" > testblas$$.f
        echo "      implicit none" >> testblas$$.f
        echo "      double precision a, b, c" >> testblas$$.f
@@ -659,8 +647,7 @@ function get_blas_lib()
          rm -f ./testblas$$.x
        fi
        rm -f ./testblas$$.f
-     fi
-   done
+   fi
    if [ ${#lib} -eq 0 ] ; then
      # We have not found anything suitable
      echo ${lib}
@@ -751,16 +738,8 @@ function get_lapack_lib()
    blasopt="$3"
    extralibs="$4"
    lib=""
-   length=${#LIST_LINLIBS[*]}
-   indx=0
-   while [ "${indx}" -lt "${length}" ] ; do
-     candidate="${LIST_LINLIBS[${indx}]}"
-     ((indx++))
-     # echo "lapack: trying ${candidate}" > /dev/stderr
-     if [ "${blasopt}" != "0" ] ; then
-       candidate="${blasopt}"
-     fi
-     if [ ${#lib} -eq 0 ] ; then
+   candidate="${blasopt}"
+   if [ ${#lib} -eq 0 ] ; then
        echo "      program testlapack" > testlapack$$.f
        echo "      implicit none" >> testlapack$$.f
        echo "      double precision a, w, work" >> testlapack$$.f
@@ -786,8 +765,7 @@ function get_lapack_lib()
          rm -f ./testlapack$$.x
        fi
        rm -f ./testlapack$$.f
-     fi
-   done
+   fi
    if [ ${#lib} -eq 0 ] ; then
      # We have not found anything suitable
      echo ${lib}
@@ -866,16 +844,8 @@ function get_scalapack_lib()
        return
    fi
    lib=""
-   length=${#LIST_LINLIBS[*]}
-   indx=0
-   while [ "${indx}" -lt "${length}" ] ; do
-     candidate="${LIST_LINLIBS[${indx}]}"
-     ((indx++))
-     # echo "lapack: trying ${candidate}" > /dev/stderr
-     if [ "${blasopt}" != "0" ] ; then
-       candidate="${blasopt}"
-     fi
-     if [ ${#lib} -eq 0 ] ; then
+   candidate="${blasopt}"
+   if [ ${#lib} -eq 0 ] ; then
        echo "      program testscalapack" > testscalapack$$.f
        echo "      implicit none" >> testscalapack$$.f
        echo "      double precision a, b" >> testscalapack$$.f
@@ -905,8 +875,7 @@ function get_scalapack_lib()
        fi
        rm -f ./testscalapack$$.o
        rm -f ./testscalapack$$.f
-     fi
-   done
+   fi
    if [ ${#lib} -eq 0 ] ; then
      # We have not found anything suitable
      echo ${lib}
@@ -1721,7 +1690,7 @@ if [ ${#BLASOPT} -ne 0 ] ; then
     # Only set MPI_LIB_TMP if MPI_LIB is non-empty
     MPI_LIB_TMP=`echo "-L${MPI_LIB}" | sed 's/^-L-L/-L/'`
   fi
-  DUMMY=`get_blas_lib ${MPI_F90} "${BLASOPT}" "${MPI_LIB_TMP} ${LIBMPI}"`
+  BLAS_LIB=`get_blas_lib ${MPI_F90} "${BLASOPT}" "${MPI_LIB_TMP} ${LIBMPI}"`
   result=$?
   if [ ${result} -eq 0 ] ; then
     export BLAS_LIB="${BLASOPT}"
@@ -1729,7 +1698,7 @@ if [ ${#BLASOPT} -ne 0 ] ; then
     # BLASOPT set but no BLAS available so use internal BLAS library
     export BLAS_LIB=" "
   fi
-  DUMMY=`get_lapack_lib ${MPI_F90} "${BLASOPT}" "${BLASOPT}" "${MPI_LIB_TMP} ${LIBMPI}"`
+  LAPACK_LIB=`get_lapack_lib ${MPI_F90} "${BLASOPT}" "${BLASOPT}" "${MPI_LIB_TMP} ${LIBMPI}"`
   result=$?
   if [ ${result} -eq 0 ] ; then
     export LAPACK_LIB="${BLASOPT}"
@@ -1737,7 +1706,7 @@ if [ ${#BLASOPT} -ne 0 ] ; then
     # BLASOPT set but no LAPACK available so use internal LAPACK library
     export LAPACK_LIB=" "
   fi
-  DUMMY=`get_scalapack_lib ${MPI_F90} "${BLASOPT}" "${BLASOPT}" "${MPI_LIB_TMP} ${LIBMPI}"`
+  SCALAPACK_LIB=`get_scalapack_lib ${MPI_F90} "${BLASOPT}" "${BLASOPT}" "${MPI_LIB_TMP} ${LIBMPI}"`
   result=$?
   if [ ${result} -eq 0 ] ; then
     export SCALAPACK_LIB="${BLASOPT}"
