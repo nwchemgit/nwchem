@@ -1162,6 +1162,13 @@ c         remove leading numeric character (if any) (e.g. 2HW->HW)
           a16=tags(n)
           i=scan(a16,"0123456789")
           if(i.eq.1) tags(n)=a16(2:)
+c         entries such as HD13, HE21, HE22, HG21, etc. refer to H and not
+c         He or Hg.
+          if (tags(n)=="HD".or.tags(n)=="HE".or.tags(n)=="HG".or.
+     +        tags(n)=="HH") then
+            tags(n)=" "
+            tags(n)(1:1)="H"
+          endif
 c         end of selection processing
        end do
 #ifdef MARAT_DEBUG      
