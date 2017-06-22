@@ -1,4 +1,4 @@
-       subroutine tddft_subspace(ipol,nocc,nmo,nfc,nfv,g_trials,
+      subroutine tddft_subspace(ipol,nocc,nmo,nfc,nfv,g_trials,
      1  g_prod_p,g_prod_m,g_buffer1,g_buffer2,d_trials,d_prod_p,
      2  d_prod_m,ntrials,tda,apb,amb,algorithm)
 c
@@ -61,6 +61,8 @@ c
       integer g_amb_tmp        ! Temporary GA array to accumulate amb
       integer i,l,m,n
       integer dummy,request
+      integer g_ab
+      double precision mynorm
 c
 c     Determine the length of the trial vector
       call tddft_lentrialvec(ipol,nocc,nmo,nfc,nfv,nov)
@@ -93,6 +95,7 @@ c
             if (.not.tda) amb(m,n)=0.0d0
           enddo
         enddo
+#if 0
 c
         call ga_sync()
         do i=1,ipol
@@ -135,6 +138,31 @@ c use gdops for amb and apb instead of costly accs
         call ga_dgop(913,apb,ntrials*ntrials, '+')
         if (.not.tda)
      C       call ga_dgop(914,amb,ntrials*ntrials, '+')
+        if(ga_nodeid().eq.0) write(6,*) apb
+#else
+        if (.not.ga_create(mt_dbl,ntrials,ntrials,
+     1       'g_ab',0,0,g_ab))
+     2       call errquit('tddft_subspace: failed to create g_amb',0,
+     &       GA_ERR)
+        call ga_zero(g_ab)
+        do i=1,ipol
+           call ga_dgemm('t', 'n', ntrials, ntrials, nov(i), 1.d0,
+     D          g_trials(i),g_prod_p(i),1d0,g_ab)
+        enddo
+c        call ga_print(g_ab)
+        call util_mygabcast(g_ab,ntrials,ntrials,apb,ntrials)
+        if (.not.tda) then
+           call ga_zero(g_ab)
+           do i=1,ipol
+              call ga_dgemm('t', 'n', ntrials, ntrials, nov(i), 1.d0,
+     D             g_trials(i),g_prod_m(i),1d0,g_ab)
+           enddo
+c           call ga_print(g_ab)
+           call util_mygabcast(g_ab,ntrials,ntrials,amb,ntrials)
+        endif
+        if (.not.ga_destroy(g_ab))
+     &    call errquit('ga_dest g_ab fail',0, GA_ERR)
+#endif
         if (.not.ma_pop_stack(l_prod)) call errquit
      1    ('tddft_subspace: failed to deallocate prod',0, MA_ERR)
         if (.not.ma_pop_stack(l_trial)) call errquit
