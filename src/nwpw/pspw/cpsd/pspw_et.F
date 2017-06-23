@@ -55,7 +55,7 @@
 
 *     **** local variables ****
       real*8 H1aa,H1bb,H1ab,H2aa,H2bb,H2ab,Vab,Haa,Hbb,Hab,Sab,S12(2)
-      real*8 Vabtmp
+      real*8 Vabtmp,Vab1
       integer ms,mapping,mapping1d
       real*8  deltae,deltac,deltar
       real*8  gx,gy,gz,cx,cy,cz,sum1,sum2,Eion
@@ -72,6 +72,8 @@
       real*8 hunita(3,3)
       integer ind
       character*50 filename1,filename2,ion_1,ion_2
+      !character*72 cube_comment
+
 
   
 
@@ -362,7 +364,6 @@
            write(luout,1122)
          end if
 
-
          write(luout,1115)
          write(luout,1121) control_boundry(),control_version()
          if (ispin.eq.1) write(luout,1130) 'restricted'
@@ -519,6 +520,7 @@ c     >                           dbl_mb(itmp(1)))
          end do
       end do
       Sab = S12(1)*S12(ispin)
+
       !if (taskid.eq.MASTER) then
       !   write(*,*)
       !   write(*,*) "Sab=",Sab,S12(1),S12(ispin)
@@ -531,11 +533,14 @@ c     >                           dbl_mb(itmp(1)))
       call Dneall_fmf_Multiply(0,dcpl_mb(psi2(1)),npack1,
      >                         dbl_mb(U_ab(1)),1.0d0,
      >                         dcpl_mb(psi2f(1)),0.0d0)
+
+
+
  
 *     **** scale rotated psi1f and psi2f by sqrt(1/Sigma(n)) ****
       do q=1,neq(1)+neq(2)
          call Dneall_qton(q,n)
-         w = dsqrt(1.0d0/dbl_mb(Sigma_ab(1)+n-1))
+         w = 1.0d0/dsqrt(dbl_mb(Sigma_ab(1)+n-1))
          call Pack_c_SMul1(1,w,dcpl_mb(psi1f(1)+(q-1)*npack1))
          call Pack_c_SMul1(1,w,dcpl_mb(psi2f(1)+(q-1)*npack1))
       end do
@@ -551,6 +556,7 @@ c     >                           dbl_mb(itmp(1)))
      >                      dbl_mb(psi2f_r(1)))
 
 
+
 *     **** one-electron parts ****
       call pspw_et_H1(ispin,neq,npack1,n2ft3d,
      >            dcpl_mb(psi1(1)),dcpl_mb(psi1(1)),dbl_mb(psi1_r(1)),
@@ -561,7 +567,7 @@ c     >                           dbl_mb(itmp(1)))
       call pspw_et_H1(ispin,neq,npack1,n2ft3d,
      >         dcpl_mb(psi1f(1)),dcpl_mb(psi2f(1)),dbl_mb(psi2f_r(1)),
      >         H1ab)
-      H1ab = H1ab * Sab
+      H1ab = H1ab*Sab
 
 *     **** ion-ion part ****
       if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
@@ -644,7 +650,8 @@ c     >                           dbl_mb(itmp(1)))
       Hbb = H1bb + H2bb + Eion + EVQ
       Hab = H1ab + H2ab + Sab*(Eion+EVQ)
 
-      Vab = (Hab-Sab*(Haa+Hbb)/2.0d0)/(1.0d0-Sab*Sab)
+      Vab1 = (H1ab-Sab*(H1aa+H1bb)/2.0d0)/(1.0d0-Sab*Sab)
+      Vab  = (Hab -Sab*(Haa+Hbb)  /2.0d0)/(1.0d0-Sab*Sab)
 
 
 c      Vabtmp = ((H1ab+H2aB)-Sab*(H1aa+H2aa+H1bb+H2bb)/2.0d0)
@@ -681,6 +688,11 @@ c         write(luout,1812) Sbb
          write(luout,1823) H1ab
          write(luout,1824) Eion
          if (EVQ.gt.0.0d0) write(luout,1825) EVQ
+
+         !write(luout,1850) 
+c         write(luout,1851) dabs(Vab1),dabs(Vab1)*219474.63d0,
+c     >                     dabs(Vab1)*27.2116d0,
+c     >                     dabs(Vab1)*27.2116d0*23.06d0
 
          write(luout,1830)
          write(luout,1831) H2aa
@@ -1343,9 +1355,9 @@ c
  1843 format( '    Electron energy of reactant/product H(RP) : ',E20.10)
  1850 format(/' Electron Transfer Coupling:')
  1851 format( '    reactant/product coupling energy  |V(RP)| : ',E20.10,
-     >        /,48x,F19.3, ' cm-1',
-     >        /,48x,F19.3, ' eV',
-     >        /,48x,F19.3, ' kcal/mol')
+     >        /,48x,F20.3, ' cm-1',
+     >        /,48x,F20.3, ' eV',
+     >        /,48x,F20.3, ' kcal/mol')
  1900 format(//' Electron Transfer Geodesic Path at geometry: ',A)
  1905 format(/A12,2A19)
  1906 format('    ----------------------------------------------')
