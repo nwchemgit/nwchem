@@ -159,13 +159,15 @@ c
 c
 c     SINGLET (singlet excited states sought for a closed shell)
 c
-      singlet=.true.
+      if (.not.rtdb_get(rtdb,'tddft:singlet',mt_log,1,singlet))
+     c singlet=.true.
       if (.not.rtdb_put(rtdb,'tddft:singlet',mt_log,1,singlet))
      1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c     TRIPLET (triplet excited states sought for a closed shell)
 c
-      triplet=.true.
+      if (.not.rtdb_get(rtdb,'tddft:triplet',mt_log,1,triplet))
+     c triplet=.true.
       if (.not.rtdb_put(rtdb,'tddft:triplet',mt_log,1,triplet))
      1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
