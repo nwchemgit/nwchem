@@ -2218,6 +2218,10 @@ c     **** nothing to do ****
       real*8   lattice_omega,coulomb_screened_e
       external lattice_omega,coulomb_screened_e
 
+      integer taskid
+
+      call Parallel_taskid(taskid)
+
       
       if ((norbs(1)+norbs(2)).ne.0) then
         ehfx = 0.0d0
@@ -2251,28 +2255,42 @@ c     **** nothing to do ****
 *             **** generate dnij ****
               call D3dB_rr_Mul(1,psi1_r(index1),psi2_r(index2),
      >                         dbl_mb(dn(1)))
-c              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
               call D3dB_r_SMul1(1,scal2,dbl_mb(dn(1)))
               call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+
+*             **** generate  dnji****
+              call D3dB_rr_Mul(1,psi1_r(index2),psi2_r(index1),
+     >                         dbl_mb(dn(1)+n2ft3d))
+              call D3dB_r_SMul1(1,scal2,dbl_mb(dn(1)+n2ft3d))
+              call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)+n2ft3d))
 
 *             ***** screened coulomb solver ****
               if (solver_type.eq.1) then
 
 *               **** generate dng ****
-c                call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
-c     >                                   dbl_mb(dn(1)))
                 call D3dB_r_SMul1(1,scal1,dbl_mb(dn(1)))
                 call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
                 call Pack_c_pack(0,dbl_mb(dn(1)))
 
+                call D3dB_r_SMul1(1,scal1,dbl_mb(dn(1)+n2ft3d))
+                call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)+n2ft3d))
+                call Pack_c_pack(0,dbl_mb(dn(1)+n2ft3d))
+
 *               **** get Ecoul energy ****
-                eh = coulomb_screened_e(dbl_mb(dn(1)))
+                call coulomb_screened_v(dbl_mb(dn(1)),dbl_mb(tmp1(1)))
+                call Pack_cc_dot(0,dbl_mb(dn(1)+n2ft3d),
+     >                             dbl_mb(tmp1(1)),eh)
+                eh = 0.5d0*eh*lattice_omega()
        
 *             ***** free-space coulomb solver ****
               else
                  call coulomb2_v(dbl_mb(dn(1)),dbl_mb(tmp1(1)))
-                 call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(tmp1(1)),eh)
+                 call D3dB_rr_dot(1,dbl_mb(dn(1)+n2ft3d),
+     >                            dbl_mb(tmp1(1)),eh)
                  eh = 0.5d0*eh*dv
+
+                 !if (taskid.eq.0) write(*,*) " - ms,i,j,ehfx=",ms,i,j,eh
+
               end if
 
 *             **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
