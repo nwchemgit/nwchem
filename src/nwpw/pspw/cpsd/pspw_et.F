@@ -1346,8 +1346,8 @@ c
  1705 FORMAT( ' MM Vibration energy    :',E19.10)
  1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)
                         
- 1800 format( ' Reactant  psi filename: ',A)
- 1801 format( ' Product   psi filename: ',A)
+ 1800 format( ' Reactant psi filename: ',A)
+ 1801 format( ' Product  psi filename: ',A)
  1810 format(/' Electron Overlaps:')
  1811 format( '    Reactants/Reactant overlap          S(RR) : ',E20.10)
  1812 format( '    Reactants/Reactant overlap          S(PP) : ',E20.10)
