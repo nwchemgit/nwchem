@@ -679,7 +679,6 @@ c     >        /(1.0d0-Sab*Sab)
       call center_mass(gx,gy,gz)
 
       if (taskid.eq.MASTER) then
-         write(luout,1300)
          write(luout,1410)
 
          write(luout,*)
