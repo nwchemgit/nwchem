@@ -55,7 +55,7 @@
 
 *     **** local variables ****
       real*8 H1aa,H1bb,H1ab,H2aa,H2bb,H2ab,Vab,Haa,Hbb,Hab,Sab,S12(2)
-      real*8 Vabtmp,Vab1
+      real*8 Vabtmp,Vab1,Hxaa,Hxbb,Hxab,Hcaa,Hcbb,Hcab
       integer ms,mapping,mapping1d
       real*8  deltae,deltac,deltar
       real*8  gx,gy,gz,cx,cy,cz,sum1,sum2,Eion
@@ -227,13 +227,13 @@
       call center_geom(cx,cy,cz)
       call center_mass(gx,gy,gz)
 
-      if (.not.btdb_cget(rtdb,'pspw:et:ion_a',1,ion_1))
-     >   ion_1 = 'geometry'
-      if (.not.btdb_cget(rtdb,'pspw:et:ion_b',1,ion_2))
-     >   ion_2 = 'geometry'
-      call ion_load_extra_geom(.true., rtdb,ion_1)
-      call ion_load_extra_geom(.false.,rtdb,ion_2)
-      call ion_morph_extra(1,2)
+c      if (.not.btdb_cget(rtdb,'pspw:et:ion_a',1,ion_1))
+c     >   ion_1 = 'geometry'
+c      if (.not.btdb_cget(rtdb,'pspw:et:ion_b',1,ion_2))
+c     >   ion_2 = 'geometry'
+c      call ion_load_extra_geom(.true., rtdb,ion_1)
+c      call ion_load_extra_geom(.false.,rtdb,ion_2)
+c      call ion_morph_extra(1,2)
 
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
@@ -346,8 +346,9 @@
 *                |**************************|
 
       if (taskid.eq.MASTER) then
-         write(luout,1800) filename1,ion_1
-         write(luout,1801) filename2,ion_2
+         write(luout,*)
+         write(luout,1800) filename1
+         write(luout,1801) filename2
          write(luout,1111) np
          write(luout,1117) np_i,np_j
          if (mapping.eq.1) write(luout,1112)
@@ -402,39 +403,39 @@
 
          write(luout,1160)
          write(luout,1170) (ion_atom(K),ion_natm(K),K=1,ion_nkatm())
-         write(luout,1179) ion_1
-         do I=1,ion_nion()
-           if (ion_q_FixIon(I)) then
-           write(luout,1191) I,ion_aname(I),
-     >                   (ion_rion_extra(1,K,I),K=1,3),
-     >                   ion_amass(I)/1822.89d0,ion_amm(i)
-           else if (ion_q_xyzFixIon(I)) then
-           write(luout,1194) I,ion_aname(I),
-     >                   (ion_rion_extra(1,K,I),K=1,3),
-     >                   ion_amass(I)/1822.89d0,ion_q_xyzFixIon_label(I)
-           else
-           write(luout,1190) I,ion_aname(I),
-     >                   (ion_rion_extra(1,K,I),K=1,3),
-     >                   ion_amass(I)/1822.89d0,ion_amm(i)
-           end if
-         end do
-         write(luout,1179) ion_2
-         do I=1,ion_nion()
-           if (ion_q_FixIon(I)) then
-           write(luout,1191) I,ion_aname(I),
-     >                   (ion_rion_extra(2,K,I),K=1,3),
-     >                   ion_amass(I)/1822.89d0,ion_amm(i)
-           else if (ion_q_xyzFixIon(I)) then
-           write(luout,1194) I,ion_aname(I),
-     >                   (ion_rion_extra(2,K,I),K=1,3),
-     >                   ion_amass(I)/1822.89d0,ion_q_xyzFixIon_label(I)
-           else
-           write(luout,1190) I,ion_aname(I),
-     >                   (ion_rion_extra(2,K,I),K=1,3),
-     >                   ion_amass(I)/1822.89d0,ion_amm(i)
-           end if
-         end do
-         write(luout,1179) "midpoint"
+c         write(luout,1179) ion_1
+c         do I=1,ion_nion()
+c           if (ion_q_FixIon(I)) then
+c           write(luout,1191) I,ion_aname(I),
+c     >                   (ion_rion_extra(1,K,I),K=1,3),
+c     >                   ion_amass(I)/1822.89d0,ion_amm(i)
+c           else if (ion_q_xyzFixIon(I)) then
+c           write(luout,1194) I,ion_aname(I),
+c     >                   (ion_rion_extra(1,K,I),K=1,3),
+c     >                   ion_amass(I)/1822.89d0,ion_q_xyzFixIon_label(I)
+c           else
+c           write(luout,1190) I,ion_aname(I),
+c     >                   (ion_rion_extra(1,K,I),K=1,3),
+c     >                   ion_amass(I)/1822.89d0,ion_amm(i)
+c           end if
+c         end do
+c         write(luout,1179) ion_2
+c         do I=1,ion_nion()
+c           if (ion_q_FixIon(I)) then
+c           write(luout,1191) I,ion_aname(I),
+c     >                   (ion_rion_extra(2,K,I),K=1,3),
+c     >                   ion_amass(I)/1822.89d0,ion_amm(i)
+c           else if (ion_q_xyzFixIon(I)) then
+c           write(luout,1194) I,ion_aname(I),
+c     >                   (ion_rion_extra(2,K,I),K=1,3),
+c     >                   ion_amass(I)/1822.89d0,ion_q_xyzFixIon_label(I)
+c           else
+c           write(luout,1190) I,ion_aname(I),
+c     >                   (ion_rion_extra(2,K,I),K=1,3),
+c     >                   ion_amass(I)/1822.89d0,ion_amm(i)
+c           end if
+c         end do
+         write(luout,1180)
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
            write(luout,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
@@ -600,19 +601,21 @@ c     >                           dbl_mb(itmp(1)))
          call Pack_c_pack(0,dbl_mb(rho(1)))
          H2aa = coulomb_e(dbl_mb(rho(1)))
       end if
+      Hcaa = H2aa
 
       call pspw_et_gen_rho(ispin,neq,n2ft3d,
      >                     dbl_mb(psi2_r(1)),dbl_mb(rho(1)))
       if (control_version().eq.4) then
          call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
          call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
-         H2bb = 0.5d0*ehartr*dv
+         H2bb = 0.5d0*ehartr*dv 
       else
          call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
          call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
          call Pack_c_pack(0,dbl_mb(rho(1)))
          H2bb = coulomb_e(dbl_mb(rho(1)))
       end if
+      Hcbb = H2bb
 
       call pspw_et_gen_rho12(ispin,neq,n2ft3d,
      >                     dbl_mb(psi1f_r(1)),
@@ -628,20 +631,24 @@ c     >                           dbl_mb(itmp(1)))
          call Pack_c_pack(0,dbl_mb(rho(1)))
          H2ab = coulomb_e(dbl_mb(rho(1)))*Sab
       end if
+      Hcab = H2ab
 
 
 *     **** exchange part ****
       call pspw_energy_HFX(ispin,dbl_mb(psi1_r(1)),ehfx,phfx)
       H2aa = H2aa + ehfx
+      Hxaa = ehfx
 
       call pspw_energy_HFX(ispin,dbl_mb(psi2_r(1)),ehfx,phfx)
       H2bb = H2bb + ehfx
+      Hxbb = ehfx
 
       call pspw_energy_HFX2(ispin,
      >                      dbl_mb(psi1f_r(1)),
      >                      dbl_mb(psi2f_r(1)),
      >                      ehfx,phfx)
       H2ab = H2ab + ehfx*Sab
+      Hxab = ehfx*Sab
 
 
       call Parallel_Brdcst_value(0,EVQ)
@@ -695,6 +702,12 @@ c     >                     dabs(Vab1)*27.2116d0,
 c     >                     dabs(Vab1)*27.2116d0*23.06d0
 
          write(luout,1830)
+         write(luout,1834) Hcaa
+         write(luout,1835) Hcbb
+         write(luout,1836) Hcab
+         write(luout,1837) Hxaa
+         write(luout,1838) Hxbb
+         write(luout,1839) Hxab
          write(luout,1831) H2aa
          write(luout,1832) H2bb
          write(luout,1833) H2ab
@@ -1333,8 +1346,8 @@ c
  1705 FORMAT( ' MM Vibration energy    :',E19.10)
  1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)
                         
- 1800 format( ' Reactant  psi filename: ',A,'  geometry: ',A)
- 1801 format( ' Product   psi filename: ',A,'  geometry: ',A)
+ 1800 format( ' Reactant  psi filename: ',A)
+ 1801 format( ' Product   psi filename: ',A)
  1810 format(/' Electron Overlaps:')
  1811 format( '    Reactants/Reactant overlap          S(RR) : ',E20.10)
  1812 format( '    Reactants/Reactant overlap          S(PP) : ',E20.10)
@@ -1346,9 +1359,15 @@ c
  1824 format( '    Ion-Ion energy                      Eion  : ',E20.10)
  1825 format( '    Charge correction    0.5*q**2*mandelung/rs: ',E20.10)
  1830 format(/' Two-electron reactants/product interation energies:')
- 1831 format( '    Electron energy of reactant         H2(RR): ',E20.10)
+ 1831 format(/'    Electron energy of reactant         H2(RR): ',E20.10)
  1832 format( '    Electron energy of product          H2(PP): ',E20.10)
  1833 format( '    Electron energy of reactant/product H2(RP): ',E20.10)
+ 1834 format( '    Coulomb energy of reactant          Hc(RP): ',E20.10)
+ 1835 format( '    Coulomb energy of product           Hc(RP): ',E20.10)
+ 1836 format( '    Coulomb energy of reactant/product  Hc(RP): ',E20.10)
+ 1837 format(/'    Exchange energy of reactant         Hx(RP): ',E20.10)
+ 1838 format( '    Exchange energy of product          Hx(RP): ',E20.10)
+ 1839 format( '    Exchange energy of reactant/product Hx(RP): ',E20.10)
  1840 format(/' Total reactants/product interation energies:')
  1841 format( '    Electron energy of reactant         H(RR) : ',E20.10)
  1842 format( '    Electron energy of product          H(PP) : ',E20.10)
