@@ -271,6 +271,14 @@ c
       wfn1_param%nea = nclosed + nopen
       wfn1_param%neb = nclosed
 c
+c     == Get the correlation energy expression
+c
+      if (.not.rtdb_cget(wfn1_inst%rtdb,"wfn1:corr_expr",
+     &                   len(wfn1_param%corr_expr),
+     &                   wfn1_param%corr_expr)) then
+         wfn1_param%corr_expr="wfn1"
+      endif
+c
 c     == Get the convergence criterion and maximum number of iterations
 c
       if (.not.rtdb_get(wfn1_inst%rtdb,"wfn1:conv_tol",MT_DBL,

@@ -17,6 +17,7 @@ C>   natural orbital basis (nmo x nmo)
 C> - The Fock matrix for the correlation functions will be returned in
 C>   the correlation function basis (nmo x nmo)
 C>
+#include "errquit.fh"
 #include "global.fh"
 #include "wfn1_matcnst.fh"
 #include "wfn1_param.fh"
@@ -88,9 +89,17 @@ c
 c
 c     The 2-electron terms
 c
-      call wfn1_e_g_2el(wfn1_param,wfn1_inst,wfn1_wave,wfn1_deriv,
-     &                  v_dca,v_dcb,g_momo,g_momo2,g_momo3,g_momo4,
-     &                  wfn1_energy%E_2el,wfn1_energy%E_2el_hf)
+      if (wfn1_param%corr_expr == "wfn1") then
+        call wfn1_e_g_2el(wfn1_param,wfn1_inst,wfn1_wave,wfn1_deriv,
+     &                    v_dca,v_dcb,g_momo,g_momo2,g_momo3,g_momo4,
+     &                    wfn1_energy%E_2el,wfn1_energy%E_2el_hf)
+      else if (wfn1_param%corr_expr == "wfn1s") then
+        call wfn1_e_g_2el_s(wfn1_param,wfn1_inst,wfn1_wave,wfn1_deriv,
+     &                      v_dca,v_dcb,g_momo,g_momo2,g_momo3,g_momo4,
+     &                      wfn1_energy%E_2el,wfn1_energy%E_2el_hf)
+      else
+        call errquit("invalid correlation energy option",0,UERR)
+      endif
 c
 c     The entropy term
 c
