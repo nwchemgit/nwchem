@@ -235,6 +235,8 @@ c     external oimp2
       external dc_energy
       logical leps_energy
       external leps_energy
+      logical  wfn1_task_energy
+      external wfn1_task_energy
 c
       logical status
       double precision dipole(3)
@@ -431,6 +433,8 @@ c         status = .false.
          status = leps_energy(rtdb)
       else if (theory .eq. 'dangchang') then
          status = dc_energy(rtdb)
+      else if (theory .eq. 'wfn1') then
+         status = wfn1_task_energy(rtdb)
       else
          call errquit('task_energy: unknown theory',0, INPUT_ERR)
       endif
