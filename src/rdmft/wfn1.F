@@ -461,8 +461,33 @@ c
       call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_wave,wfn1_deriv,
      &              wfn1_energy,g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4)
 c     call wfn1_zero_vv(wfn1_param,wfn1_wave,wfn1_deriv)
+      error = wfn1_trace(wfn1_deriv,wfn1_deriv)
       do while ((.not.oconverged).and.(curit.lt.maxit))
         curit = curit + 1
+c
+c       Alternating optimization of natural orbitals and correlation
+c       functions for better convergence.
+c
+        if (error%errna+error%errnb > 0.5d0*conv_tol .and.
+     &      error%errca+error%errcb > 0.5d0*conv_tol) then
+          if (mod(curit,2).eq.0) then
+            call ga_zero(wfn1_deriv%g_dca)
+            call ga_zero(wfn1_deriv%g_dcb)
+          else
+            call ga_zero(wfn1_deriv%g_dna)
+            call ga_zero(wfn1_deriv%g_dnb)
+          endif
+        else if (error%errna+error%errnb >
+     &           error%errca+error%errcb) then
+          call ga_zero(wfn1_deriv%g_dca)
+          call ga_zero(wfn1_deriv%g_dcb)
+        else
+          call ga_zero(wfn1_deriv%g_dna)
+          call ga_zero(wfn1_deriv%g_dnb)
+        endif
+c
+c       end of alternating optimization
+c
         call wfn1_linesearch(wfn1_param,wfn1_inst,wfn1_mat,wfn1_wave,
      &                       wfn1_deriv,wfn1_energy,
      &                       wfn1_trial_wv,wfn1_trial_drv,wfn1_trial_en,
