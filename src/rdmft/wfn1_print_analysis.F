@@ -5,6 +5,7 @@ c
 C>
 C> \brief Print the wavefunction analysis
 C>
+#include "stdio.fh"
 #include "wfn1_param.fh"
 #include "wfn1_wfn.fh"
 c
@@ -40,6 +41,22 @@ c
      &                   wfn1_wave%icnfb,wfn1_wave%dcntb,occb)
 c
       call wfn1_print_occ(wfn1_param%nmo,occa,occb)
+c
+      blob = "WFN1 Final alpha Correlation Function Analysis"
+      write(LuOut,*)
+      call util_print_centered(LuOut,blob, 40, .true.)
+      write(LuOut,*)
+      call util_flush(LuOut)
+      call ga_print(wfn1_wave%g_ca)
+      call util_flush(LuOut)
+c
+      blob = "WFN1 Final beta Correlation Function Analysis"
+      write(LuOut,*)
+      call util_print_centered(LuOut,blob, 40, .true.)
+      write(LuOut,*)
+      call util_flush(LuOut)
+      call ga_print(wfn1_wave%g_cb)
+      call util_flush(LuOut)
 c
       blob = "WFN1 Final Alpha Natural Orbital Analysis"
       call movecs_print_anal(wfn1_inst%basis,ilo,ihi,tanalyze,
