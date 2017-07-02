@@ -1,6 +1,7 @@
 c-----------------------------------------------------------------------
 c
-      subroutine wfn1_print_analysis(wfn1_param,wfn1_inst,wfn1_wave)
+      subroutine wfn1_print_analysis(wfn1_param,wfn1_inst,wfn1_wave,
+     &                               e1a,e1b)
       implicit none
 C>
 C> \brief Print the wavefunction analysis
@@ -13,7 +14,8 @@ c
       type(wfn1_prminst), intent(in) :: wfn1_inst
       type(wfn1_wfn),     intent(in) :: wfn1_wave
 c
-      double precision, allocatable :: e1a(:), e1b(:)
+      double precision, intent(in)  :: e1a(1:wfn1_param%nmo)
+      double precision, intent(in)  :: e1b(1:wfn1_param%nmo)
       double precision, allocatable :: occa(:), occb(:)
 c
       double precision :: tanalyze
@@ -28,11 +30,11 @@ c
       ilo = 1
       ihi = wfn1_param%nmo
 c
-      allocate(e1a(1:wfn1_param%nmo),e1b(1:wfn1_param%nmo))
+c     allocate(e1a(1:wfn1_param%nmo),e1b(1:wfn1_param%nmo))
       allocate(occa(1:wfn1_param%nmo),occb(1:wfn1_param%nmo))
       allocate(irrep(1:wfn1_param%nmo))
-      e1a   = 0.0d0
-      e1b   = 0.0d0
+c     e1a   = 0.0d0
+c     e1b   = 0.0d0
       irrep = 0
 c
       call wfn1_calc_occ(wfn1_wave%g_ca,wfn1_param%nmo,wfn1_param%nea,
@@ -46,6 +48,8 @@ c
       write(LuOut,*)
       call util_print_centered(LuOut,blob, 40, .true.)
       write(LuOut,*)
+      write(LuOut,*)e1a
+      write(LuOut,*)
       call util_flush(LuOut)
       call ga_print(wfn1_wave%g_ca)
       call util_flush(LuOut)
@@ -53,6 +57,8 @@ c
       blob = "WFN1 Final beta Correlation Function Analysis"
       write(LuOut,*)
       call util_print_centered(LuOut,blob, 40, .true.)
+      write(LuOut,*)
+      write(LuOut,*)e1b
       write(LuOut,*)
       call util_flush(LuOut)
       call ga_print(wfn1_wave%g_cb)
@@ -69,7 +75,7 @@ c
      &                       irrep,.true.,occb)
 c
       deallocate(occa,occb)
-      deallocate(e1a,e1b)
+c     deallocate(e1a,e1b)
 c
       end
 c

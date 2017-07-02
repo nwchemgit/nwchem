@@ -94,6 +94,8 @@ c
       double precision conv_tol ! the convergence tolerance
 c
       double precision, allocatable :: eig(:)
+      double precision, allocatable :: v_dca(:)
+      double precision, allocatable :: v_dcb(:)
       type(wfn1_error)              :: error
 c
       type(wfn1_prminst) :: wfn1_inst    ! paramater instances
@@ -398,6 +400,10 @@ c
       allocate(wfn1_t_wv%icnfa(1:wfn1_param%nea))
       allocate(wfn1_t_wv%icnfb(1:wfn1_param%neb))
 c
+c     == Allocate memory for the natural orbital energies
+c
+      allocate(v_dca(1:wfn1_param%nmo),v_dcb(1:wfn1_param%nmo))
+c
 c     == Allocate memory for the derivatives wrt the wavefunctions ==
 c
       call wfn1_allocate_drv(wfn1_param,wfn1_deriv)
@@ -459,7 +465,8 @@ c
       oconverged = .false.
       curit      = 0
       call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_wave,wfn1_deriv,
-     &              wfn1_energy,g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4)
+     &              wfn1_energy,g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4,
+     &              v_dca,v_dcb)
 c     call wfn1_zero_vv(wfn1_param,wfn1_wave,wfn1_deriv)
       error = wfn1_trace(wfn1_deriv,wfn1_deriv)
       do while ((.not.oconverged).and.(curit.lt.maxit))
@@ -491,7 +498,8 @@ c
         call wfn1_linesearch(wfn1_param,wfn1_inst,wfn1_mat,wfn1_wave,
      &                       wfn1_deriv,wfn1_energy,
      &                       wfn1_trial_wv,wfn1_trial_drv,wfn1_trial_en,
-     &                       g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4)
+     &                       g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4,
+     &                       v_dca,v_dcb)
 c
         error = wfn1_trace(wfn1_trial_drv,wfn1_trial_drv)
         oconverged = (error%total < conv_tol)
@@ -537,7 +545,8 @@ c
       if (iproc.eq.0) then
         call wfn1_print_energy(wfn1_energy)
       endif
-      call wfn1_print_analysis(wfn1_param,wfn1_inst,wfn1_wave)
+      call wfn1_print_analysis(wfn1_param,wfn1_inst,wfn1_wave,
+     &                         v_dca,v_dcb)
 c
 c     == Store results ==
 c
@@ -552,6 +561,7 @@ c     == Clean up ==
 c
       call wfn1_deallocate_drv(wfn1_trial_drv)
       call wfn1_deallocate_drv(wfn1_deriv)
+      deallocate(v_dca,v_dcb)
       deallocate(wfn1_t_wv%dcntb)
       deallocate(wfn1_t_wv%dcnta)
       deallocate(wfn1_t_wv%icnfb)

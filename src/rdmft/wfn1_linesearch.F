@@ -4,7 +4,8 @@ c
      &                           wfn1_wave,wfn1_deriv,wfn1_energy,
      &                           wfn1_trial_wv,wfn1_trial_drv,
      &                           wfn1_trial_en,
-     &                           g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4)
+     &                           g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4,
+     &                           v_dca,v_dcb)
       implicit none
 C>
 C> \brief Perform a linesearch for the minimum total energy
@@ -49,6 +50,11 @@ c
       integer, intent(inout) :: g_momo2 ! nmo x nmo scratch GA
       integer, intent(inout) :: g_momo3 ! nmo x nmo scratch GA
       integer, intent(inout) :: g_momo4 ! nmo x nmo scratch GA
+c
+c     Natural orbital energies
+c
+      double precision, intent(out) :: v_dca(1:wfn1_param%nmo)
+      double precision, intent(out) :: v_dcb(1:wfn1_param%nmo)
 c
       integer, external :: wfn1_idmin
 c
@@ -101,7 +107,7 @@ c
      &                        wfn1_trial_wv,g_momo1,g_momo2)
       call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_trial_wv,
      &              wfn1_trial_drv,wfn1_trial_en,
-     &              g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4)
+     &              g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4,v_dca,v_dcb)
 c     call wfn1_zero_vv(wfn1_param,wfn1_wave,wfn1_trial_drv)
       fx(npts) = wfn1_trial_en%E_tot
       error = wfn1_trace(wfn1_deriv,wfn1_trial_drv)
@@ -121,7 +127,7 @@ c
      &                        wfn1_trial_wv,g_momo1,g_momo2)
       call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_trial_wv,
      &              wfn1_trial_drv,wfn1_trial_en,
-     &              g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4)
+     &              g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4,v_dca,v_dcb)
       error = wfn1_trace(wfn1_deriv,wfn1_trial_drv)
       dfm = dnrm*(error%total**2)
       call wfn1_insert(mxpts,npts,xx,fx,df,xm,wfn1_trial_en%E_tot,dfm)
@@ -148,7 +154,8 @@ c
      &                          wfn1_trial_wv,g_momo1,g_momo2)
         call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_trial_wv,
      &                wfn1_trial_drv,wfn1_trial_en,
-     &                g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4)
+     &                g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4,
+     &                v_dca,v_dcb)
 c       call wfn1_zero_vv(wfn1_param,wfn1_wave,wfn1_trial_drv)
         error = wfn1_trace(wfn1_deriv,wfn1_trial_drv)
         dfm = dnrm*(error%total**2)
@@ -187,7 +194,8 @@ c
      &                          wfn1_trial_wv,g_momo1,g_momo2)
         call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_trial_wv,
      &                wfn1_trial_drv,wfn1_trial_en,
-     &                g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4)
+     &                g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4,
+     &                v_dca,v_dcb)
 c       call wfn1_zero_vv(wfn1_param,wfn1_wave,wfn1_trial_drv)
         error = wfn1_trace(wfn1_deriv,wfn1_trial_drv)
         dfm = dnrm*(error%total**2)

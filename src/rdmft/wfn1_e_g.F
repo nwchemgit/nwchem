@@ -2,7 +2,7 @@ c-----------------------------------------------------------------------
 c
       subroutine wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_wave,
      &                    wfn1_deriv,wfn1_energy,g_bfmo,g_momo,
-     &                    g_momo2,g_momo3,g_momo4)
+     &                    g_momo2,g_momo3,g_momo4,v_dca,v_dcb)
       implicit none
 C>
 C> \brief Calculate the energy and the derivative of the energy wrt
@@ -38,8 +38,10 @@ c
       integer, intent(in) :: g_momo3 ! nmo x nmo scratch GA
       integer, intent(in) :: g_momo4 ! nmo x nmo scratch GA
 c
-      double precision, allocatable :: v_dca(:)
-      double precision, allocatable :: v_dcb(:)
+c     double precision, allocatable :: v_dca(:)
+c     double precision, allocatable :: v_dcb(:)
+      double precision, intent(out) :: v_dca(1:wfn1_param%nmo)
+      double precision, intent(out) :: v_dcb(1:wfn1_param%nmo)
       double precision, allocatable :: buf(:,:)
       double precision, allocatable :: bufji(:,:)
 c
@@ -73,8 +75,8 @@ c
 c     Arrange memory for the diagonal correlation function Fock
 c     matrices in natural orbital basis
 c
-      allocate(v_dca(1:wfn1_param%nmo))
-      allocate(v_dcb(1:wfn1_param%nmo))
+c     allocate(v_dca(1:wfn1_param%nmo))
+c     allocate(v_dcb(1:wfn1_param%nmo))
 c
       v_dca = 0.0d0
       v_dcb = 0.0d0
@@ -138,7 +140,7 @@ c
 c
 c     Clean up memory
 c
-      deallocate(v_dcb,v_dca)
+c     deallocate(v_dcb,v_dca)
 c
 c     Make derivative matrices skew-symmetric
 c
