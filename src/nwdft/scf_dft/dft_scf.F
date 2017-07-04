@@ -2195,11 +2195,14 @@ c
      &   call errquit('dft_scf: failed to MO irreps in rtdb', 0,
      &       RTDB_ERR)
       endif
-c     force noscf=f to avoid having it in future restarts
-      if (.not.rtdb_put(rtdb, 'dft:noscf', mt_log, 1, 'false'))
+c
+c     if present, force noscf=f to avoid having it in future restarts
+      if (noscf) then 
+        noscf = .false.
+        if (.not.rtdb_put(rtdb, 'dft:noscf', mt_log, 1, noscf))
      &   call errquit('dft_scf: failed to store nscf rtdb', 0,
      &       RTDB_ERR)
-
+      endif ! noscf
 c
 c     output energies and eigenvectors to disk
 c     
