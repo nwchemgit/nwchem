@@ -327,6 +327,7 @@ c
 c     == Initialize the integral code ==
 c
       call int_init(wfn1_inst%rtdb,1,wfn1_inst%basis)
+      call int_acc_high()
       call schwarz_init(wfn1_inst%geom,wfn1_inst%basis)
 c     call int_1e_cache_ga(wfn1_inst%basis,oskel)
       call wfn1_gen_mat(wfn1_inst,wfn1_mat)
@@ -462,13 +463,13 @@ c
      &          "------","------","------","------"
         endif
       endif
-      oconverged = .false.
-      curit      = 0
       call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_wave,wfn1_deriv,
      &              wfn1_energy,g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4,
      &              v_dca,v_dcb)
 c     call wfn1_zero_vv(wfn1_param,wfn1_wave,wfn1_deriv)
       error = wfn1_trace(wfn1_deriv,wfn1_deriv)
+      oconverged = (error%total < conv_tol)
+      curit      = 0
       do while ((.not.oconverged).and.(curit.lt.maxit))
         curit = curit + 1
 c
@@ -531,6 +532,21 @@ c
       enddo
       wfn1_task_energy = oconverged
       if (iproc.eq.0) then
+        if (curit.eq.0) then
+c
+c         The calculation started on a converged solution,
+c         print at least the current energy and error
+c
+          if (.not.oprerr) then
+            write(luout,'(i10,f20.8,f16.6)')curit,wfn1_energy%E_tot,
+     &                                      error%total
+          else
+            write(luout,'(i10,f20.8,5f16.6)')curit,wfn1_energy%E_tot,
+     &                                       error%total,
+     &                                       error%errna,error%errnb,
+     &                                       error%errca,error%errcb
+          endif
+        endif
         write(LuOut,*)
         if (oconverged) then
           write(LuOut,*)'Reached Convergence'
