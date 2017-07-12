@@ -113,7 +113,7 @@ c
       double precision PPP_max,dE,fac,schwarz_shell,q1
       logical do_force, do_cpks_r, do_hess
       integer ierr,LU
-      integer k_at,l_at,atom_p_in,atom_q_in
+      integer k_at,l_at,atom_p_in,atom_q_in,nat_used
       character*255 errmsg
 c
       character*(nw_max_path_len) cdfit
@@ -206,18 +206,19 @@ c
       if(.not.MA_Push_Get(MT_int,nat,'at list',l_at,k_at))
      &  call errquit('dft_cdfit: cannot allocate at list',0, MA_ERR)
 c     sort atoms list based on decreasing atomic weight
-      call dft_sortatbyz(geom,nat,int_mb(k_at))
+      nat_used=nat
+      call dft_sortatbyz_screen(ao_bas_han,geom,nat_used,int_mb(k_at))
 c
       next = nxtask(nproc,1) + 1
       icount_task=1
 c
-      do atom_p_in=1,nat
+      do atom_p_in=1,nat_used 
          atom_p=int_mb(k_at+atom_p_in-1)
         if (.not. bas_ce2cnr( AO_bas_han, atom_p, sh_lo_p, sh_hi_p)) 
      &       call errquit('Exiting in dftg_cdfit',110, BASIS_ERR)
         if (.not. bas_ce2bfr(AO_bas_han,atom_p,bf_lo_p,bf_hi_p)) 
      &       call errquit('Exiting in dft_fitcd',110, BASIS_ERR)
-        do atom_q_in=atom_p_in, nat
+        do atom_q_in=atom_p_in, nat_used
          if (icount_task.eq.next)then
             atom_q=int_mb(k_at+atom_q_in-1)
            if (.not. bas_ce2cnr(AO_bas_han,atom_q,sh_lo_q,sh_hi_q)) 
