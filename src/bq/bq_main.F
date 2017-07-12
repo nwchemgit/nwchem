@@ -1,3 +1,4 @@
+#define NO_BQGEM 1
 c $Id$
 C> \ingroup bq
 C> @{
