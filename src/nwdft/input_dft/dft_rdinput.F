@@ -332,7 +332,7 @@ c check if dbl tol2e is there, if not present, dump itol2e
 c
       if (.not. rtdb_get(rtdb, 'dft:imull', mt_int, 1,
      &   imull))then
-         imull=1 ! calculate mulliken by default
+         imull=0
          if (.not. rtdb_put(rtdb, 'dft:imull',
      &      mt_int, 1, imull))
      &      call errquit('dft_rdinput: rtdb_put failed', 128, RTDB_ERR)
