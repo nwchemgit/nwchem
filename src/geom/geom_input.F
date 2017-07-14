@@ -410,15 +410,15 @@ c
 c           When the coordinates are being changed with ZCOORD the code
 c           should not enforce a previously found point group. The
 c           ZCOORD input very likely is going to change that point
-c           group. So, delete the symmetry information. (Of course we
-c           need to re-detect the symmetry when we are done (if needed)
-c           but that happens automatically).
+c           group. So, delete the symmetry information. 
 c
             if (.not.geom_strip_sym(geom)) then
               call errquit('geom_input: zcoord: could not delete '
      $                   //'symmetry information',geom,GEOM_ERR)
             endif
             call geom_autoz_input(geom,oprint)
+c           re-detect the symmetry
+            call geom_getsym(rtdb,geom,'geometry')
             goto 20
          else if (inp_compare(.false.,'zmt', field).or.
      $           inp_compare(.false.,'zmat', field).or.
