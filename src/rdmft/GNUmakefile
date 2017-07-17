@@ -29,6 +29,7 @@
          wfn1_insert.o \
          wfn1_lindep.o \
          wfn1_linesearch.o \
+         wfn1_ortho.o \
          wfn1_print.o \
          wfn1_print_analysis.o \
          wfn1_print_occ.o \

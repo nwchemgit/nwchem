@@ -105,6 +105,8 @@ c
       xx(npts) = 1.0d0
       call wfn1_gen_trial_wfn(xx(npts),wfn1_param,wfn1_wave,wfn1_deriv,
      &                        wfn1_trial_wv,g_momo1,g_momo2)
+      call wfn1_ortho(wfn1_mat,wfn1_trial_wv)
+c     call wfn1_tst_ortho(wfn1_mat,wfn1_trial_wv,g_bfmo,g_momo1)
       call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_trial_wv,
      &              wfn1_trial_drv,wfn1_trial_en,
      &              g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4,v_dca,v_dcb)
@@ -125,6 +127,8 @@ c     approximation will pay off)
 c
       call wfn1_gen_trial_wfn(xm,wfn1_param,wfn1_wave,wfn1_deriv,
      &                        wfn1_trial_wv,g_momo1,g_momo2)
+      call wfn1_ortho(wfn1_mat,wfn1_trial_wv)
+c     call wfn1_tst_ortho(wfn1_mat,wfn1_trial_wv,g_bfmo,g_momo1)
       call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_trial_wv,
      &              wfn1_trial_drv,wfn1_trial_en,
      &              g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4,v_dca,v_dcb)
@@ -152,6 +156,8 @@ c
 c
         call wfn1_gen_trial_wfn(xm,wfn1_param,wfn1_wave,wfn1_deriv,
      &                          wfn1_trial_wv,g_momo1,g_momo2)
+        call wfn1_ortho(wfn1_mat,wfn1_trial_wv)
+c       call wfn1_tst_ortho(wfn1_mat,wfn1_trial_wv,g_bfmo,g_momo1)
         call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_trial_wv,
      &                wfn1_trial_drv,wfn1_trial_en,
      &                g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4,
@@ -192,6 +198,8 @@ c
 c
         call wfn1_gen_trial_wfn(xm,wfn1_param,wfn1_wave,wfn1_deriv,
      &                          wfn1_trial_wv,g_momo1,g_momo2)
+        call wfn1_ortho(wfn1_mat,wfn1_trial_wv)
+c       call wfn1_tst_ortho(wfn1_mat,wfn1_trial_wv,g_bfmo,g_momo1)
         call wfn1_e_g(wfn1_param,wfn1_inst,wfn1_mat,wfn1_trial_wv,
      &                wfn1_trial_drv,wfn1_trial_en,
      &                g_bfmo,g_momo1,g_momo2,g_momo3,g_momo4,
