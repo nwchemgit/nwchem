@@ -7,10 +7,10 @@ C> \brief Calculate exp(alpha*X) where X is a skew-symmetric matrix
 C>
 C> NOTE: This routine is serial and does not synchronize. The rational
 C>       for the latter is that in the application it is always followed
-C>       by a ga_dgemm (which does synchronize). In addition we invoke
-C>       this is invoked 4 times where we use it, so where a single
-C>       synchronization is sufficient to guarantee completion of all
-C>       4 matrices.
+C>       by a ga_dgemm (which does synchronize). In addition where we
+C>       invoke this is invoked 4 times where we use it, so where a
+C>       single synchronization is sufficient to guarantee completion of
+C>       all 4 matrices.
 C> 
 C> Calculate the exponent of a skew-symmetric matrix by the usual
 C> way of calculating matrix functions. I.e. diagonalize the matrix,
@@ -31,6 +31,14 @@ C> in serial. A parallel diagonalization routine for skew-Hermitian
 C> matrices is available in the Elemental library which is written
 C> in C++. So we cannot use that here but we should be able to use
 C> that in NWChemEx. 
+C>
+C> Another issue with ZGEEV is that in some cases (e.g. Hartree-Fock)
+C> the virtual-virtual block of the input matrix is 0. This seems to
+C> throw ZGEEV and it produces garbage for some of the eigenvectors.
+C> So in reality g_exp is not strictly exp(g_x) only part of it is.
+C> This means that the result has to be used with some care, in
+C> particular if it is used to transform the orbitals a subsequent
+C> orthonormalization is recommended.
 C>
 C> Furthermore, the matrix exponentiation is part of the linesearch
 C> algorithm. Hence we could do the diagonalization only once, keep
@@ -158,24 +166,6 @@ c
             enddo
           enddo
         enddo
-c
-c       Do repeated modified Gramm-Schmidt just to make sure
-c
-        o_repeat = .true.
-        do while (o_repeat)
-          o_repeat = .false.
-          do kk = 1, nrowx
-            dnrm = ddot(nrowx,u(1,kk),1,u(1,kk),1)
-            dnrm = 1.0d0/sqrt(dnrm)
-            call dscal(nrowx,dnrm,u(1,kk),1)
-            do jj = 1, kk-1
-              dnrm = ddot(nrowx,u(1,jj),1,u(1,kk),1)
-              call daxpy(nrowx,-dnrm,u(1,jj),1,u(1,kk),1)
-            enddo ! jj
-            dnrm = ddot(nrowx,u(1,kk),1,u(1,kk),1)
-            o_repeat = o_repeat .or. (dnrm.lt.0.5d0)
-          enddo
-        enddo ! while
 c
         do ip = 0, nproc-1
           call ga_distribution(g_exp,ip,ilo,ihi,jlo,jhi)
@@ -341,8 +331,26 @@ c
       nproc = ga_nnodes()
       iproc = ga_nodeid()
 c
+c     Check whether X + X^T = 0
+c
+      call ga_transpose(g_x,g_t)
+      call ga_add(1.0d0,g_x,1.0d0,g_t,g_t)
+      call ga_norm_infinity(g_t,dnormT)
+      if (dnormT.gt.1.0d-10) then
+        if (iproc.eq.0) then
+          write(LuOut,'(" Error in wfn1_exp: X+X^T: ",f24.15)')
+     &          dnormT
+        endif
+c       call ga_print(g_x)
+c       call ga_print(g_exp)
+      endif
+      call ga_sync
+c
       call wfn1_exp(alpha,g_x,g_t,g_exp)
 c
+c     Check whether U^T U = I
+c
+      call ga_sync
       call ga_inquire(g_exp,itypt,nrowt,ncolt)
       call ga_dgemm('t','n',nrowt,nrowt,nrowt,1.0d0,g_exp,g_exp,
      &              0.0d0,g_t)
@@ -353,11 +361,31 @@ c
       call ga_norm_infinity(g_t,dnormT)
       if (dnormT.gt.1.0d-10) then
         if (iproc.eq.0) then
-          write(LuOut,'(" Error in wfn1_exp: ",f24.15)')
+          write(LuOut,'(" Error in wfn1_exp: TN: ",f24.15)')
      &          dnormT
         endif
-        call ga_print(g_x)
-        call ga_print(g_exp)
+c       call ga_print(g_t)
+c       call ga_print(g_x)
+c       call ga_print(g_exp)
+      endif
+c
+c     Check whether U U^T = I
+c
+      call ga_dgemm('n','t',nrowt,nrowt,nrowt,1.0d0,g_exp,g_exp,
+     &              0.0d0,g_t)
+      call ga_distribution(g_t,iproc,ilo,ihi,jlo,jhi)
+      do ii = max(ilo,jlo),min(ihi,jhi)
+        call ga_acc(g_t,ii,ii,ii,ii,-1.0d0,1,1.0d0)
+      enddo
+      call ga_norm_infinity(g_t,dnormT)
+      if (dnormT.gt.1.0d-10) then
+        if (iproc.eq.0) then
+          write(LuOut,'(" Error in wfn1_exp: NT: ",f24.15)')
+     &          dnormT
+        endif
+c       call ga_print(g_t)
+c       call ga_print(g_x)
+c       call ga_print(g_exp)
       endif
       end
 c
