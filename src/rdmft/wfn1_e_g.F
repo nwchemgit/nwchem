@@ -305,13 +305,19 @@ c
       integer imlo, imhi, jmlo, jmhi ! related to the mo x mo 
                                      ! matrix
       integer ii, jj                 ! counters
+      integer nmo                    ! number of MOs
+      integer nea                    ! number of alpha electrons
+      integer neb                    ! number of beta  electrons
       integer iproc, nproc
 c
       iproc = ga_nodeid()
       nproc = ga_nnodes()
+      nmo   = wfn1_param%nmo
+      nea   = wfn1_param%nea
+      neb   = wfn1_param%neb
 c
-      allocate(occa(1:wfn1_param%nmo),occb(1:wfn1_param%nmo))
-      allocate(e1a(1:wfn1_param%nmo),e1b(1:wfn1_param%nmo))
+      allocate(occa(1:nmo),occb(1:nmo))
+      allocate(e1a(1:nmo),e1b(1:nmo))
 c
       occa = 0.0d0
       occb = 0.0d0
@@ -323,22 +329,8 @@ c     -------------------------
 c
 c     Calculate the alpha-occupation numbers
 c
-      call ga_distribution(wfn1_wave%g_ca,iproc,iclo,ichi,jclo,jchi)
-      allocate(buf(iclo:ichi,jclo:jchi))
-      call ga_get(wfn1_wave%g_ca,iclo,ichi,jclo,jchi,buf,ichi-iclo+1)
-      do jj = 1, wfn1_param%nea
-        if(wfn1_wave%icnfa(jj).ge.jclo.and.wfn1_wave%icnfa(jj).le.jchi)
-     &  then
-          do ii = iclo, ichi
-            occa(ii) = occa(ii)
-     &               + buf(ii,wfn1_wave%icnfa(jj))
-     &               * buf(ii,wfn1_wave%icnfa(jj))
-     &               * wfn1_wave%dcnta(jj)
-          enddo
-        endif
-      enddo
-      deallocate(buf)
-      call ga_dgop(MT_DBL,occa,wfn1_param%nmo,"+")
+      call wfn1_calc_occ(wfn1_wave%g_ca,nmo,nea,wfn1_wave%icnfa,
+     &                   wfn1_wave%dcnta,occa)
 c
 c     Do step 1.
 c
@@ -386,22 +378,8 @@ c     ------------------------
 c
 c     Calculate the beta-occupation numbers
 c
-      call ga_distribution(wfn1_wave%g_cb,iproc,iclo,ichi,jclo,jchi)
-      allocate(buf(iclo:ichi,jclo:jchi))
-      call ga_get(wfn1_wave%g_cb,iclo,ichi,jclo,jchi,buf,ichi-iclo+1)
-      do jj = 1, wfn1_param%neb
-        if(wfn1_wave%icnfb(jj).ge.jclo.and.wfn1_wave%icnfb(jj).le.jchi)
-     &  then
-          do ii = iclo, ichi
-            occb(ii) = occb(ii)
-     &               + buf(ii,wfn1_wave%icnfb(jj))
-     &               * buf(ii,wfn1_wave%icnfb(jj))
-     &               * wfn1_wave%dcntb(jj)
-          enddo
-        endif
-      enddo
-      deallocate(buf)
-      call ga_dgop(MT_DBL,occb,wfn1_param%nmo,"+")
+      call wfn1_calc_occ(wfn1_wave%g_cb,nmo,neb,wfn1_wave%icnfb,
+     &                   wfn1_wave%dcntb,occb)
 c
 c     Do step 1.
 c
