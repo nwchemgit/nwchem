@@ -124,6 +124,8 @@ C>
       external crd_nr
       double precision t1,t2,dt1x,dt1y,dt1z,dt2x,dt2y,dt2z
       double precision tmp1,tmp2,tmp3,tmp4,fac1,fac2
+      double precision eps
+      parameter (eps=1d-19)
       integer i,j
 c
       cni=crd_nr(iat,n,x,z)
@@ -181,11 +183,13 @@ c
 c
 c     Numerical test to avoid division by zero (following Grimme)
 c
-      if (t2.gt.0) then
+      if (abs(t2).gt.eps) then
         grad(1)=(dt1x*t2-dt2x*t1)/(t2**2)
         grad(2)=(dt1y*t2-dt2y*t1)/(t2**2)
         grad(3)=(dt1z*t2-dt2z*t1)/(t2**2)
       else
+         write(6,123) iat,jat,kat,t2
+ 123     format(3i6,1pe13.6)
         grad(1)=0.0d0
         grad(2)=0.0d0
         grad(3)=0.0d0
