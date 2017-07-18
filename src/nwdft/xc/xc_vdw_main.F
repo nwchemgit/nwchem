@@ -566,7 +566,7 @@ c
 c
       integer n
       integer itags,ltags,i_xyz,l_xyz,icharge,lcharge,
-     I     l_fvdw,i_fvdw
+     I     l_fvdw,i_fvdw, i_xyz2,l_xyz2,i_iz2,l_iz2
       external xc_vdw_e
       double precision xc_vdw_e,evdw,scalea
       integer iz,lz,i
@@ -589,15 +589,13 @@ c
      &   call errquit('xcvdw: cannot allocate xyz',0, MA_ERR)
       if (.not.MA_Push_Get(MT_int,n,'atns',lz,iz))
      &   call errquit('xcvdw: cannot allocate atns',0, MA_ERR)
-      if (.not.MA_Push_Get(MT_Dbl,n,'charge',lcharge,icharge))
-     &   call errquit('xcvdw: cannot allocate charge',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Byte,n*16,'tags',ltags,itags))
      &   call errquit('xcvdw: cannot allocate tags',0, MA_ERR)
+      if (.not.MA_Push_Get(MT_Dbl,n,'charge',lcharge,icharge))
+     &   call errquit('xcvdw: cannot allocate charge',0, MA_ERR)
       if (.not. geom_cart_get2(geom, n, Byte_MB(itags),
      &        Dbl_MB(i_xyz), Dbl_MB(icharge), int_mb(iz)))
      &   call errquit('xcvdw: geom_cart_get failed',74, GEOM_ERR)
-      if (.not.ma_pop_stack(ltags))
-     &   call errquit('xcvdw: cannot pop stack',2, MA_ERR)
       if (.not.ma_pop_stack(lcharge))
      &   call errquit('xcvdw: cannot pop stack',3, MA_ERR)
 c
@@ -605,7 +603,19 @@ c     Which Grimme dispersion version
 c
       if (.not.rtdb_get(rtdb,'dft:ivdw',MT_INT,1,ivdw))
      &      ivdw = 2
-      
+c
+c     get rid of bqs
+c      
+      if (.not.MA_push_get(mt_dbl,n*3,'xyz',l_xyz2,i_xyz2))
+     &   call errquit('xcvdw: cannot allocate xyz',0, MA_ERR)
+      if (.not.MA_push_get(mt_int,n,'iz',l_iz2,i_iz2))
+     &   call errquit('xcvdw: cannot allocate xyz',0, MA_ERR)
+      call xc_vdw_nobqs(geom, Byte_MB(itags),
+     N     n, dbl_mb(i_xyz), int_mb(iz),
+     T     dbl_mb(i_xyz2),int_mb(i_iz2))
+      if (.not.ma_chop_stack(l_xyz2)) 
+     C   call errquit('xcvdw: cannot pop stack',14, MA_ERR)
+c
       use_nwxc_disp = .false.
       if(util_module_avail("nwxc")) then
          call nwxc_getvals("nwxc_has_disp",out1)
@@ -937,5 +947,41 @@ c
      $ call errquit('xc_vdw_to_hessian: geom_create failed !', 
      $                                                0,GEOM_ERR)
 c
+      return
+      end
+      subroutine xc_vdw_nobqs(geom, tags,
+     N     n, xyz, z,
+     T     tempxyz, tempz)
+      implicit none
+#include "geom.fh"
+#include "inp.fh"
+      double precision xyz(3,*),tempxyz(3,*)
+      character*16 tags(*)
+      integer n
+      integer z(*),tempz(*)
+      integer geom
+c
+      integer i,n_left
+c
+      do i=1,n
+         tempz(i)=z(i)
+         tempxyz(1,i)=xyz(1,i)
+         tempxyz(2,i)=xyz(2,i)
+         tempxyz(3,i)=xyz(3,i)
+      enddo
+      n_left=0
+      do i=1,n
+         if(.not.geom_isbq(geom,i)) then
+            if(z(i).gt.1) then
+c            if (.not.inp_compare(.false.,tags(i)(1:2),'bq')) then 
+               n_left=n_left+1
+               z(n_left)=tempz(i)
+               xyz(1,n_left)=tempxyz(1,i)
+               xyz(2,n_left)=tempxyz(2,i)
+               xyz(3,n_left)=tempxyz(3,i)
+            endif
+         endif
+      enddo
+      n=n_left
       return
       end
