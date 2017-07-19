@@ -188,8 +188,10 @@ c
         grad(2)=(dt1y*t2-dt2y*t1)/(t2**2)
         grad(3)=(dt1z*t2-dt2z*t1)/(t2**2)
       else
+#if 0
          write(6,123) iat,jat,kat,t2
  123     format(3i6,1pe13.6)
+#endif
         grad(1)=0.0d0
         grad(2)=0.0d0
         grad(3)=0.0d0
