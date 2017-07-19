@@ -1,3 +1,4 @@
+#define NO_BQGEM 1
       subroutine grad1 ( H, lbuf, scr, lscr, dens, wdens, frc_nuc,
      $                   frc_kin, frc_wgh, g_force,
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
@@ -74,6 +75,10 @@ cc AJL/Begin/SPIN ECPs
       integer iecp
       double precision H_beta (lbuf)
       double precision dens_beta (max_at_bf,max_at_bf)
+#ifdef NO_BQGEM
+#include "inp.fh"
+      character*2 bqchar
+#endif
 
 cc    Read this value from rtdb vvvv
       if (.not.rtdb_get(rtdb, 'dft:spin_polarised_ecps',
@@ -286,6 +291,12 @@ c     --------------------------------------------------
       ijatom = -1
       next = nxtask(nproc,task_size)
       do 91, iat1 = 1, nat
+#ifdef NO_BQGEM
+         status = geom_cent_get (geom, iat1, name, crd1, q1)
+c         bqchar(1:1)=byte_mb(i_t+16*(iat-1))
+c         bqchar(2:2)=byte_mb(i_t+16*(iat-1)+1)
+         if (.not.inp_compare(.false.,'bq', name(1:2))) then
+#endif
         do 81, iat2 = 1, bq_ncent
 
           ijatom = ijatom + 1
@@ -316,6 +327,9 @@ c
             next = nxtask(nproc,task_size)
           endif
  81     continue
+#ifdef NO_BQGEM
+      endif
+#endif
  91   continue
       next = nxtask(-nproc,task_size)
 
