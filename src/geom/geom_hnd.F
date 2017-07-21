@@ -294,7 +294,10 @@ c
       double precision e(ndim)  ! [scratch]
 c
       integer info, i, j, ioff, nindep, ij, ji
+      integer ii,jj
       logical odebug
+      external dabssum
+      double precision dabssum
 c
 c     Form generalized inverse of the B matrix
 c
@@ -419,6 +422,11 @@ c
          write(LuOut,*) ' C'
          call output(y, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
       endif
+      if(dabssum(nzvar*nzvar, y).lt.1d-12) then
+         if(ga_nodeid().eq.0) write(6,*) 
+     W        ' no constraints, skipping ',dabssum(nzvar*nzvar,y)
+         call dfill(nzvar*nzvar,0d0,z,1)
+      else
 c
 c     Now have P in x, C in y.  Form CPC and then do generalized
 c     inverse.  Both P and C are symmetric.
@@ -429,6 +437,7 @@ c
      $     z, nzvar, y, nzvar, 0d0, x, nzvar) ! C*P*C -> x
 c
       call dsyev('v', 'u', nzvar, x, nzvar, e, z, ndim**2, info)
+
       if (info .ne. 0) call errquit('geom_binvr: dsyev2 failed', info,
      &       GEOM_ERR)
       if (odebug) then
@@ -460,6 +469,7 @@ c
      $     y, nzvar, z, nzvar, 0d0, x, nzvar) ! C*(CPC)^-1 -> x
       call dgemm('n', 'n', nzvar, nzvar, nzvar, 1d0, 
      $     x, nzvar, y, nzvar, 0d0, z, nzvar) ! C*(CPC)^-1C -> z
+      endif
 c
       call geom_hnd_get_data('p', y, nzvar*nzvar) ! P -> y
       call dgemm('n', 'n', nzvar, nzvar, nzvar, 1d0, 
