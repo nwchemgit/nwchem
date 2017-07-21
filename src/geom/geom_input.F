@@ -418,7 +418,7 @@ c
             endif
             call geom_autoz_input(geom,oprint)
 c           re-detect the symmetry
-            call geom_getsym(rtdb,geom,'geometry')
+            if(oadjust) call geom_getsym(rtdb,geom,'geometry')
             goto 20
          else if (inp_compare(.false.,'zmt', field).or.
      $           inp_compare(.false.,'zmat', field).or.
