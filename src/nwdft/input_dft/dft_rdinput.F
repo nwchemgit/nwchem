@@ -1182,6 +1182,10 @@ c
       if(theory .eq. 'sodft') then
          oadapt=.false.
          oskel=.false.
+            if (.not.geom_strip_sym(geom)) then
+               call errquit('dft_rdinput: could not delete '
+     $                   //'symmetry information',geom,GEOM_ERR)
+            endif
       endif
 c
 c     Resolve names of MO files to full paths defaulting to the
