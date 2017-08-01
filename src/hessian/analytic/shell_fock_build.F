@@ -364,7 +364,7 @@ c
      $     nbh_ij,  nbh_kl,  
      $     nbh_ik,  nbh_jl,  
      $     nbh_il,  nbh_jk
-      integer cache_hitmiss(2,6),ij
+      integer cache_hitmiss(2,6)
       integer cache_hit,cache_miss
       integer bgj_get_rtdb_handle
       external bgj_get_rtdb_handle
@@ -442,12 +442,14 @@ c
       nbh_il=0
       nbh_jl=0
       nbh_kl=0
-      do ij=1,6
-         cache_ij(ij)=-1
+      do jj=1,6
+         cache_ij(jj)=-1
 c first row = hit
 c 2nd   row = miss
-         cache_hitmiss(1,ij)=0
-         cache_hitmiss(2,ij)=0
+         cache_hitmiss(1,jj)=0
+         cache_hitmiss(2,jj)=0
+c  fill ptr with something
+         ptr_ij(jj)=0
       enddo
 c   get max blk lentgh
       bledo_dm=0
@@ -849,9 +851,9 @@ c
       call ga_igop(65331, cache_hitmiss, 12, '+')
       cache_hit=0
       cache_miss=0
-      do ij=1,6
-         cache_hit=cache_hit+cache_hitmiss(1,ij)
-         cache_miss=cache_miss+cache_hitmiss(2,ij)
+      do jj=1,6
+         cache_hit=cache_hit+cache_hitmiss(1,jj)
+         cache_miss=cache_miss+cache_hitmiss(2,jj)
       enddo
 #ifdef PRINT_CACHE
       if(ga_nodeid().eq.0) then
