@@ -358,7 +358,6 @@ c ---------------collect and print timings data--------------------------------
 
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - cpu
-
       if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
      $     call errquit(pname//'failed storing cputime',0,
      &     MA_ERR)
@@ -368,7 +367,6 @@ c ---------------collect and print timings data--------------------------------
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .true.))
      $     call errquit(pname//'failed to set status',0,
      &     MA_ERR)
-
       call ecce_print1('cpu time', mt_dbl, cpu, 1)
       call ecce_print1('wall time', mt_dbl, wall, 1)
       task_raman = status
@@ -459,13 +457,9 @@ c --------- FA vars ---------- START
       parameter (unitno = 77)
       logical raman_write,
      &        raman_read_list  
+      logical oldmode
       external raman_write,
-     &         raman_read_list,
-     &         raman_per_mode,
-     &         raman_scattering,
-     &         raman_default,
-     &         raman_inp_files_rmodes,
-     &         raman_inp_list_rmodes
+     &         raman_read_list
 c --------- FA vars ---------- END
       raman_done=.false.
       pname = 'task_raman_doit: ' 
@@ -480,7 +474,7 @@ c --------- FA vars ---------- END
       mode_ini=first-first0+1 ! in : mode_ini
       mode_end=last -first0+1 ! in : mode_end
       if (ga_nodeid().eq.0) then
-       write(*,1) mode_ini,mode_end
+       write(luout,1) mode_ini,mode_end
  1     format('(mode_ini,mode_end)=(',i5,',',i5,')')
       endif
       if (.not. rtdb_get(rtdb, 'raman:rminfo ', mt_dbl,
@@ -517,7 +511,7 @@ c -------------------actually do the deed.-------------------------------------
 c
 c ============== FA-debug ============= START
       if (ga_nodeid().eq.0) then
-       write(*,151) begin,last,steps
+       write(luout,151) begin,last,steps
  151   format('(begin,last,steps)=(',i4,',',i4,',',i4,')')
       endif
 c ---- ramanspc=.true. will save aoresponse data in files
@@ -532,7 +526,7 @@ c 0000000 Reading modes from input script 000000000 START
       select case (ramantype)
        case (1)  ! Default
                    if (ga_nodeid().eq.0)
-     &               write(*,*) 'ENTER raman default'
+     &               write(luout,*) 'ENTER raman default'
                    call raman_default(
      &             modecc,     ! in: mode counter
      &             rmmodes,    ! in: total nr. modes
@@ -553,7 +547,7 @@ c 0000000 Reading modes from input script 000000000 START
      &             rtdb,geom)  ! in: (rtdb,geom) handles
        case (2)  ! raman list
                    if (ga_nodeid().eq.0)
-     &               write(*,*) 'ENTER raman list'
+     &               write(luout,*) 'ENTER raman list'
                    ignore_missingmode=0 ! default do nothing
                    status=rtdb_get(rtdb,'raman:ramanskipmode',
      &                             mt_int,1,ignore_missingmode)
@@ -578,7 +572,7 @@ c 0000000 Reading modes from input script 000000000 START
      &             ignore_missingmode) ! in: =1 ignore calc missing mode
        case (3)  ! raman modes list
                    if (ga_nodeid().eq.0)
-     &               write(*,*) 'ENTER raman modes list'
+     &               write(luout,*) 'ENTER raman modes list'
                    call raman_inp_list_rmodes(
      &             modecc,     ! in: mode counter
      &             rmmodes,    ! in: total nr. modes
@@ -604,13 +598,14 @@ c 0000000 Reading modes from input script 000000000 START
      $                  555, RTDB_ERR)        
       end select
 
+      oldmode =  rtdb_parallel(.false.)
       if (ga_nodeid().eq.0 ) then
-        write(*,*) 'Showing rminfo:'
-        write(*,204) start,last,rmmodes,nfreq,plot,width
+        write(luout,*) 'Showing rminfo:'
+        write(luout,204) start,last,rmmodes,nfreq,plot,width
  204    format('(start,last,rmmodes,nfreq,plot,width)=(',
      &         i4,',',i4,',',i4,',',i4,',',a,',',f15.8,')')
         do i=1,rmmodes
-         write(*,201) i,
+         write(luout,201) i,
      &                rminfo(i,1),rminfo(i,2),
      &                rminfo(i,3),rminfo(i,4)         
  201     format('rminfo(',i4,')=(',
@@ -630,6 +625,7 @@ c 0000000 Reading modes from input script 000000000 START
      &                       rminfo)
         endif ! enter-only-if-raman_type=1,2
       endif
+      oldmode =  rtdb_parallel(oldmode)
       return
       end
 c 00000000000000000000000000000000000000000000000000000000000000
@@ -746,7 +742,7 @@ c 000000000 run properties (AORESPONSE) on displaced geom 000 START
          call util_file_name(lbl_ramanpol1,
      &                      .false.,.false.,ramanpolfile)  
          if (ga_nodeid().eq.0)
-     &    write(*,*) 'ramanpolfile=',ramanpolfile
+     &    write(luout,*) 'ramanpolfile=',ramanpolfile
 
          status1=ramanpol_read(
      &           ramanpolfile,! in: filename
@@ -895,12 +891,12 @@ c --------- FA vars ---------- START
  
        do i=1,nmodes_slc
         if (ga_nodeid().eq.0) then
-         write(*,21) i,int_mb(k_rmodes+i-1)
+         write(luout,21) i,int_mb(k_rmodes+i-1)
  21      format('raman-mode-slc(',i4,')=',i4)
         endif
         if (.not.(int_mb(k_rmodes+i-1).ge. begin .and.
      &            int_mb(k_rmodes+i-1).le. last)) then
-         write(*,42) i,int_mb(k_rmodes+i-1),begin,last
+         write(luout,42) i,int_mb(k_rmodes+i-1),begin,last
  42      format('Error: raman-mode-slc(',i4,')=',
      &          i4,' not in range=[',
      &          i4,',',i4,']')
@@ -914,19 +910,19 @@ c ======== construct filename in listing mode ====== START
         call util_file_name(lbl_raman1,
      &                     .false.,.false.,fname_raman)
         if (ga_nodeid().eq.0)
-     &   write(*,131) fname_raman
+     &   write(luout,131) fname_raman
  131     format('Generating fname_raman1=',a)         
 c ======== construct filename in listing mode ====== END
         modecc=1 ! reset counter         
         do cmode=1,nmodes_slc
          ii=int_mb(k_rmodes+cmode-1)
          if (ga_nodeid().eq.0) then
-          write(*,173) ii,rminfo(ii,1)
+          write(luout,173) ii,rminfo(ii,1)
  173      format('(ii,rminfo(ii,1))=(',
      &            i5,',',f15.8,')')
          endif
          if (ga_nodeid().eq.0)
-     &    write(*,*) 'Calculating slc-raman mode ii=',ii
+     &    write(luout,*) 'Calculating slc-raman mode ii=',ii
 
          call raman_per_mode(
      &             ii,         ! in: ii-th raman mode
@@ -1033,10 +1029,10 @@ c ---- Reading all lbl_ramanXXX files ---- START
      &           modes_missing)  ! out: list of missing modes
 
          if (ga_nodeid().eq.0) then
-          write(*,*) 'List of modes missing: nmodes_missing=',
+          write(luout,*) 'List of modes missing: nmodes_missing=',
      &                nmodes_missing
            do i=1,nmodes_missing
-            write(*,112) i,modes_missing(i)
+            write(luout,112) i,modes_missing(i)
  112        format('mode(',i4,')=',i4)
            enddo ! end-loop-i
          endif
@@ -1046,14 +1042,14 @@ c ======== construct filename in listing mode ====== START
         call util_file_name(lbl_raman1,
      &                     .false.,.false.,fname_raman)
         if (ga_nodeid().eq.0)
-     &   write(*,121) fname_raman
+     &   write(luout,121) fname_raman
  121     format('Generating fname_raman2=',a)         
 c ======== construct filename in listing mode ====== END
 c ************************************************************
 c ************ skipping calculations of missing modes *** START
         if (ignore_missingmode.eq.1) then
           if (ga_nodeid().eq.0) 
-     &    write(*,*) 'SKIP calc modes missing!!'
+     &    write(luout,*) 'SKIP calc modes missing!!'
           goto 123
         endif
 c ************ skipping calculations of missing modes *** END
@@ -1063,13 +1059,13 @@ c ************************************************************
          ii=modes_missing(cmode)+first0-1
 
          if (ga_nodeid().eq.0) then
-          write(*,174) ii,rminfo(ii,1)
+          write(luout,174) ii,rminfo(ii,1)
  174      format('(ii,rminfo(ii,1))=(',
      &            i5,',',f15.8,')')
          endif
 
          if (ga_nodeid().eq.0) then
-           write(*,113) ii
+           write(luout,113) ii
  113       format("Calculating mode=",i4)
          endif
 
@@ -1162,7 +1158,7 @@ c ======== construct filename in partitioning mode ====== START
         call util_file_name(lbl_raman1,
      &                     .false.,.false.,fname_raman)
         if (ga_nodeid().eq.0)
-     &   write(*,111) fname_raman
+     &   write(luout,111) fname_raman
  111     format('Generating fname_raman3=',a)
 c ======== construct filename in partitioning mode ====== END
 c ====== Step 0: Read rminfo file(s) ====== END
@@ -1171,7 +1167,7 @@ c        if (begin .gt. last)  go to 200
         do ii=begin,last ! 2*rmmodes in the end. shorten for tests.
 
          if (ga_nodeid().eq.0) then
-          write(*,175) ii,rminfo(ii,1)
+          write(luout,175) ii,rminfo(ii,1)
  175      format('(ii,rminfo(ii,1))=(',
      &            i5,',',f15.8,')')
          endif

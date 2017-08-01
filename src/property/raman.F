@@ -307,6 +307,7 @@ c        we will get NaN everywhere (FA-08-09-12)
 #include "global.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
+#include "mafdecls.fh"
 #include "inp.fh"
 
       character*16 plot, line
@@ -361,10 +362,13 @@ c      Double precision freq(rmmodes) ! [input] number of excitation frequencies
       parameter (scale = 1.0D+34)
       parameter (exparg  = (planck*speed*100.0D+00)/boltz )
       parameter (conver  = ( (two*planck*pi*pi)/speed*1.0D-40)/amu ) ! conver = 2*planck_h*pi^2/c * 10^40/atomic_mass_unit               
-      parameter (numpts  = 1000)
+      integer numpts_default
+      parameter (numpts_default  = 1000)
 
       logical debug
       debug      = .false. ! produce debug output
+      if (.not. rtdb_get(rtdb, 'raman:numpts ', mt_int,1 , numpts))
+     & numpts=numpts_default
 c
 c ----------outline and units of the calculation:---------------------
 c d(sigma)/d(omega) = h/(8*(epsilon0)^2 *c) *(lambda-lambda_z)^4/lambda_z
