@@ -1202,7 +1202,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN INTERIX))
        NICE = nice -n 2
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
-         CC = gcc
+#         CC = gcc
      RANLIB = ranlib
   MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
@@ -1211,7 +1211,18 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN INTERIX))
 			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
 			/bin/rm -f /tmp/$$$$.c) || exit 1
 
-         FC=gfortran
+#         FC=gfortran
+#   ifeq ($(FC),f77)
+#     FC = gfortran
+#     _FC = gfortran
+#   endif
+   ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran-6 gfortran-7 gfortran-8 gfortran-9 i686-w64-mingw32.static-gfortran))
+     _FC = gfortran
+   endif
+   ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc-6 gcc-7 gcc-8 gcc-9 i686-w64-mingw32.static-gcc))
+     _CC = gcc
+   endif
+
          LINUXCPU = $(shell uname -m |\
                  awk ' /sparc/ { print "sparc" }; /i*86/ { print "x86" };  /ppc*/ { print "ppc"} ' )
 
@@ -1231,10 +1242,9 @@ endif
       FOPTIMIZE  = -O2 
       COPTIONS   = -Wall
       COPTIMIZE  = -g -O2
-      ifeq ($(FC),gfortran)
+      ifeq ($(_FC),gfortran)
         FOPTIONS   = # -Wextra -Wunused  
         FOPTIMIZE  += -ffast-math -Wuninitialized
-        _FC=gfortran
         DEFINES  += -DGFORTRAN
         GNUMAJOR=$(shell $(FC) -dumpversion | cut -f1 -d.)
         GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c22)
@@ -1242,17 +1252,21 @@ endif
           GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c24)
           GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
           GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
-          ifeq ($(GNU_GE_4_6),true)
-       ifdef  USE_FPE
-         FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
-       endif
-            DEFINES  += -DGCC46
+        GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
+        ifeq ($(GNU_GE_4_6),true)
+          ifdef  USE_FPE
+            FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
           endif
-          ifeq ($(GNU_GE_4_8),true)
+          DEFINES  += -DGCC46
+        endif
+        ifeq ($(GNU_GE_4_8),true)
             FDEBUG +=-O2 -g -fno-aggressive-loop-optimizations
             FOPTIMIZE +=-fno-aggressive-loop-optimizations
             FFLAGS_FORGA += -fno-aggressive-loop-optimizations
-          endif
+        endif
+        ifeq ($(GNU_GE_6),true)
+         FOPTIMIZE += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
+        endif
          endif
        endif
 
