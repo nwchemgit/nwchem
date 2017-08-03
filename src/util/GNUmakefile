@@ -131,6 +131,7 @@ ifeq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET),LINUX64 CATAMOUNT))
   endif
 endif
 ifeq ($(GOTMINGW32),1)
+    LIB_DEFINES += -DNO_MPIF
     EXTRA_OBJ += util_mingw.o
 endif
 
