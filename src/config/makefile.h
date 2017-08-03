@@ -1202,7 +1202,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN INTERIX))
        NICE = nice -n 2
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
-#         CC = gcc
+         CC = gcc
      RANLIB = ranlib
   MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
@@ -1211,11 +1211,11 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN INTERIX))
 			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
 			/bin/rm -f /tmp/$$$$.c) || exit 1
 
-#         FC=gfortran
-#   ifeq ($(FC),f77)
-#     FC = gfortran
-#     _FC = gfortran
-#   endif
+         FC=gfortran
+   ifeq ($(FC),f77)
+     FC = gfortran
+     _FC = gfortran
+   endif
    ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran-6 gfortran-7 gfortran-8 gfortran-9 i686-w64-mingw32.static-gfortran))
      _FC = gfortran
    endif
