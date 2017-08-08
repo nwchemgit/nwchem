@@ -41,6 +41,7 @@ c
       integer com_step                ! how often to remove trans/rot
       integer print_xyz               ! how often to print trajectory
       integer step_property           ! how often to calculate properties
+      integer step_tddft              ! how often to calculate tddft energies along the trajectory
       double precision dt_nucl        ! nuclear md time step
       double precision eltime         ! elapsed time (in fs)
       double precision esys           ! system energy (from task_gradient)
@@ -75,11 +76,14 @@ c     Surface Hopping
       double precision dt_elec           ! electronic time step
       logical do_namd                    ! NAMD flag
       logical do_property                ! property flag
+      logical do_tddft                   ! tddft flag
       logical do_tdks                    ! TDKS flag
       logical tda                        ! TDA flag
       logical deco                       ! decoherence flag
 c
-      logical status
+      logical status_qmd
+      logical status_property
+      logical status_tddft
       logical do_none
       logical dip_exists
       logical restart
@@ -96,8 +100,16 @@ c
       logical qmd_hasproperty
       external qmd_hasproperty
 c
+      logical tddft_energy
+      external tddft_energy
+c
+      logical qmd_property
+      external qmd_property
+c
 c     preliminaries
-      status = .true.
+      status_qmd = .true.
+      status_property = .true.
+      status_tddft = .true.
       dip_exists=.true.
       pname = "qmd_driver: "
       esys = 0.d0
@@ -133,7 +145,7 @@ c     get rstfilename
 c
 c     initialize parameters
       call qmd_init(rtdb,nstep_nucl,dt_nucl,do_none,com_step,print_xyz,
-     &       restart,do_namd,step_property,do_property)
+     &   restart,do_namd,step_property,do_property,step_tddft,do_tddft)
 c
 c     create geometry object 
       if (.not. geom_create(geom,'geometry'))
@@ -414,8 +426,15 @@ c
 c
 c       calculate molecular properties
         if (do_property) then
-         if (mod(istep_nucl,step_property).eq.0) call qmd_property(rtdb)
+         if (mod(istep_nucl,step_property).eq.0) 
+     &        status_property = qmd_property(rtdb)
         end if  ! do_property
+c
+c       calculate tddft spectra along ground state trajectory
+        if (do_tddft) then
+         if (mod(istep_nucl,step_tddft).eq.0)
+     &        status_tddft = tddft_energy(rtdb)
+        end if  ! do_tddft
 c
 c       restart file has been written so set restart flag in RTDB
         if (.not.rtdb_put(rtdb,'qmd:restart',mt_log,1,.true.))
@@ -448,7 +467,7 @@ c     clear memory
        end do
       end if
 c
-      qmd_driver = status
+      qmd_driver = status_qmd
 c
       end
 c $Id$

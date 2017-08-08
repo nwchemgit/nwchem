@@ -1,7 +1,7 @@
 c
 c     qmd_property: wrapper for property calculations
 c
-      subroutine qmd_property(rtdb)
+      logical function qmd_property(rtdb)
 c
       implicit none
 c
@@ -25,9 +25,10 @@ c     preliminaries
       pname = "qmd_property: "
 c
       if (qmd_hasproperty(rtdb)) then
-        if(.not.task_property(rtdb))
-     &   call errquit(pname//'task_property',0,CALC_ERR)
+        qmd_property = task_property(rtdb)
       end if 
+c
+      qmd_property = .true.
 c
       return
       end

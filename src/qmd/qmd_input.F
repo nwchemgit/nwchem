@@ -26,6 +26,7 @@ c
       integer com_step
       integer print_xyz
       integer step_property
+      integer step_tddft
       integer tvals(8)
       double precision targ_temp
       double precision friction
@@ -40,6 +41,7 @@ c
       logical do_cavity
       logical do_namd
       logical do_property
+      logical do_tddft
       double precision cavity_axis(3)
       double precision cavity_spring
      
@@ -124,6 +126,17 @@ c     Calculate molecular properties every step_property steps
       if (.not.rtdb_put(rtdb,'qmd:step_property',mt_int,
      &  1,step_property))
      & call errquit(pname//'failed to write step_property',0,RTDB_ERR)
+c
+c     Are we performing any tddft calculations along the ground state trajectory ?
+      do_tddft=.false.
+      if (.not.rtdb_put(rtdb,'qmd:tddft',mt_log,1,do_tddft))
+     & call errquit(pname//'failed to write do_tddft',0,RTDB_ERR)
+c
+c     Calculate tddft every step_tddft steps
+      step_tddft=1
+      if (.not.rtdb_put(rtdb,'qmd:step_tddft',mt_int,
+     &  1,step_tddft))
+     & call errquit(pname//'failed to write step_tddft',0,RTDB_ERR)
 c
 c     ----------
 c     Read input
@@ -258,6 +271,16 @@ c     Calculate properties as specified in the property block every step_propert
        if (.not.rtdb_put(rtdb,'qmd:step_property',mt_int,1,
      & step_property))
      &  call errquit(pname//'failed to write step_property',0,RTDB_ERR)
+c
+c     Calculate tddft spectra as specified in the tddft block every step_tddft steps
+      else if (inp_compare(.false.,test,'tddft')) then
+       do_tddft=.true.
+       if (.not.rtdb_put(rtdb,'qmd:tddft',mt_log,1,do_tddft))
+     &  call errquit(pname//'failed to write do_tddft',0,RTDB_ERR)
+       if (.not.inp_i(step_tddft)) step_tddft=1
+       if (.not.rtdb_put(rtdb,'qmd:step_tddft',mt_int,1,
+     & step_tddft))
+     &  call errquit(pname//'failed to write step_tddft',0,RTDB_ERR)
 c
 c     Print
       else if (inp_compare(.false.,test,'print')) then

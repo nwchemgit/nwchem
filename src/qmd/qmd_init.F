@@ -3,7 +3,7 @@ c     qmd_init: initialize parameters
 c     
       subroutine qmd_init(rtdb,nstep_nucl,dt_nucl,do_none,com_step,
      $                    print_xyz,restart,do_namd,step_property,
-     $                   do_property)
+     $                   do_property,step_tddft,do_tddft)
 c
       implicit none
 c
@@ -28,6 +28,7 @@ c
       integer com_step              ! how often to remove trans/rot
       integer print_xyz             ! how often to print xyz trajectory
       integer step_property
+      integer step_tddft
       integer tvals(8)
       integer svals
       double precision dt_nucl      ! nuclear md time step
@@ -40,6 +41,7 @@ c
       logical restart
       logical do_namd
       logical do_property
+      logical do_tddft
       integer inntsize
 c
       character*32 pname
@@ -199,8 +201,15 @@ c     are we calculating molecular properties ?
 c
 c     calculate molecular properties as defined in the properties block every step_property steps
       if (.not.rtdb_get(rtdb,'qmd:step_property',mt_int,1,
-     $ step_property))
-     $     step_property = 1
+     $ step_property)) step_property = 1
+c
+c     are we performing any tddft calculations along the ground state trajectory ?
+      if (.not.rtdb_get(rtdb,'qmd:tddft',mt_log,1,do_tddft))
+     $     do_tddft=.false.
+c
+c     calculate tddft spectra every step_tddft along the ground state trajectory
+      if (.not.rtdb_get(rtdb,'qmd:step_tddft',mt_int,1, step_tddft))
+     $     step_tddft = 1
 c
       if (ga_nodeid().eq.0) call util_flush(LuOut)
 c
