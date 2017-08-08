@@ -426,14 +426,18 @@ c
 c
 c       calculate molecular properties
         if (do_property) then
-         if (mod(istep_nucl,step_property).eq.0) 
-     &        status_property = qmd_property(rtdb)
+         if (mod(istep_nucl,step_property).eq.0) then
+c            if (ga_nodeid().eq.0) write(luout,*) "calling qmd_property"
+             status_property = qmd_property(rtdb)
+         end if
         end if  ! do_property
 c
 c       calculate tddft spectra along ground state trajectory
         if (do_tddft) then
-         if (mod(istep_nucl,step_tddft).eq.0)
-     &        status_tddft = tddft_energy(rtdb)
+         if (mod(istep_nucl,step_tddft).eq.0) then
+c            if (ga_nodeid().eq.0) write(luout,*) "calling tddft_energy"
+             status_tddft = tddft_energy(rtdb)
+         end if 
         end if  ! do_tddft
 c
 c       restart file has been written so set restart flag in RTDB

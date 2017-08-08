@@ -33,7 +33,7 @@ c     start clock
       wall = util_wallsec()
 c
 c     invoke the qmd driver
-      if (ga_nodeid().eq.0) write(luout,*) "calling qmd_driver"
+c     if (ga_nodeid().eq.0) write(luout,*) "calling qmd_driver"
       status = qmd_driver(rtdb)
 c
 c     stop clock
