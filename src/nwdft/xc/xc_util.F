@@ -114,6 +114,15 @@ cc AJL/End
       endif
       return
       end
+      logical function xc_gothfx()
+      implicit none
+#include "cdft.fh"
+#include "util.fh"
+c
+c     return true if there is any HF exch component
+      xc_gothfx = abs(xfac(1)).gt.1d-8
+      return
+      end
 c
       integer function xc_getnqmx()
       implicit none

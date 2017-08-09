@@ -61,10 +61,10 @@ c
 c
       logical use_dimqm,lrsp,ldimqm,lfirst,dimqm_go
       logical hf_job
-      logical xc_gotxc
-      external xc_gotxc
+      logical xc_gotxc,xc_gothfx
+      external xc_gotxc,xc_gothfx
 c
-      hf_job = .not. xc_gotxc()
+      hf_job = (.not. xc_gotxc()).and.(.not.xc_gothfx())
       use_dimqm=util_module_avail("dimqm")
 c
 c     Print levels assume that CPHF is being invoked from within
@@ -102,6 +102,7 @@ c
      &       UNKNOWN_ERR)
       nbases = 1
       bases(1) = basis
+#if 0
       if (bgj_have_j_fit()) then
         nbases = 2
         bases(2) = bgj_CD_bas_han()
@@ -109,6 +110,7 @@ c
           write(LuOut,*) __FILE__,': bases',bases
         endif
       endif
+#endif
       call int_init(rtdb,nbases,bases)
       call schwarz_init(geom, basis)
       oskel=sym_number_ops(geom).gt.0

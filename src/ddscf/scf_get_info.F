@@ -21,9 +21,6 @@ c
 #include "util.fh"
 #include "cscf.fh"
 #include "cosmo.fh"
-c !!! BGJ
-#include "bgj.fh"
-c !!! BGJ
 c     
       integer rtdb              ! database handle
 c     
@@ -38,10 +35,10 @@ c
       character*30 tag
       character*255 theory
       integer mult
+      logical xc_gotxc,xc_gothfx
+      external xc_gotxc,xc_gothfx
 c
-      hf_job = .not. bgj_have_xc()
-      if (bgj_print() .gt. 0)
-     &     write(*,*)'*** scf_get_info: hf_job ',hf_job
+      hf_job = (.not. xc_gotxc()).and.(.not. xc_gothfx())
 c
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
@@ -152,8 +149,6 @@ c
 c     Determine no. of open and closed shells ... default is to run closed
 c     shell unless told otherwise
 c     
-      if (bgj_print() .gt. 0)
-     &   write(*,*)'*** !!! more stuff to check in scf_get_info.F !!!'
       if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
      +     call errquit('task: no task input for theory?',0, INPUT_ERR)
 c     if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))

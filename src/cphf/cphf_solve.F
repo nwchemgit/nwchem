@@ -49,12 +49,12 @@ c
       external movecs_read_header, cphf_poliz
       logical int_normalize
       external int_normalize
-      logical xc_gotxc
-      external xc_gotxc
+      logical xc_gotxc,xc_gothfx
+      external xc_gotxc,xc_gothfx
 c
       logical hf_job
 c
-      hf_job = .not. xc_gotxc()      
+      hf_job = (.not. xc_gotxc()).and.(.not.xc_gothfx())
 c
 c     Print levels assume that CPHF is being invoked from within
 c     another application.  By default be informative.

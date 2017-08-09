@@ -99,8 +99,8 @@ c
       integer ipm,ncomp,ndata,m1,m2,shift
       double precision small
       logical use_dimqm,lrsp,ldimqm,lfirst,dimqm_go
-      logical xc_gotxc
-      external xc_gotxc
+      logical xc_gotxc,xc_gothfx
+      external xc_gotxc,xc_gothfx
       parameter (small = 1d-8)
 c
 c     ==================================================================
@@ -111,8 +111,8 @@ c     debug = .true. ! to allow debugging printouts
 
       lstatic = (abs(omega).lt.small)
       use_dimqm=util_module_avail("dimqm")
+      hf_job = (.not. xc_gotxc()).and.(.not.xc_gothfx())
 
-      hf_job = .not. xc_gotxc()      
 c
 c     Print levels assume that CPHF is being invoked from within
 c     another application.  By default be informative.
