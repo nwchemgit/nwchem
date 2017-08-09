@@ -972,7 +972,7 @@ c
       n_left=0
       do i=1,n
          if(.not.geom_isbq(geom,i)) then
-            if(z(i).gt.1) then
+            if(z(i).gt.0) then
 c            if (.not.inp_compare(.false.,tags(i)(1:2),'bq')) then 
                n_left=n_left+1
                z(n_left)=tempz(i)
@@ -982,6 +982,9 @@ c            if (.not.inp_compare(.false.,tags(i)(1:2),'bq')) then
             endif
          endif
       enddo
+#ifdef DEBUG
+      write(6,*) ' vdw_bqs left = ',n_left,' from ',n
+#endif
       n=n_left
       return
       end
