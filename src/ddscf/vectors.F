@@ -346,6 +346,9 @@ c
       integer l_vecs, k_vecs
       integer ok, iset, i, j
       integer geom, ma_type, nelem
+      integer nmem     ! the number of real*8 words available
+      integer nvec     ! the number of vectors that fit in local memory
+      integer nmo_top  ! the top MO currently considered
       character*26 date
       character*32 geomsum, basissum, bqsum, key
       character*20 scftype20    ! DECL MUST match movecs_converged routine
@@ -429,19 +432,23 @@ c
          write(unitno, err=1001) nsets
          write(unitno, err=1001) nbf
          write(unitno, err=1001) (nmo(i),i=1,nsets)
-         if (.not. ma_push_get(mt_dbl,nbf*nbf,'movecs_write',l_vecs,
+         nmem = ma_inquire_avail(MT_DBL)
+         nvec = max(1,min(nbf,nmem/nbf))
+         if (.not. ma_push_get(mt_dbl,nbf*nvec,'movecs_write',l_vecs,
      K        k_vecs))
      $        call errquit('movecs_write: ma failed', nbf, MA_ERR)
          do iset = 1, nsets
             write(unitno, err=1001) (occ(j,iset),j=1,nbf)
             write(unitno, err=1001) (evals(j,iset),j=1,nbf)
-            call ga_get(g_vecs(iset), 1, nbf, 1, nmo(iset),
-     D           dbl_mb(k_vecs),nbf)
-            kcount=k_vecs
-            do i = 1, nmo(iset)
-               call swrite(unitno, dbl_mb(kcount), nbf)
-               kcount=kcount+nbf
-*               write(unitno, err=1001) (dbl_mb(k_vecs+j), j=0,nbf-1)           
+            do i = 1, nmo(iset), nvec
+               nmo_top = min(nmo(iset),i+nvec-1)
+               call ga_get(g_vecs(iset), 1, nbf, i, nmo_top,
+     D              dbl_mb(k_vecs),nbf)
+               kcount = k_vecs
+               do j = i, nmo_top
+                 call swrite(unitno, dbl_mb(kcount), nbf)
+                 kcount = kcount + nbf
+               enddo
             enddo
 
          enddo
