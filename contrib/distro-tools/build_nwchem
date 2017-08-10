@@ -199,14 +199,17 @@ declare -a LIST_COMPFLAGS
 LIST_COMPFLAGS=( '-q64' ' ' )
 export LIST_COMPFLAGS
 #
+# Below are lists of existing MPI compiler wrappers. Note that Cray calls their
+# compiler wrappers ftn, cc, and CC without any hint to MPI.
+#
 declare -a LIST_MPIFWRAP
-LIST_MPIFWRAP=( 'mpiifort' 'mpifc' 'mpixlf_r' 'mpixlf' 'mpif90' 'mpif77' )
+LIST_MPIFWRAP=( 'mpiifort' 'mpifc' 'mpixlf_r' 'mpixlf' 'mpif90' 'mpif77' 'ftn')
 export LIST_MPIFWRAP
 declare -a LIST_MPICWRAP
-LIST_MPICWRAP=( 'mpiicc' 'mpixlc_r' 'mpixlc' 'mpigcc' 'mpicc' )
+LIST_MPICWRAP=( 'mpiicc' 'mpixlc_r' 'mpixlc' 'mpigcc' 'mpicc' 'cc')
 export LIST_MPICWRAP
 declare -a LIST_MPICXXWRAP
-LIST_MPICXXWRAP=( 'mpiicpc' 'mpixlcxx_r' 'mpixlcxx' 'mpigxx' 'mpicxx' 'mpic++' 'mpiCC' )
+LIST_MPICXXWRAP=( 'mpiicpc' 'mpixlcxx_r' 'mpixlcxx' 'mpigxx' 'mpicxx' 'mpic++' 'mpiCC' 'CC')
 export LIST_MPICXXWRAP
 function get_mpi_fortran_wrapper()
 {
@@ -283,10 +286,24 @@ function get_mpi_include ()
    # and returns them as a list for a compile line.
    # E.g.: /usr/include -I/usr/local/include
    #
-   # Most support -show
-   #
-   inlist="`${NWCHEM_MPIF_WRAP} -show`"
-   result=$?
+   result=1
+   if [ ${result} -ne 0 ] ; then
+     #
+     # Cray supports -craype-verbose (-show means something different with Cray)
+     #
+     echo "       program test">/tmp/$$.f
+     echo "       end">>/tmp/$$.f
+     inlist="`${NWCHEM_MPIF_WRAP} -craype-verbose /tmp/$$.f`"
+     result=$?
+     rm -f /tmp/$$.f
+   fi
+   if [ ${result} -ne 0 ] ; then
+     #
+     # Most support -show
+     #
+     inlist="`${NWCHEM_MPIF_WRAP} -show`"
+     result=$?
+   fi
    if [ ${result} -ne 0 ] ; then
      #
      # OPENMPI supports -showme
@@ -324,10 +341,24 @@ function get_mpi_link ()
    # and returns them as a list for a link line.
    # E.g.: /usr/lib -L/usr/local/lib
    #
-   # most support -show
-   #
-   inlist="`${NWCHEM_MPIF_WRAP} -show`"
-   result=$?
+   result=1
+   if [ ${result} -ne 0 ] ; then
+     #
+     # Cray supports -craype-verbose (-show means something else with Cray)
+     #
+     echo "       program test">/tmp/$$.f
+     echo "       end">>/tmp/$$.f
+     inlist="`${NWCHEM_MPIF_WRAP} -craype-verbose /tmp/$$.f`"
+     result=$?
+     rm -f /tmp/$$.f
+   fi
+   if [ ${result} -ne 0 ] ; then
+     #
+     # most support -show
+     #
+     inlist="`${NWCHEM_MPIF_WRAP} -show`"
+     result=$?
+   fi
    if [ ${result} -ne 0 ] ; then
      #
      # OPENMPI supports -showme
@@ -365,10 +396,24 @@ function get_mpi_lib ()
    # and returns them as a list for a link line.
    # E.g.: -lmpich
    #
-   # Most support -show
-   #
-   inlist="`${NWCHEM_MPIF_WRAP} -show`"
-   result=$?
+   result=1
+   if [ ${result} -ne 0 ] ; then
+     #
+     # Cray supports -craype-verbose (-show means something else with Cray)
+     #
+     echo "       program test">/tmp/$$.f
+     echo "       end">>/tmp/$$.f
+     inlist="`${NWCHEM_MPIF_WRAP} -craype-verbose /tmp/$$.f`"
+     result=$?
+     rm -f /tmp/$$.f
+   fi
+   if [ ${result} -ne 0 ] ; then
+     #
+     # Most support -show
+     #
+     inlist="`${NWCHEM_MPIF_WRAP} -show`"
+     result=$?
+   fi
    if [ ${result} -ne 0 ] ; then
      #
      # OPENMPI supports -showme
@@ -402,10 +447,25 @@ function get_mpi_fortran ()
    # and returns its name as a list for a compile line.
    # E.g.: gfortran
    #
-   # Most support -show
-   #
-   inlist="`${NWCHEM_MPIF_WRAP} -show`"
-   result=$?
+   result=1
+   if [ ${result} -ne 0 ] ; then
+     #
+     # Cray supports -craype-verbose (Cray also supports -show but that means
+     # listing all known environment variables)
+     #
+     echo "       program test">/tmp/$$.f
+     echo "       end">>/tmp/$$.f
+     inlist="`${NWCHEM_MPIF_WRAP} -craype-verbose /tmp/$$.f`"
+     result=$?
+     rm -f /tmp/$$.f
+   fi
+   if [ ${result} -ne 0 ] ; then
+     #
+     # Most support -show
+     #
+     inlist="`${NWCHEM_MPIF_WRAP} -show`"
+     result=$?
+   fi
    if [ ${result} -ne 0 ] ; then
      #
      # OPENMPI supports -showme
@@ -459,10 +519,25 @@ function get_mpi_cc ()
    # and returns its name as a list for a compile line.
    # E.g.: gcc
    #
-   # Most support -show
-   #
-   inlist="`${NWCHEM_MPIC_WRAP} -show`"
-   result=$?
+   result=1
+   if [ ${result} -ne 0 ] ; then
+     #
+     # Cray supports -craype-verbose (-show means something else with Cray)
+     #
+     echo "int main(void){">>/tmp/$$.c
+     echo "    return 0;">>/tmp/$$.c
+     echo "}">>/tmp/$$.c
+     inlist="`${NWCHEM_MPIC_WRAP} -craype-verbose /tmp/$$.c`"
+     result=$?
+     rm -f /tmp/$$.c
+   fi
+   if [ ${result} -ne 0 ] ; then
+     #
+     # Most support -show
+     #
+     inlist="`${NWCHEM_MPIC_WRAP} -show`"
+     result=$?
+   fi
    if [ ${result} -ne 0 ] ; then
      #
      # OPENMPI supports -showme
@@ -521,11 +596,22 @@ function get_mpi_cxx ()
    # on those systems.
    # E.g.: g++
    #
-   # Most support -show
-   #
-   inlist="`${NWCHEM_MPICXX_WRAP} -show`"
-   result=$?
+   result=1
    if [ ${result} -ne 0 ] ; then
+     #
+     # Cray supports -craype-verbose (-show means something else with Cray)
+     #
+     echo "int main(void){">>/tmp/$$.cpp
+     echo "    return 0;">>/tmp/$$.cpp
+     echo "}">>/tmp/$$.cpp
+     inlist="`${NWCHEM_MPICXX_WRAP} -craype-verbose /tmp/$$.cpp`"
+     result=$?
+     rm -f /tmp/$$.cpp
+   fi
+   if [ ${result} -ne 0 ] ; then
+     #
+     # Most support -show
+     #
      inlist="`${NWCHEM_MPICXX_WRAP} -show`"
      result=$?
    fi
@@ -749,7 +835,7 @@ function get_lapack_lib()
        echo "      a = 1.0d0" >> testlapack$$.f
        echo "      lda = 1" >> testlapack$$.f
        echo "      n = 1" >> testlapack$$.f
-       echo "      lwork = 1" >> testlapack$$.f
+       echo "      lwork = -1" >> testlapack$$.f
        echo "      call dsyev('n','u',n,a,lda,w,work,lwork,info)" >> testlapack$$.f
        echo "      end" >> testlapack$$.f
        $fcomp -o testlapack$$.x testlapack$$.f ${candidate} ${blas} ${extralibs} > /dev/null
@@ -1563,7 +1649,7 @@ if [ ${#USE_MPI} -eq 0 ] ; then
   echo "   MPI_Init(&argc,&argv);" >> /tmp/$$.c
   echo "   MPI_Finalize();" >> /tmp/$$.c
   echo "}" >> /tmp/$$.c
-  mpicc -o /tmp/$$.x /tmp/$$.c
+  ${NWCHEM_MPIC_WRAP} -o /tmp/$$.x /tmp/$$.c
   if [ $? -eq 0 ] ; then
     export USE_MPI=y
   fi
