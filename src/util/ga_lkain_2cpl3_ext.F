@@ -18,6 +18,7 @@ c  Note.- Modifying/Improving ga_lkain_2cpl3()
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
+#include "inp.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
       integer ncomp             ! [input] no. of components to treat
@@ -84,8 +85,16 @@ c     that might be changed later if memory becomes an issue
       logical converged
       logical odebug,debug,converge_precond
       logical debug1
-      external solve_xlineq,updating_Az1_z1_zr1,
-     &         get_precond_rmax_re
+
+      character*255 filestub,filesoln
+      character*4 digit4
+      logical  file_write_ga, file_read_ga
+      external file_write_ga, file_read_ga
+c
+      logical solver_restart
+      external solver_restart
+c 
+      logical do_restart
 c
 c     =================================================================
 
@@ -188,6 +197,42 @@ c     the number of components
       call ga_zero(g_Ay)
       call ga_zero(g_r2)
       call ga_sync()
+c
+c     Solution file
+c
+      if (.not. rtdb_cget(rtdb, 'solver:filestub', 1, filestub))
+     &       filestub = 'lkain_soln'
+      if (.not. rtdb_cget(rtdb, 'solver:filesoln', 1, filesoln))
+     &       filesoln = 'lkain_soln'
+#if 0
+      call util_file_name(filestub,.false.,.false.,filesoln)
+#else
+      call cphf_fname(filestub,filesoln)
+#endif
+      if (ga_nodeid().eq.0) write(luout,*) "ga_lkain filestub:",filestub
+      if (ga_nodeid().eq.0) write(luout,*) "ga_lkain filesoln:",filesoln
+c
+c     Check if this is a restart
+c
+      if (solver_restart(rtdb)) then
+         do_restart = .true.
+c         write(6,*) ' attempt reading restart '
+         do ipm = 1,ncomp   
+            write(digit4,'(".",i3)') ipm
+            if(.not.file_read_ga(
+     P               filesoln(1:inp_strlen(filesoln))//digit4,g_x(ipm)
+     C               )) call errquit
+     $     ('ga_lkain:could not read solution',1, DISK_ERR)
+           enddo
+        if (do_restart) then
+          if (ga_nodeid().eq.0) 
+     &     write(luout,*) "Restarting solution from: ", 
+     P               filesoln(1:inp_strlen(filesoln))//digit4
+        else
+          if (ga_nodeid().eq.0)
+     &     write(luout,*) "Error in restart solution: ", filesoln
+        end if  ! do_restart
+      end if  ! solver_restart
 c     
       if (oprint .and. ga_nodeid().eq.0) then
         write(6,2)
@@ -286,6 +331,13 @@ c       JEM: Putting rmax into rtdb
         end if
 
 c       stop iterations if residual is smaller than criterion
+        do ipm = 1,ncomp
+           write(digit4,'(".",i3)') ipm
+           if(.not.file_write_ga(
+     P              filesoln(1:inp_strlen(filesoln))//digit4,g_x(ipm)
+     C          )) call errquit
+     $          ('ga_lkain:could not write solution',1, DISK_ERR)
+        enddo
         if (rmax .lt. tol) then
           converged = .true.
           goto 100
@@ -339,6 +391,16 @@ c ====== FA: left-shifting patch ==== END
       end do                    ! iter = 1,maxiter
   100 continue                  ! jump here if converged   
 c     deallocate workspace:     
+c
+c        Save intermediate solution
+c
+      do ipm = 1,ncomp
+         write(digit4,'(".",i3)') ipm
+         if(.not.file_write_ga(
+     P               filesoln(1:inp_strlen(filesoln))//digit4,g_x(ipm)
+     C               )) call errquit
+     $     ('ga_lkain:could not write solution',1, DISK_ERR)
+      enddo
       do ipm = 1,ncomp
         if (odiff) then
           if (.not. ga_destroy(g_xold(ipm))) call errquit
