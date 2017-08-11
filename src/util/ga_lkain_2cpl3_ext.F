@@ -218,7 +218,7 @@ c
          do_restart = .true.
 c         write(6,*) ' attempt reading restart '
          do ipm = 1,ncomp   
-            write(digit4,'(".",i3)') ipm
+            write(digit4,'(".",i3.3)') ipm
             if(.not.file_read_ga(
      P               filesoln(1:inp_strlen(filesoln))//digit4,g_x(ipm)
      C               )) call errquit
@@ -332,7 +332,7 @@ c       JEM: Putting rmax into rtdb
 
 c       stop iterations if residual is smaller than criterion
         do ipm = 1,ncomp
-           write(digit4,'(".",i3)') ipm
+           write(digit4,'(".",i3.3)') ipm
            if(.not.file_write_ga(
      P              filesoln(1:inp_strlen(filesoln))//digit4,g_x(ipm)
      C          )) call errquit
@@ -395,7 +395,7 @@ c
 c        Save intermediate solution
 c
       do ipm = 1,ncomp
-         write(digit4,'(".",i3)') ipm
+         write(digit4,'(".",i3.3)') ipm
          if(.not.file_write_ga(
      P               filesoln(1:inp_strlen(filesoln))//digit4,g_x(ipm)
      C               )) call errquit
