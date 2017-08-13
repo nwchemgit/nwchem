@@ -296,6 +296,9 @@ function get_mpi_include ()
      inlist="`${NWCHEM_MPIF_WRAP} -craype-verbose /tmp/$$.f`"
      result=$?
      rm -f /tmp/$$.f
+     if [ ${result} -eq 0 ] ; then
+       inlist=""
+     fi
    fi
    if [ ${result} -ne 0 ] ; then
      #
@@ -351,6 +354,9 @@ function get_mpi_link ()
      inlist="`${NWCHEM_MPIF_WRAP} -craype-verbose /tmp/$$.f`"
      result=$?
      rm -f /tmp/$$.f
+     if [ ${result} -eq 0 ] ; then
+       inlist=""
+     fi
    fi
    if [ ${result} -ne 0 ] ; then
      #
@@ -406,6 +412,9 @@ function get_mpi_lib ()
      inlist="`${NWCHEM_MPIF_WRAP} -craype-verbose /tmp/$$.f`"
      result=$?
      rm -f /tmp/$$.f
+     if [ ${result} -eq 0 ] ; then
+       inlist=""
+     fi
    fi
    if [ ${result} -ne 0 ] ; then
      #
@@ -458,6 +467,9 @@ function get_mpi_fortran ()
      inlist="`${NWCHEM_MPIF_WRAP} -craype-verbose /tmp/$$.f`"
      result=$?
      rm -f /tmp/$$.f
+     if [ ${result} -eq 0 ] ; then
+       inlist="ftn"
+     fi
    fi
    if [ ${result} -ne 0 ] ; then
      #
@@ -530,6 +542,9 @@ function get_mpi_cc ()
      inlist="`${NWCHEM_MPIC_WRAP} -craype-verbose /tmp/$$.c`"
      result=$?
      rm -f /tmp/$$.c
+     if [ ${result} -eq 0 ] ; then
+       inlist="cc"
+     fi
    fi
    if [ ${result} -ne 0 ] ; then
      #
@@ -607,6 +622,9 @@ function get_mpi_cxx ()
      inlist="`${NWCHEM_MPICXX_WRAP} -craype-verbose /tmp/$$.cpp`"
      result=$?
      rm -f /tmp/$$.cpp
+     if [ ${result} -eq 0 ] ; then
+       inlist="CC"
+     fi
    fi
    if [ ${result} -ne 0 ] ; then
      #
@@ -788,7 +806,13 @@ function get_blas_integer()
    echo "      typecast = input" >> ./testblas$$.f
    echo "      return" >> ./testblas$$.f
    echo "      end" >> ./testblas$$.f
-   ${fcomp} -o ./testblas$$.x ./testblas$$.f ${blaslib}
+   if [ ${fcomp} == "ftn" ] ; then
+     # On Titan we need to build the test program for the login nodes to 
+     # avoid getting an ILLEGAL INSTRUCTION when attempting floating point operations
+     ${fcomp} -target-cpu=mc8 -o ./testblas$$.x ./testblas$$.f ${blaslib}
+   else
+     ${fcomp} -o ./testblas$$.x ./testblas$$.f ${blaslib}
+   fi
    result=`./testblas$$.x`
    status=$?
    if [ ${status} -ne 0 ] ; then
