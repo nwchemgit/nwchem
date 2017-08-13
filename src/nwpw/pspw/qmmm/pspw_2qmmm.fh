@@ -3,21 +3,23 @@ c $Id$
 c
 
 *     ***** pspw_2qmmm common block ************************************
+      real*8  qmmm_lmbda
       integer indx_frag_start(2)
       integer size_frag(2)
       integer kfrag(2)
       integer switch_Rin(2),switch_Rout(2)
       integer self_interaction(2),incell_frag(2)
-      integer nshl3d,rcell(2)
+      integer nshl3d,rcell(2),fion2tmp(2)
       integer nfrag,nkfrag
-      logical qmmm_found,shake_found,periodic
-      common / pspw_2qmmm /  indx_frag_start,
+      logical qmmm_found,shake_found,periodic,lmbda_flag
+      common / pspw_2qmmm / qmmm_lmbda,indx_frag_start,
      >                      size_frag,
      >                      kfrag,switch_Rin,switch_Rout,
      >                      self_interaction,incell_frag,
      >                      rcell,nshl3d,
+     >                      fion2tmp,
      >                      nfrag,nkfrag,qmmm_found,shake_found,
-     >                      periodic
+     >                      periodic,lmbda_flag
 
 *     **** pspw_2qmmm shake common block ****
       integer nshake(2)

@@ -63,9 +63,19 @@ c
 cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
       qmmm_found  =  (nfrag.gt.0)
       shake_found = .false.
+      lmbda_flag  = .false.
+      qmmm_lmbda  = 1.0d0
 
 *     **** don't do anything if there are no MM atoms ****
       if (qmmm_found) then
+
+
+*        **** reading qmmm_lmbda ****
+         rtdb_name = 'pspw_2qmmm_lmbda'
+         lmbda_flag = .false.
+         qmmm_lmbda=1.0d0
+         if (btdb_get(rtdb,rtdb_name,mt_dbl,1,qmmm_lmbda))
+     >      lmbda_flag=.true.
 
 
 *        **** reading number of kinds of frags ****
@@ -75,6 +85,8 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
      >   call errquit(
      >   'pspw_2qmmm_init:failed reading nkfrag',0,RTDB_ERR)
 
+         value = BA_alloc_get(mt_int,3*ion_nion(),'fion2tmp',
+     >                        fion2tmp(2),fion2tmp(1))
 
          value = BA_alloc_get(mt_int,nfrag,'index_nonfrag_start',
      >                        indx_frag_start(2),indx_frag_start(1))
@@ -777,6 +789,11 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
      >         (int_mb(indx_frag_start(1)+mm-1),mm=1,nfrag)
            write(luout,'(2x,"fragments kind                =",10I5)')
      >         (int_mb(kfrag(1)+mm-1),mm=1,nfrag)
+
+           if (lmbda_flag)
+     >        write(luout,'(2x,A,E19.10)')
+     >        "auxilliary_lambda coupling parameter  = ",qmmm_lmbda
+
            do ia=1,nkfrag
              write(luout,'(/2x,A,I5)') "non-fragment: ",ia
              write(luout,'(2x,A,I5)') " - non-fragment size = ",
@@ -1110,7 +1127,8 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
       external control_version
 
       if (qmmm_found) then
-        value =           BA_free_heap(indx_frag_start(2))
+        value =           BA_free_heap(fion2tmp(2))
+        value = value.and.BA_free_heap(indx_frag_start(2))
         value = value.and.BA_free_heap(size_frag(2))
         value = value.and.BA_free_heap(kfrag(2))
         value = value.and.BA_free_heap(self_interaction(2))
@@ -1214,7 +1232,7 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
 
 *     **********************************
 *     *                                *
-*     *    pspw_2qmmm_shake_found       *
+*     *    pspw_2qmmm_shake_found      *
 *     *                                *
 *     **********************************
       logical function pspw_2qmmm_shake_found()
@@ -1230,12 +1248,47 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
 
 *     **********************************
 *     *                                *
-*     *        pspw_2qmmm_spring_E      *
+*     *        pspw_2qmmm_spring_E     *
 *     *                                *
 *     **********************************
-
       real*8 function pspw_2qmmm_spring_E()
       implicit none
+
+#include "pspw_2qmmm.fh"
+
+      !**** external functions ****
+      real*8   pspw_2qmmm_spring_E_sub
+      external pspw_2qmmm_spring_E_sub
+
+      pspw_2qmmm_spring_E = pspw_2qmmm_spring_E_sub(qmmm_lmbda)
+      return
+      end 
+
+*     **********************************
+*     *                                *
+*     *        pspw_2qmmm_Emix         *
+*     *                                *
+*     **********************************
+      real*8 function pspw_2qmmm_Emix()
+      implicit none
+
+      !**** external functions ****
+      real*8   pspw_2qmmm_spring_E_sub
+      external pspw_2qmmm_spring_E_sub
+
+      pspw_2qmmm_Emix = pspw_2qmmm_spring_E_sub(1.0d0)
+      return
+      end 
+
+
+*     **********************************
+*     *                                *
+*     *        pspw_2qmmm_spring_Esub  *
+*     *                                *
+*     **********************************
+      real*8 function pspw_2qmmm_spring_E_sub(lmbda)
+      implicit none
+      real*8 lmbda
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -1349,7 +1402,7 @@ c     **** external functions ***
       end do
       if (np.gt.1) call Parallel_SumAll(E)
 
-      pspw_2qmmm_spring_E = E
+      pspw_2qmmm_spring_E_sub = E*lmbda
       return
       end
 
@@ -1371,15 +1424,18 @@ c     **** external functions ***
 c     **** local variables ****
       integer dutask,taskid,np
       integer w1,wk1,ks1,nbs,nas,ncbs,nbm,ii,jj,kk,ll,nds,ndds,ncns
+      integer nion3
 
 c     **** external functions ***
-      integer  ion_rion_ptr
-      external ion_rion_ptr
+      integer  ion_rion_ptr,ion_nion
+      external ion_rion_ptr,ion_nion
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
       dutask = 0
 
+      nion3 = 3*ion_nion()
+      call Parallel_shared_vector_zero(.true.,nion3,dbl_mb(fion2tmp(1)))
 !$OMP DO
       do w1=1,nfrag
          if (mod(w1-1,np).eq.taskid) then
@@ -1399,7 +1455,7 @@ c     **** external functions ***
      >                                int_mb(indx_bond(1)+jj-1),
      >                                dbl_mb(Kr0_bond(1) +kk-1),
      >                                dbl_mb(ion_rion_ptr()+3*(ks1-1)),
-     >                                fion(1,ks1))
+     >                                dbl_mb(fion2tmp(1)+3*(ks1-1)))
          end if
          if (nas.gt.0) then
             jj  = int_mb(nindx_angle_start(1)+wk1-1)
@@ -1408,7 +1464,7 @@ c     **** external functions ***
      >                                int_mb(indx_angle(1)+jj-1),
      >                                dbl_mb(Kr0_angle(1) +kk-1),
      >                                dbl_mb(ion_rion_ptr()+3*(ks1-1)),
-     >                                fion(1,ks1))
+     >                                dbl_mb(fion2tmp(1)+3*(ks1-1)))
          end if
          if (ncbs.gt.0) then
             jj  = int_mb(nindx_cbond_start(1)+wk1-1)
@@ -1417,7 +1473,7 @@ c     **** external functions ***
      >                                int_mb(indx_cbond(1)+jj-1),
      >                                dbl_mb(Kr0_cbond(1) +kk-1),
      >                                dbl_mb(ion_rion_ptr()+3*(ks1-1)),
-     >                                fion(1,ks1))
+     >                                dbl_mb(fion2tmp(1)+3*(ks1-1)))
          end if
          if (nbm.gt.0) then
             jj  = int_mb(nindx_mbond_start(1)+wk1-1)
@@ -1426,7 +1482,7 @@ c     **** external functions ***
      >                                int_mb(indx_mbond(1)+jj-1),
      >                                dbl_mb(Kr0_mbond(1) +kk-1),
      >                                dbl_mb(ion_rion_ptr()+3*(ks1-1)),
-     >                                fion(1,ks1))
+     >                                dbl_mb(fion2tmp(1)+3*(ks1-1)))
          end if
          if (nds.gt.0) then
             jj  = int_mb(nindx_dihedral_spring_start(1)+wk1-1)
@@ -1435,7 +1491,7 @@ c     **** external functions ***
      >                        int_mb(indx_dihedral_spring(1)+jj-1),
      >                        dbl_mb(Kr0_dihedral_spring(1) +kk-1),
      >                        dbl_mb(ion_rion_ptr()+3*(ks1-1)),
-     >                        fion(1,ks1))
+     >                        dbl_mb(fion2tmp(1)+3*(ks1-1)))
          end if
          if (ndds.gt.0) then
             jj  = int_mb(nindx_dihedral_start(1)+wk1-1)
@@ -1444,7 +1500,7 @@ c     **** external functions ***
      >                        int_mb(indx_dihedral(1)+jj-1),
      >                        dbl_mb(Kr0_dihedral(1) +kk-1),
      >                        dbl_mb(ion_rion_ptr()+3*(ks1-1)),
-     >                        fion(1,ks1))
+     >                        dbl_mb(fion2tmp(1)+3*(ks1-1)))
          end if
          if (ncns.gt.0) then
             ii  = int_mb(nindx0_coord_start(1)+wk1-1)
@@ -1458,13 +1514,14 @@ c     **** external functions ***
      >                        int_mb(indx2_coord(1) +kk-1),
      >                        dbl_mb(Kr0_coord(1)   +ll-1),
      >                        dbl_mb(ion_rion_ptr()+3*(ks1-1)),
-     >                        fion(1,ks1))
+     >                        dbl_mb(fion2tmp(1)+3*(ks1-1)))
          end if
 
          end if
          !dutask = mod(dutask+1,np)
       end do
 !$OMP END DO
+      call daxpy_omp(nion3,qmmm_lmbda,dbl_mb(fion2tmp(1)),fion)
 
       return
       end
@@ -1557,5 +1614,34 @@ c     **** external functions ***
       return
       end
 
+
+
+*     **********************************
+*     *                                *
+*     *        pspw_2qmmm_lambda       *
+*     *                                *
+*     **********************************
+      real*8 function pspw_2qmmm_lambda()
+      implicit none
+
+#include "pspw_qmmm.fh"
+
+      pspw_2qmmm_lambda = qmmm_lmbda
+      return
+      end
+
+*     **********************************
+*     *                                *
+*     *     pspw_2qmmm_lambda_flag     *
+*     *                                *
+*     **********************************
+      logical function pspw_2qmmm_lambda_flag()
+      implicit none
+
+#include "pspw_qmmm.fh"
+
+      pspw_2qmmm_lambda_flag = lmbda_flag
+      return
+      end
 
 

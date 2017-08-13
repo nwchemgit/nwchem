@@ -13,7 +13,7 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 19)
+      parameter (num_dirs = 20)
       character*30 dirs(num_dirs)
       data dirs / 'lj_ion_parameters:',
      >            'lj_ion_parameters',
@@ -33,6 +33,7 @@ c
      >            'buckingham_ion_ion_parameters',
      >            'bmh_ion_ion_parameters',
      >            'dbmh_ion_ion_parameters',
+     >            'link',
      >            'end'/
 
       integer num_fdirs          ! No. of known directives
@@ -73,7 +74,7 @@ c
       integer       element_length,element2_length,npair
       integer       basis_length,tmp(2),geom
       integer       ni,nkf,nfrag,frag_size,index_start(2)
-      integer       nknf,nnonfrag,l
+      integer       nknf,nnonfrag,l,nlink
       real*8        se(20),alpha,Rin,Rout,scal
       integer       nsigma
       real*8        charge,rcut
@@ -101,6 +102,7 @@ c
       nfrag = 0
       nknf     = 0
       nnonfrag = 0
+      nlink = 0
 
 
  10   if (.not. inp_read()) 
@@ -115,7 +117,7 @@ c
 
 
       goto ( 100,100,200,300,400,500,600,700,800,900,1000,1100,1200,
-     >       150,160,170,180,190,
+     >       150,160,170,180,190,1300,
      >      9999) ind
       call errquit(
      >      'pspw_qmmm_input: unimplemented directive', ind, INPUT_ERR)
@@ -1857,6 +1859,22 @@ c
       end if
 
       goto 701
+c
+c Sum(I) A*exp(-((RI-B)/C)**2)
+c A, B, C, indexes
+c penalty
+c bond_pair i1 i2 type A B C D E F
+c
+c 740  if (inp_i(sindx(1))) then
+c      if (inp_i(sindx(2))) then
+c      if (inp_i(sindx(3))) then
+c      if (inp_f(sdist(1))) then
+c      if (inp_f(sdist(2))) then
+c      if (inp_f(sdist(3))) then
+c      if (inp_f(sdist(4))) then
+cc
+c 740  continue
+c      goto 701
 
 
  799  continue
@@ -2020,6 +2038,30 @@ c
      >    RTDB_ERR)
       goto 10
 
+c
+c  link i0 j k rho K r0
+c
+ 1300 if (inp_i(sindx(1)).and.inp_i(sindx(2)).and.inp_i(sindx(3))) then
+         if (.not.inp_f(sdist(1))) sdist(1) = 0.00d0
+         if (.not.inp_f(sdist(2))) sdist(2) = 0.00d0
+         if (.not.inp_f(sdist(3))) sdist(3) = 0.00d0
+
+         rtdb_name = 'pspw_nlink_atoms:nlink'
+         nlink = nlink + 1
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,nlink)
+
+         rtdb_name = 'pspw_nlink_atoms:indexes:'//c_index_name(nlink)
+         value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,3,sindx)
+
+         rtdb_name = 'pspw_nlink_atoms:param:'//c_index_name(nlink)
+         value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,3,sdist)
+
+         if (.not.value)
+     >     call errquit('pspw_qmmm_input:failed setting link atoms:',
+     >                  0,INPUT_ERR)
+      end if
+
+      goto 10
 
 
  9999 continue

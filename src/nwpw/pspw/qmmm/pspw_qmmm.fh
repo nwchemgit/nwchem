@@ -104,4 +104,14 @@ c
      >                      Kr0_coord,nKr0_coord_start,
      >                      coord_found
 
+
+*     **** pspw_qmmm bond spring common block ****
+      integer nlink
+      integer indx_link(2),param_link(2)
+      logical link_found
+      common / pspw_qmmm10 / nlink,
+     >                       indx_link,param_link,
+     >                       link_found
+
+
 *     ******************************************************************

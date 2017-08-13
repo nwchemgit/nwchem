@@ -797,6 +797,33 @@ c
          end if
 
 
+*      **** reading qm--mm link atoms ****
+       link_found = .false.
+       rtdb_name = 'pspw_nlink_atoms:nlink'
+       if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,nlink)) nlink = 0
+       if (nlink.gt.0) then
+          link_found = .true.
+          value = 
+     >            BA_alloc_get(mt_int,3*nlink,
+     >           'indx_link',indx_link(2),indx_link(1))
+          value = value.and.
+     >            BA_alloc_get(mt_dbl,3*nlink,
+     >           'param_link',param_link(2),param_link(1))
+
+          do ia=1,nlink
+             rtdb_name = 'pspw_nlink_atoms:indexes:'//c_index_name(ia)
+             value = value.and.
+     >               btdb_get(rtdb,rtdb_name,mt_int,3,
+     >                        int_mb(indx_link(1)+3*(ia-1)))
+
+             rtdb_name = 'pspw_nlink_atoms:param:'//c_index_name(ia)
+             value = value.and.
+     >               btdb_get(rtdb,rtdb_name,mt_int,3,
+     >                        dbl_mb(param_link(1)+3*(ia-1)))
+           end do
+        end if
+
+
 *       ***** initialize Model, LJ, Pol, VIB, and CAV ****
         if (.not.auxiliary_only) then
            !call pspw_LJ_init(rtdb)
@@ -1139,6 +1166,21 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
              end do
 
            end do
+
+           if (link_found) then
+              write(luout,'(/1x,A)') "QM/MM Link Atoms:"
+              do ia=1,nlink
+                 write(luout,'(3x,A,I5,2x,A,I5,2x,A,I5,
+     >                         2x,A,F11.6,2x,A,F11.6,2x,A,F11.6)') 
+     >           "link atom = ",int_mb(indx_link(1)+3*(ia-1)),
+     >           "QM atom = ",int_mb(indx_link(1)+3*(ia-1)+1),
+     >           "MM atom = ",int_mb(indx_link(1)+3*(ia-1)+2),
+     >           "rho = ",dbl_mb(param_link(1)+3*(ia-1)),
+     >           "K = ",dbl_mb(param_link(1)+3*(ia-1)+1),
+     >           "r0 = ",dbl_mb(param_link(1)+3*(ia-1)+2)
+              end do
+           end if
+
            write(luout,'(/1x,A,F8.3)') "MM total charge",
      >          ion_TotalCharge()- ion_TotalCharge_qm()
         end if
@@ -1249,6 +1291,10 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
           value = value.and.BA_free_heap(Kr0_coord(2))
         end if
 
+        if (link_found) then
+          value = value.and.BA_free_heap(indx_link(2))
+          value = value.and.BA_free_heap(param_link(2))
+        end if
 
         if (.not.auxiliary_only) then
         if (control_version().ne.3) then
@@ -1260,6 +1306,7 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
      &       MA_ERR)
 
         end if
+
 
         if (pspw_2qmmm_found())  call pspw_2qmmm_end()
         if ((.not.auxiliary_only).and.(nfrag.gt.0)) then
@@ -2478,6 +2525,130 @@ c     **** non-frags ****
       return
       end
 
+
+*     ***************************************
+*     *                                     *
+*     *       pspw_qmmm_link_set_rion       *
+*     *                                     *
+*     ***************************************
+      subroutine pspw_qmmm_link_set_rion(rion)
+      implicit none
+      real*8 rion(3,*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "pspw_qmmm.fh"
+
+*     **** local variables ****
+      integer l1,i0,jj,kk
+      real*8  rho
+
+      if (link_found) then
+      do l1=1,nlink
+         i0 = int_mb(indx_link(1)+3*(l1-1))
+         jj = int_mb(indx_link(1)+3*(l1-1)+1)
+         kk = int_mb(indx_link(1)+3*(l1-1)+2)
+
+         rho = dbl_mb(param_link(1)+3*(l1-1))
+         rion(1,i0) = qmmm_lmbda*((1.0d0-rho)*rion(1,jj)+rho*rion(1,kk))
+     >              + (1.0d0-qmmm_lmbda)*rion(1,i0)
+         rion(2,i0) = qmmm_lmbda*((1.0d0-rho)*rion(2,jj)+rho*rion(2,kk))
+     >              + (1.0d0-qmmm_lmbda)*rion(2,i0)
+         rion(3,i0) = qmmm_lmbda*((1.0d0-rho)*rion(3,jj)+rho*rion(3,kk))
+     >              + (1.0d0-qmmm_lmbda)*rion(3,i0)
+      end do
+      end if
+
+      return
+      end 
+
+
+*     ***************************************
+*     *                                     *
+*     *       pspw_qmmm_link_energy         *
+*     *                                     *
+*     ***************************************
+      real*8 function pspw_qmmm_link_energy(rion)
+      implicit none
+      real*8 rion(3,*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "pspw_qmmm.fh"
+
+*     **** local variables ****
+      integer l1,i0,jj,kk
+      real*8  rho,K,r0,E,x,y,z,r
+
+      E = 0.0d0
+      if (link_found) then
+      do l1=1,nlink
+         i0 = int_mb(indx_link(1)+3*(l1-1))
+         jj = int_mb(indx_link(1)+3*(l1-1)+1)
+         kk = int_mb(indx_link(1)+3*(l1-1)+2)
+
+         rho = dbl_mb(param_link(1)+3*(l1-1))
+         K   = dbl_mb(param_link(1)+3*(l1-1)+1)
+         r0  = dbl_mb(param_link(1)+3*(l1-1)+2)
+         x = rion(1,kk)-rion(1,jj)
+         y = rion(2,kk)-rion(2,jj)
+         z = rion(3,kk)-rion(3,jj)
+         r = dsqrt(x*x + y*y + z*z)
+         E = E + qmmm_lmbda * 0.50d0*K*(r-r0)**2
+      end do
+      end if
+
+      pspw_qmmm_link_energy = E
+      return
+      end 
+
+
+
+*     ***************************************
+*     *                                     *
+*     *       pspw_qmmm_link_fion           *
+*     *                                     *
+*     ***************************************
+      subroutine pspw_qmmm_link_fion(rion,fion)
+      implicit none
+      real*8 rion(3,*)
+      real*8 fion(3,*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "pspw_qmmm.fh"
+
+*     **** local variables ****
+      integer l1,i0,jj,kk
+      real*8  rho,K,r0,x,y,z,r,dVdr
+
+      if (link_found) then
+      do l1=1,nlink
+         i0 = int_mb(indx_link(1)+3*(l1-1))
+         jj = int_mb(indx_link(1)+3*(l1-1)+1)
+         kk = int_mb(indx_link(1)+3*(l1-1)+2)
+
+         rho = dbl_mb(param_link(1)+3*(l1-1))
+         K   = dbl_mb(param_link(1)+3*(l1-1)+1)
+         r0  = dbl_mb(param_link(1)+3*(l1-1)+2)
+         fion(1,i0) = (1.0d0-qmmm_lmbda)*fion(1,i0)
+         fion(2,i0) = (1.0d0-qmmm_lmbda)*fion(2,i0)
+         fion(3,i0) = (1.0d0-qmmm_lmbda)*fion(3,i0)
+         x = rion(1,kk)-rion(1,jj)
+         y = rion(2,kk)-rion(2,jj)
+         z = rion(3,kk)-rion(3,jj)
+         r = dsqrt(x*x + y*y + z*z)
+         dVdr =  qmmm_lmbda * K*(r-r0)
+         fion(1,jj) = fion(1,jj) + dVdr*(x/r)
+         fion(2,jj) = fion(2,jj) + dVdr*(y/r)
+         fion(3,jj) = fion(3,jj) + dVdr*(z/r)
+         fion(1,kk) = fion(1,kk) - dVdr*(x/r)
+         fion(2,kk) = fion(2,kk) - dVdr*(y/r)
+         fion(3,kk) = fion(3,kk) - dVdr*(z/r)
+      end do
+      end if
+      return
+      end 
 
 
 

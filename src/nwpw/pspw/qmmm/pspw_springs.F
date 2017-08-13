@@ -1306,3 +1306,54 @@ cccc  E =  Kr0(1,b)*(1.0d0+dcos(Kr0(2,b)*phi-Kr0(3,b))) cccc
       return
       end
 
+
+
+*     *************************************
+*     *                                   *
+*     *   pspw_qmmm_spring_gpenalty_frag  *
+*     *                                   *
+*     *************************************
+
+*   This routine returns the gaussian penalty spring energy.
+*   Epenalty = sum(i) A*exp(-B*((xi-x0)**2 + (yi-y0)**2 + (zi-z0)**2))
+
+      real*8 function pspw_qmmm_spring_gpenalty_frag(npenalty,
+     >                                           nsize1,indx1,
+     >                                           Kr0,rion)
+      implicit none
+      integer npenalty
+      integer nsize1(*),indx1(*)
+      real*8  Kr0(5,*)
+      real*8  rion(3,*)
+
+      integer i,ii,a1,c,natom1
+      real*8  r2,E,x0,y0,z0,x,y,z,A,B
+
+      E = 0.0d0
+      ii = 0
+      do c=1,npenalty
+         natom1 = nsize1(c)
+         A      = Kr0(1,c)
+         B      = Kr0(2,c)
+         x0     = Kr0(3,c)
+         y0     = Kr0(4,c)
+         z0     = Kr0(5,c)
+
+         do a1=1,natom1
+           i = indx1(ii+a1)
+           x = rion(1,i)-x0
+           y = rion(2,i)-y0
+           z = rion(3,i)-z0
+           call lattice_min_difference(x,y,z)
+           r2 =  x**2 + y**2 + z**2
+           E = E + A*exp(-B*r2)
+         end do
+         ii = ii + natom1
+      end do
+
+      pspw_qmmm_spring_gpenalty_frag = E
+
+      return
+      end
+
+
