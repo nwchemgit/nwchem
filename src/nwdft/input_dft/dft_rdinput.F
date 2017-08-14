@@ -736,6 +736,13 @@ c
       if (.not.rtdb_get(rtdb, 'dft:adapt',MT_LOG, 1, oadapt))then
          oadapt = sym_number_ops(geom) .gt. 0
       endif
+      if((.not.oskel).and.(.not.oadapt)) then
+c     strip any sym bit to avoid gradient going with symmetry
+         if (.not.geom_strip_sym(geom)) then
+            call errquit('dft_rdinput: could not delete '
+     $           //'symmetry information',geom,GEOM_ERR)
+         endif
+      endif
 c
 cc AJL/BEGIN
 c  Lifted partly from dft_scf.F; Duplicated partly from above
