@@ -383,8 +383,8 @@ C     i0 ( p1 p2 p3 p30 h9 h10 h11 h38 )_t2f + = 1 * P( 4 ) * Sum ( h4 ) * t2 ( 
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTAL
-      INTEGER nexSK
+      INTEGER NXTASK
+      INTEGER next
       INTEGER nprocs
       INTEGER count
       INTEGER p1b
