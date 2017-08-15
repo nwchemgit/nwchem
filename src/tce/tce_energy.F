@@ -1562,6 +1562,43 @@ c          call util_file_name('v2int',.false.,.true.,filename)
          end if
 ! ==============
  3095    continue
+c
+        elseif(fast2e.eq.16) then
+! === jaguar ===
+         if(read_int)  then
+c          call util_file_name('v2int',.false.,.true.,filename)
+          call util_file_name0('v2int',.false.,.true.,5)
+          unitn=78
+          call read_tensor(filename,d_v2,size_2e,unitn)
+!     re-split the int files?
+          if (rtdb_get(rtdb,'tce:maxioprocs_new',
+     M         mt_int,1,max_ioprocs_in_new))  then
+             max_ioprocs_in=max_ioprocs_in_new
+             call write_tensor(filename,d_v2,size_2e,unitn)
+          endif
+          call ga_sync()
+          go to 3743
+         end if
+! ==============
+         if(model.ne.'ccsd_act') then
+c          call tce_mo2e_zones_4a_disk_ga_N5(rtdb,d_v2,
+c     1                                  kax_v2_alpha_offset,size_2e)
+
+          call new4ind_N5_osu(rtdb,d_v2,
+     1                                kax_v2_alpha_offset,
+     1                                size_2e)   
+
+         end if
+! === jaguar ===
+         if(write_int)  then
+          call util_file_name0('v2int',.false.,.true.,filename,fldgts)
+          unitn=78
+          call write_tensor(filename,d_v2,size_2e,unitn)
+          call ga_sync()
+         end if
+! ==============
+ 3743    continue
+c
         else
           write(LuOut,9123)fast2e
           call errquit('tce_energy: invalid 2emet: ',fast2e,CALC_ERR)
