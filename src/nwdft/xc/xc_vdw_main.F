@@ -48,6 +48,8 @@ c
      +                 (x(1,A)-x(1,j))**2 +
      +                 (x(2,A)-x(2,j))**2 +
      +                 (x(3,A)-x(3,j))**2)
+c     protect from NaNs caused by bqs
+               if(raj.lt.1d30.or.abs(raj).lt.1d-8) then
                     r0aj=r0(z(A))+r0(z(j))
                     ff= fdmp(rAj,r0aj)
                     ff1= f1dmp(rAj,r0aj,ff)
@@ -57,6 +59,7 @@ c
                        drAjdxa=(x(i,A)-x(i,j))/rAj
                        force(i,A)=force(i,A)-rr*drAjdxa
                     enddo
+                    endif
                  endif
               enddo
             endif
@@ -482,9 +485,14 @@ c
      +            (x(1,i)-x(1,j))**2 +
      +            (x(2,i)-x(2,j))**2 +
      +            (x(3,i)-x(3,j))**2)
+c     protect from NaNs caused by bqs
+               if(rij.gt.1d30.or.abs(rij).lt.1d-4) then
+                   xc_vdw_e=0d0
+               else
                xc_vdw_e=xc_vdw_e-c6ij_sk(i,j,z)*
      *            fdmp(rij,r0(z(i))+r0(z(j)))*
      *            (rij)**(-6.0d0)
+               endif
             endif
             enddo
           endif
@@ -512,6 +520,8 @@ c
      +            (x(1,i)-x(1,j))**2 +
      +            (x(2,i)-x(2,j))**2 +
      +            (x(3,i)-x(3,j))**2)
+c     protect from NaNs caused by bqs
+               if(rij.lt.1d30.or.abs(rij).lt.1d-8) then
                cni=crd_nr(i,n,x,z)
                cnj=crd_nr(j,n,x,z)
                c6d3=c6cn(z(i),z(j),cni,cnj)
@@ -520,6 +530,7 @@ c
      *            (rij)**(-6.0d0)
                e8=e8-c8*fdmp3(rij,r0AB(z(i),z(j))*sr8,alpha+2.0d0)*
      *            (rij)**(-8.0d0)
+               endif
                endif
             enddo
           endif
@@ -534,6 +545,8 @@ c
      +            (x(1,i)-x(1,j))**2 +
      +            (x(2,i)-x(2,j))**2 +
      +            (x(3,i)-x(3,j))**2)
+c     protect from NaNs caused by bqs
+               if(rij.lt.1d30.or.abs(rij).lt.1d-8) then
                cni=crd_nr(i,n,x,z)
                cnj=crd_nr(j,n,x,z)
                c6d3=c6cn(z(i),z(j),cni,cnj)
@@ -541,6 +554,7 @@ c
                r0bj=dsqrt(c8/c6d3)
                e6=e6-c6d3*xc_fdmpbj(rij,r0bj,a1,a2,i6)
                e8=e8-c8*xc_fdmpbj(rij,r0bj,a1,a2,i8)
+               endif
                endif
             enddo
           endif
@@ -971,20 +985,19 @@ c
       enddo
       n_left=0
       do i=1,n
-         if(.not.geom_isbq(geom,i)) then
-            if(z(i).gt.0) then
-c            if (.not.inp_compare(.false.,tags(i)(1:2),'bq')) then 
                n_left=n_left+1
                z(n_left)=tempz(i)
+            if (inp_compare(.false.,tags(i)(1:2),'bq')) then 
+c move bq at a crazy large distance to kill its contribution
+               xyz(1,n_left)=1d30
+               xyz(2,n_left)=1d30
+               xyz(3,n_left)=1d30
+            else
                xyz(1,n_left)=tempxyz(1,i)
                xyz(2,n_left)=tempxyz(2,i)
                xyz(3,n_left)=tempxyz(3,i)
             endif
-         endif
       enddo
-#ifdef DEBUG
-      write(6,*) ' vdw_bqs left = ',n_left,' from ',n
-#endif
       n=n_left
       return
       end
