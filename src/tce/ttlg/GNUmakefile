@@ -1,0 +1,23 @@
+
+
+ifdef TCE_CUDA # not really needed, but keep the guard for now.
+ LIB_INCLUDES = -I./includes $(CUDA_INCLUDE)
+ OBJ_OPTIMIZE += fvimatchl32.o fvimatchg32_blocking.o \
+	fvimatchg32.o      fvinomatchgeneral.o fvigeneralolap.o 
+	BlockingCase.o  main.o  Parameters.o  ParameterTuner.o  TransposeSpec.o model.o
+ LIB_DEFINES += $(CUDA_INCLUDE)
+
+
+LIBRARY = libtce.a
+
+ARCH =  -arch=sm_35 
+FOPTIONS += -O3 -Xcompiler -fPIC -std=c++11 $(IFLAGS)  $(CFLAGS) -DNOHTIME -Xptxas --warn-on-spills   $(ARCH)
+
+USES_BLAS = 
+
+HEADERS =
+
+include ../config/makefile.h
+include ../config/makelib.h
+
+endif
