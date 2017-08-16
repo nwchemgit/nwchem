@@ -11,6 +11,8 @@ c
       integer rtdb              ! [input]
       integer nbofile,aimfile,moldenfile
       logical status
+      logical ostart,ocontinue,orestart
+      integer restr
       logical  hnd_property
       external hnd_property
 #include "context.fh"
@@ -32,6 +34,16 @@ c
       call util_print_push
       call util_print_rtdb_load(rtdb,'prop')
       call ecce_print_module_entry('task property')
+c
+c     Find out if this is a restart
+c
+      restr = 0
+      call util_get_rtdb_state(rtdb,ostart,ocontinue,orestart)
+      if (orestart) restr = 1
+      if (restr.gt.0.and. ga_nodeid().eq.0)
+     &    write(luout,*) 'Restarting calculation'
+c
+      call solver_setup(rtdb,restr)  ! restart parameters for solver (ga_lkain())
 c
 c     hondo property calculation routines 
 c
