@@ -2553,6 +2553,7 @@ ifndef CUDA
 endif
 ifdef TCE_CUDA
  CORE_LIBS += $(CUDA_LIBS)
+ EXTRA_LIBS += -lstdc++
  ifeq ($(_CC),pgcc)
   COPTIONS += -acc
  endif
@@ -2664,7 +2665,7 @@ else
   CUDA_ARCH =  -arch=sm_35
 endif
 
-CUDA_FLAGS = -O3 -Xcompiler -fPIC -std=c++11 -DNOHTIME -Xptxas --warn-on-spills $(CUDA_ARCH)
+CUDA_FLAGS = -O3 -Xcompiler -std=c++11 -DNOHTIME -Xptxas --warn-on-spills $(CUDA_ARCH) 
 
 (%.o):  %.cu
 	$(CUDA) -c $(CUDA_FLAGS) $(CUDA_INCLUDE) -I$(NWCHEM_TOP)/src/tce/ttlg/includes -o $% $<
