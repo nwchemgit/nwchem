@@ -17,7 +17,7 @@ USES_BLAS =
 
 HEADERS =
 
-include ../config/makefile.h
-include ../config/makelib.h
+include ../../config/makefile.h
+include ../../config/makelib.h
 
 endif
