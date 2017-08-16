@@ -383,7 +383,7 @@ c     ==============
 c     DIIS or Jacobi
 c     ==============
 c
-      IF (r1_pointer .lt. diis) THEN
+      IF (r2_pointer .lt. diis) THEN
         if (transpose) then
           shift = -1.0d0*zlshiftl
           if (t1) call tce_jacobi_l1(d_r1,d_t1,k_t1_offset,shift)

@@ -280,7 +280,7 @@ c     ==============
 c     DIIS or Jacobi
 c     ==============
 c
-      IF (r1_pointerm(iref) .le. diis) THEN
+      IF (r2_pointerm(iref) .le. diis) THEN
         if (transpose) then
           if (t1) call tce_jacobi_l1(d_r1,d_t1,k_t1_offset)
           if (t2) call tce_jacobi_l2(d_r2,d_t2,k_t2_offset)
