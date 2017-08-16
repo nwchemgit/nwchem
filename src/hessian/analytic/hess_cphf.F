@@ -1,7 +1,7 @@
 C
 C $Id$
 C
-      subroutine hess_cphf(rtdb)
+      subroutine hess_cphf(rtdb,restr)
 c
 c  Solves the CPHF equations to get the responses
 c
@@ -62,16 +62,6 @@ c
       nc   = n3xyz
       call cphf_fname('cphf_rhs',cphf_rhs)
       call cphf_fname('cphf_sol',cphf_sol)
-c
-c     check hessian restart flag
-c
-      restr = 0
-      if (.not. rtdb_get(rtdb,'hess:restart',mt_int,1,restr))
-     &  restr = 0
-c
-c     some parameters for the cphf solver (ga_lkain())
-c
-      call solver_setup(rtdb,restr)
 c
 c Get MO vectors, first figure out name of movecs file, get memory, and
 c then get actual data

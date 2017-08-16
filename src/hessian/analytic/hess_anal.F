@@ -40,7 +40,7 @@ c
       external bgj_get_scf_method, hess_check
       double precision t0
 c
-      logical ostart,ocont,orestart
+      logical ostart,ocontinue,orestart
       logical status
 c
       hess_anal = .false.
@@ -103,10 +103,12 @@ c
 c  Find out if this is a restart
 c
       restr = 0
-      if (.not. rtdb_get(rtdb,'hess:restart',mt_int,1,restr))
-     &  restr = 0
+      call util_get_rtdb_state(rtdb,ostart,ocontinue,orestart)
+      if (orestart) restr = 1
       if (restr.gt.0.and. ga_nodeid().eq.0) 
      &    write(luout,*) 'Restarting calculation'
+c
+      call solver_setup(rtdb,restr)  ! restart parameters for solver (ga_lkain())
 c
 c  Get theory type
 c
@@ -182,7 +184,7 @@ c  solve the CPSCF problem
 c
       if (oprint) write(LuOut,*) 'HESS: before the hess_cphf call'
       if (ohessprof) call pstat_on(ps_cphf)
-      call hess_cphf(rtdb)
+      call hess_cphf(rtdb,restr)
       if (ohessprof) call pstat_off(ps_cphf)
       if (oprintsome) write(LuOut,*) 'HESSIAN: the CPHF ',
      $  'contributions are done'
@@ -231,7 +233,7 @@ c
 c  Reset restart info so that future calculations don't get
 c  confused.
 c
-      status =rtdb_delete(rtdb,'hess:restart')
+c     status =rtdb_delete(rtdb,'hess:restart')
 c
       return 
       end

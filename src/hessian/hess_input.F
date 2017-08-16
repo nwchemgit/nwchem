@@ -12,7 +12,6 @@ c
       integer rtdb
       double precision conv
       character*255 field
-      integer restart
 c
 c     ----- read values from input -----
 c
@@ -31,12 +30,6 @@ c
 c
       else if(inp_compare(.false.,'profile',field)) then
          if (.not. rtdb_put(rtdb,'hess:pstat', MT_LOG, 1, .true.))
-     $      call errquit('hess_input:rtdb_put of pstat failed', 0,
-     &       INPUT_ERR)
-c
-      else if(inp_compare(.false.,'cphf_restart',field)) then
-         restart = 1
-         if (.not. rtdb_put(rtdb,'hess:restart', MT_int, 1, restart))
      $      call errquit('hess_input:rtdb_put of pstat failed', 0,
      &       INPUT_ERR)
 c
