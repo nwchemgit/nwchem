@@ -1315,13 +1315,13 @@ c     set up the files for the cphf solution
 c
       call cphf_fname('cphf_sol',cphf_sol)
       if (.not. rtdb_cput(rtdb, 'solver:filestub', 1, 'cphf_sol'))
-     *  call errquit('hess_cphf: file stub',555,RTDB_ERR)
+     *  call errquit('solver_setup: file stub',555,RTDB_ERR)
       if (.not. rtdb_cput(rtdb, 'solver:filesoln', 1,
      C     cphf_sol(1:inp_strlen(cphf_sol))))
-     *  call errquit('hess_cphf: intermediate solution file',555,
+     *  call errquit('solver_setup: intermediate solution file',555,
      &       RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'solver:restart', MT_int, 1, restr))
-     *    call errquit('hess_cphf: solver restart flag',555, RTDB_ERR)
+     *  call errquit('solver_setup: solver restart flag',555, RTDB_ERR)
 c
       return
       end
