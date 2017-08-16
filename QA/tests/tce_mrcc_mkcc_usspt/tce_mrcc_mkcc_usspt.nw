@@ -1,0 +1,36 @@
+echo
+start h2o
+
+geometry units au
+H                     0.00000000     -2.27289450     -1.58834700
+O                     0.00000000     0.00000000    -.01350000
+H                     0.00000000      2.27289450     -1.58834700
+end
+
+basis spherical
+  O library cc-pvdz
+  H library cc-pvdz
+end
+
+scf
+  rhf
+  singlet
+  thresh 1.0e-10
+  tol2e 1.0e-10
+end
+
+tce
+  mkccsd
+  thresh 1.0e-10
+  targetsym a1
+  maxiter 600
+  io ga
+end
+
+mrccdata
+  usspt
+  root 1
+  cas 2 2
+end
+
+task tce energy
