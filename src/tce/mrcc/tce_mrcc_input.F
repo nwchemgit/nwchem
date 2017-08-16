@@ -213,7 +213,7 @@ ckbn-9
       endif
 c =================== USS ==================
 
-      if (inp_compare(.false.,test,'ap_uss')) then
+      if (inp_compare(.false.,test,'usspt')) then
        if (.not.rtdb_put(rtdb,'mrcc:uss_ap',mt_log,1,.true.))
      1   call errquit('tce_mrcc_input: failed writing to rtdb',0,
      2   RTDB_ERR)
