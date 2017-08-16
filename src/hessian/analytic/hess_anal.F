@@ -230,10 +230,5 @@ c
      $  'is done'
       hess_anal = .true.
 c
-c  Reset restart info so that future calculations don't get
-c  confused.
-c
-c     status =rtdb_delete(rtdb,'hess:restart')
-c
       return 
       end
