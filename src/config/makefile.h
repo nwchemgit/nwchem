@@ -2658,8 +2658,16 @@ endif
 (%.o):	%.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $% $<
 
+ifdef GPU_ARCH
+  CUDA_ARCH =  -arch=$(GPU_ARCH) 
+else
+  CUDA_ARCH =  -arch=sm_35
+endif
+
+CUDA_FLAGS = -O3 -Xcompiler -fPIC -std=c++11 -DNOHTIME -Xptxas --warn-on-spills $(CUDA_ARCH)
+
 (%.o):  %.cu
-	$(CUDA) -c $(CUDA_FLAGS) -c  $(CUDA_LIBS) -o $% $<
+	$(CUDA) -c $(CUDA_FLAGS) $(CUDA_INCLUDE) -I$(NWCHEM_TOP)/src/tce/ttlg/includes -o $% $<
 
 (%.o):  %.o
 
