@@ -218,6 +218,13 @@ c     **********************************************
                   if (dbl_mb(bmeta(1)+d-1).lt.(-99.0d0))
      >               dbl_mb(bmeta(1)+d-1) = 4.0d0*datan(1.0d0)
                end if
+               if (int_mb(indxmeta(1)+s1).eq.3) then
+                  pi = 4.0d0*datan(1.0d0)
+                  if (dbl_mb(ameta(1)+d-1).lt.(-pi))
+     >               dbl_mb(ameta(1)+d-1) = -pi
+                  if (dbl_mb(bmeta(1)+d-1).gt.(pi))
+     >               dbl_mb(bmeta(1)+d-1) = pi
+               end if
             end do
          end if
 
@@ -322,6 +329,16 @@ c     **********************************************
      >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
      >       "   - Angle Parameters =  ",
      >           (int_mb(indxmeta(1)+s1+j),j=1,3),
+     >           'w=',w,'sigma=',sigma,
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic=',int_mb(pmeta(1)+d-1) 
+
+            else if (ntype.eq.3) then
+             write(luout,'(A,4I4,4x,A,F11.6,4x,A,F11.6,
+     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
+     >       "   - Dihedral Parameters =  ",
+     >           (int_mb(indxmeta(1)+s1+j),j=1,4),
      >           'w=',w,'sigma=',sigma,
      >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
      >           'nrange= ',int_mb(nxmeta(1)+d-1),

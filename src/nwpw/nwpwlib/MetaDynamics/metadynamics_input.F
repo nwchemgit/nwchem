@@ -423,8 +423,8 @@ c
 *     *** set defaults for w,sigma,range and nrange ***
       sdist(1) = 0.00005d0
       sdist(2) = 0.10000d0
-      sdist(3) = -999.0d0
-      sdist(4) = -999.0d0
+      sdist(3) = -4.0d0*datan(1.0d0)
+      sdist(4) =  4.0d0*datan(1.0d0)
       sindx(5) = 501
 
  401  if (.not.inp_a(test)) goto 499
