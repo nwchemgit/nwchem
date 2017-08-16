@@ -21,7 +21,7 @@ MAIN = ttlg
 MAIN_L = libttlg.so
 
 LIBS = -lgomp -lm
-all: $(MAIN_L) 
+all: $(MAIN) 
 lib: $(MAIN_L)
 exe: $(MAIN)
 $(MAIN_L) : $(OBJS)

@@ -1,12 +1,20 @@
 #define max(a,b) (a > b?a:b)
 #define min(a,b) (a < b?a:b)
 #include<stdio.h>
-extern "C" double getTime(double bandwidth, unsigned long int volume)//return time in s
+
+#ifdef __cplusplus
+extern "C" 
+#endif
+double getTime(double bandwidth, unsigned long int volume)//return time in s
 {
 	//printf("vol = %lu, bandwidth = %lf\t", volume, bandwidth);
 	return (2*volume*8)/(bandwidth*1000000000);
 }
-extern "C" double getBW_nooverlap(double eff)
+
+#ifdef __cplusplus
+extern "C" 
+#endif
+double getBW_nooverlap(double eff)
 {
 	if(eff == 0) return 0;
 	
@@ -14,7 +22,11 @@ double intercept = 137.113;
 double W = 65.348;
 return intercept + W * eff;
 }
-extern "C" double getBW_overlap(double eff)
+
+#ifdef __cplusplus
+extern "C" 
+#endif
+double getBW_overlap(double eff)
 {
 	if(eff == 0) return 0;
 double intercept = 139.053;
@@ -22,14 +34,22 @@ double W = 55.536;
 return intercept + W * eff;
 
 }
-extern "C" double getBW_nomatchg32(double eff)
+
+#ifdef __cplusplus
+extern "C" 
+#endif
+double getBW_nomatchg32(double eff)
 {
 	if(eff == 0) return 0;
 double intercept = 66.560;
 double W = 164.83;
 return intercept + W * eff;
 }
-extern "C" double getBW_matchl32(double eff, unsigned tbsize)
+
+#ifdef __cplusplus
+extern "C" 
+#endif
+double getBW_matchl32(double eff, unsigned tbsize)
 {
 	if(eff == 0) return 0;
 double intercept = 119.2547;
@@ -37,12 +57,20 @@ double W = 74.8634;
 double T = -1.4558;
 return intercept + W * eff + T * tbsize;
 }
-extern "C" double getBW_matchg32()
+
+#ifdef __cplusplus
+extern "C" 
+#endif
+double getBW_matchg32()
 {
 double intercept = 196.82;
 return intercept;
 }
-extern "C" double getEfficiency_nooverlap(int ilimit, int olimit, int asize, int bsize, int blockA, int blockB)
+
+#ifdef __cplusplus
+extern "C" 
+#endif
+double getEfficiency_nooverlap(int ilimit, int olimit, int asize, int bsize, int blockA, int blockB)
 {
 //	return 0;
 	const int remainder1 = asize % blockA;
@@ -60,7 +88,11 @@ f = ((asize/blockA) * (bsize/blockB) *f1 + (double)((asize/blockA) * (bsize%bloc
 //printf("\t%lf\t", f);
 return f;
 }
-extern "C" double getEfficiency_overlap(int ilimit, int olimit, int asize, int bsize, int blockA, int blockB)
+
+#ifdef __cplusplus
+extern "C" 
+#endif
+double getEfficiency_overlap(int ilimit, int olimit, int asize, int bsize, int blockA, int blockB)
 {
 //	return 0;
 	const int remainder1 = asize % blockA;
@@ -79,17 +111,29 @@ return f;
 
 
 }
-extern "C" double getEfficiency_nomatchg32(int ilimit, int olimit)
+
+#ifdef __cplusplus
+extern "C" 
+#endif
+double getEfficiency_nomatchg32(int ilimit, int olimit)
 {
 	return -1;
 	double f = ((ilimit/32) * (olimit/32) + (double)(ilimit/32) * (olimit%32) /32+ (double)(ilimit%32) * (olimit/32) /32 + (double)(ilimit%32) * (olimit%32) /(32*32) )/ (int)(((ilimit+31)/32) * ((olimit+31)/32));
 	return f;
 }
-extern "C" double getEfficiency_matchg32(int ilimit, int olimit)
+
+#ifdef __cplusplus
+extern "C" 
+#endif
+double getEfficiency_matchg32(int ilimit, int olimit)
 {
 	return 1;
 }
-extern "C" double getEfficiency_matchl32(int size0, int asize, int bsize, int blockA)
+
+#ifdef __cplusplus
+extern "C" 
+#endif
+double getEfficiency_matchl32(int size0, int asize, int bsize, int blockA)
 {
 double f1, f2, f3, f4, f;
 	const int remainder1 = asize % blockA;

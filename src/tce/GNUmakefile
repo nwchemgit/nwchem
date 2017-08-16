@@ -7,7 +7,7 @@ SUBDIRS = include diis diis2 gradients \
           ccd lccd lccsd qcisd cc3 \
           mbpt1 mbpt2 mbpt3 mbpt4 cis cisd cisdt cisdtq \
           ccsd_act eomccsd_act cr_eomccsd_t_act \
-	  sort
+	    sort ttlg
           #response ccsd_yr ccsd_alpha ccsd_beta \
 
 ifdef EACCSD
