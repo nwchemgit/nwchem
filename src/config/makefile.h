@@ -1224,7 +1224,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN INTERIX))
    endif
 
          LINUXCPU = $(shell uname -m |\
-                 awk ' /sparc/ { print "sparc" }; /i*86/ { print "x86" };  /ppc*/ { print "ppc"} ' )
+                 awk ' /sparc/ { print "sparc" }; /i*86/ { print "x86" };  /ppc*/ { print "ppc"};  /arm*/ { print "arm"}; /mips*/ { print "mips"} ' )
 
      GOTMINGW32= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW32|cut -c21)
 
@@ -1326,8 +1326,8 @@ endif
       endif
     else
     ifneq ($(_CPU),x86)
-      COPTIONS   +=  -march=$(_CPU)
-      FOPTIONS   +=  -march=$(_CPU)
+#      COPTIONS   +=  -march=$(_CPU)
+#      FOPTIONS   +=  -march=$(_CPU)
     endif
     endif
     ifeq ($(_CPU),k7)
@@ -1404,10 +1404,12 @@ endif
   endif
       ifeq ($(_FC),gfortran)
         LINK.f = gfortran  $(LDFLAGS) 
+    ifneq ($(_CPU),arm)
         FOPTIONS  += -m32
         COPTIONS  += -m32
         CFLAGS_FORGA += -m32
         FFLAGS_FORGA += -m32
+    endif
         FOPTIMIZE  += -O2 -ffast-math -Wuninitialized
         ifeq ($(_CPU),i786)
           FOPTIONS += -march=pentium4 -mtune=pentium4
