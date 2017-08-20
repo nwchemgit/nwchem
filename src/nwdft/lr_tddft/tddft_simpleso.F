@@ -3,7 +3,7 @@ c     ----------------------------------------
 c     Get the spin-orbit corrected eigenvalues
 c     ----------------------------------------
 c
-      subroutine tddft_simpleso(rtdb,ipol,nbf_ao,evl)
+      subroutine tddft_simpleso(rtdb,ipol,nbf_ao)
 c
       implicit none
 c
@@ -19,9 +19,8 @@ c
       integer rtdb
       integer ipol
       integer nbf_ao 
-      double precision evl(nbf_ao,2)
 c
-      integer i,j
+      integer i,j,ok
       logical lsimpleso
       character*255 fn_simpleso
       logical status
@@ -29,10 +28,11 @@ c
       integer nmo,imo
       double precision evlso(nbf_ao,2)
 c
-      integer ddblsize
-c
       logical util_io_unit
       external util_io_unit
+c
+      call ga_sync()
+      ok = 0
 c
 c     start processing simple so file
 c     -------------------------------
@@ -46,40 +46,36 @@ c
 c
       if (ga_nodeid().eq.0) then
 c
-c       initialize
-        do i = 1,ipol
-          do j = 1,nbf_ao
+c      initialize
+       do i = 1,ipol
+         do j = 1,nbf_ao
             evlso(j,i) = 0.d0
-          end do ! j
-        end do ! i
+         end do ! j
+       end do ! i
 c
-        open(unit=fn,status="unknown",form="formatted",file=fn_simpleso)
-        write(luout,*)
-        write(luout,9982) fn_simpleso(1:inp_strlen(fn_simpleso))
-        write(luout,*)
-        read(fn,*) nmo
-        do i = 1,nmo
-            read(fn,*) imo,evlso(imo,1)
-        end do
-        read(fn,*) nmo
-        do i = 1,nmo
-            read(fn,*) imo,evlso(imo,2)
-        end do
-        close(fn)
-c
-c       Assign spin-orbit corrected eigenvalues
-        do i = 1,ipol
-          do j = 1,nbf_ao
-            if (dabs(evlso(j,i)).gt.0.d0) evl(j,i) = evlso(j,i)
-          end do ! j
-        end do ! i
-c
-      end if ! ga_nodeid()
+       open(unit=fn,status="unknown",form="formatted",file=fn_simpleso)
+       write(luout,*)
+       write(luout,9982) fn_simpleso(1:inp_strlen(fn_simpleso))
+       write(luout,*)
+       read(fn,*) nmo
+       do i = 1,nmo
+          if (ipol.eq.1) then
+             read(fn,*) imo,evlso(imo,1)
+          else 
+             read(fn,*) imo,evlso(imo,1),evlso(imo,2)
+          end if
+       end do
+       close(fn)
+       ok = 1
+      end if  ! ga_nodeid().eq.0
 c
 c     Broadcast status to other nodes
-      ddblsize=MA_sizeof(MT_DBL,1,MT_BYTE)
-      call ga_brdcst(Msg_Vec_Stat,evl,nbf_ao*2*ddblsize,0)
+      call ga_brdcst(Msg_Vec_Stat, ok, ma_sizeof(mt_int,1,mt_byte),0)
       call ga_sync()
+
+      if(.not.rtdb_put(rtdb,'simpleso:evlso',mt_dbl,2*nbf_ao,evlso))
+     $     call errquit('tddft_simpleso: rtdb put evlso  ',914,
+     &         rtdb_err)
 c
  9982 format(' Reading spin-orbit corrected eigenvalues: ',a)
 c
