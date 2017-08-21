@@ -147,6 +147,12 @@ c     GA handles for perturbed MO vectors:
       double precision wavelgth
       double precision alphaiso     ! Isotropic dipole polarizability
       double precision alphaani     ! Anisotropic dipole polarizability
+
+c F. Krausbeck, ETH Zurich, January 2016
+      double precision alphaisoim   ! Imaginary isotropic dipole pol.
+      double precision alphaaniim   ! Imaginary anisotropic dipole pol.
+c END F.Krausbeck
+
       double precision alphaevr(3)  ! Dipole polarizability tensor eigenvalues (real)
       double precision alphaevi(3)  ! Dipole polarizability tensor eigenvalues (imag)
       double precision aeigvec(3,3) ! dummy dgeev eigenvectors
@@ -953,6 +959,20 @@ c     ------------
 c     
 c     diagonalize
       call hnd_diag(alfare2,alphaevr,3,.false.,.false.) ! replaces dgeev call
+
+c F. Krausbeck: Added for RROA calculations with MoViPac, January 2016, ETH Zurich
+c ... jochen: added 'lifetime' condition here and the print statement
+       if(lifetime) then
+          call hnd_diag(alfaim2,alphaevi,3,.false.,.false.)  
+
+          alphaisoim = (alphaevi(1)+alphaevi(2)+alphaevi(3))/3.0d0 ! imaginary isotropic
+          alphaaniim=(alphaevi(1)-alphaevi(2))*(alphaevi(1)-alphaevi(2))
+     1             + (alphaevi(1)-alphaevi(3))*(alphaevi(1)-alphaevi(3))
+     2             + (alphaevi(2)-alphaevi(3))*(alphaevi(2)-alphaevi(3))
+          alphaaniim = dsqrt(alphaaniim/3.d0)  ! imaginary anisotropic
+c END F. Krausbeck      
+      end if ! lifetime  
+
       
       alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0 ! isotropic part
       alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
@@ -971,6 +991,25 @@ c     diagonalize
      4  alfare(3,1),alfare(3,2),alfare(3,3),
      5  alphaevr(1),alphaevr(2),alphaevr(3),
      6  alphaiso,alphaani
+
+c F. Krausbeck, January 2016: added for RROA calcs with MoViPac
+c ... jochen: fixed printing of alphaim instead of the 
+c     eigenvectors below:
+
+          if (oprint .and. lifetime) then
+              write(LuOut,*), "*************************"
+               write(LuOut,9434) "DFT Linear Response IMAG",
+     1              dbl_mb(k_fr),auXnm/dbl_mb(k_fr),
+     2              alfaim(1,1),alfaim(1,2),alfaim(1,3),
+     3              alfaim(2,1),alfaim(2,2),alfaim(2,3),
+     4              alfaim(3,1),alfaim(3,2),alfaim(3,3),
+     5              alphaevi(1),alphaevi(2),alphaevi(3),
+     6              alphaisoim,alphaaniim
+              write(LuOut,*), "*************************"
+          end if
+c END F. Krausbeck
+
+
       call util_flush(LuOut)
 c     
 c     alpha_rtdb = [omega, XX, XY, XZ, YY, YZ, ZZ, LL, MM, NN, Iso, Ani]

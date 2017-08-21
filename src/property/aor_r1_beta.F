@@ -540,16 +540,32 @@ c         subtract trace from diagonal
         
 c       if we have the keyword for the ROA output, let's do that
 c       before the BD tensor gets assembled:
-        
+
+c F. Krausbeck, January 2016: ETH Zurich: the same loop as above
+c for tmpmat2 -> -omega*betaim(i,j) required for resonance VROA
+c ... jochen 08/17: changed tmpmat, tmpmat2 below to tmpre, tmpim
         if (lroa .and. me) then
           
           do i = 1,3
             do j = 1,3
               tmpre(i,j) = -omega*betare(i,j)
+              tmpim(i,j) = -omega*betaim(i,j)
             end do
           end do
-          call aor_write_roadata
-     &      (luout, alfare, betare, tmpre, dipquadre, dqpol)
+
+c F. Krausbeck, January 2016, ETH Zurich: modified for Re+Im output
+c and commented out the old function call 
+c ... jochen: In the old nwchem version that F. Krausbeck used, the
+c imaginary part of the response had an incorrect sign in this
+c routine compared to aor_r1_tensor. 
+c This was fixed in the meantime. For compatibility with
+c the MoViPac interface we'll use the opposite signs below, but
+c this should probably be changed:
+           call aor_write_roadata2
+     &       (luout, alfare, -alfaim, betare, tmpre, -betaim, 
+     &        -tmpim, dipquadre, -dipquadim, dqpol)
+c          call aor_write_roadata
+c     &      (luout, alfare, betare, tmpre, dipquadre, dqpol)
         end if                 
         
 c       assemble BD tensor in tmpre.

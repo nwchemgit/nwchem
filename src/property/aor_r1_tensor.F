@@ -97,6 +97,10 @@ c     traceless dipole-quadrupole tensor, full storage
       integer LCTensor(3,3,3)
       integer qindex(3,3)
       double precision tmpmat(3,3)
+
+c F. Krausbeck, January 2016, ETHZ: needed for -omega*betaim   
+      double precision tmpmat2(3,3)
+
       
       character*(256) cstemp
       character*(1) direction(3)
@@ -487,14 +491,29 @@ c         subtract trace from diagonal
 c       if we have the keyword for the ROA output, let's do that
 c       before the BD tensor gets assembled:
 
-        if (lroa .and. me) then
+
+c F. Krausbeck, January 2016: ETH Zurich: the same loop as above
+c for tmpmat2 -> -omega*betaim(i,j) required for resonance VROA
+c ... jochen 08/17: had to make some changes to Florian's code because
+c     of the way this routine was re-worked in the meantime. In the
+c     old version, 'betare' etc. was beta, but now it is G'.
+        if (lroa .and. me .and. .not.lstatic) then
           do i = 1,3
             do j = 1,3
-              tmpmat(i,j) = betare(i,j)
+              tmpmat(i,j) = -betare(i,j)/omega
+              tmpmat2(i,j) = -betaim(i,j)/omega
             end do
           end do
-          call aor_write_roadata
-     &       (luout, alfare, betare, tmpmat, dipquadre, dqpol)
+
+
+c F. Krausbeck, January 2016, ETH Zurich: modified for Re+Im output
+c and commented out the old function call 
+           call aor_write_roadata2
+     &       (luout, alfare, alfaim, tmpmat, betare,  
+     &        tmpmat2, betaim, 
+     &        dipquadre, dipquadim, dqpol)
+c          call aor_write_roadata
+c     &       (luout, alfare, betare, tmpmat, dipquadre, dqpol)
         end if                  ! lroa
 
 c       assemble BD tensor in tmpmat.
