@@ -116,6 +116,10 @@ c
       logical ltrials, trials_exists
       character*(nw_max_path_len) fn_trials
 c
+      logical llanczos
+      logical lkdav,lpolar
+      integer ipolar,ipolar_start,ipolar_end
+c
       nodezero=(ga_nodeid().eq.0)
 c
 c -------------------------
@@ -135,6 +139,41 @@ c
 c     == Init pstat ==
 c
       call dft_pstat_init(rtdb)
+c
+c ------------------------------------------
+c    Select solver
+c ------------------------------------------
+c
+       if (.not.rtdb_get(rtdb,'tddft:lanczos',mt_log,1,llanczos))
+     1 llanczos = .false.
+      if(llanczos) then
+       if (.not.rtdb_get(rtdb,'tddft:tda',mt_log,1,tda)) then
+        tda=.false.
+       endif
+       lpolar = .true.
+       if (.not.rtdb_get(rtdb,'tddft:ipolar',mt_int,1,ipolar))
+     1 lpolar = .false.
+
+       ipolar_start = 1
+       ipolar_end = 3
+       if(lpolar) then
+         ipolar_start = ipolar
+         ipolar_end = ipolar
+       endif
+
+       do ipolar = ipolar_start,ipolar_end
+         if(nodezero)write(LuOut,"(/,'Starting ipolar = ',I4,/)")ipolar
+         if(.not.tda) then
+          call tddft_lanczos(rtdb,ipolar)
+         else
+          call tddft_lanczos_tda(rtdb,ipolar)
+         endif
+        enddo
+        tddft_energy=.true.
+        return
+      endif   !llanczos
+c
+c  Default Davidson solver
 c
 c ---------------------
 c Initialize parameters
@@ -492,5 +531,6 @@ c
         enddo
         dummy=dra_terminate()
       endif
+c
       return
       end

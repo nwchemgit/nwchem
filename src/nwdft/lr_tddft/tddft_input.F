@@ -36,6 +36,11 @@ c        [REVERSE] <not default: 'reverse' velocity gauge>
 c        [GRADIENT] Calculate/optimize the gradients on this surface
 c        [SCALE_J] Scale the Coulomb part
 c        [SCALE_K] Scale the Exchange part
+c
+c        Following parameters for Lanczos solver only
+c        [LANCZOS] Use Lanczos symmetric solver instead of Da
+c        [LSTEPS <Number of Lanczos steps, default 400>]
+c        [POLAR <Polarizarion direction in Lanczos run, 1=>x,
 c     END
 c     
       implicit none
@@ -76,6 +81,9 @@ c
       logical ltransden
       logical lsimpleso
       double precision scale_j, scale_k
+      integer mdeg, ipolar
+      integer irootsconv
+      double precision dlanshift
 c
 c ------------------
 c Set default values
@@ -665,6 +673,62 @@ c
      1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
        if (.not.rtdb_cput(rtdb,'tddft:simpleso',1,fn_simpleso))
      &  call errquit('failed to store tddft:simpleso',0, RTDB_ERR)
+c
+c    Lanczos algorithm
+c
+      else if (inp_compare(.false.,test,'lanczos')) then
+       if (.not.rtdb_put(rtdb,'tddft:lanczos',mt_log,1,.true.))
+     1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+c
+c     mdeg - Number of Lanczos steps
+c
+      else if (inp_compare(.false.,test,'lsteps')) then
+        if (.not.inp_i(mdeg)) then
+          write(LuOut,*) 'tddft_input: lsteps value not found; ',
+     1      'default value of 400 will be used'
+          mdeg = 400
+        endif
+        if (.not.rtdb_put(rtdb,'tddft:mdeg',mt_int,1,mdeg))
+     &    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+c
+c     polar - polarization: 1 => x, 2 => y, 3 => z
+c
+      else if (inp_compare(.false.,test,'polar')) then
+        if (.not.inp_i(ipolar)) then
+          write(LuOut,*) 'tddft_input: polar value not found; '
+          ipolar = 1
+        endif
+        if (.not.rtdb_put(rtdb,'tddft:ipolar',mt_int,1,ipolar))
+     &    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+c
+c     Spectral transformation
+c
+      else if (inp_compare(.false.,test,'lanshift')) then
+       if (.not.inp_f(dlanshift)) then
+          dlanshift  = 0.0d0  ! default
+       endif
+       if (.not.rtdb_put(rtdb,'tddft:lanshift',mt_dbl,1,dlanshift))
+     &  call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+c
+c  K-Davidson
+c
+      else if (inp_compare(.false.,test,'kdavidson')) then
+       if (.not.rtdb_put(rtdb,'tddft:kdavidson',mt_log,1,.true.))
+     1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+c
+c  How many roots should be converged
+c
+      else if (inp_compare(.false.,test,'nrootsconv')) then
+        if (.not.inp_i(irootsconv)) then
+          write(LuOut,*) 'tddft_input: polar value not found; '
+          irootsconv = 1
+        endif
+        if (.not.rtdb_put(rtdb,'tddft:nrootsconv',mt_int,1,irootsconv))
+     &    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
 c
 c     PRINT
 c
