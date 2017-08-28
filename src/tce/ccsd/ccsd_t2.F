@@ -317,6 +317,14 @@ c
       else if (ccsd_t2_8_alg.eq.5) then
         CALL ccsd_t2_8_task_loops(d_t2,k_t2_offset,d_v2,k_v2_offset,
      1                            d_i0,k_i0_offset,maxh,maxp)
+#if defined(USE_OPENMP) && defined(USE_OPENMP_TASKS)
+      else if (ccsd_t2_8_alg.eq.6) then
+        CALL ccsd_t2_8_loops_driver(d_t2,k_t2_offset,d_v2,k_v2_offset,
+     1                              d_i0,k_i0_offset,maxh,maxp)
+      else if (ccsd_t2_8_alg.eq.7) then
+        CALL ccsd_t2_8_dgemm_driver(d_t2,k_t2_offset,d_v2,k_v2_offset,
+     1                              d_i0,k_i0_offset,maxh,maxp)
+#endif
       else
         CALL errquit('ccsd_t2_8_alg',ccsd_t2_8_alg,INPUT_ERR)
       endif

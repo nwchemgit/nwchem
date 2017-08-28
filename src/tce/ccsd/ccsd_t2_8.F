@@ -771,10 +771,10 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       allocate(f_b(1:dimpppp),stat=e_b)
       allocate(f_c(1:dimhhpp),stat=e_c)
       allocate(f_t(1:dimtemp),stat=e_t)
-      if (e_a.ne.0) call errquit("MA a",dimhhpp,MA_ERR)
-      if (e_b.ne.0) call errquit("MA b",dimpppp,MA_ERR)
-      if (e_c.ne.0) call errquit("MA c",dimhhpp,MA_ERR)
-      if (e_t.ne.0) call errquit("MA t",dimtemp,MA_ERR)
+      if (e_a.ne.0) call errquit("alloc a",dimhhpp,MA_ERR)
+      if (e_b.ne.0) call errquit("alloc b",dimpppp,MA_ERR)
+      if (e_c.ne.0) call errquit("alloc c",dimhhpp,MA_ERR)
+      if (e_t.ne.0) call errquit("alloc t",dimtemp,MA_ERR)
       DO p3b = noab+1,noab+nvab
        DO p4b = p3b,noab+nvab
         DO h1b = 1,noab
@@ -871,10 +871,10 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       deallocate(f_b,stat=e_b)
       deallocate(f_c,stat=e_c)
       deallocate(f_t,stat=e_t)
-      if (e_a.ne.0) call errquit("MA pops a",0,MA_ERR)
-      if (e_b.ne.0) call errquit("MA pops b",0,MA_ERR)
-      if (e_c.ne.0) call errquit("MA pops c",0,MA_ERR)
-      if (e_t.ne.0) call errquit("MA pops t",1,MA_ERR)
+      if (e_a.ne.0) call errquit("free a",0,MA_ERR)
+      if (e_b.ne.0) call errquit("free b",1,MA_ERR)
+      if (e_c.ne.0) call errquit("free c",2,MA_ERR)
+      if (e_t.ne.0) call errquit("free t",3,MA_ERR)
       RETURN
       END
 
@@ -925,9 +925,9 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       allocate(f_a(1:dimhhpp),stat=e_a)
       allocate(f_b(1:dimpppp),stat=e_b)
       allocate(f_c(1:dimhhpp),stat=e_c)
-      if (e_a.ne.0) call errquit("MA a",dimhhpp,MA_ERR)
-      if (e_b.ne.0) call errquit("MA b",dimpppp,MA_ERR)
-      if (e_c.ne.0) call errquit("MA c",dimhhpp,MA_ERR)
+      if (e_a.ne.0) call errquit("alloc a",dimhhpp,MA_ERR)
+      if (e_b.ne.0) call errquit("alloc b",dimpppp,MA_ERR)
+      if (e_c.ne.0) call errquit("alloc c",dimhhpp,MA_ERR)
       DO p3b = noab+1,noab+nvab
        DO p4b = p3b,noab+nvab
         DO h1b = 1,noab
@@ -1016,10 +1016,460 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       deallocate(f_a,stat=e_a)
       deallocate(f_b,stat=e_b)
       deallocate(f_c,stat=e_c)
-      if (e_a.ne.0) call errquit("MA pops a",0,MA_ERR)
-      if (e_b.ne.0) call errquit("MA pops a",0,MA_ERR)
-      if (e_c.ne.0) call errquit("MA pops t",1,MA_ERR)
+      if (e_a.ne.0) call errquit("free a",0,MA_ERR)
+      if (e_b.ne.0) call errquit("free b",0,MA_ERR)
+      if (e_c.ne.0) call errquit("free t",0,MA_ERR)
       RETURN
       END
 
 
+      integer function ccsd_t2_8_count()
+      IMPLICIT NONE
+#include "global.fh"
+#include "mafdecls.fh"
+#include "sym.fh"
+#include "errquit.fh"
+#include "tce.fh"
+      integer :: n
+      integer :: p5b,p6b,p3b,p4b,h1b,h2b
+      n = 0
+      DO p3b = noab+1,noab+nvab
+       DO p4b = p3b,noab+nvab
+        DO h1b = 1,noab
+         DO h2b = h1b,noab
+          IF ((.not.restricted).or.
+     &        ( int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1)
+     &         +int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
+           IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1) .eq.
+     &         int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1)) THEN
+            IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+p4b-1),
+     &          ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1))))
+     &                 .eq. ieor(irrep_v,irrep_t)) THEN
+             !DO p5b = noab+1,noab+nvab
+             ! DO p6b = p5b,noab+nvab
+             !  IF (int_mb(k_spin+p5b-1)+int_mb(k_spin+p6b-1) .eq.
+     &       !      int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1)) THEN
+             !   IF (ieor(int_mb(k_sym+p5b-1),ieor(int_mb(k_sym+p6b-1),
+     &       !       ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1))))
+     &       !              .eq. irrep_t) THEN
+                 n = n+1
+             !   END IF
+             !  END IF
+             ! END DO
+             !END DO
+            END IF
+           END IF
+          END IF
+         END DO
+        END DO
+       END DO
+      END DO
+      ccsd_t2_8_count = n
+      RETURN
+      END
+
+      subroutine ccsd_t2_8_make_list(num_tasks, task_list)
+      IMPLICIT NONE
+#include "global.fh"
+#include "mafdecls.fh"
+#include "sym.fh"
+#include "errquit.fh"
+#include "tce.fh"
+      integer, intent(in) :: num_tasks
+      integer, intent(inout) :: task_list(4,num_tasks)
+      integer :: p5b,p6b,p3b,p4b,h1b,h2b
+      integer :: i
+      i = 0
+      DO p3b = noab+1,noab+nvab
+       DO p4b = p3b,noab+nvab
+        DO h1b = 1,noab
+         DO h2b = h1b,noab
+          IF ((.not.restricted).or.
+     &        ( int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1)
+     &         +int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
+           IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1) .eq.
+     &         int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1)) THEN
+            IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+p4b-1),
+     &          ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1))))
+     &                 .eq. ieor(irrep_v,irrep_t)) THEN
+             !DO p5b = noab+1,noab+nvab
+             ! DO p6b = p5b,noab+nvab
+             !  IF (int_mb(k_spin+p5b-1)+int_mb(k_spin+p6b-1) .eq.
+     &       !      int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1)) THEN
+             !   IF (ieor(int_mb(k_sym+p5b-1),ieor(int_mb(k_sym+p6b-1),
+     &       !       ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1))))
+     &       !              .eq. irrep_t) THEN
+                  i = i + 1
+                  task_list(1,i) = p3b
+                  task_list(2,i) = p4b
+                  task_list(3,i) = h1b
+                  task_list(4,i) = h2b
+             !     task_list(5,i) = p5b
+             !     task_list(6,i) = p6b
+             !   END IF
+             !  END IF
+             ! END DO
+             !END DO
+            END IF
+           END IF
+          END IF
+         END DO
+        END DO
+       END DO
+      END DO
+      RETURN
+      END
+
+#if defined(USE_OPENMP) && defined(USE_OPENMP_TASKS)
+
+      SUBROUTINE ccsd_t2_8_loops_exec(d_a,k_a_offset,
+     &                                d_b,k_b_offset,
+     &                                d_c,k_c_offset,
+     &                                maxh,maxp,
+     &                                num_tasks,task_list)
+      IMPLICIT NONE
+#include "global.fh"
+#include "mafdecls.fh"
+#include "sym.fh"
+#include "errquit.fh"
+#include "tce.fh"
+      integer, intent(in) :: d_a,d_b,d_c
+      integer, intent(in) :: k_a_offset,k_b_offset,k_c_offset
+      integer, intent(in) :: maxh,maxp
+      integer, intent(in) :: num_tasks
+      integer, intent(in) :: task_list(4,num_tasks)
+      integer :: dimhhpp,dimpppp
+      integer :: p5b,p6b,p3b,p4b,h1b,h2b
+      integer :: p5b_1,p6b_1,h1b_1,h2b_1
+      integer :: p3b_2,p4b_2,p5b_2,p6b_2
+      integer :: dima,dimb,dimc,dim_common,dima_sort,dimb_sort
+      double precision, allocatable :: f_a(:)
+      double precision, allocatable :: f_b(:)
+      double precision, allocatable :: f_c(:)
+#ifdef USE_FASTMEM
+      !dec$ attributes fastmem :: f_a,f_b,f_c
+#endif
+      integer :: e_a,e_b,e_c
+      double precision :: alpha
+      integer :: p5b_in,p6b_in
+      integer :: me,np
+      integer :: i
+
+      me = ga_nodeid()
+      np = ga_nnodes()
+
+      dimhhpp = maxh*maxh*maxp*maxp
+      dimpppp = maxp*maxp*maxp*maxp
+!$omp parallel private(f_a,f_b,f_c,e_a,e_b,e_c)
+      allocate(f_a(1:dimhhpp),stat=e_a)
+      allocate(f_b(1:dimpppp),stat=e_b)
+      allocate(f_c(1:dimhhpp),stat=e_c)
+      if (e_a.ne.0) call errquit("alloc a",dimhhpp,MA_ERR)
+      if (e_b.ne.0) call errquit("alloc b",dimpppp,MA_ERR)
+      if (e_c.ne.0) call errquit("alloc c",dimhhpp,MA_ERR)
+!$omp master
+      do i = 1, num_tasks
+        if (mod(i,np).eq.me) then
+!$omp task private(p3b,p4b,h1b,h2b,p5b_in,p5b,p6b_in,p6b)
+!$omp&     private(p5b_1,p6b_1,h1b_1,h2b_1,p3b_2,p4b_2,p5b_2,p6b_2)
+!$omp&     private(dima,dimb,dimc,dim_common,dima_sort,dimb_sort)
+!$omp&     private(alpha)
+          p3b = task_list(1,i)
+          p4b = task_list(2,i)
+          h1b = task_list(3,i)
+          h2b = task_list(4,i)
+          dima_sort = int_mb(k_range+h1b-1)
+     &              * int_mb(k_range+h2b-1)
+          dimb_sort = int_mb(k_range+p3b-1)
+     &              * int_mb(k_range+p4b-1)
+          dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p4b-1)
+     &         * int_mb(k_range+h1b-1) * int_mb(k_range+h2b-1)
+          CALL DFILL(dimc,0.0d0,f_c,1)
+          DO p5b_in =me,me+nvab-1
+             p5b=mod(p5b_in,nvab)+noab+1
+           DO p6b_in=me,me+nvab+noab-p5b
+              p6b=mod(p6b_in,noab+nvab-p5b+1)+p5b
+            IF (int_mb(k_spin+p5b-1)+int_mb(k_spin+p6b-1) .eq.
+     &          int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1)) THEN
+             IF (ieor(int_mb(k_sym+p5b-1),ieor(int_mb(k_sym+p6b-1),
+     &           ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1))))
+     &                  .eq. irrep_t) THEN
+              CALL TCE_RESTRICTED_4(p5b,p6b,h1b,h2b,
+     &                              p5b_1,p6b_1,h1b_1,h2b_1)
+              CALL TCE_RESTRICTED_4(p3b,p4b,p5b,p6b,
+     &                              p3b_2,p4b_2,p5b_2,p6b_2)
+              dim_common = int_mb(k_range+p5b-1)
+     &                   * int_mb(k_range+p6b-1)
+              dima = dim_common * dima_sort
+              dimb = dim_common * dimb_sort
+              IF ((dima .gt. 0) .and. (dimb .gt. 0)) THEN
+               CALL GET_HASH_BLOCK(d_a,f_a,dima,
+     &              int_mb(k_a_offset),(h2b_1-1+noab*(h1b_1-1+noab*
+     &              (p6b_1-noab-1+nvab*(p5b_1-noab-1)))))
+               if(.not.intorb) then
+                CALL GET_HASH_BLOCK(d_b,f_b,dimb,
+     &               int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
+     &               (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
+     &               (p3b_2-1)))))
+               else
+                CALL GET_HASH_BLOCK_I(d_b,f_b,dimb,
+     &               int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
+     &               (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
+     &               (p3b_2-1)))),p6b_2,p5b_2,p4b_2,p3b_2)
+               end if
+               if (p5b .eq. p6b) then
+                alpha = 1.0d0
+               else
+                alpha = 2.0d0
+               end if
+               call t2_p8(int_mb(k_range+h1b-1),
+     &                    int_mb(k_range+h2b-1),
+     &                    int_mb(k_range+p3b-1),
+     &                    int_mb(k_range+p4b-1),
+     &                    int_mb(k_range+p5b-1),
+     &                    int_mb(k_range+p6b-1),
+     &                    f_a,f_b,f_c,
+     &                    0.5d0*alpha)
+              END IF
+             END IF
+            END IF
+           END DO
+          END DO
+          CALL ADD_HASH_BLOCK(d_c,f_c,dimc,
+     &         int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
+     &         (p4b-noab-1+nvab*(p3b-noab-1)))))
+!$omp end task
+        endif
+      enddo
+!$omp taskwait
+      call GA_SYNC()
+!$omp end master
+      deallocate(f_a,stat=e_a)
+      deallocate(f_b,stat=e_b)
+      deallocate(f_c,stat=e_c)
+      if (e_a.ne.0) call errquit("free a",0,MA_ERR)
+      if (e_b.ne.0) call errquit("free b",1,MA_ERR)
+      if (e_c.ne.0) call errquit("free c",2,MA_ERR)
+!$omp end parallel
+      RETURN
+      END
+
+
+      SUBROUTINE ccsd_t2_8_loops_driver(d_a,k_a_offset,
+     &                                  d_b,k_b_offset,
+     &                                  d_c,k_c_offset,
+     &                                  maxh,maxp)
+C     $Id: ccsd_t2.F 27404 2015-08-24 14:20:43Z jhammond $
+C     This is a Fortran77 program generated by Tensor Contraction Engine v.1.0
+C     Copyright (c) Battelle & Pacific Northwest National Laboratory (2002)
+C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( p3 p4 p5 p6 )_v
+      IMPLICIT NONE
+#include "global.fh"
+#include "mafdecls.fh"
+#include "sym.fh"
+#include "errquit.fh"
+#include "tce.fh"
+      integer :: d_a,d_b,d_c
+      integer :: k_a_offset,k_b_offset,k_c_offset
+      integer :: maxh,maxp
+      integer :: num_tasks
+      integer, allocatable :: task_list(:,:)
+      integer :: e_tl
+      integer :: ccsd_t2_8_count
+      external :: ccsd_t2_8_count
+      num_tasks = ccsd_t2_8_count()
+      allocate(task_list(4,1:num_tasks),stat=e_tl)
+      if (e_tl.ne.0) call errquit("alloc task_list",num_tasks,MA_ERR)
+      call ccsd_t2_8_make_list(num_tasks, task_list)
+      call ccsd_t2_8_loops_exec(d_a,k_a_offset,
+     &                          d_b,k_b_offset,
+     &                          d_c,k_c_offset,
+     &                          maxh,maxp,
+     &                          num_tasks,task_list)
+      deallocate(task_list,stat=e_tl)
+      if (e_tl.ne.0) call errquit("free task_list",num_tasks,MA_ERR)
+      RETURN
+      END
+
+
+      SUBROUTINE ccsd_t2_8_dgemm_exec(d_a,k_a_offset,
+     &                                d_b,k_b_offset,
+     &                                d_c,k_c_offset,
+     &                                maxh,maxp,
+     &                                num_tasks,task_list)
+      IMPLICIT NONE
+#include "global.fh"
+#include "mafdecls.fh"
+#include "sym.fh"
+#include "errquit.fh"
+#include "tce.fh"
+      integer, intent(in) :: d_a,d_b,d_c
+      integer, intent(in) :: k_a_offset,k_b_offset,k_c_offset
+      integer, intent(in) :: maxh,maxp
+      integer, intent(in) :: num_tasks
+      integer, intent(in) :: task_list(4,num_tasks)
+      integer :: dimhhpp,dimpppp,dimtemp
+      integer :: p5b,p6b,p3b,p4b,h1b,h2b
+      integer :: p5b_1,p6b_1,h1b_1,h2b_1
+      integer :: p3b_2,p4b_2,p5b_2,p6b_2
+      integer :: dima,dimb,dimc,dim_common,dima_sort,dimb_sort
+      double precision, allocatable :: f_a(:)
+      double precision, allocatable :: f_b(:)
+      double precision, allocatable :: f_c(:)
+      double precision, allocatable :: f_t(:)
+#ifdef USE_FASTMEM
+      !dec$ attributes fastmem :: f_a,f_b,f_c,f_t
+#endif
+      integer :: e_a,e_b,e_c,e_t
+      double precision :: alpha
+      integer :: p5b_in,p6b_in
+      integer :: me,np
+      integer :: i
+
+      me = ga_nodeid()
+      np = ga_nnodes()
+
+      dimhhpp = maxh*maxh*maxp*maxp
+      dimpppp = maxp*maxp*maxp*maxp
+      dimtemp = max(dimpppp,dimhhpp)
+!$omp parallel private(f_a,f_b,f_c,f_t,e_a,e_b,e_c,e_t)
+      allocate(f_a(1:dimhhpp),stat=e_a)
+      allocate(f_b(1:dimpppp),stat=e_b)
+      allocate(f_c(1:dimhhpp),stat=e_c)
+      allocate(f_t(1:dimtemp),stat=e_t)
+      if (e_a.ne.0) call errquit("MA a",dimhhpp,MA_ERR)
+      if (e_b.ne.0) call errquit("MA b",dimpppp,MA_ERR)
+      if (e_c.ne.0) call errquit("MA c",dimhhpp,MA_ERR)
+      if (e_t.ne.0) call errquit("MA t",dimhhpp,MA_ERR)
+!$omp master
+      do i = 1, num_tasks
+        if (mod(i,np).eq.me) then
+!$omp task private(p3b,p4b,h1b,h2b,p5b_in,p5b,p6b_in,p6b)
+!$omp&     private(p5b_1,p6b_1,h1b_1,h2b_1,p3b_2,p4b_2,p5b_2,p6b_2)
+!$omp&     private(dima,dimb,dimc,dim_common,dima_sort,dimb_sort)
+!$omp&     private(alpha)
+          p3b = task_list(1,i)
+          p4b = task_list(2,i)
+          h1b = task_list(3,i)
+          h2b = task_list(4,i)
+          dima_sort = int_mb(k_range+h1b-1)
+     &              * int_mb(k_range+h2b-1)
+          dimb_sort = int_mb(k_range+p3b-1)
+     &              * int_mb(k_range+p4b-1)
+          dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p4b-1)
+     &         * int_mb(k_range+h1b-1) * int_mb(k_range+h2b-1)
+          CALL DFILL(dimc,0.0d0,f_c,1)
+          DO p5b_in =me,me+nvab-1
+             p5b=mod(p5b_in,nvab)+noab+1
+           DO p6b_in=me,me+nvab+noab-p5b
+              p6b=mod(p6b_in,noab+nvab-p5b+1)+p5b
+            IF (int_mb(k_spin+p5b-1)+int_mb(k_spin+p6b-1) .eq.
+     &          int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1)) THEN
+             IF (ieor(int_mb(k_sym+p5b-1),ieor(int_mb(k_sym+p6b-1),
+     &           ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1))))
+     &                  .eq. irrep_t) THEN
+              CALL TCE_RESTRICTED_4(p5b,p6b,h1b,h2b,
+     &                              p5b_1,p6b_1,h1b_1,h2b_1)
+              CALL TCE_RESTRICTED_4(p3b,p4b,p5b,p6b,
+     &                              p3b_2,p4b_2,p5b_2,p6b_2)
+              dim_common = int_mb(k_range+p5b-1)
+     &                   * int_mb(k_range+p6b-1)
+              dima = dim_common * dima_sort
+              dimb = dim_common * dimb_sort
+              IF ((dima .gt. 0) .and. (dimb .gt. 0)) THEN
+               CALL GET_HASH_BLOCK(d_a,f_t,dima,
+     &              int_mb(k_a_offset),(h2b_1-1+noab*(h1b_1-1+noab*
+     &              (p6b_1-noab-1+nvab*(p5b_1-noab-1)))))
+               CALL TCE_SORT_4(f_t,f_a,
+     &              int_mb(k_range+p5b-1),int_mb(k_range+p6b-1),
+     &              int_mb(k_range+h1b-1),int_mb(k_range+h2b-1),
+     &              4,3,2,1,1.0d0)
+               if(.not.intorb) then
+                CALL GET_HASH_BLOCK(d_b,f_t,dimb,
+     &               int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
+     &               (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
+     &               (p3b_2-1)))))
+               else
+                CALL GET_HASH_BLOCK_I(d_b,f_t,dimb,
+     &               int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
+     &               (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
+     &               (p3b_2-1)))),p6b_2,p5b_2,p4b_2,p3b_2)
+               end if
+               CALL TCE_SORT_4(f_t,f_b,
+     &              int_mb(k_range+p3b-1),int_mb(k_range+p4b-1),
+     &              int_mb(k_range+p5b-1),int_mb(k_range+p6b-1),
+     &              2,1,4,3,1.0d0)
+               if (p5b .eq. p6b) then
+                alpha = 1.0d0
+               else
+                alpha = 2.0d0
+               end if
+               CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
+     &              alpha,f_a,dim_common,f_b,
+     &              dim_common,1.0d0,f_c,dima_sort)
+              END IF
+             END IF
+            END IF
+           END DO
+          END DO
+          CALL TCE_SORT_4(f_c,f_t,
+     &         int_mb(k_range+p4b-1),int_mb(k_range+p3b-1),
+     &         int_mb(k_range+h2b-1),int_mb(k_range+h1b-1),
+     &         2,1,4,3,0.5d0)
+          CALL ADD_HASH_BLOCK(d_c,f_t,dimc,
+     &         int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
+     &         (p4b-noab-1+nvab*(p3b-noab-1)))))
+!$omp end task
+        endif
+      enddo
+!$omp taskwait
+      call GA_SYNC()
+!$omp end master
+      deallocate(f_a,stat=e_a)
+      deallocate(f_b,stat=e_b)
+      deallocate(f_c,stat=e_c)
+      if (e_a.ne.0) call errquit("MA pops a",0,MA_ERR)
+      if (e_b.ne.0) call errquit("MA pops b",1,MA_ERR)
+      if (e_c.ne.0) call errquit("MA pops c",2,MA_ERR)
+!$omp end parallel
+      RETURN
+      END
+
+
+      SUBROUTINE ccsd_t2_8_dgemm_driver(d_a,k_a_offset,
+     &                                  d_b,k_b_offset,
+     &                                  d_c,k_c_offset,
+     &                                  maxh,maxp)
+C     $Id: ccsd_t2.F 27404 2015-08-24 14:20:43Z jhammond $
+C     This is a Fortran77 program generated by Tensor Contraction Engine v.1.0
+C     Copyright (c) Battelle & Pacific Northwest National Laboratory (2002)
+C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( p3 p4 p5 p6 )_v
+      IMPLICIT NONE
+#include "global.fh"
+#include "mafdecls.fh"
+#include "sym.fh"
+#include "errquit.fh"
+#include "tce.fh"
+      integer :: d_a,d_b,d_c
+      integer :: k_a_offset,k_b_offset,k_c_offset
+      integer :: maxh,maxp
+      integer :: num_tasks
+      integer, allocatable :: task_list(:,:)
+      integer :: e_tl
+      integer :: ccsd_t2_8_count
+      external :: ccsd_t2_8_count
+      num_tasks = ccsd_t2_8_count()
+      allocate(task_list(4,1:num_tasks),stat=e_tl)
+      if (e_tl.ne.0) call errquit("alloc task_list",num_tasks,MA_ERR)
+      call ccsd_t2_8_make_list(num_tasks, task_list)
+      call ccsd_t2_8_dgemm_exec(d_a,k_a_offset,
+     &                          d_b,k_b_offset,
+     &                          d_c,k_c_offset,
+     &                          maxh,maxp,
+     &                          num_tasks,task_list)
+      deallocate(task_list,stat=e_tl)
+      if (e_tl.ne.0) call errquit("free task_list",num_tasks,MA_ERR)
+      RETURN
+      END
+
+#endif
