@@ -941,6 +941,9 @@ endif
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
            DEFINES += -DUSE_OPENMP
+           ifdef USE_OPENMP_TASKS
+               DEFINES += -DUSE_OPENMP_TASKS
+           endif
         endif
         ifeq ($(_CPU),ppc970)
 #G5
@@ -1102,6 +1105,9 @@ endif
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
            DEFINES += -DUSE_OPENMP
+           ifdef USE_OPENMP_TASKS
+               DEFINES += -DUSE_OPENMP_TASKS
+           endif
         endif
        ifdef  USE_FPE
          FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
@@ -1151,6 +1157,9 @@ endif
              LDOPTIONS += -openmp
            endif
            DEFINES   += -DUSE_OPENMP
+           ifdef USE_OPENMP_TASKS
+               DEFINES += -DUSE_OPENMP_TASKS
+           endif
         endif
        ifdef  USE_FPE
          FOPTIONS += -fpe0 -traceback #-fp-model  precise
@@ -1648,6 +1657,9 @@ endif
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
            DEFINES += -DUSE_OPENMP
+           ifdef USE_OPENMP_TASKS
+               DEFINES += -DUSE_OPENMP_TASKS
+           endif
         endif
       endif
       ifeq ($(_FC),gfortran)
@@ -1823,6 +1835,9 @@ endif
                FOPTIONS += -qopenmp
                FOPTIONS += -qopt-report-phase=openmp
                DEFINES+= -DUSE_OPENMP 
+               ifdef USE_OPENMP_TASKS
+                   DEFINES += -DUSE_OPENMP_TASKS
+               endif
              else
                FOPTIONS += -qno-openmp
              endif		   
@@ -1833,6 +1848,9 @@ endif
                FOPTIONS += -openmp-report2
                COPTIONS += -openmp
                DEFINES+= -DUSE_OPENMP 
+               ifdef USE_OPENMP_TASKS
+                   DEFINES += -DUSE_OPENMP_TASKS
+               endif
              endif
            endif
        ifdef USE_VTUNE
@@ -1954,6 +1972,9 @@ $(error )
            FOPTIONS  += -mp -Minfo=mp
            LDOPTIONS += -mp
            DEFINES += -DUSE_OPENMP
+           ifdef USE_OPENMP_TASKS
+               DEFINES += -DUSE_OPENMP_TASKS
+           endif
         endif
        ifeq ($(FC),ftn)
           LINK.f = ftn  $(LDFLAGS) $(FOPTIONS)
@@ -2158,6 +2179,9 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
            FOPTIONS  += -mp -Minfo=mp
            LDOPTIONS += -mp
            DEFINES += -DUSE_OPENMP
+           ifdef USE_OPENMP_TASKS
+               DEFINES += -DUSE_OPENMP_TASKS
+           endif
         endif
       endif
 
