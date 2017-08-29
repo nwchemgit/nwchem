@@ -58,11 +58,14 @@ c
        write(luout,9982) fn_simpleso(1:inp_strlen(fn_simpleso))
        write(luout,*)
        read(fn,*) nmo
+       if (nmo.ne.nbf_ao)  
+     &  call errquit('tddft_simpleso:nmo is not equal to nbf_ao', 0,0)
+       read(fn,*)
        do i = 1,nmo
           if (ipol.eq.1) then
-             read(fn,*) imo,evlso(imo,1)
+           read(fn,*) imo,evlso(imo,1)
           else 
-             read(fn,*) imo,evlso(imo,1),evlso(imo,2)
+           read(fn,*) imo,evlso(imo,1),evlso(imo,2)
           end if
        end do
        close(fn)
