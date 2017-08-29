@@ -286,6 +286,7 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
 #include "bq.fh"
+#include "stdio.fh"
 c
 c     Temporary routine
 c
@@ -311,6 +312,12 @@ c
       character*32 geomsum, basissum, bqsum, key
       character*20 scftype20    ! DECL MUST match movecs_converged routine
       character*128 basis_name, trans_name
+c
+      logical converged
+c
+      character*255 evalfile
+      integer uniteval
+      parameter (uniteval = 77)
 c
       if (oscfps) call pstat_on(ps_vecio)
       call ga_sync()
@@ -347,6 +354,12 @@ c
       endif
       scftype20 = scftype
 c
+c     Check convergence flag
+c
+      converged = .false.
+      if(.not. rtdb_get(rtdb, 'sodft:converged',MT_LOG,1,converged))
+     &          converged = .false.
+      call util_file_name('evals',.false.,.false.,evalfile)
 c
       ok = 0
       if (ga_nodeid() .eq. 0) then
@@ -373,6 +386,7 @@ c
      $        call errquit('movecs_write_so: ma failed', nbf, MA_ERR)
          write(unitno, err=1001) (occ(j),j=1,nbf)
          write(unitno, err=1001) (evals(j),j=1,nbf)
+c
          do iset = 1, 2
             do i = 1, nbf
                call ga_get(g_vecs(iset), 1, 
@@ -385,7 +399,20 @@ c
      &       MA_ERR)
          close(unitno,err=1002)
          ok = 1
-      endif
+c
+c        Write out the alpha/beta split eigenvalues after convergence
+c
+         if (converged) then
+           open(uniteval, status='unknown', form='formatted',
+     &         file=evalfile)
+           write(uniteval,*) nbf/2  ! nmo = 2*nbf_ao with two-component
+           write(uniteval,*) 
+           do i = 1,nbf/2
+             write(uniteval,*) i, evals(2*i-1), evals(2*i)
+           end do
+           close(uniteval)
+         end if  ! converged
+      endif ! ga_nodeid() = 0
 c
  10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
 c
