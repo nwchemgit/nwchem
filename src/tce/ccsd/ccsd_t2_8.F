@@ -1203,7 +1203,7 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
               dima = dim_common * dima_sort
               dimb = dim_common * dimb_sort
               IF ((dima .gt. 0) .and. (dimb .gt. 0)) THEN
-               CALL GET_HASH_BLOCK(d_a,f_a,dima,
+               CALL GET_HASH_BLOCK_R(d_a,f_a,dima,
      &              int_mb(k_a_offset),(h2b_1-1+noab*(h1b_1-1+noab*
      &              (p6b_1-noab-1+nvab*(p5b_1-noab-1)))))
                if(.not.intorb) then
