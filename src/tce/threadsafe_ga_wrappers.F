@@ -1,5 +1,11 @@
       subroutine add_hash_block_r(d_file,array,size,hash,key)
       implicit none
+#include "global.fh"
+#include "util.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+#include "tce.fh"
+#include "tce_main.fh"
       integer d_file
       integer size
       integer hash(*)
@@ -7,12 +13,39 @@
       integer offset
       double precision array(size)
       call tce_hash(hash,key,offset)
-      call add_block_r(d_file,array,size,offset)
+#ifdef TCE_TIME_COMMS
+      cpusecs(4) = cpusecs(4) - util_cpusec()
+      cpusecs(54) = cpusecs(54) - util_wallsec()
+#endif
+      if (util_print('add_block_r',print_debug)) then
+         write(LuOut,9000) ga_nodeid(),d_file,size,offset
+      endif
+      if (offset .eq. -1)
+     &  call errquit('add_block_r: illegal offset',0,UNKNOWN_ERR)
+      if (ioalg.eq.2) then
+!$omp critical
+        call ga_acc(d_file,offset+1,offset+size,1,1,array,1,1.0d0)
+!$omp end critical
+      else
+        call errquit('add_block_r: ioalg=2 only!',ioalg,INPUT_ERR)
+      endif
+ 9000 format(1x,'node',i3,' add_block_r request to file:',i10,
+     &  ' size:',i10,' offset:',i10)
+#ifdef TCE_TIME_COMMS
+      cpusecs(4) = cpusecs(4) + util_cpusec()
+      cpusecs(54) = cpusecs(54) + util_wallsec()
+#endif
       return
       end
 
       subroutine add_hash_block_nb_r(d_file,array,size,hash,key,nbh)
       implicit none
+#include "global.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "tce.fh"
+#include "tce_main.fh"
       integer d_file
       integer size
       integer hash(*)
@@ -21,12 +54,39 @@
       integer nbh
       double precision array(size)
       call tce_hash(hash,key,offset)
-      call add_block_nb_r(d_file,array,size,offset,nbh)
+#ifdef TCE_TIME_COMMS
+      cpusecs(4) = cpusecs(4) - util_cpusec()
+      cpusecs(54) = cpusecs(54) - util_wallsec()
+#endif
+      if (util_print('add_block_nb_r',print_debug)) then
+         write(LuOut,9000) ga_nodeid(),d_file,size,offset
+      endif
+      if (offset .eq. -1)
+     &  call errquit('add_block_nb_r: illegal offset',0,UNKNOWN_ERR)
+      if (ioalg.eq.2) then
+!$omp critical
+        call ga_nbacc(d_file,offset+1,offset+size,1,1,array,1,1.0d0,nbh)
+!$omp end critical
+      else
+        call errquit('add_block_nb_r: ioalg=2 only!',ioalg,INPUT_ERR)
+      endif
+#ifdef TCE_TIME_COMMS
+      cpusecs(4) = cpusecs(4) + util_cpusec()
+      cpusecs(54) = cpusecs(54) + util_wallsec()
+#endif
       return
+ 9000 format(1x,'node',i3,' add_block_nb_r request to file:',i10,
+     &  ' size:',i10,' offset:',i10)
       end
 
       subroutine put_hash_block_r(d_file,array,size,hash,key)
       implicit none
+#include "global.fh"
+#include "util.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+#include "tce.fh"
+#include "tce_main.fh"
       integer d_file
       integer size
       integer hash(*)
@@ -34,7 +94,28 @@
       integer offset
       double precision array(size)
       call tce_hash(hash,key,offset)
-      call put_block_r(d_file,array,size,offset)
+#ifdef TCE_TIME_COMMS
+      cpusecs(3) = cpusecs(3) - util_cpusec()
+      cpusecs(53) = cpusecs(53) - util_wallsec()
+#endif
+      if (util_print('put_block_r',print_debug)) then
+         write(LuOut,9000) ga_nodeid(),d_file,size,offset
+      endif
+      if (offset .eq. -1)
+     &  call errquit('put_block_r: illegal offset',0,UNKNOWN_ERR)
+      if (ioalg.eq.2) then
+!$omp critical
+        call ga_put(d_file,offset+1,offset+size,1,1,array,size)
+!$omp end critical
+      else
+        call errquit('put_block_r: ioalg=2 only!',ioalg,UNKNOWN_ERR)
+      endif
+ 9000 format(1x,'node',i3,' put_block_r request to file:',i10,
+     &  ' size:',i10,' offset:',i10)
+#ifdef TCE_TIME_COMMS
+      cpusecs(3) = cpusecs(3) + util_cpusec()
+      cpusecs(53) = cpusecs(53) + util_wallsec()
+#endif
       return
       end
 
@@ -93,8 +174,6 @@
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
-#include "sf.fh"
-#include "eaf.fh"
 #include "util.fh"
 #include "stdio.fh"
 #include "errquit.fh"
@@ -127,8 +206,10 @@
       integer key_ix,nkey,first_h,second_h
       integer i1,j1,k1,l1
       integer inx1,inx2,inx3,inx4
+#ifdef TCE_TIME_COMMS
       cpusecs(5) = cpusecs(5) - util_cpusec()
       cpusecs(55) = cpusecs(55) - util_wallsec()
+#endif
       DO g3b = 1,noab+nvab
       DO g4b = g3b,noab+nvab
       DO g1b = 1,noab+nvab
@@ -474,8 +555,10 @@
          endif
          end if !spin cases
       end if    !ioalg
+#ifdef TCE_TIME_COMMS
       cpusecs(5) = cpusecs(5) + util_cpusec()
       cpusecs(55) = cpusecs(55) + util_wallsec()
+#endif
       return
       end
 
@@ -484,8 +567,6 @@
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
-#include "sf.fh"
-#include "eaf.fh"
 #include "util.fh"
 #include "stdio.fh"
 #include "errquit.fh"
@@ -663,7 +744,6 @@
 !$omp critical
          call ga_get(d_v2orb,off_a+1,off_a+size,1,1,f_a,size)
 !$omp end critical
-!
          size1 = int_mb(k_range+g1b-1)
          size2 = int_mb(k_range+g2b-1)
          size3 = int_mb(k_range+g3b-1)
@@ -832,83 +912,10 @@
       return
       end
 
-      subroutine add_block_r(d_file,array,size,offset)
-      implicit none
-#include "global.fh"
-#include "mafdecls.fh"
-#include "sf.fh"
-#include "eaf.fh"
-#include "util.fh"
-#include "stdio.fh"
-#include "errquit.fh"
-#include "tce.fh"
-#include "tce_main.fh"
-      integer d_file
-      integer size
-      integer offset
-      double precision array(size)
-      cpusecs(4) = cpusecs(4) - util_cpusec()
-      cpusecs(54) = cpusecs(54) - util_wallsec()
-      if (util_print('add_block_r',print_debug)) then
-         write(LuOut,9000) ga_nodeid(),d_file,size,offset
-      endif
-      if (offset .eq. -1)
-     &  call errquit('add_block_r: illegal offset',0,UNKNOWN_ERR)
-      if (ioalg.eq.2) then
-!$omp critical
-        call ga_acc(d_file,offset+1,offset+size,1,1,array,1,1.0d0)
-!$omp end critical
-      else
-        call errquit('add_block_r: ioalg=2 only!',ioalg,INPUT_ERR)
-      endif
- 9000 format(1x,'node',i3,' add_block_r request to file:',i10,
-     &  ' size:',i10,' offset:',i10)
-      cpusecs(4) = cpusecs(4) + util_cpusec()
-      cpusecs(54) = cpusecs(54) + util_wallsec()
-      return
-      end
-
-      subroutine add_block_nb_r(d_file,array,size,offset,nbh)
-      implicit none
-#include "global.fh"
-#include "mafdecls.fh"
-#include "stdio.fh"
-#include "errquit.fh"
-#include "util.fh"
-#include "tce.fh"
-#include "tce_main.fh"
-      integer d_file
-      integer size
-      integer offset
-      integer nbh
-      double precision array(size)
-      cpusecs(4) = cpusecs(4) - util_cpusec()
-      cpusecs(54) = cpusecs(54) - util_wallsec()
-      if (util_print('add_block_nb_r',print_debug)) then
-         write(LuOut,9000) ga_nodeid(),d_file,size,offset
-      endif
-      if (offset .eq. -1)
-     &  call errquit('add_block_nb_r: illegal offset',0,UNKNOWN_ERR)
-      if (ioalg.eq.2) then
-!$omp critical
-        call ga_nbacc(d_file,offset+1,offset+size,1,1,array,1,1.0d0,nbh)
-!$omp end critical
-      else
-        call errquit('add_block_nb_r: ioalg=2 only!',ioalg,INPUT_ERR)
-      endif
-      cpusecs(4) = cpusecs(4) + util_cpusec()
-      cpusecs(54) = cpusecs(54) + util_wallsec()
-      return
- 9000 format(1x,'node',i3,' add_block_nb_r request to file:',i10,
-     &  ' size:',i10,' offset:',i10)
-      end
 
       subroutine get_block_r(d_file,array,size,offset)
       implicit none
 #include "global.fh"
-#include "mafdecls.fh"
-#include "sf.fh"
-#include "eaf.fh"
 #include "util.fh"
 #include "stdio.fh"
 #include "errquit.fh"
@@ -918,8 +925,10 @@
       integer size
       integer offset
       double precision array(size)
+#ifdef TCE_TIME_COMMS
       cpusecs(5) = cpusecs(5) - util_cpusec()
       cpusecs(55) = cpusecs(55) - util_wallsec()
+#endif
       if (util_print('get_block_r',print_debug)) then
          write(LuOut,9000) ga_nodeid(),d_file,size,offset
       endif
@@ -934,44 +943,9 @@
       endif
  9000 format(1x,'node',i3,' get_block_r request to file:',i10,
      &  ' size:',i10,' offset:',i10)
+#ifdef TCE_TIME_COMMS
       cpusecs(5) = cpusecs(5) + util_cpusec()
       cpusecs(55) = cpusecs(55) + util_wallsec()
+#endif
       return
       end
-
-      subroutine put_block_r(d_file,array,size,offset)
-      implicit none
-#include "global.fh"
-#include "mafdecls.fh"
-#include "sf.fh"
-#include "eaf.fh"
-#include "util.fh"
-#include "stdio.fh"
-#include "errquit.fh"
-#include "tce.fh"
-#include "tce_main.fh"
-      integer d_file
-      integer size
-      integer offset
-      double precision array(size)
-      cpusecs(3) = cpusecs(3) - util_cpusec()
-      cpusecs(53) = cpusecs(53) - util_wallsec()
-      if (util_print('put_block_r',print_debug)) then
-         write(LuOut,9000) ga_nodeid(),d_file,size,offset
-      endif
-      if (offset .eq. -1)
-     &  call errquit('put_block_r: illegal offset',0,UNKNOWN_ERR)
-      if (ioalg.eq.2) then
-!$omp critical
-        call ga_put(d_file,offset+1,offset+size,1,1,array,size)
-!$omp end critical
-      else
-        call errquit('put_block_r: ioalg=2 only!',ioalg,UNKNOWN_ERR)
-      endif
- 9000 format(1x,'node',i3,' put_block_r request to file:',i10,
-     &  ' size:',i10,' offset:',i10)
-      cpusecs(3) = cpusecs(3) + util_cpusec()
-      cpusecs(53) = cpusecs(53) + util_wallsec()
-      return
-      end
-
