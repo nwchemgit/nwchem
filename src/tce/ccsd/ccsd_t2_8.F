@@ -1207,12 +1207,12 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
      &              int_mb(k_a_offset),(h2b_1-1+noab*(h1b_1-1+noab*
      &              (p6b_1-noab-1+nvab*(p5b_1-noab-1)))))
                if(.not.intorb) then
-                CALL GET_HASH_BLOCK(d_b,f_b,dimb,
+                CALL GET_HASH_BLOCK_R(d_b,f_b,dimb,
      &               int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
      &               (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
      &               (p3b_2-1)))))
                else
-                CALL GET_HASH_BLOCK_I(d_b,f_b,dimb,
+                CALL GET_HASH_BLOCK_I_R(d_b,f_b,dimb,
      &               int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
      &               (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
      &               (p3b_2-1)))),p6b_2,p5b_2,p4b_2,p3b_2)
@@ -1235,7 +1235,7 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
             END IF
            END DO
           END DO
-          CALL ADD_HASH_BLOCK(d_c,f_c,dimc,
+          CALL ADD_HASH_BLOCK_R(d_c,f_c,dimc,
      &         int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
      &         (p4b-noab-1+nvab*(p3b-noab-1)))))
 !$omp end task
@@ -1377,7 +1377,7 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
               dima = dim_common * dima_sort
               dimb = dim_common * dimb_sort
               IF ((dima .gt. 0) .and. (dimb .gt. 0)) THEN
-               CALL GET_HASH_BLOCK(d_a,f_t,dima,
+               CALL GET_HASH_BLOCK_R(d_a,f_t,dima,
      &              int_mb(k_a_offset),(h2b_1-1+noab*(h1b_1-1+noab*
      &              (p6b_1-noab-1+nvab*(p5b_1-noab-1)))))
                CALL TCE_SORT_4(f_t,f_a,
@@ -1385,12 +1385,12 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
      &              int_mb(k_range+h1b-1),int_mb(k_range+h2b-1),
      &              4,3,2,1,1.0d0)
                if(.not.intorb) then
-                CALL GET_HASH_BLOCK(d_b,f_t,dimb,
+                CALL GET_HASH_BLOCK_R(d_b,f_t,dimb,
      &               int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
      &               (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
      &               (p3b_2-1)))))
                else
-                CALL GET_HASH_BLOCK_I(d_b,f_t,dimb,
+                CALL GET_HASH_BLOCK_I_R(d_b,f_t,dimb,
      &               int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
      &               (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
      &               (p3b_2-1)))),p6b_2,p5b_2,p4b_2,p3b_2)
@@ -1416,7 +1416,7 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
      &         int_mb(k_range+p4b-1),int_mb(k_range+p3b-1),
      &         int_mb(k_range+h2b-1),int_mb(k_range+h1b-1),
      &         2,1,4,3,0.5d0)
-          CALL ADD_HASH_BLOCK(d_c,f_t,dimc,
+          CALL ADD_HASH_BLOCK_R(d_c,f_t,dimc,
      &         int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
      &         (p4b-noab-1+nvab*(p3b-noab-1)))))
 !$omp end task
