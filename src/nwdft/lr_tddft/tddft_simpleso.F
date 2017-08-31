@@ -44,6 +44,8 @@ c
       if(.not.util_io_unit(80,90,fn))
      &  call errquit('tddft_simpleso:cannot get free unit', 0,0)
 c
+      call util_file_name_resolve(fn_simpleso, .false.)
+c
       if (ga_nodeid().eq.0) then
 c
 c      initialize
