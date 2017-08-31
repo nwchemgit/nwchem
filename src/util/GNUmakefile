@@ -306,6 +306,9 @@ endif
 ifdef USE_FORTRAN2003
   LIB_DEFINES += -DUSE_FORTRAN2003
 endif
+ifdef USE_NONBLOCKING_BCAST
+  LIB_DEFINES += -DUSE_IBCAST
+endif
 
 include ../config/makelib.h
 

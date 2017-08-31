@@ -39,6 +39,11 @@ util_mygabcast2_(Integer *g_a, Integer *mlo, Integer *mhi, Integer *nlo, Integer
   if(GA_Nodeid() == 0) NGA_Get64(*g_a, lo, hi, a, (int64_t *) ld);
   GA_Sync();
 
+#if defined(MPI_VERSION) && (MPI_VERSION >= 3) && defined(USE_IBCAST)
+  MPI_Request * nbh = malloc( nsteps * sizeof(MPI_Request) );
+  if (nbh == NULL) GA_Error("util_mygabcast: malloc nbh failed", nsteps);
+#endif
+
   for (i=0; i < nsteps; i++){
   
     len=bigint;
@@ -48,17 +53,30 @@ util_mygabcast2_(Integer *g_a, Integer *mlo, Integer *mhi, Integer *nlo, Integer
     if(GA_Nodeid() == 0) printf(" bcast: is %11ld len %11d  step i %2d of %4d lentot %8ld\n", istart, len, istart+(long)(len-1), i+1, nsteps, len8);
 #endif
 
+#if defined(MPI_VERSION) && (MPI_VERSION >= 3) && defined(USE_IBCAST)
+    ierr= MPI_Ibcast(a+istart, len, MPI_DOUBLE_PRECISION, 0, ga_comm, &(nbh[i]) );
+#else
     ierr= MPI_Bcast(a+istart, len, MPI_DOUBLE_PRECISION, 0, ga_comm);
+#endif
     
     if (ierr != MPI_SUCCESS) {
-      fprintf(stdout,"util_mygabcast: MPI_Bcast failed step %2d len %11d\n", i, len);
+      fprintf(stdout,"util_mygabcast: MPI broadcast failed step %2d len %11d\n", i, len);
       MPI_Error_string(ierr,err_buffer,&resultlen);
       fprintf(stdout,"%s\n", err_buffer);
-      GA_Error("util_mygabcast error", 0L);
+      GA_Error("util_mygabcast error", ierr);
     }
     
     istart+=len;
   }
+#if defined(MPI_VERSION) && (MPI_VERSION >= 3) && defined(USE_IBCAST)
+  ierr = MPI_Waitall(nsteps, nbh, MPI_STATUSES_IGNORE);
+  if (ierr != MPI_SUCCESS) {
+      MPI_Error_string(ierr,err_buffer,&resultlen);
+      fprintf(stdout,"%s\n", err_buffer);
+      GA_Error("util_mygabcast: waitall failed", ierr);
+  }
+  free(nbh);
+#endif
   MPI_Barrier(ga_comm);
 
 
