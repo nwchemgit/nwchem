@@ -317,7 +317,12 @@ c
 c
       character*255 evalfile
       integer uniteval
-      parameter (uniteval = 77)
+c
+      logical util_io_unit
+      external util_io_unit
+c
+      if(.not.util_io_unit(80,90,uniteval))
+     &  call errquit('movecs_write_so:cannot get free unit', 0,0)
 c
       if (oscfps) call pstat_on(ps_vecio)
       call ga_sync()
