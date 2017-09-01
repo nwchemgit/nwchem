@@ -1,0 +1,27 @@
+/**
+
+@defgroup wfn1 Wave Function for Exact 1RDM
+
+\brief The Wave Function for Exact 1RDM Module
+
+This module implements methods that use a single determinant wave
+function that can generate the exact 1-electron density matrix
+(1RDM) [1,2].
+
+[1] H.J.J. van Dam, <i>"Generalization of the Kohn-Sham system that can
+    represent arbitrary one-electron density matrices"</i>,
+    Phys. Rev. A <b>93</b> 052512 (2016), DOI:
+    <a href="https://doi.org/10.1103/PhysRevA.93.052512">
+    10.1103/PhysRevA.93.052512</a>
+
+[2] H.J.J. van Dam, <i>"An N-representable Hartree-Fock approach for
+    non-idempotent density matrices"</i>, In preparation.
+
+@defgroup wfn1_api API
+   @ingroup wfn1
+   Routines that external code may call
+@defgroup wfn1_priv Private Routines
+   @ingroup wfn1
+   Routines that are private to the module
+
+*/
