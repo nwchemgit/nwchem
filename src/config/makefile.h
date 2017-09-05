@@ -1616,6 +1616,10 @@ endif
        endif
        ifeq ($(_CPU),mips64)
          DONTHAVEM64OPT=Y
+         COPTIONS   = -mabi=64
+         FOPTIONS   = -mabi=64
+         FFLAGS_FORGA   = -mabi=64
+         CFLAGS_FORGA   = -mabi=64
        endif
       ifeq ($(_CC),gcc)
        ifneq ($(DONTHAVEM64OPT),Y)
