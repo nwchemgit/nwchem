@@ -719,7 +719,9 @@ c    +   .and.rtdb_get(rtdb,'vib:hthermal',MT_DBL,1,hthermal)
         call ccca_err(rtdb_get(rtdb,'vib:scalefreq',MT_DBL,1,sf),
      &           errcode)
         zpe = zpe * sf
-        zpe = zpe / AUKCAL
+c     following line commented . See
+c     http://www.nwchem-sw.org/index.php/Special:AWCforum/st/id2417/ccCA_code_defect.html
+c        zpe = zpe / AUKCAL
 c       hthermal = hthermal / AUKCAL
         therm=.true.
         if (nodezero) then
