@@ -930,7 +930,7 @@ endif
         ifeq ($(GNU_GE_4_8),true)
           FDEBUG += -fno-aggressive-loop-optimizations
           FOPTIMIZE +=-fno-aggressive-loop-optimizations
-#gone          FFLAGS_FORGA += -fno-aggressive-loop-optimizations
+          FFLAGS_FORGA += -fno-aggressive-loop-optimizations
           
           FOPTIONS += -Warray-bounds
         endif
@@ -1093,7 +1093,7 @@ endif
         ifeq ($(GNU_GE_4_8),true)
           FDEBUG += -fno-aggressive-loop-optimizations
           FOPTIMIZE +=-fno-aggressive-loop-optimizations
-#gone          FFLAGS_FORGA += -fno-aggressive-loop-optimizations
+          FFLAGS_FORGA += -fno-aggressive-loop-optimizations
           FOPTIONS += -Warray-bounds
         endif # GNU_GE_4_8
         ifeq ($(GNU_GE_6),true)
@@ -1652,7 +1652,7 @@ endif
         ifeq ($(GNU_GE_4_8),true)
           FDEBUG =-O2 -g -fno-aggressive-loop-optimizations
           FOPTIMIZE +=-fno-aggressive-loop-optimizations
-#gone          FFLAGS_FORGA += -fno-aggressive-loop-optimizations
+          FFLAGS_FORGA += -fno-aggressive-loop-optimizations
           FOPTIONS += -Warray-bounds
 	  else
           FOPTIONS   += -Wuninitialized # -Wextra -Wunused
