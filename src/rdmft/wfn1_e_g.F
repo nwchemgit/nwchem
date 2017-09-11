@@ -38,8 +38,6 @@ c
       integer, intent(in) :: g_momo3 ! nmo x nmo scratch GA
       integer, intent(in) :: g_momo4 ! nmo x nmo scratch GA
 c
-c     double precision, allocatable :: v_dca(:)
-c     double precision, allocatable :: v_dcb(:)
       double precision, intent(out) :: v_dca(1:wfn1_param%nmo)
       double precision, intent(out) :: v_dcb(1:wfn1_param%nmo)
       double precision, allocatable :: buf(:,:)
