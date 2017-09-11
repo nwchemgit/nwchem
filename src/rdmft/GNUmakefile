@@ -15,6 +15,7 @@
          wfn1_entropy.o \
          wfn1_e_g.o \
          wfn1_e_g_2el.o \
+         wfn1_e_g_2el_hf.o \
          wfn1_e_g_2el_s.o \
          wfn1_exp.o \
          wfn1_f0df0f1.o \
@@ -34,6 +35,7 @@
          wfn1_print_analysis.o \
          wfn1_print_occ.o \
          wfn1_size.o \
+         wfn1_test_rdms.o \
          wfn1_trace.o \
          wfn1_zero_vv.o 
 
