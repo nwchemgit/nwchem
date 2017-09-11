@@ -74,10 +74,11 @@ c
         write(*,*)"\Gamma^{\sigma\sigma}_{abcd} &=&",sign(icol),
      &            "\Gamma^{\sigma\sigma}_{",labels(1:4,icol),"} \\\\"
         if (icol.eq.1) cycle
-        write(80,'("              if(abs(rdm2(ia,ib,ic,id)+",i2,
-     &             "*rdm2(i",a,",i",a,",i",a,",i",a,")).gt.tol)then")')
+        write(80,'("              if(abs(rdm2(ia,ib,ic,id)+(",i2,
+     &             ")*rdm2(i",a,",i",a,",i",a,",i",a,")).gt.tol)")')
      &             -sign(icol),labels(1,icol),labels(2,icol),
      &              labels(3,icol),labels(4,icol)
+        write(80,'("     &        then")')
         write(80,'("                write(*,*)",a,"failed ",
      &             i2," ",5a)')q,sign(icol),labels(1:4,icol),q
         write(80,'("                write(*,*)ia,ib,ic,id")')
