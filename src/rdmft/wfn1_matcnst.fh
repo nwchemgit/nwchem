@@ -5,7 +5,8 @@ C> This data type stores various distribute quantities that remain
 C> constant throughout the calculation.
 C>
       type wfn1_matcnst
-          integer :: g_s  ! GA handle for the overlap matrix
-          integer :: g_tv ! GA handle for the 1-electron Hamiltonian
-          integer :: g_cs ! GA handle for the Cauchy-Schwarz integrals
+          integer :: g_s   ! GA handle for the overlap matrix
+          integer :: g_s12 ! GA handle for the S^{-1/2} matrix
+          integer :: g_tv  ! GA handle for the 1-electron Hamiltonian
+          integer :: g_cs  ! GA handle for the Cauchy-Schwarz integrals
       end type wfn1_matcnst

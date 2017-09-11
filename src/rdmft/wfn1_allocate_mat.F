@@ -15,11 +15,13 @@ c
       type(wfn1_matcnst), intent(out) :: wfn1_mat
       integer, external :: ga_create_atom_blocked
 !>
-      wfn1_mat%g_s  = ga_create_atom_blocked(
+      wfn1_mat%g_s   = ga_create_atom_blocked(
      &                   wfn1_inst%geom,wfn1_inst%basis,"overlap")
-      wfn1_mat%g_tv = ga_create_atom_blocked(
+      wfn1_mat%g_s12 = ga_create_atom_blocked(
+     &                   wfn1_inst%geom,wfn1_inst%basis,"S^{-1/2}")
+      wfn1_mat%g_tv  = ga_create_atom_blocked(
      &                   wfn1_inst%geom,wfn1_inst%basis,"1-electron")
-      wfn1_mat%g_cs = ga_create_atom_blocked(
+      wfn1_mat%g_cs  = ga_create_atom_blocked(
      &                   wfn1_inst%geom,wfn1_inst%basis,"schwarz")
 !>
       end
@@ -44,6 +46,9 @@ c
 !>
       if (.not.ga_destroy(wfn1_mat%g_s)) then
         call errquit(pname//" failed to dealloc overlap",0,GA_ERR)
+      endif
+      if (.not.ga_destroy(wfn1_mat%g_s12)) then
+        call errquit(pname//" failed to dealloc S^{-1/2}",0,GA_ERR)
       endif
       if (.not.ga_destroy(wfn1_mat%g_tv)) then
         call errquit(pname//" failed to dealloc 1-electron",0,GA_ERR)

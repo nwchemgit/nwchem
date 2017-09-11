@@ -343,7 +343,8 @@ c
 c     == Find the linearly independent orbitals ==
 c     == and orthonormalizing transformation    ==
 c
-      call wfn1_lindep(wfn1_mat%g_s,g_bfbf,wfn1_param%nmo,ndep_tol)
+      call wfn1_lindep(wfn1_mat%g_s,wfn1_mat%g_s12,g_bfbf,
+     &                 wfn1_param%nmo,ndep_tol)
       if (ndep_nmo.gt.0) wfn1_param%nmo = min(wfn1_param%nbf,ndep_nmo)
       if (wfn1_param%ncorea.gt.wfn1_param%nea) then
         call errquit(pname//" alpha #core orbitals exceeds #electrons",
