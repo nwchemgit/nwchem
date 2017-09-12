@@ -208,6 +208,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "stdio.fh"
 c     
       character*(*) namespace
       integer id1,id2
@@ -280,7 +281,7 @@ c
        k0 = dbl_mb(i_tmp_k+i-1)
        r0 = dbl_mb(i_tmp_r+i-1)
        if(id01.eq.id1 .and. id02.eq.id2) then
-         write(*,*) "cons_add_spring: replacing existing spring"
+         write(luout,*) "cons_add_spring: replacing existing spring"
          dbl_mb(i_tmp_k+i-1)=k
          dbl_mb(i_tmp_r+i-1)=r
          status = .false.
@@ -328,6 +329,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "stdio.fh"
 c     
       character*(*) namespace
       integer id(4)
@@ -406,7 +408,7 @@ c     check for duplicate
        do k=1,idm
          if(id(k).ne.int_mb(i_tmp_id+idm*(i-1)+k-1)) goto 10
        end do
-       write(*,*) "cons_add_dihedral: replacing existing spring"
+       write(luout,*) "cons_add_dihedral: replacing existing spring"
        dbl_mb(i_tmp_k+i-1)=kd
        dbl_mb(i_tmp_r+i-1)=r
        oduplicate = .true.
@@ -699,6 +701,7 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 #include "global.fh"
+#include "stdio.fh"
 c     
       character*(*) namespace
       integer rtdb
@@ -720,7 +723,7 @@ c
       end if
       if (n .eq. 0 ) then
          if(ga_nodeid().eq.0)
-     >     write(*,*) "no fixed atoms found"
+     >     write(luout,*) "no fixed atoms found"
          return
       end if
 
@@ -736,9 +739,9 @@ c
      >      0, MA_ERR)
        
        if(ga_nodeid().eq.0) then
-          write(*,'(" fixed atoms",T31,":",(T32,4(I4,2X),:))')
+          write(luout,'(" fixed atoms",T31,":",(T32,4(I4,2X),:))')
      >         (int_mb(i_tmp_id +i-1),i=1,n)
-          write(*,'(/)')
+          write(luout,'(/)')
        end if
 
       if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
@@ -755,6 +758,7 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 #include "global.fh"
+#include "stdio.fh"
 c
       character*(*) namespace
       integer rtdb
@@ -782,7 +786,7 @@ c
        
       if (nhb .eq. 0 ) then
          if(ga_nodeid().eq.0)    
-     >     write(*,*) "no springs found"
+     >     write(luout,*) "no springs found"
          return
       end if
 
@@ -814,7 +818,7 @@ c
      
       if(ga_nodeid().eq.0) then   
       do i=1,nhb
-      write(*,FMT=200) int_mb(i_tmp_id+2*(i-1)),
+      write(luout,FMT=200) int_mb(i_tmp_id+2*(i-1)),
      >           int_mb(i_tmp_id+2*(i-1)+1),
      >           dbl_mb(i_tmp_k+i-1),
      >           dbl_mb(i_tmp_r+i-1)
@@ -841,6 +845,7 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 #include "global.fh"
+#include "stdio.fh"
 c
       character*(*) namespace
       integer rtdb
@@ -875,7 +880,7 @@ c
 
       if (nhc .eq. 0 ) then
          if(ga_nodeid().eq.0)
-     >     write(*,*) "no bondings springs found"
+     >     write(luout,*) "no bondings springs found"
          return
       end if
 
@@ -928,18 +933,18 @@ c
             K0     = dbl_mb(i_tmp_k0+i-1)
             gamma0 = dbl_mb(i_tmp_gamma0+i-1)
 
-            write(6,*)
-            write(6,'(A,I5)') " Bondings Spring #",i
-            write(6,'(A,F18.9,E14.6)')
-     >             "   -  parameters (K0,gamma0):",
+            write(luout,*)
+            write(luout,'(A,I5)') " Bondings Spring #",i
+            write(luout,'(A,F18.9,E14.6)')
+     >             "   - parameters (K0,gamma0):",
      >             K0,gamma0
-            write(6,*) "  - coefficient index1 index2"
+            write(luout,*) "  - coefficient index1 index2"
             do j=1,n
-              write(6,'(F16.6,I7,I7)') dbl_mb(i_tmp_coef+ii+j-1),
+              write(luout,'(F16.6,I7,I7)') dbl_mb(i_tmp_coef+ii+j-1),
      >                           int_mb(i_tmp_indx+2*ii+2*(j-1)),
      >                           int_mb(i_tmp_indx+2*ii+2*(j-1)+1)
             end do
-            write(6,*)
+            write(luout,*)
             ii = ii + n
          end do
       end if
@@ -976,6 +981,7 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 #include "global.fh"
+#include "stdio.fh"
 c
       character*(*) namespace
       integer rtdb
@@ -1006,7 +1012,7 @@ c
        
       if (nc .eq. 0 ) then
          if(ga_nodeid().eq.0)    
-     >     write(*,*) "no dihedral springs found"
+     >     write(luout,*) "no dihedral springs found"
          return
       end if
 
@@ -1038,7 +1044,7 @@ c
      
       if(ga_nodeid().eq.0) then   
       do i=1,nc
-      write(*,FMT=200) int_mb(i_tmp_id+2*(i-1)),
+      write(luout,FMT=200) int_mb(i_tmp_id+2*(i-1)),
      >           int_mb(i_tmp_id+2*(i-1)+1),
      >           int_mb(i_tmp_id+2*(i-1)+2),
      >           int_mb(i_tmp_id+2*(i-1)+3),
@@ -1062,12 +1068,13 @@ c
       implicit none
 #include "util.fh"
 #include "global.fh"
+#include "stdio.fh"
       character*(*) namespace
       integer rtdb
 
       if(ga_nodeid().eq.0) then
         call cons_print_header()
-        call util_print_centered(6,
+        call util_print_centered(luout,
      >     "General Information",
      >     1,.true.)
       end if

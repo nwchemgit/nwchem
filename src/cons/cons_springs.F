@@ -135,6 +135,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "stdio.fh"
 #include "cons.fh"
 c     
       integer rtdb
@@ -174,14 +175,14 @@ c
      >         enb)
 
        if(oprint) then
-        write(6,*)"adding spring # ",inb
-        write(6,*)"  spring parameters (i,j,k,r0):",iat,jat,k,r0
-        write(6,*)"  spring length and energy    :",r,enb
+        write(luout,*)"adding spring # ",inb
+        write(luout,*)"  spring parameters (i,j,k,r0):",iat,jat,k,r0
+        write(luout,*)"  spring length and energy    :",r,enb
        end if
        e=e+enb
       end do
       if(rtdb_get(rtdb, 'cons:simulate', mt_log, 1, status)) then
-        write(*,*) "cons energy simulation"
+        write(luout,*) "cons energy simulation"
         energy=e
       else 
         energy = energy + e
@@ -380,6 +381,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "stdio.fh"
 #include "cons.fh"
 c     
       integer rtdb
@@ -416,24 +418,26 @@ c
      >                               dbl_mb(i_coef+ii),
      >                               K0,gamma0,dbl_mb(i_c),gamm,enb)
        if(oprint) then
-        write(6,*)
-        write(6,'(A,I4)') "Adding bondings spring # ",i
-        write(6,'(A,F18.9,2E14.6)') 
-     >             "   - spring parameters (K0,gamma0,gamma):",
-     >             K0,gamma0,gamm 
-        write(6,'(A,F18.9)') 
-     >  "   - spring energy                      :",enb
-        write(6,'(A,F18.9)') 
-     >  "   - unconstrained energy               :",energy
-        write(6,'(A,F18.9)') 
-     >  "   - constrained energy                 :",energy+enb
-        write(6,*) "  - coefficient index1 index2"
+        write(luout,*)
+        write(luout,'(A,I4)') "Adding bondings spring # ",i
+        write(luout,'(A,F18.9,E14.6)') 
+     >             "   - spring parameters (K0,gamma0):",
+     >             K0,gamma0
+        write(luout,'(A,E18.6)') 
+     >  "   - gamma                        :",gamm
+        write(luout,'(A,F18.9)') 
+     >  "   - spring energy                :",enb
+        write(luout,'(A,F18.9)') 
+     >  "   - unconstrained energy         :",energy
+        write(luout,'(A,F18.9)') 
+     >  "   - constrained energy           :",energy+enb
+        write(luout,*) "  - coefficient index1 index2"
         do j=1,n
-           write(6,'(F16.6,I7,I7)') dbl_mb(i_coef+ii+j-1),
+           write(luout,'(F16.6,I7,I7)') dbl_mb(i_coef+ii+j-1),
      >                           int_mb(i_indx+2*ii+2*(j-1)),
      >                           int_mb(i_indx+2*ii+2*(j-1)+1)
         end do
-        write(6,*)
+        write(luout,*)
        end if
        ii = ii + n
        e=e+enb
@@ -453,6 +457,7 @@ c
 #include "global.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "stdio.fh"
 #include "cons.fh"
 c     
       integer rtdb
@@ -492,24 +497,26 @@ c
      >                               dbl_mb(i_coef+ii),
      >                               K0,gamma0,dbl_mb(i_c),gamm,enb,gx)
        if(oprint) then
-        write(6,*)
-        write(6,'(A,I4)') "Adding bondings spring # ",i
-        write(6,'(A,F18.9,2E14.6)')
-     >             "   - spring parameters (K0,gamma0,gamma):",
-     >             K0,gamma0,gamm
-        write(6,'(A,F18.9)')
-     >  "   - spring energy                      :",enb
-        write(6,'(A,F18.9)')
-     >  "   - unconstrained energy               :",energy
-        write(6,'(A,F18.9)')
-     >  "   - constrained energy                 :",energy+enb
-        write(6,*) "  - coefficient index1 index2"
+        write(luout,*)
+        write(luout,'(A,I4)') "Adding bondings spring # ",i
+        write(luout,'(A,F18.9,E14.6)')
+     >             "   - spring parameters (K0,gamma0):",
+     >             K0,gamma0
+        write(luout,'(A,E18.6)')
+     >  "   - gamma                        :",gamm
+        write(luout,'(A,F18.9)')
+     >  "   - spring energy                :",enb
+        write(luout,'(A,F18.9)')
+     >  "   - unconstrained energy         :",energy
+        write(luout,'(A,F18.9)')
+     >  "   - constrained energy           :",energy+enb
+        write(luout,*) "  - coefficient index1 index2"
         do j=1,n
-           write(6,'(F16.6,I7,I7)') dbl_mb(i_coef+ii+j-1),
+           write(luout,'(F16.6,I7,I7)') dbl_mb(i_coef+ii+j-1),
      >                           int_mb(i_indx+2*ii+2*(j-1)),
      >                           int_mb(i_indx+2*ii+2*(j-1)+1)
         end do
-        write(6,*)
+        write(luout,*)
        end if
 
        ii = ii + n
@@ -531,6 +538,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "stdio.fh"
 #include "cons.fh"
 #include "cons_params.fh"
 c     
@@ -565,8 +573,8 @@ c
       i_r  = cons_get_i_hdihed_r()
 
       if(oprint) then  
-        write(6,*)"Processing dihedral constraints"
-        write(6,1004)
+        write(luout,*)"Processing dihedral constraints"
+        write(luout,1004)
       end if
       do inb=1,nc
        iat=int_mb(i_id+idm*(inb-1))
@@ -589,11 +597,11 @@ c
      >         f4)
 
        if(oprint) then
-        write(6,1005) iat,jat,kat,lat,k,
+        write(luout,1005) iat,jat,kat,lat,k,
      >                 r0*rad_to_deg,r*rad_to_deg,
      >                 enb,f1(1),f2(1),f3(1),f4(1)
-        write(6,1006) f1(2),f2(2),f3(2),f4(2)
-        write(6,1006) f1(3),f2(3),f3(3),f4(3)
+        write(luout,1006) f1(2),f2(2),f3(2),f4(2)
+        write(luout,1006) f1(3),f2(3),f3(3),f4(3)
 c        write(6,1002) "dihedral forces (i,j,k,l):"
 c        write(6,1001) "f_i", iat,(f1(i),i=1,3)
 c        write(6,1001) "f_j", jat,(f2(i),i=1,3)
@@ -627,6 +635,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "stdio.fh"
 #include "cons.fh"
 #include "cons_params.fh"
 c     
@@ -657,8 +666,8 @@ c
       i_r  = cons_get_i_hdihed_r()
 
       if(oprint) then  
-        write(6,*)"Processing dihedral constraints"
-        write(6,1004)
+        write(luout,*)"Processing dihedral constraints"
+        write(luout,1004)
       end if
       do inb=1,nc
        iat=int_mb(i_id+idm*(inb-1))
@@ -677,7 +686,7 @@ c
      >         enb)
 
        if(oprint) then
-         write(6,1005) iat,jat,kat,lat,k,
+         write(luout,1005) iat,jat,kat,lat,k,
      >                 r0*rad_to_deg,r*rad_to_deg,
      >                 enb
        end if
@@ -699,6 +708,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 #include "util.fh"
 #include "cons.fh"
 c     
@@ -742,11 +752,11 @@ c
      >           r,e,f)
 
        if(oprint) then
-        write(6,*)"adding spring # ",inb
-        write(6,*)"  spring parameters (i,j,k,r0):",iat,jat,k,r0
-        write(6,*)"  spring length and energy    :",r,e
-        write(6,*)"  spring forces               :",(f(i),i=1,3)
-        write(6,*)"  spring deriv                :",
+        write(luout,*)"adding spring # ",inb
+        write(luout,*)"  spring parameters (i,j,k,r0):",iat,jat,k,r0
+        write(luout,*)"  spring length and energy    :",r,e
+        write(luout,*)"  spring forces               :",(f(i),i=1,3)
+        write(luout,*)"  spring deriv                :",
      >            -2.0*k*(r-r0)
        end if
 

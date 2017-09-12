@@ -206,6 +206,7 @@ c     release memory
 #include "rtdb.fh"
 #include "util.fh"
 #include "geom.fh"
+#include "stdio.fh"
 #include "cons_params.fh"
 #include "cons.fh"
 #include "global.fh"
@@ -224,7 +225,6 @@ c
       character*255 namespace
       logical oprint
       logical ocons
-      write(*,*) "in cons init"
 c
 c     set default namespace if none specified
 c     ---------------------------------------
@@ -240,7 +240,7 @@ c
       oprint = oprint .and. cons_print()
 
       if(oprint) 
-     >    write(*,*) "entered cons_init"
+     >    write(luout,*) "entered cons_init"
 c
       ocons = .false.
 c
@@ -273,11 +273,14 @@ c     ---------------------------------------------------
      $           call errquit('cons_init: ma_get_index failed',h_act,
      &       MA_ERR)
        if(cons_print()) then
-         call banner(6,"Warning!!!                               ","*" ,
+         call banner(luout,"Warning!!!                               ",
+     >              "*" ,
      >             .true.,.false.,.true. )
-         call banner(6,"geometry:actlist is an obsolete option   ","*" ,
+         call banner(luout,"geometry:actlist is an obsolete option   ",
+     >              "*" ,
      >             .false.,.false.,.true. )
-         call banner(6,"consider using fixed atoms constraints   ","*" ,
+         call banner(luout,"consider using fixed atoms constraints   ",
+     >              "*" ,
      >             .false.,.true.,.true. )
        end if
        old_style=.true.
@@ -301,15 +304,15 @@ c     ---------------------------------------------------
      &      nat, MA_ERR)
         if(new_style) then
          if(cons_print()) then
-         call banner(6,"Warning!!!                            ","*" ,
+         call banner(luout,"Warning!!!                            ","*",
      >           .true.,.false.,.true. )
-         call banner(6,"mixing both geometry:actlist  and     ","*" ,
+         call banner(luout,"mixing both geometry:actlist  and     ","*",
      >             .false.,.false.,.true. )
-         call banner(6,"fixed atom constraints is not         ","*" ,
+         call banner(luout,"fixed atom constraints is not         ","*",
      >             .false.,.false.,.true. )
-         call banner(6,"recommended. Check output below for   ","*" ,
+         call banner(luout,"recommended. Check output below for   ","*",
      >             .false.,.false.,.true. )
-         call banner(6,"for potential problems.               ","*" ,
+         call banner(luout,"for potential problems.               ","*",
      >             .false.,.true.,.true. )
           end if
           call cons_unfix_atoms(namespace,nact,int_mb(i_act),rtdb)
@@ -338,10 +341,9 @@ c     ---------------------------------------------------
       call cons_print_gen_info(namespace,rtdb)
 c
       if(oprint) 
-     >    write(*,*) "finished cons_init"
+     >    write(luout,*) "finished cons_init"
 c
       call util_print_pop()
-      write(*,*) "out cons init"
 
       return
       end
@@ -353,6 +355,7 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 #include "geom.fh"
+#include "stdio.fh"
 #include "cons_params.fh"
 #include "cons.fh"
 #include "global.fh"
@@ -375,7 +378,7 @@ c
 c      if(oprint) 
 c     >    write(*,*) "entered cons_init"
       if(oprint) 
-     >    write(*,*) "entered cons_init"
+     >    write(luout,*) "entered cons_init"
 c
       ocons = .false.
 c
@@ -411,7 +414,7 @@ c      call cons_process_old_style(namespace,rtdb)
       call cons_print_gen_info(namespace,rtdb)
 c
       if(oprint) 
-     >    write(*,*) "finished cons_init"
+     >    write(luout,*) "finished cons_init"
 c
       call util_print_pop()
 
@@ -729,6 +732,7 @@ c
 #include "global.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "stdio.fh"
 #include "cons.fh"
 c     
       integer rtdb
@@ -790,15 +794,15 @@ c
      >             r,e,f)
 
          if(master) then
-          write(6,'(A30,T32,I4)')"spring #                    :",inb
-          write(6,'(A30,T32,2I4,2(F6.3,2X))')
+          write(luout,'(A30,T32,I4)')"spring #                    :",inb
+          write(luout,'(A30,T32,2I4,2(F6.3,2X))')
      >      "spring parameters (i,j,k,r0):",iat,jat,k,r0
-          write(6,'(A30,T32,F6.3)')"spring length               :",r
-          write(6,'(A30,T32,F6.3)')"spring energy               :",e
-          write(6,'(A30,T32,3(F6.3,2X))')
+          write(luout,'(A30,T32,F6.3)')"spring length               :",r
+          write(luout,'(A30,T32,F6.3)')"spring energy               :",e
+          write(luout,'(A30,T32,3(F6.3,2X))')
      >          "spring forces               :",
      >          (f(i),i=1,3)
-          write(6,*)"  "
+          write(luout,*)"  "
          end if
          etot=etot+e
         end do
@@ -824,18 +828,20 @@ c
      >                               dbl_mb(i_coef+ii),
      >                               K0,gamma0,dbl_mb(i_c),gamm,e)
             if(master) then
-               write(6,'(A,I5)')" bondings spring #                 :",i
-               write(6,'(A,3(F12.6,2X))')
-     >        " spring parameters (K0,gamma0,gamm):",K0,gamma0,gamm
-               write(6,'(A,F12.6)')
-     >         " spring energy                     :",e
-               write(6,'(A)')" coefficient index1 index2         :"
+               write(luout,'(A,I5)')" bondings spring #            :",i
+               write(luout,'(A,2(F12.6,2X))')
+     >        " spring parameters (K0,gamma0):",K0,gamma0
+               write(luout,'(A,F12.6)')
+     >         " gamma                        :",gamm
+               write(luout,'(A,F12.6)')
+     >         " spring energy                :",e
+               write(luout,'(A)')" coefficient index1 index2    :"
                do j=1,n
-                  write(*,'(F12.6,2I7)') dbl_mb(i_coef+ii+j-1),
+                  write(luout,'(F12.6,2I7)') dbl_mb(i_coef+ii+j-1),
      >                                   int_mb(i_indx+2*ii+2*(j-1)),
      >                                   int_mb(i_indx+2*ii+2*(j-1)+1)
                end do
-               write(6,*)"  "
+               write(luout,*)"  "
             end if
 
             ii = ii + n
@@ -847,16 +853,16 @@ c
      $        call errquit('driver: could not get energy',0, RTDB_ERR)
 
       if(master) then
-      write(6,'(A39,3X,F12.6)')
+      write(luout,'(A39,3X,F12.6)')
      >       " Total energy with constraints        :",
      >         energy
-      write(6,'(A39,3X,F12.6)')
+      write(luout,'(A39,3X,F12.6)')
      >       " Energy contribution from constraints :",
      >                       etot
-      write(6,'(A39,3X,F12.6)')
+      write(luout,'(A39,3X,F12.6)')
      >       " Total energy without constraints     :",
      >                       energy-etot
-      write(6,*) "--------------------------------------"
+      write(luout,*) "--------------------------------------"
       end if
       call cons_unload_geom()
 
