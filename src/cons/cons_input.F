@@ -68,6 +68,7 @@ c     reset/clear
 c     ----------------------------
       else if (inp_compare(.false.,'clear', test)) then
          call cons_delete_hbonds(namespace,rtdb)
+         call cons_delete_hbondings(namespace,rtdb)
          call cons_delete_fixed_atoms(namespace,rtdb)
 
       goto 100
