@@ -737,7 +737,7 @@ c     local variables
 c     ---------------
       logical status
       logical master
-      integer i,ii,n
+      integer i,ii,n,j
       integer inb,nhb,nhc
       integer iat,jat
       double precision r
@@ -746,10 +746,10 @@ c     ---------------
       integer i_n,i_indx,i_coef,i_k0,i_gamma0
       double precision etot,e,f(3)
       character*255 namespace
+      logical  cons_active
+      external cons_active
 c
-      if(.not. rtdb_get(rtdb, 'cons:active', mt_log, 1, status)) then
-        return
-      else if (.not.status) then
+      if(.not.cons_active(rtdb)) then
         return
       end if
 
@@ -804,6 +804,8 @@ c
         end do
       end if
 
+      call cons_get_hbondings_nhc(nhc)
+
       if(nhc.ne.0) then
          i_c      = cons_get_i_c()
          i_n      = cons_get_i_hbondings_n0()
@@ -821,15 +823,22 @@ c
             call cons_bondings_energy(n,int_mb(i_indx+2*ii),
      >                               dbl_mb(i_coef+ii),
      >                               K0,gamma0,dbl_mb(i_c),gamm,e)
-            ii = ii + n
-
             if(master) then
-               write(6,'(A30,T32,I4)')"bondings spring #          :",i
-               write(6,'(A30,T32,3(F6.3,2X))')
-     >        "spring parameters (K0,gamma0):",K0,gamma0,gamm
-               write(6,'(A30,T32,F6.3)')"spring energy            :",e
+               write(6,'(A,I5)')" bondings spring #                 :",i
+               write(6,'(A,3(F12.6,2X))')
+     >        " spring parameters (K0,gamma0,gamm):",K0,gamma0,gamm
+               write(6,'(A,F12.6)')
+     >         " spring energy                     :",e
+               write(6,'(A)')" coefficient index1 index2         :"
+               do j=1,n
+                  write(*,'(F12.6,2I7)') dbl_mb(i_coef+ii+j-1),
+     >                                   int_mb(i_indx+2*ii+2*(j-1)),
+     >                                   int_mb(i_indx+2*ii+2*(j-1)+1)
+               end do
                write(6,*)"  "
             end if
+
+            ii = ii + n
             etot=etot+e
          end do
       end if

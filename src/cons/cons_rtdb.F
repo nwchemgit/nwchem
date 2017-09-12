@@ -927,10 +927,19 @@ c
             n      = int_mb(i_tmp_n0+i-1)
             K0     = dbl_mb(i_tmp_k0+i-1)
             gamma0 = dbl_mb(i_tmp_gamma0+i-1)
-            write(6,*)"  bondings spring (K0,gamma0,...):",K0,gamma0,
-     >            (dbl_mb(i_tmp_coef+ii+j-1),
-     >             int_mb(i_tmp_indx+2*ii+2*(j-1)),
-     >             int_mb(i_tmp_indx+2*ii+2*(j-1)+1),j=1,n)
+
+            write(6,*)
+            write(6,'(A,I5)') " Bondings Spring #",i
+            write(6,'(A,F18.9,E14.6)')
+     >             "   -  parameters (K0,gamma0):",
+     >             K0,gamma0
+            write(6,*) "  - coefficient index1 index2"
+            do j=1,n
+              write(6,'(F16.6,I7,I7)') dbl_mb(i_tmp_coef+ii+j-1),
+     >                           int_mb(i_tmp_indx+2*ii+2*(j-1)),
+     >                           int_mb(i_tmp_indx+2*ii+2*(j-1)+1)
+            end do
+            write(6,*)
             ii = ii + n
          end do
       end if

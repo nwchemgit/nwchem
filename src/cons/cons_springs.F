@@ -372,10 +372,6 @@ c
       end
 
 
-
-
-
-
 c
       subroutine cons_add_hbondings_energy(rtdb,energy)
       implicit none
@@ -420,12 +416,24 @@ c
      >                               dbl_mb(i_coef+ii),
      >                               K0,gamma0,dbl_mb(i_c),gamm,enb)
        if(oprint) then
-        write(6,*)"adding bondings # ",i
-        write(6,*)"  spring parameters (K0,gamma0,...):",K0,gamma0,gamm,
-     >            (dbl_mb(i_coef+ii+j-1),
-     >             int_mb(i_indx+2*ii+2*(j-1)),
-     >             int_mb(i_indx+2*ii+2*(j-1)+1),j=1,n)
-        write(6,*)"  spring energy                    :",enb
+        write(6,*)
+        write(6,'(A,I4)') "Adding bondings spring # ",i
+        write(6,'(A,F18.9,2E14.6)') 
+     >             "   - spring parameters (K0,gamma0,gamma):",
+     >             K0,gamma0,gamm 
+        write(6,'(A,F18.9)') 
+     >  "   - spring energy                      :",enb
+        write(6,'(A,F18.9)') 
+     >  "   - unconstrained energy               :",energy
+        write(6,'(A,F18.9)') 
+     >  "   - constrained energy                 :",energy+enb
+        write(6,*) "  - coefficient index1 index2"
+        do j=1,n
+           write(6,'(F16.6,I7,I7)') dbl_mb(i_coef+ii+j-1),
+     >                           int_mb(i_indx+2*ii+2*(j-1)),
+     >                           int_mb(i_indx+2*ii+2*(j-1)+1)
+        end do
+        write(6,*)
        end if
        ii = ii + n
        e=e+enb
@@ -484,13 +492,26 @@ c
      >                               dbl_mb(i_coef+ii),
      >                               K0,gamma0,dbl_mb(i_c),gamm,enb,gx)
        if(oprint) then
-        write(6,*)"adding bondings # ",i
-        write(6,*)"  spring parameters (K0,gamma0,...):",K0,gamma0,gamm,
-     >            (dbl_mb(i_coef+ii+j-1),
-     >             int_mb(i_indx+2*ii+2*(j-1)),
-     >             int_mb(i_indx+2*ii+2*(j-1)+1),j=1,n)
-        write(6,*)"  spring energy                    :",enb
+        write(6,*)
+        write(6,'(A,I4)') "Adding bondings spring # ",i
+        write(6,'(A,F18.9,2E14.6)')
+     >             "   - spring parameters (K0,gamma0,gamma):",
+     >             K0,gamma0,gamm
+        write(6,'(A,F18.9)')
+     >  "   - spring energy                      :",enb
+        write(6,'(A,F18.9)')
+     >  "   - unconstrained energy               :",energy
+        write(6,'(A,F18.9)')
+     >  "   - constrained energy                 :",energy+enb
+        write(6,*) "  - coefficient index1 index2"
+        do j=1,n
+           write(6,'(F16.6,I7,I7)') dbl_mb(i_coef+ii+j-1),
+     >                           int_mb(i_indx+2*ii+2*(j-1)),
+     >                           int_mb(i_indx+2*ii+2*(j-1)+1)
+        end do
+        write(6,*)
        end if
+
        ii = ii + n
        e=e+enb
       end do
