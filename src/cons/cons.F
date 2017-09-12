@@ -379,7 +379,7 @@ c     >    write(*,*) "entered cons_init"
 c
       ocons = .false.
 c
-c     initialize harmonic bobds
+c     initialize harmonic bonds
       if(cons_hbonds(namespace,rtdb)) then
       ocons = .true.
       call cons_set_hbond_nhb(0)
@@ -393,6 +393,16 @@ c     initialize dihedrals
       call cons_set_hdihed_n(0)
       call cons_load_hdihed(namespace,rtdb)
       end if
+c
+c
+c     initialize bondings
+      if(cons_hbondings(namespace,rtdb)) then
+      ocons = .true.
+      call cons_set_hbondings_nhc(0)
+      call cons_load_hbondings(namespace,rtdb)
+      end if
+
+
 c
 
 c      call cons_process_old_style(namespace,rtdb)
@@ -422,6 +432,7 @@ c
 c
       call cons_print_summary(rtdb)
       call cons_unload_hbonds()
+      call cons_unload_hbondings()
       call cons_unload_hdihed()
       call cons_unload_fixed_atoms(rtdb)
       return
@@ -638,14 +649,15 @@ c
       integer n
       double precision gx(n)
       character*255 namespace
-      logical obonds,odihedrals,ocons
+      logical obonds,odihedrals,ocons,obondings
       logical osim
 c
       call cons_get_namespace(namespace,rtdb)
       if(.not.cons_status(namespace,rtdb)) return
       obonds = cons_hbonds(namespace,rtdb)
+      obondings = cons_hbondings(namespace,rtdb)
       odihedrals = cons_hdihed(namespace,rtdb)
-      ocons = obonds.or.odihedrals
+      ocons = obonds.or.odihedrals.or.obondings
       if(.not.ocons) return
 c
       call cons_load_geom(rtdb)
@@ -661,6 +673,8 @@ c
 c
       if(obonds)  
      >    call cons_add_hbond_egrad(rtdb,energy,gx)
+      if(obondings)  
+     >    call cons_add_hbondings_egrad(rtdb,energy,gx)
       if(odihedrals)     
      >   call cons_add_hdihed_egrad(rtdb,energy,gx)
 c
@@ -680,14 +694,15 @@ c
       integer rtdb
       double precision energy
       character*255 namespace
-      logical obonds,odihedrals,ocons
+      logical obonds,odihedrals,obondings,ocons
       logical osim
 c
       call cons_get_namespace(namespace,rtdb)
       if(.not.cons_status(namespace,rtdb)) return
       obonds = cons_hbonds(namespace,rtdb)
+      obondings = cons_hbondings(namespace,rtdb)
       odihedrals = cons_hdihed(namespace,rtdb)
-      ocons = obonds.or.odihedrals
+      ocons = obonds.or.odihedrals.or.obondings
       if(.not.ocons) return
 c
       call cons_load_geom(rtdb)
@@ -698,6 +713,8 @@ c
 c
       if(obonds)  
      >   call cons_add_hbond_energy(rtdb,energy)
+      if(obondings)  
+     >   call cons_add_hbondings_energy(rtdb,energy)
       if(odihedrals)     
      >   call cons_add_hdihed_energy(rtdb,energy)
 c
@@ -720,12 +737,13 @@ c     local variables
 c     ---------------
       logical status
       logical master
-      integer i
-      integer inb,nhb
+      integer i,ii,n
+      integer inb,nhb,nhc
       integer iat,jat
       double precision r
-      double precision r0,k
+      double precision r0,k,K0,gamma0,gamm
       integer i_c,i_rhb,i_khb,i_ijhb
+      integer i_n,i_indx,i_coef,i_k0,i_gamma0
       double precision etot,e,f(3)
       character*255 namespace
 c
@@ -753,13 +771,13 @@ c
 c
       call cons_get_hbond_nhb(nhb)
       
+      etot = 0.0d0
       if(nhb.ne.0) then
         i_c    = cons_get_i_c()
         i_ijhb = cons_get_i_hbond_id()
         i_khb  = cons_get_i_hbond_k()
         i_rhb  = cons_get_i_hbond_r()
 c
-        etot=0.0d0
         do inb=1,nhb
          iat=int_mb(i_ijhb+2*(inb-1))
          jat=int_mb(i_ijhb+2*(inb-1)+1)
@@ -784,8 +802,36 @@ c
          end if
          etot=etot+e
         end do
-      else
-       etot = 0
+      end if
+
+      if(nhc.ne.0) then
+         i_c      = cons_get_i_c()
+         i_n      = cons_get_i_hbondings_n0()
+         i_indx   = cons_get_i_hbondings_indx()
+         i_coef   = cons_get_i_hbondings_coef()
+         i_k0     = cons_get_i_hbondings_k0()
+         i_gamma0 = cons_get_i_hbondings_gamma0()
+
+         ii = 0
+         do i=1,nhc
+            n      = int_mb(i_n+i-1)
+            K0     = dbl_mb(i_k0+i-1)
+            gamma0 = dbl_mb(i_gamma0+i-1)
+
+            call cons_bondings_energy(n,int_mb(i_indx+2*ii),
+     >                               dbl_mb(i_coef+ii),
+     >                               K0,gamma0,dbl_mb(i_c),gamm,e)
+            ii = ii + n
+
+            if(master) then
+               write(6,'(A30,T32,I4)')"bondings spring #          :",i
+               write(6,'(A30,T32,3(F6.3,2X))')
+     >        "spring parameters (K0,gamma0):",K0,gamma0,gamm
+               write(6,'(A30,T32,F6.3)')"spring energy            :",e
+               write(6,*)"  "
+            end if
+            etot=etot+e
+         end do
       end if
 
       if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, energy))

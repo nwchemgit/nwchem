@@ -37,6 +37,34 @@
        logical cons_hbonds
        external cons_hbonds
 
+       logical cons_hbondings
+       external cons_hbondings
+
+       integer  cons_get_i_hbondings_n0
+       external cons_get_i_hbondings_n0
+       integer  cons_get_h_hbondings_n0
+       external cons_get_h_hbondings_n0
+
+       integer  cons_get_i_hbondings_indx
+       external cons_get_i_hbondings_indx
+       integer  cons_get_h_hbondings_indx
+       external cons_get_h_hbondings_indx
+
+       integer  cons_get_i_hbondings_coef
+       external cons_get_i_hbondings_coef
+       integer  cons_get_h_hbondings_coef
+       external cons_get_h_hbondings_coef
+
+       integer  cons_get_i_hbondings_k0
+       external cons_get_i_hbondings_k0
+       integer  cons_get_h_hbondings_k0
+       external cons_get_h_hbondings_k0
+
+       integer  cons_get_i_hbondings_gamma0
+       external cons_get_i_hbondings_gamma0
+       integer  cons_get_h_hbondings_gamma0
+       external cons_get_h_hbondings_gamma0
+
        logical cons_fixed_atoms
        external cons_fixed_atoms
 

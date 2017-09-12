@@ -112,9 +112,14 @@ c
       cons_inquire=rtdb_get(rtdb,tag,mt_int,1,n)
       if(cons_inquire) return
 
+      call cons_hbondings_n_tag(namespace,tag)
+      cons_inquire=rtdb_get(rtdb,tag,mt_int,1,n)
+      if(cons_inquire) return
+
       call cons_hdihed_n_tag(namespace,tag)
       cons_inquire=rtdb_get(rtdb,tag,mt_int,1,n)
       if(cons_inquire) return
+
       
       return
       end
@@ -443,6 +448,172 @@ c
 
       end
 
+*     ************************************
+*     *                                  *
+*     *      cons_add_bondings           *
+*     *                                  *
+*     ************************************
+
+      subroutine cons_add_bondings(namespace,n,indx,coef,K0,gamma0,rtdb)
+      implicit none
+      character*(*) namespace
+      integer n,indx(*)
+      double precision coef(*),K0,gamma0
+      integer rtdb
+
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+c     
+      logical status
+      integer i
+      integer nhc0,mm
+      integer nhc
+      integer h_tmp_n0,i_tmp_n0
+      integer h_tmp_indx,i_tmp_indx
+      integer h_tmp_coef,i_tmp_coef
+      integer h_tmp_k0,i_tmp_k0
+      integer h_tmp_gamma0,i_tmp_gamma0
+      character*255 tag_n
+      character*255 tag_n0
+      character*255 tag_indx
+      character*255 tag_coef
+      character*255 tag_k0
+      character*255 tag_gamma0
+
+      call cons_hbondings_n_tag(namespace,tag_n)
+      call cons_hbondings_n0_tag(namespace,tag_n0)
+      call cons_hbondings_indx_tag(namespace,tag_indx)
+      call cons_hbondings_coef_tag(namespace,tag_coef)
+      call cons_hbondings_k0_tag(namespace,tag_k0)
+      call cons_hbondings_gamma0_tag(namespace,tag_gamma0)
+
+
+      if(.not.rtdb_get(rtdb,tag_n,mt_int,1,nhc0)) then
+         nhc0 = 0
+      end if
+      nhc = nhc0 + 1
+      mm = 0
+
+      if(nhc0.eq.0) then
+         if (.not. ma_push_get( MT_INT, nhc, 'h_tmp_n0',
+     &      h_tmp_n0, i_tmp_n0) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nhc, MA_ERR)
+         if (.not. ma_push_get( MT_INT, nhc*2*n, 'h_tmp_indx',
+     &      h_tmp_indx, i_tmp_indx) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nhc*2*n, MA_ERR)
+         if (.not. ma_push_get( MT_DBL, nhc*n, 'h_tmp_coef',
+     &      h_tmp_coef, i_tmp_coef) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nhc*n, MA_ERR)
+         if (.not. ma_push_get( MT_DBL, nhc, 'h_tmp_k0',
+     &      h_tmp_k0, i_tmp_k0) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nhc, MA_ERR)
+         if (.not. ma_push_get( MT_DBL, nhc, 'h_tmp_gamma0',
+     &      h_tmp_gamma0, i_tmp_gamma0) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nhc, MA_ERR)
+
+      else
+         if ( .not. ma_push_get( MT_INT, nhc, 'h_tmp_n0',
+     &      h_tmp_n0, i_tmp_n0) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nhc, MA_ERR)
+         status = rtdb_get(rtdb,tag_n0,mt_int,nhc0,int_mb(i_tmp_n0))
+         mm = 0
+         do i=1,nhc0
+            mm = mm + int_mb(i_tmp_n0+i-1)
+         end do
+         if ( .not. ma_push_get( MT_INT, 2*(mm+n), 'h_tmp_indx',
+     &      h_tmp_indx, i_tmp_indx) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      2*(mm+n), MA_ERR)
+         if ( .not. ma_push_get( MT_DBL, (mm+n), 'h_tmp_indx',
+     &      h_tmp_coef, i_tmp_coef) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      (mm+n), MA_ERR)
+         if ( .not. ma_push_get( MT_DBL, nhc, 'h_tmp_k0',
+     &      h_tmp_k0, i_tmp_k0) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nhc, MA_ERR)
+         if ( .not. ma_push_get( MT_DBL, nhc, 'h_tmp_gamma0',
+     &      h_tmp_gamma0, i_tmp_gamma0) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nhc, MA_ERR)
+
+         status = status . and. rtdb_get(rtdb,tag_indx,
+     >     mt_int,2*mm,int_mb(i_tmp_indx))
+         status = status . and. rtdb_get(rtdb,tag_coef,
+     >     mt_dbl,mm,dbl_mb(i_tmp_coef))
+         status = status . and. rtdb_get(rtdb,tag_k0,
+     >     mt_dbl,nhc0,dbl_mb(i_tmp_k0))
+         status = status . and. rtdb_get(rtdb,tag_gamma0,
+     >     mt_dbl,nhc0,dbl_mb(i_tmp_gamma0))
+         if(.not.status) call errquit(
+     >     'cons_add_spring: unable to get prior harm bondings',
+     >      nhc, MA_ERR)
+
+         status =              rtdb_delete(rtdb,tag_n)
+         status = status .and. rtdb_delete(rtdb,tag_n0)
+         status = status .and. rtdb_delete(rtdb,tag_indx)
+         status = status .and. rtdb_delete(rtdb,tag_coef)
+         status = status .and. rtdb_delete(rtdb,tag_k0)
+         status = status .and. rtdb_delete(rtdb,tag_gamma0)
+         if(.not.status) call errquit(
+     >     'cons_add_spring: unable to delete prior harm bondingss',
+     >      0, MA_ERR)
+      end if
+
+      int_mb(i_tmp_n0+nhc-1) = n
+      do i=1,2*n
+         int_mb(i_tmp_indx+2*mm+i-1) = indx(i)
+      end do
+      do i=1,n
+         dbl_mb(i_tmp_coef+mm+i-1) = coef(i)
+      end do
+      dbl_mb(i_tmp_k0+nhc-1) = K0
+      dbl_mb(i_tmp_gamma0+nhc-1) = gamma0
+
+       status = rtdb_put(rtdb,tag_n,mt_int,1,nhc)
+       status = status.and. rtdb_put(rtdb,tag_n0,
+     >     mt_int,nhc,int_mb(i_tmp_n0))
+       status = status.and. rtdb_put(rtdb,tag_indx,
+     >     mt_int,2*(mm+n),int_mb(i_tmp_indx))
+       status = status.and. rtdb_put(rtdb,tag_coef,
+     >     mt_dbl,(mm+n),dbl_mb(i_tmp_coef))
+       status = status.and. rtdb_put(rtdb,tag_k0,
+     >     mt_dbl,nhc,dbl_mb(i_tmp_k0))
+       status = status.and. rtdb_put(rtdb,tag_gamma0,
+     >     mt_dbl,nhc,dbl_mb(i_tmp_gamma0))
+
+       if(.not.status) call errquit(
+     >     'cons_add_spring: unable to get prior harm bondings',
+     >      nhc, MA_ERR)
+
+      if (.not. ma_pop_stack(h_tmp_gamma0) ) call errquit(
+     &    'cons_add_spring: unable to free h_tmp_gamma0',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_k0) ) call errquit(
+     &    'cons_add_spring: unable to free h_tmp_k0',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_coef) ) call errquit(
+     &    'cons_add_spring: unable to free h_tmp_coef',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_indx) ) call errquit(
+     &    'cons_add_spring: unable to free h_tmp_indx',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_n0) ) call errquit(
+     &    'cons_add_spring: unable to free h_tmp_n0',
+     &    0, MA_ERR)
+
+      return
+      end
+
       subroutine cons_unfix_atoms(namespace,nat,id,rtdb)
       implicit none
 #include "errquit.fh"
@@ -661,6 +832,133 @@ c
      &    0, MA_ERR)
       end
 
+
+      subroutine cons_info_bondings(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c
+      character*(*) namespace
+      integer rtdb
+c     
+      logical status
+      integer i,ii,mm,j,n
+      integer nhc
+      integer h_tmp_n0,i_tmp_n0
+      integer h_tmp_indx,i_tmp_indx
+      integer h_tmp_coef,i_tmp_coef
+      integer h_tmp_k0,i_tmp_k0
+      integer h_tmp_gamma0,i_tmp_gamma0
+      double precision K0, gamma0
+      character*255 tag_n
+      character*255 tag_n0
+      character*255 tag_indx
+      character*255 tag_coef
+      character*255 tag_k0
+      character*255 tag_gamma0
+
+      call cons_hbondings_n_tag(namespace,tag_n)
+      call cons_hbondings_n0_tag(namespace,tag_n0)
+      call cons_hbondings_indx_tag(namespace,tag_indx)
+      call cons_hbondings_coef_tag(namespace,tag_coef)
+      call cons_hbondings_k0_tag(namespace,tag_k0)
+      call cons_hbondings_gamma0_tag(namespace,tag_gamma0)
+
+
+      if(.not.rtdb_get(rtdb,tag_n,mt_int,1,nhc)) then
+         nhc = 0
+      end if
+
+      if (nhc .eq. 0 ) then
+         if(ga_nodeid().eq.0)
+     >     write(*,*) "no bondings springs found"
+         return
+      end if
+
+      if ( .not. ma_push_get( MT_INT, nhc, 'h_tmp_n0',
+     &      h_tmp_n0, i_tmp_n0) ) call errquit(
+     &      'cons_info_bondings: unable to allocate scratch space',
+     &      nhc, MA_ERR)
+      status = rtdb_get(rtdb,tag_n0,mt_int,nhc,int_mb(i_tmp_n0))
+      if(.not.status) call errquit(
+     >     'cons_info_bondings: unable to get n0',
+     >      nhc, MA_ERR)
+      mm = 0
+      do i=1,nhc
+         mm = mm + int_mb(i_tmp_n0+i-1)
+      end do
+      if ( .not. ma_push_get( MT_INT, 2*mm, 'h_tmp_indx',
+     &      h_tmp_indx, i_tmp_indx) ) call errquit(
+     &      'cons_info_bondings: unable to allocate scratch space',
+     &      mm, MA_ERR)
+      if ( .not. ma_push_get( MT_DBL, mm, 'h_tmp_coef',
+     &      h_tmp_coef, i_tmp_coef) ) call errquit(
+     &      'cons_info_bondings: unable to allocate scratch space',
+     &      mm, MA_ERR)
+
+      if ( .not. ma_push_get( MT_DBL, nhc, 'h_tmp_k0',
+     &      h_tmp_k0, i_tmp_k0) ) call errquit(
+     &      'cons_info_bondings: unable to allocate scratch space',
+     &      nhc, MA_ERR)
+
+      if ( .not. ma_push_get( MT_DBL, nhc, 'h_tmp_gamma0',
+     &      h_tmp_gamma0, i_tmp_gamma0) ) call errquit(
+     &      'cons_info_bondings: unable to allocate scratch space',
+     &      nhc, MA_ERR)
+
+      status = rtdb_get(rtdb,tag_indx,mt_int,2*mm,int_mb(i_tmp_indx))
+      status = status.and.
+     >         rtdb_get(rtdb,tag_coef,mt_dbl,mm,dbl_mb(i_tmp_coef))
+      status = status.and.
+     >         rtdb_get(rtdb,tag_k0,mt_dbl,nhc,dbl_mb(i_tmp_k0))
+      status = status.and.
+     >         rtdb_get(rtdb,tag_gamma0,mt_dbl,nhc,dbl_mb(i_tmp_gamma0))
+      if(.not.status) call errquit(
+     >     'cons_info_bondings: unable to get prior harm bondings',
+     >      nhc, MA_ERR)
+     
+      if(ga_nodeid().eq.0) then
+         ii = 0
+         do i=1,nhc
+            n      = int_mb(i_tmp_n0+i-1)
+            K0     = dbl_mb(i_tmp_k0+i-1)
+            gamma0 = dbl_mb(i_tmp_gamma0+i-1)
+            write(6,*)"  bondings spring (K0,gamma0,...):",K0,gamma0,
+     >            (dbl_mb(i_tmp_coef+ii+j-1),
+     >             int_mb(i_tmp_indx+2*ii+2*(j-1)),
+     >             int_mb(i_tmp_indx+2*ii+2*(j-1)+1),j=1,n)
+            ii = ii + n
+         end do
+      end if
+
+      if (.not. ma_pop_stack(h_tmp_gamma0) ) call errquit(
+     &    'cons_info_bondings: unable to free h_tmp_gamma0',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_k0) ) call errquit(
+     &    'cons_info_bondings: unable to free h_tmp_k0',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_coef) ) call errquit(
+     &    'cons_info_bondings: unable to free h_tmp_coef',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_indx) ) call errquit(
+     &    'cons_info_bondings: unable to free h_tmp_indx',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_n0) ) call errquit(
+     &    'cons_info_bondings: unable to free h_tmp_n0',
+     &    0, MA_ERR)
+      end
+
+
+
+
+
+
+
+
       subroutine cons_info_dihed(namespace,rtdb)
       implicit none
 #include "errquit.fh"
@@ -699,7 +997,7 @@ c
        
       if (nc .eq. 0 ) then
          if(ga_nodeid().eq.0)    
-     >     write(*,*) "no springs found"
+     >     write(*,*) "no dihedral springs found"
          return
       end if
 
@@ -767,6 +1065,7 @@ c
 
       call cons_info_fixed_atoms(namespace,rtdb)
       call cons_info_springs(namespace,rtdb)
+      call cons_info_bondings(namespace,rtdb)
       call cons_info_dihed(namespace,rtdb)
 
       end
@@ -822,6 +1121,34 @@ c
 
       return
       end
+
+
+      logical function cons_hbondings(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+c     
+      character*(*) namespace
+      integer rtdb
+c
+      integer nhb
+      character*255 tag_n
+
+      call cons_hbondings_n_tag(namespace,tag_n)
+
+      if(.not.rtdb_get(rtdb,tag_n,mt_int,1,nhb)) nhb=0
+      
+      if(nhb.eq.0) then
+        cons_hbondings=.false.
+      else
+        cons_hbondings=.true.
+      end if
+
+      return
+      end
+
+
 
       function cons_hdihed(namespace,rtdb)
       implicit none

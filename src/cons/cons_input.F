@@ -18,12 +18,15 @@ c
       integer nfp
       logical status
       integer id(4)
-      double precision k,r
+      double precision k,r,K0,gamma0,coef(20)
+      integer n,indx(20)
 c
       logical cons_harm_bond_input
       external cons_harm_bond_input
       logical cons_harm_dihed_input
       external cons_harm_dihed_input
+      logical  cons_harm_bondings_input
+      external cons_harm_bondings_input
       logical cons_active
       external cons_active
 
@@ -130,16 +133,20 @@ c     ----------------------------
            if(cons_harm_bond_input(id(1),id(2),k,r)) then 
              call cons_add_spring(namespace,id(1),id(2),k,r,rtdb)
            else
-             call errquit('cons_input: failed harm bond input', 0,
-     >        0)
+             call errquit('cons_input: failed harm bond input',0,0)
            end if
          else if (inp_compare(.false.,'dihedral', test)) then
            write(*,*) "found dihedral"
            if(cons_harm_dihed_input(id,k,r)) then 
              call cons_add_dihed(namespace,id,k,r,rtdb)
            else
-             call errquit('cons_input: failed harm dihedral input', 0,
-     >        0)
+             call errquit('cons_input: failed harm dihedral input',0,0)
+           end if
+         else if (inp_compare(.false.,'bondings', test)) then
+           if(cons_harm_bondings_input(n,indx,coef,K0,gamma0)) then
+            call cons_add_bondings(namespace,n,indx,coef,K0,gamma0,rtdb)
+           else
+            call errquit('cons_input: failed harm bondings input',0,0)
            end if
          end if
 c 
@@ -160,6 +167,8 @@ c
         
       call cons_info_fixed_atoms(namespace,rtdb)
       call cons_info_springs(namespace,rtdb)
+      call cons_info_bondings(namespace,rtdb)
+      call cons_info_dihed(namespace,rtdb)
       return
       end
 c
@@ -268,4 +277,53 @@ c     do some checks
       cons_harm_bond_input = .true.
       return
       end
+
+
+*     ****************************************
+*     *                                      *
+*     *       cons_harm_bondings_input       *
+*     *                                      *
+*     ****************************************
+*
+* bondings K0 gamma0 -1.0 1 2 1.0 2 3
+*
+      logical function cons_harm_bondings_input(n,indx,coef,K0,gamma0)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+c     
+      logical ok
+      integer n,indx(*)
+      double precision coef(*),K0,gamma0
+
+      integer itest
+      double precision ftest
+
+      ok = .true.
+
+      !*** enter K0 and gamma0 ***
+      if (.not.inp_f(ftest)) ok = .false.
+      K0 = ftest
+      if (ok.and.(.not.inp_f(ftest))) ok = .false.
+      gamma0 = ftest
+
+      !*** coef and indx ***
+      n = 0
+      do while (ok.and.inp_f(ftest))
+         coef(n+1) = ftest
+         if(ok.and.(.not.inp_i(itest))) ok = .false.
+         indx(2*n+1) = itest
+         if(ok.and.(.not.inp_i(itest))) ok = .false.
+         indx(2*n+2) = itest
+         n = n + 1
+      end do
+      if (n.eq.0) ok = .false.
+
+      cons_harm_bondings_input = ok
+      return
+      end
+
 

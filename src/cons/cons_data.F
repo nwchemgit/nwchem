@@ -276,4 +276,198 @@ c      cons_get_i_c = i_c
       return
       end
 
+      integer function cons_get_h_hbondings_n0()
+      implicit none
+#include "cons_data.fh"
+      cons_get_h_hbondings_n0 = h_hbondings_n0
+      return
+      end
+
+      integer function cons_get_i_hbondings_n0()
+      implicit none
+#include "mafdecls.fh"
+#include "cons_data.fh"
+#include "errquit.fh"
+      if(.not. ma_get_index(h_hbondings_n0,cons_get_i_hbondings_n0))
+     >    call errquit('cons_data: unable to get i_hbondings_n0',
+     >      h_hbondings_n0, RTDB_ERR)
+      return
+      end
+
+
+      integer function cons_get_h_hbondings_indx()
+      implicit none
+#include "cons_data.fh"
+      cons_get_h_hbondings_indx = h_hbondings_indx
+      return
+      end
+
+      integer function cons_get_i_hbondings_indx()
+      implicit none
+#include "mafdecls.fh"
+#include "cons_data.fh"
+#include "errquit.fh"
+      if(.not. ma_get_index(h_hbondings_indx,cons_get_i_hbondings_indx))
+     >    call errquit('cons_data: unable to get i_hbondings_indx',
+     >      h_hbondings_indx, RTDB_ERR)
+      return
+      end
+
+      integer function cons_get_h_hbondings_coef()
+      implicit none
+#include "cons_data.fh"
+      cons_get_h_hbondings_coef = h_hbondings_coef
+      return
+      end
+
+      integer function cons_get_i_hbondings_coef()
+      implicit none
+#include "mafdecls.fh"
+#include "cons_data.fh"
+#include "errquit.fh"
+      if(.not. ma_get_index(h_hbondings_coef,cons_get_i_hbondings_coef))
+     >    call errquit('cons_data: unable to get i_hbondings_coef',
+     >      h_hbondings_coef, RTDB_ERR)
+      return
+      end
+
+      integer function cons_get_h_hbondings_k0()
+      implicit none
+#include "cons_data.fh"
+      cons_get_h_hbondings_k0 = h_hbondings_k0
+      return
+      end
+
+      integer function cons_get_i_hbondings_k0()
+      implicit none
+#include "mafdecls.fh"
+#include "cons_data.fh"
+#include "errquit.fh"
+      if(.not. ma_get_index(h_hbondings_k0,cons_get_i_hbondings_k0))
+     >    call errquit('cons_data: unable to get i_hbondings_k0',
+     >      h_hbondings_k0, RTDB_ERR)
+      return
+      end
+
+      integer function cons_get_h_hbondings_gamma0()
+      implicit none
+#include "cons_data.fh"
+      cons_get_h_hbondings_gamma0 = h_hbondings_gamma0
+      return
+      end
+
+      integer function cons_get_i_hbondings_gamma0()
+      implicit none
+#include "mafdecls.fh"
+#include "cons_data.fh"
+#include "errquit.fh"
+      if(.not. ma_get_index(h_hbondings_gamma0,
+     >                      cons_get_i_hbondings_gamma0))
+     >    call errquit('cons_data: unable to get i_hbondings_gamma0',
+     >      h_hbondings_gamma0, RTDB_ERR)
+      return
+      end
+
+      subroutine cons_set_hbondings_nhc(n)
+      implicit none
+#include "cons_data.fh"
+      integer n
+      nhc=n
+      return
+      end
+
+      subroutine cons_get_hbondings_nhc(n)
+      implicit none
+#include "cons_data.fh"
+      integer n
+      n=nhc
+      return
+      end
+
+      subroutine cons_set_hbondings_n0(n)
+      implicit none
+#include "cons_data.fh"
+      integer n
+      h_hbondings_n0=n
+      return
+      end
+
+      subroutine cons_get_hbondings_n0(n)
+      implicit none
+#include "cons_data.fh"
+      integer n
+      n=h_hbondings_n0
+      return
+      end
+
+      subroutine cons_set_hbondings_indx(n)
+      implicit none
+#include "cons_data.fh"
+      integer n
+      h_hbondings_indx=n
+      return
+      end
+
+      subroutine cons_get_hbondings_indx(n)
+      implicit none
+#include "cons_data.fh"
+      integer n
+      n=h_hbondings_indx
+      return
+      end
+
+
+      subroutine cons_set_hbondings_coef(n)
+      implicit none
+#include "cons_data.fh"
+      integer n
+      h_hbondings_coef=n
+      return
+      end
+
+      subroutine cons_get_hbondings_coef(n)
+      implicit none
+#include "cons_data.fh"
+      integer n
+      n=h_hbondings_coef
+      return
+      end
+
+      subroutine cons_set_hbondings_k0(n)
+      implicit none
+#include "cons_data.fh"
+      integer n
+      h_hbondings_k0=n
+      return
+      end
+
+      subroutine cons_get_hbondings_k0(n)
+      implicit none
+#include "cons_data.fh"
+      integer n
+      n=h_hbondings_k0
+      return
+      end
+
+
+      subroutine cons_set_hbondings_gamma0(n)
+      implicit none
+#include "cons_data.fh"
+      integer n
+      h_hbondings_gamma0=n
+      return
+      end
+
+      subroutine cons_get_hbondings_gamma0(n)
+      implicit none
+#include "cons_data.fh"
+      integer n
+      n=h_hbondings_gamma0
+      return
+      end
+
+
+
+
+
 
