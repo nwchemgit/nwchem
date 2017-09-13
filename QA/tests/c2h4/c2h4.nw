@@ -5,7 +5,7 @@ start c2h4_dat
 
 echo
 
-memory stack 500 mb heap 100 mb global 1400 mb noverify
+#memory stack 500 mb heap 100 mb global 1400 mb noverify
 
 # C1  symmetry: total energy is -77.891420365233
 # C2v symmetry: total energy is -77.862506448702
@@ -36,6 +36,7 @@ end
 
 scf
   singlet
+  vectors input atomic swap 10 8
   rhf
   thresh 1e-10
   print "final vectors analysis"
@@ -55,6 +56,8 @@ dft
   cgmin
   xc hfexch
   mult 1
+  vectors input atomic swap 10 8
+  convergence energy 1d-10
   print "final vectors analysis"
 end
 
