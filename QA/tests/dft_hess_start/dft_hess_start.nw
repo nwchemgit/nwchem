@@ -1,0 +1,19 @@
+echo
+
+start rest
+
+geometry units au
+ O  0.00000000     0.00000000     0.20754950
+ H -1.51015507     0.00000000    -0.87899878
+ H  1.51015507     0.00000000    -0.87899878
+end
+
+basis 
+ * library 6-31g
+end
+
+dft;convergence energy 1d-11;grid xfine;end
+
+task dft freq
+
+

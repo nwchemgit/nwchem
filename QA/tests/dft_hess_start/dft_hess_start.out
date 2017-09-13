@@ -1,15 +1,29 @@
- argument  1 = /home/edo/park/nwchem-6.8/QA/tests/dft_hess_rest/dft_hess_rest.nw
+ argument  1 = /home/edo/park/nwchem-6.8/QA/tests/dft_hess_start/dft_hess_start.nw
  
 
 
 ============================== echo of input deck ==============================
 echo
 
-restart rest
+start rest
 
 permanent_dir /tmp
 
+geometry units au
+ O  0.00000000     0.00000000     0.20754950
+ H -1.51015507     0.00000000    -0.87899878
+ H  1.51015507     0.00000000    -0.87899878
+end
+
+basis
+ * library 6-31g
+end
+
+dft;convergence energy 1d-11;grid xfine;end
+
 task dft freq
+
+
 ================================================================================
 
 
@@ -52,17 +66,17 @@ task dft freq
 
     hostname        = lagrange
     program         = /home/edo/park/nwchem-6.8/bin/LINUX64/nwchem
-    date            = Wed Sep 13 14:10:55 2017
+    date            = Wed Sep 13 14:10:53 2017
 
     compiled        = Wed_Sep_13_11:12:04_2017
     source          = /home/edo/park/nwchem-6.8
     nwchem branch   = 6.8
     nwchem revision = 29434
     ga revision     = N/A
-    input           = /home/edo/park/nwchem-6.8/QA/tests/dft_hess_rest/dft_hess_rest.nw
+    input           = /home/edo/park/nwchem-6.8/QA/tests/dft_hess_start/dft_hess_start.nw
     prefix          = rest.
     data base       = /tmp/rest.db
-    status          = restart
+    status          = startup
     nproc           =        3
     time left       =     -1s
 
@@ -86,43 +100,115 @@ task dft freq
   0 scratch   = .
  
  
-           Previous task information
-           -------------------------
-
-    Theory    = dft                             
-    Operation = freq                          
-    Status    = ok                            
-    Qmmm      = F
-    Ignore    = F
-
- 
-           Geometries in the database
-           --------------------------
- 
-       Name                              Natoms  Last Modified
-       --------------------------------  ------  ------------------------
-    1  geometry                               3  Wed Sep 13 14:10:55 2017  
- 
-  The geometry named "geometry" is the default for restart
- 
- 
- 
-           Basis sets in the database
-           --------------------------
- 
-       Name                              Natoms  Last Modified
-        --------------------------------  ------  ------------------------
-    1  ao basis                               0  Wed Sep 13 14:10:53 2017  
- 
-  The basis set named "ao basis" is the default AO basis for restart
- 
- 
  
  
                                 NWChem Input Module
                                 -------------------
  
  
+ C2V symmetry detected
+
+          ------
+          auto-z
+          ------
+  no constraints, skipping   0.000000000000000E+000
+  no constraints, skipping   0.000000000000000E+000
+ 
+ 
+                             Geometry "geometry" -> ""
+                             -------------------------
+ 
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000     0.00000000     0.00000000     0.21730966
+    2 H                    1.0000    -1.51015507     0.00000000    -0.86923862
+    3 H                    1.0000     1.51015507     0.00000000    -0.86923862
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      O                 15.994910
+      H                  1.007825
+ 
+
+ Effective nuclear repulsion energy (a.u.)       8.9313091726
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+ 
+      Symmetry information
+      --------------------
+ 
+ Group name             C2v       
+ Group number             16
+ Group order               4
+ No. of unique centers     2
+ 
+      Symmetry unique atoms
+ 
+     1    2
+ 
+
+
+                                Z-matrix (autoz)
+                                -------- 
+
+ Units are Angstrom for bonds and degrees for angles
+ 
+      Type          Name      I     J     K     L     M      Value
+      ----------- --------  ----- ----- ----- ----- ----- ----------
+    1 Stretch                  1     2                       0.98449
+    2 Stretch                  1     3                       0.98449
+    3 Bend                     2     1     3               108.53038
+ 
+ 
+            XYZ format geometry
+            -------------------
+     3
+ geometry
+ O                     0.00000000     0.00000000     0.11499533
+ H                    -0.79913971     0.00000000    -0.45998130
+ H                     0.79913971     0.00000000    -0.45998130
+ 
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |       a.u.
+ ------------------------------------------------------------------------------
+    2 H                |   1 O                |     1.86042  |     1.86042
+    3 H                |   1 O                |     1.86042  |     1.86042
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          2
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    2 H                |   1 O                |   3 H                |   108.53
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          1
+ ==============================================================================
+
+
+
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                           6-31g                    on all atoms 
+
+
  
  
                    NWChem Nuclear Hessian and Frequency Analysis
@@ -133,11 +219,45 @@ task dft freq
                               NWChem Analytic Hessian
                               -----------------------
  
- Restarting calculation
  
                                  NWChem DFT Module
                                  -----------------
  
+ 
+                      Basis "ao basis" -> "ao basis" (cartesian)
+                      -----
+  O (Oxygen)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  5.48467170E+03  0.001831
+  1 S  8.25234950E+02  0.013950
+  1 S  1.88046960E+02  0.068445
+  1 S  5.29645000E+01  0.232714
+  1 S  1.68975700E+01  0.470193
+  1 S  5.79963530E+00  0.358521
+ 
+  2 S  1.55396160E+01 -0.110778
+  2 S  3.59993360E+00 -0.148026
+  2 S  1.01376180E+00  1.130767
+ 
+  3 P  1.55396160E+01  0.070874
+  3 P  3.59993360E+00  0.339753
+  3 P  1.01376180E+00  0.727159
+ 
+  4 S  2.70005800E-01  1.000000
+ 
+  5 P  2.70005800E-01  1.000000
+ 
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.87311370E+01  0.033495
+  1 S  2.82539370E+00  0.234727
+  1 S  6.40121700E-01  0.813757
+ 
+  2 S  1.61277800E-01  1.000000
  
 
 
@@ -149,7 +269,19 @@ task dft freq
  H                           6-31g                   2        2   2s
 
 
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ O                           6-31g                   5        9   3s2p
+ H                           6-31g                   2        2   2s
+
+
   Caching 1-el integrals 
+  tol_rho modified to match energy
+  convergence criterion.
  
             General Information
             -------------------
@@ -210,13 +342,23 @@ task dft freq
           XC Gaussian exp screening on grid/accXCfunc:  20
           Schwarz screening/accCoul:  1.00D-12
 
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:         -75.75081731
+ 
+      Non-variational initial energy
+      ------------------------------
 
- Loading old vectors from job with title :
-
-
-
-   Time after variat. SCF:      0.1
-   Time prior to 1st pass:      0.1
+ Total energy =     -75.862955
+ 1-e energy   =    -121.306760
+ 2-e energy   =      36.512497
+ HOMO         =      -0.460893
+ LUMO         =       0.106695
+ 
+   Time after variat. SCF:      0.2
+   Time prior to 1st pass:      0.2
 
  #quartets = 1.035D+03 #integrals = 2.423D+03 #direct =  0.0% #cached =100.0%
 
@@ -234,7 +376,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
  Max. records in memory =     54        Max. recs in file   =    305657
 
- Grid integrated density:      10.000000013147
+ Grid integrated density:       9.999999991841
  Requested integration accuracy:   0.10E-13
 
            Memory utilization after 1st SCF pass: 
@@ -243,22 +385,39 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -75.8199007075 -8.48D+01  9.80D-11  6.15D-19     0.3
+ d= 0,ls=0.0,diis     1    -75.7815711391 -8.47D+01  7.06D-02  4.29D-01     0.3
+ Grid integrated density:       9.999999972383
+ Requested integration accuracy:   0.10E-13
+ d= 0,ls=0.0,diis     2    -75.7366578370  4.49D-02  4.44D-02  8.70D-01     0.4
+ Grid integrated density:      10.000000013395
+ Requested integration accuracy:   0.10E-13
+ d= 0,ls=0.0,diis     3    -75.8177134120 -8.11D-02  5.05D-03  2.43D-02     0.4
+ Grid integrated density:      10.000000013165
+ Requested integration accuracy:   0.10E-13
+ d= 0,ls=0.0,diis     4    -75.8198896018 -2.18D-03  6.26D-04  8.05D-05     0.5
+ Grid integrated density:      10.000000013146
+ Requested integration accuracy:   0.10E-13
+ d= 0,ls=0.0,diis     5    -75.8199006906 -1.11D-05  1.44D-05  1.54D-07     0.5
  Grid integrated density:      10.000000013147
  Requested integration accuracy:   0.10E-13
-  Singularity in Pulay matrix. Error and Fock matrices removed. 
- d= 0,ls=0.0,diis     2    -75.8199007075  1.42D-14  1.43D-10  1.91D-18     0.4
+ d= 0,ls=0.0,diis     6    -75.8199007072 -1.66D-08  1.69D-06  2.86D-09     0.5
+ Grid integrated density:      10.000000013147
+ Requested integration accuracy:   0.10E-13
+ d= 0,ls=0.0,diis     7    -75.8199007075 -2.49D-10  2.59D-07  3.49D-11     0.6
+ Grid integrated density:      10.000000013147
+ Requested integration accuracy:   0.10E-13
+ d= 0,ls=0.0,diis     8    -75.8199007075 -3.60D-12  1.51D-09  1.24D-16     0.6
 
 
          Total DFT energy =      -75.819900707478
-      One electron energy =     -122.558438744015
-           Coulomb energy =       46.562561040164
-    Exchange-Corr. energy =       -8.755332176275
+      One electron energy =     -122.558438752675
+           Coulomb energy =       46.562561049629
+    Exchange-Corr. energy =       -8.755332177081
  Nuclear repulsion energy =        8.931309172649
 
  Numeric. integr. density =       10.000000013147
 
-     Total iterative time =      0.2s
+     Total iterative time =      0.4s
 
 
  
@@ -266,13 +425,13 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        ------------------------------------
  
  Vector    1  Occ=2.000000D+00  E=-1.859150D+01
-              MO Center=  1.1D-14,  6.7D-17,  1.1D-01, r^2= 1.5D-02
+              MO Center=  4.3D-14,  2.3D-16,  1.1D-01, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.994160  1 O  s                  2      0.033225  1 O  s          
  
  Vector    2  Occ=2.000000D+00  E=-9.052288D-01
-              MO Center=  3.0D-11,  9.4D-15, -1.2D-01, r^2= 5.1D-01
+              MO Center=  1.2D-10,  5.7D-14, -1.2D-01, r^2= 5.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      0.460388  1 O  s                  2      0.453557  1 O  s          
@@ -281,7 +440,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      9     -0.077907  1 O  pz         
  
  Vector    3  Occ=2.000000D+00  E=-4.735327D-01
-              MO Center= -1.4D-11,  2.7D-26, -1.1D-01, r^2= 8.2D-01
+              MO Center= -5.5D-11, -5.1D-25, -1.1D-01, r^2= 8.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.516411  1 O  px                10     -0.257335  2 H  s          
@@ -289,7 +448,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     11     -0.153788  2 H  s                 13      0.153788  3 H  s          
  
  Vector    4  Occ=2.000000D+00  E=-2.856703D-01
-              MO Center=  1.3D-11,  1.7D-14,  2.5D-01, r^2= 6.8D-01
+              MO Center=  5.0D-11,  6.8D-14,  2.5D-01, r^2= 6.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.544363  1 O  pz                 9      0.387223  1 O  pz         
@@ -299,13 +458,13 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      1     -0.092462  1 O  s          
  
  Vector    5  Occ=2.000000D+00  E=-2.266938D-01
-              MO Center=  3.7D-29, -2.6D-14,  1.1D-01, r^2= 6.0D-01
+              MO Center=  7.5D-28, -1.4D-13,  1.1D-01, r^2= 6.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.641036  1 O  py                 8      0.510632  1 O  py         
  
  Vector    6  Occ=0.000000D+00  E= 2.584182D-02
-              MO Center=  1.9D-10,  4.8D-16, -5.5D-01, r^2= 2.3D+00
+              MO Center=  7.6D-10,  2.8D-14, -5.5D-01, r^2= 2.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      1.029721  1 O  s                 11     -0.900345  2 H  s          
@@ -315,7 +474,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      1     -0.091879  1 O  s          
  
  Vector    7  Occ=0.000000D+00  E= 1.125837D-01
-              MO Center= -2.2D-10, -4.1D-26, -5.2D-01, r^2= 2.4D+00
+              MO Center= -8.6D-10, -5.5D-25, -5.2D-01, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      1.196222  2 H  s                 13     -1.196222  3 H  s          
@@ -323,7 +482,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     10      0.118252  2 H  s                 12     -0.118252  3 H  s          
  
  Vector    8  Occ=0.000000D+00  E= 7.854633D-01
-              MO Center=  2.7D-09, -1.6D-23, -2.7D-01, r^2= 1.8D+00
+              MO Center=  1.0D-08, -7.1D-23, -2.7D-01, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      0.969728  2 H  s                 12     -0.969728  3 H  s          
@@ -331,7 +490,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      7      0.343775  1 O  px                 3      0.266113  1 O  px         
  
  Vector    9  Occ=0.000000D+00  E= 7.947844D-01
-              MO Center= -2.6D-09,  2.8D-14, -2.5D-01, r^2= 1.5D+00
+              MO Center= -1.0D-08, -5.0D-14, -2.5D-01, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      0.754359  2 H  s                 12      0.754359  3 H  s          
@@ -341,13 +500,13 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      1      0.033078  1 O  s          
  
  Vector   10  Occ=0.000000D+00  E= 8.291218D-01
-              MO Center= -2.5D-27, -2.6D-14,  1.1D-01, r^2= 1.1D+00
+              MO Center=  1.9D-27,  9.3D-14,  1.1D-01, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8     -1.036968  1 O  py                 4      0.961831  1 O  py         
  
  Vector   11  Occ=0.000000D+00  E= 8.908362D-01
-              MO Center=  3.6D-12, -4.3D-16,  1.5D-01, r^2= 1.3D+00
+              MO Center=  1.4D-11, -1.1D-14,  1.5D-01, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      9      1.129107  1 O  pz                 5     -0.659082  1 O  pz         
@@ -357,7 +516,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      6      0.060837  1 O  s          
  
  Vector   12  Occ=0.000000D+00  E= 1.000657D+00
-              MO Center= -1.7D-11,  1.7D-25,  1.7D-01, r^2= 1.5D+00
+              MO Center= -6.8D-11,  3.8D-26,  1.7D-01, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7      1.735053  1 O  px                 3     -0.953329  1 O  px         
@@ -365,7 +524,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     10      0.130506  2 H  s                 12     -0.130506  3 H  s          
  
  Vector   13  Occ=0.000000D+00  E= 1.345493D+00
-              MO Center= -1.8D-11, -1.8D-15, -2.0D-01, r^2= 1.2D+00
+              MO Center= -6.9D-11, -4.3D-14, -2.0D-01, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      2.685185  1 O  s                  2     -1.676627  1 O  s          
@@ -400,7 +559,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2   1 1 0      0.000000      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000      0.000000
      2   0 2 0     -5.419892     -2.709946     -2.709946      0.000000
-     2   0 1 1     -0.000000     -0.000000     -0.000000      0.000000
+     2   0 1 1      0.000000      0.000000      0.000000      0.000000
      2   0 0 2     -4.682619     -3.285779     -3.285779      1.888939
  
 
@@ -412,7 +571,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  HESSIAN: the one electron contributions are done in       0.0s
 
 
- HESSIAN: 2-el 1st deriv. term done in                     0.1s
+ HESSIAN: 2-el 1st deriv. term done in                     0.0s
 
 
  HESSIAN: 2-el 2nd deriv. term done in                     0.0s
@@ -420,13 +579,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   stpr_wrt_fd_from_sq: overwrite of existing file:/tmp/rest.hess
  stpr_wrt_fd_dipole: overwrite of existing file/tmp/rest.fd_ddipole
 
- HESSIAN: the two electron contributions are done in       0.4s
+ HESSIAN: the two electron contributions are done in       0.3s
 
- Restarting rhs from: 
- /tmp/rest.cphf_rhs                                                             
-                                                                                
-                                                                                
-                    
                                 NWChem CPHF Module
                                 ------------------
  
@@ -455,7 +609,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Grid integrated density:      10.000000013147
  Requested integration accuracy:   0.10E-13
- SCF residual:   3.584515822274572E-009
+ SCF residual:   1.109325444488499E-009
 
 
 Iterative solution of linear equations
@@ -464,17 +618,16 @@ Iterative solution of linear equations
   Maximum subspace       90
         Iterations       50
        Convergence  1.0D-04
-        Start time      1.0
+        Start time      1.1
 
- Restarting solution from: 
- /tmp/rest.cphf_sol                                                             
-                                                                                
-                                                                                
-                   
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1      9    1.03D-06       1.1
+     1      9    5.32D-01       1.2
+     2     18    2.38D-01       1.4
+     3     27    1.38D-03       1.5
+     4     36    1.48D-04       1.6
+     5     45    1.03D-06       1.8
 
  Parallel integral file used       3 records with       0 large values
 
@@ -501,10 +654,10 @@ Iterative solution of linear equations
  d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
  d_dipole_y/<atom=   1,y> =    -0.8897     [   -4.2732]
  d_dipole_y/<atom=   1,z> =    -0.0000     [   -0.0000]
- d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =    -0.0000     [   -0.0000]
  d_dipole_y/<atom=   2,y> =     0.4448     [    2.1366]
  d_dipole_y/<atom=   2,z> =    -0.0000     [   -0.0000]
- d_dipole_y/<atom=   3,x> =    -0.0000     [   -0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
  d_dipole_y/<atom=   3,y> =     0.4448     [    2.1366]
  d_dipole_y/<atom=   3,z> =    -0.0000     [   -0.0000]
   
@@ -552,14 +705,14 @@ Iterative solution of linear equations
                1            2            3            4            5            6            7            8            9
    ----- ----- ----- ----- -----
     1    4.01049D+01
-    2    1.72501D-10  6.39554D-04
-    3   -1.12690D-09 -2.67779D-10  2.10849D+01
-    4   -7.98851D+01 -2.71180D-13 -3.97256D+01  3.46405D+02
-    5   -8.81302D-12 -1.27596D-03  1.37519D-12  1.94522D-11  6.99103D-03
-    6   -5.74759D+01  3.61774D-12 -4.19992D+01  1.93616D+02  1.46457D-11  1.66035D+02
-    7   -7.98851D+01  3.17996D-12  3.97256D+01 -2.81588D+01  1.42393D-12  3.53571D+01  3.46405D+02
-    8    2.73962D-12 -1.27596D-03 -1.38293D-12 -1.66801D-12 -1.90888D-03  2.47683D-12 -1.95111D-11  6.99104D-03
-    9    5.74759D+01 -5.24486D-12 -4.19992D+01 -3.53571D+01  2.25979D-12  1.28140D+00 -1.93616D+02  1.55716D-11  1.66035D+02
+    2    1.82297D-10  6.39548D-04
+    3   -5.81773D-10 -2.60476D-10  2.10849D+01
+    4   -7.98851D+01  4.08754D-13 -3.97256D+01  3.46405D+02
+    5   -9.91593D-12 -1.27595D-03  3.63491D-13  2.14991D-11  6.99098D-03
+    6   -5.74759D+01  2.96458D-12 -4.19992D+01  1.93616D+02  1.68556D-11  1.66035D+02
+    7   -7.98851D+01  2.62682D-12  3.97256D+01 -2.81588D+01  4.87335D-12  3.53571D+01  3.46405D+02
+    8    4.03730D-12 -1.27594D-03 -2.38045D-12 -4.90950D-12 -1.90887D-03  4.23713D-12 -2.21441D-11  6.99096D-03
+    9    5.74759D+01 -6.37541D-12 -4.19992D+01 -3.53571D+01  4.39114D-12  1.28140D+00 -1.93616D+02  1.82437D-11  1.66035D+02
 
 
 
@@ -572,14 +725,14 @@ Iterative solution of linear equations
  
  Frequency         -0.55       -0.16        0.42       12.30       14.45       15.34
  
-           1     0.00169    -0.00000    -0.23562     0.00000     0.04696     0.00000
-           2    -0.00001     0.23563    -0.00000     0.08365     0.00000     0.00000
+           1     0.00170    -0.00000    -0.23562     0.00000     0.04696     0.00000
+           2    -0.00001     0.23563    -0.00000     0.08365     0.00000    -0.00000
            3    -0.23563    -0.00001    -0.00170    -0.00000    -0.00001    -0.00000
            4     0.00171    -0.00000    -0.23565     0.00000    -0.37249     0.00000
            5    -0.00001     0.23563    -0.00000    -0.66377     0.00000     0.70436
            6    -0.23564    -0.00001    -0.00166    -0.00000     0.58297    -0.00000
            7     0.00171    -0.00000    -0.23565     0.00000    -0.37249     0.00000
-           8    -0.00001     0.23563    -0.00000    -0.66377     0.00000    -0.70436
+           8    -0.00001     0.23563    -0.00000    -0.66378     0.00000    -0.70435
            9    -0.23561    -0.00001    -0.00174    -0.00000    -0.58299    -0.00000
 
                     7           8           9
@@ -607,10 +760,10 @@ Iterative solution of linear equations
     3        0.424 ||       0.000               0.000            -0.000
     4       12.297 ||      -0.000               3.194            -0.000
     5       14.447 ||       1.792              -0.000             0.000
-    6       15.335 ||       0.000               0.000             0.000
-    7     1537.658 ||       0.000              -0.000             1.285
-    8     3537.195 ||      -0.000              -0.000             0.353
-    9     3717.881 ||       0.568               0.000             0.000
+    6       15.335 ||       0.000               0.000            -0.000
+    7     1537.658 ||      -0.000              -0.000             1.285
+    8     3537.195 ||      -0.000               0.000             0.353
+    9     3717.881 ||       0.568              -0.000             0.000
  ----------------------------------------------------------------------------
 
 
@@ -639,7 +792,7 @@ Iterative solution of linear equations
         Vibrational analysis via the FX method 
   --- with translations and rotations projected out ---
   --- via the Eckart algorithm                      ---
- Projected Nuclear Hessian trans-rot subspace norm:7.7519D-33
+ Projected Nuclear Hessian trans-rot subspace norm:1.7526D-32
                          (should be close to zero!) 
 
           --------------------------------------------------------
@@ -650,14 +803,14 @@ Iterative solution of linear equations
                1            2            3            4            5            6            7            8            9
    ----- ----- ----- ----- -----
     1    4.01048D+01
-    2   -1.26258D-26  0.00000D+00
-    3    1.24374D-08  5.05032D-26  2.10849D+01
-    4   -7.98848D+01  4.46499D-26 -3.97256D+01  3.46405D+02
-    5   -3.63487D-26 -2.10968D-19  6.44452D-26  7.27944D-26  0.00000D+00
-    6   -5.74767D+01 -5.26565D-26 -4.19992D+01  1.93618D+02 -7.82736D-26  1.66032D+02
-    7   -7.98848D+01  5.69790D-26  3.97256D+01 -2.81593D+01  6.84894D-26  3.53586D+01  3.46405D+02
-    8   -3.57592D-26  0.00000D+00  6.46417D-26  7.24031D-26  0.00000D+00 -7.67081D-26  7.00549D-26  0.00000D+00
-    9    5.74767D+01 -1.31248D-25 -4.19992D+01 -3.53586D+01 -1.78072D-25  1.28476D+00 -1.93618D+02 -1.78464D-25  1.66032D+02
+    2   -3.78774D-26  0.00000D+00
+    3    1.32302D-08  5.05032D-26  2.10849D+01
+    4   -7.98848D+01  3.92959D-26 -3.97256D+01  3.46405D+02
+    5   -3.79205D-26  2.10968D-19  6.28734D-26  7.24031D-26  0.00000D+00
+    6   -5.74767D+01 -5.89438D-26 -4.19992D+01  1.93618D+02 -7.20117D-26  1.66032D+02
+    7   -7.98848D+01  5.65861D-26  3.97256D+01 -2.81593D+01  7.35772D-26  3.53586D+01  3.46405D+02
+    8   -3.77240D-26  0.00000D+00  6.28734D-26  7.59254D-26  0.00000D+00 -7.12290D-26  7.43599D-26  0.00000D+00
+    9    5.74767D+01 -1.06099D-25 -4.19992D+01 -3.53586D+01 -1.79247D-25  1.28476D+00 -1.93618D+02 -1.78464D-25  1.66032D+02
 
  center of mass
  --------------
@@ -702,17 +855,17 @@ Iterative solution of linear equations
 
                     1           2           3           4           5           6
  
- P.Frequency       -0.00        0.00        0.00        0.00        0.00        0.00
+ P.Frequency       -0.00       -0.00        0.00        0.00        0.00        0.00
  
-           1    -0.23574     0.00000     0.00000     0.00000    -0.01657     0.04336
-           2     0.00000     0.25004     0.00000     0.00000     0.00000     0.00000
-           3    -0.00000     0.00000     0.00000     0.00000    -0.22011    -0.08412
-           4    -0.23480     0.00000     0.00000     0.00000     0.13318    -0.34845
-           5     0.00000     0.00000     0.99611     0.00000     0.00000     0.00000
-           6    -0.00130     0.00000     0.00000     0.00000    -0.42823     0.46044
-           7    -0.23480     0.00000     0.00000     0.00000     0.13318    -0.34845
-           8     0.00000     0.00000     0.00000     0.99611     0.00000     0.00000
-           9     0.00130     0.00000     0.00000     0.00000    -0.01198    -0.62869
+           1     0.04336    -0.23574     0.00000     0.00000     0.00000    -0.01657
+           2     0.00000     0.00000     0.25004     0.00000     0.00000     0.00000
+           3    -0.08412    -0.00000     0.00000     0.00000     0.00000    -0.22011
+           4    -0.34845    -0.23480     0.00000     0.00000     0.00000     0.13318
+           5     0.00000     0.00000     0.00000     0.99611     0.00000     0.00000
+           6     0.46044    -0.00130     0.00000     0.00000     0.00000    -0.42823
+           7    -0.34845    -0.23480     0.00000     0.00000     0.00000     0.13318
+           8     0.00000     0.00000     0.00000     0.00000     0.99611     0.00000
+           9    -0.62869     0.00130     0.00000     0.00000     0.00000    -0.01198
 
                     7           8           9
  
@@ -734,15 +887,15 @@ Iterative solution of linear equations
  Normal Eigenvalue ||    Projected Derivative Dipole Moments (debye/angs)
   Mode   [cm**-1]  ||      [d/dqX]             [d/dqY]           [d/dqZ]
  ------ ---------- || ------------------ ------------------ -----------------
-    1       -0.000 ||       0.004              -0.000             0.000
-    2        0.000 ||       0.000              -1.068            -0.000
-    3        0.000 ||      -0.000               2.128            -0.000
+    1       -0.000 ||       1.674              -0.000             0.000
+    2       -0.000 ||       0.004              -0.000             0.000
+    3        0.000 ||       0.000              -1.068            -0.000
     4        0.000 ||      -0.000               2.128            -0.000
-    5        0.000 ||       0.640               0.000            -0.000
-    6        0.000 ||       1.674              -0.000             0.000
-    7     1537.658 ||       0.000              -0.000             1.285
-    8     3537.195 ||      -0.000              -0.000             0.353
-    9     3717.881 ||       0.568               0.000             0.000
+    5        0.000 ||      -0.000               2.128            -0.000
+    6        0.000 ||       0.640               0.000            -0.000
+    7     1537.658 ||      -0.000              -0.000             1.285
+    8     3537.195 ||      -0.000               0.000             0.353
+    9     3717.881 ||       0.568              -0.000             0.000
  ----------------------------------------------------------------------------
 
 
@@ -753,12 +906,12 @@ Iterative solution of linear equations
  Normal Eigenvalue ||           Projected Infra Red Intensities
   Mode   [cm**-1]  || [atomic units] [(debye/angs)**2] [(KM/mol)] [arbitrary]
  ------ ---------- || -------------- ----------------- ---------- -----------
-    1       -0.000 ||    0.000001           0.000         0.001       0.000
-    2        0.000 ||    0.049483           1.142        48.239       6.623
-    3        0.000 ||    0.196334           4.530       191.396      26.280
+    1       -0.000 ||    0.121505           2.803       118.449      16.264
+    2       -0.000 ||    0.000001           0.000         0.001       0.000
+    3        0.000 ||    0.049483           1.142        48.239       6.623
     4        0.000 ||    0.196334           4.530       191.396      26.280
-    5        0.000 ||    0.017748           0.409        17.302       2.376
-    6        0.000 ||    0.121505           2.803       118.449      16.264
+    5        0.000 ||    0.196334           4.530       191.396      26.280
+    6        0.000 ||    0.017748           0.409        17.302       2.376
     7     1537.658 ||    0.071588           1.652        69.788       9.582
     8     3537.195 ||    0.005414           0.125         5.278       0.725
     9     3717.881 ||    0.013975           0.322        13.623       1.871
@@ -768,7 +921,7 @@ Iterative solution of linear equations
 
  vib:animation  F
 
- Task  times  cpu:        0.8s     wall:        1.1s
+ Task  times  cpu:        1.5s     wall:        1.7s
  
  
                                 NWChem Input Module
@@ -785,10 +938,10 @@ Iterative solution of linear equations
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  366      366     1.07e+04 1396     1.18e+04   74        0      238     
-number of processes/call 1.11e+00 1.84e+00 1.28e+00 0.00e+00 0.00e+00
-bytes total:             2.09e+06 3.01e+05 2.15e+06 0.00e+00 0.00e+00 1.90e+03
-bytes remote:            8.98e+04 6.85e+04 1.09e+06 -3.20e+02 0.00e+00 0.00e+00
+calls:  590      590     3.43e+04 2770     2.90e+04  227        0      260     
+number of processes/call 1.08e+00 1.96e+00 1.26e+00 0.00e+00 0.00e+00
+bytes total:             6.46e+06 7.14e+05 4.91e+06 0.00e+00 0.00e+00 2.08e+03
+bytes remote:            2.42e+05 1.51e+05 2.36e+06 -3.20e+02 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 71136 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
@@ -840,4 +993,4 @@ MA usage statistics:
    K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
                                A. T. Wong, Z. Zhang.
 
- Total times  cpu:        0.8s     wall:        1.1s
+ Total times  cpu:        1.6s     wall:        1.8s
