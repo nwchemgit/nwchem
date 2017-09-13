@@ -92,6 +92,9 @@ c
      C         'WARNING: CD fitting not available for cgmin yet'
         if (.not. bas_destroy(cd_basis)) call errquit
      $         ('dftcginfo: basis destroy failed',0, BASIS_ERR)
+      else
+        if (.not. bas_destroy(cd_basis)) call errquit
+     $         ('dftcginfo: basis destroy failed',33, BASIS_ERR)
 
        endif
 c     
