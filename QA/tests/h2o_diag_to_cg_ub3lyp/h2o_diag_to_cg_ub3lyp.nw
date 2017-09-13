@@ -18,7 +18,8 @@ dft
   xc b3lyp
   mult 2
   iterations 2
-  convergence nr 0.0
+  tolerances tight
+  convergence energy 1d-8
 end
 
 task dft ignore
