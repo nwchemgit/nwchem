@@ -19,6 +19,7 @@ dft
  grid xfine
  xc xtpss03 ctpss03
  decomp
+ convergence energy 1d-9
  print low
 end
 task dft optimize 
