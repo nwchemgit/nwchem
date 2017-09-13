@@ -1956,7 +1956,7 @@ echo "BLAS      = " ${BLAS_LIB} " integer-size = " ${BLAS_SIZE}
 echo "LAPACK    = " ${LAPACK_LIB} " integer-size = " ${LAPACK_SIZE}
 echo "SCALAPACK = " ${SCALAPACK_LIB} " integer-size = " ${SCALAPACK_SIZE}
 echo "=== Working out how to proceed ====================="
-if [ ${#SCALAPACK_LIB} -eq 0 ] ; then
+if [[ ( ${#SCALAPACK_LIB} -eq 0 ) || ( ${SCALAPACK_LIB} == " ") ]] ; then
   # No ScaLAPACK found so worry only about BLAS and LAPACK
   echo "No ScaLAPACK found, so no ScaLAPACK will be used"
   if [ ${LAPACK_SIZE} -ne ${BLAS_SIZE} ] ; then
