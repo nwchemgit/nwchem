@@ -1,6 +1,6 @@
 echo
 start metagga_dat
-geometry noautosym
+geometry noautosym noautoz
    li        -0.91515825    -1.07210472    -0.90562941
    h         -0.91591765    -0.90670004     0.88759515
    h         -0.29962839     1.27515914    -0.28845749
