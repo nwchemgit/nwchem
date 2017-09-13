@@ -423,8 +423,10 @@ c
          call output(y, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
       endif
       if(dabssum(nzvar*nzvar, y).lt.1d-12) then
+#ifdef DEBUG
          if(ga_nodeid().eq.0) write(6,*) 
      W        ' no constraints, skipping ',dabssum(nzvar*nzvar,y)
+#endif
          call dfill(nzvar*nzvar,0d0,z,1)
       else
 c
