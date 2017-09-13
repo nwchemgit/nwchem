@@ -285,9 +285,9 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 #                                                    *** Assumes $itok was incremented above
 	    if (! $quiet) {
-		printf "%.4f\n", set_to_digits(@line_tokens[$itok],3);
+		printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	    }
-	    printf FILE_OUTPUT "%.4f\n", set_to_digits(@line_tokens[$itok],3);
+	    printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	}
         if (! $sgroup) {
 	if (/Total/ && /energy/) {
