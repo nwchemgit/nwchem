@@ -2444,6 +2444,10 @@ c
      &     nbf_mo, dbl_mb(k_occ), dbl_mb(k_eval(1)), g_moso))
      &     call errquit('dft_scf_so: movec_write failed', 0, DISK_ERR)
       call ga_sync()
+c
+c     Write out the alpha/beta split eigenvalues
+c
+      call print_evals_ab(nbf_ao, dbl_mb(k_occ), dbl_mb(k_eval(1)))
 c     
 c     Shut down DIIS.
 c     
