@@ -14,9 +14,16 @@ basis "ao basis"
 end
 dft
 xc mpw91
+grid fine
+convergence energy 1d-9
+end
+driver 
+ clear
+ tight
 end
 
 task dft optimize
+dft;grid xfine;end
 task dft freq
 
 
