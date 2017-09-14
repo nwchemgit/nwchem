@@ -1,4 +1,4 @@
-#!/bin/csh -f
+elc
 #
 # $Id$
 #
@@ -341,7 +341,6 @@ endif
 ./runtests.mpi.unix procs $np bf_cis
 ./runtests.mpi.unix procs $np oniom3
 ./runtests.mpi.unix procs $np cytosine_ccsd
-./runtests.mpi.unix procs $np h2o_selci
 echo 'This test requires 16 processors to run quickly'
 ./runtests.mpi.unix procs $np tce_polar_ccsd_big
 ./runtests.mpi.unix procs $np hess_biph
