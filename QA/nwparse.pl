@@ -142,17 +142,17 @@ foreach $filename (@FILES_TO_PARSE) {
 		$indx2 = $indx1 + 1;
 		$indx3 = $indx1 + 2;
 		if (! $quiet) {
-		    printf " %10s %10.4f %10.4f %10.4f\n", 
+		    printf " %10s %10.3f %10.3f %10.3f\n", 
 		           $atoms[$iatom], 
-                           set_to_digits($coords[$indx1],4), 
-                           set_to_digits($coords[$indx2],4), 
-		           set_to_digits($coords[$indx3],4) ;
+                           set_to_digits($coords[$indx1],3), 
+                           set_to_digits($coords[$indx2],3), 
+		           set_to_digits($coords[$indx3],3) ;
 		}
-		printf FILE_OUTPUT " %10s %10.4f %10.4f %10.4f\n", 
+		printf FILE_OUTPUT " %10s %10.3f %10.3f %10.3f\n", 
 		       $atoms[$iatom], 
-                       set_to_digits($coords[$indx1],4), 
-                       set_to_digits($coords[$indx2],4), 
-                       set_to_digits($coords[$indx3],4);
+                       set_to_digits($coords[$indx1],3), 
+                       set_to_digits($coords[$indx2],3), 
+                       set_to_digits($coords[$indx3],3);
 	    }
 #               SSSSSSSSSS FFFFFFFFFF FFFFFFFFFF FFFFFFFFFF
 	    if (! $quiet) {
@@ -164,17 +164,17 @@ foreach $filename (@FILES_TO_PARSE) {
 		$indx2 = $indx1 + 1;
 		$indx3 = $indx1 + 2;
 		if (! $quiet) {
-		    printf " %10s %10.4f %10.4f %10.4f\n", 
+		    printf " %10s %10.3f %10.3f %10.3f\n", 
 		         $atoms[$iatom], 
-		         set_to_digits($grads[$indx1],4), 
-		         set_to_digits($grads[$indx2],4),
-  		         set_to_digits($grads[$indx3],4);
+		         set_to_digits($grads[$indx1],3), 
+		         set_to_digits($grads[$indx2],3),
+  		         set_to_digits($grads[$indx3],3);
 		}
-		printf FILE_OUTPUT " %10s %10.4f %10.4f %10.4f\n", 
+		printf FILE_OUTPUT " %10s %10.3f %10.3f %10.3f\n", 
 		         $atoms[$iatom], 
-		         set_to_digits($grads[$indx1],4), 
-		         set_to_digits($grads[$indx2],4),
-  		         set_to_digits($grads[$indx3],4);
+		         set_to_digits($grads[$indx1],3), 
+		         set_to_digits($grads[$indx2],3),
+  		         set_to_digits($grads[$indx3],3);
 	    }
 	    
 	    @atoms = ();
