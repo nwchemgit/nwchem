@@ -214,7 +214,7 @@ c
       integer ldnmo                 ! size of nmo
       parameter (ldnmo = 2)
       integer nmo(ldnmo)            ! no. of vectors in each set
-      integer i, l_fullocc, k_fullocc, l_fulleval, k_fulleval, g_tmp
+      integer i, l_fullocc, k_fullocc, l_fulleval, k_fulleval, g_tmp(2)
       character*255 title, basis
       integer minchunk              ! for data distirbution in ga
       parameter (minchunk = -1)     ! let ga determine even distrib.
@@ -240,7 +240,7 @@ c
      $   'movecs_gather_so: ma failed', nmo(iset), MA_ERR)
 c
       if ( .not. ga_create( mt_dbl, nbf, nmo(iset), 'full vectors',
-     $   minchunk, minchunk, g_tmp) ) call errquit(
+     $   minchunk, minchunk, g_tmp(iset)) ) call errquit(
      $   'movecs_gather_so: ga_create failed', nbf*nmo(iset) , GA_ERR)
 c
 c     read the full data
@@ -315,14 +315,8 @@ c
 c
       logical converged
 c
-      character*255 evalfile
-      integer uniteval
-c
       logical util_io_unit
       external util_io_unit
-c
-      if(.not.util_io_unit(80,90,uniteval))
-     &  call errquit('movecs_write_so:cannot get free unit', 0,0)
 c
       if (oscfps) call pstat_on(ps_vecio)
       call ga_sync()
@@ -364,7 +358,6 @@ c
       converged = .false.
       if(.not. rtdb_get(rtdb, 'sodft:converged',MT_LOG,1,converged))
      &          converged = .false.
-      call util_file_name('evals',.false.,.false.,evalfile)
 c
       ok = 0
       if (ga_nodeid() .eq. 0) then
@@ -404,19 +397,6 @@ c
      &       MA_ERR)
          close(unitno,err=1002)
          ok = 1
-c
-c        Write out the alpha/beta split eigenvalues after convergence
-c
-         if (converged) then
-           open(uniteval, status='unknown', form='formatted',
-     &         file=evalfile)
-           write(uniteval,*) nbf/2  ! nmo = 2*nbf_ao with two-component
-           write(uniteval,*) 
-           do i = 1,nbf/2
-             write(uniteval,*) i, evals(2*i-1), evals(2*i)
-           end do
-           close(uniteval)
-         end if  ! converged
       endif ! ga_nodeid() = 0
 c
  10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
@@ -934,4 +914,55 @@ c
      $     filename(1:inp_strlen(filename))
       call util_flush(6)
       ok = 0
+      end
+c
+c     Write out the alpha/beta split eigenvalues
+c
+      subroutine print_evals_ab(nbf_ao, occ, evals)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "inp.fh"
+#include "msgids.fh"
+#include "util.fh"
+#include "stdio.fh"
+#include "cscfps.fh"
+c
+      integer nbf_ao                   ! [input] No. of basis functions
+      double precision occ(2*nbf_ao)   ! [input] Occupation numbers 
+      double precision evals(2*nbf_ao) ! [input] Eigenvalues
+c
+      integer i,ok
+      character*255 evalfile
+      integer uniteval
+c
+      logical util_io_unit
+      external util_io_unit
+c
+      call util_file_name('evals',.false.,.false.,evalfile)
+      if(.not.util_io_unit(80,90,uniteval))
+     &  call errquit('print_evals_ab:cannot get free unit', 0,0)
+c
+      call ga_sync()
+      ok = 0
+      if (ga_nodeid() .eq. 0) then
+       open(uniteval, status='unknown', form='formatted',file=evalfile)
+       write(uniteval,*) nbf_ao
+       write(uniteval,*) 
+       do i = 1,nbf_ao
+        write(uniteval,*) i, evals(2*i-1), evals(2*i)
+       end do
+       close(uniteval)
+       ok = 1
+      endif ! ga_nodeid() = 0
+c
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
+c
+      call ga_sync()
+      if (oscfps) call pstat_off(ps_vecio)
+c
+      return
       end
