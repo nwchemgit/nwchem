@@ -54,6 +54,7 @@ nroots 9
 #maxvecs 36
 end
 
+set tddft:ltrials f
 task tddft energy
 
 tddft
