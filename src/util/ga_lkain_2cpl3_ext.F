@@ -209,8 +209,8 @@ c
 #else
       call cphf_fname(filestub,filesoln)
 #endif
-      if (ga_nodeid().eq.0) write(luout,*) "ga_lkain filestub:",filestub
-      if (ga_nodeid().eq.0) write(luout,*) "ga_lkain filesoln:",filesoln
+c      if (ga_nodeid().eq.0) write(luout,*) "ga_lkain filestub:",filestub
+c      if (ga_nodeid().eq.0) write(luout,*) "ga_lkain filesoln:",filesoln
 c
 c     Check if this is a restart
 c
