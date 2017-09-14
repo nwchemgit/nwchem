@@ -164,14 +164,16 @@ c
 c     Zero elfval result array
 c
       call dcopy(max(nder*3,1)*npt,0.0d0,0,elfval,1)
+c     2ndcall to init_1eelec with new npt_pass
+      call int_init_1eelec(maxbuf,maxscr,basis,nder,npt_pass)
 c
 c     alloc scr and buf for ints
 c
-      maxscr=maxbuf_pass
+      maxscr=max(maxbuf_pass,maxscr)
       if(oprint)  then
          write(6,321) ' hnd_elfcon: maxbuf_pass2= ',maxbuf_pass
       endif
-      if (.not. ma_push_get(mt_dbl,maxbuf_pass,'scratch',l_scr,k_scr))
+      if (.not. ma_push_get(mt_dbl,maxscr,'scratch',l_scr,k_scr))
      &    call errquit('hnd_elfcon: ma 2 failed',911,MA_ERR)
       if (.not. ma_push_get(mt_dbl,maxbuf_pass,'int buf',
      L        l_buf,k_buf))
