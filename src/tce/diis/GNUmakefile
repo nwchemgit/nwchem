@@ -14,6 +14,11 @@ LIBRARY = libtce.a
 USES_BLAS = tce_diis.F
             
 LIB_DEFINES = -DDEBUG_PRINT
+
+CCSDT=1
+ifdef CCSDT
+    LIB_DEFINES += -DCCSDT
+endif
 #
 # Possible #defines
 #
