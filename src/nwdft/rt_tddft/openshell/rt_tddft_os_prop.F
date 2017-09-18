@@ -269,9 +269,24 @@ C
 
 C
 C     If we need the eigenvectors of the ground state Fock matrix (for
-C     now only when print MO occupations), diagonalize in MO basis.
-C     Again, pure real.
+C     now only when print MO occupations or dipcontribs), diagonalize 
+C     in MO basis. Again, pure real.
 C
+      if (params%print_dipcontribs) then
+         if (.not. mat_is_purereal (g_zfock_mo(1), params%tol_zero))
+     $        call errquit (pname//
+     $        "initial Fock matrix in MO basis is not pure real", 0, 0)
+
+         if (.not. mat_is_purereal (g_zfock_mo(2), params%tol_zero))
+     $        call errquit (pname//
+     $        "initial Fock matrix in MO basis is not pure real", 0, 0)
+
+         call rt_tddft_movecs_gs (params, g_zfock_mo(1),
+     $        g_movecs_mo_gs(1))
+         call rt_tddft_movecs_gs (params, g_zfock_mo(2),
+     $        g_movecs_mo_gs(2))
+      endif
+
       if (params%print_moocc) then
          if (.not. mat_is_purereal (g_zfock_mo(1), params%tol_zero))
      $        call errquit (pname//
@@ -481,6 +496,14 @@ CXXX  [KAL]: I guess really no need to allocate two moooc arrays...
                call rt_tddft_moocc_print (params,
      $              tt, dbl_mb(imoocc(2)),
      $              "# MO Occupations (beta spin)")
+            endif
+
+CXXX [ASB]: Transition Dipole Contributions 
+            if (params%print_dipcontribs) then
+               call rt_tddft_calc_dip_contribs (params,
+     $              g_movecs_mo_gs(1), g_zdens_ao(1), tt, "ALPHA")
+               call rt_tddft_calc_dip_contribs (params,
+     $              g_movecs_mo_gs(2), g_zdens_ao(2), tt, "BETA")
             endif
 
 

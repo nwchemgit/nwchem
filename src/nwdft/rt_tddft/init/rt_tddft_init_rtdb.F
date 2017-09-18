@@ -125,6 +125,10 @@ c$$$     $     "failed to read nsnapshots from rtdb", 0, RTDB_ERR)
      $     mt_log, 1, params%print_moocc)) call errquit (pname//
      $     "failed to read print_moocc from rtdb", 0, RTDB_ERR)
 
+      if (.not.rtdb_get(params%rtdb, "rt_tddft:print_dipcontribs",
+     $     mt_log, 1, params%print_dipcontribs)) call errquit (pname//
+     $     "failed to read print_dipcontribs from rtdb", 0, RTDB_ERR)
+
       if (.not.rtdb_get(params%rtdb, "rt_tddft:print_energy",
      $     mt_log, 1, params%print_energy)) call errquit (pname//
      $     "failed to read print_energy from rtdb", 0, RTDB_ERR)

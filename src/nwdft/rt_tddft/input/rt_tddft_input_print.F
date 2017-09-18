@@ -30,6 +30,7 @@ C     == Variables ==
       logical print_quad
       logical print_field
       logical print_moocc
+      logical print_dipcontribs
       logical print_energy
       logical print_cputime
       logical print_charge
@@ -42,6 +43,7 @@ C     (zero print options if print directive found)
       print_quad = .false.
       print_field = .false. 
       print_moocc = .false.
+      print_dipcontribs = .false.
       print_energy = .false. 
       print_cputime = .false.
       print_charge = .false.
@@ -67,6 +69,8 @@ C     match, print an error.
             print_field = .true.
          elseif (curr_popt .eq. "moocc") then 
             print_moocc = .true.
+         elseif (curr_popt .eq. "dipcontribs") then 
+            print_dipcontribs = .true.
          elseif (curr_popt .eq. "energy") then 
             print_energy = .true.
          elseif (curr_popt .eq. "cputime") then 
@@ -82,6 +86,7 @@ C     match, print an error.
             print_quad = .true.
             print_field = .true. 
             print_moocc = .true.
+            print_dipcontribs = .true.
             print_energy = .true. 
             print_cputime = .true.
             print_charge = .true.
@@ -92,7 +97,8 @@ C     match, print an error.
             call errquit (pname//
      $           "unknown print option: "//trim(curr_popt)//
      $           ".  Allowed options are: dipole, field, moocc,"//
-     $           " energy, cputime, charge, convergence, s2, *.",
+     $           " energy, cputime, charge, convergence, "//
+     $           "s2, dipcontribs, *.",
      $           0, 0)
          endif
       enddo
@@ -116,6 +122,10 @@ C
      $     mt_log,1,print_moocc))
      $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
 
+      if (.not.rtdb_put(rtdb,'rt_tddft:print_dipcontribs',
+     $     mt_log,1,print_dipcontribs))
+     $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
+
       if (.not.rtdb_put(rtdb,'rt_tddft:print_energy',
      $     mt_log,1,print_energy))
      $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
@@ -134,8 +144,8 @@ C
 
       if (.not.rtdb_put(rtdb,'rt_tddft:print_s2',
      $     mt_log,1,print_s2))
-     $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
-      
+     $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR) 
+     
       end subroutine
       
 c $Id$

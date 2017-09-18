@@ -17,7 +17,8 @@ rt_tddft_zora_scale.o \
 rt_tddft_project.o \
 rt_tddft_zdens_tot_movecs.o \
 rt_tddft_restart.o \
-rt_tddft_mocap.o
+rt_tddft_mocap.o \
+rt_tddft_calc_dip_contribs.o
 
 OBJ_OPTIMIZE = 
 

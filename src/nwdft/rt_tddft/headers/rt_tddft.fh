@@ -223,6 +223,7 @@ C     (which time-dependent system properties to print)
          logical          :: print_quad
          logical          :: print_field
          logical          :: print_moocc
+         logical          :: print_dipcontribs
          logical          :: print_energy
          logical          :: print_cputime
          logical          :: print_charge

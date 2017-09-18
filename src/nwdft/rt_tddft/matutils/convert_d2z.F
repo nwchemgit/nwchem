@@ -32,9 +32,9 @@ C     == Parameters ==
       
 C     == Variables ==
       integer g_ascal, g_bscal
-      integer dim1, dim2, dtype, n
+C      integer dim1, dim2, dtype, n !Not all matrices are n x n XXXASB
+      integer dim1, dim2, dtype, dim1_chk, dim2_chk !XXXASB
 
-      
 C     == Get dims of GAs and check that they are correct types ==
 C
 C     Check the real part (input 1).
@@ -44,16 +44,16 @@ C
       call ga_inquire (g_a, dtype, dim1, dim2)
       if (dtype .ne. mt_dbl) call errquit (pname//
      $     "expecting real-valued GA as second argument", 0, 0)
-      if (dim1 .ne. dim2)
-     $     call errquit (pname//"dim1 must equal dim2")
+C      if (dim1 .ne. dim2) !XXXASB
+C     $     call errquit (pname//"dim1 must equal dim2") !XXXASB
 
       
 C      
-C     The size of all matricies is n x n.
+C     The size of all matricies is n x n. ! Not all matrices are n x n XXXASB
 C
-      n = dim1
-
-      
+C      n = dim1 !XXXASB
+      dim1_chk = dim1 !XXXASB
+      dim2_chk = dim2 !XXXASB
 C     
 C     Check the imaginary part (input 1), and make sure its the
 C     same size as real part.
@@ -63,10 +63,14 @@ C
       call ga_inquire (g_b, dtype, dim1, dim2)
       if (dtype .ne. mt_dbl) call errquit (pname//
      $     "expecting real-valued GA as fourth argument", 0, 0)
-      if (dim1 .ne. dim2)
-     $     call errquit (pname//"dim1 must equal dim2 for arg 2")
-      if (dim1 .ne. n)
-     $     call errquit (pname//"all GAs must have same size", 0, 0)
+C      if (dim1 .ne. dim2) !XXXASB
+C     $     call errquit (pname//"dim1 must equal dim2 for arg 2") !XXXASB
+C      if (dim1 .ne. n) !XXXASB
+C     $     call errquit (pname//"all GAs must have same size", 0, 0) !XXXASB
+      if (dim1 .ne. dim1_chk) ! XXXASB
+     $     call errquit (pname//"all GAs must have same size", 0, 0) !XXXASB
+      if (dim2 .ne. dim2_chk) !XXXASB
+     $     call errquit (pname//"all GAs must have same size", 0, 0) !XXXASB
 
       
 C
@@ -78,10 +82,14 @@ C
 
       if (dtype .ne. mt_dcpl) call errquit (pname//
      $     "expecting complex-valued GA as fifth argument", 0, 0)
-      if (dim1 .ne. dim2)
-     $     call errquit (pname//"dim1 must equal dim2 for arg 3")
-      if (dim1 .ne. n)
-     $     call errquit (pname//"all GAs must have same size", 0, 0)
+C      if (dim1 .ne. dim2) !XXXASB
+C     $     call errquit (pname//"dim1 must equal dim2 for arg 3") !XXXASB
+C      if (dim1 .ne. n) !XXXASB
+C     $     call errquit (pname//"all GAs must have same size", 0, 0) !XXXASB
+      if (dim1 .ne. dim1_chk) !XXXASB
+     $     call errquit (pname//"all GAs must have same size", 0, 0) !XXXASB
+      if (dim2 .ne. dim2_chk) !XXXASB
+     $     call errquit (pname//"all GAs must have same size", 0, 0) !XXXASB
 
 
 C
@@ -108,7 +116,8 @@ C
 C     All GAs are the right data type, shape, and size.  Call the
 C     parallel conversion routine.
 C
-      call convert_d2z_parallel (n, g_ascal, g_bscal, g_z)
+C      call convert_d2z_parallel (n, g_ascal, g_bscal, g_z) !XXXASB
+      call convert_d2z_parallel (dim1, dim2, g_ascal, g_bscal, g_z) !XXXASB
 C      call convert_d2z_serial (n, g_ascal, g_bscal, g_z)
 
       
@@ -181,7 +190,8 @@ C
 C     Driver routine for packing g_z <- (g_a, g_b), note g_a and g_b
 C     were previously scaled.
 C
-      subroutine convert_d2z_parallel (n, g_a, g_b, g_z)
+C      subroutine convert_d2z_parallel (n, g_a, g_b, g_z) !XXXASB
+      subroutine convert_d2z_parallel (n1, n2, g_a, g_b, g_z) !XXXASB
       implicit none
 
 #include "errquit.fh"
@@ -192,7 +202,8 @@ C
 C     == Inputs ==
       integer, intent(in) :: g_a               ! real part of GA, already scaled
       integer, intent(in) :: g_b               ! imag part of GA, already scaled
-      integer, intent(in) :: n                 ! size of g_a, g_b, g_z
+C      integer, intent(in) :: n                 ! size of g_a, g_b, g_z !XXXASB
+      integer, intent(in) :: n1, n2            ! size of g_a, g_b, g_z: n1 x n2 !XXXASB
 
       
 C     == Outputs ==
@@ -222,16 +233,19 @@ C     == Variables ==
 
 C
 C     Determine how much work this current processor does, which is a
-C     slice of size m x n.  Since the total matrix size is n x n, each
-C     processor will get an n/np x n slice.  If n/np does not divide
-C     evenly, the extra will be given to processor 0.
+C     slice of size m x n.  Since the total matrix size is n1 x n2, 
+C     where n2 may be smaller than n1, each processor will get an 
+C     n2/np x n slice.  If n2/np does not divide evenly, the extra 
+C     will be given to processor 0.
 C
-      m0 = n/np + mod (n, np)
+C      m0 = n/np + mod (n, np) !XXXASB
+      m0 = n2/np + mod (n2, np) !XXXASB
       
       if (me.eq.0) then
          m = m0
       else
-         m = n/np
+C         m = n/np !XXXASB
+         m = n2/np !XXXASB
       endif
 
 
@@ -264,7 +278,8 @@ C
 C     Now allocate the two real local buffers (a,b) and the one complex
 C     local buffer (z).  Each buffer is size n.  
 C
-      bfr_size = n
+C      bfr_size = n !XXXASB
+      bfr_size = n2 !XXXASB
 
       ok = .true.
       ok = ok .and. ma_push_get(mt_dbl,  bfr_size, pname//"a", la, ia)
@@ -274,8 +289,10 @@ C
 
 
       do jslice = istart, iend
-         call ga_get (g_a, 1, n, jslice, jslice, dbl_mb(ia), n)
-         call ga_get (g_b, 1, n, jslice, jslice, dbl_mb(ib), n)
+C         call ga_get (g_a, 1, n, jslice, jslice, dbl_mb(ia), n)
+C         call ga_get (g_b, 1, n, jslice, jslice, dbl_mb(ib), n)
+         call ga_get (g_a, 1, n1, jslice, jslice, dbl_mb(ia), 1)
+         call ga_get (g_b, 1, n1, jslice, jslice, dbl_mb(ib), 1)
 
 
 C
@@ -283,16 +300,17 @@ C     For the current slice on this proc, convert and load a row of the
 C     matrix.  Huub's idea to split loops seems to yield about 25%
 C     speedup.
 C
-         do j = 1, n
+         do j = 1, n2 !changed to n2 from n !XXXASB
             dcpl_mb(iz+j-1) = dcmplx (dbl_mb(ia+j-1), 0d0)
          enddo
 
-         do j = 1, n
+         do j = 1, n2 !changed to n2 from n !XXXASB
             dcpl_mb(iz+j-1) = dcpl_mb(iz+j-1) +
      $           dcmplx (0d0, dbl_mb(ib+j-1))
          enddo
 
-         call ga_put (g_z, 1, n, jslice, jslice, dcpl_mb(iz), n)
+C         call ga_put (g_z, 1, n, jslice, jslice, dcpl_mb(iz), n) !XXXASB
+         call ga_put (g_z, 1, n1, jslice, jslice, dcpl_mb(iz), 1) !XXXASB
          
       enddo                     ! end loop over slices on this proc
       
@@ -309,78 +327,78 @@ C
 
 
 
-#if 0
-C====================================================================
+CC#if 0
+CC====================================================================
+CC
+CC     Driver routine for packing g_z <- (g_a, g_b), note g_a and g_b
+CC     were previously scaled. 
+CC
+C      subroutine convert_d2z_parallel (n, g_a, g_b, g_z)
+C      implicit none
 C
-C     Driver routine for packing g_z <- (g_a, g_b), note g_a and g_b
-C     were previously scaled. 
+C#include "errquit.fh"
+C#include "mafdecls.fh"
+C#include "global.fh"
+C#include "stdio.fh"
 C
-      subroutine convert_d2z_parallel (n, g_a, g_b, g_z)
-      implicit none
-
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
-#include "stdio.fh"
-
-
-C     == Inputs ==
-      integer, intent(in) :: g_a               ! real part of GA, already scaled
-      integer, intent(in) :: g_b               ! imag part of GA, already scaled
-      integer, intent(in) :: n                 ! size of g_a, g_b, g_z
-
-      
-C     == Outputs ==
-      integer, intent(in) :: g_z
-
-
-C     == Parameters ==
-      character(*), parameter :: pname = "convert_d2z_parallel: "
-
- 
-C     == Variables ==
-      integer m
-      integer istart, iend
-      integer bfr_size
-      integer la, ia, lb, ib    !real buffer handles and indicies
-      integer lz, iz            !complex buffer handle and index
-      logical ok
-      integer j
-      double precision aval, bval
-
- 
-C     not needed I think
-C      call ga_sync ()
-
-      call calc_array_partitioning (n, m, istart, iend, bfr_size)
-      
-!      write (luout, *) n, m, istart, iend, bfr_size
-
-      if (bfr_size .gt. 0) then
-         ok = .true.
-         ok = ok.and.ma_push_get(mt_dbl,  bfr_size, pname//"a", la, ia)
-         ok = ok.and.ma_push_get(mt_dbl,  bfr_size, pname//"b", lb, ib)
-         ok = ok.and.ma_push_get(mt_dcpl, bfr_size, pname//"z", lz, iz)
-         if (.not.ok) call errquit(pname//"failed to allocate",0,MA_ERR)
-         
-         call ga_get (g_a, 1, n, istart, iend, dbl_mb(ia), n)
-         call ga_get (g_b, 1, n, istart, iend, dbl_mb(ib), n)
-         
-         do j = 1, bfr_size
-            aval = dbl_mb(ia+j-1)
-            bval = dbl_mb(ib+j-1)
-            dcpl_mb(iz + j - 1) = dcmplx (aval, bval)
-         enddo
-         
-         call ga_put (g_z, 1, n, istart, iend, dcpl_mb(iz), n)
-
-         if (.not. ma_chop_stack (la))
-     $        call errquit (pname//"failed to chop stack", 0, MA_ERR)
-      endif
-
-C     not needed I think
-C      call ga_sync ()
-
-      end subroutine
-#endif 
+C
+CC     == Inputs ==
+C      integer, intent(in) :: g_a               ! real part of GA, already scaled
+C      integer, intent(in) :: g_b               ! imag part of GA, already scaled
+C      integer, intent(in) :: n                 ! size of g_a, g_b, g_z
+C
+C      
+CC     == Outputs ==
+C      integer, intent(in) :: g_z
+C
+C
+CC     == Parameters ==
+C      character(*), parameter :: pname = "convert_d2z_parallel: "
+C
+C 
+CC     == Variables ==
+C      integer m
+C      integer istart, iend
+C      integer bfr_size
+C      integer la, ia, lb, ib    !real buffer handles and indicies
+C      integer lz, iz            !complex buffer handle and index
+C      logical ok
+C      integer j
+C      double precision aval, bval
+C
+C 
+CC     not needed I think
+CC      call ga_sync ()
+C
+C      call calc_array_partitioning (n, m, istart, iend, bfr_size)
+C      
+C!      write (luout, *) n, m, istart, iend, bfr_size
+C
+C      if (bfr_size .gt. 0) then
+C         ok = .true.
+C         ok = ok.and.ma_push_get(mt_dbl,  bfr_size, pname//"a", la, ia)
+C         ok = ok.and.ma_push_get(mt_dbl,  bfr_size, pname//"b", lb, ib)
+C         ok = ok.and.ma_push_get(mt_dcpl, bfr_size, pname//"z", lz, iz)
+C         if (.not.ok) call errquit(pname//"failed to allocate",0,MA_ERR)
+C         
+C         call ga_get (g_a, 1, n, istart, iend, dbl_mb(ia), n)
+C         call ga_get (g_b, 1, n, istart, iend, dbl_mb(ib), n)
+C         
+C         do j = 1, bfr_size
+C            aval = dbl_mb(ia+j-1)
+C            bval = dbl_mb(ib+j-1)
+C            dcpl_mb(iz + j - 1) = dcmplx (aval, bval)
+C         enddo
+C         
+C         call ga_put (g_z, 1, n, istart, iend, dcpl_mb(iz), n)
+C
+C         if (.not. ma_chop_stack (la))
+C     $        call errquit (pname//"failed to chop stack", 0, MA_ERR)
+C      endif
+C
+CC     not needed I think
+CC      call ga_sync ()
+C
+C      end subroutine
+C#endif 
 c $Id$

@@ -227,11 +227,12 @@ C
 C
 C     If we need the eigenvectors of the ground state Fock matrix (for
 C     now only when print MO occupations or for scaling ZORA density
-C     matrix), diagonalize in MO basis.  Again, pure real.
+C     matrix or printing dipole contributions), diagonalize in MO basis.  
+C     Again, pure real.
 C     XXX ZORA SCALING NOT WORKING
 C
 C      if (params%print_moocc .or. do_zora) then
-      if (params%print_moocc) then
+      if (params%print_moocc .or. params%print_dipcontribs) then
          
          if (.not. mat_is_purereal (g_zfock_mo, params%tol_zero))
      $        call errquit (pname//
@@ -408,7 +409,13 @@ C     (molecular orbital occupations, calc in MO basis)
                call rt_tddft_moocc_print (params,
      $              tt, dbl_mb(imoocc), "# MO Occupations")
             endif
-               
+
+C     (Transition Dipole Contributions [ASB])
+            if (params%print_dipcontribs) then
+               call rt_tddft_calc_dip_contribs (params,
+     $              g_movecs_mo_gs, g_zdens_ao, tt, "CLOSED")
+            endif
+
 
 CXXX  [KAL]: FIX
 C     (now, scale real part of AO dens mat if doing ZORA--this will

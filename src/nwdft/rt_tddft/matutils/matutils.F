@@ -853,13 +853,10 @@ C
       
       if (dtype .ne. mt_dcpl) call errquit (
      $     pname//" only valid for complex matricies", 0, 0)
-      
-      if (n1 .ne. n2)
-     $     call errquit (pname//"n1 must equal n2")
 
       ok = .true.
-      ok = ok .and. ga_create(mt_dbl, n1, n1, "dscr1", 0, 0, g_dscr1)
-      ok = ok .and. ga_create(mt_dbl, n1, n1, "dscr2", 0, 0, g_dscr2)
+      ok = ok .and. ga_create(mt_dbl, n2, n1, "dscr1", 0, 0, g_dscr1)
+      ok = ok .and. ga_create(mt_dbl, n2, n1, "dscr2", 0, 0, g_dscr2)
       if (.not.ok) call errquit (pname//"alloc failed", 0, GA_ERR)
 
       call ga_zero (g_dscr1)
