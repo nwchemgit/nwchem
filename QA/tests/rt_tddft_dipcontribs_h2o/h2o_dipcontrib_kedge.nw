@@ -1,0 +1,54 @@
+##
+## This calculates the z-polarized oxygen K-edge transition dipole contributions using RT-TDDFT.
+##
+echo
+
+start h2o
+title h2o
+permanent_dir ../perm
+scratch_dir ../scratch
+
+geometry system units angstroms noautosym noautoz nocenter
+ O     0.00000000     0.00000000     0.11634779
+ H     0.76351901     0.00000000    -0.46861614
+ H    -0.76351901     0.00000000    -0.46861614
+end
+
+#charge 0
+
+basis spherical
+H library 3-21g
+O library 3-21g
+end
+
+set geometry system
+
+dft
+  convergence density 1e-9
+  xc b3lyp
+end
+task dft energy
+
+# Set polarization
+set rt_tddft:dipcontrib:pol 3    #1-X, 2-Y, 3-Z
+
+# Contribs arising from occupied MO 1 -> all orbitals (i.e., O K-edge)
+set rt_tddft:dipcontrib:mo1min 1
+set rt_tddft:dipcontrib:mo1max 1
+
+rt_tddft
+  tmax 500
+  dt 0.05
+
+  field "kick"
+    type delta
+    polarization z
+    center 20
+    max 0.0001
+  end
+   
+   excite system with kick
+   print dipcontribs dipole field
+end
+task dft rt_tddft
+
