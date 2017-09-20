@@ -177,7 +177,7 @@ dft
 end
 
 relativistic
- zora off
+ zora on
  zora:cutoff 1d-30
  modelpotential 1
 end
