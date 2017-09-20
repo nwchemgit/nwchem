@@ -580,7 +580,7 @@ c
 c
         if (dftmp2) then
           if (scs) then
-            ! DHDF with MP2 scaling
+            ! DHDF with SCS scaling
             e2      = fss*ess+fos*eos
             e_total = escf + mp2fac*e2
       if (doprint) 
@@ -595,8 +595,8 @@ c
      $              /,10x,'Total DFT+SCS-MP2 energy   ',f24.12,
      $              /,10x,43('-'),/)
           else
-            ! DHDF with no MP2 scaling
-            e_total = escf + e2
+            ! DHDF with no SCS scaling
+            e_total = escf + e2*mp2fac
             if(doprint) write(6,998) escf, e2, e_total
  998        format(//,10x,43('-'),
      $              /,10x,'DFT energy             ',f24.12,
