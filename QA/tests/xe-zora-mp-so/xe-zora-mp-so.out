@@ -34,7 +34,7 @@ task sodft energy
                                          
 
 
-              Northwest Computational Chemistry Package (NWChem) 6.6
+              Northwest Computational Chemistry Package (NWChem) 6.8
               ------------------------------------------------------
 
 
@@ -42,7 +42,7 @@ task sodft energy
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
-                              Copyright (c) 1994-2015
+                              Copyright (c) 1994-2017
                        Pacific Northwest National Laboratory
                             Battelle Memorial Institute
 
@@ -69,13 +69,13 @@ task sodft energy
 
     hostname        = kohn
     program         = ../../../bin/LINUX64/nwchem
-    date            = Wed Sep 28 16:00:37 2016
+    date            = Wed Sep 20 10:23:16 2017
 
-    compiled        = Wed_Sep_28_15:41:19_2016
-    source          = /home/niri/nwchem/nwchem-trunk
-    nwchem branch   = Development
-    nwchem revision = 28547
-    ga revision     = 10719
+    compiled        = Wed_Sep_20_10:10:43_2017
+    source          = /home/niri/nwchem/nwchem-6.8
+    nwchem branch   = 6.8
+    nwchem revision = 29444
+    ga revision     = N/A
     input           = xe-zora-mp-so.nw
     prefix          = xe-zora-mp-so.
     data base       = ./xe-zora-mp-so.db
@@ -88,8 +88,8 @@ task sodft energy
            Memory information
            ------------------
 
-    heap     =   13107194 doubles =    100.0 Mbytes
-    stack    =   13107199 doubles =    100.0 Mbytes
+    heap     =   13107198 doubles =    100.0 Mbytes
+    stack    =   13107195 doubles =    100.0 Mbytes
     global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
     total    =   52428793 doubles =    400.0 Mbytes
     verify   = yes
@@ -142,7 +142,7 @@ task sodft energy
  Xe                    0.00000000     0.00000000     0.00000000
 
   library name resolved from: environment
-  library file name is: </home/niri/nwchem/nwchem-trunk/src/basis/libraries/>
+  library file name is: </home/niri/nwchem/nwchem-6.8/src/basis/libraries/>
   
                       Basis "ao basis" -> "" (spherical)
                       -----
@@ -215,20 +215,10 @@ task sodft energy
 
 
 
- Using Relativistic Model Potential Approach
- C. van Wullen, J. Chem. Phys. 109, 392 (1998)
- C. van Wullen, C. Michauk, J. Chem. Phys. 123, 204113 (2005)
-
- Reading model potential file:
- /home/niri/nwchem/nwchem-trunk/src/basis/libraries/rel-modelpotentials/modbas.2c
-
-
                                  NWChem DFT Module
                                  -----------------
 
 
-  WARNING: CD fitting not compatible with spinorbit
-  WARNING: disabling CD fitting
 
 
  Summary of "ao basis" -> "ao basis" (spherical)
@@ -237,6 +227,14 @@ task sodft energy
  ---------------- ------------------------------  ------  ---------------------
  xe                    DZVP (DFT Orbital)           14       36   6s5p3d
 
+
+
+ Using Relativistic ZORA Model Potential Approach
+ C. van Wullen, J. Chem. Phys. 109, 392 (1998)
+ C. van Wullen, C. Michauk, J. Chem. Phys. 123, 204113 (2005)
+
+ Reading Model Potential File:
+ /home/niri/nwchem/nwchem-6.8/src/basis/libraries/rel-modelpotentials/modbas.2c
 
   Caching 1-el integrals 
 
@@ -319,7 +317,7 @@ task sodft energy
 
  Grid_pts file          = ./xe-zora-mp-so.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     28        Max. recs in file   =   1095881
+ Max. records in memory =     28        Max. recs in file   =    766139
 
 
  Wrote atomic ZORA corrections to ./xe-zora-mp-so.zora_so
@@ -339,14 +337,14 @@ task sodft energy
  HOMO         =      -0.458186
  LUMO         =       0.337287
 
-   Time prior to 1st pass:      1.1
+   Time prior to 1st pass:      1.5
 
- #quartets = 5.564D+03 #integrals = 3.107D+04 #direct =  0.0% #cached =100.0%
+ #quartets = 5.565D+03 #integrals = 3.110D+04 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./xe-zora-mp-so.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      3        Max. records in file   = 205492
+ Max. records in memory =      3        Max. records in file   = 143660
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -354,297 +352,706 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.56            12560482
-          Stack Space remaining (MW):       13.10            13095612
+           Heap Space remaining (MW):       12.56            12560486
+          Stack Space remaining (MW):       13.10            13095692
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -7498.0976599046 -7.50D+03  2.06D-02  3.24D+01     1.9
+ d= 0,ls=0.0,diis     1  -7498.0976607160 -7.50D+03  2.06D-02  3.24D+01     2.3
                                                      2.06D-02  3.24D+01
- d= 0,ls=0.0,diis     2  -7498.1593629780 -6.17D-02  1.13D-02  2.14D-02     2.0
+ d= 0,ls=0.0,diis     2  -7498.1593637434 -6.17D-02  1.13D-02  2.14D-02     2.4
                                                      1.13D-02  2.14D-02
- d= 0,ls=0.0,diis     3  -7498.1629860025 -3.62D-03  4.79D-03  1.16D-02     2.1
+ d= 0,ls=0.0,diis     3  -7498.1629867164 -3.62D-03  4.79D-03  1.16D-02     2.5
                                                      4.79D-03  1.16D-02
- d= 0,ls=0.0,diis     4  -7498.1673108479 -4.32D-03  8.05D-05  1.98D-06     2.2
+ d= 0,ls=0.0,diis     4  -7498.1673115116 -4.32D-03  8.05D-05  1.98D-06     2.6
                                                      8.05D-05  1.98D-06
- d= 0,ls=0.0,diis     5  -7498.1673119480 -1.10D-06  2.28D-06  5.68D-09     2.3
+ d= 0,ls=0.0,diis     5  -7498.1673126117 -1.10D-06  2.28D-06  5.68D-09     2.7
                                                      2.28D-06  5.68D-09
- d= 0,ls=0.0,diis     6  -7498.1673126130 -6.65D-07  5.99D-08  1.12D-12     2.4
-                                                     5.99D-08  1.12D-12
+ d= 0,ls=0.0,diis     6  -7498.1673126130 -1.28D-09  1.04D-07  3.76D-12     2.8
+                                                     1.04D-07  3.76D-12
   zoraso: enough mem for repl
 
 
-         Total DFT energy =  -7498.167312612965
-      One electron energy = -10207.384544822331
-           Coulomb energy =   2885.045288403988
-    Exchange-Corr. energy =   -175.828056194622
- Nuclear repulsion energy =      0.000000000000
+      Total SO-DFT energy =    -7498.167312612949
+      One electron energy =   -10207.384546795975
+           Coulomb energy =     2885.045290433246
+    Exchange-Corr. energy =     -175.828056250221
+ Nuclear repulsion energy =        0.000000000000
 
-       Scaling correction =     98.789010153184
+       Scaling correction =       98.789010145831
 
- Numeric. integr. density =     53.999999999756
+ Numeric. integr. density =       53.999999999756
 
-     Total iterative time =      1.3s
+     Total iterative time =      1.4s
 
 
 
                        DFT Final Molecular Orbital Analysis
                        ------------------------------------
 
- Vector   45  Occ=1.000000D+00  E=-2.257630D+00
-              MO Center= -2.8D-17, -2.7D-16,  2.2D-17, r^2= 8.8D-02
+ Vector    1  Occ=1.000000D+00  E=-1.254881D+03
+              MO Center=  7.8D-20,  1.2D-18,  1.4D-18, r^2= 8.6D-05
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    31     0.303833  -0.591205  1 Xe d  2              27     0.507351   0.372407  1 Xe d -2       
-    65    -0.011228   0.301431  1 Xe d  0              29    -0.170422   0.244043  1 Xe d  0       
-    26    -0.120835   0.235124  1 Xe d  2              22    -0.201775  -0.148107  1 Xe d -2       
-    66    -0.029819   0.224752  1 Xe d  1              30    -0.002480  -0.179342  1 Xe d  1       
-    64     0.057044   0.166968  1 Xe d -1              28     0.168720   0.015446  1 Xe d -1       
+    37     0.814753  -0.038763  1 Xe s                  1     0.551911  -0.210674  1 Xe s          
+
+ Vector    2  Occ=1.000000D+00  E=-1.254881D+03
+              MO Center=  8.1D-20, -1.7D-19,  1.2D-18, r^2= 1.6D-04
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+     1     0.756850  -0.304143  1 Xe s                 37    -0.589505   0.038370  1 Xe s          
+
+ Vector    3  Occ=1.000000D+00  E=-1.950016D+02
+              MO Center= -3.8D-19,  2.7D-19,  2.9D-18, r^2= 1.6D-05
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    38    -1.051200  -0.222768  1 Xe s                 37     0.325631   0.069007  1 Xe s          
+     2     0.063472  -0.014329  1 Xe s                 39     0.042206   0.008944  1 Xe s          
+
+ Vector    4  Occ=1.000000D+00  E=-1.950016D+02
+              MO Center= -2.7D-16, -2.1D-16, -3.4D-17, r^2= 2.4D-03
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+     2     0.776118  -0.743160  1 Xe s                  1    -0.240419   0.230209  1 Xe s          
+    38     0.061498  -0.021260  1 Xe s                  3    -0.031161   0.029838  1 Xe s          
+
+ Vector    5  Occ=1.000000D+00  E=-1.846545D+02
+              MO Center=  8.5D-19, -3.3D-19, -1.9D-18, r^2= 3.6D-04
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+     9     0.322943  -0.481849  1 Xe pz                43     0.322943  -0.481849  1 Xe px         
+    44     0.481849   0.322943  1 Xe py                 7    -0.058200  -0.001173  1 Xe px         
+     8    -0.001173   0.058200  1 Xe py                45     0.058200   0.001173  1 Xe pz         
+
+ Vector    6  Occ=1.000000D+00  E=-1.846545D+02
+              MO Center=  2.9D-16,  2.0D-16,  3.3D-17, r^2= 1.1D-03
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+     7    -0.473863  -0.334551  1 Xe px                 8    -0.334551   0.473863  1 Xe py         
+    45     0.473863   0.334551  1 Xe pz                 9    -0.053934   0.021902  1 Xe pz         
+    43    -0.053934   0.021902  1 Xe px                44    -0.021902  -0.053934  1 Xe py         
+
+ Vector    7  Occ=1.000000D+00  E=-1.749145D+02
+              MO Center=  9.1D-19, -4.2D-19,  1.2D-17, r^2= 1.3D-03
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+     9    -0.611839   0.440666  1 Xe pz                43     0.298184  -0.478759  1 Xe px         
+    44    -0.038093   0.313656  1 Xe py                45    -0.043033   0.023420  1 Xe pz         
+     8     0.041454   0.019397  1 Xe py                 7    -0.023635  -0.018034  1 Xe px         
+
+ Vector    8  Occ=1.000000D+00  E=-1.749145D+02
+              MO Center= -5.0D-20, -2.1D-19, -4.2D-19, r^2= 6.4D-05
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    44    -0.690099   0.276996  1 Xe py                43    -0.404990  -0.418119  1 Xe px         
+     9     0.127994  -0.271980  1 Xe pz                45    -0.080168   0.002346  1 Xe pz         
+     7    -0.040525  -0.004195  1 Xe px                 8     0.006541   0.039643  1 Xe py         
+
+ Vector    9  Occ=1.000000D+00  E=-1.749145D+02
+              MO Center=  3.0D-17,  4.0D-17,  5.6D-18, r^2= 2.0D-03
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+     7    -0.432427   0.512624  1 Xe px                 8    -0.620609  -0.058161  1 Xe py         
+    45    -0.374266  -0.107985  1 Xe pz                44     0.030936   0.000948  1 Xe py         
+
+ Vector   10  Occ=1.000000D+00  E=-1.749145D+02
+              MO Center= -8.1D-18,  1.0D-17,  2.3D-18, r^2= 1.6D-03
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    45    -0.572532   0.415792  1 Xe pz                 8     0.503616   0.123966  1 Xe py         
+     7    -0.448566  -0.087824  1 Xe px                44     0.035839  -0.078788  1 Xe py         
+    43     0.037787   0.049748  1 Xe px                 9     0.041001  -0.013910  1 Xe pz         
+
+ Vector   11  Occ=1.000000D+00  E=-3.981500D+01
+              MO Center=  9.8D-16, -8.9D-16, -1.9D-16, r^2= 3.2D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+     3    -1.161504  -0.062459  1 Xe s                  2     0.539005   0.028985  1 Xe s          
+     1    -0.138787  -0.007463  1 Xe s                  4     0.051837   0.002788  1 Xe s          
+     5     0.031135   0.001674  1 Xe s          
+
+ Vector   12  Occ=1.000000D+00  E=-3.981500D+01
+              MO Center=  1.7D-19, -1.5D-19,  5.0D-18, r^2= 1.7D-07
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    39     1.163178  -0.003110  1 Xe s                 38    -0.539782   0.001443  1 Xe s          
+    37     0.138987  -0.000372  1 Xe s                 40    -0.051912   0.000139  1 Xe s          
+    41    -0.031180   0.000083  1 Xe s          
+
+ Vector   13  Occ=1.000000D+00  E=-3.519490D+01
+              MO Center= -4.9D-16,  6.2D-16, -5.4D-18, r^2= 1.0D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    11    -0.488617  -0.411736  1 Xe py                10     0.411736  -0.488617  1 Xe px         
+    48    -0.411736   0.488617  1 Xe pz                 8     0.197508   0.166431  1 Xe py         
+     7    -0.166431   0.197508  1 Xe px                45     0.166431  -0.197508  1 Xe pz         
+
+ Vector   14  Occ=1.000000D+00  E=-3.519490D+01
+              MO Center=  1.7D-16, -1.4D-17, -1.6D-16, r^2= 7.1D-03
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    47    -0.348773  -0.535379  1 Xe py                12    -0.535379   0.348773  1 Xe pz         
+    46    -0.535379   0.348773  1 Xe px                44     0.140980   0.216410  1 Xe py         
+     9     0.216410  -0.140980  1 Xe pz                43     0.216410  -0.140980  1 Xe px         
+
+ Vector   15  Occ=1.000000D+00  E=-3.357427D+01
+              MO Center= -6.1D-17, -1.1D-16,  4.7D-17, r^2= 3.8D-03
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    48    -0.638606  -0.583811  1 Xe pz                11    -0.288054   0.426483  1 Xe py         
+    45     0.274690   0.251121  1 Xe pz                10    -0.212123  -0.295757  1 Xe px         
+     8     0.123904  -0.183448  1 Xe py                 7     0.091243   0.127217  1 Xe px         
+    12     0.138548  -0.008560  1 Xe pz                47     0.053161  -0.100977  1 Xe py         
+    46    -0.037570   0.061720  1 Xe px                 9    -0.059595   0.003682  1 Xe pz         
+
+ Vector   16  Occ=1.000000D+00  E=-3.357427D+01
+              MO Center=  2.3D-17, -3.3D-18, -5.9D-17, r^2= 4.1D-04
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    46    -0.667084  -0.352320  1 Xe px                47    -0.522263   0.541407  1 Xe py         
+    43     0.286940   0.151547  1 Xe px                44     0.224646  -0.232881  1 Xe py         
+    12     0.125677  -0.169942  1 Xe pz                 9    -0.054059   0.073099  1 Xe pz         
+    48    -0.034842  -0.026121  1 Xe pz                11    -0.000768   0.035638  1 Xe py         
+    10     0.000796  -0.025352  1 Xe px         
+
+ Vector   17  Occ=1.000000D+00  E=-3.357427D+01
+              MO Center=  5.7D-17, -4.8D-17,  1.6D-16, r^2= 1.7D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    12    -0.809263   0.259391  1 Xe pz                46     0.354609  -0.296625  1 Xe px         
+    47    -0.037234   0.454655  1 Xe py                 9     0.348097  -0.111574  1 Xe pz         
+    43    -0.152532   0.127590  1 Xe px                44     0.016016  -0.195565  1 Xe py         
+    48    -0.119293  -0.076397  1 Xe pz                11    -0.001630   0.117524  1 Xe py         
+    10    -0.001768  -0.074767  1 Xe px                45     0.051313   0.032861  1 Xe pz         
+
+ Vector   18  Occ=1.000000D+00  E=-3.357427D+01
+              MO Center= -1.0D-16, -5.0D-17, -2.5D-18, r^2= 1.8D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    10    -0.791240   0.155665  1 Xe px                11    -0.227475  -0.676243  1 Xe py         
+     7     0.340344  -0.066958  1 Xe px                 8     0.097846   0.290879  1 Xe py         
+    48    -0.114998  -0.071810  1 Xe pz                45     0.049465   0.030889  1 Xe pz         
+    12    -0.052791  -0.008726  1 Xe pz                47    -0.030905   0.032298  1 Xe py         
+    46     0.020492  -0.022179  1 Xe px         
+
+ Vector   19  Occ=1.000000D+00  E=-2.494004D+01
+              MO Center= -4.1D-16,  2.2D-19,  1.6D-16, r^2= 6.1D-03
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    60     0.511586   0.000002  1 Xe d  0              25     0.448799   0.000002  1 Xe d  1       
+    23    -0.000002   0.437293  1 Xe d -1              59     0.327871   0.135262  1 Xe d -1       
+    24     0.150137  -0.319086  1 Xe d  0              61    -0.124782   0.224803  1 Xe d  1       
+    26     0.010480  -0.103068  1 Xe d  2              22    -0.103068  -0.010480  1 Xe d -2       
+
+ Vector   20  Occ=1.000000D+00  E=-2.494004D+01
+              MO Center= -7.0D-17,  9.4D-18, -3.8D-17, r^2= 5.4D-03
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    59    -0.501118  -0.129206  1 Xe d -1              24    -0.126916   0.401638  1 Xe d  0       
+    60     0.350118  -0.037215  1 Xe d  0              25     0.307533  -0.032229  1 Xe d  1       
+    26    -0.038587   0.306579  1 Xe d  2              22     0.306579   0.038587  1 Xe d -2       
+    23     0.032229   0.298889  1 Xe d -1              61     0.090619  -0.194539  1 Xe d  1       
+
+ Vector   21  Occ=1.000000D+00  E=-2.494004D+01
+              MO Center= -1.1D-18,  1.8D-20,  2.5D-18, r^2= 2.4D-03
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    58    -0.000000   0.629869  1 Xe d -2              62     0.629869   0.000000  1 Xe d  2       
+    23     0.000440   0.327196  1 Xe d -1              25    -0.302673  -0.000440  1 Xe d  1       
+
+ Vector   22  Occ=1.000000D+00  E=-2.494004D+01
+              MO Center= -4.3D-17,  1.1D-17,  4.4D-18, r^2= 9.2D-03
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    22     0.430417   0.324755  1 Xe d -2              26    -0.324755   0.430417  1 Xe d  2       
+    61    -0.365139   0.389164  1 Xe d  1              24     0.234128  -0.200867  1 Xe d  0       
+    60    -0.100626  -0.030471  1 Xe d  0              25    -0.087172  -0.026389  1 Xe d  1       
+    23     0.026389  -0.087118  1 Xe d -1              59    -0.041253   0.040383  1 Xe d -1       
+
+ Vector   23  Occ=1.000000D+00  E=-2.447990D+01
+              MO Center= -2.9D-18, -6.6D-18,  1.8D-18, r^2= 3.3D-03
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    59     0.613286   0.146892  1 Xe d -1              23     0.001272  -0.374498  1 Xe d -1       
+    24    -0.206316   0.309824  1 Xe d  0              61    -0.091341  -0.255532  1 Xe d  1       
+    22     0.263588   0.004757  1 Xe d -2              58     0.025985   0.254471  1 Xe d -2       
+    60     0.233891   0.047211  1 Xe d  0              26    -0.023019   0.170821  1 Xe d  2       
+    25     0.104424  -0.053242  1 Xe d  1       
+
+ Vector   24  Occ=1.000000D+00  E=-2.447990D+01
+              MO Center=  2.3D-16,  1.9D-17,  1.9D-16, r^2= 2.5D-03
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    24    -0.180577  -0.412017  1 Xe d  0              23    -0.018406  -0.449396  1 Xe d -1       
+    59    -0.396955  -0.114035  1 Xe d -1              58     0.018008   0.374305  1 Xe d -2       
+    61    -0.322547  -0.078801  1 Xe d  1              25     0.248268  -0.017611  1 Xe d  1       
+    22    -0.030231  -0.222046  1 Xe d -2              60     0.174182  -0.000689  1 Xe d  0       
+    26    -0.003755  -0.128846  1 Xe d  2              62    -0.025473   0.000000  1 Xe d  2       
+
+ Vector   25  Occ=1.000000D+00  E=-2.447990D+01
+              MO Center=  7.7D-17,  2.4D-17, -2.1D-16, r^2= 5.5D-03
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    61    -0.468623  -0.361725  1 Xe d  1              24    -0.405909  -0.212891  1 Xe d  0       
+    23     0.013835   0.377120  1 Xe d -1              22     0.129791  -0.308436  1 Xe d -2       
+    58    -0.026996  -0.275013  1 Xe d -2              60    -0.198647  -0.022796  1 Xe d  0       
+    25    -0.147742   0.040157  1 Xe d  1              26    -0.074165   0.109021  1 Xe d  2       
+    59     0.115900   0.000080  1 Xe d -1       
+
+ Vector   26  Occ=1.000000D+00  E=-2.447990D+01
+              MO Center=  4.0D-18, -4.1D-21,  1.8D-18, r^2= 1.9D-03
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    62     0.768360  -0.000000  1 Xe d  2              58     0.001469  -0.491247  1 Xe d -2       
+    23    -0.000813  -0.284913  1 Xe d -1              25     0.269314  -0.002126  1 Xe d  1       
+
+ Vector   27  Occ=1.000000D+00  E=-2.447990D+01
+              MO Center= -2.5D-17,  3.1D-18,  1.7D-17, r^2= 9.2D-03
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    26    -0.157011  -0.692988  1 Xe d  2              22     0.566434  -0.145113  1 Xe d -2       
+    61    -0.023997   0.234361  1 Xe d  1              24    -0.062172   0.186728  1 Xe d  0       
+    25     0.016837   0.138847  1 Xe d  1              60    -0.049526  -0.113030  1 Xe d  0       
+    58    -0.073589  -0.011019  1 Xe d -2              59    -0.018747   0.047793  1 Xe d -1       
+    23     0.008332   0.040351  1 Xe d -1       
+
+ Vector   28  Occ=1.000000D+00  E=-2.447990D+01
+              MO Center= -4.1D-17, -1.2D-17, -9.8D-18, r^2= 8.8D-03
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    60     0.552613   0.378632  1 Xe d  0              25    -0.551037  -0.310719  1 Xe d  1       
+    58     0.092115  -0.232040  1 Xe d -2              23     0.126488  -0.087067  1 Xe d -1       
+    26    -0.113789  -0.099274  1 Xe d  2              22     0.039536  -0.127405  1 Xe d -2       
+    59    -0.080225  -0.024927  1 Xe d -1              24     0.019590  -0.035486  1 Xe d  0       
+    61    -0.002305   0.039250  1 Xe d  1       
+
+ Vector   29  Occ=1.000000D+00  E=-7.140234D+00
+              MO Center=  2.9D-15, -2.5D-15, -2.2D-16, r^2= 1.3D-01
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+     4    -1.047170   0.611579  1 Xe s                  3     0.609512  -0.355974  1 Xe s          
+     2    -0.211863   0.123734  1 Xe s                  5    -0.061125   0.035699  1 Xe s          
+     1     0.052868  -0.030876  1 Xe s                  6    -0.034825   0.020339  1 Xe s          
+
+ Vector   30  Occ=1.000000D+00  E=-7.140234D+00
+              MO Center= -6.5D-20,  7.6D-21,  5.4D-18, r^2= 7.6D-08
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    40     1.212678   0.002588  1 Xe s                 39    -0.705847  -0.001507  1 Xe s          
+    38     0.245348   0.000524  1 Xe s                 41     0.070786   0.000151  1 Xe s          
+    37    -0.061223  -0.000131  1 Xe s                 42     0.040329   0.000086  1 Xe s          
+
+ Vector   31  Occ=1.000000D+00  E=-5.462718D+00
+              MO Center= -2.4D-16, -5.6D-16, -1.1D-16, r^2= 5.1D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    50    -0.305515  -0.630333  1 Xe py                15    -0.630333   0.305515  1 Xe pz         
+    49    -0.630333   0.305515  1 Xe px                47    -0.176994  -0.365171  1 Xe py         
+    12    -0.365171   0.176994  1 Xe pz                46    -0.365171   0.176994  1 Xe px         
+    44     0.047136   0.097250  1 Xe py                 9     0.097250  -0.047136  1 Xe pz         
+    43     0.097250  -0.047136  1 Xe px                53    -0.013645  -0.028153  1 Xe py         
+
+ Vector   32  Occ=1.000000D+00  E=-5.462718D+00
+              MO Center= -8.6D-16,  2.4D-15,  4.0D-16, r^2= 6.3D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    13    -0.321705   0.622226  1 Xe px                14     0.622226   0.321705  1 Xe py         
+    51     0.321705  -0.622226  1 Xe pz                10    -0.186373   0.360474  1 Xe px         
+    11     0.360474   0.186373  1 Xe py                48     0.186373  -0.360474  1 Xe pz         
+     7     0.049634  -0.095999  1 Xe px                 8    -0.095999  -0.049634  1 Xe py         
+    45    -0.049634   0.095999  1 Xe pz                17     0.027791   0.014368  1 Xe py         
+
+ Vector   33  Occ=1.000000D+00  E=-5.170035D+00
+              MO Center=  1.9D-16, -5.4D-16,  1.2D-16, r^2= 8.4D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    15    -0.774563   0.196271  1 Xe pz                50    -0.167298   0.739331  1 Xe py         
+    12    -0.467017   0.118340  1 Xe pz                47    -0.100871   0.445774  1 Xe py         
+    49     0.035232  -0.363569  1 Xe px                51     0.207180  -0.089993  1 Xe pz         
+    46     0.021243  -0.219211  1 Xe px                14    -0.116177  -0.083293  1 Xe py         
+     9     0.132799  -0.033651  1 Xe pz                48     0.124918  -0.054260  1 Xe pz         
+
+ Vector   34  Occ=1.000000D+00  E=-5.170035D+00
+              MO Center= -1.6D-16, -4.8D-16, -3.3D-16, r^2= 4.1D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    51     0.834397   0.453830  1 Xe pz                48     0.503093   0.273633  1 Xe pz         
+    13     0.460828   0.188294  1 Xe px                14     0.265536  -0.373569  1 Xe py         
+    10     0.277852   0.113530  1 Xe px                11     0.160103  -0.225240  1 Xe py         
+    15     0.160727   0.117209  1 Xe pz                45    -0.143057  -0.077809  1 Xe pz         
+    50     0.143835  -0.075872  1 Xe py                12     0.096909   0.070670  1 Xe pz         
+
+ Vector   35  Occ=1.000000D+00  E=-5.170035D+00
+              MO Center=  3.4D-16, -6.8D-16, -1.8D-16, r^2= 9.1D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    14     0.684488   0.506744  1 Xe py                13     0.460958  -0.692462  1 Xe px         
+    11     0.412707   0.305537  1 Xe py                10     0.277931  -0.417515  1 Xe px         
+     8    -0.117356  -0.086881  1 Xe py                 7    -0.079031   0.118723  1 Xe px         
+    15    -0.070716  -0.047853  1 Xe pz                50    -0.066261   0.036746  1 Xe py         
+    12    -0.042638  -0.028853  1 Xe pz                51    -0.045786  -0.007974  1 Xe pz         
+
+ Vector   36  Occ=1.000000D+00  E=-5.170035D+00
+              MO Center=  3.8D-16,  3.5D-17,  2.5D-18, r^2= 2.9D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    49    -0.878704  -0.202590  1 Xe px                50    -0.426447   0.409081  1 Xe py         
+    46    -0.529808  -0.122150  1 Xe px                15     0.469623  -0.223857  1 Xe pz         
+    47    -0.257123   0.246652  1 Xe py                12     0.283155  -0.134973  1 Xe pz         
+    43     0.150654   0.034734  1 Xe px                44     0.073114  -0.070137  1 Xe py         
+     9    -0.080517   0.038380  1 Xe pz                51    -0.024300   0.006135  1 Xe pz         
+
+ Vector   37  Occ=1.000000D+00  E=-2.323821D+00
+              MO Center=  4.6D-16,  3.5D-16,  9.5D-17, r^2= 6.7D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    65    -0.504236  -0.383181  1 Xe d  0              28     0.331845  -0.438610  1 Xe d -1       
+    30    -0.434751  -0.331845  1 Xe d  1              29     0.120848  -0.225586  1 Xe d  0       
+    60     0.197056   0.149748  1 Xe d  0              66    -0.105395   0.202358  1 Xe d  1       
+    64     0.188369   0.103920  1 Xe d -1              23    -0.129686   0.171410  1 Xe d -1       
+    25     0.169902   0.129686  1 Xe d  1              24    -0.047228   0.088160  1 Xe d  0       
+
+ Vector   38  Occ=1.000000D+00  E=-2.323821D+00
+              MO Center= -5.1D-18, -4.6D-17, -3.8D-17, r^2= 5.2D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    66    -0.144192   0.608342  1 Xe d  1              29     0.185477  -0.461660  1 Xe d  0       
+    31     0.032872   0.417066  1 Xe d  2              27     0.417066  -0.032872  1 Xe d -2       
+    64     0.191276   0.177063  1 Xe d -1              61     0.056350  -0.237741  1 Xe d  1       
+    65     0.180734   0.107547  1 Xe d  0              24    -0.072485   0.180418  1 Xe d  0       
+    28    -0.093139   0.156756  1 Xe d -1              30     0.156285   0.093139  1 Xe d  1       
+
+ Vector   39  Occ=1.000000D+00  E=-2.323821D+00
+              MO Center= -1.5D-16,  6.1D-17,  1.1D-17, r^2= 8.4D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    64    -0.470503  -0.362201  1 Xe d -1              31    -0.210103   0.497414  1 Xe d  2       
+    27     0.497414   0.210103  1 Xe d -2              29    -0.296931   0.256108  1 Xe d  0       
+    59     0.183874   0.141549  1 Xe d -1              26     0.082109  -0.194390  1 Xe d  2       
+    22    -0.194390  -0.082109  1 Xe d -2              66     0.152099   0.026910  1 Xe d  1       
+    24     0.116041  -0.100088  1 Xe d  0              65    -0.076296  -0.125067  1 Xe d  0       
+
+ Vector   40  Occ=1.000000D+00  E=-2.323821D+00
+              MO Center= -9.3D-17, -5.4D-19,  2.0D-17, r^2= 2.5D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    67    -0.683206   0.000000  1 Xe d  2              63     0.000000  -0.683206  1 Xe d -2       
+    30     0.344056   0.001739  1 Xe d  1              28    -0.001739  -0.339151  1 Xe d -1       
+    62     0.266998  -0.000000  1 Xe d  2              58    -0.000000   0.266998  1 Xe d -2       
+    25    -0.134458  -0.000679  1 Xe d  1              23     0.000679   0.132541  1 Xe d -1       
+
+ Vector   41  Occ=1.000000D+00  E=-2.257630D+00
+              MO Center= -6.8D-17, -1.0D-17,  3.8D-16, r^2= 4.3D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    66     0.648700   0.257893  1 Xe d  1              29     0.369872   0.516206  1 Xe d  0       
+    64     0.338171   0.221608  1 Xe d -1              61    -0.257990  -0.102565  1 Xe d  1       
+    31    -0.248784   0.063990  1 Xe d  2              24    -0.147099  -0.205297  1 Xe d  0       
+    27    -0.023851   0.186370  1 Xe d -2              59    -0.134492  -0.088134  1 Xe d -1       
+    26     0.098942  -0.025449  1 Xe d  2              22     0.009486  -0.074120  1 Xe d -2       
+
+ Vector   42  Occ=1.000000D+00  E=-2.257630D+00
+              MO Center= -9.2D-17,  8.9D-18,  1.8D-16, r^2= 1.5D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    28     0.044194   0.782941  1 Xe d -1              63    -0.006776  -0.494404  1 Xe d -2       
+    65    -0.466137   0.064810  1 Xe d  0              23    -0.017576  -0.311378  1 Xe d -1       
+    30    -0.244692  -0.030642  1 Xe d  1              58     0.002695   0.196626  1 Xe d -2       
+    60     0.185384  -0.025775  1 Xe d  0              25     0.097315   0.012186  1 Xe d  1       
+    29    -0.078322   0.022779  1 Xe d  0              64     0.062618   0.036429  1 Xe d -1       
+
+ Vector   43  Occ=1.000000D+00  E=-2.257630D+00
+              MO Center= -4.4D-16,  2.6D-16, -3.1D-17, r^2= 8.1D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    31    -0.459276  -0.315642  1 Xe d  2              64    -0.507956   0.055975  1 Xe d -1       
+    29     0.227321  -0.342578  1 Xe d  0              30    -0.334485  -0.088129  1 Xe d  1       
+    66     0.318463   0.112381  1 Xe d  1              65     0.270819   0.090163  1 Xe d  0       
+    27     0.005474  -0.272056  1 Xe d -2              26     0.182655   0.125532  1 Xe d  2       
+    59     0.202016  -0.022262  1 Xe d -1              63     0.036074  -0.170344  1 Xe d -2       
+
+ Vector   44  Occ=1.000000D+00  E=-2.257630D+00
+              MO Center= -6.9D-17,  3.7D-19,  7.9D-18, r^2= 1.6D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    67    -0.834384  -0.000000  1 Xe d  2              63    -0.000139   0.568701  1 Xe d -2       
+    62     0.331837   0.000000  1 Xe d  2              30    -0.271574   0.001785  1 Xe d  1       
+    28    -0.001506   0.259792  1 Xe d -1              58     0.000055  -0.226174  1 Xe d -2       
+    25     0.108006  -0.000710  1 Xe d  1              23     0.000599  -0.103320  1 Xe d -1       
+
+ Vector   45  Occ=1.000000D+00  E=-2.257630D+00
+              MO Center= -1.5D-16,  1.5D-16, -1.7D-16, r^2= 4.5D-02
+  Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
+  ----     -------------------  ------------         ----     -------------------  ------------
+    27     0.246549   0.537867  1 Xe d -2              64    -0.247246   0.439054  1 Xe d -1       
+    31     0.178622  -0.316518  1 Xe d  2              29    -0.138233  -0.307053  1 Xe d  0       
+    65    -0.268145   0.156624  1 Xe d  0              30     0.296503  -0.078543  1 Xe d  1       
+    66     0.279436  -0.107309  1 Xe d  1              22    -0.098053  -0.213911  1 Xe d -2       
+    59     0.098330  -0.174613  1 Xe d -1              26    -0.071039   0.125880  1 Xe d  2       
 
  Vector   46  Occ=1.000000D+00  E=-2.257630D+00
-              MO Center= -6.0D-17,  1.4D-16,  2.3D-17, r^2= 4.3D-02
+              MO Center= -6.6D-16, -3.7D-16, -3.2D-16, r^2= 1.2D-01
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    29    -0.216253   0.496722  1 Xe d  0              64     0.444091   0.255054  1 Xe d -1       
-    31    -0.145347   0.443694  1 Xe d  2              65     0.088103   0.405153  1 Xe d  0       
-    27    -0.286386  -0.015147  1 Xe d -2              30    -0.057826  -0.256877  1 Xe d  1       
-    28     0.210954  -0.043907  1 Xe d -1              24     0.086004  -0.197548  1 Xe d  0       
-    59    -0.176616  -0.101436  1 Xe d -1              26     0.057805  -0.176458  1 Xe d  2       
+    30     0.589075  -0.012684  1 Xe d  1              65    -0.541175   0.029043  1 Xe d  0       
+    27    -0.087557  -0.476278  1 Xe d -2              31    -0.432616   0.025824  1 Xe d  2       
+    63    -0.004084   0.278495  1 Xe d -2              25    -0.234277   0.005044  1 Xe d  1       
+    60     0.215227  -0.011550  1 Xe d  0              22     0.034822   0.189417  1 Xe d -2       
+    26     0.172053  -0.010270  1 Xe d  2              64    -0.092046  -0.066157  1 Xe d -1       
 
- Vector   47  Occ=1.000000D+00  E=-7.090975D-01
-              MO Center= -2.3D-19,  6.9D-19,  2.5D-16, r^2= 7.1D-06
+ Vector   47  Occ=1.000000D+00  E=-7.090974D-01
+              MO Center=  7.4D-17, -9.0D-19,  8.3D-17, r^2= 1.4D-05
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    41     0.820019   0.003229  1 Xe s                 40     0.589415   0.002321  1 Xe s          
-    42    -0.338503  -0.001333  1 Xe s                 39    -0.274780  -0.001082  1 Xe s          
+    41    -0.819982   0.007671  1 Xe s                 40    -0.589388   0.005514  1 Xe s          
+    42     0.338488  -0.003167  1 Xe s                 39     0.274768  -0.002571  1 Xe s          
+    38    -0.087907   0.000822  1 Xe s          
 
- Vector   48  Occ=1.000000D+00  E=-7.090975D-01
-              MO Center=  9.8D-15,  3.9D-14, -7.9D-15, r^2= 1.1D+00
+ Vector   48  Occ=1.000000D+00  E=-7.090974D-01
+              MO Center=  8.2D-14, -5.7D-14,  7.5D-15, r^2= 4.3D-01
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-     5     0.814635   0.093866  1 Xe s                  4     0.585545   0.067469  1 Xe s          
-     6    -0.336281  -0.038748  1 Xe s                  3    -0.272976  -0.031454  1 Xe s          
+     5    -0.511962  -0.640566  1 Xe s                  4    -0.367989  -0.460427  1 Xe s          
+     6     0.211337   0.264425  1 Xe s                  3     0.171553   0.214648  1 Xe s          
+     2    -0.054886  -0.068673  1 Xe s          
 
  Vector   49  Occ=1.000000D+00  E=-3.278142D-01
-              MO Center=  1.6D-14, -1.8D-14, -2.6D-15, r^2= 5.4D-01
+              MO Center=  4.8D-16,  7.7D-16,  4.6D-16, r^2= 7.4D-02
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    54     0.302103  -0.488485  1 Xe pz                17     0.488485   0.302103  1 Xe py         
-    16    -0.302103   0.488485  1 Xe px                51     0.166517  -0.269250  1 Xe pz         
-    14     0.269250   0.166517  1 Xe py                13    -0.166517   0.269250  1 Xe px         
+    53     0.536193  -0.154973  1 Xe py                52    -0.154973  -0.536193  1 Xe px         
+    18    -0.154973  -0.536193  1 Xe pz                50     0.295546  -0.085420  1 Xe py         
+    49    -0.085420  -0.295546  1 Xe px                15    -0.085420  -0.295546  1 Xe pz         
+    54     0.147938  -0.007859  1 Xe pz                17     0.007859   0.147938  1 Xe py         
+    16    -0.147938   0.007859  1 Xe px                47     0.124939  -0.036110  1 Xe py         
 
  Vector   50  Occ=1.000000D+00  E=-3.278142D-01
-              MO Center= -1.2D-15,  1.2D-15,  3.9D-16, r^2= 2.3D-01
+              MO Center= -4.8D-14,  3.8D-14,  1.1D-14, r^2= 5.3D-01
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    52    -0.374032  -0.435872  1 Xe px                53     0.435872  -0.374032  1 Xe py         
-    18    -0.374032  -0.435872  1 Xe pz                49    -0.206164  -0.240250  1 Xe px         
-    50     0.240250  -0.206164  1 Xe py                15    -0.206164  -0.240250  1 Xe pz         
+    54     0.436877  -0.347358  1 Xe pz                17     0.347358   0.436877  1 Xe py         
+    16    -0.436877   0.347358  1 Xe px                51     0.240804  -0.191462  1 Xe pz         
+    14     0.191462   0.240804  1 Xe py                13    -0.240804   0.191462  1 Xe px         
+    53    -0.092087   0.116049  1 Xe py                18     0.116049   0.092087  1 Xe pz         
+    52     0.116049   0.092087  1 Xe px                48     0.101797  -0.080938  1 Xe pz         
 
  Vector   51  Occ=1.000000D+00  E=-2.996398D-01
-              MO Center=  9.4D-16,  2.5D-15,  6.0D-16, r^2= 2.6D-01
+              MO Center= -3.0D-15,  3.4D-15,  1.9D-15, r^2= 5.0D-01
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    18     0.315966   0.512081  1 Xe pz                52     0.072577  -0.451731  1 Xe px         
-    53     0.060350  -0.388543  1 Xe py                15     0.184238   0.298591  1 Xe pz         
-    54    -0.264981   0.182481  1 Xe pz                49     0.042319  -0.263401  1 Xe px         
-    16    -0.187238   0.163357  1 Xe px                50     0.035190  -0.226557  1 Xe py         
-    51    -0.154509   0.106403  1 Xe pz                12     0.081475   0.132045  1 Xe pz         
+    17    -0.396563   0.312259  1 Xe py                18    -0.172558   0.474331  1 Xe pz         
+    52     0.193110  -0.409062  1 Xe px                54    -0.048094  -0.316809  1 Xe pz         
+    14    -0.231233   0.182076  1 Xe py                15    -0.100617   0.276579  1 Xe pz         
+    16     0.264165   0.079754  1 Xe px                49     0.112601  -0.238521  1 Xe px         
+    51    -0.028043  -0.184730  1 Xe pz                13     0.154033   0.046504  1 Xe px         
 
  Vector   52  Occ=1.000000D+00  E=-2.996398D-01
-              MO Center=  3.0D-15, -3.2D-16,  1.1D-15, r^2= 1.4D-01
+              MO Center= -3.8D-14,  2.0D-14, -2.1D-14, r^2= 4.2D-01
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    53    -0.580886  -0.241420  1 Xe py                52     0.508980  -0.281036  1 Xe px         
-    18    -0.267560  -0.299850  1 Xe pz                50    -0.338711  -0.140771  1 Xe py         
-    49     0.296783  -0.163870  1 Xe px                15    -0.156012  -0.174841  1 Xe pz         
-    47    -0.149787  -0.062253  1 Xe py                56    -0.141712  -0.058897  1 Xe py         
+    54     0.468977  -0.422914  1 Xe pz                16     0.362933  -0.222337  1 Xe px         
+    51     0.273458  -0.246598  1 Xe pz                52    -0.325487   0.020321  1 Xe px         
+    18     0.211679  -0.235899  1 Xe pz                13     0.211624  -0.129643  1 Xe px         
+    53    -0.215578   0.113808  1 Xe py                17    -0.200577  -0.106044  1 Xe py         
+    49    -0.189789   0.011849  1 Xe px                15     0.123428  -0.137551  1 Xe pz         
 
  Vector   53  Occ=1.000000D+00  E=-2.996398D-01
-              MO Center=  1.7D-15,  1.7D-15, -1.2D-15, r^2= 3.7D-01
+              MO Center= -4.4D-15, -5.0D-17, -4.5D-15, r^2= 3.4D-02
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    54     0.189767  -0.674838  1 Xe pz                51     0.110652  -0.393494  1 Xe pz         
-    16     0.112966  -0.333895  1 Xe px                17    -0.340942  -0.076800  1 Xe py         
-    18     0.249294   0.075414  1 Xe pz                52    -0.078393  -0.201761  1 Xe px         
-    53    -0.126347  -0.170901  1 Xe py                13     0.065870  -0.194692  1 Xe px         
-    14    -0.198801  -0.044782  1 Xe py                48     0.048933  -0.174014  1 Xe pz         
+    53     0.723406   0.097180  1 Xe py                50     0.421813   0.056665  1 Xe py         
+    52    -0.193047   0.362608  1 Xe px                18     0.095867   0.360798  1 Xe pz         
+    49    -0.112565   0.211434  1 Xe px                15     0.055899   0.210379  1 Xe pz         
+    54     0.194341  -0.006715  1 Xe pz                47     0.186538   0.025059  1 Xe py         
+    56     0.176481   0.023708  1 Xe py                51     0.113319  -0.003916  1 Xe pz         
 
  Vector   54  Occ=1.000000D+00  E=-2.996398D-01
-              MO Center= -2.6D-15, -5.5D-15, -1.9D-15, r^2= 8.7D-01
+              MO Center= -2.2D-15,  2.8D-15, -1.3D-15, r^2= 3.6D-01
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    17    -0.544175  -0.416388  1 Xe py                16    -0.394500   0.506359  1 Xe px         
-    14    -0.317305  -0.242793  1 Xe py                13    -0.230031   0.295254  1 Xe px         
-    11    -0.140321  -0.107370  1 Xe py                20    -0.132756  -0.101582  1 Xe py         
-    10    -0.101726   0.130570  1 Xe px                19    -0.096242   0.123531  1 Xe px         
+    16     0.249976   0.519886  1 Xe px                17    -0.336804   0.410079  1 Xe py         
+    52    -0.151135   0.309631  1 Xe px                13     0.145760   0.303142  1 Xe px         
+    18     0.112190  -0.302106  1 Xe pz                14    -0.196388   0.239115  1 Xe py         
+    54    -0.160103   0.183082  1 Xe pz                49    -0.088126   0.180544  1 Xe px         
+    15     0.065417  -0.176156  1 Xe pz                10     0.064459   0.134058  1 Xe px         
 
- Vector   55  Occ=0.000000D+00  E= 1.666682D-01
-              MO Center=  7.1D-16,  4.8D-16, -5.9D-15, r^2= 1.2D-01
+ Vector   55  Occ=0.000000D+00  E= 1.666683D-01
+              MO Center=  5.4D-15,  1.9D-14, -3.5D-16, r^2= 1.7D+00
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    21     0.207829   0.750229  1 Xe pz                55     0.207829   0.750229  1 Xe px         
-    56    -0.750229   0.207829  1 Xe py                18    -0.179952  -0.649600  1 Xe pz         
-    52    -0.179952  -0.649600  1 Xe px                53     0.649600  -0.179952  1 Xe py         
-    15    -0.067809  -0.244780  1 Xe pz                49    -0.067809  -0.244780  1 Xe px         
-    50     0.244780  -0.067809  1 Xe py         
+    19     0.446363   0.637112  1 Xe px                20     0.637112  -0.446363  1 Xe py         
+    57    -0.446363  -0.637112  1 Xe pz                16    -0.386492  -0.551655  1 Xe px         
+    54     0.386492   0.551655  1 Xe pz                17    -0.551655   0.386492  1 Xe py         
+    13    -0.145636  -0.207872  1 Xe px                51     0.145636   0.207872  1 Xe pz         
+    14    -0.207872   0.145636  1 Xe py                10    -0.058324  -0.083248  1 Xe px         
 
- Vector   56  Occ=0.000000D+00  E= 1.666682D-01
-              MO Center=  5.6D-15, -1.0D-15, -1.9D-15, r^2= 1.7D+00
+ Vector   56  Occ=0.000000D+00  E= 1.666683D-01
+              MO Center=  1.6D-14, -1.9D-15, -6.1D-15, r^2= 1.3D+00
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    57     0.772312  -0.097828  1 Xe pz                19    -0.772312   0.097828  1 Xe px         
-    20     0.097828   0.772312  1 Xe py                54    -0.668721   0.084707  1 Xe pz         
-    16     0.668721  -0.084707  1 Xe px                17    -0.084707  -0.668721  1 Xe py         
-    51    -0.251985   0.031919  1 Xe pz                13     0.251985  -0.031919  1 Xe px         
-    14    -0.031919  -0.251985  1 Xe py         
+    21    -0.685532   0.367692  1 Xe pz                56    -0.367692  -0.685532  1 Xe py         
+    55    -0.685532   0.367692  1 Xe px                18     0.593580  -0.318373  1 Xe pz         
+    53     0.318373   0.593580  1 Xe py                52     0.593580  -0.318373  1 Xe px         
+    15     0.223671  -0.119968  1 Xe pz                50     0.119968   0.223671  1 Xe py         
+    49     0.223671  -0.119968  1 Xe px                12     0.089575  -0.048044  1 Xe pz         
 
- Vector   57  Occ=0.000000D+00  E= 1.837772D-01
-              MO Center= -3.0D-16,  9.9D-16,  1.4D-15, r^2= 6.6D-01
+ Vector   57  Occ=0.000000D+00  E= 1.837774D-01
+              MO Center= -4.0D-15, -7.1D-15, -1.5D-16, r^2= 1.8D+00
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    57     0.666426  -0.815676  1 Xe pz                54    -0.602842   0.737851  1 Xe pz         
-    20    -0.419247  -0.475665  1 Xe py                17     0.379246   0.430282  1 Xe py         
-    19     0.190761  -0.396429  1 Xe px                16    -0.172560   0.358605  1 Xe px         
-    51    -0.238901   0.292405  1 Xe pz                14     0.150292   0.170517  1 Xe py         
-    21     0.156129  -0.146823  1 Xe pz                18    -0.141233   0.132815  1 Xe pz         
+    20    -0.765427   0.711357  1 Xe py                17     0.692397  -0.643486  1 Xe py         
+    19     0.238117   0.592607  1 Xe px                16    -0.215398  -0.536066  1 Xe px         
+    57    -0.473240  -0.172821  1 Xe pz                54     0.428088   0.156332  1 Xe pz         
+    14     0.274392  -0.255008  1 Xe py                13    -0.085361  -0.212439  1 Xe px         
+    51     0.169648   0.061953  1 Xe pz                11     0.115027  -0.106901  1 Xe py         
 
- Vector   58  Occ=0.000000D+00  E= 1.837772D-01
-              MO Center=  1.9D-15, -9.0D-16,  2.7D-16, r^2= 9.5D-01
+ Vector   58  Occ=0.000000D+00  E= 1.837774D-01
+              MO Center=  3.4D-15, -1.4D-15,  2.2D-14, r^2= 1.6D+00
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    55     0.182320   0.851405  1 Xe px                21    -0.573154  -0.650105  1 Xe pz         
-    52    -0.164925  -0.770172  1 Xe px                18     0.518469   0.588078  1 Xe pz         
-    56     0.201300   0.390833  1 Xe py                53    -0.182094  -0.353544  1 Xe py         
-    49    -0.065358  -0.305213  1 Xe px                15     0.205465   0.233051  1 Xe pz         
-    57     0.180900   0.168129  1 Xe pz                54    -0.163640  -0.152088  1 Xe pz         
+    56    -0.722383   0.548982  1 Xe py                53     0.653460  -0.496603  1 Xe py         
+    21    -0.726906  -0.375828  1 Xe pz                18     0.657551   0.339970  1 Xe pz         
+    55     0.177924  -0.346555  1 Xe px                52    -0.160948   0.313490  1 Xe px         
+    50     0.258961  -0.196800  1 Xe py                57    -0.241552   0.205608  1 Xe pz         
+    15     0.260583   0.134727  1 Xe pz                54     0.218505  -0.185991  1 Xe pz         
 
- Vector   59  Occ=0.000000D+00  E= 1.837772D-01
-              MO Center= -1.2D-14, -1.3D-15,  2.2D-15, r^2= 2.3D-01
+ Vector   59  Occ=0.000000D+00  E= 1.837774D-01
+              MO Center= -2.0D-14,  6.8D-15,  3.3D-15, r^2= 1.1D+00
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    56    -0.980140  -0.186363  1 Xe py                53     0.886624   0.168582  1 Xe py         
-    55     0.475173  -0.418940  1 Xe px                21    -0.288811  -0.561201  1 Xe pz         
-    52    -0.429837   0.378968  1 Xe px                18     0.261255   0.507656  1 Xe pz         
-    50     0.351362   0.066808  1 Xe py                49    -0.170341   0.150182  1 Xe px         
-    15     0.103533   0.201180  1 Xe pz         
+    55    -0.993074  -0.230925  1 Xe px                52     0.898324   0.208892  1 Xe px         
+    21     0.638500  -0.192339  1 Xe pz                18    -0.577580   0.173988  1 Xe pz         
+    56    -0.423264   0.354575  1 Xe py                53     0.382880  -0.320744  1 Xe py         
+    49     0.355999   0.082782  1 Xe px                15    -0.228890   0.068950  1 Xe pz         
+    50     0.151733  -0.127108  1 Xe py                46     0.149237   0.034703  1 Xe px         
 
- Vector   60  Occ=0.000000D+00  E= 1.837772D-01
-              MO Center=  5.0D-14, -1.8D-15, -1.0D-15, r^2= 2.7D+00
+ Vector   60  Occ=0.000000D+00  E= 1.837774D-01
+              MO Center= -2.1D-14,  6.6D-15,  9.1D-15, r^2= 1.6D+00
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    19     0.989410  -0.123246  1 Xe px                16    -0.895009   0.111487  1 Xe px         
-    20     0.004511   0.878685  1 Xe py                17    -0.004081  -0.794849  1 Xe py         
-    13    -0.354685   0.044182  1 Xe px                14    -0.001617  -0.314993  1 Xe py         
-    57     0.110725  -0.118735  1 Xe pz         
+    57    -0.501037   0.766614  1 Xe pz                19    -0.674487   0.560048  1 Xe px         
+    54     0.453232  -0.693471  1 Xe pz                16     0.610134  -0.506613  1 Xe px         
+    51     0.179612  -0.274817  1 Xe pz                13     0.241791  -0.200767  1 Xe px         
+    20     0.206566  -0.173451  1 Xe py                21     0.244516   0.049128  1 Xe pz         
+    17    -0.186857   0.156901  1 Xe py                18    -0.221186  -0.044441  1 Xe pz         
 
  Vector   61  Occ=0.000000D+00  E= 2.562860D-01
-              MO Center= -4.0D-18,  3.4D-19, -2.1D-17, r^2= 1.5D-06
+              MO Center=  4.1D-17,  1.9D-18, -1.0D-15, r^2= 3.6D-04
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    42    -2.154308  -0.097022  1 Xe s                 41    -2.085658  -0.093931  1 Xe s          
-    39     0.333846   0.015035  1 Xe s          
+    42    -2.149784   0.175336  1 Xe s                 41    -2.081279   0.169748  1 Xe s          
+    39     0.333145  -0.027171  1 Xe s                 40    -0.118093   0.009632  1 Xe s          
+    38    -0.035952   0.002932  1 Xe s                  6    -0.024378   0.016718  1 Xe s          
+     5    -0.023601   0.016185  1 Xe s          
 
  Vector   62  Occ=0.000000D+00  E= 2.562860D-01
-              MO Center=  5.5D-15, -3.0D-15, -9.3D-15, r^2= 1.5D-01
+              MO Center= -3.4D-15, -1.5D-14, -2.7D-14, r^2= 9.9D-01
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-     6    -0.492321   2.099542  1 Xe s                  5    -0.476633   2.032637  1 Xe s          
-     3     0.076293  -0.325359  1 Xe s          
+     6    -1.270069   1.743342  1 Xe s                  5    -1.229596   1.687789  1 Xe s          
+     3     0.196818  -0.270160  1 Xe s                  4    -0.069768   0.095766  1 Xe s          
+     2    -0.021240   0.029155  1 Xe s                 42     0.026973  -0.012092  1 Xe s          
+    41     0.026113  -0.011707  1 Xe s          
 
- Vector   63  Occ=0.000000D+00  E= 2.796789D-01
-              MO Center= -2.9D-15,  3.1D-15,  2.8D-15, r^2= 6.8D-01
+ Vector   63  Occ=0.000000D+00  E= 2.796790D-01
+              MO Center=  2.6D-15, -8.0D-16, -3.0D-15, r^2= 6.3D-01
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    69    -0.144367   0.467716  1 Xe d -1              36     0.289234   0.267854  1 Xe d  2       
-    32     0.267854  -0.289234  1 Xe d -2              70     0.227346  -0.306927  1 Xe d  0       
-    34     0.373083   0.012055  1 Xe d  0              33     0.265807   0.196906  1 Xe d -1       
-    35     0.196868  -0.265807  1 Xe d  1              71    -0.178483   0.123487  1 Xe d  1       
-    64    -0.048251   0.156324  1 Xe d -1       
+    69     0.151689   0.519025  1 Xe d -1              36     0.473780   0.105216  1 Xe d  2       
+    32     0.105216  -0.473780  1 Xe d -2              34     0.325782  -0.235902  1 Xe d  0       
+    71    -0.045245   0.256906  1 Xe d  1              70     0.116187  -0.172649  1 Xe d  0       
+    64     0.050699   0.173473  1 Xe d -1              33     0.149519   0.100644  1 Xe d -1       
+    35     0.100598  -0.149519  1 Xe d  1              31     0.158350   0.035166  1 Xe d  2       
 
- Vector   64  Occ=0.000000D+00  E= 2.796789D-01
-              MO Center= -2.0D-15, -2.3D-16,  4.6D-16, r^2= 5.8D-01
+ Vector   64  Occ=0.000000D+00  E= 2.796790D-01
+              MO Center= -2.2D-15, -1.4D-15, -1.8D-16, r^2= 5.0D-01
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    36     0.084196   0.502466  1 Xe d  2              32     0.502466  -0.084196  1 Xe d -2       
-    71     0.127783   0.480597  1 Xe d  1              70    -0.238117   0.210797  1 Xe d  0       
-    34    -0.098940  -0.264847  1 Xe d  0              35    -0.206292   0.182555  1 Xe d  1       
-    33    -0.182555  -0.206138  1 Xe d -1              31     0.028140   0.167938  1 Xe d  2       
-    27     0.167938  -0.028140  1 Xe d -2              66     0.042708   0.160629  1 Xe d  1       
+    70     0.534427   0.305326  1 Xe d  0              33    -0.264420   0.471445  1 Xe d -1       
+    35     0.454210   0.264420  1 Xe d  1              69     0.225398  -0.099467  1 Xe d -1       
+    34    -0.091323  -0.208333  1 Xe d  0              65     0.178620   0.102048  1 Xe d  0       
+    28    -0.088376   0.157570  1 Xe d -1              30     0.151809   0.088376  1 Xe d  1       
+    71     0.058709   0.135446  1 Xe d  1              32    -0.089952   0.040758  1 Xe d -2       
 
- Vector   65  Occ=0.000000D+00  E= 2.796789D-01
-              MO Center= -8.7D-16,  2.6D-18,  3.9D-16, r^2= 1.8D-01
+ Vector   65  Occ=0.000000D+00  E= 2.796790D-01
+              MO Center=  1.0D-15,  2.2D-17,  2.6D-16, r^2= 2.0D-01
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    72     0.663793   0.000000  1 Xe d  2              68     0.000000   0.663793  1 Xe d -2       
-    33    -0.001287   0.332666  1 Xe d -1              35    -0.331128   0.001287  1 Xe d  1       
-    67     0.221858  -0.000000  1 Xe d  2              63     0.000000   0.221858  1 Xe d -2       
+    72    -0.663575  -0.000000  1 Xe d  2              68    -0.000000  -0.663575  1 Xe d -2       
+    35     0.343796   0.006878  1 Xe d  1              33    -0.006878  -0.319779  1 Xe d -1       
+    67    -0.221785   0.000000  1 Xe d  2              63    -0.000000  -0.221785  1 Xe d -2       
+    30     0.114906   0.002299  1 Xe d  1              28    -0.002299  -0.106879  1 Xe d -1       
+    62     0.077136  -0.000000  1 Xe d  2              58     0.000000   0.077136  1 Xe d -2       
 
- Vector   66  Occ=0.000000D+00  E= 2.796789D-01
-              MO Center= -7.5D-17,  6.1D-16, -1.9D-15, r^2= 4.9D-01
+ Vector   66  Occ=0.000000D+00  E= 2.796790D-01
+              MO Center=  1.7D-15, -2.2D-16, -4.4D-15, r^2= 7.2D-01
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    34     0.345420  -0.319438  1 Xe d  0              69     0.352341   0.272952  1 Xe d -1       
-    70     0.214077   0.384411  1 Xe d  0              71    -0.325333   0.200942  1 Xe d  1       
-    35     0.186706   0.332909  1 Xe d  1              33    -0.332909   0.184085  1 Xe d -1       
-    36    -0.052381  -0.151399  1 Xe d  2              32    -0.151399   0.052381  1 Xe d -2       
-    29     0.115449  -0.106765  1 Xe d  0       
+    71    -0.523455  -0.277069  1 Xe d  1              34     0.464439   0.106596  1 Xe d  0       
+    36    -0.242478  -0.369509  1 Xe d  2              32    -0.369509   0.242478  1 Xe d -2       
+    69     0.092439   0.280977  1 Xe d -1              66    -0.174953  -0.092604  1 Xe d  1       
+    29     0.155228   0.035627  1 Xe d  0              31    -0.081043  -0.123500  1 Xe d  2       
+    27    -0.123500   0.081043  1 Xe d -2              70     0.095031  -0.095910  1 Xe d  0       
 
  Vector   67  Occ=0.000000D+00  E= 2.852211D-01
-              MO Center=  6.1D-16, -4.4D-15,  1.3D-16, r^2= 8.9D-01
+              MO Center=  9.2D-16,  4.7D-16,  1.6D-15, r^2= 5.1D-01
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    36     0.524444  -0.314844  1 Xe d  2              34     0.451482  -0.223938  1 Xe d  0       
-    69    -0.234126  -0.439571  1 Xe d -1              32     0.210009   0.345537  1 Xe d -2       
-    31     0.179278  -0.107627  1 Xe d  2              29     0.154336  -0.076552  1 Xe d  0       
-    64    -0.080034  -0.150264  1 Xe d -1              70     0.026519  -0.153836  1 Xe d  0       
+    70     0.518054  -0.306355  1 Xe d  0              35    -0.376345   0.271349  1 Xe d  1       
+    36     0.298835   0.322164  1 Xe d  2              32    -0.187370   0.307748  1 Xe d -2       
+    69     0.222380   0.114022  1 Xe d -1              34    -0.182053   0.151704  1 Xe d  0       
+    33    -0.082400  -0.221852  1 Xe d -1              65     0.177093  -0.104726  1 Xe d  0       
+    30    -0.128651   0.092759  1 Xe d  1              31     0.102155   0.110130  1 Xe d  2       
 
  Vector   68  Occ=0.000000D+00  E= 2.852211D-01
-              MO Center= -5.6D-16,  1.1D-19,  2.5D-16, r^2= 1.2D-01
+              MO Center=  8.3D-16,  1.8D-17,  1.6D-16, r^2= 1.4D-01
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    72    -0.812904   0.000000  1 Xe d  2              68     0.000181   0.546104  1 Xe d -2       
-    67    -0.277886  -0.000000  1 Xe d  2              33    -0.000088   0.267468  1 Xe d -1       
-    35    -0.266133  -0.000274  1 Xe d  1              63     0.000062   0.186682  1 Xe d -2       
+    72    -0.812000   0.000000  1 Xe d  2              68    -0.003291   0.519206  1 Xe d -2       
+    33     0.004427   0.299709  1 Xe d -1              35    -0.285879   0.002154  1 Xe d  1       
+    67    -0.277577  -0.000000  1 Xe d  2              63    -0.001125   0.177487  1 Xe d -2       
+    28     0.001513   0.102453  1 Xe d -1              62     0.098295   0.000000  1 Xe d  2       
+    30    -0.097726   0.000736  1 Xe d  1              58     0.000398  -0.062851  1 Xe d -2       
 
  Vector   69  Occ=0.000000D+00  E= 2.852211D-01
-              MO Center= -2.0D-15, -1.1D-15,  1.4D-16, r^2= 5.0D-01
+              MO Center=  7.7D-16,  4.1D-16,  2.2D-16, r^2= 1.6D-01
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    34     0.324879  -0.492805  1 Xe d  0              32    -0.330772  -0.303458  1 Xe d -2       
-    36    -0.201120   0.387107  1 Xe d  2              69    -0.228186  -0.289908  1 Xe d -1       
-    71     0.085231  -0.340856  1 Xe d  1              70    -0.034968   0.214202  1 Xe d  0       
-    33     0.211141   0.028262  1 Xe d -1              29     0.111058  -0.168462  1 Xe d  0       
-    27    -0.113072  -0.103735  1 Xe d -2       
+    71    -0.511764   0.296946  1 Xe d  1              69    -0.177054  -0.559174  1 Xe d -1       
+    32    -0.239975  -0.423606  1 Xe d -2              33    -0.157032  -0.198138  1 Xe d -1       
+    66    -0.174943   0.101509  1 Xe d  1              64    -0.060525  -0.191150  1 Xe d -1       
+    70     0.179953  -0.035181  1 Xe d  0              68     0.136720   0.121200  1 Xe d -2       
+    27    -0.082034  -0.144807  1 Xe d -2              35    -0.009653  -0.116409  1 Xe d  1       
 
  Vector   70  Occ=0.000000D+00  E= 2.852211D-01
-              MO Center= -2.8D-15, -5.2D-15, -6.5D-16, r^2= 7.5D-01
+              MO Center=  4.5D-15, -1.2D-16,  1.1D-15, r^2= 3.2D-01
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    70    -0.106970  -0.596998  1 Xe d  0              33    -0.473882   0.023708  1 Xe d -1       
-    32    -0.419513   0.015146  1 Xe d -2              71     0.232808   0.236115  1 Xe d  1       
-    69    -0.262940   0.116739  1 Xe d -1              35     0.099810   0.215472  1 Xe d  1       
-    36    -0.159628   0.169985  1 Xe d  2              65    -0.036567  -0.204080  1 Xe d  0       
-    28    -0.161994   0.008104  1 Xe d -1       
+    33     0.021359  -0.636637  1 Xe d -1              68    -0.036645   0.561877  1 Xe d -2       
+    35     0.431365   0.051932  1 Xe d  1              69    -0.209501   0.174894  1 Xe d -1       
+    28     0.007301  -0.217630  1 Xe d -1              34    -0.026732  -0.198724  1 Xe d  0       
+    63    -0.012527   0.192074  1 Xe d -2              70     0.177771  -0.026477  1 Xe d  0       
+    30     0.147459   0.017752  1 Xe d  1              71     0.144026  -0.019966  1 Xe d  1       
 
  Vector   71  Occ=0.000000D+00  E= 2.852211D-01
-              MO Center=  5.8D-15, -5.8D-16,  9.1D-16, r^2= 7.7D-01
+              MO Center= -3.9D-16,  3.2D-16, -1.3D-15, r^2= 2.0D-01
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    35     0.669261  -0.068807  1 Xe d  1              68     0.001142   0.574058  1 Xe d -2       
-    33     0.066522  -0.490475  1 Xe d -1              30     0.228782  -0.023521  1 Xe d  1       
-    63     0.000391   0.196238  1 Xe d -2              70    -0.154833   0.117198  1 Xe d  0       
-    28     0.022740  -0.167666  1 Xe d -1       
+    34    -0.142746   0.675659  1 Xe d  0              71     0.004789   0.461048  1 Xe d  1       
+    69     0.319136   0.169618  1 Xe d -1              70    -0.147505   0.292874  1 Xe d  0       
+    35     0.217327  -0.172959  1 Xe d  1              29    -0.048797   0.230970  1 Xe d  0       
+    32    -0.127121   0.158636  1 Xe d -2              33     0.165223  -0.047003  1 Xe d -1       
+    66     0.001637   0.157606  1 Xe d  1              68     0.003868   0.132401  1 Xe d -2       
 
  Vector   72  Occ=0.000000D+00  E= 2.852211D-01
-              MO Center= -2.7D-15, -1.5D-16,  1.3D-15, r^2= 2.8D-01
+              MO Center=  1.5D-15, -2.9D-17, -8.3D-16, r^2= 6.6D-01
   Bfn.         Coefficient        Function           Bfn.         Coefficient        Function  
   ----     -------------------  ------------         ----     -------------------  ------------
-    71     0.105014  -0.630860  1 Xe d  1              70     0.230014  -0.361812  1 Xe d  0       
-    69     0.402454   0.141380  1 Xe d -1              32     0.342438   0.042087  1 Xe d -2       
-    35    -0.089685   0.237351  1 Xe d  1              33    -0.180433  -0.175912  1 Xe d -1       
-    66     0.035898  -0.215655  1 Xe d  1              34    -0.031493  -0.197805  1 Xe d  0       
-    36    -0.081110   0.174219  1 Xe d  2       
+    36    -0.082639  -0.659663  1 Xe d  2              32     0.484100  -0.046928  1 Xe d -2       
+    70     0.345914   0.073161  1 Xe d  0              35    -0.289350  -0.023742  1 Xe d  1       
+    34    -0.257867   0.092846  1 Xe d  0              71    -0.113169   0.229167  1 Xe d  1       
+    31    -0.028250  -0.225501  1 Xe d  2              69    -0.121958   0.184591  1 Xe d -1       
+    27     0.165486  -0.016042  1 Xe d -2              33     0.060738  -0.110077  1 Xe d -1       
 
 
    alpha - beta orbital overlaps 
@@ -679,7 +1086,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Parallel integral file used       4 records with       0 large values
 
 
- Task  times  cpu:        2.4s     wall:        2.5s
+ Task  times  cpu:        2.9s     wall:        3.0s
 
 
                                 NWChem Input Module
@@ -696,10 +1103,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  697      697     4264     3792      456        0        0      334     
-number of processes/call 1.47e+00 1.41e+00 1.17e+00 0.00e+00 0.00e+00
-bytes total:             1.15e+07 1.06e+07 5.10e+06 0.00e+00 0.00e+00 2.67e+03
-bytes remote:            3.55e+06 3.46e+06 2.02e+05 0.00e+00 0.00e+00 0.00e+00
+calls:  697      697     4356     3816      450        0        0      336     
+number of processes/call 1.48e+00 1.41e+00 1.17e+00 0.00e+00 0.00e+00
+bytes total:             1.14e+07 1.06e+07 5.04e+06 0.00e+00 0.00e+00 2.69e+03
+bytes remote:            3.59e+06 3.47e+06 2.02e+05 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 992736 bytes
 
 MA_summarize_allocated_blocks: starting scan ...
@@ -710,10 +1117,10 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        20	        51
+	maximum number of blocks	        20	        55
 	current total bytes		         0	         0
-	maximum total bytes		   4372936	  22512664
-	maximum total K-bytes		      4373	     22513
+	maximum total bytes		   4372904	  22600760
+	maximum total K-bytes		      4373	     22601
 	maximum total M-bytes		         5	        23
 
 
@@ -751,4 +1158,4 @@ MA usage statistics:
    K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
                                A. T. Wong, Z. Zhang.
 
- Total times  cpu:        2.5s     wall:        2.5s
+ Total times  cpu:        2.9s     wall:        3.0s
