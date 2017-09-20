@@ -112,6 +112,9 @@ c     ====================
      1     k_l1_offset,k_l2_offset)
       call reconcilefile(d_hh,size_hh)
       call tce_dens_hh_print(d_hh,k_hh_offset,printtol,irrep_y)
+      call deletefile(d_hh)
+      if (.not.ma_pop_stack(l_hh_offset))
+     1    call errquit("ccsd_lambda: MApopstack failed",29,MA_ERR)
 c     ============================
 c     1PDM Particle-Particle Block
 c     ============================
@@ -128,6 +131,9 @@ c     ============================
      3     k_l1_offset,k_l2_offset)
       call reconcilefile(d_pp,size_pp)
       call tce_dens_pp_print(d_pp,k_pp_offset,printtol,irrep_y)
+      call deletefile(d_pp)
+      if (.not.ma_pop_stack(l_pp_offset))
+     1    call errquit("ccsd_lambda: MApopstack failed",30,MA_ERR)
 c     ========================
 c     1PDM Hole-Particle Block
 c     ========================
@@ -141,6 +147,9 @@ c     ========================
       call ccsd_1pdm_hp_mo(d_hp,d_lambda1,k_hp_offset,k_l1_offset)
       call reconcilefile(d_hp,size_hp)
       call tce_dens_hp_print(d_hp,k_hp_offset,printtol,irrep_y)
+      call deletefile(d_hp)
+      if (.not.ma_pop_stack(l_hp_offset))
+     1    call errquit("ccsd_lambda: MApopstack failed",32,MA_ERR)
 c     ========================
 c     1PDM Particle-Hole Block
 c     ========================
@@ -155,6 +164,9 @@ c     ========================
      1     k_ph_offset,k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset)
       call reconcilefile(d_ph,size_ph)
       call tce_dens_ph_print(d_ph,k_ph_offset,printtol,irrep_y)
+      call deletefile(d_ph)
+      if (.not.ma_pop_stack(l_ph_offset))
+     1    call errquit("ccsd_lambda: MApopstack failed",33,MA_ERR)
 c
       if(nodezero) then
        write(LuOut,9535)

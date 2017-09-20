@@ -45,7 +45,7 @@ C     i0 ( h2 h1 )_yt + = -1 * Sum ( p3 ) * t ( p3 h1 )_t * y ( h2 p3 )_y
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -74,13 +74,17 @@ C     i0 ( h2 h1 )_yt + = -1 * Sum ( p3 ) * t ( p3 h1 )_t * y ( h2 p3 )_y
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL nxtask
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      call ga_sync()
+      next = nxtask(nprocs,1)
+ 71   format(i3,a,2i8)
+c      write(6,71) ga_nodeid(),' first next',next,noab
       DO h2b = 1,noab
       DO h1b = 1,noab
       IF (next.eq.count) THEN
+c      write(6,71) ga_nodeid(),' next and count',next,count
       IF ((.not.restricted).or.(int_mb(k_spin+h2b-1)+int_mb(k_spin+h1b-1
      &).ne.4)) THEN
       IF (int_mb(k_spin+h2b-1) .eq. int_mb(k_spin+h1b-1)) THEN
@@ -106,8 +110,14 @@ C     i0 ( h2 h1 )_yt + = -1 * Sum ( p3 ) * t ( p3 h1 )_t * y ( h2 p3 )_y
      & ERRQUIT('ccsd_1pdm_hh_mo_1',1,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a,k_a)) CALL ERRQUIT('
      &ccsd_1pdm_hh_mo_1',2,MA_ERR)
+c      write(6,*) ga_nodeid(),' geeting hasvlock',h1b_1
+c     & - 1 + noab * (p3b_1 - noab - 1)
+
       CALL GET_HASH_BLOCK(d_a,dbl_mb(k_a),dima,int_mb(k_a_offset),(h1b_1
      & - 1 + noab * (p3b_1 - noab - 1)))
+c      write(6,*) ga_nodeid(),' got hasvlock',h1b_1
+c     & - 1 + noab * (p3b_1 - noab - 1)
+
       CALL TCE_SORT_2(dbl_mb(k_a),dbl_mb(k_a_sort),int_mb(k_range+p3b-1)
      &,int_mb(k_range+h1b-1),2,1,1.0d0)
       IF (.not.MA_POP_STACK(l_a)) CALL ERRQUIT('ccsd_1pdm_hh_mo_1',3,MA_
@@ -146,12 +156,14 @@ C     i0 ( h2 h1 )_yt + = -1 * Sum ( p3 ) * t ( p3 h1 )_t * y ( h2 p3 )_y
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
-      END IF
+      next = nxtask(nprocs,1)
+c      write(6,71) ga_nodeid(),' loop next',next
+       END IF
       count = count + 1
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+c      write(6,71) ga_nodeid(),' last next',next
+      next = nxtask(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -173,7 +185,7 @@ C     i0 ( h2 h1 )_yt + = -1/2 * Sum ( h5 p3 p4 ) * t ( p3 p4 h1 h5 )_t * y ( h2
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -211,11 +223,11 @@ C     i0 ( h2 h1 )_yt + = -1/2 * Sum ( h5 p3 p4 ) * t ( p3 p4 h1 h5 )_t * y ( h2
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
+      EXTERNAL nxtask
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       DO h2b = 1,noab
       DO h1b = 1,noab
       IF (next.eq.count) THEN
@@ -322,12 +334,12 @@ C     i0 ( h2 h1 )_yt + = -1/2 * Sum ( h5 p3 p4 ) * t ( p3 p4 h1 h5 )_t * y ( h2
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
