@@ -28,7 +28,7 @@ c     dens_pp ( p5 p6 )
       END IF
       END DO
       END DO
-      IF (.not.MA_PUSH_GET(mt_int,2*length+1,'noname',l_a_offset,k_a_off
+      IF (.not.MA_PUSH_GET(mt_int,2*length+1,'denspp',l_a_offset,k_a_off
      &set)) CALL ERRQUIT('tce_dens_pp_offset',0,MA_ERR)
       int_mb(k_a_offset) = length
       addr = 0
