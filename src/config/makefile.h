@@ -1058,16 +1058,17 @@ else
       CORE_SUBDIRS_EXTRA += lapack
    endif
 endif
+
                _CPU = $(shell machine  )
                INSTALL = @echo nwchem is built
                RANLIB = ranlib
 #             MAKEFLAGS = -j 1 --no-print-directory
              DEFINES   = -DMACX
              DEFINES  += -DEXT_INT
+             LINK.f    = $(FC) $(LDFLAGS) -Wl,-flat_namespace
 
       ifeq ($(_FC),gfortran)
 #gcc version 
-        LINK.f    = $(FC) $(LDFLAGS) 
         FOPTIONS  = -cpp #-Wextra #-Wunused #-ffast-math
         ifdef USE_I4FLAGS
         else
