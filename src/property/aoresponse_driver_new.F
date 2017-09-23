@@ -997,7 +997,7 @@ c ... jochen: fixed printing of alphaim instead of the
 c     eigenvectors below:
 
           if (oprint .and. lifetime) then
-              write(LuOut,*), "*************************"
+              write(LuOut,*) "*************************"
                write(LuOut,9434) "DFT Linear Response IMAG",
      1              dbl_mb(k_fr),auXnm/dbl_mb(k_fr),
      2              alfaim(1,1),alfaim(1,2),alfaim(1,3),
@@ -1005,7 +1005,7 @@ c     eigenvectors below:
      4              alfaim(3,1),alfaim(3,2),alfaim(3,3),
      5              alphaevi(1),alphaevi(2),alphaevi(3),
      6              alphaisoim,alphaaniim
-              write(LuOut,*), "*************************"
+              write(LuOut,*) "*************************"
           end if
 c END F. Krausbeck
 
