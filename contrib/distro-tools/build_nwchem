@@ -468,7 +468,12 @@ function get_mpi_fortran ()
      result=$?
      rm -f /tmp/$$.f
      if [ ${result} -eq 0 ] ; then
-       inlist="ftn"
+       if [ ${#inlist} -eq 0 ]; then
+         # -craype-verbose flag was not recognized
+         result=1
+       else
+         inlist="ftn"
+       fi
      fi
    fi
    if [ ${result} -ne 0 ] ; then
@@ -543,7 +548,12 @@ function get_mpi_cc ()
      result=$?
      rm -f /tmp/$$.c
      if [ ${result} -eq 0 ] ; then
-       inlist="cc"
+       if [ ${#inlist} -eq 0 ] ; then
+         # -craype-verbose flag was not recognized
+         result=1
+       else
+         inlist="cc"
+       fi
      fi
    fi
    if [ ${result} -ne 0 ] ; then
@@ -623,7 +633,12 @@ function get_mpi_cxx ()
      result=$?
      rm -f /tmp/$$.cpp
      if [ ${result} -eq 0 ] ; then
-       inlist="CC"
+       if [ ${#inlist} -eq 0 ] ; then
+         # -craype-verbose flag was not recognized
+         result=1
+       else
+         inlist="CC"
+       fi
      fi
    fi
    if [ ${result} -ne 0 ] ; then
