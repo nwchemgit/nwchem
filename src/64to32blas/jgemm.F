@@ -1,6 +1,6 @@
-      SUBROUTINE XGEMM (TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
+      SUBROUTINE jGEMM (TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
      $                   BETA, C, LDC )
-C     $Id$
+C     $Id: xgemm.F 19697 2010-10-29 16:57:34Z d3y133 $
       implicit none
 #include "y64.fh"
 *     .. Scalar Arguments ..

@@ -1,4 +1,4 @@
-      SUBROUTINE XGESVD( JOBU, JOBVT, M, N, A, LDA, S, U, LDU, 
+      SUBROUTINE jGESVD( JOBU, JOBVT, M, N, A, LDA, S, U, LDU, 
      $                   VT, LDVT,  WORK, LWORK, RWORK, INFO )
 * $Id: ygesvd.F 19697 2010-10-29 16:57:34Z d3y133 $
       implicit none

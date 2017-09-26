@@ -9,8 +9,8 @@
                  ysterf.o ylarnv.o ylagtf.o ylagts.o yasum.o \
                  ypotri.o ypotrf.o ysygv.o ygeev.o ygeevx.o \
                  ifily.o\
-                 xscal.o xaxpy.o xgemm.o xheev.o xcopy.o xdotc.o \
-                 ixamax.o xgesvd.o
+                 jscal.o jaxpy.o jgemm.o jheev.o jcopy.o jdotc.o \
+                 ijamax.o jgesvd.o
 
         ifeq ($(BLAS_SIZE),8)
 	LIB_DEFINES += -DUSE_INTEGER8

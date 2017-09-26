@@ -1,6 +1,6 @@
-      subroutine xaxpy(n,za,zx,incx,zy,incy)
+      subroutine jaxpy(n,za,zx,incx,zy,incy)
 *
-* $Id$
+* $Id: xaxpy.F 21373 2011-11-02 20:52:29Z d3p852 $
 *
       implicit none
 #include "y64.fh"

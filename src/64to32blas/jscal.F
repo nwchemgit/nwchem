@@ -1,6 +1,6 @@
-      subroutine  xscal(n,za,zx,incx)
+      subroutine  jscal(n,za,zx,incx)
 *
-* $Id$
+* $Id: xscal.F 19697 2010-10-29 16:57:34Z d3y133 $
 *
       implicit none
 #include "y64.fh"

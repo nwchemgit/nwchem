@@ -1,6 +1,6 @@
-      subroutine  xcopy(n,dx,incx,dy,incy)
+      subroutine  jcopy(n,dx,incx,dy,incy)
 *
-* $Id$
+* $Id: xcopy.F 19697 2010-10-29 16:57:34Z d3y133 $
 *
       implicit none
 #include "y64.fh"
