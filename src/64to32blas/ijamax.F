@@ -1,6 +1,6 @@
-      integer function ixamax(n,dx,incx)
+      integer function ijamax(n,dx,incx)
 *
-* $Id$
+* $Id: ixamax.F 19697 2010-10-29 16:57:34Z d3y133 $
 *
       implicit none
 #include "y64.fh"
@@ -14,6 +14,6 @@ c
       incx4=incx
       n4=n
 c
-      ixamax=izamax(n4,dx,incx4)
+      ijamax=izamax(n4,dx,incx4)
       return
       end
