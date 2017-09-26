@@ -1,6 +1,6 @@
-      double complex function xdotc(n,dx,incx,dy,incy)
+      double complex function jdotc(n,dx,incx,dy,incy)
 *
-* $Id$
+* $Id: xdotc.F 19697 2010-10-29 16:57:34Z d3y133 $
 *
       implicit none
 #include "y64.fh"
@@ -15,6 +15,6 @@ c
       incy4=incy
       n4=n
 c
-      xdotc= zdotc (n4,dx,incx4,dy,incy4)
+      jdotc= zdotc (n4,dx,incx4,dy,incy4)
       return
       end
