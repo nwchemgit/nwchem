@@ -4942,7 +4942,7 @@ c     Multiply by 100 so we can think in percent.
       do 460  icrit = 1, nncrit
          rho = ri(npat+1) * ckspc(icrit)
 c        when beta(0)=90 degrees, get zero, so fudge with cos=.2
-         x = max (abs(beta(npat+1)), 0.2) / rho
+         x = max (abs(beta(npat+1)), 0.2d0) / rho
          do 420  iat = 1, npat
             rho = ri(iat) * ckspc(icrit)
             ipot0 = ipot(ipat(iat))
@@ -5966,7 +5966,7 @@ c     Path importance factor is integral d|p| of
 c        (product of f(beta)/rho for the scatterers) * cos(beta0)/rho0
       do 560  ie = ik0, ne
          rho = ri(npat+1) * cksp(ie)
-         crit = max (abs(beta(npat+1)), 0.2) / rho
+         crit = max (abs(beta(npat+1)), 0.2d0) / rho
          do 520  iat = 1, npat
             rho = ri(iat) * cksp(ie)
             ipot0 = ipot(ipat(iat))
