@@ -42,4 +42,7 @@ bsse
 end
 
 task dft energy
+dft
+ grid fine
+end
 task dft freq
