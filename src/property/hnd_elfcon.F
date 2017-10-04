@@ -159,7 +159,7 @@ c     value of npt_pass at last loop
 #endif
  321     format(a,i10)
       endif
-      call ga_sync()
+      if(do_parallel) call ga_sync()
 c
 c     Zero elfval result array
 c
