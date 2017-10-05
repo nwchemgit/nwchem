@@ -185,11 +185,21 @@ c
       integer owstart(2)
       integer owend(2)
       logical lcheck
+      integer ispintag
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c
       nodezero=(ga_nodeid().eq.0)
+c
+c     Set spintag
+      if (singlet) then 
+          ispintag = 1
+      else if (triplet) then 
+          ispintag = 2
+      else 
+          ispintag = 3
+      end if
 c
 c -------------------------
 c Allocate density matrices
@@ -794,9 +804,10 @@ c ----------
 c Checkpoint
 c ----------
 c
-        if (lcheck) call tddft_checkpoint(rtdb,ipol,nroots,ntrials,
-     1    nov,algorithm,dbl_mb(k_apbvec),dbl_mb(k_ambvec),g_trials,
-     2    g_buffer1,d_trials,tda)
+        if (lcheck) 
+     1 call tddft_checkpoint(rtdb,ipol,ispintag,nroots,ntrials,
+     2    nov,algorithm,dbl_mb(k_apbvec),dbl_mb(k_ambvec),g_trials,
+     3    g_buffer1,d_trials,tda)
 c
 c ---------------------------------------------------------------
 c Form residual vectors, new trial vectors, and check convergence
