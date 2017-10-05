@@ -1,4 +1,4 @@
-      subroutine tddft_checkpoint(rtdb,ipol,nroots,ntrials,nov,
+      subroutine tddft_checkpoint(rtdb,ipol,ispintag,nroots,ntrials,nov,
      1  algorithm,apbvec,ambvec,g_trials,g_buffer,d_trials,tda)
 c
 c Output current trial vectors so calculation can be restarted
@@ -18,6 +18,7 @@ c
 c
       integer rtdb             ! Runtime database handle
       integer ipol             ! = 1 (RDFT); =2 (UDFT)
+      integer ispintag         ! 1 = Restricted Singlet, 2 = Restricted Triplet, 3=Unrestricted
       integer nroots           ! Number of roots sought
       integer ntrials          ! Number of trial vectors
       integer nov(2)           ! Number of occupied virtual pairs
@@ -84,6 +85,7 @@ c
           write(ioun) 2*nroots
         end if
         write(ioun) ipol
+        write(ioun) ispintag
         write(ioun) nov(1), nov(2)
       end if
 c

@@ -1,5 +1,5 @@
-      subroutine tddft_restart(ipol,nroots,ntrials,nov,algorithm,
-     1  g_trials,g_buffer1,g_buffer2,d_trials,fn_trials,tda)
+      subroutine tddft_restart(ipol,ispintag,nroots,ntrials,nov,
+     1  algorithm,g_trials,g_buffer1,g_buffer2,d_trials,fn_trials,tda)
 c
 c Read trial vectors from disk
 c
@@ -17,6 +17,10 @@ c
 #include "dra.fh"
 c
       integer ipol             ! = 1 (RDFT); =2 (UDFT)
+      integer ispintag         ! ispintag:
+c                              ! 1 = restricted singlet
+c                              ! 2 = restricted triplet
+c                              ! 3 = unrestricted
       integer nroots           ! Number of roots sought
       integer ntrials          ! Number trial vectors
       integer nov(2)           ! Number of occupied virtual pairs
@@ -38,6 +42,7 @@ c
       integer shift
       integer ntrials_old
       integer ipol_verify
+      integer ispintag_verify
       integer nov_verify(2)
 c
       double precision r
@@ -71,6 +76,7 @@ c
       if (ios.ne.0) then 
         if (ga_nodeid().eq.0)
      1    write(LuOut,*) 'Error opening trials, using default guess'
+          close(ioun)
         return
       end if
 c
@@ -79,15 +85,19 @@ c
 c     Read how many trial vectors we have (TDA: nroots; RPA: 2*nroots)
         read(ioun) ntrials_old
         read(ioun) ipol_verify
+        read(ioun) ispintag_verify
         read(ioun) nov_verify(1), nov_verify(2)
       end if
       call ga_brdcst(Msg_Vec_stat+MSGINT, ntrials_old, inntsize, 0)
       call ga_brdcst(Msg_Vec_stat+MSGINT, ipol_verify, inntsize, 0)
+      call ga_brdcst(Msg_Vec_stat+MSGINT, ispintag_verify, inntsize, 0)
       call ga_brdcst(Msg_Vec_stat+MSGINT, nov_verify, 2*inntsize, 0)
-      if ((ipol_verify.ne.ipol).or.(nov_verify(1).ne.nov(1)).or.
-     1  (nov_verify(2).ne.nov(2))) then
+c
+      if ((ipol_verify.ne.ipol).or.(ispintag_verify.ne.ispintag).or.
+     1  (nov_verify(1).ne.nov(1)).or.(nov_verify(2).ne.nov(2))) then
         if (ga_nodeid().eq.0)
      1    write(LuOut,*) 'ipol/nov inconsistency, using default guess'
+          close(ioun)
         return
       end if
 c

@@ -66,6 +66,7 @@ c
       logical tda                       ! True if Tamm-Dancoff approximation
       logical singlet                   ! True if singlet excited states
       logical triplet                   ! True if triplet excited states
+      integer ispintag         ! 1 = restricted singlet, 2 = restricted triplet, 3 = unrestricted 
       integer nroots           ! Number of roots sought
       integer maxvecs          ! Maximum number of trial vectors
       integer maxiter          ! Maximum number of Davidson iterations
@@ -346,6 +347,7 @@ c Restricted singlets
 c -------------------
 c
         if (singlet) then
+           ispintag = 1
 c
 c Generate initial guess trial vectors
 c
@@ -354,10 +356,10 @@ c
      2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm,
      3      targetsym,symmetry,l_irs,k_irs,tda,lecut,ecut,
      4      lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
-          if (ltrials)
-     1      call tddft_restart(ipol,nroots,ntrials,nov,algorithm,
+         if (ltrials)
+     1    call tddft_restart(ipol,ispintag,nroots,ntrials,nov,algorithm,
      2        g_trials,g_buffer1,g_buffer2,d_trials,fn_trials,tda)
-          if (util_print('trial vectors',print_debug)) then
+         if (util_print('trial vectors',print_debug)) then
             do i=1,ntrials
               call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
      1          g_prod_p,g_prod_m,g_buffer1,d_trials,d_prod_p,d_prod_m,
@@ -386,6 +388,7 @@ c Restricted triplets
 c -------------------
 c
         if (triplet) then
+           ispintag = 2
 c
 c Generate initial guess trial vectors
 c
@@ -395,7 +398,7 @@ c
      3      targetsym,symmetry,l_irs,k_irs,tda,lecut,ecut,
      4      lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
           if (ltrials)
-     1      call tddft_restart(ipol,nroots,ntrials,nov,algorithm,
+     1    call tddft_restart(ipol,ispintag,nroots,ntrials,nov,algorithm,
      2        g_trials,g_buffer1,g_buffer2,d_trials,fn_trials,tda)
           if (util_print('trial vectors',print_debug)) then
             do i=1,ntrials
@@ -426,6 +429,7 @@ c Unrestricted
 c ------------
 c
       else
+        ispintag = 3
 c
 c Generate initial guess trial vectors
 c
@@ -435,7 +439,7 @@ c
      3    targetsym,symmetry,l_irs,k_irs,tda,lecut,ecut,
      4    lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
         if (ltrials)
-     1    call tddft_restart(ipol,nroots,ntrials,nov,algorithm,
+     1    call tddft_restart(ipol,ispintag,nroots,ntrials,nov,algorithm,
      2      g_trials,g_buffer1,g_buffer2,d_trials,fn_trials,tda)
         if (util_print('trial vectors',print_debug)) then
           do i=1,ntrials
