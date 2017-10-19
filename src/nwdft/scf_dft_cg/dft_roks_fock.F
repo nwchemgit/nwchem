@@ -242,7 +242,8 @@ c
          endif
       endif
       if (xc_gotxc().and.nopen.gt.0) then
-        call ga_add(half,g_cdens,zero,g_bdens,g_bdens)
+        call ga_copy(g_cdens,g_bdens)
+        call ga_dscal(g_bdens,0.5d0)
         call ga_add(half,g_cdens,one,g_odens,g_adens)
       endif
 c
