@@ -137,7 +137,15 @@ c
         if (scftype.eq.'UHF') then
           odft = .true.
         else if (scftype.eq.'ROHF')  then
-          odft = .true.
+c     fix for closed shell and rodft
+           if(mult.eq.1) then
+              odft=.false.
+              scftype='RHF'
+              ipol=1
+           else
+              odft = .true.
+           endif
+          
        elseif (scftype.eq.'RHF'.and.mult.ne.1)  then
           odft= .true.
           scftype='UHF'
