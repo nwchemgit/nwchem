@@ -64,6 +64,8 @@ c
       n = dimA1
       call ga_sync()
       proc = min(n/15, ga_nnodes())
+c     if n.lt.15 proc becomes zero
+      proc=max(1,proc)
 c
       oactive = myproc .lt. proc
       if (oactive) then
