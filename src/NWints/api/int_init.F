@@ -304,6 +304,17 @@ c
         endif
       endif
 c
+      if (rtdb_get(rtdb,'int:cando_sim',MT_LOG,1,status)) then
+        user_cando_sim = .true.
+        def_cando_sim  = status
+        if (ga_nodeid().eq.0 .and. oprint) then
+          write(luout,*)
+     &        ' int_init: cando_sim set to always be ',
+     S          def_cando_sim
+          call util_flush(luout)
+        endif
+      endif
+c
       if (.not.user_cando_txs) then
         if (.not.texas_check_basis_ok(nbas,bases)) then
           user_cando_txs = .true.
@@ -320,13 +331,14 @@ c
 * code never always turn it on.
 *
       if (def_cando_sp.or.def_cando_nw.or.def_cando_txs.or.
-     &    def_cando_hnd) then
+     &    def_cando_hnd.or.def_cando_sim) then
         if (ga_nodeid().eq.0) then
           write(luout,*)' you are trying to turn an integral code on? '
           write(luout,*)' sp  ', def_cando_sp
           write(luout,*)' nw  ', def_cando_nw
           write(luout,*)' txs ', def_cando_txs
           write(luout,*)' hnd ', def_cando_hnd
+          write(luout,*)' sim ', def_cando_sim
           call util_flush(luout)
         endif
         call errquit
@@ -410,9 +422,14 @@ c
       if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then
         call texas_init(rtdb,nbas,bases,nqmax_texas,txs_mem_min,
      *                  'scfd_int')
-      else
+      elseif (.not.(user_cando_nw.and.
+     S       (.not.def_cando_nw))) then
          call igamma_init
+      else
+c     simint as last option (e.g. set int:cando_txs f set int:cando_nw f)
+         call nwcsim_init(rtdb,nbas,bases)
       endif
+      call int_mem_print()
 c
 c See if any basis has an attached ECP
 c

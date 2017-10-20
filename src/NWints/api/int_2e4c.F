@@ -93,9 +93,11 @@ c::functions
       logical cando_nw
       logical cando_sp
       logical cando_txs
+      logical cando_sim
       external cando_nw
       external cando_sp
       external cando_txs
+      external cando_sim
 #define PERF_NORMAL
 #if defined(PERF_NORMAL)
       logical int_chk_sh
@@ -130,7 +132,8 @@ c.txs
       double precision q4
       integer nint
       logical dum_log
-      logical status_sp, status_nw, status_txs, status_gen
+      logical status_sp, status_nw, status_txs, status_gen,
+     L     status_sim
       integer texas_ang_limit
 c.rel-dmd
       logical status_rel, bra_rel, ket_rel
@@ -236,6 +239,8 @@ c... stat nw
 c... stat rel
       status_rel = dyall_mod_dir .and. .not.nesc_1e_approx
      &    .and. (brain .eq. ketin) .and. (brain .eq. ao_bsh)
+c... stat sim
+      status_sim = cando_sim(brain,ish,jsh).and.cando_sim(ketin,ksh,lsh)
 c
 c  The following 4 lines are to take care of compiler warnings.
 c
@@ -424,6 +429,28 @@ c
             d_nbf = d_nbf_s
           endif
         endif
+      elseif(status_sim .and. .not.status_rel)  then
+        num_quart = 1
+        dummy_lab(1) = 0
+        dummy_lab(2) = 0
+        roff(1) = 0.0d00
+        roff(2) = 0.0d00
+        roff(3) = 0.0d00
+        dum_log = .false.
+*...check symmetry here
+        q4 = 1.0d00
+        call nwcsim_hf2(
+     &        ish,jsh,
+     &        ksh,lsh,
+     &        nint, eri, leri, scr, lscr)
+        if (nint .eq. 0) then
+           a_nbf = sf_ibs_cn2bfr(2,ish,bra) - sf_ibs_cn2bfr(1,ish,bra)+1
+           b_nbf = sf_ibs_cn2bfr(2,jsh,bra) - sf_ibs_cn2bfr(1,jsh,bra)+1
+           c_nbf = sf_ibs_cn2bfr(2,ksh,ket) - sf_ibs_cn2bfr(1,ksh,ket)+1
+           d_nbf = sf_ibs_cn2bfr(2,lsh,ket) - sf_ibs_cn2bfr(1,lsh,ket)+1
+           call dcopy(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, 0, eri, 1)
+        endif
+
       else
         write(luout,*)'int_2e4c: could not do sp or nw integrals'
         write(luout,*)' brain :',brain

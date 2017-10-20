@@ -2576,6 +2576,11 @@ endif
 ifdef SLURM
   EXTRA_LIBS += $(SLURMOPT)
 endif
+# simit
+
+ifdef USE_SIMINT
+  EXTRA_LIBS += $(SIMINT_LIB)
+endif
 
 # CUDA
 #ckbn gpu

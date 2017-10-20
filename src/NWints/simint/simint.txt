@@ -1,0 +1,32 @@
+Random thoughts for now on how to get Simint working in NWChem ...
+
+wget http://bennyp.org/research/simint/download/simint-v0.8.tar.bz2
+wget http://bennyp.org/research/simint/download/test.f90
+
+  FC=ifort CC=icc CXX=icpc ~/apps/bin/cmake -DSIMINT_VECTOR=avx ../
+  FC=ifort CC=icc CXX=icpc ~/apps/bin/ccmake -DSIMINT_VECTOR=avx ../
+
+
+c_simint_create_zero_shell for 3-ctr and 2-ctr
+put dummy to <bra|
+
+
+cmake build using ifort
+
+CMAKE
+CMAKE_BUILD_TYPE:STRING=Release
+CMAKE_CXX_FLAGS:STRING=-gxx-name=g++-5
+CMAKE_C_FLAGS:STRING=-gcc-name=gcc-5
+CMAKE_Fortran_FLAGS:STRING=-i8
+_GNUInstallDirs_LAST_CMAKE_INSTALL_PREFIX:INTERNAL=/home/edo/apps/simint8.install
+//Maximum AM to use
+SIMINT_MAXAM:STRING=2
+//Maximum derivative level
+SIMINT_MAXDER:STRING=0
+
+
+To link in NWChem
+
+SIMINT_LIB=-L/home/edo/apps/simint8.install/lib -lsimint
+USE_SIMINT=y
+SIMINT_INCLUDE=-I//home/edo/apps/simint8.install/include/simint

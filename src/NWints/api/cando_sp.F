@@ -871,4 +871,75 @@ c.... check jsh
       endif
 c
       end
+C> \return Return .true. if the integrals can be evaluated using the 
+C> Simint code, and .false. otherwise
+c
+      logical function cando_sim(basisin,ish,jsh)
+      implicit none
+c 
+c:tex-For two electron cases then there are two calls to cando_nw
+c:tex-that are required with each shell pair and cooresponding 
+c:tex-basis set handle (bra or ket). 
+c
+c this routine does not check the shell and int_init
+c because it only called by routines that do this.
+c
+c
+#include "bas.fh"
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geobasmapP.fh"
+#include "candoP.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
+c::passed
+      integer basisin !< [Input] the basis set handle for identified
+                      !< shells 
+      integer ish     !< [Input] the lexical shell index for I
+      integer jsh     !< [Input] the lexical shell index for J
+c:tex-A zero [i|j]sh means ignore this shell. this allows one function 
+c:tex-for all 2e permutations and multiple basis sets.
+c::local
+      integer basis, mytype, ucont
+c
+#include "bas_ibs_sfn.fh"
+#ifdef USE_SIMINT
+c
+      if (user_cando_sim) then
+        cando_sim = def_cando_sim
+        return
+      endif
+c
+      cando_sim = .true.
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+c
+c check shell range
+      if (ish.lt.0 .or. ish.gt.ncont_tot_gb(basis))
+     $     call errquit('cando_sim: bad ish =', ish, UNKNOWN_ERR)
+      if (jsh.lt.0 .or. jsh.gt.ncont_tot_gb(basis))
+     $     call errquit('cando_sim: bad jsh =', jsh, UNKNOWN_ERR)
+c.... check ish
+      if (ish.gt.0) then
+        ucont  = (sf_ibs_cn2ucn(ish,basis))
+        mytype = infbs_cont(CONT_TYPE,ucont,basis)
+        cando_sim = cando_sim .and.(mytype.gt.-1) 
+      endif
+c
+c.... check jsh
+      if (jsh.gt.0) then
+        ucont  = (sf_ibs_cn2ucn(jsh,basis))
+        mytype = infbs_cont(CONT_TYPE,ucont,basis)
+        cando_sim = cando_sim .and.(mytype.gt.-1)
+      endif
+c
+c     add check if ish and jsh are stored in c_simint_shell
+c
+c
+#else
+      cando_sim = .false.
+#endif
+      end
 C> @}

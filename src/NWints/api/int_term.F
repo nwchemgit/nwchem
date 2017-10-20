@@ -38,6 +38,9 @@ c
       if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then
         call texas_terminate()
       endif
+      if (.not.(user_cando_sim.and.(.not.def_cando_sim))) then
+        call nwcsim_terminate()
+      endif
       if (.not.spcart_terminate()) then
         call errquit('int_terminate: spcart_terminate failed',0, 
      &             INT_ERR)
