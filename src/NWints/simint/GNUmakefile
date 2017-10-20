@@ -2,15 +2,13 @@
 
 include ../../config/makefile.h
 
+  OBJ_OPTIMIZE = nwcsim_facef90.o nwcsim_hf2.o
 ifdef USE_SIMINT
       LIB_DEFINES += $(SIMINT_INCLUDE) -DUSE_SIMINT
-      OBJ_OPTIMIZE = nwcsimint_test.o
-else
-      OBJ_OPTIMIZE = 
+      OBJ_OPTIMIZE += nwcsimint_test.o
 endif
 
 
-  OBJ = nwcsim_facef90.o nwcsim_hf2.o
         
        HEADERS = 
 
