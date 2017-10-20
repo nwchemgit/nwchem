@@ -4,9 +4,11 @@ include ../../config/makefile.h
 
 ifdef USE_SIMINT
       LIB_DEFINES += $(SIMINT_INCLUDE) -DUSE_SIMINT
+      OBJ_OPTIMIZE = nwcsimint_test.o
+else
+      OBJ_OPTIMIZE = 
 endif
 
-  OBJ_OPTIMIZE = nwcsimint_test.o
 
   OBJ = nwcsim_facef90.o nwcsim_hf2.o
         
