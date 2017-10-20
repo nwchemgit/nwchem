@@ -429,7 +429,6 @@ c
 c     simint as last option (e.g. set int:cando_txs f set int:cando_nw f)
          call nwcsim_init(rtdb,nbas,bases)
       endif
-      call int_mem_print()
 c
 c See if any basis has an attached ECP
 c
