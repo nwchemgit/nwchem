@@ -314,7 +314,7 @@ c............... gen labs .. more_integrals
            b_nbf = sf_ibs_cn2bfr(2,jsh,bra) - sf_ibs_cn2bfr(1,jsh,bra)+1
            c_nbf = sf_ibs_cn2bfr(2,ksh,ket) - sf_ibs_cn2bfr(1,ksh,ket)+1
            d_nbf = sf_ibs_cn2bfr(2,lsh,ket) - sf_ibs_cn2bfr(1,lsh,ket)+1
-           call dcopy(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, 0, eri, 1)
+           call ycopy(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, 0, eri, 1)
         endif
 
       elseif(status_nw) then
@@ -385,11 +385,43 @@ c...................... canAB   canCD   canPQ   DryRun
 c....................... canAB    canCD   canPQ   dryrun
      &        eri, leri, .false.,.false.,.false.,.false., scr, lscr)
         end if
+      elseif(status_sim .and. .not.status_rel)  then
+        num_quart = 1
+        dummy_lab(1) = 0
+        dummy_lab(2) = 0
+        roff(1) = 0.0d00
+        roff(2) = 0.0d00
+        roff(3) = 0.0d00
+        dum_log = .false.
+*...check symmetry here
+        q4 = 1.0d00
+        call nwcsim_hf2(
+     &        ish,jsh,
+     &        ksh,lsh,
+     &        nint, eri, leri, scr, lscr)
+        if (nint .eq. 0) then
+           a_nbf = sf_ibs_cn2bfr(2,ish,bra) - sf_ibs_cn2bfr(1,ish,bra)+1
+           b_nbf = sf_ibs_cn2bfr(2,jsh,bra) - sf_ibs_cn2bfr(1,jsh,bra)+1
+           c_nbf = sf_ibs_cn2bfr(2,ksh,ket) - sf_ibs_cn2bfr(1,ksh,ket)+1
+           d_nbf = sf_ibs_cn2bfr(2,lsh,ket) - sf_ibs_cn2bfr(1,lsh,ket)+1
+           call ycopy(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, 0, eri, 1)
+        endif
+
+      else
+        write(luout,*)'int_2e4c: could not do sp or nw integrals'
+        write(luout,*)' brain :',brain
+        write(luout,*)' ketin :',ketin
+        write(luout,*)' ish   :',ish
+        write(luout,*)' jsh   :',jsh
+        write(luout,*)' ksh   :',ksh
+        write(luout,*)' lsh   :',lsh
+        call errquit('int_2e4c: fatal error ',0, INT_ERR)
+      endif
 c
 c
 c eri has cartesian block of integrals (llo:lhi,klo:khi,jlo:jhi,ilo:ihi)
 c
-        if (any_spherical)then
+        if (any_spherical.and.(status_sim.or.status_nw))then
 c
 c ... reset general contractions for sp shells to 1 since they are handled
 c     as a block of 4.
@@ -429,37 +461,5 @@ c
             d_nbf = d_nbf_s
           endif
         endif
-      elseif(status_sim .and. .not.status_rel)  then
-        num_quart = 1
-        dummy_lab(1) = 0
-        dummy_lab(2) = 0
-        roff(1) = 0.0d00
-        roff(2) = 0.0d00
-        roff(3) = 0.0d00
-        dum_log = .false.
-*...check symmetry here
-        q4 = 1.0d00
-        call nwcsim_hf2(
-     &        ish,jsh,
-     &        ksh,lsh,
-     &        nint, eri, leri, scr, lscr)
-        if (nint .eq. 0) then
-           a_nbf = sf_ibs_cn2bfr(2,ish,bra) - sf_ibs_cn2bfr(1,ish,bra)+1
-           b_nbf = sf_ibs_cn2bfr(2,jsh,bra) - sf_ibs_cn2bfr(1,jsh,bra)+1
-           c_nbf = sf_ibs_cn2bfr(2,ksh,ket) - sf_ibs_cn2bfr(1,ksh,ket)+1
-           d_nbf = sf_ibs_cn2bfr(2,lsh,ket) - sf_ibs_cn2bfr(1,lsh,ket)+1
-           call dcopy(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, 0, eri, 1)
-        endif
-
-      else
-        write(luout,*)'int_2e4c: could not do sp or nw integrals'
-        write(luout,*)' brain :',brain
-        write(luout,*)' ketin :',ketin
-        write(luout,*)' ish   :',ish
-        write(luout,*)' jsh   :',jsh
-        write(luout,*)' ksh   :',ksh
-        write(luout,*)' lsh   :',lsh
-        call errquit('int_2e4c: fatal error ',0, INT_ERR)
-      endif
       end
 C> @}

@@ -49,8 +49,10 @@ c
          basis = bases(ibasis) 
          bas = basis + BASIS_HANDLE_OFFSET
          cart_2_sphe=bas_spherical(bas)
+#if 0
          if(cart_2_sphe) call errquit(
      C        ' simint interface not ready for spherical ',0,0)
+#endif
          if (.not.bas_nprim_cn_max(basis, mxmx))
      C        call errquit(' bas_nprim_cn_max failed ',0,BASIS_ERR)
          if (.not. MA_Push_Get(MT_Dbl,mxmx,'simexp',l_exp,k_exp))
