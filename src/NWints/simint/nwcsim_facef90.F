@@ -2,8 +2,12 @@
       module nwcsim_shell
       use SimintFortran
 #include "nwc_const.fh"
-      type(c_simint_shell), target :: smnt_sh(nw_max_shells)
-      integer :: nwcsim_noshell
+C     shells 
+      type(c_simint_shell), target :: smnt_sh(nw_max_shells,3)
+c dummy shell for 3c- for basis 1
+      type(c_simint_shell), target :: zero_sh(nw_max_shells,3)
+      integer :: nwcsim_noshell(3), nwcsim_bas(3)
+      integer :: nwcsim_nbas
       end module  nwcsim_shell
       subroutine nwcsim_init(rtdb,nbas,bases)
       use nwcsim_shell
@@ -36,23 +40,21 @@ c      type(c_simint_multi_shellpair), target :: msh
       double precision q
       character*14 pname
       pname="nwcsim_f90init"
-c     assuming cartesian for now
 c     stick to nbas=1 for now
-         if(nbas.gt.1) call errquit(
-     C        ' simint interface not ready for multiple basis',0,0)
+         if(nbas.gt.2) call errquit(
+     C        ' simint interface not ready for no basis gt 2',0,0)
 c     init
       call simint_init()
 c
 c     create shells simint structure
 c
+      nwcsim_nbas=nbas
       do ibasis=1,nbas
          basis = bases(ibasis) 
          bas = basis + BASIS_HANDLE_OFFSET
+         nwcsim_bas(ibasis)=bas
+c     offset=-565
          cart_2_sphe=bas_spherical(bas)
-#if 0
-         if(cart_2_sphe) call errquit(
-     C        ' simint interface not ready for spherical ',0,0)
-#endif
          if (.not.bas_nprim_cn_max(basis, mxmx))
      C        call errquit(' bas_nprim_cn_max failed ',0,BASIS_ERR)
          if (.not. MA_Push_Get(MT_Dbl,mxmx,'simexp',l_exp,k_exp))
@@ -62,7 +64,7 @@ c
          geom  = ibs_geom(bas)
 c
          natoms   =  ncenter(geom)
-         nwcsim_noshell=0
+         nwcsim_noshell(bas)=0
          max_ang=0
          do iat=1,natoms
             if (.not.bas_ce2cnr(basis,iat,ic1,ic2))
@@ -78,18 +80,26 @@ c
      &              call errquit(pname//'Exiting ',8, BASIS_ERR)
                if (.not. geom_cent_get(geom, iat, tag,
      &              coord, q))call errquit
-               nwcsim_noshell=nwcsim_noshell+1
-               call simint_initialize_shell(smnt_sh(nwcsim_noshell))
+               nwcsim_noshell(bas)=nwcsim_noshell(bas)+1
+               call simint_initialize_shell(
+     S              smnt_sh(nwcsim_noshell(bas),bas))
                
                call simint_create_shell(nprim, l , 
      C              coord(1), coord(2), coord(3),
      &              dbl_mb(k_exp), dbl_mb(k_coef), 
-     L              smnt_sh(nwcsim_noshell))
+     L              smnt_sh(nwcsim_noshell(bas),bas))
+c     dummy shell for 3c-
+               dbl_mb(k_exp)=0d0
+               dbl_mb(k_coef)=1d0
+               call simint_create_shell(1, 0 , 
+     C              coord(1), coord(2), coord(3),
+     &              dbl_mb(k_exp), dbl_mb(k_coef), 
+     L              zero_sh(nwcsim_noshell(bas),bas))
             enddo
          enddo
          if(.not.ma_chop_stack(l_exp)) call errquit(
      E        ' pop stack failed ',l_exp,0)
-      enddo
+      enddo ! basis loop
 c
 c     normalization not needed since nwchem and simint use the same
 cedo      call simint_normalize_shells(nwcsim_noshell,smnt_sh)
@@ -116,13 +126,21 @@ c     0 deriv
       subroutine nwcsim_terminate()
       use nwcsim_shell
       implicit none
+#include "errquit.fh"
+      integer nbas     ! [in]
+      integer bases(3) ! [in]
 c
-      integer icsh
+      integer icsh,ibasis,bas
+      character*14 pname
+      pname="nwcsim_termina"
 c
-      do icsh=1,nwcsim_noshell
-         call simint_free_shell(smnt_sh(icsh))
+      do ibasis=1,nwcsim_nbas
+         bas=nwcsim_bas(ibasis)
+            do icsh=1,nwcsim_noshell(bas)
+               call simint_free_shell(smnt_sh(icsh,bas))
+               call simint_free_shell(zero_sh(icsh,bas))
+            enddo
       enddo
-
       call simint_finalize()
       return
       end
@@ -136,9 +154,10 @@ c
       integer rtdb,nbas,bases
       return
       end
-      subroutine nwcsim_terminate()
+      subroutine nwcsim_terminate(nbas,bases)
       implicit none
 #include "errquit.fh"
+      integer nbas,bases
       return
       end
 #endif

@@ -47,10 +47,12 @@ c errquit
 c::functions
       logical cando_nw
       logical cando_sp
+      logical cando_sim
       logical int_chk_sh
       logical int_chk_init
       external cando_nw
       external cando_sp
+      external cando_sim
       external int_chk_sh
       external int_chk_init
 #define USE_TEXAS
@@ -75,7 +77,7 @@ c:: local
       integer p_geom, q_geom, ucont
       integer Lp, p_prim, p_gen, p_iexp, p_icfp, p_cent
       integer Lq, q_prim, q_gen, q_iexp, q_icfp, q_cent
-      logical status_nw, status_sp
+      logical status_nw, status_sp,status_sim
 cedo#if defined(USE_TEXAS_BROKE)
       logical status_gen
       logical status_txs
@@ -153,6 +155,7 @@ c set status variables
 c
       status_nw = cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,0)
       status_sp = cando_sp(brain,ish,0).and.cando_sp(ketin,jsh,0)
+      status_sim = cando_sim(brain,ish,0).and.cando_sim(ketin,jsh,0)
 cedo#if defined(USE_TEXAS_BROKE)
       status_txs = cando_txs(brain,ish,0).and.cando_txs(ketin,jsh,0)
       status_gen = (max(p_gen,q_gen)) .gt. 1 ! if general contraction texas is only option
@@ -222,16 +225,12 @@ c......................... canAB    canCD    canPQ
 c............. dryrun
      &         OFALSE, scr, lscr)
 c
-        if (any_spherical) then
-c ... reset general contractions for sp shells to 1 since they are handled
-c     as a block of 4. Since int_nbf_* arrays are set to the appropriate size.
-          if (Lp.eq.-1) p_gen = 1
-          if (Lq.eq.-1) q_gen = 1 
-          call spcart_2ctran(eri,scr,lscr,
-     &        int_nbf_x(Lp),int_nbf_s(Lp),Lp,p_gen,bas_spherical(bra),
-     &        int_nbf_x(Lq),int_nbf_s(Lq),Lq,q_gen,bas_spherical(ket),
-     &        OFALSE)
-        endif
+      elseif(status_sim)  then
+        call nwcsim_hf2_2c(
+     &        bra,ish,
+     &        ket,jsh,
+     &        nint, eri, leri, scr, lscr)
+
       else
         write(luout,*)'int_2e2c: could not do nw integrals'
         write(luout,*)' brain :',brain
@@ -240,5 +239,15 @@ c     as a block of 4. Since int_nbf_* arrays are set to the appropriate size.
         write(luout,*)' jsh   :',jsh
         call errquit('int_2e2c: fatal error ',0,0)
       endif
+      if (any_spherical.and.(status_sim.or.status_nw))then
+c ... reset general contractions for sp shells to 1 since they are handled
+c     as a block of 4. Since int_nbf_* arrays are set to the appropriate size.
+          if (Lp.eq.-1) p_gen = 1
+          if (Lq.eq.-1) q_gen = 1 
+          call spcart_2ctran(eri,scr,lscr,
+     &        int_nbf_x(Lp),int_nbf_s(Lp),Lp,p_gen,bas_spherical(bra),
+     &        int_nbf_x(Lq),int_nbf_s(Lq),Lq,q_gen,bas_spherical(ket),
+     &        OFALSE)
+       endif
       end
 C> @}

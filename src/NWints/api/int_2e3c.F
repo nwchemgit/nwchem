@@ -50,10 +50,12 @@ c errquit
 c::functions
       logical cando_nw
       logical cando_sp
+      logical cando_sim
       logical int_chk_sh
       logical int_chk_init
       external cando_nw
       external cando_sp
+      external cando_sim
       external int_chk_sh
       external int_chk_init
 *----------------------------#define USE_TEXAS
@@ -83,7 +85,7 @@ c:: local
       integer Lp, p_prim, p_gen, p_iexp, p_icfp, p_cent
       integer Lc, c_prim, c_gen, c_iexp, c_icfp, c_cent
       integer Ld, d_prim, d_gen, d_iexp, d_icfp, d_cent
-      logical status_nw, status_sp
+      logical status_nw, status_sp, status_sim
 cedo#if defined(USE_TEXAS_BROKE)
       logical status_gen
       logical status_txs
@@ -181,6 +183,7 @@ c set integral code status
 c
       status_nw = cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,ksh)
       status_sp = cando_sp(brain,ish,0).and.cando_sp(ketin,jsh,ksh)
+      status_sim = cando_sim(brain,ish,0).and.cando_sim(ketin,jsh,ksh)
 cedo#if defined(USE_TEXAS_BROKE)
       status_txs = cando_txs(brain,ish,0).and.cando_txs(ketin,jsh,ksh)
       status_gen = (max(p_gen,c_gen,d_gen)) .gt. 1  ! if general contraction texas is only option
@@ -305,7 +308,21 @@ c............ dryrun
      &        OFALSE, scr, lscr)
         end if
 c
-        if (any_spherical) then
+      elseif(status_sim .and. .not.status_rel)  then
+        call nwcsim_hf2_3c(
+     &        bra,ish,
+     &        ket,jsh,ksh,
+     &        nint, eri, leri, scr, lscr)
+      else
+        write(luout,*)'int_2e3c: could not do nw integrals'
+        write(luout,*)' brain :',brain
+        write(luout,*)' ketin :',ketin
+        write(luout,*)' ish   :',ish
+        write(luout,*)' jsh   :',jsh
+        write(luout,*)' ksh   :',ksh
+        call errquit('int_2e3c: fatal error ',0, INT_ERR)
+      endif
+      if (any_spherical.and.(status_sim.or.status_nw))then
 c ... reset general contractions for sp shells to 1 since they are handled
 c     as a block of 4. Since int_nbf_* arrays are set to the appropriate size.
           if (Lp.eq.-1) p_gen = 1
@@ -317,14 +334,5 @@ c     as a block of 4. Since int_nbf_* arrays are set to the appropriate size.
      &        int_nbf_x(Ld),int_nbf_s(Ld),Ld,d_gen,bas_spherical(ket),
      &        OFALSE)
         endif
-      else
-        write(luout,*)'int_2e3c: could not do nw integrals'
-        write(luout,*)' brain :',brain
-        write(luout,*)' ketin :',ketin
-        write(luout,*)' ish   :',ish
-        write(luout,*)' jsh   :',jsh
-        write(luout,*)' ksh   :',ksh
-        call errquit('int_2e3c: fatal error ',0, INT_ERR)
-      endif
       end
 C> @}

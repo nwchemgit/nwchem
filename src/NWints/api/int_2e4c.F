@@ -314,7 +314,7 @@ c............... gen labs .. more_integrals
            b_nbf = sf_ibs_cn2bfr(2,jsh,bra) - sf_ibs_cn2bfr(1,jsh,bra)+1
            c_nbf = sf_ibs_cn2bfr(2,ksh,ket) - sf_ibs_cn2bfr(1,ksh,ket)+1
            d_nbf = sf_ibs_cn2bfr(2,lsh,ket) - sf_ibs_cn2bfr(1,lsh,ket)+1
-           call ycopy(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, 0, eri, 1)
+           call dcopy(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, 0, eri, 1)
         endif
 
       elseif(status_nw) then
@@ -386,25 +386,16 @@ c....................... canAB    canCD   canPQ   dryrun
      &        eri, leri, .false.,.false.,.false.,.false., scr, lscr)
         end if
       elseif(status_sim .and. .not.status_rel)  then
-        num_quart = 1
-        dummy_lab(1) = 0
-        dummy_lab(2) = 0
-        roff(1) = 0.0d00
-        roff(2) = 0.0d00
-        roff(3) = 0.0d00
-        dum_log = .false.
-*...check symmetry here
-        q4 = 1.0d00
         call nwcsim_hf2(
-     &        ish,jsh,
-     &        ksh,lsh,
+     &        bra,ish,jsh,
+     &        ket,ksh,lsh,
      &        nint, eri, leri, scr, lscr)
         if (nint .eq. 0) then
            a_nbf = sf_ibs_cn2bfr(2,ish,bra) - sf_ibs_cn2bfr(1,ish,bra)+1
            b_nbf = sf_ibs_cn2bfr(2,jsh,bra) - sf_ibs_cn2bfr(1,jsh,bra)+1
            c_nbf = sf_ibs_cn2bfr(2,ksh,ket) - sf_ibs_cn2bfr(1,ksh,ket)+1
            d_nbf = sf_ibs_cn2bfr(2,lsh,ket) - sf_ibs_cn2bfr(1,lsh,ket)+1
-           call ycopy(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, 0, eri, 1)
+           call dcopy(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, 0, eri, 1)
         endif
 
       else

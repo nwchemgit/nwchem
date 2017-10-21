@@ -3,8 +3,9 @@
       implicit none
 #include "mafdecls.fh"
 c      use iso_c_binding
-      type(c_simint_shell), target :: sh(2)
-      type(c_simint_multi_shellpair), target :: msh
+      type(c_simint_shell), target :: sh(2), zero_sh(1,3)
+      type(c_simint_multi_shellpair), target :: bra_msh
+      type(c_simint_multi_shellpair), target :: ket_msh
 
       double precision, pointer :: p1(:), p2(:)
       double precision :: alpha(3), coef(3)
@@ -36,7 +37,8 @@ c      allocate(work(worksize))
       
       call simint_initialize_shell(sh(1))
       call simint_initialize_shell(sh(2))
-      call simint_initialize_multi_shellpair(msh)
+      call simint_initialize_multi_shellpair(bra_msh)
+      call simint_initialize_multi_shellpair(ket_msh)
       
       call simint_create_shell(3, 0, 0.0d0, 0.0d0, 0.0d0, 
      &                          alpha, coef, sh(1)) 
@@ -49,26 +51,72 @@ c      allocate(work(worksize))
       call C_F_POINTER(sh(1)%alpha, p1, shape=[sh(1)%nprim])
       call C_F_POINTER(sh(1)%coef, p2, shape=[sh(1)%nprim])
       
-      call simint_create_multi_shellpair(2, sh, 2, sh, msh, 0)
+      call simint_create_multi_shellpair(2, sh, 2, sh, bra_msh, 0)
+      call simint_create_multi_shellpair(2, sh, 2, sh, ket_msh, 0)
       
-      call C_F_POINTER(msh%alpha, p1, shape=[msh%nprim])
-      call C_F_POINTER(msh%prefac, p2, shape=[msh%nprim])
+      call C_F_POINTER(bra_msh%alpha, p1, shape=[bra_msh%nprim])
+      call C_F_POINTER(bra_msh%prefac, p2, shape=[bra_msh%nprim])
       
       write(*,*) "Shell Pair info"
-      do i = 1, msh%nprim
+      do i = 1, bra_msh%nprim
         write(*,*) p1(i), p2(i)
       end do
       
-      ncomputed = simint_compute_eri(msh, msh, 0.0d0, 
+      ncomputed = simint_compute_eri(bra_msh, ket_msh, 0.0d0, 
      C     dbl_mb(k_wrk), integrals)
-      write(*,*) integrals(1),integrals(ncomputed)
+      write(*,*) ' 2e4c', integrals(1),integrals(ncomputed)
+c     try 2e3c
+      call simint_free_multi_shellpair(bra_msh)
+      call simint_free_multi_shellpair(ket_msh)
+#if 0
+      call simint_create_zero_shell(zero_sh(1,1)) 
+#else
+      alpha(1)=0d0
+      coef(1)=1d0
+      call simint_create_shell(1, 0, 0.0d0, 0.0d0, 0.0d0, 
+     &                          alpha, coef, zero_sh(1,1)) 
+#endif
+      call C_F_POINTER(zero_sh(1,1)%alpha, p1, 
+     S     shape=[zero_sh(1,1)%nprim])
+      call C_F_POINTER(zero_sh(1,1)%coef, p2, 
+     S     shape=[zero_sh(1,1)%nprim])
+      
+      write(*,*) "Shell info"
+      do i = 1, zero_sh(1,1)%nprim
+        write(*,*) p1(i), p2(i)
+      end do
+
+      call simint_create_multi_shellpair(1, sh, 1, zero_sh(1,1), 
+     B     bra_msh, 0)
+      call simint_create_multi_shellpair(1, sh, 1, sh, ket_msh, 0)
+
+      ncomputed = simint_compute_eri(bra_msh, ket_msh, 0.0d0, 
+     C     dbl_mb(k_wrk), integrals)
+      write(*,*) ' 2e3c',integrals(1),integrals(ncomputed)
+      call C_F_POINTER(bra_msh%alpha, p1, shape=[bra_msh%nprim])
+      call C_F_POINTER(bra_msh%prefac, p2, shape=[bra_msh%nprim])
+      
+      write(*,*) "Shell Pair info"
+      do i = 1, bra_msh%nprim
+        write(*,*) p1(i), p2(i)
+      end do
+c     try 2e2c
+      call simint_free_multi_shellpair(ket_msh)
+      call simint_create_multi_shellpair(1, sh, 1, zero_sh(1,1), 
+     B     ket_msh, 0)
+      ncomputed = simint_compute_eri(bra_msh, ket_msh, 0.0d0, 
+     C     dbl_mb(k_wrk), integrals)
+      write(*,*) ' 2e2c',integrals(1),integrals(ncomputed)
+      
       
 c      deallocate(work)
       if(.not.ma_pop_stack(l_wrk)) call errquit(
      E     ' pop stack failed ',l_wrk,0)
       call simint_free_shell(sh(1))
       call simint_free_shell(sh(2))
-      call simint_free_multi_shellpair(msh)
+      call simint_free_shell(zero_sh(1,1))
+      call simint_free_multi_shellpair(bra_msh)
+      call simint_free_multi_shellpair(ket_msh)
       
       call simint_finalize()
       
