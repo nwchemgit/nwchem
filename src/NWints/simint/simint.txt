@@ -5,6 +5,9 @@ wget http://bennyp.org/research/simint/download/test.f90
 
   FC=ifort CC=icc CXX=icpc ~/apps/bin/cmake -DSIMINT_VECTOR=avx ../
   FC=ifort CC=icc CXX=icpc ~/apps/bin/ccmake -DSIMINT_VECTOR=avx ../
+ 
+ Compilation on KNL based system
+ FC=ifort CC=icc CXX=icpc ~/apps/bin/cmake -DSIMINT_VECTOR=micavx512 -DCMAKE_INSTALL_LIBDIR=lib -DENABLE_FORTRAN=ON -DSIMINT_MAXAM=7 -DCMAKE_Fortran_FLAGS=-i8 -DCMAKE_INSTALL_PREFIX=/home/edo/apps/simint8.install ../
 
 
 c_simint_create_zero_shell for 3-ctr and 2-ctr
@@ -27,6 +30,5 @@ SIMINT_MAXDER:STRING=0
 
 To link in NWChem
 
-SIMINT_LIB=-L/home/edo/apps/simint8.install/lib -lsimint
+SIMINT_HOME=/home/edo/apps/simint8.install/
 USE_SIMINT=y
-SIMINT_INCLUDE=-I//home/edo/apps/simint8.install/include/simint

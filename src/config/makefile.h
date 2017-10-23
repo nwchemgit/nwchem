@@ -1931,6 +1931,8 @@ $(error )
          endif
          ifdef USE_KNL
            FOPTIMIZE += -xMIC-AVX512 
+#illegal instr?            FOPTIONS += -qopt-assume-safe-padding
+            FOPTIONS += -align array64byte
            DEFINES+= -DINTEL_64ALIGN
          else
            FOPTIMIZE += -xHost
@@ -2579,7 +2581,11 @@ endif
 # simit
 
 ifdef USE_SIMINT
-  EXTRA_LIBS += $(SIMINT_LIB)
+  ifdef SIMINT_LIB64
+    EXTRA_LIBS += -L$(SIMINT_HOME)/lib64 -lsimint
+  else
+    EXTRA_LIBS += -L$(SIMINT_HOME)/lib -lsimint
+  endif
 endif
 
 # CUDA
