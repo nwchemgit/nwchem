@@ -1,6 +1,7 @@
       subroutine dimqm_main(rtdb, basis, geom, g_dens, lastcy)
 c
 c     Author: Justin Moore
+c             Jeff Becca
 c
 c     Called from: dft_scf.F, rohf_fock.F 
 c
@@ -44,6 +45,7 @@ c     Local variables
       double precision dime             ! DIM/QM interaction energy function
       integer a
       double precision dx, dy, dz       ! Total induced dipoles moment for the DIM system
+      double precision efld_int
 c
 c     Common variables used from dimqm.fh 
 c
@@ -82,12 +84,15 @@ c      Read in coords from RTDB
         write(luout,*) "Pulled coords"
 c        write(*,*) "GEOM:", geom
       end if
+c     Read in whether or not this is first cycle
+c     It seems the house cleaning made all of this rtdb dependent now
+      if(.not. rtdb_get(rtdb,'dimqm:lfirst',mt_log, 1, lfirst))
+     $   call errquit('dimqm_main:lfirst get failed', 1, RTDB_ERR)
 c
 c   ===========
 c   First Cycle
 c   ===========
 c
-      write(6,*) ga_nodeid(), ' l1st ',lfirst,' i3 ',i3
       if(lfirst) then
 c
 c        Allocate memory for QM nuclear contribution on the heap (PERSISTANT)
@@ -105,10 +110,8 @@ c        Zero both arrays
         call dfill(i3, ZERO, dbl_mb(k_muold), 1)
         call dfill(i3, ZERO, dbl_mb(k_eqmn), 1)
 c        Build interaction matrix
-        write(6,*) ga_nodeid(),' before prep '
         call dimqm_prep(rtdb, -ONE)
 c        Generate electric field due to QM nuclei.  This doesn't change so we only do it once.
-        write(6,*) ga_nodeid(),' before eqmn '
         call dimqm_EqmN(rtdb, geom, dimxyz,
      $                  dbl_mb(k_eqmn))
         if(id.eq.0.and.ldebug) then
@@ -123,10 +126,10 @@ c      Generate E-field from QM electrons
 c
 c      Add finite field if present
       if(lefield .and. lclfld) then
-        if(id.eq.0 .and. .not. lastcy) then 
-          write(luout,*) "Adding finite field to Eqm"
-          write(luout,*) finiteFieldX, finiteFieldY, finiteFieldZ
-        end if
+        !if(id.eq.0 .and. .not. lastcy) then 
+        !  write(luout,*) "Adding finite field to Eqm"
+        !  write(luout,*) finiteFieldX, finiteFieldY, finiteFieldZ
+        !end if
         if(.not.ma_push_get(mt_dbl,i3,'dimqm finite',l_fin,k_fin))
      $   call errquit('dimqm_main malloc k_finite failed',1,MA_ERR)
         call dfill(nDIM, finiteFieldX, dbl_mb(k_fin)  , 3)
@@ -134,6 +137,8 @@ c      Add finite field if present
         call dfill(nDIM, finiteFieldZ, dbl_mb(k_fin+2), 3)
 c
 c        Add finite field for finite-difference local field calculations
+c  jbecca TODO: make a separate variable for the finitefield so 
+c              the energy can be separated out for static local field
         call daxpy(i3, ONE, dbl_mb(k_fin), 1, EqmE, 1)
         if(.not. ma_pop_stack(l_fin)) call
      $       errquit('ma_pop failed l_fin',1,MA_ERR)
@@ -147,8 +152,14 @@ c   =======================================================
 c   Generate induced dipoles (and charges) on the DIM atoms
 c   =======================================================
 c
-      call dimqm_f2d(rtdb, Etot, muind, dbl_mb(k_muold), dimxyz, 1,
-     $               'g', ' ')
+c  jbecca: Adding in option to add external field induced dipoles
+      if (lefield .and. lclfld) then
+         call dimqm_f2d(rtdb, Etot, muind, dbl_mb(k_muold), dimxyz, 1,
+     $               'g', ' ',.true.)
+      else
+         call dimqm_f2d(rtdb, Etot, muind, dbl_mb(k_muold), dimxyz, 1,
+     $               'g', ' ',.false.)
+      endif
 c
 c      Write induced dipoles and charges to disk
       if(.not.rtdb_put(rtdb,'dimqm:muind',mt_dbl,i3, muind))
@@ -157,6 +168,26 @@ c
 c      Calculate DIM/QM interaction energy
 c      This is needed in the RTDBdd
       edimqm = dime(EqmE, dbl_mb(k_eqmn), muind, nDIM)
+c  jbecca START: need to add in the interaction energy with the efield
+c              if the efield is present
+c  NOTE: This is not needed for now, since the finitefield is added to
+c        EqmE, the interaction energy will also be calculated as part
+c        of -HALF * SUM(EqmE * muind)
+c
+c      if (lefield .and. lastcy) then
+c         write(luout,*)'adding in DIM/QM interaction energy with efield'
+c         efld_int    =  ZERO
+c         efld_int    =  SUM(muind(1,:) * finiteFieldX)
+c     $               +  SUM(muind(2,:) * finiteFieldY)
+c     $               +  SUM(muind(3,:) * finiteFieldZ)
+c         efld_int    =  -HALF * efld_int
+c         write(luout,*)'edimqm before efld_int',edimqm
+c         write(luout,*)'efld_int',efld_int
+c         edimqm      =  edimqm + efld_int
+c         write(luout,*)'edimqm after efld_int',edimqm
+c      endif       !lefield
+c  jbecca END
+
       if (.not. rtdb_put(rtdb, 'dimqm:edimqm', MT_DBL, 1, edimqm))
      $  call errquit('dimqm_main edimqm put failed', 1, RTDB_ERR)
 c
@@ -186,6 +217,8 @@ c      Copy new dipoles into muold
 c
 c      No longer the first cycle!
       lfirst = .false.
+      if (.not. rtdb_put(rtdb, 'dimqm:lfirst', mt_log, 1, lfirst))
+     $   call errquit('dimqm_main: lfirst put failed', 1, RTDB_ERR)
 c
 c      Last cycle only
       if(lastcy) then
@@ -211,7 +244,10 @@ c        Destroy persistant arrays
      $    call errquit("dimqm_main: can't free l_muold", MA_ERR)
         if(.not.ma_free_heap(l_eqmn))
      $    call errquit("dimqm_main: can't free l_eqmn", MA_ERR)
-        call dimqm_tidy(rtdb)
+c jbecca START:
+c        call dimqm_tidy(rtdb)
+        call dimqm_tidy()
+c  jbecca END:
       end if
 c
       if(id.eq.0.and.ldebug) write(LuOut,*) "End dimqm_main"
