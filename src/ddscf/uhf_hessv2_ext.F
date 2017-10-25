@@ -885,8 +885,8 @@ c ============= FA-defining scratch GA array g_h1mat() === START
       chunk(2) = -1
       do ipm = 1,ncomp
         write(cstemp,'(a,i1)') 'pmats_',ipm
-        if (.not .nga_create(MT_DBL,2,dims,cstemp(1:7),chunk,
-     &     g_pma ts(ipm))) call 
+        if (.not.nga_create(MT_DBL,2,dims,cstemp(1:7),chunk,
+     &     g_pmats(ipm))) call 
      &     errquit('rohf_h2e3: nga_create failed '//cstemp(1:7),
      &     0,GA_ERR)
         call ga_zero(g_pmats(ipm))
