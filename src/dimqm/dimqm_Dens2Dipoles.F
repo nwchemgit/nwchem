@@ -103,7 +103,7 @@ c     Calculate the dipoles induced by the QM density
 c      lfirst = .true.
       call dimqm_f2d(rtdb, dbl_mb(k_fld), 
      $               dbl_mb(k_muind), dbl_mb(k_muold),
-     $               dbl_mb(k_dimxyz), icmplx, direction(dir), ' ')
+     $           dbl_mb(k_dimxyz), icmplx, direction(dir), ' ',.false.)
 c      write(luout,*) "Dipoles Created"
 c
 c     Write induced dipoles to RTDB

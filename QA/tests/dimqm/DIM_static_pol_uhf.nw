@@ -19,16 +19,16 @@ driver
 end
 
 dft
+ odft
  iterations 200
  xc xpbe96 1.0 cpbe96 1.0
  grid medium 
- odft
 end
 
 dimqm
  PIM
  Algorithm 1
- screen GAU 1.0d0
+ screen EXP 1.0d0
  tolerance 1.0d-7
 end
 

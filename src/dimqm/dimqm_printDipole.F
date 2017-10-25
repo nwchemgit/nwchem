@@ -24,15 +24,15 @@ c      double precision qind(nDIM, icmplx)
 c
 c   Local variables
       double precision diptot(3, icmplx)
-      character*50 dd
-      character*50 d
+      character*60 dd
+      character*60 d
 
       if(ga_nodeid().ne.0) return
       diptot = SUM(muind, DIM = 2)
       dd =
-     $ '=================================================='
+     $ '============================================================='
       d =
-     $ '--------------------------------------------------'
+     $ '-------------------------------------------------------------'
 c   BLAS matrix-matrix multiply to add in charge term
 
       if(lpprint) then

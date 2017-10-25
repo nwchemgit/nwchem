@@ -20,15 +20,16 @@ end
 
 dft
  iterations 200
- xc xpbe96 1.0 cpbe96 1.0
+ xc b3lyp
  grid medium 
 end
 
 dimqm
  PIM
  Algorithm 1
- screen GAU 1.0d0
+ screen none
  tolerance 1.0d-7
+ localfield
 end
 
 dimpar
@@ -99,7 +100,8 @@ dimpar
 END
 
 property
- aoresponse 1 0.14
+ aoresponse 1 0.10
+ damping 0.0037
 end
 
 task dft property  

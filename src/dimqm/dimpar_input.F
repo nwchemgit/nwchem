@@ -139,6 +139,8 @@ c
 c       END          
         if(inp_compare(.false.,'end',field)) then
           go to 10
+        else if(inp_compare(.false.,'subend',field)) then
+          go to 10
 c
 c       POL   
         else if(inp_compare(.false.,'pol',field)) then
@@ -233,14 +235,25 @@ c       EXP DIELECTRIC
             if(.not.inp_f(expdata(3,iexp)))
      $        call errquit('exp die: missing imag die',iexp,INPUT_ERR)
           end do  
+
           call inp_restore_state
+
           close(unit=54)
+
           call spline (iexp, expdata(1,1:iexp),
      $                 expdata(2,1:iexp), expdata(3,1:iexp),
      $                 splined(1,1:iexp), splined(2,1:iexp))
-          write(luout,*) "Splined data"
-          write(luout,*) splined(1,1:iexp)
-          write(luout,*) splined(2,1:iexp)
+c jbecca TODO: for some reason, no functionals but unspecified LDA will
+c        run with exp dielectric if this following iexp print is not
+c        here. Tried 5-4, 5-5, and 5-6 toolkits. Maybe this line allows
+c        for badly parallelized loop to complete before storing values?
+c          write(luout,*) "iexp"
+c          write(luout,*) expdata(1,1:iexp)
+c          write(luout,*) expdata(2,1:iexp)
+c          write(luout,*) expdata(3,1:iexp)
+c          write(luout,*) "Splined data"
+c          write(luout,*) splined(1,1:iexp)
+c          write(luout,*) splined(2,1:iexp)
           hasExpDie(nDIMTypes) = .true.
           if(.not.rtdb_put(rtdb,'dimpar:expdata'//char(nDIMTypes),
      $                     mt_dbl, 3*iexp, expdata(1:3, 1:iexp)))
@@ -311,7 +324,10 @@ c       Read in line by line, stopping at the next end or EOF for XYZ file
 c
           if(inp_compare(.false.,'end',field)) then
             go to 10
+          else if(inp_compare(.false.,'subend',field)) then
+            go to 10
           end if
+      
 c
           nDIM = nDIM + 1
           element = field
@@ -369,6 +385,7 @@ c      write(luout,*) "Storing"
      $                       ndimtypes)
       stat=stat.and.rtdb_put(rtdb,'dimpar:norder',mt_int,1,
      $                       norder)
+! Is there a reason the following is rtdb put twice???
       stat=stat.and.rtdb_put(rtdb,'dimpar:name',mt_byte,nDIMTypes*2,
      $                       typename(1:nDIMTypes))
       stat=stat.and.rtdb_put(rtdb,'dimpar:name',mt_byte,nDIMTypes*2,

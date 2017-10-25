@@ -50,13 +50,13 @@ c
       lclfld_out=lclfld
       return
       end
-      subroutine dimqm_getgdipeli(g_dipel_i_out)
-      implicit none
-      integer g_dipel_i_out
-#include "dimqm.fh"
-      g_dipel_i_out=g_dipel_i
-      return
-      end
+c      subroutine dimqm_getgdipeli(g_dipel_i_out)
+c      implicit none
+c      integer g_dipel_i_out
+c#include "dimqm.fh"
+c      g_dipel_i_out=g_dipel_i
+c      return
+c      end
       subroutine dimqm_init(rtdb)
       implicit none
 #include "dimqm.fh"

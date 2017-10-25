@@ -94,7 +94,7 @@ c
 c     Initial residual
 c      res_0 = dnrm2(nlen,unknowns,1)
       res_0 = SQRT(ga_ddot(g_work(3), g_work(3)))
-      if(id.eq.0) write(luout,*) "res_0:", res_0
+      if(id.eq.0.and.ldebug) write(luout,*) "res_0:", res_0
 c
 c     If already converged, exit here
       if((tol >= ONE) .or. (res_0 <= tol)) then
@@ -112,7 +112,7 @@ c     $      call errquit('get seed:k failed', 1, RTDB_ERR)
 c
 c     Now project the seed space onto the iterate and residual
       rhs_n     = res_0
-      if(id.eq.0) write(luout,*) "Projecting", k, "steps"
+      if(id.eq.0.and.ldebug) write(luout,*) "Projecting", k, "steps"
       do j = 1, k
 c       Pull in scalars
         if(id.eq.0) then

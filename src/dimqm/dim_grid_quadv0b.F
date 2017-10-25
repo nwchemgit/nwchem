@@ -78,9 +78,9 @@ c
       nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if(nqpts.eq.0) return
       dprint = ldebug
-      if(dprint) then
-        write(luout,*) "dim_grid_quadv0b start"
-      end if
+c      if(dprint) then
+c        write(luout,*) "dim_grid_quadv0b start"
+c      end if
        maxdbas = 0
        idelchi_ao = 0
 c
@@ -172,9 +172,9 @@ c      endif
       if (.not.ma_pop_stack(lchi_ao))
      &     call errquit('grid_quadv0b: cannot pop stack', 3, MA_ERR)
 
-      if(dprint) then
-        write(luout,*) "end dim_grid_quadv0b"
-      end if
+c      if(dprint) then
+c        write(luout,*) "end dim_grid_quadv0b"
+c      end if
       return
       end subroutine dim_grid_quadv0b
 c

@@ -124,7 +124,7 @@ c     Now project the seed space onto the iterate and residual
       rhs_n     = res_0
       cosn      = ONE
       sinn      = ZERO
-      write(luout,*) "Projecting", k, "steps"
+      if (ldebug) write(luout,*) "Projecting", k, "steps"
       do j = 1, k
 c       Pull in scalars
         if(.not.rtdb_get(rtdb,'seed:sin'//CHAR(j), mt_dbl, 1, sinn))
@@ -172,7 +172,7 @@ c     Initialize the variables
       rhs_n     = omega * dtmp
       omegamax  = ONE / omega
       g_n       = ZERO
-      write(luout,*) "projected res_nrm:", res_nrm
+      if (ldebug) write(luout,*) "projected res_nrm:", res_nrm
 c
 c     Begin the algorithm
       do niter = 1, maxiter

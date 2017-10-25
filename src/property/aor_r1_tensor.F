@@ -16,6 +16,7 @@
      &  lvelocity,              ! in : logical vars
      &  lifetime,               ! in : logical vars
      &  g_vecE1,g_vecE1_im,     ! in :
+     &  g_dipel_i,
      &  alfare,alfaim,          ! out: electric-electric response matrices
      &  betare,betaim)          ! out: electric-magnetic response matrices       
 c $Id$     
@@ -127,7 +128,7 @@ c     external functions:
       external ga_trace_diag
       
       external get_alfaorbeta_reim
-
+      integer g_dipel_i
 c  ====================================================================
 
       ndir = 3                  ! nr of field directions (x,y,z)
@@ -306,6 +307,8 @@ c       ---------------------------------------------------------
      &        nocc,             ! in : nr. occupied alpha or beta
      &        lifetime,         ! in : logical var for damping
      &        dbgsub,            ! in : logical var for debugging
+     &        g_dipel_i,
+     &        omega,
      &        g_temp)           ! in : scratch GA array
             
             
@@ -356,6 +359,8 @@ c       ---------------------------------------------------------
      &        nocc,             ! in : nr. occupied alpha or beta
      &        lifetime,         ! in : logical var for damping
      &        dbgsub,            ! in : logical var for debugging
+     &        g_dipel_i,
+     &        omega,
      &        g_temp)           ! in : scratch GA array
             
             
@@ -380,6 +385,8 @@ c         if required, calculate dipole-quadrupole polarizability:
      &          nocc,           ! in : nr. occupied alpha or beta
      &          lifetime,       ! in : logical var for damping
      &          dbgsub,          ! in : logical var for debugging
+     &          g_dipel_i,
+     &          omega,
      &          g_temp)         ! in : scratch GA array       
             end do              ! iresp
           end if                ! lquad

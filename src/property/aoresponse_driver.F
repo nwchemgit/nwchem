@@ -151,7 +151,10 @@ c     start-up: print header
 c     ----------------------
       
       if (oprint) then
-        write (LuOut,*) 'Entering AOResponse driver routine'
+c jbecca
+c        write (LuOut,*) 'Entering AOResponse driver routine'
+        write (LuOut,*) 'Entering old AOResponse driver routine'
+c jbecca end
       endif
       
       if (oprint) then

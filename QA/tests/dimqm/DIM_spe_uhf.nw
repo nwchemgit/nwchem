@@ -9,10 +9,9 @@ geometry units angstrom nocenter noautoz
  H                 9.30230          .0000000000        -.7545655371
 symmetry c1
 end
-charge 1
 
 basis spherical
- * library 6-311G
+ * library 6-311++G
 end
 
 driver
@@ -22,15 +21,17 @@ end
 dft
  odft
  iterations 200
- xc xpbe96 1.0 cpbe96 1.0
+ xc b3lyp
  grid medium 
- MULT 2
 end
 
+set dft:efield 0.001 0.0 0.0
+
 dimqm
+ EFIELD 0.001 0.0 0.0
  PIM
  Algorithm 1
- screen GAU 1.0d0
+ screen EXP 1.0d0
  tolerance 1.0d-7
 end
 
@@ -101,13 +102,6 @@ dimpar
  end
 END
 
-task dft energy
-#property
-# aoresponse 1 0.14
-#  aoresponse
-# damping 0.0367
-#end
 
-#task dft property  
 task dft energy
 

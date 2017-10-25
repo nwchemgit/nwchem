@@ -1,5 +1,5 @@
       subroutine dimqm_indDipoles(rtdb, nbf, geom, basis,
-     $                              g_dens)
+     $                              g_dens, luhf_fd)
 c
 c     Determines the induced dipoles for the given density matrix 
 c    
@@ -49,6 +49,9 @@ c      integer l_muind, k_muind
       external calcErr
       logical firsttime
       integer id
+c jbecca START
+      logical luhf_fd   ! variable for using this routine for FD Open Shell
+c  jbecca END
 c      double precision screen(nDIM)
 
 c
@@ -56,7 +59,6 @@ c     Common variables used
 c
 c     logical lcmplx
 
-c      write(luout,*) "Start indDipoles"
       id = ga_nodeid()
       i3 = nDIM * 3
 c      icmplx = REALMATH
@@ -112,14 +114,14 @@ c       Initizalize arrays
         firsttime = .false.
         if(.not.rtdb_get(rtdb, 'dimqm:muind_'//direction(n), mt_dbl,
      $                   i3, muold)) then
-          if(id.eq.0) write(luout,*)
+          if(id.eq.0 .and. ldebug) write(luout,*)
      $                  "First cycle, no old dipoles! Setting to zero"
           muold = ZERO
           firsttime = .true.
           xyz_seeded(n) = .false.
           if(dimtol0 < 1.0d-4 .and. .not. dimqm_noseed) then
             dimtolxyz(n) = 1.0d-4
-            if(id.eq.0) then
+            if(id.eq.0 .and. ldebug ) then
               write(luout,*) "Requested tolerance below 1.0d-4"
               write(luout,*) "Setting "//direction(n)//" dir tolerance"
      $                                // " to 1.0d-4 to start"
@@ -133,11 +135,22 @@ c        call dfill(i3*icmplx, ZERO, dbl_mb(k_muind), 1)
 c        call dfill(i3*icmplx, ZERO, dbl_mb(k_fld), 1)
 c
 c       Calculate the QM E-field from the QM density
+c  jbecca START
+c        write(luout,*)'cpks dens'
+c        call ga_print(g_dens_comp)
+c  jbecca END
         call dimqm_EqmE(rtdb, g_dens_comp, geom, basis, fld, dimxyz)
 c
 c       Calculate the dipoles induced by the QM density
-        call dimqm_f2d(rtdb, fld, muind, muold, dimxyz, 1,
-     $                 direction(n), ' ')
+c  jbecca START
+        if (luhf_fd) then
+            call dimqm_f2d(rtdb, fld, muind, muold, dimxyz, 2,
+     $                 direction(n), ' ',.false.)
+        else
+            call dimqm_f2d(rtdb, fld, muind, muold, dimxyz, 1,
+     $                 direction(n), ' ',.false.)
+        endif     !luhf_fd
+c jbecca END
 c
 c       Write induced dipoles to RTDB
 c        dx = dsum(nDIM, dbl_mb(k_muind), 3)
@@ -146,20 +159,22 @@ c        dz = dsum(nDIM, dbl_mb(k_muind+2), 3)
         dx = SUM(muind(:, 1))
         dy = SUM(muind(:, 2))
         dz = SUM(muind(:, 3))
-        if(id.eq.0) then
+        if(id.eq.0.and.ldebug) then
           write(luout,*) "Total induced dipole moment for "//
      $                  direction(n)//" perturbation"
           write(luout,*) dx, dy, dz
           write(luout,*) ''
         end if
         dimErr(n) = calcErr(i3, muold, muind)
-        if(id.eq.0) write(luout,*) "Max error in dipoles:", dimErr(n)
+        if(id.eq.0.and.ldebug) 
+     $      write(luout,*) "Max error in dipoles:", dimErr(n)
+        if(id.eq.0.and.ldebug) write(luout,*) ""
 c
         if(dimErr(n) < 2.0d-1 .and. .not. xyz_seeded(n)
      $                        .and. .not. firsttime
      $                        .and. .not. dimqm_noseed) then
           xyz_seeded(n) = .true.
-          if(id.eq.0) then
+          if(id.eq.0.and.ldebug) then
             write(luout,*) "Error below 2.0d-1 for "//direction(n)
      $                                             //" dir"
             write(luout,*)"Setting current "//direction(n)

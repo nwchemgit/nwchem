@@ -101,7 +101,7 @@ c     Initial residual
 c      res_0 = dnrm2(nlen,unknowns,1)
       call ga_conjg(g_work(3), g_work(7))
       res_0 = SQRT(REAL(ga_zdot(g_work(7), g_work(3)), KIND=8))
-      write(luout,*) "res0:", res_0
+      if (ldebug) write(luout,*) "res0:", res_0
 c
 c     If already converged, exit here
       if((tol >= ONE) .or. (res_0 <= tol )) then
@@ -119,7 +119,7 @@ c     $      call errquit('get seed:k failed', 1, RTDB_ERR)
 c
 c     Now project the seed space onto the iterate and residual
       rhs_n = res_0
-      if(id.eq.0) write(luout,*) "Projecting", k, "steps"
+      if(id.eq.0.and.ldebug) write(luout,*) "Projecting", k, "steps"
       do j = 1, k
 c       Pull in scalars
         if(id.eq.0) then
@@ -183,7 +183,8 @@ c     Initialize the variables
       omegamax  = ONE / omega
 c
 c     Re-zero work arrays used in seeding
-      if(id.eq.0) write(luout,*) "Projected res_0:", REAL(dtmp)
+      if(id.eq.0 .and. ldebug) 
+     $   write(luout,*) "Projected res_0:", REAL(dtmp)
       call ga_zero(g_work(4))
       call ga_zero(g_work(5))
 c

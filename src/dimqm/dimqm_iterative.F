@@ -103,17 +103,17 @@ c           Transform fld vector from real to complex
      $                                            muold(iOrder,2))
         end do
         if(dimqm_noseed) then
-          if(id.eq.0) write(luout,*) "Regular QMR"
+          if(id.eq.0 .and. ldebug) write(luout,*) "DIM/QM QMR"
           call qmr_complex(rtdb, nOrder, g_work, nIter, err, ierr, 
      $                     dcpl_mb(k_cmplxFld), matvecComplex, xyz,
      $                     ldebug)
         else if(dimqm_seeded) then
-          if(id.eq.0) write(luout,*) "Using previous dipoles"
+          if(id.eq.0.and.ldebug) write(luout,*) "Using previous dipoles"
           call seeded_qmr_complex(rtdb, nOrder, g_work, nIter, err,
      $                            ierr, dcpl_mb(k_cmplxFld),
      $                            matvecComplex, xyz, ldebug, dir, pm)
         else
-          if(id.eq.0) write(luout,*) "Seeding QMR"
+          if(id.eq.0.and.ldebug) write(luout,*) "DIM/QM Seeding QMR"
           call qmr_seed_complex(rtdb, nOrder, g_work, nIter, err, ierr, 
      $                          dcpl_mb(k_cmplxFld), matvecComplex, xyz,
      $                          ldebug, dir, pm)
@@ -126,15 +126,15 @@ c       Transform fld vector from complex to real
         end do
       else
         if(dimqm_noseed) then
-          if(id.eq.0) write(luout,*) "Regular QMR"
+          if(id.eq.0.and.ldebug) write(luout,*) "DIM/QM QMR"
           call qmr_real(rtdb, nOrder, g_work, nIter, err, ierr,
      $                  fld(:,1), matvecReal, xyz, ldebug)
         else if(dimqm_seeded) then 
-          if(id.eq.0) write(luout,*) "Using previous dipoles"
+          if(id.eq.0.and.ldebug) write(luout,*) "Using previous dipoles"
           call seeded_qmr_real(rtdb, nOrder, g_work, nIter, err, ierr,
      $                         fld(:,1), matvecReal, xyz, ldebug, dir)
         else
-          if(id.eq.0) write(luout,*) "Seeding QMR"
+          if(id.eq.0.and.ldebug) write(luout,*) "DIM/QM Seeding QMR"
           call qmr_seed_real(rtdb, nOrder, g_work, nIter, err, ierr,
      $                        fld(:,1), matvecReal, xyz, ldebug, dir)
         end if
@@ -144,9 +144,10 @@ c       Transform fld vector from complex to real
       select case (ierr)
       case (0)
 c       Success
-        if(id .eq. 0) then
-          write(LuOut,*) "Converged in", nIter, "iterations"
+        if(id .eq. 0 .and. ldebug) then
+          write(LuOut,*)"DIM/QM dipoles converged in",nIter,"iterations"
           write(LuOut,*) "Took", time, "seconds"
+          write(LuOut,*) ''
         end if
       case (2)
         call errquit('Error in arguments for QMR routine',ierr,GA_ERR)

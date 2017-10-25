@@ -195,7 +195,7 @@ c
       dx = SUM(muind(1,:))
       dy = SUM(muind(2,:))
       dz = SUM(muind(3,:))
-      if(id.eq.0 .and. .not. lastcy) then
+      if(id.eq.0 .and. ldebug .and. .not. lastcy) then
         write(luout,*) "Induced dipoles:"
         write(luout,*) dx, dy, dz
         write(luout,*) ''
@@ -203,7 +203,7 @@ c
 c
 c      Determine error in dipoles
       max_err = calcErr(i3, dbl_mb(k_muold), muind)
-      if(id.eq.0 .and. .not. lastcy) then
+      if(id.eq.0 .and. ldebug .and. .not. lastcy) then
         write(LuOut,*) "Max error in dipoles:", max_err
         write(LuOut,*) ''
       end if
@@ -244,10 +244,7 @@ c        Destroy persistant arrays
      $    call errquit("dimqm_main: can't free l_muold", MA_ERR)
         if(.not.ma_free_heap(l_eqmn))
      $    call errquit("dimqm_main: can't free l_eqmn", MA_ERR)
-c jbecca START:
-c        call dimqm_tidy(rtdb)
         call dimqm_tidy()
-c  jbecca END:
       end if
 c
       if(id.eq.0.and.ldebug) write(LuOut,*) "End dimqm_main"

@@ -425,8 +425,10 @@ c     DIM/QM JEM
      $                  1, ldimqm)) ldimqm = .false.
 c     Calculate DIM dipoles and DIM potential
       if (ldimqm) then
+c  jbecca START: added false variable to subroutine call
         call dimqm_rohf_calcDIM(bgj_get_rtdb_handle(), geom, basis,
-     $                          nbf, nfock, g_dens, g_dim)
+     $                          nbf, nfock, g_dens, g_dim, .false.)
+c jbecca END
       end if
 
       ifock = 0

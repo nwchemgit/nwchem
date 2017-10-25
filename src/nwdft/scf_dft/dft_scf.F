@@ -220,6 +220,7 @@ cc     AJL/Begin/FDE
       integer g_dens_fde(2)
       logical ldimqm, dimqm_go
       double precision edimqm
+      double precision eelec
 cc     AJL/End
 c
       gotsmear(ss)=abs(ss).gt.1d-9
@@ -1163,6 +1164,8 @@ c     if (debug_fon) call dft_pstrace(g_dens(1),ao_bas_han,nbf_ao,oskel)
       end if                    ! fon
 c
 c     build DFT Fock matrix
+c  jbecca START: adding in electric field energy interaction term
+      eelec = zero
 c
       if(util_print('dft timings', print_high))
      &      time1=util_wallsec()  ! start fock matrix build time
@@ -1180,7 +1183,7 @@ c
      ,     n_levels, act_levels, oprint_time,
 cc AJL/Begin/FDE
 c     &     g_zora_sf,g_frozemb)
-     &     g_zora_sf,g_frozemb,g_vxc_fde,g_xcinv_fde,g_dens_fde)
+     &     g_zora_sf,g_frozemb,g_vxc_fde,g_xcinv_fde,g_dens_fde,eelec)
 cc AJL/End
       if(util_print('dft timings', print_high))
      &      time2=util_wallsec()  ! end fock matrix build time
@@ -1196,9 +1199,11 @@ c
 c     Calculate the total electronic energy.
 c     
       if (nExc.eq.1)then
-         Etnew = Ecore + Ecoul + Exc(1) + Edisp 
+c  jbecca START: adding in eelec here
+         Etnew = Ecore + Ecoul + Exc(1) + Edisp + eelec
       else
-         Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + Edisp
+c  jbecca START adding in eelec here
+         Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + Edisp + eelec
       endif
 c
       if (oprint_conv_details.and.me.eq.0)then
@@ -1218,10 +1223,11 @@ c
 c
 c     DIM/QM JEM
 c     Add DIM energy
-      if (ldimqm .and. dimqm_go) then
-         call dimqm_getenergy(edimqm)
-         Etnew = Etnew + Edimqm
-      endif
+c  jbecca START: Commenting out addition of DIM/QM E each scf
+c      if (ldimqm .and. dimqm_go) then 
+c         call dimqm_getenergy(edimqm)
+c         Etnew = Etnew + Edimqm
+c      endif
 c
 c     
 c     == is this a oneshot "noscf" type calculation, no diagonalization ==
@@ -1766,9 +1772,10 @@ c
      ,        rlshift,dbl_mb(k_eval(1)))
 c
       if (nExc.eq.1)then
-        Etnew = Ecore + Ecoul + Exc(1) + tdots + Edisp
+c  jbecca START: adding in eelec here for field int. 
+        Etnew = Ecore + Ecoul + Exc(1) + tdots + Edisp + eelec
       else
-        Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + tdots + Edisp
+        Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + tdots + Edisp + eelec
       endif
 c
 c     Add in cosmo contributions
@@ -1784,7 +1791,10 @@ c
 c     DIM/QM JEM
 c     Add DIM energy
       if(ldimqm .and. dimqm_go) then
-         call dimqm_energy(edimqm)
+c  jbecca START: this was missed in code cleaning
+c         call dimqm_energy(edimqm)
+         call dimqm_getenergy(edimqm)
+c  jbecca END
          Etnew = Etnew + Edimqm
       endif
 c
@@ -1960,9 +1970,11 @@ c
 c        Tally up last energy 
 c
          if (nExc.eq.1)then
-              Etnew = Ecore + Ecoul + Exc(1) + Edisp 
+c  jbecca START: adding in eelec here
+              Etnew = Ecore + Ecoul + Exc(1) + Edisp + eelec
          else
-              Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + Edisp
+c  jbecca START: adding in eelec here
+              Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + Edisp + eelec
          endif
 c
 c        Add in cosmo contributions
@@ -1979,7 +1991,10 @@ c        DIM/QM JEM
 c        Add DIM energy
 c        NOTE: Why are we redoing this energy sum?
          if(ldimqm .and. dimqm_go) then
-            call dimqm_energy(edimqm)
+c  jbecca START: it appears this was missed in the house-cleaning
+c            call dimqm_energy(edimqm)
+            call dimqm_getenergy(edimqm)
+c  jbecca END
             Etnew = Etnew + Edimqm
          endif
 

@@ -151,7 +151,9 @@ c     JEM: Updated to include imaginary part of rhs
      &                     nbf,      ! in : nr. basis functions
      &                     nmo,      ! in : nr. MOs   
      &                     ncomp,    ! in : nr components of ...
-     &                     debug)    ! in : logical for debugging
+     &                     debug,    ! in : logical for debugging
+     &                     omega,    ! in : freq value
+     &                     lifetime) ! in : lifetime
 c
 c Author : Fredy W. Aquino
 c Date   : 03-15-12
@@ -171,6 +173,7 @@ c
 #include "rtdb.fh"
 #include "bas.fh"
 #include "prop.fh"
+#include "util.fh"
       integer npol,ncomp
       integer g_dipole,g_dipole1,g_rhs(2),g_rhs_im(2)
       integer rtdb,basis
@@ -183,6 +186,11 @@ c
       integer alo(3), ahi(3),
      &        blo(3), bhi(3) 
       logical lvelocity,oskel,debug
+c  DIM/QM stuffs
+      logical use_dimqm, ldimqm, lrsp, lclfld, lifetime
+      integer g_dipel_i, g_dipel_i_tmp
+      double precision omega
+c  DIM/QM END
       oskel = .false.
       ndir=3 ! nr directions (x,y,z)
 c     Get dipole integrals in GA and transform to MO set (virt,occ)
@@ -197,6 +205,27 @@ c     Get dipole integrals in GA and transform to MO set (virt,occ)
       ahi(3) = ndir*npol
       if (.not.nga_create(MT_DBL,3,ahi,'dip matrix',alo,g_dipole)) call 
      &    errquit('fiao_f1: nga_create failed g_dipole',0,GA_ERR)
+c jbecca START DIMQM
+      use_dimqm=util_module_avail('dimqm')
+
+      if (use_dimqm) then
+         call dimqm_used(ldimqm)
+         call dimqm_getlrsp(lrsp)
+         call dimqm_getlclfld(lclfld)
+      else
+         ldimqm   =  .false.
+         lrsp     =  .false.
+         lclfld   =  .false.
+      endif
+
+      if (ldimqm .and. lrsp .and. lclfld .and. lifetime) then
+       if (.not.nga_create(MT_DBL,3,ahi,'dip matrix',alo,g_dipel_i_tmp)) 
+     $ call errquit('fiao_f1: nga_create failed g_dipole',0,GA_ERR)
+       call ga_zero(g_dipel_i_tmp)
+      endif
+
+c jbecca END DIMQM
+
       if (debug) write (luout,*) 'fiao_f1: dipole matrix allocated'
 c     Get H10 in GA, using g_dipole array
 c     note: origin has been set to (0,0,0) for multipole integs.
@@ -212,6 +241,20 @@ c     note: origin has been set to (0,0,0) for multipole integs.
      &                      origin,oskel)
       end if
       if (debug) write (luout,*) 'fiao_f1: AO integrals done'
+c jbecca START ------------- DIM/QM -----------------
+c For DIM/QM, we need to add in local field contributions here, if any
+c so that they affect the linear response of the system. It is important
+c to do here, because they are calculated in AO basis. Adding in here
+c will allow for this routine to handle converting to MO basis. 
+c NOTE: The following code assumes that the user will supply a damping
+c        parameter if using a frequency dependent local field
+
+      if (ldimqm .and. lrsp .and. lclfld) then 
+         !write(luout,*)'calling dimqm_lclfld for resp.eq.'
+         call dimqm_lclfld(g_dipole1,omega,lifetime,g_dipel_i)
+      endif
+
+c jbecca END   ------------- DIM/QM -----------------
 c     ga_rhs(a,i) = ga_rhs(a,i) + H10(a,i)
 c     Transform H10 to MO and add to g_rhs.
 c     (the rhs is NOT divided by (e_a - e_i -/+ omega), this
@@ -235,9 +278,21 @@ c --------- g_dipole1 --> g_dipole --------- START
        ahi(3) = disp+ndir  
        call nga_copy_patch('n',g_dipole1,blo,bhi,
      &                         g_dipole ,alo,ahi) 
+c  jbecca START: DIM/QM
+       if (ldimqm .and. lrsp .and. lclfld .and. lifetime) then
+         call nga_copy_patch('n',g_dipel_i,blo,bhi,
+     &                         g_dipel_i_tmp ,alo,ahi) 
+       endif
+c  jbecca END
       enddo ! end-loop-ispin
 c --------- g_dipole1 --> g_dipole --------- END
       call giao_aotomo(g_dipole,vectors,nocc,nvirt,npol,ndir,nbf)
+c jbecca START: DIM/QM
+      if (ldimqm .and. lrsp .and. lclfld .and. lifetime) then
+        call giao_aotomo(g_dipel_i_tmp,vectors,nocc,nvirt,npol,ndir,nbf)
+      endif
+c jbecca END: DIM/QM
+      
       do ispin=1,npol
        shift=ndir*(ispin-1)
        alo(1) = nocc(ispin)+1
@@ -264,8 +319,24 @@ c --------- g_dipole1 --> g_dipole --------- END
         call nga_add_patch(1.0d0,g_rhs(ipm),blo,bhi,
      &                     1.0d0,g_dipole  ,alo,ahi,
      &                           g_rhs(ipm),blo,bhi)
+c  jbecca START DIM/QM
+        if (ldimqm .and. lrsp .and. lclfld .and. lifetime) then
+            call nga_add_patch(1.0d0,g_rhs_im(ipm),blo,bhi,
+     &                         1.0d0,g_dipel_i_tmp  ,alo,ahi,
+     &                           g_rhs_im(ipm),blo,bhi)
+        endif
+c  jbecca END DIM/QM
        enddo ! end-loop-ipm
       enddo ! end-loop-ispin
+c jbecca start DIMQM
+      if (ldimqm .and. lrsp .and. lclfld) call dimqm_tidy()
+      if (ldimqm .and. lrsp .and. lclfld .and. lifetime) then
+         if (.not.ga_destroy(g_dipel_i_tmp)) call errquit
+     $      ('fiao_f1: ga_destroy failed g_dipel_i_tmp',0,GA_ERR)
+         if (.not.ga_destroy(g_dipel_i)) call errquit
+     $      ('fiao_f1: ga_destroy failed g_dipel_i',0,GA_ERR)
+      endif
+c jbecca END
       if (debug) write (luout,*) 'fiao_f1: dipole added to rhs'
 c     Cleanup g_dipole as we do not need it right now
       if (.not.ga_destroy(g_dipole)) call 

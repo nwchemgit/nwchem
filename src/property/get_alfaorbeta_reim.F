@@ -14,6 +14,8 @@
      &                nocc,        ! in : nr. occupied alpha or beta
      &                lifetime,    ! in : logical var for damping
      &                debug,       ! in : logical var for debugging
+     &                g_dipel_i,
+     &                omega,
      &                g_temp)      ! in : scratch GA array
 c
 c Author : Fredy W. Aquino
@@ -36,6 +38,7 @@ c
 #include "apiP.fh"
 #include "prop.fh"
 #include "bgj.fh"
+#include "util.fh"
       double precision AorBre, ! OUTPUT
      &                 AorBim  ! OUTPUT 
       integer idir,iresp,ndir,
@@ -53,6 +56,21 @@ c
       double precision sum,sumre,sumim,
      &                 coeffre,coeffim,trace
       external trace,get_C1MCtrace
+c  DIM/QM stuff
+      integer g_dipel_i
+      double precision omega
+      logical lclfld, use_dimqm, ldimqm
+
+      use_dimqm=util_module_avail("dimqm")
+
+      if (use_dimqm) then
+         call dimqm_used(ldimqm)
+         call dimqm_getlclfld(lclfld)
+      else
+         ldimqm   =  .false.
+         lclfld   =  .false.
+      endif 
+c  DIM/QM stuff END
 
       if (debug) then
         if (ga_nodeid().eq.0) then
@@ -122,6 +140,35 @@ c           assuming that ispin is never equal to two
        AorBre=AorBre+coeffre*sumre
        if (lifetime) 
      & AorBim=AorBim+coeffim*sumim
+
+c  jbecca START
+c  In the case of DIM/QM complex local fields, a complex dipole operator
+c  now exists. Call the trace routine again with the imaginary dipole
+c  portion to get the cross terms to add back into the polarizability.
+
+      if (ldimqm.and.lclfld.and.(omega.gt.1d-8).and.lifetime) then
+       call get_C1MCtrace(
+     &               sumre,       ! out: trace(transp(vecE1  )*g_temp)
+     &               sumim,       ! out: trace(transp(vecE1im)*g_temp)
+     &               lifetime,    ! in : =T => returns sumim
+     &               g_vecE1,     ! in : 1st-order pert vec RE
+     &               g_vecE1_im,  ! in : 1st-order pert vec IM
+     &               g_dipel_i,     ! in : dipole electric or magnetic
+     &               g_vectors,   ! in : MO vectors
+     &               idir,        ! in : = 1,2,3=x,y,z directions
+     &               iresp,       ! in : = 1,2,3
+     &               caseAO,      ! in : indices in (alo,ahi)(3) (blo,bhi)(3)
+     &               nbf,         ! in : nr. basis functions
+     &               nocc,        ! in : nr. occupied alpha or beta
+     &               debug,       ! in : logical var for debugging
+     &               g_temp)      ! in : scratch GA array -> out
+
+         AorBre=AorBre-coeffim*sumim
+         AorBim=AorBim+coeffre*sumre
+      endif
+c  jbecca END
+
+         
       return
       end
 
@@ -432,6 +479,11 @@ c        (ind1,ind2)=(idir ,1    ) for caseAO=4 (g_dipEM eq g_sket1) in aor_r1_b
              if (ga_nodeid().eq.0)
      &        write(*,*) '----g_temp --------- END'
             endif ! end-if-debug
+c jbecca START
+c  TODO: Check later that this doesnt screw things up horribly
+c        This should just be a sanity check
+            sumre=0d0
+c jbecca END
             sumre=trace(      ! out: trace of transp(A)* B
      &               g_vecE1, ! in : 
      &               g_temp,  ! in : 

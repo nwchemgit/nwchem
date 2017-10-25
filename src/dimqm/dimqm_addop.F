@@ -331,14 +331,15 @@ c       Copy current perturbation into g_dens_comp
           if(.not.rtdb_get(dimqm_rtdb,
      $                'dimqm:muind_'//direction(n)//'_r'//pm(ipm),
      $                              mt_dbl, i3, muold(:,:,1))) then
-            if(id.eq.0) write(luout,*) "First cycle, no old dipoles!"
+            if(id.eq.0 .and. ldebug) 
+     $         write(luout,*) "First cycle, no old dipoles!"
             muold = ZERO
             firsttime = .true.
             dimqm_seeded = .false.
 c            xyz_seeded(3*(n-1)+ipm) = .false.
             if(dimtol0 < 1.0d-4 .and. .not. dimqm_noseed) then
               dimtolxyz(ipm*3 - 1 + n) = 1.0d-4
-              if(id.eq.0) then
+              if(id.eq.0 .and. ldebug) then
                 write(luout,*) "Requested tolerance below 1.0d-4"
                 write(luout,*) "Setting "//direction(n)//pm(ipm)//
      $                         " dir tolerance to 1.0d-4 to start"
@@ -360,7 +361,6 @@ c          call dfill(i3*2, ZERO, dbl_mb(k_fld), 1)
 c
 c       Real portion of E-Field
 c        write(luout,*) "REAL"
-c        call ga_print(g_dens_comp_r)
           call dimqm_EqmE(dimqm_rtdb, g_dens_comp_r, geom, basis,
      $               fld(:,:,1), dimxyz)
 c
@@ -374,7 +374,7 @@ c        call ga_print(g_dens_comp_i)
 c
 c       Solve for induced dipoles
           call dimqm_f2d(dimqm_rtdb, fld, muind, muold, dimxyz, 2,
-     $                   direction(n), pm(ipm))
+     $                   direction(n), pm(ipm),.false.)
 c
 c         Write induced dipoles to RTDB
           dx_r = SUM(muind(1,:,1))
@@ -383,7 +383,7 @@ c         Write induced dipoles to RTDB
           dx_i = SUM(muind(1,:,2))
           dy_i = SUM(muind(2,:,2))
           dz_i = SUM(muind(3,:,2))
-          if(id.eq.0) then
+          if(id.eq.0.and.ldebug) then
             write(luout,*) "Total induced dipole moment for "//
      $                  direction(n)//pm(ipm)//" perturbation"
             write(luout,*) "X:", dx_r, dx_i
@@ -393,7 +393,7 @@ c         Write induced dipoles to RTDB
           end if
           dimErr(n, ipm, 1) = calcErr(i3, muold(:,:,1), muind(:,:,1))
           dimErr(n, ipm, 2) = calcErr(i3, muold(:,:,2), muind(:,:,2))
-          if(id.eq.0) then
+          if(id.eq.0.and.ldebug) then
             write(luout,*) "Max error in real dipoles:",
      $                       dimErr(n, ipm, 1)
             write(luout,*) "Max error in imag dipoles:",

@@ -58,7 +58,7 @@ c
       expdies = ZERO_C
       expdiesRead = .false.
       id = ga_nodeid()
-      if(id.eq.0 .and. ldebug) write(luout,*) "Start Prep"
+      if(id.eq.0 .and. ldebug) write(luout,*) "Start dimqm_prep"
       call pphilo(id, nDIM, mLo, mUp, mOnNode)
 c
 c   Pull needed info from RTDB
@@ -84,12 +84,11 @@ c    Allocate GAs for the interaction matrix
 c   =========================================
 c
 c     Exact Solver
-      write(6,*) ga_nodeid(),'@@ norder ',norder, ' alg ',alg
       if(alg ==  0) then   
         nLength = nOrder*(nOrder+1)/2
 c
 c        Complex matrix allocation
-        if(om >= ZERO) then   
+        if(om > ZERO) then   
           if(.not.ga_create(mt_dcpl, nLength, 1, 'dimMatrix_FD',
      $                      -1, 1, g_matrix))
      $      call errquit('dimMatrix_FD: ga_create failed',9,GA_ERR)
@@ -119,7 +118,7 @@ c
 c      Iterative Solver
       else
 c        Complex diagonal allocation
-        if(om >= ZERO) then
+        if(om > ZERO) then
           if(.not. ga_create(mt_dcpl, nOrder, 1, 'dimqm:diagFD',
      $                       -1, 1, g_DIM_diag))
      $      call errquit('dimqm:alphainvFD: create failed',9,GA_ERR)
@@ -159,7 +158,6 @@ c          Loop over DIM atoms
               endif
             end if
             polc = ONE_C/(((die - ONE_C) / (die + TWO_C)) * sPol(itype))
-c            write(luout,*) "Pol: ", polr
             i = 3*(m-1)
             call ga_put(g_DIM_diag, i+1, i+1, 1, 1, polc, 1)
             call ga_put(g_DIM_diag, i+2, i+2, 1, 1, polc, 1)

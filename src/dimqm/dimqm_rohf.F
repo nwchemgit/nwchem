@@ -40,6 +40,10 @@ c     since the arrays were cleaned up after ending the ground state
 c     SCF and need reinitialized.  Also mark this as the last DIM cycle
 c     since these arrays won't be needed in response.
       lfirst = .true.
+
+      if(.not. rtdb_put(rtdb, 'dimqm:lfirst', mt_log, 1, lfirst))
+     $   call errquit('dimqm_rohf_wrap: lfirst put failed', 1, RTDB_ERR)
+
       call dimqm_main(rtdb, basis, geom, g_dens, .true.)
       if (.not.ga_create(MT_DBL, nbf, nbf, 'DIM FOCK', -1, -1, g_dim))
      $  call errquit('dimqm_rohf_wrap: create dim fock failed', 1,
@@ -51,7 +55,7 @@ c     since these arrays won't be needed in response.
       end subroutine dimqm_rohf_wrap
 
       subroutine dimqm_rohf_calcDIM(rtdb, geom, basis, nbf, nfock,
-     $                              g_dens, g_dim)
+     $                              g_dens, g_dim, luhf_fd)
 c
 c     Author: Justin Moore
 c
@@ -84,6 +88,7 @@ c
 c     Local Variables
       integer rmax
       integer dims(3), chunk(3)
+      logical luhf_fd
 c
 c     Global Variables from dimqm.fh
 c
@@ -102,8 +107,15 @@ c
         end if
         
         ! Calculate DIM dipoles
-        if (dimqm_on) call dimqm_indDipoles(rtdb, nbf, geom, basis,
-     $                                      g_dens)
+!  jbecca START
+        if (dimqm_on .and. luhf_fd ) 
+     $    call dimqm_indDipoles(rtdb, nbf, geom, basis, g_dens, .true.)
+        if (dimqm_on .and. (.not. luhf_fd))
+     $    call dimqm_indDipoles(rtdb, nbf, geom, basis, g_dens, .false.)
+        
+!        if (dimqm_on) call dimqm_indDipoles(rtdb, nbf, geom, basis,
+!     $                                      g_dens)
+!jbecca END
 
         ! Build potential from dipoles
         dims(1)  = nfock
@@ -116,7 +128,7 @@ c
      $                        g_dim))
      $    call errquit('dimqm_rohf: could not allocate g_dim',555,
      $                 GA_ERR)
-        call ga_zero(g_dim)
+        call ga_zero(g_dim)  
         call fock_dim(geom, nbf, basis, nfock, g_dim, 0, 1)
         call ga_symmetrize(g_dim)
         call ga_sync()

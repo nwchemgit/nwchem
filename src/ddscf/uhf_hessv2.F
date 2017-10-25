@@ -277,8 +277,10 @@ c       to match closed shell routine?
         call nga_add_patch(0.25d0, g_dens2, alo, ahi,
      $                     0.25d0, g_dens,  blo, bhi,
      $                             g_dens,  blo, bhi)
+c jbecca START: added .false. variable at end
         call dimqm_rohf_calcDIM(bgj_get_rtdb_handle(), geom, basis,
-     $                          nbf, nvec, g_dens, g_dim)
+     $                          nbf, nvec, g_dens, g_dim, .false.)
+c jbecca END
 c        call dimqm_indDipoles(bgj_get_rtdb_handle(), nbf, geom,
 c     $                          basis, g_dens)
 c        call ga_zero(g_dim)

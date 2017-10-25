@@ -488,6 +488,9 @@ c        to the rtdb at some time (e.g. in aoresponse)
      &                     gam(ipm))
            enddo ! end-loop-ipm
           endif
+c  jbecca START -- Need to create the int. mat. here for UHF
+         if (ldimqm .and. lrsp) call dimqm_prep(rtdb, omega)
+c  jbecca END
 
 
          if (.not.lifetime) then

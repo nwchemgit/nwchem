@@ -63,12 +63,12 @@ c      Integer nOrderProc   ! # Unknowns on this processer
       Integer dimqm_rtdb   ! rtdb handle for fock_2e to read in dipoles
       Integer dimqm_geom   ! geometry handle for use in dim_grid_quadv0b
       integer g_fdens
-      integer g_dipel_i    ! Imagniary component of dipole matrix due to complex local fields
+c      integer g_dipel_i    ! Imagniary component of dipole matrix due to complex local fields
       integer g_DIM_diag       ! Handle for DIM diagonal GA
       common /dimqmInt/ scrnType, alg, nIter, gridspacing,
      $                  maxcolleagues, intlistsize, nAtomsPerCell,
      $                  nOrder, nDIM, nDIMTypes, cleanGrads,
-     $                  dimqm_rtdb, dimqm_geom, g_fdens, g_dipel_i,
+     $                  dimqm_rtdb, dimqm_geom, g_fdens,! g_dipel_i,
      $                  g_DIM_diag
 c
 c      DIM/QM Common Reals

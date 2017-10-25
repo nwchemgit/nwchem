@@ -20,7 +20,7 @@
          dimqm_broadcast.o CubicSpline.o dim_fock_xc.o \
          dim_getv.o dim_tabcd.o dim_eval_fnl.o \
          dim_grid_quadv0.o dim_grid_quadv0a.o dim_grid_quadv0b.o \
-         dimqm_seeding.o dimqm_rohf.o dimqm_util.o
+         dimqm_seeding.o dimqm_rohf.o dimqm_util.o dimqm_addop_uhf.o
 
    LIBRARY = libdimqm.a
 #

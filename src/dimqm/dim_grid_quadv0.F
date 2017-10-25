@@ -98,10 +98,10 @@ c
       me = ga_nodeid()
       nproc = ga_nnodes()
       oprint = ldebug 
-      if(oprint) then
-        write(luout,*) "dim_grid_quadv0 start"
+c      if(oprint) then
+c        write(luout,*) "dim_grid_quadv0 start"
 c        write(*,*) "GEOM:", geom
-      end if
+c      end if
 c      oprint = .true.
       oprintw = util_print('quadrature warning', print_medium)
 c
@@ -345,9 +345,9 @@ c
      &   1x,'Grid integrated density: ',f20.12,/
      &   1x,'Requested integration accuracy: ',e10.2)
 c
-      if(oprint) then
-        write(luout,*) "dim_grid_quadv0 end"
-      end if
+C      if(oprint) then
+C        write(luout,*) "dim_grid_quadv0 end"
+C      end if
 
       return
       end

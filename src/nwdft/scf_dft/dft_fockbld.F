@@ -10,7 +10,7 @@
      ,     n_levels, act_levels, oprint_time,
 cc AJL/Begin/FDE
 c     ,     g_zora_sf,g_frozemb)
-     ,     g_zora_sf,g_frozemb,g_vxc_fde,g_xcinv_fde,g_dens_fde )
+     ,     g_zora_sf,g_frozemb,g_vxc_fde,g_xcinv_fde,g_dens_fde,eelec )
 cc AJL/End
 c     
 c     $Id$
@@ -75,6 +75,11 @@ c     timings
 c
       double precision time1_ke,time2_ke
       double precision time1_pot,time2_pot
+c  jbecca START-- making NWChem great again with efield
+      double precision efield(3)
+      double precision eelec
+      logical lescale
+c  jbecca END
 c
 c MN solvation models -->
 c
@@ -552,10 +557,64 @@ c     == Add exchange-correlation to the Fock matrix ==
       call ga_dadd(1.d0, g_vxc(1), 1.d0, g_focks(1), g_focks(1))
       if (ipol.gt.1) 
      &     call ga_dadd(1.d0, g_vxc(2), 1.d0, g_focks(2), g_focks(2))
+
+c jbecca START - damnit, quit taking this out
+C
+C     Compute -D.E contribution due to external applied electric field
+C     (if dft:efield is stored in rtdb).  Note that we can potentially
+C     apply different fields to the alpha and beta spins this way.
+C
+C
+      if (rtdb_get (rtdb, "dft:efield", mt_dbl, 3, efield)) then
+
+         if (.not. rtdb_get (rtdb, "dft:efield_scaled",
+     $        mt_log, 1, lescale))
+     $        lescale = .false.
+
+         call ga_zero (g_tmp)  !careful, this previously stored g_vxc
+         call dft_fock_efield (rtdb, efield, g_tmp, lescale)  !g_tmp now has -D.E
+c Daniel (10-9-12): This line causes problems.
+c         call ga_norm_infinity (g_tmp, enorm)
+
+         if (ipol.eq.1) then
+            call ga_dadd (1d0, g_focks(1), 1d0, g_tmp, g_focks(1))
+            eelec = ga_ddot (g_dens(1), g_tmp)
+         elseif (ipol.eq.2) then
+            call ga_dadd (1d0, g_focks(1), 1d0, g_tmp, g_focks(1))
+            call ga_dadd (1d0, g_focks(2), 1d0, g_tmp, g_focks(2))
+            eelec = ga_ddot (g_dens(1), g_tmp) +
+     $           ga_ddot (g_dens(2), g_tmp)
+         else
+            call errquit ("dft_fockbld: bad ipol", ipol, 0)
+         endif
+
+c$$$         if (me.eq.0) write (luout,"(1x,a,3es12.4,a,1es12.4,a,1es12.4)")
+c$$$     $        "[dft_fockbld] External E-field:", efield,
+c$$$     $        "; interaction energy =", eelec, "; |-D.E| =", enorm
+
+         if (me.eq.0) then
+c            write (luout,"(1x,a,3es12.4,a,a,l,a,a,1es12.4,a,a,1es12.4)")
+c     $           "Applied E-field = (", efield, " ), ",
+c     $           "scaled = ", lescale, ", ",
+c     $           "||D.E|| =", enorm, ", ",
+c     $           "interaction energy =", eelec
+            write (luout,"(1x,a,3es12.4,a,a,l,a,a,1es12.4)")
+     $           "Applied E-field = (", efield, " ), ",
+     $           "scaled = ", lescale, ", ",
+     $           "interaction energy =", eelec
+c$$$     $           "External E-field: ",
+c$$$     $           "scaled = ", lescale,
+c$$$     $           "; E = (", efield, " )"
+         endif
+      endif
+c  jbecca END
+
 c
 c     DIM/QM JEM
 c     Add DIM potential to the Fock matrix
       if (ldimqm .and. dimqm_go) then
+c  jbecca START: scaling potential here to test some stuff.
+c              originally 1.d0
         call ga_dadd(1.d0, g_vdim, 1.d0, g_focks(1), g_focks(1))
 c       DIM potential is from total density, so same for both alpha and beta
         if (ipol.gt.1)

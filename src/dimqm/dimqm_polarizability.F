@@ -50,7 +50,7 @@ c
       i3 = 3 * nDIM
       id = ga_nodeid()
       icmplx = 1
-      if(om >= ZERO) icmplx = 2
+      if(om > ZERO) icmplx = 2
       if(id.eq.0.and.ldebug) write(LuOut,*)
      $   "Begin Standalone Polarizability Routine"
 c
@@ -85,7 +85,6 @@ c   get the polarizability
 c   ===================================================
 c
       time = util_timer()
-      call dimqm_prep(rtdb, om)
       lfirst = .true.
       seed_save = dimqm_noseed
       dimqm_noseed = .true.
@@ -99,7 +98,7 @@ c           Unit field in specified direction
           call dfill(nDIM, ONE, dbl_mb(k_fld+idir-1), 3)
           call dimqm_f2d(rtdb, dbl_mb(k_fld),
      $                   dbl_mb(k_muind), dbl_mb(k_muold),
-     $                   dbl_mb(k_dimxyz), icmplx, 's', ' ')
+     $                   dbl_mb(k_dimxyz), icmplx, 's', ' ',.false.)
 c           Sum up dipoles to get polarizability
           pol(1,idir,1) = dsum(nDIM, dbl_mb(k_muind), 3)
           pol(2,idir,1) = dsum(nDIM, dbl_mb(k_muind+1), 3)
@@ -140,7 +139,10 @@ c   Deallocate arrays and clean up
 c   ==============================
 c
       stat = ma_chop_stack(l_dimxyz)
-      call dimqm_tidy()
+c  jbecca START: dont think we need to create and destroy int mat here.
+c        this is called from ao_driver_new, where it is already made
+c      call dimqm_tidy()
+c  jbecca END
       if(id .eq. 0) write(LuOut,*)
      $  "Total time:", util_timer() - time
  5000 format("Polarizability tensor for DIM system: ", A ,/

@@ -169,13 +169,13 @@ c END F.Krausbeck
                        !                     =2 (unrestricted) calc  
 cdimqm
       logical lclfld,use_dimqm,ldimqm
+      integer g_dipel_i
 
       external get_nocc,get_allAOints  
 
 c     ==================================================================
       
       ndir=3                    ! perturbing field directions (x,y,z)
-      
       debug = .false. .and. ga_nodeid().eq.0 ! .true. during development
 
       if (debug) write(luout,*) 'hello from aoresponse_driver_new'
@@ -578,6 +578,30 @@ c     determine frequency and number of components
       lstatic = (abs(omega).lt.tenm8) ! static response or not
       ncomp = 2                 ! no. of Fourier components to treat
       if (lstatic) ncomp = 1
+c  jbecca START: static and damping do not work properly. Instead of 
+c     trying to fix this fringe case of little value, make sure
+c     if static, do not run with damping.
+      if (lstatic .and. lifetime) then
+         write(luout,*)'***********************************************'
+         write(luout,*)'Damping was requested with static frequency'
+         write(luout,*)'Turning off damping and sending to the static'
+         write(luout,*)'routine to save computational time'
+         write(luout,*)'***********************************************'
+         lifetime = .false.
+      endif
+c  jbecca END
+c  jbecca START
+      if (use_dimqm) then
+         call dimqm_used(ldimqm)
+         call dimqm_getlclfld(lclfld)
+      else
+         ldimqm=.false.
+         lclfld=.false.
+      endif
+      if (ldimqm .and. lclfld) then
+        call dimqm_prep(rtdb, omega)
+      end if
+c jbecca END
       
       call fiao_f1_movecs(
      &  rtdb,basis,geom,        ! in : handles
@@ -735,21 +759,20 @@ c       take care of that here:
       endif                     ! giao and not orbeta
       
 c
-c     DIM/QM JEM
+c     DIM/QM jbecca
 c     Initialize DIM and add in local field contributions
-      if (use_dimqm) then
-         call dimqm_used(ldimqm)
-         call dimqm_getlclfld(lclfld)
-      else
-         ldimqm=.false.
-         lclfld=.false.
-      endif
-
+c  jbecca START: moved initialization of dimqm before fiao_f1_movecs.
+c  it is needed there to add lclfld contribution to linear response.
+c  lclfld is added here again to add its contribution to the dipole mat
       if (ldimqm) then
         call dimqm_prep(rtdb, omega)
       end if
+
       if (ldimqm .and. lclfld) then
-        call dimqm_lclfld(g_dipel, omega)
+c     call in with .false., use g_dipel, create g_dipel_i in routine
+        call dimqm_lclfld(g_dipel, omega, lifetime, g_dipel_i)
+c        if ((omega .le. 1d-8).or.(.not.lifetime))
+c     &       call ga_zero(g_dipel_i)
       end if
 
 c     ------------------------------------------------
@@ -854,6 +877,7 @@ c         beta so we don't have to pass the arrays to the subroutine
      &      lvelocity,          ! in : logical vars
      &      lifetime,           ! in : logical vars
      &      g_vecF1,g_vecF1_im, ! in :
+     &      g_dipel_i,
      &      alfare,alfaim,      ! out: electric-electric response
      &      betare,betaim)      ! out: electric-magnetic response
 
@@ -1208,6 +1232,13 @@ c     deallocate global arrays
         if (.not.ga_destroy(g_quadel)) call 
      &    errquit('aor_driver: ga_destroy failed g_quadel',0,GA_ERR)
       end if
+!DIM/QM start
+      if (ldimqm) call dimqm_tidy()
+      if (ldimqm .and. lclfld .and. lifetime) then
+         if (.not. ga_destroy(g_dipel_i)) call errquit
+     &      ('aores_driver: g_dipel_i destroy?',0,GA_ERR)
+      endif
+!DIM/QM END
       
       call ga_sync()
       

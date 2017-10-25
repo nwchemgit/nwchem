@@ -63,9 +63,9 @@ c   Input Variables
       double precision dimxyz(3, nDIM)
       double precision muind(3, nDIM, nmat)
 c
-      if(ldebug) then
-        write(luout,*) "dim_grid_quadv0a start"
-      end if
+c      if(ldebug) then
+c        write(luout,*) "dim_grid_quadv0a start"
+c      end if
       
       if(n_rec_in_file.eq.0) goto 100
 c
@@ -138,9 +138,9 @@ c
      &     call errquit('grid_quadv0a: pop stack failed.',1, MA_ERR)
  100  continue
 c
-      if(ldebug) then
-        write(luout,*) "dim_grid_quadv0a end"
-      end if
+c      if(ldebug) then
+c        write(luout,*) "dim_grid_quadv0a end"
+c      end if
       call ga_sync
       return
       end

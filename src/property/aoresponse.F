@@ -302,7 +302,10 @@ c      this is not true when working with local fields
          call dimqm_used(ldimqm)
          call dimqm_getlrsp(lrsp)
          call dimqm_getlclfld(lclfld)
-         call dimqm_getgdipeli(g_dipel_i)
+c jbecca: START: Botched this call in util, because I didn't like it 
+c           being a global variable. Could fix this later, but no DIM
+c           parts are tested against this driver anyway.
+c         call dimqm_getgdipeli(g_dipel_i)
       else
          ldimqm=.false.
          lrsp=.false.

@@ -853,6 +853,11 @@ c     transformed into MO basis of the OPPOSITE spin.
       data npol /2/ ! for unrestricted calculations
       data indx /1,2, ! indx(1,1),indx(1,2)
      &           3,4/ ! indx(2,1),indx(2,2)
+c     DIM/QM
+      integer g_dens_tot(2), g_dim, clo(3), chi(3)
+      integer g_dens_tot_i(2)
+      logical ldimqm
+c     DIM/QM END
 
       debug=.false. ! no printouts
       ncomp=2 ! using two components
@@ -880,8 +885,8 @@ c ============= FA-defining scratch GA array g_h1mat() === START
       chunk(2) = -1
       do ipm = 1,ncomp
         write(cstemp,'(a,i1)') 'pmats_',ipm
-        if (.not.nga_create(MT_DBL,2,dims,cstemp(1:7),chunk,
-     &     g_pmats(ipm))) call 
+        if (.not .nga_create(MT_DBL,2,dims,cstemp(1:7),chunk,
+     &     g_pma ts(ipm))) call 
      &     errquit('rohf_h2e3: nga_create failed '//cstemp(1:7),
      &     0,GA_ERR)
         call ga_zero(g_pmats(ipm))
@@ -992,6 +997,69 @@ c ... allocate g_fock=[g_fock_re g_fock_im]
 
         endif ! end-if-lifetime
       enddo ! end-loop-iset
+
+c jbecca START: adding in dim/qm functions here to handle UHF freq.
+c              dependent case. 
+c     DIM/QM jbecca
+c     Calculate the DIM induced dipoles from the TOTAL density
+c                                                -----
+c     as written here, this has no extension to the damped (lifetime)
+c     case. This is okay because this routine is only called for
+c     FD no damping as of now
+      if (.not.rtdb_get(bgj_get_rtdb_handle(), 'dimqm:lrsp', mt_log,
+     $         1, ldimqm)) ldimqm = .false. 
+      if (ldimqm) then 
+         dims(1)     = nvec
+         chunk(1)    = dims(1)
+         do ipm = 1, ncomp
+         if (.not. nga_create(MT_DBL, 3, dims, 'totdens', chunk,
+     $         g_dens_tot(ipm))) call errquit('uhf_hessv3_2e3: DIM dens
+     $                  create', 0, GA_ERR)
+
+         alo(1)   = 1
+         ahi(1)   = nvec
+
+c     Copy alpha into total density array
+
+         call nga_copy_patch('n', g_dens(ipm),    alo, ahi,
+     $                        g_dens_tot(ipm),    alo, ahi)
+
+         alo(1)   =  nvec+1
+         ahi(1)   =  2*nvec
+         clo(1)   =  1
+         chi(1)   =  nvec
+         clo(2)   =  1
+         chi(2)   =  nbf
+         clo(3)   =  1
+         chi(3)   =  nbf
+
+c     Add beta density to g_dens_tot
+c     divided by 4 to match closed shell static routines. 
+c     TODO: make sure that this is also being scaled in a similar fashion
+c           in the closed shell FD cases
+
+         call nga_add_patch(0.25d0, g_dens(ipm),     alo,  ahi,
+     $                      0.25d0, g_dens_tot(ipm), clo,  chi,
+     $                              g_dens_tot(ipm), clo,  chi)
+         enddo       !ipm
+
+c         call dimqm_addop_uhf(g_x_re, g_x_im, g_ax_re, g_ax_im, ncomp,
+c     $                     limag, lifetime, g_dens_tot, g_dens_tot_i)
+c
+c         do ipm = 1, ncomp
+c         if(.not. ga_destroy(g_dens_tot(ipm)))
+c     $      call errquit('uhf_hessv3_2e3: DIM destroy dens', 0, GA_ERR)
+c         enddo
+
+c  Reset dimensions to previous values
+
+         dims(1)  =  nmul*npol*nvec
+         chunk(1) =  dims(1)
+         alo(1)   =  0
+         ahi(1)   =  0
+      endif       ! ldimqm
+      
+c jbecca END
 
 c ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c     NOTE that symmetrization is not yet implemented except for
@@ -1234,6 +1302,17 @@ c     Different spin
      &       GA_ERR)
         enddo ! end-loop-iset (spin A,B)
        enddo ! end-loop-cnt
+c  jbecca START
+      if (ldimqm) then
+         call dimqm_addop_uhf(g_x_re, g_x_im, g_ax_re, g_ax_im, ncomp,
+     $                     limag, lifetime, g_dens_tot, g_dens_tot_i)
+
+         do ipm = 1, ncomp
+         if(.not. ga_destroy(g_dens_tot(ipm)))
+     $      call errquit('uhf_hessv3_2e3: DIM destroy dens', 0, GA_ERR)
+         enddo
+      endif
+c  jbecca END
 
       if (debug) then
        do ipm=1,2
@@ -3024,6 +3103,12 @@ c     transformed into MO basis of the OPPOSITE spin.
       data npol /2/ ! for unrestricted calculations
       data indx /1,2, ! indx(1,1),indx(1,2)
      &           3,4/ ! indx(2,1),indx(2,2)
+c  jbecca START
+      logical ldimqm
+      integer g_dens_tot(2), g_dim, clo(3), chi(3)
+      integer g_dens_tot_i(2)
+      integer g_ax_re(2), g_ax_im(2)
+c  jbecca END
 
       debug=.false. ! no printouts
 
@@ -3200,6 +3285,68 @@ c     NOTE that symmetrization is not yet implemented except for
 c     totally symmetric products.  Assume for the time being that
 c     if only 1 RHS is being requested then use symmtery, but disable
 c     it if there is more than 1 RHS.
+
+c  DIM/QM jbecca START: Allocate arrays and create real and imaginary
+c                    densities for total densities. 
+      if (.not.rtdb_get(bgj_get_rtdb_handle(), 'dimqm:lrsp', mt_log,
+     $         1, ldimqm)) ldimqm = .false. 
+      if (ldimqm) then 
+         dims(1)     = nvec
+         chunk(1)    = dims(1)
+         do ipm = 1, ncomp
+         if (.not. nga_create(MT_DBL, 3, dims, 'totdens', chunk,
+     $         g_dens_tot(ipm))) call errquit('uhf_hessv3_2e3: DIM dens
+     $                  create', 0, GA_ERR)
+         if (lifetime) then
+            if (.not. nga_create(MT_DBL, 3, dims, 'totdens', chunk,
+     $         g_dens_tot_i(ipm))) call errquit('uhf_hessv3_2e3: DIM 
+     $             dens create', 0, GA_ERR)
+         endif       !lifetime
+
+         alo(1)   =  1
+         ahi(1)   =  nvec
+c     Copy alpha into total density array
+
+         call nga_copy_patch('n', g_dens(ipm),    alo, ahi,
+     $                        g_dens_tot(ipm),    alo, ahi)
+
+         if (lifetime) then
+            call nga_copy_patch('n', g_dens(ipm+2),    alo, ahi,
+     $                        g_dens_tot_i(ipm),    alo, ahi)
+         endif       !lifetime
+
+         alo(1)   =  nvec+1
+         ahi(1)   =  2*nvec
+         clo(1)   =  1
+         chi(1)   =  nvec
+         clo(2)   =  1
+         chi(2)   =  nbf
+         clo(3)   =  1
+         chi(3)   =  nbf
+
+c     Add beta density to g_dens_tot
+c     divided by 4 to match closed shell static routines. 
+c     TODO: make sure that this is also being scaled in a similar fashion
+c           in the closed shell FD cases
+
+         call nga_add_patch(0.25d0, g_dens(ipm),     alo,  ahi,
+     $                      0.25d0, g_dens_tot(ipm), clo,  chi,
+     $                              g_dens_tot(ipm), clo,  chi)
+         if (lifetime) then
+            call nga_add_patch(0.25d0, g_dens(ipm+2),     alo,  ahi,
+     $                         0.25d0, g_dens_tot_i(ipm), clo,  chi,
+     $                                 g_dens_tot_i(ipm), clo,  chi)
+         endif       !lifetime
+         enddo       !ipm
+
+c     reset dimensions back previous values
+
+         dims(1)  =  nmul*npol*nvec
+         chunk(1) =  dims(1)
+         alo(1)   =  0
+         ahi(1)   =  0
+      endif       ! ldimqm
+c  DIM/QM END
 
       oskel_local = oskel .and. (nvec.eq.1)
       tol2e_local = min(max(acc,itol_floor),itol_ceil)
@@ -3433,8 +3580,8 @@ c     Different spin
                if (ga_nodeid().eq.0)
      &          write(*,*) 'AFT-2 update_ax_fock'
               endif ! end-if-debug
-
            endif ! end-if-diff-spin-contrib
+
 c ---- Move g_Axreim --> g_Az---- START
                call conv2complex4_u1(
      &                g_Az,     ! out: = history matrix complex
@@ -3454,6 +3601,78 @@ c ---- Move g_Axreim --> g_Az---- END
      &       GA_ERR)
         enddo ! end-loop-iset (spin A,B)
        enddo ! end-loop-cnt
+c  DIM/QM jbecca START
+c  adding in the DIM operator here, the way that g_axreim is handled in 
+c  this routine makes things much harder compared to uhf_hessv3_2e3
+      if (ldimqm) then
+c         write(luout,*)'starting dimqm part of uhf_hessv3_2e3_cmplx'
+         do ipm = 1, ncomp
+         if (.not. ga_create(MT_DBL, n, nvec, 'g_ax_re', 0,0,
+     $         g_ax_re(ipm))) call errquit('uhf_hessv3_2e3: DIM dens
+     $                  create', 0, GA_ERR)
+         if (.not. ga_create(MT_DBL, n, nvec, 'g_ax_im', 0,0,
+     $         g_ax_im(ipm))) call errquit('uhf_hessv3_2e3: DIM dens
+     $                  create', 0, GA_ERR)
+
+c         write(luout,*)'done with allocation for',ipm
+         call getreorim1_u1(
+     &                      g_ax_re(ipm), ! out : real or im arr
+     &                      g_Az,    ! in  : = complx(g_xre,g_xim)
+     &                      0,       ! in  : subblock index
+     &                      ipm,     ! in  : = 1,2 to access slctd component
+     &                      npol,    ! in  : nr. polarizations
+     &                      nvir1,   ! in  : nr. virtual  MOs
+     &                      nocc1,   ! in  : nr. occupied MOs
+     &                      1)       ! in  : =1 -> re =2 -> im
+
+         call getreorim1_u1(
+     &                      g_ax_im(ipm), ! out : real or im arr
+     &                      g_Az,    ! in  : = complx(g_xre,g_xim)
+     &                      0,       ! in  : subblock index
+     &                      ipm,     ! in  : = 1,2 to access slctd component
+     &                      npol,    ! in  : nr. polarizations
+     &                      nvir1,   ! in  : nr. virtual  MOs
+     &                      nocc1,   ! in  : nr. occupied MOs
+     &                      2)       ! in  : =1 -> re =2 -> im
+         enddo      !ipm
+
+c         write(luout,*)'real and imag g_ax arrays made'
+
+         call dimqm_addop_uhf_damp(g_ax_re, g_ax_im, ncomp, limag,
+     $         lifetime, g_dens_tot, g_dens_tot_i)
+
+         do ipm   =  1, ncomp
+            call conv2complex4_u1(
+     &                g_Az,     ! out: = history matrix complex
+     &                g_ax_re(ipm), ! in : real      arr
+     &                0,        ! in : subblock index
+     &                ipm,      ! in : = 1,2 to access slctd component
+     &                npol,     ! in : nr. polarizations
+     &                nvir1,    ! in : nr. virtual  MOs
+     &                nocc1,    ! in : nr. occupied MOs
+     &                1)      ! in : =1 -> re =2 -> im
+
+            call conv2complex4_u1(
+     &                g_Az,     ! out: = history matrix complex
+     &                g_ax_im(ipm), ! in : real      arr
+     &                0,        ! in : subblock index
+     &                ipm,      ! in : = 1,2 to access slctd component
+     &                npol,     ! in : nr. polarizations
+     &                nvir1,    ! in : nr. virtual  MOs
+     &                nocc1,    ! in : nr. occupied MOs
+     &                2)      ! in : =1 -> re =2 -> im
+
+            if (.not. ga_destroy(g_ax_re(ipm))) call errquit
+     $               ('uhf_hessv: GA?',0,GA_ERR)
+            if (.not. ga_destroy(g_ax_im(ipm))) call errquit
+     $               ('uhf_hessv: GA?',0,GA_ERR)
+            if (.not. ga_destroy(g_dens_tot(ipm))) call errquit
+     $               ('uhf_hessv: GA?',0,GA_ERR)
+            if (.not. ga_destroy(g_dens_tot_i(ipm))) call errquit
+     $               ('uhf_hessv: GA?',0,GA_ERR)
+        enddo     !ipm 
+      endif       !ldimqm
+c  DIM/QM END
         if (.not. ga_destroy(g_Axreim)) call errquit('uhf_hessv: GA?',0,
      &       GA_ERR)
       if (debug) then

@@ -1,5 +1,5 @@
       subroutine dimqm_f2d(rtdb, fld, muind, muold, xyz, icmplx, dir,
-     $                     pm)
+     $                     pm, doefield)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -19,6 +19,7 @@ c     Input variables
       double precision muold(3, nDIM, icmplx)
       double precision xyz(3, nDIM)
       character dir, pm
+      logical doefield
 c
 c     Common variables used
 c      logical lcpim, ldebug
@@ -55,12 +56,26 @@ c     Turn 3XNXicmplx matrix into 3Nxicmplx vector
 
 c
 c     If local fields, include the external field.  Real only.
-c      if(lefield .and. lclFld .and. .not. iscmplx) then
-c        do iAtom = 1, nDIM
-c          i0 = 3 * (iAtom - 1)
-c          tempArr(i0+1:i0+3,1) = tempArr(i0+1:i0+3,1) ! + external field
-c          end if
-c        end do
+c jbecca: START. We are missing contributions to the dipoles from the 
+c        external applied electric field. This needs to be done carefully
+c        as to not accidentally pull in and add induced dipoles from the
+c        external field repeatedly. adding an additional logical variable
+c        to check for this.
+c     NOTE: Since this has (.not. iscmplx), it will only work for static
+c           cases. FD with efield will not and should not work. 
+c      if(lefield .and. doefield .and. lclFld .and. .not. iscmplx) then
+c         write(luout,*)'finitefieldX',finitefieldX
+c         write(luout,*)'finitefieldY',finitefieldY
+c         write(luout,*)'finitefieldZ',finitefieldZ
+c         do i = 1, icmplx
+c            do iAtom = 1, nDIM
+c               i0 = 3 * (iAtom - 1)
+cc          tempArr(i0+1:i0+3,1) = tempArr(i0+1:i0+3,1) ! + external field
+c                  tempArr(i0+1,i) = tempArr(i0+1,i) + finiteFieldX
+c                  tempArr(i0+2,i) = tempArr(i0+2,i) + finiteFieldY
+c                  tempArr(i0+3,i) = tempArr(i0+3,i) + finiteFieldZ
+c            enddo
+c         end do
 c      end if
 c
 c  ---------------------------------------------------------------

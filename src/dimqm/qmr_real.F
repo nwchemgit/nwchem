@@ -54,7 +54,7 @@ c
 c     Get node ID
       id = ga_nodeid()
       if(id.eq.0.and.ldebug) then
-        write(LuOut,*) "Start QMR routine"
+        write(LuOut,*) "Start QMR real routine"
         call util_flush(LuOut)
       end if
 c     Check tolerances of the machine

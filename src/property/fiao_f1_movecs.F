@@ -35,7 +35,6 @@ c          03-15-12
 #include "prop.fh"
 #include "util.fh"
 #include "bgj.fh"
-c#include "dimqm.fh"
       
 c     ---------------------
 c     subroutine arguments:
@@ -229,7 +228,9 @@ c     JEM: Updated to include imaginary portion of rhs
      &                     nbf,      ! in : nr. basis functions
      &                     nmo,      ! in : nr. MOs   
      &                     ncomp,    ! in : nr components of ...
-     &                     debug)    ! in : logical for debugging
+     &                     debug,    ! in : logical for debugging
+     &                     omega,    ! in : freq value
+     &                     lifetime) ! in : logical for debugging
 
       call schwarz_tidy()
       call int_terminate()
@@ -273,6 +274,10 @@ c       DIM/QM JEM
          ldimqm=.false.
          lrsp=.false.
          lclfld=.false.
+c
+c
+c
+
       endif
         if (ldimqm .and. lrsp .and. lclfld .and. lifetime) then
           call nga_scale_patch(g_rhs_im(ipm),blo,bhi,-4.0d0)

@@ -15,7 +15,7 @@ c   has started.
       if(dimtol < request) then
         dimtol0 = dimtol
         dimtol = request
-        if(ga_nodeid().eq.0) then
+        if(ga_nodeid().eq.0 .and. ldebug) then
           write(luout,*) "User requested tolerance below", request
           write(luout,*) "Setting pre-seed tolerance to", request
         end if
@@ -40,7 +40,7 @@ c   Check to see if the error is below our seeding tolerance,
 c       Return if we've already set the seed
 c       Otherwise, set the seed and revert the tolerance back to user requested level
         dimqm_seeded = .true.
-        if(ga_nodeid().eq.0) then
+        if(ga_nodeid().eq.0 .and. ldebug) then
           write(luout,*) "Dipole error below ", tolerance
           write(luout,*) "Setting current system as seed"
           write(luout,*) "Reverting tolerance back to", dimtol0
@@ -79,7 +79,7 @@ c   If not, then this is not a good seed system and we reset the seed flag
         if(derr(2) .gt. tolerance) g2 = .true.
       end if
       if(e .or. d1 .or. d2 .or. g1 .or. g2) then
-        if(ga_nodeid().eq.0) then
+        if(ga_nodeid().eq.0 .and. ldebug) then
           write(luout,*) "Seed was set, but some SCF error"
           write(luout,*) " is above ", tolerance
           write(luout,*) "Unsetting seed and reverting tolerance back"

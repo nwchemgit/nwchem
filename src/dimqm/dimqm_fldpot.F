@@ -28,15 +28,15 @@ c
 c      Determine screening factor based off screening type
 c      
       screen_fld = ONE
-c      if(scrnType == ERFSCRN) then
-c        screen     = erf(scrnFactor*dist)
-c        screen_fld = screen * screen
-c      else if(scrnType == EXPSCRN) then
-c        screen = ONE - EXP(-scrnFactor*dist)
-c        screen_fld = screen * screen * screen
-c      else
-c        if(dist < 1.0d-12) dist = 1.0d-12
-c      end if
+      if(scrnType == ERFSCRN) then
+        screen     = erf(scrnFactor*dist)
+        screen_fld = screen * screen
+      else if(scrnType == EXPSCRN) then
+        screen = ONE - EXP(-scrnFactor*dist)
+        screen_fld = screen * screen * screen
+      else
+        if(dist < 1.0d-12) dist = 1.0d-12
+      end if
 c
       dist3 = dist * dist * dist
 c      write(luout,*) "Screen:", screen_fld

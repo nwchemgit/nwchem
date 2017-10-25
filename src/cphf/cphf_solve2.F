@@ -337,7 +337,7 @@ c 000000000000000 prepare guess 000000000000 END
 c     DIM/QM JEM
 c     Prep DIM/QM for response      
       if (ldimqm .and. lrsp) then
-        call dimqm_prep(rtdb, -1)
+        call dimqm_prep(rtdb, -1d0)
       end if
 
       if (scftype .eq. 'UHF') then
