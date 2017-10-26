@@ -126,6 +126,7 @@ c     external functions:
       external ga_trace_diag
       
       external get_alfaorbeta_reim
+      integer g_dipel_i
 
 c  ====================================================================
 
@@ -310,6 +311,8 @@ c           ------------------
      &        nocc,             ! in : nr. occupied alpha or beta
      &        lifetime,         ! in : logical var for damping
      &        dbgsub,           ! in : logical var for debugging
+     &        g_dipel_i,
+     &        omega,
      &        g_temp)           ! in : scratch GA array
             
           enddo                 ! iresp (responding field components)
@@ -371,6 +374,8 @@ c       to store the scaled MO vectors
      &        nocc,             ! in : nr. occupied alpha or beta
      &        lifetime,         ! in : logical var for damping
      &        dbgsub,           ! in : logical var for debugging
+     &        g_dipel_i,
+     &        omega,
      &        g_temp)           ! in : scratch GA array            
             
           enddo                 ! iresp (responding field components)
@@ -431,6 +436,8 @@ c       twice the icomp=2 component back into g_vecE1(1)
      &        nocc,             ! in : nr. occupied alpha or beta
      &        lifetime,         ! in : logical var for damping
      &        dbgsub,          ! in : logical var for debugging
+     &        g_dipel_i,
+     &        omega,
      &        g_temp)           ! in : scratch GA array            
             
           enddo                 ! iresp (responding field components)
@@ -477,6 +484,8 @@ c       ------------------------------------------------
      &        nocc,             ! in : nr. occupied alpha or beta
      &        lifetime,         ! in : logical var for damping
      &        dbgsub,          ! in : logical var for debugging
+     &        g_dipel_i,
+     &        omega,
      &        g_temp)           ! in : scratch GA array
             
             
@@ -506,6 +515,8 @@ c       if required, calculate dipole-quadrupole polarizability:
      &          nocc,           ! in : nr. occupied alpha or beta
      &          lifetime,       ! in : logical var for damping
      &          dbgsub,        ! in : logical var for debugging
+     &          g_dipel_i,
+     &          omega,
      &          g_temp)         ! in : scratch GA array
               
             end do              ! iresp

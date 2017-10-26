@@ -122,6 +122,7 @@ c     traceless dipole-quadrupole tensor, full storage
 c     external functions:
       double precision ga_trace_diag
       external ga_trace_diag
+      integer g_dipel_i
       
 c  ====================================================================
 
@@ -306,6 +307,8 @@ c       ------------------------------------------------------
      &        nocct(ispin),     ! in : nr. occupied alpha or beta
      &        lifetime,         ! in : logical var for damping
      &        dbgsub,            ! in : logical var for debugging
+     &        g_dipel_i,
+     &        omega,
      &        g_temp)           ! in : scratch GA array
 
           end do
@@ -348,6 +351,8 @@ c       --------------------------------------
      &          nocct(ispin),   ! in : nr. occupied alpha or beta
      &          lifetime,       ! in : logical var for damping
      &          dbgsub,          ! in : logical var for debugging
+     &          g_dipel_i,
+     &          omega,
      &          g_temp)         ! in : scratch GA array
 
               if (debug) write (luout,*)
@@ -389,6 +394,8 @@ c       --------------------------------------
      &        nocct(ispin),     ! in : nr. occupied alpha or beta
      &        lifetime,         ! in : logical var for damping
      &        dbgsub,           ! in : logical var for debugging
+     &        g_dipel_i,
+     &        omega,
      &        g_temp)           ! in : scratch GA array 
             
           enddo                 ! iresp = 1,3
@@ -416,6 +423,8 @@ c         ------------------------------------------------
      &          nocct(ispin),   ! in : nr. occupied alpha or beta
      &          lifetime,       ! in : logical var for damping
      &          dbgsub,          ! in : logical var for debugging
+     &          g_dipel_i,
+     &          omega,
      &          g_temp)         ! in : scratch GA array 
 
    

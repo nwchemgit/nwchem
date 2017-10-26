@@ -480,7 +480,6 @@ c        (ind1,ind2)=(idir ,1    ) for caseAO=4 (g_dipEM eq g_sket1) in aor_r1_b
      &        write(*,*) '----g_temp --------- END'
             endif ! end-if-debug
 c jbecca START
-c  TODO: Check later that this doesnt screw things up horribly
 c        This should just be a sanity check
             sumre=0d0
 c jbecca END
