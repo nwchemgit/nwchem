@@ -46,8 +46,10 @@ ckw
 c
       logical cando_nw
       logical cando_txs
+      logical cando_sim
       external cando_nw
       external cando_txs
+      external cando_sim
 ckw
 c::passed
       integer brain !< [Input] basis set handle for bra basis
@@ -133,15 +135,15 @@ c.rel-dmd
 ckw
       double precision roff(3)
       integer txs_i, txs_j, txs_k, txs_l
-      logical status_nw, status_txs
+      logical status_nw, status_txs, status_sim
       logical dum_log
       integer nintzero, num_quart, dummy_lab
       double precision q4
       integer momentum
-      integer scr_ptr
+      integer scr_ptr,ii
 ckw
 c
-      logical used_nw
+      logical need_2ec2s
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
@@ -150,7 +152,7 @@ c
       j_rel = .false.
       k_rel = .false.
       l_rel = .false.
-      used_nw = .false.
+      need_2ec2s = .false.
       nint_ck = int_nint_cart(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)
       if (nint_ck*3*4.gt.leri) then
         write(luout,*) 'nint*3*4 = ',nint_ck*3*4
@@ -275,6 +277,7 @@ ckw
         status_txs = status_txs .and. .true.
         status_nw = .false.
       endif
+      status_sim = cando_sim(brain,ish,jsh).and.cando_sim(ketin,ksh,lsh)
 *************************************************************************
 * texas one at a time is broke for now:  temporary fix
 *************************************************************************
@@ -352,13 +355,60 @@ c
      &      eri,nint_ck,.false.,.false.,.false.,.false.,
      &      scr,lscr)
         end if
-        used_nw = .true.
+#ifdef DEBUG
+        write(6,'(6i4)') ish,jsh,ksh,lsh,
+     A int_nint(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)*12,
+     B       nint_ck
+        do ii=1,int_nint(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)*12
+           write(6,'(a,i4,f20.6)') 'der',ii,eri(ii)
+        enddo
+#endif
+        need_2ec2s = .true.
 c
         call intd_sum(eri,nint_ck,idatom,iatom,jatom,katom,latom)
+#ifdef DEBUG
+        do ii=1,int_nint(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)*12
+           write(6,'(a,i4,f20.6)') 'tra',ii,eri(ii)
+        enddo
+#endif
 c
-        if (used_nw) call intd_2ec2s(eri,nint_ck,scr,lscr,
-     &      itype,jtype,ktype,ltype,igen,jgen,kgen,lgen,
-     &      bas_spherical(bra),bas_spherical(ket),idatom)
+      else if (status_sim) then
+#ifdef SIMINT_GRADIENT
+        call nwcsim_hf2d(
+     &        bra,ish,jsh,
+     &        ket,ksh,lsh,
+     &        nint_ck, eri, leri, scr, lscr)
+c
+        if(nint_ck.ne.0) then
+           nint_ck=int_nint(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)
+#ifdef DEBUG
+           do ii=1,nint_ck*12
+              write(6,'(a,i4,f20.6)') '0er',ii,eri(ii)
+           enddo
+#endif
+           if (nint_ck*12.gt.lscr) call errquit
+     $          ('intd_2e4c: lscr is too small for texas derivatives',
+     $          911, INT_ERR)
+           call dcopy(nint_ck*12,eri,1,scr,1)
+           call intd_texas_grad_switch(nint_ck,eri,scr)
+           need_2ec2s = .true.
+#ifdef DEBUG
+           write(6,'(5i4)') ish,jsh,ksh,lsh,nint_ck
+           do ii=1,nint_ck*12
+              write(6,'(a,i4,f20.6)') 'der',ii,eri(ii)
+           enddo
+#endif
+c
+           call intd_sum(eri,nint_ck,idatom,iatom,jatom,katom,latom)
+#ifdef DEBUG
+           do ii=1,nint_ck*12
+              write(6,'(a,i4,f20.6)') 'tra',ii,eri(ii)
+           enddo
+#endif
+        endif
+#else
+         call errquit(' simint 2e4c derivatives not ready yet',0,0)
+#endif
       else
         write(luout,*)'intd_2e4c: could not use either texas or nwchem'
         write(luout,*)'           integral derivatives'
@@ -366,6 +416,9 @@ c
         write(luout,*)'        the input deck and output available'
         call errquit('intd_2e4c: fatal error',911, INT_ERR)
       endif
+        if (need_2ec2s) call intd_2ec2s(eri,nint_ck,scr,lscr,
+     &      itype,jtype,ktype,ltype,igen,jgen,kgen,lgen,
+     &      bas_spherical(bra),bas_spherical(ket),idatom)
 c
       end
 C>

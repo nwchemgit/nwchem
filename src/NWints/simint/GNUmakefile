@@ -8,6 +8,9 @@ ifdef USE_SIMINT
       OBJ_OPTIMIZE += nwcsimint_test.o
 endif
 
+ifdef SIMINT_GRADIENT
+      LIB_DEFINES +=  -DSIMINT_GRADIENT
+endif
 
         
        HEADERS = 

@@ -427,7 +427,7 @@ c
          call igamma_init
       else
 c     simint as last option (e.g. set int:cando_txs f set int:cando_nw f)
-         call nwcsim_init(rtdb,nbas,bases)
+         call nwcsim_init(rtdb,nbas,bases,0)
       endif
 c
 c See if any basis has an attached ECP

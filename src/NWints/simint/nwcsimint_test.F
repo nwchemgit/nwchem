@@ -19,6 +19,9 @@ c      use iso_c_binding
       call simint_init()
 
       num_der=0
+#ifdef SIMINT_GRADIENT
+      num_der=1
+#endif
       max_ang=1
 
       worksize = simint_eri_worksize(num_der, max_ang)
@@ -52,7 +55,7 @@ c      allocate(work(worksize))
       call C_F_POINTER(sh(1)%coef, p2, shape=[sh(1)%nprim])
       
       call simint_create_multi_shellpair(2, sh, 2, sh, bra_msh, 0)
-      call simint_create_multi_shellpair(2, sh, 2, sh, ket_msh, 0)
+      call simint_create_multi_shellpair(2, sh, 2, sh, ket_msh, 0) 
       
       call C_F_POINTER(bra_msh%alpha, p1, shape=[bra_msh%nprim])
       call C_F_POINTER(bra_msh%prefac, p2, shape=[bra_msh%nprim])
@@ -62,8 +65,14 @@ c      allocate(work(worksize))
         write(*,*) p1(i), p2(i)
       end do
       
-      ncomputed = simint_compute_eri(bra_msh, ket_msh, 0.0d0, 
+#ifdef SIMINT_GRADIENT
+      write(6,*) ' using derivatives 1 code '
+      ncomputed = simint_compute_eri_deriv(1,bra_msh, ket_msh, 0d0,
      C     dbl_mb(k_wrk), integrals)
+#else
+      ncomputed = simint_compute_eri(bra_msh, ket_msh, 0d0,
+     C     dbl_mb(k_wrk), integrals)
+#endif
       write(*,*) ' 2e4c', integrals(1),integrals(ncomputed)
 c     try 2e3c
       call simint_free_multi_shellpair(bra_msh)
@@ -92,6 +101,7 @@ c     try 2e3c
 
       ncomputed = simint_compute_eri(bra_msh, ket_msh, 0.0d0, 
      C     dbl_mb(k_wrk), integrals)
+
       write(*,*) ' 2e3c',integrals(1),integrals(ncomputed)
       call C_F_POINTER(bra_msh%alpha, p1, shape=[bra_msh%nprim])
       call C_F_POINTER(bra_msh%prefac, p2, shape=[bra_msh%nprim])

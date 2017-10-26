@@ -4,12 +4,13 @@
 #include "nwc_const.fh"
 C     shells 
       type(c_simint_shell), target :: smnt_sh(nw_max_shells,3)
-c dummy shell for 3c- for basis 1
+c dummy shell for 3c- 
       type(c_simint_shell), target :: zero_sh(nw_max_shells,3)
       integer :: nwcsim_noshell(3), nwcsim_bas(3)
       integer :: nwcsim_nbas
+      logical :: nwcsim_initialized = .false.
       end module  nwcsim_shell
-      subroutine nwcsim_init(rtdb,nbas,bases)
+      subroutine nwcsim_init(rtdb,nbas,bases,num_der)
       use nwcsim_shell
       implicit none
 #include "bas.fh"
@@ -25,12 +26,13 @@ c dummy shell for 3c- for basis 1
 #include "stdio.fh"
 c      use iso_c_binding
       integer rtdb,nbas,bases(3)
+      integer :: num_der
 c      type(c_simint_multi_shellpair), target :: msh
       double precision :: alpha(3), coef(3)
       integer :: ibasis,basis,bas
       logical cart_2_sphe
       integer :: geom, natoms
-      integer :: num_der, max_ang
+      integer :: max_der, max_ang
       integer :: mxmx
       integer :: iat,icset,ic1,ic2, nprim
       integer :: l, ncontr, isphere
@@ -44,6 +46,14 @@ c     stick to nbas=1 for now
          if(nbas.gt.2) call errquit(
      C        ' simint interface not ready for no basis gt 2',0,0)
 c     init
+      max_der=0
+#ifdef SIMINT_GRADIENT
+      max_der=1
+#endif
+      if(num_der.gt.max_der) call errquit(
+     C        ' simint interface not ready for derivative ',
+     D num_der,0)
+      if(.not.nwcsim_initialized) then
       call simint_init()
 c
 c     create shells simint structure
@@ -100,23 +110,29 @@ c     dummy shell for 3c-
          if(.not.ma_chop_stack(l_exp)) call errquit(
      E        ' pop stack failed ',l_exp,0)
       enddo ! basis loop
+      endif
 c
 c     normalization not needed since nwchem and simint use the same
 cedo      call simint_normalize_shells(nwcsim_noshell,smnt_sh)
 c
 c     memory allocation
 c
-c     0 deriv
-      num_der=0
 
       mem_2e4c = max(mem_2e4c,
      S     simint_eri_worksize(num_der, max_ang))
-      memb_2e4c = mem_2e4c + mem_2e4c/10  ! +10% to be safe
+      write(6,*) ' simint_eriw ',simint_eri_worksize(num_der, max_ang)
+      if(num_der.eq.1) then
+         memb_2e4c = mem_2e4c + mem_2e4c/5
+      else
+         memb_2e4c = mem_2e4c + mem_2e4c/10 ! +10% to be safe
+      endif
       if(ga_nodeid().eq.0) then
          write(luout,*)
          write(luout,*) ' Using Simint Integral package'
          write(luout,*) ' simint: mem_2e4c   ',mem_2e4c
          write(luout,*) ' simint: memb_2e4c  ',memb_2e4c
+         write(luout,*) ' 0 der',simint_eri_worksize(0, max_ang)
+         write(luout,*) ' 1 der',simint_eri_worksize(1, max_ang)
          write(luout,*)
          call util_flush(luout)
       endif
@@ -134,6 +150,8 @@ c
       character*14 pname
       pname="nwcsim_termina"
 c
+      if(nwcsim_initialized) then
+      write(6,*) ' nwcsim_terminate'
       do ibasis=1,nwcsim_nbas
          bas=nwcsim_bas(ibasis)
             do icsh=1,nwcsim_noshell(bas)
@@ -141,6 +159,7 @@ c
                call simint_free_shell(zero_sh(icsh,bas))
             enddo
       enddo
+      endif
       call simint_finalize()
       return
       end

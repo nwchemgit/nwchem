@@ -207,10 +207,12 @@ c
       user_cando_nw   = .false.
       user_cando_txs  = .false.
       user_cando_hnd  = .false.
+      user_cando_sim  = .false.
       def_cando_sp    = .false.
       def_cando_nw    = .false.
       def_cando_txs   = .false.
       def_cando_hnd   = .false.
+      def_cando_sim   = .false.
 c
       if (rtdb_get(rtdb,'int:cando_sp',MT_LOG,1,status)) then
         user_cando_sp = .true.
@@ -251,6 +253,16 @@ c
           call util_flush(6)
         endif
       endif
+c
+      if (rtdb_get(rtdb,'int:cando_sim',MT_LOG,1,status)) then
+        user_cando_sim = .true.
+        def_cando_sim  = status
+        if (ga_nodeid().eq.0 .and. oprint) then
+          write(luout,*)
+     &        ' intd_init: cando_sim set to always be ',def_cando_sim
+          call util_flush(6)
+        endif
+      endif
 *
       if (.not.user_cando_txs) then
         if (.not.texas_check_basis_ok(nbas,bases)) then
@@ -275,6 +287,7 @@ c
           write(luout,*)' nw  ', def_cando_nw
           write(luout,*)' txs ', def_cando_txs
           write(luout,*)' hnd ', def_cando_hnd
+          write(luout,*)' sim ', def_cando_sim
           call util_flush(6)
         endif
         call errquit
@@ -337,8 +350,10 @@ c
           def_cando_sp   = .false.
           user_cando_txs = .true.
           def_cando_txs  = .false.
+          user_cando_sim = .true.
+          def_cando_sim  = .false.
           if (ga_nodeid().eq.0 .and. oprint) then
-            write(luout,*) ' intd_init: cando_sp and cando_txs',
+            write(luout,*) ' intd_init: cando_sp,cando_txs,cando_sim',
      &          ' turned off for NESC2E'
             call util_flush(luout)
           end if 
@@ -367,6 +382,9 @@ c
       if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then
          call texas_init(rtdb,nbas,bases,nqmax_texas,txs_mem_min,
      &        'der1_int')
+      endif
+      if (.not.(user_cando_sim.and.(.not.def_cando_sim))) then
+         call nwcsim_init(rtdb,nbas,bases,1)
       endif
       call hnd_initd(bases,nbas)
 c

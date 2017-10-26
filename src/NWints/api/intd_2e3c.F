@@ -40,6 +40,14 @@ c errquit
 c::functions
       integer int_nint_cart
       external int_nint_cart
+c
+      logical cando_nw
+      logical cando_txs
+      logical cando_sim
+      external cando_nw
+      external cando_txs
+      external cando_sim
+
 c::passed
       integer brain !< [Input] basis set handle for bra basis
       integer ish   !< [Input] lexical contraction index 
@@ -103,6 +111,7 @@ c::local
       integer inp, igen, iexp, icf, itype, iatom
       integer jnp, jgen, jexp, jcf, jtype, jatom
       integer knp, kgen, kexp, kcf, ktype, katom
+      logical status_nw, status_txs, status_sim
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
@@ -159,6 +168,13 @@ c
       ktype = infbs_cont(CONT_TYPE,ucont,ket) 
       katom = (sf_ibs_cn2ce(ksh,ket))
 c
+      status_txs = 
+     &    cando_txs(brain,ish,0).and.cando_txs(ketin,jsh,ksh)
+      status_nw  =
+     &    cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,ksh) 
+      status_sim = cando_sim(brain,ish,0).and.cando_sim(ketin,jsh,ksh)
+
+c
 c... new logic
       if (iatom.eq.jatom.and.jatom.eq.katom)then
         call dcopy((nint*3*4),0.0d00,0,eri,1)
@@ -166,6 +182,7 @@ c... new logic
         return
       endif
 c
+      if(status_nw) then
       call hf2d(
      &       coords(1,iatom,ab_geom),dbl_mb(mb_exndcf(iexp,bra)),
      &       dbl_mb(mb_exndcf(icf,bra)),inp,igen,itype,iatom,
@@ -183,6 +200,15 @@ c
      &       scr,lscr)
 c
       call intd_sum(eri,nint,idatom,iatom,iatom,jatom,katom)
+      elseif(status_sim) then
+         call errquit(' simnint 2e3c derivatives not ready yet',0,0)
+      else
+        write(luout,*)'intd_2e3c: could not use either texas or nwchem'
+        write(luout,*)'           integral derivatives'
+        write(luout,*)' Please notify nwchem-support@emsl.pnl.gov with'
+        write(luout,*)'        the input deck and output available'
+        call errquit('intd_2e3c: fatal error',911, INT_ERR)
+      endif
 c
       if (any_spherical) then
         call intd_2ec2s(eri,nint,scr,lscr,

@@ -7,6 +7,9 @@ endif
 ifdef USE_SIMINT
       LIB_DEFINES += -DUSE_SIMINT
 endif
+ifdef SIMINT_GRADIENT
+      LIB_DEFINES +=  -DSIMINT_GRADIENT
+endif
 
     OBJ = cando_sp.o     exact_mem.o    exactd_mem.o \
           int_1cg.o      int_1e3ov.o    int_1estv.o \
