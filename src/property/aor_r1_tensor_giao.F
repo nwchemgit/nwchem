@@ -623,10 +623,15 @@ c       before the BD tensor gets assembled:
           do i = 1,3
             do j = 1,3
               tmpre(i,j) = betare(i,j)
+              tmpim(i,j) = betaim(i,j)
             end do
           end do
-          call aor_write_roadata
-     &       (luout, alfare, betare, tmpre, dipquadre, dqpol)
+           call aor_write_roadata2
+     &       (luout, alfare, alfaim, tmpre, betare, tmpim, 
+     &       betaim, dipquadre, dipquadim, dqpol)
+
+c          call aor_write_roadata
+c     &       (luout, alfare, betare, tmpre, dipquadre, dqpol)
         end if                  ! lroa
 
 c       assemble BD tensor in tmpre.
