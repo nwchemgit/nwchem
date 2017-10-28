@@ -382,8 +382,10 @@ c
       if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then
          call texas_init(rtdb,nbas,bases,nqmax_texas,txs_mem_min,
      &        'der1_int')
-      endif
-      if (.not.(user_cando_sim.and.(.not.def_cando_sim))) then
+      elseif (.not.(user_cando_nw.and.
+     S       (.not.def_cando_nw))) then
+c     empty if clause to avoid the call to nwcsim_init
+      elseif (.not.(user_cando_sim.and.(.not.def_cando_sim))) then
          call nwcsim_init(rtdb,nbas,bases,1)
       endif
       call hnd_initd(bases,nbas)

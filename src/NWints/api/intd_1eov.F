@@ -102,8 +102,10 @@ c... errquit
 c::functions
       logical cando_hnd_1e
       logical cando_nw
+      logical cando_sim
       external cando_hnd_1e
       external cando_nw
+      external cando_sim
 c::passed
       integer i_basis   ! [input] ish basis set handle
       integer ish       ! [input] "i" contraction index
@@ -151,7 +153,7 @@ c::local
       integer jbas,jatom,jnp,jgen,jexp,jcf,jtype,jgeom,jsbas,jcfS
       logical any_spherical
       logical orel, oirel, ojrel, oNR
-      logical ohnd_ok, onw_ok
+      logical ohnd_ok, onw_ok, osim_ok
       integer i_nbf_x, j_nbf_x
       integer i_nbf_s, j_nbf_s
       integer nint_x, nint_s
@@ -266,6 +268,7 @@ c
      &    .and. (.not.geom_any_finuc (igeom))
      &    .and. (.not.geom_any_finuc (jgeom))
       onw_ok = cando_nw(i_basis,ish,0) .and. cando_nw(j_basis,jsh,0)
+      osim_ok = cando_sim(i_basis,ish,0) .and. cando_sim(j_basis,jsh,0)
 c
       if (orel) then
         call rel_oneld (
@@ -283,7 +286,7 @@ c........................       doS   doT    doV    canAB
      &      Ova,scr,scr,nint,.true.,.false.,.false.,.false.,onw_ok,
 c...........       nonrel dryrun
      &      ohnd_ok,oNR,.false.,scr,lscr,rel_dbg,rel_typ)
-      else if (onw_ok) then
+      else if (onw_ok.or.osim_ok) then
         call hf1d(
      &      coords(1,iatom,igeom),
      &      dbl_mb(mb_exndcf(iexp,ibas)),

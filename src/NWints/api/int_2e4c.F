@@ -386,6 +386,7 @@ c....................... canAB    canCD   canPQ   dryrun
      &        eri, leri, .false.,.false.,.false.,.false., scr, lscr)
         end if
       elseif(status_sim .and. .not.status_rel)  then
+
         call nwcsim_hf2(
      &        bra,ish,jsh,
      &        ket,ksh,lsh,

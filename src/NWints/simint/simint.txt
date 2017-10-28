@@ -15,7 +15,7 @@ wget http://bennyp.org/research/simint/download/test.f90
 
  Compilation with non standard gcc g++ and 1st derivative
  FC=ifort CC=icc CXX=icpc ~/apps/bin/cmake \
- -DCMAKE_BUILD_TYPE=Release -DSIMINT_VECTOR=micavx512  \
+ -DCMAKE_BUILD_TYPE=Release -DSIMINT_VECTOR=avx  \
  -DCMAKE_INSTALL_LIBDIR=lib -DENABLE_FORTRAN=ON -DSIMINT_MAXAM=7 SIMINT_MAXDER=1 \
  -DCMAKE_CXX_FLAGS:STRING=-gcc-name=gcc-5 -DCMAKE_CXX_FLAGS:STRING=-gxx-name=g++-5 \
  -DCMAKE_Fortran_FLAGS=-i8 -DCMAKE_INSTALL_PREFIX=/home/edo/apps/simint8edo.install ../

@@ -55,6 +55,7 @@ c     init
      D num_der,0)
       if(.not.nwcsim_initialized) then
       call simint_init()
+      nwcsim_initialized=.true.
 c
 c     create shells simint structure
 c
@@ -120,7 +121,8 @@ c
 
       mem_2e4c = max(mem_2e4c,
      S     simint_eri_worksize(num_der, max_ang))
-      write(6,*) ' simint_eriw ',simint_eri_worksize(num_der, max_ang)
+      write(6,*)  num_der, max_ang,
+     S     ' simint_eriw ',simint_eri_worksize(num_der, max_ang)
       if(num_der.eq.1) then
          memb_2e4c = mem_2e4c + mem_2e4c/5
       else
@@ -161,6 +163,14 @@ c
       enddo
       endif
       call simint_finalize()
+      nwcsim_initialized=.false.
+      return
+      end
+      logical function nwcsim_initdone()
+      use nwcsim_shell
+      implicit none
+c
+      nwcsim_initdone=nwcsim_initialized
       return
       end
 #else 
@@ -177,6 +187,12 @@ c
       implicit none
 #include "errquit.fh"
       integer nbas,bases
+      return
+      end
+      logical function  nwcsim_initdone()
+      implicit none
+c
+      nwcsim_initdone=.false.
       return
       end
 #endif

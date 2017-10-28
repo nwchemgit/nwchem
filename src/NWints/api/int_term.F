@@ -122,6 +122,9 @@ c
       if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then
         call texas_terminate()
       endif
+      if (.not.(user_cando_sim.and.(.not.def_cando_sim))) then
+        call nwcsim_terminate()
+      endif
 *:rak:this should not be here      call int_app_unset_no_texas(rtdbIused)
 c
       if (any_ecp) then

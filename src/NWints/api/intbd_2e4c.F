@@ -150,6 +150,9 @@ c:local
       integer numint
       integer ilo, jlo, klo, llo
       integer ihi, jhi, khi, lhi
+      logical cando_sim, status_sim
+      external cando_sim
+      integer ii
 *
 c
       intbd_nw_2e4c = .true.
@@ -230,10 +233,17 @@ c
       endif
 * scr has integral derivatives in nwchem order (nint_s,3,4)      
       nint = 0
+      status_sim = cando_sim(brain,1,1).and.cando_sim(ketin,1,1)
+      if(status_sim.and.(.not.canonicalize)) then
+         call intbd_nw_label(nint,idatom,
+     &    ilo,ihi,jlo,jhi,klo,khi,llo,lhi,
+     &    ilab,jlab,klab,llab)
+      else
       call intbd_nw_label_copy(scr,eri,nint_s,nint,idatom,
      &    ilo,ihi,jlo,jhi,klo,khi,llo,lhi,
      &    ilab,jlab,klab,llab,
      &    zerotol,canonicalize)
+      endif
       if (use_q4.and.nint.gt.0) then
         call dscal((nint*12),q4(i_q),eri,1)
       endif
@@ -315,6 +325,40 @@ c::local
                   enddo
                 enddo
               endif
+            enddo
+          enddo
+        enddo
+      enddo
+*
+      end
+      subroutine intbd_nw_label(nint,idatom,
+     &    ilo,ihi,jlo,jhi,klo,khi,llo,lhi,
+     &    ilab,jlab,klab,llab)
+      implicit none
+c::passed
+      integer nint
+      integer idatom(4)
+      integer ilo, jlo, klo, llo
+      integer ihi, jhi, khi, lhi
+      integer ilab(*)
+      integer jlab(*)
+      integer klab(*)
+      integer llab(*)
+c::local
+      integer i, ii, jj, kk, ll
+      integer numgt1
+*
+      nint = 0
+
+      do ii = ilo,ihi
+        do jj = jlo,jhi
+          do kk = klo,khi
+            do ll = llo,lhi
+                nint = nint + 1
+                  ilab(nint) = ii
+                  jlab(nint) = jj
+                  klab(nint) = kk
+                  llab(nint) = ll
             enddo
           enddo
         enddo

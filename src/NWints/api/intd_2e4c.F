@@ -143,16 +143,14 @@ ckw
       integer scr_ptr,ii
 ckw
 c
-      logical need_2ec2s
-c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
+#include "int_nbf.fh"
 c
       i_rel = .false.
       j_rel = .false.
       k_rel = .false.
       l_rel = .false.
-      need_2ec2s = .false.
       nint_ck = int_nint_cart(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)
       if (nint_ck*3*4.gt.leri) then
         write(luout,*) 'nint*3*4 = ',nint_ck*3*4
@@ -355,22 +353,11 @@ c
      &      eri,nint_ck,.false.,.false.,.false.,.false.,
      &      scr,lscr)
         end if
-#ifdef DEBUG
-        write(6,'(6i4)') ish,jsh,ksh,lsh,
-     A int_nint(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)*12,
-     B       nint_ck
-        do ii=1,int_nint(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)*12
-           write(6,'(a,i4,f20.6)') 'der',ii,eri(ii)
-        enddo
-#endif
-        need_2ec2s = .true.
 c
         call intd_sum(eri,nint_ck,idatom,iatom,jatom,katom,latom)
-#ifdef DEBUG
-        do ii=1,int_nint(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)*12
-           write(6,'(a,i4,f20.6)') 'tra',ii,eri(ii)
-        enddo
-#endif
+        call intd_2ec2s(eri,nint_ck,scr,lscr,
+     &      itype,jtype,ktype,ltype,igen,jgen,kgen,lgen,
+     &      bas_spherical(bra),bas_spherical(ket),idatom)
 c
       else if (status_sim) then
 #ifdef SIMINT_GRADIENT
@@ -380,31 +367,15 @@ c
      &        nint_ck, eri, leri, scr, lscr)
 c
         if(nint_ck.ne.0) then
-           nint_ck=int_nint(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)
-#ifdef DEBUG
-           do ii=1,nint_ck*12
-              write(6,'(a,i4,f20.6)') '0er',ii,eri(ii)
-           enddo
-#endif
-           if (nint_ck*12.gt.lscr) call errquit
-     $          ('intd_2e4c: lscr is too small for texas derivatives',
-     $          911, INT_ERR)
-           call dcopy(nint_ck*12,eri,1,scr,1)
-           call intd_texas_grad_switch(nint_ck,eri,scr)
-           need_2ec2s = .true.
-#ifdef DEBUG
-           write(6,'(5i4)') ish,jsh,ksh,lsh,nint_ck
-           do ii=1,nint_ck*12
-              write(6,'(a,i4,f20.6)') 'der',ii,eri(ii)
-           enddo
-#endif
-c
-           call intd_sum(eri,nint_ck,idatom,iatom,jatom,katom,latom)
-#ifdef DEBUG
-           do ii=1,nint_ck*12
-              write(6,'(a,i4,f20.6)') 'tra',ii,eri(ii)
-           enddo
-#endif
+           nint_ck=        
+     i          int_nbf_x(itype)*
+     j          int_nbf_x(jtype)*
+     k          int_nbf_x(ktype)*
+     l          int_nbf_x(ltype)
+
+           call intd_2ec2s_sim(eri,nint_ck,scr,lscr,
+     &      itype,jtype,ktype,ltype,igen,jgen,kgen,lgen,
+     &      bas_spherical(bra),bas_spherical(ket))
         endif
 #else
          call errquit(' simint 2e4c derivatives not ready yet',0,0)
@@ -416,9 +387,6 @@ c
         write(luout,*)'        the input deck and output available'
         call errquit('intd_2e4c: fatal error',911, INT_ERR)
       endif
-        if (need_2ec2s) call intd_2ec2s(eri,nint_ck,scr,lscr,
-     &      itype,jtype,ktype,ltype,igen,jgen,kgen,lgen,
-     &      bas_spherical(bra),bas_spherical(ket),idatom)
 c
       end
 C>
@@ -581,6 +549,76 @@ C ?
         else
           call int_c2s_mv
      &        (eri,nint_x,nint_s,(3*4),scr,lscr,'intd_2e4c')
+        endif
+      endif
+      end
+      subroutine intd_2ec2s_sim(eri,nint_ck,scr,lscr,
+     &    it,jt,kt,lt,igin,jgin,kgin,lgin,
+     &    bra_sph,ket_sph)
+      implicit none
+#include "nwc_const.fh"
+#include "errquit.fh"
+#include "int_nbf.fh"
+c::passed
+      integer nint_ck
+      integer lscr
+      double precision eri(3,4,nint_ck)
+      double precision scr(lscr)
+      integer it,jt,kt,lt
+      integer igin,jgin,kgin,lgin
+      logical bra_sph, ket_sph
+c::local      
+      integer ig,jg,kg,lg
+      integer nint_x, nint_s
+      integer i_nbf,j_nbf,k_nbf,l_nbf
+      integer i_nbf_s,j_nbf_s,k_nbf_s,l_nbf_s
+      integer zatom
+      integer zyx
+c
+      ig = igin
+      jg = jgin
+      kg = kgin
+      lg = lgin
+c ... reset general contractions for sp shells to 1 since they are handled
+c     as a block of 4.
+      if (it.eq.-1) ig = 1
+      if (jt.eq.-1) jg = 1
+      if (kt.eq.-1) kg = 1
+      if (lt.eq.-1) lg = 1
+      if (bra_sph.or.ket_sph) then
+        i_nbf = int_nbf_x(It)
+        j_nbf = int_nbf_x(Jt)
+        k_nbf = int_nbf_x(Kt)
+        l_nbf = int_nbf_x(Lt)
+        nint_x = i_nbf*j_nbf*k_nbf*l_nbf
+        if (nint_ck.ne.nint_x) call errquit
+     &      ('intd_2ec2s_sim: nint_ck.ne.nint_x diff=',(nint_ck-nint_x),
+     &       INT_ERR)
+        if(bra_sph) then
+          i_nbf_s = int_nbf_s(It)
+          j_nbf_s = int_nbf_s(Jt)
+          call spcart_bra2etran(eri,scr,
+     &              j_nbf,i_nbf,j_nbf_s,i_nbf_s,
+     &              Jt, It, jg, ig,
+     &              (k_nbf*l_nbf*12),.false.)
+          i_nbf = i_nbf_s
+          j_nbf = j_nbf_s
+        endif
+        if(ket_sph) then
+          k_nbf_s = int_nbf_s(Kt)
+          l_nbf_s = int_nbf_s(Lt)
+          call spcart_ket2etran(eri,scr,
+     &              l_nbf*12,k_nbf,l_nbf_s*12,k_nbf_s,
+     &              Lt, Kt, lg, kg,
+     &              (i_nbf*j_nbf),.false.)
+          k_nbf = k_nbf_s
+          l_nbf = l_nbf_s
+        endif
+        nint_s = i_nbf*j_nbf*k_nbf*l_nbf
+        if (nint_s.gt.nint_x) then
+          call errquit
+     &      ('intd_2ec2s: nint_s >.nint_x diff=',(nint_s-nint_x),
+     &       INT_ERR)
         endif
       endif
       end

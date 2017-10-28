@@ -903,10 +903,14 @@ c:tex-A zero [i|j]sh means ignore this shell. this allows one function
 c:tex-for all 2e permutations and multiple basis sets.
 c::local
       integer basis, mytype, ucont
+      logical nwcsim_initdone
+      external nwcsim_initdone
 c
 #include "bas_ibs_sfn.fh"
 #ifdef USE_SIMINT
 c
+      cando_sim = .false.
+      if(.not.nwcsim_initdone()) return
       if (user_cando_sim) then
         cando_sim = def_cando_sim
         return
