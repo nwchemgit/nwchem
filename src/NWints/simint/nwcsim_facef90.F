@@ -124,8 +124,6 @@ c
 
       mem_2e4c = max(mem_2e4c,
      S     simint_eri_worksize(num_der, max_ang))
-      write(6,*)  num_der, max_ang,
-     S     ' simint_eriw ',simint_eri_worksize(num_der, max_ang)
       if(num_der.eq.1) then
          memb_2e4c = mem_2e4c + mem_2e4c/5
       else
