@@ -154,7 +154,6 @@ c
       pname="nwcsim_termina"
 c
       if(nwcsim_initialized) then
-      write(6,*) ' nwcsim_terminate'
       do ibasis=1,nwcsim_nbas
          bas=nwcsim_bas(ibasis)
             do icsh=1,nwcsim_noshell(bas)
