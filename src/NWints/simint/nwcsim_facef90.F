@@ -55,6 +55,9 @@ c     init
      D num_der,0)
       if(.not.nwcsim_initialized) then
       call simint_init()
+c     needed for 1-e integrals
+      call igamma_init()
+
       nwcsim_initialized=.true.
 c
 c     create shells simint structure
