@@ -22,6 +22,7 @@ c
 #include "util.fh"
 #include "xc.fh"
 #include "case.fh"
+#include "inp.fh"
 c
       integer rtdb, mult
       integer dftnoc(2), nbsize
@@ -44,7 +45,10 @@ c
       external ga_create_atom_blocked
       logical int_normalize,int_norm_2c, movecs_read_header
       external int_normalize,int_norm_2c, movecs_read_header
-c
+      character *1024 ccc
+      CHARACTER*3   crcr
+
+      crcr = CHAR(13)//CHAR(11)//CHAR(0) 
 c  print out follow information
 c
       oprint = util_print('hess_follow',print_high)
@@ -278,6 +282,25 @@ c
      &   l_act, k_act))
      &   call errquit('grad: could not allocate l_act',1, MA_ERR)
       call grad_active_atoms(rtdb, ncent, log_mb(k_act), nactive)
+c
+c     if oactive business is on, bail out and provide recipe for restart
+c
+      if(nactive.ne.ncent) then
+         ccc= crcr//' WARNING '//crcr
+     c        //' Analytical Hessian code not ready to be'//crcr
+     c        //' used with an active atom list.'//crcr
+     c        //' If you want to continue this calculation and'//crcr
+     c        //' get a hessian with negative frequencies,'//crcr
+     c        //' please add the following line before the '//crcr
+     c        //' line task dft frequencies'//crcr
+     c        // ' '//crcr
+     c        //' unset geometry:actlist '//crcr
+     c        //'  '//crcr
+     c        //'  '//crcr
+         
+         call errquit(ccc(1:inp_strlen(ccc)),
+     C        0,CAPMIS_ERR)
+      endif
 c
 c  Get the density and weighted density.  Need to set up some
 c  temporary memory to go into grad_dens.
