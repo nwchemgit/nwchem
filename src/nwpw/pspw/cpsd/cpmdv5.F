@@ -203,6 +203,8 @@ cccc#include "frac_occ.fh"
 
       character*50 control_cell_name
       external     control_cell_name
+      integer  Parallel_maxthreads
+      external Parallel_maxthreads
 
 
 *                            |************|
@@ -514,6 +516,7 @@ c      call frac_occ_init(rtdb,ispin,ne)
          else
            write(luout,1120)
          end if
+         write(luout,1123) Parallel_maxthreads()
 
          write(luout,1115)
          write(luout,1121) control_boundry(),control_version()
@@ -1454,6 +1457,7 @@ c      call frac_occ_end()
  1119 FORMAT( ' parallel io              :        on')
  1120 FORMAT( ' parallel io              :       off')
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
+ 1123 FORMAT( ' number of threads        :',I10)
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1132 FORMAT(5X,' using fractional occupation')

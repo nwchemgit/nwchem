@@ -26,10 +26,10 @@ c
       parameter (deltat_min=1.0d-2)
        
       integer G0(2),S0(2)
-      real*8  E0,dE0
+      real*8  E0,dE0,Enew0
 
-      logical    lin_on
-      common / cgsd_block9 / lin_on
+      logical    lin_on,lin_on0
+      common / cgsd_block9 / lin_on,lin_on0
 
       logical    precondition
       common / cgsd_block2 / precondition
@@ -43,7 +43,7 @@ c
       common / bfgs_block / tmin,dte,sum0,sum1
 
       integer it,it_in
-      real*8 deltat
+      real*8 deltat,tmin0,deltae0,deltac0
       real*8 max_sigma,dt,kappa
 
       logical value,pawexist
@@ -136,6 +136,7 @@ c     dte = 1.0d0
       if (current_iteration.eq.1) then
          precondition = control_precondition()
          lin_on = pspw_Lin_HFX_on()
+         lin_on0= lin_on
          !if (lin_on) call linesearch_maxiter_set(4)
       end if
 
@@ -153,21 +154,26 @@ c     dte = 1.0d0
      >                     'G0',G0(2),G0(1))
       if (.not. value) call errquit('bfgsminimize:out of heap memory',0,
      &       MA_ERR)
-      call dcopy(2*npack1*neall,0.0d0,0,dcpl_mb(G0(1)),1)
+      !call dcopy(2*npack1*neall,0.0d0,0,dcpl_mb(G0(1)),1)
 
-
+!$OMP PARALLEL private(it,deltat,Enew0,tmin0,deltae0,deltac0)
+      call Parallel_shared_vector_zero(.true.,2*npack1*neall,
+     >                                 dcpl_mb(G0(1)))
 
 *     ***** get the initial direction ****
       if (lin_on) call pspw_Lin_HFX_reset()
       if (pawexist) then
-         call psi_1get_STgradient(dcpl_mb(S0(1)),dcpl_mb(G0(1)),E0)
+         call psi_1get_STgradient(dcpl_mb(S0(1)),dcpl_mb(G0(1)),Enew0)
       else
          if (precondition) then
-            call psi_1get_TMgradient(dcpl_mb(G0(1)),E0)
+            call psi_1get_TMgradient(dcpl_mb(G0(1)),Enew0)
          else
-            call psi_1get_Tgradient(dcpl_mb(G0(1)),E0)
+            call psi_1get_Tgradient(dcpl_mb(G0(1)),Enew0)
          end if
       end if
+!$OMP MASTER
+      E0 = Enew0
+!$OMP END MASTER
 
       if (current_iteration.eq.1) then
 
@@ -180,7 +186,9 @@ c     dte = 1.0d0
          call Grsm_gg_Copy(npack1,neall,
      >                      dcpl_mb(G0(1)),
      >                      dcpl_mb(S0(1)))
+!$OMP MASTER
          tmin  = 10*deltat_min
+!$OMP END MASTER
       else
          if (minimizer.eq.3) then
            call pspw_diis(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
@@ -207,9 +215,12 @@ c     >                                      dcpl_mb(S0(1)))
 *     **** Start of BFGS iteration loop     ****
 *     ****                                  ****
 *     ******************************************
+!$OMP MASTER
       it_in = control_it_in()
       tole  = control_tole()
       tolc  = control_tolc()
+!$OMP END MASTER
+!$OMP BARRIER
       do it=2,it_in
 
 *        **** initialize the geoedesic line data structure ****
@@ -221,25 +232,40 @@ c     >                                      dcpl_mb(S0(1)))
          else
             deltat = deltat_min
          end if
-c         deltat = 1.0d0  !** debug **
  20      continue
-         Enew = linesearch(0.0d0,E0,dE0,deltat,
+         tmin0 = tmin
+         deltae0 = deltae
+         Enew0 = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
-     >                        0.50d0,tmin,deltae,2)
+     >                        0.50d0,tmin0,deltae0,2)
+
+!$OMP MASTER
+         tmin = tmin0
+         deltae = deltae0
+         Enew = Enew0
+!$OMP END MASTER
+!$OMP BARRIER
 
          !*** turn off Lin HFX ****
          if (lin_on .and.
      >       ((dabs(deltae).lt.0.1d0*tole).or.(deltae.gt.0.0d0))) then
+!$OMP MASTER
             lin_on = .false.
+!$OMP END MASTER
             call pspw_Lin_HFX_off(.true.)
             go to 20
          end if
          call pspw_Lin_HFX_off(.false.)
-         lin_on = .true.
 
          call psi_geodesic_final(tmin)
-         deltac = rho_error()
+         deltac0 = rho_error()
+!$OMP MASTER
+         lin_on = lin_on0
+         deltac = deltac0
+!$OMP END MASTER
+!$OMP BARRIER
+
 
 *        **** exit loop early ****
          if ((dabs(deltae).lt.tole).and.(deltac.lt.tolc)) then
@@ -252,18 +278,22 @@ c         deltat = 1.0d0  !** debug **
          if (lin_on) call pspw_Lin_HFX_reset()
          if (pawexist) then
               call psi_2get_STgradient(2,dcpl_mb(S0(1)),
-     >                                   dcpl_mb(G0(1)),E0)
+     >                                   dcpl_mb(G0(1)),Enew0)
          else
             if (precondition) then
-              call psi_2get_TMgradient(2,dcpl_mb(G0(1)),E0)
+              call psi_2get_TMgradient(2,dcpl_mb(G0(1)),Enew0)
             else
               if (pspw_Lin_HFX_on()) then
-                 call psi_2get_Tgradient(1,dcpl_mb(G0(1)),E0)
+                 call psi_2get_Tgradient(1,dcpl_mb(G0(1)),Enew0)
               else
-                 call psi_2get_Tgradient(2,dcpl_mb(G0(1)),E0)
+                 call psi_2get_Tgradient(2,dcpl_mb(G0(1)),Enew0)
               end if
             end if
          end if
+!$OMP MASTER
+      E0 = Enew0
+!$OMP END MASTER
+!$OMP BARRIER
 
          if (minimizer.eq.3) then
            call pspw_diis(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
@@ -280,8 +310,6 @@ c         if (kappa.le.1.0d-10) call Grsm_gg_Copy(npack1,neall,
 c     >                                         dcpl_mb(G0(1)),
 c     >                                         dcpl_mb(S0(1)))
 
-
-
 *        **** make psi1 <--- psi2(tmin) ****
          call psi_2to1()
 
@@ -291,6 +319,7 @@ c     >                                         dcpl_mb(S0(1)))
 
 c        call rho_2to1()
 c        call dng_2to1()
+
 
       end do
 
@@ -306,27 +335,43 @@ c        call dng_2to1()
 c      deltat = 1.0d0  !** debug **
 c      Eold = psi_geodesic_energy(0.0d0)
  25   continue
-      Enew = linesearch(0.0d0,E0,dE0,deltat,
+      tmin0 = tmin
+      deltae0 = deltae
+      Enew0 = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
-     >                        0.50d0,tmin,deltae,2)
+     >                        0.50d0,tmin0,deltae0,2)
+!$OMP MASTER
+         tmin = tmin0
+         deltae = deltae0
+         Enew = Enew0
+!$OMP END MASTER
+!$OMP BARRIER
 
       !*** turn off Lin HFX ****
       if (lin_on .and.
      >       ((dabs(deltae).lt.0.1d0*tole).or.(deltae.gt.0.0d0))) then
+!$OMP MASTER
          lin_on = .false.
+!$OMP END MASTER
          call pspw_Lin_HFX_off(.true.)
          go to 25
       end if
       call pspw_Lin_HFX_off(.false.)
-      lin_on = .true.
 
       call psi_geodesic_final(tmin)
-      deltac = rho_error()
+      deltac0 = rho_error()
+!$OMP MASTER
+      lin_on = lin_on0
+      deltac = deltac0
+!$OMP END MASTER
+!$OMP BARRIER
 
+ 30   CONTINUE
+         
 
 *     **** free memory ****
- 30   value = BA_pop_stack(G0(2))
+      value = BA_pop_stack(G0(2))
       value = value.and.
      >        BA_pop_stack(S0(2))
       if (.not. value) 
@@ -335,18 +380,54 @@ c      Eold = psi_geodesic_energy(0.0d0)
       call psi_2to1()
       call psi_1toelectron() 
 
+
 c     call rho_2to1()
 c     call dng_2to1()
 c     call psi_check()
 
-      eion = 0.0d0
-      if (control_version().eq.3) eion = ewald_e()
-      if (control_version().eq.4) eion = ion_ion_e()
+      Enew0 = 0.0d0
+      if (control_version().eq.3) Enew0 = ewald_e()
+      if (control_version().eq.4) Enew0 = ion_ion_e()
+!$OMP MASTER
+      eion = Enew0
+!$OMP END MASTER
+     
 
-      eorbit   = psi_1eorbit()
-      ehartree = dng_1ehartree()
-      exc      = rho_1exc()
-      pxc      = rho_1pxc()
+      Enew0    = psi_1eorbit()
+!$OMP MASTER
+      eorbit = Enew0
+!$OMP END MASTER
+
+      Enew0  = dng_1ehartree()
+!$OMP MASTER
+      ehartree = Enew0
+!$OMP END MASTER
+
+      Enew0    = rho_1exc()
+!$OMP MASTER
+      exc = Enew0
+!$OMP END MASTER
+
+      Enew0    = rho_1pxc()
+!$OMP MASTER
+      pxc = Enew0
+!$OMP END MASTER
+
+      Enew0 = psi_1ke()
+!$OMP MASTER
+      E(6)  = Enew0
+!$OMP END MASTER
+
+      Enew0 = psi_1vl()
+!$OMP MASTER
+      E(7) = Enew0
+!$OMP END MASTER
+
+      Enew0 = psi_1vnl()
+!$OMP MASTER
+      E(8) = Enew0
+!$OMP END MASTER
+!$OMP END PARALLEL
 
 *     **** Metadynamics GGA Tau potential term ****
       if (nwpw_meta_gga_on()) then
@@ -358,9 +439,9 @@ c     call psi_check()
       E(3)  = ehartree
       E(4)  = exc
       E(5)  = eion
-      E(6)  = psi_1ke()
-      E(7)  = psi_1vl()
-      E(8)  = psi_1vnl()
+      !E(6)  = psi_1ke()
+      !E(7)  = psi_1vl()
+      !E(8)  = psi_1vnl()
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
       if (pspw_qmmm_found()) then

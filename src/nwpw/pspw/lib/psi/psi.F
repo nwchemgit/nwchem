@@ -2415,9 +2415,12 @@ c     >                  tau_t)
 #include "bafdecls.fh"
 #include "psi.fh"
    
-      call zcopy(npack1*(neq(1)+neq(2)),
-     >           dcpl_mb(psi1(1)),1,
-     >           dcpl_mb(psi2(1)),1)
+c      call zcopy(npack1*(neq(1)+neq(2)),
+c     >           dcpl_mb(psi1(1)),1,
+c     >           dcpl_mb(psi2(1)),1)
+      call Parallel_shared_vector_copy(.true.,2*npack1*(neq(1)+neq(2)),
+     >                                 dcpl_mb(psi1(1)),
+     >                                 dcpl_mb(psi2(1)))
 
       return
       end
@@ -2435,9 +2438,12 @@ c     >                  tau_t)
 #include "psi.fh"
 
  
-      call zcopy(npack1*(neq(1)+neq(2)),
-     >           dcpl_mb(psi2(1)),1,
-     >           dcpl_mb(psi1(1)),1)
+c      call zcopy(npack1*(neq(1)+neq(2)),
+c     >           dcpl_mb(psi2(1)),1,
+c     >           dcpl_mb(psi1(1)),1)
+      call Parallel_shared_vector_copy(.true.,2*npack1*(neq(1)+neq(2)),
+     >                                  dcpl_mb(psi2(1)),
+     >                                  dcpl_mb(psi1(1)))
 
 c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))  
       return
@@ -3838,6 +3844,9 @@ c      end
       real*8   electron_energy
       external electron_energy
 
+
+!$OMP BARRIER
+
       if (.not.Dneall_m_push_get(0,tmp1))
      >   call errquit('out of stack memory in psi_2get_Tradient',0,
      >       MA_ERR)
@@ -3855,6 +3864,7 @@ c      end
      >                        dcpl_mb(dng2(1)),
      >                        dbl_mb(rho2_all(1)),
      >                        occupation_on,dbl_mb(occ2(1)))
+!$OMP BARRIER
 
       call electron_gen_hml(dcpl_mb(psi2(1)),
      >                       dbl_mb(tmp1(1)))
@@ -4260,13 +4270,11 @@ c      end
 
       call geodesic_get(t,dcpl_mb(psi1(1)),
      >                    dcpl_mb(psi2(1)))
-    
       call electron_run(dcpl_mb(psi2(1)),
      >                   dbl_mb(rho2(1)),
      >                  dcpl_mb(dng2(1)),
      >                   dbl_mb(rho2_all(1)),
      >                   occupation_on,dbl_mb(occ2(1)))
-
       e_new =  electron_energy(dcpl_mb(psi2(1)),
      >                        dbl_mb(rho2(1)),
      >                        dcpl_mb(dng2(1)),
@@ -4583,7 +4591,9 @@ c    >                            dcpl_mb(dng1(1)))
      >                        r_grid(2),r_grid(1))
          if (.not. value) 
      >      call errquit('psi_1force:out of stack memory',0, MA_ERR)
-          call dcopy(2*nfft3d,0.0d0,0,dbl_mb(tmp(1)),1)
+          !call dcopy(2*nfft3d,0.0d0,0,dbl_mb(tmp(1)),1)
+          call Parallel_shared_vector_zero(.true.,
+     >                                     2*nfft3d,dbl_mb(tmp(1)))
 
           call D3dB_rr_Sum(1,dbl_mb(rho1(1)),
      >                       dbl_mb(rho1(1)+(ispin-1)*2*nfft3d),
@@ -5712,6 +5722,9 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       real*8  error,scale
       integer tmp1(2)
 
+      real*8 e1,e2
+      common /eenergy_tmp_common/ e1,e2
+
 *     ***** external functions *****
       real*8   lattice_omega
       external lattice_omega
@@ -5730,6 +5743,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 *     scale = (scale)/dble(nx*ny*nz)
 *     scale = (scale*scale)
 
+!$OMP DO private(k)
       do k=1,(2*nfft3d)
          dbl_mb(tmp1(1)+k-1) = (dbl_mb(rho2(1)+k-1)
      >                         -dbl_mb(rho1(1)+k-1)) 
@@ -5737,8 +5751,9 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
      >                      + (dbl_mb(rho2(1)+k-1+(ispin-1)*(2*nfft3d))
      >                        -dbl_mb(rho1(1)+k-1+(ispin-1)*(2*nfft3d))) 
       end do
-      call D3dB_rr_dot(1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)),error)
-      error = error*scale
+!$OMP END DO
+      call D3dB_rr_dot(1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)),e1)
+      error = e1*scale
 *     error = dsqrt(error)
 
       value = BA_pop_stack(tmp1(2))

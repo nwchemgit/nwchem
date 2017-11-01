@@ -618,9 +618,11 @@ c      end do
      >                                 dbl_mb(tmp1(1)))
       call Parallel_shared_vector_zero(.true.,nfft3d,A)
 
+!$OMP DO
       do i=1,(nida(nb)+nidb(nb))
         A(i) = dbl_mb(tmp1(1) + int_mb(pack(1,nb)+i-1) - 1)
       end do
+!$OMP END DO
 
       value = BA_pop_stack(tmp1(2))
       if (.not.value) call errquit('error popping stack',0, MA_ERR)
@@ -1665,11 +1667,71 @@ c     integer npack, shift
             sb = sb + 2.0d0*dimag(A(k)*B(k+(i-1)*npack)*dconjg(C(k)))
          end do
 !$OMP END DO
+
 !$OMP MASTER
          sm(i) = sa + sb
 !$OMP END MASTER
       end do
 !$OMP BARRIER
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         Pack_ccp_idot           *       
+*     *                                 *
+*     ***********************************
+
+* return variable sum is assumed to be private
+      subroutine Pack_ccp_idot(nb,A,B,sum)
+      implicit none
+      integer    nb
+      real*8 A(*)
+      real*8 B(*)
+      real*8     sum
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+      real*8 sa,sb
+      common /pack_conjg_tcc_indot_sasb/ sa,sb
+
+*     **** external functions ****
+c      real*8   ddot
+c      external ddot
+
+      call nwpw_timing_start(2)
+
+!$OMP MASTER
+      sa = 0.0d0
+      sb = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+!$OMP DO REDUCTION(+:sa)
+      do i=1,2*nida(nb)
+         sa = sa + A(i)*B(i)
+      end do
+!$OMP END DO
+
+!$OMP DO REDUCTION(+:sb)
+      do i=1,2*nidb(nb)
+         sb = sb + 2.0d0*A(2*nida(nb)+i)*B(2*nida(nb)+i)
+      end do
+!$OMP END DO
+
+
+      sum = sa + sb
+
+c     if (np.gt.1) call D3dB_SumAll(sum)
+
+      call nwpw_timing_end(2)
+
       return
       end
 
@@ -1695,8 +1757,9 @@ c     integer npack, shift
       common / pack_blk / pack,nida,nidb
 
 *     **** local variables ****
-c      integer np
-       integer i
+      integer i
+      real*8 sa,sb
+      common /pack_conjg_tcc_indot_sasb/ sa,sb
 
 *     **** external functions ****
 c      real*8   ddot
@@ -1709,20 +1772,26 @@ c      sum = ddot(2*nida(nb),A,1,B,1)
 c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
 
 !$OMP MASTER
-      sum = 0.0d0
+      sa = 0.0d0
+      sb = 0.0d0
 !$OMP END MASTER
 !$OMP BARRIER
-!$OMP DO REDUCTION(+:sum)
+!$OMP DO REDUCTION(+:sa)
       do i=1,2*nida(nb)
-         sum = sum + A(i)*B(i)
+         sa = sa + A(i)*B(i)
       end do
 !$OMP END DO
 
-!$OMP DO REDUCTION(+:sum)
+!$OMP DO REDUCTION(+:sb)
       do i=1,2*nidb(nb)
-         sum = sum + 2.0d0*A(2*nida(nb)+i)*B(2*nida(nb)+i)
+         sb = sb + 2.0d0*A(2*nida(nb)+i)*B(2*nida(nb)+i)
       end do
 !$OMP END DO
+
+!$OMP MASTER
+      sum = sa + sb
+!$OMP END MASTER
+!$OMP BARRIER
 
 c     if (np.gt.1) call D3dB_SumAll(sum)
 
@@ -1826,6 +1895,8 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     **** local variables ****
       integer np,i
+      real*8 sa,sb
+      common /pack_conjg_tcc_indot_sasb/ sa,sb
 
 *     **** external functions ****
       real*8   ddot
@@ -1837,20 +1908,26 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 c      sum = ddot(2*nida(nb),A,1,B,1)
 c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
 !$OMP MASTER
-      sum = 0.0d0
+      sa = 0.0d0
+      sb = 0.0d0
 !$OMP END MASTER
 !$OMP BARRIER
-!$OMP DO REDUCTION(+:sum)
+!$OMP DO REDUCTION(+:sa)
       do i=1,2*nida(nb)
-         sum = sum + A(i)*B(i)
+         sa = sa + A(i)*B(i)
       end do
 !$OMP END DO
 
-!$OMP DO REDUCTION(+:sum)
+!$OMP DO REDUCTION(+:sb)
       do i=1,2*nidb(nb)
-         sum = sum + 2.0d0*A(2*nida(nb)+i)*B(2*nida(nb)+i)
+         sb = sb + 2.0d0*A(2*nida(nb)+i)*B(2*nida(nb)+i)
       end do
 !$OMP END DO
+
+!$OMP MASTER
+      sum = sa + sb
+!$OMP END MASTER
+!$OMP BARRIER
 
       if (np.gt.1) call D3dB_SumAll(sum)
 
@@ -1881,6 +1958,8 @@ c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
 
 *     **** local variables ****
       integer i
+      real*8 sa,sb
+      common /pack_conjg_tcc_indot_sasb/ sa,sb
 
 *     **** external functions ****
 c      real*8   ddot
@@ -1891,24 +1970,95 @@ c      external ddot
 c      sum =         ddot(nida(nb),A,1,B,1)
 c      sum = sum + 2*ddot(nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
 !$OMP MASTER
-      sum = 0.0d0
+      sa = 0.0d0
+      sb = 0.0d0
 !$OMP END MASTER
 !$OMP BARRIER
-!$OMP DO REDUCTION(+:sum)
+!$OMP DO REDUCTION(+:sa)
       do i=1,nida(nb)
-         sum = sum + A(i)*B(i)
+         sa = sa + A(i)*B(i)
       end do
 !$OMP END DO
 
-!$OMP DO REDUCTION(+:sum)
+!$OMP DO REDUCTION(+:sb)
       do i=1,nidb(nb)
-         sum = sum + 2.0d0*A(nida(nb)+i)*B(nida(nb)+i)
+         sb = sb + 2.0d0*A(nida(nb)+i)*B(nida(nb)+i)
       end do
 !$OMP END DO
+
+!$OMP MASTER
+      sum = sa + sb
+!$OMP END MASTER
+!$OMP BARRIER
 
       call nwpw_timing_end(2)
       return
       end 
+
+
+*     ***********************************
+*     *                                 *
+*     *          Pack_ttp_dot           *       
+*     *                                 *
+*     ***********************************
+      
+      subroutine Pack_ttp_dot(nb,A,B,sump)
+      implicit none
+      integer nb
+      real*8  A(*)
+      real*8  B(*)
+      real*8  sump
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb
+      
+*     **** local variables ****
+      integer np,i
+      real*8 sa,sb
+      common /pack_conjg_tcc_indot_sasb/ sa,sb
+
+*     **** external functions ****
+c      real*8   ddot
+c      external ddot
+
+      call nwpw_timing_start(2)
+      call Parallel2d_np_i(np)
+
+c      sum =         ddot(nida(nb),A,1,B,1)
+c      sum = sum + 2*ddot(nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
+!$OMP MASTER
+      sa = 0.0d0
+      sb = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+!$OMP DO REDUCTION(+:sa)
+      do i=1,nida(nb)
+         sa = sa + A(i)*B(i)
+      end do
+!$OMP END DO
+
+!$OMP DO REDUCTION(+:sb)
+      do i=1,nidb(nb)
+         sb = sb + 2.0d0*A(nida(nb)+i)*B(nida(nb)+i)
+      end do
+!$OMP END DO
+
+!$OMP MASTER
+      sa = sa + sb
+!$OMP END MASTER
+!$OMP BARRIER
+
+      if (np.gt.1) call D3dB_SumAll(sa)
+      sump = sa
+
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+
 
 
 
@@ -1933,6 +2083,8 @@ c      sum = sum + 2*ddot(nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
 
 *     **** local variables ****
       integer np,i
+      real*8 sa,sb
+      common /pack_conjg_tcc_indot_sasb/ sa,sb
 
 *     **** external functions ****
 c      real*8   ddot
@@ -1944,20 +2096,26 @@ c      external ddot
 c      sum =         ddot(nida(nb),A,1,B,1)
 c      sum = sum + 2*ddot(nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
 !$OMP MASTER
-      sum = 0.0d0
+      sa = 0.0d0
+      sb = 0.0d0
 !$OMP END MASTER
 !$OMP BARRIER
-!$OMP DO REDUCTION(+:sum)
+!$OMP DO REDUCTION(+:sa)
       do i=1,nida(nb)
-         sum = sum + A(i)*B(i)
+         sa = sa + A(i)*B(i)
       end do
 !$OMP END DO
 
-!$OMP DO REDUCTION(+:sum)
+!$OMP DO REDUCTION(+:sb)
       do i=1,nidb(nb)
-         sum = sum + 2.0d0*A(nida(nb)+i)*B(nida(nb)+i)
+         sb = sb + 2.0d0*A(nida(nb)+i)*B(nida(nb)+i)
       end do
 !$OMP END DO
+
+!$OMP MASTER
+      sum = sa + sb
+!$OMP END MASTER
+!$OMP BARRIER
 
       if (np.gt.1) call D3dB_SumAll(sum)
 
@@ -2364,9 +2522,11 @@ c      call dcopy(n*2*(nida(nb)+nidb(nb)),A,1,B,1)
 *     **** local variables ****
       integer i
 
+!$OMP DO
       do i=1,(nida(nb)+nidb(nb))
         C(i) = A(i) - B(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -2391,9 +2551,11 @@ c      call dcopy(n*2*(nida(nb)+nidb(nb)),A,1,B,1)
 *     **** local variables ****
       integer i
 
+!$OMP DO
       do i=1,(nida(nb)+nidb(nb))
         C(i) = dsqrt(A(i))
       end do
+!$OMP END DO
 
       return
       end
@@ -2418,9 +2580,11 @@ c      call dcopy(n*2*(nida(nb)+nidb(nb)),A,1,B,1)
 *     **** local variables ****
       integer i
 
+!$OMP DO
       do i=1,(nida(nb)+nidb(nb))
         A(i) = dsqrt(A(i))
       end do
+!$OMP END DO
 
       return
       end
@@ -2446,9 +2610,11 @@ c      call dcopy(n*2*(nida(nb)+nidb(nb)),A,1,B,1)
 *     **** local variables ****
       integer i
 
+!$OMP DO
       do i=1,(nida(nb)+nidb(nb))
         C(i) = dble(A(i))**2 + dimag(A(i))**2
       end do
+!$OMP END DO
 
       return
       end
@@ -2539,9 +2705,11 @@ c      call dcopy(n*2*(nida(nb)+nidb(nb)),A,1,B,1)
 *     **** local variables ****
       integer i
 
+!$OMP DO
       do i=1,(nida(nb)+nidb(nb))
         C(i) = alpha*A(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -2570,9 +2738,11 @@ c      call dcopy(n*2*(nida(nb)+nidb(nb)),A,1,B,1)
 *     **** local variables ****
       integer i
 
+!$OMP DO
       do i=1,(nida(nb)+nidb(nb))
         C(i) = alpha*A(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -2598,9 +2768,11 @@ c      call dcopy(n*2*(nida(nb)+nidb(nb)),A,1,B,1)
 *     **** local variables ****
       integer i
 
+!$OMP DO
       do i=1,(nida(nb)+nidb(nb))
         A(i) = alpha*A(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -2665,7 +2837,7 @@ c      call dcopy(n*2*(nida(nb)+nidb(nb)),A,1,B,1)
 c      do i=1,(nida(nb)+nidb(nb))
 c        C(i) = C(i) + alpha*A(i)
 c      end do
-      call daxpy((nida(nb)+nidb(nb)),alpha,A,1,C,1)
+      call DAXPY_OMP((nida(nb)+nidb(nb)),alpha,A,1,C,1)
 
       return
       end
@@ -2789,9 +2961,11 @@ c      end do
 *     **** local variables ****
       integer i
 
+!$OMP DO
       do i=1,(nida(nb)+nidb(nb))
         C(i) = alpha*B(i)*A(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -2819,9 +2993,11 @@ c      end do
 *     **** local variables ****
       integer i
 
+!$OMP DO
       do i=1,(nida(nb)+nidb(nb))
         C(i) = C(i) + alpha*B(i)*A(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -3254,9 +3430,11 @@ c      end do
 *     **** local variables ****
       integer i
 
+!$OMP DO
       do i=1,(nida(nb)+nidb(nb))
         B(i) = dcmplx(0.0d0,A(i)) * B(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -3440,9 +3618,11 @@ c     **** three derivatives ****
 *     **** local variables ****
       integer i
 
+!$OMP DO
       do i=1,(nida(nb)+nidb(nb))
         C(i) = A(i)*B(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -3469,9 +3649,11 @@ c     **** three derivatives ****
 *     **** local variables ****
       integer i
 
+!$OMP DO
       do i=1,(nida(nb)+nidb(nb))
         D(i) = C(i) + A(i)*B(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -3498,9 +3680,11 @@ c     **** three derivatives ****
 *     **** local variables ****
       integer i
 
+!$OMP DO
       do i=1,(nida(nb)+nidb(nb))
         B(i) = B(i)*A(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -3535,8 +3719,10 @@ c     **** three derivatives ****
       end if
       call Parallel2d_taskid_i(taskid)
       !call D3dB_ktoqp(1,1,q,p)
+!$OMP MASTER
       call D3dB_ijktoindexp(id,1,1,1,indx,p)
       if (p.eq.taskid) A(indx) = dcmplx(vzero,0.0d0)
+!$OMP END MASTER
 
       return
       end

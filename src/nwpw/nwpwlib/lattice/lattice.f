@@ -1221,8 +1221,8 @@ c     call D3dB_nz(1,nz)
 
 *     **** local variables ****
       integer nfft3d,n2ft3d
-      integer i,j,k,p,taskid
-      integer index,k1,k2,k3
+      integer i,j,k,p,taskid,tid,nthreads
+      integer index,k1,k2,k3,it
       integer np1,np2,np3
       integer nph1,nph2,nph3
       real*8  a(3,3),dk1,dk2,dk3
@@ -1230,10 +1230,14 @@ c     call D3dB_nz(1,nz)
 *     **** external functions ****
       real*8   lattice_unita
       external lattice_unita
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
 
 
 *     **** constants ****
       call Parallel2d_taskid_i(taskid)
+      tid      = Parallel_threadid()
+      nthreads = Parallel_nthreads()
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
       call D3dB_nx(1,np1)
@@ -1251,9 +1255,11 @@ c     call D3dB_nz(1,nz)
          a(i,3) = lattice_unita(i,3)/dble(np3)
       end do
 
-      call dcopy(3*n2ft3d,0.0d0,0,r,1)
+      !call dcopy(3*n2ft3d,0.0d0,0,r,1)
+      call Parallel_shared_vector_zero(.true.,2*n2ft3d,r)
 
 *     **** grid points in coordination space ****
+      it = 0
       do k3 = -nph3, nph3-1
         do k2 = -nph2, nph2-1
           do k1 = -nph1, nph1-1
@@ -1264,7 +1270,7 @@ c     call D3dB_nz(1,nz)
 
                !call D3dB_ktoqp(1,k+1,q,p)
                call D3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
-               if (p .eq. taskid) then
+               if ((p.eq.taskid).and.(it.eq.tid)) then
 c                 index = (q-1)*(np1+2)*np2
 c    >                  + j    *(np1+2)
 c    >                  + i+1
@@ -1281,6 +1287,7 @@ c                r(2,index) = a(2,1)*k1 + a(2,2)*k3 + a(2,3)*k2
 c                r(3,index) = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 
                end if
+               it = mod(it+1,nthreads)
           end do
         end do
       end do

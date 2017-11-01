@@ -1342,13 +1342,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       !indx = 1
       offset = tid*(2*nz(nb)+15)
-      do q=1,nq3(nb)
+      do q=tid+1,nq3(nb),nthr
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
             call dcfftf(nz(nb),A(1+(q-1)*nz(nb)),
      >                  dcpl_mb(tmpz(1,nb)+offset))
          end if
          !indx = indx + nz(nb)
       end do
+!$OMP BARRIER
 
 #endif
 #endif

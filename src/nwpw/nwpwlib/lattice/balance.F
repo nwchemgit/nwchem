@@ -470,6 +470,7 @@ c            recieve data....
       integer  Parallel2d_convert_taskid_i
       external Parallel2d_convert_taskid_i
 
+!$OMP MASTER
       if (log_mb(sender_list(1)+nb)) then
          do j=1,int_mb(npacket_list(1)+nb)
             pto    = int_mb(int_mb(proc_to_list(1)    +2*nb)+j-1)    
@@ -505,6 +506,8 @@ c            recieve data....
 
          end do
       end if
+!$OMP END MASTER
+!$OMP BARRIER
 
       return
       end

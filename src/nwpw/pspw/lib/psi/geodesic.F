@@ -135,6 +135,7 @@ c      value = value.and.BA_free_heap(Vt(2))
 
 *     **** local variables ****
       integer i,npack1,V(2),ispin,neq(2)
+      real*8 de_private
 
 *     **** external functions ****
       logical  Dneall_m_push_get,Dneall_m_pop_stack,psp_pawexist
@@ -170,17 +171,22 @@ c      value = value.and.BA_free_heap(Vt(2))
      >                     dbl_mb(S(1)),dbl_mb(V(1)))
       end if
 
+!$OMP MASTER
       max_sigma = 0.0d0
       do i=1,(psi_ne(1)+psi_ne(2))
         if (dabs(dbl_mb(S(1)+i-1)).gt.max_sigma) 
      >      max_sigma = dabs(dbl_mb(S(1)+i-1))
       end do
+!$OMP END MASTER
 
 *     **** calculate Vt ****
       call Dneall_mm_transpose(0,dbl_mb(V(1)),dbl_mb(Vt(1)))
 
 *     **** calculate 2*<A|H|psi> ****
-      dE = 2.0d0*electron_eorbit_noocc(A)
+      de_private = 2.0d0*electron_eorbit_noocc(A)
+!$OMP MASTER
+      dE = de_private
+!$OMP END MASTER
 
 *     **** deallocate tmp space ****   
       if (.not.Dneall_m_pop_stack(V))  
@@ -242,7 +248,10 @@ c      value = value.and.BA_free_heap(Vt(2))
       integer    tmp1(2),tmp2(2),tmp3(2)
       integer    tmpC(2),tmpS(2)
 c      real*8     sum1,sum2,sum3
-      real*8     sum2(2),sum1
+      real*8     sum1
+
+      real*8 sum2(2)
+      common /geodescic_sum2/ sum2
 
       integer    taskid, MASTER
       parameter  (MASTER=0)
@@ -297,6 +306,7 @@ c      real*8     sum1,sum2,sum3
 
 
 
+!$OMP BARRIER
 *     **** Orthonormality Check ****
       if (psp_pawexist()) then
          call psp_overlap_S(ispin,neq,Ynew,dcpl_mb(spsi1(1)))
@@ -306,6 +316,7 @@ c      real*8     sum1,sum2,sum3
      >                       Ynew(shift),
      >                       dcpl_mb(spsi1(1)+shift-1),sum2(ms))
          end do
+!$OMP BARRIER
          call Parallel_Vector_SumAll(ispin,sum2)
          do ms=1,ispin
             sum1 = dble(ne(ms))
@@ -320,15 +331,20 @@ c      real*8     sum1,sum2,sum3
             call Grsm_gg_itrace(npack1,neq(ms),
      >                          Ynew(shift),Ynew(shift),sum2(ms))
          end do
+!$OMP BARRIER
          call Parallel_Vector_SumAll(ispin,sum2)
          do ms=1,ispin
             sum1 = dble(ne(ms))
+            !write(*,*) "sum1,sum2=",sum1,sum2(ms),dabs(sum2(ms)-sum1)
             if (dabs(sum2(ms)-sum1).gt.1.0d-10) then
                 shift = 1 + (ms-1)*neq(1)*npack1
+            !write(*,*) "INTO GRAMSCHMIDT"
                call Dneall_f_GramSchmidt(ms,Ynew,npack1)
+            !write(*,*) "OUT GRAMSCHMIDT"
             end if
          end do
       end if
+!$OMP BARRIER
 
 
 *     **** deallocate tmp space ****     

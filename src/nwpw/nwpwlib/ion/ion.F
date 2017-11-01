@@ -2090,6 +2090,7 @@ c      end do
 
 
 *     **** determine current kinetic energy and add to running average ****
+!$OMP MASTER
       eki1 = 0.0d0
       do i=1,nion
          eki1 = eki1 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
@@ -2102,6 +2103,7 @@ c      end do
       ke_total = ke_total + eki1
       kg_total = kg_total + ekg
       ke_count = ke_count + 1
+!$OMP END MASTER
 
       return
       end
@@ -2112,12 +2114,14 @@ c      end do
       real*8 sa1,sa2,dti(nion)
       real*8 fion(3,nion),r0(3,nion),r1(3,nion),r2(3,nion)
       integer i,ii
+!$OMP DO private(ii,i)
       do ii=1,nion
       do i=1,3
         r2(i,ii) = 2.0d0*sa1*r1(i,ii) - sa2*r0(i,ii) 
      >           + sa1*dti(ii)*fion(i,ii)
       end do
       end do
+!$OMP END DO
       return
       end 
 
@@ -2393,9 +2397,12 @@ c      dbl_mb(r0(1)+3*ii+2) = h(3)/alpha
 
 *     *** angular velocities - I*omega = L ==> L<-omega  ***
       call solve_3by3(Im,L,omega)
+      hinv = 1.0d0/h
+
+!$OMP BARRIER
 
 *     *** remove rotation ***
-      hinv = 1.0d0/h
+!$OMP DO private(ii,temp,v)
       do ii=1,nion
          temp(1) = r1(1,ii) - cm(1)
          temp(2) = r1(2,ii) - cm(2)
@@ -2407,6 +2414,7 @@ c      dbl_mb(r0(1)+3*ii+2) = h(3)/alpha
          r2(2,ii) = r2(2,ii) - v(2)*hinv
          r2(3,ii) = r2(3,ii) - v(3)*hinv
       end do
+!$OMP END DO
       end if
       return
       end
@@ -2573,6 +2581,7 @@ c      end do
       call Parallel_Brdcst_values(MASTER,3*nion,dbl_mb(r1(1)))
 
 *     **** determine current kinetic energy and add to running average ***
+!$OMP MASTER
       eki1 = 0.0d0
       do i=1,nion
          eki1 = eki1 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
@@ -2585,6 +2594,7 @@ c      end do
       ke_total = ke_total + eki1
       kg_total = kg_total + ekg
       ke_count = ke_count + 1
+!$OMP END MASTER
 
 
       return
@@ -2596,11 +2606,13 @@ c      end do
       real*8 dta,dti(nion)
       real*8 fion(3,nion),r0(3,nion),r1(3,nion),r2(3,nion)
       integer i,ii
+!$OMP DO private(ii,i)
       do ii=1,nion
       do i=1,3
         r2(i,ii)=r1(i,ii)+dta*r0(i,ii)+0.5d0*dti(ii)*fion(i,ii)
       end do
       end do
+!$OMP END DO
       return
       end
 
@@ -2704,6 +2716,7 @@ c      end do
 
 
 *     **** determine current kinetic energy and add to running average ****
+!$OMP MASTER
       eki1 = 0.0d0
       do i=1,nion
          eki1 = eki1 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
@@ -2716,6 +2729,7 @@ c      end do
       ke_total = ke_total + eki1
       kg_total = kg_total + ekg
       ke_count = ke_count + 1
+!$OMP END MASTER
 
       return
       end
@@ -2726,12 +2740,14 @@ c      end do
       real*8 ssr,smr,dti(nion)
       real*8 fion(3,nion),r0(3,nion),r1(3,nion),r2(3,nion)
       integer i,ii
+!OMP DO private(ii,i)
       do ii=1,nion
       do i=1,3
         r2(i,ii) = 2.0d0*ssr*r1(i,ii) - smr*r0(i,ii) 
      >           + ssr*dti(ii)*fion(i,ii)
       end do
       end do
+!OMP END DO
       return
       end
 
@@ -2740,11 +2756,13 @@ c      end do
       integer nion
       real*8 h,r0(3,nion),r2(3,nion)
       integer i,ii
+!$OMP DO private(ii,i)
       do ii=1,nion
       do i=1,3
         r0(i,ii) = h*(r2(i,ii)-r0(i,ii))
       end do
       end do
+!$OMP END DO
       return
       end
 
@@ -2763,14 +2781,16 @@ c      end do
 #include "bafdecls.fh"
 #include "ion.fh"
 
+      integer i
       !call dcopy((3*nion),dbl_mb(r1(1)),1,dbl_mb(r0(1)),1)
       !call dcopy((3*nion),dbl_mb(r2(1)),1,dbl_mb(r1(1)),1)
-      call Parallel_shared_vector_copy(.false.,3*nion,
+      call Parallel_shared_vector_copy(.true.,3*nion,
      >                                 dbl_mb(r1(1)),
      >                                 dbl_mb(r0(1)))
       call Parallel_shared_vector_copy(.true.,3*nion,
      >                                 dbl_mb(r2(1)),
      >                                 dbl_mb(r1(1)))
+
       return
       end
 

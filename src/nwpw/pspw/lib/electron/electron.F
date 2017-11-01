@@ -31,7 +31,9 @@
       external ion_chargeexist,ion_mmexist,psp_pawexist
       external psi_ispin,psi_ne,psi_neq,control_version
 
+!$OMP MASTER
       counter = 0
+!$OMP END MASTER
 
       ispin = psi_ispin()
       ne(1) = psi_ne(1)
@@ -176,7 +178,9 @@ c      paw_exist = psp_pawexist()
       integer counter
       common / electron_counter / counter
 
+!$OMP MASTER
       counter = counter+1
+!$OMP END MASTER
 
       call electron_gen_psi_r(psi_k)
       call electron_gen_densities(psi_k,dn,dng,dnall,fractional,occ)
@@ -335,6 +339,10 @@ c      end
       real*8  ehartree_atom,ecmp_cmp,ecmp_pw,exc_atom,pxc_atom,eke_core
       real*8  total_energy
 
+      real*8 e1,e2
+      common /eenergy_tmp_common/ e1,e2
+
+
 *     **** external functions *****
       logical  pspw_SIC,pspw_SIC_relaxed,psp_U_psputerm,psp_pawexist
       logical  pspw_HFX,pspw_HFX_relaxed,meta_found,nwpw_meta_gga_on
@@ -366,6 +374,11 @@ c      end
 
 
 *     *** get orbital energies ****
+!$OMP MASTER
+      e1 = 0.0d0
+      e2 = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
       eorbit = 0.0d0
       if (fractional) then
          do ms=1,ispin
@@ -373,8 +386,11 @@ c      end
            call Pack_cc_idot(1,
      >                       psi_k(1+(ii-1)*npack1),
      >                       dcpl_mb(Hpsi_k(1)+(ii-1)*npack1),
-     >                       sum)
-           eorbit = eorbit + sum*occ(ii)
+     >                       e1)
+!$OMP MASTER
+           !eorbit = eorbit + sum*occ(ii)
+           e2 = e2 + e1*occ(ii)
+!$OMP END MASTER
          end do
          end do
       else
@@ -383,13 +399,19 @@ c      end
            call Pack_cc_idot(1,
      >                       psi_k(1+(ii-1)*npack1),
      >                       dcpl_mb(Hpsi_k(1)+(ii-1)*npack1),
-     >                       sum)
-           eorbit = eorbit + sum
+     >                       e1)
+!$OMP MASTER
+           !eorbit = eorbit + sum
+           e2 = e2 + e1
+!$OMP END MASTER
          end do
          end do
       end if
-      call Parallel_SumAll(eorbit)
+!$OMP BARRIER
+      call Parallel_SumAll(e2)
+      eorbit = e2
       if (ispin.eq.1) eorbit = eorbit+eorbit
+
 
            
 *     **** get coulomb energy ****
@@ -398,25 +420,30 @@ c      end
       if (control_version().eq.4) ehartr = electron_ehartree2(dn)
         
 
+
 *     **** get exchange-correlation energy ****
       call D3dB_rr_dot(1,dnall(1),
      >                dbl_mb(xce(1)),
-     >                exc)
+     >                e1)
       call D3dB_rr_dot(1,dn(1),
      >                 dbl_mb(xcp(1)),
-     .                 pxc)
+     .                 e2)
+      exc = e1
+      pxc = e2
       if (ispin.eq.1) then
          exc= exc + exc 
          pxc= pxc + pxc 
       else
          call D3dB_rr_dot(1,dnall(1+n2ft3d),
      >                    dbl_mb(xce(1)),
-     >                    exc2)
+     >                    e1)
          call D3dB_rr_dot(1,dn(1+n2ft3d),
      >                    dbl_mb(xcp(1)+n2ft3d),
-     >                    pxc2)
-         exc= exc + exc2
-         pxc= pxc + pxc2
+     >                    e2)
+         exc2 = e1
+         pxc2 = e2
+         exc = exc + exc2
+         pxc = pxc + pxc2
       end if
       exc = exc*dv
       pxc = pxc*dv
@@ -503,23 +530,35 @@ c     >                + eke_core + eion_core
       integer ii,ms,n1(2),n2(2)
       real*8  sum,eorbit
 
+      real*8 e1,e2
+      common /eenergy_tmp_common/ e1,e2
+
+
       n1(1) = 1
       n1(2) = neq(1) + 1
       n2(1) = neq(1)
       n2(2) = neq(1) + neq(2)
 
 *     *** get orbital energies ****
-      eorbit = 0.0d0
+!$OMP MASTER
+      e1 = 0.0d0
+      e2 = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+      !eorbit = 0.0d0
       do ms=1,ispin
       do ii=n1(ms),n2(ms)
         call Pack_cc_idot(1,psi_k(1+(ii-1)*npack1),
      >                    dcpl_mb(Hpsi_k(1)+(ii-1)*npack1),
-     >                    sum)
-        eorbit = eorbit + sum
+     >                    e1)
+!$OMP MASTER
+        e2 = e2 + e1
+!$OMP END MASTER
       end do
       end do
-     
-      call Parallel_SumAll(eorbit)
+!$OMP BARRIER
+      call Parallel_SumAll(e2)
+      eorbit = e2
       if (ispin.eq.1) eorbit = eorbit+eorbit
 
       electron_eorbit_noocc = eorbit
@@ -547,6 +586,8 @@ c     >                + eke_core + eion_core
       integer ii,ms,n1(2),n2(2)
       real*8  sum,eorbit
 
+      common /eelectron_ejtmp/ sum,eorbit
+
       n1(1) = 1
       n1(2) = neq(1) + 1
       n2(1) = neq(1)
@@ -561,7 +602,9 @@ c     >                + eke_core + eion_core
            call Pack_cc_idot(1,psi_k(1+(ii-1)*npack1),
      >                       dcpl_mb(Hpsi_k(1)+(ii-1)*npack1),
      >                       sum)
+!$OMP MASTER
            eorbit = eorbit + sum*occ(ii)
+!$OMP END MASTER
          end do
          end do
       else
@@ -570,14 +613,18 @@ c     >                + eke_core + eion_core
            call Pack_cc_idot(1,psi_k(1+(ii-1)*npack1),
      >                       dcpl_mb(Hpsi_k(1)+(ii-1)*npack1),
      >                       sum)
+!$OMP MASTER
            eorbit = eorbit + sum
+!$OMP END MASTER
          end do
          end do
       end if
-      call Parallel_SumAll(eorbit)
+!$OMP MASTER
       if (ispin.eq.1) eorbit = eorbit+eorbit
+!$OMP END MASTER
+!$BARRIER
+      call Parallel_SumAll(eorbit)
 
-           
       electron_eorbit = eorbit 
 
       return
@@ -615,10 +662,12 @@ c     >                + eke_core + eion_core
 #include "bafdecls.fh"
 #include "electron_common.fh"
 
-
 *     **** local variables ****
       real*8 ehartr, ehart1,ehart2,dv
       integer nx,ny,nz
+
+      real*8 e1,e2
+      common /eenergy_tmp_common/ e1,e2
 
 *     ***** external functions ****
       real*8   lattice_omega
@@ -631,11 +680,11 @@ c     >                + eke_core + eion_core
 
       call D3dB_rr_dot(1,dn(1),
      >                   dcpl_mb(vc(1)),
-     >                   ehart1)
+     >                   e1)
       call D3dB_rr_dot(1,dn(1+(ispin-1)*2*nfft3d),
      >                   dcpl_mb(vc(1)),
-     >                   ehart2)
-      ehartr = 0.5d0*(ehart1+ehart2)*dv
+     >                   e2)
+      ehartr = 0.5d0*(e1+e2)*dv
 
       electron_ehartree2 = ehartr
 
@@ -659,6 +708,8 @@ c     >                + eke_core + eion_core
       integer nx,ny,nz
       real*8  exc,exc2,dv
 
+      common /eelectron_ejtmp/ exc,exc2
+
 *     **** external functions ****
       real*8   lattice_omega
       external lattice_omega
@@ -670,22 +721,27 @@ c     >                + eke_core + eion_core
       
       dv = lattice_omega()/dble(nx*ny*nz)
 
-
 *     **** get exchange-correlation energy ****
       call D3dB_rr_dot(1,dnall,
      >                 dbl_mb(xce(1)),
      >                 exc)
       if (ispin.eq.1) then
+!$OMP MASTER
          exc= exc + exc 
+!$OMP END MASTER
       else
          call D3dB_rr_dot(1,dnall(1+2*nfft3d),
      >                    dbl_mb(xce(1)),
      >                    exc2)
+!$OMP MASTER
          exc= exc + exc2
+!$OMP END MASTER
       end if
+!$OMP MASTER
       exc = exc*dv
+!$OMP END MASTER
+!$OMP BARRIER
         
-  
       electron_exc =  exc 
 
       return
@@ -709,6 +765,8 @@ c     >                + eke_core + eion_core
       integer nx,ny,nz
       real*8  pxc,pxc2,dv
 
+      common /eelectron_ejtmp/ pxc,pxc2
+
 *     **** external functions *****
       real*8   lattice_omega
       external lattice_omega
@@ -719,22 +777,27 @@ c     >                + eke_core + eion_core
       
       dv = lattice_omega()/dble(nx*ny*nz)
 
-
 *     **** get exchange-correlation energy ****
       call D3dB_rr_dot(1,dn(1),
      >                 dbl_mb(xcp(1)),
      >                 pxc)
       if (ispin.eq.1) then
+!$OMP MASTER
          pxc= pxc + pxc 
+!$OMP END MASTER
       else
          call D3dB_rr_dot(1,dn(1+2*nfft3d),
      >                    dbl_mb(xcp(1)+2*nfft3d),
      >                    pxc2)
+!$OMP MASTER
          pxc= pxc + pxc2
+!$OMP END MASTER
       end if
+!$OMP MASTER
       pxc = pxc*dv
+!$OMP END MASTER
+!$OMP BARRIER
         
-  
       electron_pxc =  pxc
 
       return
@@ -1035,8 +1098,7 @@ c     >                + eke_core + eion_core
      >                           psi_k,npack1,
      >                           hml,    1.0d0,
      >                           THpsi_k,0.0d0)
-
-      call daxpy(2*npack1*(neq(1)+neq(2)),
+      call DAXPY_OMP(2*npack1*(neq(1)+neq(2)),
      >           (-1.0d0),
      >           dcpl_mb(Hpsi_k(1)),1,
      >           THpsi_k,1)
@@ -1160,7 +1222,7 @@ c      end do
       call Grsm_gg_Copy(npack1,(neq(1)+neq(2)),
      >                  dcpl_mb(Hpsi_k(1)),
      >                  THpsi_k)
-      call ke_precondition(npack1,(neq(1)+neq(2)),
+      call ke_Precondition(npack1,(neq(1)+neq(2)),
      >                  psi_k,
      >                  THpsi_k)
 
@@ -1176,7 +1238,7 @@ c      end do
       end do
 
 *     **** mhml = -mhml ****
-      call dscal(2*ne(1)*ne(1),(-1.0d0),dbl_mb(mhml(1)),1)
+      call DSCAL_OMP(2*ne(1)*ne(1),(-1.0d0),dbl_mb(mhml(1)),1)
 
 
 *     **** generate TMG = M*H|psi> - |psi>*mhml ****
@@ -1594,10 +1656,12 @@ c     >                 dcpl_mb(Hpsi_k(1)+index2))
       nemax = neq(1) + neq(2)
 
 c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
+!$OMP DO private(n)
       do n=1,nemax
-         call Pack_c_Copy(1,psi_k(1+(n-1)*npack1),
+         call Pack_c_Copy0(1,psi_k(1+(n-1)*npack1),
      >                    dbl_mb(psi_r(1)+(n-1)*n2ft3d))
       end do
+!$OMP END DO
 
       call Grsm_gh_fftb(nfft3d,nemax,dbl_mb(psi_r(1)))
       call Grsm_h_Zero_Ends(nfft3d,nemax,dbl_mb(psi_r(1)))  !*** probably not neeeded!
@@ -1766,16 +1830,19 @@ cccccccccc#include "frac_occ.fh"
 *     **** generate dn ****
 *     *********************
 
-      call dcopy(2*n2ft3d,0.0d0,0,dn,1)
+      !call dcopy(2*n2ft3d,0.0d0,0,dn,1)
+      call Parallel_shared_vector_zero(.true.,2*n2ft3d,dn)
       if (fractional) then
       do ms=1,ispin
          do n=n1(ms),n2(ms)
             wf = occ(n)
+!$OMP DO private(i)
             do i=1,n2ft3d
                dn(i+(ms-1)*n2ft3d)
      >            = dn(i+(ms-1)*n2ft3d)
      >            + wf*scal2*(dbl_mb(psi_r(1)+i-1+(n-1)*n2ft3d)**2)
             end do
+!$OMP END DO
          end do
          call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d)) !*** probably not needed!
          call D1dB_Vector_SumAll(n2ft3d,dn(1+(ms-1)*n2ft3d))
@@ -1783,16 +1850,19 @@ cccccccccc#include "frac_occ.fh"
       else
       do ms=1,ispin
          do n=n1(ms),n2(ms)
+!$OMP DO private(i)
             do i=1,n2ft3d
                dn(i+(ms-1)*n2ft3d) 
      >            = dn(i+(ms-1)*n2ft3d) 
      >            + scal2*(dbl_mb(psi_r(1)+i-1+(n-1)*n2ft3d)**2)
             end do
+!$OMP END DO
          end do
          call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d))   !*** probably not needed!
          call D1dB_Vector_SumAll(n2ft3d,dn(1+(ms-1)*n2ft3d))
       end do
       end if
+
 
 *     **** generate dng and dnall ****
       call electron_gen_dng_dnall(dn,dng,dnall)
@@ -1859,7 +1929,7 @@ c      call D3dB_r_SMul(1,scal1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
            call semicore_density(dbl_mb(tmp1(1)))
            call D3dB_r_SMul1(1,0.5d0,dbl_mb(tmp1(1)))
         else
-           call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
+           call D3dB_r_Zero(1,dcpl_mb(tmp1(1)))
         end if
         do ms=1,ispin
           call D3dB_rr_Sum(1,dn(1+(ms-1)*n2ft3d),
@@ -2240,6 +2310,9 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       real*8 elocal,sum,scal1,scal2,dv
       integer tmp1(2),tmp2(2)
 
+      common /eelectron_ejtmp/ sum,elocal
+
+
 *     **** external functions ***
       integer  control_version
       real*8   lattice_omega
@@ -2268,7 +2341,9 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       scal2 = 1.0d0/lattice_omega()
       dv    = scal1/scal2
 
+!$OMP MASTER
       elocal = 0.0d0
+!$OMP END MASTER
 
 *     **** average Kohn-Sham v_local energy ****
       call Pack_c_Copy(0,dcpl_mb(vl(1)),dbl_mb(tmp1(1)))
@@ -2293,30 +2368,44 @@ c    >                         sum)
      >                       dbl_mb(tmp2(1)),
      >                       sum)
 
+!$OMP MASTER
             elocal = elocal + sum*scal1*scal2
+!$OMP END MASTER
          end do
       end do
+!$OMP BARRIER
       if (np.gt.1) call Parallel_SumAll(elocal)
+!$OMP MASTER
       if (ispin.eq.1) elocal = 2.0d0*elocal
+!$OMP END MASTER
 
 *     *** add in long range part of psp ****
       if (control_version().eq.4) then
        call D3dB_rr_dot(1,dn(1),dbl_mb(vl_lr(1)),sum)
+!$OMP MASTER
        elocal = elocal + sum*dv
+!$OMP END MASTER
        call D3dB_rr_dot(1,dn(1+(ispin-1)*n2ft3d),
      >                    dbl_mb(vl_lr(1)),sum)
+!$OMP MASTER
        elocal = elocal + sum*dv
+!$OMP END MASTER
 
       end if
 
 *     **** add in other real-space fields ****
       if (field_exist) then
        call D3dB_rr_dot(1,dn(1),dbl_mb(v_field(1)),sum)
+!$OMP MASTER
        elocal = elocal + sum*dv
+!$OMP END MASTER
        call D3dB_rr_dot(1,dn(1+(ispin-1)*n2ft3d),
      >                    dbl_mb(v_field(1)),sum)
+!$OMP MASTER
        elocal = elocal + sum*dv
+!$OMP END MASTER
       end if
+!$OMP BARRIER
 
 
 *     ***** ncmp*Vl+ncmp_smooth*vlpaw terms ****

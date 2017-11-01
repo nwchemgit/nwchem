@@ -33,6 +33,8 @@ c     logocal semicore(0:nkatmx)
       integer exi(2),vxcG(2)
       integer tmpx(2),tmpy(2),tmpz(2)
 
+      common /semicore_sumxyz/ sumx,sumy,sumz
+
 *     **** external functions ****
       integer  ion_nion,ion_katm
       real*8   lattice_omega
@@ -40,6 +42,7 @@ c     logocal semicore(0:nkatmx)
       external lattice_omega
 
 
+      write(*,*) "HERA"
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
@@ -61,13 +64,16 @@ c     logocal semicore(0:nkatmx)
      >        BA_push_get(mt_dcpl, npack0,'tmpz',tmpz(2),tmpz(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
+      write(*,*) "HERB"
 
       !call dcopy(n2ft3d,0.0d0,0,dcpl_mb(vxcG(1)),1)
       call Parallel_shared_vector_zero(.true.,n2ft3d,dcpl_mb(vxcG(1)))
       call D3dB_rr_Sum(1,xcp(1),
      >                   xcp(1+(ispin-1)*n2ft3d),
      >                   dcpl_mb(vxcG(1)))
+      write(*,*) "INTO FFT"
       call D3dB_rc_fft3f(1,dcpl_mb(vxcG(1)))
+      write(*,*) "OUT FFT"
       call Pack_c_pack(0,dcpl_mb(vxcG(1)))
 
 
@@ -99,14 +105,15 @@ c     logocal semicore(0:nkatmx)
            call Pack_cc_dot(0,dcpl_mb(tmpz(1)),dcpl_mb(vxcG(1)),sumz)
 
 !$OMP MASTER
+           write(*,*) "ii,ia,SUMXYZ=",ii,ia,sumx,sumy,sumz
            fion(1,ii) = fion(1,ii) + sumx*dsqrt(scal1*scal2)
            fion(2,ii) = fion(2,ii) + sumy*dsqrt(scal1*scal2)
            fion(3,ii) = fion(3,ii) + sumz*dsqrt(scal1*scal2)
 !$OMP END MASTER
-!$OMP BARRIER
          end if
 
       end do
+!$OMP BARRIER
 
       value = BA_pop_stack(tmpz(2))
       value = BA_pop_stack(tmpy(2))

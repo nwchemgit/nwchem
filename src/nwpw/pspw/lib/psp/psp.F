@@ -2451,7 +2451,8 @@ c     **** define Gx,Gy and Gz in packed space ****
       G(1)  = Pack_G_indx(0,1)
       G(2)  = Pack_G_indx(0,2)
       G(3)  = Pack_G_indx(0,3)
-      call dcopy(3*nion,0.0d0,0,fion,1)
+      !call dcopy(3*nion,0.0d0,0,fion,1)
+      call Parallel_shared_vector_zero(.true.,3*nion,fion)
 
       do ii=1,nion
        
@@ -2948,14 +2949,14 @@ c     >             psi2,               2*npack1)
                  end if
  
 !OMP BARRIER
+
                  ff(1) =2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
      >                                dbl_mb(sum(1)),3)
                  ff(2) =2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
      >                                dbl_mb(sum(1)+1),3)
                  ff(3) =2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
      >                                dbl_mb(sum(1)+2),3)
-!OMP END MASTER
-!$OMP BARRIER
+
                  call D1dB_Vector_SumAll(3,ff)
 !$OMP MASTER
                  fion(1,ii) = fion(1,ii)  + ff(1)*(3-ispin)
@@ -3070,6 +3071,9 @@ c      end do
 *     **** local variables ****
       real*8 E
 
+      real*8 sum1,sum2
+      common /eelectron_ejtmp/ sum1,sum2
+
 *     **** external functions ****
       real*8   E_vnonlocal_sub
       external E_vnonlocal_sub
@@ -3077,7 +3081,12 @@ c      end do
       E = E_vnonlocal_sub(ne(1)+ne(2),n_prj_indx,
      >                    dbl_mb(sw1a(1)),dbl_mb(sw2a(1)),
      >                    fractional,occ)
-      call D1dB_SumAll(E)
+!$OMP MASTER
+      sum1 = E
+!$OMP END MASTER
+!$OMP BARRIER
+      call D1dB_SumAll(sum1)
+      E = sum1
       if (ispin.eq.1) E = E+E
 
       E_vnonlocal = E
@@ -3093,22 +3102,32 @@ c      end do
 
 *     **** local variables ****
       integer i,ip,n
-      real*8 sum
+      real*8 sum,sum2
 
+      common /eelectron_ejtmp/ sum,sum2
+
+
+!$OMP MASTER
       sum = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
       if (fractional) then
+!$OMP DO reduction(+:sum)
          do ip=1,nprjs
             do n=1,nn
                call Dneall_qton(n,i)
                sum = sum + sw1(n,ip)*sw2(n,ip)*occ(i)
             end do
          end do
+!$OMP END DO
       else
+!$OMP DO reduction(+:sum)
          do ip=1,nprjs
             do n=1,nn
                sum = sum + sw1(n,ip)*sw2(n,ip)
             end do
          end do
+!$OMP END DO
       end if
 
       E_vnonlocal_sub = sum
@@ -3438,7 +3457,7 @@ c      end do
 
 
 *     **** do Kleinman-Bylander Multiplication ****
-      call dscal(nn*n_prj_indx,scal,dbl_mb(sw2a(1)),1)
+      call DSCAL_OMP(nn*n_prj_indx,scal,dbl_mb(sw2a(1)),1)
 
 *     **** apply the sw2 to psi ****
       jp  = 0
@@ -3526,6 +3545,7 @@ c      end do
 
                !**** fractional weighting ****
                if (fractional) then
+!$OMP DO
                 do n=1,nn
                  call Dneall_qton(n,i)
                  dbl_mb(sum(1)+3*(n-1))  
@@ -3535,18 +3555,24 @@ c      end do
                  dbl_mb(sum(1)+2+3*(n-1))
      >              =dbl_mb(sum(1)+2+3*(n-1))*occ(i)
                 end do
+!$OMP END DO
                end if
  
+!$OMP MASTER
                ff(1) =2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
      >                              dbl_mb(sum(1)),3)
                ff(2) =2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
      >                              dbl_mb(sum(1)+1),3)
                ff(3) =2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
      >                              dbl_mb(sum(1)+2),3)
+!$OMP END MASTER
+!$OMP BARRIER
                call D1dB_Vector_SumAll(3,ff)
+!$OMP MASTER
                fion(1,ii) = fion(1,ii)  + ff(1)*(3-ispin)
                fion(2,ii) = fion(2,ii)  + ff(2)*(3-ispin)
                fion(3,ii) = fion(3,ii)  + ff(3)*(3-ispin)
+!$OMP END MASTER
 
                l1 = l1 + 1
             end do !** l **

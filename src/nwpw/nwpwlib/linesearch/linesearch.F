@@ -11,8 +11,10 @@ c     $Id$
       integer counter,maxiter
       common / linesearch_counter / counter,maxiter
 
+!$OMP MASTER
       counter = 0
       maxiter = 8
+!$OMP END MASTER
 
       return
       end
@@ -30,7 +32,9 @@ c     $Id$
       integer counter,maxiter
       common / linesearch_counter / counter,maxiter
 
+!$OMP MASTER
       maxiter = maxiter0
+!$OMP END MASTER
       return
       end
 
@@ -107,8 +111,10 @@ c     $Id$
       integer counter,maxiter
       common / linesearch_counter / counter,maxiter
 
-   
+    
+!$OMP MASTER 
       counter = counter + 1
+!$OMP END MASTER 
 
       secant = .true.
 

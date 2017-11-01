@@ -54,7 +54,7 @@ ccccccc#include "frac_occ.fh"
 
 *     **** local variables ****
       logical move,fei
-      integer n2ft3d,np,np_i,np_j
+      integer n2ft3d,np,np_i,np_j,taskid
       integer i,j,ii,jj,n,n1(2),n2(2),it,ms,nn,ierr,gga
       integer nx,ny,nz
       integer index,indext
@@ -65,6 +65,7 @@ ccccccc#include "frac_occ.fh"
       real*8   e_lj,e_q,e_spring
       real*8   ehartree_atom,ecmp_cmp,ecmp_pw,exc_atom,pxc_atom
       real*8  s,r
+      integer tid,nthreads
 
 
 *     **** MA local variables ****
@@ -142,8 +143,11 @@ c     real*8     fion(3,natmx)
       external psp_hartree_atom,psp_hartree_cmp_cmp,psp_hartree_cmp_pw
       real*8   psp_kinetic_core,psp_ion_core
       external psp_kinetic_core,psp_ion_core
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
 
       call Parallel_np(np)
+      call Parallel_taskid(taskid)
       call Pack_npack(0,npack0)
 
       n2ft3d = 2*nfft3d
@@ -249,9 +253,14 @@ c     real*8     fion(3,natmx)
 *     **** Start of molecular dynamics loop ****
 *     ****                                  ****
 *     ******************************************
+!$OMP PARALLEL private(n,i,ms,it,tid,nthreads,r,s,dte0)
+      tid      = Parallel_threadid()
+      nthreads = Parallel_nthreads()
       do it=1,it_in
-        call dcopy(2*npack1*nemaxq,psi1,1,psi0,1)
-        call dcopy(2*npack1*nemaxq,psi2,1,psi1,1)
+        !call dcopy(2*npack1*nemaxq,psi1,1,psi0,1)
+        !call dcopy(2*npack1*nemaxq,psi2,1,psi1,1)
+        call Pack_c_nCopy(1,nemaxq,psi1,psi0)
+        call Pack_c_nCopy(1,nemaxq,psi2,psi1)
 *       *** skip ion_shift if newton step ***
         if (verlet) call ion_shift()
         if (nose.and.verlet) call Nose_shift()
@@ -274,13 +283,21 @@ c           call Pack_c_unpack(1,psi_r(1,n))
 c           call D3dB_cr_fft3b(1,psi_r(1,n))
 c           call D3dB_r_Zero_Ends(1,psi_r(1,n))
 c        end do
+
+!$OMP DO private(n)
         do n=n1(1),n2(ispin)
-           call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
+           call Pack_c_Copy0(1,psi1(1,n),psi_r(1,n))
         end do
+!$OMP END DO
+
         call Grsm_gh_fftb(nfft3d,n2(ispin),psi_r)
+!$OMP BARRIER
+
+!$OMP DO private(n)
         do n=n1(1),n2(ispin)
-           call D3dB_r_Zero_Ends(1,psi_r(1,n))
+           call D3dB_r_Zero_Ends0(1,psi_r(1,n))
         end do
+!$OMP END DO
 
         call pspw_hfx_localize2_n(3,psi_r,psi0,psi1,psi2)
 
@@ -289,30 +306,36 @@ c        end do
 *       *********************
 *       **** generate dn ****
 *       *********************
-        call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
+        !call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
+        call Parallel_shared_vector_zero(.true.,ispin*n2ft3d,dn)
         if (fractional) then
           do ms=1,ispin
              do n=n1(ms),n2(ms)
+!$OMP DO private(i)
                 do i=1,n2ft3d
                    dn(i,ms) = dn(i,ms)
      >                      + scal2*(psi_r(i,n)**2)
      >                       *occ1(n)
                 end do
+!$OMP END DO
              end do
-             call D3dB_r_Zero_Ends(1,dn(1,ms))
-             call D1dB_Vector_SumAll(n2ft3d,dn(1,ms))
+             !call D3dB_r_Zero_Ends(1,dn(1,ms))
+             !call D1dB_Vector_SumAll(n2ft3d,dn(1,ms))
           end do
         else
           do ms=1,ispin
              do n=n1(ms),n2(ms)
+!$OMP DO private(i)
                 do i=1,n2ft3d
                    dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
                 end do
+!$OMP END DO
              end do
-             call D3dB_r_Zero_Ends(1,dn(1,ms))
-             call D1dB_Vector_SumAll(n2ft3d,dn(1,ms))
+             !call D3dB_r_Zero_Ends(1,dn(1,ms))
+             !call D1dB_Vector_SumAll(n2ft3d,dn(1,ms))
           end do
         end if
+        call D1dB_Vector_SumAll(ispin*n2ft3d,dn)
 
 
 *       **********************
@@ -333,7 +356,8 @@ c        end do
 c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
            call D3dB_r_SMul1(1,0.5d0,dcpl_mb(tmp1(1)))
         else
-           call dcopy(n2ft3d,0.0d0,0,dcpl_mb(tmp1(1)),1)
+           !call dcopy(n2ft3d,0.0d0,0,dcpl_mb(tmp1(1)),1)
+           call D3dB_r_Zero(1,dcpl_mb(tmp1(1)))
         end if
         do ms=1,ispin
           call D3dB_rr_Sum(1,dn(1,ms),
@@ -393,7 +417,8 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
 *       **********************************************
         if (field_exist) then
 
-           call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
+           !call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
+           call D3dB_r_Zero(1,dbl_mb(v_field(1)))
 
 
 *          **** generate charge potential ****
@@ -432,7 +457,8 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
 
 *       **** get the free-space ion force ****
         if (control_version().eq.4) call ion_ion_f(dbl_mb(fion(1)))
-        
+
+
 *       ************************
 *       **** get semicoreforce *
 *       ************************
@@ -475,7 +501,9 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
 *       **** remove ion forces using ion_FixIon *
 *       *****************************************
         if (fei) 
-     >    call dcopy(3*natmx,dbl_mb(fion(1)),1,dbl_mb(ftest(1)),1)
+     >    call Parallel_shared_vector_copy(.false.,
+     >                 3*natmx,dbl_mb(fion(1)),dbl_mb(ftest(1)))
+ccc     >    call dcopy(3*natmx,dbl_mb(fion(1)),1,dbl_mb(ftest(1)),1)
         call ion_FixIon(dbl_mb(fion(1)))
 c        if (meta) call meta_force(ispin,neq,psi1,Hpsi,dbl_mb(fion(1)))
 
@@ -490,8 +518,11 @@ c        end if
         if (verlet) then
 *          **** constant temperature ****
            if (nose) then 
+!$OMP MASTER
              sse = Nose_sse()
              ssr = Nose_ssr()
+!$OMP END MASTER
+!$OMP BARRIER
              do n=1,n2(ispin)
               call Pack_c_SMul(1,0.5d0*dte,Hpsi(1,n),psi2(1,n))
               call Pack_cc_daxpy(1,-1.0d0,psi0(1,n),psi2(1,n))
@@ -575,39 +606,59 @@ c              call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
         if (nose) then
           if (verlet) then
              if (psp_pawexist()) then
+!$OMP MASTER
                 eke = 0.0d0
+!$OMP END MASTER
                 do i=1,n2(ispin)
                    call Pack_c_SMul1(1,-h,psi0(1,i))
                    call Pack_cc_daxpy(1,h,psi2(1,i),psi0(1,i))
                    call Pack_cc_idot(1,psi0(1,i),psi0(1,i),sum)
+!$OMP MASTER
                    eke = eke+sum
+!$OMP END MASTER
                 end do
                 if (np.gt.1) call Parallel_SumAll(eke)
+!$OMP MASTER
                 if (ispin.eq.1) eke = 2.0d0*eke
                 eke = eke*fmass
+!$OMP END MASTER
              else
+!$OMP MASTER
                 eke = 0.0d0
+!$OMP END MASTER
                 do i=1,n2(ispin)
                    call Pack_cc_idot(1,psi2(1,i),psi0(1,i),sum)
+!$OMP MASTER
                    eke = eke+sum
+!$OMP END MASTER
                 end do
                 if (np.gt.1) call Parallel_SumAll(eke)
+!$OMP MASTER
                 eke = (ne(1)+ne(2) - eke)
                 if (ispin.eq.1) eke = 2.0d0*eke
                 eke = 0.5d0*(fmass/(dt*dt))*eke
+!$OMP END MASTER
              end if
+!$OMP MASTER
              eki = ion_ke()
+!$OMP END MASTER
              call Nose_Verlet_Step(eke,eki)
           else
+!$OMP MASTER
               eke = 0.0d0
+!$OMP END MASTER
               do i=1,n2(ispin)
                 call Pack_cc_idot(1,psi0(1,i),psi0(1,i),sum)
+!$OMP MASTER
                 eke = eke+sum
+!$OMP END MASTER
               end do
               if (np.gt.1) call Parallel_SumAll(eke)
+!$OMP MASTER
               if (ispin.eq.1) eke = 2.0d0*eke
               eke = eke*fmass
               eki = ion_ke()
+!$OMP END MASTER
               call Nose_Newton_Step(eke,eki)
           end if
         end if
@@ -626,21 +677,25 @@ c              call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 *     ***** end main loop **********************************
 *     ******************************************************
 
-*     **** if newton then skip energy calculations ****
-      if (.not. verlet) goto 333
-
 
 *     *************************************
 *     ***** total energy calculation ******
 *     *************************************
-      call nwpw_timing_start(10)
-      call Parallel2d_np_i(np_i)
-      call Parallel2d_np_j(np_j)
-      if (psp_pawexist()) call phafac() !*** reset phase factors to r1 ***
+      if (verlet) then
+         call nwpw_timing_start(10)
+         call Parallel2d_np_i(np_i)
+         call Parallel2d_np_j(np_j)
+         if (psp_pawexist()) call phafac() !*** reset phase factors to r1 ***
 
-*     *** get orbital energies ****
-      call Dneall_ffm_sym_Multiply(0,psi1,Hpsi,npack1,hml)
-      call Dneall_m_scal(0,(-1.0d0),hml)
+*        *** get orbital energies ****
+         call Dneall_ffm_sym_Multiply(0,psi1,Hpsi,npack1,hml)
+         call Dneall_m_scal(0,(-1.0d0),hml)
+      end if
+!$OMP END PARALLEL
+
+*     **** if newton then skip energy calculations ****
+      if (.not. verlet) goto 333
+
       if (fractional) then
          call Dneall_m_diag_scal(0,occ1,hml)
          eorbit = Dneall_m_trace(0,hml)

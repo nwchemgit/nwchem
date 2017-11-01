@@ -199,11 +199,13 @@
       gz=gz/am
 
       !**** remove center of mass motion ***
+!$OMP DO
       do i=1,nion
          F(1,i) = F(1,i) - gx
          F(2,i) = F(2,i) - gy
          F(3,i) = F(3,i) - gz
       end do
+!$OMP END DO
 
       return 
       end
@@ -218,9 +220,10 @@
 *     **** local variables ****
       integer nion
       integer i,i1
-      real*8 am
       real*8   gx,gy,gz
       real*8   hx,hy,hz
+      real*8 am0,gx0,gy0,gz0,hx0,hy0,hz0
+      common /removecenter_shrd/ am0,gx0,gy0,gz0,hx0,hy0,hz0
 
 *     **** external functions ****
       integer  ion_nion
@@ -229,35 +232,43 @@
       external ion_amass
 
       nion = ion_nion()
-      hx=0.0d0
-      hy=0.0d0
-      hz=0.0d0
-      gx=0.0d0
-      gy=0.0d0
-      gz=0.0d0
-      am=0.0d0
+!$OMP MASTER
+      hx0 = 0.0d0
+      hy0 = 0.0d0
+      hz0 = 0.0d0
+      gx0 = 0.0d0
+      gy0 = 0.0d0
+      gz0 = 0.0d0
+      am0 = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+!$OMP DO private(i) reduction(+:am0,gx0,gy0,gz0,hx0,hy0,hz0)
       do i=1,nion
-        hx=hx+ion_amass(i)*R2(1,i)
-        hy=hy+ion_amass(i)*R2(2,i)
-        hz=hz+ion_amass(i)*R2(3,i)
-        gx=gx+ion_amass(i)*R1(1,i)
-        gy=gy+ion_amass(i)*R1(2,i)
-        gz=gz+ion_amass(i)*R1(3,i)
-        am=am+ion_amass(i)
+        am0=am0+ion_amass(i)
+        gx0=gx0+ion_amass(i)*R1(1,i)
+        gy0=gy0+ion_amass(i)*R1(2,i)
+        gz0=gz0+ion_amass(i)*R1(3,i)
+        hx0=hx0+ion_amass(i)*R2(1,i)
+        hy0=hy0+ion_amass(i)*R2(2,i)
+        hz0=hz0+ion_amass(i)*R2(3,i)
       end do
-      hx=hx/am
-      hy=hy/am
-      hz=hz/am
-      gx=gx/am
-      gy=gy/am
-      gz=gz/am
+!$OMP END DO
+!$OMP BARRIER
+      hx=hx0/am0
+      hy=hy0/am0
+      hz=hz0/am0
+      gx=gx0/am0
+      gy=gy0/am0
+      gz=gz0/am0
 
       !**** remove center of mass motion ***
+!$OMP DO private(i)
       do i=1,nion
          R2(1,i) = R2(1,i) - hx + gx
          R2(2,i) = R2(2,i) - hy + gy
          R2(3,i) = R2(3,i) - hz + gz
       end do
+!$OMP END DO
 
       return
       end

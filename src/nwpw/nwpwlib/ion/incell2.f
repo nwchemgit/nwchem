@@ -43,8 +43,9 @@
       volume = 1.0d0/volume
       call dscal(9,volume,b,1)
 
+!$OMP DO
       do i =1,ni
-	
+
 *        *** Break the Ion positions into the a1, a2, and a3 components ***
          fa1 =  b(1,1) * r2(1,i)
      >       +  b(2,1) * r2(2,i)
@@ -78,7 +79,7 @@
      >         +  b(3,1) * r2(3,i)
            GO TO 23
         ENDIF
-	   
+   
    24   IF (fa1 .LE. (-0.5d0)) THEN
 *          WRITE (*,*) 'a1<', I, R2A1, DA(1)/2.0d0
            r2(1,i) = r2(1,i) + lattice_unita(1,1)
@@ -112,7 +113,7 @@
      >         +  b(3,2) * r2(3,i)
           GO TO 25
         ENDIF
-	   
+   
    26   IF (fa2 .LE. (-0.5d0)) THEN
 *          WRITE (*,*) 'a2<', I, R2A2, DA(2)/2.0d0
            r2(1,i) = r2(1,i) + lattice_unita(1,2)
@@ -146,7 +147,7 @@
      >        +  b(3,3) * r2(3,i)
            GO TO 27
         ENDIF
-	   
+  
    28   IF (fa3 .LE. (-0.5d0)) THEN
 *         WRITE (*,*) 'a3<', I, R2A3, DA(3)/2.0d0
           r2(1,i) = r2(1,i) + lattice_unita(1,3)
@@ -164,6 +165,7 @@
         ENDIF
 
       end do 
+!$OMP END DO
 
       return
       end

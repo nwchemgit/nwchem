@@ -379,6 +379,7 @@ c      Ee0 = 4.0*kb*Te_new*fmass*dble(ion_nion())/am * eke0_init
 c      FXe = 2.0d0*(eke-Ee0)
 c      Xe2 = (0.5d0*dt*dt/Qe)*FXe
 
+!$OMP MASTER
       eke_tmp = eke
       do m=1,Mchain-1
 
@@ -419,8 +420,8 @@ c      Xr2 = (0.5d0*dt*dt/Qr)*FXr
       dbl_mb(Xr2(1)+Nchain-1) =    dbl_mb(Xr1(1)+Nchain-1)
      >                        + dt*dbl_mb(Xrm(1)+Nchain-1)
      >                        + (0.5d0*dt*dt/dbl_mb(Qr(1)+Nchain-1))*FXr
-
-
+!$OMP END MASTER
+!$OMP BARRIER
       call Parallel_Brdcst_values(MASTER,Mchain,dbl_mb(Xe2(1)))
       call Parallel_Brdcst_values(MASTER,Nchain,dbl_mb(Xr2(1)))
       return
@@ -456,6 +457,7 @@ c      eke_tmp = eke
 c      FXe = 2.0d0*(eke_tmp-Ee0)
 c      Xe2 = 2.0d0*Xe1 - Xe0 + (dt*dt/Qe)*FXe
 
+!$OMP MASTER
       eke_tmp = eke
       do m=1,Mchain-1
 *       **** define dXe/dt = (3*Xe(t) - 4*Xe(t-dt) + Xe(t-2*dt))/(2*dt) ****
@@ -515,6 +517,8 @@ c      Xr2 = 2.0d0*Xr1 - Xr0 + (dt*dt/Qr)*FXr
      >                        -       dbl_mb(Xr0(1)+Nchain-1) 
      >                        + (dt*dt/dbl_mb(Qr(1)+Nchain-1))*FXr
 
+!$OMP END MASTER
+!$OMP BARRIER
 
       call Parallel_Brdcst_values(MASTER,Mchain,dbl_mb(Xe2(1)))
       call Parallel_Brdcst_values(MASTER,Nchain,dbl_mb(Xr2(1)))
@@ -639,6 +643,7 @@ c      Xr2 = 2.0d0*Xr1 - Xr0 + (dt*dt/Qr)*FXr
 #include "bafdecls.fh"
 #include "nose-hoover.fh"
 
+!$OMP MASTER
       call dcopy(Mchain,dbl_mb(Xe0(1)),1,dbl_mb(Xem(1)),1)
       call dcopy(Mchain,dbl_mb(Xe1(1)),1,dbl_mb(Xe0(1)),1)
       call dcopy(Mchain,dbl_mb(Xe2(1)),1,dbl_mb(Xe1(1)),1)
@@ -646,6 +651,7 @@ c      Xr2 = 2.0d0*Xr1 - Xr0 + (dt*dt/Qr)*FXr
       call dcopy(Nchain,dbl_mb(Xr0(1)),1,dbl_mb(Xrm(1)),1)
       call dcopy(Nchain,dbl_mb(Xr1(1)),1,dbl_mb(Xr0(1)),1)
       call dcopy(Nchain,dbl_mb(Xr2(1)),1,dbl_mb(Xr1(1)),1)
+!$OMP END MASTER
       return
       end
 

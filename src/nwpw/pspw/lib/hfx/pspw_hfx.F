@@ -2443,7 +2443,9 @@ c      call Dneall_m_scal(0,scal1,dbl_mb(hml(1)))
       implicit none
 #include "pspw_hfx.fh"
 
+!$OMP MASTER
       lin_run = .false.
+!$OMP END MASTER
       return
       end
 
@@ -2459,7 +2461,9 @@ c      call Dneall_m_scal(0,scal1,dbl_mb(hml(1)))
 #include "pspw_hfx.fh"
 
       !lin_off = .true.
+!$OMP MASTER
       lin_off = bvalue
+!$OMP END MASTER
       return
       end
 

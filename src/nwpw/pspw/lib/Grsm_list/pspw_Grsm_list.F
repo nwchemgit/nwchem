@@ -75,6 +75,7 @@
 *     **** local variables ****
       integer i,l
 
+!$OMP MASTER
       size_list = size_list0
       nsize     = nsize0
 
@@ -83,6 +84,7 @@
         indx(i) = i
         tag_list(i)  = tag//'1'//CHAR(ICHAR('a')+i-1)
       end do
+!$OMP END MASTER
  
       return
       end
@@ -147,7 +149,9 @@
       if (ondisk) then
         call nwpw_scratch_write(tag_list(indx(m)), nsize,A)
       else
-         call dcopy(nsize,A,1,dbl_mb(grsm_mem(1,indx(m))),1)
+c         call dcopy(nsize,A,1,dbl_mb(grsm_mem(1,indx(m))),1)
+         call Parallel_shared_vector_copy(.true.,nsize,
+     >                                    A,dbl_mb(grsm_mem(1,indx(m))))
       end if
       return
       end
@@ -166,11 +170,13 @@
 *     **** local variables ****
       integer i,tmp
       
+!$OMP MASTER
       tmp = indx(1)
       do i=1,size_list-1
          indx(i) = indx(i+1)
       end do
       indx(size_list) = tmp
+!$OMP END MASTER
       
       return
       end
