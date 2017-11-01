@@ -288,13 +288,15 @@ c
       if(nactive.ne.ncent) then
          ccc= crcr//' WARNING '//crcr
      c        //' Analytical Hessian code not ready to be'//crcr
-     c        //' used with an active atom list.'//crcr
+     c        //' used with an active atom list or '//crcr
+     c        //' with constraints for optimization.'//crcr
      c        //' If you want to continue this calculation and'//crcr
      c        //' get a hessian with negative frequencies,'//crcr
      c        //' please add the following line before the '//crcr
      c        //' line task dft frequencies'//crcr
      c        // ' '//crcr
      c        //' unset geometry:actlist '//crcr
+     c        //' unset cons:* '//crcr
      c        //'  '//crcr
      c        //'  '//crcr
          
