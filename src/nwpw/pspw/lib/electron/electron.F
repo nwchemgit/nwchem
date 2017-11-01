@@ -1929,7 +1929,7 @@ c      call D3dB_r_SMul(1,scal1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
            call semicore_density(dbl_mb(tmp1(1)))
            call D3dB_r_SMul1(1,0.5d0,dbl_mb(tmp1(1)))
         else
-           call D3dB_r_Zero(1,dcpl_mb(tmp1(1)))
+           call D3dB_r_Zero(1,dbl_mb(tmp1(1)))
         end if
         do ms=1,ispin
           call D3dB_rr_Sum(1,dn(1+(ms-1)*n2ft3d),
