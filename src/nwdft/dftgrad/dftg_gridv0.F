@@ -127,6 +127,7 @@ c derivative multiplied by the gradient of the ground state density.
       integer ngxc
       integer len_rho, len_delrho
       integer l_rho_save, k_rho_save, l_delrho_save, k_delrho_save
+      integer mbf_dchiffp
 c Daniel (2-6-13): Variable for doing restricted triplet gradients for
 c the XC-kernel term in TDDFT gradients
       integer triplet
@@ -456,12 +457,12 @@ c !!! BGJ - probably don't need to allocate some of this if .not.do_force
 c     
 c     Set up space for derivatives of density wrt significant nuclei
 c
-         if (.not.MA_push_get(MT_DBL, ipol*n_per_rec*3*nactive,
+         if (.not.MA_push_get(MT_DBL, ipol*n_per_rec*3*natoms,
      &        'drhonuc', l_drhonuc, k_drhonuc)) call
      &        errquit('dftg_gridv0: cannot allocate drhonuc',1, MA_ERR)
          if (grad) then
             if (.not.MA_push_get(MT_DBL,
-     &           ipol*3*n_per_rec*3*nactive, 'ddelrhonuc',
+     &           ipol*3*n_per_rec*3*natoms, 'ddelrhonuc',
      &           l_ddelrhonuc, k_ddelrhonuc)) call
      &           errquit('dftg_gridv0: cant alloc ddelrhonuc',
      &           1, MA_ERR)
