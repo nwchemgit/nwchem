@@ -372,11 +372,22 @@ c
      i          int_nbf_x(itype)*int_nbf_x(jtype)*
      k          int_nbf_x(ktype)*int_nbf_x(ltype)
 
+c     skip for sp
+           if((bas_spherical(bra).or.bas_spherical(ket)).and.
+     A      (itype.gt.1.or.jtype.gt.1.or.ktype.gt.1.or.ltype.gt.1))then
+#if 1
            call intd_sum_sim(eri,nint_ck,idatom,iatom,jatom,katom,latom)
+#else
+              idatom(1)=iatom
+              idatom(2)=jatom
+              idatom(3)=katom
+              idatom(4)=latom
+#endif
            call intd_2ec2s(eri,nint_ck,scr,lscr,
      &          itype,jtype,ktype,ltype,igen,jgen,kgen,lgen,
      &          bas_spherical(bra),bas_spherical(ket),idatom,
      T          .true.)
+           endif
         endif
 #else
          call errquit(' simint 2e4c derivatives not ready yet',0,0)
@@ -550,7 +561,7 @@ c
            ldb=nint_x
            if(lscr.lt.nint_x) call errquit(' lscr small ',0,0)
            call dcopy((nint_x*lda),eri,1,scr,1)
-           call trspmo(scr,lda,  eri,ldb)
+           call trspmo_block(scr,lda,  eri,ldb)
         endif
         if(bra_sph) then
           i_nbf_s = int_nbf_s(It)
@@ -596,7 +607,7 @@ c
 c     transpose back integrals  X(12,nint_x) --> Y(nint_x,12)
 c
            call dcopy((nint_x*lda),eri,1,scr,1)
-           call trspmo(scr,ldb,  eri,lda)
+           call trspmo_block(scr,ldb,  eri,lda)
            return
         endif
         if (nint_s.gt.nint_x) then
@@ -704,6 +715,28 @@ c
          eri(i_int,2,4) = yd 
          eri(i_int,3,4) = zd 
       enddo
+      end
+      subroutine trspmo_block(in,ld_in,out,ld_out)
+#define CHUNK 16
+      implicit none
+      integer ld_in,ld_out
+      double precision out(ld_out,ld_in)
+      double precision in(ld_in,ld_out)
+c
+      integer i,j,i1,j1
+c
+      do i1=1,ld_in,CHUNK
+         do j1=1,ld_out,CHUNK
+            do i=i1,min(i1+CHUNK-1,ld_in)
+!DEC$ LOOP COUNT AVG=CHUNK
+cc!deC$ SIMD
+               do j=j1,min(j1+CHUNK-1,ld_out)
+                  out(j,i)=in(i,j)
+               enddo
+            enddo
+         enddo
+      enddo
+      return
       end
 c=====================================================
 C> @}
