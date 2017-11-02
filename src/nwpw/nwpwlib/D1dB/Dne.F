@@ -1754,13 +1754,14 @@ c     ****************************************
             ms2 = ispin
             ishift1 = ne(1)
             ishift2 = mcq(1)*ncq(1)
-            call dcopy((ne(1)+ne(2)),0.0d0,0,eig,1)
+            call Parallel_shared_vector_zero(.true.,(ne(1)+ne(2)),eig)
          else
             ms1 = mb
             ms2 = mb
             ishift1 = 0
             ishift2 = 0
-            call dcopy(ne(mb),0.0d0,0,eig,1)
+            !call dcopy(ne(mb),0.0d0,0,eig,1)
+            call Parallel_shared_vector_zero(.true.,ne(mb),eig)
          end if
          value = BA_push_get(mt_dbl,mcq(1)*ncq(1),'V',V(2),V(1))
          value = value.and.
@@ -1780,7 +1781,7 @@ c     ****************************************
 
       
             call nwpw_timing_start(22)
-            write(*,*) "into tredq"
+            !write(*,*) "into tredq"
             call DMatrix_tredq(ne(ms),
      >                hml(shift2),dbl_mb(Q(1)),
      >                mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)),
@@ -1791,7 +1792,7 @@ c     ****************************************
      >                dbl_mb(V(1)),dbl_mb(VV(1)))
             call nwpw_timing_end(22)
 
-            write(*,*) "into get_diags"
+            !write(*,*) "into get_diags"
             call nwpw_timing_start(23)
             call DMatrix_getdiags(ne(ms),
      >                eig(shift1),dbl_mb(tu(1)),
@@ -1804,7 +1805,7 @@ c     ****************************************
             call dcopy(mcq(ms)*ncq(ms),dbl_mb(Q(1)),1,hml(shift2),1)
             call nwpw_timing_end(23)
 
-            write(*,*) "into tqliq"
+            !write(*,*) "into tqliq"
             call nwpw_timing_start(24)
             call DMatrix_tqliq(ne(ms),
      >                eig(shift1),dbl_mb(tu(1)),
@@ -1849,13 +1850,14 @@ c     ****************************************
             ms2 = ispin
             ishift1 = ne(1)
             ishift2 = ne(1)*ne(1)
-            call dcopy((ne(1)+ne(2)),0.0d0,0,eig,1)
+            call Parallel_shared_vector_zero(.true.,(ne(1)+ne(2)),eig)
          else
             ms1 = mb
             ms2 = mb
             ishift1 = 0
             ishift2 = 0
-            call dcopy(ne(mb),0.0d0,0,eig,1)
+            !call dcopy(ne(mb),0.0d0,0,eig,1)
+            call Parallel_shared_vector_zero(.true.,ne(mb),eig)
          end if
 
          value = BA_push_get(mt_dbl,(2*ne(1)*ne(1)),
@@ -1876,13 +1878,13 @@ c     ****************************************
      >                 eig(shift1),
      >                 dbl_mb(tmp1(1)),2*ne(1)*ne(1),
      >                 ierr)
+!$OMP END MASTER
+!$OMP BARRIER
 
             if (.not.assending)
      >         call EIGSRT(eig(shift1),
      >                   hml(shift2),
      >                   ne(ms),ne(ms))
-!$OMP END MASTER
-!$OMP BARRIER
 
   30        continue
          end do
@@ -2149,7 +2151,6 @@ c     ****************************************
 *     **** generate U*Sigma ****
       call Dneall_fmf_Multiply(mb,A,npack1,V,1.0d0,U,0.0d0)
 
-      
 *     **** normalize U*sigma ****
       if (.not. BA_push_get(mt_dbl,neq(1),'tmp2',tmp2(2),tmp2(1)))
      >   call errquit('Dneall_f_SVD:out of stack memory',0,MA_ERR)
@@ -2163,13 +2164,15 @@ c     ****************************************
          end do
          call D3dB_Vector_SumAll(neq(ms),dbl_mb(tmp2(1)))
 
+!$OMP DO
          do n=1,neq(ms)
             dbl_mb(tmp2(1)+n-1) = 1.0d0/dsqrt(dbl_mb(tmp2(1)+n-1))
          end do
+!$OMP END DO
 
          shift = 1+(ms-1)*neq(1)*npack1
          do n=1,neq(ms)
-            call dscal(2*npack1,dbl_mb(tmp2(1)+n-1),U(shift),1)
+            call DSCAL_OMP(2*npack1,dbl_mb(tmp2(1)+n-1),U(shift),1)
             shift = shift + npack1
          end do
 
@@ -2181,10 +2184,12 @@ c     ****************************************
 
 
 *     **** calculated sqrt(S^2) ****
+!$OMP DO
       do n=1,nj
          if (S(n).lt.0.0d0) S(n) = dabs(S(n))
          S(n) = dsqrt(S(n))
       end do
+!$OMP END DO
 
       return
       end
@@ -2503,7 +2508,7 @@ c     ****************************************
       real*8 A(n,n)
       real*8 B(n,n)
       integer i,j
-!$OMP DO
+!$OMP DO private(i,j)
       do j=1,n
          do i=1,n
             B(i,j) = A(j,i)
@@ -2551,10 +2556,12 @@ c     ****************************************
             nj = ne(mb)
          end if
 
+!$OMP DO
          do j=1,nj
             SA(j) = dcos(S(j)*t)
             SB(j) = dsin(S(j)*t)
          end do
+!$OMP END DO
 
          do ms=ms1,ms2
              shift1 = 1 + (ms-1)*ishift1
@@ -2581,19 +2588,23 @@ c     ****************************************
             nj = ne(mb)
          end if
 
+!$OMP DO private(j)
          do j=1,nj
             SA(j) = dcos(S(j)*t)
             SB(j) = dsin(S(j)*t)
          end do
+!$OMP END DO
 
          do ms=ms1,ms2
            if (ne(ms).le.0) go to 30
            shift1 = 1 + (ms-1)*ishift1
            shift2 = 1 + (ms-1)*ishift2
 
-           indx2 = shift2
+           !indx2 = shift2
+!$OMP DO private(j,k,indx1,indx2)
            do k=1,ne(ms)
               indx1 = shift1
+              indx2 = shift2 + (k-1)*ne(ms)
               do j=1,ne(ms)
                  A(indx2) = SA(indx1)*Vt(indx2)
                  B(indx2) = SB(indx1)*Vt(indx2)
@@ -2601,6 +2612,7 @@ c     ****************************************
                  indx1 = indx1 + 1
               end do
            end do
+!$OMP END DO
    
  30        continue
          end do
@@ -2648,10 +2660,12 @@ c     ****************************************
             nj = ne(mb)
          end if
 
+!$OMP DO
          do j=1,nj
             SA(j) = S(j)*dsin(S(j)*t)
             SB(j) = S(j)*dcos(S(j)*t)
          end do
+!$OMP END DO
 
          do ms=ms1,ms2
              shift1 = 1 + (ms-1)*ishift1
@@ -2679,10 +2693,12 @@ c     ****************************************
             nj = ne(mb)
          end if
 
+!$OMP DO private(j)
          do j=1,nj
             SA(j) = S(j)*dsin(S(j)*t)
             SB(j) = S(j)*dcos(S(j)*t)
          end do
+!$OMP END DO
 
          do ms=ms1,ms2
            if (ne(ms).le.0) go to 30
@@ -2691,15 +2707,18 @@ c     ****************************************
            shift2 = 1 + (ms-1)*ishift2
 
            indx2 = shift2
+!$OMP DO private(j,k,indx1,indx2)
            do k=1,ne(ms)
               indx1 = shift1
+              indx2 = shift2 + (k-1)*ne(ms)
               do j=1,ne(ms)
                  A(indx2) = SA(indx1)*Vt(indx2)
                  B(indx2) = SB(indx1)*Vt(indx2)
-                 indx2 = indx2 + 1
                  indx1 = indx1 + 1
+                 indx2 = indx2 + 1
               end do
            end do
+!$OMP END DO
 
  30        continue
          end do
@@ -2747,10 +2766,12 @@ c     ****************************************
             nj = ne(mb)
          end if
 
+!$OMP DO private(j)
          do j=1,nj
             SA(j) = dsin(S(j)*t)
             SB(j) = 1.0d0-dcos(S(j)*t)
          end do
+!$OMP END DO
 
          do ms=ms1,ms2
              shift1 = 1 + (ms-1)*ishift1
@@ -2777,10 +2798,12 @@ c     ****************************************
             nj = ne(mb)
          end if
 
+!$OMP DO private(j)
          do j=1,nj
             SA(j) = dsin(S(j)*t)
             SB(j) = 1.0d0-dcos(S(j)*t)
          end do
+!$OMP END DO 
 
          do ms=ms1,ms2
            if (ne(ms).le.0) go to 30
@@ -2788,15 +2811,18 @@ c     ****************************************
            shift2 = 1 + (ms-1)*ishift2
 
            indx2 = shift2
+!$OMP DO private(j,k,indx1,indx2)
            do k=1,ne(ms)
               indx1 = shift1
+              indx2 = shift2 + (k-1)*ne(ms)
               do j=1,ne(ms)
                  A(indx2) = SA(indx1)*Vt(indx2)
                  B(indx2) = SB(indx1)*Vt(indx2)
-                 indx2 = indx2 + 1
                  indx1 = indx1 + 1
+                 indx2 = indx2 + 1
               end do
            end do
+!$OMP END DO
 
  30        continue
          end do
@@ -6887,7 +6913,9 @@ c     **** local variables ****
       integer ms,ms1,ms2,shift,j,k,indxk,indxj
       integer jj,kk,jcur,kcur
       integer tmp(2)
+
       real*8 w
+      common /Dneall_f_Sortho_tmp/ w
 
       if (parallelized) then
 
@@ -6914,9 +6942,14 @@ c        **** allocate temporary memory ****
                if (kcur.eq.taskid_j) then
                   indxk = 1 + kk*npack1    + (ms-1)*shift
                   call Pack_cc_dot(1,Q(indxk),Q(indxk),w)
+!$OMP SINGLE
                   w        = 1.0d0/dsqrt(w)
+!$OMP END SINGLE
                   call Pack_c_SMul1(1,w,Q(indxk))
-                  call dcopy(2*npack1,Q(indxk),1,dcpl_mb(tmp(1)),1)
+                  !call dcopy(2*npack1,Q(indxk),1,dcpl_mb(tmp(1)),1)
+                  call Parallel_shared_vector_copy(.true.,
+     >                                             2*npack1,Q(indxk),
+     >                                             dcpl_mb(tmp(1)))
                end if
 
 *              *** Brdcst Q(indxk) ***
@@ -6937,7 +6970,9 @@ c              *** set j = k+1 ***
                   if (jcur.eq.taskid_j) then
                      indxj = 1 + jj*npack1    + (ms-1)*shift
                      call Pack_cc_dot(1,dcpl_mb(tmp(1)),Q(indxj),w)
+!$OMP SINGLE
                      w = -w
+!$OMP END SINGLE
                      call Pack_cc_daxpy(1,w,dcpl_mb(tmp(1)),Q(indxj))
                   end if
 
@@ -6980,18 +7015,25 @@ c         **** modified Gram-Schmidt ****
          do k=ne(ms),1,-1
             indxk = 1 + (k-1)*npack1 + (ms-1)*shift
             call Pack_cc_dot(1,Q(indxk),Q(indxk),w)
+!$OMP MASTER
             w        = 1.0d0/dsqrt(w)
+!$OMP END MASTER
+!$OMP BARRIER
             call Pack_c_SMul1(1,w,Q(indxk))
 
             do j=k-1,1,-1
                indxj = 1 + (j-1)*npack1 + (ms-1)*shift
                call Pack_cc_dot(1,Q(indxk),Q(indxj),w)
+!$OMP MASTER
                w = -w
+!$OMP END MASTER
+!$OMP BARRIER
                call Pack_cc_daxpy(1,w,Q(indxk),Q(indxj))
             end do
          end do
          end do
       end if
+!$OMP BARRIER
 
       return
       end 

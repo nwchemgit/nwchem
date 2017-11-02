@@ -689,11 +689,36 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     **** local variables ****
       integer i
 
+!$OMP DO
       do i=1,ng
         C(i) = dble(A(i))**2 + dimag(A(i))**2
       end do
+!$OMP END DO
       return
       end
+
+      subroutine ewald_tt_2dot(ng,A,B,esum)
+      implicit none
+      integer    ng
+      real*8  A(*)
+      real*8  B(*)
+      real*8  esum
+
+c     **** local variables ****
+      integer i
+!OMP MASTER
+      esum = 0.0d0
+!OMP END MASTER
+!$OMP BARRIER
+!$OMP DO reduction(+:esum)
+      do i=1,ng
+        esum = esum + 2.0d0*A(i)*B(i)
+      end do
+!$OMP END DO
+      return
+      end
+
+
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     ***********************************
 *     *			  		*
@@ -719,14 +744,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 *     **** local variables ****
-      integer dutask
+      integer dutask,threadid,nthreads,ttid
       integer i,j,ii,l,nion
       real*8  w,dx,dy,dz,x,y,z,r,zz
-      real*8  energy,etmp,energyG,ttcr,ttci,zii
+      real*8  energy,etmp,energyG,ttcr,ttci,zii,etmp0
       complex*16 ttcz
 *     **** temporary workspace variables ****
       integer exi(2),s(2),tmp3(2)
       logical value
+
+      common /eiond_ejtmp/ etmp
 
 *     **** external functions ****
       integer  ion_nion,ion_katm
@@ -737,12 +764,17 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       external ddot
       logical  control_fast_erf
       external control_fast_erf
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
 
       call nwpw_timing_start(21)
 
 *     **** allocate temp workspace ****
       fast_erf = control_fast_erf()
       nion = ion_nion()
+      threadid = Parallel_threadid()
+      nthreads = Parallel_nthreads()
+      ttid = threadid + nthreads*tid
       
       if (notzero_enpack) then
          value = BA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
@@ -754,30 +786,40 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >     call errquit('ewald_e:out of stack memory',0,MA_ERR)
      
 *        **** get the structure factor ****
-         call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         !call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         call Parallel_shared_vector_zero(.true.,(2*enpack),
+     >                                    dcpl_mb(s(1)))
          do ii=1,nion
             call ewald_strfac(ii,dcpl_mb(exi(1)))
-            call daxpy(2*enpack,dbl_mb(zv(1)+ion_katm(ii)-1),
+            call DAXPY_OMP(2*enpack,dbl_mb(zv(1)+ion_katm(ii)-1),
      >             dcpl_mb(exi(1)),1,
      >             dcpl_mb(s(1)),1)
          end do
 
 *        **** calculate the ewald energy ****
          call ewald_ct_Sqr(enpack,dcpl_mb(s(1)),dbl_mb(tmp3(1)))
-         energy=2.0d0*ddot(enpack,dbl_mb(tmp3(1)),1,dbl_mb(vg(1)),1)
+         !etmp=2.0d0*ddot(enpack,dbl_mb(tmp3(1)),1,dbl_mb(vg(1)),1)
+         call ewald_tt_2dot(enpack,dbl_mb(tmp3(1)),dbl_mb(vg(1)),etmp)
       else
-         energy=0.0d0
+!$OMP MASTER
+         etmp=0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
       end if
-      if (tnp.gt.1) call Parallel_SumAll(energy)
-      energy  = 0.5d0*energy/lattice_omega() + cewald
-
+      if (tnp.gt.1) call Parallel_SumAll(etmp)
+      energy  = 0.5d0*etmp/lattice_omega() + cewald
+!$OMP BARRIER
 
 *     *** made parallel  ****
       dutask = 0
+      etmp0 = 0.0d0
+!$OMP MASTER
       etmp = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
       do i=1,nion-1
       do j=i+1,nion
-      if (dutask.eq.tid) then
+      if (dutask.eq.ttid) then
         dx = ion_rion(1,i) - ion_rion(1,j)
         dy = ion_rion(2,i) - ion_rion(2,j)
         dz = ion_rion(3,i) - ion_rion(3,j)
@@ -795,17 +837,21 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >              + xerf*(c5 + xerf*c6))))))**4
               !yerfc = (1.0d0 - 1.0d0/yerf**4)
               yerfc = 1.0d0/yerf**4
-              etmp=etmp+(zz*yerfc/r)
+              etmp0=etmp0+(zz*yerfc/r)
            else if (r.gt.1.0d-6) then
               w = (r/rcut)
               yerfc = util_erfc(w)  !*** needs to be faster
-              etmp=etmp+(zz*yerfc/r)
+              etmp0=etmp0+(zz*yerfc/r)
            end if
         end do
       end if
-      dutask=mod(dutask+1,tnp)
+      dutask=mod(dutask+1,tnp*nthreads)
       end do
       end do
+!$OMP CRITICAL (ewaldp2)
+      etmp = etmp + etmp0
+!$OMP END CRITICAL (ewaldp2)
+!$OMP BARRIER
       if (tnp.gt.1) call Parallel_SumAll(etmp)
       energy = energy + etmp
       
@@ -895,9 +941,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
       scal2 = 1.0d0/lattice_omega()
-      call dcopy(nion,0.0d0,0,dbl_mb(fx(1)),1)
-      call dcopy(nion,0.0d0,0,dbl_mb(fy(1)),1)
-      call dcopy(nion,0.0d0,0,dbl_mb(fz(1)),1)
+      !call dcopy(nion,0.0d0,0,dbl_mb(fx(1)),1)
+      !call dcopy(nion,0.0d0,0,dbl_mb(fy(1)),1)
+      !call dcopy(nion,0.0d0,0,dbl_mb(fz(1)),1)
       call Parallel_shared_vector_zero(.false.,nion,dbl_mb(fx(1)))
       call Parallel_shared_vector_zero(.false.,nion,dbl_mb(fy(1)))
       call Parallel_shared_vector_zero(.true., nion,dbl_mb(fz(1)))

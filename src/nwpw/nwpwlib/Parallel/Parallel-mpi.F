@@ -592,6 +592,59 @@ c     implicit none
       end
 
 
+
+
+*     ***********************************
+*     *                                 *
+*     *     Parallel_SumAll_private     *
+*     *                                 *
+*     ***********************************
+
+* sum is assumed to be private an replicated
+
+      subroutine Parallel_SumAll_private(sum)
+c     implicit none
+      real*8  sum
+
+#include "Parallel.fh"
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+c     *** make sumall shared ***
+      real*8 sumall
+      common /psumall_block/ sumall
+
+#ifdef MPI4
+      if (np.gt.1) then
+!$OMP MASTER
+         stupid_msglen = 1
+         call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_double,
+     >                      stupid_sum,stupid_world,stupid_ierr)
+!$OMP END MASTER
+!$OMP BARRIER
+         sum = sumall
+      end if
+#else
+      integer msglen,mpierr
+
+      if (np.gt.1) then
+!$OMP MASTER
+         msglen = 1
+         call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
+     >                       MPI_SUM,comm_world,mpierr)
+!$OMP END MASTER
+!$OMP BARRIER
+         sum = sumall
+      end if
+#endif
+
+      return
+      end
+
+
+
 *     ***********************************
 *     *                                 *
 *     *         Parallel_SumAll         *

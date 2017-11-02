@@ -1505,7 +1505,7 @@ c           end do
         !scal = 1.0d0/(omega)
         !nproj = int_mb(nprj(1)+ia-1)
         !call dscal(nn*int_mb(nprj(1)+ia-1),scal,dbl_mb(sw2(1)),1)
-        call dscal_omp(nn*nproj,scal,dbl_mb(sw2(1)),1)
+        call DSCAL_OMP(nn*nproj,scal,dbl_mb(sw2(1)),1)
 
         call DGEMM_OMP('N','T',2*npack1,nn,nproj,
      >             (1.0d0),
@@ -2753,6 +2753,7 @@ c        end do
 !$OMP MASTER
         vloc_atom0 = 0.0d0
 !$OMP END MASTER
+!$OMP BARRIER
 !$OMP DO REDUCTION(+:vloc_atom0)
         do l=0,(nn*nproj-1)
          vloc_atom0 = vloc_atom0+dbl_mb(sw1(1)+l)*dbl_mb(sw2(1)+l)
@@ -3253,6 +3254,9 @@ c     >                         dcpl_mb(vl1(1)),eh)
       integer exi(2),sw1(2),sw2(2)
       logical value,sd_function
 
+      real*8 pxc0
+      common /pxc_atom_pdx0/ pxc0
+
 
 *     **** external functions ****
       integer  ion_katm
@@ -3265,6 +3269,9 @@ c     >                         dcpl_mb(vl1(1)),eh)
 
       exc = 0.0d0
       pxc = 0.0d0
+!$OMP MASTER
+      pxc0 = 0.0d0
+!$OMP END MASTER
 
       if (pawexist) then
       nn = ne(1)+ne(2)
@@ -3335,7 +3342,8 @@ c     >                         dcpl_mb(vl1(1)),eh)
 
 
 *       **** sw2 = sw2 + Vxcijl*sw1 ******
-        call dcopy(nn*nproj,0.0d0,0,dbl_mb(sw2(1)),1)
+        !call dcopy(nn*nproj,0.0d0,0,dbl_mb(sw2(1)),1)
+        call Parallel_shared_vector_zero(.true.,nn*nproj,dbl_mb(sw2(1)))
         call nwpw_xc_solve(ii,ia,
      >     int_mb(n1dgrid(1)+ia-1),
      >     int_mb(n1dbasis(1)+ia-1),
@@ -3352,14 +3360,19 @@ c     >                         dcpl_mb(vl1(1)),eh)
      >     ispin,ne,int_mb(nprj(1)+ia-1),dbl_mb(sw1(1)),dbl_mb(sw2(1)))
 
 *          **** pxc = transpose(sw1)*sw2) ****
+!$OMP MASTER
            do l=0,(nn*nproj-1)
-            pxc = pxc + dbl_mb(sw1(1)+l)*dbl_mb(sw2(1)+l)
+            pxc0 = pxc0 + dbl_mb(sw1(1)+l)*dbl_mb(sw2(1)+l)
            end do
+!$OMP END MASTER
 
         end if !** nproj>0 **
       end do !** ii **
-      pxc = pxc*scal 
-      if (ispin.eq.1) pxc = pxc + pxc
+!$OMP MASTER
+      pxc0 = pxc0*scal 
+      if (ispin.eq.1) pxc0 = pxc0 + pxc0
+!$OMP END MASTER
+!$OMP BARRIER
 
       value =           BA_pop_stack(sw2(2))
       value = value.and.BA_pop_stack(sw1(2))
@@ -3367,7 +3380,8 @@ c     >                         dcpl_mb(vl1(1)),eh)
       if (.not.value) call errquit('psp_xc_atom: popping stack',3,
      &       MA_ERR)
 
-      call D1dB_SumAll(pxc)
+      call D1dB_SumAll(pxc0)
+      pxc = pxc0
       exc = nwpw_xc_energy_atom()
       end if
       return 
@@ -3777,6 +3791,7 @@ c            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
       end if
 
       end if
+!$OMP BARRIER
       psp_hartree_cmp_cmp = eh
       return
       end

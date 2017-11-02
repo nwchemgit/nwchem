@@ -111,7 +111,8 @@
 c     do i=1,n
 c        call Pack_c_Copy(1,A(1,i),C(1,i))
 c     end do
-      call dcopy(2*n*nfft3d,A,1,C,1)
+      !call dcopy(2*n*nfft3d,A,1,C,1)
+      call Parallel_shared_vector_copy(.true.,2*n*nfft3d,A,C)
  
       return
       end
@@ -625,16 +626,23 @@ c      call D3dB_cr_mpfft3b(1,1,n,A)
 *     **** local variables ****
       integer j,k,np
       real*8 sum
+      real*8 e1,e2
+      common /eenergy_tmp_common/ e1,e2
+
 
       call Parallel_np(np)
-      call dcopy(n*n,0.0d0,0,MM,1)
+      !call dcopy(n*n,0.0d0,0,MM,1)
+      call Parallel_shared_vector_zero(.true.,n*n,MM)
       do k=1,n
       do j=1,n
-       call Pack_cc_idot(1,A(1,j),B(1,k),sum) 
-       MM(j,k) = sum
+       call Pack_cc_idot(1,A(1,j),B(1,k),e1) 
+!$OMP MASTER
+       MM(j,k) = e1
+!$OMP END MASTER
       end do
       end do
-      if (np.gt.1) call D3dB_Vector_Sumall(n*n,MM)
+!$OMP BARRIER
+      if (np.gt.1) call D3dB_Vector_SumAll(n*n,MM)
 
       return
       end
@@ -662,14 +670,22 @@ c      call D3dB_cr_mpfft3b(1,1,n,A)
       integer j,k,np
       real*8 sum
 
+      real*8 e1,e2
+      common /eenergy_tmp_common/ e1,e2
+
+
       call Parallel_np(np)
-      call dcopy(m*m,0.0d0,0,MM,1)
+      !call dcopy(m*m,0.0d0,0,MM,1)
+      call Parallel_shared_vector_zero(.true.,m*m,MM)
       do k=1,n
       do j=1,n
-       call Pack_cc_idot(1,A(1,j),B(1,k),sum)
-       MM(j,k) = sum
+       call Pack_cc_idot(1,A(1,j),B(1,k),e1)
+!$OMP MASTER
+       MM(j,k) = e1
+!$OMP END MASTER
       end do
       end do
+!$OMP BARRIER
       if (np.gt.1) call D3dB_Vector_Sumall(m*m,MM)
 
       return
@@ -696,17 +712,26 @@ c      call D3dB_cr_mpfft3b(1,1,n,A)
       integer j,k,np
       real*8 sum
 
+      real*8 e1,e2
+      common /eenergy_tmp_common/ e1,e2
+
       call Parallel_np(np)
-      call dcopy(m*m,0.0d0,0,MM,1)
+      !call dcopy(m*m,0.0d0,0,MM,1)
+      call Parallel_shared_vector_zero(.true.,m*m,MM)
       do k=1,n
-         call Pack_cc_idot(1,A(1,k),B(1,k),sum)
-         MM(k,k) = sum
+         call Pack_cc_idot(1,A(1,k),B(1,k),e1)
+!$OMP MASTER
+         MM(k,k) = e1
+!$OMP END MASTER
         do j=k+1,n
-         call Pack_cc_idot(1,A(1,j),B(1,k),sum)
-         MM(j,k) = sum
-         MM(k,j) = sum
+         call Pack_cc_idot(1,A(1,j),B(1,k),e1)
+!$OMP MASTER
+         MM(j,k) = e1
+         MM(k,j) = e1
+!$OMP END MASTER
         end do
       end do
+!$OMP BARRIER
       if (np.gt.1) call D3dB_Vector_Sumall(m*m,MM)
 
 
@@ -731,17 +756,26 @@ c      call D3dB_cr_mpfft3b(1,1,n,A)
       integer j,k,np
       real*8 sum
 
+      real*8 e1,e2
+      common /eenergy_tmp_common/ e1,e2
+
+
       call Parallel_np(np)
       call dcopy(n*n,0.0d0,0,MM,1)
       do k=1,n
-         call Pack_cc_idot(1,A(1,k),B(1,k),sum)
-         MM(k,k) = sum
+         call Pack_cc_idot(1,A(1,k),B(1,k),e1)
+!$OMP MASTER
+         MM(k,k) = e1
+!$OMP END MASTER
         do j=k+1,n
-         call Pack_cc_idot(1,A(1,j),B(1,k),sum)
-         MM(j,k) = sum
-         MM(k,j) = sum
+         call Pack_cc_idot(1,A(1,j),B(1,k),e1)
+!$OMP MASTER
+         MM(j,k) = e1
+         MM(k,j) = e1
+!$OMP END MASTER
         end do
       end do
+!$OMP BARRIER
       if (np.gt.1) call D3dB_Vector_Sumall(n*n,MM)
 
       return
@@ -799,7 +833,11 @@ c       call D3dB_cc_idot(1,A(1,j),B(1,k),sum)
 
 *     **** local variables ****
       integer j,np,nida,nidb
-      real*8 sum
+      !real*8 sum
+
+      real*8 sa,sb
+      common /pack_conjg_tcc_indot_sasb/ sa,sb
+
 
 c*     **** common block for pack ****
 c      integer nida(0:3),nidb(0:3)
@@ -814,14 +852,26 @@ c      common / pack_blk / pack,nida,nidb
       call Parallel2d_np_i(np)
       call Pack_nida(1,nida)
       call Pack_nidb(1,nidb)
-      MM = 0.0d0
+!$OMP MASTER
+      sa = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+!$OMP DO reduction(+:sa)
       do j=1,n
 c        call Pack_cc_idot(1,A(1,j),B(1,j),sum)
 c        MM = MM + sum
-        MM = MM 
+        sa = sa 
      >     + ddot(2*nida,A(1,j),1,B(1,j),1)
      >     + 2*ddot(2*nidb,A(nida+1,j),1,B(nida+1,j),1)
       end do
+!$OMP END DO
+
+!$OMP MASTER
+      MM = sa
+!$OMP END MASTER
+!$OMP BARRIER
+c      if (np.gt.1) call D3dB_SumAll(MM)
+
       if (np.gt.1) call D3dB_SumAll(MM)
 
       return
@@ -830,7 +880,7 @@ c        MM = MM + sum
 
 *     ****************************
 *     *                          *
-*     *         Grsm_gg_itrace    *
+*     *        Grsm_gg_itrace    *
 *     *                          *
 *     ****************************
 * 
@@ -847,6 +897,10 @@ c        MM = MM + sum
       integer j,np,nida,nidb
       real*8 sum
 
+      real*8 sa,sb
+      common /pack_conjg_tcc_indot_sasb/ sa,sb
+
+
 c*     **** common block for pack ****
 c      integer nida(0:3),nidb(0:3)
 c      integer pack(2,0:3)
@@ -861,14 +915,24 @@ c      common / pack_blk / pack,nida,nidb
       call Pack_nidb(1,nidb)
 
 c      call Parallel2d_np_i(np)
-      MM = 0.0d0
+!$OMP MASTER
+      sa = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+!$OMP DO reduction(+:sa)
       do j=1,n
 c        call Pack_cc_idot(1,A(1,j),B(1,j),sum)
 c        MM = MM + sum
-        MM = MM
+        sa = sa
      >     + ddot(2*nida,A(1,j),1,B(1,j),1)
      >     + 2*ddot(2*nidb,A(nida+1,j),1,B(nida+1,j),1)
       end do
+!$OMP END DO
+
+!$OMP MASTER
+      MM = sa
+!$OMP END MASTER
+!$OMP BARRIER
 c      if (np.gt.1) call D3dB_SumAll(MM)
 
       return

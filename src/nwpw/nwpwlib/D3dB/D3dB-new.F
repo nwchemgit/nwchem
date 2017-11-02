@@ -983,7 +983,8 @@ c      end
 #include "D3dB.fh"
 
 
-      call dcopy(n2ft3d_map(nb),0.0d0,0,A,1)
+      !call dcopy(n2ft3d_map(nb),0.0d0,0,A,1)
+      call Parallel_shared_vector_zero(.true.,n2ft3d_map(nb),A)
       return
       end
 
@@ -995,7 +996,8 @@ c      end
 #include "D3dB.fh"
 
 
-      call dcopy(n*n2ft3d_map(nb),0.0d0,0,A,1)
+      !call dcopy(n*n2ft3d_map(nb),0.0d0,0,A,1)
+      call Parallel_shared_vector_zero(.true.,n*n2ft3d_map(nb),A)
       return
       end
 
@@ -1020,7 +1022,8 @@ c      call dcopy(n2ft3d_map(nb),0.0d0,0,A,1)
 
 #include "D3dB.fh"
 
-      call dcopy(n*n2ft3d_map(nb),0.0d0,0,A,1)
+      !call dcopy(n*n2ft3d_map(nb),0.0d0,0,A,1)
+      call Parallel_shared_vector_zero(.true.,n*n2ft3d_map(nb),A)
       return
       end
 
@@ -1040,7 +1043,8 @@ c      call dcopy(n2ft3d_map(nb),0.0d0,0,A,1)
 
 #include "D3dB.fh"
 
-      call dcopy(2*nfft3d_map(nb),A,1,B,1)
+      !call dcopy(2*nfft3d_map(nb),A,1,B,1)
+      call Parallel_shared_vector_copy(.true.,2*nfft3d_map(nb),A,B)
       return
       end
 
@@ -1052,7 +1056,8 @@ c      call dcopy(n2ft3d_map(nb),0.0d0,0,A,1)
 
 #include "D3dB.fh"
 
-      call dcopy(n*2*nfft3d_map(nb),A,1,B,1)
+      !call dcopy(n*2*nfft3d_map(nb),A,1,B,1)
+      call Parallel_shared_vector_copy(.true.,n*2*nfft3d_map(nb),A,B)
       return
       end
 
@@ -1080,7 +1085,8 @@ c      call dcopy(n2ft3d_map(nb),0.0d0,0,A,1)
 
 #include "D3dB.fh"
 
-      call dcopy(n*n2ft3d_map(nb),A,1,B,1)
+      !call dcopy(n*n2ft3d_map(nb),A,1,B,1)
+      call Parallel_shared_vector_copy(.true.,n*n2ft3d_map(nb),A,B)
       return
       end
 
@@ -1093,7 +1099,8 @@ c      call dcopy(n2ft3d_map(nb),0.0d0,0,A,1)
 
 #include "D3dB.fh"
 
-      call dcopy(nfft3d_map(nb),A,1,B,1)
+      !call dcopy(nfft3d_map(nb),A,1,B,1)
+      call Parallel_shared_vector_copy(.true.,nfft3d_map(nb),A,B)
       return
       end
 
@@ -1106,7 +1113,8 @@ c      call dcopy(n2ft3d_map(nb),0.0d0,0,A,1)
 
 #include "D3dB.fh"
 
-      call dcopy(n*nfft3d_map(nb),A,1,B,1)
+      !call dcopy(n*nfft3d_map(nb),A,1,B,1)
+      call Parallel_shared_vector_copy(.true.,n*nfft3d_map(nb),A,B)
       return
       end
 
@@ -3527,9 +3535,6 @@ c      call Parallel2d_np_i(np)
 
 
 
-
-
-
 *     ***********************************
 *     *					*
 *     *	         D3dB_rr_dot  	 	*	
@@ -3562,6 +3567,7 @@ c      call Parallel2d_np_i(np)
       end do
 !$OMP END DO
 
+
 *     **** add up sums from other nodes ****
       if (np.gt.1) then
          call D3dB_SumAll(sum)
@@ -3591,20 +3597,29 @@ c      call Parallel2d_np_i(np)
 
       integer i,np
       real*8  sum
+      common /D3dB_RR_TSUM/ sum
 
 
 *     **** sum up dot product on this node ****
+!$OMP MASTER
       sum = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+!$OMP DO reduction(+:sum)
       do i=1,n2ft3d_map(nb)
          sum = sum + A(i)*B(i)
       end do
+!$OMP END DO
 
 *     **** add up sums from other nodes ****
 *     if (np.gt.1) then
 *        call D3dB_SumAll(sum)
 *     end if
 
+!$OMP MASTER
       sumall = sum
+!$OMP END MASTER
+!$OMP BARRIER
       return
       end
 
@@ -4264,10 +4279,12 @@ CDIR$ NOVECTOR
       !do q=1,nq(nb)
       !do j=1,ny(nb)
       !do i=1,nx(nb)
+!$OMP DO
       do index=1,n2ft3d_map(nb)
          !index = i + (j-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
          C(index) = dabs(A(index))
       end do
+!$OMP END DO
       !end do
       !end do
       !end do
@@ -4285,10 +4302,12 @@ CDIR$ NOVECTOR
 
       integer index
 
+!$OMP DO
       do index=1,n2ft3d_map(nb)
          !index = i + (j-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
          A(index) = dabs(A(index))
       end do
+!$OMP END DO
       return
       end
 

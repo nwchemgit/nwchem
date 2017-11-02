@@ -814,11 +814,13 @@ c*     **** debug ****
       
       call dcopy(3*nion,0.0d0,0,G1,1)
 
+!$OMP PARALLEL
       call psi_1force(G1)
       if (psp_semicore(0)) call electron_semicoreforce(G1)
 
       if (control_version().eq.3) call ewald_f(G1)
       if (control_version().eq.4) call ion_ion_f(G1)
+!$OMP END PARALLEL
       if (pspw_qmmm_found()) call pspw_qmmm_fion(G1)
       if (ion_disp_on()) call ion_disp_force(G1)
 

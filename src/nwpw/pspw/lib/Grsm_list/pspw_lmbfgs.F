@@ -9,18 +9,22 @@
 
 #include "pspw_lmbfgs_common.fh"
 
-
 *     **** external functions ****
       integer  psi_neq
       external psi_neq
 
+!$OMP MASTER
       max_m = max_m0
       call Pack_npack(1,npack1)
       neall = psi_neq(1)+psi_neq(2)
       nsize = neall*npack1
+!$OMP END MASTER
       call pspw_Grsm_list_init('lmbfgs',2*max_m,2*nsize)
 
+!$OMP MASTER
       m = 1
+!$OMP END MASTER
+!$OMP BARRIER
 c      call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
       call Grsm_gg_dScale1(npack1,neall,(-1.0d0),g)
       call pspw_Grsm_list_store(2*m-1,g)
@@ -45,8 +49,11 @@ c      call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
 *     **** local variables ****
       logical value,ondisk
       integer k,ngras
-      real*8 alpha(20),beta,sum,h0
+      real*8 alpha(20),beta,h0,sum0
       integer yy(2),ss(2)
+
+      real*8 sum
+      common /mysum_lmbfgs/ sum
 
 *     **** external functions ****
       logical  control_lmbfgs_ondisk
@@ -56,7 +63,7 @@ c      call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
       ngras = 2*npack1*neall
 
       !call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
-      call dscal(ngras,(-1.0d0),g,1)
+      call DSCAL_OMP(ngras,(-1.0d0),g,1)
 
 *     **** allocate yy and ss ****
       if (ondisk) then
@@ -67,7 +74,8 @@ c      call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
       end if
 
       !call Grsm_gg_copy(npack1,neall,g,s)
-      call dcopy(ngras,g,1,s,1)
+      !call dcopy(ngras,g,1,s,1)
+      call Parallel_shared_vector_copy(.true.,ngras,g,s)
 
       if (ondisk) then
         call pspw_Grsm_list_load(2*m-1,dbl_mb(yy(1)))
@@ -79,8 +87,8 @@ c      call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
       call psi_1geodesic_Gtransport(tmin,dbl_mb(yy(1)))
       call psi_1geodesic_transport(tmin,dbl_mb(ss(1)))
       !call Grsm_ggg_Sub(npack1,neall,g,dbl_mb(yy(1)),dbl_mb(yy(1)))
-      call daxpy(ngras,(-1.0d0),g,1,dbl_mb(yy(1)),1)
-      call dscal(ngras,(-1.0d0),dbl_mb(yy(1)),1)
+      call DAXPY_OMP(ngras,(-1.0d0),g,1,dbl_mb(yy(1)),1)
+      call DSCAL_OMP(ngras,(-1.0d0),dbl_mb(yy(1)),1)
       if (ondisk) then
         call pspw_Grsm_list_store(2*m-1,dbl_mb(yy(1)))
         call pspw_Grsm_list_store(2*m,  dbl_mb(ss(1)))
@@ -95,7 +103,9 @@ c      call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
       !*** exit if dividing by small number ***
       if (dabs(sum).lt.1.0d-15) go to 211
 
+!$OMP MASTER
       rho(m) = 1.0d0/sum
+!$OMP END MASTER
       call Grsm_gg_trace(npack1,neall,
      >                   dbl_mb(ss(1)),
      >                   s,
@@ -103,7 +113,7 @@ c      call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
       call D1dB_SumAll(sum)
       alpha(m) = rho(m)*sum
       !call Grsm_gg_daxpy(npack1,neall,-alpha(m),dbl_mb(yy(1)),s)
-      call daxpy(ngras,(-alpha(m)),dbl_mb(yy(1)),1,s,1)
+      call DAXPY_OMP(ngras,(-alpha(m)),dbl_mb(yy(1)),1,s,1)
       do k=(m-1),1, -1
          if (ondisk) then
            call pspw_Grsm_list_load(2*k-1,dbl_mb(yy(1)))
@@ -126,7 +136,7 @@ c      call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
          call D1dB_SumAll(sum)
          alpha(k) = rho(k)*sum
          !call Grsm_gg_daxpy(npack1,neall,-alpha(k),dbl_mb(yy(1)),s)
-         call daxpy(ngras,(-alpha(k)),dbl_mb(yy(1)),1,s,1)
+         call DAXPY_OMP(ngras,(-alpha(k)),dbl_mb(yy(1)),1,s,1)
       end do
 
    
@@ -142,10 +152,10 @@ c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
      >                   sum)
          call D1dB_SumAll(sum)
          beta = rho(k)*sum
-         sum = alpha(k) - beta
+         sum0 = alpha(k) - beta
       
          !call Grsm_gg_daxpy(npack1,neall,sum,dbl_mb(ss(1)),s)
-         call daxpy(ngras,sum,dbl_mb(ss(1)),1,s,1)
+         call DAXPY_OMP(ngras,sum0,dbl_mb(ss(1)),1,s,1)
          if (ondisk) then
            call pspw_Grsm_list_load(2*(k+1)-1,dbl_mb(yy(1)))
            call pspw_Grsm_list_load(2*(k+1),  dbl_mb(ss(1)))
@@ -161,23 +171,28 @@ c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
      >                sum)
       call D1dB_SumAll(sum)
       beta = rho(m)*sum
-      sum = alpha(m) - beta
+      sum0 = alpha(m) - beta
       !call Grsm_gg_daxpy(npack1,neall,sum,dbl_mb(ss(1)),s)
-      call daxpy(ngras,sum,dbl_mb(ss(1)),1,s,1)
+      call DAXPY_OMP(ngras,sum0,dbl_mb(ss(1)),1,s,1)
       if (m.lt.max_m) then
+!$OMP MASTER
          m = m+1
+!$OMP END MASTER
       else
          call pspw_Grsm_list_shift()
          call pspw_Grsm_list_shift()
+!$OMP MASTER
          do k=1,(m-1)
             rho(k) = rho(k+1)
          end do
+!$OMP END MASTER
       end if
+!$OMP BARRIER
 
-      call dscal(ngras,(-1.0d0),s,1)
+      call DSCAL_OMP(ngras,(-1.0d0),s,1)
  211  call pspw_Grsm_list_store(2*m-1,g)
       call pspw_Grsm_list_store(2*m,s)
-      call dscal(ngras, (-1.0d0),g,1)
+      call DSCAL_OMP(ngras, (-1.0d0),g,1)
 
       if (ondisk) then
         value = BA_pop_stack(ss(2))
@@ -185,6 +200,7 @@ c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
      >          BA_pop_stack(yy(2))
         if (.not.value) call errquit('pspw_lmbfgs:pop stack',2,0)
       end if
+!$OMP BARRIER
 
       return 
       end

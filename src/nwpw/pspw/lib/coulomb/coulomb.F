@@ -122,10 +122,10 @@ c    >     + i+1
 
       real*8 function coulomb_e(dng)
       implicit none
-#include "errquit.fh"
       complex*16 dng(*)
 
 #include "bafdecls.fh"
+#include "errquit.fh"
 
 *     **** common block used for coulomb.f ****
 *     real*8 vc(nfft3d)
@@ -143,7 +143,7 @@ c     real*8  tmp1(*)
       logical value
 
 *     **** external functions ****
-      real*8 lattice_omega
+      real*8   lattice_omega
       external lattice_omega
 
       call nwpw_timing_start(7)
@@ -152,7 +152,7 @@ c     real*8  tmp1(*)
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       
       call Pack_ct_Sqr(0,dng,dbl_mb(tmp1(1)))
-      call Pack_tt_dot(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),ec)
+      call Pack_ttp_dot(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),ec)
        
       ec = 0.5d0*ec*lattice_omega()
 

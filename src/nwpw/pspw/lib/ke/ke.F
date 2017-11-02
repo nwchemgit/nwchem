@@ -235,7 +235,10 @@ c     real*8 tg(nfft3d)
 *     **** local variables ****
       integer npack1,np
       integer ms,n,n1(2),n2(2)
-      real*8  sum
+      real*8  sum,ave1
+
+      common /eelectron_ejtmp/ sum,ave1
+
 
 c     complex*16 tmp1(nfft3d)
       integer tmp1(2)
@@ -253,7 +256,9 @@ c     complex*16 tmp1(nfft3d)
       n1(2) = ne(1) + 1
       n2(2) = ne(1) + ne(2)
 
-      ave = 0.0d0
+!$OMP MASTER
+      ave1 = 0.0d0
+!$OMP END MASTER
       do ms=1,ispin
          do n=n1(ms),n2(ms)
             if (fractional) then
@@ -270,10 +275,14 @@ c     complex*16 tmp1(nfft3d)
      >                       dcpl_mb(tmp1(1)),
      >                       sum)
 
-            ave = ave + sum
+!$OMP MASTER
+            ave1 = ave1 + sum
+!$OMP END MASTER
          end do
       end do
-      if (np.gt.1) call Parallel_SumAll(ave)
+!$OMP BARRIER
+      if (np.gt.1) call Parallel_SumAll(ave1)
+      ave = ave1
       if (ispin.eq.1) ave = 2.0d0*ave
       ave = -ave
 
@@ -516,6 +525,7 @@ c        Ep =  control_Ep() - 15*Ep
         Ep =  control_Ep()
         cm = 1.0d0/Ep
 CDIR$ NOVECTOR
+!$OMP DO
         do k=1,npack
           x = -dbl_mb(tg_indx+k-1)
           dm = x*cm
@@ -523,6 +533,7 @@ CDIR$ NOVECTOR
           gradk(k,n) = gradk(k,n)/dm
           end if
         end do
+!$OMP END DO
       end do
 
 *     **** preconditioner #5 ****

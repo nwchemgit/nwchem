@@ -26,13 +26,19 @@
       integer i,j
       real*8 x,y,z,r,e
 
+      common /eiond_ejtmp/ e
+
 *     *** external functions ***
       integer  ion_nion,ion_katm
       real*8   psp_zv,ion_rion
       external ion_nion,ion_katm
       external psp_Zv,ion_rion
 
+!$OMP MASTER
       e = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+!$OMP DO reduction(+:e)
       do j=1,ion_nion()
         do i=1,j-1
           x = ion_rion(1,i) - ion_rion(1,j)
@@ -42,6 +48,7 @@
           e = e + psp_zv(ion_katm(i))*psp_zv(ion_katm(j))/r
         end do
       end do
+!$OMP END DO
 
       ion_ion_e = e
       return

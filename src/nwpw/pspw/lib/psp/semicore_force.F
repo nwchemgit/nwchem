@@ -154,7 +154,6 @@ c     >                        dcpl_mb(dngz(1)))
            fion(2,ii) = fion(2,ii) + sumy*scal2*scal1
            fion(3,ii) = fion(3,ii) + sumz*scal2*scal1
 !$OMP END MASTER
-!$OMP BARRIER
 
 c          write(*,*) "semicore-force:",sumx*scal2*scal1,
 c    >                                  sumy*scal2*scal1,
@@ -162,6 +161,7 @@ c    >                                  sumz*scal2*scal1
          end if
 
       end do
+!$OMP BARRIER
 
       value = BA_pop_stack(dngz(2))
       value = value.and.BA_pop_stack(dngy(2))

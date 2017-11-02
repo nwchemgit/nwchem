@@ -47,7 +47,9 @@ c      complex*16 G1(nfft3d,nemax)
       integer neall,npack1
       real*8 e_lj,e_q,e_spring
       real*8 ehfx,phfx
-      real*8  exc_atom,pxc_atom,ehartree_atom,ecmp_cmp,ecmp_pw
+      real*8 exc_atom,pxc_atom,ehartree_atom,ecmp_cmp,ecmp_pw
+      real*8 Enew0,tmin0,deltae0,deltac0
+
       
 
 *     **** external functions ****
@@ -125,6 +127,10 @@ c      complex*16 G1(nfft3d,nemax)
       neall = psi_neq(1)+psi_neq(2)
       pawexist = psp_pawexist()
 
+      Estart = Enew
+      if (current_iteration.eq.1) then
+         precondition = control_precondition()
+      end if
 
 *     **** allocate H0, G1, and R1 ****
       value = BA_alloc_get(mt_dcpl,npack1*neall,
@@ -142,32 +148,32 @@ c     >                     'G0',G0(2),G0(1))
       end if
       if (.not. value) call errquit('cgminimize:out of heap memory',0,
      &       MA_ERR)
-      call dcopy(2*npack1*neall,0.0d0,0,dcpl_mb(G1(1)),1)
+      !call dcopy(2*npack1*neall,0.0d0,0,dcpl_mb(G1(1)),1)
 
-      Estart = Enew
-      if (current_iteration.eq.1) then
-         precondition = control_precondition()
-      end if
-
-
+!$OMP PARALLEL private(it,deltat,Enew0,tmin0,deltae0,deltac0)
+      call Parallel_shared_vector_zero(.true.,2*npack1*neall,
+     >                                 dcpl_mb(G1(1)))
 
 *     ***** get the initial gradient and direction ****
       call pspw_Lin_HFX_reset()
       if (pawexist) then
-         call psi_1get_STgradient(dcpl_mb(R1(1)),dcpl_mb(G1(1)),E0)
+         call psi_1get_STgradient(dcpl_mb(R1(1)),dcpl_mb(G1(1)),Enew0)
          call Grsm_gg_trace(npack1,neall,
      >                      dcpl_mb(G1(1)),
      >                      dcpl_mb(R1(1)),sum1)
       else
          if (precondition) then
-            call psi_1get_TMgradient(dcpl_mb(G1(1)),E0)
+            call psi_1get_TMgradient(dcpl_mb(G1(1)),Enew0)
          else
-            call psi_1get_Tgradient(dcpl_mb(G1(1)),E0)
+            call psi_1get_Tgradient(dcpl_mb(G1(1)),Enew0)
          end if
          call Grsm_gg_trace(npack1,neall,
      >                      dcpl_mb(G1(1)),
      >                      dcpl_mb(G1(1)),sum1)
       end if
+!$OMP MASTER
+      E0 = Enew0
+!$OMP END MASTER
       call D1dB_SumAll(sum1)
 
       call Grsm_gg_Copy(npack1,neall,
@@ -181,15 +187,15 @@ c     >                     'G0',G0(2),G0(1))
 *     ****                                  ****
 *     ******************************************
       !it_in = control_it_in()
+!$OMP MASTER
       tole  = control_tole()
       tolc  = control_tolc()
       tmin  = deltat_min
+!$OMP END MASTER
       do it=2,it_in
 
 *        **** initialize the geoedesic line data structure ****
          call geodesic_start(dcpl_mb(H0(1)),max_sigma,dE0)
-c        Eold= psi_geodesic_energy(0.0d0)
-c        write(*,*) "Eold:", Eold,max_sigma
 
 *        ******* line search *********
          if (tmin.gt.deltat_min) then
@@ -198,16 +204,28 @@ c        write(*,*) "Eold:", Eold,max_sigma
             deltat = deltat_min
          end if
 c        Eold = psi_geodesic_energy(0.0d0)
-         Enew = linesearch(0.0d0,E0,dE0,deltat,
+         tmin0   = tmin
+         deltae0 = deltae
+         Enew0 = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
-     >                        tole,tmin,deltae,1)
+     >                        tole,tmin0,deltae0,1)
 c        Enew = linesearch(0.0d0,E0,dE0,deltat,
 c    >                        psi_geodesic_energy,
 c    >                        psi_geodesic_denergy,
 c    >                        0.5d0,tmin,deltae,2)
+!$OMP MASTER
+         tmin = tmin0
+         deltae = deltae0
+         Enew = Enew0
+!$OMP END MASTER
+!$OMP BARRIER
          call psi_geodesic_final(tmin)
-         deltac = rho_error()
+         deltac0 = rho_error()
+!$OMP MASTER
+         deltac = deltac0
+!$OMP END MASTER
+!$OMP BARRIER
 
 
 *        **** exit loop early ****
@@ -234,21 +252,25 @@ c        call dng_2to1()
          call pspw_Lin_HFX_reset()
          sum0  = sum1
          if (pawexist) then
-            call psi_1get_STgradient(dcpl_mb(R1(1)),dcpl_mb(G1(1)),E0)
+            call psi_1get_STgradient(dcpl_mb(R1(1)),dcpl_mb(G1(1)),
+     >                               Enew0)
             call Grsm_gg_trace(npack1,neall,
      >                         dcpl_mb(G1(1)),
      >                         dcpl_mb(R1(1)),sum1)
          else
             if (precondition) then
-              call psi_1get_TMgradient(dcpl_mb(G1(1)),E0)
+              call psi_1get_TMgradient(dcpl_mb(G1(1)),Enew0)
             else
-              call psi_1get_Tgradient(dcpl_mb(G1(1)),E0)
+              call psi_1get_Tgradient(dcpl_mb(G1(1)),Enew0)
             end if
             call Grsm_gg_trace(npack1,neall,
      >                           dcpl_mb(G1(1)),
      >                           dcpl_mb(G1(1)),
      >                           sum1)
          end if
+!$OMP MASTER
+        E0 = Enew0
+!$OMP END MASTER
          call D1dB_SumAll(sum1)
 
 c         call Grsm_ggg_Sub(npack1,neall,
@@ -268,12 +290,15 @@ c        write(*,*) "Enew:",Enew
          if ( (dabs(deltae).le.(1.0d-2)).and.
      >        (tmin.gt.deltat_min)) then
 
+!$OMP MASTER
            if (sum0.gt.1.0d-9) then
 c              scale = sum3/sum0
               scale = sum1/sum0
            else
               scale = 0.0d0
            end if
+!$OMP END MASTER
+!$OMP BARRIER
 
 c           call Grsm_gg_dScale(npack1,neall,scale,
 c     >                         dcpl_mb(H0(1)),
@@ -315,20 +340,27 @@ c     >                       dcpl_mb(H0(1)))
       end if
 
 c      Eold = psi_geodesic_energy(0.0d0)
-      Enew = linesearch(0.0d0,E0,dE0,deltat,
+      tmin0   = tmin
+      deltae0 = deltae
+      Enew0 = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
-     >                        tole,tmin,deltae,1)
-
+     >                        tole,tmin0,deltae0,1)
+!$OMP MASTER
+         tmin = tmin0
+         deltae = deltae0
+         Enew = Enew0
+!$OMP END MASTER
+!$OMP BARRIER
 c     Enew = linesearch(0.0d0,E0,dE0,deltat,
 c    >                        psi_geodesic_energy,
 c    >                        psi_geodesic_denergy,
 c    >                        0.5d0,tmin,deltae,2)
-
-
       call psi_geodesic_final(tmin)
-      deltac = rho_error()
-
+      deltac0 = rho_error()
+!$OMP MASTER
+         deltac = deltac0
+!$OMP END MASTER
 
  30   call psi_2to1()
       call psi_1toelectron() 
@@ -338,14 +370,49 @@ c     call dng_2to1()
 c     call psi_check()
       !write(*,*) "Elast=",Enew
 
-      eion = 0.0d0
-      if (control_version().eq.3) eion = ewald_e()
-      if (control_version().eq.4) eion = ion_ion_e()
+      Enew0 = 0.0d0
+      if (control_version().eq.3) Enew0 = ewald_e()
+      if (control_version().eq.4) Enew0 = ion_ion_e()
+!OMP MASTER
+      eion = Enew0
+!OMP END MASTER
 
-      eorbit   = psi_1eorbit()
-      ehartree = dng_1ehartree()
-      exc      = rho_1exc()
-      pxc      = rho_1pxc()
+      Enew0    = psi_1eorbit()
+!OMP MASTER
+      eorbit   = Enew0
+!OMP END MASTER
+
+      Enew0    = dng_1ehartree()
+!OMP MASTER
+      ehartree = Enew0
+!OMP END MASTER
+
+      Enew0    = rho_1exc()
+!OMP MASTER
+      exc      = Enew0
+!OMP END MASTER
+
+      Enew0    = rho_1pxc()
+!OMP MASTER
+      pxc      = Enew0
+!OMP END MASTER
+
+      Enew0 = psi_1ke()
+!$OMP MASTER
+      E(6)  = Enew0
+!$OMP END MASTER
+
+      Enew0 = psi_1vl()
+!$OMP MASTER
+      E(7) = Enew0
+!$OMP END MASTER
+
+      Enew0 = psi_1vnl()
+!$OMP MASTER
+      E(8) = Enew0
+!$OMP END MASTER
+
+!$OMP END PARALLEL
 
 *     **** Metadynamics GGA Tau potential term ****
       if (nwpw_meta_gga_on()) then
@@ -357,9 +424,9 @@ c     call psi_check()
       E(3)  = ehartree
       E(4)  = exc
       E(5)  = eion
-      E(6)  = psi_1ke()
-      E(7)  = psi_1vl()
-      E(8)  = psi_1vnl()
+      !E(6)  = psi_1ke()
+      !E(7)  = psi_1vl()
+      !E(8)  = psi_1vnl()
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
 
