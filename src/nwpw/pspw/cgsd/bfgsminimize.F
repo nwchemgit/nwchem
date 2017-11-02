@@ -156,6 +156,7 @@ c     dte = 1.0d0
      &       MA_ERR)
       !call dcopy(2*npack1*neall,0.0d0,0,dcpl_mb(G0(1)),1)
 
+
 !$OMP PARALLEL private(it,deltat,Enew0,tmin0,deltae0,deltac0)
       call Parallel_shared_vector_zero(.true.,2*npack1*neall,
      >                                 dcpl_mb(G0(1)))
