@@ -186,7 +186,8 @@ c
         if (any_spherical) then
           call intd_2ec2s(eri,mynint,scr,lscr,
      &        Lp,0,Lc,Ld,p_gen,1,c_gen,d_gen,
-     &        bas_spherical(bra),bas_spherical(ket),idatom)
+     &        bas_spherical(bra),bas_spherical(ket),idatom,
+     F        .false.)
         endif
       else
         write(luout,*)'intpd_2e3c: could not do nw integrals'

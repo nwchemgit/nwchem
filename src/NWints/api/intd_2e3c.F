@@ -213,7 +213,8 @@ c
       if (any_spherical) then
         call intd_2ec2s(eri,nint,scr,lscr,
      &      itype,0,jtype,ktype,igen,1,jgen,kgen,
-     &      bas_spherical(bra),bas_spherical(ket),idatom)
+     &      bas_spherical(bra),bas_spherical(ket),idatom,
+     F        .false.)
       endif
 c
       end

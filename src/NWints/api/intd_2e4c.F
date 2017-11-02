@@ -357,7 +357,8 @@ c
         call intd_sum(eri,nint_ck,idatom,iatom,jatom,katom,latom)
         call intd_2ec2s(eri,nint_ck,scr,lscr,
      &      itype,jtype,ktype,ltype,igen,jgen,kgen,lgen,
-     &      bas_spherical(bra),bas_spherical(ket),idatom)
+     &      bas_spherical(bra),bas_spherical(ket),idatom,
+     T       .false.)
 c
       else if (status_sim) then
 #ifdef SIMINT_GRADIENT
@@ -368,15 +369,14 @@ c
 c
         if(nint_ck.ne.0) then
            nint_ck=        
-     i          int_nbf_x(itype)*
-     j          int_nbf_x(jtype)*
-     k          int_nbf_x(ktype)*
-     l          int_nbf_x(ltype)
+     i          int_nbf_x(itype)*int_nbf_x(jtype)*
+     k          int_nbf_x(ktype)*int_nbf_x(ltype)
 
-c        call intd_sum_sim(eri,nint_ck,idatom,iatom,jatom,katom,latom)
-           call intd_2ec2s_sim(eri,nint_ck,scr,lscr,
-     &      itype,jtype,ktype,ltype,igen,jgen,kgen,lgen,
-     &      bas_spherical(bra),bas_spherical(ket))
+           call intd_sum_sim(eri,nint_ck,idatom,iatom,jatom,katom,latom)
+           call intd_2ec2s(eri,nint_ck,scr,lscr,
+     &          itype,jtype,ktype,ltype,igen,jgen,kgen,lgen,
+     &          bas_spherical(bra),bas_spherical(ket),idatom,
+     T          .true.)
         endif
 #else
          call errquit(' simint 2e4c derivatives not ready yet',0,0)
@@ -495,7 +495,7 @@ C> Cartesian to spherical harmonic basis functions
 C>
       subroutine intd_2ec2s(eri,nint_ck,scr,lscr,
      &    it,jt,kt,lt,igin,jgin,kgin,lgin,
-     &    bra_sph,ket_sph,idatom)
+     &    bra_sph,ket_sph,idatom,ltransp)
       implicit none
 #include "nwc_const.fh"
 #include "errquit.fh"
@@ -515,14 +515,10 @@ c::local
       integer i_nbf,j_nbf,k_nbf,l_nbf
       integer i_nbf_s,j_nbf_s,k_nbf_s,l_nbf_s
       integer zatom
-      integer zyx
-      logical oprint
+      integer zyx, lda, ldb
+      logical oprint,ltransp
 c
       oprint=.false.
-c      oprint=.true.
-           if(it.eq.2.and.jt.eq.2.
-     A and.lt.and.kt.eq.2)  oprint=.true.
-           if(oprint) write(6,'()') it,jt,kt,lt
 c
       ig = igin
       jg = jgin
@@ -546,13 +542,22 @@ C ?
         if (nint_ck.ne.nint_x) call errquit
      &      ('intd_2ec2s: nint_ck.ne.nint_x diff=',(nint_ck-nint_x),
      &       INT_ERR)
+c
+c     transpose integrals  X(12,nint_x) --> Y(nint_x,12)
+c
+        if(ltransp) then
+           lda=12
+           ldb=nint_x
+           if(lscr.lt.nint_x) call errquit(' lscr small ',0,0)
+           call dcopy((nint_x*lda),eri,1,scr,1)
+           call trspmo(scr,lda,  eri,ldb)
+        endif
         if(bra_sph) then
           i_nbf_s = int_nbf_s(It)
           j_nbf_s = int_nbf_s(Jt)
           do zatom = 1,4
             if (idatom(zatom).gt.0) then
               do zyx = 1,3
-                 write(6,'(a,i2,a,i2)') ' zatom ',zatom,' zyx ',zyx
                 call spcart_bra2etran(eri(1,zyx,zatom),scr,
      &              j_nbf,i_nbf,j_nbf_s,i_nbf_s,
      &              Jt, It, jg, ig,
@@ -572,7 +577,6 @@ C ?
           do zatom = 1,4
             if (idatom(zatom).gt.0) then
               do zyx = 1,3
-                 write(6,'(a,i2,a,i2)') ' zatom ',zatom,' zyx ',zyx
                 call spcart_ket2etran(eri(1,zyx,zatom),scr,
      &              l_nbf,k_nbf,l_nbf_s,k_nbf_s,
      &              Lt, Kt, lg, kg,
@@ -587,6 +591,14 @@ C ?
           l_nbf = l_nbf_s
         endif
         nint_s = i_nbf*j_nbf*k_nbf*l_nbf
+        if(ltransp) then
+c
+c     transpose back integrals  X(12,nint_x) --> Y(nint_x,12)
+c
+           call dcopy((nint_x*lda),eri,1,scr,1)
+           call trspmo(scr,ldb,  eri,lda)
+           return
+        endif
         if (nint_s.gt.nint_x) then
           call errquit
      &      ('intd_2ec2s: nint_s >.nint_x diff=',(nint_s-nint_x),
@@ -594,106 +606,8 @@ C ?
         elseif (nint_s.eq.nint_x) then
           return
         else
-          call int_c2s_mv
-     &        (eri,nint_x,nint_s,(3*4),scr,lscr,'intd_2e4c')
-        endif
-      endif
-      end
-      subroutine intd_2ec2s_sim(eri,nint_ck,scr,lscr,
-     &    it,jt,kt,lt,igin,jgin,kgin,lgin,
-     &    bra_sph,ket_sph)
-      implicit none
-#include "nwc_const.fh"
-#include "errquit.fh"
-#include "int_nbf.fh"
-c::passed
-      integer nint_ck
-      integer lscr
-!on entry/exit      double precision eri(3,4,nint_ck)
-      double precision eri(nint_ck,*)
-      double precision scr(lscr)
-      integer it,jt,kt,lt
-      integer igin,jgin,kgin,lgin
-      logical bra_sph, ket_sph
-c::local      
-      integer ig,jg,kg,lg
-      integer nint_x, nint_s
-      integer i_nbf,j_nbf,k_nbf,l_nbf
-      integer i_nbf_s,j_nbf_s,k_nbf_s,l_nbf_s
-      integer zatom
-      integer xyz,lda,ldb
-      logical oprint
-c
-      oprint=.false.
-c      oprint=.true.
-cdbg      if(it.eq.2.and.jt.eq.2.
-cdbg     A and.lt.and.kt.eq.2)  oprint=.true.
-      ig = igin
-      jg = jgin
-      kg = kgin
-      lg = lgin
-c ... reset general contractions for sp shells to 1 since they are handled
-c     as a block of 4.
-      if (it.eq.-1) ig = 1
-      if (jt.eq.-1) jg = 1
-      if (kt.eq.-1) kg = 1
-      if (lt.eq.-1) lg = 1
-      if (bra_sph.or.ket_sph) then
-        i_nbf = int_nbf_x(It)
-        j_nbf = int_nbf_x(Jt)
-        k_nbf = int_nbf_x(Kt)
-        l_nbf = int_nbf_x(Lt)
-        nint_x = i_nbf*j_nbf*k_nbf*l_nbf
-        if (nint_ck.ne.nint_x) call errquit
-     &      ('intd_2ec2s_sim: nint_ck.ne.nint_x diff=',(nint_ck-nint_x),
-     &       INT_ERR)
-
-c
-c     transpose integrals  X(12,nint_x) --> Y(nint_x,12)
-c
-      lda=12
-      ldb=nint_x
-      if(lscr.lt.nint_x) call errquit(' lscr small ',0,0)
-      call dcopy((nint_x*lda),eri,1,scr,1)
-      call trspmo(scr,lda,  eri,ldb)
-
-        if(bra_sph) then
-          i_nbf_s = int_nbf_s(It)
-          j_nbf_s = int_nbf_s(Jt)
-          do xyz=1,lda
-             call spcart_bra2etran(eri(1,xyz),scr,
-     &            j_nbf,i_nbf,j_nbf_s,i_nbf_s,
-     &            Jt, It, jg, ig,
-     &            (k_nbf*l_nbf),oprint)
-          enddo
-          i_nbf = i_nbf_s
-          j_nbf = j_nbf_s
-        endif
-        if(ket_sph) then
-          k_nbf_s = int_nbf_s(Kt)
-          l_nbf_s = int_nbf_s(Lt)
-          do xyz=1,lda
-             call spcart_ket2etran(eri(1,xyz),scr,
-     &            l_nbf,k_nbf,l_nbf_s,k_nbf_s,
-     &            Lt, Kt, lg, kg,
-     &            (i_nbf*j_nbf),oprint)
-          enddo
-          k_nbf = k_nbf_s
-          l_nbf = l_nbf_s
-        endif
-c
-c     transpose back integrals  X(12,nint_x) --> Y(nint_x,12)
-c
-      lda=12
-      ldb=nint_x
-      if(lscr.lt.nint_x) call errquit(' lscr small ',0,0)
-      call dcopy((nint_x*lda),eri,1,scr,1)
-      call trspmo(scr,ldb,  eri,lda)
-        nint_s = i_nbf*j_nbf*k_nbf*l_nbf
-        if (nint_s.gt.nint_x) then
-          call errquit
-     &      ('intd_2ec2s: nint_s >.nint_x diff=',(nint_s-nint_x),
-     &       INT_ERR)
+           call int_c2s_mv
+     &          (eri,nint_x,nint_s,(3*4),scr,lscr,'intd_2e4c')
         endif
       endif
       end

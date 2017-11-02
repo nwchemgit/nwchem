@@ -183,7 +183,8 @@ c
         if (bas_spherical(ket).or.bas_spherical(bra)) then
           call intd_2ec2s(eri,mynint,scr,lscr,
      &        La,Lb,Lq,0,a_gen,b_gen,q_gen,1,
-     &        bas_spherical(bra),bas_spherical(ket),idatom)
+     &        bas_spherical(bra),bas_spherical(ket),idatom,
+     F        .false.)
         endif
 *
       else
