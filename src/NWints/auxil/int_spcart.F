@@ -1207,7 +1207,7 @@ c: local
       double precision bin1, bin2, bin3, bin4, bin5, bin6
       double precision sinm2, sinm1, sin0, sinp1, sinp2
 c::statement function ----- start
-      integer iic,iis,iil
+      integer iic,iis,iil,i1
       double precision Dtrans
       Dtrans(iic,iis,iil) =
      &    dbl_mb((int_mb(k_sp2c_lindx+iil))+
@@ -1252,15 +1252,21 @@ c  spint( 2) = cint(1)*dtrans(1,2,2) + cint(4)*dtrans(4,2,2)
       dt42  = dtrans(4, 2,2)
       do j=1,ndimb
         do g=1,ngls
-          do i=1,ndima
+#define CHUNK 4
+!DEC$ LOOP COUNT AVG=CHUNK
+          do i1=1,ndima,CHUNK
+          do i=i1,min(i1+CHUNK-1,ndima)
+#ifdef DEBUG
             if (print_info)
      &          write(6,*)' spcart_a_sd_b:j,g,i',j,g,i
+#endif
             bin1 = blockin(i,1,g,j)
             bin2 = blockin(i,2,g,j)
             bin3 = blockin(i,3,g,j)
             bin4 = blockin(i,4,g,j)
             bin5 = blockin(i,5,g,j)
             bin6 = blockin(i,6,g,j)
+#ifdef DEBUG
             if (print_info) then
               write(6,11111)' spcart_a_sd_b:cart ints 1 xx',bin1,j,g,i
               write(6,11111)' spcart_a_sd_b:cart ints 2 xy',bin2,j,g,i
@@ -1269,6 +1275,7 @@ c  spint( 2) = cint(1)*dtrans(1,2,2) + cint(4)*dtrans(4,2,2)
               write(6,11111)' spcart_a_sd_b:cart ints 5 yz',bin5,j,g,i
               write(6,11111)' spcart_a_sd_b:cart ints 6 zz',bin6,j,g,i
             endif
+#endif
             sinm2 = bin2*dt2m2
             sinm1 = bin5*dt5m1
             sin0  = bin1*dt10 +
@@ -1282,6 +1289,7 @@ c  spint( 2) = cint(1)*dtrans(1,2,2) + cint(4)*dtrans(4,2,2)
             blockout(i, 0,g,j) = sin0
             blockout(i, 1,g,j) = sinp1
             blockout(i, 2,g,j) = sinp2
+#ifdef DEBUG
             if (print_info) then
               write(6,11111)' spcart_a_sd_b:sph ints -2',sinm2,j,g,i
               write(6,11111)' spcart_a_sd_b:sph ints -1',sinm1,j,g,i
@@ -1289,6 +1297,8 @@ c  spint( 2) = cint(1)*dtrans(1,2,2) + cint(4)*dtrans(4,2,2)
               write(6,11111)' spcart_a_sd_b:sph ints +1',sinp1,j,g,i
               write(6,11111)' spcart_a_sd_b:sph ints +2',sinp2,j,g,i
             endif
+#endif
+          enddo
           enddo
         enddo
       enddo
@@ -1325,7 +1335,7 @@ c: local
       double precision bin1, bin2, bin3, bin4, bin5, bin6 
       double precision bin7, bin8, bin9, bin10
 c::statement function ----- start
-      integer iic,iis,iil
+      integer iic,iis,iil,i1
       double precision Dtrans
       Dtrans(iic,iis,iil) =
      &    dbl_mb((int_mb(k_sp2c_lindx+iil))+
@@ -1372,7 +1382,10 @@ c
       dt4_3  = dtrans(4,3,3)
 c
       do g=1,ngls
-        do i=1,ndima
+#define CHUNK 4
+!DEC$ LOOP COUNT AVG=CHUNK
+          do i1=1,ndima,CHUNK
+          do i=i1,min(i1+CHUNK-1,ndima)
           bin1 = blockin(i,1,g)
           bin2 = blockin(i,2,g)
           bin3 = blockin(i,3,g)
@@ -1390,6 +1403,7 @@ c
           blockout(i, 1,g) = bin1*dt1_1 + bin4*dt4_1 + bin6*dt6_1
           blockout(i, 2,g) = bin3*dt3_2 + bin8*dt8_2
           blockout(i, 3,g) = bin1*dt1_3 + bin4*dt4_3
+        enddo
         enddo
       enddo
       end
@@ -2718,12 +2732,14 @@ c
       logical problem_sp
       integer ngen_ij, sxi, sxj, ssi, ssj
 c
-*rak:      write(6,*)' bra2etran '
-*rak:      write(6,*)'bra2: nbf_xj, nbf_xi :',nbf_xj, nbf_xi
-*rak:      write(6,*)'bra2: nbf_sj, nbf_si :',nbf_sj, nbf_si
-*rak:      write(6,*)'bra2: type_j, type_i :',type_j, type_i
-*rak:      write(6,*)'bra2: ngen_j, ngen_i :',ngen_j, ngen_i
-*rak:      write(6,*)'bra2: ndim_ket       :',ndim_ket
+      if(print) then
+         write(6,*)' bra2etran '
+         write(6,*)'bra2: nbf_xj, nbf_xi :',nbf_xj, nbf_xi
+         write(6,*)'bra2: nbf_sj, nbf_si :',nbf_sj, nbf_si
+         write(6,*)'bra2: type_j, type_i :',type_j, type_i
+         write(6,*)'bra2: ngen_j, ngen_i :',ngen_j, ngen_i
+         write(6,*)'bra2: ndim_ket       :',ndim_ket
+      endif
 c... more error checking
       problem_sp = (type_j.eq.-1).and.(ngen_j.gt.1)
       problem_sp = problem_sp.or.((type_i.eq.-1).and.(ngen_i.gt.1))
@@ -2880,12 +2896,14 @@ c
       logical problem_sp
       integer ngen_kl, sxl, sxk, ssl, ssk
 c
-*rak:      write(6,*)' ket2etran '
-*rak:      write(6,*)'ket2: nbf_xl, nbf_xk :',nbf_xl, nbf_xk
-*rak:      write(6,*)'ket2: nbf_sl, nbf_sk :',nbf_sl, nbf_sk
-*rak:      write(6,*)'ket2: type_l, type_k :',type_l, type_k
-*rak:      write(6,*)'ket2: ngen_l, ngen_k :',ngen_l, ngen_k
-*rak:      write(6,*)'ket2: ndim_bra       :',ndim_bra
+      if(print) then
+         write(6,*)' ket2etran '
+         write(6,*)'ket2: nbf_xl, nbf_xk :',nbf_xl, nbf_xk
+         write(6,*)'ket2: nbf_sl, nbf_sk :',nbf_sl, nbf_sk
+         write(6,*)'ket2: type_l, type_k :',type_l, type_k
+         write(6,*)'ket2: ngen_l, ngen_k :',ngen_l, ngen_k
+         write(6,*)'ket2: ndim_bra       :',ndim_bra
+      endif
 c... more error checking
       problem_sp = (type_l.eq.-1).and.(ngen_l.gt.1)
       problem_sp = problem_sp.or.((type_k.eq.-1).and.(ngen_k.gt.1))
