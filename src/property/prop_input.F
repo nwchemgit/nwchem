@@ -540,6 +540,13 @@ c         endif
       if (.not. rtdb_put(rtdb, 'molden:do_norm_nwchem', mt_log, 1,
      $                               .true.          ))
      $     call errquit('prop_input: rtdb_put failed', 2, RTDB_ERR)
+       elseif (norm_style(1:inp_strlen(norm_style)).eq.'none') then
+      if (.not. rtdb_put(rtdb, 'molden:do_norm_nwchem', mt_log, 1,
+     $                               .false.          ))
+     $     call errquit('prop_input: rtdb_put failed', 2, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'molden:do_norm_janpa', mt_log, 1,
+     $                               .false.          ))
+     $     call errquit('prop_input: rtdb_put failed', 1, RTDB_ERR)
        else
           call errquit('prop_input: wrong molden_norm value',2,RTDB_ERR)
        endif
