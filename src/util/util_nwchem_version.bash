@@ -35,8 +35,8 @@ if [ -f "${my_svnversion}" ] ; then
   # svnversion exists, but does .svn?
   if [ -d ../../.svn ] ; then
     # .svn exists too
-    revision=`${my_svnversion} info ../.. | grep Revision:`
-    revision=`echo ${revision} | sed 's/Revision: //'`
+    revision=`${my_svnversion} info ../.. | grep Last\ Changed\ Rev:`
+    revision=`echo ${revision} | sed 's/Last\ Changed\ Rev: //'`
     echo "      subroutine util_nwchem_version(nwrev)" > util_nwchem_version.F
     echo "      implicit none" >> util_nwchem_version.F
     echo "      character*(*) nwrev" >> util_nwchem_version.F
