@@ -91,6 +91,11 @@ c::local
       integer bra, ket, ab_geom, cd_geom
       integer inp, igen, iexp, icf, itype, iatom
       integer jnp, jgen, jexp, jcf, jtype, jatom
+      logical cando_nw
+      logical cando_sim
+      external cando_nw
+      external cando_sim
+      logical  status_nw,status_sim
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
@@ -146,8 +151,12 @@ c... new logic
         call ifill(2,-1,idatom2,1)
         return
       endif
+      status_nw  =
+     &    cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,0) 
+      status_sim = cando_sim(brain,ish,0).and.cando_sim(ketin,jsh,0)
+
 c
-c
+      if(status_nw) then
       call hf2d(
      &       coords(1,iatom,ab_geom),dbl_mb(mb_exndcf(iexp,bra)),
      &       dbl_mb(mb_exndcf(icf,bra)),inp,igen,itype,iatom,
@@ -163,6 +172,36 @@ c
 c
      &       eri,nint,.false.,.false.,.false.,.false.,
      &       scr,lscr)
+      elseif(status_sim) then
+#ifdef SIMINT_GRADIENT
+        call nwcsim_hf2d_2c(
+     &        bra,ish,
+     &        ket,jsh,
+     &        nint, eri, leri, scr, lscr)
+c
+        if(nint.ne.0) then
+           nint= int_nbf_x(itype)*int_nbf_x(jtype)
+           if(lscr.lt.nint) call errquit(' lscr small ',0,0)
+           call dcopy((nint*12),eri,1,scr,1)
+           call trspmo_block(scr,12,  eri,nint)
+           any_spherical=.false.
+c     skip for sp
+           if((bas_spherical(bra).or.bas_spherical(ket)).and.
+     A      (itype.gt.1.or.jtype.gt.1))then
+           any_spherical=.true.
+           endif
+        endif
+#else
+         call errquit(' simint 2e3c derivatives not ready yet',0,0)
+#endif
+      else
+        write(luout,*)'intd_2e2c: could not use either simint or nwchem'
+        write(luout,*)'           integral derivatives'
+        write(luout,*)' Please notify nwchem-support@emsl.pnl.gov with'
+        write(luout,*)'        the input deck and output available'
+        call errquit('intd_2e2c: fatal error',911, INT_ERR)
+      endif
+       
 c
       call intd_sum2c(eri,nint,idatom,iatom,jatom)
       idatom2(1) = idatom(1)

@@ -130,7 +130,7 @@ c      use iso_c_binding
 #define DEBUG_ 1
       integer i
        character*10 pname
-      pname="nwcsim_hf2_3c"
+      pname="nwcsim_hf2_2c"
 c
 c      match  ijkl shell to simint shell
 
@@ -139,7 +139,7 @@ c
       call simint_initialize_multi_shellpair(ket_msh)
 
       call simint_create_multi_shellpair(1,smnt_sh(i_sh,i_basis),
-     S     1,zero_sh(j_sh,i_basis), bra_msh, 0)
+     S     1,zero_sh(i_sh,i_basis), bra_msh, 0)
       call simint_create_multi_shellpair(1, smnt_sh(j_sh,j_basis), 1, 
      S     zero_sh(j_sh,j_basis), ket_msh, 0)
       ncomputed = simint_compute_eri(bra_msh, ket_msh, 0.0d0, 
@@ -168,7 +168,6 @@ c      use SimintFortran
       integer lscr
 #include "errquit.fh"
 #include "mafdecls.fh"
-#define DEBUG_2d 1
 c      use iso_c_binding
       type(c_simint_multi_shellpair), target :: bra_msh, ket_msh
       integer i
@@ -186,18 +185,94 @@ c
       call simint_create_multi_shellpair(1,smnt_sh(k_sh,kl_basis),
      S     1,smnt_sh(l_sh,kl_basis), ket_msh, 0)
 
-#ifdef DEBUG_2d
-c      write(6,*) ' eri deriv '
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 1b'
-#endif
       ncomputed = simint_compute_eri_deriv(1,bra_msh, ket_msh, 0d0, 
      C     scr, eri)
       call simint_free_multi_shellpair(bra_msh)
       call simint_free_multi_shellpair(ket_msh)
-#ifdef DEBUG_2d
-c      write(6,*) ' eri deriv '
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2b'
-#endif
+      if(ncomputed.gt.leri) call errquit(
+     P     pname//'ncomputed gt leri ',ncomputed*10000+leri, BASIS_ERR)
+ 
+      return
+      end
+      subroutine nwcsim_hf2d_2c(i_basis,i_sh,
+     J     j_basis,j_sh,
+     O     ncomputed, eri,leri,scr,lscr)
+c      use SimintFortran
+      use nwcsim_shell
+      implicit none
+      integer i_basis        ! basis for bra [in]
+      integer j_basis       ! basis for ket [in]
+      integer i_sh,j_sh
+      integer ncomputed
+      double precision eri(*)
+      integer leri
+      double precision scr(*)
+      integer lscr
+#include "errquit.fh"
+#include "mafdecls.fh"
+c      use iso_c_binding
+      type(c_simint_multi_shellpair), target :: bra_msh, ket_msh
+      integer i
+       character*10 pname
+      pname="nwcsim_hf2d_2c"
+c
+c      match  ijkl shell to simint shell
+
+c
+      call simint_initialize_multi_shellpair(bra_msh)
+      call simint_initialize_multi_shellpair(ket_msh)
+
+      call simint_create_multi_shellpair(1, smnt_sh(i_sh,i_basis), 1, 
+     S     zero_sh(i_sh,i_basis), bra_msh, 0)
+      call simint_create_multi_shellpair(1,smnt_sh(j_sh,j_basis),
+     S     1,zero_sh(j_sh,j_basis), ket_msh, 0)
+
+      ncomputed = simint_compute_eri_deriv(1,bra_msh, ket_msh, 0d0, 
+     C     scr, eri)
+      call simint_free_multi_shellpair(bra_msh)
+      call simint_free_multi_shellpair(ket_msh)
+      if(ncomputed.gt.leri) call errquit(
+     P     pname//'ncomputed gt leri ',ncomputed*10000+leri, BASIS_ERR)
+ 
+      return
+      end
+      subroutine nwcsim_hf2d_3c(i_basis,i_sh,
+     J     jk_basis,j_sh,k_sh,
+     O     ncomputed, eri,leri,scr,lscr)
+c      use SimintFortran
+      use nwcsim_shell
+      implicit none
+      integer i_basis        ! basis for bra [in]
+      integer jk_basis       ! basis for ket [in]
+      integer i_sh,j_sh,k_sh
+      integer ncomputed
+      double precision eri(*)
+      integer leri
+      double precision scr(*)
+      integer lscr
+#include "errquit.fh"
+#include "mafdecls.fh"
+c      use iso_c_binding
+      type(c_simint_multi_shellpair), target :: bra_msh, ket_msh
+      integer i
+       character*10 pname
+      pname="nwcsim_hf2d_3c"
+c
+c      match  ijkl shell to simint shell
+
+c
+      call simint_initialize_multi_shellpair(bra_msh)
+      call simint_initialize_multi_shellpair(ket_msh)
+
+      call simint_create_multi_shellpair(1, smnt_sh(i_sh,i_basis), 1, 
+     S     zero_sh(i_sh,i_basis), bra_msh, 0)
+      call simint_create_multi_shellpair(1,smnt_sh(j_sh,jk_basis),
+     S     1,smnt_sh(k_sh,jk_basis), ket_msh, 0)
+
+      ncomputed = simint_compute_eri_deriv(1,bra_msh, ket_msh, 0d0, 
+     C     scr, eri)
+      call simint_free_multi_shellpair(bra_msh)
+      call simint_free_multi_shellpair(ket_msh)
       if(ncomputed.gt.leri) call errquit(
      P     pname//'ncomputed gt leri ',ncomputed*10000+leri, BASIS_ERR)
  
@@ -230,6 +305,22 @@ c      write(6,*) ' eri deriv '
       return
       end
       subroutine nwcsim_hf2d()
+      implicit none
+#include "errquit.fh"
+      call errquit(
+     $   'simint is not in this build of NWChem',
+     $    0, CAPMIS_ERR)
+      return
+      end
+      subroutine nwcsim_hf2d_3c()
+      implicit none
+#include "errquit.fh"
+      call errquit(
+     $   'simint is not in this build of NWChem',
+     $    0, CAPMIS_ERR)
+      return
+      end
+      subroutine nwcsim_hf2d_2c()
       implicit none
 #include "errquit.fh"
       call errquit(

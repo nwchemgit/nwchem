@@ -22,7 +22,7 @@ c $Id$
 c
 c basic api routine to generate 4 center two electron integral derivatives 
 c 
-#include "stdio.fh"
+#include "apiP.fh"
 #include "errquit.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
@@ -30,10 +30,11 @@ c
 #include "basdeclsP.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
-#include "apiP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
+#include "stdio.fh"
 c
 c::external subroutines used
 c errquit
@@ -111,12 +112,15 @@ c::local
       integer inp, igen, iexp, icf, itype, iatom
       integer jnp, jgen, jexp, jcf, jtype, jatom
       integer knp, kgen, kexp, kcf, ktype, katom
+      integer nint_ck
       logical status_nw, status_txs, status_sim
+      logical ltransp
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
 c
       nint = int_nint_cart(brain,ish,ketin,jsh,ketin,ksh,ketin,0)
+      ltransp=.false.
       if (nint*3*4.gt.leri) then
         write(luout,*) 'nint*3*4 = ',nint*3*4
         write(luout,*) 'leri     = ',leri
@@ -200,8 +204,32 @@ c
      &       scr,lscr)
 c
       call intd_sum(eri,nint,idatom,iatom,iatom,jatom,katom)
+           ltransp=.false.
       elseif(status_sim) then
-         call errquit(' simnint 2e3c derivatives not ready yet',0,0)
+#ifdef SIMINT_GRADIENT
+        call nwcsim_hf2d_3c(
+     &        bra,ish,
+     &        ket,jsh,ksh,
+     &        nint_ck, eri, leri, scr, lscr)
+c
+        if(nint_ck.ne.0) then
+           nint_ck= int_nbf_x(itype)*int_nbf_x(jtype)*
+     k          int_nbf_x(ktype) 
+           if(lscr.lt.nint_ck) call errquit(' lscr small ',0,0)
+           call dcopy((nint_ck*12),eri,1,scr,1)
+           call trspmo_block(scr,12,  eri,nint_ck)
+           call intd_sum(eri,nint_ck,idatom,iatom,iatom,jatom,katom)
+           any_spherical=.false.
+c     skip for sp
+           if((bas_spherical(bra).or.bas_spherical(ket)).and.
+     A      (itype.gt.1.or.jtype.gt.1.or.ktype.gt.1))then
+           any_spherical=.true.
+           ltransp=.false.
+           endif
+        endif
+#else
+         call errquit(' simint 2e3c derivatives not ready yet',0,0)
+#endif
       else
         write(luout,*)'intd_2e3c: could not use either texas or nwchem'
         write(luout,*)'           integral derivatives'
@@ -214,7 +242,7 @@ c
         call intd_2ec2s(eri,nint,scr,lscr,
      &      itype,0,jtype,ktype,igen,1,jgen,kgen,
      &      bas_spherical(bra),bas_spherical(ket),idatom,
-     F        .false.)
+     F        ltransp)
       endif
 c
       end
