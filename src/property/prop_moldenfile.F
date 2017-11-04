@@ -7,6 +7,7 @@
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "inp.fh"
+#include "sym.fh"
 #include "util.fh"
 c#include "geomP.fh"
       integer rtdb ! [in]
@@ -93,9 +94,9 @@ c> read  occupation numbers, evals and eigenvecs
      &   call errquit('dft_scf: cannot allocate irreps',0, MA_ERR)
       call ifill(nset*nbf,1,int_mb(k_ir),1)
 c     get irreps
-      call scf_movecs_sym_adapt(basis, g_movecs, .false.,
-     $     0, 'junk', .true., int_mb(k_ir))
-
+      if(sym_number_ops(geom) .gt. 0)
+     S     call scf_movecs_sym_adapt(basis, g_movecs, .false.,
+     $     nmo, 'junk', .true., int_mb(k_ir))
       if (.not. rtdb_cget(rtdb, theory(1:inp_strlen(theory))//
      A        ':scftype', 1, scftype)) then
 c     wild guess here to fix mp2
