@@ -157,7 +157,9 @@ endif
 
 ifdef TCE_CUDA
       LIB_DEFINES += -DTCE_CUDA
-      SUBDIRS += ttlg
+      ifdef USE_TTLG
+        SUBDIRS += ttlg
+      endif
 endif
 ifdef USE_PSTAT
       LIB_DEFINES += -DUSE_PSTAT
