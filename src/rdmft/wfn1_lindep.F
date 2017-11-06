@@ -81,7 +81,7 @@ c
         write(luout,*)
       endif
 c
-c     compute S^{-1/2} matrix
+c     compute S^{1/2} matrix
 c
       call ga_distribution(g_s12,iproc,islo,ishi,jslo,jshi)
       allocate(vi(islo:ishi,nbf))
@@ -94,14 +94,14 @@ c
         do jj = jslo, jshi
           do ii = islo, ishi
             s12(ii,jj) = s12(ii,jj)
-     &                 + vi(ii,kk)*vj(jj,kk)/sqrt(eigval(kk))
+     &                 + vi(ii,kk)*vj(jj,kk)*sqrt(eigval(kk))
           enddo ! ii
         enddo ! jj
       enddo ! kk
       call ga_put(g_s12,islo,ishi,jslo,jshi,s12,ishi-islo+1)
       deallocate(vi,vj,s12)
 c
-c     scale eigenvectors to obtained S^{-1/2}
+c     scale eigenvectors to obtain S^{-1/2}
 c
       call ga_distribution(g_v,iproc,ilo,ihi,jlo,jhi)
       call ga_access(g_v,ilo,ihi,jlo,jhi,k_v,ldv)
