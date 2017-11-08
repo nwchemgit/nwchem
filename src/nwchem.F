@@ -4,7 +4,12 @@
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
+#ifdef USE_TCGMSG
 #include "tcgmsg.fh"
+#else
+      integer nodeid
+      external nodeid
+#endif
 #include "pstat.fh"
 #include "util.fh"
 #include "inp.fh"
@@ -28,7 +33,7 @@ c
 c  $Id$
 c
 c  ======================================================================================================
-C> \mainpage Northwest Computational Chemistry Package (NWChem) 6.6
+C> \mainpage Northwest Computational Chemistry Package (NWChem) 6.8
 C>
 C> NWChem is an open-source computational chemistry package distributed under the terms of
 C> the Educational Community License (ECL) 2.0
@@ -441,7 +446,7 @@ c
       write(LuOut,*)
       write(LuOut,*)
       call util_print_centered(LuOut,
-     $     'Northwest Computational Chemistry Package (NWChem) 6.6',
+     $     'Northwest Computational Chemistry Package (NWChem) 6.8',
      $     40, .true.)
       write(LuOut,*)
       write(LuOut,*)
@@ -536,7 +541,7 @@ C
 C  Print version information to ecce.out file
 C
       compiled(inp_strlen(compiled)+1:inp_strlen(compiled)+25) = 
-     $         ' Version 6.5'
+     $         ' Version 6.8'
       call ecce_print_version(compiled(1:inp_strlen(compiled)))
 C
       If ( Inp_StrLen(BatchID) .gt. 0) then
