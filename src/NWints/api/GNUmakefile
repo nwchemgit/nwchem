@@ -6,10 +6,16 @@ ifeq ($(USE_TEXAS),YEP)
 endif
 ifdef USE_SIMINT
       LIB_DEFINES += -DUSE_SIMINT
+
+      SIMINT_OSTEI_MAXDER=$(shell grep SIMINT_OSTEI_MAXDER $(SIMINT_HOME)/include/simint/ostei/ostei_config.h|head -1|cut -c 29)
+
+      SIMINT_MAXDER_GT_0 = $(shell [ $(SIMINT_OSTEI_MAXDER) -gt 0  ] && echo true)
+
+      ifeq ($(SIMINT_MAXDER_GT_0),true)
+           LIB_DEFINES +=  -DSIMINT_GRADIENT
+      endif
 endif
-ifdef SIMINT_GRADIENT
-      LIB_DEFINES +=  -DSIMINT_GRADIENT
-endif
+
 
     OBJ = cando_sp.o     exact_mem.o    exactd_mem.o \
           int_1cg.o      int_1e3ov.o    int_1estv.o \
@@ -42,7 +48,7 @@ endif
           int_1eelec.o \
           int_giaoh01.o  int_giaoh11.o  int_giaol10.o int_giaos10.o \
           int_giaotv10.o int_giaobq10.o int_giao_2e.o  int_pso.o	\
-  	  int_dso.o intd_1epot.o \
+          int_dso.o intd_1epot.o \
           intd_1epot_cosmo.o \
           int_veloc.o    int_angmom.o   int_giaos100.o
 

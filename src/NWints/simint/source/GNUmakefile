@@ -7,11 +7,16 @@ ifdef USE_SIMINT
       LIB_DEFINES += -I$(SIMINT_HOME)/include/simint -DUSE_SIMINT
       LIB_DEFINES += -I../module
       OBJ_OPTIMIZE += nwcsimint_test.o
+
+      SIMINT_OSTEI_MAXDER=$(shell grep SIMINT_OSTEI_MAXDER $(SIMINT_HOME)/include/simint/ostei/ostei_config.h|head -1|cut -c 29)
+
+      SIMINT_MAXDER_GT_0 = $(shell [ $(SIMINT_OSTEI_MAXDER) -gt 0  ] && echo true)
+
+      ifeq ($(SIMINT_MAXDER_GT_0),true)
+           LIB_DEFINES +=  -DSIMINT_GRADIENT
+      endif
 endif
 
-ifdef SIMINT_GRADIENT
-      LIB_DEFINES +=  -DSIMINT_GRADIENT
-endif
 
         
        HEADERS = 
