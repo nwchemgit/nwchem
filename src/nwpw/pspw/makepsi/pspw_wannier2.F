@@ -307,9 +307,12 @@ c      character*255 full_filename,full_filename2
             xx = aa(1,1)*t1 + aa(1,2)*t2 + aa(1,3)*t3
             yy = aa(2,1)*t1 + aa(2,2)*t2 + aa(2,3)*t3
             zz = aa(3,1)*t1 + aa(3,2)*t2 + aa(3,3)*t3
-            dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+n-1))   = xx
-            dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+n-1)+1) = yy
-            dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+n-1)+2) = zz
+            !dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+n-1))   = xx
+            !dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+n-1)+1) = yy
+            !dbl_mb(Rwav(1)+3*((ms-1)*ne(1)+n-1)+2) = zz
+            dbl_mb(Rwav(1)+3*(n-1))   = xx
+            dbl_mb(Rwav(1)+3*(n-1)+1) = yy
+            dbl_mb(Rwav(1)+3*(n-1)+2) = zz
          end do
       end do
       call D1dB_Vector_SumAll(3*(ne(1)+ne(2)),dbl_mb(Rwav(1)))
