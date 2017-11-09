@@ -208,8 +208,9 @@ c
       c_cent  = (sf_ibs_cn2ce(ksh,ket))
       d_cent  = (sf_ibs_cn2ce(lsh,ket))
 c
+c     used ony for nw and sim
+      any_spherical = .false.
 c
-      any_spherical = bas_spherical(bra).or.bas_spherical(ket)
 c
 c... stat sp
       status_sp = cando_sp(brain,ish,jsh).and.cando_sp(ketin,ksh,lsh)
@@ -314,11 +315,12 @@ c............... gen labs .. more_integrals
            b_nbf = sf_ibs_cn2bfr(2,jsh,bra) - sf_ibs_cn2bfr(1,jsh,bra)+1
            c_nbf = sf_ibs_cn2bfr(2,ksh,ket) - sf_ibs_cn2bfr(1,ksh,ket)+1
            d_nbf = sf_ibs_cn2bfr(2,lsh,ket) - sf_ibs_cn2bfr(1,lsh,ket)+1
-           call dcopy(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, 0, eri, 1)
+           call ycopy(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, 0, eri, 1)
         endif
 
       elseif(status_nw) then
 c
+      any_spherical = bas_spherical(bra).or.bas_spherical(ket)
         ucont   = (sf_ibs_cn2ucn(ish,bra))
         La      = infbs_cont(CONT_TYPE ,ucont,bra)
         a_prim  = infbs_cont(CONT_NPRIM,ucont,bra)
@@ -386,6 +388,7 @@ c....................... canAB    canCD   canPQ   dryrun
      &        eri, leri, .false.,.false.,.false.,.false., scr, lscr)
         end if
       elseif(status_sim .and. .not.status_rel)  then
+      any_spherical = bas_spherical(bra).or.bas_spherical(ket)
 
         call nwcsim_hf2(
      &        bra,ish,jsh,
@@ -396,7 +399,7 @@ c....................... canAB    canCD   canPQ   dryrun
            b_nbf = sf_ibs_cn2bfr(2,jsh,bra) - sf_ibs_cn2bfr(1,jsh,bra)+1
            c_nbf = sf_ibs_cn2bfr(2,ksh,ket) - sf_ibs_cn2bfr(1,ksh,ket)+1
            d_nbf = sf_ibs_cn2bfr(2,lsh,ket) - sf_ibs_cn2bfr(1,lsh,ket)+1
-           call dcopy(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, 0, eri, 1)
+           call ycopy(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, 0, eri, 1)
         endif
 
       else
@@ -413,7 +416,7 @@ c
 c
 c eri has cartesian block of integrals (llo:lhi,klo:khi,jlo:jhi,ilo:ihi)
 c
-        if (any_spherical.and.(status_sim.or.status_nw))then
+        if (any_spherical)then
 c
 c ... reset general contractions for sp shells to 1 since they are handled
 c     as a block of 4.
