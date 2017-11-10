@@ -24,6 +24,8 @@ c
       integer l_buf, k_buf
       double precision tmp(2)
       integer nmixed 
+      integer i0,i1,j0,j1
+      integer i_min,i_max,len_i
 c
       if (.not. ma_push_get(mt_dbl, nclosed+nopen+nvir, 
      $     'scf_sym_screen', l_buf, k_buf)) 
@@ -34,11 +36,28 @@ c
 c
       maxelt = 0.0d0
       nmixed = 0
-      do i = 1+ga_nodeid(),nclosed+nopen,ga_nnodes()
+      call ga_distribution(g_v,
+     .     ga_nodeid(), i0, i1, j0, j1)
+c      do i = 1+ga_nodeid(),nclosed+nopen,ga_nnodes()
+      if (i0.gt.0 .and. i0.le.i1.and.j0.gt.0.and.j0.le.j1) then
+      do i = 1,nclosed+nopen
         if ((nclosed+nopen)*nvir .gt. 0) then
           ioff = 1+(i-1)*nvir + ivoff
-          call ga_get(g_v, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_buf), nvir)
-          do a=1,nvir
+          if(.not.(
+     A         (ioff+nvir-1.lt.i0).or.
+     B         (ioff.gt.i1))) then
+          i_min=max(i0,ioff)
+          i_max=min(i1,ioff+nvir-1)
+          len_i=i_max-i_min+1
+          if(len_i.lt.1) then
+             write(6,431) ioff,nvir,i0,i1,i_min,i_max
+ 431         format(' ioff=',i7,' nvir= ',i7,' i0= ',i7,' i1= ',i7,
+     M            ' i_min=',i7,' i_max= ',i7)
+             call errquit('0len_i neg ',len_i,0)
+          endif
+          call ga_get(g_v, i_min, i_max, 1, 1, dbl_mb(k_buf+i_min-ioff), 
+     C         len_i)
+          do a=i_min-ioff+1,i_max-ioff
             if (irs(i).ne.irs(a+nclosed+nopen)) then
                test = abs(dbl_mb(k_buf-1+a))
                maxelt = max(maxelt,test)
@@ -46,23 +65,47 @@ c
                if (test.gt.1d-6) nmixed = nmixed + 1
             endif
           enddo
-          call ga_put(g_v, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_buf), nvir)
-        endif
+          call ga_put(g_v, i_min, i_max, 1, 1, dbl_mb(k_buf+i_min-ioff),
+     C         len_i)
+        endif 
+        endif ! if nc+nop
 c
         if (i.le.nclosed .and. nopen*nclosed.gt.0) then
           ioff = 1+(nclosed+nopen)*nvir+(i-1)*nopen + ivoff
-          call ga_get(g_v, ioff, ioff+nopen-1, 1, 1, dbl_mb(k_buf), 1)
-          do a=1,nopen
-            if (irs(i).ne.irs(a+nclosed)) then
+          if(.not.(
+     A         (ioff+nopen-1.lt.i0).or.
+     B         (ioff.gt.i1))) then
+          i_min=max(i0,ioff)
+          i_max=min(i1,ioff+nopen-1)
+          len_i=i_max-i_min+1
+          if(len_i.lt.1) then
+             write(6,432) ioff,nopen,i0,i1,i_min,i_max
+ 432         format(' ioff=',i7,' nopen= ',i7,' i0= ',i7,' i1= ',i7,
+     M            ' i_min=',i7,' i_max= ',i7)
+             call errquit('1len_i neg ',len_i,0)
+          endif
+           if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2b'
+          call ga_get(g_v, i_min, i_max, 1, 1, dbl_mb(k_buf+i_min-ioff),
+     C         len_i)
+           if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2b'
+c          do a=1,nopen
+         do a=i_min-ioff+1,i_max-ioff
+             if (irs(i).ne.irs(a+nclosed)) then
                test = abs(dbl_mb(k_buf-1+a))
                maxelt = max(maxelt,test)
                dbl_mb(k_buf-1+a) = 0.0d0
                if (test.gt.1d-2) nmixed = nmixed + 1
             endif
           enddo
-          call ga_put(g_v, ioff, ioff+nopen-1, 1, 1, dbl_mb(k_buf), 1)
+           if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2b'
+          call ga_put(g_v, i_min, i_max, 1, 1, dbl_mb(k_buf+i_min-ioff),
+     C         len_i)
+           if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2b'
+c          call ga_put(g_v, ioff, ioff+nopen-1, 1, 1, dbl_mb(k_buf), 1)
         endif
-      enddo
+        endif
+      enddo ! do i=1,nc+no
+      endif
 c
       if (.not. ma_pop_stack(l_buf))
      $     call errquit('scf_sym_screen: ma?',-1, MA_ERR)
