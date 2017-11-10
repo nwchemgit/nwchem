@@ -130,7 +130,7 @@ c
             do i = ga_nodeid()+1, nopen, ga_nnodes()
                ioff = (nclosed+i-1)*nvir + 1
                call ga_get(g_x, ioff, ioff+nvir-1, ivec, ivec,
-     $              dbl_mb(k_x),1)
+     $              dbl_mb(k_x),nvir)
                do j=1,nvir
                   denominator = 2.d0*(fpv(j+vbase) - fpv(i+obase)) +
      $                 lshift
@@ -138,7 +138,7 @@ c
                   dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
                enddo
                call ga_put(g_x, ioff, ioff+nvir-1, ivec, ivec,
-     $              dbl_mb(k_x),1)
+     $              dbl_mb(k_x),nvir)
             enddo
          endif
 c     
@@ -148,7 +148,7 @@ c
             do i = ga_nodeid()+1, nclosed, ga_nnodes()
                ioff = (nclosed+nopen)*nvir + (i-1)*nopen + 1
                call ga_get(g_x, ioff, ioff+nopen-1, ivec, ivec,
-     $              dbl_mb(k_x),1)
+     $              dbl_mb(k_x),nopen)
                do j=1,nopen
                   denominator = 2.d0*(fcp(j+obase) - fcp(i+cbase)) +
      $                 lshift
@@ -156,7 +156,7 @@ c
                   dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
                enddo
                call ga_put(g_x, ioff, ioff+nopen-1, ivec, ivec,
-     $              dbl_mb(k_x),1)
+     $              dbl_mb(k_x),nopen)
             enddo
          endif
       enddo
