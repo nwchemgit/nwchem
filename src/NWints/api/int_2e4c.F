@@ -315,7 +315,7 @@ c............... gen labs .. more_integrals
            b_nbf = sf_ibs_cn2bfr(2,jsh,bra) - sf_ibs_cn2bfr(1,jsh,bra)+1
            c_nbf = sf_ibs_cn2bfr(2,ksh,ket) - sf_ibs_cn2bfr(1,ksh,ket)+1
            d_nbf = sf_ibs_cn2bfr(2,lsh,ket) - sf_ibs_cn2bfr(1,lsh,ket)+1
-           call ycopy(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, 0, eri, 1)
+           call dcopy(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, 0, eri, 1)
         endif
 
       elseif(status_nw) then
@@ -399,7 +399,7 @@ c....................... canAB    canCD   canPQ   dryrun
            b_nbf = sf_ibs_cn2bfr(2,jsh,bra) - sf_ibs_cn2bfr(1,jsh,bra)+1
            c_nbf = sf_ibs_cn2bfr(2,ksh,ket) - sf_ibs_cn2bfr(1,ksh,ket)+1
            d_nbf = sf_ibs_cn2bfr(2,lsh,ket) - sf_ibs_cn2bfr(1,lsh,ket)+1
-           call ycopy(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, 0, eri, 1)
+           call dcopy(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, 0, eri, 1)
         endif
 
       else
