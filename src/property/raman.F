@@ -619,6 +619,7 @@ c Note.- Modified from raman_save()
 #include "nwc_const.fh" 
 #include "inp.fh"
 #include "global.fh"
+#include "util.fh"
 
       integer i,j,n,ii ! counting indexes
       integer modenr
@@ -630,10 +631,12 @@ c Note.- Modified from raman_save()
       logical debug
       logical status,status1
       character*255 ramanpolfile
+      logical oprint
       logical ramanpol_write,ramanpol_read
       external ramanpol_write,ramanpol_read
-
+      
       debug      = (.false. .and. ga_nodeid().eq.0) ! produce debug output
+      oprint=util_print('raman_alpha', print_high)
       n=(ii-1)*3
       DO i=1,3
          n=n+1
@@ -660,6 +663,11 @@ c  -------------delete raman polarizability from rtdb --------------------------
           write(luout,*) 'alfaim'
           call output(alfaim,1,3,1,3,3,3,1)
       ENDIF !  for DEBUG
+      if(oprint) then
+         write(luout,4321) alfare
+ 4321     format('{{',2(f14.8,','),f14.8,'},{',2(f14.8,','),f14.8,'},{',
+     F        2(f14.8,','),f14.8,'}}')
+      endif
 
       return
       end
