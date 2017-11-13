@@ -35,8 +35,15 @@ fi
 my_gitversion=`which git`
 if [ $# -eq 0 ]
   then
+# if no arg supplied,
+# try to guess from tools/build
+    if [  -f $NWCHEM_TOP/src/tools/build/config.log ] ; then
+
+   ga_dir=`head  -7 ../tools/build/co*log|tail -1 |cut -d '/' -f2`
+   else
     echo "ga_dir argument not supplied, will write N/A revision"
-#ga_dir="ga-feature_mirror"
+   fi
+    echo $ga_dir
 else
     ga_dir="$1"
 fi
