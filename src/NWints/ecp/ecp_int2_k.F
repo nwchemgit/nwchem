@@ -13,32 +13,26 @@ C $Id: ecp_int2.F 19696 2010-10-29 16:53:42Z d3y133 $
 c     
       integer i,i_c,i_b,i_a
       double precision log_prefactor
+      double precision rz_b,r2z_b
       i = 1
+!DEC$ LOOP COUNT MAX=30, MIN=2
       do i_c = 0,n_co-1
+!DEC$ LOOP COUNT MAX=100, MIN=10
          do i_b = 1,n_prim_b
+            rz_b=R_bc*zeta_b(i_b)
+            r2z_b=rz_b*R_bc
+!DEC$ LOOP COUNT MAX=100, MIN=10
             do i_a = 1,n_prim_a
                gam(i) = 1d0/sqrt(zeta_c(i_z+i_c)+zeta_b(i_b)
      &              +zeta_a(i_a))
-               bet(i) = R_bc*zeta_b(i_b)*gam(i)
+               bet(i) = rz_b*gam(i)
                alp(i) = R_ac*zeta_a(i_a)*gam(i)
-               bi(i) = 1d0/(2d0*R_bc*zeta_b(i_b))
+               bi(i) = 0.5d0/rz_b
                ai(i) = 1d0/(2d0*R_ac*zeta_a(i_a))
-               log_prefactor = (alp(i)+bet(i))**2
+               pre(i) = exp(
+     E              (alp(i)+bet(i))**2
      &              -zeta_a(i_a)*R_ac**2
-     &              -zeta_b(i_b)*R_bc**2
-               pre(i) = exp(log_prefactor)
-#ifdef DEBUG
-               if (debug_arrays) then
-                  write (LuOut,'(3i5,1p3e20.10)') i_a,i_b,i_c,
-     &                 zeta_a(i_a),zeta_b(i_b),zeta_c(i_z+i_c)
-                  write (LuOut,'(10x,i5,1p3e20.10)') i,tmp(i_alp+i),
-     &                 tmp(i_bet+i),tmp(i_gam+i)
-                  write (LuOut,'(15x,1p2e20.10)') tmp(i_ai+i),
-     &                  tmp(i_bi+i)
-                  write (LuOut,'(15x,1p2e20.10)') log_prefactor,
-     &                 tmp(i_pre+i)
-               end if
-#endif
+     &              -r2z_b)
                i = i+1
             enddo
          enddo
