@@ -32,10 +32,10 @@ fi
 my_svnversion=`which svn`
 cd "$path"
 if [ -f "${my_svnversion}" ] ; then
-  # svnversion exists, but does .svn?
-  if [ -d ../../.svn ] ; then
-    # .svn exists too
-    revision=`${my_svnversion} info ../.. | grep Last\ Changed\ Rev:`
+  # svnversion exists, but is the code under svn?
+WCBRANCH=`svn info . 2> /dev/null | wc -l`
+if [ ${WCBRANCH} -ne 0 ]; then
+    revision=`${my_svnversion} info -r 'HEAD'| grep Last\ Changed\ Rev:`
     revision=`echo ${revision} | sed 's/Last\ Changed\ Rev: //'`
     echo "      subroutine util_nwchem_version(nwrev)" > util_nwchem_version.F
     echo "      implicit none" >> util_nwchem_version.F
