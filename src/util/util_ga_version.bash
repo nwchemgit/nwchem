@@ -32,35 +32,28 @@ else
    path="`which \"$0\"`"
    path="`dirname \"$path\"`"
 fi
-my_svnversion=`which svn`
-ga_dir="$1"
-cd "$path"
-if [ -f "${my_svnversion}" ] ; then
-  # svnversion exists, but does .svn?
-  if [ -d "../tools/${ga_dir}/.svn" ] ; then
-    # .svn exists too
-    revision=`${my_svnversion} info "../tools/${ga_dir}" | grep Revision:`
-    revision=`echo ${revision} | sed 's/Revision: //'`
+my_gitversion=`which git`
+if [ $# -eq 0 ]
+  then
+    echo "ga_dir argument not supplied, will write N/A revision"
+#ga_dir="ga-feature_mirror"
+else
+    ga_dir="$1"
+fi
+
+cd $NWCHEM_TOP/src/tools/${ga_dir}
+if [ -f "${my_gitversion}" ] ; then
+  # gitversion exists, but is the ga_dir under git?
+	revision="N/A"
+	GITBRANCH=`${my_gitversion} describe --tags 2> /dev/null| wc -l`
+	if [ ${GITBRANCH} -ne 0 ]; then
+	    # 
+	    revision=`${my_gitversion} describe --tags`
+	fi
+fi
+cd $NWCHEM_TOP/src/util
     echo "      subroutine util_ga_version(garev)" > util_ga_version.F
     echo "      implicit none" >> util_ga_version.F
     echo "      character*(*) garev" >> util_ga_version.F
     echo "      garev=\"${revision}\"" >> util_ga_version.F
     echo "      end" >> util_ga_version.F
-  else
-    if [ ! -f util_ga_version.F ] ; then
-      echo "      subroutine util_ga_version(garev)" > util_ga_version.F
-      echo "      implicit none" >> util_ga_version.F
-      echo "      character*(*) garev" >> util_ga_version.F
-      echo "      garev=\"N/A\"" >> util_ga_version.F
-      echo "      end" >> util_ga_version.F
-    fi
-  fi
-else
-  if [ ! -f util_ga_version.F ] ; then
-    echo "      subroutine util_ga_version(garev)" > util_ga_version.F
-    echo "      implicit none" >> util_ga_version.F
-    echo "      character*(*) garev" >> util_ga_version.F
-    echo "      garev=\"N/A\"" >> util_ga_version.F
-    echo "      end" >> util_ga_version.F
-  fi
-fi
