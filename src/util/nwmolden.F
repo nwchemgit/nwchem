@@ -453,9 +453,9 @@
            csym = zir(sym(orb_alfabeta))
            write(MOLDEN_UNIT,100) csym,eval(orb_alfabeta),
      C          cspin,occ(orb_alfabeta)
- 100       format('Sym= ', a12/
+ 100       format('Sym= ', a/
      1            'Ene= ', E22.14/
-     2            'Spin= ', a11/
+     2            'Spin= ', a/
      3            'Occup= ', f18.10)
            do aof = 1, nbf
 !              write(MOLDEN_UNIT,200) aof,dbl_mb(k_vec + aof - 1)
