@@ -647,7 +647,8 @@ c 00000000000000000000000000000000000000000000000000000000000000
      &             pname,      ! in: label
      &             master,     ! in: master geometry
      &             ramanspc,   ! in: logical = T save in files aoresp data
-     &             rtdb,geom)  ! in: (rtdb,geom) handles
+     &             rtdb,geom,  ! in: (rtdb,geom) handles
+     W       oprint_dalphadq, filedadq)
 c
 c Authors: Jonathan Mullin, Northwestern University (ver 1: Jan. 2011)
 c          Fredy W. Aquino, Northwestern University (ver 2: Oct. 2012)
@@ -684,6 +685,8 @@ c          Fredy W. Aquino, Northwestern University (ver 2: Oct. 2012)
       double precision eigenvals(nc)     ! [input] (mode)
       double precision mass(nat)         ! [input] (masses)
       double precision step_size         ! [input] multiplictive factor for step along normal mode
+      character*(*) filedadq       ! [in]
+      logical oprint_dalphadq      ! [in]
       double precision master(3,nat)     ! saved initial coordinates
       double precision coord(3,nat)      ! displaced coordinate passed to raman_modestep
       double precision junk3(6,3),       ! temp. arrays for FD of polarizanbility
@@ -703,6 +706,7 @@ c --------- FA vars ---------- START
       logical raman_write,ramanpol_read,status1
       external raman_write,ramanpol_read,
      &         raman_save1
+
 c --------- FA vars ---------- END
         if (ramanspc) then
          if (.not. rtdb_put(rtdb,'raman:aores1',mt_int, 1,ii)) call ! FA-06-18-12
@@ -799,7 +803,8 @@ c ------------------------do finite defernced for mode ii----------------------
      &                 rminfo,
      &                 eigenvecs,
      &                 mass,
-     &                 first0)
+     &       first0,
+     W       oprint_dalphadq, filedadq)
 c ======== FA: Writing to file rminfo ========= START
 c         if (ga_nodeid().eq.0)
 c     &     write(*,*) 'BEF raman_write() ...'
@@ -878,7 +883,8 @@ c Author: Fredy W. Aquino, Northwestern University (Oct. 2012)
 c --------- FA vars ---------- START
       character*255 fname_raman
       integer modecc
-      external raman_per_mode
+      character*255 filedadq
+      logical oprint_dalphadq
 
        status=rtdb_get(rtdb,'raman:nmodesslc',
      &                mt_int,1,nmodes_slc)   
@@ -913,6 +919,11 @@ c ======== construct filename in listing mode ====== START
      &   write(luout,131) fname_raman
  131     format('Generating fname_raman1=',a)         
 c ======== construct filename in listing mode ====== END
+      oprint_dalphadq=util_print('raman_dalphadq', print_high)
+      if(oprint_dalphadq) then
+         call util_file_name('dadq', .false., .false.,filedadq)
+         call raman_open_dadq(filedadq)
+      endif
         modecc=1 ! reset counter         
         do cmode=1,nmodes_slc
          ii=int_mb(k_rmodes+cmode-1)
@@ -940,8 +951,13 @@ c ======== construct filename in listing mode ====== END
      &             pname,      ! in: label
      &             master,     ! in: master geometry
      &             ramanspc,   ! in: logical = T save in files aoresp data
-     &             rtdb,geom)  ! in: (rtdb,geom) handles
+     &             rtdb,geom,  ! in: (rtdb,geom) handles
+     &        oprint_dalphadq ,
+     F        filedadq)
         enddo ! end-loop-cmode
+      if(oprint_dalphadq) then
+         call raman_close_dadq(filedadq)
+      endif
         if (.not.ma_pop_stack(l_rmodes)) call
      &        errquit('task_raman: ma_pop_stack failed k_rmodes',
      &                0,MA_ERR)   
@@ -1013,8 +1029,9 @@ c --------- FA vars ---------- START
       character*255 fname_raman
       integer modecc
       logical raman_read_list
-      external raman_per_mode,
-     &         raman_read_list
+      logical oprint_dalphadq
+      character*255 filedadq
+      external raman_read_list
 
 c ====== Step 0: Read rminfo file(s) ====== START
 c Note.- Determine missing modes : modes_missing() and 
@@ -1052,6 +1069,10 @@ c ************ skipping calculations of missing modes *** START
      &    write(luout,*) 'SKIP calc modes missing!!'
           goto 123
         endif
+      if(oprint_dalphadq) then
+         call util_file_name('dadq', .false., .false.,filedadq)
+         call raman_open_dadq(filedadq)
+      endif
 c ************ skipping calculations of missing modes *** END
 c ************************************************************
         modecc=1 ! reset counter         
@@ -1085,9 +1106,14 @@ c ************************************************************
      &             pname,      ! in: label
      &             master,     ! in: master geometry
      &             ramanspc,   ! in: logical = T save in files aoresp data
-     &             rtdb,geom)  ! in: (rtdb,geom) handles
+     &             rtdb,geom,  ! in: (rtdb,geom) handles
+     &        oprint_dalphadq ,
+     F        filedadq)
         enddo ! end-loop-cmode
  123  continue ! skipping
+      if(oprint_dalphadq) then
+         call raman_close_dadq(filedadq)
+      endif
       return
       end
       subroutine raman_default(
@@ -1151,7 +1177,8 @@ c          Fredy W. Aquino, Northwestern University (ver 2: Oct. 2012)
 c --------- FA vars ---------- START
       character*255 fname_raman
       integer modecc
-      external raman_per_mode
+      character*255 filedadq
+      logical oprint_dalphadq
 c ======== construct filename in partitioning mode ====== START
         write(lbl_raman1,'(a5,"_",i4.4,"-",i4.4)') 
      &                    lbl_raman,begin,last       
@@ -1160,6 +1187,11 @@ c ======== construct filename in partitioning mode ====== START
         if (ga_nodeid().eq.0)
      &   write(luout,111) fname_raman
  111     format('Generating fname_raman3=',a)
+      oprint_dalphadq=util_print('raman_dalphadq', print_high)
+      if(oprint_dalphadq) then
+         call util_file_name('dadq', .false., .false.,filedadq)
+         call raman_open_dadq(filedadq)
+      endif
 c ======== construct filename in partitioning mode ====== END
 c ====== Step 0: Read rminfo file(s) ====== END
 c        if (begin .gt. last)  go to 200    
@@ -1187,7 +1219,12 @@ c        if (begin .gt. last)  go to 200
      &             pname,      ! in: label
      &             master,     ! in: master geometry
      &             ramanspc,   ! in: logical = T save in files aoresp data
-     &             rtdb,geom)  ! in: (rtdb,geom) handles
+     &             rtdb,geom,  ! in: (rtdb,geom) handles
+     &        oprint_dalphadq ,
+     F        filedadq)
         enddo ! ii 
+ 9      if(oprint_dalphadq) then
+         call raman_close_dadq(filedadq)
+      endif
       return
       end
