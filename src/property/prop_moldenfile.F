@@ -83,7 +83,7 @@ c> read  occupation numbers, evals and eigenvecs
       do iset = 1, nset
          iptr=(iset-1)*nbf
         if (.not. movecs_read(vec_file, iset, dbl_mb(k_occ+iptr),
-     G        dbl_mb(k_eval+iptr), g_movecs(iset+iptr))) call errquit
+     G        dbl_mb(k_eval+iptr), g_movecs(iset))) call errquit
      $              (subname//': failed read  MOs set ',iset,
      $               INPUT_ERR)
       enddo
