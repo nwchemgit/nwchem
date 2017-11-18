@@ -1,4 +1,4 @@
-
+MAKEFLAGS +=" -j1 -l0.001"
 
 #ifdef TCE_CUDA # not really needed, but keep the guard for now.
  OBJ_OPTIMIZE = fvimatchl32.o fvimatchg32_blocking.o \

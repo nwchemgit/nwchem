@@ -2707,8 +2707,14 @@ else
   CUDA_ARCH =  -arch=sm_35
 endif
 
-CUDA_FLAGS = -O3 -Xcompiler -std=c++11 -DNOHTIME -Xptxas --warn-on-spills $(CUDA_ARCH) 
-
+ifdef TCE_CUDA
+CUDA_VERS_GE8=$(shell nvcc --version|egrep rel|  awk '/release 9/ {print "Y";exit}; /release 8/ {print "Y";exit};{print "N"}')
+        ifeq ($(CUDA_VERS_GE8),N)
+             CUDA_FLAGS = -O3 -Xcompiler -std=c++11 -DNOHTIME -Xptxas --warn-on-spills $(CUDA_ARCH) 
+        else
+              CUDA_FLAGS = -O3  -std=c++11 -DNOHTIME -Xptxas --warn-on-spills $(CUDA_ARCH) 
+        endif
+endif
 (%.o):  %.cu
 	$(CUDA) -c $(CUDA_FLAGS) $(CUDA_INCLUDE) -I$(NWCHEM_TOP)/src/tce/ttlg/includes -o $% $<
 
