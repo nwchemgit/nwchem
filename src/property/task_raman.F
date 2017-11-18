@@ -919,7 +919,8 @@ c ======== construct filename in listing mode ====== START
      &   write(luout,131) fname_raman
  131     format('Generating fname_raman1=',a)         
 c ======== construct filename in listing mode ====== END
-      oprint_dalphadq=util_print('raman_dalphadq', print_high)
+         oprint_dalphadq=util_print('raman_dalphadq', print_high).and.
+     c        ga_nodeid().eq.0
       if(oprint_dalphadq) then
          call util_file_name('dadq', .false., .false.,filedadq)
          call raman_open_dadq(filedadq)
@@ -1069,6 +1070,8 @@ c ************ skipping calculations of missing modes *** START
      &    write(luout,*) 'SKIP calc modes missing!!'
           goto 123
         endif
+        oprint_dalphadq=util_print('raman_dalphadq', print_high).and.
+     c       ga_nodeid().eq.0
       if(oprint_dalphadq) then
          call util_file_name('dadq', .false., .false.,filedadq)
          call raman_open_dadq(filedadq)
@@ -1187,7 +1190,8 @@ c ======== construct filename in partitioning mode ====== START
         if (ga_nodeid().eq.0)
      &   write(luout,111) fname_raman
  111     format('Generating fname_raman3=',a)
-      oprint_dalphadq=util_print('raman_dalphadq', print_high)
+         oprint_dalphadq=util_print('raman_dalphadq', print_high).and.
+     c        ga_nodeid().eq.0
       if(oprint_dalphadq) then
          call util_file_name('dadq', .false., .false.,filedadq)
          call raman_open_dadq(filedadq)

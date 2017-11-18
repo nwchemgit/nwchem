@@ -641,7 +641,7 @@ c Note.- Modified from raman_save()
       external ramanpol_write,ramanpol_read
       
       debug      = (.false. .and. ga_nodeid().eq.0) ! produce debug output
-      oprint=util_print('raman_alpha', print_high)
+      oprint=util_print('raman_alpha', print_high).and.ga_nodeid().eq.0
       n=(ii-1)*3
       DO i=1,3
          n=n+1

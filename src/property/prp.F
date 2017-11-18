@@ -247,8 +247,8 @@ c     === deallocate used ga's ===
 c Do not destroy g_AtNr if doing g-shift because it was not created!!
         status=rtdb_get(rtdb,'prop:gshift'      ,MT_INT,1,nogshift) 
         if (nogshift.ne.0) then
-         if (.not. ga_destroy(g_AtNr)) call errquit( ! defined in dft_zora_NMR.F
-     &    'prp: ga_destroy failed g_AtNr',0, GA_ERR)   
+c         if (.not. ga_destroy(g_AtNr)) call errquit( ! defined in dft_zora_NMR.F
+c     &    'prp: ga_destroy failed g_AtNr',0, GA_ERR)   
         endif
        if (.not. ga_destroy(g_Ci)) call errquit( ! defined in dft_zora_utils.F
      &    'prp: ga_destroy failed g_Ci',0, GA_ERR)                 
