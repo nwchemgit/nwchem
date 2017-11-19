@@ -6,4 +6,4 @@ Source download instructions
 
 6.6 Release
 
-git clone  -b release-6-8 https://github.com/nwchemgit/nwchem.git nwchem-6.6
+git clone  -b release-6-6 https://github.com/nwchemgit/nwchem.git nwchem-6.6
