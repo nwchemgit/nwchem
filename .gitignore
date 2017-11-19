@@ -100,3 +100,8 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/c,cuda,linux,windows
+
+# debris  created in nwchem compilations
+include_stamp
+dependencies
+# End of debris  created in nwchem compilations
