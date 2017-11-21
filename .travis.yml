@@ -18,15 +18,24 @@ addons:
     - libtool 
     - autoconf
     - perl
+    - libscalapack-openmpi1
+    - libscalapack-mpi-dev
 matrix:
-env: == default ==
+  include:
+    - dist: xenial    
+      env: == default ==
         NWCHEM_TOP=$TRAVIS_BUILD_DIR
         NWCHEM_TARGET=LINUX64
-        NWCHEM_MODULES="nwdft driver stepper mp2_grad"
+        NWCHEM_MODULES="nwdft driver stepper mp2_grad python"
         USE_MPI=y
-        BLASOPT="-lopenblas -lpthread -lrt"
         USE_64TO32=y
+        BLASOPT="-lopenblas -lpthread -lrt"
         BLAS_SIZE=4
+        SCALAPACK="-lopenblas -lpthread -lrt"
+        SCALAPACK_SIZE=4
+        USE_PYTHONCONFIG=y
+        PYTHONVERSION=2.7
+        PYTHONHOME=/usr
 
 before_script:
         cd $NWCHEM_TOP/src &&
@@ -38,8 +47,10 @@ script:
         - tail -100 $NWCHEM_TOP/src/6log
         - tail -100 $NWCHEM_TOP/src/tools/build/config.log
         - tail -200 $NWCHEM_TOP/src/make.log
+        - grep SCALAPAC $NWCHEM_TOP/src/tools/buid/config.log 
 after_failure:
         - cat $NWCHEM_TOP/src/6log
         - cat $NWCHEM_TOP/src/tools/build/config.log
+        - cat $NWCHEM_TOP/src/tools/build/comex/config.log
         - cat $NWCHEM_TOP/src/make.log
 
