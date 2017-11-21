@@ -33,5 +33,5 @@ before_script:
 script:
         cd $NWCHEM_TOP/src &&
         make nwchem_config &&
-	make ;
+        make ;
 
