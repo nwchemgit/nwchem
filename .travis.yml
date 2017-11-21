@@ -1,0 +1,37 @@
+sudo: false
+language: fortran
+os:
+  - linux
+compiler:
+  - gcc
+addons:
+  apt:
+    packages:
+      - gfortran
+      - gcc
+      - python-dev
+      - libopenblas-dev
+      - libopenmpi-dev
+      - openmpi-bin
+      - tcsh
+      - make 
+      - automake 
+      - libtool 
+      - autoconf
+      - perl
+matrix:
+env: == default ==
+        NWCHEM_TOP=$TRAVIS_BUILD_DIR
+        NWCHEM_TARGET=LINUX64
+        NWCHEM_MODULES="dftgrad driver stepper mp2_grad"
+        USE_MPI=y
+        BLASOPT="-lopenblas -lpthread -lrt"
+        BLAS_SIZE=4
+
+before_script:
+
+script:
+            cd $NWCHEM_TOP/src &&
+            make nwchem_config &&
+	    make ;
+
