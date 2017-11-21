@@ -25,6 +25,7 @@ env: == default ==
         NWCHEM_MODULES="nwdft driver stepper mp2_grad"
         USE_MPI=y
         BLASOPT="-lopenblas -lpthread -lrt"
+        USE_64TO32=y
         BLAS_SIZE=4
 
 before_script:
@@ -34,8 +35,11 @@ before_script:
         sleep 1
 script:
         - cd $NWCHEM_TOP/src && make -j 3 >& make.log
-        - tail -200 $NWCHEM_TOP/src/make.log
         - tail -100 $NWCHEM_TOP/src/6log
+        - tail -100 $NWCHEM_TOP/src/tools/build/config.log
+        - tail -200 $NWCHEM_TOP/src/make.log
 after_failure:
-        - cat $NWCHEM_TOP/src/config.log
+        - cat $NWCHEM_TOP/src/6log
+        - cat $NWCHEM_TOP/src/tools/build/config.log
+        - cat $NWCHEM_TOP/src/make.log
 
