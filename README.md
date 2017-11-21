@@ -11,3 +11,8 @@ git clone https://github.com/nwchemgit/nwchem.git
 6.8 Release
 
 git clone  -b release-6-8 https://github.com/nwchemgit/nwchem.git nwchem-6.8
+
+
+Documentation
+===
+ (work in progress) at https://github.com/nwchemgit/nwchem/wiki
