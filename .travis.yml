@@ -1,11 +1,10 @@
 sudo: false
-language: fortran
+language: c
 os:
   - linux
 compiler:
   - gcc
 addons:
-  apt:
     packages:
       - gfortran
       - gcc
