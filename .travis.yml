@@ -30,8 +30,12 @@ env: == default ==
 before_script:
         cd $NWCHEM_TOP/src &&
         make nwchem_config && 
-        make 64_to_32 &
+        make 64_to_32 >& 6log &
         sleep 1
 script:
-        make -j 3
+        - cd $NWCHEM_TOP/src && make -j 3 >& make.log
+        - tail -200 $NWCHEM_TOP/src/make.log
+        - tail -100 $NWCHEM_TOP/src/6log
+after_failure:
+        - cat $NWCHEM_TOP/src/config.log
 
