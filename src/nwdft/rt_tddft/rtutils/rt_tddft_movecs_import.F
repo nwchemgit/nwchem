@@ -210,6 +210,7 @@ C
 #include "util.fh"
 #include "rtdb.fh"
 #include "rt_tddft.fh"
+#include "inp.fh"
 
 
 C     == Inputs ==
@@ -312,10 +313,13 @@ c
      $    call errquit ("Failed to read dmat file name from rtdb",
      $         0,RTDB_ERR)
         call util_file_name_resolve (rt_dmat_fname, .false.)
+        if (me.eq.0)
+     $     write(luout,111) rt_dmat_fname(1:inp_strlen(rt_dmat_fname))
         if (.not.dmat_from_file(g_densre_ao,rt_dmat_fname))
      $    call errquit ("Failed to read dmat file",0,RTDB_ERR)
         call convert_d2z(1d0,g_densre_ao,0d0,g_densre_ao,g_zdens_ao)
 c
+
       else
 
 C
@@ -427,6 +431,8 @@ C
       if (.not. ga_destroy (g_tmp))
      $     call errquit ("couldnt destroy tmp", 0, GA_ERR)
 
+ 111        format(/' Loading initial density from :'//a/)
+
       end subroutine 
 
 
@@ -458,7 +464,7 @@ C
 #include "rtdb.fh"
 #include "rt_tddft.fh"
 #include "matutils.fh"
-
+#include "inp.fh"
       
 C     == Inputs ==
       type (rt_params_t), intent(in) :: params
@@ -552,6 +558,8 @@ c
      $    call errquit ("Failed to read alpha dmat file name from rtdb",
      $         0,RTDB_ERR)
         call util_file_name_resolve (rt_dmat_fname, .false.)
+        if (me.eq.0) 
+     $     write(luout,111) rt_dmat_fname(1:inp_strlen(rt_dmat_fname))
         if (.not.dmat_from_file(g_densao_tmp,rt_dmat_fname))
      $    call errquit ("Failed to read dmat file",0,RTDB_ERR)
         call convert_d2z(1d0,g_densao_tmp,0d0,g_densao_tmp,
@@ -560,6 +568,8 @@ c
      $       1, rt_dmat_fname))
      $    call errquit ("Failed to read beta dmat file name from rtdb",
      $         0,RTDB_ERR)
+        if (me.eq.0) 
+     $     write(luout,111) rt_dmat_fname(1:inp_strlen(rt_dmat_fname))
         call util_file_name_resolve (rt_dmat_fname, .false.)
         if (.not.dmat_from_file(g_densao_tmp,rt_dmat_fname))
      $    call errquit ("Failed to read dmat file",0,RTDB_ERR)
@@ -687,5 +697,7 @@ C
      $     call errquit (pname//"failed to destroy densao_tmp",0,0)
 
 
+ 111    format(/' Loading initial density from :'//a/)
+c
       end subroutine
 c $Id$
