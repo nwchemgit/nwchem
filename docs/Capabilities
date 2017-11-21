@@ -1,0 +1,351 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta name="generator" content="MediaWiki 1.16.4" />
+<link rel="shortcut icon" href="http://www.nwchem-sw.org/favicon.ico" />
+<link rel="search" type="application/opensearchdescription+xml" href="http://www.nwchem-sw.org/opensearch_desc.php" title="NWChem (en)" />
+<link rel="alternate" type="application/atom+xml" title="NWChem Atom feed" href="http://www.nwchem-sw.org/index.php?title=Special:RecentChanges&amp;feed=atom" />		<title>Capabilities - NWChem</title>
+		<link rel="stylesheet" href="http://www.nwchem-sw.org/skins/common/shared.css?270" media="screen" />
+<link rel="stylesheet" href="http://www.nwchem-sw.org/skins/common/commonPrint.css?270" media="print" />
+<link rel="stylesheet" href="http://www.nwchem-sw.org/skins/gumax/gumax_main.css?270" media="screen" />
+<!--[if lt IE 5.5000]><link rel="stylesheet" href="/skins/gumax/IE50Fixes.css?270" media="screen" /><![endif]-->
+<!--[if IE 5.5000]><link rel="stylesheet" href="/skins/gumax/IE55Fixes.css?270" media="screen" /><![endif]-->
+<!--[if IE 6]><link rel="stylesheet" href="/skins/gumax/IE60Fixes.css?270" media="screen" /><![endif]-->
+<!--[if IE 7]><link rel="stylesheet" href="/skins/gumax/IE70Fixes.css?270" media="screen" /><![endif]-->
+<link rel="stylesheet" href="http://www.nwchem-sw.org/skins/gumax/gumax_print.css?270" media="print" />
+<link rel="stylesheet" href="http://www.nwchem-sw.org/index.php?title=MediaWiki:Common.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=18000&amp;action=raw&amp;maxage=18000" />
+<link rel="stylesheet" href="http://www.nwchem-sw.org/index.php?title=MediaWiki:Print.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=18000&amp;action=raw&amp;maxage=18000" media="print" />
+<link rel="stylesheet" href="http://www.nwchem-sw.org/index.php?title=MediaWiki:Gumax.css&amp;usemsgcache=yes&amp;ctype=text%2Fcss&amp;smaxage=18000&amp;action=raw&amp;maxage=18000" />
+<link rel="stylesheet" href="http://www.nwchem-sw.org/index.php?title=-&amp;action=raw&amp;maxage=18000&amp;gen=css" />
+		<!--[if lt IE 7]><script type="text/javascript" src="/skins/common/IEFixes.js?270"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+		<script>
+var skin="gumax",
+stylepath="/skins",
+wgUrlProtocols="http\\:\\/\\/|https\\:\\/\\/|ftp\\:\\/\\/|irc\\:\\/\\/|gopher\\:\\/\\/|telnet\\:\\/\\/|nntp\\:\\/\\/|worldwind\\:\\/\\/|mailto\\:|news\\:|svn\\:\\/\\/",
+wgArticlePath="/index.php/$1",
+wgScriptPath="",
+wgScriptExtension=".php",
+wgScript="/index.php",
+wgVariantArticlePath=false,
+wgActionPaths={},
+wgServer="http://www.nwchem-sw.org",
+wgCanonicalNamespace="Release66",
+wgCanonicalSpecialPageName=false,
+wgNamespaceNumber=512,
+wgPageName="Capabilities",
+wgTitle="Capabilities",
+wgAction="view",
+wgArticleId=1522,
+wgIsArticle=true,
+wgUserName=null,
+wgUserGroups=null,
+wgUserLanguage="en",
+wgContentLanguage="en",
+wgBreakFrames=false,
+wgCurRevisionId=6498,
+wgVersion="1.16.4",
+wgEnableAPI=true,
+wgEnableWriteAPI=true,
+wgSeparatorTransformTable=["", ""],
+wgDigitTransformTable=["", ""],
+wgMainPageTitle="Main Page",
+wgFormattedNamespaces={"-2": "Media", "-1": "Special", "0": "", "1": "Talk", "2": "User", "3": "User talk", "4": "NWChem", "5": "NWChem talk", "6": "File", "7": "File talk", "8": "MediaWiki", "9": "MediaWiki talk", "10": "Template", "11": "Template talk", "12": "Help", "13": "Help talk", "14": "Category", "15": "Category talk", "500": "Release-60", "501": "Release-60 talk", "502": "Release61", "503": "Release61 talk", "504": "Release62", "505": "Release62 talk", "506": "Release64", "507": "Release64 talk", "508": "Release65", "509": "Release65 talk", "510": "Development", "511": "Development talk", "512": "Release66", "513": "Release66 talk", "121707": "Forum"},
+wgNamespaceIds={"media": -2, "special": -1, "": 0, "talk": 1, "user": 2, "user_talk": 3, "nwchem": 4, "nwchem_talk": 5, "file": 6, "file_talk": 7, "mediawiki": 8, "mediawiki_talk": 9, "template": 10, "template_talk": 11, "help": 12, "help_talk": 13, "category": 14, "category_talk": 15, "release-60": 500, "release-60_talk": 501, "release61": 502, "release61_talk": 503, "release62": 504, "release62_talk": 505, "release64": 506, "release64_talk": 507, "release65": 508, "release65_talk": 509, "development": 510, "development_talk": 511, "release66": 512, "release66_talk": 513, "forum": 121707, "ns_reldoc64": "NS_RELDOC65", "ns_reldoc64_talk": "NS_RELDOC65_TALK", "image": 6, "image_talk": 7},
+wgSiteName="NWChem",
+wgCategories=[],
+wgRestrictionEdit=[],
+wgRestrictionMove=[];
+</script>
+		<script type="text/javascript" src="http://www.nwchem-sw.org/skins/common/wikibits.js?270"><!-- wikibits js --></script>
+		<!-- Head Scripts -->
+<script src="http://www.nwchem-sw.org/skins/common/ajax.js?270"></script>
+<style type="text/css">/*<![CDATA[*/ .firstHeading, .subtitle, #siteSub, #contentSub, .pagetitle { display:none; } /*]]>*/</style>		<script type="text/javascript" src="http://www.nwchem-sw.org/index.php?title=-&amp;action=raw&amp;gen=js&amp;useskin=gumax"><!-- site js --></script>
+
+
+		<!-- gumax customized style -->
+
+					<style type="text/css">
+				#gumax-content-actions li#ca-talk,
+				#gumax-content-actions li#ca-history,
+				#gumax-content-actions li#ca-edit,
+				#gumax-personal-tools
+				{ display: none; }
+			</style>
+		
+		<!--[if lt IE 7]>
+			<script type="text/javascript" src="/skins/gumax/js/ieunitpngfix-tag.js"></script>
+		<![endif]-->
+
+		<!-- end of gumax customized style -->
+</head>
+
+
+<body class="mediawiki ltr ns-512 ns-subject page-Release66_Capabilities skin-gumax">
+
+<!-- ##### gumax-wrapper ##### -->
+<div id="gumax-wrapper">
+
+<table border="0" id="gumax-page-table"><tr><td id="gumax-page-table-left"><img src="http://www.nwchem-sw.org/skins/gumax/blank.gif" alt="" /></td><td width="100%" valign="top" style="padding: 0; margin: 0" id="gumax-page-table-content">
+
+
+<!-- ===== gumax-page ===== -->
+<div class="gumax-page">
+
+	<!-- ///// gumax-header ///// -->
+	<div id="gumax-header">
+		<a name="top" id="contentTop"></a>
+
+		<!-- gumax-p-logo -->
+	<div id="gumax-p-logo">
+		<div id="p-logo">
+			<a style="background-image: url(http://www.nwchem-sw.org/images/MS3_NWChem.logo3.png);" href="Main_Page" title="Main Page"></a>
+		</div>
+	</div>
+	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
+	<!-- end of gumax-p-logo -->
+
+
+		<!-- Search -->
+	<div id="gumax-p-search" class="gumax-portlet">
+		<h5><label for="searchInput">Search</label></h5>
+		<div id="gumax-searchBody" class="gumax-pBody">
+			<form action="http://www.nwchem-sw.org/index.php/Special:Search" id="searchform"><div>
+				<input id="searchInput" name="search" type="text" accesskey="f" value="" />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton" value="Go" title="Go to a page with this exact name if exists" />
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search the pages for this text" />
+			</div></form>
+		</div>
+	</div>
+	<!-- end of Search -->
+
+	</div>
+	<!-- ///// end of gumax-header ///// -->
+
+
+		<!-- Navigation Menu -->
+	<div id="gumax-p-navigation">
+			<div class="gumax-portlet gumax-p-navigation">
+				<h5>Navigation</h5>
+						<ul>
+								<li id="n-Home"><a href="Main_Page">Home</a></li>
+								<li id="n-Science"><a href="Science">Science</a></li>
+								<li id="n-Benchmarks"><a href="Benchmarks">Benchmarks</a></li>
+								<li id="n-Download.C2.A0"><a href="Download">Download </a></li>
+								<li id="n-Documentation"><a href="./NWChem_Documentation">Documentation</a></li>
+								<li id="n-Projects"><a href="Ongoing_Projects">Projects</a></li>
+								<li id="n-News"><a href="./NWChem:Current_events">News</a></li>
+								<li id="n-Forum"><a href="./Special:AWCforum">Forum</a></li>
+								<li id="n-FAQ"><a href="FAQ">FAQ</a></li>
+								<li id="n-Other-Software"><a href="Software_supporting_NWChem">Other Software</a></li>
+								<li id="n-Development"><a href="Developer">Development</a></li>
+						</ul>
+			</div>
+			<div class="gumax-portlet gumax-p-navigation">
+				<h5>SEARCH</h5>
+			</div>
+			<div class="gumax-portlet gumax-p-navigation">
+				<h5>TOOLBOX</h5>
+			</div>
+			<div class="gumax-portlet gumax-p-navigation">
+				<h5>LANGUAGES</h5>
+			</div>
+			<div class="gumax-portlet gumax-p-navigation">
+				<h5>Forum Menu</h5>
+			</div>
+	</div>
+	<!-- end of Navigation Menu -->
+	<div class="gumax-p-navigation-spacer"></div>
+
+
+		<!-- gumax-content-body -->
+		<div id="gumax-column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+				<h1 id="firstHeading" class="firstHeading gumax-firstHeading" >Capabilities</h1>
+		<div id="bodyContent" class="gumax-bodyContent">
+			<h3 id="siteSub">From NWChem</h3>
+			<div id="contentSub"></div>
+									<div id="jump-to-nav">Jump to: <a href="./Capabilities#column-one">navigation</a>, <a href="./Capabilities#searchInput">search</a></div>			<!-- start content -->
+			<table id="toc" class="toc"><tr><td><div id="toctitle"><h2>Contents</h2></div>
+<ul>
+<li class="toclevel-1 tocsection-1"><a href="./Capabilities#Comprehensive_Suite_of_Scalable_Capabilities"><span class="tocnumber">1</span> <span class="toctext">Comprehensive Suite of Scalable Capabilities</span></a>
+<ul>
+<li class="toclevel-2 tocsection-2"><a href="./Capabilities#Molecular_Electronic_Structure"><span class="tocnumber">1.1</span> <span class="toctext">Molecular Electronic Structure</span></a></li>
+<li class="toclevel-2 tocsection-3"><a href="./Capabilities#Quantum_Mechanics.2FMolecular_Mechanics_.28QM.2FMM.29"><span class="tocnumber">1.2</span> <span class="toctext">Quantum Mechanics/Molecular Mechanics (QM/MM)</span></a></li>
+<li class="toclevel-2 tocsection-4"><a href="./Capabilities#Pseudopotential_Plane-Wave_Electronic_Structure"><span class="tocnumber">1.3</span> <span class="toctext">Pseudopotential Plane-Wave Electronic Structure</span></a></li>
+<li class="toclevel-2 tocsection-5"><a href="./Capabilities#Molecular_Dynamics"><span class="tocnumber">1.4</span> <span class="toctext">Molecular Dynamics</span></a></li>
+</ul>
+</li>
+</ul>
+</td></tr></table><script>if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } </script>
+<h1> <span class="mw-headline" id="Comprehensive_Suite_of_Scalable_Capabilities">Comprehensive Suite of Scalable Capabilities</span></h1>
+<p>NWChem provides many methods for computing the properties of molecular and periodic systems using standard quantum mechanical descriptions of the electronic wavefunction or density. Its classical molecular dynamics capabilities provide for the simulation of macromolecules and solutions, including the computation of free energies using a variety of force fields. These approaches may be combined to perform mixed quantum-mechanics and molecular-mechanics simulations. 
+</p><p>The specific methods for determining molecular electronic structure, molecular dynamics, and pseudopotential plane-wave electronic structure and related attributes are listed in the following sections.
+</p>
+<h2> <span class="mw-headline" id="Molecular_Electronic_Structure">Molecular Electronic Structure</span></h2>
+<p>Methods for determining energies and analytic first derivatives with respect to atomic coordinates include the following:
+</p>
+<ul><li>	Hartree-Fock (RHF, UHF, high-spin ROHF)
+</li><li>	Gaussian orbital-based density functional theory (DFT) using many local and non-local exchange-correlation potentials (LDA, LSDA)
+</li><li>	second-order perturbation theory (MP2) with RHF and UHF references
+</li><li>	complete active space self-consistent field theory (CASSCF).
+</li></ul>
+<p>Analytic second derivatives with respect to atomic coordinates are available for RHF and UHF, and closed-shell DFT with all functionals.
+</p><p>The following methods are available to compute energies only:
+</p>
+<ul><li>	iterative CCSD, CCSDT, and CCSDTQ methods and their EOM-CC counterparts for RHF, ROHF, and UHF references
+</li><li>	active-space CCSDt and EOM-CCSDt approaches
+</li><li>	completely renormalized CR-CCSD(T), and CR-EOM-CCSD(T) correction to EOM-CCSD excitation energies
+</li><li>	locally renormalized CCSD(T) and CCSD(TQ) approaches
+</li><li>	non-iterative approaches based on similarity transformed Hamiltonian: the CCSD(2)T and  CCSD(2) formalisms.
+</li><li>	MP2 with RHF reference and resolution of the identity integral approximation MP2 (RI-MP2) with RHF and UHF references
+</li><li>	selected CI with second-order perturbation correction.
+</li></ul>
+<p>For all methods, the following may be performed: 
+</p>
+<ul><li>	single point energy calculations
+</li><li>	geometry optimization with constraints (minimization and transition state)
+</li><li>	molecular dynamics on the fully ab initio potential energy surface
+</li><li>	automatic computation of numerical first and second derivatives 
+</li><li>	normal mode vibrational analysis in Cartesian coordinates
+</li><li>	ONIOM hybrid calculations
+</li><li>	Conductor-Like Screening Model (COSMO) calculations
+</li><li>	electrostatic potential from fit of atomic partial charges
+</li><li>	spin-free one-electron Douglas-Kroll calculations
+</li><li>	electron transfer (ET)
+</li><li>	vibrational SCF and DFT.
+</li></ul>
+<p>At the SCF and DFT level of theory various (response) properties are available, including NMR shielding tensors and indirect spin-spin coupling.  
+</p>
+<h2> <span class="mw-headline" id="Quantum_Mechanics.2FMolecular_Mechanics_.28QM.2FMM.29">Quantum Mechanics/Molecular Mechanics (QM/MM)</span></h2>
+<p>The QM/MM module in NWChem provides a comprehensive set of capabilities to study ground and excited state properties of large-molecular systems. The QM/MM module can be used with practically any quantum mechanical method available in NWChem. The following tasks are supported
+</p>
+<ul><li>	single point energy and property calculations
+</li><li>	excited states calculation
+</li><li>	optimizations and transition state search
+</li><li>	dynamics
+</li><li>	free energy calculations.
+</li></ul>
+<h2> <span class="mw-headline" id="Pseudopotential_Plane-Wave_Electronic_Structure">Pseudopotential Plane-Wave Electronic Structure</span></h2>
+<p>The NWChem Plane-Wave (NWPW) module uses pseudopotentials and plane-wave basis sets to perform DFT calculations. This method's efficiency and accuracy make it a desirable first principles method of simulation in the study of complex molecular, liquid, and solid-state systems. Applications for this first principles method include the calculation of free energies, search for global minima, explicit simulation of solvated molecules, and simulations of complex vibrational modes that cannot be described within the harmonic approximation. 
+</p><p>The NWPW module is a collection of three modules: 
+</p>
+<ul><li>	PSPW (PSeudopotential Plane-Wave)  A gamma point code for calculating molecules, liquids, crystals, and surfaces. 
+</li><li>	Band  A band structure code for calculating crystals and surfaces with small band gaps (e.g. semi-conductors and metals). 
+</li><li>	PAW (Projector Augmented Wave) a gamma point projector augmented plane-wave code for calculating molecules, crystals, and surfaces.
+</li></ul>
+<p>These capabilities are available:
+</p>
+<ul><li>	constant energy and constant temperature Car-Parrinello molecular dynamics (extended Lagrangian dynamics)
+</li><li>	LDA, PBE96, and PBE0, exchange-correlation potentials (restricted and unrestricted)
+</li><li>	SIC, pert-OEP, Hartree-Fock, and hybrid functionals (restricted and unrestricted)
+</li><li>	Hamann, Troullier-Martins, Hartwigsen-Goedecker-Hutter norm-conserving pseudopotentials with semicore corrections 
+</li><li>	geometry/unit cell optimization, frequency, transition-states 
+</li><li>	fractional occupation of molecular orbitals for metals
+</li><li>	AIMD/MM capability in PSPW
+</li><li>	constraints needed for potential of mean force (PMF) calculation
+</li><li>	wavefunction, density, electrostatic, Wannier plotting
+</li><li>	band structure and density of states generation
+</li></ul>
+<h2> <span class="mw-headline" id="Molecular_Dynamics">Molecular Dynamics</span></h2>
+<p>The NWChem Molecular Dynamics (MD) module can perform classical simulations using the AMBER and CHARMM force fields, quantum dynamical simulations using any of the quantum mechanical methods capable of returning gradients, and mixed quantum mechanics molecular dynamics simulation and molecular mechanics energy minimization.
+</p><p>Classical molecular simulation functionality includes the following methods:
+</p>
+<ul><li>	single configuration energy evaluation
+</li><li>	energy minimization
+</li><li>	molecular dynamics simulation
+</li><li>	free energy simulation (MCTI and MSTP with single or dual topologies, double-wide sampling, and separation-shifted scaling).
+</li></ul>
+<p>The classical force field includes the following elements:
+</p>
+<ul><li>	effective pair potentials
+</li><li>	first-order polarization
+</li><li>	self-consistent polarization
+</li><li>	smooth particle mesh Ewald
+</li><li>	twin-range energy and force evaluation
+</li><li>	periodic boundary conditions
+</li><li>	SHAKE constraints
+</li><li>	constant temperature and/or pressure ensembles
+</li><li>	dynamic proton hopping using the Q-HOP methodology
+</li><li>	advanced system setup capabilities for biomolecular membranes.
+</li></ul>
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 25/1000000
+Post-expand include size: 0/2097152 bytes
+Template argument size: 0/2097152 bytes
+Expensive parser function count: 0/100
+-->
+
+<!-- Saved in parser cache with key wikidb_prod:pcache:idhash:1522-0!1!0!!en!2!edit=0 and timestamp 20171120203633 -->
+<div class="printfooter">
+Retrieved from "<a href="./Capabilities">http://www.nwchem-sw.org/index.php/Capabilities</a>"</div>
+			<div id='catlinks' class='catlinks catlinks-allhidden'></div>			<!-- end content -->
+						<div class="visualClear"></div>
+		</div>
+	</div>
+		</div>
+	<!-- end of gumax-content-body -->
+
+
+	<!-- ///// gumax-footer ///// -->
+	<div id="gumax-footer">
+
+			<!-- personal tools  -->
+	<div id="gumax-personal-tools">
+		<h5>Toolbox</h5>
+		<ul>
+				<li id="t-whatlinkshere"><a href="./Special:WhatLinksHere/Capabilities" title="List of all wiki pages that link here [j]" accesskey="j">What links here</a></li>
+				<li>&#47;</li>
+				<li id="t-recentchangeslinked"><a href="./Special:RecentChangesLinked/Capabilities" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
+				<li>&#47;</li>
+<li id="t-specialpages"><a href="./Special:SpecialPages" title="List of all special pages [q]" accesskey="q">Special pages</a></li>
+				<li>&#47;</li>
+				<li id="t-print"><a href="http://www.nwchem-sw.org/index.php?title=Capabilities&amp;printable=yes" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li>&#47;</li>
+				<li id="t-permalink"><a href="http://www.nwchem-sw.org/index.php?title=Capabilities&amp;oldid=6498" title="Permanent link to this revision of the page">Permanent link</a></li>		</ul>
+	</div>
+	<!-- end of personal tools  -->
+
+		<div class="gumax-footer-spacer"></div>
+
+			<!-- gumax-f-list -->
+	<div id="gumax-f-list">
+		<ul>
+							<li id="privacy"><a href="./NWChem:Privacy_policy" title="NWChem:Privacy policy">Privacy policy</a></li>
+							<li>/</li>							<li id="about"><a href="./NWChem:About" title="NWChem:About">About NWChem</a></li>
+							<li>/</li>							<li id="disclaimer"><a href="./NWChem:General_disclaimer" title="NWChem:General disclaimer">Disclaimers</a></li>
+							<li>/</li>						<li id="f-poweredby"><a href="http://mediawiki.org" target="_blank">Powered by MediaWiki</a></li>
+			<li>&#47;</li>
+			<li id="f-designedby"><a href="http://paulgu.com" target="_blank">Designed by Paul Gu</a></li>
+		</ul>
+	</div>
+	<!-- end of gumax-f-list -->
+
+	</div>
+	<!-- ///// end of gumax-footer ///// -->
+
+
+</div>
+<!-- ===== end of gumax-page ===== -->
+
+	</td><td id="gumax-page-table-right"><img src="http://www.nwchem-sw.org/skins/gumax/blank.gif" alt="" /></td></tr></table>
+	<!--[if lt IE 7]>
+		<script type="text/javascript">pngfix('td');</script>
+	<![endif]-->
+
+</div>
+<!-- ##### end of gumax-wrapper ##### -->
+
+
+
+<script>if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served in 0.145 secs. --></body></html>
+
+
+
+
+
