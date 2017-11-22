@@ -9,10 +9,10 @@ compiler:
 env: == default ==
         NWCHEM_TOP=$TRAVIS_BUILD_DIR/../nwchem-6.8
         NWCHEM_TARGET=LINUX64
-        NWCHEM_MODULES="all python"
+        NWCHEM_MODULES="qm python"
         USE_MPI=y
         USE_64TO32=y
-        BLASOPT="-lopenblas -lpthread -lrt"
+        BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lopenblas -lpthread -lrt"
         BLAS_SIZE=4
         SCALAPACK="-L$TRAVIS_BUILD_DIR/lib  -lscalapack -lopenblas -lpthread -lrt"
         SCALAPACK_SIZE=4
@@ -31,7 +31,7 @@ before_script:
         - cd $TRAVIS_BUILD_DIR ;git clone https://github.com/scibuilder/scalapack.git && mkdir -p scalapack/build && cd scalapack/build && cmake ../ -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=ON  -DBLAS_blas_LIBRARY="-L$TRAVIS_BUILD_DIR/lib -lopenblas" -DLAPACK_lapack_LIBRARY="-L$TRAVIS_BUILD_DIR/lib -lopenblas"  -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR  && make V=0 -j3 >& scalap.log &&  make install && tail -20 scalap.log &&ls -lrt $TRAVIS_BUILD_DIR/lib 
         - sleep 1
 script:
-        - cd $NWCHEM_TOP/src && travis_wait 30 make -j 4
+        - cd $NWCHEM_TOP/src &&  make -j 4 >& make.log
         - tail -2 $NWCHEM_TOP/src/6log
         - tail -2 $NWCHEM_TOP/src/tools/build/config.log
         - cat $NWCHEM_TOP/src/tools/build/config.h
