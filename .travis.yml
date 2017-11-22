@@ -21,8 +21,6 @@ env: == default ==
         PYTHONHOME=/usr
 
 before_script:
-        - sudo apt-get -qq update
-        - sudo apt-get -qq upgrade
         - sudo apt-get -y install gfortran gcc python-dev libopenblas-dev 
         - sudo apt-get -y install libopenmpi-dev openmpi-bin tcsh make automake libtool autoconf 
         - sudo apt-get -y install perl
@@ -34,7 +32,7 @@ script:
         - tail -100 $NWCHEM_TOP/src/6log
         - tail -100 $NWCHEM_TOP/src/tools/build/config.log
         - tail -200 $NWCHEM_TOP/src/make.log
-        - grep SCALAPAC $NWCHEM_TOP/src/tools/buid/config.log
+        - grep SCALAPAC $NWCHEM_TOP/src/tools/build/config.log
 after_failure:
         - cat $NWCHEM_TOP/src/6log
         - cat $NWCHEM_TOP/src/tools/build/config.log
