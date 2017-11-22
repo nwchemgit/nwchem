@@ -1,15 +1,12 @@
 language: c
-os:
-  - linux
-compiler:
-  - gcc
-addons:
-  apt:
-  - dist: xenial
-    packages:
 matrix:
   include:
-      env: == default ==
+  - os: linux
+    dist: xenial
+    sudo: required
+compiler:
+  - gcc
+env: == default ==
         NWCHEM_TOP=$TRAVIS_BUILD_DIR
         NWCHEM_TARGET=LINUX64
         NWCHEM_MODULES="nwdft driver stepper mp2_grad python"
