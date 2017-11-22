@@ -19,10 +19,8 @@ env: == default ==
         USE_PYTHONCONFIG=y
         PYTHONVERSION=2.7
         PYTHONHOME=/usr
-
 before_script:
-        - mkdir -p $NWCHEM_TOP
-	- ls -l $NWCHEM_TOP
+        - mkdir -p $NWCHEM_TOP && ls -l $NWCHEM_TOP
         - sudo apt-get -y install gfortran gcc python-dev libopenblas-dev 
         - sudo apt-get -y install libopenmpi-dev openmpi-bin tcsh make automake libtool autoconf 
         - sudo apt-get -y install perl
