@@ -27,7 +27,7 @@ before_script:
         - ls -lrt $TRAVIS_BUILD_DIR
         - ls -lrt $NWCHEM_TOP
         - cd $NWCHEM_TOP/src && make nwchem_config &&  make 64_to_32 >& 6log &
-        - cd $TRAVIS_BUILD_DIR ;git clone https://github.com/scibuilder/scalapack.git && mkdir -p scalapack/build && cd scalapack/build && cmake ../ -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=ON -DUSE_OPTIMIZED_LAPACK_BLAS=ON -DBLAS_blas_LIBRARY="-lopenblas" -DLAPACK_lapack_LIBRARY="-llapack"  && make -j3 
+        - cd $TRAVIS_BUILD_DIR ;git clone https://github.com/scibuilder/scalapack.git && mkdir -p scalapack/build && cd scalapack/build && cmake ../ -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=ON  -DBLAS_blas_LIBRARY="-lopenblas" -DLAPACK_lapack_LIBRARY="-llapack"  && make -j3
         - sleep 1
 script:
         - cd $NWCHEM_TOP/src && make -j 3 >& make.log
