@@ -38,5 +38,3 @@ after_failure:
         - cat $NWCHEM_TOP/src/tools/build/config.log
         - cat $NWCHEM_TOP/src/tools/build/comex/config.log
         - cat $NWCHEM_TOP/src/make.log
-	- env|egrep TRAV
-
