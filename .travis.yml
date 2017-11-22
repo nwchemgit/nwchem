@@ -31,7 +31,7 @@ before_script:
         - cd $TRAVIS_BUILD_DIR ;git clone https://github.com/scibuilder/scalapack.git && mkdir -p scalapack/build && cd scalapack/build && cmake ../ -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=ON  -DBLAS_blas_LIBRARY="-L$TRAVIS_BUILD_DIR/lib -lopenblas" -DLAPACK_lapack_LIBRARY="-L$TRAVIS_BUILD_DIR/lib -lopenblas"  -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR  && make V=0 -j3 >& scalap.log &&  make install && tail -20 scalap.log &&ls -lrt $TRAVIS_BUILD_DIR/lib 
         - sleep 1
 script:
-        - cd $NWCHEM_TOP/src &&  travis_wait make -j4       
+        - cd $NWCHEM_TOP/src &&  travis_wait make FDEBUG="-O0 -g" FOPTIMIZE="-O2 -g" -j3 >& make.log
         - tail -2 $NWCHEM_TOP/src/6log
         - tail -2 $NWCHEM_TOP/src/tools/build/config.log
         - cat $NWCHEM_TOP/src/tools/build/config.h
