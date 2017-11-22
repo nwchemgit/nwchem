@@ -7,7 +7,7 @@ matrix:
 compiler:
   - gcc
 env: == default ==
-        NWCHEM_TOP=$TRAVIS_BUILD_DIR
+        NWCHEM_TOP=$TRAVIS_BUILD_DIR/../nwchem-6.8
         NWCHEM_TARGET=LINUX64
         NWCHEM_MODULES="nwdft driver stepper mp2_grad python"
         USE_MPI=y
@@ -38,4 +38,5 @@ after_failure:
         - cat $NWCHEM_TOP/src/tools/build/config.log
         - cat $NWCHEM_TOP/src/tools/build/comex/config.log
         - cat $NWCHEM_TOP/src/make.log
+	- env|egrep TRAV
 
