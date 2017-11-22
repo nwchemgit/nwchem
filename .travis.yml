@@ -14,12 +14,15 @@ env: == default ==
         USE_64TO32=y
         BLASOPT="-lopenblas -lpthread -lrt"
         BLAS_SIZE=4
+        SCALAPACK="-lscalapack-openmpi -lopenblas -lpthread -lrt"
+        SCALAPACK_SIZE=4
         USE_PYTHONCONFIG=y
         PYTHONVERSION=2.7
         PYTHONHOME=/usr
 before_script:
         - sudo apt-get -y install gfortran gcc python-dev libopenblas-dev 
         - sudo apt-get -y install libopenmpi-dev openmpi-bin tcsh make automake libtool autoconf 
+        - sudo apt-get -y install libscalapack-mpi-dev 
         - sudo apt-get -y install perl
         - cd $TRAVIS_BUILD_DIR && pwd && cd ..; ln -sf nwchem nwchem-6.8 && cd $NWCHEM_TOP && pwd
         - ls -lrt $TRAVIS_BUILD_DIR
