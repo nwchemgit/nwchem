@@ -30,10 +30,10 @@ before_script:
         - sudo apt-get -y install libopenmpi-dev openmpi-bin tcsh make automake libtool autoconf 
         - sudo apt-get -y install perl
         - sudo apt-get -y install libscalapack-openmpi1 libscalapack-mpi-dev
-        cd $NWCHEM_TOP/src &&
+        - cd $NWCHEM_TOP/src &&
         make nwchem_config && 
         make 64_to_32 >& 6log &
-        sleep 1
+        - sleep 1
 script:
         - cd $NWCHEM_TOP/src && make -j 3 >& make.log
         - tail -100 $NWCHEM_TOP/src/6log
