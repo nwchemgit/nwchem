@@ -1,43 +1,43 @@
 language: c
 matrix:
   include:
-    - os: linux
-      dist: trusty
-      sudo: required
+  - os: linux
+    dist: trusty
+    sudo: required
 compiler:
   - gcc
 env: == default ==
-NWCHEM_TOP=$TRAVIS_BUILD_DIR/../nwchem-6.8
-NWCHEM_TARGET=LINUX64
-NWCHEM_MODULES="nwdft driver stepper mp2_grad python"
-USE_MPI=y
-USE_64TO32=y
-BLASOPT="-lopenblas -lpthread -lrt"
-BLAS_SIZE=4
-SCALAPACK="-L$TRAVIS_BUILD_DIR/scalapack/build -lscalapack -lopenblas -lpthread -lrt"
-SCALAPACK_SIZE=4
-USE_PYTHONCONFIG=y
-PYTHONVERSION=2.7
-PYTHONHOME=/usr
+        NWCHEM_TOP=$TRAVIS_BUILD_DIR/../nwchem-6.8
+        NWCHEM_TARGET=LINUX64
+        NWCHEM_MODULES="nwdft driver stepper mp2_grad python"
+        USE_MPI=y
+        USE_64TO32=y
+        BLASOPT="-lopenblas -lpthread -lrt"
+        BLAS_SIZE=4
+        SCALAPACK="-L$TRAVIS_BUILD_DIR/scalapack/build -lscalapack -lopenblas -lpthread -lrt"
+        SCALAPACK_SIZE=4
+        USE_PYTHONCONFIG=y
+        PYTHONVERSION=2.7
+        PYTHONHOME=/usr
 before_script:
-  - sudo apt-get -y install gfortran gcc python-dev libopenblas-dev liblapack-dev cmake
-  - sudo apt-get -y install libopenmpi-dev openmpi-bin tcsh make automake libtool autoconf 
-  - sudo apt-get -y install perl
-  - cd $TRAVIS_BUILD_DIR && pwd && cd ..; ln -sf nwchem nwchem-6.8 && cd $NWCHEM_TOP && pwd
-  - ls -lrt $TRAVIS_BUILD_DIR
-  - ls -lrt $NWCHEM_TOP
-  - cd $NWCHEM_TOP/src && make nwchem_config &&  make 64_to_32 >& 6log &
-  - cd $TRAVIS_BUILD_DIR ;git clone https://github.com/scibuilder/scalapack.git && mkdir -p scalapack/build && cd scalapack/build && cmake ../ -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=ON -DUSE_OPTIMIZED_LAPACK_BLAS=ON -DBLAS_blas_LIBRARY="-lopenblas" -DLAPACK_lapack_LIBRARY="-llapack"  && make -j3 
-  - sleep 1
+        - sudo apt-get -y install gfortran gcc python-dev libopenblas-dev liblapack-dev cmake
+        - sudo apt-get -y install libopenmpi-dev openmpi-bin tcsh make automake libtool autoconf 
+        - sudo apt-get -y install perl
+        - cd $TRAVIS_BUILD_DIR && pwd && cd ..; ln -sf nwchem nwchem-6.8 && cd $NWCHEM_TOP && pwd
+        - ls -lrt $TRAVIS_BUILD_DIR
+        - ls -lrt $NWCHEM_TOP
+        - cd $NWCHEM_TOP/src && make nwchem_config &&  make 64_to_32 >& 6log &
+        - cd $TRAVIS_BUILD_DIR ;git clone https://github.com/scibuilder/scalapack.git && mkdir -p scalapack/build && cd scalapack/build && cmake ../ -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=ON -DUSE_OPTIMIZED_LAPACK_BLAS=ON -DBLAS_blas_LIBRARY="-lopenblas" -DLAPACK_lapack_LIBRARY="-llapack"  && make -j3 
+        - sleep 1
 script:
-  - cd $NWCHEM_TOP/src && make -j 3 >& make.log
-  - tail -50 $NWCHEM_TOP/src/6log
-  - tail -50 $NWCHEM_TOP/src/tools/build/config.log
-  - cat $NWCHEM_TOP/src/tools/build/config.h
-  - tail -100 $NWCHEM_TOP/src/make.log
+        - cd $NWCHEM_TOP/src && make -j 3 >& make.log
+        - tail -50 $NWCHEM_TOP/src/6log
+        - tail -50 $NWCHEM_TOP/src/tools/build/config.log
+        - cat $NWCHEM_TOP/src/tools/build/config.h
+        - tail -100 $NWCHEM_TOP/src/make.log
 after_failure:
-  - cat $NWCHEM_TOP/src/6log
-  - cat $NWCHEM_TOP/src/tools/build/config.log
-  - cat $NWCHEM_TOP/src/tools/build/comex/config.log
-  - cat $NWCHEM_TOP/src/make.log
+        - cat $NWCHEM_TOP/src/6log
+        - cat $NWCHEM_TOP/src/tools/build/config.log
+        - cat $NWCHEM_TOP/src/tools/build/comex/config.log
+        - cat $NWCHEM_TOP/src/make.log
               
