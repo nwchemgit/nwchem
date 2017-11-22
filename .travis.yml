@@ -18,7 +18,7 @@ env: == default ==
         PYTHONVERSION=2.7
         PYTHONHOME=/usr
 before_script:
-        - mkdir -p $TRAVIS_BUILD_DIR;
+        - mkdir -p $TRAVIS_BUILD_DIR
 	- cd $TRAVIS_BUILD_DIR && pwd && cd ..; mkdir -p nwchem-6.8 && ls -l $NWCHEM_TOP
         - sudo apt-get -y install gfortran gcc python-dev libopenblas-dev 
         - sudo apt-get -y install libopenmpi-dev openmpi-bin tcsh make automake libtool autoconf 
