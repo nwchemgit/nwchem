@@ -36,6 +36,7 @@ script:
         - tail -2 $NWCHEM_TOP/src/tools/build/config.log
         - cat $NWCHEM_TOP/src/tools/build/config.h
         - tail -10 $NWCHEM_TOP/src/make.log
+        - cd $NWCHEM_TOP/QA ./doafewqmtests.mpi 2
 after_failure:
         - tail -20 $NWCHEM_TOP/src/tools/build/config.log
         - tail -10 $NWCHEM_TOP/src/tools/build/comex/config.log
