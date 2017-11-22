@@ -19,6 +19,7 @@ env: == default ==
         USE_PYTHONCONFIG=y
         PYTHONVERSION=2.7
         PYTHONHOME=/usr
+        LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH
 before_script:
         - sudo apt-get -y install gfortran gcc python-dev  cmake
         - sudo apt-get -y install libopenmpi-dev openmpi-bin tcsh make automake libtool autoconf 
@@ -38,7 +39,9 @@ script:
         - tail -10 $NWCHEM_TOP/src/make.log
         - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 2 dft_siosi3 && ./doafewqmtests.mpi 2 
 after_failure:
+        - grep -A 2 -B 2 -i error $NWCHEM_TOP/src/make.log 
         - tail -20 $NWCHEM_TOP/src/tools/build/config.log
         - tail -10 $NWCHEM_TOP/src/tools/build/comex/config.log
         - tail -200 $NWCHEM_TOP/src/make.log
+        - env
               
