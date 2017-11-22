@@ -18,11 +18,12 @@ env: == default ==
         PYTHONVERSION=2.7
         PYTHONHOME=/usr
 before_script:
-        - mkdir -p $TRAVIS_BUILD_DIR
-        - cd $TRAVIS_BUILD_DIR && pwd && cd ..; mkdir -p nwchem-6.8 && ls -l $NWCHEM_TOP
         - sudo apt-get -y install gfortran gcc python-dev libopenblas-dev 
         - sudo apt-get -y install libopenmpi-dev openmpi-bin tcsh make automake libtool autoconf 
         - sudo apt-get -y install perl
+        - cd $TRAVIS_BUILD_DIR && pwd && cd ..; ln -sf nwchem nwchem-6.8 && cd $NWCHEM_TOP && pwd
+        - ls -lrt $TRAVIS_BUILD_DIR
+        - ls -lrt $NWCHEM_TOP
         - cd $NWCHEM_TOP/src && make nwchem_config &&  make 64_to_32 >& 6log &
         - sleep 1
 script:
