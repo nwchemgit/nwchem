@@ -38,11 +38,15 @@ script:
         - tail -2 $NWCHEM_TOP/src/tools/build/config.log
         - cat $NWCHEM_TOP/src/tools/build/config.h
         - tail -10 $NWCHEM_TOP/src/make.log
-        - cd $NWCHEM_TOP/src && make nwchem_config NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd python tce" && cd tce && make FDEBUG="-O0 -g" FOPTIMIZE="-O0 -g" -j4 >& ../tcemake.log && cd .. && make link
+        - cd $NWCHEM_TOP/src && make nwchem_config NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd python tce" 
+        - cd $NWCHEM_TOP/src/tce && make FDEBUG="-O0 -g" FOPTIMIZE="-O0 -g" -j4 >& ../tcemake.log 
+        - cd $NWCHEM_TOP/src && make link
         - tail -10 $NWCHEM_TOP/src/tcemake.log
 after_failure:
         - tail -20 $NWCHEM_TOP/src/tools/build/config.log
         - tail -10 $NWCHEM_TOP/src/tools/build/comex/config.log
+        - grep -A 2 -B 2 -i error $NWCHEM_TOP/src/make.log 
+        - grep -A 2 -B 2 -i error $NWCHEM_TOP/src/tcemake.log 
         - head -200 $NWCHEM_TOP/src/tcemake.log
         - tail -200 $NWCHEM_TOP/src/tcemake.log
               
