@@ -14,7 +14,7 @@ env: == default ==
         USE_64TO32=y
         BLASOPT="-lopenblas -lpthread -lrt"
         BLAS_SIZE=4
-        SCALAPACK="-L$TRAVIS_BUILD_DIR/lib  -lscalapack -lopenblas -lpthread -lrt"
+        SCALAPACK="-L$TRAVIS_BUILD_DIR/scalapack/build  -lscalapack -lopenblas -lpthread -lrt"
         SCALAPACK_SIZE=4
         USE_PYTHONCONFIG=y
         PYTHONVERSION=2.7
@@ -27,7 +27,7 @@ before_script:
         - ls -lrt $TRAVIS_BUILD_DIR
         - ls -lrt $NWCHEM_TOP
         - cd $NWCHEM_TOP/src && make nwchem_config &&  make 64_to_32 >& 6log &
-        - cd $TRAVIS_BUILD_DIR ;git clone https://github.com/scibuilder/scalapack.git && mkdir -p scalapack/build && cd scalapack/build && cmake ../ -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=ON  -DBLAS_blas_LIBRARY="-lopenblas" -DLAPACK_lapack_LIBRARY="-llapack" -DUSE_OPTIMIZED_LAPACK_BLAS=OFF -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR  && sudo make V=0 -j3 && ls -lrt $TRAVIS_BUILD_DIR
+        - cd $TRAVIS_BUILD_DIR ;git clone https://github.com/scibuilder/scalapack.git && mkdir -p scalapack/build && cd scalapack/build && cmake ../ -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=ON  -DBLAS_blas_LIBRARY="-lopenblas" -DLAPACK_lapack_LIBRARY="-llapack" -DUSE_OPTIMIZED_LAPACK_BLAS=OFF -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR  && sudo make V=0 -j3 && ls -lrt $TRAVIS_BUILD_DIR/scalapack/lib &&  ls -lrt $TRAVIS_BUILD_DIR/scalapack/build
         - sleep 1
 script:
         - cd $NWCHEM_TOP/src && make -j 3 >& make.log
