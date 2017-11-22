@@ -22,7 +22,6 @@ addons:
     - libscalapack-mpi-dev
 matrix:
   include:
-    - dist: xenial    
       env: == default ==
         NWCHEM_TOP=$TRAVIS_BUILD_DIR
         NWCHEM_TARGET=LINUX64
@@ -47,7 +46,7 @@ script:
         - tail -100 $NWCHEM_TOP/src/6log
         - tail -100 $NWCHEM_TOP/src/tools/build/config.log
         - tail -200 $NWCHEM_TOP/src/make.log
-        - grep SCALAPAC $NWCHEM_TOP/src/tools/buid/config.log 
+        - grep SCALAPAC $NWCHEM_TOP/src/tools/buid/config.log
 after_failure:
         - cat $NWCHEM_TOP/src/6log
         - cat $NWCHEM_TOP/src/tools/build/config.log
