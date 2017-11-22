@@ -9,7 +9,7 @@ compiler:
 env: == default ==
         NWCHEM_TOP=$TRAVIS_BUILD_DIR/../nwchem-6.8
         NWCHEM_TARGET=LINUX64
-        NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd"
+        NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd python"
         USE_MPI=y
         USE_64TO32=y
         BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lopenblas -lpthread -lrt"
@@ -36,11 +36,11 @@ script:
         - tail -2 $NWCHEM_TOP/src/tools/build/config.log
         - cat $NWCHEM_TOP/src/tools/build/config.h
         - tail -10 $NWCHEM_TOP/src/make.log
-        - cd $NWCHEM_TOP/src && make nwchem_config NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd tce" && make FDEBUG="-O0 -g" FOPTIMIZE="-O0 -g" -j4 >& make.log
-        - tail -10 $NWCHEM_TOP/src/make.log
+        - cd $NWCHEM_TOP/src && make nwchem_config NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd python tce" && cd tce && make FDEBUG="-O0 -g" FOPTIMIZE="-O0 -g" -j4 >& ../tcemake.log && cd .. && make link
+        - tail -10 $NWCHEM_TOP/src/tcemake.log
 after_failure:
         - tail -20 $NWCHEM_TOP/src/tools/build/config.log
         - tail -10 $NWCHEM_TOP/src/tools/build/comex/config.log
-        - head -200 $NWCHEM_TOP/src/make.log
-        - tail -200 $NWCHEM_TOP/src/make.log
+        - head -200 $NWCHEM_TOP/src/tcemake.log
+        - tail -200 $NWCHEM_TOP/src/tcemake.log
               
