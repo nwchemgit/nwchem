@@ -31,13 +31,12 @@ before_script:
         - sleep 1
 script:
         - cd $NWCHEM_TOP/src && make -j 3 >& make.log
-        - tail -50 $NWCHEM_TOP/src/6log
-        - tail -50 $NWCHEM_TOP/src/tools/build/config.log
+        - tail -2 $NWCHEM_TOP/src/6log
+        - tail -2 $NWCHEM_TOP/src/tools/build/config.log
         - cat $NWCHEM_TOP/src/tools/build/config.h
-        - tail -100 $NWCHEM_TOP/src/make.log
+        - tail -10 $NWCHEM_TOP/src/make.log
 after_failure:
-        - cat $NWCHEM_TOP/src/6log
-        - cat $NWCHEM_TOP/src/tools/build/config.log
-        - cat $NWCHEM_TOP/src/tools/build/comex/config.log
-        - cat $NWCHEM_TOP/src/make.log
+        - tail -20 $NWCHEM_TOP/src/tools/build/config.log
+        - tail -10 $NWCHEM_TOP/src/tools/build/comex/config.log
+        - tail -200 $NWCHEM_TOP/src/make.log
               
