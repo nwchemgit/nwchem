@@ -9,7 +9,7 @@ compiler:
 env: == default ==
         NWCHEM_TOP=$TRAVIS_BUILD_DIR/../nwchem-6.8
         NWCHEM_TARGET=LINUX64
-        NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd"
+        NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd solvation python"
         USE_MPI=y
         USE_PYTHONCONFIG=y
         BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lnwclapack -lopenblas"
@@ -38,10 +38,7 @@ script:
         - cat $NWCHEM_TOP/src/tools/build/config.h
         - tail -10 $NWCHEM_TOP/src/make.log
         - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 2 dft_siosi3
-        - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 1 h2o_opt
-        - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 1 dft_he2+
-        - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 2 h2o_opt
-        - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 2 dft_he2+
+        - cd $NWCHEM_TOP/QA && ./doafewqmtests.mpi 2
 after_failure:
         - grep -A 2 -B 2 -i error $NWCHEM_TOP/src/make.log 
         - grep d= $NWCHEM_TOP/QA/testoutputs/dft_he2+.out
