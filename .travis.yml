@@ -42,10 +42,10 @@ script:
         - cd $NWCHEM_TOP/src && make nwchem_config NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd solvation python tce" 
         - cd $NWCHEM_TOP/src/tce && head -30 dependencies && rm -f dependencies
         - grep -i dot $NWCHEM_TOP/src/tce/tce_residual_t1.F
-        - make include_stamp dependencies
+        - make include_stamp dependencies >& dep.log && tail -2 dep.log
         - wait 
         - grep -i dot $NWCHEM_TOP/src/tce/tce_residual_t1.F
-        - cd $NWCHEM_TOP/src/tce && ../../travil/sleep_loop.sh make FDEBUG="-O0 -g" FOPTIMIZE="-O0 -g" -j4 
+        - cd $NWCHEM_TOP/src/tce && ../../travis/sleep_loop.sh make FDEBUG="-O0 -g" FOPTIMIZE="-O0 -g" -j4 
         - tail -4 $NWCHEM_TOP/src/make.log
         - cd $NWCHEM_TOP/src && make link
         - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 2 dft_siosi3
