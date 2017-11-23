@@ -33,7 +33,7 @@ before_script:
         - sleep 1
 script:
         - cd $NWCHEM_TOP/src/tce && make 64_to_32 >& 6log &
-        - cd $NWCHEM_TOP/src && make  -j3 >& make.log
+        - cd $NWCHEM_TOP/src && travis_wait 20 make  -j3 
         - tail -2 $NWCHEM_TOP/src/6log
         - tail -2 $NWCHEM_TOP/src/tce/6log
         - tail -2 $NWCHEM_TOP/src/tools/build/config.log
