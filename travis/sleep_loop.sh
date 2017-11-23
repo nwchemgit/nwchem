@@ -8,7 +8,7 @@ do
     sleep 60
     if kill -0 "$pid" 2>/dev/null; then
 	echo ' ==== ' `date` ' ==== '
-	tail -1 log
+	tail -1 make.log
     elif wait "$pid"; then
 	break          #Abandon the loop.
     fi
