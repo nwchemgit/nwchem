@@ -14,6 +14,8 @@ env: == default ==
         USE_PYTHONCONFIG=y
         BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lnwclapack -lopenblas"
         BLAS_SIZE=4
+        SCALAPACK="-L$TRAVIS_BUILD_DIR/lib -lscalapack -lnwclapack -lopenblas"
+        SCALAPACK_SIZE=4
         USE_64TO32=y
         PYTHONVERSION=2.7
         PYTHONHOME=/usr
@@ -27,6 +29,7 @@ before_script:
         - ls -lrt $NWCHEM_TOP
         - cd $NWCHEM_TOP/src && make nwchem_config &&  make 64_to_32 >& 6log &
         - ./travis/build_openblas.sh
+        - ./travis/build_scalapack.sh
         - wait
         - cd $NWCHEM_TOP/src && make nwchem_config 
 script:
