@@ -12,7 +12,7 @@ env: == default ==
         NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd python"
         USE_MPI=y
         USE_64TO32=y
-        BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lopenblas -lpthread -lrt"
+        BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lnwclapack -lopenblas -lpthread -lrt"
         BLAS_SIZE=4
         SCALAPACK="-L$TRAVIS_BUILD_DIR/lib  -lscalapack -lopenblas -lpthread -lrt"
         SCALAPACK_SIZE=4
@@ -32,14 +32,20 @@ before_script:
         - ./travis/build_scalapack.sh
         - sleep 1
 script:
-        - cd $NWCHEM_TOP/src && make FDEBUG="-O0 -g" FOPTIMIZE="-O2 -g" -j3 >& make.log
+        - cd $NWCHEM_TOP/src && make FDEBUG="-O0 -g" FOPTIMIZE="-O1 -g" -j3 >& make.log
         - tail -2 $NWCHEM_TOP/src/6log
         - tail -2 $NWCHEM_TOP/src/tools/build/config.log
         - cat $NWCHEM_TOP/src/tools/build/config.h
         - tail -10 $NWCHEM_TOP/src/make.log
-        - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 2 dft_siosi3 && ./doafewqmtests.mpi 2 
+        - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 2 dft_siosi3
+        - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 1 h2o_opt
+        - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 1 dft_he2+
+        - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 2 h2o_opt
+        - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 2 dft_he2+
 after_failure:
         - grep -A 2 -B 2 -i error $NWCHEM_TOP/src/make.log 
+        - grep d= $NWCHEM_TOP/QA/testoutputs/dft_he2+.out
+        - grep @ $NWCHEM_TOP/QA/testoutputs/h2o_opt.out
         - tail -20 $NWCHEM_TOP/src/tools/build/config.log
         - tail -10 $NWCHEM_TOP/src/tools/build/comex/config.log
         - tail -200 $NWCHEM_TOP/src/make.log
