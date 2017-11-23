@@ -13,7 +13,7 @@ env: == default ==
         USE_MPI=y
         USE_PYTHONCONFIG=y
         BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lnwclapack -lopenblas"
-        BLAS_SIZE=8
+        BLAS_SIZE=4
         PYTHONVERSION=2.7
         PYTHONHOME=/usr
         LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH
@@ -24,7 +24,9 @@ before_script:
         - cd $TRAVIS_BUILD_DIR && pwd && cd ..; ln -sf nwchem nwchem-6.8 && cd $NWCHEM_TOP && pwd
         - ls -lrt $TRAVIS_BUILD_DIR
         - ls -lrt $NWCHEM_TOP
+        - cd $NWCHEM_TOP/src && make nwchem_config &&  make 64_to_32 >& 6log &
         - ./travis/build_openblas.sh
+        - wait
         - cd $NWCHEM_TOP/src && make nwchem_config 
 script:
         - cd $NWCHEM_TOP/src && make  -j3 >& make.log
