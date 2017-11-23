@@ -46,7 +46,7 @@ script:
         - wait 
         - tail -2 $NWCHEM_TOP/src/tce/6log
         - grep -i dot $NWCHEM_TOP/src/tce/tce_residual_t1.F
-        - cd $NWCHEM_TOP/src/tce && ../../travis/sleep_loop.sh make FDEBUG=-O0 FOPTIMIZE=-O0 -j3 
+        - cd $NWCHEM_TOP/src/tce && ../../travis/sleep_loop.sh make FDEBUG="-O0 -g" FOPTIMIZE="-O0 -g" -j4
         - tail -4 $NWCHEM_TOP/src/make.log
         - cd $NWCHEM_TOP/src && make link
         - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 2 dft_siosi3
