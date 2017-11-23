@@ -12,7 +12,7 @@ env: == default ==
         NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd"
         USE_MPI=y
         USE_PYTHONCONFIG=y
-        BLASOPT="-lnwclapack -lopenblas"
+        BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lnwclapack -lopenblas"
         BLAS_SIZE=8
         PYTHONVERSION=2.7
         PYTHONHOME=/usr
