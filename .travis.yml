@@ -14,6 +14,7 @@ env: == default ==
         USE_PYTHONCONFIG=y
         BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lnwclapack -lopenblas"
         BLAS_SIZE=4
+        USE_64TO32=y
         PYTHONVERSION=2.7
         PYTHONHOME=/usr
         LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH
