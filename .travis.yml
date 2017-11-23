@@ -32,13 +32,14 @@ before_script:
         - sleep 1
 script:
         - cd $NWCHEM_TOP/src/tce && make 64_to_32 >& 6log &
-        - cd $NWCHEM_TOP/src && make FDEBUG="-O0 -g" FOPTIMIZE="-O2 -g" -j3 >& make.log
+        - cd $NWCHEM_TOP/src && make FDEBUG="-O0 -g" FOPTIMIZE="-O1 -g" -j3 >& make.log
         - tail -2 $NWCHEM_TOP/src/6log
         - tail -2 $NWCHEM_TOP/src/tce/6log
         - tail -2 $NWCHEM_TOP/src/tools/build/config.log
         - cat $NWCHEM_TOP/src/tools/build/config.h
         - tail -10 $NWCHEM_TOP/src/make.log
         - cd $NWCHEM_TOP/src && make nwchem_config NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd python tce" 
+        - cd $NWCHEM_TOP/src/tce && head -30 dependencies && rm -f dependencies
         - cd $NWCHEM_TOP/src/tce && make FDEBUG="-O0 -g" FOPTIMIZE="-O0 -g" -j4 >& ../tcemake.log 
         - cd $NWCHEM_TOP/src && make link
         - tail -10 $NWCHEM_TOP/src/tcemake.log
