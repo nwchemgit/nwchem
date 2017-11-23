@@ -9,16 +9,17 @@ compiler:
 env: == default ==
         NWCHEM_TOP=$TRAVIS_BUILD_DIR/../nwchem-6.8
         NWCHEM_TARGET=LINUX64
-        NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd python"
+        NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd solvation python"
         USE_MPI=y
         USE_64TO32=y
         BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lopenblas -lpthread -lrt"
         BLAS_SIZE=4
-        SCALAPACK="-L$TRAVIS_BUILD_DIR/lib  -lscalapack -lopenblas -lpthread -lrt"
+        SCALAPACK="-L$TRAVIS_BUILD_DIR/lib  -lscalapack -lnwclapack -lopenblas -lpthread -lrt"
         SCALAPACK_SIZE=4
         USE_PYTHONCONFIG=y
         PYTHONVERSION=2.7
         PYTHONHOME=/usr
+        LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH
 before_script:
         - sudo apt-get -y install gfortran gcc python-dev  cmake
         - sudo apt-get -y install libopenmpi-dev openmpi-bin tcsh make automake libtool autoconf 
@@ -32,21 +33,23 @@ before_script:
         - sleep 1
 script:
         - cd $NWCHEM_TOP/src/tce && make 64_to_32 >& 6log &
-        - cd $NWCHEM_TOP/src && make FDEBUG="-O0 -g" FOPTIMIZE="-O1 -g" -j3 >& make.log
+        - cd $NWCHEM_TOP/src && make  -j3 >& make.log
         - tail -2 $NWCHEM_TOP/src/6log
         - tail -2 $NWCHEM_TOP/src/tce/6log
         - tail -2 $NWCHEM_TOP/src/tools/build/config.log
         - cat $NWCHEM_TOP/src/tools/build/config.h
         - tail -10 $NWCHEM_TOP/src/make.log
-        - cd $NWCHEM_TOP/src && make nwchem_config NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd python tce" 
+        - cd $NWCHEM_TOP/src && make nwchem_config NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd solvation python tce" 
         - cd $NWCHEM_TOP/src/tce && head -30 dependencies && rm -f dependencies
         - grep -i dot $NWCHEM_TOP/src/tce/tce_residual_t1.F
         - make include_stamp dependencies
         - wait 
         - grep -i dot $NWCHEM_TOP/src/tce/tce_residual_t1.F
         - cd $NWCHEM_TOP/src/tce && make FDEBUG="-O0 -g" FOPTIMIZE="-O0 -g" -j4 >& ../tcemake.log 
-        - cd $NWCHEM_TOP/src && make link
         - tail -10 $NWCHEM_TOP/src/tcemake.log
+        - cd $NWCHEM_TOP/src && make link
+        - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 2 dft_siosi3
+        - cd $NWCHEM_TOP/QA && ./doafewqmtests.mpi 2
 after_failure:
         - tail -20 $NWCHEM_TOP/src/tools/build/config.log
         - tail -10 $NWCHEM_TOP/src/tools/build/comex/config.log
@@ -54,4 +57,6 @@ after_failure:
         - grep -A 2 -B 2 -i error $NWCHEM_TOP/src/tcemake.log 
         - head -200 $NWCHEM_TOP/src/tcemake.log
         - tail -200 $NWCHEM_TOP/src/tcemake.log
+        - grep d= $NWCHEM_TOP/QA/testoutputs/dft_he2+.out
+        - grep @ $NWCHEM_TOP/QA/testoutputs/h2o_opt.out
               
