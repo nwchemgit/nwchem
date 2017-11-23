@@ -1,7 +1,8 @@
-#!/bin/bash -f
+#!/bin/bash
+echo "starting sleep_loop.sh for command: " $*
 $* >& make.log &
 pid=$!
-echo "TT got pid" $pid
+echo "sleep_loop got pid" $pid
 while :
 do
     sleep 60
