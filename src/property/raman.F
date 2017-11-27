@@ -93,7 +93,9 @@ c --------------------------------------------------------------------
      &                    rminfo,   ! in : Raman data
      &                    eigenvecs,! in : normal modes eigenvectors (nat3,nat3)
      &                    mass,     ! in : mass
-     &                    first0)   ! in : first nonzero mode (6 or 7)
+     &                    first0,   ! in : first nonzero mode (6 or 7)
+     &                    oprint,   ! in : logical oprint for dadq file
+     &                    dadqfile) ! in : dadq file
 c
 c Authors: Jonathan Mullin, Northwestern University (ver 1: Jan. 2011)
 c          Fredy W. Aquino, Northwestern University (ver 2: Oct. 2012)
@@ -130,7 +132,9 @@ c      double precision laser(nfreq) ! [input] frequency used in AORESPONSE
       double precision ar2, ai2, gr2, gi2 ! alpha and g for imode
       double precision axx,axy,axz,ayy,ayz,azz
       double precision zero, one, two, three, six, seven,
-     &                  fourty_five, bohr2ang
+     &     fourty_five, bohr2ang
+      logical oprint
+      character*(*) dadqfile
       parameter (zero=0.0D+00, one=1.0D+00, two=2.0D+00, three=3.0D+00,
      &            six=6.0D+00, seven=7.0D+00, fourty_five=45.0D+00)
       parameter (bohr2ang=0.52917724924D+00) ! CONVERSION OF BOHR to ANGSTROMS
@@ -213,6 +217,7 @@ c ----------calculate a and g for real and impaginary--------
       ayy=fdrpol(2,2)
       ayz=fdrpol(2,3)
       azz=fdrpol(3,3)
+      if(oprint) call raman_dump_dadq(fdrpol)
 c ----Calculation of RE (iso,aniso)tropic^2   
       ar2=((axx+ayy+azz)/three)**2
       gr2= ((axx-ayy)**2+(ayy-azz)**2+(azz-axx)**2+
@@ -619,6 +624,7 @@ c Note.- Modified from raman_save()
 #include "nwc_const.fh" 
 #include "inp.fh"
 #include "global.fh"
+#include "util.fh"
 
       integer i,j,n,ii ! counting indexes
       integer modenr
@@ -630,10 +636,12 @@ c Note.- Modified from raman_save()
       logical debug
       logical status,status1
       character*255 ramanpolfile
+      logical oprint
       logical ramanpol_write,ramanpol_read
       external ramanpol_write,ramanpol_read
-
+      
       debug      = (.false. .and. ga_nodeid().eq.0) ! produce debug output
+      oprint=util_print('raman_alpha', print_high).and.ga_nodeid().eq.0
       n=(ii-1)*3
       DO i=1,3
          n=n+1
@@ -660,6 +668,11 @@ c  -------------delete raman polarizability from rtdb --------------------------
           write(luout,*) 'alfaim'
           call output(alfaim,1,3,1,3,3,3,1)
       ENDIF !  for DEBUG
+      if(oprint) then
+         write(luout,4321) alfare
+ 4321     format('{{',2(f14.8,','),f14.8,'},{',2(f14.8,','),f14.8,'},{',
+     F        2(f14.8,','),f14.8,'}}')
+      endif
 
       return
       end
@@ -1204,3 +1217,48 @@ c     Broadcast status to other nodes
       goto 10
       end    
 c =========== READ/WRITE Raman data ============= END
+      subroutine raman_open_dadq(filename)
+      implicit none
+#include "stdio.fh"
+#include "inp.fh"
+      character*(*) filename
+c
+      integer lu
+      logical does_it_exist
+c
+      lu = 64
+      does_it_exist = .false.
+      inquire(file=filename,exist=does_it_exist)
+      if (does_it_exist) write(luout,*)
+     &    'raman_dadq: append existing file',
+     &     filename(1:inp_strlen(filename))
+      open(unit=lu,file=filename,
+     &    form='formatted',
+     &    access='sequential',
+     &     status='unknown',
+     A     position='append')
+      return
+      end
+      subroutine raman_dump_dadq(fdrpol)
+      implicit none
+      double precision fdrpol(3,3)
+c
+      integer lu
+      lu = 64
+c     
+      write(6,*) 'RRR ',fdrpol(1,1)
+      write(lu,4321) fdrpol
+ 4321 format('{{',2(f14.8,','),f14.8,'},{',2(f14.8,','),f14.8,'},{',
+     F     2(f14.8,','),f14.8,'}}')
+c
+      end
+      subroutine raman_close_dadq(filename)
+      implicit none
+      character*(*) filename
+c
+      integer lu
+c
+      lu = 64
+      close(unit=lu,status='keep')
+      return
+      end
