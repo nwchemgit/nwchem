@@ -29,14 +29,13 @@ else
    path="`which \"$0\"`"
    path="`dirname \"$path\"`"
 fi
-my_svnversion=`which svn`
+my_gitversion=`which git`
 cd "$path"
-if [ -f "${my_svnversion}" ] ; then
-  # svnversion exists, but is the code under svn?
-WCBRANCH=`svn info . 2> /dev/null | wc -l`
+if [ -f "${my_gitversion}" ] ; then
+  # gitversion exists, but is the code under git?
+WCBRANCH=`${my_gitversion}  describe  --always --abbrev=40  | wc -l`
 if [ ${WCBRANCH} -ne 0 ]; then
-    revision=`${my_svnversion} info -r 'HEAD'| grep Last\ Changed\ Rev:`
-    revision=`echo ${revision} | sed 's/Last\ Changed\ Rev: //'`
+    revision=`${my_gitversion}  describe  --always --abbrev=40`
     echo "      subroutine util_nwchem_version(nwrev)" > util_nwchem_version.F
     echo "      implicit none" >> util_nwchem_version.F
     echo "      character*(*) nwrev" >> util_nwchem_version.F
