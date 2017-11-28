@@ -1,7 +1,7 @@
 How to fix bizarre check-ins
 ====
 
-* Case when committer got in bizarre state on his git repository and
+* Case when committer got in bizarre state on this git repository and
 the changes have been pushed already to github.com
 
 * git log showed
