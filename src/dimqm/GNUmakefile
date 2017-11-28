@@ -13,8 +13,7 @@
          dimqm_printDipole.o \
          dimqm_Dens2Dipoles.o dimqm_indDipoles.o \
          dimqm_printAtoms.o dimqm_addop.o dimqm_lclfld.o \
-         dim_elfcon.o dim_1eelec.o dim_elfder.o dim_dervxyz.o \
-         dim_sxyz.o dimqm_screening.o seeded_qmr_real.o \
+         seeded_qmr_real.o \
          qmr_seed_real.o seeded_qmr_real_augment.o \
          dimqm_tidy.o qmr_seed_complex.o seeded_qmr_complex.o \
          dimqm_broadcast.o CubicSpline.o dim_fock_xc.o \
