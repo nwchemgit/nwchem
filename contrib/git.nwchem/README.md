@@ -42,16 +42,16 @@ Branch: refs/heads/master
   Changed paths:    
 src/nwdft/rt_tddft/rtutils/rt_tddft_movecs_import.F   
 
-  Log Message:  
+  Log Message:   
   minor edit to reflect the initial density matrix  
 
 
-  Commit: 2447af6b3899c46408f645dc32d5928036177987
-      https://github.com/nwchemgit/nwchem/commit/2447af6b3899c46408f645dc32d5928036177987
-  Author: Niri Govind <niri.govind@pnnl.gov>
-  Date:   2017-11-20 (Mon, 20 Nov 2017)
+  Commit: 2447af6b3899c46408f645dc32d5928036177987  
+      https://github.com/nwchemgit/nwchem/commit/2447af6b3899c46408f645dc32d5928036177987  
+  Author: Niri Govind <niri.govind@pnnl.gov>  
+  Date:   2017-11-20 (Mon, 20 Nov 2017)  
 
-  Changed paths:  
+  Changed paths:   
   A docs/Capabilities  
   A docs/_config.yml  
   A docs/_layouts/default.html  
