@@ -1,0 +1,66 @@
+
+Some git config options:
+
+git config --global user.email "you@example.com"  
+git config --global user.name "Your Name"  
+git config --global core.editor "emacs"  (default on most OS is vi)  
+git config --global merge.tool "meld"  
+
+Using --local instead of --global above allows you to set these preferences on a per repository basis. --global sets "system wide preferences"  
+
+Branching Notes:
+
+Assuming we are currently on *master*
+
+- git checkout -b test  (Creates new branch test based on master branch)
+ 
+We are now on branch test unless specified otherwise
+- git add f1 f2 ... (add some files)
+- git commit -m "First commit to test branch"
+
+Occasionally, we might want to get updates from master into branch *test* using:
+ - git pull origin master
+
+- Few more commits to *test* branch
+
+When ready to merge into master:
+
+    git checkout master (we are now on master branch)  
+    git pull (make sure master is upto date)  
+    git merge test  
+    If there are any conflicts, fix those files manually, commit the fixed files and then: (git merge abort if something seems wrong to abort the merge process)  
+    git push  
+
+------------------------------
+
+- OPTIONAL  
+For some reason, if you want to push your local branch *test* to the github repo,  
+  - When you push *test* branch for 1st time, use: git push --set-upstream origin test  
+  - For Subsequent pushes to *test* branch "git push" will do.  
+
+To delete a branch that has been pushed to the github repo:  
+- git checkout master (switch to master branch, since you cannot delete a branch you are currently on)  
+**We are now on master branch**  
+- git push --delete origin test --> Will delete the *test* branch from remote(github) repo  
+
+At this point, your local copy of branch *test* still exists - To remove it use:  
+- git branch -d test (delete a local branch *test* that has been merged with master)  
+
+Caveat: Usually you delete a branch after merging it back into master as we did above. For some reason, If *test* branch is not merged into master and you want to delete it, use:  
+- git branch -D test  (same cmd as above but using -D instead of -d )  
+
+
+How to re-sync a forked repository
+====
+
+Adapted from https://help.github.com/articles/syncing-a-fork/  
+  git remote -v  
+  git remote add upstream https://github.com/nwchemgit/nwchem.git  
+  git remote -v  
+  git fetch upstream  
+  git checkout  master  
+  git merge  upstream/master  
+  git push  
+(or for new branch: git push origin mynewbranch)  
+  git pull  
+
