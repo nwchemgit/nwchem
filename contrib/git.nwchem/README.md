@@ -52,15 +52,15 @@ src/nwdft/rt_tddft/rtutils/rt_tddft_movecs_import.F
   Date:   2017-11-20 (Mon, 20 Nov 2017)  
 
   Changed paths:   
-  A docs/Capabilities  
-  A docs/_config.yml  
-  A docs/_layouts/default.html  
-  A docs/assets/css/style.scss  
-  A docs/assets/images/checker.png  
-  A docs/assets/js/scale.fix.js  
-  A docs/index.html  
-  A docs/index2.html  
-  M src/nwpw/nwpw_input.F  
+A docs/Capabilities  
+A docs/_config.yml  
+A docs/_layouts/default.html  
+A docs/assets/css/style.scss  
+A docs/assets/images/checker.png  
+A docs/assets/js/scale.fix.js  
+A docs/index.html  
+A docs/index2.html  
+M src/nwpw/nwpw_input.F  
 
   Log Message:  
   Merge branch 'master' of https://github.com/nwchemgit/nwchem  
