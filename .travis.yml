@@ -6,6 +6,8 @@ matrix:
     sudo: required
 compiler:
   - gcc
+git:
+  depth: 3
 env: == default ==
         NWCHEM_TOP=$TRAVIS_BUILD_DIR
         NWCHEM_TARGET=LINUX64
