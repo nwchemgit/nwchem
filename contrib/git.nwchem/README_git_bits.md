@@ -64,3 +64,27 @@ Adapted from https://help.github.com/articles/syncing-a-fork/
 (or for new branch: git push origin mynewbranch)  
   git pull  
 
+
+More commands
+====
+
+* Revision information
+
+$ git describe
+
+ nwchem_on_git-14-g2b641c8
+ 
+(this needs tags to be present)
+
+$ git describe --all
+
+ heads/master
+
+
+* What changes are scheduled to be sent by git push?
+
+$ git diff --stat --cached remotes/origin/release-6-8
+
+or
+
+$ git diff --stat --cached origin/master
