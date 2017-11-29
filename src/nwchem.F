@@ -430,6 +430,8 @@ c
       integer istatus,setvbuf3f
       external setvbuf3f
 #endif
+      logical util_scalapack_info
+      external util_scalapack_info
       character*3 cstatus, fstatus
       character*10 cstart
       Character*40 GStatus
@@ -531,6 +533,7 @@ C
      &     branch(1:inp_strlen(branch)),
      &     nwchem_rev(1:inp_strlen(nwchem_rev)),
      &     ga_rev(1:inp_strlen(ga_rev)),
+     S     util_scalapack_info(),
      $     input_filename(1:inp_strlen(input_filename)),
      $     file_prefix(1:inp_strlen(file_prefix)),
      $     rtdb_name(1:inp_strlen(rtdb_name)),
@@ -559,6 +562,7 @@ C
      $     '    nwchem branch   = ', a/
      $     '    nwchem revision = ', a/
      $     '    ga revision     = ', a/
+     $     '    use scalapack   = ', l1/
      $     '    input           = ', a/
      $     '    prefix          = ', a/
      $     '    data base       = ', a/

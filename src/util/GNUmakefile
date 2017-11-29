@@ -222,7 +222,7 @@ endif
               ga_lkain_2cpl3.o util_io.o util_xyz.o util_ma.o util_mpinap.o \
 	      ga_lkain_2cpl3_ext.o  util_dgeev.o util_nwsort.o \
 	      util_mygabcast.o util_getppn.o util_units.o \
-              util_intrsc2008.o util_fadvise.o  \
+              util_intrsc2008.o util_fadvise.o  util_scalapack_info.o\
               ga_conjg.o nwmolden.o ao_1prdm_read.o ao_1prdm_write.o\
               $(EXTRA_OBJ)
 ifndef USE_MLIB
@@ -311,6 +311,10 @@ ifdef USE_NONBLOCKING_BCAST
 endif
 
 include ../config/makelib.h
+
+
+util_scalapack_info.F: ../tools/build/config.h
+	./util_scalapack_info.bash
 
 
 util_version.F:	util_v_stub.F
