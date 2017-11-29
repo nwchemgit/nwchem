@@ -1,16 +1,4 @@
 language: c
-env: == default ==
-        NWCHEM_TOP=$TRAVIS_BUILD_DIR
-        NWCHEM_MODULES="qmandpw"
-        USE_MPI=y
-        USE_64TO32=y
-        BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lopenblas -lpthread -lrt"
-        BLAS_SIZE=4
-        SCALAPACK="-L$TRAVIS_BUILD_DIR/lib  -lscalapack -lnwclapack -lopenblas -lpthread -lrt"
-        SCALAPACK_SIZE=4
-        USE_PYTHONCONFIG=y
-        PYTHONVERSION=2.7
-        PYTHONHOME=/usr
 matrix:
   include:
   - os: osx
@@ -24,6 +12,18 @@ matrix:
     env:
         NWCHEM_TARGET=LINUX64
         LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH
+- env: == default ==
+        NWCHEM_TOP=$TRAVIS_BUILD_DIR
+        NWCHEM_MODULES="qmandpw"
+        USE_MPI=y
+        USE_64TO32=y
+        BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lopenblas -lpthread -lrt"
+        BLAS_SIZE=4
+        SCALAPACK="-L$TRAVIS_BUILD_DIR/lib  -lscalapack -lnwclapack -lopenblas -lpthread -lrt"
+        SCALAPACK_SIZE=4
+        USE_PYTHONCONFIG=y
+        PYTHONVERSION=2.7
+        PYTHONHOME=/usr
 compiler:
   - gcc
 git:
