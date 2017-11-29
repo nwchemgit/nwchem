@@ -12,42 +12,22 @@ matrix:
     env:
         NWCHEM_TARGET=LINUX64
         LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH
-- env: == default ==
-        NWCHEM_TOP=$TRAVIS_BUILD_DIR
-        NWCHEM_MODULES="qmandpw"
-        USE_MPI=y
-        USE_64TO32=y
-        BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lopenblas -lpthread -lrt"
-        BLAS_SIZE=4
-        SCALAPACK="-L$TRAVIS_BUILD_DIR/lib  -lscalapack -lnwclapack -lopenblas -lpthread -lrt"
-        SCALAPACK_SIZE=4
-        USE_PYTHONCONFIG=y
-        PYTHONVERSION=2.7
-        PYTHONHOME=/usr
 compiler:
   - gcc
 git:
   depth: 3
 before_script:
         - printenv TRAVIS_BUILD_DIR
-        - printenv NWCHEM_TOP
         - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gcc open-mpi python2.7 cmake || true; fi
         - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -y install gfortran gcc python-dev  cmake libopenmpi-dev openmpi-bin tcsh make  perl || true;fi
         - ls -lrt $TRAVIS_BUILD_DIR
-        - ls -lrt $NWCHEM_TOP
-        - cd $NWCHEM_TOP/src && make nwchem_config &&  make 64_to_32 >& 6log &
+        - ./travis/config_nwchem.sh
         - ./travis/build_openblas.sh
         - ./travis/build_scalapack.sh
         - sleep 1
 script:
-        - cd $NWCHEM_TOP/src && ../travis/sleep_loop.sh make  -j3 FDEBUG="-O0 -g" FOPTIMIZE="-O2 -fno-aggressive-loop-optimizations" -j3
-        - tail -2 $NWCHEM_TOP/src/6log
-        - head -2 $NWCHEM_TOP/src/tools/build/config.log
-        - tail -2 $NWCHEM_TOP/src/tools/build/config.log
-        - tail -10 $NWCHEM_TOP/src/make.log
-        - cd $NWCHEM_TOP/src && make link
-        - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 2 dft_siosi3
-        - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs  2 h2o_opt dft_he2+ cosmo_h2o_dft tddft_h2o h2o2-response
+        - ./travis/compile_nwchem.sh
+        - ./travis/run_qas.sh
 
 
 after_failure:
