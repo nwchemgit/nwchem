@@ -7,7 +7,7 @@ matrix:
 compiler:
   - gcc
 env: == default ==
-        NWCHEM_TOP=$TRAVIS_BUILD_DIR/../nwchem-6.8
+        NWCHEM_TOP=$TRAVIS_BUILD_DIR/nwchem
         NWCHEM_TARGET=LINUX64
         NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd solvation python"
         USE_MPI=y
@@ -24,7 +24,6 @@ before_script:
         - sudo apt-get -y install gfortran gcc python-dev  cmake
         - sudo apt-get -y install libopenmpi-dev openmpi-bin tcsh make automake libtool autoconf 
         - sudo apt-get -y install perl
-        - cd $TRAVIS_BUILD_DIR && pwd && cd ..; ln -sf nwchem nwchem-6.8 && cd $NWCHEM_TOP && pwd
         - ls -lrt $TRAVIS_BUILD_DIR
         - ls -lrt $NWCHEM_TOP
         - cd $NWCHEM_TOP/src && make nwchem_config &&  make 64_to_32 >& 6log &
