@@ -850,7 +850,7 @@ c
       end if
 
       if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, energy))
-     $        call errquit('driver: could not get energy',0, RTDB_ERR)
+     $   energy = 0.0d0
 
       if(master) then
       write(luout,'(A39,3X,F12.6)')
