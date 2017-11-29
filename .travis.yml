@@ -33,7 +33,7 @@ before_script:
         - ./travis/build_scalapack.sh
         - sleep 1
 script:
-        - cd $NWCHEM_TOP/src && ../travis/sleep_loop.sh make  -j3 FDEBUG="-O0 -g" FOPTIMIZE="-O0 -g" -j3
+        - cd $NWCHEM_TOP/src && ../travis/sleep_loop.sh make  -j3 FDEBUG="-O0 -g" FOPTIMIZE="-O2" -j3
         - tail -2 $NWCHEM_TOP/src/6log
         - head -2 $NWCHEM_TOP/src/tools/build/config.log
         - tail -2 $NWCHEM_TOP/src/tools/build/config.log
