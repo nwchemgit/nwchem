@@ -25,9 +25,7 @@ env: == default ==
 before_script:
         - printenv TRAVIS_BUILD_DIR
         - printenv NWCHEM_TOP
-        - sudo apt-get -y install gfortran gcc python-dev  cmake
-        - sudo apt-get -y install libopenmpi-dev openmpi-bin tcsh make automake libtool autoconf 
-        - sudo apt-get -y install perl
+        - sudo apt-get -y install gfortran gcc python-dev  cmake libopenmpi-dev openmpi-bin tcsh make  perl
         - ls -lrt $TRAVIS_BUILD_DIR
         - ls -lrt $NWCHEM_TOP
         - cd $NWCHEM_TOP/src && make nwchem_config &&  make 64_to_32 >& 6log &
@@ -35,7 +33,7 @@ before_script:
         - ./travis/build_scalapack.sh
         - sleep 1
 script:
-        - cd $NWCHEM_TOP/src && ../travis/sleep_loop.sh make  -j3 FDEBUG="-O0 -g" FOPTIMIZE="-O2" -j3
+        - cd $NWCHEM_TOP/src && ../travis/sleep_loop.sh make  -j3 FDEBUG="-O0 -g" FOPTIMIZE="-O2 -fno-aggressive-loop-optimizations" -j3
         - tail -2 $NWCHEM_TOP/src/6log
         - head -2 $NWCHEM_TOP/src/tools/build/config.log
         - tail -2 $NWCHEM_TOP/src/tools/build/config.log
