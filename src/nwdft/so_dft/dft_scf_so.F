@@ -67,7 +67,7 @@ c
       double precision scale, ncheck
       integer kfon_occ, lfon_occ
       logical debug_fon, det_eng 
-      integer iswap,jswap
+      integer i_swap,j_swap
       logical noscf
 c
 c     so
@@ -2319,11 +2319,11 @@ c
 c
 c     Switch the mo order to match the determinantal occupancy 
 c
-      iswap = ncore_fon + 1  ! first partially filled orbital
-      jswap = iswap + idet   ! forms the pair (i,j) to be swapped
-      if (jswap.ge.iswap) then
-         swap(1) = iswap  ! assign the pair
-         swap(2) = jswap  ! assign the pair
+      i_swap = ncore_fon + 1  ! first partially filled orbital
+      j_swap = i_swap + idet   ! forms the pair (i,j) to be swapped
+      if (j_swap.ge.i_swap) then
+         swap(1) = i_swap  ! assign the pair
+         swap(2) = j_swap  ! assign the pair
          if(.not.rtdb_put(rtdb,'sodft:swap',mt_int,2,swap))  ! swap is queried in movecs_swap_so
      &        call errquit('swap: failed to put nelem in rtdb', 0,
      &       RTDB_ERR)
@@ -2346,9 +2346,9 @@ c
       if (me.eq.0) write(luout,4443)
  4443 format(/,1x,'Restoring orbital order')
 c
-      if (jswap.ge.iswap) then
-         swap(1) = iswap  ! assign the pair
-         swap(2) = jswap  ! assign the pair
+      if (j_swap.ge.i_swap) then
+         swap(1) = i_swap  ! assign the pair
+         swap(2) = j_swap  ! assign the pair
          if(.not.rtdb_put(rtdb,'sodft:swap',mt_int,2,swap))  ! swap is queried in movecs_swap_so
      &        call errquit('swap: failed to put nelem in rtdb', 0,
      &       RTDB_ERR)
