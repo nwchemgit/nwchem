@@ -31,8 +31,8 @@ env: == default ==
 before_script:
         - printenv TRAVIS_BUILD_DIR
         - printenv NWCHEM_TOP
-         if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gcc open-mpi python2.7 cmake || true; fi
-         if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -y install gfortran gcc python-dev  cmake libopenmpi-dev openmpi-bin tcsh make  perl || true;fi
+        - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gcc open-mpi python2.7 cmake || true; fi
+        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -y install gfortran gcc python-dev  cmake libopenmpi-dev openmpi-bin tcsh make  perl || true;fi
         - ls -lrt $TRAVIS_BUILD_DIR
         - ls -lrt $NWCHEM_TOP
         - cd $NWCHEM_TOP/src && make nwchem_config &&  make 64_to_32 >& 6log &
