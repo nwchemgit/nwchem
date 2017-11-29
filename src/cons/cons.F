@@ -852,7 +852,7 @@ c
       if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, energy))
      $   energy = 0.0d0
 
-      if(master) then
+      if ((master).and.(dabs(energy).gt.1.0d-9)) then
       write(luout,'(A39,3X,F12.6)')
      >       " Total energy with constraints        :",
      >         energy
