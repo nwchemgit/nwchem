@@ -1,3 +1,6 @@
+[![Build Travis-CI Status](https://travis-ci.org/nwchemgit/nwchem.svg?branch=master)](https://travis-ci.org/nwchemgit/nwchem)
+[![License](https://img.shields.io/badge/license-ECL2-blue.svg)](https://raw.githubusercontent.com/nwchemgit/nwchem/master/LICENSE.md)
+
 # NWChem: Open Source High-Performance Computational Chemistry
 
 Scalable computational chemistry tools
