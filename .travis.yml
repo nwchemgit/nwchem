@@ -9,7 +9,7 @@ compiler:
 env: == default ==
         NWCHEM_TOP=$TRAVIS_BUILD_DIR
         NWCHEM_TARGET=LINUX64
-        NWCHEM_MODULES="qmandpw"
+        NWCHEM_MODULES="qmandpw python"
         USE_MPI=y
         USE_64TO32=y
         BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lopenblas -lpthread -lrt"
@@ -35,7 +35,6 @@ before_script:
 script:
         - cd $NWCHEM_TOP/src && ../travis/sleep_loop.sh make  -j3 FDEBUG="-O0 -g" FOPTIMIZE="-O0 -g" -j3
         - tail -2 $NWCHEM_TOP/src/6log
-        - tail -2 $NWCHEM_TOP/src/tce/6log
         - head -2 $NWCHEM_TOP/src/tools/build/config.log
         - tail -2 $NWCHEM_TOP/src/tools/build/config.log
         - tail -10 $NWCHEM_TOP/src/make.log
