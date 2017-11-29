@@ -18,10 +18,11 @@ git:
   depth: 3
 before_script:
         - printenv TRAVIS_BUILD_DIR
-        - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew uninstall oclint || true  ; fi
+        - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew cask uninstall oclint || true  ; fi
         - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gcc open-mpi || true  ; fi
         - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -y install gfortran gcc python-dev  cmake libopenmpi-dev openmpi-bin tcsh make  perl ;fi
         - gfortran -v
+        - mpif90 -show
         - ./travis/config_nwchem.sh
         - ./travis/build_openblas.sh
         - ./travis/build_scalapack.sh
@@ -32,11 +33,11 @@ script:
 
 
 after_failure:
-        - tail -20 $NWCHEM_TOP/src/tools/build/config.log
-        - tail -10 $NWCHEM_TOP/src/tools/build/comex/config.log
-        - grep -A 2 -B 2 -i error $NWCHEM_TOP/src/make.log 
-        - head -200 $NWCHEM_TOP/src/make.log
-        - tail -200 $NWCHEM_TOP/src/make.log
-        - grep d= $NWCHEM_TOP/QA/testoutputs/dft_he2+.out
-        - grep @ $NWCHEM_TOP/QA/testoutputs/h2o_opt.out
+        - tail -20 $TRAVIS_BUILD_DIR/src/tools/build/config.log
+        - tail -10 $TRAVIS_BUILD_DIR/src/tools/build/comex/config.log
+        - grep -A 2 -B 2 -i error $TRAVIS_BUILD_DIR/src/make.log 
+        - head -200 $TRAVIS_BUILD_DIR/src/make.log
+        - tail -200 $TRAVIS_BUILD_DIR/src/make.log
+        - grep d= $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
+        - grep @ $TRAVIS_BUILD_DIR/QA/testoutputs/h2o_opt.out
               
