@@ -36,10 +36,17 @@ c     limits of grid
 
 c     number of grid points from rtdb or computed
       if(.not.rtdb_get(rtdb,'prop:grid:ngrid',MT_INT,3,ngrid)) then
+        if(.not.rtdb_get(rtdb,'prop:grid:step',MT_DBL,1,step)) then
          step  = 0.2/cau2ang
          ngrid(1) = min(CEILING((rmax(1)-rmin(1))/step(1))+1,50)  
          ngrid(2) = min(CEILING((rmax(2)-rmin(2))/step(1))+1,50)
          ngrid(3) = min(CEILING((rmax(3)-rmin(3))/step(1))+1,50)
+        else
+         step  = step/cau2ang
+         ngrid(1) = CEILING((rmax(1)-rmin(1))/step(1))+1
+         ngrid(2) = CEILING((rmax(2)-rmin(2))/step(1))+1
+         ngrid(3) = CEILING((rmax(3)-rmin(3))/step(1))+1
+        endif
       end if
       npoints = PRODUCT(ngrid)
       nsp = ngrid -1
@@ -49,11 +56,11 @@ c     recalculate step
       if(ga_nodeid().eq.0) then
       buffer = "PARAMETERS of gaussian cube file"
       call util_print_centered(luout, trim(buffer),.true., .true.)
-      WRITE(*,'(1X,A,T12,":",3F12.3)') "step",step
-      write(*,'(1X,A,T12,":",3I3)') "ngrid",ngrid
+      WRITE(*,'(1X,A,T12,":",3F12.3)') "step (Ang)",step
+      write(*,'(1X,A,T12,":",3I4)') "ngrid",ngrid
       write(*,'(1X,A,T12,":",I9)') "npoints",npoints
-      write(*,'(1X,A,T12,":",3(F12.3,4X))') "rmax",rmax*cau2ang
-      write(*,'(1X,A,T12,":",3(F12.3,4X))') "rmin",rmin*cau2ang
+      write(*,'(1X,A,T12,":",3(F12.3,4X))') "rmax (Ang)",rmax*cau2ang
+      write(*,'(1X,A,T12,":",3(F12.3,4X))') "rmin (Ang)",rmin*cau2ang
       write(*,*) "------------------------------------------------"
       end if
 c     ---------------------------

@@ -795,7 +795,23 @@ c
 c
 600   continue
       if(.not.inp_a(token)) goto 20
-      if (inp_compare(.false.,'pad',token)) then
+      if (inp_compare(.false.,'step',token)) then
+        ic = 0
+        do i=1,1
+          if(.not.inp_f(f3(i))) exit
+          ic = ic + 1
+        end do
+        if(ic.eq.1) then
+          f3 = f3(1)
+        else if(ic.ne.3) then
+           call errquit(pname//'need 1 float '//token,
+     >                  0, INPUT_ERR)
+        end if
+        tag="prop:grid:step"
+        if(.not.rtdb_put(rtdb,tag,mt_dbl,1,f3))
+     >       goto 999
+
+      else if (inp_compare(.false.,'pad',token)) then
         ic = 0
         do i=1,3
           if(.not.inp_f(f3(i))) exit
