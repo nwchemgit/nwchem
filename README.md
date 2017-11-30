@@ -8,18 +8,19 @@
 [![Tags](https://img.shields.io/github/tag/nwchemgit/nwchem.svg)](https://img.shields.io/github/tag/nwchemgit/nwchem.svg)
 [![All Releases tags](https://img.shields.io/github/release/nwchemgit/nwchem/all.svg)](https://img.shields.io/github/release/nwchemgit/nwchem/all.svg)  
  
-# NWChem: Open Source High-Performance Computational Chemistry
+## NWChem: Open Source High-Performance Computational Chemistry
 <img alt="NWChem logo" src="https://raw.githubusercontent.com/nwchemgit/nwchem/master/contrib/git.nwchem/MS3_logo_cropped.png" align=middle width="102pt" height="117pt"/>  
 
-Scalable computational chemistry tools
-=====
+### Scalable computational chemistry tools
+
+
 Source download instructions
 
-Master
+* Master
 
 git clone https://github.com/nwchemgit/nwchem.git
 
-6.8 Release
+* 6.8 Release
 
 git clone  -b release-6-8 https://github.com/nwchemgit/nwchem.git nwchem-6.8
 
