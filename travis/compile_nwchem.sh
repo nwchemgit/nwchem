@@ -5,8 +5,8 @@ ls -lrt $NWCHEM_TOP|tail -3
 os=`uname`
 cd $NWCHEM_TOP/src
  if [[ "$os" == "Darwin" ]]; then 
-      make  -j3 FDEBUG="-O0 -g" FOPTIMIZE="-O0" -j2 >& make.log
-      tail -120 make.log
+      make  -j3 FDEBUG="-O0 -g" FOPTIMIZE="-O0" -j2 
+#      tail -120 make.log
  elif [[ "$os" == "Linux" ]]; then
      ../travis/sleep_loop.sh make  -j3 FDEBUG="-O0 -g" FOPTIMIZE="-O2 -fno-aggressive-loop-optimizations" -j3
  fi
