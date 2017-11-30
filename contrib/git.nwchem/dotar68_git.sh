@@ -9,6 +9,7 @@ cd nwchem-6.8/src/tools
 rm -f *tar*gz
 ./get-tools-github
 cd ../util
+touch util_module_avail.F
 sh ./util_ga_version.bash
 sh ./util_nwchem_version.bash
 #sed -i 's/N\/A/v5.6.2/'  util_ga_version.F
