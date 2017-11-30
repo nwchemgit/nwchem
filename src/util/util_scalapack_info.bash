@@ -13,7 +13,6 @@ gotscalapack=` grep HAVE_SCA $NWCHEM_TOP/src/tools/build/config.h |  awk ' /HAVE
 
 cd "$path"
 rm -f util_scalapack_info.F
-echo ggog $gotscalapack
     echo "      logical function util_scalapack_info()" > util_scalapack_info.F
     echo "      implicit none" >> util_scalapack_info.F
     echo "      util_scalapack_info=${gotscalapack}" >> util_scalapack_info.F
