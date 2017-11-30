@@ -4,6 +4,7 @@ echo "starting sleep_loop.sh for command: " ${@}
 "${@}" >& make.log &
 pid=$!
 echo "sleep_loop got pid" $pid
+sleep 1
 ps -p "$pid" > /dev/null
 
 if  [[ "${?}" -ne 0 ]];
@@ -13,13 +14,14 @@ then
 else
     while :
     do
-        if kill -0 "$pid" 2>/dev/null; then
+    ps -p "$pid" > /dev/null
+        if [[ "${?}" -eq 0 ]]; then
             echo ' ==== ' `date` ' ==== '
             tail -1 make.log
         elif wait "$pid"; then
             break          # exit loop.
         fi
-        sleep 60s
+        sleep 30s
     done
     exit 0
 fi
