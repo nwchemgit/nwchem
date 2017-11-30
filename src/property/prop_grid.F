@@ -25,7 +25,7 @@ c     SET UP INPUT PARAMETERS
 c     ------------------------
 c     limits of grid
       if(.not.rtdb_get(rtdb,'prop:grid:pad',MT_DBL,3,pad)) then
-         pad = 4.0
+         pad = 4.0 * cang2au
       end if
       if(.not.rtdb_get(rtdb,'prop:grid:rmin',MT_DBL,3,rmin)) then
          rmin = MINVAL(c,2)-pad
