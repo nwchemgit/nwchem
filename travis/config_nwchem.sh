@@ -1,6 +1,13 @@
 #!/bin/bash -f
 # source env. variables
  source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
- ls -lrt $NWCHEM_TOP
- cd $NWCHEM_TOP/src && make nwchem_config &&  make 64_to_32 >& 6log &
+ ls -lrt $NWCHEM_TOP|tail -2
+ os=`uname`
+ cd $NWCHEM_TOP/src
+ if [[ "$os" == "Darwin" ]]; then 
+     make NWCHEM_MODULES="nwdft driver stepper property solvation hessian vib"  nwchem_config
+ elif [[ "$os" == "Linux" ]]; then
+     make NWCHEM_MODULES="qmandpw"  nwchem_config
+ fi
+ make 64_to_32 >& 6log &
 

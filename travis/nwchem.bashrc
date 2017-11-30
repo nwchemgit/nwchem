@@ -1,6 +1,5 @@
 #- env: == default ==
 export NWCHEM_TOP=$TRAVIS_BUILD_DIR
-export NWCHEM_MODULES="qmandpw"
 export USE_MPI=y
 export USE_64TO32=y
 export BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lopenblas -lpthread -lrt"
