@@ -930,12 +930,15 @@ endif
         ifeq ($(GNU_GE_4_8),true)
           FDEBUG += -fno-aggressive-loop-optimizations
           FOPTIMIZE +=-fno-aggressive-loop-optimizations
+          FOPTIONS +=-fno-aggressive-loop-optimizations
           FFLAGS_FORGA += -fno-aggressive-loop-optimizations
           
           FOPTIONS += -Warray-bounds
         endif
         ifeq ($(GNU_GE_6),true)
          FOPTIMIZE += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
+         FOPTIONS += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
+         FDEBUG += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
         endif
         ifdef USE_OPENMP
            FOPTIONS  += -fopenmp
@@ -1094,11 +1097,14 @@ endif
         ifeq ($(GNU_GE_4_8),true)
           FDEBUG += -fno-aggressive-loop-optimizations
           FOPTIMIZE +=-fno-aggressive-loop-optimizations
+          FOPTIONS +=-fno-aggressive-loop-optimizations
           FFLAGS_FORGA += -fno-aggressive-loop-optimizations
           FOPTIONS += -Warray-bounds
         endif # GNU_GE_4_8
         ifeq ($(GNU_GE_6),true)
          FOPTIMIZE += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
+         FOPTIONS += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
+         FDEBUG += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
         endif
         endif # GNUMAJOR
 
@@ -1276,6 +1282,8 @@ endif
         endif
         ifeq ($(GNU_GE_6),true)
          FOPTIMIZE += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
+         FOPTIONS += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
+         FDEBUG += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
         endif
          endif
        endif
@@ -2078,6 +2086,8 @@ $(error )
         FOPTIMIZE  += -mfpmath=sse # 
         ifeq ($(GNU_GE_6),true)
          FOPTIMIZE += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
+         FOPTIONS += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
+         FDEBUG += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
         endif
 
         ifndef USE_FPE
