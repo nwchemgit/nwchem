@@ -5,7 +5,7 @@
  os=`uname`
  cd $NWCHEM_TOP/src
  if [[ "$os" == "Darwin" ]]; then 
-     make NWCHEM_MODULES="nwdft driver stepper "  nwchem_config
+     make NWCHEM_MODULES="nwdft driver stepper solvation"  nwchem_config
  elif [[ "$os" == "Linux" ]]; then
      make NWCHEM_MODULES="qmandpw"  nwchem_config
  fi
