@@ -19,13 +19,13 @@ git:
 before_script:
         - printenv TRAVIS_BUILD_DIR
         - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew cask uninstall oclint || true  ; fi
-        - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gcc open-mpi || true  ; fi
+        - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gcc open-mpi scalapack openblas || true  ; fi
         - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -y install gfortran gcc python-dev  cmake libopenmpi-dev openmpi-bin tcsh make  perl ;fi
         - gfortran -v
         - mpif90 -show
         - ./travis/config_nwchem.sh
-        - ./travis/build_openblas.sh
-        - ./travis/build_scalapack.sh
+        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./travis/build_openblas.sh ; fi
+        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./travis/build_scalapack.sh ; fi
         - sleep 1
 script:
         - ./travis/compile_nwchem.sh
