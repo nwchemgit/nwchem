@@ -5,7 +5,7 @@ os=`uname`
 svn co --non-interactive --trust-server-cert https://icl.utk.edu/svn/scalapack-dev/scalapack/trunk/ scalapack
 mkdir -p scalapack/build
 cd scalapack/build
-cmake -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=ON  -DBLAS_blas_LIBRARY="  -L$TRAVIS_BUILD_DIR -lopenblas" -DLAPACK_lapack_LIBRARY="  -L$TRAVIS_BUILD_DIR  -lopenblas"  -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR
+cmake -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=ON  -DBLAS_blas_LIBRARY="-L$TRAVIS_BUILD_DIR -lopenblas" -DLAPACK_lapack_LIBRARY="-L$TRAVIS_BUILD_DIR  -lopenblas"  -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR
 $TRAVIS_BUILD_DIR/travis/sleep_loop.sh make V=0 -j3 
 make V=0 install -j3
 if [[ "$os" == "Darwin" ]]; then 
