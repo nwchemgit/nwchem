@@ -1,8 +1,8 @@
 #!/bin/bash
-echo "starting sleep_loop.sh for command: " ${@}
+#echo "starting sleep_loop.sh for command: " ${@}
 #"${@}"  &
 outfile=../testoutputs/"$6"
-echo "output files is "$outfile
+#echo "output file is "$outfile
 $1 $2 $3 $4 $5 >& $outfile &
 pid=$!
 echo "sleep_loopqa got pid" $pid
@@ -20,7 +20,7 @@ else
             echo ' ==== ' `date` ' ==== '
             tail -1 $outfile
 	elif wait "$pid"; then
-	    echo "ps_exit code" $ps_exit
+#	    echo "ps_exit code" $ps_exit
             break          # exit loop.
 	fi
         sleep 30s
