@@ -300,6 +300,7 @@ sync
     if ($NPROC) then
       if ($NONSTD_MPI) then
         $MPIRUN $NWCHEM $INPUTFILE >& $OUTPUTFILE
+$NWCHEM_TOP/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $OUTPUTFILE
         @ runstatus = $status
       else
         $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& $OUTPUTFILE
@@ -339,7 +340,8 @@ sync
         @ runstatus = $status
       else
 #       In the case of standard MPI we construct the appropriate command here.
-        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
+$NWCHEM_TOP/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $OUTPUTFILE
+#        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
         @ runstatus = $status
       endif
     else
