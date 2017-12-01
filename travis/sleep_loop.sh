@@ -14,13 +14,14 @@ then
 else
     while :
     do
-    ps -p "$pid" > /dev/null
-        if [[ "${?}" -eq 0 ]]; then
+	ps -p "$pid" > /dev/null
+	ps_exit="${?}"
+        if [[ "$ps_exit" -eq 0 ]]; then
             echo ' ==== ' `date` ' ==== '
             tail -1 make.log
-        elif wait "$pid"; then
+        elif [[ "$ps_exit" -ne 0 ]]; then
             break          # exit loop.
-        fi
+	fi
         sleep 30s
     done
     exit 0
