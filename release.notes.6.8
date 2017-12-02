@@ -1,0 +1,67 @@
+NWChem Version 6.8 Release Notes
+
+NWChem is now available on Github at
+https://github.com/nwchemgit/nwchem
+
+New User Manual wiki pages at
+https://github.com/nwchemgit/nwchem/wiki
+
+NWChem 6.8 is released as open-source under the ECL 2.0 license.
+
+NWChem 6.8 will be released with the latest Global Arrays Toolkit (v5.6.3).
+
+NEW FUNCTIONALITY 
+
+High accuracy
+
+    * TBD
+
+Gaussian basis DFT & TDDFT
+
+    * New HLE16 density functional
+    * van Wullen model potential approach for ZORA
+
+Plane-wave DFT and dynamics
+
+    * 
+
+Properties
+
+   * MoVIPac interface
+   * DIM/QM 
+
+Enhancement
+
+   * improved parallelization for second derivative code
+   * improved Raman code
+
+Output
+
+   * Molden format for exchanging wavefunctions
+
+
+Other
+
+    * All basis sets from BSE
+
+New Ports
+
+    * Linux Power8 (ppc64le)
+    * Intel KNL (USE_KNL=1)
+
+BUG FIXES 
+
+    * Cosmo Initialization
+    * removed some point groups previously recognized with Abelian symmetry
+    * M06 functional 
+    * Dplot
+    * stagnant condition in Driver when small eigenvalues are present
+    * Geometry Optimization
+    * argv() use in Global Arrays
+    * Raman displacement
+    * zgesvd wrapper
+    * GNU compilers version 6 and 7
+    * vdw code
+    * Intel compilers 2017 and 2018
+    * CDFT code
+    * error 'dft_3cincor: blew out of dbls'
