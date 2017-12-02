@@ -1,10 +1,9 @@
 language: c
+sudo: required
 os: 
- - osx
- - linux
-    dist: trusty
-    sudo: required
- env: 
+  - osx
+  - linux
+env: 
   - NWCHEM_MODULES=qmandpw
   - NWCHEM_MODULES=tce
 compiler:
