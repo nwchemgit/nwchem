@@ -3,6 +3,14 @@
  source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
 ls -lrt $NWCHEM_TOP|tail -3
 os=`uname`
+if [[ "$NWCHEM_MODULES" == "tce" ]]; then 
+  cd $NWCHEM_TOP/src/tce 
+  headhead -2 dependencies 
+  rm -f dependencies *amp
+  grep -i dot $NWCHEM_TOP/src/tce/tce_residual_t1.F
+  make include_stamp dependencies >& dep.log 
+  tail -2 dep.log
+fi
 cd $NWCHEM_TOP/src
  if [[ "$os" == "Darwin" ]]; then 
     ../travis/sleep_loop.sh make  -j3 FDEBUG="-O0 -g" FOPTIMIZE="-O2 -fno-aggr\
