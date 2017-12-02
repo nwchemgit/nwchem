@@ -1,4 +1,5 @@
 language: c
+matrix
   - os: osx
     env:
         NWCHEM_TARGET=MACX64
