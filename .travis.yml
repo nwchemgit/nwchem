@@ -32,6 +32,8 @@ after_failure:
         - grep -A 2 -B 2 -i error $TRAVIS_BUILD_DIR/src/make.log 
         - head -200 $TRAVIS_BUILD_DIR/src/make.log
         - tail -200 $TRAVIS_BUILD_DIR/src/make.log
+        - tail -200 $TRAVIS_BUILD_DIR/src/6log
+        - grep -i tce_energy $TRAVIS_BUILD_DIR/src/6log
         - grep d= $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
         - grep @ $TRAVIS_BUILD_DIR/QA/testoutputs/h2o_opt.out
               
