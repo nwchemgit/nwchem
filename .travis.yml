@@ -12,6 +12,8 @@ matrix:
     env:
         NWCHEM_TARGET=LINUX64
         LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH
+  - env: NWCHEM_MODULES=qmandpw
+  - env: NWCHEM_MODULES=tce
 compiler:
   - gcc
 git:
