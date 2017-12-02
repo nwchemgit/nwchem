@@ -1,18 +1,19 @@
 language: c
-matrix:
-  - os: osx
+os: 
+ - osx
     env:
         NWCHEM_TARGET=MACX64
         PATH=/usr/local/opt/open-mpi/bin/:$PATH
         DYLD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$DYLD_LIBRARY_PATH
-  - os: linux
+  - linux
     dist: trusty
     sudo: required
     env:
         NWCHEM_TARGET=LINUX64
         LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH
-  - env: NWCHEM_MODULES=qmandpw
-  - env: NWCHEM_MODULES=tce
+ env: 
+  - NWCHEM_MODULES=qmandpw
+  -  NWCHEM_MODULES=tce
 compiler:
   - gcc
 git:
