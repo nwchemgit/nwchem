@@ -5,7 +5,7 @@ ls -lrt $NWCHEM_TOP|tail -3
 os=`uname`
 if [[ "$NWCHEM_MODULES" == "tce" ]]; then 
   cd $NWCHEM_TOP/src/tce 
-  headhead -2 dependencies 
+  head -2 dependencies 
   rm -f dependencies *amp
   grep -i dot $NWCHEM_TOP/src/tce/tce_residual_t1.F
   make include_stamp dependencies >& dep.log 
