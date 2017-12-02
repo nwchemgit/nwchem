@@ -54,7 +54,7 @@ c
      +     'V. Konjkov','T. Risthaus', 
      +     'M. Malagoli', 'A. Marenich', 'A. Otero-de-la-Roza', 
      +     'J. Mullin', 'P. Nichols', 'R. Peverati', 'J. Pittner', 
-     +     'Y. Zhao', 'P.-D. Fan', 'A. Fonari', 'M. Williamson',
+     +     'Y. Zhao', 'P.-D. Fan', 'A. Fonari', 'M. J. Williamson',
      +     'R. J. Harrison', 'J. R. Rehr',
      +     'M. Dupuis', 'D. Silverstein', 'D. M. A. Smith', 
      +     'J. Nieplocha', 'V. Tipparaju', 'M. Krishnan', 
