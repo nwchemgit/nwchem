@@ -22,7 +22,7 @@ else
         elif [[ "$ps_exit" -ne 0 ]]; then
             break          # exit loop.
 	fi
-        sleep 30s
+        sleep 10s
     done
     exit 0
 fi
