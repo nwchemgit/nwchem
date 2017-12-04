@@ -25,7 +25,7 @@ c     SET UP INPUT PARAMETERS
 c     ------------------------
 c     limits of grid
       if(.not.rtdb_get(rtdb,'prop:grid:pad',MT_DBL,3,pad)) then
-         pad = 4.0
+         pad = 4.0 * cang2au
       end if
       if(.not.rtdb_get(rtdb,'prop:grid:rmin',MT_DBL,3,rmin)) then
          rmin = MINVAL(c,2)-pad
@@ -36,10 +36,17 @@ c     limits of grid
 
 c     number of grid points from rtdb or computed
       if(.not.rtdb_get(rtdb,'prop:grid:ngrid',MT_INT,3,ngrid)) then
+        if(.not.rtdb_get(rtdb,'prop:grid:step',MT_DBL,1,step)) then
          step  = 0.2/cau2ang
          ngrid(1) = min(CEILING((rmax(1)-rmin(1))/step(1))+1,50)  
          ngrid(2) = min(CEILING((rmax(2)-rmin(2))/step(1))+1,50)
          ngrid(3) = min(CEILING((rmax(3)-rmin(3))/step(1))+1,50)
+        else
+         step  = step/cau2ang
+         ngrid(1) = CEILING((rmax(1)-rmin(1))/step(1))+1
+         ngrid(2) = CEILING((rmax(2)-rmin(2))/step(1))+1
+         ngrid(3) = CEILING((rmax(3)-rmin(3))/step(1))+1
+        endif
       end if
       npoints = PRODUCT(ngrid)
       nsp = ngrid -1
@@ -49,11 +56,11 @@ c     recalculate step
       if(ga_nodeid().eq.0) then
       buffer = "PARAMETERS of gaussian cube file"
       call util_print_centered(luout, trim(buffer),.true., .true.)
-      WRITE(*,'(1X,A,T12,":",3F12.3)') "step",step
-      write(*,'(1X,A,T12,":",3I3)') "ngrid",ngrid
+      WRITE(*,'(1X,A,T12,":",3F12.3)') "step (Ang)",step
+      write(*,'(1X,A,T12,":",3I4)') "ngrid",ngrid
       write(*,'(1X,A,T12,":",I9)') "npoints",npoints
-      write(*,'(1X,A,T12,":",3(F12.3,4X))') "rmax",rmax*cau2ang
-      write(*,'(1X,A,T12,":",3(F12.3,4X))') "rmin",rmin*cau2ang
+      write(*,'(1X,A,T12,":",3(F12.3,4X))') "rmax (Ang)",rmax*cau2ang
+      write(*,'(1X,A,T12,":",3(F12.3,4X))') "rmin (Ang)",rmin*cau2ang
       write(*,*) "------------------------------------------------"
       end if
 c     ---------------------------
@@ -308,3 +315,90 @@ c
       ngrid_out(3)=ngrid(3)
        
       end
+c
+c     Writes an unformatted CUBE file.
+c
+
+      subroutine prop_grid_write_cube_unformatted(geom,n,v,
+     >i_prp_c, fname)
+c
+c
+c
+      implicit none
+#include "prop_grid_data.fh"
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "nwc_const.fh"
+#include "stdio.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+c
+      integer geom
+      double precision v(n)
+      integer n
+      character*(*) fname
+      integer i,ii
+
+      integer ix,iy,iz
+      integer igrid
+      integer un
+      double precision charge
+      character*16 atag,element
+      character*2 symbol
+      integer atomicno,nat
+      integer i_prp_c
+      double precision nuc_charge
+      double precision c(3)
+      double precision xp,yp,zp
+      character*30 pname
+      logical util_get_io_unit
+      external util_get_io_unit
+
+      pname = "grid_write_cube_unformatted"
+      if(.not.util_get_io_unit(un))
+     >    call errquit(pname//"no free file unit",0,0)
+
+      open(unit=un,file=fname,
+     >       form='formatted',status='unknown')
+      charge = 0.0d0
+
+      if (.not.geom_ncent(geom,nat)) call
+     &    errquit('hnd_elpmap: geom_ncent',911,GEOM_ERR)
+
+      write(un,*) "NWChem"
+      write(un,*) "Gaussian Cube file"
+9498  format(I5,3F12.6)
+      write(un,9498)
+     &           nat,(rmin(i),i=1,3)
+      write(un,9498)
+     &           ngrid(1),step(1),0d0,0d0
+      write(un,9498)
+     &           ngrid(2),0.0d0,step(2),0d0
+      write(un,9498)
+     &           ngrid(3),0.0d0,0.0d0,step(3)
+      do i=1,nat
+        if(.not.geom_cent_get(geom,i,atag,c,
+     &     nuc_charge)) call
+     &     errquit('geom_cent_get',911,GEOM_ERR)
+        if (.not. geom_tag_to_element(atag, symbol,
+     &     element, atomicno)) then
+           if (symbol .ne. 'bq') call errquit
+     &          ('dplotdump: center is neither atom nor bq',
+     &          0,0)
+        endif
+        write(un,9499)
+     .        atomicno,charge,c(1),c(2),c(3)
+      end do
+ 9499 format(I5,4F12.6)
+
+      do i=1,n
+         xp = dbl_mb(i_prp_c  +3*(i-1))
+         yp = dbl_mb(i_prp_c+1+3*(i-1))
+         zp = dbl_mb(i_prp_c+2+3*(i-1))
+        write(un,1000) xp,yp,zp,v(i)
+      end do
+1000  format(4F13.6)
+      close(un)
+      end subroutine
+
