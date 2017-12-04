@@ -1,5 +1,5 @@
 #define GA_DEV 1
-#define USE_SUBGROUP 1
+#define USE_SUBGROUPS 1
 *
 * $Id$
 *
