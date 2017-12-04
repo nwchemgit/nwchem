@@ -2,6 +2,8 @@ echo
 
 title "Excited state absorption of water from root 1"
 
+# moving reference example
+
 start esa-water
 
 memory 1400 mb
