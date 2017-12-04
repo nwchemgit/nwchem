@@ -10,7 +10,8 @@ if [[ "$NWCHEM_MODULES" == "tce" ]]; then
 #  grep -i dot $NWCHEM_TOP/src/tce/tce_residual_t1.F
 #  make include_stamp dependencies >& dep.log 
 #  tail -2 dep.log
-    echo "tce"
+    export EACCSD=1
+    export IPCCSD=1
 fi
 cd $NWCHEM_TOP/src
  if [[ "$os" == "Darwin" ]]; then 
