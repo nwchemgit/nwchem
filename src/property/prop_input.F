@@ -34,6 +34,7 @@ c
       integer mulliken
       integer spinpopulation
       integer esp
+      integer espiso, iso, tol
       integer efield
       integer efieldmap
       integer efieldgrad
@@ -98,6 +99,7 @@ c
       mulliken          = 1
       spinpopulation    = 1
       esp               = 1
+      espiso            = 1
       efield            = 1
       efieldmap         = 1
       efieldgrad        = 1
@@ -377,6 +379,23 @@ c ==========================================
          efield          = 0
       elseif ( inp_compare(.false., 'efield', test)) then
          efield          = 0
+      elseif ( inp_compare(.false., 'espiso', test)) then
+         espiso          = 0
+
+         if (inp_a(test)) then
+           if( inp_compare(.false., 'iso', test))
+     >          write(*,*) "iso found"
+                if (inp_f(iso)) then
+                   continue
+                end if
+         end if
+         if (inp_a(test)) then
+           if( inp_compare(.false., 'tol', test))
+     >          write(*,*) "tol found"
+                if (inp_f(tol)) then
+                   continue
+                end if
+         end if
       elseif ( inp_compare(.false., 'esp', test)) then
          esp             = 0
          if (inp_a(test)) then
@@ -595,6 +614,15 @@ c ... Fredy: also write EFG option key to RTDB:
       if (.not. rtdb_put(rtdb, 'prop:esp', mt_int, 1,
      $                               esp               ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'prop:espiso', mt_int, 1,
+     $                               espiso             ))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'prop:espiso:iso', mt_dbl, 1,
+     $                               iso             ))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'prop:espiso:tol', mt_dbl, 1,
+     $                               tol             ))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:efield', mt_int, 1,
      $                               efield            ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
@@ -795,7 +823,23 @@ c
 c
 600   continue
       if(.not.inp_a(token)) goto 20
-      if (inp_compare(.false.,'pad',token)) then
+      if (inp_compare(.false.,'step',token)) then
+        ic = 0
+        do i=1,1
+          if(.not.inp_f(f3(i))) exit
+          ic = ic + 1
+        end do
+        if(ic.eq.1) then
+          f3 = f3(1)
+        else if(ic.ne.3) then
+           call errquit(pname//'need 1 float '//token,
+     >                  0, INPUT_ERR)
+        end if
+        tag="prop:grid:step"
+        if(.not.rtdb_put(rtdb,tag,mt_dbl,1,f3))
+     >       goto 999
+
+      else if (inp_compare(.false.,'pad',token)) then
         ic = 0
         do i=1,3
           if(.not.inp_f(f3(i))) exit

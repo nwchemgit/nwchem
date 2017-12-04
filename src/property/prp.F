@@ -28,14 +28,14 @@ c
      &     nodip,noqdp,nootp,nopop,nospin,nodpl,nodhp,nod2hp,
      1     nofpl,nofhp,nof2hp,nosos,noelp,noelf,noelfg,noelfgZ4,noden,
      2     nogiao,nogshift,noston,nospinspin,noaoresponse,noboysloc,
-     3     nopmloc
+     3     nopmloc,noelpiso
       data nodip,noqdp,nootp,nopop,nospin,nodpl,nodhp,nod2hp,
      1     nofpl,nofhp,nof2hp,nosos,noelp,noelf,noelfg,noelfgZ4,noden,
      2     nogiao,nogshift,noston,nospinspin,noaoresponse,noboysloc,
-     3     nopmloc
+     3     nopmloc,noelpiso
      4    /  1,    1,    1,    1,    1,    1,    1,    1,    1,
      5       1,    1,    1,    1,    1,    1,    1,    1, 
-     6       1,    1,    1,    1,    1,    1,    1 /
+     6       1,    1,    1,    1,    1,    1,    1,    1 /
 c
       out   =.false.
       some  =.true.        
@@ -59,6 +59,7 @@ c
       status=rtdb_get(rtdb,'prop:boyslocalization',MT_INT,1,noboysloc)
       status=rtdb_get(rtdb,'prop:pmlocalization',MT_INT,1,nopmloc)
       status=rtdb_get(rtdb,'prop:esp',MT_INT,1,noelp)               !done
+      status=rtdb_get(rtdb,'prop:espiso',MT_INT,1,noelpiso)         !done
       status=rtdb_get(rtdb,'prop:efield',MT_INT,1,noelf)            !done
       status=rtdb_get(rtdb,'prop:efieldgrad',MT_INT,1,noelfg)       !done
       status=rtdb_get(rtdb,'prop:efieldgradZ4',MT_INT,1,noelfgZ4)   !done
@@ -180,6 +181,10 @@ c
 c     ----- electrostatic potential -----
 c
       if(noelp.eq.0) call hnd_elpmap(rtdb,basis,geom)
+c
+c     ----- electrostatic potential on a specific electron density surface ---
+c
+      if(noelpiso.eq.0) call hnd_elpiso(rtdb,basis,geom)
  
 c     ----- electric field -----
 c

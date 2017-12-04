@@ -8,6 +8,7 @@
          hnd_elfmap.o \
          hnd_elpmap.o \
          hnd_eldmap.o \
+         hnd_elpiso.o \
          hnd_spind.o \
          hnd_elfcon.o \
          hnd_elfcon_symm.o \
