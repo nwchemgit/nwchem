@@ -19,8 +19,9 @@ else
         if [[ "$ps_exit" -eq 0 ]]; then
             echo ' ==== ' `date` ' ==== '
             tail -1 $outfile
-	elif wait "$pid"; then
-#	    echo "ps_exit code" $ps_exit
+#	elif wait "$pid"; then
+	    #	    echo "ps_exit code" $ps_exit
+	else
             break          # exit loop.
 	fi
         sleep 30s
