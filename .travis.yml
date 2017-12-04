@@ -5,6 +5,9 @@ os:
   - linux
 env: 
   - NWCHEM_MODULES=qmandpw
+    ARMCI_NETWORK=MPI-TS
+  - NWCHEM_MODULES=qmandpw
+    ARMCI_NETWORK=MPI-PR
   - NWCHEM_MODULES=tce
 compiler:
   - gcc
