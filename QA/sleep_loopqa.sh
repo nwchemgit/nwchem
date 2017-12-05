@@ -1,9 +1,14 @@
 #!/bin/bash
 #echo "starting sleep_loop.sh for command: " ${@}
 #"${@}"  &
-outfile=../testoutputs/"$6"
-#echo "output file is "$outfile
-$1 $2 $3 $4 $5 >& $outfile &
+narg="${#}"
+if [ "$narg" -eq 7 ]; then
+ outfile=../testoutputs/$7
+ $1 $2 $3 $4 $5 $6  >& $outfile &
+else
+ outfile=../testoutputs/$6
+ $1 $2 $3 $4 $5     >& $outfile &
+fi
 pid=$!
 echo "sleep_loopqa got pid" $pid
 ps -p "$pid" > /dev/null
@@ -19,8 +24,6 @@ else
         if [[ "$ps_exit" -eq 0 ]]; then
             echo ' ==== ' `date` ' ==== '
             tail -1 $outfile
-#	elif wait "$pid"; then
-	    #	    echo "ps_exit code" $ps_exit
 	else
             break          # exit loop.
 	fi

@@ -40,4 +40,5 @@ after_failure:
         - grep d= $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
         - grep @ $TRAVIS_BUILD_DIR/QA/testoutputs/h2o_opt.out
         - cat $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
+        - cat $TRAVIS_BUILD_DIR/QA/testoutputs/prop_mep_gcube.out
               
