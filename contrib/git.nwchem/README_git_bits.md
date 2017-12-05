@@ -64,6 +64,27 @@ Adapted from https://help.github.com/articles/syncing-a-fork/
 (or for new branch: git push origin mynewbranch)  
   git pull  
 
+How to merge a Pull
+=====
+
+1.  git clone https://github.com/nwchemgit/nwchem.git
+    cd nwchem/
+2.  git checkout -b mjw99-master master
+    git branch
+3.  git pull https://github.com/mjw99/nwchem-1.git master
+    gitk
+4.  git checkout master
+    gitk
+5.  git merge --no-ff mjw99-master
+    gitk
+6.  git push origin master
+  
+  or
+  
+5.  git rebase -p mjw99-master 
+    gitk
+6.  git push origin master
+		
 
 More commands
 ====
