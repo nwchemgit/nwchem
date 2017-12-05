@@ -1,7 +1,7 @@
 echo
 start nacl
 
-title "MEP on the 0.002 electon/bohr^3 surface"
+title "MEP on the 0.002 electron/bohr^3 surface"
 
 
 geometry nocenter noautoz noautosym 
@@ -14,7 +14,7 @@ basis
   * library 6-31g*
 end
 
-#This is an example to calculate the MEP on the 0.002 electon/bohr^3 surface.
+#This is an example to calculate the MEP on the 0.002 electron/bohr^3 surface.
 #The result will be in an unformatted CUBE.
 
 property
