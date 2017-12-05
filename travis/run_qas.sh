@@ -3,7 +3,8 @@
  source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
  nprocs=2
  if [[ "$ARMCI_NETWORK" == "MPI-PR" ]]; then
-   nprocs=3
+     nprocs=3
+     export MPIRUN_NPOPT="--oversubscribe -np "
  fi
  if [[ "$NWCHEM_MODULES" == "tce" ]]; then
    cd $NWCHEM_TOP/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs tce_n2 tce_ccsd_t_h2o tce_h2o_eomcc
