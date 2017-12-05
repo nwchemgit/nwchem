@@ -21,6 +21,7 @@ if [[ "$os" == "Linux" ]]; then
    export NWCHEM_TARGET=LINUX64 
    export LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH
 fi
+export OMP_NUM_THREADS=1
 export BLAS_SIZE=4
 export SCALAPACK_SIZE=4
 export USE_PYTHONCONFIG=y
