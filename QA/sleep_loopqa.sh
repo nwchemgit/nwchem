@@ -3,7 +3,7 @@
 #"${@}"  &
 narg="${#}"
 if [ "$narg" -eq 10 ]; then
- outfile=../testoutputs/$10
+    outfile=../testoutputs/"${10}"
  $1 $2 $3 $4 $5 $6 $7 $8 $9 >& $outfile &
 elif [ "$narg" -eq 9 ]; then
  outfile=../testoutputs/$9
