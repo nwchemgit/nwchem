@@ -8,7 +8,10 @@ env:
     ARMCI_NETWORK=MPI-TS
   - NWCHEM_MODULES=qmandpw
     ARMCI_NETWORK=MPI-PR
+  - NWCHEM_MODULES=qmandpw
+    ARMCI_NETWORK=MPI-PT
   - NWCHEM_MODULES=tce
+    ARMCI_NETWORK=MPI-TS
 compiler:
   - gcc
 git:
