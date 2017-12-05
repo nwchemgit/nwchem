@@ -6,19 +6,26 @@ os:
 env: 
   - NWCHEM_MODULES=qmandpw
     ARMCI_NETWORK=MPI-TS
+    MPI_IMPL="openmpi"
+  - NWCHEM_MODULES=qmandpw
+    ARMCI_NETWORK=MPI-TS
+    MPI_IMPL="mpich"
   - NWCHEM_MODULES=qmandpw
     ARMCI_NETWORK=MPI-PR
+    MPI_IMPL="openmpi"
+  - NWCHEM_MODULES=qmandpw
+    ARMCI_NETWORK=MPI-PT
+    MPI_IMPL="mpich"
   - NWCHEM_MODULES=tce
     ARMCI_NETWORK=MPI-TS
+    MPI_IMPL="openmpi"
 compiler:
   - gcc
 git:
   depth: 3
 before_script:
         - printenv TRAVIS_BUILD_DIR
-        - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew cask uninstall oclint || true  ; fi
-        - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gcc open-mpi scalapack openblas || true  ; fi
-        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -y install gfortran gcc python-dev  cmake libopenmpi-dev openmpi-bin tcsh make perl subversion ;fi
+        - ./travis/build_env.sh
         - gfortran -v
         - mpif90 -show
         - ./travis/config_nwchem.sh

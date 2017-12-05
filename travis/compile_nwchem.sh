@@ -15,8 +15,7 @@ if [[ "$NWCHEM_MODULES" == "tce" ]]; then
 fi
 cd $NWCHEM_TOP/src
  if [[ "$os" == "Darwin" ]]; then 
-    ../travis/sleep_loop.sh make  -j3 FDEBUG="-O0 -g" FOPTIMIZE="-O2 -fno-aggr\
-essive-loop-optimizations" -j2
+    ../travis/sleep_loop.sh make  -j3 FDEBUG="-O0 -g" FOPTIMIZE="-O2 -fno-aggressive-loop-optimizations" -j2
      otool -L ../bin/MACX64/nwchem
      printenv DYLD_LIBRARY_PATH
      ls -lrt $DYLD_LIBRARY_PATH
