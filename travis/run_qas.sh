@@ -6,7 +6,7 @@
  if [[ "$ARMCI_NETWORK" == "MPI-PR" ]]; then
      nprocs=3
     if [[ "$os" == "Darwin" ]]; then 
-	export MPIRUN_NPOPT="--oversubscribe -np "
+	export MPIRUN_NPOPT="-mca mpi_yield_when_idle 0 --oversubscribe -np "
     fi
  fi
  if [[ "$NWCHEM_MODULES" == "tce" ]]; then
