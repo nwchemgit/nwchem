@@ -63,15 +63,15 @@ cd nwchem
 
 git remote -v 
 
-#Keep your fork synced with original repo: https://github.com/nwchemgit/nwchem
-#First need to set upstream
-git remote add upstream git@github.com:nwchemgit/nwchem.git
+#Keep your fork synced with original repo: https://github.com/nwchemgit/nwchem  
+#First need to set upstream  
+git remote add upstream git@github.com:nwchemgit/nwchem.git  
 
-#Check using git remote -v 
+#Check using git remote -v  
 
-git fetch upstream
-git pull upstream master
-git push
+git fetch upstream  
+git pull upstream master  
+git push  (Clean sync, does not introduce a merge commit)
 
 Alternatively
 ---------
