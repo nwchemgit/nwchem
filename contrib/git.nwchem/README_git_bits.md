@@ -55,32 +55,17 @@ How to re-sync a forked repository
 
 Adapted from https://help.github.com/articles/syncing-a-fork/   
   
-you created a fork of nwchem -> git@github.com:USERNAME/nwchem.git
+Your fork of nwchem -> git@github.com:USERNAME/nwchem.git
 
-git clone git@github.com:USERNAME/nwchem.git
+  git clone git@github.com:USERNAME/nwchem.git  
+  cd nwchem  
 
-cd nwchem
-
-git remote -v 
-
-#Keep your fork synced with original repo: https://github.com/nwchemgit/nwchem  
-#First need to set upstream  
-git remote add upstream git@github.com:nwchemgit/nwchem.git  
-
-#Check using git remote -v  
-
-git fetch upstream  
-git pull upstream master  
-git push  (Clean sync, does not introduce a merge commit)
-
-Alternatively
----------
   git remote -v  
   git remote add upstream https://github.com/nwchemgit/nwchem.git  
   git remote -v  
   git fetch upstream  
   git checkout  master  
-  git merge  upstream/master  
+  git merge  upstream/master (OR git pull upstream master)  
   git push  
 (or for new branch: git push origin mynewbranch)  
   git pull 
