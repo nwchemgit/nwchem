@@ -19,6 +19,9 @@ env:
   - NWCHEM_MODULES=qmandpw
     ARMCI_NETWORK=MPI-MT
     MPI_IMPL="mpich"
+  - NWCHEM_MODULES=qmandpw
+    ARMCI_NETWORK=MPI3
+    MPI_IMPL="mpich"
   - NWCHEM_MODULES=tce
     ARMCI_NETWORK=MPI-TS
     MPI_IMPL="openmpi"
