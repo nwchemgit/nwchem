@@ -5,7 +5,9 @@ export USE_MPI=y
 export USE_64TO32=y
  if [[ "$os" == "Darwin" ]]; then 
   export BLASOPT="-L/usr/local/opt/openblas/lib -lopenblas"
-  export SCALAPACK="-L/usr/local/lib -lscalapack -lopenblas"
+  if [[ "$MPI_IMPL" == "openmpi" ]]; then
+    export SCALAPACK="-L/usr/local/lib -lscalapack -lopenblas"
+  fi
   export NWCHEM_TARGET=MACX64 
   export DYLD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$DYLD_LIBRARY_PATH
   if [[ "$MPI_IMPL" == "mpich" ]]; then 
