@@ -5,9 +5,12 @@
  os=`uname`
  if [[ "$ARMCI_NETWORK" == "MPI-PR" ]]; then
      nprocs=3
-    if [[ "$os" == "Darwin" ]]; then 
+    if [[ "$os" == "Darwin" && "$MPI_IMPL" == "openmpi" ]]; then 
 	export MPIRUN_NPOPT="-mca mpi_yield_when_idle 0 --oversubscribe -np "
     fi
+ fi
+ if [[ "$os" == "Linux" && "$MPI_IMPL" == "mpich" ]]; then
+    export MPIRUN_PATH=/usr/bin/mpirun.mpich
  fi
  if [[ "$NWCHEM_MODULES" == "tce" ]]; then
    cd $NWCHEM_TOP/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs tce_n2 tce_ccsd_t_h2o tce_h2o_eomcc
