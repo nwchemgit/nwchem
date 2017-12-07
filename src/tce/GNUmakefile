@@ -1,66 +1,6 @@
 #$Id$
 #
 
-SUBDIRS = include diis diis2 gradients \
-          ccsd ccsd_lambda eomccsd \
-          ccsd_t cr-eomccsd_t lrh emb \
-          ccd lccd lccsd qcisd cc3 \
-          mbpt1 mbpt2 mbpt3 mbpt4 cis cisd cisdt cisdtq \
-          ccsd_act eomccsd_act cr_eomccsd_t_act \
-	      sort
-          #response ccsd_yr ccsd_alpha ccsd_beta \
-
-ifdef EACCSD
-      SUBDIRS +=eaccsd
-      LIB_DEFINES += -DEACCSD
-endif
-ifdef IPCCSD
-      SUBDIRS +=ipccsd
-      LIB_DEFINES += -DIPCCSD
-endif
-
-# to be backwards compatible, these must be on by default
-CCSDLR=1
-CCSDT=1
-
-ifdef CCSDTLR
-    CCSDT=1
-    CCSDLR=1
-    SUBDIRS += ccsdt_alpha_offdiag ccsdt_alpha_new ccsdt_yr ccsdt_beta
-    LIB_DEFINES += -DCCSDTLR
-endif
-
-ifdef CCSDT
-    SUBDIRS += ccsdt ccsdt_lambda eomccsdt
-    LIB_DEFINES += -DCCSDT
-endif
-
-ifdef CCSDLR
-    SUBDIRS += ccsd_alpha ccsd_beta ccsd_yr #ccsd_qr
-    SUBDIRS += response
-    LIB_DEFINES += -DCCSDLR
-endif
-
-ifdef CCSDTQ
-    SUBDIRS += ccsdtq ccsdtq_lambda eomccsdtq ccsdtq_alpha_offdiag
-    SUBDIRS += response
-    LIB_DEFINES += -DCCSDTQ
-endif
-
-ifdef MRCC_METHODS
-#ckbn mrcc-r-1 -3
-      SUBDIRS += mrcc
-      LIB_DEFINES += -DMRCC_METHODS
-endif
-
-ifdef TCE_CUDA
-      LIB_DEFINES += -DTCE_CUDA
-      SUBDIRS += ttlg
-endif
-ifdef USE_PSTAT
-      LIB_DEFINES += -DUSE_PSTAT
-endif
-
 OBJ = tce_input.o tce_init.o tce_energy.o tce_energy_fragment.o
 
 OBJ_OPTIMIZE = tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
@@ -162,6 +102,66 @@ USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             tce_ao2e_new.F tce_dgeev.F tce_mo2e_disk.F tce_mo2e_new.F \
             tce_mo2e_zones_4a_disk_4s_new_patch_m3.F tce_mo2e_zones_4a_disk_ga_N5.F \
             tce_mo2e_zones_4a_disk_ga_chop_N5.F tce_mod1_new.F new_ga4ind_N5.F new4ind_N5_osu.F
+
+SUBDIRS = include diis diis2 gradients \
+          ccsd ccsd_lambda eomccsd \
+          ccsd_t cr-eomccsd_t lrh emb \
+          ccd lccd lccsd qcisd cc3 \
+          mbpt1 mbpt2 mbpt3 mbpt4 cis cisd cisdt cisdtq \
+          ccsd_act eomccsd_act cr_eomccsd_t_act \
+	      sort
+          #response ccsd_yr ccsd_alpha ccsd_beta \
+
+ifdef EACCSD
+      SUBDIRS +=eaccsd
+      LIB_DEFINES += -DEACCSD
+endif
+ifdef IPCCSD
+      SUBDIRS +=ipccsd
+      LIB_DEFINES += -DIPCCSD
+endif
+
+# to be backwards compatible, these must be on by default
+CCSDLR=1
+CCSDT=1
+
+ifdef CCSDTLR
+    CCSDT=1
+    CCSDLR=1
+    SUBDIRS += ccsdt_alpha_offdiag ccsdt_alpha_new ccsdt_yr ccsdt_beta
+    LIB_DEFINES += -DCCSDTLR
+endif
+
+ifdef CCSDT
+    SUBDIRS += ccsdt ccsdt_lambda eomccsdt
+    LIB_DEFINES += -DCCSDT
+endif
+
+ifdef CCSDLR
+    SUBDIRS += ccsd_alpha ccsd_beta ccsd_yr #ccsd_qr
+    SUBDIRS += response
+    LIB_DEFINES += -DCCSDLR
+endif
+
+ifdef CCSDTQ
+    SUBDIRS += ccsdtq ccsdtq_lambda eomccsdtq ccsdtq_alpha_offdiag
+    SUBDIRS += response
+    LIB_DEFINES += -DCCSDTQ
+endif
+
+ifdef MRCC_METHODS
+#ckbn mrcc-r-1 -3
+      SUBDIRS += mrcc
+      LIB_DEFINES += -DMRCC_METHODS
+endif
+
+ifdef TCE_CUDA
+      LIB_DEFINES += -DTCE_CUDA
+      SUBDIRS += ttlg
+endif
+ifdef USE_PSTAT
+      LIB_DEFINES += -DUSE_PSTAT
+endif
 
 
 
