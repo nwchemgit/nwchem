@@ -1829,12 +1829,12 @@ endif
            endif
            CPP=fpp -P 
 	   ifeq ($(_IFCV15ORNEWER), Y)
-             FOPTIONS += -qopt-report-file=stderr
 # fpp seems to get lost with ifort 15 in the offload bit
 # only use EXPLICITF for offload because otherwise we want debugging to be easy
 #            FOPTIONS +=  -Qoption,fpp,-P -Qoption,fpp,-c_com=no  -allow nofpp_comments 
              ifdef USE_OPTREPORT
-	  FOPTIONS += -qopt-report=3 -qopt-report-phase=vec,cg,loop,ipo
+             FOPTIONS += -qopt-report-file=stderr
+ 	  FOPTIONS += -qopt-report=3 -qopt-report-phase=vec,cg,loop,ipo
                ifeq ($(_IFCV17), Y)
                  FOPTIONS += -qopt-report-annotate-position=both
                endif
