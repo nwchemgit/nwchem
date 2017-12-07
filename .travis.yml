@@ -31,15 +31,12 @@ git:
   depth: 3
 before_script:
         - printenv TRAVIS_BUILD_DIR
-        - printenv NWCHEM_TOP
-        - sudo apt-get -y install gfortran gcc python-dev  cmake
-        - sudo apt-get -y install libopenmpi-dev openmpi-bin tcsh make automake libtool autoconf 
-        - sudo apt-get -y install perl
-        - ls -lrt $TRAVIS_BUILD_DIR
-        - ls -lrt $NWCHEM_TOP
-        - cd $NWCHEM_TOP/src && make nwchem_config &&  make 64_to_32 >& 6log &
-        - ./travis/build_openblas.sh
-        - ./travis/build_scalapack.sh
+        - ./travis/build_env.sh
+        - gfortran -v
+        - mpif90 -show
+        - ./travis/config_nwchem.sh
+        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./travis/build_openblas.sh ; fi
+        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./travis/build_scalapack.sh ; fi
         - sleep 1
 script:
         - ./travis/compile_nwchem.sh
