@@ -16,7 +16,7 @@ fi
 cd $NWCHEM_TOP/src
  if [[ "$os" == "Darwin" ]]; then 
      ../travis/sleep_loop.sh make  -j3 FDEBUG="-O0 -g" FOPTIMIZE="-O2 -fno-aggressive-loop-optimizations" -j2
-     ../contrib/getmem.nwchem
+     ../contrib/getmem.nwchem 500
      otool -L ../bin/MACX64/nwchem
      printenv DYLD_LIBRARY_PATH
      ls -lrt $DYLD_LIBRARY_PATH
@@ -24,7 +24,7 @@ cd $NWCHEM_TOP/src
 #      tail -120 make.log
  elif [[ "$os" == "Linux" ]]; then
      ../travis/sleep_loop.sh make  -j3 FDEBUG="-O0 -g" FOPTIMIZE="-O2 -fno-aggressive-loop-optimizations" -j3
-     ../contrib/getmem.nwchem
+     ../contrib/getmem.nwchem 500
  fi
 tail -2 $NWCHEM_TOP/src/6log
 head -2 $NWCHEM_TOP/src/tools/build/config.log
