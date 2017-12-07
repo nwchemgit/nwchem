@@ -24,6 +24,9 @@
     MPI-MT)
         do_largeqas=0
         ;;
+    MPI-PT)
+        do_largeqas=0
+        ;;
     MPI3)
         case "$os" in
             Darwin)
