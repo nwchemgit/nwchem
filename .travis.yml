@@ -7,9 +7,7 @@ env:
   - NWCHEM_MODULES=qmandpw
     ARMCI_NETWORK=MPI-TS
     MPI_IMPL="openmpi"
-  - NWCHEM_MODULES=qmandpw
-    ARMCI_NETWORK=MPI-TS
-    MPI_IMPL="mpich"
+  - NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-TS MPI_IMPL="mpich"
   - NWCHEM_MODULES=qmandpw
     ARMCI_NETWORK=MPI-PR
     MPI_IMPL="openmpi"
