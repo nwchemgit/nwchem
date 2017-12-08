@@ -27,6 +27,10 @@ env:
     MPI_IMPL="openmpi"
 compiler:
   - gcc
+matrix:
+  exclude:
+    -os: osx
+    -env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-TS MPI_IMPL="mpich"
 git:
   depth: 3
 before_script:
