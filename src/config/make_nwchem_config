@@ -82,6 +82,7 @@ EXP_smallqmmm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq co
            mp2_grad esp etrans vscf nwmd qmmm prepar analyz dimqm
 EXP_notce = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
             optim stepper driver ccsd vib mcscf property solvation dplot mp2_grad esp etrans vscf dimqm
+EXP_tinyqmpw = nwdft  property solvation driver ccsd mp2_grad hessian vib nwpw
 EXP_ver2 = prepar gradients mp2_grad stepper vib mcscf \
            optim driver analyz diana
 #plane_wave ... broken? RJH
@@ -113,6 +114,7 @@ MODULES := $(patsubst alldev,$(EXP_alldev),$(MODULES) )
 MODULES := $(patsubst pnnldev,$(EXP_pnnldev),$(MODULES) )
 MODULES := $(patsubst venus,$(EXP_venus),$(MODULES) )
 MODULES := $(patsubst qmandpw,$(EXP_qmandpw),$(MODULES) )
+MODULES := $(patsubst tinyqmpw,$(EXP_tinyqmpw),$(MODULES) )
 
 # Make sure everything on the list is cool
 UNKNOWN_MODULES := $(filter-out $(KNOWN_MODULE_SUBDIRS),$(MODULES))
