@@ -28,7 +28,10 @@ FOPT2="-O2 -fno-aggressive-loop-optimizations"
 #      tail -120 make.log
  elif [[ "$os" == "Linux" ]]; then
      ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" FOPTIMIZE="$FOPT2" -j3
-     ../contrib/getmem.nwchem 500
+     cd $NWCHEM_TOP/src/64to32blas 
+     make
+     cd $NWCHEM_TOP/src
+     $NWCHEM_TOP/contrib/getmem.nwchem 500
  fi
 tail -2 $NWCHEM_TOP/src/6log
 head -2 $NWCHEM_TOP/src/tools/build/config.log
