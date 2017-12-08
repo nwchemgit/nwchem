@@ -14,8 +14,12 @@ if [[ "$NWCHEM_MODULES" == "tce" ]]; then
     export IPCCSD=1
 fi
 cd $NWCHEM_TOP/src
+FOPT2="-O2 -fno-aggressive-loop-optimizations"
  if [[ "$os" == "Darwin" ]]; then 
-     ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" FOPTIMIZE="-O2 -fno-aggressive-loop-optimizations" -j3
+   if [[ "$NWCHEM_MODULES" == "tce" ]]; then
+     FOPT2="-O1 -fno-aggressive-loop-optimizations"
+   fi
+     ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" FOPTIMIZE="$FOPT2" -j3
      ../contrib/getmem.nwchem 500
      otool -L ../bin/MACX64/nwchem
      printenv DYLD_LIBRARY_PATH
@@ -23,7 +27,7 @@ cd $NWCHEM_TOP/src
 
 #      tail -120 make.log
  elif [[ "$os" == "Linux" ]]; then
-     ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" FOPTIMIZE="-O2 -fno-aggressive-loop-optimizations" -j3
+     ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" FOPTIMIZE="$FOPT2" -j3
      ../contrib/getmem.nwchem 500
  fi
 tail -2 $NWCHEM_TOP/src/6log
