@@ -17,6 +17,9 @@ matrix:
   exclude:
     - os: osx
       env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-TS MPI_IMPL="mpich"
+  allow_failures:
+    - os: osx
+      env: NWCHEM_MODULES=tce     ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
 git:
   depth: 3
 before_script:
