@@ -7,6 +7,9 @@
  if [[ "$os" == "Linux" && "$MPI_IMPL" == "mpich" ]]; then
     export MPIRUN_PATH=/usr/bin/mpirun.mpich
  fi
+ if [[ "$os" == "Darwin" && "NWCHEM_MODULES" == "tce" ]]; then
+    do_largeqas=0
+ fi
  case "$ARMCI_NETWORK" in
     MPI-PR)
         nprocs=3
@@ -37,7 +40,9 @@
  esac
  if [[ "$NWCHEM_MODULES" == "tce" ]]; then
    cd $NWCHEM_TOP/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs tce_n2 tce_ccsd_t_h2o tce_h2o_eomcc
-   cd $NWCHEM_TOP/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs tce_ipccsd_f2 tce_eaccsd_ozone
+    if  [[ "$do_largeqas" == 1 ]]; then
+	cd $NWCHEM_TOP/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs tce_ipccsd_f2 tce_eaccsd_ozone
+    fi
  else
      cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs $nprocs dft_he2+ prop_mep_gcube
      cd $NWCHEM_TOP/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs cosmo_h2o_dft  
