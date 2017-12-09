@@ -1,4 +1,6 @@
 #!/bin/bash 
+source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
+if [[ "$USE_64TO32" != "y" ]] then; exit 0; fi
 cd $TRAVIS_BUILD_DIR
 os=`uname`
 git clone https://github.com/scibuilder/scalapack.git
