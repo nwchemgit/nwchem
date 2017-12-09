@@ -19,12 +19,11 @@ FOPT2="-O2 -fno-aggressive-loop-optimizations"
    if [[ "$NWCHEM_MODULES" == "tce" ]]; then
      FOPT2="-O1 -fno-aggressive-loop-optimizations"
    fi
-     ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" FOPTIMIZE="$FOPT2" -j2
+     ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" FOPTIMIZE="$FOPT2" -j3
      ../contrib/getmem.nwchem 500
      otool -L ../bin/MACX64/nwchem
-     printenv DYLD_LIBRARY_PATH
-     ls -lrt $DYLD_LIBRARY_PATH
-
+#     printenv DYLD_LIBRARY_PATH
+#     ls -lrt $DYLD_LIBRARY_PATH
 #      tail -120 make.log
  elif [[ "$os" == "Linux" ]]; then
      ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" FOPTIMIZE="$FOPT2" -j3
