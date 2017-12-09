@@ -3,7 +3,8 @@ os=`uname`
 export NWCHEM_TOP=$TRAVIS_BUILD_DIR
 export USE_MPI=y
  if [[ "$os" == "Darwin" ]]; then 
-  export BLASOPT="-L/usr/local/opt/openblas/lib -lopenblas"
+#  export BLASOPT="-L/usr/local/opt/openblas/lib -lopenblas"
+  export BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lopenblas"
   if [[ "$MPI_IMPL" == "openmpi" ]]; then
     export SCALAPACK="-L/usr/local/lib -lscalapack -lopenblas"
     export USE_64TO32="y"
