@@ -21,7 +21,7 @@ if [[ "$os" == "Linux" ]]; then
    export BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lopenblas"
    export NWCHEM_TARGET=LINUX64 
    export LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH
-   if [[ "$NWCHEM_MODULES" != "tce' ]]; then
+   if [[ "$NWCHEM_MODULES" != "tce" ]]; then
      export SCALAPACK="-L$TRAVIS_BUILD_DIR/lib  -lscalapack -lopenblas"
      export USE_64TO32="y"
    fi
