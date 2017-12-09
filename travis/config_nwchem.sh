@@ -11,5 +11,6 @@ elif [[ "$os" == "Linux" ]]; then
      make nwchem_config
 #     make NWCHEM_MODULES="qmandpw"  nwchem_config
  fi
- make 64_to_32 >& 6log &
-
+ if [[ "$USE_64TO32" == "y" ]]; then
+   make 64_to_32 >& 6log &
+fi
