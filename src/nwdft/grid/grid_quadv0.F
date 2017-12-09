@@ -845,18 +845,8 @@ c end Qin
 
       endif  ! grid_written
 
-      if(.not.xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,g_dens,.false.)) 
+      if(.not.xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,.false.)) 
      &     call errquit(pname//'xcrepclose failed ',0, DISK_ERR)
-      if (.not. ga_duplicate(g_dens(1), g_s, 'ovl'))
-     &     call errquit('Error creating g_s',0, GA_ERR)
-      call ga_zero(g_s)
-      call int_1e_ga(ao_bas_han, ao_bas_han, g_s, 'overlap', .true.)
-      pstrace=ga_ddot(g_dens(1),g_s)
-c      call ga_print(g_dens(1))
-c      call ga_print(g_s)
-      if (.not. ga_destroy(g_s))
-     &     call errquit(pname//'failed destroy',g_s, GA_ERR)
-      write(6,*) ga_nodeid(),' ps ',pstrace
 
 c     
 C AJL/Begin/FDE
