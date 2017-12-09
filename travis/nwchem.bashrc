@@ -19,10 +19,12 @@ export USE_MPI=y
 fi
 if [[ "$os" == "Linux" ]]; then 
    export BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lopenblas"
-   export SCALAPACK="-L$TRAVIS_BUILD_DIR/lib  -lscalapack -lopenblas"
-   export USE_64TO32="y"
    export NWCHEM_TARGET=LINUX64 
    export LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH
+   if [[ "$NWCHEM_MODULES" != "tce' ]]; then
+     export SCALAPACK="-L$TRAVIS_BUILD_DIR/lib  -lscalapack -lopenblas"
+     export USE_64TO32="y"
+   fi
 fi
 export OMP_NUM_THREADS=1
 export USE_NOIO=1
