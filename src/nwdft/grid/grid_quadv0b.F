@@ -306,7 +306,8 @@ c losing useful grid points
 c      call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,
-     ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),mbf_ao,grad,
+     ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),dbl_mb(iheschi_ao),
+     M     mbf_ao,grad,do_xdm,
      ,     ipol,iscratch)
       if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts*3,
      &     'Dmat', lDmat,iDmat))
@@ -330,7 +331,8 @@ c For combined systems we cannot use this method of removing grid points
      ,       call grid_pscreen(nqpts,qwght,qxyz,tol_rho,ncenters_fde,
      ,       rchi_atom_fde,rdelchi_atom_fde,
      ,       rdens_atom_fde,iniz_fde,
-     ,       dbl_mb(ichi_fde),dbl_mb(idelchi_fde),mbf_fde,grad,
+     ,       dbl_mb(ichi_fde),dbl_mb(idelchi_fde),dbl_mb(iheschi_fde),
+     ,       mbf_fde,grad,do_xdm,
      ,       ipol,iscratch)
 
         if (.not.MA_Push_Get(mt_dbl,nbf_fde_mxnbf_ce*nqpts*3,

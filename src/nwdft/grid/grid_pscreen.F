@@ -25,7 +25,8 @@ C> * The compressed list of basis function gradients
 C>
       subroutine grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,chi,delchi,
-     ,     mbf_ao,grad,ipol,iscratch)
+     ,     heschi,
+     ,     mbf_ao,grad,dolap,ipol,iscratch)
 c
 c$Id$
 c
@@ -55,7 +56,11 @@ c
                    !< have to be handled in addition to the basis
                    !< functions
       integer ipol !< [Input] The number of spin channels present
+      logical dolap             ! laplacian
+      double precision heschi(*)! [Input/Output] function hessians
+            
 c
+      
       double precision dabsmax
       external dabsmax
 c
@@ -91,21 +96,32 @@ c
                   delchi(i+(j-1)*3*nqpts+nqpts)=0d0
                   delchi(i+(j-1)*3*nqpts+nqpts*2)=0d0
                endif
+               if(dolap)then
+                  heschi(i+(j-1)*6*nqpts)=0d0
+                  heschi(i+(j-1)*6*nqpts+nqpts)=0d0
+                  heschi(i+(j-1)*6*nqpts+nqpts*2)=0d0
+                  heschi(i+(j-1)*6*nqpts+nqpts*3)=0d0
+                  heschi(i+(j-1)*6*nqpts+nqpts*4)=0d0
+                  heschi(i+(j-1)*6*nqpts+nqpts*5)=0d0
+               endif
             enddo
          endif
       enddo
       if(nzero.ne.0) then
          call grid_pcompress(nqpts,qwght,chi,qxyz,delchi,
-     ,        mbf_ao,1d-19,grad,iscratch)
+     H        heschi,
+     ,        mbf_ao,1d-19,grad,dolap,iscratch)
       endif
       return
       end
       subroutine grid_pcompress(nq,qwght,chi,qxyz,delchi,
-     .     mbf_ao,toll,grad,iscr)
+     H     heschi,
+     .     mbf_ao,toll,grad,dolap,iscr)
       implicit none
       integer nq,mbf_ao
-      double precision qwght(*),chi(*),qxyz(3,*),delchi(*)
-      logical grad
+      double precision qwght(*),chi(*),qxyz(3,*),delchi(*),
+     H heschi(*)
+      logical grad,dolap
       double precision toll ![input]
 c
       integer q,nzero,mq0,mq1,j,iscr(*),
@@ -146,6 +162,17 @@ c
          do j=1,mbf_ao*3
             do q=1,nq
                delchi(mq1+q)=delchi(mq0+iscr(q))
+            enddo
+            mq0=mq0+nq_orig
+            mq1=mq1+nq
+         enddo
+      endif
+      if(dolap) then
+         mq0=0
+         mq1=0
+         do j=1,mbf_ao*6
+            do q=1,nq
+               heschi(mq1+q)=heschi(mq0+iscr(q))
             enddo
             mq0=mq0+nq_orig
             mq1=mq1+nq
