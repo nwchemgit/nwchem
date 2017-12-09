@@ -3,7 +3,7 @@ cd $TRAVIS_BUILD_DIR
 git clone -b release-0.2.21 https://github.com/xianyi/OpenBLAS.git
 cd OpenBLAS
 source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
-f [[ "$USE_64TO32" == "y" ]]; then
+if [[ "$USE_64TO32" == "y" ]]; then
   sixty4_int=0
 else
   sixty4_int=1
