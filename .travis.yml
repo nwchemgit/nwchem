@@ -4,22 +4,25 @@ os:
   - osx
   - linux
 env: 
-  - NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
-  - NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-TS MPI_IMPL="mpich"
-  - NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR MPI_IMPL="openmpi"
-  - NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PT MPI_IMPL="mpich"
-  - NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-MT MPI_IMPL="mpich"
-  - NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI3   MPI_IMPL="mpich"
+  - NWCHEM_MODULES=qmandpw  ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
+  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
+  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="mpich"
+  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PR MPI_IMPL="openmpi"
+  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT MPI_IMPL="mpich"
+  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-MT MPI_IMPL="mpich"
+  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI3   MPI_IMPL="mpich"
   - NWCHEM_MODULES=tce     ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
 compiler:
   - gcc
 matrix:
   exclude:
     - os: osx
-      env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-TS MPI_IMPL="mpich"
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="mpich"
   allow_failures:
     - os: osx
       env: NWCHEM_MODULES=tce     ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
+    - os: osx
+      env: NWCHEM_MODULES=qmandpw  ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
 git:
   depth: 3
 before_script:
