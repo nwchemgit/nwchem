@@ -357,7 +357,7 @@ c
                 call starttimer(monitor_screen4)
                 inizja = iniz(jat)
                 FUNC_MAXJ = rchi_atom(jat)
-                if(grad) FUNC_MAXJ = max(rchi_atom(jat),FUNC_MAXJ)
+                if(grad) FUNC_MAXJ = max(rdelchi_atom(jat),FUNC_MAXJ)
                 doitt=(BD_MAX*FUNC_MAXJ).ge.tol_rho
                 call endtimer(monitor_screen4)
                 if (what.eq.2.or.doitt) then
