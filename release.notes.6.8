@@ -31,12 +31,19 @@ Gaussian basis DFT & TDDFT (linear-response and real-time)
     * Valence-to-core X-ray emission spectroscopy (VtC-XES) with TDDFT
 
 Plane-wave DFT and dynamics
-
-    * 
-
+    * Changed default compilation to use USE_MPIF=y and USE_MPIF4=y. To return to old defauls use set USE_MPIF=n and 
+      USE_MPIF4=n. 
+    * Upgraded all of the PSPW to use the OpenMP-MPI programming model.  Significant performance improvements seen on 
+      large core machines, especially KNL.
+    * Added Damle-Lin-Ying localization algorithm
+    * Added localized exact exchange algorithms for AIMD
+    * AIMD/MM lambda coupling parameter added that defines the strength of coupling between AIMD and MM.  Useful for 
+      calculating solvation energies.
+      
 Properties
 
    * MoVIPac interface (contact Jochen Autschbach (SUNY, Buffalo))
+   * Added bondings constraint to the constraint module.  Useful constraint for mapping out basic chemical reactions.
 
 Enhancement
 
