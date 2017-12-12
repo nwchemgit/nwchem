@@ -30,5 +30,8 @@ Third release candidate available (Pre-release)
 https://github.com/nwchemgit/nwchem/releases/download/v6.8-beta.3/nwchem-6.8-beta3.revision-v6.8-2-g4d08c92-srconly.2017-11-28.tar.bz2  
 https://github.com/nwchemgit/nwchem/releases/download/v6.8-beta.3/nwchem-6.8-beta3.revision-v6.8-2-g4d08c92-nonsrconly.2017-11-28.tar.bz2
 
+Release notes available at  
+https://github.com/nwchemgit/nwchem/blob/release-6-8/release.notes.6.8
+
 ### Documentation
 https://github.com/nwchemgit/nwchem/wiki
