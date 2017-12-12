@@ -54,6 +54,7 @@ after_failure:
         - grep -i tce_energy $TRAVIS_BUILD_DIR/src/6log
         - grep d= $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
         - grep @ $TRAVIS_BUILD_DIR/QA/testoutputs/h2o_opt.out
-        - cat $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
-        - cat $TRAVIS_BUILD_DIR/QA/testoutputs/prop_mep_gcube.out
+        - tail -30 $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
+        - tail -30 $TRAVIS_BUILD_DIR/QA/testoutputs/prop_mep_gcube.out
+        - diff $TRAVIS_BUILD_DIR/QA/testoutputs/prop_ch3f.o*nw*
               
