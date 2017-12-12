@@ -28,7 +28,7 @@ before_script:
         - gfortran -v
         - mpif90 -show
         - ./travis/config_nwchem.sh
-        - if [[ "$TRAVIS_OS_NAME" == "os" ]]; then nohup bash -c "./travis/build_openblas.sh &" && sleep 3 && cat nohup.out; fi
+        - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then nohup bash -c "./travis/build_openblas.sh &" && sleep 3 && cat nohup.out; fi
         - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./travis/build_openblas.sh;  fi
         - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./travis/build_scalapack.sh; fi
         - sleep 1
