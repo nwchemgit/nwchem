@@ -31,4 +31,4 @@ https://github.com/nwchemgit/nwchem/releases/download/v6.8-beta.3/nwchem-6.8-bet
 https://github.com/nwchemgit/nwchem/releases/download/v6.8-beta.3/nwchem-6.8-beta3.revision-v6.8-2-g4d08c92-nonsrconly.2017-11-28.tar.bz2
 
 ### Documentation
- (work in progress) at https://github.com/nwchemgit/nwchem/wiki
+https://github.com/nwchemgit/nwchem/wiki
