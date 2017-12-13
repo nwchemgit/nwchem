@@ -1,5 +1,6 @@
 language: c
 sudo: required
+osx_image: xcode9.2
 os: 
   - osx
   - linux
@@ -27,6 +28,8 @@ matrix:
       env: NWCHEM_MODULES=tce     ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
     - os: osx
       env: NWCHEM_MODULES=qmandpw  ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
+    - os: osx
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI3   MPI_IMPL="mpich"
 git:
   depth: 3
 before_script:
