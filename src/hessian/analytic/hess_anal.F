@@ -104,10 +104,11 @@ c  Find out if this is a restart
 c
       restr = 0
       call util_get_rtdb_state(rtdb,ostart,ocontinue,orestart)
-      if (orestart) restr = 1
-      if (restr.gt.0.and. ga_nodeid().eq.0) 
-     &    write(luout,*) 'Restarting calculation'
-c
+      status = rtdb_get(rtdb, 'hess:restart',mt_int,1,restr)
+      if (orestart .and. (restr.gt.0)) then
+        if (ga_nodeid().eq.0) write(luout,*) 'Restarting calculation'
+      end if 
+      if (ga_nodeid().eq.0) write(luout,*) "restr: ", restr
       call solver_setup(rtdb,restr)  ! restart parameters for solver (ga_lkain())
 c
 c  Get theory type
