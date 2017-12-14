@@ -1459,6 +1459,7 @@ geometry units au
 symmetry Td
 end
 
+set hess:restart f
 task scf freq
 
 geometry units au
@@ -1470,6 +1471,7 @@ geometry units au
 symmetry D2
 end
 
+set hess:restart f
 task scf freq
 
 geometry units au
@@ -1481,6 +1483,7 @@ geometry units au
 symmetry S4 
 end
 
+set hess:restart f
 task scf freq
 
 geometry units au
@@ -1492,6 +1495,7 @@ geometry units au
 symmetry C2
 end
 
+set hess:restart f
 task scf freq
 
 geometry units au
@@ -1503,5 +1507,6 @@ geometry units au
 symmetry C1
 end
 
+set hess:restart f
 task scf freq
 
