@@ -107,9 +107,9 @@ c      call sx_write(g_rhs,n3xyz*ndens,nbf,fx_dra_handle)
 c
 c  Write out restr to the database
 c
-c      if (.not. rtdb_put(rtdb, 'hess:restart',mt_int,1,restr))
-c     $  call errquit('hess_restart: could not save restr to rtdb',
-c     $  555, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'hess:restart',mt_int,1,restr))
+     $  call errquit('hess_restart: could not save restr to rtdb',
+     $  555, RTDB_ERR)
 c
       return
       end
