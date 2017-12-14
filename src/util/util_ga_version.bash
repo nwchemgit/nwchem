@@ -39,7 +39,7 @@ if [ $# -eq 0 ]
 # try to guess from tools/build
     if [  -f $NWCHEM_TOP/src/tools/build/config.log ] ; then
 
-   ga_dir=`head  -7 ../tools/build/co*log|tail -1 |cut -d '/' -f2`
+   ga_dir=`head  -7 $NWCHEM_TOP/src/tools/build/co*log|tail -1 |cut -d '/' -f2`
    else
     echo "ga_dir argument not supplied, will write N/A revision"
    fi
@@ -48,15 +48,19 @@ else
     ga_dir="$1"
 fi
 
-cd $NWCHEM_TOP/src/tools/${ga_dir}
-if [ -f "${my_gitversion}" ] ; then
-  # gitversion exists, but is the ga_dir under git?
+if [ -d "$NWCHEM_TOP/src/tools/${ga_dir}/.git" ] ; then
+    cd $NWCHEM_TOP/src/tools/${ga_dir}
+    if [ -f "${my_gitversion}" ] ; then
+	# gitversion exists, but is the ga_dir under git?
 	revision="N/A"
 	GITBRANCH=`${my_gitversion} describe --tags 2> /dev/null| wc -l`
 	if [ ${GITBRANCH} -ne 0 ]; then
 	    # 
 	    revision=`${my_gitversion} describe --tags`
 	fi
+    fi
+else
+    revision=${ga_dir}
 fi
 cd $NWCHEM_TOP/src/util
     echo "      subroutine util_ga_version(garev)" > util_ga_version.F
