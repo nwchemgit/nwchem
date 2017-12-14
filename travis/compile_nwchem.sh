@@ -32,9 +32,9 @@ FOPT2="-O2 -fno-aggressive-loop-optimizations"
      cd $NWCHEM_TOP/src
      $NWCHEM_TOP/contrib/getmem.nwchem 500
  fi
-tail -2 $NWCHEM_TOP/src/6log
-head -2 $NWCHEM_TOP/src/tools/build/config.log
-tail -2 $NWCHEM_TOP/src/tools/build/config.log
-tail -10 $NWCHEM_TOP/src/make.log
-grep HAVE_SCA $TRAVIS_BUILD_DIR/src/tools/build/config.h
+#tail -2 $NWCHEM_TOP/src/6log
+#head -2 $NWCHEM_TOP/src/tools/build/config.log
+#tail -2 $NWCHEM_TOP/src/tools/build/config.log
+#tail -10 $NWCHEM_TOP/src/make.log
+#grep HAVE_SCA $TRAVIS_BUILD_DIR/src/tools/build/config.h
 #cd $NWCHEM_TOP/src && make link

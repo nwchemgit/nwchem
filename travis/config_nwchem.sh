@@ -2,7 +2,6 @@
 # source env. variables
  source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
  ls -lrt $NWCHEM_TOP|tail -2
- os=`uname`
  cd $NWCHEM_TOP/src
      make nwchem_config
  if [[ "$USE_64TO32" == "y" ]]; then
