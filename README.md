@@ -26,10 +26,10 @@ git clone  -b release-6-8 https://github.com/nwchemgit/nwchem.git nwchem-6.8
 
 ### Release 6.8
 
-Release files available at the page
-https://github.com/nwchemgit/nwchem/releases/tag/v6.8-release
-https://github.com/nwchemgit/nwchem/releases/download/v6.8-release/nwchem-6.8-release.revision-v6.8-47-gdf6c956-srconly.2017-12-14.tar.bz2
-https://github.com/nwchemgit/nwchem/releases/download/v6.8-release/nwchem-6.8-release.revision-v6.8-47-gdf6c956-nonsrconly.2017-12-14.tar.bz2
+Release files available at the page  
+https://github.com/nwchemgit/nwchem/releases/tag/v6.8-release  
+https://github.com/nwchemgit/nwchem/releases/download/v6.8-release/nwchem-6.8-release.revision-v6.8-47-gdf6c956-srconly.2017-12-14.tar.bz2  
+https://github.com/nwchemgit/nwchem/releases/download/v6.8-release/nwchem-6.8-release.revision-v6.8-47-gdf6c956-nonsrconly.2017-12-14.tar.bz2  
 
 Release notes available at  
 https://raw.githubusercontent.com/nwchemgit/nwchem/release-6-8/release.notes.6.8
