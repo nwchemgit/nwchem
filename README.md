@@ -2,12 +2,11 @@
 
 
 
-[![Build Travis-CI Status](https://travis-ci.org/nwchemgit/nwchem.svg?branch=travisci_test)](https://travis-ci.org/nwchemgit/nwchem)
-[![License](https://img.shields.io/badge/license-ECL2-blue.svg)](https://raw.githubusercontent.com/nwchemgit/nwchem/master/LICENSE.md)
-[![Github Downloads All Releases](https://img.shields.io/github/downloads/nwchemgit/nwchem/total.svg)](https://img.shields.io/github/downloads/nwchemgit/nwchem/total.svg)
-[![Github Downloads Release 6.8](https://img.shields.io/github/downloads/nwchemgit/nwchem/v6.8-release/total.svg)](https://img.shields.io/github/downloads/nwchemgit/nwchem/v6.8-release/total.svg)
-[![Tags](https://img.shields.io/github/tag/nwchemgit/nwchem.svg)](https://img.shields.io/github/tag/nwchemgit/nwchem.svg)
-[![All Releases tags](https://img.shields.io/github/release/nwchemgit/nwchem/all.svg)](https://img.shields.io/github/release/nwchemgit/nwchem/all.svg)  
+[![Build Travis-CI Status](https://img.shields.io/travis/nwchemgit/nwchem.svg?style=for-the-badge)](https://img.shields.io/travis/nwchemgit/nwchem.svg?style=for-the-badge)
+[![License](https://img.shields.io/badge/license-ECL2-blue.svg?style=for-the-badge)](https://raw.githubusercontent.com/nwchemgit/nwchem/master/LICENSE.md)
+[![Github Downloads All Releases](https://img.shields.io/github/downloads/nwchemgit/nwchem/total.svg?style=for-the-badge)](https://img.shields.io/github/downloads/nwchemgit/nwchem/total.svg?style=for-the-badge)
+[![Github Downloads Release 6.8](https://img.shields.io/github/downloads/nwchemgit/nwchem/v6.8-release/total.svg?style=for-the-badge)](https://img.shields.io/github/downloads/nwchemgit/nwchem/v6.8-release/total.svg?style=for-the-badge)
+[![All Releases tags](https://img.shields.io/github/release/nwchemgit/nwchem/all.svg?style=for-the-badge)](https://img.shields.io/github/release/nwchemgit/nwchem/all.svg?style=for-the-badge)  
  
 ## NWChem: Open Source High-Performance Computational Chemistry
 <img alt="NWChem logo" src="https://raw.githubusercontent.com/nwchemgit/nwchem/master/contrib/git.nwchem/MS3_logo_cropped.png" align=middle width="102pt" height="117pt"/>  
