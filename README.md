@@ -6,7 +6,6 @@
 [![License](https://img.shields.io/badge/license-ECL2-blue.svg?style=for-the-badge)](https://raw.githubusercontent.com/nwchemgit/nwchem/master/LICENSE.md)
 [![Github Downloads All Releases](https://img.shields.io/github/downloads/nwchemgit/nwchem/total.svg?style=for-the-badge)](https://img.shields.io/github/downloads/nwchemgit/nwchem/total.svg?style=for-the-badge)
 [![Github Downloads Release 6.8](https://img.shields.io/github/downloads/nwchemgit/nwchem/v6.8-release/total.svg?style=for-the-badge)](https://img.shields.io/github/downloads/nwchemgit/nwchem/v6.8-release/total.svg?style=for-the-badge)
-<!---[![Tags](https://img.shields.io/github/tag/nwchemgit/nwchem.svg?style=for-the-badge)](https://img.shields.io/github/tag/nwchemgit/nwchem.svg?style=for-the-badge)---!>
 [![All Releases tags](https://img.shields.io/github/release/nwchemgit/nwchem/all.svg?style=for-the-badge)](https://img.shields.io/github/release/nwchemgit/nwchem/all.svg?style=for-the-badge)  
  
 ## NWChem: Open Source High-Performance Computational Chemistry
