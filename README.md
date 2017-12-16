@@ -2,11 +2,11 @@
 
 
 
-[![Build Travis-CI Status](https://img.shields.io/travis/nwchemgit/nwchem.svg?style=for-the-badge)](https://img.shields.io/travis/nwchemgit/nwchem.svg?style=for-the-badge)
+[![Build Travis-CI Status](https://img.shields.io/travis/nwchemgit/nwchem.svg?style=for-the-badge)](https://travis-ci.org/nwchemgit/nwchem/builds)
 [![License](https://img.shields.io/badge/license-ECL2-blue.svg?style=for-the-badge)](https://raw.githubusercontent.com/nwchemgit/nwchem/master/LICENSE.md)
-[![Github Downloads All Releases](https://img.shields.io/github/downloads/nwchemgit/nwchem/total.svg?style=for-the-badge)](https://img.shields.io/github/downloads/nwchemgit/nwchem/total.svg?style=for-the-badge)
-[![Github Downloads Release 6.8](https://img.shields.io/github/downloads/nwchemgit/nwchem/v6.8-release/total.svg?style=for-the-badge)](https://img.shields.io/github/downloads/nwchemgit/nwchem/v6.8-release/total.svg?style=for-the-badge)
-[![All Releases tags](https://img.shields.io/github/release/nwchemgit/nwchem/all.svg?style=for-the-badge)](https://img.shields.io/github/release/nwchemgit/nwchem/all.svg?style=for-the-badge)  
+[![Github Downloads All Releases](https://img.shields.io/github/downloads/nwchemgit/nwchem/total.svg?style=for-the-badge)](https://github.com/nwchemgit/nwchem/releases)
+[![Github Downloads Release 6.8](https://img.shields.io/github/downloads/nwchemgit/nwchem/v6.8-release/total.svg?style=for-the-badge)](https://github.com/nwchemgit/nwchem/releases/tag/v6.8-release)
+[![All Releases tags](https://img.shields.io/github/release/nwchemgit/nwchem/all.svg?style=for-the-badge)](https://github.com/nwchemgit/nwchem/releases)  
  
 ## NWChem: Open Source High-Performance Computational Chemistry
 <img alt="NWChem logo" src="https://raw.githubusercontent.com/nwchemgit/nwchem/master/contrib/git.nwchem/MS3_logo_cropped.png" align=middle width="102pt" height="117pt"/>  
