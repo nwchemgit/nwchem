@@ -263,15 +263,15 @@ c
 #include "xc_params.fh"
 
       double precision q,OneOverQ,q2,q3,DERF
-
+      
+      q2 = q**2.0d0
+      q3 = q**3.0d0
       if (q .lt. 0.1d0) then
         HqBNLPrime = -4.0d0/3.0d0*(dsqrt(Pi)+2.0d0*q3-3.0d0*q)
         return
       end if
 
       OneOverQ = 1.0d0/q
-      q2 = q**2.0d0
-      q3 = q**3.0d0
 
       HqBNLPrime = 4.0d0/3.0d0*(q*(exp(-OneOverQ*OneOverQ)*(2.0d0*q2
      $     -1.0d0)+(3.0d0-2.0d0*q2))-dsqrt(Pi)*DERF(OneOverQ))
@@ -356,13 +356,13 @@ c
 
       double precision q,OneOverQ,q2
 
+      q2 = q**2.0d0
       if (q .lt. 0.1d0) then
          HqBNLTwoPrime = 4.0d0-8.0d0*q2
          return
       end if
 
       OneOverQ = 1.0d0/q
-      q2 = q**2.0d0
 
       HqBNLTwoPrime = exp(-OneOverQ*OneOverQ)*(4.0d0+8.0d0*q2)
      $     -8.0d0*q2+4.0d0
