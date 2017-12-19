@@ -16,6 +16,7 @@ FOPT2="-O2 -fno-aggressive-loop-optimizations"
      ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" FOPTIMIZE="$FOPT2" -j3
      cd $NWCHEM_TOP/src/64to32blas 
      make
+     cd $NWCHEM_TOP/src
      ../contrib/getmem.nwchem 500
      otool -L ../bin/MACX64/nwchem
 #     printenv DYLD_LIBRARY_PATH
