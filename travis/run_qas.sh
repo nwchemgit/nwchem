@@ -45,8 +45,8 @@
     fi
  else
      cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs $nprocs dft_he2+ prop_mep_gcube
-     head -200 $NWCHEM_TOP/QA/testoutputs/dft_he2+.out
-     tail -200 $NWCHEM_TOP/QA/testoutputs/dft_he2+.out
+     head -2 $NWCHEM_TOP/QA/testoutputs/dft_he2+.out
+     tail -20 $NWCHEM_TOP/QA/testoutputs/dft_he2+.out
      cd $NWCHEM_TOP/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs cosmo_h2o_dft  
      cd $NWCHEM_TOP/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs pspw 
      if  [[ "$do_largeqas" == 1 ]]; then
