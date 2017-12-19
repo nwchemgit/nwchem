@@ -377,9 +377,9 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
       bb1 = *(cl_ptr++);
       bn = *(cl_ptr++);
 
-      if( clustr_ptr == send_cl && send_num > 0 )
-        cl_ptr += 4;
-
+      if(  send_num > 0 ) {
+	if( clustr_ptr == send_cl ) cl_ptr += 4;
+      }
     }
 
 
