@@ -60,7 +60,7 @@ HEADERS = xc.fh xc_vdw.fh xc_params.fh xc_hcth.fh
 
 # LIB_DEFINES = -DQUADV0_REVERT
 HAVE_SET_GA_PROPERTY = $(shell cat ${NWCHEM_TOP}/src/tools/build/global/src/ga-wapi.h | awk ' /wnga_set_property/ {print "Y"}')
-ifdef HAVE_SET_GA_PROPERTY
+ifeq ($(HAVE_SET_GA_PROPERTY),y)
       LIB_DEFINES += -DHAVE_SET_GA_PROPERTY
 endif
 
