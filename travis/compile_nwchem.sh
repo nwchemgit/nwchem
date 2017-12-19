@@ -4,12 +4,6 @@
 ls -lrt $NWCHEM_TOP|tail -3
 os=`uname`
 if [[ "$NWCHEM_MODULES" == "tce" ]]; then 
-#  cd $NWCHEM_TOP/src/tce 
-#  head -2 dependencies 
-#  rm -f dependencies *amp
-#  grep -i dot $NWCHEM_TOP/src/tce/tce_residual_t1.F
-#  make include_stamp dependencies >& dep.log 
-#  tail -2 dep.log
     export EACCSD=1
     export IPCCSD=1
 fi
@@ -20,6 +14,8 @@ FOPT2="-O2 -fno-aggressive-loop-optimizations"
      FOPT2="-O1 -fno-aggressive-loop-optimizations"
    fi
      ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" FOPTIMIZE="$FOPT2" -j3
+     cd $NWCHEM_TOP/src/64to32blas 
+     make
      ../contrib/getmem.nwchem 500
      otool -L ../bin/MACX64/nwchem
 #     printenv DYLD_LIBRARY_PATH
