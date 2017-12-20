@@ -2665,6 +2665,10 @@ ACTUAL_FC := $(FC)
 NWFC_0 = @echo "Compiling $<..."; $(ACTUAL_FC)
 NWFC_1 = $(ACTUAL_FC)
 NWFC = $(NWFC_$(V))
+ACTUAL_CC := $(CC)
+NWCC_0 = @echo "Compiling $<..."; $(ACTUAL_CC)
+NWCC_1 = $(ACTUAL_CC)
+NWCC = $(NWCC_$(V))
 .SUFFIXES:	
 .SUFFIXES:	.o .s .F .f .c .cpp
 
@@ -2682,7 +2686,7 @@ ifdef EXPLICITF
 .F.o:	
 	@echo Converting $*.F '->' $*.f
 	@$(FCONVERT)
-	$(FC) -c $(FFLAGS) $*.f
+	$(NWFC) -c $(FFLAGS) $*.f
 	@$(RM) $*.f
 
 .F.f:
@@ -2714,10 +2718,10 @@ endif
 endif
 
 (%.o):	%.f
-	$(FC) -c $(FFLAGS) $<
+	$(NWFC) -c $(FFLAGS) $<
 
 (%.o):	%.c
-	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $% $<
+	$(NWCC) -c $(CPPFLAGS) $(CFLAGS) -o $% $<
 
 ifdef GPU_ARCH
   CUDA_ARCH =  -arch=$(GPU_ARCH) 

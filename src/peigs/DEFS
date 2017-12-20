@@ -63,12 +63,12 @@ peigs_EXAMPLE_LIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) $(CORE_LIBS) $(EXTRA_LIBS) 
 #
 peigs_AR = $(AR) $(ARFLAGS)
 peigs_RANLIB = $(RANLIB)
-peigs_FC = $(FC) $(FOPTIONS) $(FOPTIMIZE) -I$(peigs_HDIR)
+peigs_FC = $(NWFC) $(FOPTIONS) $(FOPTIMIZE) -I$(peigs_HDIR)
 #
 # this is needed because -DCRAY-T3E cannot be a macro definition it should be -DCRAY_T3E
 #
 peigs_TARGET_definition = $(peigs_TARGET)
-peigs_CC = $(CC) $(COPTIONS) -I$(peigs_HDIR) -D$(peigs_TARGET_definition) -D$(peigs_CPU)
+peigs_CC = $(NWCC) $(COPTIONS) -I$(peigs_HDIR) -D$(peigs_TARGET_definition) -D$(peigs_CPU)
 peigs_LINK = $(FC) $(FOPTIONS) -I$(peigs_HDIR)
 peigs_COMM = TCGMSG
 peigs_CPP  = $(CPP) -I$(peigs_HDIR) -D$(peigs_CPU) -D$(peigs_COMM) -D$(peigs_TARGET_definition) -P
