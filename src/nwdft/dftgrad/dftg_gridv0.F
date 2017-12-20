@@ -617,7 +617,8 @@ c to true.
       if (.not.ma_pop_stack(lscr))
      &   call errquit('dftg_gridv0: cannot pop stack',21, MA_ERR)
       endif
-      if(.not.xc_rep_close(rtdb, nbf_ao,ipol,ipol,.true.)) call
+      if(.not.xc_rep_close(rtdb, nbf_ao,ipol,ipol,
+     D     iga_dens, .true.)) call
      .     errquit(' dftggridv0: xcrepclose failed ',0, 0)
       if (.not.ma_chop_stack(lhh))
      &   call errquit('dftg_gridv0: cannot chop stack',1, MA_ERR)
