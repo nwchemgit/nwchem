@@ -59,8 +59,7 @@ void mxm25_( n1, n2, rowQ, mapQ, m, colW, mapW, colZ, iwork, work)
     */
   
   Integer me, nvecsQ, nvecsW, nvecsZ;
-  Integer *mapvecQ, *mapvecW;
-  Integer *iscrat, i, j;
+  Integer *iscrat, i;
   
   DoublePrecision **matQ, **matW, **matZ;
   DoublePrecision *dscrat;

@@ -83,9 +83,8 @@ void residual_( n, matrixA, mapA, matrixB, mapB, m, matrixZ, mapZ, eval, iwork, 
   Integer ll, k, i, *iscrat, *mapvecA, *mapvecB, *mapvecZ;
   Integer nvecsA, nvecsB, nvecsZ;
   Integer me;
-  Integer *proclist;
   
-  DoublePrecision t, derror, *scratch;
+  DoublePrecision *scratch;
   DoublePrecision **buff_ptr, **ptrA, **ptrB, **ptrZ;
   
   
