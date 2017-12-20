@@ -2,13 +2,19 @@
 os=`uname`
 export NWCHEM_TOP=$TRAVIS_BUILD_DIR
 export USE_MPI=y
- if [[ "$os" == "Darwin" ]]; then 
-  export USE_64TO32="y"
-  export BLASOPT="-L/usr/local/opt/openblas/lib -lopenblas"
+if [[ "$os" == "Darwin" ]]; then 
+   if [[ "$NWCHEM_MODULES" = "tce" ]]; then
+     export USE_INTERNALBLAS=y
+   else
+     export USE_64TO32="y"
+     export BLASOPT="-L/usr/local/opt/openblas/lib -lopenblas"
+     if [[ "$MPI_IMPL" == "openmpi" ]]; then
+       export SCALAPACK="-L/usr/local/lib -lscalapack -lopenblas"
+     fi
+   fi
   export NWCHEM_TARGET=MACX64 
   export DYLD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$DYLD_LIBRARY_PATH
   if [[ "$MPI_IMPL" == "openmpi" ]]; then
-    export SCALAPACK="-L/usr/local/lib -lscalapack -lopenblas"
     export PATH=/usr/local/opt/open-mpi/bin/:$PATH 
   fi
   if [[ "$MPI_IMPL" == "mpich" ]]; then 

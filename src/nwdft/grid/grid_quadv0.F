@@ -845,7 +845,7 @@ c end Qin
 
       endif  ! grid_written
 
-      if(.not.xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,.false.)) 
+      if(.not.xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,g_dens,.false.)) 
      &     call errquit(pname//'xcrepclose failed ',0, DISK_ERR)
 
 c     

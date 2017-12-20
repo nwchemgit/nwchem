@@ -240,7 +240,7 @@ c     for all functions on this center - also make sure that the angular
 c     functions needed for derivatives get evaluated
 c
          call eval_angular(dbl_mb(iang), dbl_mb(id1ang), dbl_mb(id2ang),
-     &        dbl_mb(id3ang), qxyz, ccoord(1,ictr), nq, dbl_mb(il2k),
+     &        dbl_mb(id3ang), qxyz, ccoord(1,ictr), nq, int_mb(il2k),
      &        max(bas_cent_info(1,ictr),max_ang_for_der), maxder, gen_l,
      &        spherical)
 c
