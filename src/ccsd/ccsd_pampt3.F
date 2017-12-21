@@ -105,6 +105,12 @@ c ------------------------------------------------------------
       stat=stat.and.ma_pop_stack(l_sc2)
       stat=stat.and.ma_pop_stack(l_sc1)
       if (.not.stat)call errquit('ma_pop ccsd_t2pm ',0, MA_ERR)
+      if(use_rdonly_st2) then
+         call ga_set_property(g_st2,'read_only')
+         write(6,*) ' g_st2 read_only'
+c     disable old replicated data
+         use_inmem_st2=.false.
+      endif
       if (use_inmem_st2) then
 c     show how much memory g_st2 (a_st2) needs
          nsz_st2 = lnoo * nbfdim*ma_sizeof(MT_DBL,1,MT_BYTE)
@@ -218,6 +224,7 @@ c     leave 10 pct available
      &   call errquit('ccsd_pampt3: ma_pop_stack ccsd_sxy ',0, MA_ERR)
 c
 
+      if(use_rdonly_st2) call ga_unset_property(g_st2)
         if (.not.ga_destroy(g_st2))
      &    call errquit('ga_dest g_st2 fail',0, GA_ERR)
 
