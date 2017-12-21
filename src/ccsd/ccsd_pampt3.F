@@ -107,7 +107,7 @@ c ------------------------------------------------------------
       if (.not.stat)call errquit('ma_pop ccsd_t2pm ',0, MA_ERR)
       if(use_rdonly_st2) then
          call ga_set_property(g_st2,'read_only')
-         write(6,*) ' g_st2 read_only'
+         if(ga_nodeid().eq.0) write(6,*) ' g_st2 read_only'
 c     disable old replicated data
          use_inmem_st2=.false.
       endif
