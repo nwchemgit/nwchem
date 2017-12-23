@@ -26,6 +26,7 @@ c
       external ga_create_atom_blocked,movecs_read_header,movecs_read
       integer ga_create_atom_blocked
       logical movecs_read_header,movecs_read
+      logical oadapt
       character*15 subname
       parameter (subname='prop_moldenfile')
 c
@@ -66,11 +67,15 @@ c> movecs
       if (.not. movecs_read_header(vec_file, title_vec, basis_name,
      &    scftype_vecs, nbf, nset, nmo, 2))
      &  call errquit(subname//': basis set error:', 86, basis_err)
-
-      g_movecs(1) = ga_create_atom_blocked(geom, basis, 'vecs1')
+      
+      if (.not. ga_create(mt_dbl, nbf, nmo(1),
+     +     'movad1', nbf, 0, g_movecs(1))) call errquit(
+     +              subname//':gacreate failed ',0, GA_ERR)
       call ga_zero(g_movecs(1))
       if (nset.eq.2) then
-        g_movecs(2) = ga_create_atom_blocked(geom, basis, 'vecs2')
+         if (.not. ga_create(mt_dbl, nbf, nmo(2),
+     +        'movad2', nbf, 0, g_movecs(2))) call errquit(
+     +        subname//':gacreate failed ',0, GA_ERR)
         call ga_zero(g_movecs(2))
       endif
 
@@ -94,9 +99,13 @@ c> read  occupation numbers, evals and eigenvecs
      &   call errquit('dft_scf: cannot allocate irreps',0, MA_ERR)
       call ifill(nset*nbf,1,int_mb(k_ir),1)
 c     get irreps
-      if(sym_number_ops(geom) .gt. 0)
-     S     call scf_movecs_sym_adapt(basis, g_movecs, .false.,
-     $     nmo, 'junk', .true., int_mb(k_ir))
+      if (.not.rtdb_get(rtdb, 'dft:adapt',MT_LOG, 1, oadapt))then
+         oadapt = sym_number_ops(geom) .gt. 0
+      endif
+      
+      if(oadapt)
+     S     call scf_movecs_sym_adapt(basis, g_movecs(1), .false.,
+     $     nmo(1), 'junk', .true., int_mb(k_ir))
       if (.not. rtdb_cget(rtdb, theory(1:inp_strlen(theory))//
      A        ':scftype', 1, scftype)) then
 c     wild guess here to fix mp2
