@@ -26,6 +26,8 @@ c
       external ga_create_atom_blocked,movecs_read_header,movecs_read
       integer ga_create_atom_blocked
       logical movecs_read_header,movecs_read
+      logical int_normalize
+      external int_normalize
       logical oadapt
       character*15 subname
       parameter (subname='prop_moldenfile')
@@ -45,6 +47,8 @@ c
      $        call errquit(subname//': no mo or ao basis set', 0,
      &       RTDB_ERR)
       endif
+      if (.not. int_normalize(rtdb,basis))
+     &   call errquit(subname//'int_normalize failed', 86, INT_ERR)
 
       call int_init(rtdb,1,basis)
 
@@ -83,17 +87,11 @@ c     allocate eigenvalues
       if (.not.MA_Push_Get(MT_Dbl,nbf*nset,'eval',l_eval,k_eval))
      &     call errquit(subname//': cannot allocate eval',0, MA_ERR)
       if (.not. MA_Push_Get(MT_Dbl,nbf*nset,'mo occ',l_occ,k_occ))
-     &   call errquit('dft_scf: failed to alloc',999, MA_ERR)
+     &   call errquit(subname//': failed to alloc',999, MA_ERR)
 c> read  occupation numbers, evals and eigenvecs
-      do iset = 1, nset
-         iptr=(iset-1)*nbf
-        if (.not. movecs_read(vec_file, iset, dbl_mb(k_occ+iptr),
-     G        dbl_mb(k_eval+iptr), g_movecs(iset))) call errquit
-     $              (subname//': failed read  MOs set ',iset,
-     $               INPUT_ERR)
-      enddo
-
-
+      if (.not. movecs_read(vec_file, nset, dbl_mb(k_occ),
+     G     dbl_mb(k_eval), g_movecs)) call errquit
+     $     (subname//': failed read  MOs set ',iset,INPUT_ERR)
 
       if (.not.MA_Push_Get(mt_int,nset*nbf,'dft:irreps',l_ir,k_ir))
      &   call errquit('dft_scf: cannot allocate irreps',0, MA_ERR)
@@ -103,9 +101,10 @@ c     get irreps
          oadapt = sym_number_ops(geom) .gt. 0
       endif
       
-      if(oadapt)
-     S     call scf_movecs_sym_adapt(basis, g_movecs(1), .false.,
-     $     nmo(1), 'junk', .true., int_mb(k_ir))
+      if(oadapt) then
+          call scf_movecs_sym_adapt(basis, g_movecs(1), .false.,
+     $        nmo(1), 'junk', .true., int_mb(k_ir))
+       endif
       if (.not. rtdb_cget(rtdb, theory(1:inp_strlen(theory))//
      A        ':scftype', 1, scftype)) then
 c     wild guess here to fix mp2
