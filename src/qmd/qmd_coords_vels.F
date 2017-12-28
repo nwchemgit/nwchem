@@ -95,22 +95,6 @@ c        for the largest element of velocities array
 c
 c        randomize velocities for the given temperature
          call qmd_randomize(nat,m,v)
-        else
-c
-c       it appears the geometry input does not touch the units
-c        on the velocities that are input so we have to convert
-c        to atomic units if necessary, we assume that the user
-c        is using femtoseconds for the time unit unless the
-c        coordinates were input in atomic units
-         if (.not.geom_get_user_scale(geom,gscale))
-     $     call errquit(pname//'geom_get_user_scale',0,GEOM_ERR)
-         if (dabs(gscale-1.d0).gt.1.d-8) then
-           do i=1,nat
-             do j=1,3
-               v(j,i)=v(j,i)*gscale*cau2fs
-             end do
-           end do
-         end if
         end if
 c
 c       starting from beginning
