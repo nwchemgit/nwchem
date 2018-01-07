@@ -65,6 +65,7 @@ c
 c
     1 continue
 c
+      lslvnt=.false. ! solvent residues may be followed by counter ions
       read(iunit,1000,end=999,err=9999) card
  1000 format(a)
 c
