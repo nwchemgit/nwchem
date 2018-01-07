@@ -284,7 +284,8 @@ c          HB2 -> 3HB
 c
       cres='CYS'
       do 7 i=1,natm
-      if(cseq(1,latm(1,i))(1:3).eq.'CYS') then
+      if(cseq(1,latm(1,i))(1:3).eq.'CYS'.or.
+     +   cseq(1,latm(1,i))(1:3).eq.'CYX') then
       if(catm(2,i)(1:4).eq.' HN ') then
       catm(2,i)(1:4)=' H  '
       if(util_print('sequence',print_high)) then
