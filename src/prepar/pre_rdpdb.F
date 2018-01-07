@@ -92,6 +92,7 @@ c
 c
   100 continue
 c
+      lsolut=.true.
       read(lfnpdb,1000,end=9,err=9992) card
  1000 format(a)
 c
@@ -211,7 +212,8 @@ c
       if(cwa(i)(11:14).eq.nama.or.
      + (namslv.eq.'HOH'.and.
      +  ((nama.eq.' O  '.and.cwa(i)(11:14).eq.' OW ').or.
-     +   (nama.eq.' H  '.and.cwa(i)(11:14).eq.' HW ')))) then
+     +   (nama.eq.' H1 '.and.cwa(i)(11:14).eq.'2HW ').or.
+     +   (nama.eq.' H2 '.and.cwa(i)(11:14).eq.'3HW ')))) then
       xw(1,i,nwm)=1.0d-01*x
       xw(2,i,nwm)=1.0d-01*y
       xw(3,i,nwm)=1.0d-01*z
