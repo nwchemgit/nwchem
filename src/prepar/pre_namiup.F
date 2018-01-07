@@ -65,7 +65,7 @@ c
 c
       flag1=.false.
       do 1 i=1,natm
-      if(pre_protein(ffield,cseq(1,latm(1,i)))) then
+      if(pre_protein(cseq(1,latm(1,i)))) then
       if(catm(1,i)(1:2).eq.'1H') flag1=.true.
       endif
       catm(2,i)=catm(1,i)
@@ -75,7 +75,7 @@ c     IUPAC hydrogen naming
 c
       if(flag1) then
       do 2 i=1,natm
-      if(pre_protein(ffield,cseq(1,latm(1,i)))) then
+      if(pre_protein(cseq(1,latm(1,i)))) then
       if(catm(2,i)(1:2).eq.'3H') catm(2,i)(1:2)='4H'
       if(catm(2,i)(1:2).eq.'2H') catm(2,i)(1:2)='3H'
       if(catm(2,i)(1:2).eq.'1H') catm(2,i)(1:2)='2H'
@@ -1026,7 +1026,60 @@ c
       endif
    22 continue
 c
+c     Fix N-terminal hydrogens
+c
+c     XAA  HT1 -> 2H
+c          HT2 -> 3H
+c          HT3 -> 4H
+c
+      do 23 i=1,natm
+      cres = cseq(1,latm(1,i))(1:3)
+      if(pre_protein(cseq(1,latm(1,i)))) then
+      if(catm(2,i)(1:4).eq.' HT1') then
+      catm(2,i)(1:4)='2H  '
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),'HT1 to 2H'
+      endif
+      endif
+      if(catm(2,i)(1:4).eq.' HT2') then
+      catm(2,i)(1:4)='3H  '
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),'HT2 to 3H'
+      endif
+      endif
+      if(catm(2,i)(1:4).eq.' HT3') then
+      catm(2,i)(1:4)='4H  '
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),'HT3 to 4H'
+      endif
+      endif
+      endif
+   23 continue
+c
+c     Fix C-terminal oxygens
+c
+c     XAA  OT1 ->  O
+c          OT2 ->  OXT
+c
       do 24 i=1,natm
+      cres = cseq(1,latm(1,i))(1:3)
+      if(pre_protein(cseq(1,latm(1,i)))) then
+      if(catm(2,i)(1:4).eq.' OT1') then
+      catm(2,i)(1:4)=' O  '
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),'OT1 to O'
+      endif
+      endif
+      if(catm(2,i)(1:4).eq.' OT2') then
+      catm(2,i)(1:4)=' OXT'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),'OT2 to OXT'
+      endif
+      endif
+      endif
+   24 continue
+c
+      do 25 i=1,natm
       if(latm(2,i).le.0) latm(2,i)=pre_atnum(catm(2,i)(1:2))
       if(latm(2,i).eq.0) then
       elemnt(1:1)=' '
@@ -1037,7 +1090,7 @@ c
  2004 format(/,'Unrecognized element in segment ',i4)
       endif
       endif
-   24 continue
+   25 continue
 c
       pre_namiup=.true.
 c
