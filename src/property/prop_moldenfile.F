@@ -47,9 +47,8 @@ c
      $        call errquit(subname//': no mo or ao basis set', 0,
      &       RTDB_ERR)
       endif
-      if (.not. int_normalize(rtdb,basis))
-     &   call errquit(subname//'int_normalize failed', 86, INT_ERR)
-
+      if(.not.int_normalize(rtdb,basis))
+     &     call errquit(subname//'int_normalize failed ', 5, BASIS_ERR)
       call int_init(rtdb,1,basis)
 
 
@@ -88,10 +87,12 @@ c     allocate eigenvalues
      &     call errquit(subname//': cannot allocate eval',0, MA_ERR)
       if (.not. MA_Push_Get(MT_Dbl,nbf*nset,'mo occ',l_occ,k_occ))
      &   call errquit(subname//': failed to alloc',999, MA_ERR)
-c> read  occupation numbers, evals and eigenvecs
-      if (.not. movecs_read(vec_file, nset, dbl_mb(k_occ),
-     G     dbl_mb(k_eval), g_movecs)) call errquit
-     $     (subname//': failed read  MOs set ',iset,INPUT_ERR)
+c     > read  occupation numbers, evals and eigenvecs
+      do iset=1,nset
+      if (.not. movecs_read(vec_file, iset, dbl_mb(k_occ+(iset-1)*nbf),
+     G     dbl_mb(k_eval+(iset-1)*nbf), g_movecs(iset))) call errquit
+     $        (subname//': failed read  MOs set ',iset,INPUT_ERR)
+      enddo
 
       if (.not.MA_Push_Get(mt_int,nset*nbf,'dft:irreps',l_ir,k_ir))
      &   call errquit('dft_scf: cannot allocate irreps',0, MA_ERR)
