@@ -148,7 +148,8 @@
 #include "inp.fh"
       character*64 filename
 !
-      call util_file_prefix('molden', filename )
+cold      call util_file_prefix('molden', filename )
+      call util_file_name('molden', .false., .false.,filename)
 !
       write(6,*) 'MOLDEN output will be written to the file ',
      C     filename(1:inp_strlen(filename))
