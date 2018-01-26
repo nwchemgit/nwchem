@@ -39,6 +39,7 @@ c
       parameter (num_dirs = 26)
       character*10 dirs(num_dirs)
       character*16 test,element
+      logical aintgot_rad,aintgot_ang
       logical lbecke
       data dirs / 'delley', 'becke', 'gausleg', 'lebedev', 'xcoarse', 
      &     'coarse', 'medium', 'fine', 'xfine', 'user',
@@ -359,20 +360,26 @@ c            if (.not. inp_a(tag)) goto 1688
 !     $     call errquit
 !     &    ('grid_inp: tag does not refer to an atom', 0)
       ngridin=ngridin+1
-clowercase
+c     lowercase
+cdbg      write(6,*) ' symbol ',symbol,'@@'
+      aintgot_ang=.true.
+      aintgot_rad=.true.
       call inp_lcase(test)
       grtagin(ngridin)=test
       if (.not. inp_i(nradpts)) then
          write(LuOut,*)' grid_inp: nradpts value not found. '
       else
+         aintgot_rad=.false.
          nradin(ngridin)=nradpts
       endif
 c
       if (.not. inp_i(iangquad)) then
          write(LuOut,*)' grid_inp: iangquad value not found. '
       else
+         aintgot_ang=.false.
          nangin(ngridin)=iangquad
       endif
+      if(aintgot_ang.and.aintgot_rad) goto 1688
       goto 10
  1688       write(LuOut,10001)
 10001 format(/,' grid [ [becke], [gausleg], 
