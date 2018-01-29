@@ -27,6 +27,7 @@ c
       integer print_xyz
       integer step_property
       integer step_tddft
+      integer step_freq
       integer tvals(8)
       double precision targ_temp
       double precision friction
@@ -42,6 +43,7 @@ c
       logical do_namd
       logical do_property
       logical do_tddft
+      logical do_freq
       double precision cavity_axis(3)
       double precision cavity_spring
      
@@ -137,6 +139,17 @@ c     Calculate tddft every step_tddft steps
       if (.not.rtdb_put(rtdb,'qmd:step_tddft',mt_int,
      &  1,step_tddft))
      & call errquit(pname//'failed to write step_tddft',0,RTDB_ERR)
+c
+c     Are we performing any frequency calculations along the ground state trajectory ?
+      do_freq=.false.
+      if (.not.rtdb_put(rtdb,'qmd:freq',mt_log,1,do_freq))
+     & call errquit(pname//'failed to write do_freq',0,RTDB_ERR)
+c
+c     Calculate frequencies every step_freq steps
+      step_freq=1
+      if (.not.rtdb_put(rtdb,'qmd:step_freq',mt_int,
+     &  1,step_freq))
+     & call errquit(pname//'failed to write step_freq',0,RTDB_ERR)
 c
 c     ----------
 c     Read input
@@ -281,6 +294,16 @@ c     Calculate tddft spectra as specified in the tddft block every step_tddft s
        if (.not.rtdb_put(rtdb,'qmd:step_tddft',mt_int,1,
      & step_tddft))
      &  call errquit(pname//'failed to write step_tddft',0,RTDB_ERR)
+c
+c     Calculate freq spectra as specified in the hessian block every step_freq steps
+      else if (inp_compare(.false.,test,'freq')) then
+       do_freq=.true.
+       if (.not.rtdb_put(rtdb,'qmd:freq',mt_log,1,do_freq))
+     &  call errquit(pname//'failed to write do_freq',0,RTDB_ERR)
+       if (.not.inp_i(step_freq)) step_freq=1
+       if (.not.rtdb_put(rtdb,'qmd:step_freq',mt_int,1,
+     & step_freq))
+     &  call errquit(pname//'failed to write step_freq',0,RTDB_ERR)
 c
 c     Print
       else if (inp_compare(.false.,test,'print')) then
