@@ -1181,7 +1181,7 @@ int rtdb_seq_copy(const int handle, const char *suffix)
       return 0;
     }
 #else
-fixme
+#error "non-hdbm rtdb_seq_copy not implemented"
 #endif
   return 1;
 }

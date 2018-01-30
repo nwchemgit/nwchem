@@ -17,6 +17,7 @@ ifeq ($(XLFMAC),y)
 endif
 
 NWBINNAME = nwchem
+NWLIBNAME = libnwchem.so
 
 #
 # This should be the first target so that a simple make builds
@@ -29,7 +30,16 @@ endif
 .PHONY:	nwchem_config
 
 .PRECIOUS:	$(BINDIR)/$(NWBINNAME) $(NWBINNAME)
-all $(BINDIR)/$(NWBINNAME) $(NWBINNAME):	directories libraries
+
+all:	nwchem
+
+nwchem:	$(BINDIR)/$(NWBINNAME)
+	echo "Built $@"
+
+libnwchem: $(LIBDIR)/$(NWLIBNAME)
+	echo "Built $@"
+
+$(BINDIR)/$(NWBINNAME):	directories libraries
 	@/bin/rm -f nwchem.o stubs.o
 	$(MAKE) nwchem.o stubs.o
 ifeq ($(TARGET),SOLARIS)
@@ -40,7 +50,7 @@ ifdef SUMO
 	$(AR) rcv $(LIBDIR)/libnwchem-sumo.a $(LIBDIR)/objs/*.o
 	$(RANLIB) $(LIBDIR)/libnwchem-sumo.a
 endif
-	/bin/rm -f nwchem.o stubs.o
+	@/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
 #
 # This to link only and avoid tedious subdir makes
@@ -49,6 +59,20 @@ endif
 PFLAGS = -messages=first -leaks-at-exit=yes -follow-child-processes=yes \
 	 -windows=no -cache-dir=/tmp/purify/cache -best-effort
 #PURIFY = purify $(PFLAGS)
+
+$(LIBDIR)/$(NWLIBNAME): directories libraries
+	@/bin/rm -f libnwchem.o stubs.o
+	$(MAKE) libnwchem.o stubs.o
+ifeq ($(TARGET),SOLARIS)
+	/bin/rm -f $(LIBDIR)/$(NWLIBNAME)
+endif
+	$(LINK.f) -shared -fPIC \
+		-o $(LIBDIR)/$(NWLIBNAME) libnwchem.o stubs.o \
+		-Wl,--allow-multiple-definition \
+		-Wl,--whole-archive -lnwctask -lnwcutil -Wl,--no-whole-archive \
+		-Wl,--start-group $(LIBS) -Wl,--end-group -Wl,--no-undefined
+	@/bin/rm -f libnwchem.o stubs.o
+	$(INSTALL)
 
 link nwchem_link:    
 	@/bin/rm -f nwchem.o stubs.o
@@ -61,7 +85,6 @@ ifdef SUMO
 	$(AR) rcv $(LIBDIR)/libnwchem-sumo.a $(LIBDIR)/objs/*.o
 	$(RANLIB) $(LIBDIR)/libnwchem-sumo.a
 endif
-#	/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
 
 ccalink:
@@ -99,7 +122,7 @@ endif
 # This dependency so that includes which are made by libraries rule
 # are updated before nwchem is compiled
 
-libraries:
+libraries: $(SUBDIRS)
 	@for dir in $(SUBDIRS); do \
 		echo Making $@ in $$dir; \
 		$(MAKE)	-C $$dir || exit 1 ;  \
@@ -195,6 +218,7 @@ ifeq ($(NWCHEM_MODULES),)
 else
 	$(MAKE) -C config -f make_nwchem_config NWCHEM_MODULES="$(NWCHEM_MODULES)"
 endif
+	touch $@
 
 #
 # This is a convenience target that will make the TAGS file for current 
@@ -234,7 +258,7 @@ stripdepend:
 
 .PHONY:	source
 source:	
-	cat stubs.F nwchem.F > source
+	cat stubs.F nwchem.F libnwchem.F > source
 ifdef SUBDIRS
 	for dir in $(SUBDIRS); do \
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \
