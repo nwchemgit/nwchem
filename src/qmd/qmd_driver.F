@@ -194,11 +194,16 @@ c     need to implement constraints
       if (.not. ma_push_get(mt_log,nat,'active atoms',l_act,k_act)) ! active
      $   call errquit(pname//'grad_active_atoms',nat,MA_ERR)
       call grad_active_atoms(rtdb, nat, log_mb(k_act), nactive)
-      if (do_linear) then    ! check for linear flag
+c
+c     set degrees of freedom depending on the type of thermostat
+      ndeg = 3*nactive ! initialize ndeg for local thermostats (e.g. langevin)
+      if (.not.do_langevin) then  ! for global thermostats
+       if (do_linear) then    ! check for linear flag
         ndeg = 3*nactive-5   ! 3N-5 (linear)
-      else
+       else
         ndeg = 3*nactive-6   ! 3N-6 (general)
-      end if ! do_linear
+       end if ! do_linear
+      end if   ! langevin check
 c
       if (ndeg.le.0)
      $   call errquit(pname//'ndeg<=0',geom,GEOM_ERR)
