@@ -42,6 +42,7 @@ c
       integer print_xyz               ! how often to print trajectory
       integer step_property           ! how often to calculate properties
       integer step_tddft              ! how often to calculate tddft energies along the trajectory
+      integer step_freq               ! how often to calculate frequencies along the trajectory
       double precision dt_nucl        ! nuclear md time step
       double precision eltime         ! elapsed time (in fs)
       double precision esys           ! system energy (from task_gradient)
@@ -77,6 +78,7 @@ c     Surface Hopping
       logical do_namd                    ! NAMD flag
       logical do_property                ! property flag
       logical do_tddft                   ! tddft flag
+      logical do_freq                    ! frequency flag
       logical do_tdks                    ! TDKS flag
       logical tda                        ! TDA flag
       logical deco                       ! decoherence flag
@@ -84,6 +86,7 @@ c
       logical status_qmd
       logical status_property
       logical status_tddft
+      logical status_freq
       logical do_none
       logical dip_exists
       logical restart
@@ -103,6 +106,9 @@ c
       logical tddft_energy
       external tddft_energy
 c
+      logical task_freq
+      external task_freq
+c
       logical qmd_property
       external qmd_property
 c
@@ -110,6 +116,7 @@ c     preliminaries
       status_qmd = .true.
       status_property = .true.
       status_tddft = .true.
+      status_freq = .true.
       dip_exists=.true.
       pname = "qmd_driver: "
       esys = 0.d0
@@ -145,7 +152,8 @@ c     get rstfilename
 c
 c     initialize parameters
       call qmd_init(rtdb,nstep_nucl,dt_nucl,do_none,com_step,print_xyz,
-     &   restart,do_namd,step_property,do_property,step_tddft,do_tddft)
+     &   restart,do_namd,step_property,do_property,step_tddft,do_tddft,
+     &   step_freq,do_freq)
 c
 c     create geometry object 
       if (.not. geom_create(geom,'geometry'))
@@ -186,11 +194,16 @@ c     need to implement constraints
       if (.not. ma_push_get(mt_log,nat,'active atoms',l_act,k_act)) ! active
      $   call errquit(pname//'grad_active_atoms',nat,MA_ERR)
       call grad_active_atoms(rtdb, nat, log_mb(k_act), nactive)
-      if (do_linear) then    ! check for linear flag
+c
+c     set degrees of freedom depending on the type of thermostat
+      ndeg = 3*nactive ! initialize ndeg for local thermostats (e.g. langevin)
+      if (.not.do_langevin) then  ! for global thermostats
+       if (do_linear) then    ! check for linear flag
         ndeg = 3*nactive-5   ! 3N-5 (linear)
-      else
+       else
         ndeg = 3*nactive-6   ! 3N-6 (general)
-      end if ! do_linear
+       end if ! do_linear
+      end if   ! langevin check
 c
       if (ndeg.le.0)
      $   call errquit(pname//'ndeg<=0',geom,GEOM_ERR)
@@ -439,6 +452,14 @@ c            if (ga_nodeid().eq.0) write(luout,*) "calling tddft_energy"
              status_tddft = tddft_energy(rtdb)
          end if 
         end if  ! do_tddft
+c
+c       calculate frequencies along ground state trajectory
+        if (do_freq) then
+         if (mod(istep_nucl,step_freq).eq.0) then
+c            if (ga_nodeid().eq.0) write(luout,*) "calling tddft_energy"
+             status_freq = task_freq(rtdb)
+         end if 
+        end if  ! do_freq
 c
 c       restart file has been written so set restart flag in RTDB
         if (.not.rtdb_put(rtdb,'qmd:restart',mt_log,1,.true.))
