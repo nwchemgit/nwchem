@@ -858,7 +858,7 @@ c.... check ish
         mytype = infbs_cont(CONT_TYPE,ucont,basis)
         ngen = infbs_cont(CONT_NGEN,ucont,basis)
         cando_hnd_1edd = cando_hnd_1edd .and. (mytype.ge.0) .and.
-     $     (mytype.le.4) .and. (ngen.eq.1)
+     $     (mytype.le.6) .and. (ngen.eq.1)
       endif
 c
 c.... check jsh
@@ -867,7 +867,7 @@ c.... check jsh
         mytype = infbs_cont(CONT_TYPE,ucont,basis)
         ngen = infbs_cont(CONT_NGEN,ucont,basis)
         cando_hnd_1edd = cando_hnd_1edd .and. (mytype.ge.0) .and.
-     $     (mytype.le.4) .and. (ngen.eq.1)
+     $     (mytype.le.6) .and. (ngen.eq.1)
       endif
 c
       end
