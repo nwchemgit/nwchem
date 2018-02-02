@@ -2,7 +2,7 @@
 # we have to call them like so:
 #
 # Load up the nwchem library.
-# db = nwchem_init("test", "1500 mb")
+# db = nwchem_init(1500)
 #
 # Set parameters and do a DFT run.
 # dft(db, "xc b3lyp")
@@ -13,16 +13,16 @@ from nwproto import *
 from rtdb import *
 
 # NWChem Initialization.
-# Send it the output prefix name, e.g. "h2o"
+# Send it the total requested memory (in MB)
 # and receive an rtdb class object.
-def nwchem_init(name, mem="total 400 mb", scratch="./scratch", perm="./perm"):
-	def to_strbuf(x):
+def nwchem_init(mem=400 * 1<<20):
+        mem *= 1<<(20-3) # convert to # of 8-byte doubles
+	def to_strbuf_p(x): # Can't seem to pass strings, use generic names.
 		s = strbuf()
-		s[:len(x)] = x
-		s[len(x)] = chr(0)
-		return s
-	inp = map(lambda x: byref(to_strbuf(x)), [name, mem, scratch, perm])
-	db = nwlib.nwchem_init_(*inp) # calls pbegin, etc.
+		s[:] = x.ljust(len(s))
+		return byref(s)
+	zmem = c_int(mem)
+	db = nwlib.nwchem_init_(byref(zmem)) # calls pbegin, etc.
 	z = byref(c_int(0))
 	atexit.register(nwlib.nwchem_dtor_, byref(c_int(db)), z, z) # "swept and put in order."
 	return rtdb(db)
@@ -58,10 +58,9 @@ toplev = ["geom", "bsse", "bas",
 #	"string",
 	"dft", "occup",
 	"pre", "md", "argos",
-	"esp", "et", "transp",
-	"ana", "dia",
+	"esp", "et", "ana", "dia",
 	"gradients", "ccsd", "oniom",
-	"mcscf", "plnwv", "bq",
+	"mcscf", "bq",
 	"cons", "dplot", "prop",
 	"speech", "nwpw", "smd",
 	"rism", "qmmm", "ccca",

@@ -26,12 +26,12 @@ c_int_p = POINTER(c_int)
 cwd = os.path.dirname(os.path.abspath(__file__))
 
 # The library.
-nwlib = cdll.LoadLibrary(os.path.join(cwd, "../../lib/MACX64/libnwchem.so"))
+nwlib = cdll.LoadLibrary(os.path.join(cwd, "../../lib/LINUX64/libnwchem.so"))
 
 # Function type declaration
 int_fn(nwlib.push_inp_cstring, c_char_p)
 int_fn(nwlib.input_parse_, c_int_p) # just in case.
-int_fn(nwlib.nwchem_init_, strbuf_p, strbuf_p, strbuf_p, strbuf_p)
+int_fn(nwlib.nwchem_init_, c_int_p) # unfortunately, strings are over my head
 void_fn(nwlib.nwchem_dtor_, c_int_p, c_int_p, c_int_p)
 void_fn(nwlib.task_input_, c_int_p)
 void_fn(nwlib.task_, c_int_p)

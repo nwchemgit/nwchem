@@ -6,7 +6,7 @@ from nwchem import *
 
 def main(argv):
 	#mpi_init(argv)
-	db = nwchem_init("h2o", "total 1500 mb")
+	db = nwchem_init(1500)
 
 	inp = """geometry autosym
   O    0.0    0.0    -0.02

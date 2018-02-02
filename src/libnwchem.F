@@ -1,4 +1,4 @@
-      subroutine nwchem_init(name, mem, scratch, perm)
+      subroutine nwchem_init(mem)
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -7,9 +7,7 @@
 #include "tcgmsg.fh"
 #include "msgids.fh"
 #include "util/cfileprefix.fh"
-c     integer nodeid
-c     external nodeid
-      character*120 name, mem, scratch, perm
+      integer mem
 c
 #include "pstat.fh"
       integer total
@@ -69,7 +67,8 @@ C> Richland, WA 99352
 c
 c  ======================================================================================================
 c
-      character*(nw_max_path_len) input_filename, rtdb_name
+      character*120 mem_line
+      character*(nw_max_path_len) rtdb_name
       double precision start_wall, start_cpu
 #ifdef USE_OFFLOAD
       integer ppnout
@@ -77,20 +76,6 @@ c
       Character*1 Total_Src, Heap_Src, Stack_Src, Global_Src
       integer f, n
 
-c     call input_file_info(input_filename, rtdb_name,
-c    &    ostartup, ocontinue)
-c     ->
-      input_filename = 'tmp.nw'
-      name = name(1:INDEX(name,CHAR(0))-1)
-      mem = 'memory ' // mem(1:INDEX(mem,CHAR(0))-1)
-      scratch = scratch(1:INDEX(scratch,CHAR(0))-1)
-      perm = perm(1:INDEX(perm,CHAR(0))-1)
-
-      rtdb_name = perm(1:inp_strlen(perm)) // '/' //
-     &            name(1:inp_strlen(name)) // '.db'
-      file_prefix = name
-      scratch_dir = scratch
-      permanent_dir = perm
       external offload_master
 #endif
 
@@ -100,6 +85,10 @@ c     ->
       integer omp_get_max_threads
       external omp_get_max_threads
 #endif
+      file_prefix = 'yarr'
+      scratch_dir = './scratch'
+      permanent_dir = './perm'
+      rtdb_name = './perm/yarr.db'
 c
 c     Create parallel processes and initialize IPC layer
 c
@@ -115,7 +104,7 @@ c
       start_wall = util_wallsec()
       start_cpu  = util_cpusec()
 c
-c     Parse memory directive
+c     Create and parse memory directive
 c
 C     The user input model has well-defined categories of memory,
 C     each of which has a specific size.  How we use these limits
@@ -128,7 +117,10 @@ c
       overify = .false.
       ohardfail = .false.
       if (nodeid() .eq. 0) then
-        call push_inp_string(mem(1:inp_strlen(mem)))
+c       If there were a reliable way to pass strings to fortran.
+c       call push_inp_string(mem(1:inp_strlen(mem)))
+        write (mem_line, "(A13,I0)") "memory total ", mem
+        call push_inp_string(mem_line)
         call memory_input(-1, .false., stack, heap,
      $            global, total, overify, ohardfail)
 c       Total_Src = 'N'
@@ -230,8 +222,7 @@ c
 c
 c     Now are ready to summarize the environment
 c
-      call nwchem_banner(input_filename, rtdb_name,
-     &    .true., .false.)
+      call nwchem_banner("push_inp_cstring", rtdb_name, .true., .false.)
 c
 c     Actually open the database and store the file prefix 
 c
@@ -380,8 +371,8 @@ c
 c     Done
 c
 
-      subroutine nwchem_banner(input_filename, rtdb_name, ostartup,
-     &    ocontinue)
+      subroutine nwchem_banner(input_filename, rtdb_name,
+     @                         ostartup, ocontinue)
       implicit none
 #include "global.fh"
 #include "inp.fh"
@@ -399,7 +390,7 @@ c
       double precision dbletomb
       character*80 hostname, compiled, batchid
       character*(nw_max_path_len) executable, srcdir, file_prefix
-      character*(nw_max_path_len) branch
+      character*(nw_max_path_len) branch, nwchem_rev, ga_rev
       character*26 date
 #if defined(CRAY)
       integer ilen,ierror
@@ -487,7 +478,9 @@ c
       call util_nwchem_srcdir(srcdir)
       srcdir = srcdir(1:max(1,inp_strlen(srcdir)-4))
       branch =
-     & NWCHEM_BRANCH   
+     & NWCHEM_BRANCH
+      call util_nwchem_version(nwchem_rev)
+      call util_ga_version(ga_rev)
 C
 C     See if we can get the batch system id.  We understand NQS and
 C     LoadLeveler at present
@@ -509,6 +502,8 @@ C
      $     compiled(1:inp_strlen(compiled)),
      $     srcdir(1:inp_strlen(srcdir)),
      &     branch(1:inp_strlen(branch)),
+     &     nwchem_rev(1:inp_strlen(nwchem_rev)),
+     &     ga_rev(1:inp_strlen(ga_rev)),
      S     util_scalapack_info(),
      $     input_filename(1:inp_strlen(input_filename)),
      $     file_prefix(1:inp_strlen(file_prefix)),
@@ -698,4 +693,79 @@ c
 c
       call ga_sync()
 c
+      end
+      subroutine call_all()
+      implicit none
+      external input_parse
+      external task,task_input,tce_input,util_print_rtdb_load
+      external geom_input,bsse_input,bas_input
+      external cosmo_input,intgrl_input,scf_input,mp2_input
+      external drdy_input,stepper_input,mepgs_input,tropt_input
+      external driver_input,dft_input,occup_input,pre_input,md_input
+      external argos_input,esp_input,et_input,ana_input
+      external dia_input,gradients_input,ccsd_input,oniom_input
+      external mcscf_input,bq_input,cons_input,dplot_input
+      external prop_input,speech_input,nwpw_input,smd_input,rism_input
+      external qmmm_input,ccca_input,rel_input,nbo_input,vscf_input
+      external raman_input,dntmc_input,freq_vib_input,hess_input
+      external tddft_input,mymd_input,mymc_input,string_input,input_time
+      external input_set,input_unset,input_title,input_qcharge
+      external input_charge
+      call input_parse()
+      call task_input()
+      call task()
+      call util_print_rtdb_load()
+      call tce_input()
+      call geom_input()
+      call bsse_input()
+      call bas_input()
+      call cosmo_input()
+      call intgrl_input()
+      call scf_input()
+      call mp2_input()
+      call drdy_input()
+      call stepper_input()
+      call mepgs_input()
+      call tropt_input()
+      call driver_input()
+      call dft_input()
+      call occup_input()
+      call pre_input()
+      call md_input()
+      call argos_input()
+      call esp_input()
+      call et_input()
+      call ana_input()
+      call dia_input()
+      call gradients_input()
+      call ccsd_input()
+      call oniom_input()
+      call mcscf_input()
+      call bq_input()
+      call cons_input()
+      call dplot_input()
+      call prop_input()
+      call speech_input()
+      call nwpw_input()
+      call smd_input()
+      call rism_input()
+      call qmmm_input()
+      call ccca_input()
+      call rel_input()
+      call nbo_input()
+      call vscf_input()
+      call raman_input()
+      call dntmc_input()
+      call freq_vib_input()
+      call hess_input()
+      call tddft_input()
+      call mymd_input()
+      call mymc_input()
+      call string_input()
+      call input_time()
+      call input_set()
+      call input_unset()
+      call input_title()
+      call input_qcharge()
+      call input_charge()
       end
