@@ -1806,7 +1806,8 @@ endif
        _IFCV12= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 12) {print "Y";exit}}')
        _IFCV14= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 14) {print "Y";exit}}')
        _IFCV15ORNEWER=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
-       _IFCV16=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 16) {print "Y";exit}}')
+       _IFCV17=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 17) {print "Y";exit}}')
+       _IFCV18=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 18) {print "Y";exit}}')
 # Intel EM64T is required
       ifneq ($(_IFCE),Y)
         defineFCE: 
@@ -1892,7 +1893,9 @@ endif
             FOPTIONS += -qopt-report-phase=offload
             FOPTIONS += -qoffload-option,mic,compiler,"-align array64byte"
             FOPTIONS += -qoffload-option,mic,compiler,"-qopt-prefetch=4 -qopt-prefetch-distance=4,1"
+            ifneq ($(_IFCV18),Y)
             FOPTIONS += -qopt-assume-safe-padding
+            endif
             FOPTIONS += -align array64byte
 	        LDOPTIONS += -qoffload-option,mic,compiler," -Wl,-zmuldefs"
             FOPTIONS += -watch=mic_cmd 
