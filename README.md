@@ -24,6 +24,10 @@ git clone https://github.com/nwchemgit/nwchem.git
 
 git clone  -b release-6-8 https://github.com/nwchemgit/nwchem.git nwchem-6.8
 
+* 6.8.1 Release (in proggress)
+
+git clone  -b hotfix/release-6-8 https://github.com/nwchemgit/nwchem.git nwchem-6.8.1
+
 ### Release 6.8
 
 Release files available at the page  
