@@ -1823,6 +1823,15 @@ endif
            @echo ifort 8.1 is required for x86_64 CPUs
            @exit 1
        endif
+       ifdef USE_OFFLOAD
+          ifeq ($(_IFCV18),Y)
+ifort18offload:
+	@echo 
+	@echo ifort 18 does not support KNC offload
+	@echo please use ifort 17
+	@echo 
+          endif
+       endif        
        FDEBUG= -O2 -g
        FOPTIMIZE = -O3  -unroll  -ip
        FOPTIONS += -align -fpp
@@ -1893,9 +1902,7 @@ endif
             FOPTIONS += -qopt-report-phase=offload
             FOPTIONS += -qoffload-option,mic,compiler,"-align array64byte"
             FOPTIONS += -qoffload-option,mic,compiler,"-qopt-prefetch=4 -qopt-prefetch-distance=4,1"
-            ifneq ($(_IFCV18),Y)
             FOPTIONS += -qopt-assume-safe-padding
-            endif
             FOPTIONS += -align array64byte
 	        LDOPTIONS += -qoffload-option,mic,compiler," -Wl,-zmuldefs"
             FOPTIONS += -watch=mic_cmd 
