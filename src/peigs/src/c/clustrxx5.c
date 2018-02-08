@@ -381,9 +381,6 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
       bn = *(cl_ptr++);
 
       if(  send_num > 0 ) {
-	printf(" clustr_ptr %ld ", clustr_ptr);
-	printf(" send_cl %ld ", send_cl);
-	printf(" cl_ptr %ld \n", cl_ptr);
 	if( clustr_ptr == send_cl ) cl_ptr += 4;
       }
     }
