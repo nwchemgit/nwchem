@@ -1190,6 +1190,9 @@ c     flip spins if needed
          call mull_pop(geom,ao_bas_han,g_dens(2),g_s,'DM2')
          if (.not.ma_pop_stack(l_at_flip))
      &        call errquit('dft_scf: cannot pop stack',33, MA_ERR)
+c     remove flipping to avoid multiple operation in geom opt.
+         if(.not.rtdb_delete(rtdb, 'nwdft:spinflip'))
+     &        call errquit('dft_scf: cannot rtdb_delete',3, MA_ERR)
       endif
       call dft_fockbld(rtdb,natoms,ntotel,
      ,     g_fock,g_focks,g_dens,g_vxc,g_movecs,g_xcinv, 
