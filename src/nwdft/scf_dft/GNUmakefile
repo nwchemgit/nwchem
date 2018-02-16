@@ -40,7 +40,7 @@
 	dft_fant.o\
 	dft_printinfo.o\
 	dft_fock_efield.o\
-	dft_frac_mo.o  dft_nwmolden.o
+	dft_frac_mo.o  dft_nwmolden.o dft_spinflip.o
 
      LIBRARY = libnwdft.a
 ifndef OLD_GA
