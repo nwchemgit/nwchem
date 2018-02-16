@@ -1607,6 +1607,12 @@ endif
       ifeq ($(FC),gfortran)
        _FC=gfortran
       endif
+      ifeq ($(FC),flang)
+       _FC=gfortran
+      endif
+      ifeq ($(CC),clang)
+       _CC=gcc
+      endif
          ifeq ($(FC),xlf_r)
            _FC=xlf
          endif
@@ -1649,13 +1655,17 @@ endif
         FOPTIMIZE  += -Wuninitialized
         DEFINES  += -DGFORTRAN
         DEFINES  += -DCHKUNDFLW -DGCC4
-        GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c22)
+        ifeq ($(FC),flang)
+        GNU_GE_4_6=true
+        else
+        GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18)
         ifdef GNUMAJOR
-        GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c24)
+        GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __GNUC_MINOR | cut -c24)
         GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
         GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
         endif
         GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
+        endif
         ifeq ($(GNU_GE_4_6),true)
           DEFINES  += -DGCC46
         endif
@@ -2104,7 +2114,9 @@ $(error )
         ifndef USE_FPE
         FOPTIMIZE  += -ffast-math #2nd time
         endif
+        ifneq ($(FC),flang)
         FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
+        endif
         ifeq ($(GNU_GE_4_8),true)
           FOPTIMIZE  += -ftree-vectorize   
              ifdef USE_OPTREPORT
