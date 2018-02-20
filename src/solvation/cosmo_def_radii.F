@@ -72,6 +72,7 @@ c
       character*2 symb
       character*16 elem
       integer atn
+      logical isbq
 c
 c MN solvation models -->
 C
@@ -318,9 +319,33 @@ c
              
             endif
          enddo
-         if(.not.geom_tag_to_element(aname, symb, elem, atn))
-     +     call errquit('cosmo def radii:cannot resolve tag'
-     +                  //aname, 0,0)
+         if(aname(1:1).eq.'X'.or.aname(1:1).eq.'x') then
+c     minuscule radius for X                   
+            radius(iat)=1d-9
+            cycle atomloop
+         endif
+         if(.not.geom_tag_to_element(aname, symb, elem, atn)) then
+            if (symb .ne. 'bq') then
+               call errquit
+     &              ('cosmodefradii: center is neither atom nor bq'
+     +           //aname, 0,0)
+            else
+               isbq=.true.
+               if(abs(atn).gt.1d-6) then
+c     point-charge with non zero charge
+                  call errquit
+     &                 ('cosmodefradii: not ready for charged bqs'
+     +                 //aname, 0,0)
+               else
+c bq with zero charge. extract element
+                  if (.not. geom_tag_to_element(aname(3:), symb, 
+     &                 elem, atn)) 
+     C                 call errquit
+     &                 ('cosmodefradii: failed extract bq elem name'
+     +                 //aname, 0,0)
+               endif
+            endif
+         endif
          do i=1,nmap
             if(inp_compare(.false.,
      &                     symb,
@@ -332,8 +357,11 @@ c
              
             endif
          enddo
-
-         rad=vander(nint(dbl_mb(k_coszan+iat-1)))
+         if(isbq) then
+            rad=vander(atn)
+         else
+            rad=vander(nint(dbl_mb(k_coszan+iat-1)))
+         endif
          if (geom_any_ecp(geom).and.geom_ecp_get(geom,iat)) then
             if (.not.geom_tag_to_element(byte_mb(k_costag+16*(iat-1)), 
      &         symb, elem, gn))
