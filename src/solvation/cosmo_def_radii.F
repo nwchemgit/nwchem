@@ -330,6 +330,7 @@ c     minuscule radius for X
      &              ('cosmodefradii: center is neither atom nor bq'
      +           //aname, 0,0)
             else
+#if 0               
                isbq=.true.
                if(abs(atn).gt.1d-6) then
 c     point-charge with non zero charge
@@ -344,6 +345,17 @@ c bq with zero charge. extract element
      &                 ('cosmodefradii: failed extract bq elem name'
      +                 //aname, 0,0)
                endif
+#else
+            if(ga_nodeid().eq.0) then
+               write(6,*) 
+               write(6,*) ' Solvation models not compatible with bqs '
+               write(6,*) ' Please remove bqs from geometry '
+               write(6,*) 
+            endif
+            call errquit
+     &           ('cosmodefradii: not ready for '
+     +           //aname, 0,0)
+#endif
             endif
          endif
          do i=1,nmap
@@ -357,11 +369,7 @@ c bq with zero charge. extract element
              
             endif
          enddo
-         if(isbq) then
-            rad=vander(atn)
-         else
-            rad=vander(nint(dbl_mb(k_coszan+iat-1)))
-         endif
+         rad=vander(nint(dbl_mb(k_coszan+iat-1)))
          if (geom_any_ecp(geom).and.geom_ecp_get(geom,iat)) then
             if (.not.geom_tag_to_element(byte_mb(k_costag+16*(iat-1)), 
      &         symb, elem, gn))
