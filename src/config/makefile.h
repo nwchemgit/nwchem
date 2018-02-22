@@ -1607,8 +1607,13 @@ endif
       ifeq ($(FC),gfortran)
        _FC=gfortran
       endif
+      ifeq ($(FC),armflang)
+       _FC=armflang
+       USE_FLANG=1
+      endif
       ifeq ($(FC),flang)
        _FC=gfortran
+       USE_FLANG=1
       endif
       ifeq ($(CC),clang)
        _CC=gcc
@@ -1655,7 +1660,7 @@ endif
         FOPTIMIZE  += -Wuninitialized
         DEFINES  += -DGFORTRAN
         DEFINES  += -DCHKUNDFLW -DGCC4
-        ifeq ($(FC),flang)
+        ifeq ($(USE_FLANG),1)
         GNU_GE_4_6=true
         else
         GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18)
@@ -2160,13 +2165,80 @@ $(error )
         # USE_POSIXF is required because getlog is provided (GNU extension)
         FOPTIONS   +=  -Ktrap=fp# -DCRAYFORTRAN -DUSE_POSIXF
         FDEBUG   =    -g
-#       FOPTIMIZE = -O2 -O scalar3,thread0,vector1,ipa0
         FOPTIMIZE = -O2 -O scalar3,thread0,vector2,ipa2 #-rdm
       endif
       ifeq ($(_FC),craycc)
         COPTIONS   =   -O
       endif
 endif
+
+ifeq ($(_CPU),$(findstring $(_CPU),aarch64))
+
+  ifeq ($(_CC),gcc)
+    COPTIONS   +=   -O3 -funroll-loops -ffast-math 
+    ifdef USE_OPENMP
+      COPTIONS += -fopenmp
+    endif
+  endif
+
+  ifeq ($(_FC),gfortran)
+    ifdef  USE_GPROF
+      FOPTIONS += -pg
+      COPTIONS += -pg
+      LDOPTIONS += -pg
+      LDFLAGS += -pg
+    endif
+    LINK.f = $(FC)  $(LDFLAGS) 
+    FOPTIMIZE  += -O3 
+    ifeq ($(GNU_GE_6),true)
+      FOPTIMIZE += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
+      FOPTIONS += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
+      FDEBUG += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
+    endif
+
+    FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
+    ifeq ($(GNU_GE_4_8),true)
+      FOPTIMIZE  += -ftree-vectorize   -fopt-info-vec
+    endif
+
+    FDEBUG += -g -O 
+
+    ifeq ($(GNU_GE_4_6),true) 
+      FOPTIMIZE +=  -mtune=native
+      FOPTIONS += -finline-functions
+    endif
+    ifndef USE_FPE
+      FOPTIMIZE  += -ffast-math #2nd time
+    endif
+    ifdef  USE_FPE
+      FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
+    endif
+  endif  # end of gfortran
+
+  ifeq ($(FC),armflang)
+
+    ifdef USE_SHARED
+      FOPTIONS+= -fPIC
+    endif
+
+    DEFINES   +=   -DARMFLANG
+	    LINK.f = $(FC)  $(LDFLAGS) 
+    FOPTIMIZE  = -O3 -Mfma -ffp-contract=fast
+    ifeq ($(V),1)
+    $(info     ARMFLANG FOPTIMIZE = ${FOPTIMIZE})
+    endif
+
+    FDEBUG += -g -O 
+    FOPTIMIZE +=  -mtune=native
+
+    ifndef USE_FPE
+      FOPTIMIZE  += -ffast-math #2nd time
+    endif
+    ifdef  USE_FPE
+      FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
+    endif
+  endif
+endif # end of aarch64
 
 ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
 # Tested on Red Hat Enterprise Linux AS release 3 (Taroon Update 3)
