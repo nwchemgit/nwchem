@@ -17,6 +17,7 @@ c     ****************************************
 !$OMP END DO
       end
 
+#ifdef USE_OPENMP
 c     ****************************************
 c     *                                      *
 c     *   eDneall_ffm_sym_Multiply_reduce    *
@@ -168,6 +169,58 @@ c     ****************************************
       end
 
 
+#endif
+
+c   #### STUBBING ####
+#ifndef USE_OPENMP
+      subroutine eDneall_ffm_sym_Multiply_reduce_concur(A1,A2,
+     >                         nida,nidb,ne,hml,thrhml,
+     >           shift,shift2,n,ftid,nwthr,ms,reduce_lock)
+      implicit none
+      complex*16 A1(*),A2(*)
+      integer nida,nidb,ispin,ne(2),ms
+      real*8 hml(*)
+      real*8 thrhml(*)
+
+      real*8 ratio
+      integer ftid,nwthr,nthrc,nthrr,tidc,tidr
+      integer n,shift,shift2,bm,offsetm
+      integer nk,bk,offsetk,minchunk,nchunkc,nchunkr
+      integer itid,tid,nthr,chunkc,ne1,chunkr
+      integer innernthr
+
+      INTEGER reduce_lock
+
+      write(*,*) "stubbing eDneall_ffm_sym_Multiply_reduce_concur"
+      return
+      end
+
+      subroutine epack_ccm_sym_dot_reduce_concur(nida,nidb,n,A,B,matrix,
+     >             thrmatrix,nk,bk,offsetk,bm,offsetm,reduce_lock,ftid)
+      implicit none
+      integer    nida,nidb,n,ftid
+      real*8 A(*)
+      real*8 B(*)
+      real*8     matrix(n,n)
+      real*8     thrmatrix(n,n)
+
+*     **** local variables ****
+      integer j,k,nk,i
+      integer np,npack,npack2
+      integer tid
+      integer offsetk,bk,bm,bkc,offsetm
+      integer offsetThread
+      integer bkk,ibkk,kk
+
+      INTEGER reduce_lock
+
+
+      write(*,*) "stubbing epack_ccm_sym_dot_reduce_concur"
+
+      return
+      end
+
+#endif
 
 
 
