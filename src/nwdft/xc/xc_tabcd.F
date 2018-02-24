@@ -61,7 +61,7 @@ C>
      I     ipol, nq, nbf, max_at_bf, max_at_bf2, 
      G     GRAD, basis, natoms, iniz, ifin, 
      &     g_vxc, ibf, rchi_atom, rdelchi_atom, 
-     &     rdens_atom, cetobfr,kske,Mmat,scr)
+     &     rdens_atom, cetobfr,kske,Mmat,kslap,Gmat,Lmat,scr)
 c
 c     We are using xc_tabcd for CPKS purposes
 c
@@ -120,6 +120,8 @@ c
       double precision Cmat(nq,3,ipol,*) !< [Input] The derivative wrt 
                                          !< rgamma
       double precision Mmat(nq,ipol,*) !< [Input] The derivative wrt tau
+      double precision Lmat(nq,ipol,*) !< [Input] The derivative wrt lap
+      double precision Gmat(nq,max_at_bf) !< [Scratch]
 c
 c     nmr
       double precision Emat(nq,max_at_bf) !< [Scratch] NMR only
@@ -128,6 +130,7 @@ c     nmr
       double precision xyz(3,*)  !< [Input] Nuclear coordinates
       logical kske !< [Input] .True. if functional depends on kinetic
                    !< energy density
+      logical kslap !< [Input] .True. if functional depends on laplacian
 c#elif defined(TABCD_CPKS_LHS)
 c
 c     Note: Meaning of dimensioning of Amat and Cmat changes for
@@ -316,6 +319,19 @@ c
                       Dmat(n,3,mu) = Dmat(n,3,mu) +
      &                     Mmat(n,ii,imat)*delchi(n,3,mu1)
                     endif
+
+                    if(kslap) then
+                      Dmat(n,1,mu) = Dmat(n,1,mu) +
+     &                     2d0*Lmat(n,ii,imat)*delchi(n,1,mu1)
+                      Dmat(n,2,mu) = Dmat(n,2,mu) +
+     &                     2d0*Lmat(n,ii,imat)*delchi(n,2,mu1)
+                      Dmat(n,3,mu) = Dmat(n,3,mu) +
+     &                     2d0*Lmat(n,ii,imat)*delchi(n,3,mu1)
+                      Bmat(n,mu) = Bmat(n,mu) + Lmat(n,ii,imat)*
+     &                (heschi(n,1,mu1)+heschi(n,4,mu1)+heschi(n,6,mu1))
+                      Gmat(n,mu) = Lmat(n,ii,imat)*chi1
+                    endif
+
                     
                   enddo
                 else
@@ -459,6 +475,21 @@ c     leading dimension of delchi must be set correctly
                         enddo
                       endif
                     endif ! GRAD
+                    if(kslap) then
+                       if (w01) then
+                          indT=0
+                          do nu = 1, nnja
+                             nu1 = nu+inizja-1
+                             do mu = 1, nnia
+                               indT = indT + 1
+                               Tmat(indT) = Tmat(indT) +
+     &                         ddot(nq,Gmat(1,mu),1,heschi(1,1,nu1),1) +
+     &                         ddot(nq,Gmat(1,mu),1,heschi(1,4,nu1),1) +
+     &                         ddot(nq,Gmat(1,mu),1,heschi(1,6,nu1),1)
+                             enddo
+                          enddo
+                       endif
+                    endif
 c Daniel (2-7-13): For the CPKS RHS stuff, the first call has what=1,
 c so n3d=1.  Also, dofull is true in that case.
                     if (n3d.eq.1) then

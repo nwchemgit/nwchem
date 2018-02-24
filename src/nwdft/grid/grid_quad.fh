@@ -11,6 +11,7 @@ c
       double precision Amat(*)
       double precision Cmat(*)
       double precision Mmat(*)
+      double precision Lmat(*)
       double precision ttau(*)  ! total
 c
       integer cetobfr(2,natoms)

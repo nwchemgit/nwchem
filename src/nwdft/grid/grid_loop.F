@@ -17,6 +17,7 @@ c
      ,     do_nmrks_r, do_xdm, tmat,
      ,     l3d,triplet,
      &     ttau, kske, Mmat, Mmat2,
+     &     kslap, Lmat,
      ,     iqat,
      ,     qsh,aqbuf,rij,rho_int,
      D     func,d_qwght,rq0,hh,ppp,ff,zzz,
@@ -56,7 +57,7 @@ cc AJL/End
       integer qsh(3,*)
       double precision aqbuf(4,*)
       double precision rij,rho_int
-      logical grad,kske
+      logical grad,kske,kslap
       integer iniz(*),ifin(*),nscr,iscr(*),ibf_ao(*),
      ,     g_vxc(*),nmat
       logical do_scf, do_cpks_l, do_cpks_r, do_nmrks_r,
@@ -70,7 +71,8 @@ cc AJL/End
      ,     Ex, Ec, amat(*),cmat(*),
      ,     Amat2(*), Cmat2(*),bp(*),
      ,     tmat(*), Mmat(*), 
-     &     ttau(*), Mmat2(*)
+     &     ttau(*), Mmat2(*),
+     &     Lmat(*)
 CA
       double precision func(*),d_qwght(*),
      D     rq0(*),hh(*),ppp(*),ff(*),zzz(*),force(*)
@@ -225,6 +227,7 @@ c Daniel (1-11-13): Added XC-third derivative stuff
      ,                    Amat2, Cmat2,
      ,                    nmat, do_scf, do_cpks_l, do_cpks_r, do_xdm,
      T                    tmat, ttau, kske, Mmat, Mmat2,
+     &                    kslap, Lmat,
      D                    func,d_qwght,rq0,hh,ppp,ff,zzz,
      D                    drhonuc,ddelrhonuc,d2scr,force,
      D                    acc_ao_gauss,
@@ -278,6 +281,7 @@ c Daniel (1-11-13): Added XC-third derivative stuff
      ,                    do_nmrks_r, do_xdm, tmat,
      ,                    l3d,triplet,
      &                    ttau, kske, Mmat, Mmat2,
+     &                    kslap, Lmat,
      1                    do_gxc, Amat3, Cmat3, fde_option,
 cc AJL/Begin/FDE
      &                    g_dens_fde, ncenters_fde, rdens_atom_fde,
@@ -316,6 +320,7 @@ c Daniel (1-11-13): Added XC-third derivative stuff
      ,                 do_nmrks_r, do_xdm, tmat,l3d,
      ,                 triplet,
      &                 ttau, kske,Mmat, Mmat2,
+     &                 kslap, Lmat,
 cc AJL/Begin/FDE
      &                 do_gxc, Amat3, Cmat3, fde_option,
      &                 g_dens_fde, ncenters_fde, rdens_atom_fde,

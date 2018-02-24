@@ -45,6 +45,8 @@ c
                                 !< the grid
       double precision delchi(*) !< [Input] The basis function gradient
                                  !< values on the grid
+      double precision heschi(*) !< [Input] The basis function hessian
+                                 !< values on the grid
       double precision rdens_atom(natoms,natoms,*) !< [Input] The 
       !< density matrix size for each pair of atoms and spin
       integer iniz(*) !< [Input] The initial basis function for each
@@ -55,10 +57,9 @@ c
       logical grad !< [Input] If `.true.` the basis function gradients
                    !< have to be handled in addition to the basis
                    !< functions
+      logical dolap !< [Input] If `.true.` the basis function hessian
+                    !< have to be handled
       integer ipol !< [Input] The number of spin channels present
-      logical dolap             ! laplacian
-      double precision heschi(*)! [Input/Output] function hessians
-            
 c
       
       double precision dabsmax
@@ -82,6 +83,7 @@ c
          enddo
       enddo
       ff=abs(funcmax*delmax*pmax)
+      if (dolap) ff=max(ff,abs(2d0*pmax*delmax**2))
       do i=1,nqpts
          if(abs(ff*qwght(i)).lt.tol_rho) then
             nzero=nzero+1

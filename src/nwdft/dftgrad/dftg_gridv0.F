@@ -80,9 +80,9 @@ c
 c
       integer cetobfr(2,natoms)
       double precision rdens_atom(ipol*natoms*natoms)
-      logical GRAD, GRADCHI, HESSCHI, DER3CHI, kske
-      logical xc_chkgrad,xc_rep_close, xc_chktau
-      external xc_chkgrad,xc_rep_close, xc_chktau
+      logical GRAD, GRADCHI, HESSCHI, DER3CHI, kske, kslap
+      logical xc_chkgrad,xc_rep_close, xc_chktau, xc_chklap
+      external xc_chkgrad,xc_rep_close, xc_chktau, xc_chklap
            
       logical ldew, oprint
       double precision eps
@@ -100,7 +100,8 @@ c
      &        lPmat, iPmat, lrho, irho, lBmat, iBmat,
      &        lhh, ihh,  landex, iandex, idelrho, ldelrho,
      &        ltags, itags,
-     &        iMmat, lMmat, ittau, lttau
+     &        iMmat, lMmat, ittau, lttau,
+     &        iLmat, lLmat
       logical do_force, do_hess, do_cpks_r
       integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2, len_Bmat
       integer l_Mmat2, k_Mmat2
@@ -115,6 +116,7 @@ c
       integer nbf_ao_mxnbf_ce
       integer lgthpmat
       integer len_Mmat,len_ttau,len_Mmat2
+      integer len_Lmat
       integer lscr,iscr
       integer nxtask
       external nxtask
@@ -176,6 +178,10 @@ c     see if any Kinetic Energy Density is not null
 c
       kske=xc_chktau()
 c
+c     see if any Laplacian dependent functional is not null
+c
+      kslap=xc_chklap()
+c
 c     weight derivatives switched on by default
 c
       if (.not. rtdb_get(rtdb, 'dft:weight derivatives', mt_log, 1, 
@@ -186,7 +192,11 @@ cedo      if(kske) ldew=.false.
      .     write(LuOut,*) '  weight derivatives on'
 c
 c     !!! Are these logicals ever used? Are they in a common block? !!!
-      if (grad.or.kske) then
+      if (kslap) then
+         gradchi = .true.
+         hesschi = .true.
+         der3chi = .true.
+      elseif (grad.or.kske) then
          gradchi = .true.
          hesschi = .true.
          der3chi = do_hess
@@ -409,6 +419,12 @@ c
      &   call errquit(' exiting in dftg_gridv0: insuff stack',
      &   13, MA_ERR)
 c
+      len_Lmat = 1
+      if (kslap) len_Lmat = ipol*n_per_rec
+      if (.not.MA_Push_Get(MT_Dbl,len_Lmat,'Lmat',lLmat,iLmat))
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',
+     &   13, MA_ERR)
+c
 c     Note: hessian and cpks rhs need a larger version of Bmat
 c     See xc_quadv0.F
 c
@@ -578,6 +594,7 @@ c through here so we can evaluate the gradient of the XC-kernel.
      &     rdens_atom,  cetobfr,
      &     dbl_mb(ittau), 
      &     dbl_mb(iMmat), dbl_mb(k_Mmat2),
+     &     dbl_mb(iLmat),
      1     do_gxc, dbl_mb(k_Amat3), dbl_mb(k_Cmat3), ngxc,
      2     dbl_mb(k_rho_save), dbl_mb(k_delrho_save), triplet, 
      3     do_tddftvxc)
@@ -611,6 +628,7 @@ c to true.
      &     rdens_atom,  cetobfr,
      &     dbl_mb(ittau), 
      &     dbl_mb(iMmat), dbl_mb(k_Mmat2),
+     &     dbl_mb(iLmat),
      1     do_gxc, dbl_mb(k_Amat3), dbl_mb(k_Cmat3), 0,
      2     dbl_mb(k_rho_save), dbl_mb(k_delrho_save),
      3     do_tddftvxc)

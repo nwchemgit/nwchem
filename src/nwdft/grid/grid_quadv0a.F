@@ -9,6 +9,7 @@
      ,Amat2, Cmat2,
      ,nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r,do_xdm, tmat, l3d,
      &triplet,ttau,Mmat,Mmat2,
+     & Lmat,
      & StericEnergyTotal,
 cc AJL/Begin/FDE
 c
@@ -52,8 +53,8 @@ c
 
       logical grid_file_rewind
       external grid_file_rewind
-      logical xc_chkgrad, xc_chktau, kske
-      external xc_chkgrad, xc_chktau
+      logical xc_chkgrad, xc_chktau, xc_chklap, kske, kslap
+      external xc_chkgrad, xc_chktau, xc_chklap
       logical l3d
       logical triplet
       integer k_becke
@@ -78,6 +79,7 @@ c     see if any Gradient Corrected Functional is not null
 c
       grad=xc_chkgrad()   ! checks if we have a gradient xc functional
       kske=xc_chktau()    ! checks if we have a tau xc functional
+      kslap=xc_chklap()   ! checks if we have a lap xc functional
 
       if(n_rec_in_file.eq.0) goto 100
 c
@@ -200,7 +202,9 @@ c
      T       tmat, l3d,triplet,
      &       int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
      &       log_mb(idocsetx),
-     &       ttau, kske, Mmat, Mmat2, StericEnergy,
+     &       ttau, kske, Mmat, Mmat2, 
+     &       kslap, Lmat,
+     &       StericEnergy,
      1       do_gxc, Amat3, Cmat3,
      Q       dbl_mb(k_becke),
 cc AJL/Begin/FDE

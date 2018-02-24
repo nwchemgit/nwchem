@@ -66,15 +66,16 @@ C> referred to with \f$f\f$, and \f$w\f$ is the quadrature weight.
 C>
 #if !defined SECOND_DERIV && !defined THIRD_DERIV
       Subroutine setACmat(delrho, Amat, Cmat, qwght, ipol, nq, GRAD,
-     &            xform_Cmat, kske, Mmat)
+     &            xform_Cmat, kske, Mmat, kslap, Lmat)
 #elif defined(SECOND_DERIV) && !defined THIRD_DERIV
 c Second derivatives are not yet implemented for the meta-GGAs
       Subroutine setACmat_d2(delrho, Amat, Amat2, Cmat, Cmat2, qwght,
-     &            ipol, nq, GRAD, xform_Cmat, kske, Mmat, Mmat2)
+     &            ipol, nq, GRAD, xform_Cmat, kske, Mmat, Mmat2,
+     &            kslap)
 #else
 c Third derivatives are not yet implemented for the meta-GGAs
       Subroutine setACmat_d3(delrho, Amat, Amat2, Amat3, Cmat, Cmat2,
-     &            Cmat3, qwght, ipol, nq, GRAD, xform_Cmat, kske)
+     &            Cmat3, qwght, ipol, nq, GRAD, xform_Cmat, kske, kslap)
 #endif
 c
 C$Id$
@@ -107,7 +108,12 @@ c
       double precision Mmat(nq,ipol) !< [In/Output] \f$\partial f/\partial\tau^\sigma\f$
       logical kske    !< [Input] If `.TRUE.` the density functional is
                       !< a meta-GGA
-c 
+c
+      logical kslap  !< [Input] If `.TRUE.` the density functional is
+                     !< a laplacian-dependent meta-GGA
+      double precision Lmat(nq,ipol)   !< [In/Output] \f$\partial f/\partial\lap^\sigma\f$
+
+c
 #ifdef SECOND_DERIV
       double precision Amat2(nq,NCOL_AMAT2) !< [In/Output] Similar to
       !< `Amat` but 2nd order derivatives
@@ -176,6 +182,13 @@ c
          do ii = 1, ipol
             do jj = 1, nq
                Mmat(jj,ii) = Mmat(jj,ii)*qwght(jj)
+            enddo
+         enddo
+      endif
+      if (kslap) then
+         do ii = 1, ipol
+            do jj = 1, nq
+               Lmat(jj,ii) = Lmat(jj,ii)*qwght(jj)
             enddo
          enddo
       endif

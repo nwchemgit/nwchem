@@ -18,6 +18,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,do_xdm,tmat,
      ,     ttau, kske, Mmat, Mmat2,
+     ,     kslap, Lmat,
      D     func,d_qwght,rq0,hh,ppp,ff,zzz,
      D     drhonuc,ddelrhonuc,d2scr,force,
      D     acc_ao_gauss,
@@ -86,7 +87,7 @@ c
       integer grid_nxyz
       external grid_nxyz
 c
-      logical kske
+      logical kske, kslap
 c
       double precision func(*),d_qwght(*),
      D     rq0(*),hh(*),ppp(*),ff(*),zzz(*),force(*)
@@ -212,6 +213,7 @@ c
      &     nactive, rdens_atom, 
      &     cetobfr,
      &     ttau, kske, Mmat, Mmat2,
+     &     kslap, Lmat,
      &     ldbw, fact, dtype, nconstr,  ! Qin
      &     do_gxc, Amat3, Cmat3, ngxc,
      &     rhosave, delrhosave, triplet,

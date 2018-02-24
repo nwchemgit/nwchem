@@ -32,7 +32,8 @@ c
 
       Logical oprint,grad,xc_chkgrad,oprintw
       Logical xc_chktau, kske
-      external xc_chkgrad,xc_rep_close, xc_chktau
+      logical xc_chklap, kslap
+      external xc_chkgrad,xc_rep_close, xc_chktau, xc_chklap
       logical xc_rep_close
       double precision Exc(2)
       double precision rho_n
@@ -81,7 +82,7 @@ c
      &        lPmat, iPmat, lrho, irho, ldelrho, idelrho, lBmat, iBmat,
      &        lhess, ihess, lrq, irq, 
      &        lfin, ifin, ltags, itags,
-     &        lmmat, immat, lttau, ittau, iz, lz
+     &        lmmat, immat, lttau, ittau, lLmat, iLmat, iz, lz
 c
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      &        lcetobfr, icetobfr, lrdens_atom, irdens_atom,
@@ -97,6 +98,7 @@ c
       integer len_rho, len_delrho, len_Amat2, len_Cmat2, len_Mmat2
       integer len_Amat
       integer len_mmat, len_ttau
+      integer len_Lmat
       logical do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, do_xdm
       integer max_elem_ang_scr, max_component
       integer nexpo,nibf
@@ -175,6 +177,7 @@ c
       oprintw = util_print('quadrature warning', print_medium)
       grad = xc_chkgrad()
       kske = xc_chktau()
+      kslap = xc_chklap()
       l3d = (ga_ndim(g_vxc).eq.3)
 c
       irdelchi_atom = 0
@@ -205,6 +208,7 @@ c
         write(*,*) " *** "//pname//"grid_written:",grid_written 
         write(*,*) " *** "//pname//"grad:",grad 
         write(*,*) " *** "//pname//"kske:",kske 
+        write(*,*) " *** "//pname//"kslap:",kslap
       end if
 c
 c     Set up logicals denoting calculation type
@@ -238,6 +242,13 @@ C AJL/End
          call errquit(pname//'illegal calculation type',1,
      &       INPUT_ERR)
       endif
+
+      if (kslap.and.((do_cpks_l .or. do_cpks_r .or.do_nmrks_r .or. 
+     &                do_gxc. or. do_xdm .or. xcfit .or.
+     &                (fde_option.ne.0)))) then
+         call errquit(pname//'illegal calculation type',1,
+     &       INPUT_ERR)
+      endif
 c
       if (oprint) then
         write(*,*) " *** "//pname//"do_scf:",do_scf 
@@ -253,6 +264,7 @@ c for frozen density embedding (fde_option.eq.1)
 cc AJL/End
       len_mmat = 1
       len_ttau = 1
+      len_Lmat = 1
       len_Amat2 = 1
       len_Cmat2 = 1
       len_Mmat2 = 1
@@ -275,6 +287,7 @@ c
          len_delrho = 3*ipol*n_per_rec
          if (kske) len_ttau = npol*n_per_rec
          if (kske) len_mmat =ipol*n_per_rec  
+         if (kslap) len_Lmat = ipol*n_per_rec
       elseif (do_cpks_l) then
          len_rho = ipol*n_per_rec*(nmat+1)+n_per_rec
          len_delrho = 3*ipol*n_per_rec*(nmat+1)+3*n_per_rec
@@ -653,6 +666,9 @@ c
       if (.not.MA_Push_Get(mt_dbl,len_Mmat2,'Mmat2',l_Mmat2,k_Mmat2))
      &   call errquit(pname//'cannot allocate Mmat2',0, MA_ERR)
       call dfill(len_Mmat2, 0.0d0, dbl_mb(k_Mmat2), 1)
+c
+      if (.not.MA_Push_Get(mt_dbl,len_Lmat,'Lmat',lLmat,iLmat))
+     &   call errquit(pname//'cannot allocate Lmat',0, MA_ERR)
 c Daniel (1-11-13): Eventually we'll need to put stuff here for third order
 c functional derivative arrays of the kinetic energy density, but I'm
 c avoiding these because we don't yet have second derivatives for
@@ -752,7 +768,9 @@ c
      ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, do_xdm,
      T        tmat, l3d,triplet,
      ,        dbl_mb(ittau), 
-     &        dbl_mb(immat), dbl_mb(k_mmat2),StericEnergyTotal,
+     &        dbl_mb(immat), dbl_mb(k_mmat2),
+     &        dbl_mb(iLmat),
+     &        StericEnergyTotal,
      1        do_gxc, dbl_mb(k_Amat3), dbl_mb(k_Cmat3),
 cc AJL/Begin/FDE
      &        fde_option,
@@ -812,6 +830,7 @@ c down the line for the DFT code.
      T        tmat, l3d,triplet,
      ,        dbl_mb(ittau), 
      &        dbl_mb(immat), dbl_mb(k_mmat2),
+     &        dbl_mb(iLmat),
      1        do_gxc, dbl_mb(k_Amat3), dbl_mb(k_Cmat3),
      2        0, 0.0d0, 0.0d0, 
 cc AJL/Begin/FDE

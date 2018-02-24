@@ -36,7 +36,8 @@ c
      + cfac(48) + cfac(49) + cfac(50) + cfac(51) +
      + xfac(52) + xfac(53) + xfac(54) + xfac(55) + xfac(56) +
      + cfac(52) + cfac(53) + cfac(54) +
-     + xfac(60) + xfac(61) + xfac(62) + xfac(63) + lxdm +
+     + xfac(60) + xfac(61) + xfac(62) + xfac(63) + 
+     + xfac(66) + cfac(66) + xfac(67) + cfac(67) + lxdm +
 cc AJL/Begin/FDE
      + xfac_fde(3) + xfac_fde(4) + xfac_fde(5) + xfac_fde(6) + 
      + xfac_fde(7) +
@@ -181,6 +182,8 @@ cb973     .     xfac(22).ne.0d0.or.
      .     xfac(55).ne.0d0.or.
      .     xfac(56).ne.0d0.or.
      .     xfac(64).ne.0d0.or.
+     .     xfac(66).ne.0d0.or.
+     .     xfac(67).ne.0d0.or.
 c
 chcth     .     cfac(13).ne.0d0.or.
 cCbecke97     .     cfac(14).ne.0d0.or.
@@ -245,6 +248,7 @@ c
      +      cfac(34) + cfac(35) + cfac(30) + cfac(38) +
      +      cfac(39) + cfac(40) + xfac(32) + cfac(42) +
      +      cfac(48) + cfac(49) + cfac(50) + cfac(51) +
+     +      xfac(66) + cfac(66) + xfac(67) + cfac(67) +
 cc AJL/Begin/FDE
      +      xfac_fde(18) + cfac_fde(25) + xfac_fde(21) + cfac_fde(27) +
      +      xfac_fde(28) + xfac_fde(29) + xfac_fde(33) + xfac_fde(34) + 
@@ -456,6 +460,8 @@ c
      .     xfac(53).ne.0d0.or.  ! SOGGA11
      .     xfac(54).ne.0d0.or.  ! SOGGA11-X
      .     xfac(64).ne.0d0.or.  ! MVS15-EXC
+     .     xfac(66).ne.0d0.or.  ! SCAN
+     .     xfac(67).ne.0d0.or.  ! SCAN-L
 c
      .     cfac(5).ne.0d0.or.   ! PW91
      .     cfac(13).ne.0d0.or.  ! HCTH
@@ -495,9 +501,28 @@ c
      .     cfac(51).ne.0d0.or.  ! M11-L
      .     cfac(52).ne.0d0.or.  ! SOGGA
      .     cfac(53).ne.0d0.or.  ! SOGGA11
-     .     cfac(54).ne.0d0      ! SOGGA11-X
+     .     cfac(54).ne.0d0.or.  ! SOGGA11-X
+     .     cfac(66).ne.0d0.or.  ! SCAN
+     .     cfac(67).ne.0d0      ! SCAN-L
      .                )
 c
       return
       end
+C
+      logical function xc_chklap()
+      implicit none
+#include "cdft.fh"
+#include "util.fh"
+      double precision tot,eps
+      parameter(eps=1.d-10)
+      tot = xfac(67) + cfac(67)
+
+      if (abs(tot).gt.eps) then
+        xc_chklap = .true.
+      else
+        xc_chklap = .false.
+      end if
+      return
+      end
+cc DMR/End
 

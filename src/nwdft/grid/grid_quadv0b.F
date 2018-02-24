@@ -15,6 +15,7 @@
      &     bas_cent_xinfo,bas_cset_xinfo,
      &     docsetx, 
      &     ttau, kske, Mmat, Mmat2,
+     &     kslap, Lmat,
      &     StericEnergy,
      &     do_gxc, Amat3, Cmat3,
      Q     qbecke,
@@ -55,6 +56,7 @@ c
       integer lchi_ao, ichi_ao, ldelchi_ao, idelchi_ao
       integer lheschi_ao, iheschi_ao
       integer lDmat,iDmat,i, grid_nbfm,llap,ilap
+      integer lGmat,iGmat
       double precision dabsmax,wmax
       external dabsmax
       external grid_nbfm
@@ -64,7 +66,7 @@ c
       external grid_sicinit,grid_sicend
       double precision acc_xc_gauss
       logical l3d
-      logical triplet, kske
+      logical triplet, kske, kslap
       integer lemat,iemat,lfmat,ifmat,k_scr,l_scr
       logical do_2nd
       double precision StericEnergy
@@ -117,14 +119,16 @@ c
       nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if(nqpts.eq.0) return
 cc AJL/Begin/FDE
-      if (do_xdm) then
+      if (kslap.or.do_xdm) then
          maxdbas = 2
       elseif (grad) then
          maxdbas = 1
+         ilap = 0
          iheschi_ao = 0
          iheschi_fde = 0
       else
          maxdbas = 0
+         ilap = 0
          idelchi_ao = 0
          iheschi_ao = 0
          idelchi_fde = 0
@@ -241,7 +245,7 @@ cc AJL/End
            call errquit(pname//'cant alloc delchi_ao',0,0)
         endif
       endif
-      if (do_xdm) then
+      if (kslap.or.do_xdm) then
          if (.not.MA_Push_Get(mt_dbl, 6*nqpts*mbf_ao,
      &        'heschi_ao', lheschi_ao, iheschi_ao)) then
             call errquit(pname//'cant alloc heschi_ao',0,0)
@@ -307,11 +311,15 @@ c      call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,
      ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),dbl_mb(iheschi_ao),
-     M     mbf_ao,grad,do_xdm,
+     M     mbf_ao,grad,kslap,
      ,     ipol,iscratch)
       if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts*3,
      &     'Dmat', lDmat,iDmat))
      &     call errquit(pname//'cannot allocate Dmat',0,
+     &    MA_ERR)
+      if (.not.MA_Push_get(mt_dbl,nbf_ao_mxnbf_ce*nqpts,
+     &    'Gmat',lGmat,iGmat))
+     &     call errquit(pname//'cannot allocate Gmat',0,
      &    MA_ERR)
 c This could probably be turned in to an "else" without harm
       if (fde_option.eq.3.or.fde_option.eq.4.or.
@@ -344,7 +352,7 @@ c AJL/End
 
       if(nqpts.eq.0) goto 2010
 
-      if (do_xdm) then
+      if (kslap.or.do_xdm) then
          if (.not.MA_Push_Get(mt_dbl,nqpts*ipol*(ipol+1)/2,
      &        'lap', llap,ilap))
      &        call errquit('grid_quadv0b: cannot allocate lap',0,
@@ -363,7 +371,7 @@ c AJL/End
      &        ibf_ao, iniz, ifin, rho, delrho, dbl_mb(ilap),
      &        rchi_atom, rdelchi_atom,
      &        rdens_atom, cetobfr,wmax, 
-     &        ttau, kske, do_xdm)
+     &        ttau, kske, kslap.or.do_xdm)
          if (odftps) call pstat_off(ps_xcrho)
          if (sic_orb_index.eq.1) then
             call grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,
@@ -514,6 +522,7 @@ c Standard assessment of QM density using QM settings
      &         Amat, Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
      &         grad, .false., 0d0, do_2nd, 
      &         ttau, kske, Mmat, Mmat2,
+     &         dbl_mb(ilap), kslap, Lmat,
      &         StericEnergy,
      &         do_3rd, Amat3, Cmat3, .false.)
         elseif (fde_option.eq.2.or.fde_option.eq.4) then
@@ -654,14 +663,15 @@ c Evaluate potentials for QM contributions on QM grid
               call xc_tabcd(0,l3d,
      &        tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dbl_MB(iDmat), 
      &        0d0,0d0,0d0,0d0,
-     &        Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
+     &        Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), dbl_MB(iheschi_ao),
      &        0d0,0,1,
      &        ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, 
      &        grad, AO_bas_han, 
      &        natoms, iniz, ifin, g_vxc, ibf_ao,
      &        rchi_atom, rdelchi_atom,
      &        rdens_atom, cetobfr,
-     &        kske,Mmat,0d0)
+     &        kske,Mmat,
+     &        kslap,dbl_MB(iGmat),Lmat,0d0)
             endif
 
 c The derivative of FDE Energy with repsect to QM density is zero, so we
@@ -685,7 +695,8 @@ c declared _qmfde array structures
      &          natoms, iniz, ifin, g_fde, ibf_ao,
      &          rchi_atom, rdelchi_atom,
      &          rdens_atom, cetobfr,
-     &          kske,Mmat_fde,0d0)
+     &          kske,Mmat_fde,
+     &          .false.,0d0,0d0,0d0)
 
 c To get the non-additive potential one needs to subtract G_fde from G_vxc,
 c this is currently included in dft_scf as we can't manipulate GAs here.
@@ -717,7 +728,8 @@ c
      G           grad, AO_bas_han,natoms, iniz, ifin, 
      G           g_vxc, ibf_ao, rchi_atom, rdelchi_atom,
      &           rdens_atom, cetobfr,
-     &           kske, Mmat, dbl_mb(k_scr))
+     &           kske, Mmat, 
+     &           .false.,0d0,0d0, dbl_mb(k_scr))
 
 c
             if (.not.ma_chop_stack(lEmat))
@@ -741,7 +753,8 @@ c
      G           grad, AO_bas_han, natoms, iniz, ifin, 
      G           g_vxc, ibf_ao, rchi_atom, rdelchi_atom,
      &           rdens_atom, cetobfr,
-     &           kske, ttau, 0d0)
+     &           kske, ttau,
+     &           .false.,0d0,0d0,0d0)
 c
 c Daniel (1-11-13): Need specific control over contraction for the 
 c XC-third derivatives
@@ -763,7 +776,8 @@ c with perturbed densities).
      6        grad, AO_bas_han, natoms, iniz, ifin,
      7        g_vxc, ibf_ao, rchi_atom, rdelchi_atom,
      8        rdens_atom, cetobfr,
-     9        kske, ttau, 0d0)
+     9        kske, ttau,
+     &        .false.,0d0,0d0,0d0)
          else if (do_cpks_r) then
             call errquit(pname//'what do do for cpks rhs?',0,
      &       CALC_ERR)
@@ -773,6 +787,8 @@ c
 
  2010 continue
 
+      if (.not.ma_chop_stack(lGmat))
+     &      call errquit(pname//'cannot chop Gmat', 1, MA_ERR)
       if (.not.ma_chop_stack(lDmat))
      &      call errquit(pname//'cannot chop Dmat', 1, MA_ERR)
 
@@ -782,6 +798,11 @@ c
          if(.not.grid_sicend(l_vect1,ldelrho_sig))
      ,        call errquit(pname//'grid_sicend failed',0,
      &       CALC_ERR)
+      endif
+
+      if(kslap.or.do_xdm)then
+         if(.not.ma_chop_stack(lheschi_ao))
+     &       call errquit(pname//'cannot chop heschi_ao', 2, MA_ERR)
       endif
 
       if(grad)then

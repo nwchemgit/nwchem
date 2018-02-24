@@ -1,6 +1,7 @@
       subroutine dftg_quadv0_b(ictr, ldew, AO_bas_han, ipol, GRAD, kske,
-     &                         nbf_ao, mbf_ao, nat, nq, chi, delchi, 
-     &                         heschi, Amat, Cmat, Mmat, ccrap, 
+     &                         kslap, nbf_ao, mbf_ao, nat, nq, chi, 
+     &                         delchi, heschi, d3chi, Amat, Cmat, Mmat, 
+     &                         Lmat, ccrap, 
      I     ibf, iniz, ifin, cetobfr,
      P     PPP, F, zzz, hh, g_dens, force, 
      &                         oactive)
@@ -17,7 +18,7 @@ c
       integer ictr
       integer ipol, nbf_ao, mbf_ao, nat, nq
       Integer AO_bas_han
-      logical GRAD, oactive(nat), kske
+      logical GRAD, oactive(nat), kske, kslap
       double precision zzz(*)
       double precision PPP(*), F(*)
       integer ibf(mbf_ao), iniz(nat), ifin(nat)
@@ -31,12 +32,12 @@ c
 c     functions and grad
 c     
       double precision chi(nq,mbf_ao), delchi(nq,3,mbf_ao),
-     &                 heschi(nq,6,mbf_ao)
+     &                 heschi(nq,6,mbf_ao), d3chi(nq,10,mbf_ao)
 c     
 c     Vxc and its GCA part
 c     
       double precision Amat(nq,ipol), Cmat(nq,3,ipol)
-      double precision Mmat(nq,ipol)
+      double precision Mmat(nq,ipol), Lmat(nq,ipol)
 c     
 c     force vector
 c     
@@ -121,6 +122,16 @@ c
      &                                         C3*heschi(n,6,mu)
                         enddo
                      endif
+                     if (kslap) then
+                       do n=1,nq
+                         hh(n,1,mu1) = hh(n,1,mu1) + (d3chi(n,1,mu) +
+     &                   d3chi(n,4,mu) + d3chi(n,6,mu))*Lmat(n,ispin)
+                         hh(n,2,mu1) = hh(n,2,mu1) + (d3chi(n,2,mu) +
+     &                   d3chi(n,7,mu) + d3chi(n,9,mu))*Lmat(n,ispin)
+                         hh(n,3,mu1) = hh(n,3,mu1) + (d3chi(n,3,mu) +
+     &                   d3chi(n,8,mu) + d3chi(n,10,mu))*Lmat(n,ispin)
+                       end do
+                     end if
                      enddo ! mu
 cold zzz(3,mbf)   =hh(3,q)   * chi(q,mbf)
 c    zzz(3,nnia,mbf)=hh(q,3,nnia)* chi(q,mbf)
@@ -155,6 +166,45 @@ c     zzz(3,nnia,mbf)=dchi(q,3,nnia)* cc(q,mbf)
      &                                 delchi(n,2,nu)*heschi(n,5,mu) +
      &                                 delchi(n,3,nu)*heschi(n,6,mu))
      &                                 *Mmat(n,ispin)
+                               enddo
+c     zzz(3,nnia,mbf)
+c     zzz(1,mu,nu)
+                               zzzptr=1+(mu1-1)*3+(nu-1)*3*nnia
+                               zzz(zzzptr)   = zzz(zzzptr)   + z1
+                               zzz(zzzptr+1) = zzz(zzzptr+1) + z2
+                               zzz(zzzptr+2) = zzz(zzzptr+2) + z3
+                            enddo
+                         enddo
+                      endif
+                      if (kslap)then
+                         do mu = inizia,ifinia
+                            mu1=mu-inizia+1
+                            do nu = 1, mbf_ao
+                               z1 = 0.d0
+                               z2 = 0.d0
+                               z3 = 0.d0
+                               do n = 1, nq
+                                  z1 = z1 + (2d0*
+     A                                 (delchi(n,1,nu)*heschi(n,1,mu) +
+     &                                 delchi(n,2,nu)*heschi(n,2,mu) +
+     &                                 delchi(n,3,nu)*heschi(n,3,mu)) +
+     &                                 (heschi(n,1,nu)+heschi(n,4,nu) +
+     &                                  heschi(n,6,nu))*delchi(n,1,mu))
+     &                                 *Lmat(n,ispin)
+                                  z2 = z2 + (2d0*
+     A                                 (delchi(n,1,nu)*heschi(n,2,mu) +
+     &                                 delchi(n,2,nu)*heschi(n,4,mu) +
+     &                                 delchi(n,3,nu)*heschi(n,5,mu)) +
+     &                                 (heschi(n,1,nu)+heschi(n,4,nu) +
+     &                                  heschi(n,6,nu))*delchi(n,2,mu))
+     &                                 *Lmat(n,ispin)
+                                  z3 = z3 + (2d0*
+     A                                 (delchi(n,1,nu)*heschi(n,3,mu) +
+     &                                 delchi(n,2,nu)*heschi(n,5,mu) +
+     &                                 delchi(n,3,nu)*heschi(n,6,mu)) +
+     &                                 (heschi(n,1,nu)+heschi(n,4,nu) +
+     &                                  heschi(n,6,nu))*delchi(n,3,mu))
+     &                                 *Lmat(n,ispin)
                                enddo
 c     zzz(3,nnia,mbf)
 c     zzz(1,mu,nu)

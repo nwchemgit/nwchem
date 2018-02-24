@@ -10,6 +10,7 @@
      ,            force, hess, g_rhs, do_force,
      &            do_hess, do_cpks_r, natoms, oactive,
      &            nactive, rdens_atom, cetobfr, ttau, Mmat, Mmat2,
+     &            Lmat,
      1            do_gxc, Amat3, Cmat3, ngxc,
      2            rhosave, delrhosave, triplet, 
      3            do_tddftvxc)
@@ -48,9 +49,9 @@ c Qin
       integer nactive
       logical oactive(natoms)
       logical grad, gradchi, hesschi, der3chi
-      logical xc_chkgrad, xc_chktau
-      external xc_chkgrad, xc_chktau
-      logical ldew, kske
+      logical xc_chkgrad, xc_chktau, xc_chklap
+      external xc_chkgrad, xc_chktau, xc_chklap
+      logical ldew, kske, kslap
       logical do_force, do_hess, do_cpks_r
 c
       integer cetobfr(2,natoms)
@@ -62,6 +63,7 @@ c
       double precision delrho(n_per_rec,3,ipol)
 
       double precision Mmat(*), ttau(*)
+      double precision Lmat(*)
 
       double precision Amat(n_per_rec,ipol), Cmat(n_per_rec,3,ipol),
      &                 Bmat(n_per_rec,*)
@@ -185,10 +187,15 @@ c     See if any Gradient Corrected Functional is not null
 c
       grad=xc_chkgrad()
       kske=xc_chktau()
+      kslap=xc_chklap()
 c
 c     allocate scratch array for grid compression
 c
-      if (grad.or.kske)then
+      if (kslap)then
+         gradchi = .true.
+         hesschi = .true.
+         der3chi = .true.
+      elseif (grad.or.kske)then
          gradchi = .true.
          hesschi = .true.
          der3chi = do_hess
@@ -262,7 +269,7 @@ c Qin
          endif
 c Qin/end
 c Daniel (1-16-13): Thread a variable through here that allows XC-third
-c derivatives to happen.
+c derivativeis to happen.
          call dftg_gridv0b(nqpts,rad,ictr_buf,iga_dens,
      &     max_at_bf,
      &     rho_int, nqtot, iniz, ifin, rho, delrho,
@@ -279,7 +286,8 @@ c derivatives to happen.
      &     do_hess, do_cpks_r, natoms, oactive,
      &     nactive, rdens_atom, 
      &     cetobfr,
-     &     ttau, kske, Mmat, Mmat2, ldbw,
+     &     ttau, kske, Mmat, Mmat2, 
+     &     kslap, Lmat, ldbw,
      $     fact, dtype, nconstr,  ! Qin
      1     do_gxc, Amat3, Cmat3, ngxc,
      2     rhosave, delrhosave, triplet, 
