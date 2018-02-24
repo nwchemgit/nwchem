@@ -1,0 +1,47 @@
+echo
+title "Test SCAN"
+
+start scan
+
+geometry
+  H     -1.62522691     0.82336660    -0.41716581
+  N     -1.18023841    -0.07061179    -0.42251903
+  C      0.19940157     0.03911263    -0.37821942
+  H      0.77252807    -0.11338046    -1.30706692
+  F      0.87977314    -0.05004215     0.77235361
+end
+
+basis cartesian
+  C library 6-31g*
+  N library 6-31g*
+  F library 6-31g*
+  H library 6-31g
+end
+
+dft
+ noio
+ xc scan
+ grid xfine nodisk
+ vectors atomic
+end
+task dft
+
+dft
+  noio
+  mult 1
+  odft
+  xc scan
+  grid xfine nodisk
+  vectors atomic
+end
+task dft
+
+dft
+  noio
+  mult 3
+  odft
+  xc scan
+  grid xfine nodisk
+  vectors atomic
+end
+task dft
