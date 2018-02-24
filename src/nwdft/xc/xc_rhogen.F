@@ -415,10 +415,10 @@ c
      F                        ff)
 cc DMR/Begin
                          if (dolap) then
-                            do mu=inizja,ifinja
+                            do mu=inizia,ifinia
                                do n=1,nq
                                   lap(n,ii,ipert) = lap(n,ii,ipert) +
-     &                              ff(n,mu-inizja+1)*(heschi(n,1,mu) +
+     &                              ff(n,mu-inizia+1)*(heschi(n,1,mu) +
      &                              heschi(n,4,mu) + heschi(n,6,mu))
                                enddo
                             enddo
