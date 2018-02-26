@@ -47,7 +47,7 @@ TAR_URL=https://github.com/GlobalArrays/ga/releases/download/v"$GA_RELEASE_NO"/g
 #         https://github.com/edoapra/ga/releases/download/v5.6.3/ga-5.6.3.tar.gz
  echo "downloading" ga-"$GA_RELEASE_NO".tar.gz  "from" "$TAR_URL"
   WGET_YES=`wget  -O 2>&1 | head -1  | awk ' /require/ {print "Y";exit};{print "N"}'`
-if test "x$WGET_YES" = "Y"
+if [ $WGET_YES = "Y" ]
 then
  wget  -O ga-"$GA_RELEASE_NO".tar.gz "$TAR_URL"
 else
