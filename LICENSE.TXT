@@ -1,4 +1,4 @@
-	Northwest Computational Chemistry Package (NWChem) 6.3
+	Northwest Computational Chemistry Package (NWChem) 6.8
 
 	Environmental Molecular Sciences Laboratory (EMSL)
 	Pacific Northwest National Laboratory
@@ -7,7 +7,7 @@
 	NWChem is an open-source computational chemistry package distributed under the terms of 
 	the Educational Community License (ECL) 2.0
 
-	Copyright (c) 1994-2010 Pacific Northwest National Laboratory, Battelle Memorial Institute.
+	Copyright (c) 1994-2018 Pacific Northwest National Laboratory, Battelle Memorial Institute.
 
 	This software and its documentation were developed at the EMSL at Pacific Northwest National Laboratory, 
 	a multiprogram national laboratory, operated for the U.S. Department of Energy by Battelle under 
