@@ -3754,7 +3754,7 @@ c     >   call errquit("ion_disp_energy:",0,MA_ERR)
       end if
 
 !$OMP MASTER
-      call nwxc_vdw3_dftd3(options,nion_grimme2,int_mb(iz_grimme2(1)),
+      call nwpwxc_vdw3_dftd3(options,nion_grimme2,int_mb(iz_grimme2(1)),
      >                     dbl_mb(rion_grimme2(1)),lat,edisp,g,g_lat)
 !$OMP END MASTER
 !$OMP BARRIER
@@ -3831,7 +3831,7 @@ c     >   call errquit("ion_disp_energy: pushstack gtmp",1,MA_ERR)
      >                                 dbl_mb(fion_grimme2(1)))
 
 !$OMP MASTER
-      call nwxc_vdw3_dftd3(options,nion_grimme2,int_mb(iz_grimme2(1)),
+      call nwpwxc_vdw3_dftd3(options,nion_grimme2,int_mb(iz_grimme2(1)),
      >               dbl_mb(rion_grimme2(1)),lat,edisp,
      >               dbl_mb(fion_grimme2(1)),g_lat)
 !$OMP END MASTER
@@ -3930,7 +3930,7 @@ c      end do
       call Parallel_shared_vector_zero(.true.,9,stress)
 
 !$OMP MASTER
-      call nwxc_vdw3_dftd3(options,nion_grimme2,int_mb(iz_grimme2(1)),
+      call nwpwxc_vdw3_dftd3(options,nion_grimme2,int_mb(iz_grimme2(1)),
      >               dbl_mb(rion_grimme2(1)),lat,edisp,
      >               dbl_mb(fion_grimme2(1)),stress)
 !$OMP END MASTER
