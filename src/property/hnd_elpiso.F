@@ -200,11 +200,14 @@ C
 
 
 C Returns the coordinates of grid points that lie within a TOLERANCE,
-C on electron density isosurface of value ISOVALUE
+C on electron density isosurface of value ISOVALUE.
+C Also calculates the number of voxels enclosed within the 
+C isosurface, storing this in the rtdb as prop:epsiso:nenc.
 C
 C ISOVALUE == 0.002 ~ Vdw radius
 C
 C Mark J. Williamson Summer 2015
+C Mark D. Driver Spring 2018
 C
       subroutine get_points_from_iso(rtdb, basis, geom, isovalue,
      > tolerance, sub_nprp, i_sub_prp_c)
