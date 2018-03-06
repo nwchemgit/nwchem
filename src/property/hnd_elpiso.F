@@ -200,11 +200,14 @@ C
 
 
 C Returns the coordinates of grid points that lie within a TOLERANCE,
-C on electron density isosurface of value ISOVALUE
+C on electron density isosurface of value ISOVALUE.
+C Also calculates the number of voxels enclosed within the 
+C isosurface, storing this in the rtdb as prop:epsiso:nenc.
 C
 C ISOVALUE == 0.002 ~ Vdw radius
 C
 C Mark J. Williamson Summer 2015
+C Mark D. Driver Spring 2018
 C
       subroutine get_points_from_iso(rtdb, basis, geom, isovalue,
      > tolerance, sub_nprp, i_sub_prp_c)
@@ -224,7 +227,7 @@ C
       integer sub_nprp            ! [Output] Number of points lying on this surface
       integer h_sub_prp_c         ! Memhandle to points lying on the iso surface
       integer i_sub_prp_c         ! [Output] Index to points lying on this surface
-
+      integer sub_nprp_enc   ! [Output] Number of points lying within surface
       integer i,j,n,nat,iat
       integer g_dens(3)      ! Handle to density
       integer ndens          ! Number of active density handles (RHF=1, UHF=3)
@@ -288,14 +291,23 @@ C nder=-1; compute the 1-electron density
       call hnd_elfcon(basis,geom,g_dens(ndens),dbl_mb(i_prp_c),nprp, 
      & dbl_mb(i_eden),-1)
 
+C Work out how many points lie within the given iso surface (sub_nprp_enc).
 C Scan ahead and work out how many points (sub_nprp) lie on the isosurface
       sub_nprp = 0
+      sub_nprp_enc = 0
       do i=1, nprp
+        if (dbl_mb(i_eden + (i-1)) > isovalue) then
+          sub_nprp_enc = sub_nprp_enc + 1
+        end if
         if ( abs(dbl_mb(i_eden + (i-1)) - isovalue) < tolerance ) then
           sub_nprp = sub_nprp + 1
         end if
       end do
 
+C Store number of points enclosed by surface in rtdb.
+      if (.not. rtdb_put(rtdb, 'prop:epsiso:nenc', mt_int, 1,
+     &                   sub_nprp_enc))
+     &      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
 C Allocate array for storing the location of these points
       if(.not.ma_alloc_get(MT_DBL, 3*sub_nprp, 'hnd_elpiso grid array',
      &      h_sub_prp_c, i_sub_prp_c) ) call errquit(
