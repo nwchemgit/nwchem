@@ -1,0 +1,41 @@
+C> \ingroup nwpwxc
+C> @{
+C>
+C> \file nwpwxc.fh
+C> Declarations of the various API functions of the NWXC module.
+C>
+C> @}
+C>
+C> \ingroup nwpwxc_api
+C> @{
+C>
+C> \file nwpwxc.fh
+C> \brief Public data and function interfaces for the DFT functional library
+C>
+      logical nwpwxc_add_df   !< Add a term to the functional
+      logical nwpwxc_has_hfx  !< Does this functional have Hartree-Fock exchange?
+      logical nwpwxc_has_mp2c !< Does this functional have MP2? I.e. is it a
+                            !< double hybrid?
+      logical nwpwxc_has_cam  !< Does this functional have Coulomb Attenuated 
+                            !< terms?
+      logical nwpwxc_has_disp !< Does this functional have dispersion corrections?
+      logical nwpwxc_has_xc   !< Does this functional have exchange-correlation?
+      logical nwpwxc_input    !< Parse the functional input
+      logical nwpwxc_is_on    !< Is this library used for the functionals?
+      logical nwpwxc_is_lda   !< Is this functional an LDA functional?
+      logical nwpwxc_is_gga   !< Is this functional an GGA functional?
+      logical nwpwxc_is_mgga  !< Is this functional a meta-GGA functional?
+      logical nwpwxc_has_2nd  !< Does this functional support 2nd order
+                            !< partial derivatives?
+C>
+      logical nwpwxc_rtdb_load   !< Load the functional from the RTDB
+      logical nwpwxc_rtdb_store  !< Store the functional on the RTDB
+      logical nwpwxc_rtdb_delete !< Delete the functional from the RTDB
+C>
+      logical nwpwxc_set_rho_tolerance !< Set the density tolerance
+C>
+      double precision nwpwxc_wght_hfx  !< The Hartree-Fock exchange weight
+      double precision nwpwxc_wght_mp2c !< The MP2 correlation weight
+      double precision nwpwxc_get_rho_tolerance !< Get density tolerance
+C> @}
+c $Id$
