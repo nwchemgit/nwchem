@@ -1247,7 +1247,16 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN INTERIX))
                  awk ' /sparc/ { print "sparc" }; /i*86/ { print "x86" };  /ppc*/ { print "ppc"};  /arm*/ { print "arm"}; /mips*/ { print "mips"} ' )
 
      GOTMINGW32= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW32|cut -c21)
-
+    ifeq ($(GOTMINGW32),1)
+      ifdef USE_OPENMP 
+        errorompming:
+	  @echo 
+	  @echo "  MinGW environment does not support OpenMP"
+	  @echo "  Please unset USE_OPENMP"
+	  @echo 
+      endif
+    endif
+  
 ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 
 #   EXTRA_LIBS += -L/home/edo/tcltk/lib/LINUX -ltk8.3 -ltcl8.3 -L/usr/X11R6/lib -lX11 -ldl
@@ -1432,6 +1441,14 @@ endif
         CFLAGS_FORGA += -m32
         FFLAGS_FORGA += -m32
     endif
+        ifdef USE_OPENMP
+           FOPTIONS  += -fopenmp
+           LDOPTIONS += -fopenmp
+           DEFINES += -DUSE_OPENMP
+           ifdef USE_OPENMP_TASKS
+               DEFINES += -DUSE_OPENMP_TASKS
+           endif
+        endif
         FOPTIMIZE  += -O2 -ffast-math -Wuninitialized
         ifeq ($(_CPU),i786)
           FOPTIONS += -march=pentium4 -mtune=pentium4
