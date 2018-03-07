@@ -54,12 +54,13 @@ endif
 
 ifndef NWCHEM_TARGET
 error2:
-    @echo You must define NWCHEM_TARGET in your environment to be the name
-    @echo of the machine you wish to build for ... for example
-    @echo     setenv NWCHEM_TARGET SOLARIS
-    @echo Known targets are SOLARIS, ...
-    @echo See the INSTALL instructions for a complete list
-    @exit 2
+$(info     )
+$(info You must define NWCHEM_TARGET in your environment to be the name)
+$(info of the machine you wish to build for ... for example)
+$(info     setenv NWCHEM_TARGET SOLARIS)
+$(info Known targets are SOLARIS, ...)
+$(info See the INSTALL instructions for a complete list)
+$(error )
 endif
 
      TARGET := $(NWCHEM_TARGET)
@@ -2484,21 +2485,23 @@ endif
 ifeq ($(BUILDING_PYTHON),python)
 ifndef PYTHONHOME
 errorpython1:
-    @echo "For python you must define both PYTHONHOME and PYTHONVERSION"
-    @echo "E.g., setenv PYTHONHOME /msrc/home/d3g681/Python-1.5.1"
-    @echo "      setenv PYTHONVERSION 1.5"
-    @echo " building_python <$(BUILDING_PYTHON)>"
-    @echo " subdirs <$(NWSUBDIRS)>"
-    @exit 1
+	      $(info )
+$(info For python you must define both PYTHONHOME and PYTHONVERSION)
+$(info E.g., export PYTHONHOME=/msrc/home/d3g681/Python-2.7.1)
+$(info       export PYTHONVERSION=2.7)
+$(info  building_python <$(BUILDING_PYTHON)>)
+$(info  subdirs <$(NWSUBDIRS)>)
+$(error )
 endif
 ifndef PYTHONVERSION
 errorpython2:
-    @echo "For python you must define both PYTHONHOME and PYTHONVERSION"
-    @echo "E.g., setenv PYTHONHOME /msrc/home/d3g681/Python-1.5.1"
-    @echo "      setenv PYTHONVERSION 1.5"
-    @echo " building_python <$(BUILDING_PYTHON)>"
-    @echo " subdirs <$(NWSUBDIRS)>"
-    @exit 1
+$(info )
+$(info For python you must define both PYTHONHOME and PYTHONVERSION)
+$(info E.g., setenv PYTHONHOME /msrc/home/d3g681/Python-1.5.1)
+$(info       setenv PYTHONVERSION 1.5)
+$(info  building_python <$(BUILDING_PYTHON)>)
+$(info  subdirs <$(NWSUBDIRS)>)
+$(error )
 endif
 #
 ifdef USE_PYTHONCONFIG
