@@ -131,12 +131,13 @@ c        ***** calculate agr = |grad n| ****
      >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),dumtau)
 !$OMP END MASTER
 !$OMP BARRIER
-c
-c          Combine (df/d|grad a|) with (df/d(grad a|grad b))
-c
-           call D3dB_r_SMul(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
-     >                              dbl_mb(fdn(1)))
-c
+cc
+cc          Combine (df/d|grad a|) with (df/d(grad a|grad b))
+cc
+           call D3dB_rr_daxpy(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
+     >                                dbl_mb(fdn(1)))
+           !call D3dB_r_SMul1(1,0.5d0,dbl_mb(fdn(1)))
+cc
 c          Calculate energy density from energy
 c
 !$OMP DO
