@@ -299,27 +299,13 @@ C
        data nd1g / D1_GAA, D1_GBB /
        data nd1t / D1_TA,  D1_TB  /
 C
-       do iq = 1, nq
-         f(iq) = 0.0d0
-       enddo
-       do ip = 1, nd1r(ipol)
-         do iq = 1, nq
-           dfdr(iq,ip) = 0.0d0
-         enddo
-       enddo
+       call dcopy(nq,0.0d0,0,f,1)
+       call dcopy(nq*ipol,0.0d0,0,dfdr,1)
        if (nwpwxc_is_gga()) then
-         do ip = 1, nd1g(ipol)
-           do iq = 1, nq
-             dfdg(iq,ip) = 0.0d0
-           enddo
-         enddo
+         call dcopy(nq*(ipol+1),0.0d0,0,dfdg,1)
        endif
        if (nwpwxc_is_mgga()) then
-         do ip = 1, nd1t(ipol)
-           do iq = 1, nq
-             dfdt(iq,ip) = 0.0d0
-           enddo
-         enddo
+         call dcopy(nq*ipol,0.0d0,0,dfdt,1)
        endif
 C
        do it = 1, nwpwxc_num_f
