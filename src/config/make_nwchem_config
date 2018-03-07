@@ -86,7 +86,7 @@ EXP_tinyqmpw = nwdft  property solvation driver ccsd mp2_grad hessian vib nwpw
 EXP_ver2 = prepar gradients mp2_grad stepper vib mcscf \
            optim driver analyz diana
 #plane_wave ... broken? RJH
-EXP_qmandpw = nwpw NWints atomscf ddscf gradients moints nwdft rimp2 nwxc hessian bq cons \
+EXP_qmandpw = nwpw NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           optim stepper driver ccsd vib mcscf property solvation dplot mp2_grad esp etrans vscf dimqm 
 EXP_tps = prepar nwmd analyz diana
 EXP_md  = prepar nwmd analyz ddscf nwdft gradients esp
