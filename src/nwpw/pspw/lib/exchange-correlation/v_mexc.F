@@ -132,7 +132,7 @@ c     >                      dbl_mb(agr(1)))
 c
 c          Combine (df/d|grad a|) with (df/d(grad a|grad b))
 c
-           call D3dB_r_SMul(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
+           call D3dB_rr_daxpy(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
      >                              dbl_mb(fdn(1)))
 c
 c          Calculate energy density from energy

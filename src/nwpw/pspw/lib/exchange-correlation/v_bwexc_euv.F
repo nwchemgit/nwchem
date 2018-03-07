@@ -149,13 +149,13 @@ c
            call nwpwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),dbl_mb(agr(1)),
      >                       dumtau,xce,
      >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),dumtau)
-c
-c          Combine (df/d|grad a|) with (df/d(grad a|grad b))
-c
-           call D3dB_r_SMul(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
-     >                              dbl_mb(fdn(1)))
-c
-c          Calculate the energy density from the functional
+cc
+cc          Combine (df/d|grad a|) with (df/d(grad a|grad b))
+cc
+           call D3dB_rr_daxpy(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
+     >                                dbl_mb(fdn(1)))
+cc
+cc          Calculate the energy density from the functional
 c
            do u = 1, n2ft3d
              xce(u) = xce(u)/(dbl_mb(rho(1)-1+u)+dncut)
