@@ -20,6 +20,7 @@ c
 #include "nwc_const.fh"
 #include "errquit.fh"
 #include "util.fh"
+#include "nwpwxc.fh"
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
@@ -650,17 +651,18 @@ c
       ind = index(exchange_correlation,' ') - 1
       if (exchange_correlation(1:ind).eq.'new') then
 c       call inp_prev_field()
-cold        if (.not.nwxc_input()) then
-        call nwxc_input(lstat)
-        if(.not.lstat) then
+        if (.not.nwpwxc_input()) then
+        !call nwpwxc_input(lstat)
+        !if(.not.lstat) then
           call errquit("nwpw_input: not a functional",
      +                 0,UERR)
         endif
-        call nwxc_rtdb_store(rtdb,"dft")
-        value = .true.
-        call nwxc_getvals("nwxc_has_hfx",out1)
-        if (out1) then
-          call nwxc_getwght("nwxc_wght_hfx",xfac)
+        if (.not.nwpwxc_rtdb_store(rtdb,"dft")) then
+          call errquit("nwpw_input: store functional failed",
+     +                 0,UERR)
+        endif
+        if (nwpwxc_has_hfx()) then
+          xfac = nwpwxc_wght_hfx()
           value = value .and.
      +            rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
           value = value .and.
@@ -677,9 +679,8 @@ cold        if (.not.nwxc_input()) then
           value = value .and.
      +            rtdb_put(rtdb,'band:HFX',mt_log,1,.false.)
         endif
-        call nwxc_getvals("nwxc_has_cam",out1)
-        if (out1) then
-          call nwxc_get_cam(a,b,c,hfsr)
+        if (nwpwxc_has_cam()) then
+          call nwpwxc_get_cam(a,b,c,hfsr)
           if (hfsr) then
             flag = 4
           else
@@ -699,9 +700,7 @@ cold        if (.not.nwxc_input()) then
         goto 10
       endif
 
-      if (util_module_avail("nwxc")) then
-        call nwxc_rtdb_delete(rtdb,"dft") !*** don't need to check return value ****
-      endif
+      value = nwpwxc_rtdb_delete(rtdb,"dft") !*** don't need to check return value ****
 
       value = rtdb_cput(rtdb,'cgsd:exchange_correlation',
      >                    1,exchange_correlation(1:ind))

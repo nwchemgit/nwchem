@@ -14,7 +14,7 @@
 
 #include "bafdecls.fh"
 #include "global.fh"
-#include "nwxc.fh"
+#include "nwpwxc.fh"
 #include "util.fh"
 #include "errquit.fh"
 
@@ -80,12 +80,9 @@ c           call D3dB_r_SMul(1,0.5d0,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
 
 
       gga = control_gga()
-      if (util_module_avail("nwxc")) then
-        use_lda = (.not.nwxc_is_on().and.gga.eq.0).or.
-     &            (nwxc_is_on().and.nwxc_is_lda())
-      else
-        use_lda = gga.eq.0
-      endif
+      use_lda = (.not.nwpwxc_is_on().and.gga.eq.0).or.
+     &          (nwpwxc_is_on().and.nwpwxc_is_lda())
+      
       if (use_lda) then
         call vxc(n2ft3d,ispin,dbl_mb(dnall(1)),
      >                    dbl_mb(xcp(1)),

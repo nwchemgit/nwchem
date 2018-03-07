@@ -1,0 +1,228 @@
+#ifndef NWXC_PARAM_FH
+#define NWXC_PARAM_FH
+c
+c     Macros to define sizes of tables and column of data.
+c
+c     For convenience we define parameters for everything. This
+c     includes the columns in:
+c     - rho
+c     - gamma
+c     - tau
+c     as well as the derivatives
+c     - 1st order in Amat
+c     - 1st order in Cmat
+c     - 1st order in Mmat
+c     - 2nd order in Amat2
+c     - 2nd order in Cmat2
+c     - 2nd order in Mmat2
+c     - 3rd order in Amat3
+c     - 3rd order in Cmat3
+c     - 3rd order in Mmat3
+c     and the number of columns in these tables as well.
+c
+c     At the end of the file we also define identifiers for different
+c     dispersion energy models.
+c
+c     Inputs
+c
+#define NCOL_RHO   2
+#define NCOL_GAMMA 3
+#define NCOL_TAU   2
+c
+c     1st order derivatives
+c
+#define NCOL_AMAT  2
+#define NCOL_CMAT  3
+#define NCOL_MMAT  2
+c
+c     2nd order derivatives
+c
+#define NCOL_AMAT2 3
+#define NCOL_CMAT2 12
+#define NCOL_MMAT2 13
+c
+c     3rd order derivatives
+c
+#define NCOL_AMAT3 4
+#define NCOL_CMAT3 31
+#define NCOL_MMAT3 49
+c
+c     Inputs
+c
+c     - closed shell
+c
+#define R_T  1
+#define G_TT 1
+#define T_T  1
+c
+c     - open shell
+c
+#define R_A  1
+#define R_B  2
+#define G_AA 1
+#define G_AB 2
+#define G_BB 3
+#define T_A  1
+#define T_B  2
+c
+c     With the derivatives the partials are numbered in such a way
+c     that RA^N, GAA^N, and TA^N where N is the order of the derivative
+c     equals the number of columns you need for the closed shell 
+c     implementations. Likewise the RB^N, GBB^N, and TB^N variants
+c     also equal the number of columns you need for the spin 
+c     unrestricted case. The latter numbers also equal the NCOL macros.
+c
+c     1st order derivatives
+c
+#define D1_RA    1
+#define D1_RB    2
+c
+#define D1_GAA   1
+#define D1_GAB   2
+#define D1_GBB   3
+c
+#define D1_TA    1
+#define D1_TB    2
+c
+c     2nd order derivatives
+c
+#define D2_RA_RA    1
+#define D2_RA_RB    2
+#define D2_RB_RB    3
+c
+c#define D2_RA_GAA   1
+c#define D2_GAA_GAA  2
+c#define D2_RB_GAA   3
+c#define D2_RA_GAB   4
+c#define D2_RB_GAB   5
+c#define D2_GAA_GAB  6
+c#define D2_GAB_GAB  7
+c#define D2_RA_GBB   8
+c#define D2_RB_GBB   9
+c#define D2_GAA_GBB 10
+c#define D2_GAB_GBB 11
+c#define D2_GBB_GBB 12
+c
+#define D2_RA_GAA   1
+#define D2_RB_GAA   2
+#define D2_GAA_GAA  3
+#define D2_RA_GAB   4
+#define D2_RB_GAB   5
+#define D2_GAA_GAB  6
+#define D2_GAB_GAB  7
+#define D2_RA_GBB   8
+#define D2_RB_GBB   9
+#define D2_GAA_GBB 10
+#define D2_GAB_GBB 11
+#define D2_GBB_GBB 12
+c
+#define D2_RA_TA   1
+#define D2_GAA_TA  2
+#define D2_TA_TA   3
+#define D2_RB_TA   4
+#define D2_GAB_TA  5
+#define D2_GBB_TA  6
+#define D2_RA_TB   7
+#define D2_RB_TB   8
+#define D2_GAA_TB  9
+#define D2_GAB_TB 10
+#define D2_GBB_TB 11
+#define D2_TA_TB  12
+#define D2_TB_TB  13
+c
+c     3rd order derivatives
+c
+#define D3_RA_RA_RA   1
+#define D3_RA_RA_RB   2
+#define D3_RA_RB_RB   3
+#define D3_RB_RB_RB   4
+
+#define D3_RA_RA_GAA     1
+#define D3_RA_GAA_GAA    2
+#define D3_GAA_GAA_GAA   3
+#define D3_RA_RB_GAA     4
+#define D3_RB_RB_GAA     5
+#define D3_RB_GAA_GAA    6
+#define D3_RA_RA_GAB     7
+#define D3_RA_RB_GAB     8
+#define D3_RA_GAA_GAB    9
+#define D3_RA_GAB_GAB   10
+#define D3_RB_RB_GAB    11
+#define D3_RB_GAA_GAB   12
+#define D3_RB_GAB_GAB   13
+#define D3_GAA_GAA_GAB  14
+#define D3_GAA_GAB_GAB  15
+#define D3_GAB_GAB_GAB  16
+#define D3_RA_RA_GBB    17
+#define D3_RA_RB_GBB    18
+#define D3_RA_GAA_GBB   19
+#define D3_RA_GAB_GBB   20
+#define D3_RA_GBB_GBB   21
+#define D3_RB_RB_GBB    22
+#define D3_RB_GAA_GBB   23
+#define D3_RB_GAB_GBB   24
+#define D3_RB_GBB_GBB   25
+#define D3_GAA_GAA_GBB  26
+#define D3_GAA_GAB_GBB  27
+#define D3_GAB_GAB_GBB  28
+#define D3_GAA_GBB_GBB  29
+#define D3_GAB_GBB_GBB  30
+#define D3_GBB_GBB_GBB  31
+c
+#define D3_RA_RA_TA     1
+#define D3_RA_GAA_TA    2
+#define D3_RA_TA_TA     3
+#define D3_GAA_GAA_TA   4
+#define D3_GAA_TA_TA    5
+#define D3_TA_TA_TA     6
+#define D3_RA_RB_TA     7
+#define D3_RA_GAB_TA    8
+#define D3_RA_GBB_TA    9
+#define D3_RB_RB_TA    10
+#define D3_RB_GAA_TA   11
+#define D3_RB_GAB_TA   12
+#define D3_RB_GBB_TA   13
+#define D3_RB_TA_TA    14
+#define D3_GAA_GAB_TA  15
+#define D3_GAA_GBB_TA  16
+#define D3_GAB_GAB_TA  17
+#define D3_GAB_GBB_TA  18
+#define D3_GAB_TA_TA   19
+#define D3_GBB_GBB_TA  20
+#define D3_GBB_TA_TA   21
+#define D3_RA_RA_TB    22
+#define D3_RA_RB_TB    23
+#define D3_RA_GAA_TB   24
+#define D3_RA_GAB_TB   25
+#define D3_RA_GBB_TB   26
+#define D3_RA_TA_TB    27
+#define D3_RA_TB_TB    28
+#define D3_RB_RB_TB    29
+#define D3_RB_GAA_TB   30
+#define D3_RB_GAB_TB   31
+#define D3_RB_GBB_TB   32
+#define D3_RB_TA_TB    33
+#define D3_RB_TB_TB    34
+#define D3_GAA_GAA_TB  35
+#define D3_GAA_GAB_TB  36
+#define D3_GAA_GBB_TB  37
+#define D3_GAA_TA_TB   38
+#define D3_GAA_TB_TB   39
+#define D3_GAB_GAB_TB  40
+#define D3_GAB_GBB_TB  41
+#define D3_GAB_TA_TB   42
+#define D3_GAB_TB_TB   43
+#define D3_GBB_GBB_TB  44
+#define D3_GBB_TA_TB   45
+#define D3_GBB_TB_TB   46
+#define D3_TA_TA_TB    47
+#define D3_TA_TB_TB    48
+#define D3_TB_TB_TB    49
+c
+#define NWXC_DISP_NONE -1
+#define NWXC_DISP_VDW2  0
+#define NWXC_DISP_D1    1
+#define NWXC_DISP_D2    2
+#define NWXC_DISP_D3    3
+#endif
+c $Id$

@@ -20,7 +20,7 @@
 #include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_meta_gga.fh"
-#include "nwxc.fh"
+#include "nwpwxc.fh"
 #include "util.fh"
 
 *     **** local variables ****
@@ -28,9 +28,7 @@
       integer n2ft3d
 
       meta_on = .false.
-      if (util_module_avail("nwxc")) then
-        meta_on = nwxc_is_mgga()
-      endif
+      meta_on = nwpwxc_is_mgga()
 
       if (meta_on) then
          call D3dB_n2ft3d(1,n2ft3d)

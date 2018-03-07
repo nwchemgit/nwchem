@@ -1544,7 +1544,7 @@ c      end do
 
 #include "bafdecls.fh"
 #include "paw_electron.fh"
-#include "nwxc.fh"
+#include "nwpwxc.fh"
 #include "util.fh"
 #include "errquit.fh"
 
@@ -1672,12 +1672,10 @@ c      call paw_density_solve()
 
 *     **** plane wave portion ****
       gga = control_gga()
-      if (util_module_avail("nwxc")) then
-        use_lda = ((.not.nwxc_is_on().and.gga.eq.0).or.
-     &             (nwxc_is_on().and.nwxc_is_lda()))
-      else
-        use_lda = gga.eq.0
-      endif
+      
+      use_lda = ((.not.nwpwxc_is_on().and.gga.eq.0).or.
+     &             (nwpwxc_is_on().and.nwpwxc_is_lda()))
+      
       if (use_lda) then
         call vxc(n2ft3d,ispin,dn,
      >                    dbl_mb(xcp(1)),
