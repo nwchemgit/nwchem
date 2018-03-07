@@ -16,7 +16,7 @@
 #include "bafdecls.fh"
 #include "btdb.fh"
 #include "control.fh"
-#include "nwxc.fh"
+#include "nwpwxc.fh"
 #include "util.fh"
 
       integer MASTER,taskid
@@ -46,7 +46,6 @@
       integer i,l,np
 !      integer ind ! unused
 
-      logical use_nwxc
       integer  control_num_kvectors
       external control_num_kvectors
       logical  control_allow_translation
@@ -214,15 +213,12 @@
      >                  1,exchange_correlation))
      >   exchange_correlation = 'vosko'
 
-      if (util_module_avail("nwxc")) then
 !$OMP single
-         call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-         if (use_nwxc)  then
-c         call nwxc_print()
-          has_disp = nwxc_has_disp()
-        endif
-!$OMP end single
+      if (nwpwxc_rtdb_load(rtdb,"dft")) then
+c        call nwpwxc_print()
+         has_disp = nwpwxc_has_disp()
       endif
+!$OMP end single
 
 #include "control_gga.fh"
 
@@ -334,15 +330,12 @@ c         call nwxc_print()
      >                  1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
-      if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-        if (use_nwxc)  then
-c         call nwxc_print()
-          has_disp = nwxc_has_disp()
-        endif
-!$OMP end single
+      if (nwpwxc_rtdb_load(rtdb,"dft")) then
+c         call nwpwxc_print()
+          has_disp = nwpwxc_has_disp()
       endif
+!$OMP end single
 
 #include "control_gga.fh"
 
@@ -494,15 +487,12 @@ c
      >                   1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
-      if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-        if (use_nwxc)  then
-c         call nwxc_print()
-          has_disp = nwxc_has_disp()
-        endif
-!$OMP end single
+      if (nwpwxc_rtdb_load(rtdb,"dft")) then
+c        call nwpwxc_print()
+         has_disp = nwpwxc_has_disp()
       endif
+!$OMP end single
 
 #include "control_gga.fh"
 
@@ -715,15 +705,12 @@ c
      >                   1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
-      if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-        if (use_nwxc)  then
-c         call nwxc_print()
-          has_disp = nwxc_has_disp()
-        endif   
+      if (nwpwxc_rtdb_load(rtdb,"dft")) then
+c        call nwpwxc_print()
+         has_disp = nwpwxc_has_disp()
+      endif   
 !$OMP end single
-      endif
 
 #include "control_gga.fh"
 
@@ -825,15 +812,12 @@ c         call nwxc_print()
          gga = 0
       end if
 
-      if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-        if (use_nwxc)  then
-c         call nwxc_print()
-          has_disp = nwxc_has_disp()
-        endif   
+      if (nwpwxc_rtdb_load(rtdb,"dft")) then
+c        call nwpwxc_print()
+         has_disp = nwpwxc_has_disp()
+      endif   
 !$OMP end single
-      endif
 
       if (.not.btdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp))
      >   npsp = 0
@@ -915,15 +899,12 @@ c         call nwxc_print()
          gga = 0
       end if
 
-      if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-        if (use_nwxc)  then
-c         call nwxc_print()
-          has_disp = nwxc_has_disp()
-        endif   
+      if (nwpwxc_rtdb_load(rtdb,"dft")) then
+c        call nwpwxc_print()
+         has_disp = nwpwxc_has_disp()
+      endif   
 !$OMP end single
-      endif
 
 
       if (.not.btdb_get(rtdb,'cpmd:geometry_optimize',mt_log,1,move))
