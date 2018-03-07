@@ -65,7 +65,7 @@ c          Calculate energy density from energy
 c
 !$OMP DO
            do i = 1, ic
-              fdn(i,1) = 0.5d0*fdn(i,2)
+              fdn(i,1) = fdn(i,1) + 0.5d0*fdn(i,2)
               xce(i) = xce(i)/(tmp(i)+dncut)
               agr(i,1) = dsqrt(agr(i,1))
               fdn(i,1) = fdn(i,1)*agr(i,1)
