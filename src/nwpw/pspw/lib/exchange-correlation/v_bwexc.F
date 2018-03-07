@@ -24,12 +24,12 @@
 
 #include "bafdecls.fh"
 #include "errquit.fh"
-#include "nwxc.fh"
+#include "nwpwxc.fh"
 #include "util.fh"
 
 
 c     **** local variables ****      
-      logical value, use_nwxc
+      logical value, use_nwpwxc
       integer nx,ny,nz
       real*8  scal1
       integer rho(2),grx(2),gry(2),grz(2)
@@ -55,10 +55,8 @@ c     **** local variables ****
       call D3dB_nz(1,nz)
       scal1 = 1.0d0/dble(nx*ny*nz)
 
-      use_nwxc = .false.
-      if (util_module_avail("nwxc")) then
-         use_nwxc = nwxc_is_on()
-      endif
+      use_nwpwxc = .false.
+      use_nwpwxc = nwpwxc_is_on()
                 
 *     **********************************
 *     ***** restricted calculation *****
@@ -126,9 +124,9 @@ c        ***** calculate agr = |grad n| ****
 
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
 
-         if (use_nwxc) then
+         if (use_nwpwxc) then
 !$OMP MASTER
-           call nwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),dbl_mb(agr(1)),
+           call nwpwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),dbl_mb(agr(1)),
      >                       dumtau,xce,
      >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),dumtau)
 !$OMP END MASTER
@@ -481,7 +479,7 @@ c     >                       dbl_mb(agr(3)))
          call D3dB_rr_Sqrt1(1,dbl_mb(agr(3)))
 
  
-         if (use_nwxc) then
+         if (use_nwpwxc) then
 c
 c          Copy |grad nup|->grad(1), |grad n|->grad(2), and |grad ndn|->grad(3)
 c
@@ -505,7 +503,7 @@ c
 c          Evaluate the functional
 c
 !$OMP MASTER
-           call nwxc_eval_df(2,n2ft3d,dn,dbl_mb(grad(1)),
+           call nwpwxc_eval_df(2,n2ft3d,dn,dbl_mb(grad(1)),
      >                       dumtau,xce,
      >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),dumtau)
 !$OMP END MASTER

@@ -19,24 +19,20 @@
       
 #include "bafdecls.fh"
 #include "errquit.fh"
-#include "nwxc.fh"
+#include "nwpwxc.fh"
 #include "util.fh"
 
       integer tmp1(2)
       logical use_lda, use_gga, use_mgga
       
 *     **** lda's ****
-      if (util_module_avail("nwxc")) then
-         use_lda  = (.not.nwxc_is_on().and.gga.eq.0).or.
-     +              (nwxc_is_on().and.nwxc_is_lda())
-         use_gga  = (.not.nwxc_is_on().and.(gga.ge.10).and.(gga.lt.100))
-     +              .or.(nwxc_is_on().and.nwxc_is_gga())
-         use_mgga = nwxc_is_mgga()
-      else
-         use_lda  = gga.eq.0
-         use_gga  = (gga.ge.10).and.(gga.lt.100)
-         use_mgga = .false.
-      endif
+      use_lda  = (.not.nwpwxc_is_on().and.gga.eq.0).or.
+     +           (nwpwxc_is_on().and.nwpwxc_is_lda())
+      use_gga  = (.not.nwpwxc_is_on().and.(gga.ge.10)
+     >             .and.(gga.lt.100))
+     +           .or.(nwpwxc_is_on().and.nwpwxc_is_gga())
+      use_mgga = nwpwxc_is_mgga()
+     
       if (use_lda) then
          if (.not.BA_push_get(mt_dbl,(ispin*n2ft3d),'tmp1',
      >                        tmp1(2),tmp1(1)))
@@ -92,21 +88,17 @@
 
 #include "bafdecls.fh"
 #include "errquit.fh"
-#include "nwxc.fh"
+#include "nwpwxc.fh"
 #include "util.fh"
 
       logical use_lda, use_gga
 
-      if (util_module_avail("nwxc")) then
-        use_lda = (.not.nwxc_is_on().and.gga.eq.0).or.
-     +            (nwxc_is_on().and.nwxc_is_lda())
-        use_gga = (.not.nwxc_is_on().and.(gga.ge.10).and.(gga.lt.100))
-     +            .or.(nwxc_is_on().and.nwxc_is_gga())
-      else
-        use_lda = gga.eq.0
-        use_gga = (gga.ge.10).and.(gga.lt.100)
-      endif
-
+    
+       use_lda = (.not.nwpwxc_is_on().and.gga.eq.0).or.
+     +           (nwpwxc_is_on().and.nwpwxc_is_lda())
+       use_gga = (.not.nwpwxc_is_on().and.(gga.ge.10).and.(gga.lt.100))
+     +           .or.(nwpwxc_is_on().and.nwpwxc_is_gga())
+     
 *     **** lda's ****
       if (use_lda) then
 
@@ -143,7 +135,7 @@
       integer luout,gga
 
 #include "errquit.fh"
-#include "nwxc.fh"
+#include "nwpwxc.fh"
 #include "util.fh"
 
       logical  control_has_disp
@@ -151,11 +143,9 @@
       character*80 control_options_disp
       external     control_options_disp
 
-      if (util_module_avail("nwxc")) then
-         if (nwxc_is_on()) then
-            call nwxc_print_nwpw()
-            return
-         endif
+      if (nwpwxc_is_on()) then
+         call nwpwxc_print_nwpw()
+         return
       endif
       IF (gga.eq.-1) THEN
          write(luout,1131) 'off'
