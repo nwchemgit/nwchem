@@ -44,7 +44,7 @@ c     **** restricted calculations ****
 c
 c          Combine (df/d|grad a|) with (df/d(grad a|grad b))
 c
-           call D3dB_r_SMul(1,0.5d0,fdn(1,2),fdn)
+           call D3dB_rr_daxpy(1,0.5d0,fdn(1,2),fdn)
 c
 c          Calculate energy density from energy
 c
