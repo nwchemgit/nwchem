@@ -140,9 +140,9 @@ c     **** unrestricted calculations ****
              agr(i,1) = grad(1)
              agr(i,2) = grad(2)
              agr(i,3) = grad(3)
-             fdn(i,1) = 2.0d0*fdn(i,1)*agr(i,1)
-             fdn(i,2) = 2.0d0*fdn(i,2)*agr(i,2)
-             fdn(i,3) = 0.5d0*fdn(i,3)*agr(i,3)  !*** not sure about the 0.5 factor
+             fdn(i,1) = (2.0d0*fdn(i,1)-fdn(i,3))*agr(i,1)
+             fdn(i,2) = (2.0d0*fdn(i,2)-fdn(i,3))*agr(i,2)
+             fdn(i,3) = fdn(i,3)*agr(i,3)  
            enddo
 !$OMP END DO
          else
