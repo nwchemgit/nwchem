@@ -445,20 +445,21 @@ c
 c          
 c          Replace (df/d|grad nup|^2) with (df/d|grad nup|)
 c
+           call D3dB_rr_daxpy(1,(-0.5d0),dbl_mb(fdn(2)),dbl_mb(fdn(1)))
            call D3dB_rr_Mul2(1,dbl_mb(agr(1)),dbl_mb(fdn(1)))
            call D3dB_r_SMul1(1,2.0d0,dbl_mb(fdn(1)))
 c
 c          Replace (df/d|grad ndn|^2) with (df/d|grad ndn|)
 c
+           call D3dB_rr_daxpy(1,(-0.5d0),dbl_mb(fdn(2)),dbl_mb(fdn(3)))
            call D3dB_rr_Mul(1,dbl_mb(agr(2)),dbl_mb(fdn(3)),
-     +                      dbl_mb(grad(1)+n2ft3d))
+     +                        dbl_mb(grad(1)+n2ft3d))
            call D3dB_r_SMul1(1,2.0d0,dbl_mb(grad(1)+n2ft3d))
 c
 c          Replace (df/d|(grad nup|grad ndn)|^2) with (df/d|grad n|)
 c
            call D3dB_rr_Mul(1,dbl_mb(agr(3)),dbl_mb(fdn(2)),
      +                      dbl_mb(grad(1)+2*n2ft3d))
-           call D3dB_r_SMul1(1,0.5d0,dbl_mb(grad(1)+2*n2ft3d))
 c
 c          Put the results back into fdn
 c
