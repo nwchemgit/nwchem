@@ -563,6 +563,7 @@ c          Replace (df/d|(grad nup|grad ndn)|^2) with (df/d|grad n|)
 c
            call D3dB_rr_Mul(1,dbl_mb(agr(3)),dbl_mb(fdn(2)),
      +                      dbl_mb(gtmp(1)+2*n2ft3d))
+           call D3dB_r_SMul1(1,0.5d0,dbl_mb(gtmp(1)+2*n2ft3d))
 c
 c          Put the results back into fdn
 c
