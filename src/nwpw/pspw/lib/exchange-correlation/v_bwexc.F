@@ -4,9 +4,9 @@
       
 
 *    ************************************
-*    *					*
-*    *		v_bwexc		        *
-*    *					*
+*    *					    *
+*    *		v_bwexc		    *
+*    *					    *
 *    ************************************
 *
       
@@ -81,8 +81,6 @@ c        *****                          agr,fn,fdn      *****
      >        BA_push_get(mt_dbl, 2*n2ft3d,'fdn',fdn(2),fdn(1))
         tmp(1) = fdn(1)
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      !call dcopy(n2ft3d,0.0d0,0,dbl_mb(rho(1)),1)
-      !call dcopy(n2ft3d,0.0d0,0,dbl_mb(agr(1)),1)
       call Parallel_shared_vector_zero(.true.,n2ft3d,dbl_mb(agr(1)))
       call Parallel_shared_vector_zero(.true.,n2ft3d,dbl_mb(rho(1)))
 
@@ -136,7 +134,6 @@ cc          Combine (df/d|grad a|) with (df/d(grad a|grad b))
 cc
            call D3dB_rr_daxpy(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
      >                                dbl_mb(fdn(1)))
-           !call D3dB_r_SMul1(1,0.5d0,dbl_mb(fdn(1)))
 cc
 c          Calculate energy density from energy
 c
@@ -206,37 +203,14 @@ c        ***** calculate xce,fn=df/dn, and fdn=df/d|grad n|  ****
          endif
 
 c        ***** calculate df/d|grad n| *(grad n)/|grad n| ****
-c         call D3dB_rr_Divide(1,dbl_mb(grx(1)),
-c     >                         dbl_mb(agr(1)),
-c     >                         dbl_mb(grx(1)))
-c         call D3dB_rr_Divide(1,dbl_mb(gry(1)),
-c     >                         dbl_mb(agr(1)),
-c     >                         dbl_mb(gry(1)))
-c         call D3dB_rr_Divide(1,dbl_mb(grz(1)),
-c     >                         dbl_mb(agr(1)),
-c     >                         dbl_mb(grz(1)))
          call D3dB_rr_Divide2(1,dbl_mb(agr(1)),dbl_mb(grx(1)))
          call D3dB_rr_Divide2(1,dbl_mb(agr(1)),dbl_mb(gry(1)))
          call D3dB_rr_Divide2(1,dbl_mb(agr(1)),dbl_mb(grz(1)))
-c         call D3dB_rr_Mul(1,dbl_mb(grx(1)),
-c     >                      dbl_mb(fdn(1)),
-c     >                      dbl_mb(grx(1)))
-c         call D3dB_rr_Mul(1,dbl_mb(gry(1)),
-c     >                      dbl_mb(fdn(1)),
-c     >                      dbl_mb(gry(1)))
-c         call D3dB_rr_Mul(1,dbl_mb(grz(1)),
-c     >                      dbl_mb(fdn(1)),
-c     >                      dbl_mb(grz(1)))
+
          call D3dB_rr_Mul2(1,dbl_mb(fdn(1)),dbl_mb(grx(1)))
          call D3dB_rr_Mul2(1,dbl_mb(fdn(1)),dbl_mb(gry(1)))
          call D3dB_rr_Mul2(1,dbl_mb(fdn(1)),dbl_mb(grz(1)))
 
-c         call D3dB_r_SMul(1,scal1,dbl_mb(grx(1)),
-c     >                            dbl_mb(grx(1)))
-c         call D3dB_r_SMul(1,scal1,dbl_mb(gry(1)),
-c     >                            dbl_mb(gry(1)))
-c         call D3dB_r_SMul(1,scal1,dbl_mb(grz(1)),
-c     >                            dbl_mb(grz(1)))
          call D3dB_r_SMul1(1,scal1,dbl_mb(grx(1)))
          call D3dB_r_SMul1(1,scal1,dbl_mb(gry(1)))
          call D3dB_r_SMul1(1,scal1,dbl_mb(grz(1)))
@@ -249,15 +223,6 @@ c     >                            dbl_mb(grz(1)))
          call D3dB_rc_fft3f(1,dbl_mb(gry(1)))
          call D3dB_rc_fft3f(1,dbl_mb(grz(1)))
           
-c         call D3dB_ic_Mul(1,dbl_mb(G_indx(1)),
-c     >                      dbl_mb(grx(1)),
-c     >                      dbl_mb(grx(1)))
-c         call D3dB_ic_Mul(1,dbl_mb(G_indx(2)),
-c     >                      dbl_mb(gry(1)),
-c     >                      dbl_mb(gry(1)))
-c         call D3dB_ic_Mul(1,dbl_mb(G_indx(3)),
-c     >                      dbl_mb(grz(1)),
-c     >                      dbl_mb(grz(1)))
          call D3dB_ic_Mul2(1,dbl_mb(G_indx(1)),dbl_mb(grx(1)))
          call D3dB_ic_Mul2(1,dbl_mb(G_indx(2)),dbl_mb(gry(1)))
          call D3dB_ic_Mul2(1,dbl_mb(G_indx(3)),dbl_mb(grz(1)))
@@ -267,9 +232,6 @@ c     >                      dbl_mb(grz(1)))
      >                      dbl_mb(gry(1)),
      >                      dbl_mb(fdn(1)))
 
-c         call D3dB_cc_Sum(1,dbl_mb(grz(1)),
-c     >                      dbl_mb(fdn(1)),
-c     >                      dbl_mb(fdn(1)))
          call D3dB_cc_Sum2(1,dbl_mb(grz(1)),dbl_mb(fdn(1)))
 
          call mask_C(0,dbl_mb(fdn(1)))
