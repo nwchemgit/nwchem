@@ -23,7 +23,6 @@
       real*8    fdn(n2ft3d,3)
       real*8    x_parameter, c_parameter
 
-
       real*8 ETA,ETA2,DNS_CUT
       parameter (ETA = 0.0d0)
       parameter (ETA2 = 1.0d-20)
