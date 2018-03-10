@@ -40,10 +40,15 @@
       parameter (beta = 0.0042d0)
       
       real*8 thrd
-      parameter (thrd = 1.0d0/3.0d0)
-
-      integer j
       real*8 twthrd,frthrd,fvthrd,snthrd,etthrd
+      parameter (thrd = 1.0d0/3.0d0)
+      parameter (twthrd = 2.0d0/3.0d0)
+      parameter (frthrd = 4.0d0/3.0d0)
+      parameter (fvthrd = 5.0d0/3.0d0)
+      parameter (snthrd = 7.0d0/3.0d0)
+      parameter (etthrd = 8.0d0/3.0d0)
+      
+      integer j
       real*8 pi, Cf,lda_c
 
       real*8 nup,ndn,n,agrup,agrdn,agr
@@ -78,11 +83,11 @@
       real*8   ndn_etthrd,ndn_fvthrd
  
       
-      twthrd = thrd*2.0d0
-      frthrd = thrd*4.0d0
-      fvthrd = thrd*5.0d0
-      snthrd = thrd*7.0d0
-      etthrd = thrd*8.0d0
+      !twthrd = thrd*2.0d0
+      !frthrd = thrd*4.0d0
+      !fvthrd = thrd*5.0d0
+      !snthrd = thrd*7.0d0
+      !etthrd = thrd*8.0d0
 
       pi = 4.0d0*datan(1.0d0)
       Cf = dble(3.0d0*pi*pi)
