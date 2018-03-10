@@ -305,12 +305,12 @@
 
 
 *      ******DEBUG*********
-       fc = fclda + 0.001d0*agr2 + 0.002d0*(agrup2 + agrdn2)
-       fc_u = fclda_u
-       fc_d = fclda_d
-       fc_agr   = 2.0d0*agr  *0.001d0
-       fc_agrup = 2.0d0*agrup*0.002d0
-       fc_agrdn = 2.0d0*agrdn*0.002d0
+c       fc = fclda + 0.001d0*agr2 + 0.002d0*(agrup2 + agrdn2)
+c       fc_u = fclda_u
+c       fc_d = fclda_d
+c       fc_agr   = 2.0d0*agr  *0.001d0
+c       fc_agrup = 2.0d0*agrup*0.002d0
+c       fc_agrdn = 2.0d0*agrdn*0.002d0
 *      ******DEBUG*********
    
 *    ***correlation energy dentsity
