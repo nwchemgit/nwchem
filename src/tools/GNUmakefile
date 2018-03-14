@@ -541,6 +541,14 @@ ifeq ($(GOTMINGW64),1)
    CFLAGS_FORGA +=  -m64
    CC = gcc
 endif
+#detect clang
+GOTCLANG= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
+ifeq ($(GOTCLANG),1)
+  CFLAGS_FORGA += "-fPIC"
+  ifeq ($(TARGET),MACX64)
+    CFLAGS_FORGA +=-DMPICH_NO_ATTR_TYPE_TAGS
+  endif
+endif
 
 ifdef FFLAGS_FORGA
     MAYBE_FFLAGS=FFLAGS="$(FFLAGS_FORGA)"

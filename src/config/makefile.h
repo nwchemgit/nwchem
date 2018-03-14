@@ -1074,6 +1074,10 @@ endif
              DEFINES   = -DMACX
              DEFINES  += -DEXT_INT
              LINK.f    = $(FC) $(LDFLAGS) -Wl,-flat_namespace
+      GOTCLANG= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
+      ifeq ($(GOTCLANG),1)
+         COPTIONS   += -fPIC
+      endif
 
       ifeq ($(_FC),gfortran)
 #gcc version 
@@ -1209,7 +1213,6 @@ endif
 
 # required for mpich2 3.x and clang
     COPTIONS +=-DMPICH_NO_ATTR_TYPE_TAGS
-    CFLAGS_FORGA +=-DMPICH_NO_ATTR_TYPE_TAGS
 #
 
 endif
@@ -1667,6 +1670,10 @@ endif
        ifneq ($(DONTHAVEM64OPT),Y)
          COPTIONS   = -m64
        endif
+      endif
+      GOTCLANG= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
+      ifeq ($(GOTCLANG),1)
+         COPTIONS   += -fPIC
       endif
       ifeq ($(_FC),gfortran)
        ifneq ($(DONTHAVEM64OPT),Y)
