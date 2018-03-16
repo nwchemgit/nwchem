@@ -935,6 +935,11 @@ c ssb
            scales8  = -0.0952d0
            a1       = -0.1744d0
            a2       =  5.2170d0
+c mpwb1k
+        else if (xccomb(22)) then
+           scales8  =  0.9499d0
+           a1       =  0.1474d0
+           a2       =  6.6223d0
         else
          call errquit(' vdw 4: scaling factors not available',0,0)
         endif
