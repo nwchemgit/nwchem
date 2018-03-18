@@ -159,7 +159,7 @@ c
        status = status.and.ma_push_get(MT_DBL,(nbf*nmo),
      $                                 'movecs cols',l_mo,k_mo)
        call ga_sync()
-#ifdef CRAYXT
+#ifdef CRAYXT_
        if(ga_nodeid().eq.0)
      G      call ga_get(g_movecs, 1, nbf, qlo, qhi, dbl_mb(k_mo), nbf)
        call ga_brdcst(65537, dbl_mb(k_mo), 
@@ -236,7 +236,7 @@ c
        if (ocoul) call ga_zero(g_coul)
        ploop = 0
        thalf = util_cpusec()
-#ifdef CRAYXT
+#ifdef CRAYXT_
 cedo
 c     skip if we do not own any patch of g_exch to avoid slowdowns
 c     
@@ -264,6 +264,7 @@ c
 c  4-fold shell loop
 c
        do ii=1,nsh
+
          do jj=1,ii
            ish = max(int_mb(k_shmap+ii-1),int_mb(k_shmap+jj-1))
            jsh = min(int_mb(k_shmap+ii-1),int_mb(k_shmap+jj-1))
@@ -279,7 +280,7 @@ c
               odoit = sym_shell_pair(basis, ish, jsh, q2)
            endif
            if (odoit) then
-#ifdef CRAYXT
+#ifdef CRAYXT_
              if (mod(ploop,nodesloop).eq.ga_nodeid()) then
 #else
              if (next.eq.ploop) then
@@ -375,7 +376,7 @@ c
      $                                  g_exch )
                  t3kidx = t3kidx + util_cpusec() - tz
                endif
-#ifndef CRAYXT
+#ifndef CRAYXT_
                next = moints_nxttask(num_nodes)
 #endif
                ttask = util_cpusec() - ttask
@@ -387,12 +388,12 @@ c
            endif
          enddo
        enddo
-#ifdef CRAYXT
+#ifdef CRAYXT_
        endif!doloop
 #endif
        tsynch = util_cpusec()
        call ga_sync()
-#ifndef CRAYXT
+#ifndef CRAYXT_
        next = moints_nxttask(-num_nodes)
 #endif
        tsynch = util_cpusec() - tsynch
