@@ -890,8 +890,9 @@ c CAM-B3LYP
           scales8 = 2.0674d0
           a2      = 5.4743d0
 c LC-wPBE
-         else if (xfac(43).eq.1.0d0.and.cfac(12).eq.1d0.
-     A          and.xfac(1).eq.1d0) then
+       else if (abs(xfac(43)-1d0).lt.1d-5.and.
+     c          abs(cfac(12)-1d0).lt.1d-5.and.
+     A          abs(xfac(1) -1d0).lt.1d-5) then
           a1      = 0.3919d0
           scales8 = 1.8541d0
           a2      = 5.0897d0
