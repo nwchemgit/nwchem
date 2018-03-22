@@ -18,6 +18,8 @@ c     xdm common
       integer ixdm_v, ixdm_ml 
       integer lxdm_v, lxdm_ml
       common /xdmd/ nxdm, ixdm_v, lxdm_v, ixdm_ml, lxdm_ml
+      data ixdm_v / 0 /
+      data ixdm_ml / 0 /
 
       if (.not. rtdb_get(rtdb, 'dft:xdm', mt_int, 1,
      &   lxdm)) lxdm = 0
@@ -30,6 +32,19 @@ c     are the volumes and moments available from a previous iteration?
 c     get memory for volume, alpha, ml
       nxdm = ntypes
 
+      if (savedvml) then
+c     check if v and ml have been allocated
+         if(ixdm_v.eq.0.or.ixdm_ml.eq.0)  then
+            if(ga_nodeid().eq.0) then
+               write(6,*) ' xdm: v and ml not allocated '
+               write(6,*) ' xdm: resetting savedvml '
+            endif
+            savedvml=.false.
+            if (.not. rtdb_put(rtdb,'dft:xdmsave', mt_log, 1, savedvml)) 
+     c       call errquit('xc_xdm_init: cant rtdb_put',0,0)
+         else
+         endif
+      endif
       if (.not.savedvml) then
          if (.not.MA_alloc_get(mt_dbl, ntypes,
      &        'xdm_v', lxdm_v, ixdm_v)) then
