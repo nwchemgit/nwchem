@@ -110,6 +110,10 @@ ifeq ($(HAVE_SET_GA_PROPERTY),Y)
 endif
 
 
+ifeq ($(ARMCI_NETWORK),MPI-PR)
+   LIB_DEFINES += -DACC_STRIPS
+endif
+
  LIBRARY = libccsd.a
 
 include ../config/makelib.h
