@@ -532,7 +532,14 @@ cstaggering to avoid congestion in ga-acc
 #endif
 #ifndef NOCOMMS
            ab = (a-olo)*nocc+b-ostart+1
+#ifdef ACC_STRIPS
+       do i=ilo,ihi
+          call ga_acc(g_exch,(i-1)*nvir + 1,i*nvir,ab,ab,
+     C         h1(1,i),nni,1.d0)
+       enddo
+#else           
            call ga_acc(g_exch,ivlo,ivhi,ab,ab,h1,nni,1.d0)
+#endif
 #endif
          enddo
          do b=ostart,ostart+nocc-1
@@ -581,7 +588,14 @@ cstaggering to avoid congestion in ga-acc
 #endif
 #ifndef NOCOMMS
           ab = (a-olo)*nocc+b-ostart+1
-          call ga_acc(g_exch,jvlo,jvhi,ab,ab,h2,nnj,1.d0)
+#ifdef ACC_STRIPS
+       do j=jlo,jhi
+          call ga_acc(g_exch,(j-1)*nvir + 1,j*nvir,ab,ab,
+     C         h2(1,j),nnj,1.d0)
+       enddo
+#else           
+       call ga_acc(g_exch,jvlo,jvhi,ab,ab,h2,nnj,1.d0)
+#endif
 #endif
          enddo
        enddo

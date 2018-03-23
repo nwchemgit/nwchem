@@ -105,6 +105,10 @@ ifeq ($(_FC),xlf)
   LIB_DEFINES += -DTRPMIXP_OFF
 endif
 
+ifeq ($(ARMCI_NETWORK),MPI-PR)
+   LIB_DEFINES += -DACC_STRIPS
+endif
+
  LIBRARY = libccsd.a
 
 include ../config/makelib.h
