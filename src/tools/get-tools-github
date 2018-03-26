@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # $Id: get-tools 28436 2016-08-03 19:50:05Z edo $
 #
