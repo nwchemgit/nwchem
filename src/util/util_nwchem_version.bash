@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # This script works out the revision number of the NWChem source
 # code. It writes the resulting data in suboutine that can be used

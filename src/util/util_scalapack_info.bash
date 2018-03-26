@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 if [ -f "$0" ] ; then
    # The first item on the command line is an actual file so the 
    # script must have been specified including the path.
