@@ -2604,11 +2604,12 @@ endif
 ifndef BLASOPT
     ifndef USE_INTERNALBLAS
         errordgemm:
-            @echo "NWChem's Performance is degraded by not setting BLASOPT"
-            @echo "Please consider using ATLAS, GotoBLAS2, OpenBLAS, Intel MKL,"
-            @echo "IBM ESSL, AMD ACML, etc. to improve performance."
-            @echo "If you decide to not use a fast implementation of BLAS/LAPACK,"
-            @echo "please define USE_INTERNALBLAS=y and the internal Netlib will be used."
+      $(info     )
+      $(info NWChem's Performance is degraded by not setting BLASOPT)
+      $(info Please consider using ATLAS, GotoBLAS2, OpenBLAS, Intel MKL,)
+      $(info IBM ESSL, AMD ACML, etc. to improve performance.)
+      $(info If you decide to not use a fast implementation of BLAS/LAPACK,)
+      $(info please define USE_INTERNALBLAS=y and the internal Netlib will be used.)
     endif
 endif
 
