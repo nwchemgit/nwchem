@@ -1575,7 +1575,6 @@ ifeq ($(GOTMINGW64),1)
      _CPU = x86_64
 else
      _CPU = $(shell uname -m  )
-     _GOT3DNOW= $(shell cat /proc/cpuinfo | egrep 3dnowext | tail -n 1 | awk ' /3dnowext/  {print "Y"}')
 endif
 #ifeq ($(NWCHEM_TARGET),LINUX64)
    ifeq ($(FC),g77)
@@ -2176,14 +2175,6 @@ $(error )
         ifeq ($(GNU_GE_4_6),true) 
           FOPTIMIZE +=  -mtune=native
           FOPTIONS += -finline-functions
-        else
-        ifeq ($(_GOT3DNOW),Y) 
-#we guess its an opteron
-          FOPTIMIZE += -march=opteron -mtune=opteron
-        else
-#we guess its a nocona em64t
-          FOPTIMIZE += -march=nocona -mtune=nocona
-        endif
         endif
 #        FVECTORIZE  += -ftree-vectorize -ftree-vectorizer-verbose=1
        ifdef  USE_FPE
