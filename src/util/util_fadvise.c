@@ -1,7 +1,7 @@
 /* $Id$ */
 /* routine drop i/o caches */
 #include "typesf2c.h"
-#if defined(LINUX) || defined(LINUX64)
+#ifdef __linux__
 #define _XOPEN_SOURCE 600
 #include <sys/types.h>
 #include <sys/stat.h>
