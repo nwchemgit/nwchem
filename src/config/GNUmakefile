@@ -15,10 +15,10 @@ endif
 # force serial compiler in case CC=mpicc used (even though it should not be)
 #
 ifeq ($(TARGET),LINUX)
-  DEPEND_CC = /usr/bin/gcc
+  DEPEND_CC = gcc
 endif
 ifeq ($(TARGET),LINUX64)
-  DEPEND_CC = /usr/bin/gcc
+  DEPEND_CC = gcc
 endif
 ifeq ($(TARGET),BGQ)
   DEPEND_CC = /usr/bin/gcc
