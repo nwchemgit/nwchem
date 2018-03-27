@@ -1627,10 +1627,10 @@ endif
       ifeq ($(FC),ifort)
        _FC=ifort
       endif
-     ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran-6 gfortran-7 gfortran-8 gfortran-9 i686-w64-mingw32.static-gfortran))
+     ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran6 gfortran-6 gfortran-7 gfortran-8 gfortran-9 i686-w64-mingw32.static-gfortran))
        _FC= gfortran
      endif
-     ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc-6 gcc-7 gcc-8 gcc-9 i686-w64-mingw32.static-gcc))
+     ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc6 gcc-6 gcc-7 gcc-8 gcc-9 i686-w64-mingw32.static-gcc))
        _CC= gcc
      endif
       ifeq ($(FC),gfortran)
