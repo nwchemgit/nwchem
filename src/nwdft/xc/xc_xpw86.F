@@ -47,7 +47,7 @@ c      constants for PW86
 
       double precision pi, axr43, rh
       double precision s, s2, s3, s4, s5, s6
-      double precision fs, sx, drho, drho2, dfds
+      double precision fs, sx, drho, drho2, dfds,oneminus
       integer n
 c
 
@@ -66,25 +66,35 @@ CDEC$ NOSWP
             drho2 = (delrho(n,1,1)*delrho(n,1,1) +
      &              delrho(n,2,1)*delrho(n,2,1) +
      &              delrho(n,3,1)*delrho(n,3,1))
-            drho = dsqrt(drho2) 
+            drho = dsqrt(drho2)
+            if (drho.gt.tol_rho) then
             s = drho / (s_pfac*rh**F43)
             s2 = s * s
             s3 = s2 * s
             s4 = s3 * s
             s5 = s4 * s
             s6 = s5 * s
+            fs = (1 + a*s2 + b*s4 + c*s6)**m1
+            dfds = (2*a*s + 4*b*s3 + 6*c*s5)/(15.d0*fs**14)
+            oneminus=1d0-dfds/fs*s
+            else
+               s=0d0
+               fs=1d0
+               dfds=0d0
+               oneminus=1d0
+            endif
 
             axr43 = Ax * rh**F43
-            fs = (1 + a*s2 + b*s4 + c*s6)**m1
             sx = axr43 * fs
             Ex = Ex + sx * qwght(n) * fac
             if (ldew) func(n) = func(n) + sx * fac
 
-            dfds = (2*a*s + 4*b*s3 + 6*c*s5)/(15.d0*fs**14)
 c     GC: dex/drho
-            Amat(n,1) = Amat(n,1) + F43*sx/rh * (1-dfds/fs*s)
+            Amat(n,1) = Amat(n,1) + F43*sx/rh * oneminus
+            if(drho.gt.tol_rho) then
 c     GC: 2*dex/d(grho2)
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + sx/fs*dfds*s/drho2
+               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + sx/fs*dfds*s/drho2
+            endif
 
 c     xxxx missing
 #ifdef SECOND_DERIV
@@ -124,9 +134,11 @@ c           alpha
 
             dfds = (2*a*s + 4*b*s3 + 6*c*s5)/(15.d0*fs**14)
 c     GC: dex/drho
-            Amat(n,1) = Amat(n,1) + F43*sx/rh * (1-dfds/fs*s)
+            Amat(n,1) = Amat(n,1) + F43*sx/rh * (1d0-dfds/fs*s)
 c     GC: 2*dex/d(grho2)
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + sx/fs*dfds*s/drho2
+            if(drho2.gt.tol_rho) then
+               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + sx/fs*dfds*s/drho2
+            endif
 
 c     xxxx missing
 #ifdef SECOND_DERIV
@@ -158,9 +170,11 @@ c           beta
 
             dfds = (2*a*s + 4*b*s3 + 6*c*s5)/(15.d0*fs**14)
 c     GC: dex/drho
-            Amat(n,2) = Amat(n,2) + F43*sx/rh * (1-dfds/fs*s)
+            Amat(n,2) = Amat(n,2) + F43*sx/rh * (1d0-dfds/fs*s)
 c     GC: 2*dex/d(grho2)
-            Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + sx/fs*dfds*s/drho2 
+            if(drho2.gt.tol_rho) then
+               Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + sx/fs*dfds*s/drho2
+            endif
 
 c     xxxx missing
 #ifdef SECOND_DERIV
