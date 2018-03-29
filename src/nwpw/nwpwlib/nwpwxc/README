@@ -1,7 +1,6 @@
 NWXC
 ====
 
-An implementation of shared density functional for the Gaussian and
-Plane Wave DFT codes.
+An implementation of exchange-correlation functional  for plane-wave DFT codes abstracted from the Gaussian DFT codes.
+The Gaussian DFT codes compute ...
 
-At present this is still VERY MUCH UNDER CONSTRUCTION.
