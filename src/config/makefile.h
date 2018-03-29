@@ -260,7 +260,7 @@ endif
 #      USE_ARUR = $(shell rm -f aru.tmp;ar -U > aru.tmp 2>&1; head -1 aru.tmp| awk ' /no\ operation/ {print "Y";exit};{print "N"}'; rm -f aru.tmp)
   USE_ARUR = $(shell rm -f aru.tmp;ar --help  > aru.tmp 2>&1; grep U aru.tmp| awk ' /ctual\ timest/ {print "Y";exit};'; rm -f aru.tmp)
   
-      ifeq ($(USE_ARUR), Y)
+      ifdef USE_ARUR
         ARFLAGS = rU
       endif
 
@@ -1627,10 +1627,10 @@ endif
       ifeq ($(FC),ifort)
        _FC=ifort
       endif
-     ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran6 gfortran-6 gfortran-7 gfortran-8 gfortran-9 i686-w64-mingw32.static-gfortran))
+     ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran6 gfortran-6 gfortran-7 gfortran7 gfortran-8 gfortran8 gfortran-9 gfortran9 i686-w64-mingw32.static-gfortran))
        _FC= gfortran
      endif
-     ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc6 gcc-6 gcc-7 gcc-8 gcc-9 i686-w64-mingw32.static-gcc))
+     ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc6 gcc-6 gcc-7 gcc7 gcc-8 gcc8 gcc-9 gcc9 i686-w64-mingw32.static-gcc))
        _CC= gcc
      endif
       ifeq ($(FC),gfortran)
@@ -1679,6 +1679,10 @@ endif
       GOTCLANG= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
       ifeq ($(GOTCLANG),1)
          COPTIONS   += -fPIC
+      endif
+      GOTFREEBSD= $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
+      ifdef GOTFREEBSD
+         DEFINES  +=-DMPICH_NO_ATTR_TYPE_TAGS
       endif
       ifeq ($(_FC),gfortran)
        ifneq ($(DONTHAVEM64OPT),Y)
