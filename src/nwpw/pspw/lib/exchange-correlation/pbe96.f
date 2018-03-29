@@ -511,7 +511,7 @@ c        **** calculate rs and t ****
 
          kf = (3.0d0*pi*pi*n)**onethird
          ks = dsqrt(4.0d0*kf/pi)
-         t  = agr/(2.0*ks*n)
+         t  = agr/(2.0d0*ks*n)
 
 
 c        **** unpolarized LDA correlation energy ****
