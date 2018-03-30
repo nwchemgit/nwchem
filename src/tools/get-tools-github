@@ -60,12 +60,13 @@ then
 	    echo "wget failed for"  ga-"$GA_RELEASE_NO".tar.gz
 	    echo "trying git clone"
 	    echo " "
-	    DEV_GA=1
+            USE_GA_RELEASE=
 #	    exit 1
 	fi
     fi
     if [ ! -f ga-"$GA_RELEASE_NO".tar.gz ]; then 
 	echo "Failed to download" ga-$GA_RELEASE_NO.tar.gz
+        USE_GA_RELEASE=
 	#    exit 1
     else
 	if [ ! -f "$GA_DIR"/configure ]; then 
@@ -74,6 +75,8 @@ then
     fi
 fi
 #oldelse #USE_GA_RELEASE
+if test "x$USE_GA_RELEASE" = x
+then
 if test "x$DEV_GA" != x
 then
 #DEV_GA=1 gives the current "best" dev branch, not develop
@@ -134,7 +137,7 @@ else
 	exit 1
     fi
 fi
-#fi #USE_GA_RELEASE
+fi #USE_GA_RELEASE
 # check if configure is there
 if test -e $GA_DIR/configure
 then
