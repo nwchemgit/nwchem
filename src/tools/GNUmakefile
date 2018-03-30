@@ -644,7 +644,7 @@ $(INSTALLDIR)/lib/libga.a: $(BUILDDIR)/.libs/libga.a
 	@echo '*** Installing Parallel Tools ****'
 	@echo ''
 	@(cd $(BUILDDIR) && $(MAKE) install) || exit 1
-	@(../util/util_ga_version.bash $(GA_DIR))
+	@(../util/util_ga_version.bash)
 
 $(BUILDDIR)/.libs/libga.a:  $(BUILDDIR)/Makefile $(BUILDDIR)/armci/Makefile
 	@echo ''

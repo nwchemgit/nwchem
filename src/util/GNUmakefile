@@ -313,8 +313,12 @@ endif
 include ../config/makelib.h
 
 
-util_scalapack_info.F: ../tools/build/config.h
+util_scalapack_info.F: 
 	./util_scalapack_info.bash
+ifdef EXTERNAL_GA_PATH
+util_ga_version.F: 
+	./util_ga_version.bash
+endif
 
 
 util_version.F:	util_v_stub.F

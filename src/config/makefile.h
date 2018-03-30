@@ -90,6 +90,45 @@ endif
      INCDIR := $(TOPDIR)/src/include
      CNFDIR := $(TOPDIR)/src/config
 
+     ifdef EXTERNAL_GA_PATH
+#check if ga-config is there
+       ifeq ("$(wildcard ${EXTERNAL_GA_PATH}/bin/ga-config)","")
+          $(info  )
+          $(info invalid EXTERNAL_GA_PATH)
+          $(info ga-config not found)
+          $(info  )
+          $(error )
+       endif
+#check if f77 was enabled
+       GA_HAS_F77 = $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --enable-f77 | awk '/yes/ {print "Y"}')
+       ifndef GA_HAS_F77
+          $(info NWChem requires Global Arrays built with Fortran support)
+          $(error )
+       endif
+#check peigs interface       
+       GA_HAS_PEIGS = $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --enable-peigs | awk '/yes/ {print "Y"}')
+       ifndef GA_HAS_PEIGS
+          $(info NWChem requires Global Arrays built with Peigs support)
+          $(error )
+       endif
+#check blas size
+       GA_BLAS_SIZE = $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --blas_size)
+       ifndef BLAS_SIZE
+       BLAS_SIZE=8
+       endif
+       ifneq ($(BLAS_SIZE),$(GA_BLAS_SIZE))
+            $(info )
+            $(info NWChem requires Global Arrays built with same BLAS size )
+            $(info you asked BLAS_SIZE=${BLAS_SIZE})
+            $(info Global Arrays was built with BLAS size=${GA_BLAS_SIZE})
+            $(info )
+            $(error )
+       endif
+       GA_PATH=$(EXTERNAL_GA_PATH)
+     else
+       GA_PATH=$(NWCHEM_TOP)/src/tools/install
+     endif
+      
 #
 # Define LIBPATH to be paths for libraries that you are linking in
 # from precompiled sources and are not building now. These libraries
@@ -100,8 +139,17 @@ endif
 ifdef OLD_GA
     LIBPATH = -L$(SRCDIR)/tools/lib/$(TARGET)
 else
-    TOOLSLIB =  $(shell grep libdir\ =  $(NWCHEM_TOP)/src/tools/build/Makefile |grep -v pkgl|cut -b 25-)
-    LIBPATH = -L$(SRCDIR)/tools/install/$(TOOLSLIB) 
+#case guard against case when tools have not been compiled yet
+  ifeq ("$(wildcard ${GA_PATH}/bin/ga-config)","")
+    LIBPATH = -L$(SRCDIR)/tools/install/lib
+  else
+    GA_LDFLAGS=  $(shell ${GA_PATH}/bin/ga-config --ldflags  )
+#extract GA libs location from last word in GA_LDLFLAGS
+    LIBPATH :=  $(word $(words ${GA_LDFLAGS}),${GA_LDFLAGS}) 
+    ifdef EXTERNAL_GA_PATH
+      LIBPATH += -L$(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
+    endif
+  endif
 endif
 
 #
@@ -113,7 +161,16 @@ INCPATH =
 ifdef OLD_GA
     INCPATH = -I$(SRCDIR)/tools/include
 else
+#case guard against case when tools have not been compiled yet
+  ifeq ("$(wildcard ${GA_PATH}/bin/ga-config)","")
     INCPATH = -I$(SRCDIR)/tools/install/include
+  else
+    GA_CPPFLAGS=  $(shell ${GA_PATH}/bin/ga-config --cppflags  )
+    INCPATH :=  $(word $(words ${GA_CPPFLAGS}),${GA_CPPFLAGS})
+  ifdef EXTERNAL_GA_PATH
+    INCPATH += -I$(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
+  endif
+  endif
 endif
 
 # These subdirectories will build the core, or supporting libraries
@@ -134,7 +191,10 @@ endif
 # their header files are needed for dependency analysis of
 # other NWChem modules
 
-NW_CORE_SUBDIRS = tools include basis geom inp input  \
+ifndef EXTERNAL_GA_PATH
+NW_CORE_SUBDIRS = tools
+endif
+NW_CORE_SUBDIRS += include basis geom inp input  \
                   pstat rtdb task symmetry util peigs perfm bq cons $(CORE_SUBDIRS_EXTRA)
 
 # Include the modules to build defined by 'make nwchem_config' at top level
@@ -2565,7 +2625,12 @@ ifdef USE_FDIST
   DEFINES += -DFDIST
 endif
 
-_USE_SCALAPACK = $(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_SCALAPACK\ 1/ {print "Y"}')
+#_USE_SCALAPACK = $(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_SCALAPACK\ 1/ {print "Y"}')
+#case guard against case when tools have not been compiled yet
+  ifeq ("$(wildcard ${GA_PATH}/bin/ga-config)","")
+  else
+_USE_SCALAPACK = $(shell ${GA_PATH}/bin/ga-config  --use_scalapack| awk ' /1/ {print "Y"}')
+endif
 
 ifeq ($(_USE_SCALAPACK),Y)
   DEFINES += -DSCALAPACK
@@ -2646,7 +2711,7 @@ else
     ifdef EXTERNAL_ARMCI_PATH
       CORE_LIBS += -L$(EXTERNAL_ARMCI_PATH)/lib -larmci
     else
-      CORE_LIBS += -L$(NWCHEM_TOP)/src/tools/install/lib -larmci
+      CORE_LIBS += -larmci
     endif
   else
       CORE_LIBS +=
@@ -2755,14 +2820,18 @@ ifdef USE_F90_ALLOCATABLE
 endif
 
 # lower level libs used by communication libraries 
-COMM_LIBS=  $(shell grep ARMCI_NETWORK_LIBS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 22-)
-COMM_LIBS +=  $(shell grep ARMCI_NETWORK_LDFLAGS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 24-)
+#case guard against case when tools have not been compiled yet
+#  ifeq ("$(wildcard ${GA_PATH}/bin/ga-config)","")
+#  else
+COMM_LIBS=  $(shell ${GA_PATH}/bin/ga-config --network_ldflags)
+COMM_LIBS +=  $(shell ${GA_PATH}/bin/ga-config --network_libs)
 #comex bit
-COMM_LIBS +=  $(shell [ -e ${NWCHEM_TOP}/src/tools/build/comex/config.h ] && grep LIBS\ = ${NWCHEM_TOP}/src/tools/build/comex/Makefile|grep -v _LIBS| cut -b 8-) -lpthread
+#COMM_LIBS +=  $(shell [ -e ${NWCHEM_TOP}/src/tools/build/comex/config.h ] && grep LIBS\ = ${NWCHEM_TOP}/src/tools/build/comex/Makefile|grep -v _LIBS| cut -b 8-) -lpthread
+COMM_LIBS += $(shell [ -e ${GA_PATH}/bin/comex-config ] && ${GA_PATH}/bin/comex-config --libs) -lpthread
 ifdef COMM_LIBS 
  CORE_LIBS += $(COMM_LIBS) 
 endif 
-
+#endif
 ifdef USE_LINUXAIO
  CORE_LIBS += -lrt
 endif
