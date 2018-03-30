@@ -22,46 +22,38 @@
 # First find out where this script actually lives so we can create
 # the appropriate Fortran file in the right location.
 #
-if [ -f "$0" ] ; then
-   # The first item on the command line is an actual file so the 
-   # script must have been specified including the path.
-   path="`dirname \"$0\"`"
+
+# check if EXTERNAL_GA_PATH is set
+    revision="N/A"
+if [[ -v EXTERNAL_GA_PATH ]]; then
+    revision=`${EXTERNAL_GA_PATH}/bin/ga-config --version`
 else
-   # The first item on the command line is not a file so script
-   # it must have been found in PATH.
-   path="`which \"$0\"`"
-   path="`dirname \"$path\"`"
-fi
-my_gitversion=`which git`
-if [ $# -eq 0 ]
-  then
-# if no arg supplied,
-# try to guess from tools/build
+    # try to guess from tools/build
     if [  -f $NWCHEM_TOP/src/tools/build/config.log ] ; then
 
-   ga_dir=`head  -7 $NWCHEM_TOP/src/tools/build/co*log|tail -1 |cut -d '/' -f2`
-   else
-    echo "ga_dir argument not supplied, will write N/A revision"
-   fi
-    echo $ga_dir
-else
-    ga_dir="$1"
-fi
-
-if [ -d "$NWCHEM_TOP/src/tools/${ga_dir}/.git" ] ; then
-    cd $NWCHEM_TOP/src/tools/${ga_dir}
-    if [ -f "${my_gitversion}" ] ; then
-	# gitversion exists, but is the ga_dir under git?
-	revision="N/A"
-	GITBRANCH=`${my_gitversion} describe --tags 2> /dev/null| wc -l`
-	if [ ${GITBRANCH} -ne 0 ]; then
-	    # 
-	    revision=`${my_gitversion} describe --tags`
+	ga_dir=`head  -7 $NWCHEM_TOP/src/tools/build/co*log|tail -1 |cut -d '/' -f2`
+	if [ -d "$NWCHEM_TOP/src/tools/${ga_dir}/.git" ] ; then
+            my_gitversion=`which git`
+	    cd $NWCHEM_TOP/src/tools/${ga_dir}
+	    if [ -f "${my_gitversion}" ] ; then
+		# gitversion exists, but is the ga_dir under git?
+		GITBRANCH=`${my_gitversion} describe --tags 2> /dev/null| wc -l`
+		if [ ${GITBRANCH} -ne 0 ]; then
+		    # 
+		    revision=`${my_gitversion} describe --tags`
+		fi
+	    fi
 	fi
     fi
-else
-    revision=${ga_dir}
 fi
+
+if [ "$revision" == "N/A" ] ; then
+#no .git information
+    if [ -f ${NWCHEM_TOP}/src/tools/install/bin/ga-config ] ; then
+	revision=`${NWCHEM_TOP}/src/tools/install/bin/ga-config --version`
+    fi
+fi
+
 cd $NWCHEM_TOP/src/util
     echo "      subroutine util_ga_version(garev)" > util_ga_version.F
     echo "      implicit none" >> util_ga_version.F
