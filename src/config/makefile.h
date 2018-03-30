@@ -260,8 +260,8 @@ endif
 #      USE_ARUR = $(shell rm -f aru.tmp;ar -U > aru.tmp 2>&1; head -1 aru.tmp| awk ' /no\ operation/ {print "Y";exit};{print "N"}'; rm -f aru.tmp)
   USE_ARUR = $(shell rm -f aru.tmp;ar --help  > aru.tmp 2>&1; grep U aru.tmp| awk ' /ctual\ timest/ {print "Y";exit};'; rm -f aru.tmp)
   
-      ifdef USE_ARUR
-        ARFLAGS = rU
+      ifeq ($(USE_ARUR), "Y")
+        ARFLAGS = rU 
       endif
 
 # strip long paths when FC and/or CC are set from user
