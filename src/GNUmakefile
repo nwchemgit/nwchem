@@ -94,7 +94,9 @@ configure_ga:
 ifdef OLD_GA
 	@(cd ../contrib/mapointer_test; ./fix_include_files)
 endif
+     ifndef EXTERNAL_GA_PATH
 	$(MAKE) -C tools configure_ga
+     endif
 
 # This dependency so that includes which are made by libraries rule
 # are updated before nwchem is compiled
