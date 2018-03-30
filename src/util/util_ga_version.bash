@@ -25,9 +25,7 @@
 
 # check if EXTERNAL_GA_PATH is set
     revision="N/A"
-if [[ -v EXTERNAL_GA_PATH ]]; then
-    revision=`${EXTERNAL_GA_PATH}/bin/ga-config --version`
-else
+if [[ -z "${EXTERNAL_GA_PATH}" ]]; then
     # try to guess from tools/build
     if [  -f $NWCHEM_TOP/src/tools/build/config.log ] ; then
 
@@ -45,6 +43,8 @@ else
 	    fi
 	fi
     fi
+else
+    revision=`${EXTERNAL_GA_PATH}/bin/ga-config --version`
 fi
 
 if [ "$revision" == "N/A" ] ; then
