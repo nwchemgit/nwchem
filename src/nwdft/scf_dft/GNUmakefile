@@ -53,7 +53,7 @@ LIB_INCLUDES = -I../include -I../grid
 HEADERS = dftps.fh dft_fdist.fh dft_conv.fh
 
 include ../../config/makefile.h
-ifdef _USE_SCALAPACK
+ifeq ($(_USE_SCALAPACK),Y)
 _USE_ELPA = $(shell ${NWCHEM_TOP}/src/tools/install/bin/ga-config  --use_elpa| awk ' /1/ {print "Y"}')
 
 ifeq ($(_USE_ELPA),Y)
