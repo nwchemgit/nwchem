@@ -100,6 +100,10 @@ ifeq ($(TARGET),MACX64)
   EXTRA_OBJ += macx_trapfpe.o
 endif
 
+ifdef NO_MPIF
+  LIB_DEFINES += -DNO_MPIF
+endif
+
 ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ LINUX CYGWIN CYGWIN64 CYGNUS INTERIX LINUX64 MACX MACX64))
   EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o  erfc.o linux_printaff.o
   ifeq ($(LINUXCPU),x86)
