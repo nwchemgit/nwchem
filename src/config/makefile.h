@@ -2408,6 +2408,11 @@ ifeq ($(NWCHEM_TARGET),CATAMOUNT)
         DEFINES  += -DCATAMOUNT
 endif
 
+  # Jeff: FreeBSD does not link libm automatically with flang
+  ifeq ($(USE_FLANG),1)
+    EXTRA_LIBS += -lm
+  endif
+
 endif
 endif
 #endof of LINUX64
