@@ -1304,7 +1304,9 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN INTERIX))
      _FC = gfortran
    endif
    ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc-6 gcc-7 gcc-8 gcc-9 i686-w64-mingw32.static-gcc))
+   ifneq ($(CC),cc)
      _CC = gcc
+   endif
    endif
 
          LINUXCPU = $(shell uname -m |\
@@ -1691,7 +1693,9 @@ endif
        _FC= gfortran
      endif
      ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc6 gcc-6 gcc-7 gcc7 gcc-8 gcc8 gcc-9 gcc9 i686-w64-mingw32.static-gcc))
+     ifneq ($(CC),cc)
        _CC= gcc
+     endif
      endif
       ifeq ($(FC),gfortran)
        _FC=gfortran
