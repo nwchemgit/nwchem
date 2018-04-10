@@ -1922,11 +1922,11 @@ endif
        _IFCV18=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 18) {print "Y";exit}}')
 # Intel EM64T is required
       ifneq ($(_IFCE),Y)
-        defineFCE: 
-        @echo
-        @echo "   " ifort missing or not suitable x86_64 CPUs
-        @echo
-        @exit 1
+        defineFCE:
+	@echo
+	@echo "   " ifort missing or not suitable x86_64 CPUs
+	@echo
+	@exit 1
       endif
        ifneq ($(_IFCV7),Y)
 # to get EM64T
