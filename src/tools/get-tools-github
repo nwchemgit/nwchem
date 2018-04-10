@@ -92,7 +92,7 @@ else
 	    GA_DIR=`echo $GA_DIR0 | sed -e 's/\//_/g'`
 	fi
     else
-	GA_DIR=ga-5-6-5
+	GA_DIR=ga-5.6.5
 	GA_BRANCH=hotfix/5.6.5
     fi
 fi
