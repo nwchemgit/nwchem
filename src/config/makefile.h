@@ -2783,7 +2783,9 @@ ifndef CUDA
 endif
 ifdef TCE_CUDA
  CORE_LIBS += $(CUDA_LIBS)
+ifdef USE_TTLG
  EXTRA_LIBS += -lstdc++
+endif
  ifeq ($(_CC),pgcc)
   COPTIONS += -acc
  endif
@@ -2900,16 +2902,20 @@ else
 endif
 
 ifdef TCE_CUDA
+ifdef USE_TTLG
 CUDA_VERS_GE8=$(shell nvcc --version|egrep rel|  awk '/release 9/ {print "Y";exit}; /release 8/ {print "Y";exit};{print "N"}')
         ifeq ($(CUDA_VERS_GE8),N)
              CUDA_FLAGS = -O3 -Xcompiler -std=c++11 -DNOHTIME -Xptxas --warn-on-spills $(CUDA_ARCH) 
         else
               CUDA_FLAGS = -O3  -std=c++11 -DNOHTIME -Xptxas --warn-on-spills $(CUDA_ARCH) 
         endif
-endif
 (%.o):  %.cu
 	$(CUDA) -c $(CUDA_FLAGS) $(CUDA_INCLUDE) -I$(NWCHEM_TOP)/src/tce/ttlg/includes -o $% $<
-
+else
+(%.o):  %.cu
+	$(CUDA) -c $(CUDA_FLAGS) $(CUDA_INCLUDE) -o $% $<
+endif
+endif
 (%.o):  %.o
 
 # Preceding line has a tab to make an empty rule
