@@ -319,8 +319,7 @@ endif
 # see https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=798804 (Debian did not backtrack)                                          
 #      USE_ARUR = $(shell rm -f aru.tmp;ar -U > aru.tmp 2>&1; head -1 aru.tmp| awk ' /no\ operation/ {print "Y";exit};{print "N"}'; rm -f aru.tmp)
   USE_ARUR = $(shell rm -f aru.tmp;ar --help  > aru.tmp 2>&1; grep U aru.tmp| awk ' /ctual\ timest/ {print "Y";exit};'; rm -f aru.tmp)
-  
-      ifeq ($(USE_ARUR), "Y")
+      ifeq ($(USE_ARUR),Y)
         ARFLAGS = rU 
       endif
 
@@ -2813,7 +2812,9 @@ ifndef CUDA
 endif
 ifdef TCE_CUDA
   CORE_LIBS += $(CUDA_LIBS)
+ifdef USE_TTLG
   EXTRA_LIBS += -lstdc++
+endif
   ifeq ($(_CC),pgcc)
     COPTIONS += -acc
   endif
@@ -2938,16 +2939,20 @@ else
 endif
 
 ifdef TCE_CUDA
+ifdef USE_TTLG
 CUDA_VERS_GE8=$(shell nvcc --version|egrep rel|  awk '/release 9/ {print "Y";exit}; /release 8/ {print "Y";exit};{print "N"}')
         ifeq ($(CUDA_VERS_GE8),N)
              CUDA_FLAGS = -O3 -Xcompiler -std=c++11 -DNOHTIME -Xptxas --warn-on-spills $(CUDA_ARCH) 
         else
               CUDA_FLAGS = -O3  -std=c++11 -DNOHTIME -Xptxas --warn-on-spills $(CUDA_ARCH) 
         endif
-endif
 (%.o):  %.cu
 	$(CUDA) -c $(CUDA_FLAGS) $(CUDA_INCLUDE) -I$(NWCHEM_TOP)/src/tce/ttlg/includes -o $% $<
-
+else
+(%.o):  %.cu
+	$(CUDA) -c $(CUDA_FLAGS) $(CUDA_INCLUDE) -o $% $<
+endif
+endif
 (%.o):  %.o
 
 # Preceding line has a tab to make an empty rule
