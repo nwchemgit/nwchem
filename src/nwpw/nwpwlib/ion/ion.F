@@ -16,6 +16,7 @@
 
       logical value
 
+      if (.not.periodic) call nwpw_cosmo_end()
       call FMM_end()
       call ion_scaling_atoms_end()
 
@@ -45,6 +46,7 @@
       if (.not. value) call errquit('ion_end:free heap ',0, MA_ERR)
 
       call ion_hess_end()
+
 
       return
       end
@@ -466,6 +468,9 @@ c         eki1=0.5d0*eki1
             end do
          end if
       end if
+
+*     ***** try to initialize COSMO if aperiodic *****
+      if  (.not.periodic) call nwpw_cosmo_init(rtdb,geom)
 
       call nwpw_timing_end(50)
       ion_init = value
