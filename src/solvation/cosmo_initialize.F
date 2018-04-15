@@ -436,7 +436,7 @@ c
 c    
       if (do_cosmo_vem.ne.0.or.do_cosmo_smd) then
         if (theory.ne.'dft'.and.theory.ne.'tddft'.and.
-     $      theory.ne.'sodft')
+     $      theory.ne.'sodft' .and.theory.ne.'pspw')
      $    call errquit('cosmo-smd can be used only with dft and sodft. 
      $ cosmo-vem can only be used with tddft', 0,0)
       endif
