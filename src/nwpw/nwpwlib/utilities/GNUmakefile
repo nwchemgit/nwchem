@@ -43,7 +43,8 @@
 		nwpw_expression.o \
 		nwpw_emachine.o \
 		BA_memory.o btdb.o beom.o \
-		task_paulsmatrix.o
+		task_paulsmatrix.o \
+		nwpw_cosmo.o
 
 	  OBJ = 
 
