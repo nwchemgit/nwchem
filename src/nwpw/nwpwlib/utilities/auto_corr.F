@@ -354,6 +354,7 @@ c      end if
       character*80  tfilename
       character*255 full_filename1
       character*255 full_filename2
+      character*255 full_filename3
 
 
 *     *** synchronization ***
@@ -373,6 +374,13 @@ c      end if
      >   call util_file_prefix('dipole_powerspectrum',tfilename)
       call util_file_name_noprefix(tfilename,.false.,.false.,
      >                             full_filename2)
+
+      if (.not.btdb_cget(rtdb,
+     >                   'nwpw:dipole_motion_irspectrum_filename',
+     >                   1,tfilename))
+     >   call util_file_prefix('dipole_irspectrum',tfilename)
+      call util_file_name_noprefix(tfilename,.false.,.false.,
+     >                             full_filename3)
 
       call Parallel_taskid(taskid)
      
@@ -575,6 +583,19 @@ c      end if
       call dscal(4*nframes,x,dcpl_mb(vk(1)),1)
 
       open(unit=36,file=full_filename2,form='formatted')
+      do k=0,nframes/2
+         if(k.ne.0) then
+            t = nframes*dt/dble(k)
+            freq = 1.0d0/(t*auTOsec*c)
+         else
+            freq=0.0d0
+         endif
+         write(36,*) freq, dble(dcpl_mb(vk(1)+k)),
+     >                    dimag(dcpl_mb(vk(1)+k))
+      end do
+      close(unit=36)
+
+      open(unit=36,file=full_filename3,form='formatted')
       do k=0,nframes/2
          if(k.ne.0) then
             t = nframes*dt/dble(k)
