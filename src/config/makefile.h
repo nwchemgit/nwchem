@@ -2818,6 +2818,9 @@ endif
 ifdef TCE_CUDA
   CORE_LIBS += $(CUDA_LIBS)
   EXTRA_LIBS += -lstdc++
+  ifdef USE_TTLG
+    EXTRA_LIBS += -lcublas
+  endif
   ifeq ($(_CC),pgcc)
     COPTIONS += -acc
   endif
