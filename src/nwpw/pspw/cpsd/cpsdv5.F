@@ -110,14 +110,14 @@ cccc#include "frac_occ.fh"
 
 
 *     **** external functions ****
-      real*8      psp_zv,psp_rc,ewald_rcut,ion_amass
+      real*8      psp_zv,psp_rc,ewald_rcut,ion_amass,nwpw_cosmo_qc0
       real*8      ewald_mandelung,lattice_omega_small
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg,lattice_unitg_small,lattice_unita_small
       integer     ewald_ncut,ewald_nshl3d
       integer     psp_lmmax,psp_lmax,psp_locp
       character*4 ion_aname,ion_atom
-      external    psp_zv,psp_rc,ewald_rcut,ion_amass
+      external    psp_zv,psp_rc,ewald_rcut,ion_amass,nwpw_cosmo_qc0
       external    ewald_mandelung,lattice_omega_small
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg,lattice_unitg_small,lattice_unita_small
@@ -142,11 +142,13 @@ cccc#include "frac_occ.fh"
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave
-      integer  ion_nion,ion_natm,ion_katm,ion_nkatm
+      integer  ion_nion,ion_natm,ion_katm,ion_nkatm,ion_nkatm0
+      integer  ion_nion_qm,ion_nion_mm,ion_nion_q
       external pack_nwave_all
       external control_it_in,control_it_out,control_gga,control_version
       external control_ngrid,pack_nwave
-      external  ion_nion,ion_natm,ion_katm,ion_nkatm
+      external ion_nion,ion_natm,ion_katm,ion_nkatm,ion_nkatm0
+      external ion_nion_qm,ion_nion_mm,ion_nion_q
 
       character*12 control_boundry
       external     control_boundry
@@ -560,7 +562,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
             end do
          end if
             
-         do ia=1,ion_nkatm()
+         do ia=1,ion_nkatm0()
            icharge = icharge + ion_natm(ia)*psp_zv(ia)
          end do
          write(luout,1159) icharge
@@ -568,8 +570,11 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          write(luout,1160)
          write(luout,1170) (ion_atom(K),ion_natm(K),K=1,ion_nkatm())
          write(luout,1180)
-         do I=1,ion_nion()
-           if (ion_q_FixIon(I)) then
+         do I=1,ion_nion()+ion_nion_q()
+           if (I.gt.ion_nion()) then
+           write(luout,1195) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+     >                       nwpw_cosmo_qc0(I-ion_nion()),ion_amm(i)
+           else if (ion_q_FixIon(I)) then
            write(luout,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
      >                   ion_amass(I)/1822.89d0,ion_amm(i)
            else if (ion_q_xyzFixIon(I)) then
@@ -853,8 +858,11 @@ c         end do
          write(luout,1300)
          write(luout,1410)
          write(luout,1420)
-         do I=1,ion_nion()
-           if (ion_q_FixIon(I)) then
+         do I=1,ion_nion()+ion_nion_q()
+           if (I.gt.ion_nion()) then
+           write(luout,1195) I,ion_aname(I),(ion_rion(k,i),K=1,3),
+     >                   nwpw_cosmo_qc0(I-ion_nion()),ion_amm(i)
+           else if (ion_q_FixIon(I)) then
            write(luout,1191) I,ion_aname(I),(ion_rion(k,i),K=1,3),
      >                   ion_amass(I)/1822.89d0,ion_amm(i)
            else if (ion_q_xyzFixIon(I)) then
@@ -1201,6 +1209,7 @@ c      call frac_occ_end()
      >       ' ) - atomic mass= ',F7.3,' - z fixed')
  1194 FORMAT(5X, I4, A5, ' (',3F11.5,
      >       ' ) - atomic mass= ',F7.3,A)
+ 1195 FORMAT(5X, I4, A5, ' (',3F11.5,' ) -      charge= ',F7.3,' ',A)
  1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
  1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
  1211 FORMAT(5X,'   number of constraints = ', I6,' ( DOF = ',I6,' )' )
