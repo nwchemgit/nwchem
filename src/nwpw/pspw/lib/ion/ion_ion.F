@@ -23,34 +23,58 @@
       
 
 *     *** local variables ***
-      integer i,j
-      real*8 x,y,z,r,e
+      integer i,j,nion,nion_q
+      real*8 x,y,z,r,qi,qj
 
-      common /eiond_ejtmp/ e
+      !common /eiond_ejtmp/ e
+
+      real*8 e1,e2
+      common /pack_conjg_tcc_indot_sasb/ e1,e2
 
 *     *** external functions ***
-      integer  ion_nion,ion_katm
-      real*8   psp_zv,ion_rion
-      external ion_nion,ion_katm
-      external psp_Zv,ion_rion
+      integer  ion_nion,ion_katm,ion_nion_q
+      external ion_nion,ion_katm,ion_nion_q
+      real*8   psp_zv,ion_rion,nwpw_cosmo_screen_qc0,nwpw_cosmo_Eqq
+      external psp_zv,ion_rion,nwpw_cosmo_screen_qc0,nwpw_cosmo_Eqq
+
+      nion   = ion_nion()
+      nion_q = ion_nion_q()
 
 !$OMP MASTER
-      e = 0.0d0
+      e1 = 0.0d0
+      e2 = 0.0d0
 !$OMP END MASTER
 !$OMP BARRIER
-!$OMP DO reduction(+:e)
-      do j=1,ion_nion()
+!$OMP DO reduction(+:e1)
+      do j=1,nion
+        qj = psp_zv(ion_katm(j))
         do i=1,j-1
+          qi = psp_zv(ion_katm(i))
           x = ion_rion(1,i) - ion_rion(1,j)
           y = ion_rion(2,i) - ion_rion(2,j)
           z = ion_rion(3,i) - ion_rion(3,j)
           r = dsqrt(x*x + y*y + z*z)
-          e = e + psp_zv(ion_katm(i))*psp_zv(ion_katm(j))/r
+          e1 = e1 + qi*qj/r
         end do
       end do
 !$OMP END DO
 
-      ion_ion_e = e
+!$OMP DO reduction(+:e2)
+      do i=nion+1,nion+nion_q
+         qi = nwpw_cosmo_screen_qc0(i-nion)
+         do j=1,nion
+           qj = psp_zv(ion_katm(j))
+           x = ion_rion(1,i) - ion_rion(1,j)
+           y = ion_rion(2,i) - ion_rion(2,j)
+           z = ion_rion(3,i) - ion_rion(3,j)
+           r = dsqrt(x*x + y*y + z*z)
+           e2 = e2 + qi*qj/r
+        end do
+      end do
+!$OMP END DO
+
+
+      ion_ion_e = e1 + e2 + nwpw_cosmo_Eqq()
       return
       end
 
