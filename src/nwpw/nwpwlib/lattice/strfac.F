@@ -20,13 +20,13 @@
       logical value
 
 *     ***** external functions ****
-      integer  ion_nion
-      external ion_nion
+      integer  ion_nion,ion_nion_q
+      external ion_nion,ion_nion_q
 
       call Parallel2d_taskid_i(taskid)
 
 *     **** allocate phase factors ****
-      nion = ion_nion()
+      nion = ion_nion()+ion_nion_q()
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
@@ -75,6 +75,9 @@ c    >              + i+1
         call Pack_i_pack(nb,int_mb(j_indx(1,nb)))
         call Pack_i_pack(nb,int_mb(k_indx(1,nb)))
       end do
+
+      !**** generate phase factors for charges ****
+      if (ion_nion_q().gt.0) call phafac_q()
 
       return
       end
@@ -244,6 +247,116 @@ c       ex3(nz/2,i)=dcmplx(0.0d0, 0.0d0)
 
 
 C .. End PhaFac .... 
+
+
+C     ***********************************
+C     *                                 *
+C     *         PHAFAC_Q                *
+C     *                                 *
+C     ***********************************
+C
+C    This file Sets up the phaze factors, that are used
+C for creating structure factors for charges.
+C
+C       Entry - 
+C       Exit -
+C
+C       Uses - ion data structure
+C
+      subroutine phafac_q()
+      implicit none
+
+#include "bafdecls.fh"
+#include "strfac_common.fh"
+
+*     *** local variables
+      integer    i,k,nion,nion_q
+      integer    nx,ny,nz
+      complex*16 cw1,cw2,cw3
+      real*8     sw1,sw2,sw3
+      real*8     pi
+
+*     **** external functions ****
+      integer  ion_nion,ion_nion_q
+      real*8   lattice_unitg,ion_rion
+      external ion_nion,ion_nion_q
+      external lattice_unitg,ion_rion
+
+      integer tid
+      integer nthr
+      integer  Parallel_threadid, Parallel_nthreads
+      external Parallel_threadid, Parallel_nthreads
+
+      nion_q = ion_nion_q()
+
+      if (nion_q.gt.0) then
+         call nwpw_timing_start(20)
+
+         tid  = Parallel_threadid()
+         nthr = Parallel_nthreads()
+
+         pi = 4.0d0*datan(1.0d0)
+
+         call D3dB_nx(1,nx)
+         call D3dB_ny(1,ny)
+         call D3dB_nz(1,nz)
+
+         nion   = ion_nion()
+
+*::::::::::::::::::  phase factor of ion positions  :::::::::::::::::::
+         do i=tid+nion+1,nion+nion_q,nthr
+
+           sw1= lattice_unitg(1,1)*ion_rion(1,i)
+     >        + lattice_unitg(2,1)*ion_rion(2,i)
+     >        + lattice_unitg(3,1)*ion_rion(3,i) + pi
+           sw2= lattice_unitg(1,2)*ion_rion(1,i)
+     >        + lattice_unitg(2,2)*ion_rion(2,i)
+     >        + lattice_unitg(3,2)*ion_rion(3,i) + pi
+           sw3= lattice_unitg(1,3)*ion_rion(1,i)
+     >        + lattice_unitg(2,3)*ion_rion(2,i)
+     >        + lattice_unitg(3,3)*ion_rion(3,i) + pi
+
+           cw1=dcmplx(dcos(sw1),-dsin(sw1))
+           cw2=dcmplx(dcos(sw2),-dsin(sw2))
+           cw3=dcmplx(dcos(sw3),-dsin(sw3))
+           dcpl_mb(ex1(1)+(i-1)*nx)=dcmplx(1.0d0,0.0d0)
+           dcpl_mb(ex2(1)+(i-1)*ny)=dcmplx(1.0d0,0.0d0)
+           dcpl_mb(ex3(1)+(i-1)*nz)=dcmplx(1.0d0,0.0d0)
+
+           do k=1,nx/2
+             dcpl_mb(ex1(1)+k+(i-1)*nx)
+     >            = dcpl_mb(ex1(1)+k-1+(i-1)*nx)*cw1
+             dcpl_mb(ex1(1)+nx-k+(i-1)*nx)
+     >            =dconjg(dcpl_mb(ex1(1)+k+(i-1)*nx))
+           end do
+
+           do k=1,ny/2
+             dcpl_mb(ex2(1)+k+(i-1)*ny)
+     >            = dcpl_mb(ex2(1)+k-1+(i-1)*ny)*cw2
+             dcpl_mb(ex2(1)+ny-k+(i-1)*ny)
+     >            =dconjg(dcpl_mb(ex2(1)+k+(i-1)*ny))
+           end do
+
+           do k=1,nz/2
+             dcpl_mb(ex3(1)+k+(i-1)*nz)
+     >            = dcpl_mb(ex3(1)+k-1+(i-1)*nz)*cw3
+             dcpl_mb(ex3(1)+nz-k+(i-1)*nz)
+     >            =dconjg(dcpl_mb(ex3(1)+k+(i-1)*nz))
+           end do
+
+           dcpl_mb(ex1(1)+nx/2+(i-1)*nx)=dcmplx(0.0d0, 0.0d0)
+           dcpl_mb(ex2(1)+ny/2+(i-1)*ny)=dcmplx(0.0d0, 0.0d0)
+           dcpl_mb(ex3(1)+nz/2+(i-1)*nz)=dcmplx(0.0d0, 0.0d0)
+         end do
+
+         call nwpw_timing_end(20)
+      end if
+
+      return
+      end
+
+C .. End PhaFac_Q .... 
+
 
 
 C     ***********************************
