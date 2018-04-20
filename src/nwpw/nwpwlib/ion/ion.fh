@@ -2,8 +2,8 @@ c
 c $Id$
 c
 *     **** ion common block ****
-      logical     sym_inversion,periodic,disp_on,makehmass2
-      integer     nion,nion_qm,nion_mm
+      logical     sym_inversion,periodic,disp_on,makehmass2,cosmo_on
+      integer     nion,nion_qm,nion_mm,nion_q
       integer     nkatm,nkatm_qm,nconstraints
       integer     r2(2),r1(2),r0(2),amass(2)
       integer     v2(2),v1(2)
@@ -22,6 +22,7 @@ c
      >              nion,		! number of ions and mm atoms
      >              nion_qm,            ! number of qm ions 
      >              nion_mm,            ! number of mm ions 
+     >              nion_q,             ! number of charge ions
      >              nkatm,		! number of kinds of ions
      >              nkatm_qm,		! number of kinds of quantum ions
      >              dti,		! Verlet/steepest descent alpha
@@ -29,7 +30,8 @@ c
      >              sym_inversion,    !true if inversion symmetry
      >              periodic,         !true if periodic
      >              disp_on,          !true if has dispersion corrections
-     >              makehmass2        !if true convert H mass to be 2.0 amu
+     >              makehmass2,       !if true convert H mass to be 2.0 amu
+     >              cosmo_on          !true if cosmo on
 
 *     **** ION_GRIMME2 Block ****
       integer indx_grimme2(2),rion_grimme2(2),fion_grimme2(2)
