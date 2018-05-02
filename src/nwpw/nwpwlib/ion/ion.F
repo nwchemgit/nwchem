@@ -1678,7 +1678,7 @@ c         eki1=0.5d0*eki1
 #include "ion.fh"
 
       if (cosmo_on) then
-         ion_nkatm0 = nkatm-1
+         ion_nkatm0 = nkatm-2
       else
          ion_nkatm0 = nkatm
       end if

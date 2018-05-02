@@ -461,6 +461,24 @@
       return 
       end
 
+     
+*     ***********************************
+*     *                                 *
+*     *         Dneall_ispin            *       
+*     *                                 *
+*     ***********************************
+      
+      subroutine Dneall_ispin(ispintmp)
+      implicit none
+      integer ispintmp
+         
+#include "Dne.fh"
+           
+      ispintmp = ispin
+      return
+      end
+
+
 
 
 *     ***********************************
