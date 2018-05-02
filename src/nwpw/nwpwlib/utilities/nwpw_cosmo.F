@@ -31,7 +31,9 @@
       common /nwpw_cosmo_blk2/ i_indx,j_indx,nindx
 
       integer qc0(2),qc1(2),BQc(2),qs(2),AA(2)
-      common /nwpw_cosmo_blk3/ qc0,qc1,BQc,qs,AA
+      real*8  Qion,Qelc
+      logical Qset
+      common /nwpw_cosmo_blk3/ Qion,Qelc,qc0,qc1,BQc,qs,AA,Qset
 
 *     ***** external functions *****
       logical  control_print
@@ -95,6 +97,11 @@ c
          if(.not.btdb_get(rtdb,'cosmo:efcs',mt_dbl,nefc,dbl_mb(qs(1))))
      >     call errquit('nwpw_cosmo_qsurfaces: failed',0,rtdb_err)
 
+
+         Qset = .false.
+         Qion = 0.0d0
+         Qelc = 0.0d0
+
          call Parallel_taskid(taskid)
          call Parallel_np(np)
          nindx  = 0
@@ -152,7 +159,9 @@ c
       common /nwpw_cosmo_blk2/ i_indx,j_indx,nindx
 
       integer qc0(2),qc1(2),BQc(2),qs(2),AA(2)
-      common /nwpw_cosmo_blk3/ qc0,qc1,BQc,qs,AA
+      real*8  Qion,Qelc
+      logical Qset
+      common /nwpw_cosmo_blk3/ Qion,Qelc,qc0,qc1,BQc,qs,AA,Qset
 
       logical value
 
@@ -191,7 +200,9 @@ c     == Clean up cosmo stuff, if necessary ==
      >                        cosmo_on,do_cosmo_smd
 
       integer qc0(2),qc1(2),BQc(2),qs(2),AA(2)
-      common /nwpw_cosmo_blk3/ qc0,qc1,BQc,qs,AA
+      real*8  Qion,Qelc
+      logical Qset
+      common /nwpw_cosmo_blk3/ Qion,Qelc,qc0,qc1,BQc,qs,AA,Qset
 
       nwpw_cosmo_screen_qc0 = screen*dbl_mb(qc0(1)+i-1)
       return
@@ -206,7 +217,9 @@ c     == Clean up cosmo stuff, if necessary ==
 #include "errquit.fh"
 
       integer qc0(2),qc1(2),BQc(2),qs(2),AA(2)
-      common /nwpw_cosmo_blk3/ qc0,qc1,BQc,qs,AA
+      real*8  Qion,Qelc
+      logical Qset
+      common /nwpw_cosmo_blk3/ Qion,Qelc,qc0,qc1,BQc,qs,AA,Qset
 
       nwpw_cosmo_qc0 = dbl_mb(qc0(1)+i-1)
       return
@@ -220,7 +233,9 @@ c     == Clean up cosmo stuff, if necessary ==
 #include "errquit.fh"
 
       integer qc0(2),qc1(2),BQc(2),qs(2),AA(2)
-      common /nwpw_cosmo_blk3/ qc0,qc1,BQc,qs,AA
+      real*8  Qion,Qelc
+      logical Qset
+      common /nwpw_cosmo_blk3/ Qion,Qelc,qc0,qc1,BQc,qs,AA,Qset
 
       nwpw_cosmo_qc1 = dbl_mb(qc1(1)+i-1)
       return
@@ -234,7 +249,9 @@ c     == Clean up cosmo stuff, if necessary ==
 #include "errquit.fh"
 
       integer qc0(2),qc1(2),BQc(2),qs(2),AA(2)
-      common /nwpw_cosmo_blk3/ qc0,qc1,BQc,qs,AA
+      real*8  Qion,Qelc
+      logical Qset
+      common /nwpw_cosmo_blk3/ Qion,Qelc,qc0,qc1,BQc,qs,AA,Qset
 
       nwpw_cosmo_BQ_ptr = BQc(1)
       return
@@ -415,7 +432,9 @@ c     == Clean up cosmo stuff, if necessary ==
       common /nwpw_cosmo_blk2/ i_indx,j_indx,nindx
 
       integer qc0(2),qc1(2),BQc(2),qs(2),AA(2)
-      common /nwpw_cosmo_blk3/ qc0,qc1,BQc,qs,AA
+      real*8  Qion,Qelc
+      logical Qset
+      common /nwpw_cosmo_blk3/ Qion,Qelc,qc0,qc1,BQc,qs,AA,Qset
 
 *     **** external functions ****
       real*8   ion_rion
@@ -590,17 +609,32 @@ c     == Clean up cosmo stuff, if necessary ==
       common /nwpw_cosmo_blk2/ i_indx,j_indx,nindx
 
       integer qc0(2),qc1(2),BQc(2),qs(2),AA(2)
-      common /nwpw_cosmo_blk3/ qc0,qc1,BQc,qs,AA
+      real*8  Qion,Qelc
+      logical Qset
+      common /nwpw_cosmo_blk3/ Qion,Qelc,qc0,qc1,BQc,qs,AA,Qset
 
 *     **** local variables ****
-      integer it,qcoord_ptr
-      real*8  esum,esum1,esum2
+      integer it,qcoord_ptr,ia,ne(2),ispin
+      real*8  esum,esum1,esum2,qsum1,qsum2,scal
 
 *     **** external functions ****
-      integer  ion_rion_ptr,ion_nion
-      external ion_rion_ptr,ion_nion
+      integer  ion_rion_ptr,ion_nion,ion_nkatm0,ion_natm
+      external ion_rion_ptr,ion_nion,ion_nkatm0,ion_natm
+      real*8   psp_zv
+      external psp_zv
+      
 
 
+      if (.not.Qset) then
+         Qset = .true.
+         call Dneall_ispin(ispin)
+         call Dneall_ne(ne)
+         Qelc = -(ne(1)+ne(ispin))
+         Qion = 0.0d0
+         do ia=1,ion_nkatm0()
+           Qion = Qion + ion_natm(ia)*psp_zv(ia)
+         end do
+      end if
       !**** really simple solver to start ****
       qcoord_ptr = ion_rion_ptr()+3*ion_nion()
       call DGEMM_OMP('N','N',nefc,1,nefc,
@@ -609,6 +643,45 @@ c     == Clean up cosmo stuff, if necessary ==
      >              dbl_mb(BQc(1)),nefc,
      >              (0.0d0),
      >              dbl_mb(qc0(1)),nefc)
+
+c*     !**** rescale the total surface charge ****
+c!$OMP MASTER
+c      qsum1 = 0.0d0
+c      qsum2 = 0.0d0
+c      do it=1,nefc
+c         if (dbl_mb(qc0(1)+it-1).gt.0.0d0) then
+c            qsum1 = qsum1 + dbl_mb(qc0(1)+it-1)
+c         else
+c            qsum2 = qsum2 + dbl_mb(qc0(1)+it-1)
+c         end if
+c      end do
+c      if (dabs(Qion+Qelc).gt.1.0d-6) then
+c         scal = -(Qelc+Qion)/(qsum1+qsum2)
+c         call dscal(nefc,scal,dbl_mb(qc0(1)),1)
+c      else
+c         if (dabs(qsum1).gt.dabs(qsum2)) then
+c            scal = -qsum1/qsum2
+c            do it=1,nefc
+c               if (dbl_mb(qc0(1)+it-1).lt.0.0d0) then
+c                  dbl_mb(qc0(1)+it-1) = scal*dbl_mb(qc0(1)+it-1)
+c               end if
+c            end do
+c         else
+c            scal = -qsum2/qsum1
+c            do it=1,nefc
+c               if (dbl_mb(qc0(1)+it-1).gt.0.0d0) then
+c                  dbl_mb(qc0(1)+it-1) = scal*dbl_mb(qc0(1)+it-1)
+c               end if
+c            end do
+c         end if
+c      end if
+c      qsum1 = 0.0d0
+c      do it=1,nefc
+c         qsum1 = qsum1 + dbl_mb(qc0(1)+it-1)
+c      end do
+c!$OMP END MASTER
+
+
 
 c      do it=1,5000
 c         call nwpw_cosmo_calc_residual(dbl_mb(qcoord_ptr),
@@ -662,7 +735,9 @@ c      write(*,*) "qBQ + qAq=",esum1+esum
       common /nwpw_cosmo_blk2/ i_indx,j_indx,nindx
 
       integer qc0(2),qc1(2),BQc(2),qs(2),AA(2)
-      common /nwpw_cosmo_blk3/ qc0,qc1,BQc,qs,AA
+      real*8  Qion,Qelc
+      logical Qset
+      common /nwpw_cosmo_blk3/ Qion,Qelc,qc0,qc1,BQc,qs,AA,Qset
 
 *     **** local variables ****
       integer i,j,k
