@@ -1993,7 +1993,7 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
 *             **** add to local psp ****
               if (ii.gt.nion) then
                  call Pack_tc_aMul(0,
-     >                             dabs(nwpw_cosmo_screen_qc0(ii-nion)),
+     >                     dabs(nwpw_cosmo_screen_qc0(ii-nion)),
      >                             dbl_mb(vl(1)+npack0*(ia-1)),
      >                             dcpl_mb(exi(1)),
      >                             dcpl_mb(vtmp(1)))

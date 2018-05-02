@@ -34,8 +34,8 @@
 *     *** external functions ***
       integer  ion_nion,ion_katm,ion_nion_q
       external ion_nion,ion_katm,ion_nion_q
-      real*8   psp_zv,ion_rion,nwpw_cosmo_screen_qc0,nwpw_cosmo_Eqq
-      external psp_zv,ion_rion,nwpw_cosmo_screen_qc0,nwpw_cosmo_Eqq
+      real*8   psp_zv,ion_rion,nwpw_cosmo_qc0,nwpw_cosmo_Eqq
+      external psp_zv,ion_rion,nwpw_cosmo_qc0,nwpw_cosmo_Eqq
 
       nion   = ion_nion()
       nion_q = ion_nion_q()
@@ -61,7 +61,7 @@
 
 !$OMP DO reduction(+:e2)
       do i=nion+1,nion+nion_q
-         qi = nwpw_cosmo_screen_qc0(i-nion)
+         qi = nwpw_cosmo_qc0(i-nion)
          do j=1,nion
            qj = psp_zv(ion_katm(j))
            x = ion_rion(1,i) - ion_rion(1,j)
