@@ -1461,9 +1461,14 @@ c      call frac_occ_end()
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1132 FORMAT(5X,' using fractional occupation')
+c 1135 FORMAT(/' The masses of QM H atoms converted to 2.0 amu. ',
+c     >       /' To turn off this default',
+c     >        ' set nwpw:makehmass2 .false.')
  1135 FORMAT(/' The masses of QM H atoms converted to 2.0 amu. ',
      >       /' To turn off this default',
-     >        ' set nwpw:makehmass2 .false.')
+     >       /' nwpw',
+     >       /'    makehmass2 off',
+     >       /' end')
  1140 FORMAT(/' elements involved in the cluster:')
  1150 FORMAT(5X,I2,': ',A4,'  core charge:',F4.1,'  lmax=',I1)
  1151 FORMAT(5X,'        cutoff =',4F8.3)
