@@ -39,45 +39,56 @@
           dout(3) = din(3)
         else if (type.eq.2) then
 !        D functions:
-!         xx, yy, zz, xy, xz, yz
+c           1   2   3   4   5   6
+c molden : xx, yy, zz, xy, xz, yz
+c nwchem : xx, xy, xz, yy, yz, zz
           dout(1) = din(1)
           dout(2) = din(4)
           dout(3) = din(6)
-          dout(4) = din(2)
-          dout(5) = din(3)
-          dout(6) = din(5)
+c conversion factors fron moldens gaussian.f          
+          dout(4) = din(2)/sqrt(3d0)
+          dout(5) = din(3)/sqrt(3d0)
+          dout(6) = din(5)/sqrt(3d0)
         else if (type.eq.3) then
-!        F functions:
-!         xxx, yyy, zzz, xyy, xxy, xxz, xzz, yzz, yyz, xyz
+!     F functions:
+c            1    2    3    4    5    6    7    8    9   10
+c molden : xxx, yyy, zzz, xyy, xxy, xxz, xzz, yzz, yyz, xyz
+c nwchem : xxx, xxy, xxz, xyy, xyz, xzz, yyy, yyz, yzz, zzz           
           dout(1) = din(1)
           dout(2) = din(7)
           dout(3) = din(10)
-          dout(4) = din(4)
-          dout(5) = din(2)
-          dout(6) = din(2)
-          dout(7) = din(6)
-          dout(8) = din(9)
-          dout(9) = din(8)
-          dout(10) = din(5)
+c conversion factors fron moldens gaussian.f          
+          dout(4) = din(4)/sqrt(5d0)
+          dout(5) = din(2)/sqrt(5d0)
+          dout(6) = din(3)/sqrt(5d0)
+          dout(7) = din(6)/sqrt(5d0)
+          dout(8) = din(9)/sqrt(5d0)
+          dout(9) = din(8)/sqrt(5d0)
+          dout(10) = din(5)/sqrt(5d0)/sqrt(3d0)
         else if (type.eq.4) then
-!        G functions:
-!         xxxx yyyy zzzz xxxy xxxz yyyx yyyz zzzx zzzy,
-!         xxyy xxzz yyzz xxyz yyxz zzxy
+!     G functions:
+c           1    2    3    4    5    6    7    8    9
+cmolden  xxxx yyyy zzzz xxxy xxxz yyyx yyyz zzzx zzzy
+cnwchem  xxxx xxxy xxxz xxyy xxyz xxzz xyyy xyyz xyzz
+c          10   11   12   13   14   15
+cmolden  xxyy xxzz yyzz xxyz yyxz zzxy
+cnwchem  xzzz yyyy yyyz yyzz yzzz zzzz
           dout(1) = din(1)
           dout(2) = din(11)
           dout(3) = din(15)
-          dout(4) = din(2)
-          dout(5) = din(3)
-          dout(6) = din(7)
-          dout(7) = din(12)
-          dout(8) = din(10)
-          dout(9) = din(14)
-          dout(10) = din(4)
-          dout(11) = din(6)
-          dout(12) = din(13)
-          dout(13) = din(5)
-          dout(14) = din(8)
-          dout(15) = din(9)
+c conversion factors fron moldens gaussian.f          
+          dout(4) = din(2)/sqrt(7d0)
+          dout(5) = din(3)/sqrt(7d0)
+          dout(6) = din(7)/sqrt(7d0)
+          dout(7) = din(12)/sqrt(7d0)
+          dout(8) = din(10)/sqrt(7d0)
+          dout(9) = din(14)/sqrt(7d0)
+          dout(10) = din(4)/sqrt(7d0)/sqrt(5d0)*sqrt(3d0)
+          dout(11) = din(6)/sqrt(7d0)/sqrt(5d0)*sqrt(3d0)
+          dout(12) = din(13)/sqrt(7d0)/sqrt(5d0)*sqrt(3d0)
+          dout(13) = din(5)/sqrt(7d0)/sqrt(5d0)
+          dout(14) = din(8)/sqrt(7d0)/sqrt(5d0) 
+          dout(15) = din(9)/sqrt(7d0)/sqrt(5d0)
         end if
       else
 !       In MOLDEN file the following order of
