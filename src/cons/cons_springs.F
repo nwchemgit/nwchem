@@ -540,7 +540,7 @@ c
 #include "util.fh"
 #include "stdio.fh"
 #include "cons.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 c     
       integer rtdb
       double precision energy
@@ -637,7 +637,7 @@ c
 #include "util.fh"
 #include "stdio.fh"
 #include "cons.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 c     
       integer rtdb
       double precision energy

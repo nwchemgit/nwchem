@@ -6,7 +6,7 @@ c $I#d: cons.F,v 1.1 2004/01/28 01:30:59 marat Exp $
 #include "rtdb.fh"
 #include "util.fh"
 #include "geom.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 #include "cons.fh"
 #include "global.fh"
       logical cons_active
@@ -57,7 +57,7 @@ c     -----------------------------------
 #include "rtdb.fh"
 #include "util.fh"
 #include "geom.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 #include "cons.fh"
 #include "global.fh"
       character*(*) namespace
@@ -127,7 +127,7 @@ c     release memory
 #include "rtdb.fh"
 #include "util.fh"
 #include "geom.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 #include "cons.fh"
 #include "global.fh"
       character*(*) namespace
@@ -207,7 +207,7 @@ c     release memory
 #include "util.fh"
 #include "geom.fh"
 #include "stdio.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 #include "cons.fh"
 #include "global.fh"
       integer rtdb
@@ -356,7 +356,7 @@ c
 #include "util.fh"
 #include "geom.fh"
 #include "stdio.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 #include "cons.fh"
 #include "global.fh"
       integer rtdb
@@ -428,7 +428,7 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 #include "geom.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 #include "cons.fh"
 #include "global.fh"
       integer rtdb
