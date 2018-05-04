@@ -392,7 +392,7 @@ c
       implicit none
 #include "util.fh"
 #include "inp.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 
       double precision r1(3),r2(3),r3(3),r4(3)
       double precision phi
@@ -438,7 +438,7 @@ c
       implicit none
 #include "util.fh"
 #include "inp.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 #include "errquit.fh"
 
       double precision r1(3),r2(3),r3(3),r4(3)

@@ -6,8 +6,9 @@ c $Id$
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 #include "cons.fh"
+#include "geom.fh"
 c     
       integer rtdb
 c
@@ -20,6 +21,7 @@ c
       integer id(4)
       double precision k,r,K0,gamma0,coef(20)
       integer n,indx(20)
+      integer geom, ncenters
 c
       logical cons_harm_bond_input
       external cons_harm_bond_input
@@ -29,9 +31,19 @@ c
       external cons_harm_bondings_input
       logical cons_active
       external cons_active
-
-      max_fp = min( max_fixed_atoms*4, ma_inquire_avail(MT_INT))
-      if ( .not. ma_push_get( MT_INT, max_fp, 
+c
+c     get no. atoms
+c
+      if (.not. geom_create(geom, 'geometry'))
+     &     call errquit('cons_input: geom_create?',70, GEOM_ERR)
+      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+     &     call errquit('cons_input: geom_rtdb?',71, GEOM_ERR)
+      if (.not. geom_ncent(geom, ncenters))
+     &     call errquit('cons_input: geom_ncent failed',73, GEOM_ERR)
+      if (.not. geom_destroy(geom))
+     &     call errquit('cons_input: geom_destroy fails',7, GEOM_ERR)
+      max_fp=ncenters*4
+      if ( .not. ma_push_get( MT_INT, ncenters*4, 
      &      'cons scratch fixed atoms',
      &      h_tmp_id, i_tmp_id) ) call errquit(
      &      'cons_input: failed cons scratch space for fixed atoms',
@@ -93,7 +105,7 @@ c     ----------------------------
         if (.not. inp_a(test))
      >      call errquit('cons_input: failed to read keyword', 0,
      >        0)
-         if (inp_compare(.false.,'atom', test)) then
+        if (inp_compare(.false.,'atom', test)) then
            status = inp_ilist(max_fp,int_mb(i_tmp_id),nfp)
            if(status) then
              call cons_add_fixed_atoms(namespace,nfp,
@@ -180,7 +192,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
-#include"cons_params.fh"
+#include"cons_data.fh"
 c     
       logical cons_harm_dihed_input
       integer id(4)
