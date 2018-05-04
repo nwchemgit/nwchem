@@ -1,11 +1,4 @@
- 
-Processor list
- 
-cu03n[189-190]
- 
-ARMCI configured for 2 cluster nodes. Network protocol is 'OpenIB Verbs API'.
-All connections between all procs tested: SUCCESS
- argument  1 = /mscf/home/d3p852/nwchem-5.1.1/QA/tests/h2o_fixed/h2o_fixed.nw
+ argument  1 = /home/edo/park/nwchem-6.8.1/QA/tests/h2o_fixed/h2o_fixed.nw
 
 
 
@@ -84,7 +77,7 @@ task dft gradient
                                          
 
 
-              Northwest Computational Chemistry Package (NWChem) 6.0
+              Northwest Computational Chemistry Package (NWChem) 6.8
               ------------------------------------------------------
 
 
@@ -92,7 +85,7 @@ task dft gradient
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
-                              Copyright (c) 1994-2010
+                              Copyright (c) 1994-2017
                        Pacific Northwest National Laboratory
                             Battelle Memorial Institute
 
@@ -117,29 +110,32 @@ task dft gradient
            Job information
            ---------------
 
-    hostname      = cu3n189
-    program       = /scratch/nwchem
-    date          = Fri Oct 29 11:38:03 2010
+    hostname        = lagrange
+    program         = /home/edo/park/nwchem-6.8.1/bin/LINUX64/nwchem
+    date            = Fri May  4 11:15:53 2018
 
-    compiled      = Thu_Oct_28_07:10:53_2010
-    source        = /home/scicons/user/kurt/nwchem-6.0-release-pgf90-final/
-    nwchem branch = 6.0
-    input         = /mscf/home/d3p852/nwchem-5.1.1/QA/tests/h2o_fixed/h2o_fixed.nw
-    prefix        = h2o.
-    data base     = ./h2o.db
-    status        = startup
-    nproc         =        8
-    time left     =   1765s
+    compiled        = Tue_May_01_15:18:03_2018
+    source          = /home/edo/park/nwchem-6.8.1
+    nwchem branch   = 6.8.1
+    nwchem revision = v6.8-91-g92c5994
+    ga revision     = ga-5.6.4
+    use scalapack   = T
+    input           = /home/edo/park/nwchem-6.8.1/QA/tests/h2o_fixed/h2o_fixed.nw
+    prefix          = h2o.
+    data base       = ./h2o.db
+    status          = startup
+    nproc           =        1
+    time left       =     -1s
 
 
 
            Memory information
            ------------------
 
-    heap     =     655361 doubles =      5.0 Mbytes
+    heap     =     655356 doubles =      5.0 Mbytes
     stack    =    3014657 doubles =     23.0 Mbytes
     global   =    5242880 doubles =     40.0 Mbytes (distinct from heap & stack)
-    total    =    8912898 doubles =     68.0 Mbytes
+    total    =    8912893 doubles =     68.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -157,10 +153,6 @@ task dft gradient
                                 -------------------
 
 
-  library name resolved from: environment
-  library file name is: <
- /mscf/scicons/apps/nwchem-6.0.oct19//src/basis/libraries/>
-  
                       Basis "ao basis" -> "" (cartesian)
                       -----
   O (Oxygen)
@@ -275,6 +267,16 @@ task dft gradient
                                  -----------------
 
 
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ O                           6-31g*                  6       15   3s2p1d
+ H                           6-31g*                  2        2   2s
+
+
   Caching 1-el integrals 
 
             General Information
@@ -291,9 +293,9 @@ task dft gradient
           Maximum number of iterations:  30
           AO basis - number of functions:    19
                      number of shells:    10
-          Convergence on energy requested: 1.00D-06
-          Convergence on density requested: 1.00D-05
-          Convergence on gradient requested: 5.00D-04
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
 
               XC Information
               --------------
@@ -318,7 +320,7 @@ task dft gradient
           Convergence aids based upon iterative change in 
           total energy or number of iterations. 
           Levelshifting, if invoked, occurs when the 
-          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
           DIIS, if invoked, will attempt to extrapolate 
           using up to (NFOCK): 10 stored Fock matrices.
 
@@ -330,11 +332,11 @@ task dft gradient
 
       Screening Tolerance Information
       -------------------------------
-          Density screening/tol_rho: 1.00D-10
+          Density screening/tol_rho:  1.00D-10
           AO Gaussian exp screening on grid/accAOfunc:  14
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
-          Schwarz screening/accCoul: 1.00D-08
+          Schwarz screening/accCoul:  1.00D-08
 
 
       Superposition of Atomic Density Guess
@@ -351,49 +353,46 @@ task dft gradient
  HOMO         =      -0.791680
  LUMO         =       0.165836
 
-   Time after variat. SCF:      0.6
-   Time prior to 1st pass:      0.6
+   Time after variat. SCF:      0.2
+   Time prior to 1st pass:      0.2
 
  #quartets = 1.540D+03 #integrals = 1.424D+04 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 169376
+ Max. records in memory =      2        Max. records in file   = 146639
  No. of bits per label  =      8        No. of bits per value  =     64
-
-
-File balance: exchanges=     0  moved=     0  time=   0.0
 
 
  Grid_pts file          = ./h2o.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      4        Max. recs in file   =    903273
+ Max. records in memory =     23        Max. recs in file   =    782017
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):        0.47              473559
-          Stack Space remaining (MW):        3.01             3014440
+           Heap Space remaining (MW):        0.24              240028
+          Stack Space remaining (MW):        3.01             3014420
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -73.9245092106 -9.21D+01  5.03D-02  1.26D+00     0.7
- d= 0,ls=0.0,diis     2    -73.9147622768  9.75D-03  2.76D-02  1.18D+00     0.7
- d= 0,ls=0.0,diis     3    -74.0031174679 -8.84D-02  2.74D-03  1.38D-02     0.7
- d= 0,ls=0.0,diis     4    -74.0042400324 -1.12D-03  1.91D-04  5.27D-05     0.8
- d= 0,ls=0.0,diis     5    -74.0042445515 -4.52D-06  1.16D-05  3.08D-07     0.8
- d= 0,ls=0.0,diis     6    -74.0042445733 -2.19D-08  1.36D-06  2.93D-09     0.8
+ d= 0,ls=0.0,diis     1    -73.9245092030 -9.21D+01  5.03D-02  1.26D+00     0.4
+ d= 0,ls=0.0,diis     2    -73.9147621185  9.75D-03  2.76D-02  1.18D+00     0.5
+ d= 0,ls=0.0,diis     3    -74.0031174648 -8.84D-02  2.74D-03  1.38D-02     0.6
+ d= 0,ls=0.0,diis     4    -74.0042400322 -1.12D-03  1.91D-04  5.27D-05     0.8
+ d= 0,ls=0.0,diis     5    -74.0042445514 -4.52D-06  1.16D-05  3.08D-07     0.9
+ d= 0,ls=0.0,diis     6    -74.0042445732 -2.19D-08  1.36D-06  2.93D-09     1.0
 
 
-         Total DFT energy =      -74.004244573334
-      One electron energy =     -135.564703355854
-           Coulomb energy =       52.878507169231
-    Exchange-Corr. energy =       -9.506191197024
+         Total DFT energy =      -74.004244573218
+      One electron energy =     -135.564703344037
+           Coulomb energy =       52.878507155866
+    Exchange-Corr. energy =       -9.506191195362
  Nuclear repulsion energy =       18.188142810314
 
- Numeric. integr. density =        9.999999722539
+ Numeric. integr. density =        9.999999722583
 
-     Total iterative time =      0.2s
+     Total iterative time =      0.8s
 
 
 
@@ -404,7 +403,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center=  1.3D-04, -3.4D-05, -3.9D-04, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     1      0.989116  1 O  s          
+     1      0.989116  1 O  s                  6      0.039947  1 O  s          
+     2      0.033372  1 O  s          
 
  Vector    2  Occ=2.000000D+00  E=-1.206596D+00
               MO Center=  7.6D-02, -6.1D-02, -2.3D-01, r^2= 3.2D-01
@@ -412,7 +412,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.412399  1 O  s                 16      0.300220  2 H  s          
     18      0.265042  3 H  s                  1     -0.240917  1 O  s          
-     5     -0.238270  1 O  pz         
+     5     -0.238270  1 O  pz                 6      0.108008  1 O  s          
+     3      0.080157  1 O  px                17      0.056807  2 H  s          
+     4     -0.055784  1 O  py                 9      0.037167  1 O  pz         
 
  Vector    3  Occ=2.000000D+00  E=-6.982976D-01
               MO Center=  2.9D-02, -6.4D-02, -9.0D-02, r^2= 4.1D-01
@@ -421,14 +423,18 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      4      0.612397  1 O  py                16      0.309904  2 H  s          
     18     -0.302223  3 H  s                 17      0.184061  2 H  s          
      5     -0.180073  1 O  pz                19     -0.175818  3 H  s          
+     3      0.075097  1 O  px                 8      0.053571  1 O  py         
+    14     -0.040574  1 O  dyz                6     -0.036846  1 O  s          
 
  Vector    4  Occ=2.000000D+00  E=-3.589877D-01
               MO Center= -7.9D-02,  8.1D-02,  2.4D-01, r^2= 4.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5     -0.553445  1 O  pz                 6     -0.369380  1 O  s          
-     9     -0.311975  1 O  pz                 2     -0.199199  1 O  s          
-     4     -0.187567  1 O  py                 3      0.184901  1 O  px         
+     5      0.553445  1 O  pz                 6      0.369380  1 O  s          
+     9      0.311975  1 O  pz                 2      0.199199  1 O  s          
+     4      0.187567  1 O  py                 3     -0.184901  1 O  px         
+     7     -0.104269  1 O  px                 8      0.103860  1 O  py         
+    18     -0.097056  3 H  s                 16     -0.093305  2 H  s          
 
  Vector    5  Occ=2.000000D+00  E=-2.995743D-01
               MO Center=  9.8D-03, -9.7D-03, -2.9D-02, r^2= 5.5D-01
@@ -436,13 +442,18 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.644380  1 O  px                 7      0.439338  1 O  px         
      5      0.220125  1 O  pz                 9      0.150081  1 O  pz         
+    12     -0.074724  1 O  dxz               11     -0.028677  1 O  dxy        
+    15     -0.028817  1 O  dzz               10      0.028194  1 O  dxx        
 
  Vector    6  Occ=0.000000D+00  E= 1.269991D-01
               MO Center=  2.0D-01, -2.5D-01, -5.9D-01, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      2.162106  1 O  s                 19     -1.322700  3 H  s          
-    17     -1.322312  2 H  s          
+     6      2.162106  1 O  s                 17     -1.322312  2 H  s          
+    19     -1.322700  3 H  s                  9     -0.145833  1 O  pz         
+     1     -0.119008  1 O  s                 10     -0.106619  1 O  dxx        
+    15     -0.097297  1 O  dzz               13     -0.083906  1 O  dyy        
+     8     -0.079229  1 O  py                 2      0.073270  1 O  s          
 
  Vector    7  Occ=0.000000D+00  E= 2.299027D-01
               MO Center=  1.5D-01, -1.4D-01, -4.6D-01, r^2= 2.9D+00
@@ -451,16 +462,18 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     17      2.958097  2 H  s                 19     -2.803500  3 H  s          
      8     -0.776258  1 O  py                 4     -0.266247  1 O  py         
      9      0.197280  1 O  pz                 6     -0.188333  1 O  s          
+     7     -0.084610  1 O  px                 5      0.069489  1 O  pz         
+    14      0.053455  1 O  dyz                3     -0.029643  1 O  px         
 
  Vector    8  Occ=0.000000D+00  E= 7.313379D-01
               MO Center= -8.5D-02,  6.6D-02,  2.5D-01, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9     -1.282877  1 O  pz                 6      1.058398  1 O  s          
-    17     -0.740525  2 H  s                  5      0.650627  1 O  pz         
-     7      0.433199  1 O  px                16     -0.427849  2 H  s          
-    18     -0.318537  3 H  s                 19     -0.283664  3 H  s          
-     2      0.236116  1 O  s                  8     -0.227310  1 O  py         
+     9      1.282877  1 O  pz                 6     -1.058398  1 O  s          
+    17      0.740525  2 H  s                  5     -0.650627  1 O  pz         
+     7     -0.433199  1 O  px                16      0.427849  2 H  s          
+    18      0.318537  3 H  s                 19      0.283664  3 H  s          
+     2     -0.236116  1 O  s                  8      0.227310  1 O  py         
 
  Vector    9  Occ=0.000000D+00  E= 7.991543D-01
               MO Center= -1.7D-03, -1.1D-04,  5.0D-03, r^2= 1.2D+00
@@ -468,6 +481,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
      7      1.001398  1 O  px                 3     -0.881968  1 O  px         
      9      0.342085  1 O  pz                 5     -0.301287  1 O  pz         
+    12      0.026141  1 O  dxz        
 
  Vector   10  Occ=0.000000D+00  E= 9.124385D-01
               MO Center= -2.8D-02,  4.0D-02,  8.4D-02, r^2= 1.7D+00
@@ -477,16 +491,17 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      8     -2.452668  1 O  py                18     -0.690765  3 H  s          
     16      0.600086  2 H  s                  9      0.566057  1 O  pz         
      4      0.367443  1 O  py                 7     -0.247770  1 O  px         
+    14     -0.085283  1 O  dyz                6     -0.072848  1 O  s          
 
  Vector   11  Occ=0.000000D+00  E= 1.236467D+00
               MO Center=  8.3D-02, -3.8D-02, -2.5D-01, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6     -5.495129  1 O  s                 17      1.767908  2 H  s          
-     2      1.454120  1 O  s                 19      1.253015  3 H  s          
-     9      0.676012  1 O  pz                13      0.627725  1 O  dyy        
-    16      0.496661  2 H  s                 18      0.418831  3 H  s          
-    15      0.308814  1 O  dzz               10      0.244062  1 O  dxx        
+     6      5.495129  1 O  s                 17     -1.767908  2 H  s          
+     2     -1.454120  1 O  s                 19     -1.253015  3 H  s          
+     9     -0.676012  1 O  pz                13     -0.627725  1 O  dyy        
+    16     -0.496661  2 H  s                 18     -0.418831  3 H  s          
+    15     -0.308814  1 O  dzz               10     -0.244062  1 O  dxx        
 
  Vector   12  Occ=0.000000D+00  E= 1.455496D+00
               MO Center=  2.7D-02, -2.5D-01, -9.5D-02, r^2= 8.2D-01
@@ -512,8 +527,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center=  3.3D-04,  3.3D-03, -7.5D-04, r^2= 6.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11     -1.585975  1 O  dxy               14     -0.551084  1 O  dyz        
-    12      0.310185  1 O  dxz               10     -0.159874  1 O  dxx        
+    11      1.585975  1 O  dxy               14      0.551084  1 O  dyz        
+    12     -0.310185  1 O  dxz               10      0.159874  1 O  dxx        
+    15     -0.124618  1 O  dzz               13     -0.035256  1 O  dyy        
 
  Vector   15  Occ=0.000000D+00  E= 1.644635D+00
               MO Center=  1.9D-03,  4.8D-03, -5.2D-03, r^2= 6.4D-01
@@ -523,7 +539,45 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     10      0.689747  1 O  dxx               15     -0.592154  1 O  dzz        
      2      0.460992  1 O  s                 17      0.367727  2 H  s          
     14     -0.348596  1 O  dyz                5     -0.169751  1 O  pz         
-    16     -0.153795  2 H  s          
+    16     -0.153795  2 H  s                 18     -0.149634  3 H  s          
+
+ Vector   16  Occ=0.000000D+00  E= 1.663507D+00
+              MO Center= -8.4D-03,  6.6D-03,  2.5D-02, r^2= 6.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      1.331999  1 O  dxz               15      0.513975  1 O  dzz        
+    10     -0.505193  1 O  dxx               11      0.407145  1 O  dxy        
+    14      0.101884  1 O  dyz                3      0.052950  1 O  px         
+
+ Vector   17  Occ=0.000000D+00  E= 3.669437D+00
+              MO Center=  4.4D-02, -1.0D-01, -1.4D-01, r^2= 1.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      6.487817  1 O  s                 10     -1.885072  1 O  dxx        
+    15     -1.565342  1 O  dzz               18     -1.377945  3 H  s          
+    19     -1.299970  3 H  s                 17     -1.258986  2 H  s          
+    13     -0.986475  1 O  dyy                9     -0.802033  1 O  pz         
+    16     -0.785974  2 H  s                  8     -0.500648  1 O  py         
+
+ Vector   18  Occ=0.000000D+00  E= 4.157736D+00
+              MO Center= -5.6D-03,  1.5D-01,  2.6D-02, r^2= 7.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18      3.784850  3 H  s                 13     -2.132054  1 O  dyy        
+     8      1.605261  1 O  py                14     -1.299008  1 O  dyz        
+     2     -1.259221  1 O  s                 17     -1.263866  2 H  s          
+     4      1.190772  1 O  py                 6      1.051365  1 O  s          
+    19      0.705149  3 H  s                  5      0.490814  1 O  pz         
+
+ Vector   19  Occ=0.000000D+00  E= 4.867139D+00
+              MO Center= -2.5D-02, -6.3D-02,  7.0D-02, r^2= 6.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      4.698920  2 H  s                 14      1.996555  1 O  dyz        
+     2     -1.809543  1 O  s                  8     -1.384835  1 O  py         
+     5      1.303683  1 O  pz                15     -1.198345  1 O  dzz        
+    17      1.164575  2 H  s                  9      1.090028  1 O  pz         
+    19     -1.024610  3 H  s                  4     -0.987054  1 O  py         
 
 
  center of mass
@@ -541,7 +595,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
      L   x y z        total         alpha         beta         nuclear
      -   - - -        -----         -----         ----         -------
-     0   0 0 0      0.000000     -5.000000     -5.000000     10.000000
+     0   0 0 0     -0.000000     -5.000000     -5.000000     10.000000
 
      1   1 0 0      0.183688     -0.069253     -0.069253      0.322194
      1   0 1 0     -0.212219      0.102704      0.102704     -0.417626
@@ -555,7 +609,67 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2   0 0 2     -3.933314     -2.233068     -2.233068      0.532822
 
 
- Parallel integral file used       8 records with       0 large values
+ Parallel integral file used       1 records with       0 large values
+
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     3
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          AO basis - number of functions:    19
+                     number of shells:    10
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                        Slater Exchange Functional  1.000 local    
+                      VWN V Correlation Functional  1.000 local    
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          O                   0.60       49           4.0       434
+          H                   0.35       45           5.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:   139
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
 
 
 
@@ -580,12 +694,12 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.01   |
+                 |  CPU   |       0.00   |       0.04   |
                  ----------------------------------------
-                 |  WALL  |       0.01   |       0.01   |
+                 |  WALL  |       0.00   |       0.06   |
                  ----------------------------------------
 
- Task  times  cpu:        0.3s     wall:        0.6s
+ Task  times  cpu:        0.6s     wall:        1.3s
 
 
                                 NWChem Input Module
@@ -596,6 +710,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
  no springs found
+ no bondings springs found
+ no dihedral springs found
                          NWChem Constraints Module
                          -------------------------
  General Information
@@ -604,15 +720,87 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
  no springs found
+ no bondings springs found
+ no dihedral springs found
 
                                  NWChem DFT Module
                                  -----------------
 
 
 
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ O                           6-31g*                  6       15   3s2p1d
+ H                           6-31g*                  2        2   2s
+
+
+
   The DFT is already converged 
 
-         Total DFT energy =    -74.004244573334
+         Total DFT energy =    -74.004244573218
+
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     3
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          AO basis - number of functions:    19
+                     number of shells:    10
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                        Slater Exchange Functional  1.000 local    
+                      VWN V Correlation Functional  1.000 local    
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          O                   0.60       49           4.0       434
+          H                   0.35       45           5.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:   139
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
 
 
 
@@ -632,17 +820,28 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                  x          y          z           x          y          z
    1 O       0.000000   0.000000   0.000000    0.000000   0.000000   0.000000
    2 H       0.237012   0.500065  -0.661346    0.000000   0.000000   0.000000
-   3 H       0.085182  -0.917691  -0.308941   -0.238388   2.867064   0.883998
+   3 H       0.085182  -0.917691  -0.308941   -0.273679   3.124928   1.004048
 
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.01   |
+                 |  CPU   |       0.00   |       0.02   |
                  ----------------------------------------
-                 |  WALL  |       0.01   |       0.01   |
+                 |  WALL  |       0.00   |       0.03   |
                  ----------------------------------------
+                         NWChem Constraints Module
+                         -------------------------
+ Summary
+ -------
+ fixed atoms                  :   1     2
 
- Task  times  cpu:        0.1s     wall:        0.1s
+
+ Total energy with constraints        :     -74.004245
+ Energy contribution from constraints :       0.000000
+ Total energy without constraints     :     -74.004245
+ --------------------------------------
+
+ Task  times  cpu:        0.0s     wall:        0.0s
 
 
                                 NWChem Input Module
@@ -653,6 +852,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
  no springs found
+ no bondings springs found
+ no dihedral springs found
                          NWChem Constraints Module
                          -------------------------
  General Information
@@ -661,15 +862,87 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
  no springs found
+ no bondings springs found
+ no dihedral springs found
 
                                  NWChem DFT Module
                                  -----------------
 
 
 
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ O                           6-31g*                  6       15   3s2p1d
+ H                           6-31g*                  2        2   2s
+
+
+
   The DFT is already converged 
 
-         Total DFT energy =    -74.004244573334
+         Total DFT energy =    -74.004244573218
+
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     3
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          AO basis - number of functions:    19
+                     number of shells:    10
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                        Slater Exchange Functional  1.000 local    
+                      VWN V Correlation Functional  1.000 local    
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          O                   0.60       49           4.0       434
+          H                   0.35       45           5.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:   139
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
 
 
 
@@ -689,17 +962,28 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                  x          y          z           x          y          z
    1 O       0.000000   0.000000   0.000000    0.000000   0.000000   0.000000
    2 H       0.237012   0.500065  -0.661346    0.000000   0.000000   0.000000
-   3 H       0.085182  -0.917691  -0.308941   -0.238388   2.867064   0.883998
+   3 H       0.085182  -0.917691  -0.308941   -0.273679   3.124928   1.004048
 
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.01   |
+                 |  CPU   |       0.00   |       0.03   |
                  ----------------------------------------
-                 |  WALL  |       0.01   |       0.01   |
+                 |  WALL  |       0.00   |       0.03   |
                  ----------------------------------------
+                         NWChem Constraints Module
+                         -------------------------
+ Summary
+ -------
+ fixed atoms                  :   1     2
 
- Task  times  cpu:        0.1s     wall:        0.1s
+
+ Total energy with constraints        :     -74.004245
+ Energy contribution from constraints :       0.000000
+ Total energy without constraints     :     -74.004245
+ --------------------------------------
+
+ Task  times  cpu:        0.0s     wall:        0.0s
 
 
                                 NWChem Input Module
@@ -710,10 +994,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
  no springs found
+ no bondings springs found
+ no dihedral springs found
  fixed atoms                  :   2
 
 
  no springs found
+ no bondings springs found
+ no dihedral springs found
                          NWChem Constraints Module
                          -------------------------
  General Information
@@ -722,15 +1010,87 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
  no springs found
+ no bondings springs found
+ no dihedral springs found
 
                                  NWChem DFT Module
                                  -----------------
 
 
 
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ O                           6-31g*                  6       15   3s2p1d
+ H                           6-31g*                  2        2   2s
+
+
+
   The DFT is already converged 
 
-         Total DFT energy =    -74.004244573334
+         Total DFT energy =    -74.004244573218
+
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     3
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          AO basis - number of functions:    19
+                     number of shells:    10
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                        Slater Exchange Functional  1.000 local    
+                      VWN V Correlation Functional  1.000 local    
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          O                   0.60       49           4.0       434
+          H                   0.35       45           5.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:   139
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
 
 
 
@@ -749,18 +1109,29 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     atom               coordinates                        gradient
                  x          y          z           x          y          z
    1 O       0.000000   0.000000   0.000000    0.000000   0.000000   0.000000
-   2 H       0.237012   0.500065  -0.661346   -1.258072  -2.761783   3.503481
-   3 H       0.085182  -0.917691  -0.308941   -0.238388   2.867064   0.883998
+   2 H       0.237012   0.500065  -0.661346   -1.318125  -2.823238   3.675285
+   3 H       0.085182  -0.917691  -0.308941   -0.273679   3.124928   1.004048
 
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.01   |       0.01   |
+                 |  CPU   |       0.00   |       0.03   |
                  ----------------------------------------
-                 |  WALL  |       0.01   |       0.01   |
+                 |  WALL  |       0.00   |       0.03   |
                  ----------------------------------------
+                         NWChem Constraints Module
+                         -------------------------
+ Summary
+ -------
+ fixed atoms                  :   1
 
- Task  times  cpu:        0.1s     wall:        0.1s
+
+ Total energy with constraints        :     -74.004245
+ Energy contribution from constraints :       0.000000
+ Total energy without constraints     :     -74.004245
+ --------------------------------------
+
+ Task  times  cpu:        0.0s     wall:        0.0s
 
 
                                 NWChem Input Module
@@ -775,15 +1146,87 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
  no springs found
+ no bondings springs found
+ no dihedral springs found
 
                                  NWChem DFT Module
                                  -----------------
 
 
 
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ O                           6-31g*                  6       15   3s2p1d
+ H                           6-31g*                  2        2   2s
+
+
+
   The DFT is already converged 
 
-         Total DFT energy =    -74.004244573334
+         Total DFT energy =    -74.004244573218
+
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     3
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          AO basis - number of functions:    19
+                     number of shells:    10
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                        Slater Exchange Functional  1.000 local    
+                      VWN V Correlation Functional  1.000 local    
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          O                   0.60       49           4.0       434
+          H                   0.35       45           5.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:   139
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
 
 
 
@@ -801,19 +1244,30 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 O       0.000000   0.000000   0.000000    1.496461  -0.105281  -4.387479
+   1 O       0.000000   0.000000   0.000000    1.591804  -0.301691  -4.679333
    2 H       0.237012   0.500065  -0.661346    0.000000   0.000000   0.000000
-   3 H       0.085182  -0.917691  -0.308941   -0.238388   2.867064   0.883998
+   3 H       0.085182  -0.917691  -0.308941   -0.273679   3.124928   1.004048
 
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.01   |
+                 |  CPU   |       0.00   |       0.03   |
                  ----------------------------------------
-                 |  WALL  |       0.01   |       0.01   |
+                 |  WALL  |       0.00   |       0.03   |
                  ----------------------------------------
+                         NWChem Constraints Module
+                         -------------------------
+ Summary
+ -------
+ fixed atoms                  :   2
 
- Task  times  cpu:        0.1s     wall:        0.1s
+
+ Total energy with constraints        :     -74.004245
+ Energy contribution from constraints :       0.000000
+ Total energy without constraints     :     -74.004245
+ --------------------------------------
+
+ Task  times  cpu:        0.1s     wall:        0.0s
 
 
                                 NWChem Input Module
@@ -822,15 +1276,87 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  no fixed atoms found
  no springs found
+ no bondings springs found
+ no dihedral springs found
 
                                  NWChem DFT Module
                                  -----------------
 
 
 
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ O                           6-31g*                  6       15   3s2p1d
+ H                           6-31g*                  2        2   2s
+
+
+
   The DFT is already converged 
 
-         Total DFT energy =    -74.004244573334
+         Total DFT energy =    -74.004244573218
+
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     3
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          AO basis - number of functions:    19
+                     number of shells:    10
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                        Slater Exchange Functional  1.000 local    
+                      VWN V Correlation Functional  1.000 local    
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          O                   0.60       49           4.0       434
+          H                   0.35       45           5.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:   139
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
 
 
 
@@ -848,19 +1374,19 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 O       0.000000   0.000000   0.000000    1.496461  -0.105281  -4.387479
-   2 H       0.237012   0.500065  -0.661346   -1.258072  -2.761783   3.503481
-   3 H       0.085182  -0.917691  -0.308941   -0.238388   2.867064   0.883998
+   1 O       0.000000   0.000000   0.000000    1.591804  -0.301691  -4.679333
+   2 H       0.237012   0.500065  -0.661346   -1.318125  -2.823238   3.675285
+   3 H       0.085182  -0.917691  -0.308941   -0.273679   3.124928   1.004048
 
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.01   |
+                 |  CPU   |       0.00   |       0.03   |
                  ----------------------------------------
-                 |  WALL  |       0.01   |       0.01   |
+                 |  WALL  |       0.00   |       0.03   |
                  ----------------------------------------
 
- Task  times  cpu:        0.1s     wall:        0.1s
+ Task  times  cpu:        0.0s     wall:        0.0s
 
 
                                 NWChem Input Module
@@ -877,11 +1403,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  194      194     2978      484      498        0        0        0     
-number of processes/call 1.67e+00 1.78e+00 2.22e+00 0.00e+00 0.00e+00
-bytes total:             1.27e+06 2.66e+05 4.16e+05 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            5.56e+05 6.19e+04 2.02e+05 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 66440 bytes
+calls:  217      217     1.53e+04  953     2649        0        0     1394     
+number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
+bytes total:             2.80e+06 4.05e+05 1.25e+06 0.00e+00 0.00e+00 1.12e+04
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 112632 bytes
 
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -891,11 +1417,11 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        24	        46
+	maximum number of blocks	        24	        49
 	current total bytes		         0	         0
-	maximum total bytes		   1454280	  22510328
-	maximum total K-bytes		      1455	     22511
-	maximum total M-bytes		         2	        23
+	maximum total bytes		   3322488	  22510568
+	maximum total K-bytes		      3323	     22511
+	maximum total M-bytes		         4	        23
 
 
                                      CITATION
@@ -911,20 +1437,25 @@ MA usage statistics:
                       Comput. Phys. Commun. 181, 1477 (2010)
                            doi:10.1016/j.cpc.2010.04.018
 
-                              AUTHORS & CONTRIBUTORS
-                              ----------------------
-      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
-     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
-     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
-      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
-      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+                                      AUTHORS
+                                      -------
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+    S. A. Fischer, S. Krishnamoorthy, M. Jacquelin, W. Ma, M. Klemm, O. Villa,
+      Y. Chen, V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler, V. Konjkov,
+            D. Mejia-Rodriguez, T. Risthaus, M. Malagoli, A. Marenich,
+   A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao,
+        P.-D. Fan, A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr,
+      M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+    M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
       Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
-             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
-        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
-       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
-        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
-        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
-    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
-       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
+      G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall,
+      J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, D. E. Bernholdt,
+      P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. J. O. Deegan, K. Dyall,
+    D. Elwood, E. Glendening, M. Gutowski, A. C. Hess, J. Jaffe, B. G. Johnson,
+     J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+      T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
+      M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
 
- Total times  cpu:        1.0s     wall:        1.4s
+ Total times  cpu:        0.8s     wall:        1.6s
