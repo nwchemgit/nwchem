@@ -2012,7 +2012,7 @@ c
       else
          move = .true.
       end if
-      if (.not.rtdb_put(rtdb,' nwpw:makehmass2',mt_log,1,
+      if (.not.rtdb_put(rtdb,'nwpw:makehmass2',mt_log,1,
      >                  move))
      >  call errquit('nwpw_input: error writing to rtdb',8700,RTDB_ERR)
       goto 10
