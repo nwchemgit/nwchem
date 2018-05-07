@@ -1,5 +1,6 @@
 /* $Id$ */
 /* routine drop i/o caches */
+#define _FILE_OFFSET_BITS 64
 #include "typesf2c.h"
 #ifdef __linux__
 #define _XOPEN_SOURCE 600
@@ -44,8 +45,8 @@ void FATR util_fadvise(const char *buf, int mode){
         perror( "Could not stat file: " );
         return;
     }
-    loff_t offset = 0;
-    loff_t length = fd_stat.st_size;
+    off_t offset = 0;
+    off_t length = fd_stat.st_size;
 
     
     /*    (void) fdatasync(fd);*/
