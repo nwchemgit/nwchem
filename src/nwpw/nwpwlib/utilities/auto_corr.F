@@ -334,8 +334,9 @@ c      end if
 #include "errquit.fh"
 
 
-      real*8 c,auTOsec
+      real*8 c,auTOsec,CAconv
       parameter (c=2.996d+10,auTOsec=2.41889d-17)
+      parameter (CAconv=3.058900977e9)
  
       integer MASTER,taskid
       parameter (MASTER=0)
@@ -350,11 +351,17 @@ c      end if
       real*8  tmax
       real*8  x,y,z
       real*8  v1,v2,v3,sv1,sv2,sv3
-      real*8  unita(3,3)
+      real*8  unita(3,3),omega
       character*80  tfilename
       character*255 full_filename1
       character*255 full_filename2
 
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+
+      omega = lattice_omega()
 
 *     *** synchronization ***
       call ga_sync()
@@ -660,7 +667,9 @@ c      call dscal(4*nframes,x,dcpl_mb(vk(1)),1)
             freq=0.0d0
          endif
          write(36,*) freq, dble(dcpl_mb(vk(1)+k)),
-     >                    dimag(dcpl_mb(vk(1)+k))
+     >                    dimag(dcpl_mb(vk(1)+k)),
+     >                     dble(dcpl_mb(vk(1)+k))*CAconv/omega,
+     >                    dimag(dcpl_mb(vk(1)+k))*CAconv/omega
       end do
       close(unit=36)
 
