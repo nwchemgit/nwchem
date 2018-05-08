@@ -577,6 +577,7 @@ ifdef DEV_GA
 endif
 
 ifdef USE_GAGITHUB
+  MAKEFLAGS = -j 1 --no-print-directory
 	GET_TOOLS=./get-tools-github
   ifdef USE_GA_RELEASE
     ifndef GA_RELEASE_NO
