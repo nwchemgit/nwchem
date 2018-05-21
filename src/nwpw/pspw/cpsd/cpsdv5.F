@@ -1211,7 +1211,7 @@ c      call frac_occ_end()
      >       ' ) - atomic mass= ',F7.3,' - z fixed')
  1194 FORMAT(5X, I4, A5, ' (',3F11.5,
      >       ' ) - atomic mass= ',F7.3,A)
- 1195 FORMAT(5X, I4, A5, ' (',3F11.5,' ) -      charge= ',F7.3,' ',A)
+ 1195 FORMAT(5X, I4, A5, ' (',3F11.5,' ) -      charge= ',E13.6,' ',A)
  1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
  1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
  1211 FORMAT(5X,'   number of constraints = ', I6,' ( DOF = ',I6,' )' )
