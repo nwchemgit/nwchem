@@ -27,7 +27,7 @@ endif
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = D1dB-mpi.F Dne.F skew.F Dne_omp.F
+    USES_BLAS = D1dB-mpi.F Dne.F skew.F Dne_omp.F Dnex.F
 
   LIB_DEFINES = 
 

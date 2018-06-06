@@ -24,7 +24,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = nwpwxc_vdw3a.F nwpwxc_vdw3c.F
+    USES_BLAS = nwpwxc_vdw3a.F nwpwxc_vdw3c.F nwpwxc_eval.F nwpwxc_c_vwn_a.fh
 
       HEADERS = nwpwxc.fh nwpwxc_param.fh
 

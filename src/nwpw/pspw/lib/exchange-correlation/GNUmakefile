@@ -23,7 +23,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = v_bwexc_euv.F v_bwexc.F nwpw_meta_gga.F
+    USES_BLAS = v_bwexc_euv.F v_bwexc.F nwpw_meta_gga.F v_mexc.F
 
 
   LIB_DEFINES = 

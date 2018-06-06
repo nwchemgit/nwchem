@@ -8,7 +8,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS =  pspw_charge.F
+    USES_BLAS =  pspw_charge.F pspw_cosmo.F
   LIB_DEFINES =
   LIB_INCLUDES = 
 
