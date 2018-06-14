@@ -72,9 +72,10 @@
      >                            frac_smeartype,fractional
 
 *     **** control dispersion block ****
-      logical has_disp,is_grimme2
+      logical has_disp,is_grimme2,has_vdw,is_vdw2
       character*80 options_disp
-      common / control_dispersion / options_disp,has_disp,is_grimme2
+      common / control_dispersion / options_disp,has_disp,is_grimme2,
+     >                              has_vdw,is_vdw2
 
 *     **** control fact small block ****
       logical has_ngrid_small

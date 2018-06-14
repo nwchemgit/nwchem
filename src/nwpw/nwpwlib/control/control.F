@@ -2825,6 +2825,34 @@ c      end
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *        control_has_vdw          *
+*     *                                 *
+*     ***********************************
+      logical function control_has_vdw()
+      implicit none
+
+#include "control.fh"
+
+      control_has_vdw = has_vdw
+      return
+      end 
+
+*     ***********************************
+*     *                                 *
+*     *        control_is_vdw2          *
+*     *                                 *
+*     ***********************************
+      logical function control_is_vdw2()
+      implicit none
+
+#include "control.fh"
+
+      control_is_vdw2 = is_vdw2
+      return
+      end
+
 
 *     ***********************************
 *     *					*
