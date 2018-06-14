@@ -21,6 +21,7 @@ env: == default ==
         PYTHONHOME=/usr
         LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH
 before_script:
+        - sudo add-apt-repository universe && sudo apt update
         - sudo apt-get -y install gfortran gcc python-dev  cmake
         - sudo apt-get -y install libopenmpi-dev openmpi-bin tcsh make automake libtool autoconf 
         - sudo apt-get -y install perl
