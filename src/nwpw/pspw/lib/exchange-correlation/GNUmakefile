@@ -1,6 +1,7 @@
 #
 # $Id$
 #
+ #SUBDIRS = vdw-DF
 
  OBJ_OPTIMIZE = \
             	v_bwexc_all.o \
