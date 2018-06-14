@@ -33,6 +33,7 @@
 *
 *
       has_disp = .false.
+      has_vdw  = .false.
 
 *
 *     no exchange-correlation functions
