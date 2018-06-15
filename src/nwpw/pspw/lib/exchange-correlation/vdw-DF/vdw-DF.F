@@ -25,10 +25,10 @@
       integer iop,lgth,unitf,print_level,i,j
       character*255 qmesh_library,qmesh_data_name
 
-*     **** qmesh common block ****
+*     **** vdw_df common block ****
       logical has_vdw
-      integer Nqs,qmesh(2),ya(2),y2a(2)
-      common /vdw_df_common/ qmesh,ya,y2a,Nqs,has_vdw
+      integer Nqs,qmesh(2),ya(2),y2a(2),ufunc(2)
+      common /vdw_df_common/ ufunc,qmesh,ya,y2a,Nqs,has_vdw
 
 *     **** external functions ***
       logical  control_has_vdw,constrol_is_vdw2
@@ -141,7 +141,7 @@
       end do
       close(unitf)
 
-*    **** initialize interpoation splines ****
+*     **** initialize interpolation splines ****
       value = BA_push_get(mt_dbl,3*Nqs,'utmp', utmp(2), utmp(1))
       if (.not.value) call errquit('vdw_DF_init:out of stack',1,MA_ERR)
       call vdw_DF_init_poly(Nqs,
@@ -151,6 +151,11 @@
      <>                     dbl_mb(utmp(1)))
       value = BA_pop_stack(utmp(2))
       if (.not.value) call errquit('vdw_DF_init:pop stack',2,MA_ERR)
+
+*     **** initialize langreth kernels ****
+      nn =Nqs*(Nqs+1)/2
+      call Pack_npack(0,npack0)
+      value = BA_alloc_get(mt_dbl,nn*npack0,'ufunc',ufunc(2),ufunc(1))
 
       return
 
@@ -170,16 +175,17 @@
       subroutine vdw_DF_end()
       implicit none
 
-*     **** qmesh common block ****
+*     **** vdw_df common block ****
       logical has_vdw
-      integer Nqs,qmesh(2),ya(2),y2a(2)
-      common /vdw_df_common/ qmesh,ya,y2a,Nqs,has_vdw
+      integer Nqs,qmesh(2),ya(2),y2a(2),ufunc(2)
+      common /vdw_df_common/ ufunc,qmesh,ya,y2a,Nqs,has_vdw
 
 *     **** local variables ****
       logical value
 
       if (has_vdw) then
-         value = BA_free_heap(qmesh(2))
+         value = BA_free_heap(ufunc(2))
+         value = value.BA_free_heap(qmesh(2))
          value = value.and.BA_free_heap(ya(2))
          value = value.and.BA_free_heap(y2a(2))
          if (.not.value) 
@@ -222,9 +228,17 @@
       return
       end
 
+*     ****************************************** 
+*     *                                        *
+*     *       langreth_kernel_generation       *
+*     *                                        *
+*     ****************************************** 
 
-      subroutine langreth_kernel_generation()
+      subroutine langreth_kernel_generation(Nqs,npack0,qmesh,ufunc)
       implicit none
+      integer Nqs,npack0
+      real*8  qmesh(*)
+      real*8  ufunc(npack0,*)
 
 c     **** Langreth kernel common block ****
       integer Na
@@ -241,30 +255,6 @@ c     **** Langreth kernel common block ****
       return
       end
 
-      subroutine vdw_DF_init_poly(Nq,qmesh)
-      implicit none
-      integer Nq
-      real*8 qmesh(Nq)
-
-      value = value.and.
-     >        BA_push_get(mt_dbl, n2ft3d,'grx',grx(2),grx(1))
-        value = value.and.
-     >        BA_push_get(mt_dbl, n2ft3d,'gry',gry(2),gry(1))
-        value = value.and.
-     >        BA_push_get(mt_dbl, n2ft3d,'grz',grz(2),grz(1))
-        value = value.and.
-     >        BA_push_get(mt_dbl, n2ft3d,'agr',agr(2),agr(1))
-        value = value.and.
-     >        BA_push_get(mt_dbl, n2ft3d,'fn',fn(2),fn(1))
-        rhog(1) = fn(1)
-        value = value.and.
-     >        BA_push_get(mt_dbl, 2*n2ft3d,'fdn',fdn(2),fdn(1))
-        tmp(1) = fdn(1)
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-
-
-      return
-      end 
 
       subroutine vdw_DF_init0(Na,amin,amax,a,a2,aweights,
      >                        cos_a,sin_a,nu,nu1,Wab)
