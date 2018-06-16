@@ -5,6 +5,8 @@
 *     *                                       *
 *     *****************************************
 *
+*     This function returns the filename of the qmesh datafile.
+*
 *     *** Order of precedence for choosing name                     ***
 *     *** 1) value of NWCHEM_QMESH_DATA environment variable        ***
 *     *** 2) value of NWCHEM_QMESH_DATA set in $HOME/.nwchemrc file ***
@@ -114,7 +116,6 @@
          write(luout,*) ' NWCHEM_QMESH_DATA set to: <',
      >    qmesh_data_name(1:inp_strlen(qmesh_data_name)),'>'
       end if
-
 
       return
       end
