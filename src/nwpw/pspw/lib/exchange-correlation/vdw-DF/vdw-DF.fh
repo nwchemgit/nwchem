@@ -1,0 +1,4 @@
+*     **** vdw_df common block ****
+      logical has_vdw,is_vdw2
+      integer Nqs,qmesh(2),ya(2),y2a(2),ufunc(2)
+      common /vdw_df_common/ ufunc,qmesh,ya,y2a,Nqs,has_vdw,is_vdw2
