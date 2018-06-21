@@ -1530,16 +1530,16 @@ if [ "${ARMCI_NETWORK}" == "OPENIB" ] ; then
 fi
 if [ ${#SLURMOPT} -eq 0 ] ; then
   if [ -f /usr/lib/libslurm.a ] ; then
-    export SLURMOPT=-lslurm
+    export SLURMOPT="-L/usr/lib -lslurm"
     export SLURM=y
   elif [ -f /usr/lib/libslurm.so ] ; then
-    export SLURMOPT=-lslurm
+    export SLURMOPT="-L/usr/lib -lslurm"
     export SLURM=y
   elif [ -f /usr/lib64/libslurm.a ] ; then
-    export SLURMOPT=-lslurm
+    export SLURMOPT="-L/usr/lib64 -lslurm"
     export SLURM=y
   elif [ -f /usr/lib64/libslurm.so ] ; then
-    export SLURMOPT=-lslurm
+    export SLURMOPT="-L/usr/lib64 -lslurm"
     export SLURM=y
   fi
 fi
@@ -2194,14 +2194,14 @@ fi
 if [ ${#SLURMOPT} -ne 0 ] ; then
   echo "SLURMOPT           =" ${SLURMOPT}
   echo "SLURM              =" ${SLURM}
-  echo "export SLURMOPT=${SLURMOPT}" >> ${NWCHEM_ENV_SH}
-  echo "export SLURM=${SLURM}"       >> ${NWCHEM_ENV_SH}
-  echo "setenv SLURMOPT ${SLURMOPT}" >> ${NWCHEM_ENV_CSH}
-  echo "setenv SLURM ${SLURM}"       >> ${NWCHEM_ENV_CSH}
-  echo "unset SLURMOPT"              >> ${NWCHEM_UNENV_SH}
-  echo "unset SLURM"                 >> ${NWCHEM_UNENV_SH}
-  echo "unsetenv SLURMOPT"           >> ${NWCHEM_UNENV_CSH}
-  echo "unsetenv SLURM"              >> ${NWCHEM_UNENV_CSH}
+  echo "export SLURMOPT=\"${SLURMOPT}\"" >> ${NWCHEM_ENV_SH}
+  echo "export SLURM=${SLURM}"           >> ${NWCHEM_ENV_SH}
+  echo "setenv SLURMOPT \"${SLURMOPT}\"" >> ${NWCHEM_ENV_CSH}
+  echo "setenv SLURM ${SLURM}"           >> ${NWCHEM_ENV_CSH}
+  echo "unset SLURMOPT"                  >> ${NWCHEM_UNENV_SH}
+  echo "unset SLURM"                     >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv SLURMOPT"               >> ${NWCHEM_UNENV_CSH}
+  echo "unsetenv SLURM"                  >> ${NWCHEM_UNENV_CSH}
 fi
 if [ ${#BLASOPT} -ne 0 ] ; then
   echo "BLASOPT            =" ${BLASOPT} 
