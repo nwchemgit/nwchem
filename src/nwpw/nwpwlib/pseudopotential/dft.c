@@ -15,6 +15,7 @@ static int	Hartree_Type     = Hartree_On;
 static int	Exchange_Type    = Exchange_Dirac;
 static int	Correlation_Type = Correlation_Vosko;
 static double   screening_cut = 0.0;
+static double   blyp_screening_cut = 0.0;
 
 
 void	init_DFT(char	*filename)
@@ -103,6 +104,18 @@ void	init_DFT(char	*filename)
    }
    fclose(fp);
 
+   /* set blyp_screening_cut */
+   blyp_screening_cut = 0.0;
+   fp = fopen(filename,"r+");
+   w = get_word(fp);
+   while ((w!=NIL) && (strcmp("<blyp_screening_cut>",w)!=0))
+      w = get_word(fp);
+   if (w!=NIL)
+   {
+      fscanf(fp,"%lf",&blyp_screening_cut);
+   }
+   fclose(fp);
+
 
 }
 
@@ -138,7 +151,20 @@ void R_Screening_Cut(double * Vx)
       b =  v1 - m*r1;
       for (k=0; k<n1; ++k)
          Vx[k] = m*r[k] + b;
-   }
+   } 
+   else if ((blyp_screening_cut>0.0) && (Exchange_Type==Exchange_Becke) && (Correlation_Type==Correlation_LYP)) 
+   {
+      r = r_LogGrid();
+      NN = index_r_LogGrid(blyp_screening_cut) + 5;
+      for (k=0; k<NN; ++k)
+        if (r[k] < blyp_screening_cut)
+           { n0=n1; r0=r1; v0=v1; n1=k; r1=r[k]; v1=Vx[k]; }
+      m = (v1-v0)/(r1-r0);
+      b =  v1 - m*r1;
+      for (k=0; k<n1; ++k)
+         Vx[k] = m*r[k] + b;
+   } 
+
 }
 
 

@@ -11,8 +11,8 @@ exit:  - Vx[]: exchange potential
 *********************************/
 
 #define tolrho 	2.0e-8
-#define minden 	1.0e-8
-#define minagr 	1.0e-8
+#define minden 	1.0e-10
+#define minagr 	1.0e-10
 
 void R_Becke_Exchange(rho,Vx,Ex,Px)
 
@@ -106,7 +106,7 @@ Vx[],
     Derivative_LogGrid(rhoNRM,drho);           /* drho                  */
 
     for (i=0;i<Ngrid;++i)
-       agr[i] = fabs(drho[i]) + minagr;             /* agr                   */
+       agr[i] = fabs(drho[i]);             /* agr                   */
 
     Derivative_LogGrid(drho,ddrho);
 
@@ -131,12 +131,13 @@ Vx[],
 
     /* calculate F  and dF/dchi *************************************/
     for (i=0;i<Ngrid;++i) {
-       //if ((rhoNRM[i]>tolrho) && (chi[i] > 1.0e-9))
-       F[i] = chi[i]*chi[i]/(1.0+6.0*beta*c*chi[i]*log(c*chi[i] + sqrt(1.0+c*c*chi[i]*chi[i])));
+       if ((rhoNRM[i]>tolrho) && (chi[i] > minagr)) {
+          F[i] = chi[i]*chi[i]/(1.0+6.0*beta*c*chi[i]*log(c*chi[i] + sqrt(1.0+c*c*chi[i]*chi[i])));
 
-       Fdchi[i] = 2*F[i]/chi[i] - (F[i]*F[i]/(chi[i]*chi[i]))
-                   *(6.0*beta*c*log(c*chi[i] + sqrt(1.0+c*c*chi[i]*chi[i]))
-                    +6.0*beta*c*c*chi[i]/sqrt(1.0+c*c*chi[i]*chi[i]));
+          Fdchi[i] = 2*F[i]/chi[i] - (F[i]*F[i]/(chi[i]*chi[i]))
+                      *(6.0*beta*c*log(c*chi[i] + sqrt(1.0+c*c*chi[i]*chi[i]))
+                       +6.0*beta*c*c*chi[i]/sqrt(1.0+c*c*chi[i]*chi[i]));
+       }
     }
 
     /* calculate fdn and fddn******************************************/
@@ -150,8 +151,10 @@ Vx[],
 
     /* calculate G ***************************************************/
     for (i=0;i<Ngrid;++i)
-       //if (agr[i] > tolrho) 
-       G[i] = fddn[i]/agr[i];
+       if (agr[i] > minagr) 
+          G[i] = fddn[i]/agr[i];
+       else
+          G[i] = 0.0;
     /* calculate dG/dr ***********************************************/
 
     Derivative_LogGrid(G,Gdr);
@@ -159,7 +162,7 @@ Vx[],
 
     /* calculate exchange potential and exchange energy density*******/
     for (i=0;i<Ngrid;++i) {
-        if (rhoNRM[i] > tolrho) {
+        if ((rhoNRM[i] > tolrho) && (agr[i]>minagr)) {
 
             /*exchange potential ****************************************/
             lap = ddrho[i] + (2.0/rgrid[i])*drho[i];
