@@ -23,5 +23,6 @@ C
        1 0.850
        2 0.850
 <end>
+<blyp_screening_cut> 0.4 <end>
 
 <comment> Parameterized (J.Phys.Chem., vol 100, page 6966) Hamman psp <end>

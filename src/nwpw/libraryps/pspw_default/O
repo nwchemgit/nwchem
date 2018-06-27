@@ -24,6 +24,7 @@ O
        1 0.700
        2 0.700
 <end>
+<blyp_screening_cut> 0.4 <end>
 
 <comment> Parameterized (Chem.Phys.Lett., vol 322, page 447) Hamman psp <end>
 
