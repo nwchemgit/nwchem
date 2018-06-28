@@ -162,7 +162,7 @@ Vx[],
 
     /* calculate exchange potential and exchange energy density*******/
     for (i=0;i<Ngrid;++i) {
-        if ((rhoNRM[i] > tolrho) && (agr[i]>minagr)) {
+        if ((rhoNRM[i] > tolrho) && (agr[i]>minagr) && (chi[i]<1.0)) {
 
             /*exchange potential ****************************************/
             lap = ddrho[i] + (2.0/rgrid[i])*drho[i];
