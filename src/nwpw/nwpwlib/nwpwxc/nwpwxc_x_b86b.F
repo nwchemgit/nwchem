@@ -127,7 +127,7 @@ c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1))
             drho = dsqrt(drho2) 
             chi = drho/rho43
-            if ((drho.le.tol_rho**2).or.(chi.gt.1.0d0)) goto 10
+            if ((drho.le.tol_rho**2).or.(chi.gt.10.0d0)) goto 10
 
 c     Gradient correction
             dr2_r43 = drho2 / rho43
@@ -194,7 +194,7 @@ c    &           delrho(n,2,1)*delrho(n,2,1) +
 c    &           delrho(n,3,1)*delrho(n,3,1)) 
             drho = dsqrt(drho2) 
             chi = drho/rho43
-            if ((drho.le.tol_rho**2).or.(chi.gt.1.0d0)) goto 150
+            if ((drho.le.tol_rho**2).or.(chi.gt.10.0d0)) goto 150
 
 c     Gradient correction
             dr2_r43 = drho2 / rho43
@@ -250,7 +250,7 @@ c    &           delrho(n,2,2)*delrho(n,2,2) +
 c    &           delrho(n,3,2)*delrho(n,3,2))
             drho = dsqrt(drho2)  
             chi = drho/rho43
-            if ((drho.le.tol_rho**2).or.(chi.gt.1.0d0)) goto 100
+            if ((drho.le.tol_rho**2).or.(chi.gt.10.0d0)) goto 100
 
 c     Gradient correction
             dr2_r43 = drho2 / rho43

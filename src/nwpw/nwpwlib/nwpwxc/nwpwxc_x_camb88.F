@@ -137,7 +137,7 @@ c    &              delrho(n,3,1)*delrho(n,3,1)
                x = 0.0d0
             endif
 c
-            if ((rho(n,R_T).gt.tolrho).and.(x.lt.1.0d0)) then
+            if ((rho(n,R_T).gt.tolrho).and.(x.lt.10.0d0)) then
                gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
                g = -BETA*x*x / gdenom
                dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
@@ -222,7 +222,7 @@ c    &              delrho(n,3,1)*delrho(n,3,1)
                x = 0d0
             endif
 c
-            if ((rho(n,R_A).gt.tolrho).and.(x.lt.1.0d0)) then
+            if ((rho(n,R_A).gt.tolrho).and.(x.lt.10.0d0)) then
                gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
                g = -BETA*x*x / gdenom
                dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
@@ -298,7 +298,7 @@ c    &              delrho(n,3,2)*delrho(n,3,2)
                x = 0d0
             endif
 c
-            if ((rho(n,R_B).gt.tolrho).and.(x.lt.1.0d0)) then
+            if ((rho(n,R_B).gt.tolrho).and.(x.lt.10.0d0)) then
                gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
                g = -BETA*x*x / gdenom
                dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
