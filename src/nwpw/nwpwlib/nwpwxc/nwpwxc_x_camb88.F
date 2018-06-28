@@ -89,6 +89,9 @@ c
 c
       double precision BETA
       Parameter (BETA = 0.0042D0)
+
+      double precision tolrho
+      Parameter (tolrho=2.0d-8)
 c
 c References:
 c
@@ -134,57 +137,68 @@ c    &              delrho(n,3,1)*delrho(n,3,1)
                x = 0.0d0
             endif
 c
-            gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
-            g = -BETA*x*x / gdenom
-            dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
-            dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
+            if ((rho(n,R_T).gt.tolrho).and.(x.lt.1.0d0)) then
+               gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
+               g = -BETA*x*x / gdenom
+               dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
+               dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
 c
-            Etmp = 0.d0
-            Atmp = 0.d0
-            Ctmp = 0.d0
-c           if (lfac) then
+               Etmp = 0.d0
+               Atmp = 0.d0
+               Ctmp = 0.d0
+c              if (lfac) then
                Etmp = 2d0*rho43*C*wght
                Atmp = (4d0/3d0)*rho13*C*wght
-c           endif
+c              endif
 c
-c           if (nlfac) then
+c              if (nlfac) then
                Etmp = Etmp + 2d0*rho43*g*wght
                Atmp = Atmp + (4d0/3d0)*rho13*(g-x*dg)*wght
-c           endif
+c              endif
 c
-            if (x.gt.tol_rho) then
+               if (x.gt.tol_rho) then
                Ctmp = 0.5d0 * dg / sqrt(gamma) * wght
-            endif
+               endif
 c
 #ifdef SECOND_DERIV
-            A2tmp = 0d0
-            C2tmp = 0d0
-            C3tmp = 0d0
-c           if(lfac) g = g + C           ! Add local contribution back to g
-            g = g + C           ! Add local contribution back to g
-            rhom23 = rho13 / (0.5d0*rho(n,R_T))
-            d2gdenom = 6d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
-            d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
+               A2tmp = 0d0
+               C2tmp = 0d0
+               C3tmp = 0d0
+c              if(lfac) g = g + C           ! Add local contribution back to g
+               g = g + C           ! Add local contribution back to g
+               rhom23 = rho13 / (0.5d0*rho(n,R_T))
+               d2gdenom = 6d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
+               d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
      &           + BETA*x*x*d2gdenom/gdenom**2
      &           - 2d0*BETA*x*x*(dgdenom)**2/gdenom**3
 c
-            A2tmp = (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
-            C2tmp = - (4d0/3d0)*(rhom23**2/rho(n,R_T))*d2g*wght
-            if (x.gt.tol_rho) then
+               A2tmp = (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
+               C2tmp = - (4d0/3d0)*(rhom23**2/rho(n,R_T))*d2g*wght
+               if (x.gt.tol_rho) then
                C3tmp = - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
-            endif
-            call nwpwxc_x_att_d2(param,tol_rho,rho(n,R_T),ipol,
+               endif
+               call nwpwxc_x_att_d2(param,tol_rho,rho(n,R_T),ipol,
      &           Etmp,Atmp,Ctmp,A2tmp,C2tmp,C3tmp)
-            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
-            Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + C2tmp
-            Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + C3tmp
+               Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
+               Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + C2tmp
+               Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + C3tmp
 #else
-            call nwpwxc_x_att(param,tol_rho,rho(n,R_T),ipol,
+               call nwpwxc_x_att(param,tol_rho,rho(n,R_T),ipol,
      &           Etmp,Atmp,Ctmp)
 #endif
-            func(n) = func(n) + Etmp
-            Amat(n,D1_RA) = Amat(n,D1_RA) + Atmp
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + Ctmp
+               func(n) = func(n) + Etmp
+               Amat(n,D1_RA) = Amat(n,D1_RA) + Atmp
+               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + Ctmp
+            else
+               Etmp = 2d0*rho43*C*wght
+               Atmp = (4d0/3d0)*rho13*C*wght
+               Ctmp = 0.0d0
+               call nwpwxc_x_att(param,tol_rho,rho(n,R_T),ipol,
+     &           Etmp,Atmp,Ctmp)
+               func(n) = func(n) + Etmp
+               Amat(n,D1_RA) = Amat(n,D1_RA) + Atmp
+            end if
+
  10      continue
 c
       else
@@ -208,54 +222,63 @@ c    &              delrho(n,3,1)*delrho(n,3,1)
                x = 0d0
             endif
 c
-            gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
-            g = -BETA*x*x / gdenom
-            dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
-            dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
+            if ((rho(n,R_A).gt.tolrho).and.(x.lt.1.0d0)) then
+               gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
+               g = -BETA*x*x / gdenom
+               dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
+               dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
 c
-            Etmp = 0.d0
-            Atmp = 0.d0
-            Ctmp = 0.d0
-c           if (lfac) then
+               Etmp = 0.d0
+               Atmp = 0.d0
+               Ctmp = 0.d0
+c              if (lfac) then
                Etmp = rho43*C*wght
                Atmp = (4d0/3d0)*rho13*C*wght
 c           endif
 c
-c           if (nlfac) then
+c              if (nlfac) then
                Etmp = Etmp + rho43*g*wght
                Atmp = Atmp + (4d0/3d0)*rho13*(g-x*dg)*wght
-c           endif
+c              endif
 c
-            if (x.gt.tol_rho) then
+               if (x.gt.tol_rho) then
                Ctmp = 0.5d0*dg / sqrt(gamma) * wght
-            endif
+               endif
 c
 #ifdef SECOND_DERIV
-c           if (lfac) g = g + C           ! Add local contribution back to g
-            g = g + C           ! Add local contribution back to g
-            rhom23 = rho13 / rho(n,R_A)
-            d2gdenom = 6d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
-            d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
+c              if (lfac) g = g + C           ! Add local contribution back to g
+               g = g + C           ! Add local contribution back to g
+               rhom23 = rho13 / rho(n,R_A)
+               d2gdenom = 6d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
+               d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
      &           + BETA*x*x*d2gdenom/gdenom**2
      &           - 2d0*BETA*x*x*(dgdenom)**2/gdenom**3
 c
-            A2tmp = (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
-            C2tmp =  (2d0/3d0)*(rhom23**2/rho(n,R_A))*d2g*wght
-            if (x.gt.tol_rho) then
+               A2tmp = (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
+               C2tmp =  (2d0/3d0)*(rhom23**2/rho(n,R_A))*d2g*wght
+               if (x.gt.tol_rho) then
                C3tmp = -0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
-            endif
-            call nwpwxc_x_att_d2(param,tol_rho,rho(n,R_A),ipol,
+               endif
+               call nwpwxc_x_att_d2(param,tol_rho,rho(n,R_A),ipol,
      &           Etmp,Atmp,Ctmp,A2tmp,C2tmp,C3tmp)
-            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
-            Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + C2tmp
-            Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + C3tmp
+               Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
+               Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + C2tmp
+               Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + C3tmp
 #else
-            call nwpwxc_x_att(param,tol_rho,rho(n,R_A),ipol,
+               call nwpwxc_x_att(param,tol_rho,rho(n,R_A),ipol,
      &           Etmp,Atmp,Ctmp)
 #endif
-            func(n) = func(n) + Etmp
-            Amat(n,1) = Amat(n,1) + Atmp
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + Ctmp
+               func(n) = func(n) + Etmp
+               Amat(n,1) = Amat(n,1) + Atmp
+               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + Ctmp
+            else
+               Etmp = rho43*C*wght
+               Atmp = (4d0/3d0)*rho13*C*wght
+               call nwpwxc_x_att(param,tol_rho,rho(n,R_A),ipol,
+     &           Etmp,Atmp,Ctmp)
+               func(n) = func(n) + Etmp
+               Amat(n,1) = Amat(n,1) + Atmp
+            end if
 c
  25         continue
 c
@@ -275,57 +298,66 @@ c    &              delrho(n,3,2)*delrho(n,3,2)
                x = 0d0
             endif
 c
-            gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
-            g = -BETA*x*x / gdenom
-            dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
-            dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
+            if ((rho(n,R_B).gt.tolrho).and.(x.lt.1.0d0)) then
+               gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
+               g = -BETA*x*x / gdenom
+               dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
+               dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
 c
-            Etmp = 0.d0
-            Atmp = 0.d0
-            Ctmp = 0.d0
-c           if (lfac) then
+               Etmp = 0.d0
+               Atmp = 0.d0
+               Ctmp = 0.d0
+c              if (lfac) then
                Etmp = rho43*C*wght
                Atmp = (4d0/3d0)*rho13*C*wght
-c           endif
+c              endif
 c
-c           if (nlfac) then
+c              if (nlfac) then
                Etmp = Etmp + rho43*g*wght
                Atmp = Atmp + (4d0/3d0)*rho13*(g-x*dg)*wght
-c           endif
+c              endif
 c
-            if (x.gt.tol_rho) then
+               if (x.gt.tol_rho) then
                Ctmp = 0.5d0*dg / sqrt(gamma) * wght
-            endif
+               endif
 c
 #ifdef SECOND_DERIV
-            A2tmp = 0d0
-            C2tmp = 0d0
-            C3tmp = 0d0
-c           if(lfac) g = g + C           ! Add local contribution back to g
-            g = g + C           ! Add local contribution back to g
-            rhom23 = rho13 / rho(n,R_B)
-            d2gdenom = 6d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
-            d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
+               A2tmp = 0d0
+               C2tmp = 0d0
+               C3tmp = 0d0
+c              if(lfac) g = g + C           ! Add local contribution back to g
+               g = g + C           ! Add local contribution back to g
+               rhom23 = rho13 / rho(n,R_B)
+               d2gdenom = 6d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
+               d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
      &           + BETA*x*x*d2gdenom/gdenom**2
      &           - 2d0*BETA*x*x*(dgdenom)**2/gdenom**3
 c
-            A2tmp = (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
-            C2tmp = -(2d0/3d0)*(rhom23**2/rho(n,R_B))*d2g*wght
-            if (x.gt.tol_rho) then
+               A2tmp = (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
+               C2tmp = -(2d0/3d0)*(rhom23**2/rho(n,R_B))*d2g*wght
+               if (x.gt.tol_rho) then
                C3tmp = - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
-            endif
-            call nwpwxc_x_att_d2(param,tol_rho,rho(n,R_B),ipol,
+               endif
+               call nwpwxc_x_att_d2(param,tol_rho,rho(n,R_B),ipol,
      &           Etmp,Atmp,Ctmp,A2tmp,C2tmp,C3tmp)
-            Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + A2tmp
-            Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB) + C2tmp
-            Cmat2(n,D2_GBB_GBB) = Cmat2(n,D2_GBB_GBB) + C3tmp
+               Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + A2tmp
+               Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB) + C2tmp
+               Cmat2(n,D2_GBB_GBB) = Cmat2(n,D2_GBB_GBB) + C3tmp
 #else
-            call nwpwxc_x_att(param,tol_rho,rho(n,R_B),ipol,
+               call nwpwxc_x_att(param,tol_rho,rho(n,R_B),ipol,
      &           Etmp,Atmp,Ctmp)
 #endif
-            func(n) = func(n) + Etmp
-            Amat(n,D1_RB) = Amat(n,D1_RB) + Atmp
-            Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + Ctmp
+               func(n) = func(n) + Etmp
+               Amat(n,D1_RB) = Amat(n,D1_RB) + Atmp
+               Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + Ctmp
+            else
+               Etmp = rho43*C*wght
+               Atmp = (4d0/3d0)*rho13*C*wght
+               call nwpwxc_x_att(param,tol_rho,rho(n,R_B),ipol,
+     &           Etmp,Atmp,Ctmp)
+               func(n) = func(n) + Etmp
+               Amat(n,D1_RB) = Amat(n,D1_RB) + Atmp
+            end if
  20      continue
 c
       endif

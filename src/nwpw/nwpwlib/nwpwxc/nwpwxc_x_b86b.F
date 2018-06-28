@@ -74,7 +74,7 @@ c
                                     !< and possibly rho
 #endif
       double precision pi
-      double precision C, Cs
+      double precision C, Cs,chi
       double precision F13, F43, F45, FM45
       parameter (F13=1d0/3d0,F43=4d0/3d0,F45=4d0/5d0,FM45=-F45)
       integer n
@@ -126,7 +126,8 @@ c           drho2 = (delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1))
             drho = dsqrt(drho2) 
-            if (drho.le.tol_rho**2) goto 10
+            chi = drho/rho43
+            if ((drho.le.tol_rho**2).or.(chi.gt.1.0d0)) goto 10
 
 c     Gradient correction
             dr2_r43 = drho2 / rho43
@@ -192,7 +193,8 @@ c           drho2 = (delrho(n,1,1)*delrho(n,1,1) +
 c    &           delrho(n,2,1)*delrho(n,2,1) +
 c    &           delrho(n,3,1)*delrho(n,3,1)) 
             drho = dsqrt(drho2) 
-            if (drho.le.tol_rho**2) goto 150
+            chi = drho/rho43
+            if ((drho.le.tol_rho**2).or.(chi.gt.1.0d0)) goto 150
 
 c     Gradient correction
             dr2_r43 = drho2 / rho43
@@ -247,7 +249,8 @@ c           drho2 = (delrho(n,1,2)*delrho(n,1,2) +
 c    &           delrho(n,2,2)*delrho(n,2,2) +
 c    &           delrho(n,3,2)*delrho(n,3,2))
             drho = dsqrt(drho2)  
-            if (drho.le.tol_rho**2) goto 100
+            chi = drho/rho43
+            if ((drho.le.tol_rho**2).or.(chi.gt.1.0d0)) goto 100
 
 c     Gradient correction
             dr2_r43 = drho2 / rho43
