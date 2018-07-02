@@ -706,7 +706,7 @@ c     that might be changed later if memory becomes an issue
       
       integer g_z(ncomp),g_Az(ncomp),g_zr(ncomp),
      &        g_z1,g_Az1,g_zr1
-      double precision omg(ncomp)
+      double precision omg(2)
       external conv2complex,
      &         updating_Az1_z1_zr1,
      &         solve_zlineq,
@@ -6321,8 +6321,8 @@ c Date  : 03-15-12
 #include "stdio.fh"
 #include "util.fh"
       integer iter,ipm,cc,ncomp
-      double precision rmax,omg(ncomp),
-     &                 omega,rmx(ncomp)
+      double precision rmax,omg(2),
+     &                 omega,rmx(2)
       integer g_r(ncomp),g_Ax(ncomp)
       logical debug,converge_precond
       external precond ! preconditioner routine
@@ -6379,7 +6379,7 @@ c Date  : 03-15-12
 #include "stdio.fh"
 #include "util.fh"
       integer iter,ipm,cc,ncomp
-      double precision rmax,omg(ncomp),
+      double precision rmax,omg(2),
      &                 omega,gamwidth
       integer g_r(ncomp),g_r_im(ncomp),
      &        g_Ax(ncomp),g_Ax_im(ncomp)
@@ -6498,8 +6498,8 @@ c Date  : 03-15-12
       integer iter,ipm,cc,ncomp,nmx,i,
      &        npol,nvir(npol),nocc(npol)
       double precision rmax,
-     &                 omg(ncomp),
-     &                 gam(ncomp),
+     &                 omg(2),
+     &                 gam(2),
      &                 omega,gamwidth
       integer nsub,n,nvec,
      &        l_max,k_max,
