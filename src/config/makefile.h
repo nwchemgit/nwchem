@@ -2740,10 +2740,10 @@ ifdef USE_MPI
       MPIF90YN = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
       ifeq ($(MPIF90YN),mpif90notfound)
         errormpif90:
-          @echo " "
-          @echo "mpif90 not found. Please add its location to PATH"
-          @echo "e.g. export PATH=/usr/local/bin:/usr/lib64/openmpi/bin:..."
-          @echo " "
+$(info )
+$(info mpif90 not found. Please add its location to PATH)
+$(info e.g. export PATH=/usr/local/bin:/usr/lib64/openmpi/bin:...)
+$(info )
       endif
       MPI_INCLUDE = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
     endif
