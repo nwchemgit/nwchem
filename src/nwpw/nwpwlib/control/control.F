@@ -1613,9 +1613,9 @@ c      end if
          do ii=1,nion
            value = geom_cent_get(geom,ii,t,rxyz,q)
            if (.not.control_notqmmmq(t)) then
-            x =rxyz(1)
-            y =rxyz(2)
-            z =rxyz(3)
+            x = rxyz(1)
+            y = rxyz(2)
+            z = rxyz(3)
 
             txy = txy + x*y
             txz = txz + x*z
@@ -1683,13 +1683,13 @@ c         mtensor(3,3) = z
         end if
         if (.not.control_notqmmmq(t)) then
            frac(1) = mtensor(1,1)*rxyz(1)
-     >             + mtensor(1,2)*rxyz(2)
-     >             + mtensor(1,3)*rxyz(3)
-           frac(2) = mtensor(2,1)*rxyz(1)
+     >             + mtensor(2,1)*rxyz(2)
+     >             + mtensor(3,1)*rxyz(3)
+           frac(2) = mtensor(1,2)*rxyz(1)
      >             + mtensor(2,2)*rxyz(2)
-     >             + mtensor(2,3)*rxyz(3)
-           frac(3) = mtensor(3,1)*rxyz(1)
-     >             + mtensor(3,2)*rxyz(2)
+     >             + mtensor(3,2)*rxyz(3)
+           frac(3) = mtensor(1,3)*rxyz(1)
+     >             + mtensor(2,3)*rxyz(2)
      >             + mtensor(3,3)*rxyz(3)
            if ((frac(1)+delta).gt.( 0.5*L1)) L1 = 2.0d0*(frac(1)+delta)
            if ((frac(2)+delta).gt.( 0.5*L1)) L1 = 2.0d0*(frac(2)+delta)
