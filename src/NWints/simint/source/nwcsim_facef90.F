@@ -113,7 +113,11 @@ c
 
       mem_2e4c = max(mem_2e4c,
      S     simint_eri_worksize(num_der, max_ang))
+c     SIMINT_PRIM_SCREEN_STAT needs 4 more doubles
+      isz_2e4c        = isz_2e4c + 4
+c      
       mem_2e3c = mem_2e4c
+      
       if(num_der.eq.1) then
          memb_2e4c = mem_2e4c + mem_2e4c/5
       else
