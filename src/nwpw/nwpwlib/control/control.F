@@ -1703,7 +1703,7 @@ c         mtensor(3,3) = z
         end if
       end do
       !*** put threshold on smallest cubic box ***
-      if (L1.lt.24.0d0) L1=24.0d0
+      if (L1.lt.26.0d0) L1=26.0d0
 
 *     **** define unit cell ****
       unita(1,1) = L1*mtensor(1,1)
@@ -1763,18 +1763,18 @@ c      write(*,*) "L3=",L3
       Lmax = L1
       if (Lmax.lt.L2) Lmax = L2
       if (Lmax.lt.L3) Lmax = L3
-      if (Lmax.lt.24.0d0) then
-         L1 = 24.0d0
-         L2 = 24.0d0
-         L3 = 24.0d0
+      if (Lmax.lt.26.0d0) then
+         L1 = 19.0d0
+         L2 = 19.0d0
+         L3 = 19.0d0
          mtensor(1,1) = 1.0d0
-         mtensor(2,1) = 0.0d0
+         mtensor(2,1) = 1.0d0
          mtensor(3,1) = 0.0d0
-         mtensor(1,2) = 0.0d0
-         mtensor(2,2) = 1.0d0
-         mtensor(3,2) = 0.0d0
+         mtensor(1,2) = 1.0d0
+         mtensor(2,2) = 0.0d0
+         mtensor(3,2) = 1.0d0
          mtensor(1,3) = 0.0d0
-         mtensor(2,3) = 0.0d0
+         mtensor(2,3) = 1.0d0
          mtensor(3,3) = 1.0d0
       end if
 
