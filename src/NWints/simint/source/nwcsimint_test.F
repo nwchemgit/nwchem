@@ -15,6 +15,10 @@ c      use iso_c_binding
       integer :: worksize
       integer :: num_der, max_ang
       integer l_wrk,k_wrk
+      integer*8 smnt_screen_method
+      parameter(smnt_screen_method=2)
+      integer*4 smnt_deriv
+      parameter(smnt_deriv=1)
 
       call simint_init()
 
@@ -67,10 +71,11 @@ c      allocate(work(worksize))
       
 #ifdef SIMINT_GRADIENT
       write(6,*) ' using derivatives 1 code '
-      ncomputed = simint_compute_eri_deriv(1,bra_msh, ket_msh, 0d0,
+      ncomputed = simint_compute_eri_deriv(smnt_deriv,bra_msh, ket_msh,
+     s     1d-15,
      C     dbl_mb(k_wrk), integrals)
 #else
-      ncomputed = simint_compute_eri(bra_msh, ket_msh, 0d0,
+      ncomputed = simint_compute_eri(bra_msh, ket_msh, 1d-15,
      C     dbl_mb(k_wrk), integrals)
 #endif
       write(*,*) ' 2e4c', integrals(1),integrals(ncomputed)
