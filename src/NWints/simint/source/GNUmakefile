@@ -26,7 +26,9 @@ endif
      USES_BLAS = 
 
 include ../../../config/makelib.h
+ifdef USE_SIMINT
 $(LIBRARY_PATH)(nwcsim_hf2.o):	../module/nwcsim_shell.mod
+endif
 
 #  ifeq ($(FC),efc)
 #            FOPTIONS += -save
