@@ -24,7 +24,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 122)
+      parameter (num_dirs = 123)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -147,6 +147,7 @@ c
      >            'periodic_dipole',
      >            'translate_vector',
      >            'makehmass2',
+     >            'apc',
      >            'end'/
 
       double precision kb
@@ -159,9 +160,9 @@ c
       double precision fake_mass,time_step,rcut
       integer loop(2),ncut,cell_expand(3)
       double precision tolerances(3),ecut,wcut,fe,ff,scaling(2)
-      double precision alpha,emin,emax
+      double precision alpha,emin,emax,agamma(10),Gc
       double precision Pe,Pr,Te,Tr
-      integer npoints,mchain,nchain
+      integer npoints,mchain,nchain,nga
       logical mulliken,allow_translation
       integer ispin,multiplicity,space_avail
       integer nx,ny,nz,minimizer,h_values,i_values,nuterms
@@ -219,7 +220,7 @@ c
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
      >       7700,7800,7900,8000,8100,6650,8200,8300,8400,8500,8600,
-     >       8700,
+     >       8700,8800,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -2015,6 +2016,27 @@ c
       if (.not.rtdb_put(rtdb,'nwpw:makehmass2',mt_log,1,
      >                  move))
      >  call errquit('nwpw_input: error writing to rtdb',8700,RTDB_ERR)
+      goto 10
+
+c
+c apc Gc gamma1 gamma2 gamma3 ...
+c
+ 8800 if (inp_f(Gc)) then
+         nga = 0
+         value = .false.
+         do while (inp_f(agamma(nga+1)).and.(.not.value))
+            nga = nga + 1
+            value = (nga.ge.10)
+         end do
+         if (nga.gt.0) then
+         if ((.not.rtdb_put(rtdb,'nwpw_APC:Gc',mt_dbl,1,Gc)) .or.
+     >    (.not.rtdb_put(rtdb,'nwpw_APC:nga',mt_int,1,nga))  .or.
+     >    (.not.rtdb_put(rtdb,'nwpw_APC:gamma',mt_dbl,nga,agamma))) then
+         call errquit('nwpw_input: error writing to rtdb',8800,RTDB_ERR)
+         end if
+         end if
+      end if
+
       goto 10
 
 
