@@ -3004,6 +3004,9 @@ c     *****  read initial wavefunctions into psi1  ****
 *     **** Mulliken Analysis ****
       call band_analysis(0,rtdb,ispin,ne,nbrillioun,nbrillq,
      >                   psi1_tag,eig_tag)
+      
+      call band_gen_APC(ispin,ne,dcpl_mb(dng1(1)))
+      call band_print_APC(6)
 
       return
       end
