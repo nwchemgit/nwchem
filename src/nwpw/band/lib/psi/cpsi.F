@@ -2994,6 +2994,7 @@ c     *****  read initial wavefunctions into psi1  ****
 
 #include "bafdecls.fh"
 #include "errquit.fh"
+#include "stdio.fh"
 #include "cpsi_common.fh"
 
 
@@ -3006,7 +3007,9 @@ c     *****  read initial wavefunctions into psi1  ****
      >                   psi1_tag,eig_tag)
       
       call band_gen_APC(ispin,ne,dcpl_mb(dng1(1)))
-      call band_print_APC(6)
+      call band_print_APC(luout)
+      call band_gen_Efield(rtdb,ispin,dcpl_mb(dng1(1)))
+     
 
       return
       end

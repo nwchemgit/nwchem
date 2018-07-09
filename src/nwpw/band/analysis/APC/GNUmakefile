@@ -5,12 +5,13 @@
 
 
  OBJ_OPTIMIZE = \
-		band_APC.o 
+		band_APC.o \
+		band_Efield.o 
 
 
       LIBRARY = libband.a
 
-    USES_BLAS =  band_APC.F
+    USES_BLAS =  band_APC.F band_Efield.F
 
 
   LIB_DEFINES = 
