@@ -6803,6 +6803,7 @@ c      end if
 
 #include "bafdecls.fh"
 #include "psi.fh"
+#include "stdio.fh"
 
 
 *     **** Lubin Water Analysis ****
@@ -6817,7 +6818,7 @@ c      end if
      >                                   dbl_mb(eig(1)))
 
       call pspw_gen_APC(ispin,ne,dcpl_mb(dng1(1)))
-      call pspw_print_APC(6)
+      call pspw_print_APC(luout)
 
       call pspw_gen_Efield(rtdb,ispin,dbl_mb(rho1(1)),dcpl_mb(dng1(1)))
 
