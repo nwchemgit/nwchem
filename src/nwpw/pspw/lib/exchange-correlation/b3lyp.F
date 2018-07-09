@@ -220,6 +220,11 @@ c*------------------------------------------------------*
        fdnxup = -nup**(thrd)*(4.0d0/3.0d0)
      &          *(lda_c+beta*(F1up-chiup2*F2up))
        fdagrxup = -beta*chiup*F2up 
+       if ((fdnxup-xeup).gt.0.0d0) then
+          xeup     = -nup**thrd*(lda_c)
+          fdnxup   = -nup**(thrd)*(4.0d0/3.0d0)*(lda_c)
+          fdagrxup = 0.0d0
+       end if
 *      ************END UP*****************
 
 
@@ -237,8 +242,11 @@ c*------------------------------------------------------*
        fdnxdn = -ndn**(thrd)*(4.0d0/3.0d0)
      &          *(lda_c+beta*(F1dn-chidn2*F2dn))
        fdagrxdn = -beta*chidn*F2dn
-
-
+       if ((fdnxdn-xedn).gt.0.0d0) then
+          xedn     = -ndn**thrd*(lda_c)
+          fdnxdn   = -ndn**(thrd)*(4.0d0/3.0d0)*(lda_c)
+          fdagrxdn = 0.0d0
+       end if
 *      ***********END DOWN****************
 
        xe = (xeup*nup + xedn*ndn)/n
@@ -613,21 +621,26 @@ c*------------------------------------------------------*
 ******************************************************************
 *     *******calc. becke exchange energy density, fnx, fdnx*******
 *****************************************************************
-       sd       = 1.0d0/(n_thrd*n)
-       chi 	= two_thrd*agr*sd
-       chi2	= chi*chi
-       chiSQ    = dsqrt(1.0d0+chi2)   
+          sd       = 1.0d0/(n_thrd*n)
+          chi      = two_thrd*agr*sd
+          chi2     = chi*chi
+          chiSQ    = dsqrt(1.0d0+chi2)   
 
 
-       K 	= 6.0d0*beta*dlog(chi+chiSQ)
-       F1 	= chi2/(1.0d0+chi*K)
-       xe 	= -n_thrd*(lda_c+beta*F1)/two_thrd
-       F2 	= (2.0d0 + chi*K-(chi2)*6.0d0*beta
-     &		/chiSQ)
-     &      	/((1.0d0+chi*K)*(1.0d0+chi*K))
-       fdnx 	= -(n_thrd/two_thrd)*dble(4.0d0/3.0d0)
-     &  	*(lda_c+beta*(F1-chi2*F2))
-       fdagrx 	= -beta*chi*F2 
+          K        = 6.0d0*beta*dlog(chi+chiSQ)
+          F1       = chi2/(1.0d0+chi*K)
+          xe       = -n_thrd*(lda_c+beta*F1)/two_thrd
+          F2       = (2.0d0 + chi*K-(chi2)*6.0d0*beta
+     &               /chiSQ)
+     &             /((1.0d0+chi*K)*(1.0d0+chi*K))
+          fdnx     = -(n_thrd/two_thrd)*dble(4.0d0/3.0d0)
+     &            *(lda_c+beta*(F1-chi2*F2))
+          fdagrx   = -beta*chi*F2 
+          if ((fdnx-xe).gt.0.0d0) then
+             xe = -n_thrd*(lda_c)/two_thrd
+             fdnx = -(n_thrd/two_thrd)*dble(4.0d0/3.0d0)*(lda_c)
+             fdagrx = 0.0d0
+          end if
        end if
 
 
