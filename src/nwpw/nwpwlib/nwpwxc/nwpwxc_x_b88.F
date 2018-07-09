@@ -85,7 +85,7 @@ c
       integer n
       double precision arcsinh, darcsinh
       double precision C, rho13, rho43, gamma, x, g, gdenom, dg,
-     &     dgdenom, t
+     &     dgdenom, t, ex,fx
 #ifdef SECOND_DERIV
       double precision rhom23, d2g, d2gdenom
 #endif
@@ -95,6 +95,7 @@ c
 c
 c     Uniform electron gas constant
 c
+      !lda_c =(3.0d0/2.0d0)*(3.0d0/(4.0d0*pi))**(1.0d0/3.0d0)
       C = -(1.5d0)*(0.75d0/acos(-1d0))**(1d0/3d0)
 c
       if (ipol.eq.1) then
@@ -118,40 +119,40 @@ c    &              delrho(n,3,1)*delrho(n,3,1)
             else
                x = 0.0d0
             endif
-            if ((rho(n,R_T).gt.tolrho).and.(x.lt.10.0d0)) then
 c
-               gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
-               g = -BETA*x*x / gdenom
-               dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
-               dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
+            gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
+            g = -BETA*x*x / gdenom
+            dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
+            dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
 
+            ex = rho13*(-C + g)
+            fx = (4d0/3d0)*rho13*(-C + (g-x*dg))
+            if ((fx-ex).gt.0.0d0) then
                func(n) = func(n) + 2.d0*rho43*g*wght
                Amat(n,D1_RA) = Amat(n,D1_RA)
      &                       + (4d0/3d0)*rho13*(g-x*dg)*wght
-               if (x.gt.tol_rho) then
+           
                t = 0.5d0 * dg / sqrt(gamma) * wght
                Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + t
-c               Cmat(n,1,1) = Cmat(n,1,1) + t*delrho(n,1,1)
-c               Cmat(n,2,1) = Cmat(n,2,1) + t*delrho(n,2,1)
-c               Cmat(n,3,1) = Cmat(n,3,1) + t*delrho(n,3,1)
-               endif
+c            Cmat(n,1,1) = Cmat(n,1,1) + t*delrho(n,1,1)
+c            Cmat(n,2,1) = Cmat(n,2,1) + t*delrho(n,2,1)
+c            Cmat(n,3,1) = Cmat(n,3,1) + t*delrho(n,3,1)
+               
 c
 #ifdef SECOND_DERIV
-c              if(lfac) g = g + C           ! Add local contribution back to g
+c           if(lfac) g = g + C           ! Add local contribution back to g
                rhom23 = rho13 / (0.5d0*rho(n,R_T))
                d2gdenom = 6d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
                d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
-     &           + BETA*x*x*d2gdenom/gdenom**2
-     &           - 2d0*BETA*x*x*(dgdenom)**2/gdenom**3
+     &              + BETA*x*x*d2gdenom/gdenom**2
+     &              - 2d0*BETA*x*x*(dgdenom)**2/gdenom**3
 c
                Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
-     &           + (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
+     &              + (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
                Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
-     &           - (4d0/3d0)*(rhom23**2/rho(n,R_T))*d2g*wght
-               if (x.gt.tol_rho) then
-                  Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
+     &              - (4d0/3d0)*(rhom23**2/rho(n,R_T))*d2g*wght
+               Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
      &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
-               endif
 #endif
             end if
 c
@@ -179,23 +180,23 @@ c    &              delrho(n,3,1)*delrho(n,3,1)
                x = 0d0
             endif
 c
-            if ((rho(n,R_A).gt.tolrho).and.(x.lt.10.0d0)) then
-               gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
-               g = -BETA*x*x / gdenom
-               dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
-               dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
+            gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
+            g = -BETA*x*x / gdenom
+            dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
+            dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
 c
+            ex = rho13*(-C + g)
+            fx = (4d0/3d0)*rho13*(-C + (g-x*dg))
+            if ((fx-ex).gt.0.0d0) then
                func(n) = func(n) + rho43*g*wght
                Amat(n,D1_RA) = Amat(n,D1_RA) 
      &                       + (4d0/3d0)*rho13*(g-x*dg)*wght
 c
-               if (x.gt.tol_rho) then
                t = dg / sqrt(gamma) * wght
                Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + t * 0.5d0
 c               Cmat(n,1,1) = Cmat(n,1,1) + t*delrho(n,1,1)
 c               Cmat(n,2,1) = Cmat(n,2,1) + t*delrho(n,2,1)
 c               Cmat(n,3,1) = Cmat(n,3,1) + t*delrho(n,3,1)
-               endif
 c
 #ifdef SECOND_DERIV
                rhom23 = rho13 / rho(n,R_A)
@@ -213,7 +214,7 @@ c
      &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
                endif
 #endif
-            end if
+            endif
 c
  25         continue
 c
@@ -233,23 +234,23 @@ c    &              delrho(n,3,2)*delrho(n,3,2)
                x = 0d0
             endif
 c
-            if ((rho(n,R_B).gt.tolrho).and.(x.lt.10.0d0)) then
-               gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
-               g = -BETA*x*x / gdenom
-               dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
-               dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
+            gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
+            g = -BETA*x*x / gdenom
+            dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
+            dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
 c
+            ex = rho13*(-C + g)
+            fx = (4d0/3d0)*rho13*(-C + (g-x*dg))
+            if ((fx-ex).gt.0.0d0) then
                func(n) = func(n) +rho43*g*wght
                Amat(n,D1_RB) = Amat(n,D1_RB)
      &                       + (4d0/3d0)*rho13*(g-x*dg)*wght
 c
-               if (x.gt.tol_rho) then
                t = dg / sqrt(gamma) * wght
                Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + t * 0.5d0
 c               Cmat(n,1,2) = Cmat(n,1,2) + t*delrho(n,1,2)
 c               Cmat(n,2,2) = Cmat(n,2,2) + t*delrho(n,2,2)
 c               Cmat(n,3,2) = Cmat(n,3,2) + t*delrho(n,3,2)
-               endif
 c
 #ifdef SECOND_DERIV
                rhom23 = rho13 / rho(n,R_B)
@@ -267,7 +268,7 @@ c
      &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
                endif
 #endif
-            end if
+            endif
 c
  20      continue
 c
