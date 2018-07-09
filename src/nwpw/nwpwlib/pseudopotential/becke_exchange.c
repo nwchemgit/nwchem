@@ -162,35 +162,26 @@ Vx[],
 
     /* calculate exchange potential and exchange energy density*******/
     for (i=0;i<Ngrid;++i) {
-        if ((rhoNRM[i] > tolrho) && (agr[i]>minagr) && (chi[i]<10.0)) {
+       /*exchange potential ****************************************/
+       lap = ddrho[i] + (2.0/rgrid[i])*drho[i];
+       ux  = fdn[i] - (Gdr[i]*drho[i] + G[i]*lap);
 
-            /*exchange potential ****************************************/
-            lap = ddrho[i] + (2.0/rgrid[i])*drho[i];
-            ux  = fdn[i] - (Gdr[i]*drho[i] + G[i]*lap);
+       /* exchange energy density ex ****/
+       rho_onethird = pow(rhoNRM[i],1.0/3.0);
+       X1 = -1.0*(lda_c/c)*rho_onethird;
+       X2 = c*beta*rho_onethird*chi[i]*chi[i];
+       X3 = 1.0 + 6.0*beta*c*chi[i]*log(c*chi[i] + sqrt(1.0+c*c*chi[i]*chi[i]));
+       ex = X1 - X2/X3;
 
-            /* exchange energy density ex ****/
-            rho_onethird = pow(rhoNRM[i],1.0/3.0);
-            X1 = -1.0*(lda_c/c)*rho_onethird;
-            X2 = c*beta*rho_onethird*chi[i]*chi[i];
-            X3 = 1.0 + 6.0*beta*c*chi[i]*log(c*chi[i] + sqrt(1.0+c*c*chi[i]*chi[i]));
-            ex = X1 - X2/X3;
+       Vx[i]         = ux;
+       ex_density[i] = ex;            /*energy density*/
 
-
-            //Vx[i] = ux;
-            //ex_density[i] = ex;               /*energy density*/
-            Vx[i]         = ux;
-            ex_density[i] = ex;            /*energy density*/
-
-            /********test output for lda************************/
-            //printf("%d %le %le %le     %le %le    %le %le\n",i,rhoNRM[i],drho[i],lap,ex,ux,G[i],Gdr[i]);
-
-        }
-        else
-        {
+       if ((fdn[i]-ex)>0.0)
+       {
             rho_onethird = pow(rhoNRM[i],1.0/3.0);
             ex_density[i] = -1.0*(lda_c/c)*rho_onethird;
             Vx[i]         = -lda_c/c*(4.0/3.0)*rho_onethird;
-        }/* end if else */
+       }
     }/*for i*/
 
 
