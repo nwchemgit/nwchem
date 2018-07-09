@@ -27,6 +27,7 @@ c
 #include "bafdecls.fh"
 #include "btdb.fh"
 #include "errquit.fh"
+#include "stdio.fh"
 
 
 *     **** local variables ****
@@ -164,7 +165,7 @@ c        call Pack_c_pack(0,dcpl_mb(tmp1(1)))
 
 
        if (taskid.eq.MASTER) then
-         call pspw_print_Efield(6,nion,dbl_mb(E1(1)),
+         call pspw_print_Efield(luout,nion,dbl_mb(E1(1)),
      >                                dbl_mb(Ea(1)),
      >                                dbl_mb(Ee(1)))
        end if
