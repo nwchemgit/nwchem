@@ -30,6 +30,8 @@ c      type(c_simint_multi_shellpair), target :: msh
       integer l_coef,k_coef,l_exp,k_exp
       double precision coord(3)
       double precision q
+      integer nwcsim_maxam
+      external nwcsim_maxam
       character*14 pname
       pname="nwcsim_f90init"
 c     fetch stuff from rtdb
@@ -89,6 +91,9 @@ c
                if (.not.bas_continfo(basis, icset,
      &              l, nprim, ncontr, isphere))
      &              call errquit(pname//'Exiting ',3, BASIS_ERR)
+               if(l.gt.nwcsim_maxam()) call errquit(
+     p              pname//' simint library maxam too small ',
+     p              nwcsim_maxam(),BASIS_ERR)
                max_ang=max(l,max_ang)
                if (.not.bas_get_exponent(basis, icset, dbl_mb(k_exp)))
      &              call errquit(pname//'Exiting ',7, BASIS_ERR)
@@ -175,6 +180,12 @@ c
       nwcsim_initialized=.false.
       return
       end
+      integer function nwcsim_maxam()
+      implicit none
+c
+      nwcsim_maxam=SIMINT_MAXAM
+      return
+      end
       logical function nwcsim_initdone()
       use nwcsim_shell
       implicit none
@@ -202,6 +213,12 @@ c
       implicit none
 c
       nwcsim_initdone=.false.
+      return
+      end
+      integer function nwcsim_maxam()
+      implicit none
+c
+      nwcsim_maxam=-1
       return
       end
 #endif
