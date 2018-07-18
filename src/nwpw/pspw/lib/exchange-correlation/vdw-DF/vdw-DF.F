@@ -20,7 +20,7 @@
 *     **** local variables ****
       integer taskid,MASTER
       parameter (MASTER=0)
-      logical mprint,hprint,debug,does_it_exist
+      logical mprint,hprint,debug,does_it_exist,oprint
       logical from_environment,from_compile,from_nwchemrc
       integer iop,lgth,unitf,print_level,i,j
       character*255 datafile
@@ -37,8 +37,8 @@
       is_vdw2 = control_is_vdw2()
       if (.not.has_vdw) return
 
-      write(*,*) "I have vdw!"
       call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER)
 
       call util_file_name_noprefix('vdw_kernels.dat',
      >                                .false.,
@@ -55,12 +55,19 @@
 
       !**** generate vdw_kernels.dat file ****
       if (.not.found_datafile) then
-         write(*,*) "-- generate vdw_kernels.dat --"
+         if (oprint) then
+            i = index(datafile,' ') - 1
+            write(luout,*) "Generating VDW kernel filename:",
+     >                      datafile(1:i)
+         end if
          call vdw_DF_kernel_gen_data(datafile)
       end if
 
 
-      write(*,*) "-- reading vdw_kernels.dat --"
+      if (oprint) then
+         i = index(datafile,' ') - 1
+         write(luout,*) "Reading VDW kernel filename:",datafile(1:i)
+      end if
       return
 
  999  continue
