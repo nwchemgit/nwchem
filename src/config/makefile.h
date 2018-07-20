@@ -1739,7 +1739,7 @@ endif
          COPTIONS   = -m64
        endif
       endif
-      GOTCLANG= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
+      GOTCLANG= $(shell $(_CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
       ifeq ($(GOTCLANG),1)
          COPTIONS   += -fPIC
       endif
