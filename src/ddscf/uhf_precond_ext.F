@@ -60,10 +60,8 @@ c      shift = lshift + omega ! FA-03-13-14
           ihi(2) = ivec
           call nga_normf_patch(g_x,ilo,ihi,dnrm)
           if (olprint) then
-            write(LuOut,'(1x,a,": in g_x = ")')
-     +            __FILE__
-            write(LuOut,'(1x,i4,f24.8)')
-     +           ivec,dnrm
+            write(LuOut,'(1x,a,": in g_x = ",i4,f24.8)')
+     +           'uhf_hessv_precond3',ivec,dnrm
           endif
         enddo
       endif
@@ -114,10 +112,8 @@ c                   dbl_mb(k_x+j-1)=2.0d0* dbl_mb(k_x+j-1)/denominator ! FA-03-1
           ihi(2) = ivec
           call nga_normf_patch(g_x,ilo,ihi,dnrm)
           if (olprint) then
-            write(LuOut,'(1x,a,": out g_x = ")')
-     +      __FILE__
-            write(LuOut,'(1x,i4,f24.8)')
-     +      ivec,dnrm
+            write(LuOut,'(1x,a,": out g_x = ",i4,f24.8)')
+     +      'uhf_hessv_precond3',ivec,dnrm
           endif
         enddo
       endif
@@ -220,10 +216,8 @@ c     include factors of 2
           ihi(2) = ivec
           call nga_normf_patch(g_x,ilo,ihi,dnrm)
           if (olprint) then
-            write(LuOut,'(1x,a,": in g_x = ")')
-     +            __FILE__
-            write(LuOut,'(1x,i4,f24.8)')
-     +           ivec,dnrm
+            write(LuOut,'(1x,a,": in g_x = ",i4,f24.8)')
+     +           'uhf_hessv_precond3_damp',ivec,dnrm
           endif
         enddo
       endif
@@ -288,10 +282,8 @@ c                    factor_im =  2.0d0*gamwidth/den
           ihi(2) = ivec
           call nga_normf_patch(g_x,ilo,ihi,dnrm)
           if (olprint) then
-            write(LuOut,'(1x,a,": out g_x = ")')
-     +            __FILE__
-            write(LuOut,'(1x,i4,f24.8)')
-     +           ivec,dnrm
+            write(LuOut,'(1x,a,": out g_x = ",i4,f24.8)')
+     +           'uhf_hessv_precond3_damp',ivec,dnrm
           endif
         enddo
       endif

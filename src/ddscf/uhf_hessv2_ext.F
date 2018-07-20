@@ -88,10 +88,8 @@ c     Check dimensions
           ihi(2) = ivec
           call nga_normf_patch(g_x,ilo,ihi,dnrm)
           if (olprint) then
-            write(LuOut,'(1x," g_x = ")')
-     F      __FILE__
-             write(LuOut,'(1x,i4,f24.8)')
-     +      ivec,dnrm
+            write(LuOut,'(1x," g_x = ",i4,f24.8)')
+     +      'uhf_hessv3',ivec,dnrm
           endif
         enddo
       endif
@@ -235,8 +233,8 @@ c ============== debug g_ax ==================== END
           ihi(2) = ivec
           call nga_normf_patch(g_ax,ilo,ihi,dnrm)
           if (olprint) then
-c            write(LuOut,'(1x,a,": g_ax = ",i4,f24.8)')
-c     +      __FILE__,ivec,dnrm
+            write(LuOut,'(1x,a,": g_ax = ",i4,f24.8)')
+     +      'uhf_hessv3',ivec,dnrm
           endif
         enddo
       endif

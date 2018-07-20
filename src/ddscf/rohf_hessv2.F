@@ -44,10 +44,8 @@ c
           ihi(2) = icol
           call nga_normf_patch(g_x,ilo,ihi,dnrm)
           if (olprint) then
-            write(LuOut,'(1x,a,": g_x = ")')
-     +      __FILE__
-            write(LuOut,'(1x,i4,f24.8)')
-     +      icol,dnrm
+            write(LuOut,'(1x,a,": g_x = ",i4,f24.8)')
+     +      'rohf_hessv2',icol,dnrm
           endif
         enddo
       endif
@@ -77,10 +75,8 @@ c
           ihi(2) = icol
           call nga_normf_patch(g_ax,ilo,ihi,dnrm)
           if (olprint) then
-            write(LuOut,'(1x,a,": g_ax = ")')
-     F            __FILE__
-            write(LuOut,'(1x,i4,f24.8)')
-     +      icol,dnrm
+            write(LuOut,'(1x,a,": g_ax = ",i4,f24.8)')
+     +      'rohf_hessv2',icol,dnrm
           endif
         enddo
       endif
@@ -101,7 +97,7 @@ c
       integer basis, geom
       integer nbf, nmo, nclosed, nopen
       integer pflg
-      integer g_movecs
+      integer g_movecs(*)
       logical oskel, noskew
       integer g_fcv, g_fpv, g_fcp
       double precision acc
@@ -149,7 +145,7 @@ c
       integer basis, geom       ! basis & geom handle
       integer nbf, nclosed, nopen ! Basis size and occupation
       integer nmo               ! No. of linearly dependent MOs
-      integer g_movec           ! MO coefficients
+      integer g_movec(*)        ! MO coefficients
       logical oskel
       integer g_x               ! Argument
       double precision acc      ! Accuracy of "Fock" construction
