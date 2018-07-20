@@ -43,7 +43,7 @@ C      double precision tol2e
       double precision JUNK
       
 
-      call rt_tddft_cs_confirm (params)
+      call rt_tddft_cs_confirm (params,'zfock_cs_coul_exchre.F')
 
       if (params%prof) call prof_start (elapsed)
 

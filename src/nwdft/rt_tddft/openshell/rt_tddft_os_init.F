@@ -84,7 +84,7 @@ C
 
       call rt_tddft_print_initialization (params)
 
-      call rt_tddft_os_confirm (params)
+      call rt_tddft_os_confirm (params,'rt_tddft_os_init.F')
       
       end subroutine rt_tddft_os_init
 c $Id$

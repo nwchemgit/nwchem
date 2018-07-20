@@ -86,7 +86,7 @@ C     (estimating time remaining)
       integer est_it_start
 
 
-      call rt_tddft_cs_confirm (params)
+      call rt_tddft_cs_confirm (params,'rt_tddft_cs_prop.F')
       
       me = ga_nodeid()
 

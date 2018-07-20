@@ -35,7 +35,7 @@ C     == Parameters ==
       if (.not. do_zora)
      $     call errquit (pname//"called without ZORA active",0,0)
 
-      call rt_tddft_os_confirm (params)
+      call rt_tddft_os_confirm (params,'zfock_os_core_scalarzora.F')
 
 
 C     
@@ -92,7 +92,7 @@ C     == External ==
       if (.not. do_zora)
      $     call errquit (pname//"called without ZORA active",0,0)
 
-      call rt_tddft_os_confirm (params)
+      call rt_tddft_os_confirm (params,'zfock_os_core_scalarzora.F')
 
       if (params%prof) call prof_start (elapsed)
 

@@ -39,7 +39,7 @@ C     == Variables ==
       integer g_tmp
       double precision junk
 
-      call rt_tddft_cs_confirm (params)
+      call rt_tddft_cs_confirm (params,'zfock_cs_core.F')
 
       if (params%prof) call prof_start (elapsed)
 

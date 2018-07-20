@@ -150,7 +150,7 @@ C     == Variables ==
       double precision elapsed
 
 
-      call rt_tddft_cs_confirm (params)
+      call rt_tddft_cs_confirm (params,'rt_tddft_cs_restart.F')
 
       if (params%prof) call prof_start (elapsed)
 

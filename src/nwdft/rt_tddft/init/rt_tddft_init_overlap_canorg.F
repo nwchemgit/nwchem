@@ -282,7 +282,7 @@ C      XXX MAKE NEW CANORG WHICH TAKES SUPER MATS AND DOESNT UPCONVERT
          endif
       enddo
       
-      call halt ()
+      call rt_tddft_halt('rt_tddft_init_overlap_canorg.F')
 
 C      call canorg_init_new (params, dbl_mb(isvals), g_svecs)
 
