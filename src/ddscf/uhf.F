@@ -1317,8 +1317,8 @@ c
           ihi(2) = ivec
           call nga_normf_patch(g_x,ilo,ihi,dnrm)
           if (olprint) then
-            write(LuOut,'(1x,a,": in g_x = ",i4,f24.8)')
-     +      __FILE__,ivec,dnrm
+            write(LuOut,'(1x,"uhf: in g_x = ",i4,f24.8)')
+     +      ivec,dnrm
           endif
         enddo
       endif
@@ -1355,8 +1355,8 @@ c
           ihi(2) = ivec
           call nga_normf_patch(g_x,ilo,ihi,dnrm)
           if (olprint) then
-            write(LuOut,'(1x,a,": out g_x = ",i4,f24.8)')
-     +      __FILE__,ivec,dnrm
+            write(LuOut,'(1x,"uhf: out g_x = ",i4,f24.8)')
+     +      ivec,dnrm
           endif
         enddo
       endif

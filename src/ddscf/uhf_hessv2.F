@@ -52,8 +52,8 @@ c
           ihi(2) = ivec
           call nga_normf_patch(g_x,ilo,ihi,dnrm)
           if (olprint) then
-            write(LuOut,'(1x,a,": g_x = ",i4,f24.8)')
-     +      __FILE__,ivec,dnrm
+            write(LuOut,'(1x,"uhf_hessv2: g_x = ",i4,f24.8)')
+     +      ivec,dnrm
           endif
         enddo
       endif
@@ -79,8 +79,8 @@ c
           ihi(2) = ivec
           call nga_normf_patch(g_ax,ilo,ihi,dnrm)
           if (olprint) then
-            write(LuOut,'(1x,a,": g_ax = ",i4,f24.8)')
-     +      __FILE__,ivec,dnrm
+            write(LuOut,'(1x,"uhf_hessv2: g_ax = ",i4,f24.8)')
+     +      ivec,dnrm
           endif
         enddo
       endif
