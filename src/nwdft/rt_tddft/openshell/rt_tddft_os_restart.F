@@ -178,7 +178,7 @@ C     == Variables ==
       double precision tdiff
 
       
-      call rt_tddft_os_confirm (params)
+      call rt_tddft_os_confirm (params,'rt_tddft_os_restart.F')
 
       if (params%prof) call prof_start (elapsed)
 

@@ -4,11 +4,17 @@ C> @ingroup rt_tddft
 C
 C     Preprocessor macros.
 C
-
-#define halt()                  halt_fl(__FILE__,__LINE__)
+#if 0
+#define rt_tddft_halt()                  halt_fl(__FILE__,__LINE__)
 #define rt_tddft_cs_confirm(p)  rtcscfl(p,__FILE__,__LINE__)
 #define rt_tddft_os_confirm(p)  rtoscfl(p,__FILE__,__LINE__)
 #define rt_tddft_so_confirm(p)  rtsocfl(p,__FILE__,__LINE__)
+#else
+#define rt_tddft_halt(fname)                  halt_fl(fname,__LINE__)
+#define rt_tddft_cs_confirm(p,fname)  rtcscfl(p,fname,__LINE__)
+#define rt_tddft_os_confirm(p,fname)  rtoscfl(p,fname,__LINE__)
+#define rt_tddft_so_confirm(p,fname)  rtsocfl(p,fname,__LINE__)
+#endif
 
 
 C

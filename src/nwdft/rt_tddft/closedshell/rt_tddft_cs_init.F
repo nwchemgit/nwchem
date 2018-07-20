@@ -81,7 +81,7 @@ C
 
 
       call rt_tddft_print_initialization (params)
-      call rt_tddft_cs_confirm (params)
+      call rt_tddft_cs_confirm (params,'rt_tddft_cs_init.F')
       
       end subroutine rt_tddft_cs_init
 

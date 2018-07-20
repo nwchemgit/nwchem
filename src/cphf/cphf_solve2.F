@@ -107,7 +107,7 @@ c
         nbases = 2
         bases(2) = bgj_CD_bas_han()
         if (ga_nodeid().eq.0) then
-          write(LuOut,*) __FILE__,': bases',bases
+          write(LuOut,*) 'cphf_solve2: bases',bases
         endif
       endif
 #endif

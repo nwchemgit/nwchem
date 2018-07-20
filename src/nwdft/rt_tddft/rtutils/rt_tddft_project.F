@@ -99,7 +99,7 @@ c$$$      endif
             
             if (me.eq.0) then 
                write(luout, *) pname//"Eigenvector matrix non-unitary"
-               call halt()
+               call rt_tddft_halt('rt_tddft_project.F')
             endif
                
          else

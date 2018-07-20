@@ -41,7 +41,7 @@ C      integer g_densre_clones(2)
       double precision elapsed
 
 
-C      call rt_tddft_os_confirm (params)
+C      call rt_tddft_os_confirm (params,'junk')
 
 
       if (params%prof) call prof_start (elapsed)

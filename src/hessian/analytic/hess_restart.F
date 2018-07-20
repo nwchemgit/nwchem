@@ -84,7 +84,7 @@ c
             call nga_normf_patch(g_rhs,ilo,ihi,dnrm)
             if (olprint) then
               write(LuOut,'(a,": dFock =",i2,i4,f24.8)')
-     +        __FILE__,
+     +        'hess_restart',
      +        idens,irhs,dnrm
             endif
           enddo
@@ -210,7 +210,7 @@ c
             call nga_normf_patch(g_rhs,ilo,ihi,dnrm)
             if (olprint) then
               write(LuOut,'(a,": dFock =",i2,i4,f24.8)')
-     +        __FILE__,
+     +        'hess_restart',
      +        idens,irhs,dnrm
             endif
           enddo

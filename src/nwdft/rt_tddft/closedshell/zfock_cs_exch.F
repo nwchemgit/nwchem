@@ -52,7 +52,7 @@ C      double precision tol2e
       character*100 desc
 
       
-      call rt_tddft_cs_confirm (params)
+      call rt_tddft_cs_confirm (params,'zfock_cs_exch.F')
 
       
       if (params%prof) call prof_start (elapsed)

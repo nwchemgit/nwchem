@@ -141,12 +141,12 @@ c
       if (oprint) then
         call ga_normf(g_vecs(1),dnrm)
         if (olprint) then
-          write(LuOut,*)__FILE__,': norm of vectors = ',dnrm
+          write(LuOut,*)'hess_cphf',': norm of vectors = ',dnrm
         endif
         if (ouhf) then
           call ga_normf(g_vecs(2),dnrm)
           if (olprint) then
-            write(LuOut,*)__FILE__,': norm of beta vectors = ',dnrm
+            write(LuOut,*)'hess_cphf',': norm of beta vectors = ',dnrm
           endif
         endif
       endif
@@ -236,7 +236,7 @@ c
             call nga_normf_patch(g_rhs,ilo,ihi,dnrm)
             if (olprint) then
               write(LuOut,'(a,": Ta =",i2,i4,f24.8)')
-     +        __FILE__,
+     +        'hess_cphf',
      +        idens,i,dnrm
             endif
           enddo
@@ -398,7 +398,7 @@ c
             call nga_normf_patch(g_rhs,ilo,ihi,dnrm)
             if (olprint) then
               write(LuOut,'(a,": Ta after scaling =",i2,i4,f24.8)')
-     &        __FILE__,
+     &        'hess_cphf',
      &        idens,i,dnrm
             endif
           enddo
@@ -477,7 +477,7 @@ c
             call nga_normf_patch(g_wax,ilo,ihi,dnrm)
             if (olprint) then
               write(LuOut,'(a,": WAX after fock =",i2,i4,f24.8)')
-     &        __FILE__,
+     &        'hess_cphf',
      &        idens,i,dnrm
             endif
           enddo
@@ -495,7 +495,7 @@ c
             call nga_normf_patch(g_aa,ilo,ihi,dnrm)
             if (olprint) then
               write(LuOut,'(a,": AA after fock =",i2,i4,f24.8)')
-     &        __FILE__,
+     &        'hess_cphf',
      &        idens,i,dnrm
             endif
           enddo
@@ -512,7 +512,7 @@ c
             ihi(3) = nocc(idens)+nvirt(idens)
             call nga_normf_patch(g_rhs,ilo,ihi,dnrm)
             if (olprint) then
-              write(LuOut,*)__FILE__,": RHS after fock = ",
+              write(LuOut,*)'hess_cphf',": RHS after fock = ",
      &                      idens,i,dnrm
             endif
           enddo
@@ -637,7 +637,7 @@ c
             call nga_normf_patch(g_sol,blo,bhi,dnrm)
             if (olprint) then
               write(LuOut,'(a,": solution =",i2,i4,f24.8)')
-     &        __FILE__,
+     &        'hess_cphf',
      &        idens,i,dnrm
             endif
           enddo
