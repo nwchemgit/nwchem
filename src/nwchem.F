@@ -46,7 +46,7 @@ C> Advanced Scientific Computing.
 C>
 C> Licensed under the Educational Community License, Version 2.0 (the "License"); you may
 C> not use this file except in compliance with the License. You may obtain a copy of the
-C> License at <a href="http://www.osedu.org/licenses/ECL-2.0">http://www.osedu.org/licenses/ECL-2.0</a>.
+C> License at <a href="https://opensource.org/licenses/ECL-2.0">https://opensource.org/licenses/ECL-2.0</a>.
 C>
 C> Unless required by applicable law or agreed to in writing, software distributed under the
 C> License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
