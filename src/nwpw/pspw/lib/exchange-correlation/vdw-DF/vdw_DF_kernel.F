@@ -26,9 +26,9 @@
       character*255 qmesh_data_name,fname
 
       integer Nqs,qmesh(2),g(2),phir(2),phir0(2),phik(2),phik0(2)
-      integer rphi(2),sphi(2),utmp(2),xtmp(2)
+      integer rphi(2),sphi(2),utmp(2),xtmp(2),phik2(2)
       integer nr,nr1,nk,nk1,tcount
-      real*8 dr,dk,rmax,kmax,r,qa,qb,fourpi,kk,qave,qdelta
+      real*8 dr,dk,rmax,kmax,r,qa,qb,fourpi,kk,qave,qdelta,yp1,ypn
 
 
 c     **** Langreth kernel data ****
@@ -111,6 +111,7 @@ c     **** Langreth kernel data ****
 
       value= value.and.BA_push_get(mt_dbl,nk1,'phik',phik(2),phik(1))
       value=value.and.BA_push_get(mt_dbl,nk1,'phik0',phik0(2),phik0(1))
+      value=value.and.BA_push_get(mt_dbl,nk1,'phik2',phik2(2),phik2(1))
       value= value.and.BA_push_get(mt_dbl,Na,'a',a(2),a(1))
       value= value.and.BA_push_get(mt_dbl,Na,'a2',a2(2),a2(1))
       value= value.and.
@@ -149,10 +150,10 @@ c     **** Langreth kernel data ****
       if (taskid.eq.MASTER) then
          call openfile(6,filename,l,'w',l)
          call iwrite(6,Nqs,1)
-         call dwrite(6,dbl_mb(qmesh(1)),Nqs)
          call iwrite(6,nk,1)
          call dwrite(6,kmax,1)
-         call dwrite(6,dbl_mb(g(1)),nk1)
+         call dwrite(6,dbl_mb(qmesh(1)),Nqs)
+         !call dwrite(6,dbl_mb(g(1)),nk1)
       end if
 
 *     **** generate langreth kernels ****
@@ -180,6 +181,7 @@ c     **** Langreth kernel data ****
      >                               dbl_mb(xtmp(1)),dbl_mb(rphi(1)),
      >                               dbl_mb(sphi(1)),dbl_mb(utmp(1)))
 
+
                if (pcount.ne.MASTER)
      >            call Parallel_send_values(MASTER,msgtype,
      >                                      nk1,dbl_mb(phik(1)))
@@ -189,10 +191,22 @@ c     **** Langreth kernel data ****
                if (pcount.ne.MASTER) then
                   call Parallel_recv_values(pcount,msgtype,
      >                                      nk1,dbl_mb(phik0(1)))
+                  yp1 = (dbl_mb(phik0(1)+1)-dbl_mb(phik0(1)))/dk
+                  ypn = (dbl_mb(phik0(1)+nk)-dbl_mb(phik0(1)+nk-1))/dk
+                  call nwpw_spline(dbl_mb(g(1)),dbl_mb(phik0(1)),nk1,
+     >                           yp1,ypn,dbl_mb(phik2(1)),
+     >                           dbl_mb(utmp(1)))
                   call dwrite(6,dbl_mb(phik0(1)),nk1)
+                  call dwrite(6,dbl_mb(phik2(1)),nk1)
 
                else
+                  yp1 = (dbl_mb(phik(1)+1)-dbl_mb(phik(1)))/dk
+                  ypn = (dbl_mb(phik(1)+nk)-dbl_mb(phik(1)+nk-1))/dk
+                  call nwpw_spline(dbl_mb(g(1)),dbl_mb(phik(1)),nk1,
+     >                           yp1,ypn,dbl_mb(phik2(1)),
+     >                           dbl_mb(utmp(1)))
                   call dwrite(6,dbl_mb(phik(1)),nk1)
+                  call dwrite(6,dbl_mb(phik2(1)),nk1)
                end if
             end if
             pcount = mod(pcount+1,np)
@@ -208,6 +222,7 @@ c     **** Langreth kernel data ****
       value = value.and.BA_pop_stack(aweights(2))
       value = value.and.BA_pop_stack(a2(2))
       value = value.and.BA_pop_stack(a(2))
+      value = value.and.BA_pop_stack(phik2(2))
       value = value.and.BA_pop_stack(phik0(2))
       value = value.and.BA_pop_stack(phik(2))
       value = value.and.BA_pop_stack(xtmp(2))
