@@ -2729,8 +2729,8 @@ endif
 # MPI version requires tcgmsg-mpi library
 
 ifdef USE_MPI 
-  #ifeq ($(FC),$(findstring $(FC),mpifrt mpfort mpif77 mpxlf mpif90 ftn))
-  ifeq ($(FC),$(findstring $(FC), ftn))
+  #ifeq ($(FC),$(findstring $(FC),mpifrt mpfort mpif77 mpxlf mpif90 ftn scorep-ftn))
+  ifeq ($(FC),$(findstring $(FC), ftn scorep-ftn))
     LIBMPI =
     MPI_INCLUDE =
     MPI_LIB =
