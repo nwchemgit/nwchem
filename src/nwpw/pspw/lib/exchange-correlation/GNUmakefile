@@ -1,11 +1,11 @@
 #
 # $Id$
 #
- #SUBDIRS = vdw-DF
+SUBDIRS = vdw-DF
 
  OBJ_OPTIMIZE = \
             	v_bwexc_all.o \
-		v_exc.o \
+		v_exc.o v_dirac.o \
 		v_mexc.o \
             	v_bwexc.o \
             	v_bwexc_euv.o \

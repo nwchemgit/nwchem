@@ -29,7 +29,7 @@
 
 
 c     **** local variables ****      
-      logical value, use_nwpwxc
+      logical value, use_nwpwxc,has_vdw
       integer nx,ny,nz
       real*8  scal1
       integer rho(2),grx(2),gry(2),grz(2)
@@ -48,6 +48,8 @@ c     **** local variables ****
 *     **** external functions ****
       integer  G_indx
       external G_indx
+      logical  vdw_DF_exist
+      external vdw_DF_exist
 
       call nwpw_timing_start(4)
       call D3dB_nx(1,nx)
@@ -57,6 +59,7 @@ c     **** local variables ****
 
       use_nwpwxc = .false.
       use_nwpwxc = nwpwxc_is_on()
+      has_vdw = vdw_DF_exist()
                 
 *     **********************************
 *     ***** restricted calculation *****
@@ -204,6 +207,14 @@ c        ***** calculate xce,fn=df/dn, and fdn=df/d|grad n|  ****
           call errquit('bad gga',0,0)
          end if
          endif
+
+         !*** add vdw bit ***
+         if (has_vdw) then
+            call vdw_DF(n2ft3d,ispin,dn,dbl_mb(agr(1)),
+     >                  xce,
+     >                  dbl_mb(fn(1)),
+     >                  dbl_mb(fdn(1)))
+         end if
 
 c        ***** calculate df/d|grad n| *(grad n)/|grad n| ****
          call D3dB_rr_Divide2(1,dbl_mb(agr(1)),dbl_mb(grx(1)))
@@ -519,6 +530,14 @@ c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
          else
           call errquit('bad gga',0,0)
          end if
+         end if
+
+         !*** add vdw bit ***
+         if (has_vdw) then
+            call vdw_DF(n2ft3d,ispin,dn,dbl_mb(agr(3)),
+     >                  xce,
+     >                  dbl_mb(fn(1)),
+     >                  dbl_mb(fdn(3)))
          end if
 
          
