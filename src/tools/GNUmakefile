@@ -625,6 +625,15 @@ endif
 ifeq ($(TARGET),CYGWIN64) 
         MAYBE_ARMCI += --disable-weak
 endif # CYGWIN64
+#SCORE-P
+ifeq ($(CC),$(findstring $(CC),scorep scorep-wrapper scorep-gcc scorep-mpicc scorep-cc scorep-nvcc scorep-xlc scorep-xlc_r))
+#fix for configure or cmake
+     MAYBE_HOST += SCOREP_WRAPPER=OFF
+endif
+ifeq ($(FC),$(findstring $(FC),scorep scorep-wrapper scorep-gfortran scorep-mpif90 scorep-ftn scorep-xlf scorep-xlf_r scorep-mpif77))
+#fix for configure or cmake
+     MAYBE_HOST += SCOREP_WRAPPER=OFF
+endif
 BUILDDIR = build
 INSTALLDIR = install
 CONFIGURE_PATH = ../$(GA_DIR)/configure
