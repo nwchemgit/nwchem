@@ -1742,7 +1742,7 @@ c     implicit none
 
 *     ***********************************
 *     *                                 *
-*     *      Parallela_Brdcst_values     *
+*     *      Parallela_Brdcst_values    *
 *     *                                 *
 *     ***********************************
 
