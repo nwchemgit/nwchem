@@ -58,8 +58,8 @@
 *     paramagnetic exchange energy & potential
 !$OMP DO
       do 120 k=1,n2ft3d
-        xce(k,1)=xce(k,1)+(xp/x(k)**2)
-        xcp(k,1)=xcp(k,1)+for3rd*(xp/x(k)**2)
+        xce(k,1)=(xp/x(k)**2)
+        xcp(k,1)=for3rd*(xp/x(k)**2)
   120 end do
 !$OMP END DO
 
@@ -69,8 +69,8 @@
 *     ferromagnetic exchange-energy & potential
 !$OMP DO
       do 140 k=1,n2ft3d
-        xce(k,2)=xce(k,2)+(xf/x(k)**2)
-        xcp(k,2)=xcp(k,2)+for3rd*(xf/x(k)**2)
+        xce(k,2)=(xf/x(k)**2)
+        xcp(k,2)=for3rd*(xf/x(k)**2)
   140 end do
 !$OMP END DO
 

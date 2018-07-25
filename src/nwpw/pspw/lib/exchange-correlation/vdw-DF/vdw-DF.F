@@ -111,10 +111,10 @@
       value= value.and.
      >       BA_alloc_get(mt_dbl,8*n2ft3d,
      >                    'vdw_xcp',xcp(2),xcp(1))
-      xce(1)  = xcp(2) + 2*n2ft3d
-      xp(1)   = xcp(2) + 3*n2ft3d
-      xe(1)   = xcp(2) + 5*n2ft3d
-      rho(1)  = xcp(2) + 7*n2ft3d
+      xce(1)  = xcp(1) + 2*n2ft3d
+      xxp(1)  = xcp(1) + 3*n2ft3d
+      xxe(1)  = xcp(1) + 5*n2ft3d
+      rho(1)  = xcp(1) + 7*n2ft3d
       value= value.and.
      >       BA_alloc_get(mt_dbl,npack0,
      >                    'vdw_Gpack',Gpack(2),Gpack(1))
@@ -332,26 +332,23 @@
 #include "vdw-DF.fh"
 
 
-      write(*,*) "HERA"
       !*** generate LDA results ***
       call vxc(n2ft3d,ispin,dn,dbl_mb(xcp(1)),dbl_mb(xce(1)),
      >         dbl_mb(rho(1)))
-      call v_dirac(n2ft3d,ispin,dn,dbl_mb(xp(1)),dbl_mb(xe(1)),
+      call v_dirac(n2ft3d,ispin,dn,dbl_mb(xxp(1)),dbl_mb(xxe(1)),
      >             dbl_mb(rho(1)))
 
-      write(*,*) "HERB"
       !**** generate rho ***
       call vdw_DF_Generate_rho(ispin,n2ft3d,dn,dbl_mb(rho(1)))
-      write(*,*) "HERC"
+      call D3dB_r_Zero_Ends(1,dbl_mb(rho(1)))
 
       !*** Generate theta(G), ptheta(r), dthetadrho(r,ms), dthetaddrho(r) ****
       call vdw_DF_Generate_thetag(Nqs,nfft3d,ispin,n2ft3d,
-     >                            Zab,qmax,dbl_mb(rho(1)),agr,
+     >                            Zab,qmin,qmax,dbl_mb(rho(1)),agr,
      >                            dbl_mb(xcp(1)),dbl_mb(xce(1)),
-     >                            dbl_mb(xp(1)),dbl_mb(xe(1)),
+     >                            dbl_mb(xxp(1)),dbl_mb(xxe(1)),
      >                            dbl_mb(theta(1)))
 
-      write(*,*) "HERD"
       !*** compute ufunc(G,i) = Sum(j) theta(G,j)*phi(G,i,j) ***
       call vdw_DF_Generate_ufunc(nk1,Nqs,
      >                           dbl_mb(gphi(1)),dbl_mb(phi(1)),
@@ -359,16 +356,14 @@
      >                           dbl_mb(Gpack(1)),int_mb(nxpack(1)),
      >                           dbl_mb(theta(1)),dbl_mb(ufunc(1)))
 
-      write(*,*) "HERE"
          
       !*** compute contributions to xce(r), fn(r,ms), fdn ****
       call vdw_DF_Generate_potentials(Nqs,nfft3d,ispin,n2ft3d,
      >             dbl_mb(ufunc(1)),
-     >             dbl_mb(xce(1)),dbl_mb(xcp(1)),dbl_mb(xe(1)),
-     >             dbl_mb(rho(1)),dbl_mb(xp(1)),dbl_mb(xe(1)+n2ft3d),
+     >             dbl_mb(xce(1)),dbl_mb(xcp(1)),dbl_mb(xxe(1)),
+     >             dbl_mb(rho(1)),dbl_mb(xxp(1)),dbl_mb(xxe(1)+n2ft3d),
      >             exc,fn,fdn)
 
-      write(*,*) "HERF"
 
       return
       end 
@@ -411,14 +406,15 @@
 *     ************************************************
 *
       subroutine vdw_DF_Generate_thetag(Nqs,nfft3d,ispin,n2ft3d,
-     >                                 Zab,qmax,rho,agr,vxc,exc,vx,ex,
+     >                                 Zab,qmin,qmax,
+     >                                 rho,agr,vxc,exc,vxx,exx,
      >                                 theta)
       implicit none
       integer Nqs,nfft3d,ispin,n2ft3d
-      real*8  Zab,qmax
+      real*8  Zab,qmin,qmax
       real*8  rho(n2ft3d),agr(n2ft3d)
       real*8  vxc(n2ft3d,ispin), exc(n2ft3d)
-      real*8  vx(n2ft3d,ispin),  ex(n2ft3d)
+      real*8  vxx(n2ft3d,ispin), exx(n2ft3d)
       real*8  theta(n2ft3d,Nqs)
 
 *     **** local variables ****
@@ -426,10 +422,11 @@
       integer nx,ny,nz,r,ms
       real*8 A,Cf,pi,pj,dpj,tsum,dtsum,q0,q0sat,xi,dxi,Cxi,scal1
       real*8 dq0drho(2),dq0ddrho,dq0satdq0
-      real*8 onethird,frthrd,elthrd
+      real*8 onethird,frthrd,elthrd,dncut
       parameter (onethird=1.0d0/3.0d0)
       parameter (frthrd=4.0d0/3.0d0)
       parameter (elthrd=11.0d0/3.0d0)
+      parameter (dncut=1.0d-12)
 
 *     **** external functions ****
       integer  Parallel_threadid,Parallel_nthreads
@@ -464,38 +461,59 @@
 
          !*** compute theta(r) ***
          do i=tid+1,n2ft3d,nthr
-            xi  = Cxi*(agr(i)/rho(i)**frthrd)**2
-            dxi = 2.0d0*Cxi*agr(i)*(1.0d0/rho(i)**frthrd)**2
-            q0 = A*(exc(i) - ex(i)*xi)
-            write(*,*) "i,xi,q0=",i,rho(i),agr(i),exc(i),ex(i),xi,q0
-            if (q0.lt.0.0d0) then
-               q0 = 0.0d0
-               do ms=1,ispin
-                  dq0drho(ms)  = 0.0d0
+            if (rho(i).ge.dncut) then
+               xi  = Cxi*(agr(i)/rho(i)**frthrd)**2
+               dxi = 2.0d0*Cxi*agr(i)*(1.0d0/rho(i)**frthrd)**2
+
+               !q0 = A*(exc(i) - ex(i)*xi)
+               !q0 = A*(exc(i) - exc(i)*xi)
+               q0 = A*(exc(i) - exx(i)*xi)
+
+               if (q0.lt.qmin) then
+                  q0 = qmin
+                  do ms=1,ispin
+                     dq0drho(ms)  = 0.0d0
+                  end do
+                  dq0ddrho = 0.0d0
+               else
+                  do ms=1,ispin
+c                     dq0drho(ms) = A*((vxc(i,ms)-exc(i))
+c     >                           - xi*(vx(i,ms)-elthrd*ex(i)))/rho(i)
+c                     dq0drho(ms) = A*((vxc(i,ms)-exc(i))
+c     >                           - xi*(vxc(i,ms)-elthrd*exc(i)))/rho(i)
+                     dq0drho(ms) = A*((vxc(i,ms)-exc(i))
+     >                           - xi*(vxx(i,ms)-elthrd*exx(i)))/rho(i)
+                  end do
+                  !dq0ddrho = -A*exc(i)*dxi
+                  dq0ddrho = -A*exx(i)*dxi
+               end if
+
+               tsum = 0.0d0
+               dtsum = 0.0d0
+               do k=1,12
+                  tsum = tsum + (q0/qmax)**k / dble(k)
+                  dtsum = dtsum + (q0/qmax)**(k-1) 
                end do
-               dq0ddrho = 0.0d0
+               q0sat     = qmax*(1.0d0-dexp(-tsum))
+               dq0satdq0 = dexp(-tsum)*dtsum
+
+               exc(i)  =  q0sat
+               exx(i)  =  rho(i)*dq0satdq0*dq0ddrho
+               do ms=1,ispin
+                  vxc(i,ms) = rho(i)*dq0satdq0*dq0drho(ms)
+               end do
             else
+               xi = 0.0d0
+               q0sat  = qmax
+               exc(i) = qmax
+               exx(i)  = 0.0d0
                do ms=1,ispin
-                  dq0drho(ms) = A*((vxc(i,ms)-exc(i))
-     >                        - xi*(vx(i,ms)-elthrd*ex(i)))/rho(i)
+                  vxc(i,ms) = 0.0d0
                end do
-               dq0ddrho = -A*ex(i)*dxi
             end if
-
-            tsum = 0.0d0
-            dtsum = 0.0d0
-            do k=1,12
-               tsum = tsum + (q0/qmax)**k / dble(k)
-               dtsum = dtsum + (q0/qmax)**(k-1) / qmax
-            end do
-            q0sat     = qmax*(1.0d0-dexp(tsum))
-            dq0satdq0 = -qmax*dexp(tsum)*dtsum
-
-            exc(i) =  q0sat
-            ex(i)  =  rho(i)*dq0satdq0*dq0ddrho
-            do ms=1,ispin
-               vxc(i,ms) = rho(i)*dq0satdq0*dq0drho(ms)
-            end do
+c         write(*,'(A,I8,9E12.4)')"i,xi,q0=",
+c     >          i,rho(i),agr(i),exc(i),ex(i),
+c     >               vxc(i,1),vxc(1,ispin),xi,q0,q0sat
 
             do j=jstart,jstart-1+nj
                call vdw_DF_poly(j,q0sat,pj,dpj)
@@ -511,6 +529,9 @@ c               dthetaddrho(i,j) = rho(i)*dpj*dq0satdq0*dq0ddrho
 !$OMP BARRIER
 
          !*** compute theta(g) ***
+         do j=jstart,jstart-1+nj
+            call D3dB_r_Zero_Ends(1,theta(1,j))
+         end do
          call Grsm_hg_fftf(nfft3d,nj,theta(1,jstart))
          call Grsm_gg_dScale1(nfft3d,nj,scal1,theta(1,jstart))
       end if
@@ -559,16 +580,16 @@ c               dthetaddrho(i,j) = rho(i)*dpj*dq0satdq0*dq0ddrho
       call Parallel2d_taskid_j(taskid_j)
       call Parallel2d_np_j(np_j)
       
-      write(*,*) "tid,nthr=",tid,nthr
-      write(*,*) "taskid_j,np_j=",taskid_j,np_j
+c      write(*,*) "tid,nthr=",tid,nthr
+c      write(*,*) "taskid_j,np_j=",taskid_j,np_j
       !*** compute ufunc(g) ***
       call D3dB_c_nZero(1,Nqs,ufunc)
       pcount = 0 
-      indx = 1
-      do j=2,Nqs    !*** assuming phi(:,1,1) = 0 ***
+      indx = 0
+      do j=1,Nqs    !*** assuming phi(:,1,1) = 0 ***
          do i=1,j
             indx = indx + 1
-            write(*,*) "i,j=",i,j, indx, Nqs,npack0,nfft3d
+c            write(*,*) "i,j=",i,j, indx, Nqs,npack0,nfft3d
             if (pcount.eq.taskid_j) then
 
                do k=tid+1,npack0,nthr
@@ -656,7 +677,7 @@ c               dthetaddrho(i,j) = rho(i)*dpj*dq0satdq0*dq0ddrho
          do i=tid+1,n2ft3d,nthr
             do j=jstart,jstart-1+nj
                call vdw_DF_poly(j,q0(i),pj,dpj)
-               tmpexc(i) = tmpexc(i) + pj*ufunc(i,j)
+               tmpexc(i) = tmpexc(i) + 0.5d0*pj*ufunc(i,j)
                do ms=1,ispin
                   tmpfn(i,ms) = tmpfn(i,ms) 
      >                        + (pj + dpj*drho(i,ms))*ufunc(i,j)
