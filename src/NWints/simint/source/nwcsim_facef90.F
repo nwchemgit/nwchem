@@ -133,14 +133,20 @@ c
      S     simint_eri_worksize(num_der, max_ang))
 c     SIMINT_PRIM_SCREEN_STAT needs 4 more doubles
       isz_2e4c        = isz_2e4c + 4
+#define SIMINT_SIMD_LEN 8
+      call util_align(isz_2e4c,SIMINT_SIMD_LEN)
+      isz_2e2c        = isz_2e2c + 4
+      call util_align(isz_2e2c,SIMINT_SIMD_LEN)
 c      
-      mem_2e3c = mem_2e4c
       
       if(num_der.eq.1) then
          memb_2e4c = mem_2e4c + mem_2e4c/5
       else
          memb_2e4c = mem_2e4c + mem_2e4c/10 ! +10% to be safe
       endif
+      call util_align(mem_2e4c,SIMINT_SIMD_LEN)
+      mem_2e3c = mem_2e4c
+      mem_2e2c = mem_2e4c
       if(ga_nodeid().eq.0) then
          write(luout,*)
          write(luout,*) ' Using Simint Integral package'
