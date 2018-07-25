@@ -231,7 +231,7 @@ c      character*255 full_filename,full_filename2
      >                          dbl_mb(psi_r(1)),
      >                          dbl_mb(psi_r2(1)))
       call dcopy(n2ft3d*nemaxq,dbl_mb(psi_r2(1)),1,dbl_mb(psi_r(1)),1)
-      call Grsm_hg_fftf(nfft3d,nemaxq,dbl_mb(psi_r(1)))
+      call Grsm_hg_fftf0(nfft3d,nemaxq,dbl_mb(psi_r(1)))
       do n=1,nemaxq
          call Pack_c_Copy(1,dbl_mb(psi_r(1)+(n-1)*n2ft3d),
      >                      dcpl_mb(psi(1) +(n-1)*npack1))
