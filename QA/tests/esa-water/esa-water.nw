@@ -1,0 +1,54 @@
+echo
+
+title "Excited state absorption of water from root 1"
+
+# moving reference example
+
+start esa-water
+
+memory 1400 mb
+
+geometry system noautosym noautoz
+ O                  1.23529404   -3.14117642    0.00000000
+ H                  2.19529404   -3.14117642    0.00000000
+ H                  0.91483945   -2.23624059    0.00000000 
+end
+
+set geometry system
+
+basis
+   *  library 6-31G*
+end
+
+dft
+  mult 1
+  xc HFexch
+end
+
+# Prepare the excited state density matrix 
+tddft
+  nroots 5
+  notriplet
+  target 1
+  civecs
+  grad
+    root 1
+  end
+end
+task tddft gradient
+
+# Field free propagation to establish the moving reference
+unset rt_tddft:*
+rt_tddft
+  load density esa-water.dmat
+
+  tmax 10.0
+  dt 0.2
+
+  nrestarts 50
+
+  tag "kick0"
+  print dipole
+
+end
+task dft rt_tddft

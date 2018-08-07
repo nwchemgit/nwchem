@@ -12,6 +12,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, do_xdm,
      T     tmat, l3d,triplet, ttau, Mmat, Mmat2,
+     ,     Lmat,
      1     do_gxc, Amat3, Cmat3,
      2     td_idum, td_ddum, td_ddum1,
 cc AJL/Begin/FDE
@@ -54,8 +55,8 @@ c
       double precision rij ! [scr] for ssw
       integer iqat(*) ! [scr]
       integer npts_per_ang
-      logical xc_chkgrad, kske, xc_chktau
-      external xc_chkgrad, xc_chktau
+      logical xc_chkgrad, kske, xc_chktau, kslap, xc_chklap
+      external xc_chkgrad, xc_chktau, xc_chklap
       integer me,nproc
       integer nops ! [out]
       logical dosympts
@@ -82,6 +83,7 @@ c     see if any Gradient Corrected Functional is not null
 c
       grad=xc_chkgrad()
       kske=xc_chktau()
+      kslap=xc_chklap()
       npts_per_ang=nqmax
 c
 c     initialize the grid
@@ -105,6 +107,7 @@ c
      ,     do_nmrks_r, do_xdm, tmat,
      ,     l3d,triplet,
      &     ttau, kske, Mmat, Mmat2,
+     &     kslap, Lmat,
      ,     iqat,
      ,     qsh, aqbuf,rij,rho_int,
      D     ddum1,ddum1,ddum1,ddum1,ddum1,ddum1,ddum1,

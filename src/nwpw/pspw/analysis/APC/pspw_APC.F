@@ -52,7 +52,7 @@ c
      >  doapc = control_Mulliken()
 
 *     **** read in nga from rtdb ***
-      value = btdb_get(rtdb,'pspw_APC:nga',mt_int,1,nga)
+      value = btdb_get(rtdb,'nwpw_APC:nga',mt_int,1,nga)
 
 *     **** return and set nga to zero if nothing in rtdb and not mulliken****
       if ((.not.value).or.(nga.le.0)) then
@@ -89,8 +89,8 @@ c
      >   call errquit('pspw_init_APC:out of heap memory',0, MA_ERR)
 
 *     **** read in Gc and gamma from rtdb ***
-      if (.not.btdb_get(rtdb,'pspw_APC:Gc',mt_dbl,1,Gc)) Gc = 2.5d0
-      if (.not.btdb_get(rtdb,'pspw_APC:gamma',mt_dbl,nga,
+      if (.not.btdb_get(rtdb,'nwpw_APC:Gc',mt_dbl,1,Gc)) Gc = 2.5d0
+      if (.not.btdb_get(rtdb,'nwpw_APC:gamma',mt_dbl,nga,
      >   dbl_mb(gamma(1)))) then
          if (nga.eq.3) then
             dbl_mb(gamma(1))   = 0.6d0
@@ -243,7 +243,7 @@ c    >     + i+1
 
       integer exi(2),exj(2)
       integer gaus_i(2),gaus_j(2),ipiv(2)
-      integer AAA(2)
+      integer AAA(2),work(2),lwork,rank,info
 
 *     ***** external functions ****
       integer  ion_nion_qm
@@ -364,7 +364,9 @@ c     >                               dcpl_mb(gaus_i(1)))
          call dcopy(ngs,0.0d0,0,dbl_mb(q(1)),1)
          if (taskid.eq.MASTER) then
 
-           value = BA_push_get(mt_int,ngs,'ipivAPC',ipiv(2),ipiv(1))
+           lwork = 5*ngs*ngs
+           !value = BA_push_get(mt_int,ngs,'ipivAPC',ipiv(2),ipiv(1))
+           value = BA_push_get(mt_dbl,lwork,'work',work(2),work(1))
            value = value.and.
      >             BA_push_get(mt_dbl,ngs*ngs,'AAAAPC',AAA(2),AAA(1))
            if (.not. value) call errquit('out of stack memory',0,
@@ -376,18 +378,25 @@ c     >                               dcpl_mb(gaus_i(1)))
            do i=1,ngs
               indx = i + (i-1)*ngs
               dbl_mb(Am(1)+indx-1) = 1.0d0
-              int_mb(ipiv(1)+i-1) = 0
+              !int_mb(ipiv(1)+i-1) = 0
            end do
-           call DGESV(ngs,ngs,dbl_mb(AAA(1)), ngs,
-     >                        int_mb(ipiv(1)),
+c           call DGESV(ngs,ngs,dbl_mb(AAA(1)), ngs,
+c     >                        int_mb(ipiv(1)),
+c     >                        dbl_mb(Am(1)),ngs,
+c     >                        j)
+           call DGELSS(ngs,ngs,ngs,dbl_mb(AAA(1)),ngs,
      >                        dbl_mb(Am(1)),ngs,
-     >                        j)
-
+     >                        dbl_mb(q(1)),1.0d-9,
+     >                        rank,
+     >                        dbl_mb(work(1)),lwork,
+     >                        info)
             value = BA_pop_stack(AAA(2))
-            value = value.and.BA_pop_stack(ipiv(2))
+            value = value.and.BA_pop_stack(work(2))
+            !value = value.and.BA_pop_stack(ipiv(2))
             if (.not. value) call errquit('popping stack memory',0,
      &       MA_ERR)
 
+           call dcopy(ngs,0.0d0,0,dbl_mb(q(1)),1)
 *          **** calculate q_i ****
            sum  = 0.0d0
            sum1 = 0.0d0

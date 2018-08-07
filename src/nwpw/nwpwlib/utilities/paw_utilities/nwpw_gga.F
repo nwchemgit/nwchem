@@ -18,7 +18,7 @@ c $Id$
       double precision fdn(ic,*)
       double precision tmp(ic)
 
-#include "nwxc.fh"
+#include "nwpwxc.fh"
 #include "util.fh"
 
 *     **** local variables ****
@@ -28,13 +28,10 @@ c $Id$
       parameter(dncut = 1.0d-30)
       
       integer i
-      logical use_nwxc
+      logical use_nwpwxc
 
-      if (util_module_avail("nwxc")) then
-         use_nwxc = nwxc_is_on()
-      else
-         use_nwxc = .false.
-      end if
+      
+      use_nwpwxc = nwpwxc_is_on()
 
 c     **** restricted calculations ****
       if (ispin.eq.1) then
@@ -46,7 +43,7 @@ c     **** restricted calculations ****
 !$OMP END DO
 
 cccccc USE_NWXC needs to be checked cccccccc
-         if (use_nwxc) then
+         if (use_nwpwxc) then
            !call D3db_rr_Sqr1(1,agr)
 !OMP DO
            do i=1,ic
@@ -54,7 +51,7 @@ cccccc USE_NWXC needs to be checked cccccccc
            end do
 !OMP END DO
 !$OMP MASTER
-           call nwxc_eval_df(1,ic,tmp,agr,
+           call nwpwxc_eval_df(1,ic,tmp,agr,
      >                       dtmp,xce,
      >                       fn,fdn,dtmp)
 !$OMP END MASTER
@@ -68,7 +65,7 @@ c          Calculate energy density from energy
 c
 !$OMP DO
            do i = 1, ic
-              fdn(i,1) = 0.5d0*fdn(i,2)
+              fdn(i,1) = fdn(i,1) + 0.5d0*fdn(i,2)
               xce(i) = xce(i)/(tmp(i)+dncut)
               agr(i,1) = dsqrt(agr(i,1))
               fdn(i,1) = fdn(i,1)*agr(i,1)
@@ -107,13 +104,13 @@ cccccc USE_NWXC needs to be checked cccccccc
          else
           call errquit('bad gga',0,0)
          end if
-         endif ! nwxc_is_on
+         endif ! nwpwxc_is_on
 
 
 c     **** unrestricted calculations ****
       else if (ispin.eq.2) then
 
-         if (use_nwxc) then
+         if (use_nwpwxc) then
 !$OMP DO
            do i = 1, ic
              grad(1) = agr(i,1)**2
@@ -126,7 +123,7 @@ c     **** unrestricted calculations ****
            enddo
 !$OMP END DO
 !$OMP MASTER
-           call nwxc_eval_df(2,ic,rho,agr,
+           call nwpwxc_eval_df(2,ic,rho,agr,
      >                       dtmp,xce,
      >                       fn,fdn,dtmp)
 !$OMP END MASTER
@@ -143,9 +140,9 @@ c     **** unrestricted calculations ****
              agr(i,1) = grad(1)
              agr(i,2) = grad(2)
              agr(i,3) = grad(3)
-             fdn(i,1) = 2.0d0*fdn(i,1)*agr(i,1)
-             fdn(i,2) = 2.0d0*fdn(i,2)*agr(i,2)
-             fdn(i,3) =       fdn(i,3)*agr(i,3)
+             fdn(i,1) = (2.0d0*fdn(i,1)-fdn(i,3))*agr(i,1)
+             fdn(i,2) = (2.0d0*fdn(i,2)-fdn(i,3))*agr(i,2)
+             fdn(i,3) = fdn(i,3)*agr(i,3)  
            enddo
 !$OMP END DO
          else
@@ -177,7 +174,7 @@ c     **** unrestricted calculations ****
          else
           call errquit('bad gga',0,0)
          end if
-         end if ! nwxc_is_on
+         end if ! nwpwxc_is_on
 
       else
         call errquit('bad spin',0,ispin)

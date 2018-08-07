@@ -145,13 +145,15 @@ c
 
         if (.not. do_2nd .and. .not. do_3rd) then
            call setACmat(delrho, Amat, Cmat, qwght, ipol, nq, grad,
-     &           (.not. do_2nd), kske, Mmat)
+     &           (.not. do_2nd), kske, Mmat, .false., 0d0)
 c        else if (.not. do_3rd) then
 c           call setACmat_d2(delrho, Amat, Amat2, Cmat, Cmat2, qwght, 
-c     &           ipol, nq, grad, (.not. do_2nd), kske, Mmat, Mmat2)
+c     &           ipol, nq, grad, (.not. do_2nd), kske, Mmat, Mmat2, 
+c     &           .false.)
 c        else
 c           call setACmat_d3(delrho, Amat, Amat2, Amat3, Cmat, Cmat2,
-c     &           Cmat3, qwght, ipol, nq, grad, (.not. do_3rd), .false.)
+c     &           Cmat3, qwght, ipol, nq, grad, (.not. do_3rd), .false., 
+c     &.          false.)
         endif
       endif
 c

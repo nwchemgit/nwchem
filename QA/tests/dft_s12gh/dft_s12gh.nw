@@ -3,7 +3,7 @@ start dft_s12gh_dat
 
 title "(CAM-)S12g/(CAM-)S12h gradients/frequencies"
 
-memory stack 1200 mb heap 100 mb global 600 mb
+#memory stack 1200 mb heap 100 mb global 600 mb
 basis
  * library def2-tzvp
 end

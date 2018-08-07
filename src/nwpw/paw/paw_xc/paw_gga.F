@@ -8,10 +8,10 @@
      >                   rho,agr,
      >                   xce,fn,fdn,tmp)
       implicit none
-#include "nwxc.fh"
+#include "nwpwxc.fh"
 #include "util.fh"
       integer gga,ic,ispin
-      logical use_nwxc
+      logical use_nwpwxc
       double precision rho(ic,ispin)
       double precision agr(ic,*)
       double precision grad(ispin+1)
@@ -33,19 +33,18 @@ c     **** restricted calculations ****
          do i=1,ic
            tmp(i) = (rho(i,1)+rho(i,1))
          end do
-         use_nwxc = .false.
-         if (util_module_avail("nwxc")) then
-           use_nwxc = nwxc_is_on()
-         endif
-         if (use_nwxc) then
+         use_nwpwxc = .false.
+         use_nwpwxc = nwpwxc_is_on()
+        
+         if (use_nwpwxc) then
            call D3db_rr_Sqr1(1,agr)
-           call nwxc_eval_df(1,ic,tmp,agr,
+           call nwpwxc_eval_df(1,ic,tmp,agr,
      >                       dumtau,xce,
      >                       fn,fdn,dumtau)
 c
 c          Combine (df/d|grad a|) with (df/d(grad a|grad b))
 c
-           call D3dB_r_SMul(1,0.5d0,fdn(1,2),fdn)
+           call D3dB_rr_daxpy(1,0.5d0,fdn(1,2),fdn)
 c
 c          Calculate energy density from energy
 c
@@ -83,17 +82,16 @@ c
          else
           call errquit('bad gga',0,0)
          end if
-         endif ! nwxc_is_on
+         endif ! nwpwxc_is_on
 
 
 c     **** unrestricted calculations ****
       else if (ispin.eq.2) then
 
-         use_nwxc = .false.
-         if (util_module_avail("nwxc")) then
-           use_nwxc = nwxc_is_on()
-         endif
-         if (use_nwxc) then
+         use_nwpwxc = .false.
+         use_nwpwxc = nwpwxc_is_on()
+        
+         if (use_nwpwxc) then
            do i = 1, ic
              grad(1) = agr(i,1)**2
              grad(2) = agr(i,3)**2
@@ -103,7 +101,7 @@ c     **** unrestricted calculations ****
              agr(i,2) = grad(2)
              agr(i,3) = grad(3)
            enddo
-           call nwxc_eval_df(2,ic,rho,grad,
+           call nwpwxc_eval_df(2,ic,rho,grad,
      >                       dumtau,xce,
      >                       fn,fdn,dumtau)
            do i = 1, ic
@@ -117,9 +115,9 @@ c     **** unrestricted calculations ****
              agr(i,1) = grad(1)
              agr(i,2) = grad(2)
              agr(i,3) = grad(3)
-             fdn(i,1) = 2.0d0*fdn(i,1)*agr(i,1)
-             fdn(i,2) = 2.0d0*fdn(i,2)*agr(i,2)
-             fdn(i,3) =       fdn(i,3)*agr(i,3)
+             fdn(i,1) = (2.0d0*fdn(i,1)-fdn(i,3))*agr(i,1)
+             fdn(i,2) = (2.0d0*fdn(i,2)-fdn(i,3))*agr(i,2)
+             fdn(i,3) = fdn(i,3)*agr(i,3)
            enddo
          else
          if (gga.eq.10) then
@@ -150,7 +148,7 @@ c     **** unrestricted calculations ****
          else
           call errquit('bad gga',0,0)
          end if
-         endif ! nwxc_is_on
+         endif ! nwpwxc_is_on
 
       else
         call errquit('bad spin',0,ispin)

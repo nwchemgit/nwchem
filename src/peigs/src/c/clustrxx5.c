@@ -199,6 +199,8 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
 
   send_num = 0; 
   recv_num = 0;
+  recv_cl = 0;
+  send_cl = 0;
   send_to = -100;
   recv_from = -100;
   
@@ -252,19 +254,20 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
      */
 
     if( send_num > 1 || recv_num > 1 ) {
-      fprintf( stderr, " me = %d Internal Error in PEIGS clustrinv. \n", me );
-      fprintf( stderr, " me = %d recv_num and/or send_num > 1. \n", me);
+      fprintf( stderr, " me = %ld Internal Error in PEIGS clustrinv. \n", me );
+      fprintf( stderr, " me = %ld recv_num and/or send_num > 1. \n", me);
       exit( -1 );
     }
     if( ( send_num > 0 ) && ( send_cl != cl_num - 1) ) {
-        fprintf( stderr, " me = %d Internal Error in PEIGS clustrinv. \n", me );
-        fprintf( stderr, " me = %d send_cl != cl_num - 1. \n", me);
+        fprintf( stderr, " me = %ld Internal Error in PEIGS clustrinv. \n", me );
+        fprintf( stderr, " me = %ld send_cl != cl_num - 1. \n", me);
         exit( -1 );
     }
-    if( ( recv_num > 0 ) && ( recv_cl != 0 ) ) {
-        fprintf( stderr, " me = %d Internal Error in PEIGS clustrinv. \n", me );
-        fprintf( stderr, " me = %d recv_cl != 0. \n", me);
-        exit( -1 );
+    if ( recv_num > 0 ){
+	if ( recv_cl != 0 ) {
+        fprintf( stderr, " me = %ld Internal Error in PEIGS clustrinv. \n", me );
+        fprintf( stderr, " me = %ld recv_cl != 0. \n", me);
+        exit( -1 );}
     }
   }
 
@@ -319,10 +322,10 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
     
 
     if( iscratch[j] != -1 ) {
-      fprintf( stderr, " me = %d Internal Error in PEIGS clustrinv. \n", me );
-      fprintf( stderr, " me = %d Swapping of initial cluster data \n", me);
-      fprintf( stderr, " me = %d does not have a well defined start. \n", me);
-      fprintf( stderr, " me = %d clustrinv,mgs cannot handle this. \n", me);
+      fprintf( stderr, " me = %ld Internal Error in PEIGS clustrinv. \n", me );
+      fprintf( stderr, " me = %ld Swapping of initial cluster data \n", me);
+      fprintf( stderr, " me = %ld does not have a well defined start. \n", me);
+      fprintf( stderr, " me = %ld clustrinv,mgs cannot handle this. \n", me);
       exit( -1 );
     }
 
@@ -377,9 +380,9 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
       bb1 = *(cl_ptr++);
       bn = *(cl_ptr++);
 
-      if( clustr_ptr == send_cl && send_num > 0 )
-        cl_ptr += 4;
-
+      if(  send_num > 0 ) {
+	if( clustr_ptr == send_cl ) cl_ptr += 4;
+      }
     }
 
 

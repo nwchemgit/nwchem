@@ -16,6 +16,7 @@
 
       logical value
 
+      if (.not.periodic) call nwpw_cosmo_end()
       call FMM_end()
       call ion_scaling_atoms_end()
 
@@ -45,6 +46,7 @@
       if (.not. value) call errquit('ion_end:free heap ',0, MA_ERR)
 
       call ion_hess_end()
+
 
       return
       end
@@ -95,7 +97,7 @@
 
       if (control_frac_coord()) call fcoord_to_frac(nion,dbl_mb(r1(1)))
 
-      do i=1,nion
+      do i=1,nion_qm+nion_mm
          value = beom_cent_get(geom,i,t,rxyz,q)
          value = beom_cent_set(geom,i,t,dbl_mb(r1(1)+(i-1)*3),q)
       end do
@@ -218,13 +220,18 @@
      >               ke_total,kg_total,ke_count
 
 *     *** local variables ***
+      logical value
       integer     i,ia,nion_mm_tmp,nion_qm_tmp
       double precision q,dt  !,vgx,vgy,vgz
-      character*16     t
-      logical value
+      character*16 t
+      character*20 rtdb_name
 
       integer MASTER,taskid
       parameter (MASTER=0)
+
+      integer nkatm_old
+      integer r1_old(2)
+      integer atom_old(2),katm_old(2),natm_old(2)
 
 *     **** external functions ****
       character*4 ion_aname
@@ -247,6 +254,10 @@
       external ion_atn
       logical  control_is_grimme2
       external control_is_grimme2
+      logical  nwpw_cosmo_on
+      external nwpw_cosmo_on
+      integer  nwpw_cosmo_nq
+      external nwpw_cosmo_nq
 
 
       call Parallel_taskid(taskid)
@@ -467,8 +478,103 @@ c         eki1=0.5d0*eki1
          end if
       end if
 
+*     ***** try to initialize COSMO if aperiodic *****
+      nion_q = 0
+      cosmo_on = .false.
+      if  (.not.periodic) then
+         call nwpw_cosmo_init(rtdb,geom)
+         cosmo_on = nwpw_cosmo_on()
+      end if
+     
+      if (cosmo_on) then
+         nion_q    = nwpw_cosmo_nq()
+         nkatm_old = nkatm
+         nkatm     = nkatm + 2
+
+         r1_old(1) = r1(1)
+         r1_old(2) = r1(2)
+         atom_old(1) = atom(1)
+         atom_old(2) = atom(2)
+         katm_old(1) = katm(1)
+         katm_old(2) = katm(2)
+         natm_old(1) = natm(1)
+         natm_old(2) = natm(2)
+
+*        ***** re-allocate ion data structure *****
+         value = BA_alloc_get(mt_dbl,3*(nion+nion_q),'r1',r1(2),r1(1))
+         if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+
+         rtdb_name = 'atom'//CHAR(2+ICHAR('c'))
+         value = BA_alloc_get(mt_byte,(4*nkatm),
+     >                        rtdb_name,atom(2),atom(1))
+         if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+
+         rtdb_name = 'katm'//CHAR(2+ICHAR('c'))
+         value = BA_alloc_get(mt_int,(nion+nion_q),
+     >                        rtdb_name,katm(2),katm(1))
+         rtdb_name = 'natm'//CHAR(2+ICHAR('c'))
+         value = value.and.
+     >       BA_alloc_get(mt_int,(nkatm),rtdb_name,natm(2),natm(1))
+         if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+
+*        **** copy ion data structure over to new ion data structure ****
+         call dcopy(3*nion,dbl_mb(r1_old(1)),1,dbl_mb(r1(1)),1)
+         call pspw_copy_atom(nkatm_old,byte_mb(atom_old(1)),
+     >                                 byte_mb(atom(1)))
+
+         call icopy(nion, int_mb(katm_old(1)),1,int_mb(katm(1)),1)
+         call icopy(nkatm_old,int_mb(natm_old(1)),1,int_mb(natm(1)),1)
+
+*        **** define cosmo atoms in new data structrure ****
+         do i=nion+1,nion+nion_q
+            int_mb(katm(1)+i-1) = nkatm
+         end do
+         int_mb(natm(1)+nkatm-2) = nion_q
+         int_mb(natm(1)+nkatm-1) = nion_q
+         call pspw_insert_atom("Qp  ",nkatm-1,byte_mb(atom(1)))
+         call pspw_insert_atom("Qm  ",nkatm,byte_mb(atom(1)))
+         call nwpw_cosmo_qcoords(dbl_mb(r1(1)+3*nion))
+         call nwpw_cosmo_generate_Ainv(dbl_mb(r1(1)+3*nion))
+
+
+*        ***** deallocate initial ion data structure *****
+         value = value.and.BA_free_heap(r1_old(2))
+         value = value.and.BA_free_heap(katm_old(2))
+         value = value.and.BA_free_heap(natm_old(2))
+         value = value.and.BA_free_heap(atom_old(2))
+
+
+      end if
+
       call nwpw_timing_end(50)
       ion_init = value
+      return
+      end
+
+*     ***************************
+*     *				*
+*     *	  ion_cosmo_reset_katm  *
+*     *				*
+*     ***************************
+      subroutine ion_cosmo_reset_katm(qc0)
+      implicit none
+      real*8 qc0(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "ion.fh"
+
+      integer i
+
+!$OMP MASTER
+      do i=nion+1,nion+nion_q
+         if (qc0(i-nion).ge.0.0d0) then
+            int_mb(katm(1)+i-1) = nkatm-1
+         else
+            int_mb(katm(1)+i-1) = nkatm
+         end if
+      end do
+!$OMP END MASTER
       return
       end
 
@@ -480,11 +586,16 @@ c         eki1=0.5d0*eki1
       character*9 function ion_amm(i)
       implicit none
       integer i
+
+#include "ion.fh"
+
       character*9 string
       logical  ion_aismm
       external ion_aismm
 
-      if (ion_aismm(i)) then
+      if (i.gt.(nion_qm+nion_mm)) then
+         string = "- COSMO  "
+      else if (ion_aismm(i)) then
          string = "- mm atom"
       else
          string = "         "
@@ -505,6 +616,7 @@ c         eki1=0.5d0*eki1
 #include "stdio.fh"
 #include "beom.fh"
 #include "errquit.fh"
+#include "ion.fh"
 
       integer geom
       common / ION2/ geom
@@ -516,15 +628,16 @@ c         eki1=0.5d0*eki1
       logical  parseqmmm
       external parseqmmm
 
-      if (.not. beom_cent_tag(geom,i,t))
-     >        call errquit(' ion_aismm  failed ',i, GEOM_ERR)
-
-      ion_aismm = parseqmmm(t)
+      if (i.gt.(nion_qm+nion_mm)) then
+         ion_aismm = .false.
+      else 
+         if (.not. beom_cent_tag(geom,i,t)) 
+     >      call errquit(' ion_aismm  failed ',i, GEOM_ERR)
+         ion_aismm = parseqmmm(t)
+      end if
       return
       end 
 
-
-    
 
 
 *     ***************************
@@ -539,6 +652,7 @@ c         eki1=0.5d0*eki1
 #include "stdio.fh"
 #include "beom.fh"
 #include "errquit.fh"
+#include "ion.fh"
 
       integer geom
       common / ION2/ geom
@@ -556,6 +670,11 @@ c         eki1=0.5d0*eki1
       integer  control_code
       external control_code
       ccode=control_code()
+
+      if (i.gt.(nion_qm+nion_mm)) then
+         ion_aname = "Qq  "
+         return
+      end if
 
       if (.not. beom_cent_tag(geom,i,t))
      >        call errquit(' ion_aname  failed ',i, GEOM_ERR)
@@ -603,6 +722,7 @@ c         eki1=0.5d0*eki1
 #include "stdio.fh"
 #include "beom.fh"
 #include "errquit.fh"
+#include "ion.fh"
 
 
 *     **** local variables ****
@@ -615,6 +735,12 @@ c         eki1=0.5d0*eki1
 *     **** external functions ****
       logical  parseqmmm
       external parseqmmm
+
+c      if (i.gt.(nion_qm+nion_mm)) then
+c         ion_aname_geom = "Qq  "
+c         return
+c      end if
+
 
       if (.not. beom_cent_tag(geom,i,t))
      >        call errquit(' ion_aname_geom  failed ',i, GEOM_ERR)
@@ -646,8 +772,6 @@ c         eki1=0.5d0*eki1
       end
 
 
-
-
 *     ***************************
 *     *                         *
 *     *      ion_aname_nocarat  *
@@ -660,6 +784,7 @@ c         eki1=0.5d0*eki1
 #include "stdio.fh"
 #include "beom.fh"
 #include "errquit.fh"
+#include "ion.fh"
 
       integer geom
       common / ION2/ geom
@@ -669,6 +794,10 @@ c         eki1=0.5d0*eki1
       character*16 t,name
       real*8 q
 
+      if (i.gt.(nion_qm+nion_mm)) then
+         ion_aname_nocarat = "Qq"
+         return
+      end if
 
       if (.not. beom_cent_tag(geom,i,t))
      >        call errquit('ion_aname_nocarat failed ',i,GEOM_ERR)
@@ -736,6 +865,8 @@ c         eki1=0.5d0*eki1
       ion_amass = dbl_mb(amass(1)+i-1)
       return
       end
+
+
 
 *     ***************************
 *     *                         *
@@ -1378,6 +1509,23 @@ c         eki1=0.5d0*eki1
       return
       end
 
+*     ***************************
+*     *                         *
+*     *         ion_nion_q      *
+*     *                         *
+*     ***************************
+      integer function ion_nion_q()
+      implicit none
+
+***** ion common block ****
+#include "ion.fh"
+
+      ion_nion_q = nion_q
+      return
+      end
+
+
+
 
 
 *     ***************************
@@ -1519,6 +1667,25 @@ c         eki1=0.5d0*eki1
 
 *     ***************************
 *     *                         *
+*     *         ion_nkatm0      *
+*     *                         *
+*     ***************************
+      integer function ion_nkatm0()
+      implicit none
+
+#include "ion.fh"
+
+      if (cosmo_on) then
+         ion_nkatm0 = nkatm-2
+      else
+         ion_nkatm0 = nkatm
+      end if
+      return
+      end
+
+
+*     ***************************
+*     *                         *
 *     *         ion_nkatm_qm   *
 *     *                         *
 *     ***************************
@@ -1530,6 +1697,20 @@ c         eki1=0.5d0*eki1
       ion_nkatm_qm = nkatm_qm
       return
       end
+
+*     ***************************
+*     *                         *
+*     *         ion_cosmo_on    *
+*     *                         *
+*     ***************************
+      logical function ion_cosmo_on()
+      implicit none
+
+#include "ion.fh"
+
+      ion_cosmo_on = cosmo_on
+      return
+      end 
 
 
 
@@ -3754,7 +3935,7 @@ c     >   call errquit("ion_disp_energy:",0,MA_ERR)
       end if
 
 !$OMP MASTER
-      call nwxc_vdw3_dftd3(options,nion_grimme2,int_mb(iz_grimme2(1)),
+      call nwpwxc_vdw3_dftd3(options,nion_grimme2,int_mb(iz_grimme2(1)),
      >                     dbl_mb(rion_grimme2(1)),lat,edisp,g,g_lat)
 !$OMP END MASTER
 !$OMP BARRIER
@@ -3831,7 +4012,7 @@ c     >   call errquit("ion_disp_energy: pushstack gtmp",1,MA_ERR)
      >                                 dbl_mb(fion_grimme2(1)))
 
 !$OMP MASTER
-      call nwxc_vdw3_dftd3(options,nion_grimme2,int_mb(iz_grimme2(1)),
+      call nwpwxc_vdw3_dftd3(options,nion_grimme2,int_mb(iz_grimme2(1)),
      >               dbl_mb(rion_grimme2(1)),lat,edisp,
      >               dbl_mb(fion_grimme2(1)),g_lat)
 !$OMP END MASTER
@@ -3930,7 +4111,7 @@ c      end do
       call Parallel_shared_vector_zero(.true.,9,stress)
 
 !$OMP MASTER
-      call nwxc_vdw3_dftd3(options,nion_grimme2,int_mb(iz_grimme2(1)),
+      call nwpwxc_vdw3_dftd3(options,nion_grimme2,int_mb(iz_grimme2(1)),
      >               dbl_mb(rion_grimme2(1)),lat,edisp,
      >               dbl_mb(fion_grimme2(1)),stress)
 !$OMP END MASTER

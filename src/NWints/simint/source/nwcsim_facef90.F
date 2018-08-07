@@ -12,6 +12,7 @@
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "rtdb.fh"
 #include "stdio.fh"
 c      use iso_c_binding
       integer rtdb,nbas,bases(3)
@@ -29,9 +30,23 @@ c      type(c_simint_multi_shellpair), target :: msh
       integer l_coef,k_coef,l_exp,k_exp
       double precision coord(3)
       double precision q
+      integer nwcsim_maxam
+      external nwcsim_maxam
       character*14 pname
       pname="nwcsim_f90init"
-c     stick to nbas=1 for now
+c     fetch stuff from rtdb
+      if (.not.rtdb_get(rtdb,'int:smnt_screen_tol',MT_DBL,1,
+     s     smnt_screen_tol))  smnt_screen_tol=1d-22
+#define SIMINT_SCREEN_NONE         0
+#define SIMINT_SCREEN_SCHWARZ      1
+#define SIMINT_SCREEN_FASTSCHWARZ  2
+      if (.not.rtdb_get(rtdb,'int:smnt_screen_method',MT_INT,1,
+     s     smnt_screen_method))  smnt_screen_method=
+     S     SIMINT_SCREEN_FASTSCHWARZ
+c reset screen_tol when screening is off
+      if(smnt_screen_method.eq.SIMINT_SCREEN_NONE)smnt_screen_tol=0d0
+
+c     stick to nbas>=2 for now
          if(nbas.gt.2) call errquit(
      C        ' simint interface not ready for no basis gt 2',0,0)
 c     init
@@ -76,6 +91,9 @@ c
                if (.not.bas_continfo(basis, icset,
      &              l, nprim, ncontr, isphere))
      &              call errquit(pname//'Exiting ',3, BASIS_ERR)
+               if(l.gt.nwcsim_maxam()) call errquit(
+     p              pname//' simint library maxam too small ',
+     p              nwcsim_maxam(),BASIS_ERR)
                max_ang=max(l,max_ang)
                if (.not.bas_get_exponent(basis, icset, dbl_mb(k_exp)))
      &              call errquit(pname//'Exiting ',7, BASIS_ERR)
@@ -113,12 +131,22 @@ c
 
       mem_2e4c = max(mem_2e4c,
      S     simint_eri_worksize(num_der, max_ang))
-      mem_2e3c = mem_2e4c
+c     SIMINT_PRIM_SCREEN_STAT needs 4 more doubles
+      isz_2e4c        = isz_2e4c + 4
+#define SIMINT_SIMD_LEN 8
+      call util_align(isz_2e4c,SIMINT_SIMD_LEN)
+      isz_2e2c        = isz_2e2c + 4
+      call util_align(isz_2e2c,SIMINT_SIMD_LEN)
+c      
+      
       if(num_der.eq.1) then
          memb_2e4c = mem_2e4c + mem_2e4c/5
       else
          memb_2e4c = mem_2e4c + mem_2e4c/10 ! +10% to be safe
       endif
+      call util_align(mem_2e4c,SIMINT_SIMD_LEN)
+      mem_2e3c = mem_2e4c
+      mem_2e2c = mem_2e4c
       if(ga_nodeid().eq.0) then
          write(luout,*)
          write(luout,*) ' Using Simint Integral package'
@@ -126,6 +154,8 @@ c
          write(luout,*) ' simint: memb_2e4c  ',memb_2e4c
          write(luout,*) ' 0 der',simint_eri_worksize(0, max_ang)
          write(luout,*) ' 1 der',simint_eri_worksize(1, max_ang)
+         write(luout,*) ' screen_method ',smnt_screen_method
+         write(luout,*) ' screen_tol ',smnt_screen_tol
          write(luout,*)
          call util_flush(luout)
       endif
@@ -156,6 +186,12 @@ c
       nwcsim_initialized=.false.
       return
       end
+      integer function nwcsim_maxam()
+      implicit none
+c
+      nwcsim_maxam=SIMINT_MAXAM
+      return
+      end
       logical function nwcsim_initdone()
       use nwcsim_shell
       implicit none
@@ -183,6 +219,12 @@ c
       implicit none
 c
       nwcsim_initdone=.false.
+      return
+      end
+      integer function nwcsim_maxam()
+      implicit none
+c
+      nwcsim_maxam=-1
       return
       end
 #endif

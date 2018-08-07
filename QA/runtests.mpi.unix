@@ -285,7 +285,7 @@ foreach TEST_in ($args_2_use)
 
   if (-f $TESTOUTPUTS/$STUB.out) /bin/rm -f $TESTOUTPUTS/$STUB.out
 
-  echo "     running nwchem ($NWCHEM)"
+  echo "     running nwchem ($NWCHEM)  with "$NPROC" processors "
 
   set x="%Uu %Ss %E %P (%Xt+%Dds+%Kavg+%Mmax)k %Ii+%Oo %Fpf %Wswaps"
   set time=(1 "$x")
@@ -299,7 +299,11 @@ sync
   if($md_test_run) then
     if ($NPROC) then
       if ($NONSTD_MPI) then
-        $MPIRUN $NWCHEM $INPUTFILE >& $OUTPUTFILE
+      if (! $?USE_SLEEPLOOP) then
+          $MPIRUN $NWCHEM $INPUTFILE >& $OUTPUTFILE
+	else
+          $NWCHEM_TOP/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $OUTPUTFILE
+	endif
         @ runstatus = $status
       else
         $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& $OUTPUTFILE
@@ -339,7 +343,11 @@ sync
         @ runstatus = $status
       else
 #       In the case of standard MPI we construct the appropriate command here.
+      if (! $?USE_SLEEPLOOP) then
         $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
+      else
+          $NWCHEM_TOP/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $OUTPUTFILE
+      endif
         @ runstatus = $status
       endif
     else

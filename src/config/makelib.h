@@ -269,10 +269,10 @@ endif
 	$(CNFDIR)/dbl_to_sngl $(USES_BLAS)
 
 64_to_32:
+	$(CNFDIR)/64_to_32 $(USES_BLAS)
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
-	$(CNFDIR)/64_to_32 $(USES_BLAS)
 	@/bin/rm -f dependencies
 
 32_to_64:

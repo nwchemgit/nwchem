@@ -600,7 +600,7 @@ c
          if (nvir*nocc .gt.0) then
             do i=ga_nodeid()+1,nocc,ga_nnodes()
                call ga_get(g_kvec, ioff+1+(i-1)*nvir, ioff+i*nvir, 1, 1,
-     $              dbl_mb(k_tmp), 1)
+     $              dbl_mb(k_tmp), nvir)
                call ga_put(g_kmat, nocc1, nmo, i, i,
      $              dbl_mb(k_tmp), nmo-nocc1+1)
                call dscal(nvir, mone, dbl_mb(k_tmp), 1)
@@ -1317,8 +1317,8 @@ c
           ihi(2) = ivec
           call nga_normf_patch(g_x,ilo,ihi,dnrm)
           if (olprint) then
-            write(LuOut,'(1x,a,": in g_x = ",i4,f24.8)')
-     +      __FILE__,ivec,dnrm
+            write(LuOut,'(1x,"uhf: in g_x = ",i4,f24.8)')
+     +      ivec,dnrm
           endif
         enddo
       endif
@@ -1355,8 +1355,8 @@ c
           ihi(2) = ivec
           call nga_normf_patch(g_x,ilo,ihi,dnrm)
           if (olprint) then
-            write(LuOut,'(1x,a,": out g_x = ",i4,f24.8)')
-     +      __FILE__,ivec,dnrm
+            write(LuOut,'(1x,"uhf: out g_x = ",i4,f24.8)')
+     +      ivec,dnrm
           endif
         enddo
       endif
@@ -1578,7 +1578,7 @@ c
 c
       s2 = 0
       do i = 1+ga_nodeid(), nbeta, ga_nnodes()
-         call ga_get(g_smo, 1, nalpha, i, i, dbl_mb(k_x), 1)
+         call ga_get(g_smo, 1, nalpha, i, i, dbl_mb(k_x), nalpha)
          do j = 1, nalpha
             s2 = s2 + dbl_mb(k_x+j-1)**2
          enddo

@@ -631,6 +631,7 @@ c
       ief   =0
       do iat=1,nat
          if(ratm(iat).ne.0d0) then
+            ratm_real=-1d99
             if (do_cosmo_model.eq.DO_COSMO_KS) then
               ratm_real=ratm(iat)-rsolv/bohr
             else if (do_cosmo_model.eq.DO_COSMO_YK) then
@@ -2386,6 +2387,8 @@ c
 c
 c        ----- calculate q* = A^{-1}BQ -----
 c
+         iep=-99
+         ieq=-99
          if (all) then
            iep=i10
            ieq=i20
@@ -2464,6 +2467,8 @@ c
 c
 c        ----- solve ... -----
 c
+         iep=-99
+         ieq=-99
          if (all) then
            iep=i10
            ieq=i20

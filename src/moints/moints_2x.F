@@ -264,6 +264,15 @@ c
 c  4-fold shell loop
 c
        do ii=1,nsh
+#ifdef ACC_STRIPS
+          if(ga_nodeid().eq.0) then
+             write(6,'(i5,a,i6,a,i6,a,f16.2,a)') ga_nodeid(),
+     S            ' shell ',ii,
+     c            ' out of ',nsh, ' in ',util_wallsec(),' secs'
+             call util_flush(6)
+          endif
+#endif
+
          do jj=1,ii
            ish = max(int_mb(k_shmap+ii-1),int_mb(k_shmap+jj-1))
            jsh = min(int_mb(k_shmap+ii-1),int_mb(k_shmap+jj-1))
@@ -824,11 +833,20 @@ cstaggering to avoid congestion in ga_acc
              enddo
            enddo
            call row_exch(nbf, ilen, bfmap, h1, h3 )
+c h3(nbf,ilo:ihi)
 #ifndef NOCOMMS
            ab = ((a-ofroz)*(a-ofroz-1))/2 + b - ofroz - aoff
+#ifdef ACC_STRIPS
+           do i=ilo,ihi
+              ijlo = (i-1)*nbf + 1
+              ijhi = i*nbf 
+              call ga_acc(g_exch,ijlo,ijhi,ab,ab,h3(1,i-ilo+1),nni,1.d0)
+           enddo
+#else
            ijlo = (ilo-1)*nbf + 1
            ijhi = ihi*nbf
            call ga_acc(g_exch,ijlo,ijhi,ab,ab,h3,nni,1.d0)
+#endif
 #endif
          enddo
        enddo
@@ -849,11 +867,20 @@ cstaggering to avoid congestion in ga_acc
              enddo
            enddo
            call row_exch(nbf, jlen, bfmap, h2, h3 )
+c h3(1:nbf,jlo:jhi)
 #ifndef NOCOMMS
            ab = ((a-ofroz)*(a-ofroz-1))/2 + b - ofroz - aoff
+#ifdef ACC_STRIPS
+           do j=jlo,jhi
+              ijlo = (j-1)*nbf + 1
+              ijhi = j*nbf
+              call ga_acc(g_exch,ijlo,ijhi,ab,ab,h3(1,j-jlo+1),nnj,1.d0)
+           enddo
+#else
            ijlo = (jlo-1)*nbf + 1
            ijhi = jhi*nbf
            call ga_acc(g_exch,ijlo,ijhi,ab,ab,h3,nnj,1.d0)
+#endif
 #endif
          enddo
        enddo

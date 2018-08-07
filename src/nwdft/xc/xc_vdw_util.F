@@ -884,14 +884,15 @@ c b1b95
            a1       = 1.4507d0
            a2       = 5.5545d0
 c CAM-B3LYP
-         else if (xfac(40).eq.1.0d0.and.cfac(2).ne.0d0.
+         else if (abs(xfac(40)-1.0d0).lt.1d-5.and.cfac(2).ne.0d0.
      A          and.xfac(1).ne.0d0) then
           a1      = 0.3708d0
           scales8 = 2.0674d0
           a2      = 5.4743d0
 c LC-wPBE
-         else if (xfac(43).eq.1.0d0.and.cfac(12).eq.1d0.
-     A          and.xfac(1).eq.1d0) then
+       else if (abs(xfac(43)-1d0).lt.1d-5.and.
+     c          abs(cfac(12)-1d0).lt.1d-5.and.
+     A          abs(xfac(1) -1d0).lt.1d-5) then
           a1      = 0.3919d0
           scales8 = 1.8541d0
           a2      = 5.0897d0
@@ -935,6 +936,11 @@ c ssb
            scales8  = -0.0952d0
            a1       = -0.1744d0
            a2       =  5.2170d0
+c mpwb1k
+        else if (xccomb(22)) then
+           scales8  =  0.9499d0
+           a1       =  0.1474d0
+           a2       =  6.6223d0
         else
          call errquit(' vdw 4: scaling factors not available',0,0)
         endif

@@ -125,14 +125,14 @@ c     >                      dbl_mb(agr(1)))
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
 
          if (meta_on) then
-           call nwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),dbl_mb(agr(1)),
+           call nwpwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),dbl_mb(agr(1)),
      >                       dbl_mb(tau(1)),xce,
      >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),
      >                       dbl_mb(dfdtau(1)))
 c
 c          Combine (df/d|grad a|) with (df/d(grad a|grad b))
 c
-           call D3dB_r_SMul(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
+           call D3dB_rr_daxpy(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
      >                              dbl_mb(fdn(1)))
 c
 c          Calculate energy density from energy
@@ -435,7 +435,7 @@ c
 c
 c          Evaluate the functional
 c
-           call nwxc_eval_df(2,n2ft3d,dn,dbl_mb(grad(1)),
+           call nwpwxc_eval_df(2,n2ft3d,dn,dbl_mb(grad(1)),
      >                       dbl_mb(tau(1)),xce,
      >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),
      >                       dbl_mb(dfdtau(1)))

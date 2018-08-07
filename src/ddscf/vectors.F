@@ -1332,6 +1332,8 @@ c
              write(LuOut,*) ' IO offset ', offset
              write(LuOut,*) ' IO error message ',
      $            errmsg(1:inp_strlen(errmsg))
+             if (.not. ma_pop_stack(l_tmp))
+     $        call errquit('file_read_ga: ma pop failed', l_tmp, MA_ERR)
           goto 1001
         endif
         offset=offset+lgth

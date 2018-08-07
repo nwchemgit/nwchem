@@ -61,7 +61,7 @@ c      shift = lshift + omega ! FA-03-13-14
           call nga_normf_patch(g_x,ilo,ihi,dnrm)
           if (olprint) then
             write(LuOut,'(1x,a,": in g_x = ",i4,f24.8)')
-     +      __FILE__,ivec,dnrm
+     +           'uhf_hessv_precond3',ivec,dnrm
           endif
         enddo
       endif
@@ -113,7 +113,7 @@ c                   dbl_mb(k_x+j-1)=2.0d0* dbl_mb(k_x+j-1)/denominator ! FA-03-1
           call nga_normf_patch(g_x,ilo,ihi,dnrm)
           if (olprint) then
             write(LuOut,'(1x,a,": out g_x = ",i4,f24.8)')
-     +      __FILE__,ivec,dnrm
+     +      'uhf_hessv_precond3',ivec,dnrm
           endif
         enddo
       endif
@@ -217,7 +217,7 @@ c     include factors of 2
           call nga_normf_patch(g_x,ilo,ihi,dnrm)
           if (olprint) then
             write(LuOut,'(1x,a,": in g_x = ",i4,f24.8)')
-     +      __FILE__,ivec,dnrm
+     +           'uhf_hessv_precond3_damp',ivec,dnrm
           endif
         enddo
       endif
@@ -283,7 +283,7 @@ c                    factor_im =  2.0d0*gamwidth/den
           call nga_normf_patch(g_x,ilo,ihi,dnrm)
           if (olprint) then
             write(LuOut,'(1x,a,": out g_x = ",i4,f24.8)')
-     +      __FILE__,ivec,dnrm
+     +           'uhf_hessv_precond3_damp',ivec,dnrm
           endif
         enddo
       endif

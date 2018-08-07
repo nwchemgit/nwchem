@@ -1,62 +1,63 @@
 language: c
-matrix:
-  include:
-  - os: linux
-    dist: trusty
-    sudo: required
+sudo: required
+osx_image: xcode9.2
+os: 
+  - osx
+  - linux
+env: 
+  - NWCHEM_MODULES=qmandpw  ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
+  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
+  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="mpich"
+  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PR MPI_IMPL="openmpi"
+  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT MPI_IMPL="mpich"
+  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-MT MPI_IMPL="mpich"
+  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI3   MPI_IMPL="mpich"
+  - NWCHEM_MODULES=tce     ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
 compiler:
   - gcc
-env: == default ==
-        NWCHEM_TOP=$TRAVIS_BUILD_DIR
-        NWCHEM_TARGET=LINUX64
-        NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd solvation python"
-        USE_MPI=y
-        USE_64TO32=y
-        BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lopenblas -lpthread -lrt"
-        BLAS_SIZE=4
-        SCALAPACK="-L$TRAVIS_BUILD_DIR/lib  -lscalapack -lnwclapack -lopenblas -lpthread -lrt"
-        SCALAPACK_SIZE=4
-        USE_PYTHONCONFIG=y
-        PYTHONVERSION=2.7
-        PYTHONHOME=/usr
-        LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH
+matrix:
+  exclude:
+    - os: osx
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="mpich"
+  allow_failures:
+    - os: osx
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
+    - os: osx
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PR MPI_IMPL="openmpi"
+    - os: osx
+      env: NWCHEM_MODULES=tce     ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
+    - os: osx
+      env: NWCHEM_MODULES=qmandpw  ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
+    - os: osx
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI3   MPI_IMPL="mpich"
+git:
+  depth: 3
 before_script:
         - printenv TRAVIS_BUILD_DIR
-        - printenv NWCHEM_TOP
-        - sudo apt-get -y install gfortran gcc python-dev  cmake
-        - sudo apt-get -y install libopenmpi-dev openmpi-bin tcsh make automake libtool autoconf 
-        - sudo apt-get -y install perl
-        - ls -lrt $TRAVIS_BUILD_DIR
-        - ls -lrt $NWCHEM_TOP
-        - cd $NWCHEM_TOP/src && make nwchem_config &&  make 64_to_32 >& 6log &
-        - ./travis/build_openblas.sh
-        - ./travis/build_scalapack.sh
+        - ./travis/build_env.sh
+        - gfortran -v
+        - mpif90 -show
+        - ./travis/config_nwchem.sh
+        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./travis/build_openblas.sh;  fi
+        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./travis/build_scalapack.sh; fi
         - sleep 1
 script:
-        - cd $NWCHEM_TOP/src/tce && make 64_to_32 >& 6log &
-        - cd $NWCHEM_TOP/src && ../travis/sleep_loop.sh make  -j3
-        - tail -2 $NWCHEM_TOP/src/6log
-        - tail -2 $NWCHEM_TOP/src/tce/6log
-        - head -2 $NWCHEM_TOP/src/tools/build/config.log
-        - tail -2 $NWCHEM_TOP/src/tools/build/config.log
-        - tail -10 $NWCHEM_TOP/src/make.log
-        - cd $NWCHEM_TOP/src && make nwchem_config NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd solvation python tce" 
-        - cd $NWCHEM_TOP/src/tce && head -2 dependencies && rm -f dependencies
-        - grep -i dot $NWCHEM_TOP/src/tce/tce_residual_t1.F
-        - make include_stamp dependencies >& dep.log && tail -2 dep.log
-        - wait 
-        - tail -2 $NWCHEM_TOP/src/tce/6log
-        - grep -i dot $NWCHEM_TOP/src/tce/tce_residual_t1.F
-        - cd $NWCHEM_TOP/src/tce && ../../travis/sleep_loop.sh make FDEBUG="-O0 -g" FOPTIMIZE="-O0 -g" -j4
-        - tail -4 $NWCHEM_TOP/src/make.log
-        - cd $NWCHEM_TOP/src && make link
-        - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 2 dft_siosi3  h2o_opt dft_he2+ cosmo_h2o_dft tddft_h2o h2o2-response
+        - ./travis/compile_nwchem.sh
+        - grep HAVE_SCA $TRAVIS_BUILD_DIR/src/tools/build/config.h || true
+        - ./travis/run_qas.sh
+
+
 after_failure:
-        - tail -20 $NWCHEM_TOP/src/tools/build/config.log
-        - tail -10 $NWCHEM_TOP/src/tools/build/comex/config.log
-        - grep -A 2 -B 2 -i error $NWCHEM_TOP/src/make.log 
-        - head -200 $NWCHEM_TOP/src/make.log
-        - tail -200 $NWCHEM_TOP/src/make.log
-        - grep d= $NWCHEM_TOP/QA/testoutputs/dft_he2+.out
-        - grep @ $NWCHEM_TOP/QA/testoutputs/h2o_opt.out
+        - tail -20 $TRAVIS_BUILD_DIR/src/tools/build/config.log
+        - tail -10 $TRAVIS_BUILD_DIR/src/tools/build/comex/config.log
+        - grep -A 2 -B 2 -i error $TRAVIS_BUILD_DIR/src/make.log 
+        - head -200 $TRAVIS_BUILD_DIR/src/make.log
+        - tail -200 $TRAVIS_BUILD_DIR/src/make.log
+        - tail -200 $TRAVIS_BUILD_DIR/src/6log
+        - grep -i tce_energy $TRAVIS_BUILD_DIR/src/6log
+        - grep d= $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
+        - grep @ $TRAVIS_BUILD_DIR/QA/testoutputs/h2o_opt.out
+        - tail -30 $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
+        - tail -30 $TRAVIS_BUILD_DIR/QA/testoutputs/prop_mep_gcube.out
+        - diff $TRAVIS_BUILD_DIR/QA/testoutputs/prop_ch3f.o*nw*
               

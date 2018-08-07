@@ -1200,6 +1200,257 @@ c     psp_rc = rc(i,ia)
       end
 
 
+
+*     ***********************************
+*     *					*
+*     *	    v_local_set_cosmo_BQ  	*
+*     *					*
+*     ***********************************
+      subroutine v_local_set_cosmo_BQ(r_grid,rho,dng)
+      implicit none
+      real*8     r_grid(3,*)
+      real*8     rho(*)
+      complex*16 dng(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+
+*     *** local variables ***
+      integer taskid,taskid_j,tid,np,np_j,nthreads
+      integer nion,nion_q
+      integer i,j,ii,ia,nx,ny,nz
+      integer n2ft3d,n2ft3d_map,npack0
+      integer exi(2),vtmp(2),xtmp(2),G(3)
+      logical value,periodic,inside
+      real*8  rxyz(3),fxyz(3)
+      real*8  c,x,y,z,r,dv,scal1,sqrt_pi
+      integer BQ_ptr
+
+      real*8 sa,sb 
+      common /pack_conjg_tcc_indot_sasb/ sa,sb
+
+*     **** Error function parameters ****
+      real*8  yerf,verf,xerf
+
+c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
+      real*8 c1,c2,c3,c4,c5,c6,fterf
+      parameter (c1=0.07052307840d0,c2=0.04228201230d0)
+      parameter (c3=0.00927052720d0)
+      parameter (c4=0.00015201430d0,c5=0.00027656720d0)
+      parameter (c6=0.00004306380d0)
+
+
+*     **** external functions ****
+      integer  ion_nion,ion_katm,control_version
+      external ion_nion,ion_katm,control_version
+      real*8   ion_rion,psp_rlocal,lattice_omega,psp_zv
+      external ion_rion,psp_rlocal,lattice_omega,psp_zv
+      integer  ion_nion_q
+      external ion_nion_q
+      logical  control_fast_erf
+      external control_fast_erf
+      real*8   util_erf
+      external util_erf
+      integer  nwpw_cosmo_BQ_ptr
+      external nwpw_cosmo_BQ_ptr
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
+      integer  ion_nkatm
+      external ion_nkatm
+
+      call nwpw_timing_start(5)
+      call Parallel_np(np)
+      call Parallel2d_np_j(np_j)
+      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_j(taskid_j)
+      tid = Parallel_threadid()
+      nthreads = Parallel_nthreads()
+      call Pack_npack(0,npack0)
+      call D3dB_n2ft3d_map(1,n2ft3d_map)
+      call D3dB_n2ft3d(1,n2ft3d)
+      nion     = ion_nion()
+      nion_q   = ion_nion_q()
+      BQ_ptr   = nwpw_cosmo_BQ_ptr()
+      periodic = (control_version().eq.3)
+
+      sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
+
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      dv    = scal1*lattice_omega()
+
+
+      call Parallel_shared_vector_zero(.true.,nion_q,dbl_mb(BQ_ptr))
+
+      value = BA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
+      if (.not. value) 
+     >  call errquit('v_local_BQ:out of stack memory',0,MA_ERR)
+
+      do ii=taskid_j+nion+1,nion+nion_q,np_j
+    
+c          if (mod(ii-1,np_j).eq.taskid_j) then
+
+             if (.not.periodic) then
+                rxyz(1) = ion_rion(1,ii)
+                rxyz(2) = ion_rion(2,ii)
+                rxyz(3) = ion_rion(3,ii)
+                call lattice_r1_to_frac(1,rxyz,fxyz)
+                inside =((dabs(fxyz(1)).le.0.4d0).and.
+     >                   (dabs(fxyz(2)).le.0.4d0).and.
+     >                   (dabs(fxyz(3)).le.0.4d0))
+             else
+                inside = .true.
+             end if
+
+             if (inside) then
+              !ia=ion_katm(ii)
+              ia=ion_nkatm()
+
+
+*             **** structure factor and local pseudopotential ****
+              call strfac_pack(0,ii,dcpl_mb(exi(1)))
+              call Pack_tc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
+     >                          dcpl_mb(exi(1)),
+     >                          dcpl_mb(vtmp(1)))
+
+
+              
+              call Pack_cc_idot(0,dng,dcpl_mb(vtmp(1)),
+     >                            dbl_mb(BQ_ptr+ii-nion-1))
+!$OMP MASTER
+              dbl_mb(BQ_ptr+ii-nion-1) = -dbl_mb(BQ_ptr+ii-nion-1)
+!$OMP END MASTER
+            
+              !write(*,*) "HERA,ii=",ii,BQ_ptr,dbl_mb(BQ_ptr+ii-nion-1)
+
+             end if
+
+c          end if
+
+      end do
+
+      value = .true.
+      value = value.and.BA_pop_stack(vtmp(2))
+      value = value.and.BA_pop_stack(exi(2))
+      if (.not. value) 
+     >  call errquit('v_local_BQ:popping stack',0,MA_ERR)
+
+      if (control_fast_erf()) then
+
+      do j=taskid_j+nion+1,nion+nion_q,np_j
+
+c         if (mod(j-1,np_j).eq.taskid_j) then
+            ia= ion_katm(j)
+            x = ion_rion(1,j)
+            y = ion_rion(2,j)
+            z = ion_rion(3,j)
+            c = 1.0d0/psp_rlocal(ia)
+
+!$OMP MASTER
+            sb = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+!$OMP DO REDUCTION(+:sb)
+            do i=1,n2ft3d_map
+               r = dsqrt( (r_grid(1,i)-x)**2
+     >                  + (r_grid(2,i)-y)**2
+     >                  + (r_grid(3,i)-z)**2)
+               if (r.gt.1.0d-15) then
+                 xerf=r*c
+                 yerf = (1.0d0
+     >                 + xerf*(c1 + xerf*(c2
+     >                 + xerf*(c3 + xerf*(c4
+     >                 + xerf*(c5 + xerf*c6))))))**4
+                 yerf = (1.0d0 - 1.0d0/yerf**4)
+                 sb = sb - rho(i)*(yerf/r)*dv
+               else
+                 sb = sb - 2.0d0*rho(i)*c/sqrt_pi*dv
+               end if
+            end do
+!$OMP END DO
+!$OMP MASTER
+           dbl_mb(BQ_ptr+j-nion-1) = dbl_mb(BQ_ptr+j-nion-1) + sb
+!$OMP END MASTER
+!$OMP BARRIER
+
+c         end if
+
+      end do
+
+      else
+
+      do j=taskid_j+nion+1,nion+nion_q,np_j
+
+c         if (mod(j-1,np_j).eq.taskid_j) then
+            ia= ion_katm(j)
+            x = ion_rion(1,j)
+            y = ion_rion(2,j)
+            z = ion_rion(3,j)
+            c = 1.0d0/psp_rlocal(ia)
+
+!$OMP MASTER
+            sb = 0.0d0
+!$OMP END MASTER
+!$OMP DO REDUCTION(+:sb)
+            do i=1,n2ft3d_map
+               r = dsqrt( (r_grid(1,i)-x)**2
+     >                  + (r_grid(2,i)-y)**2
+     >                  + (r_grid(3,i)-z)**2)
+               if (r.gt.1.0d-15) then
+                 xerf=r*c
+                 yerf = util_erf(xerf)
+                 sb = sb - rho(i)*(yerf/r)*dv
+               else
+                 sb = sb - rho(i)*2.0d0*c/sqrt_pi*dv
+               end if
+            end do
+!$OMP END DO
+!$OMP MASTER
+           dbl_mb(BQ_ptr+j-nion-1) = dbl_mb(BQ_ptr+j-nion-1) + sb
+           !write(*,*) "HERB,j=",j,BQ_ptr,dbl_mb(BQ_ptr+j-nion-1)
+!$OMP END MASTER
+!$OMP BARRIER
+
+c         end if
+
+      end do
+
+      end if
+
+      !**** ion-ion BQ contribution ****
+      do j=tid+nion+1,nion+nion_q,nthreads
+         do ii=taskid+1,nion,np
+            ia=ion_katm(ii)
+            x = ion_rion(1,j)-ion_rion(1,ii)
+            y = ion_rion(2,j)-ion_rion(2,ii)
+            z = ion_rion(3,j)-ion_rion(3,ii)
+            r = dsqrt(x*x + y*y +z*z)
+            sb = psp_zv(ia)/r
+           
+           dbl_mb(BQ_ptr+j-nion-1) = dbl_mb(BQ_ptr+j-nion-1) + sb
+         end do
+         !write(*,*) "HERC,j=",j,BQ_ptr,dbl_mb(BQ_ptr+j-nion-1)
+      end do
+
+      call Parallel_Vector_SumAll(nion_q,dbl_mb(BQ_ptr))
+
+      call nwpw_cosmo_solve_q()
+
+      call nwpw_timing_end(5)
+      return 
+      end
+
+
+
+
+
+
 *     **********************************
 *     *                                *
 *     *        grad_v_lr_local         *
@@ -1301,7 +1552,7 @@ c     >              dbl_mb(psp_fmm_Mlm(1)),1)
          !end do
          call D3dB_Vector_SumAll((psp_fmm_lmax+1)**2,
      >                           dbl_mb(psp_fmm_Mlm(1)))
-         call FMM_fion_Mlm(psp_fmm_lmax,ion_nion(),nion_qm,
+         call FMM_fion_Mlm(psp_fmm_lmax,nion,nion_qm,
      >                     int_mb(ion_katm_ptr()),
      >                     dbl_mb(ion_rion_ptr()),
      >                     dbl_mb(psp_zv_ptr()),
@@ -1481,7 +1732,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
 
 *     **** local variables ****
       integer taskid_j,np_j
-      integer i,j,ia,n2ft3d,n2ft3d_map,l,m,lm,nion_qm
+      integer i,j,ia,n2ft3d,n2ft3d_map,l,m,lm,nion,nion_qm,nion_q
       real*8 x,y,z,q,c,r,sqrt_pi,lmbda0,lmbda
 
 *     **** external functions ****
@@ -1495,13 +1746,19 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
       external ion_rion,psp_rlocal,psp_zv,util_erf,pspw_qmmm_lambda
       integer  ion_katm_ptr,ion_rion_ptr,psp_zv_ptr
       external ion_katm_ptr,ion_rion_ptr,psp_zv_ptr
+      integer  ion_nion_q
+      external ion_nion_q
+      real*8   nwpw_cosmo_screen_qc0
+      external nwpw_cosmo_screen_qc0
 
       call nwpw_timing_start(5)
       call Parallel2d_np_j(np_j)
       call Parallel2d_taskid_j(taskid_j)
       call D3dB_n2ft3d(1,n2ft3d)
       call D3dB_n2ft3d_map(1,n2ft3d_map)
+      nion    = ion_nion()
       nion_qm = ion_nion_qm()
+      nion_q  = ion_nion_q()
 
       lmbda0 = 1.0d0
       if (pspw_qmmm_lambda_flag()) lmbda0 = pspw_qmmm_lambda()
@@ -1535,7 +1792,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
 
       if (control_fast_erf()) then
 
-      do j=1,ion_nion()
+      do j=1,nion+nion_q
       
          if (mod(j-1,np_j).eq.taskid_j) then
             if (j.gt.nion_qm) then
@@ -1548,7 +1805,11 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
             y = ion_rion(2,j)
             z = ion_rion(3,j)
             if ((.not.psp_fmm).or.((x*x+y*y+z*z).le.psp_fmm_rmax2)) then
-            q = -psp_zv(ia)
+            if (j.gt.nion) then
+               q = -nwpw_cosmo_screen_qc0(j-nion)
+            else
+               q = -psp_zv(ia)
+            end if
             c = 1.0d0/psp_rlocal(ia)
 
 !$OMP DO
@@ -1578,7 +1839,7 @@ c                 yerf = util_erf(xerf)
 
       else
 
-      do j=1,ion_nion()
+      do j=1,nion+nion_q
  
          if (mod(j-1,np_j).eq.taskid_j) then
             if (j.gt.nion_qm) then
@@ -1591,7 +1852,11 @@ c                 yerf = util_erf(xerf)
             y = ion_rion(2,j)
             z = ion_rion(3,j)
             if ((.not.psp_fmm).or.((x*x+y*y+z*z).le.psp_fmm_rmax2)) then
-            q = -psp_zv(ia)
+            if (j.gt.nion) then
+               q = -nwpw_cosmo_screen_qc0(j-nion)
+            else
+               q = -psp_zv(ia)
+            end if
             c = 1.0d0/psp_rlocal(ia)
 
 !$OMP DO
@@ -1648,7 +1913,7 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
 
 *     *** local variables ***
       integer taskid_j,np_j
-      integer npack0,nion,nion_qm
+      integer npack0,nion,nion_qm,nion_q
       integer i,ii,ia
       integer exi(2),vtmp(2),xtmp(2),G(3)
       logical value,periodic,inside
@@ -1661,13 +1926,18 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
       external pspw_qmmm_lambda_flag
       external Pack_G_indx,ion_nion,ion_nion_qm,ion_katm,control_version
       external ion_rion,pspw_qmmm_lambda
+      integer  ion_nion_q
+      external ion_nion_q
+      real*8   nwpw_cosmo_screen_qc0
+      external nwpw_cosmo_screen_qc0
 
       call nwpw_timing_start(5)
       call Parallel2d_np_j(np_j)
       call Parallel2d_taskid_j(taskid_j)
       call Pack_npack(0,npack0)
-      nion     = ion_nion()
-      nion_qm  = ion_nion_qm()
+      nion    = ion_nion()
+      nion_qm = ion_nion_qm()
+      nion_q  = ion_nion_q()
       periodic = (control_version().eq.3)
 
       lmbda0 = 1.0d0
@@ -1693,7 +1963,7 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
 
       !call dcopy((2*npack0),0.0d0,0,vl_out,1)
       call Parallel_shared_vector_zero(.true.,2*npack0,vl_out)
-      do ii=1,nion
+      do ii=1,nion+nion_q
     
           if (mod(ii-1,np_j).eq.taskid_j) then
              if (ii.gt.nion_qm) then
@@ -1721,7 +1991,13 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
               call strfac_pack(0,ii,dcpl_mb(exi(1)))
        
 *             **** add to local psp ****
-              if ((int_mb(psp_type(1)+ia-1).eq.4)) then
+              if (ii.gt.nion) then
+                 call Pack_tc_aMul(0,
+     >                     dabs(nwpw_cosmo_screen_qc0(ii-nion)),
+     >                             dbl_mb(vl(1)+npack0*(ia-1)),
+     >                             dcpl_mb(exi(1)),
+     >                             dcpl_mb(vtmp(1)))
+              else if ((int_mb(psp_type(1)+ia-1).eq.4)) then
                  call Pack_ttcc_AddMul(0,
      >                                 dbl_mb(vl(1)+npack0*(ia-1)),
      >                                 dbl_mb(vlpaw(1)+npack0*(ia-1)),
@@ -1735,7 +2011,7 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
               call Pack_c_SMul1(0,lmbda,dcpl_mb(vtmp(1)))
               call Pack_cc_Sum2(0,dcpl_mb(vtmp(1)),vl_out)
 
-              if (move) then
+              if ((move).and.(ii.le.nion)) then
 c#ifndef CRAY
 c!DIR$ ivdep
 c#endif

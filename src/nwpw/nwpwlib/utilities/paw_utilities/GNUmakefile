@@ -17,7 +17,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = nwpw_gaunt.F nwpw_compcharge.F nwpw_xc.F
+    USES_BLAS = nwpw_gaunt.F nwpw_compcharge.F nwpw_xc.F nwpw_compcharge2.F
 
   LIB_DEFINES = 
 

@@ -75,7 +75,7 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 #include "cons.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 c     
       character*(*) namespace
       integer rtdb

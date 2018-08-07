@@ -471,7 +471,8 @@ c
      $        dbl_mb(isvec), dbl_mb(ippp), max_sh_bf,
      $        iga_dens, dbl_mb(k_frc_2el), 
      $        DBL_MB(i_cdcoef), oskel)
-         if(.not.xc_rep_close(rtdb, nbf_ao,ipol,ipol,.true.)) call
+         if(.not.xc_rep_close(rtdb, nbf_ao,ipol,ipol,
+     D        iga_dens,iga_dens,.true.)) call
      .        errquit(' dftggrad: xcrepclose failed ',0, 0)
 c     
          call ga_dgop(msg_grad_2el, dbl_mb(k_frc_2el), lforce, '+')
@@ -532,6 +533,9 @@ c
          call xc_xdm(rtdb,iga_dens,idum,nat,ndum,edum,
      &        dbl_mb(k_frc_xc),dbl_mb(ixdm_v),
      &        dbl_mb(ixdm_ml),'forces')
+       if (.not. rtdb_put(rtdb,'dft:xdmsave', mt_log, 1, .false.)) 
+     $     call errquit('dft_gradient: cannot rtdb_put',0, RTDB_ERR)
+          call xc_xdm_cleanup(rtdb)
       endif
 c
 c     add Bonacic-Fantucci repulsive term

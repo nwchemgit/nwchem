@@ -71,7 +71,7 @@ C     == External routines ==
       external sandbox_complex
 
 
-C      call rt_tddft_os_confirm (params)
+C      call rt_tddft_os_confirm (params,'junk')
 
 C     == Initializations ==
 

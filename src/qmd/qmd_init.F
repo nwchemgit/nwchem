@@ -3,7 +3,8 @@ c     qmd_init: initialize parameters
 c     
       subroutine qmd_init(rtdb,nstep_nucl,dt_nucl,do_none,com_step,
      $                    print_xyz,restart,do_namd,step_property,
-     $                   do_property,step_tddft,do_tddft)
+     $                    do_property,step_tddft,do_tddft,step_freq, 
+     $                    do_freq)
 c
       implicit none
 c
@@ -29,6 +30,7 @@ c
       integer print_xyz             ! how often to print xyz trajectory
       integer step_property
       integer step_tddft
+      integer step_freq
       integer tvals(8)
       integer svals
       double precision dt_nucl      ! nuclear md time step
@@ -42,6 +44,7 @@ c
       logical do_namd
       logical do_property
       logical do_tddft
+      logical do_freq
       integer inntsize
 c
       character*32 pname
@@ -210,6 +213,14 @@ c
 c     calculate tddft spectra every step_tddft along the ground state trajectory
       if (.not.rtdb_get(rtdb,'qmd:step_tddft',mt_int,1, step_tddft))
      $     step_tddft = 1
+c
+c     are we performing any frequency calculations along the ground state trajectory ?
+      if (.not.rtdb_get(rtdb,'qmd:freq',mt_log,1,do_freq))
+     $     do_freq=.false.
+c
+c     calculate frequency calculations every step_freq along the ground state trajectory
+      if (.not.rtdb_get(rtdb,'qmd:step_freq',mt_int,1, step_freq))
+     $     step_freq = 1
 c
       if (ga_nodeid().eq.0) call util_flush(LuOut)
 c

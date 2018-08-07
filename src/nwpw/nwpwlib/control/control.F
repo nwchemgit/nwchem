@@ -16,7 +16,7 @@
 #include "bafdecls.fh"
 #include "btdb.fh"
 #include "control.fh"
-#include "nwxc.fh"
+#include "nwpwxc.fh"
 #include "util.fh"
 
       integer MASTER,taskid
@@ -46,7 +46,6 @@
       integer i,l,np
 !      integer ind ! unused
 
-      logical use_nwxc
       integer  control_num_kvectors
       external control_num_kvectors
       logical  control_allow_translation
@@ -214,15 +213,12 @@
      >                  1,exchange_correlation))
      >   exchange_correlation = 'vosko'
 
-      if (util_module_avail("nwxc")) then
 !$OMP single
-         call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-         if (use_nwxc)  then
-c         call nwxc_print()
-          has_disp = nwxc_has_disp()
-        endif
-!$OMP end single
+      if (nwpwxc_rtdb_load(rtdb,"dft")) then
+c        call nwpwxc_print()
+         has_disp = nwpwxc_has_disp()
       endif
+!$OMP end single
 
 #include "control_gga.fh"
 
@@ -334,15 +330,12 @@ c         call nwxc_print()
      >                  1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
-      if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-        if (use_nwxc)  then
-c         call nwxc_print()
-          has_disp = nwxc_has_disp()
-        endif
-!$OMP end single
+      if (nwpwxc_rtdb_load(rtdb,"dft")) then
+c         call nwpwxc_print()
+          has_disp = nwpwxc_has_disp()
       endif
+!$OMP end single
 
 #include "control_gga.fh"
 
@@ -494,15 +487,12 @@ c
      >                   1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
-      if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-        if (use_nwxc)  then
-c         call nwxc_print()
-          has_disp = nwxc_has_disp()
-        endif
-!$OMP end single
+      if (nwpwxc_rtdb_load(rtdb,"dft")) then
+c        call nwpwxc_print()
+         has_disp = nwpwxc_has_disp()
       endif
+!$OMP end single
 
 #include "control_gga.fh"
 
@@ -715,15 +705,12 @@ c
      >                   1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
-      if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-        if (use_nwxc)  then
-c         call nwxc_print()
-          has_disp = nwxc_has_disp()
-        endif   
+      if (nwpwxc_rtdb_load(rtdb,"dft")) then
+c        call nwpwxc_print()
+         has_disp = nwpwxc_has_disp()
+      endif   
 !$OMP end single
-      endif
 
 #include "control_gga.fh"
 
@@ -825,15 +812,12 @@ c         call nwxc_print()
          gga = 0
       end if
 
-      if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-        if (use_nwxc)  then
-c         call nwxc_print()
-          has_disp = nwxc_has_disp()
-        endif   
+      if (nwpwxc_rtdb_load(rtdb,"dft")) then
+c        call nwpwxc_print()
+         has_disp = nwpwxc_has_disp()
+      endif   
 !$OMP end single
-      endif
 
       if (.not.btdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp))
      >   npsp = 0
@@ -915,15 +899,12 @@ c         call nwxc_print()
          gga = 0
       end if
 
-      if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-        if (use_nwxc)  then
-c         call nwxc_print()
-          has_disp = nwxc_has_disp()
-        endif   
+      if (nwpwxc_rtdb_load(rtdb,"dft")) then
+c        call nwpwxc_print()
+         has_disp = nwpwxc_has_disp()
+      endif   
 !$OMP end single
-      endif
 
 
       if (.not.btdb_get(rtdb,'cpmd:geometry_optimize',mt_log,1,move))
@@ -1529,11 +1510,11 @@ c      end if
      >       box_delta = 5.0d0
            rtdb_name = cell_name(1:l)//':box_type'
            if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,box_type)) 
-     >       box_type = 0
+     >       box_type = 1
            rtdb_name = cell_name(1:l)//':box_orient'
            if (.not.btdb_get(rtdb,rtdb_name,mt_log,1,
      >                       box_orient)) 
-     >       box_orient = .false.
+     >       box_orient = .true.
            call control_find_box(geom,box_type,box_orient,box_delta,
      >                           unita)
 
@@ -1589,9 +1570,14 @@ c      end if
       parameter (lwork=9)
       double precision work(lwork)
 
-      integer ii,nion,ierr
+      integer ii,nion,ierr,i,j
       double precision q,rxyz(3),mtensor(3,3),frac(3),L1,L2,L3
       double precision x,y,z,meig(3)
+      double precision Ixx,Iyx,Izx
+      double precision Ixy,Iyy,Izy
+      double precision Ixz,Iyz,Izz,Lmax,tmass
+      double precision txy,txz,tyz,txx_yy,txx_zz,tyy_zz,tx,ty,tz
+     
       character*16     t
       logical value
 
@@ -1615,26 +1601,62 @@ c      end if
        mtensor(3,3) = 1.0d0
        if (orient) then
          call dcopy(9,0.0d0,0,mtensor,1)
+         txy = 0.0d0
+         txz = 0.0d0
+         tyz = 0.0d0
+         txx_yy = 0.0d0
+         txx_zz = 0.0d0
+         tyy_zz = 0.0d0
+         tx = 0.0d0
+         ty = 0.0d0
+         tz = 0.0d0
          do ii=1,nion
            value = geom_cent_get(geom,ii,t,rxyz,q)
            if (.not.control_notqmmmq(t)) then
-            x =rxyz(1)
-            y =rxyz(2)
-            z =rxyz(3)
-            mtensor(1,1)=mtensor(1,1)+(y*y+z*z)
-            mtensor(2,1)=mtensor(2,1)- x*y
-            mtensor(1,2)=mtensor(2,1)
-            mtensor(3,1)=mtensor(3,1)- x*z
-            mtensor(1,3)=mtensor(3,1)
-            mtensor(2,2)=mtensor(2,2)+(x*x+z*z)
-            mtensor(3,2)=mtensor(3,2)- y*z
-            mtensor(2,3)=mtensor(3,2)
-            mtensor(3,3)=mtensor(3,3)+(x*x+y*y)
+            x = rxyz(1)
+            y = rxyz(2)
+            z = rxyz(3)
+
+            txy = txy + x*y
+            txz = txz + x*z
+            tyz = tyz + y*z
+
+            txx_yy = txx_yy + (x*x + y*y)
+            txx_zz = txx_zz + (x*x + z*z)
+            tyy_zz = tyy_zz + (y*y + z*z)
+
+            tx  = tx + x
+            ty  = ty + y
+            tz  = tz + z
            end if
          end do
+         tmass = dble(nion)
+         Ixx = tyy_zz - ty*ty/tmass - tz*tz/tmass
+         Iyy = txx_zz - tx*tx/tmass - tz*tz/tmass
+         Izz = txx_yy - tx*tx/tmass - ty*ty/tmass
+         Ixy = txy - tx*ty/tmass 
+         Iyx = Ixy
+         Ixz = txz - tx*tz/tmass
+         Izx = Ixz
+         Iyz = tyz - ty*tz/tmass
+         Izy = Iyz
+
+         mtensor(1,1) = Ixx
+         mtensor(2,1) = -Ixy
+         mtensor(3,1) = -Ixz
+
+         mtensor(1,2) = -Iyx
+         mtensor(2,2) = Iyy
+         mtensor(3,2) = -Iyz
+
+         mtensor(1,3) = -Izx
+         mtensor(2,3) = -Izy
+         mtensor(3,3) = Izz
  
 c        **** longest dimension is along a1 ****
          call DSYEV('V','U',3,mtensor,3,meig,work,lwork,ierr)
+
+
 
 c         !*** reorder eigenvectors - make longest dimesion along a3 ****
 c         x = mtensor(1,1)
@@ -1672,13 +1694,16 @@ c         mtensor(3,3) = z
            if ((frac(1)+delta).gt.( 0.5*L1)) L1 = 2.0d0*(frac(1)+delta)
            if ((frac(2)+delta).gt.( 0.5*L1)) L1 = 2.0d0*(frac(2)+delta)
            if ((frac(3)+delta).gt.( 0.5*L1)) L1 = 2.0d0*(frac(3)+delta)
-           if ((frac(1)-delta).lt.(-0.5*L1)) L1 = 2.0d0*(frac(1)+delta)
-           if ((frac(2)-delta).lt.(-0.5*L1)) L1 = 2.0d0*(frac(2)+delta)
-           if ((frac(3)-delta).lt.(-0.5*L1)) L1 = 2.0d0*(frac(3)+delta)
+           if ((frac(1)-delta).lt.(-0.5*L1))
+     >        L1 = 2.0d0*(dabs(frac(1))+delta)
+           if ((frac(2)-delta).lt.(-0.5*L1)) 
+     >        L1 = 2.0d0*(dabs(frac(2))+delta)
+           if ((frac(3)-delta).lt.(-0.5*L1)) 
+     >        L1 = 2.0d0*(dabs(frac(3))+delta)
         end if
       end do
-      !*** put threshold on smallest box ***
-      if (L1.lt.24.0d0) L1=24.0d0
+      !*** put threshold on smallest cubic box ***
+      if (L1.lt.26.0d0) L1=26.0d0
 
 *     **** define unit cell ****
       unita(1,1) = L1*mtensor(1,1)
@@ -1714,14 +1739,44 @@ c         mtensor(3,3) = z
            frac(3) = mtensor(1,3)*rxyz(1)
      >             + mtensor(2,3)*rxyz(2)
      >             + mtensor(3,3)*rxyz(3)
-           if ((frac(1)+delta).gt.( 0.5*L1)) L1 = 2.0d0*(frac(1)+delta)
-           if ((frac(2)+delta).gt.( 0.5*L2)) L2 = 2.0d0*(frac(2)+delta)
-           if ((frac(3)+delta).gt.( 0.5*L3)) L3 = 2.0d0*(frac(3)+delta)
-           if ((frac(1)-delta).lt.(-0.5*L1)) L1 = 2.0d0*(frac(1)+delta)
-           if ((frac(2)-delta).lt.(-0.5*L2)) L2 = 2.0d0*(frac(2)+delta)
-           if ((frac(3)-delta).lt.(-0.5*L3)) L3 = 2.0d0*(frac(3)+delta)
+c           write(*,*) "ii,frac=",ii,frac
+c           write(*,*) "                  =",
+c     >                mtensor(1,1),mtensor(2,1),mtensor(3,1)
+c           write(*,*) "                  =",rxyz
+c           write(*,*)
+           if ((frac(1)+delta).gt.(0.5d0*L1)) L1 = 2.0d0*(frac(1)+delta)
+           if ((frac(2)+delta).gt.(0.5d0*L2)) L2 = 2.0d0*(frac(2)+delta)
+           if ((frac(3)+delta).gt.(0.5d0*L3)) L3 = 2.0d0*(frac(3)+delta)
+           if ((frac(1)-delta).lt.(-0.5d0*L1)) 
+     >        L1 = 2.0d0*(dabs(frac(1))+delta)
+           if ((frac(2)-delta).lt.(-0.5d0*L2)) 
+     >        L2 = 2.0d0*(dabs(frac(2))+delta)
+           if ((frac(3)-delta).lt.(-0.5d0*L3)) 
+     >        L3 = 2.0d0*(dabs(frac(3))+delta)
         end if
       end do
+
+c      write(*,*) "L1=",L1
+c      write(*,*) "L2=",L2
+c      write(*,*) "L3=",L3
+      !*** put threshold on smallest box ***
+      Lmax = L1
+      if (Lmax.lt.L2) Lmax = L2
+      if (Lmax.lt.L3) Lmax = L3
+      if (Lmax.lt.26.0d0) then
+         L1 = 19.0d0
+         L2 = 19.0d0
+         L3 = 19.0d0
+         mtensor(1,1) = 1.0d0
+         mtensor(2,1) = 1.0d0
+         mtensor(3,1) = 0.0d0
+         mtensor(1,2) = 1.0d0
+         mtensor(2,2) = 0.0d0
+         mtensor(3,2) = 1.0d0
+         mtensor(1,3) = 0.0d0
+         mtensor(2,3) = 1.0d0
+         mtensor(3,3) = 1.0d0
+      end if
 
 *     **** define unit cell ****
       unita(1,1) = L1*mtensor(1,1)
@@ -2841,6 +2896,34 @@ c      end
 #include "control.fh"
 
       control_options_disp = options_disp
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *        control_has_vdw          *
+*     *                                 *
+*     ***********************************
+      logical function control_has_vdw()
+      implicit none
+
+#include "control.fh"
+
+      control_has_vdw = has_vdw
+      return
+      end 
+
+*     ***********************************
+*     *                                 *
+*     *        control_is_vdw2          *
+*     *                                 *
+*     ***********************************
+      logical function control_is_vdw2()
+      implicit none
+
+#include "control.fh"
+
+      control_is_vdw2 = is_vdw2
       return
       end
 

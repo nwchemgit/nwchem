@@ -761,7 +761,7 @@ ccccccccccccccccccccccccccccccccccccccccccccc
       xx = dsqrt(tx*tx + ty*ty + tz*tz)
       dipole(1) = tx
       dipole(2) = ty
-      dipole(3) = tx
+      dipole(3) = tz
 
       if (oprint) then
          write(luout,1771)

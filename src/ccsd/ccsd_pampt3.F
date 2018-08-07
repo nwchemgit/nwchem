@@ -39,8 +39,9 @@ C
       integer lnoo, i
       character*255 st2file
       double precision tstart, tused
-      logical dorep
-      integer g_st2rep,g_st2keep,dorep_glob,gmem0
+      integer g_st2_rep,blk(2)
+      logical util_mirrmat_chunk
+      external util_mirrmat_chunk
       logical, optional, intent(in) :: use_ccsd_omp
       if (.not.present(use_ccsd_omp)) then
           call errquit('ccsd_pampt2: use_ccsd_omp not present!',0,0)
@@ -105,6 +106,40 @@ c ------------------------------------------------------------
       stat=stat.and.ma_pop_stack(l_sc2)
       stat=stat.and.ma_pop_stack(l_sc1)
       if (.not.stat)call errquit('ma_pop ccsd_t2pm ',0, MA_ERR)
+      call ga_distribution(g_st2,
+     .     ga_nodeid(), ilo, ihi, jlo, jhi)
+      write(6,'(i3,a,4i5)') ga_nodeid(), ' old distr ',
+     L           ilo, ihi, jlo, jhi
+#ifdef HAVE_SET_GA_PROPERTY
+      if(use_rdonly_st2) then
+         call ga_set_property(g_st2,'read_only')
+      call ga_distribution(g_st2,
+     .     ga_nodeid(), ilo, ihi, jlo, jhi)
+      write(6,'(i3,a,4i5)') ga_nodeid(), ' new distr ',
+     L           ilo, ihi, jlo, jhi
+         if(ga_nodeid().eq.0) write(6,*) ' g_st2 read_only'
+c     disable old replicated data
+         use_inmem_st2=.false.
+      endif
+#endif
+      if(use_mirr_st2) then
+         blk(1)=nocc*nocc
+         blk(2)=0
+         if(util_mirrmat_chunk(1,g_st2,g_st2_rep,.true.,.false.,
+     B        blk)) then
+            use_inmem_st2=.false.
+            if (.not.ga_destroy(g_st2))
+     &           call errquit('ga_dest g_st2 fail',1, GA_ERR)
+            g_st2=g_st2_rep
+            if(ga_nodeid().eq.0) write(6,*) ' g_st2 mirrored'
+         else
+            use_mirr_st2=.false.
+         endif
+      endif
+      call ga_distribution(g_st2,
+     .     ga_nodeid(), ilo, ihi, jlo, jhi)
+      write(6,'(i3,a,4i5)') ga_nodeid(), ' new distr ',
+     L           ilo, ihi, jlo, jhi
       if (use_inmem_st2) then
 c     show how much memory g_st2 (a_st2) needs
          nsz_st2 = lnoo * nbfdim*ma_sizeof(MT_DBL,1,MT_BYTE)
@@ -218,6 +253,9 @@ c     leave 10 pct available
      &   call errquit('ccsd_pampt3: ma_pop_stack ccsd_sxy ',0, MA_ERR)
 c
 
+#ifdef HAVE_SET_GA_PROPERTY
+      if(use_rdonly_st2) call ga_unset_property(g_st2)
+#endif
         if (.not.ga_destroy(g_st2))
      &    call errquit('ga_dest g_st2 fail',0, GA_ERR)
 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # 
 declare -a LIST_MPIFWRAP
 LIST_MPIFWRAP=( 'mpif90' 'mpiifort' 'mpifc' 'mpixlf_r' 'mpixlf' 'mpif77' )
@@ -71,7 +71,7 @@ function get_mpi_include ()
    fi
    outlist=""
    for word in ${inlist} ; do
-      len=`expr "${word}" : '-I*'`
+      len=`echo "${word}" | grep -o "\-I" | wc -c`
       if [ ${len} -ge 2 ] ; then
         outlist="${outlist} ${word}"
       fi
@@ -112,7 +112,7 @@ function get_mpi_link ()
    fi
    outlist=""
    for word in ${inlist} ; do
-      len=`expr "${word}" : '-L*'`
+      len=`echo "${word}" | grep -o "\-L" | wc -c`
       if [ ${len} -ge 2 ] ; then
         outlist="${outlist} ${word}"
       fi
@@ -153,7 +153,7 @@ function get_mpi_lib ()
    fi
    outlist=""
    for word in ${inlist} ; do
-      len=`expr "${word}" : '-l*'`
+      len=`echo "${word}" | grep -o "\-l" | wc -c`
       if [ ${len} -ge 2 ] ; then
         outlist="${outlist} ${word}"
       fi

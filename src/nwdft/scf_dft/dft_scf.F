@@ -242,6 +242,8 @@ C     RTDB flag for printing out all matrices
       logical lprint_mats  !print matrices to stdout?
       logical lsave_mats   !save matrices to file?
       logical molden, forceatguess
+      integer ma_type, no_sflip,l_at_flip,k_at_flip
+      character*26 date
 
 c     == initialize DIIS call counter ==
       icall(1) = 0
@@ -1169,6 +1171,29 @@ c  jbecca START: adding in electric field energy interaction term
 c
       if(util_print('dft timings', print_high))
      &      time1=util_wallsec()  ! start fock matrix build time
+c     flip spins if needed
+      if (.not. rtdb_get_info(rtdb, 'nwdft:spinflip',
+     C     ma_type, no_sflip, date)) no_sflip = 0
+      if (no_sflip.ne.0.and.ipol.eq.2.and.iter.eq.0) then
+         if (.not.MA_Push_Get(MT_int,no_sflip,'flip',
+     F        l_at_flip,k_at_flip))
+     &        call errquit('dft_scf: cannot allocate flip',0, MA_ERR)
+         if (.not.rtdb_get(rtdb,'nwdft:spinflip',
+     M        mt_int,no_sflip,int_mb(k_at_flip)))
+     &        call errquit('dft_scf: read nwdft:spinflip failed ',111,
+     &        UNKNOWN_ERR)
+         call mull_pop(geom,ao_bas_han,g_dens(1),g_s,'DM1')
+         call mull_pop(geom,ao_bas_han,g_dens(2),g_s,'DM2')
+         call dft_spinflip(g_dens,g_s,ao_bas_han,1d0,-2d0,
+     S        no_sflip,int_mb(k_at_flip))
+         call mull_pop(geom,ao_bas_han,g_dens(1),g_s,'DM1')
+         call mull_pop(geom,ao_bas_han,g_dens(2),g_s,'DM2')
+         if (.not.ma_pop_stack(l_at_flip))
+     &        call errquit('dft_scf: cannot pop stack',33, MA_ERR)
+c     remove flipping to avoid multiple operation in geom opt.
+         if(.not.rtdb_delete(rtdb, 'nwdft:spinflip'))
+     &        call errquit('dft_scf: cannot rtdb_delete',3, MA_ERR)
+      endif
       call dft_fockbld(rtdb,natoms,ntotel,
      ,     g_fock,g_focks,g_dens,g_vxc,g_movecs,g_xcinv, 
      ,     g_tmp,g_nq,g_wght,g_xyz,
@@ -1544,6 +1569,7 @@ c
 c
       if (oprint_time)
      &     call dft_tstamp(' called densm ')
+      
       if((.not.rabuck_act).and.
      .gotsmear(ssmear).and.ipol.eq.2.and.(noc(2).gt.noc(1))) then
 c

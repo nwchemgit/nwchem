@@ -20,6 +20,7 @@ rt_tddft_restart.o \
 rt_tddft_mocap.o \
 rt_tddft_calc_dip_contribs.o
 
+
 OBJ_OPTIMIZE = 
 
 LIBRARY = libnwdft.a

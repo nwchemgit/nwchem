@@ -14,6 +14,7 @@
      &     do_hess, do_cpks_r, natoms, oactive,
      &     nactive, rdens_atom, 
      &     cetobfr, dttau, kske, Mmat, Mmat2,
+     &     kslap, Lmat,
      &     ldbw, fact, dtype, nconstr,  ! Qin
      1     do_gxc, Amat3, Cmat3, ngxc, 
      2     crho, cdelrho, triplet,
@@ -54,7 +55,7 @@ c
       integer nqtot
       integer nactive
       logical oactive(natoms)
-      logical grad, gradchi, hesschi, der3chi, kske
+      logical grad, gradchi, hesschi, der3chi, kske, kslap
       logical ldew
       logical do_force, do_hess, do_cpks_r
 c
@@ -73,6 +74,8 @@ c      double precision delrho(n_per_rec,3,ipol)
 c
       double precision dttau(*)
       double precision Mmat(nqpts,ipol)
+c
+      double precision Lmat(nqpts,ipol)
 c
       double precision Amat(nqpts,ipol), Cmat(nqpts,3,ipol),
      &                 Bmat(nqpts,*)
@@ -112,6 +115,7 @@ c
      &        ld3chi_ao, id3chi_ao
       integer lchi_ao, ichi_ao, 
      &        lgradchi_ao, idelchi_ao
+      integer llap, ilap
       integer nbf_ao_mxnbf_ce2, maxdbas
       double precision acc_AO_gauss 
       double precision Ex, Ec
@@ -248,6 +252,16 @@ c
      &       131, MA_ERR)
       endif
 c
+      if (kslap) then
+         m4 = nqpts*ipol*(ipol+1)/2
+      else
+         m4 = 1
+      endif
+
+      if (.not.MA_Push_Get(mt_dbl,m4,'lap',llap,ilap))
+     &     call errquit(' exiting in dftg_gridv0b: insuff stack',
+     &     0, MA_ERR)
+c
       wmax= dabsmax(nqpts,qwght)
       if (odftps) call pstat_on(ps_xcrho)
 c Daniel (1-16-13): Avoid this part when we do the third derivatives.
@@ -260,11 +274,11 @@ c      do_pertdens = do_gxc
      I       ipol, nqpts, nbf_ao, mbf_ao, grad,
      P       (ipol*(ipol+1))/2,
      F       Fmat, Pmat, Bmat, dbl_mb(iDmat),
-     &       dbl_mb(ichi_ao), dbl_mb(idelchi_ao),0d0,
-     &       ibf_ao, iniz, ifin, rho, delrho, lapdum,
+     &       dbl_mb(ichi_ao), dbl_mb(idelchi_ao), dbl_mb(iheschi_ao),
+     &       ibf_ao, iniz, ifin, rho, delrho, dbl_mb(ilap),
      &       rchi_atom, rdelchi_atom,
      &       rdens_atom, cetobfr,wmax, 
-     &       dttau, kske, .false.)
+     &       dttau, kske, kslap)
       else
 c Daniel (1-16-13): Here, the call is identical to the call to 
 c xc_rhogen in grid_quadv0b.
@@ -375,6 +389,7 @@ c and then un-weighting them to get the quadrature weight gradients).
      &   Amat, Amat2, Cmat, Cmat2,
      &   nqpts, Ex, Ec, qwght, GRAD, ldew, func, do_2nd,
      &   dttau, kske, Mmat, Mmat2,
+     &   dbl_mb(ilap),kslap,Lmat,
      &   StericEnergy,
      &   do_3rd, Amat3, Cmat3, ldew2)
 c      call xc_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
@@ -396,10 +411,11 @@ c
 
          if (odftps) call pstat_on(ps_qv0b)
          call dftg_quadv0_b(ictr_buf, ldew, AO_bas_han, ipol,
-     &                      grad, kske, nbf_ao, mbf_ao, natoms,
+     &                      grad, kske, kslap, nbf_ao, mbf_ao, natoms,
      &                      nqpts,
      &                      dbl_mb(ichi_ao),dbl_mb(idelchi_ao),
-     &                      dbl_mb(iheschi_ao),Amat,Cmat,Mmat,
+     &                      dbl_mb(iheschi_ao),dbl_mb(id3chi_ao),
+     &                      Amat,Cmat,Mmat,Lmat,
      &                      dbl_mb(i_ccdel),
      &                      ibf_ao, iniz, ifin, cetobfr,
      &                      ppp, ff, 
@@ -505,7 +521,7 @@ c with the XC-derivative matrices from xc_eval_fnl).
      G        GRAD,AO_bas_han, natoms, iniz, ifin, 
      G        g_rhs, ibf_ao, rchi_atom, rdelchi_atom, 
      R        rdens_atom, cetobfr,
-     &        .false., dttau, 0d0)  ! kske = false
+     &        .false., dttau, .false., 0d0, 0d0, 0d0)  ! kske = false
 c
 c     Second part: Basis function derivative contribution
 c
@@ -530,7 +546,7 @@ c and 1 XC-matrix (1 perturbation) rather than 3*Natoms as above.
      G        GRAD, AO_bas_han, natoms, iniz, ifin, 
      G        g_rhs, ibf_ao, rchi_atom, rdelchi_atom, 
      R        rdens_atom, cetobfr,
-     &        .false.,Mmat,0d0)  ! kske = false
+     &        .false.,Mmat,.false.,0d0,0d0,0d0)  ! kske = false
 c
          if (odftps) call pstat_off(ps_tabcd)
 c Daniel (1-14-13): TDDFT XC-kernel gradient terms.
@@ -566,7 +582,7 @@ c Daniel (3-11-13): The .false. passed to this subroutine is used to
 c initialize kske.
         call setACmat_d3(delrho(iscf_delrho), Amat, Amat2, Amat3, 
      1         Cmat, Cmat2, Cmat3, qwght, ipol, nqpts, grad, 
-     2         (.not. do_3rd), .false.)
+     2         (.not. do_3rd), .false., .false.)
 c 
 c Based on the formulae in the article above, it is possible to 
 c separate the problem into a contribution from the perturbed

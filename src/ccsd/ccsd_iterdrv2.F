@@ -118,6 +118,10 @@ c - else check if one can restart
      $    oconverged = .false.  ! Not converged yet
       if(.not.rtdb_get(rtdb,'ccsd:useinmemst2',mt_log, 1,use_inmem_st2))
      $   use_inmem_st2=.true. ! Old default kept ST2 in GA
+      if(.not.rtdb_get(rtdb,'ccsd:rdonly_st2',mt_log, 1,use_rdonly_st2))
+     $   use_rdonly_st2=.false. ! use ga_set_property read_only
+      if(.not.rtdb_get(rtdb,'ccsd:mirr_st2',mt_log, 1,use_mirr_st2))
+     $   use_mirr_st2=.false. ! use ga_set_property read_only
 
       if (orestart.or.oconverged) then
           orestart = ccsd_read_restart(t2file, g_t2, nvir, lhoov)

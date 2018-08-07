@@ -1657,7 +1657,7 @@ C> @}
       implicit none
       integer rtdb,geom
       integer natoms,nbeads,nstep
-      logical freeze1,freezeN,projection1
+      logical freeze1,freezeN,projection1,tmpVar
       real*8 coords(3,natoms,nbeads)
       real*8 energy(nbeads)
       real*8 dVdx(3,natoms,nbeads)
@@ -1726,7 +1726,9 @@ C> @}
 
             if (oprint) write(*,*) "string: running bead ",i
             call ga_sync()
-            if ( .not. (task_gradient(rtdb).or.ignore))
+*            if ( .not. (task_gradient(rtdb).or.ignore))
+            tmpVar = task_gradient(rtdb)
+            if ( .not. (tmpVar.or.ignore))
      >         call errquit('zts_meps: gradient failed',0, 0)
 
 

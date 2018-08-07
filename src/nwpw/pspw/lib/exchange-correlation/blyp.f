@@ -23,11 +23,13 @@
       real*8    fdn(n2ft3d,3)
       real*8    x_parameter, c_parameter
 
-
       real*8 ETA,ETA2,DNS_CUT
       parameter (ETA = 0.0d0)
       parameter (ETA2 = 1.0d-20)
       parameter (DNS_CUT        =      1.0d-18)
+
+      real*8 tolrho,minagr
+      parameter (tolrho=2.0e-8,minagr=1.0e-10)
 
 *     ***LYP parameters****************
       real*8 a,b,c,d
@@ -40,10 +42,15 @@
       parameter (beta = 0.0042d0)
       
       real*8 thrd
-      parameter (thrd = 1.0d0/3.0d0)
-
-      integer j
       real*8 twthrd,frthrd,fvthrd,snthrd,etthrd
+      parameter (thrd = 1.0d0/3.0d0)
+      parameter (twthrd = 2.0d0/3.0d0)
+      parameter (frthrd = 4.0d0/3.0d0)
+      parameter (fvthrd = 5.0d0/3.0d0)
+      parameter (snthrd = 7.0d0/3.0d0)
+      parameter (etthrd = 8.0d0/3.0d0)
+      
+      integer j
       real*8 pi, Cf,lda_c
 
       real*8 nup,ndn,n,agrup,agrdn,agr
@@ -78,11 +85,11 @@
       real*8   ndn_etthrd,ndn_fvthrd
  
       
-      twthrd = thrd*2.0d0
-      frthrd = thrd*4.0d0
-      fvthrd = thrd*5.0d0
-      snthrd = thrd*7.0d0
-      etthrd = thrd*8.0d0
+      !twthrd = thrd*2.0d0
+      !frthrd = thrd*4.0d0
+      !fvthrd = thrd*5.0d0
+      !snthrd = thrd*7.0d0
+      !etthrd = thrd*8.0d0
 
       pi = 4.0d0*datan(1.0d0)
       Cf = dble(3.0d0*pi*pi)
@@ -135,6 +142,12 @@
        fdnxup = -nup**(thrd)*(4.0d0/3.0d0)
      &          *(lda_c+beta*(F1up-chiup2*F2up))
        fdagrxup = -beta*chiup*F2up 
+         
+       if ((fdnxup-xeup).gt.0.0d0) then
+          xeup     = -nup**thrd*(lda_c)
+          fdnxup   = -nup**(thrd)*(4.0d0/3.0d0)*(lda_c)
+          fdagrxup = 0.0d0
+       end if
 *      ************END UP*****************
 
 
@@ -147,16 +160,22 @@
        F1dn = chidn2/(1.0d0 + chidn*Kdn)
        xedn = -ndn**thrd*(lda_c + beta*F1dn)
        F2dn = (2.0d0 + chidn*Kdn
-     &        - 6.0d0*beta*chidn2/chidnSQ)
-     &        /(1.0d0+chidn*Kdn)**2.0d0
+     &           - 6.0d0*beta*chidn2/chidnSQ)
+     &           /(1.0d0+chidn*Kdn)**2.0d0
        fdnxdn = -ndn**(thrd)*(4.0d0/3.0d0)
-     &          *(lda_c+beta*(F1dn-chidn2*F2dn))
+     &             *(lda_c+beta*(F1dn-chidn2*F2dn))
        fdagrxdn = -beta*chidn*F2dn
+       if ((fdnxdn-xedn).gt.0.0d0) then
+          xedn     = -ndn**thrd*(lda_c)
+          fdnxdn   = -ndn**(thrd)*(4.0d0/3.0d0)*(lda_c)
+          fdagrxdn = 0.0d0
+       end if
 
 
 *      ***********END DOWN****************
 
        xe = (xeup*nup + xedn*ndn)/n
+
 
 *      *******end excange part************
        end if
@@ -305,12 +324,12 @@
 
 
 *      ******DEBUG*********
-       fc = fclda + 0.001d0*agr2 + 0.002d0*(agrup2 + agrdn2)
-       fc_u = fclda_u
-       fc_d = fclda_d
-       fc_agr   = 2.0d0*agr  *0.001d0
-       fc_agrup = 2.0d0*agrup*0.002d0
-       fc_agrdn = 2.0d0*agrdn*0.002d0
+c       fc = fclda + 0.001d0*agr2 + 0.002d0*(agrup2 + agrdn2)
+c       fc_u = fclda_u
+c       fc_d = fclda_d
+c       fc_agr   = 2.0d0*agr  *0.001d0
+c       fc_agrup = 2.0d0*agrup*0.002d0
+c       fc_agrdn = 2.0d0*agrdn*0.002d0
 *      ******DEBUG*********
    
 *    ***correlation energy dentsity
@@ -429,6 +448,9 @@ c       write(*,*)
       real*8 DNS_CUT, ETA
       parameter (DNS_CUT        =      1.0d-18)
       parameter (ETA            =      1.0d-20)
+
+      real*8 tolrho,minagr
+      parameter (tolrho=2.0e-8,minagr=1.0e-10)
 ****** Becke constants *****************************
       real*8 lda_c,beta
       parameter (beta = 0.0042d0)
@@ -459,9 +481,9 @@ c       write(*,*)
 
 !$OMP DO
       do i=1,n2ft3d
-       n        = rho_in(i) + ETA
-       agr      = agr_in(i)
-       n_thrd 	= n**thrd
+       n      = rho_in(i) + ETA
+       agr    = agr_in(i)
+       n_thrd = n**thrd
 
        if (rho_in(i).lt.DNS_CUT) then
          xe     = 0.0d0
@@ -472,21 +494,25 @@ c       write(*,*)
 ******************************************************************
 *     *******calc. becke exchange energy density, fnx, fdnx*******
 *****************************************************************
-       sd       = 1.0d0/(n_thrd*n)
-       chi 	= two_thrd*agr*sd
-       chi2	= chi*chi
-       chiSQ    = dsqrt(1.0d0+chi2)   
+          sd    = 1.0d0/(n_thrd*n) 
+          chi   = two_thrd*agr*sd 
+          chi2  = chi*chi
+          chiSQ = dsqrt(1.0d0+chi2)   
 
-
-       K 	= 6.0d0*beta*dlog(chi+chiSQ)
-       F1 	= chi2/(1.0d0+chi*K)
-       xe 	= -n_thrd*(lda_c+beta*F1)/two_thrd
-       F2 	= (2.0d0 + chi*K-(chi2)*6.0d0*beta
-     &		/chiSQ)
-     &      	/((1.0d0+chi*K)*(1.0d0+chi*K))
-       fdnx 	= -(n_thrd/two_thrd)*dble(4.0d0/3.0d0)
-     &  	*(lda_c+beta*(F1-chi2*F2))
-       fdagrx 	= -beta*chi*F2 
+          K  = 6.0d0*beta*dlog(chi+chiSQ)
+          F1 = chi2/(1.0d0+chi*K)
+          xe = -n_thrd*(lda_c+beta*F1)/two_thrd
+          F2 = (2.0d0 + chi*K-(chi2)*6.0d0*beta
+     &             /chiSQ)
+     &           /((1.0d0+chi*K)*(1.0d0+chi*K))
+          fdnx = -(n_thrd/two_thrd)*dble(4.0d0/3.0d0)
+     &               *(lda_c+beta*(F1-chi2*F2))
+          fdagrx = -beta*chi*F2 
+          if ((fdnx-xe).gt.0.0d0) then
+             xe = -n_thrd*(lda_c)/two_thrd
+             fdnx = -(n_thrd/two_thrd)*dble(4.0d0/3.0d0)*(lda_c)
+             fdagrx = 0.0d0
+          end if
        end if
 
 
@@ -562,9 +588,9 @@ c       write(*,*)
  
 
 
-       xce(i) 	= x_parameter*xe   + c_parameter*ce
-       fn(i)	= x_parameter*fdnx  + c_parameter*fdnc
-       fdn(i) 	= x_parameter*fdagrx + c_parameter*fdagrc
+       xce(i) = x_parameter*xe   + c_parameter*ce
+       fn(i)  = x_parameter*fdnx  + c_parameter*fdnc
+       fdn(i) = x_parameter*fdagrx + c_parameter*fdagrc
 
       end do
 !$OMP END DO

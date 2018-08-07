@@ -20,10 +20,11 @@ c
 #include "nwc_const.fh"
 #include "errquit.fh"
 #include "util.fh"
+#include "nwpwxc.fh"
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 121)
+      parameter (num_dirs = 123)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -145,6 +146,8 @@ c
      >            'cutoff_boot_wavefunction',
      >            'periodic_dipole',
      >            'translate_vector',
+     >            'makehmass2',
+     >            'apc',
      >            'end'/
 
       double precision kb
@@ -157,9 +160,9 @@ c
       double precision fake_mass,time_step,rcut
       integer loop(2),ncut,cell_expand(3)
       double precision tolerances(3),ecut,wcut,fe,ff,scaling(2)
-      double precision alpha,emin,emax
+      double precision alpha,emin,emax,agamma(10),Gc
       double precision Pe,Pr,Te,Tr
-      integer npoints,mchain,nchain
+      integer npoints,mchain,nchain,nga
       logical mulliken,allow_translation
       integer ispin,multiplicity,space_avail
       integer nx,ny,nz,minimizer,h_values,i_values,nuterms
@@ -217,6 +220,7 @@ c
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
      >       7700,7800,7900,8000,8100,6650,8200,8300,8400,8500,8600,
+     >       8700,8800,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -650,17 +654,18 @@ c
       ind = index(exchange_correlation,' ') - 1
       if (exchange_correlation(1:ind).eq.'new') then
 c       call inp_prev_field()
-cold        if (.not.nwxc_input()) then
-        call nwxc_input(lstat)
-        if(.not.lstat) then
+        if (.not.nwpwxc_input()) then
+        !call nwpwxc_input(lstat)
+        !if(.not.lstat) then
           call errquit("nwpw_input: not a functional",
      +                 0,UERR)
         endif
-        call nwxc_rtdb_store(rtdb,"dft")
-        value = .true.
-        call nwxc_getvals("nwxc_has_hfx",out1)
-        if (out1) then
-          call nwxc_getwght("nwxc_wght_hfx",xfac)
+        if (.not.nwpwxc_rtdb_store(rtdb,"dft")) then
+          call errquit("nwpw_input: store functional failed",
+     +                 0,UERR)
+        endif
+        if (nwpwxc_has_hfx()) then
+          xfac = nwpwxc_wght_hfx()
           value = value .and.
      +            rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
           value = value .and.
@@ -677,9 +682,8 @@ cold        if (.not.nwxc_input()) then
           value = value .and.
      +            rtdb_put(rtdb,'band:HFX',mt_log,1,.false.)
         endif
-        call nwxc_getvals("nwxc_has_cam",out1)
-        if (out1) then
-          call nwxc_get_cam(a,b,c,hfsr)
+        if (nwpwxc_has_cam()) then
+          call nwpwxc_get_cam(a,b,c,hfsr)
           if (hfsr) then
             flag = 4
           else
@@ -699,9 +703,7 @@ cold        if (.not.nwxc_input()) then
         goto 10
       endif
 
-      if (util_module_avail("nwxc")) then
-        call nwxc_rtdb_delete(rtdb,"dft") !*** don't need to check return value ****
-      endif
+      value = nwpwxc_rtdb_delete(rtdb,"dft") !*** don't need to check return value ****
 
       value = rtdb_cput(rtdb,'cgsd:exchange_correlation',
      >                    1,exchange_correlation(1:ind))
@@ -2002,6 +2004,40 @@ c
       end if
       goto 10
 
+
+c
+c makehmass2  .true.||.false
+c
+ 8700 if (inp_a(zone_name)) then
+         move = nwpw_parse_boolean(zone_name,.true.)
+      else
+         move = .true.
+      end if
+      if (.not.rtdb_put(rtdb,'nwpw:makehmass2',mt_log,1,
+     >                  move))
+     >  call errquit('nwpw_input: error writing to rtdb',8700,RTDB_ERR)
+      goto 10
+
+c
+c apc Gc gamma1 gamma2 gamma3 ...
+c
+ 8800 if (inp_f(Gc)) then
+         nga = 0
+         value = .false.
+         do while (inp_f(agamma(nga+1)).and.(.not.value))
+            nga = nga + 1
+            value = (nga.ge.10)
+         end do
+         if (nga.gt.0) then
+         if ((.not.rtdb_put(rtdb,'nwpw_APC:Gc',mt_dbl,1,Gc)) .or.
+     >    (.not.rtdb_put(rtdb,'nwpw_APC:nga',mt_int,1,nga))  .or.
+     >    (.not.rtdb_put(rtdb,'nwpw_APC:gamma',mt_dbl,nga,agamma))) then
+         call errquit('nwpw_input: error writing to rtdb',8800,RTDB_ERR)
+         end if
+         end if
+      end if
+
+      goto 10
 
 
 ************************************************************************

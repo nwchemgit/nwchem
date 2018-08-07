@@ -15,6 +15,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, do_xdm, tmat,
      ,     l3d, triplet, ttau, kske, Mmat, Mmat2,
+     ,     kslap, Lmat,
      1     do_gxc, Amat3, Cmat3,
 cc AJL/Begin/FDE
      &     fde_option, g_dens_fde, ncenters_fde, rdens_atom_fde,
@@ -67,7 +68,7 @@ c
       logical  grid_file_write
       external grid_file_write
 c
-      logical kske
+      logical kske, kslap
 c
       save nq_left
 c
@@ -108,6 +109,7 @@ c
      ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, do_xdm,
      T        tmat, l3d, triplet,
      &        ttau, kske, Mmat, Mmat2,
+     &        kslap, Lmat,
      1        do_gxc, Amat3, Cmat3,
 cc AJL/Begin
      &        fde_option, g_dens_fde, ncenters_fde, rdens_atom_fde,

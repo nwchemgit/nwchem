@@ -1661,7 +1661,7 @@ cso     &                   g_moso(2),  Dbl_MB(k_eval(1)))
 c      write(*,*)"compare"
       call ga_zero(g_moso(1))
       call ga_zero(g_moso(2))
-#ifdef USE_GAPZHEEVD
+#ifdef SCALAPACK
       nmoout=0
       call dft_scaleig_so(g_fockso,g_moso,dbl_mb(k_eval(1)),
      A      nmoout)

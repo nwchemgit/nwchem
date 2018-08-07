@@ -1,0 +1,38 @@
+ echo
+
+title "vdw 4 DOI 10.1002/jcc.21759"
+start dft_c2br6_vdw4.nw
+
+geometry
+ C        0.00000000     0.00000000     0.78259955
+ C        0.00000000    -0.00000000    -0.78259955
+ Br       1.66249032     0.78472663     1.45955932
+ Br      -0.15165196    -1.83212216     1.45955932
+ Br      -1.51083835     1.04739553     1.45955932
+ Br      -1.66249032    -0.78472663    -1.45955932
+ Br       1.51083835    -1.04739553    -1.45955932
+ Br       0.15165196     1.83212216    -1.45955932
+end
+
+basis spherical
+ * library  def2-qzvp
+end
+
+dft
+ print geometry
+ direct
+ xc xtpss03 ctpss03  
+  mult 1
+  disp vdw 4
+  grid fine
+end
+
+task dft optimize
+
+DFT
+  xc pw6b95
+  mult 1
+  disp vdw 4
+END
+
+task dft optimize

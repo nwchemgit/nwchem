@@ -167,7 +167,7 @@ c
       if (bgj_have_j_fit()) then
         nbases = 2
         bases(2) = bgj_CD_bas_han()
-        write(*,*) __FILE__,': bases',bases
+        write(*,*) 'cphf_solve3: bases',bases
       endif
       call int_init(rtdb,nbases,bases)
       call schwarz_init(geom, basis)

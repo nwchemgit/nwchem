@@ -96,7 +96,7 @@ c::local
       logical allshl, ignore_ij_kl
 #endif
 *       integer ijsh, klsh
-      integer isym2
+      integer isym2,iscr1
       integer i,j,k,l,bra,ket,icount,ij,kl
       integer numint, newlscr
       logical dum_log_f, dum_log_t
@@ -237,10 +237,20 @@ c
         ket = ketin + BASIS_HANDLE_OFFSET
         
         numint = int_nint_cart( brain, ish, brain, jsh,
-     &                          ketin, ksh, ketin, lsh)
-        newlscr = lscr - numint
+     &       ketin, ksh, ketin, lsh)
+        iscr1=numint
+#ifdef USE_SIMINT
+c     this avoids segv in simint SIMD
+#define SIMINT_SIMD_LEN 8
+        call util_align(iscr1,SIMINT_SIMD_LEN)
+#endif
+        newlscr = lscr - iscr1
+        if(newlscr.lt.0) call errquit(' intl2e4c: insuff scratch',
+     c       newlscr,0)
         call int_2e4c(brain,ish,jsh,ketin,ksh,lsh,
-     &      newlscr,scr(numint+1),numint,scr)
+c     &      newlscr,scr(numint+1),numint,scr)
+csimint    two args    needs to be  aligned with SIMINT_SIMD_LEN
+     &      newlscr,scr(iscr1+1),numint,scr)
 c
 #if defined(INT_LIMIT_CHECK)
 c

@@ -1103,7 +1103,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       if (oprint) then
          write(luout,921) ii,-e0,dabs(e0-eold),it,pit,ep,sp
   921 format(5x,"orbital",I4," current e=",E10.3,
-     "       " (error=",E9.3,")",
+     >       " (error=",E9.3,")",
      >       " iterations",I4,"(",I4,
      >       " preconditioned, Ep,Sp=",F5.1,F7.1,")")
       end if
@@ -6803,6 +6803,7 @@ c      end if
 
 #include "bafdecls.fh"
 #include "psi.fh"
+#include "stdio.fh"
 
 
 *     **** Lubin Water Analysis ****
@@ -6817,7 +6818,7 @@ c      end if
      >                                   dbl_mb(eig(1)))
 
       call pspw_gen_APC(ispin,ne,dcpl_mb(dng1(1)))
-      call pspw_print_APC(6)
+      call pspw_print_APC(luout)
 
       call pspw_gen_Efield(rtdb,ispin,dbl_mb(rho1(1)),dcpl_mb(dng1(1)))
 

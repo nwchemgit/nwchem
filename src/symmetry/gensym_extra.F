@@ -1,8 +1,8 @@
 C$Id$
 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cccccceccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
-c    The matrix SYMOPS contains the matrix reps. of all group operators
+c    Tee matrix SYMOPS contains the matrix reps. of all group operators
 c   except the identity. The variable NOPS holds the number of operators
 c   in SYMOPS.
 c
@@ -62,7 +62,7 @@ c***********************************************************************
             goto 99
          else
             write(luout,*)' warning:::::::::::::: from_environment'
-            write(luout,*)' NWCHEM_EXTRA_GROPUS set to: <',
+            write(luout,*)' NWCHEM_EXTRA_GROUPS set to: <',
      &       extra_group_libname(1:inp_strlen(extra_group_libname)),'>'
             write(luout,*)' but file does not exist !'
             write(luout,*)' using compiled library'

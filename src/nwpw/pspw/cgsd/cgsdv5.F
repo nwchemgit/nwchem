@@ -338,6 +338,9 @@
 *     **** initialize  META GGA ****
       call nwpw_meta_gga_init()
 
+*     **** initialize vdw ****
+      call vdw_DF_init()
+
 *     **** initialize metadynamics ****
       call meta_initialize(rtdb)
 
@@ -716,6 +719,7 @@ c     end if
       call Pack_end()
       call G_end()
       call psp_U_end()
+      call vdw_DF_end()
       call nwpw_meta_gga_end()
       call pspw_end_SIC()
       call pspw_end_HFX()

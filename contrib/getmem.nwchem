@@ -27,6 +27,10 @@ else  if ($NWCHEM_TARGET == LINUX64) then
     set nproc = `egrep cpus /proc/cpuinfo |  sed -e "s/cpus detected		: //"`
   endif
   set memtot = `egrep -i MemT /proc/meminfo | sed -e "s/kB//g"|sed -e "s/MemTotal://"  `
+else  if ($NWCHEM_TARGET == MACX64) then
+    set nproc = `sysctl -n hw.ncpu`
+    set memtot = `sysctl -n hw.memsize`
+    @ memtot = ($memtot / 1024)
 else  if ($NWCHEM_TARGET == DECOSF) then
   set nproc = `/usr/sbin/psrinfo | wc -l `
   set memtot = ` /usr/bin/vmstat -P | egrep "Total Physical Memory ="| sed -e "s/Total Physical Memory =//"| sed -e "s/.00 M//"`

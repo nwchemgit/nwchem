@@ -26,6 +26,7 @@ C>
       Subroutine xc_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
      &                       nq, Ex, Ec, qwght, grad, ldew, func,
      &                       do_2nd, ttau, kske, Mmat, Mmat2,
+     &                       laprho, kslap, Lmat,
      &                       StericEnergy,
      &                       do_3rd, Amat3, Cmat3, ldew2)
 c
@@ -71,18 +72,20 @@ c
                                  !< \f$\partial\rho^\alpha/\partial r\f$
                                  !< and
                                  !< \f$\partial\rho^\beta/\partial r\f$
+      double precision laprho(*)
 c
       double precision Amat(*), Cmat(*)    
       double precision Amat2(*),Cmat2(*)
       double precision Amat3(*),Cmat3(*)
       double precision ttau(*) !< [Input] The kinetic energy density
       double precision Mmat(*), Mmat2(*), Mmat3(2)
+      double precision Lmat(*)
 c
       double precision Ex !< [Output] The exchange energy
       double precision Ec !< [Output] The correlation energy
       double precision StericEnergy
       double precision qwght(nq), func(nq)
-      logical grad, kske, dohcth, use_nwxc
+      logical grad, kske, dohcth, use_nwxc, kslap
 c
       character*4 whichf
 
@@ -101,6 +104,7 @@ c
       call dcopy(ipol*nq, 0.0d0, 0, Amat, 1)
       if(grad) call dcopy(3*nq*ipol, 0.0d0, 0, Cmat, 1)
       if(kske) call dcopy(nq*ipol, 0.0d0, 0, Mmat, 1)
+      if(kslap) call dcopy(nq*ipol, 0.0d0, 0, Lmat, 1)
       if (do_2nd) then
          call dcopy(nq*NCOL_AMAT2, 0.0d0, 0, Amat2, 1)
          if (grad) call dcopy(nq*NCOL_CMAT2, 0.0d0, 0, Cmat2, 1)
@@ -208,14 +212,15 @@ c gradients.  ldew2 is for the dVxc*P term in the TDDFT gradients.
 
           if (.not. do_2nd .and. .not. do_3rd) then
              call setACmat(delrho, Amat, Cmat, qwght, ipol, nq, grad,
-     &             (.not. do_2nd), kske, Mmat)
+     &             (.not. do_2nd), kske, Mmat, kslap, Lmat)
           else if (.not. do_3rd) then
              call setACmat_d2(delrho, Amat, Amat2, Cmat, Cmat2, qwght, 
-     &             ipol, nq, grad, (.not. do_2nd), kske, Mmat, Mmat2)
+     &             ipol, nq, grad, (.not. do_2nd), kske, Mmat, Mmat2,
+     &             .false.)
           else
              call setACmat_d3(delrho, Amat, Amat2, Amat3, Cmat, Cmat2,
      &             Cmat3, qwght, ipol, nq, grad, (.not. do_3rd),
-     &             .false.)
+     &             .false.,.false.)
           endif
         endif
         return
@@ -1511,6 +1516,48 @@ c
          endif
       endif
 c
+c     SCAN meta GGA
+c
+      if (abs(xfac(66)).gt.eps) then
+         if(.not. do_2nd) then
+            call xc_xscan(tol_rho, xfac(66), rho, delrho, Amat, Cmat,
+     &                    nq, ipol, Ex, qwght, ldew, func, ttau, Mmat)
+         else
+            call xc_xscan_d2()
+         endif
+      endif
+c
+      if (abs(cfac(66)).gt.eps) then
+         if(.not. do_2nd) then
+            call xc_cscan(tol_rho, cfac(66), rho, delrho, Amat, Cmat,
+     &                    nq, ipol, Ec, qwght, ldew, func, ttau, Mmat)
+         else
+            call xc_cscan_d2()
+         endif
+      endif
+c
+c     SCAN-L Laplacian meta GGA
+c
+      if (abs(xfac(67)).gt.eps) then
+         if(.not. do_2nd) then
+            call xc_xscanl(tol_rho, xfac(67), rho, delrho, laprho,
+     &                     Amat, Cmat, Lmat, nq, ipol, Ex, qwght, ldew, 
+     &                     func)
+         else
+            call xc_xscanl_d2()
+         endif
+      endif
+c
+      if (abs(cfac(67)).gt.eps) then
+         if(.not. do_2nd) then
+            call xc_cscanl(tol_rho, cfac(67), rho, delrho, laprho, 
+     &                     Amat, Cmat, Lmat, nq, ipol, Ec, qwght, ldew, 
+     &                     func)
+         else
+            call xc_cscanl_d2()
+         endif
+      endif
+c
 c     Calculate the steric energy
 c
       if (lsteric) then
@@ -1535,13 +1582,15 @@ c gradients.  ldew2 is for the dVxc*P term in the TDDFT gradients.
 
         if (.not. do_2nd .and. .not. do_3rd) then
            call setACmat(delrho, Amat, Cmat, qwght, ipol, nq, grad,
-     &           (.not. do_2nd), kske, Mmat)
+     &           (.not. do_2nd), kske, Mmat, kslap, Lmat)
         else if (.not. do_3rd) then
            call setACmat_d2(delrho, Amat, Amat2, Cmat, Cmat2, qwght, 
-     &           ipol, nq, grad, (.not. do_2nd), kske, Mmat, Mmat2)
+     &           ipol, nq, grad, (.not. do_2nd), kske, Mmat, Mmat2,
+     &           .false.)
         else
            call setACmat_d3(delrho, Amat, Amat2, Amat3, Cmat, Cmat2,
-     &           Cmat3, qwght, ipol, nq, grad, (.not. do_3rd), .false.)
+     &           Cmat3, qwght, ipol, nq, grad, (.not. do_3rd), .false.,
+     &           .false.)
         endif
       endif
 c
@@ -1613,6 +1662,7 @@ c
       call xc_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
      &                       nq, Ex, Ec, qwght, grad, ldew, func,
      &                       do_2nd, ttau, kske, Mmat, Mmat2,
+     &                       0d0, .false., 0d0,
      &                       StericEnergy, do_3rd, Amat3, Cmat3, ldew2)
 
       do i=1,numfunc

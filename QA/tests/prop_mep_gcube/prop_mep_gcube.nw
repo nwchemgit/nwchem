@@ -1,0 +1,25 @@
+echo
+start nacl
+
+title "MEP on the 0.002 electron/bohr^3 surface"
+
+
+geometry nocenter noautoz noautosym 
+ Na                   -0.00000000     0.00000000    -0.70428494
+ Cl                    0.00000000    -0.00000000     1.70428494
+end
+
+
+basis
+  * library 6-31g*
+end
+
+#This is an example to calculate the MEP on the 0.002 electron/bohr^3 surface.
+#The result will be in an unformatted CUBE.
+
+property
+  ESPISO iso 0.002 tol 0.00003
+  grid pad 2.0 step 0.088 output espAtVdw.cube
+end
+
+task dft property

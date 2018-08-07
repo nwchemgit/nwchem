@@ -14,21 +14,23 @@
  *
  */
 
-void tce_sort_4kg__(double * A, double * B, int * rowIdx, int * colIdx, 
-			int * thirdIdx, int * fourthIdx, int * perm1, int * perm2,
-			int * perm3, int * perm4, double * factor)
+#include "typesf2c.h"
+
+void FATR tce_sort_4kg__(double * A, double * B, Integer * rowIdx, Integer * colIdx, 
+			Integer * thirdIdx, Integer * fourthIdx, Integer * perm1, Integer * perm2,
+			Integer * perm3, Integer * perm4, double * factor)
 {
-	int   i     = 0;
-	int   j     = 0;
-	int   k     = 0;
-	int   l     = 0;
+	Integer   i     = 0;
+	Integer   j     = 0;
+	Integer   k     = 0;
+	Integer   l     = 0;
 
-	int   aSize[4];
-	int   bSize[4];
-	int   perm[4];
+	Integer   aSize[4];
+	Integer   bSize[4];
+	Integer   perm[4];
 
-	int   aJump[4];
-	int   bJump[4];
+	Integer   aJump[4];
+	Integer   bJump[4];
 
 	double * bPtr = B;
 	double * aPtr[4];

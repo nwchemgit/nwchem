@@ -88,6 +88,7 @@ cedo#if defined(USE_TEXAS_BROKE)
       logical dum_log
 cedo#endif
       logical any_spherical
+      logical used_txs
       logical OFALSE
 c
       integer WarnP
@@ -100,6 +101,7 @@ c
 c
 c
       OFALSE = .false.
+      used_txs=.false.
 c
 c check initialization
 c
@@ -193,6 +195,7 @@ cedo#if defined(USE_TEXAS_BROKE)
      &      q4,OFALSE,roff,roff,roff,roff,OFALSE,
      &      eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
      &      nint, OFALSE, dum_log, scr, lscr, 0.0d0,'scfd_int')
+        used_txs=.true.
 
 cedo#endif
 c
@@ -239,7 +242,7 @@ c
         write(luout,*)' jsh   :',jsh
         call errquit('int_2e2c: fatal error ',0,0)
       endif
-      if (any_spherical.and.(status_sim.or.status_nw))then
+      if (any_spherical.and.(.not.used_txs))then
 c ... reset general contractions for sp shells to 1 since they are handled
 c     as a block of 4. Since int_nbf_* arrays are set to the appropriate size.
           if (Lp.eq.-1) p_gen = 1

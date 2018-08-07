@@ -28,9 +28,14 @@ property
   shielding
 end
 
+scf
+direct
+end
+
 task scf property
 
 dft
+ direct
  xc b3lyp
 end
 

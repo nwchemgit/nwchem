@@ -28,10 +28,6 @@ installation before beginning.  The sections for this guide are
      issues                       performance networks
    Running on Fujitsu machines -  some notes on the Fujitsu system
    Building and Running NWChem -  system information for clusters
-     on Myrinet clusters          using Myrinet interconnect
-   Building and Running NWChem -  system information for clusters
-     on Giganet clusters          using Giganet interconnect
-   Building and Running NWChem -  system information for clusters
      on Infiniband clusters          using Infiniband interconnect
    Building for Windows        -  brief instructions for compiling under
                                   Windows NT or Windows 98
@@ -125,17 +121,6 @@ BASIC BUILD INSTRUCTIONS:
    IBM            IBM RS/6000     AIX 4.X,5.X                     y
    IBM64          IBM RS/6000     AIX 4.X,5.X                     y
    				 		   
-   DECOSF         DEC AXP         Tru64 4.0-5.0                   y
-   				 		   
-   SGI_N32        SGI 64 bit os   IRIX 6.5        
-                  using 32 ints 		   
-   SGITFP         SGI 64 bit os   IRIX 6.5                        y
-   				 		   
-   cray-sv2       Cray X1         UNICOS/mp    Cray               y
-   				 		   
-   LAPI           IBM SP          AIX/LAPI                        y
-   LAPI64         IBM SP          AIX/LAPI                        y
-   				 		   
    LINUX          x86             RH,MDK,SLES GNU,Intel,PGI       y
                   ppc             YD2.1,SLES  GNU,xlf             y
    LINUX64        Alpha           RedHat 6.2  Compaq              y
@@ -150,6 +135,7 @@ BASIC BUILD INSTRUCTIONS:
    WIN32          Intel x86       Windows98/NT    Compaq 
    				 		   
    MACX           Apple MacOSX    Darwin      GNU,xlf,Intel
+   MACX64         Apple MacOSX    Darwin      GNU,xlf,Intel
 
    BGL            Bluegene/L      SLES        blrts_xlf           y
    BGP            Bluegene/P      SLES        bgxlf               y
@@ -160,18 +146,8 @@ BASIC BUILD INSTRUCTIONS:
    Set the environment variable, NWCHEM_TARGET, to the symbolic name
    that matches your target platform, e.g.
 
-       % setenv NWCHEM_TARGET LAPI
+       % setenv NWCHEM_TARGET LINUX64
 
-   Some systems also allow you to set NWCHEM_TARGET_CPU
-
-    NWCHEM_TARGET  CPU type     NWCHEM_TARGET_CPU 
-    ----------------------------------------------------------
-    SGITFP         R8000           R8000
-                   R10000          R10000
-                   R12000          R12000
-    SGI_N32        R8000           R8000
-                   R10000          R10000
-                   R12000          R12000
 
 5) Configure to build the modules you need.  As a first shot you might
    want to build everything (i.e. "all"), and if you start running out of 
@@ -220,16 +196,12 @@ BASIC BUILD INSTRUCTIONS:
        % setenv NWCHEM_MODULES "all python" 
     will build the union of these three module identifiers.  
 
-6) If your NWCHEM_TARGET is CRAY-T3E or cray-sv2, perform the
+6) If BLAS_SIZE=4, then perform 
    precision conversion:
 
        % cd $NWCHEM_TOP/src
-       % make dbl_to_sngl
+       % make 64_to_32
 
-   This is necessary only on machines where 64 bit is single 
-   precision in order to match BLAS routine names to vendor-supplied 
-   libraries (or if converting back from such source into the 
-   standard of 64 bit is double precision).
 
 7) Finally, compile and link:
 
@@ -240,8 +212,8 @@ BASIC BUILD INSTRUCTIONS:
    example, if the target platform equals LAPI then the following
    subdirectories are created:
 
-	$NWCHEM_TOP/bin/LAPI          (executables)
-        $NWCHEM_TOP/lib/LAPI          (libraries)
+	$NWCHEM_TOP/bin/LINUX64          (executables)
+        $NWCHEM_TOP/lib/LINUX64          (libraries)
 
 8) If you will be installing NWChem for general site use please also
    build the version info to help us determine exactly which version
@@ -282,25 +254,14 @@ USE OF NON DEFAULT COMPILERS:
    LINUX           i386       ifort  icc   Intel compilers for IA32
    LINUX           i386       pgf77        Portland Group f77 compiler
    LINUX64         ppc        xlf    xlc   IBM compilers
+   LINUX64         ppc64      xlf    xlc   IBM compilers
    LINUX64         ia64       ifort        Intel C compiler for IA64
    LINUX64         x86_64     pathf90      PathScale f90 compiler
    LINUX64         x86_64     ifort        Intel EM64T Fortran compiler
    LINUX64         x86_64     pgf90        PGI Fortran90 compiler
    LINUX64         ppc64      xlf    xlc   IBM compilers
    MACX                       xlf    xlc   IBM compilers
-   SOLARIS64                  frt    fcc   Fujitsu Compilers         
   
-   Notes:
-    1) On Pentium4/Xeon machine, use of  the Intel compiler is  strongly
-    recommended since performance gains of 30-40% with respect to g77 are
-    not unusual. On PentiumIII and AMD computers perfomance
-    improvements of 10-20% have been observed.
-    2) using the Portland Group Compiler, pgf77, is available.  
-    However, NWChem development is under the GNU and Intel suite of
-    compilers and so the pgf77 version is far from being optimal. 
-    3) use of the GNU fortran compiler (g77) on 64-bit architecture
-    (e.g. x86_64) is not encouraged because of the NWChem default use
-    of 64-bit integers on 64-bit architectures.
 
 
 ALTERNATIVE ONE-TIME BUILD:
@@ -389,88 +350,6 @@ overwrite the value of nwchem_basis_library in your .nwchemrc file and point to
 the new basis library.  For example:
    setenv NWCHEM_BASIS_LIBRARY "$NWCHEM/data-5.0/libraries/"
 Do not forget the trailing "/".
-
-BUILDING WITH MPI:
-------------------
-
-   NWChem can be compiled to use MPI instead of TCGMSG for message
-   passing on many systems.  Several environment variables need to be
-   set to compile with NWChem.  These are:
-
-     USE_MPI       -  set to "y" if you want to compile with MPI
-     USE_MPIF      -  set to "y" if you want to the NWPW module to use fortran-bindings of MPI
-     LIBMPI        -  name of the library with -l (eg. -lmpich)
-     MPI_LIB       -  directory where the MPI library resides
-     MPI_INCLUDE   -  directory where the MPI include files reside
-
-   Below are some implementation specific settings:
-
-     MPICH
-        setenv MPI_LOC /usr/local #location of mpich
-        setenv MPI_LIB $MPI_LOC/lib
-        setenv MPI_INCLUDE $MPI_LOC/include
-        setenv LIBMPI "-lfmpich -lmpich -lpmpich"
-     MPIPro: 
-        setenv LIBMPI "-lmpipro -lpthread"
-     LAM version 6.5, 7.0.x
-        setenv MPI_LIB /usr/lib
-        setenv LIBMPI "-llamf77mpi -lmpi -llam -lpthread"
-        setenv MPI_INCLUDE /usr/include/
-     MPICH/GM
-      same as for MPICH, plus
-        setenv GM_HOME /usr/local/gm-1.2/binary #location of GM software
-        setenv GM_INCLUDE $GM_HOME/include
-        setenv GM_LIB $GM_HOME/lib
-        setenv ARMCI_NETWORK GM
-        setenv GMPI_SHMEM_FILE /tmp/$USER.gm
-     HP SC Alpha serie
-        setenv LIBMPI "-lfmpi -lmpi -lelan"
-        setenv ARMCI_NETWORK QUADRICS
-     HPUX
-        setenv MPI_INCLUDE /opt/mpi/include
-        setenv MPI_LIB /opt/mpi/lib/pa1.1/
-        setenv LIBMPI -lmpi
-     HPUX64
-        setenv MPI_INCLUDE /opt/mpi/include
-        setenv MPI_LIB /opt/mpi/lib/pa20_64/
-        setenv LIBMPI -lmpi
-     SGI_N32
-        setenv LIBMPI -lmpi
-     WIN32/NT-MPICH
-        set MPI_INCLUDE=c:\PROGRA~1\ARGONN~1\MPICHN~1.4\SDK\INCLUDE
-        set MPI_LIB=c:\PROGRA~1\ARGONN~1\MPICHN~1.4\SDK\lib
-        set NWCHEM_EXTRA_LIBS=%MPI_LIB%\mpich.lib
-     WIN32/WMPI1.3
-       set MPI_INCLUDE=c:\WMPI1.3\INCLUDE
-       set MPI_LIB=c:\WMPI1.3\LIB\CONSOLE
-       set NWCHEM_EXTRA_LIBS=%MPI_LIB%\cvwmpi.lib
-     IBM
-       setenv MPI_INCLUDE /usr/lpp/ppe.poe/include
-       setenv MPI_LIB /usr/lpp/ppe.poe/lib/
-       setenv LIBMPI "-binitfini:poe_remote_main -lmpi_r -lvtd_r \
-       -I/usr/lpp/ssp/css/include -llapi_r -lpthreads \
-       -L/usr/lpp/ppe.poe/lib/threads -L/usr/lpp/ppe.poe/lib \
-       -L/usr/lpp/ppe.poe/lib/ip "
-
-   To run with MPI, "parallel" should not be used.  The way 
-   we usually run nwchem under MPI are the following:
-     1) using mpirun:
-     
-     mpirun -np 8 $NWCHEM_TOP/bin/${NWCHEM_TARGET}}/nwchem h2o.nw
-     
-     NOTE: In some MPI implementation, NWChem fails to read the input
-     file argument (h2o.nw in the previous example). If this is the
-     case, you have to copy your input file in the working directory
-     as nwchem.nw.
-
-     2) If you have all nodes connected via shared memory 
-     and you have installed the ch_shmem version of MPICH, 
-     you can do
-
-     $NWCHEM_TOP/bin/${NWCHEM_TARGET}/nwchem -np 8 h2o.nw
-     
-     The previous NOTE about the input file argument applies to
-     this case, too.
 
 BUILDING WITH PYTHON:
 ---------------------
@@ -635,23 +514,12 @@ table summarize supported combinations of ARMCI_NETWORK and NWCHEM_TARGET.
 
   ARMCI_NETWORK   NWCHEM_TARGET Network                    Protocol
   ---------------------------------------------------------
-  GM              LINUX         Myrinet                    GM
-                  LINUX64
-  VIA             LINUX         Giganet/CLAN               VIA
-  MELLANOX        LINUX         InfiniBand                 VAPI
-                  LINUX64
   OPENIB          LINUX         InfiniBand                 OpenIB
                   LINUX64
-  ELAN3 or        LINUX         Quadrics/QsNet             Elan3/Shmem
-  QUADRICS        DECOSF
-                  LINUX64
-  ELAN4           LINUX64       Quadrics/QsNetII           Elan4
-
   BGMLMPI         BGL           IBM BlueGene Torus/        BGLMPI
   DCMFMPI         BGP           Global Tree/Interrupt      DCMF,MPI
 
-  PORTALS         LINUX64       Cray SeaStar/HyperTransport PORTALS 
-  MPI-SPAWN       LINUX64       Myrinet MX or Infiniband      MPI2                        
+ 
 
 For more information/support, you are referred to the ARMCI support page at
 section 2.1.2 of the following URL

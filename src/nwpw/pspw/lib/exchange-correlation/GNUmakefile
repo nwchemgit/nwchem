@@ -1,10 +1,11 @@
 #
 # $Id$
 #
+SUBDIRS = vdw-DF
 
  OBJ_OPTIMIZE = \
             	v_bwexc_all.o \
-		v_exc.o \
+		v_exc.o v_dirac.o \
 		v_mexc.o \
             	v_bwexc.o \
             	v_bwexc_euv.o \
@@ -23,7 +24,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = v_bwexc_euv.F v_bwexc.F nwpw_meta_gga.F
+    USES_BLAS = v_bwexc_euv.F v_bwexc.F nwpw_meta_gga.F v_mexc.F
 
 
   LIB_DEFINES = 

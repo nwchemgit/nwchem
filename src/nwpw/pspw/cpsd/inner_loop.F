@@ -70,7 +70,7 @@ cccccccc#include "frac_occ.fh"
 
 
 *     **** MA local variables ****
-      logical value,field_exist
+      logical value,field_exist,cosmo_on
 *     real*8     tmp_L(8*nemax*nemax)
 *     complex*16 tmp1(nfft3d)
 *     complex*16 tmp2(nfft3d)
@@ -128,6 +128,9 @@ c     real*8     fion(3,natmx)
       real*8   nwpw_meta_gga_pxc,ion_disp_energy
       external nwpw_meta_gga_pxc,ion_disp_energy
 
+      logical  nwpw_cosmo_on
+      external nwpw_cosmo_on
+
 *     **** paw external functions ****
       real*8   psp_kinetic_atom,psp_kinetic_core,psp_valence_core_atom
       real*8   psp_ncmp_vloc,psp_vloc_atom,psp_ion_core
@@ -175,6 +178,7 @@ c     real*8     fion(3,natmx)
       sic        = pspw_SIC()
       hfx        = pspw_HFX()
       gga = control_gga()
+      cosmo_on = nwpw_cosmo_on()
 
       call nwpw_timing_start(12)
 *     **** allocate MA local variables ****
@@ -410,6 +414,11 @@ c        call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
 c        call mask_C(0,dcpl_mb(dng(1)))
         call Pack_c_pack(0,dcpl_mb(tmp1(1)))
         call Pack_c_Copy(0,dcpl_mb(tmp1(1)),dcpl_mb(dng(1)))
+        if (cosmo_on) then
+           call v_local_set_cosmo_BQ(dbl_mb(r_grid(1)),
+     >                               dbl_mb(rho(1)),
+     >                               dcpl_mb(dng(1)))
+        end if
 
 
 

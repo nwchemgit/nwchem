@@ -355,10 +355,11 @@ c
                               lap(n,ii,ipert) = lap(n,ii,ipert) + 2d0*
      &                            (delchi(n,1,mu)*ffd(n,1,mu-inizja+1) +
      &                             delchi(n,2,mu)*ffd(n,2,mu-inizja+1) +
-     &                             delchi(n,3,mu)*ffd(n,3,mu-inizja+1) +
-     &                             heschi(n,1,mu)*ff(n,mu-inizja+1) +
-     &                             heschi(n,4,mu)*ff(n,mu-inizja+1) +
-     &                             heschi(n,6,mu)*ff(n,mu-inizja+1))
+     &                             delchi(n,3,mu)*ffd(n,3,mu-inizja+1))
+cold     &                             delchi(n,3,mu)*ffd(n,3,mu-inizja+1) +
+cold     &                             heschi(n,1,mu)*ff(n,mu-inizja+1) +
+cold     &                             heschi(n,4,mu)*ff(n,mu-inizja+1) +
+cold     &                             heschi(n,6,mu)*ff(n,mu-inizja+1))
                            enddo
                          enddo
                        endif
@@ -375,6 +376,17 @@ c
                          call xc_dchiff(nq,inizja,ifinja,
      P                        delrho(1,1,ii,ipert),delchi,
      F                        ff)
+cc DMR/Begin
+                         if (dolap) then
+                            do mu=inizja,ifinja
+                               do n=1,nq
+                                  lap(n,ii,ipert) = lap(n,ii,ipert) +
+     &                            ff(n,mu-inizja+1)*(heschi(n,1,mu) +
+     &                            heschi(n,4,mu) + heschi(n,6,mu))
+                               enddo
+                            enddo
+                         endif
+cc DMR/End
                        elseif(what.eq.2) then
                          call xc_dchiffp(nq,ipol2,inizja,ifinja,
      P                        rho,delchi,ff,
@@ -401,6 +413,17 @@ c
                          call xc_dchiff(nq,inizia,ifinia,
      P                        delrho(1,1,ii,ipert),delchi,
      F                        ff)
+cc DMR/Begin
+                         if (dolap) then
+                            do mu=inizia,ifinia
+                               do n=1,nq
+                                  lap(n,ii,ipert) = lap(n,ii,ipert) +
+     &                              ff(n,mu-inizia+1)*(heschi(n,1,mu) +
+     &                              heschi(n,4,mu) + heschi(n,6,mu))
+                               enddo
+                            enddo
+                         endif
+cc DMR/End
                        elseif(what.eq.2) then
                          call xc_dchiffp(nq,ipol2,inizia,ifinia,
      P                        rho,delchi,ff,
@@ -899,6 +922,8 @@ c
       external ga_nodeid
 #endif
       call starttimer(monitor_xcrho)
+      g_keepd(1)=0
+      g_keepd(2)=0
 c
 c     Evaluate the charge density and its gradient at each of the
 c     sampling points 

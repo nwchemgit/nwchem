@@ -541,6 +541,18 @@ ifeq ($(GOTMINGW64),1)
    CFLAGS_FORGA +=  -m64
    CC = gcc
 endif
+#detect clang
+GOTCLANG= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
+GOTFREEBSD= $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
+ifeq ($(GOTCLANG),1)
+  CFLAGS_FORGA += "-fPIC"
+  ifeq ($(TARGET),MACX64)
+    CFLAGS_FORGA +=-DMPICH_NO_ATTR_TYPE_TAGS
+  endif
+endif
+ifeq ($(GOTFREEBSD),1)
+    UNSETFLAGS_FORGA = LDFLAGS=" " CPPFLAGS=" " LIBS=" "
+endif
 
 ifdef FFLAGS_FORGA
     MAYBE_FFLAGS=FFLAGS="$(FFLAGS_FORGA)"
@@ -565,18 +577,19 @@ ifdef DEV_GA
 endif
 
 ifdef USE_GAGITHUB
+  MAKEFLAGS = -j 1 --no-print-directory
 	GET_TOOLS=./get-tools-github
   ifdef USE_GA_RELEASE
     ifndef GA_RELEASE_NO
-      GA_RELEASE_NO=5.6.2
+      GA_RELEASE_NO=5.6.5
     endif
     GA_DIR=ga-$(GA_RELEASE_NO)
   else
 #DEV_GA=1 gives the current "best" dev branch, not develop
 #to get develop, set GA_BRANCH-develop
     ifdef DEV_GA
-      GA_DIR = ga-5.6.2
-      GA_BRANCH = hotfix/5.6.2
+      GA_DIR = ga-5.6.5
+      GA_BRANCH = hotfix/5.6.5
     else
       GA_DIR0=ga-$(GA_BRANCH)
       GA_DIR=$(shell echo $(GA_DIR0) | sed -e 's/\//_/g')
@@ -612,11 +625,20 @@ endif
 ifeq ($(TARGET),CYGWIN64) 
         MAYBE_ARMCI += --disable-weak
 endif # CYGWIN64
+#SCORE-P
+ifeq ($(CC),$(findstring $(CC),scorep scorep-wrapper scorep-gcc scorep-mpicc scorep-cc scorep-nvcc scorep-xlc scorep-xlc_r))
+#fix for configure or cmake
+     MAYBE_HOST += SCOREP_WRAPPER=OFF
+endif
+ifeq ($(FC),$(findstring $(FC),scorep scorep-wrapper scorep-gfortran scorep-mpif90 scorep-ftn scorep-xlf scorep-xlf_r scorep-mpif77))
+#fix for configure or cmake
+     MAYBE_HOST += SCOREP_WRAPPER=OFF
+endif
 BUILDDIR = build
 INSTALLDIR = install
 CONFIGURE_PATH = ../$(GA_DIR)/configure
 TOOLDIR = $(shell pwd)
-CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_SCALAPACK) $(MAYBE_ELPA) $(MAYBE_LAPACK) $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_CXX) $(MAYBE_MPICXX) $(MAYBE_F77) $(MAYBE_MPIF77) $(MAYBE_FFLAGS) $(MAYBE_CFLAGS) $(MAYBE_CXXFLAGS) $(MAYBE_OFFLOAD) $(MAYBE_SYSVSHMEM) $(MAYBE_EISPACK)
+CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_SCALAPACK) $(MAYBE_ELPA) $(MAYBE_LAPACK) $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_CXX) $(MAYBE_MPICXX) $(MAYBE_F77) $(MAYBE_MPIF77) $(MAYBE_FFLAGS) $(MAYBE_CFLAGS) $(MAYBE_CXXFLAGS) $(MAYBE_OFFLOAD) $(MAYBE_SYSVSHMEM) $(MAYBE_EISPACK) $(UNSETFLAGS_FORGA)
 SPACE :=
 SPACE +=
 STAMP_FC = $(subst /,-,$(subst $(SPACE),-,$(strip $(FC))).FC.stamp)
@@ -632,6 +654,7 @@ $(INSTALLDIR)/lib/libga.a: $(BUILDDIR)/.libs/libga.a
 	@echo '*** Installing Parallel Tools ****'
 	@echo ''
 	@(cd $(BUILDDIR) && $(MAKE) install) || exit 1
+	@(../util/util_ga_version.bash)
 
 $(BUILDDIR)/.libs/libga.a:  $(BUILDDIR)/Makefile $(BUILDDIR)/armci/Makefile
 	@echo ''
@@ -652,7 +675,6 @@ $(BUILDDIR)/config.status: $(GA_DIR)/configure $(STAMP_FC) $(STAMP_CC) $(STAMP_D
 	@echo ''
 	@echo '*** Configuring Parallel Tools ****'
 	@echo ''
-	@(../util/util_ga_version.bash $(GA_DIR))
 	@(test -d $(BUILDDIR)) || mkdir $(BUILDDIR);
 	@(cd $(BUILDDIR) && echo $(CONFIGURE_PATH) $(CONFIGURE_ARGS) && $(CONFIGURE_PATH) $(CONFIGURE_ARGS)) || exit 1
 $(GA_DIR)/Makefile.in:

@@ -38,7 +38,7 @@ C     == Parameters ==
       if (.not. do_zora)
      $     call errquit (pname//"called without ZORA active",0,0)
 
-      call rt_tddft_cs_confirm (params)
+      call rt_tddft_cs_confirm (params,'zfock_cs_core_scalarzora.F')
 
       call ga_zero (g_fcore)      
       call ga_add (1d0, g_fcore, 1d0, params%g_zora_sf(1), g_fcore)
@@ -91,7 +91,7 @@ C     == External ==
       if (.not. do_zora)
      $     call errquit (pname//"called without ZORA active",0,0)
 
-      call rt_tddft_cs_confirm (params)
+      call rt_tddft_cs_confirm (params,'zfock_cs_core_scalarzora.F')
 
       if (params%prof) call prof_start (elapsed)
 

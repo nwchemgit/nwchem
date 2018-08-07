@@ -1,7 +1,6 @@
 C
 C undefined the first define line if you get undefined symbols
 C
-C#define OLD_GAAPI 1
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,g_vxc,
      ,     nbf_ao,ipol,goforit,dograd)
 c
@@ -35,9 +34,41 @@ c
       integer gnblock(2), membyte
       integer idum,g_ndim,idumm(10),dm_ndim,xc_ndim
       integer ntwo12,howmanyrr,memrylft,memigop
+      logical dm_ronly
+      integer ilo, ihi, jlo, jhi,jj
 c
       oprint = util_print('xcreplicated', print_high)
-
+#ifdef HAVE_SET_GA_PROPERTY
+      if (.not.rtdb_get(rtdb,'dft:dm_ronly', mt_log, 1, dm_ronly))
+     &        dm_ronly=.false.
+c
+c     try read-only DM or mirroring
+c     
+      if(dm_ronly) then
+         do ii=1,ipol
+            write(6,*) ga_nodeid(), ' set dm ',ii,g_dens(ii)
+            call ga_distribution(g_dens(ii),
+     .     ga_nodeid(), ilo, ihi, jlo, jhi)
+c            call ga_print(g_dens(ii))
+            write(6,'(i3,a,4i5)') ga_nodeid(), ' old distr ',
+     L           ilo, ihi, jlo, jhi
+            call ga_set_property(g_dens(ii),'read_only')
+            call ga_distribution(g_dens(ii),
+     .     ga_nodeid(), ilo, ihi, jlo, jhi)
+            write(6,'(i3,a,4i5)') ga_nodeid(), ' new distr ',
+     L           ilo, ihi, jlo, jhi
+         enddo
+         xcreplicated=.false.
+         call ga_sync()
+         truerep  =.false.
+         truerepdm=.false.
+         truerepxc=.false.
+         dorepdm  =.false.
+         dorepxc  =.false.
+      
+         return
+      endif
+#endif
       do ii = 1, ipol
         k_repxc(ii)=-1
         g_repdm(ii)=-1
@@ -271,7 +302,8 @@ c           we do not need to do anything
       return
       end
 
-      logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
+      logical function xc_rep_close(rtdb, nbf_ao,ipol,
+     G     g_vxc,g_dens,dograd)
 c
 C$Id$
 c
@@ -284,14 +316,28 @@ c
 #include "global.fh"
 #include "dftpara.fh"
 #include "dftps.fh"
+#include "rtdb.fh"
       integer g_vxc(2),ipol,nbf_ao
+      integer g_dens(2)
       logical dograd ! true if just gradient (not energy)
 c
       integer i,j,ilo,ihi,jlo,jhi,numi,numj,icount
       integer idim,jdim,istart
+      logical dm_ronly
 c
       xc_rep_close=.true.
-      if(xcreplicated) then
+      if (.not.rtdb_get(rtdb,'dft:dm_ronly', mt_log, 1, dm_ronly))
+     &        dm_ronly=.false.
+      if(dm_ronly) then
+#ifdef HAVE_SET_GA_PROPERTY
+         
+         do i=1,ipol
+            write(6,*) ga_nodeid(), ' unset dm ',i
+            call ga_unset_property(g_dens(i))
+         enddo
+#endif
+         xc_rep_close=.true.
+      elseif(xcreplicated) then
          if(truerep) then
             if(truerepxc) then
                if (odftps) call pstat_on(ps_xmrge)

@@ -260,12 +260,12 @@ c         dcpl_mb(vt(1)+k-1) = dcpl_mb(vt(1)+k-1)*x
       end do
 
       !*** scale the power spectrum ***
-      x = 0.0d0
-      do k=0,nframes/2
-        x = x + dble(dcpl_mb(vk(1)+k))
-      end do
-      write(*,*) "powernorm=",x,x/(dt*nframes),
-     >           " dw=",1.0d0/(dt*nframes*auTOsec*c)
+c      x = 0.0d0
+c      do k=0,nframes/2
+c        x = x + dble(dcpl_mb(vk(1)+k))
+c      end do
+c      write(*,*) "powernorm=",x,x/(dt*nframes),
+c     >           " dw=",1.0d0/(dt*nframes*auTOsec*c)
 
 c      if (x.gt.1.0d-12) then
 c         x = 1.0d0/x 
@@ -334,8 +334,9 @@ c      end if
 #include "errquit.fh"
 
 
-      real*8 c,auTOsec
+      real*8 c,auTOsec,CAconv
       parameter (c=2.996d+10,auTOsec=2.41889d-17)
+      parameter (CAconv=3.058900977e9)
  
       integer MASTER,taskid
       parameter (MASTER=0)
@@ -343,18 +344,24 @@ c      end if
 *     **** local variables ****
       logical value
       integer i,k,natoms,natoms1,nframes,iii
-      integer vx(2),vy(2),vz(2)
+      integer vx(2),vy(2),vz(2),dx(2),dy(2),dz(2)
       integer vt(2),vk(2)
       integer tfft(2)
       real*8  time1,time2,t,freq,dt,volume,volume1
       real*8  tmax
       real*8  x,y,z
       real*8  v1,v2,v3,sv1,sv2,sv3
-      real*8  unita(3,3)
+      real*8  unita(3,3),omega
       character*80  tfilename
       character*255 full_filename1
       character*255 full_filename2
 
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+
+      omega = lattice_omega()
 
 *     *** synchronization ***
       call ga_sync()
@@ -419,6 +426,111 @@ c      end if
          close(unit=36)
          goto 999
       end if
+
+      call dcopy(4*nframes,0.0d0,0,dcpl_mb(vx(1)),1)
+      call dcopy(4*nframes,0.0d0,0,dcpl_mb(vy(1)),1)
+      call dcopy(4*nframes,0.0d0,0,dcpl_mb(vz(1)),1)
+     
+      !**** allocate dx,dy,dz ****
+      if (.not.BA_push_get(mt_dbl,nframes,'dx',dx(2),dx(1))) then
+         write(*,*) 'cpmd_properties: out of stack memory'
+         write(*,*) ' + dipole autocorrelation not performed'
+         value =           BA_pop_stack(vz(2))
+         value = value.and.BA_pop_stack(vy(2))
+         value = value.and.BA_pop_stack(vx(2))
+         if (.not. value) 
+     >    call errquit('cpmd_properties: cannot release stack memory',6,
+     >                 MA_ERR)
+         close(unit=36)
+         goto 999
+      end if
+      if (.not.BA_push_get(mt_dbl,nframes,'dy',dy(2),dy(1))) then
+         write(*,*) 'cpmd_properties: out of stack memory'
+         write(*,*) ' + dipole autocorrelation not performed'
+         value =           BA_pop_stack(dx(2))
+         value = value.and.BA_pop_stack(vz(2))
+         value = value.and.BA_pop_stack(vy(2))
+         value = value.and.BA_pop_stack(vx(2))
+         if (.not. value)
+     >    call errquit('cpmd_properties: cannot release stack memory',7,
+     >                 MA_ERR)
+         close(unit=36)
+         goto 999
+      end if
+      if (.not.BA_push_get(mt_dbl,nframes,'dz',dz(2),dz(1))) then
+         write(*,*) 'cpmd_properties: out of stack memory'
+         write(*,*) ' + dipole autocorrelation not performed'
+         value =           BA_pop_stack(dy(2))
+         value = value.and.BA_pop_stack(dx(2))
+         value = value.and.BA_pop_stack(vz(2))
+         value = value.and.BA_pop_stack(vy(2))
+         value = value.and.BA_pop_stack(vx(2))
+         if (.not. value)
+     >    call errquit('cpmd_properties: cannot release stack memory',8,
+     >                 MA_ERR)
+         close(unit=36)
+         goto 999
+      end if
+
+
+      time1   = 0.0d0
+      time2   = 0.0d0
+      sv1 = 0.0d0
+      sv2 = 0.0d0
+      sv3 = 0.0d0
+      do k=1,nframes
+        
+         time1    = time2
+         read(36,*) time2,v1,v2,v3
+         dbl_mb(dx(1)+(k-1)) = v1
+         dbl_mb(dy(1)+(k-1)) = v2
+         dbl_mb(dz(1)+(k-1)) = v3        
+         sv1 = sv1 + v1
+         sv2 = sv2 + v2
+         sv3 = sv3 + v3
+      end do
+      close(unit=36)
+      sv1 = sv1/dble(nframes)
+      sv2 = sv2/dble(nframes)
+      sv3 = sv3/dble(nframes)
+      do k=1,nframes
+         dbl_mb(dx(1)+k-1) = dbl_mb(dx(1)+k-1) - sv1
+         dbl_mb(dy(1)+k-1) = dbl_mb(dy(1)+k-1) - sv2
+         dbl_mb(dz(1)+k-1) = dbl_mb(dz(1)+k-1) - sv3
+      end do
+
+      !**** compute the dipole velocities ****
+      dt   = time2-time1
+      v1 = (dbl_mb(dx(1)+1) - dbl_mb(dx(1)))/(dt)
+      v2 = (dbl_mb(dy(1)+1) - dbl_mb(dy(1)))/(dt)
+      v3 = (dbl_mb(dz(1)+1) - dbl_mb(dz(1)))/(dt)
+      dcpl_mb(vx(1)) = dcmplx(v1,0.0d0)
+      dcpl_mb(vy(1)) = dcmplx(v2,0.0d0)
+      dcpl_mb(vz(1)) = dcmplx(v3,0.0d0)
+      do k=2,nframes-1
+         v1 = (dbl_mb(dx(1)+k) - dbl_mb(dx(1)+k-2))/(2.0d0*dt)
+         v2 = (dbl_mb(dy(1)+k) - dbl_mb(dy(1)+k-2))/(2.0d0*dt)
+         v3 = (dbl_mb(dz(1)+k) - dbl_mb(dz(1)+k-2))/(2.0d0*dt)
+         dcpl_mb(vx(1)+k-1) = dcmplx(v1,0.0d0)
+         dcpl_mb(vy(1)+k-1) = dcmplx(v2,0.0d0)
+         dcpl_mb(vz(1)+k-1) = dcmplx(v3,0.0d0)
+      end do
+      v1 = (dbl_mb(dx(1)+nframes-1) - dbl_mb(dx(1)+nframes-2))/(dt)
+      v2 = (dbl_mb(dy(1)+nframes-1) - dbl_mb(dy(1)+nframes-2))/(dt)
+      v3 = (dbl_mb(dz(1)+nframes-1) - dbl_mb(dz(1)+nframes-2))/(dt)
+      dcpl_mb(vx(1)+nframes-1) = dcmplx(v1,0.0d0)
+      dcpl_mb(vy(1)+nframes-1) = dcmplx(v2,0.0d0)
+      dcpl_mb(vz(1)+nframes-1) = dcmplx(v3,0.0d0)
+
+      !**** deallocate dx,dy,dz ****
+      value =           BA_pop_stack(dz(2))
+      value = value.and.BA_pop_stack(dy(2))
+      value = value.and.BA_pop_stack(dx(2))
+      if (.not. value)
+     > call errquit('cpmd_properties: cannot release stack memory',9,
+     >              MA_ERR)
+   
+      !**** allocate vt,vk,tfft ****
       if (.not.BA_push_get(mt_dcpl,2*nframes,'vt',vt(2),vt(1)))
      >   then
          write(*,*) 'cpmd_properties: out of stack memory'
@@ -426,7 +538,7 @@ c      end if
          value =           BA_pop_stack(vz(2))
          value = value.and.BA_pop_stack(vy(2))
          value = value.and.BA_pop_stack(vx(2))
-         if (.not. value) 
+         if (.not. value)
      >    call errquit('cpmd_properties: cannot release stack memory',3,
      >                 MA_ERR)
          close(unit=36)
@@ -440,7 +552,7 @@ c      end if
          value = value.and.BA_pop_stack(vz(2))
          value = value.and.BA_pop_stack(vy(2))
          value = value.and.BA_pop_stack(vx(2))
-         if (.not. value) 
+         if (.not. value)
      >    call errquit('cpmd_properties: cannot release stack memory',4,
      >                 MA_ERR)
          close(unit=36)
@@ -455,47 +567,17 @@ c      end if
          value = value.and.BA_pop_stack(vz(2))
          value = value.and.BA_pop_stack(vy(2))
          value = value.and.BA_pop_stack(vx(2))
-         if (.not. value) 
+         if (.not. value)
      >    call errquit('cpmd_properties: cannot release stack memory',5,
      >                 MA_ERR)
          close(unit=36)
          goto 999
       end if
-      
-
-      call dcopy(4*nframes,0.0d0,0,dcpl_mb(vx(1)),1)
-      call dcopy(4*nframes,0.0d0,0,dcpl_mb(vy(1)),1)
-      call dcopy(4*nframes,0.0d0,0,dcpl_mb(vz(1)),1)
       call dcopy(4*nframes,0.0d0,0,dcpl_mb(vt(1)),1)
       call dcopy(4*nframes, 0.0d0,0,dcpl_mb(vk(1)),1)
-     
-      time1   = 0.0d0
-      time2   = 0.0d0
-      sv1 = 0.0d0
-      sv2 = 0.0d0
-      sv3 = 0.0d0
-      do k=1,nframes
-        
-         time1    = time2
-         read(36,*) time2,v1,v2,v3
-         dcpl_mb(vx(1)+(k-1)) = v1
-         dcpl_mb(vy(1)+(k-1)) = v2
-         dcpl_mb(vz(1)+(k-1)) = v3        
-         sv1 = sv1 + v1
-         sv2 = sv2 + v2
-         sv3 = sv3 + v3
-      end do
-      close(unit=36)
-      sv1 = sv1/dble(nframes)
-      sv2 = sv2/dble(nframes)
-      sv3 = sv3/dble(nframes)
-      do k=1,nframes
-         dcpl_mb(vx(1)+k-1) = dcpl_mb(vx(1)+k-1) - sv1
-         dcpl_mb(vy(1)+k-1) = dcpl_mb(vy(1)+k-1) - sv2
-         dcpl_mb(vz(1)+k-1) = dcpl_mb(vz(1)+k-1) - sv3
-      end do
 
-      dt   = time2-time1
+
+
       write(6,*)
       write(6,*) 'frames used: ',nframes
       write(6,*) 'time interval (au)       : ', dt
@@ -562,17 +644,19 @@ c      end if
      >                      *dcpl_mb(vt(1)+nframes-k)
       end do
 
-      !*** scale the power spectrum ***
-      x = 0.0d0
-      do k=0,nframes/2
-        x = x + dble(dcpl_mb(vk(1)+k))
-      end do
-      if (x.gt.1.0d-12) then
-         x = 1.0d0/x 
-      else 
-         x = 1.0d0
-      end if
-      call dscal(4*nframes,x,dcpl_mb(vk(1)),1)
+c      !*** scale the power spectrum ***
+c      x = 0.0d0
+c      do k=0,nframes/2
+c        x = x + dble(dcpl_mb(vk(1)+k))
+c      end do
+c      if (x.gt.1.0d-12) then
+c         x = 1.0d0/x 
+c      else 
+c         x = 1.0d0
+c      end if
+c      call dscal(4*nframes,x,dcpl_mb(vk(1)),1)
+c      x = auTOsec*c
+c      call dscal(4*nframes,x,dcpl_mb(vk(1)),1)
 
       open(unit=36,file=full_filename2,form='formatted')
       do k=0,nframes/2
@@ -583,7 +667,9 @@ c      end if
             freq=0.0d0
          endif
          write(36,*) freq, dble(dcpl_mb(vk(1)+k)),
-     >                    dimag(dcpl_mb(vk(1)+k))
+     >                    dimag(dcpl_mb(vk(1)+k)),
+     >                     dble(dcpl_mb(vk(1)+k))*CAconv/omega,
+     >                    dimag(dcpl_mb(vk(1)+k))*CAconv/omega
       end do
       close(unit=36)
 

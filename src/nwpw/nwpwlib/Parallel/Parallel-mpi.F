@@ -1,5 +1,5 @@
 #define GA_DEV 1
-#define USE_SUBGROUP 1
+#define USE_SUBGROUPS 1
 *
 * $Id$
 *
@@ -1742,7 +1742,7 @@ c     implicit none
 
 *     ***********************************
 *     *                                 *
-*     *      Parallela_Brdcst_values     *
+*     *      Parallela_Brdcst_values    *
 *     *                                 *
 *     ***********************************
 

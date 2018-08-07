@@ -1,0 +1,342 @@
+c
+c     General implementation of VWN functionals
+c
+c     BGJ (4/00)
+*
+* $Id$
+*
+c     Meanings of macros used in constructing different VWN parameterizations
+c     The determining macro FNL_VWN_xxx is set in the .F file
+c
+c     VWN_NAME - name of subroutine
+c     USE_VWN_DEC - defined if VWN form for deltaEc(rs,zeta), Eq. 3.2, is used
+c     NEED_RPA_RS1 - defined if the RPA epsilon difference deltaERPA(rs,1) is
+c                    needed in addition to the Monte Carlo value deltaEc(rs,1)
+c     The following are determined based on how the above are set
+c     N_EPS - number of different parameterizations of epsilon involved
+c     BETA_SET_RS1 - governs which set of parameters to use for the epsilon
+c                    difference in beta in Eq. 3.2
+
+#if defined(FNL_VWN_1)
+#define VWN_NAME nwpwxc_c_vwn1
+#define VWN_NAME_D2 nwpwxc_c_vwn1_d2
+
+#elif defined(FNL_VWN_1_RPA)
+#define VWN_NAME nwpwxc_c_vwn1_rpa
+#define VWN_NAME_D2 nwpwxc_c_vwn1_rpa_d2
+
+#elif defined(FNL_VWN_2)
+#define VWN_NAME nwpwxc_c_vwn2
+#define VWN_NAME_D2 nwpwxc_c_vwn2_d2
+#define USE_VWN_DEC
+#define NEED_RPA_RS1
+
+#elif defined(FNL_VWN_3)
+#define VWN_NAME nwpwxc_c_vwn3
+#define VWN_NAME_D2 nwpwxc_c_vwn3_d2
+#define USE_VWN_DEC
+#define NEED_RPA_RS1
+
+#elif defined(FNL_VWN_4)
+#define VWN_NAME nwpwxc_c_vwn4
+#define VWN_NAME_D2 nwpwxc_c_vwn4_d2
+#define USE_VWN_DEC
+
+#elif defined(FNL_VWN_5)
+#define VWN_NAME nwpwxc_c_vwn5
+#define VWN_NAME_D2 nwpwxc_c_vwn5_d2
+#define USE_VWN_DEC
+#endif
+
+c     Set how many different parameterizations of epsilon are involved
+#ifndef USE_VWN_DEC
+#define N_EPS 2
+#else
+#ifndef NEED_RPA_RS1
+#define N_EPS 3
+#else
+#define N_EPS 5
+#endif
+#endif
+
+#ifdef USE_VWN_DEC
+c     Set which parameters to use for epsilon difference in beta(rs)
+#ifdef NEED_RPA_RS1
+#define BETA_SET_RS1 4
+#else
+#define BETA_SET_RS1 1
+#endif
+#endif
+
+#ifndef SECOND_DERIV
+      Subroutine VWN_NAME(tol_rho, ipol, nq, wght, 
+     &                    rho, func, Amat)
+#else
+c     Could not get concatenation operator to work with g77 preprocessor
+      Subroutine VWN_NAME_D2(tol_rho, ipol, nq, wght,
+     &                       rho, func, Amat, Amat2)
+#endif
+      implicit none
+#include "nwpwxc_param.fh"
+c
+      double precision tol_rho !< [Input] The lower limit on the density
+      integer ipol             !< [Input] The number of spin-channels
+      integer nq               !< [Input] The number of points
+      double precision wght    !< [Input] The weight of the functional
+c
+c     Charge Density
+c
+      double precision rho(nq,*) !< [Input] The density
+c
+c     The functional values
+c
+      double precision func(*) !< [Output] The value of the functional
+c
+c     Partial Derivatives of the Correlation Energy Functional
+c
+      double precision Amat(nq,*)  !< [Output] The derivative wrt rho
+#ifdef SECOND_DERIV
+      double precision Amat2(nq,*) !< [Output] The 2nd derivative wrt rho
+#endif
+c
+      double precision onethird, fourthirds, twothirds, pi
+      Parameter (onethird = 1.D0/3.D0, fourthirds = 4.D0/3.D0)
+      Parameter (twothirds = 2.D0/3.D0)
+c
+c     Functional Parameters
+c     1 = EcP - Monte Carlo
+c     2 = EcF - Monte Carlo
+c     3 = alpha - Monte Carlo
+c     4 = EcP - RPA
+c     5 = EcF - RPA
+c     6 = alpha - RPA
+c
+      double precision A(6), b(6), c(6), x0(6), Q(6),
+     &     ct1(6), ct2(6), ct3(6)
+      save A, b, c, x0, Q, ct1, ct2, ct3
+      data A / 0.0621814D0, 0.D0, 0.D0,
+     &         0.0621814D0, 0.D0, 0.D0 / ! see initialization below
+      data b / 3.72744D0, 7.06042D0, 1.13107D0,
+     &        13.0720D0, 20.1231D0, 1.06835D0 /
+      data c / 12.9352D0, 18.0578D0, 13.0045D0,
+     &         42.7198D0, 101.578D0, 11.4813D0 /
+      data x0 / -0.10498D0, -0.32500D0, -0.00475840D0,
+     &          -0.409286D0, -0.743294D0, -0.228344D0 /
+c
+      double precision e(5), d1e(5), rhoval, rs, d1rs, x, d1x,
+     &     rchi, d1chi, t1, t2, t3, d1t1, d1t2, d1t3, s, d1s,
+     &     d1zeta(2), d1ersz(2), d1edrho(2), zeta, fz, d1fz, eps,
+     &     dec_rs1, dec_rsz, d1dec_rs1, d1dec_rsz(2)
+      double precision d2fz0
+#ifdef NEED_RPA_RS1
+      double precision derpa_rs1, d1derpa_rs1
+#ifdef SECOND_DERIV
+      double precision d2derpa_rs1
+#endif
+#endif
+#ifdef USE_VWN_DEC
+      double precision devwn_rsz, d1devwn_rsz(2), zeta2, zeta3, zeta4,
+     &     beta_rs1, d1beta_rs1, t_vwn, d1t_vwn
+#ifdef SECOND_DERIV
+      double precision d2beta_rs1, d2t_vwn, d2devwn_rsz(3)
+#endif
+#endif
+#ifdef SECOND_DERIV
+      double precision d2rs, d2x, d2t1, d2t2, d2t3, d2s,
+     &     d2e(5), d2zeta(3), d2dec_rs1, d2dec_rsz(3),
+     &     d2ersz(3), d2edrho(3), d2fz, rrho2
+#endif
+      double precision p0, p1, p2, p3
+c
+      integer i, n, initial
+      save initial
+      data initial /1/
+c
+c     Define miscellaneous parameters.
+c
+      pi = dacos(-1.0d0)
+      p0 = (1.0d0/(fourthirds*pi))**onethird
+      p1 = 0.5D0/(2.d0**onethird - 1.d0)
+      p2 = fourthirds*p1
+      p3 = onethird*p2
+      d2fz0 = 2.d0*p3
+      if (initial.eq.1)then
+         initial = 0
+c
+c     Initialize data values that are expressions here
+c     instead of in data statement
+c
+         A(2) = 0.5D0*A(1)
+         A(3) = -1.D0/(3.D0*pi*pi)
+         A(5) = A(2)
+         A(6) = A(3)
+c
+         do i = 1, 6
+            Q(i) = sqrt(4.d0*c(i)-b(i)*b(i))
+            ct1(i) = A(i)
+            ct2(i) =-A(i)*b(i)*x0(i)/(x0(i)*x0(i)+b(i)*x0(i)+c(i))
+            ct3(i) = A(i)*(2.d0*b(i)/Q(i))
+     &           * ((c(i)-x0(i)*x0(i))/(x0(i)*x0(i)+b(i)*x0(i)+c(i)))
+c           Convert interpolation formulas from Rydberg to Hartree units
+            ct1(i) = 0.5D0*ct1(i)
+            ct2(i) = 0.5D0*ct2(i)
+            ct3(i) = 0.5D0*ct3(i)
+         enddo
+#if defined(FNL_VWN_1_RPA) || defined(FNL_VWN_5_RPA)
+c        Copy RPA over Monte Carlo for all parameters
+         call dcopy(3, A(4), 1, A(1), 1)
+         call dcopy(3, b(4), 1, b(1), 1)
+         call dcopy(3, c(4), 1, c(1), 1)
+         call dcopy(3, x0(4), 1, x0(1), 1)
+         call dcopy(3, Q(4), 1, Q(1), 1)
+         call dcopy(3, ct1(4), 1, ct1(1), 1)
+         call dcopy(3, ct2(4), 1, ct2(1), 1)
+         call dcopy(3, ct3(4), 1, ct3(1), 1)
+#endif
+c        The appropriate spin stiffness parameters are always assumed
+c        to be in slot 3 - these start out as the Monte Carlo values,
+c        so copy RPA values here when RPA is actually used for this
+#if defined(FNL_VWN_2) || defined(FNL_VWN_3) || defined(FNL_VWN_4)
+         A(3) = A(6)
+         b(3) = b(6)
+         c(3) = c(6)
+         x0(3) = x0(6)
+         Q(3) = Q(6)
+         ct1(3) = ct1(6)
+         ct2(3) = ct2(6)
+         ct3(3) = ct3(6)
+#endif
+      endif
+c
+c     ======> BOTH SPIN-RESTRICTED AND SPIN-UNRESTRICTED <======
+c
+      do 200 n = 1, nq
+         rhoval = rho(n,R_A)
+         if (ipol.eq.2) rhoval = rhoval + rho(n,R_B)
+c
+         if (rhoval.lt.tol_rho) goto 200
+c
+         if (rhoval.gt.tol_rho) then
+            rs = p0*rhoval**(-onethird)
+         else
+            rs=0d0
+         endif
+         d1rs = -onethird*rs/rhoval
+         x = sqrt(rs)
+         d1x = 0.5d0/x
+#ifdef SECOND_DERIV
+         d2rs = -fourthirds*d1rs/rhoval
+         d2x = -0.5d0*d1x/rs
+#endif
+c
+c        Evaluate the individual correlation energy formulas
+c
+         do i = 1, N_EPS
+            rchi = 1.0d0/(rs + b(i)*x + c(i))
+            d1chi = 2.0d0*x + b(i)
+            s = Q(i)/d1chi
+            d1s = -2.0d0*s/d1chi
+            t1 = log(abs(rs*rchi))
+            d1t1=(x - x0(i))*(x - x0(i))*rchi
+            t2 = log(abs(d1t1))
+            t3 = atan(s)
+            d1t1 = 2.0d0/x - d1chi*rchi
+            d1t2 = 2.0d0/(x-x0(i)) - d1chi*rchi
+            d1t3 = d1s/(1.0d0 + s*s)
+            e(i) = ct1(i)*t1 + ct2(i)*t2 + ct3(i)*t3
+            d1e(i) = ct1(i)*d1t1 + ct2(i)*d1t2 + ct3(i)*d1t3
+#ifdef SECOND_DERIV
+            d2s = -4.d0*d1s/d1chi
+            d2t1 =-2.0d0/rs + (d1chi*rchi)**2 - 2.d0*rchi
+            d2t2 =-2.0d0/(x-x0(i))**2 + (d1chi*rchi)**2 - 2.d0*rchi
+            d2t3 = (d2s - 2.d0*s*d1s*d1t3)/(1.0d0 + s*s)
+            d2e(i) = ct1(i)*d2t1 + ct2(i)*d2t2 + ct3(i)*d2t3
+#endif
+c
+c           Transform derivatives wrt x to derivatives wrt rs
+c
+#ifdef SECOND_DERIV
+c           Do 2nd derivative first so the x first derivative in d1e
+c           is not lost
+            d2e(i) = d2e(i)*d1x*d1x + d1e(i)*d2x
+#endif
+            d1e(i) = d1e(i)*d1x
+         enddo
+c
+c        Compute the polarization function and its derivatives
+c
+         if (ipol.eq.1) then
+            zeta = 0.0d0
+         else
+            zeta = (rho(n,R_A) - rho(n,R_B))/rhoval
+         endif
+         if (zeta.gt.1.d0)then
+            zeta = 1.d0
+         elseif (zeta.lt.-1.d0)then
+            zeta =-1.d0
+         endif
+         fz = ((1.d0+zeta)**fourthirds + 
+     &         (1.d0-zeta)**fourthirds - 2.d0)*p1
+         d1fz = ((1.d0+zeta)**onethird - 
+     &           (1.d0-zeta)**onethird)*p2
+         d1zeta(1) = (1.d0-zeta)/rhoval
+         d1zeta(2) =-(1.d0+zeta)/rhoval
+#ifdef SECOND_DERIV
+         if(dabs(zeta).lt.tol_rho) then
+            d2fz = d2fz0 
+         else
+            if (dabs(zeta+1.d0).le.tol_rho) then
+              d2fz = ((1.d0-zeta)**(-twothirds))*p3
+            else if (dabs(zeta-1.d0).le.tol_rho) then
+              d2fz = ((1.d0+zeta)**(-twothirds))*p3
+            else
+              d2fz = ((1.d0+zeta)**(-twothirds) +
+     &                (1.d0-zeta)**(-twothirds))*p3
+            endif
+         endif
+         rrho2 = 2.d0/(rhoval*rhoval)
+c        1 = aa, 2 = ab, 3 = bb
+         d2zeta(1) =-rrho2*(1.d0-zeta)
+         d2zeta(2) = rrho2*zeta
+         d2zeta(3) = rrho2*(1.d0+zeta)
+#endif
+c
+         dec_rs1 = e(2)-e(1)
+         d1dec_rs1 = d1e(2)-d1e(1)
+#ifdef SECOND_DERIV
+         d2dec_rs1 = d2e(2)-d2e(1)
+#endif
+#ifdef NEED_RPA_RS1
+         derpa_rs1 = e(5)-e(4)
+         d1derpa_rs1 = d1e(5)-d1e(4)
+#ifdef SECOND_DERIV
+         d2derpa_rs1 = d2e(5)-d2e(4)
+#endif
+#endif
+c
+#ifdef USE_VWN_DEC
+         beta_rs1 = e(BETA_SET_RS1+1)-e(BETA_SET_RS1)
+         d1beta_rs1 = d1e(BETA_SET_RS1+1)-d1e(BETA_SET_RS1)
+         zeta2 = zeta*zeta
+         zeta3 = zeta2*zeta
+         zeta4 = zeta3*zeta
+         t_vwn = d2fz0*beta_rs1-e(3)
+         d1t_vwn = d2fz0*d1beta_rs1-d1e(3)
+         devwn_rsz = fz/d2fz0*(e(3)+t_vwn*zeta4)
+         d1devwn_rsz(1) = fz/d2fz0*(d1e(3)+d1t_vwn*zeta4)
+         d1devwn_rsz(2) = d1fz/d2fz0*(e(3)+t_vwn*zeta4)
+     &        + fz/d2fz0*t_vwn*4.d0*zeta3
+#ifdef SECOND_DERIV
+         d2beta_rs1 = d2e(BETA_SET_RS1+1)-d2e(BETA_SET_RS1)
+         d2t_vwn = d2fz0*d2beta_rs1-d2e(3)
+         d2devwn_rsz(1) = fz/d2fz0*(d2e(3)+d2t_vwn*zeta4)
+         d2devwn_rsz(2) = d1fz/d2fz0*(d1e(3)+d1t_vwn*zeta4)
+     &        + fz/d2fz0*d1t_vwn*4.d0*zeta3
+         d2devwn_rsz(3) = d2fz/d2fz0*(e(3)+t_vwn*zeta4)
+     &        + d1fz/d2fz0*t_vwn*8.d0*zeta3
+     &        + fz/d2fz0*t_vwn*12.d0*zeta2
+#endif
+#endif
+c
+c --- Functional-dependent unrestricted part, deltaEc(rs,zeta),
+c --- goes in the .F file after inclusion of this header

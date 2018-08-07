@@ -6,18 +6,55 @@ c $Id$
 #include "mafdecls.fh"
       integer nmat,g_a(*),g_amirr(*)
       logical docopy, dozero
-      logical util_mirrclone
-      external util_mirrclone
+      logical util_mirrclone,util_mirrmat_chunk
+      external util_mirrclone,util_mirrmat_chunk
+c
+      integer maxdim
+      parameter(maxdim=10)
+      integer gnblock(maxdim)
+      integer type, dims(maxdim)
 c
       integer i,ii
+      integer ndim
       util_mirrmat=.false.
 #ifdef DISABLE_GAMIRROR
 #warning disabling gamirror
       return
 #endif
+      call nga_inquire(g_a, type, ndim, dims)
+      if(ndim.gt.maxdim) call errquit(
+     Q     ' mirrmat: increase maxdim  to ',ndim,0)
+c
+      do  i=1,maxdim
+         gnblock(i)=0
+      enddo
+      util_mirrmat=util_mirrmat_chunk(nmat,g_a,g_amirr,
+     D     docopy, dozero, gnblock)
+      return
+      end
+      logical function util_mirrmat_chunk(nmat,g_a,g_amirr,
+     D     docopy, dozero, gnblock)
+c $Id$
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+      integer nmat,g_a(*),g_amirr(*)
+      logical docopy, dozero
+      integer maxdim
+      integer gnblock(*)
+      logical util_mirrclone
+      external util_mirrclone
+c
+      integer i,ii
+      util_mirrmat_chunk=.false.
+#ifdef DISABLE_GAMIRROR
+#warning disabling gamirror
+      return
+#endif
+c
 c     need to add sanity check on docopy vs dozero
       do i=1,nmat
-         if(util_mirrclone(g_a(i),g_amirr(i))) then
+         if(util_mirrclone(g_a(i),g_amirr(i),gnblock)) then
             call ga_mask_sync(.true.,.false.)
             if(docopy) call ga_copy(g_a(i),g_amirr(i))
             if(dozero) call ga_zero(g_amirr(i))
@@ -30,10 +67,10 @@ c     need to add sanity check on docopy vs dozero
             return
          endif
       enddo
-      util_mirrmat=.true.
+      util_mirrmat_chunk=.true.
       return
       end
-      logical function util_mirrclone(g_a,g_amirr)
+      logical function util_mirrclone(g_a,g_amirr,gnblock)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -44,10 +81,6 @@ c
       integer gnblock(maxdim),plist
       character*32 array_name
       integer type, dims(maxdim),i,ndim
-c
-      do  i=1,maxdim
-         gnblock(i)=0
-      enddo
       plist=ga_pgroup_get_mirror()
       call nga_inquire(g_a, type, ndim, dims)
 #ifdef DEBUG

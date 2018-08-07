@@ -558,14 +558,14 @@ c      call D3dB_cr_mpfft3b(1,1,n,A)
 
 *     ****************************
 *     *                		 *
-*     *    	Grsm_hg_fftf 	 *
+*     *    	Grsm_hg_fftf0 	 *
 *     *                		 *
 *     ****************************
 *
 *     A = FFT[A]
 *     uses - D3dB_rc_fft3f,Pack_c_mpack
 
-      subroutine Grsm_hg_fftf(nfft3d,n,A)
+      subroutine Grsm_hg_fftf0(nfft3d,n,A)
       implicit none
       integer nfft3d,n
       complex*16 A(nfft3d,n)
@@ -579,6 +579,47 @@ c      call D3dB_cr_mpfft3b(1,1,n,A)
         call D3dB_rc_fft3f(1,A(1,k))
       end do
       call Pack_c_mpack(1,n,A)
+
+      return
+      end
+
+*     ****************************
+*     *                          *
+*     *         Grsm_hg_fftf     *
+*     *                          *
+*     ****************************
+*
+*     A = FFT[A]
+*     uses - D3dB_rc_pfft3_queue_filled,D3dB_rc_pfft3f_queuein,D3dB_rc_pfft3f_queueout
+
+      subroutine Grsm_hg_fftf(nfft3d,n,A)
+      implicit none
+      integer nfft3d,n
+      complex*16 A(nfft3d,n)
+
+*     **** local variables ****
+      logical done
+      integer k,indx1,indx2
+
+*     **** external functions ****
+      logical  D3dB_rc_pfft3_queue_filled
+      external D3dB_rc_pfft3_queue_filled
+
+      indx1=1
+      indx2=1
+      done = .false.
+      do while (.not.done)
+        if (indx1.le.n) then
+           call D3dB_rc_pfft3f_queuein(1,A(1,indx1))
+           indx1 = indx1 + 1
+        end if
+
+        if ((D3dB_rc_pfft3_queue_filled()).or.(indx1.gt.n)) then
+           call D3dB_rc_pfft3f_queueout(1,A(1,indx2))
+           indx2 = indx2 + 1
+        end if
+        done = ((indx1.gt.n).and.(indx2.gt.n))
+      end do
 
       return
       end

@@ -41,7 +41,7 @@
          end do
       end do
       call dgesv(n,n,a,lda,ipiv,b,ldb,info)
-      write(*,*) "info=",info
+      !write(*,*) "info=",info
       do j=1,n
          a(j,j) = b(j,j)
          do i=j+1,n

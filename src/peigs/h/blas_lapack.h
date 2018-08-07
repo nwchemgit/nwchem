@@ -415,3 +415,20 @@ peigs
 #define ga_sync_                 GA_SYNC
 
 #endif
+
+/* DLAMCH guesses when they are not set */
+#ifndef DLAMCHE
+#define DLAMCHE 2.2204460492503131e-16
+#endif
+#ifndef DLAMCHP
+#define DLAMCHP 2.2204460492503131e-16
+#endif
+#ifndef DLAMCHB
+#define DLAMCHB 2.0000000000000000e+00
+#endif
+#ifndef DLAMCHS
+#define DLAMCHS 2.2250738585072013e-308
+#endif
+#ifndef DLAMCHU
+#define DLAMCHU 2.2250738585072013e-308
+#endif

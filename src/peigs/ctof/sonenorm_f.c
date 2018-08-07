@@ -67,15 +67,11 @@ void sonenrm_( n, matrixA, mapA, norm, iwork, work, info)
        */
 {
   
-  Integer ll, k, i, j, *iscrat, *mapvecA, *mapvecB, *mapvecZ;
-  Integer nvecsA, nvecsB, nvecsZ;
+  Integer ll, k, i, *mapvecA;
+  Integer nvecsA;
   Integer me;
-  Integer nprocs, *proclist;
   
-  DoublePrecision t, derror;
-  DoublePrecision *ptr, *scrat;
-  DoublePrecision **vecZ1, **vecZ2;
-  DoublePrecision **buff_ptr, **ptrA, **ptrB, **ptrZ;
+  DoublePrecision **buff_ptr, **ptrA;
   
   extern Integer mxmynd_();
   
@@ -100,7 +96,6 @@ void sonenrm_( n, matrixA, mapA, norm, iwork, work, info)
   buff_ptr = (DoublePrecision **) work ;
   
   mapvecA = iwork;
-  iscrat = iwork;
   nvecsA = fil_mapvec_( &me, &ll, mapA, mapvecA);
   
   ptrA = buff_ptr;

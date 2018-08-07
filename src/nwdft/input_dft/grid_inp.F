@@ -26,6 +26,7 @@ c     coarse  = energy accuracy 1.d-5
 c     medium  = energy accuracy 1.d-6
 c     fine    = energy accuracy 1.d-7
 c     xfine   = energy accuracy 1.d-8
+c     huge    = energy accuracy 1.d-10
 c     user
 c     store_wght
 c     nquad_task
@@ -35,12 +36,14 @@ c
       double precision ddumm
       integer atn
       character*2 symbol
-      parameter (num_dirs = 25)
+      parameter (num_dirs = 26)
       character*10 dirs(num_dirs)
       character*16 test,element
+      logical aintgot_rad,aintgot_ang
       logical lbecke
       data dirs / 'delley', 'becke', 'gausleg', 'lebedev', 'xcoarse', 
-     &            'coarse', 'medium', 'fine', 'xfine', 'user', 
+     &     'coarse', 'medium', 'fine', 'xfine', 'user',
+     H     'huge',
 C     .            'euler','mura','treutler','lindh',
      .            'euler','mura','treutler','xxxx',
      .            'ssf','erf1','erf2',
@@ -62,7 +65,8 @@ c
          goto 10000
       endif
 c     
-      goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 
+      goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
+     H     1111,
      .     2001,2100,2200,2300,1700, 1800,1900,1100, 
      &      1200, 1300, 1400,1500, 1600, 1650,1660,1999) ind
       call errquit('grid_inp: unimplemented directive', ind,
@@ -210,6 +214,15 @@ c
 c
       goto 10
 c     
+c     
+c     huge; use huge grid definition
+c             
+ 1111 gridtype='huge'
+      if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
+     &   call errquit('grid_inp: rtdb_put failed', 900, RTDB_ERR)
+c
+      goto 10
+c     
 c     user; use user defined grid
 c             
  1000 gridtype='user'
@@ -347,25 +360,31 @@ c            if (.not. inp_a(tag)) goto 1688
 !     $     call errquit
 !     &    ('grid_inp: tag does not refer to an atom', 0)
       ngridin=ngridin+1
-clowercase
+c     lowercase
+cdbg      write(6,*) ' symbol ',symbol,'@@'
+      aintgot_ang=.true.
+      aintgot_rad=.true.
       call inp_lcase(test)
       grtagin(ngridin)=test
       if (.not. inp_i(nradpts)) then
          write(LuOut,*)' grid_inp: nradpts value not found. '
       else
+         aintgot_rad=.false.
          nradin(ngridin)=nradpts
       endif
 c
       if (.not. inp_i(iangquad)) then
          write(LuOut,*)' grid_inp: iangquad value not found. '
       else
+         aintgot_ang=.false.
          nangin(ngridin)=iangquad
       endif
+      if(aintgot_ang.and.aintgot_rad) goto 1688
       goto 10
  1688       write(LuOut,10001)
 10001 format(/,' grid [ [becke], [gausleg], 
      &       [lebedev ival ival], ',
-     &       /,' [xcoarse], [coarse], [medium], [fine], [xfine], ',
+     &       /,' [xcoarse],[coarse],[medium],[fine],[xfine],[huge], ',
      &       /,' [user ival ival], [store_wght], [nquad_task ival], ')
       call util_flush(LuOut)
       call errquit('grid_input: invalid format', 0, INPUT_ERR)

@@ -51,7 +51,7 @@ C     == Variables ==
       integer lvre, ivre, lvim, ivim
       double complex zval
 
-      call rt_tddft_cs_confirm (params)
+      call rt_tddft_cs_confirm (params,'rt_tddft_cs_tdfock.F')
      
       me = ga_nodeid()
       

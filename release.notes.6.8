@@ -1,0 +1,84 @@
+NWChem Version 6.8 Release Notes
+
+NWChem is now available on Github at
+https://github.com/nwchemgit/nwchem
+
+New User Manual wiki pages at
+https://github.com/nwchemgit/nwchem/wiki
+
+NWChem 6.8 is released as open-source under the ECL 2.0 license.
+
+NWChem 6.8 will be released with the latest Global Arrays Toolkit (v5.6.3).
+
+NEW FUNCTIONALITY 
+
+High accuracy
+
+    * Optimized four-index integral transfromation based on the loop-fusion algorithms
+    * Universal state selective formulations of  state-selective multi-reference coupled cluster 
+      formalisms: Brillouin-Wigner and Mukherjee MRCCSD approaches (diagonal USS(2) and perturbative USS(pt) methods)
+
+Gaussian basis DFT & TDDFT (linear-response and real-time)
+
+    * New HLE16 density functional
+    * van Wullen model potential approach for ZORA (and SO-ZORA) and relativistic properties
+    * Restarts for properties (hessian, magnetic properties) and TDDFT
+    * Higher-order multipoles for TDDFT oscillator strengths
+    * CD fitting enabled in the spin-orbit DFT code
+    * Solvation capabilities enabled in spin-orbit DFT code
+    * Real-time TDDFT excited-state density absorption 
+    * Molecular response properties and TDDFT spectra along the ground state trajectory with Gaussian basis AIMD 
+    * Valence-to-core X-ray emission spectroscopy (VtC-XES) with TDDFT
+    * NWXC module excluded from NWCHEM_MODULES=all
+
+Plane-wave DFT and dynamics
+    * Changed default compilation to use USE_MPIF=y and USE_MPIF4=y. To return to old defauls use set USE_MPIF=n and 
+      USE_MPIF4=n. 
+    * Upgraded all of the PSPW to use the OpenMP-MPI programming model.  Significant performance improvements seen on 
+      large core machines, especially KNL.
+    * Added Damle-Lin-Ying localization algorithm
+    * Added localized exact exchange algorithms for AIMD
+    * AIMD/MM lambda coupling parameter added that defines the strength of coupling between AIMD and MM.  Useful for 
+      calculating solvation energies.
+      
+Properties
+
+   * MoVIPac interface (contact Jochen Autschbach (SUNY, Buffalo))
+   * Added bondings constraint to the constraint module.  Useful constraint for mapping out basic chemical reactions.
+
+Enhancement
+
+   * improved parallelization for second derivative code
+   * improved Raman code
+   * improved ZORA properties code
+
+Output
+
+   * Molden format for exchanging wavefunctions
+
+
+Other
+
+    * All basis sets from BSE
+
+New Ports
+
+    * Linux Power8 (ppc64le)
+    * Intel KNL (USE_KNL=1)
+
+BUG FIXES 
+
+    * Cosmo Initialization
+    * removed some point groups previously recognized with Abelian symmetry
+    * M06 functional 
+    * Dplot
+    * stagnant condition in Driver when small eigenvalues are present
+    * Geometry Optimization
+    * argv() use in Global Arrays
+    * Raman displacement
+    * zgesvd wrapper
+    * GNU compilers version 6 and 7
+    * vdw code
+    * Intel compilers 2017 and 2018
+    * CDFT code
+    * error 'dft_3cincor: blew out of dbls'

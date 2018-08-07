@@ -85,9 +85,8 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
      >   call errquit(
      >   'pspw_2qmmm_init:failed reading nkfrag',0,RTDB_ERR)
 
-         value = BA_alloc_get(mt_int,3*ion_nion(),'fion2tmp',
+         value = BA_alloc_get(mt_dbl,3*ion_nion(),'fion2tmp',
      >                        fion2tmp(2),fion2tmp(1))
-
          value = BA_alloc_get(mt_int,nfrag,'index_nonfrag_start',
      >                        indx_frag_start(2),indx_frag_start(1))
          value = value.and.
@@ -1521,7 +1520,7 @@ c     **** external functions ***
          !dutask = mod(dutask+1,np)
       end do
 !$OMP END DO
-      call daxpy_omp(nion3,qmmm_lmbda,dbl_mb(fion2tmp(1)),fion)
+      call DAXPY_OMP(nion3,qmmm_lmbda,dbl_mb(fion2tmp(1)),1,fion,1)
 
       return
       end

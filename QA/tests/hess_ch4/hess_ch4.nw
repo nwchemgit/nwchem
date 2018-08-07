@@ -24,5 +24,6 @@ xc becke88 lyp
 end
 
 task dft optimize
+set hess:restart f
 task dft freq
 
