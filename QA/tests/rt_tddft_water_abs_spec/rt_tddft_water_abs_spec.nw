@@ -46,8 +46,8 @@
 
 title "Water TD Hartree-Fock absorption spectrum"
 echo
-scratch_dir ./scratch
-permanent_dir ./perm
+#scratch_dir ./scratch
+#permanent_dir ./perm
 
 start water
 
