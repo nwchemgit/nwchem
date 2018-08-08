@@ -87,9 +87,11 @@ c     Check if single differencing is requested
      &    numerical_single)) then
          numerical_single = .false.
       else
+         if (oprint) then
          write (6,*)
          write (6,*) 'Single differencing is requested'
          write (6,*)
+         end if
       endif
 c
       call util_print_get_level(print_level) ! Save for later
@@ -215,7 +217,7 @@ c     set no xyz options
       call ga_sync()
       ignore_status = rtdb_parallel(.false.)
       if ( whoiam .eq. master ) then
-        if (o_directions) then
+        if ((o_directions).and.(oprint)) then
           if (no_x) write(luout,*)' stpr_gen_hess_at: no X steps taken'
           if (no_y) write(luout,*)' stpr_gen_hess_at: no Y steps taken'
           if (no_z) write(luout,*)' stpr_gen_hess_at: no Z steps taken'
