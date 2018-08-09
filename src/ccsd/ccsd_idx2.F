@@ -129,7 +129,7 @@
          call qexit('idx2',0)
       endif
       return
-      end     
+      end
       subroutine ccsd_idx2(snsi,sisn,cmo,scra,scrb,lscr,
      &                     nfi,nfk,ncor,nocc,nact,nbf,
      &                     ilo,ihi,klo,khi,offik,offki,
