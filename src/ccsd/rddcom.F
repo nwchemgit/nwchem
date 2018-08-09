@@ -25,7 +25,8 @@ C
 c
 C     Print term switches if requested or if anything is non-standard
 C
-      call ga_sync()
+!      call ga_sync()
+      call ga_msg_sync()
       if ( (NonStd .OR. Util_Print('term debug switches', Print_Debug) )
      $   .AND. ga_nodeid().eq.0)then
          Write (LuOut, '(A)')
@@ -43,7 +44,8 @@ C
          write(LuOut,57)' dod  ',dod
    57 format(1x,a6,1x,15i2)
       endif
-      call ga_sync()
+!      call ga_sync()
+      call ga_msg_sync()
 c
       return
       end
