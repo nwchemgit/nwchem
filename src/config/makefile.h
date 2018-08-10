@@ -1277,7 +1277,7 @@ endif
 endif
 
 
-ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN INTERIX))
+ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
 #
 #
 # Linux or Cygwin under Windows running on an x86 using g77

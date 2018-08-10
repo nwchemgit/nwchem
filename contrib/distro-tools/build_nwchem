@@ -1743,12 +1743,6 @@ if [ ${#NWCHEM_OS} -eq 0 ] ; then
         # There is no CYGNUS64 target so set NWCHEM_TARGET here
         export NWCHEM_TARGET=${NWCHEM_OS}
       fi
-    elif [ `expr match ${NWCHEM_OS} INTERIX` != "0" ] ; then
-      export NWCHEM_OS=INTERIX
-      if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
-        # There is no INTERIX64 target so set NWCHEM_TARGET here
-        export NWCHEM_TARGET=${NWCHEM_OS}
-      fi
     fi
   fi
 fi
