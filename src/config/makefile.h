@@ -519,11 +519,6 @@ ifeq ($(TARGET),SGI_N32)
     @exit
 endif
 
-ifeq ($(TARGET),DECOSF)
-    @echo DEPRECATED
-    @exit
-endif
-
 ifeq ($(TARGET),HPUX)
 #
 # HPUX 11.0

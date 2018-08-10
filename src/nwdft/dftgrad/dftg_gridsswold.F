@@ -246,9 +246,9 @@ c
                            endif
                            if(mu.lt.0d0) sk=1d0-sk
                         else
-#if defined(SGI)|| defined (DECOSF) ||defined (WIN32)||defined(LINUX)||defined(CRAY)
+#if defined(SGI) || defined (WIN32) || defined(LINUX) || defined(CRAY)
                            sk=0.5d0*derfc(mu1)
-#else 
+#else
                            sk=0.5d0*erfc(mu1)
 #endif
                         endif

@@ -208,7 +208,7 @@ c
 c     Trap SIGFPE after GA to override handler
 c
 *****      call ieeetrap()
-#if defined(DECOSF) || defined(LINUXALPHA)
+#if defined(LINUXALPHA)
       call dec_fpe  ! To avoid underflow problems on Alpha in Texas
 #endif
 #ifdef CRAY_T3D

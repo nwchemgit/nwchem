@@ -438,7 +438,7 @@ OPTIMIZATION TIPS:
    nwchem uses 64-bit integers (i.e. integer*8) on 64-bit platforms,
    most of the vendors optimized BLAS libraries used 32-bit integers.
    BLAS libraries not supporting 64-bit integers: 
-   CXML (DECOSF), ESSL (LAPI64), MKL (LINUX64/ia64), ACML(LINUX64/x86_64),
+   ESSL (LAPI64), MKL (LINUX64/ia64), ACML(LINUX64/x86_64),
    Goto/Flame(LINUX64).
    A methods is now available to link against the libraries mentioned above;
    please do the following:

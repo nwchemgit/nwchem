@@ -31,10 +31,6 @@ else  if ($NWCHEM_TARGET == MACX64) then
     set nproc = `sysctl -n hw.ncpu`
     set memtot = `sysctl -n hw.memsize`
     @ memtot = ($memtot / 1024)
-else  if ($NWCHEM_TARGET == DECOSF) then
-  set nproc = `/usr/sbin/psrinfo | wc -l `
-  set memtot = ` /usr/bin/vmstat -P | egrep "Total Physical Memory ="| sed -e "s/Total Physical Memory =//"| sed -e "s/.00 M//"`
-  @ memtot = ($memtot * 1024)
 else  if ($NWCHEM_TARGET == SGI_N32 || $NWCHEM_TARGET == SGITFP ) then
   set a=`/sbin/hinv  -c processor|head -1`  
   set nproc=$a[1]

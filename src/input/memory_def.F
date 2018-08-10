@@ -117,9 +117,6 @@ C
 #elif defined(SGITFP)
 *     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sgitfp)
       Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
-#elif defined(DECOSF)
-*     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (decosf)
-      Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
 #elif defined(SGI) && ! defined(SGITFP)
 *     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sgi)
       Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 

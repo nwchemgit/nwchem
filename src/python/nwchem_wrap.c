@@ -2,9 +2,6 @@
  $Id$
 */
 #include <Python.h>
-#if defined(DECOSF)
-#include <alpha/varargs.h>
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

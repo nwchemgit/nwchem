@@ -36,12 +36,6 @@ if ($?NWCHEM_EXECUTABLE) then
   set NWCHEM = $NWCHEM_EXECUTABLE
   if (-e $NWCHEM) goto got_default_executable
 endif
-#rak#if ($?NWCHEM_TOP) then
-#rak##:debug:
-#rak#  echo "resolved from environment variable NWCHEM_TOP"
-#rak#  set NWCHEM = $NWCHEM_TOP/bin/DECOSF/nwchem
-#rak#  if (-e $NWCHEM) goto got_default_executable
-#rak#endif
 set NWCHEM = /usr/local/bin/nwchem
 if (! -e $NWCHEM) set NWCHEM = "no-default-available-for-nwchem"
 got_default_executable:

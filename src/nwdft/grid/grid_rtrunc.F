@@ -232,7 +232,7 @@ c     I(k) = [(k-1)*I(k-2) + r^(k-1)*exp(-alpha*r^2)]/(2*alpha)
 c
       integer i, ilo
       double precision value,valexp,dexpo
-#if defined(SGI) || defined(DECOSF) || defined(WIN32) ||defined(LINUX)
+#if defined(SGI) || defined(WIN32) ||defined(LINUX)
       double precision derfc
 #else
       double precision erfc
@@ -246,7 +246,7 @@ c
          if(dexpo.gt.40d0) then
             value=0d0
          else
-#if defined(SGI) || defined(DECOSF) || defined(WIN32) ||defined(LINUX)
+#if defined(SGI) || defined(WIN32) ||defined(LINUX)
             value = 0.5d0*sqrt(4.0d0*atan(1.0d0)/alpha)*
      $           derfc(dexpo)
 #else 
