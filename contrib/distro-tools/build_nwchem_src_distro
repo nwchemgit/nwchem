@@ -54,8 +54,6 @@ if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
       export NWCHEM_TARGET=CYGWIN
     elif [ `expr match ${NWCHEM_OS} CYGNUS` != "0" ] ; then
       export NWCHEM_TARGET=CYGNUS
-    elif [ `expr match ${NWCHEM_OS} INTERIX` != "0" ] ; then
-      export NWCHEM_TARGET=INTERIX
     else
       export NWCHEM_TARGET=LINUX64
     fi
