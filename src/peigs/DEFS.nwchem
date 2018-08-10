@@ -397,16 +397,6 @@ endif
 
 endif
 
-ifeq ($(peigs_TARGET),DECOSF)
-#alpha with /tcgmsg
-peigs_CPU  = ALPHA
-peigs_COMM = TCGMSG
-peigs_CPP = $(CPP) -D${CPU} -DSTD_DBL -P -DDECOSF
-peigs_CODEOBJ = DBLE
-peigs_CC  += -D${CPU} -DSTD_DBL -D_fastmath -O3 -DDECOSF
-peigs_FC += -O3 -D${CPU} -DSTD_DBL -D_fastmath -O3 -D$(peigs_COMM)
-endif
-
 ifeq ($(peigs_TARGET),LINUX)
 #
 # Linux running on an x86 using f77 on f2c

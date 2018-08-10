@@ -37,7 +37,7 @@
 
       INTEGER             NBYTEI, NBYTED
 
-#if defined(KSR) || defined(SGI) || defined(CRAY_T3E) || defined(DECOSF)|| defined(EXT_INT)
+#if defined(KSR) || defined(SGI) || defined(CRAY_T3E) || defined(EXT_INT)
       PARAMETER(          NBYTED = 8,
      $                    NBYTEI = 8 )
 #else
