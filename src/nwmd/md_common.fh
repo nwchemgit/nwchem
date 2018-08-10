@@ -125,7 +125,8 @@ c
      + urlow,hbdis1,hbdis2,hbang1,hbang2,verinp,shift0(6),shift1(6),
      + pmetol,drsscl,disrlx,rqmmm,frgaus,delta,dxmcg,rbox,ealpha,
      + xfvect(3),xffreq,xfield,drdf,uqmatm,fguide,tguide,factgf,factgg,
-     + fcoll,tmpext1,tmpext2,tann1,tann2,scaleq,rsgm,facpmf,rhop,thop
+     + fcoll,tmpext1,tmpext2,tann1,tann2,scaleq,rsgm,facpmf,rhop,thop,
+     + veloadj(3)
       integer nptopw,nptops,nptopt,npstep,npener,nptmng,npmemo,
      + ntype,mdtype,iset,mdordr,nserie,ipolt,mpolit,iswtch,mdstep,
      + kequi,mequi,kdacq,mdacq,npgdrv,npgdec,iffdrv,isaltb,maxlam,
@@ -149,7 +150,7 @@ c
      + irun,iequi,idacq,iguide,nopack,idscb(10),mbbreq,ioload,iprof,
      + isload,ncoll,ipopt,ilambd,mlambd,includ,iradgy,idifco,ndums,
      + ipbtyp,nfnewf,ibatch,icmopt,imembr,icrit,nbget,nprec,nfload,
-     + inp_ptr
+     + inp_ptr,ivelatm(2)
       common/md_inp/ptol,rshort,rlong,stime,tstep,elam,ddacq,edacq,
      + fdacq,weight,facapp,dgscl,dgref,ddgscl,ssshft,dx0sd,dxmsd,
      + dxsdmx,dx0cg,dxcgmx,tlwsha,tlssha,rrdf,rdip,rkirk,prsext,prsrlx,
@@ -158,6 +159,7 @@ c
      + pmetol,drsscl,disrlx,rqmmm,frgaus,delta,dxmcg,rbox,ealpha,
      + xfvect,xffreq,xfield,drdf,uqmatm,fguide,tguide,factgf,factgg,
      + fcoll,tmpext1,tmpext2,tann1,tann2,scaleq,rsgm,facpmf,rhop,thop,
+     + veloadj,ivelatm,
      + nptopw,nptops,nptopt,npstep,npener,nptmng,npmemo,
      + ntype,mdtype,iset,mdordr,nserie,ipolt,mpolit,iswtch,mdstep,
      + kequi,mequi,kdacq,mdacq,npgdrv,npgdec,iffdrv,isaltb,maxlam,

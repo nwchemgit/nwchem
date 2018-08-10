@@ -87,7 +87,7 @@ c
       endif
       endif
 c
- 2002 format(/,'Renamed ',a3,i3.3,x,a)
+ 2002 format('Renamed ',a3,i3.3,x,a)
 c
 c     ALA  HN  ->  H 
 c          HB1 -> 2HB
@@ -798,10 +798,17 @@ c
 c
 c     PRO  HB1 -> 2HB
 c          HB2 -> 3HB
+c          HB3 -> 2HB
 c          HG1 -> 2HG
 c          HG2 -> 3HG
+c          HG3 -> 2HG
 c          HD1 -> 2HD
 c          HD2 -> 3HD
+c          HD3 -> 2HD
+c
+c     Some PDB files list HB1, HB2, some list HB2, HB3, ultimately both
+c     cases need to map to 2HB, 3HB. Hence the funky mapping of HB1,
+c     HB2, and HB3.
 c
       cres='PRO'
       do 17 i=1,natm
@@ -818,6 +825,12 @@ c
       write(lfnout,2002) cres,latm(1,i),'HB2 to 3HB'
       endif
       endif
+      if(catm(2,i)(1:4).eq.' HB3') then
+      catm(2,i)(1:4)='2HB '
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),'HB3 to 2HB'
+      endif
+      endif
       if(catm(2,i)(1:4).eq.' HG1') then
       catm(2,i)(1:4)='2HG '
       if(util_print('sequence',print_high)) then
@@ -830,6 +843,12 @@ c
       write(lfnout,2002) cres,latm(1,i),'HG2 to 3HG'
       endif
       endif
+      if(catm(2,i)(1:4).eq.' HG3') then
+      catm(2,i)(1:4)='2HG '
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),'HG3 to 2HG'
+      endif
+      endif
       if(catm(2,i)(1:4).eq.' HD1') then
       catm(2,i)(1:4)='2HD '
       if(util_print('sequence',print_high)) then
@@ -840,6 +859,12 @@ c
       catm(2,i)(1:4)='3HD '
       if(util_print('sequence',print_high)) then
       write(lfnout,2002) cres,latm(1,i),'HD2 to 3HD'
+      endif
+      endif
+      if(catm(2,i)(1:4).eq.' HD3') then
+      catm(2,i)(1:4)='2HD '
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),'HD3 to 2HD'
       endif
       endif
       endif
@@ -1027,13 +1052,497 @@ c
       endif
    22 continue
 c
+c     DA   O3' ->  O3*
+c          O5' ->  O5*
+c          C5' ->  C5*
+c          H5' -> 2H5*
+c         H5'' -> 3H5*
+c          C4' ->  C4*
+c          H4' ->  H4*
+c          O4' ->  O4*
+c          C1' ->  C1*
+c          H1' ->  H1*
+c          C3' ->  C3*
+c          H3' ->  H3*
+c          C2' ->  C2*
+c          H2' -> 2H2*
+c         H2'' -> 3H2*
+c
+      cres='DA'
+      do 23 i=1,natm
+      if(cseq(1,latm(1,i))(1:3).eq.'DA '.or.
+     +   cseq(1,latm(1,i))(1:3).eq.'DA3'.or.
+     +   cseq(1,latm(1,i))(1:3).eq.'DA5') then
+      if(catm(2,i)(1:4).eq." O3'") then
+      catm(2,i)(1:4)=' O3*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"O3' to O3*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." O5'") then
+      catm(2,i)(1:4)=' O5*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"O5' to O5*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C5'") then
+      catm(2,i)(1:4)=' C5*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C5' to C5*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H5'") then
+      catm(2,i)(1:4)='2H5*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H5' to 2H5*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq."H5''") then
+      catm(2,i)(1:4)='3H5*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H5'' to 3H5*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C4'") then
+      catm(2,i)(1:4)=' C4*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C4' to C4*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H4'") then
+      catm(2,i)(1:4)=' H4*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H4' to H4*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." O4'") then
+      catm(2,i)(1:4)=' O4*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"O4' to O4*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C1'") then
+      catm(2,i)(1:4)=' C1*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C1' to C1*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H1'") then
+      catm(2,i)(1:4)=' H1*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H1' to H1*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C3'") then
+      catm(2,i)(1:4)=' C3*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C3' to C3*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H3'") then
+      catm(2,i)(1:4)=' H3*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H3' to H3*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C2'") then
+      catm(2,i)(1:4)=' C2*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C2' to C2*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H2'") then
+      catm(2,i)(1:4)='2H2*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H2' to 2H2*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq."H2''") then
+      catm(2,i)(1:4)='3H2*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H2'' to 3H2*"
+      endif
+      endif
+      endif
+   23 continue
+c
+c     DT   O3' ->  O3*
+c          O5' ->  O5*
+c          C5' ->  C5*
+c          H5' -> 2H5*
+c         H5'' -> 3H5*
+c          C7  ->  C5M
+c          H71 -> 2H5M
+c          H72 -> 3H5M
+c          H73 -> 4H5M
+c          C4' ->  C4*
+c          H4' ->  H4*
+c          O4' ->  O4*
+c          C1' ->  C1*
+c          H1' ->  H1*
+c          C3' ->  C3*
+c          H3' ->  H3*
+c          C2' ->  C2*
+c          H2' -> 2H2*
+c         H2'' -> 3H2*
+c
+      cres='DT'
+      do 24 i=1,natm
+      if(cseq(1,latm(1,i))(1:3).eq.'DT '.or.
+     +   cseq(1,latm(1,i))(1:3).eq.'DT3'.or.
+     +   cseq(1,latm(1,i))(1:3).eq.'DT5') then
+      if(catm(2,i)(1:4).eq." O3'") then
+      catm(2,i)(1:4)=' O3*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"O3' to O3*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." O5'") then
+      catm(2,i)(1:4)=' O5*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"O5' to O5*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C5'") then
+      catm(2,i)(1:4)=' C5*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C5' to C5*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H5'") then
+      catm(2,i)(1:4)='2H5*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H5' to 2H5*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq."H5''") then
+      catm(2,i)(1:4)='3H5*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H5'' to 3H5*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C7 ") then
+      catm(2,i)(1:4)=' C5M'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C7  to C5M"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H71") then
+      catm(2,i)(1:4)='2H5M'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H71 to 2C5M"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H72") then
+      catm(2,i)(1:4)='3H5M'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H72 to 3C5M"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H73") then
+      catm(2,i)(1:4)='4H5M'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H73 to 4C5M"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C4'") then
+      catm(2,i)(1:4)=' C4*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C4' to C4*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H4'") then
+      catm(2,i)(1:4)=' H4*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H4' to H4*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." O4'") then
+      catm(2,i)(1:4)=' O4*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"O4' to O4*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C1'") then
+      catm(2,i)(1:4)=' C1*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C1' to C1*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H1'") then
+      catm(2,i)(1:4)=' H1*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H1' to H1*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C3'") then
+      catm(2,i)(1:4)=' C3*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C3' to C3*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H3'") then
+      catm(2,i)(1:4)=' H3*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H3' to H3*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C2'") then
+      catm(2,i)(1:4)=' C2*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C2' to C2*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H2'") then
+      catm(2,i)(1:4)='2H2*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H2' to 2H2*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq."H2''") then
+      catm(2,i)(1:4)='3H2*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H2'' to 3H2*"
+      endif
+      endif
+      endif
+   24 continue
+c
+c     DC   O3' ->  O3*
+c          O5' ->  O5*
+c          C5' ->  C5*
+c          H5' -> 2H5*
+c         H5'' -> 3H5*
+c          C4' ->  C4*
+c          H4' ->  H4*
+c          O4' ->  O4*
+c          C1' ->  C1*
+c          H1' ->  H1*
+c          C3' ->  C3*
+c          H3' ->  H3*
+c          C2' ->  C2*
+c          H2' -> 2H2*
+c         H2'' -> 3H2*
+c
+      cres='DC'
+      do 25 i=1,natm
+      if(cseq(1,latm(1,i))(1:3).eq.'DC '.or.
+     +   cseq(1,latm(1,i))(1:3).eq.'DC3'.or.
+     +   cseq(1,latm(1,i))(1:3).eq.'DC5') then
+      if(catm(2,i)(1:4).eq." O3'") then
+      catm(2,i)(1:4)=' O3*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"O3' to O3*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." O5'") then
+      catm(2,i)(1:4)=' O5*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"O5' to O5*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C5'") then
+      catm(2,i)(1:4)=' C5*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C5' to C5*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H5'") then
+      catm(2,i)(1:4)='2H5*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H5' to 2H5*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq."H5''") then
+      catm(2,i)(1:4)='3H5*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H5'' to 3H5*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C4'") then
+      catm(2,i)(1:4)=' C4*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C4' to C4*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H4'") then
+      catm(2,i)(1:4)=' H4*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H4' to H4*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." O4'") then
+      catm(2,i)(1:4)=' O4*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"O4' to O4*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C1'") then
+      catm(2,i)(1:4)=' C1*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C1' to C1*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H1'") then
+      catm(2,i)(1:4)=' H1*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H1' to H1*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C3'") then
+      catm(2,i)(1:4)=' C3*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C3' to C3*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H3'") then
+      catm(2,i)(1:4)=' H3*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H3' to H3*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C2'") then
+      catm(2,i)(1:4)=' C2*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C2' to C2*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H2'") then
+      catm(2,i)(1:4)='2H2*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H2' to 2H2*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq."H2''") then
+      catm(2,i)(1:4)='3H2*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H2'' to 3H2*"
+      endif
+      endif
+      endif
+   25 continue
+c
+c     DG   O3' ->  O3*
+c          O5' ->  O5*
+c          C5' ->  C5*
+c          H5' -> 2H5*
+c         H5'' -> 3H5*
+c          C4' ->  C4*
+c          H4' ->  H4*
+c          O4' ->  O4*
+c          C1' ->  C1*
+c          H1' ->  H1*
+c          C3' ->  C3*
+c          H3' ->  H3*
+c          C2' ->  C2*
+c          H2' -> 2H2*
+c         H2'' -> 3H2*
+c
+      cres='DG'
+      do 26 i=1,natm
+      if(cseq(1,latm(1,i))(1:3).eq.'DG '.or.
+     +   cseq(1,latm(1,i))(1:3).eq.'DG3'.or.
+     +   cseq(1,latm(1,i))(1:3).eq.'DG5') then
+      if(catm(2,i)(1:4).eq." O3'") then
+      catm(2,i)(1:4)=' O3*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"O3' to O3*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." O5'") then
+      catm(2,i)(1:4)=' O5*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"O5' to O5*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C5'") then
+      catm(2,i)(1:4)=' C5*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C5' to C5*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H5'") then
+      catm(2,i)(1:4)='2H5*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H5' to 2H5*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq."H5''") then
+      catm(2,i)(1:4)='3H5*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H5'' to 3H5*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C4'") then
+      catm(2,i)(1:4)=' C4*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C4' to C4*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H4'") then
+      catm(2,i)(1:4)=' H4*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H4' to H4*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." O4'") then
+      catm(2,i)(1:4)=' O4*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"O4' to O4*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C1'") then
+      catm(2,i)(1:4)=' C1*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C1' to C1*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H1'") then
+      catm(2,i)(1:4)=' H1*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H1' to H1*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C3'") then
+      catm(2,i)(1:4)=' C3*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C3' to C3*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H3'") then
+      catm(2,i)(1:4)=' H3*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H3' to H3*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." C2'") then
+      catm(2,i)(1:4)=' C2*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"C2' to C2*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq." H2'") then
+      catm(2,i)(1:4)='2H2*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H2' to 2H2*"
+      endif
+      endif
+      if(catm(2,i)(1:4).eq."H2''") then
+      catm(2,i)(1:4)='3H2*'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2002) cres,latm(1,i),"H2'' to 3H2*"
+      endif
+      endif
+      endif
+   26 continue
+c
 c     Fix N-terminal hydrogens
 c
 c     XAA  HT1 -> 2H
 c          HT2 -> 3H
 c          HT3 -> 4H
 c
-      do 23 i=1,natm
+      do 27 i=1,natm
       cres = cseq(1,latm(1,i))(1:3)
       if(pre_protein(cseq(1,latm(1,i)))) then
       if(catm(2,i)(1:4).eq.' HT1') then
@@ -1055,14 +1564,14 @@ c
       endif
       endif
       endif
-   23 continue
+   27 continue
 c
 c     Fix C-terminal oxygens
 c
 c     XAA  OT1 ->  O
 c          OT2 ->  OXT
 c
-      do 24 i=1,natm
+      do 28 i=1,natm
       cres = cseq(1,latm(1,i))(1:3)
       if(pre_protein(cseq(1,latm(1,i)))) then
       if(catm(2,i)(1:4).eq.' OT1') then
@@ -1078,9 +1587,9 @@ c
       endif
       endif
       endif
-   24 continue
+   28 continue
 c
-      do 25 i=1,natm
+      do 29 i=1,natm
       if(latm(2,i).le.0) latm(2,i)=pre_atnum(catm(2,i)(1:2))
       if(latm(2,i).eq.0) then
       elemnt(1:1)=' '
@@ -1091,7 +1600,7 @@ c
  2004 format(/,'Unrecognized element in segment ',i4)
       endif
       endif
-   25 continue
+   29 continue
 c
       pre_namiup=.true.
 c
