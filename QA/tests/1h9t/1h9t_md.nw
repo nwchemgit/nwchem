@@ -1,0 +1,28 @@
+echo
+start md_dat
+
+prepare
+  system 1h9t_md
+  new_rst
+  new_top new_seq
+  source start_md_neutral.pdb
+  #solvent name HOH model spce
+  #solvate
+  vacuo
+end
+
+#task prepare
+
+md
+  msa 10000
+  system 1h9t_md
+  leapfrog
+  step 0.002 equil 0 data 2000
+  #isotherm 298.15 trelax 0.1
+  isobar
+  print step 1
+  record coord 1 ascii
+  veladj 7715 8958 0.0  2.0 0.0
+end
+
+task md dynamics

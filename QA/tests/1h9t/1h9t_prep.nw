@@ -1,0 +1,15 @@
+echo
+start md_dat
+
+prepare
+  print sequence
+  system 1h9t_md
+  new_rst
+  new_top new_seq
+  source start_md_neutral.pdb
+  #solvent name HOH model spce
+  #solvate 
+  vacuo
+end
+
+task prepare
