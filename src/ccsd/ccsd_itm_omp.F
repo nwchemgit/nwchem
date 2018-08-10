@@ -237,12 +237,6 @@
       enddo
 !$omp end do
 !
-#if 0
-!$omp single
-      if (iprt.gt.5.and.iam.eq.0)print *,'forming aitm'
-!$omp end single
-#endif
-!
 !$omp do collapse(2) schedule(static)
       do k=1,nocc
         do l=1,nocc
@@ -1045,51 +1039,6 @@
      &    call errquit('ga_dest g_tmt fail',0, GA_ERR)
       call ga_sync()
 !
-#if 0
-!
-! There is absolutely no good reason to use NXTVAL to
-! load-balance such a trivial loop...
-!
-! term s1 n**3
-      inode=-1
-      next=nxtask(nodes, 1)
-      do a=1,nvir
-       do b=1,nvir
-        inode=inode+1
-        if (inode.eq.next)then
-         if (dos(1).ne.0)then
-          do k=1,nocc
-            ht1(k,b) = ht1(k,b) + habe(b,a) * t1(k,a)
-          enddo
-         endif
-!$omp critical
-         next=nxtask(nodes, 1)
-!$omp end critical
-        endif
-       enddo
-      enddo
-      call ga_sync()
-!
-      inode=-1
-      next=nxtask(-nodes, 1)
-      call ga_sync()
-! -- add some trivial terms to ht1 (nothing to ht2)
-! term s2 n**3
-      do a=1,nvir
-       do i=1,nocc
-        inode=inode+1
-        if (mod(inode,nodes).eq.iam)then
-         if (dos(2).ne.0)then
-          temp = 0.0d0
-          do k=1,nocc
-            temp = temp + hiu(k,i) * t1(k,a)
-          enddo
-          ht1(i,a) = ht1(i,a) - temp
-         endif
-        endif
-       enddo
-      enddo
-#else
 ! -- add some trivial terms to ht1 (nothing to ht2)
 ! term s1 n**3
       if (iam.eq.0) then
@@ -1138,7 +1087,6 @@
         endif ! dos(2)
       endif ! iam.eq.0
       call ga_sync()
-#endif
       call ga_dgop(msg_cc_term6,ht1,lnov, '+')
       !
       deallocate( bufa, stat=alloc_error)
