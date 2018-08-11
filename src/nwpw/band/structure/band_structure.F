@@ -1169,7 +1169,7 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
  1258 FORMAT(5x,' number of k-points is very large')
 
  1260 FORMAT(5X,' Ewald summation: cut radius=',F8.2,'  and',I3)
- 1261 FORMAT(5X,'                   madelung=',f11.8)
+ 1261 FORMAT(5X,'                   madelung=',f14.8)
  
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
