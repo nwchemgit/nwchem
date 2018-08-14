@@ -48,37 +48,37 @@ c a alpha and j beta exchange
 c alpha excitation bra
                la2=0
                do ja2=nfc(1)+1,nocc(1)
+                  if (ja1.eq.ja2) then
                   do ka2=nocc(1)+1,nmo(1)-nfv(1)
 cold                     la2=la2+1
                      la2=
      I               (ja2-nfc(1)-1)*(nmo(1)-nfv(1)-nocc(1))+ka2-nocc(1)
                      
-                     if (ja1.eq.ja2) then
                         xa2= x1(la2) !dbl_mb(k_x(1)+la2-1)
                         ya2=0.0d0
                         if (.not.tda) ya2= y1(la2) !dbl_mb(k_y(1)+la2-1)
                         rc1=corr((jb1-1)*nmo(1)+ka2)     !dbl_mb(k_corr+(jb1-1)*nmo(1)+ka2-1)
                         rc2=corr((jb1-1)*nmo(1)+ka1)     !dbl_mb(k_corr+(jb1-1)*nmo(1)+ka1-1)
                         s2=s2-(xa2-ya2)*(xa1+ya1)*rc1*rc2
-                      endif
                   enddo
+                  endif
                enddo
 c beta excitation bra
                lb2=0
                do jb2=nfc(2)+1,nocc(2)
+                  if (jb1.eq.jb2) then
                   do kb2=nocc(2)+1,nmo(2)-nfv(2)
 cold                    lb2=lb2+1
                      lb2=
      I              (jb2-nfc(2)-1)*(nmo(2)-nfv(2)-nocc(2))+kb2-nocc(2)
-                     if (jb1.eq.jb2) then
                         xb2=x2(lb2)  !dbl_mb(k_x(2)+lb2-1)
                         yb2=0.0d0
                         if (.not.tda) yb2=y2(lb2) !dbl_mb(k_y(2)+lb2-1)
                         rc1=corr((jb2-1)*nmo(1)+ja1)  !dbl_mb(k_corr+(jb2-1)*nmo(1)+ja1-1)
                         rc2=corr((kb2-1)*nmo(1)+ka1)  !dbl_mb(k_corr+(kb2-1)*nmo(1)+ka1-1)
                         s2=s2-(xb2-yb2)*(xa1+ya1)*rc1*rc2
-                     endif
                   enddo
+                  endif
                enddo
             enddo
 c i alpha and j beta exchange
@@ -113,36 +113,36 @@ c i alpha and b beta exchange
 c beta excitation bra
                   lb2=0
                   do jb2=nfc(2)+1,nocc(2)
+                    if (jb1.eq.jb2) then
                     do kb2=nocc(2)+1,nmo(2)-nfv(2)
 cold                       lb2=lb2+1
                        lb2=
      I            (jb2-nfc(2)-1)*(nmo(2)-nfv(2)-nocc(2))+kb2-nocc(2)
-                       if (jb1.eq.jb2) then
                         xb2=x2(lb2) !dbl_mb(k_x(2)+lb2-1)
                         yb2=0.0d0
                         if (.not.tda) yb2=y2(lb2) !dbl_mb(k_y(2)+lb2-1)
                         rc1=corr((kb1-1)*nmo(1)+ja1)  !dbl_mb(k_corr+(kb1-1)*nmo(1)+ja1-1)
                         rc2=corr((kb2-1)*nmo(1)+ja1)  !dbl_mb(k_corr+(kb2-1)*nmo(1)+ja1-1)
                         s2=s2-(xb2-yb2)*(xb1+yb1)*rc1*rc2
-                      endif
                     enddo
+                    endif
                   enddo
 c alpha excitation bra
                   la2=0
                   do ja2=nfc(1)+1,nocc(1)
+                    if (ja1.eq.ja2) then
                     do ka2=nocc(1)+1,nmo(1)-nfv(1)
 cold                      la2=la2+1
                        la2=
      I                (ja2-nfc(1)-1)*(nmo(1)-nfv(1)-nocc(1))+ka2-nocc(1)
-                       if (ja1.eq.ja2) then
                         xa2=x1(la2) !dbl_mb(k_x(1)+la2-1)
                         ya2=0.0d0
                         if (.not.tda) ya2=y1(la2)!dbl_mb(k_y(1)+la2-1)
                         rc1=corr((jb1-1)*nmo(1)+ja2)   !dbl_mb(k_corr+(jb1-1)*nmo(1)+ja2-1)
                         rc2=corr((kb1-1)*nmo(1)+ka2)   !dbl_mb(k_corr+(kb1-1)*nmo(1)+ka2-1)
                         s2=s2-(xa2-ya2)*(xb1+yb1)*rc1*rc2
-                      endif
                     enddo
+                    endif
                   enddo
                 enddo
 c i alpha and j beta exchange
