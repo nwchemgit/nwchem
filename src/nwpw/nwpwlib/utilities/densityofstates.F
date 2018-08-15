@@ -274,12 +274,12 @@ c
 *    (c1*amp(e,1) + c2*amp(e,2) + ...)**2
 *
       subroutine amplitudesofstates(filename,
-     >                           eigs,amplitude,neigs,l,
+     >                           eigs,amplitude,neigs,
      >                           alpha,npoints,emin,emax)
       implicit none
       character*(*) filename
-      real*8 eigs(*),amplitude(neigs,2*l+1)
-      integer neigs,l
+      real*8 eigs(*),amplitude(36,neigs)
+      integer neigs
       real*8 alpha
       integer npoints
       real*8 emin,emax
@@ -294,7 +294,7 @@ c
       parameter (MASTER=0)
 
       integer j,n,m,ll
-      real*8  f(25),e,de,sf
+      real*8  f(36),e,de,sf
       character*255 full_filename,prefilename
 
       integer  control_rtdb
@@ -326,16 +326,16 @@ c
          do j=1,npoints
               e = emin + (j-1)*de
 
-              do m=1,2*l+1
+              do m=1,36
                  f(m)=0.0d0
                  do n=1,neigs
-                    f(m) = f(m) + amplitude(n,m)
+                    f(m) = f(m) + amplitude(m,n)
      >                           /dsqrt((e-eigs(n))**2 + alpha**2)
                  end do
                  f(m) = sf*f(m)
               end do
 
-              write(19,1310) e,(f(m),m=1,2*l+1)
+              write(19,1310) e,(f(m),m=1,36)
          end do
          close(19)
          
