@@ -836,7 +836,6 @@ c              END DO
      >      call errquit(
      >       'analysis: ma_get_index failed for nwpw:dos:orb:coef',912,
      >       MA_ERR)
-             write(*,*) "HERA"
              !*** normalize coef ***
              ttl1 = 0.0
              do i=1,naos
@@ -860,7 +859,7 @@ c              END DO
                   DO N=N1(SPIN),N2(SPIN)
                      call dgemm('N','N',2,1,naos,
      >                       1.0d0,
-     >                       dbl_mb(A(1)+(N-1)*36+(I-1)*36*nemax),2,
+     >                       dcpl_mb(a(1)+(N-1)*36+(I-1)*36*nemax),2,
      >                       dbl_mb(coef(1)),naos,
      >                       0.0d0,
      >                       w,2)
@@ -876,7 +875,7 @@ c              END DO
                   DO N=N1(SPIN),N2(SPIN)
                      call dgemm('N','N',2,1,naos,
      >                       1.0d0,
-     >                       dbl_mb(A(1)+(N-1)*36+(I-1)*36*nemax),2,
+     >                       dcpl_mb(a(1)+(N-1)*36+(I-1)*36*nemax),2,
      >                       dbl_mb(coef(1)),naos,
      >                       0.0d0,
      >                       w,2)
@@ -917,16 +916,16 @@ c
             end if
             if (ispin.eq.2) then
               if (flag.eq.0) 
-     >           filename= "mulliken_fdos_alpha"//c_index_name(k)
+     >           filename= "mulliken_fdos_alpha_orb"//c_index_name(k)
               if (flag.eq.1) 
-     >           filename= "mulliken_vdos_alpha"//c_index_name(k)
+     >           filename= "mulliken_vdos_alpha_orb"//c_index_name(k)
               call writedensityofstates(filename,
      >                     1.0d0,alpha,npoints,emin,emax,
      >                     dbl_mb(dstates(1)))
               if (flag.eq.0) 
-     >           filename = "mulliken_fdos_beta"//c_index_name(k)
+     >           filename = "mulliken_fdos_beta_orb"//c_index_name(k)
               if (flag.eq.1) 
-     >           filename = "mulliken_vdos_beta"//c_index_name(k)
+     >           filename = "mulliken_vdos_beta_orb"//c_index_name(k)
               call writedensityofstates(filename,
      >               -1.0d0,alpha,npoints,emin,emax,
      >                dbl_mb(dstates(1)+npoints))
