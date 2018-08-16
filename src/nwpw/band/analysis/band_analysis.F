@@ -826,12 +826,10 @@ c              END DO
 
          do k=1,norbs
             id = 'nwpw:dos:orb:coef'//c_index_name(k)
-            write(*,*) "id=",id
             if (.not.rtdb_get_info(rtdb,id,ma_type,naos,test))
      >      call errquit(
      >       'analysis: ma_get_index failed for nwpw:dos:orb:coef',911,
      >       MA_ERR)
-             write(*,*) "naos=",naos
             if (.not. btdb_get(rtdb,id,mt_dbl,naos,dbl_mb(coef(1))))
      >      call errquit(
      >       'analysis: ma_get_index failed for nwpw:dos:orb:coef',912,
