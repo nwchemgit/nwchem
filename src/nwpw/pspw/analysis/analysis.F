@@ -705,7 +705,7 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
      >               -1.0d0,alpha,npoints,emin,emax)
          end if
 
-*     **** angular momentum amplitudes *****
+*     **** ORBITAL DOS  *****
          value=BA_push_get(mt_dbl,36,'coef',coef(2),coef(1))
          if (.not.value)
      >     call errquit('analysis:out of stack memory',1, MA_ERR)
@@ -720,7 +720,6 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
      >      call errquit(
      >       'analysis: ma_get_index failed for nwpw:dos:orb:coef',911,
      >       MA_ERR)
-             write(*,*) "naos=",naos
             if (.not. btdb_get(rtdb,id,mt_dbl,naos,dbl_mb(coef(1))))
      >      call errquit(
      >       'analysis: ma_get_index failed for nwpw:dos:orb:coef',912,
