@@ -32,9 +32,9 @@ c
       real*8  ttl1,ttl2,subttl
 
       integer h_actlist,l_actlist,nactive_atoms,ma_type
-      integer npoints,ii,lmax
-      integer weight(2),dstates(2)
-      real*8 emin,emax,alpha,lmbda,rcut,bweight,kvec(3),ksvec(3)
+      integer npoints,ii,lmax,naos,norbs
+      integer weight(2),dstates(2),coef(2)
+      real*8 emin,emax,alpha,lmbda,rcut,bweight,kvec(3),ksvec(3),w(2)
       character*255 filename
 
       logical value,fixatoms
@@ -78,6 +78,8 @@ c
       external brillioun_k_brdcst,brillioun_ks_brdcst
       integer  cpsi_data_alloc,cpsi_data_get_chnk
       external cpsi_data_alloc,cpsi_data_get_chnk
+      character*7 c_index_name
+      external    c_index_name
 
 
       call Parallel_taskid(taskid)
@@ -702,19 +704,19 @@ c                  END DO
          call K1dB_Vector_SumAll(2*npoints,dbl_mb(dstates(1)))
 c
          if (ispin.eq.1) then
-           if (flag.eq.0) filename = "mulliken_dos_both_"//spdf_name(l)
+           if (flag.eq.0) filename = "mulliken_fdos_both_"//spdf_name(l)
            if (flag.eq.1) filename = "mulliken_vdos_both_"//spdf_name(l)
            call writedensityofstates(filename,
      >                     1.0d0,alpha,npoints,emin,emax,
      >                     dbl_mb(dstates(1)))
          end if
          if (ispin.eq.2) then
-           if (flag.eq.0) filename= "mulliken_dos_alpha_"//spdf_name(l)
+           if (flag.eq.0) filename= "mulliken_fdos_alpha_"//spdf_name(l)
            if (flag.eq.1) filename= "mulliken_vdos_alpha_"//spdf_name(l)
            call writedensityofstates(filename,
      >                     1.0d0,alpha,npoints,emin,emax,
      >                     dbl_mb(dstates(1)))
-           if (flag.eq.0) filename = "mulliken_dos_beta_"//spdf_name(l)
+           if (flag.eq.0) filename = "mulliken_fdos_beta_"//spdf_name(l)
            if (flag.eq.1) filename = "mulliken_vdos_beta_"//spdf_name(l)
            call writedensityofstates(filename,
      >               -1.0d0,alpha,npoints,emin,emax,
@@ -795,24 +797,142 @@ c              END DO
          call K1dB_Vector_SumAll(2*npoints,dbl_mb(dstates(1)))
 
          if (ispin.eq.1) then
-           if (flag.eq.0) filename = "mulliken_dos_both_all"
+           if (flag.eq.0) filename = "mulliken_fdos_both_all"
            if (flag.eq.1) filename = "mulliken_vdos_both_all"
            call writedensityofstates(filename,
      >                     1.0d0,alpha,npoints,emin,emax,
      >                     dbl_mb(dstates(1)))
          end if
          if (ispin.eq.2) then
-           if (flag.eq.0) filename = "mulliken_dos_alpha_all"
+           if (flag.eq.0) filename = "mulliken_fdos_alpha_all"
            if (flag.eq.1) filename = "mulliken_vdos_alpha_all"
            call writedensityofstates(filename,
      >                     1.0d0,alpha,npoints,emin,emax,
      >                     dbl_mb(dstates(1)))
-           if (flag.eq.0) filename = "mulliken_dos_beta_all"
+           if (flag.eq.0) filename = "mulliken_fdos_beta_all"
            if (flag.eq.1) filename = "mulliken_vdos_beta_all"
            call writedensityofstates(filename,
      >               -1.0d0,alpha,npoints,emin,emax,
      >                dbl_mb(dstates(1)+npoints))
          end if
+
+*     **** ORBITAL DOS  *****
+         value=BA_push_get(mt_dbl,36,'coef',coef(2),coef(1))
+         if (.not.value)
+     >     call errquit('analysis:out of stack memory',1, MA_ERR)
+
+         id = 'nwpw:dos:orb:norb'
+         if (.not.btdb_get(rtdb,id,mt_int,1,norbs)) norbs = 0
+
+         do k=1,norbs
+            id = 'nwpw:dos:orb:coef'//c_index_name(k)
+            write(*,*) "id=",id
+            if (.not.rtdb_get_info(rtdb,id,ma_type,naos,test))
+     >      call errquit(
+     >       'analysis: ma_get_index failed for nwpw:dos:orb:coef',911,
+     >       MA_ERR)
+             write(*,*) "naos=",naos
+            if (.not. btdb_get(rtdb,id,mt_dbl,naos,dbl_mb(coef(1))))
+     >      call errquit(
+     >       'analysis: ma_get_index failed for nwpw:dos:orb:coef',912,
+     >       MA_ERR)
+             write(*,*) "HERA"
+             !*** normalize coef ***
+             ttl1 = 0.0
+             do i=1,naos
+                ttl1 = ttl1 + dbl_mb(coef(1)+i-1)**2
+             end do
+             ttl1 = 1.0d0/dsqrt(ttl1)
+             do i=1,naos
+                dbl_mb(coef(1)+i-1) = dbl_mb(coef(1)+i-1)*ttl1
+             end do
+
+             call dcopy(2*npoints,0.0d0,0,dbl_mb(dstates(1)),1)
+             do nbq=1,nbrillq
+                A_shift   = cpsi_data_get_chnk(A_tag,nbq)
+               eig_shift = cpsi_data_get_chnk(eig_tag,nbq)
+               call dcopy(2*36*nion*nemax,dbl_mb(A_shift),1,
+     >                                   dcpl_mb(a(1)),1)
+               call dcopy(nemax,0.0d0,0,dbl_mb(weight(1)),1)
+               if (.not.fixatoms) then
+                  DO I=1,nion
+                  DO SPIN=1,ISPIN
+                  DO N=N1(SPIN),N2(SPIN)
+                     call dgemm('N','N',2,1,naos,
+     >                       1.0d0,
+     >                       dbl_mb(A(1)+(N-1)*36+(I-1)*36*nemax),2,
+     >                       dbl_mb(coef(1)),naos,
+     >                       0.0d0,
+     >                       w,2)
+                    dbl_mb(weight(1)+n-1) = dbl_mb(weight(1)+n-1)
+     >                                    + w(1)**2 + w(2)**2
+                  END DO
+                  END DO
+                  END DO
+               else
+                  DO j=1,nactive_atoms
+                  I=int_mb(l_actlist+j-1)
+                  DO SPIN=1,ISPIN
+                  DO N=N1(SPIN),N2(SPIN)
+                     call dgemm('N','N',2,1,naos,
+     >                       1.0d0,
+     >                       dbl_mb(A(1)+(N-1)*36+(I-1)*36*nemax),2,
+     >                       dbl_mb(coef(1)),naos,
+     >                       0.0d0,
+     >                       w,2)
+                     dbl_mb(weight(1)+n-1) = dbl_mb(weight(1)+n-1)
+     >                                     + w(1)**2 + w(2)**2
+                  END DO
+                  END DO
+                  END DO
+               end if
+               if (ispin.eq.1) then
+                 call adddensityofstates(
+     >                    dbl_mb(eig_shift),dbl_mb(weight(1)),ne(1),
+     >                    brillioun_weight(nbq),alpha,npoints,emin,emax,
+     >                    dbl_mb(dstates(1)))
+               end if
+               if (ispin.eq.2) then
+                 call adddensityofstates(
+     >                    dbl_mb(eig_shift),dbl_mb(weight(1)),ne(1),
+     >                    brillioun_weight(nbq),alpha,npoints,emin,emax,
+     >                    dbl_mb(dstates(1)))
+                 call adddensityofstates(
+     >                  dbl_mb(eig_shift+ne(1)),
+     >                  dbl_mb(weight(1)+ne(1)),ne(2),
+     >                 -brillioun_weight(nbq),alpha,npoints,emin,emax,
+     >                   dbl_mb(dstates(1)+npoints))
+               end if
+            end do
+            call K1dB_Vector_SumAll(2*npoints,dbl_mb(dstates(1)))
+c
+            if (ispin.eq.1) then
+              if (flag.eq.0) 
+     >           filename = "mulliken_fdos_both_orb"//c_index_name(k)
+              if (flag.eq.1) 
+     >           filename = "mulliken_vdos_both_orb"//c_index_name(k)
+              call writedensityofstates(filename,
+     >                     1.0d0,alpha,npoints,emin,emax,
+     >                     dbl_mb(dstates(1)))
+            end if
+            if (ispin.eq.2) then
+              if (flag.eq.0) 
+     >           filename= "mulliken_fdos_alpha"//c_index_name(k)
+              if (flag.eq.1) 
+     >           filename= "mulliken_vdos_alpha"//c_index_name(k)
+              call writedensityofstates(filename,
+     >                     1.0d0,alpha,npoints,emin,emax,
+     >                     dbl_mb(dstates(1)))
+              if (flag.eq.0) 
+     >           filename = "mulliken_fdos_beta"//c_index_name(k)
+              if (flag.eq.1) 
+     >           filename = "mulliken_vdos_beta"//c_index_name(k)
+              call writedensityofstates(filename,
+     >               -1.0d0,alpha,npoints,emin,emax,
+     >                dbl_mb(dstates(1)+npoints))
+            end if
+
+         end do
 
 
 *     *** free heap ***
@@ -821,7 +941,8 @@ c              END DO
      >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
       end if
 
-      value =           BA_pop_stack(dstates(2))
+      value =           BA_pop_stack(coef(2))
+      value = value.and.BA_pop_stack(dstates(2))
       value = value.and.BA_pop_stack(weight(2))
       if (.not. value)
      >  call errquit('analysis: error freeing stack',0, MA_ERR)
