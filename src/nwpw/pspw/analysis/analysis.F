@@ -715,7 +715,6 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
 
          do k=1,norbs
             id = 'nwpw:dos:orb:coef'//c_index_name(k)
-            write(*,*) "id=",id
             if (.not.rtdb_get_info(rtdb,id,ma_type,naos,test))
      >      call errquit(
      >       'analysis: ma_get_index failed for nwpw:dos:orb:coef',911,
