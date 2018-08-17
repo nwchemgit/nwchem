@@ -3022,11 +3022,12 @@ c     *****  read initial wavefunctions into psi1  ****
 *     *                                 * 
 *     ***********************************
 
-      subroutine cpsi_projected_dos_weights(rtdb,dosgrid,k,pweight,lmax)
+      subroutine cpsi_projected_dos_weights(rtdb,dosgrid,k,pweight,
+     >                                      lmax,norbs)
       implicit none
       integer rtdb,dosgrid(3),k
       real*8  pweight(*)
-      integer lmax
+      integer lmax,norbs
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -3039,7 +3040,7 @@ c     *****  read initial wavefunctions into psi1  ****
 
       call Parallel3d_taskid_k(taskid_k)
 
-      nnmax = (ne(1)+ne(2))*nbrillq*4
+      nnmax = (ne(1)+ne(2))*nbrillq*(4+norbs)
       value = BA_push_get(mt_dbl,(nnmax),'eweight',weight(2),weight(1))
       value = value.and.
      >        BA_push_get(mt_dbl,(ne(1)+ne(2)),'tmp',tmp(2),tmp(1))
@@ -3051,9 +3052,10 @@ c     *****  read initial wavefunctions into psi1  ****
 
 *     **** Mulliken Analysis ****
       call band_projecteddos_analysis(0,rtdb,ispin,ne,nbrillq,
-     >                                psi1_tag,dbl_mb(weight(1)),lmax)
+     >                                psi1_tag,dbl_mb(weight(1)),
+     >                                lmax,norbs)
 
-      do l=0,lmax
+      do l=0,lmax+norbs
       do nb=1,nbrillioun
          call K1dB_ktoqp(nb,nbq,p)
          if (p.eq.taskid_k) then

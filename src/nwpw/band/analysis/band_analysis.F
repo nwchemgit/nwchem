@@ -37,7 +37,7 @@ c
       real*8 emin,emax,alpha,lmbda,rcut,bweight,kvec(3),ksvec(3),w(2)
       character*255 filename
 
-      logical value,fixatoms
+      logical value,fixatoms,badaorbs
       character*28 DD
       character*255 id,test
       integer npsp,nion,nemax
@@ -174,6 +174,7 @@ c
 
       call ga_sync()
 
+      badaorbs = .false.
       value = borbs_init()
       value = value.and.borbs_readall()
       if (.not.value) then
@@ -181,23 +182,26 @@ c
             call control_mullikenparameters(ion_atom_qm(k),rcut,lmbda)
             call borbs_formatter_auto(ion_atom_qm(k),rcut,lmbda)
          end do
+         badaorbs = .true.
+      else 
+         value = .true.
+         do k=1,npsp
+            call control_mullikenparameters(ion_atom_qm(k),rcut,lmbda)
+            if ((dabs(borbs_rcut(k)-rcut).gt.1.0d-6).or.
+     >          (dabs(borbs_lmbda(k)-lmbda).gt.1.0d-6)) then
+               call borbs_formatter_auto(ion_atom_qm(k),rcut,lmbda)
+               badaorbs = .true.
+            end if
+         end do
       end if
       call ga_sync()
-
-      value = .true.
-      do k=1,npsp
-         call control_mullikenparameters(ion_atom_qm(k),rcut,lmbda)
-         if ((dabs(borbs_rcut(k)-rcut).gt.1.0d-6).or.
-     >       (dabs(borbs_lmbda(k)-lmbda).gt.1.0d-6)) then
-            call borbs_formatter_auto(ion_atom_qm(k),rcut,lmbda)
-            value = .false.
-         end if
-      end do
-
-      call ga_sync()
       
-      if (.not.value) value = borbs_readall()
-      if (.not.value) go to 1901
+      if (badaorbs) then
+         if (.not.borbs_readall()) then
+            value = .false.
+            go to 1901
+         end if
+      end if
       call ga_sync()
       
 
@@ -981,14 +985,14 @@ c
 *
       subroutine band_projecteddos_analysis(flag,rtdb,ispin,ne,
      >                         nbrillq,psi_tag,
-     >                         pweight,lmax)
+     >                         pweight,lmax,norbs)
       implicit none
       integer flag
       integer rtdb
       integer ispin,ne(2),nbrillq
       integer psi_tag
       real*8 pweight(ne(1)+ne(2),nbrillq,*)
-      integer lmax
+      integer lmax,norbs
 
 #include "bafdecls.fh"
 #include "btdb.fh"
@@ -1010,7 +1014,8 @@ c
 
       integer h_actlist,l_actlist,nactive_atoms,ma_type
       integer npoints,ii
-      real*8 lmbda,rcut,bweight,kvec(3),ksvec(3)
+      real*8 lmbda,rcut,bweight,kvec(3),ksvec(3),w(2)
+      integer coef(2),naos
 
       logical value,fixatoms
       character*28 DD
@@ -1053,6 +1058,8 @@ c
       external brillioun_k_brdcst,brillioun_ks_brdcst
       integer  cpsi_data_alloc,cpsi_data_get_chnk
       external cpsi_data_alloc,cpsi_data_get_chnk
+      character*7 c_index_name
+      external    c_index_name
 
 
       call Parallel_taskid(taskid)
@@ -1183,13 +1190,14 @@ c
            fixatoms = .true.
       end if
 
+
 *     **** angular momentum decomposition *****
       lmax = -1
       do k=1,npsp
         if (lmax.le.int_mb(lorb(1)+k-1)) lmax = int_mb(lorb(1)+k-1)
       end do
 
-      call dcopy((lmax+1)*(ne(1)+ne(2))*nbrillq,0.0d0,0,pweight,1)
+      call dcopy((lmax+1+norbs)*(ne(1)+ne(2))*nbrillq,0.0d0,0,pweight,1)
       do L=0,lmax
 
          do nbq=1,nbrillq
@@ -1230,6 +1238,75 @@ c
             end if
          end do
       end do
+
+*     *** ORBITAL DOS has been requested ***
+      if (norbs.gt.0) then
+
+         if (.not.BA_push_get(mt_dbl,36,'coef',coef(2),coef(1)))
+     >      call errquit('analysis:out of stack memory',1, MA_ERR)
+
+         do k=1,norbs
+            id = 'nwpw:dos:orb:coef'//c_index_name(k)
+            if (.not.rtdb_get_info(rtdb,id,ma_type,naos,test))
+     >         call errquit('analysis:failed for nwpw:dos:orb:coef',911,
+     >                      MA_ERR)
+            if (.not. btdb_get(rtdb,id,mt_dbl,naos,dbl_mb(coef(1))))
+     >         call errquit('analysis:failed for nwpw:dos:orb:coef',912,
+     >                      MA_ERR)
+            !*** normalize coef ***
+            ttl1 = 0.0
+            do i=1,naos
+               ttl1 = ttl1 + dbl_mb(coef(1)+i-1)**2
+            end do
+            ttl1 = 1.0d0/dsqrt(ttl1)
+            do i=1,naos
+               dbl_mb(coef(1)+i-1) = dbl_mb(coef(1)+i-1)*ttl1
+            end do
+
+            do nbq=1,nbrillq
+               A_shift   = cpsi_data_get_chnk(A_tag,nbq)
+               call dcopy(2*36*nion*nemax,dbl_mb(A_shift),1,
+     >                                   dcpl_mb(a(1)),1)
+               if (.not.fixatoms) then
+                  DO I=1,nion
+                  DO SPIN=1,ISPIN
+                  DO N=N1(SPIN),N2(SPIN)
+                     call dgemm('N','N',2,1,naos,
+     >                       1.0d0,
+     >                       dcpl_mb(a(1)+(N-1)*36+(I-1)*36*nemax),2,
+     >                       dbl_mb(coef(1)),naos,
+     >                       0.0d0,
+     >                       w,2)
+                     pweight(n,nbq,lmax+1+k) = pweight(n,nbq,lmax+1+k) 
+     >                                  + w(1)**2 + w(2)**2
+                  END DO
+                  END DO
+                  END DO
+               else
+                  DO j=1,nactive_atoms
+                  I=int_mb(l_actlist+j-1)
+                  DO SPIN=1,ISPIN
+                  DO N=N1(SPIN),N2(SPIN)
+                     call dgemm('N','N',2,1,naos,
+     >                       1.0d0,
+     >                       dcpl_mb(a(1)+(N-1)*36+(I-1)*36*nemax),2,
+     >                       dbl_mb(coef(1)),naos,
+     >                       0.0d0,
+     >                       w,2)
+                     pweight(n,nbq,lmax+1+k) = pweight(n,nbq,lmax+1+k) 
+     >                                  + w(1)**2 + w(2)**2
+                  END DO
+                  END DO
+                  END DO
+               end if
+            end do
+         end do
+
+         if (.not.BA_pop_stack(coef(2)))
+     >      call errquit('analysis: error freeing stack',0, MA_ERR)
+
+      end if
+
 
 
 *     *** free heap ***
