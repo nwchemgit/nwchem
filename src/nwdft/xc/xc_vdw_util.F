@@ -521,6 +521,8 @@ C>
 #include "stdio.fh"
 #include "global.fh"
       double precision scales6,scales8,scalesr6,scalesr8,a1,a2
+      logical read_ok
+      read_ok=.false.
 c
 c DFT-D1 version
 c
@@ -794,17 +796,18 @@ c dftb
 c          scalesr6 = 1.699d0
 c          scales8  = 1.504d0
         else
-           call errquit(' vdw 3: scaling factors not available',0,0)
+           if(.not.read_ok)
+     c      call errquit(' vdw 3: scaling factors not available',0,0)
         endif
       else if (ivdw.eq.4) then
 c
 c DFT-D3BJ version
 c
         scales6  = 1.0d0
-        scalesr6 = 0.0d0
-        scalesr8 = 0.0d0
-        a1=0d0
-        a2=0d0
+cold        scalesr6 = 0.0d0
+cold        scalesr8 = 0.0d0
+cold        a1=0d0
+cold        a2=0d0
 c B2-PLYP
         if(xccomb(2).and.xfac(1).eq.0.53d0.and.
      &       xfac(3).eq.0.47d0.and.cfac(2).eq.0.73d0) then
@@ -942,7 +945,12 @@ c mpwb1k
            a1       =  0.1474d0
            a2       =  6.6223d0
         else
-         call errquit(' vdw 4: scaling factors not available',0,0)
+c     try to see if set rtdb was used
+           read_ok=abs(scales8).gt.0d0.and.
+     A      abs(a1).gt.0d0.and.
+     A      abs(a2).gt.0d0
+           if(.not.read_ok)
+     c    call errquit(' vdw 4: scaling factors not available',0,0)
         endif
       else
         scales6 = 0.0d0
