@@ -81,6 +81,8 @@ c     cm06-hf  => 7500
 c     m06      => 7600
 c     xm06     => 7700
 c     cm06     => 7800
+c     revm06   => 7610
+c     revm06-L => 7010
 c     m06-2x   => 7900
 c     xm06-2x  => 8000
 c     cm06-2x  => 8100
@@ -135,7 +137,7 @@ c     xperde86 ==> 9520
 c
 c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=144)
+      parameter (num_dirs=146)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -169,6 +171,7 @@ c
      &     'xpw6b95','cpw6b95','xpwb6k','cpwb6k','xm05','cm05',
      &     'xm05-2x','cm05-2x','vs98','xvs98','cvs98','m06-L',
      &     'xm06-L','cm06-L','m06-hf','xm06-hf','cm06-hf','m06',
+     &     'revm06','revm06-L',
      &     'xm06','cm06','m06-2x','xm06-2x','cm06-2x',
      &     'm08-hx','xm08-hx','cm08-hx',
      &     'm08-so','xm08-so','cm08-so',
@@ -246,7 +249,8 @@ c
      E     1997, 2046, 2047, 2201, 2202,
      &  5000,5100,5200,5300,5400,5500,5600,5700,5800,
      &  5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,
-     &  7000,7100,7200,7300,7400,7500,7600,7700,7800,7900,8000,8100,
+     &     7000,7100,7200,7300,7400,7500,7600,7610,7010,
+     &     7700,7800,7900,8000,8100,
      &  8600,8610,8620,8700,8710,8720,8800,8810,8820,8900,8910,8920,
      &  9000,9010,9020,9100,9110,9120,9200,9210,9220,
      N  9245,9246,9247,9248,
@@ -2253,6 +2257,18 @@ c
 c
       goto 10
 c
+c revM06-L
+c
+ 7010  xccomb(69) = .true.
+         xfac(69)= 1.0d0
+        lxfac(69)=.true.
+       nlxfac(69)=.true.
+        cfac(69) = 1.0d0
+       lcfac(69) = .true.
+      nlcfac(69) = .true.
+c
+      goto 10
+c
 c M06-L exchange part
 c
  7100  if (inp_a(test)) then
@@ -2440,6 +2456,21 @@ c
 c
       goto 10
 
+c
+c revM06
+c
+ 7610  xccomb(68) = .true.
+         xfac(68)= 1.0d0
+        lxfac(68)=.true.
+       nlxfac(68)=.true.
+        cfac(68) = 1.0d0
+       lcfac(68) = .true.
+      nlcfac(68) = .true.
+        xfac(1) = 0.4041d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+c
+      goto 10
 c
 c M06 exchange part
 c

@@ -9,6 +9,8 @@ c                              ijzy - 1  M06-L
 c                              ijzy - 2  M06-HF
 c                              ijzy - 3  M06
 c                              ijzy - 4  M06-2X
+c                              ijzy - 5 revM06-L
+c                              ijzy - 6 revM06
 c     References: 
 c     [a]	Zhao, Y. and  Truhlar, D. G. J. Chem. Phys. 2006, 125, 194101;
 c     [b]       Zhao, Y. and  Truhlar, D. G. J. Phys. Chem. A (2006),110(49),13126-13130.    
@@ -91,6 +93,18 @@ cedo       parameter( pi = 3.1415926535897932384626433832795d0 )
      &     Eight=8.0d0, Nine=9.0d0,F10=10.d0, F11=11.d0)
         pi=acos(-1d0)      
 
+        at0= 0d0
+        at1= 0d0
+        at2= 0d0
+        at3= 0d0
+        at4= 0d0
+        at5= 0d0
+        at6= 0d0
+        at7= 0d0
+        at8= 0d0
+        at9= 0d0
+        at10=0d0
+        at11=0d0
       if (ijzy.eq.1) then
         at0=    3.987756D-01
         at1=    2.548219D-01
@@ -146,12 +160,40 @@ C     Parameters for M06-2X
         at9=    -3.924093D+01
         at10=   1.522808D+01
         at11=   1.522227D+01
+        elseif (ijzy.eq.5) then
+C      Parameters for revM06-L
+        at0=    1.423227252D+00
+        at1=    4.71820438D-01
+        at2=    -1.67555701D-01
+        at3=    -2.50154262D-01
+        at4=    6.2487588D-02
+        at5=    7.3350124D-01
+        at6=    -2.359736776D+00
+        at7=    -1.436594372D+00
+        at8=    4.44643793D-01
+        at9=    1.529925054D+00
+        at10=   2.053941717D+00
+        at11=   -3.6536031D-02
+        elseif (ijzy.eq.6) then
+C      Parameters for revM06
+        at0=    6.511394014D-01
+        at1=    -1.214497763D-01
+        at2=    -1.367041135D-01
+        at3=    3.987218551D-01
+        at4=    6.056741356D-01
+        at5=    -2.379738662D+00
+        at6=    -1.492098351D+00
+        at7=    3.031473420D+00
+        at8=    5.149637108D-01
+        at9=    2.633751911D+00
+        at10=   9.886749252D-01
+        at11=   -4.243714128D+00
       else
         call errquit("xc_xm06: illegal value of ijzy",ijzy,UERR)
       endif
 
       at=1.0d0
-      if (ijzy.LT.4) call xc_xvs98(tol_rho, 1.0d0, lfac, 
+      if (ijzy.ne.4) call xc_xvs98(tol_rho, 1.0d0, lfac, 
      &           nlfac, rho, delrho, Amat, Cmat, nq, ipol,
      &           Ex, qwght,ldew, func,tau,Mmat,ijzy+1)
 

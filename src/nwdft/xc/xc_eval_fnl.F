@@ -977,6 +977,30 @@ c
          endif
       endif
 c
+c revM06   meta GGA Exchange
+c
+      if (abs(xfac(68)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xm06(tol_rho, xfac(68), lxfac(68), nlxfac(68),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,ttau,Mmat,6)
+         else
+            call xc_xm06_d2()
+         endif
+      endif
+c
+c revM06-L   meta GGA Exchange
+c
+      if (abs(xfac(69)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xm06(tol_rho, xfac(69), lxfac(69), nlxfac(69),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,ttau,Mmat,5)
+         else
+            call xc_xm06_d2()
+         endif
+      endif
+c
 c M06-HF   meta GGA Exchange
 c
       if (abs(xfac(35)).gt.eps)then
@@ -1510,6 +1534,32 @@ c
             call xc_cm06(tol_rho, cfac(40), lcfac(40), nlcfac(40),
      &           rho, delrho,  nq, ipol,
      &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,4)
+
+         else
+            call xc_cm06_d2()
+         endif
+      endif
+c
+c     revM06 correlation
+c
+      if (abs(cfac(68)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm06(tol_rho, cfac(68), lcfac(68), nlcfac(68),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,6)
+
+         else
+            call xc_cm06_d2()
+         endif
+      endif
+c
+c     revM06-L correlation
+c
+      if (abs(cfac(69)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm06(tol_rho, cfac(69), lcfac(69), nlcfac(69),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,5)
 
          else
             call xc_cm06_d2()
