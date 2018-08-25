@@ -263,6 +263,7 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np h2o-ssb-d-b3lyp
 ./runtests.mpi.unix procs $np cu2_m06-l
 ./runtests.mpi.unix procs $np ch3_m06-hf
+./runtests.mpi.unix procs $np dft_ch3_h2o_revm06
 #./runtests.mpi.unix procs $np dntmc_h2o_nh3 # this stuff does not work at all
 ./runtests.mpi.unix procs $np 5h2o_core
 ./runtests.mpi.unix procs $np h2o_core
