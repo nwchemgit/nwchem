@@ -1,0 +1,55 @@
+echo
+title "revM06 and RevM06-L/6-31+G** CH3 and H2O force "
+
+start ch3
+
+geometry h2o noautosym nocenter
+O        0.000000    0.000000    0.000000
+H        0.000000    0.000000    0.956914
+H        0.926363    0.000000   -0.239868
+end
+
+
+geometry ch3 noautosym nocenter
+     C     0.000000    0.000000    0.000000
+     H     0.000000    1.078000    0.000000
+     H     0.933000   -0.539000    0.000000
+     H    -0.933000   -0.539000    0.000000
+end
+
+basis 
+* library 6-31+G**
+end
+
+set geometry h2o
+
+dft
+mult 1
+xc revM06-L
+grid ssf lebedev 99 14
+noprint "final vectors analysis" multipole
+end
+
+task dft  gradient
+
+dft
+xc revM06
+end
+
+task dft  gradient
+
+set geometry ch3
+
+dft
+xc revM06-L
+mult 2
+end
+
+task dft  gradient
+
+dft
+xc revM06
+mult 2
+end
+
+task dft  gradient
