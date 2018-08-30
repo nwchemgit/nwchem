@@ -1543,12 +1543,19 @@ c
      1     call errquit('tce_v4m: MA problem',0,MA_ERR)
 c
            spust=.true.
+c
+      if(nodezero) then
+       write(6,*)'h_1 matrix elements'
+       call util_flush(6)
+      endif
+c
            call kinetic_hcore(rtdb,dbl_mb(k_f2m),range_ov,spust)
            call util_flush(6)
 c
       if(nodezero) then  !nodezero 
-      write(6,*)'range_ov  = ',range_ov
-      write(6,*)'range_occ = ',range_occ
+c      write(6,*)'range_ov  = ',range_ov
+c      write(6,*)'range_occ = ',range_occ
+       write(6,*)'v_2 matrix elements'
       offset_test=0
       DO g3b = 1,noa+nva   !j
       DO g4b = g3b,noa+nva !i
@@ -1587,6 +1594,7 @@ c
        if((tg3.le.tg4).and.(tg1.le.tg2)) then
        if(tirow.ge.ticol) then
          if(xxx.gt.1.0d-10) then
+c yaml  two_electron_integrals
           write(6,4881) tg4,
      &                  tg3,
      &                  tg2,
@@ -1596,6 +1604,7 @@ c
         else
          if(irow.ne.icol) then
          if(xxx.gt.1.0d-10) then
+c yaml  two_electron_integrals
           write(6,4881) tg2,
      &                  tg1,
      &                  tg4,
@@ -1628,16 +1637,20 @@ c
       END DO
 c     ehfa
       ehfa=0.0d0
+      endif !nodezero
 c
       call active_shift(rtdb,d_v2,dbl_mb(k_v4m),dbl_mb(k_f2m),range_occ,
      &                 range_ov,ehfa)
 c
       if(nodezero) then
+c yaml enerep_tce - coulomb_repulsion
        write(6,*)'enrep_tce = ',enrep_tce
+c ehfa - HF energy for active space - not used in yaml 
        write(6,6887) ehfa
+c yaml red - this is hf_energy
        write(6,6888) ref
+c yaml scf_energy_offset  (ref-ehfa) same and energy_offset
        write(6,6889) ref-ehfa
-      endif
 c
       call util_flush(6)
 c

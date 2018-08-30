@@ -1163,7 +1163,7 @@ c   l_final= k_movecs_orb_T(dim_mol,nbf) * l_aux(nbf,dim_mol)
      1            nbf,0.0d0,dbl_mb(k_final),dim_mol)
 c
        if(nodezero) then
-        write(6,*)'h_1 matrix elements'
+c        write(6,*)'h_1 matrix elements'
         k=0
         do j=1,dim_mol
         do i=1,dim_mol
@@ -1171,6 +1171,7 @@ c
          xxx=dabs(dbl_mb(k_final+k-1))
          if(xxx.gt.1.0d-10) then
           if(spust) then
+c yaml one_electron_integrals
             write(6,100) i,j,dbl_mb(k_final+k-1)
           endif
          end if 
@@ -1260,22 +1261,10 @@ c
       spust=.false.
 c
 !ehfa
-c**** debug ****
-       if(nodezero) then
-         write(6,*)'step 1'
-         call util_flush(6)
-       endif 
-c***************
            if (.not. geom_nuc_rep_energy(geom, enrep_tce))
      &      call errquit('TCE:unable to get nuclear rep ',geom, 
      &      GEOM_ERR)
 c
-c**** debug ****
-       if(nodezero) then
-         write(6,*)'step 2'
-         call util_flush(6)
-       endif
-c***************
            do igi1=1,r_ov
            do igi2=1,r_ov
             f2m(igi1,igi2)=0.0d0
@@ -1298,16 +1287,10 @@ c
            enddo
            enddo
 c
-c**** debug ****
-       if(nodezero) then
-         write(6,*)'step 3'
-         call util_flush(6)
-       endif
-c***************
 c
       if(nodezero) then  !nodezero 
-      write(6,*)'range_ov  = ',r_ov
-      write(6,*)'range_occ = ',r_occ
+ccx      write(6,*)'range_ov  = ',r_ov
+ccx      write(6,*)'range_occ = ',r_occ
       offset_test=0
       DO g3b = 1,noa+nva   !j
       DO g4b = g3b,noa+nva !i
@@ -1401,17 +1384,11 @@ c
       END DO
       END DO
       END DO
-c**** debug ****
-       if(nodezero) then
-         write(6,*)'step 4'
-         call util_flush(6)
-       endif
-c***************
 c     ehfa for RHF reference
       ehfa=0.0d0
       ehfa=ehfa+enrep_tce 
       do igi1=1,r_occ
-       ehfa=ehfa+f2m(igi1,igi1)
+       ehfa=ehfa+(2.0d0)*f2m(igi1,igi1)
       enddo
       do igi1=1,r_occ
       do igi2=1,r_occ
@@ -1419,12 +1396,6 @@ c     ehfa for RHF reference
        ehfa=ehfa-v4m(igi1,igi2,igi1,igi2)
       enddo
       enddo
-c**** debug ****
-       if(nodezero) then
-         write(6,*)'step 1'
-         call util_flush(6)
-       endif
-c***************
 c
 c
       call util_flush(6)

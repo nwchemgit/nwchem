@@ -313,8 +313,8 @@ c
 c
       nodezero = (ga_nodeid().eq.0)
       if (nodezero) then
-        write(6,*)'check 2: xnorm =',xnorm
-        call util_flush(6)
+cc        write(6,*)'check 2: xnorm =',xnorm
+cc        call util_flush(6)
 c
 c string
 c
@@ -411,6 +411,8 @@ c
                   cre6=bra//num2//keta
                   refstring(1)=cre6
                  endif
+c yaml initial_state_suggestion state 
+c yaml "Singles contribution"
         write(6,*) xnorm*dbl_mb(k_r1+i-1),':',
      &             (refstring(j),j=1,nosa+nosb+2),
      &             '|0>'
@@ -435,6 +437,8 @@ c
                   cre6=bra//num2//ketb
                   refstring(1)=cre6
                  endif
+c yaml initial_state_suggestion state
+c yaml "Singles contribution"
         write(6,*) xnorm*dbl_mb(k_r1+i-1),':',
      &             (refstring(j),j=1,nosa+nosb+2),
      &             '|0>'
@@ -656,6 +660,7 @@ c
         enddo
 c
          write(LuOut,9000) 'Reference string'
+c yaml initial_state_suggestion state
          write(6,*) xnorm,':',
      &             (refstring(j),j=3,nosa+nosb+2),
      &             '|0>'

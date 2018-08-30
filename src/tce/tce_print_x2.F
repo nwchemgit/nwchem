@@ -520,8 +520,8 @@ c ------
 c
       nodezero = (ga_nodeid().eq.0)
       if (nodezero) then
-        write(6,*)'check 3: xnorm =',xnorm
-        call util_flush(6)
+c        write(6,*)'check 3: xnorm =',xnorm
+c        call util_flush(6)
 c string
 c
         bra='('
@@ -661,6 +661,8 @@ c h3
                   cre5=bra//num2//kea
                   refstring(4)=cre5
                  endif
+c yaml initial_state_suggestion state
+c yaml "Doubles contribution"
         write(6,*) xnorm*dbl_mb(k_r2+i-1),':',
      &             (refstring(j),j=1,nosa+nosb+4),'|0>'
             else  ! a<a a<a --------------------------------------
@@ -708,6 +710,8 @@ c h3
                   cre5=bra//num2//kea
                   refstring(4)=cre5
                  endif
+c yaml initial_state_suggestion state
+c yaml "Doubles contribution"
         write(6,*) xnorm*dbl_mb(k_r2+i-1),':',
      &            (refstring(j),j=1,nosa+nosb+4),'|0>'
                if(spinsum.eq.4) then  !b<b b<b
@@ -751,6 +755,8 @@ c h3
                   cre5=bra//num2//keb
                   refstring(4)=cre5
                  endif
+c yaml initial_state_suggestion state
+c yaml "Doubles contribution"
         write(6,*) xnorm*dbl_mb(k_r2+i-1),':',
      &             (refstring(j),j=1,nosa+nosb+4),'|0>'
                end if !b<b b<b

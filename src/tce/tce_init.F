@@ -801,6 +801,10 @@ c defaults: q_ele_a=2 q_ele_b=2
          if (.not.rtdb_get(rtdb,'tce:qorb',mt_int,1,q_orb))
      1     call errquit('tce_init: QC failed to read qorb',0,
      2     rtdb_err)
+c yaml q_ele_a & q_ele_b (number of alhpa and beta electrons)
+c yaml n_electrons = q_ele_a + q_ele_b
+c yaml n_orbitals  = q_orb
+c
 cQfreezeing
 c corefreezing
          if(ipol.eq.1) then 
