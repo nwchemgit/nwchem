@@ -336,7 +336,7 @@ c
           ihi(2) = icol
           call nga_normf_patch(g_x,ilo,ihi,dnrm)
           if (olprint) then
-            write(LuOut,'(1x,a,"rohf_wrap: out g_x = ",i4,f24.8)')
+            write(LuOut,'(1x,"rohf_wrap: out g_x = ",i4,f24.8)')
      +      icol,dnrm
           endif
         enddo
