@@ -759,7 +759,7 @@ c bmk
 c          scalesr6 = 1.931d0
 c          scales8  = 2.168d0
 c CAM-B3LYP
-         else if (xfac(40).eq.1.0d0.and.cfac(2).ne.0d0.
+         else if (abs(xfac(40)-1.0d0).lt.1d-5.and.cfac(2).ne.0d0.
      A          and.xfac(1).ne.0d0) then
           scalesr6 = 1.378d0
           scales8  = 1.217d0
