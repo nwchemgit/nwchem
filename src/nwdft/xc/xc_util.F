@@ -30,6 +30,7 @@ c
      + cfac(32) + cfac(33) + cfac(34) + cfac(35) + cfac(36) +
      + xfac(34) + xfac(35) + xfac(36) + xfac(37) +
      + cfac(30) + cfac(38) + cfac(39) + cfac(40) + cfac(41) + cfac(42) +
+     + cfac(45) + xfac(45) + 
      + xfac(43) + xfac(64) + cfac(64) +
      + xfac(46) + cfac(46) + xfac(47) + cfac(47) + xfac(40) + xfac(41) +
      + xfac(48) + xfac(49) + xfac(50) + xfac(51) +
@@ -174,6 +175,7 @@ cb973     .     xfac(22).ne.0d0.or.
      .     xfac(35).ne.0d0.or.
      .     xfac(36).ne.0d0.or.
      .     xfac(37).ne.0d0.or.
+     .     xfac(45).ne.0d0.or.
      .     xfac(48).ne.0d0.or.
      .     xfac(49).ne.0d0.or.
      .     xfac(50).ne.0d0.or.
@@ -457,6 +459,7 @@ c
      .     xfac(36).ne.0d0.or.  ! M06
      .     xfac(37).ne.0d0.or.  ! M06-2X
      .     xfac(39).ne.0d0.or.  ! HCTH (b97d)
+     .     xfac(45).ne.0d0.or.  ! n12
      .     xfac(46).ne.0d0.or.  ! SSB-D
      .     xfac(47).ne.0d0.or.  ! kt1
      .     xfac(48).ne.0d0.or.  ! M08-HX 
@@ -503,6 +506,7 @@ c
      .     cfac(40).ne.0d0.or.  ! M06-2X
      .     cfac(41).ne.0d0.or.  ! HCTH (b97d)
      .     cfac(42).ne.0d0.or.  ! dlDF
+     .     cfac(45).ne.0d0.or.  ! n12
      .     cfac(46).ne.0d0.or.  ! SSB-D
      .     cfac(48).ne.0d0.or.  ! M08-HX
      .     cfac(49).ne.0d0.or.  ! M08-SO

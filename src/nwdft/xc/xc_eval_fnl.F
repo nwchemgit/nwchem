@@ -340,6 +340,11 @@ c
          dohcth=.true.
          nx=39
          nc=41
+      elseif (abs(cfac(45)).gt.eps)then
+         whichf='n120'
+         dohcth=.true.
+         nx=45
+         nc=45
       endif
       if(dohcth) then  
          if (.not. do_2nd) then
@@ -1537,6 +1542,19 @@ c
 
          else
             call xc_cm06_d2()
+         endif
+      endif
+c
+c     N12x
+c
+      if (abs(xfac(45)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xn12(tol_rho, xfac(45), lxfac(45), nlxfac(45),
+     &           rho, delrho,  Amat, Cmat, nq, ipol,
+     &           Ex, qwght, ldew,func,1)
+
+         else
+            call xc_xn12_d2()
          endif
       endif
 c
