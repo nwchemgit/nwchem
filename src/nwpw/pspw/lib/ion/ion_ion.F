@@ -54,7 +54,9 @@
           y = ion_rion(2,i) - ion_rion(2,j)
           z = ion_rion(3,i) - ion_rion(3,j)
           r = dsqrt(x*x + y*y + z*z)
-          e1 = e1 + qi*qj/r
+          if (r.gt.1.0d-6) then
+             e1 = e1 + qi*qj/r
+          end if
         end do
       end do
 !$OMP END DO
@@ -68,7 +70,9 @@
            y = ion_rion(2,i) - ion_rion(2,j)
            z = ion_rion(3,i) - ion_rion(3,j)
            r = dsqrt(x*x + y*y + z*z)
-           e2 = e2 + qi*qj/r
+           if (r.gt.1.0d-6) then
+              e2 = e2 + qi*qj/r
+           end if
         end do
       end do
 !$OMP END DO
@@ -122,15 +126,17 @@
           z = ion_rion(3,i) - ion_rion(3,j)
           r = dsqrt(x*x + y*y + z*z)
 
-          v = psp_zv(ion_katm(i))*psp_zv(ion_katm(j))/r**3
+          if (r.gt.1.0d-6) then
+             v = psp_zv(ion_katm(i))*psp_zv(ion_katm(j))/r**3
 
-          f_ion(1,i) = f_ion(1,i) + (x*v)
-          f_ion(2,i) = f_ion(2,i) + (y*v)
-          f_ion(3,i) = f_ion(3,i) + (z*v)
+             f_ion(1,i) = f_ion(1,i) + (x*v)
+             f_ion(2,i) = f_ion(2,i) + (y*v)
+             f_ion(3,i) = f_ion(3,i) + (z*v)
 
-          f_ion(1,j) = f_ion(1,j) - (x*v)
-          f_ion(2,j) = f_ion(2,j) - (y*v)
-          f_ion(3,j) = f_ion(3,j) - (z*v)
+             f_ion(1,j) = f_ion(1,j) - (x*v)
+             f_ion(2,j) = f_ion(2,j) - (y*v)
+             f_ion(3,j) = f_ion(3,j) - (z*v)
+          end if
         end do
       end do
 !$OMP END MASTER
@@ -222,20 +228,20 @@
 
       do j=1,ion_nion_qm()
         do i=1,j-1
-          x = ion_rion(1,i) - ion_rion(1,j)
-          y = ion_rion(2,i) - ion_rion(2,j)
-          z = ion_rion(3,i) - ion_rion(3,j)
-          r = dsqrt(x*x + y*y + z*z)
+           x = ion_rion(1,i) - ion_rion(1,j)
+           y = ion_rion(2,i) - ion_rion(2,j)
+           z = ion_rion(3,i) - ion_rion(3,j)
+           r = dsqrt(x*x + y*y + z*z)
 
-          v = psp_zv(ion_katm(i))*psp_zv(ion_katm(j))/r**3
+           v = psp_zv(ion_katm(i))*psp_zv(ion_katm(j))/r**3
 
-          f_ion(1,i) = f_ion(1,i) + (x*v)
-          f_ion(2,i) = f_ion(2,i) + (y*v)
-          f_ion(3,i) = f_ion(3,i) + (z*v)
+           f_ion(1,i) = f_ion(1,i) + (x*v)
+           f_ion(2,i) = f_ion(2,i) + (y*v)
+           f_ion(3,i) = f_ion(3,i) + (z*v)
 
-          f_ion(1,j) = f_ion(1,j) - (x*v)
-          f_ion(2,j) = f_ion(2,j) - (y*v)
-          f_ion(3,j) = f_ion(3,j) - (z*v)
+           f_ion(1,j) = f_ion(1,j) - (x*v)
+           f_ion(2,j) = f_ion(2,j) - (y*v)
+           f_ion(3,j) = f_ion(3,j) - (z*v)
         end do
       end do
 
@@ -393,16 +399,17 @@
           y = ion_rion(2,i) - ion_rion(2,j)
           z = ion_rion(3,i) - ion_rion(3,j)
           r = dsqrt(x*x + y*y + z*z)
+          if (r.gt.1.0d-6) then
+             v = psp_zv(ion_katm(i))*psp_zv(ion_katm(j))/r**3
 
-          v = psp_zv(ion_katm(i))*psp_zv(ion_katm(j))/r**3
+             f_ion(1,i) = f_ion(1,i) + (x*v)
+             f_ion(2,i) = f_ion(2,i) + (y*v)
+             f_ion(3,i) = f_ion(3,i) + (z*v)
 
-          f_ion(1,i) = f_ion(1,i) + (x*v)
-          f_ion(2,i) = f_ion(2,i) + (y*v)
-          f_ion(3,i) = f_ion(3,i) + (z*v)
-
-          f_ion(1,j) = f_ion(1,j) - (x*v)
-          f_ion(2,j) = f_ion(2,j) - (y*v)
-          f_ion(3,j) = f_ion(3,j) - (z*v)
+             f_ion(1,j) = f_ion(1,j) - (x*v)
+             f_ion(2,j) = f_ion(2,j) - (y*v)
+             f_ion(3,j) = f_ion(3,j) - (z*v)
+          end if
          end if
          dutask = mod((dutask+1),tnp)
         end do
@@ -583,21 +590,22 @@
           y = ion_rion(2,i) - ion_rion(2,j)
           z = ion_rion(3,i) - ion_rion(3,j)
           r = dsqrt(x*x + y*y + z*z)
+          if (r.gt.1.0d-6) then
+             v  = psp_zv(ion_katm(i))/r**3
+             v2 = psp_zv(ion_katm(i))/r**5
 
-          v  = psp_zv(ion_katm(i))/r**3
-          v2 = psp_zv(ion_katm(i))/r**5
+             efg(1,1,j) = v - 3.0d0*x*x*v2
+             efg(2,1,j) = -3.0d0*x*y*v2
+             efg(3,1,j) = -3.0d0*x*z*v2
 
-          efg(1,1,j) = v - 3.0d0*x*x*v2
-          efg(2,1,j) = -3.0d0*x*y*v2
-          efg(3,1,j) = -3.0d0*x*z*v2
+             efg(1,2,j) = -3.0d0*x*y*v2
+             efg(2,2,j) = v - 3.0d0*y*y*v2
+             efg(3,2,j) = -3.0d0*z*y*v2
 
-          efg(1,2,j) = -3.0d0*x*y*v2
-          efg(2,2,j) = v - 3.0d0*y*y*v2
-          efg(3,2,j) = -3.0d0*z*y*v2
-
-          efg(1,3,j) = -3.0d0*x*z*v2
-          efg(2,3,j) = -3.0d0*y*z*v2
-          efg(3,3,j) = v - 3.0d0*z*z*v2
+             efg(1,3,j) = -3.0d0*x*z*v2
+             efg(2,3,j) = -3.0d0*y*z*v2
+             efg(3,3,j) = v - 3.0d0*z*z*v2
+          end if
         end do
       end do
 
