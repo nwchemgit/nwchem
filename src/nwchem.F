@@ -161,7 +161,7 @@ C
 !     label is not accidentally reused, since that will not be caught by
 !     testing that does not enable OpenMP.
 !
- 99   format(2x,'NWChem w/ OpenMP: maximum threads = ',i2)
+ 99   format(2x,'NWChem w/ OpenMP: maximum threads = ',i4)
 #if defined(USE_OPENMP)
       !$omp parallel
       !$omp master
