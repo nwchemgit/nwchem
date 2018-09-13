@@ -32,7 +32,7 @@ c     J. Sun, A. Ruzsinszky, J.P. Perdew
 c     PRL 115, 036402 (2015)
 c     DOI: 10.1103/PhysRevLett.115036402
 
-      Subroutine nwpw_x_scan(tol_rho, fac,  rho, delrho, 
+      Subroutine nwpwxc_x_scan(tol_rho, fac,  rho, delrho, 
      &                    Amat, Cmat, nq, ipol, Ex, 
      &                    qwght, ldew, func, tau,Mmat)
       implicit none
@@ -70,7 +70,7 @@ c
 c     SPIN-RESTRICTED
 c     Ex = Ex[n]
 c
-         call xc_xscan_cs(tol_rho, fac,  rho, delrho, 
+         call nwpwxc_xscan_cs(tol_rho, fac,  rho, delrho, 
      &                    Amat, Cmat, nq, Ex, 1d0,
      &                    qwght, ldew, func, tau,Mmat)
       else
@@ -81,7 +81,7 @@ c     Ex = Ex[2n_up]/2 + Ex[2n_down]/2
          do ispin=1,2
             if (ispin.eq.1) cmatpos=D1_GAA
             if (ispin.eq.2) cmatpos=D1_GBB
-            call xc_xscan_cs(tol_rho, fac,  
+            call nwpwxc_xscan_cs(tol_rho, fac,  
      R           rho(1,ispin+1), delrho(1,1,ispin), 
      &           Amat(1,ispin), Cmat(1,cmatpos), 
      &           nq, Ex, 2d0,
@@ -92,7 +92,7 @@ c     Ex = Ex[2n_up]/2 + Ex[2n_down]/2
       endif
       return
       end
-      Subroutine xc_xscan_cs(tol_rho, fac,  rho, delrho, 
+      Subroutine nwpwxc_xscan_cs(tol_rho, fac,  rho, delrho, 
      &                     Amat, Cmat, nq, Ex, facttwo,
      &                     qwght, ldew, func, tau,Mmat)
       implicit none
