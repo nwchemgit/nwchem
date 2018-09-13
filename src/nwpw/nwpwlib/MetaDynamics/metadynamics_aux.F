@@ -78,7 +78,7 @@
       Ra = (3.0d0*(V0+dV0*N1)/fourpi)**(onethird)
       Rb = (3.0d0*(V0+dV0*N2)/fourpi)**(onethird)
       dRadN1 = dV0/(((9.0d0*fourpi)*(V0+dV0*N1)**2)**(onethird))
-      dRadN1 = dV0/(((9.0d0*fourpi)*(V0+dV0*N2)**2)**(onethird))
+      dRbdN2 = dV0/(((9.0d0*fourpi)*(V0+dV0*N2)**2)**(onethird))
       dx = R2(1) - R1(1)
       dy = R2(2) - R1(2)
       dz = R2(3) - R1(3)
