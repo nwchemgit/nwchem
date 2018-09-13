@@ -564,6 +564,7 @@ c
         write(luout,20)"NWXCP_X_TPSS",NWXCP_X_TPSS
         write(luout,20)"NWXCP_X_WPBE",NWXCP_X_WPBE
         write(luout,20)"NWXCP_X_VS98",NWXCP_X_VS98
+        write(luout,20)"NWXCP_X_SCAN",NWXCP_X_SCAN
         write(luout,20)"NWXCP_C_B95",NWXCP_C_B95
         write(luout,20)"NWXCP_C_DLDF",NWXCP_C_DLDF
         write(luout,20)"NWXCP_C_LYP",NWXCP_C_LYP
@@ -584,6 +585,7 @@ c
         write(luout,20)"NWXCP_C_PBESOL",NWXCP_C_PBESOL
         write(luout,20)"NWXCP_C_TPSS",NWXCP_C_TPSS
         write(luout,20)"NWXCP_C_VS98",NWXCP_C_VS98
+        write(luout,20)"NWXCP_C_SCAN",NWXCP_C_SCAN
         write(luout,20)"NWXCP_C_VWN1",NWXCP_C_VWN1
         write(luout,20)"NWXCP_C_VWN1_RPA",NWXCP_C_VWN1_RPA
         write(luout,20)"NWXCP_C_VWN2",NWXCP_C_VWN2
@@ -615,6 +617,7 @@ c
         write(luout,20)"NWXCP_TPSS",NWXCP_TPSS
         write(luout,20)"NWXCP_HSE",NWXCP_HSE
         write(luout,20)"NWXCP_VS98",NWXCP_VS98
+        write(luout,20)"NWXCP_SCAN",NWXCP_SCAN
         write(luout,20)"NWXCP_PBE_D1",NWXCP_PBE_D1
 #endif
         write(luout,*)

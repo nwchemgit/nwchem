@@ -17,7 +17,8 @@
                    nwpwxc_cs00.o nwpwxc_vdw3a.o nwpwxc_vdw3b.o nwpwxc_vdw3c.o \
                    nwpwxcP_xc_b97.o nwpwxc_x_b97.o nwpwxc_c_b97.o nwpwxc_xc_kt1.o \
                    nwpwxc_c_spbe.o nwpwxc_x_ssbD_1.o nwpwxc_c_perdew81.o \
-                   nwpwxc_c_perdew86.o nwpwxc_x_pw91.o nwpwxc_x_pw6.o nwpwxc_x_b86b.o
+                   nwpwxc_c_perdew86.o nwpwxc_x_pw91.o nwpwxc_x_pw6.o nwpwxc_x_b86b.o \
+                   nwpwxc_x_scan.o nwpwxc_c_scan.o
 
              OBJ = nwpwxc_block.o nwpwxc_add.o nwpwxc_query.o nwpwxc_nwchem.o \
                    nwpwxc_vdw3d.o

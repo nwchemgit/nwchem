@@ -613,6 +613,10 @@ c
            cdata = "VS98 Exchange (T van Voorhis, GE Scuseria, "
      +             //"J.Chem.Phys. 109, 400 (1998)"
      +             //" doi:10.1063/1.3005348)"
+         case (NWXCP_X_SCAN)
+           cdata = "SCAN Exchange (T van Voorhis, GE Scuseria, "
+     +             //"J.Chem.Phys. 109, 400 (1998)"
+     +             //" doi:10.1063/1.3005348)"
          case (NWXCP_C_B95)
            cdata = "B95 Correlation (AD Becke, "
      +             //"J.Chem.Phys. 104, 1040 (1996)"
@@ -807,6 +811,10 @@ c
      +             //"146401 (2003) doi:10.1103/PhysRevLett.91.146401)"
          case (NWXCP_C_VS98)
            cdata = "VS98 Correlation (T van Voorhis, GE Scuseria, "
+     +             //"J.Chem.Phys. 109, 400 (1998)"
+     +             //" doi:10.1063/1.3005348)"
+         case (NWXCP_C_SCAN)
+           cdata = "SCAN Correlation (T van Voorhis, GE Scuseria, "
      +             //"J.Chem.Phys. 109, 400 (1998)"
      +             //" doi:10.1063/1.3005348)"
          case (NWXCP_C_VWN1)
@@ -1085,6 +1093,10 @@ c
      +             //"12129 (2003) doi:10.1063/1.1626543)"
          case (NWXCP_VS98)
            cdata = "VS98 (T van Voorhis, GE Scuseria, "
+     +             //"J.Chem.Phys. 109, 400 (1998)"
+     +             //" doi:10.1063/1.3005348)"
+         case (NWXCP_SCAN)
+           cdata = "SCAN (T van Voorhis, GE Scuseria, "
      +             //"J.Chem.Phys. 109, 400 (1998)"
      +             //" doi:10.1063/1.3005348)"
          case (NWXCP_PBE_D1)

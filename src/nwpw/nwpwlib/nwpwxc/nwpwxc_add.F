@@ -427,6 +427,8 @@ c       nwpwxc_wght_hf    = 1.00d0
         nwpwxc_cam_srhfex = .false.
       else if (dfname.eq."xvs98") then
         nwpwxc_add_df = nwpwxc_all_add_func(NWXCP_X_VS98,dfweight)
+      else if (dfname.eq."xscan") then
+        nwpwxc_add_df = nwpwxc_all_add_func(NWXCP_X_SCAN,dfweight)
       else if (dfname.eq."cbecke97") then
         nwpwxc_add_df = nwpwxc_all_add_func(NWXCP_C_B97,dfweight)
       else if (dfname.eq."cbecke97-1") then
@@ -543,6 +545,8 @@ c       nwpwxc_add_df = nwpwxc_all_add_func(NWXCP_C_HCTH_A,dfweight)
         nwpwxc_add_df = nwpwxc_all_add_func(NWXCP_C_TPSS,dfweight)
       else if (dfname.eq."cvs98") then
         nwpwxc_add_df = nwpwxc_all_add_func(NWXCP_C_VS98,dfweight)
+      else if (dfname.eq."cscan") then
+        nwpwxc_add_df = nwpwxc_all_add_func(NWXCP_C_SCAN,dfweight)
       else if (dfname.eq."perdew81".or.dfname.eq."cperdew81") then
         nwpwxc_add_df = nwpwxc_all_add_func(NWXCP_C_PZ81,dfweight)
       else if (dfname.eq."perdew86".or.dfname.eq."cperdew86") then
@@ -1137,6 +1141,12 @@ c       In the NWChem DFT code RPBE does not include correlation
      &                nwpwxc_add_func(NWXCP_X_VS98,dfweight)
         nwpwxc_add_df = nwpwxc_add_df .and.
      &                nwpwxc_add_func(NWXCP_C_VS98,dfweight)
+      else if (dfname.eq."scan") then ! alias
+        nwpwxc_add_df = nwpwxc_usr_add_func(NWXCP_SCAN,dfweight)
+        nwpwxc_add_df = nwpwxc_add_df .and.
+     &                nwpwxc_add_func(NWXCP_X_SCAN,dfweight)
+        nwpwxc_add_df = nwpwxc_add_df .and.
+     &                nwpwxc_add_func(NWXCP_C_SCAN,dfweight)
 c
 c     Dispersion corrected functionals
 c

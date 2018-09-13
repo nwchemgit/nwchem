@@ -902,6 +902,10 @@ c            parameters D
              call nwpwxc_x_vs98(param,nwpwxc_rho_tol,ipol,nq,
      >                       nwpwxc_wghts(it),
      +                       rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_X_SCAN)
+             call nwpwxc_x_scan(nwpwxc_rho_tol,ipol,nq,
+     >                       nwpwxc_wghts(it),
+     +                       rho,gamma,tau,f,dfdr,dfdg,dfdt)
            case (NWXCP_C_B95)
              param(1) = 0.0031d0
              param(2) = 0.038d0
@@ -1467,6 +1471,10 @@ c            parameters B
              param(11) = -5.451559d-03
              param(12) =  1.577575d-02
              call nwpwxc_c_vs98(param,nwpwxc_rho_tol,ipol,nq,
+     >                        nwpwxc_wghts(it),
+     +                        rho,gamma,tau,f,dfdr,dfdg,dfdt)
+           case (NWXCP_C_SCAN)
+             call nwpwxc_c_scan(nwpwxc_rho_tol,ipol,nq,
      >                        nwpwxc_wghts(it),
      +                        rho,gamma,tau,f,dfdr,dfdg,dfdt)
            case (NWXCP_C_VWN1)
