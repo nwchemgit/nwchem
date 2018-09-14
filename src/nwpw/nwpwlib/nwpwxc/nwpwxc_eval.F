@@ -308,7 +308,10 @@ C
          call dcopy(nq*ipol,0.0d0,0,dfdt,1)
        endif
 C
+       write(*,*) "GERA,nwpwxc_num_f=",nwpwxc_num_f
+       write(*,*) "GERAA NWXCP_X_SCAN=",NWXCP_X_SCAN,NWXCP_C_SCAN
        do it = 1, nwpwxc_num_f
+         write(*,*) "GERB,nwpwxc_ids(it)=",nwpwxc_ids(it)
          select case (nwpwxc_ids(it))
            case (NWXCP_X_SLATER)
              call nwpwxc_x_dirac(nwpwxc_rho_tol,ipol,nq,

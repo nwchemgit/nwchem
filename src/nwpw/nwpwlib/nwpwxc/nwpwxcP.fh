@@ -674,7 +674,7 @@ C
                                     !< kinetic energy density?
       logical nwpwxc_oroot            !< Is this the root process?
       integer NWXC_MAX_F !< The maximum number of terms in a functional
-      parameter (NWXC_MAX_F = 50)
+      parameter (NWXC_MAX_F = 53)
       integer          nwpwxc_num_f             !< The actual number of
                                               !< functional terms
       integer          nwpwxc_ids(NWXC_MAX_F)   !< The functional

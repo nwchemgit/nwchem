@@ -53,10 +53,13 @@ c
       logical  nwpwxc_add_df, nwpwxc_usr_add_func, nwpwxc_add_func
       external nwpwxc_add_df, nwpwxc_usr_add_func, nwpwxc_add_func
 c
+      write(*,*) "HERA"
       call nwpwxc_init()
+      write(*,*) "HERB"
       nwpwxc_on = .true.
       stat = .true.
       do while (inp_a(func))
+      write(*,*) "HERC,func=",func
         olocal = .true.
         ononlocal = .true.
 c
@@ -98,8 +101,10 @@ c                               ! cursor if failed
             stat = stat .and. nwpwxc_add_df(func(1:ilen),wght)
         end select
       enddo
+      write(*,*) "HERY"
       call nwpwxc_detect_dependencies()
       nwpwxc_input = stat
+      write(*,*) "HERZ"
       return
       end
 C>

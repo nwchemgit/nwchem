@@ -30,9 +30,12 @@ c     J. Sun, A. Ruzsinszky, J.P. Perdew
 c     PRL 115, 036402 (2015)
 c     DOI: 10.1103/PhysRevLett.115036402
 
-      Subroutine nwpwxc_c_scan(tol_rho, cfac, rho, delrho, Amat, Cmat,
-     &                     nq, ipol, Ec, qwght, ldew, func,
-     &                     tau, Mmat)     
+!      Subroutine nwpwxc_c_scan(tol_rho, cfac, rho, delrho, Amat, Cmat,
+!     &                     nq, ipol, Ec, qwght, ldew, func,
+!     &                     tau, Mmat)     
+
+      Subroutine nwpwxc_c_scan(tol_rho, ipol, nq, qwght, rho,
+     &                       delrho, tau, func, Amat, Cmat, Mmat)
 c
       implicit none
 c
@@ -44,20 +47,14 @@ c     Input and other parameters
 c
       integer ipol, nq
       double precision dummy(1)
-      double precision cfac(*)
-      logical ldew
+      !double precision cfac(*)
       double precision func(*)
-      double precision fac
       double precision tol_rho
 c
 c     Threshold parameters
 c
       double precision thr1,thr2
       parameter (thr1=0.996d0,thr2=1.004d0)
-c
-c     Correlation energy
-c
-      double precision Ec
 c
 c     Charge Density 
 c
@@ -79,6 +76,11 @@ c     Sampling Matrices for the XC Potential
 c
       double precision Amat(nq,ipol), Cmat(nq,*)
       double precision Mmat(nq,*)
+
+      double precision fac,Ec
+      parameter (fac=1.0d0)
+      logical ldew
+      parameter (ldew = .true.)
 c
 c     Intermediate derivatives, results, etc.
 c
@@ -172,8 +174,8 @@ c
          drsdn=-F13*rs/ntot
          rs12=dsqrt(rs)
 c
-         call lsdac(tol_rho,rs,zeta,epsc,depscdrs,depscdzeta,dummy,
-     &              dummy,dummy)
+         call nwpwxc_c_lsda(tol_rho,rs,zeta,epsc,depscdrs,depscdzeta,
+     &              dummy,dummy,dummy)
 c
          opz = 1d0 + zeta
          omz = 1d0 - zeta

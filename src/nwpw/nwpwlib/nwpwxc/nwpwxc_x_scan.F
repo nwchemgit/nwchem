@@ -32,14 +32,15 @@ c     J. Sun, A. Ruzsinszky, J.P. Perdew
 c     PRL 115, 036402 (2015)
 c     DOI: 10.1103/PhysRevLett.115036402
 
-      Subroutine nwpwxc_x_scan(tol_rho, fac,  rho, delrho, 
-     &                    Amat, Cmat, nq, ipol, Ex, 
-     &                    qwght, ldew, func, tau,Mmat)
+!      Subroutine nwpwxc_x_scan(tol_rho, rho, delrho, 
+!     &                    Amat, Cmat, nq, ipol, Ex, 
+!     &                    qwght, ldew, func, tau,Mmat)
+
+      Subroutine nwpwxc_x_scan(tol_rho,ipol,nq,qwght,rho,delrho,
+     &                       tau, func, Amat, Cmat, Mmat)
       implicit none
 c      
-      double precision fac, Ex
       integer nq, ipol
-      logical ldew
       double precision func(*)  ! value of the functional [output]
 c
 c     Charge Density & Its Cube Root
@@ -64,6 +65,11 @@ c
       double precision tol_rho
 c
       integer ispin,cmatpos
+
+      double precision fac,Ex
+      parameter (fac = 1.0d0)
+      logical ldew
+      parameter (ldew = .true.)
 c
       if (ipol.eq.1 )then
 c     
