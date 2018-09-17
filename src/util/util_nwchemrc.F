@@ -114,7 +114,7 @@ c
           return
         endif
         open(unit=69,file=nwchrc(1:inp_strlen(nwchrc)),
-     +       form='formatted',status='old',err=9999)
+     +       form='formatted',status='old',action='read',err=9999)
         rewind(unit=69)
 c
 c       Loop over the lines in the file as long as we have not found
