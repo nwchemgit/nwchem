@@ -1284,7 +1284,8 @@ endif
         else
         FOPTIONS += -i8 
         endif
-        FOPTIONS += -fpp -g -no-save-temps
+        FOPTIONS += -fpp -g -no-save-temps #-warn all
+        COPTIONS += -DMKL -std=c99 -qopenmp
         FDEBUG    = -O2 -g
         FOPTIMIZE = -O3 -xHost
         ifdef USE_OPENMP
