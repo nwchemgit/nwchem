@@ -34,7 +34,6 @@ export OMP_NUM_THREADS=1
 export USE_NOIO=1
 if [[ "$USE_64TO32" == "y" ]]; then
   export BLAS_SIZE=4
-  export LAPACK_SIZE=4
   export SCALAPACK_SIZE=4
 fi
 export USE_PYTHONCONFIG=y
