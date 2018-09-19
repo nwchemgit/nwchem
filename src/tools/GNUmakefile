@@ -400,6 +400,14 @@ endif
 # sensible that value should be used, and otherwise do without an
 # external BLAS library and build the internal source code version
 # instead. HvD.
+ifndef LAPACK_LIB
+  ifdef BLAS_LIB
+     LAPACK_LIB=$(BLAS_LIB)
+  endif
+  ifdef BLASOPT
+     LAPACK_LIB=$(BLASOPT)
+  endif
+endif
 ifneq ($(BLASOPT),)
     ifneq ($(BLAS_LIB),)
         ifeq ($(BLAS_SIZE),4)
@@ -431,11 +439,7 @@ else
 endif
 
 ifneq ($(LAPACK_LIB),)
-    ifeq ($(LAPACK_SIZE),4)
         MAYBE_LAPACK = --with-lapack="$(strip $(LAPACK_LIB))"
-    else
-        MAYBE_LAPACK = --with-lapack="$(strip $(LAPACK_LIB))"
-    endif
 else
     MAYBE_LAPACK = --without-lapack
 endif
