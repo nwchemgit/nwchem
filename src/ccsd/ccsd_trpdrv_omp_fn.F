@@ -227,6 +227,7 @@
                             call ga_nbwait(nbh_coul1)
                             call ga_nbwait(nbh_coul2)
                         endif
+#if 0
                         call ccsd_trpdrv_omp_body(
      &                       f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,
      &                       ncor,nocc,nvir, emp4,emp5,
@@ -236,6 +237,17 @@
      &                       Jij, Jkj, Kij, Kkj,
      &                       dintc1,dintx1,t1v1,
      &                       dintc2,dintx2,t1v2)
+#else
+                        call ccsd_trpdrv_omp_cbody(
+     &                       f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,
+     &                       ncor,nocc,nvir, emp4,emp5,
+     &                       a,i,j,k,klo,
+     &                       Tij, Tkj, Tia, Tka, Xia, Xka,
+     &                       Jia, Jka, Kia, Kka,
+     &                       Jij, Jkj, Kij, Kkj,
+     &                       dintc1,dintx1,t1v1,
+     &                       dintc2,dintx2,t1v2)
+#endif
                      end do    ! k
                   end do       ! i
                   if (iprt.gt.50)then

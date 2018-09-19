@@ -29,6 +29,7 @@ include ../config/makefile.h
 	ccsd_trpdrv_omp_mixprec.o \
         ccsd_trpdrv_omp_fn.o \
         ccsd_trpdrv_omp_body.o \
+	ccsd_trpdrv_omp_cbody.o \
         moints_trp.o \
         ccsd.o \
         ccsd_aux.o \
