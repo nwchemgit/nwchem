@@ -472,7 +472,7 @@ task dft gradient
                                                      3.31D-09  1.37D-15
 
 
-         Total DFT energy =      775.040383561567
+         Total DFT energy =       -5.040383561567
       One electron energy =       -8.751365780154
            Coulomb energy =        3.570163288906
     Exchange-Corr. energy =       -1.683930204801
