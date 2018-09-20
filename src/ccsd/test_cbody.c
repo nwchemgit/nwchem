@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 
     const int nbf = ncor + nocc + nvir;
     const int lnvv = nvir * nvir;
-    const int lnoo = nvir * nocc;
+    const int lnov = nocc * nvir;
 
     const int nkpass = 1; /* assume unlimited memory */
     const int kchunk = (nocc - 1)/nkpass + 1;
@@ -88,8 +88,13 @@ int main(int argc, char* argv[])
     double * t1v1   = make_array(lnvv);
     double * t1v2   = make_array(lnvv);
 
-    double emp4=0.0, double emp5=0.0;
+    double emp4=0.0, emp5=0.0;
     int a=1, i=1, j=1, k=1, klo=1;
+
+    ccsd_trpdrv_omp_cbody_(f1n, f1t, f2n, f2t, f3n, f3t, f4n, f4t, eorb,
+                           &ncor, &nocc, &nvir, &emp4, &emp5, &a, &i, &j, &k, &klo,
+                           Tij, Tkj, Tia, Tka, Xia, Xka, Jia, Jka, Kia, Kka, Jij, Jkj, Kij, Kkj,
+                           dintc1, dintx1, t1v1, dintc2, dintx2, t1v2);
 
     return 0;
 }
