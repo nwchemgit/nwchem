@@ -66,19 +66,8 @@ void ccsd_trpdrv_omp_cbody_(double * restrict f1n, double * restrict f1t,
         {
             #pragma omp section
             {
-                printf("nv = %d, sizeof(nv) = %zu\n", nv, sizeof(nv));
-                /*
-                 * void cblas_dgemm (const CBLAS_LAYOUT Layout, const CBLAS_TRANSPOSE transa, const CBLAS_TRANSPOSE transb,
-                 *                   const MKL_INT m, const MKL_INT n, const MKL_INT k,
-                 *                   const double alpha, const double *a, const MKL_INT lda,
-                 *                   const double *b, const MKL_INT ldb, const double beta,
-                 *                   double *c, const MKL_INT ldc);
-                 */
                 cblas_dgemm(CblasColMajor, CblasNoTrans, CblasTrans,
-                            nv, nv, nv,
-                            1.0, jia, nv,
-                            &tkj[(k-klo)*lnvv], nv, 0.0,
-                            f1n, nv);
+                            nv, nv, nv, 1.0, jia, nv, &tkj[(k-klo)*lnvv], nv, 0.0, f1n, nv);
                 cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
                             nv, nv, no, -1.0, tia, nv, &kkj[(k-klo)*lnov], no, 1.0, f1n, nv);
             }
