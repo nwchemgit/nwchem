@@ -1,4 +1,6 @@
 #!/bin/bash -f
+# Exit on error
+set -ev
 # source env. variables
  source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
  os=`uname`
