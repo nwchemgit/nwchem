@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* Do not allow the test to allocate more than MAX_MEM gigabytes. */
+#ifndef MAX_MEM
+#define MAX_MEM 4
+#endif
+
 #define MIN(x,y) (x<y ? x : y)
 #define MAX(x,y) (x>y ? x : y)
 
@@ -39,9 +44,10 @@ int main(int argc, char* argv[])
 {
     int ncor, nocc, nvir;
     int maxiter = 100;
+    int nkpass = 1;
 
     if (argc<3) {
-        printf("Usage: ./test_cbody nocc nvir [maxiter]\n");
+        printf("Usage: ./test_cbody nocc nvir [maxiter] [nkpass]\n");
         return argc;
     } else {
         ncor = 0;
@@ -49,6 +55,11 @@ int main(int argc, char* argv[])
         nvir = atoi(argv[2]);
         if (argc>3) {
             maxiter = atoi(argv[3]);
+            /* if negative, treat as "infinite" */
+            if (maxiter<0) maxiter = 1<<30;
+        }
+        if (argc>4) {
+            nkpass = atoi(argv[4]);
         }
     }
 
@@ -57,14 +68,25 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    printf("Test driver for cbody with nocc=%d, nvir=%d, maxiter=%d\n", nocc, nvir, maxiter);
+    printf("Test driver for cbody with nocc=%d, nvir=%d, maxiter=%d, nkpass=%d\n", nocc, nvir, maxiter, nkpass);
 
     const int nbf = ncor + nocc + nvir;
     const int lnvv = nvir * nvir;
     const int lnov = nocc * nvir;
-
-    const int nkpass = 1; /* assume unlimited memory */
     const int kchunk = (nocc - 1)/nkpass + 1;
+
+    const double memory = (nbf+8.0*lnvv+
+                           lnvv+kchunk*lnvv+lnov*nocc+kchunk*lnov+lnov*nocc+kchunk*lnov+lnvv+
+                           kchunk*lnvv+lnvv+kchunk*lnvv+lnov*nocc+kchunk*lnov+lnov*nocc+
+                           kchunk*lnov+lnov+nvir*kchunk+nvir*nocc+
+                           6.0*lnvv)*sizeof(double);
+    printf("This test requires %f GB of memory.\n", 1.0e-9*memory);
+
+    if (1.0e-9*memory > MAX_MEM) {
+        printf("You need to increase MAX_MEM (%d)\n", MAX_MEM);
+        printf("or set nkpass (%d) to a larger number.\n", nkpass);
+        return MAX_MEM;
+    }
 
     double * eorb = make_array(nbf);
 
@@ -102,7 +124,8 @@ int main(int argc, char* argv[])
     double * t1v1   = make_array(lnvv);
     double * t1v2   = make_array(lnvv);
 
-    double * timers = calloc(nocc*nocc*nocc*nocc,sizeof(double));
+    int ntimers = MIN(maxiter,nocc*nocc*nocc*nocc);
+    double * timers = calloc(ntimers,sizeof(double));
 
     double emp4=0.0, emp5=0.0;
     int a=1, i=1, j=1, k=1, klo=1;
@@ -122,6 +145,7 @@ int main(int argc, char* argv[])
                                            dintc1, dintx1, t1v1, dintc2, dintx2, t1v2);
                     double t1 = omp_get_wtime();
                     timers[iter] = (t1-t0);
+
                     iter++;
                     if (iter==maxiter) {
                         printf("Stopping after %d iterations...\n", iter);
@@ -165,7 +189,7 @@ maxed_out:
     printf("PERF: GF/s=%10.3e GB/s=%10.3e\n",
             1.0e-9*(dgemm_flops+tengy_ops)/tavg, 8.0e-9*(dgemm_mops+tengy_ops)/tavg);
 
-    printf("These are meaningless but should be constant with fixed (nocc,nvir,maxiter):\n");
+    printf("These are meaningless but should not vary for a particular input:\n");
     printf("emp4=%f emp5=%f\n", emp4, emp5);
 
     printf("SUCCESS\n");
