@@ -156,9 +156,9 @@ maxed_out:
     double dgemm_flops = ((8.0*nvir)*nvir)*(nvir+nocc);
     double dgemm_mops  = 8.0*(4.0*nvir*nvir + 2.0*nvir*nocc);
 
-    /* The inner loop of tengy touches 24 f[1234][nt] elements and 8 other arrays...
-     * We will just assume flops=mops... */
-    double tengy_ops = ((1.0*nvir)*nvir)*(24+8);
+    /* The inner loop of tengy touches 86 f[1234][nt] elements and 8 other arrays...
+     * We will just assume flops=mops even though flops>mops */
+    double tengy_ops = ((1.0*nvir)*nvir)*(86+8);
 
     printf("OPS: dgemm_flops=%10.3e dgemm_mops=%10.3e tengy_ops=%10.3e\n",
             dgemm_flops, dgemm_mops, tengy_ops);
