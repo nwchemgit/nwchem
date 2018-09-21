@@ -133,31 +133,53 @@ void ccsd_trpdrv_omp_cbody_(double * restrict f1n, double * restrict f1t,
         #pragma omp for collapse(2) schedule(static) reduction(+:emp5i,emp4i) reduction(+:emp5k,emp4k)
         for (int b = 0; b < nvir; ++b) {
             for (int c = 0; c < nvir; ++c) {
-                double denom = -1.0 / (eorb[ncor+nocc+b] + eorb[ncor+nocc+c] + eaijk);
-                emp4i += denom * (f1t[b+c*nvir]+f1n[c+b*nvir]+f2t[c+b*nvir]+f3n[b+c*nvir]+f4n[c+b*nvir])
-                               * (f1t[b+c*nvir]-f2t[b+c*nvir]*2-f3t[b+c*nvir]*2+f4t[b+c*nvir])
-                       - denom * (f1n[b+c*nvir]+f1t[c+b*nvir]+f2n[c+b*nvir]+f3n[c+b*nvir])
-                               * (f1t[b+c*nvir]*2-f2t[b+c*nvir]-f3t[b+c*nvir]+f4t[b+c*nvir]*2)
-                       + denom * 3 * (f1n[b+c*nvir]*(f1n[b+c*nvir]+f3n[c+b*nvir]+f4t[c+b*nvir]*2)
-                                      +f2n[b+c*nvir]*f2t[c+b*nvir]+f3n[b+c*nvir]*f4t[b+c*nvir]);
-                emp4k += denom * (f1n[b+c*nvir]+f1t[c+b*nvir]+f2n[c+b*nvir]+f3t[b+c*nvir]+f4t[c+b*nvir])
-                               * (f1n[b+c*nvir]-f2n[b+c*nvir]*2-f3n[b+c*nvir]*2+f4n[b+c*nvir])
-                       - denom * (f1t[b+c*nvir]+f1n[c+b*nvir]+f2t[c+b*nvir]+f3t[c+b*nvir])
-                               * (f1n[b+c*nvir]*2-f2n[b+c*nvir]-f3n[b+c*nvir]+f4n[b+c*nvir]*2)
-                       + denom * 3 * (f1t[b+c*nvir]*(f1t[b+c*nvir]+f3t[c+b*nvir]+f4n[c+b*nvir]*2)
-                                      +f2t[b+c*nvir]*f2n[c+b*nvir]+f3t[b+c*nvir]*f4n[b+c*nvir]);
-                emp5i += denom * t1v1[b] * dintx1[c] * (f1t[b+c*nvir]+f2n[b+c*nvir]+f4n[c+b*nvir]
-                                                        -(f3t[b+c*nvir]+f4n[b+c*nvir]+f2n[c+b*nvir]
-                                                          +f1n[b+c*nvir]+f2t[b+c*nvir]+f3n[c+b*nvir])*2
-                                                        +(f3n[b+c*nvir]+f4t[b+c*nvir]+f1n[c+b*nvir])*4)
-                       + denom * t1v1[b] * dintc1[c] * (f1n[b+c*nvir]+f4n[b+c*nvir]+f1t[c+b*nvir]
-                                                        -(f2n[b+c*nvir]+f3n[b+c*nvir]+f2t[c+b*nvir])*2);
-                emp5k += denom * t1v2[b] * dintx2[c] * (f1n[b+c*nvir]+f2t[b+c*nvir]+f4t[c+b*nvir]
-                                                        -(f3n[b+c*nvir]+f4t[b+c*nvir]+f2t[c+b*nvir]
-                                                          +f1t[b+c*nvir]+f2n[b+c*nvir]+f3t[c+b*nvir])*2
-                                                        +(f3t[b+c*nvir]+f4n[b+c*nvir]+f1t[c+b*nvir])*4)
-                       + denom * t1v2[b] * dintc2[c] * (f1t[b+c*nvir]+f4t[b+c*nvir]+f1n[c+b*nvir]
-                                                        -(f2t[b+c*nvir]+f3t[b+c*nvir]+f2n[c+b*nvir])*2);
+
+                const double denom = -1.0 / (eorb[ncor+nocc+b] + eorb[ncor+nocc+c] + eaijk);
+
+                const size_t bc = b+c*nvir;
+                const size_t cb = c+b*nvir;
+
+                const double f1nbc = f1n[bc];
+                const double f1tbc = f1t[bc];
+                const double f1ncb = f1n[cb];
+                const double f1tcb = f1t[cb];
+
+                const double f2nbc = f2n[bc];
+                const double f2tbc = f2t[bc];
+                const double f2ncb = f2n[cb];
+                const double f2tcb = f2t[cb];
+
+                const double f3nbc = f3n[bc];
+                const double f3tbc = f3t[bc];
+                const double f3ncb = f3n[cb];
+                const double f3tcb = f3t[cb];
+
+                const double f4nbc = f4n[bc];
+                const double f4tbc = f4t[bc];
+                const double f4ncb = f4n[cb];
+                const double f4tcb = f4t[cb];
+
+                emp4i += denom * (f1tbc+f1ncb+f2tcb+f3nbc+f4ncb) * (f1tbc-f2tbc*2-f3tbc*2+f4tbc)
+                       - denom * (f1nbc+f1tcb+f2ncb+f3ncb) * (f1tbc*2-f2tbc-f3tbc+f4tbc*2)
+                       + denom * 3 * (f1nbc*(f1nbc+f3ncb+f4tcb*2) +f2nbc*f2tcb+f3nbc*f4tbc);
+                emp4k += denom * (f1nbc+f1tcb+f2ncb+f3tbc+f4tcb) * (f1nbc-f2nbc*2-f3nbc*2+f4nbc)
+                       - denom * (f1tbc+f1ncb+f2tcb+f3tcb) * (f1nbc*2-f2nbc-f3nbc+f4nbc*2)
+                       + denom * 3 * (f1tbc*(f1tbc+f3tcb+f4ncb*2) +f2tbc*f2ncb+f3tbc*f4nbc);
+
+                const double t1v1b = t1v1[b];
+                const double t1v2b = t1v2[b];
+
+                const double dintx1c = dintx1[c];
+                const double dintx2c = dintx2[c];
+                const double dintc1c = dintc1[c];
+                const double dintc2c = dintc2[c];
+
+                emp5i += denom * t1v1b * dintx1c * (f1tbc+f2nbc+f4ncb-(f3tbc+f4nbc+f2ncb+f1nbc+f2tbc+f3ncb)*2
+                                                    +(f3nbc+f4tbc+f1ncb)*4)
+                       + denom * t1v1b * dintc1c * (f1nbc+f4nbc+f1tcb -(f2nbc+f3nbc+f2tcb)*2);
+                emp5k += denom * t1v2b * dintx2c * (f1nbc+f2tbc+f4tcb -(f3nbc+f4tbc+f2tcb +f1tbc+f2nbc+f3tcb)*2
+                                                    +(f3tbc+f4nbc+f1tcb)*4)
+                       + denom * t1v2b * dintc2c * (f1tbc+f4tbc+f1ncb -(f2tbc+f3tbc+f2ncb)*2);
             }
         }
     }
