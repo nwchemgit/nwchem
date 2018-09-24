@@ -151,8 +151,31 @@ c        ***** calculate unpolarized Exchange energies and potentials *****
          kf = (3.0d0*pi*pi*n)**onethird
          s  = agr/(2.0d0*kf*n)
 
+         t    = 2.0d0*s*s/(4.0d0+s*s) - 1.0d0
+         F    = 0.0d0
+         Ft = 0.0d0
+         s2   = t*t - 1.0d0
+         if (dabs(s2).lt.1.0d-12) then
+            do i=0,n
+               F    = F + a(i)
+               dFdt = dFdt + a(i)*0.5d0*dbl(i*(i+1))
+            end do
+         else
+            oneovers2 = 1.0d0/s2
+            p0 = 1.0d0
+            dp = 0
+            p1 = t
+            dp = 1.0d0
+            do i=2,n
+               p2    = (1.0d0/dble(i+1))*((2*i+1)*t*p1 - dble(i)*p0)
+               dp2   = dble(i)*oneovers2*(t*p2-p1)
+               F  = F + a(i)*p2
+               Ft = dFdt + a(i)*dp2
+               p0 = p1
+               p1 = p2
+            end do
+         end if
 
-         F   = ????
          Fs  = (16.0d0*s/(4.0d0+s*s)**2)*Ft
 
          ex   = ex_lda*F

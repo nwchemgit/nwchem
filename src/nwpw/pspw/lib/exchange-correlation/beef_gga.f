@@ -1,26 +1,3 @@
-      program lkjdfldjf
-
-      real*8 a(0:29)
-      data a(0:29)/1.516501714d0,  4.413532099d-1,-9.182135241d-2,
-     >            -2.352754331d-2, 3.418828455d-2, 2.411870076d-3,
-     >            -1.416381352d-2, 6.975895581d-4, 9.859205137d-3,
-     >            -6.737855051d-3,-1.573330824d-3, 5.036146253d-3,
-     >            -2.569472453d-3,-9.874953976d-4, 2.033722895d-3,
-     >            -8.018718848d-4,-6.688078723d-4, 1.030936331d-3,
-     >            -3.673838660d-4,-4.213635394d-4,5.761607992d-4,
-     >            -8.346503735d-5,-4.458447585d-4,4.601290092d-4,
-     >            -5.231775398d-6,-4.239570471d-4,3.750190679d-4,
-     >             2.114938125d-5, -1.904911565d-4,7.384362421d-5/
-
-      integer i
-
-      do i=0,29
-         write(*,*) "i,a=",i,a(i)
-      end do
-
-      stop
-      end
-
 *    ************************************
 *    *                                  *
 *    *        gen_BEEF_xc_restricted    *
@@ -106,7 +83,7 @@ c     ****** Perdew-Wang92 LDA correlation coefficients *******
 
 c     **** other constants ****
       real*8 onethird,fourthird,fivethird,onesixthm
-      real*8 twothird,sevensixthm
+      real*8 twothird,sevensixthm,sevensixths
       real*8 onethirdm
       parameter (onethird=1.0d0/3.0d0)
       parameter (onethirdm=-1.0d0/3.0d0)
@@ -115,6 +92,8 @@ c     **** other constants ****
       parameter (fivethird=5.0d0/3.0d0)
       parameter (onesixthm=-1.0d0/6.0d0)
       parameter (sevensixthm=-7.0d0/6.0d0)
+      parameter (sevensixths=7.0d0/6.0d0)
+
 
 *---- Beef expansion parameters given by Wellendorff et al-----------------*
       real*8 alphac,malphac
@@ -132,7 +111,24 @@ c     **** other constants ****
      >            -5.231775398d-6,-4.239570471d-4,3.750190679d-4,
      >             2.114938125d-5, -1.904911565d-4,7.384362421d-5/
 
-      real*8 p0,p1,p2,dp,s2,oneovers2
+c     **** local variables ****
+      integer i,j
+      real*8 n,agr
+      real*8 kf,ks,s,n_onethird,pi,rs_scale
+      real*8 fdnx_const
+      real*8 rs,rss,t,t2,t4,t6
+      real*8 Q0,Q1,Q2,Q3,Q4,Q5,Q8,Q9,B
+      real*8 Ht
+      real*8 B_ec,Hrs,H_B
+      real*8 F,Fs
+
+      real*8 ex_lda,ec_lda
+      real*8 ec_lda_rs
+      real*8 ex,ec,H
+      real*8 fnx,fdnx,fnc,fdnc
+
+
+      real*8 p0,p1,p2,dp,s2,oneovers2,Ft,dp2
 
 
       pi         = 4.0d0*datan(1.0d0)
@@ -151,8 +147,30 @@ c        ***** calculate unpolarized Exchange energies and potentials *****
          kf = (3.0d0*pi*pi*n)**onethird
          s  = agr/(2.0d0*kf*n)
 
-
-         F   = ????
+         t    = 2.0d0*s*s/(4.0d0+s*s) - 1.0d0
+         F    = 0.0d0
+         Ft = 0.0d0
+         s2   = t*t - 1.0d0
+         if (dabs(s2).lt.1.0d-12) then
+            do j=0,29
+               F  = F  + a(j)
+               Ft = Ft + a(j)*0.5d0*dble(j*(j+1))
+            end do
+         else
+            oneovers2 = 1.0d0/s2
+            p0 = 1.0d0
+            dp = 0
+            p1 = t
+            dp = 1.0d0
+            do j=2,29
+               p2    = (1.0d0/dble(j+1))*((2*j+1)*t*p1 - dble(j)*p0)
+               dp2   = dble(j)*oneovers2*(t*p2-p1)
+               F  = F + a(j)*p2
+               Ft = Ft + a(j)*dp2
+               p0 = p1
+               p1 = p2
+            end do
+         end if
          Fs  = (16.0d0*s/(4.0d0+s*s)**2)*Ft
 
          ex   = ex_lda*F
@@ -205,7 +223,7 @@ c        **** PBE96 correlation fdn and fdnc derivatives ****
          ec   = ec_lda + malphac*H
          fnc  = ec  - (onethird*rs*ec_lda_rs)
      >             - malphac*(onethird*rs*Hrs)
-     >             - malphac*(sevensixths*t*Ht))
+     >             - malphac*(sevensixths*t*Ht)
          fdnc = malphac*(0.5d0* Ht/ks)
       
          xce(i) = x_parameter*ex   + c_parameter*ec
@@ -218,32 +236,3 @@ c        **** PBE96 correlation fdn and fdnc derivatives ****
       return
       end
 
-
-
-
-      F    = 0.0d0
-      dFdt = 0.0d0
-      s2   = t*t - 1.0d0
-      if (dabs(s2).lt.1.0d-12) then
-         do i=0,n
-            F    = F + a(i)
-            dFdt = dFdt + a(i)*0.5d0*dbl(i*(i+1))
-         end do
-      else
-         oneovers2 = 1.0d0/s2
-         p0 = 1.0d0
-         dp = 0
-         p1 = t
-         dp = 1.0d0
-
-         do i=2,n
-            p2    = (*1.0d0/dble(i+1))*((2*i+1)*t*p1 - dble(i)*p0)
-            dp2   = dble(i)*oneovers2*(t*p2-p1)
-            F  = F + a(i)*p2
-            dFdt = dFdt + a(i)*dp2
-            p0 = p1
-            p1 = p2
-         end do
-      end if
-      return
-      end 
