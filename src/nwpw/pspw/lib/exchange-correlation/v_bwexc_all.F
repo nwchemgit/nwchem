@@ -91,13 +91,14 @@
 #include "nwpwxc.fh"
 #include "util.fh"
 
-      logical use_lda, use_gga
+      logical use_lda, use_gga, use_mgga
 
     
        use_lda = (.not.nwpwxc_is_on().and.gga.eq.0).or.
      +           (nwpwxc_is_on().and.nwpwxc_is_lda())
        use_gga = (.not.nwpwxc_is_on().and.(gga.ge.10).and.(gga.lt.100))
      +           .or.(nwpwxc_is_on().and.nwpwxc_is_gga())
+       use_mgga = nwpwxc_is_mgga()
      
 *     **** lda's ****
       if (use_lda) then
@@ -108,6 +109,11 @@
       else if (use_gga) then
 
          call v_bwexc(gga,n2ft3d,ispin,dn,1.0d0,1.0d0,xcp,xce)
+
+
+*     **** meta-gga's ****
+      else if (use_mgga) then
+         call v_mexc(gga,n2ft3d,ispin,dn,1.0d0,1.0d0,xcp,xce)
       
 *     **** hybrid gga's ****
       else if (gga.eq.110) then

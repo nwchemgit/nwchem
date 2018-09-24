@@ -109,12 +109,12 @@
      >       BA_alloc_get(mt_dbl,Nqs*n2ft3d,
      >                    'vdw_ufunc',ufunc(2),ufunc(1))
       value= value.and.
-     >       BA_alloc_get(mt_dbl,8*n2ft3d,
+     >       BA_alloc_get(mt_dbl,10*n2ft3d,
      >                    'vdw_xcp',xcp(2),xcp(1))
       xce(1)  = xcp(1) + 2*n2ft3d
-      xxp(1)  = xcp(1) + 3*n2ft3d
-      xxe(1)  = xcp(1) + 5*n2ft3d
-      rho(1)  = xcp(1) + 7*n2ft3d
+      xxp(1)  = xcp(1) + 4*n2ft3d
+      xxe(1)  = xcp(1) + 6*n2ft3d
+      rho(1)  = xcp(1) + 8*n2ft3d
       value= value.and.
      >       BA_alloc_get(mt_dbl,npack0,
      >                    'vdw_Gpack',Gpack(2),Gpack(1))
@@ -322,10 +322,10 @@
       implicit none
       integer n2ft3d0,ispin
       real*8 dn(n2ft3d0,ispin)
-      real*8 agr(n2ft3d0)
+      real*8 agr(n2ft3d0,ispin)
       real*8 exc(n2ft3d0)
       real*8 fn(n2ft3d0,ispin)
-      real*8 fdn(n2ft3d0)
+      real*8 fdn(n2ft3d0,ispin)
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -335,8 +335,9 @@
       !*** generate LDA results ***
       call vxc(n2ft3d,ispin,dn,dbl_mb(xcp(1)),dbl_mb(xce(1)),
      >         dbl_mb(rho(1)))
-      call v_dirac(n2ft3d,ispin,dn,dbl_mb(xxp(1)),dbl_mb(xxe(1)),
-     >             dbl_mb(rho(1)))
+      if (ispin.eq.1) 
+     >   call v_dirac(n2ft3d,ispin,dn,dbl_mb(xxp(1)),dbl_mb(xxe(1)),
+     >                dbl_mb(rho(1)))
 
       !**** generate rho ***
       call vdw_DF_Generate_rho(ispin,n2ft3d,dn,dbl_mb(rho(1)))
@@ -361,7 +362,7 @@
       call vdw_DF_Generate_potentials(Nqs,nfft3d,ispin,n2ft3d,
      >             dbl_mb(ufunc(1)),
      >             dbl_mb(xce(1)),dbl_mb(xcp(1)),dbl_mb(xxe(1)),
-     >             dbl_mb(rho(1)),dbl_mb(xxp(1)),dbl_mb(xxe(1)+n2ft3d),
+     >             dbl_mb(xce(1)+n2ft3d),dbl_mb(xxp(1)),dbl_mb(rho(1)),
      >             exc,fn,fdn)
 
 
@@ -422,7 +423,8 @@
       integer nx,ny,nz,r,ms
       real*8 A,Cf,pi,pj,dpj,tsum,dtsum,q0,q0sat,xi,dxi,Cxi,scal1
       real*8 dq0drho(2),dq0ddrho,dq0satdq0
-      real*8 onethird,frthrd,elthrd,dncut
+      real*8 vxgga,exgga
+      real*8 onethird,frthrd,elthrd,dncut,check
       parameter (onethird=1.0d0/3.0d0)
       parameter (frthrd=4.0d0/3.0d0)
       parameter (elthrd=11.0d0/3.0d0)
@@ -464,9 +466,13 @@
             if (rho(i).ge.dncut) then
                xi  = Cxi*(agr(i)/rho(i)**frthrd)**2
                dxi = 2.0d0*Cxi*agr(i)*(1.0d0/rho(i)**frthrd)**2
+               exgga = exx(i) - xi*exx(i)
+               vxgga = vxx(i,1) - xi*(vxx(i,1)-elthrd*exx(i))
+               if ((vxgga-exgga).lt.0.0d0) then
+                  xi = 0.0d0
+                  dxi = 0.0d0
+               end if
 
-               !q0 = A*(exc(i) - ex(i)*xi)
-               !q0 = A*(exc(i) - exc(i)*xi)
                q0 = A*(exc(i) - exx(i)*xi)
 
                if (q0.lt.qmin) then
@@ -477,14 +483,9 @@
                   dq0ddrho = 0.0d0
                else
                   do ms=1,ispin
-c                     dq0drho(ms) = A*((vxc(i,ms)-exc(i))
-c     >                           - xi*(vx(i,ms)-elthrd*ex(i)))/rho(i)
-c                     dq0drho(ms) = A*((vxc(i,ms)-exc(i))
-c     >                           - xi*(vxc(i,ms)-elthrd*exc(i)))/rho(i)
                      dq0drho(ms) = A*((vxc(i,ms)-exc(i))
      >                           - xi*(vxx(i,ms)-elthrd*exx(i)))/rho(i)
                   end do
-                  !dq0ddrho = -A*exc(i)*dxi
                   dq0ddrho = -A*exx(i)*dxi
                end if
 
@@ -498,32 +499,23 @@ c     >                           - xi*(vxc(i,ms)-elthrd*exc(i)))/rho(i)
                dq0satdq0 = dexp(-tsum)*dtsum
 
                exc(i)  =  q0sat
-               exx(i)  =  rho(i)*dq0satdq0*dq0ddrho
                do ms=1,ispin
                   vxc(i,ms) = rho(i)*dq0satdq0*dq0drho(ms)
                end do
+               exx(i)  =  rho(i)*dq0satdq0*dq0ddrho
             else
                xi = 0.0d0
-               q0sat  = qmax
+               q0sat    = qmax
                exc(i) = qmax
-               exx(i)  = 0.0d0
                do ms=1,ispin
                   vxc(i,ms) = 0.0d0
                end do
+               exx(i) = 0.0d0
             end if
-c         write(*,'(A,I8,9E12.4)')"i,xi,q0=",
-c     >          i,rho(i),agr(i),exc(i),ex(i),
-c     >               vxc(i,1),vxc(1,ispin),xi,q0,q0sat
 
             do j=jstart,jstart-1+nj
                call vdw_DF_poly(j,q0sat,pj,dpj)
                theta(i,j)  = rho(i)*pj
-c               ptheta(i,j) = pj
-c               do ms=1,ispin
-c                  dthetadrho(i,ms,j) = pj 
-c     >                               + rho(i)*dpj*dq0satdq0*dq0drho(ms)
-c               end do
-c               dthetaddrho(i,j) = rho(i)*dpj*dq0satdq0*dq0ddrho
             end do
          end do
 !$OMP BARRIER
@@ -636,10 +628,10 @@ c            write(*,*) "i,j=",i,j, indx, Nqs,npack0,nfft3d
       real*8  ufunc(n2ft3d,Nqs)
       real*8  q0(n2ft3d)
       real*8  drho(n2ft3d,ispin)
-      real*8  ddrho(n2ft3d)
+      real*8  ddrho(n2ft3d,ispin)
       real*8  tmpexc(n2ft3d)
-      real*8  tmpfn(n2ft3d,ispin),tmpfdn(n2ft3d)
-      real*8  exc(n2ft3d),fn(n2ft3d,ispin),fdn(n2ft3d)
+      real*8  tmpfn(n2ft3d,ispin),tmpfdn(n2ft3d,ispin)
+      real*8  exc(n2ft3d),fn(n2ft3d,ispin),fdn(n2ft3d,ispin)
 
 *     **** local variables ****
       integer i,j,jstart,nj,taskid_j,np_j,tid,nthr
@@ -666,7 +658,7 @@ c            write(*,*) "i,j=",i,j, indx, Nqs,npack0,nfft3d
       end if
       call D3dB_r_Zero(1,tmpexc)
       call D3dB_r_nZero(1,ispin,tmpfn)
-      call D3dB_r_Zero(1,tmpfdn)
+      call D3dB_r_nZero(1,ispin,tmpfdn)
 
       if (nj.gt.0) then
 
@@ -681,21 +673,22 @@ c            write(*,*) "i,j=",i,j, indx, Nqs,npack0,nfft3d
                do ms=1,ispin
                   tmpfn(i,ms) = tmpfn(i,ms) 
      >                        + (pj + dpj*drho(i,ms))*ufunc(i,j)
+                  tmpfdn(i,ms)=tmpfdn(i,ms) + dpj*ddrho(i,ms)*ufunc(i,j)
                end do
-               tmpfdn(i) = tmpfdn(i) + dpj*ddrho(i)*ufunc(i,j)
             end do
          end do
 
       end if
 !$OMP BARRIER
       call D1dB_Vector_SumAll(n2ft3d,tmpexc)
-      call D1dB_Vector_SumAll(2*n2ft3d,tmpfn)
-      call D1dB_Vector_SumAll(n2ft3d,tmpfdn)
+      call D1dB_Vector_SumAll(ispin*n2ft3d,tmpfn)
+      call D1dB_Vector_SumAll(ispin*n2ft3d,tmpfdn)
 
       call D3dB_rr_Sum2(1,tmpexc,exc)
-      call D3dB_rr_Sum2(1,tmpfn,fn)
-      if (ispin.eq.2) call D3dB_rr_Sum2(1,tmpfn(1,ispin),fn(1,ispin))
-      call D3dB_rr_Sum2(1,tmpfdn,fdn)
+      do ms=1,ispin
+         call D3dB_rr_Sum2(1,tmpfn(1,ms),fn(1,ms))
+         call D3dB_rr_Sum2(1,tmpfdn(1,ms),fdn(1,ms))
+      end do
 
       return
       end
