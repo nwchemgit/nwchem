@@ -1,7 +1,7 @@
 
 *    ************************************
 *    *					*
-*    *	    gen_BEEF_unrestricted	*
+*    *	    gen_BEEF_BW_unrestricted	*
 *    *					*
 *    ************************************
 *
@@ -446,7 +446,7 @@ c        ********************************************
 
 *    ************************************
 *    *                                  *
-*    *        gen_BEEF_xc_restricted    *
+*    *        gen_BEEF_BW_restricted    *
 *    *                                  *
 *    ************************************
 
@@ -464,7 +464,7 @@ c        ********************************************
 *             fn(n2ft3d)  : d(n*xce)/dn
 *             fdn(n2ft3d) : d(n*xce/d|grad n|
 *
-      subroutine gen_BEEF_xc_restricted(n2ft3d,rho_in,agr_in,
+      subroutine gen_BEEF_BW_restricted(n2ft3d,rho_in,agr_in,
      >                                x_parameter,c_parameter,
      >                                xce,fn,fdn)
 *
