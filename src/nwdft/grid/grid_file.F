@@ -182,6 +182,7 @@ c        l_cache = -1
             write(LuOut,*) ' grid_file: grinfo opening ',grinfo
             call util_flush(LuOut)
          end if
+cdbg         enuc=0d0
          if(.not.grid_grinfoinit(fdg,grinfo,enuc,'read')) goto 199
 
          filedump_opened=.true.
@@ -254,6 +255,8 @@ c
       double precision ll
       logical grid_grinfo2,grid_ptsdel,file_closedone
       external grid_grinfo2,grid_ptsdel
+      logical grid_grinfoinit
+      external grid_grinfoinit
       oprint=util_print('iostats',print_high).and.ga_nodeid().eq.0
 c
       if (file_opened) then
@@ -275,6 +278,9 @@ cbad        for acr cam3lyp cdfit
          fdg=-1
          endif
       else
+c invalidate enuc when deleting grid file
+         if(.not.grid_grinfoinit(fdg,grinfo,-123d0,'write')) call
+     C        errquit(' opening2 grinfo file failed',0,0)
 #ifndef EAFHACK
          if(fd.ne.-1) then
          if(.not.file_closedone) then
@@ -314,6 +320,7 @@ c     l_cache = -1
       n_rec_in_file = 0
       call grid_buf_clear
       max_cache_rec = 0
+cdbg      max_file_rec = 0
 c     
       grid_file_close = .true.
 c
@@ -953,6 +960,8 @@ cfix for atom case (enuc=0!!) and cg
          return
       endif
 #endif
+cdbg      filesize=0
+cdbg      memsize=0
       grid_reopen=
      .     grid_file_open(enuc,
      .     gridfilename, memsize, filesize, eaf_size_in_dbl)
