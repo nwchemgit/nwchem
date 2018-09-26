@@ -195,38 +195,37 @@ c        ************
          s  = agr/(2.0d0*kf*n)
 
          t  = 2.0d0*s*s/(4.0d0+s*s) - 1.0d0
+         if (dabs(t).gt.1.0d0) t = dsign(1.0d0,t)
          F  = 0.0d0
          Ft = 0.0d0
-         Fs = 0.0d0
-         if (dabs(t).le.1.0d0) then
-            s2   = t*t - 1.0d0
-            if (dabs(s2).lt.1.0d-12) then
-               do j=0,29
-                  F  = F  + am(j)
-                  Ft = Ft + am(j)*0.5d0*dble(j*(j+1))
-               end do
-            else
-               oneovers2 = 1.0d0/s2
-               p0 = 1.0d0
-               dp = 0
-               F  = F  + am(0)*p0
-               Ft = Ft + am(0)*dp
-               p1 = t
-               dp = 1.0d0
-               F  = F  + am(1)*t
-               Ft = Ft + am(1)*dp
-               do j=2,29
-                  p2    = (1.0d0/dble(j+1))*((2*j+1)*t*p1 - dble(j)*p0)
-                  dp2   = dble(j)*oneovers2*(t*p2-p1)
-                  F  = F + am(j)*p2
-                  Ft = Ft + am(j)*dp2
-                  p0 = p1
-                  p1 = p2
-               end do
-            end if
-            Fs  = (16.0d0*s/(4.0d0+s*s)**2)*Ft
+         
+         s2   = t*t - 1.0d0
+         if (dabs(s2).lt.1.0d-12) then
+            do j=0,29
+               F  = F  + am(j)
+               Ft = Ft + am(j)*0.5d0*dble(j*(j+1))
+            end do
+         else
+            oneovers2 = 1.0d0/s2
+            p0 = 1.0d0
+            dp = 0
+            F  = F  + am(0)*p0
+            Ft = Ft + am(0)*dp
+            p1 = t
+            dp = 1.0d0
+            F  = F  + am(1)*t
+            Ft = Ft + am(1)*dp
+            do j=2,29
+               p2    = (1.0d0/dble(j+1))*((2*j+1)*t*p1 - dble(j)*p0)
+               dp2   = dble(j)*oneovers2*(t*p2-p1)
+               F  = F + am(j)*p2
+               Ft = Ft + am(j)*dp2
+               p0 = p1
+               p1 = p2
+            end do
          end if
-
+         Fs  = (16.0d0*s/(4.0d0+s*s)**2)*Ft
+        
          exup = ex_lda*F
          fnxup = fourthird*(exup - ex_lda*Fs*s)
          fdnxup = fdnx_const*Fs
@@ -244,37 +243,36 @@ c        **************
          s  = agr/(2.0d0*kf*n)
 
          t  = 2.0d0*s*s/(4.0d0+s*s) - 1.0d0
+         if (dabs(t).gt.1.0d0) t = dsign(1.0d0,t)
          F  = 0.0d0
          Ft = 0.0d0
-         Fs = 0.0d0
-         if (dabs(t).le.1.0d0) then
-            s2   = t*t - 1.0d0
-            if (dabs(s2).lt.1.0d-12) then
-               do j=0,29
-                  F  = F  + am(j)
-                  Ft = Ft + am(j)*0.5d0*dble(j*(j+1))
-               end do
-            else
-               oneovers2 = 1.0d0/s2
-               p0 = 1.0d0
-               dp = 0
-               F  = F  + am(0)*p0
-               Ft = Ft + am(0)*dp
-               p1 = t
-               dp = 1.0d0
-               F  = F  + am(1)*t
-               Ft = Ft + am(1)*dp
-               do j=2,29
-                  p2    = (1.0d0/dble(j+1))*((2*j+1)*t*p1 - dble(j)*p0)
-                  dp2   = dble(j)*oneovers2*(t*p2-p1)
-                  F  = F + am(j)*p2
-                  Ft = Ft + am(j)*dp2
-                  p0 = p1
-                  p1 = p2
-               end do
-            end if
-            Fs  = (16.0d0*s/(4.0d0+s*s)**2)*Ft
+         
+         s2   = t*t - 1.0d0
+         if (dabs(s2).lt.1.0d-12) then
+            do j=0,29
+               F  = F  + am(j)
+               Ft = Ft + am(j)*0.5d0*dble(j*(j+1))
+            end do
+         else
+            oneovers2 = 1.0d0/s2
+            p0 = 1.0d0
+            dp = 0
+            F  = F  + am(0)*p0
+            Ft = Ft + am(0)*dp
+            p1 = t
+            dp = 1.0d0
+            F  = F  + am(1)*t
+            Ft = Ft + am(1)*dp
+            do j=2,29
+               p2    = (1.0d0/dble(j+1))*((2*j+1)*t*p1 - dble(j)*p0)
+               dp2   = dble(j)*oneovers2*(t*p2-p1)
+               F  = F + am(j)*p2
+               Ft = Ft + am(j)*dp2
+               p0 = p1
+               p1 = p2
+            end do
          end if
+         Fs  = (16.0d0*s/(4.0d0+s*s)**2)*Ft
 
          exdn   = ex_lda*F
          fnxdn  = fourthird*(exdn - ex_lda*Fs*s)
@@ -594,37 +592,35 @@ c        ***** calculate unpolarized Exchange energies and potentials *****
          s  = agr/(2.0d0*kf*n)
 
          t  = 2.0d0*s*s/(4.0d0+s*s) - 1.0d0
+         if (dabs(t).gt.1.0d0) t = dsign(1.0d0,t)
          F  = 0.0d0
          Ft = 0.0d0
-         Fs = 0.0d0
-         if (dabs(t).le.1.0d0) then
-            s2   = t*t - 1.0d0
-            if (dabs(s2).lt.1.0d-12) then
-               do j=0,29
-                  F  = F  + am(j)
-                  Ft = Ft + am(j)*0.5d0*dble(j*(j+1))
-               end do
-            else
-               oneovers2 = 1.0d0/s2
-               p0 = 1.0d0
-               dp = 0
-               F  = F  + am(0)*p0
-               Ft = Ft + am(0)*dp
-               p1 = t
-               dp = 1.0d0
-               F  = F  + am(1)*t
-               Ft = Ft + am(1)*dp
-               do j=2,29
-                  p2    = (1.0d0/dble(j+1))*((2*j+1)*t*p1 - dble(j)*p0)
-                  dp2   = dble(j)*oneovers2*(t*p2-p1)
-                  F  = F + am(j)*p2
-                  Ft = Ft + am(j)*dp2
-                  p0 = p1
-                  p1 = p2
-               end do
-            end if
-            Fs  = (16.0d0*s/(4.0d0+s*s)**2)*Ft
+         s2   = t*t - 1.0d0
+         if (dabs(s2).lt.1.0d-12) then
+            do j=0,29
+               F  = F  + am(j)
+               Ft = Ft + am(j)*0.5d0*dble(j*(j+1))
+            end do
+         else
+            oneovers2 = 1.0d0/s2
+            p0 = 1.0d0
+            dp = 0
+            F  = F  + am(0)*p0
+            Ft = Ft + am(0)*dp
+            p1 = t
+            dp = 1.0d0
+            F  = F  + am(1)*t
+            Ft = Ft + am(1)*dp
+            do j=2,29
+               p2    = (1.0d0/dble(j+1))*((2*j+1)*t*p1 - dble(j)*p0)
+               dp2   = dble(j)*oneovers2*(t*p2-p1)
+               F  = F + am(j)*p2
+               Ft = Ft + am(j)*dp2
+               p0 = p1
+               p1 = p2
+            end do
          end if
+         Fs  = (16.0d0*s/(4.0d0+s*s)**2)*Ft
 
          ex   = ex_lda*F
          fnx  = fourthird*(ex - ex_lda*Fs*s)
