@@ -498,7 +498,7 @@ c        ********************************************
 *     **** Density cutoff parameter ****
       real*8 DNS_CUT,ETA
       parameter (DNS_CUT = 1.0d-20)
-      parameter (ETA     = 1.0d-14)
+      parameter (ETA     = 1.0d-20)
 
 c     ***** PBE96 GGA exchange constants ******
       real*8 MU,KAPPA
