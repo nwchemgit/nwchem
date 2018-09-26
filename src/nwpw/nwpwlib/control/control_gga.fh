@@ -19,6 +19,7 @@
 *   gga = 14 hser remainder   (-0.25*Ex(w,pbe,sr) + Ex(pbe) + Ec(pbe))
 *   gga = 15 b3lypr remainder   
 *   gga = 16 BEEF 
+*   gga = 17 XBEEF-CPBE
 *   gga = 17-99 (reserved for other gga's)
 *
 *   **** hybrids ****
@@ -73,6 +74,9 @@
         gga = 15
       else if (inp_compare(.false.,exchange_correlation,'beef')) then
         gga = 16
+      else if (inp_compare(.false.,exchange_correlation,'xbeef-cpbe'))
+     >     then
+        gga = 17
 
       else if (inp_compare(.false.,exchange_correlation,
      >                     'pbe96-grimme2') .or.
@@ -234,6 +238,37 @@
         gga = 16
         has_vdw = .true.
         is_vdw2 = .false.
+
+
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'xbeef-cpbe-grimme2')) then
+        gga = 17
+        options_disp  = '-func pbesol -old -noprint'
+        has_disp   = .true.
+        is_grimme2 = .true.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'xbeef-cpbe-grimme3')) then
+        gga = 17
+        options_disp  = '-func pbesol -zero -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'xbeef-cpbe-grimme4')) then
+        gga = 17
+        options_disp  = '-func pbesol -bj -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'xbeef-cpbe-vdw2')) then
+        gga = 17
+        has_vdw = .true.
+        is_vdw2 = .true.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'xbeef-cpbe-vdw')) then
+        gga = 17
+        has_vdw = .true.
+        is_vdw2 = .false.
+
 
 
 
