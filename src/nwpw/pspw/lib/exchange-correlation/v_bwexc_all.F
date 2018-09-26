@@ -144,8 +144,8 @@
 #include "nwpwxc.fh"
 #include "util.fh"
 
-      logical  control_has_disp
-      external control_has_disp
+      logical  control_has_disp,control_has_vdw,control_is_vdw2
+      external control_has_disp,control_has_vdw,control_is_vdw2
       character*80 control_options_disp
       external     control_options_disp
 
@@ -198,6 +198,15 @@
          write(luout,1131) 'unknown parameterization'
          call errquit('bad exchange_correlation',0, INPUT_ERR)
       END IF
+
+      if (control_has_vdw()) then
+         if (control_is_vdw2()) then
+            write(luout,1132) "vdw2 Langreth functional"
+         else
+            write(luout,1132) "vdw Langreth functional"
+         end if
+      end if
+
       if (control_has_disp()) then
         if (index(control_options_disp(),'-old').ne.0) 
      >    write(luout,1132) 'Grimme2'
