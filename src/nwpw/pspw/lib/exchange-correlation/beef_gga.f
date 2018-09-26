@@ -163,7 +163,7 @@ c     **** local variables ****
       real*8 fncup,fncdn           ! d(n*ec)/dnup, d(n*ec)/dndn
       real*8 fdnx_const
 
-      real*8 p0,p1,p2,dp,s2,oneovers2,Ft,dp2
+      real*8 p0,p1,p2,dp,s2,oneovers2,Ft,dp2,sgn
 
       malphac=1.0d0-alphac
 
@@ -203,10 +203,19 @@ c        ************
          
          s2   = t*t - 1.0d0
          if (dabs(s2).lt.1.0d-12) then
-            do j=0,29
-               F  = F  + am(j)
-               Ft = Ft + am(j)*0.5d0*dble(j*(j+1))
-            end do
+            if (t.gt.0.0d0) then
+               do j=0,29
+                  F  = F  + am(j)
+                  Ft = Ft + am(j)*0.5d0*dble(j*(j+1))
+               end do
+            else
+               sgn = 1.0d0
+               do j=0,29
+                  F  = F  + sgn*am(j)
+                  Ft = Ft + sgn*am(j)*0.5d0*dble(j*(j+1))
+                  sgn = -sgn
+               end do
+            end if
          else
             oneovers2 = 1.0d0/s2
             p0 = 1.0d0
@@ -251,10 +260,19 @@ c        **************
          
          s2   = t*t - 1.0d0
          if (dabs(s2).lt.1.0d-12) then
-            do j=0,29
-               F  = F  + am(j)
-               Ft = Ft + am(j)*0.5d0*dble(j*(j+1))
-            end do
+            if (t.gt.0.0d0) then
+               do j=0,29
+                  F  = F  + am(j)
+                  Ft = Ft + am(j)*0.5d0*dble(j*(j+1))
+               end do
+            else
+               sgn = 1.0d0
+               do j=0,29
+                  F  = F  + sgn*am(j)
+                  Ft = Ft + sgn*am(j)*0.5d0*dble(j*(j+1))
+                  sgn = -sgn
+               end do
+            end if
          else
             oneovers2 = 1.0d0/s2
             p0 = 1.0d0
@@ -575,7 +593,7 @@ c     **** local variables ****
       real*8 fnx,fdnx,fnc,fdnc
 
 
-      real*8 p0,p1,p2,dp,s2,oneovers2,Ft,dp2
+      real*8 p0,p1,p2,dp,s2,oneovers2,Ft,dp2,sgn
 
 
       malphac=1.0d0-alphac
@@ -601,10 +619,19 @@ c        ***** calculate unpolarized Exchange energies and potentials *****
          Ft = 0.0d0
          s2   = t*t - 1.0d0
          if (dabs(s2).lt.1.0d-12) then
-            do j=0,29
-               F  = F  + am(j)
-               Ft = Ft + am(j)*0.5d0*dble(j*(j+1))
-            end do
+            if (t.gt.0.0d0) then
+               do j=0,29
+                  F  = F  + am(j)
+                  Ft = Ft + am(j)*0.5d0*dble(j*(j+1))
+               end do
+            else
+               sgn = 1.0d0
+               do j=0,29
+                  F  = F  + sgn*am(j)
+                  Ft = Ft + sgn*am(j)*0.5d0*dble(j*(j+1))
+                  sgn = -sgn
+               end do
+            end if
          else
             oneovers2 = 1.0d0/s2
             p0 = 1.0d0
