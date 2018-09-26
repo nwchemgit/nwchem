@@ -228,7 +228,15 @@ c        ***** calculate fdn=df/d|grad n|  ****
          call gen_BEEF_BW_restricted(n2ft3d,
      >                                dbl_mb(rho(1)),
      >                                dbl_mb(agr(1)),
-     >                                x_parameter,c_parameter,
+     >        x_parameter,c_parameter,0.6001664769d0,
+     >                                dbl_mb(xce(1)), !*** not used ??***
+     >                                dbl_mb(fn(1)),  !*** not used ??***
+     >                                dbl_mb(fdn(1)))
+         else if (gga.eq.17) then
+         call gen_BEEF_BW_restricted(n2ft3d,
+     >                                dbl_mb(rho(1)),
+     >                                dbl_mb(agr(1)),
+     >        x_parameter,c_parameter,0.0d0,
      >                                dbl_mb(xce(1)), !*** not used ??***
      >                                dbl_mb(fn(1)),  !*** not used ??***
      >                                dbl_mb(fdn(1)))
@@ -630,7 +638,14 @@ c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
          else if (gga.eq.16) then
          call gen_BEEF_BW_unrestricted(n2ft3d,dn,
      >                                  dbl_mb(agr(1)),
-     >                                  x_parameter,c_parameter,
+     >          x_parameter,c_parameter,0.6001664769d0,
+     >                                  dbl_mb(xce(1)), !*** not used ***
+     >                                  dbl_mb(fn(1)), !*** not used ***
+     >                                  dbl_mb(fdn(1)))
+         else if (gga.eq.17) then
+         call gen_BEEF_BW_unrestricted(n2ft3d,dn,
+     >                                  dbl_mb(agr(1)),
+     >          x_parameter,c_parameter,0.0d0,
      >                                  dbl_mb(xce(1)), !*** not used ***
      >                                  dbl_mb(fn(1)), !*** not used ***
      >                                  dbl_mb(fdn(1)))

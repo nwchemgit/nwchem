@@ -22,14 +22,14 @@
 
       subroutine gen_BEEF_BW_unrestricted(n2ft3d,
      >                           dn_in,agr_in,
-     >                           x_parameter,c_parameter,
+     >                           x_parameter,c_parameter,alphac,
      >                           xce,fn,fdn)
       implicit none
       
       integer n2ft3d
       real*8 dn_in(n2ft3d,2)
       real*8 agr_in(n2ft3d,3)
-      real*8 x_parameter,c_parameter
+      real*8 x_parameter,c_parameter,alphac
       real*8 xce(n2ft3d)
       real*8 fn(n2ft3d,2)
       real*8 fdn(n2ft3d,3)
@@ -102,9 +102,10 @@ c     **** other constants ****
       parameter (sevensixthm=-7.0d0/6.0d0)
 
 *---- Beef expansion parameters given by Wellendorff et al-----------------*
-      real*8 alphac,malphac
-      parameter (alphac=0.6001664769d0)
-      parameter (malphac=1.0d0-alphac)
+      real*8 malphac
+c      real*8 alphac,malphac
+c      parameter (alphac=0.6001664769d0)
+c      parameter (malphac=1.0d0-alphac)
       real*8 am(0:29)
       data am(0:29)/1.516501714d0,  4.413532099d-1,-9.182135241d-2,
      >            -2.352754331d-2, 3.418828455d-2, 2.411870076d-3,
@@ -164,6 +165,7 @@ c     **** local variables ****
 
       real*8 p0,p1,p2,dp,s2,oneovers2,Ft,dp2
 
+      malphac=1.0d0-alphac
 
       pi = 4.0d0*datan(1.0d0)
       rs_scale = (0.75d0/pi)**onethird
@@ -463,14 +465,14 @@ c        ********************************************
 *             fdn(n2ft3d) : d(n*xce/d|grad n|
 *
       subroutine gen_BEEF_BW_restricted(n2ft3d,rho_in,agr_in,
-     >                                x_parameter,c_parameter,
+     >                                x_parameter,c_parameter,alphac,
      >                                xce,fn,fdn)
 *
       implicit none
       integer    n2ft3d
       real*8     rho_in(n2ft3d)
       real*8     agr_in(n2ft3d)
-      real*8     x_parameter,c_parameter
+      real*8     x_parameter,c_parameter,alphac
       real*8     xce(n2ft3d)
       real*8     fn(n2ft3d)
       real*8     fdn(n2ft3d)
@@ -478,7 +480,7 @@ c        ********************************************
 *     **** Density cutoff parameter ****
       real*8 DNS_CUT,ETA
       parameter (DNS_CUT = 1.0d-20)
-      parameter (ETA     = 1.0d-20)
+      parameter (ETA     = 1.0d-14)
 
 c     ***** PBE96 GGA exchange constants ******
       real*8 MU,KAPPA
@@ -540,9 +542,10 @@ c     **** other constants ****
 
 
 *---- Beef expansion parameters given by Wellendorff et al-----------------*
-      real*8 alphac,malphac
-      parameter (alphac=0.6001664769d0)
-      parameter (malphac=1.0d0-alphac)
+      real*8 malphac
+c      real*8 alphac,malphac
+c      parameter (alphac=0.6001664769d0)
+c      parameter (malphac=1.0d0-alphac)
       real*8 am(0:29)
       data am(0:29)/1.516501714d0,  4.413532099d-1,-9.182135241d-2,
      >            -2.352754331d-2, 3.418828455d-2, 2.411870076d-3,
@@ -575,6 +578,7 @@ c     **** local variables ****
       real*8 p0,p1,p2,dp,s2,oneovers2,Ft,dp2
 
 
+      malphac=1.0d0-alphac
       pi         = 4.0d0*datan(1.0d0)
       rs_scale   = (0.75d0/pi)**onethird
       fdnx_const = -3.0d0/(8.0d0*pi)

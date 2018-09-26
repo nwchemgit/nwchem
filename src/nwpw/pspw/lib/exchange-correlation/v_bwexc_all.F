@@ -172,6 +172,9 @@
       ELSE IF (gga.eq.16) THEN
          write(luout,1131)
      >   'BEEF (White and Bird) parameterization'
+      ELSE IF (gga.eq.17) THEN
+         write(luout,1131)
+     >   'XBEEF-PBEC (White and Bird) parameterization'
 
       ELSE IF (gga.eq.110) THEN
          write(luout,1131)
