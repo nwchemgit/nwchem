@@ -1,5 +1,9 @@
+#include "hip/hip_runtime.h"
+
 __device__ double* t3_s_d;
 __device__ double* t3_d;
+
+#define size_t int
 
 #include "header.h"
 extern    "C" void set_dev_mem_d(int h1d, int h2d, int h3d, int p4d, int p5d,int p6d)
@@ -7,7 +11,7 @@ extern    "C" void set_dev_mem_d(int h1d, int h2d, int h3d, int p4d, int p5d,int
     int size_t3;
     size_t3 = h1d*h2d*h3d*p4d*p5d*p6d;
     t3_d = (double *) getGpuMem(size_t3*sizeof(double));
-    cudaMemset(t3_d,0,size_t3*sizeof(double));
+    hipMemset(t3_d,0,size_t3*sizeof(double));
 }
 extern          "C" void
 dev_mem_d_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d)
@@ -262,25 +266,25 @@ extern "C" void sd_t_d1_1_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   h3d=h3d*h2d;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p6ld_triplesx,p5ld_triplesx,p4ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
-  cudaStream_t *streams;
+  hipStream_t *streams;
   size_t nstreams,i;
   double *t2sub_d,*v2sub_d;
   size_triplesx=h3d*h1d*p6d*p5d*p4d*sizeof(double);
   size_t2sub=h7d*p4d*p5d*h1d*sizeof(double);
   size_v2sub=h3d*p6d*h7d*sizeof(double);
-  cudaFuncSetCacheConfig(sd_t_d1_1_kernel, cudaFuncCachePreferShared);
+  hipFuncSetCacheConfig((void *)sd_t_d1_1_kernel, hipFuncCachePreferShared);
   nstreams=1;
   size_block_triplesx=size_triplesx/nstreams;
   size_el_block_triplesx=size_block_triplesx/sizeof(double);
   t2sub_d=(double*)getGpuMem(size_t2sub);
   v2sub_d=(double*)getGpuMem(size_v2sub);
-  streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
+  streams=(hipStream_t*) malloc(nstreams*sizeof(hipStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(hipStreamCreate(&streams[i])) ;
   }
-  CUDA_SAFE(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
-  CUDA_SAFE(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(t2sub_d,t2sub,size_t2sub,hipMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(v2sub_d,v2sub,size_v2sub,hipMemcpyHostToDevice));
   h7ld_t2sub=1;
   p4ld_t2sub=h7d;
   p5ld_t2sub=p4d*h7d;
@@ -297,12 +301,12 @@ extern "C" void sd_t_d1_1_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   int total_y = p4d*p5d*h1d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
-    sd_t_d1_1_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p6ld_triplesx,p5ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
+    hipLaunchKernelGGL((sd_t_d1_1_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p6ld_triplesx,p5ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
     CHECK_ERR("Kernel execution failed");
   }
-  cudaThreadSynchronize();
+  hipDeviceSynchronize();
   for(i=0;i<nstreams;++i){
-    cudaStreamDestroy(streams[i]);}
+    hipStreamDestroy(streams[i]);}
   freeGpuMem(t2sub_d);
   freeGpuMem(v2sub_d);
   free(streams);
@@ -547,27 +551,27 @@ extern "C" void sd_t_d1_2_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   h2d=h2d*p6d;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p4ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
-  cudaStream_t *streams;
+  hipStream_t *streams;
   size_t nstreams,i;
   double *t2sub_d,*v2sub_d;
   size_triplesx=h3d*h1d*h2d*p5d*p4d*sizeof(double);
   size_t2sub=h7d*p4d*p5d*h1d*sizeof(double);
   size_v2sub=h3d*h2d*h7d*sizeof(double);
-  cudaFuncSetCacheConfig(sd_t_d1_2_kernel, cudaFuncCachePreferShared);
+  hipFuncSetCacheConfig((void *)sd_t_d1_2_kernel, hipFuncCachePreferShared);
   nstreams=1;
   size_block_triplesx=size_triplesx/nstreams;
   size_el_block_triplesx=size_block_triplesx/sizeof(double);
   t2sub_d=(double*)getGpuMem(size_t2sub);
   v2sub_d=(double*)getGpuMem(size_v2sub);
-  streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
+  streams=(hipStream_t*) malloc(nstreams*sizeof(hipStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(hipStreamCreate(&streams[i])) ;
   }
   //CUDA_SAFE(
-    cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice); //);
+    hipMemcpy(t2sub_d,t2sub,size_t2sub,hipMemcpyHostToDevice); //);
   //CUDA_SAFE(  
-    cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice); //);
+    hipMemcpy(v2sub_d,v2sub,size_v2sub,hipMemcpyHostToDevice); //);
   h7ld_t2sub=1;
   p4ld_t2sub=h7d;
   p5ld_t2sub=p4d*h7d;
@@ -586,12 +590,12 @@ extern "C" void sd_t_d1_2_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
 //fflush(stdout);    
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
-    sd_t_d1_2_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,h7d,p4d,p5d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
+    hipLaunchKernelGGL((sd_t_d1_2_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,h7d,p4d,p5d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
     CHECK_ERR("Kernel execution failed");
   }
-  cudaThreadSynchronize();
+  hipDeviceSynchronize();
   for(i=0;i<nstreams;++i){
-    cudaStreamDestroy(streams[i]);}
+    hipStreamDestroy(streams[i]);}
   freeGpuMem(t2sub_d);
   freeGpuMem(v2sub_d);
   free(streams);
@@ -829,25 +833,25 @@ extern "C" void sd_t_d1_3_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   h3d=h3d*p6d;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p4ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
-  cudaStream_t *streams;
+  hipStream_t *streams;
   size_t nstreams,i;
   double *t2sub_d,*v2sub_d;
   size_triplesx=h1d*h3d*p5d*p4d*sizeof(double);
   size_t2sub=h7d*p4d*p5d*h1d*sizeof(double);
   size_v2sub=h3d*h7d*sizeof(double);
-  cudaFuncSetCacheConfig(sd_t_d1_3_kernel, cudaFuncCachePreferShared);
+  hipFuncSetCacheConfig((void *)sd_t_d1_3_kernel, hipFuncCachePreferShared);
   nstreams=1;
   size_block_triplesx=size_triplesx/nstreams;
   size_el_block_triplesx=size_block_triplesx/sizeof(double);
   t2sub_d=(double*)getGpuMem(size_t2sub);
   v2sub_d=(double*)getGpuMem(size_v2sub);
-  streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
+  streams=(hipStream_t*) malloc(nstreams*sizeof(hipStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(hipStreamCreate(&streams[i])) ;
   }
-  CUDA_SAFE(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
-  CUDA_SAFE(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(t2sub_d,t2sub,size_t2sub,hipMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(v2sub_d,v2sub,size_v2sub,hipMemcpyHostToDevice));
   h7ld_t2sub=1;
   p4ld_t2sub=h7d;
   p5ld_t2sub=p4d*h7d;
@@ -862,12 +866,12 @@ extern "C" void sd_t_d1_3_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   int total_y = p4d*p5d*h1d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
-    sd_t_d1_3_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h3d,h7d,p4d,p5d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
+    hipLaunchKernelGGL((sd_t_d1_3_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h3d,h7d,p4d,p5d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
     CHECK_ERR("Kernel execution failed");
   }
-  cudaThreadSynchronize();
+  hipDeviceSynchronize();
   for(i=0;i<nstreams;++i){
-    cudaStreamDestroy(streams[i]);}
+    hipStreamDestroy(streams[i]);}
   freeGpuMem(t2sub_d);
   freeGpuMem(v2sub_d);
   free(streams);
@@ -1112,25 +1116,25 @@ extern "C" void sd_t_d1_4_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   h3d=h3d*h2d;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
-  cudaStream_t *streams;
+  hipStream_t *streams;
   size_t nstreams,i;
   double *t2sub_d,*v2sub_d;
   size_triplesx=h3d*h1d*p5d*p4d*p6d*sizeof(double);
   size_t2sub=h7d*p4d*p5d*h1d*sizeof(double);
   size_v2sub=h3d*p6d*h7d*sizeof(double);
-  cudaFuncSetCacheConfig(sd_t_d1_4_kernel, cudaFuncCachePreferShared);
+  hipFuncSetCacheConfig((void *)sd_t_d1_4_kernel, hipFuncCachePreferShared);
   nstreams=1;
   size_block_triplesx=size_triplesx/nstreams;
   size_el_block_triplesx=size_block_triplesx/sizeof(double);
   t2sub_d=(double*)getGpuMem(size_t2sub);
   v2sub_d=(double*)getGpuMem(size_v2sub);
-  streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
+  streams=(hipStream_t*) malloc(nstreams*sizeof(hipStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(hipStreamCreate(&streams[i])) ;
   }
-  CUDA_SAFE(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
-  CUDA_SAFE(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(t2sub_d,t2sub,size_t2sub,hipMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(v2sub_d,v2sub,size_v2sub,hipMemcpyHostToDevice));
   h7ld_t2sub=1;
   p4ld_t2sub=h7d;
   p5ld_t2sub=p4d*h7d;
@@ -1147,12 +1151,12 @@ extern "C" void sd_t_d1_4_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   int total_y = p4d*p5d*h1d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
-    sd_t_d1_4_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
+    hipLaunchKernelGGL((sd_t_d1_4_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
     CHECK_ERR("Kernel execution failed");
   }
-  cudaThreadSynchronize();
+  hipDeviceSynchronize();
   for(i=0;i<nstreams;++i){
-    cudaStreamDestroy(streams[i]);}
+    hipStreamDestroy(streams[i]);}
   freeGpuMem(t2sub_d);
   freeGpuMem(v2sub_d);
   free(streams);
@@ -1404,25 +1408,25 @@ __global__ void sd_t_d1_5_kernel(int h1d,int h2d,int h3d,int h7d,int p4d,int p5d
 extern "C" void sd_t_d1_5_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
-  cudaStream_t *streams;
+  hipStream_t *streams;
   size_t nstreams,i;
   double *t2sub_d,*v2sub_d;
   size_triplesx=h3d*h1d*h2d*p5d*p4d*p6d*sizeof(double);
   size_t2sub=h7d*p4d*p5d*h1d*sizeof(double);
   size_v2sub=h3d*h2d*p6d*h7d*sizeof(double);
-  cudaFuncSetCacheConfig(sd_t_d1_5_kernel, cudaFuncCachePreferShared);
+  hipFuncSetCacheConfig((void *)sd_t_d1_5_kernel, hipFuncCachePreferShared);
   nstreams=1;
   size_block_triplesx=size_triplesx/nstreams;
   size_el_block_triplesx=size_block_triplesx/sizeof(double);
   t2sub_d=(double*)getGpuMem(size_t2sub);
   v2sub_d=(double*)getGpuMem(size_v2sub);
-  streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
+  streams=(hipStream_t*) malloc(nstreams*sizeof(hipStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(hipStreamCreate(&streams[i])) ;
   }
-  CUDA_SAFE(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
-  CUDA_SAFE(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(t2sub_d,t2sub,size_t2sub,hipMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(v2sub_d,v2sub,size_v2sub,hipMemcpyHostToDevice));
   h7ld_t2sub=1;
   p4ld_t2sub=h7d;
   p5ld_t2sub=p4d*h7d;
@@ -1441,12 +1445,12 @@ extern "C" void sd_t_d1_5_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   int total_y = p4d*p5d*h1d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
-    sd_t_d1_5_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
+    hipLaunchKernelGGL((sd_t_d1_5_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
     CHECK_ERR("Kernel execution failed");
   }
-  cudaThreadSynchronize();
+  hipDeviceSynchronize();
   for(i=0;i<nstreams;++i){
-    cudaStreamDestroy(streams[i]);}
+    hipStreamDestroy(streams[i]);}
   freeGpuMem(t2sub_d);
   freeGpuMem(v2sub_d);
   free(streams);
@@ -1691,25 +1695,25 @@ extern "C" void sd_t_d1_6_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   h3d=h3d*h2d;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
-  cudaStream_t *streams;
+  hipStream_t *streams;
   size_t nstreams,i;
   double *t2sub_d,*v2sub_d;
   size_triplesx=h1d*h3d*p5d*p4d*p6d*sizeof(double);
   size_t2sub=h7d*p4d*p5d*h1d*sizeof(double);
   size_v2sub=h3d*p6d*h7d*sizeof(double);
-  cudaFuncSetCacheConfig(sd_t_d1_6_kernel, cudaFuncCachePreferShared);
+  hipFuncSetCacheConfig((void *)sd_t_d1_6_kernel, hipFuncCachePreferShared);
   nstreams=1;
   size_block_triplesx=size_triplesx/nstreams;
   size_el_block_triplesx=size_block_triplesx/sizeof(double);
   t2sub_d=(double*)getGpuMem(size_t2sub);
   v2sub_d=(double*)getGpuMem(size_v2sub);
-  streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
+  streams=(hipStream_t*) malloc(nstreams*sizeof(hipStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(hipStreamCreate(&streams[i])) ;
   }
-  CUDA_SAFE(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
-  CUDA_SAFE(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(t2sub_d,t2sub,size_t2sub,hipMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(v2sub_d,v2sub,size_v2sub,hipMemcpyHostToDevice));
   h7ld_t2sub=1;
   p4ld_t2sub=h7d;
   p5ld_t2sub=p4d*h7d;
@@ -1726,12 +1730,12 @@ extern "C" void sd_t_d1_6_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   int total_y = p4d*p5d*h1d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
-    sd_t_d1_6_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
+    hipLaunchKernelGGL((sd_t_d1_6_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
     CHECK_ERR("Kernel execution failed");
   }
-  cudaThreadSynchronize();
+  hipDeviceSynchronize();
   for(i=0;i<nstreams;++i){
-    cudaStreamDestroy(streams[i]);}
+    hipStreamDestroy(streams[i]);}
   freeGpuMem(t2sub_d);
   freeGpuMem(v2sub_d);
   free(streams);
@@ -1976,25 +1980,25 @@ extern "C" void sd_t_d1_7_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   h3d=h3d*h2d;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
-  cudaStream_t *streams;
+  hipStream_t *streams;
   size_t nstreams,i;
   double *t2sub_d,*v2sub_d;
   size_triplesx=h3d*h1d*p5d*p6d*p4d*sizeof(double);
   size_t2sub=h7d*p4d*p5d*h1d*sizeof(double);
   size_v2sub=h3d*p6d*h7d*sizeof(double);
-  cudaFuncSetCacheConfig(sd_t_d1_7_kernel, cudaFuncCachePreferShared);
+  hipFuncSetCacheConfig((void *)sd_t_d1_7_kernel, hipFuncCachePreferShared);
   nstreams=1;
   size_block_triplesx=size_triplesx/nstreams;
   size_el_block_triplesx=size_block_triplesx/sizeof(double);
   t2sub_d=(double*)getGpuMem(size_t2sub);
   v2sub_d=(double*)getGpuMem(size_v2sub);
-  streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
+  streams=(hipStream_t*) malloc(nstreams*sizeof(hipStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(hipStreamCreate(&streams[i])) ;
   }
-  CUDA_SAFE(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
-  CUDA_SAFE(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(t2sub_d,t2sub,size_t2sub,hipMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(v2sub_d,v2sub,size_v2sub,hipMemcpyHostToDevice));
   h7ld_t2sub=1;
   p4ld_t2sub=h7d;
   p5ld_t2sub=p4d*h7d;
@@ -2011,12 +2015,12 @@ extern "C" void sd_t_d1_7_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   int total_y = p4d*p5d*h1d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
-    sd_t_d1_7_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
+    hipLaunchKernelGGL((sd_t_d1_7_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
     CHECK_ERR("Kernel execution failed");
   }
-  cudaThreadSynchronize();
+  hipDeviceSynchronize();
   for(i=0;i<nstreams;++i){
-    cudaStreamDestroy(streams[i]);}
+    hipStreamDestroy(streams[i]);}
   freeGpuMem(t2sub_d);
   freeGpuMem(v2sub_d);
   free(streams);
@@ -2268,25 +2272,25 @@ __global__ void sd_t_d1_8_kernel(int h1d,int h2d,int h3d,int h7d,int p4d,int p5d
 extern "C" void sd_t_d1_8_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
-  cudaStream_t *streams;
+  hipStream_t *streams;
   size_t nstreams,i;
   double *t2sub_d,*v2sub_d;
   size_triplesx=h3d*h1d*h2d*p5d*p6d*p4d*sizeof(double);
   size_t2sub=h7d*p4d*p5d*h1d*sizeof(double);
   size_v2sub=h3d*h2d*p6d*h7d*sizeof(double);
-  cudaFuncSetCacheConfig(sd_t_d1_8_kernel, cudaFuncCachePreferShared);
+  hipFuncSetCacheConfig((void *)sd_t_d1_8_kernel, hipFuncCachePreferShared);
   nstreams=1;
   size_block_triplesx=size_triplesx/nstreams;
   size_el_block_triplesx=size_block_triplesx/sizeof(double);
   t2sub_d=(double*)getGpuMem(size_t2sub);
   v2sub_d=(double*)getGpuMem(size_v2sub);
-  streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
+  streams=(hipStream_t*) malloc(nstreams*sizeof(hipStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(hipStreamCreate(&streams[i])) ;
   }
-  CUDA_SAFE(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
-  CUDA_SAFE(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(t2sub_d,t2sub,size_t2sub,hipMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(v2sub_d,v2sub,size_v2sub,hipMemcpyHostToDevice));
   h7ld_t2sub=1;
   p4ld_t2sub=h7d;
   p5ld_t2sub=p4d*h7d;
@@ -2305,12 +2309,12 @@ extern "C" void sd_t_d1_8_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   int total_y = p4d*p5d*h1d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
-    sd_t_d1_8_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
+    hipLaunchKernelGGL((sd_t_d1_8_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
     CHECK_ERR("Kernel execution failed");
   }
-  cudaThreadSynchronize();
+  hipDeviceSynchronize();
   for(i=0;i<nstreams;++i){
-    cudaStreamDestroy(streams[i]);}
+    hipStreamDestroy(streams[i]);}
   freeGpuMem(t2sub_d);
   freeGpuMem(v2sub_d);
   free(streams);
@@ -2555,25 +2559,25 @@ extern "C" void sd_t_d1_9_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   h3d=h3d*h2d;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
-  cudaStream_t *streams;
+  hipStream_t *streams;
   size_t nstreams,i;
   double *t2sub_d,*v2sub_d;
   size_triplesx=h1d*h3d*p5d*p6d*p4d*sizeof(double);
   size_t2sub=h7d*p4d*p5d*h1d*sizeof(double);
   size_v2sub=h3d*p6d*h7d*sizeof(double);
-  cudaFuncSetCacheConfig(sd_t_d1_9_kernel, cudaFuncCachePreferShared);
+  hipFuncSetCacheConfig((void *)sd_t_d1_9_kernel, hipFuncCachePreferShared);
   nstreams=1;
   size_block_triplesx=size_triplesx/nstreams;
   size_el_block_triplesx=size_block_triplesx/sizeof(double);
   t2sub_d=(double*)getGpuMem(size_t2sub);
   v2sub_d=(double*)getGpuMem(size_v2sub);
-  streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
+  streams=(hipStream_t*) malloc(nstreams*sizeof(hipStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(hipStreamCreate(&streams[i])) ;
   }
-  CUDA_SAFE(cudaMemcpy(t2sub_d,t2sub,size_t2sub,cudaMemcpyHostToDevice));
-  CUDA_SAFE(cudaMemcpy(v2sub_d,v2sub,size_v2sub,cudaMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(t2sub_d,t2sub,size_t2sub,hipMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(v2sub_d,v2sub,size_v2sub,hipMemcpyHostToDevice));
   h7ld_t2sub=1;
   p4ld_t2sub=h7d;
   p5ld_t2sub=p4d*h7d;
@@ -2590,12 +2594,12 @@ extern "C" void sd_t_d1_9_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   int total_y = p4d*p5d*h1d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
-    sd_t_d1_9_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
+    hipLaunchKernelGGL((sd_t_d1_9_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
     CHECK_ERR("Kernel execution failed");
   }
-  cudaThreadSynchronize();
+  hipDeviceSynchronize();
   for(i=0;i<nstreams;++i){
-    cudaStreamDestroy(streams[i]);}
+    hipStreamDestroy(streams[i]);}
   freeGpuMem(t2sub_d);
   freeGpuMem(v2sub_d);
   free(streams);
@@ -2841,26 +2845,26 @@ extern "C" void sd_t_d2_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   p6d=p6d*p5d;
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
-  cudaStream_t *streams;
+  hipStream_t *streams;
   size_t nstreams,i;
   double *t2_d,*v2_d;
   size_t3=h3d*h2d*h1d*p6d*p4d*sizeof(double);
   size_t2=p7d*p4d*h1d*h2d*sizeof(double);
   size_v2=p7d*h3d*p6d*sizeof(double);
-  cudaFuncSetCacheConfig(sd_t_d2_1_kernel, cudaFuncCachePreferShared);
+  hipFuncSetCacheConfig((void *)sd_t_d2_1_kernel, hipFuncCachePreferShared);
   nstreams=1;
   size_block_t3=size_t3/nstreams;
   size_el_block_t3=size_block_t3/sizeof(double);
   //t3d=(double*)getGpuMem(size_t3);
   t2_d=(double*)getGpuMem(size_t2);
   v2_d=(double*)getGpuMem(size_v2);
-  streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
+  streams=(hipStream_t*) malloc(nstreams*sizeof(hipStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(hipStreamCreate(&streams[i])) ;
   }
-  CUDA_SAFE(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
-  CUDA_SAFE(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(t2_d,t2,size_t2,hipMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(v2_d,v2,size_v2,hipMemcpyHostToDevice));
   p7ld_t2=1;
   p4ld_t2=p7d;
   h1ld_t2=p4d*p7d;
@@ -2877,12 +2881,12 @@ extern "C" void sd_t_d2_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   int total_y = p4d*h1d*h2d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
-    sd_t_d2_1_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
+    hipLaunchKernelGGL((sd_t_d2_1_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
     CHECK_ERR("Kernel execution failed");
   }
-  cudaThreadSynchronize();
+  hipDeviceSynchronize();
   for(i=0;i<nstreams;++i){
-    cudaStreamDestroy(streams[i]);}
+    hipStreamDestroy(streams[i]);}
   //freeGpuMem(t3d);
   freeGpuMem(t2_d);
   freeGpuMem(v2_d);
@@ -3121,26 +3125,26 @@ extern "C" void sd_t_d2_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   h3d=h3d*p5d;
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
-  cudaStream_t *streams;
+  hipStream_t *streams;
   size_t nstreams,i;
   double *t2_d,*v2_d;
   size_t3=h2d*h1d*h3d*p4d*sizeof(double);
   size_t2=p7d*p4d*h1d*h2d*sizeof(double);
   size_v2=p7d*h3d*sizeof(double);
-  cudaFuncSetCacheConfig(sd_t_d2_2_kernel, cudaFuncCachePreferShared);
+  hipFuncSetCacheConfig((void *)sd_t_d2_2_kernel, hipFuncCachePreferShared);
   nstreams=1;
   size_block_t3=size_t3/nstreams;
   size_el_block_t3=size_block_t3/sizeof(double);
   //t3d=(double*)getGpuMem(size_t3);
   t2_d=(double*)getGpuMem(size_t2);
   v2_d=(double*)getGpuMem(size_v2);
-  streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
+  streams=(hipStream_t*) malloc(nstreams*sizeof(hipStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(hipStreamCreate(&streams[i])) ;
   }
-  CUDA_SAFE(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
-  CUDA_SAFE(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(t2_d,t2,size_t2,hipMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(v2_d,v2,size_v2,hipMemcpyHostToDevice));
   p7ld_t2=1;
   p4ld_t2=p7d;
   h1ld_t2=p4d*p7d;
@@ -3155,12 +3159,12 @@ extern "C" void sd_t_d2_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   int total_y = p4d*h1d*h2d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
-    sd_t_d2_2_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
+    hipLaunchKernelGGL((sd_t_d2_2_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
     CHECK_ERR("Kernel execution failed");
   }
-  cudaThreadSynchronize();
+  hipDeviceSynchronize();
   for(i=0;i<nstreams;++i){
-    cudaStreamDestroy(streams[i]);}
+    hipStreamDestroy(streams[i]);}
   //freeGpuMem(t3d);
   freeGpuMem(t2_d);
   freeGpuMem(v2_d);
@@ -3406,26 +3410,26 @@ extern "C" void sd_t_d2_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   p6d=p6d*p5d;
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p6ld_t3,p4ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
-  cudaStream_t *streams;
+  hipStream_t *streams;
   size_t nstreams,i;
   double *t2_d,*v2_d;
   size_t3=h2d*h3d*h1d*p6d*p4d*sizeof(double);
   size_t2=p7d*p4d*h1d*h2d*sizeof(double);
   size_v2=p7d*h3d*p6d*sizeof(double);
-  cudaFuncSetCacheConfig(sd_t_d2_3_kernel, cudaFuncCachePreferShared);
+  hipFuncSetCacheConfig((void *)sd_t_d2_3_kernel, hipFuncCachePreferShared);
   nstreams=1;
   size_block_t3=size_t3/nstreams;
   size_el_block_t3=size_block_t3/sizeof(double);
   //t3d=(double*)getGpuMem(size_t3);
   t2_d=(double*)getGpuMem(size_t2);
   v2_d=(double*)getGpuMem(size_v2);
-  streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
+  streams=(hipStream_t*) malloc(nstreams*sizeof(hipStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(hipStreamCreate(&streams[i])) ;
   }
-  CUDA_SAFE(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
-  CUDA_SAFE(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(t2_d,t2,size_t2,hipMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(v2_d,v2,size_v2,hipMemcpyHostToDevice));
   p7ld_t2=1;
   p4ld_t2=p7d;
   h1ld_t2=p4d*p7d;
@@ -3442,12 +3446,12 @@ extern "C" void sd_t_d2_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   int total_y = p4d*h1d*h2d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
-    sd_t_d2_3_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
+    hipLaunchKernelGGL((sd_t_d2_3_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
     CHECK_ERR("Kernel execution failed");
   }
-  cudaThreadSynchronize();
+  hipDeviceSynchronize();
   for(i=0;i<nstreams;++i){
-    cudaStreamDestroy(streams[i]);}
+    hipStreamDestroy(streams[i]);}
 //  freeGpuMem(t3_d);
   freeGpuMem(t2_d);
   freeGpuMem(v2_d);
@@ -3700,26 +3704,26 @@ __global__ void sd_t_d2_4_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
 extern "C" void sd_t_d2_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,p5ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
-  cudaStream_t *streams;
+  hipStream_t *streams;
   size_t nstreams,i;
   double *t2_d,*v2_d;
   size_t3=h3d*h2d*h1d*p6d*p4d*p5d*sizeof(double);
   size_t2=p7d*p4d*h1d*h2d*sizeof(double);
   size_v2=p7d*h3d*p6d*p5d*sizeof(double);
-  cudaFuncSetCacheConfig(sd_t_d2_4_kernel, cudaFuncCachePreferShared);
+  hipFuncSetCacheConfig((void *)sd_t_d2_4_kernel, hipFuncCachePreferShared);
   nstreams=1;
   size_block_t3=size_t3/nstreams;
   size_el_block_t3=size_block_t3/sizeof(double);
   //t3d=(double*)getGpuMem(size_t3);
   t2_d=(double*)getGpuMem(size_t2);
   v2_d=(double*)getGpuMem(size_v2);
-  streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
+  streams=(hipStream_t*) malloc(nstreams*sizeof(hipStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(hipStreamCreate(&streams[i])) ;
   }
-  CUDA_SAFE(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
-  CUDA_SAFE(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(t2_d,t2,size_t2,hipMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(v2_d,v2,size_v2,hipMemcpyHostToDevice));
   p7ld_t2=1;
   p4ld_t2=p7d;
   h1ld_t2=p4d*p7d;
@@ -3738,12 +3742,12 @@ extern "C" void sd_t_d2_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   int total_y = p4d*h1d*h2d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
-    sd_t_d2_4_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
+    hipLaunchKernelGGL((sd_t_d2_4_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
     CHECK_ERR("Kernel execution failed");
   }
-  cudaThreadSynchronize();
+  hipDeviceSynchronize();
   for(i=0;i<nstreams;++i){
-    cudaStreamDestroy(streams[i]);}
+    hipStreamDestroy(streams[i]);}
   //freeGpuMem(t3d);
   freeGpuMem(t2_d);
   freeGpuMem(v2_d);
@@ -3989,26 +3993,26 @@ extern "C" void sd_t_d2_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   h3d=h3d*p6d;
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p5ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3,p5ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
-  cudaStream_t *streams;
+  hipStream_t *streams;
   size_t nstreams,i;
   double *t2_d,*v2_d;
   size_t3=h2d*h1d*h3d*p4d*p5d*sizeof(double);
   size_t2=p7d*p4d*h1d*h2d*sizeof(double);
   size_v2=p7d*h3d*p5d*sizeof(double);
-  cudaFuncSetCacheConfig(sd_t_d2_5_kernel, cudaFuncCachePreferShared);
+  hipFuncSetCacheConfig((void *)sd_t_d2_5_kernel, hipFuncCachePreferShared);
   nstreams=1;
   size_block_t3=size_t3/nstreams;
   size_el_block_t3=size_block_t3/sizeof(double);
   //t3d=(double*)getGpuMem(size_t3);
   t2_d=(double*)getGpuMem(size_t2);
   v2_d=(double*)getGpuMem(size_v2);
-  streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
+  streams=(hipStream_t*) malloc(nstreams*sizeof(hipStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(hipStreamCreate(&streams[i])) ;
   }
-  CUDA_SAFE(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
-  CUDA_SAFE(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(t2_d,t2,size_t2,hipMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(v2_d,v2,size_v2,hipMemcpyHostToDevice));
   p7ld_t2=1;
   p4ld_t2=p7d;
   h1ld_t2=p4d*p7d;
@@ -4025,12 +4029,12 @@ extern "C" void sd_t_d2_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   int total_y = p4d*h1d*h2d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
-    sd_t_d2_5_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p5ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
+    hipLaunchKernelGGL((sd_t_d2_5_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p5ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
     CHECK_ERR("Kernel execution failed");
   }
-  cudaThreadSynchronize();
+  hipDeviceSynchronize();
   for(i=0;i<nstreams;++i){
-    cudaStreamDestroy(streams[i]);}
+    hipStreamDestroy(streams[i]);}
   //freeGpuMem(t3d);
   freeGpuMem(t2_d);
   freeGpuMem(v2_d);
@@ -4283,26 +4287,26 @@ __global__ void sd_t_d2_6_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
 extern "C" void sd_t_d2_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,p5ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
-  cudaStream_t *streams;
+  hipStream_t *streams;
   size_t nstreams,i;
   double *t2_d,*v2_d;
   size_t3=h2d*h3d*h1d*p6d*p4d*p5d*sizeof(double);
   size_t2=p7d*p4d*h1d*h2d*sizeof(double);
   size_v2=p7d*h3d*p6d*p5d*sizeof(double);
-  cudaFuncSetCacheConfig(sd_t_d2_6_kernel, cudaFuncCachePreferShared);
+  hipFuncSetCacheConfig((void *)sd_t_d2_6_kernel, hipFuncCachePreferShared);
   nstreams=1;
   size_block_t3=size_t3/nstreams;
   size_el_block_t3=size_block_t3/sizeof(double);
   //t3d=(double*)getGpuMem(size_t3);
   t2_d=(double*)getGpuMem(size_t2);
   v2_d=(double*)getGpuMem(size_v2);
-  streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
+  streams=(hipStream_t*) malloc(nstreams*sizeof(hipStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(hipStreamCreate(&streams[i])) ;
   }
-  CUDA_SAFE(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
-  CUDA_SAFE(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(t2_d,t2,size_t2,hipMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(v2_d,v2,size_v2,hipMemcpyHostToDevice));
   p7ld_t2=1;
   p4ld_t2=p7d;
   h1ld_t2=p4d*p7d;
@@ -4321,12 +4325,12 @@ extern "C" void sd_t_d2_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   int total_y = p4d*h1d*h2d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
-    sd_t_d2_6_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
+    hipLaunchKernelGGL((sd_t_d2_6_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
     CHECK_ERR();
   }
-  cudaThreadSynchronize();
+  hipDeviceSynchronize();
   for(i=0;i<nstreams;++i){
-    cudaStreamDestroy(streams[i]);}
+    hipStreamDestroy(streams[i]);}
   //freeGpuMem(t3d);
   freeGpuMem(t2_d);
   freeGpuMem(v2_d);
@@ -4579,26 +4583,26 @@ __global__ void sd_t_d2_7_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
 extern "C" void sd_t_d2_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p4ld_t3,p6ld_t3,p5ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
-  cudaStream_t *streams;
+  hipStream_t *streams;
   size_t nstreams,i;
   double *t2_d,*v2_d;
   size_t3=h3d*h2d*h1d*p4d*p6d*p5d*sizeof(double);
   size_t2=p7d*p4d*h1d*h2d*sizeof(double);
   size_v2=p7d*h3d*p6d*p5d*sizeof(double);
-  cudaFuncSetCacheConfig(sd_t_d2_7_kernel, cudaFuncCachePreferShared);
+  hipFuncSetCacheConfig((void *)sd_t_d2_7_kernel, hipFuncCachePreferShared);
   nstreams=1;
   size_block_t3=size_t3/nstreams;
   size_el_block_t3=size_block_t3/sizeof(double);
   //t3d=(double*)getGpuMem(size_t3);
   t2_d=(double*)getGpuMem(size_t2);
   v2_d=(double*)getGpuMem(size_v2);
-  streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
+  streams=(hipStream_t*) malloc(nstreams*sizeof(hipStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(hipStreamCreate(&streams[i])) ;
   }
-  CUDA_SAFE(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
-  CUDA_SAFE(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(t2_d,t2,size_t2,hipMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(v2_d,v2,size_v2,hipMemcpyHostToDevice));
   p7ld_t2=1;
   p4ld_t2=p7d;
   h1ld_t2=p4d*p7d;
@@ -4617,12 +4621,12 @@ extern "C" void sd_t_d2_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   int total_y = p4d*h1d*h2d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
-    sd_t_d2_7_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p4ld_t3,p6ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
+    hipLaunchKernelGGL((sd_t_d2_7_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p4ld_t3,p6ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
     CHECK_ERR("Kernel execution failed");
   }
-  cudaThreadSynchronize();
+  hipDeviceSynchronize();
   for(i=0;i<nstreams;++i){
-    cudaStreamDestroy(streams[i]);}
+    hipStreamDestroy(streams[i]);}
   //freeGpuMem(t3d);
   freeGpuMem(t2_d);
   freeGpuMem(v2_d);
@@ -4875,26 +4879,26 @@ __global__ void sd_t_d2_8_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
 extern "C" void sd_t_d2_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3,p6ld_t3,p5ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
-  cudaStream_t *streams;
+  hipStream_t *streams;
   size_t nstreams,i;
   double *t2_d,*v2_d;
   size_t3=h2d*h1d*h3d*p4d*p6d*p5d*sizeof(double);
   size_t2=p7d*p4d*h1d*h2d*sizeof(double);
   size_v2=p7d*h3d*p6d*p5d*sizeof(double);
-  cudaFuncSetCacheConfig(sd_t_d2_8_kernel, cudaFuncCachePreferShared);
+  hipFuncSetCacheConfig((void *)sd_t_d2_8_kernel, hipFuncCachePreferShared);
   nstreams=1;
   size_block_t3=size_t3/nstreams;
   size_el_block_t3=size_block_t3/sizeof(double);
   //t3d=(double*)getGpuMem(size_t3);
   t2_d=(double*)getGpuMem(size_t2);
   v2_d=(double*)getGpuMem(size_v2);
-  streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
+  streams=(hipStream_t*) malloc(nstreams*sizeof(hipStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(hipStreamCreate(&streams[i])) ;
   }
-  CUDA_SAFE(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
-  CUDA_SAFE(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(t2_d,t2,size_t2,hipMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(v2_d,v2,size_v2,hipMemcpyHostToDevice));
   p7ld_t2=1;
   p4ld_t2=p7d;
   h1ld_t2=p4d*p7d;
@@ -4913,12 +4917,12 @@ extern "C" void sd_t_d2_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   int total_y = p4d*h1d*h2d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
-    sd_t_d2_8_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3,p6ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
+    hipLaunchKernelGGL((sd_t_d2_8_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3,p6ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
     CHECK_ERR("Kernel execution failed");
   }
-  cudaThreadSynchronize();
+  hipDeviceSynchronize();
   for(i=0;i<nstreams;++i){
-    cudaStreamDestroy(streams[i]);}
+    hipStreamDestroy(streams[i]);}
   //freeGpuMem(t3d);
   freeGpuMem(t2_d);
   freeGpuMem(v2_d);
@@ -5171,26 +5175,26 @@ __global__ void sd_t_d2_9_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
 extern "C" void sd_t_d2_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p4ld_t3,p6ld_t3,p5ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
-  cudaStream_t *streams;
+  hipStream_t *streams;
   size_t nstreams,i;
   double *t2_d,*v2_d;
   size_t3=h2d*h3d*h1d*p4d*p6d*p5d*sizeof(double);
   size_t2=p7d*p4d*h1d*h2d*sizeof(double);
   size_v2=p7d*h3d*p6d*p5d*sizeof(double);
-  cudaFuncSetCacheConfig(sd_t_d2_9_kernel, cudaFuncCachePreferShared);
+  hipFuncSetCacheConfig((void *)sd_t_d2_9_kernel, hipFuncCachePreferShared);
   nstreams=1;
   size_block_t3=size_t3/nstreams;
   size_el_block_t3=size_block_t3/sizeof(double);
   //t3d=(double*)getGpuMem(size_t3);
   t2_d=(double*)getGpuMem(size_t2);
   v2_d=(double*)getGpuMem(size_v2);
-  streams=(cudaStream_t*) malloc(nstreams*sizeof(cudaStream_t));
+  streams=(hipStream_t*) malloc(nstreams*sizeof(hipStream_t));
   assert(streams!= NULL);
   for(i=0;i<nstreams;++i) {
-    CUDA_SAFE(cudaStreamCreate(&streams[i])) ;
+    CUDA_SAFE(hipStreamCreate(&streams[i])) ;
   }
-  CUDA_SAFE(cudaMemcpy(t2_d,t2,size_t2,cudaMemcpyHostToDevice));
-  CUDA_SAFE(cudaMemcpy(v2_d,v2,size_v2,cudaMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(t2_d,t2,size_t2,hipMemcpyHostToDevice));
+  CUDA_SAFE(hipMemcpy(v2_d,v2,size_v2,hipMemcpyHostToDevice));
   p7ld_t2=1;
   p4ld_t2=p7d;
   h1ld_t2=p4d*p7d;
@@ -5209,12 +5213,12 @@ extern "C" void sd_t_d2_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   int total_y = p4d*h1d*h2d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
-    sd_t_d2_9_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p4ld_t3,p6ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
+    hipLaunchKernelGGL((sd_t_d2_9_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p4ld_t3,p6ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
     CHECK_ERR("Kernel execution failed");
   }
-  cudaThreadSynchronize();
+  hipDeviceSynchronize();
   for(i=0;i<nstreams;++i){
-    cudaStreamDestroy(streams[i]);}
+    hipStreamDestroy(streams[i]);}
   //freeGpuMem(t3d);
   freeGpuMem(t2_d);
   freeGpuMem(v2_d);
@@ -5332,23 +5336,23 @@ extern   "C" void compute_energy(double factor, double* energy, double* eval1, d
     eval_d5 = (double*)getGpuMem(p5d*sizeof(double));
     eval_d6 = (double*)getGpuMem(p6d*sizeof(double));
 
-    CUDA_SAFE(cudaMemcpy(eval_d1, eval1, h1d*sizeof(double), cudaMemcpyHostToDevice));
-    CUDA_SAFE(cudaMemcpy(eval_d2, eval2, h2d*sizeof(double), cudaMemcpyHostToDevice));
-    CUDA_SAFE(cudaMemcpy(eval_d3, eval3, h3d*sizeof(double), cudaMemcpyHostToDevice));
-    CUDA_SAFE(cudaMemcpy(eval_d4, eval4, p4d*sizeof(double), cudaMemcpyHostToDevice));
-    CUDA_SAFE(cudaMemcpy(eval_d5, eval5, p5d*sizeof(double), cudaMemcpyHostToDevice));
-    CUDA_SAFE(cudaMemcpy(eval_d6, eval6, p6d*sizeof(double), cudaMemcpyHostToDevice));
+    CUDA_SAFE(hipMemcpy(eval_d1, eval1, h1d*sizeof(double), hipMemcpyHostToDevice));
+    CUDA_SAFE(hipMemcpy(eval_d2, eval2, h2d*sizeof(double), hipMemcpyHostToDevice));
+    CUDA_SAFE(hipMemcpy(eval_d3, eval3, h3d*sizeof(double), hipMemcpyHostToDevice));
+    CUDA_SAFE(hipMemcpy(eval_d4, eval4, p4d*sizeof(double), hipMemcpyHostToDevice));
+    CUDA_SAFE(hipMemcpy(eval_d5, eval5, p5d*sizeof(double), hipMemcpyHostToDevice));
+    CUDA_SAFE(hipMemcpy(eval_d6, eval6, p6d*sizeof(double), hipMemcpyHostToDevice));
 /* for test only */
 //printf("host 2 is %f %f\n", host2[0], host2[1]);
-//    CUDA_SAFE(cudaMemcpy(t3_s_d, host2, total_elements*h3d*sizeof(double), cudaMemcpyHostToDevice));
+//    CUDA_SAFE(hipMemcpy(t3_s_d, host2, total_elements*h3d*sizeof(double), hipMemcpyHostToDevice));
 
     dim3 dimBlock(1); //T2*T1);
     dim3 dimGrid(total_block);
-    compute_energy_kernel<<<dimGrid,dimBlock,0>>>(h1d,h2d,h3d,p4d,p5d,p6d, eval_d1,eval_d2,eval_d3,eval_d4,eval_d5,eval_d6,energy_d, factor, h1d*h2d*p4d*p5d*p6d, t3_d, t3_s_d);
-	cudaThreadSynchronize();
+    hipLaunchKernelGGL((compute_energy_kernel), dim3(dimGrid), dim3(dimBlock), 0, 0, h1d,h2d,h3d,p4d,p5d,p6d, eval_d1,eval_d2,eval_d3,eval_d4,eval_d5,eval_d6,energy_d, factor, h1d*h2d*p4d*p5d*p6d, t3_d, t3_s_d);
+	hipDeviceSynchronize();
     //CHECK_ERR("Kernel execution failed");
-    CUDA_SAFE(cudaMemcpy(((char *) energy_h) , ((char *) energy_d) , 
-    size_energy*total_block*2, cudaMemcpyDeviceToHost));
+    CUDA_SAFE(hipMemcpy(((char *) energy_h) , ((char *) energy_d) , 
+    size_energy*total_block*2, hipMemcpyDeviceToHost));
 
     for(int i=1;i<dimGrid.x;i++)
       {
@@ -5359,8 +5363,8 @@ extern   "C" void compute_energy(double factor, double* energy, double* eval1, d
      
 //    printf("CUDA energy_h is %f %f %d %d %d %d %d %d\n", energy_h[0], energy_h[dimGrid.x]); //, total_size, h1d, h2d, p4d, p5d,p6d);
 /*
-    CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_d) , sizeof(double)*h3d*total_elements, cudaMemcpyDeviceToHost));
-    CUDA_SAFE(cudaMemcpy(((char *) ts3) , ((char *) t3_s_d) , sizeof(double)*h3d*total_elements, cudaMemcpyDeviceToHost));
+    CUDA_SAFE(hipMemcpy(((char *) t3) , ((char *) t3_d) , sizeof(double)*h3d*total_elements, hipMemcpyDeviceToHost));
+    CUDA_SAFE(hipMemcpy(((char *) ts3) , ((char *) t3_s_d) , sizeof(double)*h3d*total_elements, hipMemcpyDeviceToHost));
     total_s[0]=0.0, total_d[0]=0.0;
     for(int i=0;i<h3d*total_elements;i++) {
         total_s[0] += ts3[i];
@@ -5393,7 +5397,7 @@ extern    "C" void set_dev_mem_s(int h1d, int h2d, int h3d, int p4d, int p5d,int
     int size_t3;
     size_t3 = h1d*h2d*h3d*p4d*p5d*p6d;
     t3_s_d = (double *) getGpuMem(size_t3*sizeof(double));
-    cudaMemset(t3_s_d,0,size_t3*sizeof(double));
+    hipMemset(t3_s_d,0,size_t3*sizeof(double));
 }
 
 
@@ -5451,7 +5455,7 @@ sd_t_s1_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 	                p5ld_t3, p4ld_t3;
 	size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
 	                size_v2;
-	cudaStream_t   *streams;
+	hipStream_t   *streams;
 	size_t          nstreams, i;
 	double         *t2_d, *v2_d, *t3_p;
 	size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
@@ -5460,20 +5464,20 @@ sd_t_s1_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 	nstreams = 1;
 	size_block_t3 = size_t3 / nstreams;
 	size_el_block_t3 = size_block_t3 / sizeof(double);
-//CUDA_SAFE(cudaMalloc((void**) &t3_d, size_t3));
-//CUDA_SAFE(cudaMalloc((void**) &t2_d, size_t2));
-//CUDA_SAFE(cudaMalloc((void**) &v2_d, size_v2));
+//CUDA_SAFE(hipMalloc((void**) &t3_d, size_t3));
+//CUDA_SAFE(hipMalloc((void**) &t2_d, size_t2));
+//CUDA_SAFE(hipMalloc((void**) &v2_d, size_v2));
 //	t3_d = (double *) getGpuMem(size_t3);
 	t2_d = (double *) getGpuMem(size_t2);
 	v2_d = (double *) getGpuMem(size_v2);
 	t3_p = (double *) getHostMem(size_t3);
-	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
+	streams = (hipStream_t *) malloc(nstreams * sizeof(hipStream_t));
 	assert(streams != NULL);
 	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaStreamCreate(&streams[i]));
+		CUDA_SAFE(hipStreamCreate(&streams[i]));
 	}
-	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(hipMemcpy(t2_d, t2, size_t2, hipMemcpyHostToDevice));
+	CUDA_SAFE(hipMemcpy(v2_d, v2, size_v2, hipMemcpyHostToDevice));
 
 	p4ld_t2 = 1;
 	h1ld_t2 = p4d;
@@ -5491,18 +5495,18 @@ sd_t_s1_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
   int total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
-    sd_t_s1_1_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t2_d,v2_d,i,total_x, t3_s_d);
+    hipLaunchKernelGGL((sd_t_s1_1_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t2_d,v2_d,i,total_x, t3_s_d);
 		CHECK_ERR("Kernel execution failed");
 	}
 /*
     st = timer();
 	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+		CUDA_SAFE(hipMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, hipMemcpyDeviceToHost, streams[i]));
 	}
 
 	stream = 0;
 	while (stream < nstreams) {
-		while (cudaStreamQuery(streams[stream]) != cudaSuccess);
+		while (cudaStreamQuery(streams[stream]) != hipSuccess);
 		double         *src = &t3_p[stream * size_el_block_t3];
 		double         *dst = &t3[stream * size_el_block_t3];
 		for (i = 0; i < size_el_block_t3; ++i) {
@@ -5511,17 +5515,17 @@ sd_t_s1_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 		stream++;
 	}
 */
-	cudaThreadSynchronize();
+	hipDeviceSynchronize();
 
-//	CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+//	CUDA_SAFE(hipMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, hipMemcpyDeviceToHost));
 	for (i = 0; i < nstreams; ++i) {
-		cudaStreamDestroy(streams[i]);
+		hipStreamDestroy(streams[i]);
 	}
 //	freeGpuMem(t3_d);
 	freeGpuMem(t2_d);
 	freeGpuMem(v2_d);
-   //  cudaFree(t2_d);
-   //  cudaFree(v2_d);
+   //  hipFree(t2_d);
+   //  hipFree(v2_d);
 	freeHostMem(t3_p);
 	free(streams);
 }
@@ -5580,7 +5584,7 @@ sd_t_s1_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 	                p5ld_t3, p4ld_t3;
 	size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
 	                size_v2;
-	cudaStream_t   *streams;
+	hipStream_t   *streams;
 	size_t          nstreams, i;
 	double         *t2_d, *v2_d, *t3_p;
 	size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
@@ -5592,21 +5596,21 @@ sd_t_s1_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 /*    if(first==1)
     {
 		t3_d = (double *) getGpuMem(size_t3);
-        cudaMemset(t3_d,0,size_t3*sizeof(double));
+        hipMemset(t3_d,0,size_t3*sizeof(double));
         first = 0;
 	}*/
-//CUDA_SAFE(cudaMalloc((void**) &t2_d, size_t2));
-//CUDA_SAFE(cudaMalloc((void**) &v2_d, size_v2));
+//CUDA_SAFE(hipMalloc((void**) &t2_d, size_t2));
+//CUDA_SAFE(hipMalloc((void**) &v2_d, size_v2));
 	t2_d = (double *) getGpuMem(size_t2);
 	v2_d = (double *) getGpuMem(size_v2);
 	t3_p = (double *) getHostMem(size_t3);
-	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
+	streams = (hipStream_t *) malloc(nstreams * sizeof(hipStream_t));
 /*	assert(streams != NULL);
 	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaStreamCreate(&streams[i]));
+		CUDA_SAFE(hipStreamCreate(&streams[i]));
 	}*/
-	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(hipMemcpy(t2_d, t2, size_t2, hipMemcpyHostToDevice));
+	CUDA_SAFE(hipMemcpy(v2_d, v2, size_v2, hipMemcpyHostToDevice));
 
 	p4ld_t2 = 1;
 	h1ld_t2 = p4d ;
@@ -5625,17 +5629,17 @@ sd_t_s1_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
 //  for(i=0;i<nstreams;++i){
 
-    sd_t_s1_2_kernel<<<dimGrid,dimBlock,0>>>(h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t2_d,v2_d,i,total_x, t3_s_d);
+    hipLaunchKernelGGL((sd_t_s1_2_kernel), dim3(dimGrid), dim3(dimBlock), 0, 0, h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t2_d,v2_d,i,total_x, t3_s_d);
 		CHECK_ERR("Kernel execution failed");
 //	}
 /*
 	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+		CUDA_SAFE(hipMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, hipMemcpyDeviceToHost, streams[i]));
 	}
 
 	stream = 0;
 	while (stream < nstreams) {
-		while (cudaStreamQuery(streams[stream]) != cudaSuccess);
+		while (cudaStreamQuery(streams[stream]) != hipSuccess);
 		double         *src = &t3_p[stream * size_el_block_t3];
 		double         *dst = &t3[stream * size_el_block_t3];
 		for (i = 0; i < size_el_block_t3; ++i) {
@@ -5643,11 +5647,11 @@ sd_t_s1_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 		}
 		stream++;
 	}*/
-	cudaThreadSynchronize();
-//	CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+	hipDeviceSynchronize();
+//	CUDA_SAFE(hipMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, hipMemcpyDeviceToHost));
 /*
 	for (i = 0; i < nstreams; ++i) {
-		cudaStreamDestroy(streams[i]);
+		hipStreamDestroy(streams[i]);
 	}*/
 	freeGpuMem(t2_d);
 	freeGpuMem(v2_d);
@@ -5669,7 +5673,7 @@ sd_t_s1_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	                p5ld_t3, p4ld_t3;
 	size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
 	                size_v2;
-	cudaStream_t   *streams;
+	hipStream_t   *streams;
 	size_t          nstreams, i;
 	double         *t2_d, *v2_d, *t3_p;
 	size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
@@ -5681,20 +5685,20 @@ sd_t_s1_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   /*  if(first==1)
     {
         t3_d = (double *) getGpuMem(size_t3);
-        cudaMemset(t3_d,0,size_t3*sizeof(double));
+        hipMemset(t3_d,0,size_t3*sizeof(double));
         first = 0;
     }
 */
 	t2_d = (double *) getGpuMem(size_t2);
 	v2_d = (double *) getGpuMem(size_v2);
 	t3_p = (double *) getHostMem(size_t3);
-	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
+	streams = (hipStream_t *) malloc(nstreams * sizeof(hipStream_t));
 	assert(streams != NULL);
 	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaStreamCreate(&streams[i]));
+		CUDA_SAFE(hipStreamCreate(&streams[i]));
 	}
-	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(hipMemcpy(t2_d, t2, size_t2, hipMemcpyHostToDevice));
+	CUDA_SAFE(hipMemcpy(v2_d, v2, size_v2, hipMemcpyHostToDevice));
 
 	p4ld_t2 = 1;
 	h1ld_t2 = p4d ;
@@ -5712,17 +5716,17 @@ sd_t_s1_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   int total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
-    sd_t_s1_1_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t2_d,v2_d,i,total_x, t3_s_d);
+    hipLaunchKernelGGL((sd_t_s1_1_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t2_d,v2_d,i,total_x, t3_s_d);
 		CHECK_ERR("Kernel execution failed");
 	}
 /*
 	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+		CUDA_SAFE(hipMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, hipMemcpyDeviceToHost, streams[i]));
 	}
 
 	stream = 0;
 	while (stream < nstreams) {
-		while (cudaStreamQuery(streams[stream]) != cudaSuccess);
+		while (cudaStreamQuery(streams[stream]) != hipSuccess);
 		double         *src = &t3_p[stream * size_el_block_t3];
 		double         *dst = &t3[stream * size_el_block_t3];
 		for (i = 0; i < size_el_block_t3; ++i) {
@@ -5730,11 +5734,11 @@ sd_t_s1_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 		}
 		stream++;
 	}
-*/	cudaThreadSynchronize();
-	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+*/	hipDeviceSynchronize();
+	//CUDA_SAFE(hipMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, hipMemcpyDeviceToHost));
 
 	for (i = 0; i < nstreams; ++i) {
-		cudaStreamDestroy(streams[i]);
+		hipStreamDestroy(streams[i]);
 	}
 //	freeGpuMem(t3_d);
 	freeGpuMem(t2_d);
@@ -5799,7 +5803,7 @@ sd_t_s1_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	                p5ld_t3, p4ld_t3;
 	size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
 	                size_v2;
-	cudaStream_t   *streams;
+	hipStream_t   *streams;
 	size_t          nstreams, i;
 	double         *t2_d, *v2_d, *t3_p;
 	size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
@@ -5811,7 +5815,7 @@ sd_t_s1_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   /*  if(first==1)
     {
         t3_d = (double *) getGpuMem(size_t3);
-        cudaMemset(t3_d,0,size_t3*sizeof(double));
+        hipMemset(t3_d,0,size_t3*sizeof(double));
         first = 0;
     }
 */
@@ -5819,13 +5823,13 @@ sd_t_s1_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	t2_d = (double *) getGpuMem(size_t2);
 	v2_d = (double *) getGpuMem(size_v2);
 	t3_p = (double *) getHostMem(size_t3);
-	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
+	streams = (hipStream_t *) malloc(nstreams * sizeof(hipStream_t));
 /*	assert(streams != NULL);
 	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaStreamCreate(&streams[i]));
+		CUDA_SAFE(hipStreamCreate(&streams[i]));
 	}*/
-	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(hipMemcpy(t2_d, t2, size_t2, hipMemcpyHostToDevice));
+	CUDA_SAFE(hipMemcpy(v2_d, v2, size_v2, hipMemcpyHostToDevice));
 
 	p4ld_t2 = 1;
 	h1ld_t2 = p4d;
@@ -5844,18 +5848,18 @@ sd_t_s1_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
    i=0;
  // for(i=0;i<nstreams;++i){
-    sd_t_s1_4_kernel<<<dimGrid,dimBlock,0>>>(h1d,h2d,h3d,p4d,p5d,p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p5ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
-    //sd_t_s1_4_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p5ld_t3,p4ld_t3,t3_d,t2_d,v2_d,i,total_x);
+    hipLaunchKernelGGL((sd_t_s1_4_kernel), dim3(dimGrid), dim3(dimBlock), 0, 0, h1d,h2d,h3d,p4d,p5d,p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p5ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
+    //hipLaunchKernelGGL((sd_t_s1_4_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d,p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p5ld_t3,p4ld_t3,t3_d,t2_d,v2_d,i,total_x);
 		CHECK_ERR("Kernel execution failed");
 //	}
 
 
-	cudaThreadSynchronize();
-	/*	CUDA_SAFE(cudaMemcpy(((char *) t3_p) , ((char *) t3_d) , size_block_t3, cudaMemcpyDeviceToHost));
+	hipDeviceSynchronize();
+	/*	CUDA_SAFE(hipMemcpy(((char *) t3_p) , ((char *) t3_d) , size_block_t3, hipMemcpyDeviceToHost));
 	printf("Time for Async DeviceToHost %f\n", et-st);
 	stream = 0;
 //	while (stream < nstreams) {
-//		while (cudaStreamQuery(streams[stream]) != cudaSuccess);
+//		while (cudaStreamQuery(streams[stream]) != hipSuccess);
 		double         *src = t3_p; //[stream * size_el_block_t3];
 		double         *dst = t3;  //[stream * size_el_block_t3];
 		for (i = 0; i < size_el_block_t3; ++i) {
@@ -5864,10 +5868,10 @@ sd_t_s1_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 //		stream++;
 //	}
 */
-//	cudaThreadSynchronize();
+//	hipDeviceSynchronize();
 /*
 	for (i = 0; i < nstreams; ++i) {
-		cudaStreamDestroy(streams[i]);
+		hipStreamDestroy(streams[i]);
 	}*/
 //	freeGpuMem(t3_d);
 	freeGpuMem(t2_d);
@@ -5933,7 +5937,7 @@ sd_t_s1_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	                p5ld_t3, p4ld_t3;
 	size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
 	                size_v2;
-	cudaStream_t   *streams;
+	hipStream_t   *streams;
 	size_t          nstreams, i;
 	double         *t2_d, *v2_d, *t3_p;
 	size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
@@ -5945,7 +5949,7 @@ sd_t_s1_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   /*  if(first==1)
     {
         t3_d = (double *) getGpuMem(size_t3);
-        cudaMemset(t3_d,0,size_t3*sizeof(double));
+        hipMemset(t3_d,0,size_t3*sizeof(double));
         first = 0;
     }
 */
@@ -5953,13 +5957,13 @@ sd_t_s1_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	t2_d = (double *) getGpuMem(size_t2);
 	v2_d = (double *) getGpuMem(size_v2);
 	t3_p = (double *) getHostMem(size_t3);
-	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
+	streams = (hipStream_t *) malloc(nstreams * sizeof(hipStream_t));
 	assert(streams != NULL);
 	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaStreamCreate(&streams[i]));
+		CUDA_SAFE(hipStreamCreate(&streams[i]));
 	}
-	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(hipMemcpy(t2_d, t2, size_t2, hipMemcpyHostToDevice));
+	CUDA_SAFE(hipMemcpy(v2_d, v2, size_v2, hipMemcpyHostToDevice));
 
 	p4ld_t2 = 1;
 	h1ld_t2 = p4d ;
@@ -5977,17 +5981,17 @@ sd_t_s1_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   int total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
-    sd_t_s1_5_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p5ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
+    hipLaunchKernelGGL((sd_t_s1_5_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d,p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p5ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
 		CHECK_ERR("Kernel execution failed");
 	}
 /*
 	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+		CUDA_SAFE(hipMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, hipMemcpyDeviceToHost, streams[i]));
 	}
 
 	stream = 0;
 	while (stream < nstreams) {
-		while (cudaStreamQuery(streams[stream]) != cudaSuccess);
+		while (cudaStreamQuery(streams[stream]) != hipSuccess);
 		double         *src = &t3_p[stream * size_el_block_t3];
 		double         *dst = &t3[stream * size_el_block_t3];
 		for (i = 0; i < size_el_block_t3; ++i) {
@@ -5996,11 +6000,11 @@ sd_t_s1_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 		stream++;
 	}
 */
-	cudaThreadSynchronize();
+	hipDeviceSynchronize();
 
-	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+	//CUDA_SAFE(hipMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, hipMemcpyDeviceToHost));
 	for (i = 0; i < nstreams; ++i) {
-		cudaStreamDestroy(streams[i]);
+		hipStreamDestroy(streams[i]);
 	}
 //	freeGpuMem(t3_d);
 	freeGpuMem(t2_d);
@@ -6066,7 +6070,7 @@ sd_t_s1_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	                p5ld_t3, p4ld_t3;
 	size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
 	                size_v2;
-	cudaStream_t   *streams;
+	hipStream_t   *streams;
 	size_t          nstreams, i;
 	double          *t2_d, *v2_d, *t3_p;
 	size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
@@ -6078,7 +6082,7 @@ sd_t_s1_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   /*  if(first==1)
     {
         t3_d = (double *) getGpuMem(size_t3);
-        cudaMemset(t3_d,0,size_t3*sizeof(double));
+        hipMemset(t3_d,0,size_t3*sizeof(double));
         first = 0;
     }
 */
@@ -6086,13 +6090,13 @@ sd_t_s1_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	t2_d = (double *) getGpuMem(size_t2);
 	v2_d = (double *) getGpuMem(size_v2);
 	t3_p = (double *) getHostMem(size_t3);
-	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
+	streams = (hipStream_t *) malloc(nstreams * sizeof(hipStream_t));
 	assert(streams != NULL);
 	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaStreamCreate(&streams[i]));
+		CUDA_SAFE(hipStreamCreate(&streams[i]));
 	}
-	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(hipMemcpy(t2_d, t2, size_t2, hipMemcpyHostToDevice));
+	CUDA_SAFE(hipMemcpy(v2_d, v2, size_v2, hipMemcpyHostToDevice));
 
 	p4ld_t2 = 1;
 	h1ld_t2 = p4d;
@@ -6110,16 +6114,16 @@ sd_t_s1_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   int total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
-    sd_t_s1_6_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p5ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
+    hipLaunchKernelGGL((sd_t_s1_6_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d,p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p5ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
 		CHECK_ERR("Kernel execution failed");
 	}
 /*	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+		CUDA_SAFE(hipMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, hipMemcpyDeviceToHost, streams[i]));
 	}
 
 	stream = 0;
 	while (stream < nstreams) {
-		while (cudaStreamQuery(streams[stream]) != cudaSuccess);
+		while (cudaStreamQuery(streams[stream]) != hipSuccess);
 		double         *src = &t3_p[stream * size_el_block_t3];
 		double         *dst = &t3[stream * size_el_block_t3];
 		for (i = 0; i < size_el_block_t3; ++i) {
@@ -6127,11 +6131,11 @@ sd_t_s1_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 		}
 		stream++;
 	}*/
-	cudaThreadSynchronize();
-	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+	hipDeviceSynchronize();
+	//CUDA_SAFE(hipMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, hipMemcpyDeviceToHost));
 
 	for (i = 0; i < nstreams; ++i) {
-		cudaStreamDestroy(streams[i]);
+		hipStreamDestroy(streams[i]);
 	}
 //	freeGpuMem(t3_d);
 	freeGpuMem(t2_d);
@@ -6202,7 +6206,7 @@ sd_t_s1_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	                p5ld_t3, p4ld_t3;
 	size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
 	                size_v2;
-	cudaStream_t   *streams;
+	hipStream_t   *streams;
 	size_t          nstreams, i;
 	double         *t2_d, *v2_d, *t3_p;
 	size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
@@ -6214,7 +6218,7 @@ sd_t_s1_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   /*  if(first==1)
     {
         t3_d = (double *) getGpuMem(size_t3);
-        cudaMemset(t3_d,0,size_t3*sizeof(double));
+        hipMemset(t3_d,0,size_t3*sizeof(double));
         first = 0;
     }
 */
@@ -6222,13 +6226,13 @@ sd_t_s1_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	t2_d = (double *) getGpuMem(size_t2);
 	v2_d = (double *) getGpuMem(size_v2);
 	t3_p = (double *) getHostMem(size_t3);
-	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
+	streams = (hipStream_t *) malloc(nstreams * sizeof(hipStream_t));
 	assert(streams != NULL);
 	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaStreamCreate(&streams[i]));
+		CUDA_SAFE(hipStreamCreate(&streams[i]));
 	}
-	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(hipMemcpy(t2_d, t2, size_t2, hipMemcpyHostToDevice));
+	CUDA_SAFE(hipMemcpy(v2_d, v2, size_v2, hipMemcpyHostToDevice));
 
 	p4ld_t2 = 1;
 	h1ld_t2 = p4d;
@@ -6246,17 +6250,17 @@ sd_t_s1_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   int total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
-    sd_t_s1_7_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
+    hipLaunchKernelGGL((sd_t_s1_7_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
 		CHECK_ERR("Kernel execution failed");
 	}
 /*
 	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+		CUDA_SAFE(hipMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, hipMemcpyDeviceToHost, streams[i]));
 	}
 
 	stream = 0;
 	while (stream < nstreams) {
-		while (cudaStreamQuery(streams[stream]) != cudaSuccess);
+		while (cudaStreamQuery(streams[stream]) != hipSuccess);
 		double         *src = &t3_p[stream * size_el_block_t3];
 		double         *dst = &t3[stream * size_el_block_t3];
 		for (i = 0; i < size_el_block_t3; ++i) {
@@ -6264,11 +6268,11 @@ sd_t_s1_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 		}
 		stream++;
 	}*/
-	cudaThreadSynchronize();
-	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+	hipDeviceSynchronize();
+	//CUDA_SAFE(hipMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, hipMemcpyDeviceToHost));
 
 	for (i = 0; i < nstreams; ++i) {
-		cudaStreamDestroy(streams[i]);
+		hipStreamDestroy(streams[i]);
 	}
 //	freeGpuMem(t3_d);
 	freeGpuMem(t2_d);
@@ -6333,7 +6337,7 @@ sd_t_s1_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	                p5ld_t3, p4ld_t3;
 	size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
 	                size_v2;
-	cudaStream_t   *streams;
+	hipStream_t   *streams;
 	size_t          nstreams, i;
 	double          *t2_d, *v2_d, *t3_p;
 	size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
@@ -6345,7 +6349,7 @@ sd_t_s1_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   /*  if(first==1)
     {
         t3_d = (double *) getGpuMem(size_t3);
-        cudaMemset(t3_d,0,size_t3*sizeof(double));
+        hipMemset(t3_d,0,size_t3*sizeof(double));
         first = 0;
     }
 */
@@ -6353,13 +6357,13 @@ sd_t_s1_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	t2_d = (double *) getGpuMem(size_t2);
 	v2_d = (double *) getGpuMem(size_v2);
 	t3_p = (double *) getHostMem(size_t3);
-	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
+	streams = (hipStream_t *) malloc(nstreams * sizeof(hipStream_t));
 	assert(streams != NULL);
 	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaStreamCreate(&streams[i]));
+		CUDA_SAFE(hipStreamCreate(&streams[i]));
 	}
-	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(hipMemcpy(t2_d, t2, size_t2, hipMemcpyHostToDevice));
+	CUDA_SAFE(hipMemcpy(v2_d, v2, size_v2, hipMemcpyHostToDevice));
 
 	p4ld_t2 = 1;
 	h1ld_t2 = p4d;
@@ -6377,16 +6381,16 @@ sd_t_s1_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   int total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
-    sd_t_s1_8_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
+    hipLaunchKernelGGL((sd_t_s1_8_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
 		CHECK_ERR("Kernel execution failed");
 	}
 /*
 	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+		CUDA_SAFE(hipMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, hipMemcpyDeviceToHost, streams[i]));
 	}
 	stream = 0;
 	while (stream < nstreams) {
-		while (cudaStreamQuery(streams[stream]) != cudaSuccess);
+		while (cudaStreamQuery(streams[stream]) != hipSuccess);
 		double         *src = &t3_p[stream * size_el_block_t3];
 		double         *dst = &t3[stream * size_el_block_t3];
 		for (i = 0; i < size_el_block_t3; ++i) {
@@ -6394,11 +6398,11 @@ sd_t_s1_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 		}
 		stream++;
 	}*/
-	cudaThreadSynchronize();
-//	CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+	hipDeviceSynchronize();
+//	CUDA_SAFE(hipMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, hipMemcpyDeviceToHost));
 
 	for (i = 0; i < nstreams; ++i) {
-		cudaStreamDestroy(streams[i]);
+		hipStreamDestroy(streams[i]);
 	}
 //	freeGpuMem(t3_d);
 	freeGpuMem(t2_d);
@@ -6424,7 +6428,7 @@ sd_t_s1_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	                p5ld_t3, p4ld_t3;
 	size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
 	                size_v2;
-	cudaStream_t   *streams;
+	hipStream_t   *streams;
 	size_t          nstreams, i;
 	double          *t2_d, *v2_d, *t3_p;
 	size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
@@ -6436,7 +6440,7 @@ sd_t_s1_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   /*  if(first==1)
     {
         t3_d = (double *) getGpuMem(size_t3);
-        cudaMemset(t3_d,0,size_t3*sizeof(double));
+        hipMemset(t3_d,0,size_t3*sizeof(double));
         first = 0;
     }
 */
@@ -6444,13 +6448,13 @@ sd_t_s1_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	t2_d = (double *) getGpuMem(size_t2);
 	v2_d = (double *) getGpuMem(size_v2);
 	t3_p = (double *) getHostMem(size_t3);
-	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
+	streams = (hipStream_t *) malloc(nstreams * sizeof(hipStream_t));
 	assert(streams != NULL);
 	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaStreamCreate(&streams[i]));
+		CUDA_SAFE(hipStreamCreate(&streams[i]));
 	}
-	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+	CUDA_SAFE(hipMemcpy(t2_d, t2, size_t2, hipMemcpyHostToDevice));
+	CUDA_SAFE(hipMemcpy(v2_d, v2, size_v2, hipMemcpyHostToDevice));
 
 	p4ld_t2 = 1;
 	h1ld_t2 = p4d;
@@ -6468,16 +6472,16 @@ sd_t_s1_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
   int total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
-    sd_t_s1_7_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
+    hipLaunchKernelGGL((sd_t_s1_7_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
 		CHECK_ERR("Kernel execution failed");
 	}
 /*
 	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+		CUDA_SAFE(hipMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, hipMemcpyDeviceToHost, streams[i]));
 	}
 	stream = 0;
 	while (stream < nstreams) {
-		while (cudaStreamQuery(streams[stream]) != cudaSuccess);
+		while (cudaStreamQuery(streams[stream]) != hipSuccess);
 		double         *src = &t3_p[stream * size_el_block_t3];
 		double         *dst = &t3[stream * size_el_block_t3];
 		for (i = 0; i < size_el_block_t3; ++i) {
@@ -6485,12 +6489,12 @@ sd_t_s1_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 		}
 		stream++;
 	}*/
-	cudaThreadSynchronize();
-	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+	hipDeviceSynchronize();
+	//CUDA_SAFE(hipMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, hipMemcpyDeviceToHost));
 
 //  printf("out is %lf\n", t3_p[0]);
 	for (i = 0; i < nstreams; ++i) {
-		cudaStreamDestroy(streams[i]);
+		hipStreamDestroy(streams[i]);
 	}
 	//freeGpuMem(t3_d);
 	freeGpuMem(t2_d);

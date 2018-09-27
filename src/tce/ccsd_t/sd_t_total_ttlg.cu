@@ -2,6 +2,9 @@
 #include <cublas_v2.h>
 #include <cuda.h>
 
+__device__ double* t3_s_d;
+__device__ double* t3_d;
+
 #include "header.h"
 #include "ourinclude.h"
 

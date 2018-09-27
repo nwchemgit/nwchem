@@ -221,7 +221,7 @@ c      double precision f2m(50,50)
       external scf
       integer i
       integer j
-#ifdef TCE_CUDA
+#if defined(TCE_CUDA) || defined(TCE_HIP)
       integer icuda
 #endif
 !#ifdef EACCSD
@@ -3060,7 +3060,7 @@ c
           call ccsd_t_fdist_init()
 #endif
           if (restart_ccsd_t.eq.0) then
-#ifdef TCE_CUDA
+#if defined(TCE_CUDA) || defined(TCE_HIP)
               if(.not.rtdb_get(rtdb,'tce:cuda',mt_int,1,icuda)) then
                if (nodezero) write(LuOut,*) 'Using plain CCSD(T) code'
                if (nodezero) call util_flush(LuOut)

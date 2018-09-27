@@ -162,6 +162,11 @@ ifdef TCE_CUDA
         SUBDIRS += ttlg
       endif
 endif
+
+ifdef TCE_HIP
+      LIB_DEFINES += -DTCE_HIP
+endif
+
 ifdef USE_PSTAT
       LIB_DEFINES += -DUSE_PSTAT
 endif
