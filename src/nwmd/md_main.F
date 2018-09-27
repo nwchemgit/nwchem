@@ -1266,6 +1266,11 @@ c
     1 continue
       lpmfc=.true.
 c
+c     If requested, adjust velocities
+c
+      call md_veladj(nwmloc,nsaloc,dbl_mb(i_vw),dbl_mb(i_vs),
+     + int_mb(i_iw+(lwdyn-1)*mwm),int_mb(i_is))
+c
 c     data gathering
 c
       lhop=ltmp

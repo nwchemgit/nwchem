@@ -34,6 +34,8 @@ c
       integer ifidi,ncoll,ipopt,ivopt,ilambd,mlambd,includ,npforc
       integer iprop,iprpmf,nfhop,ipbtyp,iradgy,idifco,nfnewf,ncolt
       integer icmopt,imembr,icrit,nbget,nprec,nfload
+      integer ivelatm(2) ! start and finish atom number
+      real*8  veloadj(3) ! velocity adjustment vector
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -205,6 +207,9 @@ c      iunfix=0
       fcoll=1.0d0
       rsgm=-1.0d0
 c
+      ivelatm=0
+      veloadj=0.0d0
+c
       server=' '
 c
       dx0sd=0.01d0
@@ -273,6 +278,20 @@ c
       if(.not.inp_a(item)) goto 1
 c
     3 continue
+c
+      if(inp_compare(.false.,'veladj',item)) then
+      if(.not.inp_i(ivelatm(1))) call md_abort(
+     +  "md_input: first atom not given")
+      if(.not.inp_i(ivelatm(2))) call md_abort(
+     +  "md_input: last atom not given")
+      if(.not.inp_f(veloadj(1))) call md_abort(
+     +  "md_input: x-velocity not given")
+      if(.not.inp_f(veloadj(2))) call md_abort(
+     +  "md_input: y-velocity not given")
+      if(.not.inp_f(veloadj(3))) call md_abort(
+     +  "md_input: z-velocity not given")
+      goto 1
+      endif
 c
       if(inp_compare(.false.,'system',item)) then
       if(len.gt.0) call md_abort('md_input: duplicate system',0)
@@ -2033,6 +2052,12 @@ c
      + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:scaleq',mt_dbl,1,scaleq))
      + call md_abort('md_input: rtdb_put failed',0)
+c
+      if(.not.rtdb_put(irtdb,'md:ivelatm',mt_int,2,ivelatm))
+     + call md_abort('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:veloadj',mt_dbl,3,veloadj))
+     + call md_abort('md_input: rtdb_put failed',0)
+
 c
       close(unit=lfncmd)
 c

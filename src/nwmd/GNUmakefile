@@ -3,7 +3,7 @@
 #
 
  OBJ_OPTIMIZE =  nwmd.o md_start.o md_input.o md_main.o \
-                 md_finish.o \
+                 md_finish.o md_veladj.o \
                  prp_init.o prp_main.o 
 
 LIBRARY=libnwmd.a

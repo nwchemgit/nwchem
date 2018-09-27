@@ -164,7 +164,7 @@ c
       endif
       endif
       pchain=card(22:22)
-      if(card(18:20).eq.namslv) goto 99
+      if(card(18:20).eq.namslv) goto 1
       if(i.ne.isgm) then
       isgm=i
       iseq=iseq+1
@@ -208,7 +208,7 @@ c
       endif
       endif
       pchain=card(22:22)
-      if(card(18:20).eq.namslv) goto 99
+      if(card(18:20).eq.namslv) goto 1
       if(i.ne.isgm) then
       isgm=i
       iseq=iseq+1
@@ -262,6 +262,29 @@ c
    99 continue
 c
       close(iunit)
+c
+c     guard against wrap around of segment numbers
+c     --------------------------------------------
+c
+c     This may occur if solvation waters are included in the PDB file
+c     and those waters are listed before the counter ions. I.e. there
+c     are more 10,000 segments and the counter ion segment numbers may
+c     overlap with protein segment numbers. Non-unique segment numbers
+c     cause the code to crash so better detect this problem now and
+c     provide a sensible error message.
+c
+      do i = 1, iseq-1
+      if (lseq(1,i+1).le.lseq(1,i)) then
+      if (util_print('where',print_none)) then
+      write(lfnout,2012)lseq(1,i),cseq(1,i),lseq(1,i+1),cseq(1,i+1)
+ 2012 format(' ERROR: Segment',i8,' ',a3,
+     +  ' followed by segment',i8,' ',a3,/,
+     +  ' ERROR: Segment numbers potentially non-unique.')
+      goto 9999
+      endif
+      endif
+      enddo
+c
 c
 c     take white space out of segment names
 c     -------------------------------------

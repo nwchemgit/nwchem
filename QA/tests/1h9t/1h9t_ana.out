@@ -1,0 +1,426 @@
+ argument  1 = 1h9t_ana.nw
+
+
+
+============================== echo of input deck ==============================
+echo
+start md_dat
+
+prepare
+  system 1h9t_md
+  new_rst
+  new_top new_seq
+  source start_md_neutral.pdb
+  #solvent name HOH model spce
+  #solvate
+  vacuo
+end
+
+#task prepare
+
+md
+  system 1h9t_md
+  leapfrog
+  step 0.002 equil 0 data 1000
+  #isotherm 298.15 trelax 0.1
+  isobar
+  print step 1
+  record coord 1 ascii
+  veladj 7715 8958 0.0 0.0 1000.0
+end
+
+#task md dynamics
+
+analysis
+  system 1h9t_md
+  reference 1h9t_md.rst
+  file 1h9t_md.trj
+  frames 1 2000 10
+  copy 1h9t_md.pdb
+end
+
+task analysis
+================================================================================
+
+
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.8
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2018
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = hpc1.csc.bnl.gov
+    program         = ../../../bin/LINUX64/nwchem
+    date            = Fri Aug 10 11:42:07 2018
+
+    compiled        = Fri_Aug_10_09:33:38_2018
+    source          = /home/hvandam/nwchem-1-codar
+    nwchem branch   = Development
+    nwchem revision = nwchem_on_git-509-g452f955
+    ga revision     = 5.6.5
+    use scalapack   = F
+    input           = 1h9t_ana.nw
+    prefix          = md_dat.
+    data base       = ./md_dat.db
+    status          = startup
+    nproc           =        1
+    time left       =      0s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =     217724 doubles =      1.7 Mbytes
+    stack    =  178884395 doubles =   1364.8 Mbytes
+    global   =  357768789 doubles =   2729.6 Mbytes (distinct from heap & stack)
+    total    =  536870908 doubles =   4096.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                               Analysis Input Module
+                               ---------------------
+
+
+                                  Analysis Module
+                                  ---------------
+
+
+ Reference coordinates read from 1h9t_md.rst
+
+ Number of atoms is  9033
+ Topology read from 1h9t.top
+
+ Opening trj file 1h9t_md.trj
+ Closing trj file 
+
+ Trajectory file header from 1h9t_md.trj
+
+ Selected frames          1 to       2000 by        10
+
+ Opening trj file 1h9t_md.trj
+
+ Opening copy file 1h9t_md.pdb
+
+Writing 1h9t_md00001.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00002.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00003.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00004.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00005.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00006.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00007.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00008.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00009.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00010.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00011.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00012.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00013.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00014.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00015.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00016.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00017.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00018.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00019.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00020.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00021.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00022.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00023.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00024.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00025.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00026.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00027.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00028.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00029.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00030.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00031.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00032.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00033.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00034.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00035.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00036.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00037.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00038.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00039.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00040.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00041.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00042.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00043.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00044.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00045.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00046.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00047.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00048.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00049.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00050.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00051.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00052.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00053.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00054.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00055.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00056.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00057.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00058.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00059.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00060.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00061.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00062.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00063.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00064.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00065.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00066.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00067.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00068.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00069.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00070.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00071.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00072.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00073.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00074.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00075.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00076.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00077.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00078.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00079.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00080.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00081.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00082.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00083.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00084.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00085.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00086.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00087.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00088.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00089.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00090.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00091.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00092.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00093.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00094.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00095.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00096.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00097.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00098.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00099.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00100.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00101.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00102.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00103.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00104.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00105.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00106.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00107.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00108.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00109.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00110.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00111.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00112.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00113.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00114.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00115.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00116.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00117.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00118.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00119.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00120.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00121.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00122.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00123.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00124.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00125.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00126.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00127.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00128.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00129.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00130.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00131.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00132.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00133.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00134.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00135.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00136.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00137.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00138.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00139.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00140.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00141.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00142.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00143.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00144.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00145.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00146.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00147.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00148.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00149.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00150.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00151.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00152.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00153.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00154.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00155.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00156.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00157.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00158.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00159.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00160.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00161.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00162.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00163.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00164.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00165.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00166.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00167.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00168.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00169.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00170.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00171.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00172.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00173.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00174.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00175.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00176.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00177.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00178.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00179.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00180.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00181.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00182.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00183.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00184.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00185.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00186.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00187.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00188.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00189.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00190.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00191.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00192.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00193.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00194.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00195.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00196.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00197.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00198.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00199.pdb                                                                                                                                                                                                                                               
+Writing 1h9t_md00200.pdb                                                                                                                                                                                                                                               
+ Closing trj file 
+
+ Copied        200 frames to 1h9t_md.pdb
+
+ Task  times  cpu:       24.2s     wall:       25.1s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:    0        0        0        0        0        0        0        0     
+number of processes/call 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+bytes total:             0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 0 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	         0	        27
+	current total bytes		         0	         0
+	maximum total bytes		         0	   6642104
+	maximum total K-bytes		         0	      6643
+	maximum total M-bytes		         0	         7
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+
+                                      AUTHORS
+                                      -------
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+    S. A. Fischer, S. Krishnamoorthy, M. Jacquelin, W. Ma, M. Klemm, O. Villa,
+      Y. Chen, V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler, V. Konjkov,
+            D. Mejia-Rodriguez, T. Risthaus, M. Malagoli, A. Marenich,
+   A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao,
+        P.-D. Fan, A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr,
+      M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+    M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+      G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall,
+      J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, D. E. Bernholdt,
+      P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. J. O. Deegan, K. Dyall,
+    D. Elwood, E. Glendening, M. Gutowski, A. C. Hess, J. Jaffe, B. G. Johnson,
+     J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+      T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
+      M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
+
+ Total times  cpu:       24.2s     wall:       25.3s
