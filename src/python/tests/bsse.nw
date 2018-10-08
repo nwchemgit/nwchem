@@ -69,7 +69,7 @@ print(' ')
 print('                Interaction energy = %10.6f' % uncorrected)
 print(' BSSE corrected interaction energy = %10.6f' % corrected)
 print('                   BSSE correction = %10.6f' % (corrected-uncorrected))
-print(' '
+print(' ')
 end
 
 task python
