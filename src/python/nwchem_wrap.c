@@ -45,9 +45,23 @@ extern void ga_pgroup_igop_(Integer *,Integer *,Integer *,Integer *,char *);
 #define PyInteger_Check(m) PyLong_Check(m)
 #define PyInteger_AsLong(m) PyLong_AsLong(m)
 #else
-#define PyInteger_FromLong(m) PyInt_FromLong(m)
-#define PyInteger_Check(m) PyInt_Check(m)
-#define PyInteger_AsLong(m) PyInt_AsLong(m)
+#define PyInteger_FromLong(m) PyLong_FromLong(m)
+static int PyInteger_Check(PyObject *obj)
+{
+  return (PyInt_Check(obj) || PyLong_Check(obj));
+}
+
+static long PyInteger_AsLong(PyObject *obj)
+{
+  if (PyLong_Check(obj)) {
+    return PyLong_AsLong(obj);
+  } else if (PyInt_Check(obj)) {
+    return PyInt_AsLong(obj);
+  } else {
+    PyErr_SetString(PyExc_TypeError, "Argument is not an Integer type!");
+    return NULL;
+  }
+}
 #endif
 
 extern int nw_inp_from_string(int, const char *);
@@ -1532,7 +1546,11 @@ static PyObject *do_pgroup_broadcast_work(PyObject *args, Integer my_group)
     Integer nelem ;
     PyObject *obj, *returnObj;
 
-    obj  = args;
+    if (PyTuple_Check(args)) {
+      obj = PyTuple_GetItem(args, 0);
+    } else {
+      obj = args;
+    }
 
     if (PyList_Check(obj)){
       list = 1;
