@@ -11,7 +11,11 @@
 #include <stdlib.h>
 #include "typesf2c.h"
 
+#if PY_MAJOR_VERSION >= 3
+extern PyMODINIT_FUNC PyInit_nwchem();
+#else
 extern void initnwchem();
+#endif
 extern void util_file_parallel_copy(const char *, const char *);
 
 

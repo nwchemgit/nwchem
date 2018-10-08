@@ -150,7 +150,7 @@ char *Parse_String(PyObject *arg)
   if (PyUnicode_Check(arg)) {
     ascii_string = PyUnicode_AsASCIIString(arg);
     out = PyBytes_AsString(ascii_string);
-    Py_DECREF(ascii_string)
+    Py_DECREF(ascii_string);
   } else if (PyBytes_Check(arg)) {
     out = PyBytes_AsString(arg);
   } else {
@@ -240,8 +240,8 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
     void *array = 0;
     PyObject *obj, *obj_item, *ascii_string;
     
-    ma_type = -1
-    PyArg_ParseTuple(args, "so|i", &name, &obj, &ma_type)
+    ma_type = -1;
+    PyArg_ParseTuple(args, "so|i", &name, &obj, &ma_type);
 
     if (PyList_Check(obj)) 
       list = 1; 
@@ -1709,7 +1709,7 @@ static struct module_state _state;
 #endif
 
 static PyObject* error_out(PyObject *m) {
-  struct module-state *st = GETSTATE(m);
+  struct module_state *st = GETSTATE(m);
   PyErr_SetString(st->error, "something bad happened");
   return NULL;
 }

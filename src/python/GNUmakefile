@@ -19,7 +19,7 @@ error1:
 	@exit 1
 endif
 
-PYMAJOR = $(echo $PYTHONVERSION | cut -d. -f1)
+PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
 ifeq (${PYMAJOR},3)
 LIB_INCLUDES = $(shell $(PYTHONHOME)/bin/python3-config --includes)
 else
