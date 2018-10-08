@@ -27,8 +27,13 @@ int FATR task_python_(Integer *rtdb_ptr)
    int ret;
    
    Py_SetProgramName("NWChem");
+#if PY_MAJOR_VERSION >= 3
+   PyImport_AppendInittab("nwchem", PyInit_nwchem);
+#endif
    Py_Initialize();		/* set the PYTHONPATH env   */
+#if PY_MAJOR_VERSION < 3
    initnwchem();
+#endif
    if (PyRun_SimpleString("from nwchem import *")) {
      fprintf(stderr,"import of NWCHEM failed\n");
      return 0;
