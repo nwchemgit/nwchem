@@ -12,6 +12,8 @@ end
 print none
 
 python
+from __future__ import print_function
+
 import os
 plotdata = open("plotdata",'w')
 
@@ -29,7 +31,7 @@ def energy_at_exponent(exponent):
 exponent = 0.5
 while exponent <= 0.6:
    energy = energy_at_exponent(exponent)
-   print ' exponent = ', exponent, ' energy = ', energy
+   print(' exponent = ', exponent, ' energy = ', energy)
    plotdata.write('%f %f\n' % (exponent , energy))
    exponent = exponent + 0.02
 

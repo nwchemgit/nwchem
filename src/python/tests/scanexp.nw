@@ -16,6 +16,8 @@ end
 print none
 
 python
+from __future__ import print_function
+
 import os
 plotdata = open("plotdata",'w')
 
@@ -31,10 +33,10 @@ while x <= 0.6:
    
    try:
       energy = task_energy('scf')
-      print ' x = ', x, ' energy = ', energy
+      print(' x = ', x, ' energy = ', energy)
       plotdata.write('%f %f\n' % (x , energy))
    except:
-      print 'task_energy failed'
+      print('task_energy failed')
 
    x = x + 0.02
 
