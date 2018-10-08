@@ -826,21 +826,24 @@ c virtualfreezing
           nfv(1)=nmo(1)-nocc(1)-(q_orb-q_ele_a)
           nfv(2)=nfv(1)
 c *** debug ***
-         if(nodezero) then
-          write(6,*)'ipol ',ipol
-          write(6,*)'nmo(1)',nmo(1)
-          write(6,*)'nocc(1)',nocc(1)
-          write(6,*)'q_orb ',q_orb
-          write(6,*)'q_ele_a ',q_ele_a
-          write(6,*)'q_ele_b ',q_ele_b
-          write(6,*)'nfv(1) ',nfv(1)
-          write(6,*)'nfv(2) ',nfv(2)
-         endif 
+c         if(nodezero) then
+c          write(6,*)'ipol ',ipol
+c          write(6,*)'nmo(1)',nmo(1)
+c          write(6,*)'nocc(1)',nocc(1)
+c          write(6,*)'q_orb ',q_orb
+c          write(6,*)'q_ele_a ',q_ele_a
+c          write(6,*)'q_ele_b ',q_ele_b
+c          write(6,*)'nfv(1) ',nfv(1)
+c          write(6,*)'nfv(2) ',nfv(2)
+c         endif 
 c**************
            if((nfv(1).lt.0).or.(nfv(1).ge.(nmo(1)-nocc(1)) )) 
      2     call errquit('tce_init:QC-inconsistent qorb qela qelb nfv',0,
      2     rtdb_err)
          else
+c needed for open-shell RHF
+         nmo(2)=nmo(1)
+c
            nfv(1)=nmo(1)-nocc(1)-(q_orb-q_ele_a)
            nfv(2)=nmo(2)-nocc(2)-(q_orb-q_ele_b)
            if((nfv(1).ne.nfv(2)).or.(nfv(1).ge.(nmo(1)-nocc(1))).or.
