@@ -1741,6 +1741,8 @@ endif
       GOTFREEBSD= $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
       ifdef GOTFREEBSD
          DEFINES  +=-DMPICH_NO_ATTR_TYPE_TAGS
+#	 LDOPTIONS +=-Wl,-rpath=/usr/local/lib/gcc7
+	 LDOPTIONS += $(shell mpif90  -show 2>&1 |cut -d " " -f 2) 
       endif
       ifeq ($(_FC),gfortran)
        ifneq ($(DONTHAVEM64OPT),Y)
