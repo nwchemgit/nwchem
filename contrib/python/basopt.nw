@@ -19,6 +19,8 @@ end
 print none
 
 python noprint
+  from __future__ import print_function
+  
   from mathutil import *
 
   # It should only be necessary to modify these three lines for 
@@ -38,12 +40,12 @@ python noprint
     return task_energy(theory)
 
   def printexp(z):
-    print "\n Exponents:"
+    print("\n Exponents:")
     for i in range(len(z)):
       print " %14.8f" % (z[i]*z[i]),
       if ((i+1)%5) == 0:
-        print ""
-    print " "
+        print("")
+    print(" ")
 
   z = array('d',exponents)
   for i in range(len(z)):

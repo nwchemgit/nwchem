@@ -38,6 +38,7 @@ set int:acc_std 1e-25
 print none
 
 python
+  from __future__ import print_function
   from mathutil import *
 
   run_type = "scf"
@@ -129,13 +130,13 @@ python
   def printexp(z):
     function_type = ["s", "p", "d", "f", "g", "h", "i"]
     exponents = make_exp(z)
-    print ' Exponents:'
+    print(' Exponents:')
     for j in range(0,l+1):
-        print "%s - functions" % (function_type[j])
+        print("%s - functions" % (function_type[j]))
         for i in range(0,n[j]):
-          print " %14.8f" % exponents[i][j]
-        print ""
-    print " "
+          print(" %14.8f" % exponents[i][j])
+        print("")
+    print(" ")
 
   # Setup list of variables to be optimized
 
@@ -174,14 +175,14 @@ python
 
   # Print the final results
  
-  print '\n\n    Results\n'
-  print '  l   n     exp0       beta       gamma   ' 
-  print ' --- ---  ---------  ---------  --------- '
+  print('\n\n    Results\n')
+  print('  l   n     exp0       beta       gamma   ')
+  print(' --- ---  ---------  ---------  --------- ')
   for j in range(0,l+1):
      (exp0_n, beta_n, gamma_n) = get_exp0_beta_gamma(z,j)
-     print '%4i %4i %12.6f %10.6f %10.6f' % (j, n[j], exp0_n, beta_n, gamma_n)
-  print '\n Final energy difference = %12.6f' % value
-  print '\n Energy without Coulomb fitting = %12.6f' % reference
+     print('%4i %4i %12.6f %10.6f %10.6f' % (j, n[j], exp0_n, beta_n, gamma_n))
+  print('\n Final energy difference = %12.6f' % value)
+  print('\n Energy without Coulomb fitting = %12.6f' % reference)
   printexp(z)
 end
 

@@ -5,6 +5,7 @@ mp2; freeze atomic; end
 print none
 
 python
+  from __future__ import print_function
   energies = {}
 
   c2h4 = '''
@@ -43,7 +44,7 @@ python
      energies[basis] = 2*energy(basis, ch4) - \
                        2*energy(basis, h2)  - \
                          energy(basis, c2h4)
-     if (ga_nodeid() == 0): print basis, ' %8.6f' % energies[basis]
+     if (ga_nodeid() == 0): print(basis, ' %8.6f' % energies[basis])
 end 
 
 
