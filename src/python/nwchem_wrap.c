@@ -330,7 +330,7 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
       if (array) free(array);
       return NULL;
       break;
-    }                
+    }
     
     if (!(rtdb_put(rtdb_handle, name, ma_type, list_len, array))) {
       PyErr_SetString(NwchemError, "rtdb_put failed");
