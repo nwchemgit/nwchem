@@ -40,6 +40,16 @@ extern void ga_pgroup_igop_(Integer *,Integer *,Integer *,Integer *,char *);
 #define util_sgroup_zero_group_ UTIL_SGROUP_ZERO_GROUP
 #endif
 
+#if PY_MAJOR_VERSION >= 3
+#define PyInteger_FromLong(m) PyLong_FromLong(m)
+#define PyInteger_Check(m) PyLong_Check(m)
+#define PyInteger_AsLong(m) PyLong_AsLong(m)
+#else
+#define PyInteger_FromLong(m) PyInt_FromLong(m)
+#define PyInteger_Check(m) PyInt_Check(m)
+#define PyInteger_AsLong(m) PyInt_AsLong(m)
+#endif
+
 extern int nw_inp_from_string(int, const char *);
 
 extern Integer FATR task_energy_(const Integer *);
@@ -65,11 +75,11 @@ static PyObject *nwwrap_integers(int n, Integer a[])
   int i;
 
   if (n == 1)
-    return PyLong_FromLong(a[0]);
+    return PyInteger_FromLong(a[0]);
 
   if (!(sObj=PyList_New(n))) return NULL;
   for(i=0; i<n; i++) {
-    PyObject *oObj = PyLong_FromLong(a[i]);
+    PyObject *oObj = PyInteger_FromLong(a[i]);
     if (!oObj) {
       Py_DECREF(sObj);
       return NULL;
@@ -113,11 +123,19 @@ static PyObject *nwwrap_strings(int n, char *a[])
   int i;
 
   if (n == 1)
-    return PyString_FromString(a[0]);
+#if PY_MAJOR_VERSION >= 3
+    return PyUnicode_FromString(a[0]);
+#else
+    return PyBytes_FromString(a[0]);
+#endif
 
   if (!(sObj=PyList_New(n))) return NULL;
   for(i=0; i<n; i++) {
-    PyObject *oObj = PyString_FromString(a[i]);
+#if PY_MAJOR_VERSION >= 3
+    PyObject *oObj = PyUnicode_FromString(a[i]);
+#else
+    PyObject *oObj = PyBytes_FromString(a[i]);
+#endif
     if (!oObj) {
       Py_DECREF(sObj);
       return NULL;
@@ -133,14 +151,15 @@ static PyObject *nwwrap_strings(int n, char *a[])
 
 static int check_type(PyObject *obj)
 {
-  if (PyLong_Check(obj))
-		return MT_F_INT;
-	else if (PyFloat_Check(obj))
+  if (PyInteger_Check(obj)) {
+    return MT_F_INT;
+  } else if (PyFloat_Check(obj)) {
     return MT_F_DBL;
-  else if (PyUnicode_Check(obj) || PyBytes_Check(obj))
+  } else if (PyUnicode_Check(obj) || PyBytes_Check(obj)) {
     return MT_CHAR;
-  else
+  } else {
     return -1;
+  }
 }
 
 char *Parse_String(PyObject *arg)
@@ -238,10 +257,10 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
     char *char_array;
     char cbuf[8192], *ptr;
     void *array = 0;
-    PyObject *obj, *obj_item, *ascii_string;
-    
-    ma_type = -1;
-    PyArg_ParseTuple(args, "so|i", &name, &obj, &ma_type);
+    PyObject *obj, *option_obj, *ascii_string;
+
+    name = Parse_String(PyTuple_GetItem(args, 0));
+    obj = PyTuple_GetItem(args, 1);
 
     if (PyList_Check(obj)) 
       list = 1; 
@@ -269,6 +288,17 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
                         "Usage: rtdb_put - ma_type is confused");
         return NULL;
     }
+
+    if (PyTuple_Size(args) == 3) {
+      int intma_type;
+      option_obj = PyTuple_GetItem(args, 2);
+      if (!(intma_type = PyInteger_AsLong(option_obj))) {
+        PyErr_SetString(PyExc_TypeError,
+			"Usage: rtdb_put(value or values, [optional type])");
+	return NULL;
+      }
+      ma_type = intma_type;
+    }
     
     if (ma_type != MT_CHAR) {
       if (!(array = malloc(MA_sizeof(ma_type, list_len, MT_CHAR)))) {
@@ -285,9 +315,9 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
       int_array = array;
       for (i = 0; i < list_len; i++) {
         if (list) 
-          int_array[i] = PyLong_AsLong(PyList_GetItem(obj, i));
+          int_array[i] = PyInteger_AsLong(PyList_GetItem(obj, i));
         else 
-          int_array[i] = PyLong_AsLong(obj);
+          int_array[i] = PyInteger_AsLong(obj);
       }
       break;
       
@@ -474,9 +504,13 @@ PyObject *wrap_rtdb_get_info(PyObject *self, PyObject *args)
            PyErr_SetString(NwchemError, "rtdb_get_info failed with pyobj");
            return NULL;
        }
-       PyTuple_SET_ITEM(returnObj, 0, PyLong_FromLong((long) ma_type)); 
-       PyTuple_SET_ITEM(returnObj, 1, PyLong_FromLong((long) nelem)); 
-       PyTuple_SET_ITEM(returnObj, 2, PyString_FromString(date)); 
+       PyTuple_SET_ITEM(returnObj, 0, PyInteger_FromLong((long) ma_type)); 
+       PyTuple_SET_ITEM(returnObj, 1, PyInteger_FromLong((long) nelem)); 
+#if PY_MAJOR_VERSION >= 3
+       PyTuple_SET_ITEM(returnObj, 2, PyUnicode_FromString(date));
+#else
+       PyTuple_SET_ITEM(returnObj, 2, PyBytes_FromString(date));
+#endif
    }
    else {
        PyErr_SetString(PyExc_TypeError, "Usage: value = rtdb_get_info(name)");
@@ -492,7 +526,11 @@ PyObject *wrap_rtdb_first(PyObject *self, PyObject *args)
    PyObject *returnObj = NULL;
 
    if (rtdb_first(rtdb_handle, sizeof(name), name)) {
-     returnObj = PyString_FromString(name); /*Py_BuildValue("s#", name, 1); */
+#if PY_MAJOR_VERSION >= 3
+     returnObj = PyUnicode_FromString(name); /*Py_BuildValue("s#", name, 1); */
+#else
+     returnObj = PyBytes_FromString(name); /*Py_BuildValue("s#", name, 1); */
+#endif
    }
    else {
        PyErr_SetString(NwchemError, "rtdb_first: failed");
@@ -507,7 +545,11 @@ PyObject *wrap_rtdb_next(PyObject *self, PyObject *args)
    PyObject *returnObj = NULL;
 
    if (rtdb_next(rtdb_handle, sizeof(name), name)) {
-     returnObj = PyString_FromString(name); /*Py_BuildValue("s#", name, 1); */
+#if PY_MAJOR_VERSION >= 3
+     returnObj = PyUnicode_FromString(name); /*Py_BuildValue("s#", name, 1); */
+#else
+     returnObj = PyBytes_FromString(name); /*Py_BuildValue("s#", name, 1); */
+#endif
    }
    else {
        PyErr_SetString(NwchemError, "rtdb_next: failed");
@@ -1184,11 +1226,11 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
    }
 
    if (!PyTuple_Check(args2)) { // Not a tuple
-      if (!PyLong_Check(args2)) {
+      if (!PyInteger_Check(args2)) {
         PyErr_SetString(PyExc_TypeError, " pgroup_create() input error 1e - Not a tuple");
         return NULL;
       }
-      input = PyLong_AsLong(args2);
+      input = PyInteger_AsLong(args2);
       num_groups = input;
       method = 1 ;
    } else {
@@ -1215,11 +1257,11 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
       } 
       for (i = 0; i < num_groups; i++ ) {
          obj = PyTuple_GetItem(args2, i);
-         if (!PyLong_Check(obj)) {
+         if (!PyInteger_Check(obj)) {
             PyErr_SetString(PyExc_TypeError, " pgroup_create() input error 2");
             return NULL;
          }
-         input = PyLong_AsLong(obj);
+         input = PyInteger_AsLong(obj);
          node_list[i] = (Integer) input ;
       }
       util_sggo_(&rtdb_handle,&num_groups,&method, node_list,&dir); 
@@ -1245,11 +1287,11 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
          }
          for (j = 0; j< size ; j++) {
            obj2 = PyTuple_GetItem(obj,j);
-           if (!PyLong_Check(obj2)) {
+           if (!PyInteger_Check(obj2)) {
               PyErr_SetString(PyExc_TypeError, " pgroup_create() input error 4");
               return NULL;
            }
-           input = PyLong_AsLong(obj2);
+           input = PyInteger_AsLong(obj2);
            k++;
            node_list[k] = (Integer) input ;
         }
@@ -1262,11 +1304,11 @@ static PyObject *do_pgroup_create(PyObject *self, PyObject *args)
    nodeid = GA_Pgroup_nodeid(my_ga_group);
    ngroups = util_sgroup_numgroups_() ;
    mygroup = util_sgroup_mygroup_() ;
-   PyTuple_SET_ITEM(returnObj, 0, PyLong_FromLong((long) mygroup ));
-   PyTuple_SET_ITEM(returnObj, 1, PyLong_FromLong((long) ngroups));
-   PyTuple_SET_ITEM(returnObj, 2, PyLong_FromLong((long) nodeid));
-   PyTuple_SET_ITEM(returnObj, 3, PyLong_FromLong((long) nnodes));
-   PyTuple_SET_ITEM(returnObj, 4, PyLong_FromLong((long) my_ga_group));
+   PyTuple_SET_ITEM(returnObj, 0, PyInteger_FromLong((long) mygroup ));
+   PyTuple_SET_ITEM(returnObj, 1, PyInteger_FromLong((long) ngroups));
+   PyTuple_SET_ITEM(returnObj, 2, PyInteger_FromLong((long) nodeid));
+   PyTuple_SET_ITEM(returnObj, 3, PyInteger_FromLong((long) nnodes));
+   PyTuple_SET_ITEM(returnObj, 4, PyInteger_FromLong((long) my_ga_group));
    return returnObj ;
 }
 
@@ -1291,11 +1333,11 @@ static PyObject *do_pgroup_destroy(PyObject *self, PyObject *args)
    nodeid = GA_Pgroup_nodeid(my_ga_group);
    ngroups = util_sgroup_numgroups_() ;
    mygroup = util_sgroup_mygroup_() ;
-   PyTuple_SET_ITEM(returnObj, 0, PyLong_FromLong((long) mygroup ));
-   PyTuple_SET_ITEM(returnObj, 1, PyLong_FromLong((long) ngroups));
-   PyTuple_SET_ITEM(returnObj, 2, PyLong_FromLong((long) nodeid));
-   PyTuple_SET_ITEM(returnObj, 3, PyLong_FromLong((long) nnodes));
-   PyTuple_SET_ITEM(returnObj, 4, PyLong_FromLong((long) my_ga_group));
+   PyTuple_SET_ITEM(returnObj, 0, PyInteger_FromLong((long) mygroup ));
+   PyTuple_SET_ITEM(returnObj, 1, PyInteger_FromLong((long) ngroups));
+   PyTuple_SET_ITEM(returnObj, 2, PyInteger_FromLong((long) nodeid));
+   PyTuple_SET_ITEM(returnObj, 3, PyInteger_FromLong((long) nnodes));
+   PyTuple_SET_ITEM(returnObj, 4, PyInteger_FromLong((long) my_ga_group));
    return returnObj ;
 }
 
@@ -1370,10 +1412,10 @@ static PyObject *do_pgroup_global_op_work(PyObject *args, Integer my_group)
     for (i = 0; i < nelem; i++) {
        if (list) {
          is_double = PyFloat_Check(PyList_GetItem(obj, i));
-         is_int    = PyLong_Check(PyList_GetItem(obj, i));
+         is_int    = PyInteger_Check(PyList_GetItem(obj, i));
        } else {
          is_double = PyFloat_Check(obj);
-         is_int    = PyLong_Check(obj);
+         is_int    = PyInteger_Check(obj);
        }
        if (!is_double && !is_int) {
            PyErr_SetString(PyExc_TypeError,
@@ -1395,9 +1437,9 @@ static PyObject *do_pgroup_global_op_work(PyObject *args, Integer my_group)
 
       for (i = 0; i < nelem; i++) {
          if (list) {
-           is_int    = PyLong_Check(PyList_GetItem(obj, i));
+           is_int    = PyInteger_Check(PyList_GetItem(obj, i));
          } else {
-           is_int    = PyLong_Check(obj);
+           is_int    = PyInteger_Check(obj);
          }
          if (!is_int) {
            if (list) {
@@ -1408,9 +1450,9 @@ static PyObject *do_pgroup_global_op_work(PyObject *args, Integer my_group)
            array[i] = (DoublePrecision) tmp_double;
          } else {
            if (list) {
-             tmp_int = PyLong_AsLong(PyList_GetItem(obj, i));
+             tmp_int = PyInteger_AsLong(PyList_GetItem(obj, i));
            } else {
-             tmp_int = PyLong_AsLong(obj);
+             tmp_int = PyInteger_AsLong(obj);
            }
            array[i] = (DoublePrecision) tmp_int;
          }
@@ -1434,9 +1476,9 @@ static PyObject *do_pgroup_global_op_work(PyObject *args, Integer my_group)
       
       for (i = 0; i < nelem; i++) {
          if (list) {
-           tmp_int = PyLong_AsLong(PyList_GetItem(obj, i));
+           tmp_int = PyInteger_AsLong(PyList_GetItem(obj, i));
          } else {
-           tmp_int = PyLong_AsLong(obj);
+           tmp_int = PyInteger_AsLong(obj);
          }
          array[i] = (Integer) tmp_int;
       }
@@ -1504,10 +1546,10 @@ static PyObject *do_pgroup_broadcast_work(PyObject *args, Integer my_group)
     for (i = 0; i < nelem; i++) {
        if (list) {
          is_double = PyFloat_Check(PyList_GetItem(obj, i));
-         is_int    = PyLong_Check(PyList_GetItem(obj, i));
+         is_int    = PyInteger_Check(PyList_GetItem(obj, i));
        } else {
          is_double = PyFloat_Check(obj);
-         is_int    = PyLong_Check(obj);
+         is_int    = PyInteger_Check(obj);
        }
        if (!is_double && !is_int) {
            PyErr_SetString(PyExc_TypeError,"global_broadcast() found non-numerical value");
@@ -1528,9 +1570,9 @@ static PyObject *do_pgroup_broadcast_work(PyObject *args, Integer my_group)
 
       for (i = 0; i < nelem; i++) {
          if (list) {
-           is_int    = PyLong_Check(PyList_GetItem(obj, i));
+           is_int    = PyInteger_Check(PyList_GetItem(obj, i));
          } else {
-           is_int    = PyLong_Check(obj);
+           is_int    = PyInteger_Check(obj);
          }
          if (!is_int) {
            if (list) {
@@ -1541,9 +1583,9 @@ static PyObject *do_pgroup_broadcast_work(PyObject *args, Integer my_group)
            array[i] = (DoublePrecision) tmp_double;
          } else {
            if (list) {
-             tmp_int = PyLong_AsLong(PyList_GetItem(obj, i));
+             tmp_int = PyInteger_AsLong(PyList_GetItem(obj, i));
            } else {
-             tmp_int = PyLong_AsLong(obj);
+             tmp_int = PyInteger_AsLong(obj);
            }
            array[i] = (DoublePrecision) tmp_int;
          }
@@ -1564,9 +1606,9 @@ static PyObject *do_pgroup_broadcast_work(PyObject *args, Integer my_group)
       
       for (i = 0; i < nelem; i++) {
          if (list) {
-           tmp_int = PyLong_AsLong(PyList_GetItem(obj, i));
+           tmp_int = PyInteger_AsLong(PyList_GetItem(obj, i));
          } else {
-           tmp_int = PyLong_AsLong(obj);
+           tmp_int = PyInteger_AsLong(obj);
          }
          array[i] = (Integer) tmp_int;
       }
