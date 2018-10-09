@@ -271,7 +271,7 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
     char *char_array;
     char cbuf[8192], *ptr;
     void *array = 0;
-    PyObject *obj, *option_obj, *ascii_string;
+    PyObject *obj, *option_obj;
 
     name = Parse_String(PyTuple_GetItem(args, 0));
     obj = PyTuple_GetItem(args, 1);
@@ -382,12 +382,6 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
       return NULL;
     }
     
-    //} else {
-    //  PyErr_SetString(PyExc_TypeError, 
-    //                  "Usage: rtdb_put(value or values,[optional type])");
-    //  if ((ma_type != MT_CHAR) && array) free(array);
-    //  return NULL;
-    //}
     Py_INCREF(Py_None);
     if ((ma_type != MT_CHAR) && array) free(array);
     return Py_None;
