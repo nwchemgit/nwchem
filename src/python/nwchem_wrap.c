@@ -83,6 +83,29 @@ extern Integer FATR util_sgroup_numgroups_(void);
 extern Integer FATR util_sgroup_mygroup_(void);
 extern Integer FATR util_sgroup_zero_group_(void);
 
+static PyObject *nwwrap_c_ints(int n, int a[])
+{
+  PyObject *sObj;
+  int i;
+
+  if (n == 1)
+    return PyInteger_FromLong(a[0]);
+
+  if (!(sObj=PyList_New(n))) return NULL;
+  for(i=0; i<n; i++) {
+    PyObject *oObj = PyInteger_FromLong(a[i]);
+    if (!oObj) {
+      Py_DECREF(sObj);
+      return NULL;
+    }
+    if (PyList_SetItem(sObj,i,oObj)) {
+      Py_DECREF(sObj);
+      Py_DECREF(oObj);
+      return NULL;
+    }
+  }
+  return sObj;
+}
 static PyObject *nwwrap_integers(int n, Integer a[])
 {
   PyObject *sObj;
@@ -267,6 +290,7 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
     int ma_type = -1;
     char *name;
     Integer* int_array;
+    int* c_int_array;
     double *dbl_array;
     char *char_array;
     char cbuf[8192], *ptr;
@@ -323,9 +347,17 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
     }
     
     switch (ma_type) {
+    case MT_BASE + 11:        /* Logical */
+      c_int_array = array;
+      for (i = 0; i < list_len; i++) {
+        if (list) 
+          c_int_array[i] = PyInteger_AsLong(PyList_GetItem(obj, i));
+        else 
+          c_int_array[i] = PyInteger_AsLong(obj);
+      }
+      break;
     case MT_INT:
     case MT_F_INT:  
-    case MT_BASE + 11:        /* Logical */
       int_array = array;
       for (i = 0; i < list_len; i++) {
         if (list) 
@@ -411,9 +443,10 @@ PyObject *wrap_rtdb_get(PyObject *self, PyObject *args)
       nelem, array);*/
     
     switch (ma_type) {
+    case MT_BASE + 11  : 
+      format_char = 'b'; break;
     case MT_F_INT:
     case MT_INT  : 
-    case MT_BASE + 11  : 
       format_char = 'i'; break;
     case MT_F_DBL: 
     case MT_DBL  : 
@@ -455,6 +488,8 @@ PyObject *wrap_rtdb_get(PyObject *self, PyObject *args)
     }
            
     switch (format_char) {
+    case 'b':
+      returnObj = nwwrap_c_ints(nelem, array); break;
     case 'i':
       returnObj = nwwrap_integers(nelem, array); break;
     case 'd':
