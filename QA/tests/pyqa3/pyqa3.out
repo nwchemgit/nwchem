@@ -1,4 +1,5 @@
- argument  1 = /Users/edo/git/nwchem/QA/tests/pyqa3/pyqa3.nw
+ argument  1 = /home/edo/park/nwchem.git/QA/tests/pyqa3/pyqa3.nw
+  NWChem w/ OpenMP: maximum threads =    1
 
 
 
@@ -102,21 +103,21 @@ task python
            Job information
            ---------------
 
-    hostname        = we27962
-    program         = /Users/edo/git/nwchem/bin/MACX64/nwchem
-    date            = Tue Oct  9 11:44:02 2018
+    hostname        = lagrange
+    program         = /home/edo/park/nwchem.git/bin/LINUX64/nwchem
+    date            = Tue Oct  9 14:04:37 2018
 
-    compiled        = Tue_Oct_09_11:42:07_2018
-    source          = /Users/edo/git/nwchem
+    compiled        = Tue_Oct_09_14:00:27_2018
+    source          = /home/edo/park/nwchem.git
     nwchem branch   = Development
-    nwchem revision = nwchem_on_git-591-g2e9b361e5
+    nwchem revision = nwchem_on_git-423-g68b3d96
     ga revision     = 5.6.5
     use scalapack   = F
-    input           = /Users/edo/git/nwchem/QA/tests/pyqa3/pyqa3.nw
+    input           = /home/edo/park/nwchem.git/QA/tests/pyqa3/pyqa3.nw
     prefix          = testpy3.
     data base       = ./testpy3.db
     status          = startup
-    nproc           =        2
+    nproc           =        1
     time left       =     -1s
 
 
@@ -145,6 +146,10 @@ task python
                                 -------------------
 
 
+  warning:::::::::::::: from_nwchemrc
+  NWCHEM_BASIS_LIBRARY set to: </usr/local/Cellar/nwchem/6.8.1/share/nwchem/libraries/>
+  but file does not exist !
+  using compiled in library
                       Basis "ao basis" -> "" (cartesian)
                       -----
   h (Hydrogen)
@@ -217,22 +222,11 @@ INT     =  1010
 DBL     =  1013
 CHAR    =  1000
 LOGICAL =  1011
-value check:
-INT     =  1010
-DBL     =  1013
-CHAR    =  1000
-LOGICAL =  1011
- Done 1
  Done 1
  Done 2
- Done 2
- Done 3
  Done 3
  Done 4
- Done 4
  Done 5
- Done 5
- Done 6
  Done 6
 
  Contents of RTDB ./testpy3.db
@@ -240,17 +234,17 @@ LOGICAL =  1011
 
  Entry                                   Type[nelem]           Date
  ---------------------------  ----------------------  ------------------------
- test_int2                                int[1]      Tue Oct  9 11:44:02 2018 
+ test_int2                                int[1]      Tue Oct  9 14:04:37 2018 
 22 
- basis:names                             char[9]      Tue Oct  9 11:44:02 2018 
+ basis:names                             char[9]      Tue Oct  9 14:04:37 2018 
 ao basis
- :print                                  char[5]      Tue Oct  9 11:44:02 2018 
+ :print                                  char[5]      Tue Oct  9 14:04:37 2018 
 none
- task:theory                             char[7]      Tue Oct  9 11:44:02 2018 
+ task:theory                             char[7]      Tue Oct  9 14:04:37 2018 
 python
- test_dbl                              double[3]      Tue Oct  9 11:44:02 2018 
+ test_dbl                              double[3]      Tue Oct  9 14:04:37 2018 
 2.29000000000000e+01 1.24000000000000e+01 2.39080000000000e+01 
- basis:ao basis:tags info                 int[280]    Tue Oct  9 11:44:02 2018 
+ basis:ao basis:tags info                 int[280]    Tue Oct  9 14:04:37 2018 
 2 3 3 1 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
@@ -259,11 +253,11 @@ python
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
- test_int                                 int[3]      Tue Oct  9 11:44:02 2018 
+ test_int                                 int[3]      Tue Oct  9 14:04:37 2018 
 22 10 3 
- basis:ao basis:star nr tags              int[1]      Tue Oct  9 11:44:02 2018 
+ basis:ao basis:star nr tags              int[1]      Tue Oct  9 14:04:37 2018 
 0 
- basis:ao basis:contraction info            int[90000]  Tue Oct  9 11:44:02 2018 
+ basis:ao basis:contraction info            int[90000]  Tue Oct  9 14:04:37 2018 
 0 2 1 1 3 0 1 0 0 0 1 1 5 6 0 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
@@ -2764,60 +2758,50 @@ python
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
- basis:ao basis:bs_nr_tags                int[1]      Tue Oct  9 11:44:02 2018 
+ basis:ao basis:bs_nr_tags                int[1]      Tue Oct  9 14:04:37 2018 
 1 
- test_logic                           logical[6]      Tue Oct  9 11:44:02 2018 
-f f t f f f 
- basis:ao basis:bs_stdname               char[6]      Tue Oct  9 11:44:02 2018 
+ test_logic                           logical[6]      Tue Oct  9 14:04:37 2018 
+f t f t f t 
+ basis:ao basis:bs_stdname               char[6]      Tue Oct  9 14:04:37 2018 
 3-21g
- basis:ao basis:header                    int[7]      Tue Oct  9 11:44:02 2018 
+ basis:ao basis:header                    int[7]      Tue Oct  9 14:04:37 2018 
 1 2 3 3 6 0 0 
- test_logic2                          logical[1]      Tue Oct  9 11:44:02 2018 
+ test_logic2                          logical[1]      Tue Oct  9 14:04:37 2018 
 f 
- basisprint:ao basis                  logical[1]      Tue Oct  9 11:44:02 2018 
+ basisprint:ao basis                  logical[1]      Tue Oct  9 14:04:37 2018 
 f 
- opt:driver                           logical[1]      Tue Oct  9 11:44:02 2018 
+ opt:driver                           logical[1]      Tue Oct  9 14:04:37 2018 
 t 
- basis:ao basis:number of exps and coeffs            int[1]      Tue Oct  9 11:44:02 2018 
+ basis:ao basis:number of exps and coeffs            int[1]      Tue Oct  9 14:04:37 2018 
 6 
- basis:ao basis:exps and coeffs         double[6]      Tue Oct  9 11:44:02 2018 
+ basis:ao basis:exps and coeffs         double[6]      Tue Oct  9 14:04:37 2018 
 5.44717800000000e+00 8.24547000000001e-01 1.56285000000000e-01 9.04691000000001e-01 
 1.83192000000000e-01 1.00000000000000e+00 
- test_str                                char[7]      Tue Oct  9 11:44:02 2018 
+ test_str                                char[7]      Tue Oct  9 14:04:37 2018 
 hello
 
- basis:nbasis                             int[1]      Tue Oct  9 11:44:02 2018 
+ basis:nbasis                             int[1]      Tue Oct  9 14:04:37 2018 
 1 
- file_prefix                             char[8]      Tue Oct  9 11:44:02 2018 
+ file_prefix                             char[8]      Tue Oct  9 14:04:37 2018 
 testpy3
- basis:ao basis:assoc ecp name           char[4]      Tue Oct  9 11:44:02 2018 
+ basis:ao basis:assoc ecp name           char[4]      Tue Oct  9 14:04:37 2018 
  
  
- basis:ao basis:bs_tags                  char[2]      Tue Oct  9 11:44:02 2018 
+ basis:ao basis:bs_tags                  char[2]      Tue Oct  9 14:04:37 2018 
 h
- rtdb:stored:state                    logical[3]      Tue Oct  9 11:44:02 2018 
+ rtdb:stored:state                    logical[3]      Tue Oct  9 14:04:37 2018 
 t f f 
 
 test_str    =  hello
-test_str    =  hello
-test_int    =  [22L, 10L, 3L]
 test_int    =  [22L, 10L, 3L]
 test_in2    =  22
-test_in2    =  22
-test_dbl    =  [22.9, 12.4, 23.908]
 test_dbl    =  [22.9, 12.4, 23.908]
 test_logic  =  [0L, 1L, 0L, 1L, 0L, 1L]
-test_logic  =  [0L, 1L, 0L, 1L, 0L, 1L]
 test_logic2 =  0
-test_logic2 =  0
-(0.4, -0.9228721256297536)
-(0.4, -0.9228721256297536)
-(0.5, -1.0508013666951082)
-(0.5, -1.0508013666951082)
-(0.6, -1.1047213135252014)
-(0.6, -1.1047213135252014)
-(-1.1229598354437327, [0.0, 0.0, -4.501460313277583e-06, 0.0, 0.0, 4.501460313277583e-06])
-(-1.1229598354437327, [0.0, 0.0, -4.501460313277583e-06, 0.0, 0.0, 4.501460313277583e-06])
+(0.4, -0.9228721256297527)
+(0.5, -1.0508013666951084)
+(0.6, -1.1047213135252019)
+(-1.1229598354437058, [0.0, 0.0, -4.501430628245373e-06, 0.0, 0.0, 4.501430628245373e-06])
 
 
                                      CITATION
@@ -2854,4 +2838,4 @@ test_logic2 =  0
       T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
 
- Total times  cpu:        0.8s     wall:        0.8s
+ Total times  cpu:        0.1s     wall:        0.2s
