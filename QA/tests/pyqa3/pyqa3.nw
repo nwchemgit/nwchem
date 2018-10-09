@@ -1,0 +1,59 @@
+echo
+start testpy3
+# test some basic python wrappers.
+# if it did not abort, it worked.
+print none
+
+driver
+clear
+end
+basis
+  h library 3-21g
+end
+
+python
+print ("value check:")
+print ("INT     = "), INT
+print ("DBL     = "), DBL
+print ("CHAR    = "), CHAR
+print ("LOGICAL = "), LOGICAL
+
+rtdb_put("test_int2", 22)
+print (' Done 1')
+rtdb_put("test_int", [22, 10, 3],    INT)
+print (' Done 2')
+rtdb_put("test_dbl", [22.9, 12.4, 23.908],  DBL)
+print (' Done 3')
+rtdb_put("test_str", "hello", CHAR)
+print (' Done 4')
+rtdb_put("test_logic", [0,1,0,1,0,1], LOGICAL)
+print (' Done 5')
+rtdb_put("test_logic2", 0, LOGICAL)
+print (' Done 6')
+
+rtdb_print(1)
+
+print ("test_str    = "), rtdb_get("test_str")
+print ("test_int    = "), rtdb_get("test_int")
+print ("test_in2    = "), rtdb_get("test_int2")
+print ("test_dbl    = "), rtdb_get("test_dbl")
+print ("test_logic  = "), rtdb_get("test_logic")
+print ("test_logic2 = "), rtdb_get("test_logic2")
+
+def energy(r):
+  input_parse('''
+    geometry noprint noautoz
+      h 0 0 0
+      h 0 0 %f
+   end
+  ''' % r)
+  return task_energy('scf')
+
+for r in (0.4, 0.5, 0.6):
+  print (r, energy(r))
+
+print (task_optimize('scf'))
+
+end
+
+task python
