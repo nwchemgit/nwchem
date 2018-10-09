@@ -59,7 +59,7 @@ static long PyInteger_AsLong(PyObject *obj)
     return PyInt_AsLong(obj);
   } else {
     PyErr_SetString(PyExc_TypeError, "Argument is not an Integer type!");
-    return NULL;
+    return (long) NULL;
   }
 }
 #endif
@@ -1808,7 +1808,7 @@ void initnwchem()
     INITERROR;
   struct module_state *st = GETSTATE(module);
   st->error = PyErr_NewException("nwchem.error", NULL, NULL);
-  if (st->error = NULL) {
+  if (st->error == NULL) {
     Py_DECREF(module);
     INITERROR;
   }
