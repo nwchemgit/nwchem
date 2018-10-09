@@ -266,7 +266,7 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
     int i, list, list_len;
     int ma_type = -1;
     char *name;
-    int* int_array;
+    Integer* int_array;
     double *dbl_array;
     char *char_array;
     char cbuf[8192], *ptr;
