@@ -19,8 +19,12 @@ error1:
 	@exit 1
 endif
 
-
-LIB_INCLUDES = -I$(PYTHONHOME)/include/python$(PYTHONVERSION)$(PYTHONABIFLAGS) -I$(PYTHONHOME)/include -I$(PYTHONHOME)/Include -I$(PYTHONHOME)
+PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
+ifeq (${PYMAJOR},3)
+LIB_INCLUDES = $(shell $(PYTHONHOME)/bin/python3-config --includes)
+else
+LIB_INCLUDES = $(shell $(PYTHONHOME)/bin/python-config --includes)
+endif
 
 
 include ../config/makefile.h

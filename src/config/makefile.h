@@ -1322,7 +1322,12 @@ ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -L/home/edo/tcltk/lib/LINUX -ltk8.3 -ltcl8.3 -L/usr/X11R6/lib -lX11 -ldl
 # needed if python was built with pthread support
   ifneq ($(GOTMINGW32),1)
+   PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
+   ifeq (${PYMAJOR},3)
+   EXTRA_LIBS += $(shell $(PYTHONHOME)/bin/python3-config --libs)  -lnwcutil
+   else
    EXTRA_LIBS += $(shell $(PYTHONHOME)/bin/python-config --libs)  -lnwcutil
+   endif
   endif
 endif
 
@@ -2401,7 +2406,12 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
 
      ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
+   PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
+   ifeq (${PYMAJOR},3)
+   EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python3-config --libs) #-lz
+   else
    EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python-config --libs) #-lz
+   endif
   LDOPTIONS += -Wl,--export-dynamic 
      endif
 ifeq ($(NWCHEM_TARGET),CATAMOUNT)
@@ -2578,7 +2588,12 @@ $(error )
 endif
 #
 ifdef USE_PYTHONCONFIG
+PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
+ifeq (${PYMAJOR},3)
+EXTRA_LIBS += $(shell $(PYTHONHOME)/bin/python3-config --ldflags)
+else
 EXTRA_LIBS += $(shell $(PYTHONHOME)/bin/python-config --ldflags)
+endif
 else
 ifndef PYTHONLIBTYPE
     PYTHONLIBTYPE=a

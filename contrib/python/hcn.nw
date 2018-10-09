@@ -19,6 +19,7 @@ scf; print none; end
 driver; print low; end
 
 python
+  from __future__ import print_function
   import Gnuplot, time, signal, os
   from math import *
   from nwgeom import *
@@ -70,8 +71,8 @@ python
     cn = bond_length(1,2)
     nh = bond_length(2,3)
     ch = bond_length(1,3)
-    print ' angle=%6.1f => cn=%5.3f ch=%5.3f nh=%5.3f energy=%10.6f ' % \
-                (angle,cn,ch,nh,energy)
+    print(' angle=%6.1f => cn=%5.3f ch=%5.3f nh=%5.3f energy=%10.6f ' % \
+                (angle,cn,ch,nh,energy))
     angle = angle + 180
     edata = edata + [[angle,energy]]
     cndata = cndata + [[angle,cn]]

@@ -25,6 +25,7 @@ set int:acc_std 1e-25
 print none
 
 python
+  from __future__ import print_function
   from mathutil import *
 
   n = 6
@@ -56,13 +57,13 @@ python
 
   def printexp(z):
     exponents = make_exp(z)
-    print '\n alpha %f beta %f' % (z[0]*z[0],z[1]*z[1])
-    print ' Exponents:'
+    print('\n alpha %f beta %f' % (z[0]*z[0],z[1]*z[1]))
+    print(' Exponents:')
     for i in range(n):
-      print " %14.8f" % exponents[i],
+      print(" %14.8f" % exponents[i],)
       if ((i+1)%5) == 0:
-        print ""
-    print " "
+        print("")
+    print(" ")
 
   z = zerovector(2)
   z[0] = sqrt(alpha - 0.001)
@@ -73,13 +74,13 @@ python
     (value,z) = quasinr(energy, z, 1e-4, 1e-9, printexp)
     (alpha, beta) = make_alpha_beta(z)
     results[n] = (alpha, beta, value)
-  print '\n\n    Results\n'
-  print '  n     alpha      beta        energy       error '
-  print ' ---  ---------  ---------  ------------  -----------'
+  print('\n\n    Results\n')
+  print('  n     alpha      beta        energy       error ')
+  print(' ---  ---------  ---------  ------------  -----------')
   (alpha, beta, limit) = results[20]
   for n in range(2,21):
     (alpha, beta, value) = results[n]
-    print '%4i %10.6f %10.6f %12.6f %12.6f' % (n, alpha, beta, value, value-limit)
+    print('%4i %10.6f %10.6f %12.6f %12.6f' % (n, alpha, beta, value, value-limit))
 end
 
 task python

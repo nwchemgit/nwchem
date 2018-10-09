@@ -11,7 +11,11 @@
 #include <stdlib.h>
 #include "typesf2c.h"
 
+#if PY_MAJOR_VERSION >= 3
+extern PyMODINIT_FUNC PyInit_nwchem();
+#else
 extern void initnwchem();
+#endif
 extern void util_file_parallel_copy(const char *, const char *);
 
 
@@ -27,8 +31,13 @@ int FATR task_python_(Integer *rtdb_ptr)
    int ret;
    
    Py_SetProgramName("NWChem");
+#if PY_MAJOR_VERSION >= 3
+   PyImport_AppendInittab("nwchem", PyInit_nwchem);
+#endif
    Py_Initialize();		/* set the PYTHONPATH env   */
+#if PY_MAJOR_VERSION < 3
    initnwchem();
+#endif
    if (PyRun_SimpleString("from nwchem import *")) {
      fprintf(stderr,"import of NWCHEM failed\n");
      return 0;

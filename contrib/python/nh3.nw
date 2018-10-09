@@ -12,6 +12,7 @@ end
 print none
 
 python
+  from __future__ import print_function
   import Gnuplot, time, signal
   from math import *
 
@@ -86,7 +87,7 @@ python
     input_parse(geometry % (angle+90))
     (energy,gradient) = task_optimize('scf')
     r = get_bond_length()
-    print ' angle=%6.2f  bond=%6.3f energy=%10.6f ' % (angle,r,energy)
+    print(' angle=%6.2f  bond=%6.3f energy=%10.6f ' % (angle,r,energy))
     energies = energies + [[angle,energy]]
     bonds = bonds + [[angle,r]]
     energies.sort()
@@ -95,7 +96,7 @@ python
       g.plot(energies)
       gr.plot(bonds)
 
-  print ' Done!'
+  print(' Done!')
 
   time.sleep(90)  # time to look at the plot
 end
