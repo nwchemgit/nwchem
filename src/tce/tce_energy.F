@@ -683,7 +683,8 @@ cold        rec_mem=1
      4      max_ioprocs_in=4
 !QuantumComputing
        res_log=.false.
-       if (.not.rtdb_get(rtdb,'tce:quantum',mt_log,1,res_log)) then
+       if (.not.rtdb_get(rtdb,'tce:print_integrals',
+     1  mt_log,1,res_log)) then
         quantumc=.false.
        else
         quantumc=res_log
