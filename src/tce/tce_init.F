@@ -804,6 +804,15 @@ c defaults: q_ele_a=2 q_ele_b=2
 c yaml q_ele_a & q_ele_b (number of alhpa and beta electrons)
 c yaml n_electrons = q_ele_a + q_ele_b
 c yaml n_orbitals  = q_orb
+c printing infromation about quantum system
+       if(nodezero) then
+         write(6,*)'------------------------------------'
+         write(6,2010) q_orb
+         write(6,2011) q_ele_a
+         write(6,2012) q_ele_b
+         write(6,*)'------------------------------------'
+         call util_flush(6)
+       endif
 c
 cQfreezeing
 c corefreezing
@@ -1509,6 +1518,9 @@ c ccsd_act/eomccsd_act
         endif
       endif
       if (nodezero) call util_flush(LuOut)
+ 2010 format(3x,'  Number of active orbitals',2x,i5)
+ 2011 format(3x,'  Number of active alpha electrons',2x,i5)
+ 2012 format(3x,'  Number of active beta electrons ',2x,i5)
  9200 format(3x,'   Number of processors :',2x,i4)
  9000 format(3x,'       Calculation type : ',a)
  9230 format(3x,'Perturbative correction : ',a)
