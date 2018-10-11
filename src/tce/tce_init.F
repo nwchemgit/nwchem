@@ -768,11 +768,13 @@ c
       endif
 !QuantumComputing
        res_log=.false.
-       if (.not.rtdb_get(rtdb,'tce:quantum',mt_log,1,res_log)) then
+       if (.not.rtdb_get(rtdb,'tce:print_integrals',mt_log,1,res_log))
+     1  then
         quantumc=.false.
        else
         quantumc=res_log
        end if
+c
        if(quantumc) then
 cQSCFmodel 
        if (hftype.eq.'UHF') then
@@ -806,11 +808,11 @@ c yaml n_electrons = q_ele_a + q_ele_b
 c yaml n_orbitals  = q_orb
 c printing infromation about quantum system
        if(nodezero) then
-         write(6,*)'------------------------------------'
-         write(6,2010) q_orb
-         write(6,2011) q_ele_a
-         write(6,2012) q_ele_b
-         write(6,*)'------------------------------------'
+         write(LuOut,*)'------------------------------------'
+         write(LuOut,2010) q_orb
+         write(LuOut,2011) q_ele_a
+         write(LuOut,2012) q_ele_b
+         write(LuOut,*)'------------------------------------'
          call util_flush(6)
        endif
 c
