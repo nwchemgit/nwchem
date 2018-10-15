@@ -156,7 +156,7 @@ c      double precision v4m(50,50,50,50)
 c      double precision f2m(50,50)
       integer k_f2m,l_f2m,size_f2m
       integer k_v4m,l_v4m,size_v4m
-      logical quantumc,spust
+      logical quantumc,spust 
 !QuantumComputing
 ! FOR CR-EOMCCSD(T) ---------------------
       integer d_ex1,d_ex2
