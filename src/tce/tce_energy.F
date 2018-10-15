@@ -140,6 +140,24 @@
       integer l_j1_offset,l_j2_offset
       integer k_j1_offset,k_j2_offset
       integer size_j1,size_j2
+!QuantumComputing
+      integer g3b,g4b,g1b,g2b,g5b,g6b
+      integer g5b_orb,g6b_orb
+      integer igi3,igi4,igi1,igi2,igi5,igi6
+      integer tg1,tg2,tg3,tg4
+      integer tirow,ticol
+      integer offset_test,size_test
+      integer irow,icol,index_pair
+      integer k_aux,l_aux
+      integer range_ov,range_occ
+      double precision xxx,xnorm1,xnorm2,xnorm
+      double precision l1norm,ehfa,enrep_tce
+c      double precision v4m(50,50,50,50)
+c      double precision f2m(50,50)
+      integer k_f2m,l_f2m,size_f2m
+      integer k_v4m,l_v4m,size_v4m
+      logical quantumc,spust
+!QuantumComputing
 ! FOR CR-EOMCCSD(T) ---------------------
       integer d_ex1,d_ex2
       integer l_ex1_offset,l_ex2_offset
@@ -663,6 +681,15 @@ cold        rec_mem=1
 
        if (.not.rtdb_get(rtdb,'tce:maxioprocs',mt_int,1,max_ioprocs_in)) 
      4      max_ioprocs_in=4
+!QuantumComputing
+       res_log=.false.
+       if (.not.rtdb_get(rtdb,'tce:print_integrals',
+     1  mt_log,1,res_log)) then
+        quantumc=.false.
+       else
+        quantumc=res_log
+       end if
+!QuantumComputing
 !
        res_log=.false.
        if (.not.rtdb_get(rtdb,'tce:readint',mt_log,1,res_log)) then
@@ -1488,6 +1515,175 @@ c          call util_file_name('v2int',.false.,.true.,filename)
          if(model.ne.'ccsd_act') then
           call tce_mo2e_zones_4a_disk_ga_N5(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
+!
+!
+!
+!
+!
+!
+!QuantumComputing
+!
+           if(quantumc) then
+!ehfa
+           if (.not. geom_nuc_rep_energy(geom, enrep_tce))
+     &      call errquit('TCE:unable to get nuclear rep ',geom, 
+     &      GEOM_ERR)
+c
+c
+           range_ov=int_mb(k_offset_alpha+noa+nva-1)
+     1          +int_mb(k_range_alpha+noa+nva-1)
+           range_occ=int_mb(k_offset_alpha+noa-1)
+     1          +int_mb(k_range_alpha+noa-1)
+c
+           size_f2m=range_ov*range_ov
+           size_v4m=range_ov*range_ov*range_ov*range_ov
+c
+       if(.not.ma_push_get(mt_dbl,size_f2m,'f2m',l_f2m,k_f2m))
+     1     call errquit('tce_f2m: MA problem',0,MA_ERR)
+       if(.not.ma_push_get(mt_dbl,size_v4m,'v4m',l_v4m,k_v4m))
+     1     call errquit('tce_v4m: MA problem',0,MA_ERR)
+c
+           spust=.true.
+c
+      if(nodezero) then
+       write(6,*)'h_1 matrix elements'
+       call util_flush(6)
+      endif
+c
+           call kinetic_hcore(rtdb,dbl_mb(k_f2m),range_ov,spust)
+           call util_flush(6)
+c
+      if(nodezero) then  !nodezero 
+c      write(6,*)'range_ov  = ',range_ov
+c      write(6,*)'range_occ = ',range_occ
+       write(6,*)'v_2 matrix elements'
+      offset_test=0
+      DO g3b = 1,noa+nva   !j
+      DO g4b = g3b,noa+nva !i
+      DO g1b = 1,noa+nva   !l
+      DO g2b = g1b,noa+nva !k
+      IF (int_mb(k_spin_alpha+g3b-1)+int_mb(k_spin_alpha+g4b-1).eq.
+     &int_mb(k_spin_alpha+g1b-1)+int_mb(k_spin_alpha+g2b-1)) THEN
+      IF (ieor(int_mb(k_sym_alpha+g3b-1),ieor(int_mb(k_sym_alpha+g4b-1),
+     &    ieor(int_mb(k_sym_alpha+g1b-1),int_mb(k_sym_alpha+g2b-1))))
+     &    .eq. irrep_v) THEN
+      IROW=INDEX_PAIR(g4b,g3b)
+      ICOL=INDEX_PAIR(g2b,g1b)
+      IF(IROW.GE.ICOL) THEN
+      size_test=int_mb(k_range_alpha+g3b-1) *
+     &int_mb(k_range_alpha+g4b-1) * int_mb(k_range_alpha+g1b-1) *
+     &int_mb(k_range_alpha+g2b-1)
+c
+       if(.not.ma_push_get(mt_dbl,size_test,'test',l_aux,k_aux))
+     1     call errquit('tce_aux2: MA problem',0,MA_ERR)
+        call ga_get(d_v2,offset_test+1,offset_test+size_test,1,1,
+     1    dbl_mb(k_aux),size_test)
+      i=0
+      do igi1=1,int_mb(k_range_alpha+g1b-1)
+      do igi2=1,int_mb(k_range_alpha+g2b-1)
+      do igi3=1,int_mb(k_range_alpha+g3b-1)
+      do igi4=1,int_mb(k_range_alpha+g4b-1)
+       i=i+1
+       xxx=dabs(dbl_mb(k_aux+i-1))
+       tg1=igi1+int_mb(k_offset_alpha+g1b-1)
+       tg2=igi2+int_mb(k_offset_alpha+g2b-1)
+       tg3=igi3+int_mb(k_offset_alpha+g3b-1)
+       tg4=igi4+int_mb(k_offset_alpha+g4b-1)
+       tirow=index_pair(tg4,tg3)
+       ticol=index_pair(tg2,tg1)
+c
+       if((tg3.le.tg4).and.(tg1.le.tg2)) then
+       if(tirow.ge.ticol) then
+         if(xxx.gt.1.0d-10) then
+c yaml  two_electron_integrals
+          write(6,4881) tg4,
+     &                  tg3,
+     &                  tg2,
+     &                  tg1,
+     7              dbl_mb(k_aux+i-1)
+         endif !xxx
+        else
+         if(irow.ne.icol) then
+         if(xxx.gt.1.0d-10) then
+c yaml  two_electron_integrals
+          write(6,4881) tg2,
+     &                  tg1,
+     &                  tg4,
+     &                  tg3,
+     7              dbl_mb(k_aux+i-1)
+c
+c          write(6,*)'--------'
+         endif !xxx
+         endif
+       endif !row-column
+       endif !tg3<=tg4 tg1<=tg2
+      enddo
+      enddo
+      enddo
+      enddo
+c
+      call util_flush(6)
+c
+      if (.not.ma_pop_stack(l_aux))
+     1     call errquit('l_aux2',15,MA_ERR)
+c
+      offset_test=offset_test+size_test
+
+      END IF
+      END IF
+      END IF
+      END DO
+      END DO
+      END DO
+      END DO
+c     ehfa
+      ehfa=0.0d0
+      endif !nodezero
+c
+      call active_shift(rtdb,d_v2,dbl_mb(k_v4m),dbl_mb(k_f2m),range_occ,
+     &                 range_ov,ehfa)
+c
+      if(nodezero) then
+c yaml enerep_tce - coulomb_repulsion
+       write(6,*)'enrep_tce = ',enrep_tce
+c ehfa - HF energy for active space - not used in yaml 
+       write(6,6887) ehfa
+c yaml red - this is hf_energy
+       write(6,6888) ref
+c yaml scf_energy_offset  (ref-ehfa) same and energy_offset
+       write(6,6889) ref-ehfa
+c
+      call util_flush(6)
+c
+c
+c      l1norm=0.0d0
+c      do igi1=1,range_ov
+c      do igi2=1,range_ov
+c       xxx=0.0d0
+c       do igi3=1,range_ov
+c       do igi4=1,range_ov
+c        xxx=xxx+dabs(v4m(igi4,igi3,igi2,igi1))
+c       enddo
+c       enddo
+c       if(xxx.gt.l1norm) l1norm=xxx
+c      enddo
+c      enddo
+c
+c      write(6,*) 'L1 norm of v2 = ',l1norm
+c
+      endif !nodezero
+c
+      if (.not.ma_pop_stack(l_v4m))
+     1     call errquit('l_v4m',15,MA_ERR)
+      if (.not.ma_pop_stack(l_f2m))
+     1     call errquit('l_f2m',15,MA_ERR)
+c
+      endif ! quantumc
+!
+!QuantumComputing
+!
+!
+!
          else
 ! ccsd_act/eomccsd_act
           call tce_mo2e_zones_4a_disk_ga_act(rtdb,d_v2,
@@ -2669,6 +2865,33 @@ c
      1         k_e_offset,k_f1_offset,k_v2_offset,
      2         k_t1_offset,k_t2_offset,
      3         size_t1,size_t2,ref,corr,rtdb)
+!QuantumComputing
+          if(quantumc) then
+          if(nodezero) then
+           write(6,*)'Ground state specification:'
+           write(6,*)'exp(T)|Ref>~(1+T)|Ref>'
+           call util_flush(6)
+          endif
+          if(nodezero) write(6,*)'------- a(p)+/a(q) strings ----------'
+           xnorm1 = 0.0d0
+           xnorm2 = 0.0d0
+           xnorm  = 0.0d0
+c
+           call tce_string_x1_norm(d_t1,k_t1_offset,0.10d0,irrep_t,
+     &                             xnorm1)
+           call tce_string_x2_norm(d_t2,k_t2_offset,0.10d0,irrep_t,
+     &                             xnorm2)
+c normalization only on nodezero / reference included
+           if(nodezero)  then
+            xnorm=(1.0d0)/(dsqrt(1.0d0+xnorm1+xnorm2))
+           endif
+c
+          call tce_string_ref(xnorm)
+          call tce_string_x1(d_t1,k_t1_offset,0.10d0,irrep_t,xnorm)
+          call tce_string_x2(d_t2,k_t2_offset,0.10d0,irrep_t,xnorm)
+          if(nodezero) write(6,*)'-------------------------------------'
+          endif !quantumc
+!QuantumComputing
 #endif
 ! === jaguar ===
          if(write_ta)  then
@@ -6659,6 +6882,35 @@ c
               if((.not. eaccsd) .and. (.not. ipccsd)) then
                call tce_print_x1(xc1(jvec),k_x1_offset,0.10d0,irrep_x)
                call tce_print_x2(xc2(jvec),k_x2_offset,0.10d0,irrep_x)
+!
+!QuantumComputing
+          if(quantumc) then
+          if(nodezero) then
+           write(6,*)'Excited state specification:'
+           write(6,*)'Rexp(T)|Ref>~(R_1+R_2)|Ref>'
+           call util_flush(6)
+          endif 
+          if(nodezero) write(6,*)'------- a(p)+/a(q) strings ----------'
+           xnorm1=0.0d0
+           xnorm2=0.0d0
+           xnorm=0.0d0
+c
+           call tce_string_x1_norm(xc1(jvec),k_x1_offset,0.10d0,irrep_x,
+     &                             xnorm1)
+           call tce_string_x2_norm(xc2(jvec),k_x2_offset,0.10d0,irrep_x,
+     &                             xnorm2)
+c normalization only on nodezero
+           if(nodezero)  then
+            xnorm=(1.0d0)/(dsqrt(xnorm1+xnorm2))
+           endif
+c
+          call tce_string_x1(xc1(jvec),k_x1_offset,0.10d0,irrep_x,xnorm)
+          call tce_string_x2(xc2(jvec),k_x2_offset,0.10d0,irrep_x,xnorm)
+          if(nodezero) write(6,*)'-------------------------------------'
+          call util_flush(6)
+          endif !quantumc
+!QuantumComputing
+!
 #ifdef IPCCSD
               else if(ipccsd) then
 !              write(LuOut,*) "I am here 3.2"
@@ -10427,6 +10679,13 @@ c
  9515 format(3x,'TCE RESTART OPTIONS')
  9520 format(3x,'     L-threshold : ',d9.2)
  9521 format(3x,'     EOM-threshold : ',d9.2)
+!QuantumComputing
+ 4881  format(4i5,2x,f18.10)
+ 4882  format(2i5,2x,f18.10)
+ 6887 format(1x,' EHF(A)             = ',f18.8)
+ 6888 format(1x,' EHF(total)         = ',f18.8)
+ 6889 format(1x,' Shift (HFtot-HFA)  = ',f18.8)
+!QuantumComputing
       end
       subroutine tce_hbarinit(hbar,hbard)
       implicit none
