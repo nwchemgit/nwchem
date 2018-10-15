@@ -3,7 +3,7 @@ c
 c $Id$
 c
 c Prints the X2 tensor
-c
+c 
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
