@@ -57,7 +57,7 @@ c
 !QuantumComputing
       logical res_log,quantumc
       integer q_orb,q_ele_a,q_ele_b
-      integer qtilesize
+      integer qtilesize 
 !QuantumComputing
       character*10 module
       character*8 multchar(8)
