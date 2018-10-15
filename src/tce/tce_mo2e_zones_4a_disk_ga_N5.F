@@ -1415,7 +1415,7 @@ c       if(xxx.gt.l1norm) l1norm=xxx
 c      enddo
 c      enddo
 c
-c      write(6,*) 'L1 norm of v2 = ',l1norm
+c      write(6,*) 'L1 norm of v2 = ',l1norm  
 c
 c
       return
