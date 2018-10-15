@@ -2,7 +2,7 @@
 c
 c $Id$
 c
-c     Initialize for many-electron calculations.
+c     Initialize for many-electron calculations. 
 c
       implicit none
 #include "mafdecls.fh"
@@ -54,6 +54,11 @@ c
       external ga_create_atom_blocked
       logical xc_gotxc
       external xc_gotxc
+!QuantumComputing
+      logical res_log,quantumc
+      integer q_orb,q_ele_a,q_ele_b
+      integer qtilesize
+!QuantumComputing
       character*10 module
       character*8 multchar(8)
       data multchar/'singlet ','doublet ','triplet ','quartet ',
@@ -141,10 +146,10 @@ c
         if (.not.rtdb_get(rtdb,'dft:mult',mt_int,1,mult))
      1    call errquit('tce_init: failed to read mult',0,RTDB_ERR)
 c *** debug-kk ***
-        if(nodezero) then
-         write(6,*)'ipol= ',ipol
-         call util_flush(6)
-        end if
+c        if(nodezero) then
+c         write(6,*)'ipol= ',ipol
+c         call util_flush(6)
+c        end if
 c ****************
         if (ipol.eq.1) then
           restricted = .true.
@@ -152,11 +157,11 @@ c ****************
           restricted = .false.
         endif
 c *** debug-kk ***
-        if(nodezero) then
-         write(6,*)'restricter= ',restricted
-         write(6,*)'ROHF= ',rohf
-         call util_flush(6)
-        end if
+c        if(nodezero) then
+c         write(6,*)'restricter= ',restricted
+c         write(6,*)'ROHF= ',rohf
+c         call util_flush(6)
+c        end if
 c ****************
       else if (reference.eq.1) then
         if (.not.rtdb_get(rtdb,'scf:nclosed',mt_int,1,nclosed))
@@ -761,7 +766,106 @@ c
           call errquit('tce_init: 2eorb needs RHF/ROHF ref.',0,RTDB_ERR)
         endif
       endif
+!QuantumComputing
+       res_log=.false.
+       if (.not.rtdb_get(rtdb,'tce:print_integrals',mt_log,1,res_log))
+     1  then
+        quantumc=.false.
+       else
+        quantumc=res_log
+       end if
 c
+       if(quantumc) then
+cQSCFmodel 
+       if (hftype.eq.'UHF') then
+        call errquit('tce_init:QC works only with RHF and ROHF ',0,
+     2     rtdb_err)
+       endif
+c_nmo_vector
+      if (.not.movecs_read_header(movecs_out,title,basisname,
+     1  scftype,nbf_verify,ipol_verify,nmo,2)) call errquit
+cQtilesize 
+         qtilesize=1 
+         if (.not.rtdb_put(rtdb,'tce:tilesize',mt_int,1,qtilesize))
+     1     call errquit('tce_input: failed writing to rtdb',0,
+     2     rtdb_err)
+c Numbers of quantum electrons and quantum orbitals
+c defaults: q_ele_a=2 q_ele_b=2
+         q_ele_a=1
+         q_ele_b=1
+         if (.not.rtdb_get(rtdb,'tce:qela',mt_int,1,q_ele_a))
+     1     call errquit('tce_init: QC failed to read qela',0,
+     2     rtdb_err)   
+         if (.not.rtdb_get(rtdb,'tce:qelb',mt_int,1,q_ele_b))
+     1     call errquit('tce_init: QC failed to read qelb',0,
+     2     rtdb_err)
+         q_orb=2
+         if (.not.rtdb_get(rtdb,'tce:qorb',mt_int,1,q_orb))
+     1     call errquit('tce_init: QC failed to read qorb',0,
+     2     rtdb_err)
+c yaml q_ele_a & q_ele_b (number of alhpa and beta electrons)
+c yaml n_electrons = q_ele_a + q_ele_b
+c yaml n_orbitals  = q_orb
+c printing infromation about quantum system
+       if(nodezero) then
+         write(LuOut,*)'------------------------------------'
+         write(LuOut,2010) q_orb
+         write(LuOut,2011) q_ele_a
+         write(LuOut,2012) q_ele_b
+         write(LuOut,*)'------------------------------------'
+         call util_flush(6)
+       endif
+c
+cQfreezeing
+c corefreezing
+         if(ipol.eq.1) then 
+           nfc(1)=nocc(1)-q_ele_a
+           nfc(2)=nfc(1)
+           if((nfc(1).lt.0).or.(nfc(1).ge.nocc(1))) 
+     1     call errquit('tce_init:QC-inconsistent qorb qela qelb nfc',0,
+     2     rtdb_err)
+         else
+           nfc(1)=nocc(1)-q_ele_a
+           nfc(2)=nocc(2)-q_ele_b
+           if((nfc(1).ne.nfc(2)).or.(nfc(1).lt.0).or.
+     1            (nfc(1).ge.nocc(1)).or.(nfc(2).ge.nocc(2)))  
+     2     call errquit('tce_init:QC-inconsistent qorb qela qelb nfc',0,
+     2     rtdb_err) 
+         endif
+c virtualfreezing
+         if(ipol.eq.1) then
+          nfv(1)=nmo(1)-nocc(1)-(q_orb-q_ele_a)
+          nfv(2)=nfv(1)
+c *** debug ***
+c         if(nodezero) then
+c          write(6,*)'ipol ',ipol
+c          write(6,*)'nmo(1)',nmo(1)
+c          write(6,*)'nocc(1)',nocc(1)
+c          write(6,*)'q_orb ',q_orb
+c          write(6,*)'q_ele_a ',q_ele_a
+c          write(6,*)'q_ele_b ',q_ele_b
+c          write(6,*)'nfv(1) ',nfv(1)
+c          write(6,*)'nfv(2) ',nfv(2)
+c         endif 
+c**************
+           if((nfv(1).lt.0).or.(nfv(1).ge.(nmo(1)-nocc(1)) )) 
+     2     call errquit('tce_init:QC-inconsistent qorb qela qelb nfv',0,
+     2     rtdb_err)
+         else
+c needed for open-shell RHF
+         nmo(2)=nmo(1)
+c
+           nfv(1)=nmo(1)-nocc(1)-(q_orb-q_ele_a)
+           nfv(2)=nmo(2)-nocc(2)-(q_orb-q_ele_b)
+           if((nfv(1).ne.nfv(2)).or.(nfv(1).ge.(nmo(1)-nocc(1))).or.
+     1        (nfv(2).ge.(nmo(2)-nocc(2))).or.(nfv(1).lt.0).or.
+     1        (nfv(2).lt.0)) 
+     2     call errquit('tce_init:QC-inconsistent qorb qela qelb nfv',0,
+     2     rtdb_err)
+         endif
+
+       endif !quantumc
+!QuantumComputing
 c     --------------------------
 c     Determine calculation type
 c     --------------------------
@@ -1416,6 +1520,9 @@ c ccsd_act/eomccsd_act
         endif
       endif
       if (nodezero) call util_flush(LuOut)
+ 2010 format(3x,'  Number of active orbitals',2x,i5)
+ 2011 format(3x,'  Number of active alpha electrons',2x,i5)
+ 2012 format(3x,'  Number of active beta electrons ',2x,i5)
  9200 format(3x,'   Number of processors :',2x,i4)
  9000 format(3x,'       Calculation type : ',a)
  9230 format(3x,'Perturbative correction : ',a)
