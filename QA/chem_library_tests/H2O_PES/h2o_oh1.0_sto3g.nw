@@ -1,0 +1,40 @@
+start h2o_oh1.0_sto3g
+
+echo 
+memory stack 1000 mb heap 100 mb global 1000 mb noverify
+
+geometry units angstrom
+symmetry c1
+ zmatrix
+  O
+  H1  O 0.9572
+  H2  O 1.0000 H1 104.52
+ end
+end
+
+basis
+ * library sto-3g
+end
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-11
+rhf
+end
+
+tce
+  ccsd
+  2eorb
+  2emet 13
+  tilesize 1
+  thresh 1.0e-6
+  nroots 1
+end
+
+set tce:print_integrals T
+set tce:qorb  7
+set tce:qela  5
+set tce:qelb  5
+
+task tce energy
+
