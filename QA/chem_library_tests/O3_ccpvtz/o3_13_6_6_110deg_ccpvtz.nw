@@ -1,0 +1,40 @@
+start o3_13_6_6_110deg_ccpvtz
+
+echo
+
+##memory 3500 mb
+
+geometry units angstroms
+  symmetry c1
+O   -0.40688690     0.00000000    -0.28490528
+O   -0.40688690     0.00000000     1.01409472
+O    0.81377381     0.00000000    -0.72918944
+end
+
+BASIS spherical
+ * library cc-pvtz
+END
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
+end
+
+tce
+ccsd
+tilesize 10
+2eorb
+2emet 13
+thresh 1.0d-6
+nroots 3
+end
+
+set tce:print_integrals T 
+set tce:qorb 13
+set tce:qela 6
+set tce:qelb 6
+
+task tce energy
+
