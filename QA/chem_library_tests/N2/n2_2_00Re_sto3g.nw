@@ -35,3 +35,11 @@ set tce:qelb  7
  
 task tce energy
  
+mcscf
+  active  10
+  actelec 14
+  multiplicity 1
+end
+
+task mcscf
+

@@ -26,6 +26,7 @@ tilesize 1
 ccsd
 thresh 1.0e-6
 nroots 1
+lshift 0.2
 end
 
 set tce:print_integrals T
@@ -34,4 +35,12 @@ set tce:qela  7
 set tce:qelb  7
  
 task tce energy
+
+mcscf
+  active  10
+  actelec 14
+  multiplicity 1
+end
+
+task mcscf
  
