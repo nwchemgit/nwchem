@@ -1,5 +1,5 @@
 refund: UserID = kowalski
-refund: SLURM Job ID = 2677531
+refund: SLURM Job ID = 2677724
 refund: Number of nodes          = 96
 refund: Number of cores per node = 16
 refund: Number of cores          = 1536
@@ -8,10 +8,154 @@ refund: Directory = /home/kowalski/NWCHEM_GITHUB/nwchem_2018_clean/QA/chem_libra
  
 Processor list
  
-g[1134-1173,1179,1184,1186-1193,1197,1199,1204-1247]
+g[960-963,967,1066,1134-1173,1179,1184,1186-1193,1197,1199,1204-1241]
  
  argument  1 = /home/kowalski/NWCHEM_GITHUB/nwchem_2018_clean/QA/chem_library_tests/BETA_CAROTENE/beta_carotene_6_311G_eomccsd_16_4_4.nw
 All connections between all procs tested: SUCCESS
+ 
+
+
+============================== echo of input deck ==============================
+start beta_carotene_6_311G_16_4_4
+
+permanent_dir /dtemp/emsls50086
+
+echo
+
+memory stack 1600 mb heap 100 mb global 2200 mb noverify
+
+geometry units angstrom
+symmetry c1
+C             -0.45466059    12.71073331    -0.84013768
+C              0.45466059   -12.71073331     0.84013768
+C              0.60272810    13.73389929    -1.31463405
+C             -0.60272810   -13.73389929     1.31463405
+C              1.50260266    14.22466695    -0.18390695
+C             -1.50260266   -14.22466695     0.18390695
+C              2.25662787    13.04218114     0.42463761
+C             -2.25662787   -13.04218114    -0.42463761
+C              1.39635378    11.81610505     0.66900410
+C             -1.39635378   -11.81610505    -0.66900410
+C              0.18593505    11.64062086     0.07914294
+C             -0.18593505   -11.64062086    -0.07914294
+C             -0.65022198    10.44409862     0.29138858
+C              0.65022198   -10.44409862    -0.29138858
+C             -0.24771424     9.15308980     0.21636412
+C              0.24771424    -9.15308980    -0.21636412
+C             -1.08446852     7.97769251     0.39997778
+C              1.08446852    -7.97769251    -0.39997778
+C             -0.51110990     6.74413916     0.24882913
+C              0.51110990    -6.74413916    -0.24882913
+C             -1.12947704     5.45543705     0.37424162
+C              1.12947704    -5.45543705    -0.37424162
+C             -0.45068329     4.28540880     0.19346419
+C              0.45068329    -4.28540880    -0.19346419
+C             -0.99161745     2.95163258     0.29611789
+C              0.99161745    -2.95163258    -0.29611789
+C             -0.15093820     1.88744762     0.07551346
+C              0.15093820    -1.88744762    -0.07551346
+C             -0.45941558     0.49306126     0.11909892
+C              0.45941558    -0.49306126    -0.11909892
+C             -1.58762697    13.44254393    -0.07863729
+C              1.58762697   -13.44254393     0.07863729
+C             -1.05753331    12.04803102    -2.09971322
+C              1.05753331   -12.04803102     2.09971322
+C              2.02706531    10.83457814     1.62968699
+C             -2.02706531   -10.83457814    -1.62968699
+C             -2.53986595     8.17935503     0.74360583
+C              2.53986595    -8.17935503    -0.74360583
+C             -2.45359603     2.79236199     0.63929415
+C              2.45359603    -2.79236199    -0.63929415
+H               0.09170981    14.57361717    -1.80254687
+H               1.22977307    13.26191010    -2.08361907
+H              -0.09170981   -14.57361717     1.80254687
+H              -1.22977307   -13.26191010     2.08361907
+H               0.90147336    14.71598607     0.59088832
+H               2.20938886    14.97773313    -0.55155598
+H              -0.90147336   -14.71598607    -0.59088832
+H              -2.20938886   -14.97773313     0.55155598
+H               2.73055852    13.34018782     1.36930545
+H               3.09102500    12.75420067    -0.23576988
+H              -2.73055852   -13.34018782    -1.36930545
+H              -3.09102500   -12.75420067     0.23576988
+H              -1.70937852    10.63620382     0.45737970
+H               1.70937852   -10.63620382    -0.45737970
+H               0.79403495     8.95057478    -0.02592598
+H              -0.79403495    -8.95057478     0.02592598
+H               0.55046947     6.72654320    -0.00044117
+H              -0.55046947    -6.72654320     0.00044117
+H              -2.18628888     5.41377099     0.62184634
+H               2.18628888    -5.41377099    -0.62184634
+H               0.60880760     4.34954810    -0.05634096
+H              -0.60880760    -4.34954810     0.05634096
+H               0.88523369     2.12797220    -0.16490761
+H              -0.88523369    -2.12797220     0.16490761
+H              -1.47781272     0.18911047     0.35313934
+H               1.47781272    -0.18911047    -0.35313934
+H              -2.07859705    14.17089554    -0.73484112
+H              -1.20771629    13.97529773     0.79782182
+H              -2.35773636    12.74666466     0.26912040
+H               1.20771629   -13.97529773    -0.79782182
+H               2.07859705   -14.17089554     0.73484112
+H               2.35773636   -12.74666466    -0.26912040
+H              -0.30059662    11.47025078    -2.64026438
+H              -1.44681969    12.81608412    -2.77832188
+H              -1.88030628    11.36978279    -1.85669622
+H               1.88030628   -11.36978279     1.85669622
+H               1.44681969   -12.81608412     2.77832188
+H               0.30059662   -11.47025078     2.64026438
+H               1.32554945    10.08298770     1.99183449
+H               2.44113677    11.36897763     2.49401872
+H               2.87151581    10.30662687     1.16449443
+H              -2.44113677   -11.36897763    -2.49401872
+H              -1.32554945   -10.08298770    -1.99183449
+H              -2.87151581   -10.30662687    -1.16449443
+H              -3.07495680     7.23911004     0.87919239
+H              -3.05288081     8.74262056    -0.04557429
+H              -2.64537955     8.76045069     1.66735983
+H               3.05288081    -8.74262056     0.04557429
+H               3.07495680    -7.23911004    -0.87919239
+H               2.64537955    -8.76045069    -1.66735983
+H              -3.08539177     3.28558865    -0.10892946
+H              -2.67971005     3.25843456     1.60565393
+H              -2.76153767     1.74811102     0.69576677
+H               2.76153767    -1.74811102    -0.69576677
+H               2.67971005    -3.25843456    -1.60565393
+H               3.08539177    -3.28558865     0.10892946
+end
+
+
+basis spherical
+ * library 6-311G
+end
+
+
+scf
+thresh 1.0e-8
+tol2e 1.0e-9
+singlet
+rhf
+maxiter 200
+end
+
+tce
+tilesize 1
+thresh 1.0d-6
+2eorb
+2emet 13
+nroots 3
+end
+
+set tce:print_integrals T
+set tce:qorb 16
+set tce:qela 4
+set tce:qelb 4
+
+task tce energy
+
+================================================================================
+
+
                                          
                                          
  
@@ -49,9 +193,9 @@ All connections between all procs tested: SUCCESS
            Job information
            ---------------
 
-    hostname        = g1134
+    hostname        = g960
     program         = /home/kowalski/NWCHEM_GITHUB/nwchem_2018_clean/bin/LINUX64/nwchem
-    date            = Wed Oct 17 14:38:41 2018
+    date            = Wed Oct 17 16:08:56 2018
 
     compiled        = Wed_Oct_17_13:24:31_2018
     source          = /home/kowalski/NWCHEM_GITHUB/nwchem_2018_clean
@@ -71,8 +215,8 @@ All connections between all procs tested: SUCCESS
            Memory information
            ------------------
 
-    heap     =   13107200 doubles =    100.0 Mbytes
-    stack    =  209715197 doubles =   1600.0 Mbytes
+    heap     =   13107196 doubles =    100.0 Mbytes
+    stack    =  209715201 doubles =   1600.0 Mbytes
     global   =  288358400 doubles =   2200.0 Mbytes (distinct from heap & stack)
     total    =  511180797 doubles =   3900.0 Mbytes
     verify   = no 
@@ -1140,20 +1284,17 @@ All connections between all procs tested: SUCCESS
   library file name is: <
  /home/scicons/cascade/apps/nwchem-6.8.1_rhel7/src/basis/libraries/>
   
-                      Basis "ao basis" -> "" (spherical)
+
+
+ Summary of "ao basis" -> "" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                           6-311G                   on all atoms 
+
+
+                      Basis "ao basis" -> "ao basis" (spherical)
                       -----
-  H (Hydrogen)
-  ------------
-            Exponent  Coefficients 
-       -------------- ---------------------------------------------------------
-  1 S  3.38650000E+01  0.025494
-  1 S  5.09479000E+00  0.190373
-  1 S  1.15879000E+00  0.852161
- 
-  2 S  3.25840000E-01  1.000000
- 
-  3 S  1.02741000E-01  1.000000
- 
   C (Carbon)
   ----------
             Exponent  Coefficients 
@@ -1181,14 +1322,26 @@ All connections between all procs tested: SUCCESS
  
   7 P  1.45585000E-01  1.000000
  
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  3.38650000E+01  0.025494
+  1 S  5.09479000E+00  0.190373
+  1 S  1.15879000E+00  0.852161
+ 
+  2 S  3.25840000E-01  1.000000
+ 
+  3 S  1.02741000E-01  1.000000
+ 
 
 
- Summary of "ao basis" -> "" (spherical)
+ Summary of "ao basis" -> "ao basis" (spherical)
  ------------------------------------------------------------------------------
        Tag                 Description            Shells   Functions and Types
  ---------------- ------------------------------  ------  ---------------------
- H                       user specified              3        3   3s
- C                       user specified              7       13   4s3p
+ C                           6-311G                  7       13   4s3p
+ H                           6-311G                  3        3   3s
 
 
                                  NWChem SCF Module
@@ -1213,12 +1366,12 @@ All connections between all procs tested: SUCCESS
  ------------------------------------------------------------------------------
        Tag                 Description            Shells   Functions and Types
  ---------------- ------------------------------  ------  ---------------------
- H                       user specified              3        3   3s
- C                       user specified              7       13   4s3p
+ C                           6-311G                  7       13   4s3p
+ H                           6-311G                  3        3   3s
 
 
 
- Forming initial guess at      37.8s
+ Forming initial guess at      37.1s
 
  
       Superposition of Atomic Density Guess
@@ -1236,7 +1389,7 @@ All connections between all procs tested: SUCCESS
  LUMO         =      -0.104973
  
 
- Starting SCF solution at      38.8s
+ Starting SCF solution at      38.1s
 
 
 
@@ -1251,23 +1404,23 @@ All connections between all procs tested: SUCCESS
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1    -1546.4337111979  1.99D+00  1.26D-01      5.6
-                 2    -1546.8469733608  4.56D-01  3.36D-02      7.2
-                 3    -1546.8655713652  1.63D-02  3.46D-03      9.0
-                 4    -1546.8656479642  1.47D-04  7.18D-05     11.5
-                 5    -1546.8656479738  1.11D-07  1.28D-08     16.3
-                 6    -1546.8656479738  4.58D-10  8.92D-11     18.0
+                 1    -1546.4337111979  1.99D+00  1.26D-01      5.1
+                 2    -1546.8469733608  4.56D-01  3.36D-02      6.7
+                 3    -1546.8655713652  1.63D-02  3.46D-03      8.7
+                 4    -1546.8656479642  1.47D-04  7.18D-05     11.1
+                 5    -1546.8656479738  1.11D-07  1.28D-08     15.7
+                 6    -1546.8656479738  4.58D-10  8.93D-11     17.4
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =  -1546.865647973794
-      One-electron energy =  -9309.463535824263
+         Total SCF energy =  -1546.865647973788
+      One-electron energy =  -9309.463535824258
       Two-electron energy =   4133.400935517388
  Nuclear repulsion energy =   3629.196952333082
 
-        Time for solution =     13.2s
+        Time for solution =     13.1s
 
 
              Final eigenvalues
@@ -1437,19 +1590,19 @@ All connections between all procs tested: SUCCESS
                        -------------------------------------
  
  Vector   41  Occ=2.000000D+00  E=-1.148695D+00
-              MO Center=  1.6D-10,  7.1D-09, -6.7D-11, r^2= 1.4D+02
+              MO Center=  1.3D-10,  5.5D-09, -5.1D-11, r^2= 1.4D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    136      0.161650  11 C  s               149      0.161650  12 C  s         
  
  Vector   42  Occ=2.000000D+00  E=-1.148646D+00
-              MO Center= -1.6D-10, -7.1D-09,  6.6D-11, r^2= 1.5D+02
+              MO Center= -1.3D-10, -5.5D-09,  5.1D-11, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    136      0.162660  11 C  s               149     -0.162660  12 C  s         
  
  Vector   43  Occ=2.000000D+00  E=-1.137700D+00
-              MO Center=  8.2D-13, -7.6D-12, -2.5D-13, r^2= 2.3D+01
+              MO Center=  1.2D-12, -9.0D-12, -3.7D-13, r^2= 2.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    318      0.183461  25 C  s               331      0.183461  26 C  s         
@@ -1457,86 +1610,86 @@ All connections between all procs tested: SUCCESS
    370      0.156741  29 C  s               383      0.156741  30 C  s         
  
  Vector   44  Occ=2.000000D+00  E=-1.130821D+00
-              MO Center= -1.2D-12,  5.4D-12,  3.8D-13, r^2= 4.3D+01
+              MO Center= -1.5D-12,  9.0D-12,  4.8D-13, r^2= 4.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    318      0.160471  25 C  s               331     -0.160471  26 C  s         
    292      0.156804  23 C  s               305     -0.156804  24 C  s         
  
  Vector   45  Occ=2.000000D+00  E=-1.118307D+00
-              MO Center= -9.1D-14, -1.3D-14,  1.1D-14, r^2= 6.3D+01
+              MO Center= -1.3D-13,  9.5D-14,  1.7D-14, r^2= 6.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    214      0.192446  17 C  s               227      0.192446  18 C  s         
  
  Vector   46  Occ=2.000000D+00  E=-1.110314D+00
-              MO Center= -5.3D-14, -4.3D-13, -5.7D-15, r^2= 5.5D+01
+              MO Center=  1.1D-13, -2.4D-12, -6.0D-14, r^2= 5.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    214      0.170391  17 C  s               227     -0.170391  18 C  s         
    318     -0.165915  25 C  s               331      0.165915  26 C  s         
  
  Vector   47  Occ=2.000000D+00  E=-1.079593D+00
-              MO Center= -6.3D-14,  1.6D-12, -1.6D-14, r^2= 4.3D+01
+              MO Center= -7.2D-14,  1.9D-12,  1.5D-15, r^2= 4.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    370      0.206255  29 C  s               383      0.206255  30 C  s         
    292     -0.151784  23 C  s               305     -0.151784  24 C  s         
  
  Vector   48  Occ=2.000000D+00  E=-1.065345D+00
-              MO Center=  1.3D-11,  3.7D-10, -3.2D-12, r^2= 1.4D+02
+              MO Center=  1.0D-11,  2.9D-10, -2.4D-12, r^2= 1.4D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    110      0.162259   9 C  s               123     -0.162259  10 C  s         
  
  Vector   49  Occ=2.000000D+00  E=-1.064258D+00
-              MO Center= -1.2D-11, -3.5D-10,  3.2D-12, r^2= 1.5D+02
+              MO Center= -9.1D-12, -2.7D-10,  2.5D-12, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    110      0.171760   9 C  s               123      0.171760  10 C  s         
     10     -0.154299   1 C  s                23     -0.154299   2 C  s         
  
  Vector   50  Occ=2.000000D+00  E=-1.058793D+00
-              MO Center= -6.8D-13, -1.7D-12, -3.5D-14, r^2= 1.1D+02
+              MO Center= -4.2D-13,  3.0D-12, -7.6D-14, r^2= 1.1D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    162      0.141084  13 C  s               175     -0.141084  14 C  s         
     84     -0.133025   7 C  s                97      0.133025   8 C  s         
  
  Vector   51  Occ=2.000000D+00  E=-1.049966D+00
-              MO Center= -2.9D-13, -1.0D-11, -5.6D-14, r^2= 1.1D+02
+              MO Center= -3.1D-13, -1.2D-11, -8.7D-14, r^2= 1.1D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     58      0.144548   5 C  s                71      0.144548   6 C  s         
    162     -0.135890  13 C  s               175     -0.135890  14 C  s         
  
  Vector   52  Occ=2.000000D+00  E=-1.030734D+00
-              MO Center=  1.3D-14, -1.1D-12, -5.1D-16, r^2= 9.2D+01
+              MO Center= -7.7D-14, -6.4D-13,  3.8D-14, r^2= 9.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    266      0.151863  21 C  s               279     -0.151863  22 C  s         
  
  Vector   53  Occ=2.000000D+00  E=-1.016898D+00
-              MO Center=  1.5D-13,  1.4D-12,  9.1D-15, r^2= 7.4D+01
+              MO Center=  1.3D-13,  3.0D-13,  5.1D-15, r^2= 7.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    266      0.143004  21 C  s               279      0.143004  22 C  s         
  
  Vector   54  Occ=2.000000D+00  E=-9.902584D-01
-              MO Center= -5.2D-13,  9.5D-12,  3.8D-13, r^2= 1.1D+02
+              MO Center= -6.3D-13,  1.1D-11,  4.4D-13, r^2= 1.1D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    162      0.152892  13 C  s               175     -0.152892  14 C  s         
  
  Vector   55  Occ=2.000000D+00  E=-9.863042D-01
-              MO Center=  1.7D-13, -1.2D-11, -4.4D-13, r^2= 9.8D+01
+              MO Center=  9.5D-14, -1.4D-11, -4.7D-13, r^2= 9.8D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    162      0.144086  13 C  s               175      0.144086  14 C  s         
    474     -0.143101  37 C  s               487     -0.143101  38 C  s         
  
  Vector   56  Occ=2.000000D+00  E=-9.638364D-01
-              MO Center=  2.9D-14, -2.6D-13, -2.2D-14, r^2= 1.7D+01
+              MO Center=  6.9D-14, -3.6D-13, -3.4D-14, r^2= 1.7D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    504      0.239796  39 C  s               517     -0.239796  40 C  s         
@@ -1544,7 +1697,7 @@ All connections between all procs tested: SUCCESS
    344     -0.187570  27 C  s               357      0.187570  28 C  s         
  
  Vector   57  Occ=2.000000D+00  E=-9.444460D-01
-              MO Center=  2.8D-11, -1.1D-10, -9.0D-12, r^2= 4.9D+01
+              MO Center=  2.5D-11, -9.4D-11, -7.9D-12, r^2= 4.9D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    478      0.214527  37 C  s               491      0.214527  38 C  s         
@@ -1553,21 +1706,21 @@ All connections between all procs tested: SUCCESS
    500     -0.165136  39 C  s               513     -0.165136  40 C  s         
  
  Vector   58  Occ=2.000000D+00  E=-9.436934D-01
-              MO Center= -2.8D-11,  1.1D-10,  8.8D-12, r^2= 6.1D+01
+              MO Center= -2.5D-11,  9.4D-11,  7.7D-12, r^2= 6.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    478      0.242096  37 C  s               491     -0.242096  38 C  s         
    474      0.219197  37 C  s               487     -0.219197  38 C  s         
  
  Vector   59  Occ=2.000000D+00  E=-9.339142D-01
-              MO Center=  1.3D-12,  5.0D-11,  1.5D-13, r^2= 9.2D+01
+              MO Center=  7.0D-13,  3.4D-11, -3.9D-13, r^2= 9.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    452      0.174475  35 C  s               465      0.174475  36 C  s         
    448      0.163787  35 C  s               461      0.163787  36 C  s         
  
  Vector   60  Occ=2.000000D+00  E=-9.315967D-01
-              MO Center= -7.5D-11,  7.0D-10, -6.1D-11, r^2= 1.5D+02
+              MO Center= -7.6D-11,  7.2D-10, -6.2D-11, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    426      0.199579  33 C  s               439     -0.199579  34 C  s         
@@ -1576,7 +1729,7 @@ All connections between all procs tested: SUCCESS
    400     -0.173798  31 C  s               413      0.173798  32 C  s         
  
  Vector   61  Occ=2.000000D+00  E=-9.310417D-01
-              MO Center=  6.1D-11, -6.2D-10,  5.8D-11, r^2= 1.7D+02
+              MO Center=  6.1D-11, -6.3D-10,  5.8D-11, r^2= 1.7D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    400      0.244375  31 C  s               413      0.244375  32 C  s         
@@ -1585,7 +1738,7 @@ All connections between all procs tested: SUCCESS
    422     -0.177666  33 C  s               435     -0.177666  34 C  s         
  
  Vector   62  Occ=2.000000D+00  E=-9.296086D-01
-              MO Center=  1.3D-11, -1.2D-10,  2.5D-12, r^2= 1.3D+02
+              MO Center=  1.3D-11, -1.2D-10,  3.2D-12, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    400      0.177889  31 C  s               413     -0.177889  32 C  s         
@@ -1594,7 +1747,7 @@ All connections between all procs tested: SUCCESS
    448      0.159877  35 C  s               461     -0.159877  36 C  s         
  
  Vector   63  Occ=2.000000D+00  E=-9.209176D-01
-              MO Center=  2.0D-11,  2.7D-10, -8.1D-12, r^2= 1.4D+02
+              MO Center=  2.0D-11,  2.7D-10, -8.3D-12, r^2= 1.4D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     88      0.201298   7 C  s               101      0.201298   8 C  s         
@@ -1604,7 +1757,7 @@ All connections between all procs tested: SUCCESS
     84      0.151374   7 C  s                97      0.151374   8 C  s         
  
  Vector   64  Occ=2.000000D+00  E=-9.197613D-01
-              MO Center= -1.8D-11, -2.2D-10,  5.7D-12, r^2= 1.7D+02
+              MO Center= -1.9D-11, -2.3D-10,  5.9D-12, r^2= 1.7D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     88      0.226493   7 C  s               101     -0.226493   8 C  s         
@@ -1613,7 +1766,7 @@ All connections between all procs tested: SUCCESS
     32     -0.166591   3 C  s                45      0.166591   4 C  s         
  
  Vector   65  Occ=2.000000D+00  E=-9.166019D-01
-              MO Center= -2.1D-12, -5.3D-11,  3.0D-12, r^2= 9.1D+01
+              MO Center= -2.0D-12, -5.0D-11,  2.9D-12, r^2= 9.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    344     -0.113490  27 C  s               357     -0.113490  28 C  s         
@@ -1621,88 +1774,88 @@ All connections between all procs tested: SUCCESS
     88      0.109262   7 C  s               101      0.109262   8 C  s         
  
  Vector   66  Occ=2.000000D+00  E=-8.734984D-01
-              MO Center= -4.3D-14,  6.8D-13,  2.1D-14, r^2= 5.8D+01
+              MO Center= -1.6D-14,  8.8D-13,  2.0D-14, r^2= 5.8D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    266      0.131291  21 C  s               279     -0.131291  22 C  s         
  
  Vector   67  Occ=2.000000D+00  E=-8.481536D-01
-              MO Center=  2.9D-13,  3.3D-12, -4.7D-14, r^2= 9.9D+01
+              MO Center=  3.8D-13,  4.4D-12, -6.6D-14, r^2= 9.9D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     62      0.150576   5 C  s                75      0.150576   6 C  s         
  
  Vector   68  Occ=2.000000D+00  E=-8.284486D-01
-              MO Center=  3.9D-13,  3.2D-12, -1.3D-13, r^2= 1.3D+02
+              MO Center=  4.7D-13,  3.7D-12, -1.7D-13, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     62      0.218037   5 C  s                75     -0.218037   6 C  s         
  
  Vector   69  Occ=2.000000D+00  E=-8.113453D-01
-              MO Center= -1.7D-13, -1.2D-12,  8.4D-14, r^2= 1.3D+02
+              MO Center= -2.1D-13, -1.7D-12,  1.1D-13, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     62      0.222139   5 C  s                75      0.222139   6 C  s         
     88     -0.159226   7 C  s               101     -0.159226   8 C  s         
  
  Vector   70  Occ=2.000000D+00  E=-7.935633D-01
-              MO Center= -2.4D-13,  3.3D-12,  1.3D-13, r^2= 1.2D+02
+              MO Center= -3.1D-13,  1.1D-12,  1.8D-13, r^2= 1.2D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     62      0.150116   5 C  s                75     -0.150116   6 C  s         
  
  Vector   71  Occ=2.000000D+00  E=-7.808014D-01
-              MO Center= -3.5D-13,  9.9D-12, -4.8D-13, r^2= 1.3D+02
+              MO Center= -3.0D-13,  6.5D-12, -3.6D-13, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      0.208430   1 C  s                23      0.208430   2 C  s         
  
  Vector   72  Occ=2.000000D+00  E=-7.716711D-01
-              MO Center=  5.3D-14, -1.2D-11,  2.1D-14, r^2= 1.3D+02
+              MO Center=  2.2D-14, -8.1D-12, -4.6D-14, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      0.255267   1 C  s                23     -0.255267   2 C  s         
  
  Vector   73  Occ=2.000000D+00  E=-7.561729D-01
-              MO Center= -9.1D-14, -3.1D-12,  2.6D-13, r^2= 1.1D+02
+              MO Center= -8.9D-14, -3.3D-12,  2.2D-13, r^2= 1.1D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      0.223103   1 C  s                23      0.223103   2 C  s         
     36     -0.160681   3 C  s                49     -0.160681   4 C  s         
  
  Vector   74  Occ=2.000000D+00  E=-7.504444D-01
-              MO Center=  1.2D-13, -3.6D-12,  7.1D-14, r^2= 3.4D+01
+              MO Center=  7.7D-14, -3.0D-12,  5.7D-14, r^2= 3.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    374      0.189481  29 C  s               387     -0.189481  30 C  s         
  
  Vector   75  Occ=2.000000D+00  E=-7.369591D-01
-              MO Center=  3.0D-12, -1.3D-11, -1.1D-12, r^2= 2.8D+01
+              MO Center=  2.8D-12, -1.2D-11, -1.0D-12, r^2= 2.8D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    270      0.138502  21 C  s               283     -0.138502  22 C  s         
  
  Vector   76  Occ=2.000000D+00  E=-7.308342D-01
-              MO Center= -1.9D-12,  2.9D-12,  7.3D-13, r^2= 4.4D+01
+              MO Center= -2.0D-12,  4.3D-12,  7.4D-13, r^2= 4.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    267     -0.102769  21 C  px              280      0.102769  22 C  px        
    214      0.096838  17 C  s               227      0.096838  18 C  s         
  
  Vector   77  Occ=2.000000D+00  E=-7.239122D-01
-              MO Center= -8.0D-13,  7.3D-12,  2.6D-13, r^2= 7.4D+01
+              MO Center= -6.2D-13,  5.4D-12,  1.9D-13, r^2= 7.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    218      0.165923  17 C  s               231     -0.165923  18 C  s         
  
  Vector   78  Occ=2.000000D+00  E=-7.082389D-01
-              MO Center= -4.8D-14,  1.2D-12, -9.5D-15, r^2= 5.1D+01
+              MO Center= -4.6D-14,  7.8D-13, -2.0D-14, r^2= 5.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    322      0.180033  25 C  s               335      0.180033  26 C  s         
  
  Vector   79  Occ=2.000000D+00  E=-6.860510D-01
-              MO Center=  6.1D-13,  3.4D-11,  4.5D-13, r^2= 1.1D+02
+              MO Center=  5.4D-13,  3.0D-11,  4.1D-13, r^2= 1.1D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    189      0.099221  15 C  px              202      0.099221  16 C  px        
@@ -1710,53 +1863,53 @@ All connections between all procs tested: SUCCESS
    114     -0.092970   9 C  s               127      0.092970  10 C  s         
  
  Vector   80  Occ=2.000000D+00  E=-6.836410D-01
-              MO Center=  2.9D-13, -2.9D-11, -6.1D-13, r^2= 8.6D+01
+              MO Center=  2.7D-13, -2.5D-11, -5.2D-13, r^2= 8.6D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    322      0.110690  25 C  s               335      0.110690  26 C  s         
    348     -0.105751  27 C  s               361     -0.105751  28 C  s         
  
  Vector   81  Occ=2.000000D+00  E=-6.695915D-01
-              MO Center= -2.5D-13,  1.7D-12, -4.2D-14, r^2= 8.4D+01
+              MO Center= -2.3D-13,  1.9D-12, -6.4D-14, r^2= 8.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      0.102678   1 C  s                23      0.102678   2 C  s         
  
  Vector   82  Occ=2.000000D+00  E=-6.572371D-01
-              MO Center=  1.6D-13,  5.1D-12, -2.6D-13, r^2= 1.2D+02
+              MO Center=  2.1D-13,  6.6D-12, -3.1D-13, r^2= 1.2D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      0.101424   1 C  s                23     -0.101424   2 C  s         
  
  Vector   83  Occ=2.000000D+00  E=-6.540006D-01
-              MO Center=  7.2D-13, -5.9D-12, -3.1D-13, r^2= 4.2D+01
+              MO Center=  6.5D-13, -5.4D-12, -2.9D-13, r^2= 4.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    322      0.118627  25 C  s               335     -0.118627  26 C  s         
  
  Vector   84  Occ=2.000000D+00  E=-6.460544D-01
-              MO Center= -1.6D-13,  3.1D-12,  1.0D-13, r^2= 1.0D+02
+              MO Center= -1.7D-13,  1.2D-12,  1.3D-13, r^2= 1.0D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    296      0.097852  23 C  s               309      0.097852  24 C  s         
    218      0.089964  17 C  s               231      0.089964  18 C  s         
  
  Vector   85  Occ=2.000000D+00  E=-6.413084D-01
-              MO Center= -7.9D-14,  1.0D-11,  3.1D-14, r^2= 1.0D+02
+              MO Center= -6.2D-14,  1.1D-11, -1.3D-15, r^2= 1.0D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    348      0.084509  27 C  s               361      0.084509  28 C  s         
    268     -0.080000  21 C  py              281      0.080000  22 C  py        
  
  Vector   86  Occ=2.000000D+00  E=-6.342057D-01
-              MO Center= -8.4D-13, -1.5D-11,  2.0D-13, r^2= 1.3D+02
+              MO Center= -8.4D-13, -1.4D-11,  1.8D-13, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    374      0.091406  29 C  s               387     -0.091406  30 C  s         
    320      0.082520  25 C  py              333      0.082520  26 C  py        
  
  Vector   87  Occ=2.000000D+00  E=-6.228061D-01
-              MO Center=  4.9D-13,  2.3D-11,  2.0D-13, r^2= 1.0D+02
+              MO Center=  3.9D-13,  2.2D-11,  1.6D-13, r^2= 1.0D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    322     -0.073585  25 C  s               335      0.073585  26 C  s         
@@ -1764,110 +1917,110 @@ All connections between all procs tested: SUCCESS
    111      0.066394   9 C  px              124      0.066394  10 C  px        
  
  Vector   88  Occ=2.000000D+00  E=-6.193524D-01
-              MO Center=  4.6D-13, -4.4D-12, -6.7D-13, r^2= 1.3D+02
+              MO Center=  4.4D-13, -2.9D-12, -7.2D-13, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      0.095292   1 C  s                23      0.095292   2 C  s         
     59      0.086497   5 C  px               72     -0.086497   6 C  px        
  
  Vector   89  Occ=2.000000D+00  E=-6.131188D-01
-              MO Center=  2.3D-11,  5.6D-10, -4.5D-12, r^2= 1.5D+02
+              MO Center=  2.4D-11,  5.7D-10, -4.6D-12, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    114      0.110091   9 C  s               127      0.110091  10 C  s         
  
  Vector   90  Occ=2.000000D+00  E=-6.127446D-01
-              MO Center= -2.3D-11, -5.7D-10,  4.7D-12, r^2= 1.6D+02
+              MO Center= -2.4D-11, -5.8D-10,  4.9D-12, r^2= 1.6D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      0.127001   1 C  s                23     -0.127001   2 C  s         
  
  Vector   91  Occ=2.000000D+00  E=-6.035261D-01
-              MO Center= -5.1D-13, -4.0D-12, -3.8D-13, r^2= 7.9D+01
+              MO Center= -4.5D-13, -3.6D-12, -3.8D-13, r^2= 7.9D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    111      0.076247   9 C  px              124      0.076247  10 C  px        
  
  Vector   92  Occ=2.000000D+00  E=-6.011923D-01
-              MO Center= -6.4D-14, -3.5D-12,  1.9D-13, r^2= 1.0D+02
+              MO Center= -1.2D-13, -2.7D-12,  1.5D-13, r^2= 1.0D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    372      0.105807  29 C  py              385     -0.105807  30 C  py        
    242      0.097350  19 C  py              255     -0.097350  20 C  py        
  
  Vector   93  Occ=2.000000D+00  E=-5.884968D-01
-              MO Center= -1.1D-11,  3.7D-10, -1.3D-11, r^2= 9.5D+01
+              MO Center= -1.1D-11,  3.6D-10, -1.3D-11, r^2= 9.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    423      0.075552  33 C  px              436     -0.075552  34 C  px        
    190      0.068276  15 C  py              203     -0.068276  16 C  py        
  
  Vector   94  Occ=2.000000D+00  E=-5.881940D-01
-              MO Center=  1.3D-11, -3.5D-10,  1.1D-11, r^2= 1.2D+02
+              MO Center=  1.3D-11, -3.4D-10,  1.0D-11, r^2= 1.2D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    423      0.088188  33 C  px              436      0.088188  34 C  px        
  
  Vector   95  Occ=2.000000D+00  E=-5.810748D-01
-              MO Center=  1.2D-12,  1.2D-10, -4.0D-12, r^2= 1.5D+02
+              MO Center=  1.4D-12,  1.2D-10, -4.0D-12, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    423     -0.089683  33 C  px              436      0.089683  34 C  px        
     34      0.086158   3 C  py               47     -0.086158   4 C  py        
  
  Vector   96  Occ=2.000000D+00  E=-5.790977D-01
-              MO Center= -8.9D-13, -1.3D-10,  3.4D-12, r^2= 1.4D+02
+              MO Center= -1.0D-12, -1.3D-10,  3.5D-12, r^2= 1.4D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     34      0.079161   3 C  py               47      0.079161   4 C  py        
    397      0.075716  31 C  px              410      0.075716  32 C  px        
  
  Vector   97  Occ=2.000000D+00  E=-5.776293D-01
-              MO Center=  2.2D-11, -5.3D-11, -5.4D-12, r^2= 3.6D+01
+              MO Center=  1.1D-11, -3.2D-11, -2.4D-12, r^2= 3.6D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    503      0.175726  39 C  pz              516      0.175726  40 C  pz        
  
  Vector   98  Occ=2.000000D+00  E=-5.767640D-01
-              MO Center= -2.3D-11,  2.5D-11,  6.1D-12, r^2= 3.2D+01
+              MO Center= -1.3D-11,  6.9D-12,  3.6D-12, r^2= 3.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    503      0.176017  39 C  pz              516     -0.176017  40 C  pz        
  
  Vector   99  Occ=2.000000D+00  E=-5.763206D-01
-              MO Center=  2.6D-12,  8.1D-11,  7.2D-13, r^2= 1.2D+02
+              MO Center=  2.7D-12,  8.7D-11,  3.9D-13, r^2= 1.2D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    423     -0.092741  33 C  px              436     -0.092741  34 C  px        
     36      0.087949   3 C  s                49     -0.087949   4 C  s         
  
  Vector  100  Occ=2.000000D+00  E=-5.740427D-01
-              MO Center=  7.8D-11, -1.5D-10, -1.7D-11, r^2= 9.8D+01
+              MO Center=  7.0D-11, -1.4D-10, -1.5D-11, r^2= 9.8D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    477      0.090699  37 C  pz              490     -0.090699  38 C  pz        
    657     -0.083335  86 H  s               663     -0.083335  88 H  s         
  
  Vector  101  Occ=2.000000D+00  E=-5.735749D-01
-              MO Center=  1.0D-10, -7.2D-10, -4.3D-11, r^2= 7.9D+01
+              MO Center=  9.0D-11, -6.3D-10, -3.7D-11, r^2= 7.9D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    477      0.182673  37 C  pz              490      0.182673  38 C  pz        
  
  Vector  102  Occ=2.000000D+00  E=-5.732739D-01
-              MO Center= -1.8D-10,  8.0D-10,  6.1D-11, r^2= 9.3D+01
+              MO Center= -1.6D-10,  7.0D-10,  5.3D-11, r^2= 9.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    477      0.151640  37 C  pz              490     -0.151640  38 C  pz        
  
  Vector  103  Occ=2.000000D+00  E=-5.600665D-01
-              MO Center=  1.4D-12,  5.4D-11,  8.4D-13, r^2= 1.1D+02
+              MO Center=  1.4D-12,  6.0D-11,  9.5D-13, r^2= 1.1D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    372      0.094725  29 C  py              385     -0.094725  30 C  py        
  
  Vector  104  Occ=2.000000D+00  E=-5.578275D-01
-              MO Center= -9.4D-13, -2.8D-11,  8.2D-13, r^2= 1.5D+02
+              MO Center= -1.3D-12, -3.2D-11,  8.0D-13, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    449     -0.101104  35 C  px              462     -0.101104  36 C  px        
@@ -1875,57 +2028,57 @@ All connections between all procs tested: SUCCESS
    397      0.092349  31 C  px              410      0.092349  32 C  px        
  
  Vector  105  Occ=2.000000D+00  E=-5.542231D-01
-              MO Center=  1.9D-12, -2.6D-11, -6.4D-13, r^2= 9.2D+01
+              MO Center=  1.5D-12, -3.0D-11, -9.0D-13, r^2= 9.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    449      0.113569  35 C  px              462     -0.113569  36 C  px        
  
  Vector  106  Occ=2.000000D+00  E=-5.531095D-01
-              MO Center=  9.0D-13,  1.7D-11,  1.1D-12, r^2= 8.4D+01
+              MO Center=  7.3D-13,  1.4D-11,  9.0D-13, r^2= 8.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    268      0.100375  21 C  py              281      0.100375  22 C  py        
  
  Vector  107  Occ=2.000000D+00  E=-5.503427D-01
-              MO Center=  6.8D-12,  7.6D-11,  6.3D-12, r^2= 1.2D+02
+              MO Center=  7.2D-12,  8.1D-11,  6.8D-12, r^2= 1.2D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    639      0.126927  80 H  s               645      0.126927  82 H  s         
  
  Vector  108  Occ=2.000000D+00  E=-5.494645D-01
-              MO Center= -6.9D-12, -8.6D-11, -7.3D-12, r^2= 1.2D+02
+              MO Center= -6.9D-12, -8.7D-11, -7.3D-12, r^2= 1.2D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    449      0.122601  35 C  px              462      0.122601  36 C  px        
  
  Vector  109  Occ=2.000000D+00  E=-5.444793D-01
-              MO Center=  3.7D-11,  1.5D-09,  3.9D-11, r^2= 1.4D+02
+              MO Center=  4.4D-11,  1.8D-09,  4.6D-11, r^2= 1.4D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    450      0.105699  35 C  py              463      0.105699  36 C  py        
  
  Vector  110  Occ=2.000000D+00  E=-5.443979D-01
-              MO Center= -4.0D-11, -1.5D-09, -4.1D-11, r^2= 1.3D+02
+              MO Center= -4.7D-11, -1.8D-09, -4.8D-11, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    450      0.098799  35 C  py              463     -0.098799  36 C  py        
  
  Vector  111  Occ=2.000000D+00  E=-5.413949D-01
-              MO Center= -9.5D-13,  2.0D-11, -2.4D-12, r^2= 9.4D+01
+              MO Center= -1.2D-12,  2.4D-11, -2.7D-12, r^2= 9.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    424      0.098819  33 C  py              437     -0.098819  34 C  py        
    621      0.095634  74 H  s               630      0.095634  77 H  s         
  
  Vector  112  Occ=2.000000D+00  E=-5.365012D-01
-              MO Center= -3.1D-12,  7.5D-11, -6.3D-12, r^2= 1.5D+02
+              MO Center= -3.2D-12,  7.8D-11, -6.7D-12, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    424      0.127129  33 C  py              437      0.127129  34 C  py        
    621      0.122210  74 H  s               630     -0.122210  77 H  s         
  
  Vector  113  Occ=2.000000D+00  E=-5.337492D-01
-              MO Center=  9.3D-12, -1.2D-10,  9.4D-12, r^2= 1.2D+02
+              MO Center=  8.9D-12, -1.2D-10,  9.9D-12, r^2= 1.2D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    424     -0.098221  33 C  py              437      0.098221  34 C  py        
@@ -1934,46 +2087,46 @@ All connections between all procs tested: SUCCESS
    398      0.090657  31 C  py              411     -0.090657  32 C  py        
  
  Vector  114  Occ=2.000000D+00  E=-5.314383D-01
-              MO Center=  1.4D-12, -5.9D-13, -1.1D-12, r^2= 4.6D+01
+              MO Center=  1.4D-12, -1.5D-12, -9.0D-13, r^2= 4.6D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    502      0.150327  39 C  py              515      0.150327  40 C  py        
  
  Vector  115  Occ=2.000000D+00  E=-5.256504D-01
-              MO Center= -5.9D-12,  1.6D-11,  1.9D-12, r^2= 6.4D+01
+              MO Center= -5.1D-12,  1.7D-11,  1.7D-12, r^2= 6.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    476     -0.115373  37 C  py              489      0.115373  38 C  py        
    241      0.106158  19 C  px              254     -0.106158  20 C  px        
  
  Vector  116  Occ=2.000000D+00  E=-5.197100D-01
-              MO Center=  2.0D-12,  2.2D-11, -1.3D-12, r^2= 9.0D+01
+              MO Center=  2.0D-12,  1.9D-11, -1.2D-12, r^2= 9.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    345      0.093101  27 C  px              358      0.093101  28 C  px        
  
  Vector  117  Occ=2.000000D+00  E=-5.172907D-01
-              MO Center=  1.5D-11,  1.0D-10, -7.0D-12, r^2= 7.7D+01
+              MO Center=  1.5D-11,  1.1D-10, -7.0D-12, r^2= 7.7D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    476     -0.105315  37 C  py              489     -0.105315  38 C  py        
    216      0.103927  17 C  py              229      0.103927  18 C  py        
  
  Vector  118  Occ=2.000000D+00  E=-5.165658D-01
-              MO Center= -1.2D-11, -7.5D-11,  4.4D-12, r^2= 1.5D+02
+              MO Center= -1.2D-11, -7.0D-11,  4.2D-12, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    423      0.095218  33 C  px              436     -0.095218  34 C  px        
    624     -0.088876  75 H  s               627     -0.088876  76 H  s         
  
  Vector  119  Occ=2.000000D+00  E=-5.138277D-01
-              MO Center=  7.2D-11,  1.1D-09, -5.9D-11, r^2= 4.6D+01
+              MO Center=  7.6D-11,  1.1D-09, -6.2D-11, r^2= 4.6D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    320      0.109121  25 C  py              333     -0.109121  26 C  py        
  
  Vector  120  Occ=2.000000D+00  E=-5.138090D-01
-              MO Center= -7.8D-11, -1.1D-09,  6.4D-11, r^2= 1.2D+02
+              MO Center= -8.2D-11, -1.2D-09,  6.7D-11, r^2= 1.2D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    606      0.084334  69 H  s               615     -0.084334  72 H  s         
@@ -1982,13 +2135,13 @@ All connections between all procs tested: SUCCESS
     59     -0.076382   5 C  px               72     -0.076382   6 C  px        
  
  Vector  121  Occ=2.000000D+00  E=-5.059035D-01
-              MO Center=  6.3D-13, -7.8D-12,  1.0D-14, r^2= 7.0D+01
+              MO Center=  8.3D-13, -1.0D-11, -1.1D-14, r^2= 7.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    267      0.098623  21 C  px              280     -0.098623  22 C  px        
  
  Vector  122  Occ=2.000000D+00  E=-4.953230D-01
-              MO Center=  2.7D-12,  7.7D-11,  5.2D-13, r^2= 1.1D+02
+              MO Center=  2.9D-12,  7.8D-11,  5.7D-13, r^2= 1.1D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     85      0.087909   7 C  px               98      0.087909   8 C  px        
@@ -1998,34 +2151,34 @@ All connections between all procs tested: SUCCESS
    319     -0.081883  25 C  px              332     -0.081883  26 C  px        
  
  Vector  123  Occ=2.000000D+00  E=-4.927820D-01
-              MO Center= -4.7D-13, -1.7D-11, -2.1D-12, r^2= 1.4D+02
+              MO Center= -4.5D-13, -2.0D-11, -2.0D-12, r^2= 1.4D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     35      0.100076   3 C  pz               48     -0.100076   4 C  pz        
     85      0.092915   7 C  px               98     -0.092915   8 C  px        
  
  Vector  124  Occ=2.000000D+00  E=-4.900325D-01
-              MO Center= -1.5D-12,  2.2D-11, -2.0D-12, r^2= 1.3D+02
+              MO Center= -1.2D-12,  2.2D-11, -2.0D-12, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    618     -0.087576  73 H  s               633      0.087576  78 H  s         
    603      0.082806  68 H  s               609     -0.082806  70 H  s         
  
  Vector  125  Occ=2.000000D+00  E=-4.878758D-01
-              MO Center=  4.9D-12,  9.0D-12, -7.0D-13, r^2= 1.4D+02
+              MO Center=  4.9D-12,  1.1D-11, -7.5D-13, r^2= 1.4D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    618     -0.098315  73 H  s               633     -0.098315  78 H  s         
    534      0.095647  45 H  s               540      0.095647  47 H  s         
  
  Vector  126  Occ=2.000000D+00  E=-4.855145D-01
-              MO Center= -3.8D-12, -4.5D-11,  2.7D-12, r^2= 1.3D+02
+              MO Center= -3.8D-12, -4.9D-11,  2.7D-12, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     85      0.101791   7 C  px               98      0.101791   8 C  px        
  
  Vector  127  Occ=2.000000D+00  E=-4.829097D-01
-              MO Center=  3.0D-12,  3.2D-11, -1.0D-12, r^2= 1.1D+02
+              MO Center=  3.3D-12,  4.2D-11, -1.3D-12, r^2= 1.1D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     85      0.084531   7 C  px               98     -0.084531   8 C  px        
@@ -2033,112 +2186,112 @@ All connections between all procs tested: SUCCESS
    594     -0.077008  65 H  s               597     -0.077008  66 H  s         
  
  Vector  128  Occ=2.000000D+00  E=-4.815019D-01
-              MO Center=  2.6D-11,  6.3D-10,  1.1D-12, r^2= 1.6D+02
+              MO Center=  2.3D-11,  5.6D-10,  1.5D-12, r^2= 1.6D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     87      0.096209   7 C  pz              100      0.096209   8 C  pz        
  
  Vector  129  Occ=2.000000D+00  E=-4.811298D-01
-              MO Center= -3.0D-11, -7.0D-10,  2.1D-12, r^2= 1.3D+02
+              MO Center= -2.7D-11, -6.3D-10,  2.1D-12, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     87      0.083910   7 C  pz              100     -0.083910   8 C  pz        
  
  Vector  130  Occ=2.000000D+00  E=-4.772001D-01
-              MO Center=  6.6D-12, -7.1D-11, -2.0D-12, r^2= 7.1D+01
+              MO Center=  5.6D-12, -6.2D-11, -1.7D-12, r^2= 7.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    215      0.116819  17 C  px              228      0.116819  18 C  px        
    475     -0.114136  37 C  px              488     -0.114136  38 C  px        
  
  Vector  131  Occ=2.000000D+00  E=-4.760639D-01
-              MO Center= -7.9D-12,  6.2D-11,  2.6D-12, r^2= 5.2D+01
+              MO Center= -6.8D-12,  5.2D-11,  2.2D-12, r^2= 5.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    215      0.095120  17 C  px              228     -0.095120  18 C  px        
    475     -0.094417  37 C  px              488      0.094417  38 C  px        
  
  Vector  132  Occ=2.000000D+00  E=-4.696803D-01
-              MO Center=  8.7D-13, -3.8D-12, -2.5D-13, r^2= 1.4D+01
+              MO Center=  9.7D-13, -4.1D-12, -2.9D-13, r^2= 1.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    373      0.151769  29 C  pz              386      0.151769  30 C  pz        
  
  Vector  133  Occ=2.000000D+00  E=-4.568156D-01
-              MO Center=  2.1D-13, -1.8D-12, -9.4D-14, r^2= 5.0D+01
+              MO Center=  1.2D-13, -7.1D-13, -7.1D-14, r^2= 5.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    269      0.124552  21 C  pz              282     -0.124552  22 C  pz        
    295      0.113101  23 C  pz              308     -0.113101  24 C  pz        
  
  Vector  134  Occ=2.000000D+00  E=-4.501241D-01
-              MO Center=  8.7D-12,  2.8D-10, -1.5D-11, r^2= 1.6D+02
+              MO Center=  9.1D-12,  2.9D-10, -1.5D-11, r^2= 1.6D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    525      0.115214  42 H  s               531     -0.115214  44 H  s         
  
  Vector  135  Occ=2.000000D+00  E=-4.487838D-01
-              MO Center= -8.4D-12, -2.5D-10,  1.3D-11, r^2= 1.8D+02
+              MO Center= -9.0D-12, -2.6D-10,  1.4D-11, r^2= 1.8D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    525      0.127305  42 H  s               531      0.127305  44 H  s         
  
  Vector  136  Occ=2.000000D+00  E=-4.448684D-01
-              MO Center= -5.0D-13, -1.3D-11,  1.4D-12, r^2= 9.1D+01
+              MO Center= -5.8D-13, -1.5D-11,  1.4D-12, r^2= 9.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    243      0.097306  19 C  pz              256      0.097306  20 C  pz        
    373     -0.095094  29 C  pz              386     -0.095094  30 C  pz        
  
  Vector  137  Occ=2.000000D+00  E=-4.371675D-01
-              MO Center=  6.1D-12,  2.1D-10, -8.1D-12, r^2= 1.6D+02
+              MO Center=  5.7D-12,  2.0D-10, -8.0D-12, r^2= 1.6D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     61      0.104276   5 C  pz               74     -0.104276   6 C  pz        
     33     -0.095563   3 C  px               46      0.095563   4 C  px        
  
  Vector  138  Occ=2.000000D+00  E=-4.355770D-01
-              MO Center= -6.3D-12, -2.1D-10,  8.4D-12, r^2= 1.5D+02
+              MO Center= -6.3D-12, -2.1D-10,  8.0D-12, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     33     -0.103425   3 C  px               46     -0.103425   4 C  px        
      7      0.100598   1 C  px               20      0.100598   2 C  px        
  
  Vector  139  Occ=2.000000D+00  E=-4.217165D-01
-              MO Center=  5.6D-12,  1.7D-10, -4.1D-12, r^2= 1.4D+02
+              MO Center=  5.1D-12,  1.5D-10, -3.7D-12, r^2= 1.4D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    116      0.116051   9 C  py              129     -0.116051  10 C  py        
    142     -0.113535  11 C  py              155      0.113535  12 C  py        
  
  Vector  140  Occ=2.000000D+00  E=-4.198243D-01
-              MO Center= -4.8D-12, -1.6D-10,  4.4D-12, r^2= 1.6D+02
+              MO Center= -4.4D-12, -1.5D-10,  4.1D-12, r^2= 1.6D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    142     -0.151301  11 C  py              155     -0.151301  12 C  py        
  
  Vector  141  Occ=2.000000D+00  E=-4.106433D-01
-              MO Center= -4.8D-13, -8.1D-12,  2.4D-13, r^2= 8.9D+01
+              MO Center= -3.6D-13, -9.5D-12,  1.8D-13, r^2= 8.9D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    142      0.134754  11 C  py              155     -0.134754  12 C  py        
  
  Vector  142  Occ=2.000000D+00  E=-3.968883D-01
-              MO Center= -8.7D-14,  2.6D-12,  1.0D-13, r^2= 8.3D+01
+              MO Center= -1.8D-13,  4.1D-12,  1.3D-13, r^2= 8.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    191      0.128575  15 C  pz              204      0.128575  16 C  pz        
    165      0.119431  13 C  pz              178      0.119431  14 C  pz        
  
  Vector  143  Occ=2.000000D+00  E=-3.699821D-01
-              MO Center=  1.0D-13, -6.5D-13,  6.3D-15, r^2= 6.7D+01
+              MO Center=  1.1D-13, -8.0D-13, -9.6D-15, r^2= 6.7D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    351      0.124993  27 C  pz              364     -0.124993  28 C  pz        
    347      0.122139  27 C  pz              360     -0.122139  28 C  pz        
  
  Vector  144  Occ=2.000000D+00  E=-3.404625D-01
-              MO Center=  1.6D-13,  5.9D-13,  5.9D-14, r^2= 9.3D+01
+              MO Center=  8.4D-14, -3.1D-13,  2.0D-14, r^2= 9.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    139      0.106262  11 C  pz              152      0.106262  12 C  pz        
@@ -2148,26 +2301,26 @@ All connections between all procs tested: SUCCESS
    141     -0.095976  11 C  px              154     -0.095976  12 C  px        
  
  Vector  145  Occ=2.000000D+00  E=-3.216188D-01
-              MO Center=  7.1D-14,  8.0D-13,  3.2D-14, r^2= 1.0D+02
+              MO Center=  1.1D-13,  1.7D-12,  5.4D-14, r^2= 1.0D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    143      0.148598  11 C  pz              156     -0.148598  12 C  pz        
  
  Vector  146  Occ=2.000000D+00  E=-2.942765D-01
-              MO Center= -2.1D-13, -2.5D-12, -9.0D-14, r^2= 8.2D+01
+              MO Center= -1.8D-13, -2.1D-12, -8.7D-14, r^2= 8.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    143      0.141865  11 C  pz              156      0.141865  12 C  pz        
  
  Vector  147  Occ=2.000000D+00  E=-2.592773D-01
-              MO Center=  8.7D-14, -2.7D-12, -9.7D-14, r^2= 6.7D+01
+              MO Center=  9.8D-14, -2.4D-12, -8.8D-14, r^2= 6.7D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    169      0.155942  13 C  pz              182     -0.155942  14 C  pz        
    247     -0.153857  19 C  pz              260      0.153857  20 C  pz        
  
  Vector  148  Occ=2.000000D+00  E=-2.205895D-01
-              MO Center=  1.4D-13,  4.1D-13, -1.0D-14, r^2= 3.6D+01
+              MO Center=  1.2D-13,  4.6D-13, -5.4D-15, r^2= 3.6D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    325     -0.168815  25 C  pz              338     -0.168815  26 C  pz        
@@ -2176,7 +2329,7 @@ All connections between all procs tested: SUCCESS
    351     -0.151766  27 C  pz              364     -0.151766  28 C  pz        
  
  Vector  149  Occ=0.000000D+00  E= 3.039286D-02
-              MO Center=  2.8D-13, -2.0D-12, -9.9D-15, r^2= 3.3D+01
+              MO Center=  2.6D-13, -1.8D-12, -1.7D-15, r^2= 3.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    325     -0.229038  25 C  pz              338      0.229038  26 C  pz        
@@ -2186,7 +2339,7 @@ All connections between all procs tested: SUCCESS
    351      0.176397  27 C  pz              364     -0.176397  28 C  pz        
  
  Vector  150  Occ=0.000000D+00  E= 7.845068D-02
-              MO Center=  8.4D-13, -3.4D-13,  2.3D-13, r^2= 6.2D+01
+              MO Center=  8.3D-13, -6.7D-13,  2.2D-13, r^2= 6.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    299     -0.248268  23 C  pz              312     -0.248268  24 C  pz        
@@ -2196,7 +2349,7 @@ All connections between all procs tested: SUCCESS
    351      0.192529  27 C  pz              364      0.192529  28 C  pz        
  
  Vector  151  Occ=0.000000D+00  E= 1.202508D-01
-              MO Center=  2.3D-12,  3.2D-12,  6.6D-13, r^2= 7.4D+01
+              MO Center=  2.3D-12,  3.3D-12,  6.9D-13, r^2= 7.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    195     -0.238141  15 C  pz              208      0.238141  16 C  pz        
@@ -2206,7 +2359,7 @@ All connections between all procs tested: SUCCESS
    325      0.224973  25 C  pz              338     -0.224973  26 C  pz        
  
  Vector  152  Occ=0.000000D+00  E= 1.440691D-01
-              MO Center=  8.6D-11, -5.0D-10,  5.3D-12, r^2= 1.3D+02
+              MO Center=  8.2D-11, -4.5D-10,  5.7D-12, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    426      0.515169  33 C  s               439     -0.515169  34 C  s         
@@ -2216,7 +2369,7 @@ All connections between all procs tested: SUCCESS
    400      0.390320  31 C  s               413     -0.390320  32 C  s         
  
  Vector  153  Occ=0.000000D+00  E= 1.460363D-01
-              MO Center=  5.1D-11,  5.4D-10, -6.3D-12, r^2= 1.3D+02
+              MO Center=  5.3D-11,  4.9D-10, -4.7D-12, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    478      0.577015  37 C  s               491      0.577015  38 C  s         
@@ -2226,7 +2379,7 @@ All connections between all procs tested: SUCCESS
     36      0.408515   3 C  s                49      0.408515   4 C  s         
  
  Vector  154  Occ=0.000000D+00  E= 1.518950D-01
-              MO Center= -2.9D-11, -4.8D-10, -5.4D-12, r^2= 7.2D+01
+              MO Center= -3.7D-11, -4.1D-10, -1.4D-12, r^2= 7.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    504      0.749967  39 C  s               517     -0.749967  40 C  s         
@@ -2236,7 +2389,7 @@ All connections between all procs tested: SUCCESS
     88     -0.342911   7 C  s               101      0.342911   8 C  s         
  
  Vector  155  Occ=0.000000D+00  E= 1.538216D-01
-              MO Center= -1.0D-10,  1.2D-10,  4.1D-11, r^2= 1.1D+02
+              MO Center= -9.6D-11,  6.3D-11,  3.8D-11, r^2= 1.1D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    478      0.676091  37 C  s               491      0.676091  38 C  s         
@@ -2256,7 +2409,7 @@ All connections between all procs tested: SUCCESS
    658      0.429753  86 H  s               664     -0.429753  88 H  s         
  
  Vector  157  Occ=0.000000D+00  E= 1.609701D-01
-              MO Center=  3.6D-11,  9.9D-10, -2.5D-11, r^2= 1.3D+02
+              MO Center=  3.7D-11,  9.7D-10, -2.5D-11, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    400      0.448913  31 C  s               413     -0.448913  32 C  s         
@@ -2266,7 +2419,7 @@ All connections between all procs tested: SUCCESS
    589      0.341596  63 H  s               592     -0.341596  64 H  s         
  
  Vector  158  Occ=0.000000D+00  E= 1.615409D-01
-              MO Center= -1.6D-10,  1.4D-10,  4.5D-11, r^2= 8.2D+01
+              MO Center= -1.6D-10,  1.7D-10,  4.3D-11, r^2= 8.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    504      0.622035  39 C  s               517      0.622035  40 C  s         
@@ -2276,7 +2429,7 @@ All connections between all procs tested: SUCCESS
    374      0.369170  29 C  s               387      0.369170  30 C  s         
  
  Vector  159  Occ=0.000000D+00  E= 1.639961D-01
-              MO Center=  3.3D-10, -3.6D-11, -5.8D-11, r^2= 8.3D+01
+              MO Center=  3.4D-10, -2.8D-11, -5.7D-11, r^2= 8.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    452      0.595137  35 C  s               465     -0.595137  36 C  s         
@@ -2286,7 +2439,7 @@ All connections between all procs tested: SUCCESS
    565     -0.386244  55 H  s               568      0.386244  56 H  s         
  
  Vector  160  Occ=0.000000D+00  E= 1.659342D-01
-              MO Center= -2.6D-10, -4.6D-10,  5.3D-11, r^2= 1.2D+02
+              MO Center= -2.6D-10, -4.5D-10,  5.4D-11, r^2= 1.2D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    571      0.580150  57 H  s               574      0.580150  58 H  s         
@@ -2296,7 +2449,7 @@ All connections between all procs tested: SUCCESS
    245     -0.395941  19 C  px              258      0.395941  20 C  px        
  
  Vector  161  Occ=0.000000D+00  E= 1.715836D-01
-              MO Center= -1.4D-10, -5.3D-10, -1.5D-11, r^2= 7.7D+01
+              MO Center= -1.5D-10, -5.8D-10, -1.6D-11, r^2= 7.7D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    589      0.662692  63 H  s               592     -0.662692  64 H  s         
@@ -2306,7 +2459,7 @@ All connections between all procs tested: SUCCESS
    673      0.386855  91 H  s               688     -0.386855  96 H  s         
  
  Vector  162  Occ=0.000000D+00  E= 1.719717D-01
-              MO Center=  1.2D-10,  4.0D-10, -5.0D-12, r^2= 9.5D+01
+              MO Center=  1.3D-10,  4.2D-10, -4.3D-12, r^2= 9.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    583      0.583305  61 H  s               586      0.583305  62 H  s         
@@ -2316,7 +2469,7 @@ All connections between all procs tested: SUCCESS
    550     -0.374977  50 H  s               556     -0.374977  52 H  s         
  
  Vector  163  Occ=0.000000D+00  E= 1.770445D-01
-              MO Center= -4.2D-12, -1.3D-10, -7.9D-12, r^2= 1.3D+02
+              MO Center= -3.6D-12, -1.4D-10, -7.7D-12, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    452      0.698067  35 C  s               465      0.698067  36 C  s         
@@ -2326,7 +2479,7 @@ All connections between all procs tested: SUCCESS
    589      0.392045  63 H  s               592      0.392045  64 H  s         
  
  Vector  164  Occ=0.000000D+00  E= 1.807107D-01
-              MO Center=  1.5D-11,  1.2D-10,  1.3D-11, r^2= 1.2D+02
+              MO Center=  1.6D-11,  1.5D-10,  1.2D-11, r^2= 1.2D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    452     -0.491343  35 C  s               465      0.491343  36 C  s         
@@ -2336,7 +2489,7 @@ All connections between all procs tested: SUCCESS
    547      0.440105  49 H  s               553     -0.440105  51 H  s         
  
  Vector  165  Occ=0.000000D+00  E= 1.828728D-01
-              MO Center=  1.4D-11,  5.0D-11, -9.8D-12, r^2= 1.1D+02
+              MO Center=  1.3D-11,  4.9D-11, -1.0D-11, r^2= 1.1D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    526      0.448131  42 H  s               532     -0.448131  44 H  s         
@@ -2346,7 +2499,7 @@ All connections between all procs tested: SUCCESS
    547     -0.355147  49 H  s               553      0.355147  51 H  s         
  
  Vector  166  Occ=0.000000D+00  E= 1.869649D-01
-              MO Center=  8.3D-12, -5.9D-11,  6.2D-13, r^2= 1.4D+02
+              MO Center=  8.0D-12, -4.8D-11, -2.8D-13, r^2= 1.4D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    426      0.602034  33 C  s               439      0.602034  34 C  s         
@@ -2356,7 +2509,7 @@ All connections between all procs tested: SUCCESS
    619     -0.424671  73 H  s               634     -0.424671  78 H  s         
  
  Vector  167  Occ=0.000000D+00  E= 1.914032D-01
-              MO Center=  7.1D-11,  2.7D-10, -1.1D-11, r^2= 1.3D+02
+              MO Center=  7.7D-11,  2.7D-10, -1.1D-11, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    426     -0.557972  33 C  s               439      0.557972  34 C  s         
@@ -2366,7 +2519,7 @@ All connections between all procs tested: SUCCESS
    538     -0.456258  46 H  s               544      0.456258  48 H  s         
  
  Vector  168  Occ=0.000000D+00  E= 1.946543D-01
-              MO Center= -3.6D-11, -3.6D-09,  1.0D-10, r^2= 1.7D+02
+              MO Center= -3.8D-11, -3.6D-09,  1.1D-10, r^2= 1.7D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    538      0.590022  46 H  s               544      0.590022  48 H  s         
@@ -2376,7 +2529,7 @@ All connections between all procs tested: SUCCESS
    550      0.385119  50 H  s               556      0.385119  52 H  s         
  
  Vector  169  Occ=0.000000D+00  E= 1.963881D-01
-              MO Center=  2.1D-10, -2.3D-10,  4.5D-11, r^2= 9.9D+01
+              MO Center=  2.6D-10, -3.5D-10,  5.2D-11, r^2= 9.9D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    571      0.607003  57 H  s               574      0.607003  58 H  s         
@@ -2386,7 +2539,7 @@ All connections between all procs tested: SUCCESS
    375     -0.425291  29 C  px              388      0.425291  30 C  px        
  
  Vector  170  Occ=0.000000D+00  E= 1.966129D-01
-              MO Center= -2.2D-10,  4.1D-09, -1.4D-10, r^2= 1.5D+02
+              MO Center= -2.8D-10,  4.3D-09, -1.5D-10, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    658      0.660948  86 H  s               664     -0.660948  88 H  s         
@@ -2396,7 +2549,7 @@ All connections between all procs tested: SUCCESS
    604     -0.358197  68 H  s               610      0.358197  70 H  s         
  
  Vector  171  Occ=0.000000D+00  E= 2.031058D-01
-              MO Center=  3.4D-11, -6.3D-10, -1.0D-11, r^2= 1.2D+02
+              MO Center=  3.3D-11, -6.5D-10, -9.7D-12, r^2= 1.2D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    571      0.561026  57 H  s               574     -0.561026  58 H  s         
@@ -2406,7 +2559,7 @@ All connections between all procs tested: SUCCESS
     62     -0.470637   5 C  s                75      0.470637   6 C  s         
  
  Vector  172  Occ=0.000000D+00  E= 2.074692D-01
-              MO Center= -1.4D-12, -1.4D-11, -1.1D-12, r^2= 1.6D+02
+              MO Center= -4.0D-12,  2.3D-10, -4.9D-12, r^2= 1.6D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    604      0.635880  68 H  s               610      0.635880  70 H  s         
@@ -2416,7 +2569,7 @@ All connections between all procs tested: SUCCESS
    622     -0.488404  74 H  s               631     -0.488404  77 H  s         
  
  Vector  173  Occ=0.000000D+00  E= 2.081784D-01
-              MO Center=  2.5D-11, -3.9D-10, -4.4D-11, r^2= 1.6D+02
+              MO Center=  2.7D-11, -6.3D-10, -4.0D-11, r^2= 1.6D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    604      0.601211  68 H  s               610     -0.601211  70 H  s         
@@ -2426,7 +2579,7 @@ All connections between all procs tested: SUCCESS
    661     -0.504702  87 H  s               670      0.504702  90 H  s         
  
  Vector  174  Occ=0.000000D+00  E= 2.091060D-01
-              MO Center=  1.8D-12, -1.3D-11,  3.2D-11, r^2= 1.3D+02
+              MO Center=  3.5D-12, -5.1D-11,  3.1D-11, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    625     -0.695873  75 H  s               628     -0.695873  76 H  s         
@@ -2436,7 +2589,7 @@ All connections between all procs tested: SUCCESS
    400     -0.526762  31 C  s               413     -0.526762  32 C  s         
  
  Vector  175  Occ=0.000000D+00  E= 2.128618D-01
-              MO Center= -5.3D-11,  4.5D-10, -5.7D-12, r^2= 1.3D+02
+              MO Center= -5.6D-11,  4.7D-10, -5.7D-12, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    400      0.735742  31 C  s               413     -0.735742  32 C  s         
@@ -2446,7 +2599,7 @@ All connections between all procs tested: SUCCESS
    673      0.483847  91 H  s               688     -0.483847  96 H  s         
  
  Vector  176  Occ=0.000000D+00  E= 2.148699D-01
-              MO Center= -1.6D-11, -2.1D-11,  2.9D-13, r^2= 7.8D+01
+              MO Center= -1.8D-11, -1.6D-11,  8.5D-13, r^2= 7.8D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    583      0.742046  61 H  s               586      0.742046  62 H  s         
@@ -2456,7 +2609,7 @@ All connections between all procs tested: SUCCESS
    374      0.479698  29 C  s               387      0.479698  30 C  s         
  
  Vector  177  Occ=0.000000D+00  E= 2.203535D-01
-              MO Center=  2.3D-11, -2.2D-09,  8.2D-11, r^2= 1.3D+02
+              MO Center=  3.6D-11, -2.9D-09,  1.0D-10, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    619      0.756071  73 H  s               634      0.756071  78 H  s         
@@ -2466,7 +2619,7 @@ All connections between all procs tested: SUCCESS
    607     -0.510417  69 H  s               616     -0.510417  72 H  s         
  
  Vector  178  Occ=0.000000D+00  E= 2.207538D-01
-              MO Center= -5.4D-11,  2.2D-09, -7.0D-11, r^2= 1.4D+02
+              MO Center= -6.6D-11,  2.8D-09, -9.0D-11, r^2= 1.4D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    619      0.745267  73 H  s               634     -0.745267  78 H  s         
@@ -2476,7 +2629,7 @@ All connections between all procs tested: SUCCESS
    637      0.507563  79 H  s               649     -0.507563  83 H  s         
  
  Vector  179  Occ=0.000000D+00  E= 2.243833D-01
-              MO Center=  3.7D-11,  2.1D-10, -1.2D-11, r^2= 6.1D+01
+              MO Center=  3.4D-11,  2.0D-10, -1.1D-11, r^2= 6.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    589      0.568493  63 H  s               592      0.568493  64 H  s         
@@ -2486,7 +2639,7 @@ All connections between all procs tested: SUCCESS
    571     -0.436707  57 H  s               574     -0.436707  58 H  s         
  
  Vector  180  Occ=0.000000D+00  E= 2.260965D-01
-              MO Center= -5.7D-11,  1.8D-10,  3.1D-12, r^2= 3.4D+01
+              MO Center= -5.6D-11,  1.8D-10,  2.6D-12, r^2= 3.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    673      1.149676  91 H  s               688      1.149676  96 H  s         
@@ -2496,7 +2649,7 @@ All connections between all procs tested: SUCCESS
    589     -0.446678  63 H  s               592     -0.446678  64 H  s         
  
  Vector  181  Occ=0.000000D+00  E= 2.294770D-01
-              MO Center=  6.3D-12, -1.5D-10,  1.4D-11, r^2= 8.6D+01
+              MO Center=  5.1D-12, -1.1D-10,  1.4D-11, r^2= 8.6D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    673      0.775078  91 H  s               688     -0.775078  96 H  s         
@@ -2506,7 +2659,7 @@ All connections between all procs tested: SUCCESS
    523     -0.417519  41 H  s               529      0.417519  43 H  s         
  
  Vector  182  Occ=0.000000D+00  E= 2.332909D-01
-              MO Center=  4.7D-12, -7.8D-11, -4.6D-12, r^2= 9.4D+01
+              MO Center=  7.0D-12, -8.9D-11, -5.5D-12, r^2= 9.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    676      0.771677  92 H  s               685      0.771677  95 H  s         
@@ -2516,7 +2669,7 @@ All connections between all procs tested: SUCCESS
    504     -0.489150  39 C  s               517     -0.489150  40 C  s         
  
  Vector  183  Occ=0.000000D+00  E= 2.341765D-01
-              MO Center=  2.2D-11, -8.0D-11, -1.0D-11, r^2= 1.2D+02
+              MO Center=  2.6D-11, -5.2D-11, -1.0D-11, r^2= 1.2D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    637     -0.713766  79 H  s               649      0.713766  83 H  s         
@@ -2526,7 +2679,7 @@ All connections between all procs tested: SUCCESS
     88     -0.512769   7 C  s               101      0.512769   8 C  s         
  
  Vector  184  Occ=0.000000D+00  E= 2.376204D-01
-              MO Center= -1.0D-12,  6.3D-11, -2.6D-12, r^2= 1.6D+02
+              MO Center=  2.0D-12,  8.1D-11, -2.7D-12, r^2= 1.6D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     88      0.740029   7 C  s               101      0.740029   8 C  s         
@@ -2536,7 +2689,7 @@ All connections between all procs tested: SUCCESS
    640      0.598874  80 H  s               646      0.598874  82 H  s         
  
  Vector  185  Occ=0.000000D+00  E= 2.398925D-01
-              MO Center=  7.4D-12, -6.4D-11, -2.0D-11, r^2= 1.5D+02
+              MO Center=  8.7D-12, -1.4D-12, -1.1D-11, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    640      0.824164  80 H  s               646     -0.824164  82 H  s         
@@ -2546,7 +2699,7 @@ All connections between all procs tested: SUCCESS
    637     -0.529302  79 H  s               649      0.529302  83 H  s         
  
  Vector  186  Occ=0.000000D+00  E= 2.426888D-01
-              MO Center=  5.0D-11,  2.7D-10, -2.3D-12, r^2= 1.3D+02
+              MO Center=  4.9D-11,  1.8D-10, -7.1D-12, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    637      0.939878  79 H  s               649      0.939878  83 H  s         
@@ -2556,7 +2709,7 @@ All connections between all procs tested: SUCCESS
    454      0.421006  35 C  py              467     -0.421006  36 C  py        
  
  Vector  187  Occ=0.000000D+00  E= 2.445725D-01
-              MO Center= -1.8D-11, -5.7D-10, -1.2D-11, r^2= 1.1D+02
+              MO Center= -1.9D-11, -6.0D-10, -1.4D-11, r^2= 1.1D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    547      0.646534  49 H  s               553     -0.646534  51 H  s         
@@ -2566,7 +2719,7 @@ All connections between all procs tested: SUCCESS
    571      0.484620  57 H  s               574     -0.484620  58 H  s         
  
  Vector  188  Occ=0.000000D+00  E= 2.510686D-01
-              MO Center= -6.8D-12,  5.9D-11,  6.2D-11, r^2= 1.5D+02
+              MO Center= -3.4D-12,  3.7D-11,  6.7D-11, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    538      0.898133  46 H  s               544      0.898133  48 H  s         
@@ -2576,7 +2729,7 @@ All connections between all procs tested: SUCCESS
    679     -0.529385  93 H  s               682     -0.529385  94 H  s         
  
  Vector  189  Occ=0.000000D+00  E= 2.518263D-01
-              MO Center= -1.1D-10,  1.4D-11,  2.4D-11, r^2= 8.7D+01
+              MO Center= -1.2D-10,  5.8D-13,  2.4D-11, r^2= 8.7D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    565      0.754456  55 H  s               568     -0.754456  56 H  s         
@@ -2586,7 +2739,7 @@ All connections between all procs tested: SUCCESS
    676     -0.506324  92 H  s               685      0.506324  95 H  s         
  
  Vector  190  Occ=0.000000D+00  E= 2.548087D-01
-              MO Center=  2.6D-10, -1.0D-09, -4.7D-11, r^2= 1.7D+02
+              MO Center=  2.6D-10, -9.3D-10, -5.4D-11, r^2= 1.7D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    538      1.078052  46 H  s               544     -1.078052  48 H  s         
@@ -2596,7 +2749,7 @@ All connections between all procs tested: SUCCESS
     63     -0.440152   5 C  px               76     -0.440152   6 C  px        
  
  Vector  191  Occ=0.000000D+00  E= 2.558779D-01
-              MO Center= -1.6D-10,  1.6D-09, -8.6D-12, r^2= 8.1D+01
+              MO Center= -1.6D-10,  1.5D-09, -1.0D-11, r^2= 8.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    273     -0.472633  21 C  pz              286      0.472633  22 C  pz        
@@ -2606,7 +2759,7 @@ All connections between all procs tested: SUCCESS
    299      0.423340  23 C  pz              312     -0.423340  24 C  pz        
  
  Vector  192  Occ=0.000000D+00  E= 2.587534D-01
-              MO Center= -4.9D-12, -3.7D-12,  1.4D-12, r^2= 7.2D+01
+              MO Center= -4.9D-12,  1.3D-11,  1.7D-12, r^2= 7.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    351     -0.485207  27 C  pz              364      0.485207  28 C  pz        
@@ -2616,7 +2769,7 @@ All connections between all procs tested: SUCCESS
    673     -0.431935  91 H  s               688     -0.431935  96 H  s         
  
  Vector  193  Occ=0.000000D+00  E= 2.622471D-01
-              MO Center= -1.1D-11, -5.2D-12,  2.0D-11, r^2= 7.4D+01
+              MO Center= -1.2D-11, -7.2D-12,  2.0D-11, r^2= 7.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    637     -0.552457  79 H  s               649      0.552457  83 H  s         
@@ -2626,7 +2779,7 @@ All connections between all procs tested: SUCCESS
    195      0.451065  15 C  pz              208      0.451065  16 C  pz        
  
  Vector  194  Occ=0.000000D+00  E= 2.644855D-01
-              MO Center= -1.7D-11,  1.8D-11, -3.7D-12, r^2= 3.1D+01
+              MO Center= -2.1D-11,  4.1D-11, -1.1D-12, r^2= 3.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    673     -0.652736  91 H  s               676      0.651242  92 H  s         
@@ -2636,7 +2789,7 @@ All connections between all procs tested: SUCCESS
    351     -0.459360  27 C  pz              364     -0.459360  28 C  pz        
  
  Vector  195  Occ=0.000000D+00  E= 2.651277D-01
-              MO Center=  2.2D-11, -3.6D-10, -4.2D-11, r^2= 9.2D+01
+              MO Center=  1.9D-11, -3.2D-10, -3.7D-11, r^2= 9.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    679      0.627746  93 H  s               682      0.627746  94 H  s         
@@ -2646,7 +2799,7 @@ All connections between all procs tested: SUCCESS
    571     -0.481105  57 H  s               574     -0.481105  58 H  s         
  
  Vector  196  Occ=0.000000D+00  E= 2.674806D-01
-              MO Center= -1.4D-11, -2.8D-10, -3.3D-11, r^2= 8.0D+01
+              MO Center=  4.9D-12, -9.0D-11, -3.3D-12, r^2= 8.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    637      0.767568  79 H  s               649      0.767568  83 H  s         
@@ -2656,7 +2809,7 @@ All connections between all procs tested: SUCCESS
    559      0.477018  53 H  s               562      0.477018  54 H  s         
  
  Vector  197  Occ=0.000000D+00  E= 2.685699D-01
-              MO Center= -8.4D-11, -8.9D-10,  6.8D-12, r^2= 1.4D+02
+              MO Center= -7.5D-11, -8.8D-10, -1.5D-11, r^2= 1.4D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    640      1.049575  80 H  s               646     -1.049575  82 H  s         
@@ -2666,7 +2819,7 @@ All connections between all procs tested: SUCCESS
    454     -0.483675  35 C  py              467     -0.483675  36 C  py        
  
  Vector  198  Occ=0.000000D+00  E= 2.699384D-01
-              MO Center=  1.0D-10,  1.3D-09,  7.3D-11, r^2= 1.1D+02
+              MO Center=  8.2D-11,  1.0D-09,  6.0D-11, r^2= 1.1D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    643     -0.837687  81 H  s               652     -0.837687  84 H  s         
@@ -2676,7 +2829,7 @@ All connections between all procs tested: SUCCESS
    673      0.470088  91 H  s               688      0.470088  96 H  s         
  
  Vector  199  Occ=0.000000D+00  E= 2.731731D-01
-              MO Center= -9.7D-11,  1.5D-09, -1.4D-10, r^2= 1.8D+02
+              MO Center=  3.9D-11, -5.7D-10,  6.0D-11, r^2= 1.8D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    601      1.157743  67 H  s               613     -1.157743  71 H  s         
@@ -2686,7 +2839,7 @@ All connections between all procs tested: SUCCESS
    428      0.446588  33 C  py              441      0.446588  34 C  py        
  
  Vector  200  Occ=0.000000D+00  E= 2.733666D-01
-              MO Center=  1.1D-10, -1.5D-09,  1.6D-10, r^2= 1.7D+02
+              MO Center= -3.4D-11,  6.0D-10, -5.3D-11, r^2= 1.7D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    601      1.147945  67 H  s               613      1.147945  71 H  s         
@@ -2696,7 +2849,7 @@ All connections between all procs tested: SUCCESS
    604     -0.488259  68 H  s               610     -0.488259  70 H  s         
  
  Vector  201  Occ=0.000000D+00  E= 2.746336D-01
-              MO Center= -1.8D-11, -1.9D-10, -1.5D-11, r^2= 9.1D+01
+              MO Center= -1.6D-11, -1.8D-10, -1.5D-11, r^2= 9.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    643      0.973867  81 H  s               652     -0.973867  84 H  s         
@@ -2726,7 +2879,7 @@ All connections between all procs tested: SUCCESS
    550      0.652973  50 H  s               556     -0.652973  52 H  s         
  
  Vector  204  Occ=0.000000D+00  E= 2.953398D-01
-              MO Center=  1.8D-10,  5.9D-10, -2.3D-11, r^2= 7.1D+01
+              MO Center=  1.8D-10,  5.9D-10, -2.2D-11, r^2= 7.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    565      1.095904  55 H  s               568      1.095904  56 H  s         
@@ -2736,7 +2889,7 @@ All connections between all procs tested: SUCCESS
    374      0.667708  29 C  s               387      0.667708  30 C  s         
  
  Vector  205  Occ=0.000000D+00  E= 2.986824D-01
-              MO Center=  6.2D-10, -7.5D-09, -2.1D-10, r^2= 1.4D+02
+              MO Center=  6.1D-10, -7.3D-09, -2.1D-10, r^2= 1.4D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    535      0.972647  45 H  s               541     -0.972647  47 H  s         
@@ -2746,7 +2899,7 @@ All connections between all procs tested: SUCCESS
    400      0.633179  31 C  s               413     -0.633179  32 C  s         
  
  Vector  206  Occ=0.000000D+00  E= 2.997622D-01
-              MO Center= -6.0D-10,  7.2D-09,  2.8D-10, r^2= 1.5D+02
+              MO Center= -5.9D-10,  7.1D-09,  2.8D-10, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    535      0.970567  45 H  s               541      0.970567  47 H  s         
@@ -2756,7 +2909,7 @@ All connections between all procs tested: SUCCESS
    547     -0.635934  49 H  s               553     -0.635934  51 H  s         
  
  Vector  207  Occ=0.000000D+00  E= 3.062805D-01
-              MO Center= -8.5D-11,  2.8D-10,  4.3D-11, r^2= 6.6D+01
+              MO Center= -7.8D-11,  3.2D-10,  4.4D-11, r^2= 6.6D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    679      1.136992  93 H  s               682     -1.136992  94 H  s         
@@ -2766,7 +2919,7 @@ All connections between all procs tested: SUCCESS
    565     -0.720440  55 H  s               568      0.720440  56 H  s         
  
  Vector  208  Occ=0.000000D+00  E= 3.086516D-01
-              MO Center=  3.2D-10, -5.2D-09,  5.7D-11, r^2= 1.3D+02
+              MO Center=  2.6D-10, -4.4D-09,  4.8D-11, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    625      0.912861  75 H  s               628     -0.912861  76 H  s         
@@ -2776,7 +2929,7 @@ All connections between all procs tested: SUCCESS
    478      0.656948  37 C  s               491     -0.656948  38 C  s         
  
  Vector  209  Occ=0.000000D+00  E= 3.091511D-01
-              MO Center= -5.0D-10,  4.7D-09, -6.7D-11, r^2= 1.5D+02
+              MO Center= -4.4D-10,  3.8D-09, -5.7D-11, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    625     -0.899120  75 H  s               628     -0.899120  76 H  s         
@@ -2786,7 +2939,7 @@ All connections between all procs tested: SUCCESS
     62     -0.634636   5 C  s                75     -0.634636   6 C  s         
  
  Vector  210  Occ=0.000000D+00  E= 3.154162D-01
-              MO Center=  5.2D-10, -3.4D-09,  2.1D-11, r^2= 1.5D+02
+              MO Center=  7.2D-10, -4.7D-09,  3.4D-11, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      1.599152   1 C  s                23      1.599152   2 C  s         
@@ -2796,7 +2949,7 @@ All connections between all procs tested: SUCCESS
    400     -0.655937  31 C  s               413     -0.655937  32 C  s         
  
  Vector  211  Occ=0.000000D+00  E= 3.155961D-01
-              MO Center= -4.9D-10,  3.4D-09, -3.6D-11, r^2= 1.5D+02
+              MO Center= -6.8D-10,  4.8D-09, -5.0D-11, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      1.600708   1 C  s                23     -1.600708   2 C  s         
@@ -2806,7 +2959,7 @@ All connections between all procs tested: SUCCESS
    400     -0.688354  31 C  s               413      0.688354  32 C  s         
  
  Vector  212  Occ=0.000000D+00  E= 3.213277D-01
-              MO Center=  9.5D-10, -2.4D-09, -1.8D-10, r^2= 6.9D+01
+              MO Center=  8.7D-10, -2.2D-09, -1.7D-10, r^2= 6.9D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    577      1.556144  59 H  s               580     -1.556144  60 H  s         
@@ -2816,7 +2969,7 @@ All connections between all procs tested: SUCCESS
    374     -0.744949  29 C  s               387      0.744949  30 C  s         
  
  Vector  213  Occ=0.000000D+00  E= 3.239548D-01
-              MO Center= -9.7D-10,  2.4D-09,  1.3D-10, r^2= 7.4D+01
+              MO Center= -8.9D-10,  2.2D-09,  1.2D-10, r^2= 7.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    577      1.538264  59 H  s               580      1.538264  60 H  s         
@@ -2826,7 +2979,7 @@ All connections between all procs tested: SUCCESS
    658      0.666706  86 H  s               664      0.666706  88 H  s         
  
  Vector  214  Occ=0.000000D+00  E= 3.398851D-01
-              MO Center=  6.5D-11,  8.6D-10, -5.6D-11, r^2= 1.2D+02
+              MO Center=  6.2D-11,  1.1D-09, -6.8D-11, r^2= 1.2D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      1.901890   1 C  s                23      1.901890   2 C  s         
@@ -2836,7 +2989,7 @@ All connections between all procs tested: SUCCESS
    426     -0.656182  33 C  s               439     -0.656182  34 C  s         
  
  Vector  215  Occ=0.000000D+00  E= 3.405249D-01
-              MO Center=  4.7D-11, -1.2D-09,  4.8D-11, r^2= 6.5D+01
+              MO Center=  4.4D-11, -1.4D-09,  5.7D-11, r^2= 6.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    595      0.828746  65 H  s               598     -0.828746  66 H  s         
@@ -2846,7 +2999,7 @@ All connections between all procs tested: SUCCESS
    559      0.751238  53 H  s               562     -0.751238  54 H  s         
  
  Vector  216  Occ=0.000000D+00  E= 3.423338D-01
-              MO Center= -2.8D-11,  3.5D-10, -1.3D-11, r^2= 1.3D+02
+              MO Center= -1.6D-11,  3.6D-10, -1.6D-11, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      2.234134   1 C  s                23     -2.234134   2 C  s         
@@ -2856,7 +3009,7 @@ All connections between all procs tested: SUCCESS
    374      0.681106  29 C  s               387     -0.681106  30 C  s         
  
  Vector  217  Occ=0.000000D+00  E= 3.496328D-01
-              MO Center= -5.5D-11, -5.5D-11,  6.2D-12, r^2= 7.0D+01
+              MO Center= -5.2D-11, -1.4D-10,  9.3D-12, r^2= 7.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      1.328294   1 C  s                23      1.328294   2 C  s         
@@ -2866,7 +3019,7 @@ All connections between all procs tested: SUCCESS
    595      0.904574  65 H  s               598      0.904574  66 H  s         
  
  Vector  218  Occ=0.000000D+00  E= 3.562817D-01
-              MO Center=  1.5D-11,  2.6D-10,  2.5D-12, r^2= 1.7D+02
+              MO Center= -6.1D-11, -9.6D-10, -7.4D-12, r^2= 1.7D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      1.282067   1 C  s                23      1.282067   2 C  s         
@@ -2876,7 +3029,7 @@ All connections between all procs tested: SUCCESS
    114     -0.919049   9 C  s               127     -0.919049  10 C  s         
  
  Vector  219  Occ=0.000000D+00  E= 3.571500D-01
-              MO Center= -9.0D-12, -2.1D-10, -3.0D-13, r^2= 1.7D+02
+              MO Center=  6.5D-11,  1.0D-09,  5.0D-12, r^2= 1.7D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     36     -1.133370   3 C  s                49      1.133370   4 C  s         
@@ -2886,7 +3039,7 @@ All connections between all procs tested: SUCCESS
    114     -0.900098   9 C  s               127      0.900098  10 C  s         
  
  Vector  220  Occ=0.000000D+00  E= 3.667427D-01
-              MO Center= -1.3D-11, -8.0D-11,  3.6D-12, r^2= 7.7D+01
+              MO Center= -1.3D-11, -4.1D-11,  1.4D-12, r^2= 7.7D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    218      1.639288  17 C  s               231     -1.639288  18 C  s         
@@ -2896,7 +3049,7 @@ All connections between all procs tested: SUCCESS
    323      0.869090  25 C  px              336      0.869090  26 C  px        
  
  Vector  221  Occ=0.000000D+00  E= 3.685686D-01
-              MO Center=  1.8D-12, -5.1D-11, -1.2D-11, r^2= 5.0D+01
+              MO Center=  2.4D-12, -1.0D-10, -1.0D-11, r^2= 5.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    322      1.960368  25 C  s               335      1.960368  26 C  s         
@@ -2906,7 +3059,7 @@ All connections between all procs tested: SUCCESS
    350     -0.900854  27 C  py              363      0.900854  28 C  py        
  
  Vector  222  Occ=0.000000D+00  E= 3.780871D-01
-              MO Center=  6.9D-11,  5.4D-10,  2.3D-11, r^2= 1.4D+02
+              MO Center= -7.1D-11, -6.0D-10, -2.2D-11, r^2= 1.4D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    114      1.921855   9 C  s               127      1.921855  10 C  s         
@@ -2916,7 +3069,7 @@ All connections between all procs tested: SUCCESS
    452     -0.767050  35 C  s               465     -0.767050  36 C  s         
  
  Vector  223  Occ=0.000000D+00  E= 3.799143D-01
-              MO Center= -6.7D-11, -5.8D-10, -1.9D-11, r^2= 1.6D+02
+              MO Center=  6.0D-11,  4.7D-10,  1.9D-11, r^2= 1.6D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    114      2.024171   9 C  s               127     -2.024171  10 C  s         
@@ -2926,7 +3079,7 @@ All connections between all procs tested: SUCCESS
    115      0.757149   9 C  px              128      0.757149  10 C  px        
  
  Vector  224  Occ=0.000000D+00  E= 3.856675D-01
-              MO Center= -3.7D-12, -3.3D-11, -3.8D-12, r^2= 9.1D+01
+              MO Center=  3.5D-12,  8.4D-11,  4.2D-12, r^2= 9.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    218      1.125226  17 C  s               231      1.125226  18 C  s         
@@ -2936,7 +3089,7 @@ All connections between all procs tested: SUCCESS
     88     -0.802261   7 C  s               101     -0.802261   8 C  s         
  
  Vector  225  Occ=0.000000D+00  E= 3.913681D-01
-              MO Center=  1.3D-11,  4.0D-10, -1.4D-11, r^2= 1.6D+02
+              MO Center=  2.8D-11,  8.3D-10, -3.2D-11, r^2= 1.6D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     12      1.334310   1 C  py               25      1.334310   2 C  py        
@@ -2946,7 +3099,7 @@ All connections between all procs tested: SUCCESS
     11      0.750546   1 C  px               24      0.750546   2 C  px        
  
  Vector  226  Occ=0.000000D+00  E= 3.931076D-01
-              MO Center= -1.5D-11, -3.6D-10,  1.4D-11, r^2= 1.6D+02
+              MO Center= -2.7D-11, -7.9D-10,  3.0D-11, r^2= 1.6D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     12      1.448225   1 C  py               25     -1.448225   2 C  py        
@@ -2956,7 +3109,7 @@ All connections between all procs tested: SUCCESS
     36     -0.925963   3 C  s                49     -0.925963   4 C  s         
  
  Vector  227  Occ=0.000000D+00  E= 3.968147D-01
-              MO Center= -2.3D-11,  1.2D-09, -2.1D-11, r^2= 1.5D+02
+              MO Center= -9.8D-12,  5.4D-10, -8.4D-12, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     13      1.742641   1 C  pz               26      1.742641   2 C  pz        
@@ -2966,7 +3119,7 @@ All connections between all procs tested: SUCCESS
    114     -0.870040   9 C  s               127      0.870040  10 C  s         
  
  Vector  228  Occ=0.000000D+00  E= 3.984171D-01
-              MO Center=  2.6D-11, -1.3D-09,  2.6D-11, r^2= 1.5D+02
+              MO Center=  1.0D-11, -5.7D-10,  1.3D-11, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    140     -1.761577  11 C  s               153     -1.761577  12 C  s         
@@ -2976,7 +3129,7 @@ All connections between all procs tested: SUCCESS
    114     -0.805243   9 C  s               127     -0.805243  10 C  s         
  
  Vector  229  Occ=0.000000D+00  E= 4.096355D-01
-              MO Center= -2.8D-12,  1.9D-12, -2.0D-12, r^2= 1.1D+02
+              MO Center= -1.8D-12,  1.1D-11, -4.9D-14, r^2= 1.1D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    322      1.347498  25 C  s               335     -1.347498  26 C  s         
@@ -2986,7 +3139,7 @@ All connections between all procs tested: SUCCESS
     88     -0.798865   7 C  s               101      0.798865   8 C  s         
  
  Vector  230  Occ=0.000000D+00  E= 4.124567D-01
-              MO Center= -1.2D-11,  1.4D-10, -7.7D-12, r^2= 4.3D+01
+              MO Center= -5.2D-12,  8.6D-11, -4.1D-12, r^2= 4.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    505      1.447601  39 C  px              518      1.447601  40 C  px        
@@ -2996,7 +3149,7 @@ All connections between all procs tested: SUCCESS
    324      0.969041  25 C  py              337      0.969041  26 C  py        
  
  Vector  231  Occ=0.000000D+00  E= 4.135612D-01
-              MO Center=  4.7D-12, -1.2D-10, -3.5D-12, r^2= 1.5D+02
+              MO Center=  1.9D-12, -3.8D-11, -2.0D-12, r^2= 1.5D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      1.171904   1 C  px               24     -1.171904   2 C  px        
@@ -3006,7 +3159,7 @@ All connections between all procs tested: SUCCESS
    168     -0.722937  13 C  py              181      0.722937  14 C  py        
  
  Vector  232  Occ=0.000000D+00  E= 4.181332D-01
-              MO Center= -3.4D-11, -4.0D-10, -3.1D-11, r^2= 1.2D+02
+              MO Center= -3.0D-11, -5.3D-10, -2.9D-11, r^2= 1.2D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    296      1.004698  23 C  s               309     -1.004698  24 C  s         
@@ -3016,7 +3169,7 @@ All connections between all procs tested: SUCCESS
     12      0.750270   1 C  py               25      0.750270   2 C  py        
  
  Vector  233  Occ=0.000000D+00  E= 4.193148D-01
-              MO Center=  5.9D-11,  6.7D-10,  2.6D-11, r^2= 1.7D+02
+              MO Center=  1.7D-10,  1.8D-09,  1.8D-11, r^2= 1.7D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     88      1.143368   7 C  s               101      1.143368   8 C  s         
@@ -3026,7 +3179,7 @@ All connections between all procs tested: SUCCESS
    452     -0.861418  35 C  s               465     -0.861418  36 C  s         
  
  Vector  234  Occ=0.000000D+00  E= 4.195641D-01
-              MO Center= -2.1D-11, -2.4D-10,  7.9D-12, r^2= 1.6D+02
+              MO Center= -1.4D-10, -1.3D-09,  1.2D-11, r^2= 1.6D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     88      1.033334   7 C  s               101     -1.033334   8 C  s         
@@ -3036,7 +3189,7 @@ All connections between all procs tested: SUCCESS
     13      0.839087   1 C  pz               26      0.839087   2 C  pz        
  
  Vector  235  Occ=0.000000D+00  E= 4.262859D-01
-              MO Center= -1.2D-11,  1.6D-10, -2.3D-12, r^2= 1.2D+02
+              MO Center= -1.2D-11,  9.5D-11,  1.5D-12, r^2= 1.2D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    140      1.618066  11 C  s               153      1.618066  12 C  s         
@@ -3046,7 +3199,7 @@ All connections between all procs tested: SUCCESS
    296      0.894363  23 C  s               309      0.894363  24 C  s         
  
  Vector  236  Occ=0.000000D+00  E= 4.314727D-01
-              MO Center= -2.9D-13, -3.3D-10,  1.4D-11, r^2= 9.3D+01
+              MO Center= -1.1D-11, -2.9D-10,  9.5D-12, r^2= 9.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    270      2.199836  21 C  s               283     -2.199836  22 C  s         
@@ -3056,7 +3209,7 @@ All connections between all procs tested: SUCCESS
    323     -1.427835  25 C  px              336     -1.427835  26 C  px        
  
  Vector  237  Occ=0.000000D+00  E= 4.380516D-01
-              MO Center=  4.8D-12,  1.1D-09, -1.6D-11, r^2= 1.6D+02
+              MO Center=  9.2D-12,  9.5D-10, -1.5D-11, r^2= 1.6D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    116      1.586863   9 C  py              129     -1.586863  10 C  py        
@@ -3066,7 +3219,7 @@ All connections between all procs tested: SUCCESS
    142     -0.958573  11 C  py              155      0.958573  12 C  py        
  
  Vector  238  Occ=0.000000D+00  E= 4.394854D-01
-              MO Center=  1.3D-11, -1.0D-09,  1.9D-11, r^2= 1.4D+02
+              MO Center=  1.1D-11, -8.3D-10,  1.7D-11, r^2= 1.4D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    116      1.304738   9 C  py              129      1.304738  10 C  py        
@@ -3076,7 +3229,7 @@ All connections between all procs tested: SUCCESS
    298      0.873907  23 C  py              311      0.873907  24 C  py        
  
  Vector  239  Occ=0.000000D+00  E= 4.427848D-01
-              MO Center=  8.5D-12,  1.1D-10, -7.4D-12, r^2= 7.8D+01
+              MO Center=  1.0D-11,  5.2D-11, -7.8D-12, r^2= 7.8D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    374      2.424721  29 C  s               387     -2.424721  30 C  s         
@@ -3086,7 +3239,7 @@ All connections between all procs tested: SUCCESS
    166      1.286077  13 C  s               179     -1.286077  14 C  s         
  
  Vector  240  Occ=0.000000D+00  E= 4.543152D-01
-              MO Center=  8.5D-12,  5.1D-11, -1.5D-12, r^2= 9.0D+01
+              MO Center= -1.8D-12, -8.8D-11,  3.0D-12, r^2= 9.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    140      1.990744  11 C  s               153      1.990744  12 C  s         
@@ -3096,7 +3249,7 @@ All connections between all procs tested: SUCCESS
    323      1.236847  25 C  px              324      1.239430  25 C  py        
  
  Vector  241  Occ=0.000000D+00  E= 4.567413D-01
-              MO Center=  3.8D-09,  8.6D-08, -5.4D-10, r^2= 1.6D+02
+              MO Center= -4.2D-12, -5.0D-11, -1.0D-11, r^2= 1.6D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    140      1.513376  11 C  s               153     -1.513376  12 C  s         
@@ -3106,7 +3259,7 @@ All connections between all procs tested: SUCCESS
    141      0.845348  11 C  px              154      0.845348  12 C  px        
  
  Vector  242  Occ=0.000000D+00  E= 4.567498D-01
-              MO Center= -3.8D-09, -8.6D-08,  5.3D-10, r^2= 1.3D+02
+              MO Center= -3.2D-12, -1.6D-11, -2.3D-12, r^2= 1.3D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    270      1.746930  21 C  s               283      1.746930  22 C  s         
@@ -3116,7 +3269,7 @@ All connections between all procs tested: SUCCESS
    271      0.973697  21 C  px              284     -0.973697  22 C  px        
  
  Vector  243  Occ=0.000000D+00  E= 4.623792D-01
-              MO Center=  1.3D-11,  7.7D-11, -1.9D-12, r^2= 8.7D+01
+              MO Center=  1.1D-11,  8.5D-11,  1.7D-12, r^2= 8.7D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    270      2.056723  21 C  s               283      2.056723  22 C  s         
@@ -3126,7 +3279,7 @@ All connections between all procs tested: SUCCESS
    219     -1.274510  17 C  px              232      1.274510  18 C  px        
  
  Vector  244  Occ=0.000000D+00  E= 4.668283D-01
-              MO Center= -3.0D-11,  4.5D-10,  5.6D-12, r^2= 4.8D+01
+              MO Center= -2.4D-11,  4.4D-10,  5.7D-12, r^2= 4.8D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    348      2.260674  27 C  s               361     -2.260674  28 C  s         
@@ -3136,7 +3289,7 @@ All connections between all procs tested: SUCCESS
    298      1.486538  23 C  py              311      1.486538  24 C  py        
  
  Vector  245  Occ=0.000000D+00  E= 4.722864D-01
-              MO Center=  1.0D-11, -3.8D-11, -3.0D-12, r^2= 1.8D+01
+              MO Center=  2.4D-11, -5.4D-11, -6.8D-12, r^2= 1.8D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    507      1.171791  39 C  pz              520      1.171791  40 C  pz        
@@ -3146,7 +3299,7 @@ All connections between all procs tested: SUCCESS
    351      0.346051  27 C  pz              364      0.346051  28 C  pz        
  
  Vector  246  Occ=0.000000D+00  E= 4.770140D-01
-              MO Center=  2.3D-10,  4.6D-10, -9.8D-11, r^2= 9.8D+01
+              MO Center=  2.4D-10,  4.2D-10, -1.0D-10, r^2= 9.8D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    220      1.509583  17 C  py              233     -1.509583  18 C  py        
@@ -3156,7 +3309,7 @@ All connections between all procs tested: SUCCESS
    244      1.252812  19 C  s               257      1.252812  20 C  s         
  
  Vector  247  Occ=0.000000D+00  E= 4.783514D-01
-              MO Center=  1.4D-12, -5.2D-10,  7.7D-11, r^2= 7.5D+01
+              MO Center= -2.2D-11, -4.4D-10,  8.4D-11, r^2= 7.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    481      1.056421  37 C  pz              494      1.056421  38 C  pz        
@@ -3166,7 +3319,7 @@ All connections between all procs tested: SUCCESS
    657      0.656062  86 H  s               663     -0.656062  88 H  s         
  
  Vector  248  Occ=0.000000D+00  E= 4.789978D-01
-              MO Center= -7.5D-11,  1.1D-09,  3.5D-11, r^2= 5.8D+01
+              MO Center= -6.5D-11,  1.0D-09,  3.2D-11, r^2= 5.8D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    219      1.320521  17 C  px              232     -1.320521  18 C  px        
@@ -3176,7 +3329,7 @@ All connections between all procs tested: SUCCESS
    481     -0.885014  37 C  pz              494      0.885014  38 C  pz        
  
  Vector  249  Occ=0.000000D+00  E= 4.810340D-01
-              MO Center=  4.8D-10, -3.1D-09, -3.5D-10, r^2= 1.0D+02
+              MO Center=  5.6D-10, -3.2D-09, -4.0D-10, r^2= 1.0D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    348      1.354639  27 C  s               361     -1.354639  28 C  s         
@@ -3186,7 +3339,7 @@ All connections between all procs tested: SUCCESS
    376     -1.095292  29 C  py              389     -1.095292  30 C  py        
  
  Vector  250  Occ=0.000000D+00  E= 4.811577D-01
-              MO Center= -6.8D-10,  1.8D-09,  3.4D-10, r^2= 3.6D+01
+              MO Center= -7.8D-10,  2.1D-09,  3.9D-10, r^2= 3.6D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    507      1.016930  39 C  pz              520     -1.016930  40 C  pz        
@@ -3196,7 +3349,7 @@ All connections between all procs tested: SUCCESS
    219     -0.553331  17 C  px              232      0.553331  18 C  px        
  
  Vector  251  Occ=0.000000D+00  E= 4.852734D-01
-              MO Center=  2.5D-12, -9.7D-11, -1.3D-11, r^2= 1.7D+02
+              MO Center= -4.2D-12, -2.2D-10, -1.3D-11, r^2= 1.7D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     64      0.841348   5 C  py               77      0.841348   6 C  py        
@@ -3206,7 +3359,7 @@ All connections between all procs tested: SUCCESS
    115     -0.528265   9 C  px              128     -0.528265  10 C  px        
  
  Vector  252  Occ=0.000000D+00  E= 4.858956D-01
-              MO Center=  1.2D-11,  1.2D-11,  1.2D-11, r^2= 1.7D+02
+              MO Center=  1.9D-11,  1.4D-10,  1.1D-11, r^2= 1.7D+02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     64      0.854748   5 C  py               77     -0.854748   6 C  py        
@@ -3216,7 +3369,7 @@ All connections between all procs tested: SUCCESS
    272      0.530297  21 C  py              285     -0.530297  22 C  py        
  
  Vector  253  Occ=0.000000D+00  E= 4.906399D-01
-              MO Center=  1.0D-11, -9.9D-12, -1.1D-12, r^2= 1.5D+01
+              MO Center= -2.1D-12, -2.1D-11,  1.9D-13, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    350      3.254161  27 C  py              363     -3.254161  28 C  py        
@@ -3226,7 +3379,7 @@ All connections between all procs tested: SUCCESS
    595      1.973371  65 H  s               598      1.973371  66 H  s         
  
  Vector  254  Occ=0.000000D+00  E= 4.958156D-01
-              MO Center=  1.5D-12,  5.4D-10,  3.1D-11, r^2= 5.6D+01
+              MO Center=  3.4D-12,  4.9D-10,  2.8D-11, r^2= 5.6D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    296      2.685699  23 C  s               309      2.685699  24 C  s         
@@ -3236,7 +3389,7 @@ All connections between all procs tested: SUCCESS
    192      1.577390  15 C  s               205      1.577390  16 C  s         
  
  Vector  255  Occ=0.000000D+00  E= 5.008137D-01
-              MO Center=  4.5D-11,  1.2D-09,  4.2D-12, r^2= 9.5D+01
+              MO Center=  5.1D-11,  1.2D-09,  3.9D-12, r^2= 9.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
    374     -2.537291  29 C  s               387      2.537291  30 C  s         
@@ -3501,7 +3654,7 @@ All connections between all procs tested: SUCCESS
  Fock matrix recomputed
  1-e file size   =              256
  1-e file name   = ./beta_carotene_6_311G_16_4_4.f1
- Cpu & wall time / sec            0.5            0.6
+ Cpu & wall time / sec            0.6            0.7
  4-electron integrals stored in orbital form
  
  v2    file size   =             9316
@@ -3581,7 +3734,7 @@ All connections between all procs tested: SUCCESS
     9    9       -21.6371349493
    11    9        -0.3327783080
    13    9         0.0000000001
-   14    9        -0.3973239622
+   14    9        -0.3973239621
    16    9         0.8277795355
     2   10         0.1712532540
     4   10        -0.0402758463
@@ -3627,7 +3780,7 @@ All connections between all procs tested: SUCCESS
     5   14        -0.0174175275
     7   14         0.0022148980
     8   14         0.0000000002
-    9   14        -0.3973239622
+    9   14        -0.3973239621
    10   14        -0.0000000002
    11   14         0.1890213737
    12   14         0.0000000002
@@ -6078,7 +6231,7 @@ All connections between all procs tested: SUCCESS
    14    7   12   12       -0.0008299458
    14    7   13   12       -0.0009262784
    14    7   13   13        0.0008137691
-   15    7    2    1       -0.0121054934
+   15    7    2    1       -0.0121054933
    15    7    4    1       -0.0009860054
    15    7    6    1       -0.0009956909
    15    7    8    1       -0.0004360352
@@ -8372,7 +8525,7 @@ All connections between all procs tested: SUCCESS
   EHF(A)             =      3406.71340827
   EHF(total)         =     -1546.86564797
   Shift (HFtot-HFA)  =     -4953.57905625
- Cpu & wall time / sec          872.5          904.8
+ Cpu & wall time / sec          889.9          922.7
  T1-number-of-tasks                    48
  
  t1 file size   =               48
@@ -8389,28 +8542,28 @@ All connections between all procs tested: SUCCESS
  Iter          Residuum       Correlation     Cpu    Wall    V2*C2
  -----------------------------------------------------------------
     1   0.0406902919872  -0.0140692180489     1.7     2.1     0.1
-    2   0.0211451022627  -0.0196219618281     1.7     2.1     0.1
-    3   0.0123902444837  -0.0222080437009     1.7     2.1     0.1
+    2   0.0211451022627  -0.0196219618281     1.8     2.1     0.1
+    3   0.0123902444837  -0.0222080437008     1.8     2.1     0.1
     4   0.0076187297129  -0.0236284593044     1.7     2.1     0.1
     5   0.0048140091751  -0.0244517261056     1.7     2.1     0.1
  MICROCYCLE DIIS UPDATE:                     5                     5
     6   0.0006988356242  -0.0257331811577     1.7     2.1     0.1
-    7   0.0003619018418  -0.0257291046793     1.7     2.1     0.1
-    8   0.0002169176849  -0.0257307745427     1.7     2.1     0.1
+    7   0.0003619018418  -0.0257291046793     1.7     2.0     0.1
+    8   0.0002169176849  -0.0257307745427     1.8     2.1     0.1
     9   0.0001368732729  -0.0257315436709     1.7     2.1     0.1
    10   0.0000880675960  -0.0257328149227     1.7     2.1     0.1
  MICROCYCLE DIIS UPDATE:                    10                     5
    11   0.0000180604054  -0.0257350095283     1.7     2.1     0.1
    12   0.0000096000301  -0.0257365980795     1.7     2.1     0.1
-   13   0.0000057890440  -0.0257375464310     1.7     2.0     0.1
+   13   0.0000057890440  -0.0257375464310     1.8     2.1     0.1
    14   0.0000036274770  -0.0257381038718     1.7     2.1     0.1
-   15   0.0000023214890  -0.0257384457446     1.7     2.1     0.1
+   15   0.0000023214890  -0.0257384457446     1.8     2.1     0.1
  MICROCYCLE DIIS UPDATE:                    15                     5
    16   0.0000004318102  -0.0257390206910     1.7     2.1     0.1
  -----------------------------------------------------------------
  Iterations converged
- CCSD correlation energy / hartree =        -0.025739020690996
- CCSD total energy / hartree       =     -1546.891386994484719
+ CCSD correlation energy / hartree =        -0.025739020690993
+ CCSD total energy / hartree       =     -1546.891386994479262
 
  Singles contributions
 
@@ -8425,12 +8578,12 @@ All connections between all procs tested: SUCCESS
  doubles norm
 
  Reference string
-  0.992172269729585      :(1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ (4b)+ |0>
+  0.992172269729586      :(1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ (4b)+ |0>
 
  Singles strings
 
  Doubles strings
- -0.124876687895074      :(5a)+ (5b)+ (4b)  (4a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ 
+ -0.124876687895068      :(5a)+ (5b)+ (4b)  (4a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ 
  (2b)+ (3b)+ (4b)+ |0>
  -------------------------------------
  
@@ -8462,12 +8615,12 @@ All connections between all procs tested: SUCCESS
  Iteration   2 using   22 trial vectors
    0.0351250105315   0.1419399351882    3.86238
    0.0378154154909   0.1621952867014    4.41356
-   0.0329036522032   0.1963562755557    5.34313    12.6    14.7
+   0.0329036522032   0.1963562755557    5.34313    12.5    14.7
 
  Iteration   3 using   25 trial vectors
    0.0136224762876   0.1392935639800    3.79037
    0.0165536973380   0.1584348284337    4.31123
-   0.0161906527097   0.1935968243538    5.26804    13.5    15.8
+   0.0161906527097   0.1935968243538    5.26804    13.6    15.8
 
  Iteration   4 using   28 trial vectors
    0.0072881806943   0.1389041482493    3.77978
@@ -8477,52 +8630,52 @@ All connections between all procs tested: SUCCESS
  Iteration   5 using   31 trial vectors
    0.0032024746643   0.1388225749954    3.77756
    0.0024203116029   0.1577645701162    4.29299
-   0.0037656027572   0.1920804580528    5.22678    15.3    18.0
+   0.0037656027572   0.1920804580528    5.22678    15.4    18.0
 
  Iteration   6 using   34 trial vectors
    0.0012706319494   0.1387572220685    3.77578
    0.0012797698447   0.1577678284129    4.29308
-   0.0021004545066   0.1919714234701    5.22381    16.4    19.0
+   0.0021004545066   0.1919714234701    5.22381    16.5    19.2
 
  Iteration   7 using   37 trial vectors
    0.0005932413789   0.1387119550791    3.77455
    0.0005556396165   0.1577943823447    4.29381
-   0.0015749891439   0.1919513254411    5.22326    17.3    20.2
+   0.0015749891439   0.1919513254411    5.22326    17.5    20.3
 
  Iteration   8 using   40 trial vectors
    0.0003727750952   0.1387084807688    3.77445
    0.0001970585864   0.1578059517597    4.29412
-   0.0008067261638   0.1919661448030    5.22367    18.3    21.4
+   0.0008067261638   0.1919661448030    5.22367    18.4    21.3
 
  Iteration   9 using   43 trial vectors
    0.0001899472341   0.1387159041381    3.77465
    0.0000733297987   0.1578088018172    4.29420
-   0.0003395241184   0.1919747168036    5.22390    19.2    22.4
+   0.0003395241184   0.1919747168037    5.22390    19.5    22.5
 
  Iteration  10 using   46 trial vectors
    0.0000672961172   0.1387189065909    3.77474
    0.0000285924466   0.1578088148055    4.29420
-   0.0001510573596   0.1919761723086    5.22394    20.3    23.6
+   0.0001510573596   0.1919761723086    5.22394    20.3    23.5
 
  Iteration  11 using   49 trial vectors
    0.0000262281279   0.1387192616044    3.77474
    0.0000114878715   0.1578085830396    4.29419
-   0.0000658432456   0.1919762168083    5.22394    21.2    24.6
+   0.0000658432456   0.1919762168083    5.22394    21.1    24.5
 
  Iteration  12 using   52 trial vectors
    0.0000134386648   0.1387193139624    3.77475
    0.0000040206195   0.1578083953482    4.29419
-   0.0000299379493   0.1919757568649    5.22393    22.2    25.7
+   0.0000299379493   0.1919757568649    5.22393    22.2    25.8
 
  Iteration  13 using   55 trial vectors
    0.0000055910902   0.1387192620117    3.77474
    0.0000013542344   0.1578083025262    4.29418
-   0.0000154061542   0.1919755763246    5.22392    23.0    26.6
+   0.0000154061542   0.1919755763246    5.22392    23.1    26.7
 
  Iteration  14 using   58 trial vectors
    0.0000020387910   0.1387191887426    3.77474
    0.0000005117262   0.1578082766679    4.29418
-   0.0000072623040   0.1919755604781    5.22392    22.7    26.0
+   0.0000072623040   0.1919755604781    5.22392    22.7    25.9
 
  Iteration  15 using   60 trial vectors
    0.0000007887670   0.1387191627936    3.77474
@@ -8537,14 +8690,14 @@ All connections between all procs tested: SUCCESS
  Iteration  17 using   62 trial vectors
    0.0000007887670   0.1387191627936    3.77474
    0.0000004914459   0.1578082804274    4.29418
-   0.0000005674855   0.1919755776725    5.22392    17.4    19.1
+   0.0000005674855   0.1919755776725    5.22392    17.4    19.2
  --------------------------------------------------------------
  Iterations converged
  ------------------
 
  Excited state root  1
- Excitation energy / hartree =        0.138719162793555
-                   / eV      =        3.774742085435806
+ Excitation energy / hartree =        0.138719162793557
+                   / eV      =        3.774742085435857
  largest EOMCCSD amplitudes: R1 and R2
 
  Singles contributions
@@ -8565,9 +8718,9 @@ All connections between all procs tested: SUCCESS
  (4b)+ |0>
   0.686006596968899      :(5b)+ (4b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
  (4b)+ |0>
-  0.171449552099591      :(6a)+ (3a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
+  0.171449552099593      :(6a)+ (3a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
  (4b)+ |0>
-  0.171449552099591      :(6b)+ (3b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
+  0.171449552099593      :(6b)+ (3b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
  (4b)+ |0>
 
  Doubles strings
@@ -8575,8 +8728,8 @@ All connections between all procs tested: SUCCESS
  ------------------
 
  Excited state root  2
- Excitation energy / hartree =        0.157808280427389
-                   / eV      =        4.294183626569563
+ Excitation energy / hartree =        0.157808280427396
+                   / eV      =        4.294183626569753
  largest EOMCCSD amplitudes: R1 and R2
 
  Singles contributions
@@ -8599,38 +8752,38 @@ All connections between all procs tested: SUCCESS
  doubles norm
 
  Singles strings
-  0.400887739928718      :(5a)+ (3a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
+  0.400887739928749      :(5a)+ (3a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
  (4b)+ |0>
-  0.400887739928718      :(5b)+ (3b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
+  0.400887739928749      :(5b)+ (3b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
  (4b)+ |0>
- -0.112783671420060      :(6a)+ (2a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
+ -0.112783671420075      :(6a)+ (2a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
  (4b)+ |0>
- -0.112783671420060      :(6b)+ (2b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
+ -0.112783671420075      :(6b)+ (2b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
  (4b)+ |0>
- -0.281191899106428      :(6a)+ (4a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
+ -0.281191899106404      :(6a)+ (4a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
  (4b)+ |0>
- -0.281191899106428      :(6b)+ (4b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
+ -0.281191899106404      :(6b)+ (4b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
  (4b)+ |0>
 
  Doubles strings
-  0.165140346530657      :(5a)+ (6a)+ (4a)  (3a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ 
+  0.165140346530649      :(5a)+ (6a)+ (4a)  (3a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ 
  (2b)+ (3b)+ (4b)+ |0>
-  0.165140346530657      :(5b)+ (6b)+ (4b)  (3b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ 
+  0.165140346530649      :(5b)+ (6b)+ (4b)  (3b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ 
  (2b)+ (3b)+ (4b)+ |0>
-  0.606973478738953      :(5a)+ (5b)+ (4b)  (4a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ 
+  0.606973478738937      :(5a)+ (5b)+ (4b)  (4a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ 
  (2b)+ (3b)+ (4b)+ |0>
-  0.175285349339711      :(5a)+ (6b)+ (4b)  (3a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ 
+  0.175285349339708      :(5a)+ (6b)+ (4b)  (3a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ 
  (2b)+ (3b)+ (4b)+ |0>
-  0.175285349339710      :(6a)+ (5b)+ (3b)  (4a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ 
+  0.175285349339708      :(6a)+ (5b)+ (3b)  (4a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ 
  (2b)+ (3b)+ (4b)+ |0>
-  0.102910539996001      :(6a)+ (6b)+ (3b)  (3a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ 
+  0.102910539995990      :(6a)+ (6b)+ (3b)  (3a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ 
  (2b)+ (3b)+ (4b)+ |0>
  -------------------------------------
  ------------------
 
  Excited state root  3
- Excitation energy / hartree =        0.191975577672536
-                   / eV      =        5.223923485573683
+ Excitation energy / hartree =        0.191975577672539
+                   / eV      =        5.223923485573777
  largest EOMCCSD amplitudes: R1 and R2
 
  Singles contributions
@@ -8651,31 +8804,31 @@ All connections between all procs tested: SUCCESS
  doubles norm
 
  Singles strings
-  0.452061345607848      :(5a)+ (3a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
+  0.452061345607816      :(5a)+ (3a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
  (4b)+ |0>
-  0.452061345607848      :(5b)+ (3b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
+  0.452061345607816      :(5b)+ (3b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
  (4b)+ |0>
- -0.144587783354066      :(6a)+ (2a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
+ -0.144587783354063      :(6a)+ (2a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
  (4b)+ |0>
- -0.144587783354066      :(6b)+ (2b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
+ -0.144587783354063      :(6b)+ (2b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
  (4b)+ |0>
-  0.496195263500478      :(6a)+ (4a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
+  0.496195263500500      :(6a)+ (4a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
  (4b)+ |0>
-  0.496195263500478      :(6b)+ (4b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
+  0.496195263500500      :(6b)+ (4b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
  (4b)+ |0>
-  0.138656945782114      :(7a)+ (3a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
+  0.138656945782147      :(7a)+ (3a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
  (4b)+ |0>
-  0.138656945782114      :(7b)+ (3b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
+  0.138656945782147      :(7b)+ (3b)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ (2b)+ (3b)+ 
  (4b)+ |0>
 
  Doubles strings
-  7.483700823244829E-002 :(5a)+ (5b)+ (3b)  (3a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ 
+  7.483700823245554E-002 :(5a)+ (5b)+ (3b)  (3a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ 
  (2b)+ (3b)+ (4b)+ |0>
- -0.114009961647695      :(5a)+ (5b)+ (4b)  (4a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ 
+ -0.114009961647682      :(5a)+ (5b)+ (4b)  (4a)  (1a)+ (2a)+ (3a)+ (4a)+ (1b)+ 
  (2b)+ (3b)+ (4b)+ |0>
  -------------------------------------
 
- Task  times  cpu:     1256.9s     wall:     1352.5s
+ Task  times  cpu:     1275.2s     wall:     1370.8s
  
  
                                 NWChem Input Module
@@ -8692,10 +8845,10 @@ All connections between all procs tested: SUCCESS
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 2.40e+04 2.40e+04 1.77e+06 3.09e+04 8.49e+04    0        0     3.84e+05 
-number of processes/call 5.68e+00 8.95e+00 2.56e+01 0.00e+00 0.00e+00
-bytes total:             5.09e+10 4.29e+08 1.10e+08 0.00e+00 0.00e+00 3.08e+06
-bytes remote:            5.09e+10 4.19e+08 9.41e+07 0.00e+00 0.00e+00 0.00e+00
+calls: 2.40e+04 2.40e+04 1.82e+06 3.09e+04 8.41e+04    0        0     3.96e+05 
+number of processes/call 5.64e+00 9.07e+00 2.83e+01 0.00e+00 0.00e+00
+bytes total:             4.32e+10 4.43e+08 1.13e+08 0.00e+00 0.00e+00 3.16e+06
+bytes remote:            4.29e+10 4.33e+08 9.75e+07 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 318891208 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
@@ -8708,7 +8861,7 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        16	        37
 	current total bytes		         0	         0
-	maximum total bytes		    255768	  41413704
+	maximum total bytes		    255800	  41413672
 	maximum total K-bytes		       256	     41414
 	maximum total M-bytes		         1	        42
  
@@ -8747,4 +8900,4 @@ MA usage statistics:
       T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
 
- Total times  cpu:     1260.6s     wall:     1390.1s
+ Total times  cpu:     1278.3s     wall:     1407.6s
