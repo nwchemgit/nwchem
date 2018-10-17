@@ -156,7 +156,7 @@ c      double precision v4m(50,50,50,50)
 c      double precision f2m(50,50)
       integer k_f2m,l_f2m,size_f2m
       integer k_v4m,l_v4m,size_v4m
-      logical quantumc,spust 
+      logical quantumc,spust
 !QuantumComputing
 ! FOR CR-EOMCCSD(T) ---------------------
       integer d_ex1,d_ex2
@@ -684,7 +684,7 @@ cold        rec_mem=1
 !QuantumComputing
        res_log=.false.
        if (.not.rtdb_get(rtdb,'tce:print_integrals',
-     1  mt_log,1,res_log)) then
+     4  mt_log,1,res_log)) then
         quantumc=.false.
        else
         quantumc=res_log
@@ -1546,17 +1546,22 @@ c
            spust=.true.
 c
       if(nodezero) then
-       write(6,*)'h_1 matrix elements'
+       write(6,*)'begin_one_electron_integrals'
        call util_flush(6)
       endif
 c
            call kinetic_hcore(rtdb,dbl_mb(k_f2m),range_ov,spust)
            call util_flush(6)
+      if(nodezero) then
+       write(6,*)'end_one_electron_integrals'
+       call util_flush(6)
+      endif
 c
       if(nodezero) then  !nodezero 
 c      write(6,*)'range_ov  = ',range_ov
 c      write(6,*)'range_occ = ',range_occ
-       write(6,*)'v_2 matrix elements'
+       write(6, *) 'begin_two_electron_integrals'
+       call util_flush(6)
       offset_test=0
       DO g3b = 1,noa+nva   !j
       DO g4b = g3b,noa+nva !i
@@ -1637,6 +1642,10 @@ c
       END DO
       END DO
 c     ehfa
+      if(nodezero) then
+         write(6, *) 'end_two_electron_integrals'
+         call util_flush(6)
+      endif
       ehfa=0.0d0
       endif !nodezero
 c
@@ -2868,7 +2877,7 @@ c
 !QuantumComputing
           if(quantumc) then
           if(nodezero) then
-           write(6,*)'Ground state specification:'
+           write(6,*)'Ground state specisication for QC:'
            write(6,*)'exp(T)|Ref>~(1+T)|Ref>'
            call util_flush(6)
           endif
@@ -6886,7 +6895,7 @@ c
 !QuantumComputing
           if(quantumc) then
           if(nodezero) then
-           write(6,*)'Excited state specification:'
+           write(6,*)'Excited state specisication for QC:'
            write(6,*)'Rexp(T)|Ref>~(R_1+R_2)|Ref>'
            call util_flush(6)
           endif 
