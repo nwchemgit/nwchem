@@ -1,0 +1,36 @@
+start ar_ccpvdz
+
+echo
+
+geometry units bohr
+symmetry c1
+  ar  0.0 0.0 0.0
+end
+
+basis
+ * library cc-pvdz
+end
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-11
+singlet
+rhf
+end
+
+tce
+2eorb
+2emet 13
+tilesize 1
+ccsd
+thresh 1.0e-6
+nroots 1
+end
+
+set tce:print_integrals T
+set tce:qorb 19
+set tce:qela  9
+set tce:qelb  9
+
+task tce energy
+
