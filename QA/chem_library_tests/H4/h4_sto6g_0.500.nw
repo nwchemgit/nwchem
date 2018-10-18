@@ -31,6 +31,7 @@ thresh 1.0d-8
 end
 
 
+echo
 set tce:print_integrals T
 set tce:qorb  4  
 set tce:qela  2
