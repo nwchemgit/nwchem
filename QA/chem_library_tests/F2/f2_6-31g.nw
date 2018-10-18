@@ -1,0 +1,36 @@
+start f2_6-31g
+
+echo
+
+geometry units bohr
+symmetry c1
+  f 0 0   -1.33408
+  f 0 0    1.33408
+end
+
+basis
+ * library 6-31g
+end
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
+end
+
+tce
+2eorb
+2emet 13
+tilesize 1
+ccsd
+thresh 1.0e-6
+end
+
+set tce:print_integrals T
+set tce:qorb 18
+set tce:qela  9
+set tce:qelb  9
+
+task tce energy
+
