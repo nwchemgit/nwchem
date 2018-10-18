@@ -967,6 +967,31 @@ c     **** n-plane ****
           nion = ion_nion()
           f = nwpw_expression_f(indx(2),nion,dbl_mb(ion_rion_ptr()))
 
+c     **** group distance ****
+      else if (ntype.eq.13) then
+         n1=indx(2)
+         n2=indx(3)
+         f = 0.0d0
+         n  = param(3)
+         n12 = dble(n1*n2)
+         do i=1,n1
+            do j=1,n2
+               x1 = ion_rion(1,indx(3+i))
+               y1 = ion_rion(2,indx(3+i))
+               z1 = ion_rion(3,indx(3+i))
+               x2 = ion_rion(1,indx(3+n1+j))
+               y2 = ion_rion(2,indx(3+n1+j))
+               z2 = ion_rion(3,indx(3+n1+j))
+               dx1 = x1-x2
+               dy1 = y1-y2
+               dz1 = z1-z2
+               call lattice_min_difference(dx1,dy1,dz1)
+               r1  = dsqrt(dx1**2 + dy1**2 + dz1**2)
+               f = f + (1.0/r1)**n
+            end do
+         end do
+         f = (f/n12)**(-1.0d0/n)
+
       end if
 
       tamd_collective = f
@@ -998,7 +1023,7 @@ c     **********************************************
       real*8 x3,y3,z3,r3,ctheta,stheta,denom
       real*8 dx,dy,dz,dx1,dy1,dz1,dx3,dy3,dz3,nx,ny,nz,la,lb
       real*8 x4,y4,z4,dx2,dy2,dz2,r2,df1,df2,d1a,d2a,d1b,d2b
-      real*8 dfla,dflb,dlar1,dlar2,dlbr1,dlbr2,n12
+      real*8 dfla,dflb,dlar1,dlar2,dlbr1,dlbr2,n12,f
 
 *     **** external functions ****
       integer  ion_rion_ptr,ion_nion
@@ -1389,6 +1414,59 @@ c     **** bond_difference2 ****
      >                        nion,dbl_mb(ion_rion_ptr()),
      >                        fmeta)
 
+c     **** group distances ****
+      else if (ntype.eq.13) then
+         n1=indx(2)
+         n2=indx(3)
+         f = 0.0d0
+         n  = param(3)
+         n12 = dble(n1*n2)
+         do i=1,n1
+            do j=1,n2
+               x1 = ion_rion(1,indx(3+i))
+               y1 = ion_rion(2,indx(3+i))
+               z1 = ion_rion(3,indx(3+i))
+               x2 = ion_rion(1,indx(3+n1+j))
+               y2 = ion_rion(2,indx(3+n1+j))
+               z2 = ion_rion(3,indx(3+n1+j))
+               dx1 = x1-x2
+               dy1 = y1-y2
+               dz1 = z1-z2
+               call lattice_min_difference(dx1,dy1,dz1)
+               r1  = dsqrt(dx1**2 + dy1**2 + dz1**2)
+               f = f + (1.0/r1)**n
+            end do
+         end do
+         f = (f/n12)**(-1.0d0/n)
+
+         do i=1,n1
+            do j=1,n2
+               x1 = ion_rion(1,indx(3+i))
+               y1 = ion_rion(2,indx(3+i))
+               z1 = ion_rion(3,indx(3+i))
+               x2 = ion_rion(1,indx(3+n1+j))
+               y2 = ion_rion(2,indx(3+n1+j))
+               z2 = ion_rion(3,indx(3+n1+j))
+               dx = x1-x2
+               dy = y1-y2
+               dz = z1-z2
+               call lattice_min_difference(dx,dy,dz)
+               r1  = dsqrt(dx**2 + dy**2 + dz**2)
+               df = ((f/r1)**(n+1))/n12
+
+               fmeta(1,indx(3+i)) = fmeta(1,indx(3+i)) - (dx/r1)*df*dv
+               fmeta(2,indx(3+i)) = fmeta(2,indx(3+i)) - (dy/r1)*df*dv
+               fmeta(3,indx(3+i)) = fmeta(3,indx(3+i)) - (dz/r1)*df*dv
+               fmeta(1,indx(3+n1+j)) = fmeta(1,indx(3+n1+j))
+     >                               + (dx/r1)*df*dv
+               fmeta(2,indx(3+n1+j)) = fmeta(2,indx(3+n1+j))
+     >                               + (dy/r1)*df*dv
+               fmeta(3,indx(3+n1+j)) = fmeta(3,indx(3+n1+j))
+     >                               + (dz/r1)*df*dv
+
+
+            end do
+         end do
 
 
       end if
