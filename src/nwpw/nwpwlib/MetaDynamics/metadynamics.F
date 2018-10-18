@@ -950,6 +950,7 @@ c     **** bond_difference_shell ****
           nion = ion_nion()
           f = nwpw_expression_f(indx(2),nion,dbl_mb(ion_rion_ptr()))
 
+c     **** group distance ****
       else if (ntype.eq.13) then
          n1=indx(2)
          n2=indx(3)
@@ -1413,6 +1414,7 @@ c     **** bond_difference2 ****
      >                        nion,dbl_mb(ion_rion_ptr()),
      >                        fmeta)
 
+c     **** group distances ****
       else if (ntype.eq.13) then
          n1=indx(2)
          n2=indx(3)
