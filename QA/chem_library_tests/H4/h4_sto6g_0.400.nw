@@ -37,3 +37,13 @@ set tce:qela  2
 set tce:qelb  2
 
 task tce energy
+
+mcscf
+  active  4
+  actelec 4
+  multiplicity 1
+end
+
+task mcscf
+
+
