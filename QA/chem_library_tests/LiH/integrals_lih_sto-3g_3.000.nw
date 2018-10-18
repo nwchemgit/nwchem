@@ -29,7 +29,7 @@ nroots 5
 thresh 1.0d-6
 end
 
-set tce:quantum T
+set tce:print_integrals T
 set tce:qorb 6
 set tce:qela 2
 set tce:qelb 2
