@@ -989,23 +989,3 @@ a    a    a    a    a    a    a    a    a
     8    0.6458
     9    0.6458
  
- moints_aodisk_iorec2sprs: AOfile corrupt I?                   0
- ------------------------------------------------------------------------
- ------------------------------------------------------------------------
-  current input line : 
-     0: 
- ------------------------------------------------------------------------
- ------------------------------------------------------------------------
- An error occured while trying to read or write to disk space
- ------------------------------------------------------------------------
- For more information see the NWChem manual at 
- http://www.nwchem-sw.org/index.php/NWChem_Documentation
-
-
- For further details see manual section: 
-                                                                                
-                                                                                
-                                                                                
-                   
-8:8:moints_aodisk_iorec2sprs: AOfile corrupt I?:: -1
-(rank:8 hostname:g30 pid:9161):ARMCI DASSERT fail. ../../ga-5.7/armci/src/common/armci.c:ARMCI_Error():208 cond:0
