@@ -1,0 +1,45 @@
+start beh2_6-31g_fci
+
+echo
+
+geometry units angstrom
+symmetry c1
+ be    0.00       0.00  0.00
+ h    -1.333761   0.00  0.00
+ h     1.333761   0.00  0.00
+end
+
+basis
+ * library 6-31G
+end
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
+end
+
+tce
+2eorb
+2emet 13
+tilesize 1
+ccsd
+thresh 1.0e-6
+nroots 1
+end
+
+set tce:print_integrals T
+set tce:qorb 13
+set tce:qela  3
+set tce:qelb  3
+
+task tce energy
+
+mcscf
+  active  13
+  actelec  6
+  multiplicity 1
+end
+
+task mcscf
