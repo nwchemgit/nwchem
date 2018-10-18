@@ -2877,7 +2877,7 @@ c
 !QuantumComputing
           if(quantumc) then
           if(nodezero) then
-           write(6,*)'Ground state specisication for QC:'
+           write(6,*)'Ground state specification:'
            write(6,*)'exp(T)|Ref>~(1+T)|Ref>'
            call util_flush(6)
           endif
@@ -6895,7 +6895,7 @@ c
 !QuantumComputing
           if(quantumc) then
           if(nodezero) then
-           write(6,*)'Excited state specisication for QC:'
+           write(6,*)'Excited state specification:'
            write(6,*)'Rexp(T)|Ref>~(R_1+R_2)|Ref>'
            call util_flush(6)
           endif 
