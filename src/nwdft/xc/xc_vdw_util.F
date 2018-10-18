@@ -792,6 +792,10 @@ c m06hf
         else if (xccomb(34)) then
            scalesr6 = 1.446d0
            scales8  = 0.000d0
+c hf
+        else if (xfac(1).eq.1d0) then
+           scalesr6 = 1.158d0
+           scales8  = 1.746d0
 c dftb
 c          scalesr6 = 1.699d0
 c          scales8  = 1.504d0
@@ -944,6 +948,11 @@ c mpwb1k
            scales8  =  0.9499d0
            a1       =  0.1474d0
            a2       =  6.6223d0
+c hf
+        else if (xfac(1).eq.1d0) then
+           scales8  =  0.9171d0
+           a1       =  0.3385d0
+           a2       =  2.8830d0
         else
 c     try to see if set rtdb was used
            read_ok=abs(scales8).gt.0d0.and.
