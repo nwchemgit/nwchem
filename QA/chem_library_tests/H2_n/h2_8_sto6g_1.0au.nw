@@ -19,7 +19,7 @@ H    0.000  0.000 16.000
 H    0.000  0.000 18.000
 H    0.000  0.000 19.000
 H    0.000  0.000 21.000
-H    0.000  0.000 23.000
+H    0.000  0.000 22.000
 end
 
 basis
@@ -49,11 +49,3 @@ set tce:qela  8
 set tce:qelb  8
 
 task tce energy
-
-mcscf
-  active  16
-  actelec 16
-  multiplicity 1
-end
-
-task mcscf
