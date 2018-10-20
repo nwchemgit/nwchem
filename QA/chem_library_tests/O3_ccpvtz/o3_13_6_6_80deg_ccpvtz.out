@@ -1,0 +1,3081 @@
+refund: UserID = kowalski
+refund: SLURM Job ID = 2677715
+refund: Number of nodes          = 2
+refund: Number of cores per node = 16
+refund: Number of cores          = 32
+refund: Amount of time requested = 0:30
+refund: Directory = /home/kowalski/NWCHEM_GITHUB/nwchem_2018_clean/QA/chem_library_tests/O3_ccpvtz
+ 
+Processor list
+ 
+g[967,1066]
+ 
+ argument  1 = /home/kowalski/NWCHEM_GITHUB/nwchem_2018_clean/QA/chem_library_tests/O3_ccpvtz/o3_13_6_6_80deg_ccpvtz.nw
+All connections between all procs tested: SUCCESS
+ 
+
+
+============================== echo of input deck ==============================
+start o3_13_6_6_80deg_ccpvtz
+
+echo
+
+##memory 3500 mb
+
+geometry units angstroms
+  symmetry c1
+O   -0.42642176     0.00000000    -0.50818966
+O   -0.42642176     0.00000000     0.79081034
+O    0.85284351     0.00000000    -0.28262068
+end
+
+BASIS spherical
+ * library cc-pvtz
+END
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
+end
+
+tce
+ccsd
+tilesize 10
+2eorb
+2emet 13
+thresh 1.0d-6
+nroots 3
+end
+
+set tce:print_integrals T
+set tce:qorb 13
+set tce:qela 6
+set tce:qelb 6
+
+task tce energy
+
+================================================================================
+
+
+                                         
+                                         
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 6.8
+              ------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                              Copyright (c) 1994-2018
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+ 
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+ 
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = g967
+    program         = /home/kowalski/NWCHEM_GITHUB/nwchem_2018_clean/bin/LINUX64/nwchem
+    date            = Wed Oct 17 15:52:17 2018
+
+    compiled        = Wed_Oct_17_13:24:31_2018
+    source          = /home/kowalski/NWCHEM_GITHUB/nwchem_2018_clean
+    nwchem branch   = Development
+    nwchem revision = nwchem_on_git-600-g8e3a403
+    ga revision     = 5.6.5
+    use scalapack   = T
+    input           = /home/kowalski/NWCHEM_GITHUB/nwchem_2018_clean/QA/chem_library_tests/O3_ccpvtz/o3_13_6_6_80deg_ccpvtz.nw
+    prefix          = o3_13_6_6_80deg_ccpvtz.
+    data base       = ./o3_13_6_6_80deg_ccpvtz.db
+    status          = startup
+    nproc           =       32
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   13107194 doubles =    100.0 Mbytes
+    stack    =   13107199 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428793 doubles =    400.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = .
+  0 scratch   = .
+ 
+ 
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ Turning off AUTOSYM since
+ SYMMETRY directive was detected!
+ 
+
+          ------
+          auto-z
+          ------
+  no constraints, skipping   0.000000000000000E+000
+  no constraints, skipping   0.000000000000000E+000
+ 
+ 
+                             Geometry "geometry" -> ""
+                             -------------------------
+ 
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000    -0.42642176     0.00000000    -0.50818966
+    2 O                    8.0000    -0.42642176     0.00000000     0.79081034
+    3 O                    8.0000     0.85284351     0.00000000    -0.28262068
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      O                 15.994910
+ 
+
+ Effective nuclear repulsion energy (a.u.)      72.4240222148
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+ 
+
+
+                                Z-matrix (autoz)
+                                -------- 
+
+ Units are Angstrom for bonds and degrees for angles
+ 
+      Type          Name      I     J     K     L     M      Value
+      ----------- --------  ----- ----- ----- ----- ----- ----------
+    1 Stretch                  1     2                       1.29900
+    2 Stretch                  1     3                       1.29900
+    3 Bend                     2     1     3                80.00000
+ 
+ 
+            XYZ format geometry
+            -------------------
+     3
+ geometry
+ O                    -0.42642176     0.00000000    -0.50818966
+ O                    -0.42642176     0.00000000     0.79081034
+ O                     0.85284351     0.00000000    -0.28262068
+ 
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    2 O                |   1 O                |     2.45475  |     1.29900
+    3 O                |   1 O                |     2.45475  |     1.29900
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          2
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    2 O                |   1 O                |   3 O                |    80.00
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          1
+ ==============================================================================
+
+
+
+  library name resolved from: environment
+  library file name is: <
+ /home/scicons/cascade/apps/nwchem-6.8.1_rhel7/src/basis/libraries/>
+  
+
+
+ Summary of "ao basis" -> "" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                          cc-pvtz                   on all atoms 
+
+
+                      Basis "ao basis" -> "ao basis" (spherical)
+                      -----
+  O (Oxygen)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.53300000E+04  0.000508
+  1 S  2.29900000E+03  0.003929
+  1 S  5.22400000E+02  0.020243
+  1 S  1.47300000E+02  0.079181
+  1 S  4.75500000E+01  0.230687
+  1 S  1.67600000E+01  0.433118
+  1 S  6.20700000E+00  0.350260
+  1 S  6.88200000E-01 -0.008154
+ 
+  2 S  1.53300000E+04 -0.000115
+  2 S  2.29900000E+03 -0.000895
+  2 S  5.22400000E+02 -0.004636
+  2 S  1.47300000E+02 -0.018724
+  2 S  4.75500000E+01 -0.058463
+  2 S  1.67600000E+01 -0.136463
+  2 S  6.20700000E+00 -0.175740
+  2 S  6.88200000E-01  0.603418
+ 
+  3 S  1.75200000E+00  1.000000
+ 
+  4 S  2.38400000E-01  1.000000
+ 
+  5 P  3.44600000E+01  0.015928
+  5 P  7.74900000E+00  0.099740
+  5 P  2.28000000E+00  0.310492
+ 
+  6 P  7.15600000E-01  1.000000
+ 
+  7 P  2.14000000E-01  1.000000
+ 
+  8 D  2.31400000E+00  1.000000
+ 
+  9 D  6.45000000E-01  1.000000
+ 
+ 10 F  1.42800000E+00  1.000000
+ 
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ O                          cc-pvtz                 10       30   4s3p2d1f
+
+
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =    90
+  atoms           =     3
+  closed shells   =    12
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = atomic
+  output vectors  = ./o3_13_6_6_80deg_ccpvtz.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ O                          cc-pvtz                 10       30   4s3p2d1f
+
+
+
+ Forming initial guess at      32.0s
+
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:        -224.34200851
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =    -224.680461
+ 1-e energy   =    -453.998348
+ 2-e energy   =     156.893865
+ HOMO         =      -0.205406
+ LUMO         =      -0.177266
+ 
+
+ Starting SCF solution at      32.2s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-10
+ Maximum no. of iterations :           30
+ Final Fock-matrix accuracy:          1.000E-10
+ ----------------------------------------------
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1     -224.2157473095  1.30D+00  3.44D-01      1.8
+                 2     -224.2829577117  2.52D-01  6.64D-02      1.9
+                 3     -224.2866880590  1.83D-02  8.71D-03      2.0
+                 4     -224.2867248277  1.24D-04  3.65D-05      2.3
+                 5     -224.2867248295  4.10D-09  1.08D-09      2.7
+  ga_iter_lsolve: convergence stagnant ... aborting solve
+                 6     -224.2867248295  8.27D-12  4.43D-12      2.9
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =   -224.286724829499
+      One-electron energy =   -452.564600257032
+      Two-electron energy =    155.853853212709
+ Nuclear repulsion energy =     72.424022214824
+
+        Time for solution =      1.1s
+
+
+             Final eigenvalues
+             -----------------
+
+              1      
+    1  -20.7534
+    2  -20.7532
+    3  -20.7457
+    4   -1.7480
+    5   -1.3317
+    6   -1.1404
+    7   -0.8252
+    8   -0.7492
+    9   -0.7364
+   10   -0.5943
+   11   -0.5632
+   12   -0.4878
+   13    0.0041
+   14    0.2735
+   15    0.3154
+   16    0.6549
+   17    0.6655
+   18    0.6987
+   19    0.7199
+   20    0.7463
+   21    0.7949
+   22    0.7968
+ 
+                       ROHF Final Molecular Orbital Analysis
+                       -------------------------------------
+ 
+ Vector    3  Occ=2.000000D+00  E=-2.074569D+01
+              MO Center= -4.2D-01, -7.1D-21, -5.1D-01, r^2= 1.9D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.974649  1 O  s          
+ 
+ Vector    4  Occ=2.000000D+00  E=-1.748025D+00
+              MO Center= -7.2D-02, -7.6D-19, -8.5D-02, r^2= 6.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      0.357719  1 O  s                 32      0.260055  2 O  s          
+    62      0.260055  3 O  s          
+ 
+ Vector    5  Occ=2.000000D+00  E=-1.331683D+00
+              MO Center=  8.7D-02,  2.0D-18,  1.0D-01, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    32      0.396669  2 O  s                 62     -0.396669  3 O  s          
+    34      0.245012  2 O  s                 64     -0.245012  3 O  s          
+ 
+ Vector    6  Occ=2.000000D+00  E=-1.140362D+00
+              MO Center= -4.9D-02, -5.8D-19, -5.9D-02, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      0.416574  1 O  s                  4      0.324789  1 O  s          
+    32     -0.281572  2 O  s                 62     -0.281572  3 O  s          
+    34     -0.227363  2 O  s                 64     -0.227363  3 O  s          
+ 
+ Vector    7  Occ=2.000000D+00  E=-8.252469D-01
+              MO Center= -7.9D-02, -3.8D-17, -9.4D-02, r^2= 1.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.316680  1 O  py                 6      0.245004  1 O  py         
+    39      0.235957  2 O  py                69      0.235957  3 O  py         
+    36      0.183915  2 O  py                66      0.183915  3 O  py         
+    12      0.159590  1 O  py         
+ 
+ Vector    8  Occ=2.000000D+00  E=-7.492339D-01
+              MO Center= -1.3D-01,  3.6D-17, -1.6D-01, r^2= 1.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      0.242706  1 O  pz                68     -0.209350  3 O  px         
+     8      0.203654  1 O  px                40     -0.194480  2 O  pz         
+     7      0.183881  1 O  pz                34     -0.168828  2 O  s          
+    64     -0.168828  3 O  s                  4     -0.163397  1 O  s          
+    65     -0.158711  3 O  px                 5      0.154294  1 O  px         
+ 
+ Vector    9  Occ=2.000000D+00  E=-7.364347D-01
+              MO Center=  8.2D-02, -4.5D-19,  9.8D-02, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    40      0.240324  2 O  pz                68     -0.222520  3 O  px         
+     8      0.220335  1 O  px                37      0.187133  2 O  pz         
+    10     -0.184883  1 O  pz                65     -0.173777  3 O  px         
+     5      0.162060  1 O  px         
+ 
+ Vector   10  Occ=2.000000D+00  E=-5.942521D-01
+              MO Center=  2.0D-01,  2.6D-19,  2.4D-01, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    39      0.361068  2 O  py                69     -0.361068  3 O  py         
+    36      0.285598  2 O  py                66     -0.285598  3 O  py         
+    42      0.253210  2 O  py                72     -0.253210  3 O  py         
+ 
+ Vector   11  Occ=2.000000D+00  E=-5.631814D-01
+              MO Center=  1.1D-01, -2.8D-17,  1.3D-01, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    70      0.311846  3 O  pz                38      0.304120  2 O  px         
+    67      0.231331  3 O  pz                73      0.228400  3 O  pz         
+    35      0.224946  2 O  px                41      0.225367  2 O  px         
+     4      0.152146  1 O  s          
+ 
+ Vector   12  Occ=2.000000D+00  E=-4.877723D-01
+              MO Center= -1.2D-01,  2.3D-17, -1.5D-01, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.401308  1 O  py                12      0.331062  1 O  py         
+     6      0.314044  1 O  py                39     -0.252182  2 O  py         
+    69     -0.252182  3 O  py                42     -0.216610  2 O  py         
+    72     -0.216610  3 O  py                36     -0.200486  2 O  py         
+    66     -0.200486  3 O  py         
+ 
+ Vector   13  Occ=0.000000D+00  E= 4.087856D-03
+              MO Center=  1.8D-01,  6.0D-18,  2.2D-01, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    41      0.458915  2 O  px                73     -0.424884  3 O  pz         
+    38      0.327001  2 O  px                70     -0.306654  3 O  pz         
+    35      0.261249  2 O  px                67     -0.246578  3 O  pz         
+    71      0.233150  3 O  px                34      0.200509  2 O  s          
+    64     -0.200509  3 O  s                 43     -0.155828  2 O  pz         
+ 
+ Vector   14  Occ=0.000000D+00  E= 2.735496D-01
+              MO Center= -1.7D-01,  8.1D-16, -2.0D-01, r^2= 1.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      0.820105  1 O  px                34      0.811666  2 O  s          
+    64     -0.811666  3 O  s                 43     -0.728681  2 O  pz         
+    71      0.716772  3 O  px                13     -0.688150  1 O  pz         
+     8      0.271840  1 O  px                40     -0.236868  2 O  pz         
+    10     -0.228101  1 O  pz                68      0.219574  3 O  px         
+ 
+ Vector   15  Occ=0.000000D+00  E= 3.154255D-01
+              MO Center= -6.2D-02, -6.9D-16, -7.4D-02, r^2= 2.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      1.995489  1 O  s                 13      1.016979  1 O  pz         
+    34     -0.999974  2 O  s                 64     -0.999974  3 O  s          
+    43      0.947718  2 O  pz                71      0.929575  3 O  px         
+    11      0.853347  1 O  px                 2      0.244162  1 O  s          
+    10      0.234938  1 O  pz                68      0.221684  3 O  px         
+ 
+ Vector   16  Occ=0.000000D+00  E= 6.548848D-01
+              MO Center=  1.8D-01,  2.0D-15,  2.2D-01, r^2= 3.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    71      1.413813  3 O  px                43     -1.307597  2 O  pz         
+    34      1.274718  2 O  s                 64     -1.274718  3 O  s          
+    41      0.726072  2 O  px                11      0.708681  1 O  px         
+    13     -0.594654  1 O  pz                73     -0.487980  3 O  pz         
+    68     -0.352265  3 O  px                40      0.308947  2 O  pz         
+ 
+ Vector   17  Occ=0.000000D+00  E= 6.655326D-01
+              MO Center= -4.8D-01,  4.3D-15, -5.8D-01, r^2= 2.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      2.029708  1 O  s                 13      1.421900  1 O  pz         
+    34     -1.260588  2 O  s                 64     -1.260588  3 O  s          
+    11      1.193116  1 O  px                43      0.759172  2 O  pz         
+    71      0.708206  3 O  px                10     -0.388718  1 O  pz         
+    73      0.355464  3 O  pz                 8     -0.326173  1 O  px         
+ 
+ Vector   18  Occ=0.000000D+00  E= 6.987330D-01
+              MO Center=  2.6D-02,  6.2D-15,  3.1D-02, r^2= 2.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    42      0.566111  2 O  py                72      0.566111  3 O  py         
+    12      0.474635  1 O  py                39     -0.446543  2 O  py         
+    69     -0.446543  3 O  py                 9     -0.413330  1 O  py         
+ 
+ Vector   19  Occ=0.000000D+00  E= 7.199245D-01
+              MO Center=  3.3D-01, -1.0D-14,  3.9D-01, r^2= 3.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      1.126989  1 O  s                 43      0.918215  2 O  pz         
+    71      0.891066  3 O  px                40     -0.459284  2 O  pz         
+    68     -0.452618  3 O  px                13     -0.309766  1 O  pz         
+     2     -0.263249  1 O  s                 11     -0.259924  1 O  px         
+    32     -0.257476  2 O  s                 62     -0.257476  3 O  s          
+ 
+ Vector   20  Occ=0.000000D+00  E= 7.462754D-01
+              MO Center= -7.7D-02, -2.6D-16, -9.2D-02, r^2= 3.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    43      0.702664  2 O  pz                71     -0.658570  3 O  px         
+    11      0.603999  1 O  px                13     -0.506816  1 O  pz         
+     8     -0.402935  1 O  px                10      0.338103  1 O  pz         
+    73     -0.311545  3 O  pz                70      0.286252  3 O  pz         
+    40     -0.281542  2 O  pz                38     -0.241024  2 O  px         
+ 
+ Vector   21  Occ=0.000000D+00  E= 7.948660D-01
+              MO Center=  9.9D-02, -7.1D-15,  1.2D-01, r^2= 3.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    41     -0.809324  2 O  px                 4      0.792180  1 O  s          
+    13      0.771956  1 O  pz                73     -0.731591  3 O  pz         
+    11      0.647748  1 O  px                38      0.510344  2 O  px         
+    71      0.511652  3 O  px                70      0.493124  3 O  pz         
+    43      0.376840  2 O  pz                34     -0.214642  2 O  s          
+ 
+ Vector   22  Occ=0.000000D+00  E= 7.967904D-01
+              MO Center=  2.2D-01, -2.5D-15,  2.6D-01, r^2= 3.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    42      1.076035  2 O  py                72     -1.076035  3 O  py         
+    39     -0.528569  2 O  py                69      0.528569  3 O  py         
+    36     -0.159516  2 O  py                66      0.159516  3 O  py         
+ 
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =   0.00000000
+
+ moments of inertia (a.u.)
+ ------------------
+          55.034709481411           0.000000000000          20.651139430461
+           0.000000000000         117.352124846099           0.000000000000
+          20.651139430461           0.000000000000          62.317415364688
+ 
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 O    8     7.95   1.95  1.06  0.25  0.58  1.20  2.08  0.73  0.01  0.08  0.01
+    2 O    8     8.03   1.95  1.09  0.26  0.63  1.15  1.98  0.91  0.00  0.05  0.00
+    3 O    8     8.03   1.95  1.09  0.26  0.63  1.15  1.98  0.91  0.00  0.05  0.00
+ 
+       Multipole analysis of the density wrt the origin
+       ------------------------------------------------
+ 
+     L   x y z        total         open         nuclear
+     -   - - -        -----         ----         -------
+     0   0 0 0     -0.000000      0.000000     24.000000
+ 
+     1   1 0 0     -0.088843      0.000000      0.000000
+     1   0 1 0      0.000000      0.000000      0.000000
+     1   0 0 1     -0.105879      0.000000      0.000000
+ 
+     2   2 0 0    -10.929304      0.000000     31.168623
+     2   1 1 0      0.000000      0.000000      0.000000
+     2   1 0 1     -0.559898      0.000000    -10.328856
+     2   0 2 0    -11.864965      0.000000      0.000000
+     2   0 1 1     -0.000000      0.000000      0.000000
+     2   0 0 2    -11.126754      0.000000     27.526111
+ 
+ ------------------------------------
+     Number of active orbitals     13
+     Number of active alpha electrons      6
+     Number of active beta electrons       6
+ ------------------------------------
+                   NWChem Extensible Many-Electron Theory Module
+                   ---------------------------------------------
+ 
+              ======================================================
+                   This portion of the program was automatically
+                  generated by a Tensor Contraction Engine (TCE).
+                  The development of this portion of the program
+                 and TCE was supported by US Department of Energy,
+                Office of Science, Office of Basic Energy Science.
+                      TCE is a product of Battelle and PNNL.
+              Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
+              ======================================================
+ 
+            General Information
+            -------------------
+      Number of processors :    32
+         Wavefunction type : Restricted Hartree-Fock
+          No. of electrons :    24
+           Alpha electrons :    12
+            Beta electrons :    12
+           No. of orbitals :   180
+            Alpha orbitals :    90
+             Beta orbitals :    90
+        Alpha frozen cores :     6
+         Beta frozen cores :     6
+     Alpha frozen virtuals :    71
+      Beta frozen virtuals :    71
+         Spin multiplicity : singlet 
+    Number of AO functions :    90
+       Number of AO shells :    30
+        Use of symmetry is : off
+      Symmetry adaption is : off
+         Schwarz screening : 0.10D-09
+ 
+          Correlation Information
+          -----------------------
+          Calculation type : Coupled-cluster singles & doubles                           
+   Perturbative correction : none                                                        
+            Max iterations :      100
+        Residual threshold : 0.10D-05
+     T(0) DIIS level shift : 0.00D+00
+     L(0) DIIS level shift : 0.00D+00
+     T(1) DIIS level shift : 0.00D+00
+     L(1) DIIS level shift : 0.00D+00
+     T(R) DIIS level shift : 0.00D+00
+     T(I) DIIS level shift : 0.00D+00
+   CC-T/L Amplitude update :  5-th order DIIS
+     No. of excited states :     3
+               Target root :     1
+           Target symmetry : none
+      Symmetry restriction : off
+   Dipole & oscillator str : off
+                I/O scheme : Global Array Library
+        L-threshold :  0.10D-05
+        EOM-threshold :  0.10D-05
+ no EOMCCSD initial starts read in
+ TCE RESTART OPTIONS
+ READ_INT:   F
+ WRITE_INT:  F
+ READ_TA:    F
+ WRITE_TA:   F
+ READ_XA:    F
+ WRITE_XA:   F
+ READ_IN3:   F
+ WRITE_IN3:  F
+ SLICE:      F
+ D4D5:       F
+ 
+            Memory Information
+            ------------------
+          Available GA space size is     838852700 doubles
+          Available MA space size is      26209420 doubles
+ 
+ Maximum block size supplied by input
+ Maximum block size         1 doubles
+
+ tile_dim =      1
+
+ Block   Spin    Irrep     Size     Offset   Alpha
+ -------------------------------------------------
+   1    alpha     a      1 doubles       0       1
+   2    alpha     a      1 doubles       1       2
+   3    alpha     a      1 doubles       2       3
+   4    alpha     a      1 doubles       3       4
+   5    alpha     a      1 doubles       4       5
+   6    alpha     a      1 doubles       5       6
+   7    beta      a      1 doubles       6       1
+   8    beta      a      1 doubles       7       2
+   9    beta      a      1 doubles       8       3
+  10    beta      a      1 doubles       9       4
+  11    beta      a      1 doubles      10       5
+  12    beta      a      1 doubles      11       6
+  13    alpha     a      1 doubles      12      13
+  14    alpha     a      1 doubles      13      14
+  15    alpha     a      1 doubles      14      15
+  16    alpha     a      1 doubles      15      16
+  17    alpha     a      1 doubles      16      17
+  18    alpha     a      1 doubles      17      18
+  19    alpha     a      1 doubles      18      19
+  20    beta      a      1 doubles      19      13
+  21    beta      a      1 doubles      20      14
+  22    beta      a      1 doubles      21      15
+  23    beta      a      1 doubles      22      16
+  24    beta      a      1 doubles      23      17
+  25    beta      a      1 doubles      24      18
+  26    beta      a      1 doubles      25      19
+
+ Global array virtual files algorithm will be used
+
+ Parallel file system coherency ......... OK
+ 
+ Fock matrix recomputed
+ 1-e file size   =              169
+ 1-e file name   = ./o3_13_6_6_80deg_ccpvtz.f1
+ Cpu & wall time / sec            0.0            0.0
+ 4-electron integrals stored in orbital form
+ 
+ v2    file size   =             4186
+ 4-index algorithm nr.  13 is used
+ imaxsize =       30
+ imaxsize ichop =        0
+ begin_one_electron_integrals
+    1    1       -12.3372545063
+    4    1         0.0000000018
+    6    1        -0.3519366438
+   12    1         1.9520235983
+    2    2       -12.1479588845
+    3    2        -0.0000000032
+    5    2         0.0944398716
+    7    2         0.0000000021
+    8    2        -0.0000000016
+    9    2        -0.1408523785
+   10    2        -0.0000000377
+   11    2         1.1892410041
+   13    2        -1.5669101337
+    2    3        -0.0000000032
+    3    3       -12.3384509205
+    5    3        -0.0000000007
+    7    3         0.0995143238
+    8    3        -0.3426886762
+    9    3        -0.0000000026
+   10    3        -0.4582866948
+   11    3        -0.0000000297
+   13    3         0.0000000132
+    1    4         0.0000000018
+    4    4       -11.9269291945
+    6    4        -0.0000000010
+   12    4         0.0000000015
+    2    5         0.0944398716
+    3    5        -0.0000000007
+    5    5       -11.8588656384
+    7    5         0.0000000015
+    8    5        -0.0000000007
+    9    5         0.0641226244
+   10    5        -0.0000000071
+   11    5         0.2801237463
+   13    5         0.6363210024
+    1    6        -0.3519366438
+    4    6        -0.0000000010
+    6    6       -12.1377714622
+   12    6        -0.3131562620
+    2    7         0.0000000021
+    3    7         0.0995143238
+    5    7         0.0000000015
+    7    7       -11.6132903256
+    8    7         0.2658254435
+    9    7         0.0000000049
+   10    7         1.7600369820
+   11    7         0.0000000409
+   13    7        -0.0000000059
+    2    8        -0.0000000016
+    3    8        -0.3426886762
+    5    8        -0.0000000007
+    7    8         0.2658254435
+    8    8       -10.9047941662
+    9    8        -0.0000000058
+   10    8         2.3846169987
+   11    8         0.0000000092
+   13    8        -0.0000000258
+    2    9        -0.1408523785
+    3    9        -0.0000000026
+    5    9         0.0641226244
+    7    9         0.0000000049
+    8    9        -0.0000000058
+    9    9       -10.0936591206
+   10    9        -0.0000000241
+   11    9         2.9028517622
+   13    9         1.3633245128
+    2   10        -0.0000000377
+    3   10        -0.4582866948
+    5   10        -0.0000000071
+    7   10         1.7600369820
+    8   10         2.3846169987
+    9   10        -0.0000000241
+   10   10        -8.1579218112
+   11   10         0.0000000145
+   13   10         0.0000000184
+    2   11         1.1892410041
+    3   11        -0.0000000297
+    5   11         0.2801237463
+    7   11         0.0000000409
+    8   11         0.0000000092
+    9   11         2.9028517622
+   10   11         0.0000000145
+   11   11        -9.0360187709
+   13   11        -0.7240092009
+    1   12         1.9520235983
+    4   12         0.0000000015
+    6   12        -0.3131562620
+   12   12        -8.2041191316
+    2   13        -1.5669101337
+    3   13         0.0000000132
+    5   13         0.6363210024
+    7   13        -0.0000000059
+    8   13        -0.0000000258
+    9   13         1.3633245128
+   10   13         0.0000000184
+   11   13        -0.7240092009
+   13   13        -7.5151717029
+ end_one_electron_integrals
+ begin_two_electron_integrals
+    1    1    1    1        0.5269084969
+    2    1    2    1        0.0191282692
+    3    1    3    1        0.0170841210
+    4    1    1    1       -0.0000000005
+    4    1    4    1        0.1410855393
+    4    1    2    2       -0.0000000024
+    4    1    3    2       -0.0713882972
+    4    1    3    3        0.0000000019
+    5    1    2    1       -0.0020698850
+    5    1    5    1        0.0135970391
+    5    1    4    3        0.0038196874
+    6    1    1    1        0.0556480837
+    6    1    4    1        0.0000000003
+    6    1    6    1        0.1621382250
+    6    1    2    2        0.0541650225
+    6    1    3    2       -0.0000000008
+    6    1    5    2       -0.0632283577
+    6    1    3    3        0.0079569681
+    6    1    5    3        0.0000000010
+    6    1    4    4       -0.0958005640
+    6    1    5    5       -0.0374960936
+    7    1    3    1       -0.0003048158
+    7    1    7    1        0.0112688935
+    7    1    4    2        0.0041455648
+    7    1    6    3       -0.0046076397
+    7    1    5    4        0.0097162308
+    8    1    3    1        0.0049176144
+    8    1    7    1        0.0006858619
+    8    1    8    1        0.0139979493
+    8    1    4    2       -0.0001034244
+    8    1    6    3        0.0067526616
+    8    1    5    4       -0.0048098385
+    8    1    7    6       -0.0032686323
+    9    1    2    1        0.0002220935
+    9    1    5    1        0.0027776167
+    9    1    9    1        0.0185336257
+    9    1    6    2       -0.0007330560
+    9    1    4    3       -0.0009607487
+    9    1    7    4       -0.0029171197
+    9    1    8    4       -0.0078744948
+    9    1    6    5        0.0019625115
+    9    1    8    6       -0.0000000002
+   10    1    2    1        0.0000000001
+   10    1    3    1       -0.0004328095
+   10    1    7    1       -0.0024783911
+   10    1    8    1       -0.0049033980
+   10    1   10    1        0.0049893995
+   10    1    4    2       -0.0042469199
+   10    1    6    3       -0.0050257890
+   10    1    5    4       -0.0017761903
+   10    1    8    4       -0.0000000002
+   10    1    9    4        0.0031220163
+   10    1    7    6        0.0038511718
+   10    1    8    6       -0.0019321467
+   11    1    2    1       -0.0037699146
+   11    1    5    1       -0.0002626663
+   11    1    9    1       -0.0084941581
+   11    1   11    1        0.0086008823
+   11    1    4    2       -0.0000000001
+   11    1    6    2       -0.0043399450
+   11    1    4    3       -0.0007236675
+   11    1    7    4        0.0010126798
+   11    1    8    4        0.0059817764
+   11    1    9    4        0.0000000002
+   11    1   10    4       -0.0017251851
+   11    1    6    5        0.0031236997
+   11    1    9    6       -0.0016450443
+   11    1   10    6       -0.0000000001
+   12    1    1    1       -0.0755765518
+   12    1    4    1        0.0000000001
+   12    1    6    1       -0.0069562728
+   12    1   12    1        0.0384858676
+   12    1    2    2       -0.0724315370
+   12    1    5    2        0.0025032850
+   12    1    7    2        0.0000000001
+   12    1    9    2       -0.0027858292
+   12    1   10    2       -0.0000000006
+   12    1   11    2        0.0174685628
+   12    1    3    3       -0.0745411791
+   12    1    7    3        0.0034613854
+   12    1    8    3       -0.0045365122
+   12    1   10    3       -0.0049154926
+   12    1   11    3       -0.0000000004
+   12    1    4    4       -0.0749437822
+   12    1    6    4       -0.0000000001
+   12    1    5    5       -0.0663347247
+   12    1    7    5        0.0000000001
+   12    1    9    5       -0.0001092380
+   12    1   10    5       -0.0000000001
+   12    1   11    5        0.0041866742
+   12    1    6    6       -0.0816575259
+   12    1    7    7       -0.0675761603
+   12    1    8    7        0.0031910771
+   12    1   10    7        0.0202482522
+   12    1   11    7        0.0000000005
+   12    1    8    8       -0.0645682560
+   12    1   10    8        0.0280417398
+   12    1   11    8        0.0000000001
+   12    1    9    9       -0.0579911627
+   12    1   10    9       -0.0000000003
+   12    1   11    9        0.0361415965
+   12    1   10   10       -0.0387928954
+   12    1   11   10        0.0000000001
+   12    1   11   11       -0.0476702568
+   13    1    2    1        0.0046063683
+   13    1    5    1       -0.0025364658
+   13    1    9    1       -0.0054005307
+   13    1   11    1        0.0007758101
+   13    1   13    1        0.0070582571
+   13    1    6    2        0.0002873923
+   13    1   12    2       -0.0027361035
+   13    1    4    3       -0.0050348634
+   13    1    7    4       -0.0017410264
+   13    1    8    4       -0.0007327421
+   13    1   10    4       -0.0029489840
+   13    1    6    5       -0.0025699564
+   13    1   12    5        0.0007691521
+   13    1    8    6        0.0000000001
+   13    1    9    6       -0.0073165798
+   13    1   11    6        0.0001549599
+   13    1   12    9        0.0029147275
+   13    1   12   11       -0.0012176460
+    2    2    1    1        0.4833605581
+    2    2    2    2        0.5206477145
+    3    2    1    1        0.0000000002
+    3    2    2    2        0.0000000017
+    3    2    3    2        0.0705820554
+    4    2    2    1       -0.0000000003
+    4    2    3    1       -0.0092002098
+    4    2    4    2        0.0165072278
+    5    2    1    1       -0.0178514755
+    5    2    4    1        0.0000000006
+    5    2    2    2       -0.0303783315
+    5    2    5    2        0.0532005919
+    5    2    3    3       -0.0079549719
+    5    2    4    4        0.0397895924
+    6    2    2    1        0.0056445676
+    6    2    3    1       -0.0000000001
+    6    2    5    1       -0.0096543876
+    6    2    4    2        0.0000000004
+    6    2    6    2        0.0242506253
+    6    2    4    3        0.0116671768
+    7    2    1    1       -0.0000000004
+    7    2    4    1        0.0668723323
+    7    2    6    1       -0.0000000001
+    7    2    2    2       -0.0000000017
+    7    2    3    2       -0.0444206111
+    7    2    7    2        0.0572827132
+    7    2    3    3        0.0000000012
+    7    2    5    3        0.0180922614
+    7    2    4    4        0.0000000005
+    7    2    6    4       -0.0614092223
+    7    2    5    5        0.0000000004
+    7    2    6    6       -0.0000000004
+    8    2    4    1        0.0412445451
+    8    2    6    1        0.0000000002
+    8    2    2    2       -0.0000000007
+    8    2    3    2       -0.0198255294
+    8    2    5    2        0.0000000002
+    8    2    7    2        0.0208708033
+    8    2    8    2        0.0398989520
+    8    2    3    3        0.0000000008
+    8    2    5    3        0.0152200777
+    8    2    7    3       -0.0000000005
+    8    2    4    4        0.0000000002
+    8    2    6    4       -0.0355133722
+    8    2    5    5        0.0000000001
+    8    2    7    5        0.0417553441
+    9    2    1    1        0.0236775837
+    9    2    4    1        0.0000000013
+    9    2    6    1        0.0664833567
+    9    2    2    2        0.0285284258
+    9    2    3    2       -0.0000000013
+    9    2    5    2       -0.0329834455
+    9    2    7    2        0.0000000006
+    9    2    8    2        0.0000000008
+    9    2    9    2        0.0536817749
+    9    2    3    3       -0.0063391608
+    9    2    5    3        0.0000000009
+    9    2    7    3       -0.0139349500
+    9    2    8    3        0.0560400508
+    9    2    4    4       -0.0390991391
+    9    2    6    4       -0.0000000012
+    9    2    5    5       -0.0166140929
+    9    2    7    5        0.0000000013
+    9    2    8    5       -0.0000000004
+    9    2    6    6        0.0325126161
+    9    2    7    7       -0.0396945688
+    9    2    8    7       -0.0115401688
+    9    2    8    8        0.0288692426
+   10    2    1    1        0.0000000017
+   10    2    4    1       -0.0514714026
+   10    2    6    1        0.0000000006
+   10    2    2    2        0.0000000030
+   10    2    3    2        0.0348079767
+   10    2    5    2       -0.0000000006
+   10    2    7    2       -0.0320316637
+   10    2    8    2       -0.0242589679
+   10    2    9    2       -0.0000000002
+   10    2   10    2        0.0376878488
+   10    2    3    3        0.0000000003
+   10    2    5    3       -0.0174600418
+   10    2    7    3        0.0000000004
+   10    2    8    3        0.0000000012
+   10    2    9    3       -0.0219453834
+   10    2    4    4        0.0000000006
+   10    2    6    4        0.0487223639
+   10    2    5    5        0.0000000010
+   10    2    7    5       -0.0553375220
+   10    2    8    5        0.0224289671
+   10    2    9    5        0.0000000002
+   10    2    6    6        0.0000000019
+   10    2    7    7        0.0000000009
+   10    2    8    7       -0.0000000004
+   10    2    9    7        0.0108659685
+   10    2    8    8        0.0000000004
+   10    2    9    8        0.0273939735
+   10    2    9    9        0.0000000021
+   11    2    1    1       -0.0619568203
+   11    2    4    1       -0.0000000018
+   11    2    6    1       -0.0681983812
+   11    2    2    2       -0.0715248450
+   11    2    3    2        0.0000000017
+   11    2    5    2        0.0353442665
+   11    2    7    2       -0.0000000009
+   11    2    8    2       -0.0000000009
+   11    2    9    2       -0.0413378640
+   11    2   10    2        0.0000000003
+   11    2   11    2        0.0619008785
+   11    2    3    3       -0.0357319935
+   11    2    5    3       -0.0000000012
+   11    2    7    3        0.0152175651
+   11    2    8    3       -0.0527149634
+   11    2    9    3       -0.0000000011
+   11    2   10    3        0.0297164146
+   11    2    4    4        0.0021130346
+   11    2    6    4        0.0000000018
+   11    2    5    5       -0.0219767611
+   11    2    7    5       -0.0000000019
+   11    2    8    5        0.0000000006
+   11    2    9    5        0.0102373604
+   11    2   10    5        0.0000000010
+   11    2    6    6       -0.0742186483
+   11    2    7    7       -0.0000119807
+   11    2    8    7        0.0120461171
+   11    2    9    7        0.0000000005
+   11    2   10    7       -0.0070792548
+   11    2    8    8       -0.0588910842
+   11    2    9    8        0.0000000009
+   11    2   10    8        0.0270093435
+   11    2    9    9       -0.0482199721
+   11    2   10    9       -0.0000000010
+   11    2   10   10       -0.0065885106
+   12    2    2    1       -0.0045465604
+   12    2    5    1        0.0001369694
+   12    2    9    1       -0.0004259934
+   12    2   11    1        0.0023245488
+   12    2    4    2        0.0000000001
+   12    2    6    2        0.0004720589
+   12    2   12    2        0.0048842167
+   12    2    4    3        0.0038189437
+   12    2    7    4       -0.0019761739
+   12    2    8    4       -0.0003861388
+   12    2   10    4        0.0044448326
+   12    2   11    4        0.0000000001
+   12    2    6    5        0.0017712428
+   12    2    9    6       -0.0017450823
+   12    2   11    6        0.0043392779
+   13    2    1    1        0.0530547801
+   13    2    4    1       -0.0000000007
+   13    2    6    1       -0.0134272244
+   13    2   12    1       -0.0206969133
+   13    2    2    2        0.0580638951
+   13    2    3    2        0.0000000007
+   13    2    5    2        0.0057478965
+   13    2    7    2       -0.0000000004
+   13    2    8    2       -0.0000000002
+   13    2    9    2       -0.0125418393
+   13    2   10    2        0.0000000008
+   13    2   11    2       -0.0032644085
+   13    2   13    2        0.0271894419
+   13    2    3    3        0.0663913211
+   13    2    5    3       -0.0000000004
+   13    2    7    3        0.0006836698
+   13    2    8    3       -0.0117774361
+   13    2    9    3       -0.0000000003
+   13    2   10    3        0.0182612989
+   13    2   11    3        0.0000000008
+   13    2    4    4        0.0685201336
+   13    2    6    4        0.0000000007
+   13    2   12    4        0.0000000004
+   13    2    5    5        0.0598451386
+   13    2    7    5       -0.0000000007
+   13    2    8    5        0.0000000002
+   13    2    9    5        0.0019343702
+   13    2   10    5        0.0000000003
+   13    2   11    5       -0.0052572605
+   13    2    6    6        0.0533914106
+   13    2   12    6        0.0092507817
+   13    2    7    7        0.0650313575
+   13    2    8    7       -0.0009414207
+   13    2   10    7       -0.0239670528
+   13    2   11    7       -0.0000000005
+   13    2    8    8        0.0420040383
+   13    2    9    8        0.0000000003
+   13    2   10    8       -0.0230951170
+   13    2   11    8       -0.0000000005
+   13    2    9    9        0.0341185106
+   13    2   11    9       -0.0293599315
+   13    2   10   10        0.0342822096
+   13    2   11   10        0.0000000004
+   13    2   11   11        0.0256023031
+   13    2   12   12        0.0280923490
+    3    3    1    1        0.4798422621
+    3    3    2    2        0.4835758743
+    3    3    3    2       -0.0000000014
+    3    3    3    3        0.5229176271
+    4    3    2    1       -0.0092042909
+    4    3    3    1        0.0000000003
+    4    3    4    3        0.0220515413
+    5    3    4    1        0.0491764559
+    5    3    2    2       -0.0000000006
+    5    3    3    2       -0.0318476372
+    5    3    5    2       -0.0000000003
+    5    3    3    3        0.0000000010
+    5    3    5    3        0.0395174488
+    5    3    4    4       -0.0000000003
+    6    3    2    1       -0.0000000001
+    6    3    3    1       -0.0018337191
+    6    3    5    1        0.0000000001
+    6    3    4    2        0.0115939061
+    6    3    4    3       -0.0000000003
+    6    3    6    3        0.0189895711
+    6    3    5    4       -0.0009574262
+    7    3    1    1       -0.0105786055
+    7    3    4    1       -0.0000000012
+    7    3    6    1       -0.0304606143
+    7    3    2    2       -0.0206629948
+    7    3    3    2        0.0000000011
+    7    3    5    2        0.0029465706
+    7    3    7    2       -0.0000000006
+    7    3    3    3       -0.0002596342
+    7    3    5    3       -0.0000000004
+    7    3    7    3        0.0299169052
+    7    3    4    4        0.0161203392
+    7    3    6    4        0.0000000012
+    7    3    5    5        0.0183951107
+    7    3    6    6       -0.0139994662
+    8    3    1    1        0.0388170629
+    8    3    4    1       -0.0000000015
+    8    3    6    1        0.0980656612
+    8    3    2    2        0.0399826237
+    8    3    3    2        0.0000000006
+    8    3    5    2       -0.0431610742
+    8    3    7    2       -0.0000000011
+    8    3    8    2       -0.0000000007
+    8    3    3    3        0.0071082449
+    8    3    7    3       -0.0238938438
+    8    3    8    3        0.0943902449
+    8    3    4    4       -0.0520840274
+    8    3    6    4        0.0000000013
+    8    3    5    5       -0.0235143817
+    8    3    7    5       -0.0000000016
+    8    3    6    6        0.0570703625
+    8    3    7    7       -0.0480414231
+    9    3    4    1        0.0457575770
+    9    3    6    1        0.0000000007
+    9    3    2    2       -0.0000000010
+    9    3    3    2       -0.0380920650
+    9    3    7    2        0.0278932216
+    9    3    8    2        0.0220945798
+    9    3    9    2        0.0000000010
+    9    3    3    3        0.0000000012
+    9    3    5    3        0.0194394252
+    9    3    7    3       -0.0000000007
+    9    3    8    3       -0.0000000003
+    9    3    9    3        0.0381976387
+    9    3    6    4       -0.0461777756
+    9    3    7    5        0.0514078096
+    9    3    8    5       -0.0211516263
+    9    3    6    6        0.0000000002
+    9    3    7    7       -0.0000000002
+    9    3    8    7        0.0000000002
+    9    3    8    8        0.0000000013
+   10    3    1    1        0.0025432802
+   10    3    4    1        0.0000000017
+   10    3    6    1       -0.0518518765
+   10    3    2    2        0.0085754736
+   10    3    3    2       -0.0000000010
+   10    3    5    2        0.0242314878
+   10    3    7    2        0.0000000010
+   10    3    8    2        0.0000000007
+   10    3    9    2       -0.0277658713
+   10    3   10    2       -0.0000000012
+   10    3    3    3        0.0230532678
+   10    3    5    3        0.0000000004
+   10    3    7    3        0.0080738599
+   10    3    8    3       -0.0464145131
+   10    3    9    3        0.0000000006
+   10    3   10    3        0.0359421180
+   10    3    4    4        0.0531272837
+   10    3    6    4       -0.0000000016
+   10    3    5    5        0.0327653676
+   10    3    7    5        0.0000000019
+   10    3    8    5       -0.0000000010
+   10    3    9    5        0.0078328202
+   10    3    6    6       -0.0058325932
+   10    3    7    7        0.0472278982
+   10    3    8    7        0.0067475965
+   10    3    9    7       -0.0000000003
+   10    3    8    8       -0.0086611236
+   10    3    9    8       -0.0000000011
+   10    3    9    9        0.0009840549
+   11    3    1    1        0.0000000011
+   11    3    4    1       -0.0420212209
+   11    3    6    1       -0.0000000005
+   11    3    2    2        0.0000000022
+   11    3    3    2        0.0294761923
+   11    3    7    2       -0.0216301781
+   11    3    8    2       -0.0208690246
+   11    3    9    2       -0.0000000008
+   11    3   10    2        0.0252738008
+   11    3   11    2        0.0000000008
+   11    3    3    3        0.0000000003
+   11    3    5    3       -0.0196258492
+   11    3    7    3        0.0000000004
+   11    3    8    3        0.0000000003
+   11    3    9    3       -0.0252814036
+   11    3   10    3       -0.0000000004
+   11    3   11    3        0.0255636774
+   11    3    4    4        0.0000000011
+   11    3    6    4        0.0409249329
+   11    3    5    5        0.0000000010
+   11    3    7    5       -0.0463710115
+   11    3    8    5        0.0212457395
+   11    3    9    5        0.0000000004
+   11    3   10    5        0.0051879276
+   11    3    6    6        0.0000000011
+   11    3    7    7        0.0000000013
+   11    3    8    7       -0.0000000002
+   11    3    9    7        0.0077703901
+   11    3   10    7       -0.0000000005
+   11    3    8    8       -0.0000000002
+   11    3    9    8        0.0244553526
+   11    3   10    8        0.0000000002
+   11    3    9    9        0.0000000016
+   11    3   10    9       -0.0101972051
+   11    3   10   10        0.0000000003
+   12    3    3    1       -0.0058079426
+   12    3    7    1        0.0001986783
+   12    3    8    1       -0.0010695777
+   12    3   10    1       -0.0007988115
+   12    3    4    2        0.0039945723
+   12    3    4    3       -0.0000000001
+   12    3    6    3        0.0015149049
+   12    3   12    3        0.0044999017
+   12    3    5    4       -0.0013898397
+   12    3    9    4       -0.0002167720
+   12    3   10    4       -0.0000000001
+   12    3   11    4        0.0017452800
+   12    3    7    6        0.0015694978
+   12    3    8    6       -0.0024968925
+   12    3   10    6        0.0035305738
+   13    3    1    1       -0.0000000002
+   13    3    4    1       -0.0476137240
+   13    3    6    1        0.0000000002
+   13    3   12    1        0.0000000001
+   13    3    2    2        0.0000000007
+   13    3    3    2        0.0375797431
+   13    3    5    2       -0.0000000004
+   13    3    7    2       -0.0251365634
+   13    3    8    2       -0.0157612496
+   13    3    9    2       -0.0000000003
+   13    3   10    2        0.0300300700
+   13    3   11    2        0.0000000010
+   13    3   13    2        0.0000000002
+   13    3    3    3       -0.0000000016
+   13    3    5    3       -0.0237566709
+   13    3    7    3        0.0000000005
+   13    3    8    3        0.0000000009
+   13    3    9    3       -0.0229078039
+   13    3   10    3       -0.0000000013
+   13    3   11    3        0.0238857552
+   13    3   13    3        0.0354865001
+   13    3    4    4       -0.0000000010
+   13    3    6    4        0.0466682573
+   13    3   12    4        0.0272893074
+   13    3    5    5       -0.0000000008
+   13    3    7    5       -0.0502361335
+   13    3    8    5        0.0183519669
+   13    3    9    5        0.0000000002
+   13    3   10    5        0.0096570098
+   13    3   11    5        0.0000000003
+   13    3    6    6       -0.0000000002
+   13    3   12    6       -0.0000000001
+   13    3    7    7       -0.0000000006
+   13    3    8    7       -0.0000000002
+   13    3    9    7        0.0082420705
+   13    3   10    7        0.0000000002
+   13    3   11    7        0.0039600111
+   13    3    8    8       -0.0000000010
+   13    3    9    8        0.0207067900
+   13    3   10    8        0.0000000011
+   13    3   11    8       -0.0243680584
+   13    3    9    9        0.0000000004
+   13    3   10    9       -0.0201152127
+   13    3   11    9       -0.0000000007
+   13    3   10   10       -0.0000000007
+   13    3   11   10        0.0098621019
+   13    3   11   11        0.0000000004
+   13    3   12   12       -0.0000000002
+    4    4    1    1        0.4730442835
+    4    4    4    1        0.0000000008
+    4    4    2    2        0.4380423061
+    4    4    3    3        0.4773368021
+    4    4    4    4        0.5681136543
+    5    4    3    1        0.0044180529
+    5    4    4    2        0.0066527792
+    5    4    5    4        0.0182243472
+    6    4    1    1        0.0000000004
+    6    4    4    1       -0.1302196501
+    6    4    6    1       -0.0000000004
+    6    4    2    2        0.0000000023
+    6    4    3    2        0.0709666991
+    6    4    5    2       -0.0000000005
+    6    4    3    3       -0.0000000019
+    6    4    5    3       -0.0450071255
+    6    4    4    4       -0.0000000007
+    6    4    6    4        0.1250194110
+    6    4    5    5       -0.0000000004
+    7    4    2    1        0.0058901705
+    7    4    3    1       -0.0000000001
+    7    4    5    1        0.0116401379
+    7    4    6    2       -0.0036490110
+    7    4    4    3        0.0042187219
+    7    4    7    4        0.0216755683
+    7    4    6    5       -0.0113376656
+    8    4    2    1        0.0015643212
+    8    4    5    1       -0.0049742251
+    8    4    8    1        0.0000000003
+    8    4    6    2        0.0015224633
+    8    4    4    3       -0.0017794280
+    8    4    5    4       -0.0000000001
+    8    4    7    4        0.0030166367
+    8    4    8    4        0.0141528859
+    8    4    6    5        0.0037280794
+    9    4    3    1        0.0023135104
+    9    4    7    1       -0.0036594089
+    9    4    8    1       -0.0079321273
+    9    4    9    1       -0.0000000003
+    9    4    4    2       -0.0008258818
+    9    4    6    3       -0.0003963345
+    9    4    5    4        0.0043992069
+    9    4    9    4        0.0101308096
+    9    4    7    6        0.0030827246
+    9    4    8    6        0.0074146896
+   10    4    2    1       -0.0047060883
+   10    4    3    1        0.0000000001
+   10    4    5    1       -0.0021912023
+   10    4    8    1       -0.0000000002
+   10    4    9    1        0.0028702729
+   10    4    6    2        0.0042486525
+   10    4    4    3        0.0048974899
+   10    4    5    4        0.0000000001
+   10    4    7    4       -0.0062664570
+   10    4    8    4       -0.0033067058
+   10    4    9    4        0.0000000001
+   10    4   10    4        0.0079177563
+   10    4    6    5        0.0022689427
+   10    4    8    6        0.0000000002
+   10    4    9    6       -0.0031726942
+   11    4    2    1       -0.0000000001
+   11    4    3    1       -0.0026988314
+   11    4    7    1        0.0009551037
+   11    4    8    1        0.0058790453
+   11    4    9    1        0.0000000002
+   11    4   10    1       -0.0018032341
+   11    4   11    1       -0.0000000001
+   11    4    4    2        0.0005987927
+   11    4    6    2        0.0000000001
+   11    4    4    3        0.0000000001
+   11    4    6    3        0.0012936299
+   11    4    5    4       -0.0053327812
+   11    4    7    4       -0.0000000001
+   11    4    9    4       -0.0065715511
+   11    4   11    4        0.0058078820
+   11    4    7    6       -0.0003455777
+   11    4    8    6       -0.0052264546
+   11    4    9    6       -0.0000000002
+   11    4   10    6        0.0016379969
+   12    4    1    1        0.0000000001
+   12    4    4    1       -0.0581771746
+   12    4    2    2        0.0000000009
+   12    4    3    2        0.0311122523
+   12    4    5    2       -0.0000000003
+   12    4    7    2       -0.0271721478
+   12    4    8    2       -0.0144372123
+   12    4    9    2       -0.0000000004
+   12    4   10    2        0.0282792738
+   12    4   11    2        0.0000000009
+   12    4    3    3       -0.0000000009
+   12    4    5    3       -0.0218909778
+   12    4    7    3        0.0000000005
+   12    4    8    3        0.0000000006
+   12    4    9    3       -0.0174467455
+   12    4   10    3       -0.0000000009
+   12    4   11    3        0.0205728345
+   12    4    4    4       -0.0000000005
+   12    4    6    4        0.0563674621
+   12    4   12    4        0.0384725626
+   12    4    5    5       -0.0000000003
+   12    4    7    5       -0.0512854964
+   12    4    8    5        0.0203941625
+   12    4    9    5        0.0000000003
+   12    4   10    5        0.0120875456
+   12    4   11    5        0.0000000003
+   12    4    6    6        0.0000000002
+   12    4    8    7       -0.0000000003
+   12    4    9    7        0.0103561893
+   12    4   11    7        0.0041225830
+   12    4    8    8       -0.0000000010
+   12    4    9    8        0.0275513900
+   12    4   10    8        0.0000000008
+   12    4   11    8       -0.0222579667
+   12    4    9    9        0.0000000009
+   12    4   10    9       -0.0170593632
+   12    4   11    9       -0.0000000008
+   12    4   10   10       -0.0000000005
+   12    4   11   10        0.0101922363
+   12    4   11   11        0.0000000005
+   13    4    3    1       -0.0054559486
+   13    4    7    1       -0.0012602448
+   13    4    8    1       -0.0001928953
+   13    4   10    1       -0.0032427154
+   13    4    4    2        0.0065091560
+   13    4    4    3       -0.0000000001
+   13    4    6    3        0.0063152117
+   13    4   12    3        0.0045623816
+   13    4    5    4       -0.0008575249
+   13    4    9    4        0.0001600580
+   13    4   11    4        0.0014419343
+   13    4   13    4        0.0074161819
+   13    4    7    6        0.0011723961
+   13    4    8    6        0.0004476459
+   13    4   10    6        0.0036111691
+   13    4   12    7        0.0001138396
+   13    4   12    8       -0.0009028632
+   13    4   12   10        0.0006869471
+    5    5    1    1        0.4555889226
+    5    5    4    1        0.0000000004
+    5    5    2    2        0.4562941183
+    5    5    5    2        0.0235017620
+    5    5    3    3        0.4749918372
+    5    5    5    3       -0.0000000001
+    5    5    4    4        0.4926295410
+    5    5    5    5        0.5137568579
+    6    5    2    1       -0.0103744848
+    6    5    3    1        0.0000000002
+    6    5    5    1       -0.0048508241
+    6    5    6    2       -0.0074020828
+    6    5    4    3       -0.0044006129
+    6    5    6    5        0.0153475396
+    7    5    1    1       -0.0000000005
+    7    5    4    1        0.1234575785
+    7    5    6    1        0.0000000002
+    7    5    2    2       -0.0000000025
+    7    5    3    2       -0.0735696886
+    7    5    5    2        0.0000000007
+    7    5    7    2        0.0794326211
+    7    5    3    3        0.0000000020
+    7    5    5    3        0.0550729491
+    7    5    7    3       -0.0000000014
+    7    5    4    4        0.0000000008
+    7    5    6    4       -0.1168482486
+    7    5    5    5        0.0000000005
+    7    5    7    5        0.1589057322
+    7    5    6    6       -0.0000000005
+    8    5    1    1        0.0000000003
+    8    5    4    1       -0.0469259790
+    8    5    6    1        0.0000000003
+    8    5    2    2        0.0000000010
+    8    5    3    2        0.0211599607
+    8    5    5    2       -0.0000000005
+    8    5    7    2       -0.0245319132
+    8    5    8    2       -0.0218258960
+    8    5    3    3       -0.0000000006
+    8    5    5    3       -0.0213151362
+    8    5    7    3        0.0000000004
+    8    5    8    3        0.0000000011
+    8    5    4    4       -0.0000000006
+    8    5    6    4        0.0418769664
+    8    5    5    5       -0.0000000003
+    8    5    7    5       -0.0517156403
+    8    5    8    5        0.0325374863
+    8    5    6    6        0.0000000003
+    9    5    1    1       -0.0062902903
+    9    5    4    1       -0.0000000007
+    9    5    6    1       -0.0159320957
+    9    5    2    2       -0.0152585765
+    9    5    3    2        0.0000000005
+    9    5    5    2        0.0113964778
+    9    5    7    2       -0.0000000004
+    9    5    8    2       -0.0000000003
+    9    5    9    2       -0.0091318286
+    9    5    3    3        0.0019636243
+    9    5    5    3       -0.0000000004
+    9    5    7    3        0.0013946607
+    9    5    8    3       -0.0158098796
+    9    5    9    3       -0.0000000004
+    9    5    4    4        0.0118255987
+    9    5    6    4        0.0000000006
+    9    5    5    5        0.0052625075
+    9    5    7    5       -0.0000000007
+    9    5    8    5        0.0000000001
+    9    5    9    5        0.0189255608
+    9    5    6    6       -0.0097661157
+    9    5    7    7        0.0026706464
+    9    5    8    7       -0.0062855341
+    9    5    8    8       -0.0029699550
+   10    5    1    1        0.0000000001
+   10    5    4    1       -0.0185648220
+   10    5    6    1       -0.0000000009
+   10    5    2    2        0.0000000003
+   10    5    3    2        0.0137822905
+   10    5    5    2        0.0000000004
+   10    5    7    2       -0.0157718113
+   10    5    8    2       -0.0000036797
+   10    5    9    2       -0.0000000004
+   10    5   10    2        0.0132249476
+   10    5    5    3       -0.0061144116
+   10    5    7    3        0.0000000005
+   10    5    8    3       -0.0000000006
+   10    5    9    3       -0.0054934962
+   10    5   10    3        0.0000000001
+   10    5    4    4        0.0000000007
+   10    5    6    4        0.0189872028
+   10    5    5    5        0.0000000005
+   10    5    7    5       -0.0256376381
+   10    5    8    5        0.0048977784
+   10    5    9    5        0.0000000004
+   10    5   10    5        0.0124905301
+   10    5    7    7        0.0000000007
+   10    5    8    7       -0.0000000001
+   10    5    9    7        0.0063844675
+   10    5    8    8       -0.0000000003
+   10    5    9    8        0.0096331153
+   10    5    9    9        0.0000000004
+   11    5    1    1       -0.0012297441
+   11    5    4    1       -0.0000000005
+   11    5    6    1        0.0361122000
+   11    5    2    2        0.0095886864
+   11    5    5    2       -0.0217868822
+   11    5    7    2       -0.0000000004
+   11    5    9    2        0.0152998015
+   11    5   10    2        0.0000000006
+   11    5   11    2       -0.0249335865
+   11    5    3    3       -0.0131336253
+   11    5    5    3        0.0000000001
+   11    5    7    3       -0.0081079245
+   11    5    8    3        0.0288970095
+   11    5   10    3       -0.0181408976
+   11    5    4    4       -0.0367566834
+   11    5    6    4        0.0000000005
+   11    5    5    5       -0.0262178655
+   11    5    7    5       -0.0000000007
+   11    5    8    5        0.0000000004
+   11    5    9    5       -0.0134621119
+   11    5   10    5       -0.0000000003
+   11    5   11    5        0.0260341960
+   11    5    6    6        0.0077119600
+   11    5    7    7       -0.0318566812
+   11    5    8    7        0.0004219497
+   11    5    9    7        0.0000000002
+   11    5   10    7        0.0142204354
+   11    5    8    8       -0.0003876587
+   11    5    9    8        0.0000000003
+   11    5   10    8       -0.0036386506
+   11    5    9    9       -0.0009686316
+   11    5   10    9       -0.0000000002
+   11    5   10   10       -0.0091204253
+   12    5    2    1        0.0001827712
+   12    5    5    1       -0.0033590919
+   12    5    9    1       -0.0016031563
+   12    5   11    1        0.0015174625
+   12    5    6    2        0.0031404605
+   12    5   12    2       -0.0000300101
+   12    5    4    3       -0.0001046202
+   12    5    7    4       -0.0027492746
+   12    5    8    4        0.0034483961
+   12    5   10    4        0.0012390637
+   12    5    6    5        0.0016308997
+   12    5   12    5        0.0049567350
+   12    5    9    6        0.0010160555
+   12    5   11    6       -0.0038212120
+   13    5    1    1       -0.0238058546
+   13    5    6    1       -0.0028143129
+   13    5   12    1        0.0090468680
+   13    5    2    2       -0.0209778404
+   13    5    3    2       -0.0000000001
+   13    5    5    2        0.0028918215
+   13    5    9    2       -0.0005034638
+   13    5   10    2       -0.0000000002
+   13    5   11    2        0.0051434731
+   13    5   13    2       -0.0074722588
+   13    5    3    3       -0.0269197882
+   13    5    7    3       -0.0019449523
+   13    5    8    3       -0.0004628920
+   13    5   10    3       -0.0011217207
+   13    5   11    3       -0.0000000001
+   13    5    4    4       -0.0228910459
+   13    5    5    5       -0.0215399123
+   13    5    9    5       -0.0036000714
+   13    5   10    5       -0.0000000001
+   13    5   11    5        0.0043749363
+   13    5   13    5        0.0115734292
+   13    5    6    6       -0.0241185396
+   13    5   12    6       -0.0017758390
+   13    5    7    7       -0.0225609576
+   13    5    8    7        0.0015599421
+   13    5   10    7        0.0005278418
+   13    5    8    8       -0.0221083030
+   13    5    9    8       -0.0000000001
+   13    5   10    8        0.0094525651
+   13    5    9    9       -0.0145439087
+   13    5   10    9       -0.0000000001
+   13    5   11    9        0.0139234714
+   13    5   10   10       -0.0140230534
+   13    5   11   11       -0.0133568101
+   13    5   12   12       -0.0102908898
+    6    6    1    1        0.5284469318
+    6    6    4    1       -0.0000000005
+    6    6    6    1        0.0851288523
+    6    6    2    2        0.4966250232
+    6    6    5    2       -0.0344286696
+    6    6    3    3        0.4822648907
+    6    6    5    3        0.0000000003
+    6    6    4    4        0.4551194177
+    6    6    6    4        0.0000000004
+    6    6    5    5        0.4487014028
+    6    6    6    6        0.5486730912
+    7    6    3    1       -0.0042354068
+    7    6    7    1       -0.0093344711
+    7    6    4    2       -0.0038901041
+    7    6    6    3        0.0003119993
+    7    6    5    4       -0.0104655119
+    7    6    7    6        0.0104326192
+    8    6    3    1        0.0101965814
+    8    6    7    1       -0.0035667007
+    8    6    8    1        0.0022940111
+    8    6    4    2        0.0008671109
+    8    6    6    2        0.0000000002
+    8    6    6    3        0.0086197087
+    8    6    5    4        0.0058426363
+    8    6    7    4       -0.0000000001
+    8    6    8    4       -0.0000000003
+    8    6    7    6       -0.0016478292
+    8    6    8    6        0.0165710016
+    9    6    2    1        0.0025911791
+    9    6    3    1        0.0000000001
+    9    6    5    1        0.0010484604
+    9    6    8    1       -0.0000000002
+    9    6    9    1        0.0096750864
+    9    6    6    2       -0.0020222684
+    9    6    4    3       -0.0031719057
+    9    6    6    3        0.0000000001
+    9    6    7    4        0.0055233031
+    9    6    8    4        0.0084841959
+    9    6    9    4        0.0000000003
+    9    6    6    5        0.0038247675
+    9    6    9    6        0.0230186914
+   10    6    3    1       -0.0062223735
+   10    6    7    1        0.0040091405
+   10    6    8    1       -0.0023320985
+   10    6   10    1       -0.0016184318
+   10    6    4    2        0.0043246556
+   10    6    6    2        0.0000000001
+   10    6    4    3       -0.0000000001
+   10    6    6    3       -0.0017586867
+   10    6    5    4        0.0017974666
+   10    6    8    4        0.0000000002
+   10    6    9    4       -0.0022230369
+   10    6    7    6       -0.0015233817
+   10    6    8    6       -0.0057777038
+   10    6   10    6        0.0059457602
+   11    6    2    1       -0.0055979952
+   11    6    5    1        0.0034533067
+   11    6    9    1       -0.0019701636
+   11    6   10    1       -0.0000000001
+   11    6   11    1        0.0030796515
+   11    6    4    2        0.0000000001
+   11    6    6    2       -0.0048901091
+   11    6    4    3        0.0021756337
+   11    6    7    4       -0.0016683706
+   11    6    8    4       -0.0060418556
+   11    6    9    4       -0.0000000002
+   11    6   10    4        0.0025775024
+   11    6   11    4        0.0000000001
+   11    6    6    5        0.0004500650
+   11    6    9    6       -0.0097439434
+   11    6   11    6        0.0111035223
+   12    6    1    1       -0.0014851919
+   12    6    6    1       -0.0534939550
+   12    6   12    1       -0.0040980858
+   12    6    2    2       -0.0013226248
+   12    6    3    2        0.0000000002
+   12    6    5    2        0.0204805809
+   12    6    9    2       -0.0194131714
+   12    6   10    2       -0.0000000002
+   12    6   11    2        0.0259848992
+   12    6    3    3        0.0114883548
+   12    6    5    3       -0.0000000003
+   12    6    7    3        0.0096077784
+   12    6    8    3       -0.0309542371
+   12    6    9    3       -0.0000000002
+   12    6   10    3        0.0231241039
+   12    6   11    3        0.0000000003
+   12    6    4    4        0.0512107807
+   12    6    6    4        0.0000000001
+   12    6    5    5        0.0277651169
+   12    6    8    5       -0.0000000001
+   12    6    9    5        0.0061315299
+   12    6   10    5        0.0000000005
+   12    6   11    5       -0.0192162290
+   12    6    6    6       -0.0113523213
+   12    6   12    6        0.0315694997
+   12    6    7    7        0.0392789978
+   12    6    8    7        0.0060261365
+   12    6   10    7       -0.0190618912
+   12    6   11    7       -0.0000000004
+   12    6    8    8       -0.0023468810
+   12    6   10    8        0.0031023266
+   12    6    9    9       -0.0041190296
+   12    6   11    9        0.0041148878
+   12    6   10   10        0.0129174366
+   12    6   11   10        0.0000000005
+   12    6   11   11       -0.0065218539
+   13    6    2    1       -0.0003932414
+   13    6    5    1       -0.0020534028
+   13    6    9    1       -0.0060905997
+   13    6   11    1       -0.0007509904
+   13    6   13    1        0.0003846429
+   13    6    6    2        0.0067548375
+   13    6   12    2        0.0019205127
+   13    6    4    3        0.0062457040
+   13    6    7    4        0.0003242347
+   13    6    8    4        0.0002246055
+   13    6   10    4        0.0039647477
+   13    6    6    5       -0.0033038017
+   13    6   12    5        0.0002247253
+   13    6    8    6        0.0000000001
+   13    6    9    6       -0.0071344314
+   13    6   11    6        0.0011297524
+   13    6   13    6        0.0084481073
+   13    6   12    9        0.0012019395
+   13    6   12   11       -0.0008634992
+    7    7    1    1        0.4425149201
+    7    7    6    1       -0.0721518580
+    7    7    2    2        0.4408722551
+    7    7    3    2        0.0000000004
+    7    7    5    2        0.0483575496
+    7    7    7    2        0.0000000001
+    7    7    3    3        0.4713672843
+    7    7    5    3       -0.0000000008
+    7    7    7    3        0.0190599275
+    7    7    4    4        0.5118711834
+    7    7    5    5        0.5097163271
+    7    7    6    6        0.4285148374
+    7    7    7    7        0.5396768248
+    8    7    1    1       -0.0112953108
+    8    7    4    1        0.0000000005
+    8    7    6    1       -0.0175745495
+    8    7    2    2       -0.0136189923
+    8    7    3    2       -0.0000000004
+    8    7    5    2        0.0078256440
+    8    7    7    2        0.0000000003
+    8    7    8    2        0.0000000002
+    8    7    3    3       -0.0158727347
+    8    7    7    3        0.0004777975
+    8    7    8    3       -0.0148375724
+    8    7    4    4        0.0013062492
+    8    7    6    4       -0.0000000005
+    8    7    5    5       -0.0122043279
+    8    7    7    5        0.0000000005
+    8    7    6    6       -0.0183313428
+    8    7    7    7        0.0021484928
+    8    7    8    7        0.0159234040
+    9    7    1    1       -0.0000000001
+    9    7    4    1       -0.0184074771
+    9    7    6    1       -0.0000000002
+    9    7    2    2        0.0000000002
+    9    7    3    2        0.0140385064
+    9    7    7    2       -0.0123662047
+    9    7    8    2       -0.0088726513
+    9    7    9    2       -0.0000000004
+    9    7    3    3       -0.0000000007
+    9    7    5    3       -0.0053049244
+    9    7    7    3        0.0000000002
+    9    7    8    3        0.0000000002
+    9    7    9    3       -0.0089214846
+    9    7    4    4       -0.0000000002
+    9    7    6    4        0.0193081620
+    9    7    5    5       -0.0000000003
+    9    7    7    5       -0.0190003468
+    9    7    8    5       -0.0016375631
+    9    7    9    5       -0.0000000002
+    9    7    6    6       -0.0000000002
+    9    7    9    7        0.0165067090
+    9    7    8    8       -0.0000000006
+   10    7    1    1       -0.0559311551
+   10    7    6    1        0.0348524895
+   10    7    2    2       -0.0548458543
+   10    7    5    2       -0.0204996347
+   10    7    8    2       -0.0000000001
+   10    7    9    2        0.0186211819
+   10    7   10    2       -0.0000000003
+   10    7    3    3       -0.0608191899
+   10    7    5    3        0.0000000004
+   10    7    7    3       -0.0055558597
+   10    7    8    3        0.0255205771
+   10    7   10    3       -0.0237372929
+   10    7    4    4       -0.0875251350
+   10    7    5    5       -0.0791085047
+   10    7    9    5        0.0011910178
+   10    7   10    5       -0.0000000004
+   10    7    6    6       -0.0482017819
+   10    7    7    7       -0.0911484983
+   10    7    8    7       -0.0060380134
+   10    7   10    7        0.0444680830
+   10    7    8    8       -0.0397557718
+   10    7    9    9       -0.0407895539
+   11    7    1    1       -0.0000000013
+   11    7    4    1       -0.0023293329
+   11    7    6    1        0.0000000007
+   11    7    2    2       -0.0000000013
+   11    7    3    2        0.0022845806
+   11    7    5    2       -0.0000000005
+   11    7    7    2        0.0010357136
+   11    7    8    2        0.0041949759
+   11    7    9    2        0.0000000005
+   11    7   10    2        0.0019951036
+   11    7    3    3       -0.0000000014
+   11    7    5    3       -0.0060902378
+   11    7    7    3       -0.0000000001
+   11    7    8    3        0.0000000004
+   11    7    9    3        0.0011832819
+   11    7   10    3       -0.0000000006
+   11    7   11    3        0.0018228627
+   11    7    4    4       -0.0000000020
+   11    7    6    4        0.0025248707
+   11    7    5    5       -0.0000000018
+   11    7    7    5       -0.0054391163
+   11    7    8    5        0.0049571194
+   11    7    9    5        0.0000000001
+   11    7   10    5        0.0029223975
+   11    7   11    5        0.0000000003
+   11    7    6    6       -0.0000000012
+   11    7    7    7       -0.0000000021
+   11    7    9    7       -0.0034491693
+   11    7   10    7        0.0000000009
+   11    7   11    7        0.0062491512
+   11    7    8    8       -0.0000000010
+   11    7    9    8        0.0027458870
+   11    7   10    8        0.0000000006
+   11    7    9    9       -0.0000000009
+   11    7   10    9       -0.0004330716
+   11    7   10   10       -0.0000000009
+   12    7    3    1        0.0002746008
+   12    7    7    1       -0.0047049756
+   12    7    8    1       -0.0003985611
+   12    7   10    1        0.0023214909
+   12    7    4    2       -0.0007352560
+   12    7    6    3        0.0029345840
+   12    7   12    3        0.0002522891
+   12    7    5    4       -0.0031383720
+   12    7    9    4        0.0025777596
+   12    7   11    4       -0.0000008199
+   12    7    7    6        0.0038454641
+   12    7    8    6        0.0024205419
+   12    7   10    6       -0.0029979923
+   12    7   12    7        0.0048311395
+   13    7    1    1        0.0000000002
+   13    7    4    1       -0.0062596400
+   13    7    6    1       -0.0000000002
+   13    7    2    2        0.0000000002
+   13    7    3    2        0.0018164629
+   13    7    7    2        0.0001811798
+   13    7    8    2       -0.0038509931
+   13    7    9    2       -0.0000000002
+   13    7   10    2       -0.0042843533
+   13    7   13    2        0.0000000001
+   13    7    3    3        0.0000000002
+   13    7    5    3       -0.0064477207
+   13    7    9    3       -0.0027322639
+   13    7   10    3        0.0000000001
+   13    7   11    3        0.0029106393
+   13    7   13    3        0.0004593018
+   13    7    4    4        0.0000000003
+   13    7    6    4        0.0057393863
+   13    7   12    4       -0.0004208237
+   13    7    5    5        0.0000000003
+   13    7    7    5       -0.0098689043
+   13    7    8    5        0.0025535511
+   13    7   10    5       -0.0046028946
+   13    7   11    5       -0.0000000002
+   13    7    6    6        0.0000000002
+   13    7    7    7        0.0000000004
+   13    7    9    7       -0.0002838939
+   13    7   10    7       -0.0000000001
+   13    7   11    7        0.0006010579
+   13    7   13    7        0.0093850092
+   13    7    9    8        0.0032618273
+   13    7   11    8       -0.0025151522
+   13    7    9    9        0.0000000002
+   13    7   10    9        0.0036626816
+   13    7   10   10        0.0000000003
+   13    7   11   10       -0.0021874274
+   13    7   12   12        0.0000000001
+    8    8    1    1        0.4569486563
+    8    8    4    1        0.0000000022
+    8    8    6    1        0.0597695638
+    8    8    2    2        0.4632925829
+    8    8    3    2       -0.0000000016
+    8    8    5    2       -0.0315119166
+    8    8    7    2        0.0000000011
+    8    8    8    2        0.0000000010
+    8    8    3    3        0.4594924115
+    8    8    5    3        0.0000000015
+    8    8    7    3       -0.0169290871
+    8    8    8    3        0.0570700579
+    8    8    4    4        0.4057227736
+    8    8    6    4       -0.0000000020
+    8    8    5    5        0.4238056157
+    8    8    7    5        0.0000000021
+    8    8    8    5       -0.0000000008
+    8    8    6    6        0.4675134652
+    8    8    7    7        0.4014656083
+    8    8    8    7       -0.0174057903
+    8    8    8    8        0.4651179685
+    9    8    1    1        0.0000000004
+    9    8    4    1       -0.0647991494
+    9    8    2    2        0.0000000017
+    9    8    3    2        0.0457585876
+    9    8    5    2       -0.0000000006
+    9    8    7    2       -0.0376042772
+    9    8    8    2       -0.0226742313
+    9    8    9    2       -0.0000000007
+    9    8    3    3       -0.0000000009
+    9    8    5    3       -0.0300825430
+    9    8    7    3        0.0000000006
+    9    8    8    3        0.0000000013
+    9    8    9    3       -0.0250243829
+    9    8    4    4       -0.0000000003
+    9    8    6    4        0.0594279377
+    9    8    7    5       -0.0643308034
+    9    8    8    5        0.0257732548
+    9    8    9    5        0.0000000005
+    9    8    6    6        0.0000000005
+    9    8    8    7       -0.0000000004
+    9    8    9    7        0.0107263723
+    9    8    8    8       -0.0000000010
+    9    8    9    8        0.0518205512
+   10    8    1    1       -0.0951703484
+   10    8    4    1       -0.0000000016
+   10    8    6    1       -0.0278963644
+   10    8    2    2       -0.0940548014
+   10    8    3    2        0.0000000010
+   10    8    5    2        0.0169595491
+   10    8    7    2       -0.0000000009
+   10    8    8    2       -0.0000000007
+   10    8    9    2       -0.0114124323
+   10    8   10    2        0.0000000002
+   10    8    3    3       -0.0935048188
+   10    8    5    3       -0.0000000010
+   10    8    7    3        0.0063405028
+   10    8    8    3       -0.0253482591
+   10    8    9    3       -0.0000000008
+   10    8   10    3        0.0022945898
+   10    8    4    4       -0.0688519577
+   10    8    6    4        0.0000000015
+   10    8    5    5       -0.0723192490
+   10    8    7    5       -0.0000000016
+   10    8    8    5        0.0000000006
+   10    8    9    5        0.0063376077
+   10    8   10    5        0.0000000004
+   10    8    6    6       -0.0990731463
+   10    8    7    7       -0.0664107917
+   10    8    8    7        0.0036755097
+   10    8    9    7        0.0000000002
+   10    8   10    7        0.0209199233
+   10    8    8    8       -0.0905297859
+   10    8    9    8        0.0000000005
+   10    8   10    8        0.0472630767
+   10    8    9    9       -0.0690321172
+   11    8    1    1       -0.0000000006
+   11    8    4    1        0.0513594461
+   11    8    6    1       -0.0000000004
+   11    8    2    2       -0.0000000015
+   11    8    3    2       -0.0321485970
+   11    8    5    2        0.0000000007
+   11    8    7    2        0.0316748498
+   11    8    8    2        0.0158345769
+   11    8    9    2        0.0000000003
+   11    8   10    2       -0.0192919072
+   11    8   11    2       -0.0000000007
+   11    8    3    3        0.0000000005
+   11    8    5    3        0.0246048274
+   11    8    7    3       -0.0000000005
+   11    8    8    3       -0.0000000012
+   11    8    9    3        0.0213985509
+   11    8   10    3        0.0000000008
+   11    8   11    3       -0.0158073828
+   11    8    4    4        0.0000000003
+   11    8    6    4       -0.0459064576
+   11    8    7    5        0.0520115486
+   11    8    8    5       -0.0219551280
+   11    8    9    5       -0.0000000002
+   11    8   10    5       -0.0074776551
+   11    8   11    5       -0.0000000002
+   11    8    6    6       -0.0000000007
+   11    8    8    7        0.0000000002
+   11    8    9    7       -0.0041341953
+   11    8   11    7       -0.0021859188
+   11    8    8    8        0.0000000001
+   11    8    9    8       -0.0251453606
+   11    8   10    8       -0.0000000007
+   11    8   11    8        0.0358038851
+   11    8    9    9       -0.0000000010
+   11    8   10    9        0.0181805248
+   11    8   10   10        0.0000000002
+   12    8    3    1       -0.0011121561
+   12    8    7    1       -0.0004686965
+   12    8    8    1       -0.0052104999
+   12    8   10    1        0.0028635252
+   12    8    4    2        0.0024378877
+   12    8    6    3        0.0002728270
+   12    8   12    3        0.0004233475
+   12    8    5    4        0.0040791476
+   12    8    8    4       -0.0000000001
+   12    8    9    4        0.0048287414
+   12    8   10    4        0.0000000001
+   12    8   11    4       -0.0035905036
+   12    8    7    6        0.0011602741
+   12    8    8    6        0.0025012019
+   12    8    9    6        0.0000000001
+   12    8   10    6       -0.0002078743
+   12    8   12    7        0.0014936854
+   12    8   12    8        0.0063117649
+   13    8    1    1        0.0000000010
+   13    8    4    1        0.0113100740
+   13    8    6    1        0.0000000004
+   13    8   12    1       -0.0000000003
+   13    8    2    2        0.0000000009
+   13    8    3    2       -0.0058485566
+   13    8    7    2        0.0045191338
+   13    8    8    2        0.0023251166
+   13    8    9    2        0.0000000002
+   13    8   10    2       -0.0150397870
+   13    8   11    2       -0.0000000007
+   13    8    3    3        0.0000000011
+   13    8    5    3        0.0079353105
+   13    8    7    3       -0.0000000002
+   13    8    8    3        0.0000000003
+   13    8    9    3       -0.0021419478
+   13    8   10    3        0.0000000005
+   13    8   11    3       -0.0094362405
+   13    8   13    3       -0.0147193336
+   13    8    4    4        0.0000000008
+   13    8    6    4       -0.0093576964
+   13    8   12    4       -0.0125025119
+   13    8    5    5        0.0000000008
+   13    8    7    5        0.0092747588
+   13    8    8    5       -0.0065064212
+   13    8    9    5       -0.0000000002
+   13    8   10    5       -0.0031397923
+   13    8   11    5       -0.0000000001
+   13    8    6    6        0.0000000011
+   13    8    7    7        0.0000000007
+   13    8    9    7       -0.0016098711
+   13    8   10    7       -0.0000000002
+   13    8   11    7       -0.0034750970
+   13    8   13    7        0.0029755287
+   13    8    8    8        0.0000000012
+   13    8    9    8       -0.0070126720
+   13    8   10    8       -0.0000000009
+   13    8   11    8        0.0051625685
+   13    8   13    8        0.0201107195
+   13    8    9    9        0.0000000006
+   13    8   10    9        0.0162628004
+   13    8   11    9        0.0000000002
+   13    8   10   10        0.0000000005
+   13    8   11   10       -0.0046595209
+   13    8   11   11        0.0000000007
+   13    8   12   12        0.0000000005
+    9    9    1    1        0.4288080846
+    9    9    4    1       -0.0000000022
+    9    9    6    1        0.0424052151
+    9    9    2    2        0.4280236218
+    9    9    3    2        0.0000000015
+    9    9    5    2       -0.0159485984
+    9    9    7    2       -0.0000000014
+    9    9    8    2       -0.0000000008
+    9    9    9    2        0.0244846245
+    9    9    3    3        0.4234345387
+    9    9    5    3       -0.0000000008
+    9    9    7    3       -0.0111476025
+    9    9    8    3        0.0251599219
+    9    9    9    3       -0.0000000008
+    9    9    4    4        0.3884662455
+    9    9    6    4        0.0000000020
+    9    9    5    5        0.3973195256
+    9    9    7    5       -0.0000000022
+    9    9    8    5        0.0000000010
+    9    9    9    5       -0.0091752383
+    9    9    6    6        0.4315963305
+    9    9    7    7        0.3888800045
+    9    9    8    7       -0.0075283043
+    9    9    9    7        0.0000000003
+    9    9    8    8        0.4057927695
+    9    9    9    8        0.0000000016
+    9    9    9    9        0.3999265556
+   10    9    1    1        0.0000000008
+   10    9    4    1        0.0280081914
+   10    9    6    1       -0.0000000002
+   10    9    2    2        0.0000000003
+   10    9    3    2       -0.0140946407
+   10    9    5    2        0.0000000005
+   10    9    7    2        0.0156201275
+   10    9    8    2        0.0120697286
+   10    9   10    2       -0.0204986712
+   10    9    3    3        0.0000000013
+   10    9    5    3        0.0134397031
+   10    9    7    3       -0.0000000003
+   10    9    8    3       -0.0000000007
+   10    9    9    3        0.0039077649
+   10    9   10    3        0.0000000007
+   10    9    4    4        0.0000000013
+   10    9    6    4       -0.0236710954
+   10    9    5    5        0.0000000010
+   10    9    7    5        0.0268911628
+   10    9    8    5       -0.0101383834
+   10    9   10    5       -0.0063628902
+   10    9    6    6        0.0000000007
+   10    9    7    7        0.0000000011
+   10    9    9    7       -0.0043299755
+   10    9   10    7       -0.0000000002
+   10    9    8    8        0.0000000008
+   10    9    9    8       -0.0106357064
+   10    9   10    8       -0.0000000009
+   10    9    9    9        0.0000000005
+   10    9   10    9        0.0251154470
+   11    9    1    1       -0.1130107030
+   11    9    4    1        0.0000000016
+   11    9    6    1       -0.0101397200
+   11    9    2    2       -0.1051685034
+   11    9    3    2       -0.0000000010
+   11    9    5    2       -0.0011593533
+   11    9    7    2        0.0000000010
+   11    9    8    2        0.0000000006
+   11    9    9    2       -0.0037680038
+   11    9   10    2       -0.0000000018
+   11    9   11    2        0.0353857481
+   11    9    3    3       -0.1118467813
+   11    9    5    3        0.0000000007
+   11    9    7    3        0.0071341130
+   11    9    8    3        0.0000876320
+   11    9    9    3        0.0000000006
+   11    9   10    3       -0.0046346797
+   11    9   11    3       -0.0000000012
+   11    9    4    4       -0.1019724104
+   11    9    6    4       -0.0000000014
+   11    9    5    5       -0.0970231260
+   11    9    7    5        0.0000000015
+   11    9    8    5       -0.0000000006
+   11    9    9    5       -0.0011326858
+   11    9   10    5       -0.0000000003
+   11    9   11    5       -0.0004076192
+   11    9    6    6       -0.1097834709
+   11    9    7    7       -0.0981849708
+   11    9    8    7        0.0038499157
+   11    9    9    7       -0.0000000001
+   11    9   10    7        0.0256895978
+   11    9   11    7        0.0000000006
+   11    9    8    8       -0.0855902741
+   11    9    9    8       -0.0000000005
+   11    9   10    8        0.0403909385
+   11    9   11    8        0.0000000007
+   11    9    9    9       -0.0880758857
+   11    9   10    9       -0.0000000002
+   11    9   11    9        0.0779289824
+   11    9   10   10       -0.0568866739
+   12    9    2    1        0.0010017698
+   12    9    5    1       -0.0019994804
+   12    9    9    1       -0.0074743518
+   12    9   11    1        0.0049144025
+   12    9    6    2        0.0031504489
+   12    9   12    2        0.0008655851
+   12    9    4    3        0.0019677475
+   12    9    7    4        0.0018938639
+   12    9    8    4        0.0037492004
+   12    9    9    4        0.0000000001
+   12    9   10    4       -0.0017883697
+   12    9   11    4       -0.0000000001
+   12    9    6    5       -0.0020960612
+   12    9   12    5        0.0009466273
+   12    9    8    6        0.0000000001
+   12    9    9    6       -0.0046752683
+   12    9   11    6        0.0020573015
+   12    9   12    9        0.0074681141
+   13    9    1    1       -0.0577898138
+   13    9    6    1       -0.0264753061
+   13    9   12    1        0.0154773115
+   13    9    2    2       -0.0591934315
+   13    9    3    2        0.0000000002
+   13    9    5    2        0.0115284066
+   13    9    9    2       -0.0216529964
+   13    9   10    2       -0.0000000005
+   13    9   11    2        0.0088054345
+   13    9   13    2       -0.0119028856
+   13    9    3    3       -0.0476257166
+   13    9    7    3        0.0063521387
+   13    9    8    3       -0.0228997290
+   13    9    9    3       -0.0000000002
+   13    9   10    3       -0.0048709638
+   13    9   11    3       -0.0000000003
+   13    9   13    3       -0.0000000001
+   13    9    4    4       -0.0343038370
+   13    9   12    4       -0.0000000002
+   13    9    5    5       -0.0413875778
+   13    9    8    5       -0.0000000001
+   13    9    9    5        0.0050584047
+   13    9   10    5       -0.0000000002
+   13    9   11    5        0.0058445869
+   13    9   13    5        0.0062056575
+   13    9    6    6       -0.0608615615
+   13    9   12    6       -0.0039979867
+   13    9    7    7       -0.0328914832
+   13    9    8    7        0.0035704712
+   13    9   10    7        0.0124469774
+   13    9   11    7        0.0000000002
+   13    9    8    8       -0.0557920969
+   13    9    9    8       -0.0000000002
+   13    9   10    8        0.0283068726
+   13    9   11    8        0.0000000005
+   13    9   13    8       -0.0000000002
+   13    9    9    9       -0.0425854617
+   13    9   10    9        0.0000000006
+   13    9   11    9        0.0095919282
+   13    9   13    9        0.0427267450
+   13    9   10   10       -0.0102565808
+   13    9   11   10        0.0000000011
+   13    9   11   11       -0.0623573748
+   13    9   12   12       -0.0259247179
+   10   10    1    1        0.3404084236
+   10   10    4    1        0.0000000005
+   10   10    6    1       -0.0205291039
+   10   10    2    2        0.3533936449
+   10   10    3    2       -0.0000000007
+   10   10    5    2        0.0177951267
+   10   10    8    2        0.0000000001
+   10   10    9    2       -0.0207543584
+   10   10   10    2        0.0000000001
+   10   10    3    3        0.3655988588
+   10   10    5    3        0.0000000001
+   10   10    7    3       -0.0074344811
+   10   10    8    3       -0.0156495455
+   10   10    9    3        0.0000000003
+   10   10   10    3        0.0197240015
+   10   10    4    4        0.3652582515
+   10   10    6    4       -0.0000000006
+   10   10    5    5        0.3571929289
+   10   10    7    5        0.0000000003
+   10   10    8    5       -0.0000000001
+   10   10    9    5        0.0027164372
+   10   10    6    6        0.3400301346
+   10   10    7    7        0.3736862383
+   10   10    8    7        0.0004859834
+   10   10    9    7       -0.0000000003
+   10   10   10    7       -0.0329461686
+   10   10    8    8        0.3325288756
+   10   10    9    8       -0.0000000006
+   10   10   10    8       -0.0336275765
+   10   10    9    9        0.3196156905
+   10   10   10    9        0.0000000008
+   10   10   10   10        0.3265734612
+   11   10    1    1       -0.0000000011
+   11   10    4    1       -0.0146968832
+   11   10    6    1       -0.0000000021
+   11   10    2    2       -0.0000000007
+   11   10    3    2        0.0200022829
+   11   10    5    2        0.0000000012
+   11   10    7    2       -0.0060543492
+   11   10    8    2       -0.0013309652
+   11   10    9    2       -0.0000000018
+   11   10   10    2        0.0102547243
+   11   10   11    2        0.0000000014
+   11   10    3    3       -0.0000000008
+   11   10    5    3       -0.0097476732
+   11   10    7    3        0.0000000003
+   11   10    8    3       -0.0000000015
+   11   10    9    3       -0.0078457533
+   11   10   10    3        0.0000000003
+   11   10   11    3        0.0081144234
+   11   10    4    4        0.0000000008
+   11   10    6    4        0.0159260352
+   11   10    7    5       -0.0108909862
+   11   10    8    5        0.0021087039
+   11   10    9    5        0.0000000004
+   11   10   10    5        0.0056794640
+   11   10   11    5       -0.0000000002
+   11   10    6    6       -0.0000000014
+   11   10    7    7        0.0000000010
+   11   10    8    7        0.0000000002
+   11   10    9    7        0.0070420856
+   11   10   10    7       -0.0000000003
+   11   10   11    7        0.0025896306
+   11   10    8    8       -0.0000000019
+   11   10    9    8        0.0166764947
+   11   10   10    8        0.0000000008
+   11   10   11    8       -0.0031636160
+   11   10    9    9       -0.0000000005
+   11   10   10    9       -0.0018775416
+   11   10   11    9       -0.0000000003
+   11   10   10   10        0.0000000004
+   11   10   11   10        0.0141684041
+   12   10    2    1       -0.0000000002
+   12   10    3    1       -0.0017852908
+   12   10    7    1        0.0029923951
+   12   10    8    1        0.0029371336
+   12   10   10    1       -0.0016184057
+   12   10    4    2        0.0073664459
+   12   10    4    3       -0.0000000002
+   12   10    6    3        0.0062621497
+   12   10   12    3        0.0003691123
+   12   10    5    4        0.0037505905
+   12   10    8    4        0.0000000001
+   12   10    9    4       -0.0019078760
+   12   10   11    4        0.0011787406
+   12   10    6    5        0.0000000002
+   12   10    7    6       -0.0037088787
+   12   10    8    6        0.0012163903
+   12   10   10    6        0.0000347899
+   12   10   12    7        0.0007253068
+   12   10   12    8        0.0017011905
+   12   10   12   10        0.0071007407
+   13   10    1    1       -0.0000000002
+   13   10    4    1       -0.0692072567
+   13   10    6    1        0.0000000007
+   13   10   12    1        0.0000000002
+   13   10    2    2        0.0000000015
+   13   10    3    2        0.0544961524
+   13   10    5    2       -0.0000000007
+   13   10    7    2       -0.0464746593
+   13   10    8    2       -0.0350915980
+   13   10    9    2       -0.0000000005
+   13   10   10    2        0.0264099011
+   13   10   11    2        0.0000000009
+   13   10    3    3       -0.0000000024
+   13   10    5    3       -0.0231156582
+   13   10    7    3        0.0000000006
+   13   10    8    3        0.0000000020
+   13   10    9    3       -0.0416839368
+   13   10   10    3       -0.0000000014
+   13   10   11    3        0.0277263270
+   13   10   13    3        0.0220639504
+   13   10    4    4       -0.0000000016
+   13   10    6    4        0.0663785069
+   13   10   12    4        0.0211889287
+   13   10    5    5       -0.0000000012
+   13   10    7    5       -0.0769342825
+   13   10    8    5        0.0267414430
+   13   10    9    5        0.0000000001
+   13   10   10    5        0.0060169653
+   13   10   11    5        0.0000000003
+   13   10   12    6       -0.0000000002
+   13   10    7    7       -0.0000000012
+   13   10    8    7       -0.0000000004
+   13   10    9    7        0.0128190676
+   13   10   10    7        0.0000000005
+   13   10   11    7       -0.0034318519
+   13   10   13    7        0.0095035230
+   13   10    8    8       -0.0000000017
+   13   10    9    8        0.0463012291
+   13   10   10    8        0.0000000008
+   13   10   11    8       -0.0281066932
+   13   10   13    8        0.0104734995
+   13   10    9    9        0.0000000013
+   13   10   10    9        0.0000672568
+   13   10   11    9        0.0000000002
+   13   10   10   10       -0.0000000009
+   13   10   11   10        0.0099308632
+   13   10   13   10        0.0783827452
+   13   10   11   11        0.0000000011
+   13   10   12   12       -0.0000000003
+   11   11    1    1        0.3993423340
+   11   11    4    1       -0.0000000010
+   11   11    6    1        0.0689407574
+   11   11    2    2        0.4189174303
+   11   11    3    2        0.0000000006
+   11   11    5    2       -0.0403787483
+   11   11    7    2       -0.0000000005
+   11   11    8    2       -0.0000000003
+   11   11    9    2        0.0500780445
+   11   11   10    2        0.0000000018
+   11   11   11    2       -0.0562379669
+   11   11    3    3        0.3852268627
+   11   11    7    3       -0.0142242230
+   11   11    8    3        0.0535111757
+   11   11    9    3       -0.0000000004
+   11   11   10    3       -0.0072985305
+   11   11   11    3        0.0000000011
+   11   11    4    4        0.3384309508
+   11   11    6    4        0.0000000009
+   11   11    5    5        0.3644609821
+   11   11    7    5       -0.0000000008
+   11   11    8    5        0.0000000004
+   11   11    9    5       -0.0129574023
+   11   11   10    5        0.0000000002
+   11   11   11    5        0.0055218038
+   11   11    6    6        0.4127744168
+   11   11    7    7        0.3375070734
+   11   11    8    7       -0.0151371475
+   11   11    9    7        0.0000000001
+   11   11   10    7       -0.0251665983
+   11   11   11    7       -0.0000000005
+   11   11    8    8        0.3978995721
+   11   11    9    8        0.0000000011
+   11   11   10    8       -0.0660300398
+   11   11   11    8       -0.0000000010
+   11   11    9    9        0.3740945557
+   11   11   10    9       -0.0000000001
+   11   11   11    9       -0.0546685070
+   11   11   10   10        0.2882536055
+   11   11   11   10       -0.0000000018
+   11   11   11   11        0.3954965737
+   12   11    2    1        0.0046871390
+   12   11    3    1       -0.0000000001
+   12   11    5    1        0.0017304680
+   12   11    9    1        0.0046409153
+   12   11   11    1       -0.0019203221
+   12   11    4    2        0.0000000002
+   12   11    6    2        0.0055889194
+   12   11   12    2        0.0007331052
+   12   11    4    3        0.0029706905
+   12   11    7    4        0.0026001579
+   12   11    8    4       -0.0029043388
+   12   11    9    4       -0.0000000001
+   12   11   10    4        0.0011208917
+   12   11    6    5       -0.0059288928
+   12   11   12    5        0.0005528990
+   12   11    9    6        0.0016578485
+   12   11   11    6       -0.0002091006
+   12   11   12    9        0.0004478993
+   12   11   12   11        0.0078234951
+   13   11    1    1        0.0146708028
+   13   11    4    1       -0.0000000018
+   13   11    6    1       -0.0423446407
+   13   11   12    1       -0.0095165248
+   13   11    2    2        0.0047627551
+   13   11    3    2        0.0000000018
+   13   11    5    2        0.0216645563
+   13   11    7    2       -0.0000000011
+   13   11    8    2       -0.0000000009
+   13   11    9    2       -0.0324034240
+   13   11   10    2        0.0000000007
+   13   11   11    2        0.0114671240
+   13   11   13    2        0.0166732094
+   13   11    3    3        0.0376302916
+   13   11    5    3       -0.0000000009
+   13   11    7    3        0.0116504448
+   13   11    8    3       -0.0402530876
+   13   11    9    3       -0.0000000013
+   13   11   10    3        0.0183022809
+   13   11   11    3        0.0000000010
+   13   11   13    3        0.0000000004
+   13   11    4    4        0.0531973847
+   13   11    6    4        0.0000000017
+   13   11   12    4        0.0000000005
+   13   11    5    5        0.0388086893
+   13   11    7    5       -0.0000000019
+   13   11    8    5        0.0000000005
+   13   11    9    5        0.0102261229
+   13   11   10    5        0.0000000003
+   13   11   11    5       -0.0089083405
+   13   11   13    5       -0.0024339588
+   13   11    6    6        0.0064061236
+   13   11   12    6        0.0085021925
+   13   11    7    7        0.0511762071
+   13   11    8    7        0.0027150738
+   13   11    9    7        0.0000000003
+   13   11   10    7       -0.0185674126
+   13   11   11    7       -0.0000000005
+   13   11   13    7        0.0000000003
+   13   11    8    8        0.0003068618
+   13   11    9    8        0.0000000009
+   13   11   10    8       -0.0022280195
+   13   11   11    8       -0.0000000003
+   13   11    9    9        0.0099161990
+   13   11   10    9        0.0000000006
+   13   11   11    9       -0.0293361707
+   13   11   13    9        0.0205834497
+   13   11   10   10        0.0265316282
+   13   11   11   10        0.0000000015
+   13   11   13   10        0.0000000010
+   13   11   11   11       -0.0258653514
+   13   11   13   11        0.0427240877
+   13   11   12   12        0.0136137239
+   12   12    1    1        0.3793817241
+   12   12    4    1       -0.0000000002
+   12   12    6    1        0.0012020284
+   12   12   12    1       -0.0225719466
+   12   12    2    2        0.3497419154
+   12   12    3    2        0.0000000002
+   12   12    5    2        0.0012521529
+   12   12    9    2        0.0012175909
+   12   12   10    2        0.0000000007
+   12   12   11    2       -0.0190369830
+   12   12    3    3        0.3559814775
+   12   12    7    3        0.0015054830
+   12   12    8    3        0.0046058646
+   12   12   10    3        0.0099426707
+   12   12   11    3        0.0000000006
+   12   12    4    4        0.3738027917
+   12   12    6    4        0.0000000001
+   12   12    5    5        0.3536701060
+   12   12    7    5       -0.0000000001
+   12   12    9    5       -0.0005555016
+   12   12   10    5        0.0000000001
+   12   12   11    5       -0.0049462868
+   12   12    6    6        0.3723008164
+   12   12   12    6        0.0061790008
+   12   12    7    7        0.3501698503
+   12   12    8    7       -0.0034862237
+   12   12   10    7       -0.0345144480
+   12   12   11    7       -0.0000000008
+   12   12    8    8        0.3353394093
+   12   12    9    8        0.0000000002
+   12   12   10    8       -0.0449455591
+   12   12   11    8       -0.0000000002
+   12   12    9    9        0.3216967903
+   12   12   10    9        0.0000000005
+   12   12   11    9       -0.0564048481
+   12   12   10   10        0.2842885969
+   12   12   11   10       -0.0000000003
+   12   12   11   11        0.3032573604
+   12   12   12   12        0.3354943873
+   13   12    2    1       -0.0071684811
+   13   12    5    1        0.0021889911
+   13   12    9    1        0.0018955783
+   13   12   11    1       -0.0007670062
+   13   12   13    1       -0.0013004376
+   13   12    4    2        0.0000000001
+   13   12    6    2        0.0022829940
+   13   12   12    2       -0.0003604162
+   13   12    4    3        0.0089950696
+   13   12    7    4        0.0003134965
+   13   12    8    4       -0.0012792348
+   13   12   10    4        0.0002862112
+   13   12    6    5        0.0012321649
+   13   12   12    5        0.0009470134
+   13   12    9    6        0.0003137231
+   13   12   11    6       -0.0010674146
+   13   12   13    6       -0.0005986295
+   13   12   12    9        0.0000567432
+   13   12   12   11       -0.0004996438
+   13   12   13   12        0.0100828599
+   13   13    1    1        0.3217229584
+   13   13    4    1       -0.0000000002
+   13   13    6    1       -0.0258156675
+   13   13   12    1       -0.0283241834
+   13   13    2    2        0.3325755189
+   13   13    3    2        0.0000000005
+   13   13    5    2        0.0057267459
+   13   13    9    2       -0.0238295126
+   13   13   10    2        0.0000000004
+   13   13   11    2        0.0010746816
+   13   13   13    2        0.0261295361
+   13   13    3    3        0.3514930934
+   13   13    5    3       -0.0000000002
+   13   13    7    3        0.0079698910
+   13   13    8    3       -0.0281652906
+   13   13    9    3       -0.0000000003
+   13   13   10    3        0.0205723098
+   13   13   11    3        0.0000000006
+   13   13   13    3       -0.0000000002
+   13   13    4    4        0.3492883933
+   13   13    6    4        0.0000000002
+   13   13    5    5        0.3426678434
+   13   13    7    5       -0.0000000002
+   13   13    9    5        0.0018922784
+   13   13   10    5        0.0000000002
+   13   13   11    5       -0.0083080018
+   13   13   13    5       -0.0040292435
+   13   13    6    6        0.3228845650
+   13   13   12    6        0.0112538126
+   13   13    7    7        0.3472709848
+   13   13    8    7       -0.0030052521
+   13   13   10    7       -0.0316364491
+   13   13   11    7       -0.0000000007
+   13   13   13    7        0.0000000002
+   13   13    8    8        0.3117745977
+   13   13    9    8        0.0000000002
+   13   13   10    8       -0.0244762745
+   13   13   13    8        0.0000000002
+   13   13    9    9        0.3102364016
+   13   13   10    9        0.0000000006
+   13   13   11    9       -0.0392493947
+   13   13   13    9       -0.0009641356
+   13   13   10   10        0.3016167848
+   13   13   11   10        0.0000000007
+   13   13   13   10       -0.0000000003
+   13   13   11   11        0.2825053785
+   13   13   13   11        0.0300348696
+   13   13   12   12        0.2809161175
+   13   13   13   13        0.3150297279
+ end_two_electron_integrals
+ enrep_tce =    72.4240222148238     
+  EHF(A)             =       -42.87941197
+  EHF(total)         =      -224.28672483
+  Shift (HFtot-HFA)  =      -181.40731285
+ Cpu & wall time / sec            3.4            3.7
+ T1-number-of-tasks                    42
+ 
+ t1 file size   =               42
+ t1 file name   = ./o3_13_6_6_80deg_ccpvtz.t1
+ t1 file handle =       -998
+ T2-number-of-boxes                  2352
+ 
+ t2 file size   =             2352
+ t2 file name   = ./o3_13_6_6_80deg_ccpvtz.t2
+ t2 file handle =       -996
+
+ CCSD iterations
+ -----------------------------------------------------------------
+ Iter          Residuum       Correlation     Cpu    Wall    V2*C2
+ -----------------------------------------------------------------
+    1   0.0878079346188  -0.1319396919776     3.5     5.0     0.1
+    2   0.0355798971794  -0.1474382812407     3.4     5.0     0.1
+    3   0.0191337923967  -0.1518035884966     3.5     5.0     0.1
+    4   0.0110162338119  -0.1536064626058     3.5     5.0     0.1
+    5   0.0065037310120  -0.1545187898155     3.5     5.0     0.1
+ MICROCYCLE DIIS UPDATE:                     5                     5
+    6   0.0008440110629  -0.1557300107462     3.5     5.0     0.1
+    7   0.0006292549922  -0.1556903310809     3.5     5.0     0.1
+    8   0.0005402529165  -0.1556939050748     3.5     5.0     0.1
+    9   0.0004728954990  -0.1556948331279     3.4     5.0     0.1
+   10   0.0004165567626  -0.1556959208123     3.5     5.0     0.1
+ MICROCYCLE DIIS UPDATE:                    10                     5
+   11   0.0000588421043  -0.1557001207485     3.5     5.0     0.1
+   12   0.0000332998846  -0.1557039083129     3.5     5.0     0.1
+   13   0.0000235505006  -0.1557035921315     3.5     5.0     0.1
+   14   0.0000173652648  -0.1557032112718     3.5     5.0     0.1
+   15   0.0000131427024  -0.1557029390240     3.5     5.0     0.1
+ MICROCYCLE DIIS UPDATE:                    15                     5
+   16   0.0000044292920  -0.1557024311930     3.5     5.0     0.1
+   17   0.0000035639396  -0.1557024233377     3.5     5.0     0.1
+   18   0.0000031046566  -0.1557024635485     3.5     5.0     0.1
+   19   0.0000027300771  -0.1557024875714     3.5     5.0     0.1
+   20   0.0000024085328  -0.1557025024605     3.4     5.0     0.1
+ MICROCYCLE DIIS UPDATE:                    20                     5
+   21   0.0000003325886  -0.1557025386585     3.5     5.0     0.1
+ -----------------------------------------------------------------
+ Iterations converged
+ CCSD correlation energy / hartree =        -0.155702538658528
+ CCSD total energy / hartree       =      -224.442427368157240
+
+ Singles contributions
+
+ Doubles contributions
+    13a   (alpha)    13a   (beta ) ---    11a   (alpha)    11a   (beta )       -0.2330137217
+ Ground state specisication for QC:
+ exp(T)|Ref>~(1+T)|Ref>
+ ------- a(p)+/a(q) strings ----------
+
+ singles norm
+
+ doubles norm
+
+ Reference string
+  0.973910045222115      :(1a)+ (2a)+ (3a)+ (4a)+ (5a)+ (6a)+ (1b)+ (2b)+ (3b)+ 
+ (4b)+ (5b)+ (6b)+ |0>
+
+ Singles strings
+
+ Doubles strings
+ -0.226934404212885      :(7a)+ (7b)+ (5b)  (5a)  (1a)+ (2a)+ (3a)+ (4a)+ (5a)+ 
+ (6a)+ (1b)+ (2b)+ (3b)+ (4b)+ (5b)+ (6b)+ |0>
+ -------------------------------------
+ 
+ Ground-state symmetry is a   
+ 
+ =========================================
+ Excited-state calculation ( a   symmetry)
+ =========================================
+ Dim. of EOMCC iter. space      500
+ 
+ x1 file size   =               42
+ 
+ x2 file size   =             2352
+
+ EOMCCSD SOLVER TYPE  1
+
+ No. of initial right vectors    3
+
+ EOM-CCSD right-hand side iterations
+ --------------------------------------------------------------
+      Residuum       Omega / hartree  Omega / eV    Cpu    Wall
+ --------------------------------------------------------------
+
+ Iteration   1 using    3 trial vectors
+   0.4434537052193   0.1629755146623    4.43479
+   0.3892249275974   0.2100122408951    5.71473
+   0.3109142955004   0.4484483451406   12.20291    16.0    23.4
+
+ Iteration   2 using    6 trial vectors
+   0.1145234202213   0.0380580342897    1.03561
+   0.1298253093537   0.1012068684086    2.75398
+   0.1448016744246   0.3133460193359    8.52658    14.4    21.1
+
+ Iteration   3 using    9 trial vectors
+   0.0470614563122   0.0317990853308    0.86530
+   0.0684272284179   0.0929373390858    2.52895
+   0.0791781609245   0.2872156483768    7.81554    14.4    21.2
+
+ Iteration   4 using   12 trial vectors
+   0.0198623446519   0.0301313488440    0.81992
+   0.0245766059941   0.0903452664301    2.45842
+   0.0364455630558   0.2810788383186    7.64855    14.6    21.3
+
+ Iteration   5 using   15 trial vectors
+   0.0081945128622   0.0299230512195    0.81425
+   0.0078180576696   0.0903446815080    2.45840
+   0.0131820115828   0.2802648996700    7.62640    14.7    21.4
+
+ Iteration   6 using   18 trial vectors
+   0.0022783986823   0.0298848387170    0.81321
+   0.0030560386275   0.0902820495279    2.45670
+   0.0058239849384   0.2803352804258    7.62831    14.7    21.4
+
+ Iteration   7 using   21 trial vectors
+   0.0007162029770   0.0298409903537    0.81202
+   0.0012486178918   0.0902426695835    2.45563
+   0.0033196665781   0.2803147180468    7.62775    14.8    21.6
+
+ Iteration   8 using   24 trial vectors
+   0.0002372805321   0.0298320878524    0.81177
+   0.0004082560384   0.0902358686773    2.45544
+   0.0015009089936   0.2803080072875    7.62757    14.8    21.6
+
+ Iteration   9 using   27 trial vectors
+   0.0000914153725   0.0298338069182    0.81182
+   0.0001225550870   0.0902397333864    2.45555
+   0.0005255462907   0.2802903375929    7.62709    15.1    21.8
+
+ Iteration  10 using   30 trial vectors
+   0.0000398236210   0.0298348711125    0.81185
+   0.0000312162894   0.0902403488925    2.45557
+   0.0002400735933   0.2802767452347    7.62672    14.9    21.8
+
+ Iteration  11 using   33 trial vectors
+   0.0000134101612   0.0298355206184    0.81187
+   0.0000111574262   0.0902405796342    2.45557
+   0.0001458456827   0.2802725907520    7.62661    15.0    21.9
+
+ Iteration  12 using   36 trial vectors
+   0.0000036291465   0.0298356529817    0.81187
+   0.0000040983027   0.0902406164367    2.45557
+   0.0000840419122   0.2802737440446    7.62664    15.2    22.0
+
+ Iteration  13 using   39 trial vectors
+   0.0000012984777   0.0298356851160    0.81187
+   0.0000015300832   0.0902405861505    2.45557
+   0.0000530900425   0.2802742560479    7.62665    15.2    22.1
+
+ Iteration  14 using   42 trial vectors
+   0.0000003639007   0.0298356847996    0.81187
+   0.0000005484830   0.0902405778701    2.45557
+   0.1136905678801   0.2771714324591    7.54222    15.0    21.8
+
+ Iteration  15 using   43 trial vectors
+   0.0000003529621   0.0298356852164    0.81187
+   0.0000005484830   0.0902405778701    2.45557
+   0.0345199662320   0.2584944455226    7.03399     5.4     7.9
+
+ Iteration  16 using   44 trial vectors
+   0.0000003470718   0.0298356858168    0.81187
+   0.0000005484830   0.0902405778701    2.45557
+   0.0183781975778   0.2565266747912    6.98045     5.5     8.0
+
+ Iteration  17 using   45 trial vectors
+   0.0000003277245   0.0298356864564    0.81187
+   0.0000005484830   0.0902405778701    2.45557
+   0.0086641812588   0.2563399900560    6.97537     5.5     8.0
+
+ Iteration  18 using   46 trial vectors
+   0.0000003202870   0.0298356863098    0.81187
+   0.0000005484830   0.0902405778701    2.45557
+   0.0033218057152   0.2563288620979    6.97507     5.6     8.0
+
+ Iteration  19 using   47 trial vectors
+   0.0000003187677   0.0298356863374    0.81187
+   0.0000005484830   0.0902405778701    2.45557
+   0.0014272186091   0.2563344301777    6.97522     5.6     8.1
+
+ Iteration  20 using   48 trial vectors
+   0.0000003204001   0.0298356864773    0.81187
+   0.0000005484830   0.0902405778701    2.45557
+   0.0006716029399   0.2563448269327    6.97550     5.6     8.1
+
+ Iteration  21 using   49 trial vectors
+   0.0000003176800   0.0298356873895    0.81187
+   0.0000005484830   0.0902405778701    2.45557
+   0.0003703294393   0.2563465977551    6.97555     5.6     8.1
+
+ Iteration  22 using   50 trial vectors
+   0.0000003038573   0.0298356869224    0.81187
+   0.0000005484830   0.0902405778701    2.45557
+   0.0001472635848   0.2563418388616    6.97542     5.6     8.1
+
+ Iteration  23 using   51 trial vectors
+   0.0000003016089   0.0298356865305    0.81187
+   0.0000005484830   0.0902405778701    2.45557
+   0.0000574970831   0.2563409682762    6.97540     5.6     8.2
+
+ Iteration  24 using   52 trial vectors
+   0.0000003016393   0.0298356865646    0.81187
+   0.0000005484830   0.0902405778701    2.45557
+   0.0000289609625   0.2563408268871    6.97539     5.6     8.2
+
+ Iteration  25 using   53 trial vectors
+   0.0000003015844   0.0298356865713    0.81187
+   0.0000005484830   0.0902405778701    2.45557
+   0.0000221532461   0.2563406489531    6.97539     5.7     8.2
+
+ Iteration  26 using   54 trial vectors
+   0.0000003015563   0.0298356865814    0.81187
+   0.0000005484830   0.0902405778701    2.45557
+   0.0000096533454   0.2563406453090    6.97539     5.7     8.2
+
+ Iteration  27 using   55 trial vectors
+   0.0000003017430   0.0298356867389    0.81187
+   0.0000005484830   0.0902405778701    2.45557
+   0.0000039614279   0.2563406869031    6.97539     5.7     8.3
+
+ Iteration  28 using   56 trial vectors
+   0.0000003005700   0.0298356868200    0.81187
+   0.0000005484830   0.0902405778701    2.45557
+   0.0000013881824   0.2563407187126    6.97539     5.8     8.3
+
+ Iteration  29 using   57 trial vectors
+   0.0000003009332   0.0298356865983    0.81187
+   0.0000005484830   0.0902405778701    2.45557
+   0.0000004293828   0.2563407292210    6.97539     5.6     8.1
+ --------------------------------------------------------------
+ Iterations converged
+ ------------------
+
+ Excited state root  1
+ Excitation energy / hartree =        0.029835686598269
+                   / eV      =        0.811870685940959
+ largest EOMCCSD amplitudes: R1 and R2
+
+ Singles contributions
+    13a   (alpha) ---     7a   (alpha)       -0.1116608300
+    13a   (alpha) ---    12a   (alpha)        0.8803964976
+
+ Doubles contributions
+    13a   (alpha)    13a   (beta ) ---    10a   (alpha)    11a   (beta )       -0.2507096979
+    13a   (alpha)    13a   (beta ) ---    11a   (alpha)    10a   (beta )       -0.2507096979
+ Excited state specisication for QC:
+ Rexp(T)|Ref>~(R_1+R_2)|Ref>
+ ------- a(p)+/a(q) strings ----------
+
+ singles norm
+
+ doubles norm
+
+ Singles strings
+ -8.561872210379431E-002 :(7a)+ (1a)  (1a)+ (2a)+ (3a)+ (4a)+ (5a)+ (6a)+ (1b)+ 
+ (2b)+ (3b)+ (4b)+ (5b)+ (6b)+ |0>
+ -8.561872210379431E-002 :(7b)+ (1b)  (1a)+ (2a)+ (3a)+ (4a)+ (5a)+ (6a)+ (1b)+ 
+ (2b)+ (3b)+ (4b)+ (5b)+ (6b)+ |0>
+  0.675065939406651      :(7a)+ (6a)  (1a)+ (2a)+ (3a)+ (4a)+ (5a)+ (6a)+ (1b)+ 
+ (2b)+ (3b)+ (4b)+ (5b)+ (6b)+ |0>
+  0.675065939406651      :(7b)+ (6b)  (1a)+ (2a)+ (3a)+ (4a)+ (5a)+ (6a)+ (1b)+ 
+ (2b)+ (3b)+ (4b)+ (5b)+ (6b)+ |0>
+
+ Doubles strings
+ -0.192237904374578      :(7a)+ (7b)+ (5b)  (4a)  (1a)+ (2a)+ (3a)+ (4a)+ (5a)+ 
+ (6a)+ (1b)+ (2b)+ (3b)+ (4b)+ (5b)+ (6b)+ |0>
+ -0.192237904374578      :(7a)+ (7b)+ (4b)  (5a)  (1a)+ (2a)+ (3a)+ (4a)+ (5a)+ 
+ (6a)+ (1b)+ (2b)+ (3b)+ (4b)+ (5b)+ (6b)+ |0>
+ -------------------------------------
+ ------------------
+
+ Excited state root  2
+ Excitation energy / hartree =        0.090240577870081
+                   / eV      =        2.455572108715674
+ largest EOMCCSD amplitudes: R1 and R2
+
+ Singles contributions
+    13a   (alpha) ---    10a   (alpha)        0.8427717688
+
+ Doubles contributions
+    13a   (alpha)    13a   (beta ) ---     7a   (alpha)    11a   (beta )        0.1714603097
+    13a   (alpha)    13a   (beta ) ---    11a   (alpha)     7a   (beta )        0.1714603097
+    13a   (alpha)    13a   (beta ) ---    11a   (alpha)    12a   (beta )       -0.2980389597
+    13a   (alpha)    13a   (beta ) ---    12a   (alpha)    11a   (beta )       -0.2980389597
+ Excited state specisication for QC:
+ Rexp(T)|Ref>~(R_1+R_2)|Ref>
+ ------- a(p)+/a(q) strings ----------
+
+ singles norm
+
+ doubles norm
+
+ Singles strings
+  0.654713530350295      :(7a)+ (4a)  (1a)+ (2a)+ (3a)+ (4a)+ (5a)+ (6a)+ (1b)+ 
+ (2b)+ (3b)+ (4b)+ (5b)+ (6b)+ |0>
+  0.654713530350295      :(7b)+ (4b)  (1a)+ (2a)+ (3a)+ (4a)+ (5a)+ (6a)+ (1b)+ 
+ (2b)+ (3b)+ (4b)+ (5b)+ (6b)+ |0>
+
+ Doubles strings
+  0.133200219585937      :(7a)+ (7b)+ (5b)  (1a)  (1a)+ (2a)+ (3a)+ (4a)+ (5a)+ 
+ (6a)+ (1b)+ (2b)+ (3b)+ (4b)+ (5b)+ (6b)+ |0>
+  0.133200219585937      :(7a)+ (7b)+ (1b)  (5a)  (1a)+ (2a)+ (3a)+ (4a)+ (5a)+ 
+ (6a)+ (1b)+ (2b)+ (3b)+ (4b)+ (5b)+ (6b)+ |0>
+ -0.231533787336777      :(7a)+ (7b)+ (6b)  (5a)  (1a)+ (2a)+ (3a)+ (4a)+ (5a)+ 
+ (6a)+ (1b)+ (2b)+ (3b)+ (4b)+ (5b)+ (6b)+ |0>
+ -0.231533787336777      :(7a)+ (7b)+ (5b)  (6a)  (1a)+ (2a)+ (3a)+ (4a)+ (5a)+ 
+ (6a)+ (1b)+ (2b)+ (3b)+ (4b)+ (5b)+ (6b)+ |0>
+ -------------------------------------
+ ------------------
+
+ Excited state root  3
+ Excitation energy / hartree =        0.256340729221022
+                   / eV      =        6.975389119396083
+ largest EOMCCSD amplitudes: R1 and R2
+
+ Singles contributions
+    14a   (alpha) ---    12a   (alpha)        0.9239314600
+    16a   (alpha) ---    12a   (alpha)       -0.1541660048
+
+ Doubles contributions
+ Excited state specisication for QC:
+ Rexp(T)|Ref>~(R_1+R_2)|Ref>
+ ------- a(p)+/a(q) strings ----------
+
+ singles norm
+
+ doubles norm
+
+ Singles strings
+  0.697464100579548      :(8a)+ (6a)  (1a)+ (2a)+ (3a)+ (4a)+ (5a)+ (6a)+ (1b)+ 
+ (2b)+ (3b)+ (4b)+ (5b)+ (6b)+ |0>
+  0.697464100579548      :(8b)+ (6b)  (1a)+ (2a)+ (3a)+ (4a)+ (5a)+ (6a)+ (1b)+ 
+ (2b)+ (3b)+ (4b)+ (5b)+ (6b)+ |0>
+ -0.116377954968979      :(10a)+(6a)  (1a)+ (2a)+ (3a)+ (4a)+ (5a)+ (6a)+ (1b)+ 
+ (2b)+ (3b)+ (4b)+ (5b)+ (6b)+ |0>
+ -0.116377954968979      :(10b)+(6b)  (1a)+ (2a)+ (3a)+ (4a)+ (5a)+ (6a)+ (1b)+ 
+ (2b)+ (3b)+ (4b)+ (5b)+ (6b)+ |0>
+
+ Doubles strings
+ -------------------------------------
+
+ Task  times  cpu:      371.6s     wall:      537.7s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls: 2.75e+04 2.75e+04 1.05e+07 3.41e+04 2.09e+05    0        0     7.72e+05 
+number of processes/call 1.06e+00 1.38e+00 1.49e+00 0.00e+00 0.00e+00
+bytes total:             1.19e+09 1.39e+07 3.88e+07 0.00e+00 0.00e+00 6.17e+06
+bytes remote:            1.14e+09 1.18e+07 3.56e+07 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 7306408 bytes
+ 
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        16	        37
+	current total bytes		         0	         0
+	maximum total bytes		     80152	  43308760
+	maximum total K-bytes		        81	     43309
+	maximum total M-bytes		         1	        44
+ 
+ 
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+ 
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+ 
+                                      AUTHORS
+                                      -------
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+    S. A. Fischer, S. Krishnamoorthy, M. Jacquelin, W. Ma, M. Klemm, O. Villa,
+      Y. Chen, V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler, V. Konjkov,
+            D. Mejia-Rodriguez, T. Risthaus, M. Malagoli, A. Marenich,
+   A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao,
+        P.-D. Fan, A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr,
+      M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+    M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+      G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall,
+      J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, D. E. Bernholdt,
+      P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. J. O. Deegan, K. Dyall,
+    D. Elwood, E. Glendening, M. Gutowski, A. C. Hess, J. Jaffe, B. G. Johnson,
+     J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+      T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
+      M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
+
+ Total times  cpu:      373.3s     wall:      569.7s

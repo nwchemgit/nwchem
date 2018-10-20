@@ -1,0 +1,995 @@
+ argument  1 = h4_sto6g_0.200.nw
+
+
+
+============================== echo of input deck ==============================
+start h4_sto6g_0.200
+
+memory stack 100 mb heap 100 mb global 200 mb noverify
+
+geometry units angstrom
+symmetry c1
+H   -1.000  0.000  0.000
+H    1.000  0.000  0.000
+H   -2.17557050458 1.61803398875 0.000
+H    2.17557050458 1.61803398875 0.000
+end
+
+basis
+ * library sto-6g
+end
+
+scf
+thresh 1.0e-8
+tol2e 1.0e-9
+singlet
+rhf
+maxiter 200
+end
+
+tce
+ccsd
+2eorb
+2emet 13
+tilesize 1
+thresh 1.0d-8
+end
+
+echo
+set tce:print_integrals T
+set tce:qorb  4
+set tce:qela  2
+set tce:qelb  2
+
+task tce energy
+
+mcscf
+  active  4
+  actelec 4
+  multiplicity 1
+end
+
+task mcscf
+
+
+================================================================================
+
+
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.8
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2018
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = WE33103
+    program         = ../../../bin/MACX64/nwchem
+    date            = Wed Oct 17 22:33:30 2018
+
+    compiled        = Wed_Oct_17_18:54:02_2018
+    source          = /Users/sriram/code/nwchem
+    nwchem branch   = Development
+    nwchem revision = nwchem_on_git-615-g0740386aa
+    ga revision     = 5.6.5
+    use scalapack   = F
+    input           = h4_sto6g_0.200.nw
+    prefix          = h4_sto6g_0.200.
+    data base       = ./h4_sto6g_0.200.db
+    status          = startup
+    nproc           =        1
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   13107196 doubles =    100.0 Mbytes
+    stack    =   13107201 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428797 doubles =    400.0 Mbytes
+    verify   = no 
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ Turning off AUTOSYM since
+ SYMMETRY directive was detected!
+
+
+          ------
+          auto-z
+          ------
+     1 autoz failed with cvr_scaling = 1.2 changing to 1.3
+     2 autoz failed with cvr_scaling = 1.3 changing to 1.4
+     3 autoz failed with cvr_scaling = 1.4 changing to 1.5
+     4 autoz failed with cvr_scaling = 1.5 changing to 1.6
+     5 autoz failed with cvr_scaling = 1.6 changing to 1.7
+
+ AUTOZ failed to generate good internal coordinates.
+ Cartesian coordinates will be used in optimizations.
+
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 H                    1.0000    -1.00000000    -0.80901699     0.00000000
+    2 H                    1.0000     1.00000000    -0.80901699     0.00000000
+    3 H                    1.0000    -2.17557050     0.80901699     0.00000000
+    4 H                    1.0000     2.17557050     0.80901699     0.00000000
+
+      Atomic Mass 
+      ----------- 
+
+      H                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)       1.2123386707
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+
+            XYZ format geometry
+            -------------------
+     4
+ geometry
+ H                    -1.00000000    -0.80901699     0.00000000
+ H                     1.00000000    -0.80901699     0.00000000
+ H                    -2.17557050     0.80901699     0.00000000
+ H                     2.17557050     0.80901699     0.00000000
+
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                           sto-6g                   on all atoms 
+
+
+                      Basis "ao basis" -> "ao basis" (cartesian)
+                      -----
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  3.55232212E+01  0.009164
+  1 S  6.51314373E+00  0.049361
+  1 S  1.82214290E+00  0.168538
+  1 S  6.25955266E-01  0.370563
+  1 S  2.43076747E-01  0.416492
+  1 S  1.00112428E-01  0.130334
+
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-6g                  1        1   1s
+
+
+                                 NWChem SCF Module
+                                 -----------------
+
+
+
+  ao basis        = "ao basis"
+  functions       =     4
+  atoms           =     4
+  closed shells   =     2
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = atomic
+  output vectors  = ./h4_sto6g_0.200.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-6g                  1        1   1s
+
+
+
+ Forming initial guess at       0.0s
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:          -1.88415622
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =      -1.122141
+ 1-e energy   =      -4.308067
+ 2-e energy   =       1.973587
+ HOMO         =      -0.125928
+ LUMO         =      -0.032693
+
+
+ Starting SCF solution at       0.0s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-08
+ Maximum no. of iterations :          200
+ Final Fock-matrix accuracy:          1.000E-09
+ ----------------------------------------------
+
+
+ #quartets = 5.500D+01 #integrals = 5.500D+01 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./h4_sto6g_0.200.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = 253221
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1       -1.5897061339  8.31D-02  7.64D-02      0.1
+                 2       -1.5939369970  4.81D-03  4.81D-03      0.1
+                 3       -1.5939463597  1.01D-05  9.55D-06      0.1
+                 4       -1.5939463598  3.59D-11  3.37D-11      0.1
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =     -1.593946359755
+      One-electron energy =     -4.506010788673
+      Two-electron energy =      1.699725758191
+ Nuclear repulsion energy =      1.212338670727
+
+        Time for solution =      0.0s
+
+
+             Final eigenvalues
+             -----------------
+
+              1      
+    1   -0.3151
+    2   -0.2382
+    3    0.0647
+    4    0.1544
+
+                       ROHF Final Molecular Orbital Analysis
+                       -------------------------------------
+
+ Vector    1  Occ=2.000000D+00  E=-3.150509D-01
+              MO Center=  1.3D-15, -2.5D-01,  0.0D+00, r^2= 3.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.518638  1 H  s                  2      0.518638  2 H  s          
+     3      0.384307  3 H  s                  4      0.384307  4 H  s          
+
+ Vector    2  Occ=2.000000D+00  E=-2.382288D-01
+              MO Center= -2.4D-15,  2.5D-01,  0.0D+00, r^2= 4.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      0.549062  3 H  s                  4     -0.549062  4 H  s          
+     1      0.410607  1 H  s                  2     -0.410607  2 H  s          
+
+ Vector    3  Occ=0.000000D+00  E= 6.465940D-02
+              MO Center=  2.0D-15,  2.5D-01,  0.0D+00, r^2= 4.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      0.599048  3 H  s                  4      0.599048  4 H  s          
+     1     -0.429011  1 H  s                  2     -0.429011  2 H  s          
+
+ Vector    4  Occ=0.000000D+00  E= 1.544345D-01
+              MO Center= -1.7D-15, -2.5D-01,  0.0D+00, r^2= 3.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.638585  1 H  s                  2     -0.638585  2 H  s          
+     3     -0.454551  3 H  s                  4      0.454551  4 H  s          
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =   0.00000000
+
+ moments of inertia (a.u.)
+ ------------------
+           9.422324982207           0.000000000000           0.000000000000
+           0.000000000000          41.266994803039           0.000000000000
+           0.000000000000           0.000000000000          50.689319785246
+
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 H    1     1.00   1.00
+    2 H    1     1.00   1.00
+    3 H    1     1.00   1.00
+    4 H    1     1.00   1.00
+
+       Multipole analysis of the density wrt the origin
+       ------------------------------------------------
+
+     L   x y z        total         open         nuclear
+     -   - - -        -----         ----         -------
+     0   0 0 0     -0.000000      0.000000      4.000000
+
+     1   1 0 0      0.000000      0.000000      0.000000
+     1   0 1 0      0.004304      0.000000      0.000000
+     1   0 0 1      0.000000      0.000000      0.000000
+
+     2   2 0 0     -2.255687      0.000000     40.946588
+     2   1 1 0      0.000000      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000      0.000000
+     2   0 2 0     -2.029552      0.000000      9.349168
+     2   0 1 1      0.000000      0.000000      0.000000
+     2   0 0 2     -2.788598      0.000000      0.000000
+
+
+ Parallel integral file used       1 records with       0 large values
+
+ ------------------------------------
+     Number of active orbitals      4
+     Number of active alpha electrons      2
+     Number of active beta electrons       2
+ ------------------------------------
+                   NWChem Extensible Many-Electron Theory Module
+                   ---------------------------------------------
+
+              ======================================================
+                   This portion of the program was automatically
+                  generated by a Tensor Contraction Engine (TCE).
+                  The development of this portion of the program
+                 and TCE was supported by US Department of Energy,
+                Office of Science, Office of Basic Energy Science.
+                      TCE is a product of Battelle and PNNL.
+              Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
+              ======================================================
+
+            General Information
+            -------------------
+      Number of processors :     1
+         Wavefunction type : Restricted Hartree-Fock
+          No. of electrons :     4
+           Alpha electrons :     2
+            Beta electrons :     2
+           No. of orbitals :     8
+            Alpha orbitals :     4
+             Beta orbitals :     4
+        Alpha frozen cores :     0
+         Beta frozen cores :     0
+     Alpha frozen virtuals :     0
+      Beta frozen virtuals :     0
+         Spin multiplicity : singlet 
+    Number of AO functions :     4
+       Number of AO shells :     4
+        Use of symmetry is : off
+      Symmetry adaption is : off
+         Schwarz screening : 0.10D-08
+
+          Correlation Information
+          -----------------------
+          Calculation type : Coupled-cluster singles & doubles                           
+   Perturbative correction : none                                                        
+            Max iterations :      100
+        Residual threshold : 0.10D-07
+     T(0) DIIS level shift : 0.00D+00
+     L(0) DIIS level shift : 0.00D+00
+     T(1) DIIS level shift : 0.00D+00
+     L(1) DIIS level shift : 0.00D+00
+     T(R) DIIS level shift : 0.00D+00
+     T(I) DIIS level shift : 0.00D+00
+   CC-T/L Amplitude update :  5-th order DIIS
+                I/O scheme : Global Array Library
+        L-threshold :  0.10D-07
+        EOM-threshold :  0.10D-07
+ no EOMCCSD initial starts read in
+ TCE RESTART OPTIONS
+ READ_INT:   F
+ WRITE_INT:  F
+ READ_TA:    F
+ WRITE_TA:   F
+ READ_XA:    F
+ WRITE_XA:   F
+ READ_IN3:   F
+ WRITE_IN3:  F
+ SLICE:      F
+ D4D5:       F
+
+            Memory Information
+            ------------------
+          Available GA space size is      26214384 doubles
+          Available MA space size is      26213636 doubles
+
+ Maximum block size supplied by input
+ Maximum block size         1 doubles
+
+ tile_dim =      1
+
+ Block   Spin    Irrep     Size     Offset   Alpha
+ -------------------------------------------------
+   1    alpha     a      1 doubles       0       1
+   2    alpha     a      1 doubles       1       2
+   3    beta      a      1 doubles       2       1
+   4    beta      a      1 doubles       3       2
+   5    alpha     a      1 doubles       4       5
+   6    alpha     a      1 doubles       5       6
+   7    beta      a      1 doubles       6       5
+   8    beta      a      1 doubles       7       6
+
+ Global array virtual files algorithm will be used
+
+ Parallel file system coherency ......... OK
+
+ #quartets = 5.500D+01 #integrals = 5.500D+01 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./h4_sto6g_0.200.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = 253221
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Fock matrix recomputed
+ 1-e file size   =               16
+ 1-e file name   = ./h4_sto6g_0.200.f1
+ Cpu & wall time / sec            0.0            0.0
+ 4-electron integrals stored in orbital form
+
+ v2    file size   =               55
+ 4-index algorithm nr.  13 is used
+ imaxsize =       30
+ imaxsize ichop =        0
+ begin_one_electron_integrals
+    1    1        -1.1720989387
+    3    1         0.0743492606
+    2    2        -1.0809064556
+    4    2        -0.0579314943
+    1    3         0.0743492606
+    3    3        -1.0161329599
+    2    4        -0.0579314943
+    4    4        -1.0006499189
+ end_one_electron_integrals
+ begin_two_electron_integrals
+    1    1    1    1        0.3588780783
+    2    1    2    1        0.1541686366
+    3    1    1    1       -0.0557129463
+    3    1    3    1        0.1257225786
+    3    1    2    2        0.0238882172
+    4    1    2    1        0.0347834116
+    4    1    4    1        0.1255741906
+    4    1    3    2       -0.1025719149
+    2    2    1    1        0.3261693181
+    2    2    2    2        0.3445076807
+    3    2    2    1        0.0664127488
+    3    2    3    2        0.1462196706
+    4    2    1    1        0.0575706904
+    4    2    3    1       -0.1275841076
+    4    2    2    2       -0.0224264748
+    4    2    4    2        0.1309833721
+    4    2    3    3       -0.0245794781
+    3    3    1    1        0.3290448196
+    3    3    3    1        0.0243280292
+    3    3    2    2        0.3473224858
+    3    3    3    3        0.3533566445
+    4    3    2    1       -0.1589291416
+    4    3    4    1       -0.0360146154
+    4    3    3    2       -0.0690795987
+    4    3    4    3        0.1665062395
+    4    4    1    1        0.3696087733
+    4    4    3    1       -0.0592409146
+    4    4    2    2        0.3362122026
+    4    4    4    2        0.0620833010
+    4    4    3    3        0.3405173633
+    4    4    4    4        0.3858519065
+ end_two_electron_integrals
+ enrep_tce =    1.2123386707265420     
+  EHF(A)             =        -1.59394636
+  EHF(total)         =        -1.59394636
+  Shift (HFtot-HFA)  =        -0.00000000
+ Cpu & wall time / sec            0.0            0.0
+ T1-number-of-tasks                    4
+
+ t1 file size   =                4
+ t1 file name   = ./h4_sto6g_0.200.t1
+ t1 file handle =       -998
+ T2-number-of-boxes                   25
+
+ t2 file size   =               25
+ t2 file name   = ./h4_sto6g_0.200.t2
+ t2 file handle =       -996
+
+ CCSD iterations
+ -----------------------------------------------------------------
+ Iter          Residuum       Correlation     Cpu    Wall    V2*C2
+ -----------------------------------------------------------------
+    1   0.2115341914161  -0.1658815821665     0.0     0.0     0.0
+    2   0.0941469645320  -0.2592269092269     0.0     0.0     0.0
+    3   0.0494801664400  -0.2990716754742     0.0     0.0     0.0
+    4   0.0366442940782  -0.3125399042378     0.0     0.0     0.0
+    5   0.0301660890944  -0.3184354615831     0.0     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                    5                    5
+    6   0.0164774375304  -0.3291229166057     0.0     0.0     0.0
+    7   0.0111365120957  -0.3314224663384     0.0     0.0     0.0
+    8   0.0102135030431  -0.3326766046958     0.0     0.0     0.0
+    9   0.0084368652543  -0.3340295759670     0.0     0.0     0.0
+   10   0.0076575809694  -0.3350259429141     0.0     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                   10                    5
+   11   0.0022609577371  -0.3407161360172     0.0     0.0     0.0
+   12   0.0010186715680  -0.3416910012081     0.0     0.0     0.0
+   13   0.0008527897231  -0.3418042789573     0.0     0.0     0.0
+   14   0.0007541156259  -0.3417479069773     0.0     0.0     0.0
+   15   0.0006181392033  -0.3416345511541     0.0     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                   15                    5
+   16   0.0000715716210  -0.3410970153457     0.0     0.0     0.0
+   17   0.0000541303720  -0.3410965424268     0.0     0.0     0.0
+   18   0.0000299449931  -0.3411030279193     0.0     0.0     0.0
+   19   0.0000292949554  -0.3410961158481     0.0     0.0     0.0
+   20   0.0000219899869  -0.3410942886017     0.0     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                   20                    5
+   21   0.0000065807267  -0.3410799639948     0.0     0.0     0.0
+   22   0.0000025091561  -0.3410791313508     0.0     0.0     0.0
+   23   0.0000006381006  -0.3410783106479     0.0     0.0     0.0
+   24   0.0000005062253  -0.3410782177963     0.0     0.0     0.0
+   25   0.0000003447355  -0.3410781245782     0.0     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                   25                    5
+   26   0.0000002463733  -0.3410781415646     0.0     0.0     0.0
+   27   0.0000002110635  -0.3410781542262     0.0     0.0     0.0
+   28   0.0000001830245  -0.3410781783319     0.0     0.0     0.0
+   29   0.0000001478603  -0.3410782081484     0.0     0.0     0.0
+   30   0.0000001235113  -0.3410782322710     0.0     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                   30                    5
+   31   0.0000000041334  -0.3410783406231     0.0     0.0     0.0
+ -----------------------------------------------------------------
+ Iterations converged
+ CCSD correlation energy / hartree =        -0.341078340623052
+ CCSD total energy / hartree       =        -1.935024700378358
+
+ Singles contributions
+
+ Doubles contributions
+     3a   (alpha)     4a   (alpha) ---     1a   (alpha)     2a   (alpha)        0.1383028043
+     3a   (alpha)     3a   (beta ) ---     1a   (alpha)     1a   (beta )       -0.1299060688
+     3a   (alpha)     3a   (beta ) ---     2a   (alpha)     2a   (beta )       -0.6427007133
+     3a   (alpha)     4a   (beta ) ---     1a   (alpha)     2a   (beta )        0.3942382261
+     3a   (alpha)     4a   (beta ) ---     2a   (alpha)     1a   (beta )        0.2559354218
+     4a   (alpha)     3a   (beta ) ---     1a   (alpha)     2a   (beta )        0.2559354218
+     4a   (alpha)     3a   (beta ) ---     2a   (alpha)     1a   (beta )        0.3942382261
+     4a   (alpha)     4a   (beta ) ---     1a   (alpha)     1a   (beta )       -0.4326595462
+     4a   (alpha)     4a   (beta ) ---     2a   (alpha)     2a   (beta )       -0.1252908561
+ Ground state specification for QC:
+ exp(T)|Ref>~(1+T)|Ref>
+ ------- a(p)+/a(q) strings ----------
+
+ singles norm
+
+ doubles norm
+
+ Reference string
+  0.68794917052570159      :(1a)+ (2a)+ (1b)+ (2b)+ |0>
+
+ Singles strings
+
+ Doubles strings
+   9.5145299499276539E-002 :(3a)+ (4a)+ (2a)  (1a)  (1a)+ (2a)+ (1b)+ (2b)+ |0>
+   9.5145299499276539E-002 :(3b)+ (4b)+ (2b)  (1b)  (1a)+ (2a)+ (1b)+ (2b)+ |0>
+  -8.9368772261034263E-002 :(3a)+ (3b)+ (1b)  (1a)  (1a)+ (2a)+ (1b)+ (2b)+ |0>
+ -0.44214542262319723      :(3a)+ (3b)+ (2b)  (2a)  (1a)+ (2a)+ (1b)+ (2b)+ |0>
+  0.27121586064121056      :(3a)+ (4b)+ (2b)  (1a)  (1a)+ (2a)+ (1b)+ (2b)+ |0>
+  0.17607056114193473      :(3a)+ (4b)+ (1b)  (2a)  (1a)+ (2a)+ (1b)+ (2b)+ |0>
+  0.17607056114193481      :(4a)+ (3b)+ (2b)  (1a)  (1a)+ (2a)+ (1b)+ (2b)+ |0>
+  0.27121586064121084      :(4a)+ (3b)+ (1b)  (2a)  (1a)+ (2a)+ (1b)+ (2b)+ |0>
+ -0.29764777590464758      :(4a)+ (4b)+ (1b)  (1a)  (1a)+ (2a)+ (1b)+ (2b)+ |0>
+  -8.6193740538015401E-002 :(4a)+ (4b)+ (2b)  (2a)  (1a)+ (2a)+ (1b)+ (2b)+ |0>
+ -------------------------------------
+
+ Parallel integral file used       1 records with       0 large values
+
+
+ Task  times  cpu:        1.1s     wall:        1.1s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+                            NWChem Direct MCSCF Module
+                            --------------------------
+
+
+     -----------------------------------
+       Basis functions:              4
+       Inactive shells:              0
+       Active shells:                4
+       Active electrons:             4
+       Symmetry:                    a       
+       Multiplicity:                 1
+       Orbital rotations:            0
+     -----------------------------------
+
+     -----------------------------------
+       E2 extrapolation:             F
+       Conjugacy:                    T
+       Micro CI relax:               T
+       Canonical orbitals:           T
+       Maximum iterations:          20
+       Converge threshold:    1.00E-04
+       Conjugacy resets:            20
+       Initial levelshift:        0.10
+     -----------------------------------
+
+   input molecular orbitals = ./h4_sto6g_0.200.movecs
+  output molecular orbtials = ./h4_sto6g_0.200.movecs
+
+       No. of determinants:            36
+
+
+  Starting Orbital Energies
+    -0.315051    -0.238229     0.064659     0.154434
+
+  Orbital Symmetry Irreps
+a    a    a    a   
+
+ #quartets = 5.400D+01 #integrals = 5.400D+01 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./h4_sto6g_0.200.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = 253221
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+
+
+          %%%%% MacroIteration   1 %%%%%
+
+
+          Number of sigma calls:       17
+                       o<<<<< (aa):             0.00
+                       o<<<<< (bb):             0.00
+                       o<<<<< (ab):             0.00
+                       o<<<<< (total)           0.00
+                       o<<<<< (aa) ff           0.00
+                       o<<<<< (aa) gop          0.00
+                       o<<<<< (aa) dot          0.00
+                       o<<<<< (ab) str          0.00
+                       o<<<<< (ab) gath         0.00
+                       o<<<<< (ab) dotab        0.00
+                       o<<<<< (ab) scat         0.00
+                       o<<<<< (ab) sync         0.00
+                       o<<<<< Density           0.00
+                       o<<<<< Density one       0.00
+                       o<<<<< Density two       0.00
+                       o<<<<< Density ab        0.00
+                       o<<<<< Spin adapt        0.00
+                       o<<<<< Symm adapt        0.00
+
+                       o<<<<< (ab) max sync:      0.00
+
+           >>>| Valence CI:             -3.127768735368
+           >>>| MCSCF energy:           -1.915430064642
+           >>>| Gradient norm:          0.000000000D+00
+
+
+
+
+     ==============================
+            MCSCF Converged
+     ==============================
+
+
+
+          Canonical Eigenvalues
+
+              1      
+    1   -0.3151
+    2   -0.2382
+    3    0.0647
+    4    0.1544
+
+
+          Converged CI vector
+
+   Index           Coefficient          Config. Occupation
+         1         -0.69340552          1  2  1  2
+         4         -0.02050747          1  2  1  4
+         3          0.02200166          1  2  2  3
+         6         -0.07496455          1  2  3  4
+         8          0.38899700          1  3  1  3
+        11          0.18123909          1  3  2  4
+        19         -0.02050747          1  4  1  2
+        22          0.10870869          1  4  1  4
+        21          0.25620364          1  4  2  3
+        24          0.03247130          1  4  3  4
+        13          0.02200166          2  3  1  2
+        16          0.25620364          2  3  1  4
+        15          0.11137240          2  3  2  3
+        18         -0.03144399          2  3  3  4
+        26          0.18123909          2  4  1  3
+        29          0.25079282          2  4  2  4
+        31         -0.07496455          3  4  1  2
+        34          0.03247130          3  4  1  4
+        33         -0.03144399          3  4  2  3
+        36         -0.25814920          3  4  3  4
+
+          Number of sigma calls:        1
+                       o<<<<< (aa):             0.00
+                       o<<<<< (bb):             0.00
+                       o<<<<< (ab):             0.00
+                       o<<<<< (total)           0.00
+                       o<<<<< (aa) ff           0.00
+                       o<<<<< (aa) gop          0.00
+                       o<<<<< (aa) dot          0.00
+                       o<<<<< (ab) str          0.00
+                       o<<<<< (ab) gath         0.00
+                       o<<<<< (ab) dotab        0.00
+                       o<<<<< (ab) scat         0.00
+                       o<<<<< (ab) sync         0.00
+                       o<<<<< Density           0.00
+                       o<<<<< Density one       0.00
+                       o<<<<< Density two       0.00
+                       o<<<<< Density ab        0.00
+                       o<<<<< Spin adapt        0.00
+                       o<<<<< Symm adapt        0.00
+
+                       o<<<<< (ab) max sync:      0.00
+
+
+
+          Natural orbital occupation numbers
+
+              1      
+    1    1.5010
+    2    1.3253
+    3    0.6759
+    4    0.4979
+
+
+          Number of sigma calls:       17
+                       o<<<<< (aa):             0.00
+                       o<<<<< (bb):             0.00
+                       o<<<<< (ab):             0.00
+                       o<<<<< (total)           0.00
+                       o<<<<< (aa) ff           0.00
+                       o<<<<< (aa) gop          0.00
+                       o<<<<< (aa) dot          0.00
+                       o<<<<< (ab) str          0.00
+                       o<<<<< (ab) gath         0.00
+                       o<<<<< (ab) dotab        0.00
+                       o<<<<< (ab) scat         0.00
+                       o<<<<< (ab) sync         0.00
+                       o<<<<< Density           0.00
+                       o<<<<< Density one       0.00
+                       o<<<<< Density two       0.00
+                       o<<<<< Density ab        0.00
+                       o<<<<< Spin adapt        0.00
+                       o<<<<< Symm adapt        0.00
+
+                       o<<<<< (ab) max sync:      0.00
+
+
+       Final MCSCF results 
+       ------------------- 
+
+       Total MCSCF energy =     -1.915430064642
+            Gradient norm =      0.0D+00
+
+    CPU time for solution =      0.1s
+   Wall time for solution =      0.1s
+
+
+
+                        Analysis of MCSCF natural orbitals
+                        ----------------------------------
+
+ Vector    1  Occ=1.500960D+00  E=-3.150509D-01  Symmetry=a
+              MO Center=  1.2D-15, -2.3D-01,  0.0D+00, r^2= 3.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.514105  1 H  s                  2      0.514105  2 H  s          
+     3      0.390576  3 H  s                  4      0.390576  4 H  s          
+
+ Vector    2  Occ=1.325268D+00  E=-2.382288D-01  Symmetry=a
+              MO Center= -1.3D-15,  2.3D-01,  0.0D+00, r^2= 4.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      0.544743  3 H  s                  4     -0.544743  4 H  s          
+     1      0.416622  1 H  s                  2     -0.416622  2 H  s          
+
+ Vector    3  Occ=6.758830D-01  E= 6.465940D-02  Symmetry=a
+              MO Center=  2.1D-15,  2.3D-01,  0.0D+00, r^2= 4.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      0.594980  3 H  s                  4      0.594980  4 H  s          
+     1     -0.434433  1 H  s                  2     -0.434433  2 H  s          
+
+ Vector    4  Occ=4.978887D-01  E= 1.544345D-01  Symmetry=a
+              MO Center= -1.8D-15, -2.3D-01,  0.0D+00, r^2= 3.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.634677  1 H  s                  2     -0.634677  2 H  s          
+     3     -0.459718  3 H  s                  4      0.459718  4 H  s          
+
+
+ Wrote Lagrangian and 1- and 2-particle density matrices to ./h4_sto6g_0.200.mcpdm
+
+
+     Multipole analysis of the density
+     ---------------------------------
+
+     L   x y z        total        nuclear
+     -   - - -        -----        -------
+     0   0 0 0     -0.000000      4.000000
+
+     1   1 0 0     -0.000000      0.000000
+     1   0 1 0     -0.001789      0.000000
+     1   0 0 1      0.000000      0.000000
+
+     2   2 0 0     -2.484050     40.946588
+     2   1 1 0      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000
+     2   0 2 0     -2.414780      9.349168
+     2   0 1 1      0.000000      0.000000
+     2   0 0 2     -2.666247      0.000000
+
+
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 H    1     1.00   1.00
+    2 H    1     1.00   1.00
+    3 H    1     1.00   1.00
+    4 H    1     1.00   1.00
+
+    Mulliken analysis of the active space density
+    ---------------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 H    1     1.00   1.00
+    2 H    1     1.00   1.00
+    3 H    1     1.00   1.00
+    4 H    1     1.00   1.00
+
+ Parallel integral file used       1 records with       0 large values
+
+
+ Task  times  cpu:        0.1s     wall:        0.1s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls: 3750     3750     2.61e+05 6747     5.55e+04   68        0     6.65e+04 
+number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
+bytes total:             2.21e+06 1.46e+05 4.76e+05 2.59e+04 0.00e+00 5.32e+05
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 8304 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        18	        33
+	current total bytes		         0	         0
+	maximum total bytes		   1120136	  22509096
+	maximum total K-bytes		      1121	     22510
+	maximum total M-bytes		         2	        23
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+
+                                      AUTHORS
+                                      -------
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+    S. A. Fischer, S. Krishnamoorthy, M. Jacquelin, W. Ma, M. Klemm, O. Villa,
+      Y. Chen, V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler, V. Konjkov,
+            D. Mejia-Rodriguez, T. Risthaus, M. Malagoli, A. Marenich,
+   A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao,
+        P.-D. Fan, A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr,
+      M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+    M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+      G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall,
+      J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, D. E. Bernholdt,
+      P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. J. O. Deegan, K. Dyall,
+    D. Elwood, E. Glendening, M. Gutowski, A. C. Hess, J. Jaffe, B. G. Johnson,
+     J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+      T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
+      M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
+
+ Total times  cpu:        1.3s     wall:        1.3s
