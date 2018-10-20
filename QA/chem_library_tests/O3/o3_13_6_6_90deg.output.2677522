@@ -2079,7 +2079,7 @@ task tce energy
  Doubles contributions
     13a   (alpha)    13a   (beta ) ---     9a   (alpha)     9a   (beta )       -0.1150872013
     13a   (alpha)    13a   (beta ) ---    12a   (alpha)    12a   (beta )       -0.3887566442
- Ground state specisication for QC:
+ Ground state specification:
  exp(T)|Ref>~(1+T)|Ref>
  ------- a(p)+/a(q) strings ----------
 
@@ -2211,7 +2211,7 @@ task tce energy
     13a   (alpha)    13a   (beta ) ---    10a   (alpha)    12a   (beta )        0.2765155196
     13a   (alpha)    13a   (beta ) ---    11a   (alpha)     9a   (beta )        0.2100426721
     13a   (alpha)    13a   (beta ) ---    12a   (alpha)    10a   (beta )        0.2765155196
- Excited state specisication for QC:
+ Excited state specification:
  Rexp(T)|Ref>~(R_1+R_2)|Ref>
  ------- a(p)+/a(q) strings ----------
 
@@ -2249,7 +2249,7 @@ task tce energy
  Doubles contributions
     13a   (alpha)    13a   (beta ) ---    11a   (alpha)    12a   (beta )       -0.5152614835
     13a   (alpha)    13a   (beta ) ---    12a   (alpha)    11a   (beta )       -0.5152614835
- Excited state specisication for QC:
+ Excited state specification:
  Rexp(T)|Ref>~(R_1+R_2)|Ref>
  ------- a(p)+/a(q) strings ----------
 
@@ -2286,7 +2286,7 @@ task tce energy
  Doubles contributions
     13a   (alpha)    13a   (beta ) ---     9a   (alpha)    12a   (beta )        0.4661363072
     13a   (alpha)    13a   (beta ) ---    12a   (alpha)     9a   (beta )        0.4661363072
- Excited state specisication for QC:
+ Excited state specification:
  Rexp(T)|Ref>~(R_1+R_2)|Ref>
  ------- a(p)+/a(q) strings ----------
 
