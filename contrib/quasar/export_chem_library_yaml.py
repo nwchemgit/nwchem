@@ -110,7 +110,7 @@ def extract_fields():
             #    if fci_energy is None:
             #        fci_val = float(ln.split("=")[1].strip())
             #        fci_energy = {"units" : "hartree", "value" : fci_val, "upper": fci_val*0.99, "lower":fci_val*1.01}
-            elif ln == "Ground state specification for QC:":
+            elif ln == "Ground state specification:":
                 reader_mode = "initial_state"
                 assert ccsd_energy is not None, "CCSD energy should be available before the groud state specification."
                 if initial_state is None:
@@ -121,7 +121,7 @@ def extract_fields():
                                      'value' : ccsd_energy} ,
                         'superposition' : []
                         }}]
-            elif ln == "Excited state specification for QC:":
+            elif ln == "Excited state specification:":
                 reader_mode = "initial_state"
                 assert ccsd_energy is not None, "CCSD energy should be available before the excited state specification."
                 if initial_state is None:
@@ -163,12 +163,20 @@ def extract_fields():
             elif 'norm' in ln or 'string' in ln or 'exp' in ln:
                 continue
             else:
-                vals = ln.split(":")
-                initial_state[-1]['state']['superposition'] += [
-                    [float(vals[0].strip())] +
-                     vals[1].split()[:-1] +
-                    ['|vacuum>']
+                #vals = ln.split(":")
+                if len(initial_state[-1]['state']['superposition']) > 0 and initial_state[-1]['state']['superposition'][-1][-1] != '|vacuum>':
+                    initial_state[-1]['state']['superposition'][-1] += ln.replace('|0>', '|vacuum>').split()
+                else:
+                    vals = ln.replace('|0>', '|vacuum>').split(":")
+                    initial_state[-1]['state']['superposition'] += [
+                        [float(vals[0].strip())] +
+                        vals[1].split()[:]
                     ]
+                    '''initial_state[-1]['state']['superposition'] += [
+                        [float(vals[0].strip())] +
+                        vals[1].split()[:-1] +
+                        ['|vacuum>']
+                    ]'''
         elif reader_mode == "input_deck":
             if ln == "================================================================================":
                 reader_mode = ""
@@ -177,10 +185,13 @@ def extract_fields():
                 assert len(ln_segments) >= 3
                 geometry = {'coordinate_system': 'cartesian'}
                 geometry['units'] = ln_segments[2]
-            elif ln == "basis":
+            elif ln_segments[0].lower() == "basis":
                 reader_mode = "input_basis"
+                basis_set = {}
+                basis_set['name'] = 'unknown'
+                basis_set['type'] = 'gaussian'
         elif reader_mode=="input_geometry":
-            if ln=="end":
+            if ln.lower()=="end":
                 reader_mode = "input_deck"
             elif ln_segments[0] == "symmetry":
                 assert len(ln_segments) == 2
@@ -195,14 +206,14 @@ def extract_fields():
                                                "coords":
                                                    [float(ln_segments[1]), float(ln_segments[2]), float(ln_segments[3])]}]
         elif reader_mode == "input_basis":
-            if ln == "end":
+            if ln.lower() == "end":
                 reader_mode = "input_deck"
             else:
-                assert len(ln_segments) == 3
-                assert ln_segments[1] == "library"
-                basis_set = {}
-                basis_set['name'] = ln_segments[2]
-                basis_set['type'] = 'gaussian'
+                if ln.find('library') != -1:
+                    assert len(ln_segments) == 3
+                    assert ln_segments[1] == "library"
+                    basis_set['name'] = ln_segments[2]
+                    basis_set['type'] = 'gaussian'
         elif reader_mode == "one_electron_integrals":
             if ln == "end_one_electron_integrals":
                 reader_mode = ""
