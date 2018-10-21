@@ -5,8 +5,8 @@ inputFile="${inputFile%.*}"
 
 result=$inputFile.output
 
-mpirun --allow-run-as-root -np 2 nwchem $1 2>&1 | tee $result
-python3 /opt/nwchem/contrib/quasar/export_chem_library_yaml.py < $result 2>&1 | tee $inputFile.yaml
+mpirun --allow-run-as-root -np 2 $NWCHEM_EXECUTABLE $1 2>&1 | tee $result
+python3 $NWCHEM_TOP/contrib/quasar/export_chem_library_yaml.py < $result 2>&1 | tee $inputFile.yaml
 
 echo "result written to $inputFile.yaml"
 
