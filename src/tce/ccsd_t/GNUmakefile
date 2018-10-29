@@ -14,7 +14,7 @@ OBJ_OPTIMIZE = ccsd_t.o ccsd_t_doubles.o ccsd_t_singles.o lambda_ccsd_t.o lambda
                tce_hashnsort.o ccsd_t_pstat.o \
                ccsd_t_dot.o ccsd_t_neword.o
 ifdef USE_OFFLOAD
-+OBJ_OPTIMIZE += offl_ccsd_t_singles_l.o offl_ccsd_t_singles_l_1.o
+  OBJ_OPTIMIZE += offl_ccsd_t_singles_l.o offl_ccsd_t_singles_l_1.o
 endif
 
 LIB_INCLUDES = -I../include
