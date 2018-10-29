@@ -15,7 +15,7 @@ except ImportError:
     
 
 preamble="""
-"$schema": https://microsoft.com/qchem-0.1.schema.json
+"$schema": https://raw.githubusercontent.com/Microsoft/Quantum/master/Chemistry/Schema/broombridge-0.1.schema.json
 """
 
 def is_integer(str):

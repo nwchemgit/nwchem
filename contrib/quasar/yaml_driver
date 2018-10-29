@@ -1,0 +1,12 @@
+#!/bin/bash
+
+inputFile=$(basename -- "$1")
+inputFile="${inputFile%.*}"
+
+result=$inputFile.output
+
+mpirun --allow-run-as-root -np 2 $NWCHEM_EXECUTABLE $1 2>&1 | tee $result
+python3 $NWCHEM_TOP/contrib/quasar/export_chem_library_yaml.py < $result 2>&1 | tee $inputFile.yaml
+
+echo "result written to $inputFile.yaml"
+
