@@ -663,6 +663,17 @@ c     1           read_integrals))
 c     1  call errquit('tce_init: failed to write read_integrals',
 c     2               0,RTDB_ERR)
 c      endif
+      if (.not.rtdb_get(rtdb,'tce:ltcc',mt_log,1,ltcc)) then
+        tcc_spaces(1) = -1
+        tcc_spaces(2) = -1
+        tcc_spaces(3) = -1
+        tcc_spaces(4) = -1
+        tcc_spaces(5) = -1
+        tcc_spaces(6) = -1
+        tcc_spaces(7) = -1
+        tcc_spaces(8) = -1
+        ltcc = .false.
+      endif
       if (.not.rtdb_get(rtdb,'tce:read_t',mt_log,4,read_t)) then
         do i = 1, 4
           read_t(i)=.false.

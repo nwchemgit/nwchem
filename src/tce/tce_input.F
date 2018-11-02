@@ -1520,6 +1520,11 @@
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 
+      else if (inp_compare(.false.,test,'tcc_spaces')) then
+        if (.not.rtdb_put(rtdb,'tce:ltcc',mt_log,1,.true.))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+
 !
 !     PRINT
 !
