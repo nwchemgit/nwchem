@@ -9,6 +9,8 @@ Comment: Developed by EJB on 11/5/2018
 [lmax] 2
 [locp] 0
 [rlocal] 1.0
+[cutoff] 50.0
+
 <atom>
 Pt
 78.0 195.1 10 3
