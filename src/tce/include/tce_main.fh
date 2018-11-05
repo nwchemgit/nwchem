@@ -134,6 +134,10 @@ c
       integer target                          ! Target root
       character*4 targetsym                   ! Irrep of target root
       logical symmetry                        ! True if only roots with targetsym are sought
+
+      integer tcc_spaces(8)                   ! Spaces for tailored CC
+      logical ltcc
+
 c
 c     Integers
 c 
@@ -154,7 +158,8 @@ c
      3  idisk,fast2e,ichop,imaxsize,l_mo_index, k_mo_index,
      4  l_alpha,k_alpha,l_offset,k_offset,rec_mem,
      M	max_ioprocs_in,
-     5  l_active_n,k_active_n,oact,uact,l_active_o,k_active_o
+     5  l_active_n,k_active_n,oact,uact,l_active_o,k_active_o,
+     J  tcc_spaces
 c
 c     Doubles
 c
@@ -172,5 +177,5 @@ c     Logicals
 c
       common /tcemainlogical/
      1  oskel,oadapt,left,fileisga,ampnorms,diagnt1,
-     2  symmetry,activecalc
+     2  symmetry,activecalc,ltcc
 
