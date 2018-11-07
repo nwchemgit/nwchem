@@ -150,7 +150,21 @@ c
         write(6,*)'From DUCC CCSD corr. ene.',eccsd
         call util_flush(6)
       endif
-c transformation t2-->t2e
+c Attention: t1e and t2e calculated for specific SES g(no,nactv)
+c Attention: for effective interactions different types of SESs
+c            are needed!
+c transformation t1-->t1e  
+      do i=1,nos
+c      a->a 
+       do ia=nos+1,nos+nactv
+        t1(i,ia)=0.0d0
+       enddo
+c      b->b
+       do ia=nos+nvas+1,nos+nvas+nactv
+        t1(i,ia)=0.0d0
+       enddo
+      enddo !t1e
+c transformation t2-->t2e  ! in QDK only t2e is used
 c we are using the same t1 and t2 tensors to store t1e and t2e
       do i=1,nos
       do j=1,nos
