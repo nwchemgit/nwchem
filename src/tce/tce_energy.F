@@ -150,6 +150,7 @@
       integer irow,icol,index_pair
       integer k_aux,l_aux
       integer range_ov,range_occ
+      integer nos,nvs,noas,nobs,nvas,nvbs,nactv
       double precision xxx,xnorm1,xnorm2,xnorm
       double precision l1norm,ehfa,enrep_tce
 c      double precision v4m(50,50,50,50)
@@ -157,6 +158,8 @@ c      double precision f2m(50,50)
       integer k_f2m,l_f2m,size_f2m
       integer k_v4m,l_v4m,size_v4m
       logical quantumc,spust
+      logical qducc
+      character*4 hftype
 !QuantumComputing
 ! FOR CR-EOMCCSD(T) ---------------------
       integer d_ex1,d_ex2
@@ -689,6 +692,32 @@ cold        rec_mem=1
        else
         quantumc=res_log
        end if
+!QuantumComputing
+       res_log=.false.
+       if (.not.rtdb_get(rtdb,'tce:qducc',
+     4  mt_log,1,res_log)) then
+        qducc=.false.
+       else
+        qducc=res_log
+       end if
+!QuantumComputing
+       if(qducc) then 
+       nactv=0
+        if (.not.rtdb_get(rtdb,'tce:nactv',mt_int,1,nactv)) then
+         call errquit('tce_energy:nactv=0 while qducc=true',0,
+     2      RTDB_ERR)
+        end if
+       end if ! if qducc
+c
+       if(.not.rtdb_cget(rtdb,'scf:scftype',1,hftype))
+     1   call errquit('tce_energy: failed to read scftype',0,RTDB_ERR)
+c *** debug ***
+       if(nodezero) then
+         write(6,*)'hftype ',hftype
+         call util_flush(6)
+       endif
+c *************
+c
 !QuantumComputing
 !
        res_log=.false.
@@ -2899,6 +2928,38 @@ c
           call tce_string_x1(d_t1,k_t1_offset,0.10d0,irrep_t,xnorm)
           call tce_string_x2(d_t2,k_t2_offset,0.10d0,irrep_t,xnorm)
           if(nodezero) write(6,*)'-------------------------------------'
+c
+c qducc starts here 
+c
+          if(qducc) then 
+             if (.not.(hftype.eq.'RHF'))
+     1        call errquit('tce_energy:qducc only with RHF reference',0,
+     2        RTDB_ERR)
+           nos=int_mb(k_offset+noab-1)+int_mb(k_range+noab-1)
+           nvs=int_mb(k_offset+noab+nvab-1)+int_mb(k_range+noab+nvab-1)
+     &         -nos
+           noas=nos/2
+           nobs=nos/2
+           nvas=nvs/2
+           nvbs=nvs/2
+c -------------------
+         if(nodezero) then
+          write(6,*)' nos ',nos
+          write(6,*)' nvs ',nvs
+          write(6,*)'noas ',noas
+          write(6,*)'nobs ',nobs
+          write(6,*)'nvas ',nvas
+          write(6,*)'nvbs ',nvbs
+          write(6,*)'nactv ',nactv
+          call util_flush(6)
+         endif
+c -------------------
+           call ducc(rtdb,d_t1,k_t1_offset,d_t2,k_t2_offset,
+     &    d_v2,k_v2_offset,dbl_mb(k_evl_sorted),
+     &    nos,nvs,noas,nobs,nvas,nvbs,nactv)
+          endif ! qducc
+c
+c
           endif !quantumc
 !QuantumComputing
 #endif
