@@ -1,0 +1,48 @@
+#
+# $Id$
+#
+Comment: Pt pseudopotential parameters
+Comment: Relativistic TM, 5s, 5p and 5d in the valence, multiple s and p projectors, no semicore
+Comment: Pt(III) reference atom
+Comment: Developed by EJB on 11/5/2018
+
+[lmax] 2
+[locp] 0
+[rlocal] 1.0
+[cutoff] 50.0
+
+<atom>
+Pt
+78.0 195.1 10 3
+1 0   2.0
+2 0   2.0
+2 1   6.0
+3 0   2.0
+3 1   6.0
+3 2  10.0
+4 0   2.0
+4 1   6.0
+4 2   10.0
+4 3   14.0
+5 0   2.0
+5 1   6.0
+5 2   5.00
+<end>
+<solver> pauli                     <end>
+<pseudopotential>    troullier-martins <end>
+ <rcut>
+    0 1.12088
+    1 1.40200
+    2 2.40000
+    3 1.25000
+ <end>
+ <kb_expansion>
+   0  2
+   1  2
+ <end>
+<screening_cut> 0.20 <end>
+<comment> Parameterized Fe Troullier-Martin psp (5s5p5d6s6p projectors, 11/05/2018 by EJB) <end>
+
+
+
+
