@@ -3476,6 +3476,41 @@ c      end
       return
       end
 
+*     **********************************
+*     *                                *
+*     *  control_num_kvectors_print    *
+*     *                                *
+*     **********************************
+      integer function control_num_kvectors_print()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "errquit.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+     
+*     **** local variables ****
+      logical value
+      character*50 zone_name
+      character*50 rtdb_name
+      integer num_kvectors_print,l
+      
+      if (.not.btdb_cget(rtdb,'band:zone_name',1,zone_name))
+     >   zone_name = 'zone_default'
+      
+      l = index(zone_name,' ') -1
+      rtdb_name = zone_name(1:l)//':number_kvectors_print'
+      if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,num_kvectors_print))
+     >   num_kvectors_print = 0
+         
+      control_num_kvectors_print = num_kvectors_print
+      return
+      end
+
+
 *     ****************************
 *     *                	 	 *
 *     *      control_ksvector	 *
