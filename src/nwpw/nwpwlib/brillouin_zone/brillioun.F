@@ -17,18 +17,20 @@
 
 *     **** local variables ****
       logical value
-      integer nb,nbq,count,taskid_k,p
+      integer nb,nbq,count,taskid_k,p,nbrillioun_print
       real*8  kvec(3),ksvec(4)
       real*8 total_weight 
 
 *     **** external functions ****
-      integer  control_num_kvectors
-      external control_num_kvectors
+      integer  control_num_kvectors,control_num_kvectors_print
+      external control_num_kvectors,control_num_kvectors_print
 
       call Parallel3d_taskid_k(taskid_k)
 
       nbrillioun = control_num_kvectors()
-      printbrill = (nbrillioun.le.pbrillmax)
+      nbrillioun_print = control_num_kvectors_print()
+      if (nbrillioun_print.lt.1) nbrillioun_print = pbrillmax
+      printbrill = (nbrillioun.le.nbrillioun_print)
 
       map_in = 1
       call K1dB_init(nbrillioun,map_in)
