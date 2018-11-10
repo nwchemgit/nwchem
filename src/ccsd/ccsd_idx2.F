@@ -89,7 +89,7 @@
 #ifdef ACC_STRIPS
         do jj=1,nfi
            call ga_acc(g_c,ad1+1+(jj-1)*nact,ad1+nact*jj,ad2+1,ad2+nocc,
-     S          bufb(1,tid),
+     S          bufb((jj-1)*nact+1,tid),
      &          nact*nfi,1.0d0)
         enddo
 #else
@@ -121,7 +121,7 @@
 #ifdef ACC_STRIPS
         do jj=1,nfk
            call ga_acc(g_c,ad1+1+(jj-1)*nact,ad1+nact*jj,ad2+1,ad2+nocc,
-     S          bufb(1,tid),
+     S          bufb((jj-1)*nact+1,tid),
      &          nact*nfk,1.0d0)
         enddo
 #else
@@ -185,7 +185,7 @@
 #ifdef ACC_STRIPS
         do jj=1,nfi
            call ga_acc(g_c,ad1+1+(jj-1)*nact,ad1+nact*jj,ad2+1,ad2+nocc,
-     S          scrb,
+     S          scrb((jj-1)*nact+1),
      &          nact*nfi,1.0d0)
         enddo
 #else
@@ -211,7 +211,7 @@
 #ifdef ACC_STRIPS
         do jj=1,nfk
            call ga_acc(g_c,ad1+1+(jj-1)*nact,ad1+nact*jj,ad2+1,ad2+nocc,
-     S          scrb,
+     S          scrb((jj-1)*nact+1),
      &          nact*nfk,1.0d0)
         enddo
 #else
