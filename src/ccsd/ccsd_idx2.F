@@ -86,8 +86,16 @@
         ad1=(ilo-1)*nact
         ad2=(ii-1)*nocc
 !$omp critical
+#ifdef ACC_STRIPS
+        do jj=1,nfi
+           call ga_acc(g_c,ad1+1+(jj-1)*nact,ad1+nact*jj,ad2+1,ad2+nocc,
+     S          bufb(1,tid),
+     &          nact*nfi,1.0d0)
+        enddo
+#else
         call ga_acc(g_c,ad1+1,ad1+nact*nfi,ad2+1,ad2+nocc,bufb(1,tid),
      &              nact*nfi,1.0d0)
+#endif
 !$omp end critical
         if (ilo.ne.klo)then
           call dgemm('t','n',nact,nfik,nbf,1.0d0,cmo(1,ncor+1),nbf,
@@ -110,8 +118,16 @@
           ad1=(klo-1)*nact
           ad2=(ii-1)*nocc
 !$omp critical
+#ifdef ACC_STRIPS
+        do jj=1,nfk
+           call ga_acc(g_c,ad1+1+(jj-1)*nact,ad1+nact*jj,ad2+1,ad2+nocc,
+     S          bufb(1,tid),
+     &          nact*nfk,1.0d0)
+        enddo
+#else
           call ga_acc(g_c,ad1+1,ad1+nact*nfk,ad2+1,ad2+nocc,bufb(1,tid),
      &                nact*nfk,1.0d0)
+#endif
 !$omp end critical
         endif
       enddo
