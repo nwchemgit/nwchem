@@ -4,7 +4,8 @@
 Comment: Pt pseudopotential parameters
 Comment: Fitted 12-27-04
 Comment: by E.J. Bylaska, somewhat based on Khein and Allens' TM database
-Comment: relativistic TM, quadratic semicore 
+Comment: relativistic TM, quadratic semicore
+
 
 [lmax] 2
 [locp] 0
@@ -36,7 +37,7 @@ Pt
    2    1.9754083
 <end>
 
-<semicore> 1.49 <end>
+<semicore> 1.19 <end>
 <semicore_type> quadratic <end>
 
 
