@@ -6354,4 +6354,31 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
 
 
+*     ***********************************
+*     *                                 *
+*     *    control_psp_semicore_small   *
+*     *                                 *
+*     ***********************************
+      logical function control_psp_semicore_small()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.btdb_get(rtdb,'nwpw:psp:semicore_small',mt_log,1,value))
+     >   value = .false.
+
+      control_psp_semicore_small = value
+      return
+      end
+
+
+
 
