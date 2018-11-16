@@ -836,15 +836,12 @@ cstaggering to avoid congestion in ga_acc
 c h3(nbf,ilo:ihi)
 #ifndef NOCOMMS
            ab = ((a-ofroz)*(a-ofroz-1))/2 + b - ofroz - aoff
-#ifdef ACC_STRIPS
-           do i=ilo,ihi
-              ijlo = (i-1)*nbf + 1
-              ijhi = i*nbf 
-              call ga_acc(g_exch,ijlo,ijhi,ab,ab,h3(1,i-ilo+1),nni,1.d0)
-           enddo
-#else
            ijlo = (ilo-1)*nbf + 1
            ijhi = ihi*nbf
+#ifdef ACC_STRIPS
+           call util_gacc_strips(g_exch,ijlo,ijhi,ab,ab,h3,nni,1.d0,
+     2          nbf)
+#else
            call ga_acc(g_exch,ijlo,ijhi,ab,ab,h3,nni,1.d0)
 #endif
 #endif
@@ -870,15 +867,12 @@ cstaggering to avoid congestion in ga_acc
 c h3(1:nbf,jlo:jhi)
 #ifndef NOCOMMS
            ab = ((a-ofroz)*(a-ofroz-1))/2 + b - ofroz - aoff
-#ifdef ACC_STRIPS
-           do j=jlo,jhi
-              ijlo = (j-1)*nbf + 1
-              ijhi = j*nbf
-              call ga_acc(g_exch,ijlo,ijhi,ab,ab,h3(1,j-jlo+1),nnj,1.d0)
-           enddo
-#else
            ijlo = (jlo-1)*nbf + 1
            ijhi = jhi*nbf
+#ifdef ACC_STRIPS
+           call util_gacc_strips(g_exch,ijlo,ijhi,ab,ab,h3,nnj,1.d0,
+     2          nbf          )
+#else
            call ga_acc(g_exch,ijlo,ijhi,ab,ab,h3,nnj,1.d0)
 #endif
 #endif

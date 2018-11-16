@@ -108,15 +108,15 @@ c ------------------------------------------------------------
       if (.not.stat)call errquit('ma_pop ccsd_t2pm ',0, MA_ERR)
       call ga_distribution(g_st2,
      .     ga_nodeid(), ilo, ihi, jlo, jhi)
-      write(6,'(i3,a,4i5)') ga_nodeid(), ' old distr ',
-     L           ilo, ihi, jlo, jhi
+c      write(6,'(i3,a,4i5)') ga_nodeid(), ' old distr ',
+c     L           ilo, ihi, jlo, jhi
 #ifdef HAVE_SET_GA_PROPERTY
       if(use_rdonly_st2) then
          call ga_set_property(g_st2,'read_only')
       call ga_distribution(g_st2,
      .     ga_nodeid(), ilo, ihi, jlo, jhi)
-      write(6,'(i3,a,4i5)') ga_nodeid(), ' new distr ',
-     L           ilo, ihi, jlo, jhi
+c      write(6,'(i3,a,4i5)') ga_nodeid(), ' new distr ',
+c     L           ilo, ihi, jlo, jhi
          if(ga_nodeid().eq.0) write(6,*) ' g_st2 read_only'
 c     disable old replicated data
          use_inmem_st2=.false.
@@ -138,14 +138,14 @@ c     disable old replicated data
       endif
       call ga_distribution(g_st2,
      .     ga_nodeid(), ilo, ihi, jlo, jhi)
-      write(6,'(i3,a,4i5)') ga_nodeid(), ' new distr ',
-     L           ilo, ihi, jlo, jhi
+c      write(6,'(i3,a,4i5)') ga_nodeid(), ' new distr ',
+c     L           ilo, ihi, jlo, jhi
       if (use_inmem_st2) then
 c     show how much memory g_st2 (a_st2) needs
          nsz_st2 = lnoo * nbfdim*ma_sizeof(MT_DBL,1,MT_BYTE)
          mem_ava=ma_inquire_avail(MT_BYTE)
          if(iam.eq.0) then
-          if (util_print('ccsd extra', print_high)) then
+          if (util_print('ccsd extra', print_medium)) then
             write(*,'(a,i8,a)') " g_st2 size:",
      &           max(nsz_st2/1024/1024,1), " MB",
      &           " mem. avail ",max(mem_ava/1024/1024,1)," MB"
