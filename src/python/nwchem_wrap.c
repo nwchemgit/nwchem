@@ -347,7 +347,7 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
     }
     
     switch (ma_type) {
-    case MT_BASE + 11:        /* Logical */
+    case MT_F_LOG:        /* Logical */
       c_int_array = array;
       for (i = 0; i < list_len; i++) {
         if (list) 
@@ -443,7 +443,7 @@ PyObject *wrap_rtdb_get(PyObject *self, PyObject *args)
       nelem, array);*/
     
     switch (ma_type) {
-    case MT_BASE + 11  : 
+    case MT_F_LOG  : 
       format_char = 'b'; break;
     case MT_F_INT:
     case MT_INT  : 
