@@ -56,7 +56,7 @@ int FATR task_python_(Integer *rtdb_ptr)
    ret += PyRun_SimpleString(pbuf);
    sprintf(pbuf, "CHAR    = %d", MT_CHAR);      
    ret += PyRun_SimpleString(pbuf);
-   sprintf(pbuf, "LOGICAL = %d", MT_BASE + 11); 
+   sprintf(pbuf, "LOGICAL = %d", MT_F_LOG); 
    ret += PyRun_SimpleString(pbuf);
    sprintf(pbuf, "taskid = %d", GA_Nodeid());
    ret += PyRun_SimpleString(pbuf);
