@@ -131,7 +131,8 @@ C     == Variables ==
 
          if ( (field%polarization .ne. "x").and.
      $        (field%polarization .ne. "y").and.
-     $        (field%polarization .ne. "z") )
+     $        (field%polarization .ne. "z").and.
+     $        (field%polarization .ne. "angle"))
      $        call errquit (pname//"invalid polarization: "//
      $        field%polarization, 0, 0)
 

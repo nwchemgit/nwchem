@@ -5,7 +5,8 @@ prop_euler.o \
 prop_magnus_exp_bch.o \
 prop_magnus_exp_bch_scaled.o \
 prop_magnus_ord2_interpol.o \
-prop_magnus_ord2_step.o
+prop_magnus_ord2_step.o \
+prop_rk4.o
 
 
 OBJ_OPTIMIZE = 

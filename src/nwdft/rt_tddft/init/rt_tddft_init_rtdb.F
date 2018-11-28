@@ -244,5 +244,17 @@ C
      $        "failed to read mocap_print from rtdb", 0, RTDB_ERR)
       endif
 
+
+C     
+C     Spatial CAP
+C
+      if (.not.rtdb_get(params%rtdb, "rt_tddft:cap_active",
+     $     mt_log, 1, params%cap_active)) call errquit (pname//
+     $     "failed to read cap_active from rtdb", 0, RTDB_ERR)
+
+C     if (params%cap_active) then
+C     XXX LOAD PARAMS
+
+      
       end subroutine
 c $Id$

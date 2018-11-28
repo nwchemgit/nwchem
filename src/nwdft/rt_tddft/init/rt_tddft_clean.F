@@ -84,6 +84,15 @@ C
 
 
 C
+C     Clean up CAP.
+C      
+      if (params%cap_active) then
+         if (.not. ga_destroy (params%g_zcap))
+     $        call errquit (pname//"failed to destroy zcap",0,GA_ERR)
+      endif
+
+      
+C
 C     Clean up canonical orthogonalization transforms.
 C
       call canorg_clean (params)

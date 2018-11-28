@@ -285,7 +285,14 @@ C
       endif
 
 
+C     == Spatial complex absorbing boundary conditions (CAP) ==
+      if (params%cap_active) then
+         call ga_zadd (z1, g_zfock, z1, params%g_zcap, g_zfock)
+         call rt_tddft_print_notice ("Applied spatial CAP to "//
+     $        "restricted Fock matrix")
+      endif
 
+      
 C
 C     Extra checks, disabled for speed.
 C

@@ -27,7 +27,7 @@ C     == Parameters ==
 
 C     == Variables ==
       logical done
-      character*255 test
+      character*255 test, filename
       
       type (rt_field_t) prev_field, this_field
       integer i
@@ -40,10 +40,12 @@ C     == Variables ==
       double precision frequency
       double precision width
       double precision phase
-      character*2 polarization  !x,y,z for dipole; xx,xy,xz,... for quad
-
+      double precision start
+      character*16 polarization  !x,y,z for dipole; xx,xy,xz,... for quad
+      double precision theta, phi
 
       logical lhave_center
+      logical lhave_start      
       logical lhave_polarization
       logical lhave_width
       logical lhave_max
@@ -63,7 +65,10 @@ C     == Variables ==
       lhave_frequency = .false.
       lhave_spin = .false.
       lhave_phase = .false.
+      lhave_max = .false.
+      lhave_start = .false.
 
+      phase = 0d0  ! default phase = 0
       
 C     
 C     Parse the input; we will put in rtdb later after checking.
@@ -85,12 +90,19 @@ C
             if (.not. inp_a (type))
      $           call errquit (pname//"failed to read field type",0,0)
             
-            if ( (type.ne."cw").and.
-     $           (type.ne."delta").and.
-     $           (type.ne."hann").and.
-     $           (type.ne."gaussian") )
-     $           call errquit (pname//"invalid field type: "//type,0,0)
-            
+            if ( type .eq. "file") then
+               if (.not. inp_a (filename)) call errquit (pname//
+     $              "failed to read field file name", 0, 0)
+               
+            else
+               if ( (type.ne."cw").and.
+     $              (type.ne."delta").and.
+     $              (type.ne."hann").and.
+     $              (type.ne."sin2ramp").and.
+     $              (type.ne."gaussian"))
+     $              call errquit (pname//"invalid field type: "//
+     $              type,0,0)
+            endif
             lhave_type = .true.
             
             
@@ -124,6 +136,15 @@ C
 
 
 C
+C     start of the ramp up (only for ramps)
+C
+         elseif (inp_compare(.false.,test,'start')) then
+            if (.not.inp_f(start)) call errquit (pname//
+     $           "start takes a float >= 0", 0, 0)
+            lhave_start = .true.
+            
+
+C
 C     width the field (only for gaussian and Hann)
 C
          elseif (inp_compare(.false.,test,'width')) then
@@ -144,14 +165,25 @@ C
 C
 C     field polarization
 C
+c$$$         elseif (inp_compare(.false.,test,'polarization')) then
+c$$$            if (.not.inp_a(polarization)) call errquit (pname//
+c$$$     $           "polarization can be: x,y,z (for dipole); "//
+c$$$     $           "xx,xy,xz,... (for quad)", 0, 0)
+c$$$            lhave_polarization = .true.
+
          elseif (inp_compare(.false.,test,'polarization')) then
             if (.not.inp_a(polarization)) call errquit (pname//
-     $           "polarization can be: x,y,z (for dipole); "//
-     $           "xx,xy,xz,... (for quad)", 0, 0)
+     $           "polarization can be: x,y,z, angle", 0, 0)
+
+            if (inp_compare(.false.,polarization,'angle')) then !need to get theta, phi values
+               if (.not.inp_f(theta)) call errquit (pname//
+     $              "angle theta takes a float", 0, 0)
+               if (.not.inp_f(phi)) call errquit (pname//
+     $              "angle phi takes a float", 0, 0)
+            endif
             lhave_polarization = .true.
 
-
-
+            
 C
 C     phase (only for gaussian and cw)
 C     
@@ -171,9 +203,6 @@ C
      $           0, INPUT_ERR)
          endif
 
-
-CXXX  [KAL]: CHIRP
-
       enddo
 
       
@@ -182,7 +211,6 @@ C     Now check that we have all required parameters, no superfluous
 C     ones, no name clashes with other fields, and that params are
 C     reasonable (e.g., no negative times, etc).
 C
-
       if (nfields .gt. 1) then
          do i = 1, nfields - 1
             call rt_tddft_field_rtdb_get (rtdb, i, prev_field)
@@ -191,7 +219,6 @@ C
      $           " with the same name: "//trim(field_name), 0, 0)
          enddo
       endif
-      
 
       if (.not. lhave_type)
      $     call errquit (pname//trim(field_name)//
@@ -209,150 +236,235 @@ C
             call errquit (pname//"invalid field spin: "//spin,0,0)
          endif
       else
-         spin1 = "t"            !default to acting on all spins
+         spin1 = "t"            !default to acting on all spins endif
       endif
 
       if (.not. lhave_spin) spin = "total" !default to acting on both spins
 
 
-      if (.not. lhave_max)
-     $     call errquit (pname//trim(field_name)//
-     $     ": must supply a field max", 0, 0)
-
-      if (.not. lhave_polarization)
-     $     call errquit (pname//trim(field_name)//
-     $     ": must supply a field polarization", 0,0)
-
-      if (type .eq. "cw") then
-         if (.not. lhave_frequency)
-     $        call errquit (pname//trim(field_name)//
-     $        ": must supply a frequency if doing cw", 0,0)
-         
-         if (lhave_center) call errquit (pname//trim(field_name)//
-     $     ": cannot specify center if cw", 0,0)
-
-         if (lhave_width) call errquit (pname//trim(field_name)//
-     $     ": cannot specify width if cw", 0,0)
-      endif
-
-      if (type .eq. "gaussian") then
-         if (.not. lhave_frequency)
-     $        call errquit (pname//trim(field_name)//
-     $        ": must supply a frequency if doing gaussian", 0,0)
-
-         if (.not. lhave_center) call errquit (pname//trim(field_name)//
-     $     ": must specify center if gaussian", 0,0)
-
-         if (.not. lhave_width) call errquit (pname//trim(field_name)//
-     $     ": must specify width if gaussian", 0,0)
-      endif
-
-      if (type .eq. "hann") then
-         if (.not. lhave_frequency)
-     $        call errquit (pname//trim(field_name)//
-     $        ": must supply a frequency if doing Hann", 0,0)
-
-         if (.not. lhave_center) call errquit (pname//trim(field_name)//
-     $     ": must specify center if Hann", 0,0)
-
-         if (.not. lhave_width) call errquit (pname//trim(field_name)//
-     $     ": must specify width if Hann", 0,0)
-      endif
-
-
-      if (type .eq. "delta") then
+      if ( type .eq. "file" ) then
+         if (lhave_max) call errquit (pname//trim(field_name)//
+     $        ": cannot specify field max if reading from file", 0, 0)
+         if (lhave_polarization) call errquit (pname//trim(field_name)//
+     $        ": cannot specify polarization if reading from file", 0,0)
          if (lhave_frequency) call errquit (pname//trim(field_name)//
-     $     ": cannot supply a frequency if doing delta", 0,0)
+     $        ": cannot specify frequency if reading from file", 0, 0)
+         if (lhave_center) call errquit (pname//trim(field_name)//
+     $        ": cannot specify center if reading from file", 0, 0)
+         if (lhave_width) call errquit (pname//trim(field_name)//
+     $        ": cannot specify width if reading from file", 0, 0)
+         if (lhave_phase) call errquit (pname//trim(field_name)//
+     $        ": cannot specify phase if reading from file", 0, 0)
+         
+      else  ! internal (non-file) fields
+         if (.not. lhave_max)
+     $        call errquit (pname//trim(field_name)//
+     $        ": must supply a field max", 0, 0)
 
-         if (.not. lhave_center) then
-            center = 0d0        !default delta kick to t=0
-            lhave_center = .true.
+         if (.not. lhave_polarization)
+     $        call errquit (pname//trim(field_name)//
+     $        ": must supply a field polarization", 0,0)
+
+         if (type .eq. "cw") then
+            if (.not. lhave_frequency)
+     $           call errquit (pname//trim(field_name)//
+     $           ": must supply a frequency if doing cw", 0,0)
+         
+            if (lhave_center) call errquit (pname//trim(field_name)//
+     $           ": cannot specify center if cw", 0,0)
+
+            if (lhave_width) call errquit (pname//trim(field_name)//
+     $           ": cannot specify width if cw", 0,0)
+
+            if (lhave_start) call errquit (pname//
+     $           trim(field_name)//
+     $           ": cannot specify start if doing cw", 0, 0)
+         endif
+
+         if (type .eq. "gaussian") then
+            if (.not. lhave_frequency)
+     $           call errquit (pname//trim(field_name)//
+     $           ": must supply a frequency if doing gaussian", 0,0)
+            
+            if (.not. lhave_center) call errquit (pname//
+     $           trim(field_name)//
+     $           ": must specify center if gaussian", 0,0)
+            
+            if (.not. lhave_width) call errquit (pname//
+     $           trim(field_name)//
+     $           ": must specify width if gaussian", 0,0)
+
+            if (lhave_start) call errquit (pname//
+     $           trim(field_name)//
+     $           ": cannot specify start if doing gaussian", 0, 0)
+         endif
+         
+         if (type .eq. "hann") then
+            if (.not. lhave_frequency)
+     $           call errquit (pname//trim(field_name)//
+     $           ": must supply a frequency if doing Hann", 0,0)
+            
+            if (.not. lhave_center) call errquit (pname//
+     $           trim(field_name)//
+     $           ": must specify center if Hann", 0,0)
+            
+            if (.not. lhave_width) call errquit (pname//
+     $           trim(field_name)//
+     $           ": must specify width if Hann", 0,0)
+
+            if (lhave_start) call errquit (pname//
+     $           trim(field_name)//
+     $           ": cannot specify start if doing hann", 0, 0)
+         endif
+         
+         
+         if (type .eq. "delta") then
+            if (lhave_frequency) call errquit (pname//trim(field_name)//
+     $           ": cannot supply a frequency if doing delta", 0,0)
+            
+            if (.not. lhave_center) then
+               center = 0d0     !default delta kick to t=0
+               lhave_center = .true.
+            endif
+
+            if (lhave_width) call errquit (pname//trim(field_name)//
+     $           ": cannot specify width if delta", 0,0)
+
+            if (lhave_start) call errquit (pname//
+     $           trim(field_name)//
+     $           ": cannot specify start if doing delta", 0, 0)
+            
          endif
 
 
-c$$$         if (lhave_center) call errquit (pname//trim(field_name)//
-c$$$     $     ": cannot specify center if delta", 0,0)
+         if (type .eq. "sin2ramp") then
+            if (.not. lhave_frequency)
+     $           call errquit (pname//trim(field_name)//
+     $           ": must supply a frequency if doing sin2ramp", 0,0)
+            
+            if (.not. lhave_width) call errquit (pname//
+     $           trim(field_name)//
+     $           ": must specify width if doing sin2ramp", 0,0)
 
-         if (lhave_width) call errquit (pname//trim(field_name)//
-     $     ": cannot specify width if delta", 0,0)
-      endif
+            if (.not. lhave_start) call errquit (pname//
+     $           trim(field_name)//
+     $           ": must specify start if doing sin2ramp", 0, 0)
 
-      if ( (polarization.ne."x").and.
-     $     (polarization.ne."y").and.
-     $     (polarization.ne."z") )
-     $     call errquit (pname//trim(field_name)//
-     $     ": polarization must be x, y, or z (quads disabled for now)",
-     $     0,0)
+            if (lhave_center) call errquit (pname//
+     $           trim(field_name)//
+     $           ": cannot specify center if doing sin2ramp", 0, 0)
+         endif
 
-C      if ( (lhave_frequency).and.(frequency.lt.0d0) )
-C     $     call errquit (pname//trim(field_name)//
-C     $     ": frequency must be positive", 0, 0)
+         
+         if ( (polarization.ne."x").and.
+     $        (polarization.ne."y").and.
+     $        (polarization.ne."z").and.
+     $        (polarization.ne."angle"))
+     $        call errquit (pname//trim(field_name)//
+     $        ": polarization must be x, y, z, or angle",
+     $        0,0)
+         
+         if ( (lhave_center).and.(center.lt.0d0) )
+     $        call errquit (pname//trim(field_name)//
+     $        ": center must be positive", 0, 0)
+         
+         if ( (lhave_width).and.(width.lt.0d0) )
+     $        call errquit (pname//trim(field_name)//
+     $        ": width must be positive", 0, 0)
 
-      if ( (lhave_center).and.(center.lt.0d0) )
-     $     call errquit (pname//trim(field_name)//
-     $     ": center must be positive", 0, 0)
-
-      if ( (lhave_width).and.(width.lt.0d0) )
-     $     call errquit (pname//trim(field_name)//
-     $     ": width must be positive", 0, 0)
-
-
-C     (no, its OK to have a negative "max")
-C      if ( (lhave_max).and.(max.lt.0d0) )
-C     $     call errquit (pname//trim(field_name)//
-C     $     ": max must be positive", 0, 0)
-
-
-C
+C     
 C     Frequency-related stuff only valid for CW and pulses (gaussian, hann)
-C
-      if (lhave_phase .or. lhave_frequency) then
-         if ((type .ne. "cw").and.(type .ne. "gaussian")
-     $        .and. (type .ne. "hann")) call errquit (pname//
-     $        "phase and frequency only valid for "//
-     $        "CW, gaussian, and hann",0,0)
+C     
+         if (lhave_phase .or. lhave_frequency) then
+            if ((type .ne. "cw").and.(type .ne. "gaussian")
+     $           .and. (type .ne. "hann").and.(type .ne. "sin2ramp"))
+     $           call errquit (pname//
+     $           "phase and frequency only valid for "//
+     $           "CW, gaussian, hann, and sin2ramp",0,0)
+         endif
       endif
-
 
 C
 C     Load into rtdb
 C
       this_field%name = field_name
       this_field%type = type
-      this_field%polarization = polarization
-      this_field%max = max
-      this_field%spin = spin1
 
-      if (type.eq."cw") then
+      if (type.eq."file") then
+         this_field%filename = filename
+      elseif (type.eq."cw") then
+         this_field%polarization = polarization
+         this_field%max = max
+         this_field%spin = spin1
          this_field%frequency = frequency
          this_field%phase = phase
          this_field%width = -99d0
          this_field%center = -99d0
-      endif
-
-      if (type.eq."gaussian") then
+         this_field%start = -99d0         
+      elseif (type.eq."gaussian") then
+         this_field%polarization = polarization
+         this_field%max = max
+         this_field%spin = spin1
          this_field%frequency = frequency
          this_field%phase = phase
          this_field%width = width
          this_field%center = center
-      endif
-
-      if (type.eq."hann") then
+         this_field%start = -99d0         
+      elseif (type.eq."hann") then
+         this_field%polarization = polarization
+         this_field%max = max
+         this_field%spin = spin1
          this_field%frequency = frequency
          this_field%phase = phase
          this_field%width = width
          this_field%center = center
-      endif
-
-      if (type.eq."delta") then
+         this_field%start = -99d0         
+      elseif (type.eq."sin2ramp") then
+         this_field%polarization = polarization
+         this_field%max = max
+         this_field%spin = spin1
+         this_field%frequency = frequency
+         this_field%phase = phase
+         this_field%width = width
+         this_field%start = start
+         this_field%center = -99d0         
+      elseif (type.eq."delta") then
+         this_field%polarization = polarization
+         this_field%max = max
+         this_field%spin = spin1
          this_field%frequency = -99d0
          this_field%width = -99d0
          this_field%center = center
+         this_field%start = -99d0
+         this_field%phase = -99d0
+      else
+         call errquit (pname//"invalid type: "//trim(type), 0, 0)
       endif
+         
 
+C     XXX REFACTOR THIS
+      if (type .ne. "file") then
+         if (polarization.eq."x") then !not used yet, instead cases are done in excitation routine
+            this_field%theta = 90d0
+            this_field%phi = 0d0
+         elseif (polarization.eq."y") then ! ""
+            this_field%theta = 90d0
+            this_field%phi = 90d0
+         elseif (polarization.eq."z") then ! ""
+            this_field%theta = 0d0
+            this_field%phi = 0d0
+         elseif (polarization.eq."angle") then ! we actually use this
+            this_field%theta = theta
+            this_field%phi = phi
+         else
+            call errquit (pname//"invalid polarization: "
+     $           //trim(polarization), 0, 0)
+         endif
+      endif
+         
       call rt_tddft_field_rtdb_put (rtdb, nfields, this_field)
 
-      end subroutine 
+      end subroutine
 
 
 C====================================================================
@@ -438,6 +550,11 @@ C     == Variables ==
      $     call errquit(pname//'Write failed to name rtdb',
      $     0,RTDB_ERR)
 
+      entry_name = trim(basename) // "filename"
+      if (.not.rtdb_cput(rtdb,entry_name,1,field%filename))
+     $     call errquit(pname//'Write failed to filename rtdb',
+     $     0,RTDB_ERR)
+
       entry_name = trim(basename) // "type"
       if (.not.rtdb_cput(rtdb,entry_name,1,field%type))
      $     call errquit(pname//'Write failed to type rtdb',
@@ -472,11 +589,26 @@ C     == Variables ==
      $        call errquit(pname//'Write failed to center rtdb',
      $     0,RTDB_ERR)
 
+      entry_name = trim(basename) // "start"
+      if (.not.rtdb_put(rtdb,entry_name,mt_dbl,1,field%start))
+     $        call errquit(pname//'Write failed to start rtdb',
+     $     0,RTDB_ERR)
+
       entry_name = trim(basename) // "phase"
       if (.not.rtdb_put(rtdb,entry_name,mt_dbl,1,field%phase))
      $        call errquit(pname//'Write failed to phase rtdb',
      $     0,RTDB_ERR)
 
+      entry_name = trim(basename) // "theta"
+      if (.not.rtdb_put(rtdb,entry_name,mt_dbl,1,field%theta))
+     $        call errquit(pname//'Write failed to theta rtdb',
+     $     0,RTDB_ERR)
+
+      entry_name = trim(basename) // "phi"
+      if (.not.rtdb_put(rtdb,entry_name,mt_dbl,1,field%phi))
+     $        call errquit(pname//'Write failed to phi rtdb',
+     $     0,RTDB_ERR)
+      
       end subroutine
 
       
@@ -524,6 +656,11 @@ C     == Variables ==
      $     call errquit(pname//'Read failed for name rtdb',
      $     0,RTDB_ERR)
 
+      entry_name = trim(basename) // "filename"
+      if (.not.rtdb_cget(rtdb,entry_name,1,field%filename))
+     $     call errquit(pname//'Read failed for name rtdb',
+     $     0,RTDB_ERR)
+
       entry_name = trim(basename) // "type"
       if (.not.rtdb_cget(rtdb,entry_name,1,field%type))
      $     call errquit(pname//'Read failed for type rtdb',
@@ -558,9 +695,24 @@ C     == Variables ==
      $        call errquit(pname//'Read failed for center rtdb',
      $     0,RTDB_ERR)
 
+      entry_name = trim(basename) // "start"
+      if (.not.rtdb_get(rtdb,entry_name,mt_dbl,1,field%start))
+     $        call errquit(pname//'Read failed for start rtdb',
+     $     0,RTDB_ERR)
+
       entry_name = trim(basename) // "phase"
       if (.not.rtdb_get(rtdb,entry_name,mt_dbl,1,field%phase))
      $        call errquit(pname//'Read failed for phase rtdb',
+     $     0,RTDB_ERR)
+
+      entry_name = trim(basename) // "theta"
+      if (.not.rtdb_get(rtdb,entry_name,mt_dbl,1,field%theta))
+     $        call errquit(pname//'Read failed for theta rtdb',
+     $     0,RTDB_ERR)
+
+      entry_name = trim(basename) // "phi"
+      if (.not.rtdb_get(rtdb,entry_name,mt_dbl,1,field%phi))
+     $        call errquit(pname//'Read failed for phi rtdb',
      $     0,RTDB_ERR)
       
       end subroutine

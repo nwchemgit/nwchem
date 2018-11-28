@@ -296,6 +296,16 @@ C     (beta spin)
       endif
 
 
+C     == Spatial complex absorbing boundary conditions (CAP) ==
+      if (params%cap_active) then
+         call ga_zadd (z1, g_zfock(1), z1, params%g_zcap, g_zfock(1))
+         call rt_tddft_print_notice ("Applied spatial CAP to "//
+     $        "alpha Fock matrix")
+         call ga_zadd (z1, g_zfock(2), z1, params%g_zcap, g_zfock(2))
+         call rt_tddft_print_notice ("Applied spatial CAP to "//
+     $        "beta Fock matrix")
+      endif
+      
 
 C
 C     Extra checks, disabled for speed.
