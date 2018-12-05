@@ -35,6 +35,15 @@ c      parameter (max_fixed_atoms=100)
       integer h_hbondings_coef
       integer h_hbondings_k0
       integer h_hbondings_gamma0
+
+      integer nhp
+      integer h_pbondings_n0
+      integer h_pbondings_indx
+      integer h_pbondings_coef
+      integer h_pbondings_k0
+      integer h_pbondings_gcut0
+      integer h_pbondings_gamma0
+
       common /cons_data/ 
      &                   cons_oprint_default,
      &                   nhb,
@@ -45,6 +54,11 @@ c      parameter (max_fixed_atoms=100)
      &                   h_hbondings_n0,h_hbondings_indx,
      &                   h_hbondings_coef,
      &                   h_hbondings_k0,h_hbondings_gamma0,
+     &                   nhp,
+     &                   h_pbondings_n0,h_pbondings_indx,
+     &                   h_pbondings_coef,
+     &                   h_pbondings_k0,h_pbondings_gcut0,
+     &                   h_pbondings_gamma0,
      &                   h_fpos,i_fpos,
      &                   h_c,
      &                   cons_irtdb,

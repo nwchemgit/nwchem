@@ -116,6 +116,11 @@ c
       cons_inquire=rtdb_get(rtdb,tag,mt_int,1,n)
       if(cons_inquire) return
 
+
+      call cons_pbondings_n_tag(namespace,tag)
+      cons_inquire=rtdb_get(rtdb,tag,mt_int,1,n)
+      if(cons_inquire) return
+
       call cons_hdihed_n_tag(namespace,tag)
       cons_inquire=rtdb_get(rtdb,tag,mt_int,1,n)
       if(cons_inquire) return
