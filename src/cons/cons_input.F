@@ -19,17 +19,19 @@ c
       integer nfp
       logical status
       integer id(4)
-      double precision k,r,K0,gamma0,coef(20)
+      double precision k,r,K0,gcut0,gamma0,coef(20)
       integer n,indx(20)
       integer geom, ncenters
 c
-      logical cons_harm_bond_input
+      logical  cons_harm_bond_input
       external cons_harm_bond_input
-      logical cons_harm_dihed_input
+      logical  cons_harm_dihed_input
       external cons_harm_dihed_input
       logical  cons_harm_bondings_input
       external cons_harm_bondings_input
-      logical cons_active
+      logical  cons_penalty_bondings_input
+      external cons_penalty_bondings_input
+      logical  cons_active
       external cons_active
 c
 c     get no. atoms
@@ -81,6 +83,7 @@ c     ----------------------------
       else if (inp_compare(.false.,'clear', test)) then
          call cons_delete_hbonds(namespace,rtdb)
          call cons_delete_hbondings(namespace,rtdb)
+         call cons_delete_pbondings(namespace,rtdb)
          call cons_delete_fixed_atoms(namespace,rtdb)
 
       goto 100
@@ -161,6 +164,14 @@ c     ----------------------------
            else
             call errquit('cons_input: failed harm bondings input',0,0)
            end if
+         else if (inp_compare(.false.,'pbondings', test)) then
+           if(cons_penalty_bondings_input(n,indx,coef,K0,gcut0,gamma0))
+     >     then
+            call cons_add_pbondings(namespace,n,indx,coef,K0,
+     >                              gcut0,gamma0,rtdb)
+           else
+            call errquit('cons_input:failed penalty bondings input',0,0)
+           end if
          end if
 c 
       goto 100
@@ -181,6 +192,7 @@ c
       call cons_info_fixed_atoms(namespace,rtdb)
       call cons_info_springs(namespace,rtdb)
       call cons_info_bondings(namespace,rtdb)
+      call cons_info_pbondings(namespace,rtdb)
       call cons_info_dihed(namespace,rtdb)
       return
       end
@@ -336,6 +348,59 @@ c
       if (n.eq.0) ok = .false.
 
       cons_harm_bondings_input = ok
+      return
+      end
+
+
+
+
+*     ****************************************
+*     *                                      *
+*     *       cons_penalty_bondings_input    *
+*     *                                      *
+*     ****************************************
+*
+* pbondings K0 gcut0  gamma0 -1.0 1 2 1.0 2 3
+*
+      logical function cons_penalty_bondings_input(n,indx,coef,K0,
+     >                                             gcut0,gamma0)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+c     
+      logical ok
+      integer n,indx(*)
+      double precision coef(*),K0,gcut0,gamma0
+
+      integer itest
+      double precision ftest
+
+      ok = .true.
+
+      !*** enter K0, gcut0, and gamma0 ***
+      if (.not.inp_f(ftest)) ok = .false.
+      K0 = ftest
+      if (ok.and.(.not.inp_f(ftest))) ok = .false.
+      gcut0 = ftest
+      if (ok.and.(.not.inp_f(ftest))) ok = .false.
+      gamma0 = ftest
+
+      !*** coef and indx ***
+      n = 0
+      do while (ok.and.inp_f(ftest))
+         coef(n+1) = ftest
+         if(ok.and.(.not.inp_i(itest))) ok = .false.
+         indx(2*n+1) = itest
+         if(ok.and.(.not.inp_i(itest))) ok = .false.
+         indx(2*n+2) = itest
+         n = n + 1
+      end do
+      if (n.eq.0) ok = .false.
+
+      cons_penalty_bondings_input = ok
       return
       end
 
