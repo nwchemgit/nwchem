@@ -1170,6 +1170,34 @@ c
       end
 
 
+      logical function cons_pbondings(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+c     
+      character*(*) namespace
+      integer rtdb
+c
+      integer nhb
+      character*255 tag_n
+
+      call cons_pbondings_n_tag(namespace,tag_n)
+
+      if(.not.rtdb_get(rtdb,tag_n,mt_int,1,nhb)) nhb=0
+
+      if(nhb.eq.0) then
+        cons_pbondings=.false.
+      else
+        cons_pbondings=.true.
+      end if
+
+      return
+      end
+
+
+
+
 
       function cons_hdihed(namespace,rtdb)
       implicit none
@@ -1259,3 +1287,338 @@ c
 c
       end
 
+
+
+      subroutine cons_info_pbondings(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "stdio.fh"
+c
+      character*(*) namespace
+      integer rtdb
+c     
+      logical status
+      integer i,ii,mm,j,n
+      integer nhp
+      integer h_tmp_n0,i_tmp_n0
+      integer h_tmp_indx,i_tmp_indx
+      integer h_tmp_coef,i_tmp_coef
+      integer h_tmp_k0,i_tmp_k0
+      integer h_tmp_gcut0,i_tmp_gcut0
+      integer h_tmp_gamma0,i_tmp_gamma0
+      double precision K0, gcut0,gamma0
+      character*255 tag_n
+      character*255 tag_n0
+      character*255 tag_indx
+      character*255 tag_coef
+      character*255 tag_k0
+      character*255 tag_gcut0
+      character*255 tag_gamma0
+
+      call cons_pbondings_n_tag(namespace,tag_n)
+      call cons_pbondings_n0_tag(namespace,tag_n0)
+      call cons_pbondings_indx_tag(namespace,tag_indx)
+      call cons_pbondings_coef_tag(namespace,tag_coef)
+      call cons_pbondings_k0_tag(namespace,tag_k0)
+      call cons_pbondings_gcut0_tag(namespace,tag_gcut0)
+      call cons_pbondings_gamma0_tag(namespace,tag_gamma0)
+
+
+      if(.not.rtdb_get(rtdb,tag_n,mt_int,1,nhp)) then
+         nhp = 0
+      end if
+
+      if (nhp .eq. 0 ) then
+         if(ga_nodeid().eq.0)
+     >     write(luout,*) "no bondings springs found"
+         return
+      end if
+
+      if ( .not. ma_push_get( MT_INT, nhp, 'h_tmp_n0',
+     &      h_tmp_n0, i_tmp_n0) ) call errquit(
+     &      'cons_info_pbondings: unable to allocate scratch space',
+     &      nhp, MA_ERR)
+      status = rtdb_get(rtdb,tag_n0,mt_int,nhp,int_mb(i_tmp_n0))
+      if(.not.status) call errquit(
+     >     'cons_info_pbondings: unable to get n0',
+     >      nhp, MA_ERR)
+      mm = 0
+      do i=1,nhp
+         mm = mm + int_mb(i_tmp_n0+i-1)
+      end do
+      if ( .not. ma_push_get( MT_INT, 2*mm, 'h_tmp_indx',
+     &      h_tmp_indx, i_tmp_indx) ) call errquit(
+     &      'cons_info_pbondings: unable to allocate scratch space',
+     &      mm, MA_ERR)
+      if ( .not. ma_push_get( MT_DBL, mm, 'h_tmp_coef',
+     &      h_tmp_coef, i_tmp_coef) ) call errquit(
+     &      'cons_info_pbondings: unable to allocate scratch space',
+     &      mm, MA_ERR)
+
+      if ( .not. ma_push_get( MT_DBL, nhp, 'h_tmp_k0',
+     &      h_tmp_k0, i_tmp_k0) ) call errquit(
+     &      'cons_info_pbondings: unable to allocate scratch space',
+     &      nhp, MA_ERR)
+
+      if ( .not. ma_push_get( MT_DBL, nhp, 'h_tmp_gcut0',
+     &      h_tmp_gcut0, i_tmp_gcut0) ) call errquit(
+     &      'cons_info_pbondings: unable to allocate scratch space',
+     &      nhp, MA_ERR)
+
+      if ( .not. ma_push_get( MT_DBL, nhp, 'h_tmp_gamma0',
+     &      h_tmp_gamma0, i_tmp_gamma0) ) call errquit(
+     &      'cons_info_pbondings: unable to allocate scratch space',
+     &      nhp, MA_ERR)
+
+      status = rtdb_get(rtdb,tag_indx,mt_int,2*mm,int_mb(i_tmp_indx))
+      status = status.and.
+     >         rtdb_get(rtdb,tag_coef,mt_dbl,mm,dbl_mb(i_tmp_coef))
+      status = status.and.
+     >         rtdb_get(rtdb,tag_k0,mt_dbl,nhp,dbl_mb(i_tmp_k0))
+      status = status.and.
+     >         rtdb_get(rtdb,tag_gcut0,mt_dbl,nhp,dbl_mb(i_tmp_gcut0))
+      status = status.and.
+     >         rtdb_get(rtdb,tag_gamma0,mt_dbl,nhp,dbl_mb(i_tmp_gamma0))
+      if(.not.status) call errquit(
+     >     'cons_info_pbondings: unable to get prior harm bondings',
+     >      nhp, MA_ERR)
+     
+      if(ga_nodeid().eq.0) then
+         ii = 0
+         do i=1,nhp
+            n      = int_mb(i_tmp_n0+i-1)
+            K0     = dbl_mb(i_tmp_k0+i-1)
+            gcut0  = dbl_mb(i_tmp_gcut0+i-1)
+            gamma0 = dbl_mb(i_tmp_gamma0+i-1)
+
+            write(luout,*)
+            write(luout,'(A,I5)') " Bondings Spring #",i
+            write(luout,'(A,F18.9,F18.9,E14.6)')
+     >             "   - parameters (K0,gcut0,gamma0):",
+     >             K0,gcut0,gamma0
+            write(luout,*) "  - coefficient index1 index2"
+            do j=1,n
+              write(luout,'(F16.6,I7,I7)') dbl_mb(i_tmp_coef+ii+j-1),
+     >                           int_mb(i_tmp_indx+2*ii+2*(j-1)),
+     >                           int_mb(i_tmp_indx+2*ii+2*(j-1)+1)
+            end do
+            write(luout,*)
+            ii = ii + n
+         end do
+      end if
+
+      if (.not. ma_pop_stack(h_tmp_gamma0) ) call errquit(
+     &    'cons_info_pbondings: unable to free h_tmp_gamma0',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_gcut0) ) call errquit(
+     &    'cons_info_pbondings: unable to free h_tmp_gcut0',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_k0) ) call errquit(
+     &    'cons_info_pbondings: unable to free h_tmp_k0',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_coef) ) call errquit(
+     &    'cons_info_pbondings: unable to free h_tmp_coef',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_indx) ) call errquit(
+     &    'cons_info_pbondings: unable to free h_tmp_indx',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_n0) ) call errquit(
+     &    'cons_info_pbondings: unable to free h_tmp_n0',
+     &    0, MA_ERR)
+      end
+
+
+
+
+
+*     ************************************
+*     *                                  *
+*     *      cons_add_pbondings          *
+*     *                                  *
+*     ************************************
+
+      subroutine cons_add_pbondings(namespace,n,indx,coef,
+     >                              K0,gcut0,gamma0,rtdb)
+      implicit none
+      character*(*) namespace
+      integer n,indx(*)
+      double precision coef(*),K0,gcut0,gamma0
+      integer rtdb
+
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+c     
+      logical status
+      integer i
+      integer nhp0,mm
+      integer nhp
+      integer h_tmp_n0,i_tmp_n0
+      integer h_tmp_indx,i_tmp_indx
+      integer h_tmp_coef,i_tmp_coef
+      integer h_tmp_k0,i_tmp_k0
+      integer h_tmp_gcut0,i_tmp_gcut0
+      integer h_tmp_gamma0,i_tmp_gamma0
+      character*255 tag_n
+      character*255 tag_n0
+      character*255 tag_indx
+      character*255 tag_coef
+      character*255 tag_k0
+      character*255 tag_gcut0
+      character*255 tag_gamma0
+
+      call cons_pbondings_n_tag(namespace,tag_n)
+      call cons_pbondings_n0_tag(namespace,tag_n0)
+      call cons_pbondings_indx_tag(namespace,tag_indx)
+      call cons_pbondings_coef_tag(namespace,tag_coef)
+      call cons_pbondings_k0_tag(namespace,tag_k0)
+      call cons_pbondings_gcut0_tag(namespace,tag_gcut0)
+      call cons_pbondings_gamma0_tag(namespace,tag_gamma0)
+
+
+      if(.not.rtdb_get(rtdb,tag_n,mt_int,1,nhp0)) then
+         nhp0 = 0
+      end if
+      nhp = nhp0 + 1
+      mm = 0
+
+      if(nhp0.eq.0) then
+         if (.not. ma_push_get( MT_INT, nhp, 'h_tmp_n0',
+     &      h_tmp_n0, i_tmp_n0) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nhp, MA_ERR)
+         if (.not. ma_push_get( MT_INT, nhp*2*n, 'h_tmp_indx',
+     &      h_tmp_indx, i_tmp_indx) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nhp*2*n, MA_ERR)
+         if (.not. ma_push_get( MT_DBL, nhp*n, 'h_tmp_coef',
+     &      h_tmp_coef, i_tmp_coef) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nhp*n, MA_ERR)
+         if (.not. ma_push_get( MT_DBL, nhp, 'h_tmp_k0',
+     &      h_tmp_k0, i_tmp_k0) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nhp, MA_ERR)
+         if (.not. ma_push_get( MT_DBL, nhp, 'h_tmp_gcut0',
+     &      h_tmp_gcut0, i_tmp_gcut0) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nhp, MA_ERR)
+         if (.not. ma_push_get( MT_DBL, nhp, 'h_tmp_gamma0',
+     &      h_tmp_gamma0, i_tmp_gamma0) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nhp, MA_ERR)
+
+      else
+         if ( .not. ma_push_get( MT_INT, nhp, 'h_tmp_n0',
+     &      h_tmp_n0, i_tmp_n0) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nhp, MA_ERR)
+         status = rtdb_get(rtdb,tag_n0,mt_int,nhp0,int_mb(i_tmp_n0))
+         mm = 0
+         do i=1,nhp0
+            mm = mm + int_mb(i_tmp_n0+i-1)
+         end do
+         if ( .not. ma_push_get( MT_INT, 2*(mm+n), 'h_tmp_indx',
+     &      h_tmp_indx, i_tmp_indx) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      2*(mm+n), MA_ERR)
+         if ( .not. ma_push_get( MT_DBL, (mm+n), 'h_tmp_indx',
+     &      h_tmp_coef, i_tmp_coef) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      (mm+n), MA_ERR)
+         if ( .not. ma_push_get( MT_DBL, nhp, 'h_tmp_k0',
+     &      h_tmp_k0, i_tmp_k0) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nhp, MA_ERR)
+         if ( .not. ma_push_get( MT_DBL, nhp, 'h_tmp_gcut0',
+     &      h_tmp_gcut0, i_tmp_gcut0) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nhp, MA_ERR)
+         if ( .not. ma_push_get( MT_DBL, nhp, 'h_tmp_gamma0',
+     &      h_tmp_gamma0, i_tmp_gamma0) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nhp, MA_ERR)
+
+         status = status . and. rtdb_get(rtdb,tag_indx,
+     >     mt_int,2*mm,int_mb(i_tmp_indx))
+         status = status . and. rtdb_get(rtdb,tag_coef,
+     >     mt_dbl,mm,dbl_mb(i_tmp_coef))
+         status = status . and. rtdb_get(rtdb,tag_k0,
+     >     mt_dbl,nhp0,dbl_mb(i_tmp_k0))
+         status = status . and. rtdb_get(rtdb,tag_gcut0,
+     >     mt_dbl,nhp0,dbl_mb(i_tmp_gcut0))
+         status = status . and. rtdb_get(rtdb,tag_gamma0,
+     >     mt_dbl,nhp0,dbl_mb(i_tmp_gamma0))
+         if(.not.status) call errquit(
+     >     'cons_add_spring: unable to get prior harm bondings',
+     >      nhp, MA_ERR)
+
+         status =              rtdb_delete(rtdb,tag_n)
+         status = status .and. rtdb_delete(rtdb,tag_n0)
+         status = status .and. rtdb_delete(rtdb,tag_indx)
+         status = status .and. rtdb_delete(rtdb,tag_coef)
+         status = status .and. rtdb_delete(rtdb,tag_k0)
+         status = status .and. rtdb_delete(rtdb,tag_gcut0)
+         status = status .and. rtdb_delete(rtdb,tag_gamma0)
+         if(.not.status) call errquit(
+     >     'cons_add_spring: unable to delete prior harm bondingss',
+     >      0, MA_ERR)
+      end if
+
+      int_mb(i_tmp_n0+nhp-1) = n
+      do i=1,2*n
+         int_mb(i_tmp_indx+2*mm+i-1) = indx(i)
+      end do
+      do i=1,n
+         dbl_mb(i_tmp_coef+mm+i-1) = coef(i)
+      end do
+      dbl_mb(i_tmp_k0+nhp-1) = K0
+      dbl_mb(i_tmp_gcut0+nhp-1) = gcut0
+      dbl_mb(i_tmp_gamma0+nhp-1) = gamma0
+
+       status = rtdb_put(rtdb,tag_n,mt_int,1,nhp)
+       status = status.and. rtdb_put(rtdb,tag_n0,
+     >     mt_int,nhp,int_mb(i_tmp_n0))
+       status = status.and. rtdb_put(rtdb,tag_indx,
+     >     mt_int,2*(mm+n),int_mb(i_tmp_indx))
+       status = status.and. rtdb_put(rtdb,tag_coef,
+     >     mt_dbl,(mm+n),dbl_mb(i_tmp_coef))
+       status = status.and. rtdb_put(rtdb,tag_k0,
+     >     mt_dbl,nhp,dbl_mb(i_tmp_k0))
+       status = status.and. rtdb_put(rtdb,tag_gcut0,
+     >     mt_dbl,nhp,dbl_mb(i_tmp_gcut0))
+       status = status.and. rtdb_put(rtdb,tag_gamma0,
+     >     mt_dbl,nhp,dbl_mb(i_tmp_gamma0))
+
+       if(.not.status) call errquit(
+     >     'cons_add_spring: unable to get prior harm bondings',
+     >      nhp, MA_ERR)
+
+      if (.not. ma_pop_stack(h_tmp_gamma0) ) call errquit(
+     &    'cons_add_spring: unable to free h_tmp_gamma0',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_gcut0) ) call errquit(
+     &    'cons_add_spring: unable to free h_tmp_gcut0',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_k0) ) call errquit(
+     &    'cons_add_spring: unable to free h_tmp_k0',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_coef) ) call errquit(
+     &    'cons_add_spring: unable to free h_tmp_coef',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_indx) ) call errquit(
+     &    'cons_add_spring: unable to free h_tmp_indx',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_n0) ) call errquit(
+     &    'cons_add_spring: unable to free h_tmp_n0',
+     &    0, MA_ERR)
+
+      return
+      end

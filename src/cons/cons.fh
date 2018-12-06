@@ -65,6 +65,41 @@
        integer  cons_get_h_hbondings_gamma0
        external cons_get_h_hbondings_gamma0
 
+       logical cons_pbondings
+       external cons_pbondings
+
+       integer  cons_get_i_pbondings_n0
+       external cons_get_i_pbondings_n0
+       integer  cons_get_h_pbondings_n0
+       external cons_get_h_pbondings_n0
+
+       integer  cons_get_i_pbondings_indx
+       external cons_get_i_pbondings_indx
+       integer  cons_get_h_pbondings_indx
+       external cons_get_h_pbondings_indx
+
+       integer  cons_get_i_pbondings_coef
+       external cons_get_i_pbondings_coef
+       integer  cons_get_h_pbondings_coef
+       external cons_get_h_pbondings_coef
+
+       integer  cons_get_i_pbondings_k0
+       external cons_get_i_pbondings_k0
+       integer  cons_get_h_pbondings_k0
+       external cons_get_h_pbondings_k0
+
+       integer  cons_get_i_pbondings_gcut0
+       external cons_get_i_pbondings_gcut0
+       integer  cons_get_h_pbondings_gcut0
+       external cons_get_h_pbondings_gcut0
+
+       integer  cons_get_i_pbondings_gamma0
+       external cons_get_i_pbondings_gamma0
+       integer  cons_get_h_pbondings_gamma0
+       external cons_get_h_pbondings_gamma0
+
+
+
        logical cons_fixed_atoms
        external cons_fixed_atoms
 

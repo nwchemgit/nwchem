@@ -404,6 +404,14 @@ c     initialize bondings
       call cons_set_hbondings_nhc(0)
       call cons_load_hbondings(namespace,rtdb)
       end if
+c
+c
+c     initialize pbondings
+      if(cons_pbondings(namespace,rtdb)) then
+      ocons = .true.
+      call cons_set_pbondings_nhp(0)
+      call cons_load_pbondings(namespace,rtdb)
+      end if
 
 
 c
@@ -436,6 +444,7 @@ c
       call cons_print_summary(rtdb)
       call cons_unload_hbonds()
       call cons_unload_hbondings()
+      call cons_unload_pbondings()
       call cons_unload_hdihed()
       call cons_unload_fixed_atoms(rtdb)
       return
@@ -652,13 +661,14 @@ c
       integer n
       double precision gx(n)
       character*255 namespace
-      logical obonds,odihedrals,ocons,obondings
+      logical obonds,odihedrals,ocons,obondings,opbondings
       logical osim
 c
       call cons_get_namespace(namespace,rtdb)
       if(.not.cons_status(namespace,rtdb)) return
       obonds = cons_hbonds(namespace,rtdb)
       obondings = cons_hbondings(namespace,rtdb)
+      opbondings = cons_pbondings(namespace,rtdb)
       odihedrals = cons_hdihed(namespace,rtdb)
       ocons = obonds.or.odihedrals.or.obondings
       if(.not.ocons) return
@@ -678,6 +688,8 @@ c
      >    call cons_add_hbond_egrad(rtdb,energy,gx)
       if(obondings)  
      >    call cons_add_hbondings_egrad(rtdb,energy,gx)
+      if(opbondings)  
+     >    call cons_add_pbondings_egrad(rtdb,energy,gx)
       if(odihedrals)     
      >   call cons_add_hdihed_egrad(rtdb,energy,gx)
 c
@@ -697,13 +709,14 @@ c
       integer rtdb
       double precision energy
       character*255 namespace
-      logical obonds,odihedrals,obondings,ocons
+      logical obonds,odihedrals,obondings,opbondings,ocons
       logical osim
 c
       call cons_get_namespace(namespace,rtdb)
       if(.not.cons_status(namespace,rtdb)) return
       obonds = cons_hbonds(namespace,rtdb)
       obondings = cons_hbondings(namespace,rtdb)
+      opbondings = cons_pbondings(namespace,rtdb)
       odihedrals = cons_hdihed(namespace,rtdb)
       ocons = obonds.or.odihedrals.or.obondings
       if(.not.ocons) return
@@ -718,6 +731,8 @@ c
      >   call cons_add_hbond_energy(rtdb,energy)
       if(obondings)  
      >   call cons_add_hbondings_energy(rtdb,energy)
+      if(opbondings)  
+     >   call cons_add_pbondings_energy(rtdb,energy)
       if(odihedrals)     
      >   call cons_add_hdihed_energy(rtdb,energy)
 c
