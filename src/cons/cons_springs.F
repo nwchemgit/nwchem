@@ -507,7 +507,7 @@ c
         write(luout,'(A,F18.9)')
      >  "   - spring energy                :",enb
         write(luout,'(A,F18.9)')
-     >  "   - unconstrained energy         :",energy
+     >  "   - previous/base energy         :",energy
         write(luout,'(A,F18.9)')
      >  "   - constrained energy           :",energy+enb
         write(luout,*) "  - coefficient index1 index2"
@@ -788,7 +788,7 @@ c
         write(luout,'(A,F18.9)') 
      >  "   - spring energy                :",enb
         write(luout,'(A,F18.9)') 
-     >  "   - unconstrained energy         :",energy
+     >  "   - previous/base energy         :",energy
         write(luout,'(A,F18.9)') 
      >  "   - constrained energy           :",energy+enb
         write(luout,*) "  - coefficient index1 index2"
