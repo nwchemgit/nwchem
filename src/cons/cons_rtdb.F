@@ -1087,6 +1087,7 @@ c
       call cons_info_fixed_atoms(namespace,rtdb)
       call cons_info_springs(namespace,rtdb)
       call cons_info_bondings(namespace,rtdb)
+      call cons_info_pbondings(namespace,rtdb)
       call cons_info_dihed(namespace,rtdb)
 
       end
@@ -1397,7 +1398,7 @@ c
             gamma0 = dbl_mb(i_tmp_gamma0+i-1)
 
             write(luout,*)
-            write(luout,'(A,I5)') " Bondings Spring #",i
+            write(luout,'(A,I5)') " Bondings Penalty #",i
             write(luout,'(A,F18.9,F18.9,E14.6)')
      >             "   - parameters (K0,gcut0,gamma0):",
      >             K0,gcut0,gamma0

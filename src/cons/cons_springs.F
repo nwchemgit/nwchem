@@ -428,7 +428,7 @@ c
         write(luout,'(A,F18.9)') 
      >  "   - spring energy                :",enb
         write(luout,'(A,F18.9)') 
-     >  "   - unconstrained energy         :",energy
+     >  "   - previous/base energy         :",energy
         write(luout,'(A,F18.9)') 
      >  "   - constrained energy           :",energy+enb
         write(luout,*) "  - coefficient index1 index2"
@@ -566,6 +566,9 @@ c
       if (.not. ma_free_heap(h_pbondings_k0) ) call errquit(
      &    'cons_bonding_input: unable to free h_pbondings_k0',
      &    0, MA_ERR)
+      if (.not. ma_free_heap(h_pbondings_gcut0) ) call errquit(
+     &    'cons_bonding_input: unable to free h_pbondings_gcut0',
+     &    0, MA_ERR)
       if (.not. ma_free_heap(h_pbondings_gamma0) ) call errquit(
      &    'cons_bonding_input: unable to free h_pbondings_gamma0',
      &    0, MA_ERR)
@@ -591,12 +594,14 @@ c
       integer h_pbondings_indx,i_pbondings_indx
       integer h_pbondings_coef,i_pbondings_coef
       integer h_pbondings_k0,i_pbondings_k0
+      integer h_pbondings_gcut0,i_pbondings_gcut0
       integer h_pbondings_gamma0,i_pbondings_gamma0
       character*255 tag_n
       character*255 tag_n0
       character*255 tag_indx
       character*255 tag_coef
       character*255 tag_k0
+      character*255 tag_gcut0
       character*255 tag_gamma0
       integer ma_type,ma_n
 c
@@ -608,6 +613,7 @@ c
       call cons_pbondings_indx_tag(namespace,tag_indx)
       call cons_pbondings_coef_tag(namespace,tag_coef)
       call cons_pbondings_k0_tag(namespace,tag_k0)
+      call cons_pbondings_gcut0_tag(namespace,tag_gcut0)
       call cons_pbondings_gamma0_tag(namespace,tag_gamma0)
 c
 c     load harmonic constraints
@@ -658,6 +664,15 @@ c     >      nhb, MA_ERR)
      &      'cons_load_hbonds: unable to allocate cons scratch space',
      &      2*nhp, MA_ERR)
 
+      if ( .not. rtdb_ma_get( rtdb, tag_gcut0,ma_type, ma_n,
+     &      h_pbondings_gcut0) ) call errquit(
+     &      'cons_load_hbonds: unable to allocate cons scratch space',
+     &      2*nhp, MA_ERR)
+      if ( .not. ma_get_index(h_pbondings_gcut0,
+     &      i_pbondings_gcut0) ) call errquit(
+     &      'cons_load_hbonds: unable to allocate cons scratch space',
+     &      2*nhp, MA_ERR)
+
       if ( .not. rtdb_ma_get( rtdb, tag_gamma0,ma_type, ma_n,
      &      h_pbondings_gamma0) ) call errquit(
      &      'cons_load_hbonds: unable to allocate cons scratch space',
@@ -673,6 +688,7 @@ c     >      nhb, MA_ERR)
        call cons_set_pbondings_indx(h_pbondings_indx)
        call cons_set_pbondings_coef(h_pbondings_coef)
        call cons_set_pbondings_k0(h_pbondings_k0)
+       call cons_set_pbondings_gcut0(h_pbondings_gcut0)
        call cons_set_pbondings_gamma0(h_pbondings_gamma0)
 
       return
@@ -693,6 +709,7 @@ c
       character*255 tag_indx
       character*255 tag_coef
       character*255 tag_k0
+      character*255 tag_gcut0
       character*255 tag_gamma0
 
       call cons_pbondings_n_tag(namespace,tag_n)
@@ -700,13 +717,15 @@ c
       call cons_pbondings_indx_tag(namespace,tag_indx)
       call cons_pbondings_coef_tag(namespace,tag_coef)
       call cons_pbondings_k0_tag(namespace,tag_k0)
-      call cons_pbondings_k0_tag(namespace,tag_gamma0)
+      call cons_pbondings_gcut0_tag(namespace,tag_gcut0)
+      call cons_pbondings_gamma0_tag(namespace,tag_gamma0)
 
       status =              rtdb_delete(rtdb,tag_n)
       status = status .and. rtdb_delete(rtdb,tag_n0)
       status = status .and. rtdb_delete(rtdb,tag_indx)
       status = status .and. rtdb_delete(rtdb,tag_coef)
       status = status .and. rtdb_delete(rtdb,tag_k0)
+      status = status .and. rtdb_delete(rtdb,tag_gcut0)
       status = status .and. rtdb_delete(rtdb,tag_gamma0)
 
       end
@@ -744,7 +763,7 @@ c
       i_indx   = cons_get_i_pbondings_indx()
       i_coef   = cons_get_i_pbondings_coef()
       i_k0     = cons_get_i_pbondings_k0()
-      i_k0     = cons_get_i_pbondings_gcut0()
+      i_gcut0  = cons_get_i_pbondings_gcut0()
       i_gamma0 = cons_get_i_pbondings_gamma0()
 
       e=0.0d0
@@ -848,11 +867,11 @@ c
         write(luout,'(A,E18.6)')
      >  "   - gamma                        :",gamm
         write(luout,'(A,F18.9)')
-     >  "   - spring energy                :",enb
+     >  "   - penalty energy               :",enb
         write(luout,'(A,F18.9)')
-     >  "   - unconstrained energy         :",energy
+     >  "   - previous/base energy         :",energy
         write(luout,'(A,F18.9)')
-     >  "   - constrained energy           :",energy+enb
+     >  "   - penalized energy             :",energy+enb
         write(luout,*) "  - coefficient index1 index2"
         do j=1,n
            write(luout,'(F16.6,I7,I7)') dbl_mb(i_coef+ii+j-1),

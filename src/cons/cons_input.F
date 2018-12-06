@@ -164,7 +164,18 @@ c     ----------------------------
            else
             call errquit('cons_input: failed harm bondings input',0,0)
            end if
-         else if (inp_compare(.false.,'pbondings', test)) then
+         end if
+c 
+      goto 100
+
+c
+c     penalty functions
+c     ----------------------------
+      else if (inp_compare(.false.,'penalty', test)) then
+        if (.not. inp_a(test))
+     >      call errquit('cons_input: failed to read keyword', 0,
+     >        0)
+         if (inp_compare(.false.,'bondings', test)) then
            if(cons_penalty_bondings_input(n,indx,coef,K0,gcut0,gamma0))
      >     then
             call cons_add_pbondings(namespace,n,indx,coef,K0,
@@ -173,8 +184,8 @@ c     ----------------------------
             call errquit('cons_input:failed penalty bondings input',0,0)
            end if
          end if
-c 
-      goto 100
+
+       goto 100
 c
 c     end of input block
 c     -------------------
