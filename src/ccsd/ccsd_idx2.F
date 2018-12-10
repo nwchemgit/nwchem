@@ -235,10 +235,13 @@ c
       integer iptr
       integer npass
 #define ACC_LENGTH 800
+#define ACC_LENGTH_MAX 950
+#define ACC_LENGTH_MAX_ 1950
 c
       if(lgth_in.gt.0) then
 c         npass=(ld*(jhi-jlo+1))/max(lgth_in+1
-         npass=(ld*(jhi-jlo+1))/max(ACC_LENGTH,lgth_in)+1
+cold         npass=(ld*(jhi-jlo+1))/max(ACC_LENGTH,lgth_in)+1
+       npass=(ld*(jhi-jlo+1))/min(ACC_LENGTH_MAX,lgth_in)+1
       else
          npass=(ld*(jhi-jlo+1))/ACC_LENGTH+1
       endif
