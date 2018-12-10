@@ -12,6 +12,7 @@
 #include "global.fh"
 #include "ccsd_len.fh"
 #include "ccsdps.fh"
+#include "util.fh"
 !
       double precision, intent(inout) :: emp4,emp5
       double precision, intent(in) :: t1(*)
@@ -133,6 +134,11 @@
       if (alloc_error.ne.0) call errquit('t1v2',6,MA_ERR)
 #endif
 !
+#ifdef MKL_THREAD
+      call omp_set_nested(1)
+      call mkl_set_dynamic(0)
+      call mkl_set_num_threads(2)
+#endif
       nodes = ga_nnodes()
       iam = ga_nodeid()
 !
@@ -404,8 +410,6 @@
  1234                format(' iam aijk',3i5,2e15.5)
                   end if
                   next=nxtask(nodes, 1)
-               end if
-            end do
             if(ga_nodeid().eq.0) then
                write(6,4321) ' ccsd(t): done ',
      A              a-(ncor+nocc)+((klo-1)/kchunk)*nvir,
@@ -413,9 +417,12 @@
      O              ' progress: ',
      O              ((a-(ncor+nocc)+((klo-1)/kchunk)*nvir)*100d0)/
      D              ((nocc/kchunk)*nvir),
-     P              '%'
- 4321          format(a,i8,a,i8,a,f6.1,a1)
+     P              '% at ',util_wallsec(),' secs'
+               call util_flush(6)
+ 4321          format(a,i8,a,i8,a,f6.1,a,f20.2,a)
             endif
+               end if
+            end do
          end do
       end do
       call ga_sync()
@@ -426,6 +433,11 @@
       else
          call qexit('trpdrv',0)
       endif
+#ifdef MKL_THREAD
+      call omp_set_nested(0)
+c     call mkl_set_dynamic(0)
+      call mkl_set_num_threads(1)
+#endif
 !
 #ifdef USE_F90_ALLOCATABLE
       deallocate( dintc1, stat=alloc_error)
