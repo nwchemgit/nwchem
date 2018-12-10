@@ -884,10 +884,11 @@ c
          if (use_trpdrv_omp) then
 c
          if (iam.eq.0.and.oprint) then
-            write(luout,1848) nvpass
+            write(luout,1848) nvpass,util_wallsec()
             call util_flush(luout)
          endif
- 1848    format(' commencing triples evaluation - OpenMP version',i8)
+ 1848    format(' commencing triples evaluation - OpenMP version',i8,
+     I        ' at ',f20.2,' secs')
          call ccsd_trpdrv_omp(dbl_mb(k_t1),
 #ifdef USE_F90_ALLOCATABLE
      $        f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
