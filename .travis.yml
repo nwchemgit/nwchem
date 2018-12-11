@@ -58,7 +58,7 @@ after_failure:
         - grep d= $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
         - grep @ $TRAVIS_BUILD_DIR/QA/testoutputs/h2o_opt.out
         - tail -30 $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
-        - tail -90 $TRAVIS_BUILD_DIR/QA/testoutputs/h2o2-response.out
+        - tail -490 $TRAVIS_BUILD_DIR/QA/testoutputs/h2o2-response.out
         - tail -30 $TRAVIS_BUILD_DIR/QA/testoutputs/prop_mep_gcube.out
         - diff $TRAVIS_BUILD_DIR/QA/testoutputs/prop_ch3f.o*nw*
         - diff $TRAVIS_BUILD_DIR/QA/testoutputs/h2o2-response.o*nw*
