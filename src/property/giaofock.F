@@ -946,7 +946,9 @@ c     call dcopy(blen*blen,0d0,0,buf,1)
 #ifdef NBGET
       call ga_nbget(g_dens,ibflo,ibfhi,jbflo,jbfhi,buf,blen,hand)
 #else
-      call ga_get(g_dens,ibflo,ibfhi,jbflo,jbfhi,buf,blen)
+cold      call ga_get(g_dens,ibflo,ibfhi,jbflo,jbfhi,buf,blen)
+      call ga_get(g_dens,ibflo,ibfhi,jbflo,jbfhi,
+     X     buf,ibfhi-ibflo+1)
 #endif
 c
       end

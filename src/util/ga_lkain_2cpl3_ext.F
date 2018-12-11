@@ -3228,8 +3228,8 @@ c    Date  : 04-08-12
         do ipm=1,ncomp
          call ga_zero(g_z(ipm))
          do ivec=1,nvec
-          call ga_get(g_xre(ipm),1,n,ivec,ivec,dbl_mb(k_zre),1)
-          call ga_get(g_xim(ipm),1,n,ivec,ivec,dbl_mb(k_zim),1)
+          call ga_get(g_xre(ipm),1,n,ivec,ivec,dbl_mb(k_zre),n)
+          call ga_get(g_xim(ipm),1,n,ivec,ivec,dbl_mb(k_zim),n)
           do idat=1,n
            val_cmplx=dcmplx(dbl_mb(k_zre+idat-1),
      &                      dbl_mb(k_zim+idat-1))
@@ -3293,9 +3293,9 @@ c    Date  : 04-08-12
           do i = ga_nodeid()+1,nocc,ga_nnodes()
            ioff = (i-1)*nvir + 1     
            call ga_get(g_xre,ioff,ioff+nvir-1,ivec1,ivec1,
-     $                 dbl_mb(k_zre),1)
+     $                 dbl_mb(k_zre),nvir)
            call ga_get(g_xim,ioff,ioff+nvir-1,ivec1,ivec1,
-     $                 dbl_mb(k_zim),1)
+     $                 dbl_mb(k_zim),nvir)
            do j=1,nvir
             j1=ioff1+ioff+j-1
             val_cmplx=dcmplx(dbl_mb(k_zre+j-1),
@@ -3368,9 +3368,9 @@ c    Date  : 04-08-12
            do i = ga_nodeid()+1,nocc(ipol),ga_nnodes()
             ioff = shift+(i-1)*nvir(ipol) + 1     
             call ga_get(g_xre,ioff,ioff+nvir(ipol)-1,ivec1,ivec1,
-     $                  dbl_mb(k_zre),1)
+     $                  dbl_mb(k_zre),nvir(ipol))
             call ga_get(g_xim,ioff,ioff+nvir(ipol)-1,ivec1,ivec1,
-     $                  dbl_mb(k_zim),1)
+     $                  dbl_mb(k_zim),nvir(ipol))
             do j=1,nvir(ipol)
              j1=ioff1+ioff+j-1
              val_cmplx=dcmplx(dbl_mb(k_zre+j-1),
@@ -3439,8 +3439,8 @@ c    Date  : 04-08-12
      &                  n, MA_ERR)
       if   (indrm.eq.1) then ! updating only REAL part
        do ivec=1,nvec
-        call ga_get(g_xreim,1,n,ivec,ivec,dbl_mb(k_xreim),1)
-        call ga_get(g_z    ,1,n,ivec,ivec,dcpl_mb(k_z),1)
+        call ga_get(g_xreim,1,n,ivec,ivec,dbl_mb(k_xreim),n)
+        call ga_get(g_z    ,1,n,ivec,ivec,dcpl_mb(k_z),n)
         do idat=1,n
          val_cmplx=dcmplx(dbl_mb(k_xreim+idat-1),0.0d0)
          call ga_put(g_a,1,1,1,1,val_cmplx,1)
@@ -3451,8 +3451,8 @@ c    Date  : 04-08-12
        enddo ! end-loop-ivec
       else if (indrm.eq.2) then ! updating only IMAG part
        do ivec=1,nvec
-        call ga_get(g_xreim,1,n,ivec,ivec,dbl_mb(k_xreim),1)
-        call ga_get(g_z    ,1,n,ivec,ivec,dcpl_mb(k_z),1)
+        call ga_get(g_xreim,1,n,ivec,ivec,dbl_mb(k_xreim),n)
+        call ga_get(g_z    ,1,n,ivec,ivec,dcpl_mb(k_z),n)
           do idat=1,n
            val_cmplx=dcmplx(0.0d0,dbl_mb(k_xreim+idat-1))
            call ga_put(g_a,1,1,1,1,val_cmplx,1)
@@ -3521,9 +3521,9 @@ c    Date  : 04-08-12
         do i = ga_nodeid()+1,nocc,ga_nnodes()
          ioff = (i-1)*nvir + 1     
          call ga_get(g_xreim,ioff,ioff+nvir-1,ivec,ivec,
-     $               dbl_mb(k_xreim),1)
+     $               dbl_mb(k_xreim),nvir)
          call ga_get(g_z,ioff,ioff+nvir-1,ivec,ivec,
-     $               dcpl_mb(k_z),1)
+     $               dcpl_mb(k_z),nvir)
          do j=1,nvir
           j1=ioff+j-1
           val_imag =dimag(dcpl_mb(k_z+j-1))
@@ -3537,9 +3537,9 @@ c    Date  : 04-08-12
         do i = ga_nodeid()+1,nocc,ga_nnodes()
          ioff = (i-1)*nvir + 1     
          call ga_get(g_xreim,ioff,ioff+nvir-1,ivec,ivec,
-     $               dbl_mb(k_xreim),1)
+     $               dbl_mb(k_xreim),nvir)
          call ga_get(g_z,ioff,ioff+nvir-1,ivec,ivec,
-     $               dcpl_mb(k_z),1)
+     $               dcpl_mb(k_z),nvir)
          do j=1,nvir
           j1=ioff+j-1
           val_real =dreal(dcpl_mb(k_z+j-1))
@@ -3618,9 +3618,9 @@ c               ncomp=2
          ioff =(i-1)*nvir + 1   
          ioff2=ioff1+ioff  
          call ga_get(g_xreim,ioff,ioff+nvir-1,ivec1,ivec1,
-     $               dbl_mb(k_xreim),1)
+     $               dbl_mb(k_xreim),nvir)
          call ga_get(g_z,ioff2,ioff2+nvir-1,ivec,ivec,
-     $               dcpl_mb(k_z),1)
+     $               dcpl_mb(k_z),nvir)
          do j=1,nvir
           j1=ioff1+ioff+j-1
           val_imag =dimag(dcpl_mb(k_z+j-1))
@@ -3637,9 +3637,9 @@ c               ncomp=2
          ioff =(i-1)*nvir + 1   
          ioff2=ioff1+ioff  
          call ga_get(g_xreim,ioff,ioff+nvir-1,ivec1,ivec1,
-     $               dbl_mb(k_xreim),1)
+     $               dbl_mb(k_xreim),nvir)
          call ga_get(g_z,ioff2,ioff2+nvir-1,ivec,ivec,
-     $               dcpl_mb(k_z),1)
+     $               dcpl_mb(k_z),nvir)
          do j=1,nvir
           j1=ioff1+ioff+j-1
           val_real =dreal(dcpl_mb(k_z+j-1))
@@ -3721,9 +3721,9 @@ c               ncomp=2
          ioff =(i-1)*nvir + 1   
          ioff2=ioff1+ioff  
          call ga_get(g_xreim,ioff,ioff+nvir-1,ivec1,ivec1,
-     $               dbl_mb(k_xreim),1)
+     $               dbl_mb(k_xreim),nvir)
          call ga_get(g_z,ioff2,ioff2+nvir-1,ivec,ivec,
-     $               dcpl_mb(k_z),1)
+     $               dcpl_mb(k_z),nvir)
          do j=1,nvir
           j1=ioff1+ioff+j-1
           val_imag =dimag(dcpl_mb(k_z+j-1))
@@ -3740,9 +3740,9 @@ c               ncomp=2
          ioff =(i-1)*nvir + 1   
          ioff2=ioff1+ioff  
          call ga_get(g_xreim,ioff,ioff+nvir-1,ivec1,ivec1,
-     $               dbl_mb(k_xreim),1)
+     $               dbl_mb(k_xreim),nvir)
          call ga_get(g_z,ioff2,ioff2+nvir-1,ivec,ivec,
-     $               dcpl_mb(k_z),1)
+     $               dcpl_mb(k_z),nvir)
          do j=1,nvir
           j1=ioff1+ioff+j-1
           val_real =dreal(dcpl_mb(k_z+j-1))
@@ -3830,9 +3830,9 @@ c               ncomp=2
           ioff =shift+(i-1)*nvir(ipol) + 1   
           ioff2=ioff1+ioff  
           call ga_get(g_xreim,ioff,ioff+nvir(ipol)-1,ivec1,ivec1,
-     $                dbl_mb(k_xreim),1)
+     $                dbl_mb(k_xreim),nvir(ipol))
           call ga_get(g_z,ioff2,ioff2+nvir(ipol)-1,ivec,ivec,
-     $                dcpl_mb(k_z),1)
+     $                dcpl_mb(k_z),nvir(ipol))
           do j=1,nvir(ipol)
            j1=ioff2+j-1
            val_imag =dimag(dcpl_mb(k_z+j-1))
@@ -3866,9 +3866,9 @@ c               ncomp=2
           ioff =shift+(i-1)*nvir(ipol) + 1   
           ioff2=ioff1+ioff  
           call ga_get(g_xreim,ioff,ioff+nvir(ipol)-1,ivec1,ivec1,
-     $                dbl_mb(k_xreim),1)
+     $                dbl_mb(k_xreim),nvir(ipol))
           call ga_get(g_z,ioff2,ioff2+nvir(ipol)-1,ivec,ivec,
-     $                dcpl_mb(k_z),1)
+     $                dcpl_mb(k_z),nvir(ipol))
           do j=1,nvir(ipol)
            j1=ioff2+j-1
            val_real =dreal(dcpl_mb(k_z+j-1))
@@ -3954,9 +3954,9 @@ c NOTE.- Assumming the ordering in dbl_mb(k_xreim) is same as in dcpl_mb(k_z)
 c ++++++++++++++++++
        do i = ga_nodeid()+1,nocc,ga_nnodes()
         ioff = (i-1)*nvir + 1   
-        call ga_get(g_xreim,1,nvir,i,i,dbl_mb(k_xreim),1)  
+        call ga_get(g_xreim,1,nvir,i,i,dbl_mb(k_xreim),nvir)  
         call ga_get(g_z,ioff,ioff+nvir-1,ivec,ivec,
-     &              dcpl_mb(k_z),1)
+     &              dcpl_mb(k_z),nvir)
         do j=1,nvir
           val_cmplx=dcmplx(dbl_mb(k_xreim+j-1),0.0d0)
           call ga_put(g_a,1,1,1,1,val_cmplx,1)
@@ -3969,9 +3969,9 @@ c ++++++++++++++++++
       else if (indrm.eq.2) then ! updating only IMAG part
        do i = ga_nodeid()+1,nocc,ga_nnodes()
         ioff = (i-1)*nvir + 1   
-        call ga_get(g_xreim,1,nvir,i,i,dbl_mb(k_xreim),1)  
+        call ga_get(g_xreim,1,nvir,i,i,dbl_mb(k_xreim),nvir)  
         call ga_get(g_z,ioff,ioff+nvir-1,ivec,ivec,
-     &              dcpl_mb(k_z),1)
+     &              dcpl_mb(k_z),nvir)
         do j=1,nvir
           val_cmplx=dcmplx(0.0d0,dbl_mb(k_xreim+j-1))
           call ga_put(g_a,1,1,1,1,val_cmplx,1)
@@ -4059,9 +4059,9 @@ c ++++++++++++++++++
         ioff1=(ipm-1)*n
         ivec1=nsub+ivec
         ioff = ioff1+(i-1)*nvir + 1   
-        call ga_get(g_xreim,1,nvir,i,i,dbl_mb(k_xreim),1)  
+        call ga_get(g_xreim,1,nvir,i,i,dbl_mb(k_xreim),nvir)  
         call ga_get(g_z,ioff,ioff+nvir-1,ivec1,ivec1,
-     &              dcpl_mb(k_z),1)
+     &              dcpl_mb(k_z),nvir)
         do j=1,nvir
           val_zre=dreal(dcpl_mb(k_z+j-1))
           val_zim=dimag(dcpl_mb(k_z+j-1))
@@ -4073,9 +4073,9 @@ c ++++++++++++++++++
       else if (indrm.eq.2) then ! updating only IMAG part
        do i = ga_nodeid()+1,nocc,ga_nnodes()
         ioff = ioff1+(i-1)*nvir + 1   
-        call ga_get(g_xreim,1,nvir,i,i,dbl_mb(k_xreim),1)  
+        call ga_get(g_xreim,1,nvir,i,i,dbl_mb(k_xreim),nvir)  
         call ga_get(g_z,ioff,ioff+nvir-1,ivec1,ivec1,
-     &              dcpl_mb(k_z),1)
+     &              dcpl_mb(k_z),nvir)
         do j=1,nvir
           val_zre=dreal(dcpl_mb(k_z+j-1))
           val_zim=dimag(dcpl_mb(k_z+j-1))
@@ -4131,7 +4131,7 @@ c    Date  : 04-08-12
          call ga_zero(g_xre(ipm))
          call ga_zero(g_xim(ipm))
          do ivec=1,nvec
-          call ga_get(g_z(ipm),1,n,ivec,ivec,dcpl_mb(k_z),1)
+          call ga_get(g_z(ipm),1,n,ivec,ivec,dcpl_mb(k_z),n)
           do idat=1,n
            val_re=dreal(dcpl_mb(k_z+idat-1))
            val_im=dimag(dcpl_mb(k_z+idat-1))
@@ -4259,7 +4259,7 @@ c    Date  : 04-21-12
            ioff = (i-1)*nvir + 1 
            ioff2=ioff1+ioff    
            call ga_get(g_z,ioff2,ioff2+nvir-1,ivec,ivec,
-     &                 dcpl_mb(k_z),1)
+     &                 dcpl_mb(k_z),nvir)
            do j=1,nvir
             j1=ioff+j-1
             val_re=dreal(dcpl_mb(k_z+j-1))
@@ -4336,7 +4336,7 @@ c    Date  : 04-21-12
             ioff = shift+(i-1)*nvir(ipol) + 1 
             ioff2=ioff1+ioff    
             call ga_get(g_z,ioff2,ioff2+nvir(ipol)-1,ivec,ivec,
-     &                  dcpl_mb(k_z),1)
+     &                  dcpl_mb(k_z),nvir(ipol))
             do j=1,nvir(ipol)
              j1=ioff+j-1
              val_re=dreal(dcpl_mb(k_z+j-1))
@@ -4401,7 +4401,7 @@ c     set of (nvir,nocc)
         do i = ga_nodeid()+1,nocc,ga_nnodes()
          ioff = (i-1)*nvir + 1    
          call ga_get(g_z,ioff,ioff+nvir-1,ivec,ivec,
-     &               dcpl_mb(k_z),1)
+     &               dcpl_mb(k_z),nvir)
          do j=1,nvir
           val_re=dreal(dcpl_mb(k_z+j-1))
           j1=ioff+j-1
@@ -4414,7 +4414,7 @@ c     set of (nvir,nocc)
         do i = ga_nodeid()+1,nocc,ga_nnodes()
          ioff = (i-1)*nvir + 1     
          call ga_get(g_z,ioff,ioff+nvir-1,ivec,ivec,
-     $               dcpl_mb(k_z),1)
+     $               dcpl_mb(k_z),nvir)
          do j=1,nvir
           val_im=dimag(dcpl_mb(k_z+j-1))
           j1=ioff+j-1
@@ -4478,7 +4478,7 @@ c     set of (nvir,nocc)
          ioff  = (i-1)*nvir + 1 
          ioff2 = shift+ioff  
          call ga_get(g_z,ioff2,ioff2+nvir-1,ivec,ivec,
-     &               dcpl_mb(k_z),1)
+     &               dcpl_mb(k_z),nvir)
          do j=1,nvir
           val_re=dreal(dcpl_mb(k_z+j-1))
           j1=ioff+j-1
@@ -4492,7 +4492,7 @@ c     set of (nvir,nocc)
          ioff = (i-1)*nvir + 1 
          ioff2 = shift+ioff     
          call ga_get(g_z,ioff2,ioff2+nvir-1,ivec,ivec,
-     $               dcpl_mb(k_z),1)
+     $               dcpl_mb(k_z),nvir)
          do j=1,nvir
           val_im=dimag(dcpl_mb(k_z+j-1))
           j1=ioff+j-1
@@ -4559,7 +4559,7 @@ c     set of (nvir,nocc)
          do i = ga_nodeid()+1,nocc(ipol),ga_nnodes()
           ioff = shift+(i-1)*nvir(ipol) + 1    
           call ga_get(g_z,ioff,ioff+nvir(ipol)-1,ivec,ivec,
-     &                dcpl_mb(k_z),1)
+     &                dcpl_mb(k_z),nvir(ipol))
           do j=1,nvir(ipol)
            val_re=dreal(dcpl_mb(k_z+j-1))
            j1=ioff+j-1
@@ -4582,7 +4582,7 @@ c     set of (nvir,nocc)
          do i = ga_nodeid()+1,nocc(ipol),ga_nnodes()
           ioff = shift+(i-1)*nvir(ipol) + 1     
           call ga_get(g_z,ioff,ioff+nvir(ipol)-1,ivec,ivec,
-     $                dcpl_mb(k_z),1)
+     $                dcpl_mb(k_z),nvir(ipol))
           do j=1,nvir(ipol)
            val_im=dimag(dcpl_mb(k_z+j-1))
            j1=ioff+j-1
@@ -4650,7 +4650,7 @@ c    g_z : history matrix (g_Az1 or g_z1)
          ioff = (i-1)*nvir + 1   
          ioff2=ioff1+ioff 
          call ga_get(g_z,ioff2,ioff2+nvir-1,ivec,ivec,
-     &               dcpl_mb(k_z),1)
+     &               dcpl_mb(k_z),nvir)
          do j=1,nvir
           val_re=dreal(dcpl_mb(k_z+j-1))
           j1=ioff+j-1
@@ -4667,7 +4667,7 @@ c    g_z : history matrix (g_Az1 or g_z1)
          ioff = (i-1)*nvir + 1   
          ioff2=ioff1+ioff   
          call ga_get(g_z,ioff2,ioff2+nvir-1,ivec,ivec,
-     $               dcpl_mb(k_z),1)
+     $               dcpl_mb(k_z),nvir)
          do j=1,nvir
           val_im=dimag(dcpl_mb(k_z+j-1))
           j1=ioff+j-1
