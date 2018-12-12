@@ -761,7 +761,7 @@ ccx        if (sf_wait(request).ne.0)
         end if 
       else
         call ga_put(i_to_x,offset_4af+1,offset_4af+size_4a,1,1,
-     1    dbl_mb(k_4a),1)
+     1    dbl_mb(k_4a),size_4a)
       end if          !----
 c closing l_4a file
         if (.not.ma_pop_stack(l_4a))
@@ -1052,7 +1052,7 @@ ccx        if (sf_wait(request).ne.0)
         end if 
        else
         call ga_put(i_to_x,offset_3a1m+1,offset_3a1m+size_3a1m,1,1,
-     1    dbl_mb(k_3a1m),1)
+     1    dbl_mb(k_3a1m),size_3a1m)
        end if ! ---------
 c
       if (.not.ma_pop_stack(l_3a1m))
@@ -1279,7 +1279,7 @@ c *************
         end if
        else 
         call ga_put(i_to_x,offset_2a2m+1,offset_2a2m+size_2a2m,1,1,
-     1    dbl_mb(k_2a2m),1)
+     1    dbl_mb(k_2a2m),size_2a2m)
        end if  ! --------
 c
       if (.not.ma_pop_stack(l_2a2m))
@@ -1525,7 +1525,7 @@ c *************
      1    call errquit('zones put: sf problem31-b',2,DISK_ERR)
        else
         call ga_put(i_to_x,offset_1a3m+1,offset_1a3m+size_1a3m,1,1,
-     1    dbl_mb(k_1a3m),1)
+     1    dbl_mb(k_1a3m),size_1a3m)
        end if ! -------------
 c
       if (.not.ma_pop_stack(l_1a3m))
@@ -1651,7 +1651,7 @@ c
      1    call errquit('zones put: sf problem31-b',2,DISK_ERR)
        else
         call ga_get(i_from_x,offset_bl1a3m+1,offset_bl1a3m+size_bl1a3m,
-     1       1,1,dbl_mb(k_integral),1)
+     1       1,1,dbl_mb(k_integral),size_bl1a3m)
        end if ! -------
       offset_ismall=0
       do i=a1_ini,a1_fin ! over small i ------------------

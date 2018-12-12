@@ -345,7 +345,7 @@ c fixing offsets and sf_writing
          call tce_hash(int_mb(k_4af_offset),key_4af,offset_4af)
 c
         call ga_put(d_4af,offset_4af+1,offset_4af+size_4a,1,1,
-     1    dbl_mb(k_4a),1)
+     1    dbl_mb(k_4a),size_4a)
 c closing l_4a file
         if (.not.ma_pop_stack(l_4a))
      1   call errquit('tce_mo2e_4af2: l_4a',15,MA_ERR)
@@ -419,7 +419,7 @@ c
          call tce_hash(int_mb(k_4af_offset),key_4af,offset_4af)
 c
         call ga_get(d_4af,offset_4af+1,offset_4af+size_4a,1,1,
-     1    dbl_mb(k_4a),1)
+     1    dbl_mb(k_4a),size_4a)
 c
 c
 c

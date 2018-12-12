@@ -331,7 +331,7 @@ c fixing offsets and sf_writing
      1     call errquit('zones put: sf problem3',2,DISK_ERR)
       else
         call ga_put(d_4af,offset_4af+1,offset_4af+size_4a,1,1,
-     1    dbl_mb(k_4a),1)
+     1    dbl_mb(k_4a),size_4a)
       end if 
 c closing l_4a file
         if (.not.ma_pop_stack(l_4a))
@@ -408,7 +408,7 @@ c
      1    call errquit('zones get3: sf problem',2,DISK_ERR)
        else
         call ga_get(d_4af,offset_4af+1,offset_4af+size_4a,1,1,
-     1    dbl_mb(k_4a),1)
+     1    dbl_mb(k_4a),size_4a)
        end if 
 c
 c
@@ -501,7 +501,7 @@ c
      1    call errquit('zones put: sf problem31',2,DISK_ERR)
       else
         call ga_put(d_2a2m,offset_2a2m+1,offset_2a2m+size_2g2a,1,1,
-     1    dbl_mb(k_2g2a),1)
+     1    dbl_mb(k_2g2a),size_2g2a)
       end if
 c
       if (.not.ma_pop_stack(l_2g2a))
@@ -647,7 +647,7 @@ c fixing offsets and sf_writing
      1    call errquit('zones put: sf problem32',2,DISK_ERR)
       else
         call ga_get(d_2a2m,offset_2a2m+1,offset_2a2m+size_2g2a,1,1,
-     1    dbl_mb(k_2g2a),1)
+     1    dbl_mb(k_2g2a),size_2g2a)
       end if
 c --------------------------
       istart=0
