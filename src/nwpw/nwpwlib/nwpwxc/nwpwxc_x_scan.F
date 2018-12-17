@@ -69,7 +69,7 @@ c
       double precision fac,Ex
       parameter (fac = 1.0d0)
       logical ldew
-      parameter (ldew = .true.)
+      parameter (ldew = .false.)
 c
       if (ipol.eq.1 )then
 c     

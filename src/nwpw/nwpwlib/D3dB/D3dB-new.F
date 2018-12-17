@@ -1119,6 +1119,45 @@ c      call dcopy(n2ft3d_map(nb),0.0d0,0,A,1)
       end
 
 
+      subroutine D3dB_tc_Copy(nb,A,B)
+      implicit none
+      integer nb
+      real*8     A(*)
+      complex*16 B(*)
+
+#include "D3dB.fh"
+
+      integer i
+
+!$OMP DO
+      do i=1,nfft3d_map(nb)
+         B(i) = dcmplx(A(i),0.0d0)
+      end do
+!$OMP END DO
+
+      return
+      end
+
+      subroutine D3dB_ct_Copy(nb,A,B)
+      implicit none
+      integer nb
+      complex*16 A(*)
+      real*8     B(*)
+
+#include "D3dB.fh"
+
+      integer i
+!$OMP DO
+      do i=1,nfft3d_map(nb)
+         B(i) = dble(A(i))
+      end do
+!$OMP END DO
+
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *					*
@@ -2828,7 +2867,6 @@ c      end
       end
 
 
-
       subroutine D3dB_t_SMul(nb,scale,A,C)     
       implicit none 
       integer nb
@@ -2845,6 +2883,25 @@ c      end
       end do
       return
       end 
+
+
+      subroutine D3dB_t_SMul1(nb,scale,A)
+      implicit none
+      integer nb
+      real*8 scale
+      real*8 A(*)
+
+#include "D3dB.fh"
+
+      integer i
+
+      do i=1,nfft3d_map(nb)
+         A(i) = scale*A(i)
+      end do
+      return
+      end
+
+
 
       subroutine D3dB_c_ZMul(nb,scale,A,C)     
       implicit none 
@@ -4298,7 +4355,6 @@ CDIR$ NOVECTOR
       real*8 A(*)
 
 #include "D3dB.fh"
-
 
       integer index
 

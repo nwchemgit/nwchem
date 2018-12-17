@@ -80,7 +80,7 @@ c
       double precision fac,Ec
       parameter (fac=1.0d0)
       logical ldew
-      parameter (ldew = .true.)
+      parameter (ldew = .false.)
 c
 c     Intermediate derivatives, results, etc.
 c

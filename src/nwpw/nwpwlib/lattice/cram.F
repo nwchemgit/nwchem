@@ -93,6 +93,9 @@
             kv(1) =  brillioun_k(1,nb)
             kv(2) =  brillioun_k(2,nb)
             kv(3) =  brillioun_k(3,nb)
+            !kv(1) =  0.0d0
+            !kv(2) =  0.0d0
+            !kv(3) =  0.0d0
          end if
          call cloak_set(kv,ecut)
 
@@ -1402,6 +1405,53 @@ c      end do
 
       return
       end
+
+*     ***********************************
+*     *					*
+*     *	         Cram_rc_Copy		*	
+*     *					*
+*     ***********************************
+
+      subroutine Cram_rc_Copy(nb,A,B)
+      implicit none
+      integer nb
+      real*8     A(*)
+      complex*16 B(*)
+
+#include "bafdecls.fh"
+#include "cram_common.fh"
+
+      integer i
+
+      do i=1,(int_mb(nidb2_list(1)+nb))
+         B(i) = dcmplx(A(i),0.0d0)
+      end do
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *          Cram_cr_Copy           *       
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_cr_Copy(nb,A,B)
+      implicit none
+      integer nb
+      complex*16 A(*)
+      real*8     B(*)
+
+#include "bafdecls.fh"
+#include "cram_common.fh"
+
+      integer i
+
+      do i=1,(int_mb(nidb2_list(1)+nb))
+         B(i) = dble(A(i))
+      end do
+      return
+      end
+
 
 *     ***********************************
 *     *					*
