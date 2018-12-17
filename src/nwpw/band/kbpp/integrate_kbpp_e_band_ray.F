@@ -46,10 +46,13 @@
       double precision p0,p1,p2,p3,p
       double precision a,q
       integer indx(5,0:3)
+      logical small_cell
 
 *     **** external functions ****
       double precision dsum,simp
       external         dsum,simp
+      logical          control_psp_semicore_small
+      external         control_psp_semicore_small
 
 *     **** set up indx(n,l) --> to wp ****
       nb = lmax+1
@@ -63,6 +66,8 @@
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
+
+      small_cell = control_psp_semicore_small()
 
       if ((nrho/2)*2.eq.nrho) then
         call errquit('integrate_kbpp_band_ray - psp grid not odd',0,
@@ -158,9 +163,15 @@
 
 *::::::::::::::::::::: semicore density :::::::::::::::::::::::::::::::
         if (semicore) then
-           do i=1,nrho
-              f(i) = rho(i)*dsqrt(rho_sc_r(i,1))*sn(i)
-           end do
+           if (small_cell) then
+              do i=1,nrho
+                 f(i) = rho(i)*(rho_sc_r(i,1))*sn(i)
+              end do
+           else
+              do i=1,nrho
+                 f(i) = rho(i)*dsqrt(rho_sc_r(i,1))*sn(i)
+              end do
+           end if
            rho_sc_k_ray(k1,1) = SIMP(nrho,f,drho)*forpi/Q
 
            do i=1,nrho
@@ -183,9 +194,15 @@
 
 *     **** semicore density ****
       if (semicore) then
-         do i=1,nrho
-            f(i) = dsqrt(rho_sc_r(i,1))*rho(i)**2
-         end do
+         if (small_cell) then
+            do i=1,nrho
+               f(i) = (rho_sc_r(i,1))*rho(i)**2
+            end do
+         else
+            do i=1,nrho
+               f(i) = dsqrt(rho_sc_r(i,1))*rho(i)**2
+            end do
+         end if
          rho_sc_k_ray(1,1) = forpi*SIMP(nrho,f,drho)
          rho_sc_k_ray(1,2) = 0.0d0
       end if

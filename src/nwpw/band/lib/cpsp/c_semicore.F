@@ -69,7 +69,7 @@
 
 *     ***************************
 *     *                         *
-*     *      cpsp_semicore       *
+*     *      cpsp_semicore      *
 *     *                         *
 *     ***************************
 
@@ -517,5 +517,378 @@ c      call C3dB_r_SMul(1,scal2*scal2,Aus,Aus)
       if (.not. value) 
      > call errquit('c_semicore_gen_Aus:popping stack memory',2,MA_ERR)
 
+      return
+      end
+
+*     **********************************
+*     *                                *
+*     *      c_semicore_rho_to_chi     *
+*     *                                *
+*     **********************************
+*
+*  Computes chi(r) assuming it is of the form 
+*     chi(r) = sqrt(norm2*abs(rho(r)))
+*
+*  Note this is a serial routine and should be called from only MASTER,
+*  since rhotochi contains the whole fft grid.
+*  This will have to be changed when kbpp_band routines are properly parallelized
+*
+      subroutine c_semicore_rho_to_chi(nx,ny,nz,unita,rhotochi)
+      implicit none
+      integer nx,ny,nz
+      real*8  unita(3,3)
+      real*8  rhotochi(*)
+
+#include "bafdecls.fh" 
+#include "errquit.fh"
+
+      logical value
+      integer i,j,k,tmp1(2),tmp2(2),tmp3(2),tmp0(2)
+      integer k1,k2,k3,indx,nxh,nyh,nzh,nnn
+      real*8 scal1,scal2,ss,ss2,ss3,ar,norm,omega
+      real*8 unitg(3,3),ggcut,gg,g1,g2,g3
+
+*     *** external functions ***
+      real*8   lattice_ggcut
+      external lattice_ggcut
+
+      call get_cube(unita,unitg,omega) 
+
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      scal2 = 1.0d0/omega
+
+*     **** allocate memory off of MA stack ****
+      value = BA_push_get(mt_dcpl,nx*ny*nz,'tmp0',tmp0(2),tmp0(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,nx*ny*nz,'tmp1',tmp1(2),tmp1(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,nx*ny*nz,'tmp2',tmp2(2),tmp2(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,nx*ny*nz,'tmp3',tmp3(2),tmp3(1))
+      if (.not.value)
+     > call errquit('c_semicore_rho_to_chi:pusing stack memory',
+     >               1,MA_ERR)
+
+
+*     **** Put put rho into real space ****
+      do i=1,nx*ny*nz
+         dcpl_mb(tmp1(1)+i-1) = dcmplx(scal2*rhotochi(i),0.0d0)
+      end do
+      call c_semicore_fft3b(nx,ny,nz,dcpl_mb(tmp1(1)),
+     >                               dcpl_mb(tmp2(1)),
+     >                               dcpl_mb(tmp3(1)))
+
+*     **** compute chi(r) = sqrt(abs(rho(r))) ****
+      ss = 0.0d0
+      do i=1,nx*ny*nz
+         ss = ss + dble(dcpl_mb(tmp1(1)+i-1))
+      end do
+      do i=1,nx*ny*nz
+         ar = dble(dcpl_mb(tmp1(1)+i-1))
+         dcpl_mb(tmp1(1)+i-1) = dcmplx(dsqrt(dabs(ar)),0.0d0)
+      end do
+
+      ss2 = 0.0d0
+      do i=1,nx*ny*nz
+         ar = dble(dcpl_mb(tmp1(1)+i-1))
+         ss2 = ss2 + ar*ar
+      end do
+
+      do i=1,nx*ny*nz
+         dcpl_mb(tmp0(1)+i-1) = scal1*dcpl_mb(tmp1(1)+i-1)
+      end do
+      call c_semicore_fft3f(nx,ny,nz,dcpl_mb(tmp0(1)),
+     >                               dcpl_mb(tmp2(1)),
+     >                               dcpl_mb(tmp3(1)))
+      nxh = nx/2
+      nyh = ny/2
+      nzh = nz/2
+      ggcut = lattice_ggcut()
+      do k3 = -nzh+1, nzh-1
+         do k2 = -nyh+1, nyh-1
+            do k1 = -nxh+1, nxh-1
+               g1 = k1*unitg(1,1)
+     >            + k2*unitg(1,2)
+     >            + k3*unitg(1,3)
+               g2 = k1*unitg(2,1)
+     >            + k2*unitg(2,2)
+     >            + k3*unitg(2,3)
+               g3 = k1*unitg(3,1)
+     >            + k2*unitg(3,2)
+     >            + k3*unitg(3,3)
+               gg = g1*g1 + g2*g2 + g3*g3
+               if (gg.ge.ggcut) then
+                   i=k1
+                   j=k2
+                   k=k3
+                   if (i .lt. 0) i = i + nx
+                   if (j .lt. 0) j = j + ny
+                   if (k .lt. 0) k = k + nz
+                   indx = i + j*nx + k*nx*ny
+                   dcpl_mb(tmp0(1)+indx) = dcmplx(0.0d0,0.0d0)
+               end if
+            end do
+         end do
+      end do
+      call c_semicore_fft3b(nx,ny,nz,dcpl_mb(tmp0(1)),
+     >                               dcpl_mb(tmp2(1)),
+     >                               dcpl_mb(tmp3(1)))
+      ss3 = 0.0d0
+      do i=1,nx*ny*nz
+         ar = dble(dcpl_mb(tmp0(1)+i-1))
+         ss3 = ss3 + ar*ar
+      end do
+
+      norm = dsqrt(ss/ss3)
+      !write(*,*) "norm=",norm,ss,ss2,ss3
+
+*     **** Put put chi into reciprocal space ****
+      call c_semicore_fft3f(nx,ny,nz,dcpl_mb(tmp1(1)),
+     >                               dcpl_mb(tmp2(1)),
+     >                               dcpl_mb(tmp3(1)))
+
+      do i=1,nx*ny*nz
+         rhotochi(i) = norm*(scal1/scal2)*dble(dcpl_mb(tmp1(1)+i-1))
+      end do
+
+*     **** deallocate memory off of MA stack ****
+      value = value.and.BA_pop_stack(tmp3(2))
+      value = value.and.BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
+      value = value.and.BA_pop_stack(tmp0(2))
+      if (.not.value)
+     > call errquit('c_semicore_rho_to_chi:popping stack memory',
+     >               2,MA_ERR)
+      return
+      end
+
+      subroutine c_semicore_fft3b(nx,ny,nz,A,tmp,tmpxyz)
+      implicit none
+      integer nx,ny,nz
+      complex*16 A(nx,ny,nz)
+      complex*16 tmp(*)
+      complex*16 tmpxyz(*)
+
+      !*** local variables ***
+      integer i,j,k
+
+      call dcffti(nz,tmpxyz)
+      do j=1,ny
+      do i=1,nx
+         do k=1,nz
+            tmp(k) = A(i,j,k)
+         end do
+         call dcfftb(nz,tmp,tmpxyz)
+         do k=1,nz
+            A(i,j,k) = tmp(k)
+         end do
+      end do
+      end do
+
+      call dcffti(ny,tmpxyz)
+      do i=1,nx
+      do k=1,nz
+         do j=1,ny
+            tmp(j) = A(i,j,k)
+         end do
+         call dcfftb(ny,tmp,tmpxyz)
+         do j=1,ny
+            A(i,j,k) = tmp(j)
+         end do
+      end do
+      end do
+
+      call dcffti(nx,tmpxyz)
+      do k=1,nz
+      do j=1,ny
+         do i=1,nx
+            tmp(i) = A(i,j,k)
+         end do
+         call dcfftb(nx,tmp,tmpxyz)
+         do i=1,nx
+            A(i,j,k) = tmp(i)
+         end do
+      end do
+      end do
+
+      return
+      end
+
+      subroutine c_semicore_fft3f(nx,ny,nz,A,tmp,tmpxyz)
+      implicit none
+      integer nx,ny,nz
+      complex*16 A(nx,ny,nz)
+      complex*16 tmp(*)
+      complex*16 tmpxyz(*)
+
+      !*** local variables ***
+      integer i,j,k
+
+      call dcffti(nx,tmpxyz)
+      do k=1,nz
+      do j=1,ny
+         do i=1,nx
+            tmp(i) = A(i,j,k)
+         end do
+         call dcfftf(nx,tmp,tmpxyz)
+         do i=1,nx
+            A(i,j,k) = tmp(i)
+         end do
+      end do
+      end do
+
+      call dcffti(ny,tmpxyz)
+      do i=1,nx
+      do k=1,nz
+         do j=1,ny
+            tmp(j) = A(i,j,k)
+         end do
+         call dcfftf(ny,tmp,tmpxyz)
+         do j=1,ny
+            A(i,j,k) = tmp(j)
+         end do
+      end do
+      end do
+
+      call dcffti(nz,tmpxyz)
+      do j=1,ny
+      do i=1,nx
+         do k=1,nz
+            tmp(k) = A(i,j,k)
+         end do
+         call dcfftb(nz,tmp,tmpxyz)
+         do k=1,nz
+            A(i,j,k) = tmp(k)
+         end do
+      end do
+      end do
+
+      return
+      end
+
+
+
+*     **********************************
+*     *                                *
+*     *     c_semicore_drho_to_dchi    *
+*     *                                *
+*     **********************************
+*
+*  This routine is used to compute dchi(r) from drho using
+*     dchi(r) = (dchi(r)/drho(r)) * drho(r)
+*
+*  Assuming chi(r) is of the form 
+*     chi(r) = sqrt(norm2*abs(rho(r)))
+*  or 
+*       abs(rho(r)) = chi(r)**2/norm2
+*       abs(rho(r))**1/2 = chi(r)/norm
+*
+*  Then dchi(r)/drho(r) is
+*     dchi(r)/drho(r) = norm * rho(r)/(2*abs(rho(r))**3/2)
+*                     = norm * rho(r)/(2*chi(r)**3/norm3)
+*                     = norm4* rho(r)/(2*chi(r)**3)
+*
+      subroutine c_semicore_drho_to_dchi(nx,ny,nz,unita,
+     >                                   drhotodchi,rhotochi)
+      implicit none
+      integer nx,ny,nz
+      real*8  unita(3,3)
+      real*8  drhotodchi(*)
+      real*8  rhotochi(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+      real*8    eta
+      parameter (eta=1.0d-9)
+
+      logical value
+      integer i,tmp0(2),tmp1(2),tmp2(2),tmp3(2)
+      real*8  scal1,scal2,omega,ar,br,norm,ss,ss3
+      real*8  unitg(3,3)
+
+      call get_cube(unita,unitg,omega) 
+
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      scal2 = 1.0d0/omega
+
+*     **** allocate memory off of MA stack ****
+      value = BA_push_get(mt_dcpl,nx*ny*nz,'tmp0',tmp0(2),tmp0(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,nx*ny*nz,'tmp1',tmp1(2),tmp1(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,nx*ny*nz,'tmp2',tmp2(2),tmp2(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,nx*ny*nz,'tmp3',tmp3(2),tmp3(1))
+      if (.not.value)
+     > call errquit('c_semicore_drho_to_dchi:pusing stack memory',
+     >               1,MA_ERR)
+
+*     **** Put put drho and rho into real space ****
+      do i=1,nx*ny*nz
+         dcpl_mb(tmp0(1)+i-1) = dcmplx(scal2*rhotochi(i), 0.0d0)
+         dcpl_mb(tmp1(1)+i-1) = dcmplx(scal2*drhotodchi(i),0.0d0)
+      end do
+      call c_semicore_fft3b(nx,ny,nz,dcpl_mb(tmp0(1)),
+     >                               dcpl_mb(tmp2(1)),
+     >                               dcpl_mb(tmp3(1)))
+      call c_semicore_fft3b(nx,ny,nz,dcpl_mb(tmp1(1)),
+     >                               dcpl_mb(tmp2(1)),
+     >                               dcpl_mb(tmp3(1)))
+
+*     **** compute chi(r)/norm = sqrt(abs(rho(r))) and the norm ****
+      ss = 0.0d0
+      do i=1,nx*ny*nz
+         ss = ss + dble(dcpl_mb(tmp0(1)+i-1))
+      end do
+      do i=1,nx*ny*nz
+         ar = dble(dcpl_mb(tmp0(1)+i-1))
+         dcpl_mb(tmp2(1)+i-1) = dcmplx(dsqrt(dabs(ar)),0.0d0)
+      end do
+      ss3 = 0.0d0
+      do i=1,nx*ny*nz
+         ar = dble(dcpl_mb(tmp2(1)+i-1))
+         ss3 = ss3 + ar*ar
+      end do
+      norm = dsqrt(ss/ss3)
+
+*     ****  dchi(r)/drho(r) = norm * rho(r)/(2*abs(rho(r))**3/2) ***
+      do i=1,nx*ny*nz
+         ar = dble(dcpl_mb(tmp2(1)+i-1))
+         br = dble(dcpl_mb(tmp0(1)+i-1))
+         if (dabs(ar).le.eta) then
+            dcpl_mb(tmp0(1)+i-1) = dcmplx(0.0d0,0.0d0)
+         else
+            dcpl_mb(tmp0(1)+i-1) = dcmplx(norm*br/(2.0d0*ar**3),0.0d0)
+         end if
+      end do
+
+*     ****  dchi(r) = (dchi(r)/drho(r)) * drho(r) ****
+      do i=1,nx*ny*nz
+         ar = dble(dcpl_mb(tmp0(1)+i-1))
+         br = dble(dcpl_mb(tmp1(1)+i-1))
+         dcpl_mb(tmp1(1)+i-1) = dcmplx(br*ar,0.0d0)
+      end do
+
+*     **** Put put dchi into reciprocal space ****
+      call c_semicore_fft3f(nx,ny,nz,dcpl_mb(tmp1(1)),
+     >                               dcpl_mb(tmp2(1)),
+     >                               dcpl_mb(tmp3(1)))
+      do i=1,nx*ny*nz
+         drhotodchi(i) = (scal1/scal2)*dble(dcpl_mb(tmp1(1)+i-1))
+      end do
+      
+*     **** deallocate memory off of MA stack ****
+      value =           BA_pop_stack(tmp3(2))
+      value = value.and.BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
+      value = value.and.BA_pop_stack(tmp0(2))
+      if (.not.value)
+     > call errquit('c_semicore_drho_to_dchi:popping stack memory',
+     >               2,MA_ERR)
+
+*     **** Finally, convert rho to chi - this is probably not be needed ****
+      call c_semicore_rho_to_chi(nx,ny,nz,unita,rhotochi)
+      
       return
       end

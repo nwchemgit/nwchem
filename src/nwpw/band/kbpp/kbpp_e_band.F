@@ -67,7 +67,7 @@
       integer rho_sc_k_ray_indx,vnl_ray_indx,vl_ray_indx
 
 *     **** other variables ****
-      logical value,mprint,hprint,oprint,filter,kray
+      logical value,mprint,hprint,oprint,filter,kray,small_cell
       double precision unitg(3,3)
       integer nsize,i,l,ierr,nb,psp_type
       integer nfft1,nfft2,nfft3
@@ -78,6 +78,8 @@
       external control_print
       logical  control_kbpp_ray,control_kbpp_filter
       external control_kbpp_ray,control_kbpp_filter
+      logical  control_psp_semicore_small
+      external control_psp_semicore_small
       double precision SIMP
       external         SIMP
       integer  kbpp_band_calc_nray
@@ -296,6 +298,15 @@ c      call Parallel_init()
      >                                dbl_mb(sc_r_indx),
      >                                dbl_mb(sc_k_indx),
      >                      ierr)
+      end if
+
+      !**** small cell calculation, convert rho to chi ****
+      small_cell = control_psp_semicore_small().and.semicore
+      if  (small_cell) then
+         if (taskid.eq.MASTER) then
+            call c_semicore_rho_to_chi(nfft1,nfft2,nfft3,unita,
+     >                                 dbl_mb(sc_k_indx))
+         end if
       end if
 
       if ((taskid.eq.MASTER).and.(oprint)) then

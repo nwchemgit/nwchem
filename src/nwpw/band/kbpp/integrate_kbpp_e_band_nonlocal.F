@@ -164,8 +164,10 @@
                 END DO
                 D=P2*SIMP(NRHO,F,DRHO)/Q
                 lcount = lcount-1
-                vnl(k1,k2,k3,lcount)=D*(2.0d0*GZ*GZ-GX*GX-GY*GY)
-     >                          /(2.0d0*dsqrt(3.0d0))
+                vnl(k1,k2,k3,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
+     >                                /(2.0d0*dsqrt(3.0d0))
+c                vnl(k1,k2,k3,lcount)=D*(2.0d0*GZ*GZ-GX*GX-GY*GY)
+c     >                          /(2.0d0*dsqrt(3.0d0))
                 lcount = lcount-1
                 vnl(k1,k2,k3,lcount)=D*GX*GY
                 lcount = lcount-1
