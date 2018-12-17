@@ -1,7 +1,6 @@
 c
 c $Id$
 c
-
 **** checking git hub ***
 
 *     ***********************************
@@ -666,8 +665,7 @@ c       call inp_prev_field()
         endif
         if (nwpwxc_has_hfx()) then
           xfac = nwpwxc_wght_hfx()
-          value = value .and.
-     +            rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+          value = rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
           value = value .and.
      +            rtdb_put(rtdb,'band:HFX',mt_log,1,.true.)
           value = value .and.
@@ -676,11 +674,14 @@ c       call inp_prev_field()
           value = value .and.
      +            rtdb_put(rtdb,'band:HFX_parameter',mt_dbl,1,
      +                     xfac)
+          if (.not.value)
+     +    call errquit("nwpw_input: store HFX A failed",0,UERR)
         else
-          value = value .and.
-     +            rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
+          value = rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
           value = value .and.
      +            rtdb_put(rtdb,'band:HFX',mt_log,1,.false.)
+          if (.not.value)
+     +    call errquit("nwpw_input: store HFX B failed",0,UERR)
         endif
         if (nwpwxc_has_cam()) then
           call nwpwxc_get_cam(a,b,c,hfsr)
@@ -689,8 +690,7 @@ c       call inp_prev_field()
           else
             flag = 2
           endif
-          value = value .and.
-     +            rtdb_put(rtdb,'pspw:HFX_screening_type',mt_int,1,flag)
+          value = rtdb_put(rtdb,'pspw:HFX_screening_type',mt_int,1,flag)
           value = value .and.
      +            rtdb_put(rtdb,'band:HFX_screening_type',mt_int,1,flag)
           value = value .and.
@@ -699,6 +699,8 @@ c       call inp_prev_field()
      +            rtdb_put(rtdb,'band:HFX_solver_type',mt_int,1,1)
           value = value .and. 
      +            rtdb_put(rtdb,'nwpw:attenuation',mt_dbl,1,c)
+          if (.not.value)
+     +    call errquit("nwpw_input: store CAMHFX failed",0,UERR)
         endif
         goto 10
       endif
