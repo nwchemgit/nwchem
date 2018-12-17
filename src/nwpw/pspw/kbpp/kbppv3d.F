@@ -40,7 +40,7 @@
       integer rho_hndl,vp_hndl,wp_hndl,up_hndl,sc_r_hndl,sc_k_hndl
 
       integer          isemicore,ihasae
-      logical          semicore
+      logical          semicore,small_cell
       double precision rcore,core_charge
 
       integer f_indx,cs_indx,sn_indx
@@ -59,6 +59,7 @@
       integer rho_sc_k_ray_hndl,vnl_ray_hndl,vl_ray_hndl
       integer G_ray_indx,tmp_ray_indx
       integer rho_sc_k_ray_indx,vnl_ray_indx,vl_ray_indx
+      double precision Gmax_ray
 
 
 *     **** other variables ****
@@ -71,10 +72,14 @@
 *     **** external functions ****
       logical  control_print,control_kbpp_ray,control_kbpp_filter
       external control_print,control_kbpp_ray,control_kbpp_filter
+      logical  control_psp_semicore_small
+      external control_psp_semicore_small
       double precision simp
       external         simp
       integer  kbpp_calc_nray
       external kbpp_calc_nray
+      double precision kbpp_calc_Gmax
+      external         kbpp_calc_Gmax
       integer  G_indx,convert_psp_type
       external G_indx,convert_psp_type
 
@@ -242,7 +247,8 @@ c      call Parallel_Init()
 
       if (control_kbpp_ray()) then
         !**** allocate memory for rays ****
-        nray = kbpp_calc_nray(nfft1,nfft2,nfft3,unita)
+        nray     = kbpp_calc_nray(nfft1,nfft2,nfft3,unita)
+        Gmax_ray = kbpp_calc_Gmax(nfft1,nfft2,nfft3,unita)
 
         value =           BA_alloc_get(mt_dbl,nray,
      >                  'G_ray',G_ray_hndl,G_ray_indx)
@@ -281,7 +287,7 @@ c      call Parallel_Init()
      >                                semicore,
      >                                dbl_mb(sc_r_indx),
      >                                dbl_mb(sc_k_indx),
-     >                      nray,
+     >                      nray,Gmax_ray,
      >                                dbl_mb(G_ray_indx),
      >                                dbl_mb(vl_ray_indx),
      >                                dbl_mb(vnl_ray_indx),
@@ -322,6 +328,11 @@ c      call Parallel_Init()
      >                      ierr)
       end if
 
+      !**** small cell calculation, convert rho to chi ****
+      small_cell = control_psp_semicore_small().and.semicore
+      if  (small_cell) then
+         call semicore_rho_to_chi(dbl_mb(sc_k_indx))
+      end if
 
 *     **** compute the <1/r3> matrix elements ****
       if (ihasae.gt.0) then
@@ -403,6 +414,8 @@ c      call Parallel_Init()
       write(luout,*)
       write(luout,*) "Generated formatted_filename: ",full_filename(1:l)
       if (filter) write(luout,*) "- filtering pseudopotential -"
+      if (small_cell) 
+     >  write(luout,*) "- small unit cell semicore correction applied -"
       !write(luout,*)
       end if
       call openfile(2,full_filename,l,'w',l)     

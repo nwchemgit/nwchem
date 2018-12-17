@@ -391,6 +391,7 @@
          if (control_fractional()) write(luout,1132)
          call pspw_print_SIC(luout)
          call pspw_print_HFX(luout)
+         call nwpw_meta_gga_print(luout)
          write(luout,1140)
          do ia = 1,ion_nkatm()
            call psp_print(ia)

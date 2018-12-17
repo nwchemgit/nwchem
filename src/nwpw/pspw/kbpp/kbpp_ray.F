@@ -15,21 +15,33 @@
 
 *     *** local variables ****
       integer k1,k2,k3
-      double precision qmax,gx,gy,gz
+      double precision qmax,gx,gy,gz,gg,ggmax
       double precision unitg(3,3)
 
       call get_unitg(unita,unitg)
       k1 = nfft1/2 
       k2 = nfft2/2 
       k3 = nfft3/2 
-      gx = k1*unitg(1,1) + k2*unitg(1,2) +k3*unitg(1,3)
-      gy = k1*unitg(2,1) + k2*unitg(2,2) +k3*unitg(2,3)
-      gz = k1*unitg(3,1) + k2*unitg(3,2) +k3*unitg(3,3)
+      ggmax = 0.0d0
+      gx = unitg(1,1)*k1
+      gy = unitg(2,1)*k1
+      gz = unitg(3,1)*k1
+      gg = gx*gx + gy*gy + gz*gz
+      if (gg.gt.ggmax) ggmax = gg
+      gx = unitg(1,2)*k2
+      gy = unitg(2,2)*k2
+      gz = unitg(3,2)*k2
+      gg = gx*gx + gy*gy + gz*gz
+      if (gg.gt.ggmax) ggmax = gg
+      gx = unitg(1,1)*k3
+      gy = unitg(2,1)*k3
+      gz = unitg(3,1)*k3
+      gg = gx*gx + gy*gy + gz*gz
+      if (gg.gt.ggmax) ggmax = gg
 
-      qmax = dsqrt(gx**2 + gy**2 + gz**2)
+      qmax = dsqrt(ggmax)
 
-*     *** make Gmax = Gmax + 2.0d0 ****
-      qmax = qmax + 2.0d0
+      qmax = qmax 
 
       kbpp_calc_Gmax = qmax
       return
@@ -95,7 +107,7 @@
       external kbpp_calc_dGmin,kbpp_calc_Gmax
 
       dG   = kbpp_calc_dGmin(unita)
-      Gmax = kbpp_calc_Gmax(nfft1,nfft2,nfft3,unita)
+      Gmax = kbpp_calc_Gmax(nfft1,nfft2,nfft3,unita) + 2.0d0
       nray = Gmax/dG + 1.0d0
       if (nray.lt.10) nray = 10
 
@@ -118,9 +130,9 @@
       integer i,nray
       double precision dG
 *     ***** external functions ****
-      real*8   kbpp_calc_dGmin,kbpp_calc_Gmax
+      real*8   kbpp_calc_dGmin
       integer  kbpp_calc_nray
-      external kbpp_calc_dGmin,kbpp_calc_Gmax
+      external kbpp_calc_dGmin
       external kbpp_calc_nray
 
       dG   = kbpp_calc_dGmin(unita)

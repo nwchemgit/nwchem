@@ -2114,12 +2114,20 @@ c     >     call errquit('pspw_mmq_Q_fion:pop stack memory',2,MA_ERR)
 #include "pspw_qmmm.fh"
 
 *      **** local variables ****
-      integer ftmp(2),nion3,np
+      integer ftmp(2),nion3,np,tid,nthreads
 
 *     *** external functions ****
-      integer  ion_nion
-      external ion_nion
+      integer  ion_nion,Parallel_threadid,Parallel_nthreads
+      external ion_nion,Parallel_threadid,Parallel_nthreads
       call Parallel_np(np)
+
+c      tid      = Parallel_threadid()
+c      nthreads = Parallel_nthreads()
+c
+c      nion3 = 3*ion_nion()
+c      if(.not.BA_push_get(mt_dbl,nthreads*nion3,'ftmp',ftmp(2),ftmp(1)))
+c     >  call errquit('pspw_qmmm_fion:cannot push stack memory',0,MA_ERR)
+c      call Parallel_shared_vector_zero(.true.,nion3,dbl_mb(ftmp(1)))
 
       if (np.eq.1) then
          if (.not.auxiliary_only) then
@@ -2141,7 +2149,7 @@ c     >     call errquit('pspw_mmq_Q_fion:pop stack memory',2,MA_ERR)
          call pspw_qmmm_spring_fion(dbl_mb(ftmp(1)))
          call Parallel_Vector_SumAll(nion3,dbl_mb(ftmp(1)))
 
-         call daxpy_omp(nion3,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
+         call DAXPY_OMP(nion3,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
 
 
          if (.not.BA_pop_stack(ftmp(2)))

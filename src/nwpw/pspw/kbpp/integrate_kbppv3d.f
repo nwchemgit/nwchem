@@ -44,7 +44,7 @@
       parameter (MASTER=0)
 
 *     *** local variables ****
-      logical fast_erf
+      logical fast_erf,small_cell
       integer lcount
       integer k1,k2,k3,i,l,pzero,zero
       double precision pi,twopi,forpi
@@ -62,8 +62,8 @@
       parameter (c6=0.00004306380d0)
 
 *     **** external functions ****
-      logical          control_fast_erf
-      external         control_fast_erf
+      logical          control_fast_erf,control_psp_semicore_small
+      external         control_fast_erf,control_psp_semicore_small
       double precision dsum,simp,util_erf
       external         dsum,simp,util_erf
 
@@ -72,7 +72,8 @@
       call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
 
-      fast_erf = control_fast_erf()
+      fast_erf   = control_fast_erf()
+      small_cell = control_psp_semicore_small()
 
       pi=4.0d0*datan(1.0d0)
       twopi=2.0d0*pi
@@ -300,9 +301,15 @@ c          vnl(k1,lcount)=D*(GX*GX-GY*GY)/(2.0d0)
 
 *::::::::::::::::::::: semicore density :::::::::::::::::::::::::::::::
         if (semicore) then
-           do i=1,nrho
-              f(i) = rho(i)*dsqrt(rho_sc_r(i,1))*sn(i)
-           end do
+           if (small_cell) then
+              do i=1,nrho
+                 f(i) = rho(i)*rho_sc_r(i,1)*sn(i)
+              end do
+           else
+              do i=1,nrho
+                 f(i) = rho(i)*dsqrt(rho_sc_r(i,1))*sn(i)
+              end do
+           end if
            rho_sc_k(k1,1) = SIMP(nrho,f,drho)*forpi/Q
 
            do i=1,nrho
@@ -354,9 +361,15 @@ c          vnl(k1,lcount)=D*(GX*GX-GY*GY)/(2.0d0)
 
 *        **** semicore density ****
          if (semicore) then
-            do i=1,nrho
-               f(i) = dsqrt(rho_sc_r(i,1))*rho(i)**2
-            end do
+            if (small_cell) then
+               do i=1,nrho
+                  f(i) = rho_sc_r(i,1)*rho(i)**2
+               end do
+            else
+               do i=1,nrho
+                  f(i) = dsqrt(rho_sc_r(i,1))*rho(i)**2
+               end do
+            end if
             rho_sc_k(zero,1) = forpi*SIMP(nrho,f,drho)
             rho_sc_k(zero,2) = 0.0d0
             rho_sc_k(zero,3) = 0.0d0

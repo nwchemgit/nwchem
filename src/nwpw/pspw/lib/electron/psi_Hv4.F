@@ -149,9 +149,9 @@
          call tamd_force(ispin,ne,psi_k,Hpsi_k,move,fion)
       end if
 
-*     **********************************************************************
-*     **** add extra Meta GGA terms Hpsi_k += grad dot (dfdtau*gradpsi) ****
-*     **********************************************************************
+*     ***************************************************************************
+*     **** add extra Meta GGA terms Hpsi_k += 0.5* grad dot (dfdtau*gradpsi) ****
+*     ***************************************************************************
       if (meta_gga) then
          call nwpw_meta_gga_Hpsik(ispin,ne,psi_k,Hpsi_k)
       end if

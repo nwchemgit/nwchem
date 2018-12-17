@@ -8,7 +8,7 @@
      >                            G,vl,vnl,
      >                            n_prj,l_prj,m_prj,b_prj,vnlnrm,
      >                            semicore,rho_sc_r,rho_sc_k,
-     >                            nray,G_ray,vl_ray,vnl_ray,
+     >                            nray,Gmax_ray,G_ray,vl_ray,vnl_ray,
      >                            rho_sc_k_ray,tmp_ray,
      >                            filter,
      >                            ierr)
@@ -40,6 +40,7 @@
       double precision rho_sc_k(nfft1/2+1,nfft2,nfft3,4)
 
       integer nray
+      double precision Gmax_ray
       double precision G_ray(nray)
       double precision vl_ray(nray,2)
       double precision vnl_ray(nray,0:lmax,2)
@@ -295,8 +296,12 @@ c           vnl(k1,k2,k3,lcount)=P*GZ
        
 *       ::::::::::::::::::::: semicore density :::::::::::::::::::::::::::::::
         if (semicore) then
-           P = nwpw_splint(G_ray,rho_sc_k_ray(1,1,1),
+           if (Q.ge.Gmax_ray) then
+              P = 0.0d0
+           else
+              P = nwpw_splint(G_ray,rho_sc_k_ray(1,1,1),
      >                           rho_sc_k_ray(1,1,2),nray,nx,Q)
+           end if
            rho_sc_k(k1,k2,k3,1) = P
 
            P = nwpw_splint(G_ray,rho_sc_k_ray(1,2,1),
