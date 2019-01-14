@@ -112,6 +112,10 @@ c
 c
        integer moints_numgr, gr_len, nxtask
        external moints_numgr, gr_len, nxtask
+       double precision wall
+       integer n_progr,pct_progr
+       parameter(n_progr=100)
+       logical i_progr(n_progr)
 c
        double precision half
        data half/0.5d00/
@@ -232,6 +236,10 @@ c
        if (ocoul) call ga_zero(g_coul)
 
        call ga_sync
+       do ish0=1,n_progr
+          i_progr(ish0)=.true.
+       enddo
+      wall=-util_wallsec()
 
        ploop = 0
        next = nxtask(num_nodes, 1)
@@ -255,6 +263,14 @@ c
            endif
            if (odoit) then
              if (next.eq.ploop) then
+            if(ga_nodeid().eq.0) then
+               write(6,'(a,i9,a,i9,a,i4,a,f15.1)')
+     &              'dotask ',ploop+1,' out of ',nsh*(nsh+1)/2,
+     D              ' start ',
+     &              int(((ploop+1)*100d0)/(nsh*(nsh+1)/2)),'%  at',
+     &              wall+util_wallsec()
+               call util_flush(6)
+            endif
                n_ijni = ilen*jlen*nbf*nmo1
                call dfill(n_ijni,0.d0,dbl_mb(k_ssni),1)
 
@@ -339,8 +355,8 @@ c
                    if (.not. ma_pop_stack(l_hlp))
      $               call errquit('moints_trp: pop hlp',l_hlp,MA_ERR)
 
-                 enddo
-               enddo
+                 enddo !lgr
+               enddo ! kgr
 
                if (.not. ma_pop_stack(l_ssbb))
      $           call errquit('moints_trp: pop ssbb',l_ssbb,MA_ERR)
@@ -384,6 +400,18 @@ c
      $             call errquit('moints_trp: pop hlp3',l_hlp3,MA_ERR)
 
                endif
+            if(ga_nodeid().eq.0) then
+               pct_progr=((ploop+1)*n_progr)/(nsh*(nsh+1)/2)
+               if(i_progr(pct_progr)) then
+                  i_progr(pct_progr)=.false.
+                  write(6,'(a,i9,a,i9,a,i4,a,f15.1)')
+     &                  'task ',ploop+1,' out of ',nsh*(nsh+1)/2,
+     D                 ' done ',
+     &                  int(((ploop+1)*100d0)/(nsh*(nsh+1)/2)),'%  at',
+     &                  wall+util_wallsec()
+                  call util_flush(6)
+               endif
+            endif
                if (.not. ma_pop_stack(l_hlp))
      $           call errquit('moints_trp: pop hlp',l_hlp,MA_ERR)
                next = nxtask(num_nodes, 1)
