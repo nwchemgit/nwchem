@@ -12,6 +12,9 @@
                  jscal.o jaxpy.o jgemm.o jheev.o jcopy.o jdotc.o \
                  ijamax.o jgesvd.o
 
+        ifndef BLAS_SIZE
+	LIB_DEFINES += -DUSE_INTEGER8
+	endif
         ifeq ($(BLAS_SIZE),8)
 	LIB_DEFINES += -DUSE_INTEGER8
 	endif
