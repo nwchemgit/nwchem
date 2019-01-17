@@ -69,6 +69,7 @@ c
 #include "rtdb.fh"
 #include "msgids.fh"
 #include "ccsdps.fh"
+#include "itri.fh"
 c
 c Arguments
 c
@@ -113,9 +114,9 @@ c
        integer moints_numgr, gr_len, nxtask
        external moints_numgr, gr_len, nxtask
        double precision wall
-       integer n_progr,pct_progr
-       parameter(n_progr=100)
-       logical i_progr(n_progr)
+       integer n_progr,pct_progr,npair
+       parameter(n_progr=20)
+       logical i_progr(n_progr+1)
 c
        double precision half
        data half/0.5d00/
@@ -236,7 +237,7 @@ c
        if (ocoul) call ga_zero(g_coul)
 
        call ga_sync
-       do ish0=1,n_progr
+       do ish0=1,n_progr+1
           i_progr(ish0)=.true.
        enddo
       wall=-util_wallsec()
@@ -262,15 +263,7 @@ c
               odoit = sym_shell_pair(basis, ish, jsh, q2)
            endif
            if (odoit) then
-             if (next.eq.ploop) then
-            if(ga_nodeid().eq.0) then
-               write(6,'(a,i9,a,i9,a,i4,a,f15.1)')
-     &              'dotask ',ploop+1,' out of ',nsh*(nsh+1)/2,
-     D              ' start ',
-     &              int(((ploop+1)*100d0)/(nsh*(nsh+1)/2)),'%  at',
-     &              wall+util_wallsec()
-               call util_flush(6)
-            endif
+              if (next.eq.ploop) then
                n_ijni = ilen*jlen*nbf*nmo1
                call dfill(n_ijni,0.d0,dbl_mb(k_ssni),1)
 
@@ -400,15 +393,16 @@ c
      $             call errquit('moints_trp: pop hlp3',l_hlp3,MA_ERR)
 
                endif
-            if(ga_nodeid().eq.0) then
-               pct_progr=((ploop+1)*n_progr)/(nsh*(nsh+1)/2)
+               if(ga_nodeid().eq.0) then
+                  npair=itri(ish0,jsh0)+1
+               pct_progr=(npair*n_progr)/(nsh*(nsh+1)/2)+1
                if(i_progr(pct_progr)) then
                   i_progr(pct_progr)=.false.
-                  write(6,'(a,i9,a,i9,a,i4,a,f15.1)')
-     &                  'task ',ploop+1,' out of ',nsh*(nsh+1)/2,
+                  write(6,'(a,i9,a,i9,a,i3,a,f10.1,a)')
+     &                  'task ',npair,' out of ',nsh*(nsh+1)/2,
      D                 ' done ',
-     &                  int(((ploop+1)*100d0)/(nsh*(nsh+1)/2)),'%  at',
-     &                  wall+util_wallsec()
+     &                  int((npair*100d0)/(nsh*(nsh+1)/2)),'%  at',
+     &                  wall+util_wallsec(),' secs'
                   call util_flush(6)
                endif
             endif

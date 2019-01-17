@@ -104,6 +104,9 @@
        integer nbh_objo4,nbh_objo5,nbh_objo6
 !
        integer nbh_exch1,nbh_exch2,nbh_coul1,nbh_coul2
+       integer n_progr,pct_progr
+       parameter(n_progr=20)
+       logical i_progr(n_progr+1)
 !
 #if defined(USE_OPENMP)
       integer  omp_get_thread_num
@@ -154,6 +157,9 @@
       else
          call qenter('trpdrv',0)
       endif
+       do klo=1,n_progr+1
+          i_progr(klo)=.true.
+       enddo
       inode=-1
       next=nxtask(nodes, 1)
       do klo = 1, nocc, kchunk
@@ -425,17 +431,22 @@
                   end if
                   next=nxtask(nodes, 1)
             if(ga_nodeid().eq.0) then
+               pct_progr=(a-(ncor+nocc)+((klo-1)/kchunk)*nvir)*n_progr/
+     /          ((nocc/kchunk)*nvir)+1
+               if(i_progr(pct_progr)) then
+                  i_progr(pct_progr)=.false.
                write(6,4321) ' ccsd(t): done ',
      A              a-(ncor+nocc)+((klo-1)/kchunk)*nvir,
      O              ' out of ',(nocc/kchunk)*nvir,
      O              ' progress: ',
-     O              ((a-(ncor+nocc)+((klo-1)/kchunk)*nvir)*100d0)/
+     O              ((a-(ncor+nocc)+((klo-1)/kchunk)*nvir)*100)/
      D              ((nocc/kchunk)*nvir),
      P            '%, Gflops=',(perfm_flop()-flopzero)/
      D              (util_wallsec()-tzero),
-     P              ' at ',(util_wallsec()-tzero),' secs'
+     P                 ' at ',(util_wallsec()-tzero),' secs'
                call util_flush(6)
- 4321          format(a,i8,a,i8,a,f6.1,a,1pg11.4,a,0pf20.2,a)
+ 4321          format(a,i8,a,i8,a,i3,a,1pg11.4,a,0pf10.1,a,2i4,a)
+               endif
             endif
                end if
             end do
