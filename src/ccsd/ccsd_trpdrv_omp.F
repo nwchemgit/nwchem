@@ -13,6 +13,7 @@
 #include "ccsd_len.fh"
 #include "ccsdps.fh"
 #include "util.fh"
+#include "yflop.fh"
 !
       double precision, intent(inout) :: emp4,emp5
       double precision, intent(in) :: t1(*)
@@ -64,6 +65,9 @@
       integer :: klo, khi
       integer nxtask
       external nxtask
+      double precision perfm_flop,tzero,flopzero
+      external perfm_flop
+
 !
 !  Dependencies (global array, local array, handle):
 !
@@ -118,7 +122,8 @@
    99 format(2x,'Using ',i2,' OpenMP thread in CCSD(T)')
   999 format(2x,'Recompile w/ USE_OPENMP=1 to use threads in CCSD(T)')
 #endif
-
+      tzero=util_wallsec()
+      flopzero=perfm_flop()
 #ifdef USE_F90_ALLOCATABLE
       allocate( dintc1(1:nvir), stat=alloc_error)
       if (alloc_error.ne.0) call errquit('dintc1',1,MA_ERR)
@@ -339,6 +344,15 @@
                         eaijk=eorb(a) - (  eorb(ncor+i)
      &                                    +eorb(ncor+j)
      &                                    +eorb(ncor+k) )
+#ifdef USE_YFLOP
+#warning its a flop
+      flops_ycount = flops_ycount + nvir*nvir*(
+     D                       3 + 2*(
+     E                       12 +
+     E                       11 +
+     E                       11 ) +
+     5                       2*27 )
+#endif
 !$omp do collapse(2)
 !$omp& schedule(static)
 !$omp& reduction(+:emp5i,emp4i)
@@ -417,9 +431,11 @@
      O              ' progress: ',
      O              ((a-(ncor+nocc)+((klo-1)/kchunk)*nvir)*100d0)/
      D              ((nocc/kchunk)*nvir),
-     P              '% at ',util_wallsec(),' secs'
+     P            '%, Gflops=',(perfm_flop()-flopzero)/
+     D              (util_wallsec()-tzero),
+     P              ' at ',(util_wallsec()-tzero),' secs'
                call util_flush(6)
- 4321          format(a,i8,a,i8,a,f6.1,a,f20.2,a)
+ 4321          format(a,i8,a,i8,a,f6.1,a,1pg11.4,a,0pf20.2,a)
             endif
                end if
             end do

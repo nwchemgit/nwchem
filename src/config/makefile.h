@@ -2656,6 +2656,15 @@ ifdef USE_PAPI
   CORE_LIBS += -L$(PAPI_LIB) $(LIBPAPI) 
   INCPATH += -I$(PAPI_INCLUDE)
 endif
+ifdef USE_YFLOP
+  ifndef USE_64TO32
+    yfloperr:
+        @echo You must define USE_64TO32 in your environment 
+        @echo to use the USE_YFLOP env. variable
+        @exit 1
+  endif
+  DEFINES += -DUSE_YFLOP
+endif
 
 #
 ifdef USE_FDIST

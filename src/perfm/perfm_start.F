@@ -7,9 +7,10 @@ c
 #ifdef USE_PAPI
       integer ii
       integer*4 arg1
+#endif
       double precision util_wallsec,util_cpusec
       external util_wallsec,util_cpusec
-#endif
+#include "yflop.fh"
 #ifdef FDIST
 #include "dist.fh"
       call initialize_dist()
@@ -69,6 +70,9 @@ c
       if (retval .NE. PAPI_OK) call errquit
      $ (' perfm_start: could not papi start ',retval,0)
 #endif
+#elif USE_YFLOP
+c     initialize
+      flops_ycount=0
 #endif
       return
       end

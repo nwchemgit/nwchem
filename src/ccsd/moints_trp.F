@@ -485,6 +485,7 @@ c
      $                           g_exch, ncor, nocc )
        implicit none
 #include "global.fh"
+#include "yflop.fh"
        integer nbf, ostart, ohi, olo, nvir, vlo, vhi
        integer ilo, ihi, jlo, jhi
        double precision scale
@@ -549,6 +550,10 @@ cstaggering to avoid congestion in ga-acc
              enddo
            endif
 #else
+#ifdef USE_YFLOP
+#warning its a flop
+      flops_ycount = flops_ycount + nnj*(ihi-ilo+1)*3
+#endif
            do j=jlo,jhi
              cc = c(j,b)
              do i=ilo,ihi
@@ -603,6 +608,10 @@ cstaggering to avoid congestion in ga-acc
             enddo
           endif
 #else
+#ifdef USE_YFLOP
+#warning its a flop
+      flops_ycount = flops_ycount + nnj*(ihi-ilo+1)*3
+#endif
           do i=ilo,ihi
             cc = c(i,b)
             do j=jlo,jhi
@@ -694,6 +703,7 @@ c
      &     ncor, nocc )
       implicit none
 #include "global.fh"
+#include "yflop.fh"
       integer nbf, ostart, olo, ohi, ilo, ihi, jlo, jhi
       double precision ssni(nbf,jlo:jhi,ilo:ihi,olo:ohi)
       double precision h1(21)   ! cartesian H shell 
@@ -716,6 +726,10 @@ c
 cedo      do a=olo,ohi
 cstaggering
        olb=ohi-olo+1
+#ifdef USE_YFLOP
+#warning its a flop
+      flops_ycount = flops_ycount + olb*nocc*ijlen*nbf*2
+#endif
        do ain=ga_nodeid()+1,ga_nodeid()+olb
           a=mod(ain,olb)+olo
          do b=ostart,ostart+nocc-1
