@@ -2659,9 +2659,10 @@ endif
 ifdef USE_YFLOP
   ifndef USE_64TO32
     yfloperr:
-        @echo You must define USE_64TO32 in your environment 
-        @echo to use the USE_YFLOP env. variable
-        @exit 1
+	@echo You must define USE_64TO32 in your environment 
+	@echo to use the USE_YFLOP env. variable
+	@echo 
+	@exit 1
   endif
   DEFINES += -DUSE_YFLOP
 endif
