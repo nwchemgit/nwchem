@@ -20,7 +20,7 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 23)
+      parameter (num_dirs = 24)
       character*18 dirs(num_dirs)
       data dirs / 'update',
      >            'zfixed',
@@ -44,6 +44,7 @@ c
      >            'bond_difference2',
      >            'equation',
      >            'group_distance',
+     >            'bondings',
      >            'end'/
 
       integer num_dirs2          ! No. of known directives
@@ -103,6 +104,8 @@ c
       external    nwpw_parse_boolean
       integer     nwpw_expression_compile
       external    nwpw_expression_compile
+      logical     tamd_bondings_input
+      external    tamd_bondings_input
 
       metaindexmax = 1000
       nmeta = 0
@@ -163,7 +166,7 @@ c
      >  'tamd_input: unknown_directive',ind,INPUT_ERR)
 
       goto ( 100, 110, 120,150, 200, 300, 400, 500,600,701,702,703,800,
-     >       900,1000,1100,1200,1300,1400,1500,1700,1800,
+     >       900,1000,1100,1200,1300,1400,1500,1700,1800,1900,
      >      9999) ind
       call errquit(
      >     'tamd_input: unimplemented directive',ind,INPUT_ERR)
@@ -1577,42 +1580,59 @@ c
       if (inp_i(sindx(2))) then
       if (inp_i(sindx(3))) then
 
-
-*     *** set defaults for w,sigma,range and nrange ***
-      sdist(1) = 0.00005d0
-      sdist(2) = 0.10000d0
+*     **** set defaults for gamma,k,mass,ztemp,zinitial ****
+      sdist(1) =    0.00010d0
+      sdist(2) =    0.10000d0
+      sdist(3) =  300.0d0
+      sdist(4) = 1000.0d0
+      sdist(5) = 0.0d0
+      sdist(6) = 0.0d0
       sdist(7) = -20.0d0
       sdist(8) = 20.0d0
       sindx(5) = 501
-
  1501 if (.not.inp_a(test)) goto 1599
       if (.not. inp_match(num_dirs3,.false.,test,dirs3,ind3))
      >  call errquit(
      >  'tamd_input: unknown directive',0,INPUT_ERR)
 
-      goto ( 1510,1520,1530,1540) ind3
+      goto ( 1510,1520,1530,1540,1550,1560,1570,1501) ind3
       call errquit(
      >     'tamd_input: unimplemented directive',ind3,INPUT_ERR)
 c
-c w, default=0.00005 au = 0.03175 kcal/mol
+c gamma, default=0.0001 
 c
  1510 if (.not.inp_f(sdist(1))) sdist(1)=0.00005d0
       goto 1501
 c
-c sigma, default = 0.1 au
+c k default = 0.1
 c
  1520 if (.not.inp_f(sdist(2))) sdist(2)=0.1d0
       goto 1501
 c
+c mass           
+c
+ 1530 if (.not.inp_f(sdist(2))) sdist(3)=300.0d0
+      goto 1501
+c
+c ztemp          
+c
+ 1540 if (.not.inp_f(sdist(2))) sdist(4)=1000.0d0
+      goto 1501
+c
+c zinitial
+c
+ 1550 if (.not.inp_f(sdist(7))) sdist(5)=0.0d0
+      if (.not.inp_f(sdist(8))) sdist(6)=0.0d0
+c
 c range
 c
- 1530 if (.not.inp_f(sdist(7))) sdist(7)= -20.0d0
+ 1560 if (.not.inp_f(sdist(7))) sdist(7)= -20.0d0
       if (.not.inp_f(sdist(8))) sdist(8)=  20.0d0
       goto 1501
 c
 c nrange, default = 501
 c
- 1540 if (.not.inp_i(sindx(5))) sindx(5)=501
+ 1570 if (.not.inp_i(sindx(5))) sindx(5)=501
       goto 1501
 
  1599  continue
@@ -1627,7 +1647,11 @@ c
       int_mb(sparammeta(1)+nmeta)       = nparammeta
       dbl_mb(parammeta(1)+nparammeta)   = sdist(1)
       dbl_mb(parammeta(1)+nparammeta+1) = sdist(2)
-      nparammeta  = nparammeta + 2
+      dbl_mb(parammeta(1)+nparammeta+1) = sdist(3)
+      dbl_mb(parammeta(1)+nparammeta+1) = sdist(4)
+      dbl_mb(parammeta(1)+nparammeta+1) = sdist(5)
+      dbl_mb(parammeta(1)+nparammeta+1) = sdist(6)
+      nparammeta  = nparammeta + 6
 
       nxmeta_all = nxmeta_all*sindx(5)
       int_mb(nxmeta(1)+nmeta) = sindx(5)
@@ -1823,21 +1847,27 @@ c
      >    call errquit(
      > 'tamd_input:failed allocating index_start2',0,MA_ERR)
 
-      sdist(1) = 0.00005d0
-      sdist(2) = 0.10000d0
-      sdist(3) = 6.0d0
-      sdist(7) = -999.0d0
-      sdist(8) = -999.0d0
+
+*     **** set defaults for gamma,k,mass,ztemp,zinitial ****
+      sdist(1) =    0.00010d0
+      sdist(2) =    0.10000d0
+      sdist(3) =  300.0d0
+      sdist(4) = 1000.0d0
+      sdist(5) = 0.0d0
+      sdist(6) = 0.0d0
+      sdist(7) = -1.0d0
+      sdist(8) = -1.0d0
+      sdist(9) = 6.0d0
       sindx(1) = 501
       n1 = 0
       n2 = 0
  1801 if (.not. inp_a(test)) goto 1899
       if (.not. inp_match(num_dirs2,.false.,test,dirs2,ind2))
      >  call errquit(
-     >  'metadynamics_input: unknown directive',0,INPUT_ERR)
+     >  'tamd_input: unknown directive',0,INPUT_ERR)
 
-      goto (1810,1820,1830,1801,1801,1860,1870,1880,1890,
-     >      1801,1801,1801,1801) ind2
+      goto (1810,1820,1830,1801,1801,1860,1862,1864,1866,
+     >      1870,1880,1890,1801,1801) ind2
       call errquit(
      >     'tamd_input: unimplemented directive',ind2,INPUT_ERR)
 c
@@ -1867,18 +1897,39 @@ c
 c
 c n
 c
- 1830 if (.not.inp_f(sdist(3))) sdist(3)=6.0d0
+ 1830 if (.not.inp_f(sdist(9))) sdist(9)=6.0d0
+      goto 1801
+
+c
+c gamma, default=0.00010 au = 0.06275 kcal/mol
+c
+ 1860 if (.not.inp_f(sdist(1))) sdist(1)=0.00010d0
       goto 1801
 c
-c w
+c k, default = 0.10 au
 c
- 1860 if (.not.inp_f(sdist(1))) sdist(1)=0.000050d0
+ 1862 if (.not.inp_f(sdist(2))) sdist(2)=0.10d0
       goto 1801
+
 c
-c sigma
+c mass, default=300.0 au
 c
- 1870 if (.not.inp_f(sdist(2))) sdist(2)=0.1d0
+ 1864 if (.not.inp_f(sdist(3))) sdist(3)=300.0d0
       goto 1801
+
+c
+c ztemp, default = 1000.0K
+c
+ 1866 if (.not.inp_f(sdist(4))) sdist(4)=1000.0d0
+      goto 1801
+
+c
+c zinitial
+c
+ 1870 if (.not.inp_f(sdist(5))) sdist(5)=-1.0d0
+      if (.not.inp_f(sdist(6))) sdist(6)=-1.0d0
+      goto 1801
+
 c
 c range
 c
@@ -1886,10 +1937,11 @@ c
       if (.not.inp_f(sdist(8))) sdist(8)=-999.0d0
       goto 1801
 c
-c nrange
+c nrange, default = 501
 c
  1890 if (.not.inp_i(sindx(1))) sindx(1)=501
       goto 1801
+
 
 
  1899 continue
@@ -1911,9 +1963,11 @@ c
       dbl_mb(parammeta(1)+nparammeta)   = sdist(1)
       dbl_mb(parammeta(1)+nparammeta+1) = sdist(2)
       dbl_mb(parammeta(1)+nparammeta+2) = sdist(3)
-      dbl_mb(parammeta(1)+nparammeta+3) = sdist(7)
-      dbl_mb(parammeta(1)+nparammeta+4) = sdist(8)
-      nparammeta  = nparammeta + 5
+      dbl_mb(parammeta(1)+nparammeta+3) = sdist(4)
+      dbl_mb(parammeta(1)+nparammeta+4) = sdist(5)
+      dbl_mb(parammeta(1)+nparammeta+5) = sdist(6)
+      dbl_mb(parammeta(1)+nparammeta+6) = sdist(9)
+      nparammeta  = nparammeta + 7
 
       nxmeta_all = nxmeta_all*sindx(1)
       int_mb(nxmeta(1)+nmeta) = sindx(1)
@@ -1967,14 +2021,136 @@ c
 
 
 
+c
+c  bondings
+c
+ 1900 if (tamd_bondings_input(n1,sindx(2),sdist(7))) then
+
+*     **** set defaults for gamma,k,mass,ztemp,zinitial ****
+      sdist(1) =    0.00010d0
+      sdist(2) =    0.10000d0
+      sdist(3) =  300.0d0
+      sdist(4) = 1000.0d0
+      sdist(5) = 0.0d0
+      sdist(6) = 0.0d0
+      sdist(n1+7) = -20.0d0
+      sdist(n1+8) =  20.0d0
+      sindx(1) = 501
+ 1901 if (.not. inp_a(test)) goto 1999
+      if (.not. inp_match(num_dirs3,.false.,test,dirs3,ind3))
+     >  call errquit(
+     >  'tamd_input: unknown directive',0,INPUT_ERR)
+
+      goto (1910,1920,1930,1940,1950,1960,1970,1901) ind3
+      call errquit(
+     >     'tamd_input: unimplemented directive',ind3,INPUT_ERR)
+
+
+c
+c gamma, default=0.00010 au = 0.06275 kcal/mol
+c
+ 1910 if (.not.inp_f(sdist(1))) sdist(1)=0.00010d0
+      goto 1901
+c
+c k, default = 0.10 au
+c
+ 1920 if (.not.inp_f(sdist(2))) sdist(2)=0.10d0
+      goto 1901
+
+c
+c mass, default=300.0 au
+c
+ 1930 if (.not.inp_f(sdist(3))) sdist(3)=300.0d0
+      goto 1901
+
+c
+c ztemp, default = 1000.0K
+c
+ 1940 if (.not.inp_f(sdist(4))) sdist(4)=1000.0d0
+      goto 1901
+
+c
+c zinitial
+c
+ 1950 if (.not.inp_f(sdist(5))) sdist(5)=0.0d0
+      if (.not.inp_f(sdist(6))) sdist(6)=-0.0d0
+      goto 1901
+
+c
+c range
+c
+ 1960 if (.not.inp_f(sdist(n1+7))) sdist(n1+7)= -20.0d0
+      if (.not.inp_f(sdist(n1+8))) sdist(n1+8)=  20.0d0
+      goto 1901
+c
+c nrange, default = 501
+c
+ 1970 if (.not.inp_i(sindx(1))) sindx(1)=501
+      goto 1901
 
 
 
+ 1999 continue
+      int_mb(sindxmeta(1) +nmeta)     = nindxmeta
+      int_mb(indxmeta(1)+nindxmeta)   = 14
+      int_mb(indxmeta(1)+nindxmeta+1) = n1
+      do i=1,n1
+         int_mb(indxmeta(1)+nindxmeta + 2*i)   = sindx(2*i)
+         int_mb(indxmeta(1)+nindxmeta + 2*i+1) = sindx(2*i+1)
+      end do
+      nindxmeta  = nindxmeta + 2*n1 + 2
 
+      int_mb(sparammeta(1)+nmeta) = nparammeta
+      do i=1,n1+6
+         dbl_mb(parammeta(1)+nparammeta+i-1) = sdist(i)
+      end do
+      nparammeta  = nparammeta + n1 + 6
 
+      nxmeta_all = nxmeta_all*sindx(1)
+      int_mb(nxmeta(1)+nmeta) = sindx(1)
+      dbl_mb(ameta(1)+nmeta)  = sdist(n1+7)
+      dbl_mb(bmeta(1)+nmeta)  = sdist(n1+8)
+      int_mb(pmeta(1)+nmeta)  = 0
 
+      nmeta = nmeta + 1
 
+      rtdb_name = 'tamd_nindxmeta'
+      value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
+      rtdb_name = 'tamd_sindxmeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
+     >                 nmeta,int_mb(sindxmeta(1)))
+      rtdb_name = 'tamd_indxmeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
+     >                 nindxmeta,int_mb(indxmeta(1)))
+      rtdb_name = 'tamd_nparammeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nparammeta)
+      rtdb_name = 'tamd_sparammeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
+     >                 nmeta,int_mb(sparammeta(1)))
+      rtdb_name = 'tamd_parammeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
+     >                 nparammeta,dbl_mb(parammeta(1)))
+      rtdb_name = 'tamd_ameta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(ameta(1)))
+      rtdb_name = 'tamd_bmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
+      rtdb_name = 'tamd_pmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
+      rtdb_name = 'tamd_nxmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
+      rtdb_name = 'tamd_nmeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nmeta)
+      rtdb_name = 'tamd_nxmeta_all'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nxmeta_all)
+      if (.not. value) call errquit(
+     >'tamd_input:failed writing coord_num',0,RTDB_ERR)
 
+      end if
+      goto 10
 
 
 
@@ -2008,3 +2184,48 @@ c
 
       return
       end
+
+
+
+     
+*     ****************************************
+*     *                                      *
+*     *          tamd_bondings_input         * 
+*     *                                      *
+*     ****************************************
+*
+* bondings -1.0 1 2 1.0 2 3
+*
+      logical function tamd_bondings_input(n,indx,coef)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"  
+#include "util.fh"  
+c     
+      logical ok 
+      integer n,indx(*)
+      double precision coef(*)
+      
+      integer itest 
+      double precision ftest
+ 
+      ok = .true.
+     
+      !*** coef and indx ***
+      n = 0
+      do while (ok.and.inp_f(ftest))
+         coef(n+1) = ftest
+         if(ok.and.(.not.inp_i(itest))) ok = .false.
+         indx(2*n+1) = itest
+         if(ok.and.(.not.inp_i(itest))) ok = .false.
+         indx(2*n+2) = itest
+         n = n + 1
+      end do
+      if (n.eq.0) ok = .false.
+
+      tamd_bondings_input = ok
+      return
+      end
+
