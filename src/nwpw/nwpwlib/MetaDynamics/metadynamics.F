@@ -975,6 +975,26 @@ c     **** group distance ****
          end do
          f = (f/n12)**(-1.0d0/n)
   
+c     **** bondings ****
+      else if (ntype.eq.14) then
+         n1=indx(2)
+         f = 0.0d0
+         do i=1,n1
+            x1 = ion_rion(1,indx(2*i+1))
+            y1 = ion_rion(2,indx(2*i+1))
+            z1 = ion_rion(3,indx(2*i+1))
+            x2 = ion_rion(1,indx(2*i+2))
+            y2 = ion_rion(2,indx(2*i+2))
+            z2 = ion_rion(3,indx(2*i+2))
+            dx1 = x1-x2
+            dy1 = y1-y2
+            dz1 = z1-z2
+            call lattice_min_difference(dx1,dy1,dz1)
+            r1  = dsqrt(dx1**2 + dy1**2 + dz1**2)
+            f = f + param(i+2)*r1
+         end do
+
+
       end if
 
       meta_collective = f
@@ -1468,7 +1488,34 @@ c     **** group distances ****
             end do
          end do
 
-
+c     **** bondings ****
+      else if (ntype.eq.14) then
+         n1=indx(2)
+         do i=1,n1
+            x1 = ion_rion(1,indx(2*i+1))
+            y1 = ion_rion(2,indx(2*i+1))
+            z1 = ion_rion(3,indx(2*i+1))
+            x2 = ion_rion(1,indx(2*i+2))
+            y2 = ion_rion(2,indx(2*i+2))
+            z2 = ion_rion(3,indx(2*i+2))
+            dx1 = x1-x2
+            dy1 = y1-y2
+            dz1 = z1-z2
+            call lattice_min_difference(dx1,dy1,dz1)
+            r1  = dsqrt(dx1**2 + dy1**2 + dz1**2)
+            fmeta(1,indx(2*i+1)) = fmeta(1,indx(2*i+1))
+     >                           - param(i+2)*dx1/r1*dv
+            fmeta(2,indx(2*i+1)) = fmeta(2,indx(2*i+1))
+     >                           - param(i+2)*dy1/r1*dv
+            fmeta(3,indx(2*i+1)) = fmeta(3,indx(2*i+1))
+     >                           - param(i+2)*dz1/r1*dv
+            fmeta(1,indx(2*i+2)) = fmeta(1,indx(2*i+2))
+     >                           + param(i+2)*dx1/r1*dv
+            fmeta(2,indx(2*i+2)) = fmeta(2,indx(2*i+2))
+     >                           + param(i+2)*dy1/r1*dv
+            fmeta(3,indx(2*i+2)) = fmeta(3,indx(2*i+2))
+     >                           + param(i+2)*dz1/r1*dv
+         end do
 
       end if
 

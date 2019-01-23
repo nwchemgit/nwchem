@@ -2002,8 +2002,8 @@ c
 *     *** set defaults for w,sigma,range and nrange ***
       sdist(1) = 0.00005d0
       sdist(2) = 0.10000d0
-      sdist(n1+4) = -999.0d0
-      sdist(n1+5) = -999.0d0
+      sdist(n1+4) = -20.0d0
+      sdist(n1+5) =  20.0d0
       n2 = 501
 
  1901 if (.not.inp_a(test)) goto 1999
@@ -2028,8 +2028,8 @@ c
 c
 c range
 c
- 1930 if (.not.inp_f(sdist(n1+4))) sdist(n1+4)=-999.0d0
-      if (.not.inp_f(sdist(n1+5))) sdist(n1+5)=-999.0d0
+ 1930 if (.not.inp_f(sdist(n1+4))) sdist(n1+4)=-20.0d0
+      if (.not.inp_f(sdist(n1+5))) sdist(n1+5)= 20.0d0
       goto 1901
 c
 c nrange, default = 501
@@ -2162,14 +2162,11 @@ c
 
       ok = .true.
 
-      !*** enter gamma0 ***
-      if (.not.inp_f(ftest)) ok = .false.
-      coef(1) = ftest
 
       !*** coef and indx ***
       n = 0
       do while (ok.and.inp_f(ftest))
-         coef(n+2) = ftest
+         coef(n+1) = ftest
          if(ok.and.(.not.inp_i(itest))) ok = .false.
          indx(2*n+1) = itest
          if(ok.and.(.not.inp_i(itest))) ok = .false.
