@@ -280,8 +280,6 @@ c     **********************************************
             ztamd(d)  = dbl_mb(parammeta(1)+s2+4) 
             vztamd(d) = dbl_mb(parammeta(1)+s2+5) 
          end do
-         write(*,*) "ztamd=",ztamd(1)
-         write(*,*) "vztamd=",vztamd(1)
 
          call nwpw_interp_init(nmeta,8)
 
