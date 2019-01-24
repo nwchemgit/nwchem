@@ -18,7 +18,7 @@ c     **********************************************
 *     **** local variables ****
       integer taskid,MASTER
       parameter (MASTER=0)
-      logical value,cnmeta_read
+      logical value,cnmeta_read,ok
       integer d,i,j,n1,n2,s1,s2,yshift,ntype,seed
       real*8 x,y,z,r,rmax,dr,pi,da,maxcoord,a,b,n,m,sigma,w,r0,gamma,k
       real*8 boundary(2),temp,fac,sn2(12),mass,ztemp,zinitial(2),n12
@@ -275,11 +275,25 @@ c     **********************************************
          !seed = 99 --- need to have option to read from input
          !x  = util_random(seed)
          dt = control_time_step()
-         do d=1,nmeta
-            s2 = int_mb(sparammeta(1)+d-1)
-            ztamd(d)  = dbl_mb(parammeta(1)+s2+4) 
-            vztamd(d) = dbl_mb(parammeta(1)+s2+5) 
-         end do
+
+         !*** read restart ztamd and vztamd from rtdb ***
+         rtdb_name = 'tamd_ztamd_nmeta'
+         if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,d)) d = -1
+         ok = .false.
+         if (d.eq.nmeta) then
+            rtdb_name = 'tamd_ztamd'
+            ok =        btdb_get(rtdb,rtdb_name,mt_dbl,nmeta,ztamd)
+            rtdb_name = 'tamd_vztamd'
+            ok = ok.and.btdb_get(rtdb,rtdb_name,mt_dbl,nmeta,vztamd)
+         end if
+         !*** read initial ztamd and vztamd from rtdb ***
+         if (.not.ok) then
+            do d=1,nmeta
+               s2 = int_mb(sparammeta(1)+d-1)
+               ztamd(d)  = dbl_mb(parammeta(1)+s2+4) 
+               vztamd(d) = dbl_mb(parammeta(1)+s2+5) 
+            end do
+         end if
 
          call nwpw_interp_init(nmeta,8)
 
@@ -710,6 +724,17 @@ c     **********************************************
             do i=1,nxmeta_all
                dbl_mb(ymeta(1)+i-1) = fac*dbl_mb(ymeta(1)+i-1)
             end do 
+
+*           **** write out current ztamd and vztamd ****
+            rtdb_name = 'tamd_ztamd_nmeta'
+            value = value.and.
+     >              btdb_put(rtdb,rtdb_name,mt_int,1,nmeta)
+            rtdb_name = 'tamd_ztamd'
+            value = value.and.
+     >              btdb_put(rtdb,rtdb_name,mt_dbl,nmeta,ztamd)
+            rtdb_name = 'tamd_vztamd'
+            value = value.and.
+     >              btdb_put(rtdb,rtdb_name,mt_dbl,nmeta,vztamd)
 
 *           **** write out current spline fits ****
             rtdb_name = 'tamd_ymeta'
