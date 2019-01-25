@@ -24,12 +24,13 @@ C     == Outputs ==
 
 C     == Parameters ==
       character(*), parameter :: pname = "calc_array_partitioning: "
-      integer, parameter      :: min_slice_width = 10
 
  
 C     == Variables ==
       integer :: me, np, m0, ratio
       integer :: sratio, s0, endproc
+      integer :: mindim
+      integer :: min_slice_width
 
       
       me = ga_nodeid ()
@@ -53,8 +54,10 @@ C     number of processors) this is inefficient.  So instead we set a
 C     minimum amount of work (min_slice_width) which means some procs
 C     get nothing to do.
 C
-      
       ratio = n/np
+
+      mindim = min(n, m)
+      min_slice_width = min(mindim, 10) !if we have a larger array, use a min slice size of 10
       
       if (ratio .ge. min_slice_width) then
          m0 = ratio + mod (n, np)
