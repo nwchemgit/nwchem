@@ -606,10 +606,10 @@ c     >           'periodic=',int_mb(pmeta(1)+d-1)
              n  =  dbl_mb(parammeta(1)+s2+6)
              write(luout,1005) (int_mb(indxmeta(1)+s1+3+j-1),j=1,n1)
              write(luout,1006) (int_mb(indxmeta(1)+s1+3+n1+j-1),j=1,n2)
-             write(luout,'(A,/6x,A,F11.6,
-     >                   /6x,A,F11.6,4x,A,F11.6,
-     >                   /6x,A,F11.6,4x,A,F11.6,
-     >                   /6x,A,F11.6,F11.6,
+             write(luout,'(A,/6x,A,F13.6,
+     >                   /6x,A,F13.6,4x,A,F13.6,
+     >                   /6x,A,F13.6,4x,A,F13.6,
+     >                   /6x,A,F13.6,F13.6,
      >                   /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
      >       "  - Group_Distance Parameters: ",
      >           'n= ',n,
@@ -625,9 +625,9 @@ c     >           'periodic=',int_mb(pmeta(1)+d-1)
             else if (ntype.eq.14) then
              n1 = int_mb(indxmeta(1)+s1+1)
              write(luout,'(A,
-     >                   /6x,A,F11.6,4x,A,F11.6,
-     >                   /6x,A,F11.6,4x,A,F11.6,
-     >                   /6x,A,F11.6,F11.6,
+     >                   /6x,A,F13.6,4x,A,F13.6,
+     >                   /6x,A,F13.6,4x,A,F13.6,
+     >                   /6x,A,F13.6,F13.6,
      >                   /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
      >       "  - Bondings Parameters: ",
      >           'gamma=',gamma,'k=',k,
