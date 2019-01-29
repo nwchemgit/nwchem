@@ -975,11 +975,15 @@ c
 
  704  if (inp_i(sindx(2))) then
 
-*     *** set defaults for w,sigma,range and nrange ***
-      sdist(1) = 0.00005d0
-      sdist(2) = 0.10000d0
-      sdist(3) = -999.0d0
-      sdist(4) = -999.0d0
+*     **** set defaults for gamma,k,mass,ztemp,zinitial ****
+      sdist(1) =    0.00010d0
+      sdist(2) =    0.10000d0
+      sdist(3) =  300.0d0
+      sdist(4) = 1000.0d0
+      sdist(5) = -1.0
+      sdist(6) = -1.0
+      sdist(7) = -100.0
+      sdist(8) =  100.0
       sindx(3) = 501
 
  705  if (.not.inp_a(test)) goto 799
@@ -987,32 +991,49 @@ c
      >  call errquit(
      >  'tamd_input: unknown directive',0,INPUT_ERR)
 
-      goto ( 710,720,730,740) ind3
+      goto ( 710,720,730,740,750,760,770) ind3
       call errquit(
      >     'tamd_input: unimplemented directive',ind3,INPUT_ERR)
 
 c
-c w, default=0.00005 au = 0.03175 kcal/mol
+c gamma, default=0.0001 au = 0.06275 kcal/mol
 c
- 710  if (.not.inp_f(sdist(1))) sdist(1)=0.00005d0
+ 710  if (.not.inp_f(sdist(1))) sdist(1)=0.00010d0
       goto 705
 c
-c sigma, default = 0.1 au
+c k, default = 0.1 au
 c
  720  if (.not.inp_f(sdist(2))) sdist(2)=0.1d0
       goto 705
 c
+c mass
+c
+ 730  if (.not.inp_f(sdist(3))) sdist(3)=300.0d0
+      goto 705
+c
+c ztep, default = 1000.0K
+c
+ 740  if (.not.inp_f(sdist(4))) sdist(4)=1000.0d0
+      goto 705
+
+c
+c zinitial
+c
+ 750  if (.not.inp_f(sdist(5))) sdist(5)=-1.0d0
+      if (.not.inp_f(sdist(6))) sdist(6)=-1.0d0
+      goto 705
+c
 c range
 c
- 730  if (.not.inp_f(sdist(3))) sdist(3)=-999.0d0
-      if (.not.inp_f(sdist(4))) sdist(4)=-999.0d0
+ 760  if (.not.inp_f(sdist(7))) sdist(7)=-100.0d0
+      if (.not.inp_f(sdist(8))) sdist(8)= 100.0d0
       goto 705
+
 c
 c nrange, default = 501
 c
- 740  if (.not.inp_i(sindx(3))) sindx(3)=501
+ 770  if (.not.inp_i(sindx(3))) sindx(3)=501
       goto 705
-
 
  799  continue
       int_mb(sindxmeta(1) +nmeta)     = nindxmeta
@@ -1024,12 +1045,16 @@ c
       int_mb(sparammeta(1)+nmeta)       = nparammeta
       dbl_mb(parammeta(1)+nparammeta)   = sdist(1)
       dbl_mb(parammeta(1)+nparammeta+1) = sdist(2)
-      nparammeta  = nparammeta + 2
+      dbl_mb(parammeta(1)+nparammeta+2) = sdist(3)
+      dbl_mb(parammeta(1)+nparammeta+3) = sdist(4)
+      dbl_mb(parammeta(1)+nparammeta+4) = sdist(5)
+      dbl_mb(parammeta(1)+nparammeta+5) = sdist(6)
+      nparammeta  = nparammeta + 6
 
       nxmeta_all = nxmeta_all*sindx(3)
       int_mb(nxmeta(1)+nmeta) = sindx(3)
-      dbl_mb(ameta(1)+nmeta)  = sdist(3)
-      dbl_mb(bmeta(1)+nmeta)  = sdist(4)
+      dbl_mb(ameta(1)+nmeta)  = sdist(7)
+      dbl_mb(bmeta(1)+nmeta)  = sdist(8)
       int_mb(pmeta(1)+nmeta)  = 0
 
       nmeta = nmeta + 1

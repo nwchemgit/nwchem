@@ -456,48 +456,47 @@ c     >           'periodic= ',int_mb(pmeta(1)+d-1)
      >                /6x,A,F13.6,4x,A,F13.6,
      >                /6x,A,F13.6,F13.6,
      >                /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
-     >       "   - X Parameters =  ",
+     >       "   - X Parameters, Ion=  ",
      >           int_mb(indxmeta(1)+s1+2),
-     >           'gamma=',gamma,'k=',k,
+     >           'gamma=   ',gamma,'k=',k,
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5)
-c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-c     >           'periodic= ',int_mb(pmeta(1)+d-1)
+     >                       dbl_mb(parammeta(1)+s2+5),
+     >           'range=   ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic= ',int_mb(pmeta(1)+d-1)
              else if (int_mb(indxmeta(1)+s1+1).eq.2) then
              write(luout,'(A,5x,I4,
      >                /6x,A,F13.6,4x,A,F13.6,
      >                /6x,A,F13.6,4x,A,F13.6,
      >                /6x,A,F13.6,F13.6,
      >                /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
-     >       "   - Y Parameters =  ",
+     >       "   - Y Parameters, Ion =  ",
      >           int_mb(indxmeta(1)+s1+2),
-     >           'gamma=',gamma,'k=',k,
+     >           'gamma=   ',gamma,'k=',k,
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5)
-c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-c     >           'periodic= ',int_mb(pmeta(1)+d-1)
+     >                       dbl_mb(parammeta(1)+s2+5),
+     >           'range=   ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic= ',int_mb(pmeta(1)+d-1)
              else 
              write(luout,'(A,5x,I4,
      >                /6x,A,F13.6,4x,A,F13.6,
      >                /6x,A,F13.6,4x,A,F13.6,
      >                /6x,A,F13.6,F13.6,
      >                /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
-     >       "   - Z Parameters =  ",
-     >           int_mb(indxmeta(1)+s1+2),
-     >           'gamma=',gamma,'k=',k,
+     >       "   - Z Parameters, Ion =  ",int_mb(indxmeta(1)+s1+2),
+     >           'gamma=   ',gamma,'k=',k,
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5)
-c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-c     >           'periodic= ',int_mb(pmeta(1)+d-1)
+     >                       dbl_mb(parammeta(1)+s2+5),
+     >           'range=   ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic= ',int_mb(pmeta(1)+d-1)
              end if
 
             else if (ntype.eq.7) then
