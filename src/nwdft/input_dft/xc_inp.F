@@ -137,7 +137,7 @@ c     xperde86 ==> 9520
 c
 c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=146)
+      parameter (num_dirs=147)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -187,7 +187,7 @@ c
      &     'b3pw91','pbe96','dldf','srhfexch','hse03',
      &     's12g','s12h','cam-s12g','cam-s12h',
      &     'becke86b','xperdew86','xmvs15','cvpbe09','mvs',
-     &     'hle16', 'scan', 'scanl' /
+     &     'hle16', 'scan', 'scanl','lb94' /
 c     becke97-d, ssb-d
       logical disp, dumdirect
       integer ivdw
@@ -257,7 +257,7 @@ c
      &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,8531,
      &  8532,8533,8534,9300,9310,9320,4610,4620,4630,4640,
      &  9510,9520,4115,2109,4124,3101,
-     &  9610,9620,1999) ind
+     &  9610,9620,9494,1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -1694,6 +1694,15 @@ c
        lxfac(67) = .true.
       nlxfac(67) = .true.
         xfac(67) = 1.0d0
+      goto 10
+c
+c lb94 Vxc function
+c fill only x here, no c
+c      
+ 9494 continue
+       lxfac(70) = .true.
+      nlxfac(70) = .false.
+        xfac(70) = 1.0d0
       goto 10
 
 c     bc95

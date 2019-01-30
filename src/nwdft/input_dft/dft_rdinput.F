@@ -660,6 +660,7 @@ c
       xname(67)='      SCAN-L metaGGA Exchange Functional'
       xname(68)='              revM06 Exchange Functional'
       xname(69)='            revM06-L Exchange Functional'
+      xname(70)='                LB94 Exchange Functional'
 
 c
 c     Exchange-Correlation combination functional name defaults.

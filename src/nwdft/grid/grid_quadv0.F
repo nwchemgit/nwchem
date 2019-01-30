@@ -33,7 +33,8 @@ c
       Logical oprint,grad,xc_chkgrad,oprintw
       Logical xc_chktau, kske
       logical xc_chklap, kslap
-      external xc_chkgrad,xc_rep_close, xc_chktau, xc_chklap
+      logical xc_chkdelrq, ksdelrq
+      external xc_chkgrad,xc_rep_close, xc_chktau, xc_chklap,xc_chkdelrq
       logical xc_rep_close
       double precision Exc(2)
       double precision rho_n
@@ -178,6 +179,7 @@ c
       grad = xc_chkgrad()
       kske = xc_chktau()
       kslap = xc_chklap()
+      ksdelrq = xc_chkdelrq()
       l3d = (ga_ndim(g_vxc).eq.3)
 c
       irdelchi_atom = 0
@@ -285,7 +287,7 @@ c
       if (do_scf .or. do_nmrks_r. or. do_xdm) then
          len_rho = npol*n_per_rec
          len_delrho = 3*ipol*n_per_rec
-         if (kske) len_ttau = npol*n_per_rec
+         if (kske.or.ksdelrq) len_ttau = npol*n_per_rec
          if (kske) len_mmat =ipol*n_per_rec  
          if (kslap) len_Lmat = ipol*n_per_rec
       elseif (do_cpks_l) then

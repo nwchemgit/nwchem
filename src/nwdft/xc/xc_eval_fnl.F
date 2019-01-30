@@ -247,6 +247,17 @@ c
          endif
       endif
 c
+c     LB94 potential and energy (not variational!)
+c
+      if (abs(xfac(70)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_lb94_e(tol_rho, xfac(70), rho, delrho, Amat, nq,
+     I          ipol,  Ex, qwght,ldew,func,ttau)
+         else
+            call errquit( ' lb94 2nds not ready yet',0,0)
+         endif
+      endif
+c
       if (abs(xfac(3)).gt.eps)then
          if (.not. do_2nd .and. .not. do_3rd) then
             call xc_becke88(tol_rho, xfac(3), lxfac(3), nlxfac(3), 
