@@ -437,17 +437,17 @@ c     **********************************************
      >                /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
      >       "  - n-plane Parameters =  ",
      >           'normal=',
-     >           dbl_mb(parammeta(1)+s2+2),
-     >           dbl_mb(parammeta(1)+s2+3),
-     >           dbl_mb(parammeta(1)+s2+4),
+     >           dbl_mb(parammeta(1)+s2+6),
+     >           dbl_mb(parammeta(1)+s2+7),
+     >           dbl_mb(parammeta(1)+s2+8),
      >           'gamma=',gamma,'k=',k,
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5)
-c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-c     >           'periodic= ',int_mb(pmeta(1)+d-1)
+     >                       dbl_mb(parammeta(1)+s2+5),
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic= ',int_mb(pmeta(1)+d-1)
             else if (ntype.eq.6) then
 
              if (int_mb(indxmeta(1)+s1+1).eq.1) then
@@ -943,9 +943,9 @@ c                 f = f + (1.0d0-(r1/r0)**n)/(1.0d0-(r1/r0)**m)
 c     **** n-plane ****
       else if (ntype.eq.5) then
          f = 0.0d0
-         nx = param(9)
-         ny = param(10)
-         nz = param(11)
+         nx = param(7)
+         ny = param(8)
+         nz = param(9)
          x1 = ion_rion(1,indx(2))
          y1 = ion_rion(2,indx(2))
          z1 = ion_rion(3,indx(2))

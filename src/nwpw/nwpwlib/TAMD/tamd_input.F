@@ -850,52 +850,69 @@ c
          end do
       end do
 
-*     *** set defaults for w,sigma,range and nrange ***
-      sdist(1) = 0.00005d0
-      sdist(2) = 0.10000d0
-      sdist(3) = 0.0d0
-      sdist(4) = 0.0d0
-      sdist(5) = 1.0d0
-      sdist(6) = -999.0d0
-      sdist(7) = -999.0d0
-      sindx(2) = 501
+*     **** set defaults for gamma,k,mass,ztemp,zinitial ****
+      sdist(1) =    0.00010d0
+      sdist(2) =    0.10000d0
+      sdist(3) =  300.0d0
+      sdist(4) = 1000.0d0
+      sdist(5) = -1.0
+      sdist(6) = -1.0
+      sdist(7) = -100.0
+      sdist(8) =  100.0
+      sindx(3) = 501
+
 
  601  if (.not.inp_a(test)) goto 699
       if (.not. inp_match(num_dirs3,.false.,test,dirs3,ind3))
      >  call errquit(
      >  'tamd_input: unknown directive',0,INPUT_ERR)
 
-      goto ( 610,620,630,640,650) ind3
+      goto ( 610,620,630,640,650,660,670,680) ind3
       call errquit(
      >   'tamd_inputn: unimplemented directive',ind3,INPUT_ERR)
-
 c
-c w, default=0.00005 au = 0.03175 kcal/mol
+c gamma, default=0.0001 au = 0.06275 kcal/mol
 c
- 610  if (.not.inp_f(sdist(1))) sdist(1)=0.00005d0
+ 610  if (.not.inp_f(sdist(1))) sdist(1)=0.00010d0
       goto 601
 c
-c sigma, default = 0.1 au
+c k, default = 0.1 au
 c
  620  if (.not.inp_f(sdist(2))) sdist(2)=0.1d0
       goto 601
 c
+c mass
+c
+ 630  if (.not.inp_f(sdist(3))) sdist(3)=300.0d0
+      goto 601
+c
+c ztemp, default = 1000.0K
+c
+ 640  if (.not.inp_f(sdist(4))) sdist(4)=1000.0d0
+      goto 601
+c
+c zinitial
+c
+ 650  if (.not.inp_f(sdist(5))) sdist(5)=0.0d0
+      if (.not.inp_f(sdist(6))) sdist(6)=0.0d0
+      goto 601
+c
 c range
 c
- 630  if (.not.inp_f(sdist(6))) sdist(6)=-999.0d0
-      if (.not.inp_f(sdist(7))) sdist(7)=-999.0d0
+ 660  if (.not.inp_f(sdist(7))) sdist(7)=-100.0d0
+      if (.not.inp_f(sdist(8))) sdist(8)= 100.0d0
       goto 601
 c
 c nrange, default = 501
 c
- 640  if (.not.inp_i(sindx(2))) sindx(2)=501
+ 670  if (.not.inp_i(sindx(3))) sindx(3)=501
       goto 601
 c
 c normal
 c
- 650  if (.not.inp_f(sdist(3))) sdist(3)=0.0d0
-      if (.not.inp_f(sdist(4))) sdist(4)=0.0d0
-      if (.not.inp_f(sdist(5))) sdist(5)=1.0d0
+ 680  if (.not.inp_f(sdist(9)))  sdist(3)=0.0d0
+      if (.not.inp_f(sdist(10))) sdist(4)=0.0d0
+      if (.not.inp_f(sdist(11))) sdist(5)=1.0d0
       goto 601
 
  699  continue
@@ -915,12 +932,16 @@ c
       dbl_mb(parammeta(1)+nparammeta+2) = sdist(3)
       dbl_mb(parammeta(1)+nparammeta+3) = sdist(4)
       dbl_mb(parammeta(1)+nparammeta+4) = sdist(5)
-      nparammeta  = nparammeta + 5
+      dbl_mb(parammeta(1)+nparammeta+5) = sdist(6)
+      dbl_mb(parammeta(1)+nparammeta+6) = sdist(9)
+      dbl_mb(parammeta(1)+nparammeta+7) = sdist(10)
+      dbl_mb(parammeta(1)+nparammeta+8) = sdist(11)
+      nparammeta  = nparammeta + 9
 
       nxmeta_all = nxmeta_all*sindx(2)
-      int_mb(nxmeta(1)+nmeta) = sindx(2)
-      dbl_mb(ameta(1)+nmeta)  = sdist(6)
-      dbl_mb(bmeta(1)+nmeta)  = sdist(7)
+      int_mb(nxmeta(1)+nmeta) = sindx(3)
+      dbl_mb(ameta(1)+nmeta)  = sdist(7)
+      dbl_mb(bmeta(1)+nmeta)  = sdist(8)
       int_mb(pmeta(1)+nmeta)  = 0
 
       nmeta = nmeta + 1
@@ -1011,7 +1032,7 @@ c
  730  if (.not.inp_f(sdist(3))) sdist(3)=300.0d0
       goto 705
 c
-c ztep, default = 1000.0K
+c ztemp, default = 1000.0K
 c
  740  if (.not.inp_f(sdist(4))) sdist(4)=1000.0d0
       goto 705
