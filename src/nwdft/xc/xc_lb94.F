@@ -1,6 +1,47 @@
 #if defined(FUJITSU_VPP)
 !ocl scalar
 #endif
+      subroutine xc_lb94_e(tol_rho, xfac, rho, delrho, Amat, nq,
+     I     ipol,  Ex, qwght,ldew,func,delrhoq)
+      implicit none
+c      
+#include "dft2drv.fh"
+c
+      double precision tol_rho, xfac
+      double precision Ex
+      integer nq, ipol
+      logical ldew
+      double precision func(*),qwght(*)
+      double precision rho(nq,*)
+      double precision delrho(nq,3,*)
+      double precision Amat(nq,*)
+      double precision delrhoq(nq,*) ! [in] 3*rho+ddot(delrho,qxyz)
+c
+      integer n,ii
+      double precision ex_lda   ! ignored
+c
+
+      ex_lda=0d0
+     
+      call xc_dirac(tol_rho, 1d0, .true.,.false.,rho, 
+     &     amat, nq, ipol,ex_lda,qwght,.false.,func)
+c      write(6,*) ' exlda',ex_lda
+      call xc_lb94(tol_rho, 0d0, rho, delrho, 
+     &     amat, nq, ipol)
+
+c
+c     eq. 12 of DOI:10.1080/00268979600100011
+c     or
+c     eq. 35 of DOI:10.1103/PhysRevA.51.170
+c     delrhoq is computed in xc_delrhodotr
+c
+      do ii=1,ipol
+         do n=1,nq
+            ex=ex+delrhoq(n,ii)*amat(n,ii)*qwght(n)
+         enddo
+      enddo
+      return
+      end
       Subroutine xc_lb94(tol_rho, fac, rho, delrho, 
      &                      Amat, nq, ipol)
 c

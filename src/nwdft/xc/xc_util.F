@@ -39,7 +39,7 @@ c
      + cfac(52) + cfac(53) + cfac(54) +
      + xfac(60) + xfac(61) + xfac(62) + xfac(63) + xfac(68) + xfac(69)+
      +     xfac(66) + cfac(66) + xfac(67) + cfac(67) +
-     +     cfac(68)+  cfac(69) +
+     +     cfac(68)+  cfac(69) + xfac(70) +
      L     lxdm +
 cc AJL/Begin/FDE
      + xfac_fde(3) + xfac_fde(4) + xfac_fde(5) + xfac_fde(6) + 
@@ -539,5 +539,21 @@ C
       end if
       return
       end
+      logical function xc_chkdelrq()
+      implicit none
+#include "cdft.fh"
+#include "util.fh"
+      double precision tot,eps
+      parameter(eps=1.d-10)
+      tot = xfac(70) 
+
+      if (abs(tot).gt.eps) then
+        xc_chkdelrq = .true.
+      else
+        xc_chkdelrq = .false.
+      end if
+      return
+      end
+
 cc DMR/End
 
