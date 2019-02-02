@@ -252,9 +252,11 @@ c
       if (abs(xfac(70)).gt.eps)then
          if (.not. do_2nd) then
             call xc_lb94_e(tol_rho, xfac(70), rho, delrho, Amat, nq,
-     I          ipol,  Ex, qwght,ldew,func,ttau)
+     I          ipol, Ex, qwght,ldew,func,ttau)
          else
-            call errquit( ' lb94 2nds not ready yet',0,0)
+        call xc_lb94_e_d2(tol_rho, xfac(70), rho, delrho, Amat, 
+     I           Amat2, nq, ipol, Ex, qwght,.false.,func,ttau)
+c            call errquit( ' lb94 2nds not ready yet',0,0)
          endif
       endif
 c
