@@ -135,7 +135,7 @@ c
 c
       write(LuOut,1) 
       write(LuOut,*) 'For more information see the NWChem manual at ',
-     &     'http://www.nwchem-sw.org/index.php/NWChem_Documentation'
+     &     'https://github.com/nwchemgit/nwchem/wiki'
       write(LuOut,3)
       write(LuOut,*) 'For further details see manual section: ',
      &     man_sec
