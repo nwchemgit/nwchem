@@ -274,8 +274,10 @@ c
 c -------------grab laser freq(s) from rtdb---------------------------
 c          (blatanly stolen from aoresponse_driver.F)
 
-      if (.not.rtdb_get(rtdb, 'aoresponse:nfreq', mt_int, 1, nfreq))then  
-        call errquit(pname//'nfreq failed ',0, RTDB_ERR)
+      if (.not.rtdb_get(rtdb, 'aoresponse:nfreq', mt_int, 1, nfreq))then
+         nfreq=0
+         if (.not. rtdb_put(rtdb, 'aoresponse:nfreq', mt_int, 1,0))
+     $     call errquit('task_raman: rtdb_put failed', 0, RTDB_ERR)
       endif
       if (debug) write (luout,*) 'nfreq',nfreq
 
