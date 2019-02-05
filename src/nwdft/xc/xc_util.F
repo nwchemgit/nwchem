@@ -312,7 +312,6 @@ c
       xc_getxcfac=xc_getxcfac.and.
      A     rtdb_get(rtdb, 'dft:cfac', mt_dbl, numfunc,
      &     cfac)
-      write(6,*) 'xcut cfac ',cfac
       return
       end
 c
