@@ -241,7 +241,7 @@ c
 C     RTDB flag for printing out all matrices
       logical lprint_mats  !print matrices to stdout?
       logical lsave_mats   !save matrices to file?
-      logical molden, forceatguess
+      logical molden, forceatguess, save_evals
       integer ma_type, no_sflip,l_at_flip,k_at_flip
       character*26 date
 
@@ -2253,6 +2253,19 @@ c
      &                      dbl_mb(k_eval(1)), nbf_ao, g_movecs))
      &                      call errquit('dft_scf: movec_write failed',
      &                      0, DISK_ERR)
+c
+c     Write out the alpha/beta split eigenvalues
+c
+      if (.not. rtdb_get(rtdb,'dft:save_evals',mt_log,1,save_evals))
+     c     save_evals=.false.
+      if(save_evals) then
+         call dft_print_evals_ab(
+     c        nbf_ao, dbl_mb(k_occ), dbl_mb(k_eval(1)))
+         save_evals=.false.
+c     unset save evals
+         if (.not. rtdb_put(rtdb,'dft:save_evals',mt_log,1,save_evals))
+     &        call errquit('dft_scf: rtdbput failed',1234,RTDB_ERR)
+      endif
 c     
 c     Shut down DIIS.
 c     
