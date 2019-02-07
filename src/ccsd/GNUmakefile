@@ -114,6 +114,8 @@ ifeq ($(ARMCI_NETWORK),MPI-PR)
    LIB_DEFINES += -DACC_STRIPS
 endif
 
+   LIB_DEFINES +=-DUSE_F90INTERFACE
+
  LIBRARY = libccsd.a
 
 include ../config/makelib.h

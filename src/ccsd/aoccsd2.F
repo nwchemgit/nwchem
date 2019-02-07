@@ -124,6 +124,41 @@ c gradient
       parameter(MSG_MIN_LOCAL_MEM=1971)
       external ccsd_createg
       Logical Do_Z,ccsd_createg
+#ifdef USE_F90INTERFACE
+      interface
+      subroutine ccsd_iterdrv2(rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,
+     &                  maxit,convi,iprt,cmo,eorb,
+     &                  t1,ht1,
+     &                  scra,scrb,
+     &                  hiu,hia,habe,
+     &                  giu,gabe,
+     &                  bbkp,bb,
+     &                  g_t2,g_ht2,
+     &                  mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
+     &                  tk,offt2,nvp1, refener, Tol2E, 
+     &                  occd, oconverged, eccsdos, use_ccsd_omp)
+      integer rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,maxit,iprt,
+     & g_t2,g_ht2,g_nt2,g_nht2,mxvec,g_ncoul,g_nexch,
+     &     tklst
+      Double Precision Thre, Tol2E
+      integer offt2
+      double precision time_iter_start,convi
+      integer time_prev_iter
+      integer tk
+      logical oconverged        
+      logical occd
+      logical, optional, intent(in) :: use_ccsd_omp
+      double precision
+     &                  t1,ht1,
+     &                  scra,scrb,
+     &                  hiu,hia,habe,
+     &                  giu,gabe,
+     &                  bbkp,bb
+      double precision cmo(nbf,*),eorb(*)
+      double precision eccsd,eccsdos,refener
+      end subroutine
+      end interface
+#endif      
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
