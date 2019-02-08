@@ -34,6 +34,7 @@ c
 c
       Integer Nodes, IAm
       logical, optional, intent(in) :: use_ccsd_omp
+      call errquit('ccsd_pzamp: broken ccsd_sxy interface',0,0)
       if (.not.present(use_ccsd_omp)) then
           call errquit('ccsd_pzamp: use_ccsd_omp not present!',0,0)
       endif
