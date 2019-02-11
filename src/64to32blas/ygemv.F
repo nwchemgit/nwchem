@@ -20,7 +20,6 @@ c
       M4=m
       N4=n
 #ifdef USE_YFLOP
-#warning its a flop
       if(trans.eq.'N'.or.trans.eq.'n') then
          flops_ycount = flops_ycount + m*(n*2+3)
       else

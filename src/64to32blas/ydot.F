@@ -16,7 +16,6 @@ c
       n4=n
 
 #ifdef USE_YFLOP
-#warning its a flop
       flops_ycount = flops_ycount + n*2
 #endif
 c

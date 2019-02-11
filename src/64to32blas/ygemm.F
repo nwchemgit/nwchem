@@ -18,7 +18,6 @@ c
       LDB4=LDB
       LDC4=ldc
 #ifdef USE_YFLOP
-#warning its a flop
       flops_ycount = flops_ycount + m*n*k*2
 #endif
 c
