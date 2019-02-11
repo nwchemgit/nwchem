@@ -545,7 +545,6 @@ cstaggering to avoid congestion in ga-acc
            endif
 #else
 #ifdef USE_YFLOP
-#warning its a flop
       flops_ycount = flops_ycount + nnj*(ihi-ilo+1)*3
 #endif
            do j=jlo,jhi
@@ -603,7 +602,6 @@ cstaggering to avoid congestion in ga-acc
           endif
 #else
 #ifdef USE_YFLOP
-#warning its a flop
       flops_ycount = flops_ycount + nnj*(ihi-ilo+1)*3
 #endif
           do i=ilo,ihi
@@ -721,7 +719,6 @@ cedo      do a=olo,ohi
 cstaggering
        olb=ohi-olo+1
 #ifdef USE_YFLOP
-#warning its a flop
       flops_ycount = flops_ycount + olb*nocc*ijlen*nbf*2
 #endif
        do ain=ga_nodeid()+1,ga_nodeid()+olb

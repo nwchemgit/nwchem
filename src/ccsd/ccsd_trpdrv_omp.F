@@ -351,7 +351,6 @@
      &                                    +eorb(ncor+j)
      &                                    +eorb(ncor+k) )
 #ifdef USE_YFLOP
-#warning its a flop
       flops_ycount = flops_ycount + nvir*nvir*(
      D                       3 + 2*(
      E                       12 +
