@@ -1570,7 +1570,7 @@ endif
         FOPTIMIZE+= -qarch=auto -qtune=auto
       endif
       FDEBUG= -O2 -g
-      EXPLICITF = TRUE
+#      EXPLICITF = TRUE
       DEFINES  +=   -DXLFLINUX
       CPP=/usr/bin/cpp  -P -C -traditional
     endif
@@ -1710,6 +1710,9 @@ endif
       ifeq ($(CC),clang)
        _CC=gcc
       endif
+         ifeq ($(FC),xlf2008_r)
+           _FC=xlf
+         endif
          ifeq ($(FC),xlf_r)
            _FC=xlf
          endif
@@ -2393,8 +2396,12 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
 #qarch and qtune break trobsa.F with xlf 15.1.2
 #        FOPTIMIZE+= -qarch=auto -qtune=auto 
         FDEBUG= -O2 -g
-        XLFMAC=y
+#        XLFMAC=y
         DEFINES  +=   -DXLFLINUX -DCHKUNDFLW
+        ifdef USE_OPENMP
+           DEFINES += -DUSE_OPENMP
+           FOPTIONS += -qsmp=omp
+        endif
         ifdef USE_I4FLAGS
           FOPTIONS += -qintsize=4
         else
