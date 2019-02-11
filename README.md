@@ -6,6 +6,8 @@
 [![License](https://img.shields.io/badge/license-ECL2-blue.svg)](https://raw.githubusercontent.com/nwchemgit/nwchem/master/LICENSE.md)
 [![Github Downloads All Releases](https://img.shields.io/github/downloads/nwchemgit/nwchem/total.svg)](https://github.com/nwchemgit/nwchem/releases)
 [![Github Downloads Release 6.8](https://img.shields.io/github/downloads/nwchemgit/nwchem/v6.8-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/v6.8-release)
+[![Github Downloads Release 6.8.1](https://img.shields.io/github/downloads/nwchemgit/nwchem/v6.8-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/6.8.1-release)
+
 [![All Releases tags](https://img.shields.io/github/release/nwchemgit/nwchem/all.svg)](https://github.com/nwchemgit/nwchem/releases)  
 [![EMSL](https://rawgit.com/nwchemgit/nwchem/master/contrib/git.nwchem/emsl_logo2.svg)](https://www.emsl.pnl.gov)
  
@@ -22,24 +24,19 @@ Source download instructions
 
 git clone https://github.com/nwchemgit/nwchem.git
 
-* 6.8 Release
-
-git clone  -b release-6-8 https://github.com/nwchemgit/nwchem.git nwchem-6.8
-
-* 6.8.1 Release (in progress)
+* 6.8.1 Release
 
 git clone  -b hotfix/release-6-8 https://github.com/nwchemgit/nwchem.git nwchem-6.8.1
 
-### Release 6.8
+### Release 6.8.1
 
 Release files available at the page  
-https://github.com/nwchemgit/nwchem/releases/tag/v6.8-release  
+https://github.com/nwchemgit/nwchem/releases/tag/6.8.1-release  
 Tar file for download:  
-https://github.com/nwchemgit/nwchem/releases/download/v6.8-release/nwchem-6.8-release.revision-v6.8-47-gdf6c956-srconly.2017-12-14.tar.bz2  
-https://github.com/nwchemgit/nwchem/releases/download/v6.8-release/nwchem-6.8-release.revision-v6.8-47-gdf6c956-nonsrconly.2017-12-14.tar.bz2  
-
+https://github.com/nwchemgit/nwchem/releases/download/6.8.1-release/nwchem-6.8.1-release.revision-v6.8-133-ge032219-srconly.2018-06-14.tar.bz2 
+https://github.com/nwchemgit/nwchem/releases/download/6.8.1-release/nwchem-6.8.1-release.revision-v6.8-133-ge032219-nonsrconly.2018-06-14.tar.bz2
 Release notes available at  
-https://raw.githubusercontent.com/nwchemgit/nwchem/release-6-8/release.notes.6.8
+https://github.com/nwchemgit/nwchem/raw/hotfix/release-6-8/release.notes.6.8
 
 ### Documentation
 https://github.com/nwchemgit/nwchem/wiki
