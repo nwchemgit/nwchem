@@ -258,6 +258,20 @@ c
 c     Now we have in g_d1(nmo,nmo,3) the derivative densities and
 c     hence we can calculate the contributions to the FC term
 c
+      if (.not.ga_destroy(g_fca)) call 
+     &    errquit('hnd_pso: ga_destroy failed g_fca2',0,GA_ERR)
+      alo(1) = nbf
+      alo(2) = -1
+      alo(3) = -1
+      ahi(1) = nbf
+      ahi(2) = nbf
+      ahi(3) = 3*ipairs
+c
+c     Allocate memory
+c
+      if (.not.nga_create(MT_DBL,3,ahi,'fca matrix',alo,g_fca)) call
+     &    errquit('hnd_psoten: nga_create failed g_fca',0,GA_ERR)
+
       call ga_zero(g_fca)
       call int_giao_1ega(basis,basis,g_fca,'pso',coords(1,i_pert+1),
      &                   i_resp,oskel)
