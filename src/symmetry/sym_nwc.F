@@ -66,7 +66,7 @@ c
      $                      nops,oprint, group_name(geom))
       else
          call gensym(itype,numgrp,numset,sym_ops(1,1,geom),
-     $               nops,oprint, group_name(geom))
+     $               nops,oprint, group_name(geom),geom,rtdb)
       end if
 
 c
