@@ -2872,6 +2872,182 @@ c
 
       end
 
+      logical function geom_use_primitive(rtdb)
+      implicit none
+      integer rtdb  
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+      logical use_primitive
+
+      if (.not.rtdb_get(rtdb,'use_primitive_cell',
+     >                  mt_log,1,use_primitive)) then
+            use_primitive = .true.
+      end if
+
+      geom_use_primitive = use_primitive
+      return
+      end
+
+*     *****************************************************
+*     *                                                   *
+*     *            geom_convert_to_primitive              *
+*     *                                                   *
+*     *****************************************************
+*
+*   This routine converts conventional centered cells to primitive cells
+*
+*   The conventions used to relate the centered cells (abc) to the 
+*  primitive cells (a'b'c') are as follows:
+*
+*    A-centered: The author's (DGC)
+*                a'=a, b'=(b+c)/2, c'=(-b+c)/2
+*    C-centered: Orthohexagonal cell convention (from Int. Tables, Fig. 5.8, p.70, cell #C2)
+*                a'=(a+b)/2, b'=(-a+b)/2, c'=c
+*    R-centered: Obverse Int. Tables, Table 5.1, p.78 - Cell #1
+*                See also Figs. 5.7a & c, p.79)
+*                   a' = 2a/3 + b/3 + c/3
+*                   b' = -a/3 + b/3 + c/3
+*                   c' = -a/3 -2b/3 + c/3
+*    I-centered: Int. Tables, Table 5.1, p.76. See also Fig. 5.4, p.77.
+*                   a' = -a/2 + b/2 + c/2
+*                   b' =  a/2 - b/2 + c/2
+*                   c' =  a/2 + b/2 - c/2
+*    F-centered: Int. Tables, Table 5.1, p.77. See also Fig. 5.5, p.77.
+*                a' = (b+c)/2, b' = (a+c)/2, c' = (a+b)/2
+*
+*
+c---> The following is a list of the centered 3D groups:
+c
+c      A-centered (4 total): 38, 39, 40, 41
+c
+c      C-centered (16 total): 5, 8, 9, 12, 15, 20, 21, 35, 36, 37, 63,
+c                              64, 65, 66, 67, 68
+c
+c      R-centered (7 total):146,148,155,160,161,166,167
+c
+c      I-centered (38 total):
+c          23, 24, 44, 45, 46, 71, 72, 73, 74, 79, 80, 82, 87, 88, 97, 98,
+c           107,108,109,110,119,120,121,122,139,140,141,142,197,199,204,206,
+c           211,214,217,220,229,230
+c
+c      F-centered (16 total)
+c            22, 42, 43, 69, 70,196,202,203,209,210,216,219,225,226,227,228
+c
+      logical function geom_convert_to_primitive(geom,ctr_type)
+      implicit none
+      integer geom
+      character*1 ctr_type
+
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "geomP.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "stdio.fh"
+
+      logical value
+      real*8 lat(6),degtorad
+      real*8 amat(3,3),amat2(3,3)
+
+      logical  geom_lattice_get,geom_lattice_set
+      external geom_lattice_get,geom_lattice_set
+      logical  geom_amatrix_get,geom_amatrix_set
+      external geom_amatrix_get,geom_amatrix_set
+
+
+      degtorad = 4.0d0*datan(1.0d0)/180.0d0
+      value = geom_amatrix_get(geom,amat)
+      value = geom_amatrix_get(geom,amat2)
+
+c     *** F-centered: Int. Tables, Table 5.1, p.77. See also Fig. 5.5, p.77. ***
+c     *** a' = (b+c)/2, b' = (a+c)/2, c' = (a+b)/2 ***
+      if (ctr_type.eq.'F') then
+         amat(1,1) = 0.50d0*(amat2(1,2)+amat2(1,3))
+         amat(2,1) = 0.50d0*(amat2(2,2)+amat2(2,3))
+         amat(3,1) = 0.50d0*(amat2(3,2)+amat2(3,3))
+
+         amat(1,2) = 0.50d0*(amat2(1,1)+amat2(1,3))
+         amat(2,2) = 0.50d0*(amat2(2,1)+amat2(2,3))
+         amat(3,2) = 0.50d0*(amat2(3,1)+amat2(3,3))
+
+         amat(1,3) = 0.50d0*(amat2(1,1)+amat2(1,2))
+         amat(2,3) = 0.50d0*(amat2(2,1)+amat2(2,2))
+         amat(3,3) = 0.50d0*(amat2(3,1)+amat2(3,2))
+         value = value.and.geom_amatrix_set(geom,amat)
+
+      end if
+
+c     *** A-centered: The author's (DGC) ***
+c     *** a'=a, b'=(b+c)/2, c'=(-b+c)/2 ***
+      if (ctr_type.eq.'A') then
+         amat(1,2) = 0.50d0*(amat2(1,2)+amat2(1,3))
+         amat(2,2) = 0.50d0*(amat2(2,2)+amat2(2,3))
+         amat(3,2) = 0.50d0*(amat2(3,2)+amat2(3,3))
+
+         amat(1,3) = 0.50d0*(-amat2(1,2)+amat2(1,3))
+         amat(2,3) = 0.50d0*(-amat2(2,2)+amat2(2,3))
+         amat(3,3) = 0.50d0*(-amat2(3,2)+amat2(3,3))
+         value = value.and.geom_amatrix_set(geom,amat)
+      end if
+
+c     *** C-centered: Orthohexagonal cell convention (from Int. Tables, Fig. 5.8, p.70, cell #C2) ***
+c     *** a'=(a+b)/2, b'=(-a+b)/2, c'=c ***
+      if (ctr_type.eq.'C') then
+         amat(1,1) = 0.50d0*(amat2(1,1)+amat2(1,2))
+         amat(2,1) = 0.50d0*(amat2(2,1)+amat2(2,2))
+         amat(3,1) = 0.50d0*(amat2(3,1)+amat2(3,2))
+
+         amat(1,2) = 0.50d0*(-amat2(1,1)+amat2(1,2))
+         amat(2,2) = 0.50d0*(-amat2(2,1)+amat2(2,2))
+         amat(3,2) = 0.50d0*(-amat2(3,1)+amat2(3,2))
+         value = value.and.geom_amatrix_set(geom,amat)
+      end if
+
+c     *** R-centered: Obverse Int. Tables, Table 5.1, p.78 - Cell #1 ***
+c     *** See also Figs. 5.7a & c, p.79) ***
+c     *** a' = 2a/3 + b/3 + c/3 ***
+c     *** b' = -a/3 + b/3 + c/3 ***
+c     *** c' = -a/3 -2b/3 + c/3 ***
+      if (ctr_type.eq.'R') then
+         amat(1,1) = (2.0d0*amat2(1,1)+amat2(1,2)+amat2(1,3))/3.0d0
+         amat(2,1) = (2.0d0*amat2(2,1)+amat2(2,2)+amat2(2,3))/3.0d0
+         amat(3,1) = (2.0d0*amat2(3,1)+amat2(3,2)+amat2(3,3))/3.0d0
+
+         amat(1,2) = (-amat2(1,1)+amat2(1,2)+amat2(1,3))/3.0d0
+         amat(2,2) = (-amat2(2,1)+amat2(2,2)+amat2(2,3))/3.0d0
+         amat(3,2) = (-amat2(3,1)+amat2(3,2)+amat2(3,3))/3.0d0
+
+         amat(1,3) = (-amat2(1,1)-2.0d0*amat2(1,2)+amat2(1,3))/3.0d0
+         amat(2,3) = (-amat2(2,1)-2.0d0*amat2(2,2)+amat2(2,3))/3.0d0
+         amat(3,3) = (-amat2(3,1)-2.0d0*amat2(3,2)+amat2(3,3))/3.0d0
+         value = value.and.geom_amatrix_set(geom,amat)
+      end if
+
+c     *** I-centered: Int. Tables, Table 5.1, p.76. See also Fig. 5.4, p.77. ***
+c     *** a' = -a/2 + b/2 + c/2 ***
+c     *** b' =  a/2 - b/2 + c/2 ***
+c     *** c' =  a/2 + b/2 - c/2 ***
+      if (ctr_type.eq.'I') then
+         amat(1,1) = 0.5d0*(-amat2(1,1)+amat2(1,2)+amat2(1,3))
+         amat(2,1) = 0.5d0*(-amat2(2,1)+amat2(2,2)+amat2(2,3))
+         amat(3,1) = 0.5d0*(-amat2(3,1)+amat2(3,2)+amat2(3,3))
+
+         amat(1,2) = 0.5d0*(amat2(1,1)-amat2(1,2)+amat2(1,3))
+         amat(2,2) = 0.5d0*(amat2(2,1)-amat2(2,2)+amat2(2,3))
+         amat(3,2) = 0.5d0*(amat2(3,1)-amat2(3,2)+amat2(3,3))
+
+         amat(1,3) = 0.5d0*(amat2(1,1)+amat2(1,2)-amat2(1,3))
+         amat(2,3) = 0.5d0*(amat2(2,1)+amat2(2,2)-amat2(2,3))
+         amat(3,3) = 0.5d0*(amat2(3,1)+amat2(3,2)-amat2(3,3))
+         value = value.and.geom_amatrix_set(geom,amat)
+      end if
+
+      geom_convert_to_primitive = value
+      return
+      end
+
 
       logical function geom_default_charge_with_ecp(atn, q)
       implicit none
