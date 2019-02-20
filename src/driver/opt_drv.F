@@ -4496,6 +4496,18 @@ C     Add some to diagonal for stability, just in case of lone floating atom
               lstress_sym(3) = lstress(3)
               lstress_sym(4) = 0.0d0
               lstress_sym(5) = 0.0d0
+           else if ((.not.is90(1)).and.(.not.is90(2)).and.
+     >              (.not.is90(3)).and.
+     >              (dabs(lat(1)-lat(2)).lt.1.0d-3).and.
+     >              (dabs(lat(1)-lat(3)).lt.1.0d-3).and.
+     >              (dabs(lat(2)-lat(3)).lt.1.0d-3).and.
+     >              (dabs(lat(4)-lat(5)).lt.1.0d-3)) then
+             lstress_sym(0) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
+             lstress_sym(1) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
+             lstress_sym(2) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
+             lstress_sym(3) = (lstress(3)+lstress(4))/2.0d0
+             lstress_sym(4) = (lstress(3)+lstress(4))/2.0d0
+             lstress_sym(5) = lstress(5)
            else
               lstress_sym(3) = 0.0d0
               lstress_sym(4) = 0.0d0
