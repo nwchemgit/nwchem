@@ -2890,6 +2890,102 @@ c
       return
       end
 
+
+*     **************************************************
+*     *                                                *
+*     *            geom_is_conventional                *
+*     *                                                *
+*     **************************************************
+
+      logical function geom_is_conventional(geom)
+      implicit none
+      integer geom
+
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "geomP.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "stdio.fh"
+
+      logical value,is_convention
+      real*8 lat(6),radtodeg
+
+      integer grp_num,crystal
+      integer Triclinic,Monoclinic,Orthorhombic
+      integer Tetragonal,Trigonal,Hexagonal,Cubic
+      parameter (Triclinic=1,Monoclinic=2,Orthorhombic=3)
+      parameter (Tetragonal=4,Trigonal=5,Hexagonal=6,Cubic=7)
+
+      logical  geom_lattice_get
+      external geom_lattice_get
+
+      radtodeg = 180.0d0/(4.0d0*datan(1.0d0))
+
+      value = geom_lattice_get(geom,lat)
+      lat(4) = lat(4)*radtodeg
+      lat(5) = lat(5)*radtodeg
+      lat(6) = lat(6)*radtodeg
+      grp_num = group_number(geom)
+
+      if (grp_num.lt.3)                         crystal = Triclinic
+      if ((grp_num.ge.3  ).and.(grp_num.lt.16 ))crystal = Monoclinic
+      if ((grp_num.ge.16 ).and.(grp_num.lt.75 ))crystal = Orthorhombic
+      if ((grp_num.ge.75 ).and.(grp_num.lt.143))crystal = Tetragonal
+      if ((grp_num.ge.143).and.(grp_num.lt.168))crystal = Trigonal
+      if ((grp_num.ge.168).and.(grp_num.lt.195))crystal = Hexagonal
+      if ((grp_num.ge.195).and.(grp_num.lt.231))crystal = Cubic
+      is_convention = .true.
+      if (crystal.eq.Triclinic) then
+         is_convention=is_convention.and.(dabs(lat(4)-90.0d0).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(5)-90.0d0).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(6)-90.0d0).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(2)).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(3)).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(2)-lat(3)).gt.1.0d-3)
+      else if (crystal.eq.Monoclinic) then
+         is_convention=is_convention.and.(dabs(lat(4)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(5)-90.0d0).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(6)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(2)).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(3)).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(2)-lat(3)).gt.1.0d-3)
+      else if (crystal.eq.Orthorhombic) then
+         is_convention=is_convention.and.(dabs(lat(4)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(5)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(6)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(2)).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(3)).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(2)-lat(3)).gt.1.0d-3)
+      else if (crystal.eq.Tetragonal) then
+         is_convention=is_convention.and.(dabs(lat(4)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(5)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(6)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(2)).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(3)).gt.1.0d-3)
+      else if (crystal.eq.Trigonal) then
+         is_convention=is_convention.and.(dabs(lat(4)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(5)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(6)-120.0d0).lt.1.d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(2)).lt.1.0d-3)
+      else if (crystal.eq.Hexagonal) then
+         is_convention=is_convention.and.(dabs(lat(4)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(5)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(6)-120.0d0).lt.1.d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(2)).lt.1.0d-3)
+      else if (crystal.eq.Cubic) then
+         is_convention=is_convention.and.(dabs(lat(4)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(5)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(6)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(2)).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(3)).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(2)-lat(3)).lt.1.0d-3)
+      end if
+
+      geom_is_conventional = is_convention
+      return
+      end 
+
 *     *****************************************************
 *     *                                                   *
 *     *            geom_convert_to_primitive              *
@@ -2922,18 +3018,18 @@ c---> The following is a list of the centered 3D groups:
 c
 c      A-centered (4 total): 38, 39, 40, 41 - orthorhombic
 c
-c      C-centered (16 total): 5, 8, 9, 12, 15, 20, 21, 35, 36, 37, 63, 
+c      C-centered (16 total): 5, 8, 9, 12, 15, 20, 21, 35, 36, 37, 63,  - mono and ortho
 c                              64, 65, 66, 67, 68
 c
-c      R-centered (7 total):146,148,155,160,161,166,167
+c      R-centered (7 total):146,148,155,160,161,166,167  - trig
 c
 c      I-centered (38 total):
-c          23, 24, 44, 45, 46, 71, 72, 73, 74, 79, 80, 82, 87, 88, 97, 98,
+c          23, 24, 44, 45, 46, 71, 72, 73, 74, 79, 80, 82, 87, 88, 97, 98, - ortho,tetra,cubic
 c           107,108,109,110,119,120,121,122,139,140,141,142,197,199,204,206,
 c           211,214,217,220,229,230
 c
 c      F-centered (16 total)
-c            22, 42, 43, 69, 70,196,202,203,209,210,216,219,225,226,227,228
+c            22, 42, 43, 69, 70,196,202,203,209,210,216,219,225,226,227,228 - ortho,cubic
 c
       logical function geom_convert_to_primitive(geom,ctr_type,tf)
       implicit none
@@ -2948,7 +3044,8 @@ c
 #include "inp.fh"
 #include "stdio.fh"
 
-      logical value,update_lattice,valid_crystal
+*     **** local variables ****
+      logical value,update_lattice,is_conventional
       integer i,ncent
       real*8 lat(6),degtorad,radtodeg
       real*8 amat(3,3),amat2(3,3),c(3)
@@ -2959,17 +3056,16 @@ c
       parameter (Triclinic=1,Monoclinic=2,Orthorhombic=3)
       parameter (Tetragonal=4,Trigonal=5,Hexagonal=6,Cubic=7)
 
-
-      logical  geom_lattice_get,geom_lattice_set
-      external geom_lattice_get,geom_lattice_set
+*     **** external functions ****
+      logical  geom_lattice_get,geom_lattice_set,geom_is_conventional
+      external geom_lattice_get,geom_lattice_set,geom_is_conventional
       logical  geom_amatrix_get,geom_amatrix_set
       external geom_amatrix_get,geom_amatrix_set
-
 
       value = .true.
       if ((ctr_type.eq.'F').or.
      >   (ctr_type.eq.'A').or.
-     >   (ctr_type.eq.'X').or.
+     >   (ctr_type.eq.'C').or.
      >   (ctr_type.eq.'R').or.
      >   (ctr_type.eq.'I')) then
 
@@ -2982,61 +3078,8 @@ c
       lat(4) = lat(4)*radtodeg
       lat(5) = lat(5)*radtodeg
       lat(6) = lat(6)*radtodeg
-      grp_num = group_number(geom)
 
-      if (grp_num.lt.3)                         crystal = Triclinic
-      if ((grp_num.ge.3  ).and.(grp_num.lt.16 ))crystal = Monoclinic
-      if ((grp_num.ge.16 ).and.(grp_num.lt.75 ))crystal = Orthorhombic
-      if ((grp_num.ge.75 ).and.(grp_num.lt.143))crystal = Tetragonal
-      if ((grp_num.ge.143).and.(grp_num.lt.168))crystal = Trigonal
-      if ((grp_num.ge.168).and.(grp_num.lt.195))crystal = Hexagonal
-      if ((grp_num.ge.195).and.(grp_num.lt.231))crystal = Cubic
-      valid_crystal = .true.
-      if (crystal.eq.Triclinic) then
-         valid_crystal=valid_crystal.and.(dabs(lat(4)-90.0d0).gt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(5)-90.0d0).gt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(6)-90.0d0).gt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(1)-lat(2)).gt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(1)-lat(3)).gt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(2)-lat(3)).gt.1.0d-3)
-      else if (crystal.eq.Monoclinic) then
-         valid_crystal=valid_crystal.and.(dabs(lat(4)-90.0d0).lt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(5)-90.0d0).gt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(6)-90.0d0).lt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(1)-lat(2)).gt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(1)-lat(3)).gt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(2)-lat(3)).gt.1.0d-3)
-      else if (crystal.eq.Orthorhombic) then
-         valid_crystal=valid_crystal.and.(dabs(lat(4)-90.0d0).lt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(5)-90.0d0).lt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(6)-90.0d0).lt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(1)-lat(2)).gt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(1)-lat(3)).gt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(2)-lat(3)).gt.1.0d-3)
-      else if (crystal.eq.Tetragonal) then
-         valid_crystal=valid_crystal.and.(dabs(lat(4)-90.0d0).lt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(5)-90.0d0).lt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(6)-90.0d0).lt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(1)-lat(2)).lt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(1)-lat(3)).gt.1.0d-3)
-      else if (crystal.eq.Trigonal) then
-         valid_crystal=valid_crystal.and.(dabs(lat(4)-90.0d0).lt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(5)-90.0d0).lt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(6)-120.0d0).lt.1.d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(1)-lat(2)).lt.1.0d-3)
-      else if (crystal.eq.Hexagonal) then
-         valid_crystal=valid_crystal.and.(dabs(lat(4)-90.0d0).lt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(5)-90.0d0).lt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(6)-120.0d0).lt.1.d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(1)-lat(2)).lt.1.0d-3)
-      else if (crystal.eq.Cubic) then
-         valid_crystal=valid_crystal.and.(dabs(lat(4)-90.0d0).lt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(5)-90.0d0).lt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(6)-90.0d0).lt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(1)-lat(2)).lt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(1)-lat(3)).lt.1.0d-3)
-         valid_crystal=valid_crystal.and.(dabs(lat(2)-lat(3)).lt.1.0d-3)
-      end if
+      is_conventional = geom_is_conventional(geom)
 
 c     *** F-centered: Int. Tables, Table 5.1, p.77. See also Fig. 5.5, p.77. ***
 c     *** a' = (b+c)/2, b' = (a+c)/2, c' = (a+b)/2 ***
@@ -3052,7 +3095,7 @@ c     *** a' = (b+c)/2, b' = (a+c)/2, c' = (a+b)/2 ***
          amat(1,3) = 0.50d0*(amat2(1,1)+amat2(1,2))
          amat(2,3) = 0.50d0*(amat2(2,1)+amat2(2,2))
          amat(3,3) = 0.50d0*(amat2(3,1)+amat2(3,2))
-         update_lattice = valid_crystal
+         update_lattice = is_conventional
 
       end if
 
@@ -3066,7 +3109,7 @@ c     *** a'=a, b'=(b+c)/2, c'=(-b+c)/2 ***
          amat(1,3) = 0.50d0*(-amat2(1,2)+amat2(1,3))
          amat(2,3) = 0.50d0*(-amat2(2,2)+amat2(2,3))
          amat(3,3) = 0.50d0*(-amat2(3,2)+amat2(3,3))
-         update_lattice = valid_crystal
+         update_lattice = is_conventional
       end if
 
 c     *** C-centered: Orthohexagonal cell convention (from Int. Tables, Fig. 5.8, p.70, cell #C2) ***
@@ -3079,7 +3122,7 @@ c     *** a'=(a+b)/2, b'=(-a+b)/2, c'=c ***
          amat(1,2) = 0.50d0*(-amat2(1,1)+amat2(1,2))
          amat(2,2) = 0.50d0*(-amat2(2,1)+amat2(2,2))
          amat(3,2) = 0.50d0*(-amat2(3,1)+amat2(3,2))
-         update_lattice = valid_crystal
+         update_lattice = is_conventional
       end if
 
 c     *** R-centered: Obverse Int. Tables, Table 5.1, p.78 - Cell #1 ***
@@ -3099,7 +3142,7 @@ c     *** c' = -a/3 -2b/3 + c/3 ***
          amat(1,3) = (-amat2(1,1)-2.0d0*amat2(1,2)+amat2(1,3))/3.0d0
          amat(2,3) = (-amat2(2,1)-2.0d0*amat2(2,2)+amat2(2,3))/3.0d0
          amat(3,3) = (-amat2(3,1)-2.0d0*amat2(3,2)+amat2(3,3))/3.0d0
-         update_lattice = valid_crystal
+         update_lattice = is_conventional
       end if
 
 c     *** I-centered: Int. Tables, Table 5.1, p.76. See also Fig. 5.4, p.77. ***
@@ -3118,7 +3161,7 @@ c     *** c' =  a/2 + b/2 - c/2 ***
          amat(1,3) = 0.5d0*(amat2(1,1)+amat2(1,2)-amat2(1,3))
          amat(2,3) = 0.5d0*(amat2(2,1)+amat2(2,2)-amat2(2,3))
          amat(3,3) = 0.5d0*(amat2(3,1)+amat2(3,2)-amat2(3,3))
-         update_lattice = valid_crystal
+         update_lattice = is_conventional
       end if
 
       if (update_lattice) then
