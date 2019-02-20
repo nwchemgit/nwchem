@@ -4396,11 +4396,13 @@ C     Add some to diagonal for stability, just in case of lone floating atom
       integer Tetragonal,Trigonal,Hexagonal,Cubic
       parameter (Triclinic=1,Monoclinic=2,Orthorhombic=3)
       parameter (Tetragonal=4,Trigonal=5,Hexagonal=6,Cubic=7)
-      logical value,is90(3),g120
+      logical value,is90(3),g120,isab,isac,isbc,is_conventional
       integer isystype
 !     Called functions
       integer geom_get_group_number
       external geom_get_group_number
+      logical  geom_is_conventional
+      external geom_is_conventional
 !
       if (.not. geom_lattice_get(geom, lat))
      $        call errquit('driver: failed to get lat',0,0)
@@ -4409,12 +4411,16 @@ C     Add some to diagonal for stability, just in case of lone floating atom
       radtodeg = 180.0d0/(4.0d0*datan(1.0d0))
       value = geom_systype_get(geom,isystype)
       grp_num=geom_get_group_number(geom)
+      is_conventional = geom_is_conventional(geom)
 
       value = geom_lattice_get(geom, lat)
       is90(1) = (dabs((lat(4)*radtodeg)-90.0d0).lt.1.0d-3)
       is90(2) = (dabs((lat(5)*radtodeg)-90.0d0).lt.1.0d-3)
       is90(3) = (dabs((lat(6)*radtodeg)-90.0d0).lt.1.0d-3)
       g120    = (dabs((lat(6)*radtodeg)-120.0d0).lt.1.0d-3)
+      isab    = (dabs(lat(1)-lat(2)).lt.1.0d-3)
+      isac    = (dabs(lat(1)-lat(3)).lt.1.0d-3)
+      isbc    = (dabs(lat(2)-lat(3)).lt.1.0d-3)
 
       if (grp_num.lt.3)                         crystal = Triclinic
       if ((grp_num.ge.3  ).and.(grp_num.lt.16 ))crystal = Monoclinic
@@ -4430,8 +4436,9 @@ C     Add some to diagonal for stability, just in case of lone floating atom
         lstress_sym(3) = lstress(3)
         lstress_sym(4) = lstress(4)
         lstress_sym(5) = lstress(5)
+
       else if (crystal.eq.Monoclinic) then
-        if (is90(1).and.is90(3).and.(.not.is90(2))) then
+        if (is_conventional) then
            lstress_sym(0) = lstress(0)
            lstress_sym(1) = lstress(1)
            lstress_sym(2) = lstress(2)
@@ -4439,83 +4446,82 @@ C     Add some to diagonal for stability, just in case of lone floating atom
            lstress_sym(4) = lstress(4)
            lstress_sym(5) = 0.0D0
         else
+           !** C-centered primitive **
            lstress_sym(0) = (lstress(0)+lstress(1))/2.0d0
            lstress_sym(1) = (lstress(0)+lstress(1))/2.0d0
            lstress_sym(2) = lstress(2)
+           lstress_sym(3) = lstress(3)
+           lstress_sym(4) = lstress(4)
+           lstress_sym(5) = lstress(5)
+        end if
+
+      else if (crystal.eq.Orthorhombic) then
+        if (is_conventional) then
+           lstress_sym(0) = lstress(0)
+           lstress_sym(1) = lstress(1)
+           lstress_sym(2) = lstress(2)
+           lstress_sym(3) = 0.0D0
+           lstress_sym(4) = 0.0D0
+           lstress_sym(5) = 0.0D0
+        else
+           !** C-centered primitive **
+           if (isab.and.is90(1).and.is90(2).and.(.not.is90(3))) then
+              lstress_sym(0) = (lstress(0)+lstress(1))/2.0d0
+              lstress_sym(1) = (lstress(0)+lstress(1))/2.0d0
+              lstress_sym(2) = lstress(2)
+              lstress_sym(3) = 0.0d0
+              lstress_sym(4) = 0.0d0
+              lstress_sym(5) = lstress(5)
+           !** A-centered primitive ***
+           else if (isbc.and.
+     >              (.not.is90(1)).and.
+     >              is90(2).and.
+     >              is90(3).and.isbc) then
+              lstress_sym(0) = lstress(0)
+              lstress_sym(1) = (lstress(1)+lstress(2))/2.0d0
+              lstress_sym(2) = (lstress(1)+lstress(2))/2.0d0
+              lstress_sym(3) = lstress(3)
+              lstress_sym(4) = 0.0d0
+              lstress_sym(5) = 0.0d0
+           !** I-centered primitive **
+           else if (isab.and.isac.and.isbc) then
+              lstress_sym(0) = (lstress(0)+lstress(1)+lstress(2))/3.0d0
+              lstress_sym(1) = (lstress(0)+lstress(1)+lstress(2))/3.0d0
+              lstress_sym(2) = (lstress(0)+lstress(1)+lstress(2))/3.0d0
+              lstress_sym(3) = lstress(3)
+              lstress_sym(4) = lstress(4)
+              lstress_sym(5) = lstress(5)
+           !** F-centered primitive - everything changes**
+           else
+              lstress_sym(0) = lstress(0)
+              lstress_sym(1) = lstress(1)
+              lstress_sym(2) = lstress(2)
+              lstress_sym(3) = lstress(3)
+              lstress_sym(4) = lstress(4)
+              lstress_sym(5) = lstress(5)
+           end if
+        end if
+
+      else if (crystal.eq.Tetragonal) then
+        if (is_conventional) then
+           lstress_sym(0) = (lstress(0)+lstress(1))/2.0D0
+           lstress_sym(1) = (lstress(0)+lstress(1))/2.0D0
+           lstress_sym(2) = lstress(2)
+           lstress_sym(3) = 0.0D0
+           lstress_sym(4) = 0.0D0
+           lstress_sym(5) = 0.0D0
+        else
+           !** I-centered primitive **
+           lstress_sym(0) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
+           lstress_sym(1) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
+           lstress_sym(2) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
            lstress_sym(3) = (lstress(3)+lstress(4))/2.0d0
            lstress_sym(4) = (lstress(3)+lstress(4))/2.0d0
            lstress_sym(5) = lstress(5)
         end if
-      else if (crystal.eq.Orthorhombic) then
-        if (is90(1).and.is90(2).and.is90(3)) then
-           lstress_sym(0) = lstress(0)
-           lstress_sym(1) = lstress(1)
-           lstress_sym(2) = lstress(2)
-           lstress_sym(3) = 0.0D0
-           lstress_sym(4) = 0.0D0
-           lstress_sym(5) = 0.0D0
-        else
-           lstress_sym(0) = lstress(0)
-           lstress_sym(1) = lstress(1)
-           lstress_sym(2) = lstress(2)
-           if ((.not.is90(1)).and.(.not.is90(2)).and.is90(3)) then
-              lstress_sym(3) = lstress(3)
-              lstress_sym(4) = lstress(4)
-              lstress_sym(5) = 0.0d0
-           else if ((.not.is90(1)).and.is90(2).and.is90(3)) then
-              lstress_sym(3) = lstress(3)
-              lstress_sym(4) = 0.0d0
-              lstress_sym(5) = 0.0d0
-           else if (is90(1).and.(.not.is90(2)).and.(.not.is90(3))) then
-              lstress_sym(3) = 0.0d0
-              lstress_sym(4) = 0.0d0
-              lstress_sym(5) = lstress(5)
-           else
-              lstress_sym(3) = 0.0d0
-              lstress_sym(4) = 0.0d0
-              lstress_sym(5) = 0.0d0
-           end if
-        end if
-      else if (crystal.eq.Tetragonal) then
-        if (is90(1).and.is90(2).and.is90(3)) then
-           lstress_sym(0) = (lstress(0)+lstress(1))/2.0D0
-           lstress_sym(1) = (lstress(0)+lstress(1))/2.0D0
-           lstress_sym(2) = lstress(2)
-           lstress_sym(3) = 0.0D0
-           lstress_sym(4) = 0.0D0
-           lstress_sym(5) = 0.0D0
-        else
-           lstress_sym(0) = (lstress(0)+lstress(1))/2.0D0
-           lstress_sym(1) = (lstress(0)+lstress(1))/2.0D0
-           lstress_sym(2) = lstress(2)
-           if ((.not.is90(1)).and.(.not.is90(2)).and.is90(3)) then
-              lstress_sym(3) = (lstress(3)+lstress(4))/2.0d0
-              lstress_sym(4) = (lstress(3)+lstress(4))/2.0d0
-              lstress_sym(5) = 0.0d0
-           else if ((.not.is90(1)).and.is90(2).and.is90(3)) then
-              lstress_sym(3) = lstress(3)
-              lstress_sym(4) = 0.0d0
-              lstress_sym(5) = 0.0d0
-           else if ((.not.is90(1)).and.(.not.is90(2)).and.
-     >              (.not.is90(3)).and.
-     >              (dabs(lat(1)-lat(2)).lt.1.0d-3).and.
-     >              (dabs(lat(1)-lat(3)).lt.1.0d-3).and.
-     >              (dabs(lat(2)-lat(3)).lt.1.0d-3).and.
-     >              (dabs(lat(4)-lat(5)).lt.1.0d-3)) then
-             lstress_sym(0) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
-             lstress_sym(1) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
-             lstress_sym(2) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
-             lstress_sym(3) = (lstress(3)+lstress(4))/2.0d0
-             lstress_sym(4) = (lstress(3)+lstress(4))/2.0d0
-             lstress_sym(5) = lstress(5)
-           else
-              lstress_sym(3) = 0.0d0
-              lstress_sym(4) = 0.0d0
-              lstress_sym(5) = 0.0d0
-           end if
-        end if
+
       else if (crystal.eq.Trigonal) then
-        if (is90(1).and.is90(2).and.g120) then
+        if (is_conventional) then
            lstress_sym(0) = (lstress(0)+lstress(1))/2.0D0
            lstress_sym(1) = (lstress(0)+lstress(1))/2.0D0
            lstress_sym(2) = lstress(2)
@@ -4523,6 +4529,7 @@ C     Add some to diagonal for stability, just in case of lone floating atom
            lstress_sym(4) = 0.0D0
            lstress_sym(5) = 0.0D0
         else
+           !** R-centered primitive **
            lstress_sym(0) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
            lstress_sym(1) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
            lstress_sym(2) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
@@ -4531,7 +4538,7 @@ C     Add some to diagonal for stability, just in case of lone floating atom
            lstress_sym(5) = (lstress(3)+lstress(4)+lstress(5))/3.0D0
         end if
       else if (crystal.eq.Hexagonal) then
-        if (is90(1).and.is90(2).and.g120) then
+        if (is_conventional) then
            lstress_sym(0) = (lstress(0)+lstress(1))/2.0D0
            lstress_sym(1) = (lstress(0)+lstress(1))/2.0D0
            lstress_sym(2) = lstress(2)
@@ -4539,12 +4546,13 @@ C     Add some to diagonal for stability, just in case of lone floating atom
            lstress_sym(4) = 0.0D0
            lstress_sym(5) = 0.0D0
         else
-           lstress_sym(0) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
-           lstress_sym(1) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
-           lstress_sym(2) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
-           lstress_sym(3) = (lstress(3)+lstress(4)+lstress(5))/3.0D0
-           lstress_sym(4) = (lstress(3)+lstress(4)+lstress(5))/3.0D0
-           lstress_sym(5) = (lstress(3)+lstress(4)+lstress(5))/3.0D0
+           !** Should never happen **
+           lstress_sym(0) = lstress(0)
+           lstress_sym(1) = lstress(1)
+           lstress_sym(2) = lstress(2)
+           lstress_sym(3) = lstress(3)
+           lstress_sym(4) = lstress(4)
+           lstress_sym(5) = lstress(5)
         end if
       else if (crystal.eq.Cubic) then
         lstress_sym(0) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
@@ -4553,6 +4561,8 @@ C     Add some to diagonal for stability, just in case of lone floating atom
         lstress_sym(3) = 0.0D0
         lstress_sym(4) = 0.0D0
         lstress_sym(5) = 0.0D0
+        !** I-centered primitive 0 equal dist, all angs=109.471**
+        !** F-centered primitive - equal dist, all angs=60**
       endif
       do i = 0, 5
         lstress(i) = lstress_sym(i)
