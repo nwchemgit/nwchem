@@ -292,7 +292,7 @@ c.......................................................................
 c                      End Transformations
 c.......................................................................
 c
-      value =  geom_convert_to_primitive(geom,ctr_type)
+      value =  geom_convert_to_primitive(geom,ctr_type,tf)
 
       return
       end

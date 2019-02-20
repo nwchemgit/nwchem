@@ -505,10 +505,10 @@ c
 1423  format(//'The ',i3,' symmetry operators (excl. E)',
      &' are as follows:'/)
 1424  format(/'After de-centering the following are redefined:'/)
-1425  format(10X,' (1) a,b, and c')
-1426  format(10X,' (2) alpha, beta, and gamma')
-1427  format(10X,' (3) lattice vectors')
-1428  format(10X,' (4) reciprocal lattice vectors')
+1425  format(10X,' (1) lattice parameters a,b,c,alpha,beta, and gamma')
+1426  format(10X,' (2) lattice vectors a1,a2,a3')
+1427  format(10X,' (3) reciprocal lattice vectors b1,b2,b3')
+1428  format(10X,' (4) fractional coordinates')
 1429  format(/i3,' operators converted to ',i3,' symmetry operators.')
 1430  format(/'DEBUG:primitive cell exists, but dctr was not called.'/)
 1431  format(//i3,'The symmetry operators (excl. E) in the de-centered',
