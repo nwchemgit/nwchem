@@ -20,11 +20,21 @@ env: == default ==
         PYTHONVERSION=2.7
         PYTHONHOME=/usr
         LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH
-before_script:
-        - sudo add-apt-repository universe && sudo apt update
-        - sudo apt-get -y install gfortran gcc python-dev  cmake
-        - sudo apt-get -y install libopenmpi-dev openmpi-bin tcsh make automake libtool autoconf 
-        - sudo apt-get -y install perl
+ addons:
+   apt:
+     packages:
+     - gfortran
+     - python-dev
+     - cmake
+     - libopenmpi-dev
+     - openmpi-bin
+     - tcsh
+     - make
+     - automake
+     - libtool
+     - autoconf
+     - perl
+before_script   
         - cd $TRAVIS_BUILD_DIR && pwd && cd ..; ln -sf nwchem nwchem-6.8.1 && cd $NWCHEM_TOP && pwd
         - ls -lrt $TRAVIS_BUILD_DIR
         - ls -lrt $NWCHEM_TOP
