@@ -209,3 +209,45 @@
       return
       end
 
+*     *************************************
+*     *                                   *
+*     *       brillioun_symmetrize        *
+*     *                                   *
+*     *************************************
+
+      subroutine brillioun_symmetrize()
+      implicit none
+
+#include "bafdecls.fh"
+#include "brillioun_common.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+      integer nops,tnbrillioun,tweight(2),tks(2)
+
+*     **** external functions ****
+      integer  ion_sym_number_ops
+      external ion_sym_number_ops
+
+      nops = ion_sym_number_ops()
+
+      write(*,*) "nops=",nops
+
+c*     **** allocate from MA stack ****
+c      value = BA_alloc_get(mt_dbl,(nbrillioun),
+c     >                     'tweight',tweight(2),tweight(1))
+c      value = value.and.
+c     >        BA_alloc_get(mt_dbl,(3*nbrillioun),'tks',tks(2),tks(1))
+c      if (.not. value)
+c     > call errquit('brillioun_symmetrize:out of stack memory',0,MA_ERR)
+c
+c
+c      value = BA_pop_stack(ks(2))
+c      value = value.and.BA_pop_stack(weight(2))
+c      if (.not. value)
+c     > call errquit('brillioun_symmetrize:pop stack',0, MA_ERR)
+
+      return
+      end 
+

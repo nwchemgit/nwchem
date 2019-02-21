@@ -268,6 +268,14 @@ c      parameter (autoatm =290.360032539d6)
 *     **** initialize psi_data ****
       call cpsi_data_init(20)
 
+*     **** read ions ****
+      value = ion_init(rtdb)
+      call center_geom(cx,cy,cz)
+      call center_mass(gx,gy,gz)
+
+*     **** initialize FixIon constraint ****
+      call ion_init_FixIon(rtdb)
+
 *     **** initialize lattice and packing data structure ****
       call lattice_init()
       call c_G_init()
@@ -282,13 +290,13 @@ c      parameter (autoatm =290.360032539d6)
          call mask_init()
       end if
 
-*     **** read ions ****
-      value = ion_init(rtdb)
-      call center_geom(cx,cy,cz)
-      call center_mass(gx,gy,gz)
+c*     **** read ions ****
+c      value = ion_init(rtdb)
+c      call center_geom(cx,cy,cz)
+c      call center_mass(gx,gy,gz)
 
-*     **** initialize FixIon constraint ****
-      call ion_init_FixIon(rtdb)
+c*     **** initialize FixIon constraint ****
+c      call ion_init_FixIon(rtdb)
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call cpsp_init()
