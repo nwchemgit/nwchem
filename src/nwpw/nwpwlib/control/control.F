@@ -5229,6 +5229,36 @@ c      end
       end
 
 
+
+*     **************************************
+*     *                                    *
+*     *   control_brillioun_use_symmetry   *
+*     *                                    *
+*     **************************************
+      logical function control_brillioun_use_symmetry()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.btdb_get(rtdb,'nwpw:brillioun_use_symmetry',
+     >     mt_log,1,value))
+     >   value = .true.
+
+      control_brillioun_use_symmetry = value
+      return
+      end
+
+
+
+
 *     ***********************************
 *     *                                 *
 *     *    control_mparallelized        *
