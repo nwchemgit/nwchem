@@ -2,8 +2,6 @@ language: c
 matrix:
   include:
   - os: linux
-    dist: trusty
-    sudo: required
 compiler:
   - gcc
 env: == default ==
