@@ -59,8 +59,8 @@
      >                                dbl_mb(kw(1)))
 
          if (oprint) write(luout,109) nbrillioun0,nbrillioun
- 109  format(/" - Symmetry reduction of Brillioun zone: zone points=",
-     >       I6," to ",I6/,
+ 109  format(/" - Symmetry reduction of Brillioun zone:",
+     >       I6," to ",I6," zone points"/,
      >  " - To not use symmetry set the nwpw:brillioun_use_symmetry",
      >  " rtdb variable to false, i.e."/,
      >  "    (set nwpw:brillioun_use_symmetry .false.)")
