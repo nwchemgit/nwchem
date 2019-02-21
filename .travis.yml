@@ -1,59 +1,52 @@
-language: c
-matrix:
-  include:
-  - os: linux
-compiler:
+addons: 
+  apt: 
+    packages: 
+      - gfortran
+      - python-dev
+      - cmake
+      - libopenmpi-dev
+      - openmpi-bin
+      - tcsh
+      - make
+      - automake
+      - libtool
+      - autoconf
+      - perl
+after_failure: 
+  - "grep -A 2 -B 2 -i error $NWCHEM_TOP/src/make.log"
+  - "grep d= $NWCHEM_TOP/QA/testoutputs/dft_he2+.out"
+  - "grep @ $NWCHEM_TOP/QA/testoutputs/h2o_opt.out"
+  - "tail -20 $NWCHEM_TOP/src/tools/build/config.log"
+  - "tail -10 $NWCHEM_TOP/src/tools/build/comex/config.log"
+  - "tail -200 $NWCHEM_TOP/src/make.log"
+  - env
+before_script: 
+  - "sudo add-apt-repository universe && sudo apt update"
+  - "sudo apt-get -y install gfortran gcc python-dev  cmake"
+  - "sudo apt-get -y install libopenmpi-dev openmpi-bin tcsh make automake libtool autoconf"
+  - "sudo apt-get -y install perl"
+  - "cd $TRAVIS_BUILD_DIR && pwd && cd ..; ln -sf nwchem nwchem-6.8.1 && cd $NWCHEM_TOP && pwd"
+  - "ls -lrt $TRAVIS_BUILD_DIR"
+  - "ls -lrt $NWCHEM_TOP"
+  - "cd $NWCHEM_TOP/src && make nwchem_config &&  make 64_to_32 >& 6log &"
+  - ./travis/build_openblas.sh
+  - ./travis/build_scalapack.sh
+  - wait
+  - "cd $NWCHEM_TOP/src && make nwchem_config"
+compiler: 
   - gcc
-env: == default ==
-        NWCHEM_TOP=$TRAVIS_BUILD_DIR/../nwchem-6.8.1
-        NWCHEM_TARGET=LINUX64
-        NWCHEM_MODULES="nwdft driver stepper property hessian vib mp2_grad ccsd solvation python"
-        USE_MPI=y
-        USE_PYTHONCONFIG=y
-        BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lnwclapack -lopenblas"
-        BLAS_SIZE=4
-        SCALAPACK="-L$TRAVIS_BUILD_DIR/lib -lscalapack  -lnwclapack -lopenblas"
-        SCALAPACK_SIZE=4
-        USE_64TO32=y
-        PYTHONVERSION=2.7
-        PYTHONHOME=/usr
-        LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH
- addons:
-   apt:
-     packages:
-     - gfortran
-     - python-dev
-     - cmake
-     - libopenmpi-dev
-     - openmpi-bin
-     - tcsh
-     - make
-     - automake
-     - libtool
-     - autoconf
-     - perl
-before_script   
-        - cd $TRAVIS_BUILD_DIR && pwd && cd ..; ln -sf nwchem nwchem-6.8.1 && cd $NWCHEM_TOP && pwd
-        - ls -lrt $TRAVIS_BUILD_DIR
-        - ls -lrt $NWCHEM_TOP
-        - cd $NWCHEM_TOP/src && make nwchem_config &&  make 64_to_32 >& 6log &
-        - ./travis/build_openblas.sh
-        - ./travis/build_scalapack.sh
-        - wait
-        - cd $NWCHEM_TOP/src && make nwchem_config 
-script:
-        - cd $NWCHEM_TOP/src && make  -j3 >& make.log
-        - tail -2 $NWCHEM_TOP/src/tools/build/config.log
-        - cat $NWCHEM_TOP/src/tools/build/config.h
-        - tail -10 $NWCHEM_TOP/src/make.log
-        - cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 2 dft_siosi3
-        - cd $NWCHEM_TOP/QA && ./doafewqmtests.mpi 2
-after_failure:
-        - grep -A 2 -B 2 -i error $NWCHEM_TOP/src/make.log 
-        - grep d= $NWCHEM_TOP/QA/testoutputs/dft_he2+.out
-        - grep @ $NWCHEM_TOP/QA/testoutputs/h2o_opt.out
-        - tail -20 $NWCHEM_TOP/src/tools/build/config.log
-        - tail -10 $NWCHEM_TOP/src/tools/build/comex/config.log
-        - tail -200 $NWCHEM_TOP/src/make.log
-        - env
-              
+env: "== default == NWCHEM_TOP=$TRAVIS_BUILD_DIR/../nwchem-6.8.1 NWCHEM_TARGET=LINUX64 NWCHEM_MODULES=\"nwdft driver stepper property hessian vib mp2_grad ccsd solvation python\" USE_MPI=y USE_PYTHONCONFIG=y BLASOPT=\"-L$TRAVIS_BUILD_DIR/lib -lnwclapack -lopenblas\" BLAS_SIZE=4 SCALAPACK=\"-L$TRAVIS_BUILD_DIR/lib -lscalapack  -lnwclapack -lopenblas\" SCALAPACK_SIZE=4 USE_64TO32=y PYTHONVERSION=2.7 PYTHONHOME=/usr LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH"
+language: c
+matrix: 
+  include: 
+    - 
+      dist: trusty
+      os: linux
+script: 
+  - "cd $NWCHEM_TOP/src && make  -j3 >& make.log"
+  - "tail -2 $NWCHEM_TOP/src/tools/build/config.log"
+  - "cat $NWCHEM_TOP/src/tools/build/config.h"
+  - "tail -10 $NWCHEM_TOP/src/make.log"
+  - "cd $NWCHEM_TOP/QA && ./runtests.mpi.unix procs 2 dft_siosi3"
+  - "cd $NWCHEM_TOP/QA && ./doafewqmtests.mpi 2"
+
