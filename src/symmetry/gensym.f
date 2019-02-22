@@ -470,8 +470,8 @@ c--> print the matrix reps in operator form, with labels
 c
 c dgc --> decenter if necessary
       if(numvec.gt.0) then
-         write(*,1420)
-         use_primitive = geom_use_primitive(rtdb)
+         !write(*,1420)
+         use_primitive = geom_use_primitive(geom)
          if (use_primitive) then
             write(*,1421)
             call dctr(symops,nops1,numgrp,group_name,numvec,cntvec,
@@ -493,15 +493,19 @@ c dgc --> decenter if necessary
          end if
       endif
 c
-1420  format(/'Primitive cell exists. ')
-1421  format(/'Converting the symmetry',
-     & ' operators and the unit cell. To not do this conversion,',
-     & ' set the use_primitive_cell rtdb variable to false, i.e.'//,
-     & ' set use_primitive_cell .false.'/)
-1422  format(/'But not converting to it. Using the conventional cell',
-     & ' instead.  To turn on this conversion,',
-     & ' set the use_primitive_cell rtdb variable to true, i.e.'//,
-     & ' set use_primitive_cell .true.'/)
+1420  format(/' Primitive cell exists. ')
+1421  format(/' Primitive cell exists. Converting the symmetry',
+     & ' operators and the unit cell to primitive cell.'/,
+     & ' To not do this conversion',
+     & ' add the "conventional" keyword to the symmetry input, e.g.'//,
+     & ' geometry'/," ..."/,' symmetry Fm-3m conventional'/,
+     & ' ...'/,' end'/)
+1422  format(/' Primitve cell exists, but not converting to it.',
+     & ' Using the conventional cell',
+     & ' instead.'/,' To turn this conversion on',
+     & ' add the "primitive" keyword to the symmetry input, e.g.'//,
+     & ' geometry'/," ..."/,' symmetry Fm-3m primitive'/,
+     & ' ...'/,' end'/)
 1423  format(//'The ',i3,' symmetry operators (excl. E)',
      &' are as follows:'/)
 1424  format(/'After de-centering the following are redefined:'/)
