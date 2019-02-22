@@ -648,6 +648,12 @@ c    $     lattice_angles(1,geom))
       tmp(k:) = ' ' 
       tmp(k:) = ':group name'
       s = s .and. rtdb_cget(rtdb, tmp, 1, group_name(geom))
+      tmp(k:) = ' '
+      tmp(k:) = ':use_primitive'
+      s = s .and. rtdb_get(rtdb, tmp, mt_log, 1, use_primitive(geom))
+      tmp(k:) = ' '
+      tmp(k:) = ':primitive_center'
+      s = s .and. rtdb_cget(rtdb, tmp, 1, primitive_center(geom))
       tmp(k:) = ' ' 
       tmp(k:) = ':user units'
       s = s .and. rtdb_cget(rtdb, tmp, 1, user_units(geom))
@@ -811,6 +817,7 @@ c
 c--   > get symmetry operators, number of operators and operator/atom
 c     map from rtdb
 c     
+
       tmp(k:) = ' ' 
       tmp(k:) = ' ' 
       tmp(k:) = ':num_operators'
@@ -1146,6 +1153,12 @@ c     s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 3, lattice_angles(1,geom))
       tmp(k:) = ' ' 
       tmp(k:) = ':group name'
       s = s .and. rtdb_cput(rtdb, tmp, 1, group_name(geom))
+      tmp(k:) = ' '
+      tmp(k:) = ':use_primitive'
+      s = s .and. rtdb_put(rtdb, tmp, mt_log, 1, use_primitive(geom))
+      tmp(k:) = ' '
+      tmp(k:) = ':primitive_center'
+      s = s .and. rtdb_cput(rtdb, tmp, 1, primitive_center(geom))
       tmp(k:) = ' ' 
       tmp(k:) = ':user units'
       s = s .and. rtdb_cput(rtdb, tmp, 1, user_units(geom))
@@ -1327,6 +1340,8 @@ c
      $        ncenter(geom)*sym_num_ops(geom),
      $        int_mb(sym_center_map_index(geom)))
       endif
+
+c     
 c     
 c     insert translated name into list of known geometries
 c     
@@ -1456,6 +1471,8 @@ c
       sym_center_map_index(geom) = 1
       group_name(geom) = 'C1'
       sym_num_ops(geom) = 0
+      use_primitive(geom) = .false.
+      primitive_center(geom) = ' '
 c
       ncenter_unique(geom) = ncenter(geom)
       do i = 1, ncenter_unique(geom)
@@ -2872,21 +2889,31 @@ c
 
       end
 
-      logical function geom_use_primitive(rtdb)
+*     **************************************************
+*     *                                                *
+*     *            geom_use_primitive                  *
+*     *                                                *
+*     **************************************************
+      logical function geom_use_primitive(geom)
       implicit none
-      integer rtdb  
+      integer geom  
+#include "nwc_const.fh"
+#include "geomP.fh"
+      geom_use_primitive = use_primitive(geom)
+      return
+      end
 
-#include "mafdecls.fh"
-#include "rtdb.fh"
-
-      logical use_primitive
-
-      if (.not.rtdb_get(rtdb,'use_primitive_cell',
-     >                  mt_log,1,use_primitive)) then
-            use_primitive = .true.
-      end if
-
-      geom_use_primitive = use_primitive
+*     **************************************************
+*     *                                                *
+*     *            geom_primitive_center               *
+*     *                                                *
+*     **************************************************
+      character*1 function geom_primitive_center(geom)
+      implicit none
+      integer geom  
+#include "nwc_const.fh"
+#include "geomP.fh"
+      geom_primitive_center = primitive_center(geom)
       return
       end
 
@@ -3096,6 +3123,7 @@ c     *** a' = (b+c)/2, b' = (a+c)/2, c' = (a+b)/2 ***
          amat(2,3) = 0.50d0*(amat2(2,1)+amat2(2,2))
          amat(3,3) = 0.50d0*(amat2(3,1)+amat2(3,2))
          update_lattice = is_conventional
+         primitive_center(geom) = ctr_type
 
       end if
 
@@ -3110,6 +3138,7 @@ c     *** a'=a, b'=(b+c)/2, c'=(-b+c)/2 ***
          amat(2,3) = 0.50d0*(-amat2(2,2)+amat2(2,3))
          amat(3,3) = 0.50d0*(-amat2(3,2)+amat2(3,3))
          update_lattice = is_conventional
+         primitive_center(geom) = ctr_type
       end if
 
 c     *** C-centered: Orthohexagonal cell convention (from Int. Tables, Fig. 5.8, p.70, cell #C2) ***
@@ -3123,6 +3152,7 @@ c     *** a'=(a+b)/2, b'=(-a+b)/2, c'=c ***
          amat(2,2) = 0.50d0*(-amat2(2,1)+amat2(2,2))
          amat(3,2) = 0.50d0*(-amat2(3,1)+amat2(3,2))
          update_lattice = is_conventional
+         primitive_center(geom) = ctr_type
       end if
 
 c     *** R-centered: Obverse Int. Tables, Table 5.1, p.78 - Cell #1 ***
@@ -3143,6 +3173,7 @@ c     *** c' = -a/3 -2b/3 + c/3 ***
          amat(2,3) = (-amat2(2,1)-2.0d0*amat2(2,2)+amat2(2,3))/3.0d0
          amat(3,3) = (-amat2(3,1)-2.0d0*amat2(3,2)+amat2(3,3))/3.0d0
          update_lattice = is_conventional
+         primitive_center(geom) = ctr_type
       end if
 
 c     *** I-centered: Int. Tables, Table 5.1, p.76. See also Fig. 5.4, p.77. ***
@@ -3162,6 +3193,7 @@ c     *** c' =  a/2 + b/2 - c/2 ***
          amat(2,3) = 0.5d0*(amat2(2,1)+amat2(2,2)-amat2(2,3))
          amat(3,3) = 0.5d0*(amat2(3,1)+amat2(3,2)-amat2(3,3))
          update_lattice = is_conventional
+         primitive_center(geom) = ctr_type
       end if
 
       if (update_lattice) then
@@ -7375,6 +7407,8 @@ c
       sym_num_ops(geom) = 0
       user_units(geom) = 'angstroms'
       include_bqbq(geom) = .false.
+      use_primitive(geom) = .true.
+      primitive_center(geom) = ' '
 c
       zmt_nizmat(geom) = 0
       zmt_nzvar(geom) = 0
