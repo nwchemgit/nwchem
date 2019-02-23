@@ -1472,7 +1472,7 @@ c
       group_name(geom) = 'C1'
       sym_num_ops(geom) = 0
       use_primitive(geom) = .false.
-      primitive_center(geom) = ' '
+      primitive_center(geom) = 'x'
 c
       ncenter_unique(geom) = ncenter(geom)
       do i = 1, ncenter_unique(geom)
@@ -7408,7 +7408,7 @@ c
       user_units(geom) = 'angstroms'
       include_bqbq(geom) = .false.
       use_primitive(geom) = .true.
-      primitive_center(geom) = ' '
+      primitive_center(geom) = 'x'
 c
       zmt_nizmat(geom) = 0
       zmt_nzvar(geom) = 0

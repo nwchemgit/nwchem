@@ -1831,7 +1831,7 @@ c
       group_number(geom) = 1
       setting_number(geom) = 1
       use_primitive(geom) = .true.
-      primitive_center(geom) = ' '
+      primitive_center(geom) = 'x'
       oprint_sym = .false.
 c     
  10   if (inp_a(test)) then
