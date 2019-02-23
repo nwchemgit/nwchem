@@ -473,7 +473,7 @@ c dgc --> decenter if necessary
          !write(*,1420)
          use_primitive = geom_use_primitive(geom)
          if (use_primitive) then
-            write(*,1421)
+            write(*,1421) group_name
             call dctr(symops,nops1,numgrp,group_name,numvec,cntvec,
      >                numset,geom)
             write(*,1424)
@@ -489,7 +489,7 @@ c dgc --> decenter if necessary
             end if
             !write(*,1430)
          else
-            write(*,1422)
+            write(*,1422) group_name
          end if
       endif
 c
@@ -498,13 +498,13 @@ c
      & ' operators and the unit cell to primitive cell.'/,
      & ' To not do this conversion',
      & ' add the "conventional" keyword to the symmetry input, e.g.'//,
-     & ' geometry'/," ..."/,' symmetry Fm-3m conventional'/,
+     & ' geometry'/," ..."/,' symmetry ',A,' conventional'/,
      & ' ...'/,' end'/)
 1422  format(/' Primitve cell exists, but not converting to it.',
      & ' Using the conventional cell',
      & ' instead.'/,' To turn this conversion on',
      & ' add the "primitive" keyword to the symmetry input, e.g.'//,
-     & ' geometry'/," ..."/,' symmetry Fm-3m primitive'/,
+     & ' geometry'/," ..."/,' symmetry ',A,' primitive'/,
      & ' ...'/,' end'/)
 1423  format(//'The ',i3,' symmetry operators (excl. E)',
      &' are as follows:'/)
