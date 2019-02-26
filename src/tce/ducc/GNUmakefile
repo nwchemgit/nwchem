@@ -1,12 +1,12 @@
 #$Id$
 
-OBJ_OPTIMIZE =  ducc.o map_hcore.o 
+OBJ_OPTIMIZE =  ducc.o map_hcore.o rot_vir.o
 
 LIB_INCLUDES = -I../include
 
 LIBRARY = libtce.a
 
-USES_BLAS = 
+USES_BLAS = rot_vir.F
             
 LIB_DEFINES = -DDEBUG_PRINT
 #
