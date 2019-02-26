@@ -874,7 +874,23 @@ c
      2     call errquit('tce_init:QC-inconsistent qorb qela qelb nfv',0,
      2     rtdb_err)
          endif
-
+c qrotation
+c tce:afreq ---> tce:qrot
+c data stored in tce_prop.fh
+      if (.not.rtdb_get_info(rtdb,'tce:qrot',ma_type,anumrot,
+     1  date)) then
+        anumrot = 1
+        if (.not.rtdb_put(rtdb,'tce:anumrot',mt_int,1,anumrot))
+     1   call errquit('tce_init: failed to write anumrot',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:qrot',mt_dbl,anumrot,
+     1  arot)) then
+        arot(1) = 0.0d0
+        if (.not.rtdb_put(rtdb,'tce:qrot',mt_dbl,anumrot,arot))
+     1    call errquit('tce_init: failed to write arot',0,RTDB_ERR)
+      endif
+c
+c
        endif !quantumc
 !QuantumComputing
 c     --------------------------
