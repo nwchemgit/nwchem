@@ -151,13 +151,17 @@
       integer k_aux,l_aux
       integer range_ov,range_occ
       integer nos,nvs,noas,nobs,nvas,nvbs,nactv
+      integer nacto,nrotv,nrot
+      integer q_ele_a,q_ele_b,q_orb
       double precision xxx,xnorm1,xnorm2,xnorm
       double precision l1norm,ehfa,enrep_tce
 c      double precision v4m(50,50,50,50)
 c      double precision f2m(50,50)
       integer k_f2m,l_f2m,size_f2m
       integer k_v4m,l_v4m,size_v4m
+      integer l_xrot,k_xrot
       logical quantumc,spust
+      logical qrotation   !quantum rotation in active orbital space
       logical qducc
       character*4 hftype
 !QuantumComputing
@@ -708,6 +712,28 @@ cold        rec_mem=1
      2      RTDB_ERR)
         end if
        end if ! if qducc
+!QuantumComputing qrotation
+      if(quantumc) then
+       res_log=.false.
+       if (.not.rtdb_get(rtdb,'tce:qrotation',
+     4  mt_log,1,res_log)) then
+        qrotation=.false.
+       else
+        qrotation=res_log
+       end if
+      endif
+      if(qrotation) then
+       nacto=0
+        if (.not.rtdb_get(rtdb,'tce:nacto',mt_int,1,nacto))
+     1    call errquit('tce_energy:nacto=0 while qrotation T',0,
+     2      RTDB_ERR)
+       nrotv=0
+        if (.not.rtdb_get(rtdb,'tce:nrotv',mt_int,1,nrotv))
+     1    call errquit('tce_energy:nrotv=0 while qrotation T',0,
+     2      RTDB_ERR)
+         nrot=nacto+nrotv
+       endif !qrotation --> nacto/nrotv
+c qrotation
 c
        if(.not.rtdb_cget(rtdb,'scf:scftype',1,hftype))
      1   call errquit('tce_energy: failed to read scftype',0,RTDB_ERR)
@@ -810,6 +836,12 @@ c
         write(LuOut,*)'SLICE:     ',slice
 !cx        write(LuOut,*)'XMEM:      ',xmem
         write(LuOut,*)'D4D5:      ',d4d5
+        write(LuOut,*)'quantumc:  ',quantumc
+        write(LuOut,*)'qrotation: ',qrotation
+        write(LuOut,*)'qducc:     ',qducc
+        write(LuOut,*)'nacto:     ',nacto
+        write(LuOut,*)'nrotv:     ',nrotv
+        write(LuOut,*)'nrot:      ',nrot
         call util_flush(LuOut)
        end if
 
@@ -844,6 +876,55 @@ c     number of digits for parallel file prefix (util_file_name0 last arg)
 !     Reorder and tile orbitals
 !     =========================
 !
+! quantum rotation
+      if(qrotation) then
+c  getting from rtdb q_ele_a q_ele_b q_orb
+         if (.not.rtdb_get(rtdb,'tce:qela',mt_int,1,q_ele_a))
+     1     call errquit('tce_energy: failed to read qela',0,
+     2     rtdb_err)
+         if (.not.rtdb_get(rtdb,'tce:qelb',mt_int,1,q_ele_b))
+     1     call errquit('tce_energy: failed to read qelb',0,
+     2     rtdb_err)
+         if (.not.rtdb_get(rtdb,'tce:qorb',mt_int,1,q_orb))
+     1     call errquit('tce_energy: failed to read qorb',0,
+     2     rtdb_err)
+c
+c       if(nodezero) then
+c        write(6,*)'nacto ',nacto
+c        write(6,*)'q_ele_a ',q_ele_a
+c        write(6,*)'nrotv ',nrotv
+c        write(6,*)'nmo(1)-nocc(1)',nmo(1)-nocc(1)
+c        write(6,*)'nmo(1)  ',nmo(1)
+c        write(6,*)'nocc(1) ',nocc(1)
+c        call util_flush(1)
+c       endif
+c sanity check
+      if(nacto.ge.q_ele_a)
+     &   call errquit('tce: xort: nacto problem',0,MA_ERR)
+      if(nrotv.ge.nmo(1)-nocc(1))
+     &   call errquit('tce: xort: nacto problem',0,MA_ERR)
+c opening nrot x nrot xrot matrix
+       if(.not.ma_push_get(mt_dbl,nrot*nrot,'xrot',l_xrot,k_xrot))
+     1     call errquit('tce: xrot MA problem',0,MA_ERR)
+c
+       do i=1,nrot*nrot
+        dbl_mb(k_xrot+i-1)=0.0d0
+       enddo
+c
+      call xrot_ini(nrot,dbl_mb(k_xrot))
+c
+      call ga_sync()
+c
+      call rot_vir(rtdb,q_orb,q_ele_a,q_ele_b,nacto,nrotv,
+     &                   nrot,dbl_mb(k_xrot))
+c
+      call ga_sync()
+c closing xrot
+      if (.not.ma_pop_stack(l_xrot))
+     1     call errquit('l_xrot',15,MA_ERR)
+      endif !qrotation
+c
+c
       call tce_tile(rtdb)
       call sf_test
 !
