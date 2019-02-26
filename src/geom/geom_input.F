@@ -130,7 +130,7 @@ c     system molecule||polymer||surface||crystal
 c     angles
 c     lengths
 c     
-c     symmetry group_number setting_number
+c     symmetry group_number setting_number [primitive||conventional]
 c     
 c     systype must precede symmetry
 c
@@ -1815,7 +1815,7 @@ c           we have to go through all this work, because some files have / in th
 #include "geomP.fh"
 c     
       integer geom
-      character*10 test
+      character*14 test
       logical oprint_sym
       double precision threquiv
 c     
@@ -1830,6 +1830,8 @@ c
 c     
       group_number(geom) = 1
       setting_number(geom) = 1
+      use_primitive(geom) = .true.
+      primitive_center(geom) = 'x'
       oprint_sym = .false.
 c     
  10   if (inp_a(test)) then
@@ -1844,6 +1846,12 @@ c
             status = inp_f(threquiv)
             goto 10
          else if (inp_compare(.false.,'group',test)) then
+            goto 10             ! Just ignore
+         else if (inp_compare(.false.,'primitive',test)) then
+            use_primitive(geom) = .true.
+            goto 10             ! Just ignore
+         else if (inp_compare(.false.,'conventional',test)) then
+            use_primitive(geom) = .false.
             goto 10             ! Just ignore
          else 
             call inp_prev_field()

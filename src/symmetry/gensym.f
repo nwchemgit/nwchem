@@ -55,9 +55,10 @@ c                                        MSRC/PNL
 c                                        9/13/93
 c***********************************************************************
       subroutine gensym(itype,numgrp,numset,symops,nops,oprint,
-     $     group_name)
+     $     group_name,geom,rtdb)
 C$Id$
       implicit real*8 (a-h,o-z) 
+
       parameter(maxops=192,tol=1.0d-07,max_gen=6)
       character*2 kpos(-1:3),kneg(-3:1),rotoop(maxops)
       dimension capr(3,4),caps(3,4),symops(maxops*3,4)
@@ -66,9 +67,13 @@ C$Id$
       external deter3
       dimension resop(3,4),gens(18,4),detres(3,3),cntvec(3,3)
       character*(*) group_name
-      logical oprint
+      integer geom,rtdb
+      logical oprint,use_primitive
       double precision s_vec(max_gen,3)
       data kpos/' 2',' 3',' 4',' 6',' 1'/,kneg/'-1','-6','-4','-3',' m'/
+
+      logical  geom_use_primitive
+      external geom_use_primitive
 
 c
 c-->call spgen with correct system type flag to make generators
@@ -459,31 +464,59 @@ c--> add labels to centered symops
 c
 c--> print the matrix reps in operator form, with labels
       if(oprint) then
+         write(*,1423) nops
          call opprint(symops,rotoop,maxops,nops,itype)
       endif
 c
 c dgc --> decenter if necessary
       if(numvec.gt.0) then
-c         call dctr(symops,nops1,numgrp,group_name,numvec,cntvec,numset)
-c         write(*,1424)
-c         write(*,1425)
-c         write(*,1426)
-c         write(*,1427)
-c         write(*,1428)
-c         write(*,1429) nops1
-c         nops=nops1
-c         call opprint(symops,rotoop,maxops,nops,itype)
-          write(*,1430)
+         !write(*,1420)
+         use_primitive = geom_use_primitive(geom)
+         if (use_primitive) then
+            write(*,1421) group_name
+            call dctr(symops,nops1,numgrp,group_name,numvec,cntvec,
+     >                numset,geom)
+            write(*,1424)
+            write(*,1425)
+            write(*,1426)
+            write(*,1427)
+            write(*,1428)
+            write(*,1429) nops+1,nops1+1
+            nops=nops1
+            if (oprint) then
+               write(*,1431)
+               call opprint(symops,rotoop,maxops,nops,itype)
+            end if
+            !write(*,1430)
+         else
+            write(*,1422) group_name
+         end if
       endif
 c
-1424  format(/'GENSYM.F: AFTER DE-CENTERING NEED TO REDEFINE:'/)
-1425  format(10X,' (1) LATTICE VECTORS')
-1426  format(10X,' (2) ALPHA, BETA & GAMMA')
-1427  format(10X,' (3) AMAT')
-1428  format(10X,' (4) BMAT')
-1429  format(//'The ',i3,' symmetry operators (excl. E) in the de-center
-     &ed basis are as follows:'/)
+1420  format(/' Primitive cell exists. ')
+1421  format(/' Primitive cell exists. Converting the symmetry',
+     & ' operators and the unit cell to primitive cell.'/,
+     & ' To not do this conversion',
+     & ' add the "conventional" keyword to the symmetry input, e.g.'//,
+     & ' geometry'/," ..."/,' symmetry ',A,' conventional'/,
+     & ' ...'/,' end'/)
+1422  format(/' Primitve cell exists, but not converting to it.',
+     & ' Using the conventional cell',
+     & ' instead.'/,' To turn this conversion on',
+     & ' add the "primitive" keyword to the symmetry input, e.g.'//,
+     & ' geometry'/," ..."/,' symmetry ',A,' primitive'/,
+     & ' ...'/,' end'/)
+1423  format(//'The ',i3,' symmetry operators (excl. E)',
+     &' are as follows:'/)
+1424  format(/'After de-centering the following are redefined:'/)
+1425  format(10X,' (1) lattice parameters a,b,c,alpha,beta, and gamma')
+1426  format(10X,' (2) lattice vectors a1,a2,a3')
+1427  format(10X,' (3) reciprocal lattice vectors b1,b2,b3')
+1428  format(10X,' (4) fractional coordinates')
+1429  format(/i3,' operators converted to ',i3,' symmetry operators.')
 1430  format(/'DEBUG:primitive cell exists, but dctr was not called.'/)
+1431  format(//i3,'The symmetry operators (excl. E) in the de-centered',
+     &' basis are as follows:'/)
 c
 c rjh hack to fix C1
       if (numgrp .eq. 1) nops = 0

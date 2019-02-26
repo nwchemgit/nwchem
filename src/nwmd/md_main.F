@@ -2337,7 +2337,6 @@ c
 c
       logical sp_local,cf_hopping
       external sp_local,cf_hopping
-      external cf_init2
 c
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xwm(mwm,3),xs(msa,3)
@@ -2481,8 +2480,6 @@ c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
      + dbl_mb(i_xsm),dbl_mb(i_xsmp))
-c      call cf_init2(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
-c     + dbl_mb(i_esw),dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esa))
       goto 100
       endif
       endif

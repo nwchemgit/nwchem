@@ -125,6 +125,9 @@
 
       call cpsi_data_init(20)
 
+*     **** initialize ion data structure ****
+      value = ion_init(rtdb)
+
 *     **** initialize lattice and packing data structure ****
       call lattice_init()
       call c_G_init()
@@ -133,8 +136,8 @@
       call C3dB_pfft_init()
       call Cram_max_npack(npack1)
 
-*     **** initialize ion data structure ****
-      value = ion_init(rtdb)
+c*     **** initialize ion data structure ****
+c      value = ion_init(rtdb)
 
 *     **** intialize G,mack,ke, and coulomb data structures ****
       call cstrfac_init()

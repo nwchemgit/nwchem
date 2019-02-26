@@ -79,15 +79,20 @@ c
 c*******************************************************************************************
 c
       subroutine dctr( symops, nops_dctr, numgrp, sol_name, numvec,
-     & cntvec, numset)
+     & cntvec, numset,geom)
 c
-      integer i,j,maxops,ipointer,numgrp,nops_dctr,numvec,numset
+      integer i,j,maxops,ipointer,numgrp,nops_dctr,numvec,numset,geom
       double precision tf1(90),tf(6,3),temp(3,4),temp2(3,4),trans(3)
       character *10 sol_name
       character *1 ctr_type
 c
       parameter(maxops=192)
       double precision symops(maxops*3,4),cntvec(3,3),xcnttot,one,tol
+      double precision lattice(6)
+
+      logical  value
+      logical  geom_convert_to_primitive
+      external geom_convert_to_primitive
 c
 c.......................................................................
 c--->Assign transformation matrices to 1-dim array in successive rows as follows:
@@ -287,5 +292,7 @@ c.......................................................................
 c                      End Transformations
 c.......................................................................
 c
+      value =  geom_convert_to_primitive(geom,ctr_type,tf)
+
       return
       end

@@ -3118,6 +3118,13 @@ c      end do
       integer geom
       common / ION2/ geom
 
+      integer grp_num
+
+      integer  geom_get_group_number
+      external geom_get_group_number
+
+      grp_num=geom_get_group_number(geom)
+
       ion_sym_number_ops = sym_number_ops(geom)
       return
       end
@@ -3141,6 +3148,25 @@ c      end do
       return
       end
 
+
+*     ***************************
+*     *                         *
+*     *   ion_sym_apply_op      *
+*     *                         *
+*     ***************************
+      subroutine ion_sym_apply_op(opnum,ks,ks1)
+      implicit none
+      integer opnum
+      real*8 ks(3),ks1(3)
+
+#include "sym.fh"
+
+      integer geom
+      common / ION2/ geom
+
+      call sym_apply_op(geom,opnum,ks,ks1)
+      return
+      end
 
 
 

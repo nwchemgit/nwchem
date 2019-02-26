@@ -223,9 +223,16 @@ c      external      cpsp_comment
        
       call cpsi_data_init(20)
 
+*     **** read ions ****
+      value = ion_init(rtdb)
+      call center_geom(cx,cy,cz)
+      call center_mass(gx,gy,gz)
+
 *     **** initialize lattice data structure ****
       call lattice_init()
       call c_G_init()
+
+*     **** nitialize brillion ***
       call brillioun_init()
       call Cram_Init()
       call C3dB_pfft_init()
@@ -237,10 +244,10 @@ c      external      cpsp_comment
       call mask_init()
       end if
 
-*     **** read ions ****
-      value = ion_init(rtdb)
-      call center_geom(cx,cy,cz)
-      call center_mass(gx,gy,gz)
+c*     **** read ions ****
+c      value = ion_init(rtdb)
+c      call center_geom(cx,cy,cz)
+c      call center_mass(gx,gy,gz)
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call cpsp_init()

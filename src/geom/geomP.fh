@@ -59,6 +59,8 @@ c     sym_center_map_handle(max_geom) = MA handle of integer array
 c                                    sym_center_map(center,op)->op*center
 c     sym_center_map_index(max_geom)  = MA index of integer array
 c                                    sym_center_map(center,op)->op*center
+c     use_primitive(max_geom) = cell type convetional=.true. and primitive=.false.
+c     primtive_center(max_geom)  = centering type used for primitive cell 
 c
 c     group_name(max_geom) = symbolic name of the molecular group
 c
@@ -240,4 +242,10 @@ c
      $     zmt_ijklnb_nam(max_zcoord,max_geom)
 c
 
+*     **** used for unitcell symmetry conversions ***
+      logical     use_primitive
+      character*1 primitive_center
+      common/usgeometry/
+     $     use_primitive(max_geom),
+     $     primitive_center(max_geom)
 

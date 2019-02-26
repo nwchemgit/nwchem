@@ -636,6 +636,11 @@ c
         endif
         if(doprint) call util_flush(6)
 
+      if(scs) then
+c     store scs energies for gradient
+         e_total=escf+fss*ess+fos*eos
+         e2=fss*ess+fos*eos
+      endif
 c
       call ecce_print1('total energy', mt_dbl, e_total, 1)
       call ecce_print1('correlation energy', mt_dbl, e2, 1)

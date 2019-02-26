@@ -53,7 +53,6 @@ C
       RETURN
       end
       subroutine stpr_recall(HESS,GRAD,COORD,ENERGY,IERR)
-*      ENTRY stpr_recall(HESS,GRAD,COORD,ENERGY,IERR)
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
      &                  ITAP44, ITAP45

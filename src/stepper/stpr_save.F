@@ -59,7 +59,6 @@ C
       RETURN
       end
       subroutine stpr_RETRVE(HESS,GRAD,COORD,ENERGY,IERR)
-*      ENTRY stpr_RETRVE(HESS,GRAD,COORD,ENERGY,IERR)
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL SECO, SWSEC, SWFIR
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
@@ -120,9 +119,6 @@ C
       subroutine stpr_PUTP(GMXMUM,GLNGTH,SLNGTH,EOLD,ENERGY,
      &           EDIFF,E2OLD,ERATIO,TRUSTO,TRUST,TRUSTN,
      &           E2NEW,NWALK,NNEG)
-*      ENTRY stpr_PUTP(GLNGTH,SLNGTH,EOLD,ENERGY,
-*     &           EDIFF,E2OLD,ERATIO,TRUSTO,TRUST,TRUSTN,
-*     &           E2NEW,NWALK,NNEG)
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
      &                  ITAP44, ITAP45
@@ -167,9 +163,6 @@ C
       subroutine stpr_GETP(GMXMUM,GLNGTH,SLNGTH,EOLD,ENERGY,
      &           EDIFF,E2OLD,ERATIO,TRUSTO,TRUST,TRUSTN,
      &           E2NEW,NWALK,NNEG)
-*      ENTRY stpr_GETP(GMXMUM,GLNGTH,SLNGTH,EOLD,ENERGY,
-*     &           EDIFF,E2OLD,ERATIO,TRUSTO,TRUST,TRUSTN,
-*     &           E2NEW,NWALK,NNEG)
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
      &                  ITAP44, ITAP45
@@ -216,7 +209,6 @@ C
       RETURN
       end
       subroutine stpr_GTNPO(EOLD,E2OLD,TRUST,SOLD,NWALK)
-*      ENTRY stpr_GTNPO(EOLD,E2OLD,TRUST,SOLD,NWALK)
 C
 C     Read previous step parameters PSTEPP.
 C
@@ -247,7 +239,6 @@ C
       RETURN
       end
       subroutine stpr_GETNP(EOLD,E2OLD,TRUST,SOLD,NWALK)
-*      ENTRY stpr_GETNP(EOLD,E2OLD,TRUST,SOLD,NWALK)
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
      &                  ITAP44, ITAP45
