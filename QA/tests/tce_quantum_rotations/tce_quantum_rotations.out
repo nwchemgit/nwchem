@@ -1,0 +1,704 @@
+ argument  1 = tce_quantum_rotations
+  Unable to open tce_quantum_rotations --- appending .nw
+  NWChem w/ OpenMP: maximum threads =    1
+
+
+
+============================== echo of input deck ==============================
+start tce_quantum_rotations
+
+#lih_rhf_sto-3g_1.600
+
+echo
+
+geometry units angstrom
+symmetry c1
+Li   0.000000000000000   0.000000000000000   0.000000000000000
+H    0.000000000000000   0.000000000000000   1.600000000000000
+end
+
+basis
+H library sto-3g
+Li library sto-3g
+end
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
+end
+
+tce
+ccsd
+tilesize 1
+2eorb
+2emet 13
+thresh 1.0e-6
+end
+
+set tce:print_integrals T
+set tce:qorb 3
+set tce:qela 2
+set tce:qelb 2
+set tce:qrotation T
+set tce:nacto 1
+set tce:nrotv 2
+set tce:qrot 0.01 0.03 -0.04
+
+task tce energy
+
+
+================================================================================
+
+
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.8
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2018
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = we32665
+    program         = /Users/kowalski/nwchem_2018/nwchem/bin/MACX64/nwchem
+    date            = Tue Feb 26 15:53:08 2019
+
+    compiled        = Mon_Feb_25_15:28:25_2019
+    source          = /Users/kowalski/nwchem_2018/nwchem
+    nwchem branch   = Development
+    nwchem revision = nwchem_on_git-760-g925865a60
+    ga revision     = 5.7.0
+    use scalapack   = F
+    input           = tce_quantum_rotations.nw
+    prefix          = tce_quantum_rotations.
+    data base       = ./tce_quantum_rotations.db
+    status          = startup
+    nproc           =        1
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   13107196 doubles =    100.0 Mbytes
+    stack    =   13107201 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428797 doubles =    400.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ Turning off AUTOSYM since
+ SYMMETRY directive was detected!
+
+
+          ------
+          auto-z
+          ------
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Li                   3.0000     0.00000000     0.00000000    -0.40000000
+    2 H                    1.0000     0.00000000     0.00000000     1.20000000
+
+      Atomic Mass 
+      ----------- 
+
+      Li                 7.016000
+      H                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)       0.9922073419
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+
+
+                                Z-matrix (autoz)
+                                -------- 
+
+ Units are Angstrom for bonds and degrees for angles
+
+      Type          Name      I     J     K     L     M      Value
+      ----------- --------  ----- ----- ----- ----- ----- ----------
+    1 Stretch                  1     2                       1.60000
+
+
+            XYZ format geometry
+            -------------------
+     2
+ geometry
+ Li                    0.00000000     0.00000000    -0.40000000
+ H                     0.00000000     0.00000000     1.20000000
+
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    2 H                |   1 Li               |     3.02356  |     1.60000
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          1
+ ==============================================================================
+
+
+
+                      Basis "ao basis" -> "" (cartesian)
+                      -----
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  3.42525091E+00  0.154329
+  1 S  6.23913730E-01  0.535328
+  1 S  1.68855400E-01  0.444635
+
+  Li (Lithium)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.61195750E+01  0.154329
+  1 S  2.93620070E+00  0.535328
+  1 S  7.94650500E-01  0.444635
+
+  2 S  6.36289700E-01 -0.099967
+  2 S  1.47860100E-01  0.399513
+  2 S  4.80887000E-02  0.700115
+
+  3 P  6.36289700E-01  0.155916
+  3 P  1.47860100E-01  0.607684
+  3 P  4.80887000E-02  0.391957
+
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ Li                          sto-3g                  3        5   2s1p
+
+
+                                 NWChem SCF Module
+                                 -----------------
+
+
+
+  ao basis        = "ao basis"
+  functions       =     6
+  atoms           =     2
+  closed shells   =     2
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = atomic
+  output vectors  = ./tce_quantum_rotations.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ Li                          sto-3g                  3        5   2s1p
+
+
+
+ Forming initial guess at       0.1s
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:          -7.78210783
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =      -7.569014
+ 1-e energy   =     -12.150177
+ 2-e energy   =       3.588956
+ HOMO         =      -0.245454
+ LUMO         =       0.036547
+
+
+ Starting SCF solution at       0.1s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-10
+ Maximum no. of iterations :           30
+ Final Fock-matrix accuracy:          1.000E-10
+ ----------------------------------------------
+
+
+ #quartets = 5.500D+01 #integrals = 9.700D+01 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./tce_quantum_rotations.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  18877
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1       -7.8526879782  2.09D-01  2.02D-01      0.2
+                 2       -7.8611334500  3.70D-02  3.31D-02      0.2
+                 3       -7.8618634797  1.55D-03  1.36D-03      0.2
+                 4       -7.8618647736  2.99D-06  2.50D-06      0.2
+                 5       -7.8618647736  1.03D-11  8.74D-12      0.2
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =     -7.861864773563
+      One-electron energy =    -12.440078843205
+      Two-electron energy =      3.586006727768
+ Nuclear repulsion energy =      0.992207341874
+
+        Time for solution =      0.1s
+
+
+             Final eigenvalues
+             -----------------
+
+              1      
+    1   -2.3488
+    2   -0.2853
+    3    0.0782
+    4    0.1639
+    5    0.1639
+    6    0.5477
+
+                       ROHF Final Molecular Orbital Analysis
+                       -------------------------------------
+
+ Vector    2  Occ=2.000000D+00  E=-2.852708D-01
+              MO Center=  2.7D-17,  1.4D-16,  9.1D-01, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.549079  2 H  s                  2      0.455244  1 Li s          
+     5      0.346021  1 Li pz                 1     -0.167090  1 Li s          
+
+ Vector    3  Occ=0.000000D+00  E= 7.821656D-02
+              MO Center= -3.9D-17, -9.3D-17, -1.3D+00, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      0.799543  1 Li s                  5     -0.612070  1 Li pz         
+     1     -0.210043  1 Li s          
+
+ Vector    4  Occ=0.000000D+00  E= 1.639413D-01
+              MO Center=  1.3D-17,  1.8D-17, -4.0D-01, r^2= 3.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.816484  1 Li py                 3      0.577368  1 Li px         
+
+ Vector    5  Occ=0.000000D+00  E= 1.639413D-01
+              MO Center=  3.5D-16, -2.5D-16, -4.0D-01, r^2= 3.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      0.816484  1 Li px                 4     -0.577368  1 Li py         
+
+ Vector    6  Occ=0.000000D+00  E= 5.477084D-01
+              MO Center= -4.0D-16,  2.2D-16,  5.6D-01, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.184723  2 H  s                  5     -0.979456  1 Li pz         
+     2     -0.702684  1 Li s          
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =  -0.37611878
+
+ moments of inertia (a.u.)
+ ------------------
+           8.056212187425           0.000000000000           0.000000000000
+           0.000000000000           8.056212187425           0.000000000000
+           0.000000000000           0.000000000000           0.000000000000
+
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 Li   3     3.02   1.99  0.59  0.43
+    2 H    1     0.98   0.98
+
+       Multipole analysis of the density wrt the origin
+       ------------------------------------------------
+
+     L   x y z        total         open         nuclear
+     -   - - -        -----         ----         -------
+     0   0 0 0     -0.000000      0.000000      4.000000
+
+     1   1 0 0     -0.000000      0.000000      0.000000
+     1   0 1 0     -0.000000      0.000000      0.000000
+     1   0 0 1     -1.911580      0.000000      0.000000
+
+     2   2 0 0     -3.926095      0.000000      0.000000
+     2   1 1 0     -0.000000      0.000000      0.000000
+     2   1 0 1     -0.000000      0.000000      0.000000
+     2   0 2 0     -3.926095      0.000000      0.000000
+     2   0 1 1     -0.000000      0.000000      0.000000
+     2   0 0 2     -3.677557      0.000000      6.856443
+
+
+ Parallel integral file used       1 records with       0 large values
+
+ ------------------------------------
+     Number of active orbitals      3
+     Number of active alpha electrons      2
+     Number of active beta electrons       2
+ ------------------------------------
+                   NWChem Extensible Many-Electron Theory Module
+                   ---------------------------------------------
+
+              ======================================================
+                   This portion of the program was automatically
+                  generated by a Tensor Contraction Engine (TCE).
+                  The development of this portion of the program
+                 and TCE was supported by US Department of Energy,
+                Office of Science, Office of Basic Energy Science.
+                      TCE is a product of Battelle and PNNL.
+              Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
+              ======================================================
+
+            General Information
+            -------------------
+      Number of processors :     1
+         Wavefunction type : Restricted Hartree-Fock
+          No. of electrons :     4
+           Alpha electrons :     2
+            Beta electrons :     2
+           No. of orbitals :    12
+            Alpha orbitals :     6
+             Beta orbitals :     6
+        Alpha frozen cores :     0
+         Beta frozen cores :     0
+     Alpha frozen virtuals :     3
+      Beta frozen virtuals :     3
+         Spin multiplicity : singlet 
+    Number of AO functions :     6
+       Number of AO shells :     4
+        Use of symmetry is : off
+      Symmetry adaption is : off
+         Schwarz screening : 0.10D-09
+
+          Correlation Information
+          -----------------------
+          Calculation type : Coupled-cluster singles & doubles                           
+   Perturbative correction : none                                                        
+            Max iterations :      100
+        Residual threshold : 0.10D-05
+     T(0) DIIS level shift : 0.00D+00
+     L(0) DIIS level shift : 0.00D+00
+     T(1) DIIS level shift : 0.00D+00
+     L(1) DIIS level shift : 0.00D+00
+     T(R) DIIS level shift : 0.00D+00
+     T(I) DIIS level shift : 0.00D+00
+   CC-T/L Amplitude update :  5-th order DIIS
+                I/O scheme : Global Array Library
+        L-threshold :  0.10D-05
+        EOM-threshold :  0.10D-05
+ no EOMCCSD initial starts read in
+ hftype RHF 
+ TCE RESTART OPTIONS
+ READ_INT:   F
+ WRITE_INT:  F
+ READ_TA:    F
+ WRITE_TA:   F
+ READ_XA:    F
+ WRITE_XA:   F
+ READ_IN3:   F
+ WRITE_IN3:  F
+ SLICE:      F
+ D4D5:       F
+ quantumc:   T
+ qrotation:  T
+ qducc:      F
+ nacto:                         1
+ nrotv:                         2
+ nrot:                          3
+ --- Xrot matrix ---
+    1    1      0.000000
+    1    2      0.010000
+    1    3      0.030000
+    2    1     -0.010000
+    2    2      0.000000
+    2    3     -0.040000
+    3    1     -0.030000
+    3    2      0.040000
+    3    3      0.000000
+ ------------------
+
+            Memory Information
+            ------------------
+          Available GA space size is      26214364 doubles
+          Available MA space size is      26213748 doubles
+
+ Maximum block size supplied by input
+ Maximum block size         1 doubles
+
+ tile_dim =      1
+
+ Block   Spin    Irrep     Size     Offset   Alpha
+ -------------------------------------------------
+   1    alpha     a      1 doubles       0       1
+   2    alpha     a      1 doubles       1       2
+   3    beta      a      1 doubles       2       1
+   4    beta      a      1 doubles       3       2
+   5    alpha     a      1 doubles       4       5
+   6    beta      a      1 doubles       5       5
+
+ Global array virtual files algorithm will be used
+
+ Parallel file system coherency ......... OK
+
+ #quartets = 5.500D+01 #integrals = 9.700D+01 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./tce_quantum_rotations.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  18877
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Fock matrix recomputed
+ 1-e file size   =                9
+ 1-e file name   = ./tce_quantum_rotations.f1
+ Cpu & wall time / sec            0.0            0.0
+ 4-electron integrals stored in orbital form
+
+ v2    file size   =               21
+ 4-index algorithm nr.  13 is used
+ imaxsize =       30
+ imaxsize ichop =        0
+ begin_one_electron_integrals
+    1    1        -4.7273931513
+    2    1         0.1091174445
+    3    1         0.1576497331
+    1    2         0.1091174445
+    2    2        -1.5303880893
+    3    2        -0.0294297883
+    1    3         0.1576497331
+    2    3        -0.0294297883
+    3    3        -0.9661537414
+ end_one_electron_integrals
+ begin_two_electron_integrals
+    1    1    1    1        1.6585666863
+    2    1    1    1       -0.1149547192
+    2    1    2    1        0.0140316138
+    3    1    1    1       -0.1316991377
+    3    1    2    1        0.0111531417
+    3    1    3    1        0.0192430576
+    3    1    2    2       -0.0148569515
+    2    2    1    1        0.3775375930
+    2    2    2    1        0.0061246962
+    2    2    2    2        0.5090305037
+    3    2    1    1        0.0280363475
+    3    2    2    1       -0.0030453171
+    3    2    3    1       -0.0004278088
+    3    2    2    2       -0.0270707912
+    3    2    3    2        0.0091079422
+    3    3    1    1        0.3410139484
+    3    3    2    1       -0.0098560575
+    3    3    3    1        0.0012103433
+    3    3    2    2        0.1951263236
+    3    3    3    2        0.0153938258
+    3    3    3    3        0.2508580031
+ end_two_electron_integrals
+ enrep_tce =   0.99220734187443294     
+  EHF(A)             =        -7.87367080
+  EHF(total)         =        -7.86186477
+  Shift (HFtot-HFA)  =         0.01180603
+ Cpu & wall time / sec            0.0            0.0
+ T1-number-of-tasks                    2
+
+ t1 file size   =                2
+ t1 file name   = ./tce_quantum_rotations.t1
+ t1 file handle =       -998
+ T2-number-of-boxes                    7
+
+ t2 file size   =                7
+ t2 file name   = ./tce_quantum_rotations.t2
+ t2 file handle =       -996
+
+ CCSD iterations
+ -----------------------------------------------------------------
+ Iter          Residuum       Correlation     Cpu    Wall    V2*C2
+ -----------------------------------------------------------------
+    1   0.0045432686796  -0.0009501232209     0.0     0.0     0.0
+    2   0.0019302585420  -0.0013398151332     0.0     0.0     0.0
+    3   0.0010880190284  -0.0015465752943     0.0     0.0     0.0
+    4   0.0005724232648  -0.0016522562824     0.0     0.0     0.0
+    5   0.0002991182323  -0.0017066834065     0.0     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                    5                    5
+    6   0.0000007662888  -0.0017640838293     0.0     0.0     0.0
+ -----------------------------------------------------------------
+ Iterations converged
+ CCSD correlation energy / hartree =        -0.001764083829258
+ CCSD total energy / hartree       =        -7.863628857392719
+
+ Singles contributions
+
+ Doubles contributions
+ Ground state specification:
+ exp(T)|Ref>~(1+T)|Ref>
+ ------- a(p)+/a(q) strings ----------
+
+ singles norm
+
+ doubles norm
+
+ Reference string
+   1.0000000000000000      :(1a)+ (2a)+ (1b)+ (2b)+ |0>
+
+ Singles strings
+
+ Doubles strings
+ -------------------------------------
+
+ Parallel integral file used       1 records with       0 large values
+
+
+ Task  times  cpu:        0.4s     wall:        0.4s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:  940      940     1.25e+04 1212     5306        0        0     5971     
+number of processes/call 5.21e+14 7.18e+15 3.41e+13 0.00e+00 0.00e+00
+bytes total:             2.59e+05 8.44e+04 5.66e+04 0.00e+00 0.00e+00 4.78e+04
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 10904 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        17	        33
+	current total bytes		         0	         0
+	maximum total bytes		   1053448	  22509160
+	maximum total K-bytes		      1054	     22510
+	maximum total M-bytes		         2	        23
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+
+                                      AUTHORS
+                                      -------
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+    S. A. Fischer, S. Krishnamoorthy, M. Jacquelin, W. Ma, M. Klemm, O. Villa,
+      Y. Chen, V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler, V. Konjkov,
+            D. Mejia-Rodriguez, T. Risthaus, M. Malagoli, A. Marenich,
+   A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao,
+        P.-D. Fan, A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr,
+      M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+    M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+      G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall,
+      J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, D. E. Bernholdt,
+      P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. J. O. Deegan, K. Dyall,
+    D. Elwood, E. Glendening, M. Gutowski, A. C. Hess, J. Jaffe, B. G. Johnson,
+     J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+      T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
+      M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
+
+ Total times  cpu:        0.5s     wall:        0.5s
