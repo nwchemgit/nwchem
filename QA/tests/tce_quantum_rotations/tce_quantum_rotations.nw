@@ -39,6 +39,21 @@ set tce:nacto 1
 set tce:nrotv 2
 set tce:qrot 0.01 0.03 -0.04
 
+#
+# set tce:qrot defines upper-diagonal 
+# entries for anti-Hermitian rotation Matrix Xr(nrot,nrot)
+# where nrot=nacto+nrotv 
+# In the example above nrot=3 and we define 
+# Xr(1,2)=0.01 Xr(1,3)=0.03 Xr(2,3)=-0.04
+# 
+# In the general case, we need to provide (nrot*(nrot-1))/2
+# entries
+#
+# Please run c1 symmetry - in this way we will be able to explore 
+#                          symmetry broken cases
+#
+#
+
 task tce energy
 
 
