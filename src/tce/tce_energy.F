@@ -163,6 +163,7 @@ c      double precision f2m(50,50)
       logical quantumc,spust
       logical qrotation   !quantum rotation in active orbital space
       logical qducc
+      logical ucc4
       character*4 hftype
 !QuantumComputing
 ! FOR CR-EOMCCSD(T) ---------------------
@@ -690,6 +691,14 @@ cold        rec_mem=1
      4      max_ioprocs_in=4
 !QuantumComputing
        res_log=.false.
+       if (.not.rtdb_get(rtdb,'tce:ucc4',
+     4  mt_log,1,res_log)) then
+        ucc4=.false.
+       else
+        ucc4=res_log
+       end if
+!QuantumComputing
+       res_log=.false.
        if (.not.rtdb_get(rtdb,'tce:print_integrals',
      4  mt_log,1,res_log)) then
         quantumc=.false.
@@ -738,10 +747,10 @@ c
        if(.not.rtdb_cget(rtdb,'scf:scftype',1,hftype))
      1   call errquit('tce_energy: failed to read scftype',0,RTDB_ERR)
 c *** debug ***
-       if(nodezero) then
-         write(6,*)'hftype ',hftype
-         call util_flush(6)
-       endif
+c       if(nodezero) then
+c         write(6,*)'hftype ',hftype
+c         call util_flush(6)
+c       endif
 c *************
 c
 !QuantumComputing
@@ -3516,30 +3525,92 @@ c
         do iter=1,maxiter
           cpu=-util_cpusec()
           wall=-util_wallsec()
-          if (nodezero.and.(iter.eq.1)) write(LuOut,9050) "CCSDT"
+          if(.not.ucc4) then
+           if (nodezero.and.(iter.eq.1)) write(LuOut,9050) "CCSDT"
+          else !ucc4
+           if (nodezero.and.(iter.eq.1)) write(LuOut,9050) "UCC4"
+          endif
+c
+         if(ucc4) then
+          if(nodezero) then
+           write(6,*)'ucc4: iteration initlzation'
+            call util_flush(6)
+          endif
+          irrep_y=0
+          call tce_y2_offset(l_l2_offset,k_l2_offset,size_l2)
+          call tce_filename('lambda2',filename)
+          call createfile(filename,d_lambda2,size_l2)
+c call transition procedure
+          call t2_2_y2(d_t2,d_lambda2,k_t2_offset,k_l2_offset)
+         endif
+c
           call tce_filename('e',filename)
           call createfile(filename,d_e,size_e)
+          if(.not.ucc4) then
           call ccsdt_e(d_f1,d_e,d_t1,d_t2,d_v2,
      1                 k_f1_offset,k_e_offset,
      2                 k_t1_offset,k_t2_offset,k_v2_offset)
+          else ! ucc4
+           if(nodezero) then
+            write(6,*)'UCC4 energy'
+            call util_flush(6)
+          endif
+           call ucc4_e_new(d_e,d_t2,d_v2,d_lambda2,k_e_offset,
+     &          k_t2_offset,
+     &          k_v2_offset,k_l2_offset)
+          endif
           call reconcilefile(d_e,size_e)
+c
           call tce_filename('r1',filename)
           call createfile(filename,d_r1,size_t1)
+          if(.not.ucc4) then
           call ccsdt_t1(d_f1,d_r1,d_t1,d_t2,d_t3,d_v2,
      1                  k_f1_offset,k_t1_offset,k_t1_offset,
      2                  k_t2_offset,k_t3_offset,k_v2_offset)
+          else  ! ucc4
+          if(nodezero) then
+            write(6,*)'UCC4 singles'
+            call util_flush(6)
+          endif
+       call ucc4_t1_new(d_f1,d_r1,d_t1,d_t2,d_v2,k_f1_offset,
+     &         k_t1_offset,
+     &         k_t1_offset,k_t2_offset,k_v2_offset)
+          endif
           call reconcilefile(d_r1,size_t1)
+c
           call tce_filename('r2',filename)
           call createfile(filename,d_r2,size_t2)
+          if(.not.ucc4) then
           call ccsdt_t2(d_f1,d_r2,d_t1,d_t2,d_t3,d_v2,
      1                  k_f1_offset,k_t2_offset,k_t1_offset,
      2                  k_t2_offset,k_t3_offset,k_v2_offset,size_t2)
+          else !ucc4
+          if(nodezero) then
+           write(6,*)'UCC4 doubles'
+           call util_flush(6)
+          endif
+           call ucc4_t2(d_f1,d_r2,d_t1,d_t2,d_t3,d_v2,k_f1_offset,
+     &           k_t2_offset,
+     &           k_t1_offset,k_t2_offset,k_t3_offset,k_v2_offset)
+           call ucc4_t2_t2_v_t(d_r2,d_t2,d_v2,d_lambda2,k_t2_offset,
+     &           k_t2_offset,k_v2_offset,k_l2_offset)
+          endif
           call reconcilefile(d_r2,size_t2)
+c
           call tce_filename('r3',filename)
           call createfile(filename,d_r3,size_t3)
+          if(.not.ucc4) then
           call ccsdt_t3(d_f1,d_r3,d_t1,d_t2,d_t3,d_v2,
      1                  k_f1_offset,k_t3_offset,k_t1_offset,
      2                  k_t2_offset,k_t3_offset,k_v2_offset)
+          else  ! ucc4
+          if(nodezero) then
+           write(6,*)'UCC4 triples'
+           call util_flush(6)
+          endif
+           call ucc4_t3(d_f1,d_r3,d_t2,d_t3,d_v2,k_f1_offset,
+     &       k_t3_offset,k_t2_offset,k_t3_offset,k_v2_offset)
+          endif
           call reconcilefile(d_r3,size_t3)
           call tce_residual_t1(d_r1,k_t1_offset,r1)
           call tce_residual_t2(d_r2,k_t2_offset,r2)
@@ -3551,9 +3622,15 @@ c
           if (nodezero) write(LuOut,9100) iter,residual,corr,cpu,wall
           if (residual .lt. thresh) then
             if (nodezero) then
+             if(.not.ucc4) then
               write(LuOut,9060)
               write(LuOut,9070) "CCSDT",corr
               write(LuOut,9080) "CCSDT",ref + corr
+             else 
+              write(LuOut,9060)
+              write(LuOut,9070) "UCC(4)",corr
+              write(LuOut,9080) "UCC(4)",ref + corr
+             endif 
             endif
             if (diagnt1) call tce_diagnose_t1(d_t1,k_t1_offset,t1diagn)
             if (ampnorms) then
@@ -3570,6 +3647,15 @@ c
             call deletefile(d_r2)
             call deletefile(d_r1)
             call deletefile(d_e)
+c
+c delete d_lambda related objects: ucc4
+c
+            if(ucc4) then
+              call deletefile(d_lambda2)
+              if (.not.ma_pop_stack(l_l2_offset))
+     1        call errquit("tce_energy: l2_offset ucc4",4,MA_ERR)
+            endif
+c
             call tce_print_x1(d_t1,k_t1_offset,printtol,irrep_t)
             call tce_print_x2(d_t2,k_t2_offset,printtol,irrep_t)
             call tce_diis_tidy()
@@ -3629,6 +3715,15 @@ c
           call deletefile(d_r2)
           call deletefile(d_r1)
           call deletefile(d_e)
+c
+c delete d_lambda related objects: ucc4
+c
+            if(ucc4) then
+              call deletefile(d_lambda2)
+              if (.not.ma_pop_stack(l_l2_offset))
+     1        call errquit("tce_energy: l2_offset ucc4",4,MA_ERR)
+            endif
+c
           if (nodezero) call util_flush(LuOut)
         enddo
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
