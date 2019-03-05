@@ -826,7 +826,7 @@ c
           alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
      2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
-          alphaani = dsqrt(alphaani/3.d0)  ! anisotropic
+          alphaani = dsqrt(alphaani/2.d0)  ! anisotropic
 c
           if (oprint) then
             if (dabs(dbl_mb(k_fr)).gt.tolfr) then
