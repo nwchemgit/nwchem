@@ -505,6 +505,9 @@ c        call nwpwxc_print()
 *     **** set Kohn-Sham scf parameters ***
       if (.not. btdb_get(rtdb,'nwpw:ks_alpha',mt_dbl,1,ks_alpha))
      >   ks_alpha = 0.25d0
+      if (.not. btdb_get(rtdb,'nwpw:fractional_alpha',
+     >                   mt_dbl,1,fractional_alpha))
+     >   fractional_alpha = 1.00d0
       if (.not.btdb_get(rtdb,'nwpw:scf_algorithm',
      >                  mt_int,1,scf_algorithm))
      >   scf_algorithm = 3
@@ -755,6 +758,9 @@ c        call nwpwxc_print()
 *     **** set Kohn-Sham scf parameters ***
       if (.not. btdb_get(rtdb,'nwpw:ks_alpha',mt_dbl,1,ks_alpha))
      >   ks_alpha = 0.25d0
+      if (.not. btdb_get(rtdb,'nwpw:fractional_alpha',
+     >                   mt_dbl,1,fractional_alpha))
+     >   fractional_alpha = 1.00d0
       if (.not.btdb_get(rtdb,'nwpw:scf_algorithm',
      >                  mt_int,1,scf_algorithm))
      >   scf_algorithm = 3
@@ -2295,6 +2301,21 @@ c      write(*,*) "L3=",L3
 
 *     ***********************************
 *     *					*
+*     *	   control_fractional_alpha	*
+*     *					*
+*     ***********************************
+      real*8 function control_fractional_alpha()
+      implicit none 
+
+#include "control.fh"
+
+      control_fractional_alpha = fractional_alpha
+      return
+      end
+
+
+*     ***********************************
+*     *					*
 *     *		control_kerker_g0	*
 *     *					*
 *     ***********************************
@@ -2993,6 +3014,9 @@ c      end
 *        **** get mult and e-charge from wavefunction file ****
          call psi_get_ne(ispin_wf,ne_wf)
 
+c         write(*,*) "ne_wf = ",ne_wf
+c         x_wf0 = ne_wf(1)+ne_wf(2)
+c         mult0 = ne_wf(1)-ne_wf(2) + 1
          !nextra_orbs = control_frac_occ_extra_orbitals()
          if (ispin_wf.eq.1) then
             ne_wf(1) = ne_wf(1) - control_fractional_orbitals(1)
@@ -3000,11 +3024,14 @@ c      end
             ne_wf(1) = ne_wf(1) - control_fractional_orbitals(1)
             ne_wf(2) = ne_wf(2) - control_fractional_orbitals(2)
          end if
+c         write(*,*) "after ne_wf = ",ne_wf
 
          x_wf = ne_wf(1)+ne_wf(2)
          mult = ne_wf(1)-ne_wf(2) + 1
          if (ispin_wf.eq.1) then
-            x_wf = 2*x_wf
+c            x_wf0 = 2*x_wf0
+c            mult0 = 1
+            x_wf  = 2*x_wf
             mult = 1
          end if
 
@@ -3040,8 +3067,10 @@ c      end
 
 
 *        **** compare multiplicity, charge, and ispin ****
-         check = ((mult.eq.multiplicity).and.
-     >            (x_wf.eq.x)           .and.
+c         check = ( (((mult.eq.multiplicity).and.(x_wf.eq.x))  .or.
+c     >             ((mult0.eq.multiplicity).and.(x_wf0.eq.x))).and.
+c     >            (ispin.eq.ispin_wf))
+         check = ( (mult.eq.multiplicity).and.(x_wf.eq.x).and.
      >            (ispin.eq.ispin_wf))
 
          if (ispin_wf.eq.3) then
