@@ -257,7 +257,8 @@
      >                npack1,nfft3d,nemax,
      >                dcpl_mb(psi2(1)),
      >                dbl_mb(dn(1)),
-     >                dcpl_mb(psir(1)))
+     >                dcpl_mb(psir(1)),
+     >                fractional,dbl_mb(occ2(1)))
 
 c  used to localize psi....input needs to be generated for this capabilitiy
 c      call psi_dmatrix_localize(ispin,ne,ne,n2ft3d,
@@ -367,13 +368,16 @@ c     >                          dcpl_mb(psir(1)),dcpl_mb(psir2(1)))
      >                      npack1,nfft3d,nemax,
      >                      psi,
      >                      dn,
-     >                      psi_r)
+     >                      psi_r, 
+     >                      fractional,occ)
       implicit none
       integer    ispin,ne(2)
       integer    npack1,nfft3d,nemax
       complex*16 psi(npack1,nemax)
       real*8     dn(2*nfft3d,2)
       real*8     psi_r(2*nfft3d,nemax)
+      logical fractional
+      real*8  occ(*)
 
 
 *     **** local variables ****
@@ -426,15 +430,27 @@ c         call D3dB_r_SMul(1,dsqrt(scal2),psi_r(1,n),psi_r(1,n))
 *     **** generate dn ****
 *     *********************
       call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
-      do ms=1,ispin
-         do n=n1(ms),n2(ms)
-            do i=1,n2ft3d
-c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
-               dn(i,ms) = dn(i,ms) + (psi_r(i,n)**2)
+      if (fractional) then
+         do ms=1,ispin
+            do n=n1(ms),n2(ms)
+               do i=1,n2ft3d
+c                  dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
+                  dn(i,ms) = dn(i,ms) + (psi_r(i,n)**2)*occ(n)
+               end do
             end do
+            call D3dB_r_Zero_Ends(1,dn(1,ms))
          end do
-         call D3dB_r_Zero_Ends(1,dn(1,ms))
-      end do
+      else
+         do ms=1,ispin
+            do n=n1(ms),n2(ms)
+               do i=1,n2ft3d
+c                  dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
+                  dn(i,ms) = dn(i,ms) + (psi_r(i,n)**2)
+               end do
+            end do
+            call D3dB_r_Zero_Ends(1,dn(1,ms))
+         end do
+      end if
 
       return
       end

@@ -1618,7 +1618,8 @@ c    >                 dcpl_mb(r1(1)))
 
 
 
-c!*        **** project out psi components from t ****
+*        **** project out psi components from t - may not be needed! ****
+         !call psi_project_out_orb(psi_number,i,dcpl_mb(t(1)))
 c!        call psi_project_out_orb(psi_number,i,dcpl_mb(t(1)))
 c!        call Pack_cc_dot(1,dcpl_mb(psi_ptr+(i-1)*npack1),
 c!    >                   dcpl_mb(t(1)),
@@ -4539,8 +4540,16 @@ c     >                 dbl_mb(tmp_L(1)),ierr)
      >                        dte,
      >                        dbl_mb(lmd(1)),
      >                        dbl_mb(tmp_L(1)),ierr)
-        else if(pspw_SIC().or.occupation_on) then
-           call psi_lmbda_sic(ispin,neq,nemaxq,npack1,
+        else if (occupation_on) then
+           call psi_lmbda2(ispin,ne,nemaxq,npack1,
+     >                     dcpl_mb(psi1(1)),
+     >                     dcpl_mb(psi2(1)),
+     >                     dte,dbl_mb(occ1(1)),
+     >                     dbl_mb(lmd(1)),
+     >                     dbl_mb(tmp_L(1)),ierr)
+
+        else if (pspw_SIC()) then
+           call psi_lmbda_sic(ispin,ne,nemaxq,npack1,
      >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dte,
      >                 dbl_mb(lmd(1)),
      >                 dbl_mb(tmp_L(1)),ierr)
