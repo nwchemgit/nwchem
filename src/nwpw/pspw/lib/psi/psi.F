@@ -1517,7 +1517,6 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
      >                             maxerror,perror,i,
      >                             error_out)
       implicit none
-#include "errquit.fh"
       integer psi_number
       logical precondition
       integer maxiteration
@@ -1527,6 +1526,7 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
       
 #include "bafdecls.fh"
 #include "psi.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
@@ -1573,7 +1573,9 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
          call Pack_cc_dot(1,dcpl_mb(psi_ptr+(i-1)*npack1),
      >                   dcpl_mb(g(1)),
      >                    e0)
+         !dbl_mb(eig(1)+i-1) = e0
          e0 = -e0
+         !write(*,*) "i,e=",i,e0,eold
 
          done = ((it.gt.maxiteration) 
      >           .or.
@@ -4395,6 +4397,9 @@ c      end
       call geodesic2_get(t,dcpl_mb(psi1(1)),
      >                    dcpl_mb(psi2(1)))
 
+      if (occupation_on) 
+     >   call dcopy((ne(1)+ne(2)),dbl_mb(occ1(1)),1,dbl_mb(occ2(1)),1)
+
 *     **** check Orthogonality of psi2 **** !debug
 *      call OrthoCheck_geo(ispin,ne,dcpl_mb(psi2(1))) !debug
 
@@ -4432,7 +4437,10 @@ c      end
 
 
       call geodesic2_transport(t,dcpl_mb(psi1(1)),
-     >                          dcpl_mb(psi2(1)))
+     >                           dcpl_mb(psi2(1)))
+      if (occupation_on)
+     >   call dcopy((ne(1)+ne(2)),dbl_mb(occ1(1)),1,dbl_mb(occ2(1)),1)
+
       psi_geodesic2_denergy =  2.0d0*electron_eorbit(dcpl_mb(psi2(1)),
      >                                  occupation_on,dbl_mb(occ2(1)))
 
@@ -4459,6 +4467,8 @@ c     real*8 sum1,sum2
 
       call geodesic2_get(t,dcpl_mb(psi1(1)),
      >                    dcpl_mb(psi2(1)))
+      if (occupation_on)
+     >   call dcopy((ne(1)+ne(2)),dbl_mb(occ1(1)),1,dbl_mb(occ2(1)),1)
       return
       end
 
@@ -5063,6 +5073,24 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
 
 *     ***********************************
 *     *					*
+*     *		psi_hml_value     	*
+*     *					*
+*     ***********************************
+      real*8  function psi_hml_value(ms,i,j)
+      implicit none
+      integer ms
+      integer i,j
+
+#include "bafdecls.fh"
+#include "psi.fh"
+
+      psi_hml_value = dbl_mb(hml(1) + (i-1)+(j-1)*ne(ms)
+     >                              + (ms-1)*ne(1)*ne(1))
+      return
+      end
+
+*     ***********************************
+*     *					*
 *     *		psi_eigenvalue    	*
 *     *					*
 *     ***********************************
@@ -5129,15 +5157,59 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *     psi_1assending_occupation   *
+*     *                                 *
+*     ***********************************
+*
+*     makes sure the occupation follows an assending order 
+*
+      subroutine psi_1assending_occupation()
+      implicit none
+         
+#include "bafdecls.fh"
+#include "psi.fh"
+     
+      if (dbl_mb(occ1(1)).lt.dbl_mb(occ1(1)+ne(1)-1)) then
+         call psi_1reverse_occupation()
+      end if
+      return
+      end
 
 *     ***********************************
 *     *                                 *
-*     *      psi_1define_occupation    *
+*     *     psi_1desending_occupation   *
 *     *                                 *
 *     ***********************************
-      subroutine psi_1define_occupation(initial)
+*
+*     makes sure the occupation follows a desending order 
+*
+      subroutine psi_1desending_occupation()
       implicit none
-      logical initial
+         
+#include "bafdecls.fh"
+#include "psi.fh"
+     
+      if (dbl_mb(occ1(1)+ne(1)-1).lt.dbl_mb(occ1(1))) then
+         call psi_1reverse_occupation()
+      end if
+      return
+      end
+
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      psi_1define_occupation     *
+*     *                                 *
+*     ***********************************
+      subroutine psi_1define_occupation(initial_alpha,use_hml)
+      implicit none
+      real*8  initial_alpha
+      logical use_hml
 
 #include "bafdecls.fh"
 #include "psi.fh"
@@ -5147,25 +5219,38 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       parameter (itmax=50)
 
       integer ms,nb,n,shift1,shift2,occ1_tag,ndiff
-      real*8 e,x,kT,f,g,alpha,pi
+      real*8 e,x,kT,f,g,alpha,pi,f0
       real*8 ZZ,Z(2),Zlower,Zmid,Zupper,elower,emid,eupper
-      real*8 flower,fmid,fupper
+      real*8 flower,fmid,fupper,lmbda
 
 *     **** external functions ****
       integer  control_multiplicity
       real*8   control_TotalCharge,ion_TotalCharge_qm
-      real*8   psi_occ_distribution,control_ks_alpha
+      real*8   psi_occ_distribution,control_fractional_alpha
       external control_multiplicity
       external control_TotalCharge,ion_TotalCharge_qm
-      external psi_occ_distribution,control_ks_alpha
+      external psi_occ_distribution,control_fractional_alpha
 
+      if (use_hml) then
+         do ms=1,ispin
+            shift1 = eig(1) + (ms-1)*ne(1)
+            shift2 = hml(1) + (ms-1)*ne(1)*ne(1)
+            do n=1,ne(ms)
+               dbl_mb(shift1+n-1) = dbl_mb(shift2+(n-1)+(n-1)*ne(ms))
+            end do
+         end do
+      end if
 
       smearfermi(1)   = 0.0d0
       smearfermi(2)   = 0.0d0
       smearcorrection = 0.0d0
 
       if (occupation_on) then
-         alpha = control_ks_alpha()
+         if (initial_alpha.lt.0.0d0) then
+            alpha = control_fractional_alpha()
+         else
+            alpha = initial_alpha
+         end if
          kT    = smearkT
          ZZ  = ion_TotalCharge_qm() - control_TotalCharge()
          if (dabs(ZZ).lt.1.0d-9) go to 98
@@ -5180,7 +5265,8 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
          end if
        
          pi    = 4.0d0*datan(1.0d0)
-         if (initial) alpha = 1.0d0
+         !if (initial) alpha = 1.0d0
+         if (smeartype.le.0) alpha = 0.0d0
 
 *        **** outer loop over spins ****
          smearcorrection = 0.0d0
@@ -5250,9 +5336,9 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
               e = dbl_mb(shift1)
               x = (e - smearfermi(ms))/kT
               f = psi_occ_distribution(smeartype,x)
+              f0 = dbl_mb(shift2)
 
-
-              dbl_mb(shift2) = (1.0d0-alpha)*dbl_mb(shift2) + alpha*f
+              dbl_mb(shift2) = (1.0d0-alpha)*f0 + alpha*f
 
               if (smeartype.eq.1) then
                  if (  (dbl_mb(shift2)       .gt.1.0d-6) .and. 
@@ -5266,6 +5352,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
      >              = smearcorrection 
      >              - kT*dexp(-x*x)/(4.0d0*dsqrt(pi))
               end if
+
               shift1  = shift1 + 1
               shift2  = shift2 + 1
             end do
@@ -5288,6 +5375,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
 
       return
       end
+
 
 c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
 
@@ -6362,6 +6450,9 @@ c     >        BA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
       call psi_read(ispin,ne,dcpl_mb(psi1(1)),
      >              smearoccupation,dbl_mb(occ1(1)))
 
+      if (occupation_on) then
+         call frac_occ_set(rtdb,ispin,ne,dbl_mb(occ1(1)))
+      end if
 
       call psi_history_read(ispin,ne,
      >                      dcpl_mb(psi1(1)),
@@ -6380,6 +6471,79 @@ c     >        BA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
          end if
          call psi_symm_project(ispin,neq,npack1,dcpl_mb(psi1(1)))
       end if 
+
+*     **** Ortho Check ****
+      call psi_1ortho_check_fix()
+c      if (pawexist) then
+c         call psp_overlap_S(ispin,neq,dcpl_mb(psi1(1)),dcpl_mb(psi2(1)))
+c         call Grsm_gg_trace(npack1,(neq(1)+neq(2)),
+c     >                        dcpl_mb(psi1(1)),
+c     >                        dcpl_mb(psi2(1)),
+c     >                        sum2)
+c      else
+c         call Grsm_gg_trace(npack1,(neq(1)+neq(2)),
+c     >                        dcpl_mb(psi1(1)),
+c     >                        dcpl_mb(psi1(1)),
+c     >                        sum2)
+c      end if
+c      call D1dB_SumAll(sum2)
+c
+c
+c      sum1 = dble(ne(1) + ne(2))
+c      if ((control_ortho()).and.(dabs(sum2-sum1).gt.1.0d-10)) then
+c         call Parallel_taskid(taskid)
+c         if (pawexist) then
+c         call Dneall_f_Sortho(0,dcpl_mb(psi1(1)),
+c     >                          dcpl_mb(psi2(1)),npack1)
+c         call psp_overlap_S(ispin,neq,dcpl_mb(psi1(1)),
+c     >                                dcpl_mb(psi2(1)))
+c         call Grsm_gg_trace(npack1,(neq(1)+neq(2)),
+c     >                        dcpl_mb(psi1(1)),
+c     >                        dcpl_mb(psi2(1)),
+c     >                        sum3)
+c         else
+cc         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
+c         call Dneall_f_GramSchmidt(0,dcpl_mb(psi1(1)),npack1)
+c         call Grsm_gg_trace(npack1,(neq(1)+neq(2)),
+c     >                        dcpl_mb(psi1(1)),
+c     >                        dcpl_mb(psi1(1)),
+c     >                        sum3)
+c         end if
+c         call D1dB_SumAll(sum3)
+c         if ((taskid.eq.MASTER).and.(control_print(print_medium)))
+c     >    write(luout,*) 
+c     >     "Warning - Gram-Schmidt being performed on psi:",
+c     >               sum1,sum2,sum3,dabs(sum2-sum1)
+c
+c
+c      end if
+
+      psi_initialize = value
+      return
+      end
+
+*     ***************************
+*     *				*
+*     *	 psi_1ortho_check_fix   *
+*     *				*
+*     ***************************
+      subroutine psi_1ortho_check_fix()
+      implicit none
+
+#include "bafdecls.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+      real*8 sum2,sum1,sum3
+
+*     **** external functions ****
+      logical  control_ortho,control_print
+      external control_ortho,control_print
 
 *     **** Ortho Check ****
       if (pawexist) then
@@ -6418,15 +6582,16 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
      >                        sum3)
          end if
          call D1dB_SumAll(sum3)
-         if ((taskid.eq.MASTER).and.(control_print(print_medium)))
-     >    write(luout,*) 
-     >     "Warning - Gram-Schmidt being performed on psi:",
-     >               sum1,sum2,sum3,dabs(sum2-sum1)
-
+         if ((taskid.eq.MASTER).and.(control_print(print_medium))) then
+             write(luout,321) sum1,sum2,sum3,dabs(sum2-sum1)
+         end if
+ 321     format(/" Warning - K.S. orbitals are not orthonormal. ",
+     >      "Applying Gram-Schmidt orthonormalization."/,
+     >       "         - exact norm=",E12.6," norm=",E12.6,
+     >       " corrected norm=",E12.6,
+     >       " (error=",E12.6,")"/)
 
       end if
-
-      psi_initialize = value
       return
       end
 

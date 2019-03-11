@@ -109,7 +109,6 @@
       !write(*,*) "ispin,ne=",ispin,ne
       !write(*,*) "mult=",mult
 
-
       nextra_orbs = control_frac_occ_extra_orbitals()
       if (ispin.eq.1) then
          ne(1) = ne(1) + nextra_orbs
