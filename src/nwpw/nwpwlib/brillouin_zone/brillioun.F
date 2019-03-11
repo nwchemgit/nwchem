@@ -23,7 +23,7 @@
 
       logical value,use_sym,oprint
       integer nb,nb0,nbq,count,taskid_k,p,nbrillioun_print
-      integer nbrillioun0,kindx(2),kw(2)
+      integer kindx(2),kw(2)
       real*8  kvec(3),ksvec(4)
       real*8 total_weight 
 
@@ -34,17 +34,16 @@
       external control_num_kvectors,control_num_kvectors_print
 
       call Parallel_taskid(taskid)
-      oprint = (taskid.eq.MASTER).and.control_print(print_medium)
+      oprint = (taskid.eq.MASTER).and.control_print(print_high)
 
       call Parallel3d_taskid_k(taskid_k)
 
       use_sym = control_brillioun_use_symmetry()
-      nbrillioun = control_num_kvectors()
-
+      nbrillioun  = control_num_kvectors()
+      nbrillioun0 = nbrillioun
 
 *     **** set up indexing based on symmetry ****
       if (use_sym) then
-         nbrillioun0 = nbrillioun
 *        **** allocate from MA stack ****
          value =BA_push_get(mt_int,nbrillioun0,'kindx',
      >                      kindx(2),kindx(1))
@@ -254,6 +253,21 @@
 #include "brillioun_common.fh"
 
       brillioun_nbrillioun = nbrillioun
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         brillioun_nbrillioun    *
+*     *                                 *
+*     ***********************************
+      integer function brillioun_nbrillioun0()
+      implicit none
+
+#include "bafdecls.fh"
+#include "brillioun_common.fh"
+
+      brillioun_nbrillioun0 = nbrillioun0
       return
       end
 
