@@ -2539,7 +2539,7 @@ c     &       MA_ERR)
 c
 c      electron_psi_vnl_ave = enlocal
 
-      electron_psi_vnl_ave = E_vnonlocal(ispin,neq,fractional,occ)
+      electron_psi_vnl_ave = E_Vnonlocal(ispin,neq,fractional,occ)
       return
       end
 
