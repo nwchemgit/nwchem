@@ -915,7 +915,7 @@ c
       goto 10
 
 c
-c OCCUPATIONS
+c occupations
 c
  4300 call frac_occ_input(rtdb)
       goto 10
@@ -1312,21 +1312,45 @@ c
 c
 c smear temperature
 c
- 6200 alpha = 0.001d0/kb !* use same default as gaussian dft
+ 6200 ff = 0.001d0/kb !* use same default as gaussian dft
+      alpha = 1.0d0 !* smear mixing parameter
       nz      = 2  !* smeartype  !* use same default as gaussian dft
-      loop(1) = 4  !* frac_orb(1)
-      loop(2) = 4  !* frac_orb(2)
+      if (.not.rtdb_get(rtdb,'nwpw:fractional_orbitals',
+     >                  mt_int,2,loop)) then
+         loop(1) = 4  !* frac_orb(1)
+         loop(2) = 4  !* frac_orb(2)
+      end if
+      if (.not.rtdb_get(rtdb,'nwpw:fractional_temperature',
+     >                  mt_dbl,1,ff)) then
+         ff = 0.001d0/kb !* use same default as gaussian dft
+      end if
+      if (.not.rtdb_get(rtdb,'nwpw:fractional_alpha',
+     >                  mt_dbl,1,alpha)) then
+         alpha = 1.0d0 !* smear mixing parameter
+      end if
+      if (.not.rtdb_get(rtdb,'nwpw:fractional_smeartype',
+     >                  mt_int,1,nz)) then
+         nz      = 2  !* smeartype  !* use same default as gaussian dft
+      end if
+
       if (inp_f(ecut)) then
-         alpha = ecut/kb
+         ff = ecut/kb
       else
          call inp_prev_field()
       end if
  6201 if (.not.inp_a(zone_name)) goto 6202
       if (inp_compare(.false.,zone_name,'temperature')) then
-         if (.not.inp_f(alpha)) 
+         if (.not.inp_f(ff)) 
      >   call errquit(
      >    'nwpw_input:error reading smear temperature',6200,INPUT_ERR)
       end if
+      if (inp_compare(.false.,zone_name,'alpha')) then
+         if (.not.inp_f(alpha)) 
+     >   call errquit(
+     >    'nwpw_input:error reading smear alpha',6200,INPUT_ERR)
+      end if
+      if (inp_compare(.false.,zone_name,'fixed'))    nz = -1
+      if (inp_compare(.false.,zone_name,'step'))     nz = 0
       if (inp_compare(.false.,zone_name,'fermi'))    nz = 1
       if (inp_compare(.false.,zone_name,'gaussian')) nz = 2
      
@@ -1342,8 +1366,9 @@ c
       end if
       go to 6201
  6202 if (.not.
-     > (rtdb_put(rtdb,'nwpw:fractional_orbitals',mt_int,2,loop)    .and.
-     >  rtdb_put(rtdb,'nwpw:fractional_temperature',mt_dbl,1,alpha).and.
+     > (rtdb_put(rtdb,'nwpw:fractional_orbitals',mt_int,2,loop) .and.
+     >  rtdb_put(rtdb,'nwpw:fractional_temperature',mt_dbl,1,ff).and.
+     >  rtdb_put(rtdb,'nwpw:fractional_alpha',mt_dbl,1,alpha).and.
      >  rtdb_put(rtdb,'nwpw:fractional_smeartype',mt_int,1,nz)))
      >  call errquit('nwpw_input: error writing to rtdb',6200,RTDB_ERR)
 
