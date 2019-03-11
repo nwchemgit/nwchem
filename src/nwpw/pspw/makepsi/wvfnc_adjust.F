@@ -24,13 +24,15 @@
       integer NMAX
       integer filling(2)
       integer fractional_orbitals(2),ne(2)
-      character*255 new_filename,old_filename
+      character*255 new_filename,old_filename,emo_filename
 
 *     **** external functions ****
       logical  control_fractional
       integer  control_fractional_orbitals
       external control_fractional
       external control_fractional_orbitals
+      character*50 control_input_epsi
+      external     control_input_epsi
 
       ne(1) = nein(1)
       ne(2) = nein(2)
@@ -62,14 +64,25 @@
      >                    new_filename)
         call util_file_copy(new_filename,old_filename)
 
+        !*** fetch the emovecs filename ***
+        call util_file_name_noprefix(control_input_epsi(),
+     >                    .false.,
+     >                    .false.,
+     >                    emo_filename)
+
+        !*** adjust wavefunctions ***
         call sub_wvfnc_adjust(NMAX,int_mb(filling(1)),
      >                     new_filename,
      >                     old_filename,
+     >                     emo_filename,
      >                     ispin,
      >                     ne,
      >                     fractional,
      >                     fractional_orbitals)
-      call util_file_unlink(old_filename)
+
+        !*** remove temporary wvfnc_adjust file ***
+        call util_file_unlink(old_filename)
+
 
         write(*,*) "wavefunction adjust, new psi:",
      >             wavefunction_filename
@@ -86,6 +99,7 @@
       subroutine sub_wvfnc_adjust(NMAX,filling,
      >                         new_filename,
      >                         old_filename,
+     >                         emo_filename,
      >                         ispin,
      >                         ne,
      >                         fractional,
@@ -95,6 +109,7 @@
       integer filling(4,NMAX,2)
       character*255 new_filename
       character*255 old_filename
+      character*255 emo_filename
       integer      ispin,ne(2)
       logical      fractional
       integer      frac_orb(2)
@@ -102,7 +117,7 @@
 #include "bafdecls.fh"
 #include "errquit.fh"
  
-      logical value
+      logical value,emo_found,emo_used
       character*255 full_filename
 
       integer      version
@@ -114,13 +129,14 @@
       integer cfull_indx,cfull_hndl,l,l1,l2
       integer i,j,k,ms,n,occupation
       integer n0,ms0,n0max,ispin0,ne0(2)
+      integer nx,msx,nxmax,ispinx,nex(2)
 
       double precision p,scale
       double complex cc,cx,sx,zx,zc,rx,ry
 
 *     **** external functions ****
-      double precision gcdotc,util_random
-      external         gcdotc,util_random
+      double precision GCDOTC,util_random
+      external         GCDOTC,util_random
  
 
       p = util_random(5291999) !*** initialize the random sequence ****
@@ -170,7 +186,7 @@
       inc3c =inc2c*nfft2
 
 *     ***** allocate wavefunction memory ****
-      value = BA_push_get(mt_dcpl,nfft3d,
+      value = BA_push_get(mt_dcpl,2*nfft3d,
      >                     'cfull',cfull_hndl,cfull_indx)
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
@@ -186,16 +202,55 @@
         end do
       end do
 
+*     **** try to read emo_filename ***
+      nex(1) = 0
+      nex(2) = 0
+      emo_found = .false.
+      emo_used  = .false.
+      inquire(file=emo_filename,exist=emo_found)
+      if (emo_found) then
+         l = index(emo_filename,' ') - 1
+         call openfile(3,emo_filename,l,'r',l)
+         call iread(3,version,1)
+         call iread(3,ngrid,3)
+         call dread(3,unita,9)
+         call iread(3,ispinx,1)
+         call iread(3,nex,2)
+         call iread(3,occupation,1)
+      end if
+
  
 
       ms0 = 1
+      msx = 1
       do ms=1,ispin
          n0 = 1
-         n0max = ne(ms0)
+         nx = 1
+         n0max = ne0(ms0)
+         nxmax = nex(ms0)
          do n=1,ne(ms)
 
-            if (n0.le.n0max) then
+            !*** read from old filename ***
+            if (n.le.n0max) then
                call dread(5,dcpl_mb(cfull_indx),n2ft3d)
+               n0 = n0 + 1
+
+            !*** read from emo_filename ***
+            else if (n.le.(n0max+nxmax)) then
+               call dread(3,dcpl_mb(cfull_indx),n2ft3d)
+               nx = nx + 1
+               emo_used  = .true.
+               call sub_wvfnc_project_out(n2ft3d,
+     >                                  dcpl_mb(cfull_indx),
+     >                                  dcpl_mb(cfull_indx+nfft3d),
+     >                                  old_filename)
+               P=GCDOTC(nfft1,nfft2,nfft3,
+     >                     dcpl_mb(cfull_indx),
+     >                     dcpl_mb(cfull_indx))
+               P=1.0d0/dsqrt(P)
+               call dscal(n2ft3d,P,dcpl_mb(cfull_indx),1)
+
+            !*** generate new random wavefunction ***
             else
                call dcopy(n2ft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
                l1= inc3c*filling(3,n,ms)
@@ -223,6 +278,12 @@ c                if((ABS(filling(4,n,ms)).gt.1)) then
                   dcpl_mb(cfull_indx) = dcmplx(dble(zc),0.0d0)
                   call gctimereverse(nfft1,nfft2,nfft3,
      >                               dcpl_mb(cfull_indx))
+
+                  call sub_wvfnc_project_out(n2ft3d,
+     >                                  dcpl_mb(cfull_indx),
+     >                                  dcpl_mb(cfull_indx+nfft3d),
+     >                                  old_filename)
+
                   P=gcdotc(nfft1,nfft2,nfft3,
      >                     dcpl_mb(cfull_indx),
      >                     dcpl_mb(cfull_indx))
@@ -232,10 +293,11 @@ c                end if
             end if
 
             call dwrite(6,dcpl_mb(cfull_indx),n2ft3d)
-            n0 = n0 + 1
+            !n0 = n0 + 1
          end do
          
          ms0 = ms0 + 1
+         msx = msx + 1
 
 *        **** rewind the wavefunction read ****
          if (ms0.gt.ispin0) then
@@ -257,6 +319,30 @@ c                end if
              call dread(5,dcpl_mb(cfull_indx),n2ft3d)
            end do
          end if
+
+*        **** read remaining emo_filename wavefunctions in spin ***
+         if (emo_found) then
+            if (msx.gt.ispinx) then
+               msx = 1
+               call closefile(3)
+               l = index(emo_filename,' ') - 1
+               call openfile(3,emo_filename,l,'r',l)
+               call iread(3,version,1)
+               call iread(3,ngrid,3)
+               call dread(3,unita,9)
+               call iread(3,ispinx,1)
+               call iread(3,nex,2)
+               call iread(3,occupation,1)
+            end if
+
+*           **** read remaining wvfunctions in spin ****
+            if ((ispinx.eq.2).and.(ispin.eq.2).and.(nx.le.nxmax)) then
+              do n=nx,nxmax
+                call dread(3,dcpl_mb(cfull_indx),n2ft3d)
+              end do
+            end if
+         end if
+
       end do
 
 c     **** add occupation - don't use previous start from scratch ****
@@ -265,15 +351,19 @@ c     **** add occupation - don't use previous start from scratch ****
          ry = 0.0d0
          do ms=1,ispin
            do n=1,ne(ms)
-             if (n.le.frac_orb(ms)) then
-                call dwrite(6,ry,1)
-             else
+             if (n.le.ne0(ms)) then
                 call dwrite(6,rx,1)
+             else
+                call dwrite(6,ry,1)
              end if
            end do
          end do
       end if
  
+      if (emo_found) then
+         call closefile(3)
+         if (emo_used) call util_file_unlink(emo_filename) !*** remove emo_filename ***
+      end if
       call closefile(5)
       call closefile(6)
  
@@ -283,4 +373,38 @@ c     **** add occupation - don't use previous start from scratch ****
       return 
       end
  
+      subroutine sub_wvfnc_project_out(n2ft3d,psi,tpsi,old_filename)
+      implicit none
+      integer n2ft3d
+      complex*16 psi(*)
+      complex*16 tpsi(*)
+      character*255 old_filename
+
+      integer l,version,ngrid(3)
+      integer i,occupation
+      integer ispin0,ne0(2)
+
+      double precision p,unita(9)
+
+*     **** external functions ****
+      double precision GCDOTC
+      external         GCDOTC
+
+      l = index(old_filename,' ') - 1
+      call openfile(4,old_filename,l,'r',l)
+      call iread(4,version,1)
+      call iread(4,ngrid,3)
+      call dread(4,unita,9)
+      call iread(4,ispin0,1)
+      call iread(4,ne0,2)
+      call iread(4,occupation,1)
+      do i=1,ne0(1)
+         call dread(4,tpsi,n2ft3d)
+         p = GCDOTC(ngrid(1),ngrid(2),ngrid(3),tpsi,psi)
+         call daxpy(n2ft3d,-p,tpsi,1,psi,1)
+      end do
+      call closefile(4)
+
+      return
+      end
 
