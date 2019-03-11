@@ -131,7 +131,7 @@ c     external lcao_wvfnc
          ne(2) = ne(2) + nextra_orbs
       end if
 
-c      rtdb = control_rtdb()
+      rtdb = control_rtdb()
 c      if (.not.btdb_get(rtdb,
 c     >         'nwpw:lcao_iterations',mt_int,1,lcao_iterations))
 c     >   lcao_iterations = 10
