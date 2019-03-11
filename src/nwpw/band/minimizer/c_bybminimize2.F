@@ -195,8 +195,8 @@ c
       call nwpw_scf_mixing_init(control_scf_algorithm(),alpha,
      >                5,ispin,nfft3d,dbl_mb(rho_out(1)))
 
-      !!*** set the density ***
-      !call cpsi_set_density(1,dbl_mb(rho_out(1)))
+c      !*** set the density ***
+c      call cpsi_set_density(1,dbl_mb(rho_out(1)))
 
 *     ***** scf loop ****
       it   = 0

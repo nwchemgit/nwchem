@@ -63,8 +63,8 @@
       logical  control_DOS,ion_disp_on
       external control_DOS,ion_disp_on
 
-      real*8   cpsi_1ke
-      external cpsi_1ke
+      real*8   cpsi_1ke,cpsi_1energy
+      external cpsi_1ke,cpsi_1energy
 
       call Parallel_taskid(taskid)
 
