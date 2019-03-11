@@ -90,10 +90,12 @@
 
       logical  brillioun_print,control_Mulliken
       integer  brillioun_nbrillioun,brillioun_nbrillq
+      integer  brillioun_nbrillioun0
       real*8   brillioun_weight_brdcst,brillioun_ks_brdcst
       real*8   brillioun_k_brdcst,brillioun_weight
       external brillioun_print,control_Mulliken
       external brillioun_nbrillioun,brillioun_nbrillq
+      external brillioun_nbrillioun0
       external brillioun_weight_brdcst,brillioun_ks_brdcst 
       external brillioun_k_brdcst,brillioun_weight
       integer  c_electron_count,linesearch_count
@@ -142,8 +144,8 @@
       external control_fractional,control_print
       integer  control_fractional_smeartype
       external control_fractional_smeartype
-      real*8   control_fractional_kT
-      external control_fractional_kT
+      real*8   control_fractional_kT,control_fractional_alpha
+      external control_fractional_kT,control_fractional_alpha
 
 c      character*255 cpsp_comment,comment
 c      external      cpsp_comment
@@ -275,12 +277,12 @@ c      call center_mass(gx,gy,gz)
 *        **** convert from pspw format to band format ****
          vers = psi_get_version()
          if ((vers.eq.3).or.(vers.eq.4)) then
-           newpsi = .true.
-           value = btdb_parallel(.false.)
-           if (taskid.eq.MASTER) then
-             value= pspw_reformat_c_wvfnc(1)  
-           end if
-           value = btdb_parallel(.true.)
+            newpsi = .true.
+            value = btdb_parallel(.false.)
+            if (taskid.eq.MASTER) then
+              value= pspw_reformat_c_wvfnc(1)  
+            end if
+            value = btdb_parallel(.true.)
          end if
       end if
 
@@ -294,6 +296,7 @@ c      call center_mass(gx,gy,gz)
       nbrillioun = brillioun_nbrillioun()
       call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
       value = cpsi_initialize(.true.)
+      newpsi = newpsi.or.value
 
 *     **** electron and geodesic data structures ****
       call c_electron_init()
@@ -433,7 +436,8 @@ c           write(luout,1154) cpsp_lmmax(ia)
          write(luout,1261) ewald_mandelung()
 
          write(luout,1255)
-         write(luout,1256) brillioun_nbrillioun()
+         write(luout,1256) brillioun_nbrillioun(),
+     >                     brillioun_nbrillioun0()
       end if
 
 c     **** print brillioun zone - extra logic for distributed kpoints ****
@@ -512,7 +516,8 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
            if (control_fractional_smeartype().eq.2)
      >       write(6,1298) "Gaussian"
            write(6,1299) control_fractional_kT(),
-     >                   control_fractional_temperature()
+     >                   control_fractional_temperature(),
+     >                   control_fractional_alpha()
          end if
          write(luout,1300)
          call util_flush(luout)
@@ -578,6 +583,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 *     **** output energy, dipole, and gradient to rtdb for use ****
 *     **** by task_energy and task_gradient                    ****
 *     *************************************************************
+      value = .true.
       if (flag.gt.-1) then
       value = btdb_put(rtdb,'band:energy',mt_dbl,1,EV)
       value = value.and.
@@ -701,9 +707,9 @@ cc      call band_kp_structure(rtdb)
  1042 FORMAT(10X,
      > '*  with Brillouin zone sampling for optimizing crystals, *')
  1043 FORMAT(10X,
-     > '*  slabs, and polymers.  Developed by Eric J. Bylaska    *')
+     > '*  slabs, and polymers.  Developed by Eric J. Bylaska,   *')
  1044 FORMAT(10X,
-     > '*  , Edoardo Apra, and Patrick Nichols.                  *')
+     > '*  Edoardo Apra, and Patrick Nichols.                    *')
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
  1111 FORMAT(/' number of processors used:',I16)
@@ -766,7 +772,8 @@ cc      call band_kp_structure(rtdb)
 
   
  1255 FORMAT(/' brillouin zone:')
- 1256 FORMAT(5x,' number of zone points:',I6)
+ 1256 FORMAT(5x,' number of zone points:',I6,
+     >          ' (reduced from ',I0,' zone points without symmetry)')
  1257 FORMAT(5x,' weight=',f8.3,'  ks=<',3f8.3,' >, k=<',3f8.3,'>')
  1258 FORMAT(5x,' number of k-points is very large')
 
@@ -788,7 +795,8 @@ cc      call band_kp_structure(rtdb)
  1296 FORMAT(5X, ' scf mixing type      = ',A)
  1297 FORMAT(/' fractional smearing parameters:')
  1298 FORMAT(5X, ' smearing algorithm   = ',A)
- 1299 FORMAT(5X, ' smearing parameter   = ',E9.3,' (',F7.1,' K)')
+ 1299 FORMAT(5X, ' smearing parameter   = ',E9.3,' (',F7.1,' K)'/,
+     >       5X, ' mixing parmameter    = ',F7.4)
  1300 FORMAT(//)
  1301 FORMAT(5X, ' Kerker damping       =',F7.4)
  1305 FORMAT(10X,'================ iteration =========================')

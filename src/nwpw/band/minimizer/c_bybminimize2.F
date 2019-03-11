@@ -41,7 +41,7 @@ c
       real*8     tole,tolc
       real*8     ehartree,eorbit,exc,pxc,eion
       real*8     Enew,Eold,alpha
-      !common / cgsd_block / Enew,Eold,alpha
+      common / c_cgsd_block / Enew,Eold,alpha
 
       integer it,it_in,ispin,sd_it,cg_it
 
@@ -149,7 +149,7 @@ c
 
 *     **** set the initial density ****
       if (current_iteration.eq.1) then
-         Enew   = cpsi_1energy()
+         Enew  = cpsi_1energy()
          alpha = control_ks_alpha()
          deltae = -9232323299.0d0
          ks_deltae = tole
@@ -157,10 +157,24 @@ c
          call cpsi_get_density(1,dbl_mb(rho_in(1)))
          call cpsi_get_density(1,dbl_mb(rho_out(1)))
 
+         call cpsi_1gen_hml()
+         call cpsi_diagonalize_hml()
+         !call cpsi_1rotate2()
+         !call cpsi_2to1()
+         if (control_fractional()) then
+            !call cpsi_1gen_hml()
+            !call cpsi_diagonalize_hml()
+            call cpsi_1define_occupation(0.0d0,.false.)
+            Enew = Enew + cpsi_smearcorrection()
+         else
+            call cpsi_1rotate2()
+            call cpsi_2to1()
+         end if
+         !write(*,*) "ENEW=",Enew+eion
+         !if (control_fractional()) call cpsi_1assending_occupation()
          !Enew   = cpsi_1energy()
 
       else
-         Enew   = cpsi_1energy()
          call cpsi_get_density(1,dbl_mb(rho_in(1)))
          call cpsi_get_density(1,dbl_mb(rho_out(1)))
       end if
@@ -181,6 +195,8 @@ c
       call nwpw_scf_mixing_init(control_scf_algorithm(),alpha,
      >                5,ispin,nfft3d,dbl_mb(rho_out(1)))
 
+      !!*** set the density ***
+      !call cpsi_set_density(1,dbl_mb(rho_out(1)))
 
 *     ***** scf loop ****
       it   = 0
@@ -190,19 +206,21 @@ c
       call cpsi_KS_update(1,precondition,ks_deltae)
       call c_rho_1to2()
 
-*     **** rotate orbitals ****
+*     **** rotate orbitals or define fractional occupation **** 
       call cpsi_1gen_hml()
       call cpsi_diagonalize_hml()
       call cpsi_1rotate2()
       call cpsi_2to1()
 
-*     **** define fractional occupation ****
-      if (control_fractional()) call cpsi_1define_occupation(.false.)
+      if (control_fractional()) then
+         call cpsi_1define_occupation(-1.0d0,.false.)
+      end if
 
       Eold = Enew
       Enew = cpsi_1energy()
-
+      if (control_fractional()) Enew = Enew + cpsi_smearcorrection()
       deltae = Enew-Eold
+
 
       call cpsi_get_density(1,dbl_mb(rho_in(1)))
 
@@ -237,6 +255,7 @@ c
   30     call c_sdminimize(sd_it)
          Eold   = Enew
          Enew   = cpsi_1energy()
+         if (control_fractional()) Enew = Enew + cpsi_smearcorrection()
          !if (dabs(Enew-Eold).gt.1.0d2) go to 30
 
          call dcopy(ispin*2*nfft3d,
@@ -262,6 +281,10 @@ c
          call cpsi_1rotate2()
          call cpsi_2to1()
 
+c*        **** define fractional occupation ****
+c         if (control_fractional()) 
+c     >      call cpsi_1define_occupation(1.0d0,.false.)
+
          stalled       = .false.
          deltae_history(1) = 0.0d0
          deltae_history(2) = 0.0d0
@@ -270,6 +293,7 @@ c
          stalled_count     = 0
 
       end if
+
 
       !*** make sure charge is positive and normalized properly ***
       do ms=1,ispin
@@ -367,7 +391,6 @@ c      call cpsi_check()
 
       if (control_fractional()) then
         E(12) = cpsi_smearcorrection()
-        E(1)  = E(1) + E(12)
       end if
 
 *     **** HFX terms ****
