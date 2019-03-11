@@ -68,6 +68,8 @@ c#include "global.fh"
       external control_hess_model
       real*8   ion_hess_energy
       external ion_hess_energy
+      real*8   psi_1energy
+      external psi_1energy
 
       !**** hack for implementing hessian energy model ****
       if (control_hess_model()) then
@@ -135,6 +137,14 @@ c#include "global.fh"
       if (newpsi) then
          call pspw_Lin_HFX_reset()
          call sdminimize(15)
+         if (control_fractional()) then
+            call psi_1toelectron()
+            call psi_1gen_hml()
+            call psi_diagonalize_hml_assending()
+            call psi_1rotate2()
+            call psi_2to1()
+            call psi_1define_occupation(-1.0d0,.false.)
+         end if
          !call bybminimize(E,deltae,deltac,1,.true.,2)
       end if
    2  continue
@@ -160,7 +170,13 @@ c#include "global.fh"
          else if (minimizer.eq.4) then
            bfgscount = bfgscount + 1
            call cgminimize2(E,deltae,deltac,bfgscount)
-
+           if (control_fractional()) then
+              call psi_1gen_hml()
+              call psi_diagonalize_hml_assending()
+              call psi_1define_occupation(-1.0d0,.false.)
+              !call psi_1rotate2()
+              !call psi_2to1()
+           end if
          else if (minimizer.eq.5) then
            bfgscount = bfgscount + 1
            call bybminimize(E,deltae,deltac,bfgscount,.false.,1,failed)
@@ -293,18 +309,18 @@ c          **** reset minimizer if failed ****
       en(1) = en1(1) + en2(1)
       en(2) = en1(2) + en2(2)
       call psi_1gen_hml()
-
       call psi_diagonalize_hml()
 
-*     *** reverse the order of occ ***
+*     !*** make sure occupation is in descending order ***
       if (control_fractional())  then
-         call psi_1reverse_occupation()
+         !call psi_1reverse_occupation()
+         call psi_1desending_occupation()
       end if
+
 
       if (pspw_SIC()) then
          call psi_1gen_hml_g()
-c      else if (.not.control_fractional()) then
-      else 
+      else if (.not.control_fractional()) then
          call psi_1rotate2()
          call psi_2to1()
       end if
@@ -545,6 +561,7 @@ c            end do
 
       end if
       if (control_symmetry().gt.0) call psi_ab_kill_irrep_names()
+      if (control_fractional()) call psi_1assending_occupation()
 
       rtdb = control_rtdb()
       if (control_DOS()) call psi_DOS(rtdb)

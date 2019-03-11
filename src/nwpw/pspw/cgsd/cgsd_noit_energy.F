@@ -123,7 +123,9 @@ c     $Id$
       call psi_1gen_hml()
       call psi_diagonalize_hml()
       if (control_fractional()) then
-         call psi_1define_occupation(.true.)
+        !call psi_1define_occupation(.true.)
+        call psi_1desending_occupation()
+        call psi_1define_occupation(0.0d0,.false.)
         E(28) = psi_smearcorrection()
         E(1)  = E(1) + E(28)
       end if

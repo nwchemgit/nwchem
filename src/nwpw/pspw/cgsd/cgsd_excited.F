@@ -66,9 +66,9 @@ c#include "bafdecls.fh"
 
 *        **** Using gradients of filled orbitals to define virtual space ****
          if (gvirtual) then
-            write(*,*) "into gen gradients"
+            !write(*,*) "into gen gradients"
             value = psi_2epsi_gradients(3)
-            write(*,*) "out gen gradients"
+            !write(*,*) "out gen gradients"
 
 *        **** calculating regular virtual orbitals ****
          else

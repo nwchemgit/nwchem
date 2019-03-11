@@ -142,6 +142,8 @@
       external control_fractional_smeartype,control_excited_ne
       real*8   control_fractional_kT,control_fractional_temperature
       external control_fractional_kT,control_fractional_temperature
+      real*8   control_fractional_alpha
+      external control_fractional_alpha
       logical  psp_pawexist,psp_paw_use_grid_cmp
       external psp_pawexist,psp_paw_use_grid_cmp
       integer  psp_paw_mult_l_max
@@ -562,14 +564,18 @@ c           call psp_check_print(ia)
          end if
         if (control_fractional()) then
            write(6,1297)
+           if (control_fractional_smeartype().eq.-1)
+     >       write(6,1298) "fixed occupation"
            if (control_fractional_smeartype().eq.0)
      >       write(6,1298) "step function"
            if (control_fractional_smeartype().eq.1)
      >       write(6,1298) "Fermi-Dirac"
            if (control_fractional_smeartype().eq.2)
      >       write(6,1298) "Gaussian"
-           write(6,1299) control_fractional_kT(),
-     >                   control_fractional_temperature()
+           if (control_fractional_smeartype().ge.0)
+     >       write(6,1299) control_fractional_kT(),
+     >                     control_fractional_temperature(),
+     >                     control_fractional_alpha()
          end if
          write(luout,1300)
 c         call ion_Print_neighborlist()
@@ -878,7 +884,8 @@ c      call frac_occ_end()
  1296 FORMAT(5X, ' SCF mixing type      = ',A)
  1297 FORMAT(/' fractional smearing parameters:')
  1298 FORMAT(5X, ' smearing algorithm   = ',A)
- 1299 FORMAT(5X, ' smearing parameter   = ',E9.3,' (',F7.1,' K)')
+ 1299 FORMAT(5X, ' smearing parameter   = ',E9.3,' (',F7.1,' K)'/,
+     >       5X, ' mixing parmameter    = ',F7.4) 
  1300 FORMAT(//)
  1301 FORMAT(5X, ' Kerker damping       =',F7.4)
  1305 FORMAT(10X,'================ iteration =========================')
