@@ -232,7 +232,9 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
 *     **** read the occupations - still a bit hacky ****
       if (occupation.gt.0) then
          l = cpsi_data_get_next(psi2_tag)
-         if (nbrillioun.eq.nbrill) then
+*        * file may contain more data then necessary *
+c        if (nbrillioun.eq.nbrill) then
+         if (nbrillioun.le.nbrill) then
 
             do nb=1,nbrillioun
                call K1dB_ktoqp(nb,nbq,pk)
@@ -249,19 +251,32 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
                end if
             end do
 *        **** reset to zeros and ones ****
+*       * file contains less data then necessary *
          else
-           do nb=1,nbrillioun
+           do nb=1,nbrill
+             call K1dB_ktoqp(nb,nbq,pk) 
+             if (taskid.eq.MASTER) then
+               call dread(5,dbl_mb(tmpe(1)),(ne(1)+ne(2)))
+             end if
+             call Parallel_Brdcst_values(MASTER,
+     >                                   (ne(1)+ne(2)),dbl_mb(tmpe(1)))
+             if (pk.eq.taskid_k) then 
+               do n =1,ne(1)+ne(2)
+                   call cpsi_data_add(l,nbq,n,dbl_mb(tmpe(1)+n-1))
+                 !if (n.le.(ne(ms)-control_fractional_orbitals(ms))) then
+                 !  unita(1,1) = 1.0d0  
+                 !else
+                 !  unita(1,1) = 0.0d0  
+                 !end if
+                 !call cpsi_data_add(l,nbq,(n+(ms-1)*ne(1)),unita)
+               end do
+             end if
+           end do
+           do nb=nbrill+1,nbrillioun
              call K1dB_ktoqp(nb,nbq,pk) 
              if (pk.eq.taskid_k) then 
-               do ms=1,ispin
-               do n =1,ne(ms)
-                 if (n.le.(ne(ms)-control_fractional_orbitals(ms))) then
-                   unita(1,1) = 1.0d0  
-                 else
-                   unita(1,1) = 0.0d0  
-                 end if
-                 call cpsi_data_add(l,nbq,(n+(ms-1)*ne(1)),unita)
-               end do
+               do n =1,ne(1)+ne(2)
+                   call cpsi_data_add(l,nbq,n,dbl_mb(tmpe(1)+n-1))
                end do
              end if
            end do

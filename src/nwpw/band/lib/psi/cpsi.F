@@ -1128,6 +1128,35 @@ c     &       MA_ERR)
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *         cpsi_scal_hml           *
+*     *                                 *
+*     ***********************************
+      subroutine cpsi_scal_hml(alpha)
+      implicit none
+      real*8 alpha
+
+#include "bafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      integer nb,hml_shift
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+     
+      do nb=1,nbrillq
+         hml_shift = cpsi_data_get_chnk(hml_tag,nb)
+         call Pneb_w_scal(0,nb,alpha,dbl_mb(hml_shift))
+      end do
+      return        
+      end  
+
+
+
 *     ***********************************
 *     *					*
 *     *		cpsi_eigenvalue    	*
@@ -1234,9 +1263,10 @@ c     &       MA_ERR)
 *     *      cpsi_1define_occupation    *
 *     *                                 *
 *     ***********************************
-      subroutine cpsi_1define_occupation(initial)
+      subroutine cpsi_1define_occupation(initial_alpha,use_hml)
       implicit none
-      logical initial
+      real*8  initial_alpha
+      logical use_hml
 
 #include "bafdecls.fh"
 #include "cpsi_common.fh"
@@ -1255,20 +1285,36 @@ c     &       MA_ERR)
       integer  control_multiplicity
       real*8   brillioun_weight
       real*8   control_TotalCharge,ion_TotalCharge_qm
-      real*8   cpsi_occ_distribution,control_ks_alpha
+      real*8   cpsi_occ_distribution,control_fractional_alpha
       external cpsi_data_get_next,cpsi_data_get_chnk
       external control_multiplicity
       external brillioun_weight
       external control_TotalCharge,ion_TotalCharge_qm
-      external cpsi_occ_distribution,control_ks_alpha
+      external cpsi_occ_distribution,control_fractional_alpha
 
+      if (use_hml) then
+         do ms=1,ispin
+            do nb=1,nbrillq
+               shift1 = cpsi_data_get_chnk(eig_tag, nb) + (ms-1)*ne(1)
+               shift2 = cpsi_data_get_chnk(hml_tag,nb)
+     >                + (ms-1)*ne(1)*ne(1)
+               do n=1,ne(ms)
+                  dbl_mb(shift1+n-1) = dbl_mb(shift2+(n-1)+(n-1)*ne(ms))
+               end do
+            end do
+         end do
+      end if
 
       smearfermi(1)      = 0.0d0
       smearfermi(2)      = 0.0d0
       smearcorrection = 0.0d0
       occ1_tag = cpsi_data_get_next(psi1_tag)
       if (occ1_tag.gt.0) then
-         alpha = control_ks_alpha()
+         if (initial_alpha.lt.0.0d0) then
+            alpha = control_fractional_alpha()
+         else
+            alpha = initial_alpha
+         end if
          kT    = smearkT
          ZZ  = ion_TotalCharge_qm() - control_TotalCharge()
          if (ispin.eq.2) then
@@ -1281,7 +1327,8 @@ c     &       MA_ERR)
          end if
        
          pi    = 4.0d0*datan(1.0d0)
-         if (initial) alpha = 1.0d0
+         !if (initial) alpha = 1.0d0
+         if (smeartype.le.0) alpha = 0.0d0
 
 *        **** outer loop over spins ****
          smearcorrection = 0.0d0
@@ -1364,6 +1411,7 @@ c     &       MA_ERR)
                  e = dbl_mb(shift1)
                  x = (e - smearfermi(ms))/kT
                  f = cpsi_occ_distribution(smeartype,x)
+
                  dbl_mb(shift2) = (1.0d0-alpha)*dbl_mb(shift2) + alpha*f
 
                  if (smeartype.eq.1) then
@@ -1914,7 +1962,7 @@ c         end do
 *     **** local variables ****
       integer taskid,MASTER
       parameter (MASTER=0)
-      logical value,psi_nogrid
+      logical value,psi_nogrid,expand_psi
       integer neall,n,vers
       integer hversion,hnfft(3),hispin,hne(2)
       real*8 hunita(3,3)
@@ -1943,8 +1991,12 @@ c         end do
       external cpsi_data_get_ptr
       real*8   w
 
+      real*8   cpsi_1ke
+      external cpsi_1ke
 
 
+
+      expand_psi = .false.
 
 *     ***** get ispin, and ne, and nfft3d ****
       call psi_get_ne_occupation(ispin,ne,smearoccupation)  !** only ne and occupation are used 
@@ -1961,6 +2013,7 @@ c         end do
         if (taskid.eq.MASTER) then
           value= pspw_reformat_c_wvfnc(1)
         end if
+        expand_psi = .true.
       end if
 
       call C3dB_nfft3d(1,nfft3d)
@@ -2070,6 +2123,7 @@ c     *****  read initial wavefunctions into psi1  ****
           write(*,*) "set nwpw:psi_nogrid .false."
           write(*,*)
           value = c_wvfnc_expander(rtdb)
+          expand_psi = .true.
 
         end if
         value = btdb_parallel(.true.)
@@ -2088,7 +2142,8 @@ c     *****  read initial wavefunctions into psi1  ****
       ne_excited(1) = 0
       ne_excited(2) = 0
 
-      cpsi_initialize = value
+      !cpsi_initialize = value
+      cpsi_initialize = expand_psi
       return
       end
 
