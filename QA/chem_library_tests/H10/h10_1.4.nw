@@ -1,0 +1,49 @@
+start h10_1.4
+
+#permanent_dir /dtemp/emsls50086
+
+echo
+
+geometry units bohr
+symmetry c1
+H   0.0   0.0   0.0
+H   1.4   0.0   0.0
+H   2.8   0.0   0.0
+H   4.2   0.0   0.0
+H   5.6   0.0   0.0
+H   7.0   0.0   0.0
+H   8.4   0.0   0.0
+H   9.8   0.0   0.0
+H  11.2   0.0   0.0
+H  12.6   0.0   0.0
+end
+
+basis
+ * library sto-6g
+end
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
+end
+
+tce
+ccsd
+thresh 1.0e-6
+maxiter 1000
+tilesize 1
+2eorb
+2emet 13
+end
+
+set tce:print_integrals T
+set tce:qorb  10
+set tce:qela  5
+set tce:qelb  5
+
+task tce energy
+
+
+
