@@ -8,6 +8,7 @@ if [[ "$os" == "Darwin" ]]; then
    else
      export USE_64TO32="y"
      export BLASOPT="-L/usr/local/opt/openblas/lib -lopenblas"
+     export LAPACK_LIB="-L/usr/local/opt/openblas/lib -lopenblas"
      if [[ "$MPI_IMPL" == "openmpi" ]]; then
        export SCALAPACK="-L/usr/local/lib -lscalapack -lopenblas"
      fi
@@ -23,6 +24,7 @@ if [[ "$os" == "Darwin" ]]; then
 fi
 if [[ "$os" == "Linux" ]]; then 
    export BLASOPT="-L$TRAVIS_BUILD_DIR/lib -lopenblas"
+   export LAPACK_LIB="-L$TRAVIS_BUILD_DIR/lib -lopenblas"
    export NWCHEM_TARGET=LINUX64 
    export LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH
    if [[ "$NWCHEM_MODULES" != "tce" ]]; then

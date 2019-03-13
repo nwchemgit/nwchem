@@ -2730,7 +2730,13 @@ else
     CORE_LIBS += $(BLAS_LIB)
 endif
 
-ifndef BLASOPT
+ifdef BLASOPT
+BLAS_SUPPLIED=Y
+endif
+ifdef BLAS_LIB
+BLAS_SUPPLIED=Y
+endif
+ifndef BLAS_SUPPLIED
     ifndef USE_INTERNALBLAS
         errordgemm:
       $(info     )
@@ -2739,6 +2745,11 @@ ifndef BLASOPT
       $(info IBM ESSL, AMD ACML, etc. to improve performance.)
       $(info If you decide to not use a fast implementation of BLAS/LAPACK,)
       $(info please define USE_INTERNALBLAS=y and the internal Netlib will be used.)
+    endif
+else
+    ifndef LAPACK_LIB
+        errorlap1:
+      $(error Please define LAPACK_LIB if you have defined BLASOPT or BLAS_LIB)
     endif
 endif
 
