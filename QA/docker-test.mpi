@@ -8,6 +8,5 @@ if ($1 !="") then
 endif
 #
 #---   small tests
-#./runtests.mpi.unix procs $np testtask
-./runtests.mpi.unix procs $np h2o c2h4
+./runtests.mpi.unix procs $np h2o h2o_opt
 
