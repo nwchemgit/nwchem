@@ -1,0 +1,13 @@
+#!/bin/csh -f
+#
+# $Id$
+#
+set np = 1
+if ($1 !="") then
+  set np = $1
+endif
+#
+#---   small tests
+#./runtests.mpi.unix procs $np testtask
+./runtests.mpi.unix procs $np h2o c2h4
+
