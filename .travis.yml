@@ -32,7 +32,7 @@ before_script:
   - "cd $NWCHEM_TOP/src && make nwchem_config"
 compiler: 
   - gcc
-env: "== default == NWCHEM_TOP=$TRAVIS_BUILD_DIR/../nwchem-6.8.1 NWCHEM_TARGET=LINUX64 NWCHEM_MODULES=\"nwdft driver stepper property hessian vib mp2_grad ccsd solvation python\" USE_MPI=y USE_PYTHONCONFIG=y BLASOPT=\"-L$TRAVIS_BUILD_DIR/lib -lnwclapack -lopenblas\" LAPACK_LIB=\"-L$TRAVIS_BUILD_DIR/lib -lnwclapack -lopenblas\" BLAS_SIZE=4 SCALAPACK=\"-L$TRAVIS_BUILD_DIR/lib -lscalapack  -lnwclapack -lopenblas\" SCALAPACK_SIZE=4 USE_64TO32=y PYTHONVERSION=2.7 PYTHONHOME=/usr LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH"
+env: "== default == NWCHEM_TOP=$TRAVIS_BUILD_DIR/../nwchem-6.8.1 NWCHEM_TARGET=LINUX64 NWCHEM_MODULES=\"nwdft driver stepper property hessian vib mp2_grad ccsd solvation python\" USE_MPI=y USE_PYTHONCONFIG=y BLASOPT=\"-L$TRAVIS_BUILD_DIR/lib -lopenblas\" LAPACK_LIB=\"-L$TRAVIS_BUILD_DIR/lib -lopenblas\" BLAS_SIZE=4 SCALAPACK=\"-L$TRAVIS_BUILD_DIR/lib -lscalapack  -lopenblas\" SCALAPACK_SIZE=4 USE_64TO32=y PYTHONVERSION=2.7 PYTHONHOME=/usr LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$LD_LIBRARY_PATH"
 language: c
 matrix: 
   include: 
