@@ -48,7 +48,7 @@ case 15:\
  CON(funcname,15) <<<param3, param4, param5>>> callstring;\
 break;
 
-
+#ifdef TCE_CUDA
 #define SAFECUDAMALLOC(pointer, size) cudaMalloc(pointer, size) ;\
         {cudaError_t err = cudaGetLastError();\
                 if(err != cudaSuccess){\
@@ -62,4 +62,20 @@ break;
                         printf("\nKernel ERROR in hostCall: %s (line: %d)\n", cudaGetErrorString(err), __LINE__);\
                         exit(-1);\
                 }}
+#endif
 
+#ifdef TCE_HIP
+#define SAFECUDAMALLOC(pointer, size) hipMalloc(pointer, size) ;\
+        {hipError_t err = hipGetLastError();\
+                if(err != hipSuccess){\
+                        printf("\nKernel ERROR in hostCall: %s (line: %d)\n", hipGetErrorString(err), __LINE__);\
+                        exit(-1);\
+                }}
+
+#define SAFECUDAMEMCPY(dest, src, size, type) hipMemcpy(dest, src, size, type) ;\
+        {hipError_t err = hipGetLastError();\
+                if(err != hipSuccess){\
+                        printf("\nKernel ERROR in hostCall: %s (line: %d)\n", hipGetErrorString(err), __LINE__);\
+                        exit(-1);\
+                }}
+#endif

@@ -1956,6 +1956,30 @@ if [ ${#TCE_CUDA} -ne 0 ] ; then
   fi
   # There is also a variable CUDA_FLAGS but I have no idea what that should be.
 fi
+
+if [ ${#TCE_HIP} -ne 0 ] ; then
+  if [ ${#HIP} -eq 0 ] ; then
+     HIP=`which hipcc`
+     if [ ${#HIP} -ne 0 ] ; then
+       export HIP
+     else
+       unset HIP
+     fi
+  fi
+  if [ ${#HIP} -ne 0 ] ; then
+     HIP_PATH="`dirname ${HIP}`"
+     HIP_PATH="`dirname ${HIP_PATH}`"
+     if [ ${#HIP_INCLUDE} -eq 0 ] ; then
+       export HIP_INCLUDE="-I${HIP_PATH}/include"
+     fi
+     if [ ${#HIP_LIBS} -eq 0 ] ; then
+       export HIP_LIBS="-L${HIP_PATH}/lib -lhip_hcc"
+     fi
+     unset HIP_PATH
+  fi
+  # There is also a variable CUDA_FLAGS but I have no idea what that should be.
+fi
+
 #
 # Work out whether BLAS, LAPACK and SCALAPACK are compatible and based on that
 # what we are actually going to use.
@@ -2257,6 +2281,27 @@ if [ ${#CUDA_LIBS} -ne 0 ] ; then
   echo "setenv CUDA_LIBS \"${CUDA_LIBS}\"" >> ${NWCHEM_ENV_CSH}
   echo "unset CUDA_LIBS"                   >> ${NWCHEM_UNENV_SH}
   echo "unsetenv CUDA_LIBS"                >> ${NWCHEM_UNENV_CSH}
+fi
+if [ ${#HIP} -ne 0 ] ; then
+  echo "HIP               =" ${HIP}
+  echo "export HIP=${HIP}" >> ${NWCHEM_ENV_SH}
+  echo "setenv HIP ${HIP}" >> ${NWCHEM_ENV_CSH}
+  echo "unset HIP"          >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv HIP"       >> ${NWCHEM_UNENV_CSH}
+fi
+if [ ${#HIP_INCLUDE} -ne 0 ] ; then
+  echo "HIP_INCLUDE       =" ${HIP_INCLUDE}
+  echo "export HIP_INCLUDE=\"${HIP_INCLUDE}\"" >> ${NWCHEM_ENV_SH}
+  echo "setenv HIP_INCLUDE \"${HIP_INCLUDE}\"" >> ${NWCHEM_ENV_CSH}
+  echo "unset HIP_INCLUDE"                      >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv HIP_INCLUDE"                   >> ${NWCHEM_UNENV_CSH}
+fi
+if [ ${#HIP_LIBS} -ne 0 ] ; then
+  echo "HIP_LIBS          =" ${HIP_LIBS}
+  echo "export HIP_LIBS=\"${HIP_LIBS}\"" >> ${NWCHEM_ENV_SH}
+  echo "setenv HIP_LIBS \"${HIP_LIBS}\"" >> ${NWCHEM_ENV_CSH}
+  echo "unset HIP_LIBS"                  >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv HIP_LIBS"               >> ${NWCHEM_UNENV_CSH}
 fi
 if [ ${#MRCC_METHODS} -ne 0 ] ; then
   echo "MRCC_METHODS       =" ${MRCC_METHODS}

@@ -302,6 +302,11 @@ ifdef TCE_CUDA
   OBJ += util_cuda_support.o
 endif
 
+ifdef TCE_HIP
+  LIB_DEFINES += $(HIP_INCLUDE)
+  OBJ += util_cuda_support.o
+endif
+
 ifdef USE_FORTRAN2003
   LIB_DEFINES += -DUSE_FORTRAN2003
 endif
