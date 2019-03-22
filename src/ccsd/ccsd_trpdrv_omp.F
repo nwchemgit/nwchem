@@ -13,6 +13,7 @@
 #include "ccsd_len.fh"
 #include "ccsdps.fh"
 #include "util.fh"
+#include "msgids.fh"
 #include "yflop.fh"
 !
       double precision, intent(inout) :: emp4,emp5
@@ -65,7 +66,7 @@
       integer :: klo, khi
       integer nxtask
       external nxtask
-      double precision perfm_flop,tzero,flopzero
+      double precision perfm_flop,tzero,flopzero,t_flops,agg_flops
       external perfm_flop
 
 !
@@ -444,7 +445,7 @@
      D              (util_wallsec()-tzero),
      P                 ' at ',(util_wallsec()-tzero),' secs'
                call util_flush(6)
- 4321          format(a,i8,a,i8,a,i3,a,1pg11.4,a,0pf10.1,a,2i4,a)
+ 4321          format(a,i8,a,i8,a,i3,a,1pg11.4,a,0pf10.1,a)
                endif
             endif
                end if
@@ -453,6 +454,16 @@
       end do
       call ga_sync()
       next=nxtask(-nodes, 1)
+      t_flops=util_wallsec()-tzero
+      agg_flops=perfm_flop()-flopzero
+      call ga_dgop(msg_cc_diis1,agg_flops,1, '+')
+      if(ga_nodeid().eq.0) then
+         write(6,4322) ' ccsd(t): 100% done, Aggregate Gflops=',
+     P        agg_flops/t_flops,
+     P                 ' in ',t_flops,' secs'
+ 4322    format(a,1pg11.4,a,0pf10.1,a)
+         call util_flush(6)
+      endif
       call ga_sync()
       if (occsdps) then
          call pstat_off(ps_trpdrv)
