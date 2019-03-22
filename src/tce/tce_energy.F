@@ -543,6 +543,19 @@ c      double precision f2m(50,50)
       parameter(pi = 3.14159265358979323846264338327950288419D0)
       character*255 modelname
       integer fldgts
+cducc
+      integer l_transf,k_transf,
+     1      l_act1,k_act1,
+     1      l_prt1,k_prt1,
+     1      l_act2,k_act2,
+     1      l_prt2,k_prt2,
+     1      l_h,k_h,
+     1      l_horb,k_horb,
+     1      l_v,k_v,
+     1      l_t1,k_t1,
+     1      l_t2,k_t2,
+     1      l_ht,k_ht,
+     1      l_vt,k_vt
       logical do_ccd, do_lccd, do_ccsd, do_lccsd, do_qcisd
       logical do_pt, do_lam_pt, do_cr_pt, do_lcr_pt, do_2t_pt
 !
@@ -3044,9 +3057,52 @@ c -------------------
           call util_flush(6)
          endif
 c -------------------
+        if (.not.MA_PUSH_GET(mt_int,nos+nvs,'transform',
+     1      l_transf,k_transf))
+     1      call errquit('transform',100,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_int,(nos+nvs)**2,'act1',
+     1      l_act1,k_act1))
+     1      call errquit('act1',101,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_int,(nos+nvs)**2,'prt1',
+     1      l_prt1,k_prt1))
+     1      call errquit('transform',102,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_int,(nos+nvs)**4,'act2',
+     1      l_act2,k_act2))
+     1      call errquit('act2',103,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_int,(nos+nvs)**4,'prt2',
+     1      l_prt2,k_prt2))
+     1      call errquit('prt2',104,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_dbl,(nos+nvs)**2,'h',
+     1      l_h,k_h))
+     1      call errquit('h',200,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_dbl,((nos+nvs)**4)/4,'horb',
+     1      l_horb,k_horb))
+     1      call errquit('horb',201,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_dbl,(nos+nvs)**4,'v',
+     1      l_v,k_v))
+     1      call errquit('v',202,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_dbl,nos+nvs,'t1',
+     1      l_t1,k_t1))
+     1      call errquit('t1',203,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_dbl,(nos*nvs)**2,'t2',
+     1      l_t2,k_t2))
+     1      call errquit('t2',204,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_dbl,(nos+nvs)**2,'ht',
+     1      l_ht,k_ht))
+     1      call errquit('ht',205,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_dbl,(nos+nvs)**4,'vt',
+     1      l_vt,k_vt))
+     1      call errquit('vt',206,MA_ERR)
            call ducc(rtdb,d_t1,k_t1_offset,d_t2,k_t2_offset,
      &    d_v2,k_v2_offset,dbl_mb(k_evl_sorted),
-     &    nos,nvs,noas,nobs,nvas,nvbs,nactv)
+     &    nos,nvs,noas,nobs,nvas,nvbs,nactv,
+     D        int_mb(k_transf),int_mb(k_act1),int_mb(k_prt1),
+     D        int_mb(k_act2),int_mb(k_prt2),
+     D        dbl_mb(k_h),dbl_mb(k_horb),dbl_mb(k_v),
+     D        dbl_mb(k_t1),dbl_mb(k_t2),
+     D        dbl_mb(k_ht),dbl_mb(k_vt))
+              if (.not.ma_chop_stack(l_transf))
+     1        call errquit('tce_energy: chopstack ducc',4,MA_ERR)
           endif ! qducc
 c
 c
