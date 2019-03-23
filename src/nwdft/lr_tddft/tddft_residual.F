@@ -946,7 +946,7 @@ c
                 else
                   evl_diff = evl(k,i)-evl(j,i)
                 endif
-                r=r/(evl(k,i)-evl(j,i)-apbval(n))
+                r=r/(evl_diff-apbval(n))
                 call ga_put(g_residuals_2(i),l,l,n,n,r,1)
               enddo
              endif ! jlo, jhi check
