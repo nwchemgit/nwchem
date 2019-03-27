@@ -3075,7 +3075,7 @@ c -------------------
         if (.not.MA_PUSH_GET(mt_dbl,(nos+nvs)**2,'h',
      1      l_h,k_h))
      1      call errquit('h',200,MA_ERR)
-        if (.not.MA_PUSH_GET(mt_dbl,((nos+nvs)**4)/4,'horb',
+        if (.not.MA_PUSH_GET(mt_dbl,((nos+nvs)/2)**2,'horb',
      1      l_horb,k_horb))
      1      call errquit('horb',201,MA_ERR)
         if (.not.MA_PUSH_GET(mt_dbl,(nos+nvs)**4,'v',
