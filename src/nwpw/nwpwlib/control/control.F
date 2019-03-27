@@ -2828,6 +2828,90 @@ c      end
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *   control_use_fractional_rho    *
+*     *                                 *
+*     ***********************************
+      logical function control_use_fractional_rho()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "errquit.fh"
+#include "control.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical use_rho
+
+      if (.not.btdb_get(rtdb,"nwpw:use_fractional_rho", 
+     >     mt_log,1,use_rho)) then
+         use_rho = .true. 
+      end if
+      control_use_fractional_rho = use_rho
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *		control_input_rho 	*
+*     *					*
+*     ***********************************
+
+      character*50 function control_input_rho()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "errquit.fh"
+#include "control.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      character*50 filename
+
+      if (.not.btdb_cget(rtdb,'nwpw:input rho',1,filename)) then
+         call util_file_prefix('rho',filename)
+      end if
+      control_input_rho = filename
+      return 
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         control_output_rho      *
+*     *                                 *
+*     ***********************************
+
+      character*50 function control_output_rho()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "errquit.fh"
+#include "control.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      character*50 filename
+
+      if (.not.btdb_cget(rtdb,'nwpw:output rho',1,filename)) then
+         call util_file_prefix('rho',filename)
+      end if
+      control_output_rho = filename
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *					*
