@@ -13,29 +13,42 @@
       integer g1b_1,g2b_1,g3b_1,g4b_1
       integer size_loc,k_a,l_a
       integer d_v2,k_v2_offset
-ccx      INTEGER next
-ccx      INTEGER nprocs
-ccx      INTEGER count
-ccx      integer nxtask
-ccx      external nxtask
+      INTEGER next
+      INTEGER nprocs
+      INTEGER count
+      integer nxtask
+      external nxtask
       logical nodezero
       integer igi1,igi2,igi3,igi4,ipos1,ipos2,ipos3,ipos4
-      integer i,j,k,l
+      integer i,j,k,l,ld
       integer nos,nvs
       double precision v(nos+nvs,nos+nvs,nos+nvs,nos+nvs)
       double precision xxx
+      integer howmany,l_elem,k_elem
+      external dabssum
+      double precision dabssum
+      integer mmap_elem
+      mmap_elem(i,j,k,l,ld)=(((l-1)*ld+k-1)*ld+j-1)*ld+i-1
 c
 c
       nodezero=(ga_nodeid().eq.0)
 c
 c
-ccx      nprocs = GA_NNODES()
-ccx      count = 0
-ccx      next = NXTASK(nprocs, 1)
+      nprocs = GA_NNODES()
+      count = 0
+      howmany=0
+c     array to avoid double (or multiple-) counting after dgop
+c     sinc elements update is not unique
+      IF (.not.MA_PUSH_GET(mt_int,(nos+nvs)**4,'elem',l_elem,k_elem))
+     &     CALL ERRQUIT('map1',0,MA_ERR)
+      call ifill((nos+nvs)**4,0,int_mb(k_elem),1)
+      next = NXTASK(nprocs, 1)
 c 
       DO g3b = 1,noab+nvab
       DO g4b = g3b,noab+nvab
       DO g1b = 1,noab+nvab
+         IF (next.eq.count) THEN
+            howmany=howmany+1
       DO g2b = g1b,noab+nvab
       IF (int_mb(k_spin+g3b-1)+int_mb(k_spin+g4b-1) .eq. int_mb(k_spin+g
      &1b-1)+int_mb(k_spin+g2b-1)) THEN
@@ -68,14 +81,22 @@ c mapping starts here
         ipos2=int_mb(k_offset+g2b-1)+igi2
         xxx=dbl_mb(k_a+i-1)
         if((ipos1.le.ipos2).and.(ipos3.le.ipos4)) then
-         v(ipos3,ipos4,ipos1,ipos2)=xxx
-         v(ipos3,ipos4,ipos2,ipos1)=-xxx
-         v(ipos4,ipos3,ipos1,ipos2)=-xxx
-         v(ipos4,ipos3,ipos2,ipos1)=xxx
-         v(ipos1,ipos2,ipos3,ipos4)=xxx
-         v(ipos1,ipos2,ipos4,ipos3)=-xxx
-         v(ipos2,ipos1,ipos3,ipos4)=-xxx
-         v(ipos2,ipos1,ipos4,ipos3)=xxx
+           v(ipos3,ipos4,ipos1,ipos2)=xxx
+           int_mb(k_elem+mmap_elem(ipos3,ipos4,ipos1,ipos2,nos+nvs))=1
+           v(ipos3,ipos4,ipos2,ipos1)=-xxx
+           int_mb(k_elem+mmap_elem(ipos3,ipos4,ipos2,ipos1,nos+nvs))=1
+           v(ipos4,ipos3,ipos1,ipos2)=-xxx
+           int_mb(k_elem+mmap_elem(ipos4,ipos3,ipos1,ipos2,nos+nvs))=1
+           v(ipos4,ipos3,ipos2,ipos1)=xxx
+           int_mb(k_elem+mmap_elem(ipos4,ipos3,ipos2,ipos1,nos+nvs))=1
+           v(ipos1,ipos2,ipos3,ipos4)=xxx
+           int_mb(k_elem+mmap_elem(ipos1,ipos2,ipos3,ipos4,nos+nvs))=1
+           v(ipos1,ipos2,ipos4,ipos3)=-xxx
+           int_mb(k_elem+mmap_elem(ipos1,ipos2,ipos4,ipos3,nos+nvs))=1
+           v(ipos2,ipos1,ipos3,ipos4)=-xxx
+           int_mb(k_elem+mmap_elem(ipos2,ipos1,ipos3,ipos4,nos+nvs))=1
+           v(ipos2,ipos1,ipos4,ipos3)=xxx
+           int_mb(k_elem+mmap_elem(ipos2,ipos1,ipos4,ipos3,nos+nvs))=1
         endif
        enddo
        enddo
@@ -90,18 +111,25 @@ ccx     3               (noab+nvab) * (g3b - 1)))))
        IF (.not.MA_POP_STACK(l_a))
      1          CALL ERRQUIT('ccsd_t2_1',4,MA_ERR)
 c
-ccx      next = NXTASK(nprocs, 1)
-ccx      END IF
 ccx      count = count + 1
 ckk      END IF !spin case 8 
       END IF
       END IF
       END DO
+      next = NXTASK(nprocs, 1)
+      END IF
+      count = count + 1
       END DO
       END DO
       END DO
-ccx      next = NXTASK(-nprocs, 1)
-      call ga_sync()
+      next = NXTASK(-nprocs, 1)
+c     global sum
+      call ga_dgop(2019,v,(nos+nvs)**4,'+')
+      call ga_igop(2020,int_mb(k_elem),(nos+nvs)**4,'+')
+      call map_elemd(v,int_mb(k_elem),(nos+nvs)**4)
+       IF (.not.MA_POP_STACK(l_elem))
+     1          CALL ERRQUIT('map_hcore',14,MA_ERR)
+c      call ga_sync()
       return 
       end 
 c
@@ -447,3 +475,16 @@ c
       return 
       end
 
+      subroutine map_elemd(v,k_elem,n)
+      implicit none
+      double precision v(*)
+      integer k_elem(*)
+      integer n
+c
+      integer i
+c
+      do i=1,n
+         if(dabs(v(i)).gt.1d-30) v(i)=v(i)/dble(k_elem(i))
+      enddo
+      return
+      end
