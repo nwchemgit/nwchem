@@ -113,6 +113,8 @@ c
       external psi_1meta_gga_pxc,ion_disp_energy
       real*8   psi_hml_value,psi_2energy
       external psi_hml_value,psi_2energy
+      logical  psi_try_read_density,control_use_fractional_rho
+      external psi_try_read_density,control_use_fractional_rho
 
 
    
@@ -181,14 +183,22 @@ c
          alpha = control_ks_alpha()
          deltae = -9232323299.0d0
          ks_deltae = tole
+         value = .false.
+         if (control_fractional()) then
+            if (control_use_fractional_rho()) then
+               value = psi_try_read_density(1)
+            end if
+         end if
          call electron_gen_vall()
          call psi_get_density(1,dbl_mb(rho_in(1)))
          call psi_get_density(1,dbl_mb(rho_out(1)))
 
-         call psi_1gen_hml()
-         call psi_diagonalize_hml_assending()
-         call psi_1rotate2()
-         call psi_2to1()
+         if (.not.value) then
+            call psi_1gen_hml()
+            call psi_diagonalize_hml_assending()
+            call psi_1rotate2()
+            call psi_2to1()
+         end if
          if (dohfx) call psi_1genrho()
          if (control_fractional()) then
             call psi_1assending_occupation()
@@ -383,6 +393,13 @@ c     >    (.not.stalled          ))) then
 c     >       .or. (sd_count.ge.MAX_SD_COUNT))
 
       if (.not.done) go to 2
+
+      if (control_fractional()) then
+         if (control_use_fractional_rho()) then
+            call psi_write_density(1)
+         end if
+      end if
+
 
 c*     **** Finalize diaganolize KS matrix ****
 c      call psi_KS_update(1,

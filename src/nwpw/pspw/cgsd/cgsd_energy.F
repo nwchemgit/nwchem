@@ -136,7 +136,7 @@ c#include "global.fh"
       if (minimizer.eq.8) it_out = 1
       if (newpsi) then
          call pspw_Lin_HFX_reset()
-         call sdminimize(15)
+         !call sdminimize(15)
          if (control_fractional()) then
             call psi_1toelectron()
             call psi_1gen_hml()
@@ -145,7 +145,6 @@ c#include "global.fh"
             call psi_2to1()
             call psi_1define_occupation(-1.0d0,.false.)
          end if
-         !call bybminimize(E,deltae,deltac,1,.true.,2)
       end if
    2  continue
          icount = icount + 1
