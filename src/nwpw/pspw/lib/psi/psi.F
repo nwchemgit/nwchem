@@ -2351,6 +2351,87 @@ c     >                  tau_t)
       return
       end
 
+*     ***************************
+*     *                         *
+*     *      psi_write_density  *
+*     *                         *
+*     ***************************
+
+*    This routine writes the densities in psi to disk.  
+* This routine is needed for a band by band minimizer.
+*
+      subroutine psi_write_density(psi_number)
+      implicit none
+      integer psi_number
+
+#include "bafdecls.fh"
+#include "psi.fh"
+
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+*     **** local variables ****
+      integer rho_ptr
+
+      if (psi_number.eq.1) then
+        rho_ptr = rho1(1)
+      else
+        rho_ptr = rho2(1)
+      end if
+
+      call rho_write(ispin,dbl_mb(rho_ptr))
+      return
+      end
+
+*     ***************************
+*     *                         *
+*     *   psi_try_read_density  *
+*     *                         *
+*     ***************************
+
+*    This routine reads the densities from disk to psi.
+* This routine is needed for a band by band minimizer.
+*
+      logical function psi_try_read_density(psi_number)
+      implicit none
+      integer psi_number
+
+#include "bafdecls.fh"
+#include "psi.fh"
+
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+*     **** local variables ****
+      logical ok
+      integer rho_ptr
+
+*     **** external functions ****
+      logical  rho_check_header
+      external rho_check_header
+
+      if (psi_number.eq.1) then
+        rho_ptr = rho1(1)
+      else
+        rho_ptr = rho2(1)
+      end if
+
+      if (rho_check_header(ispin)) then
+         call rho_read(ispin,dbl_mb(rho_ptr))
+         ok = .true.
+      else
+         ok = .false.
+      end if
+
+      psi_try_read_density = ok
+      return
+      end
+
+
 
 *     **************************************
 *     *			   	           *

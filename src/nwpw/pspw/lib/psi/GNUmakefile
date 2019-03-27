@@ -13,6 +13,8 @@
 		psi_dmatrix.o \
 		psi_read.o \
 		psi_write.o \
+		rho_write.o \
+		rho_read.o \
 		v_psi_read.o \
 		v_psi_write.o \
 		psi_new.o \
