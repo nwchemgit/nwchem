@@ -91,6 +91,9 @@ c
       external cpsi_1_noupdate_energy,cpsi_eigenvalue,ion_disp_energy
       logical  ion_disp_on
       external ion_disp_on
+
+      logical  cpsi_try_read_density,control_use_fractional_rho
+      external cpsi_try_read_density,control_use_fractional_rho
    
 
       Ein = E(1)
@@ -153,27 +156,26 @@ c
          alpha = control_ks_alpha()
          deltae = -9232323299.0d0
          ks_deltae = tole
+         value = .false.
+         if (control_fractional()) then
+            if (control_use_fractional_rho()) then
+               value = cpsi_try_read_density(1)
+            end if
+         end if
          call c_electron_gen_vall()
          call cpsi_get_density(1,dbl_mb(rho_in(1)))
          call cpsi_get_density(1,dbl_mb(rho_out(1)))
 
-         call cpsi_1gen_hml()
-         call cpsi_diagonalize_hml()
-         !call cpsi_1rotate2()
-         !call cpsi_2to1()
-         if (control_fractional()) then
-            !call cpsi_1gen_hml()
-            !call cpsi_diagonalize_hml()
-            call cpsi_1define_occupation(0.0d0,.false.)
-            Enew = Enew + cpsi_smearcorrection()
-         else
+         if (.not.value) then
+            call cpsi_1gen_hml()
+            call cpsi_diagonalize_hml()
             call cpsi_1rotate2()
             call cpsi_2to1()
          end if
-         !write(*,*) "ENEW=",Enew+eion
-         !if (control_fractional()) call cpsi_1assending_occupation()
-         !Enew   = cpsi_1energy()
-
+         if (control_fractional()) then
+            call cpsi_1define_occupation(0.0d0,.false.)
+            Enew = Enew + cpsi_smearcorrection()
+         end if
       else
          call cpsi_get_density(1,dbl_mb(rho_in(1)))
          call cpsi_get_density(1,dbl_mb(rho_out(1)))
@@ -195,8 +197,8 @@ c
       call nwpw_scf_mixing_init(control_scf_algorithm(),alpha,
      >                5,ispin,nfft3d,dbl_mb(rho_out(1)))
 
-c      !*** set the density ***
-c      call cpsi_set_density(1,dbl_mb(rho_out(1)))
+      !*** set the density ***
+      call cpsi_set_density(1,dbl_mb(rho_out(1)))
 
 *     ***** scf loop ****
       it   = 0
@@ -248,6 +250,7 @@ c      call cpsi_set_density(1,dbl_mb(rho_out(1)))
 
          call nwpw_scf_mixing(dbl_mb(rho_in(1)),dbl_mb(rho_out(1)),
      >                        deltae,diis_error)
+
 
 *     **** bad convergence - try fixed step steepest descent ****
       else
@@ -358,6 +361,11 @@ c     >      call cpsi_1define_occupation(1.0d0,.false.)
       if (.not.done) go to 2
 
 
+      if (control_fractional()) then
+         if (control_use_fractional_rho()) then
+            call cpsi_write_density(1)
+         end if
+      end if
 
 *     **** free memory ****
       call nwpw_scf_mixing_end()

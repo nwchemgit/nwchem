@@ -186,6 +186,80 @@
       end
 
 
+*     ***************************
+*     *                         *
+*     *    cpsi_write_density   *
+*     *                         *
+*     ***************************
+
+*    This routine gets the densities in psi.
+* This routine is needed for a band by band minimizer.
+*
+      subroutine cpsi_write_density(psi_number)
+      implicit none
+      integer psi_number
+
+#include "bafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      integer rho_ptr
+
+      if (psi_number.eq.1) then
+        rho_ptr = rho1(1)
+      else
+        rho_ptr = rho2(1)
+      end if
+
+      call crho_write(ispin,dbl_mb(rho_ptr))
+      return
+      end
+
+
+*     ***************************
+*     *                         *
+*     *  cpsi_try_read_density  *
+*     *                         *
+*     ***************************
+
+*    This routine reads the densities from disk to psi.
+* This routine is needed for a band by band minimizer.
+*
+      logical function cpsi_try_read_density(psi_number)
+      implicit none
+      integer psi_number
+
+#include "bafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      logical ok
+      integer rho_ptr
+
+*     **** external functions ****
+      logical  rho_check_header
+      external rho_check_header
+
+      if (psi_number.eq.1) then
+        rho_ptr = rho1(1)
+      else
+        rho_ptr = rho2(1)
+      end if
+
+      if (rho_check_header(ispin)) then
+         call crho_read(ispin,dbl_mb(rho_ptr))
+         ok = .true.
+      else
+         ok = .false.
+      end if
+
+      cpsi_try_read_density = ok
+      return
+      end
+
+
+
+
 *     **************************************
 *     *                                    *
 *     *     cpsi_gen_density_potentials    *
@@ -278,13 +352,15 @@ c      call c_electron_gen_psi_r(psi_ptr)
           psi1_shift = cpsi_data_get_ptr(psi1_tag,nb,i)
 
            !*** orthogonalize to lower orbitals  ****
-           call cpsi_project_out_f_orb1(nb,i,dbl_mb(psi1_shift))
+           if (i.gt.1)
+     >        call cpsi_project_out_f_orb1(nb,i,dbl_mb(psi1_shift))
 
            !*** normalize ****
            call Cram_cc_dot(nb,
      >                      dbl_mb(psi1_shift),
      >                      dbl_mb(psi1_shift),
      >                      sum)
+           write(*,*) "nb,i,norm=",nb,i,sum
            sum = 1.0d0/dsqrt(sum)
 c           call Cram_c_SMul(nb,sum,
 c     >                      dbl_mb(psi1_shift),
@@ -669,6 +745,7 @@ ccccccccccc this cc_dot is okay! cccccccccccccccccc
      >                   dcpl_mb(g(1)),
      >                    e0)
          e0 = -e0
+         write(*,*) "nb,i,e0=",nb,i,e0
 
          done = ((it.gt.maxiteration)
      >           .or.
@@ -688,7 +765,6 @@ c         end if
          call cpsi_project_out_orb(psi_number,nb,i,dcpl_mb(r1(1)))
 
 
-
 *        *** determine conjuagate direction ***
          call Cram_cc_dot(nb,dcpl_mb(r1(1)),
      >                   dcpl_mb(r1(1)),
@@ -703,7 +779,6 @@ c         end if
          lmbda_r0 = lmbda_r1
          oneloop = .true.
  3       call Cram_c_Copy(nb,dcpl_mb(t(1)),dcpl_mb(t0(1)))
-
 
 
 

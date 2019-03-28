@@ -12,6 +12,8 @@
 			c_check.o \
 			cpsi_read.o \
 			cpsi_write.o \
+			crho_read.o \
+			crho_write.o \
 			cpsi_new.o \
 			v_cpsi_new.o \
 			v_cpsi_read.o \
