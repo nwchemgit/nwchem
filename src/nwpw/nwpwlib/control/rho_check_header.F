@@ -40,9 +40,9 @@
       call Parallel_taskid(taskid)
 
 *     **** open RHOIN binary file ****
+      filename = control_input_rho()
       ok = .true.
       if (taskid.eq.MASTER) then
-         filename = control_input_rho()
          call util_file_name_noprefix(filename,.false.,
      >                                .false.,
      >                       full_filename)
