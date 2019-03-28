@@ -66,8 +66,8 @@ c     complex*16 tmp(*)
 
 
 *     **** open RHOIN binary file ****
+      filename = control_input_rho()
       if (taskid_p.eq.MASTER) then
-         filename = control_input_rho()
          full_filename = filename
          call util_file_name_resolve(full_filename, .false.)
 

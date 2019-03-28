@@ -73,8 +73,8 @@ c     complex*16 tmp(*)
       unita(3,3) = control_unita(3,3)
 
 *     **** open RHOIN binary file ****
+      filename = control_output_rho()
       if (taskid.eq.MASTER) then
-         filename = control_output_rho()
          full_filename = filename
          call util_file_name_resolve(full_filename, .false.)
          l = index(full_filename,' ') -1
