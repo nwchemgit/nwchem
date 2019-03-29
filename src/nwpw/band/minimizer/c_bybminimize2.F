@@ -181,6 +181,9 @@ c
          call cpsi_get_density(1,dbl_mb(rho_out(1)))
       end if
 
+      !*** set the density ***
+      call cpsi_set_density(1,dbl_mb(rho_out(1)))
+
 *     **** set the charge from the occupations ****
       do ms=1,ispin
          charge(ms) = 0.0d0
@@ -197,8 +200,6 @@ c
       call nwpw_scf_mixing_init(control_scf_algorithm(),alpha,
      >                5,ispin,nfft3d,dbl_mb(rho_out(1)))
 
-      !*** set the density ***
-      call cpsi_set_density(1,dbl_mb(rho_out(1)))
 
 *     ***** scf loop ****
       it   = 0
@@ -309,6 +310,7 @@ c     >      call cpsi_1define_occupation(1.0d0,.false.)
      >                        dbl_mb(rho_out(1)+(ms-1)*nfft3d))
       end do
 
+
       !*** set the density ***
       call cpsi_set_density(1,dbl_mb(rho_out(1)))
       
@@ -366,6 +368,7 @@ c     >      call cpsi_1define_occupation(1.0d0,.false.)
             call cpsi_write_density(1)
          end if
       end if
+      call c_rho_1to2()
 
 *     **** free memory ****
       call nwpw_scf_mixing_end()
