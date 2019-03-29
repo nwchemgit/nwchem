@@ -181,7 +181,9 @@ c      complex*16 psi_k(*)
 
 #include "c_electron_common.fh"
 
+!$OMP MASTER
       counter = counter+1
+!$OMP END MASTER
 
       call c_electron_gen_psi_r(psi_k_tag)
       call c_electron_gen_densities(dn,dng,dnall)
@@ -1368,10 +1370,8 @@ c      call C3dB_c_SMul(1,scal1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
 *     ********************************************************
 *     **** generate dnall - used for semicore corrections ****
 *     ********************************************************
-      call dcopy(ispin*nfft3d,dn,1,dnall,1)
       if (cpsp_semicore(0)) then
          call c_semicore_density(dcpl_mb(tmp1(1)))
-c         call C3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
          call C3dB_r_SMul1(1,0.5d0,dcpl_mb(tmp1(1)))
       else
          call C3dB_r_Zero(1,dcpl_mb(tmp1(1)))

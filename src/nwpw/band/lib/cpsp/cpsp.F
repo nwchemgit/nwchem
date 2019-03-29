@@ -1688,7 +1688,7 @@ ccc!** number of matrix elements = nmax*nmax*(lmax+1) **
       end if
 
 *     *** read in vl 3d block ***
-      call C3dB_r_read(1,5,tmp2,tmp,-1,-1)
+      call C3dB_r_read(1,5,tmp2,tmp,-1,-1,.true.)
       call Cram_r_pack(0,tmp2)
       call Cram_r_Copy(0,tmp2,vl)
 
@@ -1731,7 +1731,7 @@ cccccccccccccccccccc
           call K1dB_ktoqp(nb,nbq,pk)
           do n=1,nprj
 
-            call C3dB_r_read(1,5,tmp2,tmp,-1,pk)
+            call C3dB_r_read(1,5,tmp2,tmp,-1,pk,.true.)
 
             if (pk.eq.taskid_k) then
                call Cram_r_pack(nbq,tmp2)
@@ -1757,19 +1757,19 @@ cccccccccccccccccccc
       end if
 *     **** read in semicore density block ****
       if (semicore) then
-         call C3dB_r_read(1,5,tmp2,tmp,-1,-1)
+         call C3dB_r_read(1,5,tmp2,tmp,-1,-1,.true.)
          call Cram_r_pack(0,tmp2)
          call Cram_r_Copy(0,tmp2,ncore(1))
 
-         call C3dB_r_read(1,5,tmp2,tmp,-1,-1)
+         call C3dB_r_read(1,5,tmp2,tmp,-1,-1,.true.)
          call Cram_r_pack(0,tmp2)
          call Cram_r_Copy(0,tmp2,ncore(1+2*npack0))
 
-         call C3dB_r_read(1,5,tmp2,tmp,-1,-1)
+         call C3dB_r_read(1,5,tmp2,tmp,-1,-1,.true.)
          call Cram_r_pack(0,tmp2)
          call Cram_r_Copy(0,tmp2,ncore(1+3*npack0))
 
-         call C3dB_r_read(1,5,tmp2,tmp,-1,-1)
+         call C3dB_r_read(1,5,tmp2,tmp,-1,-1,.true.)
          call Cram_r_pack(0,tmp2)
          call Cram_r_Copy(0,tmp2,ncore(1+4*npack0))
       end if

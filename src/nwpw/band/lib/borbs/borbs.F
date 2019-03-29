@@ -517,7 +517,7 @@
       do nb=1,brillioun_nbrillioun()
          call K1dB_ktoqp(nb,nbq,pk)
          do n=1,lmmax
-            call C3dB_r_read(1,5,tmp2,tmp,-1,pk)
+            call C3dB_r_read(1,5,tmp2,tmp,-1,pk,.true.)
             if (pk.eq.taskid_k) then
                call Cram_r_pack(nbq,tmp2)
                call borb_projector_add(borbs_tag,nbq,n,tmp2)
