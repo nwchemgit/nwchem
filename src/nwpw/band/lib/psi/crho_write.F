@@ -48,7 +48,7 @@ c     complex*16 tmp(*)
       call ga_sync()
       call Parallel_taskid(taskid)
       call C3dB_nfft3d(1,nfft3d)
-      call C3dB_n2ft3d(2,n2ft3d)
+      call C3dB_n2ft3d(1,n2ft3d)
 
 
       lprint= ((taskid.eq.MASTER).and.control_print(print_medium))
@@ -91,10 +91,11 @@ c     complex*16 tmp(*)
             call iwrite(6,ispin,1)
          end if
       end if
+
+      !call dwrite(6,rho2,2*n2ft3d)
       call C3dB_r_write(1,6,rho2,dbl_mb(tmp(1)),0,0)
-      if (ispin.gt.1) then
-         call C3dB_r_write(1,6,rho2(1+n2ft3d),dbl_mb(tmp(1)),0,0)
-      end if
+      call C3dB_r_write(1,6,rho2(1+n2ft3d),dbl_mb(tmp(1)),0,0)
+      
 
 *     *** close RHOIN binary file ***
       call ga_sync()

@@ -138,9 +138,13 @@
         rho_all_ptr = rho2_all(1)
       end if
 
-      call dcopy(2*nfft3d,
-     >           rho, 1,
-     >           dbl_mb(rho_ptr),1)
+c      call dcopy(2*nfft3d,
+c     >           rho, 1,
+c     >           dbl_mb(rho_ptr),1)
+
+      call Parallel_shared_vector_copy(.true.,2*nfft3d,
+     >                                 rho,dbl_mb(rho_ptr))
+
       call c_electron_gen_dng_dnall(dbl_mb(rho_ptr),
      >                            dcpl_mb(dng_ptr),
      >                            dbl_mb(rho_all_ptr))
@@ -179,9 +183,11 @@
         rho_ptr = rho2(1)
       end if
 
-      call dcopy(2*nfft3d,
-     >           dbl_mb(rho_ptr),1,
-     >           rho,1)
+c      call dcopy(2*nfft3d,
+c     >           dbl_mb(rho_ptr),1,
+c     >           rho,1)
+      call Parallel_shared_vector_copy(.true.,2*nfft3d,
+     >                                 dbl_mb(rho_ptr),rho)
       return
       end
 
@@ -360,7 +366,6 @@ c      call c_electron_gen_psi_r(psi_ptr)
      >                      dbl_mb(psi1_shift),
      >                      dbl_mb(psi1_shift),
      >                      sum)
-           write(*,*) "nb,i,norm=",nb,i,sum
            sum = 1.0d0/dsqrt(sum)
 c           call Cram_c_SMul(nb,sum,
 c     >                      dbl_mb(psi1_shift),
@@ -745,7 +750,6 @@ ccccccccccc this cc_dot is okay! cccccccccccccccccc
      >                   dcpl_mb(g(1)),
      >                    e0)
          e0 = -e0
-         write(*,*) "nb,i,e0=",nb,i,e0
 
          done = ((it.gt.maxiteration)
      >           .or.

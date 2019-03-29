@@ -41,8 +41,8 @@ c     complex*16 tmp(*)
       external     control_input_rho
       double precision control_unita
       external         control_unita
-      integer  control_ngrid,control_rtdb
-      external control_ngrid,control_rtdb
+      integer  control_ngrid,control_rtdb,control_version
+      external control_ngrid,control_rtdb,control_version
       logical  control_print,control_parallel_io
       external control_print,control_parallel_io
       
@@ -112,8 +112,8 @@ c     **** send header to all nodes ****
 
 
 *     ***** Error checking ****
-      if (version.ne.5) then
-       call errquit('Error cannot read pspw densities',1,
+      if (version.ne.control_version()) then
+       call errquit('Error cannot read BAND densities',1,
      &       INPUT_ERR)
       end if
 
@@ -153,12 +153,9 @@ c     **** send header to all nodes ****
       end if
       end if
 
-      call Parallel_shared_vector_zero(.true.,ispin*n2ft3d,rho2)
-      call C3dB_r_read(1,5,rho2,dbl_mb(tmp(1)),-1,-1)
-      if (ispin.gt.1) then
-         call C3dB_r_read(1,5,rho2(1+n2ft3d),dbl_mb(tmp(1)),-1,-1)
-      end if
-
+      !call dread(5,rho2,2*n2ft3d)
+      call C3dB_r_read(1,5,rho2,dbl_mb(tmp(1)),-1,-1,.false.)
+      call C3dB_r_read(1,5,rho2(1+n2ft3d),dbl_mb(tmp(1)),-1,-1,.false.)
 
 *     *** close ELCIN binary file ***
       if (taskid_p.eq.MASTER) then
