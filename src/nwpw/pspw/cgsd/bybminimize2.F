@@ -180,7 +180,7 @@ c
 *     **** set the initial density ****
       if (current_iteration.eq.1) then
          Enew   = psi_1energy()
-         alpha = control_ks_alpha()
+         alpha  = control_ks_alpha()
          deltae = -9232323299.0d0
          ks_deltae = tole
          value = .false.
@@ -406,7 +406,6 @@ c      call psi_KS_update(1,
 c     >                   control_ks_algorithm(),
 c     >                   precondition,
 c     >                   ks_deltae)
-      call rho_1to2()
 
 
 *     **** free memory ****
@@ -422,7 +421,8 @@ c      call psi_check()
 
 
 *     **** set return energies **** - This is duplicate code
-      !Enew     = psi_1energy()
+      Enew     = psi_1energy()
+      if (control_fractional()) Enew = Enew + psi_smearcorrection()
       eorbit   = psi_1eorbit()
       ehartree = dng_1ehartree()
       exc      = rho_1exc()

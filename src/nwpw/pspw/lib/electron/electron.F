@@ -1880,13 +1880,13 @@ cccccccccc#include "frac_occ.fh"
 
       subroutine electron_gen_dng_dnall(dn,dng,dnall)
       implicit none
-#include "errquit.fh"
       real*8     dn(*)
       complex*16 dng(*)
       real*8     dnall(*)
 
 #include "bafdecls.fh"
 #include "electron_common.fh"
+#include "errquit.fh"
 
      
 *     **** local variables ****

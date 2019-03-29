@@ -4813,8 +4813,9 @@ c     ****************************************
            do k=1,ne(ms)
               indx3 = shift1
               do j=1,ne(ms)
-                A(indx2) = A(indx2)
-     >                   *(2.0d0*fw(indx1)/(fw(indx1)+fw(indx3)))
+                if ((fw(indx1)+fw(indx3)).gt.1.0d-9)
+     >             A(indx2) = A(indx2)
+     >                      *(2.0d0*fw(indx1)/(fw(indx1)+fw(indx3)))
                 indx2 = indx2 + 1
                 indx3 = indx3 + 1
               end do

@@ -1575,7 +1575,6 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
      >                    e0)
          !dbl_mb(eig(1)+i-1) = e0
          e0 = -e0
-         !write(*,*) "i,e=",i,e0,eold
 
          done = ((it.gt.maxiteration) 
      >           .or.
@@ -2297,10 +2296,12 @@ c     >                  tau_t)
         rho_all_ptr = rho2_all(1)
       end if
 
+c      call dcopy(4*nfft3d,
+c     >           rho, 1,
+c     >           dbl_mb(rho_ptr),1)
 
-      call dcopy(4*nfft3d,
-     >           rho, 1,
-     >           dbl_mb(rho_ptr),1)
+      call Parallel_shared_vector_copy(.true.,4*nfft3d,
+     >                                 rho,dbl_mb(rho_ptr))
 
       call electron_gen_dng_dnall(dbl_mb(rho_ptr),
      >                            dcpl_mb(dng_ptr),
@@ -2345,9 +2346,11 @@ c     >                  tau_t)
         rho_ptr = rho2(1)
       end if
 
-      call dcopy(4*nfft3d,
-     >           dbl_mb(rho_ptr),1,
-     >           rho,1)
+c      call dcopy(4*nfft3d,
+c     >           dbl_mb(rho_ptr),1,
+c     >           rho,1)
+      call Parallel_shared_vector_copy(.true.,4*nfft3d,
+     >                                 dbl_mb(rho_ptr),rho)
       return
       end
 
@@ -2699,6 +2702,25 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       return
       end
+
+*     ***************************
+*     *                         *
+*     *         dng_1to2        *
+*     *                         *
+*     ***************************
+      subroutine dng_1to2()
+      implicit none
+
+#include "bafdecls.fh"
+#include "psi.fh"
+
+      call zcopy(npack0,
+     >           dcpl_mb(dng1(1)),1,
+     >           dcpl_mb(dng2(1)),1)
+
+      return
+      end
+
 
 
 *     ***********************************

@@ -2016,13 +2016,14 @@ c      call ga_sync()
       return
       end
 
-      subroutine C3dB_r_read(nb,iunit,A,tmp,jcol,kcol)
+      subroutine C3dB_r_read(nb,iunit,A,tmp,jcol,kcol,dotrans)
       implicit none 
       integer nb
       integer iunit
       real*8  A(*)
       real*8  tmp(*)
       integer jcol,kcol
+      logical dotrans
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -2172,7 +2173,7 @@ c      integer mpierr,mstatus(MPI_STATUS_SIZE)
          end do
        end if
 
-      if (fillcolumn.and.fillzone) then
+      if (fillcolumn.and.fillzone.and.dotrans) then
 *        **** allocate temporary space  ****
          value =BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',tmp1(2),tmp1(1))
          value =value.and.
