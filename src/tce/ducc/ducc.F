@@ -645,7 +645,7 @@ c  calculate vt  (print only vt(alpha,beta,alpha,beta)
 ! ***| 1/2(((T^{DAGGER}_EXT)F_N)_C,OPEN * (T_EXT))_C,OPEN
           DO IE = NOS+1, NOS+NVS
             DO IF = NOS+1, NOS+NVS
-              DO N = 1, NOS
+              DO M = 1, NOS
                 IF(ia.EQ.if) THEN
                   HT(ia,I) = HT(ia,I) +
      &            0.5*T1(M,ie)*ENE_ORB(ia)*T2(M,I,ie,if)
@@ -754,7 +754,7 @@ c  calculate vt  (print only vt(alpha,beta,alpha,beta)
 ! ***| 1/2((T^{DAGGER}_EXT) * (F_N (T_EXT))_C,OPEN))_C,OPEN
           DO IE = NOS+1, NOS+NVS
             DO IF = NOS+1, NOS+NVS
-              DO N = 1, NOS
+              DO M = 1, NOS
                 IF(ia.EQ.if) THEN
                   HT(I,ia) = HT(I,ia) +
      &            0.5*T1(M,ie)*ENE_ORB(ia)*T2(M,I,ie,if)
