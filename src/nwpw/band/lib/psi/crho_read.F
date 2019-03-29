@@ -30,7 +30,7 @@
       integer MASTER,taskid,taskid_i,taskid_j,taskid_p,com_p
       parameter(MASTER=0)
       integer n,q,pj
-      integer msglen,ispin0
+      integer msglen,ispin0,nbrill
 
 c     complex*16 tmp(*)
       integer tmp(2)
@@ -43,6 +43,8 @@ c     complex*16 tmp(*)
       external         control_unita
       integer  control_ngrid,control_rtdb,control_version
       external control_ngrid,control_rtdb,control_version
+      integer  control_num_kvectors
+      external control_num_kvectors
       logical  control_print,control_parallel_io
       external control_print,control_parallel_io
       
@@ -85,6 +87,7 @@ c     complex*16 tmp(*)
             call iread(5,nfft,3)
             call dread(5,unita,9)
             call iread(5,ispin0,1)
+            call iread(5,nbrill,1)
          
          else
             n = 0
@@ -109,6 +112,8 @@ c     **** send header to all nodes ****
       call Parallela_Brdcst_values(com_p,MASTER,msglen,unita)
       msglen = 1
       call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,ispin0)
+      msglen = 1
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,nbrill)
 
 
 *     ***** Error checking ****
@@ -120,9 +125,11 @@ c     **** send header to all nodes ****
       if ( (nfft(1).ne.control_ngrid(1)) .or.
      >     (nfft(2).ne.control_ngrid(2)) .or.
      >     (nfft(3).ne.control_ngrid(3)) .or.
+     >     (nbrill.ne.control_num_kvectors()).or.
      >     (ispin.ne.ispin0) ) then
         if (taskid_p.eq.MASTER) then
         write(LuOut,*) "taskid_i,taskid_j=",taskid_i,taskid_j
+        write(LuOut,*) "nbrill,nbrill0 :",control_num_kvectors(),nbrill
         write(LuOut,*) "ispin,ispin0 :",ispin,ispin0
         write(LuOut,*) "nfft :",nfft
         write(LuOut,*) "ngrid:",control_ngrid(1),

@@ -9,9 +9,10 @@
 *     *             			*
 *     ***********************************
 
-      logical function rho_check_header(ispin0)
+      logical function rho_check_header(ispin0,band)
       implicit none 
       integer ispin0
+      logical band
 
 #include "stdio.fh"
 #include "errquit.fh"
@@ -25,15 +26,15 @@
       integer MASTER,taskid
       parameter(MASTER=0)
       integer msglen
-      integer version,nfft(3),ispin
+      integer version,nfft(3),ispin,nbrill
       real*8 unita(3,3)
 
 
 *     ***** local functions ****
       character*50 control_input_rho
       external     control_input_rho
-      integer  control_ngrid,control_version
-      external control_ngrid,control_version
+      integer  control_ngrid,control_version,control_num_kvectors
+      external control_ngrid,control_version,control_num_kvectors
       real*8   control_unita
       external control_unita
 
@@ -56,6 +57,7 @@
             call iread(4,nfft,3)
             call dread(4,unita,9)
             call iread(4,ispin,1)
+            if (band) call iread(4,nbrill,1)
             call closefile(4)
          else
             n = 0
@@ -79,6 +81,11 @@ c        **** send header to all nodes ****
          call Parallel_Brdcst_values(MASTER,msglen,unita)
          msglen = 1
          call Parallel_Brdcst_ivalues(MASTER,msglen,ispin)
+         if (band) then
+            msglen = 1
+            call Parallel_Brdcst_ivalues(MASTER,msglen,nbrill)
+            if (nbrill.ne.control_num_kvectors()) ok = .false.
+         end if
          if ((control_version().ne.version).or.
      >       (ispin.ne.ispin0).or.
      >       (control_ngrid(1).ne.nfft(1)).or.

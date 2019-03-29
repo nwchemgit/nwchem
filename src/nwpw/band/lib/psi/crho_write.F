@@ -20,7 +20,7 @@
 
 *    *** local variables ***
       integer version,l
-      integer nfft3d,n2ft3d
+      integer nfft3d,n2ft3d,nbrill
       integer nfft(3)
       real*8  unita(3,3)
       character*50 filename
@@ -39,8 +39,8 @@ c     complex*16 tmp(*)
       external     control_output_rho
       double precision control_unita
       external         control_unita
-      integer  control_ngrid,control_version
-      external control_ngrid,control_version
+      integer  control_ngrid,control_version,control_num_kvectors
+      external control_ngrid,control_version,control_num_kvectors
       logical  control_print
       external control_print
 
@@ -71,6 +71,7 @@ c     complex*16 tmp(*)
       unita(1,3) = control_unita(1,3)
       unita(2,3) = control_unita(2,3)
       unita(3,3) = control_unita(3,3)
+      nbrill = control_num_kvectors()
 
 *     **** open RHOIN binary file ****
       filename = control_output_rho()
@@ -89,6 +90,7 @@ c     complex*16 tmp(*)
             call iwrite(6,nfft,3)
             call dwrite(6,unita,9)
             call iwrite(6,ispin,1)
+            call iwrite(6,nbrill,1)
          end if
       end if
 

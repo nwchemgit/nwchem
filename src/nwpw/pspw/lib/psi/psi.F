@@ -2423,7 +2423,7 @@ c     >           rho,1)
         rho_ptr = rho2(1)
       end if
 
-      if (rho_check_header(ispin)) then
+      if (rho_check_header(ispin,.false.)) then
          call rho_read(ispin,dbl_mb(rho_ptr))
          ok = .true.
       else
