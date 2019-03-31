@@ -1,6 +1,3 @@
-__device__ double* t3_s_d;
-__device__ double* t3_d;
-
 #include "header.h"
 extern    "C" void set_dev_mem_d(int h1d, int h2d, int h3d, int p4d, int p5d,int p6d)
 {
@@ -110,42 +107,42 @@ __global__ void sd_t_d1_1_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
     t2sub_d_off=p4_0*p4ld_t2sub+p5_0*p5ld_t2sub+h1_0*h1ld_t2sub;
     v2sub_d_off=h3_0*h3ld_v2sub+p6_0*p6ld_v2sub;
     if(thread_y+T1*0<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*0][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*0][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*0<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*0] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*0] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_1*p4ld_t2sub+p5_1*p5ld_t2sub+h1_1*h1ld_t2sub;
     v2sub_d_off=h3_1*h3ld_v2sub+p6_1*p6ld_v2sub;
     if(thread_y+T1*1<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*1][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*1][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*1<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*1] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*1] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_2*p4ld_t2sub+p5_2*p5ld_t2sub+h1_2*h1ld_t2sub;
     v2sub_d_off=h3_2*h3ld_v2sub+p6_2*p6ld_v2sub;
     if(thread_y+T1*2<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*2][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*2][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*2<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*2] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*2] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_3*p4ld_t2sub+p5_3*p5ld_t2sub+h1_3*h1ld_t2sub;
     v2sub_d_off=h3_3*h3ld_v2sub+p6_3*p6ld_v2sub;
     if(thread_y+T1*3<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*3][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*3][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*3<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*3] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*3] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     __syncthreads();
     for(h7l=0;h7l<h7l_hi;++h7l){
@@ -395,42 +392,42 @@ __global__ void sd_t_d1_2_kernel(int h1d,int h2d,int h3d,int h7d,int p4d,int p5d
     t2sub_d_off=p4_0*p4ld_t2sub+p5_0*p5ld_t2sub+h1_0*h1ld_t2sub;
     v2sub_d_off=h3_0*h3ld_v2sub+h2_0*h2ld_v2sub;
     if(thread_y+T1*0<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*0][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*0][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*0<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*0] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*0] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_1*p4ld_t2sub+p5_1*p5ld_t2sub+h1_1*h1ld_t2sub;
     v2sub_d_off=h3_1*h3ld_v2sub+h2_1*h2ld_v2sub;
     if(thread_y+T1*1<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*1][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*1][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*1<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*1] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*1] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_2*p4ld_t2sub+p5_2*p5ld_t2sub+h1_2*h1ld_t2sub;
     v2sub_d_off=h3_2*h3ld_v2sub+h2_2*h2ld_v2sub;
     if(thread_y+T1*2<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*2][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*2][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*2<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*2] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*2] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_3*p4ld_t2sub+p5_3*p5ld_t2sub+h1_3*h1ld_t2sub;
     v2sub_d_off=h3_3*h3ld_v2sub+h2_3*h2ld_v2sub;
     if(thread_y+T1*3<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*3][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*3][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*3<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*3] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*3] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     __syncthreads();
     for(h7l=0;h7l<h7l_hi;++h7l){
@@ -676,42 +673,42 @@ __global__ void sd_t_d1_3_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int h7l
     t2sub_d_off=p4_0*p4ld_t2sub+p5_0*p5ld_t2sub+h1_0*h1ld_t2sub;
     v2sub_d_off=h3_0*h3ld_v2sub;
     if(thread_y+T1*0<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*0][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*0][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*0<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*0] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*0] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_1*p4ld_t2sub+p5_1*p5ld_t2sub+h1_1*h1ld_t2sub;
     v2sub_d_off=h3_1*h3ld_v2sub;
     if(thread_y+T1*1<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*1][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*1][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*1<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*1] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*1] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_2*p4ld_t2sub+p5_2*p5ld_t2sub+h1_2*h1ld_t2sub;
     v2sub_d_off=h3_2*h3ld_v2sub;
     if(thread_y+T1*2<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*2][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*2][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*2<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*2] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*2] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_3*p4ld_t2sub+p5_3*p5ld_t2sub+h1_3*h1ld_t2sub;
     v2sub_d_off=h3_3*h3ld_v2sub;
     if(thread_y+T1*3<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*3][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*3][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*3<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*3] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*3] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     __syncthreads();
     for(h7l=0;h7l<h7l_hi;++h7l){
@@ -960,42 +957,42 @@ __global__ void sd_t_d1_4_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
     t2sub_d_off=p4_0*p4ld_t2sub+p5_0*p5ld_t2sub+h1_0*h1ld_t2sub;
     v2sub_d_off=h3_0*h3ld_v2sub+p6_0*p6ld_v2sub;
     if(thread_y+T1*0<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*0][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*0][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*0<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*0] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*0] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_1*p4ld_t2sub+p5_1*p5ld_t2sub+h1_1*h1ld_t2sub;
     v2sub_d_off=h3_1*h3ld_v2sub+p6_1*p6ld_v2sub;
     if(thread_y+T1*1<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*1][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*1][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*1<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*1] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*1] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_2*p4ld_t2sub+p5_2*p5ld_t2sub+h1_2*h1ld_t2sub;
     v2sub_d_off=h3_2*h3ld_v2sub+p6_2*p6ld_v2sub;
     if(thread_y+T1*2<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*2][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*2][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*2<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*2] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*2] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_3*p4ld_t2sub+p5_3*p5ld_t2sub+h1_3*h1ld_t2sub;
     v2sub_d_off=h3_3*h3ld_v2sub+p6_3*p6ld_v2sub;
     if(thread_y+T1*3<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*3][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*3][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*3<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*3] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*3] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     __syncthreads();
     for(h7l=0;h7l<h7l_hi;++h7l){
@@ -1253,42 +1250,42 @@ __global__ void sd_t_d1_5_kernel(int h1d,int h2d,int h3d,int h7d,int p4d,int p5d
     t2sub_d_off=p4_0*p4ld_t2sub+p5_0*p5ld_t2sub+h1_0*h1ld_t2sub;
     v2sub_d_off=h3_0*h3ld_v2sub+h2_0*h2ld_v2sub+p6_0*p6ld_v2sub;
     if(thread_y+T1*0<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*0][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*0][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*0<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*0] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*0] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_1*p4ld_t2sub+p5_1*p5ld_t2sub+h1_1*h1ld_t2sub;
     v2sub_d_off=h3_1*h3ld_v2sub+h2_1*h2ld_v2sub+p6_1*p6ld_v2sub;
     if(thread_y+T1*1<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*1][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*1][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*1<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*1] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*1] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_2*p4ld_t2sub+p5_2*p5ld_t2sub+h1_2*h1ld_t2sub;
     v2sub_d_off=h3_2*h3ld_v2sub+h2_2*h2ld_v2sub+p6_2*p6ld_v2sub;
     if(thread_y+T1*2<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*2][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*2][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*2<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*2] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*2] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_3*p4ld_t2sub+p5_3*p5ld_t2sub+h1_3*h1ld_t2sub;
     v2sub_d_off=h3_3*h3ld_v2sub+h2_3*h2ld_v2sub+p6_3*p6ld_v2sub;
     if(thread_y+T1*3<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*3][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*3][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*3<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*3] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*3] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     __syncthreads();
     for(h7l=0;h7l<h7l_hi;++h7l){
@@ -1539,42 +1536,42 @@ __global__ void sd_t_d1_6_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
     t2sub_d_off=p4_0*p4ld_t2sub+p5_0*p5ld_t2sub+h1_0*h1ld_t2sub;
     v2sub_d_off=h3_0*h3ld_v2sub+p6_0*p6ld_v2sub;
     if(thread_y+T1*0<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*0][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*0][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*0<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*0] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*0] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_1*p4ld_t2sub+p5_1*p5ld_t2sub+h1_1*h1ld_t2sub;
     v2sub_d_off=h3_1*h3ld_v2sub+p6_1*p6ld_v2sub;
     if(thread_y+T1*1<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*1][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*1][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*1<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*1] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*1] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_2*p4ld_t2sub+p5_2*p5ld_t2sub+h1_2*h1ld_t2sub;
     v2sub_d_off=h3_2*h3ld_v2sub+p6_2*p6ld_v2sub;
     if(thread_y+T1*2<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*2][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*2][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*2<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*2] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*2] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_3*p4ld_t2sub+p5_3*p5ld_t2sub+h1_3*h1ld_t2sub;
     v2sub_d_off=h3_3*h3ld_v2sub+p6_3*p6ld_v2sub;
     if(thread_y+T1*3<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*3][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*3][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*3<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*3] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*3] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     __syncthreads();
     for(h7l=0;h7l<h7l_hi;++h7l){
@@ -1824,42 +1821,42 @@ __global__ void sd_t_d1_7_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
     t2sub_d_off=p4_0*p4ld_t2sub+p5_0*p5ld_t2sub+h1_0*h1ld_t2sub;
     v2sub_d_off=h3_0*h3ld_v2sub+p6_0*p6ld_v2sub;
     if(thread_y+T1*0<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*0][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*0][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*0<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*0] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*0] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_1*p4ld_t2sub+p5_1*p5ld_t2sub+h1_1*h1ld_t2sub;
     v2sub_d_off=h3_1*h3ld_v2sub+p6_1*p6ld_v2sub;
     if(thread_y+T1*1<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*1][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*1][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*1<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*1] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*1] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_2*p4ld_t2sub+p5_2*p5ld_t2sub+h1_2*h1ld_t2sub;
     v2sub_d_off=h3_2*h3ld_v2sub+p6_2*p6ld_v2sub;
     if(thread_y+T1*2<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*2][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*2][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*2<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*2] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*2] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_3*p4ld_t2sub+p5_3*p5ld_t2sub+h1_3*h1ld_t2sub;
     v2sub_d_off=h3_3*h3ld_v2sub+p6_3*p6ld_v2sub;
     if(thread_y+T1*3<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*3][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*3][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*3<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*3] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*3] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     __syncthreads();
     for(h7l=0;h7l<h7l_hi;++h7l){
@@ -2117,42 +2114,42 @@ __global__ void sd_t_d1_8_kernel(int h1d,int h2d,int h3d,int h7d,int p4d,int p5d
     t2sub_d_off=p4_0*p4ld_t2sub+p5_0*p5ld_t2sub+h1_0*h1ld_t2sub;
     v2sub_d_off=h3_0*h3ld_v2sub+h2_0*h2ld_v2sub+p6_0*p6ld_v2sub;
     if(thread_y+T1*0<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*0][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*0][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*0<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*0] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*0] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_1*p4ld_t2sub+p5_1*p5ld_t2sub+h1_1*h1ld_t2sub;
     v2sub_d_off=h3_1*h3ld_v2sub+h2_1*h2ld_v2sub+p6_1*p6ld_v2sub;
     if(thread_y+T1*1<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*1][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*1][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*1<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*1] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*1] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_2*p4ld_t2sub+p5_2*p5ld_t2sub+h1_2*h1ld_t2sub;
     v2sub_d_off=h3_2*h3ld_v2sub+h2_2*h2ld_v2sub+p6_2*p6ld_v2sub;
     if(thread_y+T1*2<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*2][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*2][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*2<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*2] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*2] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_3*p4ld_t2sub+p5_3*p5ld_t2sub+h1_3*h1ld_t2sub;
     v2sub_d_off=h3_3*h3ld_v2sub+h2_3*h2ld_v2sub+p6_3*p6ld_v2sub;
     if(thread_y+T1*3<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*3][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*3][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*3<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*3] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*3] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     __syncthreads();
     for(h7l=0;h7l<h7l_hi;++h7l){
@@ -2403,42 +2400,42 @@ __global__ void sd_t_d1_9_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
     t2sub_d_off=p4_0*p4ld_t2sub+p5_0*p5ld_t2sub+h1_0*h1ld_t2sub;
     v2sub_d_off=h3_0*h3ld_v2sub+p6_0*p6ld_v2sub;
     if(thread_y+T1*0<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*0][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*0][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*0<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*0] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*0] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_1*p4ld_t2sub+p5_1*p5ld_t2sub+h1_1*h1ld_t2sub;
     v2sub_d_off=h3_1*h3ld_v2sub+p6_1*p6ld_v2sub;
     if(thread_y+T1*1<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*1][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*1][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*1<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*1] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*1] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_2*p4ld_t2sub+p5_2*p5ld_t2sub+h1_2*h1ld_t2sub;
     v2sub_d_off=h3_2*h3ld_v2sub+p6_2*p6ld_v2sub;
     if(thread_y+T1*2<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*2][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*2][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*2<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*2] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*2] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     t2sub_d_off=p4_3*p4ld_t2sub+p5_3*p5ld_t2sub+h1_3*h1ld_t2sub;
     v2sub_d_off=h3_3*h3ld_v2sub+p6_3*p6ld_v2sub;
     if(thread_y+T1*3<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
-	h7=h7l+h7T;
-	t2sub_shm[in1_idxl+T1*3][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
+  h7=h7l+h7T;
+  t2sub_shm[in1_idxl+T1*3][h7l] = t2sub_d[t2sub_d_off+h7*h7ld_t2sub];
       }
     if(thread_x+T1*3<total_x)for(h7l=threadIdx.y;h7l<h7l_hi;h7l+=blockDim.y){
-	h7=h7l+h7T;
-	v2sub_shm[h7l][in2_idxl+T1*3] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
+  h7=h7l+h7T;
+  v2sub_shm[h7l][in2_idxl+T1*3] = v2sub_d[v2sub_d_off+h7*h7ld_v2sub];
       }
     __syncthreads();
     for(h7l=0;h7l<h7l_hi;++h7l){
@@ -2689,42 +2686,42 @@ __global__ void sd_t_d2_1_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p7d
     t2_d_off=p4_0*p4ld_t2+h1_0*h1ld_t2+h2_0*h2ld_t2;
     v2_d_off=h3_0*h3ld_v2+p6_0*p6ld_v2;
     if(thread_y+T1*0<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*0][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*0][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*0<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*0] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*0] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_1*p4ld_t2+h1_1*h1ld_t2+h2_1*h2ld_t2;
     v2_d_off=h3_1*h3ld_v2+p6_1*p6ld_v2;
     if(thread_y+T1*1<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*1][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*1][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*1<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*1] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*1] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_2*p4ld_t2+h1_2*h1ld_t2+h2_2*h2ld_t2;
     v2_d_off=h3_2*h3ld_v2+p6_2*p6ld_v2;
     if(thread_y+T1*2<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*2][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*2][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*2<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*2] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*2] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_3*p4ld_t2+h1_3*h1ld_t2+h2_3*h2ld_t2;
     v2_d_off=h3_3*h3ld_v2+p6_3*p6ld_v2;
     if(thread_y+T1*3<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*3][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*3][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*3<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*3] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*3] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     __syncthreads();
     for(p7l=0;p7l<p7l_hi;++p7l){
@@ -2968,42 +2965,42 @@ __global__ void sd_t_d2_2_kernel(int h1d,int h2d,int h3d,int p4d,int p7d,int p7l
     t2_d_off=p4_0*p4ld_t2+h1_0*h1ld_t2+h2_0*h2ld_t2;
     v2_d_off=h3_0*h3ld_v2;
     if(thread_y+T1*0<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*0][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*0][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*0<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*0] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*0] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_1*p4ld_t2+h1_1*h1ld_t2+h2_1*h2ld_t2;
     v2_d_off=h3_1*h3ld_v2;
     if(thread_y+T1*1<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*1][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*1][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*1<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*1] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*1] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_2*p4ld_t2+h1_2*h1ld_t2+h2_2*h2ld_t2;
     v2_d_off=h3_2*h3ld_v2;
     if(thread_y+T1*2<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*2][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*2][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*2<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*2] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*2] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_3*p4ld_t2+h1_3*h1ld_t2+h2_3*h2ld_t2;
     v2_d_off=h3_3*h3ld_v2;
     if(thread_y+T1*3<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*3][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*3][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*3<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*3] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*3] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     __syncthreads();
     for(p7l=0;p7l<p7l_hi;++p7l){
@@ -3254,42 +3251,42 @@ __global__ void sd_t_d2_3_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p7d
     t2_d_off=p4_0*p4ld_t2+h1_0*h1ld_t2+h2_0*h2ld_t2;
     v2_d_off=h3_0*h3ld_v2+p6_0*p6ld_v2;
     if(thread_y+T1*0<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*0][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*0][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*0<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*0] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*0] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_1*p4ld_t2+h1_1*h1ld_t2+h2_1*h2ld_t2;
     v2_d_off=h3_1*h3ld_v2+p6_1*p6ld_v2;
     if(thread_y+T1*1<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*1][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*1][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*1<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*1] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*1] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_2*p4ld_t2+h1_2*h1ld_t2+h2_2*h2ld_t2;
     v2_d_off=h3_2*h3ld_v2+p6_2*p6ld_v2;
     if(thread_y+T1*2<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*2][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*2][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*2<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*2] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*2] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_3*p4ld_t2+h1_3*h1ld_t2+h2_3*h2ld_t2;
     v2_d_off=h3_3*h3ld_v2+p6_3*p6ld_v2;
     if(thread_y+T1*3<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*3][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*3][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*3<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*3] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*3] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     __syncthreads();
     for(p7l=0;p7l<p7l_hi;++p7l){
@@ -3549,42 +3546,42 @@ __global__ void sd_t_d2_4_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
     t2_d_off=p4_0*p4ld_t2+h1_0*h1ld_t2+h2_0*h2ld_t2;
     v2_d_off=h3_0*h3ld_v2+p6_0*p6ld_v2+p5_0*p5ld_v2;
     if(thread_y+T1*0<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*0][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*0][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*0<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*0] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*0] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_1*p4ld_t2+h1_1*h1ld_t2+h2_1*h2ld_t2;
     v2_d_off=h3_1*h3ld_v2+p6_1*p6ld_v2+p5_1*p5ld_v2;
     if(thread_y+T1*1<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*1][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*1][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*1<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*1] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*1] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_2*p4ld_t2+h1_2*h1ld_t2+h2_2*h2ld_t2;
     v2_d_off=h3_2*h3ld_v2+p6_2*p6ld_v2+p5_2*p5ld_v2;
     if(thread_y+T1*2<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*2][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*2][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*2<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*2] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*2] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_3*p4ld_t2+h1_3*h1ld_t2+h2_3*h2ld_t2;
     v2_d_off=h3_3*h3ld_v2+p6_3*p6ld_v2+p5_3*p5ld_v2;
     if(thread_y+T1*3<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*3][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*3][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*3<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*3] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*3] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     __syncthreads();
     for(p7l=0;p7l<p7l_hi;++p7l){
@@ -3837,42 +3834,42 @@ __global__ void sd_t_d2_5_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p7d
     t2_d_off=p4_0*p4ld_t2+h1_0*h1ld_t2+h2_0*h2ld_t2;
     v2_d_off=h3_0*h3ld_v2+p5_0*p5ld_v2;
     if(thread_y+T1*0<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*0][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*0][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*0<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*0] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*0] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_1*p4ld_t2+h1_1*h1ld_t2+h2_1*h2ld_t2;
     v2_d_off=h3_1*h3ld_v2+p5_1*p5ld_v2;
     if(thread_y+T1*1<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*1][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*1][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*1<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*1] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*1] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_2*p4ld_t2+h1_2*h1ld_t2+h2_2*h2ld_t2;
     v2_d_off=h3_2*h3ld_v2+p5_2*p5ld_v2;
     if(thread_y+T1*2<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*2][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*2][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*2<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*2] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*2] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_3*p4ld_t2+h1_3*h1ld_t2+h2_3*h2ld_t2;
     v2_d_off=h3_3*h3ld_v2+p5_3*p5ld_v2;
     if(thread_y+T1*3<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*3][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*3][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*3<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*3] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*3] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     __syncthreads();
     for(p7l=0;p7l<p7l_hi;++p7l){
@@ -4132,42 +4129,42 @@ __global__ void sd_t_d2_6_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
     t2_d_off=p4_0*p4ld_t2+h1_0*h1ld_t2+h2_0*h2ld_t2;
     v2_d_off=h3_0*h3ld_v2+p6_0*p6ld_v2+p5_0*p5ld_v2;
     if(thread_y+T1*0<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*0][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*0][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*0<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*0] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*0] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_1*p4ld_t2+h1_1*h1ld_t2+h2_1*h2ld_t2;
     v2_d_off=h3_1*h3ld_v2+p6_1*p6ld_v2+p5_1*p5ld_v2;
     if(thread_y+T1*1<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*1][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*1][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*1<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*1] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*1] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_2*p4ld_t2+h1_2*h1ld_t2+h2_2*h2ld_t2;
     v2_d_off=h3_2*h3ld_v2+p6_2*p6ld_v2+p5_2*p5ld_v2;
     if(thread_y+T1*2<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*2][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*2][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*2<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*2] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*2] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_3*p4ld_t2+h1_3*h1ld_t2+h2_3*h2ld_t2;
     v2_d_off=h3_3*h3ld_v2+p6_3*p6ld_v2+p5_3*p5ld_v2;
     if(thread_y+T1*3<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*3][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*3][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*3<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*3] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*3] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     __syncthreads();
     for(p7l=0;p7l<p7l_hi;++p7l){
@@ -4428,42 +4425,42 @@ __global__ void sd_t_d2_7_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
     t2_d_off=p4_0*p4ld_t2+h1_0*h1ld_t2+h2_0*h2ld_t2;
     v2_d_off=h3_0*h3ld_v2+p6_0*p6ld_v2+p5_0*p5ld_v2;
     if(thread_y+T1*0<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*0][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*0][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*0<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*0] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*0] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_1*p4ld_t2+h1_1*h1ld_t2+h2_1*h2ld_t2;
     v2_d_off=h3_1*h3ld_v2+p6_1*p6ld_v2+p5_1*p5ld_v2;
     if(thread_y+T1*1<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*1][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*1][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*1<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*1] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*1] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_2*p4ld_t2+h1_2*h1ld_t2+h2_2*h2ld_t2;
     v2_d_off=h3_2*h3ld_v2+p6_2*p6ld_v2+p5_2*p5ld_v2;
     if(thread_y+T1*2<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*2][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*2][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*2<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*2] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*2] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_3*p4ld_t2+h1_3*h1ld_t2+h2_3*h2ld_t2;
     v2_d_off=h3_3*h3ld_v2+p6_3*p6ld_v2+p5_3*p5ld_v2;
     if(thread_y+T1*3<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*3][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*3][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*3<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*3] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*3] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     __syncthreads();
     for(p7l=0;p7l<p7l_hi;++p7l){
@@ -4724,42 +4721,42 @@ __global__ void sd_t_d2_8_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
     t2_d_off=p4_0*p4ld_t2+h1_0*h1ld_t2+h2_0*h2ld_t2;
     v2_d_off=h3_0*h3ld_v2+p6_0*p6ld_v2+p5_0*p5ld_v2;
     if(thread_y+T1*0<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*0][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*0][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*0<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*0] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*0] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_1*p4ld_t2+h1_1*h1ld_t2+h2_1*h2ld_t2;
     v2_d_off=h3_1*h3ld_v2+p6_1*p6ld_v2+p5_1*p5ld_v2;
     if(thread_y+T1*1<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*1][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*1][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*1<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*1] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*1] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_2*p4ld_t2+h1_2*h1ld_t2+h2_2*h2ld_t2;
     v2_d_off=h3_2*h3ld_v2+p6_2*p6ld_v2+p5_2*p5ld_v2;
     if(thread_y+T1*2<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*2][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*2][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*2<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*2] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*2] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_3*p4ld_t2+h1_3*h1ld_t2+h2_3*h2ld_t2;
     v2_d_off=h3_3*h3ld_v2+p6_3*p6ld_v2+p5_3*p5ld_v2;
     if(thread_y+T1*3<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*3][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*3][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*3<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*3] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*3] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     __syncthreads();
     for(p7l=0;p7l<p7l_hi;++p7l){
@@ -5020,42 +5017,42 @@ __global__ void sd_t_d2_9_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
     t2_d_off=p4_0*p4ld_t2+h1_0*h1ld_t2+h2_0*h2ld_t2;
     v2_d_off=h3_0*h3ld_v2+p6_0*p6ld_v2+p5_0*p5ld_v2;
     if(thread_y+T1*0<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*0][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*0][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*0<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*0] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*0] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_1*p4ld_t2+h1_1*h1ld_t2+h2_1*h2ld_t2;
     v2_d_off=h3_1*h3ld_v2+p6_1*p6ld_v2+p5_1*p5ld_v2;
     if(thread_y+T1*1<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*1][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*1][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*1<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*1] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*1] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_2*p4ld_t2+h1_2*h1ld_t2+h2_2*h2ld_t2;
     v2_d_off=h3_2*h3ld_v2+p6_2*p6ld_v2+p5_2*p5ld_v2;
     if(thread_y+T1*2<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*2][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*2][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*2<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*2] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*2] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     t2_d_off=p4_3*p4ld_t2+h1_3*h1ld_t2+h2_3*h2ld_t2;
     v2_d_off=h3_3*h3ld_v2+p6_3*p6ld_v2+p5_3*p5ld_v2;
     if(thread_y+T1*3<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
-	p7=p7l+p7T;
-	t2_shm[in1_idxl+T1*3][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
+  p7=p7l+p7T;
+  t2_shm[in1_idxl+T1*3][p7l] = t2_d[t2_d_off+p7*p7ld_t2];
       }
     if(thread_x+T1*3<total_x)for(p7l=threadIdx.y;p7l<p7l_hi;p7l+=blockDim.y){
-	p7=p7l+p7T;
-	v2_shm[p7l][in2_idxl+T1*3] = v2_d[v2_d_off+p7*p7ld_v2];
+  p7=p7l+p7T;
+  v2_shm[p7l][in2_idxl+T1*3] = v2_d[v2_d_off+p7*p7ld_v2];
       }
     __syncthreads();
     for(p7l=0;p7l<p7l_hi;++p7l){
@@ -5293,7 +5290,7 @@ __global__ void compute_energy_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,in
   }
   if(threadIdx.x==0)
   {
-/*	  limit = blockDim.x;
+/*    limit = blockDim.x;
       if (blockIdx.x == (gridDim.x-1)) limit = total_size%blockDim.x;
       for(int i=0;i<limit;i++)
       {
@@ -5345,7 +5342,7 @@ extern   "C" void compute_energy(double factor, double* energy, double* eval1, d
     dim3 dimBlock(1); //T2*T1);
     dim3 dimGrid(total_block);
     compute_energy_kernel<<<dimGrid,dimBlock,0>>>(h1d,h2d,h3d,p4d,p5d,p6d, eval_d1,eval_d2,eval_d3,eval_d4,eval_d5,eval_d6,energy_d, factor, h1d*h2d*p4d*p5d*p6d, t3_d, t3_s_d);
-	cudaThreadSynchronize();
+  cudaThreadSynchronize();
     //CHECK_ERR("Kernel execution failed");
     CUDA_SAFE(cudaMemcpy(((char *) energy_h) , ((char *) energy_d) , 
     size_energy*total_block*2, cudaMemcpyDeviceToHost));
@@ -5412,7 +5409,7 @@ dev_mem_s_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer *
 #define Tcomm 16
 __global__ void sd_t_s1_1_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p4ld_t2,int h1ld_t2,int h3ld_v2,int h2ld_v2,int p6ld_v2,int h3ld_t3,int h2ld_t3,int h1ld_t3,int p6ld_t3,int p4ld_t3, double *t2_d, double *v2_d,int p4, int total_x, double* t3d) {
   int h1,h2,h3,p6;
-  __shared__ double t2_shm[T1*2*Tcomm];
+  __shared__ double t2_shm[T1*4*Tcomm];
   
   for(int i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
   if(i<h1d*p4d)
@@ -5425,18 +5422,18 @@ __global__ void sd_t_s1_1_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p4l
   for(int i=0;i<total_x;i+=gridDim.x*blockDim.x)
   {
     rest_x += i;
-  	h3=rest_x%h3d;
-  	rest_x=rest_x/h3d;
-  	h2=rest_x%h2d;
-  	rest_x=rest_x/h2d;
-  	p6=rest_x%p6d;
+    h3=rest_x%h3d;
+    rest_x=rest_x/h3d;
+    h2=rest_x%h2d;
+    rest_x=rest_x/h2d;
+    p6=rest_x%p6d;
 
     if((thread_x+i)<total_x)
-  	for(h1=0;h1<h1d;h1++)
-  	for(p4=0;p4<p4d;p4++)
-  	{
-     	t3d[h3*h3ld_t3+h2*h2ld_t3+h1*h1ld_t3+p6*p6ld_t3+p4*p4ld_t3]+=t2_shm[h1*p4d+p4]*v2_d[h3*h3ld_v2+h2*h2ld_v2+p6*p6ld_v2];
-  	}
+    for(h1=0;h1<h1d;h1++)
+    for(p4=0;p4<p4d;p4++)
+    {
+      t3d[h3*h3ld_t3+h2*h2ld_t3+h1*h1ld_t3+p6*p6ld_t3+p4*p4ld_t3]+=t2_shm[h1*p4d+p4]*v2_d[h3*h3ld_v2+h2*h2ld_v2+p6*p6ld_v2];
+    }
   }
     __syncthreads();
 }
@@ -5446,84 +5443,84 @@ sd_t_s1_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 {
     double st, et;
 //ckbn    st = timer(); 
-	size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
-	                p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
-	                p5ld_t3, p4ld_t3;
-	size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
-	                size_v2;
-	cudaStream_t   *streams;
-	size_t          nstreams, i;
-	double         *t2_d, *v2_d, *t3_p;
-	size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
-	size_t2 = p4d * h1d * sizeof(double);
-	size_v2 = h3d * h2d * p6d * p5d * sizeof(double);
-	nstreams = 1;
-	size_block_t3 = size_t3 / nstreams;
-	size_el_block_t3 = size_block_t3 / sizeof(double);
+  size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
+                  p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
+                  p5ld_t3, p4ld_t3;
+  size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
+                  size_v2;
+  cudaStream_t   *streams;
+  size_t          nstreams, i;
+  double         *t2_d, *v2_d, *t3_p;
+  //size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
+  size_t2 = p4d * h1d * sizeof(double);
+  size_v2 = h3d * h2d * p6d * p5d * sizeof(double);
+  nstreams = 1;
+  size_block_t3 = size_t3 / nstreams;
+  size_el_block_t3 = size_block_t3 / sizeof(double);
 //CUDA_SAFE(cudaMalloc((void**) &t3_d, size_t3));
 //CUDA_SAFE(cudaMalloc((void**) &t2_d, size_t2));
 //CUDA_SAFE(cudaMalloc((void**) &v2_d, size_v2));
-//	t3_d = (double *) getGpuMem(size_t3);
-	t2_d = (double *) getGpuMem(size_t2);
-	v2_d = (double *) getGpuMem(size_v2);
-	t3_p = (double *) getHostMem(size_t3);
-	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
-	assert(streams != NULL);
-	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaStreamCreate(&streams[i]));
-	}
-	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+//  t3_d = (double *) getGpuMem(size_t3);
+  t2_d = (double *) getGpuMem(size_t2);
+  v2_d = (double *) getGpuMem(size_v2);
+  //t3_p = (double *) getHostMem(size_t3);
+  streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
+  assert(streams != NULL);
+  for (i = 0; i < nstreams; ++i) {
+    CUDA_SAFE(cudaStreamCreate(&streams[i]));
+  }
+  CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
 
-	p4ld_t2 = 1;
-	h1ld_t2 = p4d;
+  p4ld_t2 = 1;
+  h1ld_t2 = p4d;
 
-	h3ld_v2 = 1;
-	h2ld_v2 = h3d;
-	p6ld_v2 = h3d * h2d;
-//	p5ld_v2 = p6d * h3d * p7d;
-	h3ld_t3 = 1;
-	h2ld_t3 = h3d;
-	h1ld_t3 = h2d * h3d;
-	p6ld_t3 = h1d * h2d * h3d;
-//	p5ld_t3 = p6d * h1d * h2d * h3d;
-	p4ld_t3 = p5d * p6d * h1d * h2d * h3d;
+  h3ld_v2 = 1;
+  h2ld_v2 = h3d;
+  p6ld_v2 = h3d * h2d;
+//  p5ld_v2 = p6d * h3d * p7d;
+  h3ld_t3 = 1;
+  h2ld_t3 = h3d;
+  h1ld_t3 = h2d * h3d;
+  p6ld_t3 = h1d * h2d * h3d;
+//  p5ld_t3 = p6d * h1d * h2d * h3d;
+  p4ld_t3 = p5d * p6d * h1d * h2d * h3d;
   int total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     sd_t_s1_1_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t2_d,v2_d,i,total_x, t3_s_d);
-		CHECK_ERR("Kernel execution failed");
-	}
+    CHECK_ERR("Kernel execution failed");
+  }
 /*
     st = timer();
-	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
-	}
+  for (i = 0; i < nstreams; ++i) {
+    CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+  }
 
-	stream = 0;
-	while (stream < nstreams) {
-		while (cudaStreamQuery(streams[stream]) != cudaSuccess);
-		double         *src = &t3_p[stream * size_el_block_t3];
-		double         *dst = &t3[stream * size_el_block_t3];
-		for (i = 0; i < size_el_block_t3; ++i) {
-			dst[i] = src[i];
-		}
-		stream++;
-	}
+  stream = 0;
+  while (stream < nstreams) {
+    while (cudaStreamQuery(streams[stream]) != cudaSuccess);
+    double         *src = &t3_p[stream * size_el_block_t3];
+    double         *dst = &t3[stream * size_el_block_t3];
+    for (i = 0; i < size_el_block_t3; ++i) {
+      dst[i] = src[i];
+    }
+    stream++;
+  }
 */
-	cudaThreadSynchronize();
+  cudaThreadSynchronize();
 
-//	CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
-	for (i = 0; i < nstreams; ++i) {
-		cudaStreamDestroy(streams[i]);
-	}
-//	freeGpuMem(t3_d);
-	freeGpuMem(t2_d);
-	freeGpuMem(v2_d);
+//  CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+  for (i = 0; i < nstreams; ++i) {
+    cudaStreamDestroy(streams[i]);
+  }
+//  freeGpuMem(t3_d);
+  freeGpuMem(t2_d);
+  freeGpuMem(v2_d);
    //  cudaFree(t2_d);
    //  cudaFree(v2_d);
-	freeHostMem(t3_p);
-	free(streams);
+  //freeHostMem(t3_p);
+  free(streams);
 }
 #undef T1
 #undef T2
@@ -5531,7 +5528,7 @@ sd_t_s1_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 extern          "C" void 
 sd_t_s1_1_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d, double *t3, double *t2, double *v2)
 {
-	sd_t_s1_1_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d,  t3, t2, v2);
+  sd_t_s1_1_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d,  t3, t2, v2);
 }
 /*----------------------------------------------------------------------*
  *t3[h3,h1,h2,p6,p5,p4] -= t2[p4,h1] * v2[h3,h2,p6,p5]
@@ -5541,7 +5538,7 @@ sd_t_s1_1_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Inte
 #define Tcomm 16
 __global__ void sd_t_s1_2_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p4ld_t2,int h1ld_t2,int h3ld_v2,int h2ld_v2,int p6ld_v2,int h3ld_t3,int h2ld_t3,int h1ld_t3,int p6ld_t3,int p4ld_t3,double *t2_d, double *v2_d,int p4, int total_x, double* t3d) {
   int h1,h2,h3,p6;
-  __shared__ double t2_shm[T1*2*Tcomm];
+  __shared__ double t2_shm[T1*4*Tcomm];
   
   for(int i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
   if(i<h1d*p4d)
@@ -5554,18 +5551,18 @@ __global__ void sd_t_s1_2_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p4l
   for(int i=0;i<total_x;i+=gridDim.x*blockDim.x)
   {
     rest_x += i;
-  	h3=rest_x%h3d;
-  	rest_x=rest_x/h3d;
-  	h2=rest_x%h2d;
-  	rest_x=rest_x/h2d;
-  	p6=rest_x%p6d;
+    h3=rest_x%h3d;
+    rest_x=rest_x/h3d;
+    h2=rest_x%h2d;
+    rest_x=rest_x/h2d;
+    p6=rest_x%p6d;
 
     if((thread_x+i)<total_x)
-  	for(h1=0;h1<h1d;h1++)
-  	for(p4=0;p4<p4d;p4++)
-  	{
-     	t3d[h3*h3ld_t3+h2*h2ld_t3+h1*h1ld_t3+p6*p6ld_t3+p4*p4ld_t3]-=t2_shm[h1*p4d+p4]*v2_d[h3*h3ld_v2+h2*h2ld_v2+p6*p6ld_v2];
-  	}
+    for(h1=0;h1<h1d;h1++)
+    for(p4=0;p4<p4d;p4++)
+    {
+      t3d[h3*h3ld_t3+h2*h2ld_t3+h1*h1ld_t3+p6*p6ld_t3+p4*p4ld_t3]-=t2_shm[h1*p4d+p4]*v2_d[h3*h3ld_v2+h2*h2ld_v2+p6*p6ld_v2];
+    }
   }
     __syncthreads();
 }
@@ -5575,109 +5572,109 @@ sd_t_s1_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 {
     double st, et;
 //ckbn    st = timer(); 
-	size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
-	                p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
-	                p5ld_t3, p4ld_t3;
-	size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
-	                size_v2;
-	cudaStream_t   *streams;
-	size_t          nstreams, i;
-	double         *t2_d, *v2_d, *t3_p;
-	size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
-	size_t2 = p4d * h1d * sizeof(double);
-	size_v2 = h3d * h2d * p6d * p5d * sizeof(double);
-	nstreams = 1;
-	size_block_t3 = size_t3 / nstreams;
-	size_el_block_t3 = size_block_t3 / sizeof(double);
+  size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
+                  p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
+                  p5ld_t3, p4ld_t3;
+  size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
+                  size_v2;
+  cudaStream_t   *streams;
+  size_t          nstreams, i;
+  double         *t2_d, *v2_d, *t3_p;
+  //size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
+  size_t2 = p4d * h1d * sizeof(double);
+  size_v2 = h3d * h2d * p6d * p5d * sizeof(double);
+  nstreams = 1;
+  size_block_t3 = size_t3 / nstreams;
+  size_el_block_t3 = size_block_t3 / sizeof(double);
 /*    if(first==1)
     {
-		t3_d = (double *) getGpuMem(size_t3);
+    t3_d = (double *) getGpuMem(size_t3);
         cudaMemset(t3_d,0,size_t3*sizeof(double));
         first = 0;
-	}*/
+  }*/
 //CUDA_SAFE(cudaMalloc((void**) &t2_d, size_t2));
 //CUDA_SAFE(cudaMalloc((void**) &v2_d, size_v2));
-	t2_d = (double *) getGpuMem(size_t2);
-	v2_d = (double *) getGpuMem(size_v2);
-	t3_p = (double *) getHostMem(size_t3);
-	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
-/*	assert(streams != NULL);
-	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaStreamCreate(&streams[i]));
-	}*/
-	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+  t2_d = (double *) getGpuMem(size_t2);
+  v2_d = (double *) getGpuMem(size_v2);
+  //t3_p = (double *) getHostMem(size_t3);
+  streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
+/*  assert(streams != NULL);
+  for (i = 0; i < nstreams; ++i) {
+    CUDA_SAFE(cudaStreamCreate(&streams[i]));
+  }*/
+  CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
 
-	p4ld_t2 = 1;
-	h1ld_t2 = p4d ;
+  p4ld_t2 = 1;
+  h1ld_t2 = p4d ;
 
-	h3ld_v2 = 1;
-	h2ld_v2 = h3d;
-	p6ld_v2 = h3d * h2d;
-//	p5ld_v2 = p6d * h3d * p7d;
-	h3ld_t3 = 1;
-	h1ld_t3 = h3d;
-	h2ld_t3 = h1d * h3d;
-	p6ld_t3 = h1d * h2d * h3d;
-//	p5ld_t3 = p6d * h1d * h2d * h3d;
-	p4ld_t3 = p5d * p6d * h1d * h2d * h3d;
+  h3ld_v2 = 1;
+  h2ld_v2 = h3d;
+  p6ld_v2 = h3d * h2d;
+//  p5ld_v2 = p6d * h3d * p7d;
+  h3ld_t3 = 1;
+  h1ld_t3 = h3d;
+  h2ld_t3 = h1d * h3d;
+  p6ld_t3 = h1d * h2d * h3d;
+//  p5ld_t3 = p6d * h1d * h2d * h3d;
+  p4ld_t3 = p5d * p6d * h1d * h2d * h3d;
   int total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
 //  for(i=0;i<nstreams;++i){
 
     sd_t_s1_2_kernel<<<dimGrid,dimBlock,0>>>(h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t2_d,v2_d,i,total_x, t3_s_d);
-		CHECK_ERR("Kernel execution failed");
-//	}
+    CHECK_ERR("Kernel execution failed");
+//  }
 /*
-	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
-	}
+  for (i = 0; i < nstreams; ++i) {
+    CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+  }
 
-	stream = 0;
-	while (stream < nstreams) {
-		while (cudaStreamQuery(streams[stream]) != cudaSuccess);
-		double         *src = &t3_p[stream * size_el_block_t3];
-		double         *dst = &t3[stream * size_el_block_t3];
-		for (i = 0; i < size_el_block_t3; ++i) {
-			dst[i] = src[i];
-		}
-		stream++;
-	}*/
-	cudaThreadSynchronize();
-//	CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+  stream = 0;
+  while (stream < nstreams) {
+    while (cudaStreamQuery(streams[stream]) != cudaSuccess);
+    double         *src = &t3_p[stream * size_el_block_t3];
+    double         *dst = &t3[stream * size_el_block_t3];
+    for (i = 0; i < size_el_block_t3; ++i) {
+      dst[i] = src[i];
+    }
+    stream++;
+  }*/
+  cudaThreadSynchronize();
+//  CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 /*
-	for (i = 0; i < nstreams; ++i) {
-		cudaStreamDestroy(streams[i]);
-	}*/
-	freeGpuMem(t2_d);
-	freeGpuMem(v2_d);
-	freeHostMem(t3_p);
-	free(streams);
+  for (i = 0; i < nstreams; ++i) {
+    cudaStreamDestroy(streams[i]);
+  }*/
+  freeGpuMem(t2_d);
+  freeGpuMem(v2_d);
+  //freeHostMem(t3_p);
+  free(streams);
 }
 extern          "C" void 
 sd_t_s1_2_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d, double *t3, double *t2, double *v2)
 {
-	sd_t_s1_2_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d,  t3, t2, v2);
+  sd_t_s1_2_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d,  t3, t2, v2);
 }
 extern          "C" void 
 sd_t_s1_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3, double *t2, double *v2)
 {
     double st, et;
 //ckbn    st = timer(); 
-	size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
-	                p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
-	                p5ld_t3, p4ld_t3;
-	size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
-	                size_v2;
-	cudaStream_t   *streams;
-	size_t          nstreams, i;
-	double         *t2_d, *v2_d, *t3_p;
-	size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
-	size_t2 = p4d * h1d * sizeof(double);
-	size_v2 = h3d * h2d * p6d * p5d * sizeof(double);
-	nstreams = 1;
-	size_block_t3 = size_t3 / nstreams;
-	size_el_block_t3 = size_block_t3 / sizeof(double);
+  size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
+                  p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
+                  p5ld_t3, p4ld_t3;
+  size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
+                  size_v2;
+  cudaStream_t   *streams;
+  size_t          nstreams, i;
+  double         *t2_d, *v2_d, *t3_p;
+  //size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
+  size_t2 = p4d * h1d * sizeof(double);
+  size_v2 = h3d * h2d * p6d * p5d * sizeof(double);
+  nstreams = 1;
+  size_block_t3 = size_t3 / nstreams;
+  size_el_block_t3 = size_block_t3 / sizeof(double);
   /*  if(first==1)
     {
         t3_d = (double *) getGpuMem(size_t3);
@@ -5685,62 +5682,62 @@ sd_t_s1_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
         first = 0;
     }
 */
-	t2_d = (double *) getGpuMem(size_t2);
-	v2_d = (double *) getGpuMem(size_v2);
-	t3_p = (double *) getHostMem(size_t3);
-	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
-	assert(streams != NULL);
-	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaStreamCreate(&streams[i]));
-	}
-	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+  t2_d = (double *) getGpuMem(size_t2);
+  v2_d = (double *) getGpuMem(size_v2);
+  //t3_p = (double *) getHostMem(size_t3);
+  streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
+  assert(streams != NULL);
+  for (i = 0; i < nstreams; ++i) {
+    CUDA_SAFE(cudaStreamCreate(&streams[i]));
+  }
+  CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
 
-	p4ld_t2 = 1;
-	h1ld_t2 = p4d ;
+  p4ld_t2 = 1;
+  h1ld_t2 = p4d ;
 
-	h3ld_v2 = 1;
-	h2ld_v2 = h3d;
-	p6ld_v2 = h3d * h2d;
-//	p5ld_v2 = p6d * h3d * p7d;
-	h1ld_t3 = 1;
-	h3ld_t3 = h1d;
-	h2ld_t3 = h1d * h3d;
-	p6ld_t3 = h1d * h2d * h3d;
-//	p5ld_t3 = p6d * h1d * h2d * h3d;
-	p4ld_t3 = p5d * p6d * h1d * h2d * h3d;
+  h3ld_v2 = 1;
+  h2ld_v2 = h3d;
+  p6ld_v2 = h3d * h2d;
+//  p5ld_v2 = p6d * h3d * p7d;
+  h1ld_t3 = 1;
+  h3ld_t3 = h1d;
+  h2ld_t3 = h1d * h3d;
+  p6ld_t3 = h1d * h2d * h3d;
+//  p5ld_t3 = p6d * h1d * h2d * h3d;
+  p4ld_t3 = p5d * p6d * h1d * h2d * h3d;
   int total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     sd_t_s1_1_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t2_d,v2_d,i,total_x, t3_s_d);
-		CHECK_ERR("Kernel execution failed");
-	}
+    CHECK_ERR("Kernel execution failed");
+  }
 /*
-	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
-	}
+  for (i = 0; i < nstreams; ++i) {
+    CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+  }
 
-	stream = 0;
-	while (stream < nstreams) {
-		while (cudaStreamQuery(streams[stream]) != cudaSuccess);
-		double         *src = &t3_p[stream * size_el_block_t3];
-		double         *dst = &t3[stream * size_el_block_t3];
-		for (i = 0; i < size_el_block_t3; ++i) {
-			dst[i] = src[i];
-		}
-		stream++;
-	}
-*/	cudaThreadSynchronize();
-	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+  stream = 0;
+  while (stream < nstreams) {
+    while (cudaStreamQuery(streams[stream]) != cudaSuccess);
+    double         *src = &t3_p[stream * size_el_block_t3];
+    double         *dst = &t3[stream * size_el_block_t3];
+    for (i = 0; i < size_el_block_t3; ++i) {
+      dst[i] = src[i];
+    }
+    stream++;
+  }
+*/  cudaThreadSynchronize();
+  //CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 
-	for (i = 0; i < nstreams; ++i) {
-		cudaStreamDestroy(streams[i]);
-	}
-//	freeGpuMem(t3_d);
-	freeGpuMem(t2_d);
-	freeGpuMem(v2_d);
-	freeHostMem(t3_p);
-	free(streams);
+  for (i = 0; i < nstreams; ++i) {
+    cudaStreamDestroy(streams[i]);
+  }
+//  freeGpuMem(t3_d);
+  freeGpuMem(t2_d);
+  freeGpuMem(v2_d);
+  //freeHostMem(t3_p);
+  free(streams);
 }
 #undef T1
 #undef T2
@@ -5748,7 +5745,7 @@ sd_t_s1_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 extern          "C" void 
 sd_t_s1_3_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d,  double *t3, double *t2, double *v2)
 {
-	sd_t_s1_3_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d, t3, t2, v2);
+  sd_t_s1_3_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d, t3, t2, v2);
 }
 /*----------------------------------------------------------------------*
  *t3[h3,h2,h1,p6,p4,p5] -= t2[p4,h1] * v2[h3,h2,p6,p5]
@@ -5758,7 +5755,7 @@ sd_t_s1_3_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Inte
 #define Tcomm 16
 __global__ void sd_t_s1_4_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d,int p4ld_t2,int h1ld_t2,int h3ld_v2,int h2ld_v2,int p6ld_v2,int p5ld_v2,int h3ld_t3,int h2ld_t3,int h1ld_t3,int p6ld_t3,int p5ld_t3,int p4ld_t3,double *t3d, double *t2_d, double *v2_d,int p4, int total_x) {
   int h1,h2,h3,p6,p5;
-  __shared__ double t2_shm[T1*2*Tcomm];
+  __shared__ double t2_shm[T1*4*Tcomm];
   
   for(int i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
   if(i<h1d*p4d)
@@ -5771,20 +5768,20 @@ __global__ void sd_t_s1_4_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
   for(int i=0;i<total_x;i+=gridDim.x*blockDim.x)
   {
     rest_x += i;
-  	h3=rest_x%h3d;
-  	rest_x=rest_x/h3d;
-  	h2=rest_x%h2d;
-  	rest_x=rest_x/h2d;
-  	p6=rest_x%p6d;
-  	rest_x=rest_x/p6d;
-  	p5=rest_x%p5d;
+    h3=rest_x%h3d;
+    rest_x=rest_x/h3d;
+    h2=rest_x%h2d;
+    rest_x=rest_x/h2d;
+    p6=rest_x%p6d;
+    rest_x=rest_x/p6d;
+    p5=rest_x%p5d;
 
     if((thread_x+i)<total_x)
-  	for(h1=0;h1<h1d;h1++)
-  	for(p4=0;p4<p4d;p4++)
-  	{
-     	t3d[h3*h3ld_t3+h2*h2ld_t3+h1*h1ld_t3+p6*p6ld_t3+p5*p5ld_t3+p4*p4ld_t3]-=t2_shm[h1*p4d+p4]*v2_d[h3*h3ld_v2+h2*h2ld_v2+p6*p6ld_v2+p5*p5ld_v2];
-  	}
+    for(h1=0;h1<h1d;h1++)
+    for(p4=0;p4<p4d;p4++)
+    {
+      t3d[h3*h3ld_t3+h2*h2ld_t3+h1*h1ld_t3+p6*p6ld_t3+p5*p5ld_t3+p4*p4ld_t3]-=t2_shm[h1*p4d+p4]*v2_d[h3*h3ld_v2+h2*h2ld_v2+p6*p6ld_v2+p5*p5ld_v2];
+    }
   }
     __syncthreads();
 }
@@ -5794,20 +5791,20 @@ sd_t_s1_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 {
     double st, et;
 //ckbn    st = timer(); 
-	size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
-	                p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
-	                p5ld_t3, p4ld_t3;
-	size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
-	                size_v2;
-	cudaStream_t   *streams;
-	size_t          nstreams, i;
-	double         *t2_d, *v2_d, *t3_p;
-	size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
-	size_t2 = p4d * h1d * sizeof(double);
-	size_v2 = h3d * h2d * p6d * p5d * sizeof(double);
-	nstreams = 1;
-	size_block_t3 = size_t3 / nstreams;
-	size_el_block_t3 = size_block_t3 / sizeof(double);
+  size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
+                  p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
+                  p5ld_t3, p4ld_t3;
+  size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
+                  size_v2;
+  cudaStream_t   *streams;
+  size_t          nstreams, i;
+  double         *t2_d, *v2_d, *t3_p;
+  //size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
+  size_t2 = p4d * h1d * sizeof(double);
+  size_v2 = h3d * h2d * p6d * p5d * sizeof(double);
+  nstreams = 1;
+  size_block_t3 = size_t3 / nstreams;
+  size_el_block_t3 = size_block_t3 / sizeof(double);
   /*  if(first==1)
     {
         t3_d = (double *) getGpuMem(size_t3);
@@ -5815,65 +5812,65 @@ sd_t_s1_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
         first = 0;
     }
 */
-//	t3_d = (double *) getGpuMem(size_t3);
-	t2_d = (double *) getGpuMem(size_t2);
-	v2_d = (double *) getGpuMem(size_v2);
-	t3_p = (double *) getHostMem(size_t3);
-	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
-/*	assert(streams != NULL);
-	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaStreamCreate(&streams[i]));
-	}*/
-	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+//  t3_d = (double *) getGpuMem(size_t3);
+  t2_d = (double *) getGpuMem(size_t2);
+  v2_d = (double *) getGpuMem(size_v2);
+  //t3_p = (double *) getHostMem(size_t3);
+  streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
+/*  assert(streams != NULL);
+  for (i = 0; i < nstreams; ++i) {
+    CUDA_SAFE(cudaStreamCreate(&streams[i]));
+  }*/
+  CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
 
-	p4ld_t2 = 1;
-	h1ld_t2 = p4d;
+  p4ld_t2 = 1;
+  h1ld_t2 = p4d;
 
-	h3ld_v2 = 1;
-	h2ld_v2 = h3d;
-	p6ld_v2 = h3d * h2d;
-	p5ld_v2 = p6d * h3d * h2d;
-	h3ld_t3 = 1;
-	h2ld_t3 = h3d;
-	h1ld_t3 = h2d * h3d;
-	p6ld_t3 = h1d * h2d * h3d;
-	p4ld_t3 = p6d * h1d * h2d * h3d;
-	p5ld_t3 = p4d * p6d * h1d * h2d * h3d;
+  h3ld_v2 = 1;
+  h2ld_v2 = h3d;
+  p6ld_v2 = h3d * h2d;
+  p5ld_v2 = p6d * h3d * h2d;
+  h3ld_t3 = 1;
+  h2ld_t3 = h3d;
+  h1ld_t3 = h2d * h3d;
+  p6ld_t3 = h1d * h2d * h3d;
+  p4ld_t3 = p6d * h1d * h2d * h3d;
+  p5ld_t3 = p4d * p6d * h1d * h2d * h3d;
   int total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
    i=0;
  // for(i=0;i<nstreams;++i){
     sd_t_s1_4_kernel<<<dimGrid,dimBlock,0>>>(h1d,h2d,h3d,p4d,p5d,p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p5ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
     //sd_t_s1_4_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p5ld_t3,p4ld_t3,t3_d,t2_d,v2_d,i,total_x);
-		CHECK_ERR("Kernel execution failed");
-//	}
+    CHECK_ERR("Kernel execution failed");
+//  }
 
 
-	cudaThreadSynchronize();
-	/*	CUDA_SAFE(cudaMemcpy(((char *) t3_p) , ((char *) t3_d) , size_block_t3, cudaMemcpyDeviceToHost));
-	printf("Time for Async DeviceToHost %f\n", et-st);
-	stream = 0;
-//	while (stream < nstreams) {
-//		while (cudaStreamQuery(streams[stream]) != cudaSuccess);
-		double         *src = t3_p; //[stream * size_el_block_t3];
-		double         *dst = t3;  //[stream * size_el_block_t3];
-		for (i = 0; i < size_el_block_t3; ++i) {
-			dst[i] -= src[i];
-		}
-//		stream++;
-//	}
+  cudaThreadSynchronize();
+  /*  CUDA_SAFE(cudaMemcpy(((char *) t3_p) , ((char *) t3_d) , size_block_t3, cudaMemcpyDeviceToHost));
+  printf("Time for Async DeviceToHost %f\n", et-st);
+  stream = 0;
+//  while (stream < nstreams) {
+//    while (cudaStreamQuery(streams[stream]) != cudaSuccess);
+    double         *src = t3_p; //[stream * size_el_block_t3];
+    double         *dst = t3;  //[stream * size_el_block_t3];
+    for (i = 0; i < size_el_block_t3; ++i) {
+      dst[i] -= src[i];
+    }
+//    stream++;
+//  }
 */
-//	cudaThreadSynchronize();
+//  cudaThreadSynchronize();
 /*
-	for (i = 0; i < nstreams; ++i) {
-		cudaStreamDestroy(streams[i]);
-	}*/
-//	freeGpuMem(t3_d);
-	freeGpuMem(t2_d);
-	freeGpuMem(v2_d);
-	freeHostMem(t3_p);
-	free(streams);
+  for (i = 0; i < nstreams; ++i) {
+    cudaStreamDestroy(streams[i]);
+  }*/
+//  freeGpuMem(t3_d);
+  freeGpuMem(t2_d);
+  freeGpuMem(v2_d);
+  //freeHostMem(t3_p);
+  free(streams);
 }
 #undef T1
 #undef T2
@@ -5881,7 +5878,7 @@ sd_t_s1_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 extern          "C" void 
 sd_t_s1_4_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d, double *t3, double *t2, double *v2)
 {
-	sd_t_s1_4_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d,  t3, t2, v2);
+  sd_t_s1_4_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d,  t3, t2, v2);
 }
 
 /*----------------------------------------------------------------------*
@@ -5892,7 +5889,7 @@ sd_t_s1_4_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Inte
 #define Tcomm 16
 __global__ void sd_t_s1_5_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d,int p4ld_t2,int h1ld_t2,int h3ld_v2,int h2ld_v2,int p6ld_v2,int p5ld_v2,int h3ld_t3,int h2ld_t3,int h1ld_t3,int p6ld_t3,int p5ld_t3,int p4ld_t3,double *t3d, double *t2_d, double *v2_d,int p4, int total_x) {
   int h1,h2,h3,p6,p5;
-  __shared__ double t2_shm[T1*2*Tcomm];
+  __shared__ double t2_shm[T1*4*Tcomm];
   
   for(int i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
   if(i<h1d*p4d)
@@ -5905,20 +5902,20 @@ __global__ void sd_t_s1_5_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
   for(int i=0;i<total_x;i+=gridDim.x*blockDim.x)
   {
     rest_x += i;
-  	h3=rest_x%h3d;
-  	rest_x=rest_x/h3d;
-  	h2=rest_x%h2d;
-  	rest_x=rest_x/h2d;
-  	p6=rest_x%p6d;
-  	rest_x=rest_x/p6d;
-  	p5=rest_x%p5d;
+    h3=rest_x%h3d;
+    rest_x=rest_x/h3d;
+    h2=rest_x%h2d;
+    rest_x=rest_x/h2d;
+    p6=rest_x%p6d;
+    rest_x=rest_x/p6d;
+    p5=rest_x%p5d;
 
     if((thread_x+i)<total_x)
-  	for(h1=0;h1<h1d;h1++)
-  	for(p4=0;p4<p4d;p4++)
-  	{
-     	t3d[h3*h3ld_t3+h2*h2ld_t3+h1*h1ld_t3+p6*p6ld_t3+p5*p5ld_t3+p4*p4ld_t3]+=t2_shm[h1*p4d+p4]*v2_d[h3*h3ld_v2+h2*h2ld_v2+p6*p6ld_v2+p5*p5ld_v2];
-  	}
+    for(h1=0;h1<h1d;h1++)
+    for(p4=0;p4<p4d;p4++)
+    {
+      t3d[h3*h3ld_t3+h2*h2ld_t3+h1*h1ld_t3+p6*p6ld_t3+p5*p5ld_t3+p4*p4ld_t3]+=t2_shm[h1*p4d+p4]*v2_d[h3*h3ld_v2+h2*h2ld_v2+p6*p6ld_v2+p5*p5ld_v2];
+    }
   }
     __syncthreads();
 }
@@ -5928,20 +5925,20 @@ sd_t_s1_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 {
     double st, et;
 //ckbn    st = timer(); 
-	size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
-	                p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
-	                p5ld_t3, p4ld_t3;
-	size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
-	                size_v2;
-	cudaStream_t   *streams;
-	size_t          nstreams, i;
-	double         *t2_d, *v2_d, *t3_p;
-	size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
-	size_t2 = p4d * h1d * sizeof(double);
-	size_v2 = h3d * h2d * p6d * p5d * sizeof(double);
-	nstreams = 1;
-	size_block_t3 = size_t3 / nstreams;
-	size_el_block_t3 = size_block_t3 / sizeof(double);
+  size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
+                  p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
+                  p5ld_t3, p4ld_t3;
+  size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
+                  size_v2;
+  cudaStream_t   *streams;
+  size_t          nstreams, i;
+  double         *t2_d, *v2_d, *t3_p;
+  //size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
+  size_t2 = p4d * h1d * sizeof(double);
+  size_v2 = h3d * h2d * p6d * p5d * sizeof(double);
+  nstreams = 1;
+  size_block_t3 = size_t3 / nstreams;
+  size_el_block_t3 = size_block_t3 / sizeof(double);
   /*  if(first==1)
     {
         t3_d = (double *) getGpuMem(size_t3);
@@ -5949,64 +5946,64 @@ sd_t_s1_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
         first = 0;
     }
 */
-//	t3_d = (double *) getGpuMem(size_t3);
-	t2_d = (double *) getGpuMem(size_t2);
-	v2_d = (double *) getGpuMem(size_v2);
-	t3_p = (double *) getHostMem(size_t3);
-	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
-	assert(streams != NULL);
-	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaStreamCreate(&streams[i]));
-	}
-	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+//  t3_d = (double *) getGpuMem(size_t3);
+  t2_d = (double *) getGpuMem(size_t2);
+  v2_d = (double *) getGpuMem(size_v2);
+  //t3_p = (double *) getHostMem(size_t3);
+  streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
+  assert(streams != NULL);
+  for (i = 0; i < nstreams; ++i) {
+    CUDA_SAFE(cudaStreamCreate(&streams[i]));
+  }
+  CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
 
-	p4ld_t2 = 1;
-	h1ld_t2 = p4d ;
+  p4ld_t2 = 1;
+  h1ld_t2 = p4d ;
 
-	h3ld_v2 = 1;
-	h2ld_v2 = h3d;
-	p6ld_v2 = h3d * h2d;
-	p5ld_v2 = p6d * h3d * h2d;
-	h3ld_t3 = 1;
-	h1ld_t3 = h3d;
-	h2ld_t3 = h1d * h3d;
-	p6ld_t3 = h1d * h2d * h3d;
-	p4ld_t3 = p6d * h1d * h2d * h3d;
-	p5ld_t3 = p4d * p6d * h1d * h2d * h3d;
+  h3ld_v2 = 1;
+  h2ld_v2 = h3d;
+  p6ld_v2 = h3d * h2d;
+  p5ld_v2 = p6d * h3d * h2d;
+  h3ld_t3 = 1;
+  h1ld_t3 = h3d;
+  h2ld_t3 = h1d * h3d;
+  p6ld_t3 = h1d * h2d * h3d;
+  p4ld_t3 = p6d * h1d * h2d * h3d;
+  p5ld_t3 = p4d * p6d * h1d * h2d * h3d;
   int total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     sd_t_s1_5_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p5ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
-		CHECK_ERR("Kernel execution failed");
-	}
+    CHECK_ERR("Kernel execution failed");
+  }
 /*
-	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
-	}
+  for (i = 0; i < nstreams; ++i) {
+    CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+  }
 
-	stream = 0;
-	while (stream < nstreams) {
-		while (cudaStreamQuery(streams[stream]) != cudaSuccess);
-		double         *src = &t3_p[stream * size_el_block_t3];
-		double         *dst = &t3[stream * size_el_block_t3];
-		for (i = 0; i < size_el_block_t3; ++i) {
-			dst[i] = src[i];
-		}
-		stream++;
-	}
+  stream = 0;
+  while (stream < nstreams) {
+    while (cudaStreamQuery(streams[stream]) != cudaSuccess);
+    double         *src = &t3_p[stream * size_el_block_t3];
+    double         *dst = &t3[stream * size_el_block_t3];
+    for (i = 0; i < size_el_block_t3; ++i) {
+      dst[i] = src[i];
+    }
+    stream++;
+  }
 */
-	cudaThreadSynchronize();
+  cudaThreadSynchronize();
 
-	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
-	for (i = 0; i < nstreams; ++i) {
-		cudaStreamDestroy(streams[i]);
-	}
-//	freeGpuMem(t3_d);
-	freeGpuMem(t2_d);
-	freeGpuMem(v2_d);
-	freeHostMem(t3_p);
-	free(streams);
+  //CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+  for (i = 0; i < nstreams; ++i) {
+    cudaStreamDestroy(streams[i]);
+  }
+//  freeGpuMem(t3_d);
+  freeGpuMem(t2_d);
+  freeGpuMem(v2_d);
+  //freeHostMem(t3_p);
+  free(streams);
 }
 #undef T1
 #undef T2
@@ -6014,7 +6011,7 @@ sd_t_s1_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 extern          "C" void 
 sd_t_s1_5_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d,  double *t3, double *t2, double *v2)
 {
-	sd_t_s1_5_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d,  t3, t2, v2);
+  sd_t_s1_5_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d,  t3, t2, v2);
 }
 
 /*----------------------------------------------------------------------*
@@ -6025,7 +6022,7 @@ sd_t_s1_5_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Inte
 #define Tcomm 16
 __global__ void sd_t_s1_6_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d,int p4ld_t2,int h1ld_t2,int h3ld_v2,int h2ld_v2,int p6ld_v2,int p5ld_v2,int h3ld_t3,int h2ld_t3,int h1ld_t3,int p6ld_t3,int p5ld_t3,int p4ld_t3,double *t3d, double *t2_d, double *v2_d,int p4, int total_x) {
   int h1,h2,h3,p6,p5;
-  __shared__ double t2_shm[T1*2*Tcomm];
+  __shared__ double t2_shm[T1*4*Tcomm];
   
   for(int i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
   if(i<h1d*p4d)
@@ -6038,20 +6035,20 @@ __global__ void sd_t_s1_6_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
   for(int i=0;i<total_x;i+=gridDim.x*blockDim.x)
   {
     rest_x += i;
-  	h3=rest_x%h3d;
-  	rest_x=rest_x/h3d;
-  	h2=rest_x%h2d;
-  	rest_x=rest_x/h2d;
-  	p6=rest_x%p6d;
-  	rest_x=rest_x/p6d;
-  	p5=rest_x%p5d;
+    h3=rest_x%h3d;
+    rest_x=rest_x/h3d;
+    h2=rest_x%h2d;
+    rest_x=rest_x/h2d;
+    p6=rest_x%p6d;
+    rest_x=rest_x/p6d;
+    p5=rest_x%p5d;
 
     if((thread_x+i)<total_x)
-  	for(h1=0;h1<h1d;h1++)
-  	for(p4=0;p4<p4d;p4++)
-  	{
-     	t3d[h3*h3ld_t3+h2*h2ld_t3+h1*h1ld_t3+p6*p6ld_t3+p5*p5ld_t3+p4*p4ld_t3]-=t2_shm[h1*p4d+p4]*v2_d[h3*h3ld_v2+h2*h2ld_v2+p6*p6ld_v2+p5*p5ld_v2];
-  	}
+    for(h1=0;h1<h1d;h1++)
+    for(p4=0;p4<p4d;p4++)
+    {
+      t3d[h3*h3ld_t3+h2*h2ld_t3+h1*h1ld_t3+p6*p6ld_t3+p5*p5ld_t3+p4*p4ld_t3]-=t2_shm[h1*p4d+p4]*v2_d[h3*h3ld_v2+h2*h2ld_v2+p6*p6ld_v2+p5*p5ld_v2];
+    }
   }
     __syncthreads();
 }
@@ -6061,20 +6058,20 @@ sd_t_s1_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 {
     double st, et;
 //ckbn    st = timer(); 
-	size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
-	                p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
-	                p5ld_t3, p4ld_t3;
-	size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
-	                size_v2;
-	cudaStream_t   *streams;
-	size_t          nstreams, i;
-	double          *t2_d, *v2_d, *t3_p;
-	size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
-	size_t2 = p4d * h1d * sizeof(double);
-	size_v2 = h3d * h2d * p6d * p5d * sizeof(double);
-	nstreams = 1;
-	size_block_t3 = size_t3 / nstreams;
-	size_el_block_t3 = size_block_t3 / sizeof(double);
+  size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
+                  p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
+                  p5ld_t3, p4ld_t3;
+  size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
+                  size_v2;
+  cudaStream_t   *streams;
+  size_t          nstreams, i;
+  double          *t2_d, *v2_d, *t3_p;
+  //size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
+  size_t2 = p4d * h1d * sizeof(double);
+  size_v2 = h3d * h2d * p6d * p5d * sizeof(double);
+  nstreams = 1;
+  size_block_t3 = size_t3 / nstreams;
+  size_el_block_t3 = size_block_t3 / sizeof(double);
   /*  if(first==1)
     {
         t3_d = (double *) getGpuMem(size_t3);
@@ -6082,62 +6079,62 @@ sd_t_s1_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
         first = 0;
     }
 */
-//	t3_d = (double *) getGpuMem(size_t3);
-	t2_d = (double *) getGpuMem(size_t2);
-	v2_d = (double *) getGpuMem(size_v2);
-	t3_p = (double *) getHostMem(size_t3);
-	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
-	assert(streams != NULL);
-	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaStreamCreate(&streams[i]));
-	}
-	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+//  t3_d = (double *) getGpuMem(size_t3);
+  t2_d = (double *) getGpuMem(size_t2);
+  v2_d = (double *) getGpuMem(size_v2);
+  //t3_p = (double *) getHostMem(size_t3);
+  streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
+  assert(streams != NULL);
+  for (i = 0; i < nstreams; ++i) {
+    CUDA_SAFE(cudaStreamCreate(&streams[i]));
+  }
+  CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
 
-	p4ld_t2 = 1;
-	h1ld_t2 = p4d;
+  p4ld_t2 = 1;
+  h1ld_t2 = p4d;
 
-	h3ld_v2 = 1;
-	h2ld_v2 = h3d;
-	p6ld_v2 = h3d * h2d;
-	p5ld_v2 = p6d * h3d * h2d;
-	h1ld_t3 = 1;
-	h3ld_t3 = h1d;
-	h2ld_t3 = h1d * h3d;
-	p6ld_t3 = h1d * h2d * h3d;
-	p4ld_t3 = p6d * h1d * h2d * h3d;
-	p5ld_t3 = p4d * p6d * h1d * h2d * h3d;
+  h3ld_v2 = 1;
+  h2ld_v2 = h3d;
+  p6ld_v2 = h3d * h2d;
+  p5ld_v2 = p6d * h3d * h2d;
+  h1ld_t3 = 1;
+  h3ld_t3 = h1d;
+  h2ld_t3 = h1d * h3d;
+  p6ld_t3 = h1d * h2d * h3d;
+  p4ld_t3 = p6d * h1d * h2d * h3d;
+  p5ld_t3 = p4d * p6d * h1d * h2d * h3d;
   int total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     sd_t_s1_6_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d,p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p5ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
-		CHECK_ERR("Kernel execution failed");
-	}
-/*	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
-	}
+    CHECK_ERR("Kernel execution failed");
+  }
+/*  for (i = 0; i < nstreams; ++i) {
+    CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+  }
 
-	stream = 0;
-	while (stream < nstreams) {
-		while (cudaStreamQuery(streams[stream]) != cudaSuccess);
-		double         *src = &t3_p[stream * size_el_block_t3];
-		double         *dst = &t3[stream * size_el_block_t3];
-		for (i = 0; i < size_el_block_t3; ++i) {
-			dst[i] = src[i];
-		}
-		stream++;
-	}*/
-	cudaThreadSynchronize();
-	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+  stream = 0;
+  while (stream < nstreams) {
+    while (cudaStreamQuery(streams[stream]) != cudaSuccess);
+    double         *src = &t3_p[stream * size_el_block_t3];
+    double         *dst = &t3[stream * size_el_block_t3];
+    for (i = 0; i < size_el_block_t3; ++i) {
+      dst[i] = src[i];
+    }
+    stream++;
+  }*/
+  cudaThreadSynchronize();
+  //CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 
-	for (i = 0; i < nstreams; ++i) {
-		cudaStreamDestroy(streams[i]);
-	}
-//	freeGpuMem(t3_d);
-	freeGpuMem(t2_d);
-	freeGpuMem(v2_d);
-	freeHostMem(t3_p);
-	free(streams);
+  for (i = 0; i < nstreams; ++i) {
+    cudaStreamDestroy(streams[i]);
+  }
+//  freeGpuMem(t3_d);
+  freeGpuMem(t2_d);
+  freeGpuMem(v2_d);
+  //freeHostMem(t3_p);
+  free(streams);
 }
 #undef T1
 #undef T2
@@ -6145,7 +6142,7 @@ sd_t_s1_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 extern          "C" void 
 sd_t_s1_6_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d, double *t3, double *t2, double *v2)
 {
-	sd_t_s1_6_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d, t3, t2, v2);
+  sd_t_s1_6_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d, t3, t2, v2);
 }
 
 
@@ -6164,7 +6161,7 @@ sd_t_s1_6_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Inte
 #define Tcomm 16
 __global__ void sd_t_s1_7_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p4ld_t2,int h1ld_t2,int h3ld_v2,int h2ld_v2,int p6ld_v2,int h3ld_t3,int h2ld_t3,int h1ld_t3,int p6ld_t3,int p4ld_t3,double *t3d, double *t2_d, double *v2_d,int p4, int total_x) {
   int h1,h2,h3,p6;
-  __shared__ double t2_shm[T1*2*Tcomm];
+  __shared__ double t2_shm[T1*4*Tcomm];
   
   for(int i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
   if(i<h1d*p4d)
@@ -6177,18 +6174,18 @@ __global__ void sd_t_s1_7_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p4l
   for(int i=0;i<total_x;i+=gridDim.x*blockDim.x)
   {
     rest_x += i;
-  	h3=rest_x%h3d;
-  	rest_x=rest_x/h3d;
-  	h2=rest_x%h2d;
-  	rest_x=rest_x/h2d;
-  	p6=rest_x%p6d;
+    h3=rest_x%h3d;
+    rest_x=rest_x/h3d;
+    h2=rest_x%h2d;
+    rest_x=rest_x/h2d;
+    p6=rest_x%p6d;
 
     if((thread_x+i)<total_x)
-  	for(h1=0;h1<h1d;h1++)
-  	for(p4=0;p4<p4d;p4++)
-  	{
-     	t3d[h3*h3ld_t3+h2*h2ld_t3+h1*h1ld_t3+p6*p6ld_t3+p4*p4ld_t3]+=t2_shm[h1*p4d+p4]*v2_d[h3*h3ld_v2+h2*h2ld_v2+p6*p6ld_v2];
-  	}
+    for(h1=0;h1<h1d;h1++)
+    for(p4=0;p4<p4d;p4++)
+    {
+      t3d[h3*h3ld_t3+h2*h2ld_t3+h1*h1ld_t3+p6*p6ld_t3+p4*p4ld_t3]+=t2_shm[h1*p4d+p4]*v2_d[h3*h3ld_v2+h2*h2ld_v2+p6*p6ld_v2];
+    }
   }
     __syncthreads();
 }
@@ -6197,20 +6194,20 @@ sd_t_s1_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 {
     double st, et;
 //ckbn    st = timer(); 
-	size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
-	                p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
-	                p5ld_t3, p4ld_t3;
-	size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
-	                size_v2;
-	cudaStream_t   *streams;
-	size_t          nstreams, i;
-	double         *t2_d, *v2_d, *t3_p;
-	size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
-	size_t2 = p4d * h1d * sizeof(double);
-	size_v2 = h3d * h2d * p6d * p5d * sizeof(double);
-	nstreams = 1;
-	size_block_t3 = size_t3 / nstreams;
-	size_el_block_t3 = size_block_t3 / sizeof(double);
+  size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
+                  p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
+                  p5ld_t3, p4ld_t3;
+  size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
+                  size_v2;
+  cudaStream_t   *streams;
+  size_t          nstreams, i;
+  double         *t2_d, *v2_d, *t3_p;
+  //size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
+  size_t2 = p4d * h1d * sizeof(double);
+  size_v2 = h3d * h2d * p6d * p5d * sizeof(double);
+  nstreams = 1;
+  size_block_t3 = size_t3 / nstreams;
+  size_el_block_t3 = size_block_t3 / sizeof(double);
   /*  if(first==1)
     {
         t3_d = (double *) getGpuMem(size_t3);
@@ -6218,63 +6215,63 @@ sd_t_s1_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
         first = 0;
     }
 */
-//	t3_d = (double *) getGpuMem(size_t3);
-	t2_d = (double *) getGpuMem(size_t2);
-	v2_d = (double *) getGpuMem(size_v2);
-	t3_p = (double *) getHostMem(size_t3);
-	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
-	assert(streams != NULL);
-	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaStreamCreate(&streams[i]));
-	}
-	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+//  t3_d = (double *) getGpuMem(size_t3);
+  t2_d = (double *) getGpuMem(size_t2);
+  v2_d = (double *) getGpuMem(size_v2);
+  //t3_p = (double *) getHostMem(size_t3);
+  streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
+  assert(streams != NULL);
+  for (i = 0; i < nstreams; ++i) {
+    CUDA_SAFE(cudaStreamCreate(&streams[i]));
+  }
+  CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
 
-	p4ld_t2 = 1;
-	h1ld_t2 = p4d;
+  p4ld_t2 = 1;
+  h1ld_t2 = p4d;
 
-	h3ld_v2 = 1;
-	h2ld_v2 = h3d;
-	p6ld_v2 = h3d * h2d;
-//	p5ld_v2 = p6d * h3d * p7d;
-	h3ld_t3 = 1;
-	h2ld_t3 = h3d;
-	h1ld_t3 = h2d * h3d;
-	p4ld_t3 = h1d * h2d * h3d;
-//	p5ld_t3 = p6d * h1d * h2d * h3d;
-	p6ld_t3 = p4d * h1d * h2d * h3d;
+  h3ld_v2 = 1;
+  h2ld_v2 = h3d;
+  p6ld_v2 = h3d * h2d;
+//  p5ld_v2 = p6d * h3d * p7d;
+  h3ld_t3 = 1;
+  h2ld_t3 = h3d;
+  h1ld_t3 = h2d * h3d;
+  p4ld_t3 = h1d * h2d * h3d;
+//  p5ld_t3 = p6d * h1d * h2d * h3d;
+  p6ld_t3 = p4d * h1d * h2d * h3d;
   int total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     sd_t_s1_7_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
-		CHECK_ERR("Kernel execution failed");
-	}
+    CHECK_ERR("Kernel execution failed");
+  }
 /*
-	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
-	}
+  for (i = 0; i < nstreams; ++i) {
+    CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+  }
 
-	stream = 0;
-	while (stream < nstreams) {
-		while (cudaStreamQuery(streams[stream]) != cudaSuccess);
-		double         *src = &t3_p[stream * size_el_block_t3];
-		double         *dst = &t3[stream * size_el_block_t3];
-		for (i = 0; i < size_el_block_t3; ++i) {
-			dst[i] = src[i];
-		}
-		stream++;
-	}*/
-	cudaThreadSynchronize();
-	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+  stream = 0;
+  while (stream < nstreams) {
+    while (cudaStreamQuery(streams[stream]) != cudaSuccess);
+    double         *src = &t3_p[stream * size_el_block_t3];
+    double         *dst = &t3[stream * size_el_block_t3];
+    for (i = 0; i < size_el_block_t3; ++i) {
+      dst[i] = src[i];
+    }
+    stream++;
+  }*/
+  cudaThreadSynchronize();
+  //CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 
-	for (i = 0; i < nstreams; ++i) {
-		cudaStreamDestroy(streams[i]);
-	}
-//	freeGpuMem(t3_d);
-	freeGpuMem(t2_d);
-	freeGpuMem(v2_d);
-	freeHostMem(t3_p);
-	free(streams);
+  for (i = 0; i < nstreams; ++i) {
+    cudaStreamDestroy(streams[i]);
+  }
+//  freeGpuMem(t3_d);
+  freeGpuMem(t2_d);
+  freeGpuMem(v2_d);
+  //freeHostMem(t3_p);
+  free(streams);
 }
 #undef T1
 #undef T2
@@ -6282,14 +6279,14 @@ sd_t_s1_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 extern          "C" void 
 sd_t_s1_7_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d, double *t3, double *t2, double *v2)
 {
-	sd_t_s1_7_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d, t3, t2, v2);
+  sd_t_s1_7_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d, t3, t2, v2);
 }
 #define T1 16
 #define T2 16
 #define Tcomm 16
 __global__ void sd_t_s1_8_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p4ld_t2,int h1ld_t2,int h3ld_v2,int h2ld_v2,int p6ld_v2,int h3ld_t3,int h2ld_t3,int h1ld_t3,int p6ld_t3,int p4ld_t3,double *t3d, double *t2_d, double *v2_d,int p4, int total_x) {
   int h1,h2,h3,p6;
-  __shared__ double t2_shm[T1*2*Tcomm];
+  __shared__ double t2_shm[T1*4*Tcomm];
   
   for(int i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
   if(i<h1d*p4d)
@@ -6302,18 +6299,18 @@ __global__ void sd_t_s1_8_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p4l
   for(int i=0;i<total_x;i+=gridDim.x*blockDim.x)
   {
     rest_x += i;
-  	h3=rest_x%h3d;
-  	rest_x=rest_x/h3d;
-  	h2=rest_x%h2d;
-  	rest_x=rest_x/h2d;
-  	p6=rest_x%p6d;
+    h3=rest_x%h3d;
+    rest_x=rest_x/h3d;
+    h2=rest_x%h2d;
+    rest_x=rest_x/h2d;
+    p6=rest_x%p6d;
 
     if((thread_x+i)<total_x)
-  	for(h1=0;h1<h1d;h1++)
-  	for(p4=0;p4<p4d;p4++)
-  	{
-     	t3d[h3*h3ld_t3+h2*h2ld_t3+h1*h1ld_t3+p6*p6ld_t3+p4*p4ld_t3]-=t2_shm[h1*p4d+p4]*v2_d[h3*h3ld_v2+h2*h2ld_v2+p6*p6ld_v2];
-  	}
+    for(h1=0;h1<h1d;h1++)
+    for(p4=0;p4<p4d;p4++)
+    {
+      t3d[h3*h3ld_t3+h2*h2ld_t3+h1*h1ld_t3+p6*p6ld_t3+p4*p4ld_t3]-=t2_shm[h1*p4d+p4]*v2_d[h3*h3ld_v2+h2*h2ld_v2+p6*p6ld_v2];
+    }
   }
     __syncthreads();
 }
@@ -6328,20 +6325,20 @@ sd_t_s1_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 {
     double st, et;
 //ckbn    st = timer(); 
-	size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
-	                p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
-	                p5ld_t3, p4ld_t3;
-	size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
-	                size_v2;
-	cudaStream_t   *streams;
-	size_t          nstreams, i;
-	double          *t2_d, *v2_d, *t3_p;
-	size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
-	size_t2 = p4d * h1d * sizeof(double);
-	size_v2 = h3d * h2d * p6d * p5d * sizeof(double);
-	nstreams = 1;
-	size_block_t3 = size_t3 / nstreams;
-	size_el_block_t3 = size_block_t3 / sizeof(double);
+  size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
+                  p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
+                  p5ld_t3, p4ld_t3;
+  size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
+                  size_v2;
+  cudaStream_t   *streams;
+  size_t          nstreams, i;
+  double          *t2_d, *v2_d, *t3_p;
+  //size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
+  size_t2 = p4d * h1d * sizeof(double);
+  size_v2 = h3d * h2d * p6d * p5d * sizeof(double);
+  nstreams = 1;
+  size_block_t3 = size_t3 / nstreams;
+  size_el_block_t3 = size_block_t3 / sizeof(double);
   /*  if(first==1)
     {
         t3_d = (double *) getGpuMem(size_t3);
@@ -6349,67 +6346,67 @@ sd_t_s1_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
         first = 0;
     }
 */
-//	t3_d = (double *) getGpuMem(size_t3);
-	t2_d = (double *) getGpuMem(size_t2);
-	v2_d = (double *) getGpuMem(size_v2);
-	t3_p = (double *) getHostMem(size_t3);
-	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
-	assert(streams != NULL);
-	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaStreamCreate(&streams[i]));
-	}
-	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+//  t3_d = (double *) getGpuMem(size_t3);
+  t2_d = (double *) getGpuMem(size_t2);
+  v2_d = (double *) getGpuMem(size_v2);
+  //t3_p = (double *) getHostMem(size_t3);
+  streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
+  assert(streams != NULL);
+  for (i = 0; i < nstreams; ++i) {
+    CUDA_SAFE(cudaStreamCreate(&streams[i]));
+  }
+  CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
 
-	p4ld_t2 = 1;
-	h1ld_t2 = p4d;
+  p4ld_t2 = 1;
+  h1ld_t2 = p4d;
 
-	h3ld_v2 = 1;
-	h2ld_v2 = h3d;
-	p6ld_v2 = h3d * h2d;
-//	p5ld_v2 = p6d * h3d * p7d;
-	h3ld_t3 = 1;
-	h1ld_t3 = h3d;
-	h2ld_t3 = h1d * h3d;
-	p4ld_t3 = h1d * h2d * h3d;
-//	p5ld_t3 = p6d * h1d * h2d * h3d;
-	p6ld_t3 = p4d * h1d * h2d * h3d;
+  h3ld_v2 = 1;
+  h2ld_v2 = h3d;
+  p6ld_v2 = h3d * h2d;
+//  p5ld_v2 = p6d * h3d * p7d;
+  h3ld_t3 = 1;
+  h1ld_t3 = h3d;
+  h2ld_t3 = h1d * h3d;
+  p4ld_t3 = h1d * h2d * h3d;
+//  p5ld_t3 = p6d * h1d * h2d * h3d;
+  p6ld_t3 = p4d * h1d * h2d * h3d;
   int total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     sd_t_s1_8_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
-		CHECK_ERR("Kernel execution failed");
-	}
+    CHECK_ERR("Kernel execution failed");
+  }
 /*
-	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
-	}
-	stream = 0;
-	while (stream < nstreams) {
-		while (cudaStreamQuery(streams[stream]) != cudaSuccess);
-		double         *src = &t3_p[stream * size_el_block_t3];
-		double         *dst = &t3[stream * size_el_block_t3];
-		for (i = 0; i < size_el_block_t3; ++i) {
-			dst[i] = src[i];
-		}
-		stream++;
-	}*/
-	cudaThreadSynchronize();
-//	CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+  for (i = 0; i < nstreams; ++i) {
+    CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+  }
+  stream = 0;
+  while (stream < nstreams) {
+    while (cudaStreamQuery(streams[stream]) != cudaSuccess);
+    double         *src = &t3_p[stream * size_el_block_t3];
+    double         *dst = &t3[stream * size_el_block_t3];
+    for (i = 0; i < size_el_block_t3; ++i) {
+      dst[i] = src[i];
+    }
+    stream++;
+  }*/
+  cudaThreadSynchronize();
+//  CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 
-	for (i = 0; i < nstreams; ++i) {
-		cudaStreamDestroy(streams[i]);
-	}
-//	freeGpuMem(t3_d);
-	freeGpuMem(t2_d);
-	freeGpuMem(v2_d);
-	freeHostMem(t3_p);
-	free(streams);
+  for (i = 0; i < nstreams; ++i) {
+    cudaStreamDestroy(streams[i]);
+  }
+//  freeGpuMem(t3_d);
+  freeGpuMem(t2_d);
+  freeGpuMem(v2_d);
+  //freeHostMem(t3_p);
+  free(streams);
 }
 extern          "C" void 
 sd_t_s1_8_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d, double *t3, double *t2, double *v2)
 {
-	sd_t_s1_8_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d, t3, t2, v2);
+  sd_t_s1_8_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d, t3, t2, v2);
 }
 /*----------------------------------------------------------------------*
  *t3[h1,h3,h2,p4,p6,p5] -= t2[p4,h1] * v2[h3,h2,p6,p5]
@@ -6419,20 +6416,20 @@ sd_t_s1_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 {
     double st, et;
 //ckbn    st = timer(); 
-	size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
-	                p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
-	                p5ld_t3, p4ld_t3;
-	size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
-	                size_v2;
-	cudaStream_t   *streams;
-	size_t          nstreams, i;
-	double          *t2_d, *v2_d, *t3_p;
-	size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
-	size_t2 = p4d * h1d * sizeof(double);
-	size_v2 = h3d * h2d * p6d * p5d * sizeof(double);
-	nstreams = 1;
-	size_block_t3 = size_t3 / nstreams;
-	size_el_block_t3 = size_block_t3 / sizeof(double);
+  size_t          p7ld_t2, p4ld_t2, h1ld_t2, h2ld_v2, p7ld_v2, h3ld_v2,
+                  p6ld_v2, p5ld_v2, h3ld_t3, h2ld_t3, h1ld_t3, p6ld_t3,
+                  p5ld_t3, p4ld_t3;
+  size_t          size_t3, size_block_t3, size_el_block_t3, size_t2,
+                  size_v2;
+  cudaStream_t   *streams;
+  size_t          nstreams, i;
+  double          *t2_d, *v2_d, *t3_p;
+  //size_t3 = h3d * h2d * h1d * p6d * p5d * p4d * sizeof(double);
+  size_t2 = p4d * h1d * sizeof(double);
+  size_v2 = h3d * h2d * p6d * p5d * sizeof(double);
+  nstreams = 1;
+  size_block_t3 = size_t3 / nstreams;
+  size_el_block_t3 = size_block_t3 / sizeof(double);
   /*  if(first==1)
     {
         t3_d = (double *) getGpuMem(size_t3);
@@ -6440,66 +6437,66 @@ sd_t_s1_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
         first = 0;
     }
 */
-//	t3_d = (double *) getGpuMem(size_t3);
-	t2_d = (double *) getGpuMem(size_t2);
-	v2_d = (double *) getGpuMem(size_v2);
-	t3_p = (double *) getHostMem(size_t3);
-	streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
-	assert(streams != NULL);
-	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaStreamCreate(&streams[i]));
-	}
-	CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
-	CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
+//  t3_d = (double *) getGpuMem(size_t3);
+  t2_d = (double *) getGpuMem(size_t2);
+  v2_d = (double *) getGpuMem(size_v2);
+  //t3_p = (double *) getHostMem(size_t3);
+  streams = (cudaStream_t *) malloc(nstreams * sizeof(cudaStream_t));
+  assert(streams != NULL);
+  for (i = 0; i < nstreams; ++i) {
+    CUDA_SAFE(cudaStreamCreate(&streams[i]));
+  }
+  CUDA_SAFE(cudaMemcpy(t2_d, t2, size_t2, cudaMemcpyHostToDevice));
+  CUDA_SAFE(cudaMemcpy(v2_d, v2, size_v2, cudaMemcpyHostToDevice));
 
-	p4ld_t2 = 1;
-	h1ld_t2 = p4d;
+  p4ld_t2 = 1;
+  h1ld_t2 = p4d;
 
-	h3ld_v2 = 1;
-	h2ld_v2 = h3d;
-	p6ld_v2 = h3d * h2d;
-//	p5ld_v2 = p6d * h3d * p7d;
-	h1ld_t3 = 1;
-	h3ld_t3 = h1d;
-	h2ld_t3 = h1d * h3d;
-	p4ld_t3 = h1d * h2d * h3d;
-//	p5ld_t3 = p6d * h1d * h2d * h3d;
-	p6ld_t3 = p4d * h1d * h2d * h3d;
+  h3ld_v2 = 1;
+  h2ld_v2 = h3d;
+  p6ld_v2 = h3d * h2d;
+//  p5ld_v2 = p6d * h3d * p7d;
+  h1ld_t3 = 1;
+  h3ld_t3 = h1d;
+  h2ld_t3 = h1d * h3d;
+  p4ld_t3 = h1d * h2d * h3d;
+//  p5ld_t3 = p6d * h1d * h2d * h3d;
+  p6ld_t3 = p4d * h1d * h2d * h3d;
   int total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     sd_t_s1_7_kernel<<<dimGrid,dimBlock,0,streams[i]>>>(h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
-		CHECK_ERR("Kernel execution failed");
-	}
+    CHECK_ERR("Kernel execution failed");
+  }
 /*
-	for (i = 0; i < nstreams; ++i) {
-		CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
-	}
-	stream = 0;
-	while (stream < nstreams) {
-		while (cudaStreamQuery(streams[stream]) != cudaSuccess);
-		double         *src = &t3_p[stream * size_el_block_t3];
-		double         *dst = &t3[stream * size_el_block_t3];
-		for (i = 0; i < size_el_block_t3; ++i) {
-			dst[i] = src[i];
-		}
-		stream++;
-	}*/
-	cudaThreadSynchronize();
-	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
+  for (i = 0; i < nstreams; ++i) {
+    CUDA_SAFE(cudaMemcpyAsync(((char *) t3_p) + i * size_block_t3, ((char *) t3_s_d) + i * size_block_t3, size_block_t3, cudaMemcpyDeviceToHost, streams[i]));
+  }
+  stream = 0;
+  while (stream < nstreams) {
+    while (cudaStreamQuery(streams[stream]) != cudaSuccess);
+    double         *src = &t3_p[stream * size_el_block_t3];
+    double         *dst = &t3[stream * size_el_block_t3];
+    for (i = 0; i < size_el_block_t3; ++i) {
+      dst[i] = src[i];
+    }
+    stream++;
+  }*/
+  cudaThreadSynchronize();
+  //CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 
 //  printf("out is %lf\n", t3_p[0]);
-	for (i = 0; i < nstreams; ++i) {
-		cudaStreamDestroy(streams[i]);
-	}
-	//freeGpuMem(t3_d);
-	freeGpuMem(t2_d);
-	freeGpuMem(v2_d);
-	freeHostMem(t3_p);
-	free(streams);
+  for (i = 0; i < nstreams; ++i) {
+    cudaStreamDestroy(streams[i]);
+  }
+  //freeGpuMem(t3_d);
+  freeGpuMem(t2_d);
+  freeGpuMem(v2_d);
+  //freeHostMem(t3_p);
+  free(streams);
 }
 extern          "C" void 
 sd_t_s1_9_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d,  double *t3, double *t2, double *v2)
 {
-	sd_t_s1_9_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d,  t3, t2, v2);
+  sd_t_s1_9_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d,  t3, t2, v2);
 }
