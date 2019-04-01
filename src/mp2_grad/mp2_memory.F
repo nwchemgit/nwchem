@@ -93,7 +93,7 @@ c
       if (k_file_size .gt. 2.4d8) k_file_size = 1d99
 #endif
 cfudge
-      k_file_size = k_file_size*1.2d0
+      k_file_size = k_file_size*1.7d0
 *      if (task .eq. 'gradient') then
          call mp2_backt_info(basis,tol2e,oskel,
      $        .false.,nshpair,nshpairlocal,
@@ -106,7 +106,7 @@ cfudge
          if (t_file_size .gt. 2.4d8) t_file_size = 1d99
          if (p_file_size .gt. 2.4d8) p_file_size = 1d99
 #endif
-         p_file_size = p_file_size*1.2d0
+         p_file_size = p_file_size*1.7d0
       endif
 *      endif
 c
