@@ -1,3 +1,6 @@
+__device__ double* t3_s_d;
+__device__ double* t3_d;
+
 #include "header.h"
 extern    "C" void set_dev_mem_d(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d,size_t p6d)
 {
