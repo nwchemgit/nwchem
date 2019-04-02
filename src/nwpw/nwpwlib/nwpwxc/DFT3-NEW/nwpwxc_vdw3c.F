@@ -61,7 +61,7 @@ c      write(*,'(F8.6)')scalar
       line=adjustl(line)
       call nwpwxc_readl(line,xx,nn)
       IF (nn.eq.0) then      ! CONTCAR files have additional Element line here since vasp.5.1
-        call parse(line,' ',args,ntype)
+        call nwpwxc_parse(line,' ',args,ntype)
         read(ich,'(a)',end=200)line
         line=adjustl(line)
         call nwpwxc_readl(line,xx,nn)
@@ -101,7 +101,7 @@ c      write(*,*)line(:1)
       DO i=1,n
         read(ich,'(a)',end=200)line
         call nwpwxc_readl(line,xx,nn)
-        IF (nn.NE.3) call stoprun( 'Error reading coordinates.')
+        IF (nn.NE.3) call nwpwxc_stoprun( 'Error reading coordinates.')
 
         IF (cartesian) THEN
           xyz(1,i)=xx(1)*scalar
@@ -219,7 +219,7 @@ c            print '("cn(",I2,I2,"): ",E14.8)',i,iat,damp
       n=0
       ntype=0
       read(ich,'(a)',end=200)line !first line must contain Element Info
-      call parse(line,' ',args,ntype)
+      call nwpwxc_parse(line,' ',args,ntype)
       read(ich,'(a)',end=200)line !second line contains global scaling factor
       call nwpwxc_readl(line,xx,nn)
 c      write(*,'(F8.6)')scalar
@@ -364,12 +364,12 @@ C DFT-D2
       else if ((version.eq.3).or.(version.eq.5)) then
 C DFT-D3(zero-damping)
 
-        call pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
+        call nwpwxc_pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
 
         do iat=1,n-1
           do jat=iat+1,n
 c get C6
-            call getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
+            call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
      .                                  cn(iat),cn(jat),c6)
 
             if(.not.noabc)then
@@ -427,7 +427,7 @@ c stored in main as sqrt
         do iat=1,n
           jat=iat
 c get C6
-          call getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
+          call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
      .                                  cn(iat),cn(jat),c6)
          
           if(.not.noabc)then
@@ -486,12 +486,12 @@ c stored in main as sqrt
 
 
 C DFT-D3(BJ-damping)
-        call pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
+        call nwpwxc_pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
 
         do iat=1,n
           do jat=iat+1,n
 c get C6
-            call getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
+            call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
      .                                  cn(iat),cn(jat),c6)
 
             rxyz=xyz(:,iat)-xyz(:,jat)
@@ -538,7 +538,7 @@ c stored in main as sqrt
 ! Now the self interaction
           jat=iat
 c get C6
-          call getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
+          call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
      .                                  cn(iat),cn(jat),c6)
           r42=r2r4(iz(iat))*r2r4(iz(iat))
           bj_dmp6=(a1*dsqrt(3.0d0*r42)+a2)**6
@@ -1075,7 +1075,7 @@ c      testsum=0.0d0
       if (echo)
      .  write(*,*) 'doing numerical gradient O(N^3) ...'
 
-      call pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
+      call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
      .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_v,crit_cn,rep_cn)
  
@@ -1087,14 +1087,16 @@ c      testsum=0.0d0
       do i=1,n
         do j=1,3
           xyz(j,i)=xyz(j,i)+step        
-          call pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
+          call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
+     >           r2r4,r0ab,
      .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_v,crit_cn,rep_cn)
  
           dispr=-s6*e6-s18*e8-e6abc
           rabc=e6abc
           xyz(j,i)=xyz(j,i)-2*step      
-          call pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
+          call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
+     >           r2r4,r0ab,
      .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_v,crit_cn,rep_cn)
  
@@ -1107,15 +1109,16 @@ c      testsum=0.0d0
       enddo   !iat
       IF (echo) write(*,*)'Doing numerical stresstensor...'
 
-      call xyz_to_abc(xyz,abc,lat,n)
+      call nwpwxc_xyz_to_abc(xyz,abc,lat,n)
       step=2.d-5
       if (echo) write(*,*)'step: ',step
       do i=1,3
         do j=1,3
           lat(j,i)=lat(j,i)+step
-          call abc_to_xyz(abc,xyz,lat,n)
+          call nwpwxc_abc_to_xyz(abc,xyz,lat,n)
           !call edisp...dum1
-          call pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
+          call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
+     >           r2r4,r0ab,
      .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_v,crit_cn,rep_cn)
 
@@ -1124,9 +1127,10 @@ c      testsum=0.0d0
 
 
           lat(j,i)=lat(j,i)-2*step
-          call abc_to_xyz(abc,xyz,lat,n)
+          call nwpwxc_abc_to_xyz(abc,xyz,lat,n)
           !call edisp...dum2
-          call pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
+          call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
+     >           r2r4,r0ab,
      .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_v,crit_cn,rep_cn)
 
@@ -1136,13 +1140,13 @@ c      testsum=0.0d0
           glatabc(j,i)=(rabc-labc)/(step*2.0d0)
 
           lat(j,i)=lat(j,i)+step
-          call abc_to_xyz(abc,xyz,lat,n)
+          call nwpwxc_abc_to_xyz(abc,xyz,lat,n)
           
         enddo !j
       enddo !i
 
       sigma=0.0d0
-      call inv_cell(lat,lat_1)
+      call nwpwxc_inv_cell(lat,lat_1)
       do a=1,3
         do b=1,3
            do my=1,3
@@ -1228,7 +1232,7 @@ c and now the self interaction, only for convenient energy in dispersion
            enddo !taux
       enddo !iat
       
-      call inv_cell(lat,lat_1)
+      call nwpwxc_inv_cell(lat,lat_1)
       do a=1,3
         do b=1,3
            do my=1,3
@@ -1252,7 +1256,7 @@ c and now the self interaction, only for convenient energy in dispersion
       if (echo)   
      . write(*,*) 'doing analytical gradient O(N^2) ...'
 c precompute for analytical part
-      call pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
+      call nwpwxc_pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
 
 
       s8 =s18
@@ -1271,7 +1275,7 @@ c precompute for analytical part
 
 
       do iat=1,n
-        call get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
+        call nwpwxc_get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
      .          mxc(iz(iat)),cn(iat),cn(iat),iz(iat),iz(iat),iat,iat,
      .          c6,dc6iji,dc6ijj)
 
@@ -1370,7 +1374,7 @@ C DGAS Edit
 !      get_dC6_dCNij calculates the derivative dC6(iat,jat)/dCN(iat) and
 !      dC6(iat,jat)/dCN(jat). these are saved in dC6ij for the kat loop
 !
-          call get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
+          call nwpwxc_get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
      .          mxc(iz(jat)),cn(iat),cn(jat),iz(iat),iz(jat),iat,jat,
      .          c6,dc6iji,dc6ijj)
 
@@ -1468,7 +1472,7 @@ C DGAS Edit
 
 
       if (echo) write(*,*) 'doing analytical gradient O(N^2) ...'
-      call pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
+      call nwpwxc_pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
 
       a1 =rs6
       a2 =rs8
@@ -1483,7 +1487,7 @@ C DGAS Edit
       kat=0
 
       do iat=1,n
-        call get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
+        call nwpwxc_get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
      .          mxc(iz(iat)),cn(iat),cn(iat),iz(iat),iz(iat),iat,iat,
      .          c6,dc6iji,dc6ijj)
 
@@ -1561,7 +1565,7 @@ C DGAS Edit
 !      get_dC6_dCNij calculates the derivative dC6(iat,jat)/dCN(iat) and
 !      dC6(iat,jat)/dCN(jat). these are saved in dC6ij for the kat loop
 !
-          call get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
+          call nwpwxc_get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
      .          mxc(iz(jat)),cn(iat),cn(jat),iz(iat),iz(jat),iat,jat,
      .          c6,dc6iji,dc6ijj)
 
@@ -1643,7 +1647,7 @@ C DGAS Edit
         repv=rep_cn
 !        write(*,*)'thr:',sqrt(abcthr)
 
-        call cpu_time(time1)
+        call nwpwxc_cpu_time(time1)
         do iat=3,n
           do jat=2,iat-1
             linij=lin(iat,jat)
@@ -2184,7 +2188,7 @@ C DGAS Edit
       ENDDO !iat
 
 
-        call cpu_time(time2)
+        call nwpwxc_cpu_time(time2)
 
 !        write(*,*)' eabc(gdisp):  ',eabc
 !      write(*,'('' time(abc)  '',f6.1)')time2-time1
@@ -2281,7 +2285,7 @@ C DGAS Edit
 
       stress=0.0d0
       glatabc=0.0d0
-      call inv_cell(lat,lat_1)
+      call nwpwxc_inv_cell(lat,lat_1)
       do a=1,3
         do b=1,3
            do my=1,3
@@ -2430,7 +2434,7 @@ c distance bins
       li(17,2)=dsqrt(rthr)*autoang
 
 
-      call pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,cn_thr)
+      call nwpwxc_pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,cn_thr)
 
       write(*,*)
       write(*,*)'analysis of pair-wise terms (in kcal/mol)'
@@ -2480,7 +2484,7 @@ CTHR
               endif
               e8=0.0d0
             else
-              call getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
+              call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
      .                                      cn(iat),cn(jat),c6)
             endif
 
@@ -2563,7 +2567,7 @@ c use BJ radius
       i=0
       at=0
  111  read(55,'(a)',end=222) atmp
-      call readfrag(atmp,iout,j)
+      call nwpwxc_readfrag(atmp,iout,j)
       if(j.gt.0)then
          i=i+1
          grpn(i)=j
@@ -2668,9 +2672,9 @@ c     call prmat(6,eg,ngrp,0,'intra- + inter-group dispersion energies')
         r_cutoff=sqrt(rthr)
 c          write(*,*) 'lat',lat
           !c find normal to the plane...
-        call kreuzprodukt(lat(:,2),lat(:,3),norm1)
-        call kreuzprodukt(lat(:,3),lat(:,1),norm2)
-        call kreuzprodukt(lat(:,1),lat(:,2),norm3)
+        call nwpwxc_kreuzprodukt(lat(:,2),lat(:,3),norm1)
+        call nwpwxc_kreuzprodukt(lat(:,3),lat(:,1),norm2)
+        call nwpwxc_kreuzprodukt(lat(:,1),lat(:,2),norm3)
 c        write(*,*) 'norm2',norm2
         !c ...normalize it...
         norm1=norm1/VECTORSIZE(norm1)
@@ -2756,7 +2760,7 @@ c        write(*,'(3f8.4)')tau_max(1),tau_max(2),tau_max(3)
       real*8 lat_1(3,3)
       integer i,j,k
 
-      call inv_cell(lat,lat_1)
+      call nwpwxc_inv_cell(lat,lat_1)
       
       abc(:,:n)=0.0d0
       do i=1,n
@@ -2768,11 +2772,11 @@ c        write(*,'(3f8.4)')tau_max(1),tau_max(2),tau_max(3)
         enddo !j
       enddo !i
   
-      END SUBROUTINE xyz_to_abc
+      END SUBROUTINE nwpwxc_xyz_to_abc
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-      SUBROUTINE abc_to_xyz(abc,xyz,lat,n)
+      SUBROUTINE nwpwxc_abc_to_xyz(abc,xyz,lat,n)
       IMPLICIT NONE
       real*8, INTENT(in) :: abc(3,*)
       real*8, intent(in) :: lat(3,3)
@@ -2790,11 +2794,11 @@ c        write(*,'(3f8.4)')tau_max(1),tau_max(2),tau_max(3)
         enddo !j
       enddo !i
   
-      END SUBROUTINE abc_to_xyz
+      END SUBROUTINE nwpwxc_abc_to_xyz
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-      REAL*8 FUNCTION volume(lat)
+      REAL*8 FUNCTION nwpwxc_volume(lat)
         IMPLICIT NONE
         REAL*8, INTENT(in) ::lat(3,3)
         REAL*8 zwerg
@@ -2802,8 +2806,8 @@ c        write(*,'(3f8.4)')tau_max(1),tau_max(2),tau_max(3)
         zwerg=lat(1,1)*lat(2,2)*lat(3,3)+lat(1,2)*lat(2,3)*lat(3,1)+
      .        lat(1,3)*lat(2,1)*lat(3,2)-lat(1,3)*lat(2,2)*lat(3,1)-
      .        lat(1,2)*lat(2,1)*lat(3,3)-lat(1,1)*lat(2,3)*lat(3,2)
-        volume=abs(zwerg)
-      END FUNCTION volume
+        nwpwxc_volume=abs(zwerg)
+      END FUNCTION nwpwxc_volume
 
 
 
@@ -2838,7 +2842,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer, intent(out) :: nargs
       
       strsav=str
-      call compact(str)
+      call nwpwxc_compact(str)
       na=size(args)
       do i=1,na
         args(i)=' '
@@ -2851,8 +2855,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       do
          if(len_trim(str) == 0) exit
          nargs=nargs+1
-         call split(str,delims,args(nargs))
-         call removebksl(args(nargs))
+         call nwpwxc_split(str,delims,args(nargs))
+         call nwpwxc_removebksl(args(nargs))
       end do   
       str=strsav
 
@@ -2952,7 +2956,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       pres=present(sep)
       str=adjustl(str)
-      call compact(str)
+      call nwpwxc_compact(str)
       lenstr=len_trim(str)
       if(lenstr == 0) return        ! string str is empty
       k=0
