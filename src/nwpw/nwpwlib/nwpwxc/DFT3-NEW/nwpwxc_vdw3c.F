@@ -1015,7 +1015,7 @@ c coversion factors
       real*8 crit_vdw,crit_cn
       integer taux,tauy,tauz
       real*8, DIMENSION(3) :: tau,vec12,dxyz,dxyz0
-      real*8,external  ::volume
+      real*8,external  ::nwpwxc_volume
       real*8           ::outpr(3,3)
       real*8, DIMENSION(3,3):: outerprod
 
@@ -1030,8 +1030,8 @@ c coversion factors
       real*8 dcnn
                                                        !dCN(jat)/d(r_ij)     
       real*8 :: dc6_rest  
-      integer,external :: lin
-      real*8,external ::vectorsize
+      integer,external :: nwpwxc_lin
+      real*8,external :: nwpwxc_vectorsize
       real*8 vec(3),vec2(3),dummy
       real*8 dc6i(n)       !dC6i(iat) saves dE_dsp/dCN(iat) 
       real*8 dc6ij(n,n)    !dC6(iat,jat)/cCN(iat) in dc6ij(i,j) for ABC-grad
@@ -2660,14 +2660,14 @@ c     call prmat(6,eg,ngrp,0,'intra- + inter-group dispersion energies')
       end subroutine nwpwxc_pbcadisp
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-      SUBROUTINE nwpwxc_SET_CRITERIA(rthr,lat,tau_max)
+      SUBROUTINE NWPWXC_SET_CRITERIA(rthr,lat,tau_max)
 
         REAL*8 :: r_cutoff,rthr
         REAL*8 :: lat(3,3)
         REAL*8 :: tau_max(3)
         REAL*8 :: norm1(3),norm2(3),norm3(3)
         REAL*8 :: cos10,cos21,cos32
-        real*8,external :: vectorsize
+        real*8,external :: nwpwxc_vectorsize
 
         r_cutoff=sqrt(rthr)
 c          write(*,*) 'lat',lat
@@ -2677,9 +2677,9 @@ c          write(*,*) 'lat',lat
         call nwpwxc_kreuzprodukt(lat(:,1),lat(:,2),norm3)
 c        write(*,*) 'norm2',norm2
         !c ...normalize it...
-        norm1=norm1/VECTORSIZE(norm1)
-        norm2=norm2/VECTORSIZE(norm2)
-        norm3=norm3/VECTORSIZE(norm3)
+        norm1=norm1/NWPWXC_VECTORSIZE(norm1)
+        norm2=norm2/NWPWXC_VECTORSIZE(norm2)
+        norm3=norm3/NWPWXC_VECTORSIZE(norm3)
 c        write(*,*) 'norm2_',norm2
           !c cos angles between normals and lattice vectors
         cos10=SUM(norm1*lat(:,1))
@@ -2694,10 +2694,10 @@ c        write(*,*) 'norm2_',norm2
         tau_max(2)=abs(r_cutoff/cos21)
         tau_max(3)=abs(r_cutoff/cos32)
 c        write(*,'(3f8.4)')tau_max(1),tau_max(2),tau_max(3)
-      END SUBROUTINE SET_CRITERIA
+      END SUBROUTINE NWPWXC_SET_CRITERIA
 
 
-      SUBROUTINE kreuzprodukt(A,B,C)
+      SUBROUTINE nwpwxc_kreuzprodukt(A,B,C)
         IMPLICIT NONE
   
         REAL*8 :: A(3),B(3)
@@ -2708,18 +2708,18 @@ c        write(*,'(3f8.4)')tau_max(1),tau_max(2),tau_max(3)
         Y=A(3)*B(1)-B(3)*A(1)
         Z=A(1)*B(2)-B(1)*A(2)
         C=(/X,Y,Z/)
-      END SUBROUTINE kreuzprodukt
+      END SUBROUTINE nwpwxc_kreuzprodukt
 
-       FUNCTION VECTORSIZE(VECT)
+       FUNCTION NWPWXC_VECTORSIZE(VECT)
 
          REAL*8 :: VECT(3)
          REAL*8 :: SVECT(3)
-         REAL*8 :: VECTORSIZE
+         REAL*8 :: NWPWXC_VECTORSIZE
 
          SVECT=VECT*VECT
-         VECTORSIZE=SUM(SVECT)
-         VECTORSIZE=VECTORSIZE**(0.5)
-       END FUNCTION VECTORSIZE
+         NWPWXC_VECTORSIZE=SUM(SVECT)
+         NWPWXC_VECTORSIZE=NWPWXC_VECTORSIZE**(0.5)
+       END FUNCTION NWPWXC_VECTORSIZE
 
       
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

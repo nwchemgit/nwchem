@@ -402,7 +402,7 @@ c this is alternative to nwpwxc_loadc6
 !       write(*,*)'mxc(P):',mxc(15)
 
        if (pbc) then
-         call nwpwxc_pbcnwpwxc_rdatomnumber(etmp,n)
+         call nwpwxc_pbc_rdatomnumber(etmp,n)
        else
          call nwpwxc_rdatomnumber(etmp,n)
        endif
@@ -477,7 +477,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 c CNs for output
       if (pbc) then
-          call pbcnwpwxc_ncoord(n,rcov,iz,xyz,cn,lat,rep_cn,cn_thr)
+          call nwpwxc_pbc_ncoord(n,rcov,iz,xyz,cn,lat,rep_cn,cn_thr)
       else
           call nwpwxc_ncoord(n,rcov,iz,xyz,cn,cn_thr)
       endif
@@ -605,11 +605,13 @@ c Edisp pot curve for testing. Caution: C6 is not constant along R!
       n=2
       xyz(3,2)=1.0/autoang
  142  if (pbc) then
-       call nwpwxc_pbcnwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
+       call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
+     >           r2r4,r0ab,
      .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_vdw,cn_thr,rep_cn)
       else
-        call nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
+        call nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
+     >     r2r4,r0ab,rcov,
      .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
      .     e6,e8,e10,e12,e6abc)
       endif
@@ -618,11 +620,13 @@ c Edisp pot curve for testing. Caution: C6 is not constant along R!
       write(42,*) xyz(3,2)*autoang,disp*autokcal
       write(43,*) xyz(3,2)        ,disp*autokcal
       if (pbc) then
-          call nwpwxc_pbcnwpwxc_ncoord(n,rcov,iz,xyz,cn,lat,rep_cn,cn_thr)
+          call nwpwxc_pbc_ncoord(n,rcov,iz,xyz,
+     >                                 cn,lat,rep_cn,cn_thr)
       else
           call nwpwxc_ncoord(n,rcov,iz,xyz,cn,cn_thr)
       endif
-      call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(1),iz(2),cn(1),cn(2),c6)
+      call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,
+     >                  iz(1),iz(2),cn(1),cn(2),c6)
       write(2,*)xyz(3,2)*autoang,-autokcal*c6/xyz(3,2)**6
       if(xyz(3,2).lt.20) goto 142
       write(42,*)
@@ -665,12 +669,14 @@ cccccccccccccc
 c energy call
 cccccccccccccc
       if (pbc) then
-        call  nwpwxc_pbcnwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
+        call  nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
+     >     r2r4,r0ab,rcov,
      .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
      .     e6,e8,e10,e12,e6abc,lat,rthr,rep_vdw,cn_thr,rep_cn)
  
       else
-        call nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
+        call nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
+     >     r2r4,r0ab,rcov,
      .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
      .     e6,e8,e10,e12,e6abc)
       endif
@@ -767,11 +773,13 @@ cccccccccccccccccccccccccc
       if(anal) then
        if (pbc) then
 
-        call nwpwxc_pbcadisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
+        call nwpwxc_pbcadisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
+     >           r2r4,r0ab,rcov,
      .           rs6,rs8,rs10,alp6,alp8,alp10,version,autokcal,autoang,
      .           rthr,rep_vdw,cn_thr,rep_cn,s6,s18,disp*autokcal,lat)
        else
-        call nwpwxc_adisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
+        call nwpwxc_adisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
+     >           r2r4,r0ab,rcov,
      .           rs6,rs8,rs10,alp6,alp8,alp10,version,autokcal,
      .           autoang,rthr,cn_thr,s6,s18,disp*autokcal)
        endif !pbc
@@ -784,7 +792,7 @@ cccccccccccccccccccccccccc
       g=0.0d0
       call cpu_time(dum1)
       if (pbc) then
-      call nwpwxc_pbc_gdisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
+      call nwpwxc_pbcgdisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
      .           rcov,s6,s18,rs6,rs8,rs10,alp6,alp8,alp10,noabc,numgrad,
      .                 version,g,gdsp,x,g_lat,lat,rep_vdw,rep_cn,
      .                 rthr,echo,cn_thr)
@@ -793,7 +801,8 @@ cccccccccccccccccccccccccc
 c        call nwpwxc_gdisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
 c     .           s6,s18,rs6,rs8,rs10,alp6,alp8,alp10,noabc,rthr,
 c     .           numgrad,version,echo,g,gdsp,x,rthr2,fix)
-        call nwpwxc_gdisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
+        call nwpwxc_gdisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
+     >           r2r4,r0ab,rcov,
      .           s6,s18,rs6,rs8,rs10,alp6,alp8,alp10,noabc,rthr,
      .           numgrad,version,echo,g,gdsp,x,rthr2)
       endif
@@ -836,11 +845,12 @@ c test test tesc test test tesc test test tesc test test tesc test test
 c test test tesc test test tesc test test tesc test test tesc test test
 c gradient test 6-7 digits should be the same
       if (pbc) then
-       call nwpwxc_pbc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
+       call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
      .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_vdw,cn_thr,rep_cn)
       else
-        call nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
+        call nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
+     >     r2r4,r0ab,rcov,
      .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
      .     e6,e8,e10,e12,e6abc)
       endif
@@ -849,11 +859,12 @@ c gradient test 6-7 digits should be the same
       do j=1,3
       xyz(j,i)=xyz(j,i)+0.00001
       if (pbc) then
-       call nwpwxc_pbc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
+       call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
      .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_vdw,cn_thr,rep_cn)
       else
-        call nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
+        call nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
+     >     r2r4,r0ab,rcov,
      .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
      .     e6,e8,e10,e12,e6abc)
       endif
@@ -862,11 +873,12 @@ c gradient test 6-7 digits should be the same
       dispr =-e6-e8-e6abc
       xyz(j,i)=xyz(j,i)-0.00002
       if (pbc) then
-       call nwpwxc_pbc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
+       call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
      .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_vdw,cn_thr,rep_cn)
       else
-        call nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
+        call nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
+     >     r2r4,r0ab,rcov,
      .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
      .     e6,e8,e10,e12,e6abc)
       endif
@@ -890,7 +902,7 @@ c gradient test 6-7 digits should be the same
             lat(j,i)=lat(j,i)+dum1
             call nwpw_abc_to_xyz(abc,xyz,lat,n)
             !call nwpwxc_edisp...dum1
-       call nwpwxc_pbcn_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
+       call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
      .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_vdw,cn_thr,rep_cn)
 
@@ -900,7 +912,7 @@ c gradient test 6-7 digits should be the same
             lat(j,i)=lat(j,i)-2*dum1
             call nwpwxc_abc_to_xyz(abc,xyz,lat,n)
             !call nwpwxc_edisp...dum2
-       call nwpwxc_pbc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
+       call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
      .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_vdw,cn_thr,rep_cn)
 
@@ -1606,7 +1618,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C compute energy
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-      subroutine nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
+      subroutine nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
+     >           r2r4,r0ab,rcov,
      .           rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
      .           e6,e8,e10,e12,e63)
       implicit none  
@@ -1625,7 +1638,17 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       real*8 abcthr
       integer*2 icomp(n*n)
       integer ij,ik,jk,k
-      integer,external :: lin
+      integer,external :: nwpwxc_lin
+
+#include "global.fh"
+#include "msgtypesf.h"
+
+      integer taskid,np,pcount
+
+      np     = GA_Nnodes()
+      taskid = GA_Nodeid()
+      pcount = 0
+
 
       e6 =0
       e8 =0
@@ -1656,14 +1679,20 @@ c           if(r2.gt.rthr) cycle
             e6 =e6+c6*damp6/r6
          enddo
       enddo
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,e6,1,'+')
+
 
       else
 C DFT-D3
       call nwpwxc_ncoord(n,rcov,iz,xyz,cn,cn_thr)
 
       icomp=0
+      cc6ab = 0.0d0
+      r2ab = 0.0d0
+      dmp = 0.0d0
       do iat=1,n-1
          do jat=iat+1,n
+         if (mod(pcount,np).eq.taskid) then
             dx=xyz(1,iat)-xyz(1,jat)
             dy=xyz(2,iat)-xyz(2,jat)
             dz=xyz(3,iat)-xyz(3,jat)
@@ -1720,14 +1749,23 @@ c store R^2 for abc
 c store for abc damping
               dmp(ij)=(1./rr)**(1./3.) 
             endif !noabc
+         end if
+         pcount = pcount + 1
          enddo
       enddo
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,e6,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,e8,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,cc6ab,n*n,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,r2ab,n*n,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dmp,n*n,'+')
+      if (np.gt.1) call GA_IGOP(9+MSGINT,icomp,n*n,'+')
 
       if(noabc)return
 
 C compute non-additive third-order energy using averaged C6
       do iat=1,n
          do jat=1,iat-1
+         if (mod(pcount,np).eq.taskid) then
             ij=nwpwxc_lin(jat,iat)
             if(icomp(ij).eq.1)then
             do kat=1,jat-1
@@ -1754,8 +1792,11 @@ c angular terms with law of cosines
 
             enddo
             endif
+         end if
+         pcount = pcount + 1
          enddo
       enddo
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,e63,1,'+')
 
       endif
 
@@ -1765,7 +1806,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C analyse all pairs
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-      subroutine nwpwxc_adisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
+      subroutine nwpwxc_adisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
+     >                r2r4,r0ab,rcov,
      .                rs6,rs8,rs10,alp6,alp8,alp10,version,autokcal,
      .                autoang,rthr,cn_thr,s6,s18,etot)
       implicit none  
@@ -1777,7 +1819,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       integer iat,jat,i,j,k,nbin
       real*8 R0,r,r2,r6,r8,tmp,alp,dx,dy,dz,c6,c8,c10
       real*8 damp6,damp8,damp10,r42,rr,check,rthr,cn_thr,rvdw
-      real*8 cn(n),i6,e6,e8,e10,nwpwxc_edisp                   
+      real*8 cn(n),i6,e6,e8,e10,edisp                   
       real*8 dist(0:15),li(0:15,2)
       real*8 xx(500),eg(10000)
       integer grplist(500,20)
@@ -1894,18 +1936,18 @@ c use BJ radius
             e8 =s18*autokcal*c8/(r8+rvdw**8)
             endif
 
-            nwpwxc_edisp=-(e6+e8)
-            ed(iat,jat)=nwpwxc_edisp
-            ed(jat,iat)=nwpwxc_edisp
+            edisp=-(e6+e8)
+            ed(iat,jat)=edisp
+            ed(jat,iat)=edisp
 
            write(*,'(2i4,2x,2i3,2D16.6,2F9.4,F10.5)')
      .     iat,jat,iz(iat),iz(jat),c6,c8,
-     .    -e6,-e8,nwpwxc_edisp
+     .    -e6,-e8,edisp
 
-            check=check+nwpwxc_edisp
+            check=check+edisp
             rr=r*autoang
             do i=0,nbin
-               if(rr.gt.li(i,1).and.rr.le.li(i,2)) dist(i)=dist(i)+nwpwxc_edisp
+               if(rr.gt.li(i,1).and.rr.le.li(i,2)) dist(i)=dist(i)+edisp
             enddo
          enddo
       enddo
@@ -2073,6 +2115,7 @@ c values >5 might lead to bumps in the potential
       real*8 rij(3),rik(3),rjk(3),r7,r9
       real*8 rik_dist,rjk_dist
       real*8 drij(n*(n+1)/2)  !d(E)/d(r_ij) derivative wrt. dist. iat-jat
+      real*8 drijtmp(n*(n+1)/2)
       real*8 drik,drjk
       real*8 rcovij
       real*8 dc6,c6chk !d(C6ij)/d(r_ij)
@@ -2080,15 +2123,18 @@ c values >5 might lead to bumps in the potential
       real*8 dcn               !dCN(iat)/d(r_ij) is equal to
                                !dCN(jat)/d(r_ij)     
       real*8 dc6_rest ! saves (1/r^6*f_dmp + 3*r4r2/r^8*f_dmp) for kat loop
-      integer,external :: lin
+      integer,external :: nwpwxc_lin
       integer  linij,linik,linjk
       real*8 vec(3),vec2(3)
       real*8 dc6i(n)       ! dE_disp/dCN(iat) in dc6i(iat)
+      real*8 dc6itmp(n)    ! temporary
       real*8 dc6ij(n,n)    ! saves dC6(ij)/dCN(iat)
       real*8 dc6iji,dc6ijj
       logical abccalc(n*(n+1)/2)                        
+      integer iabccalc(n*(n+1)/2)                        
       real*8 abcthr
       real*8 gtmp(3) ! temporary container to store iat gradient
+      real*8 g3tmp(3,n) ! temporry
       real*8 labc,rabc
       real*8 c6abc(n*(n+1)/2)
       real*8 r2abc(n*(n+1)/2)
@@ -2105,8 +2151,13 @@ c values >5 might lead to bumps in the potential
 
       dc6i=0.0d0
       abccalc=.FALSE.
+      iabccalc=0
       abcthr=cn_thr
 
+      dc6ij = 0.0d0
+      c6abc = 0.0d0
+      r2abc = 0.0d0
+      r3abc = 0.0d0
 
 
       
@@ -2272,6 +2323,7 @@ c zero damping
 
             if ((.not.noabc).and.(r2.lt.abcthr)) then
 !          if (.not.noabc) then
+              iabccalc(linij)=1
               abccalc(linij)=.TRUE.
               dc6ij(iat,jat)=dc6iji
               dc6ij(jat,iat)=dc6ijj
@@ -2295,9 +2347,16 @@ c zero damping
         enddo !jat
       enddo !iat
       if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6i,n,'+')
       if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6ij,n*n,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6_rest,n*(n+1)/2,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,dcn,     n*(n+1)/2,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,n*(n+1)/2,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,c6abc,n*(n+1)/2,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,r2abc,n*(n+1)/2,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,r3abc,n*(n+1)/2,'+')
+      if (np.gt.1) call GA_IGOP(9+MSGINT,iabccalc,n*(n+1)/2,'+')
+      do i=1,n*(n+1)/2
+         abccalc(i) = (iabccalc(i).gt.0)
+      end do
 
 
 
@@ -2324,6 +2383,7 @@ c Becke-Johnson finite damping
 
       do iat=1,n
         do jat=1,iat-1
+        if (mod(pcount,np).eq.taskid) then
           rij=xyz(:,jat)-xyz(:,iat)
           r2=sum(rij*rij)
           if (r2.gt.rthr) cycle
@@ -2347,6 +2407,7 @@ c Becke-Johnson finite damping
 
           if ((.not.noabc).and.(r2.lt.abcthr)) then
 !          if (.not.noabc) then
+            iabccalc(linij)=1
             abccalc(linij)=.TRUE.
             dc6ij(iat,jat)=dc6iji
             dc6ij(jat,iat)=dc6ijj
@@ -2371,8 +2432,22 @@ c use BJ radius
           dc6i(iat)=dc6i(iat)+dc6_rest*dc6iji
           dc6i(jat)=dc6i(jat)+dc6_rest*dc6ijj
 
+        end if
+        pcount = pcount + 1
         enddo !jat
       enddo !iat
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6i,n,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6ij,n*n,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,n*(n+1)/2,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,c6abc,n*(n+1)/2,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,r2abc,n*(n+1)/2,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,r3abc,n*(n+1)/2,'+')
+      if (np.gt.1) call GA_IGOP(9+MSGINT,iabccalc,n*(n+1)/2,'+')
+      do i=1,n*(n+1)/2
+         abccalc(i) = (iabccalc(i).gt.0)
+      end do
+
 
       endif !version=4 (BJ)
 
@@ -2380,12 +2455,16 @@ c use BJ radius
       if(.not.noabc)then
 
       if(echo)write(*,*) 'doing analytical gradient O(N^3) ...'
+        eabc    = 0.0d0
+        dc6itmp = 0.0d0
+        drijtmp = 0.0d0
         do iat=1,n
           do jat=1,iat-1
             linij=nwpwxc_lin(iat,jat)
             if(.NOT.abccalc(linij))cycle
               r2ij=r2abc(linij)
             do kat=1,jat-1
+            if (mod(pcount,np).eq.taskid) then
 
               linik=nwpwxc_lin(iat,kat)
               linjk=nwpwxc_lin(jat,kat)
@@ -2421,7 +2500,7 @@ c use BJ radius
 
 
               tmp1=dfdmp/r*c9*angr9-dang*c9*fdmp
-              drij(linij)=drij(linij)+tmp1
+              drijtmp(linij)=drijtmp(linij)+tmp1
 
 !start calculating the derivatives of each part w.r.t. r_jk              
               r=dsqrt(r2jk)
@@ -2431,7 +2510,7 @@ c use BJ radius
      .             -5.0*(r2ik-r2ij)**2*(r2ik+r2ij))
      .             /(r*rijk3*rav3)
 
-              drij(linjk)=drij(linjk) 
+              drijtmp(linjk)=drijtmp(linjk) 
      .                       +dfdmp/r*c9*angr9-dang*c9*fdmp
 
 
@@ -2443,7 +2522,7 @@ c use BJ radius
      .             -5.0*(r2jk-r2ij)**2*(r2jk+r2ij))
      .             /(r*rijk3*rav3)
 
-              drij(linik)=drij(linik)
+              drijtmp(linik)=drijtmp(linik)
      .                       +dfdmp/r*c9*angr9-dang*c9*fdmp
 
 
@@ -2453,20 +2532,27 @@ c use BJ radius
 
              dc9=dc6ij(iat,jat)/c6abc(linij)+dc6ij(iat,kat)/c6abc(linik)
               dc9=-0.5d0*c9*dc9
-              dc6i(iat)=dc6i(iat)+dc6_rest*dc9
+              dc6itmp(iat)=dc6itmp(iat)+dc6_rest*dc9
 
              dc9=dc6ij(jat,iat)/c6abc(linij)+dc6ij(jat,kat)/c6abc(linjk)
               dc9=-0.5d0*c9*dc9
-              dc6i(jat)=dc6i(jat)+dc6_rest*dc9
+              dc6itmp(jat)=dc6itmp(jat)+dc6_rest*dc9
 
              dc9=dc6ij(kat,iat)/c6abc(linik)+dc6ij(kat,jat)/c6abc(linjk)
               dc9=-0.5d0*c9*dc9
-              dc6i(kat)=dc6i(kat)+dc6_rest*dc9
+              dc6itmp(kat)=dc6itmp(kat)+dc6_rest*dc9
 
+            end if
+            pcount = pcount + 1
             ENDDO !kat
           ENDDO !jat
         ENDDO !iat
 
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,eabc,1,'+')
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6itmp,n,'+')
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,drijtmp,n*(n+1)/2,'+')
+        dc6i = dc6i + dc6itmp
+        drij = drij + drijtmp
         disp=disp+eabc
       endif !noabc
 
@@ -2474,9 +2560,11 @@ c use BJ radius
 
 ! After calculating all derivatives dE/dr_ij w.r.t. distances,
 ! the grad w.r.t. the coordinates is calculated dE/dr_ij * dr_ij/dxyz_i       
+      g3tmp = 0.0d0
       do iat=2,n
-        gtmp=0.0
+        gtmp=0.0d0
         do jat=1,iat-1
+        if (mod(pcount,np).eq.taskid) then
           linij=nwpwxc_lin(iat,jat)
           rij=xyz(:,jat)-xyz(:,iat)
 
@@ -2495,11 +2583,15 @@ c use BJ radius
 
           gtmp=gtmp+x1*rij/r
           !g(:,iat)=g(:,iat)+x1*rij/r
-          g(:,jat)=g(:,jat)-x1*rij/r
+          g3tmp(:,jat)=g3tmp(:,jat)-x1*rij/r
          
+        end if
+        pcount = pcount + 1
         enddo !iat
-        g(:,iat)=g(:,iat)+gtmp
+        g3tmp(:,iat)=g3tmp(:,iat)+gtmp
       enddo !jat
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,g3tmp,3*n,'+')
+      g = g + g3tmp
 
 
 
