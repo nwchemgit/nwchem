@@ -310,12 +310,12 @@ c
 c
       return
       end
-
+c
       subroutine tddft_nga_cont(rtdb,geom,ao_bas_han,
      1  g_ntrl,g_nprd_p,g_nprd_m,nbf_ao,ipol,tol2e,tda,oskel,kfac,
-     2  lhashf,triplet,nvectors)
+     2  lhashf,triplet,nvectors,iwhich)
 c
-c $Id$
+c $Id: tddft_contract.F 26045 2014-08-26 04:09:46Z niri $
 c
 c Contract trial density matrices with 2-e integrals.
 c Multiple trial density matrices are processed simultaneously,
@@ -370,6 +370,11 @@ c
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
+      integer iwhich
+c
+c     NOTE: 
+c     iwhich = 1 and 2 are set in tddft_lanczos.F and 1 in tddft_lanczos_tda.F
+c     iwhich = 0 elsewhere
 c
 c -------------------------------
 c Get scale_j and scale_k factors
@@ -442,6 +447,9 @@ c ---------------------
 c Call shell_fock_build
 c ---------------------
 c
+
+      if((iwhich.eq.1).or.(iwhich.eq.0).or.tda) then
+
       call ga_zero(g_nprd_p)
       if ((ipol.eq.1).and.(.not.triplet)) then
        do n=1,nvectors
@@ -449,9 +457,12 @@ c
           dbl_mb(k_kf+n-1)=-kfac*0.5d0*scale_k
        enddo
        if(.not.cam_exch) then ! normal calculations
+c        write(6,*)'HERE'
         call shell_fock_build(geom,ao_bas_han,0,nvectors,
      1    dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
        else   ! attenuated calculations
+c        write(6,*)'NOT HERE'
+
         call shell_fock_build_cam(geom,ao_bas_han,0,nvectors,
      1    dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
        end if  ! cam_exch
@@ -488,11 +499,15 @@ c
       endif
       if (util_print('contract',print_debug))
      1  call ga_print(g_nprd_p)
+       
+      endif
 c
 c --------------------------------------------------
 c If (HF exchange), anti-symmetrize density matrices
 c --------------------------------------------------
 c
+      if((iwhich.eq.2).or.(iwhich.eq.0).or.tda) then
+
       if (lhashf) then
         if (ipol.eq.1) call ga_dscal(g_nsym,0.5d0)
         alo(1)=1
@@ -618,15 +633,24 @@ c
       else if (.not.tda) then
         call ga_zero(g_nprd_m)
       endif
+
+      endif
 c ---------------------------------------------------------------
 c If (not TDA), double g_pd to account for B matrix contribution
 c to A+B and there is no contribution from anti-symmetric density
 c matrix to A+B.  Similarly, A-B is twice g_qd.
 c ---------------------------------------------------------------
       if (.not.tda) then
-        call ga_dscal(g_nprd_p,2.0d0)
-        call ga_dscal(g_nprd_m,2.0d0)
+       if((iwhich.eq.1).or.(iwhich.eq.0))
+     1   call ga_dscal(g_nprd_p,2.0d0)
+       if((iwhich.eq.2).or.(iwhich.eq.0))
+     1   call ga_dscal(g_nprd_m,2.0d0)
       endif
+
+c      if (.not.tda) then
+c        call ga_dscal(g_nprd_p,2.0d0)
+c        call ga_dscal(g_nprd_m,2.0d0)
+c      endif
 c
 c ------
 c Return

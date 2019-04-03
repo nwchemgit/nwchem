@@ -281,7 +281,7 @@ c          if(nodezero)write(6,*)'Before contractions'
           ccpu=-util_cpusec()
           cwall=-util_wallsec()
 
-          call tddft_nga_cont2(rtdb,geom,ao_bas_han,
+          call tddft_nga_cont(rtdb,geom,ao_bas_han,
      1      g_ntrl,g_nprd_p,g_nprd_m,nbf_ao,ipol,tol2e,tda,oskel,kfac,
      2      lhashf,triplet,nvectors,iwhich)
  
