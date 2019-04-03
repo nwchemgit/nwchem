@@ -1228,6 +1228,7 @@ c      testsum=0.0d0
       stress=0.0d0
       do iat=1,n-1
          do jat=iat+1,n
+         if (mod(pcount,np).eq.taskid) then
            R0=r0ab(iz(jat),iz(iat))*rs6
            c6=c6ab(iz(jat),iz(iat),1,1,1)*s6
            do taux=-rep_v(1),rep_v(1)
@@ -1257,10 +1258,13 @@ c      testsum=0.0d0
            enddo !tauz
            enddo !tauy
            enddo !taux
+         end if 
+         pcount = pcount + 1
          enddo !jat
       enddo !iat
 c and now the self interaction, only for convenient energy in dispersion
       do iat=1,n
+      if (mod(pcount,np).eq.taskid) then
          jat=iat
            R0=r0ab(iz(jat),iz(iat))*rs6
            c6=c6ab(iz(jat),iz(iat),1,1,1)*s6
@@ -1292,7 +1296,12 @@ c and now the self interaction, only for convenient energy in dispersion
            enddo !tauz
            enddo !tauy
            enddo !taux
+      end if 
+      pcount = pcount + 1
       enddo !iat
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,sigma,9,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,g,3*n,'+')
       
       call nwpwxc_inv_cell(lat,lat_1)
       do a=1,3
@@ -1337,6 +1346,7 @@ c precompute for analytical part
 
 
       do iat=1,n
+      if (mod(pcount,np).eq.taskid) then
         call nwpwxc_get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
      .          mxc(iz(iat)),cn(iat),cn(iat),iz(iat),iz(iat),iat,iat,
      .          c6,dc6iji,dc6ijj)
@@ -1522,6 +1532,8 @@ C DGAS Edit
     
           enddo !jat
 
+        end if
+        pcount = pcount + 1
         enddo !iat
 
       elseif ((version.eq.4).or.(version.eq.6)) then
@@ -1549,6 +1561,7 @@ C DGAS Edit
       kat=0
 
       do iat=1,n
+      if (mod(pcount,np).eq.taskid) then
         call nwpwxc_get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
      .          mxc(iz(iat)),cn(iat),cn(iat),iz(iat),iz(iat),iat,iat,
      .          c6,dc6iji,dc6ijj)
@@ -1691,6 +1704,8 @@ C DGAS Edit
   
         enddo !jat
 
+      end if
+      pcount = pcount + 1
       enddo !iat
 
       endif ! version=3 or 4
@@ -1717,6 +1732,7 @@ C DGAS Edit
           
             c6ij=c6save(linij)
             do kat=1,jat-1
+            if (mod(pcount,np).eq.taskid) then
               linik=lin(iat,kat)
               linjk=lin(jat,kat)
               ikvec=xyz(:,kat)-xyz(:,iat)
@@ -1837,6 +1853,8 @@ C DGAS Edit
               enddo !jtauz
               enddo !jtauy
               enddo !jtaux
+            end if
+            pcount = pcount + 1
             enddo !kat
           enddo !jat
         enddo !iat
@@ -1849,6 +1867,7 @@ C DGAS Edit
 
         c6ij=c6save(linij)
         DO kat=1,iat-1
+        if (mod(pcount,np).eq.taskid) then
           linjk=lin(jat,kat)
           linik=linjk
 
@@ -1970,6 +1989,8 @@ C DGAS Edit
           ENDDO !jtauz
           ENDDO !jtauy
           ENDDO !jtaux
+        end if
+        pcount = pcount + 1
         ENDDO !kat
       ENDDO !iat
       ! And now kat=jat, but cycling throug all imagecells without jtau=ktau. and jat>iat going though all cells    (iat,jat,jat)
@@ -1977,6 +1998,7 @@ C DGAS Edit
 
       DO iat=2,n
         DO jat=1,iat-1
+        if (mod(pcount,np).eq.taskid) then
           kat=jat
           linij=lin(iat,jat)
           linjk=lin(jat,kat)
@@ -2107,6 +2129,8 @@ C DGAS Edit
           ENDDO !jtauz
           ENDDO !jtauy
           ENDDO !jtaux
+        end if
+        pcount = pcount + 1
         ENDDO !kat
       ENDDO !iat
 
@@ -2115,6 +2139,7 @@ C DGAS Edit
 
       idum=0
       DO iat=1,n
+      if (mod(pcount,np).eq.taskid) then
       jat=iat
       kat=iat
       ijvec=0.0d0
@@ -2247,6 +2272,8 @@ C DGAS Edit
         ENDDO !jtaux
 
 
+      end if
+      pcount = pcount + 1
       ENDDO !iat
 
 
@@ -2267,6 +2294,7 @@ C DGAS Edit
 ! the grad w.r.t. the coordinates is calculated dE/dr_ij * dr_ij/dxyz_i       
       do iat=2,n
         do jat=1,iat-1
+        if (mod(pcount,np).eq.taskid) then
           linij=lin(iat,jat)
 !       write(*,'(3E17.6,XX,2I2)'),drij(0,0,-1:1,lin(iat,jat)),iat,jat
           rcovij=rcov(iz(iat))+rcov(iz(jat))
@@ -2303,10 +2331,13 @@ C DGAS Edit
           enddo !tauz
           enddo !tauy
           enddo !taux
+        end if
+        pcount = pcount + 1
         enddo !jat
       enddo !iat
 
       do iat=1,n
+      if (mod(pcount,np).eq.taskid) then
         rcovij=rcov(iz(iat))+rcov(iz(iat))
           do taux=-rep_v(1),rep_v(1)
           do tauy=-rep_v(2),rep_v(2)
@@ -2341,6 +2372,8 @@ C DGAS Edit
 
 
 
+      end if
+      pcount = pcount + 1
       enddo !iat
 
 
