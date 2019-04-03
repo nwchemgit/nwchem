@@ -296,6 +296,15 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       real*8 bj_dmp6,bj_dmp8
       real*8 tmp1,tmp2
 
+#include "global.fh"
+#include "msgtypesf.h"
+
+      integer taskid,np,pcount
+
+      np     = GA_Nnodes()
+      taskid = GA_Nodeid()
+      pcount = 0
+
 
       e6 =0
       e8 =0
@@ -308,6 +317,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 c Becke-Johnson parameters
       a1=rs6
       a2=rs8      
+      cc6ab = 0.0d0
       
 
 
@@ -317,6 +327,7 @@ C DFT-D2
 
       do iat=1,n-1
         do jat=iat+1,n
+          if (mod(pcount,np).eq.taskid) then
           c6=c6ab(iz(jat),iz(iat),1,1,1)
           do taux=-rep_vdw(1),rep_vdw(1)
           do tauy=-rep_vdw(2),rep_vdw(2)
@@ -334,10 +345,13 @@ C DFT-D2
           enddo !taux
           enddo !tauy
           enddo !tauz
+        end if 
+        pcount = pcount + 1
         enddo
       enddo
       
       do iat=1,n
+        if (mod(pcount,np).eq.taskid) then
         jat=iat
         c6=c6ab(iz(jat),iz(iat),1,1,1)
         do taux=-rep_vdw(1),rep_vdw(1)
@@ -357,7 +371,10 @@ C DFT-D2
         enddo
         enddo
         enddo
+      end if 
+      pcount = pcount + 1
       enddo !iat
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,e6,1,'+')
       
       
 
@@ -368,6 +385,7 @@ C DFT-D3(zero-damping)
 
         do iat=1,n-1
           do jat=iat+1,n
+          if (mod(pcount,np).eq.taskid) then
 c get C6
             call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
      .                                  cn(iat),cn(jat),c6)
@@ -421,10 +439,13 @@ c stored in main as sqrt
             enddo !tauz
             enddo !tauy
             enddo !taux
+          end if 
+          pcount = pcount + 1
           enddo !jat
         enddo !iat
       
         do iat=1,n
+        if (mod(pcount,np).eq.taskid) then
           jat=iat
 c get C6
           call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
@@ -480,7 +501,12 @@ c stored in main as sqrt
           enddo !tauz
           enddo !tauy
           enddo !taux
+        end if 
+        pcount = pcount + 1
         enddo !iat
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,e6,1,'+')
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,e8,1,'+')
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,cc6ab,n*n,'+')
 !      write(*,*)'counter(edisp): ',counter
       else if((version.eq.4).or.(version.eq.6)) then
 
@@ -489,6 +515,7 @@ C DFT-D3(BJ-damping)
         call nwpwxc_pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
 
         do iat=1,n
+        if (mod(pcount,np).eq.taskid) then
           do jat=iat+1,n
 c get C6
             call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
@@ -577,7 +604,12 @@ c stored in main as sqrt
           enddo !tauz
           enddo !tauy
           enddo !taux
+        end if 
+        pcount = pcount + 1
         enddo !iat
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,e6,1,'+')
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,e8,1,'+')
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,cc6ab,n*n,'+')
 
 
       endif !version
@@ -615,10 +647,19 @@ C compute non-additive third-order energy using averaged C6
       REAL*8,DIMENSION(max_elem,max_elem),INTENT(IN):: r0ab
       REAL*8,PARAMETER::sr9=0.75d0    !reciprocal radii scaling parameter for damping function (s_r=4/3)
       REAL*8,PARAMETER::alp9=-16.0d0  !alpha saved with "-" sign
-      INTEGER,EXTERNAL :: lin
+      INTEGER,EXTERNAL :: nwpwxc_lin
       REAL*8 :: abcthr
       INTEGER, DIMENSION(3) :: repmin,repmax
 !      REAL*8   :: time1,time2
+
+#include "global.fh"
+#include "msgtypesf.h"
+
+      integer taskid,np,pcount
+
+      np     = GA_Nnodes()
+      taskid = GA_Nodeid()
+      pcount = 0
 
       counter=0
       eabc=0.0d0
@@ -634,6 +675,7 @@ C compute non-additive third-order energy using averaged C6
           ij=lin(iat,jat)
           r0ij=r0ab(iz(iat),iz(jat))
           do kat=1,jat-1
+          if (mod(pcount,np).eq.taskid) then
             ik=lin(iat,kat)
             jk=lin(jat,kat)
             ikvec=xyz(:,kat)-xyz(:,iat)
@@ -697,6 +739,8 @@ C compute non-additive third-order energy using averaged C6
             ENDDO !jtauy
             ENDDO !jtaux
 
+          end if 
+          pcount = pcount + 1
           ENDDO !kat
         ENDDO !jat
       ENDDO !iat
@@ -707,6 +751,7 @@ C compute non-additive third-order energy using averaged C6
           ijvec=0.0d0
           r0ij=r0ab(iz(iat),iz(jat))
         DO kat=1,iat-1
+        if (mod(pcount,np).eq.taskid) then
           jk=lin(jat,kat)
           ik=jk
           ikvec=xyz(:,kat)-xyz(:,iat)
@@ -767,6 +812,8 @@ C compute non-additive third-order energy using averaged C6
           ENDDO !jtauz
           ENDDO !jtauy
           ENDDO !jtaux
+        end if 
+        pcount = pcount + 1
         ENDDO !kat
       ENDDO !iat
       ! And now kat=jat, but cycling throug all imagecells without jtau=ktau. and jat>iat going though all cells
@@ -774,6 +821,7 @@ C compute non-additive third-order energy using averaged C6
 
       DO iat=2,n
         DO jat=1,iat-1
+        if (mod(pcount,np).eq.taskid) then
           kat=jat
           ij=lin(iat,jat)
           jk=lin(jat,kat)
@@ -840,6 +888,8 @@ C compute non-additive third-order energy using averaged C6
           ENDDO !jtauz
           ENDDO !jtauy
           ENDDO !jtaux
+        end if
+        pcount = pcount + 1
         ENDDO !kat
       ENDDO !iat
 
@@ -848,6 +898,7 @@ C compute non-additive third-order energy using averaged C6
 
       idum=0
       DO iat=1,n
+      if (mod(pcount,np).eq.taskid) then
       jat=iat
       kat=iat
       ijvec=0.0d0
@@ -920,7 +971,10 @@ C compute non-additive third-order energy using averaged C6
         ENDDO !jtaux
 
 
+      end if
+      pcount = pcount + 1
       ENDDO !iat
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,eabc,1,'+')
 
       END SUBROUTINE nwpwxc_pbcthreebody
 
@@ -1055,6 +1109,14 @@ c coversion factors
       real*8 abcthr,time1,time2,geomean2,r0av,dc9,dfdmp,dang,ang
       integer,dimension(3) ::repv,repmin,repmax,repmin2,repmax2
 
+#include "global.fh"
+#include "msgtypesf.h"
+
+      integer taskid,np,pcount
+
+      np     = GA_Nnodes()
+      taskid = GA_Nodeid()
+      pcount = 0
 
 
 c R^2 cut-off 

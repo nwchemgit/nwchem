@@ -1667,6 +1667,7 @@ C DFT-D2
 
       do iat=1,n-1
          do jat=iat+1,n
+         if (mod(pcount,np).eq.taskid) then
             dx=xyz(1,iat)-xyz(1,jat)
             dy=xyz(2,iat)-xyz(2,jat)
             dz=xyz(3,iat)-xyz(3,jat)
@@ -1677,6 +1678,8 @@ c           if(r2.gt.rthr) cycle
             damp6=1./(1.+exp(-alp6*(r/(rs6*r0ab(iz(jat),iz(iat)))-1.)))
             r6=r2**3      
             e6 =e6+c6*damp6/r6
+         end if
+         pcount = pcount + 1
          enddo
       enddo
       if (np.gt.1) call GA_DGOP(9+MSGDBL,e6,1,'+')
