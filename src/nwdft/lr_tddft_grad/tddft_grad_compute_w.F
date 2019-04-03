@@ -132,6 +132,7 @@ c
       integer l_gxc , k_gxc  ! memory for array of Gxc matrix handles
       integer ngxc           ! the number of Gxc matrices
       logical oroot
+      integer iwhich
 c
       character*32 pname
 c
@@ -145,6 +146,7 @@ c
       logical doitxmy1,doitxmy2
 c
       pname = "tddft_grad_compute_w: "
+      iwhich = 0   ! call to tddft_nga_cont()
 c
 c     General stuff
 c
@@ -474,7 +476,7 @@ c fock_xc:triplet here for restricted triplet calculations to work.
      1    call errquit(pname//'failed to set triplet',0,RTDB_ERR)
       endif
       call tddft_nga_cont(rtdb,ihdl_geom,ihdl_bfao,g_puv,g_apbp,g_ambp,
-     +     nao,ipol,tol2e,tda,oskel,kfac,lhashf,.false.,nroots)
+     +     nao,ipol,tol2e,tda,oskel,kfac,lhashf,.false.,nroots,iwhich)
 c Daniel (2-26-13): Reset fock_xc:triplet here for restricted triplet 
 c calculations to work.
       if (otriplet) then
@@ -770,9 +772,9 @@ c the global one.
         endif
       endif
       call tddft_nga_cont(rtdb,ihdl_geom,ihdl_bfao,g_x,g_apbx,g_ambx,
-     +     nao,ipol,tol2e,tdaloc,oskel,kfac,lhashf,otriplet,nroots)
+     +   nao,ipol,tol2e,tdaloc,oskel,kfac,lhashf,otriplet,nroots,iwhich)
       call tddft_nga_cont(rtdb,ihdl_geom,ihdl_bfao,g_y,g_apby,g_amby,
-     +     nao,ipol,tol2e,tdaloc,oskel,kfac,lhashf,otriplet,nroots)
+     +   nao,ipol,tol2e,tdaloc,oskel,kfac,lhashf,otriplet,nroots,iwhich)
 c
 c     - Dispose of X and Y
 c
