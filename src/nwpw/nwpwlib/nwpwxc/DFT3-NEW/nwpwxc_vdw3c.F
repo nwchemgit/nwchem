@@ -1057,7 +1057,7 @@ c coversion factors
       REAL*8, parameter ::autokcal=627.509541d0
       REAL*8, parameter ::autoev=27.211652d0   
 
-      integer iat,jat,i,j,kat,my,ny,a,b,idum,tau2
+      integer iat,jat,i,j,kat,my,ny,a,b,idum,tau2,drijsize
       real*8 R0,C6,alp,R42,disp,x1,y1,z1,x2,y2,z2,rr,e6abc,fdum  
       real*8 dx,dy,dz,r2,r,r4,r6,r8,r10,r12,t6,t8,t10,damp1
       real*8 damp6,damp8,damp9,e6,e8,e10,e12,gnorm,tmp1
@@ -1335,6 +1335,7 @@ c precompute for analytical part
       allocate(drij(-rep_v(3):rep_v(3),-rep_v(2):rep_v(2),
      .              -rep_v(1):rep_v(1),n*(n+1)/2))
 
+      drijsize =(2*rep_v(3)+1)*(2*rep_v(2)+1)*(2*rep_v(1)+1)*(n*(n+1)/2)
       disp=0
 
       drij=0.0d0
@@ -1535,6 +1536,10 @@ C DGAS Edit
         end if
         pcount = pcount + 1
         enddo !iat
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6i,n,'+')
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6_rest_sum,n*(n+1)/2,'+')
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,drijsize,'+')
 
       elseif ((version.eq.4).or.(version.eq.6)) then
 
@@ -1554,6 +1559,7 @@ C DGAS Edit
 
       allocate(drij(-rep_v(3):rep_v(3),-rep_v(2):rep_v(2),
      .              -rep_v(1):rep_v(1),n*(n+1)/2))
+      drijsize =(2*rep_v(3)+1)*(2*rep_v(2)+1)*(2*rep_v(1)+1)*(n*(n+1)/2)
       disp=0
       drij=0.0d0
       dc6_rest=0.0d0
@@ -1707,6 +1713,10 @@ C DGAS Edit
       end if
       pcount = pcount + 1
       enddo !iat
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6i,n,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6_rest_sum,n*(n+1)/2,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,drijsize,'+')
 
       endif ! version=3 or 4
 
@@ -1858,6 +1868,8 @@ C DGAS Edit
             enddo !kat
           enddo !jat
         enddo !iat
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6_rest_sum,n*(n+1)/2,'+')
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,drijsize,'+')
 
 ! Now the interaction with jat=iat of the triples iat,iat,kat
       DO iat=2,n
@@ -2275,6 +2287,7 @@ C DGAS Edit
       end if
       pcount = pcount + 1
       ENDDO !iat
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,eabc,1,'+')
 
 
         call nwpwxc_cpu_time(time2)
@@ -2375,6 +2388,8 @@ C DGAS Edit
       end if
       pcount = pcount + 1
       enddo !iat
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,sigma,9,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,g,3*n,'+')
 
 
 
