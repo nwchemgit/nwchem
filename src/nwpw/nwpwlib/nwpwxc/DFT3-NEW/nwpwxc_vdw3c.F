@@ -1347,7 +1347,7 @@ c precompute for analytical part
 
 
       do iat=1,n
-      if (mod(pcount,np).eq.taskid) then
+      if (mod(pcount,np).eq.taskid) then  !* drij,disp,dc6i,dc6ij,c6save,dc6_rest_sum
         call nwpwxc_get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
      .          mxc(iz(iat)),cn(iat),cn(iat),iz(iat),iz(iat),iat,iat,
      .          c6,dc6iji,dc6ijj)
@@ -1536,19 +1536,14 @@ C DGAS Edit
         end if
         pcount = pcount + 1
         enddo !iat
-        if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
-        if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6i,n,'+')
-        if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6_rest_sum,n*(n+1)/2,'+')
-        if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,drijsize,'+')
+
+
 
       elseif ((version.eq.4).or.(version.eq.6)) then
-
-
 
 !!!!!!!!!!!!!!!!!!!!!!!
 ! NOW THE BJ Gradient !
 !!!!!!!!!!!!!!!!!!!!!!!
-
 
       if (echo) write(*,*) 'doing analytical gradient O(N^2) ...'
       call nwpwxc_pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
@@ -1567,7 +1562,7 @@ C DGAS Edit
       kat=0
 
       do iat=1,n
-      if (mod(pcount,np).eq.taskid) then
+      if (mod(pcount,np).eq.taskid) then !* drij,disp,dc6i,dc6ij,c6save,dc6_rest_sum
         call nwpwxc_get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
      .          mxc(iz(iat)),cn(iat),cn(iat),iz(iat),iz(iat),iat,iat,
      .          c6,dc6iji,dc6ijj)
@@ -1700,25 +1695,25 @@ C DGAS Edit
           dc6i(iat)=dc6i(iat)+dc6_rest*dc6iji
           dc6i(jat)=dc6i(jat)+dc6_rest*dc6ijj
 !            if (r2.lt.crit_cn) 
-            dc6_rest_sum(lin(iat,jat))=dc6_rest_sum(linij)
-     .        +dc6_rest 
+		    dc6_rest_sum(lin(iat,jat))=dc6_rest_sum(linij)
+	     .        +dc6_rest 
 
 
-          enddo !tauz
-          enddo !tauy
-          enddo !taux
-  
-        enddo !jat
+		  enddo !tauz
+		  enddo !tauy
+		  enddo !taux
+	  
+		enddo !jat
 
-      end if
-      pcount = pcount + 1
-      enddo !iat
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6i,n,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6_rest_sum,n*(n+1)/2,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,drijsize,'+')
+	      end if
+	      pcount = pcount + 1
+	      enddo !iat
 
       endif ! version=3 or 4
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,c6save,n*(n+1)/2,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6_rest_sum,n*(n+1)/2,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6ij,n*n,'+')
 
 
 !
@@ -1742,7 +1737,7 @@ C DGAS Edit
           
             c6ij=c6save(linij)
             do kat=1,jat-1
-            if (mod(pcount,np).eq.taskid) then
+            if (mod(pcount,np).eq.taskid) then !* using - c6save,  adding - drij,dc6i,
               linik=lin(iat,kat)
               linjk=lin(jat,kat)
               ikvec=xyz(:,kat)-xyz(:,iat)
@@ -1868,8 +1863,6 @@ C DGAS Edit
             enddo !kat
           enddo !jat
         enddo !iat
-        if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6_rest_sum,n*(n+1)/2,'+')
-        if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,drijsize,'+')
 
 ! Now the interaction with jat=iat of the triples iat,iat,kat
       DO iat=2,n
@@ -1879,7 +1872,7 @@ C DGAS Edit
 
         c6ij=c6save(linij)
         DO kat=1,iat-1
-        if (mod(pcount,np).eq.taskid) then
+        if (mod(pcount,np).eq.taskid) then  !*** Adding-drij    Using- c6save
           linjk=lin(jat,kat)
           linik=linjk
 
@@ -2010,7 +2003,7 @@ C DGAS Edit
 
       DO iat=2,n
         DO jat=1,iat-1
-        if (mod(pcount,np).eq.taskid) then
+        if (mod(pcount,np).eq.taskid) then   !*Adding - eabc,dc6i,drij
           kat=jat
           linij=lin(iat,jat)
           linjk=lin(jat,kat)
@@ -2151,7 +2144,7 @@ C DGAS Edit
 
       idum=0
       DO iat=1,n
-      if (mod(pcount,np).eq.taskid) then
+      if (mod(pcount,np).eq.taskid) then !** adding drij,eabc,dc6i
       jat=iat
       kat=iat
       ijvec=0.0d0
@@ -2274,8 +2267,6 @@ C DGAS Edit
 
 
 
-
-
           ENDDO !ktauz
           ENDDO !ktauy
           ENDDO !ktaux
@@ -2288,6 +2279,8 @@ C DGAS Edit
       pcount = pcount + 1
       ENDDO !iat
       if (np.gt.1) call GA_DGOP(9+MSGDBL,eabc,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6i,n,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,drijsize,'+')
 
 
         call nwpwxc_cpu_time(time2)
