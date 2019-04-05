@@ -62,9 +62,10 @@ c coversion factors
 c DFT-D version
       integer version
 c number of atoms
-      integer n
+      !integer n
 c coordinates in au
-      real*8,dimension(:,:), allocatable :: xyz,abc
+      !real*8,dimension(:,:), allocatable :: xyz,abc
+      real*8,dimension(:,:), allocatable :: abc
 c fixed atoms in geometry opt
       !logical fix(maxat)
 c lattice in au
@@ -115,7 +116,7 @@ c R^2 distance to cutoff for CN_calculation
 c Integer for assigning only max/min cn C6 (0=normal, 1=min, 2=max)
 c local and dummy variables
       character*80 atmp,btmp,ctmp,dtmp,etmp,ftmp,func
-      character*2  esym 
+      character*2  nwpwxc_esym 
       integer i,j,k,z,nn,iat,jat,i1,i2
       integer ida(max_elem),ipot
       real*8  x,y,dispr,displ,gdsp,dum,xx(10),dum6(86)
@@ -320,7 +321,7 @@ c options
               if (index(atmp,'-').eq.0.and.atmp.ne.'') then
                call nwpwxc_elem(atmp,nn)
                if (nn.gt.max_elem.or.nn.lt.1) 
-     .           call nwpwxc_nwpwxc_stoprun('Could not recognize min Element')
+     .           call nwpwxc_stoprun('Could not recognize min Element')
                minc6list(nn)=.true.
                j=j+1
               else
@@ -337,7 +338,7 @@ c options
           if (index(atmp,'-').eq.0.and.atmp.ne.'') then
             call nwpwxc_elem(atmp,nn)
             if (nn.gt.max_elem.or.nn.lt.1) 
-     .        call nwpwxc_nwpwxc_stoprun('Could not recognize max Element')
+     .        call nwpwxc_stoprun('Could not recognize max Element')
             maxc6list(nn)=.true.
             k=k+1
           else
@@ -394,7 +395,7 @@ c     Check command line input
       enddo
 c C6 hard-coded (c6ab.dat not used)
 c this is alternative to nwpwxc_loadc6
-      call copyc6(btmp,maxc,max_elem,c6ab,mxc,
+      call nwpwxc_copyc6(btmp,maxc,max_elem,c6ab,mxc,
      .            minc6,minc6list,maxc6,maxc6list)   
        cn_thr=rthr2
 
@@ -402,7 +403,7 @@ c this is alternative to nwpwxc_loadc6
 !       write(*,*)'mxc(P):',mxc(15)
 
        if (pbc) then
-         call nwpwxc_pbc_rdatomnumber(etmp,n)
+         call nwpwxc_pbcrdatomnumber(etmp,n)
        else
          call nwpwxc_rdatomnumber(etmp,n)
        endif
@@ -477,7 +478,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 c CNs for output
       if (pbc) then
-          call nwpwxc_pbc_ncoord(n,rcov,iz,xyz,cn,lat,rep_cn,cn_thr)
+          call nwpwxc_pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,cn_thr)
       else
           call nwpwxc_ncoord(n,rcov,iz,xyz,cn,cn_thr)
       endif
@@ -523,9 +524,11 @@ c output
           btmp=''
           do i=1,n
           z=iz(i)
-          call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(i),iz(i),cn(i),cn(i),c6)
+          call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(i),iz(i),
+     >                      cn(i),cn(i),c6)
           do j=1,n
-          call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(i),iz(j),cn(i),cn(j),dum)
+          call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(i),iz(j),
+     >                      cn(i),cn(j),dum)
           x=x+dum
           enddo
 c compute C8/C10 for output
@@ -541,7 +544,7 @@ c compute C8/C10 for output
           ! btmp='f'
           !endif
           write(*,'(i4,3F10.5,3x,a2,1x,a1,F7.3,2x,F7.3,3F12.1,L)')
-     .    i,xyz(1:3,i),esym(z),atmp,
+     .    i,xyz(1:3,i),nwpwxc_esym(z),atmp,
      .    dum,cn(i),
      .    c6,c8,c10
           enddo
@@ -620,7 +623,7 @@ c Edisp pot curve for testing. Caution: C6 is not constant along R!
       write(42,*) xyz(3,2)*autoang,disp*autokcal
       write(43,*) xyz(3,2)        ,disp*autokcal
       if (pbc) then
-          call nwpwxc_pbc_ncoord(n,rcov,iz,xyz,
+          call nwpwxc_pbcncoord(n,rcov,iz,xyz,
      >                                 cn,lat,rep_cn,cn_thr)
       else
           call nwpwxc_ncoord(n,rcov,iz,xyz,cn,cn_thr)
@@ -827,12 +830,12 @@ c write to energy and gradient files in TM style
      . to file dftd3_cellgradient. (a.u.)'
         endif !echo
         g_lat=g_lat!*autoev
-        call pbcwregrad(n,g,g_lat)
+        call nwpwxc_pbcwregrad(n,g,g_lat)
       else !not pbc
         if (echo) then
           write(*,*) 'Cartesian gradient written to file dftd3_gradient'
         endif !echo
-        call outg(n,g,'dftd3_gradient')
+        call nwpwxc_outg(n,g,'dftd3_gradient')
 !        call wregrad(n,xyz,iz,disp,g)
 
       endif !pbc
@@ -936,7 +939,7 @@ c test test tesc test test tesc test test tesc test test tesc test test
       
 c999   deallocate(xyz,g,iz,cn)
 999   deallocate(cn)
-      end Program
+      end subroutine
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
@@ -1576,7 +1579,7 @@ c DFT-D2
        write(dtmp,'(a)')'.dftd3par.local'
        open(unit=43,file=dtmp)
          read(43,'(a)',end=10)ftmp 
-         call readl(ftmp,xx,nn)
+         call nwpwxc_readl(ftmp,xx,nn)
          if(nn.eq.6) then
                      s6  =xx(1)
                      rs6 =xx(2)
@@ -1828,7 +1831,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       integer grplist(500,20)
       integer grpn(20),at(n)
       integer ngrp,dash
-      integer lin, iiii, jjjj, iii, jjj, ii, jj, ni, nj 
+      integer nwpwxc_lin, iiii, jjjj, iii, jjj, ii, jj, ni, nj 
       integer iout(500)
       logical ex
       character*80 atmp
@@ -2046,7 +2049,8 @@ c      enddo
                do jj=1,nj
                   jjjj=grplist(jj,j)
                   if(jjjj.lt.iiii)cycle
-                  eg(nwpwxc_lin(iii,jjj))=eg(nwpwxc_lin(iii,jjj))+ed(iiii,jjjj)
+                  eg(nwpwxc_lin(iii,jjj))=eg(nwpwxc_lin(iii,jjj))
+     >                                   +ed(iiii,jjjj)
                enddo
             enddo
          enddo
@@ -2065,7 +2069,7 @@ c     call prmat(6,eg,ngrp,0,'intra- + inter-group dispersion energies')
       enddo
       write(*,*) 'checksum (Edisp) ',check
 
-      end subroutine adisp
+      end subroutine nwpwxc_adisp
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C compute gradient
@@ -2130,14 +2134,12 @@ c values >5 might lead to bumps in the potential
       integer  linij,linik,linjk
       real*8 vec(3),vec2(3)
       real*8 dc6i(n)       ! dE_disp/dCN(iat) in dc6i(iat)
-      real*8 dc6itmp(n)    ! temporary
       real*8 dc6ij(n,n)    ! saves dC6(ij)/dCN(iat)
       real*8 dc6iji,dc6ijj
       logical abccalc(n*(n+1)/2)                        
       integer iabccalc(n*(n+1)/2)                        
       real*8 abcthr
       real*8 gtmp(3) ! temporary container to store iat gradient
-      real*8 g3tmp(3,n) ! temporry
       real*8 labc,rabc
       real*8 c6abc(n*(n+1)/2)
       real*8 r2abc(n*(n+1)/2)
@@ -2193,7 +2195,7 @@ cNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
       xyz(j,i)=xyz(j,i)+step        
       enddo
       enddo
-      goto 999
+      goto 1001
       endif
 
 c this is the crucial threshold to reduce the N^3 to an
@@ -2239,8 +2241,6 @@ c           if(r2.gt.rthr) cycle
          pcount = pcount + 1
          enddo
       enddo
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,g,3*n,'+')
       disp=-disp
 
 
@@ -2349,13 +2349,6 @@ c zero damping
         pcount = pcount + 1
         enddo !jat
       enddo !iat
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6i,n,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6ij,n*n,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,n*(n+1)/2,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,c6abc,n*(n+1)/2,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,r2abc,n*(n+1)/2,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,r3abc,n*(n+1)/2,'+')
       if (np.gt.1) call GA_IGOP(9+MSGINT,iabccalc,n*(n+1)/2,'+')
       do i=1,n*(n+1)/2
          abccalc(i) = (iabccalc(i).gt.0)
@@ -2439,28 +2432,22 @@ c use BJ radius
         pcount = pcount + 1
         enddo !jat
       enddo !iat
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6i,n,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6ij,n*n,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,n*(n+1)/2,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,c6abc,n*(n+1)/2,'+')
+      endif !version=4 (BJ)
+
       if (np.gt.1) call GA_DGOP(9+MSGDBL,r2abc,n*(n+1)/2,'+')
       if (np.gt.1) call GA_DGOP(9+MSGDBL,r3abc,n*(n+1)/2,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,c6abc,n*(n+1)/2,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6ij,n*n,'+')
       if (np.gt.1) call GA_IGOP(9+MSGINT,iabccalc,n*(n+1)/2,'+')
       do i=1,n*(n+1)/2
          abccalc(i) = (iabccalc(i).gt.0)
       end do
 
 
-      endif !version=4 (BJ)
-
-
       if(.not.noabc)then
 
       if(echo)write(*,*) 'doing analytical gradient O(N^3) ...'
         eabc    = 0.0d0
-        dc6itmp = 0.0d0
-        drijtmp = 0.0d0
         do iat=1,n
           do jat=1,iat-1
             linij=nwpwxc_lin(iat,jat)
@@ -2503,7 +2490,7 @@ c use BJ radius
 
 
               tmp1=dfdmp/r*c9*angr9-dang*c9*fdmp
-              drijtmp(linij)=drijtmp(linij)+tmp1
+              drij(linij)=drij(linij)+tmp1
 
 !start calculating the derivatives of each part w.r.t. r_jk              
               r=dsqrt(r2jk)
@@ -2513,7 +2500,7 @@ c use BJ radius
      .             -5.0*(r2ik-r2ij)**2*(r2ik+r2ij))
      .             /(r*rijk3*rav3)
 
-              drijtmp(linjk)=drijtmp(linjk) 
+              drij(linjk)=drij(linjk) 
      .                       +dfdmp/r*c9*angr9-dang*c9*fdmp
 
 
@@ -2525,7 +2512,7 @@ c use BJ radius
      .             -5.0*(r2jk-r2ij)**2*(r2jk+r2ij))
      .             /(r*rijk3*rav3)
 
-              drijtmp(linik)=drijtmp(linik)
+              drij(linik)=drij(linik)
      .                       +dfdmp/r*c9*angr9-dang*c9*fdmp
 
 
@@ -2535,15 +2522,15 @@ c use BJ radius
 
              dc9=dc6ij(iat,jat)/c6abc(linij)+dc6ij(iat,kat)/c6abc(linik)
               dc9=-0.5d0*c9*dc9
-              dc6itmp(iat)=dc6itmp(iat)+dc6_rest*dc9
+              dc6i(iat)=dc6i(iat)+dc6_rest*dc9
 
              dc9=dc6ij(jat,iat)/c6abc(linij)+dc6ij(jat,kat)/c6abc(linjk)
               dc9=-0.5d0*c9*dc9
-              dc6itmp(jat)=dc6itmp(jat)+dc6_rest*dc9
+              dc6i(jat)=dc6i(jat)+dc6_rest*dc9
 
              dc9=dc6ij(kat,iat)/c6abc(linik)+dc6ij(kat,jat)/c6abc(linjk)
               dc9=-0.5d0*c9*dc9
-              dc6itmp(kat)=dc6itmp(kat)+dc6_rest*dc9
+              dc6i(kat)=dc6i(kat)+dc6_rest*dc9
 
             end if
             pcount = pcount + 1
@@ -2551,19 +2538,15 @@ c use BJ radius
           ENDDO !jat
         ENDDO !iat
 
-        if (np.gt.1) call GA_DGOP(9+MSGDBL,eabc,1,'+')
-        if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6itmp,n,'+')
-        if (np.gt.1) call GA_DGOP(9+MSGDBL,drijtmp,n*(n+1)/2,'+')
-        dc6i = dc6i + dc6itmp
-        drij = drij + drijtmp
         disp=disp+eabc
       endif !noabc
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6i,n,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,n*(n+1)/2,'+')
 
 
 
 ! After calculating all derivatives dE/dr_ij w.r.t. distances,
 ! the grad w.r.t. the coordinates is calculated dE/dr_ij * dr_ij/dxyz_i       
-      g3tmp = 0.0d0
       do iat=2,n
         gtmp=0.0d0
         do jat=1,iat-1
@@ -2586,19 +2569,20 @@ c use BJ radius
 
           gtmp=gtmp+x1*rij/r
           !g(:,iat)=g(:,iat)+x1*rij/r
-          g3tmp(:,jat)=g3tmp(:,jat)-x1*rij/r
+          g(:,jat)=g(:,jat)-x1*rij/r
          
         end if
         pcount = pcount + 1
         enddo !iat
-        g3tmp(:,iat)=g3tmp(:,iat)+gtmp
+        g(:,iat)=g(:,iat)+gtmp
       enddo !jat
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,g3tmp,3*n,'+')
-      g = g + g3tmp
 
 
 
  999  continue
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,g,3*n,'+')
+ 1001 continue
       gnorm=sum(abs(g(1:3,1:n)))
       if(echo)then
       write(*,*)
@@ -2618,11 +2602,28 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C      The   N E W   gradC6 routine    C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !
-      subroutine nwpwxc_get_dC6_dCNij(maxc,max_elem,c6ab,mxci,mxcj,cni,cnj,
+      subroutine nwpwxc_get_dC6_dCNij(maxc,max_elem,c6ab,mxci,mxcj,
+     >           cni,cnj,
      .           izi,izj,iat,jat,c6check,dc6i,dc6j)
 
       IMPLICIT NONE
-      include  'param'
+      !include  'param'
+      real*8 k1,k2,k3
+
+c global ad hoc parameters
+      parameter (k1=16.0)
+      parameter (k2=4./3.) 
+
+c reasonable choices are between 3 and 5
+c this gives smoth curves with maxima around the integer values
+c k3=3 give for CN=0 a slightly smaller value than computed
+c for the free atom. This also yields to larger CN for atoms
+c in larger molecules but with the same chem. environment
+c which is physically not right
+c values >5 might lead to bumps in the potential
+      parameter (k3=-4.) 
+
+
       integer maxc,max_elem
       real*8 c6ab(max_elem,max_elem,maxc,maxc,3)
       integer mxci,mxcj   !mxc(iz(iat))
@@ -2705,7 +2706,23 @@ c the exponential is sensitive to numerics
 c when nci or ncj is much larger than cn1/cn2
       real*8  cn1,cn2,r,rsum,csum,tmp,tmp1   
       real*8  r_save
-      include 'param'
+      !include 'param'
+      real*8 k1,k2,k3
+
+c global ad hoc parameters
+      parameter (k1=16.0)
+      parameter (k2=4./3.) 
+
+c reasonable choices are between 3 and 5
+c this gives smoth curves with maxima around the integer values
+c k3=3 give for CN=0 a slightly smaller value than computed
+c for the free atom. This also yields to larger CN for atoms
+c in larger molecules but with the same chem. environment
+c which is physically not right
+c values >5 might lead to bumps in the potential
+      parameter (k3=-4.) 
+
+
 
       c6mem=-1.d+99
       rsum=0.0d0
@@ -2746,7 +2763,23 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
       subroutine nwpwxc_ncoord(natoms,rcov,iz,xyz,cn,cn_thr)
       implicit none  
-      include 'param'
+      !include 'param'
+      real*8 k1,k2,k3
+
+c global ad hoc parameters
+      parameter (k1=16.0)
+      parameter (k2=4./3.) 
+
+c reasonable choices are between 3 and 5
+c this gives smoth curves with maxima around the integer values
+c k3=3 give for CN=0 a slightly smaller value than computed
+c for the free atom. This also yields to larger CN for atoms
+c in larger molecules but with the same chem. environment
+c which is physically not right
+c values >5 might lead to bumps in the potential
+      parameter (k3=-4.) 
+
+
       integer iz(*),natoms,i,max_elem
       real*8 xyz(3,*),cn(*),rcov(94),input
       real*8 cn_thr

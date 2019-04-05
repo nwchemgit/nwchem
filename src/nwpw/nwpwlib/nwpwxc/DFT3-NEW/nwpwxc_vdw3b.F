@@ -1088,7 +1088,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
       close(142)
 
-      end subroutine outg
+      end subroutine nwpwxc_outg
 
 
 
@@ -1108,7 +1108,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       integer i,j,nn,nl
       character*128 a,a1
-      character*2   esym
+      character*2   nwpwxc_esym
+      external      nwpwxc_esym
       character*20 fname
       real*8 xx(10),gsum,x,y,z
       real*8, dimension(:,:), allocatable :: gr
@@ -1177,7 +1178,7 @@ c write file gradient
      .              ''|dE/dxyz| ='',F10.6)')j,xx(2)+edisp,gsum  
          do i=1,nat
             write(43,'(3(F20.14,2x),4x,a2)')xyz(1,i),xyz(2,i),xyz(3,i),
-     .                                      esym(iat(i))
+     .                                      nwpwxc_esym(iat(i))
          enddo
          do i=1,nat
             write(43,'(3D22.13)')g(1,i),g(2,i),g(3,i)
@@ -1286,8 +1287,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 C     *****************************************************************         
 
-      FUNCTION nwpwxc_ESYM(I)
-      CHARACTER*2 ESYM
+      CHARACTER*2 FUNCTION nwpwxc_ESYM(I)
       CHARACTER*2 ELEMNT(94)
       DATA ELEMNT/'h ','he',
      1 'li','be','b ','c ','n ','o ','f ','ne',
@@ -1300,9 +1300,9 @@ C     *****************************************************************
      8 'ho','er','tm','yb','lu','hf','ta','w ','re','os','ir','pt',
      9 'au','hg','tl','pb','bi','po','at','rn',
      1 'fr','ra','ac','th','pa','u ','np','pu'/
-      ESYM=ELEMNT(I)
+      nwpwxc_ESYM=ELEMNT(I)
       RETURN
-      END FUNCTION ESYM
+      END FUNCTION nwpwxc_ESYM
 
 
 C     *****************************************************************        
@@ -1316,7 +1316,7 @@ C     *****************************************************************
       I=0                                                                       
       IS=1                                                                      
   10  I=I+1                                                                     
-      X(I)=READAA(A1,IS,IB,IE)                                               
+      X(I)=nwpwxc_READAA(A1,IS,IB,IE)                                               
       IF(IB.GT.0 .AND. IE.GT.0) THEN                                            
                                 IS=IE                                           
                                 GOTO 10                                         

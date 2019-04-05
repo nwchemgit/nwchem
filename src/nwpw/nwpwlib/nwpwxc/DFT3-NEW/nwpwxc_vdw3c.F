@@ -290,7 +290,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       real*8 damp6,damp8,damp10,rr,thr,c9,r42,c12,r10,c14
       real*8 cn(n),rxyz(3),dxyz(3)
       real*8 r2ab(n*n),cc6ab(n*n),dmp(n*n),d2(3),t1,t2,t3,tau(3)
-      integer lin,ij,ik,jk
+      integer nwpwxc_lin,ij,ik,jk
       integer taux,tauy,tauz,counter
       real*8 a1,a2  !BJ-parameter
       real*8 bj_dmp6,bj_dmp8
@@ -391,7 +391,7 @@ c get C6
      .                                  cn(iat),cn(jat),c6)
 
             if(.not.noabc)then
-              ij=lin(jat,iat)
+              ij=nwpwxc_lin(jat,iat)
 c store C6 for C9, calc as sqrt
               cc6ab(ij)=sqrt(c6)
             endif
@@ -452,7 +452,7 @@ c get C6
      .                                  cn(iat),cn(jat),c6)
          
           if(.not.noabc)then
-            ij=lin(jat,iat)
+            ij=nwpwxc_lin(jat,iat)
 c store C6 for C9, calc as sqrt
           cc6ab(ij)=sqrt(c6)
           endif
@@ -527,7 +527,7 @@ c get C6
             bj_dmp8=(a1*dsqrt(3.0d0*r42)+a2)**8
 
             if(.not.noabc)then
-              ij=lin(jat,iat)
+              ij=nwpwxc_lin(jat,iat)
 c store C6 for C9, calc as sqrt
               cc6ab(ij)=sqrt(c6)
             endif
@@ -572,7 +572,7 @@ c get C6
           bj_dmp8=(a1*dsqrt(3.0d0*r42)+a2)**8
            
           if(.not.noabc)then
-            ij=lin(jat,iat)
+            ij=nwpwxc_lin(jat,iat)
 c store C6 for C9, calc as sqrt
             cc6ab(ij)=dsqrt(c6)
           endif
@@ -672,12 +672,12 @@ C compute non-additive third-order energy using averaged C6
       do iat=3,n
         do jat=2,iat-1
           ijvec=xyz(:,jat)-xyz(:,iat)
-          ij=lin(iat,jat)
+          ij=nwpwxc_lin(iat,jat)
           r0ij=r0ab(iz(iat),iz(jat))
           do kat=1,jat-1
           if (mod(pcount,np).eq.taskid) then
-            ik=lin(iat,kat)
-            jk=lin(jat,kat)
+            ik=nwpwxc_lin(iat,kat)
+            jk=nwpwxc_lin(jat,kat)
             ikvec=xyz(:,kat)-xyz(:,iat)
             jkvec=xyz(:,kat)-xyz(:,jat)
             c9=-1.0d0*(cc6ab(ij)*cc6ab(ik)*cc6ab(jk))
@@ -747,12 +747,12 @@ C compute non-additive third-order energy using averaged C6
 
       DO iat=2,n
         jat=iat
-          ij=lin(iat,jat)
+          ij=nwpwxc_lin(iat,jat)
           ijvec=0.0d0
           r0ij=r0ab(iz(iat),iz(jat))
         DO kat=1,iat-1
         if (mod(pcount,np).eq.taskid) then
-          jk=lin(jat,kat)
+          jk=nwpwxc_lin(jat,kat)
           ik=jk
           ikvec=xyz(:,kat)-xyz(:,iat)
           jkvec=ikvec
@@ -823,8 +823,8 @@ C compute non-additive third-order energy using averaged C6
         DO jat=1,iat-1
         if (mod(pcount,np).eq.taskid) then
           kat=jat
-          ij=lin(iat,jat)
-          jk=lin(jat,kat)
+          ij=nwpwxc_lin(iat,jat)
+          jk=nwpwxc_lin(jat,kat)
           ik=ij
           ikvec=xyz(:,kat)-xyz(:,iat)
           ijvec=ikvec
@@ -902,7 +902,7 @@ C compute non-additive third-order energy using averaged C6
       jat=iat
       kat=iat
       ijvec=0.0d0
-      ij=lin(iat,iat)
+      ij=nwpwxc_lin(iat,iat)
       ik=ij
       jk=ij
       ikvec=ijvec
@@ -1352,7 +1352,7 @@ c precompute for analytical part
      .          mxc(iz(iat)),cn(iat),cn(iat),iz(iat),iz(iat),iat,iat,
      .          c6,dc6iji,dc6ijj)
 
-        c6save(lin(iat,iat))=c6
+        c6save(nwpwxc_lin(iat,iat))=c6
         dc6ij(iat,iat)=dc6iji
         r0=r0ab(iz(iat),iz(iat))
         r42=r2r4(iz(iat))*r2r4(iz(iat))
@@ -1388,14 +1388,14 @@ C DGAS Edit
           t8 = (r/(rs8*R0))**(-alp8)
           damp8 =1.d0/( 1.d0+6.d0*t8 )
 
-          drij(tauz,tauy,taux,lin(iat,iat))=drij(tauz,tauy,taux,lin(iat,
-     .     iat))
+          drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
+     >     =drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
      .        +(-s6*(6.0/(r7)*C6*damp6)  ! d(r^(-6))/d(tau)
      .        -s8*(24.0/(r9)*C6*r42*damp8))*0.5d0
 
 
-          drij(tauz,tauy,taux,lin(iat,iat))=drij(tauz,tauy,taux,lin(iat,
-     .     iat))
+          drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
+     >    =drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
      .        +(s6*C6/r7*6.d0*alp6*t6*damp6*damp6     !d(f_dmp)/d(tau)
      .        +s8*C6*r42/r9*18.d0*alp8*t8*damp8*damp8)*0.5d0
         else !version.eq.5
@@ -1406,12 +1406,14 @@ C DGAS Edit
 
           tmp1=s6*6.d0*damp6*C6/r7
           tmp2=s8*6.d0*C6*r42*damp8/r9
-          drij(tauz,tauy,taux,lin(iat,iat))=drij(tauz,tauy,taux,lin(iat,
+          drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
+     >     =drij(tauz,tauy,taux,nwpwxc_lin(iat,
      .     iat)) - (tmp1  ! d(r^(-6))/d(r_ij)
      .                +4.d0*tmp2)*0.5d0
       
       
-          drij(tauz,tauy,taux,lin(iat,iat))=drij(tauz,tauy,taux,lin(iat,
+          drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
+     >     =drij(tauz,tauy,taux,nwpwxc_lin(iat,
      .     iat))
      .      +(tmp1*alp6*t6*damp6*r/(r+rs6*R0*R0*rs8)  !d(f_dmp)/d(r_ij)
      .      +3.d0*tmp2*alp8*t8*damp8*r/(r+R0*R0*rs8))*0.5d0
@@ -1427,11 +1429,12 @@ C DGAS Edit
 
           dc6i(iat)=dc6i(iat)+dc6_rest*(dc6iji+dc6ijj)
 !          if (r2.lt.crit_cn)
-          dc6_rest_sum(lin(iat,iat))=dc6_rest_sum(lin(iat,iat))+dc6_rest
+          dc6_rest_sum(nwpwxc_lin(iat,iat))
+     >    =dc6_rest_sum(nwpwxc_lin(iat,iat))+dc6_rest
 
 
           else !r2 < 0.1>rthr
-             drij(tauz,tauy,taux,lin(iat,iat))=0.0d0
+             drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))=0.0d0
           endif
 
 
@@ -1454,7 +1457,7 @@ C DGAS Edit
           r0=r0ab(iz(jat),iz(iat))
           r42=r2r4(iz(iat))*r2r4(iz(jat))
           rcovij=rcov(iz(iat))+rcov(iz(jat))
-          linij=lin(iat,jat)
+          linij=nwpwxc_lin(iat,jat)
  
           dc6ij(iat,jat)=dc6iji
           dc6ij(jat,iat)=dc6ijj
@@ -1568,7 +1571,7 @@ C DGAS Edit
      .          c6,dc6iji,dc6ijj)
 
         dc6ij(iat,iat)=dc6iji
-        c6save(lin(iat,iat))=c6
+        c6save(nwpwxc_lin(iat,iat))=c6
         r42=r2r4(iz(iat))*r2r4(iz(iat))
         rcovij=rcov(iz(iat))+rcov(iz(iat))
 
@@ -1603,7 +1606,8 @@ C DGAS Edit
           t6=(r6+R0**6)
           t8=(r8+R0**8)
 
-          drij(tauz,tauy,taux,lin(iat,iat))=drij(tauz,tauy,taux,lin(iat,
+          drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
+     >    =drij(tauz,tauy,taux,nwpwxc_lin(iat,
      .     iat))
      .        -s6*C6*6.0d0*r4*r/(t6*t6)*0.5d0 ! d(1/(r^(6)+R0^6)/d(r)
      .        -s8*C6*24.0d0*r42*r7/(t8*t8)*0.5d0
@@ -1620,12 +1624,12 @@ C DGAS Edit
 
           dc6i(iat)=dc6i(iat)+dc6_rest*(dc6iji+dc6ijj)
 !          if (r2.lt.crit_cn)
-          dc6_rest_sum(lin(iat,iat))=dc6_rest_sum(lin(iat,iat))+
-     .     dc6_rest
+          dc6_rest_sum(nwpwxc_lin(iat,iat))
+     >    =dc6_rest_sum(nwpwxc_lin(iat,iat))+dc6_rest
 
 
           else !r2 < 0.1>rthr
-             drij(tauz,tauy,taux,lin(iat,iat))=0.0d0
+             drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))=0.0d0
           endif
 
 
@@ -1650,7 +1654,7 @@ C DGAS Edit
  
           R0=a1*dsqrt(3.0d0*r42)+a2
 
-          linij=lin(iat,jat)
+          linij=nwpwxc_lin(iat,jat)
           dc6ij(iat,jat)=dc6iji
           dc6ij(jat,iat)=dc6ijj
           c6save(linij)=c6
@@ -1695,19 +1699,19 @@ C DGAS Edit
           dc6i(iat)=dc6i(iat)+dc6_rest*dc6iji
           dc6i(jat)=dc6i(jat)+dc6_rest*dc6ijj
 !            if (r2.lt.crit_cn) 
-		    dc6_rest_sum(lin(iat,jat))=dc6_rest_sum(linij)
-	     .        +dc6_rest 
+          dc6_rest_sum(nwpwxc_lin(iat,jat))=dc6_rest_sum(linij)
+     >             +dc6_rest 
 
 
-		  enddo !tauz
-		  enddo !tauy
-		  enddo !taux
-	  
-		enddo !jat
+          enddo !tauz
+          enddo !tauy
+          enddo !taux
+ 
+         enddo !jat
 
-	      end if
-	      pcount = pcount + 1
-	      enddo !iat
+      end if
+      pcount = pcount + 1
+      enddo !iat
 
       endif ! version=3 or 4
       if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
@@ -1729,17 +1733,17 @@ C DGAS Edit
         repv=rep_cn
 !        write(*,*)'thr:',sqrt(abcthr)
 
-        call nwpwxc_cpu_time(time1)
+        !call nwpwxc_cpu_time(time1)
         do iat=3,n
           do jat=2,iat-1
-            linij=lin(iat,jat)
+            linij=nwpwxc_lin(iat,jat)
             ijvec=xyz(:,jat)-xyz(:,iat)
           
             c6ij=c6save(linij)
             do kat=1,jat-1
             if (mod(pcount,np).eq.taskid) then !* using - c6save,  adding - drij,dc6i,
-              linik=lin(iat,kat)
-              linjk=lin(jat,kat)
+              linik=nwpwxc_lin(iat,kat)
+              linjk=nwpwxc_lin(jat,kat)
               ikvec=xyz(:,kat)-xyz(:,iat)
               jkvec=xyz(:,kat)-xyz(:,jat)
 
@@ -1867,13 +1871,13 @@ C DGAS Edit
 ! Now the interaction with jat=iat of the triples iat,iat,kat
       DO iat=2,n
         jat=iat
-        linij=lin(iat,jat)
+        linij=nwpwxc_lin(iat,jat)
         ijvec=0.0d0
 
         c6ij=c6save(linij)
         DO kat=1,iat-1
         if (mod(pcount,np).eq.taskid) then  !*** Adding-drij    Using- c6save
-          linjk=lin(jat,kat)
+          linjk=nwpwxc_lin(jat,kat)
           linik=linjk
 
           c6ik=c6save(linik)
@@ -2005,8 +2009,8 @@ C DGAS Edit
         DO jat=1,iat-1
         if (mod(pcount,np).eq.taskid) then   !*Adding - eabc,dc6i,drij
           kat=jat
-          linij=lin(iat,jat)
-          linjk=lin(jat,kat)
+          linij=nwpwxc_lin(iat,jat)
+          linjk=nwpwxc_lin(jat,kat)
           linik=linij
 
           c6ij=c6save(linij)
@@ -2148,9 +2152,9 @@ C DGAS Edit
       jat=iat
       kat=iat
       ijvec=0.0d0
-      linij=lin(iat,jat)
-      linik=lin(iat,kat)
-      linjk=lin(jat,kat)
+      linij=nwpwxc_lin(iat,jat)
+      linik=nwpwxc_lin(iat,kat)
+      linjk=nwpwxc_lin(jat,kat)
       ikvec=ijvec
       jkvec=ikvec
           c6ij=c6save(linij)
@@ -2283,7 +2287,7 @@ C DGAS Edit
       if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,drijsize,'+')
 
 
-        call nwpwxc_cpu_time(time2)
+        !call nwpwxc_cpu_time(time2)
 
 !        write(*,*)' eabc(gdisp):  ',eabc
 !      write(*,'('' time(abc)  '',f6.1)')time2-time1
@@ -2301,7 +2305,7 @@ C DGAS Edit
       do iat=2,n
         do jat=1,iat-1
         if (mod(pcount,np).eq.taskid) then
-          linij=lin(iat,jat)
+          linij=nwpwxc_lin(iat,jat)
 !       write(*,'(3E17.6,XX,2I2)'),drij(0,0,-1:1,lin(iat,jat)),iat,jat
           rcovij=rcov(iz(iat))+rcov(iz(jat))
           do taux=-rep_v(1),rep_v(1)
@@ -2360,7 +2364,7 @@ C DGAS Edit
             else
               dcnn=0.0d0
             endif
-            x1=drij(tauz,tauy,taux,lin(iat,iat))+dcnn*dc6i(iat)
+            x1=drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))+dcnn*dc6i(iat)
             vec=x1*tau/r
             vec2(1)=taux
             vec2(2)=tauy
@@ -2484,7 +2488,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       integer grplist(500,20)
       integer grpn(20),at(n)
       integer ngrp,dash
-      integer lin, iiii, jjjj, iii, jjj, ii, jj, ni, nj 
+      integer nwpwxc_lin, iiii, jjjj, iii, jjj, ii, jj, ni, nj 
       integer iout(500)
       logical ex
       character*80 atmp
@@ -2740,7 +2744,8 @@ c      enddo
                do jj=1,nj
                   jjjj=grplist(jj,j)
                   if(jjjj.lt.iiii)cycle
-                  eg(lin(iii,jjj))=eg(lin(iii,jjj))+ed(iiii,jjjj)
+                  eg(nwpwxc_lin(iii,jjj)) 
+     >             = eg(nwpwxc_lin(iii,jjj))+ed(iiii,jjjj)
                enddo
             enddo
          enddo
