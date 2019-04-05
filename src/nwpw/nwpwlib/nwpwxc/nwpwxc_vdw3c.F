@@ -1,5 +1,4 @@
 
-
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C         B E G I N   O F   P B C   P A R T 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -8,147 +7,134 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 c read coordinates in Angst and converts them to au 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-c      subroutine nwpwxc_pbcrdcoord(fname,lattice,n,xyz,iat,autoang)
-c      implicit none             
-c      interface
-c        subroutine nwpwxc_parse(str,delims,args,nargs)
-c        character(len=*),intent(inout) :: str
-c        character(len=*),intent(in)  :: delims
-c        character(len=*),dimension(:),intent(inout) :: args
-c        integer, intent(out) :: nargs
-c        end subroutine nwpwxc_parse
-c      end interface
-c       
-c      real*8                :: xyz(3,*)
-c      real*8, INTENT(OUT)   ::lattice(3,3)
-c      integer, INTENT(out)               :: iat(*) 
-c      integer, INTENT(in)               :: n 
-c      character*(*), INTENT(IN)          :: fname
-c      logical              :: selective=.FALSE. ! Selective dynamics
-c      logical              :: cartesian=.TRUE.  ! Cartesian or direct
-c      real*8, INTENT(IN)   ::autoang
-c
-c      real*8 xx(10),scalar
-c      character*80 line,args(90),args2(90)
-c      
-c      integer i,j,ich,nn,ntype,ntype2,atnum,i_dummy1,i_dummy2,ncheck
-c
-c
-c      lattice=0
-c      
-c      ich=142
-c      open(unit=ich,file=fname)
-c      rewind(ich)
-c      ncheck=0
-c      ntype=0
-c      read(ich,'(a)',end=200)line !first line must contain Element Info
-c      call nwpwxc_parse(line,' ',args,ntype)
-c      read(ich,'(a)',end=200)line !second line contains global scaling factor
-c      call nwpwxc_readl(line,xx,nn)
-c      scalar=xx(1)/autoang        !the Ang->au conversion is included in the scaling factor
-cc      write(*,'(F8.6)')scalar
-c      DO i=1,3            ! reading the lattice constants
-c        read(ich,'(a)',end=200)line
-c        call nwpwxc_readl(line,xx,nn)
-c        IF (nn < 3) call nwpwxc_stoprun( 'Error reading unit cell vectors' )
-c        lattice(1,i)=xx(1)*scalar
-c        lattice(2,i)=xx(2)*scalar
-c        lattice(3,i)=xx(3)*scalar
-c      !  write(*,'(3F6.2)')lattice(1,i),lattice(2,i),lattice(3,i)
-c      ENDDO
-c      read(ich,'(a)',end=200)line !Ether here are the numbers of each element, or (>vasp.5.1) here are the element symbols
-c      line=adjustl(line)
-c      call nwpwxc_readl(line,xx,nn)
-c      IF (nn.eq.0) then      ! CONTCAR files have additional Element line here since vasp.5.1
-c        call nwpwxc_parse(line,' ',args,ntype)
-c        read(ich,'(a)',end=200)line
-c        line=adjustl(line)
-c        call nwpwxc_readl(line,xx,nn)
-c      ENDIF
-c!       call nwpwxc_elem(args(1),i_dummy2)
-c!       IF (i_dummy2<1 .OR. i_dummy2>94) THEN
-c!          args=args2
-c!       ENDIF
-c      IF (nn.NE.ntype ) THEN
-c!         IF(nn.NE.ntype2) THEN
-c        call nwpwxc_stoprun( 'Error reading number of atomtypes')
-c!         ELSE
-c!           ntype=ntype2
-c!         ENDIF
-c      ENDIF
-c      ncheck=0
-c      DO i=1,nn
-c        i_dummy1=INT(xx(i))
-c        call nwpwxc_elem(args(i),i_dummy2)
-c        IF (i_dummy2<1 .OR. i_dummy2>94) 
-c     .   call nwpwxc_stoprun( 'Error: unknown element.')
-c        DO j=1,i_dummy1
-c          ncheck=ncheck+1
-c          iat(ncheck)=i_dummy2
-c        ENDDO
-c      ENDDO
-c      if (n.ne.ncheck) call nwpwxc_stoprun('Error reading Number of Atoms')
-c
-c      read(ich,'(a)',end=200)line
-c      line=adjustl(line)
-c      IF (line(:1).EQ.'s' .OR. line(:1).EQ.'S') THEN
-c        selective=.TRUE.
-c        read(ich,'(a)',end=200)line
-c        line=adjustl(line)
-c      ENDIF
-c
-cc      write(*,*)line(:1)
-c      cartesian=(line(:1).EQ.'c' .OR. line(:1).EQ.'C' .OR. 
-c     .line(:1).EQ.'k' .OR. line(:1).EQ.'K')
-c      DO i=1,n
-c        read(ich,'(a)',end=200)line
-c        call nwpwxc_readl(line,xx,nn)
-c        IF (nn.NE.3) call nwpwxc_stoprun( 'Error reading coordinates.')
-c
-c        IF (cartesian) THEN
-c          xyz(1,i)=xx(1)*scalar
-c          xyz(2,i)=xx(2)*scalar
-c          xyz(3,i)=xx(3)*scalar
-c        ELSE
-c          xyz(1,i)=lattice(1,1)*xx(1)+lattice(1,2)*
-c     .    xx(2)+lattice(1,3)*xx(3)
-c          xyz(2,i)=lattice(2,1)*xx(1)+lattice(2,2)*xx(2)+lattice(2,3)*
-c     .    xx(3)
-c          xyz(3,i)=lattice(3,1)*xx(1)+lattice(3,2)*xx(2)+lattice(3,3)*
-c     .    xx(3)
-c        ENDIF
-c        
-cc      write(*,321)xyz(:,i),iat(i)   !debug printout
-c      
-c      ENDDO
-c
-c      
-cc      IF line(1)
-c
-cc      lattice(1,*)=xx
-c      
-c
-cc      call nwpwxc_readl(line,xx,nn)
-c      
-c 200  continue
-c
-c      close(ich)
-cc  321 FORMAT(3F20.10,1X,I3) !debug output
-c      end subroutine nwpwxc_pbcrdcoord
+      subroutine nwpwxc_pbcrdcoord(fname,lattice,n,xyz,iat,autoang)
+      implicit none             
+      interface
+        subroutine nwpwxc_parse(str,delims,args,nargs)
+        character(len=*),intent(inout) :: str
+        character(len=*),intent(in)  :: delims
+        character(len=*),dimension(:),intent(inout) :: args
+        integer, intent(out) :: nargs
+        end subroutine nwpwxc_parse
+      end interface
+       
+      real*8                :: xyz(3,*)
+      real*8, INTENT(OUT)   ::lattice(3,3)
+      integer, INTENT(out)               :: iat(*) 
+      integer, INTENT(in)               :: n 
+      character*(*), INTENT(IN)          :: fname
+      logical              :: selective=.FALSE. ! Selective dynamics
+      logical              :: cartesian=.TRUE.  ! Cartesian or direct
+      real*8, INTENT(IN)   ::autoang
+
+      real*8 xx(10),scalar
+      character*200 line
+      character*80 args(90),args2(90)
+      
+      integer i,j,ich,nn,ntype,ntype2,atnum,i_dummy1,i_dummy2,ncheck
+
+
+      lattice=0
+      
+      ich=142
+      open(unit=ich,file=fname)
+      rewind(ich)
+      ncheck=0
+      ntype=0
+      read(ich,'(a)',end=200)line !first line must contain Element Info
+      call nwpwxc_parse(line,' ',args,ntype)
+      read(ich,'(a)',end=200)line !second line contains global scaling factor
+      call nwpwxc_readl(line,xx,nn)
+      scalar=xx(1)/autoang        !the Ang->au conversion is included in the scaling factor
+c      write(*,'(F8.6)')scalar
+      DO i=1,3            ! reading the lattice constants
+        read(ich,'(a)',end=200)line
+        call nwpwxc_readl(line,xx,nn)
+        IF (nn < 3) 
+     >     call nwpwxc_stoprun( 'Error reading unit cell vectors' )
+        lattice(1,i)=xx(1)*scalar
+        lattice(2,i)=xx(2)*scalar
+        lattice(3,i)=xx(3)*scalar
+      !  write(*,'(3F6.2)')lattice(1,i),lattice(2,i),lattice(3,i)
+      ENDDO
+      read(ich,'(a)',end=200)line !Ether here are the numbers of each element, or (>vasp.5.1) here are the element symbols
+      line=adjustl(line)
+      call nwpwxc_readl(line,xx,nn)
+      IF (nn.eq.0) then      ! CONTCAR files have additional Element line here since vasp.5.1
+        call nwpwxc_parse(line,' ',args,ntype)
+        read(ich,'(a)',end=200)line
+        line=adjustl(line)
+        call nwpwxc_readl(line,xx,nn)
+      ENDIF
+!       call elem(args(1),i_dummy2)
+!       IF (i_dummy2<1 .OR. i_dummy2>94) THEN
+!          args=args2
+!       ENDIF
+      IF (nn.NE.ntype ) THEN
+        call nwpwxc_stoprun( 'Error reading number of atomtypes')
+      ENDIF
+      ncheck=0
+      DO i=1,nn
+        i_dummy1=INT(xx(i))
+        call nwpwxc_elem(args(i),i_dummy2)
+        IF (i_dummy2<1 .OR. i_dummy2>94) 
+     .   call nwpwxc_stoprun( 'Error: unknown element.')
+        DO j=1,i_dummy1
+          ncheck=ncheck+1
+          iat(ncheck)=i_dummy2
+        ENDDO
+      ENDDO
+      if (n.ne.ncheck) 
+     >   call nwpwxc_stoprun('Error reading Number of Atoms')
+
+      read(ich,'(a)',end=200)line
+      line=adjustl(line)
+      IF (line(:1).EQ.'s' .OR. line(:1).EQ.'S') THEN
+        selective=.TRUE.
+        read(ich,'(a)',end=200)line
+        line=adjustl(line)
+      ENDIF
+
+c      write(*,*)line(:1)
+      cartesian=(line(:1).EQ.'c' .OR. line(:1).EQ.'C' .OR. 
+     .line(:1).EQ.'k' .OR. line(:1).EQ.'K')
+      DO i=1,n
+        read(ich,'(a)',end=200)line
+        call nwpwxc_readl(line,xx,nn)
+        IF (nn.NE.3) call nwpwxc_stoprun( 'Error reading coordinates.')
+
+        IF (cartesian) THEN
+          xyz(1,i)=xx(1)*scalar
+          xyz(2,i)=xx(2)*scalar
+          xyz(3,i)=xx(3)*scalar
+        ELSE
+          xyz(1,i)=lattice(1,1)*xx(1)+lattice(1,2)*
+     .    xx(2)+lattice(1,3)*xx(3)
+          xyz(2,i)=lattice(2,1)*xx(1)+lattice(2,2)*xx(2)+lattice(2,3)*
+     .    xx(3)
+          xyz(3,i)=lattice(3,1)*xx(1)+lattice(3,2)*xx(2)+lattice(3,3)*
+     .    xx(3)
+        ENDIF
+        
+c      write(*,'(3F20.10,1X,I3)')xyz(:,i),iat(i)   !debug printout
+      
+      ENDDO
+      
+      
+ 200  continue
+
+      close(ich)
+      end subroutine nwpwxc_pbcrdcoord
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C compute coordination numbers by adding an inverse damping function
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-      subroutine nwpwxc_pbcncoord(natoms,rcov,iz,xyz,cn,lat,
-     >                            rep_cn,crit_cn)
+      subroutine nwpwxc_pbcncoord(natoms,rcov,iz,xyz,cn,
+     >                            lat,rep_cn,crit_cn)
       implicit none  
       !include 'param'
-
-#include "global.fh"
-#include "msgtypesf.h" 
-
       real*8 k1,k2,k3
 
 c global ad hoc parameters
@@ -174,122 +160,106 @@ c values >5 might lead to bumps in the potential
       integer iat,taux,tauy,tauz    
       real*8 dx,dy,dz,r,damp,xn,rr,rco,tau(3)
       real*8, INTENT(IN) :: crit_cn
-      integer taskid,np,pcount
-
-      call dcopy(natoms,0.0d0,0,cn,1)
-      taskid = GA_Nodeid()
-      np     = GA_Nnodes()
-      pcount = 0
 
       do i=1,natoms
       xn=0.0d0
       do iat=1,natoms
-
-        if (mod(pcount,np).eq.taskid) then
-
         do taux=-rep_cn(1),rep_cn(1)
-         do tauy=-rep_cn(2),rep_cn(2)
-          do tauz=-rep_cn(3),rep_cn(3)
-            if(iat.eq.i .and. taux.eq.0 .and. tauy.eq.0 .and. 
-     .       tauz.eq.0)        cycle
-            tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
-            dx=xyz(1,iat)-xyz(1,i)+tau(1)
-            dy=xyz(2,iat)-xyz(2,i)+tau(2)
-            dz=xyz(3,iat)-xyz(3,i)+tau(3)
-            r=(dx*dx+dy*dy+dz*dz)
-            if (r.gt.crit_cn) cycle
-            r=sqrt(r)
+        do tauy=-rep_cn(2),rep_cn(2)
+        do tauz=-rep_cn(3),rep_cn(3)
+          if(iat.eq.i .and. taux.eq.0 .and. tauy.eq.0 .and. 
+     .      tauz.eq.0)        cycle
+          tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
+          dx=xyz(1,iat)-xyz(1,i)+tau(1)
+          dy=xyz(2,iat)-xyz(2,i)+tau(2)
+          dz=xyz(3,iat)-xyz(3,i)+tau(3)
+          r=(dx*dx+dy*dy+dz*dz)
+          if (r.gt.crit_cn) cycle
+          r=sqrt(r)
 c covalent distance in Bohr
-            rco=rcov(iz(i))+rcov(iz(iat))
-            rr=rco/r
+          rco=rcov(iz(i))+rcov(iz(iat))
+          rr=rco/r
 c counting function exponential has a better long-range behavior than MHGs inverse damping
-            damp=1.d0/(1.d0+exp(-k1*(rr-1.0d0)))
-            xn=xn+damp
+          damp=1.d0/(1.d0+exp(-k1*(rr-1.0d0)))
+          xn=xn+damp
 c            print '("cn(",I2,I2,"): ",E14.8)',i,iat,damp
 
-          enddo !tauz
-         enddo !tauy
+        enddo !tauz
+        enddo !tauy
         enddo !taux
-
-        end if
-        pcount = pcount + 1
-
       enddo !iat
       cn(i)=xn  
       enddo !i
 
-
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,cn,natoms,'+')
-
-
       end subroutine nwpwxc_pbcncoord
 
-c      subroutine nwpwxc_pbcrdatomnumber(fname,n)
-c      implicit none             
-c      interface
-c        subroutine nwpwxc_parse(str,delims,args,nargs)
-c        character(len=*),intent(inout) :: str
-c        character(len=*),intent(in)  :: delims
-c        character(len=*),dimension(:),intent(inout) :: args
-c        integer, intent(out) :: nargs
-c        end subroutine nwpwxc_parse
-c      end interface
-c       
-c      integer, INTENT(out)               :: n 
-c      character*(*), INTENT(IN)          :: fname
-c      logical              :: selective=.FALSE. ! Selective dynamics
-c      logical              :: cartesian=.TRUE.  ! Cartesian or direct
-c
-c      real*8 xx(10),scalar,fdum
-c      character*80 line,args(90),args2(90)
-c      
-c      integer i,j,ich,nn,ntype,ntype2,atnum,i_dummy1,i_dummy2
-c      
-c      ich=142
-c      open(unit=ich,file=fname)
-c      n=0
-c      ntype=0
-c      read(ich,'(a)',end=200)line !first line must contain Element Info
-c      call nwpwxc_parse(line,' ',args,ntype)
-c      read(ich,'(a)',end=200)line !second line contains global scaling factor
-c      call nwpwxc_readl(line,xx,nn)
-cc      write(*,'(F8.6)')scalar
-c      DO i=1,3            ! reading the lattice constants
-c        read(ich,'(a)',end=200)line
-c        call nwpwxc_readl(line,xx,nn)
-c        IF (nn < 3) call nwpwxc_stoprun( 'Error reading unit cell vectors' )
-c      !  write(*,'(3F6.2)')lattice(1,i),lattice(2,i),lattice(3,i)
-c      ENDDO
-c      read(ich,'(a)',end=200)line !Ether here are the numbers of each element, or (>vasp.5.1) here are the element symbols
-c      line=adjustl(line)
-c      call nwpwxc_readl(line,xx,nn)
-c      IF (nn.eq.0) then      ! CONTCAR files have additional Element line here since vasp.5.1
-c        call nwpwxc_parse(line,' ',args,ntype)
-c        read(ich,'(a)',end=200)line
-c        line=adjustl(line)
-c        call nwpwxc_readl(line,xx,nn)
-c      ENDIF
-c!       call nwpwxc_elem(args(1),i_dummy2)
-c!       IF (i_dummy2<1 .OR. i_dummy2>94) THEN
-c!          args=args2
-c!       ENDIF
-c      IF (nn.NE.ntype ) THEN
-c!         IF(nn.NE.ntype2) THEN
-c        call nwpwxc_stoprun( 'Error reading number of atomtypes')
-c!         ELSE
-c!           ntype=ntype2
-c!         ENDIF
-c      ENDIF
-c      n=0
-c      DO i=1,nn
-c        i_dummy1=INT(xx(i))
-c          n=n+i_dummy1
-c      ENDDO
-c
-c 200  continue
-c
-c      close(ich)
-c      end subroutine nwpwxc_pbcrdatomnumber
+      subroutine nwpwxc_pbcrdatomnumber(fname,n)
+      implicit none             
+      interface
+        subroutine nwpwxc_parse(str,delims,args,nargs)
+        character(len=*),intent(inout) :: str
+        character(len=*),intent(in)  :: delims
+        character(len=*),dimension(:),intent(inout) :: args
+        integer, intent(out) :: nargs
+        end subroutine nwpwxc_parse
+      end interface
+       
+      integer, INTENT(out)               :: n 
+      character*(*), INTENT(IN)          :: fname
+      logical              :: selective=.FALSE. ! Selective dynamics
+      logical              :: cartesian=.TRUE.  ! Cartesian or direct
+
+      real*8 xx(10),scalar,fdum
+      character*80 line,args(90),args2(90)
+      
+      integer i,j,ich,nn,ntype,ntype2,atnum,i_dummy1,i_dummy2
+      
+      ich=142
+      open(unit=ich,file=fname)
+      n=0
+      ntype=0
+      read(ich,'(a)',end=200)line !first line must contain Element Info
+      call nwpwxc_parse(line,' ',args,ntype)
+      read(ich,'(a)',end=200)line !second line contains global scaling factor
+      call nwpwxc_readl(line,xx,nn)
+c      write(*,'(F8.6)')scalar
+      DO i=1,3            ! reading the lattice constants
+        read(ich,'(a)',end=200)line
+        call nwpwxc_readl(line,xx,nn)
+        IF (nn < 3) 
+     >     call nwpwxc_stoprun( 'Error reading unit cell vectors' )
+      !  write(*,'(3F6.2)')lattice(1,i),lattice(2,i),lattice(3,i)
+      ENDDO
+      read(ich,'(a)',end=200)line !Ether here are the numbers of each element, or (>vasp.5.1) here are the element symbols
+      line=adjustl(line)
+      call nwpwxc_readl(line,xx,nn)
+      IF (nn.eq.0) then      ! CONTCAR files have additional Element line here since vasp.5.1
+        call nwpwxc_parse(line,' ',args,ntype)
+        read(ich,'(a)',end=200)line
+        line=adjustl(line)
+        call nwpwxc_readl(line,xx,nn)
+      ENDIF
+!       call elem(args(1),i_dummy2)
+!       IF (i_dummy2<1 .OR. i_dummy2>94) THEN
+!          args=args2
+!       ENDIF
+      IF (nn.NE.ntype ) THEN
+!         IF(nn.NE.ntype2) THEN
+        call nwpwxc_stoprun( 'Error reading number of atomtypes')
+!         ELSE
+!           ntype=ntype2
+!         ENDIF
+      ENDIF
+      n=0
+      DO i=1,nn
+        i_dummy1=INT(xx(i))
+          n=n+i_dummy1
+      ENDDO
+
+ 200  continue
+
+      close(ich)
+      end subroutine nwpwxc_pbcrdatomnumber
 
 
 
@@ -302,10 +272,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
      .           e6,e8,e10,e12,e63,lat,rthr,rep_vdw,cn_thr,rep_cn)
       implicit none  
-
-#include "global.fh"
-#include "msgtypesf.h"
-
       integer max_elem,maxc
       real*8 r2r4(max_elem),rcov(max_elem)
       real*8 rs6,rs8,rs10,alp6,alp8,alp10
@@ -320,21 +286,24 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       logical noabc
  
       integer iat,jat,kat
-      real*8 r,r2,r6,r8,tmp,dx,dy,dz,c6,c8,c10,ang,rav
+      real*8 r,r2,r6,r8,tmp,dx,dy,dz,c6,c8,c10,ang,rav,R0
       real*8 damp6,damp8,damp10,rr,thr,c9,r42,c12,r10,c14
       real*8 cn(n),rxyz(3),dxyz(3)
       real*8 r2ab(n*n),cc6ab(n*n),dmp(n*n),d2(3),t1,t2,t3,tau(3)
-      integer*2 icomp(n*n)
       integer nwpwxc_lin,ij,ik,jk
       integer taux,tauy,tauz,counter
       real*8 a1,a2  !BJ-parameter
       real*8 bj_dmp6,bj_dmp8
+      real*8 tmp1,tmp2
+
+#include "global.fh"
+#include "msgtypesf.h"
+
       integer taskid,np,pcount
 
       np     = GA_Nnodes()
       taskid = GA_Nodeid()
       pcount = 0
-
 
 
       e6 =0
@@ -348,6 +317,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 c Becke-Johnson parameters
       a1=rs6
       a2=rs8      
+      cc6ab = 0.0d0
       
 
 
@@ -356,33 +326,32 @@ C DFT-D2
 
 
       do iat=1,n-1
-         do jat=iat+1,n
-         if (mod(pcount,np).eq.taskid) then
-           c6=c6ab(iz(jat),iz(iat),1,1,1)
-           do taux=-rep_vdw(1),rep_vdw(1)
-           do tauy=-rep_vdw(2),rep_vdw(2)
-           do tauz=-rep_vdw(3),rep_vdw(3)
+        do jat=iat+1,n
+          if (mod(pcount,np).eq.taskid) then
+          c6=c6ab(iz(jat),iz(iat),1,1,1)
+          do taux=-rep_vdw(1),rep_vdw(1)
+          do tauy=-rep_vdw(2),rep_vdw(2)
+          do tauz=-rep_vdw(3),rep_vdw(3)
             tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
             dx=xyz(1,iat)-xyz(1,jat)+tau(1)
             dy=xyz(2,iat)-xyz(2,jat)+tau(2)
             dz=xyz(3,iat)-xyz(3,jat)+tau(3)
             r2=dx*dx+dy*dy+dz*dz
-           if(r2.gt.rthr) cycle
+            if(r2.gt.rthr) cycle
             r=sqrt(r2)
             damp6=1./(1.+exp(-alp6*(r/(rs6*r0ab(iz(jat),iz(iat)))-1.)))
             r6=r2**3      
             e6 =e6+c6*damp6/r6
-            counter=counter+1
-           enddo !taux
-           enddo !tauy
-           enddo !tauz
-         end if
-         pcount = pcount + 1
-         enddo
+          enddo !taux
+          enddo !tauy
+          enddo !tauz
+        end if 
+        pcount = pcount + 1
+        enddo
       enddo
       
       do iat=1,n
-      if (mod(pcount,np).eq.taskid) then
+        if (mod(pcount,np).eq.taskid) then
         jat=iat
         c6=c6ab(iz(jat),iz(iat),1,1,1)
         do taux=-rep_vdw(1),rep_vdw(1)
@@ -399,90 +368,96 @@ C DFT-D2
           damp6=1./(1.+exp(-alp6*(r/(rs6*r0ab(iz(jat),iz(iat)))-1.)))
           r6=r2**3      
           e6 =e6+c6*damp6/r6*0.50d0
-          counter=counter+1
         enddo
         enddo
         enddo
-      end if
+      end if 
       pcount = pcount + 1
       enddo !iat
-!      write(*,*)'counter: ',counter
-
       if (np.gt.1) call GA_DGOP(9+MSGDBL,e6,1,'+')
       
       
 
-      else if (version.eq.3) then
+      else if ((version.eq.3).or.(version.eq.5)) then
 C DFT-D3(zero-damping)
 
-      call dcopy(n*n,0.0d0,0,cc6ab,1)
+        call nwpwxc_pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
 
-      call nwpwxc_pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
-
-      icomp=0
-      do iat=1,n-1
-         do jat=iat+1,n
-         if (mod(pcount,np).eq.taskid) then
+        do iat=1,n-1
+          do jat=iat+1,n
+          if (mod(pcount,np).eq.taskid) then
 c get C6
-          call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
+            call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
      .                                  cn(iat),cn(jat),c6)
-
-           do taux=-rep_vdw(1),rep_vdw(1)
-           do tauy=-rep_vdw(2),rep_vdw(2)
-           do tauz=-rep_vdw(3),rep_vdw(3)
-            tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
-
-            dx=xyz(1,iat)-xyz(1,jat)+tau(1)
-            dy=xyz(2,iat)-xyz(2,jat)+tau(2)
-            dz=xyz(3,iat)-xyz(3,jat)+tau(3)
-            r2=dx*dx+dy*dy+dz*dz
-c cutoff
-
-           if(r2.gt.rthr) cycle
-            r =sqrt(r2)
-            rr=r0ab(iz(jat),iz(iat))/r
-c damping
-            tmp=rs6*rr   
-            damp6 =1.d0/( 1.d0+6.d0*tmp**alp6 )
-            tmp=rs8*rr     
-            damp8 =1.d0/( 1.d0+6.d0*tmp**alp8 )
 
             if(.not.noabc)then
               ij=nwpwxc_lin(jat,iat)
-              icomp(ij)=1
 c store C6 for C9, calc as sqrt
               cc6ab(ij)=sqrt(c6)
             endif
+            do taux=-rep_vdw(1),rep_vdw(1)
+            do tauy=-rep_vdw(2),rep_vdw(2)
+            do tauz=-rep_vdw(3),rep_vdw(3)
+              tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
 
-            r6=r2**3      
-            e6 =e6+c6*damp6/r6
+              dx=xyz(1,iat)-xyz(1,jat)+tau(1)
+              dy=xyz(2,iat)-xyz(2,jat)+tau(2)
+              dz=xyz(3,iat)-xyz(3,jat)+tau(3)
+              r2=dx*dx+dy*dy+dz*dz
+c cutoff
+
+              if(r2.gt.rthr) cycle
+              r =sqrt(r2)
+              R0=r0ab(iz(jat),iz(iat))
+              rr=R0/r
+c damping
+              if(version.eq.3)then
+C DFT-D3 zero-damp
+                tmp=rs6*rr   
+                damp6 =1.d0/( 1.d0+6.d0*tmp**alp6 )
+                tmp=rs8*rr     
+                damp8 =1.d0/( 1.d0+6.d0*tmp**alp8 )
+              else
+C DFT-D3M zero-damp
+                tmp=(r/(rs6*R0))+rs8*R0
+                damp6 =1.d0/( 1.d0+6.d0*tmp**(-alp6) )
+                tmp=(r/R0)+rs8*R0
+                damp8 =1.d0/( 1.d0+6.d0*tmp**(-alp8) )
+              endif
+
+
+              r6=r2**3      
+              e6 =e6+damp6/r6* c6
 c             write(*,*)'e6: ',c6*damp6/r6*autokcal
 
 c stored in main as sqrt
-            c8 =3.0d0*c6*r2r4(iz(iat))*r2r4(iz(jat))
-            r8 =r6*r2
+              c8 =3.0d0*r2r4(iz(iat))*r2r4(iz(jat))*c6
+              r8 =r6*r2
 
-            e8 =e8+c8*damp8/r8
+              e8 =e8+c8*damp8/r8
 
-            counter=counter+1
-
-           enddo !tauz
-           enddo !tauy
-           enddo !taux
-         end if
-         pcount = pcount + 1
-         enddo !jat
-      enddo !iat
+            enddo !tauz
+            enddo !tauy
+            enddo !taux
+          end if 
+          pcount = pcount + 1
+          enddo !jat
+        enddo !iat
       
-      do iat=1,n
-      if (mod(pcount,np).eq.taskid) then
-        jat=iat
+        do iat=1,n
+        if (mod(pcount,np).eq.taskid) then
+          jat=iat
 c get C6
-        call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
+          call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
      .                                  cn(iat),cn(jat),c6)
          
-        do taux=-rep_vdw(1),rep_vdw(1)
-         do tauy=-rep_vdw(2),rep_vdw(2)
+          if(.not.noabc)then
+            ij=nwpwxc_lin(jat,iat)
+c store C6 for C9, calc as sqrt
+          cc6ab(ij)=sqrt(c6)
+          endif
+          do taux=-rep_vdw(1),rep_vdw(1)
+          do tauy=-rep_vdw(2),rep_vdw(2)
           do tauz=-rep_vdw(3),rep_vdw(3)
             if (taux.eq.0 .and. tauy.eq.0 .and. tauz.eq.0) cycle
             tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
@@ -492,133 +467,128 @@ c get C6
             dz=tau(3)
             r2=dx*dx+dy*dy+dz*dz
 c cutoff
-           if(r2.gt.rthr) cycle
+            if(r2.gt.rthr) cycle
             r =sqrt(r2)
-            rr=r0ab(iz(jat),iz(iat))/r
-c damping
-            tmp=rs6*rr   
-            damp6 =1.d0/( 1.d0+6.d0*tmp**alp6 )
-            tmp=rs8*rr     
-            damp8 =1.d0/( 1.d0+6.d0*tmp**alp8 )
+            R0=r0ab(iz(jat),iz(iat))
+            rr=R0/r
 
-            if(.not.noabc)then
-              ij=nwpwxc_lin(jat,iat)
-              icomp(ij)=1
-c store C6 for C9, calc as sqrt
-              cc6ab(ij)=sqrt(c6)
+            if(version.eq.3)then
+C DFT-D3 zero-damp
+              tmp=rs6*rr   
+              damp6 =1.d0/( 1.d0+6.d0*tmp**alp6 )
+              tmp=rs8*rr     
+              damp8 =1.d0/( 1.d0+6.d0*tmp**alp8 )
+            else
+C DFT-D3M zero-damp
+              tmp=(r/(rs6*R0))+rs8*R0
+              damp6 =1.d0/( 1.d0+6.d0*tmp**(-alp6) )
+              tmp=(r/R0)+rs8*R0
+              damp8 =1.d0/( 1.d0+6.d0*tmp**(-alp8) )
             endif
+
 
             r6=r2**3      
 
-            e6 =e6+c6*damp6/r6*0.50d0
+            e6 =e6+damp6/r6*0.50d0 *C6
 
 c stored in main as sqrt
-            c8 =3.0d0*c6*r2r4(iz(iat))*r2r4(iz(jat))
+            c8 =3.0d0*r2r4(iz(iat))*r2r4(iz(jat)) *C6
             r8 =r6*r2
 
             e8 =e8+c8*damp8/r8*0.50d0
             counter=counter+1
 
-         enddo !tauz
-        enddo !tauy
-       enddo !taux
-      end if
-      pcount = pcount + 1
-      enddo !iat
+          enddo !tauz
+          enddo !tauy
+          enddo !taux
+        end if 
+        pcount = pcount + 1
+        enddo !iat
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,e6,1,'+')
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,e8,1,'+')
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,cc6ab,n*n,'+')
 !      write(*,*)'counter(edisp): ',counter
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,e6,1,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,e8,1,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,cc6ab,n*n,'+')
+      else if((version.eq.4).or.(version.eq.6)) then
 
-      else if (version.eq.4) then
-
-      call dcopy(n*n,0.0d0,0,cc6ab,1)
 
 C DFT-D3(BJ-damping)
-      call nwpwxc_pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
+        call nwpwxc_pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
 
-      icomp=0
-      do iat=1,n
-         do jat=iat+1,n
-         if (mod(pcount,np).eq.taskid) then
+        do iat=1,n
+        if (mod(pcount,np).eq.taskid) then
+          do jat=iat+1,n
 c get C6
-           call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
+            call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
      .                                  cn(iat),cn(jat),c6)
 
-           rxyz=xyz(:,iat)-xyz(:,jat)
-           r42=r2r4(iz(iat))*r2r4(iz(jat))
-           bj_dmp6=(a1*dsqrt(3.0d0*r42)+a2)**6
-           bj_dmp8=(a1*dsqrt(3.0d0*r42)+a2)**8
-
-           do taux=-rep_vdw(1),rep_vdw(1)
-           do tauy=-rep_vdw(2),rep_vdw(2)
-           do tauz=-rep_vdw(3),rep_vdw(3)
-            tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
-            
-            dxyz=rxyz+tau
-
-            r2=sum(dxyz*dxyz)
-c cutoff
-           if(r2.gt.rthr) cycle
-            r =sqrt(r2)
-            rr=r0ab(iz(jat),iz(iat))/r
+            rxyz=xyz(:,iat)-xyz(:,jat)
+            r42=r2r4(iz(iat))*r2r4(iz(jat))
+            bj_dmp6=(a1*dsqrt(3.0d0*r42)+a2)**6
+            bj_dmp8=(a1*dsqrt(3.0d0*r42)+a2)**8
 
             if(.not.noabc)then
               ij=nwpwxc_lin(jat,iat)
-              icomp(ij)=1
 c store C6 for C9, calc as sqrt
               cc6ab(ij)=sqrt(c6)
             endif
+            do taux=-rep_vdw(1),rep_vdw(1)
+            do tauy=-rep_vdw(2),rep_vdw(2)
+            do tauz=-rep_vdw(3),rep_vdw(3)
+              tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
+            
+              dxyz=rxyz+tau
 
-            r6=r2**3      
+              r2=sum(dxyz*dxyz)
+c cutoff
+              if(r2.gt.rthr) cycle
+              r =sqrt(r2)
+              rr=r0ab(iz(jat),iz(iat))/r
 
-            e6 =e6+c6/(r6+bj_dmp6)
-c            write(*,*)'e6: ',e6
+
+              r6=r2**3      
+
+              e6 =e6+c6/(r6+bj_dmp6)
 
 c stored in main as sqrt
-            c8 =3.0d0*c6*r42
-            r8 =r6*r2
+              c8 =3.0d0*c6*r42
+              r8 =r6*r2
 
-            e8 =e8+c8/(r8+bj_dmp8)
+              e8 =e8+c8/(r8+bj_dmp8)
 
-            counter=counter+1
+              counter=counter+1
 
-           enddo !tauz
-           enddo !tauy
-           enddo !taux
-         end if
-         pcount = pcount + 1
-         enddo !jat
-
-         if (mod(pcount,np).eq.taskid) then
+            enddo !tauz
+            enddo !tauy
+            enddo !taux
+          enddo !jat
 
 ! Now the self interaction
-        jat=iat
+          jat=iat
 c get C6
-        call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
+          call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
      .                                  cn(iat),cn(jat),c6)
-        r42=r2r4(iz(iat))*r2r4(iz(iat))
-        bj_dmp6=(a1*dsqrt(3.0d0*r42)+a2)**6
-        bj_dmp8=(a1*dsqrt(3.0d0*r42)+a2)**8
-         
-        do taux=-rep_vdw(1),rep_vdw(1)
-         do tauy=-rep_vdw(2),rep_vdw(2)
+          r42=r2r4(iz(iat))*r2r4(iz(iat))
+          bj_dmp6=(a1*dsqrt(3.0d0*r42)+a2)**6
+          bj_dmp8=(a1*dsqrt(3.0d0*r42)+a2)**8
+           
+          if(.not.noabc)then
+            ij=nwpwxc_lin(jat,iat)
+c store C6 for C9, calc as sqrt
+            cc6ab(ij)=dsqrt(c6)
+          endif
+
+          do taux=-rep_vdw(1),rep_vdw(1)
+          do tauy=-rep_vdw(2),rep_vdw(2)
           do tauz=-rep_vdw(3),rep_vdw(3)
             if (taux.eq.0 .and. tauy.eq.0 .and. tauz.eq.0) cycle
             tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
 
             r2=sum(tau*tau)
 c cutoff
-           if(r2.gt.rthr) cycle
+            if(r2.gt.rthr) cycle
             r =sqrt(r2)
             rr=r0ab(iz(jat),iz(iat))/r
 
-            if(.not.noabc)then
-              ij=nwpwxc_lin(jat,iat)
-              icomp(ij)=1
-c store C6 for C9, calc as sqrt
-              cc6ab(ij)=sqrt(c6)
-            endif
 
             r6=r2**3      
 
@@ -631,23 +601,15 @@ c stored in main as sqrt
             e8 =e8+c8/(r8+bj_dmp8)*0.50d0
             counter=counter+1
 
-
-c           r10=r8*r2
-c           c10=(49.0d0/40.0d0)*c8*c8/c6
-c           e10=e10+c10*damp8 /r10       
-c           c12=c6*(c10/c8)**3 
-c           e12=e12+c12*damp8 /(r10*r2)
-c           c14=c8*(c12/c10)**3 
-c           e12=e12+c14*damp8 /(r10*r2*r2)
-         enddo !tauz
-        enddo !tauy
-       enddo !taux
-      end if
-      pcount = pcount + 1
-      enddo !iat
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,e6,1,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,e8,1,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,cc6ab,n*n,'+')
+          enddo !tauz
+          enddo !tauy
+          enddo !taux
+        end if 
+        pcount = pcount + 1
+        enddo !iat
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,e6,1,'+')
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,e8,1,'+')
+        if (np.gt.1) call GA_DGOP(9+MSGDBL,cc6ab,n*n,'+')
 
 
       endif !version
@@ -656,34 +618,39 @@ c           e12=e12+c14*damp8 /(r10*r2*r2)
       if(noabc)return
 
 C compute non-additive third-order energy using averaged C6
-!      call nwpwxc_stoprun( 'Threebodyterm not jet  implemented' )
-       call nwpwxc_pbcthreebody(max_elem,xyz,lat,n,iz,rep_cn,cc6ab,
-     >                          r0ab,e63)
+       call nwpwxc_pbcthreebody(max_elem,xyz,lat,n,iz,rep_cn,crit_cn,
+     .                   cc6ab,r0ab,e63)
 
       end subroutine nwpwxc_pbcedisp
 
 
-      SUBROUTINE nwpwxc_pbcthreebody(max_elem,xyz,lat,n,iz,repv,cc6ab,
-     >           r0ab,eabc)
+      SUBROUTINE nwpwxc_pbcthreebody(max_elem,xyz,lat,n,iz,repv,
+     >            cnthr,cc6ab,
+     .            r0ab,eabc)
       IMPLICIT NONE
       integer max_elem
       INTEGER         :: n,i,j,k,jtaux,jtauy,jtauz,iat,jat,kat
-      INTEGER         :: ktaux,ktauy,ktauz,counter,ij,ik,jk
+      INTEGER         :: ktaux,ktauy,ktauz,counter,ij,ik,jk,idum
       REAL*8          :: dx,dy,dz,rij2,rik2,rjk2,c9,rr0ij,rr0ik
-      REAL*8          :: rr0jk,geomean,fdamp,rik,rjk,rij,tmp
+      REAL*8          :: rr0jk,geomean,fdamp,rik,rjk,rij
+      REAL*8          :: r0ij,r0ik,r0jk
       REAL*8,INTENT(OUT)::eabc
-      REAL*8          :: cosij,cosik,cosjk !cosine of the triangular by "law of cosine"
-                                           ! cosij is the angle opposite to the side ij
+      REAL*8          :: tmp,tmp1,tmp2,tmp3,tmp4,ang
+                                           
       REAL*8 ,DIMENSION(3,3),INTENT(IN)::lat
       REAL*8 ,DIMENSION(3,*),INTENT(IN) :: xyz
       INTEGER,DIMENSION(*),INTENT(IN)::iz
       REAL*8,DIMENSION(3):: jtau,ktau,jxyz,kxyz,ijvec,ikvec,jkvec,dumvec
       INTEGER,DIMENSION(3):: repv
+      REAL*8,INTENT(IN) ::cnthr
       REAL*8,DIMENSION(n*n),INTENT(IN)::cc6ab
       REAL*8,DIMENSION(max_elem,max_elem),INTENT(IN):: r0ab
       REAL*8,PARAMETER::sr9=0.75d0    !reciprocal radii scaling parameter for damping function (s_r=4/3)
       REAL*8,PARAMETER::alp9=-16.0d0  !alpha saved with "-" sign
       INTEGER,EXTERNAL :: nwpwxc_lin
+      REAL*8 :: abcthr
+      INTEGER, DIMENSION(3) :: repmin,repmax
+!      REAL*8   :: time1,time2
 
 #include "global.fh"
 #include "msgtypesf.h"
@@ -694,70 +661,76 @@ C compute non-additive third-order energy using averaged C6
       taskid = GA_Nodeid()
       pcount = 0
 
-
       counter=0
       eabc=0.0d0
+      abcthr=cnthr
+!      abcthr=1.0d99
+!      write(*,*)'thr:',(abcthr)
 
-      do iat=1,n-2
-        do jat=iat+1,n-1
-        if (mod(pcount,np).eq.taskid) then
+!      call cpu_time(time1)
+
+      do iat=3,n
+        do jat=2,iat-1
           ijvec=xyz(:,jat)-xyz(:,iat)
           ij=nwpwxc_lin(iat,jat)
-          do kat=jat+1,n
-!         write(*,*)'i:',iat,'j:',jat,'k:',kat
+          r0ij=r0ab(iz(iat),iz(jat))
+          do kat=1,jat-1
+          if (mod(pcount,np).eq.taskid) then
             ik=nwpwxc_lin(iat,kat)
             jk=nwpwxc_lin(jat,kat)
             ikvec=xyz(:,kat)-xyz(:,iat)
             jkvec=xyz(:,kat)-xyz(:,jat)
             c9=-1.0d0*(cc6ab(ij)*cc6ab(ik)*cc6ab(jk))
-!            write(*,*)'c9: ',c9
 
+            r0ik=r0ab(iz(iat),iz(kat))
+            r0jk=r0ab(iz(jat),iz(kat))
 
 
             do jtaux=-repv(1),repv(1)
+              repmin(1)=max(-repv(1),jtaux-repv(1))
+              repmax(1)=min(repv(1),jtaux+repv(1))
             do jtauy=-repv(2),repv(2)
+              repmin(2)=max(-repv(2),jtauy-repv(2))
+              repmax(2)=min(repv(2),jtauy+repv(2))
             do jtauz=-repv(3),repv(3)
+              repmin(3)=max(-repv(3),jtauz-repv(3))
+              repmax(3)=min(repv(3),jtauz+repv(3))
               jtau=jtaux*lat(:,1)+jtauy*lat(:,2)+jtauz*lat(:,3)
               dumvec=ijvec+jtau
               dumvec=dumvec*dumvec
               rij2=SUM(dumvec)
-              rij=SQRT(rij2)
+              if(rij2.gt.abcthr)cycle
 
-              rr0ij=rij/r0ab(iz(iat),iz(jat))
-!              write(*,*)'r0ij:',r0ab(iz(iat),iz(jat))
-!              write(*,*)'rr0ij:',rr0ij**1./3.
+              rr0ij=DSQRT(rij2)/r0ij
 
 
-              do ktaux=-repv(1),repv(1)
-              do ktauy=-repv(2),repv(2)
-              do ktauz=-repv(3),repv(3)
+              do ktaux=repmin(1),repmax(1)
+              do ktauy=repmin(2),repmax(2)
+              do ktauz=repmin(3),repmax(3)
                 ktau=ktaux*lat(:,1)+ktauy*lat(:,2)+ktauz*lat(:,3)
                 dumvec=ikvec+ktau
                 dumvec=dumvec*dumvec
                 rik2=SUM(dumvec)
-                rik=DSQRT(rik2)
-                rr0ik=rik/r0ab(iz(iat),iz(kat))
+                if(rik2.gt.abcthr)cycle
+                rr0ik=DSQRT(rik2)/r0ik
 
                 dumvec=jkvec+ktau-jtau
-                dumvec=dumvec*dumvec
-                rjk2=SUM(dumvec)
-                rjk=DSQRT(rjk2)
-                rr0jk=rjk/r0ab(iz(jat),iz(kat))
-!                write(*,*)'rr:',1.0/rr0jk
+                rjk2=SUM(dumvec*dumvec)
+                if(rjk2.gt.abcthr)cycle
+                rr0jk=DSQRT(rjk2)/r0jk
+
 
                 geomean=(rr0ij*rr0ik*rr0jk)**(1.0d0/3.0d0)
 !               write(*,*)'geomean:',geomean
                 fdamp=1./(1.+6.*(sr9*geomean)**alp9)  !alp9 is already saved with "-"
-                cosij=(rik2+rjk2-rij2)/(2.*rik*rjk)
-                cosik=(rij2+rjk2-rik2)/(2.*rij*rjk)
-                cosjk=(rij2+rik2-rjk2)/(2.*rik*rij)
-                tmp=c9*(3.*cosij*cosik*cosjk+1)/
-     .                 (rij*rik*rjk*rij2*rik2*rjk2)
-!      write(*,*)'fdmp:',fdamp
-!       write(*,*)'ang:',3.*cosij*cosik*cosjk+1 
-                eabc=eabc+fdamp*tmp
-!                write(*,'(''ktau'',3I2)'),ktaux,ktauy,ktauz
-                counter=counter+1
+                tmp1 = (rij2+rjk2-rik2)
+                tmp2 = (rij2+rik2-rjk2)
+                tmp3 = (rik2+rjk2-rij2)
+                tmp4=rij2*rjk2*rik2
+                ang=(0.375d0*tmp1*tmp2*tmp3/tmp4+1.0d0)/tmp4**1.5d0
+                
+                eabc=eabc+ang*c9*fdamp
+
               ENDDO !ktauz
               ENDDO !ktauy
               ENDDO !ktaux
@@ -766,66 +739,72 @@ C compute non-additive third-order energy using averaged C6
             ENDDO !jtauy
             ENDDO !jtaux
 
+          end if 
+          pcount = pcount + 1
           ENDDO !kat
-        end if
-        pcount = pcount + 1
         ENDDO !jat
       ENDDO !iat
-!      write(*,*)'counter ijk: ',counter
 
-      ! And now jat=iat, but cycling throug all imagecells without (0,0,0). and kat>iat going though all cells
-      ! But this counts only 1/2
-
-      DO iat=1,n-1
-      if (mod(pcount,np).eq.taskid) then
-      jat=iat
-      ijvec=0.0d0
-      ij=nwpwxc_lin(iat,jat)
-        DO kat=iat+1,n
-          ik=nwpwxc_lin(iat,kat)
+      DO iat=2,n
+        jat=iat
+          ij=nwpwxc_lin(iat,jat)
+          ijvec=0.0d0
+          r0ij=r0ab(iz(iat),iz(jat))
+        DO kat=1,iat-1
+        if (mod(pcount,np).eq.taskid) then
           jk=nwpwxc_lin(jat,kat)
+          ik=jk
           ikvec=xyz(:,kat)-xyz(:,iat)
           jkvec=ikvec
           c9=-(cc6ab(ij)*cc6ab(ik)*cc6ab(jk))
+
+          r0ik=r0ab(iz(iat),iz(kat))
+          r0jk=r0ab(iz(jat),iz(kat))
           do jtaux=-repv(1),repv(1)
+            repmin(1)=max(-repv(1),jtaux-repv(1))
+            repmax(1)=min(repv(1),jtaux+repv(1))
           do jtauy=-repv(2),repv(2)
+            repmin(2)=max(-repv(2),jtauy-repv(2))
+            repmax(2)=min(repv(2),jtauy+repv(2))
           do jtauz=-repv(3),repv(3)
+            repmin(3)=max(-repv(3),jtauz-repv(3))
+            repmax(3)=min(repv(3),jtauz+repv(3))
             IF (jtaux.eq.0 .and. jtauy.eq.0 .and. jtauz.eq.0) cycle
             jtau=jtaux*lat(:,1)+jtauy*lat(:,2)+jtauz*lat(:,3)
-            dumvec=jtau
+            dumvec=ijvec+jtau
             dumvec=dumvec*dumvec
             rij2=SUM(dumvec)
-            rij=SQRT(rij2)
+            if(rij2.gt.abcthr)cycle
 
-            rr0ij=rij/r0ab(iz(iat),iz(jat))
+            rr0ij=DSQRT(rij2)/r0ij
        
-            do ktaux=-repv(1),repv(1)
-            do ktauy=-repv(2),repv(2)
-            do ktauz=-repv(3),repv(3)
+            do ktaux=repmin(1),repmax(1)
+            do ktauy=repmin(2),repmax(2)
+            do ktauz=repmin(3),repmax(3)
 ! every result * 0.5
               ktau=ktaux*lat(:,1)+ktauy*lat(:,2)+ktauz*lat(:,3)
               dumvec=ikvec+ktau
               dumvec=dumvec*dumvec
               rik2=SUM(dumvec)
-              rik=SQRT(rik2)
-              rr0ik=rik/r0ab(iz(iat),iz(kat))
+              if(rik2.gt.abcthr)cycle
+              rr0ik=DSQRT(rik2)/r0ik
 
               dumvec=jkvec+ktau-jtau
               dumvec=dumvec*dumvec
               rjk2=SUM(dumvec)
-              rjk=SQRT(rjk2)
-              rr0jk=rjk/r0ab(iz(jat),iz(kat))
+              if(rjk2.gt.abcthr)cycle
+              rr0jk=DSQRT(rjk2)/r0jk
+
 
               geomean=(rr0ij*rr0ik*rr0jk)**(1./3.)
               fdamp=1./(1.+6.*(sr9*geomean)**alp9)
-              cosij=(rik2+rjk2-rij2)/(2.*rik*rjk)
-              cosik=(rij2+rjk2-rik2)/(2.*rij*rjk)
-              cosjk=(rij2+rik2-rjk2)/(2.*rik*rij)
-              tmp=c9*(3.*cosij*cosik*cosjk+1)/
-     .                 (rij*rik*rjk*rij2*rik2*rjk2)
+              tmp1 = (rij2+rjk2-rik2)
+              tmp2 = (rij2+rik2-rjk2)
+              tmp3 = (rik2+rjk2-rij2)
+              tmp4=rij2*rjk2*rik2
+              ang=(0.375d0*tmp1*tmp2*tmp3/tmp4+1.0d0)/tmp4**1.5d0
 
-              eabc=eabc+fdamp*tmp*0.5d0
-              counter=counter+1
+              eabc=eabc+c9*fdamp*ang/2.0
             ENDDO !ktauz
             ENDDO !ktauy
             ENDDO !ktaux
@@ -833,44 +812,130 @@ C compute non-additive third-order energy using averaged C6
           ENDDO !jtauz
           ENDDO !jtauy
           ENDDO !jtaux
+        end if 
+        pcount = pcount + 1
         ENDDO !kat
-      end if
-      pcount = pcount + 1
+      ENDDO !iat
+      ! And now kat=jat, but cycling throug all imagecells without jtau=ktau. and jat>iat going though all cells
+      ! But this counts only 1/2
+
+      DO iat=2,n
+        DO jat=1,iat-1
+        if (mod(pcount,np).eq.taskid) then
+          kat=jat
+          ij=nwpwxc_lin(iat,jat)
+          jk=nwpwxc_lin(jat,kat)
+          ik=ij
+          ikvec=xyz(:,kat)-xyz(:,iat)
+          ijvec=ikvec
+          jkvec=0.0d0
+          c9=-(cc6ab(ij)*cc6ab(ik)*cc6ab(jk))
+
+          r0ij=r0ab(iz(iat),iz(jat))
+          r0ik=r0ij
+          r0jk=r0ab(iz(jat),iz(kat))
+
+            do jtaux=-repv(1),repv(1)
+              repmin(1)=max(-repv(1),jtaux-repv(1))
+              repmax(1)=min(repv(1),jtaux+repv(1))
+            do jtauy=-repv(2),repv(2)
+              repmin(2)=max(-repv(2),jtauy-repv(2))
+              repmax(2)=min(repv(2),jtauy+repv(2))
+            do jtauz=-repv(3),repv(3)
+              repmin(3)=max(-repv(3),jtauz-repv(3))
+              repmax(3)=min(repv(3),jtauz+repv(3))
+            jtau=jtaux*lat(:,1)+jtauy*lat(:,2)+jtauz*lat(:,3)
+            dumvec=ijvec+jtau
+            dumvec=dumvec*dumvec
+            rij2=SUM(dumvec)
+            if(rij2.gt.abcthr)cycle
+
+            rr0ij=DSQRT(rij2)/r0ij
+       
+            do ktaux=repmin(1),repmax(1)
+            do ktauy=repmin(2),repmax(2)
+            do ktauz=repmin(3),repmax(3)
+! every result * 0.5
+              IF (jtaux.eq.ktaux .and. jtauy.eq.ktauy 
+     .            .and. jtauz.eq.ktauz) cycle
+              ktau=ktaux*lat(:,1)+ktauy*lat(:,2)+ktauz*lat(:,3)
+              dumvec=ikvec+ktau
+              dumvec=dumvec*dumvec
+              rik2=SUM(dumvec)
+              if(rik2.gt.abcthr)cycle
+              rr0ik=DSQRT(rik2)/r0ik
+
+              dumvec=jkvec+ktau-jtau
+              dumvec=dumvec*dumvec
+              rjk2=SUM(dumvec)
+              if(rjk2.gt.abcthr)cycle
+              rr0jk=DSQRT(rjk2)/r0jk
+
+
+              geomean=(rr0ij*rr0ik*rr0jk)**(1./3.)
+              fdamp=1./(1.+6.*(sr9*geomean)**alp9)
+              tmp1 = (rij2+rjk2-rik2)
+              tmp2 = (rij2+rik2-rjk2)
+              tmp3 = (rik2+rjk2-rij2)
+              tmp4=rij2*rjk2*rik2
+              ang=(0.375d0*tmp1*tmp2*tmp3/tmp4+1.0d0)/tmp4**1.5d0
+
+              eabc=eabc+c9*fdamp*ang/2.0
+            ENDDO !ktauz
+            ENDDO !ktauy
+            ENDDO !ktaux
+ 
+          ENDDO !jtauz
+          ENDDO !jtauy
+          ENDDO !jtaux
+        end if
+        pcount = pcount + 1
+        ENDDO !kat
       ENDDO !iat
 
-!      write(*,*)'counter iik: ',counter
 
 ! And finally the self interaction iat=jat=kat all 
 
+      idum=0
       DO iat=1,n
       if (mod(pcount,np).eq.taskid) then
       jat=iat
       kat=iat
       ijvec=0.0d0
-      ij=nwpwxc_lin(iat,jat)
-      ik=nwpwxc_lin(iat,kat)
-      jk=nwpwxc_lin(jat,kat)
+      ij=nwpwxc_lin(iat,iat)
+      ik=ij
+      jk=ij
       ikvec=ijvec
       jkvec=ikvec
           c9=-(cc6ab(ij)*cc6ab(ik)*cc6ab(jk))
 
-        do jtaux=-repv(1),repv(1)
-        do jtauy=-repv(2),repv(2)
-        do jtauz=-repv(3),repv(3)
+          r0ij=r0ab(iz(iat),iz(iat))
+          r0ik=r0ij
+          r0jk=r0ij
+          do jtaux=-repv(1),repv(1)
+            repmin(1)=max(-repv(1),jtaux-repv(1))
+            repmax(1)=min(repv(1),jtaux+repv(1))
+          do jtauy=-repv(2),repv(2)
+            repmin(2)=max(-repv(2),jtauy-repv(2))
+            repmax(2)=min(repv(2),jtauy+repv(2))
+          do jtauz=-repv(3),repv(3)
+            repmin(3)=max(-repv(3),jtauz-repv(3))
+            repmax(3)=min(repv(3),jtauz+repv(3))
           IF (jtaux.eq.0 .and. jtauy.eq.0 .and. jtauz.eq.0) cycle
           jtau=jtaux*lat(:,1)+jtauy*lat(:,2)+jtauz*lat(:,3)
           dumvec=jtau
           dumvec=dumvec*dumvec
           rij2=SUM(dumvec)
-          rij=SQRT(rij2)
-          rr0ij=rij/r0ab(iz(iat),iz(jat))
+          if(rij2.gt.abcthr)cycle
+          rr0ij=DSQRT(rij2)/r0ij
 
-          do ktaux=-repv(1),repv(1)
-          do ktauy=-repv(2),repv(2)
-          do ktauz=-repv(3),repv(3)
-            IF (ktaux.eq.0 .and. ktauy.eq.0 .and. ktauz.eq.0) cycle !IF iat and kat are the same then cycle
-            IF (ktaux.eq.jtaux .and. ktauy.eq.jtauy 
-     .         .and. ktaux.eq.jtaux) cycle      !If kat and jat are the same then cycle
+            do ktaux=repmin(1),repmax(1)
+            do ktauy=repmin(2),repmax(2)
+            do ktauz=repmin(3),repmax(3)
+           IF ((ktaux.eq.0) .and.( ktauy.eq.0) .and.( ktauz.eq.0))cycle !IF iat and kat are the same then cycle
+            IF ((ktaux.eq.jtaux) .and. (ktauy.eq.jtauy) 
+     .         .and. (ktauz.eq.jtauz)) cycle      !If kat and jat are the same then cycle
+
 ! every result * 1/6 becaues every triple is counted twice due to the two loops jtau and ktau going from -repv to repv -> *1/2
 ! 
 !plus 1/3 becaues every triple is three times in each unitcell
@@ -878,25 +943,26 @@ C compute non-additive third-order energy using averaged C6
               dumvec=ktau
               dumvec=dumvec*dumvec
               rik2=SUM(dumvec)
-              rik=SQRT(rik2)
-              rr0ik=rik/r0ab(iz(iat),iz(kat))
+              if(rik2.gt.abcthr)cycle
+              rr0ik=DSQRT(rik2)/r0ik
 
               dumvec=jkvec+ktau-jtau
               dumvec=dumvec*dumvec
               rjk2=SUM(dumvec)
-              rjk=SQRT(rjk2)
-              rr0jk=rjk/r0ab(iz(jat),iz(kat))
+              if(rjk2.gt.abcthr)cycle
+              rr0jk=DSQRT(rjk2)/r0jk
+
 
               geomean=(rr0ij*rr0ik*rr0jk)**(1./3.)
               fdamp=1./(1.+6.*(sr9*geomean)**alp9)
-              cosij=(rik2+rjk2-rij2)/(2.*rik*rjk)
-              cosik=(rij2+rjk2-rik2)/(2.*rij*rjk)
-              cosjk=(rij2+rik2-rjk2)/(2.*rik*rij)
-              tmp=c9*(3.*cosij*cosik*cosjk+1)/
-     .                 (rij*rik*rjk*rij2*rik2*rjk2)
-              eabc=eabc+fdamp*tmp/6.0d0
+              tmp1 = (rij2+rjk2-rik2)
+              tmp2 = (rij2+rik2-rjk2)
+              tmp3 = (rik2+rjk2-rij2)
+              tmp4=rij2*rjk2*rik2
+              ang=(0.375d0*tmp1*tmp2*tmp3/tmp4+1.0d0)/tmp4**1.5d0
+
+              eabc=eabc+c9*fdamp*ang/6.0d0
  
-            counter=counter+1
           ENDDO !ktauz
           ENDDO !ktauy
           ENDDO !ktaux
@@ -908,8 +974,6 @@ C compute non-additive third-order energy using averaged C6
       end if
       pcount = pcount + 1
       ENDDO !iat
-c      write(*,*)'counter iii: ',counter
-
       if (np.gt.1) call GA_DGOP(9+MSGDBL,eabc,1,'+')
 
       END SUBROUTINE nwpwxc_pbcthreebody
@@ -921,11 +985,10 @@ c     Input Geometry sanity check for pbc (to avoid au/Angtstrom mixups) J.M.
       logical check
       integer iz(*),n,i,j,taux,tauy,tauz
       real*8 rcov(94),dist,dx,dy,dz,thr,xyz(3,*),r,lat(3,3),tau(3)
-      integer  ga_nodeid
-      external ga_nodeid
       check=.false.
       do i=1,n-1
        do j=i+1,n
+         thr=0.5*(rcov(iz(i))+rcov(iz(j)))
          do taux=-1,1
          do tauy=-1,1
          do tauz=-1,1
@@ -936,16 +999,17 @@ c     Input Geometry sanity check for pbc (to avoid au/Angtstrom mixups) J.M.
             dz=xyz(3,i)-xyz(3,j)+tau(3)
  
            r=sqrt(dx*dx+dy*dy+dz*dz)
-           thr=0.6*(rcov(iz(i))+rcov(iz(j)))
            if (r.lt.thr) then
              check=.true.
+!      write(*,*)'short distance',i,'(',iz(i),') and ',j,'(',iz(j),'):'
+!           write(*,*)r,' < ',thr
+!             write(*,*)
            endif
          enddo !tauz
          enddo !tauy
          enddo !taux
        enddo !j
       enddo !i
-      check = check.and.(ga_nodeid().eq.0)
       if (check) then
           write(*,*)'--------------------------------------------------'
           write(*,*)'!! SOME DISTANCES VERY SHORT. CHECK COORDINATES !!'
@@ -958,17 +1022,13 @@ C compute gradient
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
       subroutine nwpwxc_pbcgdisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
-     >            r2r4,r0ab,
+     >                           r2r4,r0ab,
      .            rcov,s6,s18,rs6,rs8,rs10,alp6,alp8,alp10,noabc,num,
      .                 version,g,disp,gnorm,stress,lat,rep_v,rep_cn,
      .                 crit_vdw,echo,crit_cn)
       
       implicit none  
       !include  'param'
-
-#include "global.fh"
-#include "msgtypesf.h"
-
       real*8 k1,k2,k3
 
 c global ad hoc parameters
@@ -997,17 +1057,17 @@ c coversion factors
       REAL*8, parameter ::autokcal=627.509541d0
       REAL*8, parameter ::autoev=27.211652d0   
 
-      integer iat,jat,i,j,kat,my,ny,a,b,idum,tau2
+      integer iat,jat,i,j,kat,my,ny,a,b,idum,tau2,drijsize
       real*8 R0,C6,alp,R42,disp,x1,y1,z1,x2,y2,z2,rr,e6abc,fdum  
       real*8 dx,dy,dz,r2,r,r4,r6,r8,r10,r12,t6,t8,t10,damp1
-      real*8 damp6,damp8,damp10,e6,e8,e10,e12,gnorm,tmp1
+      real*8 damp6,damp8,damp9,e6,e8,e10,e12,gnorm,tmp1
       real*8 s10,s8,gC6(3),term,step,dispr,displ,r235,tmp2
       real*8 cn(n),gx1,gy1,gz1,gx2,gy2,gz2,rthr,testsum
       real*8,  DIMENSION(3,3) :: lat,stress,sigma,virialstress,lat_1
       real*8,  DIMENSION(3,3) :: gC6_stress
       integer, DIMENSION(3)   :: rep_v,rep_cn
       real*8 crit_vdw,crit_cn
-      integer taux,tauy,tauz,counter
+      integer taux,tauy,tauz
       real*8, DIMENSION(3) :: tau,vec12,dxyz,dxyz0
       real*8,external  ::nwpwxc_volume
       real*8           ::outpr(3,3)
@@ -1021,31 +1081,53 @@ c coversion factors
       real*8 expterm,dcni
       real*8, allocatable,dimension(:,:,:,:) ::  drij  !d(E)/d(r_ij) derivative wrt. dist. iat-jat
       real*8, allocatable,dimension(:,:,:,:) :: dcn    !dCN(iat)/d(r_ij) is equal to
+      real*8 dcnn
                                                        !dCN(jat)/d(r_ij)     
-      real*8, allocatable,dimension(:,:,:,:) :: dc6_rest ! saves (1/r^6*f_dmp + 3*r4r2/r^8*f_dmp) for kat loop
+      real*8 :: dc6_rest  
       integer,external :: nwpwxc_lin
-      real*8,external ::nwpwxc_vectorsize
+      real*8,external :: nwpwxc_vectorsize
       real*8 vec(3),vec2(3),dummy
-      real*8 dc6ij(n,n)       !dC6(iat,jat)/dCN(iat) in dc6ij(i,j)
-                              !dC6(iat,jat)/cCN(jat) in dc6ij(j,i)
+      real*8 dc6i(n)       !dC6i(iat) saves dE_dsp/dCN(iat) 
+      real*8 dc6ij(n,n)    !dC6(iat,jat)/cCN(iat) in dc6ij(i,j) for ABC-grad
       real*8 dc6_rest_sum(n*(n+1)/2)
-      logical, allocatable,dimension(:,:,:,:) ::  skip  !d(E)/d(r_ij) derivative wrt. dist. iat-jat
       integer linij,linik,linjk
       real*8 abc(3,n)
 
-      integer taskid,np,pcount,count
+      real*8 eabc
+      real*8 gabc(3,n),glatabc(3,3) !threebody gradient
+      real*8 sigma_abc(3,3)
+      real*8 labc,rabc
+      real*8 ,dimension(3) ::ijvec,ikvec,jkvec,jtau,ktau,dumvec
+      integer jtaux,jtauy,jtauz,ktaux,ktauy,ktauz,mtaux,mtauy,mtauz
+      integer,dimension(3) :: taumin,taumax
+      integer mat,linim,linjm,linkm
+      real*8 rij2,rik2,rjk2,c9,c6ij,c6ik,c6jk,geomean,geomean3
+      real*8 rr0ij,rr0jk,rr0ik,dc6iji,dc6ijj
+      real*8 :: sr9=0.75d0 !inverse of 4/3
+      real*8, parameter :: alp9=-16.0d0
+      real*8,DIMENSION(n*(n+1)) ::c6save
+      real*8 abcthr,time1,time2,geomean2,r0av,dc9,dfdmp,dang,ang
+      integer,dimension(3) ::repv,repmin,repmax,repmin2,repmax2
+
+#include "global.fh"
+#include "msgtypesf.h"
+
+      integer taskid,np,pcount
 
       np     = GA_Nnodes()
       taskid = GA_Nodeid()
       pcount = 0
 
 
-
 c R^2 cut-off 
       rthr=crit_vdw
-      counter=0
+      abcthr=crit_cn
+!      write(*,*)'abcthr:', abcthr**(1./1.)
       sigma=0.0d0
       virialstress=0.0d0
+      stress=0.0d0
+      gabc=0.0d0
+      glatabc=0.0d0
       
 c      testsum=0.0d0
 
@@ -1060,7 +1142,7 @@ c      testsum=0.0d0
      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_v,crit_cn,rep_cn)
  
 
-          disp=-s6*e6-s18*e8-s6*e6abc
+          disp=-s6*e6-s18*e8-e6abc
 
       step=2.d-5
 
@@ -1072,14 +1154,17 @@ c      testsum=0.0d0
      .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_v,crit_cn,rep_cn)
  
-          dispr=-s6*e6-s18*e8-s6*e6abc
+          dispr=-s6*e6-s18*e8-e6abc
+          rabc=e6abc
           xyz(j,i)=xyz(j,i)-2*step      
           call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
      >           r2r4,r0ab,
      .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_v,crit_cn,rep_cn)
  
-          displ=-s6*e6-s18*e8-s6*e6abc
+          displ=-s6*e6-s18*e8-e6abc
+          labc=e6abc
+          gabc(j,i)=0.5*(rabc-labc)/step
           g(j,i)=0.5*(dispr-displ)/step  
           xyz(j,i)=xyz(j,i)+step        
         enddo !jat
@@ -1099,7 +1184,8 @@ c      testsum=0.0d0
      .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_v,crit_cn,rep_cn)
 
-         dispr=-s6*e6-s18*e8-s6*e6abc
+         dispr=-s6*e6-s18*e8-e6abc
+         labc=e6abc
 
 
           lat(j,i)=lat(j,i)-2*step
@@ -1110,8 +1196,10 @@ c      testsum=0.0d0
      .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_v,crit_cn,rep_cn)
 
-         displ=-s6*e6-s18*e8-s6*e6abc
+         displ=-s6*e6-s18*e8-e6abc
+         rabc=e6abc
           stress(j,i)=(dispr-displ)/(step*2.0)
+          glatabc(j,i)=(rabc-labc)/(step*2.0d0)
 
           lat(j,i)=lat(j,i)+step
           call nwpwxc_abc_to_xyz(abc,xyz,lat,n)
@@ -1138,7 +1226,6 @@ c      testsum=0.0d0
       if(echo)write(*,*) 'doing analytical gradient D-old O(N^2) ...'
       disp=0
       stress=0.0d0
-      sigma=0.0d0
       do iat=1,n-1
          do jat=iat+1,n
          if (mod(pcount,np).eq.taskid) then
@@ -1166,13 +1253,12 @@ c      testsum=0.0d0
             do ny=1,3
             do my=1,3
               sigma(my,ny)=sigma(my,ny)+term*dxyz(ny)*dxyz(my)*c6
-!              stress(my,ny)=stress(my,ny)-term*c6*dxyz(my)*tau(ny)
             enddo !my
             enddo !ny
            enddo !tauz
            enddo !tauy
            enddo !taux
-         end if
+         end if 
          pcount = pcount + 1
          enddo !jat
       enddo !iat
@@ -1203,7 +1289,6 @@ c and now the self interaction, only for convenient energy in dispersion
             do ny=1,3
             do my=1,3
              sigma(my,ny)=sigma(my,ny)+term*dxyz(ny)*dxyz(my)*c6*0.5d0
-!              stress(my,ny)=stress(my,ny)-term*c6*dxyz(my)*tau(ny)*0.5d0
             enddo !my
             enddo !ny
             
@@ -1211,14 +1296,12 @@ c and now the self interaction, only for convenient energy in dispersion
            enddo !tauz
            enddo !tauy
            enddo !taux
-      end if
+      end if 
       pcount = pcount + 1
       enddo !iat
-
       if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,g,3*n,'+')
       if (np.gt.1) call GA_DGOP(9+MSGDBL,sigma,9,'+')
-
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,g,3*n,'+')
       
       call nwpwxc_inv_cell(lat,lat_1)
       do a=1,3
@@ -1234,7 +1317,7 @@ c and now the self interaction, only for convenient energy in dispersion
       goto 999
       endif !version==2
 
-      if (version.eq.3) then
+      if ((version.eq.3).or.(version.eq.5)) then
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !          
 !    begin ZERO DAMPING GRADIENT         
@@ -1242,7 +1325,7 @@ c and now the self interaction, only for convenient energy in dispersion
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       if (echo)   
-     . write(*,*) 'doing analytical gradient O(N^3) ...'
+     . write(*,*) 'doing analytical gradient O(N^2) ...'
 c precompute for analytical part
       call nwpwxc_pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
 
@@ -1251,41 +1334,35 @@ c precompute for analytical part
       s10=s18
       allocate(drij(-rep_v(3):rep_v(3),-rep_v(2):rep_v(2),
      .              -rep_v(1):rep_v(1),n*(n+1)/2))
-      allocate(dc6_rest(-rep_v(3):rep_v(3),-rep_v(2):rep_v(2),
-     .                  -rep_v(1):rep_v(1),n*(n+1)/2))
-      allocate(dcn(-rep_cn(3):rep_cn(3),-rep_cn(2):rep_cn(2),
-     .             -rep_cn(1):rep_cn(1),n*(n+1)/2))
-      allocate(skip(-rep_v(3):rep_v(3),-rep_v(2):rep_v(2),
-     .              -rep_v(1):rep_v(1),n*(n+1)/2))
 
+      drijsize =(2*rep_v(3)+1)*(2*rep_v(2)+1)*(2*rep_v(1)+1)*(n*(n+1)/2)
       disp=0
 
       drij=0.0d0
       dc6_rest=0.0d0
       dc6_rest_sum=0.0d0
-      dcn=0.0d0
+      c6save=0.0d0
       kat=0
-      dc6ij = 0.0d0
+      dc6i=0.0d0
 
 
       do iat=1,n
-        if (mod(pcount,np).eq.taskid) then
-
+      if (mod(pcount,np).eq.taskid) then  !* drij,disp,dc6i,dc6ij,c6save,dc6_rest_sum
         call nwpwxc_get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
      .          mxc(iz(iat)),cn(iat),cn(iat),iz(iat),iz(iat),iat,iat,
-     .          c6,dc6ij(iat,iat),fdum)
+     .          c6,dc6iji,dc6ijj)
 
+        c6save(nwpwxc_lin(iat,iat))=c6
+        dc6ij(iat,iat)=dc6iji
         r0=r0ab(iz(iat),iz(iat))
         r42=r2r4(iz(iat))*r2r4(iz(iat))
         rcovij=rcov(iz(iat))+rcov(iz(iat))
 
 
-      counter=0
         do taux=-rep_v(1),rep_v(1)
         do tauy=-rep_v(2),rep_v(2)
         do tauz=-rep_v(3),rep_v(3)
           tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
-          counter=counter+1
 
 
 !first dE/d(tau) saved in drij(i,i,counter)
@@ -1293,7 +1370,6 @@ c precompute for analytical part
           r2=sum(rij*rij)
 !          if (r2.gt.rthr) cycle
 
-!          if (r2.gt.0.1) then
           if (r2.gt.0.1.and.r2.lt.rthr) then
 
 
@@ -1305,36 +1381,56 @@ c precompute for analytical part
 
 !
 !  Calculates damping functions:
+C DGAS Edit
+        if (version.eq.3) then 
           t6 = (r/(rs6*R0))**(-alp6)
           damp6 =1.d0/( 1.d0+6.d0*t6 )
           t8 = (r/(rs8*R0))**(-alp8)
           damp8 =1.d0/( 1.d0+6.d0*t8 )
 
-          drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))=drij(tauz,tauy,taux,
-     >     nwpwxc_lin(iat,
-     .     iat))
+          drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
+     >     =drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
      .        +(-s6*(6.0/(r7)*C6*damp6)  ! d(r^(-6))/d(tau)
      .        -s8*(24.0/(r9)*C6*r42*damp8))*0.5d0
 
 
-          drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))=drij(tauz,tauy,taux,
-     >     nwpwxc_lin(iat,
-     .     iat))
+          drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
+     >    =drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
      .        +(s6*C6/r7*6.d0*alp6*t6*damp6*damp6     !d(f_dmp)/d(tau)
      .        +s8*C6*r42/r9*18.d0*alp8*t8*damp8*damp8)*0.5d0
+        else !version.eq.5
+          t6 = (r/(rs6*R0)+R0*rs8)**(-alp6)
+          damp6 =1.d0/( 1.d0+6.d0*t6 )
+          t8 = (r/(R0)+R0*rs8)**(-alp8)
+          damp8 =1.d0/( 1.d0+6.d0*t8 )
+
+          tmp1=s6*6.d0*damp6*C6/r7
+          tmp2=s8*6.d0*C6*r42*damp8/r9
+          drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
+     >     =drij(tauz,tauy,taux,nwpwxc_lin(iat,
+     .     iat)) - (tmp1  ! d(r^(-6))/d(r_ij)
+     .                +4.d0*tmp2)*0.5d0
+      
+      
+          drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
+     >     =drij(tauz,tauy,taux,nwpwxc_lin(iat,
+     .     iat))
+     .      +(tmp1*alp6*t6*damp6*r/(r+rs6*R0*R0*rs8)  !d(f_dmp)/d(r_ij)
+     .      +3.d0*tmp2*alp8*t8*damp8*r/(r+R0*R0*rs8))*0.5d0
+        endif
 !
 !      in dC6_rest all terms BUT C6-term is saved for the kat-loop
 !          
-          dc6_rest(tauz,tauy,taux,nwpwxc_lin(iat,iat))=
+          dc6_rest=
      .        (s6/r6*damp6+3.d0*s8*r42/r8*damp8)*0.50d0
 
 
-          disp=disp-dc6_rest(tauz,tauy,taux,nwpwxc_lin(iat,iat))*c6  ! calculate E_disp for sanity check
+          disp=disp-dc6_rest*c6  ! calculate E_disp for sanity check
 
+          dc6i(iat)=dc6i(iat)+dc6_rest*(dc6iji+dc6ijj)
 !          if (r2.lt.crit_cn)
-          dc6_rest_sum(nwpwxc_lin(iat,iat))=
-     >     dc6_rest_sum(nwpwxc_lin(iat,iat))+
-     .     (dc6_rest(tauz,tauy,taux,nwpwxc_lin(iat,iat)))
+          dc6_rest_sum(nwpwxc_lin(iat,iat))
+     >    =dc6_rest_sum(nwpwxc_lin(iat,iat))+dc6_rest
 
 
           else !r2 < 0.1>rthr
@@ -1346,33 +1442,30 @@ c precompute for analytical part
         ENDDO !tauy
         ENDDO !taux
 
-        end if
-        pcount = pcount + 1
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!
 ! B E G I N   jat  L O O P 
 !!!!!!!!!!!!!!!!!!!!!!!!!!         
         do jat=1,iat-1
-        if (mod(pcount,np).eq.taskid) then
 !
-!      nwpwxc_get_dC6_dCNij calculates the derivative dC6(iat,jat)/dCN(iat) and
+!      get_dC6_dCNij calculates the derivative dC6(iat,jat)/dCN(iat) and
 !      dC6(iat,jat)/dCN(jat). these are saved in dC6ij for the kat loop
 !
           call nwpwxc_get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
      .          mxc(iz(jat)),cn(iat),cn(jat),iz(iat),iz(jat),iat,jat,
-     .          c6,dc6ij(iat,jat),dc6ij(jat,iat))
+     .          c6,dc6iji,dc6ijj)
 
           r0=r0ab(iz(jat),iz(iat))
           r42=r2r4(iz(iat))*r2r4(iz(jat))
           rcovij=rcov(iz(iat))+rcov(iz(jat))
           linij=nwpwxc_lin(iat,jat)
  
-          counter=0
+          dc6ij(iat,jat)=dc6iji
+          dc6ij(jat,iat)=dc6ijj
+          c6save(linij)=c6
             do taux=-rep_v(1),rep_v(1)
             do tauy=-rep_v(2),rep_v(2)
             do tauz=-rep_v(3),rep_v(3)
               tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
-              counter=counter+1
   
   
             rij=xyz(:,jat)-xyz(:,iat)+tau
@@ -1388,315 +1481,75 @@ c precompute for analytical part
   
 !
 !  Calculates damping functions:
-            t6 = (r/(rs6*R0))**(-alp6)
-            damp6 =1.d0/( 1.d0+6.d0*t6 )
-            t8 = (r/(rs8*R0))**(-alp8)
-            damp8 =1.d0/( 1.d0+6.d0*t8 )
-  
-            drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,
+            if (version.eq.3) then
+              t6 = (r/(rs6*R0))**(-alp6)
+              damp6 =1.d0/( 1.d0+6.d0*t6 )
+              t8 = (r/(rs8*R0))**(-alp8)
+              damp8 =1.d0/( 1.d0+6.d0*t8 )
+    
+              drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,
      .           linij)
-     .        -s6*(6.0/(r7)*C6*damp6)  ! d(r^(-6))/d(r_ij)
-     .        -s8*(24.0/(r9)*C6*r42*damp8)
+     .          -s6*(6.0/(r7)*C6*damp6)  ! d(r^(-6))/d(r_ij)
+     .          -s8*(24.0/(r9)*C6*r42*damp8)
   
-            drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,
+              drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,
      .           linij)
-     .        +s6*C6/r7*6.d0*alp6*t6*damp6*damp6     !d(f_dmp)/d(r_ij)
-     .        +s8*C6*r42/r9*18.d0*alp8*t8*damp8*damp8
+     .          +s6*C6/r7*6.d0*alp6*t6*damp6*damp6     !d(f_dmp)/d(r_ij)
+     .          +s8*C6*r42/r9*18.d0*alp8*t8*damp8*damp8
+            else !version.eq.5
+              t6 = (r/(rs6*R0)+R0*rs8)**(-alp6)
+              damp6 =1.d0/( 1.d0+6.d0*t6 )
+              t8 = (r/(R0)+R0*rs8)**(-alp8)
+              damp8 =1.d0/( 1.d0+6.d0*t8 )
+
+              tmp1=s6*6.d0*damp6*C6/r7
+              tmp2=s8*6.d0*C6*r42*damp8/r9
+              drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,
+     .           linij) - (tmp1  ! d(r^(-6))/d(r_ij)
+     .                    +4.d0*tmp2)
+      
+      
+              drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,
+     .           linij)
+     .          +(tmp1*alp6*t6*damp6*r/(r+rs6*R0*R0*rs8)  !d(f_dmp)/d(r_ij)
+     .          +3.d0*tmp2*alp8*t8*damp8*r/(r+R0*R0*rs8))
+            endif
 !
 !      in dC6_rest all terms BUT C6-term is saved for the kat-loop
 !          
-          dc6_rest(tauz,tauy,taux,linij)=
+              dc6_rest=
      .        (s6/r6*damp6+3.d0*s8*r42/r8*damp8)
 
  
-            disp=disp-dc6_rest(tauz,tauy,taux,linij)*c6  ! calculate E_disp for sanity check
+              disp=disp-dc6_rest*c6  ! calculate E_disp for sanity check
 
+              dc6i(iat)=dc6i(iat)+dc6_rest*dc6iji
+              dc6i(jat)=dc6i(jat)+dc6_rest*dc6ijj
 !            if (r2.lt.crit_cn) 
-             dc6_rest_sum(linij)=dc6_rest_sum(linij)
-     .        +dc6_rest(tauz,tauy,taux,linij) 
+              dc6_rest_sum(linij)=dc6_rest_sum(linij)
+     .          +dc6_rest 
 
-
-          enddo !tauz
-          enddo !tauy
-          enddo !taux
-  
-        end if
-        pcount = pcount + 1
-        enddo !jat
-
-      enddo !iat
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6ij,n*n,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6_rest_sum,n*(n+1)/2,'+')
-
-*     **** compute dcn ****
-      do iat=1,n
-         if (mod(pcount,np).eq.taskid) then
-         rcovij=rcov(iz(iat))+rcov(iz(iat))
-
-         do taux=-rep_cn(1),rep_cn(1)
-         do tauy=-rep_cn(2),rep_cn(2)
-         do tauz=-rep_cn(3),rep_cn(3)
-           tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
-           r2=sum(tau*tau)
-           if (r2.gt.0.1.and.r2.lt.crit_cn) then
-              r=dsqrt(r2)
-
-              expterm = exp(-k1*(rcovij/r-1.d0))
-              dcn(tauz,tauy,taux,nwpwxc_lin(iat,iat))=-k1*rcovij*
-     >                  expterm/
-     >                  (r2*(expterm+1.d0)*(expterm+1.d0))
-
-           end if
-         end do
-         end do
-         end do
-         end if
-         pcount = pcount + 1
-
-         do jat=1,iat-1
-            if (mod(pcount,np).eq.taskid) then
-            rcovij = rcov(iz(iat))+rcov(iz(jat))
-            linij  = nwpwxc_lin(iat,jat)
-
-            do taux=-rep_cn(1),rep_cn(1)
-            do tauy=-rep_cn(2),rep_cn(2)
-            do tauz=-rep_cn(3),rep_cn(3)
-               tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
-               rij=xyz(:,jat)-xyz(:,iat)+tau
-               r2=sum(rij*rij)
-               if (r2.le.crit_cn) then
-                  r=dsqrt(r2)
-                  expterm=exp(-k1*(rcovij/r-1.d0))
-                  dcn(tauz,tauy,taux,linij)=-k1*rcovij*expterm/
-     >                     (r2*(expterm+1.d0)*(expterm+1.d0))
-               end if
-            end do 
-            end do 
-            end do 
-
-            end if
-            pcount = pcount + 1
-         end do
-      end do
-      count=(2*rep_cn(3)+1)*(2*rep_cn(2)+1)*(2*rep_cn(1)+1)*(n*(n+1)/2)
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,dcn,count,'+')
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!
-!      !B E G I N   d(C6)/dr
-!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-      DO iat=1,n
-        if (mod(pcount,np).eq.taskid) then
-
-        do taux=-rep_cn(1),rep_cn(1)
-        do tauy=-rep_cn(2),rep_cn(2)
-        do tauz=-rep_cn(3),rep_cn(3)
-
-          dc6= (dc6ij(iat,iat)+dc6ij(iat,iat))
-     >        *dcn(tauz,tauy,taux,nwpwxc_lin(iat,iat))
-          drij(tauz,tauy,taux,nwpwxc_lin(iat,iat)) =
-     >         drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
-     >         +  dc6_rest_sum(nwpwxc_lin(iat,iat))*dc6
-
-        enddo !tauz
-        enddo !tauy
-        enddo !taux
-        end if
-        pcount = pcount + 1
-
-        DO jat=1,iat-1
-           if (mod(pcount,np).eq.taskid) then
-            linij=nwpwxc_lin(iat,jat)
-
-            do taux=-rep_cn(1),rep_cn(1)
-            do tauy=-rep_cn(2),rep_cn(2)
-            do tauz=-rep_cn(3),rep_cn(3)
-  
-               dc6 = (dc6ij(iat,jat))
-     >              *dcn(tauz,tauy,taux,nwpwxc_lin(iat,iat))
-               drij(tauz,tauy,taux,nwpwxc_lin(iat,iat)) =
-     >               drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
-     >             + dc6_rest_sum(nwpwxc_lin(iat,jat))*dc6  
-
-               dc6= (dc6ij(jat,iat))*  
-     >             *dcn(tauz,tauy,taux,nwpwxc_lin(jat,jat))
-               drij(tauz,tauy,taux,nwpwxc_lin(jat,jat)) =
-     >               drij(tauz,tauy,taux,nwpwxc_lin(jat,jat))
-     >            +  dc6_rest_sum(nwpwxc_lin(jat,iat))*dc6    
-
-               dc6= (dc6ij(iat,jat)+dc6ij(jat,iat))
-     >             *dcn(tauz,tauy,taux,linij)  
-               drij(tauz,tauy,taux,linij) = drij(tauz,tauy,taux,linij)
-     >                                    + dc6_rest_sum(linij)*dc6 
-
-               dc6= (dc6ij(iat,iat)+dc6ij(iat,iat))
-     >             *dcn(tauz,tauy,taux,linij)
-               drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,linij)
-     >                          +dc6_rest_sum(nwpwxc_lin(iat,iat))*dc6 
-
-               dc6= (dc6ij(jat,jat)+dc6ij(jat,jat))
-     >             *dcn(tauz,tauy,taux,linij)
-               drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,linij)
-     >                          +dc6_rest_sum(nwpwxc_lin(jat,jat))*dc6 
-            enddo !tauz
-            enddo !tauy
-            enddo !taux
-!
-! In the kat loop all the 3rd atom contributions are calculated:
-!            1/r_ij^6*f_dmp(ij)  *  d(C6(ij))/d r_ik
-!            -------V----------     -------V--------
-!             dc6_rest_sum(ij)   *  dc6ij(i,j)*dcn(ik)
-!
-!   To reduce the kat-loop to only jat-1, on gets 6 contributions
-!   
-!
-          do kat=1,jat-1
-            linik=nwpwxc_lin(iat,kat)
-            linjk=nwpwxc_lin(jat,kat)
-            do taux=-rep_cn(1),rep_cn(1)
-            do tauy=-rep_cn(2),rep_cn(2)
-            do tauz=-rep_cn(3),rep_cn(3)
-
-               dc6=dc6ij(iat,kat)*dcn(tauz,tauy,taux,linij)
-               drij(tauz,tauy,taux,linij)= drij(tauz,tauy,taux,linij)
-     >                                    + dc6_rest_sum(linik)*dc6
-
-               dc6=dc6ij(jat,kat)*dcn(tauz,tauy,taux,linij)
-               drij(tauz,tauy,taux,linij)= drij(tauz,tauy,taux,linij)
-     >                                   + dc6_rest_sum(linjk)*dc6
-
-               dc6=dc6ij(kat,iat)*dcn(tauz,tauy,taux,linjk)
-               drij(tauz,tauy,taux,linjk)= drij(tauz,tauy,taux,linjk)
-     >                                   + dc6_rest_sum(linik)*dc6
-
-               dc6=dc6ij(jat,iat)*dcn(tauz,tauy,taux,linjk)
-               drij(tauz,tauy,taux,linjk)= drij(tauz,tauy,taux,linjk)
-     >                                   + dc6_rest_sum(linij)*dc6
-
-              dc6=dc6ij(kat,jat)*dcn(tauz,tauy,taux,linik)
-              drij(tauz,tauy,taux,linik)= drij(tauz,tauy,taux,linik)
-     >                                  + dc6_rest_sum(linjk)*dc6
-
-              dc6=dc6ij(iat,jat)*dcn(tauz,tauy,taux,linik)
-              drij(tauz,tauy,taux,linik)= drij(tauz,tauy,taux,linik)
-     >                                  + dc6_rest_sum(linij)*dc6
 
             enddo !tauz
             enddo !tauy
             enddo !taux
-          enddo !kat
+    
+          enddo !jat
 
-          end if
-          pcount = pcount + 1
-
-        ENDDO !jat
-      ENDDO !iat
-
-      count = (2*rep_v(3)+1)*(2*rep_v(2)+1)*(2*rep_v(1)+1)*(n*(n+1)/2)
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,count,'+')
-
-
-
-
-
-
-! After calculating all derivatives dE/dr_ij w.r.t. distances,
-! the grad w.r.t. the coordinates is calculated dE/dr_ij * dr_ij/dxyz_i       
-      do iat=2,n
-        do jat=1,iat-1
-        if (mod(pcount,np).eq.taskid) then
-          do taux=-rep_v(1),rep_v(1)
-          do tauy=-rep_v(2),rep_v(2)
-          do tauz=-rep_v(3),rep_v(3)
-            tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
-
-          rij=xyz(:,jat)-xyz(:,iat)+tau
-          r2=sum(rij*rij)  
-          if (r2.gt.rthr.or.r2.lt.0.5) cycle
-
-          r=dsqrt(r2)
-          vec=drij(tauz,tauy,taux,nwpwxc_lin(iat,jat))*rij/r
-          g(:,iat)=g(:,iat)+vec
-          g(:,jat)=g(:,jat)-vec
-          do i=1,3
-          do j=1,3
-          sigma(j,i)=sigma(j,i)+vec(j)*rij(i)
-          enddo !j
-          enddo !i
-
-
-          enddo !tauz
-          enddo !tauy
-          enddo !taux
         end if
         pcount = pcount + 1
-        enddo !jat
-      enddo !iat
-
-      do iat=1,n
-      if (mod(pcount,np).eq.taskid) then
-          do taux=-rep_v(1),rep_v(1)
-          do tauy=-rep_v(2),rep_v(2)
-          do tauz=-rep_v(3),rep_v(3)
-!          if (taux.eq.0.and.tauy.eq.0.and.tauz.eq.0) cycle
-            tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
-          r2=sum(tau*tau)  
-          if (r2.gt.rthr.or.r2.lt.0.5) cycle
-          r=dsqrt(r2)
-          vec=drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))*tau/r
-          do i=1,3
-          do j=1,3
-          sigma(j,i)=sigma(j,i)+vec(j)*tau(i)
-          enddo !j
-          enddo !i
+        enddo !iat
 
 
 
-
-          enddo !tauz
-          enddo !tauy
-          enddo !taux
-
-      end if
-      pcount = pcount + 1
-      enddo
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,g,3*n,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,sigma,9,'+')
-
-      stress=0.0d0
-      call nwpwxc_inv_cell(lat,lat_1)
-      do a=1,3
-        do b=1,3
-           do my=1,3
-              stress(a,b)=stress(a,b)-sigma(a,my)*lat_1(b,my)
-           enddo
-        enddo !b
-      enddo !a
-
-
-
-!          write(*,*)'drij:',drij(nwpwxc_lin(iat,jat),:)
-!          write(*,*)'g:',g(1,1:3)
-!          write(*,*)'dcn:',sum(dcn(nwpwxc_lin(2,1),:))
-
-      deallocate(drij,dc6_rest,dcn)
-
-      elseif (version.eq.4)  then
-
-
+      elseif ((version.eq.4).or.(version.eq.6)) then
 
 !!!!!!!!!!!!!!!!!!!!!!!
 ! NOW THE BJ Gradient !
 !!!!!!!!!!!!!!!!!!!!!!!
 
-
-      if (echo) write(*,*) 'doing analytical gradient O(N^3) ...'
+      if (echo) write(*,*) 'doing analytical gradient O(N^2) ...'
       call nwpwxc_pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
-
 
       a1 =rs6
       a2 =rs8
@@ -1704,29 +1557,21 @@ c precompute for analytical part
 
       allocate(drij(-rep_v(3):rep_v(3),-rep_v(2):rep_v(2),
      .              -rep_v(1):rep_v(1),n*(n+1)/2))
-      allocate(dc6_rest(-rep_v(3):rep_v(3),-rep_v(2):rep_v(2),
-     .                  -rep_v(1):rep_v(1),n*(n+1)/2))
-
-      allocate(dcn(-rep_cn(3):rep_cn(3),-rep_cn(2):rep_cn(2),
-     .             -rep_cn(1):rep_cn(1),n*(n+1)/2))
-
-      allocate(skip(-rep_v(3):rep_v(3),-rep_v(2):rep_v(2),
-     .              -rep_v(1):rep_v(1),n*(n+1)/2))
+      drijsize =(2*rep_v(3)+1)*(2*rep_v(2)+1)*(2*rep_v(1)+1)*(n*(n+1)/2)
       disp=0
       drij=0.0d0
       dc6_rest=0.0d0
       dc6_rest_sum=0.0d0
-      dcn=0.0d0
       kat=0
-      dc6ij = 0
 
       do iat=1,n
-        if (mod(pcount,np).eq.taskid) then
-
+      if (mod(pcount,np).eq.taskid) then !* drij,disp,dc6i,dc6ij,c6save,dc6_rest_sum
         call nwpwxc_get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
      .          mxc(iz(iat)),cn(iat),cn(iat),iz(iat),iz(iat),iat,iat,
-     .          c6,dc6ij(iat,iat),fdum)
+     .          c6,dc6iji,dc6ijj)
 
+        dc6ij(iat,iat)=dc6iji
+        c6save(nwpwxc_lin(iat,iat))=c6
         r42=r2r4(iz(iat))*r2r4(iz(iat))
         rcovij=rcov(iz(iat))+rcov(iz(iat))
 
@@ -1736,7 +1581,6 @@ c precompute for analytical part
         do tauy=-rep_v(2),rep_v(2)
         do tauz=-rep_v(3),rep_v(3)
           tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
-          counter=counter+1
 
 !first dE/d(tau) saved in drij(i,i,counter)
           rij=tau
@@ -1746,7 +1590,7 @@ c precompute for analytical part
 !          if (r2.gt.0.1) then
           if (r2.gt.0.1.and.r2.lt.rthr) then
 !
-!      nwpwxc_get_dC6_dCNij calculates the derivative dC6(iat,jat)/dCN(iat) and
+!      get_dC6_dCNij calculates the derivative dC6(iat,jat)/dCN(iat) and
 !      dC6(iat,jat)/dCN(jat). these are saved in dC6ij for the kat loop
 !
           r=dsqrt(r2)
@@ -1762,8 +1606,9 @@ c precompute for analytical part
           t6=(r6+R0**6)
           t8=(r8+R0**8)
 
-          drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))=
-     >        drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
+          drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
+     >    =drij(tauz,tauy,taux,nwpwxc_lin(iat,
+     .     iat))
      .        -s6*C6*6.0d0*r4*r/(t6*t6)*0.5d0 ! d(1/(r^(6)+R0^6)/d(r)
      .        -s8*C6*24.0d0*r42*r7/(t8*t8)*0.5d0
 
@@ -1771,16 +1616,16 @@ c precompute for analytical part
 !
 !      in dC6_rest all terms BUT C6-term is saved for the kat-loop
 !          
-          dc6_rest(tauz,tauy,taux,nwpwxc_lin(iat,iat))=
+          dc6_rest=
      .        (s6/t6+3.d0*s8*r42/t8)*0.50d0
 
 
-          disp=disp-dc6_rest(tauz,tauy,taux,nwpwxc_lin(iat,iat))*c6  ! calculate E_disp for sanity check
+          disp=disp-dc6_rest*c6  ! calculate E_disp for sanity check
 
+          dc6i(iat)=dc6i(iat)+dc6_rest*(dc6iji+dc6ijj)
 !          if (r2.lt.crit_cn)
-          dc6_rest_sum(nwpwxc_lin(iat,iat))=
-     >    dc6_rest_sum(nwpwxc_lin(iat,iat))+
-     .     (dc6_rest(tauz,tauy,taux,nwpwxc_lin(iat,iat)))
+          dc6_rest_sum(nwpwxc_lin(iat,iat))
+     >    =dc6_rest_sum(nwpwxc_lin(iat,iat))+dc6_rest
 
 
           else !r2 < 0.1>rthr
@@ -1791,27 +1636,28 @@ c precompute for analytical part
         ENDDO !tauz
         ENDDO !tauy
         ENDDO !taux
-        end if
-        pcount = pcount + 1
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!
 ! B E G I N   jat  L O O P 
 !!!!!!!!!!!!!!!!!!!!!!!!!!         
         do jat=1,iat-1
-        if (mod(pcount,np).eq.taskid) then
 !
-!      nwpwxc_get_dC6_dCNij calculates the derivative dC6(iat,jat)/dCN(iat) and
+!      get_dC6_dCNij calculates the derivative dC6(iat,jat)/dCN(iat) and
 !      dC6(iat,jat)/dCN(jat). these are saved in dC6ij for the kat loop
 !
           call nwpwxc_get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
      .          mxc(iz(jat)),cn(iat),cn(jat),iz(iat),iz(jat),iat,jat,
-     .          c6,dc6ij(iat,jat),dc6ij(jat,iat))
+     .          c6,dc6iji,dc6ijj)
 
           r42=r2r4(iz(iat))*r2r4(iz(jat))
           rcovij=rcov(iz(iat))+rcov(iz(jat))
  
           R0=a1*dsqrt(3.0d0*r42)+a2
 
+          linij=nwpwxc_lin(iat,jat)
+          dc6ij(iat,jat)=dc6iji
+          dc6ij(jat,iat)=dc6ijj
+          c6save(linij)=c6
             do taux=-rep_v(1),rep_v(1)
             do tauy=-rep_v(2),rep_v(2)
             do tauz=-rep_v(3),rep_v(3)
@@ -1836,242 +1682,659 @@ c precompute for analytical part
             t8=(r8+R0**8)
 
  
-            drij(tauz,tauy,taux,nwpwxc_lin(iat,jat))=drij(tauz,tauy,
-     >       taux,
-     .           nwpwxc_lin(iat,jat))
+            drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,
+     .           linij)
      .        -s6*C6*6.0d0*r4*r/(t6*t6)
      .        -s8*C6*24.0d0*r42*r7/(t8*t8)
 
 !
 !      in dC6_rest all terms BUT C6-term is saved for the kat-loop
 !          
-            dc6_rest(tauz,tauy,taux,nwpwxc_lin(iat,jat))=
+            dc6_rest=
      .        (s6/t6+3.d0*s8*r42/t8)
 
  
-            disp=disp-dc6_rest(tauz,tauy,taux,nwpwxc_lin(iat,jat))*c6  ! calculate E_disp for sanity check
+            disp=disp-dc6_rest*c6  ! calculate E_disp for sanity check
 
+          dc6i(iat)=dc6i(iat)+dc6_rest*dc6iji
+          dc6i(jat)=dc6i(jat)+dc6_rest*dc6ijj
 !            if (r2.lt.crit_cn) 
-            dc6_rest_sum(nwpwxc_lin(iat,jat))=
-     >       dc6_rest_sum(nwpwxc_lin(iat,jat))
-     .        +dc6_rest(tauz,tauy,taux,nwpwxc_lin(iat,jat)) 
+          dc6_rest_sum(nwpwxc_lin(iat,jat))=dc6_rest_sum(linij)
+     >             +dc6_rest 
 
 
           enddo !tauz
           enddo !tauy
           enddo !taux
-  
-        end if
-        pcount = pcount + 1
-        enddo !jat
+ 
+         enddo !jat
 
+      end if
+      pcount = pcount + 1
       enddo !iat
 
+      endif ! version=3 or 4
       if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6ij,n*n,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,c6save,n*(n+1)/2,'+')
       if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6_rest_sum,n*(n+1)/2,'+')
-
-      !write(*,*) "hello,disp=",disp
-      !if (taskid.eq.0) write(*,*) "hello,dc6ij=",dc6ij
-      !if (taskid.eq.0) write(*,*) "hello,dc6_rest_sum=",dc6_rest_sum
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6ij,n*n,'+')
 
 
-*     **** compute dcn ****
-      do iat=1,n
-         if (mod(pcount,np).eq.taskid) then
-         rcovij=rcov(iz(iat))+rcov(iz(iat))
-         do taux=-rep_cn(1),rep_cn(1)
-         do tauy=-rep_cn(2),rep_cn(2)
-         do tauz=-rep_cn(3),rep_cn(3)
-            tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
-            r2=sum(tau*tau)
-            if (r2.gt.0.1.and.r2.lt.crit_cn) then
-               r=dsqrt(r2)
-               expterm=exp(-k1*(rcovij/r-1.d0))
-               dcn(tauz,tauy,taux,nwpwxc_lin(iat,iat))=-k1*rcovij*
-     >                 expterm/
-     >                  (r2*(expterm+1.d0)*(expterm+1.d0))
-            end if
-         end do
-         end do
-         end do
-         end if
-         pcount = pcount + 1
+!
+!!!!!!!!!!!!!!!!!!!!!!!
+!!    BEGIN Threebody gradient
+!!!!!!!!!!!!!!!!!!!!!!!      
+      if (.not.noabc) then
 
-         do jat=1,iat-1
-            if (mod(pcount,np).eq.taskid) then
-            rcovij=rcov(iz(iat))+rcov(iz(jat))
+!        write(*,*)'!!!!!!!!!!    THREEBODY  GRADIENT  !!!!!!!!!!'
+        sr9=0.75d0
+        eabc=0.0d0
+        abcthr=crit_cn
+        repv=rep_cn
+!        write(*,*)'thr:',sqrt(abcthr)
+
+        !call nwpwxc_cpu_time(time1)
+        do iat=3,n
+          do jat=2,iat-1
             linij=nwpwxc_lin(iat,jat)
-
-            do taux=-rep_cn(1),rep_cn(1)
-            do tauy=-rep_cn(2),rep_cn(2)
-            do tauz=-rep_cn(3),rep_cn(3)
-               tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
-               rij=xyz(:,jat)-xyz(:,iat)+tau
-               r2=sum(rij*rij)
-               if (r2.le.crit_cn) then
-                  r=dsqrt(r2)
-                  expterm=exp(-k1*(rcovij/r-1.d0))
-                  dcn(tauz,tauy,taux,linij)=-k1*rcovij*expterm/
-     >                 (r2*(expterm+1.d0)*(expterm+1.d0))
-               end if
-            end do
-            end do
-            end do
-            end if 
-            pcount = pcount + 1
-
-         end do
-      end do
-      count=(2*rep_cn(3)+1)*(2*rep_cn(2)+1)*(2*rep_cn(1)+1)*(n*(n+1)/2)
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,dcn,count,'+')
-      !write(*,*) "hello,count=",count
-      !if (taskid.eq.0) write(*,*) "hello,dcn=",dcn
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!
-!      !B E G I N   d(C6)/dr
-!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-      do iat=1,n
-         if (mod(pcount,np).eq.taskid) then
-
-         do taux=-rep_cn(1),rep_cn(1)
-         do tauy=-rep_cn(2),rep_cn(2)
-         do tauz=-rep_cn(3),rep_cn(3)
-
-            dc6= (dc6ij(iat,iat)+dc6ij(iat,iat))
-     >          *dcn(tauz,tauy,taux,nwpwxc_lin(iat,iat))
-            drij(tauz,tauy,taux,nwpwxc_lin(iat,iat)) = 
-     >           drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
-     >        +  dc6_rest_sum(nwpwxc_lin(iat,iat))*dc6           
-
-         enddo !tauz
-         enddo !tauy
-         enddo !taux
-         end if
-         pcount = pcount + 1
-
-         do jat=1,iat-1
-            if (mod(pcount,np).eq.taskid) then
-            linij=nwpwxc_lin(iat,jat)
-
-            do taux=-rep_cn(1),rep_cn(1)
-            do tauy=-rep_cn(2),rep_cn(2)
-            do tauz=-rep_cn(3),rep_cn(3)
-
-               dc6=(dc6ij(iat,jat))*dcn(tauz,tauy,taux,
-     >              nwpwxc_lin(iat,iat))
-               drij(tauz,tauy,taux,nwpwxc_lin(iat,iat)) =
-     >               drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))
-     .            +  dc6_rest_sum(nwpwxc_lin(iat,jat))*dc6 
-
-               dc6=(dc6ij(jat,iat))*dcn(tauz,tauy,taux,
-     >               nwpwxc_lin(jat,jat))
-               drij(tauz,tauy,taux,nwpwxc_lin(jat,jat)) =
-     >               drij(tauz,tauy,taux,nwpwxc_lin(jat,jat))
-     >           +  dc6_rest_sum(nwpwxc_lin(jat,iat))*dc6
-
-               dc6=(dc6ij(iat,jat)+dc6ij(jat,iat))
-     >             *dcn(tauz,tauy,taux,linij)
-               drij(tauz,tauy,taux,linij)= drij(tauz,tauy,taux,linij)
-     >                                   + dc6_rest_sum(linij)*dc6 
-
-               dc6=(dc6ij(iat,iat)+dc6ij(iat,iat))
-     >             *dcn(tauz,tauy,taux,linij)
-               drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,linij)
-     >                        +dc6_rest_sum(nwpwxc_lin(iat,iat))*dc6 
-
-               dc6=(dc6ij(jat,jat)+dc6ij(jat,jat))
-     >             *dcn(tauz,tauy,taux,linij)
-               drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,linij)
-     >                          +dc6_rest_sum(nwpwxc_lin(jat,jat))*dc6 
-            enddo !tauz
-            enddo !tauy
-            enddo !taux
-!
-! In the kat loop all the 3rd atom contributions are calculated:
-!            1/r_ij^6*f_dmp(ij)  *  d(C6(ij))/d r_ik
-!            -------V----------     -------V--------
-!             dc6_rest_sum(ij)   *  dc6ij(i,j)*dcn(ik)
-!
-!   To reduce the kat-loop to only jat-1, on gets 6 contributions
-!   
-!
+            ijvec=xyz(:,jat)-xyz(:,iat)
+          
+            c6ij=c6save(linij)
             do kat=1,jat-1
-               linik=nwpwxc_lin(iat,kat)
-               linjk=nwpwxc_lin(jat,kat)
+            if (mod(pcount,np).eq.taskid) then !* using - c6save,  adding - drij,dc6i,
+              linik=nwpwxc_lin(iat,kat)
+              linjk=nwpwxc_lin(jat,kat)
+              ikvec=xyz(:,kat)-xyz(:,iat)
+              jkvec=xyz(:,kat)-xyz(:,jat)
 
-               do taux=-rep_cn(1),rep_cn(1)
-               do tauy=-rep_cn(2),rep_cn(2)
-               do tauz=-rep_cn(3),rep_cn(3)
+              c6ik=c6save(linik)
+              c6jk=c6save(linjk)
+              c9=-1.0d0*dsqrt(c6ij*c6ik*c6jk)
 
-                  dc6=dc6ij(iat,kat)*dcn(tauz,tauy,taux,linij)
-                  drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,linij)
-     >                                      +dc6_rest_sum(linik)*dc6
+              do jtaux=-rep_cn(1),rep_cn(1)
+                repmin(1)=max(-rep_cn(1),jtaux-rep_cn(1))
+                repmax(1)=min(rep_cn(1),jtaux+rep_cn(1))
+              do jtauy=-rep_cn(2),rep_cn(2)
+                repmin(2)=max(-rep_cn(2),jtauy-rep_cn(2))
+                repmax(2)=min(rep_cn(2),jtauy+rep_cn(2))
+              do jtauz=-rep_cn(3),rep_cn(3)
+                repmin(3)=max(-rep_cn(3),jtauz-rep_cn(3))
+                repmax(3)=min(rep_cn(3),jtauz+rep_cn(3))
+                jtau=jtaux*lat(:,1)+jtauy*lat(:,2)+jtauz*lat(:,3)
+                rij2=SUM((ijvec+jtau)*(ijvec+jtau))
+                if(rij2.gt.abcthr)cycle
 
-                  dc6=dc6ij(jat,kat)*dcn(tauz,tauy,taux,linij)
-                  drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,linij)
-     >                                      +dc6_rest_sum(linjk)*dc6
+                rr0ij=DSQRT(rij2)/r0ab(iz(iat),iz(jat))
 
-                  dc6=dc6ij(kat,iat)*dcn(tauz,tauy,taux,linjk)
-                  drij(tauz,tauy,taux,linjk)=drij(tauz,tauy,taux,linjk)
-     >                                      +dc6_rest_sum(linik)*dc6
 
-                  dc6=dc6ij(jat,iat)*dcn(tauz,tauy,taux,linjk)
-                  drij(tauz,tauy,taux,linjk)=drij(tauz,tauy,taux,linjk)
-     >                                      +dc6_rest_sum(linij)*dc6
+                do ktaux=repmin(1),repmax(1)
+                do ktauy=repmin(2),repmax(2)
+                do ktauz=repmin(3),repmax(3)
+                  ktau=ktaux*lat(:,1)+ktauy*lat(:,2)+ktauz*lat(:,3)
+                  rik2=SUM((ikvec+ktau)*(ikvec+ktau))
+                  if(rik2.gt.abcthr)cycle
 
-                  dc6=dc6ij(kat,jat)*dcn(tauz,tauy,taux,linik)
-                  drij(tauz,tauy,taux,linik)=drij(tauz,tauy,taux,linik)
-     >                                      +dc6_rest_sum(linjk)*dc6
+                  dumvec=jkvec+ktau-jtau
+                  rjk2=SUM(dumvec*dumvec)
+                  if(rjk2.gt.abcthr)cycle
+                  rr0ik=dsqrt(rik2)/r0ab(iz(iat),iz(kat))
+                  rr0jk=dsqrt(rjk2)/r0ab(iz(jat),iz(kat))
+                  geomean2=(rij2*rjk2*rik2)
+! first calculate the three components for the energy calculation fdmp
+! and ang 
+                  r0av=(rr0ij*rr0ik*rr0jk)**(1.0d0/3.0d0)
+                  damp9=1./(1.+6.*(sr9*r0av)**alp9)  !alp9 is already saved with "-"
 
-                  dc6=dc6ij(iat,jat)*dcn(tauz,tauy,taux,linik)
-                  drij(tauz,tauy,taux,linik)=drij(tauz,tauy,taux,linik)
-     >                                      +dc6_rest_sum(linij)*dc6
+                  geomean=dsqrt(geomean2)
+                  geomean3=geomean*geomean2
+                  ang=0.375d0*(rij2+rjk2-rik2)*(rij2-rjk2+rik2)
+     .                *(-rij2+rjk2+rik2)/(geomean3*geomean2)
+     .                +1.0d0/(geomean3)
 
-               end do !tauz
-               end do !tauy
-               end do !taux
-            end do!kat
+                  dc6_rest=ang*damp9
+                  eabc=eabc+dc6_rest*c9
+!
+!start calculating the gradient components dfdmp, dang and dc9                  
+                  
+!dfdmp is the same for all three distances 
+                 dfdmp=2.d0*alp9*(0.75d0*r0av)**(alp9)*damp9*damp9
+
+!start calculating the derivatives of each part w.r.t. r_ij              
+                  r=dsqrt(rij2)
+
+
+                 dang=-0.375d0*(rij2**3+rij2**2*(rjk2+rik2)
+     .               +rij2*(3.0d0*rjk2**2+2.0*rjk2*rik2+3.0*rik2**2)
+     .               -5.0*(rjk2-rik2)**2*(rjk2+rik2))
+     .               /(r*geomean3*geomean2)
+
+                 tmp1=-dang*c9*damp9+dfdmp/r*c9*ang
+                 drij(jtauz,jtauy,jtaux,linij)=
+     .             drij(jtauz,jtauy,jtaux,linij)-tmp1
+             
+!start calculating the derivatives of each part w.r.t. r_ik              
+
+                 r=dsqrt(rik2)
+
+
+                 dang=-0.375d0*(rik2**3+rik2**2*(rjk2+rij2)
+     .               +rik2*(3.0d0*rjk2**2+2.0*rjk2*rij2+3.0*rij2**2)
+     .               -5.0*(rjk2-rij2)**2*(rjk2+rij2))
+     .               /(r*geomean3*geomean2)
+
+                 tmp1=-dang*c9*damp9+dfdmp/r*c9*ang
+!                 tmp1=-dc9
+                 drij(ktauz,ktauy,ktaux,linik)=
+     .             drij(ktauz,ktauy,ktaux,linik)-tmp1
+
+!
+!start calculating the derivatives of each part w.r.t. r_jk              
+
+                r=dsqrt(rjk2)
+
+              dang=-0.375d0*(rjk2**3+rjk2**2*(rik2+rij2)
+     .             +rjk2*(3.0d0*rik2**2+2.0*rik2*rij2+3.0*rij2**2)
+     .             -5.0*(rik2-rij2)**2*(rik2+rij2))
+     .               /(r*geomean3*geomean2)
+
+              tmp1=-dang*c9*damp9+dfdmp/r*c9*ang
+              drij(ktauz-jtauz,ktauy-jtauy,ktaux-jtaux,linjk)=
+     .  drij(ktauz-jtauz,ktauy-jtauy,ktaux-jtaux,linjk)-tmp1
+
+!calculating the CN derivative dE_disp(ijk)/dCN(i)
+
+           dc9=dc6ij(iat,jat)/c6ij+dc6ij(iat,kat)/c6ik
+              dc9=0.5d0*c9*dc9
+              dc6i(iat)=dc6i(iat)+dc6_rest*dc9
+             
+           dc9=dc6ij(jat,iat)/c6ij+dc6ij(jat,kat)/c6jk
+              dc9=0.5d0*c9*dc9
+              dc6i(jat)=dc6i(jat)+dc6_rest*dc9
+
+           dc9=dc6ij(kat,iat)/c6ik+dc6ij(kat,jat)/c6jk
+              dc9=0.5d0*c9*dc9
+              dc6i(kat)=dc6i(kat)+dc6_rest*dc9
+
+
+                enddo !ktauz
+                enddo !ktauy
+                enddo !ktauz
+              enddo !jtauz
+              enddo !jtauy
+              enddo !jtaux
             end if
             pcount = pcount + 1
+            enddo !kat
+          enddo !jat
+        enddo !iat
 
-         end do!jat
-      end do!iat
+! Now the interaction with jat=iat of the triples iat,iat,kat
+      DO iat=2,n
+        jat=iat
+        linij=nwpwxc_lin(iat,jat)
+        ijvec=0.0d0
 
-      count = (2*rep_v(3)+1)*(2*rep_v(2)+1)*(2*rep_v(1)+1)*(n*(n+1)/2)
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,count,'+')
+        c6ij=c6save(linij)
+        DO kat=1,iat-1
+        if (mod(pcount,np).eq.taskid) then  !*** Adding-drij    Using- c6save
+          linjk=nwpwxc_lin(jat,kat)
+          linik=linjk
 
-      !write(*,*) "hello,count=",count
-      !if (taskid.eq.0) write(*,*) "hello,drij=",drij
+          c6ik=c6save(linik)
+          c6jk=c6ik  
+          ikvec=xyz(:,kat)-xyz(:,iat)
+          jkvec=ikvec
+          c9=-dsqrt(c6ij*c6ik*c6jk)
+        do jtaux=-repv(1),repv(1)
+          repmin(1)=max(-repv(1),jtaux-repv(1))
+          repmax(1)=min(repv(1),jtaux+repv(1))
+        do jtauy=-repv(2),repv(2)
+          repmin(2)=max(-repv(2),jtauy-repv(2))
+          repmax(2)=min(repv(2),jtauy+repv(2))
+        do jtauz=-repv(3),repv(3)
+          repmin(3)=max(-repv(3),jtauz-repv(3))
+          repmax(3)=min(repv(3),jtauz+repv(3))
+            IF (jtaux.eq.0 .and. jtauy.eq.0 .and. jtauz.eq.0) cycle
+            jtau=jtaux*lat(:,1)+jtauy*lat(:,2)+jtauz*lat(:,3)
+            dumvec=jtau
+            rij2=SUM(dumvec*dumvec)
+            if(rij2.gt.abcthr)cycle
+
+            rr0ij=DSQRT(rij2)/r0ab(iz(iat),iz(jat))
+       
+            do ktaux=repmin(1),repmax(1)
+            do ktauy=repmin(2),repmax(2)
+            do ktauz=repmin(3),repmax(3)
+! every result * 0.5
+
+              ktau=ktaux*lat(:,1)+ktauy*lat(:,2)+ktauz*lat(:,3)
+              dumvec=ikvec+ktau
+              dumvec=dumvec*dumvec
+              rik2=SUM(dumvec)
+              if(rik2.gt.abcthr)cycle
+
+              dumvec=jkvec+ktau-jtau
+              dumvec=dumvec*dumvec
+              rjk2=SUM(dumvec)
+              if(rjk2.gt.abcthr)cycle
+              rr0ik=DSQRT(rik2)/r0ab(iz(iat),iz(kat))
+              rr0jk=DSQRT(rjk2)/r0ab(iz(jat),iz(kat))
+
+
+              geomean2=(rij2*rjk2*rik2)
+              r0av=(rr0ij*rr0ik*rr0jk)**(1.0d0/3.0d0)
+              damp9=1./(1.+6.*(sr9*r0av)**alp9)  !alp9 is already saved with "-"
+
+              geomean=dsqrt(geomean2)
+              geomean3=geomean*geomean2
+              ang=0.375d0*(rij2+rjk2-rik2)*(rij2-rjk2+rik2)
+     .           *(-rij2+rjk2+rik2)/(geomean3*geomean2)
+     .           +1.0d0/(geomean3)
+
+
+              dc6_rest=ang*damp9/2.0d0   !factor 1/2 for doublecounting
+              eabc=eabc+dc6_rest*c9
+
+!              iat=jat
+              dfdmp=2.d0*alp9*(0.75d0*r0av)**(alp9)*damp9*damp9
+
+!start calculating the derivatives of each part w.r.t. r_ij              
+              r=dsqrt(rij2)
+
+              dang=-0.375d0*(rij2**3+rij2**2*(rjk2+rik2)
+     .            +rij2*(3.0d0*rjk2**2+2.0*rjk2*rik2+3.0*rik2**2)
+     .            -5.0*(rjk2-rik2)**2*(rjk2+rik2))
+     .               /(r*geomean3*geomean2)
+
+                 tmp1=-dang*c9*damp9+dfdmp/r*c9*ang
+                 drij(jtauz,jtauy,jtaux,linij)=
+     .             drij(jtauz,jtauy,jtaux,linij)-tmp1/2.0
+             
+!start calculating the derivatives of each part w.r.t. r_ik              
+                 r=dsqrt(rik2)
+
+
+                 dang=-0.375d0*(rik2**3+rik2**2*(rjk2+rij2)
+     .               +rik2*(3.0d0*rjk2**2+2.0*rjk2*rij2+3.0*rij2**2)
+     .               -5.0*(rjk2-rij2)**2*(rjk2+rij2))
+     .               /(r*geomean3*geomean2)
+
+                 tmp1=-dang*c9*damp9+dfdmp/r*c9*ang
+                 drij(ktauz,ktauy,ktaux,linik)=
+     .             drij(ktauz,ktauy,ktaux,linik)-tmp1/2.0
+!
+!start calculating the derivatives of each part w.r.t. r_ik              
+              r=dsqrt(rjk2)
+
+              dang=-0.375d0*(rjk2**3+rjk2**2*(rik2+rij2)
+     .             +rjk2*(3.0d0*rik2**2+2.0*rik2*rij2+3.0*rij2**2)
+     .             -5.0*(rik2-rij2)**2*(rik2+rij2))
+     .               /(r*geomean3*geomean2)
+
+              tmp1=-dang*c9*damp9+dfdmp/r*c9*ang
+
+              drij(ktauz-jtauz,ktauy-jtauy,ktaux-jtaux,linjk)=
+     .  drij(ktauz-jtauz,ktauy-jtauy,ktaux-jtaux,linjk)-tmp1/2.0
+
+           dc9=dc6ij(iat,jat)/c6ij+dc6ij(iat,kat)/c6ik
+              dc9=0.5d0*c9*dc9
+              dc6i(iat)=dc6i(iat)+dc6_rest*dc9
+             
+           dc9=dc6ij(jat,iat)/c6ij+dc6ij(jat,kat)/c6jk
+              dc9=0.5d0*c9*dc9
+              dc6i(jat)=dc6i(jat)+dc6_rest*dc9
+
+           dc9=dc6ij(kat,iat)/c6ik+dc6ij(kat,jat)/c6jk
+              dc9=0.5d0*c9*dc9
+              dc6i(kat)=dc6i(kat)+dc6_rest*dc9
+
+
+
+
+            ENDDO !ktauz
+            ENDDO !ktauy
+            ENDDO !ktaux
+ 
+          ENDDO !jtauz
+          ENDDO !jtauy
+          ENDDO !jtaux
+        end if
+        pcount = pcount + 1
+        ENDDO !kat
+      ENDDO !iat
+      ! And now kat=jat, but cycling throug all imagecells without jtau=ktau. and jat>iat going though all cells    (iat,jat,jat)
+      ! But this counts only 1/2
+
+      DO iat=2,n
+        DO jat=1,iat-1
+        if (mod(pcount,np).eq.taskid) then   !*Adding - eabc,dc6i,drij
+          kat=jat
+          linij=nwpwxc_lin(iat,jat)
+          linjk=nwpwxc_lin(jat,kat)
+          linik=linij
+
+          c6ij=c6save(linij)
+          c6ik=c6ij
+
+          c6jk=c6save(linjk)
+          ikvec=xyz(:,kat)-xyz(:,iat)
+          ijvec=ikvec
+          jkvec=0.0d0
+
+          c9=-1.0d0*dsqrt(c6ij*c6ik*c6jk)
+          do jtaux=-repv(1),repv(1)
+            repmin(1)=max(-repv(1),jtaux-repv(1))
+            repmax(1)=min(repv(1),jtaux+repv(1))
+          do jtauy=-repv(2),repv(2)
+            repmin(2)=max(-repv(2),jtauy-repv(2))
+            repmax(2)=min(repv(2),jtauy+repv(2))
+          do jtauz=-repv(3),repv(3)
+            repmin(3)=max(-repv(3),jtauz-repv(3))
+            repmax(3)=min(repv(3),jtauz+repv(3))
+
+            jtau=jtaux*lat(:,1)+jtauy*lat(:,2)+jtauz*lat(:,3)
+            dumvec=ijvec+jtau
+            dumvec=dumvec*dumvec
+            rij2=SUM(dumvec)
+            if(rij2.gt.abcthr)cycle
+
+            rr0ij=SQRT(rij2)/r0ab(iz(iat),iz(jat))
+       
+          do ktaux=repmin(1),repmax(1)
+          do ktauy=repmin(2),repmax(2)
+          do ktauz=repmin(3),repmax(3)
+! every result * 0.5
+              IF (jtaux.eq.ktaux .and. jtauy.eq.ktauy 
+     .            .and. jtauz.eq.ktauz) cycle
+              ktau=ktaux*lat(:,1)+ktauy*lat(:,2)+ktauz*lat(:,3)
+              dumvec=ikvec+ktau
+              dumvec=dumvec*dumvec
+              rik2=SUM(dumvec)
+              if(rik2.gt.abcthr)cycle
+              rr0ik=SQRT(rik2)/r0ab(iz(iat),iz(kat))
+
+              dumvec=jkvec+ktau-jtau
+              dumvec=dumvec*dumvec
+              rjk2=SUM(dumvec)
+              if(rjk2.gt.abcthr)cycle
+              rr0jk=SQRT(rjk2)/r0ab(iz(jat),iz(kat))
+
+!              if (rij*rjk*rik.gt.abcthr)cycle
+
+              geomean2=(rij2*rjk2*rik2)
+              r0av=(rr0ij*rr0ik*rr0jk)**(1.0d0/3.0d0)
+              damp9=1./(1.+6.d0*(sr9*r0av)**alp9)  !alp9 is already saved with "-"
+
+              geomean=dsqrt(geomean2)
+              geomean3=geomean*geomean2
+              ang=0.375d0*(rij2+rjk2-rik2)*(rij2-rjk2+rik2)
+     .           *(-rij2+rjk2+rik2)/(geomean2*geomean3)
+     .           +1.0d0/(geomean3)
+              dc6_rest=ang*damp9/2.0d0   !factor 1/2 for doublecounting
+              eabc=eabc+dc6_rest*c9
+
+
+!              jat=kat
+              dfdmp=2.d0*alp9*(0.75d0*r0av)**(alp9)*damp9*damp9
+!start calculating the derivatives of each part w.r.t. r_ij              
+                 r=dsqrt(rij2)
+
+                 dang=-0.375d0*(rij2**3+rij2**2*(rjk2+rik2)
+     .               +rij2*(3.0d0*rjk2**2+2.0d0*rjk2*rik2+3.0d0*rik2**2)
+     .               -5.0d0*(rjk2-rik2)**2*(rjk2+rik2))
+     .               /(r*geomean3*geomean2)
+
+                 tmp1=-dang*c9*damp9+dfdmp/r*c9*ang
+                 drij(jtauz,jtauy,jtaux,linij)=
+     .             drij(jtauz,jtauy,jtaux,linij)-tmp1/2.0d0
+             
+!start calculating the derivatives of each part w.r.t. r_ik              
+                 r=dsqrt(rik2)
+
+
+                 dang=-0.375d0*(rik2**3+rik2**2*(rjk2+rij2)
+     .               +rik2*(3.0d0*rjk2**2+2.0*rjk2*rij2+3.0*rij2**2)
+     .               -5.0*(rjk2-rij2)**2*(rjk2+rij2))
+     .               /(r*geomean3*geomean2)
+
+                 tmp1=-dang*c9*damp9+dfdmp/r*c9*ang
+!                 tmp1=-dc9
+                 drij(ktauz,ktauy,ktaux,linik)=
+     .             drij(ktauz,ktauy,ktaux,linik)-tmp1/2.0d0
+!
+!start calculating the derivatives of each part w.r.t. r_jk              
+              r=dsqrt(rjk2)
+
+              dang=-0.375d0*(rjk2**3+rjk2**2*(rik2+rij2)
+     .             +rjk2*(3.0d0*rik2**2+2.0*rik2*rij2+3.0*rij2**2)
+     .             -5.0d0*(rik2-rij2)**2*(rik2+rij2))
+     .               /(r*geomean3*geomean2)
+
+              tmp1=-dang*c9*damp9+dfdmp/r*c9*ang
+              drij(ktauz-jtauz,ktauy-jtauy,ktaux-jtaux,linjk)=
+     .  drij(ktauz-jtauz,ktauy-jtauy,ktaux-jtaux,linjk)-tmp1/2.0d0
+
+!calculating the CN derivative dE_disp(ijk)/dCN(i)
+
+           dc9=dc6ij(iat,jat)/c6ij+dc6ij(iat,kat)/c6ik
+              dc9=0.5d0*c9*dc9
+              dc6i(iat)=dc6i(iat)+dc6_rest*dc9
+             
+           dc9=dc6ij(jat,iat)/c6ij+dc6ij(jat,kat)/c6jk
+              dc9=0.5d0*c9*dc9
+              dc6i(jat)=dc6i(jat)+dc6_rest*dc9
+
+           dc9=dc6ij(kat,iat)/c6ik+dc6ij(kat,jat)/c6jk
+              dc9=0.5d0*c9*dc9
+              dc6i(kat)=dc6i(kat)+dc6_rest*dc9
+
+
+
+
+            ENDDO !ktauz
+            ENDDO !ktauy
+            ENDDO !ktaux
+ 
+          ENDDO !jtauz
+          ENDDO !jtauy
+          ENDDO !jtaux
+        end if
+        pcount = pcount + 1
+        ENDDO !kat
+      ENDDO !iat
+
+
+! And finally the self interaction iat=jat=kat all 
+
+      idum=0
+      DO iat=1,n
+      if (mod(pcount,np).eq.taskid) then !** adding drij,eabc,dc6i
+      jat=iat
+      kat=iat
+      ijvec=0.0d0
+      linij=nwpwxc_lin(iat,jat)
+      linik=nwpwxc_lin(iat,kat)
+      linjk=nwpwxc_lin(jat,kat)
+      ikvec=ijvec
+      jkvec=ikvec
+          c6ij=c6save(linij)
+          c6ik=c6ij
+          c6jk=c6ij
+          c9=-(DSQRT(c6ij*c6ij*c6ij))
+
+        do jtaux=-repv(1),repv(1)
+          repmin(1)=max(-repv(1),jtaux-repv(1))
+          repmax(1)=min(repv(1),jtaux+repv(1))
+        do jtauy=-repv(2),repv(2)
+          repmin(2)=max(-repv(2),jtauy-repv(2))
+          repmax(2)=min(repv(2),jtauy+repv(2))
+        do jtauz=-repv(3),repv(3)
+          repmin(3)=max(-repv(3),jtauz-repv(3))
+          repmax(3)=min(repv(3),jtauz+repv(3))
+         IF ((jtaux.eq.0) .and.(jtauy.eq.0) .and.(jtauz.eq.0))cycle !IF iat and jat are the same then cycle
+          jtau=jtaux*lat(:,1)+jtauy*lat(:,2)+jtauz*lat(:,3)
+          dumvec=jtau
+          dumvec=dumvec*dumvec
+          rij2=SUM(dumvec)
+          if(rij2.gt.abcthr)cycle
+          rr0ij=SQRT(rij2)/r0ab(iz(iat),iz(jat))
+
+          do ktaux=repmin(1),repmax(1)
+          do ktauy=repmin(2),repmax(2)
+          do ktauz=repmin(3),repmax(3)
+           IF ((ktaux.eq.0) .and.( ktauy.eq.0) .and.( ktauz.eq.0))cycle !IF iat and kat are the same then cycle
+            IF ((ktaux.eq.jtaux) .and. (ktauy.eq.jtauy) 
+     .         .and. (ktauz.eq.jtauz)) cycle      !If kat and jat are the same then cycle
+
+! every result * 1/6 becaues every triple is counted twice due to the two loops jtau and ktau going from -repv to repv -> *1/2
+! 
+!plus 1/3 becaues every triple is three times in each unitcell
+              ktau=ktaux*lat(:,1)+ktauy*lat(:,2)+ktauz*lat(:,3)
+              dumvec=ktau
+              dumvec=dumvec*dumvec
+              rik2=SUM(dumvec)
+              if(rik2.gt.abcthr)cycle
+              rr0ik=SQRT(rik2)/r0ab(iz(iat),iz(kat))
+
+              dumvec=jkvec+ktau-jtau
+              dumvec=dumvec*dumvec
+              rjk2=SUM(dumvec)
+              if(rjk2.gt.abcthr)cycle
+              rr0jk=SQRT(rjk2)/r0ab(iz(jat),iz(kat))
+
+              geomean2=(rij2*rjk2*rik2)
+              r0av=(rr0ij*rr0ik*rr0jk)**(1.0d0/3.0d0)
+              damp9=1./(1.+6.*(sr9*r0av)**alp9)  !alp9 is already saved with "-"
+
+              geomean=dsqrt(geomean2)
+              geomean3=geomean*geomean2
+              ang=0.375d0*(rij2+rjk2-rik2)*(rij2-rjk2+rik2)
+     .            *(-rij2+rjk2+rik2)/(geomean2*geomean3)
+     .            +1.0d0/(geomean3)
+              dc6_rest=ang*damp9/6.0d0
+              eabc=eabc+c9*dc6_rest
+ 
+!                          iat=jat=kat
+              dfdmp=2.d0*alp9*(0.75d0*r0av)**(alp9)*damp9*damp9
+!start calculating the derivatives of each part w.r.t. r_ij              
+
+                 r=dsqrt(rij2)
+                 dang=-0.375d0*(rij2**3+rij2**2*(rjk2+rik2)
+     .               +rij2*(3.0d0*rjk2**2+2.0*rjk2*rik2+3.0*rik2**2)
+     .               -5.0*(rjk2-rik2)**2*(rjk2+rik2))
+     .               /(r*geomean3*geomean2)
+
+
+                 tmp1=-dang*c9*damp9+dfdmp/r*c9*ang
+                 drij(jtauz,jtauy,jtaux,linij)=
+     .             drij(jtauz,jtauy,jtaux,linij)-tmp1/6.0d0
+             
+!start calculating the derivatives of each part w.r.t. r_ik              
+
+                 r=dsqrt(rik2)
+
+                 dang=-0.375d0*(rik2**3+rik2**2*(rjk2+rij2)
+     .               +rik2*(3.0d0*rjk2**2+2.0*rjk2*rij2+3.0*rij2**2)
+     .               -5.0*(rjk2-rij2)**2*(rjk2+rij2))
+     .               /(r*geomean3*geomean2)
+
+                 tmp1=-dang*c9*damp9+dfdmp/r*c9*ang
+                 drij(ktauz,ktauy,ktaux,linik)=
+     .             drij(ktauz,ktauy,ktaux,linik)-tmp1/6.0d0
+!
+!start calculating the derivatives of each part w.r.t. r_jk
+
+              r=dsqrt(rjk2)
+              dang=-0.375d0*(rjk2**3+rjk2**2*(rik2+rij2)
+     .             +rjk2*(3.0d0*rik2**2+2.0*rik2*rij2+3.0*rij2**2)
+     .             -5.0*(rik2-rij2)**2*(rik2+rij2))
+     .               /(r*geomean3*geomean2)
+
+              tmp1=-dang*c9*damp9+dfdmp/r*c9*ang
+              drij(ktauz-jtauz,ktauy-jtauy,ktaux-jtaux,linjk)=
+     .  drij(ktauz-jtauz,ktauy-jtauy,ktaux-jtaux,linjk)-tmp1/6.0d0
+
+
+!calculating the CN derivative dE_disp(ijk)/dCN(i)
+
+           dc9=dc6ij(iat,jat)/c6ij+dc6ij(iat,kat)/c6ik
+              dc9=0.5d0*c9*dc9
+              dc6i(iat)=dc6i(iat)+dc6_rest*dc9
+             
+           dc9=dc6ij(jat,iat)/c6ij+dc6ij(jat,kat)/c6jk
+              dc9=0.5d0*c9*dc9
+              dc6i(jat)=dc6i(jat)+dc6_rest*dc9
+
+           dc9=dc6ij(kat,iat)/c6ik+dc6ij(kat,jat)/c6jk
+              dc9=0.5d0*c9*dc9
+              dc6i(kat)=dc6i(kat)+dc6_rest*dc9
+
+
+
+          ENDDO !ktauz
+          ENDDO !ktauy
+          ENDDO !ktaux
+        ENDDO !jtauz
+        ENDDO !jtauy
+        ENDDO !jtaux
+
+
+      end if
+      pcount = pcount + 1
+      ENDDO !iat
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,eabc,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6i,n,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,drijsize,'+')
+
+
+        !call nwpwxc_cpu_time(time2)
+
+!        write(*,*)' eabc(gdisp):  ',eabc
+!      write(*,'('' time(abc)  '',f6.1)')time2-time1
+        disp=disp-eabc  ! cbannwarth: the minus is correct here, because the angular term is calculated with 0.375d0 instead of -0.375d0 (c.f., non-periodic code)
+!        write(*,*)'gdisp:',disp
+      endif !.not.noabc
+
+451   continue
+
+      sigma_abc=0.0d0
+      sigma=0.0d0
 
 ! After calculating all derivatives dE/dr_ij w.r.t. distances,
 ! the grad w.r.t. the coordinates is calculated dE/dr_ij * dr_ij/dxyz_i       
       do iat=2,n
         do jat=1,iat-1
         if (mod(pcount,np).eq.taskid) then
+          linij=nwpwxc_lin(iat,jat)
+!       write(*,'(3E17.6,XX,2I2)'),drij(0,0,-1:1,lin(iat,jat)),iat,jat
+          rcovij=rcov(iz(iat))+rcov(iz(jat))
           do taux=-rep_v(1),rep_v(1)
           do tauy=-rep_v(2),rep_v(2)
           do tauz=-rep_v(3),rep_v(3)
             tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
 
-          rij=xyz(:,jat)-xyz(:,iat)+tau
-          r=dsqrt(sum(rij*rij))
-          vec=drij(tauz,tauy,taux,nwpwxc_lin(iat,jat))*rij/r
-          vec2(1)=taux
-          vec2(2)=tauy
-          vec2(3)=tauz
-          g(:,iat)=g(:,iat)+vec
-          g(:,jat)=g(:,jat)-vec
-          do i=1,3
-          do j=1,3
-          sigma(j,i)=sigma(j,i)+vec(j)*rij(i)
-          enddo !j
-          enddo !i
+            rij=xyz(:,jat)-xyz(:,iat)+tau
+            r2=sum(rij*rij)  
+            if (r2.gt.rthr.or.r2.lt.0.5) cycle
+            r=dsqrt(r2)
+
+            if (r2.lt.crit_cn) then
+              expterm=exp(-k1*(rcovij/r-1.d0))
+              dcnn=-k1*rcovij*expterm/
+     .                 (r2*(expterm+1.d0)*(expterm+1.d0))
+            else
+              dcnn=0.0d0
+            endif
+            x1=drij(tauz,tauy,taux,linij)+dcnn*(dc6i(iat)+dc6i(jat))
+
+            vec=x1*rij/r
+            g(:,iat)=g(:,iat)+vec
+            g(:,jat)=g(:,jat)-vec
+            do i=1,3
+            do j=1,3
+              sigma(j,i)=sigma(j,i)+vec(j)*rij(i)
+            enddo !j
+            enddo !i
 
 
 
@@ -2085,35 +2348,50 @@ c precompute for analytical part
 
       do iat=1,n
       if (mod(pcount,np).eq.taskid) then
+        rcovij=rcov(iz(iat))+rcov(iz(iat))
           do taux=-rep_v(1),rep_v(1)
           do tauy=-rep_v(2),rep_v(2)
           do tauz=-rep_v(3),rep_v(3)
-          if (taux.eq.0.and.tauy.eq.0.and.tauz.eq.0) cycle
+            if (taux.eq.0.and.tauy.eq.0.and.tauz.eq.0) cycle
 
-          tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
-          r=dsqrt(sum(tau*tau))
-          vec=drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))*tau/r
-          vec2(1)=taux
-          vec2(2)=tauy
-          vec2(3)=tauz
-          do i=1,3
-          do j=1,3
-            sigma(j,i)=sigma(j,i)+vec(j)*tau(i)
-          enddo !j
-          enddo !i
+            tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
+            r2=(sum(tau*tau))
+            r=dsqrt(r2)
+            if (r2.lt.crit_cn) then
+              expterm=exp(-k1*(rcovij/r-1.d0))
+              dcnn=-k1*rcovij*expterm/
+     .                   (r2*(expterm+1.d0)*(expterm+1.d0))
+            else
+              dcnn=0.0d0
+            endif
+            x1=drij(tauz,tauy,taux,nwpwxc_lin(iat,iat))+dcnn*dc6i(iat)
+            vec=x1*tau/r
+            vec2(1)=taux
+            vec2(2)=tauy
+            vec2(3)=tauz
+            do i=1,3
+            do j=1,3
+              sigma(j,i)=sigma(j,i)+vec(j)*tau(i)
+            enddo !j
+            enddo !i
 
 
           enddo !tauz
           enddo !tauy
           enddo !taux
 
+
+
       end if
       pcount = pcount + 1
-      enddo
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,g,3*n,'+')
+      enddo !iat
       if (np.gt.1) call GA_DGOP(9+MSGDBL,sigma,9,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,g,3*n,'+')
+
+
 
       stress=0.0d0
+      glatabc=0.0d0
       call nwpwxc_inv_cell(lat,lat_1)
       do a=1,3
         do b=1,3
@@ -2125,18 +2403,24 @@ c precompute for analytical part
 
 
 
-!          write(*,*)'drij:',drij(nwpwxc_lin(iat,jat),:)
+!          write(*,*)'drij:',drij(lin(iat,jat),:)
 !          write(*,*)'g:',g(1,1:3)
-!          write(*,*)'dcn:',sum(dcn(nwpwxc_lin(2,1),:))
-
-      deallocate(drij,dc6_rest,dcn)
+!          write(*,*)'dcn:',sum(dcn(lin(2,1),:))
 
 
 
-      endif ! version
+        deallocate(drij)
+        !deallocate(drij,dc6_rest,dcn)
 
+
+      
 
  999  continue
+!!!!!!!!!!!!!!!!!!!!!!!!!!!      
+!      
+!This is where the D2 gradient and the numerical gradient jump.
+!      
+!!!!!!!!!!!!!!!!!!!!!!!!!!      
 !      do i=1,n
 !        write(*,'(83F17.12)') g(1:3,i)
 !      enddo
@@ -2286,10 +2570,17 @@ CTHR
             rr=R0/r
             r6=r2**3       
 
-            tmp=rs6*rr   
-            damp6 =1.d0/( 1.d0+6.d0*tmp**alp6 )
-            tmp=rs8*rr     
-            damp8 =1.d0/( 1.d0+6.d0*tmp**alp8 )
+            if(version.eq.3)then
+              tmp=rs6*rr   
+              damp6 =1.d0/( 1.d0+6.d0*tmp**alp6 )
+              tmp=rs8*rr     
+              damp8 =1.d0/( 1.d0+6.d0*tmp**alp8 )
+            else
+              tmp=(r/(R0*rs6)+R0*rs8)**(-alp6) 
+              damp6 =1.d0/( 1.d0+6.d0*tmp )
+              tmp=(r/(R0)+R0*rs8)**(-alp8) 
+              damp8 =1.d0/( 1.d0+6.d0*tmp )
+            endif
 
             if (version.eq.2)then
               c6=c6ab(iz(jat),iz(iat),1,1,1)
@@ -2305,7 +2596,7 @@ CTHR
      .                                      cn(iat),cn(jat),c6)
             endif
 
-            if(version.eq.3)then
+            if((version.eq.3).or.(version.eq.5))then
               r8 =r6*r2
               r42=r2r4(iz(iat))*r2r4(iz(jat))
               c8 =3.0d0*c6*r42
@@ -2318,7 +2609,7 @@ CTHR
               endif
             endif
 
-            if(version.eq.4)then
+            if((version.eq.4).or.(version.eq.6))then
               r42=r2r4(iz(iat))*r2r4(iz(jat))
               c8 =3.0d0*c6*r42
 c use BJ radius
@@ -2454,14 +2745,14 @@ c      enddo
                do jj=1,nj
                   jjjj=grplist(jj,j)
                   if(jjjj.lt.iiii)cycle
-                  eg(nwpwxc_lin(iii,jjj))=
-     >              eg(nwpwxc_lin(iii,jjj))+ed(iiii,jjjj)
+                  eg(nwpwxc_lin(iii,jjj)) 
+     >             = eg(nwpwxc_lin(iii,jjj))+ed(iiii,jjjj)
                enddo
             enddo
          enddo
       enddo
 
-c     call nwpwxc_prmat(6,eg,ngrp,0,'intra- + inter-group dispersion energies')
+c     call prmat(6,eg,ngrp,0,'intra- + inter-group dispersion energies')
       write(*,*)' group i      j     Edisp'
       k=0
       check=0
@@ -2478,7 +2769,7 @@ c     call nwpwxc_prmat(6,eg,ngrp,0,'intra- + inter-group dispersion energies')
       end subroutine nwpwxc_pbcadisp
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-      SUBROUTINE nwpwxc_SET_CRITERIA(rthr,lat,tau_max)
+      SUBROUTINE NWPWXC_SET_CRITERIA(rthr,lat,tau_max)
 
         REAL*8 :: r_cutoff,rthr
         REAL*8 :: lat(3,3)
@@ -2495,9 +2786,9 @@ c          write(*,*) 'lat',lat
         call nwpwxc_kreuzprodukt(lat(:,1),lat(:,2),norm3)
 c        write(*,*) 'norm2',norm2
         !c ...normalize it...
-        norm1=norm1/nwpwxc_VECTORSIZE(norm1)
-        norm2=norm2/nwpwxc_VECTORSIZE(norm2)
-        norm3=norm3/nwpwxc_VECTORSIZE(norm3)
+        norm1=norm1/NWPWXC_VECTORSIZE(norm1)
+        norm2=norm2/NWPWXC_VECTORSIZE(norm2)
+        norm3=norm3/NWPWXC_VECTORSIZE(norm3)
 c        write(*,*) 'norm2_',norm2
           !c cos angles between normals and lattice vectors
         cos10=SUM(norm1*lat(:,1))
@@ -2512,7 +2803,7 @@ c        write(*,*) 'norm2_',norm2
         tau_max(2)=abs(r_cutoff/cos21)
         tau_max(3)=abs(r_cutoff/cos32)
 c        write(*,'(3f8.4)')tau_max(1),tau_max(2),tau_max(3)
-      END SUBROUTINE nwpwxc_SET_CRITERIA
+      END SUBROUTINE NWPWXC_SET_CRITERIA
 
 
       SUBROUTINE nwpwxc_kreuzprodukt(A,B,C)
@@ -2528,138 +2819,17 @@ c        write(*,'(3f8.4)')tau_max(1),tau_max(2),tau_max(3)
         C=(/X,Y,Z/)
       END SUBROUTINE nwpwxc_kreuzprodukt
 
-       FUNCTION nwpwxc_VECTORSIZE(VECT)
+       FUNCTION NWPWXC_VECTORSIZE(VECT)
 
          REAL*8 :: VECT(3)
          REAL*8 :: SVECT(3)
-         REAL*8 :: nwpwxc_VECTORSIZE
+         REAL*8 :: NWPWXC_VECTORSIZE
 
          SVECT=VECT*VECT
-         nwpwxc_VECTORSIZE=SUM(SVECT)
-         nwpwxc_VECTORSIZE=nwpwxc_VECTORSIZE**(0.5)
-       END FUNCTION nwpwxc_VECTORSIZE
+         NWPWXC_VECTORSIZE=SUM(SVECT)
+         NWPWXC_VECTORSIZE=NWPWXC_VECTORSIZE**(0.5)
+       END FUNCTION NWPWXC_VECTORSIZE
 
-      SUBROUTINE nwpwxc_stresstensor(maxc,max_elem,autoev,s6,s18,xyz,
-     >     n,iz,
-     .     latice,c6ab,mxc,version,num_ex,noabc,echo,r0ab,r2r4,
-     .     rcov,rs6,rs8,rs10,alp6,alp8,alp10,rthr,rep_vdw,cn_thr,rep_cn,
-     .     stress)
-      IMPLICIT NONE
-!!! all values in au !!!       
-      INTEGER      :: maxc,max_elem
-      real*8,intent(in)   :: autoev
-      REAL*8,intent(inout):: xyz(3,*) !cartesian coordinates of atoms
-      INTEGER,intent(in)  :: n !number of atoms
-      REAL*8,intent(in)   :: latice(3,3) !unitcell vectors in cartesian
-      INTEGER,intent(in) :: version !2=D2,3=D3-zero, 4=D3-BJ
-      real*8, intent(out) :: stress(3,3) !stresstensor
-      logical,intent(in)  :: num_ex !true, if numerical grad-routine
-      logical,INTENT(in)  :: noabc !true if no threebodycontirbution
-      logical,INTENT(in)  :: echo !true if printout on screen is desired
-      real*8,INTENT(in)   :: c6ab(max_elem,max_elem,maxc,maxc,3)! C6 for all element pairs 
-      integer,INTENT(in)  :: mxc(max_elem)! how many different C6 for one element
-      real*8,intent(in)   :: r0ab(max_elem,max_elem)! cut-off radii for all element pairs
-      integer,INTENT(in)  :: iz(*) !cardinal number of atoms
-      real*8,intent(in)   :: s6,s18 !scalingparameters
-      real*8              :: r2r4(max_elem),rcov(max_elem)
-      real*8              :: rs6,rs8,rs10,alp6,alp8,alp10 
-      real*8              :: rthr,cn_thr
-      integer             :: rep_vdw(3),rep_cn(3)
-
-      
-      INTEGER        ::i,j,k,iat,my,ny,a,b
-      REAL*8,DIMENSION(3,10000)::abc
-      REAL*8                ::e6,e8,e10,e12,e6abc,disp
-      real*8                ::step,dum1,dum2
-      real*8,dimension(3,3) ::lat,lat_1,lat_1t
-      real*8,dimension(3,3) :: num_stresstensor,sigma
-      real*8                ::grad(3,n),gradnorm
-      logical               :: echo2
-      real*8,external       :: nwpwxc_volume
-      logical             :: num !true, if numerical grad-routine
-      real*8               :: time1,time2
-      
-      
-      echo2=echo
-      lat=latice
-      call nwpwxc_inv_cell(lat,lat_1)
-      lat_1t=transpose(lat_1)
-      
-      
-      sigma=0.0d0
-      num=.true.
-
-      call cpu_time(time1)
-      call nwpwxc_xyz_to_abc(xyz,abc,lat,n)
-      IF (num) THEN
-      IF (echo2) write(*,*)'Doing numerical stresstensor...'
-      step=2.d-5
-      do i=1,3
-        do j=1,3
-          lat(j,i)=lat(j,i)+step
-          call nwpwxc_abc_to_xyz(abc,xyz,lat,n)
-          !call edisp...dum1
-       call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
-     .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
-     .           e6,e8,e10,e12,e6abc,lat,rthr,rep_vdw,cn_thr,rep_cn)
-         dum1=-s6*e6-s18*e8-s6*e6abc
-
-
-          lat(j,i)=lat(j,i)-2*step
-          call nwpwxc_abc_to_xyz(abc,xyz,lat,n)
-          !call edisp...dum2
-        call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
-     .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
-     .           e6,e8,e10,e12,e6abc,lat,rthr,rep_vdw,cn_thr,rep_cn)
-          dum2=-s6*e6-s18*e8-s6*e6abc
-          num_stresstensor(j,i)=(dum1-dum2)/(step*2.0)
-
-          lat(j,i)=lat(j,i)+step
-          call nwpwxc_abc_to_xyz(abc,xyz,lat,n)
-          
-        enddo !j
-      enddo !i
-      stress=num_stresstensor
-      
-      
-      ELSE !NOT NUM analytic gradient
-      IF (echo2) write(*,*)'Doing analytical stresstensor...'
-      
-!      write(*,*)'Analytical gradient for cellstress Not jet done!'
-!      return
-      
-!      call nwpwxc_pbcgdisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
-!     .            rcov,s6,s18,rs6,rs8,rs10,alp6,alp8,alp10,noabc,num,
-!     .                 version,g,disp,gnorm,sigma,lat,rep_v,rep_cn,
-!     .                 crit_vdw,echo,crit_cn)
-
-
-      sigma=sigma!/(nwpwxc_volume(lat))
-
-      do a=1,3
-        do b=1,3
-          do my=1,3
-            stress(a,b)=stress(a,b)+sigma(a,my)*lat_1(b,my)
-          enddo          
-        enddo !b
-      enddo !a
-      stress=-stress!*nwpwxc_volume(lat)
-
-      ENDIF !num or anal
-      call cpu_time(time2)
-    
-
-      IF (echo2) THEN 
-        write(*,*)'Done!'
-        write(*,'('' time  '',f4.1)')time2-time1
-!        write(*,*)'Virialstress(eV):'
-!        write(*,'(3F12.8)')sigma*autoev
-!        write(*,*)''
-        write(*,*)'Stress(a.u.):'
-        write(*,'(3F12.8)')stress
-      ENDIF !echo2
-      
-      END SUBROUTINE nwpwxc_stresstensor
       
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -2691,9 +2861,9 @@ c        write(*,'(3f8.4)')tau_max(1),tau_max(2),tau_max(3)
 
       SUBROUTINE nwpwxc_xyz_to_abc(xyz,abc,lat,n)
       IMPLICIT NONE
-      real*8, INTENT(in) :: xyz(3,*)
+      real*8, INTENT(in) :: xyz(3,n)
       real*8, intent(in) :: lat(3,3)
-      real*8, intent(out) :: abc(3,*)
+      real*8, intent(out) :: abc(3,n)
       integer,intent(in) :: n
       
       real*8 lat_1(3,3)
@@ -2743,10 +2913,14 @@ c        write(*,'(3f8.4)')tau_max(1),tau_max(2),tau_max(3)
         REAL*8 zwerg
         
         zwerg=lat(1,1)*lat(2,2)*lat(3,3)+lat(1,2)*lat(2,3)*lat(3,1)+
-     .       lat(1,3)*lat(2,1)*lat(3,2)-lat(1,3)*lat(2,2)*lat(3,1)-
-     .       lat(1,2)*lat(2,1)*lat(3,3)-lat(1,1)*lat(2,3)*lat(3,2)
+     .        lat(1,3)*lat(2,1)*lat(3,2)-lat(1,3)*lat(2,2)*lat(3,1)-
+     .        lat(1,2)*lat(2,1)*lat(3,3)-lat(1,1)*lat(2,3)*lat(3,2)
         nwpwxc_volume=abs(zwerg)
       END FUNCTION nwpwxc_volume
+
+
+
+
 
 
 
@@ -2756,46 +2930,46 @@ c            string pars procedures
 c
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-c      subroutine nwpwxc_parse(str,delims,args,nargs)
-c
-c! Parses the string 'str' into arguments args(1), ..., args(nargs) based on
-c! the delimiters contained in the string 'delims'. Preceding a delimiter in
-c! 'str' by a backslash (\) makes this particular instance not a delimiter.
-c! The integer output variable nargs contains the number of arguments found.
-c      interface 
-c        subroutine nwpwxc_split(str,delims,before,sep)
-c         character(len=*),intent(inout) :: str,before
-c         character(len=*),intent(in) :: delims
-c         character,optional,intent(inout) :: sep
-c       end subroutine nwpwxc_split
-c      end interface
-c
-c      character(len=*),intent(inout) :: str
-c      character(len=*),intent(in) :: delims
-c      character(len=len_trim(str)) :: strsav
-c      character(len=*),dimension(:),intent(inout) :: args
-c      integer, intent(out) :: nargs
-c      
-c      strsav=str
-c      call nwpwxc_compact(str)
-c      na=size(args)
-c      do i=1,na
-c        args(i)=' '
-c      end do  
-c      nargs=0
-c      lenstr=len_trim(str)
-c      if(lenstr==0) return
-c      k=0
-c
-c      do
-c         if(len_trim(str) == 0) exit
-c         nargs=nargs+1
-c         call nwpwxc_split(str,delims,args(nargs))
-c         call nwpwxc_removebksl(args(nargs))
-c      end do   
-c      str=strsav
-c
-c      end subroutine nwpwxc_parse
+      subroutine nwpwxc_parse(str,delims,args,nargs)
+
+! Parses the string 'str' into arguments args(1), ..., args(nargs) based on
+! the delimiters contained in the string 'delims'. Preceding a delimiter in
+! 'str' by a backslash (\) makes this particular instance not a delimiter.
+! The integer output variable nargs contains the number of arguments found.
+      interface 
+        subroutine nwpwxc_split(str,delims,before,sep)
+         character(len=*),intent(inout) :: str,before
+         character(len=*),intent(in) :: delims
+         character,optional,intent(inout) :: sep
+       end subroutine nwpwxc_split
+      end interface
+
+      character(len=*),intent(inout) :: str
+      character(len=*),intent(in) :: delims
+      character(len=len_trim(str)) :: strsav
+      character(len=*),dimension(:),intent(inout) :: args
+      integer, intent(out) :: nargs
+      
+      strsav=str
+      call nwpwxc_compact(str)
+      na=size(args)
+      do i=1,na
+        args(i)=' '
+      end do  
+      nargs=0
+      lenstr=len_trim(str)
+      if(lenstr==0) return
+      k=0
+
+      do
+         if(len_trim(str) == 0) exit
+         nargs=nargs+1
+         call nwpwxc_split(str,delims,args(nargs))
+         call nwpwxc_removebksl(args(nargs))
+      end do   
+      str=strsav
+
+      end subroutine nwpwxc_parse
 
 !**********************************************************************
 
@@ -2873,109 +3047,109 @@ c      end subroutine nwpwxc_parse
 
 
 
-c      subroutine nwpwxc_split(str,delims,before,sep)
-c
-c! Routine finds the first instance of a character from 'delims' in the
-c! the string 'str'. The characters before the found delimiter are
-c! output in 'before'. The characters after the found delimiter are
-c! output in 'str'. The optional output character 'sep' contains the 
-c! found delimiter. A delimiter in 'str' is treated like an ordinary 
-c! character if it is preceded by a backslash (\). If the backslash 
-c! character is desired in 'str', then precede it with another backslash.
-c
-c      character(len=*),intent(inout) :: str,before
-c      character(len=*),intent(in) :: delims
-c      character,optional :: sep
-c      logical :: pres
-c      character :: ch,cha
-c
-c      pres=present(sep)
-c      str=adjustl(str)
-c      call nwpwxc_compact(str)
-c      lenstr=len_trim(str)
-c      if(lenstr == 0) return        ! string str is empty
-c      k=0
-c      ibsl=0                        ! backslash initially inactive
-c      before=' '
-c      do i=1,lenstr
-c         ch=str(i:i)
-c         if(ibsl == 1) then          ! backslash active
-c            k=k+1
-c            before(k:k)=ch
-c            ibsl=0
-c            cycle
-c         end if
-c         if(ch == '\') then          ! backslash with backslash inactive
-c            k=k+1
-c            before(k:k)=ch
-c            ibsl=1
-c            cycle
-c         end if
-c         ipos=index(delims,ch)         
-c         if(ipos == 0) then          ! character is not a delimiter
-c            k=k+1
-c            before(k:k)=ch
-c            cycle
-c         end if
-c         if(ch /= ' ') then          ! character is a delimiter that is not a space
-c            str=str(i+1:)
-c            if(pres) sep=ch
-c            exit
-c         end if
-c         cha=str(i+1:i+1)            ! character is a space delimiter
-c         iposa=index(delims,cha)
-c         if(iposa > 0) then          ! next character is a delimiter
-c            str=str(i+2:)
-c            if(pres) sep=cha
-c            exit
-c         else
-c            str=str(i+1:)
-c            if(pres) sep=ch
-c            exit
-c         end if
-c      end do
-c      if(i >= lenstr) str=''
-c      str=adjustl(str)              ! remove initial spaces
-c      return
-c
-c      end subroutine nwpwxc_split
-c
-c!**********************************************************************
-c
-c      subroutine nwpwxc_removebksl(str)
-c
-c! Removes backslash (\) characters. Double backslashes (\\) are replaced
-c! by a single backslash.
-c
-c      character(len=*):: str
-c      character(len=1):: ch
-c      character(len=len_trim(str))::outstr
-c
-c      str=adjustl(str)
-c      lenstr=len_trim(str)
-c      outstr=' '
-c      k=0
-c      ibsl=0                        ! backslash initially inactive
-c      
-c      do i=1,lenstr
-c        ch=str(i:i)
-c        if(ibsl == 1) then          ! backslash active
-c         k=k+1
-c         outstr(k:k)=ch
-c         ibsl=0
-c         cycle
-c        end if
-c        if(ch == '\') then          ! backslash with backslash inactive
-c         ibsl=1
-c         cycle
-c        end if
-c        k=k+1
-c        outstr(k:k)=ch              ! non-backslash with backslash inactive
-c      end do
-c      
-c      str=adjustl(outstr)
-c      
-c      end subroutine nwpwxc_removebksl
+      subroutine nwpwxc_split(str,delims,before,sep)
+
+! Routine finds the first instance of a character from 'delims' in the
+! the string 'str'. The characters before the found delimiter are
+! output in 'before'. The characters after the found delimiter are
+! output in 'str'. The optional output character 'sep' contains the 
+! found delimiter. A delimiter in 'str' is treated like an ordinary 
+! character if it is preceded by a backslash (\). If the backslash 
+! character is desired in 'str', then precede it with another backslash.
+
+      character(len=*),intent(inout) :: str,before
+      character(len=*),intent(in) :: delims
+      character,optional :: sep
+      logical :: pres
+      character :: ch,cha
+
+      pres=present(sep)
+      str=adjustl(str)
+      call nwpwxc_compact(str)
+      lenstr=len_trim(str)
+      if(lenstr == 0) return        ! string str is empty
+      k=0
+      ibsl=0                        ! backslash initially inactive
+      before=' '
+      do i=1,lenstr
+         ch=str(i:i)
+         if(ibsl == 1) then          ! backslash active
+            k=k+1
+            before(k:k)=ch
+            ibsl=0
+            cycle
+         end if
+         if(ch == '\') then          ! backslash with backslash inactive
+            k=k+1
+            before(k:k)=ch
+            ibsl=1
+            cycle
+         end if
+         ipos=index(delims,ch)         
+         if(ipos == 0) then          ! character is not a delimiter
+            k=k+1
+            before(k:k)=ch
+            cycle
+         end if
+         if(ch /= ' ') then          ! character is a delimiter that is not a space
+            str=str(i+1:)
+            if(pres) sep=ch
+            exit
+         end if
+         cha=str(i+1:i+1)            ! character is a space delimiter
+         iposa=index(delims,cha)
+         if(iposa > 0) then          ! next character is a delimiter
+            str=str(i+2:)
+            if(pres) sep=cha
+            exit
+         else
+            str=str(i+1:)
+            if(pres) sep=ch
+            exit
+         end if
+      end do
+      if(i >= lenstr) str=''
+      str=adjustl(str)              ! remove initial spaces
+      return
+
+      end subroutine nwpwxc_split
+
+!**********************************************************************
+
+      subroutine nwpwxc_removebksl(str)
+
+! Removes backslash (\) characters. Double backslashes (\\) are replaced
+! by a single backslash.
+
+      character(len=*):: str
+      character(len=1):: ch
+      character(len=len_trim(str))::outstr
+
+      str=adjustl(str)
+      lenstr=len_trim(str)
+      outstr=' '
+      k=0
+      ibsl=0                        ! backslash initially inactive
+      
+      do i=1,lenstr
+        ch=str(i:i)
+        if(ibsl == 1) then          ! backslash active
+         k=k+1
+         outstr(k:k)=ch
+         ibsl=0
+         cycle
+        end if
+        if(ch == '\') then          ! backslash with backslash inactive
+         ibsl=1
+         cycle
+        end if
+        k=k+1
+        outstr(k:k)=ch              ! non-backslash with backslash inactive
+      end do
+      
+      str=adjustl(outstr)
+      
+      end subroutine nwpwxc_removebksl
 
 
-c $Id$
+
