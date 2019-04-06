@@ -51,7 +51,7 @@ c
       integer nexcite_tot        ! total spectrum size
       integer nexcite_win        ! user specified window
       double precision ea,ei     ! orbital energies
-      logical nodezero
+      logical nodezero,polfromsos
       integer i,j,k,l,nn,jsav,kend,nindex
       double precision esav, sort
       integer sort_int
@@ -64,11 +64,20 @@ c
       double precision scal
       double precision two, three
       parameter (two=2.d0,three=3.d0)
+      double precision alpha(3,3) ! polariz
 c
 c     Preliminaries
 c
       inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
       nodezero=(ga_nodeid().eq.0)
+      if (.not. rtdb_get(rtdb,'dft:polfromsos',mt_log,1,polfromsos))
+     &     polfromsos=.false.
+      if(polfromsos) then
+         do i=1,ipol
+            owstart(i)=1
+            owend(i)=nocc(i)
+         enddo
+      endif
 c
 c     Defaults
 c
@@ -382,6 +391,14 @@ c
      &       'fosc')
 c
  1700 format(i3,2x,f12.7,5x,f12.7,5x,f12.7,5x,f12.7,5x,f12.7)
+c
+c     call to compute polariz. with SOS
+c
+      if(polfromsos)
+     A     call dft_polfromsos(alpha,nexcite_tot,
+     D     dbl_mb(k_dpx),dbl_mb(k_dpy),dbl_mb(k_dpz),
+     E     dbl_mb(k_exen))
+
 c
 c     Clean Up
 c
