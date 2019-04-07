@@ -1080,7 +1080,7 @@ c coversion factors
       real*8 dc6,c6chk !d(C6ij)/d(r_ij)
       real*8 expterm,dcni
       real*8, allocatable,dimension(:,:,:,:) ::  drij  !d(E)/d(r_ij) derivative wrt. dist. iat-jat
-      real*8, allocatable,dimension(:,:,:,:) :: dcn    !dCN(iat)/d(r_ij) is equal to
+      !real*8, allocatable,dimension(:,:,:,:) :: dcn    !dCN(iat)/d(r_ij) is equal to
       real*8 dcnn
                                                        !dCN(jat)/d(r_ij)     
       real*8 :: dc6_rest  
@@ -1089,7 +1089,7 @@ c coversion factors
       real*8 vec(3),vec2(3),dummy
       real*8 dc6i(n)       !dC6i(iat) saves dE_dsp/dCN(iat) 
       real*8 dc6ij(n,n)    !dC6(iat,jat)/cCN(iat) in dc6ij(i,j) for ABC-grad
-      real*8 dc6_rest_sum(n*(n+1)/2)
+c      real*8 dc6_rest_sum(n*(n+1)/2)
       integer linij,linik,linjk
       real*8 abc(3,n)
 
@@ -1237,7 +1237,8 @@ c      testsum=0.0d0
             tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
               dxyz=xyz(:,iat)-xyz(:,jat)+tau            
             r2  =sum(dxyz*dxyz)
-           if(r2.gt.rthr) cycle
+           if (.not.(r2.gt.rthr)) then
+           !if(r2.gt.rthr) cycle
             r235=r2**3.5                       
             r   =dsqrt(r2)
             damp6=exp(-alp6*(r/R0-1.0d0))
@@ -1255,6 +1256,9 @@ c      testsum=0.0d0
               sigma(my,ny)=sigma(my,ny)+term*dxyz(ny)*dxyz(my)*c6
             enddo !my
             enddo !ny
+
+            end if
+
            enddo !tauz
            enddo !tauy
            enddo !taux
@@ -1271,13 +1275,15 @@ c and now the self interaction, only for convenient energy in dispersion
            do taux=-rep_v(1),rep_v(1)
            do tauy=-rep_v(2),rep_v(2)
            do tauz=-rep_v(3),rep_v(3)
-            if (taux.eq.0 .and. tauy.eq.0 .and. tauz.eq.0) cycle
+            if (.not.(taux.eq.0 .and. tauy.eq.0 .and. tauz.eq.0)) then
+            !if (taux.eq.0 .and. tauy.eq.0 .and. tauz.eq.0) cycle
             tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
 
             dxyz=tau
 !             vec12=(/ dx,dy,dz /)
             r2  =sum(dxyz*dxyz)
-            if(r2.gt.rthr) cycle
+            if (.not.(r2.gt.rthr)) then
+            !if(r2.gt.rthr) cycle
             r235=r2**3.5                       
             r   =dsqrt(r2)
             damp6=exp(-alp6*(r/R0-1.0d0))
@@ -1292,6 +1298,8 @@ c and now the self interaction, only for convenient energy in dispersion
             enddo !my
             enddo !ny
             
+           end if
+           end if
 
            enddo !tauz
            enddo !tauy
@@ -1336,11 +1344,14 @@ c precompute for analytical part
      .              -rep_v(1):rep_v(1),n*(n+1)/2))
 
       drijsize =(2*rep_v(3)+1)*(2*rep_v(2)+1)*(2*rep_v(1)+1)*(n*(n+1)/2)
+      !write(*,*) "n=",n
+      !write(*,*) "rep_v=",rep_v
+      !write(*,*) "drijsize1=",drijsize
       disp=0
 
       drij=0.0d0
       dc6_rest=0.0d0
-      dc6_rest_sum=0.0d0
+c      dc6_rest_sum=0.0d0
       c6save=0.0d0
       kat=0
       dc6i=0.0d0
@@ -1429,8 +1440,8 @@ C DGAS Edit
 
           dc6i(iat)=dc6i(iat)+dc6_rest*(dc6iji+dc6ijj)
 !          if (r2.lt.crit_cn)
-          dc6_rest_sum(nwpwxc_lin(iat,iat))
-     >    =dc6_rest_sum(nwpwxc_lin(iat,iat))+dc6_rest
+c          dc6_rest_sum(nwpwxc_lin(iat,iat))
+c     >    =dc6_rest_sum(nwpwxc_lin(iat,iat))+dc6_rest
 
 
           else !r2 < 0.1>rthr
@@ -1470,7 +1481,8 @@ C DGAS Edit
   
             rij=xyz(:,jat)-xyz(:,iat)+tau
             r2=sum(rij*rij)
-            if (r2.gt.rthr) cycle
+            if (.not.(r2.gt.rthr)) then
+            !if (r2.gt.rthr) cycle
   
  
             r=dsqrt(r2)
@@ -1526,9 +1538,10 @@ C DGAS Edit
               dc6i(iat)=dc6i(iat)+dc6_rest*dc6iji
               dc6i(jat)=dc6i(jat)+dc6_rest*dc6ijj
 !            if (r2.lt.crit_cn) 
-              dc6_rest_sum(linij)=dc6_rest_sum(linij)
-     .          +dc6_rest 
+c              dc6_rest_sum(linij)=dc6_rest_sum(linij)
+c     .          +dc6_rest 
 
+            end if
 
             enddo !tauz
             enddo !tauy
@@ -1558,10 +1571,11 @@ C DGAS Edit
       allocate(drij(-rep_v(3):rep_v(3),-rep_v(2):rep_v(2),
      .              -rep_v(1):rep_v(1),n*(n+1)/2))
       drijsize =(2*rep_v(3)+1)*(2*rep_v(2)+1)*(2*rep_v(1)+1)*(n*(n+1)/2)
+      !write(*,*) "drijsize2=",drijsize
       disp=0
       drij=0.0d0
       dc6_rest=0.0d0
-      dc6_rest_sum=0.0d0
+c      dc6_rest_sum=0.0d0
       kat=0
 
       do iat=1,n
@@ -1624,8 +1638,8 @@ C DGAS Edit
 
           dc6i(iat)=dc6i(iat)+dc6_rest*(dc6iji+dc6ijj)
 !          if (r2.lt.crit_cn)
-          dc6_rest_sum(nwpwxc_lin(iat,iat))
-     >    =dc6_rest_sum(nwpwxc_lin(iat,iat))+dc6_rest
+c          dc6_rest_sum(nwpwxc_lin(iat,iat))
+c     >    =dc6_rest_sum(nwpwxc_lin(iat,iat))+dc6_rest
 
 
           else !r2 < 0.1>rthr
@@ -1666,7 +1680,9 @@ C DGAS Edit
   
             rij=xyz(:,jat)-xyz(:,iat)+tau
             r2=sum(rij*rij)
-            if (r2.gt.rthr) cycle
+
+            if (.not.(r2.gt.rthr)) then
+            !if (r2.gt.rthr) cycle
   
  
             r=dsqrt(r2)
@@ -1699,9 +1715,11 @@ C DGAS Edit
           dc6i(iat)=dc6i(iat)+dc6_rest*dc6iji
           dc6i(jat)=dc6i(jat)+dc6_rest*dc6ijj
 !            if (r2.lt.crit_cn) 
-          dc6_rest_sum(nwpwxc_lin(iat,jat))=dc6_rest_sum(linij)
-     >             +dc6_rest 
+c          dc6_rest_sum(nwpwxc_lin(iat,jat))=dc6_rest_sum(linij)
+c     >             +dc6_rest 
 
+
+            end if
 
           enddo !tauz
           enddo !tauy
@@ -1716,7 +1734,7 @@ C DGAS Edit
       endif ! version=3 or 4
       if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
       if (np.gt.1) call GA_DGOP(9+MSGDBL,c6save,n*(n+1)/2,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6_rest_sum,n*(n+1)/2,'+')
+c      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6_rest_sum,n*(n+1)/2,'+')
       if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6ij,n*n,'+')
 
 
@@ -1762,7 +1780,9 @@ C DGAS Edit
                 repmax(3)=min(rep_cn(3),jtauz+rep_cn(3))
                 jtau=jtaux*lat(:,1)+jtauy*lat(:,2)+jtauz*lat(:,3)
                 rij2=SUM((ijvec+jtau)*(ijvec+jtau))
-                if(rij2.gt.abcthr)cycle
+
+                if (.not.(rij2.gt.abcthr)) then
+                !if(rij2.gt.abcthr)cycle
 
                 rr0ij=DSQRT(rij2)/r0ab(iz(iat),iz(jat))
 
@@ -1772,11 +1792,15 @@ C DGAS Edit
                 do ktauz=repmin(3),repmax(3)
                   ktau=ktaux*lat(:,1)+ktauy*lat(:,2)+ktauz*lat(:,3)
                   rik2=SUM((ikvec+ktau)*(ikvec+ktau))
-                  if(rik2.gt.abcthr)cycle
+                  if (.not.(rik2.gt.abcthr)) then
+                  !if(rik2.gt.abcthr)cycle
 
                   dumvec=jkvec+ktau-jtau
                   rjk2=SUM(dumvec*dumvec)
-                  if(rjk2.gt.abcthr)cycle
+
+                  if (.not.(rjk2.gt.abcthr)) then
+                  !if(rjk2.gt.abcthr)cycle
+
                   rr0ik=dsqrt(rik2)/r0ab(iz(iat),iz(kat))
                   rr0jk=dsqrt(rjk2)/r0ab(iz(jat),iz(kat))
                   geomean2=(rij2*rjk2*rik2)
@@ -1856,9 +1880,14 @@ C DGAS Edit
               dc6i(kat)=dc6i(kat)+dc6_rest*dc9
 
 
+                  end if
+                  end if
                 enddo !ktauz
                 enddo !ktauy
                 enddo !ktauz
+
+                end if
+
               enddo !jtauz
               enddo !jtauy
               enddo !jtaux
@@ -1894,11 +1923,16 @@ C DGAS Edit
         do jtauz=-repv(3),repv(3)
           repmin(3)=max(-repv(3),jtauz-repv(3))
           repmax(3)=min(repv(3),jtauz+repv(3))
-            IF (jtaux.eq.0 .and. jtauy.eq.0 .and. jtauz.eq.0) cycle
+
+            IF(.not.(jtaux.eq.0 .and. jtauy.eq.0 .and. jtauz.eq.0)) then
+            !IF (jtaux.eq.0 .and. jtauy.eq.0 .and. jtauz.eq.0) cycle
+
             jtau=jtaux*lat(:,1)+jtauy*lat(:,2)+jtauz*lat(:,3)
             dumvec=jtau
             rij2=SUM(dumvec*dumvec)
-            if(rij2.gt.abcthr)cycle
+
+            if (.not.(rij2.gt.abcthr)) then
+            !if(rij2.gt.abcthr)cycle
 
             rr0ij=DSQRT(rij2)/r0ab(iz(iat),iz(jat))
        
@@ -1911,12 +1945,17 @@ C DGAS Edit
               dumvec=ikvec+ktau
               dumvec=dumvec*dumvec
               rik2=SUM(dumvec)
-              if(rik2.gt.abcthr)cycle
+
+              if (.not.(rik2.gt.abcthr)) then
+              !if(rik2.gt.abcthr)cycle
 
               dumvec=jkvec+ktau-jtau
               dumvec=dumvec*dumvec
               rjk2=SUM(dumvec)
-              if(rjk2.gt.abcthr)cycle
+
+              if (.not.(rjk2.gt.abcthr)) then
+              !if(rjk2.gt.abcthr)cycle
+
               rr0ik=DSQRT(rik2)/r0ab(iz(iat),iz(kat))
               rr0jk=DSQRT(rjk2)/r0ab(iz(jat),iz(kat))
 
@@ -1990,11 +2029,16 @@ C DGAS Edit
 
 
 
+              end if
+              end if
 
             ENDDO !ktauz
             ENDDO !ktauy
             ENDDO !ktaux
  
+            end if 
+            end if 
+
           ENDDO !jtauz
           ENDDO !jtauy
           ENDDO !jtaux
@@ -2036,7 +2080,9 @@ C DGAS Edit
             dumvec=ijvec+jtau
             dumvec=dumvec*dumvec
             rij2=SUM(dumvec)
-            if(rij2.gt.abcthr)cycle
+
+            if (.not.(rij2.gt.abcthr)) then
+            !if(rij2.gt.abcthr)cycle
 
             rr0ij=SQRT(rij2)/r0ab(iz(iat),iz(jat))
        
@@ -2044,19 +2090,28 @@ C DGAS Edit
           do ktauy=repmin(2),repmax(2)
           do ktauz=repmin(3),repmax(3)
 ! every result * 0.5
-              IF (jtaux.eq.ktaux .and. jtauy.eq.ktauy 
-     .            .and. jtauz.eq.ktauz) cycle
+              IF (.not.(jtaux.eq.ktaux .and. jtauy.eq.ktauy 
+     .            .and. jtauz.eq.ktauz)) then
+c              IF (jtaux.eq.ktaux .and. jtauy.eq.ktauy 
+c     .            .and. jtauz.eq.ktauz) cycle
+
               ktau=ktaux*lat(:,1)+ktauy*lat(:,2)+ktauz*lat(:,3)
               dumvec=ikvec+ktau
               dumvec=dumvec*dumvec
               rik2=SUM(dumvec)
-              if(rik2.gt.abcthr)cycle
+
+              if (.not.(rik2.gt.abcthr)) then
+              !if(rik2.gt.abcthr)cycle
+
               rr0ik=SQRT(rik2)/r0ab(iz(iat),iz(kat))
 
               dumvec=jkvec+ktau-jtau
               dumvec=dumvec*dumvec
               rjk2=SUM(dumvec)
-              if(rjk2.gt.abcthr)cycle
+
+              if (.not.(rjk2.gt.abcthr)) then
+              !if(rjk2.gt.abcthr)cycle
+
               rr0jk=SQRT(rjk2)/r0ab(iz(jat),iz(kat))
 
 !              if (rij*rjk*rik.gt.abcthr)cycle
@@ -2130,11 +2185,15 @@ C DGAS Edit
 
 
 
+              end if
+              end if
+              end if
 
             ENDDO !ktauz
             ENDDO !ktauy
             ENDDO !ktaux
  
+            end if
           ENDDO !jtauz
           ENDDO !jtauy
           ENDDO !jtaux
@@ -2171,20 +2230,29 @@ C DGAS Edit
         do jtauz=-repv(3),repv(3)
           repmin(3)=max(-repv(3),jtauz-repv(3))
           repmax(3)=min(repv(3),jtauz+repv(3))
-         IF ((jtaux.eq.0) .and.(jtauy.eq.0) .and.(jtauz.eq.0))cycle !IF iat and jat are the same then cycle
+         IF (.not.((jtaux.eq.0).and.(jtauy.eq.0).and.(jtauz.eq.0))) then
+         !IF ((jtaux.eq.0) .and.(jtauy.eq.0) .and.(jtauz.eq.0))cycle !IF iat and jat are the same then cycle
           jtau=jtaux*lat(:,1)+jtauy*lat(:,2)+jtauz*lat(:,3)
           dumvec=jtau
           dumvec=dumvec*dumvec
           rij2=SUM(dumvec)
-          if(rij2.gt.abcthr)cycle
+
+          if (.not.(rij2.gt.abcthr)) then
+          !if(rij2.gt.abcthr)cycle
+
           rr0ij=SQRT(rij2)/r0ab(iz(iat),iz(jat))
 
           do ktaux=repmin(1),repmax(1)
           do ktauy=repmin(2),repmax(2)
           do ktauz=repmin(3),repmax(3)
-           IF ((ktaux.eq.0) .and.( ktauy.eq.0) .and.( ktauz.eq.0))cycle !IF iat and kat are the same then cycle
-            IF ((ktaux.eq.jtaux) .and. (ktauy.eq.jtauy) 
-     .         .and. (ktauz.eq.jtauz)) cycle      !If kat and jat are the same then cycle
+           IF (.not.((ktaux.eq.0) .and.( ktauy.eq.0) 
+     >         .and.( ktauz.eq.0))) then
+           !IF ((ktaux.eq.0) .and.( ktauy.eq.0) .and.( ktauz.eq.0))cycle !IF iat and kat are the same then cycle
+
+            IF (.not.((ktaux.eq.jtaux) .and. (ktauy.eq.jtauy) 
+     .         .and. (ktauz.eq.jtauz))) then
+c            IF ((ktaux.eq.jtaux) .and. (ktauy.eq.jtauy) 
+c     .         .and. (ktauz.eq.jtauz)) cycle      !If kat and jat are the same then cycle
 
 ! every result * 1/6 becaues every triple is counted twice due to the two loops jtau and ktau going from -repv to repv -> *1/2
 ! 
@@ -2193,13 +2261,19 @@ C DGAS Edit
               dumvec=ktau
               dumvec=dumvec*dumvec
               rik2=SUM(dumvec)
-              if(rik2.gt.abcthr)cycle
+
+              if (.not.(rik2.gt.abcthr)) then
+              !if(rik2.gt.abcthr)cycle
+
               rr0ik=SQRT(rik2)/r0ab(iz(iat),iz(kat))
 
               dumvec=jkvec+ktau-jtau
               dumvec=dumvec*dumvec
               rjk2=SUM(dumvec)
-              if(rjk2.gt.abcthr)cycle
+
+              if (.not.(rjk2.gt.abcthr)) then
+              !if(rjk2.gt.abcthr)cycle
+
               rr0jk=SQRT(rjk2)/r0ab(iz(jat),iz(kat))
 
               geomean2=(rij2*rjk2*rik2)
@@ -2270,10 +2344,18 @@ C DGAS Edit
               dc6i(kat)=dc6i(kat)+dc6_rest*dc9
 
 
+              end if
+              end if
+              end if
+              end if
 
           ENDDO !ktauz
           ENDDO !ktauy
           ENDDO !ktaux
+
+          end if 
+          end if 
+
         ENDDO !jtauz
         ENDDO !jtauy
         ENDDO !jtaux
@@ -2283,8 +2365,6 @@ C DGAS Edit
       pcount = pcount + 1
       ENDDO !iat
       if (np.gt.1) call GA_DGOP(9+MSGDBL,eabc,1,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6i,n,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,drijsize,'+')
 
 
         !call nwpwxc_cpu_time(time2)
@@ -2295,7 +2375,16 @@ C DGAS Edit
 !        write(*,*)'gdisp:',disp
       endif !.not.noabc
 
+
 451   continue
+
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6i,n,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,drijsize,'+')
+      !write(*,*) "after noabc drijsize=",drijsize
+      !write(*,*) "disp=",disp,n
+      !write(*,*) "DC6I=",dc6i
+      !write(*,*) "dc6ij=",dc6ij
+      !write(*,*) "drij=",drij
 
       sigma_abc=0.0d0
       sigma=0.0d0
@@ -2315,7 +2404,8 @@ C DGAS Edit
 
             rij=xyz(:,jat)-xyz(:,iat)+tau
             r2=sum(rij*rij)  
-            if (r2.gt.rthr.or.r2.lt.0.5) cycle
+            if (.not.(r2.gt.rthr.or.r2.lt.0.5)) then
+            !if (r2.gt.rthr.or.r2.lt.0.5) cycle
             r=dsqrt(r2)
 
             if (r2.lt.crit_cn) then
@@ -2325,6 +2415,7 @@ C DGAS Edit
             else
               dcnn=0.0d0
             endif
+
             x1=drij(tauz,tauy,taux,linij)+dcnn*(dc6i(iat)+dc6i(jat))
 
             vec=x1*rij/r
@@ -2338,6 +2429,7 @@ C DGAS Edit
 
 
 
+            end if
           enddo !tauz
           enddo !tauy
           enddo !taux
@@ -2345,6 +2437,7 @@ C DGAS Edit
         pcount = pcount + 1
         enddo !jat
       enddo !iat
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,g,3*n,'+')
 
       do iat=1,n
       if (mod(pcount,np).eq.taskid) then
@@ -2352,7 +2445,8 @@ C DGAS Edit
           do taux=-rep_v(1),rep_v(1)
           do tauy=-rep_v(2),rep_v(2)
           do tauz=-rep_v(3),rep_v(3)
-            if (taux.eq.0.and.tauy.eq.0.and.tauz.eq.0) cycle
+            if (.not.(taux.eq.0.and.tauy.eq.0.and.tauz.eq.0)) then
+            !if (taux.eq.0.and.tauy.eq.0.and.tauz.eq.0) cycle
 
             tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
             r2=(sum(tau*tau))
@@ -2375,6 +2469,7 @@ C DGAS Edit
             enddo !j
             enddo !i
 
+            end if
 
           enddo !tauz
           enddo !tauy
@@ -2386,7 +2481,7 @@ C DGAS Edit
       pcount = pcount + 1
       enddo !iat
       if (np.gt.1) call GA_DGOP(9+MSGDBL,sigma,9,'+')
-      if (np.gt.1) call GA_DGOP(9+MSGDBL,g,3*n,'+')
+      !write(*,*) "SIGMA=",sigma
 
 
 
@@ -2408,7 +2503,7 @@ C DGAS Edit
 !          write(*,*)'dcn:',sum(dcn(lin(2,1),:))
 
 
-
+        !write(*,*) "deallocate drij"
         deallocate(drij)
         !deallocate(drij,dc6_rest,dcn)
 

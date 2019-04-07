@@ -419,11 +419,12 @@ c determing repetitions of unitcell
               !call nwpwxc_pbcrdcoord(etmp,lat,n,xyz,iz,autoang)
               call nwpwxc_set_criteria(rthr,lat,dum3)
               rep_vdw=int(dum3)+1
+              !rep_vdw=0
               call nwpwxc_set_criteria(cn_thr,lat,dum3)
               rep_cn=int(dum3)+1
 c              write(*,*)'VDW-cutoff:',sqrt(rthr)*autoang
 c              write(*,*)'CN-cutoff :',sqrt(cn_thr)*autoang
-c              write(*,*)'repvdw:',rep_vdw
+              !write(*,*)'repvdw:',rep_vdw
 c              write(*,*)'repcn :',rep_cn
       else !no pbc
 c read coordinates, either TM or xmol file
@@ -2860,7 +2861,7 @@ c     endif
       integer i1,i2,idum1,idum2
       idum1=max(i1,i2)
       idum2=min(i1,i2)
-      lin=idum2+idum1*(idum1-1)/2
+      nwpwxc_lin=idum2+idum1*(idum1-1)/2
       return
       end function nwpwxc_lin
 
