@@ -193,6 +193,7 @@ c
 c     Evaluate the Fx, i.e. mt(x) = Fx - 1 (LDA bit already there)
 c     
             p=gamma/(rhoval**F83*P32*4.d0)
+            if(abs(p).gt.tol_rho) then
             z=tauW/tauN
             al=(tauN-tauW)/tauU
 c     al=dabs(al)
@@ -313,6 +314,7 @@ c     4x factor comes from gamma_aa = gamma_total/4
 c     
             Cmat(n)=  Cmat(n) + 2d0*derivg*fac
             Mmat(n)=  Mmat(n) +0.5d0*derivt*fac
+         endif
          endif
       enddo
       return
