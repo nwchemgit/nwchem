@@ -397,7 +397,7 @@ c
       if(polfromsos)
      A     call dft_polfromsos(alpha,nexcite_tot,
      D     dbl_mb(k_dpx),dbl_mb(k_dpy),dbl_mb(k_dpz),
-     E     dbl_mb(k_exen))
+     E     dbl_mb(k_exen),ipol)
 
 c
 c     Clean Up
