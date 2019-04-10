@@ -187,12 +187,12 @@ c        epGGA= ec^LDA +H  = pbe
 
          ccc = 0.53d0           !since zeta=0
 
+       if(sqrt(gammaval).gt.tol_rho) then
          tauw = 0.125d0*gammaval/rhoval
-
-       if(abs(tauw).gt.tol_rho) then
          xx2 = (tauw/tauN)**2.d0
          xx3 = (tauw/tauN)**3.d0
       else
+         tauw=0d0
          xx2=0d0
          xx3=0d0
       endif
@@ -235,12 +235,16 @@ c        functional deriv info below fffffffffffff
          dtwt2dn = -2.d0*xx2/rhoval
          dtwt3dn = -3.d0*xx3/rhoval
          decggadn= dneGGAdn(1)
-       if(abs(tauw).gt.tol_rho) then
-          dtwt2dg = 2.d0*0.125d0*tauw/(rhoval*tauN**2)
-       else
-          dtwt2dg =0d0
-       endif
-         dtwt3dg = 3.d0*xx2*0.125d0/(rhoval*tauN)
+         if(sqrt(gammaval).gt.tol_rho) then
+            dtwt2dg = 2.d0*0.125d0*tauw/(rhoval*tauN**2)
+         else
+            dtwt2dg = 0d0
+         endif
+         if(abs(taun).gt.tol_rho) then
+            dtwt3dg = 3.d0*xx2*0.125d0/(rhoval*tauN)
+         else
+            dtwt3dg = 0d0
+         endif
          decggadg= dneGGAdg(1)
 
        if (pbeup.lt.pbe) then
@@ -377,6 +381,7 @@ c
          dcccdgaa=0.d0
          dcccdgbb=0.d0
          dcccdgab=0.d0
+         ccc=0d0
 c
          if(rhoval.gt.tol_rho) then
 c
