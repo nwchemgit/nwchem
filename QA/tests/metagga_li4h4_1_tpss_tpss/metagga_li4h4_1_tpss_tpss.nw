@@ -17,9 +17,12 @@ basis
 end
 
 dft
+  print geometry
   direct
   odft
   mult 2
+  grid fine
+  convergence energy 1d-9
   xc xtpss03 ctpss03
   maxiter 100
 end
@@ -27,6 +30,7 @@ end
 driver
   clear
   maxiter 100
+  tight
 end
 
 task dft optimize
