@@ -3032,6 +3032,8 @@ c
           call tce_string_x2(d_t2,k_t2_offset,0.10d0,irrep_t,xnorm)
           if(nodezero) write(6,*)'-------------------------------------'
 c
+          endif !quantumc
+c
 c qducc starts here 
 c
           if(qducc) then 
@@ -3046,6 +3048,51 @@ c
            nvas=nvs/2
            nvbs=nvs/2
 c -------------------
+c DUCC SECTION
+c
+           if (.not. geom_nuc_rep_energy(geom, enrep_tce))
+     &      call errquit('TCE:unable to get nuclear rep ',geom, 
+     &      GEOM_ERR)
+c
+          if(nodezero) then
+           write(6,*)'Ground state specification:'
+           write(6,*)'exp(T)|Ref>~(1+T)|Ref>'
+           call util_flush(6)
+          endif
+          if(nodezero) write(6,*)'------- a(p)+/a(q) strings ----------'
+           xnorm1 = 0.0d0
+           xnorm2 = 0.0d0
+           xnorm  = 0.0d0
+c
+           call tce_string_x1_norm(d_t1,k_t1_offset,0.10d0,irrep_t,
+     &                             xnorm1)
+           call tce_string_x2_norm(d_t2,k_t2_offset,0.10d0,irrep_t,
+     &                             xnorm2)
+c normalization only on nodezero / reference included
+           if(nodezero)  then
+            xnorm=(1.0d0)/(dsqrt(1.0d0+xnorm1+xnorm2))
+           endif
+c
+          call tce_string_ref(xnorm)
+          call tce_string_x1(d_t1,k_t1_offset,0.10d0,irrep_t,xnorm)
+          call tce_string_x2(d_t2,k_t2_offset,0.10d0,irrep_t,xnorm)
+          if(nodezero) write(6,*)'-------------------------------------'
+c
+      if(nodezero) then
+c yaml enerep_tce - coulomb_repulsion
+       write(6,*)'enrep_tce = ',enrep_tce
+c yaml red - this is hf_energy
+       write(6,6888) ref
+c yaml scf_energy_offset
+       write(6,6889) 0.0d0
+       write(6,*)'ALL OCCUPIED ORBITALS ARE ACTIVE IN DUCC --> NO SHIFT'
+       write(6,*)'Number of active orbitals',nactv+(nos/2)
+       write(6,*)'Number of active alpha electrons',noas
+       write(6,*)'Number of active beta electrons',nobs
+c
+      call util_flush(6)
+      endif 
+
          if(nodezero) then
           write(6,*)' nos ',nos
           write(6,*)' nvs ',nvs
@@ -3066,10 +3113,10 @@ c -------------------
         if (.not.MA_PUSH_GET(mt_int,(nos+nvs)**2,'prt1',
      1      l_prt1,k_prt1))
      1      call errquit('transform',102,MA_ERR)
-        if (.not.MA_PUSH_GET(mt_int,(nos+nvs)**4,'act2',
+        if (.not.MA_PUSH_GET(mt_byte,(nos+nvs)**4,'act2',
      1      l_act2,k_act2))
      1      call errquit('act2',103,MA_ERR)
-        if (.not.MA_PUSH_GET(mt_int,(nos+nvs)**4,'prt2',
+        if (.not.MA_PUSH_GET(mt_byte,(nos+nvs)**4,'prt2',
      1      l_prt2,k_prt2))
      1      call errquit('prt2',104,MA_ERR)
         if (.not.MA_PUSH_GET(mt_dbl,(nos+nvs)**2,'h',
@@ -3106,7 +3153,6 @@ c -------------------
           endif ! qducc
 c
 c
-          endif !quantumc
 !QuantumComputing
 #endif
 ! === jaguar ===
