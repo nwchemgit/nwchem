@@ -65,8 +65,8 @@ C INDEXING ARRAY TO DETERMINE IF A SET OF INDICES CORRESPONDS TO AN
 C INTERNAL OR EXTERNAL SET.
       INTEGER ACTINDEX1(NOS+NVS,NOS+NVS)
       INTEGER PRINTINDEX1(NOS+NVS,NOS+NVS)
-      INTEGER ACTINDEX2(NOS+NVS,NOS+NVS,NOS+NVS,NOS+NVS)
-      INTEGER PRINTINDEX2(NOS+NVS,NOS+NVS,NOS+NVS,NOS+NVS)
+      logical ACTINDEX2(NOS+NVS,NOS+NVS,NOS+NVS,NOS+NVS)
+      logical PRINTINDEX2(NOS+NVS,NOS+NVS,NOS+NVS,NOS+NVS)
       INTEGER VALUE1
       INTEGER VALUE2
 c matrices with original integrals
@@ -2382,43 +2382,40 @@ c  calculate vt  (print only vt(alpha,beta,alpha,beta)
 ! ***|  AT LEAST ONE EXTERNAL(INACTIVE) INDEX. IF SO, THEN THAT SET OF
 ! ***|  INDICES IS 'EXTERNAL' AND ACTINDEX2=1, ELSE ACTINDEX2=0.
 
-      ACTINDEX2 = 0
-
       DO P = 1, NOS+NVS
         DO Q = 1, NOS+NVS
           DO R = 1, NOS+NVS
             DO S = 1, NOS+NVS
-      IF(P.GT.(NOS+NACTV).AND.P.LE.(NOS+NVAS))ACTINDEX2(P,Q,R,S)=1
-      IF(Q.GT.(NOS+NACTV).AND.Q.LE.(NOS+NVAS))ACTINDEX2(P,Q,R,S)=1
-      IF(R.GT.(NOS+NACTV).AND.R.LE.(NOS+NVAS))ACTINDEX2(P,Q,R,S)=1
-      IF(S.GT.(NOS+NACTV).AND.S.LE.(NOS+NVAS))ACTINDEX2(P,Q,R,S)=1
-      IF(P.GT.(NOS+NVAS+NACTV).AND.P.LE.(NOS+NVS))ACTINDEX2(P,Q,R,S)=1
-      IF(Q.GT.(NOS+NVAS+NACTV).AND.Q.LE.(NOS+NVS))ACTINDEX2(P,Q,R,S)=1
-      IF(R.GT.(NOS+NVAS+NACTV).AND.R.LE.(NOS+NVS))ACTINDEX2(P,Q,R,S)=1
-      IF(S.GT.(NOS+NVAS+NACTV).AND.S.LE.(NOS+NVS))ACTINDEX2(P,Q,R,S)=1
+      actindex2(p,q,r,s)=(P.GT.(NOS+NACTV).AND.P.LE.(NOS+NVAS)).or.
+     O              (Q.GT.(NOS+NACTV).AND.Q.LE.(NOS+NVAS)).or.
+     O              (R.GT.(NOS+NACTV).AND.R.LE.(NOS+NVAS)).or.
+     O              (S.GT.(NOS+NACTV).AND.S.LE.(NOS+NVAS)).or.
+     O              (P.GT.(NOS+NVAS+NACTV).AND.P.LE.(NOS+NVS)).or.
+     O              (Q.GT.(NOS+NVAS+NACTV).AND.Q.LE.(NOS+NVS)).or.
+     O              (R.GT.(NOS+NVAS+NACTV).AND.R.LE.(NOS+NVS)).or.
+     O              (S.GT.(NOS+NVAS+NACTV).AND.S.LE.(NOS+NVS))
             ENDDO
           ENDDO
         ENDDO
       ENDDO
 
-      PRINTINDEX2 = 0
 
       DO P = 1, NOS+NVS
         DO R = 1, NOS+NVS
           DO Q = 1, NOS+NVS
             DO S = 1, NOS+NVS
-! ***| SKIP PRINTING IF P, Q, R, OR S IS EXTERNAL
-              IF(ACTINDEX2(P,Q,R,S).EQ.1)PRINTINDEX2(P,R,Q,S)=1
+!     ***| SKIP PRINTING IF P, Q, R, OR S IS EXTERNAL
+               printindex2(p,q,r,s)=ACTINDEX2(P,Q,R,S).or.
 ! ***| SKIP PRINTING IF P OR R IS BETA
-              IF(P.GT.NOAS.AND.P.LE.NOS)PRINTINDEX2(P,R,Q,S)=1
-              IF(R.GT.NOAS.AND.R.LE.NOS)PRINTINDEX2(P,R,Q,S)=1
-              IF(P.GT.NOS+NVAS)PRINTINDEX2(P,R,Q,S)=1
-              IF(R.GT.NOS+NVAS)PRINTINDEX2(P,R,Q,S)=1
+     O              (P.GT.NOAS.AND.P.LE.NOS).or.
+     O              (R.GT.NOAS.AND.R.LE.NOS).or.
+     O              (P.GT.NOS+NVAS).or.
+     O              (R.GT.NOS+NVAS).or.
 ! ***| SKIP PRINTING IF Q OR S IS ALPHA
-              IF(Q.LE.NOAS)PRINTINDEX2(P,R,Q,S)=1
-              IF(S.LE.NOAS)PRINTINDEX2(P,R,Q,S)=1
-              IF(Q.GT.NOS.AND.Q.LE.NOS+NVAS)PRINTINDEX2(P,R,Q,S)=1
-              IF(S.GT.NOS.AND.S.LE.NOS+NVAS)PRINTINDEX2(P,R,Q,S)=1
+     O              (Q.LE.NOAS).or.
+     O              (S.LE.NOAS).or.
+     O              (Q.GT.NOS.AND.Q.LE.NOS+NVAS).or.
+     O              (S.GT.NOS.AND.S.LE.NOS+NVAS)
             ENDDO
           ENDDO
         ENDDO
@@ -2435,7 +2432,7 @@ c  calculate vt  (print only vt(alpha,beta,alpha,beta)
         DO Q = 1, NOS+NVS
           DO R = 1, P
             DO S = 1, Q
-              IF(PRINTINDEX2(P,R,Q,S).EQ.1)CYCLE
+              IF(PRINTINDEX2(P,R,Q,S))CYCLE
               VALUE1=((TRANSFORM(P)*(TRANSFORM(P)+1))/2)+TRANSFORM(R)
               VALUE2=((TRANSFORM(Q)*(TRANSFORM(Q)+1))/2)+TRANSFORM(S)
               IF(VALUE1.GE.VALUE2.AND.abs(VT(P,Q,R,S)).GT.PTHRESH)THEN
@@ -2513,7 +2510,7 @@ c  calculate vt  (print only vt(alpha,beta,alpha,beta)
         DO R = 1, P
           DO Q = 1, NOS+NVS
             DO S = 1, Q
-              IF(PRINTINDEX2(P,R,Q,S).EQ.1)CYCLE
+              IF(PRINTINDEX2(P,R,Q,S))CYCLE
               VALUE1=((TRANSFORM(P)*(TRANSFORM(P)+1))/2)+TRANSFORM(R)
               VALUE2=((TRANSFORM(Q)*(TRANSFORM(Q)+1))/2)+TRANSFORM(S)
               IF(VALUE1.GE.VALUE2.AND.abs(VT(P,Q,R,S)).GT.PTHRESH)THEN
