@@ -124,8 +124,9 @@ ckk      END IF !spin case 8
       END DO
       next = NXTASK(-nprocs, 1)
 c     global sum
-      call ga_dgop(2019,v,(nos+nvs)**4,'+')
-      call ga_igop(2020,int_mb(k_elem),(nos+nvs)**4,'+')
+c      call ga_dgop(2019,v,(nos+nvs)**4,'+')
+      call util_mygadgop(2019,v,(nos+nvs)**4,'+')
+      call util_mygaigop(2020,int_mb(k_elem),(nos+nvs)**4,'+')
       call map_elemd(v,int_mb(k_elem),(nos+nvs)**4)
        IF (.not.MA_POP_STACK(l_elem))
      1          CALL ERRQUIT('map_hcore',14,MA_ERR)
