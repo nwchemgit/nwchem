@@ -703,29 +703,14 @@ cold        rec_mem=1
        if (.not.rtdb_get(rtdb,'tce:maxioprocs',mt_int,1,max_ioprocs_in)) 
      4      max_ioprocs_in=4
 !QuantumComputing
-       res_log=.false.
        if (.not.rtdb_get(rtdb,'tce:ucc4',
-     4  mt_log,1,res_log)) then
-        ucc4=.false.
-       else
-        ucc4=res_log
-       end if
+     4  mt_log,1,ucc4)) ucc4=.false.
 !QuantumComputing
-       res_log=.false.
        if (.not.rtdb_get(rtdb,'tce:print_integrals',
-     4  mt_log,1,res_log)) then
-        quantumc=.false.
-       else
-        quantumc=res_log
-       end if
+     4  mt_log,1,quantumc)) quantumc=.false.
 !QuantumComputing
-       res_log=.false.
        if (.not.rtdb_get(rtdb,'tce:qducc',
-     4  mt_log,1,res_log)) then
-        qducc=.false.
-       else
-        qducc=res_log
-       end if
+     4  mt_log,1,qducc)) qducc=.false.
 !QuantumComputing
        if(qducc) then 
        nactv=0
@@ -735,15 +720,8 @@ cold        rec_mem=1
         end if
        end if ! if qducc
 !QuantumComputing qrotation
-      if(quantumc) then
-       res_log=.false.
        if (.not.rtdb_get(rtdb,'tce:qrotation',
-     4  mt_log,1,res_log)) then
-        qrotation=.false.
-       else
-        qrotation=res_log
-       end if
-      endif
+     4  mt_log,1,qrotation)) qrotation=.false.
       if(qrotation) then
        nacto=0
         if (.not.rtdb_get(rtdb,'tce:nacto',mt_int,1,nacto))
