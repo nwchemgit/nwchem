@@ -14,19 +14,19 @@ c
 #include "util_params.fh"      
 #include "mafdecls.fh"      
 c
-      integer if
+      integer i_f
 c      
       call dfill(9,0d0,alpha,1)
-      do if=1,n
-         alpha(1,1)=alpha(1,1)+dpx(if)*dpx(if)/deltae(if)
-         alpha(2,1)=alpha(2,1)+dpy(if)*dpx(if)/deltae(if)
-         alpha(3,1)=alpha(3,1)+dpz(if)*dpx(if)/deltae(if)
-         alpha(1,2)=alpha(1,2)+dpx(if)*dpy(if)/deltae(if)
-         alpha(2,2)=alpha(2,2)+dpy(if)*dpy(if)/deltae(if)
-         alpha(3,2)=alpha(3,2)+dpz(if)*dpy(if)/deltae(if)
-         alpha(1,3)=alpha(1,3)+dpx(if)*dpz(if)/deltae(if)
-         alpha(2,3)=alpha(2,3)+dpy(if)*dpz(if)/deltae(if)
-         alpha(3,3)=alpha(3,3)+dpz(if)*dpz(if)/deltae(if)
+      do i_f=1,n
+         alpha(1,1)=alpha(1,1)+dpx(i_f)*dpx(i_f)/deltae(i_f)
+         alpha(2,1)=alpha(2,1)+dpy(i_f)*dpx(i_f)/deltae(i_f)
+         alpha(3,1)=alpha(3,1)+dpz(i_f)*dpx(i_f)/deltae(i_f)
+         alpha(1,2)=alpha(1,2)+dpx(i_f)*dpy(i_f)/deltae(i_f)
+         alpha(2,2)=alpha(2,2)+dpy(i_f)*dpy(i_f)/deltae(i_f)
+         alpha(3,2)=alpha(3,2)+dpz(i_f)*dpy(i_f)/deltae(i_f)
+         alpha(1,3)=alpha(1,3)+dpx(i_f)*dpz(i_f)/deltae(i_f)
+         alpha(2,3)=alpha(2,3)+dpy(i_f)*dpz(i_f)/deltae(i_f)
+         alpha(3,3)=alpha(3,3)+dpz(i_f)*dpz(i_f)/deltae(i_f)
       enddo
       if(ipol.eq.1) 
      c     call dscal(9,2d0,alpha,1)
