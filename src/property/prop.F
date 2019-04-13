@@ -9,7 +9,7 @@ c
 *
       implicit none
       integer rtdb              ! [input]
-      integer nbofile,aimfile,moldenfile
+      integer nbofile,aimfile,moldenfile,polfromsos
       logical status
       logical ostart,ocontinue,orestart
       integer restr
@@ -59,6 +59,9 @@ c
       endif
       if (rtdb_get(rtdb,'prop:moldenfile',MT_INT,1,moldenfile)) then
         if(moldenfile.eq.1) call prop_moldenfile(rtdb)
+      endif
+      if (rtdb_get(rtdb,'prop:polfromsos',MT_INT,1,polfromsos)) then
+        if(polfromsos.eq.1) call prop_polfromsos(rtdb)
       endif
 c
 c     finish ecce property output module

@@ -27,6 +27,7 @@ c
       integer nbofile, nboopt
       integer aimfile
       integer moldenfile
+      integer polfromsos
       character*32 norm_style
       integer dipole
       integer quadrupole
@@ -82,6 +83,7 @@ c>>>  Default property settings.
 c
       aimfile           = 0
       moldenfile        = 0
+      polfromsos        = 0
       nbofile           = 0
       nboopt            = 0
       efgfile           = 0 
@@ -428,6 +430,8 @@ c     what NBO options will appear
          aimfile = 1
       elseif ( inp_compare(.false., 'moldenfile', test)) then
          moldenfile = 1
+      elseif ( inp_compare(.false., 'polfromsos', test)) then
+         polfromsos = 1
       elseif ( inp_compare(.false., 'molden_norm', test)) then
          if(.not. inp_a(norm_style))
      $     call errquit(' prop_input: missing val for norm_stl ',0,
@@ -570,6 +574,9 @@ c         endif
           call errquit('prop_input: wrong molden_norm value',2,RTDB_ERR)
        endif
        endif
+      if (.not. rtdb_put(rtdb, 'prop:polfromsos', mt_int, 1,
+     $                               polfromsos           ))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
 c .... Fredy: write efg output for NBO program 04-24-10
       if (.not. rtdb_put(rtdb, 'prop:efgfile', mt_int, 1,
      $                               efgfile           ))
