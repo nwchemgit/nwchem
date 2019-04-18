@@ -24,6 +24,8 @@ c
       integer ind
       integer meg,gig
       character*255 name        ! Used to store info in the rtdb
+      logical memory_units
+      external memory_units
       parameter (nunits = 9)
       parameter (meg = 1024*1024)
       parameter (gig = 1024*1024*1024)
@@ -87,48 +89,25 @@ c
          else if (inp_compare(.false.,'nohardfail',ctest)) then
             ohardfail = .false.
          else if (inp_compare(.false.,'heap', ctest)) then
-            if (.not. inp_f(user_heap)) goto 1000
-            if (.not.inp_a(ctest)) goto 1000
-            if (inp_match(nunits, .false., ctest, units, ind)) then
-               user_units = units(ind)
-               heap_size  = int(user_heap)*conv_units(ind)
-            else
-               call errquit('inp_match: units missing ',0,INPUT_ERR)
-            endif
+            if (.not. memory_units(heap_size,
+     n           units,nunits,conv_units)) goto 1000
             heap_Src = 'U'
          else if (inp_compare(.false.,'stack', ctest)) then
-            if (.not. inp_f(user_stack)) goto 1000
-            if (.not.inp_a(ctest)) goto 1000
-            if (inp_match(nunits, .false., ctest, units, ind)) then
-               user_units = units(ind)
-               stack_size  = int(user_stack)*conv_units(ind)
-            else
-               call errquit('inp_match: units missing ',0,INPUT_ERR)
-            endif
+            if (.not. memory_units(stack_size,
+     n           units,nunits,conv_units)) goto 1000
             Stack_Src = 'U'
          else if (inp_compare(.false.,'global', ctest)) then
-            if (.not. inp_f(user_global)) goto 1000
-            if (.not.inp_a(ctest)) goto 1000
-            if (inp_match(nunits, .false., ctest, units, ind)) then
-               user_units = units(ind)
-               global_size  = int(user_global)*conv_units(ind)
-            else
-               call errquit('inp_match: units missing ',0,INPUT_ERR)
-            endif
+            if (.not. memory_units(global_size,
+     n           units,nunits,conv_units)) goto 1000
             Global_Src = 'U'
          else if (inp_compare(.false.,'total', ctest)) then
-            if (.not. inp_f(user_total)) goto 1000
-            if (.not.inp_a(ctest)) goto 1000
-            if (inp_match(nunits, .false., ctest, units, ind)) then
-               user_units = units(ind)
-               total_size  = int(user_total)*conv_units(ind)
-            else
-               call errquit('inp_match: units missing ',0,INPUT_ERR)
-            endif
+            if (.not. memory_units(total_size,
+     n           units,nunits,conv_units)) goto 1000
             Total_Src = 'U'
          else
             call inp_prev_field
-            if (.not. inp_f(user_total)) goto 1000
+            if (.not. memory_units(total_size,
+     n           units,nunits,conv_units)) goto 1000
             Total_Src = 'U'
          endif
          goto 10
@@ -179,4 +158,30 @@ c
      $   '[global <global_size>] [<units>] [verify|noverify] '//
      $   '[hardfail|nohardfail]', 0, INPUT_ERR)
 c
+      end
+      logical function memory_units(memory_size,
+     n     units,nunits,conv_units)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+c
+      integer memory_size ! [out]
+      character*8 units(*) ! [in]
+      integer nunits,conv_units(*) ! [in]
+c
+      double precision user_memory
+      character*8 ctest
+      integer ind
+c      
+      memory_units=.false.
+      if (.not. inp_f(user_memory)) goto 1000
+      if (.not.inp_a(ctest)) goto 1000
+      if (inp_match(nunits, .false., ctest, units, ind)) then
+         memory_size  = int(user_memory)*conv_units(ind)
+         memory_units=.true.
+      else
+         call errquit('inp_match: units missing ',0,INPUT_ERR)
+      endif
+ 1000 continue
+      return
       end
