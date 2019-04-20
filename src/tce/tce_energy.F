@@ -463,7 +463,6 @@ c      double precision f2m(50,50)
       double precision alphaani         ! Anisotropic dipole polarizability
       double precision alphaevr(3)      ! Dipole polarizability tensor eigenvalues (real)
       double precision alphaevi(3)      ! Dipole polarizability tensor eigenvalues (imag)
-      double precision aeigvec(3,3)     ! dummy dgeev eigenvectors
 !      integer iter             ! Iteration counter
 !
 !     Excited-state CI, CC, & MBPT
@@ -3122,7 +3121,7 @@ c -------------------
      &    d_v2,k_v2_offset,dbl_mb(k_evl_sorted),
      &    nos,nvs,noas,nobs,nvas,nvbs,nactv,
      D        int_mb(k_transf),int_mb(k_act1),int_mb(k_prt1),
-     D        int_mb(k_act2),int_mb(k_prt2),
+     D        byte_mb(k_act2),byte_mb(k_prt2),
      D        dbl_mb(k_h),dbl_mb(k_horb),dbl_mb(k_v),
      D        dbl_mb(k_t1),dbl_mb(k_t2),
      D        dbl_mb(k_ht),dbl_mb(k_vt))
