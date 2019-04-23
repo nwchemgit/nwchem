@@ -65,14 +65,21 @@ c
       double precision two, three
       parameter (two=2.d0,three=3.d0)
       double precision alpha(3,3) ! polariz
+      double precision t0
+      logical write_vspec
+      t0=util_wallsec()
+
 c
 c     Preliminaries
 c
+      if (.not. rtdb_get(rtdb,'dft:write_vspec',mt_log,1,write_vspec))
+     &     write_vspec=.true.
       inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
       nodezero=(ga_nodeid().eq.0)
       if (.not. rtdb_get(rtdb,'dft:polfromsos',mt_log,1,polfromsos))
      &     polfromsos=.false.
       if(polfromsos) then
+         write_vspec=.false.
          do i=1,ipol
             owstart(i)=1
             owend(i)=nocc(i)
@@ -249,7 +256,7 @@ c       account for case when beta but no alpha excitations
 c
 c     Start print
 c
-      if (nodezero) then
+      if (nodezero.and.write_vspec) then
         open(unitno, status='unknown', form='formatted',file=filename)
         write(unitno, 1000)
         if (ipol.eq.1) then
@@ -342,7 +349,7 @@ c
 c
 c     Output results
 c
-      if (nodezero) then
+      if (nodezero.and.write_vspec) then
          write (unitno, "(1x,a)")
      $        "      N   Occ  Virt       Energy [eV]        "//
      $        "<x> [au]          <y> [au]          <z> [au]    "//
@@ -363,10 +370,8 @@ c
 c
 c     Broadcast status to other nodes
 c
-      ok = 1
- 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
-      call ga_sync()
 c
+      call ga_sync()
  1000 format('== Scalar DFT Virtual Spectrum ==')
 c
  1400 format(  'Number of basis functions in AO basis: ',i10,
@@ -436,6 +441,8 @@ c
      &      ('dft_vspec: failed to destroy g_dp_wk',0,GA_ERR)
         endif
       enddo
+      if(nodezero) write(luout,'(a,f10.1,a)') ' VSPEC done in ',
+     c     util_wallsec()-t0,'secs'
 c
       end 
 c $Id$
