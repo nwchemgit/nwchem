@@ -70,7 +70,6 @@ c movecs
 
       call util_file_name_resolve(vec_file, .false.)
 c     > movecs
-      write(6,*) ' using MO file ',vec_file
       if (.not. movecs_read_header(vec_file, title_vec, basis_name,
      &    scftype_vecs, nbf, nset, nmo, 2))
      &  call errquit(subname//': basis set error:', 86, basis_err)
