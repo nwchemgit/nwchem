@@ -12,8 +12,8 @@
       implicit none
 
 #include "bafdecls.fh"
-#include "errquit.fh"
 #include "electron_common.fh"
+#include "errquit.fh"
 
 
 *     **** electron_counter common block ****
@@ -1631,6 +1631,56 @@ c     >                 dcpl_mb(Hpsi_k(1)+index2))
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *    electron_get_H0psi_k_orb     *
+*     *                                 *
+*     ***********************************
+      subroutine electron_get_H0psi_k_orb(orb,Horb)
+      implicit none
+      complex*16 orb(*)
+      complex*16 Horb(*)
+
+#include "bafdecls.fh"
+#include "electron_common.fh"
+#include "errquit.fh"
+
+
+*     **** local variables ****
+      logical value
+      integer n2ft3d
+      integer tmp_r(2)
+
+*     **** external functions ****
+      integer  control_version
+      external control_version
+
+      n2ft3d = 2*nfft3d
+
+      value = BA_push_get(mt_dbl,n2ft3d,'tmp_r',tmp_r(2),tmp_r(1))
+      if (.not.value)
+     >   call errquit('electron_get_H0psi_k_orb: push stack',0,MA_ERR)
+
+
+      call Pack_c_Copy(1,orb,dbl_mb(tmp_r(1)))
+      call Pack_c_unpack(1,  dbl_mb(tmp_r(1)))
+      call D3dB_cr_pfft3b(1,1,dbl_mb(tmp_r(1)))
+
+*     **** get Hpsi ****
+      call psi_H0orb_replicated(
+     >             dbl_mb(vall(1)),
+     >             orb,
+     >             dbl_mb(tmp_r(1)),
+     >             Horb)
+
+      call Pack_c_SMul1(1,(-1.0d0),Horb)
+
+      value = BA_pop_stack(tmp_r(2))
+      if (.not.value) call errquit(
+     >     'electron_get_H0psi_k_orb: poping stack',1,MA_ERR)
+
+      return
+      end
 
 
 
@@ -2045,6 +2095,69 @@ c      end do
 
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *        electron_gen_vall0       *
+*     *                                 *
+*     ***********************************
+
+*     Generates non self-consistent potentials only.
+
+      subroutine electron_gen_vall0()
+      implicit none
+
+#include "bafdecls.fh"
+#include "electron_common.fh"
+
+*     **** local variables ****
+      integer ms
+      real*8 scal2
+
+*     **** external functions ****
+      integer  control_version
+      real*8   lattice_omega
+      external control_version
+      external lattice_omega
+
+
+      scal2 = 1.0d0/lattice_omega()
+
+
+      if (control_version().eq.3) then
+*       **** add up k-space potentials, vall = scal2*vl  ****
+        call Pack_c_SMul(0,scal2,dcpl_mb(vl(1)),
+     >                           dbl_mb(vall(1)))
+
+*       **** fourier transform k-space potentials ****
+        call Pack_c_unpack(0,dbl_mb(vall(1)))
+        call D3dB_cr_pfft3b(1,0,dbl_mb(vall(1)))
+
+        if (field_exist)
+     >    call D3dB_rr_Sum2(1,dbl_mb(v_field(1)),dbl_mb(vall(1)))
+
+      else
+*       **** add up k-space potentials, vall = scal2*vsr_l    ****
+        call Pack_c_SMul(0,scal2,dcpl_mb(vl(1)),
+     >                           dbl_mb(vall(1)))
+
+*        **** fourier transform k-space potentials ****
+         call Pack_c_unpack(0,dbl_mb(vall(1)))
+         call D3dB_cr_pfft3b(1,0,dbl_mb(vall(1)))
+
+         call D3dB_rr_Sum2(1,dbl_mb(vl_lr(1)),dbl_mb(vall(1)))
+         if (field_exist)
+     >     call D3dB_rr_Sum2(1,dbl_mb(v_field(1)),dbl_mb(vall(1)))
+
+      end if
+
+      return 
+      end 
+
+
+
+
 
 *     ***********************************
 *     *			 		*
