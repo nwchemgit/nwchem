@@ -237,6 +237,7 @@ c         z-comp
 c
 c     Calculate excitation energies
 c
+#if 0      
       nn = 0
       do i=1,ipol
 c       account for case when beta but no alpha excitations 
@@ -253,6 +254,12 @@ c       account for case when beta but no alpha excitations
           endif
         enddo
       enddo
+#else
+         call dft_spece(ipol,owstart,owend,nocc,nbf_ao,nmo,
+     W     dbl_mb(k_eval(1)),dbl_mb(k_exen),
+     I     int_mb(k_ex_occ),int_mb(k_ex_virt))
+
+#endif      
 c
 c     Start print
 c
@@ -267,6 +274,9 @@ c
      &    owend(1),owend(2),nocc(1),nocc(2),nexcite_tot
         end if
       endif
+c
+c      only nodezero from here on
+      if(nodezero) then
 c
 c     Get arrays with transition dipoles moments
 c
@@ -298,6 +308,7 @@ c
 c     Sort by energy
 c
       if (((owend(1)-owstart(1)).gt.0).or.(ipol.gt.1)) then
+#if 0         
         do i=1,nexcite_tot-1 
           esav = dbl_mb(k_exen+i-1)
           jsav = i
@@ -344,8 +355,15 @@ c
           int_mb(k_ex_virt+i-1)=int_mb(k_ex_virt+jsav-1)
           int_mb(k_ex_virt+jsav-1)=sort
 c
-        enddo ! sorting
+        enddo                    ! sorting
+#else
+      call dft_sorte(nexcite_tot,
+     E     dbl_mb(k_exen),dbl_mb(k_fosc),
+     D     dbl_mb(k_dpx),dbl_mb(k_dpy),dbl_mb(k_dpz),
+     I     int_mb(k_ex_occ),int_mb(k_ex_virt))
+#endif        
       endif
+      endif ! nodezero
 c
 c     Output results
 c
@@ -446,3 +464,120 @@ c
 c
       end 
 c $Id$
+      subroutine dft_spece(ipol,owstart,owend,nocc,nbf,nmo,
+     W     eval,exen,ex_occ,ex_virt)
+      implicit none
+      integer ipol,owstart(*),owend(*),nocc(*),nmo(*),nbf ! [in]
+      double precision eval(nbf,*)  ! [in]
+      integer ex_occ(*)
+      integer ex_virt(*)
+      double precision exen(*)
+c
+      integer nn,i,j,k
+      double precision ea,ei
+c
+c
+c     Calculate excitation energies
+c
+      nn = 0
+      do i=1,ipol
+c       account for case when beta but no alpha excitations 
+        do j=owstart(i),owend(i)
+          if (j.gt.0) then
+            ei = eval(j,i)
+            do k=nocc(i)+1,nmo(i)
+              nn=nn+1
+              ea = eval(k,i)
+              exen(nn) = ea-ei
+              ex_occ(nn) = j  !occupied MO for excitation i
+              ex_virt(nn) = k !virtual MO for excitation i
+            enddo
+          endif
+        enddo
+      enddo
+      return
+      end
+      subroutine dft_sorte(nexcite_tot,
+     E     exen,fosc,
+     D     dpx,dpy,dpz,
+     I     ex_occ,ex_virt)
+      implicit none
+#include "global.fh"
+#include "util.fh"
+#include "stdio.fh"
+      integer nexcite_tot ! [in]
+      double precision   exen(*),fosc(*)
+      double precision dpx(*),dpy(*),dpz(*)
+      integer ex_occ(*),ex_virt(*)
+      
+c
+      double precision esav,sort,t0
+      integer i,j,jsav,isort,new_lgt,lgt
+      t0=util_wallsec()
+
+      if(ga_nodeid().eq.0) then
+         write(luout,*) ' spec sorting starts '
+         call util_flush(luout)
+      endif
+c
+c     Sort by energy
+c
+      lgt=nexcite_tot     
+      do i=1,nexcite_tot-1 
+         esav = exen(i)
+         jsav = i
+c        do j=i+1,nexcite_tot
+c       if (exen(j) .lt. esav) then
+         do j=1,lgt-1
+            if (exen(j) .gt. esav) then
+               esav = exen(j)
+               new_lgt=j
+               jsav = j
+            endif
+         enddo
+         lgt=new_lgt
+         sort=exen(i)
+         exen(i)=exen(jsav)
+         exen(jsav)=sort
+c     
+c     sort transition moments and fosc
+c     
+c     x
+         sort=dpx(i)
+         dpx(i)=dpx(jsav)
+         dpx(jsav)=sort
+c     y
+         sort=dpy(i)
+         dpy(i)=dpy(jsav)
+         dpy(jsav)=sort
+c     z
+         sort=dpz(i)
+         dpz(i)=dpz(jsav)
+         dpz(jsav)=sort
+c     
+c     fosc
+c     
+         sort=fosc(i)
+         fosc(i)=fosc(jsav)
+         fosc(jsav)=sort
+c     
+c     sort occupied orbitals
+c
+         isort=ex_occ(i)
+         ex_occ(i)=ex_occ(jsav)
+         ex_occ(jsav)=sort
+c     
+c         sort virtual orbitals
+c
+         isort=ex_virt(i)
+         ex_virt(i)=ex_virt(jsav)
+         ex_virt(jsav)=isort
+c     
+      enddo                     ! sorting
+      if(ga_nodeid().eq.0) then
+         write(luout,*) ' spec sorting done in ',util_wallsec()-t0,
+     c        'secs'
+         call util_flush(luout)
+      endif
+      return
+      end
