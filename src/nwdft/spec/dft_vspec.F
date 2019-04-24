@@ -55,7 +55,7 @@ c
       integer i,j,k,l,nn,jsav,kend,nindex
       double precision esav, sort
       integer sort_int
-      integer ok
+      integer l_scr,k_scr,l_mape,k_mape
 c
       integer unitno
       parameter (unitno = 77)
@@ -237,29 +237,10 @@ c         z-comp
 c
 c     Calculate excitation energies
 c
-#if 0      
-      nn = 0
-      do i=1,ipol
-c       account for case when beta but no alpha excitations 
-        do j=owstart(i),owend(i)
-          if (j.gt.0) then
-            ei = dbl_mb(k_eval(i)+j-1)
-            do k=nocc(i)+1,nmo(i)
-              nn=nn+1
-              ea = dbl_mb(k_eval(i)+k-1)
-              dbl_mb(k_exen+nn-1) = ea-ei
-              int_mb(k_ex_occ+nn-1) = j  !occupied MO for excitation i
-              int_mb(k_ex_virt+nn-1) = k !virtual MO for excitation i
-            enddo
-          endif
-        enddo
-      enddo
-#else
          call dft_spece(ipol,owstart,owend,nocc,nbf_ao,nmo,
      W     dbl_mb(k_eval(1)),dbl_mb(k_exen),
      I     int_mb(k_ex_occ),int_mb(k_ex_virt))
 
-#endif      
 c
 c     Start print
 c
@@ -308,60 +289,36 @@ c
 c     Sort by energy
 c
       if (((owend(1)-owstart(1)).gt.0).or.(ipol.gt.1)) then
-#if 0         
-        do i=1,nexcite_tot-1 
-          esav = dbl_mb(k_exen+i-1)
-          jsav = i
-          do j=i+1,nexcite_tot
-            if (dbl_mb(k_exen+j-1) .lt. esav) then
-              esav = dbl_mb(k_exen+j-1)
-              jsav = j
-            endif
-          enddo
-          sort=dbl_mb(k_exen+i-1)
-          dbl_mb(k_exen+i-1)=dbl_mb(k_exen+jsav-1)
-          dbl_mb(k_exen+jsav-1)=sort
-c
-c         sort transition moments and fosc
-c
-c         x
-          sort=dbl_mb(k_dpx+i-1)
-          dbl_mb(k_dpx+i-1)=dbl_mb(k_dpx+jsav-1)
-          dbl_mb(k_dpx+jsav-1)=sort
-c         y
-          sort=dbl_mb(k_dpy+i-1)
-          dbl_mb(k_dpy+i-1)=dbl_mb(k_dpy+jsav-1)
-          dbl_mb(k_dpy+jsav-1)=sort
-c         z
-          sort=dbl_mb(k_dpz+i-1)
-          dbl_mb(k_dpz+i-1)=dbl_mb(k_dpz+jsav-1)
-          dbl_mb(k_dpz+jsav-1)=sort
-c
-c         fosc
-c
-          sort=dbl_mb(k_fosc+i-1)
-          dbl_mb(k_fosc+i-1)=dbl_mb(k_fosc+jsav-1)
-          dbl_mb(k_fosc+jsav-1)=sort
-c
-c         sort occupied orbitals
-c
-          sort=int_mb(k_ex_occ+i-1)
-          int_mb(k_ex_occ+i-1)=int_mb(k_ex_occ+jsav-1)
-          int_mb(k_ex_occ+jsav-1)=sort
-c
-c         sort virtual orbitals
-c
-          sort=int_mb(k_ex_virt+i-1)
-          int_mb(k_ex_virt+i-1)=int_mb(k_ex_virt+jsav-1)
-          int_mb(k_ex_virt+jsav-1)=sort
-c
-        enddo                    ! sorting
-#else
-      call dft_sorte(nexcite_tot,
-     E     dbl_mb(k_exen),dbl_mb(k_fosc),
-     D     dbl_mb(k_dpx),dbl_mb(k_dpy),dbl_mb(k_dpz),
-     I     int_mb(k_ex_occ),int_mb(k_ex_virt))
-#endif        
+         if (.not.ma_push_get
+     &        (mt_int,nexcite_tot,'mape',l_mape,k_mape))
+     &        call errquit('dft_vspec: failed mape alloc',0,MA_ERR)
+         
+         call dft_gsorte(nexcite_tot,
+     E        dbl_mb(k_exen), int_mb(k_mape))
+
+      if (.not.ma_push_get
+     &     (mt_dbl,nexcite_tot,'scr',l_scr,k_scr))
+     &  call errquit('dft_vspec: failed scr alloc',0,MA_ERR)
+      call dft_sortmap(nexcite_tot,
+     D     dbl_mb(k_scr),dbl_mb(k_fosc),int_mb(k_mape))
+      call dft_sortmap(nexcite_tot,
+     D     dbl_mb(k_scr),dbl_mb(k_dpx),int_mb(k_mape))
+      call dft_sortmap(nexcite_tot,
+     D     dbl_mb(k_scr),dbl_mb(k_dpy),int_mb(k_mape))
+      call dft_sortmap(nexcite_tot,
+     D     dbl_mb(k_scr),dbl_mb(k_dpz),int_mb(k_mape))
+      if (.not.ma_chop_stack(l_scr)) call errquit
+     &  ('dft_vspec: failed to deallocate scr',0,MA_ERR)
+      if (.not.ma_push_get
+     &     (mt_int,nexcite_tot,'scr',l_scr,k_scr))
+     &  call errquit('dft_vspec: failed to alloc  scre',0,MA_ERR)
+      call dft_sortmapi(nexcite_tot,
+     I     int_mb(k_scr),int_mb(k_ex_occ),int_mb(k_mape))
+      call dft_sortmapi(nexcite_tot,
+     I     int_mb(k_scr),int_mb(k_ex_virt),int_mb(k_mape))
+      if (.not.ma_chop_stack(l_mape)) call errquit
+     &  ('dft_vspec: failed to deallocate mape',0,MA_ERR)
+
       endif
       endif ! nodezero
 c
@@ -498,27 +455,26 @@ c       account for case when beta but no alpha excitations
       return
       end
       subroutine dft_sorte(nexcite_tot,
-     E     exen,fosc,
-     D     dpx,dpy,dpz,
-     I     ex_occ,ex_virt)
+     E     exen,mape)
       implicit none
+c optimized bubble sort
 #include "global.fh"
 #include "util.fh"
 #include "stdio.fh"
       integer nexcite_tot ! [in]
-      double precision   exen(*),fosc(*)
-      double precision dpx(*),dpy(*),dpz(*)
-      integer ex_occ(*),ex_virt(*)
+      double precision   exen(*)
+      integer mape(*)
+      
       
 c
       double precision esav,sort,t0
       integer i,j,jsav,isort,new_lgt,lgt
       t0=util_wallsec()
+c      
+      do i=1,nexcite_tot
+         mape(i)=i
+      enddo
 
-      if(ga_nodeid().eq.0) then
-         write(luout,*) ' spec sorting starts '
-         call util_flush(luout)
-      endif
 c
 c     Sort by energy
 c
@@ -526,8 +482,6 @@ c
       do i=1,nexcite_tot-1 
          esav = exen(i)
          jsav = i
-c        do j=i+1,nexcite_tot
-c       if (exen(j) .lt. esav) then
          do j=1,lgt-1
             if (exen(j) .gt. esav) then
                esav = exen(j)
@@ -539,45 +493,96 @@ c       if (exen(j) .lt. esav) then
          sort=exen(i)
          exen(i)=exen(jsav)
          exen(jsav)=sort
-c     
-c     sort transition moments and fosc
-c     
-c     x
-         sort=dpx(i)
-         dpx(i)=dpx(jsav)
-         dpx(jsav)=sort
-c     y
-         sort=dpy(i)
-         dpy(i)=dpy(jsav)
-         dpy(jsav)=sort
-c     z
-         sort=dpz(i)
-         dpz(i)=dpz(jsav)
-         dpz(jsav)=sort
-c     
-c     fosc
-c     
-         sort=fosc(i)
-         fosc(i)=fosc(jsav)
-         fosc(jsav)=sort
-c     
-c     sort occupied orbitals
-c
-         isort=ex_occ(i)
-         ex_occ(i)=ex_occ(jsav)
-         ex_occ(jsav)=sort
-c     
-c         sort virtual orbitals
-c
-         isort=ex_virt(i)
-         ex_virt(i)=ex_virt(jsav)
-         ex_virt(jsav)=isort
-c     
+c         
+         isort=mape(i)
+         mape(i)=mape(jsav)
+         mape(jsav)=isort
       enddo                     ! sorting
       if(ga_nodeid().eq.0) then
-         write(luout,*) ' spec sorting done in ',util_wallsec()-t0,
-     c        'secs'
+         write(luout,'(a,f10.3,a)') '  vspec sorting done in ',
+     U        util_wallsec()-t0,'secs'
          call util_flush(luout)
       endif
+      return
+      end
+      subroutine dft_gsorte(nexcite_tot,
+     E     exen,mape)
+      implicit none
+c gnome sort
+#include "global.fh"
+#include "util.fh"
+#include "stdio.fh"
+#include "mafdecls.fh"
+      integer nexcite_tot ! [in]
+      double precision   exen(*)
+      integer mape(*)
+      
+c
+      double precision esav,sort,t0
+      integer i,jsav,isort,lgt
+      t0=util_wallsec()
+
+      do i=1,nexcite_tot
+         mape(i)=i
+      enddo
+c
+c     Sort by energy
+c
+      lgt=nexcite_tot
+      i=1
+      do while (i.le.lgt)
+         if (i.eq.1.or.exen(i).ge.exen(i-1)) then
+            i = i +1
+         else
+            jsav=i-1
+c     swap i and jsav
+         sort=exen(i)
+         exen(i)=exen(jsav)
+         exen(jsav)=sort
+c         
+         isort=mape(i)
+         mape(i)=mape(jsav)
+         mape(jsav)=isort
+         endif
+      enddo                     ! sorting
+      if(ga_nodeid().eq.0) then
+         write(luout,'(a,f10.3,a)') '  vspec sorting done in ',
+     U        util_wallsec()-t0,'secs'
+         call util_flush(luout)
+       endif
+      return
+      end
+      subroutine dft_sortmap(n,scre,newe,mape)
+      implicit none
+#include "mafdecls.fh"
+      integer n
+      integer mape(*)
+      double precision newe(*),scre(*)
+c
+      integer i
+c
+      do i=1,n
+         scre(i)=newe(i)
+      enddo
+      do i=1,n
+         newe(i)=scre(mape(i))
+      enddo
+      return
+      end
+      subroutine dft_sortmapi(n,scre,newe,mape)
+      implicit none
+#include "mafdecls.fh"
+      integer n
+      integer mape(*)
+      integer newe(*),scre(*)
+c
+      integer i
+c
+      do i=1,n
+         scre(i)=newe(i)
+      enddo
+      do i=1,n
+         newe(i)=scre(mape(i))
+      enddo
       return
       end
