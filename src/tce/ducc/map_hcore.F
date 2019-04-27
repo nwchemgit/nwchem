@@ -489,3 +489,480 @@ c
       enddo
       return
       end
+c
+c
+      subroutine hn_form(rtdb,
+     &    d_v2,k_v2_offset,ene_orb,nos,nvs,noas,nobs,nvas,nvbs,
+     &    ehfa)
+c
+c  !!!!!!!!  Only for RHF !!!!!!!!
+c
+c all varaible below have to be defined in the tce_energy.f
+c
+c nos   - number of occupied spinorbitals
+c nvs   - number of virtual spinorbitals
+c noas  - number of occupied alpha spinorbitals
+c nobs  - number of occupied beta spinorbitals
+c nvas  - number of virtual  alhoa spinorbitals
+c nvbs  - number of virtual beta spinorbitals
+c
+c spinorbital convention
+c
+c | noas | nobs | nvas | nvbs |
+c
+c ene_orb contains orbital energies
+c
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "sym.fh"
+#include "util.fh"
+#include "stdio.fh"
+#include "rtdb.fh"
+#include "errquit.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+      integer d_v2    ! GA handle for v2
+      integer k_v2_offset
+      integer nos,nvs ! # of occupied/virtual spinorbitals
+      integer noas,nobs,nvas,nvbs ! # of occupied/virtual alphas betas
+      double precision ene_orb(nos+nvs)  ! a copy of dbl_mb(k_sorted)
+      integer size
+      integer rtdb
+      integer i,j,k,l         ! auxiliary indices
+      integer ia,ib,ic,id,ie,if !auxiliary indices
+      integer p,q,r,s,m,n
+c
+c matrices with original integrals
+c h created here from "orbital" matrix horb
+      double precision h(nos+nvs,nos+nvs)
+c horb valid only for RHF case
+      double precision horb((nos+nvs)/2,(nos+nvs)/2)
+c
+      double precision v(nos+nvs,nos+nvs,nos+nvs,nos+nvs)
+c
+      double precision xxx
+c shift energies
+      double precision ehfa
+c
+      logical nodezero
+c
+c
+      nodezero = (ga_nodeid().eq.0)
+c
+      do i=1,nos+nvs
+      do j=1,nos+nvs
+        h(i,j)=0.0d0
+      enddo
+      enddo
+c
+      do i=1,(nos+nvs)/2
+      do j=1,(nos+nvs)/2
+        horb(i,j)=0.0d0
+      enddo
+      enddo
+c
+c forming v matrix
+c
+      do i=1,nos+nvs
+      do j=1,nos+nvs
+      do k=1,nos+nvs
+      do l=1,nos+nvs
+        v(i,j,k,l)=0.0d0 
+      enddo
+      enddo
+      enddo
+      enddo
+c
+      call mapping_v2_m(rtdb,d_v2,k_v2_offset,v,nos,nvs)
+c
+      do p=1,nos+nvs
+       h(p,p)=ene_orb(p)
+      enddo
+c
+      do p=1,nos+nvs
+      do q=1,nos+nvs
+      do m=1,nos
+       h(p,q)=h(p,q)-v(p,m,q,m)
+      enddo
+      enddo
+      enddo
+c
+      ehfa=0.0d0
+c
+      do m=1,nos
+       ehfa=ehfa+ene_orb(m)
+      enddo
+c
+      do m=1,nos
+      do n=1,nos
+       ehfa=ehfa-(0.50d0)*v(m,n,m,n) 
+      enddo
+      enddo
+c
+c mapping h --> horb (valid only for RHF).
+c
+c block h-h
+       do i=1,noas 
+       do j=1,noas
+        horb(i,j)=h(i,j)
+       enddo
+       enddo
+c block h-p
+       do i=1,noas
+       do j=1,nvas
+         horb(i,j+noas)=h(i,j+noas+nobs)
+       enddo
+       enddo
+c block p-h
+       do i=1,nvas
+       do j=1,noas
+         horb(i+noas,j)=h(i+noas+nobs,j)
+       enddo
+       enddo
+c block p-p
+       do i=1,nvas
+       do j=1,nvas
+        horb(i+noas,j+noas)=h(i+noas+nobs,j+noas+nobs)
+       enddo
+       enddo
+c
+      if(nodezero) then 
+        do j=1,noas+nvas
+        do i=1,noas+nvas
+         xxx=dabs(horb(i,j))
+         if(xxx.gt.1.0d-10) then
+            write(6,100) i,j,horb(i,j)
+         endif
+        enddo
+        enddo
+      endif ! nodezero
+c
+ 100  format(2i5,3x,f18.10)
+c
+      return
+      end
+c
+c
+c
+c
+c
+c
+c
+      subroutine pw_tce(rtdb,d_v2,k_v2_offset,d_f1,k_f1_offset,
+     &ene_orb,nos,nvs,noas,nobs,nvas,nvbs,mov,ehfa)
+c
+c Currently for RHF reference
+c
+c tilesize=1 (assumed)!!!!!!
+c
+c no-frozen occupied orbitals
+c
+c nos  - total # of occpuied spinorbitals
+c nvs  - total # of virtual  spinorbitals
+c noas - total # of alpha occupied spinorbitals
+c nobs - total # of beta  occupied spinorbitals
+c nvas - total # of alpha virtual  spinorbitals
+c nvbs - total # of beta  virtual  spinorbitals
+c mov  - total # of correlated ORBITALS = noas+nvas
+c
+      implicit none
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "util.fh"
+#include "msgids.fh"
+#include "stdio.fh"
+#include "sf.fh"
+#include "inp.fh"
+#include "errquit.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+c
+c
+      integer rtdb             ! Run-time database
+      integer d_v2
+      integer k_v2_offset
+      integer d_f1
+      integer k_f1_offset
+      integer nos,nvs,mov
+      integer noas,nobs,nvas,nvbs
+c vm - 2-electron integrals in the Mulliken convention 
+c vm(i,j,k,l)=(ij|kl)
+      double precision vm(mov,mov,mov,mov)
+      double precision hm(mov,mov)
+      double precision fm(mov,mov)
+      double precision fms(nos+nvs,nos+nvs)
+      double precision ene_orb(nos+nvs)
+      logical nodezero         ! True if node 0
+!QuantumComputing
+      integer l_aux,k_aux
+      integer g3b,g4b,g1b,g2b,g5b,g6b
+      integer irow,icol
+      integer index_pair
+      double precision xxx
+      double precision enrep_tce
+      double precision ehfa
+      integer i,j,k,l,m,n,p,q,r,s
+      integer iha,ihb,ipa,ipb
+      integer hlimit,vlimit
+      integer offset_test,size_test
+!QuantumComputing
+c
+      nodezero=ga_nodeid().eq.0
+      ehfa = 0.0d0
+c
+      iha=noas
+      ihb=nobs
+      ipa=nvas
+      ipb=nvbs
+c
+c ehfa
+           if (.not. geom_nuc_rep_energy(geom, enrep_tce))
+     &      call errquit('TCE:unable to get nuclear rep ',geom, 
+     &      GEOM_ERR)
+c ene_orb initialization
+           do i=1,nos+nvs
+            ene_orb(i)=0.0d0
+           enddo
+c hm initialization 
+           do i=1,mov
+           do j=1,mov
+            hm(i,j)=0.0d0
+            fm(i,j)=0.0d0
+           enddo
+           enddo
+c
+           do i=1,nos+nvs
+           do j=1,nos+nvs
+            fms(i,j)=0.0d0
+           enddo
+           enddo
+c vm
+           do i=1,mov
+           do j=1,mov
+           do k=1,mov
+           do l=1,mov
+            vm(i,j,k,l)=0.0d0
+           enddo
+           enddo
+           enddo
+           enddo
+c
+c
+c opening of the files : reading from nodezero
+c   
+      if(nodezero) then ! ------------- 987
+       open(120,file='hm.dat',status='unknown') 
+         read(120,*) hlimit
+         do m=1,hlimit
+          read(120,*) i,j,xxx
+          hm(i,j)=xxx
+         enddo
+       close(120)
+       open(121,file='vm.dat',status='unknown')
+         read(121,*) vlimit
+         do m=1,vlimit
+          read(121,*) i,j,k,l,xxx
+          vm(i,j,k,l)=xxx
+          vm(i,j,l,k)=xxx
+          vm(j,i,k,l)=xxx
+          vm(j,i,l,k)=xxx
+          vm(k,l,i,j)=xxx
+          vm(k,l,j,i)=xxx
+          vm(l,k,i,j)=xxx
+          vm(l,k,j,i)=xxx
+         enddo
+       close(121)
+c orbital fock matrix
+      do i=1,mov
+      do j=1,mov
+       fm(i,j)=hm(i,j)
+      enddo
+      enddo
+c
+      do p=1,mov
+      do q=1,mov
+       do m=1,noas
+        fm(p,q)=fm(p,q)+(2.0d0)*vm(p,q,m,m)-vm(p,m,q,m)
+       enddo
+      enddo
+      enddo
+c
+c       do p=1,mov
+c       do q=1,mov
+c        xxx=fm(p,q)
+c        if(dabs(xxx).gt.1.0d-10) then
+c          write(6,100) p,q,fm(p,q)
+c        endif
+c       enddo
+c       enddo
+c
+c mapping fm --> fms
+c block h-h
+       do i=1,iha
+       do j=1,iha
+        fms(i,j)=fm(i,j)
+        fms(i+iha,j+iha)=fm(i,j)
+       enddo
+       enddo
+c block h-p
+       do i=1,iha
+       do j=1,ipa
+         fms(i,j+iha+ihb)=fm(i,j+iha)
+         fms(i+iha,j+iha+ihb+ipa)=fm(i,j+iha)
+       enddo
+       enddo
+c block p-h
+       do i=1,ipa
+       do j=1,iha
+         fms(i+iha+ihb,j)=fm(i+iha,j)
+         fms(i+iha+ihb+ipa,j+iha)=fm(i+iha,j)
+       enddo
+       enddo
+c block p-p
+       do i=1,ipa
+       do j=1,ipa
+        fms(i+iha+ihb,j+iha+ihb)=fm(i+iha,j+iha)
+        fms(i+iha+ihb+ipa,j+iha+ihb+ipa)=fm(i+iha,j+iha)
+       enddo
+       enddo
+c
+c
+c *** debug ***
+c       write(6,*)'Fock matrix'
+c       do i=1,nos+nvs
+c       do j=1,nos+nvs
+c        write(6,*) fms(i,j),i,j
+c       enddo
+c       enddo
+c       write(6,*)'--- end of F matrix ---'
+c *************
+c
+c pw - tce works only for rhf and tilesize=1
+c      further improvements possible
+c
+      offset_test=0
+      DO g3b = 1,noa+nva   !j
+      DO g4b = g3b,noa+nva !i
+      DO g1b = 1,noa+nva   !l
+      DO g2b = g1b,noa+nva !k
+      IF (int_mb(k_spin_alpha+g3b-1)+int_mb(k_spin_alpha+g4b-1).eq.
+     &int_mb(k_spin_alpha+g1b-1)+int_mb(k_spin_alpha+g2b-1)) THEN
+      IF (ieor(int_mb(k_sym_alpha+g3b-1),ieor(int_mb(k_sym_alpha+g4b-1),
+     &    ieor(int_mb(k_sym_alpha+g1b-1),int_mb(k_sym_alpha+g2b-1))))
+     &    .eq. irrep_v) THEN
+      IROW=INDEX_PAIR(g4b,g3b)
+      ICOL=INDEX_PAIR(g2b,g1b)
+      IF(IROW.GE.ICOL) THEN
+      size_test=int_mb(k_range_alpha+g3b-1) *
+     &int_mb(k_range_alpha+g4b-1) * int_mb(k_range_alpha+g1b-1) *
+     &int_mb(k_range_alpha+g2b-1)
+c
+       if(.not.ma_push_get(mt_dbl,size_test,'test',l_aux,k_aux))
+     1     call errquit('tce_aux2: MA problem',0,MA_ERR)
+c
+       dbl_mb(k_aux)=vm(g4b,g3b,g2b,g1b)
+c
+        call ga_put(d_v2,offset_test+1,offset_test+size_test,1,1,
+     1    dbl_mb(k_aux),size_test)
+c
+      if(.not.ma_pop_stack(l_aux))
+     1     call errquit('l_aux2',15,MA_ERR)
+c
+      offset_test=offset_test+size_test
+c
+      END IF
+      END IF
+      END IF
+      END DO
+      END DO
+      END DO
+      END DO
+c
+c
+c mapping f1
+c
+c
+      offset_test=0
+      DO g6b = 1,noab+nvab
+      DO g5b = 1,noab+nvab
+      IF (int_mb(k_spin+g6b-1) .eq. int_mb(k_spin+g5b-1)) THEN
+      IF (ieor(int_mb(k_sym+g6b-1),int_mb(k_sym+g5b-1)) .eq. irrep_f) TH
+     &EN
+      IF ((.not.restricted).or.(int_mb(k_spin+g6b-1)+int_mb(k_spin+g5b-1
+     &).ne.4)) THEN
+c
+      size_test = int_mb(k_range+g6b-1) * int_mb(k_range+g5b-1)
+c
+       if(.not.ma_push_get(mt_dbl,size_test,'test',l_aux,k_aux))
+     1     call errquit('tce_aux2: MA problem',0,MA_ERR)
+c
+       dbl_mb(k_aux)=fms(g6b,g5b)
+       call ga_put(d_f1,offset_test+1,offset_test+size_test,1,1,
+     1    dbl_mb(k_aux),size_test)
+c
+      if (.not.ma_pop_stack(l_aux))
+     1     call errquit('l_aux2',15,MA_ERR)
+c
+      offset_test=offset_test+size_test
+c
+      END IF
+      END IF
+      END IF
+      END DO
+      END DO
+c
+c
+c mapping ene_orb -->k_evl_sorted
+c
+c
+      do i=1,nos+nvs
+       ene_orb(i)=fms(i,i)
+      enddo
+c *** debug ***
+c      write(6,*)'diag fock matrix'
+c      do i=1,nos+nvs
+c        write(6,*) ene_orb(i),i
+c      enddo
+c      write(6,*)'repulsion energy: ',enrep_tce
+c *************
+c
+c
+c     ehfa for RHF reference
+c
+c
+      ehfa=0.0d0
+      ehfa=ehfa+enrep_tce 
+      do i=1,noas
+       ehfa=ehfa+(2.0d0)*hm(i,i)
+      enddo
+      do i=1,noas
+      do j=1,noas
+       ehfa=ehfa+2.0d0*vm(i,i,j,j)
+       ehfa=ehfa-vm(i,j,i,j)
+      enddo
+      enddo
+
+c *** debug ***
+c         write(6,*)'from pw_tce routine ehfa: ',ehfa
+c         call util_flush(6)
+c *************
+c
+c only nodezer has a value of ehfa !!!!
+c
+        if (.not.rtdb_put(rtdb,'tce:pwref',mt_dbl,1,ehfa))
+     1  call errquit('pwtce: failed to write ehfa',0,RTDB_ERR)
+c
+       call util_flush(6)
+      endif !nodezero ---------------- 987 
+c
+      call ga_sync()
+c
+      return
+      end
+
+
+
