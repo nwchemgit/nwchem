@@ -727,6 +727,7 @@ c
       xcname(67)='             SCAN-L Method XC Functional'
       xcname(68)='             revM06 Method XC Functional'
       xcname(69)='           revM06-L Method XC Functional'
+      xcname(70)='              SCAN0 Method XC Functional'
 c     
 c     place character XC parameters in rtdb
 c     
