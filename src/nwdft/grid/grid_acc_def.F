@@ -460,7 +460,7 @@ c
                   nang(itype) = 0
                endif
             else
-               if (grid_acc_index.eq.6)then
+               if (grid_acc_index.eq.7)then
                   nrad(itype) = nradpts
                   nang(itype) = nagrid
                else
