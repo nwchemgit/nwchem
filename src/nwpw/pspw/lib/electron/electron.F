@@ -2297,15 +2297,49 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       end if
      
 
-
 *    **** xc potential ****
       call v_bwexc_all(gga,n2ft3d,ispin,dnall,
      >                 dbl_mb(xcp(1)),dbl_mb(xce(1)))
 
-
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *   electron_zero_scf_potentials  *
+*     *                                 *
+*     ***********************************
+
+      subroutine electron_zero_scf_potentials()
+      implicit none
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "electron_common.fh"
+
+*     ***** local variables ****
+      integer n2ft3d
+
+*     **** external functions ****
+      integer  control_version
+      external control_version
+
+      n2ft3d = 2*nfft3d
+
+*     **** zero out scf potentials ****
+      if (control_version().eq.3) then
+         call Parallel_shared_vector_zero(.true., 
+     >                                    2*npack0,dcpl_mb(vc(1)))
+      else
+         call Parallel_shared_vector_zero(.true.,n2ft3d,dcpl_mb(vc(1)))
+      end if
+
+      call Parallel_shared_vector_zero(.true.,2*n2ft3d,dbl_mb(xce(1)))
+      call Parallel_shared_vector_zero(.true.,2*n2ft3d,dbl_mb(xcp(1)))
+
+      return
+      end
 
 
 

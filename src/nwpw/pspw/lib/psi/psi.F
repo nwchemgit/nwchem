@@ -740,8 +740,9 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
 *     *      psi_gen_hml_virtual        *
 *     *                                 *
 *     ***********************************
-      subroutine psi_gen_hml_virtual()
+      subroutine psi_gen_hml_virtual(assending)
       implicit none
+      logical assending
 
 #include "bafdecls.fh"
 #include "psi.fh"
@@ -783,22 +784,27 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
             jjend   = ii
             mshift = ne_excited(1)*ne_excited(1)
          end if
-         call Pack_cc_dot(1,
-     >               dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
-     >               dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
-     >               tsum)
-         write(*,*) "ii,norm=",ii,tsum
+c         call Pack_cc_dot(1,
+c     >               dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
+c     >               dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
+c     >               tsum)
+         !write(*,*) "ii,norm=",ii,tsum
 
          call electron_get_gradient_virtual(ms,
      >             dcpl_mb(psi1_excited(1)+(ii-1)*npack1),
      >             dcpl_mb(Horb(1)))
 
          do jj=jjstart,jjend
+c         call Pack_cc_dot(1,
+c     >               dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
+c     >               dcpl_mb(psi1_excited(1) +(jj-1)*npack1),
+c     >               tsum)
+         !write(*,*) "ii,jj,norm=",ii,jj,tsum
             call Pack_cc_dot(1,
      >               dcpl_mb(psi1_excited(1) +(jj-1)*npack1),
      >               dcpl_mb(Horb(1)),
      >               tsum)
-            write(*,*) "ii,jj,e=",ii,jj,tsum
+            !write(*,*) "ii,jj,e=",ii,jj,tsum
             indx  = (ii-jjstart)+(jj-jjstart)*ne_excited(ms)+mshift
             dbl_mb(hml_excited(1)+indx)  = tsum
             if (ii.ne.jj) then
@@ -812,9 +818,12 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       if (.not.BA_pop_stack(Horb(2)))
      >   call errquit('psi_gen_hml_virtual:popping stack',0,MA_ERR)
 
+c      call Dnexall_m_diagonalize(0,ispin,ne_excited,
+c     >                           dbl_mb(hml_excited(1)),
+c     >                           dbl_mb(eig_excited(1)),.true.)
       call Dnexall_m_diagonalize(0,ispin,ne_excited,
      >                           dbl_mb(hml_excited(1)),
-     >                           dbl_mb(eig_excited(1)),.true.)
+     >                           dbl_mb(eig_excited(1)),assending)
       call  Dnexall_fmf_Multiply(0,ispin,ne_excited,
      >                           dcpl_mb(psi1_excited(1)),npack1,
      >                           dbl_mb(hml_excited(1)),1.0d0,
@@ -2449,9 +2458,9 @@ c     >           rho,1)
 *    This routine sets the densities and potentials in psi and electron.  
 * This routine is needed for a band by band minimizer.
 *
-      subroutine psi_gen_density_potentials(psi_number)
+      subroutine psi_gen_density_potentials(psi_number0)
       implicit none
-      integer psi_number
+      integer psi_number0
 
 
 #include "bafdecls.fh"
@@ -2463,7 +2472,18 @@ c     >           rho,1)
       common / rhoall_block / rho1_all,rho2_all
 
 *     **** local variables ****
+      logical zeroscf
       integer psi_ptr,rho_ptr,dng_ptr,rho_all_ptr,occ_ptr
+      integer psi_number
+
+*     *** hacky for now ***
+      psi_number = psi_number0
+      zeroscf = .false.
+      if (psi_number.gt.2) then
+         psi_number = psi_number - 2
+         zeroscf = .true.
+      end if
+      !write(*,*) "psi_number,zeroscf=",psi_number,zeroscf
 
       if (psi_number.eq.1) then
         psi_ptr     = psi1(1)
@@ -2488,6 +2508,11 @@ c     >           rho,1)
       call electron_gen_scf_potentials(dbl_mb(rho_ptr),
      >                            dcpl_mb(dng_ptr),
      >                            dbl_mb(rho_all_ptr))
+
+      if (zeroscf) then
+         call electron_zero_scf_potentials()
+      end if
+
       call electron_gen_vall()
       return
       end
