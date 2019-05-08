@@ -1660,6 +1660,7 @@ c      end if
          mtensor(3,3) = Izz
  
 c        **** longest dimension is along a1 ****
+         ierr = 0
          call DSYEV('V','U',3,mtensor,3,meig,work,lwork,ierr)
 
 
@@ -3551,6 +3552,32 @@ c     >            (ispin.eq.ispin_wf))
      >  mp2 = .false.
 
       control_MP2 = mp2
+      return
+      end
+
+      
+*     *****************************
+*     *                           *
+*     *     control_2qintegrals   *
+*     *                           *
+*     *****************************
+      logical function control_2qintegrals()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "util.fh"
+
+      logical q2
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      if( .not. btdb_get(rtdb,'nwpw:2qintegrals',mt_log,1,q2))
+     >  q2 = .false.
+
+      control_2qintegrals = q2
       return
       end
 
@@ -5499,6 +5526,34 @@ c     >            (ispin.eq.ispin_wf))
       control_gradient_virtual = value
       return
       end
+
+      
+*     ***********************************
+*     *                                 *
+*     *     control_bound_virtual       *
+*     *                                 *
+*     ***********************************
+      logical function control_bound_virtual()
+      implicit none
+      
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+            
+      logical value
+
+      value = .false.
+      if (.not.btdb_get(rtdb,'nwpw:bound_virtual',mt_log,1,value))
+     >   value = .false.
+
+      control_bound_virtual = value
+      return
+      end   
+              
+           
 
 
 
