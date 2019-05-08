@@ -1891,6 +1891,7 @@ c     ****************************************
             if (ne(ms).le.0) go to 30
 
 !$OMP MASTER
+            ierr = 0
             call DSYEV('V','U',ne(ms),
      >                 hml(shift2),ne(ms), 
      >                 eig(shift1),
@@ -7273,6 +7274,7 @@ c     ****************************************
             shift2 = 1+(ms-1)*ishift2
             if (nein(ms).le.0) go to 30
 
+            ierr = 0
             call DSYEV('V','U',nein(ms),
      >                 hml(shift2),nein(ms), 
      >                 eig(shift1),
