@@ -49,10 +49,15 @@ then
 	 #         https://github.com/edoapra/ga/releases/download/v5.7/ga-5.7.tar.gz
 	fi
 	echo "downloading" ga-"$GA_RELEASE_NO".tar.gz  "from" "$TAR_URL"
-	CURL_YES=`curl  -O 2>&1 | head -1  | awk ' /URL/ {print "Y";exit};{print "N"}'`
+       CURL_YES=`curl  -O 2>&1 | head -1  | awk ' /URL/ {print "Y";exit};{print "N"}'`
 	if [ $CURL_YES = "Y" ]
 	then
+	    if test "x$GADOWN_IGNORECERTS" != x
+	    then
+	    curl -L -k "$TAR_URL" -o ga-"$GA_RELEASE_NO".tar.gz
+	    else
 	    curl -L  "$TAR_URL" -o ga-"$GA_RELEASE_NO".tar.gz
+	    fi
 	else
 	WGET_YES=`wget  -O 2>&1 | head -1  | awk ' /require/ {print "Y";exit};{print "N"}'`
 	    if [ $WGET_YES = "Y" ]
@@ -65,7 +70,12 @@ then
                     echo "obsolete wget"
                     echo "trying tlsv12 wget option"
                     echo " "
-                    wget --secure-protocol=TLSv1_2 -O ga-"$GA_RELEASE_NO".tar.gz "$TAR_URL"
+		    if test "x$GADOWN_IGNORECERTS" != x
+		    then
+			wget --no-check-certificate  --secure-protocol=TLSv1_2 -O ga-"$GA_RELEASE_NO".tar.gz "$TAR_URL"
+		    else
+			wget  --secure-protocol=TLSv1_2 -O ga-"$GA_RELEASE_NO".tar.gz "$TAR_URL"
+		    fi
                 fi
             else
 	        echo " "
