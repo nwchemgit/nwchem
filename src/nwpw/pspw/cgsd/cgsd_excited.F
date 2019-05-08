@@ -19,7 +19,7 @@ c#include "bafdecls.fh"
       integer MASTER
       parameter (MASTER=0)
 
-      logical stalled,value,gvirtual
+      logical stalled,value,gvirtual,bvirtual,oprint
       integer taskid
       integer minimizer
       integer i,j,ms,neall,NN
@@ -35,12 +35,12 @@ c#include "bafdecls.fh"
 
 *     **** external functions ****
       logical     control_DOS,control_Mulliken,control_MP2
-      logical     epsi_initialize,epsi_finalize
+      logical     epsi_initialize,epsi_finalize,control_2qintegrals
       logical     control_check_number_virtuals
       integer     psi_ne_excited,control_excited_ne,control_rtdb
       real*8      psi_virtual
       external    control_DOS,control_Mulliken,control_MP2
-      external    epsi_initialize,epsi_finalize
+      external    epsi_initialize,epsi_finalize,control_2qintegrals
       external    control_check_number_virtuals
       external    psi_ne_excited,control_excited_ne,control_rtdb
       external    psi_virtual
@@ -52,15 +52,18 @@ c#include "bafdecls.fh"
       external    band_reformat_c_ewvfnc
       integer     epsi_get_version
       external    epsi_get_version
-      logical     control_gradient_virtual
-      external    control_gradient_virtual
+      logical     control_gradient_virtual,control_bound_virtual
+      external    control_gradient_virtual,control_bound_virtual
       logical     psi_2epsi_gradients
       external    psi_2epsi_gradients
 
       call Parallel_taskid(taskid)
 
       gvirtual = control_gradient_virtual()
+      bvirtual = control_bound_virtual()
       neall = control_excited_ne(1)+control_excited_ne(2)
+
+      oprint = (taskid.eq.MASTER)
 
       if ((neall.gt.0).or.(gvirtual)) then
 
@@ -72,7 +75,8 @@ c#include "bafdecls.fh"
 
 *        **** calculating regular virtual orbitals ****
          else
-            if (taskid.eq.MASTER) write(luout,1301)
+            if (oprint.and.(.not.bvirtual)) write(luout,1301)
+            if (oprint.and.(bvirtual))      write(luout,1302)
 
 *           **** read in excited wavefunctions and initialize epsi ****
             call control_ispin_set(psi_ispin())
@@ -95,27 +99,33 @@ c#include "bafdecls.fh"
             end if
          end if
 
-      !write(*,*) "HERA"
       call psi_get_ne_excited(ispin,nexcited)
-      !write(*,*) "HERB",ispin,nexcited
 ccccc      call Dnex_init(ispin,nexcited,control_mapping1d())
 
       value = epsi_initialize()
-      call psi_gen_density_potentials(1)
-      if (gvirtual) then
-         !write(*,*) "determing H matrix"
-         call psi_gen_hml_virtual()
-         call psi_minimize_virtual()
+      if (bvirtual) then
+         call psi_gen_density_potentials(3)
       else
+         call psi_gen_density_potentials(1)
+      end if
+      if (gvirtual) then
+         call psi_gen_hml_virtual(.true.)
+      else
+         call psi_gen_hml_virtual(.true.)
          call psi_minimize_virtual()
       end if
+      if (bvirtual) then
+         call psi_gen_density_potentials(1)
+         call psi_gen_hml_virtual(.true.)
+      end if
+         
 
       if (control_symmetry().gt.0) call psi_ab_gen_irrep_names(.true.)
 
-      if (taskid.eq.MASTER) then
+      if (oprint) then
         write(luout,1500)
         NN=psi_ne_excited(1)-psi_ne_excited(2)
-        EV=27.2116
+        EV=27.2116d0
         if (control_symmetry().eq.1) then
 
           do I=psi_ne_excited(1),(psi_ne_excited(2)+1),-1
@@ -170,6 +180,10 @@ ccccc      call Dnex_init(ispin,nexcited,control_mapping1d())
          call psi_MP2_energy(rtdb)
       end if
 
+      if (control_2qintegrals()) then
+         call psi_2q_integrals(rtdb)
+      end if
+
 
 *     **** write out excited wavefunctions ***
       value = epsi_finalize(.true.)
@@ -179,6 +193,7 @@ cccc      call Dnex_end()
 
       return
  1301 FORMAT(//'== Virtual Orbital Calculation =='/)
+ 1302 FORMAT(//'== Bound Virtual Orbital Calculation =='/)
  1500 FORMAT(/' virtual orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1512 FORMAT(2(E18.7,' (',F8.3,'eV)',A4))
