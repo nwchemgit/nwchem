@@ -2500,20 +2500,22 @@ c     >           rho,1)
       end if
 
 
-      call electron_gen_densities(dcpl_mb(psi_ptr),
+      if (zeroscf) then
+          call electron_gen_vall0()
+      else
+         call electron_gen_densities(dcpl_mb(psi_ptr),
      >                            dbl_mb(rho_ptr),
      >                            dcpl_mb(dng_ptr),
      >                            dbl_mb(rho_all_ptr),
      >                            occupation_on,dbl_mb(occ_ptr))
-      call electron_gen_scf_potentials(dbl_mb(rho_ptr),
+         call electron_gen_scf_potentials(dbl_mb(rho_ptr),
      >                            dcpl_mb(dng_ptr),
      >                            dbl_mb(rho_all_ptr))
-
-      if (zeroscf) then
-         call electron_zero_scf_potentials()
+         !if (zeroscf) then
+         !   call electron_zero_scf_potentials()
+         !end if
+         call electron_gen_vall()
       end if
-
-      call electron_gen_vall()
       return
       end
 
