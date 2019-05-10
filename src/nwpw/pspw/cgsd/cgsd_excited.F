@@ -19,7 +19,7 @@ c#include "bafdecls.fh"
       integer MASTER
       parameter (MASTER=0)
 
-      logical stalled,value,gvirtual,bvirtual,oprint
+      logical stalled,value,gvirtual,bvirtual,confine,oprint
       integer taskid
       integer minimizer
       integer i,j,ms,neall,NN
@@ -54,6 +54,8 @@ c#include "bafdecls.fh"
       external    epsi_get_version
       logical     control_gradient_virtual,control_bound_virtual
       external    control_gradient_virtual,control_bound_virtual
+      logical     control_confine_virtual
+      external    control_confine_virtual
       logical     psi_2epsi_gradients
       external    psi_2epsi_gradients
 
@@ -61,6 +63,7 @@ c#include "bafdecls.fh"
 
       gvirtual = control_gradient_virtual()
       bvirtual = control_bound_virtual()
+      confine  = control_confine_virtual()
       neall = control_excited_ne(1)+control_excited_ne(2)
 
       oprint = (taskid.eq.MASTER)
@@ -69,9 +72,7 @@ c#include "bafdecls.fh"
 
 *        **** Using gradients of filled orbitals to define virtual space ****
          if (gvirtual) then
-            !write(*,*) "into gen gradients"
             value = psi_2epsi_gradients(3)
-            !write(*,*) "out gen gradients"
 
 *        **** calculating regular virtual orbitals ****
          else
@@ -103,18 +104,24 @@ c#include "bafdecls.fh"
 ccccc      call Dnex_init(ispin,nexcited,control_mapping1d())
 
       value = epsi_initialize()
+
+      if (confine)   call electron_create_confine()
+
       if (bvirtual) then
          call psi_gen_density_potentials(3)
       else
          call psi_gen_density_potentials(1)
       end if
+
       if (gvirtual) then
          call psi_gen_hml_virtual(.true.)
       else
          call psi_gen_hml_virtual(.true.)
          call psi_minimize_virtual()
       end if
-      if (bvirtual) then
+
+      if (confine) call electron_destroy_confine()
+      if ((bvirtual).or.(confine.and.(.not.gvirtual))) then
          call psi_gen_density_potentials(1)
          call psi_gen_hml_virtual(.true.)
       end if
