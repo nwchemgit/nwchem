@@ -41,6 +41,7 @@
       neq(1) = psi_neq(1)
       neq(2) = psi_neq(2)
       field_exist = ion_chargeexist().or.ion_mmexist()
+      confine_exist = .false.
 
 *     **** get nfft3d, and n2ft3d ****
       call Pack_npack(1,npack1)
@@ -2074,6 +2075,9 @@ c     >                        dbl_mb(vall(1)))
          if (field_exist)
      >     call D3dB_rr_Sum2(1,dbl_mb(v_field(1)),dbl_mb(vall(1)))
 
+         if (confine_exist)
+     >     call D3dB_rr_Sum2(1,dbl_mb(v_confine(1)),dbl_mb(vall(1)))
+
       end if
 
 *     **** add xcp to vall ****
@@ -2149,6 +2153,9 @@ c      end do
          call D3dB_rr_Sum2(1,dbl_mb(vl_lr(1)),dbl_mb(vall(1)))
          if (field_exist)
      >     call D3dB_rr_Sum2(1,dbl_mb(v_field(1)),dbl_mb(vall(1)))
+
+         if (confine_exist)
+     >     call D3dB_rr_Sum2(1,dbl_mb(v_confine(1)),dbl_mb(vall(1)))
 
       end if
 
@@ -2760,6 +2767,146 @@ c      electron_psi_vnl_ave = enlocal
 
       return
       end
+
+*     ***********************************
+*     *			 		*
+*     *   electron_create_confine	*
+*     *					*
+*     ***********************************
+      subroutine electron_create_confine()
+      implicit none
+
+#include "bafdecls.fh"
+#include "electron_common.fh"
+#include "errquit.fh"
+
+      !*** local variables ****
+      logical value
+      integer n2ft3d,r_grid(2)
+
+      n2ft3d = 2*nfft3d
+      confine_exist = .true.
+      value = BA_alloc_get(mt_dbl,n2ft3d,
+     >                     'v_confine',v_confine(2),v_confine(1))
+      value = value.and.BA_push_get(mt_dbl,(6*nfft3d),'r_grid',
+     >                       r_grid(2),r_grid(1))
+      if (.not.value) 
+     >  call errquit('electron_create_confine: error allocate heap',0,
+     >               MA_ERR)
+
+      call Parallel_shared_vector_zero(.true.,n2ft3d,
+     >                                 dbl_mb(v_confine(1)))
+      call lattice_r_grid(dbl_mb(r_grid(1)))
+      call electron_atom_Generate_V(1,n2ft3d,
+     >                          dbl_mb(r_grid(1)),
+     >                          dbl_mb(v_confine(1)))
+      value = BA_pop_stack(r_grid(2))
+      if (.not. value) call errquit(
+     >   'electron_create_confine: error popping stack memory',0,
+     >       MA_ERR)
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *   electron_destroy_confine      *
+*     *                                 *
+*     ***********************************
+      subroutine electron_destroy_confine()
+      implicit none
+
+#include "bafdecls.fh"
+#include "electron_common.fh"
+#include "errquit.fh"
+
+      !*** local variables ****
+      logical value
+
+      confine_exist = .false.
+      if (.not.BA_free_heap(v_confine(2)))
+     >  call errquit('electron_destroy_confine: error freeing heap',0,
+     >               MA_ERR)
+      return
+      end
+
+
+
+*     **********************************
+*     *                                *
+*     *     electron_atom_Generate_V   *
+*     *                                *
+*     **********************************
+
+      subroutine electron_atom_Generate_V(ctype,n2ft3d,rgrid,Vqm)
+      implicit none
+      integer ctype
+      integer n2ft3d
+      real*8 rgrid(3,*)
+      real*8 Vqm(*)
+
+#include "stdio.fh"
+
+*     ***** local variables ****
+      integer taskid,MASTER
+      parameter(MASTER=0)
+
+      integer ii,ia,k
+      real*8  x1,y1,z1,q1,r,rs,re
+      real*8  r0,dr0,beta
+
+*     **** external functions ****
+      integer  ion_katm_qm,ion_nion_qm,ion_nkatm_qm
+      external ion_katm_qm,ion_nion_qm,ion_nkatm_qm
+      real*8   ion_rion
+      external ion_rion
+      character*4 ion_atom_qm
+      external    ion_atom_qm
+
+      if (ion_nion_qm().gt.0) then
+         call Parallel_taskid(taskid)
+
+*        **** point charges ****
+         if (ctype.eq.1) then
+            if (taskid.eq.MASTER) then
+               write(luout,*)
+               write(luout,*) " - Confining virtual space"  
+               write(luout,*) 
+     >         " - Parameters: Symbol      Ve      rs      re"
+            end if
+            do ia = 1,ion_nkatm_qm()
+               call control_fetch_confine(ion_atom_qm(ia),q1,rs,re)
+               if (taskid.eq.MASTER) 
+     >         write(luout,'(15x,A7,F8.3,F8.3,F8.3)') 
+     >         ion_atom_qm(ia),q1,rs,re
+            end do
+            if (taskid.eq.MASTER) write(luout,*)
+
+           do ii=1,ion_nion_qm()
+              ia = ion_katm_qm(ii)
+              call control_fetch_confine(ion_atom_qm(ia),q1,rs,re)
+              r0  = 0.5d0*(rs+re)
+              dr0 = (re-rs)
+              beta = dlog(999.0d0)/dr0
+
+              x1 = ion_rion(1,ii)
+              y1 = ion_rion(2,ii)
+              z1 = ion_rion(3,ii)
+!$OMP DO
+              do k=1,n2ft3d
+                r = (rgrid(1,k)-x1)**2
+     >            + (rgrid(2,k)-y1)**2
+     >            + (rgrid(3,k)-z1)**2
+                r = dsqrt(r)
+                Vqm(k) = Vqm(k)
+     >                 + q1*(1.0d0-1.0d0/(1.0d0+dexp(beta*(r-r0))))
+              end do
+!$OMP END DO
+           end do
+         end if
+      end if
+      return
+      end
+
 
 
 
