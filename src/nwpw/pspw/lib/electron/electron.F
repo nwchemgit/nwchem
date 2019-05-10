@@ -1584,15 +1584,18 @@ c     >                 dcpl_mb(Hpsi_k(1)+index2))
 
 
 *     **** local variables ****
-      logical value
+      logical value,hfxon
       integer n2ft3d
       integer tmp_r(2)
 
 *     **** external functions ****
       integer  control_version
       external control_version
+      logical  pspw_HFX_virtual
+      external pspw_HFX_virtual
 
 
+      hfxon = pspw_HFX_virtual()
       n2ft3d = 2*nfft3d
 
       value = BA_push_get(mt_dbl,(n2ft3d),'tmp_r',tmp_r(2),tmp_r(1))
@@ -1607,7 +1610,7 @@ c     >                 dcpl_mb(Hpsi_k(1)+index2))
 
 *     **** get Hpsi ****
       if (control_version().eq.3)
-     >  call psi_Horb_replicated(.true.,ispin,ms,
+     >  call psi_Horb_replicated(hfxon,ispin,ms,
      >             dbl_mb(psi_r(1)),
      >             dbl_mb(vall(1)),
      >             orb,
@@ -1615,7 +1618,7 @@ c     >                 dcpl_mb(Hpsi_k(1)+index2))
      >             Horb)
 
       if (control_version().eq.4)
-     >  call psi_Horbv4_replicated(.true.,ispin,ms,
+     >  call psi_Horbv4_replicated(hfxon,ispin,ms,
      >             dbl_mb(psi_r(1)),
      >             dbl_mb(vall(1)),
      >             orb,
