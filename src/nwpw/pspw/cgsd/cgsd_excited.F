@@ -108,6 +108,7 @@ ccccc      call Dnex_init(ispin,nexcited,control_mapping1d())
       if (confine)   call electron_create_confine()
 
       if (bvirtual) then
+         call pspw_HFX_virtual_set(.false.)
          call psi_gen_density_potentials(3)
       else
          call psi_gen_density_potentials(1)
@@ -121,6 +122,7 @@ ccccc      call Dnex_init(ispin,nexcited,control_mapping1d())
       end if
 
       if (confine) call electron_destroy_confine()
+      if (bvirtual) call pspw_HFX_virtual_set(.true.)
       if ((bvirtual).or.(confine.and.(.not.gvirtual))) then
          call psi_gen_density_potentials(1)
          call psi_gen_hml_virtual(.true.)
