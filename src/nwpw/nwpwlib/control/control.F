@@ -5552,6 +5552,32 @@ c     >            (ispin.eq.ispin_wf))
       control_bound_virtual = value
       return
       end   
+
+*     ***********************************
+*     *                                 *
+*     *     control_confine_virtual     *
+*     *                                 *   
+*     ***********************************
+      logical function control_confine_virtual()
+      implicit none
+            
+#include "bafdecls.fh"
+#include "btdb.fh"
+            
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+               
+      logical value
+                 
+      value = .false.
+      if (.not.btdb_get(rtdb,'nwpw:confine_virtual',mt_log,1,value))
+     >   value = .false.
+                 
+      control_confine_virtual = value
+      return
+      end   
+              
               
            
 
@@ -6579,4 +6605,41 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 
+
+
+
+*     ***********************************
+*     *                                 *
+*     *    control_fetch_confine        *
+*     *                                 *
+*     ***********************************
+      subroutine control_fetch_confine(symbol,q1,rs,re)
+      implicit none
+      character*4 symbol
+      real*8 q1,rs,re
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+      integer l
+      real*8 rrr(3)
+
+      l = index(symbol,' ') - 1
+      if (.not.btdb_get(rtdb,'nwpw:confine:'//symbol(1:l),
+     >                  mt_dbl,3,rrr)) then
+
+         rrr(1) = 1.0d0
+         rrr(2) = 6.0d0
+         rrr(3) = 14.0d0
+      end if
+      q1 = rrr(1)
+      rs = rrr(2)
+      re = rrr(3)
+      return
+      end
 
