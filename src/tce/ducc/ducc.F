@@ -2432,7 +2432,7 @@ c  calculate vt  (print only vt(alpha,beta,alpha,beta)
         DO Q = 1, NOS+NVS
           DO R = 1, P
             DO S = 1, Q
-              IF(PRINTINDEX2(P,R,Q,S))CYCLE
+              IF(PRINTINDEX2(P,Q,R,S))CYCLE
               VALUE1=((TRANSFORM(P)*(TRANSFORM(P)+1))/2)+TRANSFORM(R)
               VALUE2=((TRANSFORM(Q)*(TRANSFORM(Q)+1))/2)+TRANSFORM(S)
               IF(VALUE1.GE.VALUE2.AND.abs(VT(P,Q,R,S)).GT.PTHRESH)THEN
@@ -2510,7 +2510,7 @@ c  calculate vt  (print only vt(alpha,beta,alpha,beta)
         DO R = 1, P
           DO Q = 1, NOS+NVS
             DO S = 1, Q
-              IF(PRINTINDEX2(P,R,Q,S))CYCLE
+              IF(PRINTINDEX2(P,Q,R,S))CYCLE
               VALUE1=((TRANSFORM(P)*(TRANSFORM(P)+1))/2)+TRANSFORM(R)
               VALUE2=((TRANSFORM(Q)*(TRANSFORM(Q)+1))/2)+TRANSFORM(S)
               IF(VALUE1.GE.VALUE2.AND.abs(VT(P,Q,R,S)).GT.PTHRESH)THEN
