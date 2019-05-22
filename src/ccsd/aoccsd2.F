@@ -61,7 +61,7 @@ c triples
       integer g_objo
       integer vchunk,noper,occ_lo,vir_lo,vir_hi,oseg_lo,oseg_hi,
      &        nvpass
-      integer ga_create_jkblocked
+      integer ga_create_JKblocked
       logical oexch,ocoul,ohalf,oprint,oprinthigh
       double precision eccsdt,eccsd,empt(2),tx(3)
       double precision eccsdos,eccsdss,fos,fss
