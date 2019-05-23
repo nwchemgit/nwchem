@@ -5527,6 +5527,31 @@ c     >            (ispin.eq.ispin_wf))
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *  control_gradient_virtual_fac   *
+*     *                                 *
+*     ***********************************
+      integer function control_gradient_virtual_fac()
+      implicit none 
+      
+#include "bafdecls.fh"
+#include "btdb.fh"
+            
+*     **** control_rtdb common block ****   
+      integer rtdb
+      common / control_rtdb1 / rtdb
+            
+      integer fac
+              
+      fac = 19
+      if (.not.btdb_get(rtdb,'nwpw:gradient_virtual_fac',mt_log,1,fac))
+     >   fac = 19
+            
+      control_gradient_virtual_fac = fac
+      return   
+      end
+
       
 *     ***********************************
 *     *                                 *
