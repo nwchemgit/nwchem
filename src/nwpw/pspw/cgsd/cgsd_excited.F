@@ -21,7 +21,7 @@ c#include "bafdecls.fh"
 
       logical stalled,value,gvirtual,bvirtual,confine,oprint
       integer taskid
-      integer minimizer
+      integer minimizer,gfac
       integer i,j,ms,neall,NN
       integer nexcited(2),ispin
       integer it_in,it_out,icount,bfgscount
@@ -58,10 +58,13 @@ c#include "bafdecls.fh"
       external    control_confine_virtual
       logical     psi_2epsi_gradients
       external    psi_2epsi_gradients
+      integer     control_gradient_virtual_fac
+      external    control_gradient_virtual_fac
 
       call Parallel_taskid(taskid)
 
       gvirtual = control_gradient_virtual()
+      gfac     = control_gradient_virtual_fac()
       bvirtual = control_bound_virtual()
       confine  = control_confine_virtual()
       neall = control_excited_ne(1)+control_excited_ne(2)
@@ -72,7 +75,7 @@ c#include "bafdecls.fh"
 
 *        **** Using gradients of filled orbitals to define virtual space ****
          if (gvirtual) then
-            value = psi_2epsi_gradients(3)
+            value = psi_2epsi_gradients(gfac)
 
 *        **** calculating regular virtual orbitals ****
          else

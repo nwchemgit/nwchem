@@ -6869,6 +6869,8 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
          nfac = 9
       else if (gn.eq.3) then
          nfac = 19
+      else 
+         nfac = gn
       end if
       nex(1) = ne(1)*nfac
       nex(2) = ne(2)*nfac
