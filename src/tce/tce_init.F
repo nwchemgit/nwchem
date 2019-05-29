@@ -145,24 +145,11 @@ c
      1    call errquit('tce_init: failed to read nocc',0,RTDB_ERR)
         if (.not.rtdb_get(rtdb,'dft:mult',mt_int,1,mult))
      1    call errquit('tce_init: failed to read mult',0,RTDB_ERR)
-c *** debug-kk ***
-c        if(nodezero) then
-c         write(6,*)'ipol= ',ipol
-c         call util_flush(6)
-c        end if
-c ****************
         if (ipol.eq.1) then
           restricted = .true.
         else
           restricted = .false.
         endif
-c *** debug-kk ***
-c        if(nodezero) then
-c         write(6,*)'restricter= ',restricted
-c         write(6,*)'ROHF= ',rohf
-c         call util_flush(6)
-c        end if
-c ****************
       else if (reference.eq.1) then
         if (.not.rtdb_get(rtdb,'scf:nclosed',mt_int,1,nclosed))
      1    call errquit('tce_init: failed to read nclosed',0,RTDB_ERR)
