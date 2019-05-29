@@ -242,7 +242,7 @@
 !
 !     2e STORAGE
 !
-        model2e='2espin'
+      model2e='default'
       if (.not.rtdb_cput(rtdb,'tce:model2e',1,model2e))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
@@ -413,6 +413,16 @@
       else if (inp_compare(.false.,test,'2eorb')) then
         if (module.eq.'tce') then
         model2e='2eorb'
+        if (.not.rtdb_cput(rtdb,'tce:model2e',1,model2e))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'2espin')) then
+        if (module.eq.'tce') then
+        model2e='2espin'
         if (.not.rtdb_cput(rtdb,'tce:model2e',1,model2e))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
