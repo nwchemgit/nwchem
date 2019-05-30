@@ -17,7 +17,8 @@ c
 !DEC$ vector always
       do i = 1,n
 !DEC$ prefetch a
-!DEC$ unroll(UNROLLING)
+c next directive disabled since it seems to generate erroneous code with Intel 2018-2019
+c!DEC$ unroll(UNROLLING)
 !DEC$ vector always
         do j = i,n
           swap = a(i,j)
