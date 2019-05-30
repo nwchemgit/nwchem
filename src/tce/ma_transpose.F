@@ -4,11 +4,13 @@
       double precision a(n,n)
       double precision swap
       do i = 1,n
+        !$omp simd
         do j = i,n
           swap = a(i,j)
           a(i,j) = a(j,i)
           a(j,i) = swap
         enddo
+        !$omp end simd
       enddo
       return
       end
