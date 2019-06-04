@@ -414,14 +414,16 @@ sync
     cp ${SCRATCHDIR}/$ESPFILE $TESTOUTPUTS/.
 #    echo "doing ls -l " ${STUB}.ok.q ${STUB}.q
 #    echo `ls -l ${STUB}.ok.q ${STUB}.q`
-       diff -w ${STUB}.ok.q ${STUB}.q >& /dev/null
-       if [ $? -ne 0]; then
+    diff -w ${STUB}.ok.q ${STUB}.q >& /dev/null
+    espstatus=$?
+       if [[ $espstatus -ne 0 ]]; then
          echo "ESP comparison failed"
-         set overall_status = 1
+         overall_status=1
          continue 
        else
-           echo "ESP charges match"
+         echo "ESP charges match"
        fi
+       echo
     else
       echo -n "     verifying test ....... "
 #

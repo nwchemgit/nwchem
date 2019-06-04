@@ -1,13 +1,13 @@
-#!/bin/csh -f
+#!/bin/bash -f
 #
 # $Id$
 #
-set np = 1
-if ($1 !="") then
-  set np = $1
-endif
-set what = x$2
-if ($what == "xfast") then
+let np=1
+if [ -n "$1" ]; then
+   np="$1"
+fi
+ what="$2"
+if [[ "$what" == "fast" ]]; then
   echo
   echo " ====================================="
   echo " QM: Running only a set of quick tests"
@@ -19,7 +19,7 @@ else
   echo " QM: Running all tests (including some really big ones)"
   echo " ======================================================"
   echo
-endif
+fi
 #
 #---   small tests
 #./runtests.mpi.unix procs $np testtask
@@ -281,9 +281,9 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np h2o2_fde
 #
 #--- if we only want quick tests get out now!
-if ($what == "xfast") then
+if [[ $what -eq "fast" ]]; then
   exit
-endif
+fi
 #
 #---   long  may not run on workstations
 ./runtests.mpi.unix procs $np aump2 
