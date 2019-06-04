@@ -1,20 +1,22 @@
-#!/bin/csh -f
+#!/bin/bash -f
 #
 # $Id$
 #
 # jochen: modification of doqmtests.mpi, I really want only a few
 # small tests for HF, DFT, response, TDDFT
 #
-set np = 1
-if ($1 !="") then
-  set np = $1
-endif
+let np=1
+if [ -n "$1" ]; then
+echo arg is "$1"
+   np="$1"
+fi
+echo np is "$np"
   echo
   echo " ======================================================="
   echo " QM: Running a very small subset of the available tests "
   echo " ======================================================="
   echo
-endif
+
 #
 #---   small tests
 ./runtests.mpi.unix procs $np h2o_opt
