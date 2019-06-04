@@ -75,6 +75,7 @@ c
 c
       logical cs00
       logical lb94
+      logical ncap
       integer iAOacc
 c
       logical osinglet
@@ -191,6 +192,8 @@ c     get XC functionals
      1  call errquit(pname//'failed to read lb94',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'dft:cs00',mt_log,1,cs00))
      1  call errquit(pname//'failed to read cs00',0, RTDB_ERR)
+      if (.not.rtdb_get(rtdb,'dft:ncap',mt_log,1,ncap))
+     1  call errquit(pname//'failed to read ncap',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'dft:delta_ac',mt_dbl,1,shift))
      1  call errquit(pname//'failed to read delta_ac',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'dft:cam_exch',mt_log,1,cam_exch))
