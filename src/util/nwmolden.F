@@ -157,7 +157,7 @@ c conversion factors fron moldens gaussian.f
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
-      character*64 filename
+      character*256 filename
 !
 cold      call util_file_prefix('molden', filename )
       call util_file_name('molden', .false., .false.,filename)
