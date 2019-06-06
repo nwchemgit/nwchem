@@ -74,7 +74,6 @@ endif
 
 
 ifdef MA_TRANS_BLOCKED
-      OBJ_OPTIMIZE += ma_transpose_blocked.o
       LIB_DEFINES += -DMA_TRANS_BLOCKED
 else
       OBJ_OPTIMIZE += ma_transpose.o
