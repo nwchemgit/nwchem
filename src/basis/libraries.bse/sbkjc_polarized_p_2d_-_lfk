@@ -1,5 +1,5 @@
 # BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T14:33
+# Data downloaded at 2019-06-11T15:29
 # sbkjc polarized (p,2d) - lfk version number 0
 # Description: SBKJC Polarized (p,2d) - LFK
 # Role: orbital
@@ -55,7 +55,7 @@ Li    D
 end
 
 
-ECP
+ecp "Li_sbkjc polarized (p,2d) - lfk"
 Li nelec 2
 Li ul
 1       1.3430600             -0.7306300
@@ -82,7 +82,7 @@ Be    D
 end
 
 
-ECP
+ecp "Be_sbkjc polarized (p,2d) - lfk"
 Be nelec 2
 Be ul
 1       2.7934700             -0.7897000
@@ -109,7 +109,7 @@ B    D
 end
 
 
-ECP
+ecp "B_sbkjc polarized (p,2d) - lfk"
 B nelec 2
 B ul
 1       5.6462200             -0.8835500
@@ -136,7 +136,7 @@ C    D
 end
 
 
-ECP
+ecp "C_sbkjc polarized (p,2d) - lfk"
 C nelec 2
 C ul
 1       8.5646800             -0.8937100
@@ -163,7 +163,7 @@ N    D
 end
 
 
-ECP
+ecp "N_sbkjc polarized (p,2d) - lfk"
 N nelec 2
 N ul
 1      11.9968600             -0.9121200
@@ -190,7 +190,7 @@ O    D
 end
 
 
-ECP
+ecp "O_sbkjc polarized (p,2d) - lfk"
 O nelec 2
 O ul
 1      16.1171800             -0.9255000
@@ -217,7 +217,7 @@ F    D
 end
 
 
-ECP
+ecp "F_sbkjc polarized (p,2d) - lfk"
 F nelec 2
 F ul
 1      20.7395900             -0.9325800
@@ -244,7 +244,7 @@ Ne    D
 end
 
 
-ECP
+ecp "Ne_sbkjc polarized (p,2d) - lfk"
 Ne nelec 2
 Ne ul
 1      26.0166600             -0.9409800
@@ -271,7 +271,7 @@ Na    D
 end
 
 
-ECP
+ecp "Na_sbkjc polarized (p,2d) - lfk"
 Na nelec 10
 Na ul
 1       0.9000900             -2.3844600
@@ -301,7 +301,7 @@ Mg    D
 end
 
 
-ECP
+ecp "Mg_sbkjc polarized (p,2d) - lfk"
 Mg nelec 10
 Mg ul
 1       1.3922000             -2.7729600
@@ -331,7 +331,7 @@ Al    D
 end
 
 
-ECP
+ecp "Al_sbkjc polarized (p,2d) - lfk"
 Al nelec 10
 Al ul
 1       1.9555900             -3.0305500
@@ -361,7 +361,7 @@ Si    D
 end
 
 
-ECP
+ecp "Si_sbkjc polarized (p,2d) - lfk"
 Si nelec 10
 Si ul
 1       2.4627200             -2.9824000
@@ -391,7 +391,7 @@ P    D
 end
 
 
-ECP
+ecp "P_sbkjc polarized (p,2d) - lfk"
 P nelec 10
 P ul
 1       3.1894500             -3.1636100
@@ -421,7 +421,7 @@ S    D
 end
 
 
-ECP
+ecp "S_sbkjc polarized (p,2d) - lfk"
 S nelec 10
 S ul
 1       3.9893000             -3.2983900
@@ -451,7 +451,7 @@ Cl    D
 end
 
 
-ECP
+ecp "Cl_sbkjc polarized (p,2d) - lfk"
 Cl nelec 10
 Cl ul
 1       4.8748300             -3.4073800
@@ -481,7 +481,7 @@ Ar    D
 end
 
 
-ECP
+ecp "Ar_sbkjc polarized (p,2d) - lfk"
 Ar nelec 10
 Ar ul
 1       5.8230300             -3.4880600
@@ -511,7 +511,7 @@ K    D
 end
 
 
-ECP
+ecp "K_sbkjc polarized (p,2d) - lfk"
 K nelec 18
 K ul
 1       0.4965200             -4.3000200
@@ -541,7 +541,7 @@ Ca    D
 end
 
 
-ECP
+ecp "Ca_sbkjc polarized (p,2d) - lfk"
 Ca nelec 18
 Ca ul
 1       2.3804500             -5.8197000
@@ -573,7 +573,7 @@ Ge    D
 end
 
 
-ECP
+ecp "Ge_sbkjc polarized (p,2d) - lfk"
 Ge nelec 28
 Ge ul
 1       0.8275100             -1.2685900
@@ -607,7 +607,7 @@ As    D
 end
 
 
-ECP
+ecp "As_sbkjc polarized (p,2d) - lfk"
 As nelec 28
 As ul
 1       1.6458300             -4.7702800
@@ -641,7 +641,7 @@ Se    D
 end
 
 
-ECP
+ecp "Se_sbkjc polarized (p,2d) - lfk"
 Se nelec 28
 Se ul
 1       2.0935600             -5.5849800
@@ -675,7 +675,7 @@ Br    D
 end
 
 
-ECP
+ecp "Br_sbkjc polarized (p,2d) - lfk"
 Br nelec 28
 Br ul
 1       2.1211600             -4.7820600
@@ -709,7 +709,7 @@ Kr    D
 end
 
 
-ECP
+ecp "Kr_sbkjc polarized (p,2d) - lfk"
 Kr nelec 28
 Kr ul
 1       2.6429500             -5.6122000
@@ -742,7 +742,7 @@ Rb    D
 end
 
 
-ECP
+ecp "Rb_sbkjc polarized (p,2d) - lfk"
 Rb nelec 36
 Rb ul
 1       0.3639500             -3.2394200
@@ -777,7 +777,7 @@ Sr    D
 end
 
 
-ECP
+ecp "Sr_sbkjc polarized (p,2d) - lfk"
 Sr nelec 36
 Sr ul
 1       0.5167600             -4.1359600
@@ -813,7 +813,7 @@ Sn    D
 end
 
 
-ECP
+ecp "Sn_sbkjc polarized (p,2d) - lfk"
 Sn nelec 46
 Sn ul
 1       0.8205000             -5.6068200
@@ -849,7 +849,7 @@ Sb    D
 end
 
 
-ECP
+ecp "Sb_sbkjc polarized (p,2d) - lfk"
 Sb nelec 46
 Sb ul
 1       0.7549000             -2.9095100
@@ -886,7 +886,7 @@ Te    D
 end
 
 
-ECP
+ecp "Te_sbkjc polarized (p,2d) - lfk"
 Te nelec 46
 Te ul
 1       0.9484700             -3.9598400
@@ -923,7 +923,7 @@ I    D
 end
 
 
-ECP
+ecp "I_sbkjc polarized (p,2d) - lfk"
 I nelec 46
 I ul
 1       0.9762800             -3.6963900
@@ -960,7 +960,7 @@ Xe    D
 end
 
 
-ECP
+ecp "Xe_sbkjc polarized (p,2d) - lfk"
 Xe nelec 46
 Xe ul
 1       1.2706800             -5.1053800
@@ -996,7 +996,7 @@ Cs    D
 end
 
 
-ECP
+ecp "Cs_sbkjc polarized (p,2d) - lfk"
 Cs nelec 54
 Cs ul
 1       0.3135600             -5.0187400
@@ -1031,7 +1031,7 @@ Ba    D
 end
 
 
-ECP
+ecp "Ba_sbkjc polarized (p,2d) - lfk"
 Ba nelec 54
 Ba ul
 1       0.3786600             -4.8958400
@@ -1067,7 +1067,7 @@ Pb    D
 end
 
 
-ECP
+ecp "Pb_sbkjc polarized (p,2d) - lfk"
 Pb nelec 78
 Pb ul
 1       0.5175600             -2.7646400
@@ -1107,7 +1107,7 @@ Bi    D
 end
 
 
-ECP
+ecp "Bi_sbkjc polarized (p,2d) - lfk"
 Bi nelec 78
 Bi ul
 1       0.7794100             -5.3499100
@@ -1147,7 +1147,7 @@ Po    D
 end
 
 
-ECP
+ecp "Po_sbkjc polarized (p,2d) - lfk"
 Po nelec 78
 Po ul
 1       0.9823600             -6.9142600
@@ -1187,7 +1187,7 @@ At    D
 end
 
 
-ECP
+ecp "At_sbkjc polarized (p,2d) - lfk"
 At nelec 78
 At ul
 1       1.1814200             -8.2282100
@@ -1226,7 +1226,7 @@ Rn    D
 end
 
 
-ECP
+ecp "Rn_sbkjc polarized (p,2d) - lfk"
 Rn nelec 78
 Rn ul
 1       1.3792000             -9.3699100

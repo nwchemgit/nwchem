@@ -1,5 +1,5 @@
 # BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T13:56
+# Data downloaded at 2019-06-11T15:29
 # lanl2tz+ version number 0
 # Description: LANL2TZ+
 # Role: orbital
@@ -39,7 +39,7 @@ Sc    D
 end
 
 
-ECP
+ecp "Sc_lanl2tz+"
 Sc nelec 10
 Sc ul
 1     237.3166528            -10.0000000
@@ -94,7 +94,7 @@ Ti    D
 end
 
 
-ECP
+ecp "Ti_lanl2tz+"
 Ti nelec 10
 Ti ul
 1     265.3263909            -10.0000000
@@ -148,7 +148,7 @@ V    D
 end
 
 
-ECP
+ecp "V_lanl2tz+"
 V nelec 10
 V ul
 1     296.4487582            -10.0000000
@@ -202,7 +202,7 @@ Cr    D
 end
 
 
-ECP
+ecp "Cr_lanl2tz+"
 Cr nelec 10
 Cr ul
 1     329.2720539            -10.0000000
@@ -256,7 +256,7 @@ Mn    D
 end
 
 
-ECP
+ecp "Mn_lanl2tz+"
 Mn nelec 10
 Mn ul
 1     357.3914469            -10.0000000
@@ -310,7 +310,7 @@ Fe    D
 end
 
 
-ECP
+ecp "Fe_lanl2tz+"
 Fe nelec 10
 Fe ul
 1     392.6149787            -10.0000000
@@ -364,7 +364,7 @@ Co    D
 end
 
 
-ECP
+ecp "Co_lanl2tz+"
 Co nelec 10
 Co ul
 1     434.1076104            -10.0000000
@@ -416,7 +416,7 @@ Ni    D
 end
 
 
-ECP
+ecp "Ni_lanl2tz+"
 Ni nelec 10
 Ni ul
 1     469.9324331            -10.0000000
@@ -468,7 +468,7 @@ Cu    D
 end
 
 
-ECP
+ecp "Cu_lanl2tz+"
 Cu nelec 10
 Cu ul
 1     511.9951763            -10.0000000
@@ -510,7 +510,7 @@ Zn    D
 end
 
 
-ECP
+ecp "Zn_lanl2tz+"
 Zn nelec 18
 Zn ul
 1     386.7379660            -18.0000000

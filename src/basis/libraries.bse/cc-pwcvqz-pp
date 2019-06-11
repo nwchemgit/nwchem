@@ -1,5 +1,5 @@
 # BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T13:56
+# Data downloaded at 2019-06-11T15:29
 # cc-pwcvqz-pp version number 0
 # Description: cc-pwCVQZ-PP
 # Role: orbital
@@ -228,7 +228,7 @@ Cu    H
 end
 
 
-ECP
+ecp "Cu_cc-pwcvqz-pp"
 Cu nelec 10
 Cu ul
 2       1.0000000              0.0000000
@@ -473,7 +473,7 @@ Zn    H
 end
 
 
-ECP
+ecp "Zn_cc-pwcvqz-pp"
 Zn nelec 10
 Zn ul
 2       1.0000000              0.0000000
@@ -608,7 +608,7 @@ Ga    H
 end
 
 
-ECP
+ecp "Ga_cc-pwcvqz-pp"
 Ga nelec 10
 Ga ul
 2       1.0000000              0.0000000
@@ -745,7 +745,7 @@ Ge    H
 end
 
 
-ECP
+ecp "Ge_cc-pwcvqz-pp"
 Ge nelec 10
 Ge ul
 2       1.0000000              0.0000000
@@ -882,7 +882,7 @@ As    H
 end
 
 
-ECP
+ecp "As_cc-pwcvqz-pp"
 As nelec 10
 As ul
 2       1.0000000              0.0000000
@@ -1019,7 +1019,7 @@ Se    H
 end
 
 
-ECP
+ecp "Se_cc-pwcvqz-pp"
 Se nelec 10
 Se ul
 2       1.0000000              0.0000000
@@ -1156,7 +1156,7 @@ Br    H
 end
 
 
-ECP
+ecp "Br_cc-pwcvqz-pp"
 Br nelec 10
 Br ul
 2       1.0000000              0.0000000
@@ -1294,7 +1294,7 @@ Kr    H
 end
 
 
-ECP
+ecp "Kr_cc-pwcvqz-pp"
 Kr nelec 10
 Kr ul
 2       1.0000000              0.0000000
@@ -1524,7 +1524,7 @@ Y    H
 end
 
 
-ECP
+ecp "Y_cc-pwcvqz-pp"
 Y nelec 28
 Y ul
 2       1.0000000              0.0000000
@@ -1751,7 +1751,7 @@ Zr    H
 end
 
 
-ECP
+ecp "Zr_cc-pwcvqz-pp"
 Zr nelec 28
 Zr ul
 2       1.0000000              0.0000000
@@ -1978,7 +1978,7 @@ Nb    H
 end
 
 
-ECP
+ecp "Nb_cc-pwcvqz-pp"
 Nb nelec 28
 Nb ul
 2       1.0000000              0.0000000
@@ -2205,7 +2205,7 @@ Mo    H
 end
 
 
-ECP
+ecp "Mo_cc-pwcvqz-pp"
 Mo nelec 28
 Mo ul
 2       1.0000000              0.0000000
@@ -2432,7 +2432,7 @@ Tc    H
 end
 
 
-ECP
+ecp "Tc_cc-pwcvqz-pp"
 Tc nelec 28
 Tc ul
 2       1.0000000              0.0000000
@@ -2659,7 +2659,7 @@ Ru    H
 end
 
 
-ECP
+ecp "Ru_cc-pwcvqz-pp"
 Ru nelec 28
 Ru ul
 2       1.0000000              0.0000000
@@ -2886,7 +2886,7 @@ Rh    H
 end
 
 
-ECP
+ecp "Rh_cc-pwcvqz-pp"
 Rh nelec 28
 Rh ul
 2       1.0000000              0.0000000
@@ -3113,7 +3113,7 @@ Pd    H
 end
 
 
-ECP
+ecp "Pd_cc-pwcvqz-pp"
 Pd nelec 28
 Pd ul
 2       1.0000000              0.0000000
@@ -3354,7 +3354,7 @@ Ag    H
 end
 
 
-ECP
+ecp "Ag_cc-pwcvqz-pp"
 Ag nelec 28
 Ag ul
 2       1.0000000              0.0000000
@@ -3595,7 +3595,7 @@ Cd    H
 end
 
 
-ECP
+ecp "Cd_cc-pwcvqz-pp"
 Cd nelec 28
 Cd ul
 2       1.0000000              0.0000000
@@ -3723,7 +3723,7 @@ In    H
 end
 
 
-ECP
+ecp "In_cc-pwcvqz-pp"
 In nelec 28
 In ul
 2       1.0000000              0.0000000
@@ -3851,7 +3851,7 @@ Sn    H
 end
 
 
-ECP
+ecp "Sn_cc-pwcvqz-pp"
 Sn nelec 28
 Sn ul
 2       1.0000000              0.0000000
@@ -3979,7 +3979,7 @@ Sb    H
 end
 
 
-ECP
+ecp "Sb_cc-pwcvqz-pp"
 Sb nelec 28
 Sb ul
 2       1.0000000              0.0000000
@@ -4120,7 +4120,7 @@ Te    H
 end
 
 
-ECP
+ecp "Te_cc-pwcvqz-pp"
 Te nelec 28
 Te ul
 2       1.0000000              0.0000000
@@ -4261,7 +4261,7 @@ I    H
 end
 
 
-ECP
+ecp "I_cc-pwcvqz-pp"
 I nelec 28
 I ul
 2       1.00000000             0.00000000
@@ -4405,7 +4405,7 @@ Xe    H
 end
 
 
-ECP
+ecp "Xe_cc-pwcvqz-pp"
 Xe nelec 28
 Xe ul
 2       1.0000000              0.0000000
@@ -4637,7 +4637,7 @@ Hf    H
 end
 
 
-ECP
+ecp "Hf_cc-pwcvqz-pp"
 Hf nelec 60
 Hf ul
 2       1.00000000             0.00000000
@@ -4872,7 +4872,7 @@ Ta    H
 end
 
 
-ECP
+ecp "Ta_cc-pwcvqz-pp"
 Ta nelec 60
 Ta ul
 2       1.00000000             0.00000000
@@ -5106,7 +5106,7 @@ W    H
 end
 
 
-ECP
+ecp "W_cc-pwcvqz-pp"
 W nelec 60
 W ul
 2       1.00000000             0.00000000
@@ -5340,7 +5340,7 @@ Re    H
 end
 
 
-ECP
+ecp "Re_cc-pwcvqz-pp"
 Re nelec 60
 Re ul
 2       1.00000000             0.00000000
@@ -5570,7 +5570,7 @@ Os    H
 end
 
 
-ECP
+ecp "Os_cc-pwcvqz-pp"
 Os nelec 60
 Os ul
 2       1.00000000             0.00000000
@@ -5800,7 +5800,7 @@ Ir    H
 end
 
 
-ECP
+ecp "Ir_cc-pwcvqz-pp"
 Ir nelec 60
 Ir ul
 2       1.00000000             0.00000000
@@ -6030,7 +6030,7 @@ Pt    H
 end
 
 
-ECP
+ecp "Pt_cc-pwcvqz-pp"
 Pt nelec 60
 Pt ul
 2       1.00000000             0.00000000
@@ -6274,7 +6274,7 @@ Au    H
 end
 
 
-ECP
+ecp "Au_cc-pwcvqz-pp"
 Au nelec 60
 Au ul
 2       1.0000000              0.0000000
@@ -6518,7 +6518,7 @@ Hg    H
 end
 
 
-ECP
+ecp "Hg_cc-pwcvqz-pp"
 Hg nelec 60
 Hg ul
 2       1.0000000              0.0000000
@@ -6648,7 +6648,7 @@ Tl    H
 end
 
 
-ECP
+ecp "Tl_cc-pwcvqz-pp"
 Tl nelec 60
 Tl ul
 2       1.0000000              0.0000000
@@ -6782,7 +6782,7 @@ Pb    H
 end
 
 
-ECP
+ecp "Pb_cc-pwcvqz-pp"
 Pb nelec 60
 Pb ul
 2       1.0000000              0.0000000
@@ -6935,7 +6935,7 @@ Bi    H
 end
 
 
-ECP
+ecp "Bi_cc-pwcvqz-pp"
 Bi nelec 60
 Bi ul
 2       1.0000000              0.0000000
@@ -7088,7 +7088,7 @@ Po    H
 end
 
 
-ECP
+ecp "Po_cc-pwcvqz-pp"
 Po nelec 60
 Po ul
 2       1.0000000              0.0000000
@@ -7243,7 +7243,7 @@ At    H
 end
 
 
-ECP
+ecp "At_cc-pwcvqz-pp"
 At nelec 60
 At ul
 2       1.0000000              0.0000000
@@ -7401,7 +7401,7 @@ Rn    H
 end
 
 
-ECP
+ecp "Rn_cc-pwcvqz-pp"
 Rn nelec 60
 Rn ul
 2       1.0000000              0.0000000

@@ -1,5 +1,5 @@
 # BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T13:56
+# Data downloaded at 2019-06-11T15:29
 # psbkjc version number 0
 # Description: Electrically polarized valence basis sets for the SBKJC effective core potential developed for calculations of dynamic polarizabilities and Raman intensities
 # Role: orbital
@@ -31,7 +31,7 @@ C    D
 end
 
 
-ECP
+ecp "C_psbkjc"
 C nelec 2
 C ul
 1       8.5646800             -0.8937100
@@ -66,7 +66,7 @@ N    D
 end
 
 
-ECP
+ecp "N_psbkjc"
 N nelec 2
 N ul
 1      11.9968600             -0.9121200
@@ -101,7 +101,7 @@ O    D
 end
 
 
-ECP
+ecp "O_psbkjc"
 O nelec 2
 O ul
 1      16.1171800             -0.9255000
@@ -136,7 +136,7 @@ F    D
 end
 
 
-ECP
+ecp "F_psbkjc"
 F nelec 2
 F ul
 1      20.7395900             -0.9325800
@@ -171,7 +171,7 @@ Si    D
 end
 
 
-ECP
+ecp "Si_psbkjc"
 Si nelec 10
 Si ul
 1       2.4627200             -2.9824000
@@ -209,7 +209,7 @@ P    D
 end
 
 
-ECP
+ecp "P_psbkjc"
 P nelec 10
 P ul
 1       3.1894500             -3.1636100
@@ -247,7 +247,7 @@ S    D
 end
 
 
-ECP
+ecp "S_psbkjc"
 S nelec 10
 S ul
 1       3.9893000             -3.2983900
@@ -285,7 +285,7 @@ Cl    D
 end
 
 
-ECP
+ecp "Cl_psbkjc"
 Cl nelec 10
 Cl ul
 1       4.8748300             -3.4073800
@@ -329,7 +329,7 @@ Ge    D
 end
 
 
-ECP
+ecp "Ge_psbkjc"
 Ge nelec 28
 Ge ul
 1       0.8275100             -1.2685900
@@ -376,7 +376,7 @@ As    D
 end
 
 
-ECP
+ecp "As_psbkjc"
 As nelec 28
 As ul
 1       1.6458300             -4.7702800
@@ -423,7 +423,7 @@ Se    D
 end
 
 
-ECP
+ecp "Se_psbkjc"
 Se nelec 28
 Se ul
 1       2.0935600             -5.5849800
@@ -470,7 +470,7 @@ Br    D
 end
 
 
-ECP
+ecp "Br_psbkjc"
 Br nelec 28
 Br ul
 1       2.1211600             -4.7820600
@@ -517,7 +517,7 @@ Sn    D
 end
 
 
-ECP
+ecp "Sn_psbkjc"
 Sn nelec 46
 Sn ul
 1       0.8205000             -5.6068200
@@ -566,7 +566,7 @@ Sb    D
 end
 
 
-ECP
+ecp "Sb_psbkjc"
 Sb nelec 46
 Sb ul
 1       0.7549000             -2.9095100
@@ -616,7 +616,7 @@ Te    D
 end
 
 
-ECP
+ecp "Te_psbkjc"
 Te nelec 46
 Te ul
 1       0.9484700             -3.9598400
@@ -666,7 +666,7 @@ I    D
 end
 
 
-ECP
+ecp "I_psbkjc"
 I nelec 46
 I ul
 1       0.9762800             -3.6963900

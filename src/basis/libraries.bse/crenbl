@@ -1,5 +1,5 @@
 # BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T13:56
+# Data downloaded at 2019-06-11T15:29
 # crenbl version number 0
 # Description: CRENBL
 # Role: orbital
@@ -36,7 +36,7 @@ Li    P
 end
 
 
-ECP
+ecp "Li_crenbl"
 Li nelec 2
 Li ul
 2       0.80780000            -0.11866700
@@ -69,7 +69,7 @@ Be    P
 end
 
 
-ECP
+ecp "Be_crenbl"
 Be nelec 2
 Be ul
 2       1.88230000            -0.25828800
@@ -102,7 +102,7 @@ B    P
 end
 
 
-ECP
+ecp "B_crenbl"
 B nelec 2
 B ul
 2       3.56130004            -0.43494600
@@ -135,7 +135,7 @@ C    P
 end
 
 
-ECP
+ecp "C_crenbl"
 C nelec 2
 C ul
 2       5.35280001            -0.55931300
@@ -168,7 +168,7 @@ N    P
 end
 
 
-ECP
+ecp "N_crenbl"
 N nelec 2
 N ul
 2       7.47939998            -0.67093700
@@ -201,7 +201,7 @@ O    P
 end
 
 
-ECP
+ecp "O_crenbl"
 O nelec 2
 O ul
 2      10.02859998            -0.79842000
@@ -234,7 +234,7 @@ F    P
 end
 
 
-ECP
+ecp "F_crenbl"
 F nelec 2
 F ul
 2      44.51660013            -6.72302401
@@ -267,7 +267,7 @@ Ne    P
 end
 
 
-ECP
+ecp "Ne_crenbl"
 Ne nelec 2
 Ne ul
 2      16.20239997            -1.05784200
@@ -304,7 +304,7 @@ Na    P
 end
 
 
-ECP
+ecp "Na_crenbl"
 Na nelec 2
 Na ul
 2       1.60680000            -0.00010200
@@ -342,7 +342,7 @@ Mg    P
 end
 
 
-ECP
+ecp "Mg_crenbl"
 Mg nelec 2
 Mg ul
 2       1.13200000            -0.00005300
@@ -376,7 +376,7 @@ Al    P
 end
 
 
-ECP
+ecp "Al_crenbl"
 Al nelec 10
 Al ul
 2       1.22110000            -0.53798100
@@ -417,7 +417,7 @@ Si    P
 end
 
 
-ECP
+ecp "Si_crenbl"
 Si nelec 10
 Si ul
 2       1.62109999            -0.67587200
@@ -458,7 +458,7 @@ P    P
 end
 
 
-ECP
+ecp "P_crenbl"
 P nelec 10
 P ul
 2       2.10920000            -0.86027200
@@ -499,7 +499,7 @@ S    P
 end
 
 
-ECP
+ecp "S_crenbl"
 S nelec 10
 S ul
 2       2.69159999            -1.09096500
@@ -540,7 +540,7 @@ Cl    P
 end
 
 
-ECP
+ecp "Cl_crenbl"
 Cl nelec 10
 Cl ul
 2       3.35940000            -1.33688600
@@ -581,7 +581,7 @@ Ar    P
 end
 
 
-ECP
+ecp "Ar_crenbl"
 Ar nelec 10
 Ar ul
 2       4.16430002            -1.63101099
@@ -624,7 +624,7 @@ K    P
 end
 
 
-ECP
+ecp "K_crenbl"
 K nelec 10
 K ul
 2       4.99889994            -1.96356797
@@ -667,7 +667,7 @@ Ca    P
 end
 
 
-ECP
+ecp "Ca_crenbl"
 Ca nelec 10
 Ca ul
 2       5.92140007            -2.26729298
@@ -730,7 +730,7 @@ Sc    D
 end
 
 
-ECP
+ecp "Sc_crenbl"
 Sc nelec 10
 Sc ul
 2       6.93090010            -2.56915808
@@ -795,7 +795,7 @@ Ti    D
 end
 
 
-ECP
+ecp "Ti_crenbl"
 Ti nelec 10
 Ti ul
 2       8.02050018            -2.92140889
@@ -860,7 +860,7 @@ V    D
 end
 
 
-ECP
+ecp "V_crenbl"
 V nelec 10
 V ul
 2       8.96249962            -3.13644791
@@ -925,7 +925,7 @@ Cr    D
 end
 
 
-ECP
+ecp "Cr_crenbl"
 Cr nelec 10
 Cr ul
 2      10.01910019            -3.35951304
@@ -990,7 +990,7 @@ Mn    D
 end
 
 
-ECP
+ecp "Mn_crenbl"
 Mn nelec 10
 Mn ul
 2      11.27060032            -3.68953991
@@ -1055,7 +1055,7 @@ Fe    D
 end
 
 
-ECP
+ecp "Fe_crenbl"
 Fe nelec 10
 Fe ul
 2      12.42240047            -3.92273593
@@ -1120,7 +1120,7 @@ Co    D
 end
 
 
-ECP
+ecp "Co_crenbl"
 Co nelec 10
 Co ul
 2      13.73709965            -4.21805000
@@ -1185,7 +1185,7 @@ Ni    D
 end
 
 
-ECP
+ecp "Ni_crenbl"
 Ni nelec 10
 Ni ul
 2      14.88280010            -4.43806982
@@ -1250,7 +1250,7 @@ Cu    D
 end
 
 
-ECP
+ecp "Cu_crenbl"
 Cu nelec 10
 Cu ul
 2      16.30159950            -4.73227501
@@ -1315,7 +1315,7 @@ Zn    D
 end
 
 
-ECP
+ecp "Zn_crenbl"
 Zn nelec 10
 Zn ul
 2      17.70450020            -4.95285416
@@ -1362,7 +1362,7 @@ Ga    D
 end
 
 
-ECP
+ecp "Ga_crenbl"
 Ga nelec 18
 Ga ul
 2       0.97359997            -0.77471000
@@ -1410,7 +1410,7 @@ Ge    D
 end
 
 
-ECP
+ecp "Ge_crenbl"
 Ge nelec 18
 Ge ul
 2       1.35459995            -1.40196705
@@ -1458,7 +1458,7 @@ As    D
 end
 
 
-ECP
+ecp "As_crenbl"
 As nelec 18
 As ul
 2       1.74109995            -2.03465605
@@ -1506,7 +1506,7 @@ Se    D
 end
 
 
-ECP
+ecp "Se_crenbl"
 Se nelec 18
 Se ul
 2       2.11820006            -2.58638692
@@ -1554,7 +1554,7 @@ Br    D
 end
 
 
-ECP
+ecp "Br_crenbl"
 Br nelec 18
 Br ul
 2       2.54780006            -3.20746708
@@ -1602,7 +1602,7 @@ Kr    D
 end
 
 
-ECP
+ecp "Kr_crenbl"
 Kr nelec 18
 Kr ul
 2       3.05509996            -3.98946905
@@ -1650,7 +1650,7 @@ Rb    P
 end
 
 
-ECP
+ecp "Rb_crenbl"
 Rb nelec 28
 Rb ul
 2       1.96459997            -1.04400003
@@ -1708,7 +1708,7 @@ Sr    P
 end
 
 
-ECP
+ecp "Sr_crenbl"
 Sr nelec 28
 Sr ul
 2       2.23399997            -1.16187501
@@ -1774,7 +1774,7 @@ Y    D
 end
 
 
-ECP
+ecp "Y_crenbl"
 Y nelec 28
 Y ul
 2       2.90050006            -2.22248793
@@ -1840,7 +1840,7 @@ Zr    D
 end
 
 
-ECP
+ecp "Zr_crenbl"
 Zr nelec 28
 Zr ul
 2       1.96560001            -0.27778301
@@ -1906,7 +1906,7 @@ Nb    D
 end
 
 
-ECP
+ecp "Nb_crenbl"
 Nb nelec 28
 Nb ul
 2       3.44460011            -2.12992907
@@ -1972,7 +1972,7 @@ Mo    D
 end
 
 
-ECP
+ecp "Mo_crenbl"
 Mo nelec 28
 Mo ul
 2       3.86059999            -2.39912391
@@ -2038,7 +2038,7 @@ Tc    D
 end
 
 
-ECP
+ecp "Tc_crenbl"
 Tc nelec 28
 Tc ul
 2       4.28879976            -2.68787909
@@ -2104,7 +2104,7 @@ Ru    D
 end
 
 
-ECP
+ecp "Ru_crenbl"
 Ru nelec 28
 Ru ul
 2       4.78420019            -3.01680589
@@ -2170,7 +2170,7 @@ Rh    D
 end
 
 
-ECP
+ecp "Rh_crenbl"
 Rh nelec 28
 Rh ul
 2       5.26849985            -3.34650707
@@ -2236,7 +2236,7 @@ Pd    D
 end
 
 
-ECP
+ecp "Pd_crenbl"
 Pd nelec 28
 Pd ul
 2       5.79349995            -3.67986703
@@ -2302,7 +2302,7 @@ Ag    D
 end
 
 
-ECP
+ecp "Ag_crenbl"
 Ag nelec 28
 Ag ul
 2       6.26410007            -3.58370399
@@ -2368,7 +2368,7 @@ Cd    D
 end
 
 
-ECP
+ecp "Cd_crenbl"
 Cd nelec 28
 Cd ul
 2       6.88749981            -4.22736502
@@ -2426,7 +2426,7 @@ In    D
 end
 
 
-ECP
+ecp "In_crenbl"
 In nelec 36
 In ul
 2       1.34599996            -1.94056201
@@ -2480,7 +2480,7 @@ Sn    D
 end
 
 
-ECP
+ecp "Sn_crenbl"
 Sn nelec 36
 Sn ul
 2       1.49080002            -2.08150506
@@ -2534,7 +2534,7 @@ Sb    D
 end
 
 
-ECP
+ecp "Sb_crenbl"
 Sb nelec 36
 Sb ul
 2       1.64499998            -2.23113608
@@ -2588,7 +2588,7 @@ Te    D
 end
 
 
-ECP
+ecp "Te_crenbl"
 Te nelec 36
 Te ul
 2       1.81439996            -2.38358688
@@ -2642,7 +2642,7 @@ I    D
 end
 
 
-ECP
+ecp "I_crenbl"
 I nelec 36
 I ul
 2       2.00659990            -2.60678697
@@ -2696,7 +2696,7 @@ Xe    D
 end
 
 
-ECP
+ecp "Xe_crenbl"
 Xe nelec 36
 Xe ul
 2       2.24699998            -2.98907089
@@ -2758,7 +2758,7 @@ Cs    D
 end
 
 
-ECP
+ecp "Cs_crenbl"
 Cs nelec 46
 Cs ul
 2       0.93849999            -0.78916699
@@ -2824,7 +2824,7 @@ Ba    D
 end
 
 
-ECP
+ecp "Ba_crenbl"
 Ba nelec 46
 Ba ul
 2       0.97610003            -0.88013703
@@ -2890,7 +2890,7 @@ La    D
 end
 
 
-ECP
+ecp "La_crenbl"
 La nelec 46
 La ul
 2       1.30850005            -1.78271198
@@ -2976,7 +2976,7 @@ Ce    F
 end
 
 
-ECP
+ecp "Ce_crenbl"
 Ce nelec 54
 Ce ul
 2       0.18850000            -0.31545401
@@ -3066,7 +3066,7 @@ Pr    F
 end
 
 
-ECP
+ecp "Pr_crenbl"
 Pr nelec 54
 Pr ul
 2       0.18340001            -0.28507000
@@ -3156,7 +3156,7 @@ Nd    F
 end
 
 
-ECP
+ecp "Nd_crenbl"
 Nd nelec 54
 Nd ul
 2       0.18470000            -0.27911800
@@ -3246,7 +3246,7 @@ Pm    F
 end
 
 
-ECP
+ecp "Pm_crenbl"
 Pm nelec 54
 Pm ul
 2       0.18629999            -0.27581099
@@ -3336,7 +3336,7 @@ Sm    F
 end
 
 
-ECP
+ecp "Sm_crenbl"
 Sm nelec 54
 Sm ul
 2       0.18820000            -0.26969901
@@ -3426,7 +3426,7 @@ Eu    F
 end
 
 
-ECP
+ecp "Eu_crenbl"
 Eu nelec 54
 Eu ul
 2       0.19030000            -0.26617599
@@ -3516,7 +3516,7 @@ Gd    F
 end
 
 
-ECP
+ecp "Gd_crenbl"
 Gd nelec 54
 Gd ul
 2       0.19360000            -0.26610100
@@ -3606,7 +3606,7 @@ Tb    F
 end
 
 
-ECP
+ecp "Tb_crenbl"
 Tb nelec 54
 Tb ul
 2       0.19800000            -0.26984900
@@ -3696,7 +3696,7 @@ Dy    F
 end
 
 
-ECP
+ecp "Dy_crenbl"
 Dy nelec 54
 Dy ul
 2       0.19589999            -0.24610400
@@ -3786,7 +3786,7 @@ Ho    F
 end
 
 
-ECP
+ecp "Ho_crenbl"
 Ho nelec 54
 Ho ul
 2       0.19880000            -0.24419101
@@ -3876,7 +3876,7 @@ Er    F
 end
 
 
-ECP
+ecp "Er_crenbl"
 Er nelec 54
 Er ul
 2       0.20420000            -0.24749100
@@ -3966,7 +3966,7 @@ Tm    F
 end
 
 
-ECP
+ecp "Tm_crenbl"
 Tm nelec 54
 Tm ul
 2       0.20750000            -0.24459700
@@ -4056,7 +4056,7 @@ Yb    F
 end
 
 
-ECP
+ecp "Yb_crenbl"
 Yb nelec 54
 Yb ul
 2       0.20919999            -0.23695500
@@ -4146,7 +4146,7 @@ Lu    F
 end
 
 
-ECP
+ecp "Lu_crenbl"
 Lu nelec 54
 Lu ul
 2       0.25189999            -0.31990600
@@ -4216,7 +4216,7 @@ Hf    D
 end
 
 
-ECP
+ecp "Hf_crenbl"
 Hf nelec 60
 Hf ul
 2       0.77789998            -0.33688599
@@ -4295,7 +4295,7 @@ Ta    D
 end
 
 
-ECP
+ecp "Ta_crenbl"
 Ta nelec 60
 Ta ul
 2       0.97380000            -0.45041099
@@ -4374,7 +4374,7 @@ W    D
 end
 
 
-ECP
+ecp "W_crenbl"
 W nelec 60
 W ul
 2       1.16069996            -0.54709101
@@ -4453,7 +4453,7 @@ Re    D
 end
 
 
-ECP
+ecp "Re_crenbl"
 Re nelec 60
 Re ul
 2       1.34420002            -0.63006300
@@ -4532,7 +4532,7 @@ Os    D
 end
 
 
-ECP
+ecp "Os_crenbl"
 Os nelec 60
 Os ul
 2       1.53260005            -0.71941298
@@ -4611,7 +4611,7 @@ Ir    D
 end
 
 
-ECP
+ecp "Ir_crenbl"
 Ir nelec 60
 Ir ul
 2       1.70930004            -0.77600998
@@ -4690,7 +4690,7 @@ Pt    D
 end
 
 
-ECP
+ecp "Pt_crenbl"
 Pt nelec 60
 Pt ul
 2       1.86479998            -0.81254202
@@ -4769,7 +4769,7 @@ Au    D
 end
 
 
-ECP
+ecp "Au_crenbl"
 Au nelec 60
 Au ul
 2       2.07069993            -0.90820301
@@ -4848,7 +4848,7 @@ Hg    D
 end
 
 
-ECP
+ecp "Hg_crenbl"
 Hg nelec 60
 Hg ul
 2       2.26189995            -0.94575602
@@ -4919,7 +4919,7 @@ Tl    D
 end
 
 
-ECP
+ecp "Tl_crenbl"
 Tl nelec 68
 Tl ul
 2       1.19519997            -1.34873199
@@ -4990,7 +4990,7 @@ Pb    D
 end
 
 
-ECP
+ecp "Pb_crenbl"
 Pb nelec 68
 Pb ul
 2       1.30009997            -1.41434395
@@ -5061,7 +5061,7 @@ Bi    D
 end
 
 
-ECP
+ecp "Bi_crenbl"
 Bi nelec 68
 Bi ul
 2       1.38310003            -1.29633200
@@ -5132,7 +5132,7 @@ Po    D
 end
 
 
-ECP
+ecp "Po_crenbl"
 Po nelec 68
 Po ul
 2       1.51339996            -1.45787299
@@ -5203,7 +5203,7 @@ At    D
 end
 
 
-ECP
+ecp "At_crenbl"
 At nelec 68
 At ul
 2       0.03180000            -0.31176600
@@ -5274,7 +5274,7 @@ Rn    D
 end
 
 
-ECP
+ecp "Rn_crenbl"
 Rn nelec 68
 Rn ul
 2       1.65950000            -1.11443496
@@ -5353,7 +5353,7 @@ Fr    D
 end
 
 
-ECP
+ecp "Fr_crenbl"
 Fr nelec 78
 Fr ul
 2       0.88870001            -0.89879203
@@ -5432,7 +5432,7 @@ Ra    D
 end
 
 
-ECP
+ecp "Ra_crenbl"
 Ra nelec 78
 Ra ul
 2       1.02110004            -1.14673400
@@ -5519,7 +5519,7 @@ Ac    F
 end
 
 
-ECP
+ecp "Ac_crenbl"
 Ac nelec 78
 Ac ul
 2       1.11780000            -1.20669997
@@ -5606,7 +5606,7 @@ Th    F
 end
 
 
-ECP
+ecp "Th_crenbl"
 Th nelec 78
 Th ul
 2       1.20299995            -1.18738997
@@ -5693,7 +5693,7 @@ Pa    F
 end
 
 
-ECP
+ecp "Pa_crenbl"
 Pa nelec 78
 Pa ul
 2       1.27950001            -1.13092303
@@ -5780,7 +5780,7 @@ U    F
 end
 
 
-ECP
+ecp "U_crenbl"
 U nelec 78
 U ul
 2       1.22290003            -0.95164698
@@ -5872,7 +5872,7 @@ Np    F
 end
 
 
-ECP
+ecp "Np_crenbl"
 Np nelec 78
 Np ul
 2       1.16480005            -0.59611499
@@ -5964,7 +5964,7 @@ Pu    F
 end
 
 
-ECP
+ecp "Pu_crenbl"
 Pu nelec 78
 Pu ul
 2       1.31490004            -0.88483602
@@ -6046,7 +6046,7 @@ Am    F
 end
 
 
-ECP
+ecp "Am_crenbl"
 Am nelec 78
 Am ul
 2       1.44700003            -1.17866504
@@ -6123,7 +6123,7 @@ Cm    F
 end
 
 
-ECP
+ecp "Cm_crenbl"
 Cm nelec 78
 Cm ul
 2       1.54879999            -1.27089500
@@ -6200,7 +6200,7 @@ Bk    F
 end
 
 
-ECP
+ecp "Bk_crenbl"
 Bk nelec 78
 Bk ul
 2       1.77400005            -1.91033494
@@ -6277,7 +6277,7 @@ Cf    F
 end
 
 
-ECP
+ecp "Cf_crenbl"
 Cf nelec 78
 Cf ul
 2       1.32210000            -0.50920300
@@ -6359,7 +6359,7 @@ Es    F
 end
 
 
-ECP
+ecp "Es_crenbl"
 Es nelec 78
 Es ul
 2       1.35410000            -0.45818400
@@ -6441,7 +6441,7 @@ Fm    F
 end
 
 
-ECP
+ecp "Fm_crenbl"
 Fm nelec 78
 Fm ul
 2       1.42430000            -0.47688000
@@ -6523,7 +6523,7 @@ Md    F
 end
 
 
-ECP
+ecp "Md_crenbl"
 Md nelec 78
 Md ul
 2       1.50940000            -0.51814700
@@ -6605,7 +6605,7 @@ No    F
 end
 
 
-ECP
+ecp "No_crenbl"
 No nelec 78
 No ul
 2       2.02789998            -1.75959897
@@ -6680,7 +6680,7 @@ Lr    F
 end
 
 
-ECP
+ecp "Lr_crenbl"
 Lr nelec 78
 Lr ul
 2       2.02850008            -1.44170296
@@ -6756,7 +6756,7 @@ Rf    F
 end
 
 
-ECP
+ecp "Rf_crenbl"
 Rf nelec 78
 Rf ul
 2       2.43889999            -2.84647894
@@ -6833,7 +6833,7 @@ Db    F
 end
 
 
-ECP
+ecp "Db_crenbl"
 Db nelec 78
 Db ul
 2       2.06940007            -1.07285404
@@ -6909,7 +6909,7 @@ Sg    F
 end
 
 
-ECP
+ecp "Sg_crenbl"
 Sg nelec 78
 Sg ul
 2       2.64319992            -2.86417007
@@ -6986,7 +6986,7 @@ Bh    F
 end
 
 
-ECP
+ecp "Bh_crenbl"
 Bh nelec 78
 Bh ul
 2       2.89560008            -3.35290790
@@ -7063,7 +7063,7 @@ Hs    F
 end
 
 
-ECP
+ecp "Hs_crenbl"
 Hs nelec 78
 Hs ul
 2       3.04859996            -3.52126193
@@ -7139,7 +7139,7 @@ Mt    F
 end
 
 
-ECP
+ecp "Mt_crenbl"
 Mt nelec 78
 Mt ul
 2       3.21989989            -3.78520894
@@ -7216,7 +7216,7 @@ Ds    F
 end
 
 
-ECP
+ecp "Ds_crenbl"
 Ds nelec 78
 Ds ul
 2       2.32279992            -0.94269902
@@ -7298,7 +7298,7 @@ Rg    F
 end
 
 
-ECP
+ecp "Rg_crenbl"
 Rg nelec 78
 Rg ul
 2       3.58710003            -3.96670699
@@ -7374,7 +7374,7 @@ Cn    F
 end
 
 
-ECP
+ecp "Cn_crenbl"
 Cn nelec 78
 Cn ul
 2       3.86159992            -4.68075991
@@ -7452,7 +7452,7 @@ Nh    F
 end
 
 
-ECP
+ecp "Nh_crenbl"
 Nh nelec 78
 Nh ul
 2       3.86430001            -3.57477403
@@ -7529,7 +7529,7 @@ Fl    F
 end
 
 
-ECP
+ecp "Fl_crenbl"
 Fl nelec 78
 Fl ul
 2       4.19299984            -4.39426422
@@ -7608,7 +7608,7 @@ Mc    F
 end
 
 
-ECP
+ecp "Mc_crenbl"
 Mc nelec 78
 Mc ul
 2       4.57310009            -5.45129013
@@ -7683,7 +7683,7 @@ Lv    F
 end
 
 
-ECP
+ecp "Lv_crenbl"
 Lv nelec 78
 Lv ul
 2       4.77169991            -6.15212011
@@ -7765,7 +7765,7 @@ Ts    F
 end
 
 
-ECP
+ecp "Ts_crenbl"
 Ts nelec 78
 Ts ul
 2       5.21229982            -7.44620419
@@ -7839,7 +7839,7 @@ Og    D
 end
 
 
-ECP
+ecp "Og_crenbl"
 Og nelec 92
 Og ul
 2       1.0374000             -0.2116660

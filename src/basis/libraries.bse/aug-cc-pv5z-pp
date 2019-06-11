@@ -1,5 +1,5 @@
 # BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T13:56
+# Data downloaded at 2019-06-11T15:29
 # aug-cc-pv5z-pp version number 0
 # Description: aug-cc-pV5Z-PP
 # Role: orbital
@@ -300,7 +300,7 @@ Cu    I
 end
 
 
-ECP
+ecp "Cu_aug-cc-pv5z-pp"
 Cu nelec 10
 Cu ul
 2       1.0000000              0.0000000
@@ -617,7 +617,7 @@ Zn    I
 end
 
 
-ECP
+ecp "Zn_aug-cc-pv5z-pp"
 Zn nelec 10
 Zn ul
 2       1.0000000              0.0000000
@@ -768,7 +768,7 @@ Ga    H
 end
 
 
-ECP
+ecp "Ga_aug-cc-pv5z-pp"
 Ga nelec 10
 Ga ul
 2       1.0000000              0.0000000
@@ -921,7 +921,7 @@ Ge    H
 end
 
 
-ECP
+ecp "Ge_aug-cc-pv5z-pp"
 Ge nelec 10
 Ge ul
 2       1.0000000              0.0000000
@@ -1074,7 +1074,7 @@ As    H
 end
 
 
-ECP
+ecp "As_aug-cc-pv5z-pp"
 As nelec 10
 As ul
 2       1.0000000              0.0000000
@@ -1227,7 +1227,7 @@ Se    H
 end
 
 
-ECP
+ecp "Se_aug-cc-pv5z-pp"
 Se nelec 10
 Se ul
 2       1.0000000              0.0000000
@@ -1380,7 +1380,7 @@ Br    H
 end
 
 
-ECP
+ecp "Br_aug-cc-pv5z-pp"
 Br nelec 10
 Br ul
 2       1.0000000              0.0000000
@@ -1534,7 +1534,7 @@ Kr    H
 end
 
 
-ECP
+ecp "Kr_aug-cc-pv5z-pp"
 Kr nelec 10
 Kr ul
 2       1.0000000              0.0000000
@@ -1832,7 +1832,7 @@ Y    I
 end
 
 
-ECP
+ecp "Y_aug-cc-pv5z-pp"
 Y nelec 28
 Y ul
 2       1.0000000              0.0000000
@@ -2127,7 +2127,7 @@ Zr    I
 end
 
 
-ECP
+ecp "Zr_aug-cc-pv5z-pp"
 Zr nelec 28
 Zr ul
 2       1.0000000              0.0000000
@@ -2422,7 +2422,7 @@ Nb    I
 end
 
 
-ECP
+ecp "Nb_aug-cc-pv5z-pp"
 Nb nelec 28
 Nb ul
 2       1.0000000              0.0000000
@@ -2717,7 +2717,7 @@ Mo    I
 end
 
 
-ECP
+ecp "Mo_aug-cc-pv5z-pp"
 Mo nelec 28
 Mo ul
 2       1.0000000              0.0000000
@@ -3012,7 +3012,7 @@ Tc    I
 end
 
 
-ECP
+ecp "Tc_aug-cc-pv5z-pp"
 Tc nelec 28
 Tc ul
 2       1.0000000              0.0000000
@@ -3307,7 +3307,7 @@ Ru    I
 end
 
 
-ECP
+ecp "Ru_aug-cc-pv5z-pp"
 Ru nelec 28
 Ru ul
 2       1.0000000              0.0000000
@@ -3602,7 +3602,7 @@ Rh    I
 end
 
 
-ECP
+ecp "Rh_aug-cc-pv5z-pp"
 Rh nelec 28
 Rh ul
 2       1.0000000              0.0000000
@@ -3897,7 +3897,7 @@ Pd    I
 end
 
 
-ECP
+ecp "Pd_aug-cc-pv5z-pp"
 Pd nelec 28
 Pd ul
 2       1.0000000              0.0000000
@@ -4209,7 +4209,7 @@ Ag    I
 end
 
 
-ECP
+ecp "Ag_aug-cc-pv5z-pp"
 Ag nelec 28
 Ag ul
 2       1.0000000              0.0000000
@@ -4521,7 +4521,7 @@ Cd    I
 end
 
 
-ECP
+ecp "Cd_aug-cc-pv5z-pp"
 Cd nelec 28
 Cd ul
 2       1.0000000              0.0000000
@@ -4675,7 +4675,7 @@ In    H
 end
 
 
-ECP
+ecp "In_aug-cc-pv5z-pp"
 In nelec 28
 In ul
 2       1.0000000              0.0000000
@@ -4829,7 +4829,7 @@ Sn    H
 end
 
 
-ECP
+ecp "Sn_aug-cc-pv5z-pp"
 Sn nelec 28
 Sn ul
 2       1.0000000              0.0000000
@@ -4983,7 +4983,7 @@ Sb    H
 end
 
 
-ECP
+ecp "Sb_aug-cc-pv5z-pp"
 Sb nelec 28
 Sb ul
 2       1.0000000              0.0000000
@@ -5137,7 +5137,7 @@ Te    H
 end
 
 
-ECP
+ecp "Te_aug-cc-pv5z-pp"
 Te nelec 28
 Te ul
 2       1.0000000              0.0000000
@@ -5291,7 +5291,7 @@ I    H
 end
 
 
-ECP
+ecp "I_aug-cc-pv5z-pp"
 I nelec 28
 I ul
 2       1.00000000             0.00000000
@@ -5448,7 +5448,7 @@ Xe    H
 end
 
 
-ECP
+ecp "Xe_aug-cc-pv5z-pp"
 Xe nelec 28
 Xe ul
 2       1.0000000              0.0000000
@@ -5748,7 +5748,7 @@ Hf    I
 end
 
 
-ECP
+ecp "Hf_aug-cc-pv5z-pp"
 Hf nelec 60
 Hf ul
 2       1.00000000             0.00000000
@@ -6050,7 +6050,7 @@ Ta    I
 end
 
 
-ECP
+ecp "Ta_aug-cc-pv5z-pp"
 Ta nelec 60
 Ta ul
 2       1.00000000             0.00000000
@@ -6353,7 +6353,7 @@ W    I
 end
 
 
-ECP
+ecp "W_aug-cc-pv5z-pp"
 W nelec 60
 W ul
 2       1.00000000             0.00000000
@@ -6654,7 +6654,7 @@ Re    I
 end
 
 
-ECP
+ecp "Re_aug-cc-pv5z-pp"
 Re nelec 60
 Re ul
 2       1.00000000             0.00000000
@@ -6952,7 +6952,7 @@ Os    I
 end
 
 
-ECP
+ecp "Os_aug-cc-pv5z-pp"
 Os nelec 60
 Os ul
 2       1.00000000             0.00000000
@@ -7250,7 +7250,7 @@ Ir    I
 end
 
 
-ECP
+ecp "Ir_aug-cc-pv5z-pp"
 Ir nelec 60
 Ir ul
 2       1.00000000             0.00000000
@@ -7548,7 +7548,7 @@ Pt    I
 end
 
 
-ECP
+ecp "Pt_aug-cc-pv5z-pp"
 Pt nelec 60
 Pt ul
 2       1.00000000             0.00000000
@@ -7863,7 +7863,7 @@ Au    I
 end
 
 
-ECP
+ecp "Au_aug-cc-pv5z-pp"
 Au nelec 60
 Au ul
 2       1.0000000              0.0000000
@@ -8178,7 +8178,7 @@ Hg    I
 end
 
 
-ECP
+ecp "Hg_aug-cc-pv5z-pp"
 Hg nelec 60
 Hg ul
 2       1.0000000              0.0000000
@@ -8334,7 +8334,7 @@ Tl    H
 end
 
 
-ECP
+ecp "Tl_aug-cc-pv5z-pp"
 Tl nelec 60
 Tl ul
 2       1.0000000              0.0000000
@@ -8494,7 +8494,7 @@ Pb    H
 end
 
 
-ECP
+ecp "Pb_aug-cc-pv5z-pp"
 Pb nelec 60
 Pb ul
 2       1.0000000              0.0000000
@@ -8650,7 +8650,7 @@ Bi    H
 end
 
 
-ECP
+ecp "Bi_aug-cc-pv5z-pp"
 Bi nelec 60
 Bi ul
 2       1.0000000              0.0000000
@@ -8806,7 +8806,7 @@ Po    H
 end
 
 
-ECP
+ecp "Po_aug-cc-pv5z-pp"
 Po nelec 60
 Po ul
 2       1.0000000              0.0000000
@@ -8964,7 +8964,7 @@ At    H
 end
 
 
-ECP
+ecp "At_aug-cc-pv5z-pp"
 At nelec 60
 At ul
 2       1.0000000              0.0000000
@@ -9125,7 +9125,7 @@ Rn    H
 end
 
 
-ECP
+ecp "Rn_aug-cc-pv5z-pp"
 Rn nelec 60
 Rn ul
 2       1.0000000              0.0000000

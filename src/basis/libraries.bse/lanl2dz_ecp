@@ -1,12 +1,12 @@
 # BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T14:33
+# Data downloaded at 2019-06-11T15:29
 # lanl2dz ecp version number 0
 # Description: LANL2DZ ECP
 # Role: orbital
 # 
 
 
-ECP
+ecp "Na_lanl2dz ecp"
 Na nelec 10
 Na ul
 1     175.5502590            -10.0000000
@@ -30,7 +30,7 @@ Na P
 end
 
 
-ECP
+ecp "Mg_lanl2dz ecp"
 Mg nelec 10
 Mg ul
 1     237.5484804            -10.0000000
@@ -54,7 +54,7 @@ Mg P
 end
 
 
-ECP
+ecp "Al_lanl2dz ecp"
 Al nelec 10
 Al ul
 1     304.7291926            -10.0000000
@@ -78,7 +78,7 @@ Al P
 end
 
 
-ECP
+ecp "Si_lanl2dz ecp"
 Si nelec 10
 Si ul
 1     505.3137693            -10.0000000
@@ -102,7 +102,7 @@ Si P
 end
 
 
-ECP
+ecp "P_lanl2dz ecp"
 P nelec 10
 P ul
 1     462.1211423            -10.0000000
@@ -126,7 +126,7 @@ P P
 end
 
 
-ECP
+ecp "S_lanl2dz ecp"
 S nelec 10
 S ul
 1     532.6685222            -10.0000000
@@ -150,7 +150,7 @@ S P
 end
 
 
-ECP
+ecp "Cl_lanl2dz ecp"
 Cl nelec 10
 Cl ul
 1      94.8130000            -10.0000000
@@ -174,7 +174,7 @@ Cl P
 end
 
 
-ECP
+ecp "Ar_lanl2dz ecp"
 Ar nelec 10
 Ar ul
 1     711.5242175            -10.0000000
@@ -198,7 +198,7 @@ Ar P
 end
 
 
-ECP
+ecp "K_lanl2dz ecp"
 K nelec 10
 K ul
 1    1067.1081575            -10.0000000
@@ -219,7 +219,7 @@ K P
 end
 
 
-ECP
+ecp "Ca_lanl2dz ecp"
 Ca nelec 10
 Ca ul
 1    1270.4543808            -10.0000000
@@ -240,7 +240,7 @@ Ca P
 end
 
 
-ECP
+ecp "Sc_lanl2dz ecp"
 Sc nelec 10
 Sc ul
 1     237.3166528            -10.0000000
@@ -262,7 +262,7 @@ Sc P
 end
 
 
-ECP
+ecp "Ti_lanl2dz ecp"
 Ti nelec 10
 Ti ul
 1     265.3263909            -10.0000000
@@ -283,7 +283,7 @@ Ti P
 end
 
 
-ECP
+ecp "V_lanl2dz ecp"
 V nelec 10
 V ul
 1     296.4487582            -10.0000000
@@ -304,7 +304,7 @@ V P
 end
 
 
-ECP
+ecp "Cr_lanl2dz ecp"
 Cr nelec 10
 Cr ul
 1     329.2720539            -10.0000000
@@ -325,7 +325,7 @@ Cr P
 end
 
 
-ECP
+ecp "Mn_lanl2dz ecp"
 Mn nelec 10
 Mn ul
 1     357.3914469            -10.0000000
@@ -346,7 +346,7 @@ Mn P
 end
 
 
-ECP
+ecp "Fe_lanl2dz ecp"
 Fe nelec 10
 Fe ul
 1     392.6149787            -10.0000000
@@ -367,7 +367,7 @@ Fe P
 end
 
 
-ECP
+ecp "Co_lanl2dz ecp"
 Co nelec 10
 Co ul
 1     434.1076104            -10.0000000
@@ -386,7 +386,7 @@ Co P
 end
 
 
-ECP
+ecp "Ni_lanl2dz ecp"
 Ni nelec 10
 Ni ul
 1     469.9324331            -10.0000000
@@ -405,7 +405,7 @@ Ni P
 end
 
 
-ECP
+ecp "Cu_lanl2dz ecp"
 Cu nelec 10
 Cu ul
 1     511.9951763            -10.0000000
@@ -424,7 +424,7 @@ Cu P
 end
 
 
-ECP
+ecp "Zn_lanl2dz ecp"
 Zn nelec 18
 Zn ul
 1     386.7379660            -18.0000000
@@ -451,7 +451,7 @@ Zn D
 end
 
 
-ECP
+ecp "Ga_lanl2dz ecp"
 Ga nelec 28
 Ga ul
 1     260.9051184            -28.0000000
@@ -480,7 +480,7 @@ Ga D
 end
 
 
-ECP
+ecp "Ge_lanl2dz ecp"
 Ge nelec 28
 Ge ul
 1     318.2167583            -28.0000000
@@ -509,7 +509,7 @@ Ge D
 end
 
 
-ECP
+ecp "As_lanl2dz ecp"
 As nelec 28
 As ul
 1     375.4748803            -28.0000000
@@ -538,7 +538,7 @@ As D
 end
 
 
-ECP
+ecp "Se_lanl2dz ecp"
 Se nelec 28
 Se ul
 1     433.1931336            -28.0000000
@@ -567,7 +567,7 @@ Se D
 end
 
 
-ECP
+ecp "Br_lanl2dz ecp"
 Br nelec 28
 Br ul
 1     213.6143969            -28.0000000
@@ -594,7 +594,7 @@ Br D
 end
 
 
-ECP
+ecp "Kr_lanl2dz ecp"
 Kr nelec 28
 Kr ul
 1     237.5470853            -28.0000000
@@ -621,7 +621,7 @@ Kr D
 end
 
 
-ECP
+ecp "Rb_lanl2dz ecp"
 Rb nelec 28
 Rb ul
 0     879.5983664             -0.0364362
@@ -648,7 +648,7 @@ Rb D
 end
 
 
-ECP
+ecp "Sr_lanl2dz ecp"
 Sr nelec 28
 Sr ul
 0     782.3804631             -0.0384323
@@ -676,7 +676,7 @@ Sr D
 end
 
 
-ECP
+ecp "Y_lanl2dz ecp"
 Y nelec 28
 Y ul
 0     578.4310349             -0.0404817
@@ -703,7 +703,7 @@ Y D
 end
 
 
-ECP
+ecp "Zr_lanl2dz ecp"
 Zr nelec 28
 Zr ul
 0     645.9321873             -0.0425843
@@ -729,7 +729,7 @@ Zr D
 end
 
 
-ECP
+ecp "Nb_lanl2dz ecp"
 Nb nelec 28
 Nb ul
 0     342.9638405             -0.0447401
@@ -755,7 +755,7 @@ Nb D
 end
 
 
-ECP
+ecp "Mo_lanl2dz ecp"
 Mo nelec 28
 Mo ul
 0     537.9667807             -0.0469492
@@ -781,7 +781,7 @@ Mo D
 end
 
 
-ECP
+ecp "Tc_lanl2dz ecp"
 Tc nelec 28
 Tc ul
 0     501.1199409             -0.0492115
@@ -807,7 +807,7 @@ Tc D
 end
 
 
-ECP
+ecp "Ru_lanl2dz ecp"
 Ru nelec 28
 Ru ul
 0     554.3796303             -0.0515270
@@ -835,7 +835,7 @@ Ru D
 end
 
 
-ECP
+ecp "Rh_lanl2dz ecp"
 Rh nelec 28
 Rh ul
 0     600.3243032             -0.0538958
@@ -863,7 +863,7 @@ Rh D
 end
 
 
-ECP
+ecp "Pd_lanl2dz ecp"
 Pd nelec 28
 Pd ul
 0     598.3336444             -0.0563177
@@ -892,7 +892,7 @@ Pd D
 end
 
 
-ECP
+ecp "Ag_lanl2dz ecp"
 Ag nelec 28
 Ag ul
 0     568.7006237             -0.0587930
@@ -921,7 +921,7 @@ Ag D
 end
 
 
-ECP
+ecp "Cd_lanl2dz ecp"
 Cd nelec 36
 Cd ul
 0     350.0762490             -0.0613214
@@ -952,7 +952,7 @@ Cd D
 end
 
 
-ECP
+ecp "In_lanl2dz ecp"
 In nelec 46
 In ul
 0       0.1802071             -0.0639031
@@ -981,7 +981,7 @@ In D
 end
 
 
-ECP
+ecp "Sn_lanl2dz ecp"
 Sn nelec 46
 Sn ul
 0       0.2169021             -0.0665380
@@ -1010,7 +1010,7 @@ Sn D
 end
 
 
-ECP
+ecp "Sb_lanl2dz ecp"
 Sb nelec 46
 Sb ul
 0     227.2723558             -0.0692261
@@ -1040,7 +1040,7 @@ Sb D
 end
 
 
-ECP
+ecp "Te_lanl2dz ecp"
 Te nelec 46
 Te ul
 0     285.0323292             -0.0719675
@@ -1070,7 +1070,7 @@ Te D
 end
 
 
-ECP
+ecp "I_lanl2dz ecp"
 I nelec 46
 I ul
 0       1.0715702             -0.0747621
@@ -1099,7 +1099,7 @@ I D
 end
 
 
-ECP
+ecp "Xe_lanl2dz ecp"
 Xe nelec 46
 Xe ul
 0     442.5138313             -0.0776099
@@ -1129,7 +1129,7 @@ Xe D
 end
 
 
-ECP
+ecp "Cs_lanl2dz ecp"
 Cs nelec 46
 Cs ul
 0     636.7840130             -0.0805109
@@ -1155,7 +1155,7 @@ Cs D
 end
 
 
-ECP
+ecp "Ba_lanl2dz ecp"
 Ba nelec 46
 Ba ul
 0     620.9690488             -0.0834652
@@ -1184,7 +1184,7 @@ Ba D
 end
 
 
-ECP
+ecp "La_lanl2dz ecp"
 La nelec 46
 La ul
 0     740.9166034             -0.0864727
@@ -1212,7 +1212,7 @@ La D
 end
 
 
-ECP
+ecp "Hf_lanl2dz ecp"
 Hf nelec 60
 Hf ul
 1     685.5502931            -60.0000000
@@ -1250,7 +1250,7 @@ Hf F
 end
 
 
-ECP
+ecp "Ta_lanl2dz ecp"
 Ta nelec 60
 Ta ul
 1     768.2267533            -60.0000000
@@ -1288,7 +1288,7 @@ Ta F
 end
 
 
-ECP
+ecp "W_lanl2dz ecp"
 W nelec 60
 W ul
 1     839.4489120            -60.0000000
@@ -1326,7 +1326,7 @@ W F
 end
 
 
-ECP
+ecp "Re_lanl2dz ecp"
 Re nelec 60
 Re ul
 1    1833.8143836             -0.1497104
@@ -1364,7 +1364,7 @@ Re F
 end
 
 
-ECP
+ecp "Os_lanl2dz ecp"
 Os nelec 60
 Os ul
 1     848.8743292             -0.1537293
@@ -1400,7 +1400,7 @@ Os F
 end
 
 
-ECP
+ecp "Ir_lanl2dz ecp"
 Ir nelec 60
 Ir ul
 1     823.5880147             -0.1578014
@@ -1436,7 +1436,7 @@ Ir F
 end
 
 
-ECP
+ecp "Pt_lanl2dz ecp"
 Pt nelec 60
 Pt ul
 1     728.9394056             -0.1619268
@@ -1471,7 +1471,7 @@ Pt F
 end
 
 
-ECP
+ecp "Au_lanl2dz ecp"
 Au nelec 60
 Au ul
 1     622.6287956            -60.0000000
@@ -1506,7 +1506,7 @@ Au F
 end
 
 
-ECP
+ecp "Hg_lanl2dz ecp"
 Hg nelec 68
 Hg ul
 0     318.3460385             -0.1703372
@@ -1545,7 +1545,7 @@ Hg F
 end
 
 
-ECP
+ecp "Tl_lanl2dz ecp"
 Tl nelec 68
 Tl ul
 0     373.7910783             -0.1746222
@@ -1584,7 +1584,7 @@ Tl F
 end
 
 
-ECP
+ecp "Pb_lanl2dz ecp"
 Pb nelec 78
 Pb ul
 0     376.5803786             -0.1789605
@@ -1624,7 +1624,7 @@ Pb F
 end
 
 
-ECP
+ecp "Bi_lanl2dz ecp"
 Bi nelec 78
 Bi ul
 0     223.3091971             -0.1833520
@@ -1664,7 +1664,7 @@ Bi F
 end
 
 
-ECP
+ecp "U_lanl2dz ecp"
 U nelec 78
 U ul
 0       4.5162725             -0.2252710
@@ -1710,7 +1710,7 @@ U F
 end
 
 
-ECP
+ecp "Np_lanl2dz ecp"
 Np nelec 78
 Np ul
 0       1.0431273             -0.2301948
@@ -1756,7 +1756,7 @@ Np F
 end
 
 
-ECP
+ecp "Pu_lanl2dz ecp"
 Pu nelec 78
 Pu ul
 0       1.1870180             -0.2351718

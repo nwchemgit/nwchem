@@ -1,5 +1,5 @@
 # BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T13:56
+# Data downloaded at 2019-06-11T15:29
 # modified-lanl2dz version number 0
 # Description: Couty-Hall Modified LANL2DZ Basis Sets for Transition Metals
 # Role: orbital
@@ -30,7 +30,7 @@ Sc    D
 end
 
 
-ECP
+ecp "Sc_modified-lanl2dz"
 Sc nelec 10
 Sc ul
 1     237.3166528            -10.0000000
@@ -76,7 +76,7 @@ Ti    D
 end
 
 
-ECP
+ecp "Ti_modified-lanl2dz"
 Ti nelec 10
 Ti ul
 1     265.3263909            -10.0000000
@@ -121,7 +121,7 @@ V    D
 end
 
 
-ECP
+ecp "V_modified-lanl2dz"
 V nelec 10
 V ul
 1     296.4487582            -10.0000000
@@ -166,7 +166,7 @@ Cr    D
 end
 
 
-ECP
+ecp "Cr_modified-lanl2dz"
 Cr nelec 10
 Cr ul
 1     329.2720539            -10.0000000
@@ -211,7 +211,7 @@ Mn    D
 end
 
 
-ECP
+ecp "Mn_modified-lanl2dz"
 Mn nelec 10
 Mn ul
 1     357.3914469            -10.0000000
@@ -256,7 +256,7 @@ Fe    D
 end
 
 
-ECP
+ecp "Fe_modified-lanl2dz"
 Fe nelec 10
 Fe ul
 1     392.6149787            -10.0000000
@@ -301,7 +301,7 @@ Co    D
 end
 
 
-ECP
+ecp "Co_modified-lanl2dz"
 Co nelec 10
 Co ul
 1     434.1076104            -10.0000000
@@ -344,7 +344,7 @@ Ni    D
 end
 
 
-ECP
+ecp "Ni_modified-lanl2dz"
 Ni nelec 10
 Ni ul
 1     469.9324331            -10.0000000
@@ -387,7 +387,7 @@ Cu    D
 end
 
 
-ECP
+ecp "Cu_modified-lanl2dz"
 Cu nelec 10
 Cu ul
 1     511.9951763            -10.0000000
@@ -429,7 +429,7 @@ Y    D
 end
 
 
-ECP
+ecp "Y_modified-lanl2dz"
 Y nelec 28
 Y ul
 0     578.4310349             -0.0404817
@@ -479,7 +479,7 @@ Zr    D
 end
 
 
-ECP
+ecp "Zr_modified-lanl2dz"
 Zr nelec 28
 Zr ul
 0     645.9321873             -0.0425843
@@ -528,7 +528,7 @@ Nb    D
 end
 
 
-ECP
+ecp "Nb_modified-lanl2dz"
 Nb nelec 28
 Nb ul
 0     342.9638405             -0.0447401
@@ -577,7 +577,7 @@ Mo    D
 end
 
 
-ECP
+ecp "Mo_modified-lanl2dz"
 Mo nelec 28
 Mo ul
 0     537.9667807             -0.0469492
@@ -626,7 +626,7 @@ Tc    D
 end
 
 
-ECP
+ecp "Tc_modified-lanl2dz"
 Tc nelec 28
 Tc ul
 0     501.1199409             -0.0492115
@@ -675,7 +675,7 @@ Ru    D
 end
 
 
-ECP
+ecp "Ru_modified-lanl2dz"
 Ru nelec 28
 Ru ul
 0     554.3796303             -0.0515270
@@ -726,7 +726,7 @@ Rh    D
 end
 
 
-ECP
+ecp "Rh_modified-lanl2dz"
 Rh nelec 28
 Rh ul
 0     600.3243032             -0.0538958
@@ -777,7 +777,7 @@ Pd    D
 end
 
 
-ECP
+ecp "Pd_modified-lanl2dz"
 Pd nelec 28
 Pd ul
 0     598.3336444             -0.0563177
@@ -829,7 +829,7 @@ Ag    D
 end
 
 
-ECP
+ecp "Ag_modified-lanl2dz"
 Ag nelec 28
 Ag ul
 0     568.7006237             -0.0587930
@@ -880,7 +880,7 @@ La    D
 end
 
 
-ECP
+ecp "La_modified-lanl2dz"
 La nelec 46
 La ul
 0     740.9166034             -0.0864727
@@ -930,7 +930,7 @@ Hf    D
 end
 
 
-ECP
+ecp "Hf_modified-lanl2dz"
 Hf nelec 60
 Hf ul
 1     685.5502931            -60.0000000
@@ -990,7 +990,7 @@ Ta    D
 end
 
 
-ECP
+ecp "Ta_modified-lanl2dz"
 Ta nelec 60
 Ta ul
 1     768.2267533            -60.0000000
@@ -1050,7 +1050,7 @@ W    D
 end
 
 
-ECP
+ecp "W_modified-lanl2dz"
 W nelec 60
 W ul
 1     839.4489120            -60.0000000
@@ -1110,7 +1110,7 @@ Re    D
 end
 
 
-ECP
+ecp "Re_modified-lanl2dz"
 Re nelec 60
 Re ul
 1    1833.8143836             -0.1497104
@@ -1170,7 +1170,7 @@ Os    D
 end
 
 
-ECP
+ecp "Os_modified-lanl2dz"
 Os nelec 60
 Os ul
 1     848.8743292             -0.1537293
@@ -1228,7 +1228,7 @@ Ir    D
 end
 
 
-ECP
+ecp "Ir_modified-lanl2dz"
 Ir nelec 60
 Ir ul
 1     823.5880147             -0.1578014
@@ -1286,7 +1286,7 @@ Pt    D
 end
 
 
-ECP
+ecp "Pt_modified-lanl2dz"
 Pt nelec 60
 Pt ul
 1     728.9394056             -0.1619268
@@ -1343,7 +1343,7 @@ Au    D
 end
 
 
-ECP
+ecp "Au_modified-lanl2dz"
 Au nelec 60
 Au ul
 1     622.6287956            -60.0000000

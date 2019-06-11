@@ -1,5 +1,5 @@
 # BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T13:56
+# Data downloaded at 2019-06-11T15:29
 # dhf-qzvp version number 0
 # Description: dhf-QZVP
 # Role: orbital
@@ -53,7 +53,7 @@ Rb    G
 end
 
 
-ECP
+ecp "Rb_dhf-qzvp"
 Rb nelec 28
 Rb ul
 2       1.00000000             0.00000000
@@ -126,7 +126,7 @@ Sr    G
 end
 
 
-ECP
+ecp "Sr_dhf-qzvp"
 Sr nelec 28
 Sr ul
 2       1.00000000             0.00000000
@@ -200,7 +200,7 @@ Y    G
 end
 
 
-ECP
+ecp "Y_dhf-qzvp"
 Y nelec 28
 Y ul
 2       1.00000000             0.00000000
@@ -274,7 +274,7 @@ Zr    G
 end
 
 
-ECP
+ecp "Zr_dhf-qzvp"
 Zr nelec 28
 Zr ul
 2       1.00000000             0.00000000
@@ -348,7 +348,7 @@ Nb    G
 end
 
 
-ECP
+ecp "Nb_dhf-qzvp"
 Nb nelec 28
 Nb ul
 2       1.00000000             0.00000000
@@ -423,7 +423,7 @@ Mo    G
 end
 
 
-ECP
+ecp "Mo_dhf-qzvp"
 Mo nelec 28
 Mo ul
 2       1.00000000             0.00000000
@@ -498,7 +498,7 @@ Tc    G
 end
 
 
-ECP
+ecp "Tc_dhf-qzvp"
 Tc nelec 28
 Tc ul
 2       1.00000000             0.00000000
@@ -573,7 +573,7 @@ Ru    G
 end
 
 
-ECP
+ecp "Ru_dhf-qzvp"
 Ru nelec 28
 Ru ul
 2       1.00000000             0.00000000
@@ -648,7 +648,7 @@ Rh    G
 end
 
 
-ECP
+ecp "Rh_dhf-qzvp"
 Rh nelec 28
 Rh ul
 2       1.00000000             0.00000000
@@ -723,7 +723,7 @@ Pd    G
 end
 
 
-ECP
+ecp "Pd_dhf-qzvp"
 Pd nelec 28
 Pd ul
 2       1.00000000             0.00000000
@@ -799,7 +799,7 @@ Ag    G
 end
 
 
-ECP
+ecp "Ag_dhf-qzvp"
 Ag nelec 28
 Ag ul
 2       1.00000000             0.00000000
@@ -877,7 +877,7 @@ Cd    G
 end
 
 
-ECP
+ecp "Cd_dhf-qzvp"
 Cd nelec 28
 Cd ul
 2       1.00000000             0.00000000
@@ -972,7 +972,7 @@ In    G
 end
 
 
-ECP
+ecp "In_dhf-qzvp"
 In nelec 28
 In ul
 2       1.00000000             0.00000000
@@ -1067,7 +1067,7 @@ Sn    G
 end
 
 
-ECP
+ecp "Sn_dhf-qzvp"
 Sn nelec 28
 Sn ul
 2       1.00000000             0.00000000
@@ -1162,7 +1162,7 @@ Sb    G
 end
 
 
-ECP
+ecp "Sb_dhf-qzvp"
 Sb nelec 28
 Sb ul
 2       1.00000000             0.00000000
@@ -1257,7 +1257,7 @@ Te    G
 end
 
 
-ECP
+ecp "Te_dhf-qzvp"
 Te nelec 28
 Te ul
 2       1.00000000             0.00000000
@@ -1352,7 +1352,7 @@ I    G
 end
 
 
-ECP
+ecp "I_dhf-qzvp"
 I nelec 28
 I ul
 2       1.00000000             0.00000000
@@ -1450,7 +1450,7 @@ Xe    G
 end
 
 
-ECP
+ecp "Xe_dhf-qzvp"
 Xe nelec 28
 Xe ul
 2       1.00000000             0.00000000
@@ -1528,7 +1528,7 @@ Cs    G
 end
 
 
-ECP
+ecp "Cs_dhf-qzvp"
 Cs nelec 46
 Cs ul
 2       1.00000000             0.00000000
@@ -1609,7 +1609,7 @@ Ba    G
 end
 
 
-ECP
+ecp "Ba_dhf-qzvp"
 Ba nelec 46
 Ba ul
 2       1.00000000             0.00000000
@@ -1691,7 +1691,7 @@ Hf    G
 end
 
 
-ECP
+ecp "Hf_dhf-qzvp"
 Hf nelec 60
 Hf ul
 2       1.00000000             0.00000000
@@ -1776,7 +1776,7 @@ Ta    G
 end
 
 
-ECP
+ecp "Ta_dhf-qzvp"
 Ta nelec 60
 Ta ul
 2       1.00000000             0.00000000
@@ -1861,7 +1861,7 @@ W    G
 end
 
 
-ECP
+ecp "W_dhf-qzvp"
 W nelec 60
 W ul
 2       1.00000000             0.00000000
@@ -1943,7 +1943,7 @@ Re    G
 end
 
 
-ECP
+ecp "Re_dhf-qzvp"
 Re nelec 60
 Re ul
 2       1.00000000             0.00000000
@@ -2021,7 +2021,7 @@ Os    G
 end
 
 
-ECP
+ecp "Os_dhf-qzvp"
 Os nelec 60
 Os ul
 2       1.00000000             0.00000000
@@ -2099,7 +2099,7 @@ Ir    G
 end
 
 
-ECP
+ecp "Ir_dhf-qzvp"
 Ir nelec 60
 Ir ul
 2       1.00000000             0.00000000
@@ -2177,7 +2177,7 @@ Pt    G
 end
 
 
-ECP
+ecp "Pt_dhf-qzvp"
 Pt nelec 60
 Pt ul
 2       1.00000000             0.00000000
@@ -2254,7 +2254,7 @@ Au    G
 end
 
 
-ECP
+ecp "Au_dhf-qzvp"
 Au nelec 60
 Au ul
 2       1.00000000             0.00000000
@@ -2332,7 +2332,7 @@ Hg    G
 end
 
 
-ECP
+ecp "Hg_dhf-qzvp"
 Hg nelec 60
 Hg ul
 2       1.00000000             0.00000000
@@ -2429,7 +2429,7 @@ Tl    G
 end
 
 
-ECP
+ecp "Tl_dhf-qzvp"
 Tl nelec 60
 Tl ul
 2       1.00000000             0.00000000
@@ -2530,7 +2530,7 @@ Pb    G
 end
 
 
-ECP
+ecp "Pb_dhf-qzvp"
 Pb nelec 60
 Pb ul
 2       1.00000000             0.00000000
@@ -2627,7 +2627,7 @@ Bi    G
 end
 
 
-ECP
+ecp "Bi_dhf-qzvp"
 Bi nelec 60
 Bi ul
 2       1.00000000             0.00000000
@@ -2724,7 +2724,7 @@ Po    G
 end
 
 
-ECP
+ecp "Po_dhf-qzvp"
 Po nelec 60
 Po ul
 2       1.00000000             0.00000000
@@ -2823,7 +2823,7 @@ At    G
 end
 
 
-ECP
+ecp "At_dhf-qzvp"
 At nelec 60
 At ul
 2       1.00000000             0.00000000
@@ -2926,7 +2926,7 @@ Rn    G
 end
 
 
-ECP
+ecp "Rn_dhf-qzvp"
 Rn nelec 60
 Rn ul
 2       1.00000000             0.00000000

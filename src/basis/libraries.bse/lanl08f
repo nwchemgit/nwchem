@@ -1,5 +1,5 @@
 # BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T14:33
+# Data downloaded at 2019-06-11T15:29
 # lanl08(f) version number 0
 # Description: LANL08(f)
 # Role: orbital
@@ -41,7 +41,7 @@ Sc    F
 end
 
 
-ECP
+ecp "Sc_lanl08(f)"
 Sc nelec 10
 Sc ul
 1     237.3166528            -10.0000000
@@ -98,7 +98,7 @@ Ti    F
 end
 
 
-ECP
+ecp "Ti_lanl08(f)"
 Ti nelec 10
 Ti ul
 1     265.3263909            -10.0000000
@@ -154,7 +154,7 @@ V    F
 end
 
 
-ECP
+ecp "V_lanl08(f)"
 V nelec 10
 V ul
 1     296.4487582            -10.0000000
@@ -210,7 +210,7 @@ Cr    F
 end
 
 
-ECP
+ecp "Cr_lanl08(f)"
 Cr nelec 10
 Cr ul
 1     329.2720539            -10.0000000
@@ -266,7 +266,7 @@ Mn    F
 end
 
 
-ECP
+ecp "Mn_lanl08(f)"
 Mn nelec 10
 Mn ul
 1     357.3914469            -10.0000000
@@ -322,7 +322,7 @@ Fe    F
 end
 
 
-ECP
+ecp "Fe_lanl08(f)"
 Fe nelec 10
 Fe ul
 1     392.6149787            -10.0000000
@@ -378,7 +378,7 @@ Co    F
 end
 
 
-ECP
+ecp "Co_lanl08(f)"
 Co nelec 10
 Co ul
 1     434.1076104            -10.0000000
@@ -432,7 +432,7 @@ Ni    F
 end
 
 
-ECP
+ecp "Ni_lanl08(f)"
 Ni nelec 10
 Ni ul
 1     469.9324331            -10.0000000
@@ -486,7 +486,7 @@ Cu    F
 end
 
 
-ECP
+ecp "Cu_lanl08(f)"
 Cu nelec 10
 Cu ul
 1     511.9951763            -10.0000000
@@ -538,7 +538,7 @@ Y    F
 end
 
 
-ECP
+ecp "Y_lanl08(f)"
 Y nelec 28
 Y ul
 0     578.4310349             -0.0404817
@@ -598,7 +598,7 @@ Zr    F
 end
 
 
-ECP
+ecp "Zr_lanl08(f)"
 Zr nelec 28
 Zr ul
 0     645.9321873             -0.0425843
@@ -657,7 +657,7 @@ Nb    F
 end
 
 
-ECP
+ecp "Nb_lanl08(f)"
 Nb nelec 28
 Nb ul
 0     342.9638405             -0.0447401
@@ -716,7 +716,7 @@ Mo    F
 end
 
 
-ECP
+ecp "Mo_lanl08(f)"
 Mo nelec 28
 Mo ul
 0     537.9667807             -0.0469492
@@ -775,7 +775,7 @@ Tc    F
 end
 
 
-ECP
+ecp "Tc_lanl08(f)"
 Tc nelec 28
 Tc ul
 0     501.1199409             -0.0492115
@@ -834,7 +834,7 @@ Ru    F
 end
 
 
-ECP
+ecp "Ru_lanl08(f)"
 Ru nelec 28
 Ru ul
 0     554.3796303             -0.0515270
@@ -895,7 +895,7 @@ Rh    F
 end
 
 
-ECP
+ecp "Rh_lanl08(f)"
 Rh nelec 28
 Rh ul
 0     600.3243032             -0.0538958
@@ -956,7 +956,7 @@ Pd    F
 end
 
 
-ECP
+ecp "Pd_lanl08(f)"
 Pd nelec 28
 Pd ul
 0     598.3336444             -0.0563177
@@ -1018,7 +1018,7 @@ Ag    F
 end
 
 
-ECP
+ecp "Ag_lanl08(f)"
 Ag nelec 28
 Ag ul
 0     568.7006237             -0.0587930
@@ -1078,7 +1078,7 @@ La    F
 end
 
 
-ECP
+ecp "La_lanl08(f)"
 La nelec 46
 La ul
 0     740.9166034             -0.0864727
@@ -1137,7 +1137,7 @@ Hf    F
 end
 
 
-ECP
+ecp "Hf_lanl08(f)"
 Hf nelec 60
 Hf ul
 1     685.5502931            -60.0000000
@@ -1206,7 +1206,7 @@ Ta    F
 end
 
 
-ECP
+ecp "Ta_lanl08(f)"
 Ta nelec 60
 Ta ul
 1     768.2267533            -60.0000000
@@ -1275,7 +1275,7 @@ W    F
 end
 
 
-ECP
+ecp "W_lanl08(f)"
 W nelec 60
 W ul
 1     839.4489120            -60.0000000
@@ -1344,7 +1344,7 @@ Re    F
 end
 
 
-ECP
+ecp "Re_lanl08(f)"
 Re nelec 60
 Re ul
 1    1833.8143836             -0.1497104
@@ -1413,7 +1413,7 @@ Os    F
 end
 
 
-ECP
+ecp "Os_lanl08(f)"
 Os nelec 60
 Os ul
 1     848.8743292             -0.1537293
@@ -1480,7 +1480,7 @@ Ir    F
 end
 
 
-ECP
+ecp "Ir_lanl08(f)"
 Ir nelec 60
 Ir ul
 1     823.5880147             -0.1578014
@@ -1547,7 +1547,7 @@ Pt    F
 end
 
 
-ECP
+ecp "Pt_lanl08(f)"
 Pt nelec 60
 Pt ul
 1     728.9394056             -0.1619268
@@ -1613,7 +1613,7 @@ Au    F
 end
 
 
-ECP
+ecp "Au_lanl08(f)"
 Au nelec 60
 Au ul
 1     622.6287956            -60.0000000

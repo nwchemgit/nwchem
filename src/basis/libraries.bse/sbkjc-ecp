@@ -1,12 +1,12 @@
 # BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T13:56
+# Data downloaded at 2019-06-11T15:29
 # sbkjc-ecp version number 0
 # Description: SBKJC ECP
 # Role: orbital
 # 
 
 
-ECP
+ecp "Li_sbkjc-ecp"
 Li nelec 2
 Li ul
 1       1.3430600             -0.7306300
@@ -16,7 +16,7 @@ Li S
 end
 
 
-ECP
+ecp "Be_sbkjc-ecp"
 Be nelec 2
 Be ul
 1       2.7934700             -0.7897000
@@ -26,7 +26,7 @@ Be S
 end
 
 
-ECP
+ecp "B_sbkjc-ecp"
 B nelec 2
 B ul
 1       5.6462200             -0.8835500
@@ -36,7 +36,7 @@ B S
 end
 
 
-ECP
+ecp "C_sbkjc-ecp"
 C nelec 2
 C ul
 1       8.5646800             -0.8937100
@@ -46,7 +46,7 @@ C S
 end
 
 
-ECP
+ecp "N_sbkjc-ecp"
 N nelec 2
 N ul
 1      11.9968600             -0.9121200
@@ -56,7 +56,7 @@ N S
 end
 
 
-ECP
+ecp "O_sbkjc-ecp"
 O nelec 2
 O ul
 1      16.1171800             -0.9255000
@@ -66,7 +66,7 @@ O S
 end
 
 
-ECP
+ecp "F_sbkjc-ecp"
 F nelec 2
 F ul
 1      20.7395900             -0.9325800
@@ -76,7 +76,7 @@ F S
 end
 
 
-ECP
+ecp "Ne_sbkjc-ecp"
 Ne nelec 2
 Ne ul
 1      26.0166600             -0.9409800
@@ -86,7 +86,7 @@ Ne S
 end
 
 
-ECP
+ecp "Na_sbkjc-ecp"
 Na nelec 10
 Na ul
 1       0.9000900             -2.3844600
@@ -99,7 +99,7 @@ Na P
 end
 
 
-ECP
+ecp "Mg_sbkjc-ecp"
 Mg nelec 10
 Mg ul
 1       1.3922000             -2.7729600
@@ -112,7 +112,7 @@ Mg P
 end
 
 
-ECP
+ecp "Al_sbkjc-ecp"
 Al nelec 10
 Al ul
 1       1.9555900             -3.0305500
@@ -125,7 +125,7 @@ Al P
 end
 
 
-ECP
+ecp "Si_sbkjc-ecp"
 Si nelec 10
 Si ul
 1       2.4627200             -2.9824000
@@ -138,7 +138,7 @@ Si P
 end
 
 
-ECP
+ecp "P_sbkjc-ecp"
 P nelec 10
 P ul
 1       3.1894500             -3.1636100
@@ -151,7 +151,7 @@ P P
 end
 
 
-ECP
+ecp "S_sbkjc-ecp"
 S nelec 10
 S ul
 1       3.9893000             -3.2983900
@@ -164,7 +164,7 @@ S P
 end
 
 
-ECP
+ecp "Cl_sbkjc-ecp"
 Cl nelec 10
 Cl ul
 1       4.8748300             -3.4073800
@@ -177,7 +177,7 @@ Cl P
 end
 
 
-ECP
+ecp "Ar_sbkjc-ecp"
 Ar nelec 10
 Ar ul
 1       5.8230300             -3.4880600
@@ -190,7 +190,7 @@ Ar P
 end
 
 
-ECP
+ecp "K_sbkjc-ecp"
 K nelec 18
 K ul
 1       0.4965200             -4.3000200
@@ -203,7 +203,7 @@ K P
 end
 
 
-ECP
+ecp "Ca_sbkjc-ecp"
 Ca nelec 18
 Ca ul
 1       2.3804500             -5.8197000
@@ -217,7 +217,7 @@ Ca P
 end
 
 
-ECP
+ecp "Sc_sbkjc-ecp"
 Sc nelec 10
 Sc ul
 1       9.9571200             -3.6695600
@@ -231,7 +231,7 @@ Sc P
 end
 
 
-ECP
+ecp "Ti_sbkjc-ecp"
 Ti nelec 10
 Ti ul
 1      11.2097100             -3.6658100
@@ -245,7 +245,7 @@ Ti P
 end
 
 
-ECP
+ecp "V_sbkjc-ecp"
 V nelec 10
 V ul
 1      12.7965900             -3.7914600
@@ -259,7 +259,7 @@ V P
 end
 
 
-ECP
+ecp "Cr_sbkjc-ecp"
 Cr nelec 10
 Cr ul
 1      13.9330700             -3.6436200
@@ -273,7 +273,7 @@ Cr P
 end
 
 
-ECP
+ecp "Mn_sbkjc-ecp"
 Mn nelec 10
 Mn ul
 1      15.8859200             -3.8525400
@@ -287,7 +287,7 @@ Mn P
 end
 
 
-ECP
+ecp "Fe_sbkjc-ecp"
 Fe nelec 10
 Fe ul
 1      17.6191000             -3.8942300
@@ -301,7 +301,7 @@ Fe P
 end
 
 
-ECP
+ecp "Co_sbkjc-ecp"
 Co nelec 10
 Co ul
 1      19.4455900             -3.9474600
@@ -315,7 +315,7 @@ Co P
 end
 
 
-ECP
+ecp "Ni_sbkjc-ecp"
 Ni nelec 10
 Ni ul
 1      21.3637300             -3.9933700
@@ -329,7 +329,7 @@ Ni P
 end
 
 
-ECP
+ecp "Cu_sbkjc-ecp"
 Cu nelec 10
 Cu ul
 1      23.2906000             -4.0027600
@@ -343,7 +343,7 @@ Cu P
 end
 
 
-ECP
+ecp "Zn_sbkjc-ecp"
 Zn nelec 10
 Zn ul
 1      24.8870500             -3.9164800
@@ -357,7 +357,7 @@ Zn P
 end
 
 
-ECP
+ecp "Ga_sbkjc-ecp"
 Ga nelec 10
 Ga ul
 1      26.7430200             -3.8736300
@@ -371,7 +371,7 @@ Ga P
 end
 
 
-ECP
+ecp "Ge_sbkjc-ecp"
 Ge nelec 28
 Ge ul
 1       0.8275100             -1.2685900
@@ -387,7 +387,7 @@ Ge D
 end
 
 
-ECP
+ecp "As_sbkjc-ecp"
 As nelec 28
 As ul
 1       1.6458300             -4.7702800
@@ -403,7 +403,7 @@ As D
 end
 
 
-ECP
+ecp "Se_sbkjc-ecp"
 Se nelec 28
 Se ul
 1       2.0935600             -5.5849800
@@ -419,7 +419,7 @@ Se D
 end
 
 
-ECP
+ecp "Br_sbkjc-ecp"
 Br nelec 28
 Br ul
 1       2.1211600             -4.7820600
@@ -435,7 +435,7 @@ Br D
 end
 
 
-ECP
+ecp "Kr_sbkjc-ecp"
 Kr nelec 28
 Kr ul
 1       2.6429500             -5.6122000
@@ -451,7 +451,7 @@ Kr D
 end
 
 
-ECP
+ecp "Rb_sbkjc-ecp"
 Rb nelec 36
 Rb ul
 1       0.3639500             -3.2394200
@@ -469,7 +469,7 @@ Rb D
 end
 
 
-ECP
+ecp "Sr_sbkjc-ecp"
 Sr nelec 36
 Sr ul
 1       0.5167600             -4.1359600
@@ -487,7 +487,7 @@ Sr D
 end
 
 
-ECP
+ecp "Y_sbkjc-ecp"
 Y nelec 28
 Y ul
 1       3.1332300             -3.7082700
@@ -505,7 +505,7 @@ Y D
 end
 
 
-ECP
+ecp "Zr_sbkjc-ecp"
 Zr nelec 28
 Zr ul
 1       4.3144100             -6.1192300
@@ -523,7 +523,7 @@ Zr D
 end
 
 
-ECP
+ecp "Nb_sbkjc-ecp"
 Nb nelec 28
 Nb ul
 1       4.6419800             -5.8169500
@@ -541,7 +541,7 @@ Nb D
 end
 
 
-ECP
+ecp "Mo_sbkjc-ecp"
 Mo nelec 28
 Mo ul
 1       5.6250700             -7.2300900
@@ -559,7 +559,7 @@ Mo D
 end
 
 
-ECP
+ecp "Tc_sbkjc-ecp"
 Tc nelec 28
 Tc ul
 1       6.2606700             -7.5435600
@@ -577,7 +577,7 @@ Tc D
 end
 
 
-ECP
+ecp "Ru_sbkjc-ecp"
 Ru nelec 28
 Ru ul
 1       6.9830400             -7.9844800
@@ -595,7 +595,7 @@ Ru D
 end
 
 
-ECP
+ecp "Rh_sbkjc-ecp"
 Rh nelec 28
 Rh ul
 1       7.6496800             -8.1322500
@@ -613,7 +613,7 @@ Rh D
 end
 
 
-ECP
+ecp "Pd_sbkjc-ecp"
 Pd nelec 28
 Pd ul
 1       8.3432700             -8.3346600
@@ -631,7 +631,7 @@ Pd D
 end
 
 
-ECP
+ecp "Ag_sbkjc-ecp"
 Ag nelec 28
 Ag ul
 1       9.0169600             -8.4466900
@@ -649,7 +649,7 @@ Ag D
 end
 
 
-ECP
+ecp "Cd_sbkjc-ecp"
 Cd nelec 28
 Cd ul
 1       9.8132500             -8.6986400
@@ -667,7 +667,7 @@ Cd D
 end
 
 
-ECP
+ecp "In_sbkjc-ecp"
 In nelec 28
 In ul
 1      10.5898700             -8.8403100
@@ -685,7 +685,7 @@ In D
 end
 
 
-ECP
+ecp "Sn_sbkjc-ecp"
 Sn nelec 46
 Sn ul
 1       0.8205000             -5.6068200
@@ -703,7 +703,7 @@ Sn D
 end
 
 
-ECP
+ecp "Sb_sbkjc-ecp"
 Sb nelec 46
 Sb ul
 1       0.7549000             -2.9095100
@@ -722,7 +722,7 @@ Sb D
 end
 
 
-ECP
+ecp "Te_sbkjc-ecp"
 Te nelec 46
 Te ul
 1       0.9484700             -3.9598400
@@ -741,7 +741,7 @@ Te D
 end
 
 
-ECP
+ecp "I_sbkjc-ecp"
 I nelec 46
 I ul
 1       0.9762800             -3.6963900
@@ -760,7 +760,7 @@ I D
 end
 
 
-ECP
+ecp "Xe_sbkjc-ecp"
 Xe nelec 46
 Xe ul
 1       1.2706800             -5.1053800
@@ -779,7 +779,7 @@ Xe D
 end
 
 
-ECP
+ecp "Cs_sbkjc-ecp"
 Cs nelec 54
 Cs ul
 1       0.3135600             -5.0187400
@@ -797,7 +797,7 @@ Cs D
 end
 
 
-ECP
+ecp "Ba_sbkjc-ecp"
 Ba nelec 54
 Ba ul
 1       0.3786600             -4.8958400
@@ -815,7 +815,7 @@ Ba D
 end
 
 
-ECP
+ecp "La_sbkjc-ecp"
 La nelec 46
 La ul
 1       1.4234500             -2.8566500
@@ -836,7 +836,7 @@ La F
 end
 
 
-ECP
+ecp "Ce_sbkjc-ecp"
 Ce nelec 46
 Ce ul
 1       9.2074800            -15.3487600
@@ -855,7 +855,7 @@ Ce D
 end
 
 
-ECP
+ecp "Hf_sbkjc-ecp"
 Hf nelec 60
 Hf ul
 1       1.1409000             -2.5902000
@@ -875,7 +875,7 @@ Hf F
 end
 
 
-ECP
+ecp "Ta_sbkjc-ecp"
 Ta nelec 60
 Ta ul
 1       1.6526200             -4.3344000
@@ -895,7 +895,7 @@ Ta F
 end
 
 
-ECP
+ecp "W_sbkjc-ecp"
 W nelec 60
 W ul
 1       2.0382800             -5.2648000
@@ -915,7 +915,7 @@ W F
 end
 
 
-ECP
+ecp "Re_sbkjc-ecp"
 Re nelec 60
 Re ul
 1       2.5173100             -6.6222500
@@ -935,7 +935,7 @@ Re F
 end
 
 
-ECP
+ecp "Os_sbkjc-ecp"
 Os nelec 60
 Os ul
 1       3.0108400             -7.9675300
@@ -955,7 +955,7 @@ Os F
 end
 
 
-ECP
+ecp "Ir_sbkjc-ecp"
 Ir nelec 60
 Ir ul
 1       3.4685900             -8.9820800
@@ -975,7 +975,7 @@ Ir F
 end
 
 
-ECP
+ecp "Pt_sbkjc-ecp"
 Pt nelec 60
 Pt ul
 1       3.9081300             -9.7985400
@@ -995,7 +995,7 @@ Pt F
 end
 
 
-ECP
+ecp "Au_sbkjc-ecp"
 Au nelec 60
 Au ul
 1       4.3876300            -10.7235800
@@ -1015,7 +1015,7 @@ Au F
 end
 
 
-ECP
+ecp "Hg_sbkjc-ecp"
 Hg nelec 60
 Hg ul
 1       4.8576400            -11.5161800
@@ -1035,7 +1035,7 @@ Hg F
 end
 
 
-ECP
+ecp "Tl_sbkjc-ecp"
 Tl nelec 60
 Tl ul
 1       5.3129400            -12.1378700
@@ -1055,7 +1055,7 @@ Tl F
 end
 
 
-ECP
+ecp "Pb_sbkjc-ecp"
 Pb nelec 78
 Pb ul
 1       0.5175600             -2.7646400
@@ -1077,7 +1077,7 @@ Pb F
 end
 
 
-ECP
+ecp "Bi_sbkjc-ecp"
 Bi nelec 78
 Bi ul
 1       0.7794100             -5.3499100
@@ -1099,7 +1099,7 @@ Bi F
 end
 
 
-ECP
+ecp "Po_sbkjc-ecp"
 Po nelec 78
 Po ul
 1       0.9823600             -6.9142600
@@ -1121,7 +1121,7 @@ Po F
 end
 
 
-ECP
+ecp "At_sbkjc-ecp"
 At nelec 78
 At ul
 1       1.1814200             -8.2282100
@@ -1142,7 +1142,7 @@ At F
 end
 
 
-ECP
+ecp "Rn_sbkjc-ecp"
 Rn nelec 78
 Rn ul
 1       1.3792000             -9.3699100

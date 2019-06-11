@@ -1,5 +1,5 @@
 # BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T13:56
+# Data downloaded at 2019-06-11T15:29
 # def2-tzvpp version number 1
 # Description: def2-TZVPP
 # Role: orbital
@@ -1721,7 +1721,7 @@ Rb    F
 end
 
 
-ECP
+ecp "Rb_def2-tzvpp"
 Rb nelec 28
 Rb ul
 2       3.8431140            -12.3169000
@@ -1777,7 +1777,7 @@ Sr    F
 end
 
 
-ECP
+ecp "Sr_def2-tzvpp"
 Sr nelec 28
 Sr ul
 2       4.6339750            -15.8059920
@@ -1837,7 +1837,7 @@ Y    G
 end
 
 
-ECP
+ecp "Y_def2-tzvpp"
 Y nelec 28
 Y ul
 2       6.5842120            -19.12219811
@@ -1901,7 +1901,7 @@ Zr    G
 end
 
 
-ECP
+ecp "Zr_def2-tzvpp"
 Zr nelec 28
 Zr ul
 2       7.5400000            -21.09377605
@@ -1965,7 +1965,7 @@ Nb    G
 end
 
 
-ECP
+ecp "Nb_def2-tzvpp"
 Nb nelec 28
 Nb ul
 2       8.4900000            -22.92954996
@@ -2029,7 +2029,7 @@ Mo    G
 end
 
 
-ECP
+ecp "Mo_def2-tzvpp"
 Mo nelec 28
 Mo ul
 2       9.4500000            -24.80517707
@@ -2093,7 +2093,7 @@ Tc    G
 end
 
 
-ECP
+ecp "Tc_def2-tzvpp"
 Tc nelec 28
 Tc ul
 2      10.4000000            -26.56244747
@@ -2157,7 +2157,7 @@ Ru    G
 end
 
 
-ECP
+ecp "Ru_def2-tzvpp"
 Ru nelec 28
 Ru ul
 2      11.3600000            -28.34061627
@@ -2222,7 +2222,7 @@ Rh    G
 end
 
 
-ECP
+ecp "Rh_def2-tzvpp"
 Rh nelec 28
 Rh ul
 2      12.3100000            -30.09345572
@@ -2287,7 +2287,7 @@ Pd    G
 end
 
 
-ECP
+ecp "Pd_def2-tzvpp"
 Pd nelec 28
 Pd ul
 2      13.2700000            -31.92955431
@@ -2352,7 +2352,7 @@ Ag    G
 end
 
 
-ECP
+ecp "Ag_def2-tzvpp"
 Ag nelec 28
 Ag ul
 2      14.2200000            -33.68992012
@@ -2417,7 +2417,7 @@ Cd    G
 end
 
 
-ECP
+ecp "Cd_def2-tzvpp"
 Cd nelec 28
 Cd ul
 2      15.1847957            -35.47662555
@@ -2488,7 +2488,7 @@ In    F
 end
 
 
-ECP
+ecp "In_def2-tzvpp"
 In nelec 28
 In ul
 2      12.53905600           -13.72807800
@@ -2563,7 +2563,7 @@ Sn    F
 end
 
 
-ECP
+ecp "Sn_def2-tzvpp"
 Sn nelec 28
 Sn ul
 2      12.28234800           -12.57633300
@@ -2638,7 +2638,7 @@ Sb    F
 end
 
 
-ECP
+ecp "Sb_def2-tzvpp"
 Sb nelec 28
 Sb ul
 2      14.44497800           -15.36680100
@@ -2714,7 +2714,7 @@ Te    F
 end
 
 
-ECP
+ecp "Te_def2-tzvpp"
 Te nelec 28
 Te ul
 2      15.20616800           -15.74545000
@@ -2791,7 +2791,7 @@ I    F
 end
 
 
-ECP
+ecp "I_def2-tzvpp"
 I nelec 28
 I ul
 2      19.45860900           -21.84204000
@@ -2879,7 +2879,7 @@ Xe    F
 end
 
 
-ECP
+ecp "Xe_def2-tzvpp"
 Xe nelec 28
 Xe ul
 2      20.88155700           -23.08929500
@@ -2949,7 +2949,7 @@ Cs    F
 end
 
 
-ECP
+ecp "Cs_def2-tzvpp"
 Cs nelec 46
 Cs ul
 2       3.1232690            -28.8843090
@@ -3008,7 +3008,7 @@ Ba    F
 end
 
 
-ECP
+ecp "Ba_def2-tzvpp"
 Ba nelec 46
 Ba ul
 2       3.5894650            -33.4731740
@@ -3068,7 +3068,7 @@ La    G
 end
 
 
-ECP
+ecp "La_def2-tzvpp"
 La nelec 46
 La ul
 2       4.0286000            -36.0100160
@@ -3167,7 +3167,7 @@ Ce    G
 end
 
 
-ECP
+ecp "Ce_def2-tzvpp"
 Ce nelec 28
 Ce ul
 2       1.00000000             0.00000000
@@ -3264,7 +3264,7 @@ Pr    G
 end
 
 
-ECP
+ecp "Pr_def2-tzvpp"
 Pr nelec 28
 Pr ul
 2       1.00000000             0.00000000
@@ -3361,7 +3361,7 @@ Nd    G
 end
 
 
-ECP
+ecp "Nd_def2-tzvpp"
 Nd nelec 28
 Nd ul
 2       1.00000000             0.00000000
@@ -3458,7 +3458,7 @@ Pm    G
 end
 
 
-ECP
+ecp "Pm_def2-tzvpp"
 Pm nelec 28
 Pm ul
 2       1.00000000             0.00000000
@@ -3555,7 +3555,7 @@ Sm    G
 end
 
 
-ECP
+ecp "Sm_def2-tzvpp"
 Sm nelec 28
 Sm ul
 2       1.00000000             0.00000000
@@ -3652,7 +3652,7 @@ Eu    G
 end
 
 
-ECP
+ecp "Eu_def2-tzvpp"
 Eu nelec 28
 Eu ul
 2       1.00000000             0.00000000
@@ -3749,7 +3749,7 @@ Gd    G
 end
 
 
-ECP
+ecp "Gd_def2-tzvpp"
 Gd nelec 28
 Gd ul
 2       1.00000000             0.00000000
@@ -3846,7 +3846,7 @@ Tb    G
 end
 
 
-ECP
+ecp "Tb_def2-tzvpp"
 Tb nelec 28
 Tb ul
 2       1.00000000             0.00000000
@@ -3943,7 +3943,7 @@ Dy    G
 end
 
 
-ECP
+ecp "Dy_def2-tzvpp"
 Dy nelec 28
 Dy ul
 2       1.00000000             0.00000000
@@ -4040,7 +4040,7 @@ Ho    G
 end
 
 
-ECP
+ecp "Ho_def2-tzvpp"
 Ho nelec 28
 Ho ul
 2       1.00000000             0.00000000
@@ -4139,7 +4139,7 @@ Er    G
 end
 
 
-ECP
+ecp "Er_def2-tzvpp"
 Er nelec 28
 Er ul
 2       1.00000000             0.00000000
@@ -4238,7 +4238,7 @@ Tm    G
 end
 
 
-ECP
+ecp "Tm_def2-tzvpp"
 Tm nelec 28
 Tm ul
 2       1.00000000             0.00000000
@@ -4337,7 +4337,7 @@ Yb    G
 end
 
 
-ECP
+ecp "Yb_def2-tzvpp"
 Yb nelec 28
 Yb ul
 2       1.00000000             0.00000000
@@ -4436,7 +4436,7 @@ Lu    G
 end
 
 
-ECP
+ecp "Lu_def2-tzvpp"
 Lu nelec 28
 Lu ul
 2       1.00000000             0.00000000
@@ -4496,7 +4496,7 @@ Hf    G
 end
 
 
-ECP
+ecp "Hf_def2-tzvpp"
 Hf nelec 60
 Hf ul
 2       1.78576984            10.04672251
@@ -4558,7 +4558,7 @@ Ta    G
 end
 
 
-ECP
+ecp "Ta_def2-tzvpp"
 Ta nelec 60
 Ta ul
 2       2.01788111            12.01796094
@@ -4620,7 +4620,7 @@ W    G
 end
 
 
-ECP
+ecp "W_def2-tzvpp"
 W nelec 60
 W ul
 2       2.25888846            14.15257947
@@ -4682,7 +4682,7 @@ Re    G
 end
 
 
-ECP
+ecp "Re_def2-tzvpp"
 Re nelec 60
 Re ul
 2       2.50865059            16.44985227
@@ -4744,7 +4744,7 @@ Os    G
 end
 
 
-ECP
+ecp "Os_def2-tzvpp"
 Os nelec 60
 Os ul
 2       2.76707510            18.90945701
@@ -4806,7 +4806,7 @@ Ir    G
 end
 
 
-ECP
+ecp "Ir_def2-tzvpp"
 Ir nelec 60
 Ir ul
 2       3.03407192            21.53103107
@@ -4868,7 +4868,7 @@ Pt    G
 end
 
 
-ECP
+ecp "Pt_def2-tzvpp"
 Pt nelec 60
 Pt ul
 2       3.30956857            24.31437573
@@ -4930,7 +4930,7 @@ Au    G
 end
 
 
-ECP
+ecp "Au_def2-tzvpp"
 Au nelec 60
 Au ul
 2       4.78982000            30.49008890
@@ -4998,7 +4998,7 @@ Hg    G
 end
 
 
-ECP
+ecp "Hg_def2-tzvpp"
 Hg nelec 60
 Hg ul
 2       3.88579112            30.36499643
@@ -5065,7 +5065,7 @@ Tl    F
 end
 
 
-ECP
+ecp "Tl_def2-tzvpp"
 Tl nelec 60
 Tl ul
 2       5.62639900            15.82548800
@@ -5148,7 +5148,7 @@ Pb    F
 end
 
 
-ECP
+ecp "Pb_def2-tzvpp"
 Pb nelec 60
 Pb ul
 2       3.88751200            12.20989200
@@ -5223,7 +5223,7 @@ Bi    F
 end
 
 
-ECP
+ecp "Bi_def2-tzvpp"
 Bi nelec 60
 Bi ul
 2       4.21454600            13.71338300
@@ -5300,7 +5300,7 @@ Po    F
 end
 
 
-ECP
+ecp "Po_def2-tzvpp"
 Po nelec 60
 Po ul
 2       5.01327000            17.42829500
@@ -5385,7 +5385,7 @@ At    F
 end
 
 
-ECP
+ecp "At_def2-tzvpp"
 At nelec 60
 At ul
 2       5.81216300            19.87019800
@@ -5471,7 +5471,7 @@ Rn    F
 end
 
 
-ECP
+ecp "Rn_def2-tzvpp"
 Rn nelec 60
 Rn ul
 2       6.34857100            21.79729000

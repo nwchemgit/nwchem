@@ -1,5 +1,5 @@
 # BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T14:33
+# Data downloaded at 2019-06-11T15:29
 # lanl08(d) version number 0
 # Description: LANL08 + polarization and diffuse
 # Role: orbital
@@ -25,7 +25,7 @@ Si    D
 end
 
 
-ECP
+ecp "Si_lanl08(d)"
 Si nelec 10
 Si ul
 1     505.3137693            -10.0000000
@@ -68,7 +68,7 @@ P    D
 end
 
 
-ECP
+ecp "P_lanl08(d)"
 P nelec 10
 P ul
 1     462.1211423            -10.0000000
@@ -111,7 +111,7 @@ S    D
 end
 
 
-ECP
+ecp "S_lanl08(d)"
 S nelec 10
 S ul
 1     532.6685222            -10.0000000
@@ -154,7 +154,7 @@ Cl    D
 end
 
 
-ECP
+ecp "Cl_lanl08(d)"
 Cl nelec 10
 Cl ul
 1      94.8130000            -10.0000000
@@ -197,7 +197,7 @@ Ge    D
 end
 
 
-ECP
+ecp "Ge_lanl08(d)"
 Ge nelec 28
 Ge ul
 1     318.2167583            -28.0000000
@@ -245,7 +245,7 @@ As    D
 end
 
 
-ECP
+ecp "As_lanl08(d)"
 As nelec 28
 As ul
 1     375.4748803            -28.0000000
@@ -293,7 +293,7 @@ Se    D
 end
 
 
-ECP
+ecp "Se_lanl08(d)"
 Se nelec 28
 Se ul
 1     433.1931336            -28.0000000
@@ -341,7 +341,7 @@ Br    D
 end
 
 
-ECP
+ecp "Br_lanl08(d)"
 Br nelec 28
 Br ul
 1     213.6143969            -28.0000000
@@ -387,7 +387,7 @@ Sn    D
 end
 
 
-ECP
+ecp "Sn_lanl08(d)"
 Sn nelec 46
 Sn ul
 0       0.2169021             -0.0665380
@@ -435,7 +435,7 @@ Sb    D
 end
 
 
-ECP
+ecp "Sb_lanl08(d)"
 Sb nelec 46
 Sb ul
 0     227.2723558             -0.0692261
@@ -484,7 +484,7 @@ Te    D
 end
 
 
-ECP
+ecp "Te_lanl08(d)"
 Te nelec 46
 Te ul
 0     285.0323292             -0.0719675
@@ -533,7 +533,7 @@ I    D
 end
 
 
-ECP
+ecp "I_lanl08(d)"
 I nelec 46
 I ul
 0       1.0715702             -0.0747621
@@ -581,7 +581,7 @@ Pb    D
 end
 
 
-ECP
+ecp "Pb_lanl08(d)"
 Pb nelec 78
 Pb ul
 0     376.5803786             -0.1789605
@@ -640,7 +640,7 @@ Bi    D
 end
 
 
-ECP
+ecp "Bi_lanl08(d)"
 Bi nelec 78
 Bi ul
 0     223.3091971             -0.1833520
