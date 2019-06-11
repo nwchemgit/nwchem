@@ -22,7 +22,12 @@ for bas_name in all_bs:
     version_bs = md[bas_name]['latest_version']
     elements_list = md[bas_name]['versions'][version_bs]['elements']
     #open file
-    output_file = open(bas_name.replace("*","s"),'w')
+    # get rid of asterisks
+    file_name = bas_name.replace("*","s")
+    #get rid of parenthesis
+    file_name = file_name.replace("(","")
+    file_name = file_name.replace(")","")
+    output_file = open(file_name,'w')
     output_file.write('# BSE Version '+bse.version()+'\n')
     output_file.write('# Data downloaded at '+today+'\n')
     output_file.write('# '+bas_name+' version number '+version_bs+'\n')
