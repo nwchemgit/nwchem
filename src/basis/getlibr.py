@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # This script downloads  basis set library data from www.basissetexchange.org
 # into the directory $NWCHEM_TOP/src/basis/libraries.bse
-# to use, set the env. variable NWCHEM_BASIS_LIBRARY=$NWCHEM_TOP/src/basis/libraries.bse
+# to use, set the env. variable NWCHEM_BASIS_LIBRARY=$NWCHEM_TOP/src/basis/libraries.bse/
 # Requires the installation of the python env. from
 # https://github.com/MolSSI-BSE/basis_set_exchange
 # See https://molssi-bse.github.io/basis_set_exchange/
