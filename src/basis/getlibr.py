@@ -52,6 +52,8 @@ for bas_name in all_bs:
             bs_str=bs_str.replace("PRINT","")
             element_str=bse.misc.compact_elements([element])
             bs_str=bs_str.replace("ao basis",element_str+"_"+bas_name)
+            #ECP
+            bs_str=bs_str.replace("ECP","ecp \""+element_str+"_"+bas_name+"\"")
             output_file.write(bs_str)
             #
             print(bas_name+" "+element_str)
