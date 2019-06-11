@@ -2506,6 +2506,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
 
     #FC = mpif77
     FC = mpixlf77_r
+    _FC = xlf
 
     ifeq ($(FC),mpif77)
         CC         = mpicc
@@ -2541,6 +2542,7 @@ endif
 
     ifeq ($(FC),mpixlf77_r)
         EXPLICITF  = TRUE
+        _FC = xlf
         CC         = mpixlc_r
         DEFINES   += -DXLFLINUX
         XLF11      = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
