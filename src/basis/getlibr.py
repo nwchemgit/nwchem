@@ -27,8 +27,10 @@ for bas_name in all_bs:
     #get rid of parenthesis
     file_name = file_name.replace("(","")
     file_name = file_name.replace(")","")
-    #replace command with underscore
+    #replace commas with underscore
     file_name = file_name.replace(",","_")
+    #replace whitespace with underscore
+    file_name = file_name.replace(" ","_")
     print(' file name is '+file_name+"\n")
     output_file = open(file_name,'w')
     output_file.write('# BSE Version '+bse.version()+'\n')
