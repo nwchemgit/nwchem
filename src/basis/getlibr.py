@@ -38,6 +38,7 @@ for bas_name in all_bs:
     output_file.write('# '+bas_name+' version number '+version_bs+'\n')
     output_file.write('# Description: '+md[bas_name]['description']+'\n')
     output_file.write('# Role: '+md[bas_name]['role']+'\n')
+    output_file.write('# '+bse.get_references(bas_name,fmt='txt').replace('\n','\n# '))
     output_file.write('# \n')
     for element in elements_list:
         #element='h'
