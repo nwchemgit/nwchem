@@ -3487,6 +3487,8 @@ c
               write(LuOut,9070) "CCSD(2)_T",corr+pt3_1
               write(LuOut,9080) "CCSD(2)_T",ref+corr+pt3_1
             elseif (perturbative.eq.'2_tq') then
+	      write(LuOut,9070) "CCSD(2)_T",corr+pt3_1
+              write(LuOut,9080) "CCSD(2)_T",ref+corr+pt3_1
               write(LuOut,9070) "CCSD(2)",corr+pt3_1+pt3_2
               write(LuOut,9080) "CCSD(2)",ref+corr+pt3_1+pt3_2
             endif
