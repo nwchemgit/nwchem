@@ -326,7 +326,7 @@ c
       integer trishel,iamoff,iii,jjj,istart
       logical, optional, intent(in) :: use_ccsd_omp
       if (.not.present(use_ccsd_omp)) then
-          call errquit('ccsd_pzamp: use_ccsd_omp not present!',0,0)
+          call errquit('ccsd_sxy: use_ccsd_omp not present!',0,0)
       endif
 c
       if (occsdps) then
