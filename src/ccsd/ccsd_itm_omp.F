@@ -48,9 +48,8 @@
       integer :: i,j,k,l,ij,a,b,c
       integer :: ad1,ad2,ad3,ad4,ad5,ad6
       integer :: lnoo,lnov,lnvv
-      integer :: inode,next
+      integer :: inode
       integer :: nodes, iam
-      double precision :: temp
       !
       integer :: nt, tid
 #if defined(USE_OPENMP)
