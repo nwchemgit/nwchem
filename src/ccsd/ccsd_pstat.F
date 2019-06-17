@@ -19,8 +19,6 @@ c
      $     ps_aoccsd)) call errquit('ccsd: ccsd_pstat_init', 0,0)
       if (.not. pstat_allocate('ccsd:tripls', pstat_qstat, 0, junk,
      $     ps_tripls)) call errquit('ccsd: ccsd_pstat_init', 0,0)
-      if (.not. pstat_allocate('ccsd:graddrv', pstat_qstat, 0, junk,
-     $     ps_graddrv)) call errquit('ccsd: ccsd_pstat_init', 0,0)
       if (.not. pstat_allocate('ccsd:itm', pstat_qstat, 0, junk,
      $     ps_itm)) call errquit('ccsd: ccsd_pstat_init', 0,0)
       if (.not. pstat_allocate('ccsd:pampt', pstat_qstat, 0, junk,
@@ -41,12 +39,6 @@ c
      $     ps_dovvv)) call errquit('ccsd: ccsd_pstat_init', 0,0)
       if (.not. pstat_allocate('ccsd:doxxx', pstat_qstat, 0, junk,
      $     ps_doxxx)) call errquit('ccsd: ccsd_pstat_init', 0,0)
-      if (.not. pstat_allocate('ccsd:z2pm', pstat_qstat, 0, junk,
-     $     ps_z2pm)) call errquit('ccsd: ccsd_pstat_init', 0,0)
-      if (.not. pstat_allocate('ccsd:hz2pm', pstat_qstat, 0, junk,
-     $     ps_hz2pm)) call errquit('ccsd: ccsd_pstat_init', 0,0)
-      if (.not. pstat_allocate('ccsd:zvecs', pstat_qstat, 0, junk,
-     $     ps_zvecs)) call errquit('ccsd: ccsd_pstat_init', 0,0)
       if (.not. pstat_allocate('ccsd:pdiis', pstat_qstat, 0, junk,
      $     ps_pdiis)) call errquit('ccsd: ccsd_pstat_init', 0,0)
       if (.not. pstat_allocate('ccsd:ht2pm', pstat_qstat, 0, junk,
@@ -89,7 +81,6 @@ c
          if(.not.pstat_free(ps_aomo))call errquit('ccsd_pstat?', 0,0)
          if(.not.pstat_free(ps_aoccsd))call errquit('ccsd_pstat?', 0,0)
          if(.not.pstat_free(ps_tripls))call errquit('ccsd_pstat?',0,0)
-         if(.not.pstat_free(ps_graddrv))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_itm))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_pampt))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_idx1))call errquit('ccsd_pstat',0,0)
@@ -100,9 +91,6 @@ c
          if(.not.pstat_free(ps_doxxx))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_dovvv))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_doooo))call errquit('ccsd_pstat',0,0)
-         if(.not.pstat_free(ps_z2pm))call errquit('ccsd_pstat',0,0)
-         if(.not.pstat_free(ps_hz2pm))call errquit('ccsd_pstat',0,0)
-         if(.not.pstat_free(ps_zvecs))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_pdiis))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_ht2pm))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_t2pm))call errquit('ccsd_pstat',0,0)

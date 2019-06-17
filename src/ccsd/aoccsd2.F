@@ -101,21 +101,6 @@ C
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-C     Temporary stuff added to play density matrix games
-C
-      Integer A, J, B, LSab
-      Integer L_Sb, K_Sb, L_Sa, K_Sa
-      Integer H_DenZ1, I_DenZ1, H_DenT1, I_DenT1
-      Integer G_DenT2, G_DenZ2, G_1PDM
-      Logical Do_CCDen
-      Integer GA_Create_Atom_Blocked
-      External GA_Create_Atom_Blocked
-C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-c gradient
-      integer l_z1
-      integer k_z1
       integer g_nt2
       integer ilo,ihi,jlo,jhi,offt2,nvp1
       integer gmem_needed,gmem_avail,nvnnodes,ff,ff2,ff3,iin,jin
@@ -123,7 +108,12 @@ c gradient
       integer MSG_MIN_LOCAL_MEM
       parameter(MSG_MIN_LOCAL_MEM=1971)
       external ccsd_createg
-      Logical Do_Z,ccsd_createg
+      Logical ccsd_createg
+      Integer A, J, B, LSab
+      Integer L_Sb, K_Sb, L_Sa, K_Sa
+!      Integer H_DenZ1, I_DenZ1, H_DenT1, I_DenT1
+!      Integer G_DenT2, G_DenZ2, G_1PDM
+!      Logical Do_CCDen
 #ifdef USE_F90INTERFACE
       interface
       subroutine ccsd_iterdrv2(rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,
@@ -163,9 +153,6 @@ C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 * DATA MUST FOLLOW ALL DELCARATIONS 
-      Data Do_Z /.FALSE./
-      Data Do_CCDen /.FALSE./
-C
       data oexch,ocoul/.true.,.true./
       data ohalf/.false./
       data zip/0.0d00/
@@ -293,16 +280,10 @@ c     mem needed for x c sht2 (see pampt3)
                  call errquit(' bailing out',0,0)
                 endif
        endif
-       
 
-*ga:1:0
       if (.not.ga_create(MT_DBL,mxvec*lhoov,nvir+1,'g_t2', 
      &                   mxvec*lhoov,0,g_t2))
      &     call errquit('ga_create failed for g_t2',0, GA_ERR)
-*ga:1:0
-      if (.not.ga_create(MT_DBL,mxvec*lhoov,nvir+1,'g_ht2', 
-     &                   mxvec*lhoov,0,g_ht2))
-     &     call errquit('ga_create failed for g_ht2',0, GA_ERR)
 !
 ! Determine if OpenMP should be used in CCSD code
 !
@@ -446,42 +427,8 @@ c
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-CRK
-CRK   Gradient driver to go in here for development purposes 
-CRK 
-c
-      If ( Do_Z) then
-#ifdef DOGRAD
-        lnobj=max(lnoov,nbf*nbf)
-        stat=stat.and.ma_push_get(MT_DBL,lnobj,'3scra',l_scra,k_scra)
-        stat=stat.and.ma_push_get(MT_DBL,lnobj,'scrb',l_scrb,k_scrb)
-         stat=stat.and.ma_push_get(MT_DBL,lnov,'z1',l_z1,k_z1)
-         call ccsd_graddrv(basis,nsh,ncor,nocc,nvir,nact,nbf,
-     &      maxit,convi,iprt,cmo,eorb,dbl_mb(k_t1),dbl_mb(k_ht1),
-     &      dbl_mb(k_scra),dbl_mb(k_scrb),dbl_mb(k_z1),
-     &      dbl_mb(k_hiu),dbl_mb(k_hia),dbl_mb(k_habe),
-     &      dbl_mb(k_giu),dbl_mb(k_gabe),
-     &      dbl_mb(k_bbkp),dbl_mb(k_bb),
-     &      g_nt2,g_t2,g_ht2,
-     &      mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
-     &      int_mb(k_tk), Tol2E)
-#else
-         call errquit('ccsd gradients not enabled',0,CAPMIS_ERR)
-#endif
-      EndIf
-C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 c
       stat=.true.
-C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      If ( Do_Z ) then
-         stat=stat.and.ma_pop_stack(l_z1)
-         stat=stat.and.ma_pop_stack(l_scrb)
-         stat=stat.and.ma_pop_stack(l_scra)
-      EndIf
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -499,10 +446,6 @@ C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       call ga_sync()
       if (.not. ga_destroy(g_nt2))
      &     call errquit('ga_destroy failed',0, GA_ERR)
-      if(g_ht2.ne.123456789) then
-      if (.not. ga_destroy(g_ht2))
-     &     call errquit('ga_destroy failed',0, GA_ERR)
-      endif
       if (.not. ga_destroy(g_t2))
      &     call errquit('ga_destroy failed',0, GA_ERR)
 c
@@ -566,95 +509,7 @@ C
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:ccsd energy', MT_Dbl, 1,
      $   RefEner+eccsd) ) 
      $   Call ErrQuit('CCSD: Can''t write to RTDB', 2,0)
-C
-C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-C     Temporarily a good place to mess around with some density
-C     matrix stuff
-C
-      If (Do_CCDen) then
-C
-C     Start by creating the data structures we need
-C
-         If ( .NOT. MA_Push_Get(MT_Dbl, NOcc*NVir, 'CCDens T1',
-     $      H_DenT1, I_DenT1) ) Call ErrQuit(
-     $      'CCDen (prep): unable to allocate T1', NOcc*NVir,0)
-C
-         If ( .NOT. MA_Push_Get(MT_Dbl, NOcc*NVir, 'CCDens Z1',
-     $      H_DenZ1, I_DenZ1) ) Call ErrQuit(
-     $      'CCDen (prep): unable to allocate Z1', NOcc*NVir,0)
-C
-         If ( .NOT. GA_Create(MT_Dbl, NVir*NOcc, NVir*NOcc,
-     $      'CCDen T2', NVir, NVir, G_DenT2) ) Call ErrQuit(
-     $      'CCDen(prep): unable to alloc T2', NVir*NOcc*NVir*NOcc,0)
-C
-         If ( .NOT. GA_Create(MT_Dbl, NVir*NOcc, NVir*NOcc,
-     $      'CCDen Z2', NVir, NVir, G_DenZ2) ) Call ErrQuit(
-     $      'CCDen (prep): unable to alloc Z2',NVir*NOcc*NVir*NOcc,0)
-C
-         G_1PDM = GA_Create_Atom_Blocked(Geom, Basis, 'CCDen 1-PDM')
-C
-C        Now rearrange the existing data into our new structures
-C
-C        First, T1 (and for now fill Z1 with T1 too)
-C        (T1 is replicated for density, so all nodes do this)
-C
-         LnObj = lnoov + lnooo
-         Call GA_Get(g_ObjV, LnObj+1, LnObj+Lnov, NVir+1, NVir+1,
-     &      Dbl_MB(I_DenT1), NOcc*NVir)
-         Call GA_Get(g_ObjV, LnObj+1, LnObj+Lnov, NVir+1, NVir+1,
-     &      Dbl_MB(I_DenZ1), NOcc*NVir)
-C
-C        Now T2 (then copy to Z2 for the time being)
-C        (T2 is a GA for density, so have node 0 do it for simplicity)
-C
-         If ( GA_NodeID() .eq. 0) then
-            lsab=max(lnoov,nbf*nbf)
-            If ( .NOT. ma_push_get(MT_DBL,lsab,'sa',l_sa, k_sa) )
-     $         Call ErrQuit('CCDen (prep): can''t allocate sa', lsab,0)
-            If (.NOT. ma_push_get(MT_DBL,lsab,'sb',l_sb, k_sb) )
-     $         Call ErrQuit('CCDen (prep): can''t allocate sb', lsab,0)
-! TODO use OpenMP here
-            do a=1,nvir
-               call ga_get(g_ObjV,lnobj+1, lnobj+lnoov,a,a,
-     &                     dbl_mb(k_sa),lnoov)
-               do i=1,nocc
-                  do j=1,nocc
-                     do b=1,nvir
-                        ad1=k_sa+(b-1)*lnoo+(i-1)*nocc+j-1
-                        ad2=k_sb+(j-1)*nvir+b-1
-                        dbl_mb(ad2)=dbl_mb(ad1)
-                     enddo
-                  enddo
-                  ad1=(i-1)*nvir+a
-                  call ga_put(g_DenT2,1,lnov,ad1,ad1,dbl_mb(k_sb),lnov)
-               enddo
-            enddo
-            If ( .NOT. MA_Pop_Stack(L_Sb)) Call ErrQuit(
-     $         'CCDen (prep): freeing sb', 0,0)
-            If ( .NOT. MA_Pop_Stack(L_Sa)) Call ErrQuit(
-     $         'CCDen (prep): freeing sa', 0,0)
-         EndIf
-         Call GA_Sync()
-         Call GA_Copy(G_DenT2, G_DenZ2)
-C
-C        Now call the Density driver routine
-C
-         Call CCDen_Driver(NOcc, NVir, Dbl_MB(I_DenT1), NOcc, G_DenT2,
-     $      Dbl_MB(I_DenZ1), NOcc, G_DenZ2, G_1PDM)
-C
-         If ( .NOT. GA_Destroy(G_1PDM) ) Call ErrQuit(
-     $      'CCDen (prep): unable to free 1PDM', 0,0)
-         If ( .NOT. GA_Destroy(G_DenZ2) ) Call ErrQuit(
-     $      'CCDen (prep): unable to free Z2', 0,0)
-         If ( .NOT. GA_Destroy(G_DenT2) ) Call ErrQuit(
-     $      'CCDen (prep): unable to free T2', 0,0)
-         If ( .NOT. MA_Pop_Stack(H_DenZ1) ) Call ErrQuit(
-     $      'CCDen (prep): unable to free Z1', 0,0)
-         If ( .NOT. MA_Pop_Stack(H_DenT1) ) Call ErrQuit(
-     $      'CCDen (prep): unable to free T1', 0,0)
-      EndIf
+c
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -2,9 +2,9 @@ c  $Id$
 c
 c     pstat handles for the CCSD code
 c
-      integer ps_ccsd,ps_aomo,ps_aoccsd,ps_tripls,ps_graddrv,
+      integer ps_ccsd,ps_aomo,ps_aoccsd,ps_tripls,
      ,	ps_itm,ps_pampt,ps_idx1,ps_idx2,ps_idx34,ps_t2eri,
-     ,  ps_trpdrv,ps_doooo,ps_dovvv,ps_z2pm,ps_hz2pm,ps_zvecs,
+     ,  ps_trpdrv,ps_doooo,ps_dovvv,
      ,  ps_pdiis,ps_ht2pm,ps_t2pm,ps_sxy,ps_itrdrv,ps_tengy,
      ,  ps_t2eriw,ps_t2erin,ps_t2erih,ps_doxxx,ps_rdtrpo,
      ,  ps_trpmos
@@ -12,9 +12,9 @@ c
 
       logical occsdps            ! True if gathering stats
       common /cccsds/ occsdps,
-     $     ps_ccsd, ps_aomo,ps_aoccsd,ps_tripls,ps_graddrv,
+     $     ps_ccsd, ps_aomo,ps_aoccsd,ps_tripls,
      $     ps_itm,ps_pampt,ps_idx1,ps_idx2,ps_idx34,ps_t2eri,
-     $     ps_trpdrv,ps_doooo,ps_dovvv,ps_z2pm,ps_hz2pm,ps_zvecs,
+     $     ps_trpdrv,ps_doooo,ps_dovvv,
      $     ps_pdiis,ps_ht2pm,ps_t2pm,ps_sxy,ps_itrdrv,ps_tengy,
      $     ps_t2eriw,ps_t2erin,ps_t2erih,ps_doxxx,ps_rdtrpo,
      $     ps_trpmos

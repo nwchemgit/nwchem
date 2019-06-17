@@ -3,16 +3,9 @@
 include ../config/makefile.h
 
  OBJ_OPTIMIZE = \
-        ccden_driver.o \
-        ccden_interm2.o \
-        ccden_1pdm.o \
         ccsd_driver.o \
         ccsd_sortmo.o \
-        geaxpy.o \
-        ccden_2pdma.o \
-        ccden_2pdmb.o \
         ccsd_mktau_ga.o \
-        ccden_interm4.o \
         aoccsd2.o \
         ccsd_itm.o \
         ccsd_itm_omp.o \
@@ -41,14 +34,6 @@ include ../config/makefile.h
         cputime.o \
         rddcom.o \
         ccsd_input.o \
-        ccsd_graddrv.o \
-        ccsd_zvecs.o \
-        ccsd_pzamp.o \
-        ccsd_zsig1.o \
-        ccsd_zsig2.o \
-        ccsd_z2pm.o \
-        ccsd_tzinta.o \
-        ccsd_tzintb.o \
         ccsd_mem.o \
         ccsd_pstat.o \
         convert_single_double.o
@@ -75,18 +60,7 @@ endif
      ccsd_trpdrv_nb.F \
      ccsd_trpdrv_omp.F \
      ccsd_trpdrv_omp_mixprec.F \
-     moints_trp.F \
-     ccsd_zvecs.F \
-     ccsd_z2pm.F \
-     ccsd_tzinta.F \
-     ccsd_tzintb.F \
-     ccsd_zsig1.F \
-     ccsd_zsig2.F \
-     ccden_interm2.F \
-     ccden_1pdm.F \
-     geaxpy.F \
      ccsd_mktau_ga.F \
-     ccden_2pdmb.F \
      aoccsd2.F \
      moints_trp.F
 
