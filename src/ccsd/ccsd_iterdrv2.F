@@ -1,7 +1,7 @@
       subroutine ccsd_iterdrv2(rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,
      &                        maxit,Thre,iprt,cmo,eorb,t1,
      &                        ht1,scra,scrb,hiu,hia,habe,giu,gabe,
-     &                        bbkp,bb,g_t2,g_ht2,
+     &                        bbkp,bb,g_t2,
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
      &                        refener, Tol2E, occd, oconverged,
@@ -13,7 +13,7 @@ C     $Id$
 #include "stdio.fh"
 c
       integer rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,maxit,iprt,
-     & g_t2,g_ht2,g_nt2,g_nht2,mxvec,g_ncoul,g_nexch,
+     & g_t2,g_nt2,g_nht2,mxvec,g_ncoul,g_nexch,
      &        tklst(nsh*(nsh+1)/2,2)
       Double Precision Thre, Tol2E
       double precision time_iter_start
@@ -35,11 +35,11 @@ c
 #include "ccsd_time.fh"
 *rak-e
 c
-      integer iter,idiis,ndiis,bev,jhi,jlo,ihi,ilo,offt2,nvp1,
-     &        i,av,lhoo,lhoov
+      integer iter,idiis,ndiis,bev,jhi,jlo,ihi,ilo,offt2,nvp1
+      integer i,av,lhoo,lhoov
       integer max2e,mem2
-      double precision eold,dabs,tx(4),rms,deccsd,
-     &                 tstart,tend
+      double precision eold,dabs,tx(4),rms,deccsd,tstart,tend
+      integer g_ht2
 
       Integer IAm
       logical orestart, oprint
@@ -290,8 +290,7 @@ c form ``sigma'' vector
 c ----------------------------------------------------------
       call dfill(lnov,zip,ht1,1)
       call dfill(lhoov,zip,scra,1)
-c     ga_created moved here from aoccsd
-      if (.not.ga_create(MT_DBL,mxvec*lhoov,nvir+1,'g_ht2', 
+      if (.not.ga_create(MT_DBL,mxvec*lhoov,nvir+1,'g_ht2',
      &                   mxvec*lhoov,0,g_ht2))
      &     call errquit('ga_create failed for g_ht2',0, GA_ERR)
       call ga_distribution(g_ht2,iam,jlo,jhi,ilo,ihi)
@@ -343,6 +342,9 @@ c     ga_created moved here from aoccsd
       call util_flush(luout)
  1235 format(i4,f18.10,2(1p,d11.3,0p),3(f9.2))
 c
+      if (.not. ga_destroy(g_ht2))
+     &     call errquit('ga_destroy g_ht2 fail',0, GA_ERR)
+c
       call ecce_print1('ccsd total energy', mt_dbl, eccsd+refener, 1)
       call ecce_print1('ccsd delta energy', mt_dbl, deccsd, 1)
       call ecce_print1('ccsd rms error', mt_dbl, rms, 1)
@@ -363,9 +365,9 @@ c
  999  continue
 c
       if (.not.ga_destroy(g_nht2))
-     &    call errquit('ga_dest g_nht2 fail',0, GA_ERR)
+     &    call errquit('ga_destroy g_nht2 fail',0, GA_ERR)
       if (.not.ga_destroy(g_nt2))
-     &    call errquit('ga_dest g_nt2 fail',0, GA_ERR)
+     &    call errquit('ga_destroy g_nt2 fail',0, GA_ERR)
 c
       if (use_disk) then
          if (eaf_close(sxy_hl).ne.0) call

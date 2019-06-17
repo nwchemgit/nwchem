@@ -39,7 +39,7 @@ c ccsd
       integer k_t1,k_ht1,k_scra,k_scrb,
      &        k_hiu,k_hia,k_habe,k_giu,k_gabe,
      &        k_bbkp,k_bb
-      integer g_t2,g_ht2
+      integer g_t2
       integer ad1,ad2,ad3,ad4
 c triples
       integer lbfo,lbfv,mem_avail
@@ -133,12 +133,12 @@ c gradient
      &                  hiu,hia,habe,
      &                  giu,gabe,
      &                  bbkp,bb,
-     &                  g_t2,g_ht2,
+     &                  g_t2,
      &                  mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
      &                  tk,offt2,nvp1, refener, Tol2E, 
      &                  occd, oconverged, eccsdos, use_ccsd_omp)
       integer rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,maxit,iprt,
-     & g_t2,g_ht2,g_nt2,g_nht2,mxvec,g_ncoul,g_nexch,
+     & g_t2,g_nt2,g_nht2,mxvec,g_ncoul,g_nexch,
      &     tklst
       Double Precision Thre, Tol2E
       integer offt2
@@ -300,13 +300,9 @@ c     mem needed for x c sht2 (see pampt3)
      &                   mxvec*lhoov,0,g_t2))
      &     call errquit('ga_create failed for g_t2',0, GA_ERR)
 *ga:1:0
-#ifdef DOGRAD
       if (.not.ga_create(MT_DBL,mxvec*lhoov,nvir+1,'g_ht2', 
      &                   mxvec*lhoov,0,g_ht2))
      &     call errquit('ga_create failed for g_ht2',0, GA_ERR)
-#else
-      g_ht2=123456789
-#endif
 !
 ! Determine if OpenMP should be used in CCSD code
 !
@@ -336,7 +332,7 @@ c     mem needed for x c sht2 (see pampt3)
      &                  dbl_mb(k_hiu),dbl_mb(k_hia),dbl_mb(k_habe),
      &                  dbl_mb(k_giu),dbl_mb(k_gabe),
      &                  dbl_mb(k_bbkp),dbl_mb(k_bb),
-     &                  g_t2,g_ht2,
+     &                  g_t2,
      &                  mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
      &                  int_mb(k_tk),offt2,nvp1, refener, Tol2E, 
      &                  occd, oconverged, eccsdos, use_ccsd_omp)
@@ -503,12 +499,10 @@ C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       call ga_sync()
       if (.not. ga_destroy(g_nt2))
      &     call errquit('ga_destroy failed',0, GA_ERR)
-c#ifdef DOGRAD
       if(g_ht2.ne.123456789) then
       if (.not. ga_destroy(g_ht2))
      &     call errquit('ga_destroy failed',0, GA_ERR)
       endif
-c#endif
       if (.not. ga_destroy(g_t2))
      &     call errquit('ga_destroy failed',0, GA_ERR)
 c
