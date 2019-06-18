@@ -1,3 +1,4 @@
+c#define DOGRAD 
       subroutine aoccsd(basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,
      &                  convi,iprt,cmo,eorb,blen,
      &                  g_ncoul, g_nexch, RefEner,
@@ -300,12 +301,11 @@ c     mem needed for x c sht2 (see pampt3)
      &                   mxvec*lhoov,0,g_t2))
      &     call errquit('ga_create failed for g_t2',0, GA_ERR)
 *ga:1:0
+      g_ht2=123456789
 #ifdef DOGRAD
       if (.not.ga_create(MT_DBL,mxvec*lhoov,nvir+1,'g_ht2', 
      &                   mxvec*lhoov,0,g_ht2))
      &     call errquit('ga_create failed for g_ht2',0, GA_ERR)
-#else
-      g_ht2=123456789
 #endif
 !
 ! Determine if OpenMP should be used in CCSD code
@@ -503,12 +503,11 @@ C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       call ga_sync()
       if (.not. ga_destroy(g_nt2))
      &     call errquit('ga_destroy failed',0, GA_ERR)
-c#ifdef DOGRAD
       if(g_ht2.ne.123456789) then
       if (.not. ga_destroy(g_ht2))
      &     call errquit('ga_destroy failed',0, GA_ERR)
+      g_ht2=123456789
       endif
-c#endif
       if (.not. ga_destroy(g_t2))
      &     call errquit('ga_destroy failed',0, GA_ERR)
 c
