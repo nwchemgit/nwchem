@@ -112,7 +112,7 @@ fi
 # find the -np option ??
 if [ $NPROC -gt 0 ]; then
    if [[ -n $MPIRUN_NPOPT ]]; then   
-      set NPOPT="$MPIRUN_NPOPT "
+        NPOPT=$MPIRUN_NPOPT
    else 
       if [ $NONSTD_MPI -eq 1 ]; then
 	  #        you are on your own anyway...
@@ -140,7 +140,7 @@ fi
 if [ ! -d $TESTOUTPUTS ]; then
   mkdir $TESTOUTPUTS
 	 status=$?
-  if [ $status -ne 0]; then
+  if [ $status -ne 0 ]; then
     echo failed: cannot make directory $TESTOUTPUTS
     exit 1
   fi
@@ -289,8 +289,8 @@ do
 
   echo "     running nwchem ($NWCHEM)  with "$NPROC" processors "
 
-  set x="%Uu %Ss %E %P (%Xt+%Dds+%Kavg+%Mmax)k %Ii+%Oo %Fpf %Wswaps"
-#  set time=(1 "$x")
+   x="%Uu %Ss %E %P (%Xt+%Dds+%Kavg+%Mmax)k %Ii+%Oo %Fpf %Wswaps"
+   time=(1 "$x")
 
   echo " "
 
@@ -365,7 +365,7 @@ sync
     tail -50 $TESTOUTPUTS/$OUTPUTFILE
     continue
   fi
-#  set time=(60 "$x")
+   time=(60 "$x")
 
   cd $TESTOUTPUTS
 #
@@ -429,7 +429,7 @@ sync
 #
       if [ -f ${STUB}.tst ]; then
        diff -w ${STUB}.ok.tst ${STUB}.tst >& /dev/null
-       if [ $? -ne 0]; then
+       if [ $? -ne 0 ]; then
          echo "failed"
          overall_status=1
          continue 
