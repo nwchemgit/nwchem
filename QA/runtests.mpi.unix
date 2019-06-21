@@ -1,4 +1,4 @@
-#!/bin/bash  -f
+#!/bin/bash 
 # 
 # THIS assumes ./tests/
 #
@@ -262,15 +262,15 @@ do
   if [ $md_test_run -ne 0 ]; then
     [ -f ${TESTDIR}/amber.par ] && cp ${TESTDIR}/amber.par ${SCRATCHDIR}
     cp ${TESTDIR}/${TESTFILE} ${TESTOUTPUTS}/${STUB}.ok.tst
-     [ -f ${TESTDIR}/${TOPOLOGYFILE} ] && cp ${TESTDIR}/${TOPOLOGYFILE} ${SCRATCHDIR}
+    [ -f ${TESTDIR}/${TOPOLOGYFILE} ] && cp ${TESTDIR}/${TOPOLOGYFILE} ${SCRATCHDIR}
      [ -f ${TESTDIR}/${RESTARTFILE} ] && cp ${TESTDIR}/${RESTARTFILE} ${SCRATCHDIR}
      [ -f ${TESTDIR}/${RDFINPUTFILE} ] && cp ${TESTDIR}/${RDFINPUTFILE} ${SCRATCHDIR}
      [ -f ${TESTDIR}/${PDBFILE} ] && cp ${TESTDIR}/${PDBFILE} ${SCRATCHDIR}
      [ -f ${TESTDIR}/${MRINPUTFILE} ] && cp ${TESTDIR}/${MRINPUTFILE} ${SCRATCHDIR}
   fi
   if [ $qmmm_test_run -ne 0 ];  then
-     cp ${TESTDIR}/*rst ${SCRATCHDIR}
-     cp ${TESTDIR}/*top ${SCRATCHDIR}
+      cp ${TESTDIR}/*rst ${SCRATCHDIR}
+      cp ${TESTDIR}/*top ${SCRATCHDIR}
   fi
 #
 # copy the ESP file

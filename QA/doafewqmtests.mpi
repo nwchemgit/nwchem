@@ -1,4 +1,4 @@
-#!/bin/bash -f
+#!/bin/bash 
 #
 # $Id$
 #
@@ -7,10 +7,8 @@
 #
 let np=1
 if [ -n "$1" ]; then
-echo arg is "$1"
    np="$1"
 fi
-echo np is "$np"
   echo
   echo " ======================================================="
   echo " QM: Running a very small subset of the available tests "
