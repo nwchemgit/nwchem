@@ -20,6 +20,9 @@ libcheck:	libcheck.o
 	$(LINK.f) -o $@ libcheck.o $(LIBS) 
 testbasis:	testbasis.o
 	$(LINK.f) -o $@ testbasis.o  $(LIBS) ../stubs.o -lnwctask
+libraries_bse:	getlibr.py 
+	mkdir -p libraries.bse
+	cd libraries.bse ; ../getlibr.py
 
 basP.fh:	bas_staticP.fh
 	@touch basP.fh
