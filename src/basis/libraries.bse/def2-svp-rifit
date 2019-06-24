@@ -1,9 +1,73 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T14:33
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # def2-svp-rifit version number 1
 # Description: def2-SVP-RIFIT
 # Role: rifit
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# H,Y-Cd,La,Hf-Hg
+#     ## def2-SVP-RIFIT
+#     Weigend, Florian, Häser, Marco, Patzelt, Holger, Ahlrichs, Reinhart
+#     RI-MP2: optimized auxiliary basis sets and demonstration of efficiency
+#     Chem. Phys. Lett., 294, 143-152 (1998)
+#     10.1016/S0009-2614(98)00862-8
+# 
+# He,Ne,Ar,Kr
+#     ## def2-SV(P)-RIFIT
+#     Hättig, Christof
+#     Optimization of auxiliary basis sets for RI-MP2 and RI-CC2
+#             calculations: Core-valence and quintuple-ζ basis sets for H to
+#             Ar and QZVPP basis sets for Li to Kr
+#     Phys. Chem. Chem. Phys., 7, 59-66 (2005)
+#     10.1039/b415208e
+# 
+# Li,Na,Mg,K,Rb,In-Cs,Tl-Rn
+#     ## def2-SV(P)-RIFIT
+#     Hellweg, Arnim, Hättig, Christof, Höfener, Sebastian, Klopper, Wim
+#     Optimized accurate auxiliary basis sets for RI-MP2 and RI-CC2
+#             calculations for the atoms Rb to Rn
+#     Theor. Chem. Acc., 117, 587-597 (2007)
+#     10.1007/s00214-007-0250-5
+# 
+# Be-F,Al-Cl,Ca,Ga-Br,Sr,Ba
+#     ## def2-SV(P)-RIFIT
+#     Weigend, Florian, Häser, Marco, Patzelt, Holger, Ahlrichs, Reinhart
+#     RI-MP2: optimized auxiliary basis sets and demonstration of efficiency
+#     Chem. Phys. Lett., 294, 143-152 (1998)
+#     10.1016/S0009-2614(98)00862-8
+# 
+# Sc-Zn
+#     ## def2-SVP-RIFIT
+#     Hellweg, Arnim, Hättig, Christof, Höfener, Sebastian, Klopper, Wim
+#     Optimized accurate auxiliary basis sets for RI-MP2 and RI-CC2
+#             calculations for the atoms Rb to Rn
+#     Theor. Chem. Acc., 117, 587-597 (2007)
+#     10.1007/s00214-007-0250-5
+# 
+# # 
 basis "H_def2-svp-rifit" 
 #basis SET: (4s,3p,2d) -> [3s,2p,1d]
 H    S
@@ -54,11 +118,11 @@ Li    S
 Li    S
       0.43326330000E-01      1.0000000
 Li    P
-      7.1346242900           1.0000000
+      7.1346242900            .21273138
 Li    P
-      2.6507292800           1.0000000
+      2.6507292800            .38815992
 Li    P
-      0.68766224000          1.0000000
+      0.68766224000          1.43472717
 Li    P
       0.33680161000          1.0000000
 Li    P
@@ -357,7 +421,7 @@ Na    S
       3.99344178             1.22750170
       2.04817413             1.00271106
 Na    S
-       .87822957             1.0000000
+       .87822957            -0.37019479
 Na    S
        .32407748             1.0000000
 Na    S
@@ -508,19 +572,19 @@ Si    P
       9.83495350             1.54270173
       4.83763590              .33931377
 Si    P
-      1.77864770             1.0000000
+      1.77864770             -.99311150
 Si    P
        .69339970             1.0000000
 Si    P
        .40788218             1.0000000
 Si    P
-       .15632603             1.0000000
+       .15632603             1.51139817
 Si    D
      47.16636000              .78720200
      15.00007800             1.80566812
       3.96467760              .70726547
 Si    D
-      2.33216330             1.0000000
+      2.33216330             -.30684335
 Si    D
        .65273451             1.0000000
 Si    D
@@ -531,7 +595,7 @@ Si    F
        .61244748             1.91327985
        .32303395              .30322173
 Si    F
-      2.58191110             1.0000000
+      2.58191110              .08379133
 end
 basis "P_def2-svp-rifit" 
 #basis SET: (10s,7p,7d,3f) -> [8s,5p,5d,2f]
@@ -558,19 +622,19 @@ P    P
      12.45122715             1.30267720
       6.18569317              .37332846
 P    P
-      2.20221854             1.0000000
+      2.20221854             -.53223460
 P    P
        .87430756             1.0000000
 P    P
-       .52560287             1.0000000
+       .52560287              .50000186
 P    P
-       .20942777             1.0000000
+       .20942777              .49999414
 P    D
      54.52241961              .63626601
      17.58552162             1.54574911
       5.05626997              .48209388
 P    D
-      2.78509427             1.0000000
+      2.78509427              .11242962
 P    D
        .86436165             1.0000000
 P    D
@@ -658,7 +722,7 @@ Cl    P
      17.00509146             1.59383591
      10.00299497              .27403007
 Cl    P
-      3.12161431             1.0000000
+      3.12161431            -8.01712910
 Cl    P
       1.38917704             1.0000000
 Cl    P
@@ -670,7 +734,7 @@ Cl    D
      23.83957402              .98150402
       7.41751454              .36971355
 Cl    D
-      4.09677307             1.0000000
+      4.09677307             1.11137938
 Cl    D
       1.37427303             1.0000000
 Cl    D
@@ -741,9 +805,9 @@ K    S
      15.198170280            1.16453016
       6.5133964400          -0.557842690
 K    S
-      2.5186457100           1.0000000
+      2.5186457100           1.41422068
 K    S
-      1.3393898600           1.0000000
+      1.3393898600          -1.85274778
 K    S
       0.69708279000          1.0000000
 K    S
@@ -759,7 +823,7 @@ K    P
       6.3928861500          -1.18158996
       2.1831211800           0.534363240
 K    P
-      1.3086062000           1.0000000
+      1.3086062000           1.38930508
 K    P
       0.64604981000          1.0000000
 K    P
@@ -769,11 +833,11 @@ K    P
 K    P
       0.06900262000          1.0000000
 K    D
-      1.5509774194           1.0000000
+      1.5509774194          -0.25128516
 K    D
-      0.91459535715          1.0000000
+      0.91459535715          1.66728717
 K    D
-      0.39001165505          1.0000000
+      0.39001165505          0.39829447
 K    D
       0.20058194709          1.0000000
 K    F
@@ -803,13 +867,13 @@ Ca    S
 Ca    S
       0.57932160000E-01      1.0000000
 Ca    P
-     17.157940518            1.0000000
+     17.157940518            1.0012887000
 Ca    P
-      7.1179411609           1.0000000
+      7.1179411609          -1.1784609700
 Ca    P
-      2.5339748664           1.0000000
+      2.5339748664           0.58549908000
 Ca    P
-      1.3994443507           1.0000000
+      1.3994443507           1.3918556300
 Ca    P
       0.82938602491          1.0000000
 Ca    P
@@ -819,15 +883,15 @@ Ca    P
 Ca    P
       0.58498883518E-01      1.0000000
 Ca    D
-     35.598641680            1.0000000
+     35.598641680            1.0774896600
 Ca    D
-      9.9596823406           1.0000000
+      9.9596823406          -0.27896095000
 Ca    D
       2.1166832883           1.0000000
 Ca    D
-      0.90192624985          1.0000000
+      0.90192624985          1.6949808300
 Ca    D
-      0.35204769552          1.0000000
+      0.35204769552         -0.89306030000E-01
 Ca    D
       0.11307229795          1.0000000
 Ca    F

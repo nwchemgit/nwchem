@@ -1,9 +1,76 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T15:29
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # crenbs ecp version number 0
 # Description: CRENBS ECP
 # Role: orbital
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# Sc-Kr
+#     ## CRENBS ECP
+#     Hurley, M. M., Pacios, Luis Fernandez, Christiansen, P. A., Ross, R.
+#             B., Ermler, W. C.
+#     Ab initio relativistic effective potentials with spin-orbit operators.
+#             II. K through Kr
+#     J. Chem. Phys., 84, 6840-6853 (1986)
+#     10.1063/1.450689
+# 
+# Y-Xe
+#     ## CRENBS ECP
+#     LaJohn, L. A., Christiansen, P. A., Ross, R. B., Atashroo, T., Ermler,
+#             W. C.
+#     Abinitiorelativistic effective potentials with spin-orbit operators.
+#             III. Rb through Xe
+#     J. Chem. Phys., 87, 2812-2824 (1987)
+#     10.1063/1.453069
+# 
+# La,Hf-Rn
+#     ## CRENBS ECP
+#     Ross, R. B., Powers, J. M., Atashroo, T., Ermler, W. C., LaJohn, L.
+#             A., Christiansen, P. A.
+#     Abinitiorelativistic effective potentials with spin-orbit operators.
+#             IV. Cs through Rn
+#     J. Chem. Phys., 93, 6654-6670 (1990)
+#     10.1063/1.458934
+# 
+# Rf-Og
+#     ## CRENBS ECP
+#     Nash, Clinton S., Bursten, Bruce E., Ermler, Walter C.
+#     Ab initio relativistic effective potentials with spin-orbit operators.
+#             VII. Am through element 118
+#     J. Chem. Phys., 106, 5133-5142 (1997)
+#     10.1063/1.473992
+# 
+#     Nash, Clinton S., Bursten, Bruce E., Ermler, Walter C.
+#     Erratum: 'Ab initio relativistic effective potentials with spin-orbit
+#             operators. VII. Am through element 118' [J. Chem. Phys. 106,
+#             5133 (1997)]
+#     J. Chem. Phys., 111, 2347-2347 (1999)
+#     10.1063/1.479506
+# 
+# # 
 
 
 ecp "Sc_crenbs ecp"

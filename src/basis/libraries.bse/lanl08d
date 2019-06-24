@@ -1,9 +1,96 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T15:29
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # lanl08(d) version number 0
 # Description: LANL08 + polarization and diffuse
 # Role: orbital
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# Si-Cl,Ge-Br,Sn-I
+#     ## LANL08
+#     Wadt, Willard R., Hay, P. Jeffrey
+#     Ab initio effective core potentials for molecular calculations.
+#             Potentials for main group elements Na to Bi
+#     J. Chem. Phys., 82, 284-298 (1985)
+#     10.1063/1.448800
+# 
+#     Roy, Lindsay E., Hay, P. Jeffrey, Martin, Richard L.
+#     Revised Basis Sets for the LANL Effective Core Potentials
+#     J. Chem. Theory Comput., 4, 1029-1031 (2008)
+#     10.1021/ct8000409
+# 
+#     ## LANL2DZ polarization functions
+#     Check, Catherine E., Faust, Timothy O., Bailey, John M., Wright, Brian
+#             J., Gilbert, Thomas M., Sunderlin, Lee S.
+#     Addition of Polarization and Diffuse Functions to the LANL2DZ Basis
+#             Set for P-Block Elements
+#     J. Phys. Chem. A, 105, 8111-8116 (2001)
+#     10.1021/jp011945l
+# 
+#     ## LANL2DZ diffuse functions
+#     Check, Catherine E., Faust, Timothy O., Bailey, John M., Wright, Brian
+#             J., Gilbert, Thomas M., Sunderlin, Lee S.
+#     Addition of Polarization and Diffuse Functions to the LANL2DZ Basis
+#             Set for P-Block Elements
+#     J. Phys. Chem. A, 105, 8111-8116 (2001)
+#     10.1021/jp011945l
+# 
+#     ## LANL2DZ ECP
+#     Wadt, Willard R., Hay, P. Jeffrey
+#     Ab initio effective core potentials for molecular calculations.
+#             Potentials for main group elements Na to Bi
+#     J. Chem. Phys., 82, 284-298 (1985)
+#     10.1063/1.448800
+# 
+# Pb,Bi
+#     ## LANL08
+#     Wadt, Willard R., Hay, P. Jeffrey
+#     Ab initio effective core potentials for molecular calculations.
+#             Potentials for main group elements Na to Bi
+#     J. Chem. Phys., 82, 284-298 (1985)
+#     10.1063/1.448800
+# 
+#     Roy, Lindsay E., Hay, P. Jeffrey, Martin, Richard L.
+#     Revised Basis Sets for the LANL Effective Core Potentials
+#     J. Chem. Theory Comput., 4, 1029-1031 (2008)
+#     10.1021/ct8000409
+# 
+#     ## LANL2DZ polarization functions
+#     (...no reference...)
+# 
+#     ## LANL2DZ diffuse functions
+#     (...no reference...)
+# 
+#     ## LANL2DZ ECP
+#     Wadt, Willard R., Hay, P. Jeffrey
+#     Ab initio effective core potentials for molecular calculations.
+#             Potentials for main group elements Na to Bi
+#     J. Chem. Phys., 82, 284-298 (1985)
+#     10.1063/1.448800
+# 
+# # 
 basis "Si_lanl08(d)" 
 #basis SET: (3s,4p,1d) -> [3s,4p,1d]
 Si    S
@@ -19,9 +106,9 @@ Si    P
 Si    P
       0.0885000              1.0000000
 Si    P
-      0.0237                 1.0000000
+      0.0237                 1.0
 Si    D
-      0.2960                 1.0000000
+      0.2960                 1.0
 end
 
 
@@ -62,9 +149,9 @@ P    P
 P    P
       0.1190000              1.0000000
 P    P
-      0.0298                 1.0000000
+      0.0298                 1.0
 P    D
-      0.3640                 1.0000000
+      0.3640                 1.0
 end
 
 
@@ -105,9 +192,9 @@ S    P
 S    P
       0.1379000              1.0000000
 S    P
-      0.0347                 1.0000000
+      0.0347                 1.0
 S    D
-      0.4960                 1.0000000
+      0.4960                 1.0
 end
 
 
@@ -148,9 +235,9 @@ Cl    P
 Cl    P
       0.1819000              1.0000000
 Cl    P
-      0.0467                 1.0000000
+      0.0467                 1.0
 Cl    D
-      0.6480                 1.0000000
+      0.6480                 1.0
 end
 
 
@@ -191,9 +278,9 @@ Ge    P
 Ge    P
       0.0798000              1.0000000
 Ge    P
-      0.0209                 1.0000000
+      0.0209                 1.0
 Ge    D
-      0.2460                 1.0000000
+      0.2460                 1.0
 end
 
 
@@ -239,9 +326,9 @@ As    P
 As    P
       0.1020000              1.0000000
 As    P
-      0.0263                 1.0000000
+      0.0263                 1.0
 As    D
-      0.2860                 1.0000000
+      0.2860                 1.0
 end
 
 
@@ -287,9 +374,9 @@ Se    P
 Se    P
       0.1186000              1.0000000
 Se    P
-      0.0328                 1.0000000
+      0.0328                 1.0
 Se    D
-      0.3630                 1.0000000
+      0.3630                 1.0
 end
 
 
@@ -335,9 +422,9 @@ Br    P
 Br    P
       0.1377000              1.0000000
 Br    P
-      0.0376                 1.0000000
+      0.0376                 1.0
 Br    D
-      0.4340                 1.0000000
+      0.4340                 1.0
 end
 
 
@@ -381,9 +468,9 @@ Sn    P
 Sn    P
       0.0630000              1.0000000
 Sn    P
-      0.0174                 1.0000000
+      0.0174                 1.0
 Sn    D
-      0.1860                 1.0000000
+      0.1860                 1.0
 end
 
 
@@ -429,9 +516,9 @@ Sb    P
 Sb    P
       0.0800000              1.0000000
 Sb    P
-      0.0220                 1.0000000
+      0.0220                 1.0
 Sb    D
-      0.2070                 1.0000000
+      0.2070                 1.0
 end
 
 
@@ -478,9 +565,9 @@ Te    P
 Te    P
       0.0911000              1.0000000
 Te    P
-      0.0274                 1.0000000
+      0.0274                 1.0
 Te    D
-      0.2500                 1.0000000
+      0.2500                 1.0
 end
 
 
@@ -527,9 +614,9 @@ I    P
 I    P
       0.1053000              1.0000000
 I    P
-      0.0308                 1.0000000
+      0.0308                 1.0
 I    D
-      0.2940                 1.0000000
+      0.2940                 1.0
 end
 
 
@@ -575,9 +662,9 @@ Pb    P
 Pb    P
       0.0598000              1.0000000
 Pb    P
-      0.0168                 1.0000000
+      0.0168                 1.0
 Pb    D
-      0.1790                 1.0000000
+      0.1790                 1.0
 end
 
 
@@ -634,9 +721,9 @@ Bi    P
 Bi    P
       0.0745000              1.0000000
 Bi    P
-      0.0204                 1.0000000
+      0.0204                 1.0
 Bi    D
-      0.1920                 1.0000000
+      0.1920                 1.0
 end
 
 

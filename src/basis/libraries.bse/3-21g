@@ -1,9 +1,109 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T13:56
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # 3-21g version number 1
 # Description: 3-21G Split-valence basis set
 # Role: orbital
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# H,He
+#     ## 21G Split-valence basis set for H,He
+#     Binkley, J. Stephen, Pople, John A., Hehre, Warren J.
+#     Self-consistent molecular orbital methods. 21. Small split-valence
+#             basis sets for first-row elements
+#     J. Am. Chem. Soc., 102, 939-947 (1980)
+#     10.1021/ja00523a008
+# 
+# Li-Ne
+#     ## 3-21G Split-valence basis set
+#     Binkley, J. Stephen, Pople, John A., Hehre, Warren J.
+#     Self-consistent molecular orbital methods. 21. Small split-valence
+#             basis sets for first-row elements
+#     J. Am. Chem. Soc., 102, 939-947 (1980)
+#     10.1021/ja00523a008
+# 
+#     ## 6-21G Split-valence basis set
+#     Binkley, J. Stephen, Pople, John A., Hehre, Warren J.
+#     Self-consistent molecular orbital methods. 21. Small split-valence
+#             basis sets for first-row elements
+#     J. Am. Chem. Soc., 102, 939-947 (1980)
+#     10.1021/ja00523a008
+# 
+# Na-Ar
+#     ## 3-21G Split-valence basis set
+#     Gordon, Mark S., Binkley, J. Stephen, Pople, John A., Pietro, William
+#             J., Hehre, Warren J.
+#     Self-consistent molecular-orbital methods. 22. Small split-valence
+#             basis sets for second-row elements
+#     J. Am. Chem. Soc., 104, 2797-2803 (1982)
+#     10.1021/ja00374a017
+# 
+#     ## 6-21G Split-valence basis set
+#     Gordon, Mark S., Binkley, J. Stephen, Pople, John A., Pietro, William
+#             J., Hehre, Warren J.
+#     Self-consistent molecular-orbital methods. 22. Small split-valence
+#             basis sets for second-row elements
+#     J. Am. Chem. Soc., 104, 2797-2803 (1982)
+#     10.1021/ja00374a017
+# 
+# K,Ca,Ga-Sr,In-Xe
+#     ## 3-21G Split-valence basis set
+#     Dobbs, K. D., Hehre, W. J.
+#     Molecular orbital theory of the properties of inorganic and
+#             organometallic compounds 4. Extended basis sets for third-and
+#             fourth-row, main-group elements
+#     J. Comput. Chem., 7, 359-378 (1986)
+#     10.1002/jcc.540070313
+# 
+# Sc-Zn
+#     ## 3-21G Split-valence basis set
+#     Dobbs, K. D., Hehre, W. J.
+#     Molecular orbital theory of the properties of inorganic and
+#             organometallic compounds 5. Extended basis sets for first-row
+#             transition metals
+#     J. Comput. Chem., 8, 861-879 (1987)
+#     10.1002/jcc.540080614
+# 
+# Y-Cd
+#     ## 3-21G Split-valence basis set
+#     Dobbs, K. D., Hehre, W. J.
+#     Molecular orbital theory of the properties of inorganic and
+#             organometallic compounds. 6. Extended basis sets for second-
+#             row transition metals
+#     J. Comput. Chem., 8, 880-893 (1987)
+#     10.1002/jcc.540080615
+# 
+# Cs
+#     ## 3-21G
+#     Glendening, Eric D., Feller, David
+#     Cation-Water Interactions: The M+(H2O)n Clusters for Alkali Metals, M
+#             = Li, Na, K, Rb, and Cs
+#     J. Phys. Chem., 99, 3060-3067 (1995)
+#     10.1021/j100010a015
+# 
+# # 
 basis "H_3-21g" 
 #basis SET: (3s) -> [2s]
 H    S

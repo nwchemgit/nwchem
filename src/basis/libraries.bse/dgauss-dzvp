@@ -1,9 +1,43 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T13:56
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # dgauss-dzvp version number 0
 # Description: VDZP Valence Double Zeta + Polarization designed for DFT
 # Role: orbital
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# H-Xe
+#     ## VDZP Valence Double Zeta + Polarization designed for DFT
+#     Godbout, Nathalie, Salahub, Dennis R., Andzelm, Jan, Wimmer, Erich
+#     Optimization of Gaussian-type basis sets for local spin density
+#             functional calculations. Part I. Boron through neon,
+#             optimization technique and validation
+#     Can. J. Chem., 70, 560-571 (1992)
+#     10.1139/v92-079
+# 
+# # 
 basis "H_dgauss-dzvp" 
 #basis SET: (5s) -> [2s]
 H    S

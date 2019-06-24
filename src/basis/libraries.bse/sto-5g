@@ -1,9 +1,95 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T13:56
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # sto-5g version number 1
 # Description: STO-5G Minimal Basis (5 functions/AO)
 # Role: orbital
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# H,C-F
+#     ## STO-5G Minimal Basis (5 functions/AO)
+#     Hehre, W. J., Stewart, R. F., Pople, J. A.
+#     Self-Consistent Molecular-Orbital Methods. I. Use of Gaussian
+#             Expansions of Slater-Type Atomic Orbitals
+#     J. Chem. Phys., 51, 2657-2664 (1969)
+#     10.1063/1.1672392
+# 
+# He-B,Ne
+#     ## STO-5G Minimal Basis (5 functions/AO)
+#     Hehre, W. J., Stewart, R. F., Pople, J. A.
+#     Self-Consistent Molecular-Orbital Methods. I. Use of Gaussian
+#             Expansions of Slater-Type Atomic Orbitals
+#     J. Chem. Phys., 51, 2657-2664 (1969)
+#     10.1063/1.1672392
+# 
+#     Hehre, W. J., Ditchfield, R., Stewart, R. F., Pople, J. A.
+#     Self-Consistent Molecular Orbital Methods. IV. Use of Gaussian
+#             Expansions of Slater-Type Orbitals. Extension to Second-Row
+#             Molecules
+#     J. Chem. Phys., 52, 2769-2773 (1970)
+#     10.1063/1.1673374
+# 
+# Na-Ar
+#     ## STO-5G Minimal Basis (5 functions/AO)
+#     Hehre, W. J., Ditchfield, R., Stewart, R. F., Pople, J. A.
+#     Self-Consistent Molecular Orbital Methods. IV. Use of Gaussian
+#             Expansions of Slater-Type Orbitals. Extension to Second-Row
+#             Molecules
+#     J. Chem. Phys., 52, 2769-2773 (1970)
+#     10.1063/1.1673374
+# 
+# K,Ca,Ga-Kr
+#     ## STO-5G Minimal Basis (5 functions/AO)
+#     Pietro, William J., Levi, Beverly A., Hehre, Warren J., Stewart,
+#             Robert F.
+#     Molecular orbital theory of the properties of inorganic and
+#             organometallic compounds. 1. STO-NG basis sets for third-row
+#             main-group elements
+#     Inorg. Chem., 19, 2225-2229 (1980)
+#     10.1021/ic50210a005
+# 
+# Sc-Zn,Y-Cd
+#     ## STO-5G Minimal Basis (5 functions/AO)
+#     Pietro, William J., Hehre, Warren J.
+#     Molecular orbital theory of the properties of inorganic and
+#             organometallic compounds. 3.STO-3G basis sets for first- and
+#             second-row transition metals
+#     J. Comput. Chem., 4, 241-251 (1983)
+#     10.1002/jcc.540040215
+# 
+# Rb,Sr,In-Xe
+#     ## STO-5G Minimal Basis (5 functions/AO)
+#     Pietro, William J., Blurock, Edward S., Hout, Robert F., Hehre, Warren
+#             J., DeFrees, Douglas J., Stewart, Robert F.
+#     Molecular orbital theory of the properties of inorganic and
+#             organometallic compounds. 2. STO-NG basis sets for fourth-row
+#             main-group elements
+#     Inorg. Chem., 20, 3650-3654 (1981)
+#     10.1021/ic50225a013
+# 
+# # 
 basis "H_sto-5g" 
 #basis SET: (5s) -> [1s]
 H    S

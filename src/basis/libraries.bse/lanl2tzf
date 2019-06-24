@@ -1,9 +1,63 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T15:29
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # lanl2tz(f) version number 0
 # Description: LANL2TZ(f)
 # Role: orbital
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# Sc-Cu,Y-Ag,La,Hf-Au
+#     ## LANL2TZ
+#     Hay, P. Jeffrey, Wadt, Willard R.
+#     Ab initio effective core potentials for molecular calculations.
+#             Potentials for K to Au including the outermost core orbitals
+#     J. Chem. Phys., 82, 299-310 (1985)
+#     10.1063/1.448975
+# 
+#     Roy, Lindsay E., Hay, P. Jeffrey, Martin, Richard L.
+#     Revised Basis Sets for the LANL Effective Core Potentials
+#     J. Chem. Theory Comput., 4, 1029-1031 (2008)
+#     10.1021/ct8000409
+# 
+#     ## f polarization functions for LANL08/LANL2TZ
+#     Ehlers, A. W., Böhme, M., Dapprich, S., Gobbi, A., Höllwarth, A.,
+#             Jonas, V., Köhler, K. F., Stegmann, R., Veldkamp, A.,
+#             Frenking, G.
+#     A set of f-polarization functions for pseudo-potential basis sets of
+#             the transition metals Sc-Cu, Y-Ag and La-Au
+#     Chem. Phys. Lett., 208, 111-114 (1993)
+#     10.1016/0009-2614(93)80086-5
+# 
+#     ## LANL2DZ ECP
+#     Hay, P. Jeffrey, Wadt, Willard R.
+#     Ab initio effective core potentials for molecular calculations.
+#             Potentials for K to Au including the outermost core orbitals
+#     J. Chem. Phys., 82, 299-310 (1985)
+#     10.1063/1.448975
+# 
+# # 
 basis "Sc_lanl2tz(f)" 
 #basis SET: (5s,5p,5d,1f) -> [5s,5p,3d,1f]
 Sc    S

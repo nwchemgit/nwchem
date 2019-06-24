@@ -1,9 +1,75 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T15:29
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # lanl2dz ecp version number 0
 # Description: LANL2DZ ECP
 # Role: orbital
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# Na-Ar,Ga-Kr,In-Xe,Tl-Bi
+#     ## LANL2DZ ECP
+#     Wadt, Willard R., Hay, P. Jeffrey
+#     Ab initio effective core potentials for molecular calculations.
+#             Potentials for main group elements Na to Bi
+#     J. Chem. Phys., 82, 284-298 (1985)
+#     10.1063/1.448800
+# 
+# K-Cu,Rb-Ag,Cs-La,Hf-Au
+#     ## LANL2DZ ECP
+#     Hay, P. Jeffrey, Wadt, Willard R.
+#     Ab initio effective core potentials for molecular calculations.
+#             Potentials for K to Au including the outermost core orbitals
+#     J. Chem. Phys., 82, 299-310 (1985)
+#     10.1063/1.448975
+# 
+# Zn,Cd,Hg
+#     ## LANL2DZ ECP
+#     Hay, P. Jeffrey, Wadt, Willard R.
+#     Ab initio effective core potentials for molecular calculations.
+#             Potentials for the transition metal atoms Sc to Hg
+#     J. Chem. Phys., 82, 270-283 (1985)
+#     10.1063/1.448799
+# 
+# U
+#     ## LANL2DZ ECP
+#     Hay, P. Jeffrey
+#     Ab initio studies of excited states of polyatomic molecules including
+#             spin-orbit and multiplet effects: The electronic states of UF6
+#     J. Chem. Phys., 79, 5469-5482 (1983)
+#     10.1063/1.445665
+# 
+# Np,Pu
+#     ## LANL2DZ ECP
+#     Ortiz, J. V., Hay, P. Jeffrey, Martin, Richard L.
+#     Role of d and f orbitals in the geometries of low-valent actinide
+#             compounds. Ab initio studies of U(CH3)3, Np(CH3)3, and
+#             Pu(CH3)3
+#     J. Am. Chem. Soc., 114, 2736-2737 (1992)
+#     10.1021/ja00033a068
+# 
+# # 
 
 
 ecp "Na_lanl2dz ecp"

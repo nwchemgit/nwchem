@@ -1,9 +1,264 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T13:56
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # 6-31g** version number 1
 # Description: 6-31G + polarization on all atoms
 # Role: orbital
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# H
+#     ## 31G Split-valence basis set for H,He
+#     Ditchfield, R., Hehre, W. J., Pople, J. A.
+#     Self-Consistent Molecular-Orbital Methods. IX. An Extended Gaussian-
+#             Type Basis for Molecular-Orbital Studies of Organic Molecules
+#     J. Chem. Phys., 54, 724-728 (1971)
+#     10.1063/1.1674902
+# 
+#     ## Polarization for 31G split-valence basis set for H,He
+#     Hariharan, P. C., Pople, J. A.
+#     The influence of polarization functions on molecular orbital
+#             hydrogenation energies
+#     Theor. Chim. Acta, 28, 213-222 (1973)
+#     10.1007/bf00533485
+# 
+# He
+#     ## 31G Split-valence basis set for H,He
+#     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
+#             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
+#             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
+#             Hratchian, H. P., Izmaylov, A. F., Bloino, J., Zheng, G.,
+#             Sonnenberg, J. L., Hada, M., Ehara, M., Toyota, K., Fukuda,
+#             R., Hasegawa, J., Ishida, M., Nakajima, T., Honda, Y., Kitao,
+#             O., Nakai, H., Vreven, T., Montgomery, J. A., Jr., Peralta, J.
+#             E., Ogliaro, F., Bearpark, M., Heyd, J. J., Brothers, E.,
+#             Kudin, K. N., Staroverov, V. N., Kobayashi, R., Normand, J.,
+#             Raghavachari, K., Rendell, A., Burant, J. C., Iyengar, S. S.,
+#             Tomasi, J., Cossi, M., Rega, N., Millam, M. J., Klene, M.,
+#             Knox, J. E., Cross, J. B., Bakken, V., Adamo, C., Jaramillo,
+#             J., Gomperts, R., Stratmann, R. E., Yazyev, O., Austin, A. J.,
+#             Cammi, R., Pomelli, C., Ochterski, J. W., Martin, R. L.,
+#             Morokuma, K., Zakrzewski, V. G., Voth, G. A., Salvador, P.,
+#             Dannenberg, J. J., Dapprich, S., Daniels, A. D., Farkas, Ö.,
+#             Foresman, J. B., Ortiz, J. V., Cioslowski, J., Fox, D. J.
+#     Gaussian 09 Revision E.01
+#     Gaussian, Inc., Wallingford, CT, 2009
+# 
+#     ## Polarization for 31G split-valence basis set for H,He
+#     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
+#             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
+#             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
+#             Hratchian, H. P., Izmaylov, A. F., Bloino, J., Zheng, G.,
+#             Sonnenberg, J. L., Hada, M., Ehara, M., Toyota, K., Fukuda,
+#             R., Hasegawa, J., Ishida, M., Nakajima, T., Honda, Y., Kitao,
+#             O., Nakai, H., Vreven, T., Montgomery, J. A., Jr., Peralta, J.
+#             E., Ogliaro, F., Bearpark, M., Heyd, J. J., Brothers, E.,
+#             Kudin, K. N., Staroverov, V. N., Kobayashi, R., Normand, J.,
+#             Raghavachari, K., Rendell, A., Burant, J. C., Iyengar, S. S.,
+#             Tomasi, J., Cossi, M., Rega, N., Millam, M. J., Klene, M.,
+#             Knox, J. E., Cross, J. B., Bakken, V., Adamo, C., Jaramillo,
+#             J., Gomperts, R., Stratmann, R. E., Yazyev, O., Austin, A. J.,
+#             Cammi, R., Pomelli, C., Ochterski, J. W., Martin, R. L.,
+#             Morokuma, K., Zakrzewski, V. G., Voth, G. A., Salvador, P.,
+#             Dannenberg, J. J., Dapprich, S., Daniels, A. D., Farkas, Ö.,
+#             Foresman, J. B., Ortiz, J. V., Cioslowski, J., Fox, D. J.
+#     Gaussian 09 Revision E.01
+#     Gaussian, Inc., Wallingford, CT, 2009
+# 
+# Li,B
+#     ## 6-31G Split-valence basis set
+#     Dill, James D., Pople, John A.
+#     Self-consistent molecular orbital methods. XV. Extended Gaussian-type
+#             basis sets for lithium, beryllium, and boron
+#     J. Chem. Phys., 62, 2921-2923 (1975)
+#     10.1063/1.430801
+# 
+#     ## Polarization for 6-31G split-valence basis set
+#     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
+#             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
+#             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
+#             Hratchian, H. P., Izmaylov, A. F., Bloino, J., Zheng, G.,
+#             Sonnenberg, J. L., Hada, M., Ehara, M., Toyota, K., Fukuda,
+#             R., Hasegawa, J., Ishida, M., Nakajima, T., Honda, Y., Kitao,
+#             O., Nakai, H., Vreven, T., Montgomery, J. A., Jr., Peralta, J.
+#             E., Ogliaro, F., Bearpark, M., Heyd, J. J., Brothers, E.,
+#             Kudin, K. N., Staroverov, V. N., Kobayashi, R., Normand, J.,
+#             Raghavachari, K., Rendell, A., Burant, J. C., Iyengar, S. S.,
+#             Tomasi, J., Cossi, M., Rega, N., Millam, M. J., Klene, M.,
+#             Knox, J. E., Cross, J. B., Bakken, V., Adamo, C., Jaramillo,
+#             J., Gomperts, R., Stratmann, R. E., Yazyev, O., Austin, A. J.,
+#             Cammi, R., Pomelli, C., Ochterski, J. W., Martin, R. L.,
+#             Morokuma, K., Zakrzewski, V. G., Voth, G. A., Salvador, P.,
+#             Dannenberg, J. J., Dapprich, S., Daniels, A. D., Farkas, Ö.,
+#             Foresman, J. B., Ortiz, J. V., Cioslowski, J., Fox, D. J.
+#     Gaussian 09 Revision E.01
+#     Gaussian, Inc., Wallingford, CT, 2009
+# 
+# Be
+#     ## 6-31G Split-valence basis set
+#     Binkley, J. Stephen, Pople, John A.
+#     Self-consistent molecular orbital methods. XIX. Split-valence
+#             Gaussian-type basis sets for beryllium
+#     J. Chem. Phys., 66, 879-880 (1977)
+#     10.1063/1.433929
+# 
+#     ## Polarization for 6-31G split-valence basis set
+#     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
+#             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
+#             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
+#             Hratchian, H. P., Izmaylov, A. F., Bloino, J., Zheng, G.,
+#             Sonnenberg, J. L., Hada, M., Ehara, M., Toyota, K., Fukuda,
+#             R., Hasegawa, J., Ishida, M., Nakajima, T., Honda, Y., Kitao,
+#             O., Nakai, H., Vreven, T., Montgomery, J. A., Jr., Peralta, J.
+#             E., Ogliaro, F., Bearpark, M., Heyd, J. J., Brothers, E.,
+#             Kudin, K. N., Staroverov, V. N., Kobayashi, R., Normand, J.,
+#             Raghavachari, K., Rendell, A., Burant, J. C., Iyengar, S. S.,
+#             Tomasi, J., Cossi, M., Rega, N., Millam, M. J., Klene, M.,
+#             Knox, J. E., Cross, J. B., Bakken, V., Adamo, C., Jaramillo,
+#             J., Gomperts, R., Stratmann, R. E., Yazyev, O., Austin, A. J.,
+#             Cammi, R., Pomelli, C., Ochterski, J. W., Martin, R. L.,
+#             Morokuma, K., Zakrzewski, V. G., Voth, G. A., Salvador, P.,
+#             Dannenberg, J. J., Dapprich, S., Daniels, A. D., Farkas, Ö.,
+#             Foresman, J. B., Ortiz, J. V., Cioslowski, J., Fox, D. J.
+#     Gaussian 09 Revision E.01
+#     Gaussian, Inc., Wallingford, CT, 2009
+# 
+# C-F
+#     ## 6-31G Split-valence basis set
+#     Hehre, W. J., Ditchfield, R., Pople, J. A.
+#     Self-Consistent Molecular Orbital Methods. XII. Further Extensions of
+#             Gaussian-Type Basis Sets for Use in Molecular Orbital Studies
+#             of Organic Molecules
+#     J. Chem. Phys., 56, 2257-2261 (1972)
+#     10.1063/1.1677527
+# 
+#     ## Polarization for 6-31G split-valence basis set
+#     Hariharan, P. C., Pople, J. A.
+#     The influence of polarization functions on molecular orbital
+#             hydrogenation energies
+#     Theor. Chim. Acta, 28, 213-222 (1973)
+#     10.1007/bf00533485
+# 
+# Ne
+#     ## 6-31G Split-valence basis set
+#     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
+#             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
+#             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
+#             Hratchian, H. P., Izmaylov, A. F., Bloino, J., Zheng, G.,
+#             Sonnenberg, J. L., Hada, M., Ehara, M., Toyota, K., Fukuda,
+#             R., Hasegawa, J., Ishida, M., Nakajima, T., Honda, Y., Kitao,
+#             O., Nakai, H., Vreven, T., Montgomery, J. A., Jr., Peralta, J.
+#             E., Ogliaro, F., Bearpark, M., Heyd, J. J., Brothers, E.,
+#             Kudin, K. N., Staroverov, V. N., Kobayashi, R., Normand, J.,
+#             Raghavachari, K., Rendell, A., Burant, J. C., Iyengar, S. S.,
+#             Tomasi, J., Cossi, M., Rega, N., Millam, M. J., Klene, M.,
+#             Knox, J. E., Cross, J. B., Bakken, V., Adamo, C., Jaramillo,
+#             J., Gomperts, R., Stratmann, R. E., Yazyev, O., Austin, A. J.,
+#             Cammi, R., Pomelli, C., Ochterski, J. W., Martin, R. L.,
+#             Morokuma, K., Zakrzewski, V. G., Voth, G. A., Salvador, P.,
+#             Dannenberg, J. J., Dapprich, S., Daniels, A. D., Farkas, Ö.,
+#             Foresman, J. B., Ortiz, J. V., Cioslowski, J., Fox, D. J.
+#     Gaussian 09 Revision E.01
+#     Gaussian, Inc., Wallingford, CT, 2009
+# 
+#     ## Polarization for 6-31G split-valence basis set
+#     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
+#             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
+#             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
+#             Hratchian, H. P., Izmaylov, A. F., Bloino, J., Zheng, G.,
+#             Sonnenberg, J. L., Hada, M., Ehara, M., Toyota, K., Fukuda,
+#             R., Hasegawa, J., Ishida, M., Nakajima, T., Honda, Y., Kitao,
+#             O., Nakai, H., Vreven, T., Montgomery, J. A., Jr., Peralta, J.
+#             E., Ogliaro, F., Bearpark, M., Heyd, J. J., Brothers, E.,
+#             Kudin, K. N., Staroverov, V. N., Kobayashi, R., Normand, J.,
+#             Raghavachari, K., Rendell, A., Burant, J. C., Iyengar, S. S.,
+#             Tomasi, J., Cossi, M., Rega, N., Millam, M. J., Klene, M.,
+#             Knox, J. E., Cross, J. B., Bakken, V., Adamo, C., Jaramillo,
+#             J., Gomperts, R., Stratmann, R. E., Yazyev, O., Austin, A. J.,
+#             Cammi, R., Pomelli, C., Ochterski, J. W., Martin, R. L.,
+#             Morokuma, K., Zakrzewski, V. G., Voth, G. A., Salvador, P.,
+#             Dannenberg, J. J., Dapprich, S., Daniels, A. D., Farkas, Ö.,
+#             Foresman, J. B., Ortiz, J. V., Cioslowski, J., Fox, D. J.
+#     Gaussian 09 Revision E.01
+#     Gaussian, Inc., Wallingford, CT, 2009
+# 
+# Na-Ar
+#     ## 6-21G Split-valence basis set
+#     Gordon, Mark S., Binkley, J. Stephen, Pople, John A., Pietro, William
+#             J., Hehre, Warren J.
+#     Self-consistent molecular-orbital methods. 22. Small split-valence
+#             basis sets for second-row elements
+#     J. Am. Chem. Soc., 104, 2797-2803 (1982)
+#     10.1021/ja00374a017
+# 
+#     ## 31G Split-valence part
+#     Francl, Michelle M., Pietro, William J., Hehre, Warren J., Binkley, J.
+#             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
+#     Self-consistent molecular orbital methods. XXIII. A polarization-type
+#             basis set for second-row elements
+#     J. Chem. Phys., 77, 3654-3665 (1982)
+#     10.1063/1.444267
+# 
+#     ## Polarization for 6-31G split-valence basis set
+#     Francl, Michelle M., Pietro, William J., Hehre, Warren J., Binkley, J.
+#             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
+#     Self-consistent molecular orbital methods. XXIII. A polarization-type
+#             basis set for second-row elements
+#     J. Chem. Phys., 77, 3654-3665 (1982)
+#     10.1063/1.444267
+# 
+# K,Ca,Ga-Kr
+#     ## 6-31G Split-valence basis set
+#     Rassolov, Vitaly A., Ratner, Mark A., Pople, John A., Redfern, Paul
+#             C., Curtiss, Larry A.
+#     6-31G* basis set for third-row atoms
+#     J. Comput. Chem., 22, 976-984 (2001)
+#     10.1002/jcc.1058.abs
+# 
+#     ## Polarization for 6-31G split-valence basis set
+#     Rassolov, Vitaly A., Ratner, Mark A., Pople, John A., Redfern, Paul
+#             C., Curtiss, Larry A.
+#     6-31G* basis set for third-row atoms
+#     J. Comput. Chem., 22, 976-984 (2001)
+#     10.1002/jcc.1058.abs
+# 
+# Sc-Zn
+#     ## 6-31G Split-valence basis set
+#     Rassolov, Vitaly A., Pople, John A., Ratner, Mark A., Windus, Theresa
+#             L.
+#     6-31G* basis set for atoms K through Zn
+#     J. Chem. Phys., 109, 1223-1229 (1998)
+#     10.1063/1.476673
+# 
+#     ## Polarization for 6-31G split-valence basis set
+#     Rassolov, Vitaly A., Pople, John A., Ratner, Mark A., Windus, Theresa
+#             L.
+#     6-31G* basis set for atoms K through Zn
+#     J. Chem. Phys., 109, 1223-1229 (1998)
+#     10.1063/1.476673
+# 
+# # 
 basis "H_6-31g**" 
 #basis SET: (4s,1p) -> [2s,1p]
 H    S

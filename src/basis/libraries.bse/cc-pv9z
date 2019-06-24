@@ -1,0 +1,181 @@
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
+# cc-pv9z version number 0
+# Description: V7Z6P   Valence Octuple Zeta + Polarization on All Atoms
+# Role: orbital
+# 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# Ne
+#     ## V7Z6P   Valence Octuple Zeta + Polarization on All Atoms
+#     (...no reference...)
+# 
+# # 
+basis "Ne_cc-pv9z" 
+#basis SET: (36s,16p,8d,7f,6g,5h,4i,3k,2l,1m) -> [10s,9p,8d,7f,6g,5h,4i,3k,2l,1m]
+Ne    S
+23015748.                    0.96756722E-07
+3406478.0                    0.76022733E-06
+ 766405.0                    0.41194508E-05
+ 209480.0                    0.18538108E-04
+  65557.0                    0.71219188E-04
+  22993.0                    0.23862683E-03
+   8855.08                   0.72101492E-03
+   3650.99                   0.20419452E-02
+   1573.22                   0.55616242E-02
+    697.005                  0.014639531
+    315.652                  0.036543265
+    146.443                  0.083450105
+     69.7874                 0.166351823
+     34.1501                 0.270049550
+Ne    S
+23015748.                   -0.22720964E-07
+3406478.0                   -0.17853772E-06
+ 766405.0                   -0.96732804E-06
+ 209480.0                   -0.43539656E-05
+  65557.0                   -0.16725280E-04
+  22993.0                   -0.56068386E-04
+   8855.08                  -0.16947290E-03
+   3650.99                  -0.48085599E-03
+   1573.22                  -0.13136901E-02
+    697.005                 -0.34855166E-02
+    315.652                 -0.88381618E-02
+    146.443                 -0.020871370
+     69.7874                -0.044373979
+     34.1501                -0.081942970
+Ne    S
+     17.1191                 1.0
+Ne    S
+      8.712439               1.0
+Ne    S
+      4.389713               1.0
+Ne    S
+      2.197222               1.0
+Ne    S
+      1.083037               1.0
+Ne    S
+      0.533987               1.0
+Ne    S
+      0.262870               1.0
+Ne    S
+      0.119039               1.0
+Ne    P
+  11543.6                    0.17507069E-05
+   2912.15                   0.13632768E-04
+    997.684                  0.75339633E-04
+    383.643                  0.36253157E-03
+    158.531                  0.15198830E-02
+     69.5342                 0.54886444E-02
+     32.0060                 0.017020535
+     15.2805                 0.045765537
+Ne    P
+      7.509001               1.0
+Ne    P
+      3.762138               1.0
+Ne    P
+      1.898376               1.0
+Ne    P
+      0.9575798              1.0
+Ne    P
+      0.4820758              1.0
+Ne    P
+      0.2419713              1.0
+Ne    P
+      0.1195759              1.0
+Ne    P
+      0.0485331              1.0
+Ne    D
+     34.58927                1.0
+Ne    D
+     18.05574                1.0
+Ne    D
+      9.425175               1.0
+Ne    D
+      4.919981               1.0
+Ne    D
+      2.568251               1.0
+Ne    D
+      1.340638               1.0
+Ne    D
+      0.699819               1.0
+Ne    D
+      0.365308               1.0
+Ne    F
+     19.56700                1.0
+Ne    F
+     10.78116                1.0
+Ne    F
+      5.939372               1.0
+Ne    F
+      3.272016               1.0
+Ne    F
+      1.802562               1.0
+Ne    F
+      0.993036               1.0
+Ne    F
+      0.547066               1.0
+Ne    G
+     21.36836                1.0
+Ne    G
+     11.43646                1.0
+Ne    G
+      6.120854               1.0
+Ne    G
+      3.275913               1.0
+Ne    G
+      1.753286               1.0
+Ne    G
+      0.938368               1.0
+Ne    H
+     14.43023                1.0
+Ne    H
+      7.868231               1.0
+Ne    H
+      4.290234               1.0
+Ne    H
+      2.339294               1.0
+Ne    H
+      1.275524               1.0
+Ne    I
+     14.82015                1.0
+Ne    I
+      7.647065               1.0
+Ne    I
+      3.945816               1.0
+Ne    I
+      2.036005               1.0
+Ne    K
+     10.58400                1.0
+Ne    K
+      5.040000               1.0
+Ne    K
+      2.400000               1.0
+Ne    L
+      9.453225               1.0
+Ne    L
+      4.460690               1.0
+Ne    M
+      6.49                   1.0
+end

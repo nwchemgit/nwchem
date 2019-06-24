@@ -1,9 +1,41 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T13:56
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # m6-31g* version number 0
 # Description: m6-31G*
 # Role: orbital
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# Sc-Cu
+#     ## m6-31G*
+#     Mitin, Alexander V., Baker, Jon, Pulay, Peter
+#     An improved 6-31G* basis set for first-row transition metals
+#     J. Chem. Phys., 118, 7775-7782 (2003)
+#     10.1063/1.1563619
+# 
+# # 
 basis "Sc_m6-31g*" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 Sc    S
@@ -38,9 +70,9 @@ Sc    D
       2.3061823929           0.4074937059
       0.6394887979           0.6965324203
 Sc    D
-      0.1620099141           1.0000000
+      0.1620099141           1.00000000
 Sc    F
-      0.80000000             1.0000000
+      0.80000000             1.00000000
 end
 basis "Ti_m6-31g*" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
@@ -76,9 +108,9 @@ Ti    D
       2.8785653801           0.4084975315
       0.8146824263           0.6922977301
 Ti    D
-      0.2106293041           1.0000000
+      0.2106293041           1.00000000
 Ti    F
-      0.80000000             1.0000000
+      0.80000000             1.00000000
 end
 basis "V_m6-31g*" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
@@ -114,9 +146,9 @@ V    D
       3.4113944966           0.4115551152
       0.9739061412           0.6875734800
 V    D
-      0.2522224358           1.0000000
+      0.2522224358           1.00000000
 V    F
-      0.80000000             1.0000000
+      0.80000000             1.00000000
 end
 basis "Cr_m6-31g*" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
@@ -152,9 +184,9 @@ Cr    D
       3.4401597836           0.4307135301
       0.9443297182           0.6725709357
 Cr    D
-      0.2197057097           1.0000000
+      0.2197057097           1.00000000
 Cr    F
-      0.80000000             1.0000000
+      0.80000000             1.00000000
 end
 basis "Mn_m6-31g*" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
@@ -190,9 +222,9 @@ Mn    D
       4.5235533151           0.4169414088
       1.3041931349           0.6799648276
 Mn    D
-      0.3369193736           1.0000000
+      0.3369193736           1.00000000
 Mn    F
-      0.80000000             1.0000000
+      0.80000000             1.00000000
 end
 basis "Fe_m6-31g*" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
@@ -228,9 +260,9 @@ Fe    D
       5.0216501028           0.4228007951
       1.4414455281           0.6740867843
 Fe    D
-      0.3646837240           1.0000000
+      0.3646837240           1.00000000
 Fe    F
-      0.80000000             1.0000000
+      0.80000000             1.00000000
 end
 basis "Co_m6-31g*" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
@@ -266,9 +298,9 @@ Co    D
       5.5768194304           0.4266878706
       1.5985127182           0.6698677042
 Co    D
-      0.3995329086           1.0000000
+      0.3995329086           1.00000000
 Co    F
-      0.80000000             1.0000000
+      0.80000000             1.00000000
 end
 basis "Ni_m6-31g*" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
@@ -304,9 +336,9 @@ Ni    D
       6.1618058722           0.4298776432
       1.7645451103           0.6663191638
 Ni    D
-      0.4366865521           1.0000000
+      0.4366865521           1.00000000
 Ni    F
-      0.80000000             1.0000000
+      0.80000000             1.00000000
 end
 basis "Cu_m6-31g*" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
@@ -342,7 +374,7 @@ Cu    D
       6.2001031538           0.4444063028
       1.7193642175           0.6546667345
 Cu    D
-      0.3881782772           1.0000000
+      0.3881782772           1.00000000
 Cu    F
-      0.80000000             1.0000000
+      0.80000000             1.00000000
 end

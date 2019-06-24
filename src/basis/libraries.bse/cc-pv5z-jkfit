@@ -1,9 +1,42 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T13:56
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # cc-pv5z-jkfit version number 1
 # Description: JK Fitting basis for use with cc-pV5Z
 # Role: jkfit
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# H,B-F,Al-Cl,Ga-Br
+#     ## JK Fitting basis for use with cc-pV5Z
+#     Weigend, Florian
+#     A fully direct RI-HF algorithm: Implementation, optimised auxiliary
+#             basis sets, demonstration of accuracy and efficiency
+#     Phys. Chem. Chem. Phys., 4, 4285-4291 (2002)
+#     10.1039/B204199P
+# 
+# # 
 basis "H_cc-pv5z-jkfit" 
 #basis SET: (4s,3p,4d,3f,2g,1h) -> [4s,3p,4d,3f,2g,1h]
 H    S
@@ -857,7 +890,7 @@ Ga    P
    3601.8172624              0.22494431413
    1071.1259059              0.89209651973
 Ga    P
-    425.41444813             1.0000000
+    425.41444813             1.7949695091
 Ga    P
     188.91335264             1.0000000
 Ga    P
@@ -980,7 +1013,7 @@ Ge    P
    3613.1361971              0.24738330627
    1184.0325771              0.82659004942
 Ge    P
-    491.04618169             1.0000000
+    491.04618169             1.8035616008
 Ge    P
     215.29109078             1.0000000
 Ge    P
@@ -1053,7 +1086,7 @@ Ge    G
       9.6355497163           2.2905831998
       4.4639705954           1.1567759193
 Ge    G
-      2.0291468281           1.0000000
+      2.0291468281           0.27588349892
 Ge    G
       0.71829921805          1.0000000
 Ge    G
@@ -1103,7 +1136,7 @@ As    P
    4192.9053911              0.25915947227
    1307.4981236              0.97972827799
 As    P
-    530.51279605             1.0000000
+    530.51279605             2.1033761026
 As    P
     234.91478017             1.0000000
 As    P
@@ -1226,7 +1259,7 @@ Se    P
    4356.7664971              0.22553955332
    1329.4920349              0.86613662977
 Se    P
-    534.45381599             1.0000000
+    534.45381599             1.7937635002
 Se    P
     238.28306095             1.0000000
 Se    P
@@ -1349,7 +1382,7 @@ Br    P
    4686.8414735              0.22460673292
    1415.2446847              0.88161114707
 Br    P
-    570.46385595             1.0000000
+    570.46385595             1.7969788423
 Br    P
     256.29264007             1.0000000
 Br    P

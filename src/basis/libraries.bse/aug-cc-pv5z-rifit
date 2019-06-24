@@ -1,9 +1,67 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T13:56
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # aug-cc-pv5z-rifit version number 1
 # Description: RI Fitting basis for use with aug-cc-pV5Z
 # Role: rifit
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# H-Ne,Al-Ar
+#     ## RI Fitting basis for use with aug-cc-pV5Z
+#     Hättig, Christof
+#     Optimization of auxiliary basis sets for RI-MP2 and RI-CC2
+#             calculations: Core-valence and quintuple-ζ basis sets for H to
+#             Ar and QZVPP basis sets for Li to Kr
+#     Phys. Chem. Chem. Phys., 7, 59-66 (2005)
+#     10.1039/b415208e
+# 
+# Sc-Zn
+#     ## cc-pV5Z-RI
+#     Bross, David H., Hill, J. Grant, Werner, H.-J., Peterson, Kirk A.
+#     Explicitly correlated composite thermochemistry of transition metal
+#             species
+#     J. Chem. Phys., 139, 094302 (2013)
+#     10.1063/1.4818725
+# 
+#     ## aug-cc-pV5Z-RI diffuse
+#     Bross, David H., Hill, J. Grant, Werner, H.-J., Peterson, Kirk A.
+#     Explicitly correlated composite thermochemistry of transition metal
+#             species
+#     J. Chem. Phys., 139, 094302 (2013)
+#     10.1063/1.4818725
+# 
+# Ga-Kr
+#     ## RI Fitting basis for use with aug-cc-pV5Z
+#     Hättig, Christof, Schmitz, Gunnar, Koßmann, Jörg
+#     Auxiliary basis sets for density-fitted correlated wavefunction
+#             calculations: weighted core-valence and ECP basis sets for
+#             post-d elements
+#     Phys. Chem. Chem. Phys., 14, 6549-6555 (2012)
+#     10.1039/C2CP40400A
+# 
+# # 
 basis "H_aug-cc-pv5z-rifit" 
 #basis SET: (7s,6p,5d,4f,3g,2h) -> [7s,6p,5d,4f,3g,2h]
 H    S

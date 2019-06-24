@@ -1,9 +1,276 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T15:29
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # def2-tzvpp version number 1
 # Description: def2-TZVPP
 # Role: orbital
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# H-Li,Al-Ar,Sc-Zn
+#     ## Common base shells for def2-TZV*
+#     Weigend, Florian, Ahlrichs, Reinhart
+#     Balanced basis sets of split valence, triple zeta valence and
+#             quadruple zeta valence quality for H to Rn: Design and
+#             assessment of accuracy
+#     Phys. Chem. Chem. Phys., 7, 3297 (2005)
+#     10.1039/b508541a
+# 
+#     ## Additional functions to form def2-TZVPP
+#     Weigend, Florian, Ahlrichs, Reinhart
+#     Balanced basis sets of split valence, triple zeta valence and
+#             quadruple zeta valence quality for H to Rn: Design and
+#             assessment of accuracy
+#     Phys. Chem. Chem. Phys., 7, 3297 (2005)
+#     10.1039/b508541a
+# 
+# Be-Mg,K,Ca,Ga-Kr
+#     ## Common base shells for def2-TZV*
+#     Weigend, Florian, Ahlrichs, Reinhart
+#     Balanced basis sets of split valence, triple zeta valence and
+#             quadruple zeta valence quality for H to Rn: Design and
+#             assessment of accuracy
+#     Phys. Chem. Chem. Phys., 7, 3297 (2005)
+#     10.1039/b508541a
+# 
+# Rb,Cs
+#     ## Common base shells for def2-TZV*
+#     Weigend, Florian, Ahlrichs, Reinhart
+#     Balanced basis sets of split valence, triple zeta valence and
+#             quadruple zeta valence quality for H to Rn: Design and
+#             assessment of accuracy
+#     Phys. Chem. Chem. Phys., 7, 3297 (2005)
+#     10.1039/b508541a
+# 
+#     ## Additional functions to form def2-TZVPP
+#     Weigend, Florian, Ahlrichs, Reinhart
+#     Balanced basis sets of split valence, triple zeta valence and
+#             quadruple zeta valence quality for H to Rn: Design and
+#             assessment of accuracy
+#     Phys. Chem. Chem. Phys., 7, 3297 (2005)
+#     10.1039/b508541a
+# 
+#     ## ECP basis set for Ahlrichs def2
+#     Leininger, Thierry, Nicklass, Andreas, Küchle, Wolfgang, Stoll,
+#             Hermann, Dolg, Michael, Bergner, Andreas
+#     The accuracy of the pseudopotential approximation: non-frozen-core
+#             effects for spectroscopic constants of alkali fluorides XF (X
+#             = K, Rb, Cs)
+#     Chem. Phys. Lett., 255, 274-280 (1996)
+#     10.1016/0009-2614(96)00382-x
+# 
+# Sr
+#     ## Common base shells for def2-TZV*
+#     Weigend, Florian, Ahlrichs, Reinhart
+#     Balanced basis sets of split valence, triple zeta valence and
+#             quadruple zeta valence quality for H to Rn: Design and
+#             assessment of accuracy
+#     Phys. Chem. Chem. Phys., 7, 3297 (2005)
+#     10.1039/b508541a
+# 
+#     ## Additional functions to form def2-TZVPP
+#     Weigend, Florian, Ahlrichs, Reinhart
+#     Balanced basis sets of split valence, triple zeta valence and
+#             quadruple zeta valence quality for H to Rn: Design and
+#             assessment of accuracy
+#     Phys. Chem. Chem. Phys., 7, 3297 (2005)
+#     10.1039/b508541a
+# 
+#     ## ECP basis set for Ahlrichs def2
+#     Kaupp, M., Schleyer, P. v. R., Stoll, H., Preuss, H.
+#     Pseudopotential approaches to Ca, Sr, and Ba hydrides. Why are some
+#             alkaline earth MX2compounds bent?
+#     J. Chem. Phys., 94, 1360-1366 (1991)
+#     10.1063/1.459993
+# 
+# Y-Cd,Hf-Hg
+#     ## Common base shells for def2-TZV*
+#     Weigend, Florian, Ahlrichs, Reinhart
+#     Balanced basis sets of split valence, triple zeta valence and
+#             quadruple zeta valence quality for H to Rn: Design and
+#             assessment of accuracy
+#     Phys. Chem. Chem. Phys., 7, 3297 (2005)
+#     10.1039/b508541a
+# 
+#     ## Additional functions to form def2-TZVPP
+#     Weigend, Florian, Ahlrichs, Reinhart
+#     Balanced basis sets of split valence, triple zeta valence and
+#             quadruple zeta valence quality for H to Rn: Design and
+#             assessment of accuracy
+#     Phys. Chem. Chem. Phys., 7, 3297 (2005)
+#     10.1039/b508541a
+# 
+#     ## ECP basis set for Ahlrichs def2
+#     Andrae, D., Häußermann, U., Dolg, M., Stoll, H., Preuß, H.
+#     Energy-adjustedab initio pseudopotentials for the second and third row
+#             transition elements
+#     Theor. Chim. Acta, 77, 123-141 (1990)
+#     10.1007/bf01114537
+# 
+# In-Sb,Pb,Bi
+#     ## Common base shells for def2-TZV*
+#     Weigend, Florian, Ahlrichs, Reinhart
+#     Balanced basis sets of split valence, triple zeta valence and
+#             quadruple zeta valence quality for H to Rn: Design and
+#             assessment of accuracy
+#     Phys. Chem. Chem. Phys., 7, 3297 (2005)
+#     10.1039/b508541a
+# 
+#     ## ECP basis set for Ahlrichs def2
+#     Metz, Bernhard, Stoll, Hermann, Dolg, Michael
+#     Small-core multiconfiguration-Dirac-Hartree-Fock-adjusted
+#             pseudopotentials for post-d main group elements: Application
+#             to PbH and PbO
+#     J. Chem. Phys., 113, 2563-2569 (2000)
+#     10.1063/1.1305880
+# 
+# Te-Xe,Po-Rn
+#     ## Common base shells for def2-TZV*
+#     Weigend, Florian, Ahlrichs, Reinhart
+#     Balanced basis sets of split valence, triple zeta valence and
+#             quadruple zeta valence quality for H to Rn: Design and
+#             assessment of accuracy
+#     Phys. Chem. Chem. Phys., 7, 3297 (2005)
+#     10.1039/b508541a
+# 
+#     ## ECP basis set for Ahlrichs def2
+#     Peterson, Kirk A., Figgen, Detlev, Goll, Erich, Stoll, Hermann, Dolg,
+#             Michael
+#     Systematically convergent basis sets with relativistic
+#             pseudopotentials. II. Small-core pseudopotentials and
+#             correlation consistent basis sets for the post-d group 16-18
+#             elements
+#     J. Chem. Phys., 119, 11113-11123 (2003)
+#     10.1063/1.1622924
+# 
+# Ba
+#     ## Common base shells for def2-TZV*
+#     Weigend, Florian, Ahlrichs, Reinhart
+#     Balanced basis sets of split valence, triple zeta valence and
+#             quadruple zeta valence quality for H to Rn: Design and
+#             assessment of accuracy
+#     Phys. Chem. Chem. Phys., 7, 3297 (2005)
+#     10.1039/b508541a
+# 
+#     ## ECP basis set for Ahlrichs def2
+#     Kaupp, M., Schleyer, P. v. R., Stoll, H., Preuss, H.
+#     Pseudopotential approaches to Ca, Sr, and Ba hydrides. Why are some
+#             alkaline earth MX2compounds bent?
+#     J. Chem. Phys., 94, 1360-1366 (1991)
+#     10.1063/1.459993
+# 
+# La
+#     ## Common base shells for def2-TZV*
+#     Weigend, Florian, Ahlrichs, Reinhart
+#     Balanced basis sets of split valence, triple zeta valence and
+#             quadruple zeta valence quality for H to Rn: Design and
+#             assessment of accuracy
+#     Phys. Chem. Chem. Phys., 7, 3297 (2005)
+#     10.1039/b508541a
+# 
+#     ## Additional functions to form def2-TZVPP
+#     Weigend, Florian, Ahlrichs, Reinhart
+#     Balanced basis sets of split valence, triple zeta valence and
+#             quadruple zeta valence quality for H to Rn: Design and
+#             assessment of accuracy
+#     Phys. Chem. Chem. Phys., 7, 3297 (2005)
+#     10.1039/b508541a
+# 
+#     ## ECP basis set for Ahlrichs def2
+#     Dolg, M., Stoll, H., Savin, A., Preuss, H.
+#     Energy-adjusted pseudopotentials for the rare earth elements
+#     Theor. Chim. Acta, 75, 173-194 (1989)
+#     10.1007/BF00528565
+# 
+#     Dolg, M., Stoll, H., Preuss, H.
+#     A combination of quasirelativistic pseudopotential and ligand field
+#             calculations for lanthanoid compounds
+#     Theor. Chim. Acta, 85, 441-450 (1993)
+#     10.1007/BF01112983
+# 
+# Ce-Yb
+#     ## Common base shells for def2-TZV*
+#     Gulde, Rebekka, Pollak, Patrik, Weigend, Florian
+#     Error-Balanced Segmented Contracted Basis Sets of Double-ζ to
+#             Quadruple-ζ Valence Quality for the Lanthanides
+#     J. Chem. Theory Comput., 8, 4062-4068 (2012)
+#     10.1021/ct300302u
+# 
+#     ## Additional functions to form def2-TZVPP
+#     Gulde, Rebekka, Pollak, Patrik, Weigend, Florian
+#     Error-Balanced Segmented Contracted Basis Sets of Double-ζ to
+#             Quadruple-ζ Valence Quality for the Lanthanides
+#     J. Chem. Theory Comput., 8, 4062-4068 (2012)
+#     10.1021/ct300302u
+# 
+#     ## ECP basis set for Ahlrichs def2
+#     Dolg, M., Stoll, H., Preuss, H.
+#     Energy-adjusted ab initio pseudopotentials for the rare earth elements
+#     J. Chem. Phys., 90, 1730-1734 (1989)
+#     10.1063/1.456066
+# 
+# Lu
+#     ## Common base shells for def2-TZV*
+#     Gulde, Rebekka, Pollak, Patrik, Weigend, Florian
+#     Error-Balanced Segmented Contracted Basis Sets of Double-ζ to
+#             Quadruple-ζ Valence Quality for the Lanthanides
+#     J. Chem. Theory Comput., 8, 4062-4068 (2012)
+#     10.1021/ct300302u
+# 
+#     ## Additional functions to form def2-TZVPP
+#     Gulde, Rebekka, Pollak, Patrik, Weigend, Florian
+#     Error-Balanced Segmented Contracted Basis Sets of Double-ζ to
+#             Quadruple-ζ Valence Quality for the Lanthanides
+#     J. Chem. Theory Comput., 8, 4062-4068 (2012)
+#     10.1021/ct300302u
+# 
+#     ## ECP basis set for Ahlrichs def2
+#     Cao, Xiaoyan, Dolg, Michael
+#     Valence basis sets for relativistic energy-consistent small-core
+#             lanthanide pseudopotentials
+#     J. Chem. Phys., 115, 7348 (2001)
+#     10.1063/1.1406535
+# 
+# Tl
+#     ## Common base shells for def2-TZV*
+#     Weigend, Florian, Ahlrichs, Reinhart
+#     Balanced basis sets of split valence, triple zeta valence and
+#             quadruple zeta valence quality for H to Rn: Design and
+#             assessment of accuracy
+#     Phys. Chem. Chem. Phys., 7, 3297 (2005)
+#     10.1039/b508541a
+# 
+#     ## ECP basis set for Ahlrichs def2
+#     Metz, Bernhard, Schweizer, Marcus, Stoll, Hermann, Dolg, Michael, Liu,
+#             Wenjian
+#     A small-core multiconfiguration Dirac-Hartree-Fock-adjusted
+#             pseudopotential for Tl - application to Tl X ( X = F, Cl, Br,
+#             I)
+#     Theor. Chim. Acta, 104, 22-28 (2000)
+#     10.1007/s002149900101
+# 
+# # 
 basis "H_def2-tzvpp" 
 #basis SET: (5s,2p,1d) -> [3s,2p,1d]
 H    S
@@ -87,7 +354,7 @@ Be    P
       0.71695694366         -0.16877854032
       0.19541932860         -0.51403419628
 Be    P
-      3.6316917145           1.0000000
+      3.6316917145           -.29033998305E-01
 Be    P
       0.60515465890E-01      1.0000000
 Be    D
@@ -117,9 +384,9 @@ B    P
       1.4986081344           0.13151230768
       0.50927831315          0.33197167769
 B    P
-      0.18147077798          1.0000000
+      0.18147077798           .47314319570
 B    P
-      0.64621893904E-01      1.0000000
+      0.64621893904E-01       .25802783943
 B    D
       0.66100000             1.0000000
 B    D
@@ -151,9 +418,9 @@ C    P
       2.3780826883           0.14215873329
       0.81433208183          0.34270471845
 C    P
-      0.28887547253          1.0000000
+      0.28887547253           .46445822433
 C    P
-      0.10056823671          1.0000000
+      0.10056823671           .24955789874
 C    D
       1.09700000             1.0000000
 C    D
@@ -185,9 +452,9 @@ N    P
       3.4273972411           0.14953671029
       1.1785525134           0.34949305230
 N    P
-      0.41642204972          1.0000000
+      0.41642204972           .45843153697
 N    P
-      0.14260826011          1.0000000
+      0.14260826011           .24428771672
 N    D
       1.65400000             1.0000000
 N    D
@@ -219,9 +486,9 @@ O    P
       4.4501223456           0.16153841088
       1.5275799647           0.35706951311
 O    P
-      0.52935117943          1.0000000
+      0.52935117943           .44794207502
 O    P
-      0.17478421270          1.0000000
+      0.17478421270           .24446069663
 O    D
       2.31400000             1.0000000
 O    D
@@ -253,9 +520,9 @@ F    P
       5.6867902653           0.16867248708
       1.9511006294           0.36166346255
 F    P
-      0.66970211298          1.0000000
+      0.66970211298           .44202901491
 F    P
-      0.21651300410          1.0000000
+      0.21651300410           .24319875730
 F    D
       3.10700000             1.0000000
 F    D
@@ -287,9 +554,9 @@ Ne    P
       7.1163945872           0.17331287812
       2.4418711435           0.36475267512
 Ne    P
-      0.83389605766          1.0000000
+      0.83389605766           .43831075171
 Ne    P
-      0.26607311301          1.0000000
+      0.26607311301           .24160029835
 Ne    D
       4.01400000             1.0000000
 Ne    D
@@ -325,7 +592,7 @@ Na    P
       3.4822033928           0.36011784647
       1.2299134620           0.44858979889
 Na    P
-      0.41743959423          1.0000000
+      0.41743959423           .23040759559
 Na    P
       0.0910000              1.0000000
 Na    P
@@ -365,7 +632,7 @@ Mg    P
       4.6257503609           0.35919094128
       1.6695211016           0.45533379310
 Mg    P
-      0.58551012105          1.0000000
+      0.58551012105           .21986432910
 Mg    P
       0.18914796195          1.0000000
 Mg    P
@@ -405,7 +672,7 @@ Al    P
      12.587037428            0.26902101523
       4.9811919704           0.52128324272
 Al    P
-      2.0070350900           1.0000000
+      2.0070350900            .60271687494
 Al    P
       0.80083714374          1.0000000
 Al    P
@@ -449,7 +716,7 @@ Si    P
      10.781663791            0.25565889739
       4.1626574778           0.42111707185
 Si    P
-      1.6247972989           1.0000000
+      1.6247972989            .34401746318
 Si    P
       0.54306660493          1.0000000
 Si    P
@@ -493,7 +760,7 @@ P    P
      12.990776875            0.25749454014
       5.0486221658           0.42862899758
 P    P
-      1.9934049566           1.0000000
+      1.9934049566            .34359817849
 P    P
       0.66527284430          1.0000000
 P    P
@@ -537,7 +804,7 @@ S    P
      15.616527580            0.25705880575
       6.1093988469           0.43515167292
 S    P
-      2.4404160198           1.0000000
+      2.4404160198            .34883240595
 S    P
       0.83882201296          1.0000000
 S    P
@@ -581,7 +848,7 @@ Cl    P
      18.536078105            0.25285612970
       7.2940532777           0.43507154820
 Cl    P
-      2.9433248995           1.0000000
+      2.9433248995            .35026513165
 Cl    P
       1.0404970818           1.0000000
 Cl    P
@@ -625,7 +892,7 @@ Ar    P
      21.701591695            0.24207278863
       8.5821489635           0.42263558251
 Ar    P
-      3.4922679161           1.0000000
+      3.4922679161            .34151806086
 Ar    P
       1.2637426998           1.0000000
 Ar    P
@@ -734,7 +1001,7 @@ Ca    D
       5.4979093879           0.73770011433E-01
       1.3177128032           0.26052853169
 Ca    D
-      0.32188682649          1.0000000
+      0.32188682649          0.45233836380
 Ca    D
       0.70528614919E-01      1.0000000
 end
@@ -786,9 +1053,9 @@ Sc    D
       2.9520256337           0.21332539722
       1.0761910745           0.38391075578
 Sc    D
-      0.38338915095          1.0000000
+      0.38338915095           .43354716259
 Sc    D
-      0.12534686113          1.0000000
+      0.12534686113           .24509263822
 Sc    D
       0.0410000              1.0000000
 Sc    F
@@ -846,9 +1113,9 @@ Ti    D
       3.6728446990           0.21484207775
       1.3588590303           0.38890892779
 Ti    D
-      0.49213295253          1.0000000
+      0.49213295253           .43040835243
 Ti    D
-      0.16330520653          1.0000000
+      0.16330520653           .23253305465
 Ti    D
       0.0540000              1.0000000
 Ti    F
@@ -906,9 +1173,9 @@ V    D
       4.3313854957           0.21837784195
       1.6138855773           0.39245212296
 V    D
-      0.58749573961          1.0000000
+      0.58749573961           .42634466786
 V    D
-      0.19515723011          1.0000000
+      0.19515723011           .22646562601
 V    D
       0.0650000              1.0000000
 V    F
@@ -966,9 +1233,9 @@ Cr    D
       4.2639442006           0.23833840000
       1.5525221790           0.39526851122
 Cr    D
-      0.53761929485          1.0000000
+      0.53761929485           .41061717056
 Cr    D
-      0.16493173074          1.0000000
+      0.16493173074           .24440410795
 Cr    D
       0.0510000              1.0000000
 Cr    F
@@ -1026,9 +1293,9 @@ Mn    D
       5.6964273914           0.22450770821295
       2.1411147942           0.39703065434226
 Mn    D
-      0.78291801938          1.0000000
+      0.78291801938           .41941039165375
 Mn    D
-      0.25952311214          1.0000000
+      0.25952311214           .21887261672743
 Mn    D
       0.0860000              1.0000000
 Mn    F
@@ -1086,9 +1353,9 @@ Fe    D
       6.2744782934           0.23103094314
       2.3552337175           0.39910706494
 Fe    D
-      0.85432239901          1.0000000
+      0.85432239901           .41391589765
 Fe    D
-      0.27869254413          1.0000000
+      0.27869254413           .21909269782
 Fe    D
       0.0910000              1.0000000
 Fe    F
@@ -1146,9 +1413,9 @@ Co    D
       6.9322128825           0.23085496779
       2.6025125694           0.39281059225
 Co    D
-      0.94016837302          1.0000000
+      0.94016837302           .40203412228
 Co    D
-      0.30381457794          1.0000000
+      0.30381457794           .21415606743
 Co    D
       0.0980000              1.0000000
 Co    F
@@ -1206,9 +1473,9 @@ Ni    D
       7.6246142580           0.23236775502
       2.8632206762           0.39042651680
 Ni    D
-      1.0311063388           1.0000000
+      1.0311063388            .39509498921
 Ni    D
-      0.33060760691          1.0000000
+      0.33060760691           .21138769167
 Ni    D
       0.1060000              1.0000000
 Ni    F
@@ -1266,9 +1533,9 @@ Cu    D
       7.4995240537           0.25631430541
       2.7601394169           0.40374062368
 Cu    D
-      0.95362061236          1.0000000
+      0.95362061236           .39427042447
 Cu    D
-      0.28420862520          1.0000000
+      0.28420862520           .23091146816
 Cu    D
       0.0850000              1.0000000
 Cu    F
@@ -1326,9 +1593,9 @@ Zn    D
       9.1278367624           0.24491506805
       3.4312364064           0.40390526479
 Zn    D
-      1.2308920645           1.0000000
+      1.2308920645            .40158491145
 Zn    D
-      0.39031845112          1.0000000
+      0.39031845112           .21579805034
 Zn    D
       0.1240000              1.0000000
 Zn    F
@@ -1387,7 +1654,7 @@ Ga    D
       4.1549137954           0.40318563513
       1.5345659145           0.40824748152
 Ga    D
-      0.51114263830          1.0000000
+      0.51114263830           .20502439263
 Ga    D
       0.30622000             1.0000000
 Ga    D
@@ -1444,7 +1711,7 @@ Ge    D
       4.8888672922           0.40301067220
       1.8453195392           0.41304847015
 Ge    D
-      0.63571158892          1.0000000
+      0.63571158892           .19639209740
 Ge    D
       0.35492132             1.0000000
 Ge    D
@@ -1502,7 +1769,7 @@ As    D
       5.6432900356           0.40309224382
       2.1668188623           0.41671667946
 As    D
-      0.76514970569          1.0000000
+      0.76514970569           .18935502288
 As    D
       0.42434653             1.0000000
 As    D
@@ -1560,7 +1827,7 @@ Se    D
       6.4305057612           0.40314789649
       2.5048025169           0.41966491490
 Se    D
-      0.90271148434          1.0000000
+      0.90271148434           .18366663432
 Se    D
       0.47683613             1.0000000
 Se    D
@@ -1618,7 +1885,7 @@ Br    D
       7.2455694631           0.40335336746
       2.8562315025           0.42208813080
 Br    D
-      1.0459621144           1.0000000
+      1.0459621144            .17874813267
 Br    D
       0.56865655             1.0000000
 Br    D
@@ -1676,7 +1943,7 @@ Kr    D
       8.0884536976           0.40366293413
       3.2214033853           0.42402860686
 Kr    D
-      1.1952170102           1.0000000
+      1.1952170102            .17441742274
 Kr    D
       0.6480000              1.0000000
 Kr    D
@@ -1711,9 +1978,9 @@ Rb    P
 Rb    P
       0.16000000000E-01      1.0000000
 Rb    D
-      0.25907866956          1.0000000
+      0.25907866956          0.76806746340E-01
 Rb    D
-      0.42507438045E-01      1.0000000
+      0.42507438045E-01      0.37846160487
 Rb    D
       0.11909276840E-01      1.0000000
 Rb    F
@@ -2939,9 +3206,9 @@ Cs    P
 Cs    P
       0.17592078473E-01      1.0000000
 Cs    D
-      0.27941471548          1.0000000
+      0.27941471548          0.15040680034
 Cs    D
-      0.62419809739E-01      1.0000000
+      0.62419809739E-01      0.36150912942
 Cs    D
       0.15987870156E-01      1.0000000
 Cs    F

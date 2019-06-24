@@ -1,9 +1,43 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T13:56
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # x2c-jfit version number 0
 # Description: x2c coulomb fitting
 # Role: jfit
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# H-Rn
+#     ## x2c-coulomb-fitting
+#     Pollak, Patrik, Weigend, Florian
+#     Segmented Contracted Error-Consistent Basis Sets of Double- and
+#             Triple-ζ Valence Quality for One- and Two-Component
+#             Relativistic All-Electron Calculations
+#     J. Chem. Theory Comput., 13, 3696-3705 (2017)
+#     10.1021/acs.jctc.7b00593
+# 
+# # 
 basis "H_x2c-jfit" 
 #basis SET: (5s,2p,1d) -> [3s,1p,1d]
 H    S
@@ -11,14 +45,14 @@ H    S
       3.6063578              0.0631670
       1.2080016              0.1204609
 H    S
-      0.4726794              1.0000000
+      0.4726794              0.0592485
 H    S
-      0.2018100              1.0000000
+      0.2018100              0.0051272
 H    P
       2.0281365              1.0000000
       0.5358730              1.0000000
 H    D
-      2.2165124              1.0000000
+      2.2165124              0.0033116
 end
 basis "He_x2c-jfit" 
 #basis SET: (5s,2p,1d) -> [3s,1p,1d]
@@ -27,9 +61,9 @@ He    S
      12.6182260              0.2103093
       3.8995171              0.3791436
 He    S
-      1.4088465              1.0000000
+      1.4088465              0.2938041
 He    S
-      0.5393970              1.0000000
+      0.5393970              0.0661606
 He    P
       4.0000000              1.0000000
       1.0000000              1.0000000

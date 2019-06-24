@@ -1,9 +1,67 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T15:29
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # psbkjc version number 0
 # Description: Electrically polarized valence basis sets for the SBKJC effective core potential developed for calculations of dynamic polarizabilities and Raman intensities
 # Role: orbital
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# C-F,Si-Cl
+#     ## pSBKJC
+#     Vidal, Luciano N., Vazquez, Pedro A. M.
+#     Electrically polarized valence basis sets for the SBKJC effective core
+#             potential developed for calculations of dynamic
+#             polarizabilities and Raman intensities
+#     Theor. Chem. Acc., 131, 1111 (2012)
+#     10.1007/s00214-012-1111-4
+# 
+#     ## SBKJC ECP
+#     Stevens, Walter J., Basch, Harold, Krauss, Morris
+#     Compact effective potentials and efficient shared-exponent basis sets
+#             for the first- and second-row atoms
+#     J. Chem. Phys., 81, 6026-6033 (1984)
+#     10.1063/1.447604
+# 
+# Ge-Br,Sn-I
+#     ## pSBKJC
+#     Vidal, Luciano N., Vazquez, Pedro A. M.
+#     Electrically polarized valence basis sets for the SBKJC effective core
+#             potential developed for calculations of dynamic
+#             polarizabilities and Raman intensities
+#     Theor. Chem. Acc., 131, 1111 (2012)
+#     10.1007/s00214-012-1111-4
+# 
+#     ## SBKJC ECP
+#     Stevens, Walter J., Krauss, Morris, Basch, Harold, Jasien, Paul G.
+#     Relativistic compact effective potentials and efficient, shared-
+#             exponent basis sets for the third-, fourth-, and fifth-row
+#             atoms
+#     Can. J. Chem., 70, 612-630 (1992)
+#     10.1139/v92-085
+# 
+# # 
 basis "C_psbkjc" 
 #basis SET: (5s,5p,4d) -> [3s,3p,2d]
 C    S
@@ -11,17 +69,17 @@ C    S
       1.0460000              0.08125000
       0.3447000              0.71360000
 C    S
-      0.1128000              1.0000000
+      0.1128000              1.00000000
 C    S
-      0.0369128              1.0000000
+      0.0369128              1.00000000
 C    P
       4.2860000              0.10257000
       1.0460000              0.32987000
       0.3447000              0.48212000
 C    P
-      0.1128000              1.0000000
+      0.1128000              1.00000000
 C    P
-      0.0369128              1.0000000
+      0.0369128              1.00000000
 C    D
       1.0460000              0.39731820
       0.3447000              0.91768090
@@ -46,17 +104,17 @@ N    S
       1.5800000              0.05492000
       0.5094000              0.71678000
 N    S
-      0.1623000              1.0000000
+      0.1623000              1.00000000
 N    S
-      0.0517104              1.0000000
+      0.0517104              1.00000000
 N    P
       6.4030000              0.10336000
       1.5800000              0.33205000
       0.5094000              0.48708000
 N    P
-      0.1623000              1.0000000
+      0.1623000              1.00000000
 N    P
-      0.0517104              1.0000000
+      0.0517104              1.00000000
 N    D
       1.5800000             -0.64738610
       0.5094000             -0.76216220
@@ -81,17 +139,17 @@ O    S
       2.0730000              0.08286000
       0.6471000              0.74325000
 O    S
-      0.2000000              1.0000000
+      0.2000000              1.00000000
 O    S
-      0.0618142              1.0000000
+      0.0618142              1.00000000
 O    P
       8.5190000              0.11007000
       2.0730000              0.34969000
       0.6471000              0.48093000
 O    P
-      0.2000000              1.0000000
+      0.2000000              1.00000000
 O    P
-      0.0618142              1.0000000
+      0.0618142              1.00000000
 O    D
       2.0730000              0.21488390
       0.6471000              0.53088590
@@ -116,17 +174,17 @@ F    S
       2.6870000              0.08971000
       0.8210000              0.75659000
 F    S
-      0.2475000              1.0000000
+      0.2475000              1.00000000
 F    S
-      0.0746118              1.0000000
+      0.0746118              1.00000000
 F    P
      11.1200000              0.11300000
       2.6870000              0.35841000
       0.8210000              0.48002000
 F    P
-      0.2475000              1.0000000
+      0.2475000              1.00000000
 F    P
-      0.0746118              1.0000000
+      0.0746118              1.00000000
 F    D
       2.6870000              0.19833000
       0.8210000              0.48352900
@@ -151,17 +209,17 @@ Si    S
       0.5268000              0.18438000
       0.1807000              0.77737000
 Si    S
-      0.0648000              1.0000000
+      0.0648000              1.00000000
 Si    S
-      0.0232376              1.0000000
+      0.0232376              1.00000000
 Si    P
       1.1670000             -0.08450000
       0.5268000              0.23786000
       0.1807000              0.56532000
 Si    P
-      0.0648000              1.0000000
+      0.0648000              1.00000000
 Si    P
-      0.0232376              1.0000000
+      0.0232376              1.00000000
 Si    D
       0.5268000              0.39731820
       0.1807000              0.91768090
@@ -189,17 +247,17 @@ P    S
       0.6549000              0.21535000
       0.2256000              0.79578000
 P    S
-      0.0811500              1.0000000
+      0.0811500              1.00000000
 P    S
-      0.0291902              1.0000000
+      0.0291902              1.00000000
 P    P
       1.4590000             -0.09378000
       0.6549000              0.29205000
       0.2256000              0.58688000
 P    P
-      0.0811500              1.0000000
+      0.0811500              1.00000000
 P    P
-      0.0291902              1.0000000
+      0.0291902              1.00000000
 P    D
       0.6549000             -0.94593020
       0.2256000             -0.32437020
@@ -227,17 +285,17 @@ S    S
       0.8379000              0.19601000
       0.2854000              0.82666000
 S    S
-      0.0993900              1.0000000
+      0.0993900              1.00000000
 S    S
-      0.0346124              1.0000000
+      0.0346124              1.00000000
 S    P
       1.8170000             -0.10096000
       0.8379000              0.31244000
       0.2854000              0.57906000
 S    P
-      0.0993900              1.0000000
+      0.0993900              1.00000000
 S    P
-      0.0346124              1.0000000
+      0.0346124              1.00000000
 S    D
       0.8379000              0.30671360
       0.2854000              0.95180180
@@ -265,17 +323,17 @@ Cl    S
       1.1730000              0.11528000
       0.3851000              0.84717000
 Cl    S
-      0.1301000              1.0000000
+      0.1301000              1.00000000
 Cl    S
-      0.0439522              1.0000000
+      0.0439522              1.00000000
 Cl    P
       2.2250000             -0.12604000
       1.1730000              0.29952000
       0.3851000              0.58357000
 Cl    P
-      0.1301000              1.0000000
+      0.1301000              1.00000000
 Cl    P
-      0.0439522              1.0000000
+      0.0439522              1.00000000
 Cl    D
       1.1730000              0.28500530
       0.3851000              0.95852590

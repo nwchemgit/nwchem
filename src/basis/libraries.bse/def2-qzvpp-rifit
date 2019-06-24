@@ -1,9 +1,51 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T13:56
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # def2-qzvpp-rifit version number 1
 # Description: RIMP2 auxiliary basis for def2-QZVPP
 # Role: rifit
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# H-Kr
+#     ## def2-QZVPP-RIFIT
+#     Hättig, Christof
+#     Optimization of auxiliary basis sets for RI-MP2 and RI-CC2
+#             calculations: Core-valence and quintuple-ζ basis sets for H to
+#             Ar and QZVPP basis sets for Li to Kr
+#     Phys. Chem. Chem. Phys., 7, 59-66 (2005)
+#     10.1039/b415208e
+# 
+# Rb-La,Hf-Rn
+#     ## def2-QZVPP-RIFIT
+#     Hellweg, Arnim, Hättig, Christof, Höfener, Sebastian, Klopper, Wim
+#     Optimized accurate auxiliary basis sets for RI-MP2 and RI-CC2
+#             calculations for the atoms Rb to Rn
+#     Theor. Chem. Acc., 117, 587-597 (2007)
+#     10.1007/s00214-007-0250-5
+# 
+# # 
 basis "H_def2-qzvpp-rifit" 
 #basis SET: (6s,4p,3d,2f,1g) -> [6s,4p,3d,2f,1g]
 H    S

@@ -1,9 +1,139 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T14:33
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # 6-311g(2df,2pd) version number 0
 # Description: 6-311G(2df,2pd)
 # Role: orbital
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# H
+#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO for H,He
+#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
+#     Self-consistent molecular orbital methods. XX. A basis set for
+#             correlated wave functions
+#     J. Chem. Phys., 72, 650-654 (1980)
+#     10.1063/1.438955
+# 
+#     ## 31G(2p) - double polarization functions for H,He
+#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
+#     Self-consistent molecular orbital methods. XX. A basis set for
+#             correlated wave functions
+#     J. Chem. Phys., 72, 650-654 (1980)
+#     10.1063/1.438955
+# 
+#     ## 3PD      Polarization functions associated with 6-31G and 6-311G
+#     Frisch, Michael J., Pople, John A., Binkley, J. Stephen
+#     Self-consistent molecular orbital methods 25. Supplementary functions
+#             for Gaussian basis sets
+#     J. Chem. Phys., 80, 3265-3269 (1984)
+#     10.1063/1.447079
+# 
+# He
+#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO for H,He
+#     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
+#             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
+#             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
+#             Hratchian, H. P., Izmaylov, A. F., Bloino, J., Zheng, G.,
+#             Sonnenberg, J. L., Hada, M., Ehara, M., Toyota, K., Fukuda,
+#             R., Hasegawa, J., Ishida, M., Nakajima, T., Honda, Y., Kitao,
+#             O., Nakai, H., Vreven, T., Montgomery, J. A., Jr., Peralta, J.
+#             E., Ogliaro, F., Bearpark, M., Heyd, J. J., Brothers, E.,
+#             Kudin, K. N., Staroverov, V. N., Kobayashi, R., Normand, J.,
+#             Raghavachari, K., Rendell, A., Burant, J. C., Iyengar, S. S.,
+#             Tomasi, J., Cossi, M., Rega, N., Millam, M. J., Klene, M.,
+#             Knox, J. E., Cross, J. B., Bakken, V., Adamo, C., Jaramillo,
+#             J., Gomperts, R., Stratmann, R. E., Yazyev, O., Austin, A. J.,
+#             Cammi, R., Pomelli, C., Ochterski, J. W., Martin, R. L.,
+#             Morokuma, K., Zakrzewski, V. G., Voth, G. A., Salvador, P.,
+#             Dannenberg, J. J., Dapprich, S., Daniels, A. D., Farkas, Ö.,
+#             Foresman, J. B., Ortiz, J. V., Cioslowski, J., Fox, D. J.
+#     Gaussian 09 Revision E.01
+#     Gaussian, Inc., Wallingford, CT, 2009
+# 
+#     ## 31G(2p) - double polarization functions for H,He
+#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
+#     Self-consistent molecular orbital methods. XX. A basis set for
+#             correlated wave functions
+#     J. Chem. Phys., 72, 650-654 (1980)
+#     10.1063/1.438955
+# 
+#     ## 3PD      Polarization functions associated with 6-31G and 6-311G
+#     Frisch, Michael J., Pople, John A., Binkley, J. Stephen
+#     Self-consistent molecular orbital methods 25. Supplementary functions
+#             for Gaussian basis sets
+#     J. Chem. Phys., 80, 3265-3269 (1984)
+#     10.1063/1.447079
+# 
+# Li-Ne
+#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
+#     Self-consistent molecular orbital methods. XX. A basis set for
+#             correlated wave functions
+#     J. Chem. Phys., 72, 650-654 (1980)
+#     10.1063/1.438955
+# 
+#     ## 6-31G(2df)
+#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
+#     Self-consistent molecular orbital methods. XX. A basis set for
+#             correlated wave functions
+#     J. Chem. Phys., 72, 650-654 (1980)
+#     10.1063/1.438955
+# 
+#     ## 6-31G(f)
+#     Frisch, Michael J., Pople, John A., Binkley, J. Stephen
+#     Self-consistent molecular orbital methods 25. Supplementary functions
+#             for Gaussian basis sets
+#     J. Chem. Phys., 80, 3265-3269 (1984)
+#     10.1063/1.447079
+# 
+# K,Ca
+#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+#     Blaudeau, Jean-Philippe, McGrath, Mark P., Curtiss, Larry A., Radom,
+#             Leo
+#     Extension of Gaussian-2 (G2) theory to molecules containing third-row
+#             atoms K and Ca
+#     J. Chem. Phys., 107, 5016-5021 (1997)
+#     10.1063/1.474865
+# 
+#     ## 6-31G(2df)
+#     Blaudeau, Jean-Philippe, McGrath, Mark P., Curtiss, Larry A., Radom,
+#             Leo
+#     Extension of Gaussian-2 (G2) theory to molecules containing third-row
+#             atoms K and Ca
+#     J. Chem. Phys., 107, 5016-5021 (1997)
+#     10.1063/1.474865
+# 
+#     ## 6-31G(f)
+#     Blaudeau, Jean-Philippe, McGrath, Mark P., Curtiss, Larry A., Radom,
+#             Leo
+#     Extension of Gaussian-2 (G2) theory to molecules containing third-row
+#             atoms K and Ca
+#     J. Chem. Phys., 107, 5016-5021 (1997)
+#     10.1063/1.474865
+# 
+# # 
 basis "H_6-311g(2df,2pd)" 
 #basis SET: (5s,2p,1d) -> [3s,2p,1d]
 H    S
@@ -11,15 +141,15 @@ H    S
       5.094790               0.190373
       1.158790               0.852161
 H    S
-      0.325840               1.0000000
+      0.325840               1.000000
 H    S
-      0.102741               1.0000000
+      0.102741               1.000000
 H    P
       1.5000000              1.0000000
 H    P
       0.3750000              1.0000000
 H    D
-      1.0000                 1.0000000
+      1.0000                 1.000000
 end
 basis "He_6-311g(2df,2pd)" 
 #basis SET: (5s,2p,1d) -> [3s,2p,1d]
@@ -28,15 +158,15 @@ He    S
      14.76890                0.208061
       3.318830               0.837635
 He    S
-      0.874047               1.0000000
+      0.874047               1.000000
 He    S
-      0.244564               1.0000000
+      0.244564               1.000000
 He    P
       1.5000000              1.0000000
 He    P
       0.3750000              1.0000000
 He    D
-      2.0000                 1.0000000
+      2.0000                 1.000000
 end
 basis "Li_6-311g(2df,2pd)" 
 #basis SET: (11s,5p,2d,1f) -> [4s,3p,2d,1f]
@@ -243,17 +373,17 @@ K    S
      82.6178                 0.405147
      33.2332                 0.292532
 K    S
-      8.10649                1.0000000
+      8.10649                1.000000
 K    S
-      3.33403                1.0000000
+      3.33403                1.000000
 K    S
-      0.845544               1.0000000
+      0.845544               1.000000
 K    S
-      0.3282160              1.0000000
+      0.3282160              1.000000
 K    S
-      0.0364035              1.0000000
+      0.0364035              1.000000
 K    S
-      0.0176463              1.0000000
+      0.0176463              1.000000
 K    P
     891.054                  0.00218429
     211.016                  0.0175891
@@ -263,15 +393,15 @@ K    P
      10.1390                 0.433984
       4.20186                0.362377
 K    P
-      1.62507                1.0000000
+      1.62507                1.000000
 K    P
-      0.64377                1.0000000
+      0.64377                1.000000
 K    P
-      0.24613                1.0000000
+      0.24613                1.000000
 K    P
-      0.04544                1.0000000
+      0.04544                1.000000
 K    P
-      0.01616                1.0000000
+      0.01616                1.000000
 K    D
      13.37                   0.0316016
       3.421                  0.156879
@@ -296,17 +426,17 @@ Ca    S
      92.2892                 0.404415
      37.2545                 0.296313
 Ca    S
-      9.13198                1.0000000
+      9.13198                1.000000
 Ca    S
-      3.81779                1.0000000
+      3.81779                1.000000
 Ca    S
-      1.04935                1.0000000
+      1.04935                1.000000
 Ca    S
-      0.428660               1.0000000
+      0.428660               1.000000
 Ca    S
-      0.0628226              1.0000000
+      0.0628226              1.000000
 Ca    S
-      0.0260162              1.0000000
+      0.0260162              1.000000
 Ca    P
    1019.76                   0.00205986
     241.596                  0.01665010
@@ -316,15 +446,15 @@ Ca    P
      11.7626                 0.432578
       4.92289                0.367325
 Ca    P
-      1.90645                1.0000000
+      1.90645                1.000000
 Ca    P
-      0.73690                1.0000000
+      0.73690                1.000000
 Ca    P
-      0.27642                1.0000000
+      0.27642                1.000000
 Ca    P
-      0.06027                1.0000000
+      0.06027                1.000000
 Ca    P
-      0.01791                1.0000000
+      0.01791                1.000000
 Ca    D
      15.08                   0.0368947
       3.926                  0.1778200

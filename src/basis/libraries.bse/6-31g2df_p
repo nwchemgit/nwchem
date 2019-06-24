@@ -1,9 +1,210 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T14:33
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # 6-31g(2df,p) version number 0
 # Description: 6-31G(2df,p)
 # Role: orbital
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# H
+#     ## 6-31G for H taken from old BSE 6-31G 
+#     Ditchfield, R., Hehre, W. J., Pople, J. A.
+#     Self-Consistent Molecular-Orbital Methods. IX. An Extended Gaussian-
+#             Type Basis for Molecular-Orbital Studies of Organic Molecules
+#     J. Chem. Phys., 54, 724-728 (1971)
+#     10.1063/1.1674902
+# 
+#     ## 31G(2p) - double polarization functions for H,He
+#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
+#     Self-consistent molecular orbital methods. XX. A basis set for
+#             correlated wave functions
+#     J. Chem. Phys., 72, 650-654 (1980)
+#     10.1063/1.438955
+# 
+# He
+#     ## 31G valence double-zeta
+#     (...no reference...)
+# 
+#     ## 31G(2p) - double polarization functions for H,He
+#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
+#     Self-consistent molecular orbital methods. XX. A basis set for
+#             correlated wave functions
+#     J. Chem. Phys., 72, 650-654 (1980)
+#     10.1063/1.438955
+# 
+# Li,B
+#     ## 6-31G valence double-zeta
+#     Dill, James D., Pople, John A.
+#     Self-consistent molecular orbital methods. XV. Extended Gaussian-type
+#             basis sets for lithium, beryllium, and boron
+#     J. Chem. Phys., 62, 2921-2923 (1975)
+#     10.1063/1.430801
+# 
+#     ## 6-31G(2df)
+#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
+#     Self-consistent molecular orbital methods. XX. A basis set for
+#             correlated wave functions
+#     J. Chem. Phys., 72, 650-654 (1980)
+#     10.1063/1.438955
+# 
+#     ## 6-31G(f)
+#     Frisch, Michael J., Pople, John A., Binkley, J. Stephen
+#     Self-consistent molecular orbital methods 25. Supplementary functions
+#             for Gaussian basis sets
+#     J. Chem. Phys., 80, 3265-3269 (1984)
+#     10.1063/1.447079
+# 
+# Be
+#     ## 6-31G valence double-zeta
+#     Binkley, J. Stephen, Pople, John A.
+#     Self-consistent molecular orbital methods. XIX. Split-valence
+#             Gaussian-type basis sets for beryllium
+#     J. Chem. Phys., 66, 879-880 (1977)
+#     10.1063/1.433929
+# 
+#     ## 6-31G(2df)
+#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
+#     Self-consistent molecular orbital methods. XX. A basis set for
+#             correlated wave functions
+#     J. Chem. Phys., 72, 650-654 (1980)
+#     10.1063/1.438955
+# 
+#     ## 6-31G(f)
+#     Frisch, Michael J., Pople, John A., Binkley, J. Stephen
+#     Self-consistent molecular orbital methods 25. Supplementary functions
+#             for Gaussian basis sets
+#     J. Chem. Phys., 80, 3265-3269 (1984)
+#     10.1063/1.447079
+# 
+# C-F
+#     ## 6-31G valence double-zeta
+#     Hehre, W. J., Ditchfield, R., Pople, J. A.
+#     Self-Consistent Molecular Orbital Methods. XII. Further Extensions of
+#             Gaussian-Type Basis Sets for Use in Molecular Orbital Studies
+#             of Organic Molecules
+#     J. Chem. Phys., 56, 2257-2261 (1972)
+#     10.1063/1.1677527
+# 
+#     ## 6-31G(2df)
+#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
+#     Self-consistent molecular orbital methods. XX. A basis set for
+#             correlated wave functions
+#     J. Chem. Phys., 72, 650-654 (1980)
+#     10.1063/1.438955
+# 
+#     ## 6-31G(f)
+#     Frisch, Michael J., Pople, John A., Binkley, J. Stephen
+#     Self-consistent molecular orbital methods 25. Supplementary functions
+#             for Gaussian basis sets
+#     J. Chem. Phys., 80, 3265-3269 (1984)
+#     10.1063/1.447079
+# 
+# Ne
+#     ## 6-31G valence double-zeta
+#     (...no reference...)
+# 
+#     ## 6-31G(2df)
+#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
+#     Self-consistent molecular orbital methods. XX. A basis set for
+#             correlated wave functions
+#     J. Chem. Phys., 72, 650-654 (1980)
+#     10.1063/1.438955
+# 
+#     ## 6-31G(f)
+#     Frisch, Michael J., Pople, John A., Binkley, J. Stephen
+#     Self-consistent molecular orbital methods 25. Supplementary functions
+#             for Gaussian basis sets
+#     J. Chem. Phys., 80, 3265-3269 (1984)
+#     10.1063/1.447079
+# 
+# Na-Cl
+#     ## Core functions for 6-LMG basis sets for Na-Ar (common to 6-31G and 6-21G)
+#     Gordon, Mark S., Binkley, J. Stephen, Pople, John A., Pietro, William
+#             J., Hehre, Warren J.
+#     Self-consistent molecular-orbital methods. 22. Small split-valence
+#             basis sets for second-row elements
+#     J. Am. Chem. Soc., 104, 2797-2803 (1982)
+#     10.1021/ja00374a017
+# 
+#     ## 6-31G valence double-zeta
+#     Francl, Michelle M., Pietro, William J., Hehre, Warren J., Binkley, J.
+#             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
+#     Self-consistent molecular orbital methods. XXIII. A polarization-type
+#             basis set for second-row elements
+#     J. Chem. Phys., 77, 3654-3665 (1982)
+#     10.1063/1.444267
+# 
+#     ## 6-31G(2df)
+#     Francl, Michelle M., Pietro, William J., Hehre, Warren J., Binkley, J.
+#             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
+#     Self-consistent molecular orbital methods. XXIII. A polarization-type
+#             basis set for second-row elements
+#     J. Chem. Phys., 77, 3654-3665 (1982)
+#     10.1063/1.444267
+# 
+#     ## 6-31G(f)
+#     Frisch, Michael J., Pople, John A., Binkley, J. Stephen
+#     Self-consistent molecular orbital methods 25. Supplementary functions
+#             for Gaussian basis sets
+#     J. Chem. Phys., 80, 3265-3269 (1984)
+#     10.1063/1.447079
+# 
+# Ar
+#     ## Core functions for 6-LMG basis sets for Na-Ar (common to 6-31G and 6-21G)
+#     Gordon, Mark S., Binkley, J. Stephen, Pople, John A., Pietro, William
+#             J., Hehre, Warren J.
+#     Self-consistent molecular-orbital methods. 22. Small split-valence
+#             basis sets for second-row elements
+#     J. Am. Chem. Soc., 104, 2797-2803 (1982)
+#     10.1021/ja00374a017
+# 
+#     ## 6-31G valence double-zeta
+#     Francl, Michelle M., Pietro, William J., Hehre, Warren J., Binkley, J.
+#             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
+#     Self-consistent molecular orbital methods. XXIII. A polarization-type
+#             basis set for second-row elements
+#     J. Chem. Phys., 77, 3654-3665 (1982)
+#     10.1063/1.444267
+# 
+#     ## 6-31G(2df)
+#     Francl, Michelle M., Pietro, William J., Hehre, Warren J., Binkley, J.
+#             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
+#     Self-consistent molecular orbital methods. XXIII. A polarization-type
+#             basis set for second-row elements
+#     J. Chem. Phys., 77, 3654-3665 (1982)
+#     10.1063/1.444267
+# 
+#     ## 6-31G(f)
+#     Curtiss, Larry A., Raghavachari, Krishnan, Redfern, Paul C., Rassolov,
+#             Vitaly, Pople, John A.
+#     Gaussian-3 (G3) theory for molecules containing first and second-row
+#             atoms
+#     J. Chem. Phys., 109, 7764-7776 (1998)
+#     10.1063/1.477422
+# 
+# # 
 basis "H_6-31g(2df,p)" 
 #basis SET: (4s,2p) -> [2s,2p]
 H    S
@@ -11,7 +212,7 @@ H    S
       2.8253937              0.23472695
       0.6401217              0.81375733
 H    S
-      0.1612778              1.0000000
+      0.1612778              1.00000000
 H    P
       1.5000000              1.0000000
 H    P

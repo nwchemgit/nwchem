@@ -1,9 +1,113 @@
-# BSE Version v0.8.3+10.g779a56f
-# Data downloaded at 2019-06-11T15:29
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
 # dhf-ecp version number 0
 # Description: dhf-ECP
 # Role: orbital
 # 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# Rb,Cs
+#     ## dhf-ECP
+#     Lim, Ivan S., Schwerdtfeger, Peter, Metz, Bernhard, Stoll, Hermann
+#     All-electron and relativistic pseudopotential studies for the group 1
+#             element polarizabilities from K to element 119
+#     J. Chem. Phys., 122, 104103 (2005)
+#     10.1063/1.1856451
+# 
+# Sr,Ba
+#     ## dhf-ECP
+#     Lim, Ivan S., Stoll, Hermann, Schwerdtfeger, Peter
+#     Relativistic small-core energy-consistent pseudopotentials for the
+#             alkaline-earth elements from Ca to Ra
+#     J. Chem. Phys., 124, 034107 (2006)
+#     10.1063/1.2148945
+# 
+# Y-Pd
+#     ## dhf-ECP
+#     Peterson, Kirk A., Figgen, Detlev, Dolg, Michael, Stoll, Hermann
+#     Energy-consistent relativistic pseudopotentials and correlation
+#             consistent basis sets for the 4d elements Y-Pd
+#     J. Chem. Phys., 126, 124101 (2007)
+#     10.1063/1.2647019
+# 
+# Ag,Cd,Au,Hg
+#     ## dhf-ECP
+#     Figgen, Detlev, Rauhut, Guntram, Dolg, Michael, Stoll, Hermann
+#     Energy-consistent pseudopotentials for group 11 and 12 atoms:
+#             adjustment to multi-configuration Dirac-Hartree-Fock data
+#     J. Chem. Phys., 311, 227-244 (2005)
+#     10.1016/j.chemphys.2004.10.005
+# 
+# In-Sb,Pb,Bi
+#     ## dhf-ECP
+#     Metz, Bernhard, Stoll, Hermann, Dolg, Michael
+#     Small-core multiconfiguration-Dirac-Hartree-Fock-adjusted
+#             pseudopotentials for post-d main group elements: Application
+#             to PbH and PbO
+#     J. Chem. Phys., 113, 2563-2569 (2000)
+#     10.1063/1.1305880
+# 
+# Te,Xe,Po-Rn
+#     ## dhf-ECP
+#     Peterson, Kirk A., Figgen, Detlev, Goll, Erich, Stoll, Hermann, Dolg,
+#             Michael
+#     Systematically convergent basis sets with relativistic
+#             pseudopotentials. II. Small-core pseudopotentials and
+#             correlation consistent basis sets for the post-d group 16-18
+#             elements
+#     J. Chem. Phys., 119, 11113-11123 (2003)
+#     10.1063/1.1622924
+# 
+# I
+#     ## dhf-ECP
+#     Peterson, Kirk A., Shepler, Benjamin C., Figgen, Detlev, Stoll,
+#             Hermann
+#     On the Spectroscopic and Thermochemical Properties of ClO, BrO, IO,
+#             and Their Anions
+#     J. Phys. Chem. A, 110, 13877-13883 (2006)
+#     10.1021/jp065887l
+# 
+# Hf-Pt
+#     ## dhf-ECP
+#     Figgen, Detlev, Peterson, Kirk A., Dolg, Michael, Stoll, Hermann
+#     Energy-consistent pseudopotentials and correlation consistent basis
+#             sets for the 5d elements Hf-Pt
+#     J. Chem. Phys., 130, 164108 (2009)
+#     10.1063/1.3119665
+# 
+# Tl
+#     ## dhf-ECP
+#     Metz, Bernhard, Schweizer, Marcus, Stoll, Hermann, Dolg, Michael, Liu,
+#             Wenjian
+#     A small-core multiconfiguration Dirac-Hartree-Fock-adjusted
+#             pseudopotential for Tl - application to Tl X ( X = F, Cl, Br,
+#             I)
+#     Theor. Chim. Acta, 104, 22-28 (2000)
+#     10.1007/s002149900101
+# 
+# # 
 
 
 ecp "Rb_dhf-ecp"
