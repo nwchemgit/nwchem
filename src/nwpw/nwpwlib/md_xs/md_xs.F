@@ -410,7 +410,7 @@ c     **********************************************
       integer nframes,natoms,stride,natoms1,center,nkf,nr
       integer iii,i,k,icount,icpu,pto,pfrom,iw,first,last
       real*8  rmax,rcut,x,y,z,vx,vy,vz,time1,volume,unita(3,3),ft(3)
-      real*8  xmin,xmax,ymin,ymax,rmin
+      real*8  xmin,xmax,ymin,ymax,rmin,e0
       complex*16 zz
 
       integer nkf0
@@ -451,6 +451,8 @@ c     **********************************************
      >   center = 1
       if (.not.btdb_get(rtdb,'md_xs:rmax',mt_dbl,1,rmax))
      >   rmax = 10.0d0
+      if (.not.btdb_get(rtdb,'md_xs:e0',mt_dbl,1,e0))
+     >   e0 = 0.0d0
       if (.not.btdb_get(rtdb,'md_xs:rcut',mt_dbl,1,rcut))
      >   rcut = 5.0d0
       if (rcut.lt.1.0d-3) rcut = 0.0d0
@@ -612,6 +614,7 @@ c     **********************************************
          write(luout,*) 'absorber:         ',absorber
          write(luout,*) 'edge:             ',edge
          write(luout,*) 'center:           ',center
+         write(luout,*) 'e0:               ',e0
          write(luout,*) 'Rmax (Angstroms): ',rmax
          write(luout,*) 'Rcut (Angstroms): ',rcut*0.529177d0
          write(luout,*)
@@ -672,7 +675,7 @@ c     **********************************************
                     if (icpu.eq.MASTER) then
                        !*** compute md_xs with natoms1,tag,rion +--> kf,chif ***
                        call md_xs(header,spectroscopy,absorber,edge,
-     >                         rmax,center,rcut,unita,
+     >                         rmax,e0,center,rcut,unita,
      >                         natoms1,byte_mb(tag(1)),dbl_mb(rion(1)),
      >                         nohydrogen,
      >                         nkf,nkf0,dbl_mb(kf(1)),dbl_mb(chif(1)))
@@ -699,7 +702,7 @@ c     **********************************************
 
                        !*** compute md_xs with natoms1,tag,rion +--> kf,chif ***
                        call md_xs(header,spectroscopy,absorber,edge,
-     >                          rmax,center,rcut,unita,
+     >                          rmax,e0,center,rcut,unita,
      >                          natoms1,byte_mb(tag(1)),dbl_mb(rion(1)),
      >                          nohydrogen,
      >                          nkf,nkf0,dbl_mb(kf(1)),dbl_mb(chif(1)))
@@ -796,6 +799,7 @@ c     >                           17x,'kmax=',f6.1,'Ang-1')
          write(19,'(A,A)') "#edge:             ",trim(edge)
          write(19,'(A,I6)') "#center =",center
          write(19,'(A,F16.8)') "#rmax =",rmax
+         write(19,'(A,F16.8)') "#e0 =",e0
          write(19,'(A,A)') '# MOTION filename:  ',trim(filename)
          write(19,'(A,I8)') '# number of frames =',nframes
          write(19,'(A,I8)') '# number of frames used, icount =',icount
@@ -908,6 +912,7 @@ c     >                           17x,'rmax=',f6.1,'Ang')
          write(19,'(A,A)') "#edge:             ",trim(edge)
          write(19,'(A,I6)') "#center =",center
          write(19,'(A,F16.8)') "#rmax =",rmax
+         write(19,'(A,F16.8)') "#e0 =",e0
          write(19,'(A,A)') '# MOTION filename:  ',trim(filename)
          write(19,'(A,I8)') '# number of frames =',nframes
          write(19,'(A,I8)') '# number of frames used, icount =',icount
@@ -1026,12 +1031,12 @@ c     *                md_xs                       *
 c     *                                            *
 c     **********************************************
       subroutine md_xs(header,spectroscopy,absorber,edge,
-     >                 rmax,center,rcut,unita,nion,symb,rion,
+     >                 rmax,e0,center,rcut,unita,nion,symb,rion,
      >                 nohydrogen,
      >                 nkf,nkf0,kf,chi)
       implicit none
       character*(*) header,spectroscopy,absorber,edge
-      real*8  rmax
+      real*8  rmax,e0
       integer center
       real*8 rcut
       real*8 unita(3,3)
@@ -1152,7 +1157,7 @@ c     **********************************************
       call ftupid_icopy8to4(nkatm,int_mb(zkatm(1)),int_mb(zkatm4(1)))
 #endif
       call feff_fortran(header,spectroscopy,absorber,edge,
-     >                  center2,rmax,
+     >                  center2,rmax,e0,
      >                  nkatm,int_mb(katm4(1)),int_mb(zkatm4(1)),
      >                  nion2,int_mb(zion4(1)),dbl_mb(rion2(1)),
      >                  nohydrogen,
