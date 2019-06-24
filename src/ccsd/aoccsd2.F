@@ -1074,10 +1074,10 @@ c
          tx(3)=tcgtime()
 
          if (iam.eq.0.and.oprint)then
-            write(luout,'(1x,a,i5,f9.2)')
+            write(luout,'(1x,a,i5,f12.2)')
      &       'Time for integral evaluation pass ',
      $       nvpass,tx(2)-tx(1)
-            write(luout,'(1x,a,i5,f9.2)')
+            write(luout,'(1x,a,i5,f12.2)')
      &       'Time for triples evaluation pass  ',
      $      nvpass,tx(3)-tx(2)
             call util_flush(luout)
