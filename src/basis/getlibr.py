@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# This script downloads  basis set library data from www.basissetexchange.org
+# This script downloads the basis set library data from www.basissetexchange.org
 # into the directory $NWCHEM_TOP/src/basis/libraries.bse
 # to use, set the env. variable NWCHEM_BASIS_LIBRARY=$NWCHEM_TOP/src/basis/libraries.bse/
 # Requires the installation of the python env. from
@@ -31,6 +31,8 @@ for bas_name in all_bs:
     file_name = file_name.replace(",","_")
     #replace whitespace with underscore
     file_name = file_name.replace(" ","_")
+    #replace forward slash with underscore
+    file_name = file_name.replace("/","_")
     print(' file name is '+file_name+"\n")
     output_file = open(file_name,'w')
     output_file.write('# BSE Version '+bse.version()+'\n')
@@ -43,7 +45,7 @@ for bas_name in all_bs:
     for element in elements_list:
         #element='h'
         try:
-            bs_str=bse.get_basis(bas_name, header=False, elements=element, fmt='nwchem', optimize_general=True)
+            bs_str=bse.get_basis(bas_name, header=False, elements=element, fmt='nwchem', optimize_general=True, uncontract_general=True)
         except:
 #            print("failed for"+element)
             pass
