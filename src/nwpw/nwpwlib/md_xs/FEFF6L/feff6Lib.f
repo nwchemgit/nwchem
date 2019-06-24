@@ -12493,7 +12493,7 @@ c     **** parse "geometry": json item ****
 
 
       subroutine feff_fortran(header,spectroscopy,absorption,edge,
-     >                        center,rmax,e0,
+     >                        center,rmax,e0,s0,
      >                        nkatm,katm,zkatm,nion,zion,rion,
      >                        nohydrogen,
      >                        nkf,kf,chi)
@@ -12503,7 +12503,7 @@ c     **** parse "geometry": json item ****
       character*(*) absorption
       character*(*) edge
       integer center
-      real*8  rmax,e0
+      real*8  rmax,e0,s0
       integer nkatm
       integer katm(*)
       integer zkatm(*)
@@ -12585,7 +12585,7 @@ c     **** parse "geometry": json item ****
       open (unit=76,file=trim(header)//'feff.inp',status='unknown')
       write(76,'("TITLE ...")')
       write(76,*) 
-      write(76,'("HOLE ",I2," 1.0")') nedge
+      write(76,'("HOLE ",I2,F10.3)') nedge,s0
       write(76,*) 
       write(76,*) "*   mphase,mpath,mfeff,mchi"
       write(76,'("CONTROL  1   1   1   1")')
