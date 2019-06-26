@@ -3,9 +3,10 @@
 *     *             util_ascii_plotter                 *
 *     *                                                *
 *     **************************************************
-      subroutine util_ascii_plotter(lunit,n,x,y,Symbol,Title,
+      subroutine util_ascii_plotter(mark,lunit,n,x,y,Symbol,Title,
      >                              Xlabel,Ylabel)
       implicit none
+      character*(*) mark
       integer lunit,n
       real*8 x(n),y(n)
       character*(*) Symbol,Title,Xlabel,Ylabel
@@ -27,15 +28,15 @@
 
       l = index(Title,' ')-1
       l = 43 - (l/2)
-      write(MyFormatT,'("("I2, "x,A)")' ) l
+      write(MyformatT,'("(A,"I2, "x,A)")' ) l
       l = index(Xlabel,' ') -1
       l = 43 - (l/2)
-      write(MyFormatX,'("("I2, "x,A)")' ) l
+      write(MyformatX,'("(A,"I2, "x,A)")' ) l
 
       write(nstru,'(E10.3)') YU
       write(nstrd,'(E10.3)') YD
 
-      write(MyFormat,'("("I2, "A1)")' ) MaxCol 
+      write(MyFormat,'("(A,"I2, "A1)")' ) MaxCol 
       Point = " "
 
       !*** set y-axis ***
@@ -72,17 +73,17 @@
       end do
 
       !**** write graph to lunit ****
-      write(lunit,MyformatT) Title
-      write(lunit,'(A)') Ylabel
-      write(lunit,MyFormat) ((Point(i,j), j=1,MaxCol), i=1,MaxRow)
+      write(lunit,MyformatT) mark,Title
+      write(lunit,'(A,A)') mark,Ylabel
+      write(lunit,MyFormat) (mark,(Point(i,j), j=1,MaxCol), i=1,MaxRow)
 
       !*** set xlabels ***
-      write(lunit,*) "          ",
+      write(lunit,'(A,A,A,A)') mark,"           ",
      >               "|....................................|",
      >               "....................................|"
-      write(lunit,900) XL,(XL+XR)/2.0d0,XR
-      write(lunit,MyformatX) Xlabel
-  900 format(5x,E10.3,27x,E10.3,27x,E10.3)
+      write(lunit,900) mark,XL,(XL+XR)/2.0d0,XR
+      write(lunit,MyformatX) mark,Xlabel
+  900 format(A,5x,E10.3,27x,E10.3,27x,E10.3)
 
       return
       end
