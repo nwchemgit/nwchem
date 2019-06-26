@@ -761,7 +761,7 @@ c     **** deallocate stack ****
          end do
          call util_ascii_setwindow(xmin,xmax,ymin,ymax)
          !write(luout,'(A,E10.3,A)') "chi_max=",ymax
-         call util_ascii_plotter(luout,iii,
+         call util_ascii_plotter("",luout,iii,
      >                           dbl_mb(kf(1)),
      >                           dbl_mb(chif(1)),'*',
      >                           "Chi(K) - EXAFS Spectra",
@@ -873,7 +873,7 @@ c     **** allocate stack - fft  ****
          end do
          call util_ascii_setwindow(xmin,xmax,ymin,ymax)
          !write(luout,'(A,E10.3,A)') "chi_r_max=",ymax
-         call util_ascii_plotter(luout,iii,
+         call util_ascii_plotter("",luout,iii,
      >                           dbl_mb(r(1)),
      >                           dbl_mb(tmpfft(1)),'*',
      >                           "|FFT(K^w*Chi(K))| - EXAFS Spectra",
