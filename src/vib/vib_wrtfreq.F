@@ -240,9 +240,11 @@ c     &      555, RTDB_ERR)
               Cv_rot = (2.0d0/2.0d0)*Rgas
               Srot=0.0d0
               if (linear) then
-                  Srot   = (Rgas)*(  log(temp) 
-     >                           - log(inertia_C) 
-     >                           - log(dble(sigma))) 
+                  Srot   = log(temp) 
+     >                           - log(dble(sigma))
+                 if(inertia_C.gt.1d-9) 
+     >              Srot= Srot - log(inertia_C) 
+                  Srot   = Rgas*Srot
      >                    + 1.2639d0/AUKCAL/1000.0d0
               end if
            else
