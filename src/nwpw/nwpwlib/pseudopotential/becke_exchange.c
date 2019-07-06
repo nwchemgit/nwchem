@@ -13,6 +13,8 @@ exit:  - Vx[]: exchange potential
 #define tolrho 	2.0e-8
 #define minden 	1.0e-10
 #define minagr 	1.0e-10
+#define minchi 	1.0e-6
+#define maxchi 	10.0
 
 void R_Becke_Exchange(rho,Vx,Ex,Px)
 
@@ -131,7 +133,7 @@ Vx[],
 
     /* calculate F  and dF/dchi *************************************/
     for (i=0;i<Ngrid;++i) {
-       if ((rhoNRM[i]>tolrho) && (chi[i] > minagr)) {
+       if ((rhoNRM[i]>tolrho) && (agr[i]>minagr)) {
           F[i] = chi[i]*chi[i]/(1.0+6.0*beta*c*chi[i]*log(c*chi[i] + sqrt(1.0+c*c*chi[i]*chi[i])));
 
           Fdchi[i] = 2*F[i]/chi[i] - (F[i]*F[i]/(chi[i]*chi[i]))
