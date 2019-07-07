@@ -239,6 +239,8 @@ c#include "Parallel.fh"
          write(luout,1000)
          call nwpw_message(1)
          write(luout,1110)
+         call nwpw_talker("127.0.0.1",9,"50001",5, 
+     >                    "HELLO Eric ericdone",19)
       end if
       
       value = control_read(1,rtdb)
