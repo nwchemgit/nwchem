@@ -1,0 +1,55 @@
+#
+# $Id$
+#
+Comment: Au pseudopotential parameters
+Comment: Relativistic TM, 5s, 5p and 5d in the valence, multiple s and p projectors, no semicore
+Comment: Au(III) reference atom
+Comment: Developed by EJB on 7/4/2019
+Comment: 
+Comment: Au Dimer (Sigma+)
+Comment: 
+Comment: Method      re(Angstroms)  De(eV)   we(cm-1)
+Comment: LDA/100Ry   2.41187        3.16     210.494
+Comment: BLYP/100Ry  2.48617        2.12     176.565
+Comment: PBE/100Ry   2.47621        2.50     193.874
+Comment: Exp         2.47           2.30     191 
+
+[lmax] 2
+[locp] 0
+[rlocal] 1.0
+[cutoff] 50.0
+
+<atom>
+Au
+79.0 196.97 10 3
+1 0   2.0
+2 0   2.0
+2 1   6.0
+3 0   2.0
+3 1   6.0
+3 2  10.0
+4 0   2.0
+4 1   6.0
+4 2   10.0
+4 3   14.0
+5 0   2.0
+5 1   6.0
+5 2   8.00
+<end>
+<solver> pauli                     <end>
+<pseudopotential>    troullier-martins <end>
+ <rcut>
+    0 1.12088
+    1 1.40200
+    2 2.20000
+    3 1.25000
+ <end>
+ <kb_expansion>
+   0  2
+   1  2
+ <end>
+<screening_cut> 0.34 <end>
+<comment> Parameterized Au Troullier-Martin psp (5s5p5d6s6p projectors, 7/04/2019 by EJB) <end>
+
+
+
