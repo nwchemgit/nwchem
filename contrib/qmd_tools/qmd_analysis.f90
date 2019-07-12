@@ -39,7 +39,7 @@ integer :: skip
 integer :: cstep, cstep_prev, cla, ioerror
 integer,dimension(:,:),allocatable :: atgrp
 logical :: step_flag, ts_flag, xyz_flag
-logical :: ignoreH, align_flag
+logical :: ignoreH, align_flag, peratom
 logical,dimension(:),allocatable :: mask
 character(2) :: elem
 character(2),dimension(:),allocatable :: grptags,altags
@@ -75,6 +75,7 @@ xyz_flag=.false.
 step_flag=.false.
 align_flag=.false.
 ignoreH=.false.
+peratom=.false.
 i=1
 cla=command_argument_count()
 if (cla==0) then
@@ -132,6 +133,9 @@ do
  else if (trim(arg)=='-ignH') then
   ignoreH=.true.
   i=i+1
+ else if (trim(arg)=='-peratom') then
+  peratom=.true.
+  i=i+1
  else
   write(*,*)
   write(*,*) 'Unrecognized option:', TRIM(arg)
@@ -157,7 +161,7 @@ if (.not.step_flag) then
  call usage_mess
  stop
 end if
-open(unit=9,file=xyzname)
+open(unit=9,file=xyzname,position='append')
 open(unit=10,file=outnameIR)
 open(unit=20,file=outnameVDOS)
 if (align_flag) open(unit=30,file=outnameAL)
@@ -226,6 +230,11 @@ do i=1,nat
   mask(i)=.false.
  end if
 !doesn't enter loop on i==1
+ if(peratom) then
+   atgrp(ig,2)=ig
+   grptags(ig)=elem
+   ig=ig+1
+ else
  do j=1,i-1
   if (atgrp(i,1).eq.atgrp(j,1)) then
    atgrp(i,2)=atgrp(j,2)
@@ -237,6 +246,7 @@ do i=1,nat
   grptags(ig)=elem
   ig=ig+1
  end if
+endif
 end do
 write(*,*) 'Found ',ig-1,' unique elements in trajectory file'
 !Rewind xyz file
@@ -263,7 +273,7 @@ do
  if (ioerror.lt.0) then
   exit
  else if (ioerror.gt.0) then
-  write(*,*) 'READ ERROR'
+  write(*,*) ioerror,'READ ERROR'
   stop
  else
   backspace(9)
@@ -271,9 +281,10 @@ do
  do
   read(9,*,iostat=ioerror)
   if (ioerror.lt.0) then
+     backspace(9)
    exit
   else if (ioerror.gt.0) then
-   write(*,*) 'READ ERROR'
+   write(*,*) ioerror,'READ ERROR'
    stop
   end if
   read(9,*) cstep, energy, scrdip
