@@ -169,6 +169,10 @@
       real*8   lattice_omega_small
       external lattice_unita_small,lattice_unitg_small
       external lattice_omega_small
+      integer  ion_rion_ptr
+      external ion_rion_ptr
+      logical  control_runsocket
+      external control_runsocket
 
 
 *                            |************|
@@ -649,6 +653,12 @@ c     end if
          call psp_stress_readall()
          call cgsd_energy_stress(stress,lstress)
          call psp_stress_end()
+      end if
+
+*     **** run socket client ****
+      if (control_runsocket()) then
+         call runsocket_ase(nion,EV,
+     >                      dbl_mb(ion_rion_ptr()),dbl_mb(fion(1)))
       end if
 
 
