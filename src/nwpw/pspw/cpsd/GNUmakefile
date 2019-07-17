@@ -13,7 +13,8 @@
                 psi_lmbda_omp.o \
 		fei_output.o \
 		dipole_motion.o \
-		pspw_et.o
+		pspw_et.o \
+		runsocket.o
 ##                cpmd_qmmm_start.o cpmd_qmmm_step.o cpmd_qmmm_stop.o inner_loop_qmmm_step.o
 
 

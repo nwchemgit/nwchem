@@ -239,11 +239,10 @@ c#include "Parallel.fh"
          write(luout,1000)
          call nwpw_message(1)
          write(luout,1110)
-c         call nwpw_talker("127.0.0.1",9,"50001",5, 
-c     >                    "HELLO Eric ericdone",19)
       end if
       
       value = control_read(1,rtdb)
+
 
       mparallelized = control_mparallelized()
       call Parallel2d_Init(control_np_orbital())
@@ -259,6 +258,7 @@ c     >                    "HELLO Eric ericdone",19)
       oprint = omaster.and.control_print(print_medium)
       lprint = omaster.and.control_print(print_low)
       hprint = omaster.and.control_print(print_high)
+
 
 *     **** initialize psi_data ****
       call psi_data_init(100)
