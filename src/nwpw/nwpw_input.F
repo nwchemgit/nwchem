@@ -23,7 +23,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 123)
+      parameter (num_dirs = 124)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -147,6 +147,7 @@ c
      >            'translate_vector',
      >            'makehmass2',
      >            'apc',
+     >            'socket',
      >            'end'/
 
       double precision kb
@@ -156,6 +157,7 @@ c
       character*50 input_wavefunction_filename
       character*50 output_wavefunction_filename
       character*50 exchange_correlation
+      character*128 ipname
       double precision fake_mass,time_step,rcut
       integer loop(2),ncut,cell_expand(3)
       double precision tolerances(3),ecut,wcut,fe,ff,scaling(2)
@@ -219,7 +221,7 @@ c
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
      >       7700,7800,7900,8000,8100,6650,8200,8300,8400,8500,8600,
-     >       8700,8800,
+     >       8700,8800,8900,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -2064,6 +2066,30 @@ c
          end if
       end if
 
+      goto 10
+
+c
+c socket ase_client ip:port
+c
+ 8900 if (inp_a(zone_name)) then
+         move = nwpw_parse_boolean(zone_name,.true.)
+         if (move) then
+            ind = index(zone_name,' ') - 1
+            value=rtdb_cput(rtdb,'nwpw:socket_type',1,
+     >                      zone_name(1:ind))
+            if (inp_a(ipname)) then
+               ind = index(ipname,' ') - 1
+               value = value.and.
+     >                 rtdb_cput(rtdb,'nwpw:socket_ip',1,
+     >                           ipname(1:ind))
+            end if
+         else
+            value=rtdb_delete(rtdb,'nwpw:socket_type')
+         end if
+         if (.not.value)
+     >      call errquit(
+     >      'nwpw_input: error writing to rtdb', 8900, RTDB_ERR)
+      end if
       goto 10
 
 
