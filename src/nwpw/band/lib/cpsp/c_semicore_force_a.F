@@ -42,7 +42,6 @@ c     logocal semicore(0:nkatmx)
       external lattice_omega
 
 
-      write(*,*) "HERA"
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)

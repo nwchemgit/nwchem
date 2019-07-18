@@ -338,6 +338,7 @@
       nprjmax = 0
       do ia=1,npsp
          nprjtmp = (int_mb(nprj(1)+ia-1))
+         if (int_mb(psp_type(1)+ia-1).eq.7) nprjtmp = 2*nprjtmp
          if (nprjtmp.gt.nprjmax) nprjmax = nprjtmp
       end do
 
@@ -662,6 +663,7 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
       mone = dcmplx(-1.0d0,0.0d0)
       ione = dcmplx( 0.0d0,1.0d0)
       call nwpw_timing_start(6)
+
       
 *     **** allocate local memory ****
       nn = ne(1)+ne(2)
@@ -725,6 +727,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >      dcpl_mb(zsw1(1)),
      >      dbl_mb(psi1_shift),dbl_mb(psi2_shift),
      >      dbl_mb(Kijl(1)+(ia-1)*kij_stride),scal)
+
             if (move) then
 
 *              **** define Gx,Gy and Gz in packed space ****
