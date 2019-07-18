@@ -400,6 +400,7 @@ c      complex*16 psi1(*),psi2(*)
       external cpsp_projector_get_ptr,cpsi_data_get_chnk
       external lattice_omega,brillioun_weight
 
+
       if (.not.do_spin_orbit) return
 
       one  = dcmplx( 1.0d0,0.0d0)
@@ -855,8 +856,10 @@ c      ione = dcmplx( 0.0d0,1.0d0)
       call cstrfac_k(ii,nb,cxr)
       call zscal(npack,cxr,exi,1)
 
-*          **** generate zsw1's and projectors ****
+
+*     **** generate zsw1's and projectors ****
       do 105 l=1,nproj
+
               vshiftu = cpsp_projector_get_ptr(
      >                     int_mb(vnl(1)+ia-1),nb,l)
               vshiftd = cpsp_projector_get_ptr(
@@ -876,18 +879,14 @@ c      ione = dcmplx( 0.0d0,1.0d0)
 
 c             *** current function is s or d ****
               if (sd_function) then
-
-
                 call Cram_cc_Mul(nb,dbl_mb(vshiftu),
      >                              exi,
      >                              prtmp(shiftxu))
-                
                 call Cram_cc_Mul(nb,dbl_mb(vshiftd),
      >                              exi,
      >                              prtmp(shiftxd))
 *             *** current function is p or f ****
               else
-
                 call Cram_icc_Mul(nb,dbl_mb(vshiftu),
      >                               exi,
      >                               prtmp(shiftxu))
@@ -906,10 +905,10 @@ c             *** current function is s or d ****
      >                            psi1(shifts),
      >                            prtmp(shiftxd),
      >                            zsw1(zshft))
-
               xx=Gij(l)*bz_vol
               call dscal(2*ne1,xx,zsw1(zshft),1)
  105  continue 
+
 
       call C3dB_Vector_SumAll((2*ne1*nproj),zsw1)
 
