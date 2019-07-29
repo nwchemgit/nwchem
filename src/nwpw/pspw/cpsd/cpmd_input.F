@@ -514,7 +514,7 @@ c
 c SA_decay
 c
  2700 if (inp_f(scaling(1))) then
-         scaling(1) = 1.0d0          
+         scaling(2) = scaling(1)
          if (.not.inp_f(scaling(2))) scaling(2) = scaling(1)
          value = rtdb_put(rtdb,'cpmd:sa_decay',mt_dbl,2,scaling)
       else
