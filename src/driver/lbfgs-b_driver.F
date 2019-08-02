@@ -54,7 +54,7 @@ c       the driver.
  
       character*60     task, csave
       character*60     pname
-      character*60     xyz
+      character*255     xyz
       character*32 theory
       logical          lsave(4)
       integer          m, iprint

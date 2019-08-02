@@ -77,7 +77,7 @@ c
 c
       character*8
      $     zvarname(max_nzvar) ! name of user specified zmatrix variables
-      character*60
+      character*255
      $     xyz                  ! [user] prefix for xyz files or blank
 c
       common/cdrv_optopt/
