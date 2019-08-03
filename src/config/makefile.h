@@ -1996,7 +1996,6 @@ ifort18offload:
              ifdef USE_OPENMP
                FOPTIONS += -openmp
                FOPTIONS += -openmp-report2
-               COPTIONS += -openmp
                DEFINES+= -DUSE_OPENMP 
                ifdef USE_OPENMP_TASKS
                    DEFINES += -DUSE_OPENMP_TASKS
