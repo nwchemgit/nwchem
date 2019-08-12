@@ -1996,7 +1996,6 @@ ifort18offload:
              ifdef USE_OPENMP
                FOPTIONS += -openmp
                FOPTIONS += -openmp-report2
-               COPTIONS += -openmp
                DEFINES+= -DUSE_OPENMP 
                ifdef USE_OPENMP_TASKS
                    DEFINES += -DUSE_OPENMP_TASKS
@@ -2506,6 +2505,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
 
     #FC = mpif77
     FC = mpixlf77_r
+    _FC = xlf
 
     ifeq ($(FC),mpif77)
         CC         = mpicc
@@ -2541,6 +2541,7 @@ endif
 
     ifeq ($(FC),mpixlf77_r)
         EXPLICITF  = TRUE
+        _FC = xlf
         CC         = mpixlc_r
         DEFINES   += -DXLFLINUX
         XLF11      = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')

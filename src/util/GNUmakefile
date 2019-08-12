@@ -173,7 +173,7 @@ endif
                  util_jacobi.o util_rsg.o stpr_sjacobi.o util_memcpy.o ga_accback.o \
                  ga_asymmetr.o util_gnxtval.o nxtask.o util_mirror.o  \
                  ga_copy_dz.o dgami.o util_eri_cholesky.o \
-                 util_test_cholesky.o util_sillysort.o
+                 util_test_cholesky.o util_sillysort.o util_talker.o
 
   SUBDIRS = md5
 

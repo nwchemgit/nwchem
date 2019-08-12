@@ -32,7 +32,7 @@ c
       integer ii,shift,print_shift,print_count,jj,manyjj,itm,goodjj
       integer i,it,nbeads,nion,ng,m,nebsteps,neb_algorithm,algorithm
       integer nbeads1,nbeads2
-      integer e1(2),g0(2),g1(2),s(2),t1(2),v1(2),c0(2),c1(2)
+      integer e1(2),g0(2),g1(2),s(2),t1(2),v1(2),c0(2),c1(2),xx1(2)
       integer mass(2),dti(2),cs(2),gs(2)
       real*8  path_energy,path_distance,norm,norm0,time_step,kbeads
       real*8  Gmax,Grms,Xmax,Xrms,dE,path_energy0,emid,emax,emin,trust
@@ -119,7 +119,8 @@ c
 
 *  RRR only initialize if this is a new neb chain!
 *     **** initialize neb list ****
-      bead_list = 'bead_list'
+      !bead_list = 'bead_list'
+      bead_list = 'bead'
       newchain = .false.
       if (.not.rtdb_get(rtdb,'bead_list:new',mt_log,1,newchain))
      >  newchain = .true.
@@ -202,7 +203,9 @@ c
 
 
 *     **** allocate space for gradients and coordinates ****
-      value  = MA_alloc_get(mt_dbl,nbeads,'e1',e1(2),e1(1))
+      value  = MA_alloc_get(mt_dbl,nbeads,'xx1',xx1(2),xx1(1))
+      value  = value.and.
+     >         MA_alloc_get(mt_dbl,nbeads,'e1',e1(2),e1(1))
       value  = value.and.
      >         MA_alloc_get(mt_dbl,ng,'g0',g0(2),g0(1))
       value  = value.and.
@@ -235,7 +238,7 @@ c
       value  = MA_alloc_get(mt_dbl,nion,'mass',mass(2),mass(1))      
       if (.not.value) 
      >  call errquit('neb failed - increase heap memory',2,0)
-      call neb_masses_get(rtdb,dbl_mb(mass(1)))
+      call neb_masses_get(rtdb,bead_list,dbl_mb(mass(1)))
 
       do i=1,nbeads
         do it=1,nion
@@ -638,7 +641,19 @@ c                  if (finishedstep) sum0_old = sum0
             do i=1,nbeads
                write(luout,*) "neb: ",i,dbl_mb(e1(1)+i-1)
             end do
-            write(luout,*)
+            write(luout,*) "neb:"
+            x1 = 99.99e23
+            x2 = -99.99e23
+            do i=1,nbeads
+               dbl_mb(xx1(1)+i-1) = i*1.0d0
+               if (dbl_mb(e1(1)+i-1).lt.x1) x1 = dbl_mb(e1(1)+i-1)
+               if (dbl_mb(e1(1)+i-1).gt.x2) x2 = dbl_mb(e1(1)+i-1)
+            end do
+            call util_ascii_setwindow(1.0d0,1.0d0*nbeads,x1,x2)
+            call util_ascii_plotter(" neb: ",luout,nbeads,
+     >                              dbl_mb(xx1(1)),dbl_mb(e1(1)),"*",
+     >                              "NEB Path Energy",
+     >                              "Path","Energy (au)")
          end if
          call create_xyz_file_bead_list(luout,bead_list,.true.)
 
@@ -757,7 +772,19 @@ c                  if (finishedstep) sum0_old = sum0
      >           "@neb  Try increasing number of steps or",
      >           "...Try increasing the number of beads."
          end if
-          
+         write(luout,'(a)') "@neb"
+         x1 = 99.99e23
+         x2 = -99.99e23
+         do i=1,nbeads
+            dbl_mb(xx1(1)+i-1) = i*1.0d0
+            if (dbl_mb(e1(1)+i-1).lt.x1) x1 = dbl_mb(e1(1)+i-1)
+            if (dbl_mb(e1(1)+i-1).gt.x2) x2 = dbl_mb(e1(1)+i-1)
+         end do
+         call util_ascii_setwindow(1.0d0,1.0d0*nbeads,x1,x2)
+         call util_ascii_plotter("@neb ",luout,nbeads,
+     >                              dbl_mb(xx1(1)),dbl_mb(e1(1)),"*",
+     >                              "Final NEB Path Energy",
+     >                              "Path","Energy (au)")
       end if
 
 
@@ -815,6 +842,7 @@ c                  if (finishedstep) sum0_old = sum0
       value = value.and.MA_free_heap(g1(2))
       value = value.and.MA_free_heap(g0(2))
       value = value.and.MA_free_heap(e1(2))      
+      value = value.and.MA_free_heap(xx1(2))      
       if (.not.value) call errquit('neb failed',4,0)
 
       if (.not.rtdb_put(rtdb,'bead_list:new',mt_log,1,.false.))

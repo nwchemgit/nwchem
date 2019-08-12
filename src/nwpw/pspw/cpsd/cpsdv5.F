@@ -243,6 +243,7 @@ c#include "Parallel.fh"
       
       value = control_read(1,rtdb)
 
+
       mparallelized = control_mparallelized()
       call Parallel2d_Init(control_np_orbital())
       call Parallel2d_np_i(np_i)
@@ -257,6 +258,7 @@ c#include "Parallel.fh"
       oprint = omaster.and.control_print(print_medium)
       lprint = omaster.and.control_print(print_low)
       hprint = omaster.and.control_print(print_high)
+
 
 *     **** initialize psi_data ****
       call psi_data_init(100)

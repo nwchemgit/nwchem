@@ -1,0 +1,39 @@
+start n2_ncap
+GEOMETRY noautoz
+ N 0.0 0.0  0.548757
+ N 0.0 0.0 -0.548757
+ symmetry d2h
+END  
+BASIS SPHERICAL  
+ * library aug-cc-pvdz
+ H S
+ 0.0099133 1.0
+ H P
+ 0.0470000 1.0
+ C S
+ 0.0156333 1.0
+ C P
+ 0.0134700 1.0
+ C D
+ 0.0503333 1.0
+ O S
+ 0.0263200 1.0
+ O P
+ 0.0228533 1.0
+ O D
+ 0.1106667 1.0
+ N S
+ 0.0204133 1.0
+ N P
+ 0.0187033 1.0
+ N D
+ 0.0766667 1.0
+END  
+DFT  
+ XC ncap
+ grid medium
+END  
+TDDFT  
+ NROOTS 15
+END  
+TASK TDDFT ENERGY

@@ -290,6 +290,12 @@ c form ``sigma'' vector
 c ----------------------------------------------------------
       call dfill(lnov,zip,ht1,1)
       call dfill(lhoov,zip,scra,1)
+      if(g_ht2.eq.123456789) then
+c     ga_created moved here from aoccsd
+      if (.not.ga_create(MT_DBL,mxvec*lhoov,nvir+1,'g_ht2', 
+     &                   mxvec*lhoov,0,g_ht2))
+     &     call errquit('ga_create failed for g_ht2',0, GA_ERR)
+      endif
       call ga_distribution(g_ht2,iam,jlo,jhi,ilo,ihi)
       call ga_sync
       do bev=1,nvir+1

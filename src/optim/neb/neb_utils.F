@@ -589,16 +589,17 @@
 *     *             neb_masses_get                  *
 *     *                                             *
 *     ***********************************************
-      subroutine  neb_masses_get(rtdb,m)
+      subroutine  neb_masses_get(rtdb,bead_list,m)
       implicit none
       integer rtdb
+      character*(*) bead_list
       real*8 m(*)
 
 #include "geom.fh"
 
 *     **** local variables ****
       logical value
-      integer geom,nion
+      integer geom,nion,bead_listlen
       character*255 geom_name
       integer geomlen
 *     **** external functions ****
@@ -608,7 +609,10 @@
       external    bead_index_name
 
 
-      geom_name   = 'bead'//bead_index_name(1)//':geom'
+      bead_listlen = inp_strlen(bead_list)
+      !geom_name   = 'bead'//bead_index_name(1)//':geom'
+      geom_name   = bead_list(1:bead_listlen)
+     >             //bead_index_name(1)//':geom'
       geomlen     = inp_strlen(geom_name)
 
       value = geom_create(geom,'neb_tmp')
@@ -694,6 +698,7 @@ c
 *     **** local variables ****
       logical value,impose,oprint,hasmiddle
       integer i,geom,geomlen,movecslen,nion,nfit,i2,i3,pathguess
+      integer bead_listlen
       integer r1(2),r2(2),r3(2),rmid(2),ifit(2),wfit(2),rcoords(2)
       real*8  t,rms1,rms2
       character*255 geom_name,movecs_name
@@ -705,6 +710,7 @@ c
       external    bead_index_name
 
       oprint = (ga_nodeid().eq.0)
+      bead_listlen = inp_strlen(bead_list)
 
       if (.not. rtdb_get(rtdb,'neb:pathguess',mt_int,1,pathguess))
      $      pathguess = 2
@@ -842,8 +848,12 @@ c
           call dcopy(3*nion,dbl_mb(rcoords(1)+3*nion*(i-1)),1,
      >                      dbl_mb(r3(1)),1)
 
-          geom_name   = 'bead'//bead_index_name(i)//':geom'
-          movecs_name = 'bead'//bead_index_name(i)//'.movecs'
+          !geom_name   = 'bead'//bead_index_name(i)//':geom'
+          !movecs_name = 'bead'//bead_index_name(i)//'.movecs'
+          geom_name   = bead_list(1:bead_listlen)
+     >                  //bead_index_name(i)//':geom'
+          movecs_name = bead_list(1:bead_listlen)
+     >                  //bead_index_name(i)//'.movecs'
           geomlen     = inp_strlen(geom_name)
           movecslen   = inp_strlen(movecs_name)
           value = value.and.geom_cart_coords_set(geom,dbl_mb(r3(1)))
@@ -911,8 +921,12 @@ c          call daxpy(3*nion,t,dbl_mb(r2(1)),1,dbl_mb(r3(1)),1)
           call dcopy(3*nion,dbl_mb(rcoords(1)+3*nion*(i-1)),1,
      >                      dbl_mb(r3(1)),1)
  
-          geom_name   = 'bead'//bead_index_name(i)//':geom'
-          movecs_name = 'bead'//bead_index_name(i)//'.movecs'
+          !geom_name   = 'bead'//bead_index_name(i)//':geom'
+          !movecs_name = 'bead'//bead_index_name(i)//'.movecs'
+          geom_name   = bead_list(1:bead_listlen)
+     >                  //bead_index_name(i)//':geom'
+          movecs_name = bead_list(1:bead_listlen)
+     >                  //bead_index_name(i)//'.movecs'
           geomlen     = inp_strlen(geom_name)
           movecslen   = inp_strlen(movecs_name)
           value = value.and.geom_cart_coords_set(geom,dbl_mb(r3(1)))
@@ -953,7 +967,7 @@ c          call daxpy(3*nion,t,dbl_mb(r2(1)),1,dbl_mb(r3(1)),1)
 
 *     **** local variables ****
       logical value
-      integer i,geomlen,movecslen
+      integer i,geomlen,movecslen,bead_listlen
       character*255 geom_name,movecs_name
 
 *     **** external functions ****
@@ -962,9 +976,14 @@ c          call daxpy(3*nion,t,dbl_mb(r2(1)),1,dbl_mb(r3(1)),1)
       external    inp_strlen
       external    bead_index_name
 
+      bead_listlen = inp_strlen(bead_list)
       do i=1,nbeads
-        geom_name   = 'bead'//bead_index_name(i)//':geom'
-        movecs_name = 'bead'//bead_index_name(i)//'.movecs'
+        !geom_name   = 'bead'//bead_index_name(i)//':geom'
+        !movecs_name = 'bead'//bead_index_name(i)//'.movecs'
+        geom_name   = bead_list(1:bead_listlen)
+     >                //bead_index_name(i)//':geom'
+        movecs_name = bead_list(1:bead_listlen)
+     >                //bead_index_name(i)//'.movecs'
         geomlen     = inp_strlen(geom_name)
         movecslen   = inp_strlen(movecs_name)
 
@@ -1179,7 +1198,7 @@ c     *** choosing Polac-Ribiere coeff ***
 
 *     **** local variables ****
       logical value
-      integer i,geom,geomlen,movecslen,nion
+      integer i,geom,geomlen,movecslen,nion,bead_listlen
       integer j1,j2,shift
       integer r1(2),r2(2),r3(2),c(2)
       real*8  t,t1,t2,t3
@@ -1190,6 +1209,8 @@ c     *** choosing Polac-Ribiere coeff ***
       character*7 bead_index_name
       external    inp_strlen
       external    bead_index_name
+
+      bead_listlen = inp_strlen(bead_list)
 
       value = geom_create(geom,'neb_tmp')
       if (.not.geom_rtdb_load(rtdb,geom,'neb_start')) then
@@ -1244,8 +1265,12 @@ c     *** choosing Polac-Ribiere coeff ***
         call dscal(3*nion,(1.0d0-t3),dbl_mb(r3(1)),1)
         call daxpy(3*nion,t3,dbl_mb(r2(1)),1,dbl_mb(r3(1)),1)
 
-        geom_name   = 'bead'//bead_index_name(i)//':geom'
-        movecs_name = 'bead'//bead_index_name(i)//'.movecs'
+        !geom_name   = 'bead'//bead_index_name(i)//':geom'
+        !movecs_name = 'bead'//bead_index_name(i)//'.movecs'
+        geom_name   = bead_list(1:bead_listlen)
+     >                //bead_index_name(i)//':geom'
+        movecs_name = bead_list(1:bead_listlen)
+     >                //bead_index_name(i)//'.movecs'
         geomlen     = inp_strlen(geom_name)
         movecslen   = inp_strlen(movecs_name)
         value = value.and.geom_cart_coords_set(geom,dbl_mb(r3(1)))

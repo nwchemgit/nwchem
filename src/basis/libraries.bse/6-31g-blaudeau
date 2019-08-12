@@ -1,0 +1,116 @@
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
+# 6-31g-blaudeau version number 0
+# Description: VDZ     Valence Double Zeta: 2 Funct.'s/Valence AO
+# Role: orbital
+# 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# K,Ca
+#     ## VDZ     Valence Double Zeta: 2 Funct.'s/Valence AO
+#     Blaudeau, Jean-Philippe, McGrath, Mark P., Curtiss, Larry A., Radom,
+#             Leo
+#     Extension of Gaussian-2 (G2) theory to molecules containing third-row
+#             atoms K and Ca
+#     J. Chem. Phys., 107, 5016-5021 (1997)
+#     10.1063/1.474865
+# 
+# # 
+basis "K_6-31g-blaudeau" 
+#basis SET: (14s,9p,3d) -> [5s,3p,1d]
+K    S
+  31478.7                    0.00398387
+   4726.89                   0.03050180
+   1075.43                   0.15073800
+    303.398                  0.51912900
+     98.3271                 1.03670000
+     33.6362                 0.76399000
+K    S
+     65.6392                -0.282426
+      7.31626                1.691490
+      2.89026                1.296530
+K    S
+      4.54597               -0.00763436
+      0.704041               0.0256357
+      0.282669               0.0166069
+K    S
+      0.0290582              1.000000
+K    S
+      0.0121116              1.000000
+K    P
+    361.225                  0.0209065
+     84.6702                 0.1504360
+     26.4691                 0.5544010
+      9.26581                1.0409000
+      3.34234                0.6782530
+K    P
+      1.635460               0.240902
+      0.831968               0.299424
+      0.436842               0.446079
+K    P
+      0.179837               1.000000
+K    D
+     10.070                  0.0480790
+      2.5580                 0.216293
+      0.7968                 0.423691
+end
+basis "Ca_6-31g-blaudeau" 
+#basis SET: (14s,9p,3d) -> [5s,3p,1d]
+Ca    S
+  35138.7                    0.00394825
+   5276.41                   0.0302342
+   1200.47                   0.1495200
+    338.718                  0.5159730
+    109.854                  1.0339500
+     37.6089                 0.7693790
+Ca    S
+     73.1080                -0.282685
+      8.24077                1.679610
+      3.29598                1.280380
+Ca    S
+      5.234180              -0.00768686
+      0.841872               0.02538240
+      0.365103               0.01651220
+Ca    S
+      0.0512224              1.000000
+Ca    S
+      0.019825               1.000000
+Ca    P
+    413.113                  0.020327
+     96.9358                 0.147303
+     30.3722                 0.548872
+     10.6848                 1.044070
+      3.88213                0.686535
+Ca    P
+      1.909910               0.268668
+      0.979325               0.290187
+      0.549769               0.442981
+Ca    P
+      0.231233               1.000000
+Ca    D
+     10.970                  0.060008
+      2.7680                 0.261010
+      0.8281                 0.508692
+end

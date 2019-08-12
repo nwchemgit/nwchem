@@ -137,7 +137,7 @@ c     xperde86 ==> 9520
 c
 c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=148)
+      parameter (num_dirs=151)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -187,7 +187,8 @@ c
      &     'b3pw91','pbe96','dldf','srhfexch','hse03',
      &     's12g','s12h','cam-s12g','cam-s12h',
      &     'becke86b','xperdew86','xmvs15','cvpbe09','mvs',
-     &     'hle16', 'scan', 'scanl','scan0','lb94'/
+     &     'hle16', 'scan', 'scanl','scan0','lb94', 'regscan',
+     &     'xncap', 'ncap' /
 c     becke97-d, ssb-d
       logical disp, dumdirect
       integer ivdw
@@ -257,7 +258,8 @@ c
      &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,8531,
      &  8532,8533,8534,9300,9310,9320,4610,4620,4630,4640,
      &  9510,9520,4115,2109,4124,3101,
-     &  9610,9620,9630,9494,1999) ind
+     &  9610,9620,9630,9494,9640,
+     &  9710,9720,1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -1699,6 +1701,17 @@ c
       nlxfac(1) = .true.
       goto 10
 c
+c regularized SCAN meta GGA
+c
+9640  xccomb(71) = .true.
+       lcfac(71) = .true.
+      nlcfac(71) = .true.
+        cfac(71) = 1.0d0
+       lxfac(71) = .true.
+      nlxfac(71) = .true.
+        xfac(71) = 1.0d0
+      goto 10
+c
 c SCAN-L laplacian-dependent mGGA
 c
 9620  xccomb(67) = .true.
@@ -1708,6 +1721,23 @@ c
        lxfac(67) = .true.
       nlxfac(67) = .true.
         xfac(67) = 1.0d0
+      goto 10
+c
+c NCAP functional
+c
+9710   lxfac(72) = .true.
+      nlxfac(72) = .true.
+        xfac(72) = 1.0d0
+      goto 10
+
+9720  xccomb(72) = .true.
+      cfac(3) = 1d0
+      lcfac(3) = .true.
+      cfac(4) = 1d0
+      nlcfac(4) = .true.
+      lxfac(72) = .true.
+      nlxfac(72) = .true.
+      xfac(72) = 1.0d0
       goto 10
 c
 c lb94 Vxc function

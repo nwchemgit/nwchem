@@ -188,6 +188,14 @@ c
      &      mt_log, 1, cs00))
      &      call errquit('dft_rdinput: rtdb_put failed', 10, RTDB_ERR)
       endif
+c
+      if (.not. rtdb_get(rtdb, 'dft:ncap', mt_log, 1,
+     &   ncap))then
+         ncap = .false.
+         if (.not. rtdb_put(rtdb, 'dft:ncap',
+     &      mt_log, 1, ncap))
+     &      call errquit('dft_rdinput: rtdb_put failed', 10, RTDB_ERR)
+      endif
 c     
       if (.not. rtdb_get(rtdb, 'dft:iterations', mt_int, 1,
      &   iterations))then
@@ -435,7 +443,7 @@ c
 c
 c     case with multiple tasks and we changed iterations ... (increased)
 c
-      else  if(ncysh.eq.30.and.iterations.gt.30) then
+      else  if(iterations.gt.30) then
          ncysh=iterations
       endif
       if (.not. rtdb_put(rtdb, 'dft:ncysh',
@@ -452,7 +460,7 @@ c
 c
 c     case with multiple tasks and we changed iterations ... (increased)
 c
-      else  if(ncyds.eq.30.and.iterations.gt.30) then
+      else  if(iterations.gt.30) then
          ncyds=iterations
       endif
       if (.not. rtdb_put(rtdb, 'dft:ncyds',
@@ -595,6 +603,7 @@ c
       cname(67)='            SCAN-L Correlation Potential'
       cname(68)='            revM06 Correlation Potential'
       cname(69)='          revM06-L Correlation Potential'
+      cname(71)='           regSCAN Correlation Potential'
 c
 c     Exchange functional name defaults.
 c
@@ -661,7 +670,8 @@ c
       xname(68)='              revM06 Exchange Functional'
       xname(69)='            revM06-L Exchange Functional'
       xname(70)='                LB94 Exchange Functional'
-
+      xname(71)='     regSCAN metaGGA Exchange Functional'
+      xname(72)='            NCAP GGA Exchange Functional'
 c
 c     Exchange-Correlation combination functional name defaults.
 c
@@ -728,6 +738,8 @@ c
       xcname(68)='             revM06 Method XC Functional'
       xcname(69)='           revM06-L Method XC Functional'
       xcname(70)='              SCAN0 Method XC Functional'
+      xcname(71)='            regSCAN Method XC Functional'
+      xcname(72)='               NCAP Method XC Functional'
 c     
 c     place character XC parameters in rtdb
 c     

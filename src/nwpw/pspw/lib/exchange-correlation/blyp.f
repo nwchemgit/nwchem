@@ -1,6 +1,64 @@
 *
 * $Id$
 *
+*     ****************************************************
+*     *                                                  *
+*     *             Becke_smalln_correction              *
+*     *                                                  *
+*     ****************************************************
+*
+*   This routine does small n (larger gradient) correction in which
+* the function is slowly switched to LDA when (fdnx-xe)>0.
+*
+      subroutine Becke_smalln_correction(n,n_thrd,agr,beta,lda_c,
+     >                                   chi,chi2,chiSQ,K,F1,F2,
+     >                                   xe,fdnx,fdagrx)
+      implicit none
+      real*8 n,n_thrd,agr,beta,lda_c,chi,chi2,chiSQ,K,F1,F2
+      real*8 xe,fdnx,fdagrx
+
+*     **** constants ****
+      real*8 pi,thrd,two_thrd
+      parameter (pi=3.14159265358979311599d0)
+      parameter (thrd=1.0d0/3.0d0)
+      parameter (two_thrd=1.25992104989487319066d0)  ! two_thrd = 2**thrd
+
+*     **** local variables ****
+      real*8 x,s,dsdx,tmp1,tmp2,dchi,dF1,dF2
+      real*8 dfdnxdagr,ddf0,dxdn,dxdagr,dsdn,dsdagr,xeold
+
+      x = 0.85d0*(fdnx-xe)/(n_thrd)
+      s = dtanh(x)
+      dsdx = 0.0d0
+      if (x<100.0d0) then
+         dsdx = (1.0d0/dcosh(x))**2
+      end if
+      tmp1 = 6.0d0*beta*chi/chiSQ
+      tmp2 = (1.0d0+chi*K)
+      dchi = (-4.0d0/3.0d0)*chi/n
+      dF1 = (-4.0d0/3.0d0)*chi2*F2/n
+      dF2 = ((-tmp1+K+tmp1*(chi/chiSQ)**2)/tmp2
+     >      -2.0d0*F2*(tmp1+K))*dchi/tmp2
+      dfdnxdagr = (fdagrx+(beta*chi*F2-n*beta*(chi*dF2+F2*dchi)))/n
+      ddf0 = (thrd/n)*fdnx
+     >    - (4.0d0/3.0d0)/two_thrd*beta*n_thrd
+     >     *(dF1-2.0d0*chi*F2*dchi-chi2*dF2)
+
+      dxdn = 0.85d0*ddf0/n_thrd - (4.0d0/3.0d0)*x/n
+      dxdagr = 0.85d0*(dfdnxdagr/n_thrd) - 0.85d0*fdagrx/(n*n_thrd)
+
+      dsdn   = dsdx * dxdn
+      dsdagr = dsdx*dxdagr
+
+      xeold = xe
+      xe     = (1.0d0-s)*xe + (-n**thrd*(lda_c)*s)
+
+      fdnx   = (1.0d0-s)*fdnx + (-n**(thrd)*(4.0d0/3.0d0)*(lda_c)*s)
+     >       + dsdn*(-xeold -n**thrd*(lda_c))*n
+      fdagrx = (1.0d0-s)*fdagrx - dsdagr*(xeold + n**thrd*(lda_c))*n
+      return
+      end
+
 
 *     **************************************************
 *     *                                                *
@@ -24,12 +82,15 @@
       real*8    x_parameter, c_parameter
 
       real*8 ETA,ETA2,DNS_CUT
-      parameter (ETA = 0.0d0)
-      parameter (ETA2 = 1.0d-20)
-      parameter (DNS_CUT        =      1.0d-18)
+      parameter (ETA = 1.0d-20)
+      parameter (ETA2 = 2.0d-20)
+      parameter (DNS_CUT = 1.0d-18)
 
       real*8 tolrho,minagr
-      parameter (tolrho=2.0e-8,minagr=1.0e-10)
+      parameter (tolrho=2.0e-11,minagr=1.0e-12)
+      !parameter (tolrho=1.0e-12,minagr=1.0e-14)
+      
+     
 
 *     ***LYP parameters****************
       real*8 a,b,c,d
@@ -55,7 +116,7 @@
 
       real*8 nup,ndn,n,agrup,agrdn,agr
       real*8 agr2, agrup2,agrdn2
-      real*8 n2,nup2,ndn2
+      real*8 n2,nup2,ndn2,nup_thrd,ndn_thrd,sdup,sddn
       real*8 gamma,gamma_u,gamma_uu
       real*8 gamma_d,gamma_dd,gamma_du
       real*8 F,F_u,F_uu
@@ -102,6 +163,8 @@
       do j=1,n2ft3d
        nup     = dn_in(j,1) + 0.5d0*ETA2 
        ndn     = dn_in(j,2) + 0.5d0*ETA2 
+       nup_thrd = nup**thrd
+       ndn_thrd = ndn**thrd
 
        agrup   = agr_in(j,1)
        agrdn   = agr_in(j,2)
@@ -109,14 +172,13 @@
        agrdn2  = agrdn*agrdn
 
        n       = nup + ndn
-       agr     = agr_in(j,3)
-       agr2    = agr*agr
 
        n2      = n*n
        nup2    = nup*nup
        ndn2    = ndn*ndn
 
        
+*      *******exchange part***************
        if ((dn_in(j,1)+dn_in(j,2)).lt.DNS_CUT) then
           xe       = 0.0d0
           fdnxup   = 0.0d0
@@ -125,99 +187,119 @@
           fdagrxdn = 0.0d0
        else
       
-*      *******exchange part***************
+*         **************UP*******************
+          if (dn_in(j,1).lt.DNS_CUT) then
+             xeup     = 0.0d0
+             fdnxup   = 0.0d0
+             fdagrxup = 0.0d0
+          else
+             sdup  = 1.0d0/(nup_thrd*nup) 
+             chiup = agrup*sdup
+             chiup2 = chiup*chiup
+             chiupSQ = dsqrt(1.0d0+chiup2)
 
-
-*      **************UP*******************
-       chiup = agrup/nup**(4.0d0/3.0d0)
-       chiup2 = chiup*chiup
-       chiupSQ = dsqrt(1.0d0+chiup2)
-
-       Kup = 6.0d0*beta*dlog(chiup+chiupSQ)
-       F1up = chiup2/(1.0d0 + chiup*Kup)
-       xeup = -nup**thrd*(lda_c + beta*F1up)
-       F2up = (2.0d0 + chiup*Kup 
-     &        - 6.0d0*beta*chiup2/chiupSQ)
-     &        /(1.0d0+chiup*Kup)**2.0d0
-       fdnxup = -nup**(thrd)*(4.0d0/3.0d0)
-     &          *(lda_c+beta*(F1up-chiup2*F2up))
-       fdagrxup = -beta*chiup*F2up 
+             Kup = 6.0d0*beta*dlog(chiup+chiupSQ)
+             F1up = chiup2/(1.0d0 + chiup*Kup)
+             xeup = -nup_thrd*(lda_c + beta*F1up)
+             F2up = (2.0d0 + chiup*Kup 
+     &           - 6.0d0*beta*chiup2/chiupSQ)
+     &           /(1.0d0+chiup*Kup)**2.0d0
+             fdnxup = -nup_thrd*(4.0d0/3.0d0)
+     &             *(lda_c+beta*(F1up-chiup2*F2up))
+             fdagrxup = -beta*chiup*F2up 
          
-       if ((fdnxup-xeup).gt.0.0d0) then
-          xeup     = -nup**thrd*(lda_c)
-          fdnxup   = -nup**(thrd)*(4.0d0/3.0d0)*(lda_c)
-          fdagrxup = 0.0d0
-       end if
-*      ************END UP*****************
+             if ((fdnxup-xeup).gt.0.0d0) then
+             call Becke_smalln_correction(nup,nup_thrd,agrup,beta,lda_c,
+     >                               chiup,chiup2,chiupSQ,Kup,F1up,F2up,
+     >                               xeup,fdnxup,fdagrxup)
+             end if
+          end if
+*         ************END UP*****************
 
+*         *************DOWN******************
+          if (dn_in(j,2).lt.DNS_CUT) then
+             xedn     = 0.0d0
+             fdnxdn   = 0.0d0
+             fdagrxdn = 0.0d0
+          else
+             sddn  = 1.0d0/(ndn_thrd*ndn) 
+             chidn = agrdn*sddn
+             chidn2 = chidn*chidn
+             chidnSQ = dsqrt(1.0d0+chidn2)
 
-*      *************DOWN******************
-       chidn = agrdn/ndn**(4.0d0/3.0d0)
-       chidn2 = chidn*chidn
-       chidnSQ = dsqrt(1.0d0+chidn2)
-
-       Kdn = 6.0d0*beta*dlog(chidn+chidnSQ)
-       F1dn = chidn2/(1.0d0 + chidn*Kdn)
-       xedn = -ndn**thrd*(lda_c + beta*F1dn)
-       F2dn = (2.0d0 + chidn*Kdn
+             Kdn = 6.0d0*beta*dlog(chidn+chidnSQ)
+             F1dn = chidn2/(1.0d0 + chidn*Kdn)
+             xedn = -ndn_thrd*(lda_c + beta*F1dn)
+             F2dn = (2.0d0 + chidn*Kdn
      &           - 6.0d0*beta*chidn2/chidnSQ)
      &           /(1.0d0+chidn*Kdn)**2.0d0
-       fdnxdn = -ndn**(thrd)*(4.0d0/3.0d0)
+             fdnxdn = -ndn_thrd*(4.0d0/3.0d0)
      &             *(lda_c+beta*(F1dn-chidn2*F2dn))
-       fdagrxdn = -beta*chidn*F2dn
-       if ((fdnxdn-xedn).gt.0.0d0) then
-          xedn     = -ndn**thrd*(lda_c)
-          fdnxdn   = -ndn**(thrd)*(4.0d0/3.0d0)*(lda_c)
-          fdagrxdn = 0.0d0
+             fdagrxdn = -beta*chidn*F2dn
+             if ((fdnxdn-xedn).gt.0.0d0) then
+             call Becke_smalln_correction(ndn,ndn_thrd,agrdn,beta,lda_c,
+     >                               chidn,chidn2,chidnSQ,Kdn,F1dn,F2dn,
+     >                               xedn,fdnxdn,fdagrxdn)
+             end if 
+          end if 
+*         ***********END DOWN****************
+
+          xe = (xeup*nup + xedn*ndn)/n
+
        end if
-
-
-*      ***********END DOWN****************
-
-       xe = (xeup*nup + xedn*ndn)/n
-
-
 *      *******end excange part************
-       end if
 
 
 *      *******correlation part************
-       n_thrd   = n**thrd
-       n_m     = 1.0d0/n
-       n2_m    = n_m*n_m
-       n3_m    = n2_m*n_m
-       n4_m    = n3_m*n_m
-       nupndn  = nup*ndn
-       n_mthrd = 1.0d0/n_thrd
-       n_mfrthrd = n_mthrd*n_m
-       n_mfvthrd = n_mfrthrd*n_mthrd
+       if ((dn_in(j,1)+dn_in(j,2)).lt.DNS_CUT) then
+          ce = 0.0d0
+          fc_u = 0.0d0
+          fc_d = 0.0d0
+          fc_agr   = 0.0d0
+          fc_agrup = 0.0d0
+          fc_agrdn = 0.0d0
 
-       nup_etthrd = nup**etthrd
-       nup_fvthrd = nup**fvthrd
-       ndn_etthrd = ndn**etthrd
-       ndn_fvthrd = ndn**fvthrd
+       else
+          agr     = agr_in(j,3)
+          agr2    = agr*agr
+
+          n_thrd   = n**thrd
+          n_m     = 1.0d0/n
+          n2_m    = n_m*n_m
+          n3_m    = n2_m*n_m
+          n4_m    = n3_m*n_m
+          nupndn  = nup*ndn
+          n_mthrd = 1.0d0/n_thrd
+          n_mfrthrd = n_mthrd*n_m
+          n_mfvthrd = n_mfrthrd*n_mthrd
+
+          nup_etthrd = nup**etthrd
+          nup_fvthrd = nup**fvthrd
+          ndn_etthrd = ndn**etthrd
+          ndn_fvthrd = ndn**fvthrd
 
 
 
 
-       gamma   = (4.0d0*nupndn)*n2_m
-       gamma_u = 4.0d0*ndn*n2_m - 8.0d0*nupndn*n3_m
-       gamma_d = 4.0d0*nup*n2_m - 8.0d0*nupndn*n3_m
+          gamma   = (4.0d0*nupndn)*n2_m
+          gamma_u = 4.0d0*ndn*n2_m - 8.0d0*nupndn*n3_m
+          gamma_d = 4.0d0*nup*n2_m - 8.0d0*nupndn*n3_m
 
-       gamma_uu = -16.0d0*ndn*n3_m + 24.0d0*nupndn*n4_m
-       gamma_dd = -16.0d0*nup*n3_m + 24.0d0*nupndn*n4_m
+          gamma_uu = -16.0d0*ndn*n3_m + 24.0d0*nupndn*n4_m
+          gamma_dd = -16.0d0*nup*n3_m + 24.0d0*nupndn*n4_m
 
-       gamma_du =  (6.0d0*gamma-4.0d0)*n2_m
+          gamma_du =  (6.0d0*gamma-4.0d0)*n2_m
+          !gamma_ud =  (6.0d0*gamma-4.0d0)*n2_m
 
 
 
-       d3         = d/3.0d0
-       n13d_m     = 1.0d0/(1.0d0 + d*n_mthrd)
-       n13d2_m    = n13d_m*n13d_m
-       n13d3_m    = n13d2_m*n13d_m
-       F        = gamma*n13d_m
-       F_u      = gamma_u*n13d_m + d3*gamma*n_mfrthrd*n13d2_m
-       F_d      = gamma_d*n13d_m + d3*gamma*n_mfrthrd*n13d2_m
+          d3         = d/3.0d0
+          n13d_m     = 1.0d0/(1.0d0 + d*n_mthrd)
+          n13d2_m    = n13d_m*n13d_m
+          n13d3_m    = n13d2_m*n13d_m
+          F        = gamma*n13d_m
+          F_u      = gamma_u*n13d_m + d3*gamma*n_mfrthrd*n13d2_m
+          F_d      = gamma_d*n13d_m + d3*gamma*n_mfrthrd*n13d2_m
 
        F_uu   = gamma_uu*n13d_m + d3*(gamma_u+gamma_u)*n_mfrthrd*n13d2_m
      &        - (4.0d0/9.0d0)*d*gamma*n_mfrthrd*n_m*n13d2_m
@@ -231,112 +313,107 @@
      &        - (4.0d0/9.0d0)*d*gamma*n_mfrthrd*n_m*n13d2_m
      &        + (2.0d0/9.0d0)*d*d*gamma*n_mfrthrd*n_mfrthrd*n13d3_m
 
-
-       enthrd   = dexp(-c*n_mthrd)
-       Q        = enthrd*n_mfvthrd
-       Q1       = (1.0d0/3.0d0)*c*n_mfrthrd  *enthrd
-     &          - (5.0d0/3.0d0)*n_mfvthrd*n_m*enthrd
-       G        = F*Q
-
-       P  = (1.0d0/3.0d0)*c*n_mfrthrd - (5.0d0/3.0d0)*n_m
-       P1 = ((-4.0d0/9.0d0)*c*n_mfrthrd + (5.d0/3.0d0)*n_m)*n_m
-
-       G_u      = F_u*Q + G*P
-       G_d      = F_d*Q + G*P
-
-       G_uu     = F_uu*Q + F_u*Q1 + G_u*P + G*P1
-       G_dd     = F_dd*Q + F_d*Q1 + G_d*P + G*P1
-       G_du     = F_du*Q + F_d*Q1 + G_u*P + G*P1
+c       F_ud   = gamma_ud*n13d_m + d3*(gamma_u+gamma_d)*n_mfrthrd*n13d2_m
+c     &        - (4.0d0/9.0d0)*d*gamma*n_mfrthrd*n_m*n13d2_m
+c     &        + (2.0d0/9.0d0)*d*d*gamma*n_mfrthrd*n_mfrthrd*n13d3_m
 
 
+          enthrd   = dexp(-c*n_mthrd)
+          Q        = enthrd*n_mfvthrd
+c          Q1       = (1.0d0/3.0d0)*c*n_mfrthrd  *enthrd
+c     &             - (5.0d0/3.0d0)*n_mfvthrd*n_m*enthrd
+          Q1 = (Q/3.0d0)*(c*n_mfrthrd - 5.0*n_m)
+          G        = F*Q
 
-       fclda = -a*F*n - 2.0d0*a*b*G*Cf*(2.0d0**twthrd)
-     &         *(nup_etthrd + ndn_etthrd)
+          P  = (1.0d0/3.0d0)*c*n_mfrthrd - (5.0d0/3.0d0)*n_m
+          P1 = ((-4.0d0/9.0d0)*c*n_mfrthrd + (5.d0/3.0d0)*n_m)*n_m
 
-       fclda_u = -a*F_u*n - a*F 
-     &           - 2.0d0*a*b*G_u*Cf*(2.0d0**twthrd)
-     &           *(nup_etthrd + ndn_etthrd) 
-     &           - 2.0d0*a*b*G*Cf*(2.0d0**twthrd)
-     &           *(8.0d0/3.0d0)*nup_fvthrd
+          G_u      = F_u*Q + G*P
+          G_d      = F_d*Q + G*P
 
-       fclda_d = -a*F_d*n - a*F 
-     &           - 2.0d0*a*b*G_d*Cf*(2.0d0**twthrd)
-     &           *(nup_etthrd + ndn_etthrd) 
-     &           - 2.0d0*a*b*G*Cf*(2.0d0**twthrd)
-     &           *(8.0d0/3.0d0)*ndn_fvthrd
+          G_uu     = F_uu*Q + F_u*Q1 + G_u*P + G*P1
+          G_dd     = F_dd*Q + F_d*Q1 + G_d*P + G*P1
+          G_du     = F_du*Q + F_d*Q1 + G_u*P + G*P1
 
-
-
-       H0 = (a*b/2.0d0)*(G 
-     &    + (1.0d0/3.0d0)*(nup*G_d + ndn*G_u) 
-     &    + (1.0d0/4.0d0)*(nup*G_u + ndn*G_d))
-       H0_u=(a*b/2.0d0)*(G_u
-     &     + (1.0d0/3.0d0)*(G_d + nup*G_du + ndn*G_uu)
-     &     + (1.0d0/4.0d0)*(G_u + nup*G_uu + ndn*G_du))
-       H0_d=(a*b/2.0d0)*(G_d
-     &     + (1.0d0/3.0d0)*(G_u + ndn*G_du + nup*G_dd)
-     &     + (1.0d0/4.0d0)*(G_d + ndn*G_dd + nup*G_du))
+c          G_ud     = F_ud*Q + F_u*Q1 + G_d*P + G*P1
 
 
-       Hu = (a*b/18.0d0)*(G + (15.0d0/4.0d0)*nup*G_u 
-     &                      -  (9.0d0/4.0d0)*ndn*G_d
-     &                      -        (3.0d0)*nup*G_d 
-     &                      +  (3.0d0/2.0d0)*ndn*G_u)
+          fclda = -a*F*n - 2.0d0*a*b*G*Cf*(2.0d0**twthrd)
+     &            *(nup_etthrd + ndn_etthrd)
 
-       Hu_u = (a*b/18.0d0)*(G_u + (15.0d0/4.0d0)*(G_u + nup*G_uu)
-     &                          -  (9.0d0/4.0d0)*(ndn*G_du)
-     &                          -        (3.0d0)*(G_d + nup*G_du) 
-     &                          +  (3.0d0/2.0d0)*(ndn*G_uu))
+          fclda_u = -a*F_u*n - a*F 
+     &              - 2.0d0*a*b*G_u*Cf*(2.0d0**twthrd)
+     &              *(nup_etthrd + ndn_etthrd) 
+     &              - 2.0d0*a*b*G*Cf*(2.0d0**twthrd)
+     &              *(8.0d0/3.0d0)*nup_fvthrd
 
-       Hu_d = (a*b/18.0d0)*(G_d + (15.0d0/4.0d0)*(nup*G_du)
-     &                          -  (9.0d0/4.0d0)*(G_d+ndn*G_dd)
-     &                          -        (3.0d0)*(nup*G_dd)
-     &                          +  (3.0d0/2.0d0)*(G_u + ndn*G_du))
+          fclda_d = -a*F_d*n - a*F 
+     &              - 2.0d0*a*b*G_d*Cf*(2.0d0**twthrd)
+     &              *(nup_etthrd + ndn_etthrd) 
+     &              - 2.0d0*a*b*G*Cf*(2.0d0**twthrd)
+     &              *(8.0d0/3.0d0)*ndn_fvthrd
 
 
 
-       Hd = (a*b/18.0d0)*(G + (15.0d0/4.0d0)*ndn*G_d 
-     &                      -  (9.0d0/4.0d0)*nup*G_u
-     &                      -        (3.0d0)*ndn*G_u 
-     &                      +  (3.0d0/2.0d0)*nup*G_d)
+          H0 = (a*b/2.0d0)*(G 
+     &       + (1.0d0/3.0d0)*(nup*G_d + ndn*G_u) 
+     &       + (1.0d0/4.0d0)*(nup*G_u + ndn*G_d))
 
-       Hd_d = (a*b/18.0d0)*(G_d + (15.0d0/4.0d0)*(G_d + ndn*G_dd)
-     &                          -  (9.0d0/4.0d0)*(nup*G_du)
-     &                          -        (3.0d0)*(G_u + ndn*G_du) 
-     &                          +  (3.0d0/2.0d0)*(nup*G_dd))
+          H0_u=(a*b/2.0d0)*(G_u
+     &        + (1.0d0/3.0d0)*(G_d + nup*G_du + ndn*G_uu)
+     &        + (1.0d0/4.0d0)*(G_u + nup*G_uu + ndn*G_du))
 
-       Hd_u = (a*b/18.0d0)*(G_u + (15.0d0/4.0d0)*(ndn*G_du)
-     &                          -  (9.0d0/4.0d0)*(G_u+nup*G_uu)
-     &                          -        (3.0d0)*(ndn*G_uu)
-     &                          +  (3.0d0/2.0d0)*(G_d + nup*G_du))
+          H0_d=(a*b/2.0d0)*(G_d
+     &        + (1.0d0/3.0d0)*(G_u + ndn*G_du + nup*G_dd)
+     &        + (1.0d0/4.0d0)*(G_d + ndn*G_dd + nup*G_du))
 
 
-       fc = fclda + H0*agr2 + Hu*agrup2 + Hd*agrdn2 
+          Hu = (a*b/18.0d0)*(G + (15.0d0/4.0d0)*nup*G_u 
+     &                         -  (9.0d0/4.0d0)*ndn*G_d
+     &                         -        (3.0d0)*nup*G_d 
+     &                         +  (3.0d0/2.0d0)*ndn*G_u)
 
-*    ***calculate derivatives w.r.t up and down density
-       fc_u = fclda_u + H0_u*agr2 + Hu_u*agrup2 + Hd_u*agrdn2
-       fc_d = fclda_d + H0_d*agr2 + Hu_d*agrup2 + Hd_d*agrdn2
+          Hu_u = (a*b/18.0d0)*(G_u + (15.0d0/4.0d0)*(G_u + nup*G_uu)
+     &                             -  (9.0d0/4.0d0)*(ndn*G_du)
+     &                             -        (3.0d0)*(G_d + nup*G_du) 
+     &                             +  (3.0d0/2.0d0)*(ndn*G_uu))
 
-*    ***calculate derivatives w.r.t. up,down and total density gradients 
-       fc_agr   = 2.0d0*H0*agr
-       fc_agrup = 2.0d0*Hu*agrup
-       fc_agrdn = 2.0d0*Hd*agrdn
-
-
-*      ******DEBUG*********
-c       fc = fclda + 0.001d0*agr2 + 0.002d0*(agrup2 + agrdn2)
-c       fc_u = fclda_u
-c       fc_d = fclda_d
-c       fc_agr   = 2.0d0*agr  *0.001d0
-c       fc_agrup = 2.0d0*agrup*0.002d0
-c       fc_agrdn = 2.0d0*agrdn*0.002d0
-*      ******DEBUG*********
-   
-*    ***correlation energy dentsity
-       ce = fc/n
+          Hu_d = (a*b/18.0d0)*(G_d + (15.0d0/4.0d0)*(nup*G_du)
+     &                             -  (9.0d0/4.0d0)*(G_d+ndn*G_dd)
+     &                             -        (3.0d0)*(nup*G_dd)
+     &                             +  (3.0d0/2.0d0)*(G_u + ndn*G_du))
 
 
 
+          Hd = (a*b/18.0d0)*(G + (15.0d0/4.0d0)*ndn*G_d 
+     &                         -  (9.0d0/4.0d0)*nup*G_u
+     &                         -        (3.0d0)*ndn*G_u 
+     &                         +  (3.0d0/2.0d0)*nup*G_d)
+          Hd_d = (a*b/18.0d0)*(G_d + (15.0d0/4.0d0)*(G_d + ndn*G_dd)
+     &                             -  (9.0d0/4.0d0)*(nup*G_du)
+     &                             -        (3.0d0)*(G_u + ndn*G_du) 
+     &                             +  (3.0d0/2.0d0)*(nup*G_dd))
+          Hd_u = (a*b/18.0d0)*(G_u + (15.0d0/4.0d0)*(ndn*G_du)
+     &                             -  (9.0d0/4.0d0)*(G_u+nup*G_uu)
+     &                             -        (3.0d0)*(ndn*G_uu)
+     &                             +  (3.0d0/2.0d0)*(G_d + nup*G_du))
+
+          fc = fclda + H0*agr2 + Hu*agrup2 + Hd*agrdn2 
+          !fc = fclda + H0*agr2
+
+*         ***calculate derivatives w.r.t up and down density
+          fc_u = fclda_u + H0_u*agr2 + Hu_u*agrup2 + Hd_u*agrdn2
+          fc_d = fclda_d + H0_d*agr2 + Hu_d*agrup2 + Hd_d*agrdn2
+          !fc_u = fclda_u + H0_u*agr2
+          !fc_d = fclda_d + H0_d*agr2
+
+*         ***calculate derivatives w.r.t. up,down and total density gradients 
+          fc_agr   = 2.0d0*H0*agr
+          fc_agrup = 2.0d0*Hu*agrup
+          fc_agrdn = 2.0d0*Hd*agrdn
+
+*         ***correlation energy dentsity
+          ce = fc/n
 
 *      *******end correlation part********
 
@@ -369,6 +446,7 @@ c       write(*,*) "0.5d0*(G_uu+G_du)",0.5d0*(G_uu + G_du)
 c       write(*,*) "nup*G_u...",nup*G_u,ndn*G_d,nup*G_d,ndn*G_u
 c       write(*,*)
 
+       end if
 
 
 *      ***return blyp exchange correlation values*** 
@@ -450,7 +528,8 @@ c       write(*,*)
       parameter (ETA            =      1.0d-20)
 
       real*8 tolrho,minagr
-      parameter (tolrho=2.0e-8,minagr=1.0e-10)
+      parameter (tolrho=2.0e-11,minagr=1.0e-12)
+      !parameter (tolrho=2.0e-8,minagr=1.0e-10)
 ****** Becke constants *****************************
       real*8 lda_c,beta
       parameter (beta = 0.0042d0)
@@ -509,9 +588,9 @@ c       write(*,*)
      &               *(lda_c+beta*(F1-chi2*F2))
           fdagrx = -beta*chi*F2 
           if ((fdnx-xe).gt.0.0d0) then
-             xe = -n_thrd*(lda_c)/two_thrd
-             fdnx = -(n_thrd/two_thrd)*dble(4.0d0/3.0d0)*(lda_c)
-             fdagrx = 0.0d0
+              call Becke_smalln_correction(n,n_thrd,agr,beta,lda_c,
+     >                                   chi,chi2,chiSQ,K,F1,F2,
+     >                                   xe,fdnx,fdagrx)
           end if
        end if
 

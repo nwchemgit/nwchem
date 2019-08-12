@@ -223,16 +223,20 @@ c
       do j=i,size-1
 
         rtdb_name = tag(1:taglen)//bead_index_name(j+1)//':movecs_name'
+c        if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,tmp_name))
+c     >     tmp_name = 'bead'//bead_index_name(j+1)//'.movecs'
         if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,tmp_name))
-     >     tmp_name = 'bead'//bead_index_name(j+1)//'.movecs'
+     >     tmp_name = tag(1:taglen)//bead_index_name(j+1)//'.movecs'
         tmplen = inp_strlen(tmp_name)
         rtdb_name = tag(1:taglen)//bead_index_name(j)//':movecs_name'
         value = value.and.
      >          rtdb_cput(bead_rtdb,rtdb_name,1,tmp_name(1:tmplen))
 
         rtdb_name = tag(1:taglen)//bead_index_name(j+1)//':geom_name'
+c        if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,tmp_name))
+c     >     tmp_name = 'bead'//bead_index_name(j+1)//':geom'
         if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,tmp_name))
-     >     tmp_name = 'bead'//bead_index_name(j+1)//':geom'
+     >     tmp_name = tag(1:taglen)//bead_index_name(j+1)//':geom'
         tmplen = inp_strlen(tmp_name)
         rtdb_name = tag(1:taglen)//bead_index_name(j)//':geom_name'
         value = value.and.
@@ -349,8 +353,10 @@ c
       end if
 
       rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
+c      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+c     >   geom_name   = 'bead'//bead_index_name(i)//':geom'
       if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
-     >   geom_name   = 'bead'//bead_index_name(i)//':geom'
+     >   geom_name   = tag(1:taglen)//bead_index_name(i)//':geom'
       geomlen = inp_strlen(geom_name)            
 
       value =           geom_create(geom,'bead_tmp') 
@@ -424,15 +430,19 @@ c
       if (i.gt.size) return
 
       rtdb_name = tag(1:taglen)//bead_index_name(i)//':movecs_name'
+c      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,movecs_name))
+c     >   movecs_name = 'bead'//bead_index_name(i)//'.movecs'
       if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,movecs_name))
-     >   movecs_name = 'bead'//bead_index_name(i)//'.movecs'
+     >   movecs_name = tag(1:taglen)//bead_index_name(i)//'.movecs'
 
       call util_file_name_resolve(movecs_name, .false.)
       movecslen = inp_strlen(movecs_name)
 
       rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
+c      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+c     >   geom_name = 'bead'//bead_index_name(i)//':geom'
       if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
-     >   geom_name = 'bead'//bead_index_name(i)//':geom'
+     >   geom_name = tag(1:taglen)//bead_index_name(i)//':geom'
       geomlen = inp_strlen(geom_name)
 
       value = value.and.
@@ -703,8 +713,10 @@ c
       taglen    = inp_strlen(tag)
 
       rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
+c      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+c     >   geom_name = 'bead'//bead_index_name(i)//':geom'
       if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
-     >   geom_name = 'bead'//bead_index_name(i)//':geom'
+     >   geom_name = tag(1:taglen)//bead_index_name(i)//':geom'
       geomlen   = inp_strlen(geom_name)            
 
       value =           geom_create(geom,'bead_tmp') 
@@ -778,8 +790,10 @@ c
       taglen    = inp_strlen(tag)
 
       rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
+c      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+c     >   geom_name = 'bead'//bead_index_name(i)//':geom'
       if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
-     >   geom_name = 'bead'//bead_index_name(i)//':geom'
+     >   geom_name = tag(1:taglen)//bead_index_name(i)//':geom'
       geomlen   = inp_strlen(geom_name)            
 
       value =           geom_create(geom,'bead_tmp') 
@@ -856,8 +870,10 @@ c
       taglen    = inp_strlen(tag)
 
       rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
+c      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+c     >   geom_name   = 'bead'//bead_index_name(i)//':geom'
       if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
-     >   geom_name   = 'bead'//bead_index_name(i)//':geom'
+     >   geom_name   = tag(1:taglen)//bead_index_name(i)//':geom'
       geomlen   = inp_strlen(geom_name)            
 
       value =           geom_create(geom,'bead_tmp') 
@@ -925,8 +941,10 @@ c
       taglen    = inp_strlen(tag)
 
       rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
+c      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+c     >   geom_name = 'bead'//bead_index_name(i)//':geom'
       if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
-     >   geom_name = 'bead'//bead_index_name(i)//':geom'
+     >   geom_name = tag(1:taglen)//bead_index_name(i)//':geom'
       geomlen   = inp_strlen(geom_name)            
 
       value =           geom_create(geom,'bead_tmp') 
@@ -1010,8 +1028,10 @@ c
      >                              mt_dbl,1,energy)
 
          rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
+c         if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+c     >      geom_name = 'bead'//bead_index_name(i)//':geom'
          if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
-     >      geom_name = 'bead'//bead_index_name(i)//':geom'
+     >      geom_name = tag(1:taglen)//bead_index_name(i)//':geom'
          geomlen = inp_strlen(geom_name)      
          value = value.and.geom_rtdb_load(bead_rtdb,
      >                             geom,geom_name(1:geomlen))

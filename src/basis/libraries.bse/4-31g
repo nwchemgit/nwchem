@@ -1,0 +1,267 @@
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
+# 4-31g version number 1
+# Description: 4-31G valence double-zeta basis set
+# Role: orbital
+# 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# H
+#     ## 31G Split-valence basis set for H,He
+#     Ditchfield, R., Hehre, W. J., Pople, J. A.
+#     Self-Consistent Molecular-Orbital Methods. IX. An Extended Gaussian-
+#             Type Basis for Molecular-Orbital Studies of Organic Molecules
+#     J. Chem. Phys., 54, 724-728 (1971)
+#     10.1063/1.1674902
+# 
+# He
+#     ## 31G Split-valence basis set for H,He
+#     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
+#             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
+#             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
+#             Hratchian, H. P., Izmaylov, A. F., Bloino, J., Zheng, G.,
+#             Sonnenberg, J. L., Hada, M., Ehara, M., Toyota, K., Fukuda,
+#             R., Hasegawa, J., Ishida, M., Nakajima, T., Honda, Y., Kitao,
+#             O., Nakai, H., Vreven, T., Montgomery, J. A., Jr., Peralta, J.
+#             E., Ogliaro, F., Bearpark, M., Heyd, J. J., Brothers, E.,
+#             Kudin, K. N., Staroverov, V. N., Kobayashi, R., Normand, J.,
+#             Raghavachari, K., Rendell, A., Burant, J. C., Iyengar, S. S.,
+#             Tomasi, J., Cossi, M., Rega, N., Millam, M. J., Klene, M.,
+#             Knox, J. E., Cross, J. B., Bakken, V., Adamo, C., Jaramillo,
+#             J., Gomperts, R., Stratmann, R. E., Yazyev, O., Austin, A. J.,
+#             Cammi, R., Pomelli, C., Ochterski, J. W., Martin, R. L.,
+#             Morokuma, K., Zakrzewski, V. G., Voth, G. A., Salvador, P.,
+#             Dannenberg, J. J., Dapprich, S., Daniels, A. D., Farkas, Ö.,
+#             Foresman, J. B., Ortiz, J. V., Cioslowski, J., Fox, D. J.
+#     Gaussian 09 Revision E.01
+#     Gaussian, Inc., Wallingford, CT, 2009
+# 
+# B
+#     ## 4-31G Split-valence basis set
+#     Hehre, W. J., Pople, J. A.
+#     Self-Consistent Molecular Orbital Methods. XIII. An Extended Gaussian-
+#             Type Basis for Boron
+#     J. Chem. Phys., 56, 4233-4234 (1972)
+#     10.1063/1.1677844
+# 
+# C-F
+#     ## 4-31G Split-valence basis set
+#     Ditchfield, R., Hehre, W. J., Pople, J. A.
+#     Self-Consistent Molecular-Orbital Methods. IX. An Extended Gaussian-
+#             Type Basis for Molecular-Orbital Studies of Organic Molecules
+#     J. Chem. Phys., 54, 724-728 (1971)
+#     10.1063/1.1674902
+# 
+# Ne
+#     ## 4-31G Split-valence basis set
+#     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
+#             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
+#             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
+#             Hratchian, H. P., Izmaylov, A. F., Bloino, J., Zheng, G.,
+#             Sonnenberg, J. L., Hada, M., Ehara, M., Toyota, K., Fukuda,
+#             R., Hasegawa, J., Ishida, M., Nakajima, T., Honda, Y., Kitao,
+#             O., Nakai, H., Vreven, T., Montgomery, J. A., Jr., Peralta, J.
+#             E., Ogliaro, F., Bearpark, M., Heyd, J. J., Brothers, E.,
+#             Kudin, K. N., Staroverov, V. N., Kobayashi, R., Normand, J.,
+#             Raghavachari, K., Rendell, A., Burant, J. C., Iyengar, S. S.,
+#             Tomasi, J., Cossi, M., Rega, N., Millam, M. J., Klene, M.,
+#             Knox, J. E., Cross, J. B., Bakken, V., Adamo, C., Jaramillo,
+#             J., Gomperts, R., Stratmann, R. E., Yazyev, O., Austin, A. J.,
+#             Cammi, R., Pomelli, C., Ochterski, J. W., Martin, R. L.,
+#             Morokuma, K., Zakrzewski, V. G., Voth, G. A., Salvador, P.,
+#             Dannenberg, J. J., Dapprich, S., Daniels, A. D., Farkas, Ö.,
+#             Foresman, J. B., Ortiz, J. V., Cioslowski, J., Fox, D. J.
+#     Gaussian 09 Revision E.01
+#     Gaussian, Inc., Wallingford, CT, 2009
+# 
+# P-Cl
+#     ## 4-31G Split-valence basis set
+#     Hehre, W. J., Lathan, William A.
+#     Self-Consistent Molecular Orbital Methods. XIV. An Extended Gaussian-
+#             Type Basis for Molecular Orbital Studies of Organic Molecules.
+#             Inclusion of Second Row Elements
+#     J. Chem. Phys., 56, 5255-5257 (1972)
+#     10.1063/1.1677028
+# 
+# # 
+basis "H_4-31g" 
+#basis SET: (4s) -> [2s]
+H    S
+      0.1873113696E+02       0.3349460434E-01
+      0.2825394365E+01       0.2347269535E+00
+      0.6401216923E+00       0.8137573261E+00
+H    S
+      0.1612777588E+00       1.0000000
+end
+basis "He_4-31g" 
+#basis SET: (4s) -> [2s]
+He    S
+      0.3842163400E+02       0.4013973935E-01
+      0.5778030000E+01       0.2612460970E+00
+      0.1241774000E+01       0.7931846246E+00
+He    S
+      0.2979640000E+00       1.0000000
+end
+basis "B_4-31g" 
+#basis SET: (8s,4p) -> [3s,2p]
+B    S
+      0.3307528520E+03       0.1799417960E-01
+      0.4984386500E+02       0.1246937000E+00
+      0.1111705350E+02       0.4343353750E+00
+      0.2922724310E+01       0.5609793740E+00
+B    SP
+      0.5681264621E+01      -0.1303870779E+00       0.6374292252E-01
+      0.1454404593E+01      -0.2514343898E+00       0.2761330531E+00
+      0.4283785757E+00       0.1205129199E+01       0.7773865962E+00
+B    SP
+      0.1442191733E+00       0.1000000000E+01       0.1000000000E+01
+end
+basis "C_4-31g" 
+#basis SET: (8s,4p) -> [3s,2p]
+C    S
+      0.4869669280E+03       0.1772582290E-01
+      0.7337109420E+02       0.1234778670E+00
+      0.1641345790E+02       0.4338754000E+00
+      0.4344983560E+01       0.5615041970E+00
+C    SP
+      0.8673525310E+01      -0.1213837487E+00       0.6354538411E-01
+      0.2096619260E+01      -0.2273384975E+00       0.2982677571E+00
+      0.6046513290E+00       0.1185173917E+01       0.7621032281E+00
+C    SP
+      0.1835578298E+00       0.1000000000E+01       0.1000000000E+01
+end
+basis "N_4-31g" 
+#basis SET: (8s,4p) -> [3s,2p]
+N    S
+      0.6712795030E+03       0.1759825111E-01
+      0.1012016620E+03       0.1228462411E+00
+      0.2269996590E+02       0.4337821414E+00
+      0.6040609000E+01       0.5614182175E+00
+N    SP
+      0.1239359972E+02      -0.1174892991E+00       0.6402034433E-01
+      0.2922382831E+01      -0.2139940162E+00       0.3112025551E+00
+      0.8325280768E+00       0.1174502111E+01       0.7527482393E+00
+N    SP
+      0.2259641730E+00       0.1000000000E+01       0.1000000000E+01
+end
+basis "O_4-31g" 
+#basis SET: (8s,4p) -> [3s,2p]
+O    S
+      0.8832728600E+03       0.1755062799E-01
+      0.1331292800E+03       0.1228292230E+00
+      0.2990640790E+02       0.4348835838E+00
+      0.7978677160E+01       0.5600108038E+00
+O    SP
+      0.1619444664E+02      -0.1134010029E+00       0.6854527471E-01
+      0.3780086022E+01      -0.1772864659E+00       0.3312254350E+00
+      0.1070983575E+01       0.1150407929E+01       0.7346078781E+00
+O    SP
+      0.2838798407E+00       0.1000000000E+01       0.1000000000E+01
+end
+basis "F_4-31g" 
+#basis SET: (8s,4p) -> [3s,2p]
+F    S
+      0.1126162690E+04       0.1747576090E-01
+      0.1697431570E+03       0.1225230890E+00
+      0.3818151120E+02       0.4349985020E+00
+      0.1021203590E+02       0.5598121670E+00
+F    SP
+      0.2149536670E+02      -0.1110570795E+00       0.6988875080E-01
+      0.4989777570E+01      -0.1683221018E+00       0.3393875100E+00
+      0.1403573860E+01       0.1143625555E+01       0.7279589810E+00
+F    SP
+      0.3730318350E+00       0.1000000000E+01       0.1000000000E+01
+end
+basis "Ne_4-31g" 
+#basis SET: (8s,4p) -> [3s,2p]
+Ne    S
+      0.1397932080E+04       0.1742380540E-01
+      0.2107697810E+03       0.1222727450E+00
+      0.4746725690E+02       0.4350142320E+00
+      0.1272262630E+02       0.5597146420E+00
+Ne    SP
+      0.2721303320E+02      -0.1096094387E+00       0.7044030668E-01
+      0.6294134350E+01      -0.1641248895E+00       0.3439930469E+00
+      0.1760051250E+01       0.1140151586E+01       0.7245149598E+00
+Ne    SP
+      0.4618669920E+00       0.1000000000E+01       0.1000000000E+01
+end
+basis "P_4-31g" 
+#basis SET: (12s,8p) -> [4s,3p]
+P    S
+      0.3018671780E+04       0.1852131372E-01
+      0.4551271210E+03       0.1299048642E+00
+      0.1023147300E+03       0.4551002886E+00
+      0.2761784730E+02       0.5331318617E+00
+P    SP
+      0.1144294010E+03      -0.2475029613E-01       0.2741400255E-01
+      0.2658229590E+02      -0.1350924601E+00       0.1690791423E+00
+      0.7871888900E+01       0.2277360802E+00       0.4691020899E+00
+      0.2487857250E+01       0.8755931169E+00       0.5181530600E+00
+P    SP
+      0.5075061900E+02      -0.4511922338E-01       0.3779071215E-02
+      0.1672862420E+01      -0.8504729971E+00      -0.4634384093E-01
+      0.6210974120E+00       0.1596285863E+01       0.1033944300E+01
+P    SP
+      0.1670160070E+00       0.1000000000E+01       0.1000000000E+01
+end
+basis "S_4-31g" 
+#basis SET: (12s,8p) -> [4s,3p]
+S    S
+      0.3442124410E+04       0.1849212362E-01
+      0.5189131000E+03       0.1298220221E+00
+      0.1166909030E+03       0.4550417874E+00
+      0.3157164720E+02       0.5330083565E+00
+S    SP
+      0.1274405760E+03      -0.2726461062E-01       0.2915199954E-01
+      0.2974766730E+02      -0.1424834151E+00       0.1779596763E+00
+      0.8834664280E+01       0.2597043522E+00       0.4836237127E+00
+      0.2817389820E+01       0.8525472955E+00       0.4942553027E+00
+S    SP
+      0.3729185370E+01      -0.2775315250E+00      -0.3375092634E-01
+      0.1406770170E+01      -0.4576434583E+00       0.1457110452E+00
+      0.5481099690E+00       0.1431684280E+01       0.8982887442E+00
+S    SP
+      0.1703809050E+00       0.1000000000E+01       0.1000000000E+01
+end
+basis "Cl_4-31g" 
+#basis SET: (12s,8p) -> [4s,3p]
+Cl    S
+      0.3910302690E+04       0.1837943112E-01
+      0.5895518070E+03       0.1291401232E+00
+      0.1325939240E+03       0.4540448906E+00
+      0.3590354250E+02       0.5344394367E+00
+Cl    SP
+      0.1477653530E+03      -0.2674332303E-01       0.2886446881E-01
+      0.3450607530E+02      -0.1446911822E+00       0.1779646701E+00
+      0.1028647150E+02       0.2517035693E+00       0.4869998072E+00
+      0.3311147380E+01       0.8598203819E+00       0.4890184502E+00
+Cl    SP
+      0.4280284910E+01      -0.2703962754E+00      -0.3670288514E-01
+      0.1641016670E+01      -0.3416297195E+00       0.1918492422E+00
+      0.6144785030E+00       0.1350024482E+01       0.8643376818E+00
+Cl    SP
+      0.1956594110E+00       0.1000000000E+01       0.1000000000E+01
+end

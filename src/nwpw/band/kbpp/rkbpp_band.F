@@ -223,7 +223,7 @@ cccccccccccccccccccccccccccccccccccccc
      >			      'c_bet_prj',c_bet_hndl, 
      >                         c_bet_indx)
       if (.not.value)
-     > call errquit("rkbpp_band: out of heap memory",0,MA_ERR)
+     > call errquit("rkbpp_band: out of heap memory",1,MA_ERR)
 
 cccccccccc assign the relativistic states ccccccccccccccccccc
       call rkbpp_states(lmax_out,nprj_out,
@@ -416,11 +416,10 @@ c  nmax = 1 since we have 1 projector per (kappa) states
       value = value.and.BA_free_heap(k_prj_hndl)
       value = value.and.BA_free_heap(m_alf_hndl)
       value = value.and.BA_free_heap(m_bet_hndl)
-      value = value.and.BA_free_heap(k_prj_hndl)
       value = value.and.BA_free_heap(c_alf_hndl)
       value = value.and.BA_free_heap(c_bet_hndl)
       if (.not.value)
-     > call errquit("rkbpp_band: out of heap memory",0,MA_ERR)
+     > call errquit("rkbpp_band: out of heap memory",2,MA_ERR)
 
       if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
       rkbpp_band = value

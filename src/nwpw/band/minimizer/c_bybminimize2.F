@@ -166,9 +166,11 @@ c
          call cpsi_get_density(1,dbl_mb(rho_in(1)))
          call cpsi_get_density(1,dbl_mb(rho_out(1)))
 
+         call cpsi_1gen_hml()
+         call cpsi_diagonalize_hml()
          if (.not.value) then
-            call cpsi_1gen_hml()
-            call cpsi_diagonalize_hml()
+            !call cpsi_1gen_hml()
+            !call cpsi_diagonalize_hml()
             call cpsi_1rotate2()
             call cpsi_2to1()
          end if

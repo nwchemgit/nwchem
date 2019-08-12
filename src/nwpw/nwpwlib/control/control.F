@@ -6668,3 +6668,77 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *       control_runsocket         *
+*     *                                 *
+*     ***********************************
+      logical function control_runsocket()
+      implicit none
+
+#include "inp.fh"
+
+*     **** local variables ****
+      logical value
+      character*40 stype
+
+      value = .false.
+      call control_socket_type(stype)
+      if (inp_compare(.false.,'ase_client',stype)) value = .true.
+
+      control_runsocket = value
+      return
+      end
+
+
+*     ************************************
+*     *                                  *
+*     *      control_socket_type         *
+*     *                                  *
+*     ************************************
+      subroutine control_socket_type(stype)
+      implicit none
+      character*(*) stype
+
+#include "control.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      if (.not.btdb_cget(rtdb,'nwpw:socket_type',
+     >                   1,stype)) then
+         stype = "no socket"
+      end if
+      return
+      end
+
+*     ************************************
+*     *                                  *
+*     *      control_socket_ip           *
+*     *                                  *
+*     ************************************
+      subroutine control_socket_ip(stype)
+      implicit none
+      character*(*) stype
+
+#include "control.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      if (.not.btdb_cget(rtdb,'nwpw:socket_ip',
+     >                   1,stype)) then
+         stype = "127.0.0.1:31415"
+      end if
+      return
+      end
+
+
+
+
+

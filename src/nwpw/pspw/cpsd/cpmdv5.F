@@ -1489,7 +1489,7 @@ c     >        ' set nwpw:makehmass2 .false.')
  1181 FORMAT(/' initial velocity of ions:')
  1190 FORMAT(5X, I4, A5  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
  1191 FORMAT(5X, I4, A5  ,' (',3F11.5,
-     >       ' ) - atomic mass= ',F6.3,' - fixed')
+     >       ' ) - atomic mass= ',F7.3,' - fixed')
  1192 FORMAT(5X, I4, A5  ,' (',3F11.5,' )')
  1193 FORMAT(5X, I4, A5, ' (',3F11.5,
      >       ' ) - atomic mass= ',F7.3,' - z fixed')

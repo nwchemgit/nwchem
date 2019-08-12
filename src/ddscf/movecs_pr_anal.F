@@ -44,6 +44,7 @@ c
       logical sym_char_table
       external sym_char_table
       double precision maxv
+      integer howmany9
 c
       or2 = .true.
       if (.not. bas_cando_mpoles(basis)) or2 = .false.
@@ -93,6 +94,9 @@ c if there is no title sent, don't print it.
          write(LuOut,*)
 c
  110     continue
+         howmany9=9
+c     if thresh small, we want lots of eigenv
+         if(thresh.lt.1d-3) howmany9=99
          do i = ilo, ihi
 c
             call ga_get(g_vecs, 1, nbf, i, i, dbl_mb(k_vecs), nbf)
@@ -195,7 +199,7 @@ c
  22         format(1x,2('  Bfn.  Coefficient  Atom+Function  ',5x))
             write(LuOut,23)
  23         format(1x,2(' ----- ------------  ---------------',5x))
-            do klo = 0, min(n-1,9), 2
+            do klo = 0, min(n-1,howmany9), 2
                khi = min(klo+1,n-1)
                write(LuOut,2) (
      $              int_mb(k_list+k)+1, 

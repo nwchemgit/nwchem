@@ -1,13 +1,14 @@
-#!/bin/csh -f
+#!/bin/bash
 #
 # $Id$
 #
 #---   md tests
 #
-set np = 1
-if ($1 !="") then
-  set np = $1
-endif
+if [ -z "$1" ]; then
+    let np=1
+else
+  let np=$1
+fi
 ./runtests.mpi.unix procs $np prep/aal
 ./runtests.mpi.unix procs $np prep/bpx
 ./runtests.mpi.unix procs $np prep/caa
