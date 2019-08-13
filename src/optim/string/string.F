@@ -1358,7 +1358,7 @@ C> @}
           else if (r .lt. min_dist) then
            siner = (coords(3,i)-coords(3,j))/r
            coser = sqrt(1.0d0-siner*siner)
-           if(coser .lt. 1.0d-10) then ! Force 0*0/0 to be zero
+           if(coser .lt. 1d-8) then ! Force 0*0/0 to be zero
              cosed = 0.0d0
              sined = 0.0d0
            else
