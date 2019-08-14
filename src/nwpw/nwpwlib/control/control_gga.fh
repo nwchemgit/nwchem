@@ -33,6 +33,9 @@
 *   gga = 116-199 (reserved for hybrids)
 *   gga = 200 hartree-fock
 *
+*   **** meta ggas ****
+*   gga = 300 vs98
+*   gga = 301 ????
 *
       has_disp = .false.
       has_vdw  = .false.
@@ -823,6 +826,10 @@
         value = value.and.
      >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.20d0)
 
+
+*     **** Meta-GGAs ****
+      else if (inp_compare(.false.,exchange_correlation,'vs98')) then
+        gga = 300
 
       else
         gga = 0
