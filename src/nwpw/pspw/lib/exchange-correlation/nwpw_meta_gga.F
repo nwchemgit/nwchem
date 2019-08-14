@@ -14,8 +14,9 @@
 *     *            nwpw_meta_gga_init                  *
 *     *                                                *
 *     **************************************************
-      subroutine nwpw_meta_gga_init()
+      subroutine nwpw_meta_gga_init(gga)
       implicit none
+      integer gga
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -28,7 +29,7 @@
       integer n2ft3d
 
       meta_on = .false.
-      meta_on = nwpwxc_is_mgga()
+      meta_on = nwpwxc_is_mgga().or.(gga.ge.300)
 
       if (meta_on) then
          call D3dB_n2ft3d(1,n2ft3d)

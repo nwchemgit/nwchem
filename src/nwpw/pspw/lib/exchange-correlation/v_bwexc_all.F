@@ -31,7 +31,7 @@
       use_gga  = (.not.nwpwxc_is_on().and.(gga.ge.10)
      >             .and.(gga.lt.100))
      +           .or.(nwpwxc_is_on().and.nwpwxc_is_gga())
-      use_mgga = nwpwxc_is_mgga()
+      use_mgga = nwpwxc_is_mgga().or.(gga.ge.300)
      
       if (use_lda) then
          if (.not.BA_push_get(mt_dbl,(ispin*n2ft3d),'tmp1',
@@ -92,13 +92,14 @@
 #include "util.fh"
 
       logical use_lda, use_gga, use_mgga
+      integer i
 
     
        use_lda = (.not.nwpwxc_is_on().and.gga.eq.0).or.
      +           (nwpwxc_is_on().and.nwpwxc_is_lda())
        use_gga = (.not.nwpwxc_is_on().and.(gga.ge.10).and.(gga.lt.100))
      +           .or.(nwpwxc_is_on().and.nwpwxc_is_gga())
-       use_mgga = nwpwxc_is_mgga()
+       use_mgga = nwpwxc_is_mgga().or.(gga.ge.300)
      
 *     **** lda's ****
       if (use_lda) then
@@ -197,6 +198,8 @@
 
       ELSE IF (gga.eq.200) THEN
          write(luout,1131) 'Hartree-Fock'
+      ELSE IF (gga.eq.300) THEN
+         write(luout,1131) 'VS98'
       ELSE
          write(luout,1131) 'unknown parameterization'
          call errquit('bad exchange_correlation',0, INPUT_ERR)

@@ -17,7 +17,8 @@ SUBDIRS = vdw-DF
             	b3lyp.o \
 		bnl2007_x.o\
 		hsepbe.o \
-		beef_gga.o
+		beef_gga.o \
+		vs98.o
 
 #            vdirac.o \
 

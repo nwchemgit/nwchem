@@ -125,28 +125,50 @@ c     >                      dbl_mb(agr(1)))
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
 
          if (meta_on) then
+            if (gga.ge.300) then
+               call D3dB_rr_Sqrt1(1,dbl_mb(agr(1)))
+
+c              ***** calculate xce,fn=df/dn, and fdn=df/d|grad n|, fdtau=df/dtau  ***** 
+               if (gga.eq.300) then
+               call gen_VS98_restricted(n2ft3d,
+     >                                dbl_mb(rho(1)),
+     >                                dbl_mb(agr(1)),
+     >                                dbl_mb(tau(1)),
+     >                                x_parameter,c_parameter,
+     >                                xce,
+     >                                dbl_mb(fn(1)),
+     >                                dbl_mb(fdn(1)),
+     >                                dbl_mb(dfdtau(1)))
+               else
+                 call errquit('bad gga',0,0)
+               end if
+
+
+            else
 !$OMP MASTER
-           call nwpwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),dbl_mb(agr(1)),
-     >                       dbl_mb(tau(1)),xce,
-     >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),
+              call nwpwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),
+     >                          dbl_mb(agr(1)),
+     >                          dbl_mb(tau(1)),xce,
+     >                          dbl_mb(fn(1)),dbl_mb(fdn(1)),
      >                       dbl_mb(dfdtau(1)))
 !$OMP END MASTER
 !$OMP BARRIER
 c
-c          Combine (df/d|grad a|) with (df/d(grad a|grad b))
+c             Combine (df/d|grad a|) with (df/d(grad a|grad b))
 c
-           call D3dB_rr_daxpy(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
-     >                              dbl_mb(fdn(1)))
+              call D3dB_rr_daxpy(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
+     >                                 dbl_mb(fdn(1)))
 c
-c          Calculate energy density from energy
+c             Calculate energy density from energy
 c
 !$OMP DO
-           do k = 1, n2ft3d
-             xce(k) = xce(k)/(dbl_mb(rho(1)-1+k)+dncut)
-           enddo
+              do k = 1, n2ft3d
+                xce(k) = xce(k)/(dbl_mb(rho(1)-1+k)+dncut)
+              enddo
 !$OMP END DO
-           call D3dB_rr_Sqrt1(1,dbl_mb(agr(1)))
-           call D3dB_rr_Mul2(1,dbl_mb(agr(1)),dbl_mb(fdn(1)))
+              call D3dB_rr_Sqrt1(1,dbl_mb(agr(1)))
+              call D3dB_rr_Mul2(1,dbl_mb(agr(1)),dbl_mb(fdn(1)))
+            endif
          else
            call errquit("v_mexc: no meta-GGA?",0,UERR)
          endif
