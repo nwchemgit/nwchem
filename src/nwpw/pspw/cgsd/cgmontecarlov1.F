@@ -1340,6 +1340,8 @@ c     >                        ratio_v,wa,wr,wa_v,wr_v
       external psp_semicore,ion_init,psi_initialize
       external control_version,control_ngrid,control_minimizer
       external control_mapping,control_mapping1d,psi_ne,psi_ispin
+      integer  control_gga
+      external control_gga
 
 
 
@@ -1426,7 +1428,7 @@ c     >                        ratio_v,wa,wr,wa_v,wr_v
       call pspw_init_HFX(rtdb,psi_ispin(),ne)
 
 *     **** initialize Meta GGA ****
-      call nwpw_meta_gga_init()
+      call nwpw_meta_gga_init(control_gga())
 
 
       if (calc_pressure) then

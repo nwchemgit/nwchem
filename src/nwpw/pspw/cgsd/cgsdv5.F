@@ -342,7 +342,7 @@
       call psp_U_init()
 
 *     **** initialize  META GGA ****
-      call nwpw_meta_gga_init()
+      call nwpw_meta_gga_init(control_gga())
 
 *     **** initialize vdw ****
       call vdw_DF_init()

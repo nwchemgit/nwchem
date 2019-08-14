@@ -981,6 +981,9 @@ c         end if
       external control_version,control_ngrid,control_minimizer
       external control_mapping,control_mapping1d,psi_ne,psi_ispin
 
+      integer  control_gga
+      external control_gga
+
 
 
       ngrid(1) = control_ngrid(1)
@@ -1066,7 +1069,7 @@ c         end if
       call pspw_init_HFX(rtdb,psi_ispin(),ne)
 
 *     **** initialize Meta GGA ****
-      call nwpw_meta_gga_init()
+      call nwpw_meta_gga_init(control_gga())
 
 
       if (calc_pressure) then

@@ -328,7 +328,7 @@
       call psp_U_init()
 
 *     **** initialize Meta GGA ****
-      call nwpw_meta_gga_init()
+      call nwpw_meta_gga_init(control_gga())
 
 *     **** initialize metadynamics ****
       call meta_initialize(rtdb)
