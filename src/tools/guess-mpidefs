@@ -71,8 +71,8 @@ function get_mpi_include ()
    fi
    outlist=""
    for word in ${inlist} ; do
-      len=`echo "${word}" | grep -o "\-I" | wc -c`
-      if [ ${len} -ge 2 ] ; then
+      len=`echo "${word}" | grep -o "^\-I" | wc -c`
+      if [ ${len} -ge 3 ] ; then
         outlist="${outlist} ${word}"
       fi
    done
@@ -112,8 +112,8 @@ function get_mpi_link ()
    fi
    outlist=""
    for word in ${inlist} ; do
-      len=`echo "${word}" | grep -o "\-L" | wc -c`
-      if [ ${len} -ge 2 ] ; then
+      len=`echo "${word}" | grep -o "^\-L" | wc -c`
+      if [ ${len} -ge 3 ] ; then
         outlist="${outlist} ${word}"
       fi
    done
@@ -153,8 +153,8 @@ function get_mpi_lib ()
    fi
    outlist=""
    for word in ${inlist} ; do
-      len=`echo "${word}" | grep -o "\-l" | wc -c`
-      if [ ${len} -ge 2 ] ; then
+      len=`echo "${word}" | grep -o "^\-l" | wc -c`
+      if [ ${len} -ge 3 ] ; then
         outlist="${outlist} ${word}"
       fi
    done
