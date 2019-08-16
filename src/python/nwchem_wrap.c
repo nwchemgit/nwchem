@@ -433,11 +433,11 @@ PyObject *wrap_rtdb_get(PyObject *self, PyObject *args)
   if (PyArg_ParseTuple(args, "s", &name)) {
     if (!rtdb_ma_get(rtdb_handle, name, &ma_type, &nelem, &ma_handle)) {
       PyErr_SetString(NwchemError, "rtdb_ma_get failed");
-      return NULL;
+      Py_RETURN_NONE;
     }
     if (!MA_get_pointer(ma_handle, &array)) {
       PyErr_SetString(NwchemError, "rtdb_ma_get failed");
-      return NULL;
+      Py_RETURN_NONE;
     }
     /*printf("name=%s ma_type=%d nelem=%d ptr=%x\n",name, ma_type, 
       nelem, array);*/
@@ -457,7 +457,7 @@ PyObject *wrap_rtdb_get(PyObject *self, PyObject *args)
     default:
       PyErr_SetString(NwchemError, "rtdb_get: ma type incorrect");
       (void) MA_free_heap(ma_handle);
-      return NULL;
+      Py_RETURN_NONE;
       break;
     }
     
