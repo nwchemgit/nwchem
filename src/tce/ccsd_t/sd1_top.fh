@@ -2,9 +2,6 @@ C$Id$
       integer deltat
       double precision t0
 #ifdef USE_OPENMP
-#ifndef OPENMP_OFFLOAD
-cdir$ ATTRIBUTES OFFLOAD : mic :: omp_get_wtime
-#endif
       double precision omp_get_wtime
       external omp_get_wtime
       t0=omp_get_wtime()

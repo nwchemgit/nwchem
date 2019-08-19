@@ -66,23 +66,6 @@ c --------------
       double precision v2sub(*),t1sub(*),scratch(*)
       integer l_v2sub,l_t1sub,l_triplesx
       integer ia6_in
-#ifdef OFFLOAD_CODE           
-#ifndef OPENMP_OFFLOAD
-      integer util_micdev
-      external util_micdev
-      integer mic_device
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_1
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_2
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_3
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_4
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_5
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_6
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_7
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_8
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_9
-      mic_device=util_micdev()
-#endif
-#endif
 cdbg      write(6,*) 'begin singles: sxalloc ',triplesx1_alloced
 cfrom l_triplesx
       l_triplesx=

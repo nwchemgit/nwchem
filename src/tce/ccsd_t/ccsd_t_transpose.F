@@ -9,8 +9,6 @@
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
 !$omp declare target (offl_ccsd_t_transpt2)
-#else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_ccsd_t_transpt2
 #endif
 #endif
       integer h1d,p5d,p4d,h7d
@@ -53,8 +51,6 @@ cc!deC$ SIMD
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
 !$omp declare target (offl_ccsd_t_transpt2_7124)
-#else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_ccsd_t_transpt2_7124
 #endif
 #endif
       integer p4d,h1d,h2d,p7d
@@ -97,8 +93,6 @@ cc!deC$ SIMD
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
 !$omp declare target (offl_ccsd_t_transpt2_7326)
-#else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_ccsd_t_transpt2_7326
 #endif
 #endif
       integer h3d,h2d,p6d,h7d
@@ -139,3 +133,4 @@ c
 #include "ccsd_t_transpose.F"
 #endif
 #endif
+
