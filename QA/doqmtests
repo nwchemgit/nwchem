@@ -7,7 +7,7 @@ set np = 1
 if ($1 !="") then
 set np = $1
 endif
-./runtests.unix procs $np auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
+./runtests.unix procs $np auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa3
 ./runtests.unix procs $np geom_zmatrix rimp2_ne  scf_feco5 small_intchk tagcheck testtab
 ./runtests.unix procs $np h2o_dk u_sodft cosmo_h2o ch5n_nbo h2s_finite startag
 ./runtests.unix procs $np cosmo_trichloroethene esp esp_uhf dft_bsse dft_s12gh c4h4_wfn
