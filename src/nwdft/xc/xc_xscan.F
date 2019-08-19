@@ -213,13 +213,14 @@ c
             p   = g2/(4d0*Pconst*rho83)
             p14 = dsqrt(dsqrt(p))
 c
-            if(a.lt.0d0)  a=0d0
             if (whichfx.eq.'orig') then
               a=(tauN-tauW)/tauU
+              if(a.lt.0d0)  a=0d0
               regalpha = a
               dregalpha = 1d0
             else if (whichfx.eq.'regu') then
               a=(tauN-tauW)/(tauU + 1d-4*facttwo**f23)
+              if(a.lt.0d0)  a=0d0
               regalpha = a**3/(a**2 + 1d-3)
               dregalpha = a/(a**2+1d-3)*(3d0*a - 2d0*regalpha)
             endif
