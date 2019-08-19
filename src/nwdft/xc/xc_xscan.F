@@ -219,7 +219,7 @@ c
               regalpha = a
               dregalpha = 1d0
             else if (whichfx.eq.'regu') then
-              a=(tauN-tauW)/(tauU + 1d-4*facttwo**f23)
+              a=(tauN-tauW)/(tauU + 1d-4*facttwo**f53)
               if(a.lt.0d0)  a=0d0
               regalpha = a**3/(a**2 + 1d-3)
               dregalpha = a/(a**2+1d-3)*(3d0*a - 2d0*regalpha)
@@ -289,9 +289,9 @@ c     functional derivatives FFFFFFFFFFFFFFFFFFFFFFFFFFFF
               dadt = 1d0/tauU
               dadr = F13*(8d0*tauW - 5.0*tauN)*rrho/tauU
             else if (whichfx.eq.'regu') then
-              dadg = -F18*rrho/(tauU + 1d-4*facttwo**f23)
-              dadt = 1d0/(tauU + 1d-4*facttwo**f23)
-              dadr = 5d0/3d0*(p - a)*tauU*rrho/(tauU +1d-4*facttwo**f23)
+              dadg = -F18*rrho/(tauU + 1d-4*facttwo**f53)
+              dadt = 1d0/(tauU + 1d-4*facttwo**f53)
+              dadr = 5d0/3d0*(p - a)*tauU*rrho/(tauU +1d-4*facttwo**f53)
             endif
 
             if (p14.lt.0.001d0) then
