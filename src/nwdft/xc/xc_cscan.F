@@ -374,7 +374,7 @@ c
 
            ddsdzeta = 0.5d0*F53*(opz**F23 - omz**F23)
 
-           if (which.eq.'orig') then
+           if (whichfc.eq.'orig') then
              dalphadzeta = -alpha*ddsdzeta/ds
            else
              dalphadzeta = -alpha*ddsdzeta/ds * (tueg/(tueg+1d-4))
