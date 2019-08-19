@@ -259,12 +259,14 @@ c
          ds = 0.5d0*(opz**F53 + omz**F53)
          tueg = 0.3d0*ckf*ckf*ds*ntot**F53
          tvw = 0.125d0*dn2/ntot
-         alpha = (tautot - tvw)/tueg
-         if (alpha.lt.0d0) alpha=0d0
          if (whichfc.eq.'orig') then
+           alpha = (tautot - tvw)/tueg
+           if (alpha.lt.0d0) alpha=0d0
            regalpha = alpha
            dregalpha = 1d0
          else if (whichfc.eq.'regu') then
+           alpha = (tautot - tvw)/(tueg + 1d-4)
+           if (alpha.lt.0d0) alpha=0d0
            regalpha = alpha**3/(alpha**2 + 1d-3)
            dregalpha = alpha/(alpha**2 + 1d-3) * 
      &                 (3d0*alpha - 2d0*regalpha)
@@ -309,9 +311,15 @@ c
          Ec = Ec + cfac*ntot*(Ec1 + fca*(Ec0-Ec1))*qwght(n)
          if (ldew) func(n) = func(n) + cfac*ntot*(Ec1 + fca*(Ec0-Ec1))
 c
-         dalphadn = F13*(F8*tvw - F5*tautot)/(tueg*ntot)
-         dalphadg = -0.125d0/(tueg*ntot)
-         dalphadt = 1d0/tueg
+         if (whichfc.eq.'orig') then
+           dalphadn = F13*(F8*tvw - F5*tautot)/(tueg*ntot)
+           dalphadg = -0.125d0/(tueg*ntot)
+           dalphadt = 1d0/tueg
+         else if (whichfc.eq.'regu') then
+           dalphadn = 5d0/3d0*(p-alpha)*tueg/((tueg+1d-4)*ntot)
+           dalphadg = -0.125d0/((tueg+1d-4)*ntot)
+           dalphadt = 1d0/(tueg+1d-4)
+         endif
 
          dEc1dn = dEc1drs*drsdn + dEc1dp*dpdn
          dEc0dn = dEc0drs*drsdn + dEc0dp*dpdn
@@ -365,7 +373,13 @@ c
            dEc0dzeta = dgcdzeta*(epsc0 + H0)
 
            ddsdzeta = 0.5d0*F53*(opz**F23 - omz**F23)
-           dalphadzeta = -alpha*ddsdzeta/ds
+
+           if (which.eq.'orig') then
+             dalphadzeta = -alpha*ddsdzeta/ds
+           else
+             dalphadzeta = -alpha*ddsdzeta/ds * (tueg/(tueg+1d-4))
+           endif
+
            dfcadzeta = dfcada*dalphadzeta
 
            vcpol = dEc1dzeta + dfcadzeta*(Ec0-Ec1) + 
