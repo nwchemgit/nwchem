@@ -1775,6 +1775,7 @@ endif
         GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
         endif
         GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
+        GNU_GE_8 = $(shell [ $(GNUMAJOR) -ge 8  ] && echo true)
         endif
         ifeq ($(GNU_GE_4_6),true)
           DEFINES  += -DGCC46
@@ -1787,6 +1788,9 @@ endif
         else
           FOPTIONS   += -Wuninitialized # -Wextra -Wunused
         endif
+        ifeq ($(GNU_GE_8),true)
+          FOPTIONS   += -std=legacy
+	endif
         ifdef USE_OPENMP
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
