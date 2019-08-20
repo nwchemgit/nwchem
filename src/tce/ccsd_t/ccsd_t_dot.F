@@ -19,8 +19,6 @@ C
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
 !$omp declare target (offl_ccsd_t_dot)
-#else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_ccsd_t_dot
 #endif
 #endif
       integer h1b, h2b, h3b, p4b, p5b, p6b
@@ -40,6 +38,7 @@ c
 c
 c factor = [ 1/36, 1/18, 1/12, 1/6, 1/4, 1/3, 1/2, 1, 2]
 c
+
       if (restricted) then
         factor = 2.0d0
       else
@@ -55,12 +54,14 @@ c
       else if ((h1b.eq.h2b).or.(h2b.eq.h3b)) then
         factor = factor / 2.0d0
       endif
+#if USE_OPENMP
 !$omp  parallel do collapse(3)
 !$omp& schedule(static)
 !$omp& default(shared)
 !$omp& private(p4,p5,p6,h1,h2,h3,sing,doub,denom)
 !$omp& private(d_p4,d_p5,d_p6,d_h1,d_h2,d_h3)
 !$omp& reduction(+:energy1) reduction(+:energy2)
+#endif
       do p4 = 1, r_p4
        do p5 = 1, r_p5
         do p6 = 1, r_p6
@@ -86,6 +87,9 @@ c
         enddo
        enddo
       enddo
+#if USE_OPENMP
+!$omp end parallel do
+#endif
       return
       end
 #ifndef OFFLOAD_CODE

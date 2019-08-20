@@ -28,33 +28,17 @@
 #endif
 *
       end
-      integer function util_micdev()
-#if defined(USE_OPENMP) && defined(USE_OFFLOAD)
-      use mic_lib
+
+
+      logical function offload_enabled()
       implicit none
-#include "global.fh"
-#include "errquit.fh"
-      external offload_master
-      logical offload_master
-c                                                                               
-      integer numdevs
-      integer*4 util_mic_get_device
-      external util_mic_get_device
-c                                                                               
-      if(.not.offload_master()) call errquit(
-     A     ' need to be offload master',0,0)
-      util_micdev=util_mic_get_device()
-#else
-      util_micdev=-1
-      call errquit(' micdev: wrong installation',0,0)
-#endif
+C #ifdef USE_OFFLOAD
+C       write (*,*) 'offload_enabled = true'
+      offload_enabled=.true.
+C #else
+C       write (*,*) 'offload_enabled = false'
+C       offload_enabled=.false.
+C #endif
       return
       end
-#if !defined(USE_OFFLOAD)
-      logical function offload_master()
-      implicit none
-c     dummy function when offload is not in place
-      offload_master=.false.
-      return
-      end
-#endif
+

@@ -1,6 +1,6 @@
 C$Id$
 #ifdef OFFLOAD_CODE
-      SUBROUTINE offl_mic_ccsd_t_singles_l_1(
+      SUBROUTINE offl_gpu_ccsd_t_singles_l_1(
 #else
       SUBROUTINE offl_cpu_ccsd_t_singles_l_1(
 #endif
@@ -64,10 +64,14 @@ c --------------
       INTEGER k_range_p5b_1
       INTEGER k_range_p4b_1
       double precision v2sub(*),t1sub(*),scratch(*)
+#ifdef OFFLOAD_CODE
       integer l_v2sub,l_t1sub,l_triplesx
+#endif
       integer ia6_in
 cdbg      write(6,*) 'begin singles: sxalloc ',triplesx1_alloced
 cfrom l_triplesx
+#ifdef OFFLOAD_CODE
+#ifndef OPENMP_OFFLOAD
       l_triplesx=
      c int_mb(k_range+t_h3b-1)*
      c int_mb(k_range+t_h2b-1)*
@@ -75,30 +79,8 @@ cfrom l_triplesx
      c int_mb(k_range+t_p6b-1)*
      c int_mb(k_range+t_p5b-1)*
      c int_mb(k_range+t_p4b-1)
-#ifdef OFFLOAD_CODE
-#ifndef OPENMP_OFFLOAD
       call ccsd_t_v2t1lgth(l_t1sub,l_v2sub)
-c
-c     alloc triplesx, v2sub & t1sub only once
-c     when triplesx1_alloced eq .false.
-c
-c      if (.not.triplesx1_alloced)
-c     O     call offl_alloc(triplesx,l_triplesx)
-     
-
-      if (.not.t1sub_alloced) then
-         call offl_alloc(t1sub,l_t1sub) 
-         t1sub_alloced=.true.
-      endif
-
-      if (.not.v2sub_alloced)  then
-         call offl_alloc(v2sub,l_v2sub) 
-         v2sub_alloced=.true.
-      endif
-
-cdbg      write(6,*) 'zero singles: sxalloc ',triplesx1_alloced
 #endif
-#else
 #endif
 
         a3(1,1)=t_p4b
@@ -253,7 +235,7 @@ cfrom l_triplesx
 
 #ifdef OFFLOAD_CODE
 #include "offl_singles_1.fh"
-      call offl_mic_sd_t_s1_1(
+      call offl_gpu_sd_t_s1_1(
 #else
       call offl_cpu_sd_t_s1_1(
 #endif
@@ -268,7 +250,7 @@ cfrom l_triplesx
      &3b)) THEN
 #ifdef OFFLOAD_CODE
 #include "offl_singles_1.fh"
-      call offl_mic_sd_t_s1_2(
+      call offl_gpu_sd_t_s1_2(
 #else
       call offl_cpu_sd_t_s1_2(
 #endif
@@ -283,7 +265,7 @@ cfrom l_triplesx
      &1b)) THEN
 #ifdef OFFLOAD_CODE
 #include "offl_singles_1.fh"
-      call offl_mic_sd_t_s1_3(
+      call offl_gpu_sd_t_s1_3(
 #else
       call offl_cpu_sd_t_s1_3(
 #endif
@@ -298,7 +280,7 @@ cfrom l_triplesx
      &3b)) THEN
 #ifdef OFFLOAD_CODE
 #include "offl_singles_1.fh"
-      call offl_mic_sd_t_s1_4(
+      call offl_gpu_sd_t_s1_4(
 #else
       call offl_cpu_sd_t_s1_4(
 #endif
@@ -313,7 +295,7 @@ cfrom l_triplesx
      &3b)) THEN
 #ifdef OFFLOAD_CODE
 #include "offl_singles_1.fh"
-      call offl_mic_sd_t_s1_5(
+      call offl_gpu_sd_t_s1_5(
 #else
       call offl_cpu_sd_t_s1_5(
 #endif
@@ -328,7 +310,7 @@ cfrom l_triplesx
      &1b)) THEN
 #ifdef OFFLOAD_CODE
 #include "offl_singles_1.fh"
-      call offl_mic_sd_t_s1_6(
+      call offl_gpu_sd_t_s1_6(
 #else
       call offl_cpu_sd_t_s1_6(
 #endif
@@ -343,7 +325,7 @@ cfrom l_triplesx
      &3b)) THEN
 #ifdef OFFLOAD_CODE
 #include "offl_singles_1.fh"
-      call offl_mic_sd_t_s1_7(
+      call offl_gpu_sd_t_s1_7(
 #else
       call offl_cpu_sd_t_s1_7(
 #endif
@@ -358,7 +340,7 @@ cfrom l_triplesx
      &3b)) THEN
 #ifdef OFFLOAD_CODE
 #include "offl_singles_1.fh"
-      call offl_mic_sd_t_s1_8(
+      call offl_gpu_sd_t_s1_8(
 #else
       call offl_cpu_sd_t_s1_8(
 #endif
@@ -373,7 +355,7 @@ cfrom l_triplesx
      &1b)) THEN
 #ifdef OFFLOAD_CODE
 #include "offl_singles_1.fh"
-      call offl_mic_sd_t_s1_9(
+      call offl_gpu_sd_t_s1_9(
 #else
       call offl_cpu_sd_t_s1_9(
 #endif
@@ -395,18 +377,11 @@ cskip      END IF
 c
       END IF
       END DO
-#ifdef OFFLOAD_CODE_OLD
-       shoudl fail to compile
-!DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device) 
-     O   OUT(triplesx:length(l_triplesx) 
-     &   REUSE)
-#endif
-cdbg      write(6,*) 'eof singles: sxalloc ',triplesx1_alloced
       RETURN
       END
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_mic_sd_t_s1_1(
+      subroutine offl_gpu_sd_t_s1_1(
 #else
       subroutine offl_cpu_sd_t_s1_1(
 #endif
@@ -415,9 +390,7 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_mic_sd_t_s1_1)
-#else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_1
+!$omp declare target (offl_gpu_sd_t_s1_1)
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d
@@ -444,7 +417,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_1
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_mic_sd_t_s1_2(
+      subroutine offl_gpu_sd_t_s1_2(
 #else
       subroutine offl_cpu_sd_t_s1_2(
 #endif
@@ -453,9 +426,7 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_mic_sd_t_s1_2)
-#else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_2
+!$omp declare target (offl_gpu_sd_t_s1_2)
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d
@@ -484,7 +455,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_2
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_mic_sd_t_s1_3(
+      subroutine offl_gpu_sd_t_s1_3(
 #else
       subroutine offl_cpu_sd_t_s1_3(
 #endif
@@ -493,9 +464,7 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_mic_sd_t_s1_3)
-#else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_3
+!$omp declare target (offl_gpu_sd_t_s1_3)
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d
@@ -522,7 +491,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_3
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_mic_sd_t_s1_4(
+      subroutine offl_gpu_sd_t_s1_4(
 #else
       subroutine offl_cpu_sd_t_s1_4(
 #endif
@@ -531,9 +500,7 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_mic_sd_t_s1_4)
-#else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_4
+!$omp declare target (offl_gpu_sd_t_s1_4)
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d
@@ -560,7 +527,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_4
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_mic_sd_t_s1_5(
+      subroutine offl_gpu_sd_t_s1_5(
 #else
       subroutine offl_cpu_sd_t_s1_5(
 #endif
@@ -569,9 +536,7 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_mic_sd_t_s1_5)
-#else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_5
+!$omp declare target (offl_gpu_sd_t_s1_5)
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d
@@ -600,7 +565,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_5
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_mic_sd_t_s1_6(
+      subroutine offl_gpu_sd_t_s1_6(
 #else
       subroutine offl_cpu_sd_t_s1_6(
 #endif
@@ -609,9 +574,7 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_mic_sd_t_s1_6)
-#else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_6
+!$omp declare target (offl_gpu_sd_t_s1_6)
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d
@@ -638,7 +601,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_6
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_mic_sd_t_s1_7(
+      subroutine offl_gpu_sd_t_s1_7(
 #else
       subroutine offl_cpu_sd_t_s1_7(
 #endif
@@ -647,9 +610,7 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_mic_sd_t_s1_7)
-#else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_7
+!$omp declare target (offl_gpu_sd_t_s1_7)
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d
@@ -676,7 +637,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_7
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_mic_sd_t_s1_8(
+      subroutine offl_gpu_sd_t_s1_8(
 #else
       subroutine offl_cpu_sd_t_s1_8(
 #endif
@@ -685,9 +646,7 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_mic_sd_t_s1_8)
-#else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_8
+!$omp declare target (offl_gpu_sd_t_s1_8)
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d
@@ -716,7 +675,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_8
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_mic_sd_t_s1_9(
+      subroutine offl_gpu_sd_t_s1_9(
 #else
       subroutine offl_cpu_sd_t_s1_9(
 #endif
@@ -725,9 +684,7 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_mic_sd_t_s1_9)
-#else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_9
+!$omp declare target (offl_gpu_sd_t_s1_9)
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d

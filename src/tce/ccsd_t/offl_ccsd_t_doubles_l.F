@@ -76,7 +76,9 @@ c --------------
       INTEGER k_range_p7b_1
       INTEGER k_a_srt_len
       INTEGER k_b_srt_len
+#ifdef OFFLOAD_CODE
       integer l_t2sub,l_triplesx,l_v2sub
+#endif
       double precision t2sub(*),v2sub(*),scratch(*)
       logical tce_hashnsort,lresult
       external tce_hashnsort
@@ -92,6 +94,7 @@ c --------------
 #endif
       integer h7b_in,p7b_in
 
+#ifdef OFFLOAD_CODE
 cfrom l_triplesx
       l_triplesx=
      c int_mb(k_range+t_h3b-1)*
@@ -100,46 +103,7 @@ cfrom l_triplesx
      c int_mb(k_range+t_p6b-1)*
      c int_mb(k_range+t_p5b-1)*
      c int_mb(k_range+t_p4b-1)
-#ifdef OFFLOAD_CODE
-#ifndef OPENMP_OFFLOAD
       call ccsd_t_v2t2lgth(l_t2sub,l_v2sub)
-      if (otceps) then
-         call pstat_on(ps_sxoff)
-         t0=omp_get_wtime()
-      endif
-c
-c     alloc triplesx, v2sub & t2sub only once
-c     when triplesx_alloced eq .false.
-c
-      if (otceps) then
-         call pstat_off(ps_sxoff)
-         deltat_off=(omp_get_wtime()-t0)*1.D6
-         call updist(fdist_sxoff, deltat_off)
-      endif
-cc Allocate memory on MIC,but no xfer data
-         if(otceps) then
-            call pstat_on(ps_vtoff)
-            t0=omp_get_wtime()
-         endif
-      if (.not.t2sub_alloced) then
-         call offl_alloc(t2sub,l_t2sub)
-         call offl_alloc(scratch,l_t2sub)
-         t2sub_alloced=.true.
-      endif
-
-      if (.not.v2sub_alloced) then
-         call offl_alloc(v2sub,l_v2sub)
-         v2sub_alloced=.true.
-      endif
-         if(otceps) then
-            call pstat_off(ps_vtoff)
-            deltat_off=(omp_get_wtime() - t0)*1.D6
-      if((deltat_off).gt.1d6) call
-     E     errquit(' busted 2',0,0)
-            call updist(fdist_vtoff, deltat_off)
-         endif
-#endif
-#else
 #endif
 
         a3(1,1)=t_p4b
@@ -287,18 +251,19 @@ c     figure out  cycles to work on
 
 #ifdef OFFLOAD_CODE
 #if OPENMP_OFFLOAD
-      fiofwguispgewj klhjlhjlqkwr thwrhtjk hwqrtjhwr jthjkqrwt hkjqwhr t_p5b
+      write (*,'(A)',advance="no") '.'
 !$omp target map(to:k_range_h3b_1,k_range_h2b_1,k_range_h1b_1)
-     & map(to:k_range_p6b_1,k_range_p5b_1,k_range_p4b_1,k_range_h7b_1)
-     & map(tofrom:triplesx(1:l_triplesx)) map(to:t2sub(1:l_t2sub))
-     & map(to:v2sub(1:l_v2sub))
+!$omp& map(to:k_range_p6b_1,k_range_p5b_1,k_range_p4b_1,k_range_h7b_1)
+!$omp& map(tofrom:triplesx(1:l_triplesx)) map(to:t2sub(1:l_t2sub))
+!$omp& map(to:v2sub(1:l_v2sub)) map(alloc:scratch(1:l_t2sub))
+!$omp& map(tofrom:deltat_mic)
 #else
 #endif
 #endif
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
      &3b)) THEN
-         call tce_sdtime0(t0)
+c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_1(k_range_h3b_1,k_range_h2b_1,
 #else
@@ -309,13 +274,13 @@ c     figure out  cycles to work on
      3     k_range_h7b_1,
      4     triplesx,t2sub,v2sub,
      d     deltat_mic)
-         call tce_sdtime(t0,deltat_mic,
-     ,     fdist_sdkrnl11,fdist_sdcomp11)
+c         call tce_sdtime(t0,deltat_mic,
+c     ,     fdist_sdkrnl11,fdist_sdcomp11)
       END IF
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
      &3b)) THEN
-         call tce_sdtime0(t0)
+c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_2(k_range_h3b_1,k_range_h2b_1,
 #else
@@ -326,13 +291,13 @@ c     figure out  cycles to work on
      3        k_range_h7b_1,
      4        triplesx,t2sub,v2sub,scratch,
      D        deltat_mic)
-      call tce_sdtime(t0,deltat_mic,
-     ,        fdist_sdkrnl12,fdist_sdcomp12)
+c      call tce_sdtime(t0,deltat_mic,
+c     ,        fdist_sdkrnl12,fdist_sdcomp12)
       END IF
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
      &1b)) THEN
-      call tce_sdtime0(t0)
+c      call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
       call offl_sdtransp_t_d1_3(k_range_h3b_1,k_range_h2b_1,
 #else
@@ -343,13 +308,13 @@ c     figure out  cycles to work on
      3     k_range_h7b_1,
      4     triplesx,t2sub,v2sub,scratch,
      D     deltat_mic)
-      call tce_sdtime(t0,deltat_mic,
-     ,     fdist_sdkrnl13,fdist_sdcomp13)
+c      call tce_sdtime(t0,deltat_mic,
+c     ,     fdist_sdkrnl13,fdist_sdcomp13)
        END IF
       IF ((t_p4b .eq. p6b) .and. (t_p5b .eq. p4b) .and. (t_p6b .eq. p5b)
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
      &3b)) THEN
-         call tce_sdtime0(t0)
+c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_4(k_range_h3b_1,k_range_h2b_1,
 #else
@@ -360,13 +325,13 @@ c     figure out  cycles to work on
      3        k_range_h7b_1,
      4        triplesx,t2sub,v2sub,
      D        deltat_mic)
-         call tce_sdtime(t0,deltat_mic,
-     ,        fdist_sdkrnl14,fdist_sdcomp14)
+c         call tce_sdtime(t0,deltat_mic,
+c     ,        fdist_sdkrnl14,fdist_sdcomp14)
       END IF
       IF ((t_p4b .eq. p6b) .and. (t_p5b .eq. p4b) .and. (t_p6b .eq. p5b)
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
      &3b)) THEN
-      call tce_sdtime0(t0)
+c      call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
       call offl_sdtransp_t_d1_5(k_range_h3b_1,k_range_h2b_1,
 #else
@@ -377,13 +342,13 @@ c     figure out  cycles to work on
      3     k_range_h7b_1,
      4     triplesx,t2sub,v2sub,scratch,
      D     deltat_mic)
-      call tce_sdtime(t0,deltat_mic,
-     ,     fdist_sdkrnl15,fdist_sdcomp15)
+c      call tce_sdtime(t0,deltat_mic,
+c     ,     fdist_sdkrnl15,fdist_sdcomp15)
       END IF
       IF ((t_p4b .eq. p6b) .and. (t_p5b .eq. p4b) .and. (t_p6b .eq. p5b)
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
      &1b)) THEN
-         call tce_sdtime0(t0)
+c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_6(k_range_h3b_1,k_range_h2b_1,
 #else
@@ -394,13 +359,13 @@ c     figure out  cycles to work on
      3        k_range_h7b_1,
      4        triplesx,t2sub,v2sub,scratch,
      D        deltat_mic)
-         call tce_sdtime(t0,deltat_mic,
-     ,        fdist_sdkrnl16,fdist_sdcomp16)
+c         call tce_sdtime(t0,deltat_mic,
+c     ,        fdist_sdkrnl16,fdist_sdcomp16)
       END IF
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p6b) .and. (t_p6b .eq. p5b)
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
      &3b)) THEN
-         call tce_sdtime0(t0)
+c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_7(k_range_h3b_1,k_range_h2b_1,
 #else
@@ -411,13 +376,13 @@ c     figure out  cycles to work on
      3        k_range_h7b_1,
      4        triplesx,t2sub,v2sub,
      D        deltat_mic)
-         call tce_sdtime(t0,deltat_mic,
-     ,        fdist_sdkrnl17,fdist_sdcomp17)
+c         call tce_sdtime(t0,deltat_mic,
+c     ,        fdist_sdkrnl17,fdist_sdcomp17)
       END IF
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p6b) .and. (t_p6b .eq. p5b)
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
      &3b)) THEN
-         call tce_sdtime0(t0)
+c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_8(k_range_h3b_1,k_range_h2b_1,
 #else
@@ -428,13 +393,13 @@ c     figure out  cycles to work on
      3        k_range_h7b_1,
      4        triplesx,t2sub,v2sub,scratch,
      D        deltat_mic)
-         call tce_sdtime(t0,deltat_mic,
-     ,        fdist_sdkrnl18,fdist_sdcomp18)
+c         call tce_sdtime(t0,deltat_mic,
+c     ,        fdist_sdkrnl18,fdist_sdcomp18)
       END IF
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p6b) .and. (t_p6b .eq. p5b)
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
      &1b)) THEN
-         call tce_sdtime0(t0)
+c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_9(k_range_h3b_1,k_range_h2b_1,
 #else
@@ -445,15 +410,15 @@ c     figure out  cycles to work on
      3     k_range_h7b_1,
      4     triplesx,t2sub,v2sub,scratch,
      D     deltat_mic)
-         call tce_sdtime(t0,deltat_mic,
-     ,        fdist_sdkrnl19,fdist_sdcomp19)
+c         call tce_sdtime(t0,deltat_mic,
+c     ,        fdist_sdkrnl19,fdist_sdcomp19)
       END IF
-      endif
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
 !$omp end target
 #endif
 #endif
+      endif
       END DO !h7b loop
       endif ! n_h7b.ne.0
 c
@@ -603,10 +568,12 @@ c     figure out  cycles to work on
             k_range_p7b_1 = int_mb(k_range+p7b-1)
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
+      write (*,'(A)',advance="no") ':'
 !$omp target map(to:k_range_h3b_1,k_range_h2b_1,k_range_h1b_1)
-     & map(to:k_range_p6b_1,k_range_p5b_1,k_range_p4b_1,k_range_p7b_1)
-     & map(tofrom:triplesx(1:l_triplesx)) map(to:t2sub(1:l_t2sub))
-     & map(to:v2sub(1:l_v2sub))
+!$omp& map(to:k_range_p6b_1,k_range_p5b_1,k_range_p4b_1,k_range_p7b_1)
+!$omp& map(tofrom:triplesx(1:l_triplesx)) map(to:t2sub(1:l_t2sub))
+!$omp& map(to:v2sub(1:l_v2sub)) map(alloc:scratch(1:l_t2sub))
+!$omp& map(tofrom:deltat_mic)
 #else
 #endif
 #endif
@@ -615,7 +582,7 @@ c     figure out  cycles to work on
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
      &3b)) THEN
-         call tce_sdtime0(t0)
+c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_1(k_range_h3b_1,k_range_h2b_1,
 #else
@@ -626,13 +593,13 @@ c     figure out  cycles to work on
      3        k_range_p7b_1,
      4        triplesx,t2sub,v2sub,scratch,
      D        deltat_mic)
-         call tce_sdtime(t0,deltat_mic,
-     ,        fdist_sdkrnl21,fdist_sdcomp21)
+c         call tce_sdtime(t0,deltat_mic,
+c     ,        fdist_sdkrnl21,fdist_sdcomp21)
       END IF
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h3b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
      &2b)) THEN
-         call tce_sdtime0(t0)
+c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_2(k_range_h3b_1,k_range_h2b_1,
 #else
@@ -643,13 +610,13 @@ c     figure out  cycles to work on
      3        k_range_p7b_1,
      4        triplesx,t2sub,v2sub,scratch,
      D        deltat_mic)
-         call tce_sdtime(t0,deltat_mic,
-     ,        fdist_sdkrnl22,fdist_sdcomp22)
+c         call tce_sdtime(t0,deltat_mic,
+c     ,        fdist_sdkrnl22,fdist_sdcomp22)
       END IF
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
      &2b)) THEN
-         call tce_sdtime0(t0)
+c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_3(k_range_h3b_1,k_range_h2b_1,
 #else
@@ -660,13 +627,13 @@ c     figure out  cycles to work on
      3        k_range_p7b_1,
      4        triplesx,t2sub,v2sub,scratch,
      D        deltat_mic)
-         call tce_sdtime(t0,deltat_mic,
-     ,        fdist_sdkrnl23,fdist_sdcomp23)
+c         call tce_sdtime(t0,deltat_mic,
+c     ,        fdist_sdkrnl23,fdist_sdcomp23)
       END IF
       IF ((t_p4b .eq. p5b) .and. (t_p5b .eq. p4b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
      &3b)) THEN
-         call tce_sdtime0(t0)
+c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_4(k_range_h3b_1,k_range_h2b_1,
 #else
@@ -677,14 +644,14 @@ c     figure out  cycles to work on
      3        k_range_p7b_1,
      4        triplesx,t2sub,v2sub,scratch,
      D        deltat_mic)
-         call tce_sdtime(t0,deltat_mic,
-     ,        fdist_sdkrnl24,fdist_sdcomp24)
+c         call tce_sdtime(t0,deltat_mic,
+c     ,        fdist_sdkrnl24,fdist_sdcomp24)
       END IF
       IF ((t_p4b .eq. p5b) .and. (t_p5b .eq. p4b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h3b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
      &2b)) THEN
 
-         call tce_sdtime0(t0)
+c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_5(k_range_h3b_1,k_range_h2b_1,
 #else
@@ -695,13 +662,13 @@ c     figure out  cycles to work on
      3        k_range_p7b_1,
      4        triplesx,t2sub,v2sub,scratch,
      D        deltat_mic)
-         call tce_sdtime(t0,deltat_mic,
-     ,        fdist_sdkrnl25,fdist_sdcomp25)
+c         call tce_sdtime(t0,deltat_mic,
+c     ,        fdist_sdkrnl25,fdist_sdcomp25)
       END IF
       IF ((t_p4b .eq. p5b) .and. (t_p5b .eq. p4b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
      &2b)) THEN
-         call tce_sdtime0(t0)
+c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_6(k_range_h3b_1,k_range_h2b_1,
 #else
@@ -712,13 +679,13 @@ c     figure out  cycles to work on
      3        k_range_p7b_1,
      4        triplesx,t2sub,v2sub,scratch,
      D        deltat_mic)
-         call tce_sdtime(t0,deltat_mic,
-     ,        fdist_sdkrnl26,fdist_sdcomp26)
+c         call tce_sdtime(t0,deltat_mic,
+c     ,        fdist_sdkrnl26,fdist_sdcomp26)
       END IF
       IF ((t_p4b .eq. p5b) .and. (t_p5b .eq. p6b) .and. (t_p6b .eq. p4b)
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
      &3b)) THEN
-         call tce_sdtime0(t0)
+c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_7(k_range_h3b_1,k_range_h2b_1,
 #else
@@ -729,13 +696,13 @@ c     figure out  cycles to work on
      3        k_range_p7b_1,
      4        triplesx,t2sub,v2sub,
      D        deltat_mic)
-         call tce_sdtime(t0,deltat_mic,
-     ,        fdist_sdkrnl27,fdist_sdcomp27)
+c         call tce_sdtime(t0,deltat_mic,
+c     ,        fdist_sdkrnl27,fdist_sdcomp27)
       END IF
       IF ((t_p4b .eq. p5b) .and. (t_p5b .eq. p6b) .and. (t_p6b .eq. p4b)
      & .and. (t_h1b .eq. h3b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
      &2b)) THEN
-         call tce_sdtime0(t0)
+c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_8(k_range_h3b_1,k_range_h2b_1,
 #else
@@ -746,13 +713,13 @@ c     figure out  cycles to work on
      3        k_range_p7b_1,
      4        triplesx,t2sub,v2sub,scratch,
      D        deltat_mic)
-         call tce_sdtime(t0,deltat_mic,
-     ,        fdist_sdkrnl28,fdist_sdcomp28)
+c         call tce_sdtime(t0,deltat_mic,
+c     ,        fdist_sdkrnl28,fdist_sdcomp28)
       END IF
       IF ((t_p4b .eq. p5b) .and. (t_p5b .eq. p6b) .and. (t_p6b .eq. p4b)
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
      &2b)) THEN
-         call tce_sdtime0(t0)
+c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_9(k_range_h3b_1,k_range_h2b_1,
 #else
@@ -763,15 +730,15 @@ c     figure out  cycles to work on
      3        k_range_p7b_1,
      4        triplesx,t2sub,v2sub,scratch,
      D        deltat_mic)
-         call tce_sdtime(t0,deltat_mic,
-     ,        fdist_sdkrnl29,fdist_sdcomp29)
+c         call tce_sdtime(t0,deltat_mic,
+c     ,        fdist_sdkrnl29,fdist_sdcomp29)
       END IF
-      endif
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
 !$omp end target
 #endif
 #endif
+      endif
       END DO ! p7b loop
 
       endif ! n_p7b.ne.0
