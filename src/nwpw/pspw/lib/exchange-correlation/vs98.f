@@ -83,7 +83,7 @@
 
 ********* local declarations******
       integer i
-      real*8 n,agr,tau
+      real*8 n,agr,tau,agr2
       real*8 n_thrd,n_frthrd,n_fvthrd
       real*8 x,x2,z,z2,gamma,gamma2,xe
       real*8 dxdn,dzdn,dxdagr,dzdtau
@@ -91,6 +91,7 @@
       real*8 GG,dGdn,dGdagr,dGdtau 
       real*8 ex,fnx,fdnx,fdtaux
       real*8 ec,fnc,fdnc,fdtauc
+      real*8 n_83,n3,n4,dgammadn,dgammadagr,dgammadtau
       
 
 ********* constants ******
@@ -107,9 +108,10 @@
       parameter (ETA            =      1.0d-20)
 
 ********* VS98 constants ******
-      real*8 cf,alpha
+      real*8 cf,alpha,a
       parameter (cf=5.74246800038d0)         !***cf = 3.0d0/5.0d0*(3.0d0*pi*pi)**(2.0d0/3.0d0))***
       parameter (alpha = 0.00186726d0)
+      parameter (a = -9.800683d-1)
 
 
       do i=1,n2ft3d
@@ -122,32 +124,23 @@
             n_thrd = n**thrd
             n_frthrd = n_thrd*n
             n_fvthrd = n_thrd*n_frthrd
+            n_83 = n_frthrd*n_frthrd
+            n3 = n*n*n
+            n4 = n3*n
+            agr2 = agr*agr
 
-            x = agr/n_frthrd
-            z = tau/n_fvthrd-cf
-            x2 = x*x 
-            z2 = z*z 
 
-            gamma = 1.0d0 + alpha*(x2+z)
-            gamma2 = gamma*gamma
+            gamma    = n_83*(1.0d0-alpha*cf) + alpha*agr2 + alpha*tau*n
+            gamma2   = gamma*gamma
+            dgammadn = (8.0d0/3.0d0)*n_fvthrd*(1.0d0-alpha*cf)+alpha*tau
+            dgammadagr = 2.0d0*alpha*agr
+            dgammadtau = alpha*n
 
-            call nwpw_GVT4(alpha,x,x2,z,z2,gamma,gamma2,GG,dGdx,dGdz)
+            ex = a*n3/gamma
+            fnx    = 4.0d0*a*n3/gamma - (a*n4/gamma2)*dgammadn
+            fdnx   = -(a*n4/gamma2)*dgammadagr
+            fdtaux = -(a*n4/gamma2)*dgammadtau
 
-            !f = n_frthrd*GG
-            ex = n_thrd*GG
-
-            dxdn = -frthrd*x/n
-            dzdn = -fvthrd*tau/(n_fvthrd*n)
-            dGdn = dGdx*dxdn + dGdz*dzdn
-            fnx = frthrd*n_thrd*GG+n_frthrd*dGdn 
-
-            dxdagr = 1.0d0/n_frthrd
-            dGdagr = dGdx*dxdagr
-            fdnx = n_frthrd*dGdagr
-
-            dzdtau = 1.0d0/n_fvthrd
-            dGdtau = dGdz*dzdtau
-            fdtaux = n_frthrd*dGdtau
          else
             ex = 0.0d0
             fnx = 0.0d0
