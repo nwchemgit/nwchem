@@ -187,7 +187,7 @@ c
      &     'b3pw91','pbe96','dldf','srhfexch','hse03',
      &     's12g','s12h','cam-s12g','cam-s12h',
      &     'becke86b','xperdew86','xmvs15','cvpbe09','mvs',
-     &     'hle16', 'scan', 'scanl','scan0','lb94', 'regscan',
+     &     'hle16', 'scan', 'scanl','scan0','lb94', 'rscan',
      &     'xncap', 'ncap' /
 c     becke97-d, ssb-d
       logical disp, dumdirect

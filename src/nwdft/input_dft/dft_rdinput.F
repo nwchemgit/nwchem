@@ -603,7 +603,7 @@ c
       cname(67)='            SCAN-L Correlation Potential'
       cname(68)='            revM06 Correlation Potential'
       cname(69)='          revM06-L Correlation Potential'
-      cname(71)='           regSCAN Correlation Potential'
+      cname(71)='             rSCAN Correlation Potential'
 c
 c     Exchange functional name defaults.
 c
@@ -670,7 +670,7 @@ c
       xname(68)='              revM06 Exchange Functional'
       xname(69)='            revM06-L Exchange Functional'
       xname(70)='                LB94 Exchange Functional'
-      xname(71)='     regSCAN metaGGA Exchange Functional'
+      xname(71)='       rSCAN metaGGA Exchange Functional'
       xname(72)='            NCAP GGA Exchange Functional'
 c
 c     Exchange-Correlation combination functional name defaults.
@@ -738,7 +738,7 @@ c
       xcname(68)='             revM06 Method XC Functional'
       xcname(69)='           revM06-L Method XC Functional'
       xcname(70)='              SCAN0 Method XC Functional'
-      xcname(71)='            regSCAN Method XC Functional'
+      xcname(71)='              rSCAN Method XC Functional'
       xcname(72)='               NCAP Method XC Functional'
 c     
 c     place character XC parameters in rtdb

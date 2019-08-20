@@ -12,7 +12,7 @@ BASIS SPHERICAL
  * library aug-cc-pvdz
 END  
 DFT  
- XC regscan
+ XC rscan
 END  
 task dft
 dft
