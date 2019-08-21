@@ -334,8 +334,7 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 *     ***** flag==5 Filtered exchange definitions of kernel   ******
 *     **************************************************************
       else 
-      write(*,*) "Filtered Exchange not implemenented!
-      
+      write(*,*) "Filtered Exchange not implemenented!"
       end if
 
 
