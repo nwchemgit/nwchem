@@ -2,10 +2,10 @@
 
 *     **********************************************
 *     *                                            *
-*     *              pochhammer                    *
+*     *              nwpw_pochhammer               *
 *     *                                            *
 *     ********************************************** 
-      real*8 function pochhammer(double a,int n)
+      real*8 function nwpw_pochhammer(a,n)
       implicit none
       real*8 a
       integer n
@@ -19,34 +19,38 @@
          fac = fac * (a+dble(i))
       end do
 
-      pochhammer = fac
+      nwpw_pochhammer = fac
       return 
       end
 
 *     **********************************************
 *     *                                            *
-*     *                    Qfac                    *
+*     *                nwpw_Qfac                   *
 *     *                                            *
 *     ********************************************** 
-      real*8 function Qfac(k,m,n)
+      real*8 function nwpw_Qfac(k,m,n)
       implicit none
       integer k,m,n
 
 *     **** local variables ****
       real*8 nfac,num,den
 
-      if (abs(m)>0) then
-         nfac = 2.0d0*pochhammer(1,n-2*k-abs(m)+1)
-                     /pochhammer(1,n-2*k+abs(m)+1);
+*     **** external functions ****
+      real*8   nwpw_pochhammer
+      external nwpw_pochhammer
+
+      if (abs(m).gt.0) then
+         nfac = 2.0d0*nwpw_pochhammer(1.0d0,n-2*k-abs(m)+1)
+     >               /nwpw_pochhammer(1.0d0,n-2*k+abs(m)+1)
       else
          nfac = 1.0d0
       end if
-      num = pochhammer(0.5d0,k)
-     >     *pochhammer(1.0d0,n-k) 
+      num = nwpw_pochhammer(0.5d0,k)
+     >     *nwpw_pochhammer(1.0d0,n-k) 
      >     *(1.0d0+2.0d0*n - 4.0d0*k)
-      den = pochhammer(1.0d0,k)*pochhammer(1.5d0,n-k)
+      den = nwpw_pochhammer(1.0d0,k)*nwpw_pochhammer(1.5d0,n-k)
 
-      Qfac = nfac*num/den
+      nwpw_Qfac = nfac*num/den
       return
       end 
 
@@ -85,7 +89,7 @@
       real*8  fact,pmm,somx2
 
       !*** compute P_mm(x) thru lmax ***
-      somx2 = ((1.0d0-x)*(1.0d0+x));
+      somx2 = ((1.0d0-x)*(1.0d0+x))
       if (somx2.lt.0.0d0) somx2=0.0d0
       somx2 = dsqrt(somx2)
       pmm   = 1.0d0
@@ -93,7 +97,7 @@
       lm = 2
       Plm(0+1) = 1.0d0
       do l=1,lmax
-         pmm *= pmm*fact*somx2
+         pmm = pmm*fact*somx2
          fact = fact + 2.0d0
          Plm(lm+1)=pmm
          lm = lm + (l+2)
@@ -203,9 +207,9 @@
          sn0 = sn1
          sn1 = sn2
          sn2 = (2.0d0*cosphi)*sn1 - sn0
-         lmi  += lmi  + (m+2)
-         lmci += lmci + (2*m+3)
-         lmsi += lmsi + (2*m+1)
+         lmi  = lmi  + (m+2)
+         lmci = lmci + (2*m+3)
+         lmsi = lmsi + (2*m+1)
       end do
       return
       end
@@ -248,10 +252,10 @@
       real*8 f3
  
 *     **** local variables ****
-      real*8 pi,theta_min
+      real*8 pi,theta_max
 
       pi = 4.0*datan(1.0d0)
-      theta_min = 0.0d0
+      theta_max = 0.0d0
 
       if (dabs(f3).lt.1.0d-6) then
          theta_max = pi
@@ -280,6 +284,7 @@
 
       pi = 4.0d0*datan(1.0d0)
 
+      phi_min = 0.0d0
       if ((dabs(f1).lt.1.0d-6).and.(dabs(f2).lt.1.0d-6)) then
          phi_min = 0.0d0
       else if ((f1.gt.0.0d0).and.(dabs(f2).lt.1.0d-6)) then
@@ -292,7 +297,7 @@
          phi_min =  0.0d0
       else if ((f1.lt.0.0d0).and.(f2.gt.0.0d0)) then
          phi_min =  0.5d0*pi
-      else if ((fabs(f1).lt.1.0d-6).and.(f2.lt.0.0d0)) then
+      else if ((dabs(f1).lt.1.0d-6).and.(f2.lt.0.0d0)) then
          phi_min =  pi
       else if ((f1.gt.0.0d0).and.(f2.lt.0.0d0)) then
          phi_min =  1.5d0*pi
@@ -314,10 +319,11 @@
       real*8 f1,f2
 
 *     **** local variables ****
-      real*8 phi_max,phi
+      real*8 phi_max,phi,pi
 
       pi=4.0d0*datan(1.0d0)
 
+      phi_max = 0.0d0
       if ((dabs(f1).lt.1.0d-6).and.(dabs(f2).lt.1.0d-6)) then
          phi_max = 2.0d0*pi
       else if ((f1.gt.0.0d0).and.(dabs(f2).lt.1.0d-6)) then
@@ -338,7 +344,7 @@
          phi_max =  1.5d0*pi
       end if
 
-      f12_to_phi_max = phi_max
+      f1f2_to_phi_max = phi_max
       return
       end 
 
@@ -362,12 +368,16 @@
       integer i,n,k,m,l,lm,indx
       real*8  gx,gy,gz,g,gxy,gn,costheta,cosphi,sinphi
 
+*     **** external functions ****
+      real*8   nwpw_Qfac
+      external nwpw_Qfac
+
       indx = 0
       do n=0,nmax
          do k=0,n/2
             do m=(-n+2*k),(n-2*k)
                Mpack(indx+1) = 0.0d0
-               QQ(indx+1)    = Qfac(k,m,n)
+               QQ(indx+1)    = nwpw_Qfac(k,m,n)
                indx = indx + 1
             end do
          end do
@@ -380,13 +390,13 @@
          g   = dsqrt(gx*gx + gy*gy + gz*gz)
          gxy = dsqrt(gx*gx + gy*gy)
          if (g.gt.1.0d-9) then
-            costheta = gz/g;
+            costheta = gz/g
             if (gxy.lt.1.0d-9) then
-               cosphi = 1.0;
-               sinphi = 0.0;
+               cosphi = 1.0
+               sinphi = 0.0
             else
-               cosphi = gx/gxy;
-               sinphi = gy/gxy;
+               cosphi = gx/gxy
+               sinphi = gy/gxy
             end if
 
             call nwpw_Tesserals(nmax,costheta,cosphi,sinphi,Plm,Tlm)
@@ -396,7 +406,7 @@
             do n=0,nmax
                do k=0,n/2
                   l = n-2*k
-                  do m=(-n+2*k), m<=(n-2*k)
+                  do m=(-n+2*k),(n-2*k)
                      lm = (l+1)*(l+1) - l + m - 1
                      Mpack(indx+1) = Mpack(indx+1) 
      >                             + QQ(indx+1)*gn*Tlm(lm+1)
@@ -417,7 +427,8 @@
 *     *                                                 *
 *     ***************************************************
 
-      subroutine integrate_oneoverG2_BZ_Gengenbauer2(nmax,Mpack,gx,gy,gz,Plm,Tlm)
+      real*8 function integrate_oneoverG2_BZ_Gengenbauer2(nmax,Mpack,
+     >                    gx,gy,gz,Plm,Tlm)
       implicit none
       integer nmax
       real*8 Mpack(*),gx,gy,gz
@@ -441,7 +452,7 @@
          sinphi = gy/gxy
       end if
    
-      nwpw_Tesserals(nmax,costheta,cosphi,sinphi,Plm,Tlm)
+      call nwpw_Tesserals(nmax,costheta,cosphi,sinphi,Plm,Tlm)
       if ((dabs(gx).lt.1.0d-9).and.(dabs(gz).lt.1.0d-9)) then
          call errquit("gx==0 and gz==0",0,0)
       end if
@@ -486,16 +497,16 @@
       real*8  theta0,theta1
       integer Nphi
       real*8  phi0,phi1
-      real88 unit3(3,3),alpha
+      real*8 unitg(3,3),alpha
 
 *     **** local variables ****
-      integer ir,itheta,iphi;
-      real*8  dr,dtheta,dphi,r,theta,phi,dx,dy,dz;
-      real*8  gamma1,gamma2,gamma3;
-      real*8  tgamma1,tgamma2,tgamma3,tR2,tlkx,tlky,tlkz,w;
+      integer ir,itheta,iphi
+      real*8  dr,dtheta,dphi,r,theta,phi,dx,dy,dz
+      real*8  gamma1,gamma2,gamma3
+      real*8  tgamma1,tgamma2,tgamma3,tR2,tlkx,tlky,tlkz,w
       real*8  fourpi,sum
 
-      fourpi = 16.0d0*datan(1.0)
+      fourpi = 16.0d0*datan(1.0d0)
       sum = 0.0d0
 
       dr     = (r1-r0)        /dble(Nr)
@@ -561,76 +572,30 @@
 *     *                                            *
 *     **********************************************
 
-      real*8 function integrate_oneoveralphaG2_BZ(N1,a1,b1,
-     >                             N2,a2,b2,
-     >                             N3,a3,b3,
-     >                             unitg,
+      real*8 function integrate_oneoveralphaG2_BZ(Nt3,
+     >                             gammasdxdydz,lk,
      >                             alpha,gx,gy,gz)
       implicit none
-      integer N1
-      real*8  a1,b1
-      integer N2
-      real*8  a2,b2
-      integer N3
-      real*8  a3,b3
-      real*8  unitg,alpha,gx,gy,gz
+      integer Nt3
+      real*8  gammasdxdydz(*),lk(3,*)
+      real*8  alpha,gx,gy,gz
 
 *     **** local variables ****
-      integer i1,i2,i3
-      real*8 gamma1,gamma2,gamma3
-      real*8 dgamma1,dgamma2,dgamma3,dx,dy,dz
-      real*8 gammasdxdydz,lkx,lky,lkz
+      integer i
       real*8 glkx,glky,glkz,gg
       real*8 fourpi,sum
 
-      fourpi = 16.0d0*datan(1.0d0)
       sum = 0.0d0
-
-      dgamma1 = (b1-a1)/dble(N1)
-      dgamma2 = (b2-a2)/dble(N2)
-      dgamma3 = (b3-a3)/dble(N3)
-      do i3=0,N3
-      do i2=0,N2
-      do i1=0,N1
-         gamma1 = a1 + i1*dgamma1
-         gamma2 = a2 + i2*dgamma2
-         gamma3 = a3 + i3*dgamma3
-         if (mod(i1,2).eq.0) then
-            dx = 2.0d0*dgamma1/3.0d0
-         else
-            dx = 4.0d0*dgamma1/3.0d0
-         if (mod(i2,2).eq.0) 
-            dy = 2.0d0*dgamma2/3.0d0
-         else
-            dy = 4.0d0*dgamma2/3.0d0
-         end if
-         if (mod(i3,2).eq.0)
-            dz = 2.0d0*dgamma3/3.0d0
-         else
-            dz = 4.0d0*dgamma3/3.0d0
-
-         if ((i1.eq.0).or.(i1.eq.N1)) dx = dgamma1/3.0d0
-         if ((i2.eq.0).or.(i2.eq.N2)) dy = dgamma2/3.0d0
-         if ((i3.eq.0).or.(i3.eq.N3)) dz = dgamma3/3.0d0
-
-         gammasdxdydz = fourpi*(1.0d0-dabs(gamma1))
-     >                        *(1.0d0-dabs(gamma2))
-     >                        *(1.0d0-dabs(gamma3))*dx*dy*dz
-
-         lkx=(gamma1*unitg(1,1)+gamma2*unitg(1,2)+gamma3*unitg(1,3))
-         lky=(gamma1*unitg(2,1)+gamma2*unitg(2,2)+gamma3*unitg(2,3))
-         lkz=(gamma1*unitg(3,1)+gamma2*unitg(3,2)+gamma3*unitg(3,3))
-         glkx = (gx+lkx)
-         glky = (gy+lky)
-         glkz = (gz+lkz)
+      do i=1,Nt3
+         glkx = (gx+lk(1,i))
+         glky = (gy+lk(2,i))
+         glkz = (gz+lk(3,i))
          gg = glkx*glkx + glky*glky + glkz*glkz
          if (gg.lt.1.0d-9) then
-            sum = sum + gammasdxdydz*alpha;
+            sum = sum + gammasdxdydz(i)*alpha
          else
-            sum = sum + gammasdxdydz*(1.0d0-dexp(-alpha*gg))/gg
+            sum = sum + gammasdxdydz(i)*(1.0d0-dexp(-alpha*gg))/gg
          end if
-      end do
-      end do
       end do
 
       integrate_oneoveralphaG2_BZ = sum
@@ -645,18 +610,18 @@
 *     *                                            *
 *     ********************************************** 
       subroutine coulomb_filter_setup(N1,a1,b1,
-                                      N2,a2,b2,
-                                      N3,a3,b3,
-                                      unitg,gammasdxdydz,lk)
+     >                                N2,a2,b2,
+     >                                N3,a3,b3,
+     >                                unitg,gammasdxdydz,lk)
       implicit none
       integer N1
-      real*8  a1(3),b1(3)
+      real*8  a1,b1
       integer N2
-      real*8  a2(3),b2(3)
+      real*8  a2,b2
       integer N3
-      real*8  a3(3),b3(3)
+      real*8  a3,b3
       real*8  unitg(3,3)
-      real*8  gammasdxdydx(*)
+      real*8  gammasdxdydz(*)
       real*8  lk(3,*)
 
 *     **** local variables ****
@@ -675,9 +640,9 @@
       do i3=0,N3
       do i2=0,N2
       do i1=0,N1
-         gamma1 = a1 + i1*dgamma1;
-         gamma2 = a2 + i2*dgamma2;
-         gamma3 = a3 + i3*dgamma3;
+         gamma1 = a1 + i1*dgamma1
+         gamma2 = a2 + i2*dgamma2
+         gamma3 = a3 + i3*dgamma3
          if (mod(i1,2).eq.0) then
             dx = 2.0d0*dgamma1/3.0d0
          else  
@@ -700,9 +665,9 @@
          if ((i2.eq.0).or.(i2.eq.N2)) dy = dgamma2/3.0d0
          if ((i3.eq.0).or.(i3.eq.N3)) dz = dgamma3/3.0d0
 
-         gammasdxdydz(i) = fourpi*(1.0-fabs(gamma1))
-     >                           *(1.0-fabs(gamma2))
-     >                           *(1.0-fabs(gamma3))*dx*dy*dz;
+         gammasdxdydz(i) = fourpi*(1.0d0-dabs(gamma1))
+     >                           *(1.0d0-dabs(gamma2))
+     >                           *(1.0d0-dabs(gamma3))*dx*dy*dz
          lk(1,i) = gamma1*unitg(1,1) 
      >           + gamma2*unitg(1,2) 
      >           + gamma3*unitg(1,3)
@@ -736,29 +701,87 @@
       real*8 G(3,nfft3d)
       real*8 Vfilter(nfft3d)
 
+#include "bafdecls.fh"
+#include "errquit.fh"
+
 *     **** local variables ****
+      logical value
       integer Nt1,Nt2,Nt3,Ntt3,Ns1,Ns2,Ns3
       parameter (Nt1=228, Nt2=228, Nt3=228,Ntt3=(Nt1+1)*(Nt2+1)*(Nt3+1))
       parameter (Ns1=432, Ns2=432, Ns3=432)
 
-      integer nmax
-      integer gammasdxdydz(2),lk(2),Mpack(2)
-      real*8 twopi,oneovertwopi
+      integer nmax,i
+      integer gammasdxdydz(2),lk(2)
       integer Mpack(2),QQ(2),Plm(2),Tlm(2)
+      real*8 gx,gy,gz,f1,f2,f3
+      real*8 rcut,scut,scut1,salpha,alpha,alpha0
+      real*8 twopi,oneovertwopi
+
+*     **** external functions ****
+      real*8   integrate_oneoveralphaG2_BZ
+      external integrate_oneoveralphaG2_BZ
+      real*8   f3_to_theta_min,f3_to_theta_max
+      external f3_to_theta_min,f3_to_theta_max
+      real*8   f1f2_to_phi_min,f1f2_to_phi_max
+      external f1f2_to_phi_min,f1f2_to_phi_max
+      real*8   integrate_spherical_oneoveralphaG2_BZ
+      external integrate_spherical_oneoveralphaG2_BZ
+      real*8   integrate_oneoverG2_BZ_Gengenbauer2
+      external integrate_oneoverG2_BZ_Gengenbauer2
 
       twopi = 8.0d0*datan(1.0d0)
       oneovertwopi = 1.0d0/twopi
 
       nmax = 10
+
+*     **** allocate memory ****
+      value = BA_push_get(mt_dbl,3*Ntt3,'gammasdxdydz',
+     >                    gammasdxdydz(2),gammasdxdydz(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,3*Ntt3,'lk',
+     >                    lk(2),lk(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,3*(nmax+1)*(nmax+1),'Mpack',
+     >                    Mpack(2),Mpack(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,3*(nmax+1)*(nmax+1),'QQ',
+     >                    QQ(2),QQ(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,3*(nmax+1)*(nmax+1),'Plm',
+     >                    Plm(2),Plm(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,3*(nmax+1)*(nmax+1),'Tlm',
+     >                    Tlm(2),Tlm(1))
+      if (.not.value) 
+     >   call errquit('coulomb_filter: out of stack memory',0,MA_ERR)
+
+
+      nmax = 10
       call coulomb_filter_setup(Nt1,-1.0d0,1.0d0,
-                                Nt2,-1.0d0,1.0d0,
-                                Nt3,-1.0d0,1.0d0,
-                                unitg,gammasdxdydz,lk)
+     >                          Nt2,-1.0d0,1.0d0,
+     >                          Nt3,-1.0d0,1.0d0,
+     >                          unitg,dbl_mb(gammasdxdydz(1)),
+     >                          dbl_mb(lk(1)))
       call setup_integrate_oneoverG2_BZ_Gengenbauer2(Ntt3,
      >                    dbl_mb(gammasdxdydz(1)),
      >                    dbl_mb(lk(1)),
      >                    nmax,dbl_mb(Mpack(1)),
      >                    dbl_mb(QQ(1)),dbl_mb(Plm(1)),dbl_mb(Tlm(1)))
+
+      scut  = dsqrt( unitg(1,1)*unitg(1,1) 
+     >             + unitg(2,1)*unitg(2,1) 
+     >             + unitg(3,1)*unitg(3,1))
+      scut1 = dsqrt( unitg(1,2)*unitg(1,2)
+     >             + unitg(2,2)*unitg(2,2)
+     >             + unitg(3,2)*unitg(3,2))
+      if (scut1.lt.scut) scut = scut1
+      scut1 = dsqrt( unitg(1,3)*unitg(1,3)
+     >             + unitg(2,3)*unitg(2,3)
+     >             + unitg(3,3)*unitg(3,3))
+      if (scut1.lt.scut) scut = scut1
+      rcut = 0.3d0*scut
+      salpha = 1.0d0/rcut
+      alpha  = salpha*salpha
 
       do i=1,nfft3d
          gx = G(1,i)
@@ -771,10 +794,9 @@
          if ((dabs(f1).lt.2.0d0).and.
      >       (dabs(f2).lt.2.0d0).and.
      >       (dabs(f3).lt.2.0)) then
-            Vfilter(i) = integrate_oneoveralphaG2_BZ(Ns1,-1.0d0,1.0d0,
-     >                                          Ns2,-1.0d0,1.0d0,
-     >                                          Ns3,-1.0d0,1.0d0,
-                                                unitg,alpha,gx,gy,gz) 
+            Vfilter(i) = integrate_oneoveralphaG2_BZ(Ntt3,
+     >                            dbl_mb(gammasdxdydz(1)),dbl_mb(lk(1)),
+     >                            alpha,gx,gy,gz) 
             alpha0 = integrate_spherical_oneoveralphaG2_BZ(
      >                  dabs(f1),dabs(f2),dabs(f3),
      >                  Ns1,0.0d0,1.0d0,
@@ -784,11 +806,18 @@
      >                  unitg,alpha) 
             Vfilter(i) = Vfilter(i) + alpha0
          else
-             Vfilter(i) = integrate_oneoverG2_BZ_Gengenbauer2(nmax,
-     >                             dbl_mb(Mpack(1)),gx,gy,gz,
-     >                             dbl_mb(Plm(1)),dbl_mb(Tlm(1)))
+            Vfilter(i) = integrate_oneoverG2_BZ_Gengenbauer2(nmax,
+     >                            dbl_mb(Mpack(1)),gx,gy,gz,
+     >                            dbl_mb(Plm(1)),dbl_mb(Tlm(1)))
          end if
       end do
+      value = BA_pop_stack(Tlm(2))
+      value = value.and.BA_pop_stack(Plm(2))
+      value = value.and.BA_pop_stack(QQ(2))
+      value = value.and.BA_pop_stack(lk(2))
+      value = value.and.BA_pop_stack(gammasdxdydz(2))
+      if (.not.value) 
+     >   call errquit('coulomb_filter: out of stack memory',0,MA_ERR)
 
       return
       end
