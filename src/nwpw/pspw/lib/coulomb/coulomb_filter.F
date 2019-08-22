@@ -693,12 +693,11 @@
 *     *              coulomb_filter                *
 *     *                                            *
 *     ********************************************** 
-      subroutine coulomb_filter(N1,N2,N3,unita,unitg,nfft3d,G,Vfilter)
+      subroutine coulomb_filter(unita,unitg,nfft3d,G,Vfilter)
       implicit none
-      integer N1,N2,N3
       real*8 unita(3,3),unitg(3,3)
       integer nfft3d
-      real*8 G(3,nfft3d)
+      real*8 G(nfft3d,3)
       real*8 Vfilter(nfft3d)
 
 #include "bafdecls.fh"
@@ -732,7 +731,7 @@
       twopi = 8.0d0*datan(1.0d0)
       oneovertwopi = 1.0d0/twopi
 
-      nmax = 10
+      nmax = 2
 
 *     **** allocate memory ****
       value = BA_push_get(mt_dbl,3*Ntt3,'gammasdxdydz',
@@ -756,7 +755,7 @@
      >   call errquit('coulomb_filter: out of stack memory',0,MA_ERR)
 
 
-      nmax = 10
+      write(*,*) "HERA"
       call coulomb_filter_setup(Nt1,-1.0d0,1.0d0,
      >                          Nt2,-1.0d0,1.0d0,
      >                          Nt3,-1.0d0,1.0d0,
@@ -783,10 +782,11 @@
       salpha = 1.0d0/rcut
       alpha  = salpha*salpha
 
+      write(*,*) "HERb, nfft3d=",nfft3d
       do i=1,nfft3d
-         gx = G(1,i)
-         gy = G(2,i)
-         gz = G(3,i)
+         gx = G(i,1)
+         gy = G(i,2)
+         gz = G(i,3)
          
          f1 = oneovertwopi*(unita(1,1)*gx+unita(1,2)*gy+unita(1,3)*gz)
          f2 = oneovertwopi*(unita(2,1)*gx+unita(2,2)*gy+unita(2,3)*gz)
@@ -805,10 +805,12 @@
      >                  f1f2_to_phi_max(f1,f2),
      >                  unitg,alpha) 
             Vfilter(i) = Vfilter(i) + alpha0
+        write(*,*) "i,f1,f2,f3, 1st bz=",i,f1,f2,f3,gx,gy,gz,Vfilter(i)
          else
             Vfilter(i) = integrate_oneoverG2_BZ_Gengenbauer2(nmax,
      >                            dbl_mb(Mpack(1)),gx,gy,gz,
      >                            dbl_mb(Plm(1)),dbl_mb(Tlm(1)))
+      write(*,*) "i,f1,f2,f3, geng=",i,f1,f2,f3,gx,gy,gz,Vfilter(i)
          end if
       end do
       value = BA_pop_stack(Tlm(2))
