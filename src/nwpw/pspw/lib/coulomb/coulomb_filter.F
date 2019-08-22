@@ -696,6 +696,18 @@
 *     *              coulomb_filter                *
 *     *                                            *
 *     ********************************************** 
+*
+*  This code computes the filtered coulomb potential using
+*  filon integration strategy given in "An Accurate Integration 
+*  Strategy for Calculating Exact Exchange in Periodic Boundary 
+*  Conditions: A Plane-Wave DFT Implementation."  
+*
+*  The I1,I2,and I3 integrals are computed using Simpson integration.
+*
+*  Warning: While this routine should be good enough for testing, it 
+*  needs to be restructured to improve parallelization and 
+*  the use of memory. 
+*
       subroutine coulomb_filter(unita,unitg,nfft3d,G,Vfilter)
       implicit none
       real*8 unita(3,3),unitg(3,3)
