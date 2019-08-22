@@ -453,9 +453,9 @@
       end if
    
       call nwpw_Tesserals(nmax,costheta,cosphi,sinphi,Plm,Tlm)
-      if ((dabs(gx).lt.1.0d-9).and.(dabs(gz).lt.1.0d-9)) then
-         call errquit("gx==0 and gz==0",0,0)
-      end if
+      !if ((dabs(gx).lt.1.0d-9).and.(dabs(gz).lt.1.0d-9)) then
+      !   call errquit("gx==0 and gz==0",0,0)
+      !end if
 
       indx = 0
       sum  = 0.0d0
@@ -671,9 +671,11 @@
          lk(1,i) = gamma1*unitg(1,1) 
      >           + gamma2*unitg(1,2) 
      >           + gamma3*unitg(1,3)
+
          lk(2,i) = gamma1*unitg(2,1) 
      >           + gamma2*unitg(2,2) 
      >           + gamma3*unitg(2,3)
+
          lk(3,i) = gamma1*unitg(3,1)
      >           + gamma2*unitg(3,2)
      >           + gamma3*unitg(3,3)
@@ -731,7 +733,7 @@
       twopi = 8.0d0*datan(1.0d0)
       oneovertwopi = 1.0d0/twopi
 
-      nmax = 2
+      nmax = 10
 
 *     **** allocate memory ****
       value = BA_push_get(mt_dbl,3*Ntt3,'gammasdxdydz',
@@ -740,22 +742,21 @@
      >        BA_push_get(mt_dbl,3*Ntt3,'lk',
      >                    lk(2),lk(1))
       value = value.and.
-     >        BA_push_get(mt_dbl,3*(nmax+1)*(nmax+1),'Mpack',
+     >        BA_push_get(mt_dbl,5*(nmax+1)*(nmax+1),'Mpack',
      >                    Mpack(2),Mpack(1))
       value = value.and.
-     >        BA_push_get(mt_dbl,3*(nmax+1)*(nmax+1),'QQ',
+     >        BA_push_get(mt_dbl,5*(nmax+1)*(nmax+1),'QQ',
      >                    QQ(2),QQ(1))
       value = value.and.
-     >        BA_push_get(mt_dbl,3*(nmax+1)*(nmax+1),'Plm',
+     >        BA_push_get(mt_dbl,5*(nmax+1)*(nmax+1),'Plm',
      >                    Plm(2),Plm(1))
       value = value.and.
-     >        BA_push_get(mt_dbl,3*(nmax+1)*(nmax+1),'Tlm',
+     >        BA_push_get(mt_dbl,5*(nmax+1)*(nmax+1),'Tlm',
      >                    Tlm(2),Tlm(1))
       if (.not.value) 
      >   call errquit('coulomb_filter: out of stack memory',0,MA_ERR)
 
 
-      write(*,*) "HERA"
       call coulomb_filter_setup(Nt1,-1.0d0,1.0d0,
      >                          Nt2,-1.0d0,1.0d0,
      >                          Nt3,-1.0d0,1.0d0,
@@ -782,7 +783,7 @@
       salpha = 1.0d0/rcut
       alpha  = salpha*salpha
 
-      write(*,*) "HERb, nfft3d=",nfft3d
+      !write(*,*) "HERb, nfft3d=",nfft3d,alpha
       do i=1,nfft3d
          gx = G(i,1)
          gy = G(i,2)
@@ -805,21 +806,22 @@
      >                  f1f2_to_phi_max(f1,f2),
      >                  unitg,alpha) 
             Vfilter(i) = Vfilter(i) + alpha0
-        write(*,*) "i,f1,f2,f3, 1st bz=",i,f1,f2,f3,gx,gy,gz,Vfilter(i)
+        !write(*,*) "i,f1,f2,f3, 1st bz=",i,f1,f2,f3,gx,gy,gz,Vfilter(i)
          else
             Vfilter(i) = integrate_oneoverG2_BZ_Gengenbauer2(nmax,
      >                            dbl_mb(Mpack(1)),gx,gy,gz,
      >                            dbl_mb(Plm(1)),dbl_mb(Tlm(1)))
-      write(*,*) "i,f1,f2,f3, geng=",i,f1,f2,f3,gx,gy,gz,Vfilter(i)
+      !write(*,*) "i,f1,f2,f3, geng=",i,f1,f2,f3,gx,gy,gz,Vfilter(i)
          end if
       end do
       value = BA_pop_stack(Tlm(2))
       value = value.and.BA_pop_stack(Plm(2))
       value = value.and.BA_pop_stack(QQ(2))
+      value = value.and.BA_pop_stack(Mpack(2))
       value = value.and.BA_pop_stack(lk(2))
       value = value.and.BA_pop_stack(gammasdxdydz(2))
       if (.not.value) 
-     >   call errquit('coulomb_filter: out of stack memory',0,MA_ERR)
+     >   call errquit('coulomb_filter:popping stack memory',0,MA_ERR)
 
       return
       end
