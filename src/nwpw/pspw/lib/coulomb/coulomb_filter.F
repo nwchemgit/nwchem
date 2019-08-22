@@ -504,15 +504,15 @@
       real*8  dr,dtheta,dphi,r,theta,phi,dx,dy,dz
       real*8  gamma1,gamma2,gamma3
       real*8  tgamma1,tgamma2,tgamma3,tR2,tlkx,tlky,tlkz,w
-      real*8  fourpi,sum
+      real*8  fourpi,asum
 
       fourpi = 16.0d0*datan(1.0d0)
-      sum = 0.0d0
 
       dr     = (r1-r0)        /dble(Nr)
       dtheta = (theta1-theta0)/dble(Ntheta)
       dphi   = (phi1-phi0)    /dble(Nphi)
 
+      asum = 0.0d0
       do iphi=0,Nphi
       do itheta=0,Ntheta
       do ir=0,Nr
@@ -536,11 +536,13 @@
          else
             dx = 4.0d0*dr/3.0d0
          end if
+
          if (mod(itheta,2).eq.0) then
             dy = 2.0d0*dtheta/3.0d0
          else 
             dy = 4.0d0*dtheta/3.0d0
          end if
+
          if (mod(iphi,2).eq.0) then 
             dz = 2.0d0*dphi/3.0d0
          else  
@@ -551,18 +553,17 @@
          if ((itheta.eq.0).or.(itheta.eq.Ntheta)) dy = dtheta/3.0d0
          if ((iphi.eq.0)  .or.(iphi.eq.Nphi))     dz = dphi/3.0d0
 
-         w =   (1.0d0-af1)*(1.0d0-dabs(gamma1)) + af1*dabs(gamma1)
-         w = w*(1.0d0-af2)*(1.0d0-dabs(gamma2)) + af2*dabs(gamma2)
-         w = w*(1.0d0-af3)*(1.0d0-dabs(gamma3)) + af3*dabs(gamma3)
+         w =   ((1.0d0-af1)*(1.0d0-dabs(gamma1)) + af1*dabs(gamma1))
+         w = w*((1.0d0-af2)*(1.0d0-dabs(gamma2)) + af2*dabs(gamma2))
+         w = w*((1.0d0-af3)*(1.0d0-dabs(gamma3)) + af3*dabs(gamma3))
 
-         sum = sum + fourpi*(dexp(-alpha*r*r*tR2)/(tR2))
+         asum = asum + fourpi*(dexp(-alpha*r*r*tR2)/(tR2))
      >                     *w*dsin(theta)*dx*dy*dz
-
       end do
       end do
       end do
 
-      integrate_spherical_oneoveralphaG2_BZ = sum
+      integrate_spherical_oneoveralphaG2_BZ = asum
       return
       end 
 
@@ -780,10 +781,10 @@
      >             + unitg(3,3)*unitg(3,3))
       if (scut1.lt.scut) scut = scut1
       rcut = 0.3d0*scut
+      !rcut = 0.2d0*scut
       salpha = 1.0d0/rcut
       alpha  = salpha*salpha
 
-      !write(*,*) "HERb, nfft3d=",nfft3d,alpha
       do i=1,nfft3d
          gx = G(i,1)
          gy = G(i,2)
@@ -806,12 +807,10 @@
      >                  f1f2_to_phi_max(f1,f2),
      >                  unitg,alpha) 
             Vfilter(i) = Vfilter(i) + alpha0
-        !write(*,*) "i,f1,f2,f3, 1st bz=",i,f1,f2,f3,gx,gy,gz,Vfilter(i)
          else
             Vfilter(i) = integrate_oneoverG2_BZ_Gengenbauer2(nmax,
      >                            dbl_mb(Mpack(1)),gx,gy,gz,
      >                            dbl_mb(Plm(1)),dbl_mb(Tlm(1)))
-      !write(*,*) "i,f1,f2,f3, geng=",i,f1,f2,f3,gx,gy,gz,Vfilter(i)
          end if
       end do
       value = BA_pop_stack(Tlm(2))
