@@ -715,21 +715,30 @@
       real*8 G(nfft3d,3)
       real*8 Vfilter(nfft3d)
 
+#include "stdio.fh"
+#include "util.fh"
 #include "bafdecls.fh"
 #include "errquit.fh"
 
+
 *     **** local variables ****
-      logical value
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+      logical value,found_datafile,oprint
       integer Nt1,Nt2,Nt3,Ntt3,Ns1,Ns2,Ns3
       parameter (Nt1=228, Nt2=228, Nt3=228,Ntt3=(Nt1+1)*(Nt2+1)*(Nt3+1))
       parameter (Ns1=432, Ns2=432, Ns3=432)
 
-      integer nmax,i
-      integer gammasdxdydz(2),lk(2)
+      character*255 datafile
+
+      integer nmax,i,j,l,ifound,ngrid(3),tngrid(3)
+      integer gammasdxdydz(2),lk(2),tmp(2)
       integer Mpack(2),QQ(2),Plm(2),Tlm(2)
       real*8 gx,gy,gz,f1,f2,f3
       real*8 rcut,scut,scut1,salpha,alpha,alpha0
       real*8 twopi,oneovertwopi
+      real*8 tunita(3,3),tunitg(3,3)
 
 *     **** external functions ****
       real*8   integrate_oneoveralphaG2_BZ
@@ -743,96 +752,216 @@
       real*8   integrate_oneoverG2_BZ_Gengenbauer2
       external integrate_oneoverG2_BZ_Gengenbauer2
 
-      twopi = 8.0d0*datan(1.0d0)
-      oneovertwopi = 1.0d0/twopi
 
-      nmax = 10
+      call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER)
 
-*     **** allocate memory ****
-      value = BA_push_get(mt_dbl,3*Ntt3,'gammasdxdydz',
+      call D3dB_nx(1,ngrid(1))
+      call D3dB_ny(1,ngrid(2))
+      call D3dB_nz(1,ngrid(3))
+
+*     *******************************
+*     **** check for kernel file ****
+*     *******************************
+      call util_file_name_noprefix('filtered_kernel.dat',
+     >                                .false.,
+     >                                .false.,
+     >                                datafile)
+      if (taskid.eq.MASTER) then
+         ifound = 0
+         inquire(file=datafile,exist=found_datafile)
+         if (found_datafile) ifound = 1
+      end if
+      call Parallel_Brdcst_ivalue(MASTER,ifound)
+      found_datafile = .false.
+      if (ifound.eq.1) found_datafile=.true.
+
+      if (found_datafile) then
+         l = index(datafile,' ') -1
+         ifound = 0
+         if (taskid.eq.MASTER) then
+            call openfile(5,datafile,l,'r',l)
+            call iread(5,tngrid,3)
+            call dread(5,tunita,9)
+            call dread(5,tunitg,9)
+            call closefile(5)
+            found_datafile = ((tngrid(1).eq.ngrid(1)).and.
+     >                        (tngrid(2).eq.ngrid(2)).and.
+     >                        (tngrid(3).eq.ngrid(3)))
+            do j=1,3
+               do i=1,3
+                  found_datafile = found_datafile.and.
+     >                 (dabs(tunita(i,j)-unita(i,j)).lt.1.0d-6).and.
+     >                 (dabs(tunitg(i,j)-unitg(i,j)).lt.1.0d-6)
+               end do
+            end do
+            if (found_datafile) ifound = 1
+         end if
+         call Parallel_Brdcst_ivalue(MASTER,ifound)
+         found_datafile = .false.
+         if (ifound.eq.1) found_datafile=.true.
+
+      end if
+
+
+*     *******************************
+*     **** read kernel from file ****
+*     *******************************
+      if (found_datafile) then
+         if (oprint) then
+            l = index(datafile,' ') - 1
+            write(luout,*)
+            write(luout,*) "Reading filtered kernel filename:",
+     >                     datafile(1:l)
+
+         end if
+         value = BA_push_get(mt_dbl,nfft3d,'tmp',tmp(2),tmp(1))
+         if (.not.value) 
+     >      call errquit('coulomb_filter: out of stack memory',9,MA_ERR)
+         if (taskid.eq.MASTER) then
+            call openfile(5,datafile,l,'r',l)
+            call iread(5,tngrid,3)
+            call dread(5,tunita,9)
+            call dread(5,tunitg,9)
+         end if
+         call D3dB_t_read(1,5,Vfilter,dbl_mb(tmp(1)),-1)
+         if (taskid.eq.MASTER) then
+            call closefile(5)
+         end if
+         value = BA_pop_stack(tmp(2))
+         if (.not.value) 
+     >      call errquit('coulomb_filter:popping stack memory',9,MA_ERR)
+         !write(*,*) "Vfilter=",(Vfilter(i),i=1,10)
+
+
+*     *******************************
+*     **** generating kernel     ****
+*     *******************************
+      else
+
+         if (oprint) then
+            l = index(datafile,' ') - 1
+            write(luout,*)
+            write(luout,*) "Generating filtered kernel filename:",
+     >                     datafile(1:l)
+
+         end if
+
+         twopi = 8.0d0*datan(1.0d0)
+         oneovertwopi = 1.0d0/twopi
+
+         nmax = 10
+
+*        **** allocate memory ****
+         value = BA_push_get(mt_dbl,3*Ntt3,'gammasdxdydz',
      >                    gammasdxdydz(2),gammasdxdydz(1))
-      value = value.and.
+         value = value.and.
      >        BA_push_get(mt_dbl,3*Ntt3,'lk',
      >                    lk(2),lk(1))
-      value = value.and.
+         value = value.and.
      >        BA_push_get(mt_dbl,5*(nmax+1)*(nmax+1),'Mpack',
      >                    Mpack(2),Mpack(1))
-      value = value.and.
+         value = value.and.
      >        BA_push_get(mt_dbl,5*(nmax+1)*(nmax+1),'QQ',
      >                    QQ(2),QQ(1))
-      value = value.and.
+         value = value.and.
      >        BA_push_get(mt_dbl,5*(nmax+1)*(nmax+1),'Plm',
      >                    Plm(2),Plm(1))
-      value = value.and.
+         value = value.and.
      >        BA_push_get(mt_dbl,5*(nmax+1)*(nmax+1),'Tlm',
      >                    Tlm(2),Tlm(1))
-      if (.not.value) 
+         if (.not.value) 
      >   call errquit('coulomb_filter: out of stack memory',0,MA_ERR)
 
 
-      call coulomb_filter_setup(Nt1,-1.0d0,1.0d0,
+         call coulomb_filter_setup(Nt1,-1.0d0,1.0d0,
      >                          Nt2,-1.0d0,1.0d0,
      >                          Nt3,-1.0d0,1.0d0,
      >                          unitg,dbl_mb(gammasdxdydz(1)),
      >                          dbl_mb(lk(1)))
-      call setup_integrate_oneoverG2_BZ_Gengenbauer2(Ntt3,
+         call setup_integrate_oneoverG2_BZ_Gengenbauer2(Ntt3,
      >                    dbl_mb(gammasdxdydz(1)),
      >                    dbl_mb(lk(1)),
      >                    nmax,dbl_mb(Mpack(1)),
      >                    dbl_mb(QQ(1)),dbl_mb(Plm(1)),dbl_mb(Tlm(1)))
 
-      scut  = dsqrt( unitg(1,1)*unitg(1,1) 
-     >             + unitg(2,1)*unitg(2,1) 
-     >             + unitg(3,1)*unitg(3,1))
-      scut1 = dsqrt( unitg(1,2)*unitg(1,2)
-     >             + unitg(2,2)*unitg(2,2)
-     >             + unitg(3,2)*unitg(3,2))
-      if (scut1.lt.scut) scut = scut1
-      scut1 = dsqrt( unitg(1,3)*unitg(1,3)
-     >             + unitg(2,3)*unitg(2,3)
-     >             + unitg(3,3)*unitg(3,3))
-      if (scut1.lt.scut) scut = scut1
-      rcut = 0.3d0*scut
-      !rcut = 0.2d0*scut
-      salpha = 1.0d0/rcut
-      alpha  = salpha*salpha
+         scut  = dsqrt( unitg(1,1)*unitg(1,1) 
+     >                + unitg(2,1)*unitg(2,1) 
+     >                + unitg(3,1)*unitg(3,1))
+         scut1 = dsqrt( unitg(1,2)*unitg(1,2)
+     >                + unitg(2,2)*unitg(2,2)
+     >                + unitg(3,2)*unitg(3,2))
+         if (scut1.lt.scut) scut = scut1
+         scut1 = dsqrt( unitg(1,3)*unitg(1,3)
+     >                + unitg(2,3)*unitg(2,3)
+     >                + unitg(3,3)*unitg(3,3))
+         if (scut1.lt.scut) scut = scut1
+         rcut = 0.3d0*scut
+         !rcut = 0.2d0*scut
+         salpha = 1.0d0/rcut
+         alpha  = salpha*salpha
 
-      do i=1,nfft3d
-         gx = G(i,1)
-         gy = G(i,2)
-         gz = G(i,3)
+         do i=1,nfft3d
+            gx = G(i,1)
+            gy = G(i,2)
+            gz = G(i,3)
          
-         f1 = oneovertwopi*(unita(1,1)*gx+unita(1,2)*gy+unita(1,3)*gz)
-         f2 = oneovertwopi*(unita(2,1)*gx+unita(2,2)*gy+unita(2,3)*gz)
-         f3 = oneovertwopi*(unita(3,1)*gx+unita(3,2)*gy+unita(3,3)*gz)
-         if ((dabs(f1).lt.2.0d0).and.
-     >       (dabs(f2).lt.2.0d0).and.
-     >       (dabs(f3).lt.2.0)) then
-            Vfilter(i) = integrate_oneoveralphaG2_BZ(Ntt3,
+            f1=oneovertwopi*(unita(1,1)*gx+unita(1,2)*gy+unita(1,3)*gz)
+            f2=oneovertwopi*(unita(2,1)*gx+unita(2,2)*gy+unita(2,3)*gz)
+            f3=oneovertwopi*(unita(3,1)*gx+unita(3,2)*gy+unita(3,3)*gz)
+            if ((dabs(f1).lt.2.0d0).and.
+     >          (dabs(f2).lt.2.0d0).and.
+     >          (dabs(f3).lt.2.0)) then
+               Vfilter(i) = integrate_oneoveralphaG2_BZ(Ntt3,
      >                            dbl_mb(gammasdxdydz(1)),dbl_mb(lk(1)),
      >                            alpha,gx,gy,gz) 
-            alpha0 = integrate_spherical_oneoveralphaG2_BZ(
+               alpha0 = integrate_spherical_oneoveralphaG2_BZ(
      >                  dabs(f1),dabs(f2),dabs(f3),
      >                  Ns1,0.0d0,1.0d0,
      >                  Ns2,f3_to_theta_min(f3),f3_to_theta_max(f3),
      >                  Ns3,f1f2_to_phi_min(f1,f2),
      >                  f1f2_to_phi_max(f1,f2),
      >                  unitg,alpha) 
-            Vfilter(i) = Vfilter(i) + alpha0
-         else
-            Vfilter(i) = integrate_oneoverG2_BZ_Gengenbauer2(nmax,
+               Vfilter(i) = Vfilter(i) + alpha0
+            else
+               Vfilter(i) = integrate_oneoverG2_BZ_Gengenbauer2(nmax,
      >                            dbl_mb(Mpack(1)),gx,gy,gz,
      >                            dbl_mb(Plm(1)),dbl_mb(Tlm(1)))
+            end if
+         end do
+         value = BA_pop_stack(Tlm(2))
+         value = value.and.BA_pop_stack(Plm(2))
+         value = value.and.BA_pop_stack(QQ(2))
+         value = value.and.BA_pop_stack(Mpack(2))
+         value = value.and.BA_pop_stack(lk(2))
+         value = value.and.BA_pop_stack(gammasdxdydz(2))
+         if (.not.value) 
+     >      call errquit('coulomb_filter:popping stack memory',0,MA_ERR)
+
+
+*        *****************************
+*        **** save kernel to file ****
+*        *****************************
+         l = index(datafile,' ') -1
+         value = BA_push_get(mt_dbl,nfft3d,'tmp',tmp(2),tmp(1))
+         if (.not.value)
+     >      call errquit('coulomb_filter: out of stack',99,MA_ERR)
+         if (taskid.eq.MASTER) then
+            call openfile(6,datafile,l,'w',l)
+            call iwrite(6,ngrid,3)
+            call dwrite(6,unita,9)
+            call dwrite(6,unitg,9)
          end if
-      end do
-      value = BA_pop_stack(Tlm(2))
-      value = value.and.BA_pop_stack(Plm(2))
-      value = value.and.BA_pop_stack(QQ(2))
-      value = value.and.BA_pop_stack(Mpack(2))
-      value = value.and.BA_pop_stack(lk(2))
-      value = value.and.BA_pop_stack(gammasdxdydz(2))
-      if (.not.value) 
-     >   call errquit('coulomb_filter:popping stack memory',0,MA_ERR)
+         call D3dB_t_write(1,6,Vfilter,dbl_mb(tmp(1)),0)
+         if (taskid.eq.MASTER) then
+            call closefile(6)
+         end if
+         value = BA_pop_stack(tmp(2))
+         if (.not.value)
+     >      call errquit('coulomb_filter:popping stack',99,MA_ERR)
+
+         !write(*,*) "Vfilter=",(Vfilter(i),i=1,10)
+      end if
 
       return
       end
