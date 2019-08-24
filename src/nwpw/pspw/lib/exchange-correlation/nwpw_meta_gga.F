@@ -224,7 +224,8 @@
 *     **** local variables ****
       integer ms,n,n2ft3d,nfft3d,npack1,nx,ny,nz,xyz
       integer G(3),n1(2),n2(2),dpsi(2)
-      real*8 scal1,scal2,scal,pmeta0,ee
+      real*8 scal1,scal2,scal
+      !real*8 scal1,scal2,scal,pmeta0,ee
 
 *     **** external functions ****
       integer  Pack_G_indx
@@ -259,7 +260,7 @@
       G(2)  = Pack_G_indx(1,2)
       G(3)  = Pack_G_indx(1,3)
 
-      pmeta0 = 0.0d0
+c      pmeta0 = 0.0d0
       do ms=1,ispin
       do n=n1(ms),n2(ms)
          do xyz=1,3
@@ -288,15 +289,14 @@
             call Pack_tc_iMul2(1,dbl_mb(G(xyz)),
      >                          dcpl_mb(dpsi(1)))
             call Pack_cc_Sum2(1,dcpl_mb(dpsi(1)),Hpsi(1+(n-1)*npack1))
-
-            call Pack_cc_dot(1,psi(1+(n-1)*npack1),
-     >                        dcpl_mb(dpsi(1)),ee)
-            pmeta0 = pmeta0 + ee
+c            call Pack_cc_dot(1,psi(1+(n-1)*npack1),
+c     >                        dcpl_mb(dpsi(1)),ee)
+c            pmeta0 = pmeta0 + ee
 
          end do
       end do
       end do
-      if (ispin.eq.1) pmeta0 = pmeta0 + pmeta0
+c      if (ispin.eq.1) pmeta0 = pmeta0 + pmeta0
       !write(*,*) "PMETA0=",pmeta0
 
 *     **** deallocate stack ****
@@ -417,7 +417,7 @@ c         call Parallel_SumAll(pmeta)
 
       !write(*,*) "PMETA=",pmeta
 
-      nwpw_meta_gga_pxc = pmeta
+      nwpw_meta_gga_pxc = (pmeta)
       return
       end
 

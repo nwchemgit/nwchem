@@ -317,8 +317,8 @@ endif
 # see https://bugzilla.redhat.com/show_bug.cgi?id=1195883  (RedHat backtracked)
 # see https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=798913                                                                     
 # see https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=798804 (Debian did not backtrack)                                          
-#      USE_ARUR = $(shell rm -f aru.tmp;ar -U > aru.tmp 2>&1; head -1 aru.tmp| awk ' /no\ operation/ {print "Y";exit};{print "N"}'; rm -f aru.tmp)
-  USE_ARUR = $(shell rm -f aru.tmp;ar --help  > aru.tmp 2>&1; grep U aru.tmp| awk ' /ctual\ timest/ {print "Y";exit};'; rm -f aru.tmp)
+#      USE_ARUR = $(shell rm -f aru.tmp;ar -U > aru.tmp 2>&1; head -1 aru.tmp| awk ' /no operation/ {print "Y";exit};{print "N"}'; rm -f aru.tmp)
+  USE_ARUR = $(shell rm -f aru.tmp;ar --help  > aru.tmp 2>&1; grep U aru.tmp| awk ' /ctual timest/ {print "Y";exit};'; rm -f aru.tmp)
       ifeq ($(USE_ARUR),Y)
         ARFLAGS = rU 
       endif
@@ -1775,6 +1775,7 @@ endif
         GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
         endif
         GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
+        GNU_GE_8 = $(shell [ $(GNUMAJOR) -ge 8  ] && echo true)
         endif
         ifeq ($(GNU_GE_4_6),true)
           DEFINES  += -DGCC46
@@ -1787,6 +1788,9 @@ endif
         else
           FOPTIONS   += -Wuninitialized # -Wextra -Wunused
         endif
+        ifeq ($(GNU_GE_8),true)
+          FOPTIONS   += -std=legacy
+	endif
         ifdef USE_OPENMP
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
@@ -1843,8 +1847,8 @@ endif
 
       ifeq ($(FC),ifort)
        _IFCV9= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk '/9./ {print "Y"}; /10./ {print "Y"; exit}')
-       _IFCV81= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /8\.1/  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
-       _IFCV8= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /8\./  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
+       _IFCV81= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /8.1/  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
+       _IFCV8= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /8./  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
        ifeq ($(_IFCV8),Y)
          DEFINES+= -DIFCV8
 #         FOPTIONS += -quiet
@@ -2628,7 +2632,7 @@ ifdef USE_FDIST
   DEFINES += -DFDIST
 endif
 
-#_USE_SCALAPACK = $(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_SCALAPACK\ 1/ {print "Y"}')
+#_USE_SCALAPACK = $(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_SCALAPACK 1/ {print "Y"}')
 #case guard against case when tools have not been compiled yet
   ifeq ("$(wildcard ${GA_PATH}/bin/ga-config)","")
   else
