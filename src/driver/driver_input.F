@@ -114,9 +114,18 @@ c
      >                           ipname(1:ind)))
      >          call errquit('driver_input: rtdb put failed',8,RTDB_ERR)
                end if
+               diagh = .true.
+               if (.not. rtdb_put(rtdb,'driver:socket',
+     $                      mt_log,1,diagh))
+     $        call errquit('driver_input: rtdb put failed',0, RTDB_ERR)
+c
             else
                if (.not.rtdb_delete(rtdb,'driver:socket_type'))
      >         call errquit('driver_input:rtdbdelete failed',9,RTDB_ERR)
+               diagh = .false.
+               if (.not. rtdb_put(rtdb,'driver:socket',
+     $                      mt_log,1,diagh))
+     $        call errquit('driver_input: rtdb put failed',0, RTDB_ERR)
             end if
          end if
 c
