@@ -32,13 +32,15 @@
 
       logical function offload_enabled()
       implicit none
-C #ifdef USE_OFFLOAD
-C       write (*,*) 'offload_enabled = true'
+      logical first_time
+      save first_time
+      data first_time /.true./
       offload_enabled=.true.
-C #else
-C       write (*,*) 'offload_enabled = false'
-C       offload_enabled=.false.
-C #endif
+C       write (*,*) 'first_time=', first_time
+      write (*,*) 'OpenMP offload enabled =', offload_enabled
+      if (first_time) then
+        first_time = .false.
+      endif
       return
       end
 

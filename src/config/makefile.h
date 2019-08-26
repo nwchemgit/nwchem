@@ -2352,6 +2352,11 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
         ifdef USE_OPENMP
            DEFINES += -DUSE_OPENMP
            FOPTIONS += -qsmp=omp
+           ifdef USE_OFFLOAD
+             DEFINES +=-DOPENMP_OFFLOAD -DUSE_OFFLOAD
+             OFFLOAD_FOPTIONS = -qtgtarch=sm_70 -qoffload
+             LDOPTIONS += -qoffload -lcudart -L$(NWC_CUDAPATH)
+           endif
         endif
         ifdef USE_I4FLAGS
           FOPTIONS += -qintsize=4
@@ -3015,4 +3020,3 @@ else
 endif
 
 endif
-
