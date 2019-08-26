@@ -16,7 +16,7 @@ C     i4 ( h10 h11 h12 h18 h15 p3 p7 p8 )_ytrb + = -1 * Sum ( p5 ) * trb ( p5 h1
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -57,10 +57,10 @@ C     i4 ( h10 h11 h12 h18 h15 p3 p7 p8 )_ytrb + = -1 * Sum ( p5 ) * trb ( p5 h1
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL nxtask
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       DO h10b = 1,noab
       DO h11b = h10b,noab
       DO h12b = h11b,noab
@@ -187,7 +187,7 @@ C     i4 ( h10 h11 h12 h18 h15 p3 p7 p8 )_ytrb + = -1 * Sum ( p5 ) * trb ( p5 h1
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -198,7 +198,7 @@ C     i4 ( h10 h11 h12 h18 h15 p3 p7 p8 )_ytrb + = -1 * Sum ( p5 ) * trb ( p5 h1
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
       call GA_SYNC()
       RETURN
       END

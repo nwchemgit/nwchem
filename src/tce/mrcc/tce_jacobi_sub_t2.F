@@ -28,13 +28,13 @@ c
       integer nprocs
       integer count
       integer nex
-cc      integer nxtval
+cc      integer nxtask
 c
       integer iter
       integer iref
       double precision denom 
 c
-cc      external nxtval
+cc      external nxtask
       INTEGER NXTASKsub
       EXTERNAL NXTASKsub
       logical nodezero

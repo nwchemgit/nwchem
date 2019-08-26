@@ -41,7 +41,7 @@ C     i0 ( p1 p2 )_vd + = -1/4 * Sum ( p4 p3 p5 ) * d ( p1 p5 p3 p4 )_d * v ( p3
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -79,12 +79,12 @@ C     i0 ( p1 p2 )_vd + = -1/4 * Sum ( p4 p3 p5 ) * d ( p1 p5 p3 p4 )_d * v ( p3
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
+      EXTERNAL nxtask
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
       irrep_d=0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       DO p1b = noab+1,noab+nvab
       DO p2b = noab+1,noab+nvab
       IF (next.eq.count) THEN
@@ -200,12 +200,12 @@ c
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -227,7 +227,7 @@ C     i0 ( p2 p1 )_vd + = -1/4 * Sum ( p5 p4 p3 ) * d ( p3 p4 p1 p5 )_d * v ( p2
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -265,12 +265,12 @@ C     i0 ( p2 p1 )_vd + = -1/4 * Sum ( p5 p4 p3 ) * d ( p3 p4 p1 p5 )_d * v ( p2
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
+      EXTERNAL nxtask
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
       irrep_d=0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       DO p2b = noab+1,noab+nvab
       DO p1b = noab+1,noab+nvab
       IF (next.eq.count) THEN
@@ -390,12 +390,12 @@ c     & noab - 1 + nvab * (p2b - noab - 1)))
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
       call GA_SYNC()
       RETURN
       END

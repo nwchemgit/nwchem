@@ -36,13 +36,13 @@ C
       integer k_ydoubles,l_ydoubles   ! T3 form, after sorting
       integer size,i
       integer g_energy
-      integer NXTVAL
+      integer nxtask
       integer next
       integer nprocs
       integer count
       double precision energy1,energy2
       double precision factor
-      external NXTVAL
+      external nxtask
 C
 #ifdef DEBUG_PRINT
       print*,"entering lambda_ccsd_t"
@@ -51,7 +51,7 @@ C
      1  call errquit('lambda_ccsd_t: GA problem',0,GA_ERR)
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       energy1=0.0d0
       energy2=0.0d0
       do t_p4b = noab+1,noab+nvab
@@ -188,7 +188,7 @@ c
             if (.not.MA_POP_STACK(l_tdoubles)) 
      1        call errquit('lambda_ccsd_t',311,MA_ERR)
 c
-            next = NXTVAL(nprocs)
+            next = nxtask(nprocs,1)
             endif
             count = count + 1
 c
@@ -201,7 +201,7 @@ c
         enddo
        enddo
       enddo
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
       call ga_zero(g_energy)
       call ga_acc(g_energy,1,1,1,1,energy1,1,1.0d0)
       call ga_sync()
