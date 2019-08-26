@@ -121,6 +121,7 @@
                write(*,'(" Connected to   = ",A)') ipport
                write(*,'(" Iteration      =",I8)') it
                write(*,'(" Iteration Time =",F8.3," seconds")')cpu2-cpu1
+               write(*,'("Current Energy  = ",F16.6)') energy
 c               write(*,*) "energy=",energy,nion
 c               write(*,*) "rion,fion=" 
 c               do ii=1,nion
