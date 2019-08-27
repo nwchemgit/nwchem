@@ -119,7 +119,7 @@ $ git diff --stat --cached origin/master
 
 git diff branch1 branch2 --name-only (shows diff b/w 2 branches)
 
+How to git clone without git
 
-
-
-
+ curl -LJO https://github.com/nwchemgit/nwchem/tarball/master
+ curl -LJO https://github.com/nwchemgit/nwchem/tarball/hotfix/release-6-8
