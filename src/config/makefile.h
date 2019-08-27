@@ -1324,8 +1324,12 @@ ifeq ($(BUILDING_PYTHON),python)
   ifneq ($(GOTMINGW32),1)
    PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
    PYMINOR:=$(word 2, $(subst ., ,$(PYTHONVERSION)))
+   PYGE38:=$(shell [ $(PYMAJOR) -ge 3 -a $(PYMINOR) -ge 8 ] && echo true)
    ifeq (${PYMAJOR},3)
-   EXTRA_LIBS += $(shell $(PYTHONHOME)/bin/python3-config --libs)  -lnwcutil
+    ifeq ($(PYGE38),true)
+      EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python3-config --libs --embed) #-lz          else
+      EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python3-config --libs) #-lz
+    endif
    else
    EXTRA_LIBS += $(shell $(PYTHONHOME)/bin/python-config --libs)  -lnwcutil
    endif
