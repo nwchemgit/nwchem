@@ -1323,6 +1323,7 @@ ifeq ($(BUILDING_PYTHON),python)
 # needed if python was built with pthread support
   ifneq ($(GOTMINGW32),1)
    PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
+   PYMINOR:=$(word 2, $(subst ., ,$(PYTHONVERSION)))
    ifeq (${PYMAJOR},3)
    EXTRA_LIBS += $(shell $(PYTHONHOME)/bin/python3-config --libs)  -lnwcutil
    else
@@ -2434,8 +2435,13 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
      ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
    PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
+   PYMINOR:=$(word 2, $(subst ., ,$(PYTHONVERSION)))
+   PYGE38:=$(shell [ $(PYMAJOR) -ge 3 -a $(PYMINOR) -ge 8 ] && echo true)
    ifeq (${PYMAJOR},3)
-   EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python3-config --libs) #-lz
+    ifeq ($(PYGE38),true)
+      EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python3-config --libs --embed) #-lz          else
+      EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python3-config --libs) #-lz
+    endif
    else
    EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python-config --libs) #-lz
    endif
