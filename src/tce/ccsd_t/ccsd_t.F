@@ -280,27 +280,27 @@ c ---------------------------
       double precision energy1,energy2
       external offload_enabled
       logical offload_enabled
-#ifdef USE_OFFLOAD
-#ifdef OPENMP_OFFLOAD
-      if(offload_enabled()) then
-         call offl_ccsd_t_dot(a_singles,a_doubles,restricted,
-     &        h1b,h2b,h3b,p4b,p5b,p6b,
-     &        o_h1,o_h2,o_h3,o_p4,o_p5,o_p6,
-     &        r_h1,r_h2,r_h3,r_p4,r_p5,r_p6,
-     &        energy1,energy2)
-         else
-#endif
-#endif
+C #ifdef USE_OFFLOAD
+C #ifdef OPENMP_OFFLOAD
+C       if(offload_enabled()) then
+C          call offl_ccsd_t_dot(a_singles,a_doubles,restricted,
+C      &        h1b,h2b,h3b,p4b,p5b,p6b,
+C      &        o_h1,o_h2,o_h3,o_p4,o_p5,o_p6,
+C      &        r_h1,r_h2,r_h3,r_p4,r_p5,r_p6,
+C      &        energy1,energy2)
+C          else
+C #endif
+C #endif
             call ccsd_t_dot(a_singles,a_doubles, restricted,
      &        h1b,h2b,h3b,p4b,p5b,p6b,
      &        o_h1,o_h2,o_h3,o_p4,o_p5,o_p6,
      &        r_h1,r_h2,r_h3,r_p4,r_p5,r_p6,
      &        energy1,energy2)
-#ifdef USE_OFFLOAD
-#ifdef OPENMP_OFFLOAD
-         endif
-#endif         
-#endif
+C #ifdef USE_OFFLOAD
+C #ifdef OPENMP_OFFLOAD
+C          endif
+C #endif         
+C #endif
 
       return
       end

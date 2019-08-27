@@ -1,4 +1,12 @@
 C$Id$
+#ifndef VERY_VERBOSE
+#define VERY_VERBOSE   1
+#endif
+
+#ifndef DEBUG_TRIPLESX
+#define DEBUG_TRIPLESX 1
+#endif
+
 #ifdef OFFLOAD_CODE
       SUBROUTINE offl0_ccsd_t_doubles_l_12(d_a,k_a_offset,
 #else
@@ -76,9 +84,9 @@ c --------------
       INTEGER k_range_p7b_1
       INTEGER k_a_srt_len
       INTEGER k_b_srt_len
-#ifdef OFFLOAD_CODE
+C #ifdef OFFLOAD_CODE
       integer l_t2sub,l_triplesx,l_v2sub
-#endif
+C #endif
       double precision t2sub(*),v2sub(*),scratch(*)
       logical tce_hashnsort,lresult
       external tce_hashnsort
@@ -94,7 +102,7 @@ c --------------
 #endif
       integer h7b_in,p7b_in
 
-#ifdef OFFLOAD_CODE
+C #ifdef OFFLOAD_CODE
 cfrom l_triplesx
       l_triplesx=
      c int_mb(k_range+t_h3b-1)*
@@ -104,7 +112,7 @@ cfrom l_triplesx
      c int_mb(k_range+t_p5b-1)*
      c int_mb(k_range+t_p4b-1)
       call ccsd_t_v2t2lgth(l_t2sub,l_v2sub)
-#endif
+C #endif
 
         a3(1,1)=t_p4b
         a3(1,2)=t_p5b
@@ -169,6 +177,10 @@ c
         a3(9,5)=t_h1b
         a3(9,6)=t_h2b
 c
+#ifdef VERY_VERBOSE
+      write (*,'(A)',advance="no") ':'
+#endif
+
         do ia6=1,8
          if(a3(ia6,1).ne.0) then
          do ja6=ia6+1,9
@@ -187,6 +199,12 @@ c
          end if
       enddo
 c
+#ifdef OFFLOAD_CODE
+#if OPENMP_OFFLOAD
+!$omp target data map(tofrom:triplesx(1:l_triplesx))
+!$omp& map(alloc:scratch(1:l_t2sub))
+#endif
+#endif
       do ia6=1,9
       p4b=a3(ia6,1)
       p5b=a3(ia6,2)
@@ -249,17 +267,6 @@ c     figure out  cycles to work on
      O           t2sub,v2sub)) then
             k_range_h7b_1 = int_mb(k_range+h7b-1)
 
-#ifdef OFFLOAD_CODE
-#if OPENMP_OFFLOAD
-      write (*,'(A)',advance="no") '.'
-!$omp target map(to:k_range_h3b_1,k_range_h2b_1,k_range_h1b_1)
-!$omp& map(to:k_range_p6b_1,k_range_p5b_1,k_range_p4b_1,k_range_h7b_1)
-!$omp& map(tofrom:triplesx(1:l_triplesx)) map(to:t2sub(1:l_t2sub))
-!$omp& map(to:v2sub(1:l_v2sub)) map(alloc:scratch(1:l_t2sub))
-!$omp& map(tofrom:deltat_mic)
-#else
-#endif
-#endif
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
      &3b)) THEN
@@ -413,11 +420,6 @@ c        call tce_sdtime0(t0)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl19,fdist_sdcomp19)
       END IF
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp end target
-#endif
-#endif
       endif
       END DO !h7b loop
       endif ! n_h7b.ne.0
@@ -425,6 +427,7 @@ c
 c
       END IF
       END DO !ia6 loop
+
 cold      SUBROUTINE ccsd_t_doubles_l_2(d_a,k_a_offset,
 c
         a3(1,1)=t_p4b
@@ -566,18 +569,6 @@ c     figure out  cycles to work on
      O        t2sub,v2sub)) then
 
             k_range_p7b_1 = int_mb(k_range+p7b-1)
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-      write (*,'(A)',advance="no") ':'
-!$omp target map(to:k_range_h3b_1,k_range_h2b_1,k_range_h1b_1)
-!$omp& map(to:k_range_p6b_1,k_range_p5b_1,k_range_p4b_1,k_range_p7b_1)
-!$omp& map(tofrom:triplesx(1:l_triplesx)) map(to:t2sub(1:l_t2sub))
-!$omp& map(to:v2sub(1:l_v2sub)) map(alloc:scratch(1:l_t2sub))
-!$omp& map(tofrom:deltat_mic)
-#else
-#endif
-#endif
-
 
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
@@ -733,11 +724,6 @@ c        call tce_sdtime0(t0)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl29,fdist_sdcomp29)
       END IF
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp end target
-#endif
-#endif
       endif
       END DO ! p7b loop
 
@@ -747,19 +733,13 @@ c
       END IF
       END DO ! ia6 loop
 #ifdef OFFLOAD_CODE
-#ifndef OPENMP_OFFLOAD
-      if(triplesx_copyback) then
-      if (otceps) then
-         call pstat_on(ps_sxoff)
-         t0=omp_get_wtime()
-      endif
-      if (otceps) then
-         call pstat_off(ps_sxoff)
-         deltat_off=(omp_get_wtime()-t0)*1.D6
-         call updist(fdist_sxoff, deltat_off)
-      endif
-      endif
+#ifdef OPENMP_OFFLOAD
+!$omp end target data
 #endif
+#endif
+#ifdef DEBUG_TRIPLESX
+      write (*,*) 'res D triplesx:', sum(triplesx(1:l_triplesx))
+      write (*,*) ' '
 #endif
       RETURN
       END
@@ -773,11 +753,6 @@ c
      2               triplesx,t2sub,v2sub,
      3     deltat)
       IMPLICIT NONE
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sdtransp_t_d1_1)
-#endif
-#endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
       integer h3,h2,h1,p6,p5,p4,h7
       integer h2h3
@@ -785,6 +760,12 @@ c
       double precision t2sub(h7d,p4d,p5d,h1d)
       double precision v2sub(h3d*h2d,p6d,h7d)
 #include "sd_top.fh"
+#ifdef OFFLOAD_CODE
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") '1'
+#endif
+!$omp target map(to:t2sub) map(to:v2sub)
+#endif
 !$omp parallel do private(p4,p5,p6,h2,h3,h1,h7) collapse(OMPCOLLAPSE)
       do p4=1,p4d
       do p5=1,p5d
@@ -803,6 +784,9 @@ cz!DEC$ unroll_and_jam (2)
       enddo
       enddo
       enddo
+#ifdef OFFLOAD_CODE
+!$omp end target
+#endif
 #include "sd_bottom.fh"
       return
       end
@@ -816,11 +800,6 @@ c
      2               triplesx,t2sub,v2sub,scratch,
      3     deltat)
       IMPLICIT NONE
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sdtransp_t_d1_2)
-#endif
-#endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
       integer h3,h2,h1,p6,p5,p4,h7
       double precision triplesx(h3d,h1d,h2d,p6d,p5d,p4d)
@@ -841,7 +820,12 @@ CDIR$ NOINLINE
 #endif
      T        v2sub,scratch,
      1     h3d,h2d,p6d,h7d)
-c!$omp parallel do private(p4,p5,p6,h2,h3,h1,h7) collapse(OMPCOLLAPSE)
+#ifdef OFFLOAD_CODE
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") '2'
+#endif
+!$omp target map(to:t2sub)
+#endif
 !$omp parallel do private(p4,p5,p6,h2,h3,h1,h7) collapse(4)
       do p4=1,p4d
       do p5=1,p5d
@@ -862,6 +846,9 @@ c!DEC$ unroll_and_jam (4)
       enddo
       enddo
       enddo
+#ifdef OFFLOAD_CODE
+!$omp end target
+#endif
 #include "sd_bottom.fh"
       return
       end
@@ -875,11 +862,7 @@ c
      2               triplesx,t2sub,v2sub,scratch,
      3     deltat)
       IMPLICIT NONE
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sdtransp_t_d1_3)
-#endif
-#endif
+
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
       integer h3,h2,h1,p6,p5,p4,h7
       integer h3h2
@@ -902,6 +885,12 @@ CDIR$ NOINLINE
 #endif
      T        v2sub,scratch,
      1     h3d,h2d,p6d,h7d)
+#ifdef OFFLOAD_CODE
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") '3'
+#endif
+!$omp target map(to:t2sub)
+#endif
 !$omp parallel do private(p4,p5,p6,h3h2,h1,h7) collapse(OMPCOLLAPSE)
       do p4=1,p4d
       do p5=1,p5d
@@ -921,6 +910,9 @@ c!DEC$ unroll_and_jam (4)
       enddo
       enddo
       enddo
+#ifdef OFFLOAD_CODE
+!$omp end target
+#endif
 #include "sd_bottom.fh"
       return
       end
@@ -934,11 +926,7 @@ c
      2               triplesx,t2sub,v2sub,
      D     deltat)
       IMPLICIT NONE
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sdtransp_t_d1_4)
-#endif
-#endif
+
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
       integer h3,h2,h1,p6,p5,p4,h7
       integer h2h3
@@ -946,6 +934,12 @@ c
       double precision t2sub(h7d,p4d,p5d,h1d)
       double precision v2sub(h3d*h2d,p6d,h7d)
 #include "sd_top.fh"
+#ifdef OFFLOAD_CODE
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") '4'
+#endif
+!$omp target map(to:t2sub) map(to:v2sub)
+#endif
 !$omp parallel do private(p4,p5,p6,h2,h3,h1,h7) collapse(OMPCOLLAPSE)
       do p6=1,p6d
       do p4=1,p4d
@@ -962,6 +956,9 @@ c
       enddo
       enddo
       enddo
+#ifdef OFFLOAD_CODE
+!$omp end target
+#endif
 #include "sd_bottom.fh"
       return
       end
@@ -975,11 +972,7 @@ c
      2               triplesx,t2sub,v2sub,scratch,
      d     deltat)
       IMPLICIT NONE
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sdtransp_t_d1_5)
-#endif
-#endif
+
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
       integer h3,h2,h1,p6,p5,p4,h7
       double precision triplesx(h3d,h1d,h2d,p5d,p4d,p6d)
@@ -1000,6 +993,12 @@ CDIR$ NOINLINE
 #endif
      T        v2sub,scratch,
      1     h3d,h2d,p6d,h7d)
+#ifdef OFFLOAD_CODE
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") '5'
+#endif
+!$omp target map(to:t2sub)
+#endif
 !$omp parallel do private(p4,p5,p6,h3,h2,h1,h7) collapse(OMPCOLLAPSE)
       do p6=1,p6d
       do p4=1,p4d
@@ -1022,6 +1021,9 @@ CDIR$ NOINLINE
       enddo
       enddo
       enddo
+#ifdef OFFLOAD_CODE
+!$omp end target
+#endif
 #include "sd_bottom.fh"
       return
       end
@@ -1035,11 +1037,7 @@ c
      2               triplesx,t2sub,v2sub,scratch,
      3     deltat)
       IMPLICIT NONE
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sdtransp_t_d1_6)
-#endif
-#endif
+
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
       integer h3,h2,h1,p6,p5,p4,h7
       integer h2h3
@@ -1061,6 +1059,12 @@ CDIR$ NOINLINE
 #endif
      T        v2sub,scratch,
      1     h3d,h2d,p6d,h7d)
+#ifdef OFFLOAD_CODE
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") '6'
+#endif
+!$omp target map(to:t2sub)
+#endif
 !$omp parallel do private(p4,p5,p6,h2h3,h1,h7) collapse(OMPCOLLAPSE)
       do p6=1,p6d
       do p4=1,p4d
@@ -1079,6 +1083,9 @@ CDIR$ NOINLINE
       enddo
       enddo
       enddo
+#ifdef OFFLOAD_CODE
+!$omp end target
+#endif
 #include "sd_bottom.fh"
       return
       end
@@ -1092,11 +1099,7 @@ c
      2               triplesx,t2sub,v2sub,
      3     deltat)
       IMPLICIT NONE
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sdtransp_t_d1_7)
-#endif
-#endif
+
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
       integer h3,h2,h1,p6,p5,p4,h7
       integer h2h3
@@ -1104,6 +1107,12 @@ c
       double precision t2sub(h7d,p4d,p5d,h1d)
       double precision v2sub(h3d*h2d,p6d,h7d)
 #include "sd_top.fh"
+#ifdef OFFLOAD_CODE
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") '7'
+#endif
+!$omp target map(to:t2sub) map(to:v2sub)
+#endif
 !$omp parallel do private(p4,p5,p6,h2,h3,h1,h7) collapse(OMPCOLLAPSE)
       do p4=1,p4d
       do p6=1,p6d
@@ -1120,6 +1129,9 @@ c
       enddo
       enddo
       enddo
+#ifdef OFFLOAD_CODE
+!$omp end target
+#endif
 #include "sd_bottom.fh"
       return
       end
@@ -1133,12 +1145,6 @@ c
      2               triplesx,t2sub,v2sub,scratch,
      3     deltat)
       IMPLICIT NONE
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sdtransp_t_d1_8)
-!$omp declare target (offl_ccsd_t_transpt2_7326)
-#endif
-#endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
       integer h3,h2,h1,p6,p5,p4,h7
       double precision triplesx(h3d,h1d,h2d,p5d,p6d,p4d)
@@ -1159,6 +1165,12 @@ CDIR$ NOINLINE
 #endif
      T        v2sub,scratch,
      1     h3d,h2d,p6d,h7d)
+#ifdef OFFLOAD_CODE
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") '8'
+#endif
+!$omp target map(to:t2sub)
+#endif
 !$omp parallel do private(p4,p5,p6,h2,h3,h1,h7) collapse(OMPCOLLAPSE)
       do p4=1,p4d
       do p6=1,p6d
@@ -1180,6 +1192,9 @@ c!DEC$ unroll_and_jam (2)
       enddo
       enddo
       enddo
+#ifdef OFFLOAD_CODE
+!$omp end target
+#endif
 #include "sd_bottom.fh"
       return
       end
@@ -1193,11 +1208,7 @@ c
      2               triplesx,t2sub,v2sub,scratch,
      3     deltat)
       IMPLICIT NONE
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sdtransp_t_d1_9)
-#endif
-#endif
+
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
       integer h3,h2,h1,p6,p5,p4,h7
       integer h3h2
@@ -1219,6 +1230,12 @@ CDIR$ NOINLINE
 #endif
      T        v2sub,scratch,
      1     h3d,h2d,p6d,h7d)
+#ifdef OFFLOAD_CODE
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") '9'
+#endif
+!$omp target map(to:t2sub)
+#endif
 !$omp parallel do private(p4,p5,p6,h3h2,h1,h7) collapse(OMPCOLLAPSE)
       do p4=1,p4d
       do p6=1,p6d
@@ -1237,6 +1254,9 @@ CDIR$ NOINLINE
       enddo
       enddo
       enddo
+#ifdef OFFLOAD_CODE
+!$omp end target
+#endif
 #include "sd_bottom.fh"
       return
       end
@@ -1250,11 +1270,7 @@ c
      2               triplesx,t2sub,v2sub,scratch,
      D     deltat)
       IMPLICIT NONE
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sdtransp_t_d2_1)
-#endif
-#endif
+
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
       integer h3,h2,h1,p6,p5,p4,p7
       double precision triplesx(h3d,h2d,h1d,p6d,p5d,p4d)
@@ -1273,6 +1289,12 @@ c
 #endif
      T        t2sub,scratch,
      2     p4d, h1d, h2d, p7d)
+#ifdef OFFLOAD_CODE
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") 'a'
+#endif
+!$omp target map(to:v2sub)
+#endif
 !$omp parallel do private(p4,p5,p6,h2,h1,h3,p7) collapse(OMPCOLLAPSE)
       do p4=1,p4d
       do p5=1,p5d
@@ -1293,6 +1315,9 @@ c
       enddo
       enddo
       enddo
+#ifdef OFFLOAD_CODE
+!$omp end target
+#endif
 #include "sd_bottom.fh"
       return
       end
@@ -1306,11 +1331,7 @@ c
      2               triplesx,t2sub,v2sub,scratch,
      D     deltat)
       IMPLICIT NONE
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sdtransp_t_d2_2)
-#endif
-#endif
+
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
       integer h3,h2,h1,p6,p5,p4,p7
       integer h2h1
@@ -1331,6 +1352,12 @@ CDIR$ NOINLINE
 #endif
      T        t2sub,scratch,
      1     h2d,h1d,p4d,p7d)
+#ifdef OFFLOAD_CODE
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") 'b'
+#endif
+!$omp target map(to:v2sub)
+#endif
 !$omp parallel do private(p4,p5,p6,h2h1,h3,p7) collapse(OMPCOLLAPSE)
       do p4=1,p4d
       do p5=1,p5d
@@ -1348,6 +1375,9 @@ CDIR$ NOINLINE
       enddo
       enddo
       enddo
+#ifdef OFFLOAD_CODE
+!$omp end target
+#endif
 #include "sd_bottom.fh"
       return
       end
@@ -1361,11 +1391,7 @@ c
      2               triplesx,t2sub,v2sub,
      D     deltat)
       IMPLICIT NONE
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sdtransp_t_d2_3)
-#endif
-#endif
+
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
       integer h3,h2,h1,p6,p5,p4,p7
       double precision triplesx(h2d,h3d,h1d,p6d,p5d,p4d)
@@ -1386,6 +1412,12 @@ CDIR$ NOINLINE
 #endif
      T        t2sub,scratch,
      1     p4d,h1d,h2d,p7d)
+#ifdef OFFLOAD_CODE
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") 'c'
+#endif
+!$omp target map(to:v2sub)
+#endif
 !$omp parallel do private(p5,p6,p4,h1,h3,h2,p7) collapse(4)
       do p4=1,p4d
       do p5=1,p5d
@@ -1406,6 +1438,9 @@ CDIR$ NOINLINE
       enddo
       enddo
       enddo
+#ifdef OFFLOAD_CODE
+!$omp end target
+#endif
 #include "sd_bottom.fh"
       return
       end
@@ -1419,11 +1454,7 @@ c
      2               triplesx,t2sub,v2sub,scratch,
      D     deltat)
       IMPLICIT NONE
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sdtransp_t_d2_4)
-#endif
-#endif
+
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
       integer h3,h2,h1,p6,p5,p4,p7
       double precision triplesx(h3d,h2d,h1d,p6d,p4d,p5d)
@@ -1443,6 +1474,12 @@ CDIR$ NOINLINE
 #endif
      T        t2sub,scratch,
      2     p4d, h1d, h2d, p7d)
+#ifdef OFFLOAD_CODE
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") 'd'
+#endif
+!$omp target map(to:v2sub)
+#endif
 !$omp parallel do private(p4,p5,p6,h2,h1,h3,p7) collapse(4)
       do p5=1,p5d
       do p4=1,p4d
@@ -1464,6 +1501,9 @@ CDIR$ NOINLINE
       enddo
       enddo
       enddo
+#ifdef OFFLOAD_CODE
+!$omp end target
+#endif
 #include "sd_bottom.fh"
       return
       end
@@ -1477,11 +1517,7 @@ c
      2               triplesx,t2sub,v2sub,scratch,
      D     deltat)
       IMPLICIT NONE
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sdtransp_t_d2_5)
-#endif
-#endif
+
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
       integer h3,h2,h1,p6,p5,p4,p7
       integer h2h1
@@ -1502,6 +1538,12 @@ CDIR$ NOINLINE
 #endif
      T        t2sub,scratch,
      1     h2d,h1d,p4d,p7d)
+#ifdef OFFLOAD_CODE
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") 'e'
+#endif
+!$omp target map(to:v2sub)
+#endif
 !$omp parallel do private(p4,p5,p6,h2h1,h3,p7) collapse(OMPCOLLAPSE)
       do p5=1,p5d
       do p4=1,p4d
@@ -1520,6 +1562,9 @@ CDIR$ NOINLINE
       enddo
       enddo
       enddo
+#ifdef OFFLOAD_CODE
+!$omp end target
+#endif
 #include "sd_bottom.fh"
       return
       end
@@ -1533,11 +1578,7 @@ c
      2               triplesx,t2sub,v2sub,scratch,
      D     deltat)
       IMPLICIT NONE
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sdtransp_t_d2_6)
-#endif
-#endif
+
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
       integer h3,h2,h1,p6,p5,p4,p7
       double precision triplesx(h2d,h3d,h1d,p6d,p4d,p5d)
@@ -1557,6 +1598,12 @@ c
 #endif
      T        t2sub,scratch,
      1     p4d,h1d,h2d,p7d)
+#ifdef OFFLOAD_CODE
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") 'f'
+#endif
+!$omp target map(to:v2sub)
+#endif
 !$omp parallel do private(p5,p6,p4,h1,h3,h2,p7) collapse(4)
       do p5=1,p5d
       do p4=1,p4d
@@ -1576,6 +1623,9 @@ c
       enddo
       enddo
       enddo
+#ifdef OFFLOAD_CODE
+!$omp end target
+#endif
 #include "sd_bottom.fh"
       return
       end
@@ -1589,11 +1639,7 @@ c
      2               triplesx,t2sub,v2sub,
      D     deltat)
       IMPLICIT NONE
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sdtransp_t_d2_7)
-#endif
-#endif
+
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
       integer h3,h2,h1,p6,p5,p4,p7
       double precision triplesx(h3d,h2d,h1d,p4d,p6d,p5d)
@@ -1614,6 +1660,12 @@ CDIR$ NOINLINE
 #endif
      T        t2sub,scratch,
      1     p4d,h1d,h2d,p7d)
+#ifdef OFFLOAD_CODE
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") 'g'
+#endif
+!$omp target map(to:v2sub)
+#endif
 !$omp parallel do private(p5,p6,p4,h1,h3,h2,p7) collapse(4)
       do p5=1,p5d
       do p6=1,p6d
@@ -1634,6 +1686,9 @@ CDIR$ NOINLINE
       enddo
       enddo
       enddo
+#ifdef OFFLOAD_CODE
+!$omp end target
+#endif
 #include "sd_bottom.fh"
       return
       end
@@ -1647,11 +1702,7 @@ c
      2               triplesx,t2sub,v2sub,scratch,
      D     deltat)
       IMPLICIT NONE
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sdtransp_t_d2_8)
-#endif
-#endif
+
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
       integer h3,h2,h1,p6,p5,p4,p7
       integer h2h1
@@ -1671,6 +1722,12 @@ c
 #endif
      T        t2sub,scratch,
      1     h2d,h1d,p4d,p7d)
+#ifdef OFFLOAD_CODE
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") 'h'
+#endif
+!$omp target map(to:v2sub)
+#endif
 !$omp parallel do private(p4,p5,p6,h2h1,h3,p7) collapse(OMPCOLLAPSE)
       do p5=1,p5d
       do p6=1,p6d
@@ -1689,6 +1746,9 @@ c
       enddo
       enddo
       enddo
+#ifdef OFFLOAD_CODE
+!$omp end target
+#endif
 #include "sd_bottom.fh"
       return
       end
@@ -1702,11 +1762,7 @@ c
      2               triplesx,t2sub,v2sub,scratch,
      D     deltat)
       IMPLICIT NONE
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sdtransp_t_d2_9)
-#endif
-#endif
+
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
       integer h3,h2,h1,p6,p5,p4,p7
       double precision triplesx(h2d,h3d,h1d,p4d,p6d,p5d)
@@ -1727,6 +1783,12 @@ CDIR$ NOINLINE
 #endif
      T        t2sub,scratch,
      1     p4d,h1d,h2d,p7d)
+#ifdef OFFLOAD_CODE
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") 'i'
+#endif
+!$omp target map(to:v2sub)
+#endif
 !$omp parallel do private(p5,p6,p4,h1,h3,h2,p7) collapse(4)
       do p5=1,p5d
       do p6=1,p6d
@@ -1747,6 +1809,9 @@ CDIR$ NOINLINE
       enddo
       enddo
       enddo
+#ifdef OFFLOAD_CODE
+!$omp end target
+#endif
 #include "sd_bottom.fh"
       return
       end
@@ -1758,30 +1823,6 @@ c     Compile source again for offload code
 c
 #include "offl_ccsd_t_doubles_l.F"
 
-      subroutine offl_zero(in,size)
-      implicit none
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_zero)
-#endif
-      double precision in(*)
-      integer size
-      integer ii
-c
-cdbg      write(6,*) ' zero size',size
-cdbg      write(6,*) ' element 1 ',in(1)
-cdbg      write(6,*) ' element 2 ',in(2)
-cdbg      write(6,*) ' element last ',in(size)
-#ifdef USE_OPENMP
-!$omp parallel do
-#endif
-      do ii=1,size
-         in(ii)=0d0
-      enddo
-#ifdef USE_OPENMP
-!$omp end parallel do
-#endif
-      return
-      end
 #else
 c wrong
        subroutine offl0_ccsd_t_doubles_l_12()

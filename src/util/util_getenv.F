@@ -32,15 +32,13 @@
 
       logical function offload_enabled()
       implicit none
-      logical first_time
-      save first_time
-      data first_time /.true./
+#ifdef USE_OFFLOAD
+C       write (*,*) 'OFFLOAD ENABLED'
       offload_enabled=.true.
-C       write (*,*) 'first_time=', first_time
-      write (*,*) 'OpenMP offload enabled =', offload_enabled
-      if (first_time) then
-        first_time = .false.
-      endif
+#else
+C       write (*,*) 'OFFLOAD DISABLED'
+      offload_enabled=.false.
+#endif
       return
       end
 
