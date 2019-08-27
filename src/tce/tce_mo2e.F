@@ -40,8 +40,8 @@ c
       integer l_pqboff,k_pqboff
       integer pq
       integer r_range,s_range
-cc      integer nxtval
-cc      external nxtval
+cc      integer nxtask
+cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       integer next,count,nprocs
@@ -106,7 +106,7 @@ c     ============
 c
       nprocs = ga_nnodes()
       count = 0
-cc      next = nxtval(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do pb = 1,Nb
         do qb = pb,Nb
@@ -191,13 +191,13 @@ cc      next = nxtval(nprocs)
             enddo
             if (.not.ma_pop_stack(l_pqkl_packed))
      1        call errquit('tce_mo2e: MA problem',3,MA_ERR)
-cc            next = nxtval(nprocs)
+cc            next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
           endif
           count = count + 1
         enddo
       enddo
-cc      next = nxtval(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
 c
 c     ==========

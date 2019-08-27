@@ -21,9 +21,9 @@ c
       integer i
       logical nodezero
       logical d_1isga
-cc      integer nxtval
+cc      integer nxtask
       integer  next, nprocs, count
-cc      external nxtval
+cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical noloadbalance
@@ -53,7 +53,7 @@ c
      2  call errquit('dscalfile: MA problem',0,MA_ERR)
       nprocs = GA_NNODES()
       count = 0
-cc      next = NXTVAL(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do i = 1,nblocks
         if (noloadbalance.or.(next.eq.count)) then
@@ -65,12 +65,12 @@ cc      next = NXTVAL(nprocs)
           call dscal(blocksize,scale,dbl_mb(k_temp),1)
           call put_block(d_1,dbl_mb(k_temp),
      1      min(size,i*blocksize)-(i-1)*blocksize,(i-1)*blocksize)
-cc          next = NXTVAL(nprocs)
+cc          next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
         endif
         count = count + 1
       enddo
-cc      next = NXTVAL(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       if (.not.d_1isga) call gatodra(d_1)
       if (.not.ma_pop_stack(l_temp))

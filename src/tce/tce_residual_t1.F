@@ -22,8 +22,8 @@ c
       integer nprocs
       integer count
       integer next
-cc      integer nxtval
-cc      external nxtval
+cc      integer nxtask
+cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical nodezero
@@ -52,7 +52,7 @@ c     ================
 c
       nprocs = ga_nnodes()
       count = 0
-cc      next = nxtval(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do h2b = 1,noab
@@ -76,13 +76,13 @@ cc      next = nxtval(nprocs)
             endif
             endif
             endif
-cc            next = nxtval(nprocs)
+cc            next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
           endif
           count = count + 1
         enddo
       enddo
-cc      next = nxtval(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
       call ga_get(g_residual,1,1,1,1,residual,1)
@@ -125,8 +125,8 @@ c
       integer nprocs
       integer count
       integer next
-cc      integer nxtval
-cc      external nxtval
+cc      integer nxtask
+cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical nodezero
@@ -155,7 +155,7 @@ c     ================
 c
       nprocs = ga_nnodes()
       count = 0
-cc      next = nxtval(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do h2b = 1,noab
@@ -180,13 +180,13 @@ cc      next = nxtval(nprocs)
             endif
             endif
             endif
-cc            next = nxtval(nprocs)
+cc            next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
           endif
           count = count + 1
         enddo
       enddo
-cc      next = nxtval(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
       call ga_get(g_residual,1,1,1,1,residual,1)

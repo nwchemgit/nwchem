@@ -40,8 +40,8 @@ c
       integer l_pqboff,k_pqboff
       integer pq
       integer r_range,s_range
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
       integer next,count,nprocs
       integer Nb
 c     integer pqrs,r,s
@@ -104,7 +104,7 @@ c     ============
 c
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+      next = nxtask(nprocs,1)
       do pb = 1,Nb
         do qb = pb,Nb
           if (next.eq.count) then
@@ -206,12 +206,12 @@ c
             enddo
             if (.not.ma_pop_stack(l_pqkl_packed)) 
      1        call errquit('tce_mo2e_disk: MA problem',3,MA_ERR)
-            next = nxtval(nprocs)
+            next = nxtask(nprocs,1)
           endif
           count = count + 1
         enddo
       enddo
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
 c
 c     ==========
 c     Deallocate

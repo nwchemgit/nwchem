@@ -44,7 +44,7 @@ c     ================
 c
       nprocs = ga_nnodes()
       count = 0
-cc      next = nxtval(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do h2b = 1,noab

@@ -23,11 +23,11 @@ c
       integer i,j,k
       logical nodezero
       logical d_1isga, d_2isga
-cc      integer nxtval 
+cc      integer nxtask 
       integer next, nprocs, count
       INTEGER NXTASK
       EXTERNAL NXTASK
-cc      external nxtval
+cc      external nxtask
       logical noloadbalance
 c
 c     new
@@ -71,7 +71,7 @@ c     endif
      2  call errquit('ddotfile: MA problem',1,MA_ERR)
       nprocs = GA_NNODES()
       count = 0
-cc      next = NXTVAL(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do i = 1,nblocks
         if (noloadbalance.or.(next.eq.count)) then
@@ -88,12 +88,12 @@ cc      next = NXTVAL(nprocs)
             ddotfile = ddotfile + dbl_mb(k_temp1+k-1)
      1                          * dbl_mb(k_temp2+k-1)
           enddo
-cc          next = NXTVAL(nprocs)
+cc          next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
         endif
         count = count + 1
       enddo
-cc      next = NXTVAL(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
       if (.not.noloadbalance) call ga_dgop(mt_dbl,ddotfile,1,'+')
@@ -136,10 +136,10 @@ c
       integer i,j,k
       logical nodezero
       logical d_1isga, d_2isga
-cc      integer nxtval 
+cc      integer nxtask 
       integer next, nprocs, count
       integer buffer_size_t1,size_t1
-cc      external nxtval
+cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical noloadbalance
@@ -187,7 +187,7 @@ c     endif
      2  call errquit('ddotfile: MA problem',1,MA_ERR)
       nprocs = GA_NNODES()
       count = 0
-cc      next = NXTVAL(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do i = 1,nblocks
         if (noloadbalance.or.(next.eq.count)) then
@@ -209,12 +209,12 @@ c
           ddotfile_1=ddotfile_1
      1       +ddot(size_t1,dbl_mb(k_temp1),1,dbl_mb(k_temp2),1)
 c
-cc          next = NXTVAL(nprocs)
+cc          next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
         endif
         count = count + 1
       enddo
-cc      next = NXTVAL(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
       if (.not.noloadbalance) call ga_dgop(mt_dbl,ddotfile_1,1,'+')
@@ -260,10 +260,10 @@ c
       integer i,j,k
       logical nodezero
       logical d_1isga, d_2isga
-cc      integer nxtval
+cc      integer nxtask
       integer  next, nprocs, count
       integer buffer_size_t2,size_t2
-cc      external nxtval
+cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical noloadbalance
@@ -311,7 +311,7 @@ c     endif
      2  call errquit('ddotfile: MA problem',1,MA_ERR)
       nprocs = GA_NNODES()
       count = 0
-cc      next = NXTVAL(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do i = 1,nblocks
         if (noloadbalance.or.(next.eq.count)) then
@@ -333,12 +333,12 @@ c
           ddotfile_2=ddotfile_2
      1       +ddot(size_t2,dbl_mb(k_temp1),1,dbl_mb(k_temp2),1)
 c
-cc          next = NXTVAL(nprocs)
+cc          next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
         endif
         count = count + 1
       enddo
-cc      next = NXTVAL(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
       if (.not.noloadbalance) call ga_dgop(mt_dbl,ddotfile_2,1,'+')

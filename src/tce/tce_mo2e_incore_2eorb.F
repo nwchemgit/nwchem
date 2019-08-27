@@ -138,8 +138,8 @@ c
       INTEGER nprocs
       INTEGER count
       EXTERNAL NXTASK
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
       logical nodezero
       parallel = .true.
 
@@ -406,7 +406,7 @@ c ---------------------------
 c
 c
       call ga_sync()
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
 c
       cpu_clock(1)  = cpu_clock(1)+util_cpusec()
       wall_clock(1) = wall_clock(1)+util_wallsec()
@@ -585,7 +585,7 @@ c
       ENDDO
 c 3A1P fully done here
       call ga_sync()
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
 c
 c
 c
@@ -729,7 +729,7 @@ c
       ENDDO
 c 2A2P fully done here
       call ga_sync()
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
 c
 c
       cpu_clock(5)  = cpu_clock(5)+util_cpusec()
@@ -1004,7 +1004,7 @@ c
       ENDDO
 c 1A3P fully done here
       call ga_sync()
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
 c
 c
 c
@@ -1140,7 +1140,7 @@ c
       ENDDO
 c
        call ga_sync()
-       next = nxtval(-nprocs)
+       next = nxtask(-nprocs,1)
 c
       if(nodezero) then
       write(6,*)'DONE --- DONE ---- DONE ---- DONE'

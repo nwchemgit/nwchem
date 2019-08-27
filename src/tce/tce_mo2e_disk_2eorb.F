@@ -155,8 +155,8 @@ c
       INTEGER nprocs
       INTEGER count
       EXTERNAL NXTASK
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
       logical nodezero
       logical idiskl
 c
@@ -776,7 +776,7 @@ c ---------------------------
 c
 c
        call ga_sync()
-       next = nxtval(-nprocs)
+       next = nxtask(-nprocs,1)
 c
       cpu = cpu + util_cpusec()
       wall = wall + util_wallsec()
@@ -1067,7 +1067,7 @@ c
       ENDDO
 c 3A1P fully done here
       call ga_sync()
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
 c
       cpu = cpu + util_cpusec()
       wall = wall + util_wallsec()
@@ -1295,7 +1295,7 @@ c
       ENDDO
 c 2A2P fully done here
       call ga_sync()
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
 c
       cpu = cpu + util_cpusec()
       wall = wall + util_wallsec()
@@ -1542,7 +1542,7 @@ c
       ENDDO
 c 1A3P fully done here
       call ga_sync()
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
 c
       cpu = cpu + util_cpusec()
       wall = wall + util_wallsec()
@@ -1725,7 +1725,7 @@ c
       ENDDO
 c
        call ga_sync()
-       next = nxtval(-nprocs)
+       next = nxtask(-nprocs,1)
 c
 c
       cpu = cpu + util_cpusec()
