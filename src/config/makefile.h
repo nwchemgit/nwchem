@@ -2583,7 +2583,7 @@ $(info  subdirs <$(NWSUBDIRS)>)
 $(error )
 endif
 ifndef PYTHONVERSION
-      PYTHONVERSION=$(shell $(PYTHONHOME)/bin/python -V |cut -c 8-10)
+      PYTHONVERSION=$(shell $(PYTHONHOME)/bin/python -V 2>&1 |cut -c 8-10)
 #errorpython2:
 #$(info )
 #$(info For python you must define both PYTHONHOME and PYTHONVERSION)

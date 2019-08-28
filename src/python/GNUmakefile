@@ -14,7 +14,7 @@ endif
 
 # Under WIN32 only need to define PYTHONHOME
 ifndef PYTHONVERSION
-      PYTHONVERSION=$(shell $(PYTHONHOME)/bin/python -V |cut -c 8-10)
+      PYTHONVERSION=$(shell $(PYTHONHOME)/bin/python -V 2>&1 |cut -c 8-10)
 #error1:
 #	@echo Must define PYTHONHOME and PYTHONVERSION to build with Python
 #	@exit 1
