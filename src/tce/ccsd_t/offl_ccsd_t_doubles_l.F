@@ -1,10 +1,17 @@
 C$Id$
-#ifndef VERY_VERBOSE
-#define VERY_VERBOSE   1
-#endif
 
-#ifndef DEBUG_TRIPLESX
-#define DEBUG_TRIPLESX 1
+C #ifndef VERY_VERBOSE
+C #define VERY_VERBOSE   1
+C #endif
+
+C #ifndef DEBUG_TRIPLESX
+C #define DEBUG_TRIPLESX 1
+C #endif
+
+#ifdef USE_OMP_TEAMS_DISTRIBUTE
+#define TEAMS_DISTRIBUTE teams distribute
+#else
+#define TEAMS_DISTRIBUTE
 #endif
 
 #ifdef OFFLOAD_CODE
@@ -266,7 +273,12 @@ c     figure out  cycles to work on
      I           p6b,h2b,h3b,
      O           t2sub,v2sub)) then
             k_range_h7b_1 = int_mb(k_range+h7b-1)
-
+#ifdef VERY_VERBOSE
+      write (*,'(A)',advance="no") '+'
+#endif
+#ifdef OFFLOAD_CODE
+!$omp target data map(to:t2sub(1:l_t2sub)) map(to:v2sub(1:l_v2sub))
+#endif
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
      &3b)) THEN
@@ -420,6 +432,9 @@ c        call tce_sdtime0(t0)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl19,fdist_sdcomp19)
       END IF
+#ifdef OFFLOAD_CODE
+!$omp end target data
+#endif
       endif
       END DO !h7b loop
       endif ! n_h7b.ne.0
@@ -569,7 +584,12 @@ c     figure out  cycles to work on
      O        t2sub,v2sub)) then
 
             k_range_p7b_1 = int_mb(k_range+p7b-1)
-
+#ifdef VERY_VERBOSE
+      write (*, '(A)', advance="no") '='
+#endif
+#ifdef OFFLOAD_CODE
+!$omp target data map(to:t2sub(1:l_t2sub)) map(to:v2sub(1:l_v2sub))
+#endif
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
      &3b)) THEN
@@ -724,6 +744,9 @@ c        call tce_sdtime0(t0)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl29,fdist_sdcomp29)
       END IF
+#ifdef OFFLOAD_CODE
+!$omp end target data
+#endif
       endif
       END DO ! p7b loop
 
@@ -739,7 +762,6 @@ c
 #endif
 #ifdef DEBUG_TRIPLESX
       write (*,*) 'res D triplesx:', sum(triplesx(1:l_triplesx))
-      write (*,*) ' '
 #endif
       RETURN
       END
@@ -764,9 +786,12 @@ c
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") '1'
 #endif
-!$omp target map(to:t2sub) map(to:v2sub)
-#endif
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h2,h3,h1,h7)
+!$omp&collapse(OMPCOLLAPSE)
+#else
 !$omp parallel do private(p4,p5,p6,h2,h3,h1,h7) collapse(OMPCOLLAPSE)
+#endif
       do p4=1,p4d
       do p5=1,p5d
       do p6=1,p6d
@@ -785,7 +810,10 @@ cz!DEC$ unroll_and_jam (2)
       enddo
       enddo
 #ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
+#else
+!$omp end parallel do
 #endif
 #include "sd_bottom.fh"
       return
@@ -824,9 +852,12 @@ CDIR$ NOINLINE
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") '2'
 #endif
-!$omp target map(to:t2sub)
-#endif
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h2,h3,h1,h7)
+!$omp&collapse(4)
+#else
 !$omp parallel do private(p4,p5,p6,h2,h3,h1,h7) collapse(4)
+#endif
       do p4=1,p4d
       do p5=1,p5d
       do p6=1,p6d
@@ -847,7 +878,10 @@ c!DEC$ unroll_and_jam (4)
       enddo
       enddo
 #ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
+#else
+!$omp end parallel do
 #endif
 #include "sd_bottom.fh"
       return
@@ -889,9 +923,12 @@ CDIR$ NOINLINE
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") '3'
 #endif
-!$omp target map(to:t2sub)
-#endif
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h3h2,h1,h7)
+!$omp&collapse(OMPCOLLAPSE)
+#else
 !$omp parallel do private(p4,p5,p6,h3h2,h1,h7) collapse(OMPCOLLAPSE)
+#endif
       do p4=1,p4d
       do p5=1,p5d
       do p6=1,p6d
@@ -911,7 +948,10 @@ c!DEC$ unroll_and_jam (4)
       enddo
       enddo
 #ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
+#else
+!$omp end parallel do
 #endif
 #include "sd_bottom.fh"
       return
@@ -938,9 +978,12 @@ c
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") '4'
 #endif
-!$omp target map(to:t2sub) map(to:v2sub)
-#endif
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h2,h3,h1,h7)
+!$omp&collapse(OMPCOLLAPSE)
+#else
 !$omp parallel do private(p4,p5,p6,h2,h3,h1,h7) collapse(OMPCOLLAPSE)
+#endif
       do p6=1,p6d
       do p4=1,p4d
       do p5=1,p5d
@@ -957,7 +1000,10 @@ c
       enddo
       enddo
 #ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
+#else
+!$omp end parallel do
 #endif
 #include "sd_bottom.fh"
       return
@@ -997,9 +1043,12 @@ CDIR$ NOINLINE
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") '5'
 #endif
-!$omp target map(to:t2sub)
-#endif
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h3,h2,h1,h7)
+!$omp&collapse(OMPCOLLAPSE)
+#else
 !$omp parallel do private(p4,p5,p6,h3,h2,h1,h7) collapse(OMPCOLLAPSE)
+#endif
       do p6=1,p6d
       do p4=1,p4d
       do p5=1,p5d
@@ -1022,7 +1071,10 @@ CDIR$ NOINLINE
       enddo
       enddo
 #ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
+#else
+!$omp end parallel do
 #endif
 #include "sd_bottom.fh"
       return
@@ -1063,9 +1115,12 @@ CDIR$ NOINLINE
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") '6'
 #endif
-!$omp target map(to:t2sub)
-#endif
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h2h3,h1,h7)
+!$omp&collapse(OMPCOLLAPSE)
+#else
 !$omp parallel do private(p4,p5,p6,h2h3,h1,h7) collapse(OMPCOLLAPSE)
+#endif
       do p6=1,p6d
       do p4=1,p4d
       do p5=1,p5d
@@ -1084,7 +1139,10 @@ CDIR$ NOINLINE
       enddo
       enddo
 #ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
+#else
+!$omp end parallel do
 #endif
 #include "sd_bottom.fh"
       return
@@ -1111,9 +1169,12 @@ c
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") '7'
 #endif
-!$omp target map(to:t2sub) map(to:v2sub)
-#endif
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h2,h3,h1,h7)
+!$omp&collapse(OMPCOLLAPSE)
+#else
 !$omp parallel do private(p4,p5,p6,h2,h3,h1,h7) collapse(OMPCOLLAPSE)
+#endif
       do p4=1,p4d
       do p6=1,p6d
       do p5=1,p5d
@@ -1130,7 +1191,10 @@ c
       enddo
       enddo
 #ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
+#else
+!$omp end parallel do
 #endif
 #include "sd_bottom.fh"
       return
@@ -1169,9 +1233,12 @@ CDIR$ NOINLINE
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") '8'
 #endif
-!$omp target map(to:t2sub)
-#endif
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h2,h3,h1,h7)
+!$omp&collapse(OMPCOLLAPSE)
+#else
 !$omp parallel do private(p4,p5,p6,h2,h3,h1,h7) collapse(OMPCOLLAPSE)
+#endif
       do p4=1,p4d
       do p6=1,p6d
       do p5=1,p5d
@@ -1193,7 +1260,10 @@ c!DEC$ unroll_and_jam (2)
       enddo
       enddo
 #ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
+#else
+!$omp end parallel do
 #endif
 #include "sd_bottom.fh"
       return
@@ -1234,9 +1304,12 @@ CDIR$ NOINLINE
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") '9'
 #endif
-!$omp target map(to:t2sub)
-#endif
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h3h2,h1,h7)
+!$omp&collapse(OMPCOLLAPSE)
+#else
 !$omp parallel do private(p4,p5,p6,h3h2,h1,h7) collapse(OMPCOLLAPSE)
+#endif
       do p4=1,p4d
       do p6=1,p6d
       do p5=1,p5d
@@ -1255,7 +1328,10 @@ CDIR$ NOINLINE
       enddo
       enddo
 #ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
+#else
+!$omp end parallel do
 #endif
 #include "sd_bottom.fh"
       return
@@ -1293,9 +1369,12 @@ c
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") 'a'
 #endif
-!$omp target map(to:v2sub)
-#endif
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h2,h1,h3,p7)
+!$omp&collapse(OMPCOLLAPSE)
+#else
 !$omp parallel do private(p4,p5,p6,h2,h1,h3,p7) collapse(OMPCOLLAPSE)
+#endif
       do p4=1,p4d
       do p5=1,p5d
       do p6=1,p6d
@@ -1316,7 +1395,10 @@ c
       enddo
       enddo
 #ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
+#else
+!$omp end parallel do
 #endif
 #include "sd_bottom.fh"
       return
@@ -1356,9 +1438,12 @@ CDIR$ NOINLINE
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") 'b'
 #endif
-!$omp target map(to:v2sub)
-#endif
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h2h1,h3,p7)
+!$omp&collapse(OMPCOLLAPSE)
+#else
 !$omp parallel do private(p4,p5,p6,h2h1,h3,p7) collapse(OMPCOLLAPSE)
+#endif
       do p4=1,p4d
       do p5=1,p5d
       do p6=1,p6d
@@ -1376,7 +1461,10 @@ CDIR$ NOINLINE
       enddo
       enddo
 #ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
+#else
+!$omp end parallel do
 #endif
 #include "sd_bottom.fh"
       return
@@ -1416,9 +1504,12 @@ CDIR$ NOINLINE
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") 'c'
 #endif
-!$omp target map(to:v2sub)
-#endif
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do private(p5,p6,p4,h1,h3,h2,p7)
+!$omp&collapse(4)
+#else
 !$omp parallel do private(p5,p6,p4,h1,h3,h2,p7) collapse(4)
+#endif
       do p4=1,p4d
       do p5=1,p5d
       do p6=1,p6d
@@ -1439,7 +1530,10 @@ CDIR$ NOINLINE
       enddo
       enddo
 #ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
+#else
+!$omp end parallel do
 #endif
 #include "sd_bottom.fh"
       return
@@ -1478,9 +1572,12 @@ CDIR$ NOINLINE
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") 'd'
 #endif
-!$omp target map(to:v2sub)
-#endif
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h2,h1,h3,p7)
+!$omp&collapse(4)
+#else
 !$omp parallel do private(p4,p5,p6,h2,h1,h3,p7) collapse(4)
+#endif
       do p5=1,p5d
       do p4=1,p4d
       do p6=1,p6d
@@ -1502,7 +1599,10 @@ CDIR$ NOINLINE
       enddo
       enddo
 #ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
+#else
+!$omp end parallel do
 #endif
 #include "sd_bottom.fh"
       return
@@ -1542,9 +1642,12 @@ CDIR$ NOINLINE
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") 'e'
 #endif
-!$omp target map(to:v2sub)
-#endif
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h2h1,h3,p7)
+!$omp&collapse(OMPCOLLAPSE)
+#else
 !$omp parallel do private(p4,p5,p6,h2h1,h3,p7) collapse(OMPCOLLAPSE)
+#endif
       do p5=1,p5d
       do p4=1,p4d
       do p6=1,p6d
@@ -1563,7 +1666,10 @@ CDIR$ NOINLINE
       enddo
       enddo
 #ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
+#else
+!$omp end parallel do
 #endif
 #include "sd_bottom.fh"
       return
@@ -1602,9 +1708,12 @@ c
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") 'f'
 #endif
-!$omp target map(to:v2sub)
-#endif
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do private(p5,p6,p4,h1,h3,h2,p7)
+!$omp&collapse(4)
+#else
 !$omp parallel do private(p5,p6,p4,h1,h3,h2,p7) collapse(4)
+#endif
       do p5=1,p5d
       do p4=1,p4d
       do p6=1,p6d
@@ -1624,7 +1733,10 @@ c
       enddo
       enddo
 #ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
+#else
+!$omp end parallel do
 #endif
 #include "sd_bottom.fh"
       return
@@ -1664,9 +1776,12 @@ CDIR$ NOINLINE
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") 'g'
 #endif
-!$omp target map(to:v2sub)
-#endif
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do private(p5,p6,p4,h1,h3,h2,p7)
+!$omp&collapse(4)
+#else
 !$omp parallel do private(p5,p6,p4,h1,h3,h2,p7) collapse(4)
+#endif
       do p5=1,p5d
       do p6=1,p6d
       do p4=1,p4d
@@ -1687,7 +1802,10 @@ CDIR$ NOINLINE
       enddo
       enddo
 #ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
+#else
+!$omp end parallel do
 #endif
 #include "sd_bottom.fh"
       return
@@ -1726,9 +1844,12 @@ c
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") 'h'
 #endif
-!$omp target map(to:v2sub)
-#endif
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h2h1,h3,p7)
+!$omp&collapse(OMPCOLLAPSE)
+#else
 !$omp parallel do private(p4,p5,p6,h2h1,h3,p7) collapse(OMPCOLLAPSE)
+#endif
       do p5=1,p5d
       do p6=1,p6d
       do p4=1,p4d
@@ -1747,7 +1868,10 @@ c
       enddo
       enddo
 #ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
+#else
+!$omp end parallel do
 #endif
 #include "sd_bottom.fh"
       return
@@ -1787,9 +1911,12 @@ CDIR$ NOINLINE
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") 'i'
 #endif
-!$omp target map(to:v2sub)
-#endif
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do private(p5,p6,p4,h1,h3,h2,p7)
+!$omp&collapse(4)
+#else
 !$omp parallel do private(p5,p6,p4,h1,h3,h2,p7) collapse(4)
+#endif
       do p5=1,p5d
       do p6=1,p6d
       do p4=1,p4d
@@ -1810,7 +1937,10 @@ CDIR$ NOINLINE
       enddo
       enddo
 #ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
 !$omp end target
+#else
+!$omp end parallel do
 #endif
 #include "sd_bottom.fh"
       return

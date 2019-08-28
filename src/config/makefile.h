@@ -2353,7 +2353,7 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
            DEFINES += -DUSE_OPENMP
            FOPTIONS += -qsmp=omp
            ifdef USE_OFFLOAD
-             DEFINES +=-DOPENMP_OFFLOAD -DUSE_OFFLOAD
+             DEFINES +=-DOPENMP_OFFLOAD -DUSE_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
              OFFLOAD_FOPTIONS = -qtgtarch=sm_70 -qoffload
              LDOPTIONS += -qoffload -lcudart -L$(NWC_CUDAPATH)
            endif
