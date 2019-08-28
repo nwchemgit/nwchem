@@ -1,3 +1,9 @@
+#ifdef USE_OMP_TEAMS_DISTRIBUTE
+#define TEAMS_DISTRIBUTE teams distribute
+#else
+#define TEAMS_DISTRIBUTE
+#endif
+
       SUBROUTINE ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1            d_v2,k_v2_offset,energy1,energy2,size_t1)
 C
@@ -100,6 +106,12 @@ c     estimate triplesx size
       if (alloc_error.ne.0) then
         call errquit('ccsd_t: MA error dbl',0,MA_ERR)
       endif
+#if USE_OPENMP
+#if OPENMP_OFFLOAD
+!$omp target data map(alloc:f_singles(1:size))
+!$omp&map(alloc:f_doubles(1:size))
+#endif
+#endif
 #else
       if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
      1     k_singles)) call errquit('ccsd_t: MA error sgl',
@@ -108,7 +120,6 @@ c     estimate triplesx size
      1     k_doubles)) call errquit('ccsd_t: MA error dbl',
      2     size,MA_ERR)
 #endif
-
       wall=-util_wallsec()
       tot_task= ccsd_t_6tasks(restricted,noab,nvab,
      1                        int_mb(k_spin),int_mb(k_sym))
@@ -222,6 +233,11 @@ c
       if (.not.MA_POP_STACK(l_list))
      1     call errquit('ordering',3,MA_ERR)
 #ifdef USE_F90_ALLOCATABLE
+#if USE_OPENMP
+#if OPENMP_OFFLOAD
+!$omp end target data
+#endif
+#endif
       deallocate( f_doubles, stat=alloc_error)
       if (alloc_error.ne.0) then
         call errquit('ccsd_t doubles',3,MA_ERR)
@@ -264,11 +280,6 @@ c ---------------------------
      &                       r_p4,r_p5,r_p6,
      &                       energy1,energy2)
       implicit none
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_ccsd_t_dot)
-#endif
-#endif
       integer h1b, h2b, h3b, p4b, p5b, p6b
       double precision o_h1(*),o_h2(*),o_h3(*)
       double precision o_p4(*),o_p5(*),o_p6(*)
@@ -280,27 +291,27 @@ c ---------------------------
       double precision energy1,energy2
       external offload_enabled
       logical offload_enabled
-C #ifdef USE_OFFLOAD
-C #ifdef OPENMP_OFFLOAD
-C       if(offload_enabled()) then
-C          call offl_ccsd_t_dot(a_singles,a_doubles,restricted,
-C      &        h1b,h2b,h3b,p4b,p5b,p6b,
-C      &        o_h1,o_h2,o_h3,o_p4,o_p5,o_p6,
-C      &        r_h1,r_h2,r_h3,r_p4,r_p5,r_p6,
-C      &        energy1,energy2)
-C          else
-C #endif
-C #endif
+#ifdef USE_OFFLOAD
+#ifdef OPENMP_OFFLOAD
+      if(offload_enabled()) then
+         call offl_ccsd_t_dot(a_singles,a_doubles,restricted,
+     &        h1b,h2b,h3b,p4b,p5b,p6b,
+     &        o_h1,o_h2,o_h3,o_p4,o_p5,o_p6,
+     &        r_h1,r_h2,r_h3,r_p4,r_p5,r_p6,
+     &        energy1,energy2)
+         else
+#endif
+#endif
             call ccsd_t_dot(a_singles,a_doubles, restricted,
      &        h1b,h2b,h3b,p4b,p5b,p6b,
      &        o_h1,o_h2,o_h3,o_p4,o_p5,o_p6,
      &        r_h1,r_h2,r_h3,r_p4,r_p5,r_p6,
      &        energy1,energy2)
-C #ifdef USE_OFFLOAD
-C #ifdef OPENMP_OFFLOAD
-C          endif
-C #endif         
-C #endif
+#ifdef USE_OFFLOAD
+#ifdef OPENMP_OFFLOAD
+         endif
+#endif
+#endif
 
       return
       end
@@ -325,6 +336,10 @@ C #endif
       integer d_t2,d_v2
       integer k_t2_offset,k_v2_offset
       integer size
+#if USE_OFFLOAD
+      external offload_enabled
+      logical offload_enabled
+#endif
 c
       integer t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b
       integer range_p4,range_p5,range_p6
@@ -353,9 +368,31 @@ c
 c
       size = range_p4 * range_p5 * range_p6
      &     * range_h1 * range_h2 * range_h3
+#ifdef USE_OPENMP
+#ifdef OPENMP_OFFLOAD
+#ifdef USE_F90_ALLOCATABLE
+!$omp target data map(alloc:a_singles(1:size))
+!$omp& map(alloc:a_doubles(1:size))
+#endif
+#endif
+#endif
+
 c zeroing ---
-      call dcopy(size, 0.0d0, 0, a_singles, 1)
-      call dcopy(size, 0.0d0, 0, a_doubles, 1)
+#if USE_OPENMP
+#if OPENMP_OFFLOAD
+      if (offload_enabled()) then
+        call offl_zero(a_singles, size)
+        call offl_zero(a_doubles, size)
+      else
+#endif
+#endif
+        call dcopy(size, 0.0d0, 0, a_singles, 1)
+        call dcopy(size, 0.0d0, 0, a_doubles, 1)
+#if USE_OPENMP
+#if OPENMP_OFFLOAD
+      endif
+#endif
+#endif
 c -----------
       if (otceps) call pstat_on(ps_cctsng)
 #ifdef USE_OFFLOAD
@@ -370,7 +407,7 @@ c -----------
       if (otceps) call pstat_off(ps_cctsng)
 
 
-      if (otceps) call pstat_on(ps_cctdbl)
+      if (otceps) call pstat_on(ps_cctdbl)      
       call ccsd_t_doubles_l(a_doubles,
      1                 d_t2,d_v2,k_t2_offset,k_v2_offset,
      1                 t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
@@ -383,5 +420,31 @@ c -----------
      &                 range_h1,range_h2,range_h3,
      &                 range_p4,range_p5,range_p6,
      &                 energy1,energy2)
+#ifdef USE_OPENMP
+#ifdef OPENMP_OFFLOAD
+#ifdef USE_F90_ALLOCATABLE
+!$omp end target data
+#endif
+#endif
+#endif
       return
       end
+
+#ifdef USE_OPENMP
+#ifdef OPENMP_OFFLOAD
+      subroutine offl_zero(array, size)
+      implicit none
+      double precision array(size)
+      integer size
+      integer ii
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do
+      do ii=1,size
+         array(ii)=0d0
+      enddo
+!$omp end TEAMS_DISTRIBUTE parallel do
+!$omp end target
+      return
+      end
+#endif
+#endif

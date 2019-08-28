@@ -14,6 +14,25 @@ C #endif
 #define TEAMS_DISTRIBUTE
 #endif
 
+#ifdef DEBUG_TRIPLESX
+#ifndef OFFLOAD_CODE
+      subroutine debug_triplesx_s(triplesx, l_triplesx)
+      implicit none
+      integer l_triplesx
+      integer it
+      double precision triplesx(l_triplesx)
+      double precision res
+      res = 0d0
+!$omp target teams distribute parallel do map(tofrom:res)
+      do it=1,l_triplesx
+        res = res + triplesx(it)
+      enddo
+!$omp end target teams distribute parallel do
+      write (*,*) 'res S triplesx:', res
+      end
+#endif
+#endif
+
 #ifdef OFFLOAD_CODE
       SUBROUTINE offl_gpu_ccsd_t_singles_l_1(
 #else
@@ -408,9 +427,8 @@ c
 !$omp end target data
 #endif
 #ifdef DEBUG_TRIPLESX
-      write (*,*) 'res S triplesx:', sum(triplesx(1:l_triplesx))
+      call debug_triplesx_s(triplesx, l_triplesx)
 #endif
-
       RETURN
       END
 c
@@ -851,3 +869,4 @@ c
 #include "offl_ccsd_t_singles_l_1.F"
 #endif
 #endif
+

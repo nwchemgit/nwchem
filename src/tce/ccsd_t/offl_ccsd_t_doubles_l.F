@@ -14,6 +14,25 @@ C #endif
 #define TEAMS_DISTRIBUTE
 #endif
 
+#ifdef DEBUG_TRIPLESX
+#ifndef OFFLOAD_CODE
+      subroutine debug_triplesx_d(triplesx, l_triplesx)
+      implicit none
+      integer l_triplesx
+      integer it
+      double precision triplesx(l_triplesx)
+      double precision res
+      res = 0d0
+!$omp target teams distribute parallel do map(tofrom:res)
+      do it=1,l_triplesx
+        res = res + triplesx(it)
+      enddo
+!$omp end target teams distribute parallel do
+      write (*,*) 'res D triplesx:', res
+      end
+#endif
+#endif
+
 #ifdef OFFLOAD_CODE
       SUBROUTINE offl0_ccsd_t_doubles_l_12(d_a,k_a_offset,
 #else
@@ -208,8 +227,9 @@ c
 c
 #ifdef OFFLOAD_CODE
 #if OPENMP_OFFLOAD
-!$omp target data map(tofrom:triplesx(1:l_triplesx))
-!$omp& map(alloc:scratch(1:l_t2sub))
+C !$omp target data map(tofrom:triplesx(1:l_triplesx))
+C !$omp& map(alloc:scratch(1:l_t2sub))
+!$omp target data map(alloc:scratch(1:l_t2sub))
 #endif
 #endif
       do ia6=1,9
@@ -761,7 +781,7 @@ c
 #endif
 #endif
 #ifdef DEBUG_TRIPLESX
-      write (*,*) 'res D triplesx:', sum(triplesx(1:l_triplesx))
+      call debug_triplesx_d(triplesx, l_triplesx)
 #endif
       RETURN
       END

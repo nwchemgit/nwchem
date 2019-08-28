@@ -1,4 +1,11 @@
 C$Id$
+
+#ifdef USE_OMP_TEAMS_DISTRIBUTE
+#define TEAMS_DISTRIBUTE teams distribute
+#else
+#define TEAMS_DISTRIBUTE
+#endif
+
 #ifdef OFFLOAD_CODE
       subroutine offl_ccsd_t_dot(
 #else
@@ -16,11 +23,6 @@ C
 C     $Id$
 C
       implicit none
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_ccsd_t_dot)
-#endif
-#endif
       integer h1b, h2b, h3b, p4b, p5b, p6b
       double precision o_h1(*),o_h2(*),o_h3(*)
       double precision o_p4(*),o_p5(*),o_p6(*)
@@ -54,13 +56,27 @@ c
       else if ((h1b.eq.h2b).or.(h2b.eq.h3b)) then
         factor = factor / 2.0d0
       endif
-#if USE_OPENMP
+#ifdef OFFLOAD_CODE
+!$omp target map(tofrom:o_p4(1:r_p4)) map(tofrom:o_p5(1:r_p5))
+!$omp& map(tofrom:o_p6(1:r_p6)) map(tofrom:o_h1(1:r_h1))
+!$omp& map(tofrom:o_h2(1:r_h2)) map(tofrom:o_h3(1:r_h3))
+!$omp$ map(tofrom:energy1) map(tofrom:energy2)
+c
+!$omp TEAMS_DISTRIBUTE parallel do collapse(3)
+!$omp& schedule(static)
+!$omp& default(shared)
+!$omp& private(p4,p5,p6,h1,h2,h3,sing,doub,denom)
+!$omp& private(d_p4,d_p5,d_p6,d_h1,d_h2,d_h3)
+!$omp& reduction(+:energy1) reduction(+:energy2)
+#else
+#ifdef USE_OPENMP
 !$omp  parallel do collapse(3)
 !$omp& schedule(static)
 !$omp& default(shared)
 !$omp& private(p4,p5,p6,h1,h2,h3,sing,doub,denom)
 !$omp& private(d_p4,d_p5,d_p6,d_h1,d_h2,d_h3)
 !$omp& reduction(+:energy1) reduction(+:energy2)
+#endif
 #endif
       do p4 = 1, r_p4
        do p5 = 1, r_p5
@@ -87,8 +103,13 @@ c
         enddo
        enddo
       enddo
-#if USE_OPENMP
+#ifdef OFFLOAD_CODE
+!$omp end TEAMS_DISTRIBUTE parallel do
+!$omp end target
+#else
+#ifdef USE_OPENMP
 !$omp end parallel do
+#endif
 #endif
       return
       end
