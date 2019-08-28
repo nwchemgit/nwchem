@@ -133,11 +133,9 @@ c
       logical parallel
 c
       INTEGER length
-      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
-      EXTERNAL NXTASK
       integer nxtask
       external nxtask
       logical nodezero
