@@ -408,6 +408,10 @@ ifndef LAPACK_LIB
      LAPACK_LIB=$(BLASOPT)
   endif
 endif
+#enforce 32-bit ints for 32-bit arch
+ifeq ($(TARGET),$(findstring $(TARGET),LINUX MACX))
+  BLAS_SIZE=4
+endif
 ifneq ($(BLASOPT),)
     ifneq ($(BLAS_LIB),)
         ifeq ($(BLAS_SIZE),4)
