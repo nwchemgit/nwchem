@@ -2583,14 +2583,15 @@ $(info  subdirs <$(NWSUBDIRS)>)
 $(error )
 endif
 ifndef PYTHONVERSION
-errorpython2:
-$(info )
-$(info For python you must define both PYTHONHOME and PYTHONVERSION)
-$(info E.g., setenv PYTHONHOME /msrc/home/d3g681/Python-1.5.1)
-$(info       setenv PYTHONVERSION 1.5)
-$(info  building_python <$(BUILDING_PYTHON)>)
-$(info  subdirs <$(NWSUBDIRS)>)
-$(error )
+      PYTHONVERSION=$(shell $(PYTHONHOME)/bin/python -V |cut -c 8-10)
+#errorpython2:
+#$(info )
+#$(info For python you must define both PYTHONHOME and PYTHONVERSION)
+#$(info E.g., setenv PYTHONHOME /msrc/home/d3g681/Python-1.5.1)
+#$(info       setenv PYTHONVERSION 1.5)
+#$(info  building_python <$(BUILDING_PYTHON)>)
+#$(info  subdirs <$(NWSUBDIRS)>)
+#$(error )
 endif
 #
 ifdef USE_PYTHONCONFIG

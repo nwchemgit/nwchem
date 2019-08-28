@@ -14,9 +14,10 @@ endif
 
 # Under WIN32 only need to define PYTHONHOME
 ifndef PYTHONVERSION
-error1:
-	@echo Must define PYTHONHOME and PYTHONVERSION to build with Python
-	@exit 1
+      PYTHONVERSION=$(shell $(PYTHONHOME)/bin/python -V |cut -c 8-10)
+#error1:
+#	@echo Must define PYTHONHOME and PYTHONVERSION to build with Python
+#	@exit 1
 endif
 
 PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
