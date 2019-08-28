@@ -1317,24 +1317,6 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
       endif
     endif
   
-ifeq ($(BUILDING_PYTHON),python)
-#   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 
-#   EXTRA_LIBS += -L/home/edo/tcltk/lib/LINUX -ltk8.3 -ltcl8.3 -L/usr/X11R6/lib -lX11 -ldl
-# needed if python was built with pthread support
-  ifneq ($(GOTMINGW32),1)
-   PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
-   PYMINOR:=$(word 2, $(subst ., ,$(PYTHONVERSION)))
-   PYGE38:=$(shell [ $(PYMAJOR) -ge 3 -a $(PYMINOR) -ge 8 ] && echo true)
-   ifeq (${PYMAJOR},3)
-    ifeq ($(PYGE38),true)
-      EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python3-config --libs --embed) #-lz          else
-      EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python3-config --libs) #-lz
-    endif
-   else
-   EXTRA_LIBS += $(shell $(PYTHONHOME)/bin/python-config --libs)  -lnwcutil
-   endif
-  endif
-endif
 
   DEFINES = -DLINUX
 
@@ -2436,21 +2418,6 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
         endif
       endif
 
-     ifeq ($(BUILDING_PYTHON),python)
-#   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
-   PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
-   PYMINOR:=$(word 2, $(subst ., ,$(PYTHONVERSION)))
-   PYGE38:=$(shell [ $(PYMAJOR) -ge 3 -a $(PYMINOR) -ge 8 ] && echo true)
-   ifeq (${PYMAJOR},3)
-    ifeq ($(PYGE38),true)
-      EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python3-config --libs --embed) #-lz          else
-      EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python3-config --libs) #-lz
-    endif
-   else
-   EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python-config --libs) #-lz
-   endif
-  LDOPTIONS += -Wl,--export-dynamic 
-     endif
 ifeq ($(NWCHEM_TARGET),CATAMOUNT)
         DEFINES  += -DCATAMOUNT
 endif
@@ -2628,8 +2595,14 @@ endif
 #
 ifdef USE_PYTHONCONFIG
 PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
+   PYMINOR:=$(word 2, $(subst ., ,$(PYTHONVERSION)))
+   PYGE38:=$(shell [ $(PYMAJOR) -ge 3 -a $(PYMINOR) -ge 8 ] && echo true)
 ifeq (${PYMAJOR},3)
-EXTRA_LIBS += $(shell $(PYTHONHOME)/bin/python3-config --ldflags)
+   ifeq ($(PYGE38),true)
+     EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python3-config --ldflags --embed)
+   else
+     EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python3-config --ldflags) 
+   endif
 else
 EXTRA_LIBS += $(shell $(PYTHONHOME)/bin/python-config --ldflags)
 endif

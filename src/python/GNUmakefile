@@ -20,10 +20,15 @@ error1:
 endif
 
 PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
+     GOTMINGW32= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW32|cut -c21)
+ifeq ($(GOTMINGW32),1)
+LIB_INCLUDES =  -I$(PYTHONHOME)/include -I$(PYTHONHOME)/Include -I$(PYTHONHOME)
+else
 ifeq (${PYMAJOR},3)
 LIB_INCLUDES = $(shell $(PYTHONHOME)/bin/python3-config --includes)
 else
 LIB_INCLUDES = $(shell $(PYTHONHOME)/bin/python-config --includes)
+endif
 endif
 
 
