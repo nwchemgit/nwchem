@@ -40,7 +40,6 @@ Comment:  https://doi.org/10.1063/1.327451
 Comment:  - pressure=0.001 kbars                                    5.0347           5.0344          13.7473   90.002  90.004 120.001
 Comment:
 Comment: Blake, R. L.; Hessevick, R. E.; Zoltai, T.; Finger, L. W.  Refinement of the hematite structure American Mineralogist, 1966, 51, 123-129
-Comment: https://pubs.geoscienceworld.org/msa/ammin/article-pdf/51/1-2/123/4248593/am-1966-123.pdf?casa_token=m9B3b8wo8PYAAAAA:s4YqyFUO_tQA1r8Q6K-NgaaOh-ACnmAfLyUMaktV62FRDdWG_cXZSrtnUcHXkAONVtXnXJQ
 Comment:   - stp?                                                    5.038            5.038           13.772      90       90     120
 Comment:
 Comment: Results for FeO (X^5 Delta) molecule
@@ -52,7 +51,7 @@ Comment: PBE96               80  -137.12435249           1.55773
 Comment: experiment                                      1.57           965        4.26
 Comment:
 Comment:
-Comment: Results for Fe atom (quintet)
+Comment: Results for Fe-atom (quintet)
 Comment: XC          Ecut/Basis         Energy
 Comment: PBE96               50   -121.1479154
 Comment: PBE96               60   -121.1470458
