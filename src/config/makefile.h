@@ -1154,6 +1154,7 @@ endif
         GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
         GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
         GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
+        GNU_GE_8 = $(shell [ $(GNUMAJOR) -ge 8  ] && echo true)
         ifeq ($(GNU_GE_4_6),true)
          DEFINES  += -DGCC46
         endif
@@ -1171,6 +1172,9 @@ endif
         endif
         endif # GNUMAJOR
 
+        ifeq ($(GNU_GE_8),true)
+          FOPTIONS   += -std=legacy
+	endif
         ifdef USE_OPENMP
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
@@ -1334,6 +1338,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
           GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
           GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
         GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
+        GNU_GE_8 = $(shell [ $(GNUMAJOR) -ge 8  ] && echo true)
         ifeq ($(GNU_GE_4_6),true)
           ifdef  USE_FPE
             FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
@@ -1352,6 +1357,9 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
         endif
          endif
        endif
+        ifeq ($(GNU_GE_8),true)
+          FOPTIONS   += -std=legacy
+	endif
 
 ifeq ($(LINUXCPU),x86) 
   ifeq ($(TARGET),CYGNUS)
