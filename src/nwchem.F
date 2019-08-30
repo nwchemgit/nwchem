@@ -289,7 +289,7 @@ c
       if(ga_nodeid().eq.0)write(luout,*)  ga_nodeid(),' ppn ',ppnout
       if(offload_enabled()) then
       if(ga_nodeid().lt.ppnout)
-     w        write(luout,*)  ga_nodeid(),' offload_enabled '
+     w        write(luout,'(I8,A)')  ga_nodeid(),' offload enabled '
       endif
       call ga_sync()
 #endif
