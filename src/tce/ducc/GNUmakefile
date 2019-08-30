@@ -1,6 +1,8 @@
 #$Id$
 
-OBJ_OPTIMIZE =  ducc.o map_hcore.o rot_vir.o
+OBJ = ducc.o
+
+OBJ_OPTIMIZE =  map_hcore.o rot_vir.o
 
 LIB_INCLUDES = -I../include
 
