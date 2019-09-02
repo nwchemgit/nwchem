@@ -1,3 +1,7 @@
+#ifndef OFFLOAD_DEBUG_DATA
+C #define OFFLOAD_DEBUG_DATA
+#endif
+
 #ifdef USE_OMP_TEAMS_DISTRIBUTE
 #define TEAMS_DISTRIBUTE teams distribute
 #else
@@ -108,8 +112,14 @@ c     estimate triplesx size
       endif
 #if USE_OPENMP
 #if OPENMP_OFFLOAD
-!$omp target data map(alloc:f_singles(1:size))
+      if (offload_enabled()) then
+!$omp target enter data map(alloc:f_singles(1:size))
 !$omp&map(alloc:f_doubles(1:size))
+#ifdef OFFLOAD_DEBUG_DATA
+        write (*,*) ga_nodeid(), 'alloc f_singles', size*8
+        write (*,*) ga_nodeid(), 'alloc f_doubles', size*8
+#endif
+      endif
 #endif
 #endif
 #else
@@ -235,7 +245,14 @@ c
 #ifdef USE_F90_ALLOCATABLE
 #if USE_OPENMP
 #if OPENMP_OFFLOAD
-!$omp end target data
+      if (offload_enabled()) then
+!$omp target exit data map(release:f_singles(1:size))
+!$omp&map(release:f_doubles(1:size))
+#ifdef OFFLOAD_DEBUG_DATA
+        write (*,*) ga_nodeid(), 'release f_singles', size*8
+        write (*,*) ga_nodeid(), 'release f_doubles', size*8
+#endif
+      endif
 #endif
 #endif
       deallocate( f_doubles, stat=alloc_error)
