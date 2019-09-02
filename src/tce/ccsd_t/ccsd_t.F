@@ -387,9 +387,15 @@ c
      &     * range_h1 * range_h2 * range_h3
 #ifdef USE_OPENMP
 #ifdef OPENMP_OFFLOAD
-#ifdef USE_F90_ALLOCATABLE
-!$omp target data map(alloc:a_singles(1:size))
-!$omp& map(alloc:a_doubles(1:size))
+#ifndef USE_F90_ALLOCATABLE
+      if (offload_enabled()) then
+!$omp target enter data map(alloc:f_singles(1:size))
+!$omp&map(alloc:f_doubles(1:size))
+#ifdef OFFLOAD_DEBUG_DATA
+        write (*,*) ga_nodeid(), 'alloc (MA) f_singles', size*8
+        write (*,*) ga_nodeid(), 'alloc (MA) f_doubles', size*8
+#endif
+      endif
 #endif
 #endif
 #endif
@@ -439,8 +445,15 @@ c -----------
      &                 energy1,energy2)
 #ifdef USE_OPENMP
 #ifdef OPENMP_OFFLOAD
-#ifdef USE_F90_ALLOCATABLE
-!$omp end target data
+#ifndef USE_F90_ALLOCATABLE
+      if (offload_enabled()) then
+!$omp target exit data map(release:f_singles(1:size))
+!$omp&map(release:f_doubles(1:size))
+#ifdef OFFLOAD_DEBUG_DATA
+        write (*,*) ga_nodeid(), 'release (MA) f_singles', size*8
+        write (*,*) ga_nodeid(), 'release (MA) f_doubles', size*8
+#endif
+      endif
 #endif
 #endif
 #endif
