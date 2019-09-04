@@ -42,8 +42,8 @@ c     will assign offload capabilities to the calling GA rank.
       character(64) env_string
       call util_getenv('NWC_NO_OFFLOAD', env_string)
       if (env_string.eq.'T'.or.env_string.eq.'t'.or.
-     c  env_string.eq.'1') then
-C         write (*,*) 'offload disabled via NWC_NO_OFFLOAD'
+     c    env_string.eq.'1') then
+        offload_enabled=.false.
       else
         if (mod(ga_nodeid(), OFFLOAD_MOD).eq.0) then
           offload_enabled=.true.
