@@ -78,6 +78,8 @@ c
       integer ppnout
       logical offload_enabled
       external offload_enabled
+      integer offload_dev
+      external offload_dev
 #endif
 
       logical ostartup, ocontinue, orestart
@@ -289,7 +291,8 @@ c
       if(ga_nodeid().eq.0)write(luout,*)  ga_nodeid(),' ppn ',ppnout
       if(offload_enabled()) then
       if(ga_nodeid().lt.ppnout)
-     w        write(luout,'(I8,A)')  ga_nodeid(),' offload enabled '
+     w        write(luout,'(I8,A,I2)')  ga_nodeid(),
+     w              ' offload enabled, GPU: ', offload_dev()
       endif
       call ga_sync()
 #endif

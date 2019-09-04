@@ -29,16 +29,55 @@
 *
       end
 
+#ifdef USE_OFFLOAD
+#define OFFLOAD_MOD 2
+#endif
 
+#ifdef USE_OFFLOAD
+c     Thus function is a place holder for a function that
+c     will assign offload capabilities to the calling GA rank.
       logical function offload_enabled()
       implicit none
-#ifdef USE_OFFLOAD
-C       write (*,*) 'OFFLOAD ENABLED'
-      offload_enabled=.true.
-#else
-C       write (*,*) 'OFFLOAD DISABLED'
-      offload_enabled=.false.
-#endif
-      return
+#include "global.fh"
+      character(64) env_string
+      call util_getenv('NWC_NO_OFFLOAD', env_string)
+      if (env_string.eq.'T'.or.env_string.eq.'t'.or.
+     c  env_string.eq.'1') then
+C         write (*,*) 'offload disabled via NWC_NO_OFFLOAD'
+      else
+        if (mod(ga_nodeid(), OFFLOAD_MOD).eq.0) then
+          offload_enabled=.true.
+        else
+          offload_enabled=.false.
+        endif
+      endif
       end
+#endif
 
+
+c     This function is a place holder for a function that
+c     will assign actual offload devices to the GA rank w/
+c     offloading enabled.
+#ifdef USE_OFFLOAD
+      function offload_dev()
+      implicit none
+#include "global.fh"
+      integer offload_dev
+#if USE_OPENMP
+      integer omp_get_num_devices
+      external omp_get_num_devices
+      integer omp_get_default_device
+      external omp_get_default_device
+      external omp_set_default_device
+#endif
+      integer ndev
+
+#if USE_OPENMP
+      ndev = omp_get_num_devices()
+      offload_dev = mod(ga_nodeid() / OFFLOAD_MOD, ndev)
+      call omp_set_default_device(offload_dev)
+#else
+      offload_dev = -1
+#endif
+      end
+#endif
