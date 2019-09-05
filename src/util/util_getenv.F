@@ -30,8 +30,19 @@
       end
 
 #ifdef USE_OFFLOAD
-#define OFFLOAD_MOD 2
+      integer function offload_span()
+      implicit none
+      character(64) env_string
+      integer span
+      integer stat
+      call util_getenv('NWC_OFFLOAD_SPAN', env_string)
+      read (env_string,*,iostat=stat) span
+      if (stat.ne.0) span = 1
+      if (span.lt.1) span = 1
+      offload_span = span
+      end
 #endif
+
 
 #ifdef USE_OFFLOAD
 c     Thus function is a place holder for a function that
@@ -40,12 +51,16 @@ c     will assign offload capabilities to the calling GA rank.
       implicit none
 #include "global.fh"
       character(64) env_string
+      integer span
+      external offload_span
+      integer offload_span
       call util_getenv('NWC_NO_OFFLOAD', env_string)
       if (env_string.eq.'T'.or.env_string.eq.'t'.or.
      c    env_string.eq.'1') then
         offload_enabled=.false.
       else
-        if (mod(ga_nodeid(), OFFLOAD_MOD).eq.0) then
+        span = offload_span()
+        if (mod(ga_nodeid(), span).eq.0) then
           offload_enabled=.true.
         else
           offload_enabled=.false.
@@ -59,25 +74,29 @@ c     This function is a place holder for a function that
 c     will assign actual offload devices to the GA rank w/
 c     offloading enabled.
 #ifdef USE_OFFLOAD
-      function offload_dev()
+      integer function offload_device()
       implicit none
 #include "global.fh"
-      integer offload_dev
 #if USE_OPENMP
+      external offload_span
+      integer offload_span
       integer omp_get_num_devices
       external omp_get_num_devices
       integer omp_get_default_device
       external omp_get_default_device
       external omp_set_default_device
 #endif
+      character(64) env_string
       integer ndev
+      integer span
 
+      span = offload_span()
 #if USE_OPENMP
       ndev = omp_get_num_devices()
-      offload_dev = mod(ga_nodeid() / OFFLOAD_MOD, ndev)
-      call omp_set_default_device(offload_dev)
+      offload_device = mod(ga_nodeid() / span, ndev)
+      call omp_set_default_device(offload_device)
 #else
-      offload_dev = -1
+      offload_device = -1
 #endif
       end
 #endif
