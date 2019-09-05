@@ -35,8 +35,11 @@
       character(64) env_string
       integer span
       integer stat
+      span = -1
       call util_getenv('NWC_OFFLOAD_SPAN', env_string)
-      read (env_string,*,iostat=stat) span
+      if ((len(env_string).ne.0).or.(env_string.ne.' ')) then
+        read (env_string,*,iostat=stat) span
+      endif
       if (stat.ne.0) span = 1
       if (span.lt.1) span = 1
       offload_span = span
