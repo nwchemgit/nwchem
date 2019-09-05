@@ -170,11 +170,11 @@
       call gen_PW92_BW_restricted(n2ft3d,rho_in,ec0,fnc0)
 
       do i=1,n2ft3d
-        n       = 0.50d0*rho_in(i) + ETA
-        agr     = 0.50d0*agr_in(i)
-        tau     = 0.50d0*tau_in(i)
-        ec_LDA  = 0.50d0*ec0(i)
-        fnc_LDA = 0.50d0*fnc0(i)
+        n       = rho_in(i) + ETA
+        agr     = agr_in(i)
+        tau     = tau_in(i)
+        ec_LDA  = ec0(i)
+        fnc_LDA = fnc0(i)
 
        !if (n .gt. tol)  then
 
@@ -208,10 +208,10 @@
         call nwpw_GVT4(aa,bb,cc,dd,ee,ff,alpha,alpha,
      >              xr,zr,gamma,GG,dGdx,dGdz)
 
-        ex     = 2.0d0*n_13*GG
-        fnx    = 2.0d0*(frthrd*n_13*GG + n_43*(dGdx*dxdn + dGdz*dzdn))
-        fdnx   = 2.0d0*n_43*(dGdx*dxdagr)
-        fdtaux = 2.0d0*n_43*(dGdz*dzdtau) 
+        ex     = n_13*GG
+        fnx    = (frthrd*n_13*GG + n_43*(dGdx*dxdn + dGdz*dzdn))
+        fdnx   = n_43*(dGdx*dxdagr)
+        fdtaux = n_43*(dGdz*dzdtau) 
 
 ********* VS98 Correlation *********
 ********* Same-spin *********
@@ -231,11 +231,6 @@
      >               x,z,gamma,xr,zr,
      >               dxdn,dxdagr,dzdn,dzdtau,
      >               ec,fnc,fdnc,fdtauc)
-
-        ec     = 2.0d0*ec
-        fnc    = 2.0d0*fnc
-        fdnc   = 2.0d0*fdnc
-        fdtauc = 2.0d0*fdtauc
 
 c      else
 c         ex = 0.0d0
