@@ -204,7 +204,7 @@ c
       endif
       if(task_thresh.le.tot_task) then
       next = nxtask0(-nprocs,k_grain,tasks_skip)
-      if(.not.offload_enabled()) then
+      if(.true.) then
          next = nxtask0(nprocs,k_grain,tasks_skip)
          count=0
          do k=task_thresh,tot_task
