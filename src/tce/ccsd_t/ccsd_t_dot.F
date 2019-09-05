@@ -89,7 +89,9 @@ c
           d_h1 = o_h1(h1)
           do h2 = 1, r_h2
            d_h2 = o_h2(h2)
+#ifndef OFFLOAD_CODE
 !dir$ simd
+#endif
            do h3 = 1, r_h3
             d_h3 = o_h3(h3)
             sing = a_singles(h3,h2,h1,p6,p5,p4)
