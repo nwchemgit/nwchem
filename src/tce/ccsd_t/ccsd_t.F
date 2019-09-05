@@ -1,6 +1,6 @@
-#ifndef OFFLOAD_DEBUG_DATA
+C #ifndef OFFLOAD_DEBUG_DATA
 C #define OFFLOAD_DEBUG_DATA
-#endif
+C #endif
 
 #ifdef USE_OMP_TEAMS_DISTRIBUTE
 #define TEAMS_DISTRIBUTE teams distribute
@@ -113,16 +113,20 @@ c     estimate triplesx size
 #if USE_OPENMP
 #if OPENMP_OFFLOAD
       if (offload_enabled()) then
-!$omp target enter data map(alloc:f_singles(1:size))
+!$omp target enter data
+!$omp&map(alloc:f_singles(1:size))
 !$omp&map(alloc:f_doubles(1:size))
 #ifdef OFFLOAD_DEBUG_DATA
-        write (*,*) ga_nodeid(), 'alloc f_singles', size*8
-        write (*,*) ga_nodeid(), 'alloc f_doubles', size*8
+        write (*,*) ga_nodeid(), 'alloc f_singles', size, 'elements'
+        write (*,*) ga_nodeid(), 'alloc f_doubles', size, 'elements'
 #endif
       endif
 #endif
 #endif
 #else
+#if USE_OFFLOAD
+      call errquit('ccsd_t: offload not supported with MA',0,0)
+#endif
       if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
      1     k_singles)) call errquit('ccsd_t: MA error sgl',
      2     size,MA_ERR)
@@ -246,11 +250,12 @@ c
 #if USE_OPENMP
 #if OPENMP_OFFLOAD
       if (offload_enabled()) then
-!$omp target exit data map(release:f_singles(1:size))
+!$omp target exit data
+!$omp&map(release:f_singles(1:size))
 !$omp&map(release:f_doubles(1:size))
 #ifdef OFFLOAD_DEBUG_DATA
-        write (*,*) ga_nodeid(), 'release f_singles', size*8
-        write (*,*) ga_nodeid(), 'release f_doubles', size*8
+        write (*,*) ga_nodeid(), 'release f_singles', size, 'elements'
+        write (*,*) ga_nodeid(), 'release f_doubles', size, 'elements'
 #endif
       endif
 #endif
@@ -385,21 +390,6 @@ c
 c
       size = range_p4 * range_p5 * range_p6
      &     * range_h1 * range_h2 * range_h3
-#ifdef USE_OPENMP
-#ifdef OPENMP_OFFLOAD
-#ifndef USE_F90_ALLOCATABLE
-      if (offload_enabled()) then
-!$omp target enter data map(alloc:f_singles(1:size))
-!$omp&map(alloc:f_doubles(1:size))
-#ifdef OFFLOAD_DEBUG_DATA
-        write (*,*) ga_nodeid(), 'alloc (MA) f_singles', size*8
-        write (*,*) ga_nodeid(), 'alloc (MA) f_doubles', size*8
-#endif
-      endif
-#endif
-#endif
-#endif
-
 c zeroing ---
 #if USE_OPENMP
 #if OPENMP_OFFLOAD
@@ -443,20 +433,6 @@ c -----------
      &                 range_h1,range_h2,range_h3,
      &                 range_p4,range_p5,range_p6,
      &                 energy1,energy2)
-#ifdef USE_OPENMP
-#ifdef OPENMP_OFFLOAD
-#ifndef USE_F90_ALLOCATABLE
-      if (offload_enabled()) then
-!$omp target exit data map(release:f_singles(1:size))
-!$omp&map(release:f_doubles(1:size))
-#ifdef OFFLOAD_DEBUG_DATA
-        write (*,*) ga_nodeid(), 'release (MA) f_singles', size*8
-        write (*,*) ga_nodeid(), 'release (MA) f_doubles', size*8
-#endif
-      endif
-#endif
-#endif
-#endif
       return
       end
 

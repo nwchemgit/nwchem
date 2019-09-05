@@ -18,16 +18,24 @@ C #endif
 #ifndef OFFLOAD_CODE
       subroutine debug_triplesx_s(triplesx, l_triplesx)
       implicit none
+      external offload_enabled
+      logical offload_enabled
       integer l_triplesx
       integer it
       double precision triplesx(l_triplesx)
       double precision res
       res = 0d0
+      if (offload_enabled()) then
 !$omp target teams distribute parallel do map(tofrom:res)
-      do it=1,l_triplesx
-        res = res + triplesx(it)
-      enddo
+        do it=1,l_triplesx
+          res = res + triplesx(it)
+        enddo
 !$omp end target teams distribute parallel do
+      else
+        do it=1,l_triplesx
+          res = res + triplesx(it)
+        enddo
+      endif
       write (*,*) 'res S triplesx:', res
       end
 #endif
