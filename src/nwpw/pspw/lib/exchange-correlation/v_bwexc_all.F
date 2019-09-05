@@ -200,6 +200,8 @@
          write(luout,1131) 'Hartree-Fock'
       ELSE IF (gga.eq.300) THEN
          write(luout,1131) 'VS98'
+      ELSE IF (gga.eq.301) THEN
+         write(luout,1131) 'TPSS03'
       ELSE
          write(luout,1131) 'unknown parameterization'
          call errquit('bad exchange_correlation',0, INPUT_ERR)
