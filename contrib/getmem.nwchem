@@ -62,7 +62,7 @@ if [[ $good != 0  ]]; then
     touch memory_def.F
     echo "Executing " 'make LIB_DEFINES+="'$copt'"'
     make   LIB_DEFINES+="$copt "
-    cd $NWCHEM_TOP/src
+    cd ..
     make link
   else
     echo " "
