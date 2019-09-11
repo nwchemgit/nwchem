@@ -30,6 +30,11 @@
 # A subdirectory of the current directory named scratchdir is deleted
 # and remade for each calculation, and deleted at job end.
 
+if [[ -z "${NWCHEM_TOP}" ]]; then
+    DIRQA=`dirname "$0"`
+    MYPWD=`pwd`
+    NWCHEM_TOP=`echo ${MYPWD}/${DIRQA} | sed -e 's/\/QA.*//' `
+fi
 # A subdirectory of the current directory name testoutputs is made
 # if necessary and all outputs are routed there.  Existing outputs
 # are overwritten.  The name of the output file is formed by replacing
