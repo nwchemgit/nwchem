@@ -55,6 +55,11 @@ endif
 #
 
 ifndef NWCHEM_TARGET
+  UNAME_S := $(shell uname -s)
+  ifeq ($(UNAME_S),Linux)
+  else ifeq ($(UNAME_S),Darwin)
+    NWCHEM_TARGET=MACX64
+  else
 error2:
 $(info     )
 $(info You must define NWCHEM_TARGET in your environment to be the name)
@@ -63,6 +68,7 @@ $(info     setenv NWCHEM_TARGET SOLARIS)
 $(info Known targets are SOLARIS, ...)
 $(info See the INSTALL instructions for a complete list)
 $(error )
+  endif
 endif
 
      TARGET := $(NWCHEM_TARGET)
@@ -1123,7 +1129,6 @@ else
    endif
 endif
 
-               _CPU = $(shell machine  )
                INSTALL = @echo nwchem is built
                RANLIB = ranlib
 #             MAKEFLAGS = -j 1 --no-print-directory
@@ -1147,11 +1152,8 @@ endif
 #
          FOPTIMIZE+= -funroll-all-loops -mtune=native 
          FVECTORIZE=-O3 -ffast-math -mtune=native -mfpmath=sse -msse3 -ftree-vectorize -ftree-vectorizer-verbose=1   -fprefetch-loop-arrays  -funroll-all-loops 
-#         FOPTIMIZE=-O1
-#         FVECTORIZE=-O1
-        GNUMAJOR=$(shell $(FC) -dumpversion | cut -f1 -d.)
         GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c22)
-        ifdef GNUMAJOR
+	ifneq ($(strip $(GNUMAJOR)),)
         GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c24)
         GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
         GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
