@@ -5,6 +5,11 @@
 #
 # modified to use the perl version to change back to the sed scripts
 #
+if [[ -z "${NWCHEM_TOP}" ]]; then
+    DIRUTIL=`dirname "$0"`
+    MYPWD=`pwd`
+    NWCHEM_TOP=`echo ${MYPWD}/${DIRUTIL} | sed -e 's/\/src.*//' `
+fi
   if [ -x /msrc/apps/bin/perl ]; then
       perlexe=/msrc/apps/bin/perl
   elif [ -x /usr/local/bin/perl ]; then
