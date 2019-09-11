@@ -1,6 +1,6 @@
 #- env: == default ==
 os=`uname`
-export NWCHEM_TOP=$TRAVIS_BUILD_DIR
+#export NWCHEM_TOP=$TRAVIS_BUILD_DIR
 export USE_MPI=y
 if [[ "$os" == "Darwin" ]]; then 
    if [[ "$NWCHEM_MODULES" = "tce" ]]; then

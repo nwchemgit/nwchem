@@ -24,13 +24,15 @@ RELEASE :=
 #
 
 ifndef NWCHEM_TOP
-error1:
-$(info     )
-$(info You must define NWCHEM_TOP in your environment to be the path)
-$(info of the top level nwchem directory ... something like)
-$(info     setenv NWCHEM_TOP /msrc/home/elvis/nwchem)
-$(info     )
-$(error )
+#error1:
+#$(info     )
+#$(info You must define NWCHEM_TOP in your environment to be the path)
+#$(info of the top level nwchem directory ... something like)
+#$(info     setenv NWCHEM_TOP /msrc/home/elvis/nwchem)
+#$(info     )
+#$(error )
+NWCHEM_TOP= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))| \
+ sed -e 's/\/src\/config//' )
 endif
 
 # Select the old (pre-autotools version of GA) by uncommenting the next line.
