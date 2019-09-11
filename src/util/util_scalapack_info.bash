@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+if [[ -z "${NWCHEM_TOP}" ]]; then
+    DIRUTIL=`dirname "$0"`
+    MYPWD=`pwd`
+    NWCHEM_TOP=`echo ${MYPWD}/${DIRUTIL} | sed -e 's/\/src.*//' `
+fi
 if [ -f "$0" ] ; then
    # The first item on the command line is an actual file so the 
    # script must have been specified including the path.

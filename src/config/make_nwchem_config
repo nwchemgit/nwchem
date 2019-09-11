@@ -55,7 +55,7 @@ ifndef NWCHEM_TOP
 #	@echo     setenv NWCHEM_TOP /msrc/home/elvis/nwchem
 #	@exit 1
 NWCHEM_TOP= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))| \
- sed -e 's/\/src\/config//' )
+ sed -e 's/\/src.*//' )
 endif
 
 # Set a default here in case the caller doesn't

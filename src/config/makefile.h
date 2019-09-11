@@ -32,7 +32,7 @@ ifndef NWCHEM_TOP
 #$(info     )
 #$(error )
 NWCHEM_TOP= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))| \
- sed -e 's/\/src\/config//' )
+ sed -e 's/\/src.*//' )
 endif
 
 # Select the old (pre-autotools version of GA) by uncommenting the next line.
