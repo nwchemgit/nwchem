@@ -32,8 +32,8 @@ C     i0 ( p4 p5 p6 h1 h2 h3 )_vt + = -1 * P( 9 ) * Sum ( p7 ) * t ( p4 p7 h1 h2
       integer k_scratch
       DOUBLE PRECISION a_i0(*)
       
-      logical offload_master
-      external offload_master
+      logical offload_enabled
+      external offload_enabled
       integer range_p4,range_h1,ii
       integer t2size,v2size
       
@@ -54,25 +54,26 @@ c *************
      & ERRQUIT('ccsd_t_doubles v2sub',103,MA_ERR)
 
       IF (toggle .eq. 2) then
-      if(offload_master()) then
+#if USE_OFFLOAD
+#if USE_OPENMP
+      if(offload_enabled()) then
          CALL offl0_ccsd_t_doubles_l_12(d_t2,
      &        k_t2_offset,d_v2,k_v2_offset,
      A        a_i0,t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b,
      T        dbl_mb(k_v2sub),dbl_mb(k_t2sub),
      S        dbl_mb(k_scratch))
       else
+#endif
+#endif
          CALL ccsd_t_doubles_l_12(d_t2,
      &        k_t2_offset,d_v2,k_v2_offset,
      A        a_i0,t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b,
      T        dbl_mb(k_v2sub),dbl_mb(k_t2sub),
      S        dbl_mb(k_scratch))
+#if USE_OPENMP
+#if USE_OFFLOAD
          endif
-#ifdef USE_OFFLOAD
-      call offl_free(dbl_mb(k_t2sub),t2size)
-      call offl_free(dbl_mb(k_scratch),max(t2size,v2size))
-      t2sub_alloced=.false.
-      call offl_free(dbl_mb(k_v2sub),v2size)
-      v2sub_alloced=.false.
+#endif
 #endif
       endif
       IF (.not.MA_chop_stack(l_t2sub)) CALL

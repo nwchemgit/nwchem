@@ -1950,15 +1950,6 @@ endif
            @echo ifort 8.1 is required for x86_64 CPUs
            @exit 1
        endif
-       ifdef USE_OFFLOAD
-          ifeq ($(_IFCV18),Y)
-ifort18offload:
-            @echo 
-            @echo ifort 18 does not support KNC offload
-            @echo please use ifort 17
-            @echo 
-          endif
-       endif        
        FDEBUG= -O2 -g
        FOPTIMIZE = -O3  -unroll  -ip
        FOPTIONS += -align -fpp
@@ -2015,57 +2006,14 @@ ifort18offload:
          LDOPTIONS += -L$(VTUNE_AMPLIFIER_XE_DIR)/lib64 
          EXTRA_LIBS += -littnotify
        endif
-       ifdef USE_OFFLOAD
-         ifeq ($(_IFCV14), Y)
-          ### extra mic compile stuff; make FC=ifort CC=icc  AR=xiar
-          FC = ifort
-          _FC = ifort
-          CC = icc
-          _CC = icc
-          AR = xiar
-          EXTRA_LIBS += -loffload
-          DEFINES+= -DUSE_OFFLOAD
-          DEFINES+= -DINTEL_64ALIGN
-          ifeq ($(_IFCV15ORNEWER), Y)
-            FOPTIONS += -qoffload-option,mic,compiler,"-align array64byte"
-            FOPTIONS += -qoffload-option,mic,compiler,"-qopt-prefetch=4 -qopt-prefetch-distance=4,1"
-            FOPTIONS += -qopt-assume-safe-padding
-            FOPTIONS += -align array64byte
-            LDOPTIONS += -qoffload-option,mic,compiler," -Wl,-zmuldefs"
-            FOPTIONS += -watch=mic_cmd 
-            ifdef USE_OPTREPORT
-                FOPTIONS += -qopt-report-phase=offload
-                COPTIONS += -qopt-report-phase=offload
-            endif
-          else
-#           FOPTIONS += -offload-option,mic,compiler,"-mP2OPT_hlo_use_const_second_pref_dist=1"
-            FOPTIONS += -offload-option,mic,compiler,"-align array64byte"
-            FOPTIONS += -align array64byte
-            LDOPTIONS += -offload-option,mic,compiler," -Wl,-zmuldefs"
-            FOPTIONS += -watch=mic_cmd 
-            ifdef USE_OPTREPORT
-                FOPTIONS += -offload-option,mic,compiler,"-opt-report-phase=hlo"
-                FOPTIONS += -opt-report-phase=offload
-                COPTIONS += -opt-report-phase=offload
-            endif
-          endif
+       ifdef USE_OPENMP
+         ifeq ($(_IFCV15ORNEWER), Y)
+           FOPTIONS += -qno-openmp-offload
          else
-error100:
-$(info     )
-$(info USE_OFFLOAD requires ifort version 14 and later)
-$(info     )
-$(error )
+           ifeq ($(_IFCV14), Y)
+             FOPTIONS += -no-openmp-offload
+           endif
          endif
-       else
-          ifdef USE_OPENMP
-            ifeq ($(_IFCV15ORNEWER), Y)
-              FOPTIONS += -qno-openmp-offload
-            else
-              ifeq ($(_IFCV14), Y)
-                FOPTIONS += -no-openmp-offload
-              endif
-            endif
-          endif
        endif
        DEFINES+= -DIFCV8 -DIFCLINUX
        ifeq ($(FC),ifc)
@@ -2403,6 +2351,11 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
         ifdef USE_OPENMP
            DEFINES += -DUSE_OPENMP
            FOPTIONS += -qsmp=omp
+           ifdef USE_OFFLOAD
+             DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
+             OFFLOAD_FOPTIONS = -qtgtarch=sm_70 -qoffload
+             LDOPTIONS += -qoffload -lcudart -L$(NWC_CUDAPATH)
+           endif
         endif
         ifdef USE_I4FLAGS
           FOPTIONS += -qintsize=4
@@ -3063,5 +3016,3 @@ else
 endif
 
 endif
-
-

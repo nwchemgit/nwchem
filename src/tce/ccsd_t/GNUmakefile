@@ -59,10 +59,6 @@ endif
 
 LIB_DEFINES += -DDEBUG_PRINT
 
-ifdef OPENMP_OFFLOAD
- LIB_DEFINES += -DOPENMP_OFFLOAD
-endif
-
 #
 # Possible #defines
 #
@@ -77,3 +73,6 @@ HEADERS =
 include ../../config/makefile.h
 include ../../config/makelib.h
 
+ifdef USE_OFFLOAD
+FOPTIMIZE += $(OFFLOAD_FOPTIONS)
+endif

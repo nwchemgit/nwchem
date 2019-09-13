@@ -76,8 +76,10 @@ c
       double precision total_wall, total_cpu
 #ifdef USE_OFFLOAD
       integer ppnout
-      logical offload_master
-      external offload_master
+      logical offload_enabled
+      external offload_enabled
+      integer offload_device
+      external offload_device
 #endif
 
       logical ostartup, ocontinue, orestart
@@ -287,10 +289,10 @@ c
       call util_getppn(ppnout)
       if(ppnout.eq.0) call errquit('util_getppn failed ',0,UERR)
       if(ga_nodeid().eq.0)write(luout,*)  ga_nodeid(),' ppn ',ppnout
-      if(offload_master()) then
+      if(offload_enabled()) then
       if(ga_nodeid().lt.ppnout)
-     w        write(luout,*)  ga_nodeid(),' offload_master '
-      call util_mic_set_affinity()
+     w        write(luout,'(I8,A,I2)')  ga_nodeid(),
+     w              ' offload enabled, GPU: ', offload_device()
       endif
       call ga_sync()
 #endif
