@@ -57,6 +57,7 @@ endif
 ifndef NWCHEM_TARGET
   UNAME_S := $(shell uname -s)
   ifeq ($(UNAME_S),Linux)
+    NWCHEM_TARGET=LINUX64
   else ifeq ($(UNAME_S),Darwin)
     NWCHEM_TARGET=MACX64
   else
@@ -1797,6 +1798,9 @@ endif
            ifdef USE_OPENMP_TASKS
                DEFINES += -DUSE_OPENMP_TASKS
            endif
+           ifdef USE_OFFLOAD
+             DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
+	   endif
         endif
       endif
       ifeq ($(_FC),gfortran)
