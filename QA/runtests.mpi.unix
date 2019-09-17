@@ -30,6 +30,23 @@
 # A subdirectory of the current directory named scratchdir is deleted
 # and remade for each calculation, and deleted at job end.
 
+if [[ -z "${NWCHEM_TARGET}" ]]; then
+    UNAME_S=$(uname -s)
+  if [[ ${UNAME_S} == Linux ]]; then
+    NWCHEM_TARGET=LINUX64
+  elif [[ ${UNAME_S} == Darwin ]]; then
+    NWCHEM_TARGET=MACX64
+  else
+      echo
+      echo You must define NWCHEM_TARGET in your environment to be the name
+      echo of the machine you wish to build for ... for example
+      echo     export NWCHEM_TARGET=SOLARIS
+      echo Known targets are SOLARIS, ...
+      echo See the INSTALL instructions for a complete list
+      echo ${UNAME_S}
+      exit 1
+      fi
+fi
 if [[ -z "${NWCHEM_TOP}" ]]; then
     DIRQA=`dirname "$0"`
     MYPWD=`pwd`
