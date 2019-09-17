@@ -1,0 +1,90 @@
+echo
+title "h2o_opt modified to use Simint Integrals"
+start h2o_opt_dat
+
+geometry h2o_c1 units angstroms
+  symmetry c1
+  zmatrix
+    O
+    H 1 OH1
+    H 1 OH2 2 HOH
+  variables
+    HOH 108.0
+    OH1  1.2
+  constants
+    OH2  1.2
+  end
+end
+
+geometry h2o_c2v units angstroms
+  zmatrix
+    O
+    H 1 OH1
+    H 1 OH2 2 HOH
+  variables
+    HOH 108.0
+    OH1  1.2
+  constants
+    OH2  1.2
+  end
+end
+
+geometry h2o_cs units angstroms
+  zmatrix
+    O
+    H  1 OH1
+    H1 1 OH2 2 HOH
+  variables
+    HOH 108.0
+    OH1  1.2
+  constants
+    OH2  1.2
+  end
+end
+
+geometry h2o_cart units angstrom
+    O      0.00000000     0.00000000    -0.14106846
+    H     -0.97082039     0.00000000     0.56427384
+    H      0.97082039     0.00000000     0.56427384
+end
+
+geometry h2o_cart adjust
+  zcoord
+    bond 1 3 1.2  r constant
+  end
+end
+
+
+basis
+  * library 6-31G*
+end
+set int:cando_txs f
+set int:cando_nw f
+
+driver
+  clear
+end
+
+set geometry h2o_c1
+task scf optimize
+
+driver
+  clear
+end
+
+set geometry h2o_c2v
+task scf optimize
+
+driver
+  clear
+end
+
+set geometry h2o_cs
+task scf optimize
+
+driver
+  clear
+end
+
+set geometry h2o_cart
+task scf optimize
