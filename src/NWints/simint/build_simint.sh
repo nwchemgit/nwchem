@@ -8,6 +8,30 @@
 #
 # ./build_simint.sh
 #
+UNAME_S=$(uname -s)
+if [[ ${UNAME_S} == Linux ]]; then
+    CPU_FLAGS=$(cat /proc/cpuinfo | egrep flags)
+elif [[ ${UNAME_S} == Darwin ]]; then
+    CPU_FLAGS=$(sysctl -a | grep machdep.cpu.features)
+else
+    echo Operating system not supported yet
+    exit 1
+fi
+GOTSSE2=$(echo ${CPU_FLAGS} | tr  'A-Z' 'a-z'| grep sse2 | tail -n 1 | awk ' /sse2/  {print "Y"}')
+ GOTAVX=$(echo ${CPU_FLAGS} | tr  'A-Z' 'a-z'| grep avx  | tail -n 1 | awk ' /avx/  {print "Y"}')
+GOTAVX2=$(echo ${CPU_FLAGS} | tr  'A-Z' 'a-z'| grep avx2 | tail -n 1 | awk ' /avx2/  {print "Y";exit};{print "N"}')
+GOTAVX512=$(echo ${CPU_FLAGS} | tr  'A-Z' 'a-z'| grep avx512 | tail -n 1 | awk ' /avx512f/  {print "Y";exit};{print "N"}')
+if [[ ! -z "${GOTAVX512}" ]]; then
+    VEC=avx512
+elif [[ ! -z "${GOTAVX2}" ]]; then
+    VEC=avx2
+elif [[ ! -z "${GOTAVX}" ]]; then
+    VEC=avx
+elif [[ ! -z "${GOTSSE2}" ]]; then
+    VEC=sse
+else
+    VEC=scalar
+fi
 SRC_HOME=`pwd`
 DERIV=1
 if [ $# -eq 0 ]; then
@@ -16,10 +40,26 @@ else
     MAXAM=$1
 fi
 PERMUTE_SLOW=${MAXAM}
-rm -rf simint.l${MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* simint-chem-simint-generator*
-curl -LJ https://github.com/simint-chem/simint-generator/tarball/master -o simint-chem-simint-generator.tar.gz
+GITHUB_USERID=edoapra
+rm -rf simint.l${MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* *-chem-simint-generator-?????? simint-chem-simint-generator.tar.gz
+curl -LJ https://github.com/${GITHUB_USERID}/simint-generator/tarball/master -o simint-chem-simint-generator.tar.gz
+#curl -LJ https://github.com/simint-chem/simint-generator/tarball/master -o simint-chem-simint-generator.tar.gz
 tar xzf simint-chem-simint-generator.tar.gz
-cd simint-chem-simint-generator-*
+cd *-simint-generator-???????
+rm -f generator_types.patch
+echo > generator_types.patch <<EOF
+--- simint-chem-simint-generator-c589bd7/generator/CommandLine.hpp	2018-12-11 10:48:31.000000000 -0800
++++ modif/generator/CommandLine.hpp	2019-09-17 09:25:45.000000000 -0700
+@@ -10,6 +10,7 @@
+ 
+ #include <vector>
+ #include "generator/Options.hpp"
++#include "generator/Types.hpp"
+ 
+ 
+ /*! \brief Get the next argument on the command line
+EOF
+patch -p1 < /tmp/generator_types.patch
 pwd
 mkdir build; cd build
  cmake ../
@@ -31,18 +71,6 @@ cd ..
 /usr/bin/time -p ./create.py -g build/generator/ostei -l ${MAXAM} -p ${PERMUTE_SLOW} -d ${DERIV} ../simint.l${MAXAM}_p${PERMUTE_SLOW}_d${DERIV}  -ve 4 -he 4 -vg 5 -hg 5
 cd ../simint.l${MAXAM}_p${PERMUTE_SLOW}_d${DERIV}
 mkdir build
-GOTSSE2=$(cat /proc/cpuinfo | egrep sse2 | tail -n 1 | awk ' /sse2/  {print "Y"}')
-GOTAVX=$(cat /proc/cpuinfo | egrep avx | tail -n 1 | awk ' /avx/  {print "Y"}')
-GOTAVX2=$(cat /proc/cpuinfo | egrep avx2 | tail -n 1 | awk ' /avx2/  {print "Y"}')
-if [ ${GOTAVX2} == "Y" ]; then
-    VEC=avx2
-elif [ ${GOTAVX} == "Y" ]; then
-    VEC=avx
-elif [ ${GOTSSE2} == "Y" ]; then
-    VEC=sse
-else
-    VEC=scalar
-fi
 cd build
 if [[ -z "${FC}" ]]; then
     #look for gfortran
