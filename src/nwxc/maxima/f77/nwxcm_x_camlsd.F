@@ -64,7 +64,7 @@ C> ### References ###
 C> 
 C> [1] T Yanai, DP Tew, NC Handy, Chem.Phys.Lett. 393, 51 (2004)  
 C>    , DOI: 
-C> <a href="http://dx.doi.org/10.1016/j.cplett.2004.06.011 "> 
+C> <a href="https://doi.org/10.1016/j.cplett.2004.06.011 "> 
 C> 10.1016/j.cplett.2004.06.011 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -296,7 +296,7 @@ C> ### References ###
 C> 
 C> [1] T Yanai, DP Tew, NC Handy, Chem.Phys.Lett. 393, 51 (2004)  
 C>    , DOI: 
-C> <a href="http://dx.doi.org/10.1016/j.cplett.2004.06.011 "> 
+C> <a href="https://doi.org/10.1016/j.cplett.2004.06.011 "> 
 C> 10.1016/j.cplett.2004.06.011 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -610,7 +610,7 @@ C> ### References ###
 C> 
 C> [1] T Yanai, DP Tew, NC Handy, Chem.Phys.Lett. 393, 51 (2004)  
 C>    , DOI: 
-C> <a href="http://dx.doi.org/10.1016/j.cplett.2004.06.011 "> 
+C> <a href="https://doi.org/10.1016/j.cplett.2004.06.011 "> 
 C> 10.1016/j.cplett.2004.06.011 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

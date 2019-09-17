@@ -18,7 +18,7 @@ C> [1] R.J. Harrison,
 C>     <i>"Krylov Subspace Accelerated Inexact Newton Method for Linear
 C>     and Nonlinear Systems",</i>
 C>     Journal of Computational Chemistry (2004) <b>25</b>, pp 328-334,
-C>     DOI: <a href="http://dx.doi.org/10.1002/jcc.10108">10.1002/jcc.10108</a>
+C>     DOI: <a href="https://doi.org/10.1002/jcc.10108">10.1002/jcc.10108</a>
 C>
 C> @}
 c

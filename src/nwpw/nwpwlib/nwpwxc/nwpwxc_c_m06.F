@@ -21,7 +21,7 @@ C> "A new local density functional for main-group thermochemistry,
 C> transition metal bonding, thermochemical kinetics, and noncovalent
 C> interactions",
 C> J. Chem. Phys. <b>125</b>, 194101 (2006), DOI:
-C> <a href="http://dx.doi.org/10.1063/1.2370993">
+C> <a href="https://doi.org/10.1063/1.2370993">
 C> 10.1063/1.2370993</a>.
 C>
 C> [2] Y Zhao, DG Truhlar,
@@ -29,7 +29,7 @@ C> "Density functional for spectroscopy: No long-range self-interaction
 C> error, good performance for Rydberg and charge-transfer states,
 C> and better performance on average than B3LYP for ground states",
 C> J. Phys. Chem. A <b>110</b>, 13126-13130 (2006), DOI:
-C> <a href="http://dx.doi.org/10.1021/jp066479k">
+C> <a href="https://doi.org/10.1021/jp066479k">
 C> 10.1021/jp066479k</a>.
 C>
 c    M06 suite correlation functional 

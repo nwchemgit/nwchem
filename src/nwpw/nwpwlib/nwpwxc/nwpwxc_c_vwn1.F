@@ -20,7 +20,7 @@ C> [1] S.H. Vosko, L. Wilk, M. Nusair,
 C>     <i>"Accurate spin-dependent electron liquid correlation energies
 C>     for local spin density calculations: a critical analysis"</i>,
 C>     Can. J. Phys. <b>58</b>, 1200-1211 (1980), DOI:
-C>     <a href="http://dx.doi.org/10.1139/p80-159">10.1139/p80-159</a>.
+C>     <a href="https://doi.org/10.1139/p80-159">10.1139/p80-159</a>.
 C>
 *
 * $Id$

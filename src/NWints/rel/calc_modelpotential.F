@@ -10,7 +10,7 @@ c
 c Accurate and efficient treatment of two-electron contributions in 
 c quasirelativistic high-order Douglas-Kroll density-functional calculations
 c Christoph van Wüllen and Christine Michauk
-c J. Chem. Phys. 123, 204113 (2005); http://dx.doi.org/10.1063/1.2133731
+c J. Chem. Phys. 123, 204113 (2005); https://doi.org/10.1063/1.2133731
 c
 c
       subroutine calc_modelpotential(geom,natoms,nqpts,qxyz,qwght,

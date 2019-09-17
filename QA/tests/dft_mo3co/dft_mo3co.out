@@ -7,7 +7,7 @@ echo
 
 start mo3
 
-title "mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912"
+title "mo3co b3p86 https://doi.org/10.1002/jcc.20912"
 geometry mo3co
 mo       0.86013301    -0.96881412    -0.50326261
 mo      -1.09277865     0.30984886    -0.65875097
@@ -209,7 +209,7 @@ task dft optimize
                                 -------------------
  
  
-                  mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+                  mo3co b3p86 https://doi.org/10.1002/jcc.20912
                   -----------------------------------------------
 
  Scaling coordinates for geometry "mo3co" by  1.889725989
@@ -684,7 +684,7 @@ task dft optimize
                                  -----------------
  
  
-                  mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+                  mo3co b3p86 https://doi.org/10.1002/jcc.20912
  
  
 
@@ -1302,7 +1302,7 @@ task dft optimize
                                  -----------------
  
  
-                  mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+                  mo3co b3p86 https://doi.org/10.1002/jcc.20912
  
  
 
@@ -2333,7 +2333,7 @@ task dft optimize
                                  -----------------
  
  
-                  mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+                  mo3co b3p86 https://doi.org/10.1002/jcc.20912
  
  
 
@@ -3382,7 +3382,7 @@ task dft optimize
                                  -----------------
  
  
-                  mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+                  mo3co b3p86 https://doi.org/10.1002/jcc.20912
  
  
 
@@ -3471,7 +3471,7 @@ task dft optimize
    Fragment Molecular Orbital Initial Guess
    ----------------------------------------
  
- title    mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+ title    mo3co b3p86 https://doi.org/10.1002/jcc.20912
  basis    ao basis
  scftype  dft                 
  nbf          39
@@ -3481,7 +3481,7 @@ task dft optimize
  nopen         7
  nvirtual     32
 
- title    mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+ title    mo3co b3p86 https://doi.org/10.1002/jcc.20912
  basis    ao basis
  scftype  dft                 
  nbf          39
@@ -3491,7 +3491,7 @@ task dft optimize
  nopen         8
  nvirtual     31
 
- title    mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+ title    mo3co b3p86 https://doi.org/10.1002/jcc.20912
  basis    ao basis
  scftype  dft                 
  nbf          39
@@ -3505,7 +3505,7 @@ task dft optimize
    Fragment Molecular Orbital Initial Guess
    ----------------------------------------
  
- title    mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+ title    mo3co b3p86 https://doi.org/10.1002/jcc.20912
  basis    ao basis
  scftype  dft                 
  nbf          39
@@ -3515,7 +3515,7 @@ task dft optimize
  nopen         7
  nvirtual     32
 
- title    mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+ title    mo3co b3p86 https://doi.org/10.1002/jcc.20912
  basis    ao basis
  scftype  dft                 
  nbf          39
@@ -3525,7 +3525,7 @@ task dft optimize
  nopen         6
  nvirtual     33
 
- title    mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+ title    mo3co b3p86 https://doi.org/10.1002/jcc.20912
  basis    ao basis
  scftype  dft                 
  nbf          39
@@ -6178,7 +6178,7 @@ task dft optimize
  
  
  
-                  mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+                  mo3co b3p86 https://doi.org/10.1002/jcc.20912
  
  
  maximum gradient threshold         (gmax) =   0.000450
@@ -6256,7 +6256,7 @@ task dft optimize
                                  -----------------
  
  
-                  mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+                  mo3co b3p86 https://doi.org/10.1002/jcc.20912
  
  
 
@@ -6341,7 +6341,7 @@ task dft optimize
    Fragment Molecular Orbital Initial Guess
    ----------------------------------------
  
- title    mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+ title    mo3co b3p86 https://doi.org/10.1002/jcc.20912
  basis    ao basis
  scftype  dft                 
  nbf         117
@@ -6351,7 +6351,7 @@ task dft optimize
  nopen        22
  nvirtual     95
 
- title    mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+ title    mo3co b3p86 https://doi.org/10.1002/jcc.20912
  basis    ao basis
  scftype  dft                 
  nbf          20
@@ -6365,7 +6365,7 @@ task dft optimize
    Fragment Molecular Orbital Initial Guess
    ----------------------------------------
  
- title    mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+ title    mo3co b3p86 https://doi.org/10.1002/jcc.20912
  basis    ao basis
  scftype  dft                 
  nbf         117
@@ -6375,7 +6375,7 @@ task dft optimize
  nopen        20
  nvirtual     97
 
- title    mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+ title    mo3co b3p86 https://doi.org/10.1002/jcc.20912
  basis    ao basis
  scftype  dft                 
  nbf          20
@@ -9406,7 +9406,7 @@ task dft optimize
                             --------------------------
  
  
-                  mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+                  mo3co b3p86 https://doi.org/10.1002/jcc.20912
  
  
 
@@ -9469,7 +9469,7 @@ task dft optimize
                                  -----------------
  
  
-                  mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+                  mo3co b3p86 https://doi.org/10.1002/jcc.20912
  
  
 
@@ -9553,7 +9553,7 @@ task dft optimize
 
  Loading old vectors from job with title :
 
-mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+mo3co b3p86 https://doi.org/10.1002/jcc.20912
 
    Time after variat. SCF:     71.6
  sigma=  0.10D-05 eFermi=  0.00000 T*S=  0.00E+00 nel(1)=   29.00 nel(2)=   27.00
@@ -12473,7 +12473,7 @@ mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
                                  -----------------
  
  
-                  mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+                  mo3co b3p86 https://doi.org/10.1002/jcc.20912
  
  
 
@@ -12564,7 +12564,7 @@ mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
                             --------------------------
  
  
-                  mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912
+                  mo3co b3p86 https://doi.org/10.1002/jcc.20912
  
  
 

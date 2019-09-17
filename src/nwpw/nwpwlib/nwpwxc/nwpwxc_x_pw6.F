@@ -27,7 +27,7 @@ C>     "Design of density functionals that are broadly accurate for
 C>     thermochemistry, thermochemical kinetics, and nonbonded
 C>     interactions", J. Phys. Chem. A <b>109</b> 5656-5667 (2005),
 C>     DOI: 
-C>     <a href="http://dx.doi.org/10.1021/jp050536c">
+C>     <a href="https://doi.org/10.1021/jp050536c">
 C>     10.1021/jp050536c</a>.
 C>
 #ifndef SECOND_DERIV

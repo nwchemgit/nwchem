@@ -28,7 +28,7 @@
 !> [1] A.D. Becke, "Density-functional thermochemistry. V. Systematic
 !>     optimization of exchange-correlation functionals", J. Chem. Phys.
 !>     107 (1997) 8554-8560, DOI:
-!>     <a href="http://dx.doi.org/10.1063/1.475007">
+!>     <a href="https://doi.org/10.1063/1.475007">
 !>     10.1063/1.475007</a>.
 !> 
 !> [2] Tobias Risthaus (tobias.risthaus@thch.uni-bonn.de),
@@ -39,7 +39,7 @@
 !> [3] S. Grimme, "Semiempirical GGA-type density functional constructed
 !>     with a long-range dispersion correction", J. Comput. Chem. 27 (2006)
 !>     1787-1799, DOI:
-!>     <a href="http://dx.doi.org/10.1002/jcc.20495">
+!>     <a href="https://doi.org/10.1002/jcc.20495">
 !>     10.1002/jcc.20495</a>.
 !> @}
 !>

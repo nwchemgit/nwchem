@@ -17,14 +17,14 @@ C>
 C> [1] T van Voorhis, GE Scuseria,
 C>     "A novel form for the exchange-correlation energy functional",
 C>     J.Chem.Phys. <b>109</b>, 400-410 (1998), DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.476577">
+C>     <a href="https://doi.org/10.1063/1.476577">
 C>     10.1063/1.476577</a>.
 C>
 C> [2] T van Voorhis, GE Scuseria,
 C>     Erratum: "A novel form for the exchange-correlation energy
 C>     functional",
 C>     J.Chem.Phys. <b>129</b>, 219901-219901 (2008), DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.3005348">
+C>     <a href="https://doi.org/10.1063/1.3005348">
 C>     10.1063/1.3005348</a>.
 C>
 c   VS98  exchange functional   

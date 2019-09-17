@@ -111,7 +111,7 @@ C> ### References ###
 C> 
 C> [1] J Tao, JP Perdew, VN Staveroverov, GE Scuseria
 C>    , Phys.Rev.Lett. 91, 146401 (2003)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.91.146401 "> 
+C> <a href="https://doi.org/10.1103/PhysRevLett.91.146401 "> 
 C> 10.1103/PhysRevLett.91.146401 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -1338,7 +1338,7 @@ C> ### References ###
 C> 
 C> [1] J Tao, JP Perdew, VN Staveroverov, GE Scuseria
 C>    , Phys.Rev.Lett. 91, 146401 (2003)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.91.146401 "> 
+C> <a href="https://doi.org/10.1103/PhysRevLett.91.146401 "> 
 C> 10.1103/PhysRevLett.91.146401 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -4244,7 +4244,7 @@ C> ### References ###
 C> 
 C> [1] J Tao, JP Perdew, VN Staveroverov, GE Scuseria
 C>    , Phys.Rev.Lett. 91, 146401 (2003)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.91.146401 "> 
+C> <a href="https://doi.org/10.1103/PhysRevLett.91.146401 "> 
 C> 10.1103/PhysRevLett.91.146401 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

@@ -137,7 +137,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] SH Vosko, L Wilk, M Nusair, Can.J.Phys. 58, 1200 (1980)  , DOI: 
-C> <a href="http://dx.doi.org/10.1139/p80-159 "> 
+C> <a href="https://doi.org/10.1139/p80-159 "> 
 C> 10.1139/p80-159 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -740,7 +740,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] SH Vosko, L Wilk, M Nusair, Can.J.Phys. 58, 1200 (1980)  , DOI: 
-C> <a href="http://dx.doi.org/10.1139/p80-159 "> 
+C> <a href="https://doi.org/10.1139/p80-159 "> 
 C> 10.1139/p80-159 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -1892,7 +1892,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] SH Vosko, L Wilk, M Nusair, Can.J.Phys. 58, 1200 (1980)  , DOI: 
-C> <a href="http://dx.doi.org/10.1139/p80-159 "> 
+C> <a href="https://doi.org/10.1139/p80-159 "> 
 C> 10.1139/p80-159 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

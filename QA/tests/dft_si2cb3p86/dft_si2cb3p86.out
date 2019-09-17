@@ -7,7 +7,7 @@ echo
 
 start dft_si2cb3p86
 
-title "si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0"
+title "si2c with b3p86 cfr https://doi.org/10.1016/0009-2614(96)00480-0"
 
 geometry noautoz
  si  1.69 0.  0.
@@ -111,7 +111,7 @@ task dft optimize
                                 -------------------
  
  
-        si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0
+        si2c with b3p86 cfr https://doi.org/10.1016/0009-2614(96)00480-0
         ------------------------------------------------------------------
 
  Scaling coordinates for geometry "geometry" by  1.889725989
@@ -213,7 +213,7 @@ task dft optimize
  
  
  
-        si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0
+        si2c with b3p86 cfr https://doi.org/10.1016/0009-2614(96)00480-0
  
  
  maximum gradient threshold         (gmax) =   0.000015
@@ -290,7 +290,7 @@ task dft optimize
                                  -----------------
  
  
-        si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0
+        si2c with b3p86 cfr https://doi.org/10.1016/0009-2614(96)00480-0
  
  
                       Basis "ao basis" -> "ao basis" (spherical)
@@ -818,7 +818,7 @@ task dft optimize
                             --------------------------
  
  
-        si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0
+        si2c with b3p86 cfr https://doi.org/10.1016/0009-2614(96)00480-0
  
  
 
@@ -854,7 +854,7 @@ task dft optimize
                                  -----------------
  
  
-        si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0
+        si2c with b3p86 cfr https://doi.org/10.1016/0009-2614(96)00480-0
  
  
   Caching 1-el integrals 
@@ -924,7 +924,7 @@ task dft optimize
 
  Loading old vectors from job with title :
 
-si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0
+si2c with b3p86 cfr https://doi.org/10.1016/0009-2614(96)00480-0
 
  
       Symmetry analysis of molecular orbitals - initial
@@ -1344,7 +1344,7 @@ rate(mb/s): 1.13e+03  4.68e+03
                                  -----------------
  
  
-        si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0
+        si2c with b3p86 cfr https://doi.org/10.1016/0009-2614(96)00480-0
  
  
 
@@ -1358,7 +1358,7 @@ rate(mb/s): 1.13e+03  4.68e+03
                             --------------------------
  
  
-        si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0
+        si2c with b3p86 cfr https://doi.org/10.1016/0009-2614(96)00480-0
  
  
 
@@ -1394,7 +1394,7 @@ rate(mb/s): 1.13e+03  4.68e+03
                                  -----------------
  
  
-        si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0
+        si2c with b3p86 cfr https://doi.org/10.1016/0009-2614(96)00480-0
  
  
   Caching 1-el integrals 
@@ -1464,7 +1464,7 @@ rate(mb/s): 1.13e+03  4.68e+03
 
  Loading old vectors from job with title :
 
-si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0
+si2c with b3p86 cfr https://doi.org/10.1016/0009-2614(96)00480-0
 
  
       Symmetry analysis of molecular orbitals - initial
@@ -1885,7 +1885,7 @@ rate(mb/s): 9.71e+02  4.33e+03
                                  -----------------
  
  
-        si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0
+        si2c with b3p86 cfr https://doi.org/10.1016/0009-2614(96)00480-0
  
  
 
@@ -1899,7 +1899,7 @@ rate(mb/s): 9.71e+02  4.33e+03
                             --------------------------
  
  
-        si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0
+        si2c with b3p86 cfr https://doi.org/10.1016/0009-2614(96)00480-0
  
  
 
@@ -1935,7 +1935,7 @@ rate(mb/s): 9.71e+02  4.33e+03
                                  -----------------
  
  
-        si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0
+        si2c with b3p86 cfr https://doi.org/10.1016/0009-2614(96)00480-0
  
  
   Caching 1-el integrals 
@@ -2005,7 +2005,7 @@ rate(mb/s): 9.71e+02  4.33e+03
 
  Loading old vectors from job with title :
 
-si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0
+si2c with b3p86 cfr https://doi.org/10.1016/0009-2614(96)00480-0
 
  
       Symmetry analysis of molecular orbitals - initial
@@ -2417,7 +2417,7 @@ rate(mb/s): 1.13e+03  4.30e+03
                                  -----------------
  
  
-        si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0
+        si2c with b3p86 cfr https://doi.org/10.1016/0009-2614(96)00480-0
  
  
 
@@ -2431,7 +2431,7 @@ rate(mb/s): 1.13e+03  4.30e+03
                             --------------------------
  
  
-        si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0
+        si2c with b3p86 cfr https://doi.org/10.1016/0009-2614(96)00480-0
  
  
 

@@ -24,13 +24,13 @@ C>
 C> [1] T. Tsuneda, T. Suzumura, K. Hirao,
 C>     "A new one-parameter progressive Colle-Salvetti-type correlation
 C>     functional", J. Chem. Phys. <b>110</b>, 10664-10678 (1999), DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.479012">
+C>     <a href="https://doi.org/10.1063/1.479012">
 C>     10.1063/1.479012</a>.
 C>
 C> [2] T. Tsuneda, T. Suzumura, K. Hirao,
 C>     "A reexamination of exchange energy functionals",
 C>     J. Chem. Phys. <b>111</b>, 5656-5667 (1999), DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.479954">
+C>     <a href="https://doi.org/10.1063/1.479954">
 C>     10.1063/1.479954</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)

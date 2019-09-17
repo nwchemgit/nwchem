@@ -29,15 +29,15 @@ C> \f}
 C>
 C> [1] F. Bloch, "Bemerkung zur Elektronentheorie des Ferromagnetismus und der elektrischen Leitfähigkeit",
 C> Zeitschrift f&uuml;r Physik <b>57</b>, 545-555 (1929), DOI:
-C> <a href="http://dx.doi.org/10.1007/BF01340281">10.1007/BF01340281</a>.
+C> <a href="https://doi.org/10.1007/BF01340281">10.1007/BF01340281</a>.
 C>
 C> [2] P.A.M. Dirac, "Note on exchange phenomena in the Thomas atom",
 C> Math. Proc. Cambridge Philos. Soc. <b>26</b>, 376-385 (1930), DOI:
-C> <a href="http://dx.doi.org/10.1017/S0305004100016108">10.1017/S0305004100016108</a>.
+C> <a href="https://doi.org/10.1017/S0305004100016108">10.1017/S0305004100016108</a>.
 C>
 C> [3] J.C. Slater, "A simplification of the Hartree-Fock method",
 C> Phys. Rev. <b>81</b>, 385-390 (1951), DOI:
-C> <a href="http://dx.doi.org/10.1103/PhysRev.81.385">10.1103/PhysRev.81.385</a>.
+C> <a href="https://doi.org/10.1103/PhysRev.81.385">10.1103/PhysRev.81.385</a>.
 c
 c     Modified to handle second derivatives while reusing code
 c

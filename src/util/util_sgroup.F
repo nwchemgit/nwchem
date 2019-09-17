@@ -25,7 +25,7 @@ C> [1] T. L. Windus, S. M. Kathmann, L. D. Crosby,
 C>     "High performance computations using dynamical nucleation
 C>     theory", <i>J. Phys.: Conf. Ser.</i> (2008) <b>125</b>,
 C>     012017, DOI:
-C>     <a href="http://dx.doi.org/10.1088/1742-6596/125/1/012017">
+C>     <a href="https://doi.org/10.1088/1742-6596/125/1/012017">
 C>     10.1088/1742-6596/125/1/012017</a>.
 C>
 C> [2] B. J. Palmer, S. M. Kathmann, M. Krishnan, V. Tipparaju,
@@ -33,7 +33,7 @@ C>     J. Nieplocha, "The use of processor groups in molecular
 C>     dynamics simulations to sample free-energy states",
 C>     <i>J. Chem. Theory Comput.</i> (2007) <b>3</b>, 583-592,
 C>     DOI:
-C>     <a href="http://dx.doi.org/10.1021/ct600260u">
+C>     <a href="https://doi.org/10.1021/ct600260u">
 C>     10.1021/ct600260u</a>.
 C>
 C> [3] J. Nieplocha, B. Palmer, V. Tipparaju, M. Krishnan, H. Trease,
@@ -41,7 +41,7 @@ C>     E. Apra, "Advances, applications and performance of the Global
 C>     Arrays shared memory programming toolkit", 
 C>     <i>Int. J. High Perf. Comput. Appl.</i> (2006) <b>20</b>,
 C>     203-231, DOI:
-C>     <a href="http://dx.doi.org/10.1177/1094342006064503">
+C>     <a href="https://doi.org/10.1177/1094342006064503">
 C>     10.1177/1094342006064503</a>.
 C>
       block data groups

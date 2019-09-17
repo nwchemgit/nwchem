@@ -20,7 +20,7 @@ C>
 C> [1] M. Rasolt, D.J.W. Geldart,
 C>     "Exchange and correlation energy in a nonuniform fermion fluid",
 C>     Phys. Rev. B <b>34</b>, 1325-1328 (1986), DOI:
-C>     <A HREF="http://dx.doi.org/10.1103/PhysRevB.34.1325">
+C>     <A HREF="https://doi.org/10.1103/PhysRevB.34.1325">
 C>     10.1103/PhysRevB.34.1325</A>.
 C>
 C> [2] J.P. Perdew, J.A. Chevary, S.H. Vosko, K.A. Jackson,
@@ -28,7 +28,7 @@ C>     M.R. Pederson, D.J. Singh, C. Fiolhais,
 C>     "Atoms, molecules, solids, and surfaces: Applications of the
 C>     generalized gradient approximation for exchange and correlation",
 C>     Phys. Rev. B <b>46</b>, 6671-6687 (1992), DOI:
-C>     <A HREF="http://dx.doi.org/10.1103/PhysRevB.46.6671">
+C>     <A HREF="https://doi.org/10.1103/PhysRevB.46.6671">
 C>     10.1103/PhysRevB.46.6671</A>.
 C>
 C> [3] J.P. Perdew, J.A. Chevary, S.H. Vosko, K.A. Jackson,
@@ -37,7 +37,7 @@ C>     "Erratum: Atoms, molecules, solids, and surfaces: Applications
 C>     of the generalized gradient approximation for exchange and
 C>     correlation",
 C>     Phys. Rev. B <b>48</b>, 4978-4978 (1993), DOI:
-C>     <A HREF="http://dx.doi.org/10.1103/PhysRevB.48.4978.2">
+C>     <A HREF="https://doi.org/10.1103/PhysRevB.48.4978.2">
 C>     10.1103/PhysRevB.48.4978.2</A>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)

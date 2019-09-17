@@ -60,7 +60,7 @@ C>
 C> * M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski, T.P. Straatsma, H.J.J. Van Dam,
 C>   D. Wang, J. Nieplocha, E. Apra, T.L. Windus, W.A. de Jong (2010)<br>
 C>   "NWChem: A comprehensive and scalable open-source solution for large scale molecular simulations"<br>
-C>   <I>Computer Physics Communications</I>, <b>181</b>, 1477–1489, DOI: <a href="http://dx.doi.org/10.1016/j.cpc.2010.04.018">10.1016/j.cpc.2010.04.018</a>
+C>   <I>Computer Physics Communications</I>, <b>181</b>, 1477–1489, DOI: <a href="https://doi.org/10.1016/j.cpc.2010.04.018">10.1016/j.cpc.2010.04.018</a>
 C>
 C> provides details on the codes capabilities.
 C>

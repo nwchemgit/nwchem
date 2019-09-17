@@ -30,7 +30,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] PMW Gill, Mol.Phys. 89, 433 (1996)  , DOI: 
-C> <a href="http://dx.doi.org/10.1080/002689796173813 "> 
+C> <a href="https://doi.org/10.1080/002689796173813 "> 
 C> 10.1080/002689796173813 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -159,7 +159,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] PMW Gill, Mol.Phys. 89, 433 (1996)  , DOI: 
-C> <a href="http://dx.doi.org/10.1080/002689796173813 "> 
+C> <a href="https://doi.org/10.1080/002689796173813 "> 
 C> 10.1080/002689796173813 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -349,7 +349,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] PMW Gill, Mol.Phys. 89, 433 (1996)  , DOI: 
-C> <a href="http://dx.doi.org/10.1080/002689796173813 "> 
+C> <a href="https://doi.org/10.1080/002689796173813 "> 
 C> 10.1080/002689796173813 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

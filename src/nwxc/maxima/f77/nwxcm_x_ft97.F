@@ -51,7 +51,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] M Filatov, W Thiel, Mol.Phys. 91, 847 (1997)  , DOI: 
-C> <a href="http://dx.doi.org/10.1080/002689797170950 "> 
+C> <a href="https://doi.org/10.1080/002689797170950 "> 
 C> 10.1080/002689797170950 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -317,7 +317,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] M Filatov, W Thiel, Mol.Phys. 91, 847 (1997)  , DOI: 
-C> <a href="http://dx.doi.org/10.1080/002689797170950 "> 
+C> <a href="https://doi.org/10.1080/002689797170950 "> 
 C> 10.1080/002689797170950 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -874,7 +874,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] M Filatov, W Thiel, Mol.Phys. 91, 847 (1997)  , DOI: 
-C> <a href="http://dx.doi.org/10.1080/002689797170950 "> 
+C> <a href="https://doi.org/10.1080/002689797170950 "> 
 C> 10.1080/002689797170950 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

@@ -21,7 +21,7 @@ C>
 C> [1] P. M. W. Gill,
 C>     "A new gradient-corrected exchange functional", Mol. Phys.
 C>     <b>89</b> (1996) 433-445, DOI:
-C>     <a href="http://dx.doi.org/10.1080/002689796173813">
+C>     <a href="https://doi.org/10.1080/002689796173813">
 C>     10.1080/002689796173813</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)

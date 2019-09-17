@@ -57,7 +57,7 @@ C> ### References ###
 C> 
 C> [1] K Pernal, R Podeszwa, K Patkowski, K Szalewicz
 C>    , Phys.Rev.Lett. 103, 263201 (2009)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.103.263201 "> 
+C> <a href="https://doi.org/10.1103/PhysRevLett.103.263201 "> 
 C> 10.1103/PhysRevLett.103.263201 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -356,7 +356,7 @@ C> ### References ###
 C> 
 C> [1] K Pernal, R Podeszwa, K Patkowski, K Szalewicz
 C>    , Phys.Rev.Lett. 103, 263201 (2009)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.103.263201 "> 
+C> <a href="https://doi.org/10.1103/PhysRevLett.103.263201 "> 
 C> 10.1103/PhysRevLett.103.263201 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -912,7 +912,7 @@ C> ### References ###
 C> 
 C> [1] K Pernal, R Podeszwa, K Patkowski, K Szalewicz
 C>    , Phys.Rev.Lett. 103, 263201 (2009)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.103.263201 "> 
+C> <a href="https://doi.org/10.1103/PhysRevLett.103.263201 "> 
 C> 10.1103/PhysRevLett.103.263201 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

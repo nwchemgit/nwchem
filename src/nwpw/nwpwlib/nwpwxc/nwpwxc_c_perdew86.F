@@ -20,21 +20,21 @@ C> [1] J.P. Perdew,
 C>     "Density-functional approximation for the correlation energy of
 C>     the inhomogeneous electron gas", Phys. Rev. B <b>33</b>,
 C>     8822–8824 (1986), DOI:
-C>     <a href="http://dx.doi.org/10.1103/PhysRevB.33.8822">
+C>     <a href="https://doi.org/10.1103/PhysRevB.33.8822">
 C>     10.1103/PhysRevB.33.8822</a>.
 C>
 C> [2] P. Mlynarski, D.R. Salahub,
 C>     "Self-consistent implementation of nonlocal exchange and
 C>     correlation in a Gaussian density-functional method",
 C>     Phys. Rev. B <b>43</b>, 1399–1410 (1991), DOI:
-C>     <a href="http://dx.doi.org/10.1103/PhysRevB.43.1399">
+C>     <a href="https://doi.org/10.1103/PhysRevB.43.1399">
 C>     10.1103/PhysRevB.43.1399</a>.
 C>
 C> [3] J.P. Perdew,
 C>     "Erratum: Density-functional approximation for the correlation
 C>     energy of the inhomogeneous electron gas", Phys. Rev. B
 C>     <b>34</b>, 7406–7406 (1986), DOI:
-C>     <a href="http://dx.doi.org/10.1103/PhysRevB.34.7406">
+C>     <a href="https://doi.org/10.1103/PhysRevB.34.7406">
 C>     10.1103/PhysRevB.34.7406</a>.
 C>
 #ifndef SECOND_DERIV
