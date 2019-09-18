@@ -14,6 +14,7 @@
 #include "global.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
+#include "nwcsim.fh"
 c      use iso_c_binding
       integer rtdb,nbas,bases(3)
       integer :: num_der
@@ -120,23 +121,24 @@ c     dummy shell for 3c-
          enddo
          if(.not.ma_chop_stack(l_exp)) call errquit(
      E        ' pop stack failed ',l_exp,0)
+c
+c     memory allocation
+c
+
+         mem_2e4c = max(mem_2e4c,
+     S        simint_eri_worksize(num_der, max_ang))
+         isz_2e4c = max(isz_2e4c,
+     S        simint_eri_workmem(num_der, max_ang))
       enddo ! basis loop
       endif
 c
 c     normalization not needed since nwchem and simint use the same
 cedo      call simint_normalize_shells(nwcsim_noshell,smnt_sh)
-c
-c     memory allocation
-c
-
-      mem_2e4c = max(mem_2e4c,
-     S     simint_eri_worksize(num_der, max_ang))
 c     SIMINT_PRIM_SCREEN_STAT needs 4 more doubles
-      isz_2e4c        = isz_2e4c + 4
-#define SIMINT_SIMD_LEN 8
+c      isz_2e4c        = isz_2e4c + 4
+C      
       call util_align(isz_2e4c,SIMINT_SIMD_LEN)
-      isz_2e2c        = isz_2e2c + 4
-      call util_align(isz_2e2c,SIMINT_SIMD_LEN)
+      call util_align(mem_2e4c,SIMINT_SIMD_LEN)
 c      
       
       if(num_der.eq.1) then
@@ -144,7 +146,7 @@ c
       else
          memb_2e4c = mem_2e4c + mem_2e4c/10 ! +10% to be safe
       endif
-      call util_align(mem_2e4c,SIMINT_SIMD_LEN)
+      call util_align(memb_2e4c,SIMINT_SIMD_LEN)
       mem_2e3c = mem_2e4c
       mem_2e2c = mem_2e4c
       if(ga_nodeid().eq.0) then
@@ -152,8 +154,10 @@ c
          write(luout,*) ' Using Simint Integral package'
          write(luout,*) ' simint: mem_2e4c   ',mem_2e4c
          write(luout,*) ' simint: memb_2e4c  ',memb_2e4c
-         write(luout,*) ' 0 der',simint_eri_worksize(0, max_ang)
-         write(luout,*) ' 1 der',simint_eri_worksize(1, max_ang)
+         write(luout,*) ' simint: isz_2e4c   ',isz_2e4c
+         write(luout,*) ' 0der wksize',simint_eri_worksize(0, max_ang)
+         write(luout,*) ' 0der wkmem ',simint_eri_workmem(0, max_ang)
+         write(luout,*) ' 1der wksize',simint_eri_worksize(1, max_ang)
          write(luout,*) ' screen_method ',smnt_screen_method
          write(luout,*) ' screen_tol ',smnt_screen_tol
          write(luout,*)

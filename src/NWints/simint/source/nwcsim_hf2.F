@@ -63,11 +63,13 @@ c
       call simint_free_multi_shellpair(bra_msh)
       call simint_free_multi_shellpair(ket_msh)
 #ifdef DEBUG
-      write(6,*) ' eri ', eri(1),eri(ncomputed)
+      write(6,*) ncomputed,' eri ', eri(1),eri(ncomputed)
       if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2b'
 #endif
-      if(ncomputed.gt.leri) call errquit(
-     P     pname//'ncomputed gt leri ',ncomputed*10000+leri, BASIS_ERR)
+      if(ncomputed.le.0) call errquit(
+     P     pname//'return value from simint ',ncomputed, BASIS_ERR)
+cwrong      if(ncomputed.gt.leri) call errquit(
+c     P     pname//'ncomputed gt leri ',ncomputed*10000+leri, BASIS_ERR)
  
       return
       end
