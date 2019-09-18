@@ -8,26 +8,33 @@
 #
 # ./build_simint.sh
 #
+if  [ -z "$(command -v python3)" ]; then
+    echo python3 not installed
+    echo please install python3
+    exit 1
+fi
 UNAME_S=$(uname -s)
 if [[ ${UNAME_S} == Linux ]]; then
     CPU_FLAGS=$(cat /proc/cpuinfo | egrep flags)
+    CPU_FLAGS_2=$(cat /proc/cpuinfo | egrep flags)
 elif [[ ${UNAME_S} == Darwin ]]; then
-    CPU_FLAGS=$(sysctl -a | grep machdep.cpu.features)
+    CPU_FLAGS=$(sysctl -n machdep.cpu.features)
+    CPU_FLAGS_2=$(sysctl -n machdep.cpu.leaf7_features)
 else
     echo Operating system not supported yet
     exit 1
 fi
-GOTSSE2=$(echo ${CPU_FLAGS} | tr  'A-Z' 'a-z'| grep sse2 | tail -n 1 | awk ' /sse2/  {print "Y"}')
- GOTAVX=$(echo ${CPU_FLAGS} | tr  'A-Z' 'a-z'| grep avx  | tail -n 1 | awk ' /avx/  {print "Y"}')
-GOTAVX2=$(echo ${CPU_FLAGS} | tr  'A-Z' 'a-z'| grep avx2 | tail -n 1 | awk ' /avx2/  {print "Y";exit};{print "N"}')
-GOTAVX512=$(echo ${CPU_FLAGS} | tr  'A-Z' 'a-z'| grep avx512 | tail -n 1 | awk ' /avx512f/  {print "Y";exit};{print "N"}')
-if [[ ! -z "${GOTAVX512}" ]]; then
+GOTSSE2=$(echo ${CPU_FLAGS} | tr  'A-Z' 'a-z'|  awk ' /sse2/  {print "Y"}')
+ GOTAVX=$(echo ${CPU_FLAGS} | tr  'A-Z' 'a-z'|  awk ' /avx/  {print "Y"}')
+GOTAVX2=$(echo ${CPU_FLAGS_2} | tr  'A-Z' 'a-z'| awk ' /avx2/  {print "Y"}')
+GOTAVX512=$(echo ${CPU_FLAGS} | tr  'A-Z' 'a-z'| awk ' /avx512f/  {print "Y"}')
+if [[ "${GOTAVX512}" == "Y" ]]; then
     VEC=avx512
-elif [[ ! -z "${GOTAVX2}" ]]; then
+elif [[ "${GOTAVX2}" == "Y" ]]; then
     VEC=avx2
-elif [[ ! -z "${GOTAVX}" ]]; then
+elif [[ "${GOTAVX}" == "Y" ]]; then
     VEC=avx
-elif [[ ! -z "${GOTSSE2}" ]]; then
+elif [[ "${GOTSSE2}" == "Y" ]]; then
     VEC=sse
 else
     VEC=scalar
@@ -42,12 +49,12 @@ fi
 PERMUTE_SLOW=${MAXAM}
 GITHUB_USERID=edoapra
 rm -rf simint.l${MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* *-chem-simint-generator-?????? simint-chem-simint-generator.tar.gz
-curl -LJ https://github.com/${GITHUB_USERID}/simint-generator/tarball/master -o simint-chem-simint-generator.tar.gz
+curl -L https://github.com/${GITHUB_USERID}/simint-generator/tarball/master -o simint-chem-simint-generator.tar.gz
 #curl -LJ https://github.com/simint-chem/simint-generator/tarball/master -o simint-chem-simint-generator.tar.gz
 tar xzf simint-chem-simint-generator.tar.gz
 cd *-simint-generator-???????
 rm -f generator_types.patch
-echo > generator_types.patch <<EOF
+cat > generator_types.patch <<EOF
 --- simint-chem-simint-generator-c589bd7/generator/CommandLine.hpp	2018-12-11 10:48:31.000000000 -0800
 +++ modif/generator/CommandLine.hpp	2019-09-17 09:25:45.000000000 -0700
 @@ -10,6 +10,7 @@
@@ -59,26 +66,58 @@ echo > generator_types.patch <<EOF
  
  /*! \brief Get the next argument on the command line
 EOF
-patch -p1 < /tmp/generator_types.patch
+patch -p1 < ./generator_types.patch
 pwd
-mkdir build; cd build
- cmake ../
+mkdir -p build; cd build
+if [[ -z "${CMAKE}" ]]; then
+    #look for cmake
+    if [[ -z "$(command -v cmake)" ]]; then
+	echo cmake required to build Simint
+	echo Please install cmake
+	echo define the CMAKE env. variable
+	exit 1
+    else
+	CMAKE=cmake
+    fi
+fi
+CMAKE_VER=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -c1)
+#echo CMAKE_VER is ${CMAKE_VER}
+if [[ ${CMAKE_VER} -lt 3 ]]; then
+    echo CMake 3.0.2 or higher is required
+    echo Please install CMake 3
+    echo define the CMAKE env. variable
+    exit 1
+fi
+$CMAKE ../
 make -j3
 cd ..
 #./create.py -g build/generator/ostei -l 6 -p 4 -d 1 simint.l6_p4_d1
 #create.py -g build/generator/ostei -l 4 -p 4 -d 0 -ve 4 -he 4 -vg 5 -hg 5
 #https://www.cc.gatech.edu/~echow/pubs/huang-chow-sc18.pdf
-/usr/bin/time -p ./create.py -g build/generator/ostei -l ${MAXAM} -p ${PERMUTE_SLOW} -d ${DERIV} ../simint.l${MAXAM}_p${PERMUTE_SLOW}_d${DERIV}  -ve 4 -he 4 -vg 5 -hg 5
+time -p ./create.py -g build/generator/ostei -l ${MAXAM} -p ${PERMUTE_SLOW} -d ${DERIV} ../simint.l${MAXAM}_p${PERMUTE_SLOW}_d${DERIV}  -ve 4 -he 4 -vg 5 -hg 5
 cd ../simint.l${MAXAM}_p${PERMUTE_SLOW}_d${DERIV}
-mkdir build
+mkdir -p build
 cd build
+if [[ -z "${CXX}" ]]; then
+    #look for c++
+    if  [ -z "$(command -v c++)" ]; then
+        echo c++ not installed
+        echo please install a C++ compiler and
+        echo define the CXX env. variable
+	exit 1
+    else
+	CXX=c++
+    fi
+fi    
 if [[ -z "${FC}" ]]; then
     #look for gfortran
-    GOTGFORTRAN=$(command -v gfortran | tail -n 1 | awk ' /gfortran/  {print "Y"}')
-    if  [ ${GOTGFORTRAN} == "Y" ]; then
-	FC=gfortran
-    else
+    if  [ -z "$(command -v gfortran)" ]; then
+        echo gfortran not installed
+        echo please install a Fortran compiler and
+        echo define the FC env. variable
 	exit 1
+    else
+	FC=gfortran
     fi
 fi    
 if [ ${FC} == gfortran ] || [ ${FC} == flang ] ; then
@@ -86,11 +125,11 @@ if [ ${FC} == gfortran ] || [ ${FC} == flang ] ; then
 elif  [ ${FC} == ifort ]; then
     Fortran_FLAGS="-i8 -fpp"
 fi
-cmake \
+FC="${FC}" CXX="${CXX}" $CMAKE \
  -DCMAKE_BUILD_TYPE=Release -DSIMINT_VECTOR=${VEC}  \
  -DCMAKE_INSTALL_LIBDIR=lib -DENABLE_FORTRAN=ON -DSIMINT_MAXAM=${MAXAM} SIMINT_MAXDER=${DERIV} \
  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DCMAKE_INSTALL_PREFIX=${SRC_HOME}/simint.l${MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install ../
-/usr/bin/time -p make -j3
+time -p make -j3
 make install
 cd ../..
 export USE_SIMINT=1
@@ -104,3 +143,4 @@ make V=1
 cd ../..
 make V=1  link
 echo 'NWChem built with SIMINT support. Maximum angular momentum='${MAXAM}
+echo SIMINT_HOME="$SIMINT_HOME"
