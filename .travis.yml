@@ -10,6 +10,7 @@ env:
   - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="mpich"
   - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PR MPI_IMPL="openmpi"
   - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT MPI_IMPL="mpich"
+  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT MPI_IMPL="mpich" USE_SIMINT=1 SIMINT_MAXAM=3
   - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-MT MPI_IMPL="mpich"
   - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI3   MPI_IMPL="mpich"
   - NWCHEM_MODULES=tce     ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
@@ -20,6 +21,8 @@ matrix:
   exclude:
     - os: osx
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="mpich"
+    - os: osx
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT MPI_IMPL="mpich" USE_SIMINT=1 SIMINT_MAXAM=3
   allow_failures:
     - os: osx
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
@@ -31,6 +34,8 @@ matrix:
       env: NWCHEM_MODULES=qmandpw  ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
     - os: osx
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI3   MPI_IMPL="mpich"
+    - os: linux
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT MPI_IMPL="mpich" USE_SIMINT=1 SIMINT_MAXAM=3
 git:
   depth: 8
 before_script:
