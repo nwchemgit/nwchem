@@ -43,8 +43,6 @@ before_script:
         - gfortran -v
         - mpif90 -show
         - ./travis/config_nwchem.sh
-        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./travis/build_openblas.sh;  fi
-        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./travis/build_scalapack.sh; fi
         - sleep 1
 script:
         - ./travis/compile_nwchem.sh
