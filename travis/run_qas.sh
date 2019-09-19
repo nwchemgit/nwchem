@@ -42,7 +42,10 @@ set -ev
  esac
  if [[ "$NWCHEM_MODULES" == "tce" ]]; then
    cd $TRAVIS_BUILD_DIR/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs tce_n2 tce_ccsd_t_h2o tce_h2o_eomcc
-    if  [[ "$do_largeqas" == 1 ]]; then
+   head -2 $TRAVIS_BUILD_DIR/QA/testoutputs/tce_n2.out
+   tail -99 $TRAVIS_BUILD_DIR/QA/testoutputs/tce_n2.out
+   diff -u $TRAVIS_BUILD_DIR/QA/testoutputs/tce_n2.o*nw*
+ if  [[ "$do_largeqas" == 1 ]]; then
 	cd $TRAVIS_BUILD_DIR/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs tce_ipccsd_f2 tce_eaccsd_ozone
     fi
  else
