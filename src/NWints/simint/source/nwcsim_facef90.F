@@ -152,12 +152,10 @@ c
       if(ga_nodeid().eq.0) then
          write(luout,*)
          write(luout,*) ' Using Simint Integral package'
+         write(luout,*) ' num_der',num_der
          write(luout,*) ' simint: mem_2e4c   ',mem_2e4c
          write(luout,*) ' simint: memb_2e4c  ',memb_2e4c
          write(luout,*) ' simint: isz_2e4c   ',isz_2e4c
-         write(luout,*) ' 0der wksize',simint_eri_worksize(0, max_ang)
-         write(luout,*) ' 0der wkmem ',simint_eri_workmem(0, max_ang)
-         write(luout,*) ' 1der wksize',simint_eri_worksize(1, max_ang)
          write(luout,*) ' screen_method ',smnt_screen_method
          write(luout,*) ' screen_tol ',smnt_screen_tol
          write(luout,*)
