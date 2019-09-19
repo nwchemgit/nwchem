@@ -261,6 +261,14 @@ do
     continue
   fi
   INPUTFILE=${NWCHEM_TOP}/QA/${TESTDIR}/${INPUTFILE}
+  if [[ ! -z "$USE_SIMINT" ]]; then
+      rm -f mynewinput.nw
+      echo 'set int:cando_txs f'  >> mynewinput.nw
+      echo 'set int:cando_nw f'  >> mynewinput.nw
+      cat ${INPUTFILE} >> mynewinput.nw
+      INPUTFILE=`pwd`/mynewinput.nw
+      echo INPUTFILE modified for Simint is ${INPUTFILE}
+  fi
   if [ $md_test_run -ne 1 ]; then
     if [ ! -f ${TESTDIR}/${OUTPUTFILE} ]; then
       echo failed: Could not find verified output file $TESTDIR/$OUTPUTFILE
