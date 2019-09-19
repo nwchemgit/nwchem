@@ -45,12 +45,8 @@ set -ev
    head -2 $TRAVIS_BUILD_DIR/QA/testoutputs/tce_n2.out
    tail -99 $TRAVIS_BUILD_DIR/QA/testoutputs/tce_n2.out
    ls -lrt $TRAVIS_BUILD_DIR/QA/testoutputs/
-   cat $TRAVIS_BUILD_DIR/QA/testoutputs/tce_n2.o*nw*
-   which perl
-   head $TRAVIS_BUILD_DIR/QA/nwparse.pl
-   diff -u $TRAVIS_BUILD_DIR/QA/testoutputs/tce_n2.o*nw*
+   cat $TRAVIS_BUILD_DIR/QA/testoutputs/tce_n2.out.nwparse
    perl $TRAVIS_BUILD_DIR/QA/nwparse.pl $TRAVIS_BUILD_DIR/QA/testoutputs/tce_n2.out
-   cat $TRAVIS_BUILD_DIR/QA/testoutputs/tce_n2.o*nw*
  if  [[ "$do_largeqas" == 1 ]]; then
 	cd $TRAVIS_BUILD_DIR/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs tce_ipccsd_f2 tce_eaccsd_ozone
     fi
