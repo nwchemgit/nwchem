@@ -1,6 +1,5 @@
 language: c
 sudo: required
-osx_image: xcode9.2
 dist: bionic
 os: 
   - osx
