@@ -20,7 +20,7 @@ C> [1] J.P. Perdew, S. Kurth, A. Zupan, P. Blaha,
 C>     <i>"Accurate density functional with correct formal properties:
 C>     A Step Beyond the Generalized Gradient Approximation"</i>,
 C>     Phys. Rev. Lett. <b>82</b>, 2544-2547 (1999), DOI:
-C>     <a href="http://dx.doi.org/10.1103/PhysRevLett.82.2544">
+C>     <a href="https://doi.org/10.1103/PhysRevLett.82.2544">
 C>     10.1103/PhysRevLett.82.2544</a>.
 C>
 C> [2] J.P. Perdew, S. Kurth, A. Zupan, P. Blaha,
@@ -28,7 +28,7 @@ C>     <i>"Erratum: Accurate density functional with correct formal
 C>     properties: A Step Beyond the Generalized Gradient
 C>     Approximation"</i>,
 C>     Phys. Rev. Lett. <b>82</b>, 5179-5179 (1999), DOI:
-C>     <a href="http://dx.doi.org/10.1103/PhysRevLett.82.5179">
+C>     <a href="https://doi.org/10.1103/PhysRevLett.82.5179">
 C>     10.1103/PhysRevLett.82.5179</a>.
 C>
 c     Perdew-Kurth-Zupan-Blaha '99 exchange functional 

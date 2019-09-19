@@ -338,14 +338,14 @@ C> [1] A. Klamt, G. Sch&uuml;&uuml;rmann,
 C>     "COSMO: a new approach to dielectric screening in solvents with
 C>      explicit expressions for the screening energy and its gradient",
 C>     <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
-C>     <a href="http://dx.doi.org/10.1039/P29930000799">
+C>     <a href="https://doi.org/10.1039/P29930000799">
 C>     10.1039/P29930000799</a>.
 C>
 C> [2] D.M. York, M. Karplus,
 C>     "A smooth solvation potential based on the conductor-like
 C>      screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
 C>     pp 11060-11079, DOI:
-C>     <a href="http://dx.doi.org/10.1021/jp992097l">
+C>     <a href="https://doi.org/10.1021/jp992097l">
 C>     10.1021/jp992097l</a>.
 C>
       subroutine hnd_cossas(nat,xyzatm,ratm,mxatom,
@@ -856,7 +856,7 @@ C> [1] A. Klamt, G. Sch&uuml;&uuml;rmann,
 C>     "COSMO: a new approach to dielectric screening in solvents with
 C>      explicit expressions for the screening energy and its gradient",
 C>     <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
-C>     <a href="http://dx.doi.org/10.1039/P29930000799">
+C>     <a href="https://doi.org/10.1039/P29930000799">
 C>     10.1039/P29930000799</a>.
 C>
       subroutine hnd_cossph(nseg,nfac,ndiv,
@@ -1952,49 +1952,49 @@ C>   [1] A. Klamt, G. Sch&uuml;&uuml;rmann,
 C>   "COSMO: a new approach to dielectric screening in solvents with
 C>    explicit expressions for the screening energy and its gradient",
 C>   <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
-C>   <a href="http://dx.doi.org/10.1039/P29930000799">
+C>   <a href="https://doi.org/10.1039/P29930000799">
 C>   10.1039/P29930000799</a>.
 C>
 C>   [2] M.A. Aguilar, F.J. Olivares del Valle, J. Tomasi,
 C>   "Nonequilibrium solvation: An ab initio quantummechanical method
 C>    in the continuum cavity model approximation",
 C>   <i>J. Chem. Phys.</i> (1993) <b>98</b>, pp 7375-7384, DOI:
-C>   <a href="http://dx.doi.org/10.1063/1.464728">
+C>   <a href="https://doi.org/10.1063/1.464728">
 C>   10.1063/1.464728</a>.
 C>
 C>   [3] E.V. Stefanovich, T.N. Truong,
 C>   "Optimized atomic radii for quantum dielectric continuum solvation
 C>    models", <i>Chem. Phys. Lett.</i> (1995) <b>244</b>, pp 65-74,
 C>   DOI:
-C>   <a href="http://dx.doi.org/10.1016/0009-2614(95)00898-E">
+C>   <a href="https://doi.org/10.1016/0009-2614(95)00898-E">
 C>   10.1016/0009-2614(95)00898-E</a>.
 C>
 C>   [4] D.M. York, M. Karplus,
 C>   "A smooth solvation potential based on the conductor-like 
 C>    screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
 C>   pp 11060-11079, DOI:
-C>   <a href="http://dx.doi.org/10.1021/jp992097l">
+C>   <a href="https://doi.org/10.1021/jp992097l">
 C>   10.1021/jp992097l</a>.
 C>
 C>   [5] G. Scalmani, M.J. Frisch,
 C>   "Continuous surface charge polarizable continuum models of
 C>    solvation. I. General formalism", <i>J. Chem. Phys.</i> (2010)
 C>   <b>132</b>, 114110, DOI:
-C>   <a href="http://dx.doi.org/10.1063/1.3359469">
+C>   <a href="https://doi.org/10.1063/1.3359469">
 C>   10.1063/1.3359469</a>.
 C>
 C>   [6] A.W. Lange, J.M. Herbert, 
 C>   "Polarizable continuum reaction-field solvation models affording
 C>    smooth potential energy surfaces", <i>J. Phys. Chem. Lett.</i>
 C>   (2010) <b>1</b>, pp 556-561, DOI:
-C>   <a href="http://dx.doi.org/10.1021/jz900282c">
+C>   <a href="https://doi.org/10.1021/jz900282c">
 C>   10.1021/jz900282c</a>.
 C>
 C>   [7] A.W. Lange, J.M. Herbert,
 C>   "A smooth, nonsingular, and faithful discretization scheme for
 C>    polarizable continuum models: The switching/Gaussian approach",
 C>   <i>J. Chem. Phys.</i> (2010) <b>133</b>, 244111, DOI:
-C>   <a href="http://dx.doi.org/10.1063/1.3511297">
+C>   <a href="https://doi.org/10.1063/1.3511297">
 C>   10.1063/1.3511297</a>.
 C>
 C>   [8] D. Klein,
@@ -2006,7 +2006,7 @@ C>
 C>   [9] P. Milgrom, I. Segal,
 C>   "Envelope theorems for arbitrary choice sets",
 C>   <i>Econometrica</i> (2002) <b>70</b>, 583-601, DOI:
-C>   <a href="http://dx.doi.org/10.1111/1468-0262.00296">
+C>   <a href="https://doi.org/10.1111/1468-0262.00296">
 C>   10.1111/1468-0262.00296</a>.
 C>
       subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
@@ -3101,14 +3101,14 @@ C> [1] A. Klamt, G. Sch&uuml;&uuml;rmann,
 C>     "COSMO: a new approach to dielectric screening in solvents with
 C>      explicit expressions for the screening energy and its gradient",
 C>     <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
-C>     <a href="http://dx.doi.org/10.1039/P29930000799">
+C>     <a href="https://doi.org/10.1039/P29930000799">
 C>     10.1039/P29930000799</a>.
 C>
 C> [2] D.M. York, M. Karplus,
 C>     "A smooth solvation potential based on the conductor-like
 C>      screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
 C>     pp 11060-11079, DOI:
-C>     <a href="http://dx.doi.org/10.1021/jp992097l">
+C>     <a href="https://doi.org/10.1021/jp992097l">
 C>     10.1021/jp992097l</a>.
 C>
       subroutine hnd_cos_energy(nat,nefc,chgscr,efcc,efcs,efcz,efciat,
@@ -3458,7 +3458,7 @@ C> [2]  A. Klamt, G. Sch&uuml;&uuml;rmann,
 C>     "COSMO: a new approach to dielectric screening in solvents with
 C>      explicit expressions for the screening energy and its gradient",
 C>     <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
-C>     <a href="http://dx.doi.org/10.1039/P29930000799">
+C>     <a href="https://doi.org/10.1039/P29930000799">
 C>     10.1039/P29930000799</a>.
 C>
       subroutine hnd_cosequ(nat,b,x,nefc,g,h,xi,xj,efcc,efcs,efciat,
@@ -3733,7 +3733,7 @@ C> [1] D.M. York, M. Karplus,
 C>     "A smooth solvation potential based on the conductor-like
 C>      screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
 C>     pp 11060-11079, DOI:
-C>     <a href="http://dx.doi.org/10.1021/jp992097l">
+C>     <a href="https://doi.org/10.1021/jp992097l">
 C>     10.1021/jp992097l</a>.
 C>
       double precision function cosff(r)
@@ -3764,7 +3764,7 @@ C> [1] D.M. York, M. Karplus,
 C>     "A smooth solvation potential based on the conductor-like
 C>      screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
 C>     pp 11060-11079, DOI:
-C>     <a href="http://dx.doi.org/10.1021/jp992097l">
+C>     <a href="https://doi.org/10.1021/jp992097l">
 C>     10.1021/jp992097l</a>.
 C>
       double precision function cosdff(r)

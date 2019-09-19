@@ -21,7 +21,7 @@ C> [1] J.P. Perdew, Y. Wang,
 C>     "Accuracte and simple analytic representation of the electron-gas
 C>      correlation energy",
 C>     Phys. Rev. B <b>45</b>, 13244-13249 (1992), DOI:
-C>     <a href="http://dx.doi.org/10.1103/PhysRevB.45.13244">
+C>     <a href="https://doi.org/10.1103/PhysRevB.45.13244">
 C>     10.1103/PhysRevB.45.13244</a>.
 *
 * $Id$

@@ -22,34 +22,34 @@ C>
 C> [1] J.P. Perdew, K. Burke, M. Ernzerhof, 
 C> "Generalized Gradient Approximation Made Simple"
 C> Phys. Rev. Lett. <b>77</b>, 3865-3865 (1996), DOI:
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.77.3865">
+C> <a href="https://doi.org/10.1103/PhysRevLett.77.3865">
 C> 10.1103/PhysRevLett.77.3865</a>.
 C>
 C> [2] J.P. Perdew, K. Burke, M. Ernzerhof, 
 C> "Erratum: Generalized Gradient Approximation Made Simple"
 C> Phys. Rev. Lett. <b>78</b>, 1396-1396 (1997), DOI:
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.78.1396">
+C> <a href="https://doi.org/10.1103/PhysRevLett.78.1396">
 C> 10.1103/PhysRevLett.78.1396</a>.
 C>
 C> [3] J.P. Perdew, Y. Wang, "Accurate and simple density functional
 C> for the electronic exchange energy: Generalized gradient
 C> approximation"
 C> Phys. Rev. B <b>33</b>, 8800-8802 (1986), DOI:
-C> <a href="http://dx.doi.org/10.1103/PhysRevB.33.8800">
+C> <a href="https://doi.org/10.1103/PhysRevB.33.8800">
 C> 10.1103/PhysRevB.33.8800</a>.
 C>
 C> [4] J.P. Perdew, Y. Wang, "Erratum: Accurate and simple density
 C> functional for the electronic exchange energy: Generalized gradient
 C> approximation"
 C> Phys. Rev. B <b>40</b>, 3399-3399 (1989), DOI:
-C> <a href="http://dx.doi.org/10.1103/PhysRevB.40.3399">
+C> <a href="https://doi.org/10.1103/PhysRevB.40.3399">
 C> 10.1103/PhysRevB.40.3399</a>.
 C>
 C> [5] B. Hammer, L.B. Hansen, J.K. N&oslash;rskov,
 C> "Improved adsorption energetics within density-functional theory
 C> using revised Perdew-Burke-Ernzerhof functionals",
 C> Phys. Rev. B <b>59</b>, 7413-7421 (1999), DOI:
-C> <a href="http://dx.doi.org/10.1103/PhysRevB.59.7413">
+C> <a href="https://doi.org/10.1103/PhysRevB.59.7413">
 C> 10.1103/PhysRevB.59.7413</a>.
 C>
 #ifndef SECOND_DERIV

@@ -262,7 +262,7 @@ C> ### References ###
 C> 
 C> [1] E Weintraub, TM Henderson, GE Scuseria
 C>    , J.Chem.Theory.Comput. 5, 754 (2009)  , DOI: 
-C> <a href="http://dx.doi.org/10.1021/ct800530u "> 
+C> <a href="https://doi.org/10.1021/ct800530u "> 
 C> 10.1021/ct800530u </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -1674,7 +1674,7 @@ C> ### References ###
 C> 
 C> [1] E Weintraub, TM Henderson, GE Scuseria
 C>    , J.Chem.Theory.Comput. 5, 754 (2009)  , DOI: 
-C> <a href="http://dx.doi.org/10.1021/ct800530u "> 
+C> <a href="https://doi.org/10.1021/ct800530u "> 
 C> 10.1021/ct800530u </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -5226,7 +5226,7 @@ C> ### References ###
 C> 
 C> [1] E Weintraub, TM Henderson, GE Scuseria
 C>    , J.Chem.Theory.Comput. 5, 754 (2009)  , DOI: 
-C> <a href="http://dx.doi.org/10.1021/ct800530u "> 
+C> <a href="https://doi.org/10.1021/ct800530u "> 
 C> 10.1021/ct800530u </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

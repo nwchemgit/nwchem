@@ -23,7 +23,7 @@ C> [1] A.D. Becke,
 C> "On the large gradient behavior of the density functional exchange
 C> energy",
 C> J. Chem. Phys. <b>85</b>, 7184-7187 (1986), DOI:
-C> <a href="http://dx.doi.org/10.1063/1.451353">
+C> <a href="https://doi.org/10.1063/1.451353">
 C> 10.1063/1.451353</a>.
 C>
 c

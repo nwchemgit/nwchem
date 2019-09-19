@@ -25,7 +25,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] TW Keal, DJ Tozer, J.Chem.Phys. 119, 3015 (2003)  , DOI: 
-C> <a href="http://dx.doi.org/10.1063/1.1590634 "> 
+C> <a href="https://doi.org/10.1063/1.1590634 "> 
 C> 10.1063/1.1590634 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -134,7 +134,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] TW Keal, DJ Tozer, J.Chem.Phys. 119, 3015 (2003)  , DOI: 
-C> <a href="http://dx.doi.org/10.1063/1.1590634 "> 
+C> <a href="https://doi.org/10.1063/1.1590634 "> 
 C> 10.1063/1.1590634 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -299,7 +299,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] TW Keal, DJ Tozer, J.Chem.Phys. 119, 3015 (2003)  , DOI: 
-C> <a href="http://dx.doi.org/10.1063/1.1590634 "> 
+C> <a href="https://doi.org/10.1063/1.1590634 "> 
 C> 10.1063/1.1590634 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

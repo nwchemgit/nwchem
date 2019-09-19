@@ -53,7 +53,7 @@ def lookup_dois(doi_table):
     c = pycurl.Curl()
     for doi in doi_table:
         buffer = BytesIO()
-        str_url = 'http://dx.doi.org/'+doi
+        str_url = 'https://doi.org/'+doi
         #sys.stderr.write("DOI:%s:"%str_url)
         c.setopt(c.URL, str_url)
         c.setopt(c.HTTPHEADER, ['Accept: text/bibliography; style=bibtex; locale=en-US'])

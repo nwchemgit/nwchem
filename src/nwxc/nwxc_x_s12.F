@@ -21,7 +21,7 @@ C>
 C> [1] M. Swart,
 C> "A new family of hybrid density functionals",
 C> Chem. Phys. Lett. <b>580</b> (2013) 166-171, DOI:
-C> <a href="http://dx.doi.org/10.1016/j.cplett.2013.06.045">
+C> <a href="https://doi.org/10.1016/j.cplett.2013.06.045">
 C> 10.1016/j.cplett.2013.06.045</a>.
 C>
 #if defined(FUJITSU_VPP)

@@ -23,7 +23,7 @@ C> [1] J.P. Perdew, A. Zunger,
 C>     "Self-interaction correction to density-functional approximations
 C>     for many-electron systems", Phys. Rev. B <b>23</b>, 
 C>     5048–5079 (1981), DOI:
-C>     <a href="http://dx.doi.org/10.1103/PhysRevB.23.5048">
+C>     <a href="https://doi.org/10.1103/PhysRevB.23.5048">
 C>     10.1103/PhysRevB.23.5048</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)

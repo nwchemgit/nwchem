@@ -183,7 +183,7 @@ C> ### References ###
 C> 
 C> [1] FA Hamprecht, A Cohen, DJ Tozer, NC Handy, J.Chem.Phys. 109
 C>    , 6264 (1998)  , DOI: 
-C> <a href="http://dx.doi.org/10.1063/1.477267 "> 
+C> <a href="https://doi.org/10.1063/1.477267 "> 
 C> 10.1063/1.477267 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -1032,7 +1032,7 @@ C> ### References ###
 C> 
 C> [1] FA Hamprecht, A Cohen, DJ Tozer, NC Handy, J.Chem.Phys. 109
 C>    , 6264 (1998)  , DOI: 
-C> <a href="http://dx.doi.org/10.1063/1.477267 "> 
+C> <a href="https://doi.org/10.1063/1.477267 "> 
 C> 10.1063/1.477267 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -2642,7 +2642,7 @@ C> ### References ###
 C> 
 C> [1] FA Hamprecht, A Cohen, DJ Tozer, NC Handy, J.Chem.Phys. 109
 C>    , 6264 (1998)  , DOI: 
-C> <a href="http://dx.doi.org/10.1063/1.477267 "> 
+C> <a href="https://doi.org/10.1063/1.477267 "> 
 C> 10.1063/1.477267 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

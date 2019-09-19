@@ -16,7 +16,7 @@ C> [1] M. Dupuis,
 C>     "New integral transforms for molecular properties and application
 C>     to a massively parallel GIAO-SCF implementation",
 C>     Comp. Phys. Comm. <b>134</b>, 150-166 (2001), DOI:
-C>     <a href="http://dx.doi.org/10.1016/S0010-4655(00)00195-8">
+C>     <a href="https://doi.org/10.1016/S0010-4655(00)00195-8">
 C>     10.1016/S0010-4655(00)00195-8</a>.
 C>
 c:tex-% this is part of the API Standard Integral routines.

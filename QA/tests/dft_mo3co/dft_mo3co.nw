@@ -2,7 +2,7 @@ echo
 
 start mo3
 
-title "mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912"
+title "mo3co b3p86 https://doi.org/10.1002/jcc.20912"
 geometry mo3co
 mo       0.86013301    -0.96881412    -0.50326261
 mo      -1.09277865     0.30984886    -0.65875097

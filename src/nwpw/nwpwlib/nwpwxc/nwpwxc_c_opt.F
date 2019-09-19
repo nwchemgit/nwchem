@@ -15,7 +15,7 @@ C> The OPTimized correlation functional [1].
 C>
 C> [1] N.C. Handy, A.J. Cohen, "Dynamic correlation",
 C>     Mol. Phys. <b>99</b>, 607-615 (2001), DOI:
-C>     <A HREF="http://dx.doi.org/10.1080/00268970010023435">
+C>     <A HREF="https://doi.org/10.1080/00268970010023435">
 C>     10.1080/00268970010023435</A>.
 c
 C$Id$

@@ -1,5 +1,5 @@
 start n2
-title "SCS MP2 http://dx.doi.org/10.1063/1.1569242"
+title "SCS MP2 https://doi.org/10.1063/1.1569242"
 driver 
 clear
 tight

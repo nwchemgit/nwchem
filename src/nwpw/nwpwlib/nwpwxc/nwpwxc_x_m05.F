@@ -21,7 +21,7 @@ C>     "Exchange-correlation functional with broad accuracy for
 C>     metallic and nonmetallic compounds, kinetics, and 
 C>     noncovalent interactions",
 C>     J.Chem.Phys. <b>123</b>, 161103-161106 (2005), DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.2126975">
+C>     <a href="https://doi.org/10.1063/1.2126975">
 C>     10.1063/1.2126975</a>.
 C>
 C> [2] Y Zhao, NE Schultz, DG Truhlar,
@@ -29,7 +29,7 @@ C>     "Design of density functionals by combining the method of
 C>     constraint satisfaction parametrization for thermochemistry,
 C>     thermochemical kinetics, and noncovalent interactions",
 C>     J.Chem.Theory.Comput. <b>2</b>, 364-382 (2006), DOI:
-C>     <a href="http://dx.doi.org/10.1021/ct0502763">
+C>     <a href="https://doi.org/10.1021/ct0502763">
 C>     10.1021/ct0502763</a>.
 C>
 
@@ -469,7 +469,7 @@ C>
 C> [1] K Pernal, R Podeszwa, K Patkowski, K Szalewicz,
 C> "Dispersionless density functional theory",
 C> Phys.Rev.Lett. <b>103</b>, 263201-263204 (2009), DOI:
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.103.263201">
+C> <a href="https://doi.org/10.1103/PhysRevLett.103.263201">
 C> 10.1103/PhysRevLett.103.263201</a>.
 C>
 c   dlDF  exchange functional  

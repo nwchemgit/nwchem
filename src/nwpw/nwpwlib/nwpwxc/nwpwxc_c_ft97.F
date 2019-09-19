@@ -30,18 +30,18 @@ C> [1] M. Filatov, W. Thiel,
 C>     "A nonlocal correlation energy density functional from a
 C>     Coulomb hole model", Int. J. Quant. Chem. <b>62</b> (1997)
 C>     603-616, DOI:
-C>     <a href="http://dx.doi.org/10.1002/(SICI)1097-461X(1997)62:6<603::AID-QUA4>3.0.CO;2-%23">
+C>     <a href="https://doi.org/10.1002/(SICI)1097-461X(1997)62:6<603::AID-QUA4>3.0.CO;2-%23">
 C>     10.1002/(SICI)1097-461X(1997)62:6<603::AID-QUA4>3.0.CO;2-#</a>.
 C>
 C> [2] M. Filatov, W. Thiel,
 C>     "A new gradient-corrected exchange-correlation 
 C>     density functional", Mol. Phys. <b>91</b> (1997) 847-859, DOI:
-C>     <a href="http://dx.doi.org/10.1080/002689797170950">
+C>     <a href="https://doi.org/10.1080/002689797170950">
 C>     10.1080/002689797170950</a>.
 C>
 C> [3] P.A.M. Dirac, "Note on exchange phenomena in the Thomas atom",
 C>     Math. Proc. Cambridge Philos. Soc. <b>26</b> (1930) 376-385, DOI:
-C>     <a href="http://dx.doi.org/10.1017/S0305004100016108">
+C>     <a href="https://doi.org/10.1017/S0305004100016108">
 C>     10.1017/S0305004100016108</a>.
 C>
       Subroutine nwpwxc_c_ft97(tol_rho, ipol, nq, wght, rho, rgamma,

@@ -166,7 +166,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] AD Becke, J.Chem.Phys. 107, 8554 (1997)  , DOI: 
-C> <a href="http://dx.doi.org/10.1063/1.475007 "> 
+C> <a href="https://doi.org/10.1063/1.475007 "> 
 C> 10.1063/1.475007 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -892,7 +892,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] AD Becke, J.Chem.Phys. 107, 8554 (1997)  , DOI: 
-C> <a href="http://dx.doi.org/10.1063/1.475007 "> 
+C> <a href="https://doi.org/10.1063/1.475007 "> 
 C> 10.1063/1.475007 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -2237,7 +2237,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] AD Becke, J.Chem.Phys. 107, 8554 (1997)  , DOI: 
-C> <a href="http://dx.doi.org/10.1063/1.475007 "> 
+C> <a href="https://doi.org/10.1063/1.475007 "> 
 C> 10.1063/1.475007 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

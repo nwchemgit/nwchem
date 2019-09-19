@@ -59,7 +59,7 @@ C> ### References ###
 C> 
 C> [1] R Baer, D Neuhauser, E Livshits, Phys.Chem.Chem.Phys. 9
 C>    , 2932 (2007)  , DOI: 
-C> <a href="http://dx.doi.org/10.1039/B617919C "> 
+C> <a href="https://doi.org/10.1039/B617919C "> 
 C> 10.1039/B617919C </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -285,7 +285,7 @@ C> ### References ###
 C> 
 C> [1] R Baer, D Neuhauser, E Livshits, Phys.Chem.Chem.Phys. 9
 C>    , 2932 (2007)  , DOI: 
-C> <a href="http://dx.doi.org/10.1039/B617919C "> 
+C> <a href="https://doi.org/10.1039/B617919C "> 
 C> 10.1039/B617919C </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -602,7 +602,7 @@ C> ### References ###
 C> 
 C> [1] R Baer, D Neuhauser, E Livshits, Phys.Chem.Chem.Phys. 9
 C>    , 2932 (2007)  , DOI: 
-C> <a href="http://dx.doi.org/10.1039/B617919C "> 
+C> <a href="https://doi.org/10.1039/B617919C "> 
 C> 10.1039/B617919C </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

@@ -145,14 +145,14 @@ C>
 C> [1] Jacob Verbeek, Joop H. van Lenthe,
 C>     "On the evaluation of non-orthogonal matrix elements",
 C>     J. Mol. Struct. (Theochem) <b>229</b>, 115-137 (1991), DOI:
-C>     <a href="http://dx.doi.org/10.1016/0166-1280(91)90141-6">
+C>     <a href="https://doi.org/10.1016/0166-1280(91)90141-6">
 C>     10.1016/0166-1280(91)90141-6</a>.
 C>
 C> [2] Joop H. van Lenthe, Gabriel G. Balint-Kurti,
 C>     "The valence-bond self-consistent field method (VB-SCF):
 C>     Theory and test calculations", J. Chem. Phys. <b>78</b>,
 C>     5699-5713 (1983), DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.445451">
+C>     <a href="https://doi.org/10.1063/1.445451">
 C>     10.1063/1.445451</a>.
 C>
       double precision function wfn1_overlap_bo(ne,orbov,tmp,m2)
@@ -261,14 +261,14 @@ C>
 C> [1] Jacob Verbeek, Joop H. van Lenthe,
 C>     "On the evaluation of non-orthogonal matrix elements",
 C>     J. Mol. Struct. (Theochem) <b>229</b>, 115-137 (1991), DOI:
-C>     <a href="http://dx.doi.org/10.1016/0166-1280(91)90141-6">
+C>     <a href="https://doi.org/10.1016/0166-1280(91)90141-6">
 C>     10.1016/0166-1280(91)90141-6</a>.
 C>
 C> [2] Joop H. van Lenthe, Gabriel G. Balint-Kurti,
 C>     "The valence-bond self-consistent field method (VB-SCF):
 C>     Theory and test calculations", J. Chem. Phys. <b>78</b>,
 C>     5699-5713 (1983), DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.445451">
+C>     <a href="https://doi.org/10.1063/1.445451">
 C>     10.1063/1.445451</a>.
 C>
       subroutine wfn1_overlap_ldr_old(ne,orbov,lmat,rmat,dvec,ipar,

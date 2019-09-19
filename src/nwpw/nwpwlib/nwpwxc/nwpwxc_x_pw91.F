@@ -22,7 +22,7 @@ C>     M.R. Pederson, D.J. Singh, C. Fiolhais,
 C>     "Atoms, molecules, solids, and surfaces: Applications of the
 C>     generalized gradient approximation for exchange and correlation",
 C>     Phys. Rev. B <b>46</b>, 6671-6687 (1992), DOI:
-C>     <A HREF="http://dx.doi.org/10.1103/PhysRevB.46.6671">
+C>     <A HREF="https://doi.org/10.1103/PhysRevB.46.6671">
 C>     10.1103/PhysRevB.46.6671</A>.
 C>
 C> [2] J.P. Perdew, J.A. Chevary, S.H. Vosko, K.A. Jackson,
@@ -31,7 +31,7 @@ C>     "Erratum: Atoms, molecules, solids, and surfaces: Applications
 C>     of the generalized gradient approximation for exchange and
 C>     correlation",
 C>     Phys. Rev. B <b>48</b>, 4978-4978 (1993), DOI:
-C>     <A HREF="http://dx.doi.org/10.1103/PhysRevB.48.4978.2">
+C>     <A HREF="https://doi.org/10.1103/PhysRevB.48.4978.2">
 C>     10.1103/PhysRevB.48.4978.2</A>.
 C>
 C> [3] Y. Zhao, D.G. Truhlar,
@@ -39,7 +39,7 @@ C>     "Design of density functionals that are broadly accurate for
 C>     thermochemistry, thermochemical kinetics, and nonbonded
 C>     interactions", J. Phys. Chem. A <b>109</b>, 5656-5667 (2005)
 C>     DOI:
-C>     <a href="http://dx.doi.org/10.1021/jp050536c">
+C>     <a href="https://doi.org/10.1021/jp050536c">
 C>     10.1021/jp050536c</a>.
 C>
 #ifndef SECOND_DERIV

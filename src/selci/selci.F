@@ -11,7 +11,7 @@ C>
 C> [1] R.J. Harrison, "Approximating full configuration interaction
 C>     with selected configuration interaction and perturbation theory",
 C>     J. Chem. Phys. <b>94</b> (1991), 5021-5031,
-C>     <a href="http://dx.doi.org/10.1063/1.460537">
+C>     <a href="https://doi.org/10.1063/1.460537">
 C>     10.1063/1.460537</a>.
 
 C> \ingroup selci

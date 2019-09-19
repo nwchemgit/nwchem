@@ -21,25 +21,25 @@ C> [1] C. Lee, W. Yang, R.G. Parr,
 C> "Development of the Colle-Salvetti correlation-energy formula into
 C> a functional of the electron density", Phys. Rev. B <b>37</b>,
 C> 785-789 (1988), DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevB.37.785">
+C> <a href="https://doi.org/10.1103/PhysRevB.37.785">
 C> 10.1103/PhysRevB.37.785</a>.
 C>
 C> [2]  R. Colle, O. Salvetti,
 C> "Approximate calculation of the correlation energy for the closed
 C> shells", Theor. Chim. Acta <b>37</b>, 329-334 (1975), DOI:
-C> <a href="http://dx.doi.org/10.1007/BF01028401">
+C> <a href="https://doi.org/10.1007/BF01028401">
 C> 10.1007/BF01028401</a>.
 C>
 C> [3] B. Miehlich, A. Savin, H. Stoll, H. Preuss,
 C> "Results obtained with the correlation energy density functionals of
 C> Becke, and Lee, Yang and Parr", Chem. Phys. Lett. <b>157</b>, 200-206
-C> (1989), DOI: <a href="http://dx.doi.org/10.1016/0009-2614(89)87234-3">
+C> (1989), DOI: <a href="https://doi.org/10.1016/0009-2614(89)87234-3">
 C> 10.1016/0009-2614(89)87234-3</a>.
 C>
 C> [4] B.G. Johnson, P.M.W. Gill, J.A. Pople,
 C> "The performance of a family of density functional methods",
 C> J. Chem. Phys. <b>98</b>, 5612-5626 (1993), DOI:
-C> <a href="http://dx.doi.org/10.1063/1.464906">
+C> <a href="https://doi.org/10.1063/1.464906">
 C> 10.1063/1.464906</a>.
 C>
 #ifndef SECOND_DERIV

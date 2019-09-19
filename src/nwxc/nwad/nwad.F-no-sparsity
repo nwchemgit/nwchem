@@ -220,7 +220,7 @@
 !>
 !> [1] R. E. Wengert (1964) "A simple automatic derivative evaluation program",
 !>     Communications of the ACM, <b>7</b>, pp. 463-464, DOI:
-!>     <a href="http://dx.doi.org/10.1145/355586.364791">
+!>     <a href="https://doi.org/10.1145/355586.364791">
 !>     10.1145/355586.364791</a>.
 !>
 !> [2] See e.g. <a href="http://www.autodiff.org/">www.autodiff.org</a>
@@ -228,13 +228,13 @@
 !> [3] A. Griewank, J. Utke, A. Walther (2000) "Evaluating higher derivative
 !>     tensors by forward propagation of univariate Taylor series",
 !>     Mathematics of Computation, <b>69</b>, pp. 1117-1130, DOI:
-!>     <a href="http://dx.doi.org/10.1090/S0025-5718-00-01120-0">
+!>     <a href="https://doi.org/10.1090/S0025-5718-00-01120-0">
 !>     10.1090/S0025-5718-00-01120-0</a>.
 !>
 !> [4] A. Griewank, D. Juedes, J. Utke (1996) "Algorithm 755: ADOL-C: A package
 !>     for the automatic differentiation of algorithms written in C/C++",
 !>     ACM Transactions on Mathematical Software, <b>22</b>, pp. 131-167, DOI:
-!>     <a href="http://dx.doi.org/10.1145/229473.229474">
+!>     <a href="https://doi.org/10.1145/229473.229474">
 !>     10.1145/229473.229474</a>.
 !>
 !> [5] I. Charpentier, J. Utke, "Rapsodia: User Manual", Argonne National

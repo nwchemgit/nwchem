@@ -32,7 +32,7 @@ C>     "A consistent and accurate ab initio parametrization of density
 C>      functional dispersion correction (DFT-D) for the 94 elements
 C>      H-Pu",
 C>     J. Chem. Phys. (2010) <b>132</b>, 154104, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.3382344"> 
+C>     <a href="https://doi.org/10.1063/1.3382344"> 
 C>     10.1063/1.3382344</a>.
 C>
       double precision function nwxc_c6cn(iat,jat,cni,cnj)
@@ -111,7 +111,7 @@ C>     "A consistent and accurate ab initio parametrization of density
 C>      functional dispersion correction (DFT-D) for the 94 elements
 C>      H-Pu",
 C>     J. Chem. Phys. (2010) <b>132</b>, 154104, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.3382344"> 
+C>     <a href="https://doi.org/10.1063/1.3382344"> 
 C>     10.1063/1.3382344</a>.
 C>
       subroutine nwxc_c6_grad(grad,iat,jat,kat,x,z,n,cnij,cnijk)
@@ -282,7 +282,7 @@ C>     "A consistent and accurate ab initio parametrization of density
 C>      functional dispersion correction (DFT-D) for the 94 elements
 C>      H-Pu",
 C>     J. Chem. Phys. (2010) <b>132</b>, 154104, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.3382344">
+C>     <a href="https://doi.org/10.1063/1.3382344">
 C>     10.1063/1.3382344</a>.
 C>
       subroutine nwxc_crd_nr_der(n,xyz,iz,cnij,cnijk)
@@ -363,7 +363,7 @@ C>     "A consistent and accurate ab initio parametrization of density
 C>      functional dispersion correction (DFT-D) for the 94 elements
 C>      H-Pu",
 C>     J. Chem. Phys. (2010) <b>132</b>, 154104, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.3382344">
+C>     <a href="https://doi.org/10.1063/1.3382344">
 C>     10.1063/1.3382344</a>.
 C>
       double precision function nwxc_crd_nr(iat,nat,xyz,iz)
@@ -438,14 +438,14 @@ C> [1] A.D. Becke, E.R. Johnson,
 C>     "A unified density-functional treatment of dynamical,
 C>      nondynamical and dispersion correlations",
 C>     J. Chem. Phys. (2007) <b>127</b> 124108, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.2768530">
+C>     <a href="https://doi.org/10.1063/1.2768530">
 C>     10.1063/1.2768530</a> (See appendix C).
 C>
 C> [2] S. Grimme, S. Ehrlich, L. Goerigk,
 C>     "Effect of the damping function in dispersion corrected
 C>      density functional theory", J. Comput. Chem. (2011)
 C>     <b>32</b>, pp. 1456-1465, DOI:
-C>     <a href="http://dx.doi.org/10.1002/jcc.21759">
+C>     <a href="https://doi.org/10.1002/jcc.21759">
 C>     10.1002/jcc.21759</a> (See Eqs.(5-6)).
 C>
       double precision function nwxc_fdmpbj(r,r0,a1,a2,n)
@@ -486,14 +486,14 @@ C> [1] A.D. Becke, E.R. Johnson,
 C>     "A unified density-functional treatment of dynamical,
 C>      nondynamical and dispersion correlations",
 C>     J. Chem. Phys. (2007) <b>127</b> 124108, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.2768530">
+C>     <a href="https://doi.org/10.1063/1.2768530">
 C>     10.1063/1.2768530</a> (See appendix C).
 C>
 C> [2] S. Grimme, S. Ehrlich, L. Goerigk,
 C>     "Effect of the damping function in dispersion corrected
 C>      density functional theory", J. Comput. Chem. (2011)
 C>     <b>32</b>, pp. 1456-1465, DOI:
-C>     <a href="http://dx.doi.org/10.1002/jcc.21759">
+C>     <a href="https://doi.org/10.1002/jcc.21759">
 C>     10.1002/jcc.21759</a> (See Eqs.(5-6)).
 C>
       double precision function nwxc_fdmpbj_d1(r,r0,a1,a2,n)

@@ -22,7 +22,7 @@ C> ### References ###
 C>
 C> [1] C.H. Reinsch, "Algorithm 464: eigenvalues of a real, symmetric,
 C>     tridiagonal matrix [F2]", Comm. ACM. <b>16</b> (1973) 689,
-C>     doi: <a href="http://dx.doi.org/10.1145/355611.362539">
+C>     doi: <a href="https://doi.org/10.1145/355611.362539">
 C>     10.1145/355611.362539</a>.
 C>
       subroutine selci_tqlrat(n,d,e2,ierr)

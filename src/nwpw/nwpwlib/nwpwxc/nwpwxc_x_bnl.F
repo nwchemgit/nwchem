@@ -21,13 +21,13 @@ C> [1] E. Livshits, R. Baer,
 C> "A well-tempered density functional theory of electrons in
 C> molecules",
 C> Phys. Chem. Chem. Phys. <b>9</b>, 2932-2941 (2007), DOI:
-C> <a href="http://dx.doi.org/10.1039/B617919C">10.1039/B617919C</a>.
+C> <a href="https://doi.org/10.1039/B617919C">10.1039/B617919C</a>.
 C>
 C> [2] R. Baer, D. Neuhauser,
 C> "Density functional theory with correct long-range asymptotic
 C> behavior",
 C> Phys. Rev. Lett. <b>94</b>, 043002 (2005), DOI:
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.94.043002">
+C> <a href="https://doi.org/10.1103/PhysRevLett.94.043002">
 C> 10.1103/PhysRevLett.94.043002</a>.
 C>
 c

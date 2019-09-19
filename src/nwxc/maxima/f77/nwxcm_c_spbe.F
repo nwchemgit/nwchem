@@ -105,7 +105,7 @@ C> ### References ###
 C> 
 C> [1] M Swart, M Sola, FM Bickelhaupt, J.Chem.Phys. 131
 C>    , 094103 (2009)  , DOI: 
-C> <a href="http://dx.doi.org/10.1063/1.3213193 "> 
+C> <a href="https://doi.org/10.1063/1.3213193 "> 
 C> 10.1063/1.3213193 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -603,7 +603,7 @@ C> ### References ###
 C> 
 C> [1] M Swart, M Sola, FM Bickelhaupt, J.Chem.Phys. 131
 C>    , 094103 (2009)  , DOI: 
-C> <a href="http://dx.doi.org/10.1063/1.3213193 "> 
+C> <a href="https://doi.org/10.1063/1.3213193 "> 
 C> 10.1063/1.3213193 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -1643,7 +1643,7 @@ C> ### References ###
 C> 
 C> [1] M Swart, M Sola, FM Bickelhaupt, J.Chem.Phys. 131
 C>    , 094103 (2009)  , DOI: 
-C> <a href="http://dx.doi.org/10.1063/1.3213193 "> 
+C> <a href="https://doi.org/10.1063/1.3213193 "> 
 C> 10.1063/1.3213193 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

@@ -57,7 +57,7 @@ C>     "Fractional occupation numbers and density functional
 C>     energy gradients with the linear combination of Gaussian-
 C>     type orbitals approach"
 C>     Chemical Physics Letters 262 (1996) 384-392, DOI:
-C>     <a href="http://dx.doi.org/10.1016/0009-2614(96)01107-4">
+C>     <a href="https://doi.org/10.1016/0009-2614(96)01107-4">
 C>     10.1016/0009-2614(96)01107-4</a>.
 C>
       subroutine wfn1_nxt_fermi(e,f,em,nfocc,noccmx,t,ne,nmo,iwr,out)

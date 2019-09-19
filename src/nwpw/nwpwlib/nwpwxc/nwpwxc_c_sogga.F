@@ -23,7 +23,7 @@ C>     "Generalized gradient approximation that recovers the
 C>     second-order density-gradient expansion with optimized
 C>     across-the-board performance", J. Phys. Chem. Lett. <b>2</b>
 C>     (2011) 1991-1997, DOI:
-C>     <a href="http://dx.doi.org/10.1021/jz200616w">
+C>     <a href="https://doi.org/10.1021/jz200616w">
 C>     10.1021/jz200616w</a>.
 C>
 C> [2] R. Peverati, D.G. Truhlar, 
@@ -32,7 +32,7 @@ C>     approximation to the exchange-correlation functional that
 C>     satisfies the second-order density-gradient constraint and has
 C>     broad applicability in chemistry", J. Chem. Phys. <b>135</b>
 C>     (2011) 191102, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.3663871">
+C>     <a href="https://doi.org/10.1063/1.3663871">
 C>     10.1063/1.3663871</a>.
 C>
       subroutine nwpwxc_c_sogga(param, tol_rho, ipol, nq, wght, rho, 
