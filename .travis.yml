@@ -1,6 +1,7 @@
 language: c
 sudo: required
 osx_image: xcode9.2
+dist: bionic
 os: 
   - osx
   - linux
@@ -34,8 +35,6 @@ matrix:
       env: NWCHEM_MODULES=qmandpw  ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
     - os: osx
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI3   MPI_IMPL="mpich"
-    - os: linux
-      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT MPI_IMPL="mpich" USE_SIMINT=1 SIMINT_MAXAM=3
 git:
   depth: 8
 before_script:
