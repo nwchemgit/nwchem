@@ -26,14 +26,14 @@ if [[ "$os" == "Linux" ]]; then
    export BLASOPT="-lopenblas"
    export LAPACK_LIB="-lopenblas"
    export NWCHEM_TARGET=LINUX64 
-   if [[ "$NWCHEM_MODULES" != "tce" ]]; then
+#   if [[ "$NWCHEM_MODULES" != "tce" ]]; then
      if [[ "$MPI_IMPL" == "mpich" ]]; then 
      export SCALAPACK="-lscalapack-mpich -lopenblas"
      elif [[ "$MPI_IMPL" == "openmpi" ]]; then
      export SCALAPACK="-lscalapack-openmpi -lopenblas"
      fi
      export USE_64TO32="y"
-   fi
+#   fi
 fi
 export OMP_NUM_THREADS=1
 export USE_NOIO=1
