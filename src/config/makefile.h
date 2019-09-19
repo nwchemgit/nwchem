@@ -1469,7 +1469,6 @@ endif
     FOPTIONS += -g
   endif
     _IFCV7= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk '/7./ {print "Y"; exit}')
-    _IFCV10= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk '/10./ {print "Y"; exit}')
     ifneq ($(_IFCV7),Y)
       DEFINES+= -DIFCV8
       ifeq ($(FC),ifc)
@@ -2816,9 +2815,11 @@ endif
 ifdef SLURM
   EXTRA_LIBS += $(SLURMOPT)
 endif
-# simit
 
 ifdef USE_SIMINT
+ifndef SIMINT_HOME
+SIMINT_HOME=$(NWCHEM_TOP)/src/NWints/simint/libsimint_source/simint_install
+endif
   ifdef SIMINT_LIB64
     EXTRA_LIBS += -L$(SIMINT_HOME)/lib64 -lsimint
   else
