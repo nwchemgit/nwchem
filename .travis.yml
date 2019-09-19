@@ -21,8 +21,6 @@ matrix:
   exclude:
     - os: osx
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="mpich"
-    - os: osx
-      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT MPI_IMPL="mpich" USE_SIMINT=1 SIMINT_MAXAM=3
   allow_failures:
     - os: osx
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
@@ -34,8 +32,10 @@ matrix:
       env: NWCHEM_MODULES=qmandpw  ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
     - os: osx
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI3   MPI_IMPL="mpich"
+    - os: osx
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT MPI_IMPL="mpich" USE_SIMINT=1 SIMINT_MAXAM=3
 git:
-  depth: 8
+  depth: 2
 before_script:
         - printenv TRAVIS_BUILD_DIR
         - ./travis/build_env.sh
@@ -64,4 +64,5 @@ after_failure:
         - tail -30 $TRAVIS_BUILD_DIR/QA/testoutputs/prop_mep_gcube.out
         - diff $TRAVIS_BUILD_DIR/QA/testoutputs/prop_ch3f.o*nw*
         - diff $TRAVIS_BUILD_DIR/QA/testoutputs/h2o2-response.o*nw*
+        - diff $TRAVIS_BUILD_DIR/QA/testoutputs/tce_n2.o*nw*
               
