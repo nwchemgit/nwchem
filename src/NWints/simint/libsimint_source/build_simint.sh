@@ -14,8 +14,8 @@ if  [ -z "$(command -v python3)" ]; then
 fi
 UNAME_S=$(uname -s)
 if [[ ${UNAME_S} == Linux ]]; then
-    CPU_FLAGS=$(cat /proc/cpuinfo | egrep flags)
-    CPU_FLAGS_2=$(cat /proc/cpuinfo | egrep flags)
+    CPU_FLAGS=$(cat /proc/cpuinfo | grep flags |tail -n 1)
+    CPU_FLAGS_2=$(cat /proc/cpuinfo | grep flags |tail -n 1)
 elif [[ ${UNAME_S} == Darwin ]]; then
     CPU_FLAGS=$(sysctl -n machdep.cpu.features)
     CPU_FLAGS_2=$(sysctl -n machdep.cpu.leaf7_features)
@@ -23,11 +23,10 @@ else
     echo Operating system not supported yet
     exit 1
 fi
-GOTSSE2=$(echo ${CPU_FLAGS} | tr  'A-Z' 'a-z'|  awk ' /sse2/  {print "Y"}')
- GOTAVX=$(echo ${CPU_FLAGS} | tr  'A-Z' 'a-z'|  awk ' /avx/  {print "Y"}')
-GOTAVX2=$(echo ${CPU_FLAGS_2} | tr  'A-Z' 'a-z'| awk ' /avx2/  {print "Y"}')
-GOTAVX512=$(echo ${CPU_FLAGS} | tr  'A-Z' 'a-z'| awk ' /avx512f/  {print "Y"}')
-GOTAVX512="N"
+  GOTSSE2=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /sse2/   {print "Y"}')
+   GOTAVX=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx/    {print "Y"}')
+  GOTAVX2=$(echo ${CPU_FLAGS_2} | tr  'A-Z' 'a-z'| awk ' /avx2/   {print "Y"}')
+GOTAVX512=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx512f/{print "Y"}')
 if [[ "${GOTAVX512}" == "Y" ]]; then
     VEC=avx512
 elif [[ "${GOTAVX2}" == "Y" ]]; then
@@ -39,6 +38,7 @@ elif [[ "${GOTSSE2}" == "Y" ]]; then
 else
     VEC=scalar
 fi
+echo VEC $VEC
 SRC_HOME=`pwd`
 DERIV=1
 if [[  -z "${SIMINT_MAXAM}" ]]; then
