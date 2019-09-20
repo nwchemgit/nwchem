@@ -100,11 +100,12 @@ c      energy2  =0.0d0
 c
 c MIC 
 c
+#ifdef USE_OFFLOAD      
       triplesx_alloced=.false.
-      triplesx1_alloced=.false.
       v2sub_alloced=.false.
       t1sub_alloced=.false.
       t2sub_alloced=.false.
+#endif
 c     estimate triplesx size
       range_p4=0
       do t_p4b = noab+1,noab+nvab
@@ -115,9 +116,6 @@ c     estimate triplesx size
          range_h1 = max(range_h1,int_mb(k_range+t_h1b-1))
       enddo
       size=(range_p4**3)*(range_h1**3)
-      triplesx_copyback=.true.
-c      call util_align64(size)
-      triplesx_mxlgth=size
       if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
      1     k_singles)) call errquit('ccsd_t: MA error sgl',
      2     size,MA_ERR)
@@ -125,12 +123,9 @@ c      call util_align64(size)
      1     k_doubles)) call errquit('ccsd_t: MA error dbl',
      2     size,MA_ERR)
 #ifdef USE_OFFLOAD
-#if 0
-      call offl_alloc(dbl_mb(k_singles),size)
-      triplesx1_alloced=.true.
-#else
-      triplesx1_alloced=.false.
-#endif
+      triplesx_copyback=.true.
+c      call util_align64(size)
+      triplesx_mxlgth=size
       call offl_alloc(dbl_mb(k_doubles),size)
       triplesx_alloced=.true.
 #endif
@@ -187,12 +182,11 @@ cc        call offl_zerofill(dbl_mb(k_singles),size)
 cc        call dcopy(size, 0.0d0, 0, dbl_mb(k_doubles), 1)
 cc        call offl_zerofill(dbl_mb(k_doubles),size)
         call dcopy(triplesx_mxlgth, 0.0d0, 0, dbl_mb(k_singles), 1)
-#if 0
-        call offl_zerofill(dbl_mb(k_singles),triplesx_mxlgth)
-#endif
 
         call dcopy(triplesx_mxlgth, 0.0d0, 0, dbl_mb(k_doubles), 1)
+#ifdef USE_OFFLOAD        
         call offl_zerofill(dbl_mb(k_doubles),triplesx_mxlgth)
+#endif        
 c -----------
 c
 ccx            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
@@ -385,7 +379,6 @@ c
       triplesx_alloced=.false.
 #if 0
       call offl_free(dbl_mb(k_singles),size)
-      triplesx1_alloced=.false.
 #endif
 #endif
 
