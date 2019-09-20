@@ -1,0 +1,30 @@
+Constraint optimization
+=======================
+
+This input runs 4 calculations on the water molecule. In all 4 calculations
+one OH bond length is constraint, the other one is optimized as well as the
+bond angle. However the geometries are specified slightly differently:
+
+h2o_c1:   The symmetry option is used to turn all symmetry off. 
+          The resulting calculation works as it should.
+
+h2o_c2v:  The input geometry is symmetric but the constraint is asymmetric
+          and autosym is not turned off.
+          The code now correctly finds Cs symmetry and completes the
+          optimization is performed correctly.
+
+h2o_cs:   The input geometry is asymmetric otherwise everything is the same
+          as with the h2o_c2v geometry. 
+          The resulting calculation correctly sees the two bondlengths as 
+          different and applies the constraints in the correct way.
+
+h2o_cart: The input geometry is specified using Cartesian coordinates and
+          the constraints are imposed using the geometry adjust; zcoord; 
+          mechanism.
+          The code detects Cs symmetry correctly also in this case and 
+          completes the geometry optimization correctly.
+
+If correct then all four calculations should arrive at the same answer,
+following the same optimization path. Making the auto-symmetry code aware
+of any constraints on the geometry fixed the optimization problems we had
+before.
