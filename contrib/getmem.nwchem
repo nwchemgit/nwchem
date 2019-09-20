@@ -54,7 +54,7 @@ if [[ $good != 0  ]]; then
   echo "No. of processors    :" $nproc
   echo "Total Memory/proc    :" $memproc "KB = " $memprocgb "GB"
   # take away memory for OS
-   memproc=$(( memproc - memos*1024 ))
+   memproc=$(( memproc*80/100 ))
   # multiply by 128=(1024/8) to get to doubles
    memproc=$(( memproc * 128 ))
   if [ $good == 1 ]; then
