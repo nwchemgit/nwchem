@@ -320,12 +320,17 @@ c
 c
 c     return true for functionals with cam
 c
-      logical function xc_hascam()
+      logical function xc_hascam(rtdb)
       implicit none
 c
 #include "cdft.fh"
 #include "case.fh"
 #include "util.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+      integer rtdb              ! [in]
+c      
       logical out1
 c
       xc_hascam=(
@@ -336,6 +341,8 @@ c
      .     xfac(43).ne.0d0.or.
      .     xfac(50).ne.0d0.or.
      .     xfac(51).ne.0d0)
+      if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1, cam_exch)) 
+     &     cam_exch=.false.
 c
       xc_hascam = xc_hascam.or.cam_exch
       if (util_module_avail("nwxc")) then
@@ -371,6 +378,8 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "stdio.fh"
+#include "global.fh"
 c
       logical cam_exch,cam_srhf
       double precision cam_omega,cam_alpha,cam_beta
@@ -403,6 +412,12 @@ c
 c       Force texas integrals to false for CAM calculations
         if (.not.rtdb_put(rtdb,'int:cando_txs',mt_log,1,.false.))
      &     call errquit('cannot set int:cando_txs',0, RTDB_ERR)
+c     unset cando_nw if defined to avoid Simint
+        if (rtdb_get(rtdb,'int:cando_nw',mt_log,1,direct)) then
+           if (.not.rtdb_delete(rtdb,'int:cando_nw'))
+     &          call errquit('cannot del int:cando_nw',0, RTDB_ERR)
+           if(ga_nodeid().eq.0) write(luout,*) ' cando_nw unset'
+        endif
 c
 c       Force use of direct
 c

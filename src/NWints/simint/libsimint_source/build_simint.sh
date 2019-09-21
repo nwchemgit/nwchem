@@ -64,6 +64,29 @@ cat > generator_types.patch <<EOF
  
  
  /*! \brief Get the next argument on the command line
+--- simint-chem-simint-generator-c589bd7/skel/simint/vectorization/intrinsics_avx512.h.org	2019-09-19 23:15:32.768327180 -0700
++++ modif/skel/simint/vectorization/intrinsics_avx512.h	2019-09-19 23:15:49.232376802 -0700
+@@ -207,7 +207,7 @@
+         return u.v;
+     }
+     
+-    #define SIMINT_PRIM_SCREEN_STAT
++    #define SIMINT_PRIM_SCREEN_STAT__
+     static inline
+     int count_prim_screen_survival(__m512d screen_val, const double screen_tol)
+     {
+edo@durian:~/nwchem/nwchem-master/src/NWints/simint/libsimint_source/edoapra-simint-generator-f690e3a$ diff -u skel/simint/vectorization/intrinsics_avx.h.org skel/simint/vectorization/intrinsics_avx.h 
+--- simint-chem-simint-generator-c589bd7/skel/simint/vectorization/intrinsics_avx.h.org	2019-09-19 23:16:00.400410460 -0700
++++ modif/skel/simint/vectorization/intrinsics_avx.h	2019-09-19 23:16:11.060442586 -0700
+@@ -216,7 +216,7 @@
+         return u.v;
+     }
+     
+-    #define SIMINT_PRIM_SCREEN_STAT
++    #define SIMINT_PRIM_SCREEN_STAT__
+     static inline
+     int count_prim_screen_survival(__m256d screen_val, const double screen_tol)
+     {
 EOF
 patch -p1 < ./generator_types.patch
 pwd

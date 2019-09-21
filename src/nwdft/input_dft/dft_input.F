@@ -83,7 +83,9 @@ c     xps variables
       logical lxps
       integer lenstr
       character*255 inp_vecs
-
+      logical int_forcenwints
+      external int_forcenwints
+      character*20 rtdb_errmsg
       data dirs /'convergence','decomp','dft','direct','semidirect',
      $         'ecp','grid','vectors','incore','iterations', 
      $         'max_ovl','mulliken','mult','noio','noprint','odft', 
@@ -575,10 +577,12 @@ c  get cam_beta
      &     RTDB_ERR)
 c           write(luout,*) "cam_beta:",cam_beta
       end if
+#if 0
 c
 c     Force texas integrals to false for CAM calculations
-      if (.not.rtdb_put(rtdb,'int:cando_txs',mt_log,1,.false.))
-     &   call errquit('cannot set int:cando_txs',0, RTDB_ERR)
+      if(.not.int_forcenwints(rtdb,rtdb_errmsg))
+     &     call errquit(rtdb_errmsg,0, RTDB_ERR)
+#endif
 c
       goto 10
 c
