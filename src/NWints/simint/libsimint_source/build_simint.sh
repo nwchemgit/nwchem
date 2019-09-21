@@ -116,8 +116,18 @@ cd ..
 #./create.py -g build/generator/ostei -l 6 -p 4 -d 1 simint.l6_p4_d1
 #create.py -g build/generator/ostei -l 4 -p 4 -d 0 -ve 4 -he 4 -vg 5 -hg 5
 #https://www.cc.gatech.edu/~echow/pubs/huang-chow-sc18.pdf
+#workaround for PYTHONHOME crazyness
+if [[ ! -z "${PYTHONHOME}" ]]; then
+    export PYTHONHOMESET=${PYTHONHOME}
+    unset PYTHONHOME
+    echo 'PYTHONOME unset'
+fi
 time -p ./create.py -g build/generator/ostei -l ${SIMINT_MAXAM} -p ${PERMUTE_SLOW} -d ${DERIV} ../simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}  -ve 4 -he 4 -vg 5 -hg 5
-#time -p ./create.py -g build/generator/ostei -l ${SIMINT_MAXAM} -p ${PERMUTE_SLOW} -d ${DERIV} ../simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}  
+if [[ ! -z "${PYTHONHOME}" ]]; then
+    export PYTHONHOME=${PYTHONHOMESET}
+    unset PYTHONHOMESET
+    echo 'PYTHONOME set'
+fi
 cd ../simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}
 mkdir -p build
 cd build
