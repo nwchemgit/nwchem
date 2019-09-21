@@ -7670,8 +7670,12 @@ c
 c
 c     ahah bq
 c
+            if(tag(3:3).ne.' ') then
             if(.not.geom_tag_to_default_mass(tag(3:),mass))
-     .           call errquit(' momint fails ',2, GEOM_ERR)
+     .              call errquit(' momint fails ',2, GEOM_ERR)
+         else
+            mass=0d0
+         endif
          else  
             if(.not.geom_mass_get(geom, iat, mass)) call
      &           errquit(' mass_get  failed ',iat, GEOM_ERR)
