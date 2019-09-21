@@ -2540,16 +2540,6 @@ endif
 #  some of the definitions below will be 'lost'                   #
 ###################################################################
 ifeq ($(BUILDING_PYTHON),python)
-ifndef PYTHONHOME
-errorpython1:
-	      $(info )
-$(info For python you must define both PYTHONHOME and PYTHONVERSION)
-$(info E.g., export PYTHONHOME=/msrc/home/d3g681/Python-2.7.1)
-$(info       export PYTHONVERSION=2.7)
-$(info  building_python <$(BUILDING_PYTHON)>)
-$(info  subdirs <$(NWSUBDIRS)>)
-$(error )
-endif
 ifndef PYTHONVERSION
       PYTHONVERSION=$(shell $(PYTHONHOME)/bin/python -V 2>&1 |cut -c 8-10)
 #errorpython2:
@@ -2562,18 +2552,18 @@ ifndef PYTHONVERSION
 #$(error )
 endif
 #
-ifdef USE_PYTHONCONFIG
+#ifdef USE_PYTHONCONFIG
 PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
    PYMINOR:=$(word 2, $(subst ., ,$(PYTHONVERSION)))
    PYGE38:=$(shell [ $(PYMAJOR) -ge 3 -a $(PYMINOR) -ge 8 ] && echo true)
 ifeq (${PYMAJOR},3)
    ifeq ($(PYGE38),true)
-     EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python3-config --ldflags --embed)
+     EXTRA_LIBS += -lnwcutil $(shell python3-config --ldflags --embed)
    else
-     EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python3-config --ldflags) 
+     EXTRA_LIBS += -lnwcutil $(shell python3-config --ldflags) 
    endif
 else
-EXTRA_LIBS += $(shell $(PYTHONHOME)/bin/python-config --ldflags)
+EXTRA_LIBS += $(shell python-config --ldflags)
 endif
 else
 ifndef PYTHONLIBTYPE
@@ -2582,16 +2572,7 @@ endif
 ifndef PYTHONCONFIGDIR
     PYTHONCONFIGDIR=config
 endif
-ifdef USE_PYTHON64
-    CORE_LIBS += $(shell ls $(PYTHONHOME)/lib64/python$(PYTHONVERSION)/config*/libpython$(PYTHONVERSION).$(PYTHONLIBTYPE))
-else
-  ifeq ($(GOTMINGW32),1)
-  CORE_LIBS += $(PYTHONHOME)/libs/libpython$(PYTHONVERSION).$(PYTHONLIBTYPE)
-  else
-  CORE_LIBS += $(shell ls $(PYTHONHOME)/lib/python$(PYTHONVERSION)/config*/libpython$(PYTHONVERSION).$(PYTHONLIBTYPE))
-  endif
-endif
-endif
+#endif #USE_PYTHONCONFIG
 endif
 #
 ######

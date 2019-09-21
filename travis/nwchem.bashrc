@@ -43,4 +43,4 @@ if [[ "$USE_64TO32" == "y" ]]; then
 fi
 export USE_PYTHONCONFIG=y
 export PYTHONVERSION=2.7
-export PYTHONHOME=/usr
+#export PYTHONHOME=/usr
