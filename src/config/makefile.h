@@ -2541,7 +2541,13 @@ endif
 ###################################################################
 ifeq ($(BUILDING_PYTHON),python)
 ifndef PYTHONVERSION
-      PYTHONVERSION=$(shell $(PYTHONHOME)/bin/python -V 2>&1 |cut -c 8-10)
+#try python3 first, then python
+      GOTPYTHON3 := $(shell command -v python3 2> /dev/null)
+      ifdef GOTPYTHON3
+      PYTHONVERSION=$(shell python3 -V 2>&1 |cut -c 8-10)
+      else
+      PYTHONVERSION=$(shell python -V 2>&1 |cut -c 8-10)
+      endif
 #errorpython2:
 #$(info )
 #$(info For python you must define both PYTHONHOME and PYTHONVERSION)

@@ -9,10 +9,12 @@ OBJ = python_input.o task_python.o nwchem_wrap.o nw_inp_from_string.o
 
 # Under WIN32 only need to define PYTHONHOME
 ifndef PYTHONVERSION
+      GOTPYTHON3 := $(shell command -v python3 2> /dev/null)
+      ifdef GOTPYTHON3
+      PYTHONVERSION=$(shell python3 -V 2>&1 |cut -c 8-10)
+      else
       PYTHONVERSION=$(shell python -V 2>&1 |cut -c 8-10)
-#error1:
-#	@echo Must define PYTHONHOME and PYTHONVERSION to build with Python
-#	@exit 1
+      endif
 endif
 
 PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
