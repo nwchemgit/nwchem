@@ -1709,15 +1709,9 @@ endif
       ifeq ($(CC),clang)
        _CC=gcc
       endif
-         ifeq ($(FC),xlf2008_r)
-           _FC=xlf
-         endif
-         ifeq ($(FC),xlf_r)
-           _FC=xlf
-         endif
-         ifeq ($(FC),xlf)
-           _FC=xlf
-         endif
+     ifeq ($(FC),$(findstring $(FC),xlf2008_r xlf_r xlf xlf90 xlf90_r))
+       _FC=xlf
+     endif
       ifndef _FC
       FC=gfortran
       _FC=gfortran
