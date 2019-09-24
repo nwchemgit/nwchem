@@ -32,7 +32,7 @@ build-all:
   except:
     changes:
       - ".travis.yml"
-      - "travis"
+      - "travis/*"
 
 run-qas:
   stage: test
@@ -46,4 +46,4 @@ run-qas:
   except:
     changes:
       - ".travis.yml"
-      - "travis"
+      - "travis/*"
