@@ -10,6 +10,8 @@ variables:
   BLAS_LIB: "-lopenblas"
   LAPACK_LIB: "-lopenblas"
   BLAS_SIZE: 4
+  USE_64TO32: Y
+  NWCHEM_LONG_PATHS: Y
   SCALAPACK_LIB: "-lscalapack-openmpi  -lopenblas"
   SCALAPACK_SIZE: 4
 
