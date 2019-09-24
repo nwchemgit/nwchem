@@ -5,7 +5,7 @@ stages:
 variables:
   USE_MPI: Y
   USE_NOIO: 1
-  NWCHEM_MODULES: "nwdft solvation stepper driver mp2_grad ccsd property vib python"
+  NWCHEM_MODULES: "all python'
   OMP_NUM_THREADS: 1
   BLAS_LIB: "-lopenblas"
   LAPACK_LIB: "-lopenblas"
@@ -37,4 +37,4 @@ run-qas:
     GIT_CLEAN_FLAGS: -ffdx -e bin -e build -e install
   script:
     - cd $CI_PROJECT_DIR/QA
-    - ./doafewqmtests.mpi  2
+    - ./doqmtests.mpi  2
