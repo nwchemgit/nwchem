@@ -541,6 +541,8 @@ ifeq ($(GOTCGWIN32),1)
 endif
 ifeq ($(GOTMINGW32),1)
 # weak pragmas not working with cygwin
+#MSMPI madness
+   FFLAGS_FORGA += -fno-range-check 
    MAYBE_OFFLOAD += --disable-weak
 endif
 ifeq ($(GOTMINGW64),1)
