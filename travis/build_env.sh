@@ -1,7 +1,7 @@
 #!/bin/bash
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then 
   brew cask uninstall oclint || true  
-  brew install gcc "$MPI_IMPL" openblas ||true
+  brew install gcc "$MPI_IMPL" openblas python@3 ||true
   if [[ "$MPI_IMPL" == "openmpi" ]]; then
      brew install scalapack
   fi
@@ -15,5 +15,5 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     fi
     cat /etc/apt/sources.list
     sudo add-apt-repository universe && sudo apt update
-    sudo apt-get -y install gfortran python-dev  cmake "$mpi_libdev" "$mpi_bin" "$scalapack_libdev" tcsh make perl subversion libopenblas-dev 
+    sudo apt-get -y install gfortran python-dev  cmake "$mpi_libdev" "$mpi_bin" "$scalapack_libdev"  make perl  libopenblas-dev python3
 fi
