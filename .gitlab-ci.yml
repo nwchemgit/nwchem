@@ -27,7 +27,10 @@ build-all:
     - pwd
     - make nwchem_config
     - make 64_to_32
-    - make -j3 
+    - make -j3
+  except:
+    changes:
+      - ".travis.yml"
 
 run-qas:
   stage: test
@@ -38,3 +41,6 @@ run-qas:
   script:
     - cd $CI_PROJECT_DIR/QA
     - ./doqmtests.mpi  2
+  except:
+    changes:
+      - ".travis.yml"
