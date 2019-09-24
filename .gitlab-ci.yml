@@ -5,7 +5,7 @@ stages:
 variables:
   USE_MPI: Y
   USE_NOIO: 1
-  NWCHEM_MODULES: "all python'
+  NWCHEM_MODULES: "all python"
   OMP_NUM_THREADS: 1
   BLAS_LIB: "-lopenblas"
   LAPACK_LIB: "-lopenblas"
