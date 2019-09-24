@@ -551,6 +551,9 @@ ifeq ($(GOTMINGW64),1)
    CFLAGS_FORGA +=  -m64
    CC = gcc
 endif
+ifeq ($(GNU_GE_8),true)
+  FFLAGS_FORGA += -std=legacy
+endif
 #detect clang
 GOTCLANG= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
 GOTFREEBSD= $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
