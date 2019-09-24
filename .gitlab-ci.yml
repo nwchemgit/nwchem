@@ -5,7 +5,7 @@ stages:
 variables:
   USE_MPI: Y
   USE_NOIO: 1
-  NWCHEM_MODULES: "all python"
+  NWCHEM_MODULES: "nwdft solvation stepper driver mp2_grad ccsd property vib python"
   OMP_NUM_THREADS: 1
   BLAS_LIB: "-lopenblas"
   LAPACK_LIB: "-lopenblas"
@@ -14,6 +14,7 @@ variables:
   NWCHEM_LONG_PATHS: Y
   SCALAPACK_LIB: "-lscalapack-openmpi  -lopenblas"
   SCALAPACK_SIZE: 4
+  GIT_DEPTH: 2
 
 build-all:
   stage: build
@@ -26,12 +27,14 @@ build-all:
     - pwd
     - make nwchem_config
     - make 64_to_32
-    - make -j3 -l2
+    - make -j3 -l2.5
 
 run-qas:
   stage: test
   tags:
     - ubuntu_bionic
+  variables:
+    GIT_CLEAN_FLAGS: -ffdx -e bin -e build -e install
   script:
     - cd $CI_PROJECT_DIR/QA
-    - ./doafewqmtests.mpi procs 2
+    - ./doafewqmtests.mpi  2
