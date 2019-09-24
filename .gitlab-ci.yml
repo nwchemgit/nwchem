@@ -1,0 +1,30 @@
+stages:
+  - build
+  - test
+
+variables:
+  USE_MPI: Y
+  USE_NOIO: 1
+  NWCHEM_MODULES: "all python"
+  OMP_NUM_THREADS: 1
+  BLAS_LIB: "-lopenblas"
+  LAPACK_LIB: "-lopenblas"
+  BLAS_SIZE: 4
+  SCALAPACK_LIB: "-lscalapack-openmpi  -lopenblas"
+  SCALAPACK_SIZE: 4
+  
+build-all:
+  stage: build
+  script:
+    - pwd
+    - cd $CI_PATH/src
+    - pwd
+    - make nwchem_config
+    - make 64_to_32
+    - make
+
+run-qas:
+  stage: test
+  script:
+    - cd $CI_PATH/QA
+    - ./doafewqmtests.mpi procs 2
