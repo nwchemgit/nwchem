@@ -1,5 +1,6 @@
 language: c
 sudo: required
+osx_image: xcode10.3
 dist: bionic
 os: 
   - osx
