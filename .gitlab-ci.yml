@@ -27,7 +27,7 @@ build-all:
     - pwd
     - make nwchem_config
     - make 64_to_32
-    - make -j3 -l2.5
+    - make -j3 
 
 run-qas:
   stage: test
