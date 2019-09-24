@@ -1,0 +1,37 @@
+stages:
+  - build
+  - test
+
+variables:
+  USE_MPI: Y
+  USE_NOIO: 1
+  NWCHEM_MODULES: "all python"
+  OMP_NUM_THREADS: 1
+  BLAS_LIB: "-lopenblas"
+  LAPACK_LIB: "-lopenblas"
+  BLAS_SIZE: 4
+  USE_64TO32: Y
+  NWCHEM_LONG_PATHS: Y
+  SCALAPACK_LIB: "-lscalapack-openmpi  -lopenblas"
+  SCALAPACK_SIZE: 4
+
+build-all:
+  stage: build
+  tags:
+    - ubuntu_bionic
+  script:
+    - pwd
+    - env |grep CI_
+    - cd $CI_PROJECT_DIR/src
+    - pwd
+    - make nwchem_config
+    - make 64_to_32
+    - make -j3 -l2
+
+run-qas:
+  stage: test
+  tags:
+    - ubuntu_bionic
+  script:
+    - cd $CI_PROJECT_DIR/QA
+    - ./doafewqmtests.mpi procs 2
