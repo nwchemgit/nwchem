@@ -28,9 +28,11 @@ build-all:
     - make nwchem_config
     - make 64_to_32
     - make -j3
+    - ../contrib/getmem.nwchem 1000
   except:
     changes:
       - ".travis.yml"
+      - "travis"
 
 run-qas:
   stage: test
@@ -44,3 +46,4 @@ run-qas:
   except:
     changes:
       - ".travis.yml"
+      - "travis"
