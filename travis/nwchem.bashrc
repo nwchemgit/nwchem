@@ -41,6 +41,6 @@ if [[ "$USE_64TO32" == "y" ]]; then
   export BLAS_SIZE=4
   export SCALAPACK_SIZE=4
 fi
-export USE_PYTHONCONFIG=y
-export PYTHONVERSION=2.7
+#export USE_PYTHONCONFIG=y
+#export PYTHONVERSION=2.7
 #export PYTHONHOME=/usr
