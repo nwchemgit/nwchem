@@ -461,7 +461,7 @@ c     aa = (tau - tauW)/tauU
 *           x_parameter: scale parameter for exchange
 *           c_parameter: scale parameter for correlation
 *
-*     Exit  - xce(n2ft3d) : TPSS03 exchange correlation energy density
+*     Exit  - xce(n2ft3d) : SCAN exchange correlation energy density
 *             fn(n2ft3d,2)  : d(n*xce)/dnup, d(n*xce)/dndn
 *             fdn(n2ft3d,3) : d(n*xce)/d|grad nup|, d(n*xce)/d|grad ndn|, d(n*xce)/d|grad n|
 *             fdtau(n2ft3d,2) : d(n*xce)/dtauup, d(n*xce)/dtaudn

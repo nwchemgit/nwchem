@@ -202,6 +202,8 @@
          write(luout,1131) 'VS98'
       ELSE IF (gga.eq.301) THEN
          write(luout,1131) 'TPSS03'
+      ELSE IF (gga.eq.302) THEN
+         write(luout,1131) 'SCAN'
       ELSE
          write(luout,1131) 'unknown parameterization'
          call errquit('bad exchange_correlation',0, INPUT_ERR)
