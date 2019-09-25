@@ -2541,6 +2541,10 @@ ifndef PYTHONVERSION
       PYTHONVERSION=$(shell python3 -V 2>&1 |cut -c 8-10)
       else
       PYTHONVERSION=$(shell python -V 2>&1 |cut -c 8-10)
+#last try at python2
+        ifndef PYTHONVERSION
+          PYTHONVERSION=$(shell python2 -V 2>&1 |cut -c 8-10)
+        endif
       endif
 #errorpython2:
 #$(info )
@@ -2556,15 +2560,11 @@ endif
 PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
    PYMINOR:=$(word 2, $(subst ., ,$(PYTHONVERSION)))
    PYGE38:=$(shell [ $(PYMAJOR) -ge 3 -a $(PYMINOR) -ge 8 ] && echo true)
-ifeq (${PYMAJOR},3)
    ifeq ($(PYGE38),true)
-     EXTRA_LIBS += -lnwcutil $(shell python3-config --ldflags --embed)
+     EXTRA_LIBS += -lnwcutil $(shell python$(PYTHONVERSION)-config --ldflags --embed)
    else
-     EXTRA_LIBS += -lnwcutil $(shell python3-config --ldflags) 
+     EXTRA_LIBS += -lnwcutil $(shell python$(PYTHONVERSION)-config --ldflags) 
    endif
-else
-EXTRA_LIBS += $(shell python-config --ldflags)
-endif
 else
 ifndef PYTHONLIBTYPE
     PYTHONLIBTYPE=a
