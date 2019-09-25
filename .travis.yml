@@ -36,7 +36,7 @@ matrix:
     - os: osx
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT MPI_IMPL="mpich" USE_SIMINT=1 SIMINT_MAXAM=3
 git:
-  depth: 8
+  depth: 32
 before_script:
         - printenv TRAVIS_BUILD_DIR
         - ./travis/build_env.sh
