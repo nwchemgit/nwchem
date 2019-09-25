@@ -36,7 +36,7 @@
 *   **** meta ggas ****
 *   gga = 300 vs98
 *   gga = 301 tpss03
-*   gga = 302 ????
+*   gga = 302 scan
 *
       has_disp = .false.
       has_vdw  = .false.
@@ -833,6 +833,8 @@
         gga = 300
       else if (inp_compare(.false.,exchange_correlation,'tpss03')) then
         gga = 301
+      else if (inp_compare(.false.,exchange_correlation,'scan')) then
+        gga = 302
 
       else
         gga = 0
