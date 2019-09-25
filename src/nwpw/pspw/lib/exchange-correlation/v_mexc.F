@@ -151,6 +151,16 @@ c              ***** calculate xce,fn=df/dn, and fdn=df/d|grad n|, fdtau=df/dtau
      >                                dbl_mb(fn(1)),
      >                                dbl_mb(fdn(1)),
      >                                dbl_mb(dfdtau(1)))
+               else if (gga.eq.302) then
+                call gen_SCAN_restricted(n2ft3d,
+     >                                dbl_mb(rho(1)),
+     >                                dbl_mb(agr(1)),
+     >                                dbl_mb(tau(1)),
+     >                                x_parameter,c_parameter,
+     >                                xce,
+     >                                dbl_mb(fn(1)),
+     >                                dbl_mb(fdn(1)),
+     >                                dbl_mb(dfdtau(1)))
                else
                  call errquit('bad gga',0,0)
                end if
@@ -458,6 +468,26 @@ c
 
                if (gga.eq.300) then
                call gen_VS98_unrestricted(n2ft3d,
+     >                                    dn,
+     >                                    dbl_mb(agr(1)),
+     >                                    dbl_mb(tau(1)),
+     >                                    x_parameter,c_parameter,
+     >                                    xce,
+     >                                    dbl_mb(fn(1)),
+     >                                    dbl_mb(fdn(1)),
+     >                                    dbl_mb(dfdtau(1)))
+               else if (gga.eq.301) then
+               call gen_TPSS03_unrestricted(n2ft3d,
+     >                                    dn,
+     >                                    dbl_mb(agr(1)),
+     >                                    dbl_mb(tau(1)),
+     >                                    x_parameter,c_parameter,
+     >                                    xce,
+     >                                    dbl_mb(fn(1)),
+     >                                    dbl_mb(fdn(1)),
+     >                                    dbl_mb(dfdtau(1)))
+               else if (gga.eq.302) then
+               call gen_SCAN_unrestricted(n2ft3d,
      >                                    dn,
      >                                    dbl_mb(agr(1)),
      >                                    dbl_mb(tau(1)),

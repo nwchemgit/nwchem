@@ -99,8 +99,9 @@
       parameter (c = 0.2533d0)
       parameter (d = 0.349d0)
 *     ***Becke88 parameters*************
-      real*8 beta
+      real*8 beta,Cf
       parameter (beta = 0.0042d0)
+      parameter (Cf =2.87123400018819108225d0)     ! Cf = (3/10)*(3*pi*pi)**(2/3)
       
       real*8 thrd
       real*8 twthrd,frthrd,fvthrd,snthrd,etthrd
@@ -112,7 +113,7 @@
       parameter (etthrd = 8.0d0/3.0d0)
       
       integer j
-      real*8 pi, Cf,lda_c
+      real*8 pi,lda_c
 
       real*8 nup,ndn,n,agrup,agrdn,agr
       real*8 agr2, agrup2,agrdn2
@@ -153,8 +154,8 @@
       !etthrd = thrd*8.0d0
 
       pi = 4.0d0*datan(1.0d0)
-      Cf = dble(3.0d0*pi*pi)
-      Cf = dble(3.0d0*(Cf**(2.0d0/3.0d0))/10.0d0)
+      !Cf = dble(3.0d0*pi*pi)
+      !Cf = dble(3.0d0*(Cf**(2.0d0/3.0d0))/10.0d0)
 
       lda_c =(3.0d0/2.0d0)*(3.0d0/(4.0d0*pi))**(1.0d0/3.0d0)
 

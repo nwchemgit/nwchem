@@ -54,8 +54,8 @@ c      parameter (KAPPA = 0.8040000000000000d0)
 c     ****** PBE96 GGA correlation constants ******
       real*8 GAMMA,BETA,BOG
       parameter (GAMMA	= 0.031090690869655d0)
-      !parameter (BETA	= 0.066724550603149d0)
-      parameter (BETA	= 0.066725d0)
+      parameter (BETA	= 0.066724550603149d0)
+      !parameter (BETA	= 0.066725d0)
       parameter (BOG    = BETA/GAMMA)
 
 
