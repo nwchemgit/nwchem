@@ -2536,24 +2536,22 @@ endif
 ifeq ($(BUILDING_PYTHON),python)
 ifndef PYTHONVERSION
 #try python3 first, then python
-      GOTPYTHON3 := $(shell command -v python3 2> /dev/null)
-      ifdef GOTPYTHON3
-      PYTHONVERSION=$(shell python3 -V 2>&1 |cut -c 8-10)
-      else
-      PYTHONVERSION=$(shell python -V 2>&1 |cut -c 8-10)
+  GOTPYTHON3 := $(shell command -v python3 2> /dev/null)
+  GOTPYTHON2 := $(shell command -v python2 2> /dev/null)
+  GOTPYTHON  := $(shell command -v python 2> /dev/null)
+  ifdef GOTPYTHON3
+    PYTHONVERSION=$(shell python3 -V 2>&1 |cut -c 8-10)
+  else ifdef GOTPYTHON2
+    PYTHONVERSION=$(shell python2 -V 2>&1 |cut -c 8-10)
+  else ifdef GOTPYTHON
 #last try at python2
-        ifndef PYTHONVERSION
-          PYTHONVERSION=$(shell python2 -V 2>&1 |cut -c 8-10)
-        endif
-      endif
-#errorpython2:
-#$(info )
-#$(info For python you must define both PYTHONHOME and PYTHONVERSION)
-#$(info E.g., setenv PYTHONHOME /msrc/home/d3g681/Python-1.5.1)
-#$(info       setenv PYTHONVERSION 1.5)
-#$(info  building_python <$(BUILDING_PYTHON)>)
-#$(info  subdirs <$(NWSUBDIRS)>)
-#$(error )
+    PYTHONVERSION=$(shell python -V 2>&1 |cut -c 8-10)
+  else
+errorpython3:
+$(info )
+$(info Neither python2 nor python3 found in your PATH
+$(error )
+  endif
 endif
 #
 #ifdef USE_PYTHONCONFIG

@@ -30,7 +30,12 @@ int FATR task_python_(Integer *rtdb_ptr)
    char filename[256];
    int ret;
    
+#if PY_MAJOR_VERSION < 3
    Py_SetProgramName("NWChem");
+#else
+   wchar_t *nwprogram = Py_DecodeLocale("NWChem", NULL);
+   Py_SetProgramName(nwprogram);
+#endif   
 #if PY_MAJOR_VERSION >= 3
    PyImport_AppendInittab("nwchem", PyInit_nwchem);
 #endif
@@ -80,7 +85,7 @@ int FATR task_python_(Integer *rtdb_ptr)
       a compatible compiler ... which it most likely is not */
  
 #if defined(WIN32)
-   ret = PyRun_SimpleString("execfile('nwchem.py')"); 
+   ret = PyRun_SimpleString("exec(open('nwchem.py').read())");
 #else
    if (!(F = fopen(filename, "r"))) {
        fprintf(stderr,"task_python: cannot open file %s\n",filename); 
