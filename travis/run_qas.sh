@@ -55,7 +55,7 @@ set -ev
      head -2 $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
      tail -20 $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
      cd $TRAVIS_BUILD_DIR/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs cosmo_h2o_dft  
-     if [[ "$USE_SIMINT" != "1" ]] ;
+     if [[ "$USE_SIMINT" != "1" ]] ; then
 	cd $TRAVIS_BUILD_DIR/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs pspw
      fi
      if [[ "$NWCHEM_MODULES" == "tinyqmpw python" ]]; then
