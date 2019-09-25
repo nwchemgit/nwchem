@@ -1,4 +1,4 @@
-#!/bin/bash -f
+#!/bin/bash
 #
 # $Id$
 #
@@ -108,28 +108,28 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix procs $np tce_eomsd_eomsol2
 ./runtests.mpi.unix procs $np tce_uracil_creomact
 #./runtests.mpi.unix procs $np li2h2_tce_ccsd # always hangs
-if ( ${?MRCC_METHODS} == 1 ) then
-  if ( "x$MRCC_METHODS" == "xy" ) then
+if [[ ! -z "$MRCC_METHODS" ]]; then
+#  if ( "x$MRCC_METHODS" == "xy" ) then
     ./runtests.mpi.unix procs $np tce_mrcc_bwcc
     ./runtests.mpi.unix procs $np tce_mrcc_mkcc
     ./runtests.mpi.unix procs $np tce_mrcc_bwcc_subgroups
-  endif
-endif
-if ( ${?TCE_CUDA} == 1 ) then
-  if ("x$TCE_CUDA" == "xy") then
+#  endif
+fi
+if [[ ! -z "$TCE_CUDA" ]]; then
+#  if ("x$TCE_CUDA" == "xy") then
     ./runtests.mpi.unix procs $np tce_cuda
-  endif
-endif
-if ( ${?EACCSD} == 1 ) then
-  if ("x$EACCSD" == "xy") then
+#  endif
+fi
+if [[ ! -z "$EACCSD" ]]; then
+#  if ("x$EACCSD" == "xy") then
     ./runtests.mpi.unix procs $np tce_eaccsd_ozone
-  endif
-endif
-if ( ${?IPCCSD} == 1 ) then
-  if ("x$IPCCSD" == "xy") then
+#  endif
+fi
+if [[ ! -z "$IPCCSD" ]]; then
+#  if ("x$IPCCSD" == "xy") then
     ./runtests.mpi.unix procs $np tce_ipccsd_f2
-  endif
-endif
+#  endif
+fi
 ./runtests.mpi.unix procs $np oniom1
 ./runtests.mpi.unix procs $np oniom2
 ./runtests.mpi.unix procs $np oniom3
@@ -281,7 +281,7 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np h2o2_fde
 #
 #--- if we only want quick tests get out now!
-if [[ $what -eq "fast" ]]; then
+if [[ "$what" == "fast" ]]; then
   exit
 fi
 #
