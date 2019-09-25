@@ -7,6 +7,23 @@
 # out for the OS, if available.  This amount is per processor 
 # and is in units of megabytes
 #
+if [[ -z "${NWCHEM_TARGET}" ]]; then
+    UNAME_S=$(uname -s)
+  if [[ ${UNAME_S} == Linux ]]; then
+    NWCHEM_TARGET=LINUX64
+  elif [[ ${UNAME_S} == Darwin ]]; then
+    NWCHEM_TARGET=MACX64
+  else
+      echo
+      echo You must define NWCHEM_TARGET in your environment to be the name
+      echo of the machine you wish to build for ... for example
+      echo     export NWCHEM_TARGET=SOLARIS
+      echo Known targets are SOLARIS, ...
+      echo See the INSTALL instructions for a complete list
+      echo ${UNAME_S}
+      exit 1
+  fi
+fi
 if [[ -z "${NWCHEM_TOP}" ]]; then
     DIRUTIL=`dirname "$0"`
     MYPW=`pwd`
@@ -53,7 +70,7 @@ if [[ $good != 0  ]]; then
   echo "Total Memory         :" $memtot "Kb"
   echo "No. of processors    :" $nproc
   echo "Total Memory/proc    :" $memproc "KB = " $memprocgb "GB"
-  # take away memory for OS
+  # take away 20% memory for OS
    memproc=$(( memproc*80/100 ))
   # multiply by 128=(1024/8) to get to doubles
    memproc=$(( memproc * 128 ))
