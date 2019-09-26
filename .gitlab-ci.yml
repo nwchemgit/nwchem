@@ -31,8 +31,14 @@ variables:
 .test_template: &test_step
   variables:
     GIT_CLEAN_FLAGS: -ffdx -e bin -e build -e install
-  before_script:
+  script:
+    - env|egrep -i mkl || true
+    - env|egrep  LD_LIBR || true
     - cd $CI_PROJECT_DIR/QA
+    - NNPROCS=1
+    - if [ "$(uname -s)" == "Darwin" ]; then NNPROCS=2; fi
+    - if [ "$(uname -s)" == "Linux" ]; then NNPROCS=3; fi
+    - ./doafewqmtests.mpi $NNPROCS
   except:
     changes:
       - ".travis.yml"
@@ -107,8 +113,6 @@ linux64:run_gcc:
   stage: test
   needs: ["linux64:build_gcc"]
   <<: *test_step
-  script: 
-    - ./doafewqmtests.mpi 4
   tags:
     - ubuntu_xenial
 
@@ -117,10 +121,6 @@ linux64:run_intel:
   needs: ["linux64:build_intel"]
   <<: *intel_sourcing
   <<: *test_step
-  script: 
-    - env|egrep -i mkl || true
-    - env|egrep  LD_LIBR || true
-    - ./doafewqmtests.mpi 3
   tags:
     - ubuntu_bionic
 
@@ -129,8 +129,6 @@ linux64_rhel6:run_gcc:
   needs: ["linux64_rhel6:build_gcc"]
   <<: *rhel6_sourcing
   <<: *test_step
-  script: 
-    - ./doafewqmtests.mpi 2
   tags:
     - rhel_6
 
@@ -138,7 +136,5 @@ macos:run_gcc:
   stage: test
   needs: ["macos:build_gcc"]
   <<: *test_step
-  script: 
-    - ./doafewqmtests.mpi 2
   tags:
     - macos_10.13
