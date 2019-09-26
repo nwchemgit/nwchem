@@ -5,45 +5,52 @@ stages:
 variables:
   USE_MPI: Y
   USE_NOIO: 1
-  NWCHEM_MODULES: "all python"
+  NWCHEM_MODULES: "nwdft solvation driver vib property mp2_grad ccsd python"
   OMP_NUM_THREADS: 1
-  BLAS_LIB: "-lopenblas"
-  LAPACK_LIB: "-lopenblas"
-  BLAS_SIZE: 4
   USE_64TO32: Y
   NWCHEM_LONG_PATHS: Y
-  SCALAPACK_LIB: "-lscalapack-openmpi  -lopenblas"
-  SCALAPACK_SIZE: 4
-  GIT_DEPTH: 2
+  GIT_DEPTH: 32
 
-build-all:
-  stage: build
-  tags:
-    - ubuntu_bionic
+.compile_template: &compile_step
   script:
     - pwd
     - env |grep CI_
     - cd $CI_PROJECT_DIR/src
-    - pwd
     - make nwchem_config
     - make 64_to_32
     - make -j3
-    - ../contrib/getmem.nwchem 1000
+    - ../contrib/getmem.nwchem 
   except:
     changes:
       - ".travis.yml"
       - "travis/*"
 
-run-qas:
-  stage: test
-  tags:
-    - ubuntu_bionic
+.test_template: &test_step
   variables:
     GIT_CLEAN_FLAGS: -ffdx -e bin -e build -e install
   script:
     - cd $CI_PROJECT_DIR/QA
-    - ./doqmtests.mpi  2
+    - ./doafewqmtests.mpi 2
   except:
     changes:
       - ".travis.yml"
       - "travis/*"
+
+linux64:build_gcc:
+  stage: build
+  variables:
+    BLAS_LIB: "-lopenblas"
+    LAPACK_LIB: "-lopenblas"
+    BLAS_SIZE: 4
+    SCALAPACK_LIB: "-lscalapack-openmpi  -lopenblas"
+    SCALAPACK_SIZE: 4
+  <<: *compile_step
+  tags:
+    - ubuntu_bionic
+
+linux64:run_gcc:
+  stage: test
+  needs: ["linux64:build_gcc"]
+  <<: *compile_step
+  tags:
+    - ubuntu_bionic
