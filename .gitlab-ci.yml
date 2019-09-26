@@ -16,8 +16,7 @@ variables:
     - pwd
     - env |grep CI_
     - env|egrep BLAS
-    - env|egrep -i mkl
-    - env|egrep -i intel
+    - env|egrep -i mkl || trye
     - cd $CI_PROJECT_DIR/src
     - make nwchem_config
     - make 64_to_32
