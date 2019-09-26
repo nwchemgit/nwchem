@@ -15,6 +15,7 @@ variables:
   script:
     - pwd
     - env |grep CI_
+    - env|egrep BLAS
     - cd $CI_PROJECT_DIR/src
     - make nwchem_config
     - make 64_to_32
@@ -38,13 +39,13 @@ variables:
 
 linux64:build_gcc:
   stage: build
+  <<: *compile_step
   variables:
     BLAS_LIB: "-lopenblas"
     LAPACK_LIB: "-lopenblas"
     BLAS_SIZE: 4
     SCALAPACK_LIB: "-lscalapack-openmpi  -lopenblas"
     SCALAPACK_SIZE: 4
-  <<: *compile_step
   tags:
     - ubuntu_bionic
 
