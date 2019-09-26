@@ -90,17 +90,17 @@
       parameter (thrd   = 1.0d0/3.0d0)
       parameter (frthrd = 4.0d0/3.0d0)
 
-      small = tol
-      fz = -2.0d0
-      dfdz  = 0.0d0
-      omz   = 1.0d0 - zeta
-      opz   = 1.0d0 + zeta
-      omz2  = omz**2.0d0
-      opz2  = opz**2.0d0
+      small =  tol
+      fz    = -2.0d0
+      dfdz  =  0.0d0
+      omz   =  1.0d0 - zeta
+      opz   =  1.0d0 + zeta
+      omz2  =  omz**2.0d0
+      opz2  =  opz**2.0d0
 
       if (omz .gt. small) then
         omz_13 = omz**thrd
-        fz     = fz + omz*omz_13
+        fz     = fz   + omz*omz_13
         dfdz   = dfdz - omz_13
       end if
 
@@ -131,8 +131,8 @@
       real*8 dq0_drs,dq1_drs,dq2_drs
  
       q0    = -2.0d0*a*(1.0d0 + a1*rs)
-      rs_12 = dsqrt(rs)
-      rs_32 = rs*rs_12
+      rs_12 =  dsqrt(rs)
+      rs_32 =  rs*rs_12
 
       q1 = 2.0d0*a*(b1*rs_12+b2*rs+b3*rs_32+b4*rs*rs)
       q2 = dlog(1.0d0 + 1.0d0/q1)
@@ -141,7 +141,7 @@
       dq0_drs = -2.0d0*a*a1
       dq1_drs =  a*(b1/rs_12 + 2.0d0*b2 + 3.0d0*b3*rs_12 + 4.0d0*b4*rs)
       dq2_drs = -dq1_drs/(q1 + q1**2.0d0)
-      dvdr    = dq0_drs*q2 + q0*dq2_drs
+      dvdr    =  dq0_drs*q2 + q0*dq2_drs
 
       return
       end

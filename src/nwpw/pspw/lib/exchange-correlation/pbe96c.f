@@ -1,39 +1,30 @@
-*
-* $Id$
-*
-
 *    ********************************************
-*    *			 		        *
+*    *				         	*
 *    *	    gen_PBE96_c_full_unrestricted	*
-*    *					        *
+*    *				        	*
 *    ********************************************
 *
-*    This function returns the PBE96 exchange-correlation
-*  energy density, xce, and its derivatives with respect
+*    This function returns the PBE96 correlation
+*  energy density, ce, and its derivatives with respect
 *  to nup, ndn, |grad nup|, |grad ndn|, and |grad n|.
 *
-*   Entry - n2ft3d     : number of grid points
-*           dn_in(*,2) : spin densites nup and ndn
-*           agr_in(*,3): |grad nup|, |grad ndn|, and |grad n|
-*           x_parameter: scale parameter for exchange
-*           c_parameter: scale parameter for correlation
+*   Entry - dn1_in,dn2_in          :  spin densites nup and ndn
+*           agr1_in,agr2_in,agr3_in: |grad nup|, |grad ndn|, and |grad n|
 *
-*   Exit - xce(*)  : PBE96 energy density
-*        - fn(*,2) : d(n*xce)/dnup, d(n*xce)/dndn
-*        - fdn(*,3): d(n*xce)/d|grad nup|, d(n*xce)/d|grad ndn|
-*                    d(n*xce)/d|grad n|
+*   Exit - ce            : PBE96 correlation energy density
+*        - fn1,fn2       : d(n*ce)/dnup, d(n*ce)/dndn
+*        - fdn1,fdn2,fdn3: d(n*ce)/d|grad nup|, d(n*ce)/d|grad ndn|
+*                           d(n*ce)/d|grad n|
 
       subroutine gen_PBE96_c_full_unrestricted(dn1_in,dn2_in,
      >                           agr1_in,agr2_in,agr3_in,
-     >                           xce,fn1,fn2,fdn1,fdn2,fdn3)
+     >                           ce,fn1,fn2,fdn1,fdn2,fdn3)
       implicit none
-      
-      real*8 dn1_in,dn2_in
-      real*8 agr1_in,agr2_in,agr3_in
-      real*8 xce
-      real*8 fn1,fn2
-      real*8 fdn1,fdn2,fdn3
-      
+*     ***** input *****      
+      real*8 dn1_in,dn2_in,agr1_in,agr2_in,agr3_in
+*     ***** output *****      
+      real*8 ce,fn1,fn2,fdn1,fdn2,fdn3
+  
 *     **** Density cutoff parameter ****
       real*8 DNS_CUT,ETA,ETA2,alpha_zeta,alpha_zeta2
       parameter (DNS_CUT = 1.0d-20)
@@ -298,7 +289,7 @@ c     ********************************************
       fncup  = ec + (ec_lda_nup + Hpbe_nup)
       fncdn  = ec + (ec_lda_ndn + Hpbe_ndn)
 
-      xce   = ec
+      ce   = ec
       fn1  = fncup
       fn2  = fncdn
 
@@ -314,42 +305,30 @@ c     ********************************************
       end
       
 
-
-
-*
-* $Id$
-*
-
 *    ************************************
 *    *					*
 *    *	    gen_PBE96_c_unrestricted	*
 *    *					*
 *    ************************************
 *
-*    This function returns the PBE96 exchange-correlation
-*  energy density, xce, and its derivatives with respect
-*  to nup, ndn, |grad nup|, |grad ndn|, and |grad n|.
+*    This function returns the PBE96 correlation
+*  energy density, ce, and its derivatives with respect
+*  to n_sigma, |grad n_sigma|.
 *
-*   Entry - n2ft3d     : number of grid points
-*           dn_in(*,2) : spin densites nup and ndn
-*           agr_in(*,3): |grad nup|, |grad ndn|, and |grad n|
-*           x_parameter: scale parameter for exchange
-*           c_parameter: scale parameter for correlation
+*   Entry - dn_in :  spin densites n_sigma
+*           agr_in: |grad n_sigma|
 *
-*   Exit - xce(*)  : PBE96 energy density
-*        - fn(*,2) : d(n*xce)/dnup, d(n*xce)/dndn
-*        - fdn(*,3): d(n*xce)/d|grad nup|, d(n*xce)/d|grad ndn|
-*                    d(n*xce)/d|grad n|
+*   Exit - ce : PBE96 correlation energy density
+*        - fn : d(n_sigma*ce)/dn_sigma,
+*        - fdn: d(n_sigma*ce)/d|grad n_sigma|
 
       subroutine gen_PBE96_c_unrestricted(dn_in,agr_in,
-     >                           xce,fn,fdn)
+     >                           ce,fn,fdn)
       implicit none
-      
-      real*8 dn_in
-      real*8 agr_in
-      real*8 xce
-      real*8 fn
-      real*8 fdn
+*     ***** input *****      
+      real*8 dn_in,agr_in
+*     ***** output *****
+      real*8 ce,fn,fdn
       
 *     **** Density cutoff parameter ****
       real*8 DNS_CUT,ETA,ETA2,alpha_zeta,alpha_zeta2
@@ -600,7 +579,7 @@ c     ********************************************
 
       fncup  = ec + (ec_lda_nup + Hpbe_nup)
 
-      xce   = ec
+      ce   = ec
       fn  = fncup
 
       fdn = t_agr*Hpbe_t
@@ -622,29 +601,24 @@ c     ********************************************
 *    *					*
 *    ************************************
 *
-*   This routine calculates the PBE96 exchange-correlation 
-*   potential(xcp) and energy density(xce).
+*   This routine calculates the PBE96 correlation 
+*   potential(cp) and energy density(ce).
 *
 *
-*   Entry - n2ft3d     : number of grid points
-*           rho_in(*) :  density (nup+ndn)
-*           agr_in(*): |grad rho_in|
-*           x_parameter: scale parameter for exchange
-*           c_parameter: scale parameter for correlation
+*    Entry - rho_in:  density (nup+ndn)
+*            agr_in: |grad rho_in|
 *
-*     Exit  - xce(n2ft3d) : PBE96 exchange correlation energy density
-*             fn(n2ft3d)  : d(n*xce)/dn
-*             fdn(n2ft3d) : d(n*xce/d|grad n|
+*    Exit  - ce : PBE96 correlation energy density
+*            fn : d(n*ce)/dn
+*            fdn: d(n*ce/d|grad n|
 *
       subroutine gen_PBE96_c_restricted(rho_in,agr_in,
-     >                                xce,fn,fdn)
+     >                                ce,fn,fdn)
       implicit none
-
-      real*8     rho_in
-      real*8     agr_in
-      real*8     xce
-      real*8     fn
-      real*8     fdn
+*     ****** input ******
+      real*8     rho_in,agr_in
+*     ****** output ******
+      real*8     ce,fn,fdn
 
       
 *     **** Density cutoff parameter ****
@@ -767,7 +741,7 @@ c     **** PBE96 correlation fdn and fdnc derivatives ****
      >          - (sevensixths*t*Ht)
       fdnc = 0.5d0* Ht/ks
 
-      xce = ec
+      ce = ec
       fn  = fnc
       fdn = fdnc
       

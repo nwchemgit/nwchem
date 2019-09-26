@@ -36,12 +36,18 @@
       n_83  = n_53*n
       inv_n = 1.0d0/n
       agr2  = agr*agr
+        
+      p       =  agr2/(4.0d0*P23*n_83)
+      dp_dn   = -etthrd*p*inv_n
+      dp_dagr =  2.0d0*p/agr
+c     dp_dtau =  0.0d0
+
+      p2 = p*p
+      p3 = p2*p
+
       tauW  = 0.125d0*agr2*inv_n
       tauU  = 0.3d0*P23*n_53
-        
-      ex0 = Cx*n_13
-      p   = agr2/(4.0d0*P23*n_83)
-      fz  = tauW/tau
+      fz    = tauW/tau
 
       if (fz .gt. 1.0d0) then
          z       = 1.0d0
@@ -55,50 +61,22 @@
          dz_dtau = -z/tau
       end if
 
-      p2 = p*p
-      p3 = p2*p
       z2 = z*z
       z3 = z2*z
 
-      dp_dn   = -etthrd*p*inv_n
-      dp_dagr =  2.0d0*p/agr
-      !dp_dtau = 0.0d0
+      alpha = fvthrd*p*(1.0d0/z - 1.0d0)
+c     alpha = (tau - tauW)/tauU
 
-      !fa = (tau - tauW)/tauU
-      fa          = fvthrd*p*(1.0d0/z - 1.0d0)
-      thresA      = 0.001d0
-      alpha       = 0.0d0
-      dalpha_dn   = 0.0d0
-      dalpha_dagr = 0.0d0
-      dalpha_dtau = 0.0d0
-
-      if (fa .ge. thresA) then
-
-        alpha       = fa
-        dalpha_dn   = fvthrd*(-p*dz_dn/z2 + dp_dn*(1.d0/z - 1.0d0))
-        dalpha_dagr = (alpha/p)*dp_dagr - fvthrd*(p/z2)*dz_dagr
-        dalpha_dtau = 1.0d0/tauU
-        !dalpha_dtau = fvthrd*p*(-1.0d0/z2)*dz_dtau
-
-      else if (fa .le. 0.0d0) then
-
+      if (alpha .le. 0.0d0) then
         alpha       = 0.0d0
         dalpha_dn   = 0.0d0
         dalpha_dagr = 0.0d0
         dalpha_dtau = 0.0d0
-
-      else if (fa .gt. 0.0d0 .and. fa .lt. thresA) then
-        alpha        = 2.0d0*fa*fa/thresA 
-     &               - fa*fa*fa/(thresA*thresA)
-        dalpha_dfa   = (4.0d0*fa/thresA 
-     &               - 3.0d0*fa*fa/(thresA*thresA))
-        dalpha_dn    = dalpha_dfa*fvthrd*(-p*dz_dn/z2 
-     &               + dp_dn*(-1.d0 + 1.d0/z))
-        dalpha_dagr  = dalpha_dfa*((alpha/p)*dp_dagr 
-     &               - fvthrd*(p/z2)*dz_dagr)
-        dalpha_dtau  = dalpha_dfa/tauU
-        !dalpha_dtau  = dalpha_dfa*fvthrd*p*(-1.0d0/z2)*dz_dtau
-
+      else
+        dalpha_dn   = fvthrd*(-p*dz_dn/z2 + dp_dn*(1.0d0/z - 1.0d0))
+        dalpha_dagr = (alpha/p)*dp_dagr - fvthrd*(p/z2)*dz_dagr
+        dalpha_dtau = 1.0d0/tauU
+c       dalpha_dtau = fvthrd*p*(-1.0d0/z2)*dz_dtau
       end if
 
       qb = C920*(alpha - 1.0d0)/dsqrt(1.0d0+b*alpha*(alpha - 1.0d0))
@@ -186,6 +164,7 @@
 
       Fx = 1.0d0 + kappa - kappa/(1.0d0 + x/kappa)
 
+      ex0  = Cx*n_13
       xe   = ex0*Fx
       nex0 = n*ex0
 
@@ -312,8 +291,9 @@
         c00  = 0.53d0
 
         agr2 = agr*agr
+
         tauW = 0.125d0*agr2/n
-        z   = tauW/tau
+        z    = tauW/tau
 
         if (z .gt. 1.0d0) then
           z2       = 1.0d0
@@ -354,11 +334,11 @@
         endif
   
         tmp1        = -(1.0d0 + c00)
-        tmp2        = etil 
-        PKZB2       = tmp1*z2*tmp2
-        dPKZB2_dn   = tmp1*(dz2_dn*tmp2   + z2*detil_dn)
-        dPKZB2_dagr = tmp1*(dz2_dagr*tmp2 + z2*detil_dagr)
-        dPKZB2_dtau = tmp1*dz2_dtau*tmp2
+        tmp2        =  etil 
+        PKZB2       =  tmp1*z2*tmp2
+        dPKZB2_dn   =  tmp1*(dz2_dn*tmp2   + z2*detil_dn)
+        dPKZB2_dagr =  tmp1*(dz2_dagr*tmp2 + z2*detil_dagr)
+        dPKZB2_dtau =  tmp1*dz2_dtau*tmp2
 
         revPKZB   = PKZB1       + PKZB2
         drev_dn   = dPKZB1_dn   + dPKZB2_dn
@@ -493,9 +473,9 @@
       parameter (C2    =  146.0d0/2025.0d0)
       parameter (C3    = -73.0d0/405.0d0)
 
-      Cx = (-0.75d0)*(3.0d0/pi)**thrd
+      Cx  = (-0.75d0)*(3.0d0/pi)**thrd
       P23 = (3.0d0*pi**2.0d0)**twthrd
-      es=dsqrt(e)
+      es  = dsqrt(e)
 
       do i=1,n2ft3d
         nup       = rho_in(i,1) + ETA
@@ -532,7 +512,8 @@
         ex = (eupx*nup + ednx*ndn)/n
 
 *       ***** TPSS03 Correlation *****
-        agr  = agr_in(i,3) + ETA
+        agr       = agr_in(i,3) + ETA
+
         tau  = tauup + taudn
         n2   = n*n
         agr2 = agr*agr
@@ -636,6 +617,7 @@ c       else
      &               + xi2*frthrd*onezetam73*dzeta_dnup)
         ddenczx_dndn = 2.0d0*(denczx**3.0d0)*(dxi2_dndn*onezetap43
      &               + xi2*frthrd*onezetam73*dzeta_dndn)
+
         denczx4 = denczx**4.0d0
         denczx5 = denczx4*denczx
         denczx8 = denczx4*denczx4
@@ -651,7 +633,7 @@ c       else
 c       end if
 
         tauW = 0.125d0*agr2/n
-        z   = tauW/tau
+        z    = tauW/tau
 
         if (z .gt. 1.0d0) then
           z2       = 1.0d0
@@ -730,22 +712,22 @@ c         dz3_dtauup == dz3_dtaudn == dz3_dtau
         fb = ndn/n
 
         tmp1          = -(1.0d0 + czx)
-        tmp2          = fa*etilup + fb*etildn
-        PKZB2         = tmp1*z2*tmp2
+        tmp2          =  fa*etilup + fb*etildn
+        PKZB2         =  tmp1*z2*tmp2
         dPKZB2_dnup   = -dczx_dnup*z2*tmp2 + tmp1*(dz2_dn*tmp2 
-     &                + z2*(ndn/n2*(etilup - etildn) 
-     &                + fa*detilup_dnup + fb*detildn_dnup))
+     &                +  z2*(ndn/n2*(etilup - etildn) 
+     &                +  fa*detilup_dnup + fb*detildn_dnup))
         dPKZB2_dndn   = -dczx_dndn*z2*tmp2 + tmp1*(dz2_dn*tmp2
-     &                + z2*(nup/n2*(etildn - etilup)
-     &                + fb*detildn_dndn + fa*detilup_dndn))
+     &                +  z2*(nup/n2*(etildn - etilup)
+     &                +  fb*detildn_dndn + fa*detilup_dndn))
         dPKZB2_dagrup = -dczx_dagrup*z2*tmp2
-     &                + tmp1*z2*(fa*detilup_dagrup + fb*detildn_dagrup)
+     &                +  tmp1*z2*(fa*detilup_dagrup + fb*detildn_dagrup)
         dPKZB2_dagrdn = -dczx_dagrdn*z2*tmp2
-     &                + tmp1*z2*(fb*detildn_dagrdn + fa*detilup_dagrdn)
+     &                +  tmp1*z2*(fb*detildn_dagrdn + fa*detilup_dagrdn)
         dPKZB2_dagr   = -dczx_dagr*z2*tmp2 + tmp1*(dz2_dagr*tmp2
-     &                + z2*(fa*detilup_dagr + fb*detildn_dagr))
-        dPKZB2_dtauup = tmp1*dz2_dtau*tmp2
-        dPKZB2_dtaudn = dPKZB2_dtauup
+     &                +  z2*(fa*detilup_dagr + fb*detildn_dagr))
+        dPKZB2_dtauup =  tmp1*dz2_dtau*tmp2
+        dPKZB2_dtaudn =  dPKZB2_dtauup
 
         revPKZB     = PKZB1         + PKZB2
         drev_dnup   = dPKZB1_dnup   + dPKZB2_dnup
