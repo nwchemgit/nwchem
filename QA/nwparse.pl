@@ -192,7 +192,7 @@ foreach $filename (@FILES_TO_PARSE) {
            # that come in a deterministic order.
            $sgroup = 1;
         }
-	if (/^ Frequency/ || /^ P.Frequency/){
+	if (/^ P.Frequency/){
 	    if ($debug) {print "\ndebug: $_";}
 	    @line_tokens = split(' ');
 	    $num_line_tokens = @line_tokens;
