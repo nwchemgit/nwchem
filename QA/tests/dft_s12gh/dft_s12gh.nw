@@ -3,7 +3,6 @@ start dft_s12gh_dat
 
 title "(CAM-)S12g/(CAM-)S12h gradients/frequencies"
 
-#memory stack 1200 mb heap 100 mb global 600 mb
 basis
  * library def2-tzvp
 end
@@ -18,7 +17,8 @@ dft
   mult 1
   iterations 99
   tolerances tight
-  convergence damp 80 nolevelshifting diison 0.001
+#  convergence damp 80 nolevelshifting diison 0.001
+  convergence energy 1d-7
   grid fine
   direct
   xc s12g
