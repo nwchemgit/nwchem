@@ -38,6 +38,10 @@ variables:
       - ".travis.yml"
       - "travis/*"
 
+.intel_template: &intel_sourcing
+  before_script:
+    - source /opt/intel/compilers_and_libraries_2018/linux/bin/compilervars.sh  intel64
+
 linux64:build_gcc:
   stage: build
   <<: *compile_step
@@ -53,8 +57,7 @@ linux64:build_gcc:
 
 linux64:build_intel:
   stage: build
-  before_script:
-    - source /opt/intel/compilers_and_libraries_2018/linux/bin/compilervars.sh  intel64
+  <<: *intel_sourcing
   <<: *compile_step
   variables:
     FC: ifort
@@ -68,6 +71,19 @@ linux64:build_intel:
   tags:
     - ubuntu_bionic
 
+macos:build_gcc:
+  stage: build
+  <<: *compile_step
+  variables:
+    BLASOPT: "-L/usr/local/opt/openblas/lib -lopenblas"
+    LAPACK_LIB: "-L/usr/local/opt/openblas/lib -lopenblas"
+    BLAS_SIZE: 4
+    SCALAPACK_LIB: "-L/usr/local/opt/scalapack/lib/ -lscalapack -L/usr/local/opt/openblas/lib  -lopenblas"
+    SCALAPACK_SIZE: 4
+    ARMCI_NETWORK: "SOCKETS"
+  tags:
+    - macos_10.13
+    
 linux64:run_gcc:
   stage: test
   needs: ["linux64:build_gcc"]
@@ -80,8 +96,18 @@ linux64:run_gcc:
 linux64:run_intel:
   stage: test
   needs: ["linux64:build_intel"]
+  <<: *intel_sourcing
   <<: *test_step
   script: 
     - ./doafewqmtests.mpi 3
   tags:
     - ubuntu_bionic
+
+macos:run_gcc:
+  stage: test
+  needs: ["macos:build_gcc"]
+  <<: *test_step
+  script: 
+    - ./doafewqmtests.mpi 2
+  tags:
+    - macos_10.13
