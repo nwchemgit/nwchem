@@ -47,6 +47,23 @@ linux64:build_gcc:
     SCALAPACK_LIB: "-lscalapack-openmpi  -lopenblas"
     SCALAPACK_SIZE: 4
   tags:
+    - ubuntu_xenial
+
+linux64:build_intel:
+  stage: build
+  <<: *compile_step
+  script:
+    - source /opt/intel/compilers_and_libraries_2018/linux/bin/compilervars.sh  intel64
+    - env |grep intel
+    - env |grep mkl
+  variables:
+    FC: ifort
+    BLAS_SIZE: 8
+    SCALAPACK_SIZE: 8
+    BLAS_LIB: "   -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl"
+    LAPACK_LIB: " -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl"
+    SCALAPACK_LIB: " -lmkl_scalapack_ilp64 -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lmkl_blacs_intelmpi_ilp64 -lpthread -lm -ldl"
+  tags:
     - ubuntu_bionic
 
 linux64:run_gcc:
@@ -54,4 +71,4 @@ linux64:run_gcc:
   needs: ["linux64:build_gcc"]
   <<: *test_step
   tags:
-    - ubuntu_bionic
+    - ubuntu_xenial
