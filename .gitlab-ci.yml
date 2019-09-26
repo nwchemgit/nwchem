@@ -13,7 +13,6 @@ variables:
 
 .compile_template: &compile_step
   script:
-    - pwd
     - env |grep CI_
     - env|egrep BLAS
     - env|egrep -i mkl || true
@@ -30,9 +29,8 @@ variables:
 .test_template: &test_step
   variables:
     GIT_CLEAN_FLAGS: -ffdx -e bin -e build -e install
-  script:
+  before_script:
     - cd $CI_PROJECT_DIR/QA
-    - ./doafewqmtests.mpi 2
   except:
     changes:
       - ".travis.yml"
@@ -47,6 +45,7 @@ linux64:build_gcc:
     BLAS_SIZE: 4
     SCALAPACK_LIB: "-lscalapack-openmpi  -lopenblas"
     SCALAPACK_SIZE: 4
+    ARMCI_NETWORK: "SOCKETS"
   tags:
     - ubuntu_xenial
 
@@ -62,6 +61,8 @@ linux64:build_intel:
     BLAS_LIB: "   -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl"
     LAPACK_LIB: " -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl"
     SCALAPACK_LIB: " -lmkl_scalapack_ilp64 -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lmkl_blacs_intelmpi_ilp64 -lpthread -lm -ldl"
+    ARMCI_NETWORK: "MPI-PR"
+    USE_FPIC: "Y"
   tags:
     - ubuntu_bionic
 
@@ -69,5 +70,16 @@ linux64:run_gcc:
   stage: test
   needs: ["linux64:build_gcc"]
   <<: *test_step
+  script: 
+    - ./doafewqmtests.mpi 4
   tags:
     - ubuntu_xenial
+
+linux64:run_intel:
+  stage: test
+  needs: ["linux64:build_intel"]
+  <<: *test_step
+  script: 
+    - ./doafewqmtests.mpi 3
+  tags:
+    - ubuntu_bionic
