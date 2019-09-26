@@ -5,7 +5,7 @@ stages:
 variables:
   USE_MPI: Y
   USE_NOIO: 1
-  NWCHEM_MODULES: "nwdft solvation driver vib property mp2_grad ccsd python"
+  NWCHEM_MODULES: "nwdft solvation driver "
   OMP_NUM_THREADS: 1
   USE_64TO32: Y
   NWCHEM_LONG_PATHS: Y
@@ -42,6 +42,11 @@ variables:
   before_script:
     - source /opt/intel/compilers_and_libraries_2018/linux/bin/compilervars.sh  intel64
 
+.rhel6_template: &rhel6_sourcing
+  before_script:
+    LD_LIBRARY_PATH: "/usr/lib64/mpich/lib"
+    
+    
 linux64:build_gcc:
   stage: build
   <<: *compile_step
@@ -71,6 +76,21 @@ linux64:build_intel:
   tags:
     - ubuntu_bionic
 
+linux64_rhel6:build_gcc:
+  stage: build
+  <<: *intel_sourcing
+  <<: *compile_step
+  variables:
+    BLAS_SIZE: 4
+    SCALAPACK_SIZE: 4
+    BLAS_LIB: "   -lopenblas"
+    LAPACK_LIB: " -lopenblas"
+    SCALAPACK_LIB: "-L/usr/lib64/mpich/lib -lscalapack
+    PATH: "/usr/lib64/mpich/bin/:/usr/bin:/bin:."
+    ARMCI_NETWORK: "MPI-PT"
+  tags:
+    - rhel_6
+
 macos:build_gcc:
   stage: build
   <<: *compile_step
@@ -99,9 +119,21 @@ linux64:run_intel:
   <<: *intel_sourcing
   <<: *test_step
   script: 
+    - env|egrep -i mkl || true
+    - env|egrep  LD_LIBR || true
     - ./doafewqmtests.mpi 3
   tags:
     - ubuntu_bionic
+
+linux64_rhel6:run_gcc:
+  stage: test
+  needs: ["linux64_rhel6:build_gcc"]
+  <<: *rhel6_sourcing
+  <<: *test_step
+  script: 
+    - ./doafewqmtests.mpi 2
+  tags:
+    - rhel_6
 
 macos:run_gcc:
   stage: test
