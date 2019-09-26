@@ -76,6 +76,7 @@ string
   freeze1 .true.
   freezeN .true.
   nhist 5
+  reset
 end
 task dft string ignore
 
