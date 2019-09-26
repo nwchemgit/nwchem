@@ -15,6 +15,7 @@ thresh 1.0e-6
 end
 
 cosmo
+do_cosmo_ks
 do_gasphase .false.
 rsolv 0.5
 lineq 1
