@@ -52,6 +52,6 @@ linux64:build_gcc:
 linux64:run_gcc:
   stage: test
   needs: ["linux64:build_gcc"]
-  <<: *compile_step
+  <<: *test_step
   tags:
     - ubuntu_bionic
