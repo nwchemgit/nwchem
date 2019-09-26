@@ -16,6 +16,8 @@ variables:
     - pwd
     - env |grep CI_
     - env|egrep BLAS
+    - env|egrep -i mkl
+    - env|egrep -i intel
     - cd $CI_PROJECT_DIR/src
     - make nwchem_config
     - make 64_to_32
@@ -51,11 +53,9 @@ linux64:build_gcc:
 
 linux64:build_intel:
   stage: build
-  <<: *compile_step
-  script:
+  before_script:
     - source /opt/intel/compilers_and_libraries_2018/linux/bin/compilervars.sh  intel64
-    - env |grep intel
-    - env |grep mkl
+  <<: *compile_step
   variables:
     FC: ifort
     BLAS_SIZE: 8
