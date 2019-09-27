@@ -94,6 +94,7 @@ linux_rhel6:build_gcc:
     SCALAPACK_LIB: "-L/usr/lib/mpich/lib -lscalapack"
     PATH: "/usr/lib/mpich/bin/:/usr/bin:/bin:."
     LD_LIBRARY_PATH: "/usr/lib/mpich/lib"
+    NWCHEM_TARGET: "LINUX"
     ARMCI_NETWORK: "MPI-PT"
   tags:
     - rhel_6
