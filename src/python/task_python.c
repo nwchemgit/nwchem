@@ -33,7 +33,12 @@ int FATR task_python_(Integer *rtdb_ptr)
 #if PY_MAJOR_VERSION < 3
    Py_SetProgramName("NWChem");
 #else
+#if PY_MINOR_VERSION < 5
+   wchar_t nwprogram[20];
+   mbstowcs(nwprogram, "NWChem", strlen("NWChem") + 1);
+#else
    wchar_t *nwprogram = Py_DecodeLocale("NWChem", NULL);
+#endif
    Py_SetProgramName(nwprogram);
 #endif   
 #if PY_MAJOR_VERSION >= 3
