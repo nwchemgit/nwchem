@@ -32,6 +32,7 @@ variables:
   variables:
     GIT_CLEAN_FLAGS: -ffdx -e bin -e build -e install
   script:
+    - if [ "$FC" == "ifort" ]; then source /opt/intel/compilers_and_libraries_2018/linux/bin/compilervars.sh  intel64; fi
     - env|egrep -i mkl || true
     - env|egrep  LD_LIBR || true
     - cd $CI_PROJECT_DIR/QA
