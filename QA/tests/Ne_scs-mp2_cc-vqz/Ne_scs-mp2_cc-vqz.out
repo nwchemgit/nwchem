@@ -1,5 +1,4 @@
- argument  1 = Ne_scs-mp2_cc-vqz.nw
-  NWChem w/ OpenMP: maximum threads =  4
+ argument  1 = /var/lib/gitlab-runner/builds/PH7zszVW/0/edoapra/nwchem/QA/tests/Ne_scs-mp2_cc-vqz/Ne_scs-mp2_cc-vqz.nw
  
 
 
@@ -145,7 +144,7 @@ task rimp2 energy
                                          
  
  
-              Northwest Computational Chemistry Package (NWChem) 6.6
+              Northwest Computational Chemistry Package (NWChem) 6.8
               ------------------------------------------------------
  
  
@@ -153,7 +152,7 @@ task rimp2 energy
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
  
-                              Copyright (c) 1994-2015
+                              Copyright (c) 1994-2018
                        Pacific Northwest National Laboratory
                             Battelle Memorial Institute
  
@@ -178,20 +177,21 @@ task rimp2 energy
            Job information
            ---------------
 
-    hostname        = lqin11-mobl1.ccr.corp.intel.com
-    program         = /Users/jrhammon/Work/NWCHEM/svn/bin/MACX64/nwchem
-    date            = Sat Dec  3 13:46:52 2016
+    hostname        = durian
+    program         = /var/lib/gitlab-runner/builds/PH7zszVW/0/edoapra/nwchem/bin/LINUX64/nwchem
+    date            = Fri Sep 27 01:48:04 2019
 
-    compiled        = Sat_Dec_03_12:48:37_2016
-    source          = /Users/jrhammon/Work/NWCHEM/svn
+    compiled        = Thu_Sep_26_22:43:35_2019
+    source          = /var/lib/gitlab-runner/builds/PH7zszVW/0/edoapra/nwchem
     nwchem branch   = Development
-    nwchem revision = 28775
-    ga revision     = 10723
-    input           = Ne_scs-mp2_cc-vqz.nw
+    nwchem revision = cd4eb9a3
+    ga revision     = 5.7.0
+    use scalapack   = T
+    input           = /var/lib/gitlab-runner/builds/PH7zszVW/0/edoapra/nwchem/QA/tests/Ne_scs-mp2_cc-vqz/Ne_scs-mp2_cc-vqz.nw
     prefix          = Ne_scs-mp2_cc-vqz.
     data base       = ./Ne_scs-mp2_cc-vqz.db
     status          = startup
-    nproc           =        1
+    nproc           =        3
     time left       =     -1s
 
 
@@ -199,10 +199,10 @@ task rimp2 energy
            Memory information
            ------------------
 
-    heap     =   32767996 doubles =    250.0 Mbytes
-    stack    =   32768001 doubles =    250.0 Mbytes
+    heap     =   32767998 doubles =    250.0 Mbytes
+    stack    =   32767995 doubles =    250.0 Mbytes
     global   =   65536000 doubles =    500.0 Mbytes (distinct from heap & stack)
-    total    =  131071997 doubles =   1000.0 Mbytes
+    total    =  131071993 doubles =   1000.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -460,19 +460,10 @@ task rimp2 energy
  ----------------------------------------------
 
 
- Integral file          = ./Ne_scs-mp2_cc-vqz.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =     39        Max. records in file   =  16269
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- #quartets = 7.260D+03 #integrals = 1.371D+05 #direct =  0.0% #cached =100.0%
-
-
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1     -128.5434696591  1.17D-06  8.73D-07      0.8
-                 2     -128.5434696591  9.87D-09  4.77D-09      0.8
+                 1     -128.5434696591  1.17D-06  8.73D-07      0.3
+                 2     -128.5434696591  9.86D-09  4.77D-09      0.5
 
 
        Final RHF  results 
@@ -480,10 +471,10 @@ task rimp2 energy
 
          Total SCF energy =   -128.543469659094
       One-electron energy =   -182.591517776936
-      Two-electron energy =     54.048048117842
+      Two-electron energy =     54.048048117841
  Nuclear repulsion energy =      0.000000000000
 
-        Time for solution =      0.4s
+        Time for solution =      0.2s
 
 
              Final eigenvalues
@@ -510,108 +501,110 @@ task rimp2 energy
                        -------------------------------------
  
  Vector    2  Occ=2.000000D+00  E=-1.929338D+00
-              MO Center=  1.5D-15, -6.3D-16,  8.0D-16, r^2= 2.7D-01
+              MO Center= -9.8D-17, -2.6D-16,  5.1D-17, r^2= 2.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.585787  1 Ne s                  2      0.364968  1 Ne s          
      3      0.298187  1 Ne s                  5      0.272466  1 Ne s          
  
  Vector    3  Occ=2.000000D+00  E=-8.489590D-01
-              MO Center=  4.5D-17, -3.4D-18, -4.9D-16, r^2= 3.4D-01
+              MO Center=  2.5D-17, -1.2D-16, -7.5D-18, r^2= 3.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14      0.437915  1 Ne pz                11      0.364346  1 Ne pz         
-    17      0.241531  1 Ne pz                 8      0.208472  1 Ne pz         
+    14      0.392011  1 Ne pz                11      0.326154  1 Ne pz         
+    17      0.216213  1 Ne pz                12     -0.191519  1 Ne px         
+     8      0.186620  1 Ne pz                 9     -0.159344  1 Ne px         
  
  Vector    4  Occ=2.000000D+00  E=-8.489590D-01
-              MO Center= -1.4D-15,  6.4D-16, -9.8D-17, r^2= 3.4D-01
+              MO Center=  1.4D-16,  4.9D-16, -2.0D-16, r^2= 3.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.398533  1 Ne px                 9      0.331580  1 Ne px         
-    15      0.219810  1 Ne px                 6      0.189724  1 Ne px         
-    13     -0.182012  1 Ne py                10     -0.151434  1 Ne py         
+    12      0.343000  1 Ne px                 9      0.285377  1 Ne px         
+    13     -0.231861  1 Ne py                10     -0.192909  1 Ne py         
+    15      0.189181  1 Ne px                 6      0.163287  1 Ne px         
  
  Vector    5  Occ=2.000000D+00  E=-8.489590D-01
-              MO Center= -1.6D-16,  2.7D-16,  1.1D-16, r^2= 3.4D-01
+              MO Center=  7.6D-17,  5.5D-16, -9.9D-17, r^2= 3.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      0.398481  1 Ne py                10      0.331537  1 Ne py         
-    16      0.219781  1 Ne py                 7      0.189700  1 Ne py         
-    12      0.181747  1 Ne px                 9      0.151214  1 Ne px         
+    13      0.369584  1 Ne py                10      0.307495  1 Ne py         
+    16      0.203844  1 Ne py                12      0.194107  1 Ne px         
+     7      0.175943  1 Ne py                 9      0.161498  1 Ne px         
  
  Vector    6  Occ=0.000000D+00  E= 8.089041D-01
-              MO Center=  2.3D-15, -6.5D-16, -1.6D-15, r^2= 1.6D+00
+              MO Center=  2.2D-16,  4.4D-16, -2.1D-16, r^2= 1.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15      0.871366  1 Ne px                17     -0.779889  1 Ne pz         
-    12     -0.490007  1 Ne px                16      0.489931  1 Ne py         
-    14      0.438566  1 Ne pz                13     -0.275510  1 Ne py         
+    16      0.961129  1 Ne py                15      0.705920  1 Ne px         
+    13     -0.540485  1 Ne py                17     -0.430636  1 Ne pz         
+    12     -0.396969  1 Ne px                14      0.242165  1 Ne pz         
  
  Vector    7  Occ=0.000000D+00  E= 8.089041D-01
-              MO Center= -6.4D-16, -2.4D-16,  8.2D-18, r^2= 1.6D+00
+              MO Center=  5.1D-16, -1.1D-16,  6.6D-16, r^2= 1.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15      0.915154  1 Ne px                17      0.657225  1 Ne pz         
-    16     -0.581452  1 Ne py                12     -0.514631  1 Ne px         
-    14     -0.369586  1 Ne pz                13      0.326976  1 Ne py         
+    17      1.081050  1 Ne pz                15      0.662468  1 Ne px         
+    14     -0.607921  1 Ne pz                12     -0.372535  1 Ne px         
  
  Vector    8  Occ=0.000000D+00  E= 8.089041D-01
-              MO Center=  6.8D-16, -4.1D-15, -1.3D-15, r^2= 1.6D+00
+              MO Center=  1.4D-14, -1.5D-14, -7.9D-15, r^2= 1.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      1.014603  1 Ne py                17      0.753237  1 Ne pz         
-    13     -0.570555  1 Ne py                14     -0.423578  1 Ne pz         
+    16     -0.826901  1 Ne py                15      0.818750  1 Ne px         
+    17     -0.503410  1 Ne pz                13      0.465002  1 Ne py         
+    12     -0.460419  1 Ne px                14      0.283089  1 Ne pz         
  
  Vector    9  Occ=0.000000D+00  E= 9.355999D-01
-              MO Center= -6.3D-16,  5.6D-16,  1.5D-15, r^2= 1.1D+00
+              MO Center= -1.5D-14,  1.4D-14,  7.9D-15, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5     -1.914942  1 Ne s                  4      1.861597  1 Ne s          
      3     -0.156989  1 Ne s          
  
  Vector   10  Occ=0.000000D+00  E= 1.997811D+00
-              MO Center=  1.3D-16,  3.8D-16, -2.0D-16, r^2= 6.9D-01
+              MO Center=  9.8D-16, -1.3D-16,  1.3D-16, r^2= 6.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    32      0.972977  1 Ne d  2              30     -0.356547  1 Ne d  0       
+    32      0.790070  1 Ne d  2              30     -0.535272  1 Ne d  0       
+    31      0.377342  1 Ne d  1              29      0.184024  1 Ne d -1       
  
  Vector   11  Occ=0.000000D+00  E= 1.997811D+00
-              MO Center= -1.6D-16,  6.3D-16, -1.2D-15, r^2= 6.9D-01
+              MO Center= -4.7D-16, -3.0D-16,  8.0D-16, r^2= 6.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    30      0.918860  1 Ne d  0              32      0.354610  1 Ne d  2       
-    31     -0.292137  1 Ne d  1              28     -0.223218  1 Ne d -2       
+    30      0.857761  1 Ne d  0              29      0.407433  1 Ne d -1       
+    32      0.399106  1 Ne d  2              28     -0.184191  1 Ne d -2       
  
  Vector   12  Occ=0.000000D+00  E= 1.997811D+00
-              MO Center= -7.8D-16,  1.5D-15,  6.1D-16, r^2= 6.9D-01
+              MO Center=  2.7D-16,  4.4D-16,  1.2D-16, r^2= 6.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      0.704112  1 Ne d -2              31     -0.661779  1 Ne d  1       
-    29     -0.382046  1 Ne d -1              32     -0.161375  1 Ne d  2       
+    28      0.816156  1 Ne d -2              32      0.456974  1 Ne d  2       
+    31     -0.453302  1 Ne d  1       
  
  Vector   13  Occ=0.000000D+00  E= 1.997811D+00
-              MO Center=  1.3D-15,  1.6D-15,  3.3D-15, r^2= 6.9D-01
+              MO Center= -9.1D-17,  1.8D-16,  2.0D-17, r^2= 6.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    29      0.962043  1 Ne d -1              31     -0.351935  1 Ne d  1       
-    28      0.205206  1 Ne d -2       
+    31      0.854703  1 Ne d  1              28      0.456848  1 Ne d -2       
+    29     -0.341041  1 Ne d -1              30      0.199584  1 Ne d  0       
  
  Vector   14  Occ=0.000000D+00  E= 1.997811D+00
-              MO Center= -9.6D-16,  1.4D-17, -3.9D-16, r^2= 6.9D-01
+              MO Center= -2.5D-16, -4.2D-16, -5.9D-16, r^2= 6.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      0.709999  1 Ne d -2              31      0.676186  1 Ne d  1       
-    30      0.344936  1 Ne d  0       
+    29      0.878644  1 Ne d -1              28      0.422174  1 Ne d -2       
+    32     -0.321011  1 Ne d  2              30     -0.194199  1 Ne d  0       
  
  Vector   15  Occ=0.000000D+00  E= 3.932819D+00
-              MO Center= -6.8D-16, -1.4D-16,  2.2D-16, r^2= 5.9D-01
+              MO Center= -4.8D-16,  1.7D-16,  1.4D-16, r^2= 5.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      1.407333  1 Ne py                12     -1.027383  1 Ne px         
-    10     -0.922046  1 Ne py                 9      0.673113  1 Ne px         
-    16     -0.578753  1 Ne py                15      0.422502  1 Ne px         
-    14     -0.260396  1 Ne pz                 7     -0.174087  1 Ne py         
-    11      0.170604  1 Ne pz         
+    12      1.689483  1 Ne px                 9     -1.106903  1 Ne px         
+    15     -0.694785  1 Ne px                13      0.394377  1 Ne py         
+    14      0.306633  1 Ne pz                10     -0.258385  1 Ne py         
+     6     -0.208989  1 Ne px                11     -0.200897  1 Ne pz         
+    16     -0.162184  1 Ne py         
  
 
  center of mass
@@ -638,20 +631,17 @@ task rimp2 energy
      -   - - -        -----         ----         -------
      0   0 0 0     -0.000000      0.000000     10.000000
  
-     1   1 0 0      0.000000      0.000000      0.000000
+     1   1 0 0     -0.000000      0.000000      0.000000
      1   0 1 0     -0.000000      0.000000      0.000000
-     1   0 0 1     -0.000000      0.000000      0.000000
+     1   0 0 1      0.000000      0.000000      0.000000
  
      2   2 0 0     -3.110663      0.000000      0.000000
      2   1 1 0      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0     -3.110663      0.000000      0.000000
-     2   0 1 1     -0.000000      0.000000      0.000000
+     2   0 1 1      0.000000      0.000000      0.000000
      2   0 0 2     -3.110663      0.000000      0.000000
  
-
- Parallel integral file used       4 records with       0 large values
-
                    NWChem MP2 Semi-direct Energy/Gradient Module
                    ---------------------------------------------
  
@@ -669,63 +659,73 @@ task rimp2 energy
 
   AO/Fock/Back tols     =   1.0D-09  1.0D-09  1.0D-09
   SCS-MP2               = T
+  #avail    536870912.000000     
+  #avail    536870912.000000     
+  #avail    536870912.000000     
 
  GA uses MA = F    GA memory limited = T
 
  Available: 
-  local mem=  6.55D+07
+  local mem=  5.73D+07
  global mem=  6.55D+07
- local disk=  5.37D+08
-  mp2_memr nvloc                     50
-  nvloc new                     50
-   1 passes of   5:        2301967                      26826                    927701.
+ local disk=  0.00D+00
+  mp2_memr nvloc                     17
+  nvloc new                     17
+   1 passes of   5:        4194304                      22711                    450303.
+   1 passes of   5: M     57341147           G       65533910           F      53146843.
  
- Semi-direct pass number   1 of   1  for RHF alpha+beta  at        0.9s
+ Semi-direct pass number   1 of   1  for RHF alpha+beta  at        0.8s
   vrange nnbf                   1540
-Node 0 wrote      3.1 Mb in      0.0 s     Agg I/O rate:   640.4 Mb/s
- Done moints_semi at        1.9s
- Done maket at        2.0s
- Done multipass loop at        2.0s
+  mp2_eaftype                     10  avail_ma_in_mb                    499
+ EAF : mp2_eaftype filesize          10     225151.
+  mp2_eaf for mointskh                      10
+Node 0 wrote      1.0 Mb in      0.0 s     Agg I/O rate:   954.9 Mb/s
+ Done moints_semi at        1.2s
+  mp2_eaftype                     10  avail_ma_in_mb                    489
+ EAF : mp2_eaftype filesize          10     225151.
+  mp2_eaf for kh                     10
+ Done maket at        1.3s
+ Done multipass loop at        1.3s
 
 
           -------------------------------------------
           SCF energy                -128.543469659094
-          Correlation energy          -0.326258443710
-          Singlet pairs               -0.205382776574
-          Triplet pairs               -0.120875667137
-          Total MP2 energy          -128.869728102804
+          Correlation energy          -0.326258443642
+          Singlet pairs               -0.205382776546
+          Triplet pairs               -0.120875667096
+          Total MP2 energy          -128.869728102736
           -------------------------------------------
 
 
 
           ---------------------------------------------------
                     Spin Component Scaled (SCS) MP2
-          Same spin pairs                     -0.080583778091
+          Same spin pairs                     -0.080583778064
           Same spin scaling factor             0.333333333333
-          Opposite spin pairs                 -0.245674665619
+          Opposite spin pairs                 -0.245674665578
           Opposite spin scaling fact.          1.200000000000
-          SCS-MP2 correlation energy          -0.321670858106
-          Total SCS-MP2 energy              -128.865140517201
+          SCS-MP2 correlation energy          -0.321670858048
+          Total SCS-MP2 energy              -128.865140517142
           ---------------------------------------------------
 
  -----------------------
  Performance information
  -----------------------
 
- Timer overhead =  1.13D-07 seconds/call
+ Timer overhead =  3.67D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-mp2: moin     1     1     1   0.94    0.94    0.94     0.94    0.94    0.94    0.94      0.0     0.0     0.0   
-mp2: make     1     1     1   0.11    0.11    0.11     0.11    0.11    0.11    0.11      0.0     0.0     0.0   
-mp2: tota     1     1     1    1.2     1.2     1.2      1.2     1.2     1.2     1.2      0.0     0.0     0.0   
+mp2: moin     1     1     1   0.20    0.26    0.33     0.43    0.43    0.43    0.43      0.0     0.0     0.0   
+mp2: make     1     1     1   1.66E-2 2.49E-2 3.55E-2  5.19E-2 5.19E-2 5.20E-2 5.20E-2   0.0     0.0     0.0   
+mp2: tota     1     1     1   0.32    0.41    0.51     0.66    0.66    0.66    0.66      0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 3.00D+00
- with a timing overhead of 3.40D-07s
+ with a timing overhead of 1.10D-06s
 
 
- Task  times  cpu:        1.9s     wall:        1.9s
+ Task  times  cpu:        0.8s     wall:        1.2s
  
  
                                 NWChem Input Module
@@ -779,19 +779,34 @@ mp2: tota     1     1     1    1.2     1.2     1.2      1.2     1.2     1.2     
           Same spin scaling factor:         0.33333
           Opposite spin scaling factor:     1.20000
 
-     Pass:    1     Index range:    1  -    5     Time:      0.86
+    0 shell      1 out of     15 in             1.43 secs
+    0 shell      2 out of     15 in             1.43 secs
+    0 shell      3 out of     15 in             1.44 secs
+    0 shell      4 out of     15 in             1.47 secs
+    0 shell      5 out of     15 in             1.48 secs
+    0 shell      6 out of     15 in             1.50 secs
+    0 shell      7 out of     15 in             1.52 secs
+    0 shell      8 out of     15 in             1.53 secs
+    0 shell      9 out of     15 in             1.53 secs
+    0 shell     10 out of     15 in             1.54 secs
+    0 shell     11 out of     15 in             1.56 secs
+    0 shell     12 out of     15 in             1.58 secs
+    0 shell     13 out of     15 in             1.60 secs
+    0 shell     14 out of     15 in             1.61 secs
+    0 shell     15 out of     15 in             1.63 secs
+     Pass:    1     Index range:    1  -    5     Time:      0.21
 
 
           -----------------------------------------------
           SCF energy                    -128.543469659094
-          SCS Correlation energy          -0.321670858106
-          Total SCS-MP2 energy          -128.865140517201
+          SCS Correlation energy          -0.321670858048
+          Total SCS-MP2 energy          -128.865140517142
           -----------------------------------------------
 
 
-          Total MP2 time:           0.91
+          Total MP2 time:           0.27
 
- Task  times  cpu:        0.9s     wall:        0.9s
+ Task  times  cpu:        0.3s     wall:        0.3s
  
  
                                 NWChem Input Module
@@ -857,57 +872,49 @@ mp2: tota     1     1     1    1.2     1.2     1.2      1.2     1.2     1.2     
     Type of storage for MO integrals 'EAF library'
  
  Transformation block size    5, requiring     1 integral passes.
- XForm_3cInts: Completed     1:    5 pass.             @Sat Dec  3 13:46:55 2016
+ XForm_3cInts: Completed     1:    5 pass.             @Fri Sep 27 01:48:06 2019
  Energy evaluation using block sizes     5    5
- RIMP2_V_E2: Approx. ints. done (    1:    5,    1:    5) @Sat Dec  3 13:46:55 2016
- RIMP2_V_E2: Copy to B done (    1:    5,    1:    5)  @Sat Dec  3 13:46:55 2016
- RIMP2_V_E2: Denominators done (    1:    5,    1:    5) @Sat Dec  3 13:46:55 2016
- RIMP2_V_E2: Completed block (    1:    5,    1:    5) @Sat Dec  3 13:46:55 2016
+ RIMP2_V_E2: Approx. ints. done (    1:    5,    1:    5) @Fri Sep 27 01:48:06 2019
+ RIMP2_V_E2: Copy to B done (    1:    5,    1:    5)  @Fri Sep 27 01:48:06 2019
+ RIMP2_V_E2: Denominators done (    1:    5,    1:    5) @Fri Sep 27 01:48:06 2019
+ RIMP2_V_E2: Completed block (    1:    5,    1:    5) @Fri Sep 27 01:48:06 2019
 
 
           -----------------------------------------------
           SCF energy                    -128.543469659094
-          SCS Correlation energy          -0.321654186820
-          Total SCS-MP2 energy          -128.865123845914
+          SCS Correlation energy          -0.321654186761
+          Total SCS-MP2 energy          -128.865123845855
           -----------------------------------------------
-
-
-
-          -------------------------------------------
-          SCF energy                -128.543469659094
-          Correlation energy          -0.321654186820
-          Total MP2 energy          -128.865123845914
-          -------------------------------------------
 
  -----------------------
  Performance information
  -----------------------
 
- Timer overhead =  1.24D-07 seconds/call
+ Timer overhead =  3.81D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-Overall       1     1     1   0.32    0.32    0.32     0.32    0.32    0.32    0.32      0.0     0.0     0.0   
-3c integr     1     1     1   0.17    0.17    0.17     0.17    0.17    0.17    0.17      0.0     0.0     0.0   
-Energy        1     1     1   1.43E-2 1.43E-2 1.43E-2  1.43E-2 1.43E-2 1.43E-2 1.43E-2   0.0     0.0     0.0   
-3c integr     1     1     1   0.17    0.17    0.17     0.17    0.17    0.17    0.17      0.0     0.0     0.0   
-First 2/3     3     3     3   8.52E-4 8.52E-4 8.52E-4  8.53E-4 8.53E-4 8.53E-4 2.84E-4   0.0     0.0     0.0   
-Final 1/3     1     1     1   1.60E-3 1.60E-3 1.60E-3  1.60E-3 1.60E-3 1.60E-3 1.60E-3   0.0     0.0     0.0   
-Write 3c      1     1     1   2.93E-4 2.93E-4 2.93E-4  2.93E-4 2.93E-4 2.93E-4 2.93E-4   0.0     0.0     0.0   
-Read 3c i     1     1     1   4.79E-4 4.79E-4 4.79E-4  4.79E-4 4.79E-4 4.79E-4 4.79E-4   0.0     0.0     0.0   
-Fitting b     1     1     1   3.33E-2 3.33E-2 3.33E-2  3.33E-2 3.33E-2 3.33E-2 3.33E-2   0.0     0.0     0.0   
-Schwarz i     1     1     1   2.51E-2 2.51E-2 2.51E-2  2.51E-2 2.51E-2 2.51E-2 2.51E-2   0.0     0.0     0.0   
-Form 4ci      1     1     1   1.96E-3 1.96E-3 1.96E-3  1.96E-3 1.96E-3 1.96E-3 1.96E-3   0.0     0.0     0.0   
-Form A &      1     1     1   1.07E-2 1.07E-2 1.07E-2  1.07E-2 1.07E-2 1.07E-2 1.07E-2   0.0     0.0     0.0   
-Denominat     1     1     1   2.01E-4 2.01E-4 2.01E-4  2.01E-4 2.01E-4 2.01E-4 2.01E-4   0.0     0.0     0.0   
-Pair Ener     1     1     1   1.81E-4 1.81E-4 1.81E-4  1.81E-4 1.81E-4 1.81E-4 1.81E-4   0.0     0.0     0.0   
+Overall       1     1     1   0.15    0.34    0.43     0.47    0.47    0.47    0.47      0.0     0.0     0.0   
+3c integr     1     1     1   4.80E-2 0.11    0.16     0.17    0.17    0.17    0.17      0.0     0.0     0.0   
+Energy        1     1     1   1.26E-2 1.94E-2 2.44E-2  2.87E-2 2.89E-2 2.90E-2 2.90E-2   0.0     0.0     0.0   
+3c integr     1     1     1   2.60E-2 3.53E-2 4.64E-2  3.00E-2 7.97E-2 0.16    0.16      0.0     0.0     0.0   
+First 2/3     3     3     3   1.75E-4 2.15E-4 2.73E-4  1.95E-4 4.01E-4 8.00E-4 2.67E-4   0.0     0.0     0.0   
+Final 1/3     1     1     1   4.43E-4 1.13E-3 1.57E-3  1.57E-3 1.57E-3 1.57E-3 1.57E-3   0.0     0.0     0.0   
+Write 3c      1     1     1   1.10E-4 1.13E-4 1.19E-4  1.19E-4 1.55E-4 2.28E-4 2.28E-4   0.0     0.0     0.0   
+Read 3c i     1     1     1   7.10E-5 8.30E-5 1.01E-4  7.32E-5 1.53E-4 3.10E-4 3.10E-4   0.0     0.0     0.0   
+Fitting b     1     1     1   9.87E-3 3.56E-2 4.87E-2  5.29E-2 5.29E-2 5.29E-2 5.29E-2   0.0     0.0     0.0   
+Schwarz i     1     1     1   7.72E-3 1.47E-2 2.19E-2  2.19E-2 2.20E-2 2.22E-2 2.22E-2   0.0     0.0     0.0   
+Form 4ci      1     1     1    0.0    8.06E-3 1.30E-2  1.49E-2 1.49E-2 1.49E-2 1.49E-2   0.0     0.0     0.0   
+Form A &      1     1     1   7.04E-3 7.85E-3 8.42E-3  9.05E-3 9.06E-3 9.07E-3 9.07E-3   0.0     0.0     0.0   
+Denominat     1     1     1   3.80E-5 4.40E-5 4.80E-5  3.98E-5 4.59E-5 4.89E-5 4.89E-5   0.0     0.0     0.0   
+Pair Ener     1     1     1   3.03E-4 4.48E-4 5.24E-4  5.47E-4 5.49E-4 5.51E-4 5.51E-4   0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 1.60D+01
- with a timing overhead of 1.98D-06s
+ with a timing overhead of 6.09D-06s
 
 
- Task  times  cpu:        0.3s     wall:        0.3s
+ Task  times  cpu:        0.4s     wall:        0.5s
  
  
                                 NWChem Input Module
@@ -961,63 +968,73 @@ Pair Ener     1     1     1   1.81E-4 1.81E-4 1.81E-4  1.81E-4 1.81E-4 1.81E-4 1
 
   AO/Fock/Back tols     =   1.0D-09  1.0D-09  1.0D-09
   SCS-MP2               = T
+  #avail    536870912.000000     
+  #avail    536870912.000000     
+  #avail    536870912.000000     
 
  GA uses MA = F    GA memory limited = T
 
  Available: 
-  local mem=  6.55D+07
+  local mem=  5.73D+07
  global mem=  6.55D+07
- local disk=  5.37D+08
-  mp2_memr nvloc                     50
-  nvloc new                     50
-   1 passes of   5:        2301967                      26826                    927701.
+ local disk=  0.00D+00
+  mp2_memr nvloc                     17
+  nvloc new                     17
+   1 passes of   5:        4194304                      22711                    450303.
+   1 passes of   5: M     57341147           G       65533910           F      53146843.
  
- Semi-direct pass number   1 of   1  for RHF alpha+beta  at        3.3s
+ Semi-direct pass number   1 of   1  for RHF alpha+beta  at        2.5s
   vrange nnbf                   1540
-Node 0 wrote      3.1 Mb in      0.0 s     Agg I/O rate:   888.9 Mb/s
- Done moints_semi at        4.1s
- Done maket at        4.2s
- Done multipass loop at        4.2s
+  mp2_eaftype                     10  avail_ma_in_mb                    499
+ EAF : mp2_eaftype filesize          10     225151.
+  mp2_eaf for mointskh                      10
+Node 0 wrote      1.0 Mb in      0.0 s     Agg I/O rate:  1462.8 Mb/s
+ Done moints_semi at        3.0s
+  mp2_eaftype                     10  avail_ma_in_mb                    489
+ EAF : mp2_eaftype filesize          10     225151.
+  mp2_eaf for kh                     10
+ Done maket at        3.0s
+ Done multipass loop at        3.0s
 
 
           -------------------------------------------
           SCF energy                -128.543469659094
-          Correlation energy          -0.326258443710
-          Singlet pairs               -0.205382776574
-          Triplet pairs               -0.120875667137
-          Total MP2 energy          -128.869728102804
+          Correlation energy          -0.326258443642
+          Singlet pairs               -0.205382776546
+          Triplet pairs               -0.120875667096
+          Total MP2 energy          -128.869728102736
           -------------------------------------------
 
 
 
           ---------------------------------------------------
                     Spin Component Scaled (SCS) MP2
-          Same spin pairs                     -0.080583778091
+          Same spin pairs                     -0.080583778064
           Same spin scaling factor             1.000000000000
-          Opposite spin pairs                 -0.245674665619
+          Opposite spin pairs                 -0.245674665578
           Opposite spin scaling fact.          1.000000000000
-          SCS-MP2 correlation energy          -0.326258443710
-          Total SCS-MP2 energy              -128.869728102804
+          SCS-MP2 correlation energy          -0.326258443642
+          Total SCS-MP2 energy              -128.869728102736
           ---------------------------------------------------
 
  -----------------------
  Performance information
  -----------------------
 
- Timer overhead =  1.15D-07 seconds/call
+ Timer overhead =  7.04D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-mp2: moin     1     1     1   0.77    0.77    0.77     0.77    0.77    0.77    0.77      0.0     0.0     0.0   
-mp2: make     1     1     1   0.11    0.11    0.11     0.11    0.11    0.11    0.11      0.0     0.0     0.0   
-mp2: tota     1     1     1   0.98    0.98    0.98     0.98    0.98    0.98    0.98      0.0     0.0     0.0   
+mp2: moin     1     1     1   0.25    0.26    0.28     0.54    0.54    0.54    0.54      0.0     0.0     0.0   
+mp2: make     1     1     1   1.46E-2 1.87E-2 2.11E-2  3.56E-2 3.56E-2 3.56E-2 3.56E-2   0.0     0.0     0.0   
+mp2: tota     1     1     1   0.42    0.49    0.53     0.90    0.90    0.90    0.90      0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 3.00D+00
- with a timing overhead of 3.46D-07s
+ with a timing overhead of 2.11D-06s
 
 
- Task  times  cpu:        1.0s     wall:        1.0s
+ Task  times  cpu:        0.6s     wall:        0.9s
  
  
                                 NWChem Input Module
@@ -1071,19 +1088,34 @@ mp2: tota     1     1     1   0.98    0.98    0.98     0.98    0.98    0.98    0
           Same spin scaling factor:         1.00000
           Opposite spin scaling factor:     1.00000
 
-     Pass:    1     Index range:    1  -    5     Time:      0.64
+    0 shell      1 out of     15 in             3.17 secs
+    0 shell      2 out of     15 in             3.17 secs
+    0 shell      3 out of     15 in             3.21 secs
+    0 shell      4 out of     15 in             3.22 secs
+    0 shell      5 out of     15 in             3.24 secs
+    0 shell      6 out of     15 in             3.28 secs
+    0 shell      7 out of     15 in             3.30 secs
+    0 shell      8 out of     15 in             3.30 secs
+    0 shell      9 out of     15 in             3.31 secs
+    0 shell     10 out of     15 in             3.31 secs
+    0 shell     11 out of     15 in             3.36 secs
+    0 shell     12 out of     15 in             3.37 secs
+    0 shell     13 out of     15 in             3.40 secs
+    0 shell     14 out of     15 in             3.42 secs
+    0 shell     15 out of     15 in             3.44 secs
+     Pass:    1     Index range:    1  -    5     Time:      0.20
 
 
           -----------------------------------------------
           SCF energy                    -128.543469659094
-          SCS Correlation energy          -0.326258443710
-          Total SCS-MP2 energy          -128.869728102804
+          SCS Correlation energy          -0.326258443642
+          Total SCS-MP2 energy          -128.869728102736
           -----------------------------------------------
 
 
-          Total MP2 time:           0.69
+          Total MP2 time:           0.26
 
- Task  times  cpu:        0.7s     wall:        0.7s
+ Task  times  cpu:        0.3s     wall:        0.4s
  
  
                                 NWChem Input Module
@@ -1149,57 +1181,49 @@ mp2: tota     1     1     1   0.98    0.98    0.98     0.98    0.98    0.98    0
     Type of storage for MO integrals 'EAF library'
  
  Transformation block size    5, requiring     1 integral passes.
- XForm_3cInts: Completed     1:    5 pass.             @Sat Dec  3 13:46:57 2016
+ XForm_3cInts: Completed     1:    5 pass.             @Fri Sep 27 01:48:08 2019
  Energy evaluation using block sizes     5    5
- RIMP2_V_E2: Approx. ints. done (    1:    5,    1:    5) @Sat Dec  3 13:46:57 2016
- RIMP2_V_E2: Copy to B done (    1:    5,    1:    5)  @Sat Dec  3 13:46:57 2016
- RIMP2_V_E2: Denominators done (    1:    5,    1:    5) @Sat Dec  3 13:46:57 2016
- RIMP2_V_E2: Completed block (    1:    5,    1:    5) @Sat Dec  3 13:46:57 2016
+ RIMP2_V_E2: Approx. ints. done (    1:    5,    1:    5) @Fri Sep 27 01:48:08 2019
+ RIMP2_V_E2: Copy to B done (    1:    5,    1:    5)  @Fri Sep 27 01:48:08 2019
+ RIMP2_V_E2: Denominators done (    1:    5,    1:    5) @Fri Sep 27 01:48:08 2019
+ RIMP2_V_E2: Completed block (    1:    5,    1:    5) @Fri Sep 27 01:48:08 2019
 
 
           -----------------------------------------------
           SCF energy                    -128.543469659094
-          SCS Correlation energy          -0.326249829038
-          Total SCS-MP2 energy          -128.869719488132
+          SCS Correlation energy          -0.326249828969
+          Total SCS-MP2 energy          -128.869719488064
           -----------------------------------------------
-
-
-
-          -------------------------------------------
-          SCF energy                -128.543469659094
-          Correlation energy          -0.326249829038
-          Total MP2 energy          -128.869719488132
-          -------------------------------------------
 
  -----------------------
  Performance information
  -----------------------
 
- Timer overhead =  1.01D-07 seconds/call
+ Timer overhead =  0.00D+00 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-Overall       1     1     1   0.25    0.25    0.25     0.25    0.25    0.25    0.25      0.0     0.0     0.0   
-3c integr     1     1     1   0.13    0.13    0.13     0.13    0.13    0.13    0.13      0.0     0.0     0.0   
-Energy        1     1     1   2.29E-2 2.29E-2 2.29E-2  2.29E-2 2.29E-2 2.29E-2 2.29E-2   0.0     0.0     0.0   
-3c integr     1     1     1   0.13    0.13    0.13     0.13    0.13    0.13    0.13      0.0     0.0     0.0   
-First 2/3     3     3     3   5.19E-4 5.19E-4 5.19E-4  5.20E-4 5.20E-4 5.20E-4 1.73E-4   0.0     0.0     0.0   
-Final 1/3     1     1     1   1.27E-3 1.27E-3 1.27E-3  1.27E-3 1.27E-3 1.27E-3 1.27E-3   0.0     0.0     0.0   
-Write 3c      1     1     1   1.75E-4 1.75E-4 1.75E-4  1.75E-4 1.75E-4 1.75E-4 1.75E-4   0.0     0.0     0.0   
-Read 3c i     1     1     1   7.78E-3 7.78E-3 7.78E-3  7.78E-3 7.78E-3 7.78E-3 7.78E-3   0.0     0.0     0.0   
-Fitting b     1     1     1   2.99E-2 2.99E-2 2.99E-2  2.99E-2 2.99E-2 2.99E-2 2.99E-2   0.0     0.0     0.0   
-Schwarz i     1     1     1   1.84E-2 1.84E-2 1.84E-2  1.84E-2 1.84E-2 1.84E-2 1.84E-2   0.0     0.0     0.0   
-Form 4ci      1     1     1   2.46E-3 2.46E-3 2.46E-3  2.46E-3 2.46E-3 2.46E-3 2.46E-3   0.0     0.0     0.0   
-Form A &      1     1     1   1.15E-2 1.15E-2 1.15E-2  1.15E-2 1.15E-2 1.15E-2 1.15E-2   0.0     0.0     0.0   
-Denominat     1     1     1   2.31E-4 2.31E-4 2.31E-4  2.31E-4 2.31E-4 2.31E-4 2.31E-4   0.0     0.0     0.0   
-Pair Ener     1     1     1   1.72E-4 1.72E-4 1.72E-4  1.72E-4 1.72E-4 1.72E-4 1.72E-4   0.0     0.0     0.0   
+Overall       1     1     1   0.13    0.20    0.24     0.27    0.27    0.27    0.27      0.0     0.0     0.0   
+3c integr     1     1     1   4.12E-2 5.12E-2 5.67E-2  5.69E-2 5.69E-2 5.69E-2 5.69E-2   0.0     0.0     0.0   
+Energy        1     1     1   8.47E-3 1.14E-2 1.65E-2  1.67E-2 1.68E-2 1.68E-2 1.68E-2   0.0     0.0     0.0   
+3c integr     1     1     1   2.98E-2 3.52E-2 3.91E-2  2.99E-2 4.05E-2 5.44E-2 5.44E-2   0.0     0.0     0.0   
+First 2/3     3     3     3   1.73E-4 1.94E-4 2.09E-4  1.74E-4 2.00E-4 2.25E-4 7.50E-5   0.0     0.0     0.0   
+Final 1/3     1     1     1   8.66E-4 1.02E-3 1.11E-3  1.11E-3 1.11E-3 1.11E-3 1.11E-3   0.0     0.0     0.0   
+Write 3c      1     1     1   1.00E-4 1.17E-4 1.31E-4  9.99E-5 1.27E-4 1.58E-4 1.58E-4   0.0     0.0     0.0   
+Read 3c i     1     1     1    0.0    5.80E-5 1.04E-4  7.10E-5 8.50E-5 1.04E-4 1.04E-4   0.0     0.0     0.0   
+Fitting b     1     1     1   7.90E-3 8.98E-3 1.06E-2  1.53E-2 1.53E-2 1.53E-2 1.53E-2   0.0     0.0     0.0   
+Schwarz i     1     1     1   1.37E-2 1.61E-2 1.76E-2  1.76E-2 1.77E-2 1.77E-2 1.77E-2   0.0     0.0     0.0   
+Form 4ci      1     1     1    0.0    1.07E-3 1.82E-3  1.85E-3 1.85E-3 1.85E-3 1.85E-3   0.0     0.0     0.0   
+Form A &      1     1     1   2.78E-3 6.66E-3 8.64E-3  8.75E-3 8.75E-3 8.75E-3 8.75E-3   0.0     0.0     0.0   
+Denominat     1     1     1   2.90E-5 3.60E-5 4.10E-5  3.10E-5 3.74E-5 4.10E-5 4.10E-5   0.0     0.0     0.0   
+Pair Ener     1     1     1   5.34E-4 1.06E-3 1.55E-3  1.57E-3 1.64E-3 1.77E-3 1.77E-3   0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 1.60D+01
- with a timing overhead of 1.62D-06s
+ with a timing overhead of 0.00D+00s
 
 
- Task  times  cpu:        0.3s     wall:        0.3s
+ Task  times  cpu:        0.2s     wall:        0.3s
  
  
                                 NWChem Input Module
@@ -1253,40 +1277,50 @@ Pair Ener     1     1     1   1.72E-4 1.72E-4 1.72E-4  1.72E-4 1.72E-4 1.72E-4 1
 
   AO/Fock/Back tols     =   1.0D-09  1.0D-09  1.0D-09
   SCS-MP2               = T
+  #avail    536870912.000000     
+  #avail    536870912.000000     
+  #avail    536870912.000000     
 
  GA uses MA = F    GA memory limited = T
 
  Available: 
-  local mem=  6.55D+07
+  local mem=  5.73D+07
  global mem=  6.55D+07
- local disk=  5.37D+08
-  mp2_memr nvloc                     50
-  nvloc new                     50
-   1 passes of   5:        2301967                      26826                    927701.
+ local disk=  0.00D+00
+  mp2_memr nvloc                     17
+  nvloc new                     17
+   1 passes of   5:        4194304                      22711                    450303.
+   1 passes of   5: M     57341147           G       65533910           F      53146843.
  
- Semi-direct pass number   1 of   1  for RHF alpha+beta  at        5.2s
+ Semi-direct pass number   1 of   1  for RHF alpha+beta  at        4.0s
   vrange nnbf                   1540
-Node 0 wrote      3.1 Mb in      0.0 s     Agg I/O rate:   953.7 Mb/s
- Done moints_semi at        6.0s
- Done maket at        6.1s
- Done multipass loop at        6.1s
+  mp2_eaftype                     10  avail_ma_in_mb                    499
+ EAF : mp2_eaftype filesize          10     225151.
+  mp2_eaf for mointskh                      10
+Node 0 wrote      1.0 Mb in      0.0 s     Agg I/O rate:  2555.3 Mb/s
+ Done moints_semi at        4.6s
+  mp2_eaftype                     10  avail_ma_in_mb                    489
+ EAF : mp2_eaftype filesize          10     225151.
+  mp2_eaf for kh                     10
+ Done maket at        4.7s
+ Done multipass loop at        4.7s
 
 
           -------------------------------------------
           SCF energy                -128.543469659094
-          Correlation energy          -0.326258443710
-          Singlet pairs               -0.205382776574
-          Triplet pairs               -0.120875667137
-          Total MP2 energy          -128.869728102804
+          Correlation energy          -0.326258443642
+          Singlet pairs               -0.205382776546
+          Triplet pairs               -0.120875667096
+          Total MP2 energy          -128.869728102736
           -------------------------------------------
 
 
 
           ---------------------------------------------------
                     Spin Component Scaled (SCS) MP2
-          Same spin pairs                     -0.080583778091
+          Same spin pairs                     -0.080583778064
           Same spin scaling factor             0.000000000000
-          Opposite spin pairs                 -0.245674665619
+          Opposite spin pairs                 -0.245674665578
           Opposite spin scaling fact.          0.000000000000
           SCS-MP2 correlation energy           0.000000000000
           Total SCS-MP2 energy              -128.543469659094
@@ -1296,20 +1330,20 @@ Node 0 wrote      3.1 Mb in      0.0 s     Agg I/O rate:   953.7 Mb/s
  Performance information
  -----------------------
 
- Timer overhead =  1.23D-07 seconds/call
+ Timer overhead =  8.92D-08 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-mp2: moin     1     1     1   0.73    0.73    0.73     0.73    0.73    0.73    0.73      0.0     0.0     0.0   
-mp2: make     1     1     1   9.16E-2 9.16E-2 9.16E-2  9.16E-2 9.16E-2 9.16E-2 9.16E-2   0.0     0.0     0.0   
-mp2: tota     1     1     1   0.91    0.91    0.91     0.91    0.91    0.91    0.91      0.0     0.0     0.0   
+mp2: moin     1     1     1   0.27    0.29    0.32     0.57    0.57    0.57    0.57      0.0     0.0     0.0   
+mp2: make     1     1     1   8.40E-3 1.79E-2 2.28E-2  2.93E-2 2.93E-2 2.93E-2 2.93E-2   0.0     0.0     0.0   
+mp2: tota     1     1     1   0.37    0.50    0.59     0.88    0.88    0.88    0.88      0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 3.00D+00
- with a timing overhead of 3.69D-07s
+ with a timing overhead of 2.68D-07s
 
 
- Task  times  cpu:        0.9s     wall:        0.9s
+ Task  times  cpu:        0.4s     wall:        0.9s
  
  
                                 NWChem Input Module
@@ -1363,7 +1397,22 @@ mp2: tota     1     1     1   0.91    0.91    0.91     0.91    0.91    0.91    0
           Same spin scaling factor:         0.00000
           Opposite spin scaling factor:     0.00000
 
-     Pass:    1     Index range:    1  -    5     Time:      0.65
+    0 shell      1 out of     15 in             4.80 secs
+    0 shell      2 out of     15 in             4.80 secs
+    0 shell      3 out of     15 in             4.83 secs
+    0 shell      4 out of     15 in             4.85 secs
+    0 shell      5 out of     15 in             4.87 secs
+    0 shell      6 out of     15 in             4.89 secs
+    0 shell      7 out of     15 in             4.92 secs
+    0 shell      8 out of     15 in             4.92 secs
+    0 shell      9 out of     15 in             4.92 secs
+    0 shell     10 out of     15 in             4.93 secs
+    0 shell     11 out of     15 in             4.95 secs
+    0 shell     12 out of     15 in             4.97 secs
+    0 shell     13 out of     15 in             4.99 secs
+    0 shell     14 out of     15 in             5.01 secs
+    0 shell     15 out of     15 in             5.02 secs
+     Pass:    1     Index range:    1  -    5     Time:      0.22
 
 
           -----------------------------------------------
@@ -1373,9 +1422,9 @@ mp2: tota     1     1     1   0.91    0.91    0.91     0.91    0.91    0.91    0
           -----------------------------------------------
 
 
-          Total MP2 time:           0.69
+          Total MP2 time:           0.27
 
- Task  times  cpu:        0.7s     wall:        0.7s
+ Task  times  cpu:        0.3s     wall:        0.4s
  
  
                                 NWChem Input Module
@@ -1441,12 +1490,12 @@ mp2: tota     1     1     1   0.91    0.91    0.91     0.91    0.91    0.91    0
     Type of storage for MO integrals 'EAF library'
  
  Transformation block size    5, requiring     1 integral passes.
- XForm_3cInts: Completed     1:    5 pass.             @Sat Dec  3 13:46:59 2016
+ XForm_3cInts: Completed     1:    5 pass.             @Fri Sep 27 01:48:09 2019
  Energy evaluation using block sizes     5    5
- RIMP2_V_E2: Approx. ints. done (    1:    5,    1:    5) @Sat Dec  3 13:46:59 2016
- RIMP2_V_E2: Copy to B done (    1:    5,    1:    5)  @Sat Dec  3 13:46:59 2016
- RIMP2_V_E2: Denominators done (    1:    5,    1:    5) @Sat Dec  3 13:46:59 2016
- RIMP2_V_E2: Completed block (    1:    5,    1:    5) @Sat Dec  3 13:46:59 2016
+ RIMP2_V_E2: Approx. ints. done (    1:    5,    1:    5) @Fri Sep 27 01:48:09 2019
+ RIMP2_V_E2: Copy to B done (    1:    5,    1:    5)  @Fri Sep 27 01:48:09 2019
+ RIMP2_V_E2: Denominators done (    1:    5,    1:    5) @Fri Sep 27 01:48:09 2019
+ RIMP2_V_E2: Completed block (    1:    5,    1:    5) @Fri Sep 27 01:48:09 2019
 
 
           -----------------------------------------------
@@ -1455,43 +1504,35 @@ mp2: tota     1     1     1   0.91    0.91    0.91     0.91    0.91    0.91    0
           Total SCS-MP2 energy          -128.543469659094
           -----------------------------------------------
 
-
-
-          -------------------------------------------
-          SCF energy                -128.543469659094
-          Correlation energy           0.000000000000
-          Total MP2 energy          -128.543469659094
-          -------------------------------------------
-
  -----------------------
  Performance information
  -----------------------
 
- Timer overhead =  9.95D-08 seconds/call
+ Timer overhead =  8.81D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-Overall       1     1     1   0.25    0.25    0.25     0.25    0.25    0.25    0.25      0.0     0.0     0.0   
-3c integr     1     1     1   0.13    0.13    0.13     0.13    0.13    0.13    0.13      0.0     0.0     0.0   
-Energy        1     1     1   2.49E-2 2.49E-2 2.49E-2  2.49E-2 2.49E-2 2.49E-2 2.49E-2   0.0     0.0     0.0   
-3c integr     1     1     1   0.13    0.13    0.13     0.13    0.13    0.13    0.13      0.0     0.0     0.0   
-First 2/3     3     3     3   4.91E-4 4.91E-4 4.91E-4  4.91E-4 4.91E-4 4.91E-4 1.64E-4   0.0     0.0     0.0   
-Final 1/3     1     1     1   1.29E-3 1.29E-3 1.29E-3  1.29E-3 1.29E-3 1.29E-3 1.29E-3   0.0     0.0     0.0   
-Write 3c      1     1     1   2.04E-4 2.04E-4 2.04E-4  2.04E-4 2.04E-4 2.04E-4 2.04E-4   0.0     0.0     0.0   
-Read 3c i     1     1     1   8.70E-3 8.70E-3 8.70E-3  8.70E-3 8.70E-3 8.70E-3 8.70E-3   0.0     0.0     0.0   
-Fitting b     1     1     1   2.67E-2 2.67E-2 2.67E-2  2.67E-2 2.67E-2 2.67E-2 2.67E-2   0.0     0.0     0.0   
-Schwarz i     1     1     1   1.70E-2 1.70E-2 1.70E-2  1.70E-2 1.70E-2 1.70E-2 1.70E-2   0.0     0.0     0.0   
-Form 4ci      1     1     1   2.61E-3 2.61E-3 2.61E-3  2.61E-3 2.61E-3 2.61E-3 2.61E-3   0.0     0.0     0.0   
-Form A &      1     1     1   1.25E-2 1.25E-2 1.25E-2  1.25E-2 1.25E-2 1.25E-2 1.25E-2   0.0     0.0     0.0   
-Denominat     1     1     1   1.31E-4 1.31E-4 1.31E-4  1.31E-4 1.31E-4 1.31E-4 1.31E-4   0.0     0.0     0.0   
-Pair Ener     1     1     1   9.79E-5 9.79E-5 9.79E-5  9.81E-5 9.81E-5 9.81E-5 9.81E-5   0.0     0.0     0.0   
+Overall       1     1     1   0.11    0.21    0.27     0.28    0.28    0.28    0.28      0.0     0.0     0.0   
+3c integr     1     1     1   3.04E-2 7.78E-2 0.11     0.11    0.11    0.11    0.11      0.0     0.0     0.0   
+Energy        1     1     1   3.38E-3 1.60E-2 2.38E-2  2.41E-2 2.41E-2 2.41E-2 2.41E-2   0.0     0.0     0.0   
+3c integr     1     1     1   3.00E-2 3.50E-2 3.87E-2  3.69E-2 6.24E-2 0.10    0.10      0.0     0.0     0.0   
+First 2/3     3     3     3   1.71E-4 2.03E-4 2.29E-4  1.82E-4 4.33E-4 8.97E-4 2.99E-4   0.0     0.0     0.0   
+Final 1/3     1     1     1    0.0    2.30E-3 3.77E-3  3.81E-3 3.82E-3 3.82E-3 3.82E-3   0.0     0.0     0.0   
+Write 3c      1     1     1    0.0    6.50E-5 1.01E-4  9.39E-5 2.25E-4 4.76E-4 4.76E-4   0.0     0.0     0.0   
+Read 3c i     1     1     1    0.0    5.47E-5 8.80E-5  7.58E-5 1.26E-4 2.11E-4 2.11E-4   0.0     0.0     0.0   
+Fitting b     1     1     1   8.97E-3 1.92E-2 2.49E-2  2.56E-2 2.56E-2 2.56E-2 2.56E-2   0.0     0.0     0.0   
+Schwarz i     1     1     1   7.15E-3 1.36E-2 1.69E-2  1.72E-2 1.73E-2 1.74E-2 1.74E-2   0.0     0.0     0.0   
+Form 4ci      1     1     1    0.0    3.44E-3 5.40E-3  5.51E-3 5.51E-3 5.51E-3 5.51E-3   0.0     0.0     0.0   
+Form A &      1     1     1   2.54E-3 9.11E-3 1.34E-2  1.35E-2 1.35E-2 1.36E-2 1.36E-2   0.0     0.0     0.0   
+Denominat     1     1     1   2.40E-5 3.10E-5 4.50E-5  2.41E-5 3.23E-5 4.79E-5 4.79E-5   0.0     0.0     0.0   
+Pair Ener     1     1     1   2.95E-4 3.78E-4 4.89E-4  5.01E-4 5.01E-4 5.02E-4 5.02E-4   0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 1.60D+01
- with a timing overhead of 1.59D-06s
+ with a timing overhead of 1.41D-05s
 
 
- Task  times  cpu:        0.3s     wall:        0.3s
+ Task  times  cpu:        0.1s     wall:        0.3s
  
  
                                 NWChem Input Module
@@ -1545,63 +1586,73 @@ Pair Ener     1     1     1   9.79E-5 9.79E-5 9.79E-5  9.81E-5 9.81E-5 9.81E-5 9
 
   AO/Fock/Back tols     =   1.0D-09  1.0D-09  1.0D-09
   SCS-MP2               = T
+  #avail    536870912.000000     
+  #avail    536870912.000000     
+  #avail    536870912.000000     
 
  GA uses MA = F    GA memory limited = T
 
  Available: 
-  local mem=  6.55D+07
+  local mem=  5.73D+07
  global mem=  6.55D+07
- local disk=  5.37D+08
-  mp2_memr nvloc                     50
-  nvloc new                     50
-   1 passes of   5:        2301967                      26826                    927701.
+ local disk=  0.00D+00
+  mp2_memr nvloc                     17
+  nvloc new                     17
+   1 passes of   5:        4194304                      22711                    450303.
+   1 passes of   5: M     57341147           G       65533910           F      53146843.
  
- Semi-direct pass number   1 of   1  for RHF alpha+beta  at        7.1s
+ Semi-direct pass number   1 of   1  for RHF alpha+beta  at        5.7s
   vrange nnbf                   1540
-Node 0 wrote      3.1 Mb in      0.0 s     Agg I/O rate:   878.1 Mb/s
- Done moints_semi at        7.8s
- Done maket at        7.9s
- Done multipass loop at        7.9s
+  mp2_eaftype                     10  avail_ma_in_mb                    499
+ EAF : mp2_eaftype filesize          10     225151.
+  mp2_eaf for mointskh                      10
+Node 0 wrote      1.0 Mb in      0.0 s     Agg I/O rate:  3043.6 Mb/s
+ Done moints_semi at        6.2s
+  mp2_eaftype                     10  avail_ma_in_mb                    489
+ EAF : mp2_eaftype filesize          10     225151.
+  mp2_eaf for kh                     10
+ Done maket at        6.3s
+ Done multipass loop at        6.3s
 
 
           -------------------------------------------
           SCF energy                -128.543469659094
-          Correlation energy          -0.326258443710
-          Singlet pairs               -0.205382776574
-          Triplet pairs               -0.120875667137
-          Total MP2 energy          -128.869728102804
+          Correlation energy          -0.326258443642
+          Singlet pairs               -0.205382776546
+          Triplet pairs               -0.120875667096
+          Total MP2 energy          -128.869728102736
           -------------------------------------------
 
 
 
           ---------------------------------------------------
                     Spin Component Scaled (SCS) MP2
-          Same spin pairs                     -0.080583778091
+          Same spin pairs                     -0.080583778064
           Same spin scaling factor             0.000000000000
-          Opposite spin pairs                 -0.245674665619
+          Opposite spin pairs                 -0.245674665578
           Opposite spin scaling fact.          1.000000000000
-          SCS-MP2 correlation energy          -0.245674665619
-          Total SCS-MP2 energy              -128.789144324713
+          SCS-MP2 correlation energy          -0.245674665578
+          Total SCS-MP2 energy              -128.789144324672
           ---------------------------------------------------
 
  -----------------------
  Performance information
  -----------------------
 
- Timer overhead =  9.43D-08 seconds/call
+ Timer overhead =  7.09D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-mp2: moin     1     1     1   0.70    0.70    0.70     0.70    0.70    0.70    0.70      0.0     0.0     0.0   
-mp2: make     1     1     1   0.10    0.10    0.10     0.10    0.10    0.10    0.10      0.0     0.0     0.0   
-mp2: tota     1     1     1   0.90    0.90    0.90     0.90    0.90    0.90    0.90      0.0     0.0     0.0   
+mp2: moin     1     1     1   0.27    0.29    0.31     0.55    0.55    0.55    0.55      0.0     0.0     0.0   
+mp2: make     1     1     1   2.67E-2 2.73E-2 2.79E-2  5.61E-2 5.61E-2 5.61E-2 5.61E-2   0.0     0.0     0.0   
+mp2: tota     1     1     1   0.40    0.53    0.63     0.93    0.93    0.93    0.93      0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 3.00D+00
- with a timing overhead of 2.83D-07s
+ with a timing overhead of 2.13D-06s
 
 
- Task  times  cpu:        0.9s     wall:        0.9s
+ Task  times  cpu:        0.4s     wall:        1.0s
  
  
                                 NWChem Input Module
@@ -1655,19 +1706,34 @@ mp2: tota     1     1     1   0.90    0.90    0.90     0.90    0.90    0.90    0
           Same spin scaling factor:         0.00000
           Opposite spin scaling factor:     1.00000
 
-     Pass:    1     Index range:    1  -    5     Time:      0.65
+    0 shell      1 out of     15 in             6.47 secs
+    0 shell      2 out of     15 in             6.53 secs
+    0 shell      3 out of     15 in             6.53 secs
+    0 shell      4 out of     15 in             6.53 secs
+    0 shell      5 out of     15 in             6.56 secs
+    0 shell      6 out of     15 in             6.58 secs
+    0 shell      7 out of     15 in             6.60 secs
+    0 shell      8 out of     15 in             6.60 secs
+    0 shell      9 out of     15 in             6.61 secs
+    0 shell     10 out of     15 in             6.61 secs
+    0 shell     11 out of     15 in             6.63 secs
+    0 shell     12 out of     15 in             6.65 secs
+    0 shell     13 out of     15 in             6.67 secs
+    0 shell     14 out of     15 in             6.69 secs
+    0 shell     15 out of     15 in             6.70 secs
+     Pass:    1     Index range:    1  -    5     Time:      0.22
 
 
           -----------------------------------------------
           SCF energy                    -128.543469659094
-          SCS Correlation energy          -0.245674665619
-          Total SCS-MP2 energy          -128.789144324713
+          SCS Correlation energy          -0.245674665578
+          Total SCS-MP2 energy          -128.789144324672
           -----------------------------------------------
 
 
-          Total MP2 time:           0.69
+          Total MP2 time:           0.30
 
- Task  times  cpu:        0.7s     wall:        0.7s
+ Task  times  cpu:        0.3s     wall:        0.4s
  
  
                                 NWChem Input Module
@@ -1733,57 +1799,49 @@ mp2: tota     1     1     1   0.90    0.90    0.90     0.90    0.90    0.90    0
     Type of storage for MO integrals 'EAF library'
  
  Transformation block size    5, requiring     1 integral passes.
- XForm_3cInts: Completed     1:    5 pass.             @Sat Dec  3 13:47:00 2016
+ XForm_3cInts: Completed     1:    5 pass.             @Fri Sep 27 01:48:11 2019
  Energy evaluation using block sizes     5    5
- RIMP2_V_E2: Approx. ints. done (    1:    5,    1:    5) @Sat Dec  3 13:47:00 2016
- RIMP2_V_E2: Copy to B done (    1:    5,    1:    5)  @Sat Dec  3 13:47:00 2016
- RIMP2_V_E2: Denominators done (    1:    5,    1:    5) @Sat Dec  3 13:47:00 2016
- RIMP2_V_E2: Completed block (    1:    5,    1:    5) @Sat Dec  3 13:47:00 2016
+ RIMP2_V_E2: Approx. ints. done (    1:    5,    1:    5) @Fri Sep 27 01:48:11 2019
+ RIMP2_V_E2: Copy to B done (    1:    5,    1:    5)  @Fri Sep 27 01:48:11 2019
+ RIMP2_V_E2: Denominators done (    1:    5,    1:    5) @Fri Sep 27 01:48:11 2019
+ RIMP2_V_E2: Completed block (    1:    5,    1:    5) @Fri Sep 27 01:48:11 2019
 
 
           -----------------------------------------------
           SCF energy                    -128.543469659094
-          SCS Correlation energy          -0.245658742854
-          Total SCS-MP2 energy          -128.789128401949
+          SCS Correlation energy          -0.245658742813
+          Total SCS-MP2 energy          -128.789128401907
           -----------------------------------------------
-
-
-
-          -------------------------------------------
-          SCF energy                -128.543469659094
-          Correlation energy          -0.245658742854
-          Total MP2 energy          -128.789128401949
-          -------------------------------------------
 
  -----------------------
  Performance information
  -----------------------
 
- Timer overhead =  1.00D-07 seconds/call
+ Timer overhead =  4.31D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-Overall       1     1     1   0.25    0.25    0.25     0.25    0.25    0.25    0.25      0.0     0.0     0.0   
-3c integr     1     1     1   0.13    0.13    0.13     0.13    0.13    0.13    0.13      0.0     0.0     0.0   
-Energy        1     1     1   2.40E-2 2.40E-2 2.40E-2  2.40E-2 2.40E-2 2.40E-2 2.40E-2   0.0     0.0     0.0   
-3c integr     1     1     1   0.13    0.13    0.13     0.13    0.13    0.13    0.13      0.0     0.0     0.0   
-First 2/3     3     3     3   5.07E-4 5.07E-4 5.07E-4  5.07E-4 5.07E-4 5.07E-4 1.69E-4   0.0     0.0     0.0   
-Final 1/3     1     1     1   1.62E-3 1.62E-3 1.62E-3  1.62E-3 1.62E-3 1.62E-3 1.62E-3   0.0     0.0     0.0   
-Write 3c      1     1     1   3.03E-4 3.03E-4 3.03E-4  3.03E-4 3.03E-4 3.03E-4 3.03E-4   0.0     0.0     0.0   
-Read 3c i     1     1     1   8.57E-3 8.57E-3 8.57E-3  8.58E-3 8.58E-3 8.58E-3 8.58E-3   0.0     0.0     0.0   
-Fitting b     1     1     1   2.67E-2 2.67E-2 2.67E-2  2.67E-2 2.67E-2 2.67E-2 2.67E-2   0.0     0.0     0.0   
-Schwarz i     1     1     1   1.59E-2 1.59E-2 1.59E-2  1.59E-2 1.59E-2 1.59E-2 1.59E-2   0.0     0.0     0.0   
-Form 4ci      1     1     1   2.54E-3 2.54E-3 2.54E-3  2.54E-3 2.54E-3 2.54E-3 2.54E-3   0.0     0.0     0.0   
-Form A &      1     1     1   1.17E-2 1.17E-2 1.17E-2  1.17E-2 1.17E-2 1.17E-2 1.17E-2   0.0     0.0     0.0   
-Denominat     1     1     1   1.79E-4 1.79E-4 1.79E-4  1.79E-4 1.79E-4 1.79E-4 1.79E-4   0.0     0.0     0.0   
-Pair Ener     1     1     1   1.58E-4 1.58E-4 1.58E-4  1.57E-4 1.57E-4 1.57E-4 1.57E-4   0.0     0.0     0.0   
+Overall       1     1     1   0.12    0.19    0.23     0.24    0.24    0.24    0.24      0.0     0.0     0.0   
+3c integr     1     1     1   3.58E-2 7.44E-2 0.10     0.10    0.10    0.10    0.10      0.0     0.0     0.0   
+Energy        1     1     1   7.52E-3 1.62E-2 2.09E-2  2.13E-2 2.13E-2 2.13E-2 2.13E-2   0.0     0.0     0.0   
+3c integr     1     1     1   3.38E-2 3.70E-2 4.11E-2  3.69E-2 5.69E-2 9.19E-2 9.19E-2   0.0     0.0     0.0   
+First 2/3     3     3     3   1.69E-4 2.08E-4 2.39E-4  1.69E-4 3.44E-4 6.45E-4 2.15E-4   0.0     0.0     0.0   
+Final 1/3     1     1     1   1.16E-3 2.30E-3 3.18E-3  3.21E-3 3.21E-3 3.21E-3 3.21E-3   0.0     0.0     0.0   
+Write 3c      1     1     1   9.40E-5 1.08E-4 1.15E-4  1.03E-4 2.31E-4 4.76E-4 4.76E-4   0.0     0.0     0.0   
+Read 3c i     1     1     1   6.90E-5 8.33E-5 9.10E-5  6.89E-5 1.77E-4 3.74E-4 3.74E-4   0.0     0.0     0.0   
+Fitting b     1     1     1   9.08E-3 1.94E-2 2.51E-2  2.57E-2 2.57E-2 2.57E-2 2.57E-2   0.0     0.0     0.0   
+Schwarz i     1     1     1   7.74E-3 1.23E-2 1.69E-2  1.72E-2 1.73E-2 1.75E-2 1.75E-2   0.0     0.0     0.0   
+Form 4ci      1     1     1   1.87E-3 4.37E-3 5.64E-3  5.65E-3 5.65E-3 5.66E-3 5.66E-3   0.0     0.0     0.0   
+Form A &      1     1     1   4.20E-3 8.25E-3 1.07E-2  1.08E-2 1.08E-2 1.08E-2 1.08E-2   0.0     0.0     0.0   
+Denominat     1     1     1   4.10E-5 4.33E-5 4.80E-5  4.10E-5 8.71E-5 1.72E-4 1.72E-4   0.0     0.0     0.0   
+Pair Ener     1     1     1   2.86E-4 8.49E-4 1.14E-3  1.15E-3 1.15E-3 1.15E-3 1.15E-3   0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 1.60D+01
- with a timing overhead of 1.61D-06s
+ with a timing overhead of 6.90D-06s
 
 
- Task  times  cpu:        0.3s     wall:        0.3s
+ Task  times  cpu:        0.1s     wall:        0.3s
  
  
                                 NWChem Input Module
@@ -1837,63 +1895,73 @@ Pair Ener     1     1     1   1.58E-4 1.58E-4 1.58E-4  1.57E-4 1.57E-4 1.57E-4 1
 
   AO/Fock/Back tols     =   1.0D-09  1.0D-09  1.0D-09
   SCS-MP2               = T
+  #avail    536870912.000000     
+  #avail    536870912.000000     
+  #avail    536870912.000000     
 
  GA uses MA = F    GA memory limited = T
 
  Available: 
-  local mem=  6.55D+07
+  local mem=  5.73D+07
  global mem=  6.55D+07
- local disk=  5.37D+08
-  mp2_memr nvloc                     50
-  nvloc new                     50
-   1 passes of   5:        2301967                      26826                    927701.
+ local disk=  0.00D+00
+  mp2_memr nvloc                     17
+  nvloc new                     17
+   1 passes of   5:        4194304                      22711                    450303.
+   1 passes of   5: M     57341147           G       65533910           F      53146843.
  
- Semi-direct pass number   1 of   1  for RHF alpha+beta  at        9.0s
+ Semi-direct pass number   1 of   1  for RHF alpha+beta  at        7.3s
   vrange nnbf                   1540
-Node 0 wrote      3.1 Mb in      0.0 s     Agg I/O rate:   904.8 Mb/s
- Done moints_semi at        9.7s
- Done maket at        9.8s
- Done multipass loop at        9.8s
+  mp2_eaftype                     10  avail_ma_in_mb                    499
+ EAF : mp2_eaftype filesize          10     225151.
+  mp2_eaf for mointskh                      10
+Node 0 wrote      1.0 Mb in      0.0 s     Agg I/O rate:  2960.1 Mb/s
+ Done moints_semi at        7.8s
+  mp2_eaftype                     10  avail_ma_in_mb                    489
+ EAF : mp2_eaftype filesize          10     225151.
+  mp2_eaf for kh                     10
+ Done maket at        7.8s
+ Done multipass loop at        7.8s
 
 
           -------------------------------------------
           SCF energy                -128.543469659094
-          Correlation energy          -0.326258443710
-          Singlet pairs               -0.205382776574
-          Triplet pairs               -0.120875667137
-          Total MP2 energy          -128.869728102804
+          Correlation energy          -0.326258443642
+          Singlet pairs               -0.205382776546
+          Triplet pairs               -0.120875667096
+          Total MP2 energy          -128.869728102736
           -------------------------------------------
 
 
 
           ---------------------------------------------------
                     Spin Component Scaled (SCS) MP2
-          Same spin pairs                     -0.080583778091
+          Same spin pairs                     -0.080583778064
           Same spin scaling factor             1.000000000000
-          Opposite spin pairs                 -0.245674665619
+          Opposite spin pairs                 -0.245674665578
           Opposite spin scaling fact.          0.000000000000
-          SCS-MP2 correlation energy          -0.080583778091
-          Total SCS-MP2 energy              -128.624053437185
+          SCS-MP2 correlation energy          -0.080583778064
+          Total SCS-MP2 energy              -128.624053437158
           ---------------------------------------------------
 
  -----------------------
  Performance information
  -----------------------
 
- Timer overhead =  9.82D-08 seconds/call
+ Timer overhead =  7.00D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-mp2: moin     1     1     1   0.72    0.72    0.72     0.72    0.72    0.72    0.72      0.0     0.0     0.0   
-mp2: make     1     1     1   0.10    0.10    0.10     0.10    0.10    0.10    0.10      0.0     0.0     0.0   
-mp2: tota     1     1     1   0.91    0.91    0.91     0.91    0.91    0.91    0.91      0.0     0.0     0.0   
+mp2: moin     1     1     1   0.24    0.28    0.31     0.53    0.53    0.53    0.53      0.0     0.0     0.0   
+mp2: make     1     1     1   1.61E-2 1.88E-2 2.11E-2  4.02E-2 4.02E-2 4.03E-2 4.03E-2   0.0     0.0     0.0   
+mp2: tota     1     1     1   0.35    0.49    0.56     0.85    0.85    0.85    0.85      0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 3.00D+00
- with a timing overhead of 2.95D-07s
+ with a timing overhead of 2.10D-06s
 
 
- Task  times  cpu:        0.9s     wall:        0.9s
+ Task  times  cpu:        0.4s     wall:        0.9s
  
  
                                 NWChem Input Module
@@ -1947,19 +2015,34 @@ mp2: tota     1     1     1   0.91    0.91    0.91     0.91    0.91    0.91    0
           Same spin scaling factor:         1.00000
           Opposite spin scaling factor:     0.00000
 
-     Pass:    1     Index range:    1  -    5     Time:      0.65
+    0 shell      1 out of     15 in             7.96 secs
+    0 shell      2 out of     15 in             7.96 secs
+    0 shell      3 out of     15 in             7.99 secs
+    0 shell      4 out of     15 in             8.03 secs
+    0 shell      5 out of     15 in             8.05 secs
+    0 shell      6 out of     15 in             8.08 secs
+    0 shell      7 out of     15 in             8.14 secs
+    0 shell      8 out of     15 in             8.14 secs
+    0 shell      9 out of     15 in             8.15 secs
+    0 shell     10 out of     15 in             8.15 secs
+    0 shell     11 out of     15 in             8.20 secs
+    0 shell     12 out of     15 in             8.24 secs
+    0 shell     13 out of     15 in             8.28 secs
+    0 shell     14 out of     15 in             8.30 secs
+    0 shell     15 out of     15 in             8.31 secs
+     Pass:    1     Index range:    1  -    5     Time:      0.27
 
 
           -----------------------------------------------
           SCF energy                    -128.543469659094
-          SCS Correlation energy          -0.080583778091
-          Total SCS-MP2 energy          -128.624053437185
+          SCS Correlation energy          -0.080583778064
+          Total SCS-MP2 energy          -128.624053437158
           -----------------------------------------------
 
 
-          Total MP2 time:           0.70
+          Total MP2 time:           0.31
 
- Task  times  cpu:        0.7s     wall:        0.7s
+ Task  times  cpu:        0.3s     wall:        0.5s
  
  
                                 NWChem Input Module
@@ -2025,57 +2108,49 @@ mp2: tota     1     1     1   0.91    0.91    0.91     0.91    0.91    0.91    0
     Type of storage for MO integrals 'EAF library'
  
  Transformation block size    5, requiring     1 integral passes.
- XForm_3cInts: Completed     1:    5 pass.             @Sat Dec  3 13:47:02 2016
+ XForm_3cInts: Completed     1:    5 pass.             @Fri Sep 27 01:48:12 2019
  Energy evaluation using block sizes     5    5
- RIMP2_V_E2: Approx. ints. done (    1:    5,    1:    5) @Sat Dec  3 13:47:02 2016
- RIMP2_V_E2: Copy to B done (    1:    5,    1:    5)  @Sat Dec  3 13:47:02 2016
- RIMP2_V_E2: Denominators done (    1:    5,    1:    5) @Sat Dec  3 13:47:02 2016
- RIMP2_V_E2: Completed block (    1:    5,    1:    5) @Sat Dec  3 13:47:02 2016
+ RIMP2_V_E2: Approx. ints. done (    1:    5,    1:    5) @Fri Sep 27 01:48:12 2019
+ RIMP2_V_E2: Copy to B done (    1:    5,    1:    5)  @Fri Sep 27 01:48:12 2019
+ RIMP2_V_E2: Denominators done (    1:    5,    1:    5) @Fri Sep 27 01:48:12 2019
+ RIMP2_V_E2: Completed block (    1:    5,    1:    5) @Fri Sep 27 01:48:12 2019
 
 
           -----------------------------------------------
           SCF energy                    -128.543469659094
-          SCS Correlation energy          -0.080591086184
-          Total SCS-MP2 energy          -128.624060745278
+          SCS Correlation energy          -0.080591086156
+          Total SCS-MP2 energy          -128.624060745251
           -----------------------------------------------
-
-
-
-          -------------------------------------------
-          SCF energy                -128.543469659094
-          Correlation energy          -0.080591086184
-          Total MP2 energy          -128.624060745278
-          -------------------------------------------
 
  -----------------------
  Performance information
  -----------------------
 
- Timer overhead =  1.04D-07 seconds/call
+ Timer overhead =  4.14D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-Overall       1     1     1   0.27    0.27    0.27     0.27    0.27    0.27    0.27      0.0     0.0     0.0   
-3c integr     1     1     1   0.14    0.14    0.14     0.14    0.14    0.14    0.14      0.0     0.0     0.0   
-Energy        1     1     1   2.30E-2 2.30E-2 2.30E-2  2.30E-2 2.30E-2 2.30E-2 2.30E-2   0.0     0.0     0.0   
-3c integr     1     1     1   0.14    0.14    0.14     0.14    0.14    0.14    0.14      0.0     0.0     0.0   
-First 2/3     3     3     3   7.65E-4 7.65E-4 7.65E-4  7.65E-4 7.65E-4 7.65E-4 2.55E-4   0.0     0.0     0.0   
-Final 1/3     1     1     1   1.66E-3 1.66E-3 1.66E-3  1.66E-3 1.66E-3 1.66E-3 1.66E-3   0.0     0.0     0.0   
-Write 3c      1     1     1   2.47E-4 2.47E-4 2.47E-4  2.47E-4 2.47E-4 2.47E-4 2.47E-4   0.0     0.0     0.0   
-Read 3c i     1     1     1   7.90E-3 7.90E-3 7.90E-3  7.90E-3 7.90E-3 7.90E-3 7.90E-3   0.0     0.0     0.0   
-Fitting b     1     1     1   2.22E-2 2.22E-2 2.22E-2  2.22E-2 2.22E-2 2.22E-2 2.22E-2   0.0     0.0     0.0   
-Schwarz i     1     1     1   2.13E-2 2.13E-2 2.13E-2  2.13E-2 2.13E-2 2.13E-2 2.13E-2   0.0     0.0     0.0   
-Form 4ci      1     1     1   2.48E-3 2.48E-3 2.48E-3  2.48E-3 2.48E-3 2.48E-3 2.48E-3   0.0     0.0     0.0   
-Form A &      1     1     1   1.14E-2 1.14E-2 1.14E-2  1.14E-2 1.14E-2 1.14E-2 1.14E-2   0.0     0.0     0.0   
-Denominat     1     1     1   1.65E-4 1.65E-4 1.65E-4  1.66E-4 1.66E-4 1.66E-4 1.66E-4   0.0     0.0     0.0   
-Pair Ener     1     1     1   1.43E-4 1.43E-4 1.43E-4  1.43E-4 1.43E-4 1.43E-4 1.43E-4   0.0     0.0     0.0   
+Overall       1     1     1   0.13    0.14    0.14     0.15    0.15    0.15    0.15      0.0     0.0     0.0   
+3c integr     1     1     1   3.97E-2 4.23E-2 4.50E-2  4.51E-2 4.51E-2 4.52E-2 4.52E-2   0.0     0.0     0.0   
+Energy        1     1     1   4.60E-3 7.26E-3 1.02E-2  1.13E-2 1.13E-2 1.13E-2 1.13E-2   0.0     0.0     0.0   
+3c integr     1     1     1   3.20E-2 3.67E-2 4.10E-2  3.31E-2 3.75E-2 4.25E-2 4.25E-2   0.0     0.0     0.0   
+First 2/3     3     3     3   1.58E-4 1.82E-4 2.08E-4  1.58E-4 1.86E-4 2.08E-4 6.92E-5   0.0     0.0     0.0   
+Final 1/3     1     1     1   2.72E-4 9.82E-4 1.37E-3  1.37E-3 1.37E-3 1.37E-3 1.37E-3   0.0     0.0     0.0   
+Write 3c      1     1     1   1.01E-4 1.14E-4 1.24E-4  1.00E-4 1.15E-4 1.23E-4 1.23E-4   0.0     0.0     0.0   
+Read 3c i     1     1     1    0.0    3.03E-5 9.10E-5  7.20E-5 8.10E-5 9.20E-5 9.20E-5   0.0     0.0     0.0   
+Fitting b     1     1     1   3.13E-3 7.34E-3 9.82E-3  9.82E-3 9.82E-3 9.82E-3 9.82E-3   0.0     0.0     0.0   
+Schwarz i     1     1     1   1.43E-2 1.56E-2 1.63E-2  1.62E-2 1.63E-2 1.64E-2 1.64E-2   0.0     0.0     0.0   
+Form 4ci      1     1     1    0.0    5.28E-4 1.43E-3  2.03E-3 2.03E-3 2.03E-3 2.03E-3   0.0     0.0     0.0   
+Form A &      1     1     1   3.46E-3 5.67E-3 7.19E-3  7.69E-3 7.69E-3 7.69E-3 7.69E-3   0.0     0.0     0.0   
+Denominat     1     1     1   3.90E-5 4.43E-5 5.50E-5  4.01E-5 4.54E-5 5.51E-5 5.51E-5   0.0     0.0     0.0   
+Pair Ener     1     1     1   2.50E-4 2.54E-4 2.59E-4  2.67E-4 2.67E-4 2.67E-4 2.67E-4   0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 1.60D+01
- with a timing overhead of 1.66D-06s
+ with a timing overhead of 6.62D-06s
 
 
- Task  times  cpu:        0.3s     wall:        0.3s
+ Task  times  cpu:        0.1s     wall:        0.2s
  
  
                                 NWChem Input Module
@@ -2129,63 +2204,73 @@ Pair Ener     1     1     1   1.43E-4 1.43E-4 1.43E-4  1.43E-4 1.43E-4 1.43E-4 1
 
   AO/Fock/Back tols     =   1.0D-09  1.0D-09  1.0D-09
   SCS-MP2               = T
+  #avail    536870912.000000     
+  #avail    536870912.000000     
+  #avail    536870912.000000     
 
  GA uses MA = F    GA memory limited = T
 
  Available: 
-  local mem=  6.55D+07
+  local mem=  5.73D+07
  global mem=  6.55D+07
- local disk=  5.37D+08
-  mp2_memr nvloc                     50
-  nvloc new                     50
-   1 passes of   5:        2301967                      26826                    927701.
+ local disk=  0.00D+00
+  mp2_memr nvloc                     17
+  nvloc new                     17
+   1 passes of   5:        4194304                      22711                    450303.
+   1 passes of   5: M     57341147           G       65533910           F      53146843.
  
- Semi-direct pass number   1 of   1  for RHF alpha+beta  at       10.9s
+ Semi-direct pass number   1 of   1  for RHF alpha+beta  at        8.7s
   vrange nnbf                   1540
-Node 0 wrote      3.1 Mb in      0.0 s     Agg I/O rate:   840.9 Mb/s
- Done moints_semi at       11.6s
- Done maket at       11.7s
- Done multipass loop at       11.7s
+  mp2_eaftype                     10  avail_ma_in_mb                    499
+ EAF : mp2_eaftype filesize          10     225151.
+  mp2_eaf for mointskh                      10
+Node 0 wrote      1.0 Mb in      0.0 s     Agg I/O rate:  2676.5 Mb/s
+ Done moints_semi at        9.1s
+  mp2_eaftype                     10  avail_ma_in_mb                    489
+ EAF : mp2_eaftype filesize          10     225151.
+  mp2_eaf for kh                     10
+ Done maket at        9.2s
+ Done multipass loop at        9.2s
 
 
           -------------------------------------------
           SCF energy                -128.543469659094
-          Correlation energy          -0.326258443710
-          Singlet pairs               -0.205382776574
-          Triplet pairs               -0.120875667137
-          Total MP2 energy          -128.869728102804
+          Correlation energy          -0.326258443642
+          Singlet pairs               -0.205382776546
+          Triplet pairs               -0.120875667096
+          Total MP2 energy          -128.869728102736
           -------------------------------------------
 
 
 
           ---------------------------------------------------
                     Spin Component Scaled (SCS) MP2
-          Same spin pairs                     -0.080583778091
+          Same spin pairs                     -0.080583778064
           Same spin scaling factor          1000.000000000000
-          Opposite spin pairs                 -0.245674665619
+          Opposite spin pairs                 -0.245674665578
           Opposite spin scaling fact.       1000.000000000000
-          SCS-MP2 correlation energy        -326.258443710050
-          Total SCS-MP2 energy              -454.801913369145
+          SCS-MP2 correlation energy        -326.258443641632
+          Total SCS-MP2 energy              -454.801913300726
           ---------------------------------------------------
 
  -----------------------
  Performance information
  -----------------------
 
- Timer overhead =  9.59D-08 seconds/call
+ Timer overhead =  3.73D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-mp2: moin     1     1     1   0.71    0.71    0.71     0.71    0.71    0.71    0.71      0.0     0.0     0.0   
-mp2: make     1     1     1   0.10    0.10    0.10     0.10    0.10    0.10    0.10      0.0     0.0     0.0   
-mp2: tota     1     1     1   0.91    0.91    0.91     0.91    0.91    0.91    0.91      0.0     0.0     0.0   
+mp2: moin     1     1     1   0.20    0.29    0.33     0.37    0.37    0.37    0.37      0.0     0.0     0.0   
+mp2: make     1     1     1   9.91E-3 1.95E-2 3.70E-2  3.69E-2 3.70E-2 3.70E-2 3.70E-2   0.0     0.0     0.0   
+mp2: tota     1     1     1   0.29    0.49    0.60     0.67    0.67    0.67    0.67      0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 3.00D+00
- with a timing overhead of 2.88D-07s
+ with a timing overhead of 1.12D-06s
 
 
- Task  times  cpu:        0.9s     wall:        0.9s
+ Task  times  cpu:        0.3s     wall:        0.7s
  
  
                                 NWChem Input Module
@@ -2239,19 +2324,34 @@ mp2: tota     1     1     1   0.91    0.91    0.91     0.91    0.91    0.91    0
           Same spin scaling factor:      1000.00000
           Opposite spin scaling factor:  1000.00000
 
-     Pass:    1     Index range:    1  -    5     Time:      0.65
+    0 shell      1 out of     15 in             9.35 secs
+    0 shell      2 out of     15 in             9.35 secs
+    0 shell      3 out of     15 in             9.39 secs
+    0 shell      4 out of     15 in             9.41 secs
+    0 shell      5 out of     15 in             9.44 secs
+    0 shell      6 out of     15 in             9.48 secs
+    0 shell      7 out of     15 in             9.54 secs
+    0 shell      8 out of     15 in             9.55 secs
+    0 shell      9 out of     15 in             9.55 secs
+    0 shell     10 out of     15 in             9.56 secs
+    0 shell     11 out of     15 in             9.60 secs
+    0 shell     12 out of     15 in             9.63 secs
+    0 shell     13 out of     15 in             9.66 secs
+    0 shell     14 out of     15 in             9.67 secs
+    0 shell     15 out of     15 in             9.69 secs
+     Pass:    1     Index range:    1  -    5     Time:      0.24
 
 
           -----------------------------------------------
           SCF energy                    -128.543469659094
-          SCS Correlation energy        -326.258443710047
-          Total SCS-MP2 energy          -454.801913369141
+          SCS Correlation energy        -326.258443641632
+          Total SCS-MP2 energy          -454.801913300726
           -----------------------------------------------
 
 
-          Total MP2 time:           0.69
+          Total MP2 time:           0.31
 
- Task  times  cpu:        0.7s     wall:        0.7s
+ Task  times  cpu:        0.3s     wall:        0.6s
  
  
                                 NWChem Input Module
@@ -2317,57 +2417,49 @@ mp2: tota     1     1     1   0.91    0.91    0.91     0.91    0.91    0.91    0
     Type of storage for MO integrals 'EAF library'
  
  Transformation block size    5, requiring     1 integral passes.
- XForm_3cInts: Completed     1:    5 pass.             @Sat Dec  3 13:47:04 2016
+ XForm_3cInts: Completed     1:    5 pass.             @Fri Sep 27 01:48:14 2019
  Energy evaluation using block sizes     5    5
- RIMP2_V_E2: Approx. ints. done (    1:    5,    1:    5) @Sat Dec  3 13:47:04 2016
- RIMP2_V_E2: Copy to B done (    1:    5,    1:    5)  @Sat Dec  3 13:47:04 2016
- RIMP2_V_E2: Denominators done (    1:    5,    1:    5) @Sat Dec  3 13:47:04 2016
- RIMP2_V_E2: Completed block (    1:    5,    1:    5) @Sat Dec  3 13:47:04 2016
+ RIMP2_V_E2: Approx. ints. done (    1:    5,    1:    5) @Fri Sep 27 01:48:14 2019
+ RIMP2_V_E2: Copy to B done (    1:    5,    1:    5)  @Fri Sep 27 01:48:14 2019
+ RIMP2_V_E2: Denominators done (    1:    5,    1:    5) @Fri Sep 27 01:48:14 2019
+ RIMP2_V_E2: Completed block (    1:    5,    1:    5) @Fri Sep 27 01:48:14 2019
 
 
           -----------------------------------------------
           SCF energy                    -128.543469659094
-          SCS Correlation energy        -326.249829037915
-          Total SCS-MP2 energy          -454.793298697009
+          SCS Correlation energy        -326.249828969500
+          Total SCS-MP2 energy          -454.793298628595
           -----------------------------------------------
-
-
-
-          -------------------------------------------
-          SCF energy                -128.543469659094
-          Correlation energy        -326.249829037915
-          Total MP2 energy          -454.793298697009
-          -------------------------------------------
 
  -----------------------
  Performance information
  -----------------------
 
- Timer overhead =  1.23D-07 seconds/call
+ Timer overhead =  8.28D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-Overall       1     1     1   0.26    0.26    0.26     0.26    0.26    0.26    0.26      0.0     0.0     0.0   
-3c integr     1     1     1   0.14    0.14    0.14     0.14    0.14    0.14    0.14      0.0     0.0     0.0   
-Energy        1     1     1   2.51E-2 2.51E-2 2.51E-2  2.51E-2 2.51E-2 2.51E-2 2.51E-2   0.0     0.0     0.0   
-3c integr     1     1     1   0.14    0.14    0.14     0.14    0.14    0.14    0.14      0.0     0.0     0.0   
-First 2/3     3     3     3   5.52E-4 5.52E-4 5.52E-4  5.52E-4 5.52E-4 5.52E-4 1.84E-4   0.0     0.0     0.0   
-Final 1/3     1     1     1   2.51E-3 2.51E-3 2.51E-3  2.52E-3 2.52E-3 2.52E-3 2.52E-3   0.0     0.0     0.0   
-Write 3c      1     1     1   2.60E-4 2.60E-4 2.60E-4  2.60E-4 2.60E-4 2.60E-4 2.60E-4   0.0     0.0     0.0   
-Read 3c i     1     1     1   8.02E-3 8.02E-3 8.02E-3  8.02E-3 8.02E-3 8.02E-3 8.02E-3   0.0     0.0     0.0   
-Fitting b     1     1     1   2.61E-2 2.61E-2 2.61E-2  2.61E-2 2.61E-2 2.61E-2 2.61E-2   0.0     0.0     0.0   
-Schwarz i     1     1     1   1.60E-2 1.60E-2 1.60E-2  1.60E-2 1.60E-2 1.60E-2 1.60E-2   0.0     0.0     0.0   
-Form 4ci      1     1     1   2.60E-3 2.60E-3 2.60E-3  2.60E-3 2.60E-3 2.60E-3 2.60E-3   0.0     0.0     0.0   
-Form A &      1     1     1   1.32E-2 1.32E-2 1.32E-2  1.32E-2 1.32E-2 1.32E-2 1.32E-2   0.0     0.0     0.0   
-Denominat     1     1     1   2.01E-4 2.01E-4 2.01E-4  2.01E-4 2.01E-4 2.01E-4 2.01E-4   0.0     0.0     0.0   
-Pair Ener     1     1     1   1.64E-4 1.64E-4 1.64E-4  1.64E-4 1.64E-4 1.64E-4 1.64E-4   0.0     0.0     0.0   
+Overall       1     1     1   0.15    0.17    0.19     0.23    0.23    0.23    0.23      0.0     0.0     0.0   
+3c integr     1     1     1   3.74E-2 5.20E-2 5.98E-2  6.00E-2 6.00E-2 6.00E-2 6.00E-2   0.0     0.0     0.0   
+Energy        1     1     1   9.55E-3 1.13E-2 1.22E-2  1.24E-2 1.24E-2 1.24E-2 1.24E-2   0.0     0.0     0.0   
+3c integr     1     1     1   2.96E-2 3.42E-2 3.71E-2  2.97E-2 4.19E-2 5.79E-2 5.79E-2   0.0     0.0     0.0   
+First 2/3     3     3     3   1.59E-4 1.82E-4 1.95E-4  1.59E-4 1.85E-4 2.05E-4 6.83E-5   0.0     0.0     0.0   
+Final 1/3     1     1     1   8.37E-4 1.02E-3 1.10E-3  1.10E-3 1.15E-3 1.24E-3 1.24E-3   0.0     0.0     0.0   
+Write 3c      1     1     1   9.50E-5 1.03E-4 1.13E-4  9.49E-5 1.04E-4 1.13E-4 1.13E-4   0.0     0.0     0.0   
+Read 3c i     1     1     1   6.80E-5 7.70E-5 8.40E-5  6.79E-5 7.84E-5 8.82E-5 8.82E-5   0.0     0.0     0.0   
+Fitting b     1     1     1   6.96E-3 9.07E-3 1.11E-2  1.12E-2 1.12E-2 1.12E-2 1.12E-2   0.0     0.0     0.0   
+Schwarz i     1     1     1   1.06E-2 1.43E-2 1.62E-2  1.62E-2 1.63E-2 1.63E-2 1.63E-2   0.0     0.0     0.0   
+Form 4ci      1     1     1   1.46E-3 1.73E-3 1.97E-3  1.97E-3 1.97E-3 1.97E-3 1.97E-3   0.0     0.0     0.0   
+Form A &      1     1     1   6.52E-3 7.78E-3 8.41E-3  8.42E-3 8.42E-3 8.43E-3 8.43E-3   0.0     0.0     0.0   
+Denominat     1     1     1   3.90E-5 4.43E-5 5.40E-5  3.98E-5 4.55E-5 5.70E-5 5.70E-5   0.0     0.0     0.0   
+Pair Ener     1     1     1   2.94E-4 3.99E-4 4.57E-4  4.59E-4 4.59E-4 4.60E-4 4.60E-4   0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 1.60D+01
- with a timing overhead of 1.97D-06s
+ with a timing overhead of 1.32D-05s
 
 
- Task  times  cpu:        0.3s     wall:        0.3s
+ Task  times  cpu:        0.2s     wall:        0.2s
  
  
                                 NWChem Input Module
@@ -2384,11 +2476,11 @@ Pair Ener     1     1     1   1.64E-4 1.64E-4 1.64E-4  1.64E-4 1.64E-4 1.64E-4 1
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  307      307     1.54e+05 9987     1.04e+05   90        0     2100     
-number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             2.06e+07 6.68e+07 4.34e+07 2.00e+04 0.00e+00 1.68e+04
-bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 12148408 bytes
+calls:  309      309     5.25e+04 4166     3.61e+04   18        0      854     
+number of processes/call -7.66e+13 3.36e+14 2.39e+13 0.00e+00 0.00e+00
+bytes total:             1.35e+07 2.31e+07 1.86e+07 9.25e+03 0.00e+00 6.83e+03
+bytes remote:            5.93e+06 1.06e+07 1.16e+07 -4.35e+03 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 4090528 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -2400,9 +2492,9 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        23	        22
 	current total bytes		         0	         0
-	maximum total bytes		  20467504	  51395368
-	maximum total K-bytes		     20468	     51396
-	maximum total M-bytes		        21	        52
+	maximum total bytes		  10506016	  49076920
+	maximum total K-bytes		     10507	     49077
+	maximum total M-bytes		        11	        50
  
  
                                      CITATION
@@ -2423,20 +2515,20 @@ MA usage statistics:
           E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
        T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
         J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
-       S. A. Fischer, S. Krishnamoorthy, W. Ma, M. Klemm, O. Villa, Y. Chen,
-    V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler, V. Konjkov, T. Risthaus,
-       M. Malagoli, A. Marenich, A. Otero-de-la-Roza, J. Mullin, P. Nichols,
-      R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari, M. Williamson,
-      R. J. Harrison, J. R. Rehr, M. Dupuis, D. Silverstein, D. M. A. Smith,
-            J. Nieplocha, V. Tipparaju, M. Krishnan, B. E. Van Kuiken,
-        A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu, T. Van Voorhis,
-     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
-   H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman,
-    K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski, T. Clark, D. Clerc,
-   H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
-   A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
-   R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
-   K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
-                               A. T. Wong, Z. Zhang.
+    S. A. Fischer, S. Krishnamoorthy, M. Jacquelin, W. Ma, M. Klemm, O. Villa,
+      Y. Chen, V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler, V. Konjkov,
+            D. Mejia-Rodriguez, T. Risthaus, M. Malagoli, A. Marenich,
+   A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao,
+        P.-D. Fan, A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr,
+      M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+    M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+      G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall,
+      J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, D. E. Bernholdt,
+      P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. J. O. Deegan, K. Dyall,
+    D. Elwood, E. Glendening, M. Gutowski, A. C. Hess, J. Jaffe, B. G. Johnson,
+     J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+      T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
+      M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
 
- Total times  cpu:       12.6s     wall:       12.6s
+ Total times  cpu:        5.9s     wall:       10.0s
