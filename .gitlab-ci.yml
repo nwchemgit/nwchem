@@ -33,6 +33,7 @@ variables:
     GIT_CLEAN_FLAGS: -ffdx -e bin -e build -e install
   script:
     - if [ "$FC" == "ifort" ]; then source /opt/intel/compilers_and_libraries_2018/linux/bin/compilervars.sh  intel64; fi
+    - if [ "NWCHEM_TARGET" == "LINUX" ]; then export LD_LIBRARY_PATH="/usr/lib/mpich/lib" ; fi
     - env|egrep -i mkl || true
     - env|egrep  LD_LIBR || true
     - cd $CI_PROJECT_DIR/QA
@@ -82,6 +83,21 @@ linux64:build_intel:
   tags:
     - ubuntu_bionic
 
+linux_rhel6:build_gcc:
+  stage: build
+  <<: *compile_step
+  variables:
+    BLAS_SIZE: 4
+    SCALAPACK_SIZE: 4
+    BLAS_LIB: "-L/usr/lib  -lopenblas"
+    LAPACK_LIB: "-L/usr/lib -lopenblas"
+    SCALAPACK_LIB: "-L/usr/lib/mpich/lib -lscalapack"
+    PATH: "/usr/lib/mpich/bin/:/usr/bin:/bin:."
+    LD_LIBRARY_PATH: "/usr/lib/mpich/lib"
+    ARMCI_NETWORK: "MPI-PT"
+  tags:
+    - rhel_6
+
 linux64_rhel6:build_gcc:
   stage: build
   <<: *rhel6_sourcing
@@ -124,6 +140,14 @@ linux64:run_intel:
   <<: *test_step
   tags:
     - ubuntu_bionic
+
+
+linux_rhel6:run_gcc:
+  stage: test
+  needs: ["linux_rhel6:build_gcc"]
+  <<: *test_step
+  tags:
+    - rhel_6
 
 linux64_rhel6:run_gcc:
   stage: test
