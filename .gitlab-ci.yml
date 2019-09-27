@@ -5,7 +5,7 @@ stages:
 variables:
   USE_MPI: Y
   USE_NOIO: 1
-  NWCHEM_MODULES: "nwdft solvation driver "
+  NWCHEM_MODULES: "all python"
   OMP_NUM_THREADS: 1
   USE_64TO32: Y
   NWCHEM_LONG_PATHS: Y
@@ -37,8 +37,8 @@ variables:
     - cd $CI_PROJECT_DIR/QA
     - NNPROCS=1
     - if [ "$(uname -s)" == "Darwin" ]; then NNPROCS=2; fi
-    - if [ "$(uname -s)" == "Linux" ]; then NNPROCS=3; fi
-    - ./doafewqmtests.mpi $NNPROCS
+    - if [ "$(uname -s)" == "Linux" ]; then NNPROCS=4; fi
+    - ./doqmtests.mpi $NNPROCS fast
   except:
     changes:
       - ".travis.yml"
