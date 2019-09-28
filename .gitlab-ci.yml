@@ -110,6 +110,14 @@ linux_rhel6:build_gcc:
   tags:
     - rhel_6
 
+linux_rhel6:run_gcc:
+  stage: test
+  needs: ["linux_rhel6:build_gcc"]
+  <<: *beforescript_linuxrhel6
+  <<: *test_step
+  tags:
+    - rhel_6
+
 linux64_rhel6:build_gcc:
   stage: build
   <<: *rhel6_sourcing
@@ -153,14 +161,6 @@ linux64:run_intel:
   tags:
     - ubuntu_bionic
 
-
-linux_rhel6:run_gcc:
-  stage: test
-  needs: ["linux_rhel6:build_gcc"]
-  <<: *beforescript_linuxrhel6
-  <<: *test_step
-  tags:
-    - rhel_6
 
 linux64_rhel6:run_gcc:
   stage: test
