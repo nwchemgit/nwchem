@@ -15,6 +15,9 @@ variables:
   script:
     - if [ "$(lsb_release -r|cut -c10-11)" == "16" ]; then SCALAPACK_LIB="-lscalapack-openmpi -lblacsCinit-openmpi -lblacs-openmpi  -lopenblas"; fi
     - env |grep CI_
+    - printenv PATH
+    - printenv LD_LIBRARY_PATH || true
+    - which mpif90
     - env|egrep BLAS
     - env|egrep SCALAP || true
     - env|egrep -i mkl || true
