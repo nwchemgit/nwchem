@@ -11,12 +11,19 @@ variables:
   NWCHEM_LONG_PATHS: Y
   GIT_DEPTH: 32
 
+.linuxrhel6_template: &beforescript_linuxrhel6
+  before_script:
+    - module purge
+    - export LD_LIBRARY_PATH=/usr/lib/mpich/lib
+    - export PATH=/usr/lib/mpich/bin:/bin:/usr/bin:.
+
 .compile_template: &compile_step
   script:
     - if [ "$(lsb_release -r|cut -c10-11)" == "16" ]; then SCALAPACK_LIB="-lscalapack-openmpi -lblacsCinit-openmpi -lblacs-openmpi  -lopenblas"; fi
     - env |grep CI_
     - printenv PATH
     - printenv LD_LIBRARY_PATH || true
+    - env|grep MPI || true
     - which mpif90
     - env|egrep BLAS
     - env|egrep SCALAP || true
@@ -36,7 +43,7 @@ variables:
     GIT_CLEAN_FLAGS: -ffdx -e bin -e build -e install
   script:
     - if [ "$FC" == "ifort" ]; then source /opt/intel/compilers_and_libraries_2018/linux/bin/compilervars.sh  intel64; fi
-    - if [ "NWCHEM_TARGET" == "LINUX" ]; then export LD_LIBRARY_PATH="/usr/lib/mpich/lib" ; fi
+    - if [ "$NWCHEM_TARGET" == "LINUX" ]; then export LD_LIBRARY_PATH="/usr/lib/mpich/lib" ; fi
     - env|egrep -i mkl || true
     - env|egrep  LD_LIBR || true
     - cd $CI_PROJECT_DIR/QA
@@ -88,6 +95,7 @@ linux64:build_intel:
 
 linux_rhel6:build_gcc:
   stage: build
+  <<: *beforescript_linuxrhel6
   <<: *compile_step
   variables:
     BLAS_SIZE: 4
@@ -149,6 +157,7 @@ linux64:run_intel:
 linux_rhel6:run_gcc:
   stage: test
   needs: ["linux_rhel6:build_gcc"]
+  <<: *beforescript_linuxrhel6
   <<: *test_step
   tags:
     - rhel_6
