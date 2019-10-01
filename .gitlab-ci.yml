@@ -31,6 +31,7 @@ variables:
     - env|egrep SCALAP || true
     - env|egrep -i mkl || true
     - cd $CI_PROJECT_DIR/src
+    - rm -rf tools/ga-* ||true
     - make nwchem_config
     - if [ "$NWCHEM_TARGET" != "LINUX" ]; then make 64_to_32; fi
     - make -j3
