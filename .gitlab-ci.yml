@@ -21,7 +21,7 @@ variables:
 
 .compile_template: &compile_step
   script:
-    - if [ "$(lsb_release -r|cut -c10-11)" == "16" ]; then SCALAPACK_LIB="-lscalapack-openmpi -lblacsCinit-openmpi -lblacs-openmpi  -lopenblas"; fi
+    - if [ "$(lsb_release -i |cut -f 2)" == "Ubuntu" ] && [ "$(lsb_release -r|cut -c10-11)" == "16" ]; then SCALAPACK_LIB="-lscalapack-openmpi -lblacsCinit-openmpi -lblacs-openmpi  -lopenblas"; fi
     - env |grep CI_
     - printenv PATH
     - printenv LD_LIBRARY_PATH || true
@@ -32,7 +32,7 @@ variables:
     - env|egrep -i mkl || true
     - cd $CI_PROJECT_DIR/src
     - make nwchem_config
-    - make 64_to_32
+    - if [ "$NWCHEM_TARGET" != "LINUX" ]; then make 64_to_32; fi
     - make -j3
     - ../contrib/getmem.nwchem 
   except:
@@ -65,7 +65,7 @@ variables:
   before_script:
     - export LD_LIBRARY_PATH=/usr/lib64/mpich/lib
 
-linux64:build_gcc:
+linux64_ubuntu:build_gcc:
   stage: build
   <<: *compile_step
   variables:
@@ -78,7 +78,7 @@ linux64:build_gcc:
   tags:
     - ubuntu_xenial
 
-linux64:build_intel:
+linux64_ubuntu:build_intel:
   stage: build
   <<: *intel_sourcing
   <<: *compile_step
@@ -147,16 +147,16 @@ macos:build_gcc:
   tags:
     - macos_10.13
     
-linux64:run_gcc:
+linux64_ubuntu:run_gcc:
   stage: test
-  needs: ["linux64:build_gcc"]
+  needs: ["linux64_ubuntu:build_gcc"]
   <<: *test_step
   tags:
     - ubuntu_xenial
 
-linux64:run_intel:
+linux64_ubuntu:run_intel:
   stage: test
-  needs: ["linux64:build_intel"]
+  needs: ["linux64_ubuntu:build_intel"]
   <<: *intel_sourcing
   <<: *test_step
   tags:
