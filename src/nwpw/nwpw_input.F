@@ -19,7 +19,7 @@ c
 #include "nwc_const.fh"
 #include "errquit.fh"
 #include "util.fh"
-#include "nwpwxc.fh"
+c#include "nwpwxc.fh"
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
@@ -182,6 +182,12 @@ chvd
       external    c_index_name
       logical  nwpw_parse_boolean
       external nwpw_parse_boolean
+      logical  nwpwxc_input,nwpwxc_rtdb_store,nwpwxc_has_hfx 
+      external nwpwxc_input,nwpwxc_rtdb_store,nwpwxc_has_hfx 
+      logical  nwpwxc_has_cam,nwpwxc_rtdb_delete
+      external nwpwxc_has_cam,nwpwxc_rtdb_delete
+      real*8   nwpwxc_wght_hfx
+      external nwpwxc_wght_hfx
 
 *     ***** initializations ****
       call nwpw_default(rtdb)
