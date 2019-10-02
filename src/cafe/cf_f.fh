@@ -1917,6 +1917,7 @@ c
 c
       real*8 vdw(mat,mat,map,mset),chg(mqt,mqp,mset)
       logical lpbc,lpbcs
+      logical ismfcheck
 c
       real*8 xi(mscr,3),xj(mscr,3),rwx(mscr,3),rwi1(mscr)
       real*8 rwi2(mscr),rwi6(mscr),rwc(mscr,3),rw(mscr)
@@ -2001,8 +2002,11 @@ c
       lssndx(0,ipss)=0
       number=0
       do 12 isa=1,nums
+      ismfcheck=.true.
+      if(isa.gt.1) ismfcheck=
+     + ismf(isfr+isa).ne.ismf(isfr+isa-1)
       if(number+lssin(isa,ipss).gt.mscr.or.
-     + (ismf(isfr+isa).ne.ismf(isfr+isa-1).and.
+     + (ismfcheck.and.
      + number.gt.0)) then
       nsslen(ipss)=nsslen(ipss)+1
       lssndx(nsslen(ipss),ipss)=isa-1
