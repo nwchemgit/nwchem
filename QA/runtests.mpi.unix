@@ -116,6 +116,9 @@ if [ -z "$NWPARSE" ];  then
   fi
 fi
 
+#bash script to round ESP
+ROUND_ESP=${CURDIR}/round_esp.sh
+
 if [ $NPROC -gt 0 ]; then
 # find mpirun  
     if [[ -n $MPIRUN_PATH ]]; then
@@ -316,8 +319,9 @@ do
   cd ${SCRATCHDIR}
 
   [ -f $TESTOUTPUTS/${STUB}.out ] && /bin/rm -f $TESTOUTPUTS/${STUB}.out
-
-  echo "     running nwchem ($NWCHEM)  with "$NPROC" processors "
+  NPROC_out=$NPROC
+  if [ $NPROC_out == 0 ]; then NPROC_out=1; fi
+  echo "     running nwchem ($NWCHEM)  with "$NPROC_out" processors "
 
    x="%Uu %Ss %E %P (%Xt+%Dds+%Kavg+%Mmax)k %Ii+%Oo %Fpf %Wswaps"
    time=(1 "$x")
@@ -443,16 +447,22 @@ sync
 
     cp ${SCRATCHDIR}/$ESPFILE $TESTOUTPUTS/.
 #    echo "doing ls -l " ${STUB}.ok.q ${STUB}.q
-#    echo `ls -l ${STUB}.ok.q ${STUB}.q`
-    diff -w ${STUB}.ok.q ${STUB}.q >& /dev/null
+    #    echo `ls -l ${STUB}.ok.q ${STUB}.q`
+    rm -f esp_temp.ok.q esp_temp.q
+    ${ROUND_ESP} ${STUB}.ok.q > esp_temp.ok.q
+    ${ROUND_ESP} ${STUB}.q > esp_temp.q
+    diff -w esp_temp.ok.q esp_temp.q >& /dev/null
+#    diff -w ${STUB}.ok.q ${STUB}.q >& /dev/null
     espstatus=$?
        if [[ $espstatus -ne 0 ]]; then
          echo "ESP comparison failed"
          overall_status=1
+	 diff -u esp_temp.ok.q esp_temp.q 
          continue 
        else
          echo "ESP charges match"
        fi
+       rm -f esp_temp.ok.q esp_temp.q
        echo
     else
       echo -n "     verifying test ....... "

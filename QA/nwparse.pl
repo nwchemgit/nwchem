@@ -142,13 +142,13 @@ foreach $filename (@FILES_TO_PARSE) {
 		$indx2 = $indx1 + 1;
 		$indx3 = $indx1 + 2;
 		if (! $quiet) {
-		    printf " %10s %10.4f %10.4f %10.4f\n", 
+		    printf " %10s %10.3f %10.3f %10.3f\n", 
 		           $atoms[$iatom], 
                            set_to_digits($coords[$indx1],4), 
                            set_to_digits($coords[$indx2],4), 
 		           set_to_digits($coords[$indx3],4) ;
 		}
-		printf FILE_OUTPUT " %10s %10.4f %10.4f %10.4f\n", 
+		printf FILE_OUTPUT " %10s %10.3f %10.3f %10.3f\n", 
 		       $atoms[$iatom], 
                        set_to_digits($coords[$indx1],4), 
                        set_to_digits($coords[$indx2],4), 
@@ -164,13 +164,13 @@ foreach $filename (@FILES_TO_PARSE) {
 		$indx2 = $indx1 + 1;
 		$indx3 = $indx1 + 2;
 		if (! $quiet) {
-		    printf " %10s %10.4f %10.4f %10.4f\n", 
+		    printf " %10s %10.3f %10.3f %10.3f\n", 
 		         $atoms[$iatom], 
 		         set_to_digits($grads[$indx1],4), 
 		         set_to_digits($grads[$indx2],4),
   		         set_to_digits($grads[$indx3],4);
 		}
-		printf FILE_OUTPUT " %10s %10.4f %10.4f %10.4f\n", 
+		printf FILE_OUTPUT " %10s %10.3f %10.3f %10.3f\n", 
 		         $atoms[$iatom], 
 		         set_to_digits($grads[$indx1],4), 
 		         set_to_digits($grads[$indx2],4),
@@ -287,7 +287,7 @@ foreach $filename (@FILES_TO_PARSE) {
 	    if (! $quiet) {
 		printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	    }
-	    printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+	    printf FILE_OUTPUT "%.2f\n", set_to_digits(@line_tokens[$itok],2);
 	}
         if (! $sgroup) {
 	if (/Total/ && /energy/) {
