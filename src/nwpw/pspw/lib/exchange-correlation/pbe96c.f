@@ -141,7 +141,7 @@ c     **** local variables ****
       fdnx_const = -3.0d0/(8.0d0*pi)
 
       
-!$OMP DO
+ccc!$OMP DO
       nup     = dn1_in+ETA
       agrup   = agr1_in
  
@@ -297,7 +297,7 @@ c     ********************************************
       fdn2 = 0.0d0 
       fdn3 = t_agr*Hpbe_t
 
-!$OMP END DO
+ccc!$OMP END DO
       
       
       
@@ -441,7 +441,7 @@ c     **** local variables ****
       fdnx_const = -3.0d0/(8.0d0*pi)
 
       
-!$OMP DO
+ccc!$OMP DO
       nup     = dn_in+ETA
  
                  
@@ -584,7 +584,7 @@ c     ********************************************
 
       fdn = t_agr*Hpbe_t
 
-!$OMP END DO
+CCC!$OMP END DO
       
       
       
@@ -690,7 +690,7 @@ c     **** local variables ****
       rs_scale   = (0.75d0/pi)**onethird
       fdnx_const = -3.0d0/(8.0d0*pi)
       
-!$OMP DO
+ccc!$OMP DO
       n     = rho_in+ETA
       agr   = agr_in
       
@@ -749,7 +749,7 @@ c     **** PBE96 correlation fdn and fdnc derivatives ****
 c       write(*,*) "pbe96:",i,ec,fnc,fdnc
 
 
-!$OMP END DO
+ccc!$OMP END DO
 
       return
       end
