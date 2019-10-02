@@ -144,8 +144,8 @@ c
                         iang = 2
                      elseif (r.ge.r1.and.r.lt.r2) then
                         iang = 4
-c                        if(isecp) iang=iang_mx
-                       if(isecp) iang=max(14,iang_mx-3)
+                        if(isecp) iang=iang_mx
+c                       if(isecp) iang=max(14,iang_mx-3)
                      elseif (r.ge.r2.and.r.lt.r3) then
                         iang = max(iang_mx-1,4)
                      elseif (r.ge.r3.and.r.lt.r4) then
