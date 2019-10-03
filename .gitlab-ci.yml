@@ -75,7 +75,8 @@ linux64_ubuntu:build_gcc:
     BLAS_SIZE: 4
     SCALAPACK_LIB: "-lscalapack-openmpi  -lopenblas"
     SCALAPACK_SIZE: 4
-    ARMCI_NETWORK: "SOCKETS"
+    USE_OPENMP: 1
+    ARMCI_NETWORK: "MPI-PR"
   tags:
     - ubuntu_xenial
 
