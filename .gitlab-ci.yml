@@ -67,6 +67,8 @@ variables:
     - export LD_LIBRARY_PATH=/usr/lib64/mpich/lib
 
 linux64_ubuntu:build_gcc:
+  only:
+    release-7-0-0
   stage: build
   <<: *compile_step
   variables:
@@ -150,6 +152,8 @@ macos:build_gcc:
     - macos_10.13
     
 linux64_ubuntu:run_gcc:
+  only:
+    release-7-0-0
   stage: test
   needs: ["linux64_ubuntu:build_gcc"]
   <<: *test_step
