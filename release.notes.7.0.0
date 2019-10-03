@@ -12,7 +12,19 @@ NWChem 7.0.0 will be released with the latest Global Arrays Toolkit (v5.7).
 
 NEW FUNCTIONALITY 
 
-   
+- Improved and automated Simint Interface
+- DUCC
+- MetaGGA XC functionals for PSPW
+- SCAN/SCANR ... XC functionals for LCAO DFT
+- Python 3
+- OpenMP GPU offload (work in progress)
 
 BUG FIXES/ENHANCEMENTS
+- Improved Python installation options. No env. variables need.
+  Only PYTHONVERSION might be supplied.
+  Requirement: python and python-config (or v3 variants) in PATH
+
+- improved QA suite
+
+- port to latest GNU compilers (9 and 10)
 
