@@ -17,9 +17,9 @@
 # a hyphen to NWCHEM_TOP in order to derive the directory path TOPDIR.
 
 # For development tree 
-RELEASE := 
+#RELEASE := 
 # For current release tree
-#RELEASE := 6.8
+RELEASE := 7.0.0
 
 #
 ifndef NWCHEM_TOP
