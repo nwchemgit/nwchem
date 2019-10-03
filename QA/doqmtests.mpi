@@ -57,12 +57,6 @@ echo 'The oh2 test is testing the perl parsing script and SHOULD fail'
 #./runtests.mpi.unix procs $np dft_mo3co
 ./runtests.mpi.unix procs $np dft_x
 ./runtests.mpi.unix procs $np dft_mpw1k dft_li2freq
-echo 'The intermediate values for this test may cause some differences.'
-echo 'Please check the final values for the last optimized structure.'
-./runtests.mpi.unix procs $np dielsalder
-echo 'The intermediate energy values for the numerical gradient '
-echo 'test may cause some differences.'
-echo 'Please check the final gradient values for correctness.'
 ./runtests.mpi.unix procs $np grad_ozone
 ./runtests.mpi.unix procs $np dft_ozone 
 ./runtests.mpi.unix procs $np hess_c6h6
@@ -272,7 +266,6 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np carbon_fon
 ./runtests.mpi.unix procs $np ch5n_nbo
 ./runtests.mpi.unix procs $np tpss tpssh
-./runtests.mpi.unix procs $np neb-fch3cl neb-isobutene
 #
 ##--- spin-polarised ECPs test
 ./runtests.mpi.unix procs $np spin_ecps_heh_grad spin_ecps_o_hess
@@ -307,3 +300,10 @@ echo 'This test requires >100 processors to run quickly'
 echo 'The following 2 tests require few processors but a lot of time'
 ./runtests.mpi.unix procs $np ch4_zts
 ./runtests.mpi.unix procs $np ch4cl_zts
+echo 'The intermediate values for this test may cause some differences.'
+echo 'Please check the final values for the last optimized structure.'
+./runtests.mpi.unix procs $np dielsalder
+echo 'The intermediate energy values for the numerical gradient '
+echo 'test may cause some differences.'
+echo 'Please check the final gradient values for correctness.'
+./runtests.mpi.unix procs $np neb-fch3cl neb-isobutene
