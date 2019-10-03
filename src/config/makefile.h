@@ -2534,7 +2534,18 @@ endif
 #  some of the definitions below will be 'lost'                   #
 ###################################################################
 ifeq ($(BUILDING_PYTHON),python)
-ifndef PYTHONVERSION
+ifdef PYTHONVERSION
+  GOTPYTHON := $(shell command -v python$(PYTHONVERSION) 2> /dev/null)
+ifndef GOTPYTHON	      
+errorpythonXY:
+$(info )
+$(info python$(PYTHONVERSION) not  found in your PATH)
+$(info )
+$(error )
+  endif
+# check presence of python?-config  
+  GOT_PYTHONCONFIG := $(shell command -v python$(PYTHONVERSION)-config 2> /dev/null)
+else	      
 #try python3 first, then python
   GOTPYTHON3 := $(shell command -v python3 2> /dev/null)
   GOTPYTHON2 := $(shell command -v python2 2> /dev/null)
@@ -2549,11 +2560,29 @@ ifndef PYTHONVERSION
   else
 errorpython3:
 $(info )
-$(info Neither python2 nor python3 found in your PATH
+$(info Neither python2 nor python3 found in your PATH)$
+$(info )
 $(error )
   endif
+# check presence of python?-config  
+ifdef GOTPYTHON3
+  GOT_PYTHONCONFIG := $(shell command -v python3-config 2> /dev/null)
+else ifdef GOTPYTHON2
+  GOT_PYTHONCONFIG := $(shell command -v python2-config 2> /dev/null)
+else ifdef GOTPYTHON
+  GOT_PYTHONCONFIG := $(shell command -v python-config 2> /dev/null)
 endif
-#
+endif
+ifndef GOT_PYTHONCONFIG	  
+errorpythonconfig:
+$(info )
+$(info python-config not found in your PATH)
+$(info Please install the packages)
+$(info python-dev (Ubuntu/Debian) or)
+$(info python-devel (Redhat/Fedora/Centos))
+$(info )
+$(error )
+endif
 #ifdef USE_PYTHONCONFIG
 PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
    PYMINOR:=$(word 2, $(subst ., ,$(PYTHONVERSION)))
