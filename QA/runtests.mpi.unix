@@ -435,6 +435,8 @@ sync
 
   if [ $diff1status -ne 0 ]; then
     echo "failed"
+    echo "     Comparison of Output Files"  
+    diff -U2 ${STUB}.ok.out.nwparse ${STUB}.out.nwparse | sed 1,2d
     overall_status=1
     continue 
   else
