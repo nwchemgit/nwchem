@@ -73,7 +73,7 @@ LIB_INCLUDES = -I../include
 
 include ../../config/makefile.h
 include ../../config/makelib.h
-HAVE_SET_GA_PROPERTY = $(shell cat ${NWCHEM_TOP}/src/tools/build/global/src/ga-wapi.h | awk ' /wnga_set_property/ {print "Y"}')
+#HAVE_SET_GA_PROPERTY = $(shell cat ${NWCHEM_TOP}/src/tools/build/global/src/ga-wapi.h | awk ' /wnga_set_property/ {print "Y"}')
 ifeq ($(HAVE_SET_GA_PROPERTY),Y)
       LIB_DEFINES += -DHAVE_SET_GA_PROPERTY
 endif
