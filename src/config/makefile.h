@@ -73,15 +73,10 @@ $(error )
 endif
 
      TARGET := $(NWCHEM_TARGET)
-ifeq (,$(RELEASE))
      TOPDIR := $(NWCHEM_TOP)
+ifeq (,$(RELEASE))
      CODE_BRANCH := Development
 else
-     ifeq (,$(findstring $(RELEASE),$(NWCHEM_TOP)))
-          TOPDIR := $(NWCHEM_TOP)-$(RELEASE)
-     else
-          TOPDIR := $(NWCHEM_TOP)
-     endif
      CODE_BRANCH := $(RELEASE)
 endif
 
