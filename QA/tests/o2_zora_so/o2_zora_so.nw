@@ -17,11 +17,13 @@ dft
  XC b3lyp
  odft
  mult 3
+ convergence energy 1d-8
 end
 
 driver
  clear
  maxiter 100
+  tight
 end
 
 relativistic
