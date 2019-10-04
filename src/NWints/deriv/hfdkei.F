@@ -1,4 +1,4 @@
-#ifdef XLF14
+#if defined(XLF14) || defined(XLFLINUX)
 @PROCESS NOOPTimize
 #endif
       Subroutine hfdkei(alpha,E,Tab,Ti,NPP,Nint,La,Lb,Li,
