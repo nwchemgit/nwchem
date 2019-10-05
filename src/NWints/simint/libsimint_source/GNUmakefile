@@ -8,8 +8,7 @@ simint_install:
 LIB_TARGETS += simint_install simint-chem-simint-generator.tar.gz simint.l* *-simint-generator-???????
   MAKEFLAGS = -j 2 --no-print-directory
 
-
 include ../../../config/makelib.h
 
-
-
+clean:
+	@rm -rf simint_install simint-chem-simint-generator.tar.gz simint.l* *-simint-generator-??????? dependencies
