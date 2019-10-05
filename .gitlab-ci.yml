@@ -120,7 +120,7 @@ linux_ubuntu:build_gcc:
     BLAS_LIB: "-L/home/edo/apps/OpenBLAS.i386/lib -lopenblas"
     LAPACK_LIB: "-L/home/edo/apps/OpenBLAS.i386/lib -lopenblas"
     SCALAPACK: " "
-    ARMCI_NETWORK: "MPI-MT"
+    ARMCI_NETWORK: "MPI-PR"
   tags:
     - ubuntu_xenial
 
