@@ -155,15 +155,18 @@ if [[ -z "${FC}" ]]; then
 fi    
 if [ ${FC} == gfortran ] || [ ${FC} == flang ] ; then
     Fortran_FLAGS="-fdefault-integer-8 -cpp"
+elif  [ ${FC} == xlf ] || [ ${FC} == xlf_r ] || [ ${FC} == xlf90 ]|| [ ${FC} == xlf90_r ]; then
+    Fortran_FLAGS=" -qintsize=8 -qextname -qpreprocess"
 elif  [ ${FC} == ifort ]; then
     Fortran_FLAGS="-i8 -fpp"
 fi
 FC="${FC}" CXX="${CXX}" $CMAKE \
  -DCMAKE_BUILD_TYPE=Release -DSIMINT_VECTOR=${VEC}  \
  -DCMAKE_INSTALL_LIBDIR=lib -DENABLE_FORTRAN=ON -DSIMINT_MAXAM=${SIMINT_MAXAM} SIMINT_MAXDER=${DERIV} \
+ -DENABLE_TESTS=OFF     -DSIMINT_STANDALONE=OFF   \
  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DCMAKE_INSTALL_PREFIX=${SRC_HOME}/simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install ../
 time -p make  -j2
-make install
+make simint install/fast
 cd ../..
 echo ln -sf  simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install simint_install
 ln -sf  simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install simint_install
