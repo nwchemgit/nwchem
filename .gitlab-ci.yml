@@ -19,6 +19,12 @@ variables:
     - export PATH=/usr/lib/mpich/bin:/bin:/usr/bin:.
     - export NWCHEM_TARGET=LINUX
 
+.linuxubuntu_template: &beforescript_linuxubuntu
+  before_script:
+    - export NWCHEM_TARGET=LINUX
+    - export PATH=/home/edo/apps/mpich314_i686/bin:/usr/bin:/bin:.
+    - export LD_LIBRARY_PATH=/home/edo/apps/mpich314_i686/lib
+
 .compile_template: &compile_step
   script:
     - if [ "$(lsb_release -i |cut -f 2)" == "Ubuntu" ] && [ "$(lsb_release -r|cut -c10-11)" == "16" ]; then SCALAPACK_LIB="-lscalapack-openmpi -lblacsCinit-openmpi -lblacs-openmpi  -lopenblas"; fi
@@ -96,30 +102,33 @@ linux64_ubuntu:build_intel:
   tags:
     - ubuntu_bionic
 
-linux_rhel6:build_gcc:
+linux_ubuntu:build_gcc:
   stage: build
-  <<: *beforescript_linuxrhel6
+  <<: *beforescript_linuxubuntu
   <<: *compile_step
   variables:
     BLAS_SIZE: 4
     SCALAPACK_SIZE: 4
-    BLAS_LIB: "-L/usr/lib  -lopenblas"
-    LAPACK_LIB: "-L/usr/lib -lopenblas"
-    SCALAPACK_LIB: "-L/usr/lib/mpich/lib -lscalapack"
-    PATH: "/usr/lib/mpich/bin/:/usr/bin:/bin:."
-    LD_LIBRARY_PATH: "/usr/lib/mpich/lib"
-    NWCHEM_TARGET: "LINUX"
+#    BLAS_LIB: "-L/usr/lib  -lopenblas"
+#    LAPACK_LIB: "-L/usr/lib -lopenblas"
+#    SCALAPACK_LIB: "-L/usr/lib/mpich/lib -lscalapack"
+#    PATH: "/usr/lib/mpich/bin/:/usr/bin:/bin:."
+#    LD_LIBRARY_PATH: "/usr/lib/mpich/lib"
+    PATH: "/home/edo/apps/mpich314_i686/bin:/usr/bin:/bin:."
+    LD_LIBRARY_PATH: "/home/edo/apps/mpich314_i686/lib"
+    USE_INTERNALBLAS: "y"
+    SCALAPACK: " "
     ARMCI_NETWORK: "MPI-MT"
   tags:
-    - rhel_6
+    - ubuntu_xenial
 
-linux_rhel6:run_gcc:
+linux_ubuntu:run_gcc:
   stage: test
-  needs: ["linux_rhel6:build_gcc"]
-  <<: *beforescript_linuxrhel6
+  needs: ["linux_ubuntu:build_gcc"]
+  <<: *beforescript_linuxubuntu
   <<: *test_step
   tags:
-    - rhel_6
+    - ubuntu_xenial
 
 linux64_rhel6:build_gcc:
   stage: build
