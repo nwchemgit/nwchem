@@ -194,9 +194,17 @@ endif
 #JN: under the new structure, tools should be listed first as
 # their header files are needed for dependency analysis of
 # other NWChem modules
-
+ifdef BUILD_OPENBLAS
+NW_CORE_SUBDIRS += libext
+      BLASOPT=-L$(NWCHEM_TOP)/src/libext/lib -lopenblas
+      LAPACK_LIB=$(BLASOPT)      
+endif      
+ifdef BUILD_SCALAPACK
+NW_CORE_SUBDIRS += libext
+      SCALAPACK=-L$(NWCHEM_TOP)/src/libext/lib -lscalapack
+endif      
 ifndef EXTERNAL_GA_PATH
-NW_CORE_SUBDIRS = tools
+NW_CORE_SUBDIRS += tools
 endif
 NW_CORE_SUBDIRS += include basis geom inp input  \
                   pstat rtdb task symmetry util peigs perfm bq cons $(CORE_SUBDIRS_EXTRA)
