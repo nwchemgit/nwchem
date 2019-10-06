@@ -1,5 +1,12 @@
 #!/bin/bash 
-if [ -z "$USE_64TO32"  ] ; then exit 0; fi
+if [[ "$SCALAPACK_SIZE" != "4"  ]] ; then
+    echo SCALAPACK_SIZE must be equal to 4
+    exit 1
+fi
+if [[ -z "$USE_64TO32"   ]] ; then
+    echo USE_64TO32 must be set
+    exit 1
+fi
 os=`uname`
 #git clone https://github.com/scibuilder/scalapack.git
 #svn co --non-interactive --trust-server-cert https://icl.utk.edu/svn/scalapack-dev/scalapack/trunk/ scalapack
