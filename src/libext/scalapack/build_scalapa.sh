@@ -18,6 +18,6 @@ ln -sf scalapack-${VERSION} scalapack
 mkdir -p scalapack/build
 cd scalapack/build
 cmake -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY=$BLASOPT
-make V=0 -j3
+make V=0 -j3 scalapack/fast
 mkdir -p ../../../lib
 cp lib/libscalapack.a ../../../lib
