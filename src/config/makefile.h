@@ -2578,21 +2578,25 @@ $(info )
 $(error )
   endif
 # check presence of python?-config  
-ifdef GOTPYTHON3
-  GOT_PYTHONCONFIG := $(shell command -v python3-config 2> /dev/null)
-else ifdef GOTPYTHON2
-  GOT_PYTHONCONFIG := $(shell command -v python2-config 2> /dev/null)
-else ifdef GOTPYTHON
-  GOT_PYTHONCONFIG := $(shell command -v python-config 2> /dev/null)
-endif
-endif
+  GOT_PYTHONCONFIG := $(shell command -v python$(PYTHONVERSION)-config 2> /dev/null)
+    ifndef GOT_PYTHONCONFIG	  
+      ifdef GOTPYTHON3
+        GOT_PYTHONCONFIG := $(shell command -v python3-config 2> /dev/null)
+      else ifdef GOTPYTHON2
+        GOT_PYTHONCONFIG := $(shell command -v python2-config 2> /dev/null)
+      else ifdef GOTPYTHON
+       GOT_PYTHONCONFIG := $(shell command -v python-config 2> /dev/null)
+      endif
+    endif
+  endif
 ifndef GOT_PYTHONCONFIG	  
-errorpythonconfig:
+errorpythonconfig:$
 $(info )
 $(info python-config not found in your PATH)
 $(info Please install the packages)
-$(info python-dev (Ubuntu/Debian) or)
-$(info python-devel (Redhat/Fedora/Centos))
+PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
+$(info python$(PYMAJOR)-dev  (Ubuntu/Debian) or)
+$(info python$(PYMAJOR)-devel (Redhat/Fedora/Centos))
 $(info )
 $(error )
 endif
