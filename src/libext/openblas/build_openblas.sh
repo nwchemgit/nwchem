@@ -10,7 +10,13 @@ if [[ ! -z "${USE_64TO32}" ]]; then
 else
   sixty4_int=1
 fi
-make  INTERFACE64="$sixty4_int" USE_THREAD=0 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 NUM_THREADS=1 libs netlib
+if [[ "${NWCHEM_TARGET}" == "LINUX" ]]; then
+  binary=32
+  sixty4_int=0
+else
+  binary=64
+fi
+make  INTERFACE64="$sixty4_int" BINARY="$binary" USE_THREAD=0 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 NUM_THREADS=1 libs netlib
 mkdir -p ../../lib
 cp libopenbla*.* ../../lib
 #make PREFIX=. install
