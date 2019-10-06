@@ -23,15 +23,17 @@ if [[ "$os" == "Darwin" ]]; then
   fi
 fi
 if [[ "$os" == "Linux" ]]; then 
-   export BLASOPT="-lopenblas"
-   export LAPACK_LIB="-lopenblas"
+#   export BLASOPT="-lopenblas"
+#   export LAPACK_LIB="-lopenblas"
+   export BUILD_OPENBLAS="y"
    export NWCHEM_TARGET=LINUX64 
 #   if [[ "$NWCHEM_MODULES" != "tce" ]]; then
-     if [[ "$MPI_IMPL" == "mpich" ]]; then 
-     export SCALAPACK="-lscalapack-mpich -lopenblas"
-     elif [[ "$MPI_IMPL" == "openmpi" ]]; then
-     export SCALAPACK="-lscalapack-openmpi -lopenblas"
-     fi
+#     if [[ "$MPI_IMPL" == "mpich" ]]; then 
+#     export SCALAPACK="-lscalapack-mpich -lopenblas"
+#     elif [[ "$MPI_IMPL" == "openmpi" ]]; then
+#     export SCALAPACK="-lscalapack-openmpi -lopenblas"
+#     fi
+     export BUILD_SCALAPACK="y"
      export USE_64TO32="y"
 #   fi
 fi
