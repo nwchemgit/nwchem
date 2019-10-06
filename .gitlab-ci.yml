@@ -76,10 +76,12 @@ linux64_ubuntu:build_gcc:
   stage: build
   <<: *compile_step
   variables:
-    BLAS_LIB: "-lopenblas"
-    LAPACK_LIB: "-lopenblas"
+#    BLAS_LIB: "-lopenblas"
+#    LAPACK_LIB: "-lopenblas"
+#    SCALAPACK_LIB: "-lscalapack-openmpi  -lopenblas"
+    BUILD_SCALAPACK: 1
+    BUILD_OPENBLAS: 1
     BLAS_SIZE: 4
-    SCALAPACK_LIB: "-lscalapack-openmpi  -lopenblas"
     SCALAPACK_SIZE: 4
     USE_OPENMP: 1
     ARMCI_NETWORK: "MPI-PR"
@@ -109,17 +111,17 @@ linux_ubuntu:build_gcc:
   variables:
     BLAS_SIZE: 4
     SCALAPACK_SIZE: 4
-#    BLAS_LIB: "-L/usr/lib  -lopenblas"
-#    LAPACK_LIB: "-L/usr/lib -lopenblas"
-#    SCALAPACK_LIB: "-L/usr/lib/mpich/lib -lscalapack"
-#    PATH: "/usr/lib/mpich/bin/:/usr/bin:/bin:."
-#    LD_LIBRARY_PATH: "/usr/lib/mpich/lib"
     PATH: "/home/edo/apps/mpich314_i686/bin:/usr/bin:/bin:."
 #    USE_INTERNALBLAS: "y"
-    LD_LIBRARY_PATH: "/home/edo/apps/mpich314_i686/lib:/home/edo/apps/OpenBLAS.i386/lib"
-    BLAS_LIB: "-L/home/edo/apps/OpenBLAS.i386/lib -lopenblas"
-    LAPACK_LIB: "-L/home/edo/apps/OpenBLAS.i386/lib -lopenblas"
-    SCALAPACK: " "
+#    LD_LIBRARY_PATH: "/home/edo/apps/mpich314_i686/lib:/home/edo/apps/OpenBLAS.i386/lib"
+#    BLAS_LIB: "-L/home/edo/apps/OpenBLAS.i386/lib -lopenblas"
+#    LAPACK_LIB: "-L/home/edo/apps/OpenBLAS.i386/lib -lopenblas"
+#    SCALAPACK: " "
+    LD_LIBRARY_PATH: "/home/edo/apps/mpich314_i686/lib"
+    BUILD_SCALAPACK: 1
+    BUILD_OPENBLAS: 1
+    BLAS_SIZE: 4
+    SCALAPACK_SIZE: 4
     ARMCI_NETWORK: "MPI-PR"
   tags:
     - ubuntu_xenial
@@ -151,10 +153,12 @@ macos:build_gcc:
   stage: build
   <<: *compile_step
   variables:
-    BLASOPT: "-L/usr/local/opt/openblas/lib -lopenblas"
-    LAPACK_LIB: "-L/usr/local/opt/openblas/lib -lopenblas"
+#    BLASOPT: "-L/usr/local/opt/openblas/lib -lopenblas"
+#    LAPACK_LIB: "-L/usr/local/opt/openblas/lib -lopenblas"
+#    SCALAPACK_LIB: "-L/usr/local/opt/scalapack/lib/ -lscalapack -L/usr/local/opt/openblas/lib  -lopenblas"
+    BUILD_SCALAPACK: 1
+    BUILD_OPENBLAS: 1
     BLAS_SIZE: 4
-    SCALAPACK_LIB: "-L/usr/local/opt/scalapack/lib/ -lscalapack -L/usr/local/opt/openblas/lib  -lopenblas"
     SCALAPACK_SIZE: 4
     ARMCI_NETWORK: "SOCKETS"
   tags:
