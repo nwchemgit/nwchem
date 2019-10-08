@@ -117,7 +117,7 @@
 
             if (taskid.eq.MASTER) then
                it = it + 1
-               write(*,*) "== ASE TCP Socket Client Computation =="
+               write(*,*) "== i-PI TCP Socket Client Computation =="
                write(*,'(" Connected to   = ",A)') ipport
                write(*,'(" Iteration      =",I8)') it
                write(*,'(" Iteration Time =",F8.3," seconds")')cpu2-cpu1
