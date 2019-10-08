@@ -3,7 +3,7 @@
          !call nwpw_talker_write(np_i,"hello world again ericdone",26)
          !call nwpw_talker_close(np_i)
 
-      subroutine runsocket_ase(nion,energy,rion,fion)
+      subroutine runsocket_ipi(nion,energy,rion,fion)
       implicit none
       integer nion
       real*8 energy
@@ -18,12 +18,12 @@
       parameter (MASTER=0)
 
       logical done
-      integer sock,nbytes,nion0,option,ii,it,port
+      integer sock,nbytes,nion0,option,ii,it,port,inet
       integer*4 tmpint
       real*8 cpu1,cpu2
 
       character*80 statebuffer
-      character*80 buffer,ipport
+      character*80 buffer,ipport,stype
       character*20 msg,ip,pp
 
 *     **** external functions ****
@@ -33,24 +33,32 @@
       real*8 unita(3,3),iunita(3,3),stress(3,3)
       real*8 rion0(3,20)
 
+      call control_socket_type(stype)
       call control_socket_ip(ipport)
-      ii = index(ipport,':')
-      it = index(ipport,' ') - 1
-      pp(1:it-ii) = ipport(ii+1:it)
-      pp(it-ii+1:it-ii+5) = '    '
-      read(pp,*,err=300) port
-      go to 301
- 300  port = 31415
- 301  continue
-      ip(1:ii-1) = ipport(1:ii-1)
-      ip(ii:ii+4) = "    "
+      if (inp_compare(.false.,stype,'unix')) then
+         ip = ipport
+         inet = 0
+         ii = index(ipport,' ')
+         port = 0
+      else
+         ii = index(ipport,':')
+         it = index(ipport,' ') - 1
+         pp(1:it-ii) = ipport(ii+1:it)
+         pp(it-ii+1:it-ii+5) = '    '
+         read(pp,*,err=300) port
+         go to 301
+ 300     port = 31415
+ 301     continue
+         ip(1:ii-1) = ipport(1:ii-1)
+         ip(ii:ii+4) = "    "
+      end if
 
       call Parallel_taskid(taskid)
 
       statebuffer(1:13) = "READY        "
 
       if (taskid.eq.MASTER) then
-         call nwpw_talker(ip,ii-1,port,sock)
+         call nwpw_talker(ip,inet,ii-1,port,sock)
          !call nwpw_talker("127.0.0.1",9,port,sock)
       end if
       done = .false.
@@ -117,7 +125,7 @@
 
             if (taskid.eq.MASTER) then
                it = it + 1
-               write(*,*) "== i-PI TCP Socket Client Computation =="
+               write(*,*) "== i-PI Socket Client Computation =="
                write(*,'(" Connected to   = ",A)') ipport
                write(*,'(" Iteration      =",I8)') it
                write(*,'(" Iteration Time =",F8.3," seconds")')cpu2-cpu1
