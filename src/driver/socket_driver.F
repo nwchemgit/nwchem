@@ -102,7 +102,7 @@
 
       if (taskid.eq.MASTER) then
          write(luout,*)
-         write(luout,*) "== i-PI TCP Socket Client Driver =="
+         write(luout,*) "== i-PI Socket Client Driver =="
          write(luout,'(" Connected to    = ",A)') socket_ip
          write(luout,'(" Number of atoms =",I8)') nion
          write(luout,*)
@@ -169,7 +169,7 @@
             iter = iter + 1
             if (taskid.eq.MASTER) then
                write(luout,*)
-               write(luout,*) "== i-PI TCP Socket Client Computation =="
+               write(luout,*) "== i-PI Socket Client Computation =="
                write(luout,'(" Connected to    = ",A)') socket_ip
                write(luout,'(" Number of atoms =",I8, 
      >                       " (natoms last read =",I8,")")') nion,nion0
