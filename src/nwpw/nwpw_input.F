@@ -2075,7 +2075,7 @@ c
       goto 10
 
 c
-c socket ase_client ip:port
+c socket ipi_client ip:port
 c
  8900 if (inp_a(zone_name)) then
          move = nwpw_parse_boolean(zone_name,.true.)
