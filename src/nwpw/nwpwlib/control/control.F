@@ -6685,7 +6685,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       value = .false.
       call control_socket_type(stype)
-      if (inp_compare(.false.,'ase_client',stype)) value = .true.
+      if (inp_compare(.false.,'ipi_client',stype)) value = .true.
 
       control_runsocket = value
       return

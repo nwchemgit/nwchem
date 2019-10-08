@@ -98,7 +98,7 @@ c
      $                      mt_log,1,diagh))
      $        call errquit('driver_input: rtdb put failed',0, RTDB_ERR)
 c
-c socket ase_client ip:port
+c socket ipi_client ip:port
 c
       else if (inp_compare(.false.,'socket', field)) then
          if (inp_a(f2)) then
