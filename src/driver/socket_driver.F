@@ -20,7 +20,7 @@
       character*80 statebuffer
       character*80 buffer
       character*20 msg,ip,pp,bead_list,geom_name
-      integer ii,it,port,iter,n1,n2
+      integer ii,it,port,iter,n1,n2,inet
       integer option,tmpint,nbytes,sock
       integer rion(2),fion(2),nion,nion0
       real*8 unita(3,3),invunita(3,3),stress(3,3),energy
@@ -70,19 +70,31 @@
      >  call errquit('driver_input: rtdb get failed',7,RTDB_ERR)
 
       if (.not.rtdb_cget(rtdb,'driver:socket_ip',1,socket_ip)) then
-         socket_ip = "127.0.0.1:31415"
+          if (inp_compare(.false.,stype,'unix')) then
+             socket_ip = "nwchem"
+         else
+             socket_ip = "127.0.0.1:31415"
+         end if
       end if
       
-      ii = index(socket_ip,':')
-      it = index(socket_ip,' ') - 1
-      pp(1:it-ii) = socket_ip(ii+1:it)
-      pp(it-ii+1:it-ii+5) = '    '
-      read(pp,*,err=300) port
-      go to 301
- 300  port = 31415
- 301  continue
-      ip(1:ii-1) = socket_ip(1:ii-1)
-      ip(ii:ii+4) = "    "
+      if (inp_compare(.false.,stype,'unix')) then
+          ip = socket_ip
+          inet = 0
+          ii = index(socket_ip,' ')
+          port = 0
+      else
+          inet = 1
+          ii = index(socket_ip,':')
+          it = index(socket_ip,' ') - 1
+          pp(1:it-ii) = socket_ip(ii+1:it)
+          pp(it-ii+1:it-ii+5) = '    '
+          read(pp,*,err=300) port
+          go to 301
+ 300      port = 31415
+ 301      continue
+          ip(1:ii-1) = socket_ip(1:ii-1)
+          ip(ii:ii+4) = "    "
+      end if
 
       taskid = ga_nodeid()
 
@@ -94,7 +106,7 @@
          write(luout,'(" Connected to    = ",A)') socket_ip
          write(luout,'(" Number of atoms =",I8)') nion
          write(luout,*)
-         call util_talker(ip,ii-1,port,sock)
+         call util_talker(ip,inet,ii-1,port,sock)
          write(luout,*)
          !call nwpw_talker("127.0.0.1",9,port,sock)
       end if
