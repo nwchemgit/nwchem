@@ -13,7 +13,7 @@ fi
 #git clone https://github.com/scibuilder/scalapack.git
 #svn co --non-interactive --trust-server-cert https://icl.utk.edu/svn/scalapack-dev/scalapack/trunk/ scalapack
 rm -rf scalapack*
-curl -LJO http://www.netlib.org/scalapack/scalapack.tgz
+curl -L http://www.netlib.org/scalapack/scalapack.tgz -o scalapack.tgz
 VERSION=2.0.2
 tar xzf scalapack.tgz
 ln -sf scalapack-${VERSION} scalapack

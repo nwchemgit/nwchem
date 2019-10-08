@@ -1,7 +1,7 @@
 #!/bin/bash 
 VERSION=0.3.7
 rm -rf OpenBLAS*
-curl -LJO https://github.com/xianyi/OpenBLAS/archive/v${VERSION}.tar.gz
+curl -L https://github.com/xianyi/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz
 tar xzf OpenBLAS-${VERSION}.tar.gz
 ln -sf OpenBLAS-${VERSION} OpenBLAS
 cd OpenBLAS-${VERSION}
