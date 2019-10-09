@@ -26,6 +26,9 @@ C GNU General Public License for more details.
 C For the GNU General Public License, see <http://www.gnu.org/licenses/>
 
       subroutine  nwpwxc_vdw3_dftd3(options,n,iz,xyz,lat,eout,g,g_lat)
+#if defined(__FLANG)
+      use ieee_arithmetic
+#endif
       implicit none
       character*(*) options
 c number of atoms
@@ -818,7 +821,12 @@ c     .           numgrad,version,echo,g,gdsp,x,rthr2,fix)
 c check if nwpwxc_gdisp yields same energy as nwpwxc_edisp
       dum=abs((disp-gdsp)/disp)
 !if this check gives compiler errors, replace is with a different NaN check
-      if (ISNAN(dum)) call nwpwxc_stoprun('internal NaN-error') 
+#if defined(__FLANG)
+      if (ieee_support_nan(dum)) call
+     c     nwpwxc_stoprun('internal NaN-error')
+#else
+      if (ISNAN(dum)) call nwpwxc_stoprun('internal NaN-error')
+#endif      
 !      if (dum/=dum) call nwpwxc_stoprun('internal NaN-error') 
       if(dum.gt.1.d-8) then
          write(*,*) disp,gdsp
