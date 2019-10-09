@@ -1762,6 +1762,7 @@ endif
         ifeq ($(USE_FLANG),1)
         GNU_GE_4_6=true
          FOPTIONS+=-mcmodel=medium
+         FOPTIONS+=-mcmodel=medium -fno-backslash
 	  COPTIONS+=-mcmodel=medium
          CFLAGS_FORGA = -mcmodel=medium
          FFLAGS_FORGA = -mcmodel=medium
