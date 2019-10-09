@@ -43,15 +43,15 @@
       tmp2 = (1.0d0+chi*K)
       dchi = -frthrd*chi/nf
       dF1 = -frthrd*chi2*F2/nf
-      dF2 = ((-tmp1+K+tmp1*(chi/chiSQ)**2)/tmp2
+      dF2 = ((-tmp1/(1.0d0+chi2)+K)/tmp2
      >      -2.0d0*F2*(tmp1+K))*dchi/tmp2
-      dfdnxdagr = (fdagrx+(beta*chi*F2-nf*beta*(chi*dF2+F2*dchi)))/nf
+      dfdnxdagr = -beta*(chi*dF2+F2*dchi)
       ddf0 = (thrd/nf)*fdnx
-     >    -frthrd/two_thrd*beta*nf_thrd
+     >    -frthrd*beta*nf_thrd
      >     *(dF1-2.0d0*chi*F2*dchi-chi2*dF2)
 
       dxdn = 0.85d0*ddf0/nf_thrd - frthrd*x/nf
-      dxdagr = 0.85d0*(dfdnxdagr/nf_thrd) - 0.85d0*fdagrx/(nf*nf_thrd)
+      dxdagr = 0.85d0*(dfdnxdagr - fdagrx/nf)/nf_thrd
 
       dsdn   = dsdx * dxdn
       dsdagr = dsdx*dxdagr
