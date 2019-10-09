@@ -68,6 +68,13 @@ variables:
   before_script:
     - source /opt/intel/compilers_and_libraries_2018/linux/bin/compilervars.sh  intel64
 
+.flang_template: &flang_sourcing
+  before_script:
+    - source /home/edo/apps/setenv_AOCC.sh
+    - export LD_LIBRARY_PATH=/home/edo/apps/aocc200/aocc-compiler-2.0.0/lib:$LD_LIBRARY_PATH
+    - export LD_LIBRARY_PATH=~/apps/ompi402.flang/lib:$LD_LIBRARY_PATH
+    - export PATH=~/apps/ompi402.flang/bin:$PATH
+
 .rhel6_template: &rhel6_sourcing
   before_script:
     - export LD_LIBRARY_PATH=/usr/lib64/mpich/lib
@@ -87,6 +94,21 @@ linux64_ubuntu:build_gcc:
     ARMCI_NETWORK: "MPI-PR"
   tags:
     - ubuntu_xenial
+
+linux64_ubuntu:build_flang:
+  stage: build
+  <<: *flang_sourcing
+  <<: *compile_step
+  variables:
+    FC: flang
+    BUILD_SCALAPACK: 1
+    BUILD_OPENBLAS: 1
+    BLAS_SIZE: 4
+    SCALAPACK_SIZE: 4
+#    USE_OPENMP: 1
+    ARMCI_NETWORK: "MPI-PR"
+  tags:
+    - ubuntu_bionic
 
 linux64_ubuntu:build_intel:
   stage: build
@@ -112,11 +134,6 @@ linux_ubuntu:build_gcc:
     BLAS_SIZE: 4
     SCALAPACK_SIZE: 4
     PATH: "/home/edo/apps/mpich314_i686/bin:/usr/bin:/bin:."
-#    USE_INTERNALBLAS: "y"
-#    LD_LIBRARY_PATH: "/home/edo/apps/mpich314_i686/lib:/home/edo/apps/OpenBLAS.i386/lib"
-#    BLAS_LIB: "-L/home/edo/apps/OpenBLAS.i386/lib -lopenblas"
-#    LAPACK_LIB: "-L/home/edo/apps/OpenBLAS.i386/lib -lopenblas"
-#    SCALAPACK: " "
     LD_LIBRARY_PATH: "/home/edo/apps/mpich314_i686/lib"
     BUILD_SCALAPACK: 1
     BUILD_OPENBLAS: 1
@@ -170,6 +187,14 @@ linux64_ubuntu:run_gcc:
   <<: *test_step
   tags:
     - ubuntu_xenial
+
+linux64_ubuntu:run_flang:
+  stage: test
+  needs: ["linux64_ubuntu:build_flang"]
+  <<: *flang_sourcing
+  <<: *test_step
+  tags:
+    - ubuntu_bionic
 
 linux64_ubuntu:run_intel:
   stage: test

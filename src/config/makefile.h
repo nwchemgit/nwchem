@@ -1761,6 +1761,10 @@ endif
         DEFINES  += -DCHKUNDFLW -DGCC4
         ifeq ($(USE_FLANG),1)
         GNU_GE_4_6=true
+         FOPTIONS+=-mcmodel=medium
+	  COPTIONS+=-mcmodel=medium
+         CFLAGS_FORGA = -mcmodel=medium
+         FFLAGS_FORGA = -mcmodel=medium
         else
         GNUMAJOR=$(shell $(_FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
         ifdef GNUMAJOR
