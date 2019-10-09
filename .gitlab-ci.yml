@@ -72,8 +72,8 @@ variables:
   before_script:
     - source /home/edo/apps/setenv_AOCC.sh
     - export LD_LIBRARY_PATH=/home/edo/apps/aocc200/aocc-compiler-2.0.0/lib:$LD_LIBRARY_PATH
-    - export LD_LIBRARY_PATH=~/apps/ompi402.flang/lib:$LD_LIBRARY_PATH
-    - export PATH=~/apps/ompi402.flang/bin:$PATH
+    - export LD_LIBRARY_PATH=/home/edo/apps/ompi402.flang/lib:$LD_LIBRARY_PATH
+    - export PATH=/home/edo/apps/ompi402.flang/bin:$PATH
 
 .rhel6_template: &rhel6_sourcing
   before_script:
