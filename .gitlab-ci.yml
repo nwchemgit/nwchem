@@ -70,6 +70,7 @@ variables:
   before_script:
     - source /opt/intel/compilers_and_libraries_2018/linux/bin/compilervars.sh  intel64
     - export NWCHEM_EXECUTABLE=${CI_PROJECT_DIR}/../binaries/nwchem_intel
+    - export FC=ifort
 
 .flang_template: &flang_sourcing
   before_script:
@@ -78,6 +79,7 @@ variables:
     - export LD_LIBRARY_PATH=/home/edo/apps/ompi402.flang/lib:$LD_LIBRARY_PATH
     - export PATH=/home/edo/apps/ompi402.flang/bin:$PATH
     - export NWCHEM_EXECUTABLE=${CI_PROJECT_DIR}/../binaries/nwchem_intel
+    - export FC=flang
 
 .rhel6_template: &rhel6_sourcing
   before_script:
