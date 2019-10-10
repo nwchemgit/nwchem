@@ -27,7 +27,9 @@ fi
    GOTAVX=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx/    {print "Y"}')
   GOTAVX2=$(echo ${CPU_FLAGS_2} | tr  'A-Z' 'a-z'| awk ' /avx2/   {print "Y"}')
 GOTAVX512=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx512f/{print "Y"}')
-if [[ "${GOTAVX512}" == "Y" ]]; then
+if [[ -n "${SIMINT_VECTOR}" ]]; then
+      VEC=${SIMINT_VECTOR}
+elif [[ "${GOTAVX512}" == "Y" ]]; then
     VEC=avx512
 elif [[ "${GOTAVX2}" == "Y" ]]; then
     VEC=avx2
