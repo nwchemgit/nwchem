@@ -52,6 +52,8 @@ variables:
     GIT_CLEAN_FLAGS: -ffdx -e bin -e build -e install
   script:
     - if [ "$FC" == "ifort" ]; then source /opt/intel/compilers_and_libraries_2018/linux/bin/compilervars.sh  intel64; fi
+    - if [ "$FC" == "ifort" ]; then  export NWCHEM_EXECUTABLE=${CI_PROJECT_DIR}/../binaries/nwchem_intel; fi
+    - if [ "$FC" == "flang" ]; then  export NWCHEM_EXECUTABLE=${CI_PROJECT_DIR}/../binaries/nwchem_flang; fi
     - env|egrep -i mkl || true
     - env|egrep  LD_LIBR || true
     - cd $CI_PROJECT_DIR/QA
@@ -67,6 +69,7 @@ variables:
 .intel_template: &intel_sourcing
   before_script:
     - source /opt/intel/compilers_and_libraries_2018/linux/bin/compilervars.sh  intel64
+    - export NWCHEM_EXECUTABLE=${CI_PROJECT_DIR}/../binaries/nwchem_intel
 
 .flang_template: &flang_sourcing
   before_script:
@@ -74,6 +77,7 @@ variables:
     - export LD_LIBRARY_PATH=/home/edo/apps/aocc200/aocc-compiler-2.0.0/lib:$LD_LIBRARY_PATH
     - export LD_LIBRARY_PATH=/home/edo/apps/ompi402.flang/lib:$LD_LIBRARY_PATH
     - export PATH=/home/edo/apps/ompi402.flang/bin:$PATH
+    - export NWCHEM_EXECUTABLE=${CI_PROJECT_DIR}/../binaries/nwchem_intel
 
 .rhel6_template: &rhel6_sourcing
   before_script:
@@ -107,6 +111,9 @@ linux64_ubuntu:build_flang:
     SCALAPACK_SIZE: 4
 #    USE_OPENMP: 1
     ARMCI_NETWORK: "MPI-PR"
+  after_script:
+    - mkdir -p ${CI_PROJECT_DIR}/../binaries
+    - cp ${CI_PROJECT_DIR}/bin/LINUX64/nwchem ${CI_PROJECT_DIR}/../binaries/nwchem_flang
   tags:
     - ubuntu_bionic
 
@@ -123,6 +130,9 @@ linux64_ubuntu:build_intel:
     SCALAPACK_LIB: " -lmkl_scalapack_ilp64 -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lmkl_blacs_intelmpi_ilp64 -lpthread -lm -ldl"
     ARMCI_NETWORK: "MPI-PR"
     USE_FPICF: "Y"
+  after_script:
+    - mkdir -p ${CI_PROJECT_DIR}/../binaries
+    - cp ${CI_PROJECT_DIR}/bin/LINUX64/nwchem ${CI_PROJECT_DIR}/../binaries/nwchem_intel
   tags:
     - ubuntu_bionic
 
