@@ -1,5 +1,6 @@
 #- env: == default ==
 os=`uname`
+arch=`uname -m`
 #export NWCHEM_TOP=$TRAVIS_BUILD_DIR
 export USE_MPI=y
 if [[ "$os" == "Darwin" ]]; then 
@@ -24,7 +25,7 @@ if [[ "$os" == "Darwin" ]]; then
 fi
 if [[ "$os" == "Linux" ]]; then 
    export NWCHEM_TARGET=LINUX64 
-   if [[ -z "$USE_SIMINT" ]]; then 
+   if [[ -z "$USE_SIMINT" ]] && [[ "$arch" != "aarch64" ]]; then 
      export BUILD_OPENBLAS="y"
      export BUILD_SCALAPACK="y"
    else
