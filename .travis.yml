@@ -25,6 +25,8 @@ compiler:
 matrix:
   exclude:
     - os: osx
+      arch: arm64
+    - os: osx
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="mpich"
   allow_failures:
     - os: osx
