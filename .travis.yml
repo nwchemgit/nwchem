@@ -5,7 +5,6 @@ dist: bionic
 os: 
   - osx
   - linux
-    arch: amd64
 env: 
   - NWCHEM_MODULES=qmandpw  ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
   - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
@@ -21,11 +20,6 @@ env:
 compiler:
   - gcc
 matrix:
-  include:
-    - os: linux
-      arch: amd64
-    - os: linux
-      arch: arm64
   exclude:
     - os: osx
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="mpich"
