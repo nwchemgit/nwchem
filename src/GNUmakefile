@@ -25,11 +25,16 @@ NWBINNAME = nwchem
 ifdef USE_GPROF
    LINK.f += -pg
 endif
+PATH_TO_FILE = $(TOPDIR)/src/64_to_32
+ifneq ("$(wildcard $(PATH_TO_FILE))","")
+ 64TO32_EXISTS = 1
+endif
 
 .PHONY:	nwchem_config
 
 .PRECIOUS:	$(BINDIR)/$(NWBINNAME) $(NWBINNAME)
 all $(BINDIR)/$(NWBINNAME) $(NWBINNAME):	directories libraries
+	@if [ "$(64TO32_EXISTS)" != "1" ] &&  [ "$(BLAS_SIZE)" = 4 ]   ; then echo " missing 64_to_32\n Please execute\n make 64_to_32\n when BLAS_SIZE=4"; exit 1 ; fi
 	@/bin/rm -f nwchem.o stubs.o
 	$(MAKE) nwchem.o stubs.o
 ifeq ($(TARGET),SOLARIS)
@@ -50,7 +55,8 @@ PFLAGS = -messages=first -leaks-at-exit=yes -follow-child-processes=yes \
 	 -windows=no -cache-dir=/tmp/purify/cache -best-effort
 #PURIFY = purify $(PFLAGS)
 
-link nwchem_link:    
+link nwchem_link:
+	@if [ "$(64TO32_EXISTS)" != "1" ] &&  [ "$(BLAS_SIZE)" = 4 ]   ; then echo " missing 64_to_32\n Please execute\n make 64_to_32\n when BLAS_SIZE=4"; exit 1 ; fi
 	@/bin/rm -f nwchem.o stubs.o
 	$(MAKE) nwchem.o stubs.o
 ifeq ($(TARGET),SOLARIS)
@@ -67,19 +73,6 @@ endif
 ccalink:
 	@echo "NWCHEM_CORE_LIBS = $(LIBS)" > ./cca/makefile.h
 
-        
-#
-# This for linking version with profiling
-#
-prof profile:    
-	@/bin/rm -f nwchem.o stubs.o
-	$(MAKE) nwchem.o stubs.o
-ifeq ($(TARGET),SOLARIS)
-	/bin/rm -f nwchem_prof
-endif
-	$(LINK.f) -p -o nwchem_prof nwchem.o stubs.o -lnwctask $(LIBS)
-	/bin/rm -f nwchem.o stubs.o
-	$(INSTALL)
 #
 # This for linking test version
 #
@@ -102,6 +95,7 @@ endif
 # are updated before nwchem is compiled
 
 libraries:
+	@if [ "$(64TO32_EXISTS)" != "1" ] &&  [ "$(BLAS_SIZE)" = 4 ]   ; then echo " missing 64_to_32\n Please execute\n make 64_to_32\n when BLAS_SIZE=4"; exit 1 ; fi
 	@for dir in $(SUBDIRS); do \
 		echo Making $@ in $$dir; \
 		$(MAKE)	-C $$dir || exit 1 ;  \
