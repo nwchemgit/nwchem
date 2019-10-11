@@ -20,6 +20,11 @@ env:
 compiler:
   - gcc
 matrix:
+  include:
+    - os: linux
+      arch: amd64
+    - os: linux
+      arch: arm64
   exclude:
     - os: osx
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="mpich"
@@ -36,6 +41,8 @@ matrix:
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI3   MPI_IMPL="mpich"
     - os: osx
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT MPI_IMPL="mpich" USE_SIMINT=1 SIMINT_MAXAM=3
+    - os: linux
+      arch: arm64
 git:
   depth: 32
 before_script:
