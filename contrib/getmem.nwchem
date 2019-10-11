@@ -38,19 +38,9 @@ cd $NWCHEM_TOP/src/input
 a=("" "" "" "" "" "") 
 good=1
 
-if [ $NWCHEM_TARGET == LINUX ]; then
-  nproc=`egrep processor /proc/cpuinfo | wc --line`
+if [ $NWCHEM_TARGET == LINUX ] || [ $NWCHEM_TARGET == LINUX64 ]; then
+  nproc=`lscpu   -p=Core | grep -v '^#' | sort -u | wc -l`
   memtot=`egrep -i MemT /proc/meminfo | sed -e "s/kB//g"|sed -e "s/MemTotal://"  `
-elif [ $NWCHEM_TARGET == LINUX64 ]; then
-    if [ `uname -m` == ia64 ]; then
-	nproc=`egrep processor /proc/cpuinfo | wc -l` 
-    elif [ `uname -m` == x86_64 ]; then
-	nproc=`egrep processor /proc/cpuinfo | wc -l`
-    else
-    #this works for Alpha
-	nproc=`egrep cpus /proc/cpuinfo |  sed -e "s/cpus detected		: //"`
-    fi
-    memtot=$( grep -i MemT /proc/meminfo | sed -e "s/kB//g"|sed -e "s/MemTotal://"  )
 elif [ $NWCHEM_TARGET == MACX64 ]; then
     nproc=`sysctl -n hw.ncpu`
     memtot=`sysctl -n hw.memsize`
