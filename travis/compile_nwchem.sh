@@ -3,12 +3,17 @@
  source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
 ls -lrt $TRAVIS_BUILD_DIR|tail -3
 os=`uname`
+arch=`uname -m`
 if [[ "$NWCHEM_MODULES" == "tce" ]]; then 
     export EACCSD=1
     export IPCCSD=1
 fi
 cd $TRAVIS_BUILD_DIR/src
-FOPT2="-O2 -fno-aggressive-loop-optimizations"
+if [[ "$arch" == "aarch64" ]]; then 
+    FOPT2="-O1 -fno-aggressive-loop-optimizations"
+else    
+    FOPT2="-O2 -fno-aggressive-loop-optimizations"
+fi    
  if [[ "$os" == "Darwin" ]]; then 
    if [[ "$NWCHEM_MODULES" == "tce" ]]; then
      FOPT2="-O1 -fno-aggressive-loop-optimizations"
