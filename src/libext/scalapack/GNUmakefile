@@ -5,6 +5,17 @@
 
 include ../../config/makefile.h
 
+ifndef USE_MPI
+nompierror:
+	@echo "  "
+	@echo "  " You must set USE_MPI and
+	@echo "  " have a working MPI installation
+	@echo "  " with mpif90 in your PATH
+	@echo "  "  to compile NWChem
+	@echo
+	@exit 1
+endif # USE_MPI
+
 ../lib/libscalapack.a:
 	./build_scalapa.sh 
 LIB_TARGETS += scalapack
