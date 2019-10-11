@@ -5,6 +5,7 @@ dist: bionic
 os: 
   - osx
   - linux
+    arch: amd64
 env: 
   - NWCHEM_MODULES=qmandpw  ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
   - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
