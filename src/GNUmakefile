@@ -29,7 +29,13 @@ PATH_TO_FILE = $(TOPDIR)/src/64_to_32
 ifneq ("$(wildcard $(PATH_TO_FILE))","")
  64TO32_EXISTS = 1
 endif
-
+#do not perform 64_to_32 check on 32bit targets
+ifeq ($(NWCHEM_TARGET),LINUX)
+ 64TO32_EXISTS = 1
+endif
+ifeq ($(NWCHEM_TARGET),MACX)
+ 64TO32_EXISTS = 1
+endif
 .PHONY:	nwchem_config
 
 .PRECIOUS:	$(BINDIR)/$(NWBINNAME) $(NWBINNAME)
