@@ -2,7 +2,7 @@
 # Exit on error
 set -ev
 # source env. variables
- source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
+source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
  os=`uname`
  arch=`uname -m`
 if [[ "$arch" == "aarch64" ]]; then
@@ -19,11 +19,7 @@ fi
  fi
  case "$ARMCI_NETWORK" in
     MPI-PR)
-        if [[ "$arch" == "aarch64" ]]; then
-          nprocs=9
-        else
-          nprocs=3
-        fi
+	nprocs=$(( nprocs + 1 ))
         case "$os" in
             Darwin)
                 do_largeqas=0
@@ -73,6 +69,7 @@ fi
      if  [[ "$do_largeqas" == 1 ]]; then
        cd $TRAVIS_BUILD_DIR/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs dft_siosi3 h2o_opt
        cd $TRAVIS_BUILD_DIR/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs tddft_h2o h2o2-response
+       tail -60 $TRAVIS_BUILD_DIR/QA/testoutputs/tddft_h2o.out
        cd $TRAVIS_BUILD_DIR/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs pspw_md
      fi
  fi
