@@ -3,9 +3,9 @@
 # $Id$
 # this script tries to figure out no. of processors and RAM
 # to get the maximum available memory in memor_def.F
-# It can also pick up an alternate amount of memory to take 
-# out for the OS, if available.  This amount is per processor 
-# and is in units of megabytes
+# The only optional argument is the minimum amount of memory
+# (that can exceed the available physical memory/processor)
+# and is in units of megabytes.
 #
 if [[ -z "${NWCHEM_TARGET}" ]]; then
     UNAME_S=$(uname -s)
@@ -29,7 +29,6 @@ if [[ -z "${NWCHEM_TOP}" ]]; then
     MYPW=`pwd`
     NWCHEM_TOP=`echo ${DIRUTIL} | sed -e 's/\/contrib.*//' `
 fi
-memos=$1
 if [[ -z "$memos" ]]; then
     memos=30
 fi    
@@ -39,7 +38,12 @@ a=("" "" "" "" "" "")
 good=1
 
 if [ $NWCHEM_TARGET == LINUX ] || [ $NWCHEM_TARGET == LINUX64 ]; then
-  nproc=`lscpu   -p=Core | grep -v '^#' | sort -u | wc -l`
+    echo ==== lscpu ==========================
+    lscpu
+    echo ==== nproc --all ====================
+    nproc --all
+    echo =====================================
+  nproc=`lscpu   -p=Core,Socket | grep -v '^#' | sort -u | wc -l`
   memtot=`egrep -i MemT /proc/meminfo | sed -e "s/kB//g"|sed -e "s/MemTotal://"  `
 elif [ $NWCHEM_TARGET == MACX64 ]; then
     nproc=`sysctl -n hw.ncpu`
@@ -52,7 +56,13 @@ elif [ $NWCHEM_TARGET == SOLARIS ]; then
 else 
     good=0
 fi
-
+# give at least 512mb
+if [[ -n "$1" ]]; then
+    mem_min=$(( $1 * 1024 ))
+else
+    mem_min=$(( 512 * 1024 ))
+fi
+  echo "Input Minum Memory   :" $mem_min "Kb"
 if [[ $good != 0  ]]; then
   memproc=0
   memproc=$(( memtot / nproc ))
@@ -61,7 +71,12 @@ if [[ $good != 0  ]]; then
   echo "No. of processors    :" $nproc
   echo "Total Memory/proc    :" $memproc "KB = " $memprocgb "GB"
   # take away 20% memory for OS
-   memproc=$(( memproc*80/100 ))
+  memproc=$(( memproc*80/100 ))
+  if [[ ${memproc} < ${mem_min} ]] ; then
+      echo 'WARNING: Memory/proc < ' $mem_min
+      memproc=$mem_min
+      echo 'WARNING: Memory/proc increased to ' $mem_min
+  fi
   # multiply by 128=(1024/8) to get to doubles
    memproc=$(( memproc * 128 ))
   if [ $good == 1 ]; then
