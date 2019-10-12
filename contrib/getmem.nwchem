@@ -62,17 +62,18 @@ if [[ -n "$1" ]]; then
 else
     mem_min=$(( 512 * 1024 ))
 fi
-  echo "Input Minum Memory   :" $mem_min "Kb"
+  echo "Input Minum Memory   :" $mem_min "KB"
 if [[ $good != 0  ]]; then
   memproc=0
   memproc=$(( memtot / nproc ))
   memprocgb=$(( memproc / 1000000 ))
-  echo "Total Memory         :" $memtot "Kb"
+  echo "Total Memory         :" $memtot "KB"
   echo "No. of processors    :" $nproc
   echo "Total Memory/proc    :" $memproc "KB = " $memprocgb "GB"
   # take away 20% memory for OS
   memproc=$(( memproc*80/100 ))
-  if [[ ${memproc} < ${mem_min} ]] ; then
+  echo cfr $memproc $mem_min
+  if [ "$memproc" -lt "$mem_min" ] ; then
       echo 'WARNING: Memory/proc < ' $mem_min
       memproc=$mem_min
       echo 'WARNING: Memory/proc increased to ' $mem_min
