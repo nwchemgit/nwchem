@@ -71,5 +71,7 @@ fi
        cd $TRAVIS_BUILD_DIR/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs tddft_h2o h2o2-response
        tail -60 $TRAVIS_BUILD_DIR/QA/testoutputs/tddft_h2o.out
        cd $TRAVIS_BUILD_DIR/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs pspw_md
+       tail -60 $TRAVIS_BUILD_DIR/QA/testoutputs/pspw_md.out
+       grep 'Total PSPW energy' $TRAVIS_BUILD_DIR/QA/testoutputs/pspw_md.out 
      fi
  fi
