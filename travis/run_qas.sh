@@ -4,7 +4,12 @@ set -ev
 # source env. variables
  source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
  os=`uname`
+ arch=`uname -m`
+if [[ "$arch" == "aarch64" ]]; then
+ nprocs=8
+else
  nprocs=2
+fi
  do_largeqas=1
  if [[ "$os" == "Linux" && "$MPI_IMPL" == "mpich" ]]; then
     export MPIRUN_PATH=/usr/bin/mpirun.mpich
@@ -14,7 +19,11 @@ set -ev
  fi
  case "$ARMCI_NETWORK" in
     MPI-PR)
-        nprocs=3
+        if [[ "$arch" == "aarch64" ]]; then
+          nprocs=9
+        else
+          nprocs=3
+        fi
         case "$os" in
             Darwin)
                 do_largeqas=0
