@@ -28,7 +28,12 @@ fi
 #     ls -lrt $DYLD_LIBRARY_PATH
 #      tail -120 make.log
  elif [[ "$os" == "Linux" ]]; then
-     ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" FOPTIMIZE="$FOPT2" -j3
+     if [[ "$arch" == "aarch64" ]]; then 
+	 export MAKEFLAGS=-j8
+     else    
+	 export MAKEFLAGS=-j3
+     fi
+     ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" FOPTIMIZE="$FOPT2" 
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
      cd $TRAVIS_BUILD_DIR/src
