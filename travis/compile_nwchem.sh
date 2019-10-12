@@ -22,7 +22,7 @@ fi
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
      cd $TRAVIS_BUILD_DIR/src
-     ../contrib/getmem.nwchem 500
+     ../contrib/getmem.nwchem 1000
      otool -L ../bin/MACX64/nwchem
 #     printenv DYLD_LIBRARY_PATH
 #     ls -lrt $DYLD_LIBRARY_PATH
@@ -32,7 +32,7 @@ fi
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
      cd $TRAVIS_BUILD_DIR/src
-     $TRAVIS_BUILD_DIR/contrib/getmem.nwchem 500
+     $TRAVIS_BUILD_DIR/contrib/getmem.nwchem 1000
  fi
 #tail -2 $NWCHEM_TOP/src/6log
 #head -2 $NWCHEM_TOP/src/tools/build/config.log
