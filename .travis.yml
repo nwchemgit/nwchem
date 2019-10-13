@@ -73,19 +73,5 @@ script:
 
 
 after_failure:
-        - tail -20 $TRAVIS_BUILD_DIR/src/tools/build/config.log
-        - tail -10 $TRAVIS_BUILD_DIR/src/tools/build/comex/config.log
-        - grep -A 2 -B 2 -i error $TRAVIS_BUILD_DIR/src/make.log 
-        - head -200 $TRAVIS_BUILD_DIR/src/make.log
-        - tail -200 $TRAVIS_BUILD_DIR/src/make.log
-        - tail -200 $TRAVIS_BUILD_DIR/src/6log
-        - grep -i tce_energy $TRAVIS_BUILD_DIR/src/6log
-        - grep d= $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
-        - grep @ $TRAVIS_BUILD_DIR/QA/testoutputs/h2o_opt.out
-        - tail -30 $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
-        - tail -490 $TRAVIS_BUILD_DIR/QA/testoutputs/h2o2-response.out
-        - tail -30 $TRAVIS_BUILD_DIR/QA/testoutputs/prop_mep_gcube.out
-        - diff $TRAVIS_BUILD_DIR/QA/testoutputs/prop_ch3f.o*nw*
-        - diff $TRAVIS_BUILD_DIR/QA/testoutputs/h2o2-response.o*nw*
-        - diff $TRAVIS_BUILD_DIR/QA/testoutputs/tce_n2.o*nw*
+        - ./travis/check_failures.sh
               
