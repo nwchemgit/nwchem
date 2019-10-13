@@ -36,6 +36,12 @@ matrix:
     - os: linux
       arch: arm64
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-MT MPI_IMPL="mpich"
+    - os: linux
+      arch: arm64
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT MPI_IMPL="mpich" USE_SIMINT=1 SIMINT_MAXAM=3
+    - os: linux
+      arch: arm64
+      env: NWCHEM_MODULES=tce     ARMCI_NETWORK=MPI3   MPI_IMPL="mpich"
   allow_failures:
     - os: osx
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
