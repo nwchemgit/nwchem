@@ -7,23 +7,30 @@ tail -200 $TRAVIS_BUILD_DIR/src/make.log
 tail -200 $TRAVIS_BUILD_DIR/src/6log
 grep -i tce_energy $TRAVIS_BUILD_DIR/src/6log
 # tail output files on failures
-if [[  "NWCHEM_MODULES" == "tce" ]]; then
-    head -2 $TRAVIS_BUILD_DIR/QA/testoutputs/tce_n2.out
-    tail -70 $TRAVIS_BUILD_DIR/QA/testoutputs/tce_n2.out
-    tail -70 $TRAVIS_BUILD_DIR/QA/testoutputs/tce_h2o_eomcc.out
-    tail -70 $TRAVIS_BUILD_DIR/QA/testoutputs/tce_ccsd_t_h2o
-else    
-    grep d= $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
-    head -2 $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
-    tail -40 $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
-    tail -40 $TRAVIS_BUILD_DIR/QA/testoutputs/prop_mep_gcube.out
-    tail -60 $TRAVIS_BUILD_DIR/QA/testoutputs/dft_siosi3.out
-    grep @ $TRAVIS_BUILD_DIR/QA/testoutputs/h2o_opt.out
-    tail -60 $TRAVIS_BUILD_DIR/QA/testoutputs/h2o_opt.out
-    tail -60 $TRAVIS_BUILD_DIR/QA/testoutputs/tddft_h2o.out
-    tail -60 $TRAVIS_BUILD_DIR/QA/testoutputs/h2o2-response.out
-    tail -490 $TRAVIS_BUILD_DIR/QA/testoutputs/h2o2-response.out
-    tail -60 $TRAVIS_BUILD_DIR/QA/testoutputs/pspw.out
-    tail -60 $TRAVIS_BUILD_DIR/QA/testoutputs/pspw_md.out
-    grep 'Total PSPW energy' $TRAVIS_BUILD_DIR/QA/testoutputs/pspw_md.out
+check_file () {
+    file=$TRAVIS_BUILD_DIR/QA/testoutputs/$1.out
+    if [ -f $file ] ; then
+	echo ============================================================
+	echo $file
+	head -2 $file
+	echo ============================================================
+	tail -60 $file
+	echo ============================================================
+	grep -s 'l DFT energy' $file |tail
+	echo ============================================================
+	grep -s 'Total PSPW energy' $file |tail
     fi
+}
+    
+check_file tce_n2
+check_file tce_h2o_eomcc
+check_file tce_ccsd_t_h2o
+check_file dft_he2+
+check_file prop_mem_gcube
+check_file dft_siosi3
+check_file h2o_opt
+check_file tddft_h2o
+check_file h2o2-response
+check_file pspw
+check_file pspw_md
+
