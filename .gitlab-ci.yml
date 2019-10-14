@@ -111,7 +111,6 @@ linux64_ubuntu:build_flang:
     BUILD_OPENBLAS: 1
     BLAS_SIZE: 4
     SCALAPACK_SIZE: 4
-#    USE_OPENMP: 1
     ARMCI_NETWORK: "MPI-PR"
   after_script:
     - mkdir -p ${CI_PROJECT_DIR}/../binaries
