@@ -800,10 +800,12 @@ c
         else if (perturbative.eq.'lr_(t)') then
           ctype='Coupled-cluster singles & doubles w/ perturbation'
           cperturbative = 'locally renormalized (T)'
-        else if (perturbative.eq.'lr_(tq1)') then
+       else if (perturbative.eq.'lr_(tq1)') then
+          intorb=.false.
           ctype='Coupled-cluster singles & doubles w/ perturbation'
           cperturbative = 'locally renormalized (TQ)-1'
         else if (perturbative.eq.'lr_(tq1p)') then
+          intorb=.false.
           ctype='Coupled-cluster singles & doubles w/ perturbation'
           cperturbative = 'locally renormalized (TQ)'
         else if (perturbative.eq.'cr_[t]') then
@@ -1013,6 +1015,7 @@ c     2-e storage
 c     ----------------------
 c
       if (model2e.eq.'2eorb')  intorb=.true.
+      if (rtdb_get(rtdb,'tce:intorb',mt_log,1,res_log)) intorb=res_log
       if (model2e.eq.'2espin') intorb=.false.
       if (hftype.eq.'UHF')     intorb=.false.
       if (intorb) then
