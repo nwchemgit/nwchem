@@ -657,7 +657,7 @@ c     end if
 
 *     **** run socket client ****
       if (control_runsocket().and.(flag.gt.0)) then
-         call runsocket_ase(nion,EV,
+         call runsocket_ipi(nion,EV,
      >                      dbl_mb(ion_rion_ptr()),dbl_mb(fion(1)))
       end if
 

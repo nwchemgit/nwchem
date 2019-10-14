@@ -6685,7 +6685,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       value = .false.
       call control_socket_type(stype)
-      if (inp_compare(.false.,'ase_client',stype)) value = .true.
+      if (inp_compare(.false.,'ipi_client',stype)) value = .true.
+      if (inp_compare(.false.,'unix',stype)) value = .true.
 
       control_runsocket = value
       return
@@ -6720,20 +6721,27 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     *      control_socket_ip           *
 *     *                                  *
 *     ************************************
-      subroutine control_socket_ip(stype)
+      subroutine control_socket_ip(socket_ip)
       implicit none
-      character*(*) stype
+      character*(*) socket_ip
+      character*40 stype
 
 #include "control.fh"
 #include "btdb.fh"
+#include "inp.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
       common / control_rtdb1 / rtdb
 
       if (.not.btdb_cget(rtdb,'nwpw:socket_ip',
-     >                   1,stype)) then
-         stype = "127.0.0.1:31415"
+     >                   1,socket_ip)) then
+         call control_socket_type(stype)
+         if (inp_compare(.false.,'unix',stype)) then
+            socket_ip = "nwchem"
+         else
+            socket_ip = "127.0.0.1:31415"
+         end if
       end if
       return
       end
