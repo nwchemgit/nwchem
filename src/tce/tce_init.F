@@ -73,9 +73,6 @@ c
 ckbn mrcc-r-1 -3
       integer imrcc
 #endif
-c     true if 2eorb works (e.g. CCSD), false for the rest (e.g. CCSDT)
-      logical nointorb
-c
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -145,24 +142,11 @@ c
      1    call errquit('tce_init: failed to read nocc',0,RTDB_ERR)
         if (.not.rtdb_get(rtdb,'dft:mult',mt_int,1,mult))
      1    call errquit('tce_init: failed to read mult',0,RTDB_ERR)
-c *** debug-kk ***
-c        if(nodezero) then
-c         write(6,*)'ipol= ',ipol
-c         call util_flush(6)
-c        end if
-c ****************
         if (ipol.eq.1) then
           restricted = .true.
         else
           restricted = .false.
         endif
-c *** debug-kk ***
-c        if(nodezero) then
-c         write(6,*)'restricter= ',restricted
-c         write(6,*)'ROHF= ',rohf
-c         call util_flush(6)
-c        end if
-c ****************
       else if (reference.eq.1) then
         if (.not.rtdb_get(rtdb,'scf:nclosed',mt_int,1,nclosed))
      1    call errquit('tce_init: failed to read nclosed',0,RTDB_ERR)
@@ -227,6 +211,7 @@ c     +   write(LuOut,*)"nocc ",nocc(1),nocc(2),mult,restricted,ipol,rohf
         endif
 #endif
       endif
+c
 c     ---------
 c     TCE input
 c     ---------
@@ -290,11 +275,6 @@ c
         if (.not.rtdb_put(rtdb,'tce:zlshift3',mt_dbl,2,zlshift3))
      1  call errquit('tce_init: failed to write zlshift3',0,RTDB_ERR)
       endif
-c#ifdef DEBUG_PRINT
-c      if(nodezero) write(6,*) 'zlshift  = ',zlshift
-c      if(nodezero) write(6,*) 'zlshift2 = ',zlshift2
-c      if(nodezero) write(6,*) 'zlshift3 = ',zlshift3
-c#endif
       if (.not.rtdb_get(rtdb,'tce:damp',mt_dbl,1,damp)) then
         damp = 0.0d0
         if (.not.rtdb_put(rtdb,'tce:damp',mt_dbl,1,damp))
@@ -405,11 +385,6 @@ c 4index trans.
         if (.not.rtdb_put(rtdb,'tce:i4im',mt_int,1,fast2e))
      1  call errquit('tce_init: failed to write i4im',0,RTDB_ERR)
       endif
-c      if ((model2e.ne.'2eorb').and.(fast2e.gt.3)) then
-c        fast2e = 1
-c        if (.not.rtdb_put(rtdb,'tce:i4im',mt_int,1,fast2e))
-c     1  call errquit('tce_init: failed to write i4im',0,RTDB_ERR)
-c      endif
       if (.not.rtdb_get(rtdb,'tce:idiskx',mt_int,1,idisk)) then
 c        idisk = 0
         if ( (fast2e.eq.5).or.(fast2e.eq.6) ) then
@@ -766,14 +741,282 @@ c
      1    tol2e = 1.0d-10
       endif
 c
+c     --------------------------
+c     Determine calculation type
+c     --------------------------
+c
+      activecalc = .false.
+      intorb=.false.
+c
+      if (reference.eq.0) then
+        if (xc_gotxc()) write(LuOut,9500)
+      endif
+      if ((perturbative.ne.'none').and.
+     1    (model.ne.'ccsd').and.(model.ne.'ccsdt').and.
+     2    (model.ne.'qcisd').and.(model.ne.'lccsd').and.
+     3    (model.ne.'ccsd_act'))
+     3  call errquit('tce_init: unknown theory',0,CAPMIS_ERR)
+      cperturbative = 'none'
+      if (model.eq.'eionly') then
+        ctype='Electron integral printing'
+        if (module.ne.'tce')
+     1    call errquit('tce_init: eionly module overridden',0,
+     2    UNKNOWN_ERR)
+      else if (model.eq.'ccd') then
+        ctype='Coupled-cluster doubles'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'ucc').and.
+     2      (module.ne.'uccd'))
+     3    call errquit('tce_init: ucc/uccd module overridden',0,
+     4    UNKNOWN_ERR)
+      else if (model.eq.'lccd') then
+        ctype='Linearized coupled-cluster doubles'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'ucc').and.
+     2      (module.ne.'ulccd'))
+     3    call errquit('tce_init: ucc/ulccd module overridden',0,
+     4    UNKNOWN_ERR)
+      else if (model.eq.'multi') then
+        ctype='Multiple CCSD-like methods'
+        if (module.ne.'tce')
+     1    call errquit('tce_init: ucc/ulccd module overridden',0,
+     2    UNKNOWN_ERR)
+      else if (model.eq.'ccsd') then
+        intorb=.true.
+        if (perturbative.eq.'none') then
+          ctype='Coupled-cluster singles & doubles'
+        else if (perturbative.eq.'(t)') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = '(T)'
+        else if (perturbative.eq.'lambda(t)') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = 'Lambda (T)'
+        else if (perturbative.eq.'[t]') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = '[T] or +T(CCSD)'
+        else if (perturbative.eq.'cr_(t)') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = 'Completely renormalized (T)'
+        else if (perturbative.eq.'lr_(t)') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = 'locally renormalized (T)'
+        else if (perturbative.eq.'lr_(tq1)') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = 'locally renormalized (TQ)-1'
+        else if (perturbative.eq.'lr_(tq1p)') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = 'locally renormalized (TQ)'
+        else if (perturbative.eq.'cr_[t]') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = 'Completely renormalized [T]'
+        else if (perturbative.eq.'2_t') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = '(2) triples only'
+        else if (perturbative.eq.'2_tq') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = '(2) triples & quadruples (nonfactorized)'
+        else if (perturbative.eq.'emb1') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = 'reduced completely renorm. EOMCCSD(T)-I'
+        else if (perturbative.eq.'emb2') then
+         ctype='Coupled-cluster singles & doubles w/ perturbation'
+         cperturbative = 'reduced completely renormalized EOMCCSD(T)-II'
+        else if (perturbative.eq.'creom_(t)') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = 'completely renormalized EOMCCSD(T)'
+        endif
+        if (model.eq.'ccsd') then
+         if(ccsd_var.eq.'cc2') then
+          ctype='CC2 calculations'
+         end if
+         if(ccsd_var.eq.'lr-ccsd') then
+          ctype='Locally renormalized CCSD calculations'
+         end if
+        end if
+c ccsd_act/eomccsd_act
+        if (model.eq.'ccsd_act') then
+        if (perturbative.eq.'none') then
+         ctype='Coupled-cluster singles & act.doubles'
+        else if (perturbative.eq.'cr_t(a)') then
+         ctype='Coupled-cluster singles & act.doubles w/ perturbation'
+         cperturbative = 'Completely renormalized (T)-active'
+        else if (perturbative.eq.'creom(t)a') then
+         ctype='Coupled-cluster singles & act.doubles w/ perturbation'
+         cperturbative='active-space completely renormalized EOMCCSD(T)'
+        end if
+        end if  
+c
+        if ((module.ne.'tce').and.
+     1      (module.ne.'ucc').and.
+     2      (module.ne.'uccsd').and.
+     3      (module.ne.'uccsd(t)').and.
+     4      (module.ne.'uccsd[t]').and.
+     6      (module.ne.'cr-ccsd(t)').and.
+     6      (module.ne.'lr-ccsd(t)').and.
+     6      (module.ne.'lrsd(tq1p)').and.
+     6      (module.ne.'lrsd(tq)-1').and.
+     6      (module.ne.'creom_(t)').and.
+     6      (module.ne.'emb1').and.
+     6      (module.ne.'emb2').and.
+     7      (module.ne.'cr-ccsd[t]'))
+     8    call errquit('tce_init: ucc/uccsd module overridden',0,
+     9    UNKNOWN_ERR)
+      else if (model.eq.'lccsd') then
+        ctype='Linearized coupled-cluster singles & doubles'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'ucc').and.
+     2      (module.ne.'ulccsd'))
+     3    call errquit('tce_init: ucc/ulccsd module overridden',0,
+     4    UNKNOWN_ERR)
+      else if (model.eq.'ccsdta') then
+        activecalc = .true.
+        ctype='Coupled-cluster singles, doubles, & active triples'
+        if (perturbative.eq.'2_q') then
+          ctype='Coupled-cluster through triples w/ perturbation'
+          cperturbative = '(2) quadruples (nonfactorized)'
+        endif
+        if ((module.ne.'tce').and.
+     1      (module.ne.'ucc').and.
+     2      (module.ne.'uccsdt'))
+     3    call errquit('tce_init: ucc/uccsdt module overridden',0,
+     4    UNKNOWN_ERR)
+      else if (model.eq.'ccsdt') then
+        ctype='Coupled-cluster singles, doubles, & triples'
+        if (perturbative.eq.'2_q') then
+          ctype='Coupled-cluster through triples w/ perturbation'
+          cperturbative = '(2) quadruples (nonfactorized)'
+        endif
+        if ((module.ne.'tce').and.
+     1      (module.ne.'ucc').and.
+     2      (module.ne.'uccsdt'))
+     3    call errquit('tce_init: ucc/uccsdt module overridden',0,
+     4    UNKNOWN_ERR)
+c ccsd_act/eomccsd_act
+      else if (model.eq.'ccsd_act') then
+        ctype='Coupled-cluster singles & act.doubles'
+        intorb=.true.
+        if (perturbative.eq.'creom(t)a') then
+         ctype='Coupled-cluster singles & act.doubles w/ perturbation'
+         cperturbative = 'active-space CR-EOMCCSD(T),II'
+        endif
+        if ((module.ne.'tce').and.
+     1      (module.ne.'ucc').and.
+     2      (module.ne.'uccsdt'))
+     3    call errquit('tce_init: ucc/uccsdt module overridden',0,
+     4    UNKNOWN_ERR)
+      else if (model.eq.'ccsdtq') then
+        ctype='Coupled-cluster singles, doubles, triples, & quadruples'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'ucc').and.
+     2      (module.ne.'uccsdtq'))
+     3    call errquit('tce_init: ucc/uccsdtq module overridden',0,
+     4    UNKNOWN_ERR)
+      else if (model.eq.'qcisd') then
+        if (perturbative.eq.'none') then
+          ctype='Quadratic configuration interaction singles & doubles'
+        else if (perturbative.eq.'(t)') then
+          ctype='Quadratic configuration interaction w/ perturbation'
+          cperturbative = '(T)'
+        else if (perturbative.eq.'cr_(t)') then
+          ctype='Quadratic configuration interaction w/ perturbation'
+          cperturbative = 'Completely renormalized (T)'
+        endif
+        if ((module.ne.'tce').and.
+     1      (module.ne.'ucc').and.
+     2      (module.ne.'uqcisd'))
+     3    call errquit('tce_init: ucc/uqcisd module overridden',0,
+     4    UNKNOWN_ERR)
+      else if (model.eq.'cis') then
+        ctype='Configuration interaction singles'
+        if((module.ne.'tce').and.
+     1     (module.ne.'uci').and.
+     2     (module.ne.'ucis'))
+     3     call errquit('tce_init: uci/ucis module overridden',0,
+     4     unknown_err)
+      else if (model.eq.'cisd') then
+        ctype='Configuration interaction singles & doubles'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'uci').and.
+     2      (module.ne.'ucisd'))
+     3    call errquit('tce_init: uci/ucisd module overridden',0,
+     4    UNKNOWN_ERR)
+      else if (model.eq.'cisdt') then
+        ctype='Configuration interaction singles, doubles, & triples'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'uci').and.
+     2      (module.ne.'ucisdt'))
+     3    call errquit('tce_init: uci/ucisdt module overridden',0,
+     4    UNKNOWN_ERR)
+      else if (model.eq.'cisdtq') then
+        ctype='Configuration interaction singles through quadruples'
+        if ((module.ne.'tce').and.
+     1      (module.ne.'uci').and.
+     2      (module.ne.'ucisdtq'))
+     3    call errquit('tce_init: uci/ucisdtq module overridden',0,
+     4    UNKNOWN_ERR)
+      else if (model.eq.'mbpt2') then
+        ctype='Second-order tensor many-body perturbation theory'
+        intorb=.true.
+        if ((module.ne.'tce').and.
+     1      (module.ne.'umbpt').and.
+     2      (module.ne.'umbpt2'))
+     3    call errquit('tce_init: umbpt/umbpt2 module overridden',0,
+     4    UNKNOWN_ERR)
+      else if (model.eq.'mbpt3') then
+        ctype='Third-order tensor many-body perturbation theory'
+        intorb=.true.
+        if ((module.ne.'tce').and.
+     1      (module.ne.'umbpt').and.
+     2      (module.ne.'umbpt3'))
+     3    call errquit('tce_init: umbpt/umbpt3 module overridden',0,
+     4    UNKNOWN_ERR)
+      else if (model.eq.'mbpt4') then
+        ctype='Fourth-order tensor many-body perturbation theory'
+        intorb=.true.
+        if ((module.ne.'tce').and.
+     1      (module.ne.'umbpt').and.
+     2      (module.ne.'umbpt4'))
+     3    call errquit('tce_init: umbpt/umbpt4 module overridden',0,
+     4    UNKNOWN_ERR)
+      else if (model.eq.'mbpt4sdq') then
+        ctype='Fourth-order tensor many-body perturbation theory 
+     1 with zero T3 approximation'
+        intorb=.true.
+        if ((module.ne.'tce').and.
+     1      (module.ne.'umbpt').and.
+     2      (module.ne.'umbpt4'))
+     3    call errquit('tce_init: umbpt/umbpt4 module overridden',0,
+     4    UNKNOWN_ERR)
+      else if (model.eq.'mbpt4sdq_t') then
+        ctype='Fourth-order tensor many-body perturbation theory
+     1 with non-iterative triples'
+        intorb=.true.
+        if ((module.ne.'tce').and.
+     1      (module.ne.'umbpt').and.
+     2      (module.ne.'umbpt4'))
+     3    call errquit('tce_init: umbpt/umbpt4 module overridden',0,
+     4    UNKNOWN_ERR)
+#ifdef MRCC_METHODS
+ckbn mrcc-r-1 -3
+      else if (model.eq.'bwccsd') then
+        ctype=
+     1    'State Specific Multireference Brillouin-Wigner CCSD theory'
+      else if (model.eq.'mkccsd') then
+        ctype='State Specific Multireference Mukherjee''s CCSD theory'
+#endif
+      else
+        call errquit('tce_init: unknown theory',0,CAPMIS_ERR)
+      endif
+c
 c     ----------------------
 c     2-e storage
 c     ----------------------
 c
-      intorb=.false.
-      if (model2e.eq.'2eorb') intorb=.true.
-      if(intorb) then
-        if(.not.((hftype.eq.'RHF').or.(hftype.eq.'ROHF'))) then
+      if (model2e.eq.'2eorb')  intorb=.true.
+      if (model2e.eq.'2espin') intorb=.false.
+      if (hftype.eq.'UHF')     intorb=.false.
+      if (intorb) then
+        if (.not.((hftype.eq.'RHF').or.(hftype.eq.'ROHF'))) then
           call errquit('tce_init: 2eorb needs RHF/ROHF ref.',0,RTDB_ERR)
         endif
       endif
@@ -893,283 +1136,6 @@ c
 c
        endif !quantumc
 !QuantumComputing
-c     --------------------------
-c     Determine calculation type
-c     --------------------------
-c
-      activecalc = .false.
-      nointorb   = .false.
-c
-      if (reference.eq.0) then
-        if (xc_gotxc()) write(LuOut,9500)
-      endif
-      if ((perturbative.ne.'none').and.
-     1    (model.ne.'ccsd').and.(model.ne.'ccsdt').and.
-     2    (model.ne.'qcisd').and.(model.ne.'lccsd').and.
-     3    (model.ne.'ccsd_act'))
-     3  call errquit('tce_init: unknown theory',0,CAPMIS_ERR)
-      cperturbative = 'none'
-      if (model.eq.'eionly') then
-        ctype='Electron integral printing'
-        if (module.ne.'tce')
-     1    call errquit('tce_init: eionly module overridden',0,
-     2    UNKNOWN_ERR)
-      else if (model.eq.'ccd') then
-        ctype='Coupled-cluster doubles'
-        if ((module.ne.'tce').and.
-     1      (module.ne.'ucc').and.
-     2      (module.ne.'uccd'))
-     3    call errquit('tce_init: ucc/uccd module overridden',0,
-     4    UNKNOWN_ERR)
-      else if (model.eq.'lccd') then
-        ctype='Linearized coupled-cluster doubles'
-        if ((module.ne.'tce').and.
-     1      (module.ne.'ucc').and.
-     2      (module.ne.'ulccd'))
-     3    call errquit('tce_init: ucc/ulccd module overridden',0,
-     4    UNKNOWN_ERR)
-      else if (model.eq.'multi') then
-        nointorb=.true.
-        ctype='Multiple CCSD-like methods'
-        if (module.ne.'tce')
-     1    call errquit('tce_init: ucc/ulccd module overridden',0,
-     2    UNKNOWN_ERR)
-      else if (model.eq.'ccsd') then
-        if (perturbative.eq.'none') then
-          ctype='Coupled-cluster singles & doubles'
-        else if (perturbative.eq.'(t)') then
-          ctype='Coupled-cluster singles & doubles w/ perturbation'
-          cperturbative = '(T)'
-        else if (perturbative.eq.'lambda(t)') then
-          ctype='Coupled-cluster singles & doubles w/ perturbation'
-          cperturbative = 'Lambda (T)'
-        else if (perturbative.eq.'[t]') then
-          ctype='Coupled-cluster singles & doubles w/ perturbation'
-          cperturbative = '[T] or +T(CCSD)'
-        else if (perturbative.eq.'cr_(t)') then
-          ctype='Coupled-cluster singles & doubles w/ perturbation'
-          cperturbative = 'Completely renormalized (T)'
-        else if (perturbative.eq.'lr_(t)') then
-          ctype='Coupled-cluster singles & doubles w/ perturbation'
-          cperturbative = 'locally renormalized (T)'
-        else if (perturbative.eq.'lr_(tq1)') then
-          ctype='Coupled-cluster singles & doubles w/ perturbation'
-          cperturbative = 'locally renormalized (TQ)-1'
-        else if (perturbative.eq.'lr_(tq1p)') then
-          ctype='Coupled-cluster singles & doubles w/ perturbation'
-          cperturbative = 'locally renormalized (TQ)'
-        else if (perturbative.eq.'cr_[t]') then
-          ctype='Coupled-cluster singles & doubles w/ perturbation'
-          cperturbative = 'Completely renormalized [T]'
-        else if (perturbative.eq.'2_t') then
-          ctype='Coupled-cluster singles & doubles w/ perturbation'
-          cperturbative = '(2) triples only'
-        else if (perturbative.eq.'2_tq') then
-          ctype='Coupled-cluster singles & doubles w/ perturbation'
-          cperturbative = '(2) triples & quadruples (nonfactorized)'
-        else if (perturbative.eq.'emb1') then
-          ctype='Coupled-cluster singles & doubles w/ perturbation'
-          cperturbative = 'reduced completely renorm. EOMCCSD(T)-I'
-        else if (perturbative.eq.'emb2') then
-         ctype='Coupled-cluster singles & doubles w/ perturbation'
-         cperturbative = 'reduced completely renormalized EOMCCSD(T)-II'
-        else if (perturbative.eq.'creom_(t)') then
-          ctype='Coupled-cluster singles & doubles w/ perturbation'
-          cperturbative = 'completely renormalized EOMCCSD(T)'
-        endif
-        if (model.eq.'ccsd') then
-         if(ccsd_var.eq.'cc2') then
-          ctype='CC2 calculations'
-         end if
-         if(ccsd_var.eq.'lr-ccsd') then
-          ctype='Locally renormalized CCSD calculations'
-         end if
-        end if
-c ccsd_act/eomccsd_act
-        if (model.eq.'ccsd_act') then
-        if (perturbative.eq.'none') then
-         ctype='Coupled-cluster singles & act.doubles'
-        else if (perturbative.eq.'cr_t(a)') then
-         ctype='Coupled-cluster singles & act.doubles w/ perturbation'
-         cperturbative = 'Completely renormalized (T)-active'
-        else if (perturbative.eq.'creom(t)a') then
-         ctype='Coupled-cluster singles & act.doubles w/ perturbation'
-         cperturbative='active-space completely renormalized EOMCCSD(T)'
-        end if
-        end if  
-c
-        if ((module.ne.'tce').and.
-     1      (module.ne.'ucc').and.
-     2      (module.ne.'uccsd').and.
-     3      (module.ne.'uccsd(t)').and.
-     4      (module.ne.'uccsd[t]').and.
-     6      (module.ne.'cr-ccsd(t)').and.
-     6      (module.ne.'lr-ccsd(t)').and.
-     6      (module.ne.'lrsd(tq1p)').and.
-     6      (module.ne.'lrsd(tq)-1').and.
-     6      (module.ne.'creom_(t)').and.
-     6      (module.ne.'emb1').and.
-     6      (module.ne.'emb2').and.
-     7      (module.ne.'cr-ccsd[t]'))
-     8    call errquit('tce_init: ucc/uccsd module overridden',0,
-     9    UNKNOWN_ERR)
-      else if (model.eq.'lccsd') then
-        ctype='Linearized coupled-cluster singles & doubles'
-        if ((module.ne.'tce').and.
-     1      (module.ne.'ucc').and.
-     2      (module.ne.'ulccsd'))
-     3    call errquit('tce_init: ucc/ulccsd module overridden',0,
-     4    UNKNOWN_ERR)
-      else if (model.eq.'ccsdta') then
-        activecalc = .true.
-        ctype='Coupled-cluster singles, doubles, & active triples'
-        if (perturbative.eq.'2_q') then
-          ctype='Coupled-cluster through triples w/ perturbation'
-          cperturbative = '(2) quadruples (nonfactorized)'
-        endif
-c         if(intorb) then
-c          call errquit('tce_init: 2eorb with active calc.',0,RTDB_ERR)
-c         endif
-        if ((module.ne.'tce').and.
-     1      (module.ne.'ucc').and.
-     2      (module.ne.'uccsdt'))
-     3    call errquit('tce_init: ucc/uccsdt module overridden',0,
-     4    UNKNOWN_ERR)
-      else if (model.eq.'ccsdt') then
-        nointorb=.true.
-        ctype='Coupled-cluster singles, doubles, & triples'
-        if (perturbative.eq.'2_q') then
-          ctype='Coupled-cluster through triples w/ perturbation'
-          cperturbative = '(2) quadruples (nonfactorized)'
-        endif
-        if ((module.ne.'tce').and.
-     1      (module.ne.'ucc').and.
-     2      (module.ne.'uccsdt'))
-     3    call errquit('tce_init: ucc/uccsdt module overridden',0,
-     4    UNKNOWN_ERR)
-c ccsd_act/eomccsd_act
-      else if (model.eq.'ccsd_act') then
-        ctype='Coupled-cluster singles & act.doubles'
-        if (perturbative.eq.'creom(t)a') then
-         ctype='Coupled-cluster singles & act.doubles w/ perturbation'
-         cperturbative = 'active-space CR-EOMCCSD(T),II'
-        endif
-        if ((module.ne.'tce').and.
-     1      (module.ne.'ucc').and.
-     2      (module.ne.'uccsdt'))
-     3    call errquit('tce_init: ucc/uccsdt module overridden',0,
-     4    UNKNOWN_ERR)
-      else if (model.eq.'ccsdtq') then
-        nointorb=.true.
-        ctype='Coupled-cluster singles, doubles, triples, & quadruples'
-        if ((module.ne.'tce').and.
-     1      (module.ne.'ucc').and.
-     2      (module.ne.'uccsdtq'))
-     3    call errquit('tce_init: ucc/uccsdtq module overridden',0,
-     4    UNKNOWN_ERR)
-      else if (model.eq.'qcisd') then
-        if (perturbative.eq.'none') then
-          ctype='Quadratic configuration interaction singles & doubles'
-        else if (perturbative.eq.'(t)') then
-          ctype='Quadratic configuration interaction w/ perturbation'
-          cperturbative = '(T)'
-        else if (perturbative.eq.'cr_(t)') then
-          ctype='Quadratic configuration interaction w/ perturbation'
-          cperturbative = 'Completely renormalized (T)'
-        endif
-        if ((module.ne.'tce').and.
-     1      (module.ne.'ucc').and.
-     2      (module.ne.'uqcisd'))
-     3    call errquit('tce_init: ucc/uqcisd module overridden',0,
-     4    UNKNOWN_ERR)
-      else if (model.eq.'cis') then
-        ctype='Configuration interaction singles'
-        if((module.ne.'tce').and.
-     1     (module.ne.'uci').and.
-     2     (module.ne.'ucis'))
-     3     call errquit('tce_init: uci/ucis module overridden',0,
-     4     unknown_err)
-      else if (model.eq.'cisd') then
-        ctype='Configuration interaction singles & doubles'
-        if ((module.ne.'tce').and.
-     1      (module.ne.'uci').and.
-     2      (module.ne.'ucisd'))
-     3    call errquit('tce_init: uci/ucisd module overridden',0,
-     4    UNKNOWN_ERR)
-      else if (model.eq.'cisdt') then
-        nointorb=.true.
-        ctype='Configuration interaction singles, doubles, & triples'
-        if ((module.ne.'tce').and.
-     1      (module.ne.'uci').and.
-     2      (module.ne.'ucisdt'))
-     3    call errquit('tce_init: uci/ucisdt module overridden',0,
-     4    UNKNOWN_ERR)
-      else if (model.eq.'cisdtq') then
-        nointorb=.true.
-        ctype='Configuration interaction singles through quadruples'
-        if ((module.ne.'tce').and.
-     1      (module.ne.'uci').and.
-     2      (module.ne.'ucisdtq'))
-     3    call errquit('tce_init: uci/ucisdtq module overridden',0,
-     4    UNKNOWN_ERR)
-      else if (model.eq.'mbpt2') then
-        ctype='Second-order tensor many-body perturbation theory'
-        if ((module.ne.'tce').and.
-     1      (module.ne.'umbpt').and.
-     2      (module.ne.'umbpt2'))
-     3    call errquit('tce_init: umbpt/umbpt2 module overridden',0,
-     4    UNKNOWN_ERR)
-      else if (model.eq.'mbpt3') then
-        ctype='Third-order tensor many-body perturbation theory'
-        if ((module.ne.'tce').and.
-     1      (module.ne.'umbpt').and.
-     2      (module.ne.'umbpt3'))
-     3    call errquit('tce_init: umbpt/umbpt3 module overridden',0,
-     4    UNKNOWN_ERR)
-      else if (model.eq.'mbpt4') then
-        ctype='Fourth-order tensor many-body perturbation theory'
-        if ((module.ne.'tce').and.
-     1      (module.ne.'umbpt').and.
-     2      (module.ne.'umbpt4'))
-     3    call errquit('tce_init: umbpt/umbpt4 module overridden',0,
-     4    UNKNOWN_ERR)
-      else if (model.eq.'mbpt4sdq') then
-        ctype='Fourth-order tensor many-body perturbation theory 
-     1 with zero T3 approximation'
-        if ((module.ne.'tce').and.
-     1      (module.ne.'umbpt').and.
-     2      (module.ne.'umbpt4'))
-     3    call errquit('tce_init: umbpt/umbpt4 module overridden',0,
-     4    UNKNOWN_ERR)
-      else if (model.eq.'mbpt4sdq_t') then
-        ctype='Fourth-order tensor many-body perturbation theory
-     1 with non-iterative triples'
-        if ((module.ne.'tce').and.
-     1      (module.ne.'umbpt').and.
-     2      (module.ne.'umbpt4'))
-     3    call errquit('tce_init: umbpt/umbpt4 module overridden',0,
-     4    UNKNOWN_ERR)
-#ifdef MRCC_METHODS
-ckbn mrcc-r-1 -3
-      else if (model.eq.'bwccsd') then
-        ctype=
-     1    'State Specific Multireference Brillouin-Wigner CCSD theory'
-      else if (model.eq.'mkccsd') then
-        ctype='State Specific Multireference Mukherjee''s CCSD theory'
-#endif
-      else
-        call errquit('tce_init: unknown theory',0,CAPMIS_ERR)
-      endif
-c
-c     PREVENT "hashv2: key not found" errors
-c
-      if(intorb.and.nointorb) then
-        if(nodezero) then
-          write(LuOut,*) '2eorb does not work with ',ctype
-        endif
-        call errquit('tce_init: method incompatible with 2eorb',
-     +                0,CALC_ERR)
-      endif
 c
 c     -------------------------------------
 c     Allocate global arrays for MO vectors
