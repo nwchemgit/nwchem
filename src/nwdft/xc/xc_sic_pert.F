@@ -113,6 +113,7 @@ cccc g_dens_orb(1) is the orbital density of orb(ik) states
                 jfac(1) = 1.0d0
                 jfac(2) = 1.0d0
                 kfac(2) = 0d0
+                tol2e=10.d0**(-itol2e)
                 call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
      &                       tol2e, oskel, g_dens_orb(1),
      &                       g_vxc_orb(1),.false.)
