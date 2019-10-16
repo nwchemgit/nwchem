@@ -162,8 +162,12 @@ elif  [ ${FC} == xlf ] || [ ${FC} == xlf_r ] || [ ${FC} == xlf90 ]|| [ ${FC} == 
 elif  [ ${FC} == ifort ]; then
     Fortran_FLAGS="-i8 -fpp"
 fi
+if [[ -z "${SIMINT_BUILD_TYPE}" ]]; then
+    SIMINT_BUILD_TYPE=Release
+fi
+    
 FC="${FC}" CXX="${CXX}" $CMAKE \
- -DCMAKE_BUILD_TYPE=Release -DSIMINT_VECTOR=${VEC}  \
+ -DCMAKE_BUILD_TYPE="${SIMINT_BUILD_TYPE}" -DSIMINT_VECTOR=${VEC}  \
  -DCMAKE_INSTALL_LIBDIR=lib -DENABLE_FORTRAN=ON -DSIMINT_MAXAM=${SIMINT_MAXAM} SIMINT_MAXDER=${DERIV} \
  -DENABLE_TESTS=OFF     -DSIMINT_STANDALONE=OFF   \
  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DCMAKE_INSTALL_PREFIX=${SRC_HOME}/simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install ../
