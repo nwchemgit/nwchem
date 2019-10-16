@@ -92,15 +92,12 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix procs $np tce_uhf_uccsd
 ./runtests.mpi.unix procs $np tce_cr_eom_t_ch_rohf
 ./runtests.mpi.unix procs $np tce_cr_eom_t_ozone
-./runtests.mpi.unix procs $np tce_active_ccsdt
 ./runtests.mpi.unix procs $np tce_lr_ccsd_t
 ./runtests.mpi.unix procs $np tce_lr_ccsd_tq
 ./runtests.mpi.unix procs $np tce_ozone_2eorb
 ./runtests.mpi.unix procs $np tce_polar_ccsd_small
 ./runtests.mpi.unix procs $np tce_hyperpolar_ccsd_small
 ./runtests.mpi.unix procs $np tce_eomsd_eomsol1
-./runtests.mpi.unix procs $np tce_eomsd_eomsol2
-./runtests.mpi.unix procs $np tce_uracil_creomact
 #./runtests.mpi.unix procs $np li2h2_tce_ccsd # always hangs
 if [[ ! -z "$MRCC_METHODS" ]]; then
 #  if ( "x$MRCC_METHODS" == "xy" ) then
@@ -262,7 +259,6 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np 5h2o_core
 ./runtests.mpi.unix procs $np h2o_core
 ./runtests.mpi.unix procs $np co_core
-./runtests.mpi.unix procs $np talc
 ./runtests.mpi.unix procs $np carbon_fon
 ./runtests.mpi.unix procs $np ch5n_nbo
 ./runtests.mpi.unix procs $np tpss tpssh
@@ -292,6 +288,9 @@ fi
 ./runtests.mpi.unix procs $np bf_cis
 ./runtests.mpi.unix procs $np oniom3
 ./runtests.mpi.unix procs $np cytosine_ccsd
+./runtests.mpi.unix procs $np tce_active_ccsdt
+./runtests.mpi.unix procs $np tce_uracil_creomact
+./runtests.mpi.unix procs $np tce_eomsd_eomsol2
 echo 'This test requires 16 processors to run quickly'
 ./runtests.mpi.unix procs $np tce_polar_ccsd_big
 ./runtests.mpi.unix procs $np hess_biph
@@ -303,6 +302,7 @@ echo 'The following 2 tests require few processors but a lot of time'
 echo 'The intermediate values for this test may cause some differences.'
 echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix procs $np dielsalder
+./runtests.mpi.unix procs $np talc
 echo 'The intermediate energy values for the numerical gradient '
 echo 'test may cause some differences.'
 echo 'Please check the final gradient values for correctness.'
