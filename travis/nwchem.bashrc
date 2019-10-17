@@ -25,7 +25,7 @@ if [[ "$os" == "Darwin" ]]; then
 fi
 if [[ "$os" == "Linux" ]]; then 
    export NWCHEM_TARGET=LINUX64 
-   if [[ -z "$USE_SIMINT" ]] && [[ "$arch" != "aarch64" ]]; then 
+   if [[ -z "$USE_SIMINT" ]] && [[ "$arch" != "aarch64" ]] && [[ "$NWCHEM_MODULES" != "tce" ]] ; then 
      export BUILD_OPENBLAS="y"
      export BUILD_SCALAPACK="y"
    else
@@ -38,6 +38,18 @@ if [[ "$os" == "Linux" ]]; then
      fi
    fi
      export USE_64TO32="y"
+     if [[ "$arch" == "aarch64" ]]; then
+	 if [[ "$NWCHEM_MODULES" == "tce" ]]; then 
+	     unset BLASOPT
+	     unset LAPACK_LIB
+	     unset SCALAPACK
+	     export USE_INTERNALBLAS=y
+	     unset USE_64TO32
+	     unset BLAS_SIZE
+	     unset SCALAPACK_SIZE
+	 fi
+     fi
+     
 #   fi
 fi
 export OMP_NUM_THREADS=1
@@ -46,6 +58,4 @@ if [[ "$USE_64TO32" == "y" ]]; then
   export BLAS_SIZE=4
   export SCALAPACK_SIZE=4
 fi
-#export USE_PYTHONCONFIG=y
-#export PYTHONVERSION=2.7
-#export PYTHONHOME=/usr
+export NWCHEM_EXECUTABLE=$TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/nwchem_"$arch"_`echo $NWCHEM_MODULES|sed 's/ /-/g'`_"$MPI_IMPL"
