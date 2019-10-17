@@ -1,4 +1,5 @@
-#!/bin/bash -f
+#!/bin/bash
+echo "start compile"
 # source env. variables
  source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
 ls -lrt $TRAVIS_BUILD_DIR|tail -3
@@ -10,13 +11,21 @@ if [[ "$NWCHEM_MODULES" == "tce" ]]; then
 fi
 cd $TRAVIS_BUILD_DIR/src
 if [[ "$arch" == "aarch64" ]]; then 
-    FOPT2="-O1 -fno-aggressive-loop-optimizations"
+    if [[ "$NWCHEM_MODULES" == "tce" ]]; then 
+	FOPT2="-O0 -fno-aggressive-loop-optimizations"
+    else
+	FOPT2="-O1 -fno-aggressive-loop-optimizations"
+    fi
 else    
     FOPT2="-O2 -fno-aggressive-loop-optimizations"
 fi    
  if [[ "$os" == "Darwin" ]]; then 
    if [[ "$NWCHEM_MODULES" == "tce" ]]; then
      FOPT2="-O1 -fno-aggressive-loop-optimizations"
+   fi
+   if [[ ! -z "$USE_SIMINT" ]] ; then 
+       FOPT2="-O0 -fno-aggressive-loop-optimizations"
+       SIMINT_BUILD_TYPE=Debug
    fi
      ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" FOPTIMIZE="$FOPT2" -j3
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
@@ -39,9 +48,10 @@ fi
      cd $TRAVIS_BUILD_DIR/src
      $TRAVIS_BUILD_DIR/contrib/getmem.nwchem 1000
  fi
-#tail -2 $NWCHEM_TOP/src/6log
-#head -2 $NWCHEM_TOP/src/tools/build/config.log
-#tail -2 $NWCHEM_TOP/src/tools/build/config.log
-#tail -10 $NWCHEM_TOP/src/make.log
-#grep HAVE_SCA $TRAVIS_BUILD_DIR/src/tools/build/config.h
-#cd $NWCHEM_TOP/src && make link
+ #caching
+ mkdir -p $TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET $TRAVIS_BUILD_DIR/.cachedir/files
+ cp $TRAVIS_BUILD_DIR/bin/$NWCHEM_TARGET/nwchem  $NWCHEM_EXECUTABLE
+ echo === ls binaries cache ===
+ ls -lrt $TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/ || true
+ echo =========================
+ rsync -av $TRAVIS_BUILD_DIR/src/basis/libraries  $TRAVIS_BUILD_DIR/.cachedir/files/.

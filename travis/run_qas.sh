@@ -3,14 +3,29 @@
 set -ev
 # source env. variables
 source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
- os=`uname`
- arch=`uname -m`
+# check if nwchem binary has been cached
+if [[ -f "$NWCHEM_EXECUTABLE" ]] ; then
+    EXTRA_BUILD=0
+else
+    echo 'Cached NWChem binary not found, recompiling'
+    $TRAVIS_BUILD_DIR/travis/config_nwchem.sh 
+    $TRAVIS_BUILD_DIR/travis/compile_nwchem.sh
+    EXTRA_BUILD=1
+fi
+os=`uname`
+arch=`uname -m`
+export NWCHEM_BASIS_LIBRARY=$TRAVIS_BUILD_DIR/.cachedir/files/libraries/
 if [[ "$arch" == "aarch64" ]]; then
  nprocs=8
 else
  nprocs=2
 fi
  do_largeqas=1
+
+ if [[ "$EXTRA_BUILD" == "1" ]]; then
+     do_largeqas=0
+ fi
+
  if [[ "$os" == "Linux" && "$MPI_IMPL" == "mpich" ]]; then
     export MPIRUN_PATH=/usr/bin/mpirun.mpich
  fi
@@ -31,6 +46,9 @@ fi
             ;;
         esac
 	;;
+    SOCKETS)
+        do_largeqas=0
+        ;;
     MPI-MT)
         do_largeqas=0
         ;;
@@ -45,6 +63,9 @@ fi
 	esac
 	;;
  esac
+ echo === ls binaries cache ===
+ ls -lrt $TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/ || true
+ echo =========================
  if [[ "$NWCHEM_MODULES" == "tce" ]]; then
    cd $TRAVIS_BUILD_DIR/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs tce_n2 tce_ccsd_t_h2o tce_h2o_eomcc
  if  [[ "$do_largeqas" == 1 ]]; then
@@ -63,5 +84,7 @@ fi
        cd $TRAVIS_BUILD_DIR/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs dft_siosi3 h2o_opt
        cd $TRAVIS_BUILD_DIR/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs tddft_h2o h2o2-response
        cd $TRAVIS_BUILD_DIR/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs pspw_md
+       cd $TRAVIS_BUILD_DIR/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs n2_ccsd h2mp2 auh2o aump2
+       cd $TRAVIS_BUILD_DIR/QA && USE_SLEEPLOOP=1 ./runtests.mpi.unix procs $nprocs h2o-camb3lyp-pol h2o-lcpbe prop_ch3f h2o2-prop-notrans
      fi
  fi
