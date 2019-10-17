@@ -84,7 +84,7 @@ matrix:
       env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-PR USE_OPENMP=1
     - stage: compile
       <<: *compile-template-mpich-x86
-      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
+      env: NWCHEM_MODULES="nwdft solvation driver" ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
     - stage: compile
       <<: *compile-template-mpich-x86
       env: NWCHEM_MODULES="tinyqmpw python" ARMCI_NETWORK=MPI-PT USE_OPENMP=1
@@ -99,7 +99,7 @@ matrix:
       env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-TS
     - stage: compile
       <<: *compile-template-ompi-osx
-      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
+      env: NWCHEM_MODULES="nwdft solvation driver" ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
     - stage: compile
       <<: *compile-template-ompi-osx
       env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
@@ -117,7 +117,7 @@ matrix:
       env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-PR USE_OPENMP=1
     - stage: test
       <<: *qatest-template-mpich-x86
-      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
+      env: NWCHEM_MODULES="nwdft solvation driver" ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
     - stage: test
       <<: *qatest-template-mpich-x86
       env: NWCHEM_MODULES="tinyqmpw python" ARMCI_NETWORK=MPI-PT USE_OPENMP=1
@@ -132,7 +132,7 @@ matrix:
       env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-TS
     - stage: test
       <<: *qatest-template-ompi-osx
-      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
+      env: NWCHEM_MODULES="nwdft solvation driver" ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
     - stage: test
       <<: *qatest-template-ompi-osx
       env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
