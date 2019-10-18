@@ -14,7 +14,7 @@ check_file () {
 	echo $file
 	head -2 $file
 	echo ============================================================
-	tail -200 $file
+	tail -260 $file
 	echo ============================================================
 	grep -s 'l DFT energy' $file |tail
 	echo ============================================================
@@ -33,4 +33,5 @@ check_file tddft_h2o
 check_file h2o2-response
 check_file pspw
 check_file pspw_md
+check_file aump2
 
