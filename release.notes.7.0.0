@@ -18,9 +18,9 @@ NEW FUNCTIONALITY
 
 - MetaGGA XC functionals for PSPW
 
-- SCAN/SCANR ... XC functionals for LCAO DFT
+- SCAN, rSCANR, regSCAN, NCAP, revM06 and revM06L XC functionals for LCAO DFT
 
-- Python 3
+- Python 3 interface
 
 - OpenMP GPU offload (work in progress)
 
