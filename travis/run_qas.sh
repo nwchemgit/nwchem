@@ -15,11 +15,7 @@ fi
 os=`uname`
 arch=`uname -m`
 export NWCHEM_BASIS_LIBRARY=$TRAVIS_BUILD_DIR/.cachedir/files/libraries/
-if [[ "$arch" == "aarch64" ]]; then
- nprocs=8
-else
  nprocs=2
-fi
  do_largeqas=1
 
  if [[ "$EXTRA_BUILD" == "1" ]]; then
