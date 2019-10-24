@@ -12,7 +12,9 @@ NWChem 7.0.0 will be released with the latest Global Arrays Toolkit (v5.7).
 
 NEW FUNCTIONALITY 
 
-- Improved and automated Simint Interface
+- Improved and automated Simint Interface.
+  The enviromen variable BUILD_SIMINT triggers the download and compilation of the
+  Simint library
 
 - DUCC Quantum computing 
 
@@ -23,6 +25,12 @@ NEW FUNCTIONALITY
 - Python 3 interface
 
 - OpenMP GPU offload (work in progress)
+
+- New library built from basis set files downloaded from the basissetexchange.org website.
+  Can be used by setting NWCHEM_BASIS_LIBRARY=$NWCHEM_TOP/src/basis/libraries.bse/
+
+- build of OpenBLAS and Scalapack libraries when the enviroment variables
+  BUILD_OPENBLAS and BUILD_SCALAPACK are defined.
 
 BUG FIXES/ENHANCEMENTS
 
