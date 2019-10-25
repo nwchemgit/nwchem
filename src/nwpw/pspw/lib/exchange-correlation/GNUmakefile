@@ -20,7 +20,7 @@ SUBDIRS = vdw-DF
 		beef_gga.o \
 		pw92c.o \
 		vs98.o \
-		tpss03.o scan.o pw91c.o pbe96x.o pbe96c.o
+		tpss03.o scan.o pw91c.o pbe96c.o
 
 #            vdirac.o \
 
