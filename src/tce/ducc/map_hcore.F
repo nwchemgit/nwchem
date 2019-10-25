@@ -291,6 +291,166 @@ c
       END
 c
 c
+      SUBROUTINE mapping_t3(rtdb,d_t3,k_t3_offset,t3,nos,nvs)
+      IMPLICIT NONE
+#include "rtdb.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "errquit.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+       integer rtdb             ! Run-time database
+       integer d_t3
+       integer k_t3_offset
+       integer nos,nvs
+       integer p1b,p2b,p3b,h4b,h5b,h6b
+       integer p1b_1,p2b_1,p3b_1,h4b_1,h5b_1,h6b_1
+       integer i,key
+       integer iph6,iph5,iph4,ipp3,ipp2,ipp1
+       integer p1,p2,p3,h4,h5,h6
+       integer size,k_aux,l_aux
+       double precision t3(nos,nos,nos,
+     &  nos+1:nos+nvs,nos+1:nos+nvs,nos+1:nos+nvs)
+      double precision xxx
+c
+      DO p1b = noab+1,noab+nvab
+      DO p2b = p1b,noab+nvab
+      DO p3b = p2b,noab+nvab
+      DO h4b = 1,noab
+      DO h5b = h4b,noab
+      DO h6b = h5b,noab
+      IF (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1)+int_mb(k_spin+p3b-1)
+     & .eq. int_mb(k_spin+h4b-1)+int_mb(k_spin+h5b-1)+int_mb(k_spin+h6b-
+     &1)) THEN
+      IF (ieor(int_mb(k_sym+p1b-1),ieor(int_mb(k_sym+p2b-1),ieor(int_mb(
+     &k_sym+p3b-1),ieor(int_mb(k_sym+h4b-1),ieor(int_mb(k_sym+h5b-1),int
+     &_mb(k_sym+h6b-1)))))) .eq. irrep_t) THEN
+cuu      IF ((.not.restricted).or.(int_mb(k_spin+p2b-1)+int_mb(k_spin+p3b-1
+cuu     &)+int_mb(k_spin+p4b-1)+int_mb(k_spin+h1b-1)+int_mb(k_spin+h5b-1)+i
+cuu     &nt_mb(k_spin+h6b-1).ne.12)) THEN
+c
+      size =   int_mb(k_range+p1b-1) * int_mb(k_range+p2b-1)
+     1       * int_mb(k_range+p3b-1) * int_mb(k_range+h4b-1)
+     1       * int_mb(k_range+h5b-1) * int_mb(k_range+h6b-1)
+c
+       if (.not.ma_push_get(mt_dbl,size,'t3aux',l_aux,k_aux))
+     1      call errquit('t2map: MA problem',0,MA_ERR)
+c
+      key= h6b - 1 + noab * (h5b - 1 + noab * (h4b
+     &-1+noab * (p3b - noab - 1 + nvab * (p2b - noab - 1 + nvab * (p1b
+     & - noab - 1)))))
+c
+      call tce_restricted_6(p1b,p2b,p3b,h4b,h5b,h6b,p1b_1,p2b_1,p3b_1,
+     &h4b_1,h5b_1,h6b_1)
+c
+      call get_hash_block(d_t3,dbl_mb(k_aux),size,
+     1     int_mb(k_t3_offset),key)
+c
+       i=0   
+       do p1 = 1,int_mb(k_range+p1b-1)
+       do p2 = 1,int_mb(k_range+p2b-1)
+       do p3 = 1,int_mb(k_range+p3b-1)
+       do h4 = 1,int_mb(k_range+h4b-1)
+       do h5 = 1,int_mb(k_range+h5b-1)
+       do h6 = 1,int_mb(k_range+h6b-1)
+          i = i + 1
+          xxx=dbl_mb(k_aux+i-1)
+            if(dabs(xxx).gt.1.0d-11) then !filling t2
+               ipp1=int_mb(k_offset+p1b-1)+p1
+               ipp2=int_mb(k_offset+p2b-1)+p2
+               ipp2=int_mb(k_offset+p3b-1)+p3
+               iph4=int_mb(k_offset+h4b-1)+h4
+               iph5=int_mb(k_offset+h5b-1)+h5
+               iph6=int_mb(k_offset+h6b-1)+h6
+            if((ipp1.lt.ipp2).and.(ipp2.lt.ipp3).and.
+     &         (iph4.lt.iph5).and.(iph5.lt.iph6)) then
+c
+c ipp1,ipp2,ipp3 ->  1
+c ipp1,ipp3,ipp2 -> -1
+c ipp2,ipp1,ipp3 -> -1
+c ipp2,ipp3,ipp1 ->  1
+c ipp3,ipp1,ipp2 ->  1
+c ipp3,ipp2,ipp1 -> -1
+c
+c iph4,iph5,iph6 ->  1
+c iph4,iph6,iph5 -> -1
+c iph5,iph4,iph6 -> -1
+c iph5,iph6,iph4 ->  1
+c iph6,iph4,iph5 ->  1
+c iph6,iph5,iph4 -> -1
+c 
+c iph1,iph2,iph3 base +
+           t3(iph4,iph5,iph6,ipp1,ipp2,ipp3) =  xxx
+           t3(iph4,iph5,iph6,ipp1,ipp3,ipp2) = -xxx
+           t3(iph4,iph5,iph6,ipp2,ipp1,ipp3) = -xxx
+           t3(iph4,iph5,iph6,ipp2,ipp3,ipp1) =  xxx
+           t3(iph4,iph5,iph6,ipp3,ipp1,ipp2) =  xxx
+           t3(iph4,iph6,iph6,ipp3,ipp2,ipp1) = -xxx
+c iph1,iph3,iph2 base -
+           t3(iph4,iph6,iph5,ipp1,ipp2,ipp3) = -xxx
+           t3(iph4,iph6,iph5,ipp1,ipp3,ipp2) =  xxx
+           t3(iph4,iph6,iph5,ipp2,ipp1,ipp3) =  xxx
+           t3(iph4,iph6,iph5,ipp2,ipp3,ipp1) = -xxx
+           t3(iph4,iph6,iph5,ipp3,ipp1,ipp2) = -xxx
+           t3(iph4,iph6,iph5,ipp3,ipp2,ipp1) =  xxx
+c iph2,iph1,iph3 base -
+           t3(iph5,iph4,iph6,ipp1,ipp2,ipp3) = -xxx
+           t3(iph5,iph4,iph6,ipp1,ipp3,ipp2) =  xxx
+           t3(iph5,iph4,iph6,ipp2,ipp1,ipp3) =  xxx
+           t3(iph5,iph4,iph6,ipp2,ipp3,ipp1) = -xxx
+           t3(iph5,iph4,iph6,ipp3,ipp1,ipp2) = -xxx
+           t3(iph5,iph4,iph6,ipp3,ipp2,ipp1) =  xxx
+c iph2,iph3,iph1 base +
+           t3(iph5,iph6,iph4,ipp1,ipp2,ipp3) =  xxx
+           t3(iph5,iph6,iph4,ipp1,ipp3,ipp2) = -xxx
+           t3(iph5,iph6,iph4,ipp2,ipp1,ipp3) = -xxx
+           t3(iph5,iph6,iph4,ipp2,ipp3,ipp1) =  xxx
+           t3(iph5,iph6,iph4,ipp3,ipp1,ipp2) =  xxx
+           t3(iph5,iph6,iph4,ipp3,ipp2,ipp1) = -xxx
+c iph3,iph1,iph2 base +
+           t3(iph6,iph4,iph5,ipp1,ipp2,ipp3) =  xxx
+           t3(iph6,iph4,iph5,ipp1,ipp3,ipp2) = -xxx
+           t3(iph6,iph4,iph5,ipp2,ipp1,ipp3) = -xxx
+           t3(iph6,iph4,iph5,ipp2,ipp3,ipp1) =  xxx
+           t3(iph6,iph4,iph5,ipp3,ipp1,ipp2) =  xxx
+           t3(iph6,iph4,iph5,ipp3,ipp2,ipp1) = -xxx
+c iph3,iph2,iph1 base -
+           t3(iph6,iph5,iph4,ipp1,ipp2,ipp3) = -xxx
+           t3(iph6,iph5,iph4,ipp1,ipp3,ipp2) =  xxx
+           t3(iph6,iph5,iph4,ipp2,ipp1,ipp3) =  xxx
+           t3(iph6,iph5,iph4,ipp2,ipp3,ipp1) = -xxx
+           t3(iph6,iph5,iph4,ipp3,ipp1,ipp2) = -xxx
+           t3(iph6,iph5,iph4,ipp3,ipp2,ipp1) =  xxx
+c
+            endif !ordering iph4<iph5<iph6 etc.
+            endif ! filling t3
+           enddo
+           enddo
+           enddo
+           enddo
+           enddo
+           enddo
+c
+      if (.not.ma_pop_stack(l_aux))
+     1   call errquit('t2map2: MA problem',1,MA_ERR)
+c
+ccx      END IF ! one less
+      END IF
+      END IF
+      END DO
+      END DO
+      END DO
+      END DO
+      END DO
+      END DO
+
+
+c
+      return 
+      end
+c
+c
 c
       SUBROUTINE kinetic_hcore_1(rtdb,f2m,h2m,
      &  nos,nvs,noas,nobs,nvas,nvbs)
@@ -646,6 +806,109 @@ c
 c
 c
 c
+      SUBROUTINE mapping_v2(rtdb,d_v2aux,k_v2aux_offset,
+     1             d_v2,k_v2_offset)
+      IMPLICIT NONE
+#include "rtdb.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "errquit.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+      integer rtdb             ! Run-time database
+      integer g1b,g2b,g3b,g4b
+      integer g1b_1,g2b_1,g3b_1,g4b_1
+      integer size_loc,k_a,l_a
+      integer d_v2aux,k_v2aux_offset
+      integer d_v2,k_v2_offset
+      INTEGER next
+      INTEGER nprocs
+      INTEGER count
+      integer nxtask
+      external nxtask
+      logical nodezero
+c *** debug ***
+      integer ig1,ig2,ig3,ig4,i,ipos1,ipos2,ipos3,ipos4
+c *************
+c
+c
+      nodezero=(ga_nodeid().eq.0)
+c
+c
+      nprocs = GA_NNODES()
+      count = 0
+      next = NXTASK(nprocs, 1)
+c 
+c *** debug ****
+c       write(6,*)"2-electron integrals mapping xxx"
+c **************
+      DO g3b = 1,noab+nvab
+      DO g4b = g3b,noab+nvab
+      DO g1b = 1,noab+nvab
+      DO g2b = g1b,noab+nvab
+      IF (int_mb(k_spin+g3b-1)+int_mb(k_spin+g4b-1) .eq. int_mb(k_spin+g
+     &1b-1)+int_mb(k_spin+g2b-1)) THEN
+      IF (ieor(int_mb(k_sym+g3b-1),ieor(int_mb(k_sym+g4b-1),ieor(int_mb(
+     &k_sym+g1b-1),int_mb(k_sym+g2b-1)))) .eq. irrep_v) THEN
+      IF ((.not.restricted).or.(int_mb(k_spin+g3b-1)+int_mb(k_spin+g4b-1
+     &)+int_mb(k_spin+g1b-1)+int_mb(k_spin+g2b-1).ne.8)) THEN
+      IF (next.eq.count) THEN
+c
+        size_loc = int_mb(k_range+g3b-1)*int_mb(k_range+g4b-1)*
+     &             int_mb(k_range+g1b-1)*int_mb(k_range+g2b-1)
+       IF (.not.MA_PUSH_GET(mt_dbl,size_loc,'a',l_a,k_a))
+     &              CALL ERRQUIT('map1',1,MA_ERR)
+       CALL TCE_RESTRICTED_4(g3b,g4b,g1b,g2b,g3b_1,g4b_1,g1b_1,g2b_1)
+       call  GET_HASH_BLOCK_I(d_v2,dbl_mb(k_a),size_loc,
+     1               int_mb(k_v2_offset),(g2b_1 - 1 + (noab+nvab) *
+     2               (g1b_1 - 1 + (noab+nvab) * (g4b_1 - 1 +
+     3               (noab+nvab) * (g3b_1 - 1)))),
+     4               g2b_1,g1b_1,g4b_1,g3b_1)
+c *** debug ***
+c         write(6,*)"2-electron integrals mapping"
+c         if(int_mb(k_spin+g3b-1)+int_mb(k_spin+g4b-1).eq.3) then 
+c         i=1
+c         do ig3=1,int_mb(k_range+g3b-1)
+c         do ig4=1,int_mb(k_range+g4b-1)
+c         do ig1=1,int_mb(k_range+g1b-1)
+c         do ig2=1,int_mb(k_range+g2b-1)
+c          ipos3=int_mb(k_offset+g3b-1)+ig3
+c          ipos4=int_mb(k_offset+g4b-1)+ig4
+c          ipos1=int_mb(k_offset+g1b-1)+ig1
+c          ipos2=int_mb(k_offset+g2b-1)+ig2
+c          write(6,1000) dbl_mb(k_a+i-1),ipos3,ipos4,ipos1,ipos2
+c          i=i+1 
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         call util_flush
+c         end if ! spin alpha beta alpha beta
+c 1000    format(f15.6,2x,4i6)
+c *************
+       call put_hash_block(d_v2aux,dbl_mb(k_a),size_loc,
+     1             int_mb(k_v2aux_offset),(g2b - 1 + (noab+nvab) *
+     2               (g1b - 1 + (noab+nvab) * (g4b - 1 +
+     3               (noab+nvab) * (g3b - 1)))))
+       IF (.not.MA_POP_STACK(l_a))
+     1          CALL ERRQUIT('ccsd_t2_1',4,MA_ERR)
+c
+      next = NXTASK(nprocs, 1)
+      END IF
+      count = count + 1
+      END IF
+      END IF
+      END IF
+      END DO
+      END DO
+      END DO
+      END DO
+      next = NXTASK(-nprocs, 1)
+      call ga_sync()
+      return
+      end
+
 c
 c
 c
@@ -713,6 +976,12 @@ c vm(i,j,k,l)=(ij|kl)
 c
       nodezero=ga_nodeid().eq.0
       ehfa = 0.0d0
+c
+      do g3b=1,noab+nvab
+       if(int_mb(k_range+g3b-1).ne.1)
+     &      call errquit('TCE_PW:tile eq 1 ',geom,
+     &      GEOM_ERR)
+      enddo
 c
       iha=noas
       ihb=nobs
@@ -832,13 +1101,13 @@ c block p-p
 c
 c
 c *** debug ***
-c       write(6,*)'Fock matrix'
-c       do i=1,nos+nvs
-c       do j=1,nos+nvs
-c        write(6,*) fms(i,j),i,j
-c       enddo
-c       enddo
-c       write(6,*)'--- end of F matrix ---'
+       write(6,*)'Fock matrix'
+       do i=1,nos+nvs
+       do j=1,nos+nvs
+        write(6,*) fms(i,j),i,j
+       enddo
+       enddo
+       write(6,*)'--- end of F matrix ---'
 c *************
 c
 c pw - tce works only for rhf and tilesize=1
@@ -923,11 +1192,11 @@ c
        ene_orb(i)=fms(i,i)
       enddo
 c *** debug ***
-c      write(6,*)'diag fock matrix'
-c      do i=1,nos+nvs
-c        write(6,*) ene_orb(i),i
-c      enddo
-c      write(6,*)'repulsion energy: ',enrep_tce
+      write(6,*)'diag fock matrix'
+      do i=1,nos+nvs
+        write(6,*) ene_orb(i),i
+      enddo
+      write(6,*)'repulsion energy: ',enrep_tce
 c *************
 c
 c
@@ -947,8 +1216,8 @@ c
       enddo
 
 c *** debug ***
-c         write(6,*)'from pw_tce routine ehfa: ',ehfa
-c         call util_flush(6)
+         write(6,*)'from pw_tce routine ehfa: ',ehfa
+         call util_flush(6)
 c *************
 c
 c only nodezer has a value of ehfa !!!!
