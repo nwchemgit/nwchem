@@ -733,7 +733,7 @@
       character*255 datafile
 
       integer nmax,i,j,l,ifound,ngrid(3),tngrid(3)
-      integer gammasdxdydz(2),lk(2),tmp(2)
+      integer gammasdxdydz(2),lk(2),tmp(2),tmp0(2)
       integer Mpack(2),QQ(2),Plm(2),Tlm(2)
       real*8 gx,gy,gz,f1,f2,f3
       real*8 rcut,scut,scut1,salpha,alpha,alpha0
@@ -944,6 +944,8 @@
 *        *****************************
          l = index(datafile,' ') -1
          value = BA_push_get(mt_dbl,nfft3d,'tmp',tmp(2),tmp(1))
+         value = value.and.
+     >           BA_push_get(mt_dbl,nfft3d,'tmp',tmp0(2),tmp0(1))
          if (.not.value)
      >      call errquit('coulomb_filter: out of stack',99,MA_ERR)
          if (taskid.eq.MASTER) then
@@ -952,11 +954,13 @@
             call dwrite(6,unita,9)
             call dwrite(6,unitg,9)
          end if
-         call D3dB_t_write(1,6,Vfilter,dbl_mb(tmp(1)),0)
+         call D3dB_t_Copy(1,Vfilter,dbl_mb(tmp0(1)))
+         call D3dB_t_write(1,6,dbl_mb(tmp0(1)),dbl_mb(tmp(1)),0)
          if (taskid.eq.MASTER) then
             call closefile(6)
          end if
-         value = BA_pop_stack(tmp(2))
+         value =           BA_pop_stack(tmp0(2))
+         value = value.and.BA_pop_stack(tmp(2))
          if (.not.value)
      >      call errquit('coulomb_filter:popping stack',99,MA_ERR)
 
