@@ -258,6 +258,8 @@
       external nwpw_cosmo_on
       integer  nwpw_cosmo_nq
       external nwpw_cosmo_nq
+      logical  control_incell
+      external control_incell
 
 
       call Parallel_taskid(taskid)
@@ -270,6 +272,7 @@
 *     ***** set periodic ****
       periodic = .true.
       if (control_version().eq.4) periodic = .false.
+      incell_on = periodic.and.control_incell()
 
 *     ***** set makehmass2 ****
       makehmass2 = control_makehmass2()
@@ -350,8 +353,9 @@
         call fcoord_to_real(nion,dbl_mb(r1(1)))
       end if         
 
+
 *     **** make sure qm ions are in cell ***
-      if (periodic) call incell1(nion_qm,dbl_mb(r1(1)))
+      if (incell_on) call incell1(nion_qm,dbl_mb(r1(1)))
 
       call dcopy((3*nion),dbl_mb(r1(1)),1,dbl_mb(r2(1)),1)
 
@@ -2004,7 +2008,7 @@ c      end do
       call ion_trans_sub(nion,trans,dbl_mb(r1(1)))
 
 *     *** make sure ions are in the cell ***
-      if (periodic) then
+      if (incell_on) then
          call incell1(nion_qm,dbl_mb(r1(1)))
          call pspw_qmmm_incell1(dbl_mb(r1(1)))
       end if
@@ -2044,7 +2048,7 @@ c      end do
      >                   trans,dbl_mb(r1(1)),dbl_mb(r2(1)))
 
 *     *** make sure ions are in the cell ***
-      if (periodic) then
+      if (incell_on) then
          call incell1(nion_qm,dbl_mb(r1(1)))
          call pspw_qmmm_incell1(dbl_mb(r1(1)))
       end if
@@ -2141,7 +2145,7 @@ c      end do
       call molecular_fix(dbl_mb(r2(1)), dbl_mb(r1(1)))
 
 *     **** make sure qm ions and fragments are in cell ***
-      if (periodic) then
+      if (incell_on) then
          call incell1(nion_qm,dbl_mb(r2(1)))
          call pspw_qmmm_incell1(dbl_mb(r2(1)))
       end if
@@ -2232,7 +2236,7 @@ c      end do
 
 
 *     **** make sure ions are in cell ***
-      if (periodic) then
+      if (incell_on) then
          call incell3(nion_qm,dbl_mb(r2(1)),
      >                        dbl_mb(r1(1)),
      >                        dbl_mb(r0(1)))
@@ -2462,7 +2466,7 @@ c      dbl_mb(r0(1)+3*ii+2) = h(3)/alpha
 
 
 *     **** make sure ions are in cell ***
-      if (periodic) then
+      if (incell_on) then
          call incell1(nion_qm,dbl_mb(r1(1)))
          call pspw_qmmm_incell1(dbl_mb(r1(1)))
       end if
@@ -2747,7 +2751,7 @@ c      end do
 
 
 *     **** make sure ions are in cell ***
-      if (periodic) then
+      if (incell_on) then
          call incell2(nion_qm,dbl_mb(r2(1)),
      >                        dbl_mb(r1(1)))
          call pspw_qmmm_incell2(dbl_mb(r2(1)),
@@ -2859,7 +2863,7 @@ c      end do
 
 
 *     **** make sure ions are in cell ***
-      if (periodic) then
+      if (incell_on) then
          call incell3(nion_qm,dbl_mb(r2(1)),
      >                        dbl_mb(r1(1)),
      >                        dbl_mb(r0(1)))
@@ -3148,6 +3152,26 @@ c      end do
       return
       end
 
+*     ***************************
+*     *                         *
+*     *     ion_sym_get_op      *
+*     *                         *
+*     ***************************
+      subroutine ion_sym_get_op(opnum,matrix)
+      implicit none
+      integer opnum
+      real*8 matrix(3,4)
+
+#include "sym.fh"
+
+      integer geom
+      common / ION2/ geom
+
+      call sym_op_get(geom,opnum,matrix)
+      return
+      end
+
+
 
 *     ***************************
 *     *                         *
@@ -3167,6 +3191,24 @@ c      end do
       call sym_apply_op(geom,opnum,ks,ks1)
       return
       end
+
+*     ***************************
+*     *                         *
+*     *   ion_sym_group_name    *
+*     *                         *
+*     ***************************
+      character*10 function ion_sym_group_name()
+      implicit none
+
+#include "sym.fh"
+
+      integer geom
+      common / ION2/ geom
+
+      call sym_group_name(geom,ion_sym_group_name)
+      return
+      end
+
 
 
 
