@@ -24,19 +24,19 @@ Source download instructions
 
 git clone https://github.com/nwchemgit/nwchem.git
 
-* 6.8.1 Release
+* 7.0.0 Release
 
-git clone  -b hotfix/release-6-8 https://github.com/nwchemgit/nwchem.git nwchem-6.8.1
+git clone  -b hotfix/release-7-0-0 https://github.com/nwchemgit/nwchem.git nwchem-7.0.0
 
-### Release 6.8.1
+### Release 7.0.0
 
-Release files available at the page  
+~~Release files not available yet at the page  
 https://github.com/nwchemgit/nwchem/releases/tag/6.8.1-release   
 Tar files for download:  
 https://github.com/nwchemgit/nwchem/releases/download/6.8.1-release/nwchem-6.8.1-release.revision-v6.8-133-ge032219-srconly.2018-06-14.tar.bz2   
-https://github.com/nwchemgit/nwchem/releases/download/6.8.1-release/nwchem-6.8.1-release.revision-v6.8-133-ge032219-nonsrconly.2018-06-14.tar.bz2  
+https://github.com/nwchemgit/nwchem/releases/download/6.8.1-release/nwchem-6.8.1-release.revision-v6.8-133-ge032219-nonsrconly.2018-06-14.tar.bz2~~  
 Release notes available at  
-https://github.com/nwchemgit/nwchem/raw/hotfix/release-6-8/release.notes.6.8  
+https://github.com/nwchemgit/nwchem/raw/hotfix/release-7-0-0/release.notes.7.0.0  
 
 ### Documentation
 https://github.com/nwchemgit/nwchem/wiki
