@@ -540,6 +540,8 @@ c           call psp_check_print(ia)
      >                 pack_nwave_all(3),pack_nwave(3)
          end if
 
+         call rho_symmetrizer_print(luout)
+
          write(luout,1270)
          write(luout,1280) control_time_step(),control_fake_mass()
          write(luout,1290) control_tole(),control_tolc()
