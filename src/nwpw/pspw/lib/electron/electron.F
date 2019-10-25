@@ -99,6 +99,9 @@ c      paw_exist = psp_pawexist()
       call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xcp(1)),1)
       call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xce(1)),1)
 
+*     *** initializer symmetrizer ***
+      call rho_symmetrizer_init()
+
       return
       end
 
@@ -120,6 +123,8 @@ c      paw_exist = psp_pawexist()
       logical value
 
 *     **** free heap  memory ****
+      call rho_symmetrizer_end()
+
       value = BA_free_heap(Hpsi_k(2))
       value = value.and.
      >        BA_free_heap(psi_r(2))
@@ -1829,6 +1834,7 @@ cccc#include "frac_occ.fh"
          call D1dB_Vector_SumAll(n2ft3d,dn(1+(ms-1)*n2ft3d))
       end do
       end if
+      call rho_symmetrizer_dn(ispin,n2ft3d,dn)
 
       return
       end
@@ -1916,6 +1922,7 @@ cccccccccc#include "frac_occ.fh"
          call D1dB_Vector_SumAll(n2ft3d,dn(1+(ms-1)*n2ft3d))
       end do
       end if
+      call rho_symmetrizer_dn(ispin,n2ft3d,dn)
 
 
 *     **** generate dng and dnall ****
