@@ -3751,6 +3751,29 @@ c      call Parallel2d_np_i(np)
       end
 
 *     ***********************************
+*     *                                 *
+*     *          D3dB_cc_Mul2           *       
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_cc_Mul2(nb,A,B)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+
+#include "D3dB.fh"
+
+      integer i
+
+      do i=1,nfft3d_map(nb)
+         B(i) = A(i) * B(i)
+      end do
+
+      return
+      end
+
+*     ***********************************
 *     *					*
 *     *	         D3dB_lc_Mask  	 	*	
 *     *					*
