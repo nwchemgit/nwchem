@@ -8,30 +8,30 @@
 *     ****************************************************
 *
 *   This routine does small n (larger gradient) correction in which
-* the function is slowly switched to LDA when (fdnx-xe)>0.
+* the function is slowly switched to PBE when (fdnx-xe)>0.
 *
-      subroutine Becke_smalln_correction(n,n_thrd,agr,fac,beta,lda_c,
+      subroutine Becke_smalln_correction(n,n_thrd,fac,beta,lda_c,
      >                                   chi,chi2,chiSQ,K,F1,F2,
+     >                                   pbex,dfpbednx,dfpbedagrx,
      >                                   xe,fdnx,fdagrx)
       implicit none
-      real*8 n,n_thrd,agr,fac,beta,lda_c,chi,chi2,chiSQ,K,F1,F2
+      real*8 n,n_thrd,fac,beta,lda_c,chi,chi2,chiSQ,K,F1,F2
+      real*8 pbex,dfpbednx,dfpbedagrx
       real*8 xe,fdnx,fdagrx
 
 *     **** constants ****
-      real*8 pi,thrd,frthrd,two_thrd
+      real*8 pi,thrd,frthrd
       parameter (pi=3.14159265358979311599d0)
       parameter (thrd=1.0d0/3.0d0)
       parameter (frthrd=4.0d0/3.0d0)
-      parameter (two_thrd=1.25992104989487319066d0)  ! two_thrd = 2**thrd
 
 *     **** local variables ****
-      real*8 nf,nf_thrd,agrf
+      real*8 nf,nf_thrd
       real*8 x,s,dsdx,tmp1,tmp2,dchi,dF1,dF2
       real*8 dfdnxdagr,ddf0,dxdn,dxdagr,dsdn,dsdagr,xeold
 
       nf = n/fac
       nf_thrd = n_thrd/(fac**thrd)
-      agrf = agr/fac
 
       x = 0.85d0*(fdnx-xe)/(nf_thrd)
       s = dtanh(x)
@@ -57,11 +57,11 @@
       dsdagr = dsdx*dxdagr
 
       xeold = xe
-      xe     = (1.0d0-s)*xe + (-nf_thrd*(lda_c)*s)
-
-      fdnx   = (1.0d0-s)*fdnx + (-nf_thrd*frthrd*(lda_c)*s)
-     >       + dsdn*(-xeold -nf_thrd*(lda_c))*nf
-      fdagrx = (1.0d0-s)*fdagrx - dsdagr*(xeold + nf_thrd*(lda_c))*nf
+      xe     = (1.0d0-s)*xeold   + s*pbex
+      fdnx   = (1.0d0-s)*fdnx    + s*dfpbednx   
+     >       + dsdn  *nf*(-xeold + pbex)
+      fdagrx = (1.0d0-s)*fdagrx  + s*dfpbedagrx 
+     >       + dsdagr*nf*(-xeold + pbex)
       return
       end
 
@@ -150,6 +150,9 @@
       real*8  n_mthrd,n_mfrthrd,n_mfvthrd
       real*8   nup_etthrd,nup_fvthrd
       real*8   ndn_etthrd,ndn_fvthrd
+      real*8  xeup_pbe,xedn_pbe
+      real*8  fdnxup_pbe,fdnxdn_pbe
+      real*8  fdagrxup_pbe,fdagrxdn_pbe
  
       
       !twthrd = thrd*2.0d0
@@ -192,7 +195,6 @@
           fdagrxup = 0.0d0
           fdagrxdn = 0.0d0
        else
-      
 *         **************UP*******************
           if (dn_in(j,1).lt.DNS_CUT) then
              xeup     = 0.0d0
@@ -215,10 +217,14 @@
              fdagrxup = -beta*chiup*F2up 
          
              if ((fdnxup-xeup).gt.0.0d0) then
-             call Becke_smalln_correction(nup,nup_thrd,agrup,1.0d0,beta,
-     >                               lda_c,
-     >                               chiup,chiup2,chiupSQ,Kup,F1up,F2up,
-     >                               xeup,fdnxup,fdagrxup)
+               call gen_PBE96_x_unrestricted(nup,agrup,
+     >                                xeup_pbe,fdnxup_pbe,fdagrxup_pbe)
+
+               call Becke_smalln_correction(nup,nup_thrd,1.0d0,
+     >                                      beta,lda_c,chiup,chiup2,
+     >                                      chiupSQ,Kup,F1up,F2up,
+     >                                xeup_pbe,fdnxup_pbe,fdagrxup_pbe, 
+     >                                xeup,fdnxup,fdagrxup)
              end if
           end if
 *         ************END UP*****************
@@ -244,10 +250,14 @@
      &             *(lda_c+beta*(F1dn-chidn2*F2dn))
              fdagrxdn = -beta*chidn*F2dn
              if ((fdnxdn-xedn).gt.0.0d0) then
-             call Becke_smalln_correction(ndn,ndn_thrd,agrdn,1.0d0,beta,
-     >                               lda_c,
-     >                               chidn,chidn2,chidnSQ,Kdn,F1dn,F2dn,
-     >                               xedn,fdnxdn,fdagrxdn)
+               call gen_PBE96_x_unrestricted(ndn,agrdn,
+     >                                xedn_pbe,fdnxdn_pbe,fdagrxdn_pbe)
+
+               call Becke_smalln_correction(ndn,ndn_thrd,1.0d0,
+     >                                      beta,lda_c,chidn,chidn2,
+     >                                      chidnSQ,Kdn,F1dn,F2dn,
+     >                                xedn_pbe,fdnxdn_pbe,fdagrxdn_pbe, 
+     >                                xedn,fdnxdn,fdagrxdn)
              end if 
           end if 
 *         ***********END DOWN****************
@@ -518,6 +528,7 @@ c       write(*,*)
       real*8    K
       real*8    F1, F2      
       real*8    xe,fdnx,fdagrx
+      real*8    xe_pbe,fdnx_pbe,fdagrx_pbe
       real*8    ce,fdnc, fdagrc,fdnc_lda
 
       real*8    fc_lda,Ho,Ho_n,Gc_n,Gc_nn,Fc_n,Fc_nn
@@ -596,9 +607,12 @@ c       write(*,*)
      &               *(lda_c+beta*(F1-chi2*F2))
           fdagrx = -beta*chi*F2 
           if ((fdnx-xe).gt.0.0d0) then
-              call Becke_smalln_correction(n,n_thrd,agr,2.0d0,beta,
-     >                                   lda_c,
-     >                                   chi,chi2,chiSQ,K,F1,F2,
+              call gen_PBE96_x_restricted(n,agr,
+     >                                    xe_pbe,fdnx_pbe,fdagrx_pbe)
+
+              call Becke_smalln_correction(n,n_thrd,2.0d0,beta,
+     >                                   lda_c,chi,chi2,chiSQ,K,F1,F2,
+     >                                   xe_pbe,fdnx_pbe,fdagrx_pbe,
      >                                   xe,fdnx,fdagrx)
           end if
        end if
