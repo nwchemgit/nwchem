@@ -21,13 +21,13 @@ located at the Pacific Northwest National Laboratory (PNNL) in Washington State
 Source download instructions
 
 * Master
-
+```
 git clone https://github.com/nwchemgit/nwchem.git
-
+```
 * 7.0.0 Release
-
+```
 git clone  -b hotfix/release-7-0-0 https://github.com/nwchemgit/nwchem.git nwchem-7.0.0
-
+```
 ### Release 7.0.0
 
 ~~Release files not available yet at the page  
