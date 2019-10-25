@@ -402,6 +402,7 @@ c        call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
         end if
         call D1dB_Vector_SumAll(ispin*n2ft3d,dn)
 
+        call rho_symmetrizer_dn(ispin,n2ft3d,dn)
 
 
 

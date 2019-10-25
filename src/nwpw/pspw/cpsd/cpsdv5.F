@@ -485,6 +485,9 @@ c         end if
 *     **** initialize vdw ****
       call vdw_DF_init()
 
+*     **** initialize rho_symmetry  ****
+      call rho_symmetrizer_init()
+
 *     **** initialize metadynamics ****
       call meta_initialize(rtdb)
 
@@ -666,6 +669,8 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
      >                 ngrid_small(1),ngrid_small(2),ngrid_small(3),
      >                 pack_nwave_all(3),pack_nwave(3)
          end if
+
+         call rho_symmetrizer_print(luout)
 
          write(luout,1270)
          if (.not.control_translation()) write(luout,1271)
@@ -1105,6 +1110,7 @@ c            write(luout,1706) E(18)
       call psp_U_end()
       call vdw_DF_end()
       call nwpw_meta_gga_end()
+      call rho_symmetrizer_end()
       call pspw_end_SIC()
       call pspw_end_HFX()
       call pspw_end_APC()
