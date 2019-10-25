@@ -5396,6 +5396,32 @@ c     >            (ispin.eq.ispin_wf))
       return
       end
 
+*     **************************************
+*     *                                    *
+*     *      control_rho_use_symmetry      *
+*     *                                    *
+*     **************************************
+      logical function control_rho_use_symmetry()
+      implicit none
+      
+#include "bafdecls.fh"
+#include "btdb.fh"
+      
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+      
+      value = .false.
+      if (.not.btdb_get(rtdb,'nwpw:rho_use_symmetry',
+     >     mt_log,1,value))
+     >   value = .false.
+
+      control_rho_use_symmetry = value
+      return                
+      end
+
 
 
 
@@ -6628,9 +6654,30 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *         control_incell          *
+*     *                                 *
+*     ***********************************
+      logical function control_incell()
+      implicit none
 
+#include "bafdecls.fh"
+#include "btdb.fh"
 
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
 
+      logical value
+
+      value = .true.
+      if (.not.btdb_get(rtdb,'nwpw:incell',mt_log,1,value))
+     >   value = .true.
+
+      control_incell = value
+      return
+      end
 
 
 *     ***********************************
