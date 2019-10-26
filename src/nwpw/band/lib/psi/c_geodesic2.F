@@ -20,34 +20,24 @@
 
 *     **** local variables ****
       logical value
-      integer npack1
+      integer npack1,neall,nemax,nbrillq
 
 *     **** external functions **** 
-      integer  psi_ne,psi_neq
-      external psi_ne,psi_neq
-      logical  Dneall_m_allocate,Dneall_4m_allocate
-      external Dneall_m_allocate,Dneall_4m_allocate
+      integer  cpsi_ne,cpsi_neq,Pneb_w_size,Pneb_4w_size
+      external cpsi_ne,cpsi_neq,Pneb_w_size,Pneb_4w_size
 
-      call Pack_npack(1,npack1)
-c      nemax = psi_neq(1)+psi_neq(2)
-c      ne(1) = psi_neq(1)
-c      ne(2) = psi_neq(2)
-
-      value = BA_alloc_get(mt_dcpl,npack1*(psi_neq(1)+psi_neq(2)),
-     >                     'Hold',Hold(2),Hold(1))
-      value = value.and.
-     >        BA_alloc_get(mt_dcpl,npack1*(psi_neq(1)+psi_neq(2)),
-     >                     'Q',Q(2),Q(1))
-      value = value.and.Dneall_m_allocate(0,R)
-      value = value.and.Dneall_m_allocate(0,A)
-      value = value.and.Dneall_4m_allocate(0,V)
-      value = value.and.Dneall_4m_allocate(0,W)
-
-      value = value.and.
-     >        BA_alloc_get(mt_dbl,2*(psi_ne(1)+psi_ne(2)),
-     >                     'S',S(2),S(1))
-      if (.not. value) call errquit('geodesic2_init:allocating heap',0,
-     &       MA_ERR)
+      call Cram_max_npack(npack1)
+      neall  = cpsi_neq(1)+cpsi_neq(2)
+      nemax  = cpsi_ne(1)+cpsi_ne(2)
+      nbrillq = cpsi_nbrillq()
+      
+      Hold_tag  = cpsi_data_alloc(nbrillq,neall,2*npack1)
+      Q_tag     = cpsi_data_alloc(nbrillq,neall,2*npack1)
+      R_tag     = cpsi_data_alloc(nbrillq,1,2*Pneb_w_size(0,1))
+      A_tag     = cpsi_data_alloc(nbrillq,1,2*Pneb_w_size(0,1))
+      V_tag     = cpsi_data_alloc(nbrillq,1,2*Pneb_4w_size(0,1))
+      W_tag     = cpsi_data_alloc(nbrillq,1,2*Pneb_4w_size(0,1))
+      S_tag     = cpsi_data_alloc(nbrillq,2*nemax,1)
 
       return
       end
@@ -61,7 +51,7 @@ c      ne(2) = psi_neq(2)
 *     Uses - c_geodesic2 common block
 *
 
-      subroutine g2eodesic2_finalize()
+      subroutine c_geodesic2_finalize()
       implicit none
 
 #include "bafdecls.fh"
@@ -69,22 +59,15 @@ c      ne(2) = psi_neq(2)
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical value
 
-      logical  Dneall_m_free
-      external Dneall_m_free
 
-      value =           BA_free_heap(S(2))   
-      value = value.and.Dneall_m_free(W)
-      value = value.and.Dneall_m_free(V)
-      value = value.and.Dneall_m_free(A)
-      value = value.and.Dneall_m_free(R)
-      value = value.and.BA_free_heap(Q(2))
-      value = value.and.BA_free_heap(Hold(2))
-      if (.not. value) 
-     >  call errquit('c_geodesic2_finalize:freeing heap memory',0,
-     &       MA_ERR)
-
+      call cpsi_data_dealloc(Hold_tag)
+      call cpsi_data_dealloc(Q_tag)
+      call cpsi_data_dealloc(R_tag)
+      call cpsi_data_dealloc(A_tag)
+      call cpsi_data_dealloc(V_tag)
+      call cpsi_data_dealloc(W_tag)
+      call cpsi_data_dealloc(S_tag)
       return
       end
 
@@ -103,10 +86,9 @@ c      ne(2) = psi_neq(2)
 *
 *     Uses - c_geodesic2 common block
 *
-      subroutine c_geodesic2_start(Y,H,max_sigma,dE)
+      subroutine c_geodesic2_start(Y_tag,H_tag,max_sigma,dE)
       implicit none
-      complex*16 Y(*)
-      complex*16 H(*)
+      integer Y_tag,H_tag
       real*8     max_sigma,dE
 
 #include "bafdecls.fh"
@@ -141,7 +123,9 @@ c      ne(2) = psi_neq(2)
      >   call errquit('geodesic2_start: pushing stack',0, MA_ERR)
 
 *     **** Hold <-- H ****
-      call dcopy(2*npack1*nemax,H,1,dcpl_mb(Hold(1)),1)
+      !call dcopy(2*npack1*nemax,H,1,dcpl_mb(Hold(1)),1)
+      call Parallel_shared_vector_copy(.true.,
+     >                    2*npack1*nemax,H,dcpl_mb(Hold(1)))
 
 *     **** calculate A=<Y|H> ****
       call Dneall_ffm_Multiply(0,Y,H,npack1,dbl_mb(A(1)))
@@ -150,8 +134,8 @@ c      ne(2) = psi_neq(2)
       call Dneall_fmf_Multiply(0,Y,npack1,
      >                         dbl_mb(A(1)),1.0d0,
      >                         dcpl_mb(Q(1)),0.0d0)
-      call daxpy(2*npack1*nemax,(-1.0d0),H,1,dcpl_mb(Q(1)),1)
-      call dscal(2*npack1*nemax,(-1.0d0),dcpl_mb(Q(1)),1)
+      call daxpy_omp(2*npack1*nemax,(-1.0d0),H,1,dcpl_mb(Q(1)),1)
+      call dscal_omp(2*npack1*nemax,(-1.0d0),dcpl_mb(Q(1)),1)
 
 *     **** calculate QR using Modified Gram-Schmidt ****
       call Dneall_fm_QR(0,dcpl_mb(Q(1)),npack1,dbl_mb(R(1)))
@@ -201,7 +185,7 @@ c      ne(2) = psi_neq(2)
 *             R: an nxn matrix
 *     Exit - T: a 2nx2n skew symmetric matrix
 
-      subroutine geodesic2_generate_T(n,A,R,T)
+      subroutine c_geodesic2_generate_T(n,A,R,T)
       implicit none
       integer n
       real*8 A(n,n)
@@ -211,7 +195,8 @@ c      ne(2) = psi_neq(2)
 *     **** local variables ****
       integer i,j
 
-      call dcopy(4*n*n,0.0d0,0,T,1)
+      !call dcopy(4*n*n,0.0d0,0,T,1)
+      call Parallel_shared_vector_zero(.true.,4*n*n,T)
       
 *     **** copy A to upper-left of T ****
       do j=1,n
@@ -254,15 +239,15 @@ c      ne(2) = psi_neq(2)
 *       | N(t) |             | 0 |
 *        -    -               - -
 *
-      subroutine c_geodesic2_get(t,Yold,Ynew)
+      subroutine c_geodesic2_get(t,Yold_tag,Ynew_tag)
       implicit none
       real*8     t
-      complex*16 Yold(*)
-      complex*16 Ynew(*)
+      integer Yold_tag
+      integer Ynew_tag
 
 #include "bafdecls.fh"
 #include "errquit.fh"
-#include "geodesic2.fh"
+#include "c_geodesic2.fh"
 
 *     **** local variables ****
       logical value
@@ -324,11 +309,11 @@ c      ne(2) = psi_neq(2)
 *       | N(t) |             | 0 |
 *        -    -               - -
 *
-      subroutine c_geodesic2_transport(t,Yold,Hnew)
+      subroutine c_geodesic2_transport(t,Yold_tag,Hnew_tag)
       implicit none
       real*8     t
-      complex*16 Yold(*)
-      complex*16 Hnew(*)
+      integer Yold_tag
+      integer Hnew_tag
 
 #include "bafdecls.fh"
 #include "c_geodesic2.fh"
@@ -436,10 +421,10 @@ c      ne(2) = psi_neq(2)
 *
 *      is a skew matrix that is decomposed into V,W,and Sigma
 *      
-      subroutine c_geodesic2_get_MandN(t,M,N)
+      subroutine c_geodesic2_get_MandN(t,M_tag,N_tag)
       implicit none
       real*8 t
-      real*8 M(*),N(*)
+      integer M_tag,N_tag
 
 #include "bafdecls.fh"
 #include "c_geodesic2.fh"
