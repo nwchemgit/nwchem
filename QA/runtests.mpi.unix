@@ -272,6 +272,8 @@ do
       INPUTFILE=`pwd`/mynewinput.nw
       echo INPUTFILE modified for Simint is ${INPUTFILE}
   fi
+  # copy movecs for ducc test
+   [ -f ${TESTDIR}/*.movecs ] && cp ${TESTDIR}/*movecs ${SCRATCHDIR}
   if [ $md_test_run -ne 1 ]; then
     if [ ! -f ${TESTDIR}/${OUTPUTFILE} ]; then
       echo failed: Could not find verified output file $TESTDIR/$OUTPUTFILE
