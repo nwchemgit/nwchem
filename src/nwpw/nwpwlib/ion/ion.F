@@ -3166,8 +3166,8 @@ c      end do
 
       integer geom
       common / ION2/ geom
-      call errquit(' sym_op_get code not ready yet',0,0)
-c      call sym_op_get(geom,opnum,matrix)
+
+      call sym_op_get(geom,opnum,matrix)
       return
       end
 
