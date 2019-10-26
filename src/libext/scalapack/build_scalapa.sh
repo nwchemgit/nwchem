@@ -8,7 +8,7 @@ if [[ -z "$USE_64TO32"   ]] ; then
     exit 1
 fi
 if [[ ! -z "$BUILD_OPENBLAS"   ]] ; then
-    BLASOPT="-L../../../build -lopenblas"
+    BLASOPT="-L`pwd`/../lib -lopenblas"
 fi
 #git clone https://github.com/scibuilder/scalapack.git
 #svn co --non-interactive --trust-server-cert https://icl.utk.edu/svn/scalapack-dev/scalapack/trunk/ scalapack
@@ -16,6 +16,7 @@ rm -rf scalapack*
 curl -L http://www.netlib.org/scalapack/scalapack.tgz -o scalapack.tgz
 VERSION=2.0.2
 tar xzf scalapack.tgz
+patch -p0 < mpistruct.patch
 ln -sf scalapack-${VERSION} scalapack
 mkdir -p scalapack/build
 cd scalapack/build

@@ -1,0 +1,140 @@
+--- ./scalapack-2.0.2/BLACS/SRC/sgamx2d_.c.org	2019-10-25 21:25:06.000000000 -0700
++++ ./scalapack-2.0.2/BLACS/SRC/sgamx2d_.c	2019-10-25 21:28:59.000000000 -0700
+@@ -221,7 +221,11 @@
+       {
+ #endif
+       i = 2;
++#if defined(MPI_VERSION) && (MPI_VERSION >= 2)
++      ierr=MPI_Type_create_struct(i, len, disp, dtypes, &MyType);
++#else
+       ierr=MPI_Type_struct(i, len, disp, dtypes, &MyType);
++#endif
+       ierr=MPI_Type_commit(&MyType);
+       bp->N = bp2->N = 1;
+       bp->dtype = bp2->dtype = MyType;
+--- ./scalapack-2.0.2/BLACS/SRC/cgamx2d_.c.org	2019-10-25 21:24:05.000000000 -0700
++++ ./scalapack-2.0.2/BLACS/SRC/cgamx2d_.c	2019-10-25 21:29:53.000000000 -0700
+@@ -221,7 +221,11 @@
+       {
+ #endif
+       i = 2;
++#if defined(MPI_VERSION) && (MPI_VERSION >= 2)
++      ierr=MPI_Type_create_struct(i, len, disp, dtypes, &MyType);
++#else
+       ierr=MPI_Type_struct(i, len, disp, dtypes, &MyType);
++#endif
+       ierr=MPI_Type_commit(&MyType);
+       bp->N = bp2->N = 1;
+       bp->dtype = bp2->dtype = MyType;
+--- ./scalapack-2.0.2/BLACS/SRC/dgamx2d_.c.org	2019-10-25 21:24:44.000000000 -0700
++++ ./scalapack-2.0.2/BLACS/SRC/dgamx2d_.c	2019-10-25 21:28:17.000000000 -0700
+@@ -221,7 +221,11 @@
+       {
+ #endif
+       i = 2;
++#if defined(MPI_VERSION) && (MPI_VERSION >= 2)
++      ierr=MPI_Type_create_struct(i, len, disp, dtypes, &MyType);
++#else
+       ierr=MPI_Type_struct(i, len, disp, dtypes, &MyType);
++#endif
+       ierr=MPI_Type_commit(&MyType);
+       bp->N = bp2->N = 1;
+       bp->dtype = bp2->dtype = MyType;
+--- ./scalapack-2.0.2/BLACS/SRC/igamx2d_.c.org	2019-10-25 21:24:54.000000000 -0700
++++ ./scalapack-2.0.2/BLACS/SRC/igamx2d_.c	2019-10-25 21:29:39.000000000 -0700
+@@ -218,7 +218,11 @@
+       {
+ #endif
+       i = 2;
++#if defined(MPI_VERSION) && (MPI_VERSION >= 2)
++      ierr=MPI_Type_create_struct(i, len, disp, dtypes, &MyType);
++#else
+       ierr=MPI_Type_struct(i, len, disp, dtypes, &MyType);
++#endif
+       ierr=MPI_Type_commit(&MyType);
+       bp->N = bp2->N = 1;
+       bp->dtype = bp2->dtype = MyType;
+--- ./scalapack-2.0.2/BLACS/SRC/zgamx2d_.c.org	2019-10-25 21:25:16.000000000 -0700
++++ ./scalapack-2.0.2/BLACS/SRC/zgamx2d_.c	2019-10-25 21:28:38.000000000 -0700
+@@ -221,7 +221,11 @@
+       {
+ #endif
+       i = 2;
++#if defined(MPI_VERSION) && (MPI_VERSION >= 2)
++      ierr=MPI_Type_create_struct(i, len, disp, dtypes, &MyType);
++#else
+       ierr=MPI_Type_struct(i, len, disp, dtypes, &MyType);
++#endif
+       ierr=MPI_Type_commit(&MyType);
+       bp->N = bp2->N = 1;
+       bp->dtype = bp2->dtype = MyType;
+--- ./scalapack-2.0.2/BLACS/SRC/sgamn2d_.c.org	2019-10-25 21:25:06.000000000 -0700
++++ ./scalapack-2.0.2/BLACS/SRC/sgamn2d_.c	2019-10-25 21:28:59.000000000 -0700
+@@ -221,7 +221,11 @@
+       {
+ #endif
+       i = 2;
++#if defined(MPI_VERSION) && (MPI_VERSION >= 2)
++      ierr=MPI_Type_create_struct(i, len, disp, dtypes, &MyType);
++#else
+       ierr=MPI_Type_struct(i, len, disp, dtypes, &MyType);
++#endif
+       ierr=MPI_Type_commit(&MyType);
+       bp->N = bp2->N = 1;
+       bp->dtype = bp2->dtype = MyType;
+--- ./scalapack-2.0.2/BLACS/SRC/cgamn2d_.c.org	2019-10-25 21:24:05.000000000 -0700
++++ ./scalapack-2.0.2/BLACS/SRC/cgamn2d_.c	2019-10-25 21:29:53.000000000 -0700
+@@ -221,7 +221,11 @@
+       {
+ #endif
+       i = 2;
++#if defined(MPI_VERSION) && (MPI_VERSION >= 2)
++      ierr=MPI_Type_create_struct(i, len, disp, dtypes, &MyType);
++#else
+       ierr=MPI_Type_struct(i, len, disp, dtypes, &MyType);
++#endif
+       ierr=MPI_Type_commit(&MyType);
+       bp->N = bp2->N = 1;
+       bp->dtype = bp2->dtype = MyType;
+--- ./scalapack-2.0.2/BLACS/SRC/dgamn2d_.c.org	2019-10-25 21:24:44.000000000 -0700
++++ ./scalapack-2.0.2/BLACS/SRC/dgamn2d_.c	2019-10-25 21:28:17.000000000 -0700
+@@ -221,7 +221,11 @@
+       {
+ #endif
+       i = 2;
++#if defined(MPI_VERSION) && (MPI_VERSION >= 2)
++      ierr=MPI_Type_create_struct(i, len, disp, dtypes, &MyType);
++#else
+       ierr=MPI_Type_struct(i, len, disp, dtypes, &MyType);
++#endif
+       ierr=MPI_Type_commit(&MyType);
+       bp->N = bp2->N = 1;
+       bp->dtype = bp2->dtype = MyType;
+--- ./scalapack-2.0.2/BLACS/SRC/igamn2d_.c.org	2019-10-25 21:24:54.000000000 -0700
++++ ./scalapack-2.0.2/BLACS/SRC/igamn2d_.c	2019-10-25 21:29:39.000000000 -0700
+@@ -218,7 +218,11 @@
+       {
+ #endif
+       i = 2;
++#if defined(MPI_VERSION) && (MPI_VERSION >= 2)
++      ierr=MPI_Type_create_struct(i, len, disp, dtypes, &MyType);
++#else
+       ierr=MPI_Type_struct(i, len, disp, dtypes, &MyType);
++#endif
+       ierr=MPI_Type_commit(&MyType);
+       bp->N = bp2->N = 1;
+       bp->dtype = bp2->dtype = MyType;
+--- ./scalapack-2.0.2/BLACS/SRC/zgamn2d_.c.org	2019-10-25 21:25:16.000000000 -0700
++++ ./scalapack-2.0.2/BLACS/SRC/zgamn2d_.c	2019-10-25 21:28:38.000000000 -0700
+@@ -221,7 +221,11 @@
+       {
+ #endif
+       i = 2;
++#if defined(MPI_VERSION) && (MPI_VERSION >= 2)
++      ierr=MPI_Type_create_struct(i, len, disp, dtypes, &MyType);
++#else
+       ierr=MPI_Type_struct(i, len, disp, dtypes, &MyType);
++#endif
+       ierr=MPI_Type_commit(&MyType);
+       bp->N = bp2->N = 1;
+       bp->dtype = bp2->dtype = MyType;
