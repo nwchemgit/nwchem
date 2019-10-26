@@ -2444,8 +2444,8 @@ c  calculate vt  (print only vt(alpha,beta,alpha,beta)
           IF(PRINTINDEX1(P,Q).EQ.1)CYCLE
           IF(abs(HT(P,Q)).GT.PTHRESH)THEN
              IF(NODEZERO) THEN
-               WRITE(6,'(2I5,3X,F18.10)')
-     &         TRANSFORM(P),TRANSFORM(Q),HT(P,Q)
+               WRITE(6,'(A,2I5,3X,F18.10)')
+     &         '1-e int ',TRANSFORM(P),TRANSFORM(Q),HT(P,Q)
                CALL UTIL_FLUSH(6)
              ENDIF
           ENDIF
