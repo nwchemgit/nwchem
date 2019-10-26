@@ -60,7 +60,7 @@ variables:
     - NNPROCS=1
     - if [ "$(uname -s)" == "Darwin" ]; then NNPROCS=2; fi
     - if [ "$(uname -s)" == "Linux" ]; then NNPROCS=4; fi
-    - ./doqmtests.mpi $NNPROCS fast
+    - if [ "$CI_RUNNER_TAGS" == "ubuntu_xenial" ]; then ./doqmtests.mpi $NNPROCS  ; else ./doqmtests.mpi $NNPROCS fast ; fi
   except:
     changes:
       - ".travis.yml"
