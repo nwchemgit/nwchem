@@ -99,6 +99,7 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix procs $np tce_polar_ccsd_small
 ./runtests.mpi.unix procs $np tce_hyperpolar_ccsd_small
 ./runtests.mpi.unix procs $np tce_eomsd_eomsol1
+./runtests.mpi.unix procs $np ducc_be
 #./runtests.mpi.unix procs $np li2h2_tce_ccsd # always hangs
 if [[ ! -z "$MRCC_METHODS" ]]; then
 #  if ( "x$MRCC_METHODS" == "xy" ) then
