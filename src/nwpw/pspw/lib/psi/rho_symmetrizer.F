@@ -217,7 +217,8 @@
       nyh = ny/2
       nzh = nz/2
 
-      call Parallel_Vector_SumAll(n2ft3d_serial,dn_serial)
+      !call Parallel_Vector_SumAll(n2ft3d_serial,dn_serial)
+      call D3dB_Vector_SumAll(n2ft3d_serial,dn_serial)
 
 !$OMP DO
       do k=1,n2ft3d
