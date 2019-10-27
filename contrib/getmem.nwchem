@@ -81,7 +81,7 @@ if [[ $good != 0  ]]; then
   # multiply by 128=(1024/8) to get to doubles
    memproc=$(( memproc * 128 ))
   if [ $good == 1 ]; then
-    copt=" -DDFLT_TOT_MEM="$memproc
+    copt=" -DDFLT_TOT_MEM="$memproc" -DMORE_MA_MEM=1 "
     touch memory_def.F
     echo "Executing " 'make LIB_DEFINES+="'$copt'"'
     make   LIB_DEFINES+="$copt "
