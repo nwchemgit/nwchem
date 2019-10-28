@@ -1,15 +1,20 @@
 #$Id$
 
-OBJ = ducc.o
-
 OBJ_OPTIMIZE =  map_hcore.o rot_vir.o
+include ../../config/makefile.h
+
+ifeq ($(_FC),ifort)
+OBJ += ducc.o
+else
+OBJ_OPTIMIZE += ducc.o
+endif
 
 LIB_INCLUDES = -I../include
 
 LIBRARY = libtce.a
 
 USES_BLAS = rot_vir.F
-            
+
 LIB_DEFINES = -DDEBUG_PRINT
 #
 # Possible #defines
@@ -22,6 +27,5 @@ LIB_DEFINES = -DDEBUG_PRINT
 
 HEADERS = 
 
-include ../../config/makefile.h
 include ../../config/makelib.h
 
