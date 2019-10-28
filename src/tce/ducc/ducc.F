@@ -5,6 +5,7 @@
      D        h,horb,v,
      D        t1,t2,
      D        ht,vt)
+CDIR$ OPTIMIZE: 2
 c
 c  Only for RHF
 c
@@ -88,9 +89,11 @@ c correlation energies
       double precision xxx
 c
       logical nodezero
+      logical oprint_qa
 c
 c
       nodezero = (ga_nodeid().eq.0)
+      oprint_qa=util_print('ducc_qa', print_high)
 c
 c one electron integrals (original core Hamiltonian)    
 c      call kinetic_hcore_1(rtdb,horb)
@@ -2443,9 +2446,14 @@ c  calculate vt  (print only vt(alpha,beta,alpha,beta)
         DO Q = 1, NOS+NVS
           IF(PRINTINDEX1(P,Q).EQ.1)CYCLE
           IF(abs(HT(P,Q)).GT.PTHRESH)THEN
+            if(oprint_qa) then
              IF(NODEZERO) THEN
                WRITE(6,'(A,2I5,3X,F18.10)')
      &         '1-e int ',TRANSFORM(P),TRANSFORM(Q),HT(P,Q)
+           else
+               WRITE(6,'(2I5,3X,F18.10)')
+     &         TRANSFORM(P),TRANSFORM(Q),HT(P,Q)
+           endif
                CALL UTIL_FLUSH(6)
              ENDIF
           ENDIF
