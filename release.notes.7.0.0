@@ -50,6 +50,9 @@ BUG FIXES/ENHANCEMENTS
 
 - port to Flang compiler (aarch64 and x86_64)
 
+- SCS-MP2 optimization can now be performed when the following input directive is present
+  set mp2:scf .true.
+
 - QA test h2o2-response-uhf-damping no longer terminates with memory error
 
 - removed dependencies on csh/tcsh
