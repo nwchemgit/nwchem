@@ -24,6 +24,7 @@ tce
   2emet 13
   ccsd
   thresh 1.0d-8
+  print ducc_qa
 end
 
 set tce:qducc T
