@@ -2207,6 +2207,10 @@ endif
         endif
         ifneq ($(FC),flang)
         FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
+        else
+	  ifdef USE_OPTREPORT
+            FOPTIMIZE  += -Rpass=loop-vectorize -Rpass-missed=loop-vectorize -Rpass-analysis=loop-vectorize
+          endif
         endif
         ifeq ($(GNU_GE_4_8),true)
           FOPTIMIZE  += -ftree-vectorize   
