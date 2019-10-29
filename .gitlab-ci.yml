@@ -173,7 +173,7 @@ linux64_rhel6:build_gcc:
     LAPACK_LIB: " -lopenblas"
     SCALAPACK_LIB: "-L/usr/lib64/mpich/lib -lscalapack"
     PATH: "/usr/lib64/mpich/bin/:/usr/bin:/bin:."
-    ARMCI_NETWORK: "MPI-MT"
+    ARMCI_NETWORK: "MPI-TS"
   tags:
     - rhel_6
 
