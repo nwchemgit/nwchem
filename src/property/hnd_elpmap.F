@@ -164,7 +164,7 @@ c
 c
 c     check if enough mem is available
 c
-      avail_ma = ma_inquire_avail(mt_dbl)*9/10
+      avail_ma = ma_inquire_avail(mt_dbl)*0.9d0
       npasses=nprp*2d0/avail_ma + 1d0
 c
       call ga_igop(msg_efgs_col-4,npasses,1,'max')
