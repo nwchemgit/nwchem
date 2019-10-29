@@ -62,7 +62,7 @@ variables:
     - if [ "$(uname -s)" == "Linux" ]; then NNPROCS=4; fi
     - env | grep NWCH || true
     - env | grep CI_ || mtrue
-    - if [[ "$NWCHEM_TARGET" == "LINUX64"  && ( "$CI_RUNNER_TAGS" == "ubuntu_xenial" ||  "$CI_RUNNER_TAGS" == "ubuntu_bionic" ) ]]; then ./doqmtests.mpi $NNPROCS  ; else ./doqmtests.mpi $NNPROCS fast ; fi
+    - if [[ "$NWCHEM_TARGET" != "LINUX"  && ( "$CI_RUNNER_TAGS" == "ubuntu_xenial" ||  "$CI_RUNNER_TAGS" == "ubuntu_bionic" ) ]]; then ./doqmtests.mpi $NNPROCS  ; else ./doqmtests.mpi $NNPROCS fast ; fi
   except:
     changes:
       - ".travis.yml"
