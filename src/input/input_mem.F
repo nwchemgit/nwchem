@@ -8,6 +8,7 @@ C$Id$
 #include "tcgmsg.fh"
 #include "msgids.fh"
 #include "stdio.fh"
+#include "errquit.fh"
       integer stack_size        ! [output]
       integer heap_size         ! [output]
       integer global_size       ! [output]
@@ -43,6 +44,14 @@ C
      $         Heap_Src, Stack_Size, Stack_Src, Global_Size,
      $         Global_Src )
          EndIf
+c 2GB check on 32bit archs 
+#ifndef EXT_INT
+      if((stack_size+heap_size)*8d0.ge.2d0**31) call errquit
+     c     ( ' sum of stack and heap must be < 2 GB on 32bit archs',
+     c     0    ,MA_ERR)
+      if(global_size*8d0.ge.2d0**31) call errquit
+     c     ( ' global memory must be < 2 GB on 32bit archs',0,MA_ERR)
+#endif      
          rewind LuIn
          call inp_init(LuIn,LuOut)
       endif

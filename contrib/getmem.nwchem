@@ -78,6 +78,14 @@ if [[ $good != 0  ]]; then
       memproc=$mem_min
       echo 'WARNING: Memory/proc increased to ' $mem_min
   fi
+#cap memory to 2GB for 32bit archs
+  if [ $NWCHEM_TARGET == LINUX ] || [ $NWCHEM_TARGET == MACX ] ; then
+      mem32limit=$(( 2600*1024 ))
+    if [ "$memproc" -gt "$mem32limit" ] ; then
+	memproc=$mem32limit
+	echo 'memory resized to 2600 mb on 32bit architectures'
+    fi
+fi    
   # multiply by 128=(1024/8) to get to doubles
    memproc=$(( memproc * 128 ))
   if [ $good == 1 ]; then
