@@ -29,9 +29,6 @@ if [[ -z "${NWCHEM_TOP}" ]]; then
     MYPW=`pwd`
     NWCHEM_TOP=`echo ${DIRUTIL} | sed -e 's/\/contrib.*//' `
 fi
-if [[ -z "$memos" ]]; then
-    memos=30
-fi    
 #
 cd $NWCHEM_TOP/src/input
 a=("" "" "" "" "" "") 
@@ -71,7 +68,7 @@ if [[ $good != 0  ]]; then
   echo "No. of processors    :" $nproc
   echo "Total Memory/proc    :" $memproc "KB = " $memprocgb "GB"
   # take away 20% memory for OS
-  memproc=$(( memproc*80/100 ))
+  memproc=$(( memproc*70/100 ))
   echo cfr $memproc $mem_min
   if [ "$memproc" -lt "$mem_min" ] ; then
       echo 'WARNING: Memory/proc < ' $mem_min
