@@ -270,6 +270,7 @@ echo "qmmm frequency  test  may  fail"
 #
 ##--- frozen density embedding and kinetic-energy functionals
 ./runtests.mpi.unix procs $np h2o2_fde
+./runtests.mpi.unix procs $np tddftgrad_co_cis tddftgrad_n2 tddftgrad_co tddftgrad_n2_uks tddftgrad_ch2o
 #
 #--- if we only want quick tests get out now!
 if [[ "$what" == "fast" ]]; then
@@ -296,8 +297,8 @@ fi
 echo 'This test requires 16 processors to run quickly'
 ./runtests.mpi.unix procs $np tce_polar_ccsd_big
 ./runtests.mpi.unix procs $np hess_biph
-echo 'This test requires >100 processors to run quickly'
-./runtests.mpi.unix procs $np tce_hyperpolar_ccsd_big
+#echo 'This test requires >100 processors to run quickly'
+#./runtests.mpi.unix procs $np tce_hyperpolar_ccsd_big
 echo 'The following 2 tests require few processors but a lot of time'
 ./runtests.mpi.unix procs $np ch4_zts
 ./runtests.mpi.unix procs $np ch4cl_zts
@@ -309,3 +310,6 @@ echo 'The intermediate energy values for the numerical gradient '
 echo 'test may cause some differences.'
 echo 'Please check the final gradient values for correctness.'
 ./runtests.mpi.unix procs $np neb-fch3cl neb-isobutene
+
+./runtests.mpi.unix procs $np tddftgrad_pyridine_opt 
+./runtests.mpi.unix procs $np tddftgrad_phenoxy_radical
