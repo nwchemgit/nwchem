@@ -37,6 +37,8 @@
 *   gga = 300 vs98
 *   gga = 301 tpss03
 *   gga = 302 scan
+*   gga = 303 m06
+*   gga = 304 m06-l
 *
       has_disp = .false.
       has_vdw  = .false.
@@ -835,6 +837,10 @@
         gga = 301
       else if (inp_compare(.false.,exchange_correlation,'scan')) then
         gga = 302
+      else if (inp_compare(.false.,exchange_correlation,'m06')) then
+        gga = 303
+      else if (inp_compare(.false.,exchange_correlation,'m06-l')) then
+        gga = 304
 
       else
         gga = 0
