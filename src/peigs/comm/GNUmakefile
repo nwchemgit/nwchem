@@ -17,7 +17,7 @@ MXOBJ	=	mxbrod.o \
 
 all:		$(MXOBJ)
 
-.EXPORT_ALL_VARIABLES:
+#.EXPORT_ALL_VARIABLES:
 
 .PHONY :	clean
 

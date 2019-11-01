@@ -26,7 +26,7 @@ COBJ  = bortho_f.o \
 
 all:		$(COBJ)
 
-.EXPORT_ALL_VARIABLES:
+#.EXPORT_ALL_VARIABLES:
 
 .PHONY :	clean
 
