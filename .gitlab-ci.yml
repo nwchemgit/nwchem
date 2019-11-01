@@ -42,10 +42,10 @@ variables:
     - if [ "$NWCHEM_TARGET" != "LINUX" ]; then make 64_to_32; fi
     - make -j3
     - ../contrib/getmem.nwchem 
-  except:
-    changes:
-      - ".travis.yml"
-      - "travis/*"
+#  except:
+#    changes:
+#      - ".travis.yml"
+#      - "travis/*"
 
 .test_template: &test_step
   variables:
@@ -63,10 +63,10 @@ variables:
     - env | grep NWCH || true
     - env | grep CI_ || mtrue
     - if [[ "$NWCHEM_TARGET" != "LINUX"  && ( "$CI_RUNNER_TAGS" == "ubuntu_xenial" ||  "$CI_RUNNER_TAGS" == "ubuntu_bionic" ) ]]; then ./doqmtests.mpi $NNPROCS  ; else ./doqmtests.mpi $NNPROCS fast ; fi
-  except:
-    changes:
-      - ".travis.yml"
-      - "travis/*"
+#  except:
+#    changes:
+#      - ".travis.yml"
+#      - "travis/*"
 
 .intel_template: &intel_sourcing
   before_script:
