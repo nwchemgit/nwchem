@@ -93,7 +93,7 @@ COBJ  = \
 all:		$(COBJ)
 		$(peigs_AR) $(peigs_LIB) $?
 
-.EXPORT_ALL_VARIABLES:
+#.EXPORT_ALL_VARIABLES:
 .PHONY:	clean
 clean:		
 	-rm -f *.o maxx.f F*.f

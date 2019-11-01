@@ -6,7 +6,7 @@
 all:	; texi2dvi peigs.texi
 	  dvips peigs.dvi
 
-.EXPORT_ALL_VARIABLES:
+#.EXPORT_ALL_VARIABLES:
 
 .PHONY :	clean
 
