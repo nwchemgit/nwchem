@@ -3,6 +3,10 @@ if [[ "$SCALAPACK_SIZE" != "4"  ]] ; then
     echo SCALAPACK_SIZE must be equal to 4
     exit 1
 fi
+if [[ "$BLAS_SIZE" != "4"  ]] ; then
+    echo BLAS_SIZE must be equal to 4 for SCALAPACK
+    exit 1
+fi
 if [[ -z "$USE_64TO32"   ]] ; then
     echo USE_64TO32 must be set
     exit 1
