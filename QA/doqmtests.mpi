@@ -270,7 +270,12 @@ echo "qmmm frequency  test  may  fail"
 #
 ##--- frozen density embedding and kinetic-energy functionals
 ./runtests.mpi.unix procs $np h2o2_fde
+# tddft gradients
 ./runtests.mpi.unix procs $np tddftgrad_co_cis tddftgrad_n2 tddftgrad_co tddftgrad_n2_uks tddftgrad_ch2o
+# new xc functionals for 7.0.0
+./runtests.mpi.unix procs $np dft_ch3_h2o_revm06
+./runtests.mpi.unix procs $np dft_rscan
+./runtests.mpi.unix procs $np dft_scan
 #
 #--- if we only want quick tests get out now!
 if [[ "$what" == "fast" ]]; then
@@ -278,6 +283,9 @@ if [[ "$what" == "fast" ]]; then
 fi
 #
 #---   long  may not run on workstations
+# new xc functionals for 7.0.0
+./runtests.mpi.unix procs $np dft_scanl
+#
 ./runtests.mpi.unix procs $np aump2 
 ./runtests.mpi.unix procs $np n2_ccsd 
 ./runtests.mpi.unix procs $np benzene_ccsd 
