@@ -273,7 +273,6 @@ echo "qmmm frequency  test  may  fail"
 # tddft gradients
 ./runtests.mpi.unix procs $np tddftgrad_co_cis tddftgrad_n2 tddftgrad_co tddftgrad_n2_uks tddftgrad_ch2o
 # new xc functionals for 7.0.0
-./runtests.mpi.unix procs $np dft_ch3_h2o_revm06
 ./runtests.mpi.unix procs $np dft_rscan
 ./runtests.mpi.unix procs $np dft_scan
 #
