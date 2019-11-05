@@ -215,7 +215,6 @@
 *       **** set the occupations ****
         call cpsi_data_set_next(psir_tag,cpsi_data_get_next(psi1_tag))
 
-
 *       *********************
 *       **** generate dn ****
 *       *********************
@@ -265,7 +264,6 @@
         call Cram_c_pack(0,dcpl_mb(rho(1)))
         call Cram_c_Copy(0,dcpl_mb(rho(1)),dcpl_mb(dng(1)))
 
-
 *       ********************************************************
 *       **** generate dnall - used for semicore corrections ****
 *       ********************************************************
@@ -282,7 +280,6 @@
            call dcopy(ispin*nfft3d,dn,1,dbl_mb(dnall(1)),1)
         end if
         call nwpw_timing_end(11)
-
 
 
 *       *****************************************
@@ -343,7 +340,6 @@ c        !*** this code needs to be optimized!!! ****
      >              Hpsi_tag,
      >              move,dbl_mb(fion(1)))
 
-        
 *       ************************************
 *       **** do a steepest descent step ****
 *       ************************************
@@ -387,7 +383,6 @@ c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
 
            call ion_optimize_step(dbl_mb(fion(1)))
         end if
-
 
 *       *****************************************        
 *       **** lagrange multiplier corrections ****
