@@ -22,8 +22,10 @@
 *     **** crhosymr_block common blocks ****
       integer nx,ny,nz,n2ft3d_serial,n2ft3d
       integer i_grid(2),f_grid(2),sf_grid(2),dn_serial(2),rho0(2)
+      integer dng0(2)
       logical use_sym,use_translation
       common /crhosymr_block0/ i_grid,f_grid,sf_grid,dn_serial,rho0,
+     >                        dng0,
      >                        n2ft3d,n2ft3d_serial,nx,ny,nz,use_sym,
      >                        use_translation
 
@@ -71,10 +73,13 @@
          value = value.and.
      >           BA_alloc_get(mt_dbl,2*n2ft3d,'rho0',
      >                        rho0(2),rho0(1))
+         value = value.and.
+     >           BA_alloc_get(mt_dcpl,nfft3d,'dng0',
+     >                        dng0(2),dng0(1))
          if (.not.value) 
      >      call errquit('rho_symmetrizer_init: out of heap',0, MA_ERR)
 
-         call lattice_r_grid(dbl_mb(sf_grid(1)))
+         call c_lattice_r_grid(dbl_mb(sf_grid(1)))
          call lattice_r1_to_frac(n2ft3d,
      >                           dbl_mb(sf_grid(1)),
      >                           dbl_mb(f_grid(1)))
@@ -92,7 +97,7 @@
             end do
          end do
 
-         call lattice_i_grid(1,int_mb(i_grid(1)))
+         call c_lattice_i_grid(1,int_mb(i_grid(1)))
 
       end if
 
@@ -117,14 +122,17 @@
 *     **** crhosymr_block common blocks ****
       integer nx,ny,nz,n2ft3d_serial,n2ft3d
       integer i_grid(2),f_grid(2),sf_grid(2),dn_serial(2),rho0(2)
+      integer dng0(2)
       logical use_sym,use_translation
       common /crhosymr_block0/ i_grid,f_grid,sf_grid,dn_serial,rho0,
+     >                        dng0,
      >                        n2ft3d,n2ft3d_serial,nx,ny,nz,use_sym,
      >                        use_translation
 
       if (use_sym) then
          value = BA_free_heap(dn_serial(2))
          value = value.and.BA_free_heap(rho0(2))
+         value = value.and.BA_free_heap(dng0(2))
          value = value.and.BA_free_heap(i_grid(2))
          value = value.and.BA_free_heap(f_grid(2))
          value = value.and.BA_free_heap(sf_grid(2))
@@ -241,10 +249,11 @@
 *     *       c_rho_symmetrizer_translate      *
 *     *                                        *
 *     ******************************************
-      subroutine c_rho_symmetrizer_translate(trans,scal1,rho)
+      subroutine c_rho_symmetrizer_translate(trans,scal1,rho,dng)
       implicit none
       real*8     trans(3),scal1
       real*8     rho(*)
+      complex*16 dng(*)
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -258,13 +267,14 @@
       if (.not. value) 
      >   call errquit('c_rho_symmetrizer_translate:push stack',0,0)
 
-      call C3dB_r_SMul1(1,scal1,rho)
-      call C3dB_rc_fft3f(1,rho)
+      call C3dB_rc_SMul(1,scal1,rho,dng)
+      call C3dB_rc_fft3f(1,dng)
     
-      call strfac_translate(trans,dcpl_mb(exi(1)))
-      call C3dB_cc_Mul2(1,dcpl_mb(exi(1)),rho)
+      call cstrfac_translate(trans,dcpl_mb(exi(1)))
+      call C3dB_cc_Mul2(1,dcpl_mb(exi(1)),dng)
 
-      call C3dB_cr_fft3b(1,rho)
+      call C3dB_cr_fft3b(1,dng)
+      call C3dB_cr_real(1,dng,rho)
 
       value = BA_pop_stack(exi(2))
       if (.not. value) 
@@ -314,7 +324,7 @@
       subroutine c_rho_symmetrizer_rho0(use_translation,
      >                               n2ft3d,i_grid,f_grid,sf_grid,rho,
      >                               nx,ny,nz,n2ft3d_serial,
-     >                               dn_serial,rho0,rho1)
+     >                               dn_serial,rho0,rho1,dng0)
       implicit none
       logical use_translation
       integer n2ft3d
@@ -327,6 +337,7 @@
       integer n2ft3d_serial
       real*8  dn_serial(nx,ny,nz)
       real*8  rho0(*),rho1(*)
+      complex*16 dng0(*)
 
 *     **** local variables ****
       logical translation
@@ -372,8 +383,8 @@ c     >           cube_comment,rho)
 
       nops = ion_sym_number_ops()
       call Parallel_shared_vector_zero(.true.,n2ft3d_serial,dn_serial)
-      if (use_translation) call D3dB_r_Copy(1,rho,rho0)
-      call c_rho_symmetrizer_translate(xyz2,scal1,rho0)
+      if (use_translation) call C3dB_r_Copy(1,rho,rho0)
+      call c_rho_symmetrizer_translate(xyz2,scal1,rho0,dng0)
 
       op   = 1
       do while (op.le.nops)
@@ -409,7 +420,7 @@ c         write(*,*) msym(3,1),msym(3,2),msym(3,3)
      >                                  i_grid,
      >                                  dn_serial,rho1)
             if (translation) then
-               call c_rho_symmetrizer_translate(xyz,scal1,rho1)
+               call c_rho_symmetrizer_translate(xyz,scal1,rho1,dng0)
             end if
 
 c             filename = "rhosym"//c_index_name(op)//".cube          "
@@ -463,8 +474,10 @@ c     >           cube_comment,rho)
 *     **** crhosymr_block common blocks ****
       integer nx,ny,nz,n2ft3d_serial,n2ft3d
       integer i_grid(2),f_grid(2),sf_grid(2),dn_serial(2),rho0(2)
+      integer dng0(2)
       logical use_sym,use_translation
       common /crhosymr_block0/ i_grid,f_grid,sf_grid,dn_serial,rho0,
+     >                         dng0,
      >                        n2ft3d,n2ft3d_serial,nx,ny,nz,use_sym,
      >                        use_translation
 
@@ -477,7 +490,8 @@ c     >           cube_comment,rho)
      >                            nx,ny,nz,n2ft3d_serial,
      >                            dbl_mb(dn_serial(1)),
      >                            dbl_mb(rho0(1)),
-     >                            dbl_mb(rho0(1)+n2ft3d))
+     >                            dbl_mb(rho0(1)+n2ft3d),
+     >                            dcpl_mb(dng0(1)))
 
          
          if (ispin.eq.2) then
@@ -489,7 +503,8 @@ c     >           cube_comment,rho)
      >                               nx,ny,nz,n2ft3d_serial,
      >                               dbl_mb(dn_serial(1)),
      >                               dbl_mb(rho0(1)),
-     >                               dbl_mb(rho0(1)+n2ft3d))
+     >                               dbl_mb(rho0(1)+n2ft3d),
+     >                               dcpl_mb(dng0(1)))
          end if
       end if
 
@@ -508,8 +523,10 @@ c     >           cube_comment,rho)
 *     **** crhosymr_block common blocks ****
       integer nx,ny,nz,n2ft3d_serial,n2ft3d
       integer i_grid(2),f_grid(2),sf_grid(2),dn_serial(2),rho0(2)
+      integer dng0(2)
       logical use_sym,use_translation
       common /crhosymr_block0/ i_grid,f_grid,sf_grid,dn_serial,rho0,
+     >                        dng0,
      >                        n2ft3d,n2ft3d_serial,nx,ny,nz,use_sym,
      >                        use_translation
 
