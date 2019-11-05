@@ -882,8 +882,8 @@ c b3pw91
            a2       = 4.4693d0
 c pwb6k
        else if (xccomb(26)) then
-           scales8  = 0.1805d0
-           a1       = 0.9383d0
+           a1       = 0.1805d0
+           scales8  = 0.9383d0
            a2       = 7.7627d0
 c b1b95
        else if (xccomb(23)) then
@@ -905,8 +905,8 @@ c LC-wPBE
           a2      = 5.0897d0
 c hcth120
        else if (xccomb(7)) then
-           scales8  = 0.3563d0
-           a1       = 1.0821d0
+           a1       = 0.3563d0
+           scales8  = 1.0821d0
            a2       = 4.3359d0
 c mpw1b95
        else if (xccomb(21)) then
@@ -915,8 +915,8 @@ c mpw1b95
            a2       = 6.4177d0
 c bop
        else if (xccomb(27)) then
-           scales8  = 0.4870d0
-           a1       = 3.2950d0
+           a1       = 0.4870d0
+           scales8  = 3.2950d0
            a2       = 3.5043d0
 c o-lyp
        else if (xfac(16).eq.1d0.and.cfac(2).eq.1d0) then
@@ -935,8 +935,8 @@ c o-pbe
            a2       = 2.9444d0
 c ssb
         else if (xccomb(46)) then
-           scales8  = -0.0952d0
-           a1       = -0.1744d0
+           a1       = -0.0952d0
+           scales8  = -0.1744d0
            a2       =  5.2170d0
 c mpwb1k
         else if (xccomb(22)) then
