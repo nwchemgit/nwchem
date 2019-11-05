@@ -15,6 +15,7 @@ fi
 os=`uname`
 arch=`uname -m`
 export NWCHEM_BASIS_LIBRARY=$TRAVIS_BUILD_DIR/.cachedir/files/libraries/
+export NWCHEM_NWPW_LIBRARY=$TRAVIS_BUILD_DIR/.cachedir/files/libraryps/
  nprocs=2
  do_largeqas=1
 
