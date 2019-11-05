@@ -556,33 +556,50 @@ c      write(*,*) "xx=",xx
 
       logical same
       integer op,nops,i
-      real*8 ksvec(3),xx,yy
+      real*8 sksvec(3),ksvec1(3),ksvec2(3),xx,yy
 
 *     **** external functions ****
       integer  ion_sym_number_ops
       external ion_sym_number_ops
 
+      do i=1,3
+         ksvec1(i) = k1(i) + 0.5d0
+         ksvec2(i) = k2(i) + 0.5d0
+         do while (ksvec1(i).ge.1.0d0)
+            ksvec1(i) = ksvec1(i)-1.0d0
+         end do 
+         do while (ksvec1(i).lt.0.0d0)
+            ksvec1(i) = ksvec1(i)+1.0d0
+         end do
+
+         do while (ksvec2(i).ge.1.0d0)
+            ksvec2(i) = ksvec2(i)-1.0d0
+         end do 
+         do while (ksvec2(i).lt.0.0d0)
+            ksvec2(i) = ksvec2(i)+1.0d0
+         end do
+      end do
       nops = ion_sym_number_ops()
       op = 1
       same = .false.
       do while ((op.le.nops).and.(.not.same))
-         call ion_sym_apply_op(op,k1,ksvec)
+         call ion_sym_apply_op(op,ksvec1,sksvec)
          op = op + 1
-         do i=1,3
-            do while (ksvec(i).gt.0.5d0)
-               ksvec(i) = ksvec(i)-1.0d0
-            end do 
-            do while (ksvec(i).le.(-0.5d0))
-               ksvec(i) = ksvec(i)+1.0d0
-            end do
-         end do
-         xx =      (ksvec(1) - k2(1))**2
-         xx = xx + (ksvec(2) - k2(2))**2
-         xx = xx + (ksvec(3) - k2(3))**2
+c         do i=1,3
+c            do while (sksvec(i).ge.1.0d0)
+c               sksvec(i) = sksvec(i)-1.0d0
+c            end do 
+c            do while (sksvec(i).lt.0.0d0)
+c               sksvec(i) = sksvec(i)+1.0d0
+c            end do
+c         end do
+         xx =      (sksvec(1) - ksvec2(1))**2
+         xx = xx + (sksvec(2) - ksvec2(2))**2
+         xx = xx + (sksvec(3) - ksvec2(3))**2
          xx = dsqrt(xx)
-         yy =      (ksvec(1) + k2(1))**2
-         yy = yy + (ksvec(2) + k2(2))**2
-         yy = yy + (ksvec(3) + k2(3))**2
+         yy =      (sksvec(1) + ksvec2(1))**2
+         yy = yy + (sksvec(2) + ksvec2(2))**2
+         yy = yy + (sksvec(3) + ksvec2(3))**2
          yy = dsqrt(yy)
          if ((xx.lt.1.0d-6).or.(yy.lt.1.0d-6)) same = .true.
       end do
