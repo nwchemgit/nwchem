@@ -2,8 +2,12 @@
 echo "start compile"
 set -ev
 # source env. variables
- source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
+source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
+echo ============================================================
+env|egrep BLAS     || true
+env|egrep USE_6   || true
 ls -lrt $TRAVIS_BUILD_DIR|tail -3
+echo ============================================================
 os=`uname`
 arch=`uname -m`
 if [[ "$NWCHEM_MODULES" == "tce" ]]; then 

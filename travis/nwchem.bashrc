@@ -2,9 +2,10 @@
 os=`uname`
 arch=`uname -m`
 #export NWCHEM_TOP=$TRAVIS_BUILD_DIR
+#TARBALL=https://github.com/nwchemgit/nwchem/releases/download/v7.0.0-beta1/nwchem-7.0.0-release.revision-5bcf0416-src.2019-11-01.tar.bz2
 export USE_MPI=y
 if [[ "$os" == "Darwin" ]]; then 
-   if [[ "$NWCHEM_MODULES" = "tce" ]]; then
+   if [[ "$NWCHEM_MODULES" = "tce" && -z "$TARBALL" ]]; then
      export USE_INTERNALBLAS=y
    else
      export USE_64TO32="y"
@@ -39,7 +40,7 @@ if [[ "$os" == "Linux" ]]; then
    fi
      export USE_64TO32="y"
      if [[ "$arch" == "aarch64" ]]; then
-	 if [[ "$NWCHEM_MODULES" == "tce" ]]; then 
+         if [[ "$NWCHEM_MODULES" == "tce" && -z "$TARBALL" ]]; then
 	     unset BLASOPT
 	     unset LAPACK_LIB
 	     unset SCALAPACK
