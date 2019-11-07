@@ -3027,9 +3027,11 @@ c      end
 
       integer i
 
+!$OMP DO
       do i=1,n2ft3d_map(nb)
          C(i) = C(i) + A(i)**2
       end do
+!$OMP END DO
       return
       end
 
