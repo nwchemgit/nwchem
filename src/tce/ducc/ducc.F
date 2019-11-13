@@ -68,8 +68,6 @@ C INTERNAL OR EXTERNAL SET.
       INTEGER PRINTINDEX1(NOS+NVS,NOS+NVS)
       logical*1 ACTINDEX2(NOS+NVS,NOS+NVS,NOS+NVS,NOS+NVS)
       logical*1 PRINTINDEX2(NOS+NVS,NOS+NVS,NOS+NVS,NOS+NVS)
-      INTEGER VALUE1
-      INTEGER VALUE2
 c matrices with original integrals
 c h created here from "orbital" matrix horb
       double precision h(nos+nvs,nos+nvs)
@@ -85,7 +83,7 @@ c transformed matrices
 !      double precision FOCKt(nos+nvs,nos+nvs)
       double precision vt(nos+nvs,nos+nvs,nos+nvs,nos+nvs)  
 c correlation energies
-      double precision eccsd,etfnt
+      double precision eccsd
       double precision xxx
 c
       logical nodezero
@@ -211,23 +209,7 @@ c virt b b
 c
        enddo  !j t2->t2e
        enddo  !i t2->t2e
-c calculating <T2e+  F_N  T2e>
-c      etfnt=0.0d0
-c      do i=1,nos
-c      do j=1,nos
-c      do ia=nos+1,nos+nvs
-c      do ib=nos+1,nos+nvs
-c        etfnt=etfnt+0.50d0*ene_orb(ia)*t2(i,j,ia,ib)*t2(i,j,ia,ib)
-c        etfnt=etfnt-0.50d0*ene_orb(i)*t2(i,j,ia,ib)*t2(i,j,ia,ib)
-c      enddo
-c      enddo
-c      enddo
-c      enddo
-c      if(nodezero) then
-c        write(6,*)'From DUCC CCSD corr. ene.-e-part',etfnt
-c        call util_flush(6)
-c      endif
-c
+
 c  Nick's work starts here 
 c  one electron  - only: alpha-alpha & beta-beta
 c  two electron  - only: vt(alpha,beta,alpha,beta)
@@ -2517,12 +2499,10 @@ c  calculate vt  (print only vt(alpha,beta,alpha,beta)
 
       DO P = 1, NOS+NVS
         DO Q = 1, NOS+NVS
-          DO R = 1, P
-            DO S = 1, Q
+          DO R = 1, NOS+NVS
+            DO S = 1, NOS+NVS
               IF(PRINTINDEX2(P,Q,R,S))CYCLE
-              VALUE1=((TRANSFORM(P)*(TRANSFORM(P)+1))/2)+TRANSFORM(R)
-              VALUE2=((TRANSFORM(Q)*(TRANSFORM(Q)+1))/2)+TRANSFORM(S)
-              IF(VALUE1.GE.VALUE2.AND.abs(VT(P,Q,R,S)).GT.PTHRESH)THEN
+              IF(abs(VT(P,Q,R,S)).GT.PTHRESH)THEN
                  IF(NODEZERO) THEN
                    WRITE(6,'(4I5,2X,F18.10)')TRANSFORM(P),
      &             TRANSFORM(R),TRANSFORM(Q),TRANSFORM(S),
@@ -2554,14 +2534,12 @@ c  calculate vt  (print only vt(alpha,beta,alpha,beta)
 !       DO P = 1, NOS+NVS
 !         DO Q = 1, P
 !           IF(PRINTINDEX1(P,Q).EQ.1)CYCLE
-! !          IF(abs(HT(P,Q)).GT.PTHRESH)THEN
 !           I=I+1
 !              IF(NODEZERO) THEN
 !                WRITE(6,'(F18.10,3X,I3)')
 !      &         HT(P,Q),I
 !                CALL UTIL_FLUSH(6)
 !              ENDIF
-! !          ENDIF
 !         ENDDO
 !       ENDDO
 
@@ -2574,9 +2552,7 @@ c  calculate vt  (print only vt(alpha,beta,alpha,beta)
 !         DO Q = 1, NOS+NVS
 !             DO S = 1, NOS+NVS
 !               IF(PRINTINDEX2(P,Q,R,S))CYCLE
-! !               VALUE1=((TRANSFORM(P)*(TRANSFORM(P)+1))/2)+TRANSFORM(R)
-! !               VALUE2=((TRANSFORM(Q)*(TRANSFORM(Q)+1))/2)+TRANSFORM(S)
-!               IF(VALUE1.GE.VALUE2.AND.abs(VT(P,Q,R,S)).GT.PTHRESH)THEN
+!               IF(abs(VT(P,Q,R,S)).GT.PTHRESH)THEN
 !                  IF(NODEZERO) THEN
 !                    WRITE(6,'(4I5,2X,F18.10)')TRANSFORM(P),
 !      &             TRANSFORM(R),TRANSFORM(Q),TRANSFORM(S),VT(P,Q,R,S)
@@ -2588,19 +2564,17 @@ c  calculate vt  (print only vt(alpha,beta,alpha,beta)
 !         ENDDO
 !       ENDDO
 
-! ! ***| PINTING FOR DMRG
+! ! ***| PRINTING FOR DMRG
 !       IF(NODEZERO) THEN
 !         WRITE(6,*)'fcidump'
 !         CALL UTIL_FLUSH(6)
 !       ENDIF
 !       DO P = 1, NOS+NVS
-!         DO R = 1, P
+!         DO R = 1, NOS+NVS
 !           DO Q = 1, NOS+NVS
-!             DO S = 1, Q
+!             DO S = 1, NOS+NVS
 !               IF(PRINTINDEX2(P,Q,R,S))CYCLE
-!               VALUE1=((TRANSFORM(P)*(TRANSFORM(P)+1))/2)+TRANSFORM(R)
-!               VALUE2=((TRANSFORM(Q)*(TRANSFORM(Q)+1))/2)+TRANSFORM(S)
-!               IF(VALUE1.GE.VALUE2.AND.abs(VT(P,Q,R,S)).GT.PTHRESH)THEN
+!               IF(abs(VT(P,Q,R,S)).GT.PTHRESH)THEN
 !                  IF(NODEZERO) THEN
 !                    WRITE(6,'(F18.10,2X,4I4)')VT(P,Q,R,S),TRANSFORM(P),
 !      &             TRANSFORM(R),TRANSFORM(Q),TRANSFORM(S)
@@ -2612,7 +2586,7 @@ c  calculate vt  (print only vt(alpha,beta,alpha,beta)
 !         ENDDO
 !       ENDDO
 !       DO P = 1, NOS+NVS
-!         DO Q = 1, P
+!         DO Q = 1, NOS+NVS
 !           IF(PRINTINDEX1(P,Q).EQ.1)CYCLE
 !           IF(abs(HT(P,Q)).GT.PTHRESH)THEN
 !              IF(NODEZERO) THEN
