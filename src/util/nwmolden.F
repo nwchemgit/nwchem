@@ -333,6 +333,7 @@ c conversion factors fron moldens gaussian.f
       implicit none
 #include "geom.fh"
 #include "errquit.fh"
+#include "global.fh"
       character*(*) rw          ! [input]
       integer geom              ! [input] geometry handler
       integer j
@@ -345,16 +346,19 @@ c conversion factors fron moldens gaussian.f
       character*16 tag
       character*32 element
       character*80 buf
-      logical status
+      logical status,do_io
 !
 ! this might be wrong if something other than atomic units
 ! are specified in the NWChem geometry input, etc.
 !
+      do_io=ga_nodeid().eq.0
+      if(do_io) then
       if(rw.eq.'write') then
       write(MOLDEN_UNIT,100) '[Atoms] AU'
  100  format(a10)
       else
          read(MOLDEN_UNIT,*)
+      endif
       endif
 !
       status = geom_check_handle(geom, 'nwmolden_geom')
@@ -365,6 +369,7 @@ c conversion factors fron moldens gaussian.f
       if (.not.status)
      1   call errquit('nwmolden_geom: error code = ',2,GEOM_ERR)
 !
+      if(do_io) then
       do iat=1,natoms
 !
          status = geom_cent_get(geom, iat, tag, coord, qnuc)
@@ -382,6 +387,7 @@ c conversion factors fron moldens gaussian.f
  300     format(1x,a4,1x,i4,1x,i4,1x,3f17.10)
 !
       enddo
+      endif
 !
       nwmolden_geom = .true.
 !
@@ -395,6 +401,7 @@ c conversion factors fron moldens gaussian.f
 #include "geom.fh"
 #include "bas.fh"
 #include "errquit.fh"
+#include "global.fh"
       character*(*) rw          ! [input]
       integer basis             ! [input] basis handle
       integer geom              ! geometry handler
@@ -407,7 +414,7 @@ c conversion factors fron moldens gaussian.f
       integer nprimo            ! no. of primitives
       integer ngeno             ! no. of contractions
       integer sphcart           ! 0/1 for cartesian/spherical
-      logical status
+      logical status,do_io
 !
       integer max_prim
       parameter (max_prim = 4000)
@@ -425,11 +432,14 @@ c conversion factors fron moldens gaussian.f
       cltype(1)='sp'
       cltype(2)='spd'
 !
+      do_io=ga_nodeid().eq.0
+      if(do_io) then
       if(rw.eq.'write') then
       write(MOLDEN_UNIT,400) '[GTO]'
  400  format(a5)
       else
          read(MOLDEN_UNIT,*)
+      endif
       endif
 !
       status = bas_check_handle(basis,'nwmolden_basis')
@@ -444,6 +454,7 @@ c conversion factors fron moldens gaussian.f
       if (.not.status)
      1   call errquit('nwmolden_basis: error code = ',3,BASIS_ERR)
 !
+      if(do_io) then
       do iatom = 1, natoms
         status = bas_ce2cnr(basis,iatom,ifirst,ilast)
         if (.not.status)
@@ -499,6 +510,7 @@ c conversion factors fron moldens gaussian.f
          read(MOLDEN_UNIT,*)
       endif
       enddo
+      endif
 !
       nwmolden_basis = .true.
 !

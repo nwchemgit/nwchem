@@ -41,7 +41,6 @@ c
 c
       do_io=ga_nodeid().eq.0
       pname='dft_nwmolden: '
-      if(do_io) then
          if(rw.eq.'write') then
             call util_file_name('molden', .false., .false.,filename)
          else
@@ -52,7 +51,6 @@ c
      E        call errquit(pname//'nwmolden_openfile failed ',0,0)
       if(.not.nwmolden_geom(rw,geom))
      E     call errquit(pname//'nwmolden_geom failed ',0,0)
-      endif
 c     create internal basis handle
       if (.not. bas_create(bas, 'ao basis'))
      &   call errquit(pname//'bas_create?', 2, BASIS_ERR)
