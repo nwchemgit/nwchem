@@ -9,7 +9,7 @@ c     https://sourceforge.net/p/janpa/wiki/nwchem2molden/
       subroutine dft_nwmolden(rtdb,geom,
      I     ipol,eval,occ,ir,
      N     nbf, nmo,
-     I     g_movecs,scftype)
+     I     g_movecs,scftype,rw)
       implicit none
 #include "errquit.fh"
 #include "bas.fh"
@@ -24,10 +24,12 @@ c     https://sourceforge.net/p/janpa/wiki/nwchem2molden/
       integer nbf, nmo
       integer g_movecs(*)
       character*(*) scftype
+      character*(*) rw ! [in] read - write
 c
       character*20 pname
       integer ispin
       integer bas
+      character*255 filename
       logical nwmolden_movecs,nwmolden_basis,nwmolden_geom
       external nwmolden_movecs,nwmolden_basis,nwmolden_geom
       logical nwmolden_openfile,nwmolden_closefile
@@ -40,9 +42,15 @@ c
       do_io=ga_nodeid().eq.0
       pname='dft_nwmolden: '
       if(do_io) then
-         if(.not.nwmolden_openfile())
+         if(rw.eq.'write') then
+            call util_file_name('molden', .false., .false.,filename)
+         else
+            if (.not. rtdb_cget(rtdb, 'vectors:molden', 1, filename))
+     $           call errquit('dftnwmolden: no file',0, 0)
+         endif
+      if(.not.nwmolden_openfile(rw,filename))
      E        call errquit(pname//'nwmolden_openfile failed ',0,0)
-      if(.not.nwmolden_geom(geom))
+      if(.not.nwmolden_geom(rw,geom))
      E     call errquit(pname//'nwmolden_geom failed ',0,0)
       endif
 c     create internal basis handle
@@ -67,11 +75,11 @@ c     create internal basis handle
      &        call errquit(pname//'int_normalize failed ', 5, BASIS_ERR)
       endif
       if(do_io) then
-         if(.not.nwmolden_basis(bas))
+         if(.not.nwmolden_basis(rw,bas))
      E        call errquit(pname//'nwmolden_basis failed ',0,0)
 c
 
-         if(.not.nwmolden_movecs(bas,nbf,nmo,
+         if(.not.nwmolden_movecs(rw,bas,nbf,nmo,
      1        eval,occ,ir,
      G        g_movecs,scftype))
      E        call errquit(pname//'nwmolden_movecs failed ',0,0)
@@ -84,7 +92,7 @@ c
          if(do_io) then
          if(.not.nwmolden_closefile())
      E        call errquit(pname//'nwmolden_closefile failed ',0,0)
-      if(.not.do_norm_janpa) then
+      if(.not.do_norm_janpa.and.rw.eq.'write') then
          write(6,*) ' '
          write(6,*) ' Molden file created '
          write(6,*) ' If you plan to use JANPA '
