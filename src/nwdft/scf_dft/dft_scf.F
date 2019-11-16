@@ -924,11 +924,13 @@ c     May not want levelshifting initially until sure that the
 c     transformed Fock matrix will be diagonally dominant, or
 c     alternatively shift the piss out of it.
 c     
-      if (movecs_guess.eq.'restart'.or.ncanorg.eq.1)then
+      if (movecs_guess.eq.'restart'.or.ncanorg.eq.1.or.
+     A     movecs_guess.eq.'fragment')then
          levelshifting = .not.gotsmear(ssmear)
       else
          levelshifting = .false.
       endif
+      write(6,*) ' guess ls ',movecs_guess,levelshifting
       iswitc = 0
       if (ltight)then
          iAOacc = iAOacc_max
@@ -2166,7 +2168,7 @@ c
      O     dbl_mb(k_occ),
      I     int_mb(k_ir),
      N     nbf_ao, nmo,
-     I     g_movecs,scftype)
+     I     g_movecs,scftype,'write')
 
       if (oprint_final_vecs) then
          if (me .eq. 0) then

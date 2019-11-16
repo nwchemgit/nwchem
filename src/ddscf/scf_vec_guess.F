@@ -260,6 +260,13 @@ c
      &           calling_module(1:inp_strlen(calling_module)), 2,
      &           0, nbeta, g_movecs(2), dbl_mb(k_eval+nbf))
          endif
+      else if (movecs_in .eq. 'molden') then
+         nsets = 1
+         if (scftype .eq. 'UHF') nsets = 2
+         call movecs_molden(rtdb, geom, basis,nsets, nmo, g_movecs,
+     .        dbl_mb(k_eval),dbl_mb(k_occ))
+         call scf_movecs_sym_adapt(basis, g_movecs, oprint,
+     &        0, '- initial ', .true.,int_mb(k_irs))
       else
 c
 c        Attempt to read vectors from file movecs_in and see if 

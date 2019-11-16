@@ -27,7 +27,7 @@ c
 c     vectors output filename
 c     
       integer num_dirs, ind, i
-      parameter (num_dirs = 10)
+      parameter (num_dirs = 11)
       character*8 dirs(num_dirs)
       integer max_swap
       parameter (max_swap = 50)
@@ -44,7 +44,8 @@ c
       character*20 swapname
       logical olock
       data dirs /'input', 'output', 'atomic', 'hcore', 'swap',
-     $     'reorder', 'project', 'rotate', 'lock', 'fragment'/
+     $     'reorder', 'project', 'rotate', 'lock', 'fragment',
+     $     'molden'/
 c     
       nfrag = 0  
       vectors_in = ' '
@@ -64,7 +65,8 @@ c
          goto 10
       endif
 c     
-      goto (100, 200, 300, 400, 500, 550, 600, 650, 700, 800, 999) ind
+      goto (100, 200, 300, 400, 500, 550, 600, 650, 700, 800,
+     &     900  , 999) ind
       call errquit('scf_input: unimplemented directive', ind,
      &       CAPMIS_ERR)
 c     
@@ -194,12 +196,23 @@ c
          else
             nfrag = nfrag + 1
             if(nfrag.gt.maxfrag) call errquit(
-     '         ' vec_inp: too many fragment ',maxfrag, INPUT_ERR)
+     $         ' vec_inp: too many fragment ',maxfrag, INPUT_ERR)
             fragments(nfrag) = test
             goto 801
          endif
       endif
       if (nfrag .gt. 0) vectors_in = 'fragment'
+      goto 10
+c     
+c     molden input filename
+c     
+ 900  continue
+      if (.not. inp_a(test)) call errquit
+     $     ('vectors_in: vectors input molden filename', 0, INPUT_ERR)
+      if (vectors_in .ne. ' ')  goto 10000
+      vectors_in='molden'
+      if (.not. rtdb_cput(rtdb, 'vectors:molden', 1, test))
+     $     call errquit('vectors_input: failed to molden_inpf',0,0)
       goto 10
 c     
  999  continue
