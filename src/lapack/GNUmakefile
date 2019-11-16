@@ -148,6 +148,11 @@ ifeq ($(_FC),g77)
     FDEBUG +=-ffloat-store -fno-fast-math
 endif
 ifeq ($(_FC),gfortran)
+ifneq ($(FC),flang)
     FDEBUG +=-ffloat-store -fno-fast-math
+else
+    FDEBUG +=-O0 -g -Kieee -fno-fast-math -fno-finite-math-only
+    FOPTIMIZE +=  -Kieee -fno-fast-math -fno-finite-math-only
+endif
 endif
 
