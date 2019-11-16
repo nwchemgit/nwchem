@@ -41,12 +41,12 @@ c
 c
       do_io=ga_nodeid().eq.0
       pname='dft_nwmolden: '
-         if(rw.eq.'write') then
-            call util_file_name('molden', .false., .false.,filename)
-         else
-            if (.not. rtdb_cget(rtdb, 'vectors:molden', 1, filename))
-     $           call errquit('dftnwmolden: no file',0, 0)
-         endif
+      if(rw.eq.'write') then
+         call util_file_name('molden', .false., .false.,filename)
+      else
+         if (.not. rtdb_cget(rtdb, 'vectors:molden', 1, filename))
+     $        call errquit('dftnwmolden: no file',0, 0)
+      endif
       if(.not.nwmolden_openfile(rw,filename))
      E        call errquit(pname//'nwmolden_openfile failed ',0,0)
       if(.not.nwmolden_geom(rw,geom))
@@ -83,6 +83,13 @@ c
      E        call errquit(pname//'nwmolden_movecs failed ',0,0)
          
       endif
+c     broadcast evals when reading
+      if(rw.eq.'read') then
+         ispin=ma_sizeof(MT_DBL,nbf,MT_BYTE)
+         if(scftype.eq.'UHF') ispin=ispin*2
+         call ga_brdcst(1984, eval, ispin, 0)
+      endif
+      
 c
          if (.not. bas_destroy(bas))
      &      call errquit(pname//'not able to destroy bas:',33,
