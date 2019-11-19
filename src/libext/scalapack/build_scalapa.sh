@@ -33,9 +33,9 @@ mkdir -p scalapack/build
 cd scalapack/build
 if  [[ -n ${FC} ]] &&   [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
     Fortran_FLAGS=" -qintsize=4 -qextname "
-#elif [[ -n ${FC} ]] &&   [[ ${FC} == flang ]]; then
-# unset FC=flang since cmake gets lost
-#       unset FC
+elif [[ -n ${FC} ]] &&   [[ ${FC} == flang ]]; then
+ unset FC=flang since cmake gets lost
+       unset FC
 fi
 if [[ ! -z "$BUILD_SCALAPACK"   ]] ; then
     echo TOP is "$NWCHEM_TOP"
