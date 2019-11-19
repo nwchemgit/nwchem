@@ -1999,10 +1999,12 @@ c        Tally up last energy
 c
          if (nExc.eq.1)then
 c  jbecca START: adding in eelec here
-              Etnew = Ecore + Ecoul + Exc(1) + Edisp + eelec
+              Etnew = Ecore + Ecoul + Exc(1) + Edisp + eelec +
+     T           tdots
          else
 c  jbecca START: adding in eelec here
-              Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + Edisp + eelec
+              Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + Edisp +
+     E           eelec + tdots
          endif
 c
 c        Add in cosmo contributions
