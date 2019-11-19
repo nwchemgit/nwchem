@@ -22,7 +22,7 @@ c
       logical     out 
       integer     iopt
       integer     i,ipol
-      character*3 scftype
+      character*20 scftype
 c
       integer
      &     nodip,noqdp,nootp,nopop,nospin,nodpl,nodhp,nod2hp,
