@@ -578,7 +578,7 @@ c conversion factors fron moldens gaussian.f
       cspins(2) = 'Beta '
 !
       if (scftype.eq.'RHF')   spinref = 1
-      if (scftype.eq.'ROHF')  spinref = 2
+      if (scftype.eq.'ROHF')  spinref = 1
       if (scftype.eq.'UHF')   spinref = 2
       if (scftype.eq.'DFT')   spinref = 1 ! ambiguous
       if (scftype.eq.'MCSCF') spinref = 1
