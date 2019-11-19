@@ -41,6 +41,7 @@ PERMANENT_DIR=`pwd`/testoutputs ./runtests.mpi.unix procs $np dft_hess_start dft
 ./runtests.mpi.unix procs $np h2o_diag_to_cg h2o_cg_to_diag 
 ./runtests.mpi.unix procs $np h2o_diag_opt h2o_cg_opt h2o_diag_opt_ub3lyp h2o_cg_opt_ub3lyp h2o_cg_opt_rob3lyp
 ./runtests.mpi.unix procs $np h2o_diag_to_cg_ub3lyp h2o_cg_to_diag_ub3lyp
+./runtests.mpi.unix procs $np dft_smear
 #
 #---   small tests that should fail!
 echo ' '
