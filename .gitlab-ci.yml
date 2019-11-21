@@ -36,7 +36,7 @@ variables:
     - env|egrep BLAS
     - env|egrep SCALAP || true
     - env|egrep -i mkl || true
-    - cd $CI_PROJECT_DIR/src
+    - cd $HOME/builds/nwc*/src
     - rm -rf tools/ga-* ||true
     - make nwchem_config
     - if [ "$NWCHEM_TARGET" != "LINUX" ]; then make 64_to_32; fi
@@ -60,8 +60,6 @@ variables:
     - NNPROCS=1
     - if [ "$(uname -s)" == "Darwin" ]; then NNPROCS=2; fi
     - if [ "$(uname -s)" == "Linux" ]; then NNPROCS=4; fi
-    - if [ "$(hostname)" == "lagrange" ]; then NNPROCS=2; fi
-    - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then NNPROCS=2; fi
     - env | grep NWCH || true
     - env | grep CI_ || mtrue
     - if [[ "$NWCHEM_TARGET" != "LINUX"  && ( "$CI_RUNNER_TAGS" == "ubuntu_xenial" ||  "$CI_RUNNER_TAGS" == "ubuntu_bionic" ) ]]; then ./doqmtests.mpi $NNPROCS  ; else ./doqmtests.mpi $NNPROCS fast ; fi
@@ -88,6 +86,21 @@ variables:
 .centos8_template: &centos8_sourcing
   before_script:
     - export LD_LIBRARY_PATH=/usr/lib64/mpich/lib
+
+linux64_centos8:build_gcc:
+  stage: build
+  <<: *centos8_sourcing
+  <<: *compile_step
+  variables:
+    BLAS_SIZE: 4
+    SCALAPACK_SIZE: 4
+    BLAS_LIB: "   -lopenblas"
+    LAPACK_LIB: " -lopenblas"
+    SCALAPACK_LIB: "-L/usr/lib64/mpich/lib -lscalapack"
+    PATH: "/usr/lib64/mpich/bin/:/usr/bin:/bin:."
+    ARMCI_NETWORK: "MPI-TS"
+  tags:
+    - centos8
 
 linux64_ubuntu:build_gcc:
   stage: build
@@ -166,21 +179,6 @@ linux_ubuntu:run_gcc:
   tags:
     - ubuntu_xenial
 
-linux64_centos8:build_gcc:
-  stage: build
-  <<: *centos8_sourcing
-  <<: *compile_step
-  variables:
-    BLAS_SIZE: 4
-    SCALAPACK_SIZE: 4
-    BLAS_LIB: "   -lopenblas"
-    LAPACK_LIB: " -lopenblas"
-    SCALAPACK_LIB: "-L/usr/lib64/mpich/lib -lscalapack"
-    PATH: "/usr/lib64/mpich/bin/:/usr/bin:/bin:."
-    ARMCI_NETWORK: "MPI-TS"
-  tags:
-    - centos8
-
 macos:build_gcc:
   stage: build
   <<: *compile_step
@@ -195,7 +193,15 @@ macos:build_gcc:
     ARMCI_NETWORK: "SOCKETS"
   tags:
     - macos_10.13
-    
+
+linux64_centos8:run_gcc:
+  stage: test
+  needs: ["linux64_centos8:build_gcc"]
+  <<: *centos8_sourcing
+  <<: *test_step
+  tags:
+    - centos8
+  
 linux64_ubuntu:run_gcc:
   stage: test
   needs: ["linux64_ubuntu:build_gcc"]
@@ -219,14 +225,6 @@ linux64_ubuntu:run_intel:
   tags:
     - ubuntu_bionic
 
-
-linux64_centos8:run_gcc:
-  stage: test
-  needs: ["linux64_centos8:build_gcc"]
-  <<: *centos8_sourcing
-  <<: *test_step
-  tags:
-    - centos8
 
 macos:run_gcc:
   stage: test
