@@ -60,6 +60,8 @@ variables:
     - NNPROCS=1
     - if [ "$(uname -s)" == "Darwin" ]; then NNPROCS=2; fi
     - if [ "$(uname -s)" == "Linux" ]; then NNPROCS=4; fi
+    - if [ "$(hostname)" == "lagrange" ]; then NNPROCS=2; fi
+    - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then NNPROCS=2; fi
     - env | grep NWCH || true
     - env | grep CI_ || mtrue
     - if [[ "$NWCHEM_TARGET" != "LINUX"  && ( "$CI_RUNNER_TAGS" == "ubuntu_xenial" ||  "$CI_RUNNER_TAGS" == "ubuntu_bionic" ) ]]; then ./doqmtests.mpi $NNPROCS  ; else ./doqmtests.mpi $NNPROCS fast ; fi
@@ -83,7 +85,7 @@ variables:
     - export NWCHEM_EXECUTABLE=${CI_PROJECT_DIR}/../binaries/nwchem_intel
     - export FC=flang
 
-.rhel6_template: &rhel6_sourcing
+.centos8_template: &centos8_sourcing
   before_script:
     - export LD_LIBRARY_PATH=/usr/lib64/mpich/lib
 
@@ -164,9 +166,9 @@ linux_ubuntu:run_gcc:
   tags:
     - ubuntu_xenial
 
-linux64_rhel6:build_gcc:
+linux64_centos8:build_gcc:
   stage: build
-  <<: *rhel6_sourcing
+  <<: *centos8_sourcing
   <<: *compile_step
   variables:
     BLAS_SIZE: 4
@@ -177,7 +179,7 @@ linux64_rhel6:build_gcc:
     PATH: "/usr/lib64/mpich/bin/:/usr/bin:/bin:."
     ARMCI_NETWORK: "MPI-TS"
   tags:
-    - rhel_6
+    - centos8
 
 macos:build_gcc:
   stage: build
@@ -218,13 +220,13 @@ linux64_ubuntu:run_intel:
     - ubuntu_bionic
 
 
-linux64_rhel6:run_gcc:
+linux64_centos8:run_gcc:
   stage: test
-  needs: ["linux64_rhel6:build_gcc"]
-  <<: *rhel6_sourcing
+  needs: ["linux64_centos8:build_gcc"]
+  <<: *centos8_sourcing
   <<: *test_step
   tags:
-    - rhel_6
+    - centos8
 
 macos:run_gcc:
   stage: test
