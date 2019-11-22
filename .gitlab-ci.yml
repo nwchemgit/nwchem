@@ -90,6 +90,7 @@ variables:
 .centos8_template: &centos8_sourcing
   before_script:
     - export LD_LIBRARY_PATH=/usr/lib64/mpich/lib
+    - export PATH=/usr/lib64/mpich/bin/:/usr/bin:/bin:.
 
 linux64_centos8:build_gcc:
   stage: build
