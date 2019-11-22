@@ -53,6 +53,8 @@ variables:
   variables:
     GIT_CLEAN_FLAGS: -ffdx -e bin -e build -e install
   script:
+    - export NWCHEM_TOP=$CI_PROJECT_DIR
+    - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then export NWCHEM_TOP=$HOME/$CI_PROJECT_DIR ; fi
     - if [ "$FC" == "ifort" ]; then source /opt/intel/compilers_and_libraries_2018/linux/bin/compilervars.sh  intel64; fi
     - if [ "$FC" == "ifort" ]; then  export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_intel; fi
     - if [ "$FC" == "flang" ]; then  export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_flang; fi
