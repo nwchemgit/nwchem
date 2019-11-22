@@ -38,7 +38,7 @@ variables:
     - env|egrep -i mkl || true
     - export NWCHEM_TOP=$CI_PROJECT_DIR
     - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then export NWCHEM_TOP=$HOME/$CI_PROJECT_DIR ; fi
-    - cd $NWCHEM_TOP/src ; fi
+    - cd $NWCHEM_TOP/src
     - rm -rf tools/ga-* ||true
     - make nwchem_config
     - if [ "$NWCHEM_TARGET" != "LINUX" ]; then make 64_to_32; fi
