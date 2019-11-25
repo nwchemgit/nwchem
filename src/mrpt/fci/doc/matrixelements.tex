@@ -1,9 +1,15 @@
-\documentstyle [psfig,fullpage,12pt,fleqn]{article}
+\documentclass[fullpage,12pt,fleqn]{article}
+\usepackage{graphicx}
+\usepackage{verbatim}
+%\usepackage{biblatex}
+%\usepackage{natbib}
+%\usepackage{natbib}
+\usepackage[square,sort,comma,numbers]{natbib}
+\bibliographystyle{unsrtnat}
+%\input{commands}
+%\input{bibstuff}
 
-\input{commands}
-\input{bibstuff}
-
-\newcommand{\RN}[1]{\underline{r}_{#1}}
+\newcommand{\RNold}[1]{\underline{r}_{#1}}
 \newcommand{\nCr}[2]{\left(\begin{array}{c} #1 \\ #2 \end{array}\right)}
 \newcommand{\half}{\frac{1}{2}}
 
@@ -65,16 +71,16 @@ methodology, or a graduate student.
 constructed as a product of the spatial and spin components.  For
 instance,
 \begin{equation}
- \varphi_{i}(\RN{1}) = \phi_i(\RN{1}) \sigma_i(1)
+ \varphi_{i}(\RNold{1}) = \phi_i(\RNold{1}) \sigma_i(1)
 \mbox{, $\sigma_i = \alpha$ or $\beta$}
 \end{equation}
 A determinantal electronic wavefunction ($\Phi$) is simply an
 antisymmetrized product of spin orbitals:
 \begin{eqnarray}
-  \Phi & = & \left| \varphi_{1}(\RN{1}) \varphi_{2}(\RN{2}) \cdots
-\varphi_{n}(\RN{n}) \right | \\
-       & = & {\cal A} \; \varphi_{1}(\RN{1}) \varphi_{2}(\RN{2}) \cdots
-\varphi_{n}(\RN{n}) \\
+  \Phi & = & \left| \varphi_{1}(\RNold{1}) \varphi_{2}(\RNold{2}) \cdots
+\varphi_{n}(\RNold{n}) \right | \\
+       & = & {\cal A} \; \varphi_{1}(\RNold{1}) \varphi_{2}(\RNold{2}) \cdots
+\varphi_{n}(\RNold{n}) \\
 {\cal A} & = & \frac{1}{\sqrt{n!}} \sum_{P} (-1)^P P.
 \end{eqnarray}
 ${\cal A}$ is the antisymmetrizer and the sum in its definition ranges
@@ -95,10 +101,10 @@ One very common ordering, especially for full-CI programs
 \cite{handyfci}, is to occupy all alpha spin orbitals before all beta spin
 orbitals, and suborder by spatial orbital index within each group.
 \begin{equation}
-\underbrace{\phi_{1}(\RN{1})\alpha(1) \cdots
-\phi_{n_{\alpha}}(\RN{n_{\alpha}})\alpha(n_{\alpha})}_{\mbox{Alpha orbitals}}
-\underbrace{\phi_{n_{\alpha}+1}(\RN{n_{\alpha}+1})\beta(n_{\alpha}+1) \cdots 
-\phi_{n}(\RN{n})\beta_{n}(n)}_{\mbox{Beta orbitals}}
+\underbrace{\phi_{1}(\RNold{1})\alpha(1) \cdots
+\phi_{n_{\alpha}}(\RNold{n_{\alpha}})\alpha(n_{\alpha})}_{\mbox{Alpha orbitals}}
+\underbrace{\phi_{n_{\alpha}+1}(\RNold{n_{\alpha}+1})\beta(n_{\alpha}+1) \cdots 
+\phi_{n}(\RNold{n})\beta_{n}(n)}_{\mbox{Beta orbitals}}
 \end{equation}
 The alpha or beta occupations are often referred to as strings.  This
 separate treatment of each spin leads to a natural ordering of the
@@ -125,10 +131,10 @@ spin-orbital precede the beta spin-orbital, and
 index.
 \end{itemize}
 \begin{equation}
-\underbrace{\phi_{1}(\RN{1})\alpha(1)\phi_{1}(\RN{2})\beta(2) \cdots
-\phi_{d}(\RN{2d})\beta(2d)}_{\mbox{doubly occupied}}
-\underbrace{\phi_{d+1}(\RN{2d+1})\sigma_{d+1}(2d+1) \cdots 
-\phi_{d+s}(\RN{n})\sigma_{n}(2d+s)}_{\mbox{singly occupied}}
+\underbrace{\phi_{1}(\RNold{1})\alpha(1)\phi_{1}(\RNold{2})\beta(2) \cdots
+\phi_{d}(\RNold{2d})\beta(2d)}_{\mbox{doubly occupied}}
+\underbrace{\phi_{d+1}(\RNold{2d+1})\sigma_{d+1}(2d+1) \cdots 
+\phi_{d+s}(\RNold{n})\sigma_{n}(2d+s)}_{\mbox{singly occupied}}
 \end{equation}
 with $d$ doubly-occupied orbitals, and $s$ singly-occupied (or
 open-shell) orbitals.  
@@ -136,8 +142,8 @@ It is more convenient if we group the spatial and spin
 functions separately,
 \begin{eqnarray}
 \Phi & = & {\cal A} \; \left[
-\left(\phi_{1}(\RN{1})\phi_{1}(\RN{2}) \cdots \phi_{d}(\RN{2d})
-\phi_{d+1}(\RN{2d+1}) \cdots \phi_{d+s}(\RN{n}) \right)\right. \\
+\left(\phi_{1}(\RNold{1})\phi_{1}(\RNold{2}) \cdots \phi_{d}(\RNold{2d})
+\phi_{d+1}(\RNold{2d+1}) \cdots \phi_{d+s}(\RNold{n}) \right)\right. \\
  & & \left.\left(\alpha(1)\beta(2) \cdots \beta(2d) \sigma_{d+1}(2d+1) \cdots 
 \sigma_{n}(2d+s)\right)\right]
 \end{eqnarray}
@@ -187,8 +193,8 @@ the $s$ unpaired electrons coupled with $S_z=m$ is then finally
 written as
 \begin{eqnarray}
   |I\mu\! > & = & {\cal A} \; |I\! > \Delta \theta^{(s)}_{m,\mu} , \\
-  |I\! > & = & \phi_{1}(\RN{1})\phi_{1}(\RN{2}) \cdots \phi_{d}(\RN{2d-1}\phi_{d}(\RN{2d})
-\phi_{d+1}(\RN{2d+1}) \cdots \phi_{d+s}(\RN{n}) \\
+  |I\! > & = & \phi_{1}(\RNold{1})\phi_{1}(\RNold{2}) \cdots \phi_{d}(\RNold{2d-1}\phi_{d}(\RNold{2d})
+\phi_{d+1}(\RNold{2d+1}) \cdots \phi_{d+s}(\RNold{n}) \\
   \Delta & = &\alpha(1)\beta(2) \cdots \alpha(2d) \beta(2d) \\
   \theta^{(s)}_{m,\mu} & = & \sigma_{d+1}(2d+1) \cdots
 \sigma_{n}(2d+s)
@@ -214,7 +220,8 @@ versa) on this graph is equal to the total number of determinants.
 
 \center
 
-\centerline{\psfig{figure=mspingraph.eps,angle=270}}
+%\centerline{\psfig{figure=mspingraph.eps,angle=270}}
+\includegraphics[angle=270]{mspingraph.eps}
 \caption{\label{mgraph} Graph of the primitive spin functions for 8
 open-shell electrons coupled to $S_z=0$.}
 \end{figure}
@@ -226,8 +233,8 @@ sum of the weights of the (one or two) nodes that connect to it, and
 the weight of the first node is one.  
 
 A walk on the graph is commonly represented with a plus sign
-(\verb=+=) or number 1 for upward moves (alpha occupation) and a minus
-sign (\verb=-=) or number 2 for downward moves (beta occupation).  To
+(\verb!+!) or number 1 for upward moves (alpha occupation) and a minus
+sign (\verb!-!) or number 2 for downward moves (beta occupation).  To
 number each walk on the graph we must adopt some ordering and we use
 the standard lexical order which places all functions coming from node
 $(s-1,S_z+\half )$ before those from $(s-1,S_z-\half )$.
@@ -242,52 +249,52 @@ Table \ref{mwalks}.
 
 \begin{tabular}{lc|lc|lc}
  Index & Walk & Index & Walk & Index & Walk \\ \hline
- 1 &  \verb=+ + + + - - - -= & 25  &  \verb=- - + + + - + -= & 49 &
-\verb=+ - - + - + - += \\
- 2 &  \verb=+ + + - + - - -= & 26  &  \verb=+ + - - - + + -=    & 50 &
-\verb=- + - + - + - += \\
- 3 &  \verb=+ + - + + - - -= & 27  &  \verb=+ - + - - + + -=    & 51 &
-\verb=- - + + - + - += \\
- 4 &  \verb=+ - + + + - - -= & 28  &  \verb=- + + - - + + -=    & 52 &
-\verb=+ - - - + + - += \\
- 5 &  \verb=- + + + + - - -= & 29  &  \verb=+ - - + - + + -=    & 53 &
-\verb=- + - - + + - += \\
- 6 &  \verb=+ + + - - + - -= & 30  &  \verb=- + - + - + + -=    & 54 &
-\verb=- - + - + + - += \\
- 7 &  \verb=+ + - + - + - -= & 31  &  \verb=- - + + - + + -=    & 55 &
-\verb=- - - + + + - += \\
- 8 &  \verb=+ - + + - + - -= & 32  &  \verb=+ - - - + + + -=    & 56 &
-\verb=+ + - - - - + += \\
- 9 &  \verb=- + + + - + - -= & 33  &  \verb=- + - - + + + -=    & 57 &
-\verb=+ - + - - - + += \\
-10 &  \verb=+ + - - + + - -= & 34  &  \verb=- - + - + + + -=    & 58 &
-\verb=- + + - - - + += \\
-11 &  \verb=+ - + - + + - -= & 35  &  \verb=- - - + + + + -=    & 59 &
-\verb=+ - - + - - + += \\
-12 &  \verb=- + + - + + - -= & 36  &  \verb=+ + + - - - - +=    & 60 &
-\verb=- + - + - - + += \\
-13 &  \verb=+ - - + + + - -= & 37  &  \verb=+ + - + - - - +=    & 61 &
-\verb=- - + + - - + += \\
-14 &  \verb=- + - + + + - -= & 38  &  \verb=+ - + + - - - +=    & 62 &
-\verb=+ - - - + - + += \\
-15 &  \verb=- - + + + + - -= & 39  &  \verb=- + + + - - - +=    & 63 &
-\verb=- + - - + - + += \\
-16 &  \verb=+ + + - - - + -= & 40  &  \verb=+ + - - + - - +=    & 64 &
-\verb=- - + - + - + += \\
-17 &  \verb=+ + - + - - + -= & 41  &  \verb=+ - + - + - - +=    & 65 &
-\verb=- - - + + - + += \\
-18 &  \verb=+ - + + - - + -= & 42  &  \verb=- + + - + - - +=    & 66 &
-\verb=+ - - - - + + += \\
-19 &  \verb=- + + + - - + -= & 43  &  \verb=+ - - + + - - +=    & 67 &
-\verb=- + - - - + + += \\
-20 &  \verb=+ + - - + - + -= & 44  &  \verb=- + - + + - - +=    & 68 &
-\verb=- - + - - + + += \\
-21 &  \verb=+ - + - + - + -= & 45  &  \verb=- - + + + - - +=    & 69 &
-\verb=- - - + - + + += \\
-22 &  \verb=- + + - + - + -= & 46  &  \verb=+ + - - - + - +=    & 70 &
-\verb=- - - - + + + += \\
-23 & \verb=+ - - + + - + -= & 47 & \verb=+ - + - - + - += & \\
-24 & \verb=- + - + + - + -= & 48 & \verb=- + + - - + - += & \\ \hline
+ 1 &  \verb!+ + + + - - - -! & 25  &  \verb!- - + + + - + -! & 49 &
+\verb!+ - - + - + - +! \\
+ 2 &  \verb!+ + + - + - - -! & 26  &  \verb!+ + - - - + + -!    & 50 &
+\verb!- + - + - + - +! \\
+ 3 &  \verb!+ + - + + - - -! & 27  &  \verb!+ - + - - + + -!    & 51 &
+\verb!- - + + - + - +! \\
+ 4 &  \verb!+ - + + + - - -! & 28  &  \verb!- + + - - + + -!    & 52 &
+\verb!+ - - - + + - +! \\
+ 5 &  \verb!- + + + + - - -! & 29  &  \verb!+ - - + - + + -!    & 53 &
+\verb!- + - - + + - +! \\
+ 6 &  \verb!+ + + - - + - -! & 30  &  \verb!- + - + - + + -!    & 54 &
+\verb!- - + - + + - +! \\
+ 7 &  \verb!+ + - + - + - -! & 31  &  \verb!- - + + - + + -!    & 55 &
+\verb!- - - + + + - +! \\
+ 8 &  \verb!+ - + + - + - -! & 32  &  \verb!+ - - - + + + -!    & 56 &
+\verb!+ + - - - - + +! \\
+ 9 &  \verb!- + + + - + - -! & 33  &  \verb!- + - - + + + -!    & 57 &
+\verb!+ - + - - - + +! \\
+10 &  \verb!+ + - - + + - -! & 34  &  \verb!- - + - + + + -!    & 58 &
+\verb!- + + - - - + +! \\
+11 &  \verb!+ - + - + + - -! & 35  &  \verb!- - - + + + + -!    & 59 &
+\verb!+ - - + - - + +! \\
+12 &  \verb!- + + - + + - -! & 36  &  \verb!+ + + - - - - +!    & 60 &
+\verb!- + - + - - + +! \\
+13 &  \verb!+ - - + + + - -! & 37  &  \verb!+ + - + - - - +!    & 61 &
+\verb!- - + + - - + +! \\
+14 &  \verb!- + - + + + - -! & 38  &  \verb!+ - + + - - - +!    & 62 &
+\verb!+ - - - + - + +! \\
+15 &  \verb!- - + + + + - -! & 39  &  \verb!- + + + - - - +!    & 63 &
+\verb!- + - - + - + +! \\
+16 &  \verb!+ + + - - - + -! & 40  &  \verb!+ + - - + - - +!    & 64 &
+\verb!- - + - + - + +! \\
+17 &  \verb!+ + - + - - + -! & 41  &  \verb!+ - + - + - - +!    & 65 &
+\verb!- - - + + - + +! \\
+18 &  \verb!+ - + + - - + -! & 42  &  \verb!- + + - + - - +!    & 66 &
+\verb!+ - - - - + + +! \\
+19 &  \verb!- + + + - - + -! & 43  &  \verb!+ - - + + - - +!    & 67 &
+\verb!- + - - - + + +! \\
+20 &  \verb!+ + - - + - + -= & 44  &  \verb!- + - + + - - +!    & 68 &
+\verb!- - + - - + + +! \\
+21 &  \verb!+ - + - + - + -= & 45  &  \verb!- - + + + - - +!    & 69 &
+\verb!- - - + - + + +! \\
+22 &  \verb!- + + - + - + -= & 46  &  \verb!+ + - - - + - +!    & 70 &
+\verb!- - - - + + + +! \\
+23 & \verb!+ - - + + - + -! & 47 & \verb!+ - + - - + - +! & \\
+24 & \verb!- + - + + - + -! & 48 & \verb!- + + - - + - +! & \\ \hline
 \end{tabular}
 
 \caption{\label{mwalks} Lexical ordering of walks on the primtive spin
@@ -313,7 +320,8 @@ of a spin-adapted basis by the coupling of electronic spins.
 
 \center
 
-\centerline{\psfig{figure=spingraph.eps,angle=270}}
+%\centerline{\psfig{figure=spingraph.eps,angle=270}}
+\includegraphics[angle=270]{spingraph.eps}
 \caption{\label{sgraph} Branching-diagram or spin-coupling graph for 8
 open-shell electrons coupled to a singlet.}
 \end{figure}
@@ -382,7 +390,8 @@ weight (the first and last twenty four walks on the graph in Figure
 
 \center
 
-\centerline{\psfig{figure=orbitalgraph.eps,angle=270}}
+%\centerline{\psfig{figure=orbitalgraph.eps,angle=270}}
+\includegraphics[angle=270]{orbitalgraph.eps}
 \caption{\label{ograph} Orbital occupation graph for a full-CI with 8
 electrons in eight orbitals.}
 \end{figure}
@@ -427,7 +436,7 @@ Spatial symmetry is in the code in a rudimentary, but useful, fashion.
 The walks are ordered as if there is no symmetry (c.f., Table
 \ref{owalks}) and the symmetry of each walk is simply computed as the
 direct product of the symmetry of the singly-occupied orbitals
-(directly available from the routine \verb+fci_owalk_info()+, Section
+(directly available from the routine \verb!fci_owalk_info()!, Section
 \ref{sec:fciowalkinfo}).  Only walks/occupations of the desired
 symmetry are included in the CI vector (Section \ref{sec:ciindex}).
 This facilitates use of symmetry to reduce the storage required for
@@ -458,7 +467,7 @@ of spin functions varies with the number of singly occupied orbitals
 in $I$, the CI vector is stored as a one-dimensional vector with an
 index vector of dimension the number of orbital walks to point to the
 beginning of the coefficients for a given walk $I$ (see the routine
-\verb+fci_owalk_info()+, Section \ref{sec:fciowalkinfo}).  Note that
+\verb!fci_owalk_info()!, Section \ref{sec:fciowalkinfo}).  Note that
 only coefficients of the correct symmetry are stored and therefore the
 index into the CI vector is only meaningful for these orbital walks
 and care must be taken to ensure the correct symmetry before trying to
@@ -494,7 +503,8 @@ follows
 
 \center
 
-\centerline{\psfig{figure=spinarcs.eps,angle=270}}
+%\centerline{\psfig{figure=spinarcs.eps,angle=270}}
+\includegraphics[angle=270]{spinarcs.eps}
 \caption{\label{spinarcs} The two arcs coming into node $(s,m)$ on a
 primtive spin graph, and their arc weights.}
 \end{figure}
@@ -540,7 +550,8 @@ where it is assumed that nodes with no connecting arcs have zero weight.
 
 \center
 
-\centerline{\psfig{figure=orbitalarcs.eps,angle=270}}
+%\centerline{\psfig{figure=orbitalarcs.eps,angle=270}}
+\includegraphics[angle=270]{orbitalarcs.eps}
 \caption{\label{orbitalarcs} The three arcs, and their weights,
 coming into node $(l,n)$ on an orbital occupation graph.}
 \end{figure}
@@ -771,13 +782,13 @@ for $n_j = 1$.
 \begin{enumerate}
 \item Loop thru primitive spin functions $\nu$ for $s$ open shell
 electrons and obtain the corresponding occupation pattern (by calling
-\verb+fci_find_mocc+).
+\verb!fci_find_mocc!).
 
 \item Loop thru $j=1,s$ corresponding to the cycles $(s \ldots j)$ for
 $j=1,s$ and apply it to the occputation pattern.
 
 \item Determine the lexical index of the generated occupation (by
-calling \verb+fci_find_mweight+).  Store this multiplied by the parity
+calling \verb!fci_find_mweight!).  Store this multiplied by the parity
 of the permutation in $T(\nu,j,1)$.
 \end{enumerate}
 
@@ -786,21 +797,21 @@ obtain two $s+2$ electron occupations from breaking the alpha--beta pair.
 \begin{enumerate}
 \item Loop thru primitive spin functions $\nu$ for $s$ open shell
 electrons, and obtain the corresponding occupation pattern (by calling
-\verb+fci_find_mocc+).
+\verb!fci_find_mocc!).
 
 \item Loop thru $j=1,s+1$ corresponding to the position amoung the
 singly occupied orbitals of the new orbital.
 
 \item First excite the alpha spin electron by constructing an $s+2$
-electron spin function by appending ``\verb=+='' to the $s$ electron
-spin function $\nu$ and inserting a ``\verb=-='' immediately before
+electron spin function by appending ``\verb!+!'' to the $s$ electron
+spin function $\nu$ and inserting a ``\verb!-!'' immediately before
 position $j$.  Determine the new $s+2$ lexical walk index and store
 it times the phase of the permutatation (the parity of $(j \ldots
 1)(s+2 \ldots 1)$ is $(-1)^{s+j}$) in $T^{s,2}_{\nu,j}$.
 
 \item Next excite the beta spin electron by constructing an $s+2$
-electron spin function by appending ``\verb=-='' to the $s$ electron
-spin function $\nu$ and inserting a ``\verb=+='' immediately before
+electron spin function by appending ``\verb!-!'' to the $s$ electron
+spin function $\nu$ and inserting a ``\verb!+!'' immediately before
 position $j$.  Determine the new $s+2$ electron walk index and store
 it with the negative of the previous parity (since we swapped the
 first two electrons and the actual permutation is $(j \ldots
@@ -855,7 +866,7 @@ associated phases.  These are specified by the occupation of the
 orbital that is having an electron removed ($q$ in this instance), and
 by the position of this orbital in the standard ordering of singly
 occupied orbitals (if this is orbital $q$ its position amoung the
-singly occupied is referred to as $\overline{q}$ or \verb+qbar+).  So
+singly occupied is referred to as $\overline{q}$ or \verb!qbar!).  So
 some book keeping is necessary to keep track of this information.  The
 routines are heavily commented and coded in a stylized fashion so they
 should be self-explanatory.
@@ -896,8 +907,8 @@ possible.
 \end{verbatim}
 This routine must be called before anythine else to initialize the
 internal FCI data structures.  The determinant CI vector using
-symmetry will be of length \verb+ndeterminants+ (equivalent to
-\verb+nconfigurations+ CSF).
+symmetry will be of length \verb!ndeterminants! (equivalent to
+\verb!nconfigurations! CSF).
 
 \subsubsection{{\tt fci\_solve}}
 \label{sec:fcisolve}
@@ -919,21 +930,21 @@ symmetry will be of length \verb+ndeterminants+ (equivalent to
 
 Solve the CI to the requested accuracy.  Currently uses determinants
 but is readily extended to also accomodate CSF.  The eigenvalues are
-returned in \verb+roots+.  The eigenvectors are returned in file
-\verb+evecfilename+, and the diagonal elements of the Hamiltonian are
-returned in \verb+diagfilename+.  The eigenvectors and diagonal
-elements may be read using the routine \verb+fci_readvectors()+
+returned in \verb!roots!.  The eigenvectors are returned in file
+\verb!evecfilename!, and the diagonal elements of the Hamiltonian are
+returned in \verb!diagfilename!.  The eigenvectors and diagonal
+elements may be read using the routine \verb!fci_readvectors()!
 (Section \ref{sec:fcireadvectors}).
 
 The input integrals are stored as
-\verb+h(ij)+=$h_{ij}$ and \verb+g(ij,kl)=$(ij|kl)$, with $i \geq j$,
-$k \geq l$, \verb+ij+=$i(i-1)/2$, and \verb+kl+=$k(k-1)/2+l$.  Have a
-look at \verb+fci_load.F+ to see how an ASCII list of integrals are
+\verb!h(ij)!=$h_{ij}$ and \verb!g(ij,kl)!=$(ij|kl)$, with $i \geq j$,
+$k \geq l$, \verb!ij!=$i(i-1)/2$, and \verb!kl!=$k(k-1)/2+l$.  Have a
+look at \verb!fci_load.F! to see how an ASCII list of integrals are
 read in an inserted into these arrays in the test program.
 
-The minimum amount of workspace required (\verb+lenwrk+)is independent
-of the number of roots, and must exceed 2*\verb+ndeterminants+.  The
-more memory the better, but 2*\verb+ndeterminants++500000 will
+The minimum amount of workspace required (\verb!lenwrk!)is independent
+of the number of roots, and must exceed 2*\verb!ndeterminants!.  The
+more memory the better, but 2*\verb!ndeterminants!+500000 will
 probably always be enough.
 
 Also, there is currently no possibility of restart, and the lowest
@@ -952,9 +963,9 @@ diagonal guess is always used.
 The FCI package uses word-addressable random access files that cannot
 be accessed using standard Fortran I/O operations.  This routine
 enables the eigen-vectors and diagonal elements to be read from disk
-by specifying the appropriate filename after \verb+fci_solve()+ has
-sucessfully completed.  To read the eigenvectors, specify \verb+nvec+
-as \verb+nroot+.  To read the diagonal elements, specify \verb+nvec+
+by specifying the appropriate filename after \verb!fci_solve()! has
+sucessfully completed.  To read the eigenvectors, specify \verb!nvec!
+as \verb!nroot!.  To read the diagonal elements, specify \verb!nvec!
 as one.
 
 \subsection{Inquiring about occupations and dimensions}
@@ -1138,7 +1149,7 @@ c
    double precision csf(*)   ! [in/out] coefficients of csf
 \end{verbatim}
 
-The following related routine \verb+fci_spin_adapt_nvec()+ can
+The following related routine \verb!fci_spin_adapt_nvec()! can
 transform multiple vectors (with the same number of open shells) at
 once, which is much more efficient.
 
@@ -1333,7 +1344,7 @@ c
 \end{verbatim}
 This is an internal interface to compute the diagonal elements on
 demand.  It would be easy to provide an easy to use wrapper for this
-(see usage in \verb+fci_solve.F+) but since \verb+fci_solve+ (Section
+(see usage in \verb!fci_solve.F!) but since \verb!fci_solve! (Section
 \ref{sec:fcisolve}) already writes the diagonals to disk there is
 not much point in using this routine elsewhere.
 
@@ -1368,6 +1379,8 @@ All errors in the full-CI code are reported through this routine.
 Put any additional error handling into this routine.
 
 \begin{thebibliography}{99}
+%\bibliographystyle{plain}
+%\bibliography{xampl}
 
 \addcontentsline{toc}{section}{References}
 
@@ -1375,41 +1388,41 @@ Put any additional error handling into this routine.
 
 % \book{label}{authors}{title}{publisher}{year}
 
-\book{pauncz}{R. Pauncz}{Spin functions: Construction and use}{Plenum,
+\bibitem{pauncz}{R. Pauncz}{Spin functions: Construction and use}{Plenum,
 New York}{1979}
 
-\book{paunczsym}{R. Pauncz}{The Symmetric Group in Quantum
+\bibitem{paunczsym}{R. Pauncz}{The Symmetric Group in Quantum
 Chemistry}{CRC Press, Inc., Boca Raton, Florida, USA}{1995}
 
-\journal{handyfci}{P. Saxe, D.J. Fox, H.F. Schaefer III and
+\bibitem{handyfci}{P. Saxe, D.J. Fox, H.F. Schaefer III and
 N.C. Handy}{J. Chem. Phys.}{74}{1982}{5584}
 
-\journal{knowleseai}{P.J. Knowles and H-J. Werner}{Chem. Phys. Lett.}{145}{1988}{514}
+\bibitem{knowleseai}{P.J. Knowles and H-J. Werner}{Chem. Phys. Lett.}{145}{1988}{514}
 
-\journal{duchug}{W. Duch}{Int. J. Quant. Chem.}{27}{1985}{59}
+\bibitem{duchug}{W. Duch}{Int. J. Quant. Chem.}{27}{1985}{59}
 
-\journal{duchspinad}{W. Duch}{Int. J. Quant. Chem.}{30}{1986}{799}
+\bibitem{duchspinad}{W. Duch}{Int. J. Quant. Chem.}{30}{1986}{799}
 
-\journal{duchcouple}{W. Duch}{Chem. Phys. Lett.}{124}{1986}{442}
+\bibitem{duchcouple}{W. Duch}{Chem. Phys. Lett.}{124}{1986}{442}
 
-\journal{duchfci}{W. Duch}{Intern. J. Quant. Chem}{S24}{1990}{683}
+\bibitem{duchfci}{W. Duch}{Intern. J. Quant. Chem}{S24}{1990}{683}
 
-\journal{duchsga}{W. Duch and
+\bibitem{duchsga}{W. Duch and
 J. Karwowski}{Comp. Phys. Rep.}{2}{1985}{92}
 
-\journal{paldusguga}{J. Paldus}{Phys. Rev. A}{14}{1976}{1620}
+\bibitem{paldusguga}{J. Paldus}{Phys. Rev. A}{14}{1976}{1620}
 
-\journal{shavittguga}{I. Shavitt}{Int. J. Quant. Chem. Symp.}{11}{1977}{131}
+\bibitem{shavittguga}{I. Shavitt}{Int. J. Quant. Chem. Symp.}{11}{1977}{131}
 
-\journal{shavittguga2}{I. Shavitt}{Int. J. Quant. Chem. Symp.}{12}{1978}{5}
+\bibitem{shavittguga2}{I. Shavitt}{Int. J. Quant. Chem. Symp.}{12}{1978}{5}
 
-\journal{saunders}{V.R. Saunders and J.H. van Lenthe}{Mol. Phys.}{48}{1983}{923}
+\bibitem{saunders}V.R. Saunders and J.H. van Lenthe, Mol. Phys. 48, 1983 923.
 
-\journal{zarrabian}{S. Zarrabian, C.R. Sarma and J. Paldus}{Chem. Phys. Lett.}{155}{1989}{183}
+\bibitem{zarrabian}{S. Zarrabian, C.R. Sarma and J. Paldus}{Chem. Phys. Lett.}{155}{1989}{183}
 
-\journal{harrison}{R.J. Harrison and S. Zarrabian}{Chem. Phys. Lett.}{158}{1989}{393}
+\bibitem{harrison}{R.J. Harrison and S. Zarrabian}{Chem. Phys. Lett.}{158}{1989}{393}
 
-\book{kotani}{M. Kotani, A. Amemiya, E. Ishiguro and T. Kimura}{Tables
+\bibitem{kotani}{M. Kotani, A. Amemiya, E. Ishiguro and T. Kimura}{Tables
 of Molecular Integrals}{Maruzen, Co., Tokyo}{1955}
 
 \end{thebibliography}
