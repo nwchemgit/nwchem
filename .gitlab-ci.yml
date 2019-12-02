@@ -107,6 +107,7 @@ linux64_centos8:build_gcc:
     ARMCI_NETWORK: "MPI-TS"
   after_script:
     - scp ${NWCHEM_TOP}/bin/LINUX64/nwchem edo@10.0.2.2:gitlab/nwchem_centos8
+  tags:
     - centos8
 
 linux64_ubuntu:build_gcc:
