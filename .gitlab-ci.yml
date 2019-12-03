@@ -53,10 +53,10 @@ variables:
   variables:
     GIT_CLEAN_FLAGS: -ffdx -e bin -e build -e install
   script:
+    - if [ "$FC" == "ifort" ]; then source /opt/intel/inteloneapi/compiler/latest/env/vars.sh intel64; source /opt/intel/inteloneapi/mkl/latest/env/vars.sh intel64 ; source /opt/intel/inteloneapi/mpi/latest/env/vars.sh intel64 ; fi
     - export NWCHEM_TOP=$CI_PROJECT_DIR
     - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then export NWCHEM_TOP=$HOME/$CI_PROJECT_DIR ; fi
     - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then mkdir -p $NWCHEM_TOP/bin/LINUX64 ; scp edo@10.0.2.2:gitlab/nwchem_centos8 $NWCHEM_TOP/bin/LINUX64/nwchem ; fi
-    - if [ "$FC" == "ifort" ]; then source /opt/intel/inteloneapi/setvars.sh ; fi
     - if [ "$FC" == "ifort" ]; then  export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_intel; fi
     - if [ "$FC" == "flang" ]; then  export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_flang; fi
     - env|egrep -i mkl || true
@@ -75,7 +75,9 @@ variables:
 
 .intel_template: &intel_sourcing
   before_script:
-    - source /opt/intel/inteloneapi/setvars.sh
+    - source /opt/intel/inteloneapi/compiler/latest/env/vars.sh intel64
+    - source /opt/intel/inteloneapi/mkl/latest/env/vars.sh intel64 
+    - source /opt/intel/inteloneapi/mpi/latest/env/vars.sh intel64
     - export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_intel
     - export FC=ifort
 
