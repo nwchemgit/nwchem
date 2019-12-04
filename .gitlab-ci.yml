@@ -106,7 +106,7 @@ linux64_centos8:build_gcc:
     PATH: "/usr/lib64/mpich/bin/:/usr/bin:/bin:."
     ARMCI_NETWORK: "MPI-TS"
   after_script:
-    - export NWCHEM_TOP=$CI_PROJECT_DIR
+    - export NWCHEM_TOP=$HOME/$CI_PROJECT_DIR
     - scp ${NWCHEM_TOP}/bin/LINUX64/nwchem edo@10.0.2.2:gitlab/nwchem_centos8
   tags:
     - centos8
