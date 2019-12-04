@@ -138,7 +138,8 @@ linux64_ubuntu:build_flang:
     SCALAPACK_SIZE: 4
     ARMCI_NETWORK: "MPI-PR"
   after_script:
-    - mkdir -p ${NWCHEM_TOP}/../binaries
+    - echo "NWCHEM_TOP is " $NWCHEM_TOP
+    - mkdir -p ${NWCHEM_TOP}/../binaries || true
     - cp ${NWCHEM_TOP}/bin/LINUX64/nwchem ${NWCHEM_TOP}/../binaries/nwchem_flang
   tags:
     - ubuntu_bionic
@@ -157,7 +158,8 @@ linux64_ubuntu:build_intel:
     ARMCI_NETWORK: "MPI-PR"
     USE_FPICF: "Y"
   after_script:
-    - mkdir -p ${NWCHEM_TOP}/../binaries
+    - echo "NWCHEM_TOP is " $NWCHEM_TOP
+    - mkdir -p ${NWCHEM_TOP}/../binaries || true
     - cp ${NWCHEM_TOP}/bin/LINUX64/nwchem ${NWCHEM_TOP}/../binaries/nwchem_intel
   tags:
     - ubuntu_bionic
