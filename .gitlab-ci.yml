@@ -53,7 +53,7 @@ variables:
   variables:
     GIT_CLEAN_FLAGS: -ffdx -e bin -e build -e install
   script:
-    - if [ "$FC" == "ifort" ]; then source /opt/intel/compilers_and_libraries_2018/linux/bin/compilervars.sh  intel64 ; fi
+    - if [ "$FC" == "ifort" ]; then source /opt/intel/compilers_and_libraries_2019/linux/bin/compilervars.sh  intel64 ; fi
     - export NWCHEM_TOP=$CI_PROJECT_DIR
     - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then export NWCHEM_TOP=$HOME/$CI_PROJECT_DIR ; fi
     - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then mkdir -p $NWCHEM_TOP/bin/LINUX64 ; scp edo@10.0.2.2:gitlab/nwchem_centos8 $NWCHEM_TOP/bin/LINUX64/nwchem ; fi
@@ -75,7 +75,7 @@ variables:
 
 .intel_template: &intel_sourcing
   before_script:
-    - source /opt/intel/compilers_and_libraries_2018/linux/bin/compilervars.sh  intel64
+    - source /opt/intel/compilers_and_libraries_2019/linux/bin/compilervars.sh  intel64
     - export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_intel
     - export FC=ifort
 
@@ -85,7 +85,7 @@ variables:
     - export LD_LIBRARY_PATH=/home/edo/apps/aocc200/aocc-compiler-2.0.0/lib:$LD_LIBRARY_PATH
     - export LD_LIBRARY_PATH=/home/edo/apps/ompi402.flang/lib:$LD_LIBRARY_PATH
     - export PATH=/home/edo/apps/ompi402.flang/bin:$PATH
-    - export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_intel
+    - export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_flang
     - export FC=flang
 
 .centos8_template: &centos8_sourcing
