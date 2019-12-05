@@ -5500,6 +5500,12 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
                 smearcorrection 
      >              = smearcorrection 
      >              - kT*dexp(-x*x)/(4.0d0*dsqrt(pi))
+              else if (smeartype.eq.4) then
+                smearcorrection
+     >              = smearcorrection
+     >              - kT*dexp(-(x+dsqrt(0.5d0))*(x+dsqrt(0.5d0)))
+     >              * (1.0d0 + dsqrt(2.0d0) * x)
+     >              / (2.0d0 * dsqrt(pi))
               end if
 
               shift1  = shift1 + 1
@@ -5527,7 +5533,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
 
 
 c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
-
+c                                   4-Marzari-Vanderbilt
       real*8 function psi_occ_distribution(smeartype,e)
       implicit none
       integer smeartype
@@ -5548,6 +5554,10 @@ c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
          end if
       else if (smeartype.eq.2) then
          f = 0.5d0*util_erfc(e)
+      else if (smeartype.eq.4) then
+         f = dexp(-(e + dsqrt(0.5d0)) * (e + dsqrt(0.5d0)))
+     >     * dsqrt(0.125d0 / datan(1.0d0))
+     >     + 0.5d0 * util_erfc(e + dsqrt(0.5d0))
       else 
          if (e.gt.0.0d0) then
            f = 0.0d0

@@ -578,6 +578,8 @@ c           call psp_check_print(ia)
      >       write(6,1298) "Fermi-Dirac"
            if (control_fractional_smeartype().eq.2)
      >       write(6,1298) "Gaussian"
+           if (control_fractional_smeartype().eq.4)
+     >       write(6,1298) "Marzari-Vanderbilt"
            if (control_fractional_smeartype().ge.0)
      >       write(6,1299) control_fractional_kT(),
      >                     control_fractional_temperature(),
