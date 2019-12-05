@@ -27,6 +27,7 @@ variables:
 
 .compile_template: &compile_step
   script:
+    - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then export USE_CENTOS="1" ; else export USE_CENTOS="0" ; fi
     - if [ "$(lsb_release -i |cut -f 2)" == "Ubuntu" ] && [ "$(lsb_release -r|cut -c10-11)" == "16" ]; then SCALAPACK_LIB="-lscalapack-openmpi -lblacsCinit-openmpi -lblacs-openmpi  -lopenblas"; fi
     - env |grep CI_
     - printenv PATH
@@ -55,8 +56,9 @@ variables:
   script:
     - if [ "$FC" == "ifort" ]; then source /opt/intel/compilers_and_libraries_2019/linux/bin/compilervars.sh  intel64 ; fi
     - export NWCHEM_TOP=$CI_PROJECT_DIR
-    - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then export NWCHEM_TOP=$HOME/$CI_PROJECT_DIR ; fi
-    - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then mkdir -p $NWCHEM_TOP/bin/LINUX64 ; scp edo@10.0.2.2:gitlab/nwchem_centos8 $NWCHEM_TOP/bin/LINUX64/nwchem ; fi
+    - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then export USE_CENTOS="1" ; else export USE_CENTOS="0" ; fi
+    - if [ "$USE_CENTOS" == "1" ]; then export NWCHEM_TOP=$HOME/$CI_PROJECT_DIR ; fi
+    - if [ "$USE_CENTOS" == "1" ]; then mkdir -p $NWCHEM_TOP/bin/LINUX64 ; scp -p edo@10.0.2.2:gitlab/nwchem_centos8 $NWCHEM_TOP/bin/LINUX64/nwchem ; fi
     - if [ "$FC" == "ifort" ]; then  export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_intel; fi
     - if [ "$FC" == "flang" ]; then  export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_flang; fi
     - env|egrep -i mkl || true
@@ -65,7 +67,7 @@ variables:
     - NNPROCS=1
     - if [ "$(uname -s)" == "Darwin" ]; then NNPROCS=2; fi
     - if [ "$(uname -s)" == "Linux" ]; then NNPROCS=4; fi
-    - env | grep NWCH || true
+    - if [ "$USE_CENTOS" == "1" ]; then NNPROCS=3; fi
     - env | grep CI_ || mtrue
     - if [[ "$NWCHEM_TARGET" != "LINUX"  && ( "$CI_RUNNER_TAGS" == "ubuntu_xenial" ||  "$CI_RUNNER_TAGS" == "ubuntu_bionic" ) ]]; then ./doqmtests.mpi $NNPROCS  ; else ./doqmtests.mpi $NNPROCS fast ; fi
 #  except:
@@ -107,7 +109,7 @@ linux64_centos8:build_gcc:
     ARMCI_NETWORK: "MPI-TS"
   after_script:
     - export NWCHEM_TOP=$HOME/$CI_PROJECT_DIR
-    - scp ${NWCHEM_TOP}/bin/LINUX64/nwchem edo@10.0.2.2:gitlab/nwchem_centos8
+    - scp -p ${NWCHEM_TOP}/bin/LINUX64/nwchem edo@10.0.2.2:gitlab/nwchem_centos8
   tags:
     - centos8
 
