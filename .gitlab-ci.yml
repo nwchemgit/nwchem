@@ -77,6 +77,7 @@ variables:
 
 .intel_template: &intel_sourcing
   before_script:
+    - export NWCHEM_TOP=$CI_PROJECT_DIR
     - source /opt/intel/compilers_and_libraries_2019/linux/bin/compilervars.sh  intel64
     - export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_intel
     - export FC=ifort
@@ -141,6 +142,7 @@ linux64_ubuntu:build_flang:
     SCALAPACK_SIZE: 4
     ARMCI_NETWORK: "MPI-PR"
   after_script:
+    - export NWCHEM_TOP=$CI_PROJECT_DIR
     - echo "NWCHEM_TOP is " $NWCHEM_TOP
     - mkdir -p ${NWCHEM_TOP}/../binaries || true
     - cp ${NWCHEM_TOP}/bin/LINUX64/nwchem ${NWCHEM_TOP}/../binaries/nwchem_flang
@@ -161,6 +163,7 @@ linux64_ubuntu:build_intel:
     ARMCI_NETWORK: "MPI-PR"
     USE_FPICF: "Y"
   after_script:
+    - export NWCHEM_TOP=$CI_PROJECT_DIR
     - echo "NWCHEM_TOP is " $NWCHEM_TOP
     - mkdir -p ${NWCHEM_TOP}/../binaries || true
     - cp ${NWCHEM_TOP}/bin/LINUX64/nwchem ${NWCHEM_TOP}/../binaries/nwchem_intel
