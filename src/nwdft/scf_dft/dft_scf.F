@@ -930,7 +930,6 @@ c
       else
          levelshifting = .false.
       endif
-      write(6,*) ' guess ls ',movecs_guess,levelshifting
       iswitc = 0
       if (ltight)then
          iAOacc = iAOacc_max
