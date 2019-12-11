@@ -5,7 +5,9 @@
      D        h,horb,v,
      D        t1,t2,
      D        ht,vt)
+#ifndef OPTIMIZE_DUCC
 CDIR$ OPTIMIZE: 2
+#endif
 c
 c  Only for RHF
 c

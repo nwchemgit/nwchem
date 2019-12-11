@@ -1,12 +1,10 @@
 #$Id$
 
-OBJ_OPTIMIZE =  map_hcore.o rot_vir.o
+OBJ_OPTIMIZE =  map_hcore.o rot_vir.o ducc.o
 include ../../config/makefile.h
 
 ifeq ($(_FC),ifort)
-OBJ += ducc.o
-else
-OBJ_OPTIMIZE += ducc.o
+FOPTIMIZE = -O3 -ip -unroll
 endif
 
 LIB_INCLUDES = -I../include
@@ -16,6 +14,10 @@ LIBRARY = libtce.a
 USES_BLAS = rot_vir.F
 
 LIB_DEFINES = -DDEBUG_PRINT
+
+ifdef OPTIMIZE_DUCC
+LIB_DEFINES += -DOPTIMIZE_DUCC
+endif
 #
 # Possible #defines
 #
