@@ -1,10 +1,16 @@
 #!/bin/bash
-if ! [ -x "$(command -v mpif90)" ]; then
-    echo
-    echo mpif90 not installed
-    echo mpif90 is required for building Scalapack
-    echo
-    exit 1
+if [[ "$FC" = "ftn"  ]] ; then
+    MPIF90="ftn"
+else
+    if ! [ -x "$(command -v mpif90)" ]; then
+	echo
+	echo mpif90 not installed
+	echo mpif90 is required for building Scalapack
+	echo
+	exit 1
+    else
+	MPIF90="mpif90"
+    fi
 fi
 if [[  -z "${NWCHEM_TOP}" ]]; then
     dir3=$(dirname `pwd`)
@@ -41,6 +47,8 @@ mkdir -p scalapack/build
 cd scalapack/build
 if  [[ -n ${FC} ]] &&   [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
     Fortran_FLAGS=" -qintsize=4 -qextname "
+elif [[ -n ${FC} ]] &&   [[ ${FC} == ftn ]]; then
+    Fortran_FLAGS="-O2 -g -axCORE-AVX2"
 #elif [[ -n ${FC} ]] &&   [[ ${FC} == flang ]]; then
 # unset FC=flang since cmake gets lost
 #       unset FC
@@ -48,7 +56,7 @@ fi
 if [[ ! -z "$BUILD_SCALAPACK"   ]] ; then
     Fortran_FLAGS+=-I"$NWCHEM_TOP"/src/libext/include
 fi
-FC=mpif90 FFLAGS="$Fortran_FLAGS" cmake -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" 
+FC=$MPIF90 FFLAGS="$Fortran_FLAGS" cmake -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" 
 make V=0 -j3 scalapack/fast
 mkdir -p ../../../lib
 cp lib/libscalapack.a ../../../lib
