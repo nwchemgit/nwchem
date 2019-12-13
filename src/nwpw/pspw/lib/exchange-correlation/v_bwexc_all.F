@@ -222,12 +222,17 @@
       end if
 
       if (control_has_disp()) then
-        if (index(control_options_disp(),'-old').ne.0) 
-     >    write(luout,1132) 'Grimme2'
-        if (index(control_options_disp(),'-zero').ne.0) 
-     >    write(luout,1132) 'Grimme3'
-        if (index(control_options_disp(),'-bj').ne.0) 
-     >    write(luout,1132) 'Grimme4'
+        if (index(control_options_disp(),'-old').ne.0) then
+          write(luout,1132) 'Grimme2'
+        else if (index(control_options_disp(),'-zerom').ne.0)  then
+          write(luout,1132) 'Grimme5'
+        else if (index(control_options_disp(),'-zero').ne.0)  then
+          write(luout,1132) 'Grimme3'
+        else if (index(control_options_disp(),'-bjm').ne.0) then
+           write(luout,1132) 'Grimme6'
+        else if (index(control_options_disp(),'-bj').ne.0) then
+          write(luout,1132) 'Grimme4'
+        end if
       end if
       
 
