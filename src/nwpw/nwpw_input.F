@@ -1361,7 +1361,8 @@ c
       if (inp_compare(.false.,zone_name,'step'))     nz = 0
       if (inp_compare(.false.,zone_name,'fermi'))    nz = 1
       if (inp_compare(.false.,zone_name,'gaussian')) nz = 2
-     
+      if (inp_compare(.false.,zone_name,'marzari-vanderbilt')) nz = 4
+
       if (inp_compare(.false.,zone_name,'orbitals')) then
          if (.not.inp_i(loop(1))) then
             loop(1) = 4
