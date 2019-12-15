@@ -642,7 +642,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 *     **** read in semicore density block ****
       if (semicore) then
-         !write(*,*) "reading in semicore block"   !debug
+         !!write(*,*) "reading in semicore block"   !debug
          call C3dB_r_Read(1,5,tmp2,tmp,-1,-1,.true.)
          call Cram_r_pack(0,tmp2)
          call Cram_r_Copy(0,tmp2,dncore)
