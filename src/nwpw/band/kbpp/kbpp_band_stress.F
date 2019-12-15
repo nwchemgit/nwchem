@@ -377,6 +377,7 @@ c      call Parallel_init()
       call closefile(2)
       end if
 
+
 *     **** free ray heap space ****
       if (kray) then
         value = BA_free_heap(tmp_ray_hndl)
@@ -397,6 +398,7 @@ c      call Parallel_init()
       value = value.and.BA_free_heap(f_hndl)
       value = value.and.BA_free_heap(cs_hndl)
       value = value.and.BA_free_heap(sn_hndl)
+
 
       value = value.and.BA_free_heap(vl_hndl)
       value = value.and.BA_free_heap(vnl_hndl)
