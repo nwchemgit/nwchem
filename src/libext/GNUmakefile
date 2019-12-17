@@ -12,6 +12,9 @@ endif
 ifdef BUILD_SCALAPACK
     SUBDIRS += scalapack
 endif
+ifdef BUILD_MPICH
+    SUBDIRS += mpich
+endif
 
 
 include ../config/makelib.h
