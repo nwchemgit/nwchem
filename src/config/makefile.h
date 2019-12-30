@@ -202,6 +202,13 @@ ifdef BUILD_SCALAPACK
 NW_CORE_SUBDIRS += libext
       SCALAPACK=-L$(NWCHEM_TOP)/src/libext/lib -lscalapack
 endif      
+ifdef BUILD_MPICH
+NW_CORE_SUBDIRS += libext
+      PATH := $(NWCHEM_TOP)/src/libext/bin:$(PATH)
+      MPI_INCLUDE = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
+      MPI_LIB     = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH)  $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
+      LIBMPI      = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
+endif      
 ifndef EXTERNAL_GA_PATH
 NW_CORE_SUBDIRS += tools
 endif
@@ -2844,9 +2851,9 @@ ifndef SIMINT_HOME
 SIMINT_HOME=$(NWCHEM_TOP)/src/NWints/simint/libsimint_source/simint_install
 endif
   ifdef SIMINT_LIB64
-    EXTRA_LIBS += -L$(SIMINT_HOME)/lib64 -lsimint
+    EXTRA_LIBS += -L$(SIMINT_HOME)/lib64 -lnwc_simint
   else
-    EXTRA_LIBS += -L$(SIMINT_HOME)/lib -lsimint
+    EXTRA_LIBS += -L$(SIMINT_HOME)/lib -lnwc_simint
   endif
 endif
 
