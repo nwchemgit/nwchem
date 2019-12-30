@@ -168,7 +168,7 @@ fi
     
 FC="${FC}" CXX="${CXX}" $CMAKE \
  -DCMAKE_BUILD_TYPE="${SIMINT_BUILD_TYPE}" -DSIMINT_VECTOR=${VEC}  \
- -DCMAKE_INSTALL_LIBDIR=lib -DENABLE_FORTRAN=ON -DSIMINT_MAXAM=${SIMINT_MAXAM} SIMINT_MAXDER=${DERIV} \
+ -DCMAKE_INSTALL_LIBDIR=lib -DENABLE_FORTRAN=ON -DSIMINT_MAXAM=${SIMINT_MAXAM} -DSIMINT_MAXDER=${DERIV} \
  -DENABLE_TESTS=OFF     -DSIMINT_STANDALONE=OFF   \
  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DCMAKE_INSTALL_PREFIX=${SRC_HOME}/simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install ../
 time -p make  -j2
@@ -176,6 +176,8 @@ make simint install/fast
 cd ../..
 echo ln -sf  simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install simint_install
 ln -sf  simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install simint_install
+cd simint_install/lib
+ln -sf libsimint.a libnwc_simint.a
 export SIMINT_HOME=${SRC_HOME}/simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install
 echo 'SIMINT library built with maximum angular momentum='${SIMINT_MAXAM}
 echo SIMINT_HOME="$SIMINT_HOME"
