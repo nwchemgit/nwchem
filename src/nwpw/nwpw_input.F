@@ -23,7 +23,7 @@ c#include "nwpwxc.fh"
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 124)
+      parameter (num_dirs = 126)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -148,6 +148,8 @@ c
      >            'makehmass2',
      >            'apc',
      >            'socket',
+     >            'vfield',
+     >            'born',
      >            'end'/
 
       double precision kb
@@ -158,6 +160,7 @@ c
       character*50 output_wavefunction_filename
       character*50 exchange_correlation
       character*128 ipname
+      character*255 vnames
       double precision fake_mass,time_step,rcut
       integer loop(2),ncut,cell_expand(3)
       double precision tolerances(3),ecut,wcut,fe,ff,scaling(2)
@@ -227,7 +230,7 @@ c
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
      >       7700,7800,7900,8000,8100,6650,8200,8300,8400,8500,8600,
-     >       8700,8800,8900,
+     >       8700,8800,8900,9000,9010,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -2096,6 +2099,70 @@ c
          if (.not.value)
      >      call errquit(
      >      'nwpw_input: error writing to rtdb', 8900, RTDB_ERR)
+      end if
+      goto 10
+
+c
+c
+c  vfield file1.ascii file2.ascii ....
+c  vfield off
+c
+ 9000 ncut = 0
+      do while (inp_a(zone_name)) 
+         move = nwpw_parse_boolean(zone_name,.true.)
+         if (move) then
+            ind = index(zone_name,' ')
+            if (ncut.eq.0) then
+               vnames(1:ind) = zone_name(1:ind)
+            else 
+               vnames = vnames(1:ncut)//zone_name(1:ind)
+            end if
+            ncut = ncut + ind
+            value=rtdb_cput(rtdb,'nwpw:vfield_filenames',
+     >                      1,vnames(1:ncut))
+         else
+            value=rtdb_delete(rtdb,'nwpw:vfield_filenames')
+         end if
+         if (.not.value)
+     >      call errquit(
+     >      'nwpw_input: error writing to rtdb',9000,RTDB_ERR)
+      end do
+      goto 10
+
+c
+c  born [dielc] on/off [r1 r2 r3...] 
+c
+ 9010 n1 = 0
+
+      if (inp_f(Gc)) then
+         if (.not.rtdb_put(rtdb,'nwpw:born_dielec',mt_dbl,1,Gc))
+     >   call errquit('nwpw_input: error writing to rtdb',9010,RTDB_ERR)
+      end if
+
+      move = .true.
+      if (inp_a(zone_name)) move = nwpw_parse_boolean(zone_name,.true.)
+
+      if (.not.rtdb_put(rtdb,'nwpw:born',mt_log,1,move))
+     > call errquit('nwpw_input: error writing to rtdb',9010,RTDB_ERR)
+
+      !**** try reading in atom radii ****
+      if (move) then
+         if (.not.BA_push_get(mt_dbl,nw_max_atom,'indx_start1',
+     >                        index_start1(2),index_start1(1)))
+     >   call errquit('nwpw_input:;push index_start1',0,MA_ERR)
+
+         do while (inp_f(Gc)) 
+            dbl_mb(index_start1(1)+n1) = Gc/0.529177d0
+            n1 = n1 + 1
+         end do
+         if (n1.gt.0) then
+            if (.not.rtdb_put(rtdb,'nwpw:born_vradii',mt_dbl,
+     >                        n1,dbl_mb(index_start1(1))))
+     >      call errquit('nwpw_input: error writing to rtdb',
+     >                   9010,RTDB_ERR)
+         end if
+         if (.not.BA_pop_stack(index_start1(2))) call errquit(
+     >   'nwpw_input:failed deallocating index_start1',0,MA_ERR)
       end if
       goto 10
 
