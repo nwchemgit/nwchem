@@ -139,6 +139,10 @@ c     real*8     fion(3,natmx)
       external psp_ncmp_vloc,psp_vloc_atom,psp_ion_core
       external psp_hartree_atom,psp_hartree_cmp_cmp,psp_hartree_cmp_pw
 
+*      **** cosmo external functions ****
+       real*8   nwpw_cosmo_Eqq,nwpw_cosmo_EQionq
+       external nwpw_cosmo_Eqq,nwpw_cosmo_EQionq
+
       integer tid,nthreads
       integer  Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
@@ -793,6 +797,20 @@ c     >        - ehartree_atom - ecmp_cmp - ecmp_pw
          E(1) = E(1) 
      >        + exc_atom - pxc_atom
      >        - ehartree_atom - ecmp_cmp - ecmp_pw
+      end if
+
+*     **** COSMO terms ****
+      if (cosmo_on) then
+         call v_local_cosmo(dcpl_mb(vl(1)))
+         call Pack_cc_dot(0,dcpl_mb(dng(1)),dcpl_mb(vl(1)),elocal)
+         if (control_version().eq.4) then
+            call v_lr_local_cosmo(dbl_mb(r_grid(1)),dbl_mb(vlr_l(1)))
+            call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vlr_l(1)),sum)
+            elocal = elocal + sum*dv
+         end if
+         E(46) = elocal
+         E(47) = nwpw_cosmo_EQionq()
+         E(48) = nwpw_cosmo_Eqq()
       end if
 
 

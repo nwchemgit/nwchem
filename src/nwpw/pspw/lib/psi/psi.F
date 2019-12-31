@@ -7167,6 +7167,28 @@ c      end if
       return
       end
 
+
+*     ***********************
+*     *                     *
+*     *     psi_Born        *
+*     *                     *
+*     ***********************
+
+      subroutine psi_Born()
+      implicit none
+
+#include "bafdecls.fh"
+#include "psi.fh"
+#include "stdio.fh"
+
+      call pspw_gen_APC(ispin,ne,dcpl_mb(dng1(1)))
+      call pspw_print_APC(luout)
+
+      return
+      end
+
+
+
 *     ***********************
 *     *                     *
 *     *    epsi_Mulliken    *

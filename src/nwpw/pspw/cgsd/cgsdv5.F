@@ -116,8 +116,8 @@
       external psi_ispin,psi_ne,psi_neq,electron_count,linesearch_count
       real*8   cgsd_energy,cgsd_noit_energy
       external cgsd_energy,cgsd_noit_energy
-      logical  control_Mulliken,control_DOS
-      external control_Mulliken,control_DOS
+      logical  control_Mulliken,control_DOS,nwpw_born_on
+      external control_Mulliken,control_DOS,nwpw_born_on
       real*8   ion_TotalCharge,psi_occupation
       external ion_TotalCharge,psi_occupation
       logical   control_check_charge_multiplicity
@@ -708,6 +708,8 @@ c     end if
          call psi_Mulliken(rtdb)
          i = control_excited_ne(1)+control_excited_ne(2)
          if (i.eq.0) call kp_structure(rtdb)
+      else if (nwpw_born_on()) then
+         call psi_Born()
       end if
 
 

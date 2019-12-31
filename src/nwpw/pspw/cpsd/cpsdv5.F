@@ -195,6 +195,8 @@ c#include "Parallel.fh"
 
       logical  control_mparallelized
       external control_mparallelized
+      logical  nwpw_cosmo_on
+      external nwpw_cosmo_on
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -494,6 +496,7 @@ c         end if
 *     **** initialize QM/MM ****
       call pspw_init_APC(rtdb)
       call pspw_qmmm_init(rtdb)
+      !call pspw_cdft_init(rtdb)
 
 *     **** initialize frac_occ data structure ****
 c      call frac_occ_init(rtdb,ispin,ne)
@@ -987,6 +990,11 @@ c            write(luout,1706) E(18)
         if (ion_disp_on()) then
             write(luout,1720) E(33)
         end if
+       if (nwpw_cosmo_on()) then
+            write(luout,1730) E(46)
+            write(luout,1731) E(47)
+            write(luout,1732) E(48)
+       end if
 
 
          if (.not.mparallelized) then
@@ -1345,6 +1353,9 @@ c      call frac_occ_end()
  1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)
 
  1720 FORMAT(/' Dispersion energy   :',E19.10)
+ 1730 FORMAT(/' COSMO Qelc*B*q energy :',E19.10)
+ 1731 FORMAT(' COSMO Qion*B*q energy :',E19.10)
+ 1732 FORMAT(' COSMO 0.5*q*A*q energy:',E19.10)
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 

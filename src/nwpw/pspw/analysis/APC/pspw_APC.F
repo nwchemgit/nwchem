@@ -26,6 +26,8 @@ c
 
 #include "bafdecls.fh"
 #include "btdb.fh"
+#include "util.fh"
+#include "stdio.fh"
 #include "errquit.fh"
 #include "pspw_APC.fh"
 
@@ -33,7 +35,7 @@ c
       integer taskid,MASTER
       parameter (MASTER=0)
 
-      logical value,doapc
+      logical value,doapc,oprint
       integer i,j,k,n,npack0,nfft3d
       integer nx,ny,nxh
       integer zero,pzero,qzero
@@ -41,15 +43,15 @@ c
       real*8  coef,x,gg,fourpi
 
 *     **** external functions ****
-      logical  control_Mulliken
+      logical  control_Mulliken,nwpw_born_on,control_print
       integer  ion_nion_qm, G_indx
       real*8   lattice_omega
-      external control_Mulliken
+      external control_Mulliken,nwpw_born_on,control_print
       external ion_nion_qm, G_indx
       external lattice_omega
 
       if (.not.btdb_get(rtdb,'nwpw:APC',mt_log,1,doapc))
-     >  doapc = control_Mulliken()
+     >  doapc = control_Mulliken().or.nwpw_born_on()
 
 *     **** read in nga from rtdb ***
       value = btdb_get(rtdb,'nwpw_APC:nga',mt_int,1,nga)
@@ -65,8 +67,9 @@ c
       end if
       ngs = nga*ion_nion_qm()
       call Parallel_taskid(taskid)
-      call Pack_npack(0,npack0)
+      oprint = (taskid.eq.MASTER).and.control_print(print_debug)
 
+      call Pack_npack(0,npack0)
 
 *     **** Allocate memory needed for pspw_APC ****
       value = BA_alloc_get(mt_dbl,ngs*ngs,'AAPC',A(2),A(1))
@@ -171,14 +174,14 @@ c    >     + i+1
       if (.not. value) call errquit('popping of stack memory',0, MA_ERR)
 
 *     **** DEBUG - write out information *****
-      if (taskid.eq.MASTER) then
-         write(*,*) 
-         write(*,*) 'initializing pspw_APC data structure'
-         write(*,*) '------------------------------------'
-         write(*,*) 'nga, ngs:',nga,ngs
-         write(*,*) 'Gc      :',Gc
+      if (oprint) then
+         write(luout,*) 
+         write(luout,*) 'initializing pspw_APC data structure'
+         write(luout,*) '------------------------------------'
+         write(luout,*) 'nga, ngs:',nga,ngs
+         write(luout,*) 'Gc      :',Gc
          do i=1,nga
-           write(*,*) 'APC gamma:',i, dbl_mb(gamma(1)+i-1)
+           write(luout,*) 'APC gamma:',i, dbl_mb(gamma(1)+i-1)
          end do
       end if
 
@@ -531,12 +534,14 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
 #include "bafdecls.fh"
 #include "pspw_APC.fh"
+#include "util.fh"
 
 *     **** local variables ****
       integer taskid,MASTER
       parameter (MASTER=0)
       integer i,j,indx
       real*8 sum,sumi,sume
+      logical oprint
 
 *     **** external functions ****
       character*4  ion_atom
@@ -545,11 +550,14 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       external     ion_atom
       external     ion_nion_qm,ion_katm_qm
       external     psp_zv
+      logical      control_print
+      external     control_print
       
       if (nga.gt.0) then
       call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER).and.control_print(print_medium)
 
-      if (taskid.eq.MASTER) then
+      if (oprint) then
 
          WRITE(unit,*)
          WRITE(unit,*)
@@ -618,6 +626,8 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
 
       end if
+
+      call nwpw_born_print(nga,ion_nion_qm(),dbl_mb(q(1)))
 
       end if
       return
