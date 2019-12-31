@@ -6795,5 +6795,32 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 
+*     ************************************
+*     *                                  *
+*     *      control_vfield_filenames    *
+*     *                                  *
+*     ************************************
+      logical function control_vfield_filenames(filenames)
+      implicit none
+      character*(*) filenames
+
+#include "control.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical found
+
+      found = .false.
+      if (btdb_cget(rtdb,'nwpw:vfield_filenames',1,filenames)) then
+         found = .true.
+      end if
+
+      control_vfield_filenames = found
+      return
+      end
+
 
 
