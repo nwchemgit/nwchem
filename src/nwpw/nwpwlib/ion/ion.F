@@ -16,6 +16,7 @@
 
       logical value
 
+      if (.not.periodic) call nwpw_born_end()
       if (.not.periodic) call nwpw_cosmo_end()
       call FMM_end()
       call ion_scaling_atoms_end()
@@ -482,10 +483,11 @@ c         eki1=0.5d0*eki1
          end if
       end if
 
-*     ***** try to initialize COSMO if aperiodic *****
+*     ***** try to initialize Born and COSMO if aperiodic *****
       nion_q = 0
       cosmo_on = .false.
       if  (.not.periodic) then
+         call nwpw_born_init(rtdb)
          call nwpw_cosmo_init(rtdb,geom)
          cosmo_on = nwpw_cosmo_on()
       end if
