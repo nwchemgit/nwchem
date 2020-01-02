@@ -116,8 +116,11 @@ c
       logical  psi_try_read_density,control_use_fractional_rho
       external psi_try_read_density,control_use_fractional_rho
 
+      logical  nwpw_cosmo_on
+      external nwpw_cosmo_on
+      real*8   psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
+      external psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
 
-   
       Ein = E(1)
       call Parallel_taskid(taskid)
       oprint = (taskid.eq.MASTER).and.control_print(print_medium)
@@ -453,6 +456,13 @@ c      call psi_check()
          E(14) = E(14) + pspw_qmmm_Q_Emix()
          E(14) = E(14) + dng_1vl_mm()
 
+      end if
+
+*     **** COSMO terms ****
+      if (nwpw_cosmo_on()) then
+         E(46) = psi_1vl_cosmo()
+         E(47) = nwpw_cosmo_EQionq()
+         E(48) = nwpw_cosmo_Eqq()
       end if
 
 *     **** get pspw_charge  energies ****

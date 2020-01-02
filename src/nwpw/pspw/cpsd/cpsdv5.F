@@ -990,11 +990,6 @@ c            write(luout,1706) E(18)
         if (ion_disp_on()) then
             write(luout,1720) E(33)
         end if
-       if (nwpw_cosmo_on()) then
-            write(luout,1730) E(46)
-            write(luout,1731) E(47)
-            write(luout,1732) E(48)
-       end if
 
 
          if (.not.mparallelized) then
@@ -1046,6 +1041,17 @@ c            write(luout,1706) E(18)
 
          end if
          end if
+
+*      **** write out COSMO energies ****
+       if (nwpw_cosmo_on()) then
+            write(luout,1730) 
+            write(luout,1731) 
+            write(luout,1732) E(46)
+            write(luout,1733) E(47)
+            write(luout,1734) E(48)
+            write(luout,1735) E(46)+E(47)+E(48),
+     >                        (E(46)+E(47)+E(48))*27.2116d0*23.06d0
+       end if
 
       end if
 
@@ -1353,9 +1359,14 @@ c      call frac_occ_end()
  1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)
 
  1720 FORMAT(/' Dispersion energy   :',E19.10)
- 1730 FORMAT(/' COSMO Qelc*B*q energy :',E19.10)
- 1731 FORMAT(' COSMO Qion*B*q energy :',E19.10)
- 1732 FORMAT(' COSMO 0.5*q*A*q energy:',E19.10)
+
+ 1730 FORMAT(/' COSMO energies:')
+ 1731 FORMAT(5x,' screen=(epsilon-1)/(epsilon+1/2)')
+ 1732 FORMAT(5x,' screen*Qelc*B*q energy  :',E19.10)
+ 1733 FORMAT(5x,' screen*Qion*B*q energy  :',E19.10)
+ 1734 FORMAT(5x,' screen*0.5*q*A*q energy :',E19.10)
+ 1735 FORMAT(5x,' solvation energy (w/o QM polarization) :',E19.10,
+     >   /45x,' (',F8.3,' kcal/mol)')
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 

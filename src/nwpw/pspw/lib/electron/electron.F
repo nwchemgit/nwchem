@@ -2280,7 +2280,7 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
 *     ***** local variables ****
       logical value
       integer n2ft3d,gga
-      integer tmp1(2),tmp2(2)
+      integer tmp1(2),r_grid(2)
       real*8  gmma
 
 *     **** external functions ****
@@ -2288,6 +2288,8 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       external control_gga,control_version
       real*8   control_attenuation
       external control_attenuation
+      logical  nwpw_cosmo_on
+      external nwpw_cosmo_on
 
      
       n2ft3d = 2*nfft3d
@@ -2305,14 +2307,28 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       
          call D3dB_rr_Sum(1,dn(1),dn(1+(ispin-1)*n2ft3d),
      >                    dbl_mb(tmp1(1)))
+
          call coulomb2_v(dbl_mb(tmp1(1)),dcpl_mb(vc(1)))
+
+         if (nwpw_cosmo_on()) then
+            if (.not.BA_push_get(mt_dbl,(3*n2ft3d),'r_grid',
+     >                           r_grid(2),r_grid(1)))
+     >         call errquit("electron_gen_scf_potentials: push stack",
+     >                      1,MA_ERR)
+            call lattice_r_grid(dbl_mb(r_grid(1)))
+            call v_local_set_cosmo_BQ(dbl_mb(r_grid(1)),
+     >                                dbl_mb(tmp1(1)),dng)
+            call electron_gen_vl_potential()
+            if (.not.BA_pop_stack(r_grid(2)))
+     >         call errquit("electron_gen_scf_potentials:pop stack",
+     >                      1,MA_ERR)
+         end if
 
          value = BA_pop_stack(tmp1(2)) 
          if (.not. value) call errquit(
      >   'electron_gen_scf_potentials: error popping stack memory',0,
      >       MA_ERR)
       end if
-     
 
 *    **** xc potential ****
       call v_bwexc_all(gga,n2ft3d,ispin,dnall,
@@ -2407,7 +2423,6 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
      >  'electron_gen_vl_potential: error popping stack memory',0,
      &       MA_ERR)
 
-
 *     **** generate real-space fields ****
       if ((control_version().eq.4).or.
      >    (pspw_charge_found()))    then
@@ -2424,8 +2439,9 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
          end if
 
 *        **** zero out v_field ****
-         call dcopy(2*nfft3d,0.0d0,0,dbl_mb(v_field(1)),1)
-
+         !call dcopy(2*nfft3d,0.0d0,0,dbl_mb(v_field(1)),1)
+         call Parallel_shared_vector_zero(.true.,
+     >               2*nfft3d,dbl_mb(v_field(1)))
 
 *        **** generate charge potential ****
          if (pspw_charge_found()) then
@@ -2435,7 +2451,6 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
      >                                 dbl_mb(r_grid(1)),
      >                                 dbl_mb(v_field(1)))
          end if
-
 
          value = BA_pop_stack(r_grid(2))
          if (.not. value) call errquit(

@@ -122,10 +122,12 @@ c
       external nwpw_meta_gga_on,ion_disp_on
       real*8   ion_disp_energy
       external ion_disp_energy
-      logical  pspw_Lin_HFX_on
-      external pspw_Lin_HFX_on
-      real*8   psi_1energy
-      external psi_1energy
+      logical  pspw_Lin_HFX_on,nwpw_cosmo_on
+      external pspw_Lin_HFX_on,nwpw_cosmo_on
+      real*8   psi_1energy,psi_1vl_cosmo
+      external psi_1energy,psi_1vl_cosmo
+      real*8   nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
+      external nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
 
 
       dt = control_time_step()
@@ -491,6 +493,15 @@ c     call psi_check()
 
          E(45) = psp_ion_core()            !*** ion core energy - independent of psi ***
       end if
+
+
+*     **** COSMO terms ****
+      if (nwpw_cosmo_on()) then
+         E(46) = psi_1vl_cosmo()
+         E(47) = nwpw_cosmo_EQionq()
+         E(48) = nwpw_cosmo_Eqq()
+      end if
+
 
 *     **** HFX terms ****
       if (pspw_HFX()) then

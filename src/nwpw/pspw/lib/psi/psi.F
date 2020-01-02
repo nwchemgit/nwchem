@@ -3491,6 +3491,58 @@ c      end
       return
       end
 
+*     ***********************************
+*     *					*
+*     * 	 psi_1vl_cosmo          *
+*     *					*
+*     ***********************************
+      real*8 function psi_1vl_cosmo()
+      implicit none
+
+#include "bafdecls.fh"
+#include "psi.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical ok
+      integer r_grid(2),tmp1(2)
+      integer nx,ny,nz,n2ft3d
+      real*8  elocal,e1,e2,dv
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      call D3dB_n2ft3d(1,n2ft3d)
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      dv = lattice_omega()/dble(nx*ny*nz)
+
+      ok = BA_push_get(mt_dbl,(3*n2ft3d),'r_grid',r_grid(2),r_grid(1))
+      ok = ok.and.BA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1))
+      if (.not.ok) call errquit("psi_1vl_cosmo: push stack",0,MA_ERR)
+
+      call lattice_r_grid(dbl_mb(r_grid(1)))
+
+      call v_local_cosmo(dbl_mb(tmp1(1)))
+      call Pack_cc_dot(0,dcpl_mb(dng1(1)),dbl_mb(tmp1(1)),elocal)
+
+      call v_lr_local_cosmo(dbl_mb(r_grid(1)),dbl_mb(tmp1(1)))
+      call D3dB_rr_dot(1,dbl_mb(rho1(1)),
+     >                 dbl_mb(tmp1(1)),e1)
+      call D3dB_rr_dot(1,dbl_mb(rho1(1)+(ispin-1)*n2ft3d),
+     >                 dbl_mb(tmp1(1)),e2)
+      elocal = elocal + (e1+e2)*dv
+
+      ok =        BA_pop_stack(tmp1(2))
+      ok = ok.and.BA_pop_stack(r_grid(2))
+      if (.not.ok) call errquit("psi_1vl_cosmo: pop stack",0,MA_ERR)
+
+      psi_1vl_cosmo = elocal
+      return
+      end 
+
 
 
 *     ***********************************
