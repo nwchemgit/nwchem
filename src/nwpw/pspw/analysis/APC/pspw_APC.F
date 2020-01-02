@@ -494,6 +494,137 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       return
       end
 
+
+*     ***********************************
+*     *					*
+*     *		pspw_VQ_APC		*
+*     *					*
+*     ***********************************
+*
+*   This routine calculates dQ(II)/drho(G). In order 
+* to use this routine Am = inverse A must be calculated
+* for the current geometry.
+*
+*   Entry - ii: index of qm atom
+*         - dng: rho(G)
+*   Exit - VQ(G) = dQ(ii)/drho(G), where Q(ii) is the total charge on atom ii
+*
+      subroutine pspw_VQ_APC(ii,dng,VQ)
+      implicit none
+      integer    ii
+      complex*16 dng(*)
+      complex*16 VQ(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "pspw_APC.fh"
+
+*     ***** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+      logical value
+      integer i,iii
+      integer npack0
+      real*8  omega,sumAm,afac
+
+      integer exi(2)
+      integer gaus_i(2)
+
+*     ***** external functions ****
+      real*8   lattice_omega,pspw_Vfac_APC
+      external lattice_omega,pspw_Vfac_APC
+
+      if (nga.gt.0) then
+         omega = lattice_omega()
+         call Parallel_taskid(taskid)
+         call Pack_npack(0,npack0)
+
+*        **** get memory from stack ****
+         value = BA_push_get(mt_dcpl,npack0,'ttexi',exi(2),exi(1))
+         value = value.and.
+     >           BA_push_get(mt_dcpl,npack0,'ghaus_i1',
+     >                       gaus_i(2),gaus_i(1))
+         if (.not. value) 
+     >      call errquit('pspw_VQ_APC:push stack',0, MA_ERR)
+
+         sumAm = 0.0d0
+         do i=1,ngs*ngs
+           sumAm = sumAm + dbl_mb(Am(1)+i-1)
+         end do
+
+*        ***** calculate VQ(G) ****
+         call Parallel_shared_vector_zero(.true.,2*npack0,VQ)
+
+*        **** structure factor  ****
+         !call strfac(ii,dcpl_mb(exi(1)))
+         !call Pack_c_pack(0,dcpl_mb(exi(1)))
+         call strfac_pack(0,ii,dcpl_mb(exi(1)))
+
+         do iii=1,nga
+            i = iii + (ii-1)*nga
+
+            afac = omega*pspw_Vfac_APC(ngs,dbl_mb(Am(1)),sumAm,i)
+
+*           *** gaus_i(G))***
+            call Pack_tc_Mul(0,dbl_mb(gaus(1)+npack0*(iii-1)),
+     >                       dcpl_mb(exi(1)),
+     >                       dcpl_mb(gaus_i(1)))
+
+*           *** VQ(G) += afac*w(G)*gaus_i(G))***
+            call Pack_tc_aMulAdd(0,afac,
+     >                           dbl_mb(w(1)),
+     >                           dcpl_mb(gaus_i(1)),
+     >                           VQ)
+         end do
+
+         value =           BA_pop_stack(gaus_i(2))
+         value = value.and.BA_pop_stack(exi(2))
+         if (.not. value) 
+     >      call errquit('pspw_VQ_APC:pop stack',0,MA_ERR)
+
+      end if
+
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *		pspw_Vfac_APC		*
+*     *					*
+*     ***********************************
+      real*8 function pspw_Vfac_APC(ngs,Am,sumAm,i)
+      implicit none
+      integer ngs
+      real*8 Am(ngs,ngs)
+      real*8 sumAm
+      integer i
+
+*     **** local variables ****
+      integer r,j,k
+      real*8 sum0,sum1,sum2
+
+      sum0 = 0.0d0
+      do r=1,ngs
+         sum1 = 0.0d0
+         do j=1,ngs
+            sum2 = 0.0d0
+            do k=1,ngs
+               sum2 = sum2 + Am(k,r)
+            end do
+            sum1 = Am(i,j)*sum2/sumAm
+         end do
+         sum0 = Am(i,r) - sum1
+      end do
+
+      pspw_Vfac_APC = sum0
+      return
+      end
+
+
+
+
+
 *     ***********************************
 *     *					*
 *     *		pspw_getQ_APC		*
