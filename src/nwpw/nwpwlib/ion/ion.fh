@@ -2,7 +2,7 @@ c
 c $Id$
 c
 *     **** ion common block ****
-      logical     sym_inversion,periodic,disp_on,makehmass2,cosmo_on
+      logical     sym_inversion,periodic,disp_on,makehmass2,cosmo1_on
       logical     incell_on
       integer     nion,nion_qm,nion_mm,nion_q
       integer     nkatm,nkatm_qm,nconstraints
@@ -32,7 +32,7 @@ c
      >              periodic,         !true if periodic
      >              disp_on,          !true if has dispersion corrections
      >              makehmass2,       !if true convert H mass to be 2.0 amu
-     >              cosmo_on,         !true if cosmo on
+     >              cosmo1_on,         !true if cosmo1 on
      >              incell_on         !true if incell on
 
 *     **** ION_GRIMME2 Block ****

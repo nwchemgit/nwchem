@@ -13,29 +13,13 @@
 #include "stdio.fh"
 #include "btdb.fh"
 #include "errquit.fh"
+#include "nwpw_cosmo.fh"
 
 *     **** local variables ****
       logical  omaster,oprint,value,restart
       integer  taskid,np,i,j,pcount,ia,ne(2),ispin,cosmo_sccor
       integer  MASTER
       parameter(MASTER=0)
-
-*     **** nwpw_cosmo common blocks ****
-      logical cosmo_on,do_cosmo_smd
-      integer cosmo_phase,nefc,rtdb
-      real*8  screen,dielec,gcds
-      common /nwpw_cosmo_blk/ screen,dielec,gcds,cosmo_phase,rtdb,nefc,
-     >                        cosmo_on,do_cosmo_smd
-
-      integer i_indx(2),j_indx(2),nindx
-      common /nwpw_cosmo_blk2/ i_indx,j_indx,nindx
-
-      integer qc0(2),qc1(2),BQc(2),qs(2),AA(2),qold(2)
-      real*8  Qion,Qelc,qthresh,invAsum
-      logical Qset,Qt,Qlmd,firstrestart,firstrun
-      common /nwpw_cosmo_blk3/ invAsum,Qion,Qelc,qthresh,qc0,qc1,
-     >                         BQc,qs,AA,qold,
-     >                         Qset,Qt,Qlmd,firstrestart,firstrun
 
 *     ***** external functions *****
       logical  control_print
@@ -59,6 +43,8 @@ c     == Cosmo initialization ==
       gcds = 0.0d0
       dielec = 0.0d0
       screen = 0.0d0
+      cosmo1_on = .false.
+      cosmo2_on = .false.
 
       if (.not.btdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) 
      >   cosmo_on = .false.
@@ -74,10 +60,19 @@ c     == Cosmo initialization ==
             firstrestart = .true.
             firstrun = .false.
          end if
+
+c        **** set the cosmo type ****
+         if (.not.btdb_get(rtdb,'nwpw:cosmo2',mt_log,1,cosmo2_on))
+     >      cosmo2_on = .false.
+         cosmo1_on = .not.cosmo2_on
+
+
 c
 c        Turn cosmo on, we want to run the calculation
 c        Start with gas_phase run unless told otherwise
 c
+
+
          cosmo_on = .true.
          if (.not.btdb_get(rtdb,'cosmo_phase',mt_int,1,cosmo_phase))
      >      cosmo_phase = 1
@@ -106,6 +101,12 @@ c
          value = value.and.BA_alloc_get(mt_dbl,nefc,'qs',  qs(2), qs(1))
          value = value.and.BA_alloc_get(mt_dbl,nefc,
      >                                  'qold',qold(2),qold(1))
+         if (cosmo2_on) then
+            value = value.and.BA_alloc_get(mt_dbl,3*nefc,
+     >                                  'rqion',rqion(2),rqion(1))
+            call nwpw_cosmo_qcoords(dbl_mb(rqion(1)))
+         end if
+
          value = value.and.
      >           BA_alloc_get(mt_dbl,nefc*nefc,'AA',AA(2),AA(1))
          if (.not. value) 
@@ -197,25 +198,11 @@ c
 #include "bafdecls.fh"
 #include "btdb.fh"
 #include "errquit.fh"
+#include "nwpw_cosmo.fh"
 
-*     **** nwpw_cosmo common blocks ****
-      logical cosmo_on,do_cosmo_smd
-      integer cosmo_phase,rtdb,nefc
-      real*8  screen,dielec,gcds
-      common /nwpw_cosmo_blk/ screen,dielec,gcds,cosmo_phase,rtdb,nefc,
-     >                        cosmo_on,do_cosmo_smd
-
-      integer i_indx(2),j_indx(2),nindx
-      common /nwpw_cosmo_blk2/ i_indx,j_indx,nindx
-
-      integer qc0(2),qc1(2),BQc(2),qs(2),AA(2),qold(2)
-      real*8  Qion,Qelc,qthresh,invAsum
-      logical Qset,Qt,Qlmd,firstrestart,firstrun
-      common /nwpw_cosmo_blk3/ invAsum,Qion,Qelc,qthresh,qc0,qc1,
-     >                         BQc,qs,AA,qold,
-     >                         Qset,Qt,Qlmd,firstrestart,firstrun
-
+*     **** local variables ****
       logical value
+
 
 c     == Clean up cosmo stuff, if necessary ==
       if (cosmo_on) then
@@ -248,6 +235,7 @@ c     == Clean up cosmo stuff, if necessary ==
          value = value.and.BA_free_heap(qs(2))
          value = value.and.BA_free_heap(qold(2))
          value = value.and.BA_free_heap(AA(2))
+         if (cosmo2_on) value = value.and.BA_free_heap(rqion(2))
          if (.not. value) 
      >      call errquit('nwpw_cosmo_end:heap memory',0,MA_ERR)
 
@@ -266,20 +254,7 @@ c     == Clean up cosmo stuff, if necessary ==
 
 #include "bafdecls.fh"
 #include "errquit.fh"
-
-*     **** nwpw_cosmo common blocks ****
-      logical cosmo_on,do_cosmo_smd
-      integer cosmo_phase,rtdb,nefc
-      real*8  screen,dielec,gcds
-      common /nwpw_cosmo_blk/ screen,dielec,gcds,cosmo_phase,rtdb,nefc,
-     >                        cosmo_on,do_cosmo_smd
-
-      integer qc0(2),qc1(2),BQc(2),qs(2),AA(2),qold(2)
-      real*8  Qion,Qelc,qthresh,invAsum
-      logical Qset,Qt,Qlmd,firstrestart,firstrun
-      common /nwpw_cosmo_blk3/ invAsum,Qion,Qelc,qthresh,qc0,qc1,
-     >                         BQc,qs,AA,qold,
-     >                         Qset,Qt,Qlmd,firstrestart,firstrun
+#include "nwpw_cosmo.fh"
 
       nwpw_cosmo_screen_qc0 = screen*dbl_mb(qc0(1)+i-1)
       return
@@ -292,13 +267,7 @@ c     == Clean up cosmo stuff, if necessary ==
 
 #include "bafdecls.fh"
 #include "errquit.fh"
-
-      integer qc0(2),qc1(2),BQc(2),qs(2),AA(2),qold(2)
-      real*8  Qion,Qelc,qthresh,invAsum
-      logical Qset,Qt,Qlmd,firstrestart,firstrun
-      common /nwpw_cosmo_blk3/ invAsum,Qion,Qelc,qthresh,qc0,qc1,
-     >                         BQc,qs,AA,qold,
-     >                         Qset,Qt,Qlmd,firstrestart,firstrun
+#include "nwpw_cosmo.fh"
 
       nwpw_cosmo_qc0 = dbl_mb(qc0(1)+i-1)
       return
@@ -310,13 +279,7 @@ c     == Clean up cosmo stuff, if necessary ==
 
 #include "bafdecls.fh"
 #include "errquit.fh"
-
-      integer qc0(2),qc1(2),BQc(2),qs(2),AA(2),qold(2)
-      real*8  Qion,Qelc,qthresh,invAsum
-      logical Qset,Qt,Qlmd,firstrestart,firstrun
-      common /nwpw_cosmo_blk3/ invAsum,Qion,Qelc,qthresh,qc0,qc1,
-     >                         BQc,qs,AA,qold,
-     >                         Qset,Qt,Qlmd,firstrestart,firstrun
+#include "nwpw_cosmo.fh"
 
       nwpw_cosmo_qc1 = dbl_mb(qc1(1)+i-1)
       return
@@ -328,13 +291,7 @@ c     == Clean up cosmo stuff, if necessary ==
 
 #include "bafdecls.fh"
 #include "errquit.fh"
-
-      integer qc0(2),qc1(2),BQc(2),qs(2),AA(2),qold(2)
-      real*8  Qion,Qelc,qthresh,invAsum
-      logical Qset,Qt,Qlmd,firstrestart,firstrun
-      common /nwpw_cosmo_blk3/ invAsum,Qion,Qelc,qthresh,qc0,qc1,
-     >                         BQc,qs,AA,qold,
-     >                         Qset,Qt,Qlmd,firstrestart,firstrun
+#include "nwpw_cosmo.fh"
 
       nwpw_cosmo_BQ_ptr = BQc(1)
       return
@@ -349,12 +306,7 @@ c     == Clean up cosmo stuff, if necessary ==
       integer function nwpw_cosmo_nq()
       implicit none
 
-*     **** nwpw_cosmo common block ****
-      logical cosmo_on,do_cosmo_smd
-      integer cosmo_phase,rtdb,nefc
-      real*8  screen,dielec,gcds
-      common /nwpw_cosmo_blk/ screen,dielec,gcds,cosmo_phase,rtdb,nefc,
-     >                        cosmo_on,do_cosmo_smd
+#include "nwpw_cosmo.fh"
 
       nwpw_cosmo_nq = 0
       if (cosmo_on) then
@@ -372,12 +324,7 @@ c     == Clean up cosmo stuff, if necessary ==
       integer function nwpw_cosmo_phase()
       implicit none
 
-*     **** nwpw_cosmo common block ****
-      logical cosmo_on,do_cosmo_smd
-      integer cosmo_phase,rtdb,nefc
-      real*8  screen,dielec,gcds
-      common /nwpw_cosmo_blk/ screen,dielec,gcds,cosmo_phase,rtdb,nefc,
-     >                        cosmo_on,do_cosmo_smd
+#include "nwpw_cosmo.fh"
 
       nwpw_cosmo_phase = 0
       if (cosmo_on) then
@@ -395,12 +342,7 @@ c     == Clean up cosmo stuff, if necessary ==
       logical function nwpw_cosmo_smd()
       implicit none
 
-*     **** nwpw_cosmo common block ****
-      logical cosmo_on,do_cosmo_smd
-      integer cosmo_phase,rtdb,nefc
-      real*8  screen,dielec,gcds
-      common /nwpw_cosmo_blk/ screen,dielec,gcds,cosmo_phase,rtdb,nefc,
-     >                        cosmo_on,do_cosmo_smd
+#include "nwpw_cosmo.fh"
 
       nwpw_cosmo_smd = .false.
       if (cosmo_on) then
@@ -417,16 +359,39 @@ c     == Clean up cosmo stuff, if necessary ==
       logical function nwpw_cosmo_on()
       implicit none
 
-*     **** nwpw_cosmo common block ****
-      logical cosmo_on,do_cosmo_smd
-      integer cosmo_phase,rtdb,nefc
-      real*8  screen,dielec,gcds
-      common /nwpw_cosmo_blk/ screen,dielec,gcds,cosmo_phase,rtdb,nefc,
-     >                        cosmo_on,do_cosmo_smd
+#include "nwpw_cosmo.fh"
 
       nwpw_cosmo_on = cosmo_on
       return
       end
+
+*     *******************************************
+*     *                                         *
+*     *            nwpw_cosmo1_on               *
+*     *                                         *
+*     *******************************************
+      logical function nwpw_cosmo1_on()
+      implicit none
+
+#include "nwpw_cosmo.fh"
+
+      nwpw_cosmo1_on = cosmo1_on
+      return
+      end 
+
+*     *******************************************
+*     *                                         *
+*     *            nwpw_cosmo2_on               *
+*     *                                         *
+*     *******************************************
+      logical function nwpw_cosmo2_on()
+      implicit none
+
+#include "nwpw_cosmo.fh"
+
+      nwpw_cosmo2_on = cosmo2_on
+      return
+      end 
 
 
 *     *******************************************
@@ -441,13 +406,7 @@ c     == Clean up cosmo stuff, if necessary ==
 #include "errquit.fh"
 #include "bafdecls.fh"
 #include "btdb.fh"
-
-*     **** nwpw_cosmo common block ****
-      logical cosmo_on,do_cosmo_smd
-      integer cosmo_phase,rtdb,nefc
-      real*8  screen,dielec,gcds
-      common /nwpw_cosmo_blk/ screen,dielec,gcds,cosmo_phase,rtdb,nefc,
-     >                        cosmo_on,do_cosmo_smd
+#include "nwpw_cosmo.fh"
 
       if (cosmo_on) then
          if(.not.btdb_get(rtdb,'cosmo:efcc',mt_dbl,3*nefc,qcoord))
@@ -471,13 +430,7 @@ c     == Clean up cosmo stuff, if necessary ==
 #include "errquit.fh"
 #include "bafdecls.fh"
 #include "btdb.fh"
-
-*     **** nwpw_cosmo common block ****
-      logical cosmo_on,do_cosmo_smd
-      integer cosmo_phase,rtdb,nefc
-      real*8  screen,dielec,gcds
-      common /nwpw_cosmo_blk/ screen,dielec,gcds,cosmo_phase,rtdb,nefc,
-     >                        cosmo_on,do_cosmo_smd
+#include "nwpw_cosmo.fh"
 
       if (cosmo_on) then
          if(.not.btdb_get(rtdb,'cosmo:efciat',mt_int,nefc,indx))
@@ -496,6 +449,7 @@ c     == Clean up cosmo stuff, if necessary ==
 
 #include "bafdecls.fh"
 #include "errquit.fh"
+#include "nwpw_cosmo.fh"
 
 *     *** local variables ****
       integer i,j,k
@@ -504,23 +458,6 @@ c     == Clean up cosmo stuff, if necessary ==
 
       real*8 sa,sb
       common /pack_conjg_tcc_indot_sasb/ sa,sb
-
-*     **** nwpw_cosmo common blocks ****
-      logical cosmo_on,do_cosmo_smd
-      integer cosmo_phase,rtdb,nefc
-      real*8  screen,dielec,gcds
-      common /nwpw_cosmo_blk/ screen,dielec,gcds,cosmo_phase,rtdb,nefc,
-     >                        cosmo_on,do_cosmo_smd
-
-      integer i_indx(2),j_indx(2),nindx
-      common /nwpw_cosmo_blk2/ i_indx,j_indx,nindx
-
-      integer qc0(2),qc1(2),BQc(2),qs(2),AA(2),qold(2)
-      real*8  Qion,Qelc,qthresh,invAsum
-      logical Qset,Qt,Qlmd,firstrestart,firstrun
-      common /nwpw_cosmo_blk3/ invAsum,Qion,Qelc,qthresh,qc0,qc1,
-     >                         BQc,qs,AA,qold,
-     >                         Qset,Qt,Qlmd,firstrestart,firstrun
 
 *     **** external functions ****
       real*8   ion_rion
@@ -569,8 +506,6 @@ c     == Clean up cosmo stuff, if necessary ==
 
 #include "bafdecls.fh"
 #include "errquit.fh"
-
-
 
 *     *** local variables ***
       integer i,j,nion,nion_q
@@ -633,15 +568,7 @@ c     == Clean up cosmo stuff, if necessary ==
 
 #include "bafdecls.fh"
 #include "errquit.fh"
-
-*     **** nwpw_cosmo common blocks ****
-      logical cosmo_on,do_cosmo_smd
-      integer cosmo_phase,rtdb,nefc
-      real*8  screen,dielec,gcds
-      common /nwpw_cosmo_blk/ screen,dielec,gcds,cosmo_phase,rtdb,nefc,
-     >                        cosmo_on,do_cosmo_smd
-      integer i_indx(2),j_indx(2),nindx
-      common /nwpw_cosmo_blk2/ i_indx,j_indx,nindx
+#include "nwpw_cosmo.fh"
 
 *     **** local variables ****
       integer i,j,k
@@ -695,15 +622,7 @@ c     == Clean up cosmo stuff, if necessary ==
 
 #include "bafdecls.fh"
 #include "errquit.fh"
-
-*     **** nwpw_cosmo common blocks ****
-      logical cosmo_on,do_cosmo_smd
-      integer cosmo_phase,rtdb,nefc
-      real*8  screen,dielec,gcds
-      common /nwpw_cosmo_blk/ screen,dielec,gcds,cosmo_phase,rtdb,nefc,
-     >                        cosmo_on,do_cosmo_smd
-      integer i_indx(2),j_indx(2),nindx
-      common /nwpw_cosmo_blk2/ i_indx,j_indx,nindx
+#include "nwpw_cosmo.fh"
 
 *     **** local variables ****
       integer i,j,k
@@ -750,22 +669,7 @@ c     == Clean up cosmo stuff, if necessary ==
 
 #include "bafdecls.fh"
 #include "errquit.fh"
-
-*     **** nwpw_cosmo common blocks ****
-      logical cosmo_on,do_cosmo_smd
-      integer cosmo_phase,rtdb,nefc
-      real*8  screen,dielec,gcds
-      common /nwpw_cosmo_blk/ screen,dielec,gcds,cosmo_phase,rtdb,nefc,
-     >                        cosmo_on,do_cosmo_smd
-      integer i_indx(2),j_indx(2),nindx
-      common /nwpw_cosmo_blk2/ i_indx,j_indx,nindx
-
-      integer qc0(2),qc1(2),BQc(2),qs(2),AA(2),qold(2)
-      real*8  Qion,Qelc,qthresh,invAsum
-      logical Qset,Qt,Qlmd,firstrestart,firstrun
-      common /nwpw_cosmo_blk3/ invAsum,Qion,Qelc,qthresh,qc0,qc1,
-     >                         BQc,qs,AA,qold,
-     >                         Qset,Qt,Qlmd,firstrestart,firstrun
+#include "nwpw_cosmo.fh"
 
 *     **** local variables ****
       integer it,qcoord_ptr,ia,ne(2),ispin
@@ -971,22 +875,7 @@ c      write(*,*) "qBQ + qAq=",esum1+esum
 
 #include "bafdecls.fh"
 #include "errquit.fh"
-
-*     **** nwpw_cosmo common blocks ****
-      logical cosmo_on,do_cosmo_smd
-      integer cosmo_phase,rtdb,nefc
-      real*8  screen,dielec,gcds
-      common /nwpw_cosmo_blk/ screen,dielec,gcds,cosmo_phase,rtdb,nefc,
-     >                        cosmo_on,do_cosmo_smd
-      integer i_indx(2),j_indx(2),nindx
-      common /nwpw_cosmo_blk2/ i_indx,j_indx,nindx
-
-      integer qc0(2),qc1(2),BQc(2),qs(2),AA(2),qold(2)
-      real*8  Qion,Qelc,qthresh,invAsum
-      logical Qset,Qt,Qlmd,firstrestart,firstrun
-      common /nwpw_cosmo_blk3/ invAsum,Qion,Qelc,qthresh,qc0,qc1,
-     >                         BQc,qs,AA,qold,
-     >                         Qset,Qt,Qlmd,firstrestart,firstrun
+#include "nwpw_cosmo.fh"
 
 *     **** local variables ****
       integer i,j,k
