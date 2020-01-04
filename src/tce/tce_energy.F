@@ -830,12 +830,9 @@ c
         write_in3=res_log
        end if
 !
-       res_log=.false.
-       if (.not.rtdb_get(rtdb,'tce:nts',mt_log,1,res_log)) then
-         continue 
-       else
-         ccsd_var='ic'
-       end if
+       if (.not.rtdb_get(rtdb,'tce:nts',mt_log,1,res_log)) 
+     c      res_log=.true.
+       if(res_log) ccsd_var='ic'
 !
        slice=.false.
        if (.not.rtdb_get(rtdb,'tce:xmem',mt_int,1,xmem)) then
