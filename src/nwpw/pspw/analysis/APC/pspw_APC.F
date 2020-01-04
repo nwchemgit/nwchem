@@ -43,15 +43,17 @@ c
       real*8  coef,x,gg,fourpi
 
 *     **** external functions ****
-      logical  control_Mulliken,nwpw_born_on,control_print
-      integer  ion_nion_qm, G_indx
+      logical  control_Mulliken,control_print
+      logical  nwpw_born_on,nwpw_cosmo2_on
+      integer  ion_nion_qm,G_indx
       real*8   lattice_omega
-      external control_Mulliken,nwpw_born_on,control_print
-      external ion_nion_qm, G_indx
+      external control_Mulliken,control_print
+      external nwpw_born_on,nwpw_cosmo2_on
+      external ion_nion_qm,G_indx
       external lattice_omega
 
       if (.not.btdb_get(rtdb,'nwpw:APC',mt_log,1,doapc))
-     >  doapc = control_Mulliken().or.nwpw_born_on()
+     >  doapc = control_Mulliken().or.nwpw_born_on().or.nwpw_cosmo2_on()
 
 *     **** read in nga from rtdb ***
       value = btdb_get(rtdb,'nwpw_APC:nga',mt_int,1,nga)
