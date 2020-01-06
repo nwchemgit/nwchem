@@ -101,22 +101,22 @@ c
          value = value.and.BA_alloc_get(mt_dbl,nefc,'qs',  qs(2), qs(1))
          value = value.and.BA_alloc_get(mt_dbl,nefc,
      >                                  'qold',qold(2),qold(1))
-         if (cosmo2_on) then
-            value = value.and.BA_alloc_get(mt_dbl,3*nefc,
-     >                                  'rqion',rqion(2),rqion(1))
-            call nwpw_cosmo_qcoords(dbl_mb(rqion(1)))
-         end if
-
          value = value.and.
      >           BA_alloc_get(mt_dbl,nefc*nefc,'AA',AA(2),AA(1))
+
+         if (cosmo2_on) 
+     >      value = value.and.BA_alloc_get(mt_dbl,3*nefc,
+     >                                    'rqion',rqion(2),rqion(1))
          if (.not. value) 
      >     call errquit('nwpw_cosmo_init:out of heap memory',0,MA_ERR)
+
 
          if(.not.btdb_get(rtdb,'cosmo:efcz',mt_dbl,nefc,dbl_mb(qc0(1))))
      >     call errquit('nwpw_cosmo_qc0: failed',0,rtdb_err)
 
          if(.not.btdb_get(rtdb,'cosmo:efcs',mt_dbl,nefc,dbl_mb(qs(1))))
      >     call errquit('nwpw_cosmo_qsurfaces: failed',0,rtdb_err)
+
 
          qthresh = 0.5d-7
 
@@ -181,6 +181,11 @@ c
                pcount = mod(pcount+1,np)
             end do
          end do
+
+         if (cosmo2_on) then
+            call nwpw_cosmo_qcoords(dbl_mb(rqion(1)))
+            call nwpw_cosmo_generate_Ainv(dbl_mb(rqion(1)))
+         end if
          
       endif
       return
@@ -415,6 +420,32 @@ c     == Clean up cosmo stuff, if necessary ==
       return
       end
 
+*     *******************************************
+*     *                                         *
+*     *            nwpw_cosmo_qcoord_ptr        *
+*     *                                         *
+*     *******************************************
+      integer function nwpw_cosmo_qcoord_ptr()
+      implicit none
+
+#include "errquit.fh"
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "nwpw_cosmo.fh"
+
+*     **** external functions ****
+      integer  ion_rion_ptr,ion_nion
+      external ion_rion_ptr,ion_nion
+
+      if (cosmo1_on) then
+         nwpw_cosmo_qcoord_ptr = ion_rion_ptr()+3*ion_nion()
+      else
+         nwpw_cosmo_qcoord_ptr = rqion(1)
+      endif
+      return
+      end
+
+
 
 
 
@@ -455,14 +486,20 @@ c     == Clean up cosmo stuff, if necessary ==
       integer i,j,k
       real*8  e,x,y,z,r
       real*8  sai,saj
+      integer qcoord_ptr
 
       real*8 sa,sb
       common /pack_conjg_tcc_indot_sasb/ sa,sb
 
 *     **** external functions ****
-      real*8   ion_rion
-      external ion_rion
+      integer  ion_rion_ptr,ion_nion
+      external ion_rion_ptr,ion_nion
 
+      if (cosmo1_on) then
+         qcoord_ptr = ion_rion_ptr()+3*ion_nion()
+      else
+         qcoord_ptr = rqion(1)
+      end if
       
 !$OMP MASTER
             sb = 0.0d0
@@ -480,9 +517,12 @@ c     == Clean up cosmo stuff, if necessary ==
      >                *dbl_mb(qc0(1)+i-1)
      >                *dbl_mb(qc1(1)+i-1)
          else
-            x = ion_rion(1,i)-ion_rion(1,j)
-            y = ion_rion(2,i)-ion_rion(2,j)
-            z = ion_rion(3,i)-ion_rion(3,j)
+            x = dbl_mb(qcoord_ptr+3*(i-1))
+     >        - dbl_mb(qcoord_ptr+3*(j-1))
+            y = dbl_mb(qcoord_ptr+3*(i-1)+1)
+     >        - dbl_mb(qcoord_ptr+3*(j-1)+1)
+            z = dbl_mb(qcoord_ptr+3*(i-1)+2)
+     >        - dbl_mb(qcoord_ptr+3*(j-1)+2)
             r = dsqrt(x*x + y*y + z*z)
             sb = sb + dbl_mb(qc1(1)+i-1)
      >               *dbl_mb(qc0(1)+j-1)/r
@@ -506,10 +546,12 @@ c     == Clean up cosmo stuff, if necessary ==
 
 #include "bafdecls.fh"
 #include "errquit.fh"
+#include "nwpw_cosmo.fh"
 
 *     *** local variables ***
-      integer i,j,nion,nion_q
+      integer i,j,nion
       real*8 x,y,z,r,qi,qj
+      integer qcoord_ptr,rcoord_ptr
 
       !common /eiond_ejtmp/ e
 
@@ -518,15 +560,22 @@ c     == Clean up cosmo stuff, if necessary ==
      
 
 *     *** external functions ***
-      integer  ion_nion,ion_katm,ion_nion_q
-      external ion_nion,ion_katm,ion_nion_q
-      real*8   psp_zv,ion_rion,nwpw_cosmo_qc0
-      external psp_zv,ion_rion,nwpw_cosmo_qc0
+      integer  ion_nion,ion_katm
+      external ion_nion,ion_katm
+      integer  ion_rion_ptr
+      external ion_rion_ptr
+      real*8   psp_zv,nwpw_cosmo_qc0
+      external psp_zv,nwpw_cosmo_qc0
       real*8   nwpw_cosmo_screen_qc0
       external nwpw_cosmo_screen_qc0
 
-      nion   = ion_nion()
-      nion_q = ion_nion_q()
+      nion = ion_nion()
+      if (cosmo1_on) then
+         qcoord_ptr = ion_rion_ptr() + 3*nion
+      else
+         qcoord_ptr = rqion(1)
+      end if
+      rcoord_ptr = ion_rion_ptr()
 
 !$OMP MASTER
       e2 = 0.0d0
@@ -534,15 +583,16 @@ c     == Clean up cosmo stuff, if necessary ==
 !$OMP BARRIER
 
 !$OMP DO reduction(+:e2)
-      do i=nion+1,nion+nion_q
+      do i=1,nefc
          !qi = nwpw_cosmo_qc0(i-nion)
-         qi = nwpw_cosmo_screen_qc0(i-nion)
+         !qi = nwpw_cosmo_screen_qc0(i-nion)
+         qi = nwpw_cosmo_screen_qc0(i)
          do j=1,nion
            qj = psp_zv(ion_katm(j))
-           x = ion_rion(1,i) - ion_rion(1,j)
-           y = ion_rion(2,i) - ion_rion(2,j)
-           z = ion_rion(3,i) - ion_rion(3,j)
-           r = dsqrt(x*x + y*y + z*z)
+           x=dbl_mb(qcoord_ptr+3*(i-1))  -dbl_mb(rcoord_ptr+3*(j-1))
+           y=dbl_mb(qcoord_ptr+3*(i-1)+1)-dbl_mb(rcoord_ptr+3*(j-1)+1)
+           z=dbl_mb(qcoord_ptr+3*(i-1)+2)-dbl_mb(rcoord_ptr+3*(j-1)+2)
+           r= dsqrt(x*x + y*y + z*z)
            if (r.gt.1.0d-6) then
               e2 = e2 + qi*qj/r
            end if
@@ -554,6 +604,80 @@ c     == Clean up cosmo stuff, if necessary ==
       nwpw_cosmo_EQionq = e2
       return
       end 
+
+*     *******************************************
+*     *                                         *
+*     *            nwpw_cosmo_EQelcq            *
+*     *                                         *
+*     *******************************************
+      real*8 function nwpw_cosmo_EQelcq()
+      implicit none
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_cosmo.fh"
+
+*     *** local variables ***
+      integer i,j,nion
+      real*8 x,y,z,r,qi,qj
+      integer qcoord_ptr,rcoord_ptr
+
+      !common /eiond_ejtmp/ e
+
+      real*8 e1,e2
+      common /pack_conjg_tcc_indot_sasb/ e1,e2
+
+
+*     *** external functions ***
+      integer  ion_nion,ion_katm
+      external ion_nion,ion_katm
+      integer  ion_rion_ptr
+      external ion_rion_ptr
+      real*8   pspw_getQtot_APC,nwpw_cosmo_qc0
+      external pspw_getQtot_APC,nwpw_cosmo_qc0
+      real*8   nwpw_cosmo_screen_qc0
+      external nwpw_cosmo_screen_qc0
+
+      nion = ion_nion()
+      if (cosmo1_on) then
+         qcoord_ptr = ion_rion_ptr() + 3*nion
+      else
+         qcoord_ptr = rqion(1)
+      end if
+      rcoord_ptr = ion_rion_ptr()
+
+      write(*,*) "cosmo qcoord_ptr =",qcoord_ptr
+
+!$OMP MASTER
+      e2 = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+
+!$OMP DO reduction(+:e2)
+      do i=1,nefc
+         !qi = nwpw_cosmo_qc0(i-nion)
+         !qi = nwpw_cosmo_screen_qc0(i-nion)
+         qi = nwpw_cosmo_screen_qc0(i)
+         do j=1,nion
+           qj = pspw_getQtot_APC(j)
+           x=dbl_mb(qcoord_ptr+3*(i-1))  -dbl_mb(rcoord_ptr+3*(j-1))
+           y=dbl_mb(qcoord_ptr+3*(i-1)+1)-dbl_mb(rcoord_ptr+3*(j-1)+1)
+           z=dbl_mb(qcoord_ptr+3*(i-1)+2)-dbl_mb(rcoord_ptr+3*(j-1)+2)
+           r= dsqrt(x*x + y*y + z*z)
+           if (r.gt.1.0d-6) then
+              e2 = e2 + qi*qj/r
+           end if
+           write(*,*) "cosmo Qelcq=",i,j,r,e2
+        end do
+      end do
+!$OMP END DO
+
+
+      nwpw_cosmo_EQelcq = e2
+      return
+      end
+
+
 
 
 *     *******************************************
@@ -731,6 +855,7 @@ c     == Clean up cosmo stuff, if necessary ==
                qsum1 = qsum1 + dbl_mb(qc0(1)+it-1)
                sa = sa + dbl_mb(qs(1)+it-1)
             end do
+            write(*,*) "qsum1=",qsum1,-(Qelc+Qion)
             qsum2 = -(Qelc+Qion) - qsum1
             qsum2 = qsum2/sa
             do it=1,nefc
@@ -827,11 +952,11 @@ c      write(*,*) "-0.5*qAq=",-0.5d0*esum
 c      write(*,*) "qBQ + 0.5*qAq=",esum1+0.5d0*esum
 c      write(*,*) "qBQ + qAq=",esum1+esum
 
-      call ion_cosmo_reset_katm(dbl_mb(qc0(1)))
+      if (cosmo1_on) call ion_cosmo_reset_katm(dbl_mb(qc0(1)))
 
       else
 
-         if (firstrestart) then
+         if (firstrestart.and.cosmo1_on) then
             call ion_cosmo_reset_katm(dbl_mb(qc0(1)))
          end if 
 
@@ -906,11 +1031,11 @@ c      write(*,*) "qBQ + qAq=",esum1+esum
       end do
       call Parallel_Vector_SumAll(nefc*nefc,dbl_mb(AA(1)))
 
-c      write(*,*) "A matrix="
-c      do i=1,nefc
-c        write(*,*) (dbl_mb(AA(1)+(i-1)+(j-1)*nefc),j=1,nefc)
-c        write(*,*)
-c      end do
+      !write(*,*) "A matrix="
+      !do i=1,nefc
+      !  write(*,*) (dbl_mb(AA(1)+(i-1)+(j-1)*nefc),j=1,nefc)
+      !  write(*,*)
+      !end do
 
       call nwpw_matrix_invert(nefc,dbl_mb(AA(1)),nefc)
 
