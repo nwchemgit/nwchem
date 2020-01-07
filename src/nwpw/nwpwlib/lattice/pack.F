@@ -3788,6 +3788,42 @@ c     **** three derivatives ****
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *          Pack_c_addzero         *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_c_addzero(nb,vzero,A)
+      implicit none
+      integer    nb
+      real*8     vzero
+      complex*16 A(*)
+
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer indx,p,q,taskid,id
+
+      if (nb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
+      call Parallel2d_taskid_i(taskid)
+      !call D3dB_ktoqp(1,1,q,p)
+!$OMP MASTER
+      call D3dB_ijktoindexp(id,1,1,1,indx,p)
+      if (p.eq.taskid) A(indx) = A(indx) + dcmplx(vzero,0.0d0)
+!$OMP END MASTER
+
+      return
+      end
+
 
 
 
