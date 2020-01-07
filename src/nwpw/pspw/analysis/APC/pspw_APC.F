@@ -558,11 +558,12 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
          sumAm  = pspw_sumAm_APC(ngs,dbl_mb(Am(1)))
          sumAmU = pspw_Amtimesu_APC(ngs,dbl_mb(Am(1)),u)
          do i=1,ngs
-            u(i) = u(i) - sumAmU/SumAm
+            u(i) = u(i) - (sumAmU/SumAm)
          end do
+         write(*,*) "sumAmU/sumAm=",sumAmU/sumAm
 
 *        ***** calculate VQ(G) ****
-         call Parallel_shared_vector_zero(.true.,2*npack0,VQ)
+         !call Parallel_shared_vector_zero(.true.,2*npack0,VQ)
          do ii=1,nion
 
 *           **** structure factor  ****
@@ -571,7 +572,7 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
             do iii=1,nga
                i = iii + (ii-1)*nga
 
-               afac = pspw_Vfac_APC(ngs,dbl_mb(Am(1)),u,i)
+               afac = -pspw_Vfac_APC(ngs,dbl_mb(Am(1)),u,i)
 
 *              *** gaus_i(G))***
                call Pack_tc_Mul(0,dbl_mb(gaus(1)+npack0*(iii-1)),
@@ -585,7 +586,8 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
      >                              VQ)
             end do
          end do
-         call Pack_c_setzero(0,sumAmU/sumAm,VQ)
+         call Pack_c_setzero(0,-sumAmU/sumAm,VQ)
+         !call Parallel_shared_vector_zero(.true.,2*npack0,VQ)
 
          value =           BA_pop_stack(gaus_i(2))
          value = value.and.BA_pop_stack(exi(2))
@@ -696,6 +698,7 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       integer j,ii,ia,k
       integer nion_q,nion
       real*8 x,y,z,r,sb,qj
+      real*8 suma,sumb
 
       integer BQ_ptr,u(2),qcoord_ptr
       
@@ -757,7 +760,8 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
 
       write(*,*) "nion,nga,ngs=",nion,nga,ngs,nion_q
-      z = 0.0d0
+      suma = 0.0d0
+      sumb = 0.0d0
 *     **** calculate u = dEQelcq/dq ****
       call Parallel_shared_vector_zero(.true.,ngs,dbl_mb(u(1)))
       do j=tid+1,nion_q,nthreads
@@ -768,19 +772,25 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
             z = dbl_mb(qcoord_ptr+3*(j-1)+2)-ion_rion(3,ii)
             r = dsqrt(x*x + y*y + z*z)
             sb = -qj/r
+            sumb = sumb + sb*pspw_getQtot_APC(ii)
             do k=1,nga
-               dbl_mb(u(1)+(ii-1)*nga+k-1)
+                 dbl_mb(u(1)+(ii-1)*nga+k-1)
      >         = dbl_mb(u(1)+(ii-1)*nga+k-1) + sb
-               z = z + sb*dbl_mb(q(1)+(ii-1)*nga+k-1)
-c               write(*,*) "j,ii,k,qsurf,Qelc=",
-c     >            j,ii,k,qj,dbl_mb(q(1)+(ii-1)*nga+k-1),
-c     >            pspw_getQ_APC(ii,k)
+               suma = suma + sb*dbl_mb(q(1)+(ii-1)*nga+k-1)
             end do
-            write(*,*) "APC Qelcq=",j,ii,r,z
+            !write(*,*) "APC Qelcq=",j,qj,sb,ii,r,suma,sumb
          end do
       end do
       call Parallel_Vector_SumAll(ngs,dbl_mb(u(1)))
-      write(*,*) "Ez=",z
+      write(*,*) "suma,sumb=",suma,sumb
+      suma = 0.0d0
+      do ii=1,nion
+         do k=1,nga
+             suma = suma 
+     >       + dbl_mb(q(1)+(ii-1)*nga+k-1)*dbl_mb(u(1)+(ii-1)*nga+k-1)
+         end do
+      end do
+      write(*,*) "qi*ui=",suma
       write(*,*)
       do ii=1,nion
          write(*,*) "C ii,echarge=",ii,pspw_getQtot_APC(ii),
