@@ -646,8 +646,6 @@ c     == Clean up cosmo stuff, if necessary ==
       end if
       rcoord_ptr = ion_rion_ptr()
 
-      write(*,*) "cosmo qcoord_ptr =",qcoord_ptr
-
 !$OMP MASTER
       e2 = 0.0d0
 !$OMP END MASTER
@@ -667,7 +665,6 @@ c     == Clean up cosmo stuff, if necessary ==
            if (r.gt.1.0d-6) then
               e2 = e2 + qi*qj/r
            end if
-           write(*,*) "cosmo Qelcq=",i,j,r,e2
         end do
       end do
 !$OMP END DO
