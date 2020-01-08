@@ -254,6 +254,8 @@
         call K1dB_Vector_SumAll(ispin*nfft3d,dn)
         call dscal(ispin*nfft3d,scal2,dn,1)
 
+        call c_rho_symmetrizer_dn(ispin,nfft3d,dn)
+
 
 *       **********************
 *       **** generate dng ****

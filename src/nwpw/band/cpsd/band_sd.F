@@ -436,6 +436,9 @@ c     **** allocate other variables ****
 c      call pspw_init_SIC(rtdb,ne)
        call band_init_HFX(rtdb,nbrillioun,ispin,ne)
 
+*     **** initialize rho_symmetry  ****
+      call c_rho_symmetrizer_init()
+
 *     **** initialize QM/MM ****
 c      call pspw_init_APC(rtdb)
 c      call pspw_qmmm_init(rtdb)
@@ -627,6 +630,9 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 
 
       if (mprint) then
+
+
+         call c_rho_symmetrizer_print(luout)
          
          write(luout,1270)
          if (.not.control_translation()) write(luout,1271)
@@ -956,6 +962,7 @@ c      end if
 
       call ion_end()
       call ion_end_FixIon()
+      call c_rho_symmetrizer_end()
 c      call pspw_end_SIC()
       call band_end_HFX()
 c      call pspw_end_APC()

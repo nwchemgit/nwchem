@@ -90,6 +90,9 @@ c     >                     'psi_r',psi_r(2),psi_r(1))
       if (.not. value) 
      >  call errquit('c_electron_init: out of heap memory',0, MA_ERR)
 
+*     *** initializer symmetrizer ***
+      call c_rho_symmetrizer_init()
+
       return
       end
 
@@ -114,6 +117,10 @@ c     >                     'psi_r',psi_r(2),psi_r(1))
 c      value = BA_free_heap(Hpsi_k(2))
 c      value = value.and.
 c     >        BA_free_heap(psi_r(2))
+
+
+*     **** free heap  memory ****
+      call c_rho_symmetrizer_end()
 
       call cpsi_data_dealloc(Hpsi_k_tag)
       call cpsi_data_dealloc(psi_r_tag)
@@ -1272,6 +1279,8 @@ c     >                     dn)
       call C3dB_r_SMul1(1,scal2,dn)
       if (ispin.gt.1) 
      >  call C3dB_r_SMul1(1,scal2,dn(1,ispin))
+
+      call c_rho_symmetrizer_dn(ispin,nfft3d,dn)
 
 
         

@@ -4,7 +4,7 @@
 *     *   c_rho_symmetrizer_init   *
 *     *                            *
 *     ******************************
-      subroutine crho_symmetrizer_init()
+      subroutine c_rho_symmetrizer_init()
       implicit none
 
 #include "bafdecls.fh"

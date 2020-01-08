@@ -373,8 +373,8 @@ c      call center_mass(gx,gy,gz)
      >                    cpsp_zv(ia),cpsp_lmax(ia)
            comment = cpsp_comment(ia)
            i = inp_strlen(comment)
-           write(6,1157) comment(1:i)
-           write(6,1158) cpsp_psp_type(ia)
+           write(luout,1157) comment(1:i)
+           write(luout,1158) cpsp_psp_type(ia)
            write(luout,1152) cpsp_lmax(ia)
            write(luout,1153) cpsp_locp(ia)
 c           write(luout,1154) cpsp_lmmax(ia)
@@ -483,6 +483,8 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
      >      control_smooth_cutoff_values(1)*lattice_wcut(),
      >      control_smooth_cutoff_values(2)
 
+         call c_rho_symmetrizer_print(luout)
+
          write(luout,1270)
          write(luout,1280) control_time_step(),control_fake_mass()
          write(luout,1290) control_tole(),control_tolc()
@@ -490,34 +492,34 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
      >                 control_it_in(),control_it_out()
 
          if ((minimizer.eq.5).or.(minimizer.eq.8)) then
-           write(6,1291)
-           write(6,1292)
+           write(luout,1291)
+           write(luout,1292)
            write(luout,1295) control_ks_maxit_orb(),
      >                       control_ks_maxit_orbs()
            if (control_scf_algorithm().eq.0)
-     >       write(6,1293) "simple mixing"
+     >       write(luout,1293) "simple mixing"
            if (control_scf_algorithm().eq.1)
-     >       write(6,1293) "Anderson potential mixing"
+     >       write(luout,1293) "Anderson potential mixing"
            if (control_scf_algorithm().eq.2)
-     >       write(6,1293) "Johnson-Pulay mixing"
+     >       write(luout,1293) "Johnson-Pulay mixing"
            if (control_scf_algorithm().eq.3)
-     >       write(6,1293) "Anderson density mixing"
+     >       write(luout,1293) "Anderson density mixing"
            if (minimizer.eq.5) write(luout,1296) "potential"
            if (minimizer.eq.8) write(luout,1296) "density"
-           write(6,1294) control_ks_alpha()
-           write(6,1301) control_kerker_g0()
+           write(luout,1294) control_ks_alpha()
+           write(luout,1301) control_kerker_g0()
          end if
          if (control_fractional()) then
-           write(6,1297)
+           write(luout,1297)
            if (control_fractional_smeartype().eq.0)
-     >       write(6,1298) "step function"
+     >       write(luout,1298) "step function"
            if (control_fractional_smeartype().eq.1)
-     >       write(6,1298) "Fermi-Dirac"
+     >       write(luout,1298) "Fermi-Dirac"
            if (control_fractional_smeartype().eq.2)
-     >       write(6,1298) "Gaussian"
+     >       write(luout,1298) "Gaussian"
            if (control_fractional_smeartype().eq.4)
-     >       write(6,1298) "Marzari-Vanderbilt"
-           write(6,1299) control_fractional_kT(),
+     >       write(luout,1298) "Marzari-Vanderbilt"
+           write(luout,1299) control_fractional_kT(),
      >                   control_fractional_temperature(),
      >                   control_fractional_alpha()
          end if
@@ -842,7 +844,7 @@ cc      call band_kp_structure(rtdb)
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 
- 9000 if (taskid.eq.MASTER) write(6,9010) ierr
+ 9000 if (taskid.eq.MASTER) write(luout,9010) ierr
       call Parallel_Finalize()
 
       band_minimizer = value
