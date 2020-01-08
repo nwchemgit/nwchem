@@ -415,3 +415,53 @@ c     *** Clean up born stuff, if necessary ***
       nwpw_born_energy = Gsolv
       return
       end
+
+*     *******************************************
+*     *                                         *
+*     *            nwpw_born_dVdq               *
+*     *                                         *
+*     *******************************************
+      subroutine nwpw_born_dVdq(nion,rion,bradii,q,dielec,u)
+      implicit none
+      integer nion
+      real*8  rion(3,nion),bradii(nion),q(nion)
+      real*8  dielec
+      real*8  u(nion)
+
+*     **** local variables ****
+      integer MASTER,taskid,np
+      parameter (MASTER=0)
+      integer ii,jj,itask
+      real*8  Gsolv,screen,C,f,dist2
+
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+
+
+      !Gsolv = 0.0d0
+      screen = (1.0d0 - 1.0d0/dielec)
+
+      call Parallel_shared_vector_zero(.true.,nion,u)
+
+      itask = 0
+!$OMP MASTER
+      do ii=1,nion
+         do jj=1,nion
+            if (itask.eq.taskid) then
+               dist2 = ((rion(1,ii)-rion(1,jj))**2
+     >                + (rion(2,ii)-rion(2,jj))**2
+     >                + (rion(3,ii)-rion(3,jj))**2)
+               C = dexp(-0.25d0*dist2/(bradii(ii)*bradii(jj)))
+               f = dsqrt(dist2 + bradii(ii)*bradii(jj)*C)
+               u(ii) = u(ii) - 0.5d0*screen*q(jj)/f
+               u(jj) = u(jj) - 0.5d0*screen*q(jj)/f
+               !Gsolv = Gsolv - 0.5d0*screen*q(ii)*q(jj)/f
+            end if
+            itask = mod(itask+1,np)
+         end do
+      end do
+!$OMP END MASTER
+      call Parallel_Vector_SumAll(nion,u)
+
+      return
+      end

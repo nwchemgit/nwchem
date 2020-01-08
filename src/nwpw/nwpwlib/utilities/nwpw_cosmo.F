@@ -118,7 +118,11 @@ c
      >     call errquit('nwpw_cosmo_qsurfaces: failed',0,rtdb_err)
 
 
-         qthresh = 0.5d-7
+         if (cosmo1_on) then
+            qthresh = 0.5d-8
+         else
+            qthresh = 0.5d-11
+         end if
 
          Qt=.true.
          Qion = 0.0d0
@@ -600,7 +604,6 @@ c     == Clean up cosmo stuff, if necessary ==
       end do
 !$OMP END DO
 
-
       nwpw_cosmo_EQionq = e2
       return
       end 
@@ -852,7 +855,7 @@ c     == Clean up cosmo stuff, if necessary ==
                qsum1 = qsum1 + dbl_mb(qc0(1)+it-1)
                sa = sa + dbl_mb(qs(1)+it-1)
             end do
-            write(*,*) "qsum1=",qsum1,-(Qelc+Qion)
+            !write(*,*) "qsum1=",qsum1,-(Qelc+Qion)
             qsum2 = -(Qelc+Qion) - qsum1
             qsum2 = qsum2/sa
             do it=1,nefc
@@ -1028,23 +1031,11 @@ c      write(*,*) "qBQ + qAq=",esum1+esum
       end do
       call Parallel_Vector_SumAll(nefc*nefc,dbl_mb(AA(1)))
 
-      !write(*,*) "A matrix="
-      !do i=1,nefc
-      !  write(*,*) (dbl_mb(AA(1)+(i-1)+(j-1)*nefc),j=1,nefc)
-      !  write(*,*)
-      !end do
-
       call nwpw_matrix_invert(nefc,dbl_mb(AA(1)),nefc)
 
       do i=1,nefc*nefc
          invAsum = invAsum + dbl_mb(AA(1)+i-1)
       end do
-
-c      write(*,*) "inverse A matrix="
-c      do i=1,nefc
-c        write(*,*) (dbl_mb(AA(1)+(i-1)+(j-1)*nefc),j=1,nefc)
-c        write(*,*)
-c      end do
 
       return
       end
