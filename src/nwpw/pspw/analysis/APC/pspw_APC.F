@@ -497,6 +497,84 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       end
 
 
+
+*     ***********************************
+*     *                                 *
+*     *         pspw_sumAm_APC          *
+*     *                                 *
+*     ***********************************
+      real*8 function pspw_sumAm_APC(ngs,Am)
+      implicit none
+      integer ngs
+      real*8 Am(ngs,ngs)
+
+*     **** local variables ***
+      integer i,j
+      real*8  sum0
+
+      sum0 = 0.0d0
+      do i=1,ngs
+         do j=1,ngs
+            sum0 = sum0 + Am(i,j)
+         end do
+      end do
+
+      pspw_sumAm_APC = sum0
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         pspw_Amtimesu_APC       *
+*     *                                 *
+*     ***********************************
+      real*8 function pspw_Amtimesu_APC(ngs,Am,u)
+      implicit none
+      integer ngs
+      real*8 Am(ngs,ngs)
+      real*8 u(ngs)
+
+*     **** local variables ***
+      integer i,j
+      real*8  sum0
+
+      sum0 = 0.0d0
+      do i=1,ngs
+         do j=1,ngs
+            sum0 = sum0 + Am(i,j)*u(j)
+         end do
+      end do
+
+      pspw_Amtimesu_APC = sum0
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         pspw_Vfac_APC           *
+*     *                                 *
+*     ***********************************
+      real*8 function pspw_Vfac_APC(ngs,Am,u,i)
+      implicit none
+      integer ngs
+      real*8 Am(ngs,ngs)
+      real*8 u(ngs)
+      integer i
+
+*     **** local variables ****
+      integer j
+      real*8 sum0
+
+      sum0 = 0.0d0
+      do j=1,ngs
+         sum0 = sum0 + Am(i,j)*u(j)
+      end do
+
+      pspw_Vfac_APC = sum0
+      return
+      end
+
+
 *     ***********************************
 *     *					*
 *     *		pspw_VQ_APC		*
@@ -509,7 +587,7 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 *
 *   Entry - nion: number of qm atoms
 *         - u: dE/dq(ii) - derivative of E wrt to model charges q(ii)
-*   Exit - VQ(G) = 1/omega*dE/dq(ii)*dq(ii)/drho(G)
+*   Exit - VQ(G) = dE/dq(ii)*dq(ii)/drho(G)
 *
 *   Note - pspw_gen_APC needs to be called to Am=inv(A) before 
 *          this routine is called.
@@ -560,7 +638,6 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
          do i=1,ngs
             u(i) = u(i) - (sumAmU/SumAm)
          end do
-         write(*,*) "sumAmU/sumAm=",sumAmU/sumAm
 
 *        ***** calculate VQ(G) ****
          !call Parallel_shared_vector_zero(.true.,2*npack0,VQ)
@@ -586,9 +663,7 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
      >                              VQ)
             end do
          end do
-         !call Pack_c_setzero(0,sumAmU/sumAm,VQ)
          call Pack_c_addzero(0,omega*sumAmU/sumAm,VQ)
-         !call pspw_printA_APC(ngs,dbl_mb(Am(1)))
 
          value =           BA_pop_stack(gaus_i(2))
          value = value.and.BA_pop_stack(exi(2))
@@ -596,101 +671,9 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
      >      call errquit('pspw_VQ_APC:pop stack',0,MA_ERR)
 
       end if
-
       return
       end
 
-
-      subroutine pspw_printA_APC(ngs,Am)
-      integer ngs
-      real*8  Am(ngs,ngs)
-
-      integer i,j
-
-      write(*,*) "Am="
-      do i=1,ngs
-         write(*,*) (Am(i,j),j=1,ngs)
-      end do
-      write(*,*)
-      return
-      end
-
-*     ***********************************
-*     *					*
-*     *		pspw_sumAm_APC		*
-*     *					*
-*     ***********************************
-      real*8 function pspw_sumAm_APC(ngs,Am)
-      implicit none
-      integer ngs
-      real*8 Am(ngs,ngs)
-
-*     **** local variables ***
-      integer i,j
-      real*8  sum0
-
-      sum0 = 0.0d0
-      do i=1,ngs
-         do j=1,ngs
-            sum0 = sum0 + Am(i,j)
-         end do
-      end do
-
-      pspw_sumAm_APC = sum0
-      return
-      end
-
-
-*     ***********************************
-*     *					*
-*     *		pspw_Amtimesu_APC	*
-*     *					*
-*     ***********************************
-      real*8 function pspw_Amtimesu_APC(ngs,Am,u)
-      implicit none
-      integer ngs
-      real*8 Am(ngs,ngs)
-      real*8 u(ngs)
-
-*     **** local variables ***
-      integer i,j
-      real*8  sum0
-
-      sum0 = 0.0d0
-      do i=1,ngs
-         do j=1,ngs
-            sum0 = sum0 + Am(i,j)*u(j)
-         end do
-      end do
-
-      pspw_Amtimesu_APC = sum0
-      return
-      end
-
-*     ***********************************
-*     *					*
-*     *		pspw_Vfac_APC		*
-*     *					*
-*     ***********************************
-      real*8 function pspw_Vfac_APC(ngs,Am,u,i)
-      implicit none
-      integer ngs
-      real*8 Am(ngs,ngs)
-      real*8 u(ngs)
-      integer i
-
-*     **** local variables ****
-      integer j
-      real*8 sum0
-
-      sum0 = 0.0d0
-      do j=1,ngs
-         sum0 = sum0 + Am(i,j)*u(j)
-      end do
-
-      pspw_Vfac_APC = sum0
-      return
-      end
 
 *     ***********************************
 *     *					*
@@ -810,9 +793,6 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
 *     **** generate APC charges ****
       call pspw_gen_APC(ispin,ne,dng)
-      do ii=1,nion
-         write(*,*) "ii,echarge=",ii,pspw_getQtot_APC(ii)
-      end do
 
       qcoord_ptr = nwpw_cosmo_qcoord_ptr()
       BQ_ptr     = nwpw_cosmo_BQ_ptr()
@@ -835,57 +815,107 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 *     **** solve for cosmo q charges ****
       call nwpw_cosmo_solve_q()
 
-      write(*,*)
-      do ii=1,nion
-         write(*,*) "B ii,echarge=",ii,pspw_getQtot_APC(ii)
-      end do
 
+*     **** generate cosmo potential using current APC charges ****
       call pspw_cosmo_V0_APC(vcosmo)
-
-
-c*     **** get memory from stack ****
-c      value = BA_push_get(mt_dbl,ngs,'u',u(2),u(1))
-c      if (.not.value) 
-c     >   call errquit('pspw_cosmo_V_APC:push stack',0, MA_ERR)
-c      write(*,*) "nion,nga,ngs=",nion,nga,ngs,nion_q
-c      suma = 0.0d0
-c      sumb = 0.0d0
-c*     **** calculate u = dEQelcq/dq ****
-c      call Parallel_shared_vector_zero(.true.,ngs,dbl_mb(u(1)))
-c      do j=tid+1,nion_q,nthreads
-c         qj = nwpw_cosmo_screen_qc0(j)
-c         do ii=taskid+1,nion,np
-c            x = dbl_mb(qcoord_ptr+3*(j-1))  -ion_rion(1,ii)
-c            y = dbl_mb(qcoord_ptr+3*(j-1)+1)-ion_rion(2,ii)
-c            z = dbl_mb(qcoord_ptr+3*(j-1)+2)-ion_rion(3,ii)
-c            r = dsqrt(x*x + y*y + z*z)
-c            sb = -qj/r
-c            sumb = sumb + sb*pspw_getQtot_APC(ii)
-c            do k=1,nga
-c                 dbl_mb(u(1)+(ii-1)*nga+k-1)
-c     >         = dbl_mb(u(1)+(ii-1)*nga+k-1) + sb
-c               suma = suma + sb*dbl_mb(q(1)+(ii-1)*nga+k-1)
-c            end do
-c         end do
-c      end do
-c      call Parallel_Vector_SumAll(ngs,dbl_mb(u(1)))
-c      write(*,*) "suma,sumb=",suma,sumb
-c      suma = 0.0d0
-c      do ii=1,nion
-c         do k=1,nga
-c             suma = suma 
-c     >       + dbl_mb(q(1)+(ii-1)*nga+k-1)*dbl_mb(u(1)+(ii-1)*nga+k-1)
-c         end do
-c      end do
-c
-c      call pspw_VQ_APC(nion,dbl_mb(u(1)),vcosmo)
-c
-c      value = BA_pop_stack(u(2))
-c      if (.not.value) 
-c     >   call errquit('pspw_cosmo_V_APC:pop stack',0,MA_ERR)
 
       return
       end
+
+
+*     ***********************************
+*     *					*
+*     *		pspw_born_V0_APC	*
+*     *					*
+*     ***********************************
+*
+      subroutine pspw_born_V0_APC(vborn)
+      implicit none
+      complex*16 vborn(*)
+
+#include "bafdecls.fh"
+#include "pspw_APC.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+      integer taskid,np,tid,nthreads
+      integer j,ii,k,nion,nion_q
+      real*8 sb,qj,x,y,z,r
+      integer u(2),uion(2),qion(2)
+
+*     **** external functions ****
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
+      integer  ion_nion
+      external ion_nion
+      real*8   pspw_getQtot_APC
+      external pspw_getQtot_APC
+
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+      tid = Parallel_threadid()
+      nthreads = Parallel_nthreads()
+      nion     = ion_nion()
+
+*     **** get memory from stack ****
+      value = BA_push_get(mt_dbl,nion,'qion',qion(2),qion(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,nion,'uion',uion(2),uion(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,ngs,'u',u(2),u(1))
+      if (.not.value) 
+     >   call errquit('pspw_born_V_APC:push stack',0, MA_ERR)
+
+      do ii=tid+1,nion,nthreads
+         dbl_mb(qion(1)+ii-1) = pspw_getQtot_APC(ii)
+      end do
+
+*     **** calculate u = dEQelcq/dq ****
+      call nwpw_born_dVdq(nion,dbl_mb(qion(1)),
+     >                         dbl_mb(uion(1)))
+      call Parallel_shared_vector_zero(.true.,ngs,dbl_mb(u(1)))
+      do ii=tid+1,nion,nthreads
+         do k=1,nga
+              dbl_mb(u(1)+(ii-1)*nga+k-1)
+     >      = dbl_mb(u(1)+(ii-1)*nga+k-1) + dbl_mb(uion(1)+ii-1)
+         end do
+      end do
+
+      call pspw_VQ_APC(nion,dbl_mb(u(1)),vborn)
+
+      value = BA_pop_stack(u(2))
+      value = value.and.BA_pop_stack(uion(2))
+      value = value.and.BA_pop_stack(qion(2))
+      if (.not.value)
+     >   call errquit('pspw_born_V0_APC:pop stack',0, MA_ERR)
+
+      return
+      end 
+
+
+*     ***********************************
+*     *                                 *
+*     *         pspw_born_V_APC        *
+*     *                                 *
+*     ***********************************
+*
+      subroutine pspw_born_V_APC(ispin,ne,dng,vborn)
+      implicit none
+      integer ispin,ne(2)
+      complex*16 dng(*), vborn(*)
+
+#include "bafdecls.fh"
+#include "pspw_APC.fh"
+#include "errquit.fh"
+
+*     **** generate APC charges ****
+      call pspw_gen_APC(ispin,ne,dng)
+
+*     **** generate APC potential ****
+      call pspw_born_V0_APC(vborn)
+      return
+      end 
 
 
 
