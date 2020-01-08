@@ -819,11 +819,11 @@ c     >        - ehartree_atom - ecmp_cmp - ecmp_pw
                elocal = elocal + sum*dv
             end if
          else
-            call Parallel_shared_vector_zero(.true.,2*npack0,
-     >                                       dcpl_mb(vl(1)))
-            call pspw_cosmo_V0_APC(dcpl_mb(vl(1)))
-            call Pack_cc_dot(0,dcpl_mb(dng(1)),dcpl_mb(vl(1)),elocal)
-            write(*,*) "vlocal cosmo=",elocal
+c            call Parallel_shared_vector_zero(.true.,2*npack0,
+c     >                                       dcpl_mb(vl(1)))
+c            call pspw_cosmo_V0_APC(dcpl_mb(vl(1)))
+c            call Pack_cc_dot(0,dcpl_mb(dng(1)),dcpl_mb(vl(1)),elocal)
+c            write(*,*) "vlocal cosmo=",elocal
             elocal = nwpw_cosmo_EQelcq()
          end if
          E(46) = elocal

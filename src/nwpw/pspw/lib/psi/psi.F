@@ -3510,10 +3510,10 @@ c      end
       real*8  elocal,e1,e2,dv
 
 *     **** external functions ****
-      logical  nwpw_cosmo1_on
-      external nwpw_cosmo1_on
-      real*8   lattice_omega
-      external lattice_omega
+      logical  nwpw_cosmo1_on,nwpw_cosmo2_on
+      external nwpw_cosmo1_on,nwpw_cosmo2_on
+      real*8   lattice_omega,nwpw_cosmo_EQelcq
+      external lattice_omega,nwpw_cosmo_EQelcq
 
       if (nwpw_cosmo1_on()) then
          call D3dB_n2ft3d(1,n2ft3d)
@@ -3541,6 +3541,8 @@ c      end
          ok =        BA_pop_stack(tmp1(2))
          ok = ok.and.BA_pop_stack(r_grid(2))
          if (.not.ok) call errquit("psi_1vl_cosmo: pop stack",0,MA_ERR)
+      else if (nwpw_cosmo2_on()) then
+         elocal = nwpw_cosmo_EQelcq()
       else
          elocal = 0.0d0
       end if

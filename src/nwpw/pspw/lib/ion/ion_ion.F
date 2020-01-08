@@ -25,6 +25,7 @@
 *     *** local variables ***
       integer i,j,nion,nion_q
       real*8 x,y,z,r,qi,qj
+      integer qcoord_ptr
 
       !common /eiond_ejtmp/ e
 
@@ -32,13 +33,15 @@
       common /pack_conjg_tcc_indot_sasb/ e1,e2
 
 *     *** external functions ***
-      integer  ion_nion,ion_katm,ion_nion_q
-      external ion_nion,ion_katm,ion_nion_q
-      real*8   psp_zv,ion_rion,nwpw_cosmo_screen_qc0,nwpw_cosmo_Eqq
-      external psp_zv,ion_rion,nwpw_cosmo_screen_qc0,nwpw_cosmo_Eqq
+      integer  ion_nion,ion_katm
+      external ion_nion,ion_katm
+      real*8   psp_zv,ion_rion
+      external psp_zv,ion_rion
+      real*8   nwpw_cosmo_screen_qc0,nwpw_cosmo_Eqq,nwpw_cosmo_EQionq
+      external nwpw_cosmo_screen_qc0,nwpw_cosmo_Eqq,nwpw_cosmo_EQionq
 
       nion   = ion_nion()
-      nion_q = ion_nion_q()
+      !nion_q = ion_nion_q()
 
 !$OMP MASTER
       e1 = 0.0d0
@@ -61,23 +64,23 @@
       end do
 !$OMP END DO
 
-!$OMP DO reduction(+:e2)
-      do i=nion+1,nion+nion_q
-         qi = nwpw_cosmo_screen_qc0(i-nion)
-         do j=1,nion
-           qj = psp_zv(ion_katm(j))
-           x = ion_rion(1,i) - ion_rion(1,j)
-           y = ion_rion(2,i) - ion_rion(2,j)
-           z = ion_rion(3,i) - ion_rion(3,j)
-           r = dsqrt(x*x + y*y + z*z)
-           if (r.gt.1.0d-6) then
-              e2 = e2 + qi*qj/r
-           end if
-        end do
-      end do
-!$OMP END DO
+c!$OMP DO reduction(+:e2)
+c      do i=nion+1,nion+nion_q
+c         qi = nwpw_cosmo_screen_qc0(i-nion)
+c         do j=1,nion
+c           qj = psp_zv(ion_katm(j))
+c           x = ion_rion(1,i) - ion_rion(1,j)
+c           y = ion_rion(2,i) - ion_rion(2,j)
+c           z = ion_rion(3,i) - ion_rion(3,j)
+c           r = dsqrt(x*x + y*y + z*z)
+c           if (r.gt.1.0d-6) then
+c              e2 = e2 + qi*qj/r
+c           end if
+c        end do
+c      end do
+c!$OMP END DO
 
-      ion_ion_e = e1 + e2 + nwpw_cosmo_Eqq()
+      ion_ion_e = e1 + nwpw_cosmo_EQionq() + nwpw_cosmo_Eqq()
       return
       end
 

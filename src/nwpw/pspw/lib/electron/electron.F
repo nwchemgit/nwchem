@@ -2288,10 +2288,9 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       external control_gga,control_version
       real*8   control_attenuation
       external control_attenuation
-      logical  nwpw_cosmo_on
-      external nwpw_cosmo_on
+      logical  nwpw_cosmo1_on,nwpw_cosmo2_on
+      external nwpw_cosmo1_on,nwpw_cosmo2_on
 
-     
       n2ft3d = 2*nfft3d
       gga = control_gga()
 
@@ -2310,7 +2309,7 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
 
          call coulomb2_v(dbl_mb(tmp1(1)),dcpl_mb(vc(1)))
 
-         if (nwpw_cosmo_on()) then
+         if (nwpw_cosmo1_on()) then
             if (.not.BA_push_get(mt_dbl,(3*n2ft3d),'r_grid',
      >                           r_grid(2),r_grid(1)))
      >         call errquit("electron_gen_scf_potentials: push stack",
@@ -2322,6 +2321,10 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
             if (.not.BA_pop_stack(r_grid(2)))
      >         call errquit("electron_gen_scf_potentials:pop stack",
      >                      1,MA_ERR)
+         end if
+         if (nwpw_cosmo2_on()) then
+            call electron_gen_vl_potential()
+            call pspw_cosmo_V_APC(ispin,ne,dng,dcpl_mb(vl(1)))
          end if
 
          value = BA_pop_stack(tmp1(2)) 
@@ -2399,8 +2402,8 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
 
 *     **** external functions *****
       logical  pspw_charge_found
-      integer  control_version
       external pspw_charge_found
+      integer  control_version
       external control_version
 
       value = BA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
