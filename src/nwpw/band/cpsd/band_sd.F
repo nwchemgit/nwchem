@@ -203,7 +203,7 @@
       pi = 4.0d0*datan(1.0d0)
 
       call nwpw_timing_init()
-      call dcopy(30,0.0d0,0,E,1)
+      call dcopy(50,0.0d0,0,E,1)
 
 
 *     **** get parallel variables ****
