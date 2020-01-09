@@ -1648,13 +1648,10 @@ c     *** compute U*S=Y*V ****
                end do
 
                do n=1,neq(ms)
-                  call dscal(2*npack1,
-     >                       dbl_mb(tmp(1)+n-1),
-     >                       U(shift2),1)
+                  call Cram_c_SMul1(nb,dbl_mb(tmp(1)+n-1),U(shift2))
                   if (spin_orbit) then
-                     call dscal(2*npack1,
-     >                          dbl_mb(tmp(1)+n-1),
-     >                          U(shift2+soshift),1)
+                     call Cram_c_SMul1(nb,dbl_mb(tmp(1)+n-1),
+     >                                 U(shift2+soshift))
                   end if
                   shift2 = shift2 + npack1
                end do
@@ -1694,6 +1691,7 @@ c     ** local variables ****
       complex*16 wc,wc1,wc2       
       real*8 w,w1,w2
       logical value
+
 
       if (nbb.eq.0) then
         nb1=1
