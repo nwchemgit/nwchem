@@ -5571,7 +5571,7 @@ c     >            (ispin.eq.ispin_wf))
       integer fac
               
       fac = 19
-      if (.not.btdb_get(rtdb,'nwpw:gradient_virtual_fac',mt_log,1,fac))
+      if (.not.btdb_get(rtdb,'nwpw:gradient_virtual_fac',mt_int,1,fac))
      >   fac = 19
             
       control_gradient_virtual_fac = fac
