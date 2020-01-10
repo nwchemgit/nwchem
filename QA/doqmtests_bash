@@ -110,6 +110,15 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix_bash  pspw_hse_h2o
 ./runtests.mpi.unix_bash  pspw_tpss03_h2o
 ./runtests.mpi.unix_bash  pspw_scan_h2o
+./runtests.mpi.unix_bash pspw_acm_h2o
+./runtests.mpi.unix_bash pspw_becke97_h2o
+./runtests.mpi.unix_bash pspw_becke98_h2o
+./runtests.mpi.unix_bash pspw_hcth120_h2o
+./runtests.mpi.unix_bash pspw_hcth147_h2o
+./runtests.mpi.unix_bash pspw_hcth407_h2o
+./runtests.mpi.unix_bash pspw_hcth_h2o  
+./runtests.mpi.unix_bash pspw_mpw1k_h2o 
+./runtests.mpi.unix_bash pspw_sogga11-x_h2o
 ./runtests.mpi.unix_bash  tddft_h2o
 ./runtests.mpi.unix_bash  tddft_h2o_uhf
 ./runtests.mpi.unix_bash  tddft_h2o_mxvc20

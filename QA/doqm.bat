@@ -36,6 +36,15 @@ bash runtests.mpi.unix pspw_pbe0_h2o
 bash runtests.mpi.unix pspw_hse_h2o
 bash runtests.mpi.unix pspw_tpss03_h2o
 bash runtests.mpi.unix pspw_scan_h2o
+bash runtests.mpi.unix pspw_acm_h2o
+bash runtests.mpi.unix pspw_becke97_h2o
+bash runtests.mpi.unix pspw_becke98_h2o
+bash runtests.mpi.unix pspw_hcth120_h2o
+bash runtests.mpi.unix pspw_hcth147_h2o
+bash runtests.mpi.unix pspw_hcth407_h2o
+bash runtests.mpi.unix pspw_hcth_h2o  
+bash runtests.mpi.unix pspw_mpw1k_h2o 
+bash runtests.mpi.unix pspw_sogga11-x_h2o
 bash runtests.mpi.unix tddft_h2o
 bash runtests.mpi.unix tddft_n2+
 bash runtests.mpi.unix tce_h2o
