@@ -52,6 +52,7 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.unix procs $np band
 ./runtests.unix procs $np pspw_blyp_h2o
 ./runtests.unix procs $np pspw_vs98_h2o
+./runtests.unix procs $np pspw_pbe0_h2o
 ./runtests.unix procs $np pspw_tpss03_h2o
 ./runtests.unix procs $np pspw_scan_h2o
 ./runtests.unix procs $np tddft_h2o
