@@ -105,6 +105,7 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix_bash  band
 ./runtests.mpi.unix_bash  pspw_blyp_h2o
 ./runtests.mpi.unix_bash  pspw_vs98_h2o
+./runtests.mpi.unix_bash  pspw_pbesol_h2o
 ./runtests.mpi.unix_bash  pspw_pbe0_h2o
 ./runtests.mpi.unix_bash  pspw_tpss03_h2o
 ./runtests.mpi.unix_bash  pspw_scan_h2o
