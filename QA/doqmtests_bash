@@ -103,6 +103,8 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix_bash  pspw_polarizability
 ./runtests.mpi.unix_bash  pspw_stress
 ./runtests.mpi.unix_bash  band
+./runtests.mpi.unix_bash  pspw_blyp_h2o
+./runtests.mpi.unix_bash  pspw_scan_h2o
 ./runtests.mpi.unix_bash  tddft_h2o
 ./runtests.mpi.unix_bash  tddft_h2o_uhf
 ./runtests.mpi.unix_bash  tddft_h2o_mxvc20

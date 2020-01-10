@@ -50,6 +50,8 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.unix procs $np pspw_polarizability
 ./runtests.unix procs $np pspw_stress
 ./runtests.unix procs $np band
+./runtests.unix procs $np pspw_blyp_h2o
+./runtests.unix procs $np pspw_scan_h2o
 ./runtests.unix procs $np tddft_h2o
 ./runtests.unix procs $np tddft_n2+
 ./runtests.unix procs $np tddft_ac_co

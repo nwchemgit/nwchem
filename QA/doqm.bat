@@ -29,6 +29,8 @@ bash runtests.mpi.unix pspw
 bash runtests.mpi.unix pspw_SiC
 bash runtests.mpi.unix pspw_md
 bash runtests.mpi.unix pspw_polarizability
+bash runtests.mpi.unix pspw_blyp_h2o
+bash runtests.mpi.unix pspw_scan_h2o
 bash runtests.mpi.unix tddft_h2o
 bash runtests.mpi.unix tddft_n2+
 bash runtests.mpi.unix tce_h2o
