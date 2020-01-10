@@ -29,10 +29,10 @@ set nwpw:cif_filename H2O1
 
 task pspw energy ignore
 
-#nwpw
-#  dft
-#end
-#task pspw energy
+nwpw
+  dft
+end
+task pspw energy
 
 driver
    clear
