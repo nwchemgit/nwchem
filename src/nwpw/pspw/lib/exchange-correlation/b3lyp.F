@@ -114,6 +114,8 @@ c*------------------------------------------------------*
       real*8 chiup,chidn
       real*8 chiup2,chidn2,chiupSQ,chidnSQ
       real*8 Kup,Kdn,F1up,F1dn,F2up,F2dn
+      real*8 xeup_pbe,fdnxup_pbe,fdagrxup_pbe
+      real*8 xedn_pbe,fdnxdn_pbe,fdagrxdn_pbe
       real*8 xeup,xedn,xe
       real*8 fdnxup,fdnxdn,fdagrxup,fdagrxdn
       real*8  Q,Q1,P,P1,n_m,n2_m,n3_m,n4_m
@@ -230,10 +232,19 @@ c*------------------------------------------------------*
      &             *(lda_c+beta*(F1up-chiup2*F2up))
              fdagrxup = -beta*chiup*F2up 
              if ((fdnxup-xeup).gt.0.0d0) then
-                call Becke_smalln_correction(nup,nup**thrd,agrup,
-     >                               beta,lda_c,
-     >                               chiup,chiup2,chiupSQ,Kup,F1up,F2up,
-     >                               xeup,fdnxup,fdagrxup)
+               call gen_PBE96_x_unrestricted(nup,agrup,
+     >                                xeup_pbe,fdnxup_pbe,fdagrxup_pbe)
+
+               call Becke_smalln_correction(nup,nup**thrd,1.0d0,
+     >                                      beta,lda_c,chiup,chiup2,
+     >                                      chiupSQ,Kup,F1up,F2up,
+     >                                xeup_pbe,fdnxup_pbe,fdagrxup_pbe, 
+     >                                xeup,fdnxup,fdagrxup)
+
+*               call Becke_smalln_correction(nup,nup**thrd,agrup,
+*    >                               beta,lda_c,
+*    >                               chiup,chiup2,chiupSQ,Kup,F1up,F2up,
+*    >                               xeup,fdnxup,fdagrxup)
              end if
           end if
 *      ************END UP*****************
@@ -259,10 +270,19 @@ c*------------------------------------------------------*
      &                *(lda_c+beta*(F1dn-chidn2*F2dn))
              fdagrxdn = -beta*chidn*F2dn
              if ((fdnxdn-xedn).gt.0.0d0) then
-                call Becke_smalln_correction(ndn,ndn**thrd,agrdn,
-     >                               beta,lda_c,
-     >                               chidn,chidn2,chidnSQ,Kdn,F1dn,F2dn,
-     >                               xedn,fdnxdn,fdagrxdn)
+               call gen_PBE96_x_unrestricted(ndn,agrdn,
+     >                                xedn_pbe,fdnxdn_pbe,fdagrxdn_pbe)
+
+               call Becke_smalln_correction(ndn,ndn**thrd,1.0d0,
+     >                                      beta,lda_c,chidn,chidn2,
+     >                                      chidnSQ,Kdn,F1dn,F2dn,
+     >                                xedn_pbe,fdnxdn_pbe,fdagrxdn_pbe, 
+     >                                xedn,fdnxdn,fdagrxdn)
+
+*               call Becke_smalln_correction(ndn,ndn**thrd,agrdn,
+*    >                               beta,lda_c,
+*    >                               chidn,chidn2,chidnSQ,Kdn,F1dn,F2dn,
+*    >                               xedn,fdnxdn,fdagrxdn)
              end if
           end if
 *      ***********END DOWN****************
@@ -551,6 +571,7 @@ c*------------------------------------------------------*
       real*8    agr,agr2, chi, chi2,chiSQ,sd
       real*8    K
       real*8    F1, F2      
+      real*8    xe_pbe,fdnx_pbe,fdagrx_pbe
       real*8    xe,fdnx,fdagrx,xe_dirac,fnx_dirac,x,xx
       real*8    ce,fdnc, fdagrc,fdnc_lda,ce_vosko,fnc_vosko
 
@@ -644,9 +665,16 @@ c*------------------------------------------------------*
      &            *(lda_c+beta*(F1-chi2*F2))
           fdagrx   = -beta*chi*F2 
           if ((fdnx-xe).gt.0.0d0) then
-              call Becke_smalln_correction(n,n_thrd,agr,beta,lda_c,
-     >                                   chi,chi2,chiSQ,K,F1,F2,
+              call gen_PBE96_x_restricted(n,agr,
+     >                                    xe_pbe,fdnx_pbe,fdagrx_pbe)
+              call Becke_smalln_correction(n,n**thrd,2.0d0,beta,
+     >                                   lda_c,chi,chi2,chiSQ,K,F1,F2,
+     >                                   xe_pbe,fdnx_pbe,fdagrx_pbe,
      >                                   xe,fdnx,fdagrx)
+
+*             call Becke_smalln_correction(n,n_thrd,agr,beta,lda_c,
+*    >                                   chi,chi2,chiSQ,K,F1,F2,
+*    >                                   xe,fdnx,fdagrx)
           end if
        end if
 
