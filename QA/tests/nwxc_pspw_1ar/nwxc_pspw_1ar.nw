@@ -1,7 +1,6 @@
 # $Id$
 echo
 
-#memory 950 mb
 
 start nwxc_dat
 
