@@ -44,6 +44,7 @@ bash runtests.mpi.unix pspw_hcth147_h2o
 bash runtests.mpi.unix pspw_hcth407_h2o
 bash runtests.mpi.unix pspw_hcth_h2o  
 bash runtests.mpi.unix pspw_mpw1k_h2o 
+bash runtests.mpi.unix pspw_sogga_h2o
 bash runtests.mpi.unix pspw_sogga11-x_h2o
 bash runtests.mpi.unix pspw_b3lyp_h2o
 bash runtests.mpi.unix pspw_beef_h2o
