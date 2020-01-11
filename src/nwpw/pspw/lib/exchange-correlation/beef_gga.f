@@ -437,10 +437,10 @@ c        ********************************************
 
 
 
-         ec = ec_lda + Hpbe
+         ec = alphac*ec_lda + malphac*Hpbe
 
-         fncup  = ec + (ec_lda_nup + Hpbe_nup)
-         fncdn  = ec + (ec_lda_ndn + Hpbe_ndn)
+         fncup  = ec + (alphac*ec_lda_nup + malphac*Hpbe_nup)
+         fncdn  = ec + (alphac*ec_lda_ndn + malphac*Hpbe_ndn)
 
          xce(i)   = x_parameter*ex     + c_parameter*ec
          fn(i,1)  = x_parameter*fnxup  + c_parameter*fncup
@@ -448,7 +448,7 @@ c        ********************************************
 
          fdn(i,1) = x_parameter*fdnxup 
          fdn(i,2) = x_parameter*fdnxdn 
-         fdn(i,3) = c_parameter*t_agr*Hpbe_t
+         fdn(i,3) = c_parameter*t_agr*Hpbe_t*malphac
 
       end do
 !$OMP END DO
@@ -680,7 +680,7 @@ c        **** PBE96 correlation energy  corrections ****
          t2 = t*t
          t4 = t2*t2
          B = -ec_lda/GAMMA
-         B = BOG/(exp(B)-1.0d0+ETA)
+         B = BOG/(dexp(B)-1.0d0+ETA)
          Q4 = 1.0d0 + B*t2
          Q5 = 1.0d0 + B*t2 + B*B*t4
          H = GAMMA*dlog(1.0d0 + BOG*Q4*t2/Q5)
@@ -698,8 +698,8 @@ c        **** PBE96 correlation fdn and fdnc derivatives ****
 
          Ht  = 2.0d0*BETA*Q9/Q8*t
 
-         ec   = ec_lda + malphac*H
-         fnc  = ec  - (onethird*rs*ec_lda_rs)
+         ec   = alphac*ec_lda + malphac*H
+         fnc  = ec -  alphac*(onethird*rs*ec_lda_rs)
      >             - malphac*(onethird*rs*Hrs)
      >             - malphac*(sevensixths*t*Ht)
          fdnc = malphac*(0.5d0* Ht/ks)
