@@ -31,6 +31,7 @@ bash runtests.mpi.unix pspw_md
 bash runtests.mpi.unix pspw_polarizability
 bash runtests.mpi.unix pspw_blyp_h2o
 bash runtests.mpi.unix pspw_vs98_h2o
+bash runtests.mpi.unix pspw_revpbe_h2o
 bash runtests.mpi.unix pspw_pbesol_h2o
 bash runtests.mpi.unix pspw_pbe0_h2o
 bash runtests.mpi.unix pspw_hse_h2o
