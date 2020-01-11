@@ -66,6 +66,8 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.unix procs $np pspw_hcth_h2o  
 ./runtests.unix procs $np pspw_mpw1k_h2o 
 ./runtests.unix procs $np pspw_sogga11-x_h2o
+./runtests.unix procs $np pspw_b3lyp_h2o
+./runtests.unix procs $np pspw_beef_h2o
 ./runtests.unix procs $np tddft_h2o
 ./runtests.unix procs $np tddft_n2+
 ./runtests.unix procs $np tddft_ac_co
