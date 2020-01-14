@@ -78,6 +78,8 @@
       external C3dB_cr_pfft3_queue_filled
       logical  Pneb_w_push_get_block,Pneb_w_pop_stack
       external Pneb_w_push_get_block,Pneb_w_pop_stack
+      logical  nwpwxc_is_on,control_only_lda
+      external nwpwxc_is_on,control_only_lda
 
 *     ***** QM/MM external functions ****
       logical  pspw_charge_found,pspw_qmmm_found
@@ -127,7 +129,7 @@
      >        BA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
       value = value.and.
      >        BA_push_get(mt_dbl,(nemaxq),'sumi',sumi(2),sumi(1))
-      if (gga.gt.0) then
+      if (.not.control_only_lda()) then
          call D3dB_n2ft3d(1,n2ft3d)
          value = BA_push_get(mt_dbl,(2*n2ft3d),'trho',trho(2),trho(1))
          value = value.and.
@@ -303,7 +305,8 @@
 *       *************************************************
 *       **** generate exchange-correlation potential ****
 *       *************************************************
-        if (gga.eq.0) then
+        !if ((.not.nwpwxc_is_on()).and.(gga.eq.0)) then
+        if (control_only_lda()) then
            call vxc(nfft3d,ispin,
      >              dbl_mb(dnall(1)),
      >              dbl_mb(xcp(1)),
@@ -564,7 +567,7 @@ c      if (np_j.gt.1) call C1dB_MaxAll(deltac)
 *     **** dealocate MA local variables ****
       call nwpw_timing_start(12)
       value = .true.
-      if (gga.gt.0) then
+      if (.not.control_only_lda()) then
          value = value.and.BA_pop_stack(txce(2))
          value = value.and.BA_pop_stack(txcp(2))
          value = value.and.BA_pop_stack(trho(2))

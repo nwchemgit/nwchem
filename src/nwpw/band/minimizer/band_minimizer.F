@@ -156,6 +156,8 @@ c      external      cpsp_comment
       external control_smooth_cutoff
       real*8   control_smooth_cutoff_values
       external control_smooth_cutoff_values
+      logical  nwpwxc_is_on,control_only_lda
+      external nwpwxc_is_on,control_only_lda
 
 
 *****************************|  PROLOGUE  |****************************
@@ -240,10 +242,12 @@ c      external      cpsp_comment
       call C3dB_pfft_init()
 
 *     **** initialize D3dB data structure and mask for GGA ****
-      if ((control_gga().ge.10).and.(control_gga().le.200)) THEN
-      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
-      call G_init()
-      call mask_init()
+c      if (((control_gga().ge.10).and.(control_gga().le.200))
+c     >     .or.nwpwxc_is_on()) THEN
+      if (.not.control_only_lda()) then
+         call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
+         call G_init()
+         call mask_init()
       end if
 
 c*     **** read ions ****
@@ -656,10 +660,12 @@ cc      call band_kp_structure(rtdb)
       call cpsi_data_end()
       call C3dB_pfft_end()
       call C3dB_end(1)
-      IF ((control_gga().ge.10).and.(control_gga().le.200)) THEN
-      call mask_end()
-      call G_end()
-      call D3dB_end(1)
+c      IF (((control_gga().ge.10).and.(control_gga().le.200)) 
+c     >     .or.nwpwxc_is_on()) THEN
+      if (.not.control_only_lda()) then
+         call mask_end()
+         call G_end()
+         call D3dB_end(1)
       end if
 
 *                |***************************|

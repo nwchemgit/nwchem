@@ -147,6 +147,8 @@
       external    spdf_name
       character*7 c_index_name
       external    c_index_name
+      logical     control_only_lda
+      external    control_only_lda
     
 *****************************|  PROLOGUE  |****************************
 
@@ -229,10 +231,11 @@
 
 
 *     **** initialize D3dB data structure and mask for GGA ****
-      if ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
-      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
-      call G_init()
-      call mask_init()
+      !if ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
+      if (.not.control_only_lda()) then
+         call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
+         call G_init()
+         call mask_init()
       end if
 
 c*     **** read ions ****
@@ -1113,10 +1116,11 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
       call ion_end()
       call cpsi_data_end()
       call C3dB_end(1)
-      IF ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
-      call mask_end()
-      call G_end()
-      call D3dB_end(1)
+      !IF ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
+      if (.not.control_only_lda()) then
+         call mask_end()
+         call G_end()
+         call D3dB_end(1)
       end if
 
 

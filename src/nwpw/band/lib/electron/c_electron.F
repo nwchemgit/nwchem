@@ -1522,6 +1522,8 @@ c      end do
 *     **** external functions ****
       integer  control_gga,control_version
       external control_gga,control_version
+      logical  nwpwxc_is_on,control_only_lda
+      external nwpwxc_is_on,control_only_lda
      
 
       call c_coulomb_v(dng,dcpl_mb(vc(1)))
@@ -1529,7 +1531,8 @@ c      end do
       gga = control_gga()
 
       !*** LDA calculation ****
-      if (gga.eq.0) then
+      !if ((.not.nwpwxc_is_on()).and.(gga.eq.0)) then
+      if (control_only_lda()) then
          value = BA_push_get(mt_dbl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
          if (.not. value) call errquit(
      >     'electron_gen_scf_potentials: out of stack memory',0, MA_ERR)
@@ -1545,7 +1548,8 @@ c      end do
 
       !*** this code needs to be optimized!!! ****
       !*** GGA calculation ****
-      else if ((gga.ge.10).and.(gga.lt.200)) then
+      !else if ((gga.ge.10).and.(gga.lt.200)).or. then
+      else 
          call D3dB_n2ft3d(1,n2ft3d)
          value = BA_push_get(mt_dbl,(2*n2ft3d),'trho',trho(2),trho(1))
          value = value.and.

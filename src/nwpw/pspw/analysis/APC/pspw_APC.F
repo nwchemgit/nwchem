@@ -798,6 +798,12 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       BQ_ptr     = nwpw_cosmo_BQ_ptr()
       call Parallel_shared_vector_zero(.true.,nion_q,dbl_mb(BQ_ptr))
       
+      write(*,*) "pspw_cosmo_V_APC HERA"
+      do ii=1,nion
+         write(*,*) "ii,Q=",ii,pspw_getQtot_APC(ii)
+      end do
+      write(*,*)
+
       !**** q-Qion + q-Qelc BQ contributions ****
       do j=tid+1,nion_q,nthreads
          do ii=taskid+1,nion,np

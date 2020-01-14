@@ -2960,6 +2960,26 @@ c      end
       return 
       end
 
+*     ***********************************
+*     *					*
+*     *		control_only_lda	*
+*     *					*
+*     ***********************************
+      logical function control_only_lda()
+      implicit none
+
+#include "control.fh"
+
+*     **** external functions ****
+      logical  nwpwxc_is_on,nwpwxc_is_lda
+      external nwpwxc_is_on,nwpwxc_is_lda
+
+      control_only_lda = (.not.nwpwxc_is_on().and.gga.eq.0).or.
+     >                   (nwpwxc_is_on().and.nwpwxc_is_lda())
+      return 
+      end
+
+
 
 *     ***********************************
 *     *                                 *

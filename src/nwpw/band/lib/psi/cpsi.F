@@ -981,6 +981,8 @@ c     &       MA_ERR)
       real*8   c_rho_1exc,c_rho_1pxc,lattice_unitg,lattice_omega
       external control_gga
       external c_rho_1exc,c_rho_1pxc,lattice_unitg,lattice_omega
+      logical  control_only_lda
+      external control_only_lda
 
 *     *** define hm ****
       pi   = 4.0d0*datan(1.0d0)
@@ -1002,7 +1004,8 @@ c     &       MA_ERR)
 
 *     **** PBE96 GGA part ****
       gga = control_gga()
-      if ((gga.ge.10).and.(gga.lt.100)) then
+      !if ((gga.ge.10).and.(gga.lt.100)) then
+      if (.not.control_only_lda()) then
          call D3dB_n2ft3d(1,n2ft3d)
          if (.not.
      >      BA_push_get(mt_dbl,(ispin*n2ft3d),'trho',trho(2),trho(1)))
