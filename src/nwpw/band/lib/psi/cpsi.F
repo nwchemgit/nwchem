@@ -2137,9 +2137,10 @@ c     *****  read initial wavefunctions into psi1  ****
           write(*,*) "set nwpw:psi_nogrid .false."
           write(*,*)
           value = c_wvfnc_expander(rtdb)
-          expand_psi = .true.
+          !expand_psi = .true.
 
         end if
+        expand_psi = .true.
         value = btdb_parallel(.true.)
 
         end if
