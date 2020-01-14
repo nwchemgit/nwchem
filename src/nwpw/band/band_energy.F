@@ -26,7 +26,7 @@ c     $Id$
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical value,wcutset,ecutset,runme
+      logical value,wcutset,ecutset,runme,use_sym
       integer i,steps
       real*8  wcut0,ecut0,wcut,ecut
 
@@ -36,6 +36,9 @@ c     $Id$
       real*8   lattice_wcut,lattice_ecut
       external lattice_wcut,lattice_ecut
 
+               
+      if (.not.rtdb_get(rtdb,'nwpw:rho_use_symmetry',mt_log,1,use_sym))
+     >   use_sym = .true.
 
       if (.not.rtdb_get(rtdb,'nwpw:cutoff_boot_psi',mt_log,1,
      >                  runme)) 
@@ -50,6 +53,15 @@ c     $Id$
          call Parallel_Finalize()
 
          if (.not.psi_filefind()) then
+
+            if (use_sym) then
+               if (.not.rtdb_put(rtdb,'nwpw:rho_use_symmetry',
+     >            mt_log,1,.false.))
+     >            call errquit(
+     >         'band_cutoff_boot_psi:error writing rho_use_symmetry',2,
+     >         RTDB_ERR)
+            end if
+
             call lattice_init()
             wcut0 = lattice_wcut()
             ecut0 = lattice_ecut()
@@ -96,6 +108,14 @@ c     $Id$
                if (.not.rtdb_delete(rtdb,'band:ecut'))
      >         call errquit('band_cutoff_boot_psi:error delete ecut',5,
      >                      RTDB_ERR)
+            end if
+
+            if (use_sym) then
+               if (.not.rtdb_put(rtdb,'nwpw:rho_use_symmetry',
+     >            mt_log,1,.true.))
+     >            call errquit(
+     >         'band_cutoff_boot_psi:error writing rho_use_symmetry',3,
+     >         RTDB_ERR)
             end if
 
 

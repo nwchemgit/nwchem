@@ -412,6 +412,7 @@ c           call psp_check_print(ia)
             do ms=1,psi_ispin()
             en(ms) =0.0d0
             do i=1,ne(ms)
+              write(*,*) "ms,i,occ=",ms,i,psi_occupation(ms,i)
               !!!!k = fweight(1)+(i-1)+(ms-1)*ne(1)
               icharge = icharge - (3-psi_ispin())*psi_occupation(ms,i)
               en(ms) = en(ms) + psi_occupation(ms,i)

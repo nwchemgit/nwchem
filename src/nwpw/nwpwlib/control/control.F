@@ -3090,6 +3090,8 @@ c      end
       !external control_frac_occ_extra_orbitals
       integer  control_fractional_orbitals
       external control_fractional_orbitals
+      logical  control_mult_fixed
+      external control_mult_fixed
 
 
 
@@ -3126,41 +3128,47 @@ c            mult0 = 1
          t = icharge - tcharge       !** total number of electrons **
          x = int(NINT(t))
 
+         if (.not.control_mult_fixed()) then
 
-*        **** reassign spin to agree with total number of electrons ****
-         if ((mod(x,2).ne.0).and.(ispin.eq.1)) then !** odd number of electrons **
-            ispin = 2
-         end if
+*           **** reassign spin to agree with total number of electrons ****
+            if ((mod(x,2).ne.0).and.(ispin.eq.1)) then !** odd number of electrons **
+               ispin = 2
+            end if
 
-*        **** reassign multiplicity to agree with total number of electrons ****
-*        *** odd number of electrons and mult odd ***
-         if ((mod(x,2).ne.0) .and.(mod(multiplicity,2).ne.0)) then 
-            multiplicity = multiplicity - 1
-            do while (multiplicity.gt.(x+1))
-               multiplicity = multiplicity - 2
-            end do
-            if (multiplicity.lt.1) multiplicity = 2
-         end if
-*        *** even number of electrons and mult even ***
-         if ((mod(x,2).eq.0) .and.(mod(multiplicity,2).eq.0)) then 
-            multiplicity = multiplicity - 1
-            do while (multiplicity.gt.(x+1))
-               multiplicity = multiplicity - 2
-            end do
-            if (multiplicity.lt.1) multiplicity = 1
-         end if
+*           **** reassign multiplicity to agree with total number of electrons ****
+*           *** odd number of electrons and mult odd ***
+            if ((mod(x,2).ne.0) .and.(mod(multiplicity,2).ne.0)) then 
+               multiplicity = multiplicity - 1
+               do while (multiplicity.gt.(x+1))
+                  multiplicity = multiplicity - 2
+               end do
+               if (multiplicity.lt.1) multiplicity = 2
+            end if
+*           *** even number of electrons and mult even ***
+            if ((mod(x,2).eq.0) .and.(mod(multiplicity,2).eq.0)) then 
+               multiplicity = multiplicity - 1
+               do while (multiplicity.gt.(x+1))
+                  multiplicity = multiplicity - 2
+               end do
+               if (multiplicity.lt.1) multiplicity = 1
+            end if
 
 
-*        **** compare multiplicity, charge, and ispin ****
-c         check = ( (((mult.eq.multiplicity).and.(x_wf.eq.x))  .or.
-c     >             ((mult0.eq.multiplicity).and.(x_wf0.eq.x))).and.
-c     >            (ispin.eq.ispin_wf))
-         check = ( (mult.eq.multiplicity).and.(x_wf.eq.x).and.
-     >            (ispin.eq.ispin_wf))
+*           **** compare multiplicity, charge, and ispin ****
+c            check = ( (((mult.eq.multiplicity).and.(x_wf.eq.x))  .or.
+c     >                ((mult0.eq.multiplicity).and.(x_wf0.eq.x))).and.
+c     >               (ispin.eq.ispin_wf))
+            check = ( (mult.eq.multiplicity).and.(x_wf.eq.x).and.
+     >               (ispin.eq.ispin_wf))
 
-         if (ispin_wf.eq.3) then
-            check=((ne_wf(1).eq.ne_wf(2)).and.
-     >             (x.eq.ne_wf(1) ) )
+            if (ispin_wf.eq.3) then
+               check=((ne_wf(1).eq.ne_wf(2)).and.
+     >                (x.eq.ne_wf(1) ) )
+            end if
+
+         else
+*           **** compare multiplicity, and ispin ****
+            check = ((mult.eq.multiplicity).and.(ispin.eq.ispin_wf))
          end if
 *     **** no wavefunction file ***
       else
@@ -5416,7 +5424,7 @@ c     >            (ispin.eq.ispin_wf))
       value = .false.
       if (.not.btdb_get(rtdb,'nwpw:rho_use_symmetry',
      >     mt_log,1,value))
-     >   value = .false.
+     >   value = .true.
 
       control_rho_use_symmetry = value
       return                
@@ -6821,6 +6829,33 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       control_vfield_filenames = found
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *        control_mult_fixed       *
+*     *                                 *
+*     ***********************************
+      logical function control_mult_fixed()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.btdb_get(rtdb,'nwpw:mult_fixed',mt_log,1,value))
+     >   value = .false.
+
+      control_mult_fixed = value
+      return
+      end
+
+
 
 
 

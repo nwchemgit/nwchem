@@ -14,7 +14,7 @@
      >                       spin_orbit,
      >                       ispin,
      >                       nein,
-     >                       nbrillioun)
+     >                       nbrillioun,oddelcfill)
       implicit none
       character*50 wavefunction_filename
       integer      version
@@ -22,6 +22,7 @@
       real*8       unita(3,3)
       logical      spin_orbit
       integer      ispin,nein(2),nbrillioun
+      logical      oddelcfill
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -71,7 +72,7 @@
      >                       ne,
      >                       nbrillioun,
      >                       fractional,
-     >                       fractional_orbitals)
+     >                       fractional_orbitals,oddelcfill)
         write(*,*) "random planewave guess, initial psi:",
      >             wavefunction_filename
         if (spin_orbit) then
@@ -104,7 +105,7 @@
      >                      ispin,
      >                      ne,
      >                      nbrillioun,
-     >                      fractional,frac_orb)
+     >                      fractional,frac_orb,oddelcfill)
       implicit none
       integer NMAX
       integer filling(4,(NMAX+1),2)
@@ -116,6 +117,7 @@
       integer      ispin,ne(2),nbrillioun
       logical      fractional
       integer      frac_orb(2)
+      logical      oddelcfill
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -129,7 +131,7 @@
       integer cfull_indx,cfull_hndl,l,l1,l2
       integer i,j,k,ms,n,nb,ispin0,neh,occupation
 
-      double precision p,scale,rx,ry
+      double precision p,scale,rx,ry,rz
       double complex cc,cx,sx,zx,zc
 
 *     **** external functions ****
@@ -296,9 +298,12 @@ c     **** add occupation ****
       do nb=1,nbrillioun
          rx = 1.0d0
          ry = 0.0d0
+         rz = 0.5d0
          do ms=1,ispin
            do n=1,ne(ms)
-             if (n.le.(ne(ms)-frac_orb(ms))) then
+             if (oddelcfill.and.(n.eq.(1+ne(ms)-frac_orb(ms)))) then
+                call dwrite(6,rz,1)
+             else if (n.le.(ne(ms)-frac_orb(ms))) then
                 call dwrite(6,rx,1)
              else
                 call dwrite(6,ry,1)
