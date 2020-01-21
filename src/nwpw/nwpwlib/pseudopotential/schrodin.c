@@ -14,7 +14,7 @@
 #include "pred_cor.h"
 #include "schrodin.h"
 
-#define Max_Iterations		100
+#define Max_Iterations		500
 #define tolerance 		1.0e-10
 #define Corrector_Iterations	6
 
@@ -246,7 +246,13 @@ uprime[];
         } /* nodes ok */
     } /* while */
 
-    printf("Error R_Schrodinger: More than %d iterations\n",Max_Iterations);
+    printf("R_Schrodinger: More than %d iterations, Eig=%le, de=%le\n",Max_Iterations,E,de);
+
+    match = Ngrid-1;
+    R_Schrodinger_Fixed_Logderiv(n,l,v,Ngrid-1,0.0,Eig,u,uprime);
+    R_Schrodinger_Fixed_E(n,l,v,Ngrid-1,*Eig,u,uprime);
+    printf("R_Schrodinger: Running R_Schrodginger_Fixed_E with eig=%le match=%d\n",*Eig,match);
+
     *mch = match;
     *Eig = E;
 
