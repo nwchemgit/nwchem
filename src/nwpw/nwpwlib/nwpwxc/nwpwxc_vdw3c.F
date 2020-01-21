@@ -3142,7 +3142,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 
+#if defined(XLFLINUX)
+@PROCESS NOESCAPE
+#endif
       subroutine nwpwxc_split(str,delims,before,sep)
+
 
 ! Routine finds the first instance of a character from 'delims' in the
 ! the string 'str'. The characters before the found delimiter are
@@ -3211,6 +3215,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 !**********************************************************************
 
+#if defined(XLFLINUX)
+@PROCESS NOESCAPE
+#endif
       subroutine nwpwxc_removebksl(str)
 
 ! Removes backslash (\) characters. Double backslashes (\\) are replaced
