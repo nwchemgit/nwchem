@@ -23,7 +23,7 @@ c#include "nwpwxc.fh"
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 126)
+      parameter (num_dirs = 127)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -150,6 +150,7 @@ c
      >            'socket',
      >            'vfield',
      >            'born',
+     >            'symmetry',
      >            'end'/
 
       double precision kb
@@ -230,7 +231,7 @@ c
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
      >       7700,7800,7900,8000,8100,6650,8200,8300,8400,8500,8600,
-     >       8700,8800,8900,9000,9010,
+     >       8700,8800,8900,9000,9010,9020,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -2164,6 +2165,19 @@ c
          if (.not.BA_pop_stack(index_start1(2))) call errquit(
      >   'nwpw_input:failed deallocating index_start1',0,MA_ERR)
       end if
+      goto 10
+
+c
+c symmetry  .true.||.false
+c
+ 9020 if (inp_a(zone_name)) then
+         move = nwpw_parse_boolean(zone_name,.true.)
+      else
+         move = .true.
+      end if
+      if (.not.rtdb_put(rtdb,'nwpw:rho_use_symmetry',mt_log,1,
+     >                  move))
+     >  call errquit('nwpw_input: error writing to rtdb',9020,RTDB_ERR)
       goto 10
 
 
