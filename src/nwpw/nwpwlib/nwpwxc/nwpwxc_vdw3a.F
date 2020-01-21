@@ -26,7 +26,7 @@ C GNU General Public License for more details.
 C For the GNU General Public License, see <http://www.gnu.org/licenses/>
 
       subroutine  nwpwxc_vdw3_dftd3(options,n,iz,xyz,lat,eout,g,g_lat)
-#if defined(__FLANG)
+#if defined(__FLANG) || defined(XLFLINUX)
       use ieee_arithmetic
 #endif
       implicit none
@@ -821,7 +821,7 @@ c     .           numgrad,version,echo,g,gdsp,x,rthr2,fix)
 c check if nwpwxc_gdisp yields same energy as nwpwxc_edisp
       dum=abs((disp-gdsp)/disp)
 !if this check gives compiler errors, replace is with a different NaN check
-#if defined(__FLANG)
+#if defined(__FLANG) || defined(XLFLINUX)
       if (ieee_support_nan(dum)) call
      c     nwpwxc_stoprun('internal NaN-error')
 #else
@@ -935,7 +935,7 @@ c gradient test 6-7 digits should be the same
             lat(j,i)=lat(j,i)+dum1
             call nwpwxc_abc_to_xyz(abc,xyz,lat,n)
 
-            write(*,'("L"2i1,2E14.6)'),i,j,dum,g_lat(j,i)
+            write(*,'("L"2i1,2E14.6)') i,j,dum,g_lat(j,i)
           enddo !j
         enddo !i
 
@@ -2036,7 +2036,7 @@ c Implemented display of atom ranges instead of whole list of atoms
         write(*,'(i4)',advance='no') grplist(j-1,i)
         dash=0
        endif
-      write(*,*)''
+      write(*,*)' '
       enddo
 
 c old display list code
