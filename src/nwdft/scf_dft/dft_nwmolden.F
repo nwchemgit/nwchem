@@ -28,8 +28,9 @@ c     https://sourceforge.net/p/janpa/wiki/nwchem2molden/
 c
       character*20 pname
       integer ispin
-      integer bas
+      integer bas,io_res
       character*255 filename
+      integer inntsize
       logical nwmolden_movecs,nwmolden_basis,nwmolden_geom
       external nwmolden_movecs,nwmolden_basis,nwmolden_geom
       logical nwmolden_openfile,nwmolden_closefile
@@ -39,6 +40,7 @@ c
       external int_norm_janpa,int_normalize
 c
 c
+      inntsize = MA_sizeof(MT_INT,1,MT_BYTE)
       do_io=ga_nodeid().eq.0
       pname='dft_nwmolden: '
       if(rw.eq.'write') then
@@ -47,7 +49,13 @@ c
          if (.not. rtdb_cget(rtdb, 'vectors:molden', 1, filename))
      $        call errquit('dftnwmolden: no file',0, 0)
       endif
-      if(.not.nwmolden_openfile(rw,filename))
+      io_res=1
+      if (do_io) then
+         if(.not.nwmolden_openfile(rw,filename))
+     E        io_res=0
+      endif
+      call ga_brdcst(2020, io_res, inntsize, 0)
+      if(io_res.eq.0) 
      E        call errquit(pname//'nwmolden_openfile failed ',0,0)
       if(.not.nwmolden_geom(rw,geom))
      E     call errquit(pname//'nwmolden_geom failed ',0,0)
