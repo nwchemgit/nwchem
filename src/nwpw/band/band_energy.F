@@ -38,7 +38,7 @@ c     $Id$
 
                
       if (.not.rtdb_get(rtdb,'nwpw:rho_use_symmetry',mt_log,1,use_sym))
-     >   use_sym = .true.
+     >   use_sym = .false.
 
       if (.not.rtdb_get(rtdb,'nwpw:cutoff_boot_psi',mt_log,1,
      >                  runme)) 

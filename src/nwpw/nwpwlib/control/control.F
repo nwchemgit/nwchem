@@ -5444,7 +5444,7 @@ c     >               (ispin.eq.ispin_wf))
       value = .false.
       if (.not.btdb_get(rtdb,'nwpw:rho_use_symmetry',
      >     mt_log,1,value))
-     >   value = .true.
+     >   value = .false.
 
       control_rho_use_symmetry = value
       return                
