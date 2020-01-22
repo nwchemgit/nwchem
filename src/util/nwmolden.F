@@ -89,6 +89,9 @@ c conversion factors fron moldens gaussian.f
           dout(13) = din(5)/sqrt(7d0)/sqrt(5d0)
           dout(14) = din(8)/sqrt(7d0)/sqrt(5d0) 
           dout(15) = din(9)/sqrt(7d0)/sqrt(5d0)
+       else if (type.gt.4) then
+          call errquit(' molden interface support up to g functions',
+     M         type,0)
         end if
       else
 !       In MOLDEN file the following order of
@@ -132,6 +135,9 @@ c conversion factors fron moldens gaussian.f
           dout(7) = din(2)
           dout(8) = din(9)
           dout(9) = din(1)
+       else if (type.gt.4) then
+          call errquit(' molden interface support up to g functions',
+     M         type,0)
         end if
       end if
       return
@@ -207,6 +213,9 @@ c conversion factors fron moldens gaussian.f
           dout(5 ) = din(13)*sqrt(7d0)*sqrt(5d0)
           dout(8 ) = din(14)*sqrt(7d0)*sqrt(5d0) 
           dout(9 ) = din(15)*sqrt(7d0)*sqrt(5d0)
+       else if (type.gt.4) then
+          call errquit(' molden interface support up to g functions',
+     M         type,0)
         end if
       else
 !       In MOLDEN file the following order of
@@ -250,6 +259,9 @@ c conversion factors fron moldens gaussian.f
           dout(2) =  din(7)
           dout(9) =  din(8)
           dout(1) =  din(9)
+       else if (type.gt.4) then
+          call errquit(' molden interface support up to g functions',
+     M         type,0)
         end if
       end if
       return
