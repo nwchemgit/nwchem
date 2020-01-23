@@ -80,6 +80,7 @@ c
                              !< - if ipos < 0: then item(1:nintpo) equals
                              !<   list(1:nintpo,-ipos)
       integer selci_icmp
+      integer*4 isum1
 c
 c     binary search thru ordered list of items (each nintpo integers).
 c     return in ipos:
@@ -97,7 +98,8 @@ c
       iright = n
  10   if ((iright-left).le.1) goto 50
       middle=(left+iright)/2
-      if (selci_icmp(item,list(1,middle),nintpo)) 20,30,40
+      isum1=selci_icmp(item,list(1,middle),nintpo)
+      if (isum1) 20,30,40
 c
  20   iright = middle
       goto 10
@@ -108,10 +110,12 @@ c
  40   left = middle
       goto 10
 c
- 50   if (selci_icmp(item,list(1,iright),nintpo)) 60,70,80
+ 50   isum1=selci_icmp(item,list(1,iright),nintpo)
+      if (isum1) 60,70,80
 c
 c item<list(iright)
- 60     if (selci_icmp(item,list(1,left), nintpo)) 61,62,63
+ 60     isum1=selci_icmp(item,list(1,left), nintpo)
+        if (isum1) 61,62,63
 c
 c item<list(left)
  61       ipos = left
