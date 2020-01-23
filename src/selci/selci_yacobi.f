@@ -7,6 +7,7 @@ C>
 * $Id$
 *
       dimension a(1),u(1),big(1),jb(1)
+      integer*4 isum1
       data zero/0.0d0/
 c 32 bit precision
 c      data eps/1.0e-7/
@@ -75,12 +76,14 @@ c     begin rotation
       d=c*u(ki)+s*u(kj)
       u(kj)=c*u(kj)-s*u(ki)
       u(ki)=d
-      if (i-jbig) 45,54,46
+      isum1=i-jbig
+      if (isum1) 45,54,46
    45 kj=l(jbig)+i
       ki=l(ibig)+i
       go to 50
    46 kj=l(i)+jbig
-      if (i-ibig)47,55,48
+      isum1=i-ibig
+      if (isum1)47,55,48
    47 ki=l(ibig)+i
       iii=2
       if (jb(i).eq.jbig) iii=3
