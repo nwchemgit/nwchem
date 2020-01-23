@@ -1424,7 +1424,7 @@ c     ((n+1)*n)/2 when m is zero
 
       write(iuout,1001) head
       nkpb=10
-      if(m)10,10,80
+      if(m.gt.0) goto 80
 c
    10 continue
       ibl=n/nkpb
