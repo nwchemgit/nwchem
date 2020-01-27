@@ -26,9 +26,6 @@ C GNU General Public License for more details.
 C For the GNU General Public License, see <http://www.gnu.org/licenses/>
 
       subroutine  nwpwxc_vdw3_dftd3(options,n,iz,xyz,lat,eout,g,g_lat)
-#if defined(__FLANG) || defined(XLFLINUX)
-      use ieee_arithmetic
-#endif
       implicit none
       character*(*) options
 c number of atoms
@@ -125,6 +122,10 @@ c local and dummy variables
       real*8  x,y,dispr,displ,gdsp,dum,xx(10),dum6(86)
       real*8  dum1,dum2,dum3(3)
       logical ex,pot,fdum
+#if defined(__FLANG) || defined(XLFLINUX)
+      logical util_isnan
+      external util_isnan
+#endif
       logical minc6list(max_elem),maxc6list(max_elem),minc6,maxc6
 
 c PBE0/def2-QZVP atomic values 
@@ -822,7 +823,7 @@ c check if nwpwxc_gdisp yields same energy as nwpwxc_edisp
       dum=abs((disp-gdsp)/disp)
 !if this check gives compiler errors, replace is with a different NaN check
 #if defined(__FLANG) || defined(XLFLINUX)
-      if (ieee_support_nan(dum)) call
+      if (util_isnan(dum)) call
      c     nwpwxc_stoprun('internal NaN-error')
 #else
       if (ISNAN(dum)) call nwpwxc_stoprun('internal NaN-error')
@@ -907,7 +908,7 @@ c gradient test 6-7 digits should be the same
         IF (echo) write(*,*)'Doing numerical stresstensor...'
       allocate(abc(3,n))
 
-        call xyz_to_abc(xyz,abc,lat,n)
+        call nwpw_xyz_to_abc(xyz,abc,lat,n)
         dum1=1.d-5
         if (echo) write(*,*)'step: ',dum1
         do i=1,3
