@@ -908,13 +908,13 @@ c gradient test 6-7 digits should be the same
         IF (echo) write(*,*)'Doing numerical stresstensor...'
       allocate(abc(3,n))
 
-        call nwpw_xyz_to_abc(xyz,abc,lat,n)
+        call nwpwxc_xyz_to_abc(xyz,abc,lat,n)
         dum1=1.d-5
         if (echo) write(*,*)'step: ',dum1
         do i=1,3
           do j=1,3
             lat(j,i)=lat(j,i)+dum1
-            call nwpw_abc_to_xyz(abc,xyz,lat,n)
+            call nwpwxc_abc_to_xyz(abc,xyz,lat,n)
             !call nwpwxc_edisp...dum1
        call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
      .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
