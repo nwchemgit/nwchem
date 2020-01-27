@@ -1899,6 +1899,7 @@ c     ****************************************
      >                 ierr)
 !$OMP END MASTER
 !$OMP BARRIER
+         if(ierr.ne.0) call errquit('dneadiag: dsyev err.ne.0 ',ierr,0)
 
             if (.not.assending)
      >         call EIGSRT(eig(shift1),
@@ -7280,6 +7281,7 @@ c     ****************************************
      >                 eig(shift1),
      >                 dbl_mb(tmp1(1)),2*nein(1)*nein(1),
      >                 ierr)
+         if(ierr.ne.0) call errquit('dneamdg: dsyev err.ne.0 ',ierr,0)
 
             if (.not.assending)
      >       call eigsrt(eig(shift1),
