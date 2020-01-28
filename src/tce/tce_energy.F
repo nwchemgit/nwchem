@@ -1635,7 +1635,7 @@ c          call util_file_name('v2int',.false.,.true.,filename)
 ! === jaguar ===
          if(read_int)  then
 c          call util_file_name('v2int',.false.,.true.,filename)
-          call util_file_name0('v2int',.false.,.true.,5)
+          call util_file_name0('v2int',.false.,.true.,filename,fldgts)
           unitn=78
           call read_tensor(filename,d_v2,size_2e,unitn)
 !     re-split the int files?
@@ -1943,7 +1943,7 @@ c
 ! === jaguar ===
          if(read_int)  then
 c          call util_file_name('v2int',.false.,.true.,filename)
-          call util_file_name0('v2int',.false.,.true.,5)
+          call util_file_name0('v2int',.false.,.true.,filename,fldgts)
           unitn=78
           call read_tensor(filename,d_v2,size_2e,unitn)
 !     re-split the int files?
