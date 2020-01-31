@@ -56,10 +56,10 @@
          Point(1, i) = nstru(i:i)
          Point(20,i) = nstrd(i:i)
       end do
-      if (dabs(YU).lt.1.0d-3) then
-         if (ascii_yscale(0.0d0).lt.20) then
-            i=min(maxrow,ascii_yscale(0.0d0))
-            i=max(1,i)
+      if (ascii_yscale(0.0d0).lt.20) then
+         i=min(maxrow,ascii_yscale(0.0d0))
+c         i=max(1,i)
+         if (i.ge.1) then
             Point(i,1)  = " "
             Point(i,2)  = "0"
             Point(i,3)  = "."
