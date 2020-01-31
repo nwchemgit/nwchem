@@ -56,19 +56,21 @@
          Point(1, i) = nstru(i:i)
          Point(20,i) = nstrd(i:i)
       end do
-      if (ascii_yscale(0.0d0).lt.20) then
-         i=min(maxrow,ascii_yscale(0.0d0))
-         i=max(1,i)
-         Point(i,1)  = " "
-         Point(i,2)  = "0"
-         Point(i,3)  = "."
-         Point(i,4)  = "0"
-         Point(i,5)  = "0"
-         Point(i,6)  = "0"
-         Point(i,7)  = "E"
-         Point(i,8)  = "+"
-         Point(i,9)  = "0"
-         Point(i,10) = "0"
+      if (dabs(YU).lt.1.0d-3) then
+         if (ascii_yscale(0.0d0).lt.20) then
+            i=min(maxrow,ascii_yscale(0.0d0))
+            i=max(1,i)
+            Point(i,1)  = " "
+            Point(i,2)  = "0"
+            Point(i,3)  = "."
+            Point(i,4)  = "0"
+            Point(i,5)  = "0"
+            Point(i,6)  = "0"
+            Point(i,7)  = "E"
+            Point(i,8)  = "+"
+            Point(i,9)  = "0"
+            Point(i,10) = "0"
+         end if
       end if
 
       !**** plot points ****
