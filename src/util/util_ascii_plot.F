@@ -47,8 +47,9 @@
       !*** set x-axis ***
       do i=12,MaxCol
          j=min(maxrow,ascii_yscale(0.0d0))
-         j=max(1,j)
-         Point(j,i) = "-"  ! x-axis
+         if (j.ge.1) Point(j,i) = "-"  ! x-axis
+c         j=max(1,j)
+c         Point(j,i) = "-"  ! x-axis
       end do
 
       !*** set ylabels ***
