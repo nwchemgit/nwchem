@@ -31,7 +31,7 @@ c
       character ch_tmp
       integer ii,shift,print_shift,print_count,jj,manyjj,itm,goodjj
       integer i,it,nbeads,nion,ng,m,nebsteps,neb_algorithm,algorithm
-      integer nbeads1,nbeads2
+      integer nbeads1,nbeads2,isystype
       integer e1(2),g0(2),g1(2),s(2),t1(2),v1(2),c0(2),c1(2),xx1(2)
       integer mass(2),dti(2),cs(2),gs(2)
       real*8  path_energy,path_distance,norm,norm0,time_step,kbeads
@@ -43,8 +43,8 @@ c
       real*8  gmax0,grms0,xmax0,xrms0
 
 *     **** external functions ****
-      logical task_gradient
-      external task_gradient
+      logical task_gradient,systype_bead_list
+      external task_gradient,systype_bead_list
       integer  size_bead_list,nion_bead_list
       real*8   energy_bead_list
       external size_bead_list,nion_bead_list
@@ -157,6 +157,7 @@ c
       nbeads = size_bead_list(bead_list)
       nion   = nion_bead_list(bead_list,1)
       ng     = 3*nion*nbeads
+      isystype = systype_bead_list(bead_list)
 
       if (oprint) then
 
@@ -176,7 +177,8 @@ c
          
          write(luout,*)
          write(luout,1) nebgmax,nebgrms,nebxmax,nebxrms,
-     >                  time_step,trust,nebsteps,nbeads,m,nion,kbeads,
+     >                  time_step,trust,nebsteps,nbeads,m,nion,
+     >                  isystype,kbeads,
      >                  neb_algorithm,tmp,
      >                  neb_movecs
          if (ostress) 
@@ -195,6 +197,7 @@ c
      >    'neb: number of images in path         (nbeads) = ', i4,/,
      >    'neb: number of histories               (nhist) = ', i4,/,
      >    'neb: number of atoms                           = ', i4,/,
+     >    'neb: system type                               = ', i4,/,
      >    'neb: NEB spring constant in a.u.      (kbeads) = ', f10.6,/,
      >    'neb: NEB algorithm                 (algorithm) = ', i4,
      >                                                   1x,'(',a,')'/,
@@ -613,6 +616,7 @@ c                  if (finishedstep) sum0_old = sum0
             write(19,*)  "# nbeads             = ",nbeads
             write(19,*)  "# nhist              = ",m
             write(19,*)  "# natoms             = ",nion
+            write(19,*)  "# system type        = ",isystype
             write(19,*)  "# kbeads             = ",kbeads
             write(19,*)  "# stepsize           = ",time_step
             write(19,*)  "# trust              = ",trust
@@ -717,6 +721,7 @@ c                  if (finishedstep) sum0_old = sum0
            write(luout,13)  mark,"nbeads         = ",nbeads
            write(luout,13)  mark,"nhist          = ",m
            write(luout,13)  mark,"natoms         = ",nion
+           write(luout,13)  mark,"system type    = ",isystype
            write(luout,14)  mark,"stepsize       = ",time_step
            write(luout,14)  mark,"trust          = ",trust
            write(luout,14)  mark,"kbeads         = ",kbeads
@@ -802,6 +807,7 @@ c                  if (finishedstep) sum0_old = sum0
          write(19,*)  "# nbeads        = ",nbeads
          write(19,*)  "# nhist         = ",m
          write(19,*)  "# natoms        = ",nion
+         write(19,*)  "# system type   = ",isystype
          write(19,*)  "# kbeads        = ",kbeads
          write(19,*)  "# stepsize      = ",time_step
          write(19,*)  "# trust         = ",trust

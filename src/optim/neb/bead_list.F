@@ -823,6 +823,150 @@ c     >   geom_name = 'bead'//bead_index_name(i)//':geom'
       end
 
 
+
+c     **********************************************
+c     *                                            *
+c     *              systype_bead_list             *
+c     *                                            *
+c     **********************************************
+
+c  This routine returns if the systype, i.e. the number of dimensions
+c from the "tag" bead list. Uses bead index=1.
+c
+c     Entry - tag: name of bead list
+c     Exit  -
+c
+      integer function systype_bead_list(tag)
+      implicit none
+      character*(*) tag
+
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "geom.fh"
+
+*     ***** local variables ****
+      integer i,isystype
+      real*8 amat(3,3)
+      logical value
+      integer geom,nion
+      integer size,taglen,geomlen
+      real*8  energy
+      character*255 rtdb_name,geom_name
+
+      integer bead_rtdb
+      common /bead_list/ bead_rtdb
+
+*     **** external functions ****
+      character*7 bead_index_name
+      integer     inp_strlen,size_bead_list
+      external    bead_index_name
+      external    inp_strlen,size_bead_list
+
+      isystype = 0
+      i = 1
+      size = size_bead_list(tag)
+      if (i.gt.size) then
+         systype_bead_list = isystype
+         return
+      end if
+
+      taglen    = inp_strlen(tag)
+
+      rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
+c      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+c     >   geom_name = 'bead'//bead_index_name(i)//':geom'
+      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+     >   geom_name = tag(1:taglen)//bead_index_name(i)//':geom'
+      geomlen   = inp_strlen(geom_name)
+
+      value =           geom_create(geom,'bead_tmp')
+      value = value.and.geom_rtdb_load(bead_rtdb,geom,
+     >                                 geom_name(1:geomlen))
+
+*     **** get systype ***
+      if (.not.geom_systype_get(geom,isystype)) then
+         isystype = 0
+      end if
+
+      value = value.and.geom_destroy(geom)
+      if (.not.value) call errquit('systype_bead_list failed',0,0)
+
+      systype_bead_list = isystype
+      return
+      end
+
+
+
+
+c     ***************************************************
+c     *                                                 *
+c     *              amatrix_get_bead_list              *
+c     *                                                 *
+c     ***************************************************
+
+c  This routine returns the amatrix, amat, of the "i" bead
+c from the "tag" bead list.
+c
+c     Entry - tag: name of bead list
+c             i: bead number
+c     Exit  - amat: amatrix
+c
+      subroutine amatrix_get_bead_list(tag,i,amat)
+      implicit none
+      character*(*) tag
+      integer i
+      real*8 amat(3,3)
+
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "geom.fh"
+
+*     ***** local variables ****
+      logical value
+      integer geom,nion
+      integer size,taglen,geomlen
+      real*8  energy
+      character*255 rtdb_name,geom_name
+
+      integer bead_rtdb
+      common /bead_list/ bead_rtdb
+
+*     **** external functions ****
+      character*7 bead_index_name
+      integer     inp_strlen,size_bead_list
+      external    bead_index_name
+      external    inp_strlen,size_bead_list
+
+      size = size_bead_list(tag)
+      if (i.gt.size) return
+
+      taglen    = inp_strlen(tag)
+
+      rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
+c      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+c     >   geom_name = 'bead'//bead_index_name(i)//':geom'
+      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+     >   geom_name = tag(1:taglen)//bead_index_name(i)//':geom'
+      geomlen   = inp_strlen(geom_name)
+
+      value =           geom_create(geom,'bead_tmp')
+      value = value.and.geom_rtdb_load(bead_rtdb,geom,
+     >                                 geom_name(1:geomlen))
+
+*     **** get amatrix ***
+      if (.not.geom_amatrix_get(geom,amat)) then
+         call dcopy(9,0.0d0,0,amat,1)
+      end if
+
+      value = value.and.geom_destroy(geom)
+      if (.not.value) call errquit('amatrix_get_bead_list failed',0,0)
+
+      return
+      end
+
+
+
+
 c     ***************************************************
 c     *                                                 *
 c     *               gradient_get_bead_list            *
