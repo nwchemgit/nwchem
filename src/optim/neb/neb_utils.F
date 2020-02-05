@@ -182,7 +182,7 @@ c     >              dbl_mb(r(1)),   1)
 *     *                                             *
 *     ***********************************************
   
-      subroutine neb_cdiff(nion,c1,c2,amat,c2mc1)
+      subroutine neb_cdiff(nion,c2,c1,amat,c2mc1)
       implicit none
       integer nion
       real*8 c1(3,*),c2(3,*)
