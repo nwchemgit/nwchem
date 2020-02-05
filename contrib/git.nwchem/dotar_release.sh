@@ -29,6 +29,8 @@ make 64_to_32   USE_INTERNALBLAS=y
 #rm `find peigs -name peigs_stamp.*`
 cd ..
 rm -rf bin lib
+# cleanup on make nwchem_config output to address https://github.com/nwchemgit/nwchem/issues/178
+rm -f config/nwchem_config.h config/NWCHEM_CONFIG
 REVGIT="$(git describe --always)"
 cd ..
 echo 'revision ' $REVGIT
