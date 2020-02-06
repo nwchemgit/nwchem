@@ -737,12 +737,13 @@ cold        rec_mem=1
 !QuantumComputing qrotation
        if (.not.rtdb_get(rtdb,'tce:qrotation',
      4  mt_log,1,qrotation)) qrotation=.false.
-      if(qrotation) then
        nacto=0
+       nrotv=0
+       nrot=0
+      if(qrotation) then
         if (.not.rtdb_get(rtdb,'tce:nacto',mt_int,1,nacto))
      1    call errquit('tce_energy:nacto=0 while qrotation T',0,
      2      RTDB_ERR)
-       nrotv=0
         if (.not.rtdb_get(rtdb,'tce:nrotv',mt_int,1,nrotv))
      1    call errquit('tce_energy:nrotv=0 while qrotation T',0,
      2      RTDB_ERR)
@@ -835,11 +836,7 @@ c
        if(res_log) ccsd_var='ic'
 !
        slice=.false.
-       if (.not.rtdb_get(rtdb,'tce:xmem',mt_int,1,xmem)) then
-         continue
-       else
-         slice=.true. 
-       end if
+       if (rtdb_get(rtdb,'tce:xmem',mt_int,1,xmem))slice=.true. 
 !
        d4d5=.false.
        if (.not.rtdb_get(rtdb,'tce:d4d5',mt_log,1,d4d5)) then
