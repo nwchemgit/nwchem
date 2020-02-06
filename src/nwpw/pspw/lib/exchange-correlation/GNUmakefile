@@ -21,7 +21,7 @@ SUBDIRS = vdw-DF
 		pw92c.o \
 		vs98.o \
 		tpss03.o scan.o pw91c.o  pbe96x.o pbe96c.o \
-		m06.o  m06-l.o m06_xc.o 
+		m06.o  m06-l.o 
 
 #            vdirac.o \
 
