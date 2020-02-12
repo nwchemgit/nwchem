@@ -253,7 +253,7 @@ c        **** impose ****
       else
          middle = -1
 
-         if (.not.rtdb_get(rtdb,'bead_list:size',
+         if (.not.rtdb_get(rtdb,'bead:size',
      >                     mt_int,1,nbeads_exist))
      >     call errquit('getting string:nbeads_exist failed',4,RTDB_ERR)
 
@@ -357,8 +357,8 @@ c        **** impose ****
 
 
 !     *** Set the coordinates of beads to new geometry objects ***
-      if (.not.rtdb_put(rtdb,'bead_list:size',mt_int,1,nbeads))
-     >   call errquit('setting bead_list:size failed',4,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'bead:size',mt_int,1,nbeads))
+     >   call errquit('setting bead:size failed',4,RTDB_ERR)
 
       do i=1,nbeads
          size = k_coords + (i-1)*3*natoms
