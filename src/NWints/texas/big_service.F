@@ -90,6 +90,7 @@ c
 c     subroutine sdiag2v(m,n,a,d,x)
       subroutine sdiag2 (m,n,a,d,x)
       implicit real*8 (a-h,o-z)
+      integer*4 f4,h4,l4
 ckwol parameter (mxdim=401)
 ckwol parameter (mxdim=601)
       parameter (mxdim=2000)
@@ -164,18 +165,33 @@ c
          l=i-2
          h=0.0
          g=x(i,i-1)
+#if 1
+         l4=l
+         if (l4) 140,140,20
+#else
          if (l) 140,140,20
+#endif
    20    do 30 k=1,l
    30    h=h+x(i,k)**2
          s=h+g*g
          if (s.ge.tol) go to 40
          h=0.0
          go to 140
+#if 1
+   40    h4=h
+         if (h4) 140,140,50
+#else
    40    if (h) 140,140,50
+#endif
    50    l=l+1
          f=g
          g=dsqrt(s)
+#if 1
+         f4=f
+         if (f4) 70,70,60
+#else
          if (f) 70,70,60
+#endif
    60    g=-g
    70    h=s-f*g
          x(i,i-1)=f-g
@@ -410,6 +426,7 @@ c
 c
       dimension a(m,m), d(m), x(m,m)
       dimension e(160)
+      integer*4 f4,h4,l4
 c
 c     correct adjustment for ieee floating point numbers (64 bits)
 c
@@ -433,18 +450,33 @@ c
          l=i-2
          h=0.0d0
          g=x(i,i-1)
+#if 1
+         l4=l
+         if (l4) 140,140,20
+#else
          if (l) 140,140,20
+#endif
    20    do 30 k=1,l
    30    h=h+x(i,k)**2
          s=h+g*g
          if (s.ge.tol) go to 40
          h=0.0d0
          go to 140
+#if 1
+   40    h4=h
+         if (h4) 140,140,50
+#else
    40    if (h) 140,140,50
+#endif
    50    l=l+1
          f=g
          g=dsqrt(s)
+#if 1
+         f4=f
+         if (f4) 70,70,60
+#else
          if (f) 70,70,60
+#endif
    60    g=-g
    70    h=s-f*g
          x(i,i-1)=f-g
