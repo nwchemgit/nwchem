@@ -172,6 +172,7 @@ C***FIRST EXECUTABLE STATEMENT  PIMACH
 C
 C     VRFFTPK, VERSION 1, AUGUST 1985
 C
+      integer*4 n4
       DIMENSION   CH(MDIMC,IDO,2,L1)  ,CC(MDIMC,IDO,L1,2)     ,
      1                WA1(IDO)
       DO 101 K=1,L1
@@ -180,7 +181,12 @@ C
          CH(M,IDO,2,K) = CC(M,1,K,1)-CC(M,1,K,2)
  1001    CONTINUE
   101 CONTINUE
+#if 1
+      n4=ido-2
+      IF (n4) 107,105,102
+#else
       IF (IDO-2) 107,105,102
+#endif
   102 IDP2 = IDO+2
       DO 104 K=1,L1
          DO 103 I=3,IDO,2
@@ -258,6 +264,7 @@ C     VRFFTPK, VERSION 1, AUGUST 1985
 C
       DIMENSION    CC(MDIMC,IDO,L1,4)   ,CH(MDIMC,IDO,4,L1)     ,
      1                WA1(IDO)     ,WA2(IDO)     ,WA3(IDO)
+      integer*4 n4
       HSQT2=SQRT(2.d0)/2.d0
       DO 101 K=1,L1
          DO 1001 M=1,MP
@@ -269,7 +276,12 @@ C
          CH(M,1,3,K) =   CC(M,1,K,4)-CC(M,1,K,2)
  1001    CONTINUE
   101 CONTINUE
+#if 1
+      n4=ido-2
+      IF (n4) 107,105,102
+#else
       IF (IDO-2) 107,105,102
+#endif
   102 IDP2 = IDO+2
       DO 104 K=1,L1
          DO 103 I=3,IDO,2
@@ -965,19 +977,30 @@ C
 C     VRFFTPK, VERSION 1, AUGUST 1985
 C
       DIMENSION       WA(N)      ,FAC(15)    ,NTRYH(4)
+      integer*4 n4
       DATA NTRYH(1),NTRYH(2),NTRYH(3),NTRYH(4)/4,2,3,5/
       NTRY = 0
       NL = N
       NF = 0
       J = 0
   101 J = J+1
+#if 1
+      n4=j-4
+      IF (n4) 102,102,103
+#else
       IF (J-4) 102,102,103
+#endif
   102 NTRY = NTRYH(J)
       GO TO 104
   103 NTRY = NTRY+2
   104 NQ = NL/NTRY
       NR = NL-NTRY*NQ
+#if 1
+      n4=n5
+      IF (n4) 101,105,101
+#else
       IF (NR) 101,105,101
+#endif
   105 NF = NF+1
       FAC(NF+2) = NTRY
       NL = NQ
