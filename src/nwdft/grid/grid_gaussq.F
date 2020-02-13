@@ -76,20 +76,20 @@ C
 1       cc=cc+log(c(j))
         do 7 i=1,nn
 c       write(LuOut,*)i
-        if (i-1)  6,2,3
+        if (i.eq.1) then
 c smallest zero
 2       xt=(1.d0+alf)*(3.d0+.92d0*alf)/(1.d0+2.4d0*fn+1.8d0*alf)
-        go to 6
-3       if (i-2)  6,4,5
+        elseif (i.eq.2) then
 c second zero
 4       xt=xt+(15.d0+6.25d0*alf)/(1.d0+2.5d0*fn+.9d0*alf)
-        go to 6
+        elseif(i.gt.2) then
 c all other zeros
 5       fi=i-2
         r1=(1.d0+2.55d0*fi)/(1.9d0*fi)
         r2=1.26d0*fi*alf/(1.d0+3.5d0*fi)
         ratio=(r1+r2)/(1.d0+.3d0*alf)
         xt=xt+ratio*(xt-x(i-2))
+        endif
 c
 6       call grid_lgroot(xt,nn,alf,dpn,pn1,b,c,eps,scale)
 c       write(LuOut,*)'back from lgroot'
@@ -123,7 +123,7 @@ c
         d=p/dp
         x=x-d
         if(abs(d/x)-eps)  3,3,2
-2       if(iter -10)  1,3,3
+2       if(iter.lt.10)  goto 1
 3       dpn=dp
         return
         end
@@ -258,37 +258,45 @@ C
       tsa=cc
       do 1 j=2,nn
     1  cc=cc*c(j)
-      do 12 i=1,nn
-       if (i-1)  12,2,3
+      do i=1,nn
+c       if (i-1)  12,2,3
+       if (i.eq.1) then
 c largest zero
     2  xt=1.D0-2.78D0/(4.D0+fn*fn)
-       go to 11
-    3  if (i-2)  12,4,5
+       elseif(i.gt.1) then
+c    3  if (i-2)  12,4,5
+         if(i.eq.2) then
 c second zero
     4  xt=xt-4.1D0*(1.D0+.06D0*(fn-8.D0)/fn)*(1.D0-xt)
-       go to 11
-    5  if (i-3)  12,6,7
+         elseif(i.gt.2) then
+c    5  if (i-3)  12,6,7
+           if(i.eq.3) then
 c third zero
     6  xt=xt-1.67D0*(1.D0+.22D0*(fn-8.D0)/fn)*(x(1)-xt)
-       go to 11
-    7  if (nn-i-1)  10,9,8
+           elseif(i.gt.3) then
+cold    7  if (nn-i-1)  10,9,8
+    7  if (nn.gt.i-1)  then
 c middle zeros
     8  xt=3.D0*x(i-1)-3.D0*x(i-2)+x(i-3)
-       go to 11
+       elseif(nn.eq.i-1) then
 c second last zero
     9  xt=xt+(xt-x(i-2))/
      &       (0.766D0*(1.D0+.639D0*(fn-4.D0)/(1.D0+.71D0*(fn-4.D0))))
-       go to 11
+       else
 c last zero
    10  xt=xt+(xt-x(i-2))/
      &       (1.67D0*(1.D0+.22D0*(fn-8.D0)/fn))
+       endif
 c
    11  call grid_root(xt,nn,dpn,pn1,c,eps)
        x(i)=xt
        a(i)=cc/(dpn*pn1)
        csx=csx+x(i)
        csa=csa+a(i)
-   12 continue
+        endif
+      endif
+      endif
+       enddo
       end
 c
       Subroutine grid_root(x,nn,dpn,pn1,c,eps)
