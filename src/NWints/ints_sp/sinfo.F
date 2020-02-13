@@ -52,6 +52,7 @@ c
       double precision p2, temp, p3333, sinp, p3131, csai, cpai
 c
       integer ijshlo, ijato, klshlo, klato
+      integer*4 jtype4
       save ijshlo, ijato, klshlo, klato ! STATIC variables
 c     
       data ijshlo, ijato, klshlo, klato /4*0/
@@ -75,6 +76,7 @@ c
 *      klatom = kat*1000  + lat
 *      ijshel = ish*10000 + jsh
 *      klshel = ksh*10000 + lsh
+      jtype4=jtype
       ijatom = 1
       klatom = 1
       ijshel = 1
@@ -323,10 +325,20 @@ c
                if (qqq-sixty) 18000,18000,10000
 10000          ismlp(ind) = 2
                dp00p(ind) = dzero
+#if 1
+               jtype4=jtype-3
+               if (jtype4) 36000,36000,12000
+#else
                if (jtype-3) 36000,36000,12000
+#endif
 12000          dp01p(ind) = dzero
                conp(ind) = dzero
+#if 1
+               jtype4=jtype-5
+               if (jtype4) 14000,14000,16000
+#else
                if (jtype-5) 14000,14000,16000
+#endif
 14000          bpp(ind) = bpp(ind)*gab
                go to 36000
 16000          dp10p(ind) = dzero
@@ -343,9 +355,19 @@ c
 26000          ismlp(ind) = 2
 28000          qqqq = pito52*qq
                dp00p(ind) = qqqq*csai*csb(j)
+#if 1
+               jtype4=jtype-3
+               if (jtype4) 36000,36000,30000
+#else
                if (jtype-3) 36000,36000,30000
+#endif
 30000          dp01p(ind) = qqqq*csai*cpb(j)
+#if 1
+               jtype4=jtype-5
+               if (jtype4) 32000,32000,34000
+#else
                if (jtype-5) 32000,32000,34000
+#endif
 32000          conp(ind) = dp01p(ind)*eab
                dp00p(ind) = dp00p(ind)*gab/dp01p(ind)
                bpp(ind) = bpp(ind)*gab
