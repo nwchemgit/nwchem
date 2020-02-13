@@ -359,7 +359,7 @@ c
             if(dabs(xxx).gt.1.0d-11) then !filling t2
                ipp1=int_mb(k_offset+p1b-1)+p1
                ipp2=int_mb(k_offset+p2b-1)+p2
-               ipp2=int_mb(k_offset+p3b-1)+p3
+               ipp3=int_mb(k_offset+p3b-1)+p3
                iph4=int_mb(k_offset+h4b-1)+h4
                iph5=int_mb(k_offset+h5b-1)+h5
                iph6=int_mb(k_offset+h6b-1)+h6
