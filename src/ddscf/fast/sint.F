@@ -77,6 +77,7 @@ C
       DOUBLE PRECISION T1
       DOUBLE PRECISION T2
       DOUBLE PRECISION WAR(*),WAS(*),X(*),XH(*)
+      integer*4 n4
       INTEGER IFAC(*)
       DATA SQRT3/1.73205080756888D0/
 C
@@ -86,7 +87,12 @@ C
           XH(I) = WAR(I)
           WAR(I) = X(I)
   100 CONTINUE
+#if 1
+      n4=n-2
+      IF (n4) 101,102,103
+#else
       IF (N-2) 101,102,103
+#endif
   101 XH(1) = XH(1) + XH(1)
       GO TO 106
   102 XHOLD = SQRT3* (XH(1)+XH(2))
@@ -241,6 +247,7 @@ C
       DOUBLE PRECISION ARG
       DOUBLE PRECISION WA(*)
       INTEGER IFAC(*),NTRYH(4)
+      integer*4 n4
       DATA NTRYH(1),NTRYH(2),NTRYH(3),NTRYH(4)/4,2,3,5/
 C
 C FFTPACK 5.0 auxiliary routine
@@ -250,13 +257,23 @@ C
       NTRY = 0
       J = 0
   101 J = J + 1
+#if 1
+      n4=j-4
+      IF (n4) 102,102,103
+#else
       IF (J-4) 102,102,103
+#endif
   102 NTRY = NTRYH(J)
       GO TO 104
   103 NTRY = NTRY + 2
   104 NQ = NL/NTRY
       NR = NL - NTRY*NQ
+#if 1
+      n4=NR
+      IF (n4) 101,105,101
+#else
       IF (NR) 101,105,101
+#endif
   105 NF = NF + 1
       IFAC(NF+2) = NTRY
       NL = NQ
@@ -318,6 +335,7 @@ C
       DOUBLE PRECISION TR2
       DOUBLE PRECISION TI2
       DOUBLE PRECISION CH(IDO,2,L1),CC(IDO,L1,2),WA1(*)
+      integer*4 n4
 C
 C FFTPACK 5.0 auxiliary routine
 C
@@ -325,7 +343,12 @@ C
           CH(1,1,K) = CC(1,K,1) + CC(1,K,2)
           CH(IDO,2,K) = CC(1,K,1) - CC(1,K,2)
   101 CONTINUE
+#if 1
+      n4=ido-2
+      IF (n4) 107,105,102
+#else
       IF (IDO-2) 107,105,102
+#endif
   102 IDP2 = IDO + 2
       DO 104 K = 1,L1
           DO 103 I = 3,IDO,2
@@ -439,6 +462,7 @@ C
       DOUBLE PRECISION TI3
       DOUBLE PRECISION TR3
       DOUBLE PRECISION CC(IDO,L1,4),CH(IDO,4,L1),WA1(*),WA2(*),WA3(*)
+      integer*4 n4
       DATA HSQT2/.7071067811865475D0/
 C
 C FFTPACK 5.0 auxiliary routine
@@ -451,7 +475,12 @@ C
           CH(IDO,2,K) = CC(1,K,1) - CC(1,K,3)
           CH(1,3,K) = CC(1,K,4) - CC(1,K,2)
   101 CONTINUE
+#if 1
+      n4=ido-2
+      IF (n4) 107,105,102
+#else
       IF (IDO-2) 107,105,102
+#endif
   102 IDP2 = IDO + 2
       DO 104 K = 1,L1
           DO 103 I = 3,IDO,2
