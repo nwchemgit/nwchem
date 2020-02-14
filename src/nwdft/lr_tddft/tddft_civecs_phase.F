@@ -44,11 +44,11 @@ c
       end if
 c
       do i = ga_nodeid()+1,m, ga_nnodes()
-         call ga_get(g_x(1),1,n,i,i,dbl_mb(k_x),1)
-         if (.not.tda) call ga_get(g_y(1),1,n,i,i,dbl_mb(k_y),1)
+         call ga_get(g_x(1),1,n,i,i,dbl_mb(k_x),n)
+         if (.not.tda) call ga_get(g_y(1),1,n,i,i,dbl_mb(k_y),n)
          if (ipol.gt.1) then
-           call ga_get(g_x(2),1,n2,i,i,dbl_mb(k_x2),1)
-           if (.not.tda) call ga_get(g_y(2),1,n2,i,i,dbl_mb(k_y2),1)
+           call ga_get(g_x(2),1,n2,i,i,dbl_mb(k_x2),n2)
+           if (.not.tda) call ga_get(g_y(2),1,n2,i,i,dbl_mb(k_y2),n2)
          end if
          v = 0.0d0
          k = 0
@@ -67,17 +67,17 @@ c
          enddo
          if (dbl_mb(k_x+k).lt.0.0d0) then
             call dscal(n,-1.0d0,dbl_mb(k_x),1)
-            call ga_put(g_x(1),1,n,i,i,dbl_mb(k_x),1)
+            call ga_put(g_x(1),1,n,i,i,dbl_mb(k_x),n)
             if (.not.tda) then
               call dscal(n,-1.0d0,dbl_mb(k_y),1)
-              call ga_put(g_y(1),1,n,i,i,dbl_mb(k_y),1)
+              call ga_put(g_y(1),1,n,i,i,dbl_mb(k_y),n)
             end if
             if (ipol.gt.1) then
               call dscal(n2,-1.0d0,dbl_mb(k_x2),1)
-              call ga_put(g_x(2),1,n2,i,i,dbl_mb(k_x2),1)
+              call ga_put(g_x(2),1,n2,i,i,dbl_mb(k_x2),n2)
               if (.not.tda) then
                 call dscal(n2,-1.0d0,dbl_mb(k_y2),1)
-                call ga_put(g_y(2),1,n2,i,i,dbl_mb(k_y2),1)
+                call ga_put(g_y(2),1,n2,i,i,dbl_mb(k_y2),n2)
               end if
             end if
          endif
