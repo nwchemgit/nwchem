@@ -643,15 +643,15 @@ c     >                      dcpl_mb(vpsi(1)))
 
 *     *************************************
 *     *                                   *
-*     *             psi_H1v4               *
+*     *             psi_H1v4              *
 *     *                                   *
 *     *************************************
 *
 *  This routine calculates 
 *
-*       Hpsi_k = KE*psi_k + Vnl*psi_k +VSic*psi_k + FFT[(vall+xcp)*psi_r]
+*       Hpsi_k = KE*psi_k + Vnl*psi_k +VSic*psi_k + FFT[(vall)*psi_r]
 *
-*  where vall = iFFT[Vsr_l]+ vc + vlr_l + Vfield
+*  where vall = iFFT[Vsr_l]+  vlr_l + Vfield
 *
 *  Note - the difference between psi_Hv4 and psi_H is that psi_Hv4 is designed
 *         for computing vc*psi using aperiodic convolution.
@@ -661,7 +661,6 @@ c     >                      dcpl_mb(vpsi(1)))
 *           vsr_l               - short-range local psp in k-space
 *           vlr_l               - long-range local psp in r-space
 *           v_field,field_exist - external fields (e.g. QM/MM)
-*           vc                  - coulomb potential in k-space
 *           xcp                 - xc potential in r-space
 *           move                - flag to compute ionic forces
 *   Exit - Hpsi_k - gradient in k-space

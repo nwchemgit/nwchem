@@ -840,6 +840,455 @@ c     >           dcpl_mb(psi1(1)),1)
       end
 
 
+      
+************************ 2x2 virtural orbital Part ************************
+*     ***********************************
+*     *                                 *
+*     *    psi_minimize_virtual_2x2     *
+*     *                                 *
+*     ***********************************
+      subroutine psi_minimize_virtual_2x2()
+      implicit none
+      
+#include "bafdecls.fh"
+#include "psi.fh"
+      
+      !*** local variables ***
+      integer maxit_orb
+      integer ii,l
+      real*8  sum,maxerror,error_out,e0
+         
+      !*** external functions ***
+      real*8   control_tole
+      external control_tole
+
+      !call psi_gen_density_potentials(1)
+      maxit_orb=80
+      maxerror = control_tole()
+
+      do ii=1,(ne_excited(1)+ne_excited(2))
+         write(*,*) "GERA, ii=",ii
+
+         !*** orthogonalize to lower orbitals  ****
+         call psi_project_out_virtual1(
+     >           ii,
+     >           dcpl_mb(psi1_excited(1)+(ii-1)*npack1))
+
+         !*** normalize ****
+         call Pack_cc_dot(1,
+     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
+     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
+     >            sum)
+         sum = 1.0d0/dsqrt(sum)
+         call Pack_c_SMul1(1,sum,
+     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
+
+         !*** minimize orbital ****
+
+          l = 0
+ 2        call psi_2x2_update_virtual(maxit_orb,
+     >                               maxerror,
+     >                               0.001d0,ii,error_out,e0)
+          l = l+1
+          if ((error_out.gt.maxerror).and.(l.le.4)) go to 2
+
+          dbl_mb(eig_excited(1)+ii-1) = e0
+
+      end do
+      call psi_sort_virtual()
+
+
+      return
+      end 
+
+*     ***********************************
+*     *                                 *
+*     *      psi_2x2_update_virtual     *
+*     *                                 *
+*     ***********************************
+
+*    This routine performs a KS update on virtual ii
+*
+      subroutine psi_2x2_update_virtual(maxiteration,
+     >                             maxerror,perror,ii,
+     >                             error_out,e0)
+      implicit none
+      integer maxiteration
+      real*8  maxerror,perror
+      integer ii
+      real*8 error_out
+      real*8 e0
+
+#include "bafdecls.fh"
+#include "psi.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "stdio.fh"
+
+*     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+      logical value,done,oneloop,precondition,oprint
+      integer it,pit,n2ft3d,nx,ny,nz
+      real*8 eold,percent_error,error0,de0,lmbda_r0,lmbda_r1
+      real*8 theta,ep,sp
+      integer r1(2),t0(2),t(2),g(2),psig_r(2),psie_r(2)
+      integer rhog(2),rhoe(2),rhoge(2),vcgg(2),vcge(2),vcee(2)
+      integer psig_ptr,psie_ptr
+      real*8  Sgg,Sge,See
+      real*8  H1gg,H1ge,H1ee
+      real*8  H2gg,H2ge,H2ee
+      real*8  Hgg,Hge,Hee
+      real*8  scal1,scal2,dv,ehartr
+      real*8  A,B,C,Elow,Ehigh,c1,c2,lmbda,alpha,sum
+
+      logical  control_print
+      external control_print
+      real*8   control_Ep,control_Sp,lattice_omega
+      external control_Ep,control_Sp,lattice_omega
+
+      write(*,*) "FERA,ii,npack1=",ii,npack1
+      psig_ptr=psi1(1)
+      psie_ptr=psi1_excited(1) + (ii-1)*npack1
+
+      call Parallel_taskid(taskid)
+      oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
+
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      scal2 = 1.0d0/lattice_omega()
+      dv = scal1*lattice_omega()
+
+      call D3dB_n2ft3d(1,n2ft3d)
+
+      value = BA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,n2ft3d,'psig_r',psig_r(2),psig_r(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,n2ft3d,'psie_r',psie_r(2),psie_r(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,n2ft3d,'rhog',rhog(2),rhog(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,n2ft3d,'rhoe',rhoe(2),rhoe(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,n2ft3d,'rhoge',rhoge(2),rhoge(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,n2ft3d,'vcgg',vcgg(2),vcgg(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,n2ft3d,'vcge',vcge(2),vcge(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,n2ft3d,'vcee',vcee(2),vcee(1))
+      if (.not. value) call errquit(
+     >     'psi_2x2_update_virtual: out of stack memory',0, MA_ERR)
+
+      if (oprint) write(*,*) "FERB,ii,npack1=",ii,npack1
+
+      call Pack_c_Copy(1,dcpl_mb(psig_ptr),dbl_mb(psig_r(1)))
+      call Pack_c_unpack(1,dbl_mb(psig_r(1)))
+      call D3dB_cr_fft3b(1,dbl_mb(psig_r(1)))
+      call D3dB_r_Zero_Ends(1,dbl_mb(psig_r(1)))
+
+      alpha = 2.0d0
+      ep = control_Ep()
+      sp = control_Sp()
+      precondition = .true.
+      done = .false.
+      error0 = 0.0d0
+      e0 = 0.0d0
+      theta = -3.14159d0/600.0d0
+      lmbda_r0 = 1.0d0
+      it = 0
+      pit = 0
+ 2    continue
+         it = it + 1
+         eold = e0
+
+*        *** calculate residual (steepest descent) direction for a single band ***
+         call psi_get_gradient_virtual(ii,dcpl_mb(g(1)))
+         call Pack_cc_dot(1,dcpl_mb(psie_ptr),dcpl_mb(g(1)),e0)
+         e0 = -e0
+         if (oprint) write(*,*) "e0,eold=",e0,eold
+
+         call Pack_c_Copy(1,dcpl_mb(psie_ptr),dbl_mb(psie_r(1)))
+         call Pack_c_unpack(1,dbl_mb(psie_r(1)))
+         call D3dB_cr_fft3b(1,dbl_mb(psie_r(1)))
+         call D3dB_r_Zero_Ends(1,dbl_mb(psie_r(1)))
+
+         !*** calculate Sgg, Sge, See ***
+         call Pack_cc_dot(1,dcpl_mb(psig_ptr),dcpl_mb(psig_ptr),Sgg)
+         call Pack_cc_dot(1,dcpl_mb(psig_ptr),dcpl_mb(psie_ptr),Sge)
+         call Pack_cc_dot(1,dcpl_mb(psie_ptr),dcpl_mb(psie_ptr),See)
+         !if (oprint) write(*,*) "Sgg=",Sgg," Sge=",Sge," See=",See
+       
+         !*** calculate H1gg, H1ge, H1ee ***
+c         call  pspw_et_H1(ispin,neq,npack1,n2ft3d,
+c     >                        dcpl_mb(psig_ptr),
+c     >                        dcpl_mb(psig_ptr),
+c     >                        dbl_mb(psig_r(1)),
+c     >                        H1gg)
+c         call  pspw_et_H1(ispin,neq,npack1,n2ft3d,
+c     >                        dcpl_mb(psig_ptr),
+c     >                        dcpl_mb(psie_ptr),
+c     >                        dbl_mb(psie_r(1)),
+c     >                        H1ge)
+c         call  pspw_et_H1(ispin,neq,npack1,n2ft3d,
+c     >                        dcpl_mb(psie_ptr),
+c     >                        dcpl_mb(psie_ptr),
+c     >                        dbl_mb(psie_r(1)),
+c     >                        H1ee)
+         call  psi_H1psi(ispin,neq,npack1,n2ft3d,
+     >                        dcpl_mb(psig_ptr),
+     >                        dbl_mb(psig_r(1)),
+     >                        dcpl_mb(t(1)))
+         call  psi_H1psi(ispin,neq,npack1,n2ft3d,
+     >                        dcpl_mb(psie_ptr),
+     >                        dbl_mb(psie_r(1)),
+     >                        dcpl_mb(g(1)))
+         call Pack_cc_dot(1,dcpl_mb(psig_ptr),dcpl_mb(t(1)),H1gg)
+         call Pack_cc_dot(1,dcpl_mb(psig_ptr),dcpl_mb(g(1)),H1ge)
+         call Pack_cc_dot(1,dcpl_mb(psie_ptr),dcpl_mb(t(1)),H1ee)
+         H1gg = -H1gg
+         H1ge = -H1ge
+         H1ee = -H1ee
+         if (ispin.eq.1) then
+            H1gg = H1gg + H1gg
+            H1ge = H1ge + H1ge
+            H1ee = H1ee + H1ee
+         end if
+
+         H1ge = H1ge*Sge
+         !if (oprint) write(*,*) "H1gg=",H1gg," H1ge=",H1ge," H1ee=",H1ee
+
+         !*** calculate H2gg, H2ge, H2ee ***
+         call pspw_et_gen_rho(ispin,neq,n2ft3d,
+     >                     dbl_mb(psig_r(1)),dbl_mb(rhog(1)))
+         call pspw_et_gen_rho(ispin,neq,n2ft3d,
+     >                     dbl_mb(psie_r(1)),dbl_mb(rhoe(1)))
+         call pspw_et_gen_rho12(ispin,neq,n2ft3d,
+     >                     dbl_mb(psig_r(1)),
+     >                     dbl_mb(psie_r(1)),
+     >                     dbl_mb(rhoge(1)))
+
+         call coulomb2_v(dbl_mb(rhog(1)),dbl_mb(vcgg(1)))
+         call D3dB_rr_dot(1,dbl_mb(rhog(1)),dbl_mb(vcgg(1)),ehartr)
+         H2gg = 0.5d0*(0.5d0*ehartr*dv)
+
+         call coulomb2_v(dbl_mb(rhoe(1)),dbl_mb(vcee(1)))
+         call D3dB_rr_dot(1,dbl_mb(rhoe(1)),dbl_mb(vcee(1)),ehartr)
+         H2ee = 0.5d0*(0.5d0*ehartr*dv)
+
+         call coulomb2_v(dbl_mb(rhoge(1)),dbl_mb(vcge(1)))
+         call D3dB_rr_dot(1,dbl_mb(rhoge(1)),dbl_mb(vcge(1)),ehartr)
+         H2ge = 0.5d0*(0.5d0*ehartr*dv)
+         !if (oprint) write(*,*) "H2gg=",H2gg," H2ge=",H2ge," H2ee=",H2ee
+         Hgg = H1gg + H2gg
+         Hge = H1ge + H2ge
+         Hee = H1ee + H2ee
+         A = 1.0d0
+         B = -Hgg - Hee
+         C = Hgg*Hee - Hge*Hge
+         Elow  = (-B-dsqrt(B*B-4.0d0*A*C))/(2*A)
+         Ehigh = (-B+dsqrt(B*B-4.0d0*A*C))/(2*A)
+         lmbda = -Hge/(Hgg-Elow)
+         c1 =  lmbda/dsqrt(1.0d0+lmbda**2)
+         !c2 =  1/dsqrt(1.0d0+lmbda**2)
+         c2 =  dsqrt(1.0d0-c1*c1)
+         if (oprint) write(*,*) "Elow,c1,c2=",Elow,c1,c2," Ehigh=",Ehigh
+         if (oprint) write(*,*)
+ 
+         !t = 2*c1*c2*(vcge/2)*psig_r + c2*c2*(2*h1*psie + vcee*psie_r)
+         !t = c1*c2*(vcge/2)*psig_r + c2*c2*(h1*psie + (vcee/2)*psie_r)
+
+         call D3dB_rr_Mul2(1,dbl_mb(psie_r(1)),dbl_mb(vcee(1)))
+         call D3dB_rr_Mul2(1,dbl_mb(psig_r(1)),dbl_mb(vcge(1)))
+         call D3dB_r_SMul1(1,(-0.5d0*c2*c2),dbl_mb(vcee(1)))
+         call D3dB_rr_daxpy(1,(-0.5d0*c1*c2),
+     >                        dbl_mb(vcge(1)),
+     >                        dbl_mb(vcee(1)))
+         call D3dB_rc_fft3f(1,dbl_mb(vcee(1)))
+         call Pack_c_pack(1,dbl_mb(vcee(1)))
+         call Pack_c_SMul1(1,scal1,dbl_mb(vcee(1)))
+         call Pack_cc_daxpy(1,c2*c2,dcpl_mb(g(1)),dbl_mb(vcee(1)))
+
+         call Pack_cc_daxpy(1,alpha,dbl_mb(vcee(1)),dcpl_mb(psie_ptr))
+         
+         !*** orthogonalize to lower orbitals  ****
+         call psi_project_out_virtual1(
+     >           ii,
+     >           dcpl_mb(psi1_excited(1)+(ii-1)*npack1))
+
+         !*** normalize ****
+         call Pack_cc_dot(1,
+     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
+     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
+     >            sum)
+         sum = 1.0d0/dsqrt(sum)
+         call Pack_c_SMul1(1,sum,
+     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
+
+
+         if (oprint) write(*,*) "FERD it,maxiteration=",it,maxiteration
+         done = ((it.gt.maxiteration) 
+     >           .or.
+     >           (dabs(e0-eold).lt.maxerror))
+
+         if (done) go to 4
+      go to 2
+
+
+*     **** release stack memory ****
+ 4    value =           BA_pop_stack(vcee(2))
+      value = value.and.BA_pop_stack(vcge(2))
+      value = value.and.BA_pop_stack(vcgg(2))
+      value = value.and.BA_pop_stack(rhoge(2))
+      value = value.and.BA_pop_stack(rhoe(2))
+      value = value.and.BA_pop_stack(rhog(2))
+      value = value.and.BA_pop_stack(psie_r(2))
+      value = value.and.BA_pop_stack(psig_r(2))
+      value = value.and.BA_pop_stack(t(2))
+      value = value.and.BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(r1(2))
+      value = value.and.BA_pop_stack(t0(2))
+      if (.not. value) call errquit(
+     >     'psi_2x2_update_virtual: popping stack memory',1, MA_ERR)
+
+      if (oprint) then
+         write(luout,921) ii,-e0,dabs(e0-eold),it,pit,ep,sp
+  921 format(5x,"orbital",I4," current e=",E10.3,
+     >       " (error=",E9.3,")",
+     >       " iterations",I4,"(",I4,
+     >       " preconditioned, Ep,Sp=",F5.1,F7.1,")")
+      end if
+
+      error_out = dabs(e0-eold)
+      e0        = -e0
+
+      write(*,*) "FERE"
+      return
+      end
+
+
+
+*     ****************************************************
+*     *                                                  *
+*     *                psi_H1psi                         *
+*     *                                                  *
+*     ****************************************************
+      subroutine psi_H1psi(ispin,neq,npack1,n2ft3d,
+     >                        psi,psi_r,
+     >                        H1psi)
+      implicit none
+      integer ispin,neq(2),npack1,n2ft3d
+      complex*16 psi(npack1,*)
+      real*8     psi_r(n2ft3d,*)
+      real*8     H1psi(npack1,*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value,aperiodic,field_exist
+      integer q,n,m,ms,nfft3d,nemaxq,npack0,n1q(2),n2q(2)
+      integer Hpsi2(2),vlr_l(2),r_grid(2),v_field(2),vl(2)
+      real*8 tmp1(2),tmp2(2),sum1,sum2
+
+*     **** external functions ****
+      logical  pspw_charge_found
+      external pspw_charge_found
+      integer  control_version
+      external control_version
+
+      aperiodic   = (control_version().eq.4)
+      field_exist = pspw_charge_found()
+      nemaxq = neq(1)+neq(2)
+
+      call Pack_npack(0,npack0)
+      call D3dB_nfft3d(1,nfft3d)
+
+*     **** allocate memory ****
+      value = .true.
+      if (aperiodic) then
+       value = value.and.
+     >        BA_push_get(mt_dbl,(n2ft3d),'vlr_l',vlr_l(2),vlr_l(1))
+      end if
+      if (field_exist.or.aperiodic) then
+         value = value.and.
+     >            BA_push_get(mt_dbl,(3*n2ft3d),'r_grid',
+     >                        r_grid(2),r_grid(1))
+         value = value.and.
+     >           BA_push_get(mt_dbl,(n2ft3d),'v_field',
+     >                       v_field(2),v_field(1))
+      end if
+      value = value.and.
+     >        BA_push_get(mt_dcpl,(npack0),'vloc',vl(2),vl(1))
+      if (.not. value)
+     >   call errquit('pspw_et_sub1:out of stack',0,MA_ERR)
+
+
+*     **** generate r_grid ****
+      if (aperiodic.or.field_exist)
+     >   call lattice_r_grid(dbl_mb(r_grid(1)))
+
+*     **** generate local pseudopotential  ****
+      call v_local(dcpl_mb(vl(1)),.false.,tmp1,tmp2)
+
+*     *** long-range psp for charge systems ***
+      if (control_version().eq.4) then
+         call v_lr_local(dbl_mb(r_grid(1)),dbl_mb(vlr_l(1)))
+      end if
+
+*     ***** generate other real-space fields ****
+      if (field_exist) then
+         call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
+         call pspw_charge_Generate_V(n2ft3d,
+     >                               dbl_mb(r_grid(1)),
+     >                               dbl_mb(v_field(1)))
+      end if
+
+
+*     **** get H1psi  ****
+      call dcopy(2*nemaxq*npack1,0.0d0,0,H1psi,1)
+      if (aperiodic) then
+         call psi_H1v4(ispin,neq,psi,psi_r,
+     >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
+     >             dbl_mb(v_field(1)),field_exist,
+     >             H1psi)
+      else
+         call psi_H1(ispin,neq,psi,psi_r,
+     >             dcpl_mb(vl(1)),
+     >             dbl_mb(v_field(1)),field_exist,
+     >             H1psi)
+      end if
+
+
+*     **** deallocate memory ****
+      value = BA_pop_stack(vl(2))
+      if (field_exist.or.aperiodic) then
+         value = value.and.BA_pop_stack(v_field(2))
+         value = value.and.BA_pop_stack(r_grid(2))
+      end if
+      if (aperiodic) then
+         value = value.and.BA_pop_stack(vlr_l(2))
+      end if
+      if (.not.value)
+     >   call errquit('psi_H1psi:pop stack',0,MA_ERR)
+
+      return
+      end
+
+
+
+
+
 
 
 ************************ virtural orbital Part ************************
@@ -984,8 +1433,8 @@ c     >           dcpl_mb(psi1(1)),1)
       integer r1(2),t0(2),t(2),g(2)
       integer psi_ptr
 
-      logical control_print
-      externalcontrol_print
+      logical  control_print
+      external control_print
       real*8   control_Ep,control_Sp
       external control_Ep,control_Sp
 
