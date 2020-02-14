@@ -5634,6 +5634,31 @@ c     >               (ispin.eq.ispin_wf))
 
 *     ***********************************
 *     *                                 *
+*     *       control_2x2_virtual       *
+*     *                                 *
+*     ***********************************
+      logical function control_2x2_virtual()
+      implicit none
+      
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+            
+      logical value
+      
+      value = .false.
+      if (.not.btdb_get(rtdb,'nwpw:2x2_virtual',mt_log,1,value))
+     >   value = .false.
+      
+      control_2x2_virtual = value
+      return
+      end
+
+*     ***********************************
+*     *                                 *
 *     *     control_confine_virtual     *
 *     *                                 *   
 *     ***********************************
