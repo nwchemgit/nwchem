@@ -596,21 +596,28 @@ c
 c     Entry - tag: name of bead list
 c
 c 
-      subroutine runmid_bead_list(tag,task_gradient_gen)
+      subroutine runmid_bead_list(tag,task_gradient_gen,
+     >                            freeze1,freezen)
       implicit none
       character*(*) tag
       logical     task_gradient_gen
       external    task_gradient_gen
+      logical freeze1,freezen
      
 *     *** local variables ***
-      integer i,nbeads
+      integer i,nbeads,istart,iend
 
 *     *** external functions ***
       integer  size_bead_list
       external size_bead_list
 
       nbeads = size_bead_list(tag)
-      do i=2,(nbeads-1)
+      !do i=2,(nbeads-1)
+      istart = 2
+      iend   = nbeads-1
+      if (.not.freeze1) istart = 1 
+      if (.not.freezen) iend   = nbeads
+      do i=istart,iend
         call run_bead_list(tag,i,task_gradient_gen)
       end do
 

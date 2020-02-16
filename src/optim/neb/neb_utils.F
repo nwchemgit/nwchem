@@ -78,7 +78,8 @@ c     >              dbl_mb(r(1)),   1)
 *     *             neb_gradient_get                *
 *     *                                             *
 *     ***********************************************
-      subroutine neb_gradient_get(bead_list,kbeads,c,e,t,g)
+      subroutine neb_gradient_get(bead_list,kbeads,c,e,t,g,
+     >                            freeze1,freezen)
       implicit none
       character*(*) bead_list
       real*8 kbeads
@@ -86,9 +87,10 @@ c     >              dbl_mb(r(1)),   1)
       real*8 e(*)
       real*8 t(*)
       real*8 g(*)
+      logical freeze1,freezen
 
 *     **** local variables ****
-      integer i,index,nbeads,nion
+      integer i,index,nbeads,nion,istart,iend
       real*8  k,norm
       real*8  amat(3,3)
      
@@ -111,7 +113,12 @@ c     >              dbl_mb(r(1)),   1)
 
 *     **** normal gradient |g> = |g> - |t><t|g> ****
       call dcopy(nbeads*3*nion,0.0d0,0,g,1)
-      do i=2,(nbeads-1)
+      !do i=2,(nbeads-1)
+      istart = 2
+      iend = nbeads-1
+      if (.not.freeze1) istart = 1 
+      if (.not.freezen) iend    = nbeads
+      do i=istart,iend
          index = (i-1)*3*nion + 1
          call gradient_get_bead_list(bead_list,i,g(index))
          norm = ddot(3*nion,t(index),1,g(index),1)
@@ -2186,7 +2193,7 @@ c
 
        if (opt.eq.0) then
            call neb_coords_set(bead_list,dbl_mb(c1(1)))
-           call runmid_bead_list(bead_list,task_gradient)
+           call runmid_bead_list(bead_list,task_gradient,.true.,.true.)
            call neb_energies_get(bead_list,dbl_mb(e1(1)))
            call neb_gradient_get(bead_list,kbeads,
      >                          dbl_mb(c1(1)),

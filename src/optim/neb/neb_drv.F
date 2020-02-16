@@ -22,6 +22,7 @@ c
 *     **** local variables ****     
       logical value,newchain,svalue,verlet,oprint,done,converged,found
       logical ostress,finishedstep,converged1,converged2,stalled
+      logical freeze1,freezen
       character*9 cvg1,cvg2,cvg3,cvg4
       character*4    mark
       character*50 bead_list,filename
@@ -91,6 +92,10 @@ c
      >  kbeads = 0.1d0
       if (.not.rtdb_get(rtdb,'neb:steps',mt_int,1,nebsteps))      
      >   nebsteps = 5
+      if (.not.rtdb_get(rtdb,'neb:freeze1',mt_log,1,freeze1))      
+     >   freeze1 = .true.
+      if (.not.rtdb_get(rtdb,'neb:freezen',mt_log,1,freezen))      
+     >   freezen = .true.
 
       if (.not.rtdb_cget(rtdb,'neb:movecs',1,neb_movecs)) then
          call util_file_prefix('movecs',neb_movecs)
@@ -181,6 +186,17 @@ c
      >                  isystype,kbeads,
      >                  neb_algorithm,tmp,
      >                  neb_movecs
+         if (freeze1) then
+           write(luout,'(a)') 'neb: First Replica         = frozen'
+         else
+           write(luout,'(a)') 'neb: First Replica         = moves'
+         end if
+         if (freezen) then
+           write(luout,'(a)') 'neb: Last Replica         = frozen'
+         else
+           write(luout,'(a)') 'neb: Last Replica         = moves'
+         end if
+
          if (ostress) 
      >      write(luout,*) 'neb: INCLUDING STRESS !!!!!!!!!!!!!!!!'
          write(luout,*)
@@ -269,7 +285,7 @@ c
      >                      dbl_mb(c1(1)),
      >                      dbl_mb(e1(1)),
      >                      dbl_mb(t1(1)),
-     >                      dbl_mb(g1(1))) 
+     >                      dbl_mb(g1(1)),freeze1,freezen) 
       sum0 = ddot(ng,dbl_mb(g1(1)),1,dbl_mb(g1(1)),1)
       sum0_old = sum0
       manyjj = 0
@@ -407,13 +423,14 @@ c     >                                dbl_mb(s(1)))
                 if (oprint)
      >             write(luout,*) "neb: taking fixed point step, ",
      >                            "running internal beads"
-                call runmid_bead_list(bead_list,task_gradient)
+                call runmid_bead_list(bead_list,task_gradient,
+     >                                freeze1,freezen)
                 call neb_energies_get(bead_list,dbl_mb(e1(1)))
                 call neb_gradient_get(bead_list,kbeads,
      >                             dbl_mb(c1(1)),
      >                             dbl_mb(e1(1)),
      >                             dbl_mb(t1(1)),
-     >                             dbl_mb(g1(1)))
+     >                             dbl_mb(g1(1)),freeze1,freezen)
                 sum0a = ddot(ng,dbl_mb(g0(1)),1,dbl_mb(g0(1)),1)
                 sum0b = ddot(ng,dbl_mb(g1(1)),1,dbl_mb(g1(1)),1)
                 sum0  = sum0b
@@ -493,13 +510,14 @@ c                  if (finishedstep) sum0_old = sum0
      >                         dbl_mb(g1(1)))
 
             call neb_coords_set(bead_list,dbl_mb(c1(1)))
-            call runmid_bead_list(bead_list,task_gradient)
+            call runmid_bead_list(bead_list,task_gradient,
+     >                            freeze1,freezen)
             call neb_energies_get(bead_list,dbl_mb(e1(1)))
             call neb_gradient_get(bead_list,kbeads,
      >                            dbl_mb(c1(1)),
      >                            dbl_mb(e1(1)),
      >                            dbl_mb(t1(1)),
-     >                            dbl_mb(g1(1)))
+     >                            dbl_mb(g1(1)),freeze1,freezen)
 
 *         ***** refined CG iteration ****
           else if (algorithm.eq.2) then
@@ -525,13 +543,14 @@ c                  if (finishedstep) sum0_old = sum0
 
               call neb_coords_set(bead_list,dbl_mb(c1(1)))
               if (oprint) write(luout,*) "neb: running internal beads"
-              call runmid_bead_list(bead_list,task_gradient)
+              call runmid_bead_list(bead_list,task_gradient,
+     >                              freeze1,freezen)
               call neb_energies_get(bead_list,dbl_mb(e1(1)))
               call neb_gradient_get(bead_list,kbeads,
      >                             dbl_mb(c1(1)),
      >                             dbl_mb(e1(1)),
      >                             dbl_mb(t1(1)),
-     >                             dbl_mb(g1(1)))
+     >                             dbl_mb(g1(1)),freeze1,freezen)
 
               norm = dsqrt(ddot(ng,dbl_mb(g1(1)),1,dbl_mb(g1(1)),1))
               if(oprint)  write(luout,*) "neb: new gnorm=",norm
@@ -627,6 +646,16 @@ c                  if (finishedstep) sum0_old = sum0
             write(19,*)  "# Grms               = ",Grms
             write(19,*)  "# Xmax               = ",Xmax
             write(19,*)  "# Xrms               = ",Xrms
+            if (freeze1) then
+               write(19,*) "# First Replica  = frozen"
+            else
+               write(19,*) "# First Replica  = moves"
+            end if
+            if (freezen) then
+               write(19,*) "# Last Replica   = frozen"
+            else
+               write(19,*) "# Last Replica   = moves"
+            end if
             write(19,*) 
      > "#-------------------------------------------------------"
             do i=1,nbeads
@@ -729,8 +758,17 @@ c                  if (finishedstep) sum0_old = sum0
            write(luout,14)  mark,"Grms tolerance = ",nebGrms
            write(luout,14)  mark,"Xmax tolerance = ",nebXmax
            write(luout,14)  mark,"Xrms tolerance = ",nebXrms
+           if (freeze1) then
+              write(luout,12)  mark,"First Replica  = frozen"
+           else
+              write(luout,12)  mark,"First Replica  = moves"
+           end if
+           if (freezen) then
+              write(luout,12)  mark,"Last Replica   = frozen"
+           else
+              write(luout,12)  mark,"Last Replica   = moves"
+           end if
            write(luout,12)  mark," "
-
            write(luout,10) mark, mark
      
            mark = '@neb'
@@ -818,6 +856,16 @@ c                  if (finishedstep) sum0_old = sum0
          write(19,*)  "# Grms          = ",Grms
          write(19,*)  "# Xmax          = ",Xmax
          write(19,*)  "# Xrms          = ",Xrms
+         if (freeze1) then
+            write(19,*) "# First Replica  = frozen"
+         else
+            write(19,*) "# First Replica  = moves"
+         end if
+         if (freezen) then
+            write(19,*) "# Last Replica   = frozen"
+         else
+            write(19,*) "# Last Replica   = moves"
+         end if
          write(19,*) 
      > "#-------------------------------------------------------"
          do i=1,nbeads
