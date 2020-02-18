@@ -104,15 +104,18 @@ endif
        endif
 #check if f77 was enabled
        GA_HAS_F77 = $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --enable-f77 | awk '/yes/ {print "Y"}')
-       ifndef GA_HAS_F77
-          $(info NWChem requires Global Arrays built with Fortran support)
+       ifneq ($(GA_HAS_F77),Y)
+       $(info NWChem requires Global Arrays built with Fortran support)
           $(error )
        endif
 #check peigs interface       
        GA_HAS_PEIGS = $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --enable-peigs | awk '/yes/ {print "Y"}')
-       ifndef GA_HAS_PEIGS
-          $(info NWChem requires Global Arrays built with Peigs support)
+       GA_HAS_SCALAPACK = $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --use_scalapack | awk '/1/ {print "Y"}')
+       ifneq ($(GA_HAS_PEIGS),Y)
+       ifneq ($(GA_HAS_SCALAPACK),Y)
+       $(info NWChem requires Global Arrays built with either Peigs or Scalapack support)
           $(error )
+       endif
        endif
 #check blas size
        GA_BLAS_SIZE = $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --blas_size)
@@ -130,6 +133,9 @@ endif
        GA_PATH=$(EXTERNAL_GA_PATH)
      else
        GA_PATH=$(NWCHEM_TOP)/src/tools/install
+     endif
+     ifeq ($(BLAS_SIZE),4)
+	 USE_64TO32=y
      endif
       
 #
