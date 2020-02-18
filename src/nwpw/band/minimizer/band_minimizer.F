@@ -132,8 +132,8 @@
       external pspw_reformat_c_wvfnc,control_check_charge_multiplicity
       integer  control_mapping,control_minimizer,control_np_dimensions
       external control_mapping,control_minimizer,control_np_dimensions
-      integer  control_scf_algorithm
-      external control_scf_algorithm
+      integer  control_scf_algorithm,control_ks_algorithm
+      external control_scf_algorithm,control_ks_algorithm
       real*8   control_ks_alpha,control_kerker_g0
       external control_ks_alpha,control_kerker_g0
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
@@ -156,8 +156,8 @@ c      external      cpsp_comment
       external control_smooth_cutoff
       real*8   control_smooth_cutoff_values
       external control_smooth_cutoff_values
-      logical  nwpwxc_is_on,control_only_lda
-      external nwpwxc_is_on,control_only_lda
+      logical  nwpwxc_is_on,control_only_lda,control_precondition
+      external nwpwxc_is_on,control_only_lda,control_precondition
 
 
 *****************************|  PROLOGUE  |****************************
@@ -497,7 +497,14 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 
          if ((minimizer.eq.5).or.(minimizer.eq.8)) then
            write(luout,1291)
-           write(luout,1292)
+           if (control_ks_algorithm().eq.0)  then
+              if (control_precondition()) then
+                 write(luout,1292) "preconditioned conjugate gradient"
+              else
+                 write(luout,1292) "conjugate gradient"
+              end if
+           end if
+           if (control_ks_algorithm().eq.1) write(luout,1292) "rmm-diis"
            write(luout,1295) control_ks_maxit_orb(),
      >                       control_ks_maxit_orbs()
            if (control_scf_algorithm().eq.0)
@@ -511,7 +518,6 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
            if (minimizer.eq.5) write(luout,1296) "potential"
            if (minimizer.eq.8) write(luout,1296) "density"
            write(luout,1294) control_ks_alpha()
-           write(luout,1301) control_kerker_g0()
          end if
          if (control_fractional()) then
            write(luout,1297)
@@ -797,7 +803,7 @@ c     >     .or.nwpwxc_is_on()) THEN
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (density)')
  1291 FORMAT(/' Kohn-Sham scf parameters:')
- 1292 FORMAT(5X, ' Kohn-Sham algorithm  = conjugate gradient')
+ 1292 FORMAT(5X, ' Kohn-Sham algorithm  = ',A)
  1293 FORMAT(5X, ' scf algorithm        = ',A)
  1294 FORMAT(5X, ' scf mixing parameter =',F7.4)
  1295 FORMAT(5X, ' Kohn-Sham iterations = ',I3,
