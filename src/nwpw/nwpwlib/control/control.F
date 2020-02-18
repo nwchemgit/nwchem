@@ -3988,9 +3988,9 @@ c     >               (ispin.eq.ispin_wf))
       end
 
 *     *****************************
-*     *                	 		  *
-*     *    	control_precondition  *
-*     *                 	 	  *
+*     *                		  *
+*     *    control_precondition   *
+*     *                  	  *
 *     *****************************
       logical function control_precondition()
       implicit none
