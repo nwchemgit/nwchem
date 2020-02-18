@@ -1622,7 +1622,9 @@ c     >                        H1ee)
 *        **** preconditioning ****
          if (precondition) then
             pit = pit + 1
-            call ke_Precondition(npack1,1,dcpl_mb(r1(1)),dcpl_mb(r1(1)))
+            call ke_Precondition(npack1,1,
+     >                           dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                           dcpl_mb(r1(1)))
          end if 
 
          !*** determine conjuagate direction ***
@@ -2164,7 +2166,7 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
 *        **** preconditioning ****
          if (precondition) then
            call ke_Precondition(npack1,1,
-     >                     dcpl_mb(g(1)),
+     >                     dcpl_mb(psi_ptr+(i-1)*npack1),
      >                     dcpl_mb(g(1)))
        
          end if

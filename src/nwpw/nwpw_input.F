@@ -1006,12 +1006,19 @@ c
          if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,1))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
        end if
-       if (inp_compare(.false.,zone_name,'diis')) then
+       if (inp_compare(.false.,zone_name,'diis').or.
+     >     inp_compare(.false.,zone_name,'pulay').or.
+     >     inp_compare(.false.,zone_name,'johnson-pulay')
+     >    ) then
          if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,2))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
        end if
        if (inp_compare(.false.,zone_name,'anderson')) then
          if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,3))
+     >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
+       end if
+       if (inp_compare(.false.,zone_name,'precondition')) then
+         if(.not.rtdb_put(rtdb,'nwpw:precondition',mt_log,1,.true.))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
        end if
 

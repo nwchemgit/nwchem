@@ -171,8 +171,8 @@
       external lattice_omega_small
       integer  ion_rion_ptr
       external ion_rion_ptr
-      logical  control_runsocket
-      external control_runsocket
+      logical  control_runsocket,control_precondition
+      external control_runsocket,control_precondition
 
 
 *                            |************|
@@ -366,6 +366,7 @@
 ******************   summary of input data  **********************
 *                |**************************|
 
+
       if (oprint) then
          write(luout,1111) np
          write(luout,1117) np_i,np_j
@@ -549,8 +550,13 @@ c           call psp_check_print(ia)
      >                 control_it_in(),control_it_out()
          if ((minimizer.eq.5).or.(minimizer.eq.8)) then
            write(luout,1291)
-           if (control_ks_algorithm().eq.0) 
-     >       write(luout,1292) "conjugate gradient"
+           if (control_ks_algorithm().eq.0)  then
+             if (control_precondition()) then
+                write(luout,1292) "preconditioned conjugate gradient"
+             else
+                write(luout,1292) "conjugate gradient"
+             end if
+           end if
            if (control_ks_algorithm().eq.1) 
      >       write(luout,1292) "rmm-diis"
            write(luout,1295) control_ks_maxit_orb(),

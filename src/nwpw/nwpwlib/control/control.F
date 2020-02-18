@@ -518,6 +518,9 @@ c        call nwpwxc_print()
       if (.not.btdb_get(rtdb,'nwpw:kerker_g0',
      >                  mt_dbl,1,kerker_g0))
      >   kerker_g0 = 0.0d0
+      if (.not.btdb_get(rtdb,'nwpw:precondition',
+     >                  mt_log,1,precondition))
+     >   precondition = .true.
 
 *     **** set maxit_orb maxit_orbs ***
       if (.not.btdb_get(rtdb,
@@ -770,6 +773,9 @@ c        call nwpwxc_print()
       if (.not.btdb_get(rtdb,'nwpw:kerker_g0',
      >                  mt_dbl,1,kerker_g0))
      >   kerker_g0 = 0.0d0
+      if (.not.btdb_get(rtdb,'nwpw:precondition',
+     >                  mt_log,1,precondition))
+     >   precondition = .true.
 
 
 *     **** set maxit_orb maxit_orbs ***
@@ -2346,7 +2352,7 @@ c      write(*,*) "L3=",L3
 
 *     ***********************************
 *     *                                 *
-*     *         control_ks_algorithm   *
+*     *         control_ks_algorithm    *
 *     *                                 *
 *     ***********************************
       integer function control_ks_algorithm()
@@ -3995,20 +4001,22 @@ c     >               (ispin.eq.ispin_wf))
       logical function control_precondition()
       implicit none
 
-#include "bafdecls.fh"
-#include "btdb.fh"
+#include "control.fh"
 
-*     **** control_rtdb common block ****
-      integer rtdb
-      common / control_rtdb1 / rtdb
-
-      logical precondition
-
-      if (.not.btdb_get(rtdb,'nwpw:precondition',
-     >                  mt_log,1,precondition)) 
-     >  then
-         precondition = .false.
-      end if
+c#include "bafdecls.fh"
+c#include "btdb.fh"
+c
+c*     **** control_rtdb common block ****
+c      integer rtdb
+c      common / control_rtdb1 / rtdb
+c
+c      logical precondition
+c
+c      if (.not.btdb_get(rtdb,'nwpw:precondition',
+c     >                  mt_log,1,precondition)) 
+c     >  then
+c         precondition = .false.
+c      end if
 
       control_precondition = precondition
       return
