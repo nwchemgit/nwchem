@@ -75,7 +75,7 @@ c     cf = 3.0d0/5.0d0*(6.0d0*pi*pi)**(2.0d0/3.0d0))
       parameter (ETA            =      1.0d-20)
       parameter (t1      =   1.0d7)
       parameter (t2      =   5.0d7)
-      parameter (thresd  =   1.0d-2)
+      parameter (thresd  =   5.0d-3)
       parameter (thresx  =   1.0d8)
 c     ***** PBE96 GGA exchange constants ******
       real*8 MU,KAPPA
@@ -489,7 +489,7 @@ c     cf = 3.0d0/5.0d0*(6.0d0*pi*pi)**(2.0d0/3.0d0))
       parameter (ETA            =      1.0d-20)
       parameter (t1      =   1.0d7)
       parameter (t2      =   5.0d7)
-      parameter (thresd  =   1.0d-2)
+      parameter (thresd  =   5.0d-3)
       parameter (thresx  =   1.0d8)
 c     ***** PBE96 GGA exchange constants ******
       real*8 MU,KAPPA

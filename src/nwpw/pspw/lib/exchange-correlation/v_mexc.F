@@ -162,15 +162,17 @@ c              ***** calculate xce,fn=df/dn, and fdn=df/d|grad n|, fdtau=df/dtau
      >                                dbl_mb(fdn(1)),
      >                                dbl_mb(dfdtau(1)))
                else if (gga.eq.303) then
-                call gen_M06_restricted(n2ft3d,
-     >                                dbl_mb(rho(1)),
-     >                                dbl_mb(agr(1)),
-     >                                dbl_mb(tau(1)),
-     >                                x_parameter,c_parameter,
-     >                                xce,
-     >                                dbl_mb(fn(1)),
-     >                                dbl_mb(fdn(1)),
-     >                                dbl_mb(dfdtau(1)))
+                write(*,*) "pkzb not implemented!"
+                stop
+c                call gen_M06_restricted(n2ft3d,
+c     >                                dbl_mb(rho(1)),
+c     >                                dbl_mb(agr(1)),
+c     >                                dbl_mb(tau(1)),
+c     >                                x_parameter,c_parameter,
+c     >                                xce,
+c     >                                dbl_mb(fn(1)),
+c     >                                dbl_mb(fdn(1)),
+c     >                                dbl_mb(dfdtau(1)))
                else if (gga.eq.304) then
                 call gen_M06L_restricted(n2ft3d,
      >                                dbl_mb(rho(1)),
@@ -181,6 +183,28 @@ c              ***** calculate xce,fn=df/dn, and fdn=df/d|grad n|, fdtau=df/dtau
      >                                dbl_mb(fn(1)),
      >                                dbl_mb(fdn(1)),
      >                                dbl_mb(dfdtau(1)))
+               else if (gga.eq.305) then
+                call gen_M06_restricted(n2ft3d,
+     >                                dbl_mb(rho(1)),
+     >                                dbl_mb(agr(1)),
+     >                                dbl_mb(tau(1)),
+     >                                0.73d0,c_parameter,
+     >                                xce,
+     >                                dbl_mb(fn(1)),
+     >                                dbl_mb(fdn(1)),
+     >                                dbl_mb(dfdtau(1)))
+               else if (gga.eq.306) then
+                write(*,*) "m06-2x not implemented!"
+                stop
+c                call gen_M06_2x_restricted(n2ft3d,
+c     >                                dbl_mb(rho(1)),
+c     >                                dbl_mb(agr(1)),
+c     >                                dbl_mb(tau(1)),
+c     >                                0.46d0,c_parameter,
+c     >                                xce,
+c     >                                dbl_mb(fn(1)),
+c     >                                dbl_mb(fdn(1)),
+c     >                                dbl_mb(dfdtau(1)))
                else
                  call errquit('bad gga',0,0)
                end if
@@ -517,15 +541,17 @@ c
      >                                    dbl_mb(fdn(1)),
      >                                    dbl_mb(dfdtau(1)))
                else if (gga.eq.303) then
-               call gen_M06_unrestricted(n2ft3d,
-     >                                    dn,
-     >                                    dbl_mb(agr(1)),
-     >                                    dbl_mb(tau(1)),
-     >                                    x_parameter,c_parameter,
-     >                                    xce,
-     >                                    dbl_mb(fn(1)),
-     >                                    dbl_mb(fdn(1)),
-     >                                    dbl_mb(dfdtau(1)))
+                write(*,*) "pkzb not implemented!"
+                stop
+c               call gen_M06_unrestricted(n2ft3d,
+c     >                                    dn,
+c     >                                    dbl_mb(agr(1)),
+c     >                                    dbl_mb(tau(1)),
+c     >                                    x_parameter,c_parameter,
+c     >                                    xce,
+c     >                                    dbl_mb(fn(1)),
+c     >                                    dbl_mb(fdn(1)),
+c     >                                    dbl_mb(dfdtau(1)))
                else if (gga.eq.304) then
                call gen_M06L_unrestricted(n2ft3d,
      >                                    dn,
@@ -536,6 +562,28 @@ c
      >                                    dbl_mb(fn(1)),
      >                                    dbl_mb(fdn(1)),
      >                                    dbl_mb(dfdtau(1)))
+               else if (gga.eq.305) then
+               call gen_M06_unrestricted(n2ft3d,
+     >                                    dn,
+     >                                    dbl_mb(agr(1)),
+     >                                    dbl_mb(tau(1)),
+     >                                    0.73d0,c_parameter,
+     >                                    xce,
+     >                                    dbl_mb(fn(1)),
+     >                                    dbl_mb(fdn(1)),
+     >                                    dbl_mb(dfdtau(1)))
+               else if (gga.eq.306) then
+                write(*,*) "m06-2x not implemented!"
+                stop
+c               call gen_M06_2x_unrestricted(n2ft3d,
+c     >                                    dn,
+c     >                                    dbl_mb(agr(1)),
+c     >                                    dbl_mb(tau(1)),
+c     >                                    0.46d0,c_parameter,
+c     >                                    xce,
+c     >                                    dbl_mb(fn(1)),
+c     >                                    dbl_mb(fdn(1)),
+c     >                                    dbl_mb(dfdtau(1)))
                else
                  call errquit('bad gga',0,0)
                end if
