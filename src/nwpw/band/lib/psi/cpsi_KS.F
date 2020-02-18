@@ -757,13 +757,13 @@ ccccccccccc this cc_dot is okay! cccccccccccccccccc
 
          if (done) go to 4
 
-c*        **** preconditioning ****
-c         if (precondition) then
-c           call ke_Precondition(npack1,1,
-c     >                     dcpl_mb(g(1)),
-c     >                     dcpl_mb(g(1)))
-c
-c         end if
+*        **** preconditioning ****
+         if (precondition) then
+           call cke_Precondition(nb,npack1,1,
+     >                     dbl_mb(psi_ptr),
+     >                     dcpl_mb(g(1)))
+
+         end if
 
          call Cram_c_Copy(nb,dcpl_mb(g(1)),dcpl_mb(r1(1)))
          call cpsi_project_out_orb(psi_number,nb,i,dcpl_mb(r1(1)))
@@ -787,7 +787,7 @@ c         end if
 
 
 c!*        **** project out psi components from t ****
-c!        call psi_project_out_orb(psi_number,i,dcpl_mb(t(1)))
+c!        call cpsi_project_out_orb(psi_number,i,dcpl_mb(t(1)))
 c!        call Pack_cc_dot(1,dcpl_mb(psi_ptr+(i-1)*npack1),
 c!    >                   dcpl_mb(t(1)),
 c!    >                    de0)
@@ -1056,13 +1056,13 @@ c     >                  tau_t)
 
          if (done) go to 4
 
-c*        **** preconditioning ****
-c         if (precondition) then
-c           call ke_Precondition(npack1,1,
-c     >                     dcpl_mb(g(1)),
-c     >                     dcpl_mb(g(1)))
-c
-c         end if
+*        **** preconditioning ****
+         if (precondition) then
+           call cke_Precondition(nb,npack1,1,
+     >                     dbl_mb(psi_ptr),
+     >                     dcpl_mb(g(1)))
+
+         end if
 
          call Cram_c_Copy(nb,dcpl_mb(g(1)),dcpl_mb(r1(1)))
          call Cram_cc_daxpy(nb,(e0),
@@ -1738,13 +1738,13 @@ c           write(*,*)"THIS IS I IN KS_MINIM",i," ",e0
 
          if (done) go to 4
 
-c*        **** preconditioning ****
-c         if (precondition) then
-c           call ke_Precondition(npack1,1,
-c     >                     dcpl_mb(g(1)),
-c     >                     dcpl_mb(g(1)))
-c
-c         end if
+*        **** preconditioning ****
+         if (precondition) then
+           call cke_Precondition(nb,npack1,1,
+     >                     dbl_mb(psi_ptr),
+     >                     dcpl_mb(g(1)))
+
+         end if
 
          call Cram_c_Copy(nb,dcpl_mb(g(1)),dcpl_mb(r1(1)))
          call Cram_c_Copy(nb,dcpl_mb(g(1)+npack1),
