@@ -538,6 +538,7 @@ c conversion factors fron moldens gaussian.f
 #include "global.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
+#include "inp.fh"
       character*(*) rw          ! [input] read or write
       integer nbf               ! [input] number of AOs
       integer nmo               ! [input] number of MOs
@@ -572,6 +573,9 @@ c conversion factors fron moldens gaussian.f
       integer*4 iostatus
       integer nmo_out
       integer nwmolden_nbusfunc ! function defined in this file
+      character*5 cc5
+      character*6 cc6
+      character*7 cc7
 ! external function declarations
       logical sym_char_table
       external sym_char_table
@@ -589,6 +593,7 @@ c conversion factors fron moldens gaussian.f
       cspins(1) = 'Alpha'
       cspins(2) = 'Beta '
 !
+      spinref=1
       if (scftype.eq.'RHF')   spinref = 1
       if (scftype.eq.'ROHF')  spinref = 1
       if (scftype.eq.'UHF')   spinref = 2
@@ -663,9 +668,11 @@ c conversion factors fron moldens gaussian.f
            write(MOLDEN_UNIT,100) csym,eval(orb_alfabeta),
      C             cspin,occ(orb_alfabeta)
         else
-           read(MOLDEN_UNIT,100,iostat=iostatus)
-     C          csym,eval(orb_alfabeta),
-     C          cspin,occ(orb_alfabeta)
+           read(MOLDEN_UNIT,1000,iostat=iostatus)
+     C          cc5,csym,
+     c          cc5,eval(orb_alfabeta),
+     C          cc6,cspin,
+     c          cc7,occ(orb_alfabeta)
            if(iostatus.ne.0) goto 1234
         endif
            do aof = 1, nbf
@@ -725,6 +732,10 @@ c conversion factors fron moldens gaussian.f
      1            'Ene= ', E22.14/
      2            'Spin= ', a/
      3            'Occup= ', f18.10)
+ 1000       format(a, a/
+     1            a, E22.14/
+     2            a, a/
+     3            a, f18.10)
  200          format(i6,f18.12)
       return
       end
