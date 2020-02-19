@@ -15,24 +15,23 @@ if [[ "$NWCHEM_MODULES" == "tce" ]]; then
     export IPCCSD=1
 fi
 cd $TRAVIS_BUILD_DIR/src
+FOPT=" "
 if [[ "$arch" == "aarch64" ]]; then 
     if [[ "$NWCHEM_MODULES" == "tce" ]]; then 
-	FOPT2="-O0 -fno-aggressive-loop-optimizations"
+	FOPT="FOPTIMIZE=\"-O0 -fno-aggressive-loop-optimizations\""
     else
-	FOPT2="-O1 -fno-aggressive-loop-optimizations"
+	FOPT="FOPTIMIZE=\"-O1 -fno-aggressive-loop-optimizations\""
     fi
-else    
-    FOPT2="-O2 -fno-aggressive-loop-optimizations"
 fi    
  if [[ "$os" == "Darwin" ]]; then 
    if [[ "$NWCHEM_MODULES" == "tce" ]]; then
-     FOPT2="-O1 -fno-aggressive-loop-optimizations"
+     FOPT="FOPTIMIZE=\"-O1 -fno-aggressive-loop-optimizations\""
    fi
    if [[ ! -z "$USE_SIMINT" ]] ; then 
-       FOPT2="-O0 -fno-aggressive-loop-optimizations"
+       FOPT="FOPTIMIZE=\"-O0 -fno-aggressive-loop-optimizations\""
        SIMINT_BUILD_TYPE=Debug
    fi
-     ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" FOPTIMIZE="$FOPT2" -j3
+     ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" ${FOPT} -j3
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
      cd $TRAVIS_BUILD_DIR/src
@@ -47,7 +46,9 @@ fi
      else    
 	 export MAKEFLAGS=-j3
      fi
-     ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" FOPTIMIZE="$FOPT2" 
+     echo pwd `pwd`
+     echo executing make  FDEBUG="-O0 -g"  ${FOPT}
+     ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" ${FOPT} -j3
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
      cd $TRAVIS_BUILD_DIR/src
