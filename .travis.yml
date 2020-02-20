@@ -74,7 +74,7 @@ cache:
     os: linux
     arch: arm64
 
-matrix:
+jobs:
   include:
     - stage: compile
       <<: *compile-template-ompi-x86
@@ -149,6 +149,9 @@ matrix:
     - os: linux
       arch: arm64
     - os: osx
+      arch: amd64
+      env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
+    - os: linux
       arch: amd64
       env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
     - os: osx
