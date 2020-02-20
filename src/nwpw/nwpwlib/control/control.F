@@ -520,7 +520,7 @@ c        call nwpwxc_print()
      >   kerker_g0 = 0.0d0
       if (.not.btdb_get(rtdb,'nwpw:precondition',
      >                  mt_log,1,precondition))
-     >   precondition = .true.
+     >   precondition = .false.
 
 *     **** set maxit_orb maxit_orbs ***
       if (.not.btdb_get(rtdb,
@@ -775,7 +775,7 @@ c        call nwpwxc_print()
      >   kerker_g0 = 0.0d0
       if (.not.btdb_get(rtdb,'nwpw:precondition',
      >                  mt_log,1,precondition))
-     >   precondition = .true.
+     >   precondition = .false.
 
 
 *     **** set maxit_orb maxit_orbs ***
