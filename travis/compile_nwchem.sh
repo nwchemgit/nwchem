@@ -20,7 +20,7 @@ if [[ "$arch" == "aarch64" ]]; then
     if [[ "$NWCHEM_MODULES" == "tce" ]]; then 
 	FOPT="-O0 -fno-aggressive-loop-optimizations"
     else
-	FOPT="-O1 -fno-aggressive-loop-optimization"
+	FOPT="-O1 -fno-aggressive-loop-optimizations"
     fi
 fi    
  if [[ "$os" == "Darwin" ]]; then 
