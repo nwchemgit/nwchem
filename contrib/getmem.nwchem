@@ -39,8 +39,11 @@ if [ $NWCHEM_TARGET == LINUX ] || [ $NWCHEM_TARGET == LINUX64 ]; then
     lscpu
     echo ==== nproc --all ====================
     nproc --all
+    echo ==== lscpu -p=Core,Socket | grep -v '^#'
+    lscpu   -p=Core,Socket | grep -v '^#'
     echo =====================================
-  nproc=`lscpu   -p=Core,Socket | grep -v '^#' | sort -u | wc -l`
+#  nproc=`lscpu   -p=Core,Socket | grep -v '^#' | sort -u | wc -l`
+  nproc=`nproc --all`
   memtot=`egrep -i MemT /proc/meminfo | sed -e "s/kB//g"|sed -e "s/MemTotal://"  `
 elif [ $NWCHEM_TARGET == MACX64 ]; then
     nproc=`sysctl -n hw.ncpu`
@@ -67,7 +70,7 @@ if [[ $good != 0  ]]; then
   echo "Total Memory         :" $memtot "KB"
   echo "No. of processors    :" $nproc
   echo "Total Memory/proc    :" $memproc "KB = " $memprocgb "GB"
-  # take away 20% memory for OS
+  # take away 30% memory for OS
   memproc=$(( memproc*70/100 ))
   echo cfr $memproc $mem_min
   if [ "$memproc" -lt "$mem_min" ] ; then
