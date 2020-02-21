@@ -1,3 +1,4 @@
+#define DEBUG 1
       subroutine diis_bsolve(pulay,wght,mxhist,nhist)
 
 C$Id$
@@ -55,6 +56,7 @@ c
       integer lipiv,iipiv,liwork,iiwork,lwork,iwork,l_cc,i_cc,
      ,     lafp,iafp
       double precision  rcond, ferr, berr
+      logical oprint
 c
       ijcanon(i,j) = i*(i-1)/2 +j
       
@@ -62,6 +64,8 @@ c
         return
       endif 
 c
+      oprint= util_print('diis_debug',print_high).and.
+     A     ga_nodeid().eq.0
       ntemp = (nhist+1)*(nhist+2)/2
       LResult = MA_Push_Get(MT_int,nhist+1,'Lapack 5',lipiv,iipiv)
       LResult = MA_Push_Get(MT_int,nhist+1,'Lapack 4',liwork,iiwork)
@@ -74,24 +78,23 @@ c
       call dcopy(nhist+1,0d0,0,Dbl_MB(i_cc), 1)
       Dbl_MB(i_cc) = -1.0d0
       info=0
-#ifdef DEBUG
-      if(ga_nodeid().eq.0)then
+      if(oprint)then
         write(6,*)'nhist ',nhist,' pulay matrix '
-        write(6,*) (pulay(i),i=1,ntemp)
+        do i = 1,nhist+1
+           write(6,123) (pulay(ijcanon(i,j)),j=1,i)
+ 123       format(10f8.5)
+        enddo 
         write(6,*)' rhs '
-        call output(Dbl_MB(i_cc),1,nhist+1,1,1,nhist+1,1,1)
+        write(6,123) (Dbl_MB(i_cc+j-1),j=1,nhist+1)
       endif
-#endif
       call dspsvx( 'N', 'U', nhist+1, 1, pulay, Dbl_MB(iafp), 
      &             Int_MB(iipiv), Dbl_MB(i_cc), nhist+1, wght, nhist+1, 
      &             rcond, ferr, berr, Dbl_MB(iwork), Int_MB(iiwork), 
      &             info)
-#ifdef DEBUG
-      if(ga_nodeid().eq.0)then
+      if(oprint)then
         write(6,*)' wght '
         call output(wght,1,nhist+1,1,1,nhist+1,1,1)
       endif
-#endif
       LResult = MA_chop_Stack(lipiv)
 c
 c     Check for singularity.  If linear dependency occurs, decrease nhist
