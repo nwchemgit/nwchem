@@ -20,7 +20,7 @@ else
 	ps_exit="${?}"
         if [[ "$ps_exit" -eq 0 ]]; then
             echo ' ==== ' `date` ' ==== '
-            tail -1 $outfile
+            tail -3 $outfile
 	else
             break          # exit loop.
 	fi

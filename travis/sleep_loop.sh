@@ -18,7 +18,7 @@ else
 	ps_exit="${?}"
         if [[ "$ps_exit" -eq 0 ]]; then
             echo ' ==== ' `date` ' ==== '
-            tail -3 make.log
+            tail -1 make.log
         elif [[ "$ps_exit" -ne 0 ]]; then
             break          # exit loop.
 	fi
