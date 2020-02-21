@@ -863,11 +863,11 @@ c     >           dcpl_mb(psi1(1)),1)
       external control_tole
 
       !call psi_gen_density_potentials(1)
-      maxit_orb=80
+      maxit_orb=300
       maxerror = control_tole()
+      maxerror = 1.0d-12
 
       do ii=1,(ne_excited(1)+ne_excited(2))
-         write(*,*) "GERA, ii=",ii
 
          !*** orthogonalize to lower orbitals  ****
          call psi_project_out_virtual1(
@@ -941,7 +941,7 @@ c     >           dcpl_mb(psi1(1)),1)
       real*8  H2gg,H2ge,H2ee
       real*8  Hgg,Hge,Hee
       real*8  scal1,scal2,dv,ehartr
-      real*8  A,B,C,Elow,Ehigh,c1,c2,lmbda,alpha,sum
+      real*8  A,B,C,Elow,Ehigh,c1,c2,lmbda,alpha,sum,eci
 
       logical  control_print
       external control_print
@@ -997,129 +997,39 @@ c     >           dcpl_mb(psi1(1)),1)
       call D3dB_cr_fft3b(1,dbl_mb(psig_r(1)))
       call D3dB_r_Zero_Ends(1,dbl_mb(psig_r(1)))
 
-      alpha = 2.0d0
+      alpha = 1.0d0
       ep = control_Ep()
       sp = control_Sp()
       precondition = .true.
       done = .false.
       error0 = 0.0d0
-      e0 = 0.0d0
+      eci = 0.0d0
       theta = -3.14159d0/600.0d0
       lmbda_r0 = 1.0d0
       it = 0
       pit = 0
  2    continue
          it = it + 1
-         eold = e0
-
-*        *** calculate residual (steepest descent) direction for a single band ***
-         call psi_get_gradient_virtual(ii,dcpl_mb(g(1)))
-         call Pack_cc_dot(1,dcpl_mb(psie_ptr),dcpl_mb(g(1)),e0)
-         e0 = -e0
-         if (oprint) write(*,*) "e0,eold=",e0,eold
+         eold = eci
 
          call Pack_c_Copy(1,dcpl_mb(psie_ptr),dbl_mb(psie_r(1)))
          call Pack_c_unpack(1,dbl_mb(psie_r(1)))
          call D3dB_cr_fft3b(1,dbl_mb(psie_r(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(psie_r(1)))
 
-         !*** calculate Sgg, Sge, See ***
-         call Pack_cc_dot(1,dcpl_mb(psig_ptr),dcpl_mb(psig_ptr),Sgg)
-         call Pack_cc_dot(1,dcpl_mb(psig_ptr),dcpl_mb(psie_ptr),Sge)
-         call Pack_cc_dot(1,dcpl_mb(psie_ptr),dcpl_mb(psie_ptr),See)
-         !if (oprint) write(*,*) "Sgg=",Sgg," Sge=",Sge," See=",See
-       
-         !*** calculate H1gg, H1ge, H1ee ***
-c         call  pspw_et_H1(ispin,neq,npack1,n2ft3d,
-c     >                        dcpl_mb(psig_ptr),
-c     >                        dcpl_mb(psig_ptr),
-c     >                        dbl_mb(psig_r(1)),
-c     >                        H1gg)
-c         call  pspw_et_H1(ispin,neq,npack1,n2ft3d,
-c     >                        dcpl_mb(psig_ptr),
-c     >                        dcpl_mb(psie_ptr),
-c     >                        dbl_mb(psie_r(1)),
-c     >                        H1ge)
-c         call  pspw_et_H1(ispin,neq,npack1,n2ft3d,
-c     >                        dcpl_mb(psie_ptr),
-c     >                        dcpl_mb(psie_ptr),
-c     >                        dbl_mb(psie_r(1)),
-c     >                        H1ee)
-         call  psi_H1psi(ispin,neq,npack1,n2ft3d,
-     >                        dcpl_mb(psig_ptr),
-     >                        dbl_mb(psig_r(1)),
-     >                        dcpl_mb(t(1)))
-         call  psi_H1psi(ispin,neq,npack1,n2ft3d,
-     >                        dcpl_mb(psie_ptr),
-     >                        dbl_mb(psie_r(1)),
-     >                        dcpl_mb(g(1)))
-         call Pack_cc_dot(1,dcpl_mb(psig_ptr),dcpl_mb(t(1)),H1gg)
-         call Pack_cc_dot(1,dcpl_mb(psig_ptr),dcpl_mb(g(1)),H1ge)
-         call Pack_cc_dot(1,dcpl_mb(psie_ptr),dcpl_mb(t(1)),H1ee)
-         H1gg = -H1gg
-         H1ge = -H1ge
-         H1ee = -H1ee
-         if (ispin.eq.1) then
-            H1gg = H1gg + H1gg
-            H1ge = H1ge + H1ge
-            H1ee = H1ee + H1ee
-         end if
+         call psi_2x2_virtual_gradient(dcpl_mb(psig_ptr),
+     >                                 dbl_mb(psig_r(1)),
+     >                                 dcpl_mb(psie_ptr),
+     >                                 dbl_mb(psie_r(1)),
+     >                                 eci,dcpl_mb(g(1)),
+     >                                 dcpl_mb(t(1)),
+     >                                 dbl_mb(rhog(1)),
+     >                                 dbl_mb(vcee(1)),dbl_mb(vcge(1)))
 
-         H1ge = H1ge*Sge
-         !if (oprint) write(*,*) "H1gg=",H1gg," H1ge=",H1ge," H1ee=",H1ee
-
-         !*** calculate H2gg, H2ge, H2ee ***
-         call pspw_et_gen_rho(ispin,neq,n2ft3d,
-     >                     dbl_mb(psig_r(1)),dbl_mb(rhog(1)))
-         call pspw_et_gen_rho(ispin,neq,n2ft3d,
-     >                     dbl_mb(psie_r(1)),dbl_mb(rhoe(1)))
-         call pspw_et_gen_rho12(ispin,neq,n2ft3d,
-     >                     dbl_mb(psig_r(1)),
-     >                     dbl_mb(psie_r(1)),
-     >                     dbl_mb(rhoge(1)))
-
-         call coulomb2_v(dbl_mb(rhog(1)),dbl_mb(vcgg(1)))
-         call D3dB_rr_dot(1,dbl_mb(rhog(1)),dbl_mb(vcgg(1)),ehartr)
-         H2gg = 0.5d0*(0.5d0*ehartr*dv)
-
-         call coulomb2_v(dbl_mb(rhoe(1)),dbl_mb(vcee(1)))
-         call D3dB_rr_dot(1,dbl_mb(rhoe(1)),dbl_mb(vcee(1)),ehartr)
-         H2ee = 0.5d0*(0.5d0*ehartr*dv)
-
-         call coulomb2_v(dbl_mb(rhoge(1)),dbl_mb(vcge(1)))
-         call D3dB_rr_dot(1,dbl_mb(rhoge(1)),dbl_mb(vcge(1)),ehartr)
-         H2ge = 0.5d0*(0.5d0*ehartr*dv)
-         !if (oprint) write(*,*) "H2gg=",H2gg," H2ge=",H2ge," H2ee=",H2ee
-         Hgg = H1gg + H2gg
-         Hge = H1ge + H2ge
-         Hee = H1ee + H2ee
-         A = 1.0d0
-         B = -Hgg - Hee
-         C = Hgg*Hee - Hge*Hge
-         Elow  = (-B-dsqrt(B*B-4.0d0*A*C))/(2*A)
-         Ehigh = (-B+dsqrt(B*B-4.0d0*A*C))/(2*A)
-         lmbda = -Hge/(Hgg-Elow)
-         c1 =  lmbda/dsqrt(1.0d0+lmbda**2)
-         !c2 =  1/dsqrt(1.0d0+lmbda**2)
-         c2 =  dsqrt(1.0d0-c1*c1)
-         if (oprint) write(*,*) "Elow,c1,c2=",Elow,c1,c2," Ehigh=",Ehigh
-         if (oprint) write(*,*)
+         if (oprint) write(*,*) "it,eci,eold=",it,eci,eold
  
-         !t = 2*c1*c2*(vcge/2)*psig_r + c2*c2*(2*h1*psie + vcee*psie_r)
-         !t = c1*c2*(vcge/2)*psig_r + c2*c2*(h1*psie + (vcee/2)*psie_r)
 
-         call D3dB_rr_Mul2(1,dbl_mb(psie_r(1)),dbl_mb(vcee(1)))
-         call D3dB_rr_Mul2(1,dbl_mb(psig_r(1)),dbl_mb(vcge(1)))
-         call D3dB_r_SMul1(1,(-0.5d0*c2*c2),dbl_mb(vcee(1)))
-         call D3dB_rr_daxpy(1,(-0.5d0*c1*c2),
-     >                        dbl_mb(vcge(1)),
-     >                        dbl_mb(vcee(1)))
-         call D3dB_rc_fft3f(1,dbl_mb(vcee(1)))
-         call Pack_c_pack(1,dbl_mb(vcee(1)))
-         call Pack_c_SMul1(1,scal1,dbl_mb(vcee(1)))
-         call Pack_cc_daxpy(1,c2*c2,dcpl_mb(g(1)),dbl_mb(vcee(1)))
-
-         call Pack_cc_daxpy(1,alpha,dbl_mb(vcee(1)),dcpl_mb(psie_ptr))
+         call Pack_cc_daxpy(1,alpha,dcpl_mb(g(1)),dcpl_mb(psie_ptr))
          
          !*** orthogonalize to lower orbitals  ****
          call psi_project_out_virtual1(
@@ -1136,17 +1046,20 @@ c     >                        H1ee)
      >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
 
 
-         if (oprint) write(*,*) "FERD it,maxiteration=",it,maxiteration
          done = ((it.gt.maxiteration) 
      >           .or.
-     >           (dabs(e0-eold).lt.maxerror))
+     >           (dabs(eci-eold).lt.maxerror))
 
          if (done) go to 4
       go to 2
 
 
+ 4    call psi_get_gradient_virtual(ii,dcpl_mb(g(1)))
+      call Pack_cc_dot(1,dcpl_mb(psie_ptr),dcpl_mb(g(1)),e0)
+      e0 = -e0
+
 *     **** release stack memory ****
- 4    value =           BA_pop_stack(vcee(2))
+      value =           BA_pop_stack(vcee(2))
       value = value.and.BA_pop_stack(vcge(2))
       value = value.and.BA_pop_stack(vcgg(2))
       value = value.and.BA_pop_stack(rhoge(2))
@@ -1172,7 +1085,6 @@ c     >                        H1ee)
       error_out = dabs(e0-eold)
       e0        = -e0
 
-      write(*,*) "FERE"
       return
       end
 
