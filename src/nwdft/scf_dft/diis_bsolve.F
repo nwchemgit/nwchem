@@ -1,4 +1,3 @@
-#define DEBUG 1
       subroutine diis_bsolve(pulay,wght,mxhist,nhist)
 
 C$Id$
@@ -59,13 +58,20 @@ c
       logical oprint
 c
       ijcanon(i,j) = i*(i-1)/2 +j
+      oprint= util_print('diis_debug',print_high).and.
+     A     ga_nodeid().eq.0
       
+      if(oprint)then
+        write(6,*)'nhist ',nhist,' pulay matrix '
+        do i = 1,nhist+1
+           write(6,123) (pulay(ijcanon(i,j)),j=1,i)
+ 123       format(10f8.5)
+        enddo 
+      endif
  1000 if (nhist.lt.2) then 
         return
       endif 
 c
-      oprint= util_print('diis_debug',print_high).and.
-     A     ga_nodeid().eq.0
       ntemp = (nhist+1)*(nhist+2)/2
       LResult = MA_Push_Get(MT_int,nhist+1,'Lapack 5',lipiv,iipiv)
       LResult = MA_Push_Get(MT_int,nhist+1,'Lapack 4',liwork,iiwork)
@@ -77,16 +83,11 @@ c     Define the c array.
 c
       call dcopy(nhist+1,0d0,0,Dbl_MB(i_cc), 1)
       Dbl_MB(i_cc) = -1.0d0
-      info=0
       if(oprint)then
-        write(6,*)'nhist ',nhist,' pulay matrix '
-        do i = 1,nhist+1
-           write(6,123) (pulay(ijcanon(i,j)),j=1,i)
- 123       format(10f8.5)
-        enddo 
         write(6,*)' rhs '
         write(6,123) (Dbl_MB(i_cc+j-1),j=1,nhist+1)
       endif
+      info=0
       call dspsvx( 'N', 'U', nhist+1, 1, pulay, Dbl_MB(iafp), 
      &             Int_MB(iipiv), Dbl_MB(i_cc), nhist+1, wght, nhist+1, 
      &             rcond, ferr, berr, Dbl_MB(iwork), Int_MB(iiwork), 
