@@ -573,6 +573,7 @@ c conversion factors fron moldens gaussian.f
       integer*4 iostatus
       integer nmo_out
       integer nwmolden_nbusfunc ! function defined in this file
+      character*4 cc4
       character*5 cc5
       character*6 cc6
       character*7 cc7
@@ -617,19 +618,20 @@ c conversion factors fron moldens gaussian.f
 !
       status = bas_continfo(basis,1,type,nprimo,ngeno,sphcart)
 !
-      if (sphcart.eq.1) then
-         if(rw.eq.'write')  then
+      if(rw.eq.'write')  then
+         if (sphcart.eq.1) then
             write(MOLDEN_UNIT,50) '[5D]'
             write(MOLDEN_UNIT,50) '[9G]'
-         else
-            read(MOLDEN_UNIT,*) 
-            read(MOLDEN_UNIT,*) 
-         endif
-      end if
-      if(rw.eq.'write')  then
+         end if
          write(MOLDEN_UNIT,50) '[MO]'
-      else
-         read(MOLDEN_UNIT,*)
+      elseif (rw.eq.'read')  then
+c     rewind since we migh have a different basis
+         rewind(MOLDEN_UNIT)
+c     search for the [MO] string
+         do
+            read(MOLDEN_UNIT,'(a4)') cc4
+            if(cc4.eq.'[MO]') exit
+         enddo
       endif
 !
       do alfabeta = 1, spinref
