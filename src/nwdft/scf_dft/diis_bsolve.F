@@ -61,16 +61,15 @@ c
       oprint= util_print('diis_debug',print_high).and.
      A     ga_nodeid().eq.0
       
+ 1000 continue
       if(oprint)then
         write(6,*)'nhist ',nhist,' pulay matrix '
         do i = 1,nhist+1
            write(6,123) (pulay(ijcanon(i,j)),j=1,i)
- 123       format(10f8.5)
+ 123       format(10(1x,1pe12.4))
         enddo 
       endif
- 1000 if (nhist.lt.2) then 
-        return
-      endif 
+      if (nhist.lt.2) return
 c
       ntemp = (nhist+1)*(nhist+2)/2
       LResult = MA_Push_Get(MT_int,nhist+1,'Lapack 5',lipiv,iipiv)
