@@ -46,10 +46,20 @@ BUG FIXES/ENHANCEMENTS
 
 - port to latest GNU compilers (9 and 10)
 
+- port to latest xlf compiler version (16.1.1)
+
 - port to Flang compiler (aarch64 and x86_64)
 
 - QA test h2o2-response-uhf-damping no longer terminates with memory error
 
 - removed dependencies on csh/tcsh
 
+- bug fixes for Molden interface
 
+- improvements to  getmem.nwchem script
+
+- port to Score-P (Performance Measurement Infrastructure)
+
+- setting of env. variable LAPACK_LIB is now required
+
+- bug fix for DFT analytic hessian with ECPs
