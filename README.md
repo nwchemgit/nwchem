@@ -36,7 +36,7 @@ Tar files for download:
 https://github.com/nwchemgit/nwchem/releases/download/6.8.1-release/nwchem-6.8.1-release.revision-v6.8-133-ge032219-srconly.2018-06-14.tar.bz2   
 https://github.com/nwchemgit/nwchem/releases/download/6.8.1-release/nwchem-6.8.1-release.revision-v6.8-133-ge032219-nonsrconly.2018-06-14.tar.bz2~~  
 Release notes available at  
-https://github.com/nwchemgit/nwchem/raw/hotfix/release-7-0-0/release.notes.7.0.0  
+https://raw.githubusercontent.com/nwchemgit/nwchem/release-7-0-0/release.notes.7.0.0  
 
 ### Documentation
 https://github.com/nwchemgit/nwchem/wiki
