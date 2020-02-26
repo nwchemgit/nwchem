@@ -29,8 +29,12 @@ NEW FUNCTIONALITY
 - New library built from basis set files downloaded from the basissetexchange.org website.
   Can be used by setting NWCHEM_BASIS_LIBRARY=$NWCHEM_TOP/src/basis/libraries.bse/
 
-- build of OpenBLAS and Scalapack libraries when the enviroment variables
+- Build of OpenBLAS and Scalapack libraries when the enviroment variables
   BUILD_OPENBLAS and BUILD_SCALAPACK are defined.
+  
+- Added support for i-PI communication over UNIX sockets
+
+- Added complex absorbing potentials (CAPs) to the real-time TDDFT code
 
 BUG FIXES/ENHANCEMENTS
 
@@ -46,4 +50,8 @@ BUG FIXES/ENHANCEMENTS
 
 - SCS-MP2 optimization can now be performed when the following input directive is present
   set mp2:scf .true.
+
+- QA test h2o2-response-uhf-damping no longer terminates with memory error
+
+- removed dependencies on csh/tcsh
 
