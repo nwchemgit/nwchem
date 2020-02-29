@@ -37,7 +37,7 @@ Tar files for download:
 https://github.com/nwchemgit/nwchem/releases/download/v7.0.0-release/nwchem-7.0.0-release.revision-2c9a1c7c-srconly.2020-02-26.tar.bz2  
 https://github.com/nwchemgit/nwchem/releases/download/v7.0.0-release/nwchem-7.0.0-release.revision-2c9a1c7c-nonsrconly.2020-02-26.tar.bz2  
 Release notes available at  
-https://github.com/nwchemgit/nwchem/raw/hotfix/release-7-0-0/release.notes.7.0.0
+https://github.com/nwchemgit/nwchem/raw/release-7-0-0/release.notes.7.0.0
 
 ### Documentation
 https://github.com/nwchemgit/nwchem/wiki
