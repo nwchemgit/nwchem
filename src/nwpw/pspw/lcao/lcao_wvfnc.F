@@ -333,7 +333,7 @@ c     call lcao_diis_init(5,ispin,nbasis)
      >                 hmatrix(ms))
    
 *          **** diagonalize spin hamiltonian ****
-#if defined(PARALLEL_DIAG)
+#if defined(PARALLEL_DIAG) & !defined(SCALAPACK)
            call ga_diag(
      >                  hmatrix(ms),
      >                  smatrix,
