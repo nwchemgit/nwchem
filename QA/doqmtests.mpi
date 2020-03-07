@@ -307,6 +307,7 @@ np_small=$(get_limit $np 16)
 # new xc functionals for 7.0.0
 ./runtests.mpi.unix procs $np dft_rscan
 ./runtests.mpi.unix procs $np dft_scan
+./runtests.mpi.unix procs $np rt_tddft_dimer_charge
 #
 #--- if we only want quick tests get out now!
 if [[ "$what" == "fast" ]]; then
