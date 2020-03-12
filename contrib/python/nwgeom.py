@@ -61,7 +61,6 @@ def bond_length(i,j):  # atoms numbered 1,2,...
   return sqrt(x*x + y*y + z*z)
 
 def minimize1d(f, xlo, xhi, xtol, maxeval):
-  from math import *
   #
   # Find the minimum value of function(x) in [xlo,xhi]
   # to a precision in x of xtol.  Maxeval specifies
