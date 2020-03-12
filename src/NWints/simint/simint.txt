@@ -1,5 +1,26 @@
 Steps for using Simint in NWChem
 
+1. Generate Simint library and enable NWChem interface
+
+Define env. variables
+USE_SIMINT=y (mandatory)
+SIMINT_MAXAM="Maximum angular momentum" (optional, default is 3, therefore up to f orbitals)
+
+cd $NWCHEM_TOP/src/NWints/
+make clean
+make
+cd ..
+make link
+
+2. Modify input file
+
+To get Simint integrals to be used in NWChem runs, add the following directives to the input file
+
+set int:cando_txs f
+set int:cando_nw f
+
+
+==========OLD CONTENT (TO BE REMOVED) ====
 1. Generate Simint library from Simint generator
 
 https://github.com/simint-chem/simint-generator
@@ -30,11 +51,9 @@ make link
 
 To get Simint integrals to be used in NWChem runs, add the following directives to the input file
 
-set int:cando_txs t
-set int:cando_nw t
+set int:cando_txs f
+set int:cando_nw f
 
-
-==========OLD CONTENT (TO BE REMOVED) ====
 Random thoughts for now on how to get Simint working in NWChem ...
 
 wget http://bennyp.org/research/simint/download/simint-v0.8.tar.bz2
