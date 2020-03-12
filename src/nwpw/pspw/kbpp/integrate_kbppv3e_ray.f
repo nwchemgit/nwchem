@@ -40,7 +40,7 @@
       parameter (MASTER=0)
 
 *     *** local variables ****
-      logical fast_erf
+      logical fast_erf,small_cell
       integer task_count
       integer k1,i,l,n,nb
       double precision pi,twopi,forpi
@@ -58,8 +58,8 @@
 
 
 *     **** external functions ****
-      logical          control_fast_erf
-      external         control_fast_erf
+      logical          control_fast_erf,control_psp_semicore_small
+      external         control_fast_erf,control_psp_semicore_small
       double precision dsum,simp,util_erf
       external         dsum,simp,util_erf
 
@@ -78,6 +78,7 @@
       call Parallel_taskid(taskid)
 
       fast_erf = control_fast_erf()
+      small_cell = control_psp_semicore_small()
 
       pi=4.0d0*datan(1.0d0)
       twopi=2.0d0*pi
@@ -197,9 +198,15 @@
 
 *::::::::::::::::::::: semicore density :::::::::::::::::::::::::::::::
         if (semicore) then
-           do i=1,nrho
-              f(i) = rho(i)*dsqrt(rho_sc_r(i,1))*sn(i)
-           end do
+           if (small_cell) then
+              do i=1,nrho
+                 f(i) = rho(i)*rho_sc_r(i,1)*sn(i)
+              end do
+           else
+              do i=1,nrho
+                 f(i) = rho(i)*dsqrt(rho_sc_r(i,1))*sn(i)
+              end do
+           end if
            rho_sc_k_ray(k1,1) = SIMP(nrho,f,drho)*forpi/Q
 
            do i=1,nrho
@@ -245,9 +252,15 @@
 
 *     **** semicore density ****
       if (semicore) then
-         do i=1,nrho
-            f(i) = dsqrt(rho_sc_r(i,1))*rho(i)**2
-         end do
+         if (small_cell) then
+            do i=1,nrho
+               f(i) = rho_sc_r(i,1)*rho(i)**2
+            end do
+         else
+            do i=1,nrho
+               f(i) = dsqrt(rho_sc_r(i,1))*rho(i)**2
+            end do
+         end if
          rho_sc_k_ray(1,1) = forpi*SIMP(nrho,f,drho)
          rho_sc_k_ray(1,2) = 0.0d0
       end if

@@ -1,0 +1,12 @@
+*     **** vdw_df common block ****
+      logical has_vdw,is_vdw2
+      integer Nqs,nk,nk1,npack0,nfft3d,n2ft3d
+      integer qmesh(2),ya(2),y2a(2),gphi(2),phi(2),theta(2),ufunc(2)
+      integer xcp(2),xce(2),xxp(2),xxe(2),rho(2)
+      integer Gpack(2),nxpack(2)
+      double precision Zab,qmax,qmin,kmax
+      common /vdw_df_common/ Zab,qmax,qmin,kmax,phi,gphi,theta,ufunc,
+     >                       xcp,xce,xxp,xxe,rho,nxpack,Gpack,
+     >                       qmesh,ya,y2a,Nqs,nk,nk1,
+     >                       npack0,nfft3d,n2ft3d,
+     >                       has_vdw,is_vdw2

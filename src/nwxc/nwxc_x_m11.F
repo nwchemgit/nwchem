@@ -25,7 +25,7 @@ C>     "Exploring the limit of accuracy of the global hybrid meta
 C>     density functional for main-group thermochemistry, kinetics,
 C>     and noncovalent interactions",
 C>     J. Chem. Theory Comput. <b>4</b>, 1849-1868 (2008), DOI:
-C>     <a href="http://dx.doi.org/10.1021/ct800246v">
+C>     <a href="https://doi.org/10.1021/ct800246v">
 C>     10.1021/ct800246v</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
@@ -957,14 +957,14 @@ C>     "Exploring the limit of accuracy of the global hybrid meta
 C>     density functional for main-group thermochemistry, kinetics,
 C>     and noncovalent interactions",
 C>     J. Chem. Theory Comput. <b>4</b>, 1849-1868 (2008), DOI:
-C>     <a href="http://dx.doi.org/10.1021/ct800246v">
+C>     <a href="https://doi.org/10.1021/ct800246v">
 C>     10.1021/ct800246v</a>.
 C>
 C> [2] R. Peverati, D. G. Truhlar,
 C>     "Improving the accuracy of hybrid meta-GGA density functionals
 C>     by range separation",
 C>     J. Phys. Chem. Lett. <b>2</b>, 2810-2817 (2011), DOI:
-C>     <a href="http://dx.doi.org/10.1021/jz201170d">
+C>     <a href="https://doi.org/10.1021/jz201170d">
 C>     10.1021/jz201170d</a>.
 C>
 C> [3] R. Peverati, D. G. Truhlar,
@@ -972,7 +972,7 @@ C>     "M11-L: A local density functional that provides improved
 C>     accuracy for electronic structure calculations in chemistry
 C>     and physics",
 C>     J. Phys. Chem. Lett. <b>3</b>, 117-124 (2011), DOI:
-C>     <a href="http://dx.doi.org/10.1021/jz201525m">
+C>     <a href="https://doi.org/10.1021/jz201525m">
 C>     10.1021/jz201525m</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)

@@ -31,6 +31,28 @@ C
      &        maxbfsh,max1e,mem1,max2e,mem2,lscr,lssni,
      &        g_x,g_c,g_st2,g_sht2,l_sch,k_sch,l_ish,k_ish,nrints,
      &        l_shinf,k_shinf,nsz_st2
+#ifdef USE_F90INTERFACE
+      interface
+      subroutine ccsd_sxy(basis,nsh,ncor,nocc,nvir,nact,nbf,g_st2,
+     &                    g_sht2,g_c,g_x,offsh,snsi,sisn,lssni,scre,
+     &                    mem2,max2e,eri1,eri2,t1,cmo,t1ao,scra,
+     &                    scrb,lscr,kscr,tol2e,iprt,tklst,maxints,
+     &                    ish_idx,shinf,max_sht2_blk,nbfdim,a_st2,
+     &                    use_ccsd_omp)
+      integer basis,nsh,ncor,nocc,nvir,nact,nbf,g_st2,g_sht2,
+     &        g_c,g_x,lssni,
+     &        mem2,max2e,lscr,kscr,iprt,max_sht2_blk,nbfdim
+      integer offsh(nsh,nsh,*),tklst(*),maxints
+      integer ish_idx(*),shinf(nsh,*)
+      double precision tol2e,eri1(*),eri2(*),scre(*),
+     &                 t1(nocc*nvir),cmo(nbf,*),scra(*),
+     &                 scrb(*),snsi(*),sisn(*),
+     &     t1ao(*),a_st2(nocc*nocc,*)
+      logical, optional, intent(in) :: use_ccsd_omp
+      end subroutine
+      end interface
+#endif
+      logical schwarz1,schwarz2
       logical stat
       integer max_sht2_blk
       integer ilo,ihi,jlo,jhi,nbfdim,ish,jsh,nfi,nfj
@@ -108,15 +130,15 @@ c ------------------------------------------------------------
       if (.not.stat)call errquit('ma_pop ccsd_t2pm ',0, MA_ERR)
       call ga_distribution(g_st2,
      .     ga_nodeid(), ilo, ihi, jlo, jhi)
-      write(6,'(i3,a,4i5)') ga_nodeid(), ' old distr ',
-     L           ilo, ihi, jlo, jhi
+c      write(6,'(i3,a,4i5)') ga_nodeid(), ' old distr ',
+c     L           ilo, ihi, jlo, jhi
 #ifdef HAVE_SET_GA_PROPERTY
       if(use_rdonly_st2) then
          call ga_set_property(g_st2,'read_only')
       call ga_distribution(g_st2,
      .     ga_nodeid(), ilo, ihi, jlo, jhi)
-      write(6,'(i3,a,4i5)') ga_nodeid(), ' new distr ',
-     L           ilo, ihi, jlo, jhi
+c      write(6,'(i3,a,4i5)') ga_nodeid(), ' new distr ',
+c     L           ilo, ihi, jlo, jhi
          if(ga_nodeid().eq.0) write(6,*) ' g_st2 read_only'
 c     disable old replicated data
          use_inmem_st2=.false.
@@ -138,14 +160,14 @@ c     disable old replicated data
       endif
       call ga_distribution(g_st2,
      .     ga_nodeid(), ilo, ihi, jlo, jhi)
-      write(6,'(i3,a,4i5)') ga_nodeid(), ' new distr ',
-     L           ilo, ihi, jlo, jhi
+c      write(6,'(i3,a,4i5)') ga_nodeid(), ' new distr ',
+c     L           ilo, ihi, jlo, jhi
       if (use_inmem_st2) then
 c     show how much memory g_st2 (a_st2) needs
          nsz_st2 = lnoo * nbfdim*ma_sizeof(MT_DBL,1,MT_BYTE)
          mem_ava=ma_inquire_avail(MT_BYTE)
          if(iam.eq.0) then
-          if (util_print('ccsd extra', print_high)) then
+          if (util_print('ccsd extra', print_medium)) then
             write(*,'(a,i8,a)') " g_st2 size:",
      &           max(nsz_st2/1024/1024,1), " MB",
      &           " mem. avail ",max(mem_ava/1024/1024,1)," MB"

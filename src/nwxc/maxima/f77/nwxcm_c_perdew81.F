@@ -66,7 +66,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] JP Perdew, A Zunger, Phys.Rev. B 23, 5048 (1981)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevB.23.5048 "> 
+C> <a href="https://doi.org/10.1103/PhysRevB.23.5048 "> 
 C> 10.1103/PhysRevB.23.5048 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -303,7 +303,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] JP Perdew, A Zunger, Phys.Rev. B 23, 5048 (1981)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevB.23.5048 "> 
+C> <a href="https://doi.org/10.1103/PhysRevB.23.5048 "> 
 C> 10.1103/PhysRevB.23.5048 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -649,7 +649,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] JP Perdew, A Zunger, Phys.Rev. B 23, 5048 (1981)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevB.23.5048 "> 
+C> <a href="https://doi.org/10.1103/PhysRevB.23.5048 "> 
 C> 10.1103/PhysRevB.23.5048 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

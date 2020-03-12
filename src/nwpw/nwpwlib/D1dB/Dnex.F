@@ -148,6 +148,7 @@ c     ****************************************
             if (ne(ms).le.0) go to 30
 
 !$OMP MASTER
+            ierr = 0
             call DSYEV('V','U',ne(ms),
      >                 hml(shift2),ne(ms),
      >                 eig(shift1),

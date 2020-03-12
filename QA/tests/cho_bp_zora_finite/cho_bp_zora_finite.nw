@@ -3,7 +3,6 @@ echo
 start cho_bp_zora_finite
 title cho_bp_zora_finite
 
-memory total 800 stack 400 heap 50 global 350 mb
 
 geometry noautoz units angstrom nocenter nucleus finite
 symmetry c1

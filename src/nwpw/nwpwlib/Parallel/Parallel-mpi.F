@@ -1186,7 +1186,11 @@ c     implicit none
       subroutine stupid_icopy8to4(n,array8,array4)
       implicit none
       integer n
+#ifdef EXT_INT
       integer*8 array8(*)
+#else
+      integer*4 array8(*)
+#endif
       integer*4 array4(*)
       integer i
       do i=1,n
@@ -1199,7 +1203,11 @@ c     implicit none
       implicit none
       integer n
       integer*4 array4(*)
+#ifdef EXT_INT
       integer*8 array8(*)
+#else
+      integer*4 array8(*)
+#endif
       integer i
       do i=1,n
           array8(i) = array4(i)
@@ -1742,7 +1750,7 @@ c     implicit none
 
 *     ***********************************
 *     *                                 *
-*     *      Parallela_Brdcst_values     *
+*     *      Parallela_Brdcst_values    *
 *     *                                 *
 *     ***********************************
 

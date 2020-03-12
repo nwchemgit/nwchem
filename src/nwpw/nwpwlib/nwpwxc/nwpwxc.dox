@@ -1,0 +1,77 @@
+/**
+
+@defgroup nwpwxc Density Functional Library
+
+\brief The Shared Density Functional Library
+
+This library contains a unified and shared implementation of the
+density functionals in NWChem. Density functionals play a central role
+in DFT calculations. Independent of the particular type of code
+they take the density or properties of the density (e.g. the norm of 
+the gradient or the kinetic energy density) expressed on a grid. 
+Based on these quantities an energy contribution and potentially a 
+number of partial derivatives are evaluated at each grid point. 
+
+Because this functionality is really generic it makes sense to 
+encapsulate this in a library of its own. This library can subsequently
+be used in all relevant DFT modules.
+
+In addition to the traditional DFT functionals a number of extensions
+are accommodated. One of these extensions is the inclusion of 
+classical dispersion corrections. At present the following variants
+are supported:
+
+- <b>NWXC_DISP_NONE</b> no dispersion correction
+
+- <b>NWXC_DISP_VDW2</b> the van der Waals model of Wu et al. [1,2].
+
+- <b>NWXC_DISP_D1</b> the D1 dispersion model by Grimme et al. [3]
+
+- <b>NWXC_DISP_D2</b> the D2 dispersion model by Grimme et al. [4]
+
+- <b>NWXC_DISP_D3</b> the D3 dispersion model by Grimme et al. [5]
+
+[1] Q. Wu, W. Yang, <i>"Empirical correction to density functional
+    theory for van der Waals interactions"</i>, J.Chem.Phys. <b>116</b>,
+    515-524 (2002), DOI:
+    <a href="https://doi.org/10.1063/1.1424928">
+    10.1063/1.1424928</a>.
+
+[2] U. Zimmerli, M. Parrinello, P. Koumoutsakos,
+    <i>"Dispersion corrections to density functionals for water aromatic
+    interactions"</i>, J.Chem.Phys. <b>120</b>,
+    2693-2699 (2004), DOI:
+    <a href="https://doi.org/10.1063/1.1637034">
+    10.1063/1.1637034</a>.
+
+[3] S. Grimme, 
+    <i>"Accurate description of van der Waals complexes by density
+    functional theory including empirical corrections"</i>,
+    J.Comput.Chem. <b>25</b>,
+    1463-1473 (2004), DOI:
+    <a href="https://doi.org/10.1002/jcc.20078">
+    10.1002/jcc.20078</a>.
+
+[4] S. Grimme, 
+    <i>"Semiempirical GGA-type density functional constructed with a
+    long-range dispersion correction"</i>,
+    J.Comput.Chem. <b>27</b>,
+    1788-1799 (2006), DOI:
+    <a href="https://doi.org/10.1002/jcc.20495">
+    10.1002/jcc.20495</a>.
+
+[5] S. Grimme, J. Antony, S. Ehrlich, H. Krieg,
+    <i>"A consistent and accurate ab initio parametrization of density
+    functional dispersion correction (DFT-D) for the 94 elements
+    H-Pu"</i>, J.Chem.Phys. <b>132</b>,
+    154104(1-19) (2010), DOI:
+    <a href="https://doi.org/10.1063/1.3382344">
+    10.1063/1.3382344</a>.
+
+@defgroup nwpwxc_api API
+   @ingroup nwpwxc
+   Routines that external code may call
+@defgroup nwpwxc_priv Private routines
+   @ingroup nwpwxc
+   Routines that are private to the library
+*/

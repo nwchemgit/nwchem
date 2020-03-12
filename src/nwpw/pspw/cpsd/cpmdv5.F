@@ -476,7 +476,10 @@ c      call frac_occ_init(rtdb,ispin,ne)
       call psp_U_init()
 
 *     **** initialize META GGA ****
-      call nwpw_meta_gga_init()
+      call nwpw_meta_gga_init(control_gga())
+
+*     **** initialize vdw ****
+      call vdw_DF_init()
 
 
 *     **** initialize pressure ****
@@ -1364,6 +1367,7 @@ c         end if
       call psp_end()
       call ion_end_FixIon()
       call psp_U_end()
+      call vdw_DF_end()
       call nwpw_meta_gga_end()
       call pspw_end_SIC()
       call pspw_end_HFX()
@@ -1461,9 +1465,14 @@ c      call frac_occ_end()
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1132 FORMAT(5X,' using fractional occupation')
+c 1135 FORMAT(/' The masses of QM H atoms converted to 2.0 amu. ',
+c     >       /' To turn off this default',
+c     >        ' set nwpw:makehmass2 .false.')
  1135 FORMAT(/' The masses of QM H atoms converted to 2.0 amu. ',
      >       /' To turn off this default',
-     >        ' set nwpw:makehmass2 .false.')
+     >       /' nwpw',
+     >       /'    makehmass2 off',
+     >       /' end')
  1140 FORMAT(/' elements involved in the cluster:')
  1150 FORMAT(5X,I2,': ',A4,'  core charge:',F4.1,'  lmax=',I1)
  1151 FORMAT(5X,'        cutoff =',4F8.3)
@@ -1480,7 +1489,7 @@ c      call frac_occ_end()
  1181 FORMAT(/' initial velocity of ions:')
  1190 FORMAT(5X, I4, A5  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
  1191 FORMAT(5X, I4, A5  ,' (',3F11.5,
-     >       ' ) - atomic mass= ',F6.3,' - fixed')
+     >       ' ) - atomic mass= ',F7.3,' - fixed')
  1192 FORMAT(5X, I4, A5  ,' (',3F11.5,' )')
  1193 FORMAT(5X, I4, A5, ' (',3F11.5,
      >       ' ) - atomic mass= ',F7.3,' - z fixed')
@@ -1530,7 +1539,7 @@ c      call frac_occ_end()
      &       '( ',I8,' waves ',I8,' per task)')
   
  1260 FORMAT(5X,' Ewald summation: cut radius=',F8.2,'  and',I3)
- 1261 FORMAT(5X,'                   madelung=',f11.8)
+ 1261 FORMAT(5X,'                   madelung=',f14.8)
  1270 FORMAT(/' technical parameters:')
  1271 FORMAT(5x, ' translation constrained')
  1272 FORMAT(5x, ' rotation constrained')

@@ -513,11 +513,13 @@ c
 c
 c SA_decay
 c
- 2700 if (.not. inp_f(scaling(1)))
-     >     scaling(1) = 1.0d0           !*** in units of picoseconds ***
-      if (.not. inp_f(scaling(2)))
-     >     scaling(2) = 1.0d0           !*** in units of picoseconds ***
-      value = rtdb_put(rtdb,'cpmd:sa_decay',mt_dbl,2,scaling)
+ 2700 if (inp_f(scaling(1))) then
+         scaling(2) = scaling(1)
+         if (.not.inp_f(scaling(2))) scaling(2) = scaling(1)
+         value = rtdb_put(rtdb,'cpmd:sa_decay',mt_dbl,2,scaling)
+      else
+         value = rtdb_delete(rtdb,'cpmd:sa_decay')
+      end if
       if (.not.value)
      > call errquit('cpmd_input: writing sa_decay', 2700, RTDB_ERR)
       goto 10

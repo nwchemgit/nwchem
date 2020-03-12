@@ -145,18 +145,24 @@ c       write(6,*) "cam_beta:",cam_beta
 c       write(6,*) "doscreen:",doscreen
 c       write(6,*) "cam_srhf:",cam_srhf
 c
-      do 145 n = 1,Lr3
-        do 140 mr = 1,(NPP*NPQ)
-         if (doscreen) then
-           if (cam_srhf) then ! for pure short-range HF (1-erf(r)/r)
-             R0(mr,n) = R(mr,0,n)-Rscr(mr,0,n)
-           else
-             R0(mr,n) = cam_alpha*R(mr,0,n)+cam_beta*Rscr(mr,0,n)
-           end if 
-         else
-           R0(mr,n) = R(mr,0,n)
-         end if
- 140    continue
- 145  continue
+      if (doscreen) then
+         do  n = 1,Lr3
+            if (cam_srhf) then  ! for pure short-range HF (1-erf(r)/r)
+               do  mr = 1,(NPP*NPQ)
+                  R0(mr,n) = R(mr,0,n)-Rscr(mr,0,n)
+               enddo
+            else
+               do  mr = 1,(NPP*NPQ)
+                  R0(mr,n) = cam_alpha*R(mr,0,n)+cam_beta*Rscr(mr,0,n)
+               enddo
+            endif 
+         enddo
+      else
+         do  n = 1,Lr3
+            do  mr = 1,(NPP*NPQ)
+               R0(mr,n) = R(mr,0,n)
+            enddo
+         enddo
+      endif
         
       end

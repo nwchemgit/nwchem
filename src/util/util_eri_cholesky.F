@@ -114,7 +114,7 @@ C>     resolution-of-the-identity and Cholesky representations of
 C>     electron repulsion integral within coupled-cluster and
 C>     equation-of-motion methods: Theory and benchmarks",
 C>     J. Chem. Phys. <b>139</b> (2013) 134105, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.4820484">
+C>     <a href="https://doi.org/10.1063/1.4820484">
 C>     10.1063/1.4820484</a>.
 C>
       subroutine util_eri_cholesky(rtdb,geom,basis,tol,g_chol,k)

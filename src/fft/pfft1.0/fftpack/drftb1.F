@@ -1,3 +1,6 @@
+#if defined(XLF14) || defined(XLFLINUX)
+@PROCESS OPT(0) STRICT(ALL)
+#endif
 C****************************************************************
 C   Translated by Pacific-Sierra Research VAST-2          
 C   Version 6.1C1 on 12/ 8/97 at 23:34:29

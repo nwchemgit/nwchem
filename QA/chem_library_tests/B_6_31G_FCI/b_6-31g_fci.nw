@@ -1,0 +1,42 @@
+start b_6-31g_fci
+
+echo
+
+geometry units bohr
+symmetry c1
+  b  0.0 0.0 0.0
+end
+
+basis
+ * library 6-31G
+end
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-11
+doublet
+rohf
+end
+
+tce
+2eorb
+2emet 13
+tilesize 1
+ccsd
+thresh 1.0e-6
+end
+
+set tce:print_integrals T
+set tce:qorb  9
+set tce:qela  3
+set tce:qelb  2
+
+task tce energy
+
+mcscf
+  active  9
+  actelec 5
+  multiplicity 2
+end
+
+task mcscf

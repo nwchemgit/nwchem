@@ -378,12 +378,12 @@ c - blocking if this is inefficient
 c - note integrals computed 4 times minimal list
 c ------------------------------------------------------------
 c
-      call ga_sync()
+c      call ga_sync()
       tx(1)=tcgtime()
       if (iam.eq.0.and.iprt.gt.5)
      &    print *,' begin parallel integral generation'
       call ga_zero(g_c)
-      call ga_sync()
+c      call ga_sync()
       faddr=0.d0
       kaddr=0.d0
       logsize=ma_sizeof(MT_LOG,2,MT_BYTE)

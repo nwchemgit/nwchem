@@ -33,7 +33,6 @@ c
       character*(nw_max_path_len) scratchdir
       external util_scratch_dir_avail_for_me
 c
-#include "cint2esave.fh"
 c
 c     Open file returning CHEMIO filehandle (not yet)
 c     Return true on success, false on failure
@@ -236,7 +235,6 @@ c
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "msgids.fh"
-#include "cint2esave.fh"
 #include "eaf.fh"
 #include "util.fh"
 #include "global.fh"
@@ -295,7 +293,6 @@ c
       implicit none
 #include "cint2efile.fh"
 #include "inp.fh"
-#include "cint2esave.fh"
 c
 c     rewind the file ready to read integrals ... hide any header.
 c
@@ -332,7 +329,6 @@ c
       logical int2e_buf_write
       external int2e_buf_write
 #include "bitops_decls.fh"
-#include "cint2esave.fh"
 #include "bitops_funcs.fh"
 c
       int2e_set_bf_range = .true.
@@ -432,7 +428,6 @@ c     Hard fail for any other errors.
 c
       logical int2e_buf_read
       external int2e_buf_read
-#include "cint2esave.fh"
 c
       int2e_get_bf_range = .true.
 c
@@ -505,7 +500,6 @@ c
       external int2e_buf_write, int2e_file_write_big
 c
       integer ind
-#include "cint2esave.fh"
 #include "itri.fh"
 c
       int2e_file_write = .true.
@@ -563,7 +557,6 @@ c
       double precision part, absg, g
       logical int2e_buf_write
       external int2e_buf_write
-#include "cint2esave.fh"
 c
       g = gg                    ! Do not modify arguments
       int2e_file_write_big = .true.
@@ -621,7 +614,6 @@ c
       integer ibase, jbase, kbase, lbase
       logical int2e_buf_read
       external int2e_buf_read
-#include "cint2esave.fh"
 c
       int2e_file_read = .true.
       nints = 0
@@ -689,7 +681,6 @@ c
       integer neri
       logical int2e_buf_read
       external int2e_buf_read
-#include "cint2esave.fh"
 c
 c     While (integrals available) read buffers
 c
@@ -737,7 +728,6 @@ c
       integer neri
       logical int2e_buf_read
       external int2e_buf_read
-#include "cint2esave.fh"
 c
 c     While (integrals available) read buffers
 c
@@ -785,7 +775,6 @@ c
 #include "cint2efile.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
-#include "cint2esave.fh"
 #include "eaf.fh"
       logical oend           ! [input]
 c
@@ -944,7 +933,6 @@ c
 #include "errquit.fh"
 #include "cint2efile.fh"
 #include "mafdecls.fh"
-#include "cint2esave.fh"
 #include "eaf.fh"
 #include "global.fh"
 c
@@ -1029,7 +1017,6 @@ c
       subroutine int2e_buf_clear()
       implicit none
 #include "cint2efile.fh"
-#include "cint2esave.fh"
 c
 c     empty the integral buffer ... only the count of integrals
 c     in the current range in the buffer is present and it is zero
@@ -1152,7 +1139,6 @@ c
 c
       integer i, ind, v1, v2, mask, two31
 #include "bitops_decls.fh"
-#include "cint2esave.fh"
 #include "bitops_funcs.fh"
 c
 c
@@ -1203,7 +1189,6 @@ c
 c
       integer i, ind, v1, v2, two31
 #include "bitops_decls.fh"
-#include "cint2esave.fh"
 #include "bitops_funcs.fh"
 c
 c     Copy count
@@ -1252,7 +1237,6 @@ c
       integer n
 c
 #include "bitops_decls.fh"
-#include "cint2esave.fh"
 #include "bitops_funcs.fh"
 c
       n = labels(1,cntr_ptr)
@@ -1270,7 +1254,6 @@ c
 c     
       integer i, j, k, l
 #include "bitops_decls.fh"
-#include "cint2esave.fh"
 #include "bitops_funcs.fh"
 c
       i = labels(1,cntr_ptr)
@@ -1320,7 +1303,6 @@ c
       double precision nq
       logical ofirst
       data ofirst /.true./      ! If first call to this routine
-#include "cint2esave.fh"
 c     
       int2e_test_mem = .false.
 c

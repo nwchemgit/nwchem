@@ -70,7 +70,7 @@ C> ### References ###
 C> 
 C> [1] JP Perdew, JA Chevary, SH Vosko, KA Jackson, MR Pederson
 C>    , DJ Singh, C. Fiolhais, Phys.Rev. B 46, 6671 (1992)  , DOI: 
-C> <a href="http://dx.doi.org/10.1021/jp050536c "> 
+C> <a href="https://doi.org/10.1021/jp050536c "> 
 C> 10.1021/jp050536c </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -383,7 +383,7 @@ C> ### References ###
 C> 
 C> [1] JP Perdew, JA Chevary, SH Vosko, KA Jackson, MR Pederson
 C>    , DJ Singh, C. Fiolhais, Phys.Rev. B 46, 6671 (1992)  , DOI: 
-C> <a href="http://dx.doi.org/10.1021/jp050536c "> 
+C> <a href="https://doi.org/10.1021/jp050536c "> 
 C> 10.1021/jp050536c </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -1005,7 +1005,7 @@ C> ### References ###
 C> 
 C> [1] JP Perdew, JA Chevary, SH Vosko, KA Jackson, MR Pederson
 C>    , DJ Singh, C. Fiolhais, Phys.Rev. B 46, 6671 (1992)  , DOI: 
-C> <a href="http://dx.doi.org/10.1021/jp050536c "> 
+C> <a href="https://doi.org/10.1021/jp050536c "> 
 C> 10.1021/jp050536c </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

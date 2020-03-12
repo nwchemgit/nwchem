@@ -1,0 +1,45 @@
+start n2_0_75Re_sto3g
+ 
+echo
+ 
+geometry units bohr
+symmetry c1
+  n 0 0   -0.7755
+  n 0 0    0.7755
+end
+ 
+basis 
+ * library sto-3g
+end
+ 
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
+end
+ 
+tce
+2eorb
+2emet 13
+tilesize 1
+ccsd
+thresh 1.0e-6
+nroots 1
+end
+
+set tce:print_integrals T
+set tce:qorb 10
+set tce:qela  7
+set tce:qelb  7
+
+task tce energy
+
+mcscf
+  active  10
+  actelec 14
+  multiplicity 1
+end
+
+task mcscf
+

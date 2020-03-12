@@ -10,13 +10,25 @@ c
 #include "geom.fh"
 #include "mafdecls.fh"
 c
-      character*16 t(natoms)
-      integer n(natoms)
-      real*8 x(3,natoms),q(natoms)
+      character*16 t(*)
+      integer n(*)
+      real*8 x(3,*),q(*)
       integer i,j
+      integer natoms_in
 c
-      if(.not.geom_cart_get(igeom,natoms,t,x,q))
-     + call md_abort('esp: geom_cart_get failed',me)
+      
+      if(.not.geom_cart_get(igeom,natoms_in,t,x,q))
+     +     call md_abort('esp: geom_cart_get failed',me)
+c     get rid of zero charges
+      natoms=0
+      do i=1,natoms_in
+         if(abs(q(i)).gt.1d-9) then
+            natoms=natoms+1
+            t(natoms)=t(i)
+            q(natoms)=q(i)
+            x(3,natoms)=x(3,i)
+         endif
+      enddo
 c
 c     convert coordinates to nm and find extrema
 c

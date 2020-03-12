@@ -568,7 +568,7 @@ C     i1 ( h9 p5 p6 h1 h2 h3 )_vt + = 1/3 * P( 3 ) * Sum ( h10 ) * t ( p5 p6 h1 
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-!      INTEGER NXTVAL
+!      INTEGER nxtask
       INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
@@ -606,7 +606,7 @@ C     i1 ( h9 p5 p6 h1 h2 h3 )_vt + = 1/3 * P( 3 ) * Sum ( h10 ) * t ( p5 p6 h1 
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-!      EXTERNAL NXTVAL
+!      EXTERNAL nxtask
       EXTERNAL NXTASK
 !
       integer logtoint
@@ -899,7 +899,7 @@ C     i1 ( h9 p5 p6 h1 h2 h3 )_vt + = 2/3 * P( 6 ) * Sum ( p10 ) * t ( p5 p10 h1
       INTEGER d_c
       INTEGER k_c_offset
       INTEGER nxtask
-!      INTEGER NXTVAL
+!      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -936,7 +936,7 @@ C     i1 ( h9 p5 p6 h1 h2 h3 )_vt + = 2/3 * P( 6 ) * Sum ( p10 ) * t ( p5 p10 h1
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-c      EXTERNAL NXTVAL
+c      EXTERNAL nxtask
       EXTERNAL nxtask
       integer logtoint
       integer holep,particlep
@@ -1599,7 +1599,7 @@ C     i1 ( p5 p6 p7 h1 h2 p9 )_vt + = 1/3 * P( 3 ) * Sum ( p10 ) * t ( p5 p10 h1
       INTEGER d_c
       INTEGER k_c_offset
       INTEGER nxtask
-!      INTEGER NXTVAL
+!      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count

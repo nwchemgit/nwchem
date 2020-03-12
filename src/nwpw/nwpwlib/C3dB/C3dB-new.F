@@ -814,7 +814,7 @@ c     p = p_map(k)
 
 *     ***********************************
 *     *					*
-*     *	        C3dB_(c,r)_Zero	*	
+*     *	        C3dB_(c,r)_Zero  	*	
 *     *					*
 *     ***********************************
 
@@ -885,6 +885,54 @@ c     p = p_map(k)
       call dcopy(nfft3d_map(nb),A,1,B,1)
       return
       end
+
+*     ***********************************
+*     *					*
+*     *	        C3dB_ct_Copy      	*	
+*     *					*
+*     ***********************************
+
+      subroutine C3dB_ct_Copy(nb,A,B)     
+      implicit none 
+      integer nb
+      complex*16 A(*)
+      real*8     B(*)
+      
+#include "C3dB.fh"
+      
+      integer i
+
+      do i=1,nfft3d_map(nb)
+         B(i) = dble(A(i))
+      end do
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         C3dB_tc_Copy            *       
+*     *                                 *
+*     ***********************************
+
+      subroutine C3dB_tc_Copy(nb,A,B)
+      implicit none
+      integer nb
+      real*8     A(*)
+      complex*16 B(*)
+
+#include "C3dB.fh"
+
+      integer i
+
+!$OMP DO
+      do i=1,nfft3d_map(nb)
+         B(i) = dcmplx(A(i),0.0d0)
+      end do
+!$OMP END DO
+      return
+      end
+
+
 
 
 *     ***********************************
@@ -1450,9 +1498,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
       integer i
 
+!$OMP DO 
       do i=1,nfft3d_map(nb)
          C(i) = scale*A(i)
       end do
+!$OMP END DO 
       return
       end
 
@@ -1467,9 +1517,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
       integer i
 
+!$OMP DO
       do i=1,nfft3d_map(nb)
          A(i) = scale*A(i)
       end do
+!$OMP END DO
       return
       end
 
@@ -1481,9 +1533,12 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       complex*16 A(*)
 #include "C3dB.fh"
       integer i     
+
+!$OMP DO
       do i=1,n2ft3d_map(nb)
          A(i) = scale*A(i)
       end do      
+!$OMP END DO
       return
       end
 
@@ -1500,9 +1555,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          C(i) = scale*A(i)
       end do
+!$OMP END DO 
       return
       end 
 
@@ -1516,9 +1573,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          A(i) = scale*A(i)
       end do
+!$OMP END DO 
       return
       end
 
@@ -1534,9 +1593,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
       integer i
 
+!$OMP DO 
       do i=1,nfft3d_map(nb)
          C(i) = scale*A(i)
       end do
+!$OMP END DO 
       return
       end
 
@@ -1561,9 +1622,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          C(i) = dcmplx(scale*A(i),0.0d0)
       end do
+!$OMP END DO 
       return
       end
 
@@ -1586,11 +1649,13 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          ar=dble(A(i))
          ai=dimag(A(i))
          C(i) = C(i) + w*(ar*ar+ai*ai)
       end do
+!$OMP END DO 
       return
       end
 
@@ -1615,13 +1680,45 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          ar=dble(A(i))
          ai=dimag(A(i))
          C(i) = ar*ar + ai*ai
       end do
+!$OMP END DO 
       return
       end
+
+      
+*     ***********************************
+*     *                                 *
+*     *        C3dB_cc_absSqrt1         *       
+*     *                                 *
+*     ***********************************
+
+*  This routine performs the operation  A = sqrt(abs(A))
+      
+      subroutine C3dB_cc_absSqrt1(nb,A)
+      implicit none 
+      integer    nb
+      complex*16 A(*)
+      real*8     ar,ai
+
+#include "C3dB.fh"
+      
+      integer i
+
+!$OMP DO 
+      do i=1,n2ft3d_map(nb)
+         ar=dble(A(i))
+         !ai=dimag(A(i))
+         !A(i) = dcmplx(dsqrt(dsqrt(ar*ar + ai*ai)),0.0d0)
+         A(i) = dcmplx(dsqrt(dabs(ar)),0.0d0)
+      end do
+!$OMP END DO 
+      return
+      end 
 
 
 
@@ -1643,9 +1740,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          C(i) = dble(A(i))
       end do
+!$OMP END DO 
       return
       end
 
@@ -1669,9 +1768,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          C(i) = dimag(A(i))
       end do
+!$OMP END DO 
       return
       end
 
@@ -1697,9 +1798,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          C(i) = dble(A(i))*dble(B(i)) + dimag(A(i))*dimag(B(i))
       end do
+!$OMP END DO 
       return
       end
 
@@ -1721,9 +1824,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          C(i) = A(i)**2
       end do
+!$OMP END DO 
       return
       end
 
@@ -1743,9 +1848,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          C(i) = dsqrt(A(i))
       end do
+!$OMP END DO 
       return
       end
 
@@ -2271,9 +2378,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,nfft3d_map(nb)
-            C(i) = dconjg(A(i)) * B(i)
-         end do
+         C(i) = dconjg(A(i)) * B(i)
+      end do
+!$OMP END DO 
 
       return
       end
@@ -2288,9 +2397,11 @@ c      call Parallel3d_np_i(np)
       complex*16 C(*)
 #include "C3dB.fh"
       integer i
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          C(i) = dconjg(A(i)) * B(i)
       end do
+!$OMP END DO 
       return
       end
 
@@ -2303,9 +2414,11 @@ c      call Parallel3d_np_i(np)
       complex*16 C(*)
 #include "C3dB.fh"
       integer i
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          C(i) = A(i) * B(i)
       end do
+!$OMP END DO 
       return
       end                  
 
@@ -2327,9 +2440,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,nfft3d_map(nb)
          B(i) = dconjg(A(i)) * B(i)
       end do
+!$OMP END DO 
 
       return
       end
@@ -2351,9 +2466,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,nfft3d_map(nb)
          B(i) = dconjg(B(i)) * A(i)
       end do
+!$OMP END DO 
 
       return
       end
@@ -2371,9 +2488,11 @@ c      call Parallel3d_np_i(np)
             
       integer i    
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          B(i) = dconjg(B(i)) * A(i)
       end do
+!$OMP END DO 
             
       return
       end
@@ -2395,9 +2514,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,nfft3d_map(nb)
          if (masker(i)) A(i) = dcmplx(0.0d0,0.0d0)
       end do
+!$OMP END DO 
       return
       end
 
@@ -2417,9 +2538,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,nfft3d_map(nb)
          if (masker(i)) A(i) = 0.0d0
       end do
+!$OMP END DO 
       return
       end
 
@@ -2441,9 +2564,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,nfft3d_map(nb)
          C(i) = A(i) * B(i)
       end do
+!$OMP END DO 
 
       return
       end
@@ -2465,9 +2590,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          C(i) = A(i) * B(i)
       end do
+!$OMP END DO 
 
       return
       end
@@ -2488,9 +2615,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          B(i) = B(i) * A(i)
       end do
+!$OMP END DO 
 
       return
       end
@@ -2514,9 +2643,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,nfft3d_map(nb)
          C(i) = A(i) + B(i)
       end do
+!$OMP END DO 
 
       return
       end
@@ -2538,9 +2669,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,nfft3d_map(nb)
          B(i) = B(i) + A(i)
       end do
+!$OMP END DO 
 
       return
       end
@@ -2556,9 +2689,11 @@ c      call Parallel3d_np_i(np)
             
       integer i
                
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          B(i) = B(i) + A(i)
       end do      
+!$OMP END DO 
                   
       return         
       end      
@@ -2582,9 +2717,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          C(i) = A(i) + B(i)
       end do
+!$OMP END DO 
 
       return
       end
@@ -2605,9 +2742,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          B(i) = B(i) + A(i)
       end do
+!$OMP END DO 
 
       return
       end
@@ -2632,9 +2771,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          C(i) = A(i) + B(i)
       end do
+!$OMP END DO 
 
       return
       end
@@ -2656,9 +2797,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          B(i) = B(i) + A(i)
       end do
+!$OMP END DO 
 
       return
       end
@@ -2683,9 +2826,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          C(i) = dcmplx((A(i) + B(i)),0.0d0)
       end do
+!$OMP END DO 
 
       return
       end
@@ -2724,9 +2869,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          C(i) = C(i) - B(i) 
       end do                           
+!$OMP END DO 
       return
       end
 
@@ -2750,9 +2897,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,nfft3d_map(nb)
          C(i) = A(i) - B(i)
       end do
+!$OMP END DO 
 
       return
       end
@@ -2775,9 +2924,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          C(i) = A(i) - B(i)
       end do
+!$OMP END DO 
 
       return
       end
@@ -2802,9 +2953,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,nfft3d_map(nb)
          B(i) = B(i) + alpha*A(i)
       end do
+!$OMP END DO 
 
       return
       end
@@ -2828,9 +2981,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,nfft3d_map(nb)
          B(i) = B(i) + alpha*A(i)
       end do
+!$OMP END DO 
 
       return
       end
@@ -2852,9 +3007,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          B(i) = B(i) + alpha* A(i)
       end do
+!$OMP END DO 
 
       return
       end
@@ -2880,6 +3037,7 @@ c      call Parallel3d_np_i(np)
       integer i
 
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          if (dabs(B(i)) .le. eta) then
            C(i) = 0.0d0
@@ -2887,9 +3045,46 @@ c      call Parallel3d_np_i(np)
            C(i) = A(i) / B(i)
          end if
       end do
+!$OMP END DO 
 
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *          C3dB_cc_Divide2        *
+*     *                                 *
+*     ***********************************
+
+      subroutine C3dB_cc_Divide2(nb,A,B)
+      implicit none
+      integer nb
+      complex*16 A(*)
+      complex*16 B(*)
+
+#include "C3dB.fh"
+
+      real*8 eta,ar,br
+      parameter (eta=1.0d-9)
+
+      integer i
+
+!$OMP DO 
+      do i=1,nfft3d_map(nb)
+         ar = dble(A(i))
+         br = dble(B(i))
+         if (dabs(ar) .le. eta) then
+           B(i) = dcmplx(0.0d0,0.0d0)
+         else
+           B(i) = dcmplx(br/ar,0.0d0)
+         end if
+      end do
+!$OMP END DO 
+
+      return
+      end
+
 
 *     ***********************************
 *     *                                 *
@@ -2905,12 +3100,39 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          A(i) = dabs(A(i))
       end do
+!$OMP END DO 
 
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *         C3dB_c_abs1             *
+*     *                                 *
+*     ***********************************
+      subroutine C3dB_c_abs1(nb,A)
+      implicit none
+      integer nb
+      complex*16 A(*)
+
+#include "C3dB.fh"
+
+      integer i
+
+!$OMP DO 
+      do i=1,nfft3d_map(nb)
+         A(i) = dcmplx(dabs(dble(A(i))),dabs(dimag(A(i))))
+      end do
+!$OMP END DO 
+
+      return
+      end
+
 
 *     ***********************************
 *     *                                 *
@@ -2928,9 +3150,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          if (dabs(A(i)).lt.eta) A(i) = 0.0d0
       end do
+!$OMP END DO 
 
       return
       end
@@ -2953,9 +3177,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,n2ft3d_map(nb)
          C(i) = A(i) - B(i)
       end do
+!$OMP END DO 
 
       return
       end
@@ -3157,9 +3383,11 @@ c      call Parallel3d_np_i(np)
 
       integer i
 
+!$OMP DO 
       do i=1,nfft3d_map(nb)
             C(i) = dcmplx(0.0d0,A(i)) * B(i)
       end do
+!$OMP END DO 
 
       return
       end
@@ -3248,9 +3476,11 @@ c      call Parallel3d_np_i(np)
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO 
       do i=1,n
         b(i) = a(index(i))
       end do
+!$OMP END DO 
       return
       end
 
@@ -3263,9 +3493,11 @@ c      call Parallel3d_np_i(np)
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO 
       do i=1,n
         b(index(i)) = a(i)
       end do
+!$OMP END DO 
       return
       end
 
@@ -3278,9 +3510,11 @@ c      call Parallel3d_np_i(np)
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO 
       do i=1,n
         a(index(i)) = 0.0d0
       end do
+!$OMP END DO 
       return
       end
 

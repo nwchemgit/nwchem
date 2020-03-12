@@ -36,6 +36,9 @@ OBJ_OPTIMIZE = \
 LIB_DEFINES = -DDEBUG_PRINT
 
     HEADERS = moints_stats.fh
+ifeq ($(ARMCI_NETWORK),MPI-PR)
+   LIB_DEFINES += -DACC_STRIPS
+endif
 
 #
 # Possible #defines

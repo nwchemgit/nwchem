@@ -1555,11 +1555,13 @@ c       call util_flush(6)
 c      endif
 c kk ---
 c
-c - T1/X1 LOCALIZATION --
+c     - T1/X1 LOCALIZATION --
+#if 0       
           if(ic_cc) then
            if(.not.MA_POP_STACK(l_t1_local))
      &       call errquit('l_t1_local',2,MA_ERR)
-          end if
+        end if
+#endif
 c -----------------------
 c
 c kk ---

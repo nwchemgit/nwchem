@@ -8,6 +8,8 @@ c                              ijzy - 1  M06-L
 c                              ijzy - 2  M06-HF
 c                              ijzy - 3  M06
 c                              ijzy - 4  M06-2X
+c                              ijzy - 5 revM06-L
+c                              ijzy - 6 revM06
 
       Subroutine xc_cm06(tol_rho, cfac, lcfac, nlcfac, rho, delrho, 
      &                     nq, ipol, Ec, qwght, ldew, func,
@@ -95,6 +97,11 @@ c
 c     ======> BOTH SPIN-RESTRICETED AND UNRESTRICTED <======
 c
       sop=1.0d0
+      sopp0= 0d0
+      sopp1= 0d0
+      sopp2= 0d0
+      sopp3= 0d0
+      sopp4= 0d0
       if (ijzy.eq.1) then
 C     Parameters for M06-L Correlation
          sopp0= 6.042374D-01
@@ -123,6 +130,20 @@ C     Parameters for M06-2X Correlation
          sopp2= -7.043548D+01
          sopp3= 4.978271D+01
          sopp4= -1.852891D+01
+      elseif (ijzy.eq.5) then
+C     Parameters for revM06-L Correlation
+         sopp0= 3.44360696D-01
+         sopp1= -5.57080242D-01
+         sopp2= -2.009821162D+00
+         sopp3= -1.857641887D+00
+         sopp4= -1.076639864D+00
+      elseif (ijzy.eq.6) then
+C     Parameters for revM06 Correlation
+         sopp0= 1.222401598D+00
+         sopp1= 6.613907336D-01
+         sopp2= -1.884581043D+00
+         sopp3= -2.780360568D+00
+         sopp4= -3.068579344D+00
       else
          call errquit("xc_cm06: illegal value of ijzy",ijzy,UERR)
       endif
@@ -327,6 +348,11 @@ C
 C
 c      Tol_Rho=1.0D-7
 c      write (*,*) Tol_Rho
+      sss0=  0d0
+      sss1=  0d0
+      sss2=  0d0
+      sss3=  0d0
+      sss4=  0d0
       ss=1.0
       if (ijzy.eq.1) then
 C     Parameters for M06-L Correlation
@@ -356,6 +382,20 @@ C     Parameters for M06-2X Correlation
          sss2=  1.347420D+01
          sss3=  -3.213623D+01
          sss4=  2.846742D+01
+      elseif (ijzy.eq.5) then
+C     Parameters for revM06-L Correlation
+         sss0=  1.227659748D+00
+         sss1=  8.55201283D-01
+         sss2=  -3.113346677D+00
+         sss3=  -2.239678026D+00
+         sss4=  3.54638962D-01
+      elseif (ijzy.eq.6) then
+C     Parameters for revM06 Correlation
+         sss0=  9.017224575D-01
+         sss1=  2.079991827D-01
+         sss2=  -1.823747562D+00
+         sss3=  -1.384430429D+00
+         sss4=  -4.423253381D-01
       else
          call errquit("m06css: illegal value of ijzy",ijzy,UERR)
       endif

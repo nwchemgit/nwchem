@@ -100,12 +100,14 @@ ifeq ($(TARGET),MACX64)
   EXTRA_OBJ += macx_trapfpe.o
 endif
 
-ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ LINUX CYGWIN CYGWIN64 CYGNUS INTERIX LINUX64 MACX MACX64))
+ifdef NO_MPIF
+  LIB_DEFINES += -DNO_MPIF
+endif
+
+ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ LINUX CYGWIN CYGWIN64 CYGNUS LINUX64 MACX MACX64))
   EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o  erfc.o linux_printaff.o
   ifeq ($(LINUXCPU),x86)
-    ifneq ($(TARGET),INTERIX)
-      EXTRA_OBJ += linux_setfpucw.o
-    endif
+    EXTRA_OBJ += linux_setfpucw.o
   endif
   LIB_DEFINES += -DBYTE_SHORT_PACKING  
   ifeq ($(FC),ifc)
@@ -150,9 +152,6 @@ endif
 ifneq ($(OLD_GA),)
   EXTRA_OBJ += ga_zgop.o
 endif
-ifdef USE_OFFLOAD
-  EXTRA_OBJ += util_mic_support.o
-endif
 #LIB_DEFINES += -I$(MPI_INCLUDE)
 ifneq ($(MPI_INCLUDE),)
    LIB_INCLUDES += $(patsubst -I-I%,-I%,-I$(MPI_INCLUDE))
@@ -171,7 +170,7 @@ endif
                  util_jacobi.o util_rsg.o stpr_sjacobi.o util_memcpy.o ga_accback.o \
                  ga_asymmetr.o util_gnxtval.o nxtask.o util_mirror.o  \
                  ga_copy_dz.o dgami.o util_eri_cholesky.o \
-                 util_test_cholesky.o util_sillysort.o
+                 util_test_cholesky.o util_sillysort.o util_talker.o
 
   SUBDIRS = md5
 
@@ -221,9 +220,10 @@ endif
               util_dra_test.o util_eaf_test.o util_sf_test.o \
               ga_lkain_2cpl3.o util_io.o util_xyz.o util_ma.o util_mpinap.o \
 	      ga_lkain_2cpl3_ext.o  util_dgeev.o util_nwsort.o \
-	      util_mygabcast.o util_getppn.o util_units.o \
+	      util_mygabcast.o util_getppn.o util_units.o util_align.o\
               util_intrsc2008.o util_fadvise.o  util_scalapack_info.o\
               ga_conjg.o nwmolden.o ao_1prdm_read.o ao_1prdm_write.o\
+              util_strips.o util_poltensor.o  util_mygop.o util_isnan.o \
               $(EXTRA_OBJ)
 ifndef USE_MLIB
               OBJ_OPTIMIZE += icopy.o dsum.o dgefa.o zsum.o
@@ -241,7 +241,7 @@ endif
 
     USES_BLAS = util.fh ga_it_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
                 ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F ga_it2.F ga_lkain_ext.F util_file_name.F dgefa.f util_patch_test.F stpr_sjacobi.F util_dgeev.F \
-		util_test_cholesky.F dfill.F ga_lkain_2cpl3_ext.F ga_it2.F
+		util_test_cholesky.F dfill.F ga_lkain_2cpl3_ext.F ga_it2.F util_poltensor.F
 
 ifdef SPEECH
    LIB_DEFINES += -DSPEECH
@@ -249,9 +249,6 @@ ifdef SPEECH
    OBJ += udp.o
 endif
 
-ifeq ($(TARGET),INTERIX)
-DEFINES += -DNOSOCKLEN
-endif
 ifeq ($(TARGET),LINUX)
 DEFINES += -DNEED_LOC
 endif
@@ -303,6 +300,11 @@ ifdef TCE_CUDA
   OBJ += util_cuda_support.o
 endif
 
+ifdef TCE_HIP
+  LIB_DEFINES += $(HIP_INCLUDE)
+  OBJ += util_cuda_support.o
+endif
+
 ifdef USE_FORTRAN2003
   LIB_DEFINES += -DUSE_FORTRAN2003
 endif
@@ -313,8 +315,12 @@ endif
 include ../config/makelib.h
 
 
-util_scalapack_info.F: ../tools/build/config.h
+util_scalapack_info.F: 
 	./util_scalapack_info.bash
+ifdef EXTERNAL_GA_PATH
+util_ga_version.F: 
+	./util_ga_version.bash
+endif
 
 
 util_version.F:	util_v_stub.F

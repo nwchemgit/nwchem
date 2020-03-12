@@ -34,14 +34,14 @@ C> [1] M. Dupuis,
 C>     "New integral transforms for molecular properties and application
 C>     to a massively parallel GIAO-SCF implementation",
 C>     Comp. Phys. Comm. <b>134</b>, 150-166 (2001), DOI:
-C>     <a href="http://dx.doi.org/10.1016/S0010-4655(00)00195-8">
+C>     <a href="https://doi.org/10.1016/S0010-4655(00)00195-8">
 C>     10.1016/S0010-4655(00)00195-8</a>.
 C>
 C> [2] K. Wolinski, J.F. Hinton, P. Pulay,
 C>     "Efficient implementation of the gauge-independent atomic orbital
 C>      method for NMR chemical shift calculations",
 C>     J. Am. Chem. Soc. <b>112</b>, 8251-8260 (1990), DOI:
-C>     <a href="http://dx.doi.org/10.1021/ja00179a005">10.1021/ja00179a005</a>.
+C>     <a href="https://doi.org/10.1021/ja00179a005">10.1021/ja00179a005</a>.
 C>
       subroutine int_giao_2e(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)

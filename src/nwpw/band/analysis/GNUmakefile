@@ -1,7 +1,7 @@
 #
 # $Id$
 #
-     SUBDIRS =
+     SUBDIRS = APC
 
 
  OBJ_OPTIMIZE = \

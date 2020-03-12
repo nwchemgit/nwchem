@@ -223,7 +223,7 @@ cccccccccccccccccccccccccccccccccccccc
      >			      'c_bet_prj',c_bet_hndl, 
      >                         c_bet_indx)
       if (.not.value)
-     > call errquit("rkbpp_band: out of heap memory",0,MA_ERR)
+     > call errquit("rkbpp_band: out of heap memory",1,MA_ERR)
 
 cccccccccc assign the relativistic states ccccccccccccccccccc
       call rkbpp_states(lmax_out,nprj_out,
@@ -416,11 +416,10 @@ c  nmax = 1 since we have 1 projector per (kappa) states
       value = value.and.BA_free_heap(k_prj_hndl)
       value = value.and.BA_free_heap(m_alf_hndl)
       value = value.and.BA_free_heap(m_bet_hndl)
-      value = value.and.BA_free_heap(k_prj_hndl)
       value = value.and.BA_free_heap(c_alf_hndl)
       value = value.and.BA_free_heap(c_bet_hndl)
       if (.not.value)
-     > call errquit("rkbpp_band: out of heap memory",0,MA_ERR)
+     > call errquit("rkbpp_band: out of heap memory",2,MA_ERR)
 
       if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
       rkbpp_band = value
@@ -526,13 +525,19 @@ c     Read in spin orbit pseudopot.
 c     **** local variables ****
       integer nproc,taskid,lp,ip,k,i,task_count,kappa,nw
       real*8 fourpi,vv,a,gx,gy,gz,q,sint,qr,dls
+      logical small_cell
 
 c     **** externals functions ****
       real*8   simp
       external simp
+      logical  control_psp_semicore_small
+      external control_psp_semicore_small
 
       call Parallel_np(nproc)
       call Parallel_taskid(taskid)
+
+      small_cell = control_psp_semicore_small()
+
       fourpi=16.0*datan(1.0d0)
       do 10 lp=0,lmax
          if (lp.eq.locl) goto 10
@@ -597,9 +602,15 @@ c     ***** calculate local potential in q space *****
          sint=SIMP(nrho,f,drho)
          vl(i)=(sint*fourpi/Q)-(ZV*fourpi*cosqr(nrho)/(Q*Q))
          if (semicore) then
-           do k=1,nrho
-              f(k) = rho(k)*dsqrt(rho_sc_r(k,1))*sinqr(k)
-           end do
+           if (small_cell) then
+              do k=1,nrho
+                 f(k) = rho(k)*(rho_sc_r(k,1))*sinqr(k)
+              end do
+           else
+              do k=1,nrho
+                 f(k) = rho(k)*dsqrt(rho_sc_r(k,1))*sinqr(k)
+              end do
+           end if
            rho_sc_k(i,1) = simp(nrho,f,drho)*fourpi/q
            do k=1,nrho
              f(k)=(sinqr(k)/(q*rho(k))-
@@ -619,9 +630,15 @@ cccccccccc g=0
       end do
       vl(1)=fourpi*(simp(nrho,f,drho)+0.5d0*zv*rho(nrho)**2)
       if (semicore) then
-         do k=1,nrho
-           f(k)=dsqrt(rho_sc_r(k,1))*(rho(k)**2)
-         end do
+         if (small_cell) then
+            do k=1,nrho
+              f(k)=(rho_sc_r(k,1))*(rho(k)**2)
+            end do
+         else
+            do k=1,nrho
+              f(k)=dsqrt(rho_sc_r(k,1))*(rho(k)**2)
+            end do
+         end if
          rho_sc_k(1,1)=simp(nrho,f,drho)*fourpi
          rho_sc_k(1,2)=0.0d0
          rho_sc_k(1,3)=0.0d0

@@ -7,13 +7,14 @@
      >						ngrid,
      >						unita,
      >						ispin,
-     >						nein)
+     >						nein,oddelcfill)
       implicit none
       character*50 wavefunction_filename
       integer      version
       integer      ngrid(3)
       real*8       unita(3,3)
       integer      ispin,nein(2)
+      logical      oddelcfill
 
 #include "bafdecls.fh"
 #include "stdio.fh"
@@ -64,7 +65,7 @@
      >                     ispin,
      >                     ne,
      >                     fractional,
-     >                     fractional_orbitals)
+     >                     fractional_orbitals,oddelcfill)
         write(luout,*) "random planewave guess, initial psi:",
      >             wavefunction_filename
         write(luout,*) "-   spin, nalpha, nbeta:",ispin,ne
@@ -85,7 +86,7 @@
      >                         ispin,
      >                         ne,
      >                         fractional,
-     >                         frac_orb)
+     >                         frac_orb,oddelcfill)
 
       implicit none
       integer NMAX
@@ -97,6 +98,7 @@
       integer      ispin,ne(2)
       logical      fractional
       integer      frac_orb(2)
+      logical      oddelcfill
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -110,7 +112,7 @@
       integer cfull_indx,cfull_hndl,l,l1,l2
       integer i,j,k,ms,n,occupation
 
-      double precision p,scale
+      double precision p,scale,fx,fy,fz
       double complex cc,cx,sx,zx,zc,rx,ry
 
 *     **** external functions ****
@@ -286,14 +288,17 @@ c          call dcopy(n2ft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
 
 c     **** add occupation ****
       if (fractional) then
-         rx = 1.0d0
-         ry = 0.0d0
+         fx = 1.0d0
+         fy = 0.0d0
+         fz = 0.5d0
          do ms=1,ispin
            do n=1,ne(ms)
-             if (n.le.frac_orb(ms)) then
-                call dwrite(6,ry,1)
+             if (oddelcfill.and.(n.eq.frac_orb(ms))) then
+                call dwrite(6,fz,1)
+             else if (n.le.frac_orb(ms)) then
+                call dwrite(6,fy,1)
              else
-                call dwrite(6,rx,1)
+                call dwrite(6,fx,1)
              end if
            end do
          end do

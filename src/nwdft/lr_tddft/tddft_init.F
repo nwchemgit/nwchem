@@ -80,7 +80,8 @@ c
       integer mult             ! Ground state spin multiplicity
       logical lb94             ! LB94 asymptotic correction
       logical cs00             ! CS00 asymptotic correction
-      double precision shift   ! Shift for CS00
+      logical ncap             ! NCAP derivative discontinuity
+      double precision shift   ! Shift for CS00 or NCAP
 C     character*80 vector      ! CI vector filename
 c
       character*3 onoff1,onoff2
@@ -211,6 +212,8 @@ c --------------
      1  call errquit('tddft_init: failed to read lb94',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'dft:cs00',mt_log,1,cs00))
      1  call errquit('tddft_init: failed to read cs00',0, RTDB_ERR)
+      if (.not.rtdb_get(rtdb,'dft:ncap',mt_log,1,ncap))
+     1  call errquit('tddft_init: failed to read ncap',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'dft:delta_ac',mt_dbl,1,shift))
      1  call errquit('tddft_init: failed to read delta_ac',0, RTDB_ERR)
 c -----------
@@ -652,6 +655,11 @@ c
           write(LuOut,*)
           write(LuOut,9330)
      1    '         van Leeuwen-Baerends correction    '
+        else if (ncap) then
+          write(LuOut,*)
+          write(LuOut,9320)
+     1    '  NCAP with derivative discontinuity shift   ',
+     2    shift,'au'
         endif ! cs00
       endif ! nodezero
 c

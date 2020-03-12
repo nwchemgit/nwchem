@@ -1,0 +1,52 @@
+start h2_4_sto6g
+echo
+memory stack 100 mb heap 100 mb global 200 mb noverify
+
+geometry units angstrom
+symmetry c1
+H    0.000  0.000  0.000
+H    0.000  0.000  1.000
+H    0.000  0.000  3.000
+H    0.000  0.000  4.000
+H    0.000  0.000  6.000
+H    0.000  0.000  7.000
+H    0.000  0.000  9.000
+H    0.000  0.000 10.000
+end
+
+basis
+ * library sto-6g
+end
+
+scf
+thresh 1.0e-8
+tol2e 1.0e-9
+singlet
+rhf
+maxiter 200
+end
+
+tce
+ccsd
+2eorb
+2emet 13
+tilesize 1
+thresh 1.0d-8
+end
+
+
+set tce:print_integrals T
+set tce:qorb  8
+set tce:qela  4
+set tce:qelb  4
+
+task tce energy
+
+mcscf
+  active  8
+  actelec 8
+  multiplicity 1
+end
+
+task mcscf
+

@@ -474,21 +474,6 @@ peigs_FC  += -WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-D$(peigs_CPU),-D$(pe
 	peigs_LAPACKLIB = -llapack -lessl_r
 	endif
 
-ifeq ($(peigs_TARGET),DECOSF)
-#alpha with /tcgmsg
-	peigs_CPU  = ALPHA
-	peigs_COMM = TCGMSG
-	peigs_CPP = $(CPP) -D${CPU} -DSTD_DBL -P -DDECOSF
-	peigs_CODEOBJ = DBLE
-	peigs_CC  += -D${peigs_CPU}  -DSTD_DBL -O3 -DDECOSF -tune host -arch host
-	peigs_FC += -O4  -DSTD_DBL -D_fastmath -O3 -D$(peigs_COMM) -DDECOSF -tune host -arch host
-	ifdef USE_INTEGER4
-	peigs_CPP += -DSTD_INT
-	peigs_CC  += -DSTD_INT
-	peigs_FC  += -DSTD_INT
-	endif
-	endif
-
 ifeq ($(peigs_TARGET),MACX)
 #MACOSX
 ifeq ($(_CPU),i486)
@@ -526,6 +511,9 @@ ifeq ($(peigs_TARGET),$(findstring $(peigs_TARGET),LINUX64 CYGWIN64 CATAMOUNT))
 #alpha with /tcgmsg
 _CPU = $(shell uname -m  )
 #hack for mingw64
+ifeq ($(_CPU),amd64)
+_CPU = x86_64
+endif
 ifeq ($(_CPU),i686)
 _CPU = x86_64
 endif
@@ -572,7 +560,7 @@ ifeq ($(FC),pgf90)
 	peigs_FC  +=  -Kieee
 	endif
 	endif
-ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
+ifeq ($(_CPU),$(findstring $(_CPU), powerpc64 ppc64 ppc64le))
 #ppc64 with /tcgmsg
 	peigs_CPU = RS6000
 ifeq ($(FC),xlf)
@@ -611,7 +599,7 @@ peigs_FC +=     -DSTD_DBL  -D$(peigs_COMM)  -Ovector2
   endif
 endif
 
-ifeq ($(peigs_TARGET),$(findstring $(peigs_TARGET),LINUX INTERIX CYGWIN CYGNUS))
+ifeq ($(peigs_TARGET),$(findstring $(peigs_TARGET),LINUX CYGWIN CYGNUS))
 #
 # Linux running on an x86 using f77 on f2c
 #

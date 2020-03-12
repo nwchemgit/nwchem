@@ -87,6 +87,10 @@ c
       real*8   psi_1meta_gga_pxc,ion_disp_energy
       external psi_1meta_gga_pxc,ion_disp_energy
 
+      logical  nwpw_cosmo_on
+      external nwpw_cosmo_on
+      real*8   psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
+      external psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
 
 
       call Pack_npack(1,npack1)
@@ -180,6 +184,15 @@ c     >                            + E(40)+E(41)+E(42)+E(43)+E(45)
      >                            + E(35)+E(37)+E(38)+E(39)
      >                            + E(40)+E(41)+E(42)+E(43)
       end if
+
+
+*     **** COSMO terms ****
+      if (nwpw_cosmo_on()) then
+         E(46) = psi_1vl_cosmo()
+         E(47) = nwpw_cosmo_EQionq()
+         E(48) = nwpw_cosmo_Eqq()
+      end if
+
 
 *     **** get pspw_charge  energies ****
       if (pspw_charge_found()) then

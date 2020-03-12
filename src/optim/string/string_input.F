@@ -151,7 +151,7 @@ c     ----------------------------
      >        call errquit('string_input: rtdb put failed',30,
      >        RTDB_ERR)
 
-            if (.not. rtdb_put(rtdb,'bead_list:size',mt_int,1,nbeads))
+            if (.not. rtdb_put(rtdb,'bead:size',mt_int,1,nbeads))
      >        call errquit('string_input: rtdb put failed',31,
      >        RTDB_ERR)
 

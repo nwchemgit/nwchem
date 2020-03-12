@@ -1,23 +1,11 @@
 #!/bin/bash
-#echo "starting sleep_loop.sh for command: " ${@}
+#echo "starting sleep_loop.sh for command: " ${@} >& /tmp/out
+for last_arg in $@; do :; done
+# echo "last arg of ${#} is $last_arg" >& /tmp/out
 #"${@}"  &
-narg="${#}"
-if [ "$narg" -eq 10 ]; then
-    outfile=../testoutputs/"${10}"
- $1 $2 $3 $4 $5 $6 $7 $8 $9 >& $outfile &
-elif [ "$narg" -eq 9 ]; then
- outfile=../testoutputs/$9
- $1 $2 $3 $4 $5 $6 $7 $8    >& $outfile &
-elif [ "$narg" -eq 8 ]; then
- outfile=../testoutputs/$8
- $1 $2 $3 $4 $5 $6 $7       >& $outfile &
-elif [ "$narg" -eq 7 ]; then
- outfile=../testoutputs/$7
- $1 $2 $3 $4 $5 $6          >& $outfile &
-else
- outfile=../testoutputs/$6
- $1 $2 $3 $4 $5     >& $outfile &
-fi
+set -- "${@:1:$(($#-1))}"
+outfile=../testoutputs/$last_arg
+"${@}" >& $outfile &
 pid=$!
 echo "sleep_loopqa got pid" $pid
 ps -p "$pid" > /dev/null
@@ -32,7 +20,7 @@ else
 	ps_exit="${?}"
         if [[ "$ps_exit" -eq 0 ]]; then
             echo ' ==== ' `date` ' ==== '
-            tail -1 $outfile
+            tail -3 $outfile
 	else
             break          # exit loop.
 	fi

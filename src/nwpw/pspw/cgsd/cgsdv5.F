@@ -116,8 +116,8 @@
       external psi_ispin,psi_ne,psi_neq,electron_count,linesearch_count
       real*8   cgsd_energy,cgsd_noit_energy
       external cgsd_energy,cgsd_noit_energy
-      logical  control_Mulliken,control_DOS
-      external control_Mulliken,control_DOS
+      logical  control_Mulliken,control_DOS,nwpw_born_on
+      external control_Mulliken,control_DOS,nwpw_born_on
       real*8   ion_TotalCharge,psi_occupation
       external ion_TotalCharge,psi_occupation
       logical   control_check_charge_multiplicity
@@ -142,6 +142,8 @@
       external control_fractional_smeartype,control_excited_ne
       real*8   control_fractional_kT,control_fractional_temperature
       external control_fractional_kT,control_fractional_temperature
+      real*8   control_fractional_alpha
+      external control_fractional_alpha
       logical  psp_pawexist,psp_paw_use_grid_cmp
       external psp_pawexist,psp_paw_use_grid_cmp
       integer  psp_paw_mult_l_max
@@ -167,6 +169,10 @@
       real*8   lattice_omega_small
       external lattice_unita_small,lattice_unitg_small
       external lattice_omega_small
+      integer  ion_rion_ptr
+      external ion_rion_ptr
+      logical  control_runsocket,control_precondition
+      external control_runsocket,control_precondition
 
 
 *                            |************|
@@ -336,7 +342,10 @@
       call psp_U_init()
 
 *     **** initialize  META GGA ****
-      call nwpw_meta_gga_init()
+      call nwpw_meta_gga_init(control_gga())
+
+*     **** initialize vdw ****
+      call vdw_DF_init()
 
 *     **** initialize metadynamics ****
       call meta_initialize(rtdb)
@@ -356,6 +365,7 @@
 *                |**************************|
 ******************   summary of input data  **********************
 *                |**************************|
+
 
       if (oprint) then
          write(luout,1111) np
@@ -388,6 +398,7 @@
          if (control_fractional()) write(luout,1132)
          call pspw_print_SIC(luout)
          call pspw_print_HFX(luout)
+         call nwpw_meta_gga_print(luout)
          write(luout,1140)
          do ia = 1,ion_nkatm()
            call psp_print(ia)
@@ -530,6 +541,8 @@ c           call psp_check_print(ia)
      >                 pack_nwave_all(3),pack_nwave(3)
          end if
 
+         call rho_symmetrizer_print(luout)
+
          write(luout,1270)
          write(luout,1280) control_time_step(),control_fake_mass()
          write(luout,1290) control_tole(),control_tolc()
@@ -537,8 +550,13 @@ c           call psp_check_print(ia)
      >                 control_it_in(),control_it_out()
          if ((minimizer.eq.5).or.(minimizer.eq.8)) then
            write(luout,1291)
-           if (control_ks_algorithm().eq.0) 
-     >       write(luout,1292) "conjugate gradient"
+           if (control_ks_algorithm().eq.0)  then
+             if (control_precondition()) then
+                write(luout,1292) "preconditioned conjugate gradient"
+             else
+                write(luout,1292) "conjugate gradient"
+             end if
+           end if
            if (control_ks_algorithm().eq.1) 
      >       write(luout,1292) "rmm-diis"
            write(luout,1295) control_ks_maxit_orb(),
@@ -558,14 +576,20 @@ c           call psp_check_print(ia)
          end if
         if (control_fractional()) then
            write(6,1297)
+           if (control_fractional_smeartype().eq.-1)
+     >       write(6,1298) "fixed occupation"
            if (control_fractional_smeartype().eq.0)
      >       write(6,1298) "step function"
            if (control_fractional_smeartype().eq.1)
      >       write(6,1298) "Fermi-Dirac"
            if (control_fractional_smeartype().eq.2)
      >       write(6,1298) "Gaussian"
-           write(6,1299) control_fractional_kT(),
-     >                   control_fractional_temperature()
+           if (control_fractional_smeartype().eq.4)
+     >       write(6,1298) "Marzari-Vanderbilt"
+           if (control_fractional_smeartype().ge.0)
+     >       write(6,1299) control_fractional_kT(),
+     >                     control_fractional_temperature(),
+     >                     control_fractional_alpha()
          end if
          write(luout,1300)
 c         call ion_Print_neighborlist()
@@ -641,6 +665,12 @@ c     end if
          call psp_stress_end()
       end if
 
+*     **** run socket client ****
+      if (control_runsocket().and.(flag.gt.0)) then
+         call runsocket_ipi(nion,EV,
+     >                      dbl_mb(ion_rion_ptr()),dbl_mb(fion(1)))
+      end if
+
 
 *     *************************************************************
 *     **** output energy, dipole, and gradient to rtdb for use ****
@@ -684,6 +714,8 @@ c     end if
          call psi_Mulliken(rtdb)
          i = control_excited_ne(1)+control_excited_ne(2)
          if (i.eq.0) call kp_structure(rtdb)
+      else if (nwpw_born_on()) then
+         call psi_Born()
       end if
 
 
@@ -716,6 +748,7 @@ c     end if
       call Pack_end()
       call G_end()
       call psp_U_end()
+      call vdw_DF_end()
       call nwpw_meta_gga_end()
       call pspw_end_SIC()
       call pspw_end_HFX()
@@ -854,8 +887,8 @@ c      call frac_occ_end()
      &       '( ',I8,' waves ',I8,' per task)')
  1252 FORMAT(5X,' smooth wavefnc cutoff:  A=',F7.3,' sigma = ',F7.3)
  1260 FORMAT(5X,' Ewald summation: cut radius=',F8.2,'  and',I3)
- 1261 FORMAT(5X,'                  Madelung Wigner-Seitz=',f11.8,
-     >                              ' (alpha=',f11.8,' rs=',f11.8,')')
+ 1261 FORMAT(5X,'                  Madelung Wigner-Seitz=',f14.8,
+     >                              ' (alpha=',f14.8,' rs=',f11.8,')')
  1262 FORMAT(5X,' paw integration: xc lmax=',I3,
      >          ' compensation charge= ',A)
  1270 FORMAT(/' technical parameters:')
@@ -873,7 +906,8 @@ c      call frac_occ_end()
  1296 FORMAT(5X, ' SCF mixing type      = ',A)
  1297 FORMAT(/' fractional smearing parameters:')
  1298 FORMAT(5X, ' smearing algorithm   = ',A)
- 1299 FORMAT(5X, ' smearing parameter   = ',E9.3,' (',F7.1,' K)')
+ 1299 FORMAT(5X, ' smearing parameter   = ',E9.3,' (',F7.1,' K)'/,
+     >       5X, ' mixing parmameter    = ',F7.4) 
  1300 FORMAT(//)
  1301 FORMAT(5X, ' Kerker damping       =',F7.4)
  1305 FORMAT(10X,'================ iteration =========================')

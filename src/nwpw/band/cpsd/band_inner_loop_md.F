@@ -97,8 +97,8 @@
       real*8   pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
       external pspw_charge_found,pspw_qmmm_found
       external pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
-      logical  ion_disp_on
-      external ion_disp_on
+      logical  ion_disp_on,control_only_lda
+      external ion_disp_on,control_only_lda
       real*8   ion_disp_energy
       external ion_disp_energy
 
@@ -141,7 +141,7 @@
      >        BA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
       value = value.and.
      >        BA_push_get(mt_dbl,(nemaxq),'sumi',sumi(2),sumi(1))
-      if (gga.gt.0) then
+      if (.not.control_only_lda()) then
          call D3dB_n2ft3d(1,n2ft3d)
          value = BA_push_get(mt_dbl,(2*n2ft3d),'trho',trho(2),trho(1))
          value = value.and.
@@ -332,7 +332,7 @@
 *       *************************************************
 *       **** generate exchange-correlation potential ****
 *       *************************************************
-        if (gga.eq.0) then
+        if (control_only_lda()) then
            call vxc(nfft3d,ispin,
      >              dbl_mb(dnall(1)),
      >              dbl_mb(xcp(1)),
@@ -712,7 +712,7 @@ c       call ecce_print1('gradient max', mt_dbl, E(1), 1)
  333  continue
       call nwpw_timing_start(12)
       value = .true.
-      if (gga.gt.0) then
+      if (.not.control_only_lda()) then
          value = value.and.BA_pop_stack(txce(2))
          value = value.and.BA_pop_stack(txcp(2))
          value = value.and.BA_pop_stack(trho(2))

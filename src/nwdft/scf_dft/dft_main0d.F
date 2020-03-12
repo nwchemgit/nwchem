@@ -114,6 +114,9 @@ c     initialize
       if (.not. rtdb_put(rtdb, 'dft:energy', MT_DBL, 1, 0.d0))
      &   call errquit('dft_scf: failed to store energy in rtdb', 0,
      &       RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'dft:converged', MT_LOG, 1, .false.))
+     &   call errquit('dft_scf: failed to store converged in rtdb', 0,
+     &       RTDB_ERR)
 c
 c     == SCALAPACK related ==
 c

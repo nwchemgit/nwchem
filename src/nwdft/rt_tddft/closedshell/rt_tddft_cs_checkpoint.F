@@ -35,7 +35,7 @@ C     == Variables ==
       integer g_zscr            !complex scratch array, ns_mo x ns_mo
       
 
-      call rt_tddft_cs_confirm (params)
+      call rt_tddft_cs_confirm (params,'rt_tddft_cs_checkpoint.F')
 
 
       if (.not. ga_duplicate(g_zfock_mo, g_zscr, "zscr"))

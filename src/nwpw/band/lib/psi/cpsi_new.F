@@ -16,9 +16,9 @@
 
 
 *    *** local variables ***
-      logical success
+      logical success,adjust_skip,oddelcfill
       real*8  icharge,tcharge,t
-      integer mult,x,xx
+      integer mult,x,xx,nextra_orbs
       integer ispin,ne(2),nbrillioun
       integer version,rtdb
       integer ngrid(3)
@@ -39,14 +39,18 @@
       external control_multiplicity
       real*8   control_totalcharge
       external control_totalcharge
-      logical control_spin_orbit
-      external control_spin_orbit
+      logical  control_spin_orbit,psi_filefind
+      external control_spin_orbit,psi_filefind
       real*8   ion_TotalCharge_qm
       external ion_TotalCharge_qm
 c     logical  lcao_wvfnc
 c     external lcao_wvfnc
       integer  control_rtdb,brillioun_nbrillioun
       external control_rtdb,brillioun_nbrillioun
+      integer  control_frac_occ_extra_orbitals
+      external control_frac_occ_extra_orbitals
+      logical  control_mult_fixed
+      external control_mult_fixed
 
       filename = control_input_psi()
       version = 5   !version 5-band structure, version 3- pspw
@@ -72,6 +76,7 @@ c     external lcao_wvfnc
       x = NINT(t)
       xx = x
 
+      oddelcfill = .false.
 
       !**** spin orbit ****
       if (soc) then
@@ -83,28 +88,32 @@ c     external lcao_wvfnc
       !**** not spin orbit ****
       else
 
-*        **** reassign spin to agree with total number of electrons ****
-         if ((mod(x,2).ne.0).and.(ispin.eq.1)) then !** odd number of electrons **
-            ispin = 2
-            call control_ispin_set(ispin)
-         end if
+         if (.not.control_mult_fixed()) then
+*           **** reassign spin to agree with total number of electrons ****
+            if ((mod(x,2).ne.0).and.(ispin.eq.1)) then !** odd number of electrons **
+               ispin = 2
+               call control_ispin_set(ispin)
+            end if
 
-*        **** reassign mult to agree with total number of electrons ****
-         if ((mod(x,2).ne.0) .and.(mod(mult,2).ne.0)) then !** odd number of electrons and mult odd **
-            mult = mult - 1
-            do while (mult.gt.(x+1))
-               mult = mult - 2
-            end do
-            if (mult.lt.1) mult = 2
-            call control_multiplicity_set(mult)
-         end if
-         if ((mod(x,2).eq.0) .and.(mod(mult,2).eq.0)) then !** even number of electrons and mult even **
-            mult = mult - 1
-            do while (mult.gt.(x+1))
-               mult = mult - 2
-            end do
-            if (mult.lt.1) mult = 1
-            call control_multiplicity_set(mult)
+*           **** reassign mult to agree with total number of electrons ****
+            if ((mod(x,2).ne.0) .and.(mod(mult,2).ne.0)) then !** odd number of electrons and mult odd **
+               mult = mult - 1
+               do while (mult.gt.(x+1))
+                  mult = mult - 2
+               end do
+               if (mult.lt.1) mult = 2
+               call control_multiplicity_set(mult)
+            end if
+            if ((mod(x,2).eq.0) .and.(mod(mult,2).eq.0)) then !** even number of electrons and mult even **
+               mult = mult - 1
+               do while (mult.gt.(x+1))
+                  mult = mult - 2
+               end do
+               if (mult.lt.1) mult = 1
+               call control_multiplicity_set(mult)
+            end if
+         else
+            if ((mod(x,2).ne.0).and.(ispin.eq.1)) oddelcfill = .true.  !** odd number of electrons **
          end if
 
 *        **** assign number of up and down electrons ****
@@ -121,8 +130,15 @@ c     external lcao_wvfnc
 
       nbrillioun = brillioun_nbrillioun()
 
+      nextra_orbs = control_frac_occ_extra_orbitals()
+      if (ispin.eq.1) then
+         ne(1) = ne(1) + nextra_orbs
+      else
+         ne(1) = ne(1) + nextra_orbs
+         ne(2) = ne(2) + nextra_orbs
+      end if
 
-c      rtdb = control_rtdb()
+      rtdb = control_rtdb()
 c      if (.not.btdb_get(rtdb,
 c     >         'nwpw:lcao_iterations',mt_int,1,lcao_iterations))
 c     >   lcao_iterations = 10
@@ -132,27 +148,34 @@ c     >   lcao_print = .false.
 c      if (.not.btdb_get(rtdb,
 c     >         'nwpw:lcao_skip',mt_log,1,lcao_skip))
 c     >   lcao_skip = .false.
-    
-      success = .false.
-c     if (.not.lcao_skip .and. const)
-c    >  success =  lcao_wvfnc(lcao_print,lcao_iterations,
-c    >                        filename,
-c    >                        version,
-c    >                        ngrid,
-c    >                        unita,
-c    >                        ispin,
-c    >                        ne)
+      if (.not.btdb_get(rtdb,
+     >         'nwpw:adjust_skip',mt_log,1,adjust_skip))
+     >   adjust_skip = .false.
 
-      if (.not.success) then
-       version = 5 
-       call c_wvfnc_new(filename,
-     >                  version,
-     >                  ngrid,
-     >                  unita,
-     >                  soc,
-     >                  ispin,
-     >                  ne,
-     >                  nbrillioun)
+
+      if (psi_filefind().and.(.not.adjust_skip)) then
+         call c_wvfnc_adjust(filename,ispin,ne,nbrillioun)
+      else
+         success = .false.
+c        if (.not.lcao_skip .and. const)
+c    >     success =  lcao_wvfnc(lcao_print,lcao_iterations,
+c    >                           filename,
+c    >                           version,
+c    >                           ngrid,
+c    >                           unita,
+c    >                           ispin,
+c    >                           ne)
+         if (.not.success) then
+            version = 5 
+            call c_wvfnc_new(filename,
+     >                       version,
+     >                       ngrid,
+     >                       unita,
+     >                       soc,
+     >                       ispin,
+     >                       ne,
+     >                       nbrillioun,oddelcfill)
+         end if
       end if
 
       return
@@ -218,7 +241,7 @@ c    >                        ne)
      >                  soc,
      >                  ispin,
      >                  ne,
-     >                  nbrillioun)
+     >                  nbrillioun,.false.)
       return
       end
 
@@ -286,7 +309,7 @@ c    >                        ne)
      >                  soc,
      >                  ispin,
      >                  ne,
-     >                  nbrillioun)
+     >                  nbrillioun,.false.)
 
       return
       end

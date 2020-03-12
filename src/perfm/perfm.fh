@@ -11,20 +11,22 @@ c
 #include "msgids.fh"
       double precision conv2m
       parameter(conv2m=1d-9)
+      integer*8 flpins
+      double precision uso,usn, proc0,proc1
+      real*4 proc_time,  real_time
 #ifdef USE_PAPI
 #include "fpapi.h"
 #define PAPI_FPINS 1
       integer*4 retval,iret
-      real*4 proc_time,  real_time
       real*4 mflops
-      integer*8 flpins
       integer*8 fpcompopsexe
       integer*8 values(10)
-      double precision uso,usn, proc0,proc1
       integer nativees,es,ll,nevents
       logical lfailed
       character*32 eventname(10)
       character*(PAPI_MAX_STR_LEN) papi_errstr
       common/perfm_papi/uso,eventname,
      ,	es,nevents,lfailed
+#else
+      common/perfm_papi/uso,proc0
 #endif

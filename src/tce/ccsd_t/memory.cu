@@ -7,13 +7,13 @@ using namespace std;
 
 extern "C" {
 
-static int is_init=0;
+static size_t is_init=0;
 
-  static map<int,set<void*> > free_list_gpu, free_list_host;
-  static map<void *,int> live_ptrs_gpu, live_ptrs_host;
+  static map<size_t,set<void*> > free_list_gpu, free_list_host;
+  static map<void *,size_t> live_ptrs_gpu, live_ptrs_host;
 
   static void clearGpuFreeList() {
-    for(map<int,set<void*> >::iterator it=free_list_gpu.begin(); 
+    for(map<size_t,set<void*> >::iterator it=free_list_gpu.begin(); 
 	it!=free_list_gpu.end(); ++it) {
       for(set<void*>::iterator it2=it->second.begin();
 	  it2!=it->second.end(); ++it2) {
@@ -24,7 +24,7 @@ static int is_init=0;
   }
   
   static void clearHostFreeList() {
-    for(map<int,set<void*> >::iterator it=free_list_host.begin(); 
+    for(map<size_t,set<void*> >::iterator it=free_list_host.begin(); 
 	it!=free_list_host.end(); ++it) {
       for(set<void*>::iterator it2=it->second.begin();
 	  it2!=it->second.end(); ++it2) {
@@ -34,7 +34,7 @@ static int is_init=0;
     free_list_host.clear();
   }
 
-  static int num_resurrections=0, num_morecore=0;
+  static size_t num_resurrections=0, num_morecore=0;
 
   typedef cudaError (*mallocfn_t)(void **ptr, size_t bytes);
   static void *morecore(mallocfn_t fn, size_t bytes) {
@@ -51,8 +51,8 @@ static int is_init=0;
     return ptr;
   }
 
-  static inline void *resurrect_from_free_list(map<int,set<void *> > &free_map,
-					size_t bytes, map<void*,int>& liveset) {
+  static inline void *resurrect_from_free_list(map<size_t,set<void *> > &free_map,
+					size_t bytes, map<void*,size_t>& liveset) {
     void *ptr;
     num_resurrections +=1 ;
     assert(free_map.find(bytes) != free_map.end());
@@ -84,7 +84,7 @@ void *getGpuMem(size_t bytes) {
     }
   }
   else {
-    for(map<int,set<void *> >::iterator it=free_list_gpu.begin();
+    for(map<size_t,set<void *> >::iterator it=free_list_gpu.begin();
 	it != free_list_gpu.end(); ++it) {
       if(it->first >= bytes && it->second.size()>0) {
 	ptr = resurrect_from_free_list(free_list_gpu, it->first, live_ptrs_gpu);
@@ -116,7 +116,7 @@ void *getHostMem(size_t bytes) {
     }
   }
   else {
-    for(map<int,set<void *> >::iterator it=free_list_host.begin();
+    for(map<size_t,set<void *> >::iterator it=free_list_host.begin();
 	it != free_list_host.end(); ++it) {
       if(it->first >= bytes && it->second.size()>0) {
 	ptr = resurrect_from_free_list(free_list_host, it->first, live_ptrs_host);
@@ -136,7 +136,7 @@ void *getHostMem(size_t bytes) {
 }
 
 void freeHostMem(void *p) {
-  int bytes;
+  size_t bytes;
   assert(is_init);
 #ifdef NO_OPT
   cudaFreeHost(p);
@@ -149,7 +149,7 @@ void freeHostMem(void *p) {
 }
 
 void freeGpuMem(void *p) {
-  int bytes;
+  size_t bytes;
   assert(is_init);
 #ifdef NO_OPT
   cudaFree(p);

@@ -20,6 +20,8 @@ dft
   direct
   odft
   mult 2
+  grid fine
+  convergence energy 1d-9
   xc xtpss03
   maxiter 100
 end
@@ -29,5 +31,5 @@ driver
   maxiter 100
 end
 
-task dft optimize
-task dft frequencies numerical
+task dft gradient
+task dft gradient numerical

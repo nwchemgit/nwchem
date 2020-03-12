@@ -53,8 +53,8 @@ c     ***** PBE96 GGA exchange constants ******
 c     ****** PBE96 GGA correlation constants ******
       real*8 GAMMA,BETA,BOG
       parameter (GAMMA	= 0.031090690869655d0)
-      !parameter (BETA	= 0.066724550603149d0)
-      parameter (BETA	= 0.066725d0)
+      parameter (BETA	= 0.066724550603149d0)
+      !parameter (BETA	= 0.066725d0)
       parameter (BOG    = BETA/GAMMA)
 
 
@@ -511,7 +511,7 @@ c        **** calculate rs and t ****
 
          kf = (3.0d0*pi*pi*n)**onethird
          ks = dsqrt(4.0d0*kf/pi)
-         t  = agr/(2.0*ks*n)
+         t  = agr/(2.0d0*ks*n)
 
 
 c        **** unpolarized LDA correlation energy ****

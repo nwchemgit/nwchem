@@ -4,11 +4,11 @@ title "Test SCAN-L"
 start scanl
 
 geometry
-  H     -1.62522691     0.82336660    -0.41716581
-  N     -1.18023841    -0.07061179    -0.42251903
-  C      0.19940157     0.03911263    -0.37821942
-  H      0.77252807    -0.11338046    -1.30706692
-  F      0.87977314    -0.05004215     0.77235361
+  H     -0.53613834     1.65036000     0.76488131
+  N     -0.20560016     1.19352105    -0.09517494
+  C      0.50994699     0.02103750     0.20703847
+  H      1.50546027    -0.04117360    -0.23494242
+  F     -0.24147792    -1.09742630    -0.06675439
 end
 
 basis cartesian
@@ -19,20 +19,15 @@ basis cartesian
 end
 
 dft
- noio
  xc scanl
- grid xfine nodisk
- vectors atomic
+ grid xfine 
 end
 task dft
 
 dft
-  noio
   mult 1
   odft
-  xc scanl
-  grid xfine nodisk
-  vectors atomic
+  vectors input atomic
 end
 task dft
 
@@ -41,7 +36,9 @@ dft
   mult 3
   odft
   xc scanl
-  grid xfine nodisk
-  vectors atomic
+  tolerances tight
+  grid xfine 
+  vectors input atomic
+  convergence energy 1d-8
 end
 task dft optimize

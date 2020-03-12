@@ -1,0 +1,35 @@
+NWXC
+====
+
+An implementation of exchange-correlation functional  for plane-wave DFT codes abstracted from the Gaussian DFT codes.
+The Gaussian DFT xc codes take slightly different input and produce different gradients then what the plane-wave code does
+by default.
+
+gammaaa =  |grad nup|*|grad nup|
+gammabb =  |grad ndn|*|grad ndn|
+gammaab =  |grad nup|*|grad ndn|
+
+For restricted functionals:
+    Instead of outputing
+       df/d|grad n|
+    the DFT functionals output
+       df/dgammaaa
+       df/dgammabb
+       
+
+For unrestricted functionals:
+   Instead of inputing
+       grad n|^2 
+   the gaussian dft functionals take
+        gammaaa,gammabb,gammaab
+       |
+       
+   Intead of outputing 
+       df/d|grad nup|,
+       df/d|grad ndn|,
+       df/d|grad n|
+   the DFT functionals output
+       df/dgammaaa
+       df/dgammabb
+       df/dgammaab
+

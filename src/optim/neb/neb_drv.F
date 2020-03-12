@@ -22,6 +22,7 @@ c
 *     **** local variables ****     
       logical value,newchain,svalue,verlet,oprint,done,converged,found
       logical ostress,finishedstep,converged1,converged2,stalled
+      logical freeze1,freezen
       character*9 cvg1,cvg2,cvg3,cvg4
       character*4    mark
       character*50 bead_list,filename
@@ -31,8 +32,8 @@ c
       character ch_tmp
       integer ii,shift,print_shift,print_count,jj,manyjj,itm,goodjj
       integer i,it,nbeads,nion,ng,m,nebsteps,neb_algorithm,algorithm
-      integer nbeads1,nbeads2
-      integer e1(2),g0(2),g1(2),s(2),t1(2),v1(2),c0(2),c1(2)
+      integer nbeads1,nbeads2,isystype
+      integer e1(2),g0(2),g1(2),s(2),t1(2),v1(2),c0(2),c1(2),xx1(2)
       integer mass(2),dti(2),cs(2),gs(2)
       real*8  path_energy,path_distance,norm,norm0,time_step,kbeads
       real*8  Gmax,Grms,Xmax,Xrms,dE,path_energy0,emid,emax,emin,trust
@@ -43,8 +44,8 @@ c
       real*8  gmax0,grms0,xmax0,xrms0
 
 *     **** external functions ****
-      logical task_gradient
-      external task_gradient
+      logical task_gradient,systype_bead_list
+      external task_gradient,systype_bead_list
       integer  size_bead_list,nion_bead_list
       real*8   energy_bead_list
       external size_bead_list,nion_bead_list
@@ -91,6 +92,10 @@ c
      >  kbeads = 0.1d0
       if (.not.rtdb_get(rtdb,'neb:steps',mt_int,1,nebsteps))      
      >   nebsteps = 5
+      if (.not.rtdb_get(rtdb,'neb:freeze1',mt_log,1,freeze1))      
+     >   freeze1 = .true.
+      if (.not.rtdb_get(rtdb,'neb:freezen',mt_log,1,freezen))      
+     >   freezen = .true.
 
       if (.not.rtdb_cget(rtdb,'neb:movecs',1,neb_movecs)) then
          call util_file_prefix('movecs',neb_movecs)
@@ -119,7 +124,8 @@ c
 
 *  RRR only initialize if this is a new neb chain!
 *     **** initialize neb list ****
-      bead_list = 'bead_list'
+      !bead_list = 'bead_list'
+      bead_list = 'bead'
       newchain = .false.
       if (.not.rtdb_get(rtdb,'bead_list:new',mt_log,1,newchain))
      >  newchain = .true.
@@ -156,6 +162,7 @@ c
       nbeads = size_bead_list(bead_list)
       nion   = nion_bead_list(bead_list,1)
       ng     = 3*nion*nbeads
+      isystype = systype_bead_list(bead_list)
 
       if (oprint) then
 
@@ -175,9 +182,21 @@ c
          
          write(luout,*)
          write(luout,1) nebgmax,nebgrms,nebxmax,nebxrms,
-     >                  time_step,trust,nebsteps,nbeads,m,nion,kbeads,
+     >                  time_step,trust,nebsteps,nbeads,m,nion,
+     >                  isystype,kbeads,
      >                  neb_algorithm,tmp,
      >                  neb_movecs
+         if (freeze1) then
+           write(luout,'(a)') 'neb: First Replica         = frozen'
+         else
+           write(luout,'(a)') 'neb: First Replica         = moves'
+         end if
+         if (freezen) then
+           write(luout,'(a)') 'neb: Last Replica         = frozen'
+         else
+           write(luout,'(a)') 'neb: Last Replica         = moves'
+         end if
+
          if (ostress) 
      >      write(luout,*) 'neb: INCLUDING STRESS !!!!!!!!!!!!!!!!'
          write(luout,*)
@@ -194,6 +213,7 @@ c
      >    'neb: number of images in path         (nbeads) = ', i4,/,
      >    'neb: number of histories               (nhist) = ', i4,/,
      >    'neb: number of atoms                           = ', i4,/,
+     >    'neb: system type                               = ', i4,/,
      >    'neb: NEB spring constant in a.u.      (kbeads) = ', f10.6,/,
      >    'neb: NEB algorithm                 (algorithm) = ', i4,
      >                                                   1x,'(',a,')'/,
@@ -202,7 +222,9 @@ c
 
 
 *     **** allocate space for gradients and coordinates ****
-      value  = MA_alloc_get(mt_dbl,nbeads,'e1',e1(2),e1(1))
+      value  = MA_alloc_get(mt_dbl,nbeads,'xx1',xx1(2),xx1(1))
+      value  = value.and.
+     >         MA_alloc_get(mt_dbl,nbeads,'e1',e1(2),e1(1))
       value  = value.and.
      >         MA_alloc_get(mt_dbl,ng,'g0',g0(2),g0(1))
       value  = value.and.
@@ -235,7 +257,7 @@ c
       value  = MA_alloc_get(mt_dbl,nion,'mass',mass(2),mass(1))      
       if (.not.value) 
      >  call errquit('neb failed - increase heap memory',2,0)
-      call neb_masses_get(rtdb,dbl_mb(mass(1)))
+      call neb_masses_get(rtdb,bead_list,dbl_mb(mass(1)))
 
       do i=1,nbeads
         do it=1,nion
@@ -263,7 +285,7 @@ c
      >                      dbl_mb(c1(1)),
      >                      dbl_mb(e1(1)),
      >                      dbl_mb(t1(1)),
-     >                      dbl_mb(g1(1))) 
+     >                      dbl_mb(g1(1)),freeze1,freezen) 
       sum0 = ddot(ng,dbl_mb(g1(1)),1,dbl_mb(g1(1)),1)
       sum0_old = sum0
       manyjj = 0
@@ -401,13 +423,14 @@ c     >                                dbl_mb(s(1)))
                 if (oprint)
      >             write(luout,*) "neb: taking fixed point step, ",
      >                            "running internal beads"
-                call runmid_bead_list(bead_list,task_gradient)
+                call runmid_bead_list(bead_list,task_gradient,
+     >                                freeze1,freezen)
                 call neb_energies_get(bead_list,dbl_mb(e1(1)))
                 call neb_gradient_get(bead_list,kbeads,
      >                             dbl_mb(c1(1)),
      >                             dbl_mb(e1(1)),
      >                             dbl_mb(t1(1)),
-     >                             dbl_mb(g1(1)))
+     >                             dbl_mb(g1(1)),freeze1,freezen)
                 sum0a = ddot(ng,dbl_mb(g0(1)),1,dbl_mb(g0(1)),1)
                 sum0b = ddot(ng,dbl_mb(g1(1)),1,dbl_mb(g1(1)),1)
                 sum0  = sum0b
@@ -487,13 +510,14 @@ c                  if (finishedstep) sum0_old = sum0
      >                         dbl_mb(g1(1)))
 
             call neb_coords_set(bead_list,dbl_mb(c1(1)))
-            call runmid_bead_list(bead_list,task_gradient)
+            call runmid_bead_list(bead_list,task_gradient,
+     >                            freeze1,freezen)
             call neb_energies_get(bead_list,dbl_mb(e1(1)))
             call neb_gradient_get(bead_list,kbeads,
      >                            dbl_mb(c1(1)),
      >                            dbl_mb(e1(1)),
      >                            dbl_mb(t1(1)),
-     >                            dbl_mb(g1(1)))
+     >                            dbl_mb(g1(1)),freeze1,freezen)
 
 *         ***** refined CG iteration ****
           else if (algorithm.eq.2) then
@@ -519,13 +543,14 @@ c                  if (finishedstep) sum0_old = sum0
 
               call neb_coords_set(bead_list,dbl_mb(c1(1)))
               if (oprint) write(luout,*) "neb: running internal beads"
-              call runmid_bead_list(bead_list,task_gradient)
+              call runmid_bead_list(bead_list,task_gradient,
+     >                              freeze1,freezen)
               call neb_energies_get(bead_list,dbl_mb(e1(1)))
               call neb_gradient_get(bead_list,kbeads,
      >                             dbl_mb(c1(1)),
      >                             dbl_mb(e1(1)),
      >                             dbl_mb(t1(1)),
-     >                             dbl_mb(g1(1)))
+     >                             dbl_mb(g1(1)),freeze1,freezen)
 
               norm = dsqrt(ddot(ng,dbl_mb(g1(1)),1,dbl_mb(g1(1)),1))
               if(oprint)  write(luout,*) "neb: new gnorm=",norm
@@ -610,6 +635,7 @@ c                  if (finishedstep) sum0_old = sum0
             write(19,*)  "# nbeads             = ",nbeads
             write(19,*)  "# nhist              = ",m
             write(19,*)  "# natoms             = ",nion
+            write(19,*)  "# system type        = ",isystype
             write(19,*)  "# kbeads             = ",kbeads
             write(19,*)  "# stepsize           = ",time_step
             write(19,*)  "# trust              = ",trust
@@ -620,6 +646,16 @@ c                  if (finishedstep) sum0_old = sum0
             write(19,*)  "# Grms               = ",Grms
             write(19,*)  "# Xmax               = ",Xmax
             write(19,*)  "# Xrms               = ",Xrms
+            if (freeze1) then
+               write(19,*) "# First Replica  = frozen"
+            else
+               write(19,*) "# First Replica  = moves"
+            end if
+            if (freezen) then
+               write(19,*) "# Last Replica   = frozen"
+            else
+               write(19,*) "# Last Replica   = moves"
+            end if
             write(19,*) 
      > "#-------------------------------------------------------"
             do i=1,nbeads
@@ -638,7 +674,19 @@ c                  if (finishedstep) sum0_old = sum0
             do i=1,nbeads
                write(luout,*) "neb: ",i,dbl_mb(e1(1)+i-1)
             end do
-            write(luout,*)
+            write(luout,*) "neb:"
+            x1 = 99.99e23
+            x2 = -99.99e23
+            do i=1,nbeads
+               dbl_mb(xx1(1)+i-1) = i*1.0d0
+               if (dbl_mb(e1(1)+i-1).lt.x1) x1 = dbl_mb(e1(1)+i-1)
+               if (dbl_mb(e1(1)+i-1).gt.x2) x2 = dbl_mb(e1(1)+i-1)
+            end do
+            call util_ascii_setwindow(1.0d0,1.0d0*nbeads,x1,x2)
+            call util_ascii_plotter(" neb: ",luout,nbeads,
+     >                              dbl_mb(xx1(1)),dbl_mb(e1(1)),"*",
+     >                              "NEB Path Energy",
+     >                              "Path","Energy (au)")
          end if
          call create_xyz_file_bead_list(luout,bead_list,.true.)
 
@@ -702,6 +750,7 @@ c                  if (finishedstep) sum0_old = sum0
            write(luout,13)  mark,"nbeads         = ",nbeads
            write(luout,13)  mark,"nhist          = ",m
            write(luout,13)  mark,"natoms         = ",nion
+           write(luout,13)  mark,"system type    = ",isystype
            write(luout,14)  mark,"stepsize       = ",time_step
            write(luout,14)  mark,"trust          = ",trust
            write(luout,14)  mark,"kbeads         = ",kbeads
@@ -709,8 +758,17 @@ c                  if (finishedstep) sum0_old = sum0
            write(luout,14)  mark,"Grms tolerance = ",nebGrms
            write(luout,14)  mark,"Xmax tolerance = ",nebXmax
            write(luout,14)  mark,"Xrms tolerance = ",nebXrms
+           if (freeze1) then
+              write(luout,12)  mark,"First Replica  = frozen"
+           else
+              write(luout,12)  mark,"First Replica  = moves"
+           end if
+           if (freezen) then
+              write(luout,12)  mark,"Last Replica   = frozen"
+           else
+              write(luout,12)  mark,"Last Replica   = moves"
+           end if
            write(luout,12)  mark," "
-
            write(luout,10) mark, mark
      
            mark = '@neb'
@@ -757,7 +815,19 @@ c                  if (finishedstep) sum0_old = sum0
      >           "@neb  Try increasing number of steps or",
      >           "...Try increasing the number of beads."
          end if
-          
+         write(luout,'(a)') "@neb"
+         x1 = 99.99e23
+         x2 = -99.99e23
+         do i=1,nbeads
+            dbl_mb(xx1(1)+i-1) = i*1.0d0
+            if (dbl_mb(e1(1)+i-1).lt.x1) x1 = dbl_mb(e1(1)+i-1)
+            if (dbl_mb(e1(1)+i-1).gt.x2) x2 = dbl_mb(e1(1)+i-1)
+         end do
+         call util_ascii_setwindow(1.0d0,1.0d0*nbeads,x1,x2)
+         call util_ascii_plotter("@neb ",luout,nbeads,
+     >                              dbl_mb(xx1(1)),dbl_mb(e1(1)),"*",
+     >                              "Final NEB Path Energy",
+     >                              "Path","Energy (au)")
       end if
 
 
@@ -775,6 +845,7 @@ c                  if (finishedstep) sum0_old = sum0
          write(19,*)  "# nbeads        = ",nbeads
          write(19,*)  "# nhist         = ",m
          write(19,*)  "# natoms        = ",nion
+         write(19,*)  "# system type   = ",isystype
          write(19,*)  "# kbeads        = ",kbeads
          write(19,*)  "# stepsize      = ",time_step
          write(19,*)  "# trust         = ",trust
@@ -785,6 +856,16 @@ c                  if (finishedstep) sum0_old = sum0
          write(19,*)  "# Grms          = ",Grms
          write(19,*)  "# Xmax          = ",Xmax
          write(19,*)  "# Xrms          = ",Xrms
+         if (freeze1) then
+            write(19,*) "# First Replica  = frozen"
+         else
+            write(19,*) "# First Replica  = moves"
+         end if
+         if (freezen) then
+            write(19,*) "# Last Replica   = frozen"
+         else
+            write(19,*) "# Last Replica   = moves"
+         end if
          write(19,*) 
      > "#-------------------------------------------------------"
          do i=1,nbeads
@@ -815,6 +896,7 @@ c                  if (finishedstep) sum0_old = sum0
       value = value.and.MA_free_heap(g1(2))
       value = value.and.MA_free_heap(g0(2))
       value = value.and.MA_free_heap(e1(2))      
+      value = value.and.MA_free_heap(xx1(2))      
       if (.not.value) call errquit('neb failed',4,0)
 
       if (.not.rtdb_put(rtdb,'bead_list:new',mt_log,1,.false.))

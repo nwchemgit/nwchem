@@ -18,7 +18,7 @@ c     **********************************************
 *     **** local variables ****
       integer taskid,MASTER
       parameter (MASTER=0)
-      logical value,cnmeta_read
+      logical value,cnmeta_read,ok
       integer d,i,j,n1,n2,s1,s2,yshift,ntype,seed
       real*8 x,y,z,r,rmax,dr,pi,da,maxcoord,a,b,n,m,sigma,w,r0,gamma,k
       real*8 boundary(2),temp,fac,sn2(12),mass,ztemp,zinitial(2),n12
@@ -211,7 +211,8 @@ c     **********************************************
             do d=1,nmeta
                s1 = int_mb(sindxmeta(1) +d-1)
                if ((int_mb(indxmeta(1)+s1).eq.1).or.
-     >             (int_mb(indxmeta(1)+s1).eq.5)) then
+     >             (int_mb(indxmeta(1)+s1).eq.5).or.
+     >             (int_mb(indxmeta(1)+s1).eq.13)) then
                   if (int_mb(pmeta(1)+d-1).lt.0)
      >               int_mb(pmeta(1)+d-1) = 0
                   if (dbl_mb(ameta(1)+d-1).lt.0.0d0) 
@@ -274,11 +275,25 @@ c     **********************************************
          !seed = 99 --- need to have option to read from input
          !x  = util_random(seed)
          dt = control_time_step()
-         do d=1,nmeta
-            s2 = int_mb(sparammeta(1)+d-1)
-            ztamd(d)  = dbl_mb(parammeta(1)+s2+4) 
-            vztamd(d) = dbl_mb(parammeta(1)+s2+5) 
-         end do
+
+         !*** read restart ztamd and vztamd from rtdb ***
+         rtdb_name = 'tamd_ztamd_nmeta'
+         if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,d)) d = -1
+         ok = .false.
+         if (d.eq.nmeta) then
+            rtdb_name = 'tamd_ztamd'
+            ok =        btdb_get(rtdb,rtdb_name,mt_dbl,nmeta,ztamd)
+            rtdb_name = 'tamd_vztamd'
+            ok = ok.and.btdb_get(rtdb,rtdb_name,mt_dbl,nmeta,vztamd)
+         end if
+         !*** read initial ztamd and vztamd from rtdb ***
+         if (.not.ok) then
+            do d=1,nmeta
+               s2 = int_mb(sparammeta(1)+d-1)
+               ztamd(d)  = dbl_mb(parammeta(1)+s2+4) 
+               vztamd(d) = dbl_mb(parammeta(1)+s2+5) 
+            end do
+         end if
 
          call nwpw_interp_init(nmeta,8)
 
@@ -330,49 +345,49 @@ c     **********************************************
 
             if (ntype.eq.1) then
              write(luout,'(A,5x,2I4,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,F11.6,
-     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,F13.6,
+     >                /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
      >       "   - Bond Parameters =  ",
      >           (int_mb(indxmeta(1)+s1+j),j=1,2),
      >           'gamma=   ',gamma,'k=    ',k,
      >           'mass=    ',mass,
      >           'ztemp=',ztemp,
      >           'zinitial=',zinitial,
-     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'range=   ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
      >           'nrange= ',int_mb(nxmeta(1)+d-1),
      >           'periodic=',int_mb(pmeta(1)+d-1) 
 
             else if (ntype.eq.2) then
              write(luout,'(A,3I4,
-     >             /6x,A,F11.6,4x,A,F11.6,
-     >             /6x,A,F11.6,4x,A,F11.6,
-     >             /6x,A,F11.6,F11.6,
-     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
+     >             /6x,A,F13.6,4x,A,F13.6,
+     >             /6x,A,F13.6,4x,A,F13.6,
+     >             /6x,A,F13.6,F13.6,
+     >                /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
      >       "   - Angle Parameters =  ",
      >           (int_mb(indxmeta(1)+s1+j),j=1,3),
      >           'gamma=',gamma,'k=',k,
      >           'mass=    ',mass,
      >           'ztemp=',ztemp,
      >           'zinitial=',zinitial,
-     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'range=   ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
      >           'nrange= ',int_mb(nxmeta(1)+d-1),
      >           'periodic=',int_mb(pmeta(1)+d-1) 
 
             else if (ntype.eq.3) then
              write(luout,'(A,4I4,
-     >             /6x,A,F11.6,4x,A,F11.6,
-     >             /6x,A,F11.6,4x,A,F11.6,
-     >             /6x,A,F11.6,F11.6,
-     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
+     >             /6x,A,F13.6,4x,A,F13.6,
+     >             /6x,A,F13.6,4x,A,F13.6,
+     >             /6x,A,F13.6,F13.6,
+     >                /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
      >       "   - Angle Parameters =  ",
      >           (int_mb(indxmeta(1)+s1+j),j=1,4),
      >           'gamma=',gamma,'k=',k,
      >           'mass=    ',mass,
      >           'ztemp=',ztemp,
      >           'zinitial=',zinitial,
-     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'range=   ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
      >           'nrange= ',int_mb(nxmeta(1)+d-1),
      >           'periodic=',int_mb(pmeta(1)+d-1) 
 
@@ -386,12 +401,12 @@ c     **********************************************
              write(luout,1001) (int_mb(indxmeta(1)+s1+3+j-1),j=1,n1)
              write(luout,1002) (int_mb(indxmeta(1)+s1+3+n1+j-1),j=1,n2)
 
-             write(luout,'(A,/6x,A,F11.6,4x,A,F11.6,4x,A,F11.6,
-     >                   /6x,A,F11.6,
-     >                   /6x,A,F11.6,4x,A,F11.6,
-     >                   /6x,A,F11.6,4x,A,F11.6,
-     >                   /6x,A,F11.6,F11.6,
-     >                   /6x,A,F11.6,F11.6,
+             write(luout,'(A,/6x,A,F13.6,4x,A,F13.6,4x,A,F13.6,
+     >                   /6x,A,F13.6,
+     >                   /6x,A,F13.6,4x,A,F13.6,
+     >                   /6x,A,F13.6,4x,A,F13.6,
+     >                   /6x,A,F13.6,F13.6,
+     >                   /6x,A,F13.6,F13.6,
      >                   /6x,A,I5,
      >                   /6x,A,I2)')
      >       "   - Coordination Number Parameters: ",
@@ -401,7 +416,7 @@ c     **********************************************
      >           'mass=    ',mass,
      >           'ztemp=',ztemp,
      >           'zinitial=',zinitial,
-     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'range=   ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
      >           'ngrid=  ',int_mb(nxmeta(1)+d-1),
      >           'periodic=  ',int_mb(pmeta(1)+d-1)
               if (dbl_mb(parammeta(1)+s2+11).lt.0) then
@@ -415,82 +430,81 @@ c     **********************************************
              write(luout,1001) int_mb(indxmeta(1)+s1+1)
              write(luout,1002) (int_mb(indxmeta(1)+s1+3+j-1),j=1,n1)
              write(luout,'(A,5x,
-     >                /6x,A,F11.6,F11.6,F11.6,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,F11.6,
-     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
+     >                /6x,A,F13.6,F13.6,F13.6,
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,F13.6,
+     >                /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
      >       "  - n-plane Parameters =  ",
      >           'normal=',
-     >           dbl_mb(parammeta(1)+s2+2),
-     >           dbl_mb(parammeta(1)+s2+3),
-     >           dbl_mb(parammeta(1)+s2+4),
+     >           dbl_mb(parammeta(1)+s2+6),
+     >           dbl_mb(parammeta(1)+s2+7),
+     >           dbl_mb(parammeta(1)+s2+8),
      >           'gamma=',gamma,'k=',k,
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5)
-c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-c     >           'periodic= ',int_mb(pmeta(1)+d-1)
+     >                       dbl_mb(parammeta(1)+s2+5),
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic= ',int_mb(pmeta(1)+d-1)
             else if (ntype.eq.6) then
 
              if (int_mb(indxmeta(1)+s1+1).eq.1) then
              write(luout,'(A,5x,I4,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,F11.6,
-     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
-     >       "   - X Parameters =  ",
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,F13.6,
+     >                /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
+     >       "   - X Parameters, Ion=  ",
      >           int_mb(indxmeta(1)+s1+2),
-     >           'gamma=',gamma,'k=',k,
+     >           'gamma=   ',gamma,'k=',k,
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5)
-c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-c     >           'periodic= ',int_mb(pmeta(1)+d-1)
+     >                       dbl_mb(parammeta(1)+s2+5),
+     >           'range=   ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic= ',int_mb(pmeta(1)+d-1)
              else if (int_mb(indxmeta(1)+s1+1).eq.2) then
              write(luout,'(A,5x,I4,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,F11.6,
-     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
-     >       "   - Y Parameters =  ",
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,F13.6,
+     >                /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
+     >       "   - Y Parameters, Ion =  ",
      >           int_mb(indxmeta(1)+s1+2),
-     >           'gamma=',gamma,'k=',k,
+     >           'gamma=   ',gamma,'k=',k,
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5)
-c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-c     >           'periodic= ',int_mb(pmeta(1)+d-1)
+     >                       dbl_mb(parammeta(1)+s2+5),
+     >           'range=   ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic= ',int_mb(pmeta(1)+d-1)
              else 
              write(luout,'(A,5x,I4,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,F11.6,
-     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
-     >       "   - Z Parameters =  ",
-     >           int_mb(indxmeta(1)+s1+2),
-     >           'gamma=',gamma,'k=',k,
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,F13.6,
+     >                /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
+     >       "   - Z Parameters, Ion =  ",int_mb(indxmeta(1)+s1+2),
+     >           'gamma=   ',gamma,'k=',k,
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5)
-c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-c     >           'periodic= ',int_mb(pmeta(1)+d-1)
+     >                       dbl_mb(parammeta(1)+s2+5),
+     >           'range=   ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic= ',int_mb(pmeta(1)+d-1)
              end if
 
             else if (ntype.eq.7) then
              write(luout,'(A,5x,A,I4,4x,A,I4,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,F11.6,
-     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,F13.6,
+     >                /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
      >       "   - local_density_trace Parameters =  ",
      >           'atom index=',int_mb(indxmeta(1)+s1+1),
      >           'l=',int_mb(indxmeta(1)+s1+2),
@@ -507,12 +521,12 @@ c     >           'periodic=',int_mb(pmeta(1)+d-1)
              write(luout,'(A,
      >                /6x,A,2I4,
      >                /6x,A,2I4,
-     >                /6x,A,2F11.6,
-     >                /6x,A,2F11.6,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,F11.6,
-     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
+     >                /6x,A,2F13.6,
+     >                /6x,A,2F13.6,
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,F13.6,
+     >                /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
      >       "   - 2Bonds Parameters =  ",
      >           'bond 1 indexes=',(int_mb(indxmeta(1)+s1+j),j=1,2),
      >           'bond 2 indexes=',(int_mb(indxmeta(1)+s1+j),j=3,4),
@@ -529,10 +543,10 @@ c     >           'periodic=',int_mb(pmeta(1)+d-1)
 
             else if (ntype.eq.9) then
              write(luout,'(A,5x,A,I4,4x,A,I4,4x,A,I4,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,F11.6,
-     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,F13.6,
+     >                /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
      >       "   - local_density_trace2_diff Parameters =  ",
      >           'atom index1=',int_mb(indxmeta(1)+s1+1),
      >           'atom index2=',int_mb(indxmeta(1)+s1+2),
@@ -549,10 +563,10 @@ c     >           'periodic=',int_mb(pmeta(1)+d-1)
             else if (ntype.eq.10) then
              write(luout,'(A,
      >                /6x,A,3I4,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,F11.6,
-     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,F13.6,
+     >                /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
      >       "   - Bond_Difference2 Parameters =  ",
      >           'bond indexes=',(int_mb(indxmeta(1)+s1+j),j=1,3),
      >           'gamma=',gamma,'k=',k,
@@ -569,10 +583,10 @@ c     >           'periodic=',int_mb(pmeta(1)+d-1)
      >                                        int_mb(indxmeta(1)+s1+1),
      >                                        eqnstring)
                write(luout,'(A,/6x,A,A,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,F11.6,
-     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,4x,A,F13.6,
+     >                /6x,A,F13.6,F13.6,
+     >                /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
      >           '   - Equation Parameters: ',
      >           'equation= ',trim(eqnstring),
      >           'gamma=',gamma,'k=',k,
@@ -584,12 +598,61 @@ c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
 c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
 c     >           'periodic=',int_mb(pmeta(1)+d-1)
 
+
+            else if (ntype.eq.13) then
+             n1 = int_mb(indxmeta(1)+s1+1)
+             n2 = int_mb(indxmeta(1)+s1+2)
+             n  =  dbl_mb(parammeta(1)+s2+6)
+             write(luout,1005) (int_mb(indxmeta(1)+s1+3+j-1),j=1,n1)
+             write(luout,1006) (int_mb(indxmeta(1)+s1+3+n1+j-1),j=1,n2)
+             write(luout,'(A,/6x,A,F13.6,
+     >                   /6x,A,F13.6,4x,A,F13.6,
+     >                   /6x,A,F13.6,4x,A,F13.6,
+     >                   /6x,A,F13.6,F13.6,
+     >                   /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
+     >       "  - Group_Distance Parameters: ",
+     >           'n= ',n,
+     >           'gamma=',gamma,'k=',k,
+     >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
+     >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
+     >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
+     >                       dbl_mb(parammeta(1)+s2+5),
+     >           'range=   ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic=',int_mb(pmeta(1)+d-1) 
+
+            else if (ntype.eq.14) then
+             n1 = int_mb(indxmeta(1)+s1+1)
+             write(luout,'(A,
+     >                   /6x,A,F13.6,4x,A,F13.6,
+     >                   /6x,A,F13.6,4x,A,F13.6,
+     >                   /6x,A,F13.6,F13.6,
+     >                   /6x,A,F13.6,F13.6,4x,A,I5,4x,A,I2)')
+     >       "  - Bondings Parameters: ",
+     >           'gamma=',gamma,'k=',k,
+     >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
+     >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
+     >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
+     >                       dbl_mb(parammeta(1)+s2+5),
+     >           'range=   ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic=',int_mb(pmeta(1)+d-1) 
+
+             write(luout,'(A)')" coefficient index1 index2    :"
+             do j=1,n1
+               write(luout,'(F12.6,2I7)') dbl_mb(parammeta(1)+s2+5+j),
+     >                                 int_mb(indxmeta(1)+s1+2*j),
+     >                                 int_mb(indxmeta(1)+s1+2*j+1)
+             end do
+
             end if
 
          end do
 
  1001 FORMAT(3x,"- Coorination Number (Index1) :",10I5)
  1002 FORMAT(3x,"- Coorination Number (Index2) :",10I5)
+ 1005 FORMAT(2x,"- Group_Distance Indexes (Index1) :",10I5)
+ 1006 FORMAT(2x,"- Group_Distance Indexes (Index2) :",10I5)
 
       end if
       value = btdb_parallel(.true.)
@@ -660,6 +723,17 @@ c     **********************************************
             do i=1,nxmeta_all
                dbl_mb(ymeta(1)+i-1) = fac*dbl_mb(ymeta(1)+i-1)
             end do 
+
+*           **** write out current ztamd and vztamd ****
+            rtdb_name = 'tamd_ztamd_nmeta'
+            value = value.and.
+     >              btdb_put(rtdb,rtdb_name,mt_int,1,nmeta)
+            rtdb_name = 'tamd_ztamd'
+            value = value.and.
+     >              btdb_put(rtdb,rtdb_name,mt_dbl,nmeta,ztamd)
+            rtdb_name = 'tamd_vztamd'
+            value = value.and.
+     >              btdb_put(rtdb,rtdb_name,mt_dbl,nmeta,vztamd)
 
 *           **** write out current spline fits ****
             rtdb_name = 'tamd_ymeta'
@@ -869,9 +943,9 @@ c                 f = f + (1.0d0-(r1/r0)**n)/(1.0d0-(r1/r0)**m)
 c     **** n-plane ****
       else if (ntype.eq.5) then
          f = 0.0d0
-         nx = param(9)
-         ny = param(10)
-         nz = param(11)
+         nx = param(7)
+         ny = param(8)
+         nz = param(9)
          x1 = ion_rion(1,indx(2))
          y1 = ion_rion(2,indx(2))
          z1 = ion_rion(3,indx(2))
@@ -967,6 +1041,49 @@ c     **** n-plane ****
           nion = ion_nion()
           f = nwpw_expression_f(indx(2),nion,dbl_mb(ion_rion_ptr()))
 
+c     **** group distance ****
+      else if (ntype.eq.13) then
+         n1=indx(2)
+         n2=indx(3)
+         f = 0.0d0
+         n  = param(7)
+         n12 = dble(n1*n2)
+         do i=1,n1
+            do j=1,n2
+               x1 = ion_rion(1,indx(3+i))
+               y1 = ion_rion(2,indx(3+i))
+               z1 = ion_rion(3,indx(3+i))
+               x2 = ion_rion(1,indx(3+n1+j))
+               y2 = ion_rion(2,indx(3+n1+j))
+               z2 = ion_rion(3,indx(3+n1+j))
+               dx1 = x1-x2
+               dy1 = y1-y2
+               dz1 = z1-z2
+               call lattice_min_difference(dx1,dy1,dz1)
+               r1  = dsqrt(dx1**2 + dy1**2 + dz1**2)
+               f = f + (1.0/r1)**n
+            end do
+         end do
+         f = (f/n12)**(-1.0d0/n)
+
+c     **** bondings  ****
+      else if (ntype.eq.14) then
+         n1=indx(2)
+         f = 0.0d0
+         do i=1,n1
+            x1 = ion_rion(1,indx(2*i+1))
+            y1 = ion_rion(2,indx(2*i+1))
+            z1 = ion_rion(3,indx(2*i+1))
+            x2 = ion_rion(1,indx(2*i+2))
+            y2 = ion_rion(2,indx(2*i+2))
+            z2 = ion_rion(3,indx(2*i+2))
+            dx1 = x1-x2
+            dy1 = y1-y2
+            dz1 = z1-z2
+            call lattice_min_difference(dx1,dy1,dz1)
+            r1  = dsqrt(dx1**2 + dy1**2 + dz1**2)
+            f = f + param(i+6)*r1
+         end do
       end if
 
       tamd_collective = f
@@ -998,7 +1115,7 @@ c     **********************************************
       real*8 x3,y3,z3,r3,ctheta,stheta,denom
       real*8 dx,dy,dz,dx1,dy1,dz1,dx3,dy3,dz3,nx,ny,nz,la,lb
       real*8 x4,y4,z4,dx2,dy2,dz2,r2,df1,df2,d1a,d2a,d1b,d2b
-      real*8 dfla,dflb,dlar1,dlar2,dlbr1,dlbr2,n12
+      real*8 dfla,dflb,dlar1,dlar2,dlbr1,dlbr2,n12,f
 
 *     **** external functions ****
       integer  ion_rion_ptr,ion_nion
@@ -1389,6 +1506,88 @@ c     **** bond_difference2 ****
      >                        nion,dbl_mb(ion_rion_ptr()),
      >                        fmeta)
 
+c     **** group distances ****
+      else if (ntype.eq.13) then
+         n1=indx(2)
+         n2=indx(3)
+         f = 0.0d0
+         n  = param(7)
+         n12 = dble(n1*n2)
+         do i=1,n1
+            do j=1,n2
+               x1 = ion_rion(1,indx(3+i))
+               y1 = ion_rion(2,indx(3+i))
+               z1 = ion_rion(3,indx(3+i))
+               x2 = ion_rion(1,indx(3+n1+j))
+               y2 = ion_rion(2,indx(3+n1+j))
+               z2 = ion_rion(3,indx(3+n1+j))
+               dx1 = x1-x2
+               dy1 = y1-y2
+               dz1 = z1-z2
+               call lattice_min_difference(dx1,dy1,dz1)
+               r1  = dsqrt(dx1**2 + dy1**2 + dz1**2)
+               f = f + (1.0/r1)**n
+            end do
+         end do
+         f = (f/n12)**(-1.0d0/n)
+
+         do i=1,n1
+            do j=1,n2
+               x1 = ion_rion(1,indx(3+i))
+               y1 = ion_rion(2,indx(3+i))
+               z1 = ion_rion(3,indx(3+i))
+               x2 = ion_rion(1,indx(3+n1+j))
+               y2 = ion_rion(2,indx(3+n1+j))
+               z2 = ion_rion(3,indx(3+n1+j))
+               dx = x1-x2
+               dy = y1-y2
+               dz = z1-z2
+               call lattice_min_difference(dx,dy,dz)
+               r1  = dsqrt(dx**2 + dy**2 + dz**2)
+               df = ((f/r1)**(n+1))/n12
+
+               fmeta(1,indx(3+i)) = fmeta(1,indx(3+i)) - (dx/r1)*df*dv
+               fmeta(2,indx(3+i)) = fmeta(2,indx(3+i)) - (dy/r1)*df*dv
+               fmeta(3,indx(3+i)) = fmeta(3,indx(3+i)) - (dz/r1)*df*dv
+               fmeta(1,indx(3+n1+j)) = fmeta(1,indx(3+n1+j))
+     >                               + (dx/r1)*df*dv
+               fmeta(2,indx(3+n1+j)) = fmeta(2,indx(3+n1+j))
+     >                               + (dy/r1)*df*dv
+               fmeta(3,indx(3+n1+j)) = fmeta(3,indx(3+n1+j))
+     >                               + (dz/r1)*df*dv
+
+
+            end do
+         end do
+
+c     **** bondings  ****
+      else if (ntype.eq.14) then
+         n1=indx(2)
+         do i=1,n1
+            x1 = ion_rion(1,indx(2*i+1))
+            y1 = ion_rion(2,indx(2*i+1))
+            z1 = ion_rion(3,indx(2*i+1))
+            x2 = ion_rion(1,indx(2*i+2))
+            y2 = ion_rion(2,indx(2*i+2))
+            z2 = ion_rion(3,indx(2*i+2))
+            dx1 = x1-x2
+            dy1 = y1-y2
+            dz1 = z1-z2
+            call lattice_min_difference(dx1,dy1,dz1)
+            r1  = dsqrt(dx1**2 + dy1**2 + dz1**2)
+            fmeta(1,indx(2*i+1)) = fmeta(1,indx(2*i+1))
+     >                           - param(i+6)*dx1/r1*dv
+            fmeta(2,indx(2*i+1)) = fmeta(2,indx(2*i+1))
+     >                           - param(i+6)*dy1/r1*dv
+            fmeta(3,indx(2*i+1)) = fmeta(3,indx(2*i+1))
+     >                           - param(i+6)*dz1/r1*dv
+            fmeta(1,indx(2*i+2)) = fmeta(1,indx(2*i+2))
+     >                           + param(i+6)*dx1/r1*dv
+            fmeta(2,indx(2*i+2)) = fmeta(2,indx(2*i+2))
+     >                           + param(i+6)*dy1/r1*dv
+            fmeta(3,indx(2*i+2)) = fmeta(3,indx(2*i+2))
+     >                           + param(i+6)*dz1/r1*dv
+         end do
 
 
       end if

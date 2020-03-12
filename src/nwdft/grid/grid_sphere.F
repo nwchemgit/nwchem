@@ -303,8 +303,10 @@ c
       if(rad.gt.1d-9) then
          grid_nxyz=nint((rad+rad)/l_rect)
       else
-         grid_nxyz=0d0
+         grid_nxyz=0
       endif
+c avoid getting a crazy number of segments for very diffuse functions
+      grid_nxyz=min(grid_nxyz,50)
       return
       end
       integer function grid_nsub4(nxyz)

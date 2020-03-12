@@ -2,12 +2,13 @@
 c $Id$
       implicit none
 #include "hnd_rys.fh"
+      integer ierr
 c
 c Wrapper routine. 
 c
       goto (1,1,1,2,3) nroots
-c      call hnd_droot_new
-      call hnd_droot1
+      call hnd_droot1(ierr)
+      if(ierr.ne.0) call hnd_droot_new
       return
     1 call hnd_rt123
       return
@@ -15,10 +16,12 @@ c      call hnd_droot_new
       return
     3 call hnd_root5
       return
+ 678  continue
       end
 c
-      subroutine hnd_droot1
+      subroutine hnd_droot1(ierr)
       implicit none
+      integer ierr
 #ifdef DBLEPREC_RYS
       double precision ff, r, ww, c, s, a, rt, pt5, zero, one, four
       double precision x, wsum, dum, root, poly
@@ -42,6 +45,7 @@ c     this version uses christoffel formula for weights.
 c     ith root of the jth rys polynomial is returned in r(i,j) with
 c     the corresponding weight factor in ww(i,j).   j=1,2,...,n
 c
+      ierr=0
       n=nroots
       x=yy
       if(n.lt.2) n=2
@@ -71,7 +75,8 @@ c
       k1=k+1
       do 30 i=1,k1
    30 a(i)=c(i,k1)
-      call hnd_rysnod(a,rt,k)
+      call hnd_rysnod(a,rt,k,ierr)
+      if(ierr.ne.0) return
       do 50 i=1,k
    50 r(i,k)=rt(i)
    60 continue
@@ -218,7 +223,7 @@ c
       return
       end
 c
-      subroutine hnd_rysnod(a,rt,k)
+      subroutine hnd_rysnod(a,rt,k,ierr)
       implicit none
 #include "hnd_rys.fh"
 #ifdef DBLEPREC_RYS
@@ -232,6 +237,7 @@ c
 #endif
 #include "stdio.fh"
 #include "errquit.fh"
+      integer ierr
       integer k, k1, m, i
       dimension a(maxrys+1),rt(maxrys+1)
 #ifdef DBLEPREC_RYS
@@ -244,6 +250,7 @@ c     routine returns rt(i) the ith root of a polynomial of order
 c     k whose mth coefficient is stored in a(m+1).  it is assumed that
 c     the initial values in rt bracket the final values.
 c
+      ierr=0
 #ifdef DBLEPREC_RYS
       tol=1.0d-09
 #else
@@ -264,8 +271,13 @@ c
       write(luout,15) m,k
    15 format(//,' root number ',i3,' was not found for polynomial',
      1 ' of order ',i3,//)
+#if 1
+      ierr=-1
+      return
+#else
       call errquit('hnd_rysnod: root not found', 555,
      &       INT_ERR)
+#endif
    20 r5=r1
       p5=p1
       r6=r2

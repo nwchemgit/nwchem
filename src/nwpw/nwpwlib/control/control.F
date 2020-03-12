@@ -16,7 +16,7 @@
 #include "bafdecls.fh"
 #include "btdb.fh"
 #include "control.fh"
-#include "nwxc.fh"
+#include "nwpwxc.fh"
 #include "util.fh"
 
       integer MASTER,taskid
@@ -46,7 +46,6 @@
       integer i,l,np
 !      integer ind ! unused
 
-      logical use_nwxc
       integer  control_num_kvectors
       external control_num_kvectors
       logical  control_allow_translation
@@ -214,15 +213,12 @@
      >                  1,exchange_correlation))
      >   exchange_correlation = 'vosko'
 
-      if (util_module_avail("nwxc")) then
 !$OMP single
-         call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-         if (use_nwxc)  then
-c         call nwxc_print()
-          has_disp = nwxc_has_disp()
-        endif
-!$OMP end single
+      if (nwpwxc_rtdb_load(rtdb,"dft")) then
+c        call nwpwxc_print()
+         has_disp = nwpwxc_has_disp()
       endif
+!$OMP end single
 
 #include "control_gga.fh"
 
@@ -334,15 +330,12 @@ c         call nwxc_print()
      >                  1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
-      if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-        if (use_nwxc)  then
-c         call nwxc_print()
-          has_disp = nwxc_has_disp()
-        endif
-!$OMP end single
+      if (nwpwxc_rtdb_load(rtdb,"dft")) then
+c         call nwpwxc_print()
+          has_disp = nwpwxc_has_disp()
       endif
+!$OMP end single
 
 #include "control_gga.fh"
 
@@ -494,15 +487,12 @@ c
      >                   1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
-      if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-        if (use_nwxc)  then
-c         call nwxc_print()
-          has_disp = nwxc_has_disp()
-        endif
-!$OMP end single
+      if (nwpwxc_rtdb_load(rtdb,"dft")) then
+c        call nwpwxc_print()
+         has_disp = nwpwxc_has_disp()
       endif
+!$OMP end single
 
 #include "control_gga.fh"
 
@@ -515,6 +505,9 @@ c         call nwxc_print()
 *     **** set Kohn-Sham scf parameters ***
       if (.not. btdb_get(rtdb,'nwpw:ks_alpha',mt_dbl,1,ks_alpha))
      >   ks_alpha = 0.25d0
+      if (.not. btdb_get(rtdb,'nwpw:fractional_alpha',
+     >                   mt_dbl,1,fractional_alpha))
+     >   fractional_alpha = 1.00d0
       if (.not.btdb_get(rtdb,'nwpw:scf_algorithm',
      >                  mt_int,1,scf_algorithm))
      >   scf_algorithm = 3
@@ -525,6 +518,9 @@ c         call nwxc_print()
       if (.not.btdb_get(rtdb,'nwpw:kerker_g0',
      >                  mt_dbl,1,kerker_g0))
      >   kerker_g0 = 0.0d0
+      if (.not.btdb_get(rtdb,'nwpw:precondition',
+     >                  mt_log,1,precondition))
+     >   precondition = .false.
 
 *     **** set maxit_orb maxit_orbs ***
       if (.not.btdb_get(rtdb,
@@ -715,15 +711,12 @@ c
      >                   1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
-      if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-        if (use_nwxc)  then
-c         call nwxc_print()
-          has_disp = nwxc_has_disp()
-        endif   
+      if (nwpwxc_rtdb_load(rtdb,"dft")) then
+c        call nwpwxc_print()
+         has_disp = nwpwxc_has_disp()
+      endif   
 !$OMP end single
-      endif
 
 #include "control_gga.fh"
 
@@ -768,6 +761,9 @@ c         call nwxc_print()
 *     **** set Kohn-Sham scf parameters ***
       if (.not. btdb_get(rtdb,'nwpw:ks_alpha',mt_dbl,1,ks_alpha))
      >   ks_alpha = 0.25d0
+      if (.not. btdb_get(rtdb,'nwpw:fractional_alpha',
+     >                   mt_dbl,1,fractional_alpha))
+     >   fractional_alpha = 1.00d0
       if (.not.btdb_get(rtdb,'nwpw:scf_algorithm',
      >                  mt_int,1,scf_algorithm))
      >   scf_algorithm = 3
@@ -777,6 +773,9 @@ c         call nwxc_print()
       if (.not.btdb_get(rtdb,'nwpw:kerker_g0',
      >                  mt_dbl,1,kerker_g0))
      >   kerker_g0 = 0.0d0
+      if (.not.btdb_get(rtdb,'nwpw:precondition',
+     >                  mt_log,1,precondition))
+     >   precondition = .false.
 
 
 *     **** set maxit_orb maxit_orbs ***
@@ -825,15 +824,12 @@ c         call nwxc_print()
          gga = 0
       end if
 
-      if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-        if (use_nwxc)  then
-c         call nwxc_print()
-          has_disp = nwxc_has_disp()
-        endif   
+      if (nwpwxc_rtdb_load(rtdb,"dft")) then
+c        call nwpwxc_print()
+         has_disp = nwpwxc_has_disp()
+      endif   
 !$OMP end single
-      endif
 
       if (.not.btdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp))
      >   npsp = 0
@@ -915,15 +911,12 @@ c         call nwxc_print()
          gga = 0
       end if
 
-      if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-        if (use_nwxc)  then
-c         call nwxc_print()
-          has_disp = nwxc_has_disp()
-        endif   
+      if (nwpwxc_rtdb_load(rtdb,"dft")) then
+c        call nwpwxc_print()
+         has_disp = nwpwxc_has_disp()
+      endif   
 !$OMP end single
-      endif
 
 
       if (.not.btdb_get(rtdb,'cpmd:geometry_optimize',mt_log,1,move))
@@ -1529,11 +1522,11 @@ c      end if
      >       box_delta = 5.0d0
            rtdb_name = cell_name(1:l)//':box_type'
            if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,box_type)) 
-     >       box_type = 0
+     >       box_type = 1
            rtdb_name = cell_name(1:l)//':box_orient'
            if (.not.btdb_get(rtdb,rtdb_name,mt_log,1,
      >                       box_orient)) 
-     >       box_orient = .false.
+     >       box_orient = .true.
            call control_find_box(geom,box_type,box_orient,box_delta,
      >                           unita)
 
@@ -1589,9 +1582,14 @@ c      end if
       parameter (lwork=9)
       double precision work(lwork)
 
-      integer ii,nion,ierr
+      integer ii,nion,ierr,i,j
       double precision q,rxyz(3),mtensor(3,3),frac(3),L1,L2,L3
       double precision x,y,z,meig(3)
+      double precision Ixx,Iyx,Izx
+      double precision Ixy,Iyy,Izy
+      double precision Ixz,Iyz,Izz,Lmax,tmass
+      double precision txy,txz,tyz,txx_yy,txx_zz,tyy_zz,tx,ty,tz
+     
       character*16     t
       logical value
 
@@ -1615,26 +1613,63 @@ c      end if
        mtensor(3,3) = 1.0d0
        if (orient) then
          call dcopy(9,0.0d0,0,mtensor,1)
+         txy = 0.0d0
+         txz = 0.0d0
+         tyz = 0.0d0
+         txx_yy = 0.0d0
+         txx_zz = 0.0d0
+         tyy_zz = 0.0d0
+         tx = 0.0d0
+         ty = 0.0d0
+         tz = 0.0d0
          do ii=1,nion
            value = geom_cent_get(geom,ii,t,rxyz,q)
            if (.not.control_notqmmmq(t)) then
-            x =rxyz(1)
-            y =rxyz(2)
-            z =rxyz(3)
-            mtensor(1,1)=mtensor(1,1)+(y*y+z*z)
-            mtensor(2,1)=mtensor(2,1)- x*y
-            mtensor(1,2)=mtensor(2,1)
-            mtensor(3,1)=mtensor(3,1)- x*z
-            mtensor(1,3)=mtensor(3,1)
-            mtensor(2,2)=mtensor(2,2)+(x*x+z*z)
-            mtensor(3,2)=mtensor(3,2)- y*z
-            mtensor(2,3)=mtensor(3,2)
-            mtensor(3,3)=mtensor(3,3)+(x*x+y*y)
+            x = rxyz(1)
+            y = rxyz(2)
+            z = rxyz(3)
+
+            txy = txy + x*y
+            txz = txz + x*z
+            tyz = tyz + y*z
+
+            txx_yy = txx_yy + (x*x + y*y)
+            txx_zz = txx_zz + (x*x + z*z)
+            tyy_zz = tyy_zz + (y*y + z*z)
+
+            tx  = tx + x
+            ty  = ty + y
+            tz  = tz + z
            end if
          end do
+         tmass = dble(nion)
+         Ixx = tyy_zz - ty*ty/tmass - tz*tz/tmass
+         Iyy = txx_zz - tx*tx/tmass - tz*tz/tmass
+         Izz = txx_yy - tx*tx/tmass - ty*ty/tmass
+         Ixy = txy - tx*ty/tmass 
+         Iyx = Ixy
+         Ixz = txz - tx*tz/tmass
+         Izx = Ixz
+         Iyz = tyz - ty*tz/tmass
+         Izy = Iyz
+
+         mtensor(1,1) = Ixx
+         mtensor(2,1) = -Ixy
+         mtensor(3,1) = -Ixz
+
+         mtensor(1,2) = -Iyx
+         mtensor(2,2) = Iyy
+         mtensor(3,2) = -Iyz
+
+         mtensor(1,3) = -Izx
+         mtensor(2,3) = -Izy
+         mtensor(3,3) = Izz
  
 c        **** longest dimension is along a1 ****
+         ierr = 0
          call DSYEV('V','U',3,mtensor,3,meig,work,lwork,ierr)
+
+
 
 c         !*** reorder eigenvectors - make longest dimesion along a3 ****
 c         x = mtensor(1,1)
@@ -1672,13 +1707,16 @@ c         mtensor(3,3) = z
            if ((frac(1)+delta).gt.( 0.5*L1)) L1 = 2.0d0*(frac(1)+delta)
            if ((frac(2)+delta).gt.( 0.5*L1)) L1 = 2.0d0*(frac(2)+delta)
            if ((frac(3)+delta).gt.( 0.5*L1)) L1 = 2.0d0*(frac(3)+delta)
-           if ((frac(1)-delta).lt.(-0.5*L1)) L1 = 2.0d0*(frac(1)+delta)
-           if ((frac(2)-delta).lt.(-0.5*L1)) L1 = 2.0d0*(frac(2)+delta)
-           if ((frac(3)-delta).lt.(-0.5*L1)) L1 = 2.0d0*(frac(3)+delta)
+           if ((frac(1)-delta).lt.(-0.5*L1))
+     >        L1 = 2.0d0*(dabs(frac(1))+delta)
+           if ((frac(2)-delta).lt.(-0.5*L1)) 
+     >        L1 = 2.0d0*(dabs(frac(2))+delta)
+           if ((frac(3)-delta).lt.(-0.5*L1)) 
+     >        L1 = 2.0d0*(dabs(frac(3))+delta)
         end if
       end do
-      !*** put threshold on smallest box ***
-      if (L1.lt.24.0d0) L1=24.0d0
+      !*** put threshold on smallest cubic box ***
+      if (L1.lt.26.0d0) L1=26.0d0
 
 *     **** define unit cell ****
       unita(1,1) = L1*mtensor(1,1)
@@ -1714,14 +1752,44 @@ c         mtensor(3,3) = z
            frac(3) = mtensor(1,3)*rxyz(1)
      >             + mtensor(2,3)*rxyz(2)
      >             + mtensor(3,3)*rxyz(3)
-           if ((frac(1)+delta).gt.( 0.5*L1)) L1 = 2.0d0*(frac(1)+delta)
-           if ((frac(2)+delta).gt.( 0.5*L2)) L2 = 2.0d0*(frac(2)+delta)
-           if ((frac(3)+delta).gt.( 0.5*L3)) L3 = 2.0d0*(frac(3)+delta)
-           if ((frac(1)-delta).lt.(-0.5*L1)) L1 = 2.0d0*(frac(1)+delta)
-           if ((frac(2)-delta).lt.(-0.5*L2)) L2 = 2.0d0*(frac(2)+delta)
-           if ((frac(3)-delta).lt.(-0.5*L3)) L3 = 2.0d0*(frac(3)+delta)
+c           write(*,*) "ii,frac=",ii,frac
+c           write(*,*) "                  =",
+c     >                mtensor(1,1),mtensor(2,1),mtensor(3,1)
+c           write(*,*) "                  =",rxyz
+c           write(*,*)
+           if ((frac(1)+delta).gt.(0.5d0*L1)) L1 = 2.0d0*(frac(1)+delta)
+           if ((frac(2)+delta).gt.(0.5d0*L2)) L2 = 2.0d0*(frac(2)+delta)
+           if ((frac(3)+delta).gt.(0.5d0*L3)) L3 = 2.0d0*(frac(3)+delta)
+           if ((frac(1)-delta).lt.(-0.5d0*L1)) 
+     >        L1 = 2.0d0*(dabs(frac(1))+delta)
+           if ((frac(2)-delta).lt.(-0.5d0*L2)) 
+     >        L2 = 2.0d0*(dabs(frac(2))+delta)
+           if ((frac(3)-delta).lt.(-0.5d0*L3)) 
+     >        L3 = 2.0d0*(dabs(frac(3))+delta)
         end if
       end do
+
+c      write(*,*) "L1=",L1
+c      write(*,*) "L2=",L2
+c      write(*,*) "L3=",L3
+      !*** put threshold on smallest box ***
+      Lmax = L1
+      if (Lmax.lt.L2) Lmax = L2
+      if (Lmax.lt.L3) Lmax = L3
+      if (Lmax.lt.26.0d0) then
+         L1 = 19.0d0
+         L2 = 19.0d0
+         L3 = 19.0d0
+         mtensor(1,1) = 1.0d0
+         mtensor(2,1) = 1.0d0
+         mtensor(3,1) = 0.0d0
+         mtensor(1,2) = 1.0d0
+         mtensor(2,2) = 0.0d0
+         mtensor(3,2) = 1.0d0
+         mtensor(1,3) = 0.0d0
+         mtensor(2,3) = 1.0d0
+         mtensor(3,3) = 1.0d0
+      end if
 
 *     **** define unit cell ****
       unita(1,1) = L1*mtensor(1,1)
@@ -2240,6 +2308,21 @@ c         mtensor(3,3) = z
 
 *     ***********************************
 *     *					*
+*     *	   control_fractional_alpha	*
+*     *					*
+*     ***********************************
+      real*8 function control_fractional_alpha()
+      implicit none 
+
+#include "control.fh"
+
+      control_fractional_alpha = fractional_alpha
+      return
+      end
+
+
+*     ***********************************
+*     *					*
 *     *		control_kerker_g0	*
 *     *					*
 *     ***********************************
@@ -2269,7 +2352,7 @@ c         mtensor(3,3) = z
 
 *     ***********************************
 *     *                                 *
-*     *         control_ks_algorithm   *
+*     *         control_ks_algorithm    *
 *     *                                 *
 *     ***********************************
       integer function control_ks_algorithm()
@@ -2752,6 +2835,90 @@ c      end
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *   control_use_fractional_rho    *
+*     *                                 *
+*     ***********************************
+      logical function control_use_fractional_rho()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "errquit.fh"
+#include "control.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical use_rho
+
+      if (.not.btdb_get(rtdb,"nwpw:use_fractional_rho", 
+     >     mt_log,1,use_rho)) then
+         use_rho = .true. 
+      end if
+      control_use_fractional_rho = use_rho
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *		control_input_rho 	*
+*     *					*
+*     ***********************************
+
+      character*50 function control_input_rho()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "errquit.fh"
+#include "control.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      character*50 filename
+
+      if (.not.btdb_cget(rtdb,'nwpw:input rho',1,filename)) then
+         call util_file_prefix('rho',filename)
+      end if
+      control_input_rho = filename
+      return 
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         control_output_rho      *
+*     *                                 *
+*     ***********************************
+
+      character*50 function control_output_rho()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "errquit.fh"
+#include "control.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      character*50 filename
+
+      if (.not.btdb_cget(rtdb,'nwpw:output rho',1,filename)) then
+         call util_file_prefix('rho',filename)
+      end if
+      control_output_rho = filename
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *					*
@@ -2799,6 +2966,26 @@ c      end
       return 
       end
 
+*     ***********************************
+*     *					*
+*     *		control_only_lda	*
+*     *					*
+*     ***********************************
+      logical function control_only_lda()
+      implicit none
+
+#include "control.fh"
+
+*     **** external functions ****
+      logical  nwpwxc_is_on,nwpwxc_is_lda
+      external nwpwxc_is_on,nwpwxc_is_lda
+
+      control_only_lda = (.not.nwpwxc_is_on().and.gga.eq.0).or.
+     >                   (nwpwxc_is_on().and.nwpwxc_is_lda())
+      return 
+      end
+
+
 
 *     ***********************************
 *     *                                 *
@@ -2841,6 +3028,34 @@ c      end
 #include "control.fh"
 
       control_options_disp = options_disp
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *        control_has_vdw          *
+*     *                                 *
+*     ***********************************
+      logical function control_has_vdw()
+      implicit none
+
+#include "control.fh"
+
+      control_has_vdw = has_vdw
+      return
+      end 
+
+*     ***********************************
+*     *                                 *
+*     *        control_is_vdw2          *
+*     *                                 *
+*     ***********************************
+      logical function control_is_vdw2()
+      implicit none
+
+#include "control.fh"
+
+      control_is_vdw2 = is_vdw2
       return
       end
 
@@ -2901,6 +3116,8 @@ c      end
       !external control_frac_occ_extra_orbitals
       integer  control_fractional_orbitals
       external control_fractional_orbitals
+      logical  control_mult_fixed
+      external control_mult_fixed
 
 
 
@@ -2910,6 +3127,9 @@ c      end
 *        **** get mult and e-charge from wavefunction file ****
          call psi_get_ne(ispin_wf,ne_wf)
 
+c         write(*,*) "ne_wf = ",ne_wf
+c         x_wf0 = ne_wf(1)+ne_wf(2)
+c         mult0 = ne_wf(1)-ne_wf(2) + 1
          !nextra_orbs = control_frac_occ_extra_orbitals()
          if (ispin_wf.eq.1) then
             ne_wf(1) = ne_wf(1) - control_fractional_orbitals(1)
@@ -2917,11 +3137,14 @@ c      end
             ne_wf(1) = ne_wf(1) - control_fractional_orbitals(1)
             ne_wf(2) = ne_wf(2) - control_fractional_orbitals(2)
          end if
+c         write(*,*) "after ne_wf = ",ne_wf
 
          x_wf = ne_wf(1)+ne_wf(2)
          mult = ne_wf(1)-ne_wf(2) + 1
          if (ispin_wf.eq.1) then
-            x_wf = 2*x_wf
+c            x_wf0 = 2*x_wf0
+c            mult0 = 1
+            x_wf  = 2*x_wf
             mult = 1
          end if
 
@@ -2931,39 +3154,47 @@ c      end
          t = icharge - tcharge       !** total number of electrons **
          x = int(NINT(t))
 
+         if (.not.control_mult_fixed()) then
 
-*        **** reassign spin to agree with total number of electrons ****
-         if ((mod(x,2).ne.0).and.(ispin.eq.1)) then !** odd number of electrons **
-            ispin = 2
-         end if
+*           **** reassign spin to agree with total number of electrons ****
+            if ((mod(x,2).ne.0).and.(ispin.eq.1)) then !** odd number of electrons **
+               ispin = 2
+            end if
 
-*        **** reassign multiplicity to agree with total number of electrons ****
-*        *** odd number of electrons and mult odd ***
-         if ((mod(x,2).ne.0) .and.(mod(multiplicity,2).ne.0)) then 
-            multiplicity = multiplicity - 1
-            do while (multiplicity.gt.(x+1))
-               multiplicity = multiplicity - 2
-            end do
-            if (multiplicity.lt.1) multiplicity = 2
-         end if
-*        *** even number of electrons and mult even ***
-         if ((mod(x,2).eq.0) .and.(mod(multiplicity,2).eq.0)) then 
-            multiplicity = multiplicity - 1
-            do while (multiplicity.gt.(x+1))
-               multiplicity = multiplicity - 2
-            end do
-            if (multiplicity.lt.1) multiplicity = 1
-         end if
+*           **** reassign multiplicity to agree with total number of electrons ****
+*           *** odd number of electrons and mult odd ***
+            if ((mod(x,2).ne.0) .and.(mod(multiplicity,2).ne.0)) then 
+               multiplicity = multiplicity - 1
+               do while (multiplicity.gt.(x+1))
+                  multiplicity = multiplicity - 2
+               end do
+               if (multiplicity.lt.1) multiplicity = 2
+            end if
+*           *** even number of electrons and mult even ***
+            if ((mod(x,2).eq.0) .and.(mod(multiplicity,2).eq.0)) then 
+               multiplicity = multiplicity - 1
+               do while (multiplicity.gt.(x+1))
+                  multiplicity = multiplicity - 2
+               end do
+               if (multiplicity.lt.1) multiplicity = 1
+            end if
 
 
-*        **** compare multiplicity, charge, and ispin ****
-         check = ((mult.eq.multiplicity).and.
-     >            (x_wf.eq.x)           .and.
-     >            (ispin.eq.ispin_wf))
+*           **** compare multiplicity, charge, and ispin ****
+c            check = ( (((mult.eq.multiplicity).and.(x_wf.eq.x))  .or.
+c     >                ((mult0.eq.multiplicity).and.(x_wf0.eq.x))).and.
+c     >               (ispin.eq.ispin_wf))
+            check = ( (mult.eq.multiplicity).and.(x_wf.eq.x).and.
+     >               (ispin.eq.ispin_wf))
 
-         if (ispin_wf.eq.3) then
-            check=((ne_wf(1).eq.ne_wf(2)).and.
-     >             (x.eq.ne_wf(1) ) )
+            if (ispin_wf.eq.3) then
+               check=((ne_wf(1).eq.ne_wf(2)).and.
+     >                (x.eq.ne_wf(1) ) )
+            end if
+
+         else
+*           **** compare multiplicity, and ispin ****
+            check = ((mult.eq.multiplicity).and.(ispin.eq.ispin_wf))
          end if
 *     **** no wavefunction file ***
       else
@@ -3358,6 +3589,32 @@ c      end
       return
       end
 
+      
+*     *****************************
+*     *                           *
+*     *     control_2qintegrals   *
+*     *                           *
+*     *****************************
+      logical function control_2qintegrals()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "util.fh"
+
+      logical q2
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      if( .not. btdb_get(rtdb,'nwpw:2qintegrals',mt_log,1,q2))
+     >  q2 = .false.
+
+      control_2qintegrals = q2
+      return
+      end
+
 
 *     ****************************
 *     *                	 	 *
@@ -3392,6 +3649,41 @@ c      end
       control_num_kvectors = num_kvectors
       return
       end
+
+*     **********************************
+*     *                                *
+*     *  control_num_kvectors_print    *
+*     *                                *
+*     **********************************
+      integer function control_num_kvectors_print()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "errquit.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+     
+*     **** local variables ****
+      logical value
+      character*50 zone_name
+      character*50 rtdb_name
+      integer num_kvectors_print,l
+      
+      if (.not.btdb_cget(rtdb,'band:zone_name',1,zone_name))
+     >   zone_name = 'zone_default'
+      
+      l = index(zone_name,' ') -1
+      rtdb_name = zone_name(1:l)//':number_kvectors_print'
+      if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,num_kvectors_print))
+     >   num_kvectors_print = 0
+         
+      control_num_kvectors_print = num_kvectors_print
+      return
+      end
+
 
 *     ****************************
 *     *                	 	 *
@@ -3702,27 +3994,29 @@ c      end
       end
 
 *     *****************************
-*     *                	 		  *
-*     *    	control_precondition  *
-*     *                 	 	  *
+*     *                		  *
+*     *    control_precondition   *
+*     *                  	  *
 *     *****************************
       logical function control_precondition()
       implicit none
 
-#include "bafdecls.fh"
-#include "btdb.fh"
+#include "control.fh"
 
-*     **** control_rtdb common block ****
-      integer rtdb
-      common / control_rtdb1 / rtdb
-
-      logical precondition
-
-      if (.not.btdb_get(rtdb,'nwpw:precondition',
-     >                  mt_log,1,precondition)) 
-     >  then
-         precondition = .false.
-      end if
+c#include "bafdecls.fh"
+c#include "btdb.fh"
+c
+c*     **** control_rtdb common block ****
+c      integer rtdb
+c      common / control_rtdb1 / rtdb
+c
+c      logical precondition
+c
+c      if (.not.btdb_get(rtdb,'nwpw:precondition',
+c     >                  mt_log,1,precondition)) 
+c     >  then
+c         precondition = .false.
+c      end if
 
       control_precondition = precondition
       return
@@ -5111,6 +5405,62 @@ c      end
       end
 
 
+
+*     **************************************
+*     *                                    *
+*     *   control_brillioun_use_symmetry   *
+*     *                                    *
+*     **************************************
+      logical function control_brillioun_use_symmetry()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.btdb_get(rtdb,'nwpw:brillioun_use_symmetry',
+     >     mt_log,1,value))
+     >   value = .true.
+
+      control_brillioun_use_symmetry = value
+      return
+      end
+
+*     **************************************
+*     *                                    *
+*     *      control_rho_use_symmetry      *
+*     *                                    *
+*     **************************************
+      logical function control_rho_use_symmetry()
+      implicit none
+      
+#include "bafdecls.fh"
+#include "btdb.fh"
+      
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+      
+      value = .false.
+      if (.not.btdb_get(rtdb,'nwpw:rho_use_symmetry',
+     >     mt_log,1,value))
+     >   value = .false.
+
+      control_rho_use_symmetry = value
+      return                
+      end
+
+
+
+
 *     ***********************************
 *     *                                 *
 *     *    control_mparallelized        *
@@ -5238,6 +5588,110 @@ c      end
       control_gradient_virtual = value
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *  control_gradient_virtual_fac   *
+*     *                                 *
+*     ***********************************
+      integer function control_gradient_virtual_fac()
+      implicit none 
+      
+#include "bafdecls.fh"
+#include "btdb.fh"
+            
+*     **** control_rtdb common block ****   
+      integer rtdb
+      common / control_rtdb1 / rtdb
+            
+      integer fac
+              
+      fac = 19
+      if (.not.btdb_get(rtdb,'nwpw:gradient_virtual_fac',mt_int,1,fac))
+     >   fac = 19
+            
+      control_gradient_virtual_fac = fac
+      return   
+      end
+
+      
+*     ***********************************
+*     *                                 *
+*     *     control_bound_virtual       *
+*     *                                 *
+*     ***********************************
+      logical function control_bound_virtual()
+      implicit none
+      
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+            
+      logical value
+
+      value = .false.
+      if (.not.btdb_get(rtdb,'nwpw:bound_virtual',mt_log,1,value))
+     >   value = .false.
+
+      control_bound_virtual = value
+      return
+      end   
+
+*     ***********************************
+*     *                                 *
+*     *       control_2x2_virtual       *
+*     *                                 *
+*     ***********************************
+      logical function control_2x2_virtual()
+      implicit none
+      
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+            
+      logical value
+      
+      value = .false.
+      if (.not.btdb_get(rtdb,'nwpw:2x2_virtual',mt_log,1,value))
+     >   value = .false.
+      
+      control_2x2_virtual = value
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *     control_confine_virtual     *
+*     *                                 *   
+*     ***********************************
+      logical function control_confine_virtual()
+      implicit none
+            
+#include "bafdecls.fh"
+#include "btdb.fh"
+            
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+               
+      logical value
+                 
+      value = .false.
+      if (.not.btdb_get(rtdb,'nwpw:confine_virtual',mt_log,1,value))
+     >   value = .false.
+                 
+      control_confine_virtual = value
+      return
+      end   
+              
+              
+           
 
 
 
@@ -6234,6 +6688,227 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end
       
+
+
+*     ***********************************
+*     *                                 *
+*     *    control_psp_semicore_small   *
+*     *                                 *
+*     ***********************************
+      logical function control_psp_semicore_small()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.btdb_get(rtdb,'nwpw:psp:semicore_small',mt_log,1,value))
+     >   value = .false.
+
+      control_psp_semicore_small = value
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         control_incell          *
+*     *                                 *
+*     ***********************************
+      logical function control_incell()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.btdb_get(rtdb,'nwpw:incell',mt_log,1,value))
+     >   value = .true.
+
+      control_incell = value
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *    control_fetch_confine        *
+*     *                                 *
+*     ***********************************
+      subroutine control_fetch_confine(symbol,q1,rs,re)
+      implicit none
+      character*4 symbol
+      real*8 q1,rs,re
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+      integer l
+      real*8 rrr(3)
+
+      l = index(symbol,' ') - 1
+      if (.not.btdb_get(rtdb,'nwpw:confine:'//symbol(1:l),
+     >                  mt_dbl,3,rrr)) then
+
+         rrr(1) = 1.0d0
+         rrr(2) = 6.0d0
+         rrr(3) = 14.0d0
+      end if
+      q1 = rrr(1)
+      rs = rrr(2)
+      re = rrr(3)
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *       control_runsocket         *
+*     *                                 *
+*     ***********************************
+      logical function control_runsocket()
+      implicit none
+
+#include "inp.fh"
+
+*     **** local variables ****
+      logical value
+      character*40 stype
+
+      value = .false.
+      call control_socket_type(stype)
+      if (inp_compare(.false.,'ipi_client',stype)) value = .true.
+      if (inp_compare(.false.,'unix',stype)) value = .true.
+
+      control_runsocket = value
+      return
+      end
+
+
+*     ************************************
+*     *                                  *
+*     *      control_socket_type         *
+*     *                                  *
+*     ************************************
+      subroutine control_socket_type(stype)
+      implicit none
+      character*(*) stype
+
+#include "control.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      if (.not.btdb_cget(rtdb,'nwpw:socket_type',
+     >                   1,stype)) then
+         stype = "no socket"
+      end if
+      return
+      end
+
+*     ************************************
+*     *                                  *
+*     *      control_socket_ip           *
+*     *                                  *
+*     ************************************
+      subroutine control_socket_ip(socket_ip)
+      implicit none
+      character*(*) socket_ip
+      character*40 stype
+
+#include "control.fh"
+#include "btdb.fh"
+#include "inp.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      if (.not.btdb_cget(rtdb,'nwpw:socket_ip',
+     >                   1,socket_ip)) then
+         call control_socket_type(stype)
+         if (inp_compare(.false.,'unix',stype)) then
+            socket_ip = "nwchem"
+         else
+            socket_ip = "127.0.0.1:31415"
+         end if
+      end if
+      return
+      end
+
+
+
+*     ************************************
+*     *                                  *
+*     *      control_vfield_filenames    *
+*     *                                  *
+*     ************************************
+      logical function control_vfield_filenames(filenames)
+      implicit none
+      character*(*) filenames
+
+#include "control.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical found
+
+      found = .false.
+      if (btdb_cget(rtdb,'nwpw:vfield_filenames',1,filenames)) then
+         found = .true.
+      end if
+
+      control_vfield_filenames = found
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *        control_mult_fixed       *
+*     *                                 *
+*     ***********************************
+      logical function control_mult_fixed()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.btdb_get(rtdb,'nwpw:mult_fixed',mt_log,1,value))
+     >   value = .false.
+
+      control_mult_fixed = value
+      return
+      end
+
+
 
 
 

@@ -15,7 +15,7 @@
 	ga_cont_blk.o           mull_pop.o \
         matrix_exp.o              scf_pstat.o \
         schwarz_max.o             movecs_proj.o \
-        movecs_rotate.o \
+        movecs_rotate.o movecs_molden.o \
         ao_fock_2e.o              movecs_lock.o \
 	fock_2e.o                 fock_2e_et.o \
 	fock_2e_a.o               print_aoints.o \
@@ -71,7 +71,7 @@
                 rohf_k2cf.F scf_movecs.F scf_vec_guess.F uhf.F movecs_frag.F localize.F fock_2e.F \
 		fock_2e_cam.F int_1e_ga.F movecs_rotate.F vectors.F ga_get2eri.F
 
-HEADERS = schwarz.fh cscfps.fh cfock.fh cscf.fh cint2efile.fh cint2esave.fh cfockmul.fh crohf.fh cosmo.fh cuhf.fh frozemb.fh
+HEADERS = schwarz.fh cscfps.fh cfock.fh cscf.fh cint2efile.fh cfockmul.fh crohf.fh cosmo.fh cuhf.fh frozemb.fh
 
 #activate disk array use of RI-SCF
   DEFINES += -DRISCF_USE_DRA

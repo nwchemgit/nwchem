@@ -41,7 +41,13 @@
       value = value.and.beom_create(geom2,'pspwgeometry')
       value = value.and.beom_create(geom3,'chargegeometry')
       value = value.and.beom_rtdb_load(rtdb,geom1,'geometry')
+      value = value.and.beom_rtdb_load(rtdb,geom2,'geometry')
       value = value.and.beom_ncent(geom1,nion1)
+
+      !value = value.and.beom_rtdb_store(rtdb,geom1,'pspwgeometry')
+      !value = value.and.beom_load(geom2,'pspwgeometry')
+
+
       if (.not. value) call errquit('opening geometry',0,
      &       GEOM_ERR)
 

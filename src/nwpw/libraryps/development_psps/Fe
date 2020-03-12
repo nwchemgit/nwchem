@@ -15,9 +15,32 @@ Comment: PBE96       70              1x3x2  -615.27419176           10.020      
 Comment: PBE96       80              1x3x2  -615.27582459           10.044            3.018            4.639   antiferromagnetic
 Comment: experiment (T=25C)                                          9.9134           3.0128           4.5800  antiferromagnetic
 Comment:
-Comment: Results for Hematite
 Comment:
-Comment: experiment
+Comment: Results for Hematite (Primitive cell)
+Comment: XC        Ecut     Monkhorst-Pack         Energy     a(Angstroms)     b(Angstroms)     c(Angstroms)    alpha    beta   gamma
+Comment: PBE         50              2x2x2  -580.87174513            5.383            5.383            5.383   55.013  55.013  55.013
+Comment: PBE         50              3x3x3  -580.87474497            5.381            5.381            5.381   54.905  54.905  54.905
+Comment: PBE         50              4x4x4  -580.87492460            5.383            5.383            5.383   54.870  54.869  54.870
+Comment: PBE         50              5x5x5  -580.87483021            5.383            5.383            5.383   54.874  54.874  54.873 
+Comment:
+Comment: Results from http://www.crystallography.net
+Comment: experiment1 - Pauling, L; Hendricks, S B, The Structure of Hematite Journal of the American Chemical Society, 1925, 47, 781-790
+Comment: experiment2 - Pauling, L; Hendricks, S B, The Structure of Hematite Journal of the American Chemical Society, 1925, 47, 781-790
+Comment: experiment1                                                  5.43             5.43             5.43   55.28   55.28   55.28
+Comment: experiment2                                                  5.42             5.42             5.42   55.28   55.28   55.28
+Comment:
+Comment:
+Comment: Results for Hematite (Conventional cell - R-3c symmetry)
+Comment: XC        Ecut     Monkhorst-Pack         Energy     a(Angstroms)     b(Angstroms)     c(Angstroms)    alpha    beta   gamma
+Comment: PBE         50              3x3x1 -1742.58066467            4.958            4.958           13.553       90      90     120
+Comment:
+Comment: Results from http://www.crystallography.net
+Comment: Finger LW, Hazen RM. Crystal structure and isothermal compression of Fe2O3, Cr2O3, and V2O3 to 50 kbars. Journal of Applied Physics. 1980 Oct;51(10):5362-7. 
+Comment:  https://doi.org/10.1063/1.327451
+Comment:  - pressure=0.001 kbars                                    5.0347           5.0344          13.7473   90.002  90.004 120.001
+Comment:
+Comment: Blake, R. L.; Hessevick, R. E.; Zoltai, T.; Finger, L. W.  Refinement of the hematite structure American Mineralogist, 1966, 51, 123-129
+Comment:   - stp?                                                    5.038            5.038           13.772      90       90     120
 Comment:
 Comment: Results for FeO (X^5 Delta) molecule
 Comment: XC          Ecut/Basis         Energy     Re(Angstroms)     w(cm-1)     De(eV)
@@ -27,7 +50,8 @@ Comment: PBE96               70  -137.12410210           1.55756
 Comment: PBE96               80  -137.12435249           1.55773 
 Comment: experiment                                      1.57           965        4.26
 Comment:
-Comment: Results for Fe atom (quintet)
+Comment:
+Comment: Results for Fe-atom (quintet)
 Comment: XC          Ecut/Basis         Energy
 Comment: PBE96               50   -121.1479154
 Comment: PBE96               60   -121.1470458

@@ -11,7 +11,7 @@ C> [1] JE Jaffe, AC Hess,
 C>     <i>"Gaussian basis density functional theory for systems 
 C>     periodic in two or three dimensions: Energy and forces"</i>,
 C>    J.Chem.Phys. <b>105</b>, 10983-10998 (1996), DOI:
-C>    <a href="http://dx.doi.org/10.1063/1.472866">
+C>    <a href="https://doi.org/10.1063/1.472866">
 C>    10.1063/1.472866</a>
 C>
       subroutine intp_2e3ct(brain, ish, jsh, ketin, ksh, Rj, Rk, 

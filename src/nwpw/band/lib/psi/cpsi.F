@@ -981,6 +981,8 @@ c     &       MA_ERR)
       real*8   c_rho_1exc,c_rho_1pxc,lattice_unitg,lattice_omega
       external control_gga
       external c_rho_1exc,c_rho_1pxc,lattice_unitg,lattice_omega
+      logical  control_only_lda
+      external control_only_lda
 
 *     *** define hm ****
       pi   = 4.0d0*datan(1.0d0)
@@ -1002,7 +1004,8 @@ c     &       MA_ERR)
 
 *     **** PBE96 GGA part ****
       gga = control_gga()
-      if ((gga.ge.10).and.(gga.lt.100)) then
+      !if ((gga.ge.10).and.(gga.lt.100)) then
+      if (.not.control_only_lda()) then
          call D3dB_n2ft3d(1,n2ft3d)
          if (.not.
      >      BA_push_get(mt_dbl,(ispin*n2ft3d),'trho',trho(2),trho(1)))
@@ -1128,6 +1131,35 @@ c     &       MA_ERR)
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *         cpsi_scal_hml           *
+*     *                                 *
+*     ***********************************
+      subroutine cpsi_scal_hml(alpha)
+      implicit none
+      real*8 alpha
+
+#include "bafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      integer nb,hml_shift
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+     
+      do nb=1,nbrillq
+         hml_shift = cpsi_data_get_chnk(hml_tag,nb)
+         call Pneb_w_scal(0,nb,alpha,dbl_mb(hml_shift))
+      end do
+      return        
+      end  
+
+
+
 *     ***********************************
 *     *					*
 *     *		cpsi_eigenvalue    	*
@@ -1234,9 +1266,10 @@ c     &       MA_ERR)
 *     *      cpsi_1define_occupation    *
 *     *                                 *
 *     ***********************************
-      subroutine cpsi_1define_occupation(initial)
+      subroutine cpsi_1define_occupation(initial_alpha,use_hml)
       implicit none
-      logical initial
+      real*8  initial_alpha
+      logical use_hml
 
 #include "bafdecls.fh"
 #include "cpsi_common.fh"
@@ -1255,20 +1288,36 @@ c     &       MA_ERR)
       integer  control_multiplicity
       real*8   brillioun_weight
       real*8   control_TotalCharge,ion_TotalCharge_qm
-      real*8   cpsi_occ_distribution,control_ks_alpha
+      real*8   cpsi_occ_distribution,control_fractional_alpha
       external cpsi_data_get_next,cpsi_data_get_chnk
       external control_multiplicity
       external brillioun_weight
       external control_TotalCharge,ion_TotalCharge_qm
-      external cpsi_occ_distribution,control_ks_alpha
+      external cpsi_occ_distribution,control_fractional_alpha
 
+      if (use_hml) then
+         do ms=1,ispin
+            do nb=1,nbrillq
+               shift1 = cpsi_data_get_chnk(eig_tag, nb) + (ms-1)*ne(1)
+               shift2 = cpsi_data_get_chnk(hml_tag,nb)
+     >                + (ms-1)*ne(1)*ne(1)
+               do n=1,ne(ms)
+                  dbl_mb(shift1+n-1) = dbl_mb(shift2+(n-1)+(n-1)*ne(ms))
+               end do
+            end do
+         end do
+      end if
 
       smearfermi(1)      = 0.0d0
       smearfermi(2)      = 0.0d0
       smearcorrection = 0.0d0
       occ1_tag = cpsi_data_get_next(psi1_tag)
       if (occ1_tag.gt.0) then
-         alpha = control_ks_alpha()
+         if (initial_alpha.lt.0.0d0) then
+            alpha = control_fractional_alpha()
+         else
+            alpha = initial_alpha
+         end if
          kT    = smearkT
          ZZ  = ion_TotalCharge_qm() - control_TotalCharge()
          if (ispin.eq.2) then
@@ -1281,7 +1330,8 @@ c     &       MA_ERR)
          end if
        
          pi    = 4.0d0*datan(1.0d0)
-         if (initial) alpha = 1.0d0
+         !if (initial) alpha = 1.0d0
+         if (smeartype.le.0) alpha = 0.0d0
 
 *        **** outer loop over spins ****
          smearcorrection = 0.0d0
@@ -1364,6 +1414,7 @@ c     &       MA_ERR)
                  e = dbl_mb(shift1)
                  x = (e - smearfermi(ms))/kT
                  f = cpsi_occ_distribution(smeartype,x)
+
                  dbl_mb(shift2) = (1.0d0-alpha)*dbl_mb(shift2) + alpha*f
 
                  if (smeartype.eq.1) then
@@ -1377,6 +1428,12 @@ c     &       MA_ERR)
                    smearcorrection 
      >                 = smearcorrection 
      >                 - kT*wb*dexp(-x*x)/(4.0d0*dsqrt(pi))
+                 else if (smeartype.eq.4) then
+                   smearcorrection
+     >                 = smearcorrection
+     >                 - kT*wb*dexp(-(x+dsqrt(0.5d0))*(x+dsqrt(0.5d0)))
+     >                 * (1.0d0 + dsqrt(2.0d0) * x)
+     >                 / (2.0d0 * dsqrt(pi))
                  end if
                  shift1  = shift1 + 1
                  shift2  = shift2 + 1
@@ -1394,6 +1451,7 @@ c     &       MA_ERR)
 
 
 c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
+c                                   4-Marzari-Vanderbilt
 
       real*8 function cpsi_occ_distribution(smeartype,e)
       implicit none
@@ -1415,6 +1473,10 @@ c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
          end if
       else if (smeartype.eq.2) then
          f = 0.5d0*util_erfc(e)
+      else if (smeartype.eq.4) then
+         f = dexp(-(e + dsqrt(0.5d0)) * (e + dsqrt(0.5d0)))
+     >     * dsqrt(0.125d0 / datan(1.0d0))
+     >     + 0.5d0 * util_erfc(e + dsqrt(0.5d0))
       else 
          if (e.gt.0.0d0) then
            f = 0.0d0
@@ -1914,7 +1976,7 @@ c         end do
 *     **** local variables ****
       integer taskid,MASTER
       parameter (MASTER=0)
-      logical value,psi_nogrid
+      logical value,psi_nogrid,expand_psi
       integer neall,n,vers
       integer hversion,hnfft(3),hispin,hne(2)
       real*8 hunita(3,3)
@@ -1943,8 +2005,12 @@ c         end do
       external cpsi_data_get_ptr
       real*8   w
 
+      real*8   cpsi_1ke
+      external cpsi_1ke
 
 
+
+      expand_psi = .false.
 
 *     ***** get ispin, and ne, and nfft3d ****
       call psi_get_ne_occupation(ispin,ne,smearoccupation)  !** only ne and occupation are used 
@@ -1961,6 +2027,7 @@ c         end do
         if (taskid.eq.MASTER) then
           value= pspw_reformat_c_wvfnc(1)
         end if
+        expand_psi = .true.
       end if
 
       call C3dB_nfft3d(1,nfft3d)
@@ -2070,8 +2137,10 @@ c     *****  read initial wavefunctions into psi1  ****
           write(*,*) "set nwpw:psi_nogrid .false."
           write(*,*)
           value = c_wvfnc_expander(rtdb)
+          !expand_psi = .true.
 
         end if
+        expand_psi = .true.
         value = btdb_parallel(.true.)
 
         end if
@@ -2088,7 +2157,8 @@ c     *****  read initial wavefunctions into psi1  ****
       ne_excited(1) = 0
       ne_excited(2) = 0
 
-      cpsi_initialize = value
+      !cpsi_initialize = value
+      cpsi_initialize = expand_psi
       return
       end
 
@@ -2994,6 +3064,7 @@ c     *****  read initial wavefunctions into psi1  ****
 
 #include "bafdecls.fh"
 #include "errquit.fh"
+#include "stdio.fh"
 #include "cpsi_common.fh"
 
 
@@ -3004,6 +3075,11 @@ c     *****  read initial wavefunctions into psi1  ****
 *     **** Mulliken Analysis ****
       call band_analysis(0,rtdb,ispin,ne,nbrillioun,nbrillq,
      >                   psi1_tag,eig_tag)
+      
+      call band_gen_APC(ispin,ne,dcpl_mb(dng1(1)))
+      call band_print_APC(luout)
+      call band_gen_Efield(rtdb,ispin,dcpl_mb(dng1(1)))
+     
 
       return
       end
@@ -3016,11 +3092,12 @@ c     *****  read initial wavefunctions into psi1  ****
 *     *                                 * 
 *     ***********************************
 
-      subroutine cpsi_projected_dos_weights(rtdb,dosgrid,k,pweight,lmax)
+      subroutine cpsi_projected_dos_weights(rtdb,dosgrid,k,pweight,
+     >                                      lmax,norbs)
       implicit none
       integer rtdb,dosgrid(3),k
       real*8  pweight(*)
-      integer lmax
+      integer lmax,norbs
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -3033,7 +3110,7 @@ c     *****  read initial wavefunctions into psi1  ****
 
       call Parallel3d_taskid_k(taskid_k)
 
-      nnmax = (ne(1)+ne(2))*nbrillq*4
+      nnmax = (ne(1)+ne(2))*nbrillq*(4+norbs)
       value = BA_push_get(mt_dbl,(nnmax),'eweight',weight(2),weight(1))
       value = value.and.
      >        BA_push_get(mt_dbl,(ne(1)+ne(2)),'tmp',tmp(2),tmp(1))
@@ -3045,9 +3122,10 @@ c     *****  read initial wavefunctions into psi1  ****
 
 *     **** Mulliken Analysis ****
       call band_projecteddos_analysis(0,rtdb,ispin,ne,nbrillq,
-     >                                psi1_tag,dbl_mb(weight(1)),lmax)
+     >                                psi1_tag,dbl_mb(weight(1)),
+     >                                lmax,norbs)
 
-      do l=0,lmax
+      do l=0,lmax+norbs
       do nb=1,nbrillioun
          call K1dB_ktoqp(nb,nbq,p)
          if (p.eq.taskid_k) then

@@ -12,6 +12,9 @@
 #include "global.fh"
 #include "ccsd_len.fh"
 #include "ccsdps.fh"
+#include "util.fh"
+#include "msgids.fh"
+#include "yflop.fh"
 !
       double precision, intent(inout) :: emp4,emp5
       double precision, intent(in) :: t1(*)
@@ -63,6 +66,9 @@
       integer :: klo, khi
       integer nxtask
       external nxtask
+      double precision perfm_flop,tzero,flopzero,t_flops,agg_flops
+      external perfm_flop
+
 !
 !  Dependencies (global array, local array, handle):
 !
@@ -99,6 +105,9 @@
        integer nbh_objo4,nbh_objo5,nbh_objo6
 !
        integer nbh_exch1,nbh_exch2,nbh_coul1,nbh_coul2
+       integer n_progr,pct_progr
+       parameter(n_progr=20)
+       logical i_progr(n_progr+1)
 !
 #if defined(USE_OPENMP)
       integer  omp_get_thread_num
@@ -117,7 +126,8 @@
    99 format(2x,'Using ',i2,' OpenMP thread in CCSD(T)')
   999 format(2x,'Recompile w/ USE_OPENMP=1 to use threads in CCSD(T)')
 #endif
-
+      tzero=util_wallsec()
+      flopzero=perfm_flop()
 #ifdef USE_F90_ALLOCATABLE
       allocate( dintc1(1:nvir), stat=alloc_error)
       if (alloc_error.ne.0) call errquit('dintc1',1,MA_ERR)
@@ -133,6 +143,11 @@
       if (alloc_error.ne.0) call errquit('t1v2',6,MA_ERR)
 #endif
 !
+#ifdef MKL_THREAD
+      call omp_set_nested(1)
+      call mkl_set_dynamic(0)
+      call mkl_set_num_threads(2)
+#endif
       nodes = ga_nnodes()
       iam = ga_nodeid()
 !
@@ -143,6 +158,9 @@
       else
          call qenter('trpdrv',0)
       endif
+       do klo=1,n_progr+1
+          i_progr(klo)=.true.
+       enddo
       inode=-1
       next=nxtask(nodes, 1)
       do klo = 1, nocc, kchunk
@@ -333,6 +351,14 @@
                         eaijk=eorb(a) - (  eorb(ncor+i)
      &                                    +eorb(ncor+j)
      &                                    +eorb(ncor+k) )
+#ifdef USE_YFLOP
+      flops_ycount = flops_ycount + nvir*nvir*(
+     D                       3 + 2*(
+     E                       12 +
+     E                       11 +
+     E                       11 ) +
+     5                       2*27 )
+#endif
 !$omp do collapse(2)
 !$omp& schedule(static)
 !$omp& reduction(+:emp5i,emp4i)
@@ -404,28 +430,51 @@
  1234                format(' iam aijk',3i5,2e15.5)
                   end if
                   next=nxtask(nodes, 1)
-               end if
-            end do
             if(ga_nodeid().eq.0) then
+               pct_progr=(a-(ncor+nocc)+((klo-1)/kchunk)*nvir)*n_progr/
+     /          ((nocc/kchunk)*nvir)+1
+               if(i_progr(pct_progr)) then
+                  i_progr(pct_progr)=.false.
                write(6,4321) ' ccsd(t): done ',
      A              a-(ncor+nocc)+((klo-1)/kchunk)*nvir,
      O              ' out of ',(nocc/kchunk)*nvir,
      O              ' progress: ',
-     O              ((a-(ncor+nocc)+((klo-1)/kchunk)*nvir)*100d0)/
+     O              ((a-(ncor+nocc)+((klo-1)/kchunk)*nvir)*100)/
      D              ((nocc/kchunk)*nvir),
-     P              '%'
- 4321          format(a,i8,a,i8,a,f6.1,a1)
+     P            '%, Gflops=',(perfm_flop()-flopzero)/
+     D              (util_wallsec()-tzero),
+     P                 ' at ',(util_wallsec()-tzero),' secs'
+               call util_flush(6)
+ 4321          format(a,i8,a,i8,a,i3,a,1pg11.4,a,0pf10.1,a)
+               endif
             endif
+               end if
+            end do
          end do
       end do
       call ga_sync()
       next=nxtask(-nodes, 1)
+      t_flops=util_wallsec()-tzero
+      agg_flops=perfm_flop()-flopzero
+      call ga_dgop(msg_cc_diis1,agg_flops,1, '+')
+      if(ga_nodeid().eq.0) then
+         write(6,4322) ' ccsd(t): 100% done, Aggregate Gflops=',
+     P        agg_flops/t_flops,
+     P                 ' in ',t_flops,' secs'
+ 4322    format(a,1pg11.4,a,0pf10.1,a)
+         call util_flush(6)
+      endif
       call ga_sync()
       if (occsdps) then
          call pstat_off(ps_trpdrv)
       else
          call qexit('trpdrv',0)
       endif
+#ifdef MKL_THREAD
+      call omp_set_nested(0)
+c     call mkl_set_dynamic(0)
+      call mkl_set_num_threads(1)
+#endif
 !
 #ifdef USE_F90_ALLOCATABLE
       deallocate( dintc1, stat=alloc_error)

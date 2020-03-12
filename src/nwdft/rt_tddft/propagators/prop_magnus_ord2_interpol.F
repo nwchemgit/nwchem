@@ -83,6 +83,7 @@ C
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "cdft.fh"
+#include "rtdb.fh"
 #include "matutils.fh"
 #include "rt_tddft.fh"
 
@@ -136,10 +137,18 @@ C     (simple way: have two GA handles and allocate one or two arrays, depending
       double precision norm1(nmats), norm2(nmats), diff(nmats)
       double complex zjunk
 
+      logical lskip_interpol
+
+      
       if (params%prof) call prof_start (elapsed)
 
       me = ga_nodeid ()
 
+
+      if (.not. rtdb_get (params%rtdb, "rt_tddft:magnus_skipinterpol",
+     $     mt_log, 1, lskip_interpol))
+     $     lskip_interpol = .false.
+      
       
 C     
 C     Determine number of matricies and check consistency.
@@ -287,11 +296,6 @@ C
          
          do imat = 1, nmats
             if ( params%print_convergence .and. (iinter .gt. 1) ) then
-
-c$$$               write (outstring, "(a,i0,a,i0,a,i0,a)")
-c$$$     $              "Magnus interpol ", iinter, " (matrix ",
-c$$$     $              imat, " of ", nmats, ")"
-
                write (outstring, "(a,i0,a,i0,a)")
      $              "Magnus interpol (matrix ", imat, " of ", nmats, ")"
 
@@ -302,6 +306,14 @@ c$$$     $              imat, " of ", nmats, ")"
          
          if (num_same .ge. params%terms_interpol) converged = .true.
 
+C         
+C     Skip interpolation.  Saves a Fock build but might be dangerous...
+         if (lskip_interpol) then
+            converged = .true.
+            call rt_tddft_print_notice ("Skipped Magnus interpolation")
+         endif
+
+         
          if (iinter .gt. ninter_max)
      $        call errquit (pname//"failed to converge", 0, 0)
 

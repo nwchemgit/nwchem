@@ -1245,11 +1245,35 @@ c
       return
       end
 
+      subroutine xc_delrhodotr(nq,ipol,qxyz,rho,delrho,delrhoq)
+      implicit none
+      integer nq,ipol                 ![in]
+      double precision rho(nq,*)      ! [in]
+      double precision delrho(nq,3,*) ! [in]
+      double precision qxyz(3,*)      ! [in]
+      double precision delrhoq(nq,*)  ! [out]
+c
+      integer ii,n
 
-
-
-
-
+      if(ipol.eq.1) then
+         do n = 1, nq
+            delrhoq(n,1) = 3d0*rho(n,1)+
+     D           delrho(n,1,1)*qxyz(1,n) +
+     D           delrho(n,2,1)*qxyz(2,n) +
+     D           delrho(n,3,1)*qxyz(3,n) 
+         enddo
+      else
+      do ii=2,3
+         do n = 1, nq
+            delrhoq(n,ii-1) = 3d0*rho(n,ii)+
+     D           delrho(n,1,ii-1)*qxyz(1,n) +
+     D           delrho(n,2,ii-1)*qxyz(2,n) +
+     D           delrho(n,3,ii-1)*qxyz(3,n) 
+         enddo
+      enddo
+      endif
+      return
+      end
 C>
 C> @}
 

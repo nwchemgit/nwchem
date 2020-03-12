@@ -7,14 +7,14 @@ C> [1] E. Chamorro, P. P&eacute;rez,
 C>     <i>"Condensed-to-atoms electronic Fukui functions within the
 C>     framework of spin-polarized density-functional theory"</i>,
 C>     J. Chem. Phys. <b>123</b>, 114107 (2005), DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.2033689">
+C>     <a href="https://doi.org/10.1063/1.2033689">
 C>     10.1063/1.2033689</a>.
 C>
 C> [2] R.G. Parr, W. Yang,
 C>     <i>"Density functional approach to the frontier-electron theory
 C>     of chemical reactivity"</i>,
 C>     J. Am. Chem. Soc. <b>106</b>, 4049-4050 (1984), DOI:
-C>     <a href="http://dx.doi.org/10.1021/ja00326a036">
+C>     <a href="https://doi.org/10.1021/ja00326a036">
 C>     10.1021/ja00326a036</a>.
 C>
       Subroutine fukui(g_movecs, k_eval, tol2e, rtdb,

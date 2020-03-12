@@ -22,6 +22,9 @@ c
       logical grid_clinit,gstatus
       external grid_clinit
       character*15 gridtype
+      character*24 rtdb_errmsg
+      logical int_disablesim
+      external int_disablesim
 c     
 c  Get theory type
 c
@@ -182,6 +185,10 @@ c
      &       RTDB_ERR)
 #endif
 c
+c     skip Simint integrals since they do not have 2nds yet
+c
+      if(.not.int_disablesim(rtdb,rtdb_errmsg))
+     &        call errquit(rtdb_errmsg,0, RTDB_ERR)
       return
       end
 c $Id$

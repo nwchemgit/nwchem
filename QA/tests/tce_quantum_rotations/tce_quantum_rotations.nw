@@ -1,0 +1,59 @@
+start tce_quantum_rotations
+
+#lih_rhf_sto-3g_1.600
+
+echo
+
+geometry units angstrom
+symmetry c1
+Li   0.000000000000000   0.000000000000000   0.000000000000000
+H    0.000000000000000   0.000000000000000   1.600000000000000
+end
+
+basis
+H library sto-3g
+Li library sto-3g
+end
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
+end
+
+tce
+ccsd
+tilesize 1
+2eorb
+2emet 13
+thresh 1.0e-6
+end
+
+set tce:print_integrals T
+set tce:qorb 3
+set tce:qela 2
+set tce:qelb 2
+set tce:qrotation T
+set tce:nacto 1
+set tce:nrotv 2
+set tce:qrot 0.01 0.03 -0.04
+
+#
+# set tce:qrot defines upper-diagonal 
+# entries for anti-Hermitian rotation Matrix Xr(nrot,nrot)
+# where nrot=nacto+nrotv 
+# In the example above nrot=3 and we define 
+# Xr(1,2)=0.01 Xr(1,3)=0.03 Xr(2,3)=-0.04
+# 
+# In the general case, we need to provide (nrot*(nrot-1))/2
+# entries
+#
+# Please run c1 symmetry - in this way we will be able to explore 
+#                          symmetry broken cases
+#
+#
+
+task tce energy
+
+

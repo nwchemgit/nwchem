@@ -1,0 +1,99 @@
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
+# 5-21g version number 1
+# Description: 5-21G Split-valence basis set
+# Role: orbital
+# 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# H,He
+#     ## 21G Split-valence basis set for H,He
+#     Binkley, J. Stephen, Pople, John A., Hehre, Warren J.
+#     Self-consistent molecular orbital methods. 21. Small split-valence
+#             basis sets for first-row elements
+#     J. Am. Chem. Soc., 102, 939-947 (1980)
+#     10.1021/ja00523a008
+# 
+# Li
+#     ## 5-21G Split-valence basis set
+#     Dill, James D., Pople, John A.
+#     Self-consistent molecular orbital methods. XV. Extended Gaussian-type
+#             basis sets for lithium, beryllium, and boron
+#     J. Chem. Phys., 62, 2921-2923 (1975)
+#     10.1063/1.430801
+# 
+# Be
+#     ## 5-21G Split-valence basis set
+#     Binkley, J. Stephen, Pople, John A.
+#     Self-consistent molecular orbital methods. XIX. Split-valence
+#             Gaussian-type basis sets for beryllium
+#     J. Chem. Phys., 66, 879-880 (1977)
+#     10.1063/1.433929
+# 
+# # 
+basis "H_5-21g" 
+#basis SET: (3s) -> [2s]
+H    S
+      0.5447178000E+01       0.1562849787E+00
+      0.8245472400E+00       0.9046908767E+00
+H    S
+      0.1831915800E+00       1.0000000
+end
+basis "He_5-21g" 
+#basis SET: (3s) -> [2s]
+He    S
+      0.1362670000E+02       0.1752298718E+00
+      0.1999350000E+01       0.8934823465E+00
+He    S
+      0.3829930000E+00       1.0000000
+end
+basis "Li_5-21g" 
+#basis SET: (8s,3p) -> [3s,2p]
+Li    S
+      0.2753944440E+03       0.6121846910E-02
+      0.4143517540E+02       0.4511296150E-01
+      0.9366993780E+01       0.1926941500E+00
+      0.2537725330E+01       0.4685442080E+00
+      0.7466365400E+00       0.4406075150E+00
+Li    SP
+      0.7345642606E+00      -0.2525367958E+00       0.1435917321E+00
+      0.8719796405E-01       0.1097340795E+01       0.9478030506E+00
+Li    SP
+      0.4043865741E-01       0.1000000000E+01       0.1000000000E+01
+end
+basis "Be_5-21g" 
+#basis SET: (8s,3p) -> [3s,2p]
+Be    S
+      0.5540100000E+03       0.5409974372E-02
+      0.8326310000E+02       0.4025153253E-01
+      0.1886350000E+02       0.1768581429E+00
+      0.5177820000E+01       0.4525593657E+00
+      0.1556020000E+01       0.4702933800E+00
+Be    SP
+      0.1441752491E+01      -0.4774290516E+00       0.2011418992E+00
+      0.3018610597E+00       0.1247450135E+01       0.8844825569E+00
+Be    SP
+      0.1009613875E+00       0.1000000000E+01       0.1000000000E+01
+end

@@ -1,3 +1,4 @@
+c#define DOGRAD 
       subroutine aoccsd(basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,
      &                  convi,iprt,cmo,eorb,blen,
      &                  g_ncoul, g_nexch, RefEner,
@@ -124,6 +125,41 @@ c gradient
       parameter(MSG_MIN_LOCAL_MEM=1971)
       external ccsd_createg
       Logical Do_Z,ccsd_createg
+#ifdef USE_F90INTERFACE
+      interface
+      subroutine ccsd_iterdrv2(rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,
+     &                  maxit,convi,iprt,cmo,eorb,
+     &                  t1,ht1,
+     &                  scra,scrb,
+     &                  hiu,hia,habe,
+     &                  giu,gabe,
+     &                  bbkp,bb,
+     &                  g_t2,g_ht2,
+     &                  mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
+     &                  tk,offt2,nvp1, refener, Tol2E, 
+     &                  occd, oconverged, eccsdos, use_ccsd_omp)
+      integer rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,maxit,iprt,
+     & g_t2,g_ht2,g_nt2,g_nht2,mxvec,g_ncoul,g_nexch,
+     &     tklst
+      Double Precision Thre, Tol2E
+      integer offt2
+      double precision time_iter_start,convi
+      integer time_prev_iter
+      integer tk
+      logical oconverged        
+      logical occd
+      logical, optional, intent(in) :: use_ccsd_omp
+      double precision
+     &                  t1,ht1,
+     &                  scra,scrb,
+     &                  hiu,hia,habe,
+     &                  giu,gabe,
+     &                  bbkp,bb
+      double precision cmo(nbf,*),eorb(*)
+      double precision eccsd,eccsdos,refener
+      end subroutine
+      end interface
+#endif      
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -265,9 +301,12 @@ c     mem needed for x c sht2 (see pampt3)
      &                   mxvec*lhoov,0,g_t2))
      &     call errquit('ga_create failed for g_t2',0, GA_ERR)
 *ga:1:0
+      g_ht2=123456789
+#ifdef DOGRAD
       if (.not.ga_create(MT_DBL,mxvec*lhoov,nvir+1,'g_ht2', 
      &                   mxvec*lhoov,0,g_ht2))
      &     call errquit('ga_create failed for g_ht2',0, GA_ERR)
+#endif
 !
 ! Determine if OpenMP should be used in CCSD code
 !
@@ -416,6 +455,7 @@ CRK   Gradient driver to go in here for development purposes
 CRK 
 c
       If ( Do_Z) then
+#ifdef DOGRAD
         lnobj=max(lnoov,nbf*nbf)
         stat=stat.and.ma_push_get(MT_DBL,lnobj,'3scra',l_scra,k_scra)
         stat=stat.and.ma_push_get(MT_DBL,lnobj,'scrb',l_scrb,k_scrb)
@@ -429,6 +469,9 @@ c
      &      g_nt2,g_t2,g_ht2,
      &      mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
      &      int_mb(k_tk), Tol2E)
+#else
+         call errquit('ccsd gradients not enabled',0,CAPMIS_ERR)
+#endif
       EndIf
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -460,8 +503,11 @@ C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       call ga_sync()
       if (.not. ga_destroy(g_nt2))
      &     call errquit('ga_destroy failed',0, GA_ERR)
+      if(g_ht2.ne.123456789) then
       if (.not. ga_destroy(g_ht2))
      &     call errquit('ga_destroy failed',0, GA_ERR)
+      g_ht2=123456789
+      endif
       if (.not. ga_destroy(g_t2))
      &     call errquit('ga_destroy failed',0, GA_ERR)
 c
@@ -884,10 +930,11 @@ c
          if (use_trpdrv_omp) then
 c
          if (iam.eq.0.and.oprint) then
-            write(luout,1848) nvpass
+            write(luout,1848) nvpass,util_wallsec()
             call util_flush(luout)
          endif
- 1848    format(' commencing triples evaluation - OpenMP version',i8)
+ 1848    format(' commencing triples evaluation - OpenMP version',i8,
+     I        ' at ',f20.2,' secs')
          call ccsd_trpdrv_omp(dbl_mb(k_t1),
 #ifdef USE_F90_ALLOCATABLE
      $        f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
@@ -1027,10 +1074,10 @@ c
          tx(3)=tcgtime()
 
          if (iam.eq.0.and.oprint)then
-            write(luout,'(1x,a,i5,f9.2)')
+            write(luout,'(1x,a,i5,f12.2)')
      &       'Time for integral evaluation pass ',
      $       nvpass,tx(2)-tx(1)
-            write(luout,'(1x,a,i5,f9.2)')
+            write(luout,'(1x,a,i5,f12.2)')
      &       'Time for triples evaluation pass  ',
      $      nvpass,tx(3)-tx(2)
             call util_flush(luout)

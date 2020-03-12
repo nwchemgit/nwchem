@@ -11,6 +11,9 @@ c
 c
       if(n.le.0)return
       if (da .eq. 0.0d0) return
+#ifdef USE_YFLOP
+      flops_ycount = flops_ycount + n*2
+#endif
       incx4=incx
       incy4=incy
       n4=n

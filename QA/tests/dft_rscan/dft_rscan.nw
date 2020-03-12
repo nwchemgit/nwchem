@@ -1,0 +1,21 @@
+start c2h4_pbe
+GEOMETRY 
+C 	0.0000 	0.0000 	0.6695
+C 	0.0000 	0.0000 -0.6695
+H 	0.0000 	0.9289 	1.2321
+H 	0.0000 -0.9289 	1.2321
+H 	0.0000 	0.9289 -1.2321
+H 	0.0000 -0.9289 -1.2321
+ symmetry d2h
+END  
+BASIS SPHERICAL  
+ * library aug-cc-pvdz
+END  
+DFT  
+ XC rscan
+END  
+task dft
+dft
+ grid xfine
+end
+task dft

@@ -1,0 +1,742 @@
+C 
+C  This file contains private data for the DFT functional library.
+C  The data items in question are data structures specifying the 
+C  currently active density functional, as well as identifiers for
+C  specific functionals.
+C 
+C  Specific functionals are identified by integer parameters. These
+C  parameters are fixed at compile time. The functionals should always
+C  be referred to by their identifier and never by their value.
+C 
+      integer NWXCP_HFXC         !< The Hartree-Fock exchange
+      parameter (NWXCP_HFXC = 1)
+c
+      integer NWXCP_MP2C         !< The MP2 correlation
+      parameter (NWXCP_MP2C = NWXCP_HFXC + 1)
+c
+      integer NWXCP_CS00         !< The Casida-Salahub correction
+      parameter (NWXCP_CS00 = NWXCP_MP2C + 1)
+c
+      integer NWXCP_X_SLATER     !< The Slater exchange functional
+      parameter (NWXCP_X_SLATER = NWXCP_CS00 + 1)
+c
+      integer NWXCP_X_B86B       !< The Becke 1988  exchange functional
+      parameter (NWXCP_X_B86B = NWXCP_X_SLATER + 1)
+c
+      integer NWXCP_X_B88        !< The Becke 1988  exchange functional
+      parameter (NWXCP_X_B88 = NWXCP_X_B86B + 1)
+c
+      integer NWXCP_X_B0         !< The B0 exchange functional
+      parameter (NWXCP_X_B0 = NWXCP_X_B88 + 1)
+c
+      integer NWXCP_X_B97        !< The B97 exchange functional 
+      parameter (NWXCP_X_B97 = NWXCP_X_B0 + 1)
+c
+      integer NWXCP_X_B97_1      !< The B97-1 exchange functional 
+      parameter (NWXCP_X_B97_1 = NWXCP_X_B97 + 1)
+c
+      integer NWXCP_X_B97_2      !< The B97-2 exchange functional 
+      parameter (NWXCP_X_B97_2 = NWXCP_X_B97_1 + 1)
+c
+      integer NWXCP_X_B97_3      !< The B97-3 exchange functional 
+      parameter (NWXCP_X_B97_3 = NWXCP_X_B97_2 + 1)
+c
+      integer NWXCP_X_B97_D      !< The B97-D exchange functional 
+      parameter (NWXCP_X_B97_D = NWXCP_X_B97_3 + 1)
+c
+      integer NWXCP_X_B97_G      !< The B97-G exchange functional 
+      parameter (NWXCP_X_B97_G = NWXCP_X_B97_D + 1)
+c
+      integer NWXCP_X_B98        !< The B98 exchange functional 
+      parameter (NWXCP_X_B98 = NWXCP_X_B97_G + 1)
+c
+      integer NWXCP_X_BNL        !< The BNL 2007  exchange functional
+      parameter (NWXCP_X_BNL = NWXCP_X_B98 + 1)
+c
+      integer NWXCP_X_CAMB88     !< The CAM-B88 exchange functional
+      parameter (NWXCP_X_CAMB88 = NWXCP_X_BNL + 1)
+c
+      integer NWXCP_X_CAMLSD     !< The CAM-LSD exchange functional
+      parameter (NWXCP_X_CAMLSD = NWXCP_X_CAMB88 + 1)
+c
+      integer NWXCP_X_CAMPBE     !< The CAM-PBE exchange functional
+      parameter (NWXCP_X_CAMPBE = NWXCP_X_CAMLSD + 1)
+c
+      integer NWXCP_X_CAMS12G    !< The CAM-S12G exchange functional
+      parameter (NWXCP_X_CAMS12G = NWXCP_X_CAMPBE + 1)
+c
+      integer NWXCP_X_CAMS12H    !< The CAM-S12H exchange functional
+      parameter (NWXCP_X_CAMS12H = NWXCP_X_CAMS12G + 1)
+c
+      integer NWXCP_X_DLDF       !< The DLDF exchange functional
+      parameter (NWXCP_X_DLDF = NWXCP_X_CAMS12H + 1)
+c
+      integer NWXCP_X_FT97       !< The FT97 exchange functional
+      parameter (NWXCP_X_FT97 = NWXCP_X_DLDF + 1)
+c
+      integer NWXCP_X_GILL       !< The GILL exchange functional
+      parameter (NWXCP_X_GILL = NWXCP_X_FT97 + 1)
+c
+      integer NWXCP_X_HCTH       !< The HCTH exchange functional
+      parameter (NWXCP_X_HCTH = NWXCP_X_GILL + 1)
+c
+      integer NWXCP_X_HCTH120    !< The HCTH120 exchange functional
+      parameter (NWXCP_X_HCTH120 = NWXCP_X_HCTH + 1)
+c
+      integer NWXCP_X_HCTH147    !< The HCTH147 exchange functional
+      parameter (NWXCP_X_HCTH147 = NWXCP_X_HCTH120 + 1)
+c
+      integer NWXCP_X_HCTH407    !< The HCTH407 exchange functional
+      parameter (NWXCP_X_HCTH407 = NWXCP_X_HCTH147 + 1)
+c
+      integer NWXCP_X_HCTH407P   !< The HCTH407P exchange functional
+      parameter (NWXCP_X_HCTH407P = NWXCP_X_HCTH407 + 1)
+c
+      integer NWXCP_X_HCTH_A     !< The HCTH-A exchange functional
+      parameter (NWXCP_X_HCTH_A = NWXCP_X_HCTH407P + 1)
+c
+      integer NWXCP_X_HCTHP14    !< The HCTHP14 exchange functional
+      parameter (NWXCP_X_HCTHP14 = NWXCP_X_HCTH_A + 1)
+c
+      integer NWXCP_X_M05        !< The M05 exchange functional
+      parameter (NWXCP_X_M05 = NWXCP_X_HCTHP14 + 1)
+c
+      integer NWXCP_X_M05_2X     !< The M05-2X exchange functional
+      parameter (NWXCP_X_M05_2X = NWXCP_X_M05 + 1)
+c
+      integer NWXCP_X_M06        !< The M06 exchange functional
+      parameter (NWXCP_X_M06 = NWXCP_X_M05_2x + 1)
+c
+      integer NWXCP_X_M06_HF     !< The M06-HF exchange functional
+      parameter (NWXCP_X_M06_HF = NWXCP_X_M06 + 1)
+c
+      integer NWXCP_X_M06_L      !< The M06-L exchange functional
+      parameter (NWXCP_X_M06_L = NWXCP_X_M06_HF + 1)
+c
+      integer NWXCP_X_M06_2X     !< The M06-2X exchange functional
+      parameter (NWXCP_X_M06_2X = NWXCP_X_M06_L + 1)
+c
+      integer NWXCP_X_M08_HX     !< The M08-HX exchange functional
+      parameter (NWXCP_X_M08_HX = NWXCP_X_M06_2X + 1)
+c
+      integer NWXCP_X_M08_SO     !< The M08-SO exchange functional
+      parameter (NWXCP_X_M08_SO = NWXCP_X_M08_HX + 1)
+c
+      integer NWXCP_X_M11        !< The M11 exchange functional
+      parameter (NWXCP_X_M11 = NWXCP_X_M08_SO + 1)
+c
+      integer NWXCP_X_M11_L      !< The M11-L exchange functional
+      parameter (NWXCP_X_M11_L = NWXCP_X_M11 + 1)
+c
+      integer NWXCP_X_MPW91       !< The MPW91 exchange functional
+      parameter (NWXCP_X_MPW91 = NWXCP_X_M11_L + 1)
+c
+      integer NWXCP_X_OPT        !< The OPT exchange functional
+      parameter (NWXCP_X_OPT = NWXCP_X_MPW91 + 1)
+c
+      integer NWXCP_X_PW6B95     !< The PW6B95 exchange functional
+      parameter (NWXCP_X_PW6B95 = NWXCP_X_OPT + 1)
+c
+      integer NWXCP_X_PW91       !< The PW91 exchange functional
+      parameter (NWXCP_X_PW91 = NWXCP_X_PW6B95 + 1)
+c
+      integer NWXCP_X_PWB6K      !< The PWB6K exchange functional
+      parameter (NWXCP_X_PWB6K = NWXCP_X_PW91 + 1)
+c
+      integer NWXCP_X_PBE        !< The PBE exchange functional
+      parameter (NWXCP_X_PBE = NWXCP_X_PWB6K + 1)
+c
+      integer NWXCP_X_PBE0       !< The PBE0 exchange functional
+      parameter (NWXCP_X_PBE0 = NWXCP_X_PBE + 1)
+c
+      integer NWXCP_X_PBESOL     !< The PBESOL exchange functional
+      parameter (NWXCP_X_PBESOL = NWXCP_X_PBE0 + 1)
+c
+      integer NWXCP_X_REVPBE     !< The REVPBE exchange functional
+      parameter (NWXCP_X_REVPBE = NWXCP_X_PBESOL + 1)
+c
+      integer NWXCP_X_REVPBE0    !< The REVPBE0 exchange functional
+      parameter (NWXCP_X_REVPBE0 = NWXCP_X_REVPBE + 1)
+c
+      integer NWXCP_X_RPBE       !< The RPBE exchange functional
+      parameter (NWXCP_X_RPBE = NWXCP_X_REVPBE0 + 1)
+c
+      integer NWXCP_X_PKZB       !< The PKZB exchange functional
+      parameter (NWXCP_X_PKZB = NWXCP_X_RPBE + 1)
+c
+      integer NWXCP_X_S12G       !< The S12G exchange functional
+      parameter (NWXCP_X_S12G = NWXCP_X_PKZB + 1)
+c
+      integer NWXCP_X_S12H       !< The S12H exchange functional
+      parameter (NWXCP_X_S12H = NWXCP_X_S12G + 1)
+c
+      integer NWXCP_X_SOGGA      !< The SOGGA exchange functional
+      parameter (NWXCP_X_SOGGA = NWXCP_X_S12H + 1)
+c
+      integer NWXCP_X_SOGGA11    !< The SOGGA11 exchange functional
+      parameter (NWXCP_X_SOGGA11 = NWXCP_X_SOGGA + 1)
+c
+      integer NWXCP_X_SOGGA11_X  !< The SOGGA11-X exchange functional
+      parameter (NWXCP_X_SOGGA11_X = NWXCP_X_SOGGA11 + 1)
+c
+      integer NWXCP_X_SSB_D      !< The SSB_D exchange functional
+      parameter (NWXCP_X_SSB_D = NWXCP_X_SOGGA11_X + 1)
+c
+      integer NWXCP_X_TPSS       !< The TPSS exchange functional
+      parameter (NWXCP_X_TPSS = NWXCP_X_SSB_D + 1)
+c
+      integer NWXCP_X_TPSSH      !< The TPSSH exchange functional
+      parameter (NWXCP_X_TPSSH = NWXCP_X_TPSS + 1)
+c
+      integer NWXCP_X_WPBE       !< The WPBE screened exchange functional
+      parameter (NWXCP_X_WPBE = NWXCP_X_TPSSH + 1)
+c
+      integer NWXCP_X_VS98       !< The VS98 exchange functional
+      parameter (NWXCP_X_VS98 = NWXCP_X_WPBE + 1)
+c
+      integer NWXCP_C_B95        !< The B95 correlation functional
+      parameter (NWXCP_C_B95 = NWXCP_X_VS98 + 1)
+c
+      integer NWXCP_C_B97        !< The B97 correlation functional 
+      parameter (NWXCP_C_B97 = NWXCP_C_B95 + 1)
+c
+      integer NWXCP_C_B97_1      !< The B97-1 correlation functional 
+      parameter (NWXCP_C_B97_1 = NWXCP_C_B97 + 1)
+c
+      integer NWXCP_C_B97_2      !< The B97-2 correlation functional 
+      parameter (NWXCP_C_B97_2 = NWXCP_C_B97_1 + 1)
+c
+      integer NWXCP_C_B97_3      !< The B97-3 correlation functional 
+      parameter (NWXCP_C_B97_3 = NWXCP_C_B97_2 + 1)
+c
+      integer NWXCP_C_B97_D      !< The B97-D correlation functional 
+      parameter (NWXCP_C_B97_D = NWXCP_C_B97_3 + 1)
+c
+      integer NWXCP_C_B97_G      !< The B97-G correlation functional 
+      parameter (NWXCP_C_B97_G = NWXCP_C_B97_D + 1)
+c
+      integer NWXCP_C_B98        !< The B98 correlation functional 
+      parameter (NWXCP_C_B98 = NWXCP_C_B97_G + 1)
+c
+      integer NWXCP_C_CAMS12G    !< The CAM-S12G correlation functional
+      parameter (NWXCP_C_CAMS12G = NWXCP_C_B98 + 1)
+c
+      integer NWXCP_C_CAMS12H    !< The CAM-S12H correlation functional
+      parameter (NWXCP_C_CAMS12H = NWXCP_C_CAMS12G + 1)
+c
+      integer NWXCP_C_DLDF       !< The DLDF correlation functional
+      parameter (NWXCP_C_DLDF = NWXCP_C_CAMS12H + 1)
+c
+      integer NWXCP_C_FT97       !< The FT97 correlation functional
+      parameter (NWXCP_C_FT97 = NWXCP_C_DLDF + 1)
+c
+      integer NWXCP_C_HCTH       !< The HCTH correlation functional
+      parameter (NWXCP_C_HCTH = NWXCP_C_FT97 + 1)
+c
+      integer NWXCP_C_HCTH120    !< The HCTH120 correlation functional
+      parameter (NWXCP_C_HCTH120 = NWXCP_C_HCTH + 1)
+c
+      integer NWXCP_C_HCTH147    !< The HCTH147 correlation functional
+      parameter (NWXCP_C_HCTH147 = NWXCP_C_HCTH120 + 1)
+c
+      integer NWXCP_C_HCTH407    !< The HCTH407 correlation functional
+      parameter (NWXCP_C_HCTH407 = NWXCP_C_HCTH147 + 1)
+c
+      integer NWXCP_C_HCTH407P   !< The HCTH407P correlation functional
+      parameter (NWXCP_C_HCTH407P = NWXCP_C_HCTH407 + 1)
+c
+      integer NWXCP_C_HCTH_A     !< The HCTH-A correlation functional
+      parameter (NWXCP_C_HCTH_A = NWXCP_C_HCTH407P + 1)
+c
+      integer NWXCP_C_HCTHP14    !< The HCTHP14 correlation functional
+      parameter (NWXCP_C_HCTHP14 = NWXCP_C_HCTH_A + 1)
+c
+      integer NWXCP_C_LYP        !< The LYP correlation functional
+      parameter (NWXCP_C_LYP = NWXCP_C_HCTHP14 + 1)
+c
+      integer NWXCP_C_M05        !< The M05 correlation functional
+      parameter (NWXCP_C_M05 = NWXCP_C_LYP + 1)
+c
+      integer NWXCP_C_M05_2X     !< The M05-2X correlation functional
+      parameter (NWXCP_C_M05_2X = NWXCP_C_M05 + 1)
+c
+      integer NWXCP_C_M06        !< The M06 correlation functional
+      parameter (NWXCP_C_M06 = NWXCP_C_M05_2X + 1)
+c
+      integer NWXCP_C_M06_HF     !< The M06-HF correlation functional
+      parameter (NWXCP_C_M06_HF = NWXCP_C_M06 + 1)
+c
+      integer NWXCP_C_M06_L      !< The M06-L correlation functional
+      parameter (NWXCP_C_M06_L = NWXCP_C_M06_HF + 1)
+c
+      integer NWXCP_C_M06_2X     !< The M06-2X correlation functional
+      parameter (NWXCP_C_M06_2X = NWXCP_C_M06_L + 1)
+c
+      integer NWXCP_C_M08_HX     !< The M08-HX correlation functional
+      parameter (NWXCP_C_M08_HX = NWXCP_C_M06_2X + 1)
+c
+      integer NWXCP_C_M08_SO     !< The M08-SO correlation functional
+      parameter (NWXCP_C_M08_SO = NWXCP_C_M08_HX + 1)
+c
+      integer NWXCP_C_M11        !< The M11 correlation functional
+      parameter (NWXCP_C_M11 = NWXCP_C_M08_SO + 1)
+c
+      integer NWXCP_C_M11_L      !< The M11-L correlation functional
+      parameter (NWXCP_C_M11_L = NWXCP_C_M11 + 1)
+c
+      integer NWXCP_C_OP         !< The OP correlation functional
+      parameter (NWXCP_C_OP = NWXCP_C_M11_L + 1)
+c
+      integer NWXCP_C_OPT        !< The OPT correlation functional
+      parameter (NWXCP_C_OPT = NWXCP_C_OP + 1)
+c
+      integer NWXCP_C_PZ81        !< The PZ81 correlation functional
+      parameter (NWXCP_C_PZ81 = NWXCP_C_OPT + 1)
+c
+      integer NWXCP_C_P86        !< The P86 correlation functional
+      parameter (NWXCP_C_P86 = NWXCP_C_PZ81 + 1)
+c
+      integer NWXCP_C_P91        !< The P91 correlation functional
+      parameter (NWXCP_C_P91 = NWXCP_C_P86 + 1)
+c
+      integer NWXCP_C_P91_VWN5   !< The P91 correlation functional
+                                 !< with VWN5 for LDA
+      parameter (NWXCP_C_P91_VWN5 = NWXCP_C_P91 + 1)
+c
+      integer NWXCP_C_PW6B95     !< The PW6B95 correlation functional
+      parameter (NWXCP_C_PW6B95 = NWXCP_C_P91_VWN5 + 1)
+c
+      integer NWXCP_C_PWB6K      !< The PWB6K correlation functional
+      parameter (NWXCP_C_PWB6K = NWXCP_C_PW6B95 + 1)
+c
+      integer NWXCP_C_PW91LDA    !< The PW91 LDA correlation functional
+      parameter (NWXCP_C_PW91LDA = NWXCP_C_PWB6k + 1)
+c
+      integer NWXCP_C_PBE        !< The PBE correlation functional
+      parameter (NWXCP_C_PBE = NWXCP_C_PW91LDA + 1)
+c
+      integer NWXCP_C_PBESOL     !< The PBESOL correlation functional
+      parameter (NWXCP_C_PBESOL = NWXCP_C_PBE + 1)
+c
+      integer NWXCP_C_PKZB       !< The PKZB correlation functional
+      parameter (NWXCP_C_PKZB = NWXCP_C_PBESOL + 1)
+c
+      integer NWXCP_C_S12G       !< The S12G correlation functional
+      parameter (NWXCP_C_S12G = NWXCP_C_PKZB + 1)
+c
+      integer NWXCP_C_S12H       !< The S12H correlation functional
+      parameter (NWXCP_C_S12H = NWXCP_C_S12G + 1)
+c
+      integer NWXCP_C_SPBE       !< The SSB-D PBE correlation functional
+      parameter (NWXCP_C_SPBE = NWXCP_C_S12H + 1)
+c
+      integer NWXCP_C_SOGGA11    !< The SOGGA11 correlation functional
+      parameter (NWXCP_C_SOGGA11 = NWXCP_C_SPBE + 1)
+c
+      integer NWXCP_C_SOGGA11_X  !< The SOGGA11-X correlation functional
+      parameter (NWXCP_C_SOGGA11_X = NWXCP_C_SOGGA11 + 1)
+c
+      integer NWXCP_C_TPSS       !< The TPSS correlation functional
+      parameter (NWXCP_C_TPSS = NWXCP_C_SOGGA11_X + 1)
+c
+      integer NWXCP_C_VS98       !< The VS98 correlation functional
+      parameter (NWXCP_C_VS98 = NWXCP_C_TPSS + 1)
+c
+      integer NWXCP_C_VWN1       !< The VWN1 correlation functional
+      parameter (NWXCP_C_VWN1 = NWXCP_C_VS98 + 1)
+c
+      integer NWXCP_C_VWN1_RPA   !< The VWN1 RPA correlation functional
+      parameter (NWXCP_C_VWN1_RPA = NWXCP_C_VWN1 + 1)
+c
+      integer NWXCP_C_VWN2       !< The VWN2 correlation functional
+      parameter (NWXCP_C_VWN2 = NWXCP_C_VWN1_RPA + 1)
+c
+      integer NWXCP_C_VWN3       !< The VWN3 correlation functional
+      parameter (NWXCP_C_VWN3 = NWXCP_C_VWN2 + 1)
+c
+      integer NWXCP_C_VWN4       !< The VWN4 correlation functional
+      parameter (NWXCP_C_VWN4 = NWXCP_C_VWN3 + 1)
+c
+      integer NWXCP_C_VWN5       !< The VWN5 correlation functional
+      parameter (NWXCP_C_VWN5 = NWXCP_C_VWN4 + 1)
+c
+      integer NWXCP_ACM          !< The ACM functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_ACM = NWXCP_C_VWN5 + 1)
+c
+      integer NWXCP_B1B95        !< The B1B95 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B1B95 = NWXCP_ACM + 1)
+c
+      integer NWXCP_B2PLYP       !< The B2PLYP functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B2PLYP = NWXCP_B1B95 + 1)
+c
+      integer NWXCP_B3LYP        !< The B3LYP functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B3LYP = NWXCP_B2PLYP + 1)
+c
+      integer NWXCP_B3P86        !< The B3P86 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B3P86 = NWXCP_B3LYP + 1)
+c
+      integer NWXCP_B3PW91       !< The B3PW91 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B3PW91 = NWXCP_B3P86 + 1)
+c
+      integer NWXCP_B0LYP        !< The B0LYP functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B0LYP = NWXCP_B3PW91 + 1)
+c
+      integer NWXCP_B97          !< The B97 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B97 = NWXCP_B0LYP + 1)
+c
+      integer NWXCP_B97_1        !< The B97-1 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B97_1 = NWXCP_B97 + 1)
+c
+      integer NWXCP_B97_2        !< The B97-2 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B97_2 = NWXCP_B97_1 + 1)
+c
+      integer NWXCP_B97_3        !< The B97-3 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B97_3 = NWXCP_B97_2 + 1)
+c
+      integer NWXCP_B97_D        !< The B97-D functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B97_D = NWXCP_B97_3 + 1)
+c
+      integer NWXCP_B97_G        !< The B97-G functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B97_G = NWXCP_B97_D + 1)
+c
+      integer NWXCP_B98          !< The B98 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_B98 = NWXCP_B97_G + 1)
+c
+      integer NWXCP_BB1K         !< The BB1K functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_BB1K = NWXCP_B98 + 1)
+c
+      integer NWXCP_BHANDH       !< The Becke half and half functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_BHANDH = NWXCP_BB1K + 1)
+c
+      integer NWXCP_BHLYP        !< The Becke 1/2 and 1/2 LYP functional
+                                 !< (exchange and correlation)
+      parameter (NWXCP_BHLYP = NWXCP_BHANDH + 1)
+c
+      integer NWXCP_BLYP         !< The BLYP functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_BLYP = NWXCP_BHLYP + 1)
+c
+      integer NWXCP_BOP          !< The BOP functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_BOP = NWXCP_BLYP + 1)
+c
+      integer NWXCP_CAMS12G      !< The CAM-S12G functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_CAMS12G = NWXCP_BOP + 1)
+c
+      integer NWXCP_CAMS12H      !< The CAM-S12H functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_CAMS12H = NWXCP_CAMS12G + 1)
+c
+      integer NWXCP_DLDF         !< The DLDF functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_DLDF = NWXCP_CAMS12H + 1)
+c
+      integer NWXCP_FT97         !< The FT97 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_FT97 = NWXCP_DLDF + 1)
+c
+      integer NWXCP_HCTH         !< The HCTH functional
+                                 !< (exchange and correlation)
+      parameter (NWXCP_HCTH = NWXCP_FT97 + 1)
+c
+      integer NWXCP_HCTH120      !< The HCTH120 functional
+                                 !< (exchange and correlation)
+      parameter (NWXCP_HCTH120 = NWXCP_HCTH + 1)
+c
+      integer NWXCP_HCTH147      !< The HCTH147 functional
+                                 !< (exchange and correlation)
+      parameter (NWXCP_HCTH147 = NWXCP_HCTH120 + 1)
+c
+      integer NWXCP_HCTH407      !< The HCTH407 functional
+                                 !< (exchange and correlation)
+      parameter (NWXCP_HCTH407 = NWXCP_HCTH147 + 1)
+c
+      integer NWXCP_HCTH407P     !< The HCTH407P functional
+                                 !< (exchange and correlation)
+      parameter (NWXCP_HCTH407P = NWXCP_HCTH407 + 1)
+c
+      integer NWXCP_HCTH_A       !< The HCTH-A functional
+                                 !< (exchange and correlation)
+      parameter (NWXCP_HCTH_A = NWXCP_HCTH407P + 1)
+c
+      integer NWXCP_HCTHP14      !< The HCTHP14 functional
+                                 !< (exchange and correlation)
+      parameter (NWXCP_HCTHP14 = NWXCP_HCTH_A + 1)
+c
+      integer NWXCP_KT1          !< The KT1 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_KT1 = NWXCP_HCTHP14 + 1)
+c
+      integer NWXCP_KT2          !< The KT2 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_KT2 = NWXCP_KT1 + 1)
+c
+      integer NWXCP_LDA          !< The LDA functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_LDA = NWXCP_KT2 + 1)
+c
+      integer NWXCP_M05          !< The M05 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_M05 = NWXCP_LDA + 1)
+c
+      integer NWXCP_M05_2X       !< The M05-2X functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_M05_2X = NWXCP_M05 + 1)
+c
+      integer NWXCP_M06          !< The M06 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_M06 = NWXCP_M05_2X + 1)
+c
+      integer NWXCP_M06_HF       !< The M06-HF functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_M06_HF = NWXCP_M06 + 1)
+c
+      integer NWXCP_M06_L        !< The M06-L functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_M06_L = NWXCP_M06_HF + 1)
+c
+      integer NWXCP_M06_2X       !< The M06-2X functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_M06_2X = NWXCP_M06_L + 1)
+c
+      integer NWXCP_M08_HX       !< The M08-HX functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_M08_HX = NWXCP_M06_2X + 1)
+c
+      integer NWXCP_M08_SO       !< The M08-SO functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_M08_SO = NWXCP_M08_HX + 1)
+c
+      integer NWXCP_M11          !< The M11 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_M11 = NWXCP_M08_SO + 1)
+c
+      integer NWXCP_M11_L       !< The M11-L functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_M11_L = NWXCP_M11 + 1)
+c
+      integer NWXCP_MPW1K        !< The MPW1K functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_MPW1K = NWXCP_M11_L + 1)
+c
+      integer NWXCP_MPW1B95      !< The MPW1B95 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_MPW1B95 = NWXCP_MPW1K + 1)
+c
+      integer NWXCP_MPWB1K       !< The MPWB1K functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_MPWB1K = NWXCP_MPW1B95 + 1)
+c
+      integer NWXCP_OPT          !< The OPT functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_OPT = NWXCP_MPWB1K + 1)
+c
+      integer NWXCP_PBE          !< The PBE functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_PBE = NWXCP_OPT + 1)
+c
+      integer NWXCP_PBE0         !< The PBE0 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_PBE0 = NWXCP_PBE + 1)
+c
+      integer NWXCP_PBEOP        !< The PBEOP functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_PBEOP = NWXCP_PBE0 + 1)
+c
+      integer NWXCP_PBESOL       !< The PBESOL functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_PBESOL = NWXCP_PBEOP + 1)
+c
+      integer NWXCP_REVPBE       !< The REVPBE functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_REVPBE = NWXCP_PBESOL + 1)
+c
+      integer NWXCP_REVPBE0      !< The REVPBE0 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_REVPBE0 = NWXCP_REVPBE + 1)
+c
+      integer NWXCP_RPBE         !< The RPBE functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_RPBE = NWXCP_REVPBE0 + 1)
+c
+      integer NWXCP_PW6B95       !< The PW6B95 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_PW6B95 = NWXCP_RPBE + 1)
+c
+      integer NWXCP_PWB6K        !< The PWB6K functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_PWB6K = NWXCP_PW6B95 + 1)
+c
+      integer NWXCP_PKZB         !< The PKZB functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_PKZB = NWXCP_PWB6K + 1)
+c
+      integer NWXCP_S12G         !< The S12G functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_S12G = NWXCP_PKZB + 1)
+c
+      integer NWXCP_S12H         !< The S12H functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_S12H = NWXCP_S12G + 1)
+c
+      integer NWXCP_SOGGA        !< The SOGGA functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_SOGGA = NWXCP_S12H + 1)
+c
+      integer NWXCP_SOGGA11      !< The SOGGA11 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_SOGGA11 = NWXCP_SOGGA + 1)
+c
+      integer NWXCP_SOGGA11_X    !< The SOGGA11-X functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_SOGGA11_X = NWXCP_SOGGA11 + 1)
+c
+      integer NWXCP_SOP          !< The SOP functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_SOP = NWXCP_SOGGA11_X + 1)
+c
+      integer NWXCP_SSB_D        !< The SSB-D functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_SSB_D = NWXCP_SOP + 1)
+c
+      integer NWXCP_TPSS         !< The TPSS functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_TPSS = NWXCP_SSB_D + 1)
+c
+      integer NWXCP_TPSSH        !< The TPSSH functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_TPSSH = NWXCP_TPSS + 1)
+c
+      integer NWXCP_HSE          !< The HSE functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_HSE = NWXCP_TPSSH + 1)
+c
+      integer NWXCP_VS98         !< The VS98 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_VS98 = NWXCP_HSE + 1)
+c
+      integer NWXCP_PBE_D1       !< The PBE-D1 functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_PBE_D1 = NWXCP_VS98 + 1)
+
+      integer NWXCP_SCAN         !< The SCAN functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_SCAN = NWXCP_PBE_D1 + 1)
+
+      integer NWXCP_X_SCAN       !< The SCAN functional 
+                                 !< (exchange)
+      parameter (NWXCP_X_SCAN = NWXCP_SCAN + 1)
+
+      integer NWXCP_C_SCAN       !< The SCAN functional 
+                                 !< (correlation)
+      parameter (NWXCP_C_SCAN = NWXCP_X_SCAN + 1)
+C  
+C  Internally the functional specification will be stored using 
+C  a collection of datastructures. For specific terms that the library
+C  cannot evaluate, e.g. Hartree-Fock exchange or MP2, we store the
+C  corresponding weight in a separate variable.
+C 
+C  The terms that the library does evaluate are kept in a list. The list
+C  consists of an array of identifiers and a list of weights. In 
+C  addition the length of the list is kept. This allows the functional
+C  evaluation to be performed by simply looping over all the specified
+C  terms.
+C 
+C  Note that the Coulomb operator for the Coulomb Attenuated functionals
+C  is written as
+C  \f{eqnarray*}{
+C    \frac{1}{r_{12}} = \frac{1-[\alpha+\beta\mathrm{erf}(\gamma r_{12})]}{r_{12}}
+C                     + \frac{\alpha+\beta\mathrm{erf}(\gamma r_{12})}{r_{12}}
+C  \f}
+C 
+      logical nwpwxc_depends_on_rho   !< Does the functional depend on the
+                                    !< density?
+      logical nwpwxc_depends_on_gamma !< Does the functional depend on the
+                                    !< density gradient?
+      logical nwpwxc_depends_on_tau   !< Does the functional depend on the
+                                    !< kinetic energy density?
+      logical nwpwxc_oroot            !< Is this the root process?
+      integer NWXC_MAX_F !< The maximum number of terms in a functional
+      parameter (NWXC_MAX_F = 53)
+      integer          nwpwxc_num_f             !< The actual number of
+                                              !< functional terms
+      integer          nwpwxc_ids(NWXC_MAX_F)   !< The functional
+                                              !< identifiers
+      double precision nwpwxc_wght_hf           !< The Hartree-Fock
+                                              !< exchange weight
+      double precision nwpwxc_wght_mp2          !< The MP2 weight
+      double precision nwpwxc_cam_alpha         !< The CAM alpha
+      double precision nwpwxc_cam_beta          !< The CAM beta
+      double precision nwpwxc_cam_gamma         !< The CAM gamma
+      logical          nwpwxc_cam_srhfex        !< Do the short range part
+                                              !< with Hartree-Fock
+                                              !< exchange?
+      integer          nwpwxc_disp_id           !< The dispersion term
+                                              !< identifier
+      double precision nwpwxc_disp_alpha        !< The dispersion damping
+                                              !< parameter
+      double precision nwpwxc_disp_s6           !< The dispersion strength
+                                              !< R^-6 term
+      double precision nwpwxc_disp_s8           !< The dispersion strength
+                                              !< R^-8 term
+      double precision nwpwxc_disp_sr6          !< The dispersion strength
+                                              !< R^-6 term
+      double precision nwpwxc_disp_sr8          !< The dispersion strength
+                                              !< R^-8 term
+      double precision nwpwxc_rho_tol           !< The tolerance on the density
+      double precision nwpwxc_wghts(NWXC_MAX_F) !< The functional weights
+c
+      double precision nwpwxc_wght_cs00
+C
+C Users can specify functionals by listing individual terms or they
+C may use higher level aliases, e.g. B3LYP. B3LYP would be evaluated
+C by the library by summing the following contributions:
+C - 0.19 vwn_1_rpa
+C - 0.81 lyp
+C - 0.80 slater
+C - 0.72 becke88 (including the nonlocal part)
+C (The Hartree-Fock exchange term is not evaluated by the library but
+C by the application code). However a user who specified B3LYP might
+C get confused if we print the list of the above 4 terms in the output.
+C So to be able to echo the input in terms that the user will recognize
+C we need to keep the functional as specified by the user in addition
+C to the functional as it will be evaluated. The nwpwxc_usr_* variables
+C keep track of the functional definition as specified on the input.
+C
+      integer nwpwxc_usr_num
+      integer nwpwxc_usr_ids(NWXC_MAX_F)
+      double precision nwpwxc_usr_wghts(NWXC_MAX_F)
+      logical nwpwxc_on
+c
+      common /nwpwxc_func_spec/
+     +       nwpwxc_rho_tol,
+     +       nwpwxc_cam_alpha,nwpwxc_cam_beta,nwpwxc_cam_gamma,
+     +       nwpwxc_disp_alpha,nwpwxc_disp_s6,nwpwxc_disp_s8,
+     +       nwpwxc_disp_sr6,nwpwxc_disp_sr8,
+     +       nwpwxc_wght_hf,nwpwxc_wght_mp2,nwpwxc_wght_cs00,
+     +       nwpwxc_usr_wghts,
+     +       nwpwxc_wghts,nwpwxc_ids,nwpwxc_num_f,nwpwxc_usr_num,
+     +       nwpwxc_disp_id,nwpwxc_usr_ids,nwpwxc_cam_srhfex,
+     +       nwpwxc_depends_on_rho,nwpwxc_depends_on_gamma,
+     +       nwpwxc_depends_on_tau,nwpwxc_oroot
+     +      ,nwpwxc_on
+C
+C  @}
+c $Id$

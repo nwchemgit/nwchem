@@ -535,10 +535,10 @@ c --------------------------------------------------------------------
  9010 FORMAT(1X,60(1H-)/1X,'# of frequencies : ',I5)
  9011 FORMAT(1X,60(1H-)/1X,'#  freq [ 1/cm]  S [Ang**4/amu]'/
      *        1X,60(1H-))
- 9012 FORMAT(1X,I3,F9.2,F14.4)
+ 9012 FORMAT(1X,I3,F9.2,ES14.4)
  9013 FORMAT(1X,60(1H-)/'#  freq [ 1/cm]  S-tot [a.u.]',  
      * 'S-real [a.u.]  S-imag [a.u.]'/1X,60(1H-))
- 9014 FORMAT(1X,I3,F9.2,3F14.4)
+ 9014 FORMAT(1X,I3,F9.2,3ES14.4)
  9015 FORMAT(1X,I4,F10.2,2E12.4)
  9016 FORMAT(1X,F10.2,3E12.4)
  9017 FORMAT(1X,F8.2,G14.4)

@@ -35,6 +35,11 @@
 # are overwritten.  The name of the output file is formed by replacing
 # the trailing .nw with .out.  In this directory is also put the
 # output of nwparse for the verified and the test outputs.
+if [[ -z "${NWCHEM_TOP}" ]]; then
+    DIRQA=`dirname "$0"`
+    MYPWD=`pwd`
+    NWCHEM_TOP=`echo ${MYPWD}/${DIRQA} | sed -e 's/\/QA.*//' `
+fi
 
 
 if ($#argv == 0) then

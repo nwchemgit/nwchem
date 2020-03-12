@@ -533,6 +533,9 @@ c
          call xc_xdm(rtdb,iga_dens,idum,nat,ndum,edum,
      &        dbl_mb(k_frc_xc),dbl_mb(ixdm_v),
      &        dbl_mb(ixdm_ml),'forces')
+       if (.not. rtdb_put(rtdb,'dft:xdmsave', mt_log, 1, .false.)) 
+     $     call errquit('dft_gradient: cannot rtdb_put',0, RTDB_ERR)
+          call xc_xdm_cleanup(rtdb)
       endif
 c
 c     add Bonacic-Fantucci repulsive term

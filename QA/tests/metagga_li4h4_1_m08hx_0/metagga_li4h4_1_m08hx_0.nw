@@ -20,6 +20,8 @@ dft
   direct
   odft
   mult 2
+  grid fine
+  convergence energy 1d-9
   xc xm08-hx
   maxiter 100
 end

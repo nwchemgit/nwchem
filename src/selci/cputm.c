@@ -24,11 +24,7 @@ int *ai;
 #ifndef WIN32
   /* !!! Comment out function for WIN32 just so we can keep going */
 struct timeval tp;
-#ifdef __INTERIX
-char tzp[10];
-#else
 struct timezone tzp;
-#endif
 int i;
 
 	gettimeofday(&tp,&tzp);

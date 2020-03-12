@@ -40,7 +40,7 @@
 *     ***** energy variables ****
       logical spin_orbit
       integer ispin,ne(2)
-      real*8  E(10)
+      real*8  E(50)
       real*8  dipole(3)
       real*8  stress(3,3),lstress(6)
 
@@ -90,10 +90,12 @@
 
       logical  brillioun_print,control_Mulliken
       integer  brillioun_nbrillioun,brillioun_nbrillq
+      integer  brillioun_nbrillioun0
       real*8   brillioun_weight_brdcst,brillioun_ks_brdcst
       real*8   brillioun_k_brdcst,brillioun_weight
       external brillioun_print,control_Mulliken
       external brillioun_nbrillioun,brillioun_nbrillq
+      external brillioun_nbrillioun0
       external brillioun_weight_brdcst,brillioun_ks_brdcst 
       external brillioun_k_brdcst,brillioun_weight
       integer  c_electron_count,linesearch_count
@@ -130,8 +132,8 @@
       external pspw_reformat_c_wvfnc,control_check_charge_multiplicity
       integer  control_mapping,control_minimizer,control_np_dimensions
       external control_mapping,control_minimizer,control_np_dimensions
-      integer  control_scf_algorithm
-      external control_scf_algorithm
+      integer  control_scf_algorithm,control_ks_algorithm
+      external control_scf_algorithm,control_ks_algorithm
       real*8   control_ks_alpha,control_kerker_g0
       external control_ks_alpha,control_kerker_g0
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
@@ -142,8 +144,8 @@
       external control_fractional,control_print
       integer  control_fractional_smeartype
       external control_fractional_smeartype
-      real*8   control_fractional_kT
-      external control_fractional_kT
+      real*8   control_fractional_kT,control_fractional_alpha
+      external control_fractional_kT,control_fractional_alpha
 
 c      character*255 cpsp_comment,comment
 c      external      cpsp_comment
@@ -154,6 +156,8 @@ c      external      cpsp_comment
       external control_smooth_cutoff
       real*8   control_smooth_cutoff_values
       external control_smooth_cutoff_values
+      logical  nwpwxc_is_on,control_only_lda,control_precondition
+      external nwpwxc_is_on,control_only_lda,control_precondition
 
 
 *****************************|  PROLOGUE  |****************************
@@ -162,7 +166,7 @@ c      external      cpsp_comment
       pi = 4.0d0*datan(1.0d0)
 
       call nwpw_timing_init()
-      call dcopy(10,0.0d0,0,E,1)
+      call dcopy(50,0.0d0,0,E,1)
 
 
 *     **** get parallel variables ****
@@ -223,24 +227,33 @@ c      external      cpsp_comment
        
       call cpsi_data_init(20)
 
+*     **** read ions ****
+      value = ion_init(rtdb)
+      call center_geom(cx,cy,cz)
+      call center_mass(gx,gy,gz)
+
 *     **** initialize lattice data structure ****
       call lattice_init()
       call c_G_init()
+
+*     **** nitialize brillion ***
       call brillioun_init()
       call Cram_Init()
       call C3dB_pfft_init()
 
 *     **** initialize D3dB data structure and mask for GGA ****
-      if ((control_gga().ge.10).and.(control_gga().le.200)) THEN
-      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
-      call G_init()
-      call mask_init()
+c      if (((control_gga().ge.10).and.(control_gga().le.200))
+c     >     .or.nwpwxc_is_on()) THEN
+      if (.not.control_only_lda()) then
+         call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
+         call G_init()
+         call mask_init()
       end if
 
-*     **** read ions ****
-      value = ion_init(rtdb)
-      call center_geom(cx,cy,cz)
-      call center_mass(gx,gy,gz)
+c*     **** read ions ****
+c      value = ion_init(rtdb)
+c      call center_geom(cx,cy,cz)
+c      call center_mass(gx,gy,gz)
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call cpsp_init()
@@ -268,12 +281,12 @@ c      external      cpsp_comment
 *        **** convert from pspw format to band format ****
          vers = psi_get_version()
          if ((vers.eq.3).or.(vers.eq.4)) then
-           newpsi = .true.
-           value = btdb_parallel(.false.)
-           if (taskid.eq.MASTER) then
-             value= pspw_reformat_c_wvfnc(1)  
-           end if
-           value = btdb_parallel(.true.)
+            newpsi = .true.
+            value = btdb_parallel(.false.)
+            if (taskid.eq.MASTER) then
+              value= pspw_reformat_c_wvfnc(1)  
+            end if
+            value = btdb_parallel(.true.)
          end if
       end if
 
@@ -287,10 +300,16 @@ c      external      cpsp_comment
       nbrillioun = brillioun_nbrillioun()
       call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
       value = cpsi_initialize(.true.)
+      newpsi = newpsi.or.value
 
 *     **** electron and geodesic data structures ****
       call c_electron_init()
       call c_geodesic_init()
+
+
+*     **** initialize QM/MM ****
+      call band_init_APC(rtdb)
+
 
 *     **** initialize HFX ****
       call band_init_HFX(rtdb,nbrillioun,ispin,ne)
@@ -358,8 +377,8 @@ c      external      cpsp_comment
      >                    cpsp_zv(ia),cpsp_lmax(ia)
            comment = cpsp_comment(ia)
            i = inp_strlen(comment)
-           write(6,1157) comment(1:i)
-           write(6,1158) cpsp_psp_type(ia)
+           write(luout,1157) comment(1:i)
+           write(luout,1158) cpsp_psp_type(ia)
            write(luout,1152) cpsp_lmax(ia)
            write(luout,1153) cpsp_locp(ia)
 c           write(luout,1154) cpsp_lmmax(ia)
@@ -421,7 +440,8 @@ c           write(luout,1154) cpsp_lmmax(ia)
          write(luout,1261) ewald_mandelung()
 
          write(luout,1255)
-         write(luout,1256) brillioun_nbrillioun()
+         write(luout,1256) brillioun_nbrillioun(),
+     >                     brillioun_nbrillioun0()
       end if
 
 c     **** print brillioun zone - extra logic for distributed kpoints ****
@@ -467,6 +487,8 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
      >      control_smooth_cutoff_values(1)*lattice_wcut(),
      >      control_smooth_cutoff_values(2)
 
+         call c_rho_symmetrizer_print(luout)
+
          write(luout,1270)
          write(luout,1280) control_time_step(),control_fake_mass()
          write(luout,1290) control_tole(),control_tolc()
@@ -474,33 +496,42 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
      >                 control_it_in(),control_it_out()
 
          if ((minimizer.eq.5).or.(minimizer.eq.8)) then
-           write(6,1291)
-           write(6,1292)
+           write(luout,1291)
+           if (control_ks_algorithm().eq.0)  then
+              if (control_precondition()) then
+                 write(luout,1292) "preconditioned conjugate gradient"
+              else
+                 write(luout,1292) "conjugate gradient"
+              end if
+           end if
+           if (control_ks_algorithm().eq.1) write(luout,1292) "rmm-diis"
            write(luout,1295) control_ks_maxit_orb(),
      >                       control_ks_maxit_orbs()
            if (control_scf_algorithm().eq.0)
-     >       write(6,1293) "simple mixing"
+     >       write(luout,1293) "simple mixing"
            if (control_scf_algorithm().eq.1)
-     >       write(6,1293) "Anderson potential mixing"
+     >       write(luout,1293) "Anderson potential mixing"
            if (control_scf_algorithm().eq.2)
-     >       write(6,1293) "Johnson-Pulay mixing"
+     >       write(luout,1293) "Johnson-Pulay mixing"
            if (control_scf_algorithm().eq.3)
-     >       write(6,1293) "Anderson density mixing"
+     >       write(luout,1293) "Anderson density mixing"
            if (minimizer.eq.5) write(luout,1296) "potential"
            if (minimizer.eq.8) write(luout,1296) "density"
-           write(6,1294) control_ks_alpha()
-           write(6,1301) control_kerker_g0()
+           write(luout,1294) control_ks_alpha()
          end if
          if (control_fractional()) then
-           write(6,1297)
+           write(luout,1297)
            if (control_fractional_smeartype().eq.0)
-     >       write(6,1298) "step function"
+     >       write(luout,1298) "step function"
            if (control_fractional_smeartype().eq.1)
-     >       write(6,1298) "Fermi-Dirac"
+     >       write(luout,1298) "Fermi-Dirac"
            if (control_fractional_smeartype().eq.2)
-     >       write(6,1298) "Gaussian"
-           write(6,1299) control_fractional_kT(),
-     >                   control_fractional_temperature()
+     >       write(luout,1298) "Gaussian"
+           if (control_fractional_smeartype().eq.4)
+     >       write(luout,1298) "Marzari-Vanderbilt"
+           write(luout,1299) control_fractional_kT(),
+     >                   control_fractional_temperature(),
+     >                   control_fractional_alpha()
          end if
          write(luout,1300)
          call util_flush(luout)
@@ -566,6 +597,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 *     **** output energy, dipole, and gradient to rtdb for use ****
 *     **** by task_energy and task_gradient                    ****
 *     *************************************************************
+      value = .true.
       if (flag.gt.-1) then
       value = btdb_put(rtdb,'band:energy',mt_dbl,1,EV)
       value = value.and.
@@ -628,15 +660,18 @@ cc      call band_kp_structure(rtdb)
       call c_G_end()
       call band_end_HFX()
       call brillioun_end()
+      call band_end_APC()
       call ion_end()
       call ion_end_FixIon()
       call cpsi_data_end()
       call C3dB_pfft_end()
       call C3dB_end(1)
-      IF ((control_gga().ge.10).and.(control_gga().le.200)) THEN
-      call mask_end()
-      call G_end()
-      call D3dB_end(1)
+c      IF (((control_gga().ge.10).and.(control_gga().le.200)) 
+c     >     .or.nwpwxc_is_on()) THEN
+      if (.not.control_only_lda()) then
+         call mask_end()
+         call G_end()
+         call D3dB_end(1)
       end if
 
 *                |***************************|
@@ -688,9 +723,9 @@ cc      call band_kp_structure(rtdb)
  1042 FORMAT(10X,
      > '*  with Brillouin zone sampling for optimizing crystals, *')
  1043 FORMAT(10X,
-     > '*  slabs, and polymers.  Developed by Eric J. Bylaska    *')
+     > '*  slabs, and polymers.  Developed by Eric J. Bylaska,   *')
  1044 FORMAT(10X,
-     > '*  , Edoardo Apra, and Patrick Nichols.                  *')
+     > '*  Edoardo Apra, and Patrick Nichols.                    *')
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
  1111 FORMAT(/' number of processors used:',I16)
@@ -753,12 +788,13 @@ cc      call band_kp_structure(rtdb)
 
   
  1255 FORMAT(/' brillouin zone:')
- 1256 FORMAT(5x,' number of zone points:',I6)
+ 1256 FORMAT(5x,' number of zone points:',I6,
+     >          ' (reduced from ',I0,' zone points without symmetry)')
  1257 FORMAT(5x,' weight=',f8.3,'  ks=<',3f8.3,' >, k=<',3f8.3,'>')
  1258 FORMAT(5x,' number of k-points is very large')
 
  1260 FORMAT(5X,' Ewald summation: cut radius=',F8.2,'  and',I3)
- 1261 FORMAT(5X,'                   madelung=',f11.8)
+ 1261 FORMAT(5X,'                   madelung=',f14.8)
  
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
@@ -767,7 +803,7 @@ cc      call band_kp_structure(rtdb)
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (density)')
  1291 FORMAT(/' Kohn-Sham scf parameters:')
- 1292 FORMAT(5X, ' Kohn-Sham algorithm  = conjugate gradient')
+ 1292 FORMAT(5X, ' Kohn-Sham algorithm  = ',A)
  1293 FORMAT(5X, ' scf algorithm        = ',A)
  1294 FORMAT(5X, ' scf mixing parameter =',F7.4)
  1295 FORMAT(5X, ' Kohn-Sham iterations = ',I3,
@@ -775,7 +811,8 @@ cc      call band_kp_structure(rtdb)
  1296 FORMAT(5X, ' scf mixing type      = ',A)
  1297 FORMAT(/' fractional smearing parameters:')
  1298 FORMAT(5X, ' smearing algorithm   = ',A)
- 1299 FORMAT(5X, ' smearing parameter   = ',E9.3,' (',F7.1,' K)')
+ 1299 FORMAT(5X, ' smearing parameter   = ',E9.3,' (',F7.1,' K)'/,
+     >       5X, ' mixing parmameter    = ',F7.4)
  1300 FORMAT(//)
  1301 FORMAT(5X, ' Kerker damping       =',F7.4)
  1305 FORMAT(10X,'================ iteration =========================')
@@ -819,7 +856,7 @@ cc      call band_kp_structure(rtdb)
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 
- 9000 if (taskid.eq.MASTER) write(6,9010) ierr
+ 9000 if (taskid.eq.MASTER) write(luout,9010) ierr
       call Parallel_Finalize()
 
       band_minimizer = value

@@ -1,7 +1,43 @@
+Steps for using Simint in NWChem
+
+1. Generate Simint library from Simint generator
+
+https://github.com/simint-chem/simint-generator
+
+2. Compile Simint library
+
+This example uses avx instructions
+
+mkdir build
+cd build
+FC=ifort CC=icc CXX=icpc  cmake -DSIMINT_VECTOR=avx -DCMAKE_INSTALL_LIBDIR=lib -DENABLE_FORTRAN=ON \
+-DSIMINT_MAXAM=7 SIMINT_MAXDER=1  -DCMAKE_Fortran_FLAGS=-i8 \
+-DCMAKE_INSTALL_PREFIX=/home/edo/apps/simint8.install ../
+
+3. Compile Simint interface in NWChem
+
+Define env. variables
+SIMINT_HOME=/home/edo/apps/simint8.install/
+USE_SIMINT=y
+
+cd $NWCHEM_TOP/src/NWints/simit
+make clean
+make
+cd ../..
+make link
+
+4. Modify input file
+
+To get Simint integrals to be used in NWChem runs, add the following directives to the input file
+
+set int:cando_txs t
+set int:cando_nw t
+
+
+==========OLD CONTENT (TO BE REMOVED) ====
 Random thoughts for now on how to get Simint working in NWChem ...
 
 wget http://bennyp.org/research/simint/download/simint-v0.8.tar.bz2
-wget http://bennyp.org/research/simint/download/test.f90
 
   FC=ifort CC=icc CXX=icpc ~/apps/bin/cmake -DSIMINT_VECTOR=avx ../
   FC=ifort CC=icc CXX=icpc ~/apps/bin/ccmake -DSIMINT_VECTOR=avx ../
@@ -20,8 +56,6 @@ wget http://bennyp.org/research/simint/download/test.f90
  -DCMAKE_CXX_FLAGS:STRING=-gcc-name=gcc-5 -DCMAKE_CXX_FLAGS:STRING=-gxx-name=g++-5 \
  -DCMAKE_Fortran_FLAGS=-i8 -DCMAKE_INSTALL_PREFIX=/home/edo/apps/simint8edo.install ../
 
-c_simint_create_zero_shell for 3-ctr and 2-ctr
-put dummy to <bra|
 
 
 cmake build using ifort
@@ -38,7 +72,3 @@ SIMINT_MAXAM:STRING=2
 SIMINT_MAXDER:STRING=0
 
 
-To link in NWChem
-
-SIMINT_HOME=/home/edo/apps/simint8.install/
-USE_SIMINT=y

@@ -17,6 +17,9 @@ c
       LDA4=LDA
       LDB4=LDB
       LDC4=ldc
+#ifdef USE_YFLOP
+      flops_ycount = flops_ycount + m*n*k*2
+#endif
 c
       CALL DGEMM(TRANSA, TRANSB, M4, N4, K4, ALPHA, A, LDA4, B, LDB4,
      $                   BETA, C, LDC4 )

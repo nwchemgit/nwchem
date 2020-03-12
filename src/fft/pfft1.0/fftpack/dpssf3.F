@@ -1,3 +1,6 @@
+#if defined(XLF14) || defined(XLFLINUX)
+@PROCESS OPT(0) STRICT(ALL)
+#endif
       subroutine dpssf3 (ido,l1,cc,ch,wa1,wa2)
 *
 * $Id$

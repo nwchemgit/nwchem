@@ -1,118 +1,106 @@
-#!/bin/csh  -f
+#!/bin/bash
 #
 # $Id$
 # this script tries to figure out no. of processors and RAM
 # to get the maximum available memory in memor_def.F
-# It can also pick up an alternate amount of memory to take 
-# out for the OS, if available.  This amount is per processor 
-# and is in units of megabytes
+# The only optional argument is the minimum amount of memory
+# (that can exceed the available physical memory/processor)
+# and is in units of megabytes.
 #
-set memos = $1
-if (null$memos == null) set memos = 30
+if [[ -z "${NWCHEM_TARGET}" ]]; then
+    UNAME_S=$(uname -s)
+  if [[ ${UNAME_S} == Linux ]]; then
+    NWCHEM_TARGET=LINUX64
+  elif [[ ${UNAME_S} == Darwin ]]; then
+    NWCHEM_TARGET=MACX64
+  else
+      echo
+      echo You must define NWCHEM_TARGET in your environment to be the name
+      echo of the machine you wish to build for ... for example
+      echo     export NWCHEM_TARGET=SOLARIS
+      echo Known targets are SOLARIS, ...
+      echo See the INSTALL instructions for a complete list
+      echo ${UNAME_S}
+      exit 1
+  fi
+fi
+if [[ -z "${NWCHEM_TOP}" ]]; then
+    DIRUTIL=`dirname "$0"`
+    MYPW=`pwd`
+    NWCHEM_TOP=`echo ${DIRUTIL} | sed -e 's/\/contrib.*//' `
+fi
 #
 cd $NWCHEM_TOP/src/input
-set a=("" "" "" "" "" "") 
-set good=1
+a=("" "" "" "" "" "") 
+good=1
 
-if ($NWCHEM_TARGET == LINUX) then
-  set nproc = `egrep processor /proc/cpuinfo | wc --line`
-  set memtot = `egrep -i MemT /proc/meminfo | sed -e "s/kB//g"|sed -e "s/MemTotal://"  `
-else  if ($NWCHEM_TARGET == LINUX64) then
-  if(`uname -m` == ia64) then
-    set nproc = `egrep processor /proc/cpuinfo | wc -l` 
-  else if(`uname -m` == x86_64) then
-    set nproc = `egrep processor /proc/cpuinfo | wc -l` 
-  else
-    #this works for Alpha
-    set nproc = `egrep cpus /proc/cpuinfo |  sed -e "s/cpus detected		: //"`
-  endif
-  set memtot = `egrep -i MemT /proc/meminfo | sed -e "s/kB//g"|sed -e "s/MemTotal://"  `
-else  if ($NWCHEM_TARGET == MACX64) then
-    set nproc = `sysctl -n hw.ncpu`
-    set memtot = `sysctl -n hw.memsize`
-    @ memtot = ($memtot / 1024)
-else  if ($NWCHEM_TARGET == DECOSF) then
-  set nproc = `/usr/sbin/psrinfo | wc -l `
-  set memtot = ` /usr/bin/vmstat -P | egrep "Total Physical Memory ="| sed -e "s/Total Physical Memory =//"| sed -e "s/.00 M//"`
-  @ memtot = ($memtot * 1024)
-else  if ($NWCHEM_TARGET == SGI_N32 || $NWCHEM_TARGET == SGITFP ) then
-  set a=`/sbin/hinv  -c processor|head -1`  
-  set nproc=$a[1]
-  set a=`/sbin/hinv -c memory | head -1`  
-  @ memtot = ($a[4] * 1024)
-else  if ($NWCHEM_TARGET == SOLARIS ) then
-  set nproc = `/usr/sbin/psrinfo | wc -l `
-  set a=`/usr/sbin/prtconf | egrep -i mem   `  
-  @ memtot = ($a[3] * 1024)
-else  if ($NWCHEM_TARGET == IBM || $NWCHEM_TARGET == IBM64 || $NWCHEM_TARGET == LAPI || $NWCHEM_TARGET == LAPI64) then
-  set nproc=`/usr/sbin/lsdev -Cc processor | wc -l `
-  set nmcard = `/usr/sbin/lsdev -Cc memory | egrep mem | wc -l`
-  set i=0
-  set memtot=0
-  while ($i != $nmcard) 
-    set a=`/usr/sbin/lsattr -E -l mem$i |head -1`
-    set cardmem=$a[2]
-    @ memtot = ($memtot + $cardmem)
-    @ i = ($i + 1)
-  end
-  @ memtot = ($memtot * 1024)
-else  if ($NWCHEM_TARGET == HPUX || $NWCHEM_TARGET == HPUX64  ) then
-  set nproc=`/usr/sbin/ioscan -fkC processor | grep '^proc' | wc -l `
-  cat > getmemhp.c <<EOF
-  #include <sys/param.h>
-  #include <sys/pstat.h>
-  #include <sys/unistd.h>
-  main()
-  {
-     struct pst_static buf;
-        pstat_getstatic(&buf, sizeof(buf), 0, 0);
-   printf(" %ld\n", buf.physical_memory);
-                   }                                                             
-EOF
-  cc -Wl,+vnocompatwarnings -o getmemhp getmemhp.c
-  set memtot=`./getmemhp`
-  rm -f ./getmemhp
+if [ $NWCHEM_TARGET == LINUX ] || [ $NWCHEM_TARGET == LINUX64 ]; then
+    echo ==== lscpu ==========================
+    lscpu
+    echo ==== nproc --all ====================
+    nproc --all
+    echo ==== lscpu -p=Core,Socket | grep -v '^#'
+    lscpu   -p=Core,Socket | grep -v '^#'
+    echo =====================================
+#  nproc=`lscpu   -p=Core,Socket | grep -v '^#' | sort -u | wc -l`
+  nproc=`nproc --all`
+  memtot=`egrep -i MemT /proc/meminfo | sed -e "s/kB//g"|sed -e "s/MemTotal://"  `
+elif [ $NWCHEM_TARGET == MACX64 ]; then
+    nproc=`sysctl -n hw.ncpu`
+    memtot=`sysctl -n hw.memsize`
+    memtot=$(( memtot / 1024 ))
+elif [ $NWCHEM_TARGET == SOLARIS ]; then
+  nproc=`/usr/sbin/psrinfo | wc -l `
+  a=`/usr/sbin/prtconf | egrep -i mem   `  
+  memtot=$(( a[3] * 1024 ))
 else 
-  set good=0
-endif
-
-if($good != 0) then
-  set memproc=0
-  @ memproc = ($memtot / $nproc)
-  @ memprocgb = ($memproc / 1000000)
-  echo "Total Memory         :" $memtot "Kb"
+    good=0
+fi
+# give at least 512mb
+if [[ -n "$1" ]]; then
+    mem_min=$(( $1 * 1024 ))
+else
+    mem_min=$(( 512 * 1024 ))
+fi
+  echo "Input Minum Memory   :" $mem_min "KB"
+if [[ $good != 0  ]]; then
+  memproc=0
+  memproc=$(( memtot / nproc ))
+  memprocgb=$(( memproc / 1000000 ))
+  echo "Total Memory         :" $memtot "KB"
   echo "No. of processors    :" $nproc
   echo "Total Memory/proc    :" $memproc "KB = " $memprocgb "GB"
-  # take away memory for OS
-  @ memproc = (($memproc - ($memos * 1024)))
+  # take away 30% memory for OS
+  memproc=$(( memproc*70/100 ))
+  echo cfr $memproc $mem_min
+  if [ "$memproc" -lt "$mem_min" ] ; then
+      echo 'WARNING: Memory/proc < ' $mem_min
+      memproc=$mem_min
+      echo 'WARNING: Memory/proc increased to ' $mem_min
+  fi
+#cap memory to 2GB for 32bit archs
+  if [ $NWCHEM_TARGET == LINUX ] || [ $NWCHEM_TARGET == MACX ] ; then
+      mem32limit=$(( 2600*1024 ))
+    if [ "$memproc" -gt "$mem32limit" ] ; then
+	memproc=$mem32limit
+	echo 'memory resized to 2600 mb on 32bit architectures'
+    fi
+fi    
   # multiply by 128=(1024/8) to get to doubles
-  @ memproc = ($memproc * 128)
-  if($good == 1) then
-    set copt=" -DDFLT_TOT_MEM="$memproc
+   memproc=$(( memproc * 128 ))
+  if [ $good == 1 ]; then
+    copt=" -DDFLT_TOT_MEM="$memproc" -DMORE_MA_MEM=1 "
     touch memory_def.F
-    set mymake=`which make`
-    echo `/usr/bin/strings $mymake | egrep GNU | head -1` >! tmp.out.test
-    set nbyte=`wc -c tmp.out.test`
-    rm -f tmp.out.test 
-    if ($nbyte[1] != 0) then
-      echo "Executing " 'make LIB_DEFINES+="'$copt'"'
-      # this is need for PGI
-      #make  FC=pgf77 LIB_DEFINES+="$copt "
-      make   LIB_DEFINES+="$copt "
-      cd $NWCHEM_TOP/src
-      make link
-    else
-      echo "Executing "  'gmake LIB_DEFINES+="'$copt'"'
-      gmake LIB_DEFINES+="$copt " 
-      cd $NWCHEM_TOP/src
-      gmake link
-    endif 
+    echo "Executing " 'make LIB_DEFINES+="'$copt'"'
+    make   LIB_DEFINES+="$copt "
+    cd ..
+    make link
   else
     echo " "
     echo "Edit memory_def.F and change DFLT_TOT_MEM to "$memproc
     echo " "
-  endif
+  fi
 else
   echo "not ready for " $NWCHEM_TARGET
-endif
+fi
 

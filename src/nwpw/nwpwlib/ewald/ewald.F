@@ -183,6 +183,7 @@ CDIR$ NOVECTOR
      >    - pi*rc*rc/omega - 2.0d0*epsilon/dsqrt(pi)
 
       alpha = -sum*rs
+
       return 
       end
 cccccccccccccccccccccccccccccccccccc

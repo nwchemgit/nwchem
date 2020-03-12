@@ -62,8 +62,8 @@ c
       external grid_nbfm
       integer iscf_rho,iscf_delrho
       integer iscf_tau,iscf_ttau
-      logical grid_sicinit,grid_sicend
-      external grid_sicinit,grid_sicend
+      logical grid_sicinit,grid_sicend,xc_chkdelrq
+      external grid_sicinit,grid_sicend,xc_chkdelrq
       double precision acc_xc_gauss
       logical l3d
       logical triplet, kske, kslap
@@ -372,6 +372,8 @@ c AJL/End
      &        rchi_atom, rdelchi_atom,
      &        rdens_atom, cetobfr,wmax, 
      &        ttau, kske, kslap.or.do_xdm)
+            if(xc_chkdelrq()) call
+     X           xc_delrhodotr(nqpts,ipol,qxyz,rho,delrho,ttau)
          if (odftps) call pstat_off(ps_xcrho)
          if (sic_orb_index.eq.1) then
             call grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,

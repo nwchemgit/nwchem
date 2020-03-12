@@ -328,6 +328,117 @@ c
 
 
 
+      subroutine cons_pbondings_n_tag(cons_name,tag)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
+
+      character*(*) tag
+c
+      integer n
+      character*255 cons_name
+c     
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)//":pbondings_n"
+      
+      end
+c
+      subroutine cons_pbondings_n0_tag(cons_name,tag)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
+
+      character*(*) tag
+c
+      integer n
+      character*255 cons_name
+c     
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)//":pbondings_n0"
+
+      end
+
+      subroutine cons_pbondings_indx_tag(cons_name,tag)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
+
+      character*(*) tag
+c
+      integer n
+      character*255 cons_name
+c     
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)//":pbondings_indx"
+
+      end
+
+      subroutine cons_pbondings_coef_tag(cons_name,tag)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
+
+      character*(*) tag
+c
+      integer n
+      character*255 cons_name
+c     
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)//":pbondings_coef"
+
+      end
+
+      subroutine cons_pbondings_k0_tag(cons_name,tag)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
+
+      character*(*) tag
+c
+      integer n
+      character*255 cons_name
+c     
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)//":pbondings_k0"
+
+      end
+
+      subroutine cons_pbondings_gcut0_tag(cons_name,tag)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
+
+      character*(*) tag
+c
+      integer n
+      character*255 cons_name
+c
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)//":pbondings_gcut0"
+
+      end
+
+
+      subroutine cons_pbondings_gamma0_tag(cons_name,tag)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
+
+      character*(*) tag
+c
+      integer n
+      character*255 cons_name
+c     
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)//":pbondings_gamma0"
+
+      end
+
+
+
+
+
+
       subroutine cons_hdihed_id_tag(cons_name,tag)
       implicit none
 #include "util.fh"
@@ -392,7 +503,7 @@ c
       implicit none
 #include "util.fh"
 #include "inp.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 
       double precision r1(3),r2(3),r3(3),r4(3)
       double precision phi
@@ -438,7 +549,7 @@ c
       implicit none
 #include "util.fh"
 #include "inp.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 #include "errquit.fh"
 
       double precision r1(3),r2(3),r3(3),r4(3)

@@ -30,9 +30,6 @@ c
       call argos_pme_flag(1,0,me)
       endif
 c
-      entry argos_cafe_init2(lp,llng,bx,vl,vli,zwi,zs,eww,esw,
-     + ess,fss,esa)
-c
       lpair=lp
       llong=llng
 c

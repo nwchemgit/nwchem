@@ -23,7 +23,7 @@ c
       integer nprocs
       integer count
       integer next
-      integer nxtval
+      integer nxtask
 c --- t2 scan ---
       integer d_t1
       integer k_t1_offset
@@ -36,7 +36,7 @@ c --- t2 scan ---
       integer ipa1,iha2
       integer ip1,ih2
 c ---------------
-      external nxtval
+      external nxtask
       logical nodezero
       logical noloadbalance
 c
@@ -45,7 +45,7 @@ c
      1                ((ioalg.eq.6).and.(.not.fileisga(d_r1))))
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+      next = nxtask(nprocs,1)
       do p1b = noab+1,noab+nvab
         do h2b = 1,noab
           if (noloadbalance.or.(next.eq.count)) then
@@ -106,12 +106,12 @@ c ------ end of the t1 loop ---------------
             endif
             endif
             endif
-            next = nxtval(nprocs)
+            next = nxtask(nprocs,1)
           endif
           count = count + 1
         enddo
       enddo
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
       call ga_sync()
       return
       end
@@ -148,8 +148,8 @@ c
       integer nprocs
       integer count
       integer next
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
       logical nodezero
       logical noloadbalance
 c
@@ -158,7 +158,7 @@ c
      1                ((ioalg.eq.6).and.(.not.fileisga(d_r1))))
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+      next = nxtask(nprocs,1)
       do p1b = noab+1,noab+nvab
         do h2b = 1,noab
           if (noloadbalance.or.(next.eq.count)) then
@@ -186,12 +186,12 @@ c
             endif
             endif
             endif
-            next = nxtval(nprocs)
+            next = nxtask(nprocs,1)
           endif
           count = count + 1
         enddo
       enddo
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
       call ga_sync()
       return
       end
@@ -224,8 +224,8 @@ c
       integer nprocs
       integer count
       integer next
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
       logical nodezero
       logical noloadbalance
 c 
@@ -234,7 +234,7 @@ c
      1                ((ioalg.eq.6).and.(.not.fileisga(d_r1))))
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+      next = nxtask(nprocs,1)
       do p1b = noab+1,noab+nvab
         do h2b = 1,noab
           if (noloadbalance.or.(next.eq.count)) then
@@ -262,12 +262,12 @@ c
             endif
             endif
             endif
-            next = nxtval(nprocs)
+            next = nxtask(nprocs,1)
           endif
           count = count + 1
         enddo
       enddo
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
       call ga_sync()
       return
       end
@@ -308,8 +308,8 @@ c ---
       integer nprocs
       integer count
       integer next
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
       logical nodezero
       logical noloadbalance
 c
@@ -318,7 +318,7 @@ c
      1                ((ioalg.eq.6).and.(.not.fileisga(d_r1))))
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+      next = nxtask(nprocs,1)
       do p1b = noab+1,noab+nvab
         do h2b = 1,noab
           if (noloadbalance.or.(next.eq.count)) then
@@ -352,12 +352,12 @@ c
             endif
             endif
             endif
-            next = nxtval(nprocs)
+            next = nxtask(nprocs,1)
           endif
           count = count + 1
         enddo
       enddo
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
       call ga_sync()
       return
       end

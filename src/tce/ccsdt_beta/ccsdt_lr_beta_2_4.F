@@ -16,7 +16,7 @@ C     i0 ( )_ytrbtrav + = 1 * Sum ( h11 p7 h9 p10 ) * i1 ( h11 p7 h9 p10 )_ytrbt
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -50,10 +50,10 @@ C     i0 ( )_ytrbtrav + = 1 * Sum ( h11 p7 h9 p10 ) * i1 ( h11 p7 h9 p10 )_ytrbt
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL nxtask
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       IF (next.eq.count) THEN
       IF (0 .eq. ieor(irrep_y,ieor(irrep_trb,ieor(irrep_tra,irrep_v)))) 
      &THEN
@@ -126,10 +126,10 @@ C     i0 ( )_ytrbtrav + = 1 * Sum ( h11 p7 h9 p10 ) * i1 ( h11 p7 h9 p10 )_ytrbt
       IF (.not.MA_POP_STACK(l_c_sort)) CALL ERRQUIT('ccsdt_lr_beta_2_4',
      &11,MA_ERR)
       END IF
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       END IF
       count = count + 1
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
       call GA_SYNC()
       RETURN
       END

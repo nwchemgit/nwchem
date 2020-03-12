@@ -178,7 +178,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] R Peverati, DG Truhlar, J.Phys.Chem.Lett. 2, 2810 (2011)  , DOI: 
-C> <a href="http://dx.doi.org/10.1021/jz201170d "> 
+C> <a href="https://doi.org/10.1021/jz201170d "> 
 C> 10.1021/jz201170d </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -1088,7 +1088,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] R Peverati, DG Truhlar, J.Phys.Chem.Lett. 2, 2810 (2011)  , DOI: 
-C> <a href="http://dx.doi.org/10.1021/jz201170d "> 
+C> <a href="https://doi.org/10.1021/jz201170d "> 
 C> 10.1021/jz201170d </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -3578,7 +3578,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] R Peverati, DG Truhlar, J.Phys.Chem.Lett. 2, 2810 (2011)  , DOI: 
-C> <a href="http://dx.doi.org/10.1021/jz201170d "> 
+C> <a href="https://doi.org/10.1021/jz201170d "> 
 C> 10.1021/jz201170d </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

@@ -14,6 +14,8 @@ print none
 scf; thresh 1e-8; end
 
 python noprint
+from __future__ import print_function
+
 from math import *
 
 #
@@ -35,8 +37,8 @@ def energy_at_exponent(exponent):
 #
 def optimize_exponent(exponent):
    if (ga_nodeid() == 0):
-      print ' exponent     energy     gradient hessian    step '
-      print '---------- ------------ --------- ------- ----------'
+      print(' exponent     energy     gradient hessian    step ')
+      print('---------- ------------ --------- ------- ----------')
 
    scale = 1.0
    gradient = 1.0
@@ -52,17 +54,17 @@ def optimize_exponent(exponent):
          step     = -gradient/hessian
          scale = 1.0
       else:
-         if (ga_nodeid() == 0):print 'Negative curvature'
+         if (ga_nodeid() == 0):print('Negative curvature')
          step = -0.2*gradient*scale
          scale = scale*10
       if (fabs(step) > 0.2):
-         if (ga_nodeid() == 0):print 'Restricting step'
+         if (ga_nodeid() == 0):print('Restricting step')
          step = 0.2*step/fabs(step) - 0.02
       if (ga_nodeid() == 0):
-         print '%10.6f %12.8f %9.6f %6.2f %10.6f' % \
-               (exponent, e, gradient, hessian, step)
+         print('%10.6f %12.8f %9.6f %6.2f %10.6f' % \
+               (exponent, e, gradient, hessian, step))
       exponent = exponent + step
-   if (ga_nodeid() == 0): print ' '
+   if (ga_nodeid() == 0): print(' ')
    return exponent
 
 # Scan from large exponents to small.  As soon as we pass a minimum
@@ -72,20 +74,20 @@ exponent = 2.0
 step = 0.2
 previous = energy_at_exponent(exponent)
 if (ga_nodeid() == 0):
-   print ' exponent=%10.6f energy=%12.8f' % (exponent, previous)
+   print(' exponent=%10.6f energy=%12.8f' % (exponent, previous))
 downhill = 0
 while (exponent > step):
    exponent = exponent - step
    energy = energy_at_exponent(exponent)
    if (ga_nodeid() == 0):
-      print ' exponent=%10.6f energy=%12.8f' % (exponent, energy)
+      print(' exponent=%10.6f energy=%12.8f' % (exponent, energy))
    if (downhill and (energy > previous)):
       exponent = optimize_exponent(exponent+0.5*step)
       previous = energy_at_exponent(exponent)
       if (ga_nodeid() == 0):
-         print ' Minimum found at exponent=%10.6f energy=%12.8f' % \
-               (exponent, previous)
-         print ' '
+         print(' Minimum found at exponent=%10.6f energy=%12.8f' % \
+               (exponent, previous))
+         print(' ')
       downhill = 0
    else:
       downhill = (energy < previous)

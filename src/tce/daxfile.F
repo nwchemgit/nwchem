@@ -24,9 +24,9 @@ c
       logical nodezero
       double precision coefficients(*)
       logical dinisga, doutisga
-cc      integer nxtval
+cc      integer nxtask
       integer next, nprocs, count
-cc      external nxtval
+cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical noloadbalance
@@ -89,7 +89,7 @@ c
      2    call errquit('daxfile: MA problem',1,MA_ERR)
         nprocs = GA_NNODES()
         count = 0
-cc        next = NXTVAL(nprocs)
+cc        next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
         do i = 1,nblocks
           if (noloadbalance.or.(next.eq.count)) then
@@ -113,12 +113,12 @@ cc        next = NXTVAL(nprocs)
             enddo
             call put_block(d_out,dbl_mb(k_temp1),
      1        min(size,i*blocksize)-(i-1)*blocksize,(i-1)*blocksize)
-cc            next = NXTVAL(nprocs)
+cc            next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
           endif
           count = count + 1
         enddo
-cc        next = NXTVAL(-nprocs)
+cc        next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
         if (.not.ma_pop_stack(l_temp2))
      1    call errquit('createfile: MA problem',2,MA_ERR)

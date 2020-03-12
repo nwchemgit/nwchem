@@ -11,7 +11,7 @@ C>
 C> [1] R.J. Harrison, "Approximating full configuration interaction
 C>     with selected configuration interaction and perturbation theory",
 C>     J. Chem. Phys. <b>94</b> (1991), 5021-5031,
-C>     <a href="http://dx.doi.org/10.1063/1.460537">
+C>     <a href="https://doi.org/10.1063/1.460537">
 C>     10.1063/1.460537</a>.
 
 C> \ingroup selci
@@ -68,6 +68,7 @@ c
       double precision stols(max_thresh)
       integer nroot, iwpt
       double precision diag_tol, roots(max_roots), rootspt(max_roots)
+      double precision findtol
       character*10 reference
       logical scf, mcscf, moints_full
       external scf, mcscf, moints_full
@@ -106,6 +107,11 @@ c
       endif
       if (.not. rtdb_get(rtdb, 'selci:moints:force', mt_log, 1, oforce))
      $     oforce = .false.
+      if (.not. rtdb_get(rtdb, 'fourindex:tol', mt_dbl, 1, findtol))
+     $     findtol=1d-12
+      findtol=max(findtol,1d-12)
+      if (.not. rtdb_put(rtdb, 'fourindex:tol', mt_dbl, 1, findtol))
+     $     call errquit('selci: rtdb_put failed',0,RTDB_ERR)
       if (ga_nodeid() .eq. 0) inquire(file=moints, exist=oexist)
       call ga_brdcst(303, oexist, mitob(1), 0)
       if (oforce .or. (.not. oexist)) then

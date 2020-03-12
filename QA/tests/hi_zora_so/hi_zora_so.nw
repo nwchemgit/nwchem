@@ -24,5 +24,5 @@ relativistic
   zora on
   zora:cutoff 1d-30 
 end
-
+set grid:eaf_size_in_dbl 40000000
 task sodft

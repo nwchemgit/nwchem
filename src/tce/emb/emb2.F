@@ -93,7 +93,7 @@ c *** cr_ccsd_t_E ***
 c *******************
       integer size,i
       integer g_energy
-      integer NXTVAL
+      integer nxtask
       integer next
       integer nprocs
       integer count
@@ -135,7 +135,7 @@ c ----------------------------
       double precision den1,num1
       double precision den2,num2
       character*255 filename
-      external NXTVAL
+      external nxtask
 c *** debug ***
       double precision xxx
 c *************
@@ -355,7 +355,7 @@ c
      1  call errquit('ccsd_t: GA problem',0,GA_ERR)
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       do t_p4b = noab+1,noab+nvab
        do t_p5b = t_p4b,noab+nvab
         do t_p6b = t_p5b,noab+nvab
@@ -661,7 +661,7 @@ c
             endif
             endif
             endif
-            next = NXTVAL(nprocs)
+            next = nxtask(nprocs,1)
             endif
             count = count + 1
            enddo
@@ -670,7 +670,7 @@ c
         enddo
        enddo
       enddo
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
 c --- toggle = 3 ---
 c
       call c1v(dbl_mb(k_c1v),d_v2,d_c1,k_v2_offset,k_c1_offset,

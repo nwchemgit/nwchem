@@ -22,7 +22,9 @@ c      use iso_c_binding
       double precision, pointer :: p1(:), p2(:),p3(:),p4(:)
 #endif
       integer i
-       character*10 pname
+      character*10 pname
+      integer*4 zerod
+      parameter(zerod=0)
       pname="nwcsim_hf2"
 c
 c      match  ijkl shell to simint shell
@@ -31,9 +33,9 @@ c
       call simint_initialize_multi_shellpair(bra_msh)
       call simint_initialize_multi_shellpair(ket_msh)
       call simint_create_multi_shellpair(1, smnt_sh(i_sh,ij_basis), 1, 
-     S     smnt_sh(j_sh,ij_basis), bra_msh, 0)
+     S     smnt_sh(j_sh,ij_basis), bra_msh, smnt_screen_method)
       call simint_create_multi_shellpair(1,smnt_sh(k_sh,kl_basis),
-     S     1,smnt_sh(l_sh,kl_basis), ket_msh, 0)
+     S     1,smnt_sh(l_sh,kl_basis), ket_msh, smnt_screen_method)
 #ifdef DEBUG
       write(6,'(a,2i10)') ' basis tags ',ij_basis,kl_basis
       write(6,'(4i10)') i_sh,j_sh,k_sh,l_sh
@@ -47,21 +49,27 @@ c
         write(*,*) p1(i), p2(i),p3(i),p4(i)
       end do
 #endif
+
 #ifdef SIMINT_GRADIENT
-      ncomputed = simint_compute_eri_deriv(0,bra_msh, ket_msh, 0.0d0, 
+      ncomputed = simint_compute_eri_deriv(zerod,bra_msh, ket_msh,
+     c     smnt_screen_tol,
      C     scr, eri)
 #else
-      ncomputed = simint_compute_eri(bra_msh, ket_msh, 0.0d0, 
+      ncomputed = simint_compute_eri(bra_msh, ket_msh,
+     C     smnt_screen_tol,
      C     scr, eri)
 #endif
+
       call simint_free_multi_shellpair(bra_msh)
       call simint_free_multi_shellpair(ket_msh)
 #ifdef DEBUG
-      write(6,*) ' eri ', eri(1),eri(ncomputed)
+      write(6,*) ncomputed,' eri ', eri(1),eri(ncomputed)
       if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2b'
 #endif
-      if(ncomputed.gt.leri) call errquit(
-     P     pname//'ncomputed gt leri ',ncomputed*10000+leri, BASIS_ERR)
+      if(ncomputed.le.0) call errquit(
+     P     pname//'return value from simint ',ncomputed, BASIS_ERR)
+cwrong      if(ncomputed.gt.leri) call errquit(
+c     P     pname//'ncomputed gt leri ',ncomputed*10000+leri, BASIS_ERR)
  
       return
       end
@@ -82,7 +90,6 @@ c      use SimintFortran
 #include "mafdecls.fh"
 c      use iso_c_binding
       type(c_simint_multi_shellpair), target :: bra_msh, ket_msh
-#define DEBUG_ 1
       integer i
        character*10 pname
       pname="nwcsim_hf2_3c"
@@ -94,10 +101,10 @@ c
       call simint_initialize_multi_shellpair(ket_msh)
 
       call simint_create_multi_shellpair(1,smnt_sh(i_sh,i_basis),
-     S     1,zero_sh(j_sh,i_basis), bra_msh, 0)
+     S     1,zero_sh(j_sh,i_basis), bra_msh, smnt_screen_method)
       call simint_create_multi_shellpair(1, smnt_sh(j_sh,jk_basis), 1, 
-     S     smnt_sh(k_sh,jk_basis), ket_msh, 0)
-      ncomputed = simint_compute_eri(bra_msh, ket_msh, 0.0d0, 
+     S     smnt_sh(k_sh,jk_basis), ket_msh, smnt_screen_method)
+      ncomputed = simint_compute_eri(bra_msh, ket_msh, smnt_screen_tol, 
      C     scr, eri)
       call simint_free_multi_shellpair(bra_msh)
       call simint_free_multi_shellpair(ket_msh)
@@ -139,15 +146,18 @@ c
       call simint_initialize_multi_shellpair(ket_msh)
 
       call simint_create_multi_shellpair(1,smnt_sh(i_sh,i_basis),
-     S     1,zero_sh(i_sh,i_basis), bra_msh, 0)
+     S     1,zero_sh(i_sh,i_basis), bra_msh, smnt_screen_method)
       call simint_create_multi_shellpair(1, smnt_sh(j_sh,j_basis), 1, 
-     S     zero_sh(j_sh,j_basis), ket_msh, 0)
-      ncomputed = simint_compute_eri(bra_msh, ket_msh, 0.0d0, 
+     S     zero_sh(j_sh,j_basis), ket_msh, smnt_screen_method)
+      ncomputed = simint_compute_eri(bra_msh, ket_msh,
+     S     smnt_screen_tol,
      C     scr, eri)
       call simint_free_multi_shellpair(bra_msh)
       call simint_free_multi_shellpair(ket_msh)
-      if(ncomputed.gt.leri) call errquit(
-     P     pname//'ncomputed gt leri ',ncomputed*10000+leri, BASIS_ERR)
+      if(ncomputed.le.0) call errquit(
+     P     pname//'return value from simint ',ncomputed, BASIS_ERR)
+c      if(ncomputed.gt.leri) call errquit(
+c     P     pname//'ncomputed gt leri ',ncomputed*10000+leri, BASIS_ERR)
  
       return
       end
@@ -181,11 +191,12 @@ c
       call simint_initialize_multi_shellpair(ket_msh)
 
       call simint_create_multi_shellpair(1, smnt_sh(i_sh,ij_basis), 1, 
-     S     smnt_sh(j_sh,ij_basis), bra_msh, 0)
+     S     smnt_sh(j_sh,ij_basis), bra_msh, smnt_screen_method)
       call simint_create_multi_shellpair(1,smnt_sh(k_sh,kl_basis),
-     S     1,smnt_sh(l_sh,kl_basis), ket_msh, 0)
+     S     1,smnt_sh(l_sh,kl_basis), ket_msh, smnt_screen_method)
 
-      ncomputed = simint_compute_eri_deriv(1,bra_msh, ket_msh, 0d0, 
+      ncomputed = simint_compute_eri_deriv(smnt_deriv,bra_msh, ket_msh,
+     S     smnt_screen_tol,
      C     scr, eri)
       call simint_free_multi_shellpair(bra_msh)
       call simint_free_multi_shellpair(ket_msh)
@@ -223,11 +234,12 @@ c
       call simint_initialize_multi_shellpair(ket_msh)
 
       call simint_create_multi_shellpair(1, smnt_sh(i_sh,i_basis), 1, 
-     S     zero_sh(i_sh,i_basis), bra_msh, 0)
-      call simint_create_multi_shellpair(1,smnt_sh(j_sh,j_basis),
-     S     1,zero_sh(j_sh,j_basis), ket_msh, 0)
+     S     zero_sh(i_sh,i_basis), bra_msh, smnt_screen_method)
+      call simint_create_multi_shellpair(1, smnt_sh(j_sh,j_basis), 1,
+     S     zero_sh(j_sh,j_basis), ket_msh, smnt_screen_method)
 
-      ncomputed = simint_compute_eri_deriv(1,bra_msh, ket_msh, 0d0, 
+      ncomputed = simint_compute_eri_deriv(smnt_deriv,bra_msh, ket_msh,
+     S     smnt_screen_tol,
      C     scr, eri)
       call simint_free_multi_shellpair(bra_msh)
       call simint_free_multi_shellpair(ket_msh)
@@ -265,11 +277,12 @@ c
       call simint_initialize_multi_shellpair(ket_msh)
 
       call simint_create_multi_shellpair(1, smnt_sh(i_sh,i_basis), 1, 
-     S     zero_sh(i_sh,i_basis), bra_msh, 0)
-      call simint_create_multi_shellpair(1,smnt_sh(j_sh,jk_basis),
-     S     1,smnt_sh(k_sh,jk_basis), ket_msh, 0)
+     S     zero_sh(i_sh,i_basis), bra_msh, smnt_screen_method)
+      call simint_create_multi_shellpair(1,smnt_sh(j_sh,jk_basis), 1,
+     S     smnt_sh(k_sh,jk_basis), ket_msh, smnt_screen_method)
 
-      ncomputed = simint_compute_eri_deriv(1,bra_msh, ket_msh, 0d0, 
+      ncomputed = simint_compute_eri_deriv(smnt_deriv,bra_msh, ket_msh,
+     s     smnt_screen_tol,
      C     scr, eri)
       call simint_free_multi_shellpair(bra_msh)
       call simint_free_multi_shellpair(ket_msh)

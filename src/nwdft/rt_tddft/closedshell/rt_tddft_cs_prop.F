@@ -86,7 +86,7 @@ C     (estimating time remaining)
       integer est_it_start
 
 
-      call rt_tddft_cs_confirm (params)
+      call rt_tddft_cs_confirm (params,'rt_tddft_cs_prop.F')
       
       me = ga_nodeid()
 
@@ -189,9 +189,10 @@ C
       call zfock_cs_build (params, g_zdens_ao, energies, g_zfock_ao)
       call canorg_trans (params,"F","AO->MO", g_zfock_ao, g_zfock_mo)
 
-      if (params%mocap_active) then
+      if ( (params%mocap_active).or.(params%cap_active) ) then
          call rt_tddft_print_notice (
-     $        "MO CAP active: Disabled initial MO Fock check")
+     $        "MO and/or spatial CAP active: "//
+     $        "Disabled initial MO Fock check")
       else
          if (.not. mat_is_purereal (g_zfock_mo, params%tol_zero))
      $        call errquit (pname//
@@ -223,20 +224,26 @@ C
      $        "GS and RT-TDDFT density matrices")
       endif
 
-
 C
 C     If we need the eigenvectors of the ground state Fock matrix (for
-C     now only when print MO occupations or for scaling ZORA density
-C     matrix or printing dipole contributions), diagonalize in MO basis.  
-C     Again, pure real.
-C     XXX ZORA SCALING NOT WORKING
+C     now only when print MO occupations or dipcontribs), diagonalize in
+C     MO basis. Again, pure real.  If we are using a CAP, F will be
+C     complex but we give the user a warning and continue anyways.
 C
-C      if (params%print_moocc .or. do_zora) then
       if (params%print_moocc .or. params%print_dipcontribs) then
-         
-         if (.not. mat_is_purereal (g_zfock_mo, params%tol_zero))
-     $        call errquit (pname//
-     $        "MO occup needs initial MO Fock mat to be pure real",0,0)
+
+         if ( (params%mocap_active).or.(params%cap_active) ) then
+            call rt_tddft_print_notice (
+     $           "MO and/or spatial CAP active: "//
+     $           "Disabled initial MO Fock check "//
+     $           "for moocc and/or dipcontribs")
+         else
+
+            if (.not. mat_is_purereal (g_zfock_mo, params%tol_zero))
+     $           call errquit (pname//
+     $           "initial Fock matrix in MO basis is not pure real",0,0)
+            
+         endif
          
          call rt_tddft_movecs_gs (params, g_zfock_mo, g_movecs_mo_gs)
       endif
@@ -408,6 +415,10 @@ C     (molecular orbital occupations, calc in MO basis)
             if (params%print_moocc) then
                call rt_tddft_moocc_print (params,
      $              tt, dbl_mb(imoocc), "# MO Occupations")
+
+C               call rt_tddft_complex_evals (params, g_zfock_mo,
+C     $              "Fock MO")
+               
             endif
 
 C     (Transition Dipole Contributions [ASB])
@@ -470,7 +481,8 @@ C
      $           1, g_zdens_mo, energies)
 
          elseif (params%prop_method .eq. 2) then
-            call errquit (pname//"rk4 disabled", 0, 0)
+            call prop_rk4 (params, tt, rt_tddft_cs_tdfock,
+     $           1, g_zdens_mo, energies)
             
          elseif (params%prop_method .eq. 3) then
             call prop_magnus_ord2_interpol (params, tt,

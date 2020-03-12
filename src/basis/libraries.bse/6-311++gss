@@ -1,0 +1,785 @@
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
+# 6-311++g** version number 0
+# Description: VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO with diffuse+polarization on all atoms
+# Role: orbital
+# 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# H
+#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO for H,He
+#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
+#     Self-consistent molecular orbital methods. XX. A basis set for
+#             correlated wave functions
+#     J. Chem. Phys., 72, 650-654 (1980)
+#     10.1063/1.438955
+# 
+#     ## 1P Polarization functions associated with 6-311G for H,He
+#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
+#     Self-consistent molecular orbital methods. XX. A basis set for
+#             correlated wave functions
+#     J. Chem. Phys., 72, 650-654 (1980)
+#     10.1063/1.438955
+# 
+#     ## Diffuse functions asociated with 31G Hydrogen
+#     Clark, Timothy, Chandrasekhar, Jayaraman, Spitznagel, Günther W.,
+#             Schleyer, Paul Von Ragué
+#     Efficient diffuse function-augmented basis sets for anion
+#             calculations. III. The 3-21+G basis set for first-row
+#             elements, Li-F
+#     J. Comput. Chem., 4, 294-301 (1983)
+#     10.1002/jcc.540040303
+# 
+# Li-F
+#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
+#     Self-consistent molecular orbital methods. XX. A basis set for
+#             correlated wave functions
+#     J. Chem. Phys., 72, 650-654 (1980)
+#     10.1063/1.438955
+# 
+#     ## 1P Polarization functions associated with 6-311G
+#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
+#     Self-consistent molecular orbital methods. XX. A basis set for
+#             correlated wave functions
+#     J. Chem. Phys., 72, 650-654 (1980)
+#     10.1063/1.438955
+# 
+#     ## Diffuse functions asociated with 6-31G
+#     Clark, Timothy, Chandrasekhar, Jayaraman, Spitznagel, Günther W.,
+#             Schleyer, Paul Von Ragué
+#     Efficient diffuse function-augmented basis sets for anion
+#             calculations. III. The 3-21+G basis set for first-row
+#             elements, Li-F
+#     J. Comput. Chem., 4, 294-301 (1983)
+#     10.1002/jcc.540040303
+# 
+# Ne
+#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
+#     Self-consistent molecular orbital methods. XX. A basis set for
+#             correlated wave functions
+#     J. Chem. Phys., 72, 650-654 (1980)
+#     10.1063/1.438955
+# 
+#     ## 1P Polarization functions associated with 6-311G
+#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
+#     Self-consistent molecular orbital methods. XX. A basis set for
+#             correlated wave functions
+#     J. Chem. Phys., 72, 650-654 (1980)
+#     10.1063/1.438955
+# 
+#     ## Diffuse functions asociated with 6-31G
+#     Gill, Peter M. W., Johnson, Benny G., Pople, John A., Frisch, Michael
+#             J.
+#     The performance of the Becke-Lee-Yang-Parr (B-LYP) density functional
+#             theory with various basis sets
+#     Chem. Phys. Lett., 197, 499-505 (1992)
+#     10.1016/0009-2614(92)85807-m
+# 
+# Na-Cl
+#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+#     McLean, A. D., Chandler, G. S.
+#     Contracted Gaussian basis sets for molecular calculations. I. Second
+#             row atoms, Z=11-18
+#     J. Chem. Phys., 72, 5639-5648 (1980)
+#     10.1063/1.438980
+# 
+#     ## Polarization functions associated with 6-31G
+#     Francl, Michelle M., Pietro, William J., Hehre, Warren J., Binkley, J.
+#             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
+#     Self-consistent molecular orbital methods. XXIII. A polarization-type
+#             basis set for second-row elements
+#     J. Chem. Phys., 77, 3654-3665 (1982)
+#     10.1063/1.444267
+# 
+#     ## Diffuse functions asociated with 6-31G
+#     Spitznagel, Günther W., Clark, Timothy, Schleyer, Paul von Ragué,
+#             Hehre, Warren J.
+#     An evaluation of the performance of diffuse function-augmented basis
+#             sets for second row elements, Na-Cl
+#     J. Comput. Chem., 8, 1109-1116 (1987)
+#     10.1002/jcc.540080807
+# 
+# Ar
+#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+#     McLean, A. D., Chandler, G. S.
+#     Contracted Gaussian basis sets for molecular calculations. I. Second
+#             row atoms, Z=11-18
+#     J. Chem. Phys., 72, 5639-5648 (1980)
+#     10.1063/1.438980
+# 
+#     ## Polarization functions associated with 6-31G
+#     Francl, Michelle M., Pietro, William J., Hehre, Warren J., Binkley, J.
+#             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
+#     Self-consistent molecular orbital methods. XXIII. A polarization-type
+#             basis set for second-row elements
+#     J. Chem. Phys., 77, 3654-3665 (1982)
+#     10.1063/1.444267
+# 
+#     ## Diffuse functions asociated with 6-31G
+#     Gill, Peter M. W., Johnson, Benny G., Pople, John A., Frisch, Michael
+#             J.
+#     The performance of the Becke-Lee-Yang-Parr (B-LYP) density functional
+#             theory with various basis sets
+#     Chem. Phys. Lett., 197, 499-505 (1992)
+#     10.1016/0009-2614(92)85807-m
+# 
+# K,Ca
+#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+#     Blaudeau, Jean-Philippe, McGrath, Mark P., Curtiss, Larry A., Radom,
+#             Leo
+#     Extension of Gaussian-2 (G2) theory to molecules containing third-row
+#             atoms K and Ca
+#     J. Chem. Phys., 107, 5016-5021 (1997)
+#     10.1063/1.474865
+# 
+#     ## 1P Polarization functions associated with 6-311G
+#     Blaudeau, Jean-Philippe, McGrath, Mark P., Curtiss, Larry A., Radom,
+#             Leo
+#     Extension of Gaussian-2 (G2) theory to molecules containing third-row
+#             atoms K and Ca
+#     J. Chem. Phys., 107, 5016-5021 (1997)
+#     10.1063/1.474865
+# 
+#     ## Diffuse functions asociated with 6-31G
+#     (...no reference...)
+# 
+# # 
+basis "H_6-311++g**" 
+#basis SET: (6s,1p) -> [4s,1p]
+H    S
+     33.86500                0.0254938
+      5.094790               0.190373
+      1.158790               0.852161
+H    S
+      0.325840               1.000000
+H    S
+      0.102741               1.000000
+H    S
+      0.0360000              1.0000000
+H    P
+      0.750                  1.000000
+end
+basis "Li_6-311++g**" 
+#basis SET: (12s,6p,1d) -> [5s,4p,1d]
+Li    S
+    900.4600                 0.00228704
+    134.4330                 0.0176350
+     30.43650                0.0873434
+      8.626390               0.2809770
+      2.483320               0.6587410
+      0.303179               0.118712
+Li    SP
+      4.868900               0.0933293              0.0327661
+      0.856924               0.9430450              0.1597920
+      0.243227              -0.00279827             0.8856670
+Li    SP
+      0.0635070              1.000000               1.000000
+Li    SP
+      0.0243683              1.000000               1.000000
+Li    SP
+      0.0074000              1.0000000              1.0000000
+Li    D
+      0.200                  1.000000
+end
+basis "Be_6-311++g**" 
+#basis SET: (12s,6p,1d) -> [5s,4p,1d]
+Be    S
+   1682.800                  0.00228574
+    251.7150                 0.0175938
+     57.41160                0.0863315
+     16.51710                0.2818350
+      4.853640               0.6405940
+      0.626863               0.1444670
+Be    SP
+      8.309380               0.108621               0.0361344
+      1.740750               0.927301               0.216958
+      0.485816              -0.00297169             0.841839
+Be    SP
+      0.163613               1.000000               1.000000
+Be    SP
+      0.0567285              1.000000               1.000000
+Be    SP
+      0.0207000              1.0000000              1.0000000
+Be    D
+      0.255                  1.000000
+end
+basis "B_6-311++g**" 
+#basis SET: (12s,6p,1d) -> [5s,4p,1d]
+B    S
+   2858.890                  0.00215375
+    428.1400                 0.0165823
+     97.52820                0.0821870
+     27.96930                0.2766180
+      8.215770               0.6293160
+      1.112780               0.1737700
+B    SP
+     13.24150                0.117443               0.0418100
+      3.001660               0.918002               0.236575
+      0.912856              -0.00265105             0.816214
+B    SP
+      0.315454               1.000000               1.000000
+B    SP
+      0.0988563              1.000000               1.000000
+B    SP
+      0.0315000              1.0000000              1.0000000
+B    D
+      0.401                  1.000000
+end
+basis "C_6-311++g**" 
+#basis SET: (12s,6p,1d) -> [5s,4p,1d]
+C    S
+   4563.240                  0.00196665
+    682.0240                 0.0152306
+    154.9730                 0.0761269
+     44.45530                0.2608010
+     13.02900                0.6164620
+      1.827730               0.2210060
+C    SP
+     20.96420                0.114660               0.0402487
+      4.803310               0.919999               0.237594
+      1.459330              -0.00303068             0.815854
+C    SP
+      0.4834560              1.000000               1.000000
+C    SP
+      0.1455850              1.000000               1.000000
+C    SP
+      0.0438000              1.0000000              1.0000000
+C    D
+      0.626                  1.000000
+end
+basis "N_6-311++g**" 
+#basis SET: (12s,6p,1d) -> [5s,4p,1d]
+N    S
+   6293.480                  0.00196979
+    949.0440                 0.0149613
+    218.7760                 0.0735006
+     63.69160                0.2489370
+     18.82820                0.6024600
+      2.720230               0.2562020
+N    SP
+     30.63310                0.111906               0.0383119
+      7.026140               0.921666               0.237403
+      2.112050              -0.00256919             0.817592
+N    SP
+      0.684009               1.000000               1.000000
+N    SP
+      0.200878               1.000000               1.000000
+N    SP
+      0.0639000              1.0000000              1.0000000
+N    D
+      0.913                  1.000000
+end
+basis "O_6-311++g**" 
+#basis SET: (12s,6p,1d) -> [5s,4p,1d]
+O    S
+   8588.500                  0.00189515
+   1297.230                  0.0143859
+    299.2960                 0.0707320
+     87.37710                0.2400010
+     25.67890                0.5947970
+      3.740040               0.2808020
+O    SP
+     42.11750                0.113889               0.0365114
+      9.628370               0.920811               0.237153
+      2.853320              -0.00327447             0.819702
+O    SP
+      0.905661               1.000000               1.000000
+O    SP
+      0.255611               1.000000               1.000000
+O    SP
+      0.0845000              1.0000000              1.0000000
+O    D
+      1.292                  1.000000
+end
+basis "F_6-311++g**" 
+#basis SET: (12s,6p,1d) -> [5s,4p,1d]
+F    S
+  11427.10                   0.00180093
+   1722.350                  0.0137419
+    395.7460                 0.0681334
+    115.1390                 0.2333250
+     33.60260                0.5890860
+      4.919010               0.2995050
+F    SP
+     55.44410                0.114536               0.0354609
+     12.63230                0.920512               0.237451
+      3.717560              -0.00337804             0.820458
+F    SP
+      1.165450               1.000000               1.000000
+F    SP
+      0.321892               1.000000               1.000000
+F    SP
+      0.1076000              1.0000000              1.0000000
+F    D
+      1.750                  1.000000
+end
+basis "Ne_6-311++g**" 
+#basis SET: (12s,6p,1d) -> [5s,4p,1d]
+Ne    S
+  13995.70                   0.00183276
+   2117.100                  0.0138827
+    490.4250                 0.0680687
+    143.8330                 0.2313280
+     41.92650                0.5858900
+      6.156840               0.3058830
+Ne    SP
+     69.12110                0.1191490              0.0356574
+     15.83500                0.9173750              0.2394770
+      4.673260              -0.00405839             0.8184610
+Ne    SP
+      1.457560               1.000000               1.000000
+Ne    SP
+      0.397057               1.000000               1.000000
+Ne    SP
+      0.1300000              1.0000000              1.0000000
+Ne    D
+      2.304                  1.000000
+end
+basis "Na_6-311++g**" 
+#basis SET: (14s,10p,1d) -> [7s,6p,1d]
+Na    S
+  36166.4                    0.001032
+   5372.58                   0.008071
+   1213.21                   0.042129
+    339.623                  0.169789
+    109.553                  0.514621
+     38.7773                 0.379817
+Na    S
+     38.7773                 0.374762
+     14.5759                 0.575769
+      5.26993                0.112933
+Na    S
+      1.82777                1.000000
+Na    S
+      0.619948               1.000000
+Na    S
+      0.057240               1.000000
+Na    S
+      0.024048               1.000000
+Na    P
+    144.645                  0.011485
+     33.9074                 0.082383
+     10.6285                 0.319658
+      3.82389                0.701295
+Na    P
+      1.44429                0.638506
+      0.552621               0.425365
+Na    SP
+      0.0076000              1.0000000              1.0000000
+Na    P
+      0.188720               1.000000
+Na    P
+      0.046501               1.000000
+Na    P
+      0.016285               1.000000
+Na    D
+      0.1750000              1.0000000
+end
+basis "Mg_6-311++g**" 
+#basis SET: (14s,10p,1d) -> [7s,6p,1d]
+Mg    S
+  43866.5                    0.000918
+   6605.37                   0.007047
+   1513.26                   0.035941
+    432.317                  0.141461
+    142.149                  0.426764
+     51.3983                 0.497975
+Mg    S
+     51.3983                 0.251355
+     19.9196                 0.618671
+      8.02474                0.188417
+Mg    S
+      2.50817                1.000000
+Mg    S
+      0.871531               1.000000
+Mg    S
+      0.108188               1.000000
+Mg    S
+      0.040130               1.000000
+Mg    P
+    193.854                  0.010188
+     45.4420                 0.075360
+     14.1864                 0.307419
+      5.05751                0.717575
+Mg    P
+      1.888610               0.667339
+      0.722652               0.394649
+Mg    SP
+      0.0146000              1.0000000              1.0000000
+Mg    P
+      0.236417               1.000000
+Mg    P
+      0.093358               1.000000
+Mg    P
+      0.034809               1.000000
+Mg    D
+      0.1750000              1.0000000
+end
+basis "Al_6-311++g**" 
+#basis SET: (14s,10p,1d) -> [7s,6p,1d]
+Al    S
+  54866.489                  0.000839
+   8211.7665                 0.006527
+   1866.1761                 0.033666
+    531.12934                0.132902
+    175.11797                0.401266
+     64.005500               0.531338
+Al    S
+     64.005500               0.202305
+     25.292507               0.624790
+     10.534910               0.227439
+Al    S
+      3.2067110              1.000000
+Al    S
+      1.152555               1.000000
+Al    S
+      0.1766780              1.000000
+Al    S
+      0.0652370              1.000000
+Al    P
+    259.28362                0.009448
+     61.076870               0.070974
+     19.303237               0.295636
+      7.0108820              0.728219
+Al    P
+      2.6738650              0.644467
+      1.0365960              0.417413
+Al    SP
+      0.0318000              1.0000000              1.0000000
+Al    P
+      0.3168190              1.000000
+Al    P
+      0.1142570              1.000000
+Al    P
+      0.041397               1.000000
+Al    D
+      0.3250000              1.0000000
+end
+basis "Si_6-311++g**" 
+#basis SET: (14s,10p,1d) -> [7s,6p,1d]
+Si    S
+  69379.230                  0.000757
+  10354.940                  0.005932
+   2333.8796                 0.031088
+    657.14295                0.124967
+    214.30113                0.386897
+     77.629168               0.554888
+Si    S
+     77.629168               0.177881
+     30.630807               0.627765
+     12.801295               0.247623
+Si    S
+      3.9268660              1.000000
+Si    S
+      1.4523430              1.000000
+Si    S
+      0.256234               1.000000
+Si    S
+      0.094279               1.000000
+Si    P
+    335.48319                0.008866
+     78.900366               0.068299
+     24.988150               0.290958
+      9.2197110              0.732117
+Si    P
+      3.6211400              0.619879
+      1.4513100              0.439148
+Si    SP
+      0.0331000              1.0000000              1.0000000
+Si    P
+      0.504977               1.000000
+Si    P
+      0.186317               1.000000
+Si    P
+      0.065432               1.000000
+Si    D
+      0.4500000              1.0000000
+end
+basis "P_6-311++g**" 
+#basis SET: (14s,10p,1d) -> [7s,6p,1d]
+P    S
+  77492.4                    0.000781
+  11605.8                    0.006068
+   2645.96                   0.031160
+    754.976                  0.123431
+    248.755                  0.378209
+     91.1565                 0.563262
+P    S
+     91.1565                 0.160255
+     36.2257                 0.627647
+     15.2113                 0.263849
+P    S
+      4.79417                1.000000
+P    S
+      1.80793                1.000000
+P    S
+      0.356816               1.000000
+P    S
+      0.114783               1.000000
+P    P
+    384.843                  0.009206
+     90.5521                 0.069874
+     29.1339                 0.292470
+     10.8862                 0.728103
+P    P
+      4.35259                0.628349
+      1.77706                0.428044
+P    SP
+      0.0348000              1.0000000              1.0000000
+P    P
+      0.697005               1.000000
+P    P
+      0.253532               1.000000
+P    P
+      0.068493               1.000000
+P    D
+      0.5500000              1.0000000
+end
+basis "S_6-311++g**" 
+#basis SET: (14s,10p,1d) -> [7s,6p,1d]
+S    S
+  93413.4                    0.000743
+  13961.7                    0.005793
+   3169.91                   0.029954
+    902.456                  0.119028
+    297.158                  0.368432
+    108.702                  0.577299
+S    S
+    108.702                  0.143186
+     43.1553                 0.624465
+     18.1079                 0.283366
+S    S
+      5.56009                1.000000
+S    S
+      2.13183                1.000000
+S    S
+      0.420403               1.000000
+S    S
+      0.136045               1.000000
+S    P
+    495.040                  0.008309
+    117.221                  0.064024
+     37.7749                 0.277614
+     14.0584                 0.745076
+S    P
+      5.56574                0.613712
+      2.26297                0.443818
+S    SP
+      0.0405000              1.0000000              1.0000000
+S    P
+      0.807994               1.000000
+S    P
+      0.277460               1.000000
+S    P
+      0.077141               1.000000
+S    D
+      0.6500000              1.0000000
+end
+basis "Cl_6-311++g**" 
+#basis SET: (14s,11p,1d) -> [7s,6p,1d]
+Cl    S
+ 105819.0                    0.000738
+  15872.00                   0.005718
+   3619.650                  0.029495
+   1030.800                  0.117286
+    339.9080                 0.362949
+    124.5380                 0.584149
+Cl    S
+    124.5380                 0.134177
+     49.51350                0.624250
+     20.80560                0.291756
+Cl    S
+      6.583460               1.000000
+Cl    S
+      2.564680               1.000000
+Cl    S
+      0.559763               1.000000
+Cl    S
+      0.183273               1.000000
+Cl    P
+    589.7760                 0.002391
+    139.8490                 0.018504
+     45.14130                0.081377
+     16.87330                0.221552
+      6.741100               0.772569
+Cl    P
+      6.741100              -1.572244
+      2.771520               0.992389
+Cl    SP
+      0.0483000              1.0000000              1.0000000
+Cl    P
+      1.023870               1.000000
+Cl    P
+      0.381368               1.000000
+Cl    P
+      0.109437               1.000000
+Cl    D
+      0.7500000              1.0000000
+end
+basis "Ar_6-311++g**" 
+#basis SET: (14s,11p,1d) -> [7s,6p,1d]
+Ar    S
+ 118022.38                   0.000747
+  17683.541                  0.005790
+   4027.7657                 0.029919
+   1145.3977                 0.119206
+    377.16375                0.369028
+    138.15969                0.576459
+Ar    S
+    138.15969                0.143927
+     54.989117               0.622938
+     23.170667               0.283964
+Ar    S
+      7.3778600              1.000000
+Ar    S
+      2.9236880              1.000000
+Ar    S
+      0.6504050              1.000000
+Ar    S
+      0.2328250              1.000000
+Ar    P
+    663.06201                0.003082
+    157.09281                0.024165
+     50.231100               0.108223
+     18.635345               0.294192
+      7.4465370              0.687862
+Ar    P
+      7.4465370             -0.1214482
+      3.0956980              0.1632370
+Ar    SP
+      0.0600000              1.0000000              1.0000000
+Ar    P
+      1.1064630              1.000000
+Ar    P
+      0.4156010              1.000000
+Ar    P
+      0.1454490              1.000000
+Ar    D
+      0.8500000              1.0000000
+end
+basis "K_6-311++g**" 
+#basis SET: (15s,12p,4d) -> [9s,8p,2d]
+K    S
+ 182594.                     0.000227747
+  27369.0                    0.00176640
+   6229.17                   0.00919497
+   1764.58                   0.03745510
+    577.051                  0.12204500
+    210.249                  0.29899000
+K    S
+     82.6178                 0.405147
+     33.2332                 0.292532
+K    S
+      8.10649                1.000000
+K    S
+      3.33403                1.000000
+K    S
+      0.845544               1.000000
+K    S
+      0.3282160              1.000000
+K    S
+      0.0364035              1.000000
+K    S
+      0.0176463              1.000000
+K    P
+    891.054                  0.00218429
+    211.016                  0.0175891
+     67.6714                 0.0817775
+K    P
+     25.2715                 0.245656
+     10.1390                 0.433984
+      4.20186                0.362377
+K    SP
+      0.0047000              1.0000000              1.0000000
+K    P
+      1.62507                1.000000
+K    P
+      0.64377                1.000000
+K    P
+      0.24613                1.000000
+K    P
+      0.04544                1.000000
+K    P
+      0.01616                1.000000
+K    D
+     13.37                   0.0316016
+      3.421                  0.156879
+      1.063                  0.390582
+K    D
+      0.229000               1.000000
+end
+basis "Ca_6-311++g**" 
+#basis SET: (15s,12p,4d) -> [9s,8p,2d]
+Ca    S
+ 202699.                     0.000222964
+  30382.5                    0.00172932
+   6915.08                   0.00900226
+   1959.02                   0.0366699
+    640.936                  0.119410
+    233.977                  0.291825
+Ca    S
+     92.2892                 0.404415
+     37.2545                 0.296313
+Ca    S
+      9.13198                1.000000
+Ca    S
+      3.81779                1.000000
+Ca    S
+      1.04935                1.000000
+Ca    S
+      0.428660               1.000000
+Ca    S
+      0.0628226              1.000000
+Ca    S
+      0.0260162              1.000000
+Ca    P
+   1019.76                   0.00205986
+    241.596                  0.01665010
+     77.6370                 0.07776460
+Ca    P
+     29.1154                 0.241806
+     11.7626                 0.432578
+      4.92289                0.367325
+Ca    SP
+      0.0071000              1.0000000              1.0000000
+Ca    P
+      1.90645                1.000000
+Ca    P
+      0.73690                1.000000
+Ca    P
+      0.27642                1.000000
+Ca    P
+      0.06027                1.000000
+Ca    P
+      0.01791                1.000000
+Ca    D
+     15.08                   0.0368947
+      3.926                  0.1778200
+      1.233                  0.4255130
+Ca    D
+      0.260000               1.000000
+end

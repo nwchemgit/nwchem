@@ -648,6 +648,12 @@ c    $     lattice_angles(1,geom))
       tmp(k:) = ' ' 
       tmp(k:) = ':group name'
       s = s .and. rtdb_cget(rtdb, tmp, 1, group_name(geom))
+      tmp(k:) = ' '
+      tmp(k:) = ':use_primitive'
+      s = s .and. rtdb_get(rtdb, tmp, mt_log, 1, use_primitive(geom))
+      tmp(k:) = ' '
+      tmp(k:) = ':primitive_center'
+      s = s .and. rtdb_cget(rtdb, tmp, 1, primitive_center(geom))
       tmp(k:) = ' ' 
       tmp(k:) = ':user units'
       s = s .and. rtdb_cget(rtdb, tmp, 1, user_units(geom))
@@ -811,6 +817,7 @@ c
 c--   > get symmetry operators, number of operators and operator/atom
 c     map from rtdb
 c     
+
       tmp(k:) = ' ' 
       tmp(k:) = ' ' 
       tmp(k:) = ':num_operators'
@@ -1146,6 +1153,12 @@ c     s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 3, lattice_angles(1,geom))
       tmp(k:) = ' ' 
       tmp(k:) = ':group name'
       s = s .and. rtdb_cput(rtdb, tmp, 1, group_name(geom))
+      tmp(k:) = ' '
+      tmp(k:) = ':use_primitive'
+      s = s .and. rtdb_put(rtdb, tmp, mt_log, 1, use_primitive(geom))
+      tmp(k:) = ' '
+      tmp(k:) = ':primitive_center'
+      s = s .and. rtdb_cput(rtdb, tmp, 1, primitive_center(geom))
       tmp(k:) = ' ' 
       tmp(k:) = ':user units'
       s = s .and. rtdb_cput(rtdb, tmp, 1, user_units(geom))
@@ -1327,6 +1340,8 @@ c
      $        ncenter(geom)*sym_num_ops(geom),
      $        int_mb(sym_center_map_index(geom)))
       endif
+
+c     
 c     
 c     insert translated name into list of known geometries
 c     
@@ -1456,6 +1471,8 @@ c
       sym_center_map_index(geom) = 1
       group_name(geom) = 'C1'
       sym_num_ops(geom) = 0
+      use_primitive(geom) = .false.
+      primitive_center(geom) = 'x'
 c
       ncenter_unique(geom) = ncenter(geom)
       do i = 1, ncenter_unique(geom)
@@ -2870,6 +2887,340 @@ c
  1245 FORMAT(5x,' b2=<',3f8.3,' >')
  1246 FORMAT(5x,' b3=<',3f8.3,' >')
 
+      end
+
+*     **************************************************
+*     *                                                *
+*     *            geom_use_primitive                  *
+*     *                                                *
+*     **************************************************
+      logical function geom_use_primitive(geom)
+      implicit none
+      integer geom  
+#include "nwc_const.fh"
+#include "geomP.fh"
+      geom_use_primitive = use_primitive(geom)
+      return
+      end
+
+*     **************************************************
+*     *                                                *
+*     *            geom_primitive_center               *
+*     *                                                *
+*     **************************************************
+      character*1 function geom_primitive_center(geom)
+      implicit none
+      integer geom  
+#include "nwc_const.fh"
+#include "geomP.fh"
+      geom_primitive_center = primitive_center(geom)
+      return
+      end
+
+
+*     **************************************************
+*     *                                                *
+*     *            geom_is_conventional                *
+*     *                                                *
+*     **************************************************
+
+      logical function geom_is_conventional(geom)
+      implicit none
+      integer geom
+
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "geomP.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "stdio.fh"
+
+      logical value,is_convention
+      real*8 lat(6),radtodeg
+
+      integer grp_num,crystal
+      integer Triclinic,Monoclinic,Orthorhombic
+      integer Tetragonal,Trigonal,Hexagonal,Cubic
+      parameter (Triclinic=1,Monoclinic=2,Orthorhombic=3)
+      parameter (Tetragonal=4,Trigonal=5,Hexagonal=6,Cubic=7)
+
+      logical  geom_lattice_get
+      external geom_lattice_get
+
+      radtodeg = 180.0d0/(4.0d0*datan(1.0d0))
+
+      value = geom_lattice_get(geom,lat)
+      lat(4) = lat(4)*radtodeg
+      lat(5) = lat(5)*radtodeg
+      lat(6) = lat(6)*radtodeg
+      grp_num = group_number(geom)
+
+      if (grp_num.lt.3)                         crystal = Triclinic
+      if ((grp_num.ge.3  ).and.(grp_num.lt.16 ))crystal = Monoclinic
+      if ((grp_num.ge.16 ).and.(grp_num.lt.75 ))crystal = Orthorhombic
+      if ((grp_num.ge.75 ).and.(grp_num.lt.143))crystal = Tetragonal
+      if ((grp_num.ge.143).and.(grp_num.lt.168))crystal = Trigonal
+      if ((grp_num.ge.168).and.(grp_num.lt.195))crystal = Hexagonal
+      if ((grp_num.ge.195).and.(grp_num.lt.231))crystal = Cubic
+      is_convention = .true.
+      if (crystal.eq.Triclinic) then
+         is_convention=is_convention.and.(dabs(lat(4)-90.0d0).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(5)-90.0d0).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(6)-90.0d0).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(2)).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(3)).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(2)-lat(3)).gt.1.0d-3)
+      else if (crystal.eq.Monoclinic) then
+         is_convention=is_convention.and.(dabs(lat(4)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(5)-90.0d0).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(6)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(2)).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(3)).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(2)-lat(3)).gt.1.0d-3)
+      else if (crystal.eq.Orthorhombic) then
+         is_convention=is_convention.and.(dabs(lat(4)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(5)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(6)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(2)).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(3)).gt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(2)-lat(3)).gt.1.0d-3)
+      else if (crystal.eq.Tetragonal) then
+         is_convention=is_convention.and.(dabs(lat(4)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(5)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(6)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(2)).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(3)).gt.1.0d-3)
+      else if (crystal.eq.Trigonal) then
+         is_convention=is_convention.and.(dabs(lat(4)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(5)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(6)-120.0d0).lt.1.d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(2)).lt.1.0d-3)
+      else if (crystal.eq.Hexagonal) then
+         is_convention=is_convention.and.(dabs(lat(4)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(5)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(6)-120.0d0).lt.1.d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(2)).lt.1.0d-3)
+      else if (crystal.eq.Cubic) then
+         is_convention=is_convention.and.(dabs(lat(4)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(5)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(6)-90.0d0).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(2)).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(1)-lat(3)).lt.1.0d-3)
+         is_convention=is_convention.and.(dabs(lat(2)-lat(3)).lt.1.0d-3)
+      end if
+
+      geom_is_conventional = is_convention
+      return
+      end 
+
+*     *****************************************************
+*     *                                                   *
+*     *            geom_convert_to_primitive              *
+*     *                                                   *
+*     *****************************************************
+*
+*   This routine converts conventional centered cells to primitive cells
+*
+*   The conventions used to relate the centered cells (abc) to the 
+*  primitive cells (a'b'c') are as follows:
+*
+*    A-centered: The author's (DGC)
+*                a'=a, b'=(b+c)/2, c'=(-b+c)/2
+*    C-centered: Orthohexagonal cell convention (from Int. Tables, Fig. 5.8, p.70, cell #C2)
+*                a'=(a+b)/2, b'=(-a+b)/2, c'=c
+*    R-centered: Obverse Int. Tables, Table 5.1, p.78 - Cell #1
+*                See also Figs. 5.7a & c, p.79)
+*                   a' = 2a/3 + b/3 + c/3
+*                   b' = -a/3 + b/3 + c/3
+*                   c' = -a/3 -2b/3 + c/3
+*    I-centered: Int. Tables, Table 5.1, p.76. See also Fig. 5.4, p.77.
+*                   a' = -a/2 + b/2 + c/2
+*                   b' =  a/2 - b/2 + c/2
+*                   c' =  a/2 + b/2 - c/2
+*    F-centered: Int. Tables, Table 5.1, p.77. See also Fig. 5.5, p.77.
+*                a' = (b+c)/2, b' = (a+c)/2, c' = (a+b)/2
+*
+*
+c---> The following is a list of the centered 3D groups:
+c
+c      A-centered (4 total): 38, 39, 40, 41 - orthorhombic
+c
+c      C-centered (16 total): 5, 8, 9, 12, 15, 20, 21, 35, 36, 37, 63,  - mono and ortho
+c                              64, 65, 66, 67, 68
+c
+c      R-centered (7 total):146,148,155,160,161,166,167  - trig
+c
+c      I-centered (38 total):
+c          23, 24, 44, 45, 46, 71, 72, 73, 74, 79, 80, 82, 87, 88, 97, 98, - ortho,tetra,cubic
+c           107,108,109,110,119,120,121,122,139,140,141,142,197,199,204,206,
+c           211,214,217,220,229,230
+c
+c      F-centered (16 total)
+c            22, 42, 43, 69, 70,196,202,203,209,210,216,219,225,226,227,228 - ortho,cubic
+c
+      logical function geom_convert_to_primitive(geom,ctr_type,tf)
+      implicit none
+      integer geom
+      character*1 ctr_type
+      real*8 tf(6,3)
+
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "geomP.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "stdio.fh"
+
+*     **** local variables ****
+      logical value,update_lattice,is_conventional
+      integer i,ncent
+      real*8 lat(6),degtorad,radtodeg
+      real*8 amat(3,3),amat2(3,3),c(3)
+
+      integer grp_num,crystal
+      integer Triclinic,Monoclinic,Orthorhombic
+      integer Tetragonal,Trigonal,Hexagonal,Cubic
+      parameter (Triclinic=1,Monoclinic=2,Orthorhombic=3)
+      parameter (Tetragonal=4,Trigonal=5,Hexagonal=6,Cubic=7)
+
+*     **** external functions ****
+      logical  geom_lattice_get,geom_lattice_set,geom_is_conventional
+      external geom_lattice_get,geom_lattice_set,geom_is_conventional
+      logical  geom_amatrix_get,geom_amatrix_set
+      external geom_amatrix_get,geom_amatrix_set
+
+      value = .true.
+      if ((ctr_type.eq.'F').or.
+     >   (ctr_type.eq.'A').or.
+     >   (ctr_type.eq.'C').or.
+     >   (ctr_type.eq.'R').or.
+     >   (ctr_type.eq.'I')) then
+
+      update_lattice = .False.
+      degtorad = 4.0d0*datan(1.0d0)/180.0d0
+      radtodeg = 180.0d0/(4.0d0*datan(1.0d0))
+      value = geom_amatrix_get(geom,amat)
+      value = value.and.geom_amatrix_get(geom,amat2)
+      value = value.and.geom_lattice_get(geom,lat)
+      lat(4) = lat(4)*radtodeg
+      lat(5) = lat(5)*radtodeg
+      lat(6) = lat(6)*radtodeg
+
+      is_conventional = geom_is_conventional(geom)
+
+c     *** F-centered: Int. Tables, Table 5.1, p.77. See also Fig. 5.5, p.77. ***
+c     *** a' = (b+c)/2, b' = (a+c)/2, c' = (a+b)/2 ***
+      if (ctr_type.eq.'F') then
+         amat(1,1) = 0.50d0*(amat2(1,2)+amat2(1,3))
+         amat(2,1) = 0.50d0*(amat2(2,2)+amat2(2,3))
+         amat(3,1) = 0.50d0*(amat2(3,2)+amat2(3,3))
+
+         amat(1,2) = 0.50d0*(amat2(1,1)+amat2(1,3))
+         amat(2,2) = 0.50d0*(amat2(2,1)+amat2(2,3))
+         amat(3,2) = 0.50d0*(amat2(3,1)+amat2(3,3))
+
+         amat(1,3) = 0.50d0*(amat2(1,1)+amat2(1,2))
+         amat(2,3) = 0.50d0*(amat2(2,1)+amat2(2,2))
+         amat(3,3) = 0.50d0*(amat2(3,1)+amat2(3,2))
+         update_lattice = is_conventional
+         primitive_center(geom) = ctr_type
+
+      end if
+
+c     *** A-centered: The author's (DGC) ***
+c     *** a'=a, b'=(b+c)/2, c'=(-b+c)/2 ***
+      if (ctr_type.eq.'A') then
+         amat(1,2) = 0.50d0*(amat2(1,2)+amat2(1,3))
+         amat(2,2) = 0.50d0*(amat2(2,2)+amat2(2,3))
+         amat(3,2) = 0.50d0*(amat2(3,2)+amat2(3,3))
+
+         amat(1,3) = 0.50d0*(-amat2(1,2)+amat2(1,3))
+         amat(2,3) = 0.50d0*(-amat2(2,2)+amat2(2,3))
+         amat(3,3) = 0.50d0*(-amat2(3,2)+amat2(3,3))
+         update_lattice = is_conventional
+         primitive_center(geom) = ctr_type
+      end if
+
+c     *** C-centered: Orthohexagonal cell convention (from Int. Tables, Fig. 5.8, p.70, cell #C2) ***
+c     *** a'=(a+b)/2, b'=(-a+b)/2, c'=c ***
+      if (ctr_type.eq.'C') then
+         amat(1,1) = 0.50d0*(amat2(1,1)+amat2(1,2))
+         amat(2,1) = 0.50d0*(amat2(2,1)+amat2(2,2))
+         amat(3,1) = 0.50d0*(amat2(3,1)+amat2(3,2))
+
+         amat(1,2) = 0.50d0*(-amat2(1,1)+amat2(1,2))
+         amat(2,2) = 0.50d0*(-amat2(2,1)+amat2(2,2))
+         amat(3,2) = 0.50d0*(-amat2(3,1)+amat2(3,2))
+         update_lattice = is_conventional
+         primitive_center(geom) = ctr_type
+      end if
+
+c     *** R-centered: Obverse Int. Tables, Table 5.1, p.78 - Cell #1 ***
+c     *** See also Figs. 5.7a & c, p.79) ***
+c     *** a' = 2a/3 + b/3 + c/3 ***
+c     *** b' = -a/3 + b/3 + c/3 ***
+c     *** c' = -a/3 -2b/3 + c/3 ***
+      if (ctr_type.eq.'R') then
+         amat(1,1) = (2.0d0*amat2(1,1)+amat2(1,2)+amat2(1,3))/3.0d0
+         amat(2,1) = (2.0d0*amat2(2,1)+amat2(2,2)+amat2(2,3))/3.0d0
+         amat(3,1) = (2.0d0*amat2(3,1)+amat2(3,2)+amat2(3,3))/3.0d0
+
+         amat(1,2) = (-amat2(1,1)+amat2(1,2)+amat2(1,3))/3.0d0
+         amat(2,2) = (-amat2(2,1)+amat2(2,2)+amat2(2,3))/3.0d0
+         amat(3,2) = (-amat2(3,1)+amat2(3,2)+amat2(3,3))/3.0d0
+
+         amat(1,3) = (-amat2(1,1)-2.0d0*amat2(1,2)+amat2(1,3))/3.0d0
+         amat(2,3) = (-amat2(2,1)-2.0d0*amat2(2,2)+amat2(2,3))/3.0d0
+         amat(3,3) = (-amat2(3,1)-2.0d0*amat2(3,2)+amat2(3,3))/3.0d0
+         update_lattice = is_conventional
+         primitive_center(geom) = ctr_type
+      end if
+
+c     *** I-centered: Int. Tables, Table 5.1, p.76. See also Fig. 5.4, p.77. ***
+c     *** a' = -a/2 + b/2 + c/2 ***
+c     *** b' =  a/2 - b/2 + c/2 ***
+c     *** c' =  a/2 + b/2 - c/2 ***
+      if (ctr_type.eq.'I') then
+         amat(1,1) = 0.5d0*(-amat2(1,1)+amat2(1,2)+amat2(1,3))
+         amat(2,1) = 0.5d0*(-amat2(2,1)+amat2(2,2)+amat2(2,3))
+         amat(3,1) = 0.5d0*(-amat2(3,1)+amat2(3,2)+amat2(3,3))
+
+         amat(1,2) = 0.5d0*(amat2(1,1)-amat2(1,2)+amat2(1,3))
+         amat(2,2) = 0.5d0*(amat2(2,1)-amat2(2,2)+amat2(2,3))
+         amat(3,2) = 0.5d0*(amat2(3,1)-amat2(3,2)+amat2(3,3))
+
+         amat(1,3) = 0.5d0*(amat2(1,1)+amat2(1,2)-amat2(1,3))
+         amat(2,3) = 0.5d0*(amat2(2,1)+amat2(2,2)-amat2(2,3))
+         amat(3,3) = 0.5d0*(amat2(3,1)+amat2(3,2)-amat2(3,3))
+         update_lattice = is_conventional
+         primitive_center(geom) = ctr_type
+      end if
+
+      if (update_lattice) then
+c        *** convert the fractional coords ***
+         ncent = ncenter(geom)
+         do i = 1, ncent
+            c(1) = coords(1,i,geom)
+            c(2) = coords(2,i,geom)
+            c(3) = coords(3,i,geom)
+            coords(1,i,geom) = tf(1,1)*c(1)+tf(1,2)*c(2)+tf(1,3)*c(3)
+            coords(2,i,geom) = tf(2,1)*c(1)+tf(2,2)*c(2)+tf(2,3)*c(3)
+            coords(3,i,geom) = tf(3,1)*c(1)+tf(3,2)*c(2)+tf(3,3)*c(3)
+         end do
+         call xlattice_abc_abg(lat(1),lat(2),lat(3),
+     >                         lat(4),lat(5),lat(6),amat)
+       
+          lat(4) = lat(4)*degtorad
+          lat(5) = lat(5)*degtorad
+          lat(6) = lat(6)*degtorad
+         !value = value.and.geom_amatrix_set(geom,amat)
+         value = value.and.geom_lattice_set(geom,lat)
+      end if
+
+      end if
+
+      geom_convert_to_primitive = value
+      return
       end
 
 
@@ -7056,6 +7407,8 @@ c
       sym_num_ops(geom) = 0
       user_units(geom) = 'angstroms'
       include_bqbq(geom) = .false.
+      use_primitive(geom) = .true.
+      primitive_center(geom) = 'x'
 c
       zmt_nizmat(geom) = 0
       zmt_nzvar(geom) = 0
@@ -7317,8 +7670,12 @@ c
 c
 c     ahah bq
 c
+            if(tag(3:3).ne.' ') then
             if(.not.geom_tag_to_default_mass(tag(3:),mass))
-     .           call errquit(' momint fails ',2, GEOM_ERR)
+     .              call errquit(' momint fails ',2, GEOM_ERR)
+         else
+            mass=0d0
+         endif
          else  
             if(.not.geom_mass_get(geom, iat, mass)) call
      &           errquit(' mass_get  failed ',iat, GEOM_ERR)

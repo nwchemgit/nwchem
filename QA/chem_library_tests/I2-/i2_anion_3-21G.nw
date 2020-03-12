@@ -1,0 +1,39 @@
+start i2_anion_3-21G
+ 
+echo
+ 
+geometry units angstrom
+symmetry c1
+  i  0.0  0.0  -1.500
+  i  0.0  0.0   1.500
+end
+ 
+basis 
+ * library 3-21g
+end
+
+charge -1
+ 
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+doublet
+rohf
+end
+ 
+tce
+2eorb
+2emet 13
+tilesize 1
+ccsd
+thresh 1.0e-6
+nroots 1
+end
+
+set tce:print_integrals T
+set tce:qorb 14
+set tce:qela  6
+set tce:qelb  5
+ 
+task tce energy
+ 

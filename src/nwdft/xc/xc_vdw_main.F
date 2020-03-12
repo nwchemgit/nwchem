@@ -408,35 +408,35 @@ C> [1] S. Grimme,
 C>     "Accurate description of van der Waals complexes by density
 C>      functional theory including empirical corrections",
 C>     J. Comp. Chem. (2004) <b>25</b>, 1463-1473, DOI:
-C>     <a href="http://dx.doi.org/10.1002/jcc.20078">
+C>     <a href="https://doi.org/10.1002/jcc.20078">
 C>     10.1002/jcc.20078</a>.
 C>
 C> [2] U. Zimmerli, M. Parrinello, P. Koumoutsakos,
 C>     "Dispersion corrections to density functionals for water
 C>      aromatic interactions",
 C>     J. Chem. Phys. (2004) <b>120</b>, 2693, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.1637034">
+C>     <a href="https://doi.org/10.1063/1.1637034">
 C>     10.1063/1.1637034</a>.
 C>
 C> [3] Q. Wu, W. Yang,
 C>     "Empirical correction to density functional theory for van der
 C>      Waals interactions",
 C>     J. Chem. Phys. (2002) <b>116</b>, 515, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.1424928">
+C>     <a href="https://doi.org/10.1063/1.1424928">
 C>     10.1063/1.1424928</a>.
 C>
 C> [4] A.D. Becke, E.R. Johnson,
 C>     "A unified density-functional treatment of dynamical,
 C>      nondynamical and dispersion correlations",
 C>     J. Chem. Phys. (2007) <b>127</b> 124108, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.2768530">
+C>     <a href="https://doi.org/10.1063/1.2768530">
 C>     10.1063/1.2768530</a> (See appendix C).
 C>
 C> [5] S. Grimme, S. Ehrlich, L. Goerigk,
 C>     "Effect of the damping function in dispersion corrected
 C>      density functional theory", J. Comput. Chem. (2011)
 C>     <b>32</b>, pp. 1456-1465, DOI:
-C>     <a href="http://dx.doi.org/10.1002/jcc.21759">
+C>     <a href="https://doi.org/10.1002/jcc.21759">
 C>     10.1002/jcc.21759</a> (See Eqs.(5-6)).
 C>
       double precision function xc_vdw_e(s6,s8,sr6,sr8,a1,a2,n,x,z)
@@ -591,6 +591,7 @@ c
       logical use_nwxc_disp,out1
 c
       double precision delta,delta_default
+      double precision s6_in
 c
       oprint = util_print('vdw', print_medium)
       oprinth = util_print('vdw high', print_high)
@@ -660,8 +661,17 @@ c
 c     Get proper scaling factors depending on Grimme dispersion version
 c
       if (.not.use_nwxc_disp) then
+        if(.not.rtdb_get(rtdb,'dft:vdw_s6',mt_dbl,1,s6)) s6=0d0
+        if(.not.rtdb_get(rtdb,'dft:vdw_s8',mt_dbl,1,s8)) s8=0d0
+        if(.not.rtdb_get(rtdb,'dft:vdw_sr6',mt_dbl,1,sr6)) sr6=0d0
+        if(.not.rtdb_get(rtdb,'dft:vdw_sr8',mt_dbl,1,sr8)) sr8=0d0
+        if(.not.rtdb_get(rtdb,'dft:vdw_a1',mt_dbl,1,a1)) a1=0d0
+        if(.not.rtdb_get(rtdb,'dft:vdw_a2',mt_dbl,1,a2)) a2=0d0
         call get_scaling_fac(s6,s8,sr6,sr8,a1,a2)
-        stat = rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, s6)
+        if(rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, s6_in)) then
+           s6=s6_in
+           if(ga_nodeid().eq.0)write(6,*) ' WARNING: vdw s6 set = ',s6
+        endif
       else
 c       get the scaling factors here (just being paranoid)
         call nwxc_get_disp(ivdw,s6,s8,sr6,sr8,a1,a2,alpha)

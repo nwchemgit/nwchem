@@ -6,7 +6,7 @@
   
   OBJ = perfm_start.o perfm_end.o perfm_flop.o
   OBJ_OPTIMIZE = dist.o
-  HEADERS = dist.fh
+  HEADERS = dist.fh yflop.fh
 
 USES_BLAS = 
 

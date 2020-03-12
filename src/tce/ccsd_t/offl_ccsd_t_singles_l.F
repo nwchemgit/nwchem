@@ -25,8 +25,8 @@ C     i0 ( p4 p5 p6 h1 h2 h3 )_vt + = 1 * P( 9 ) * t ( p4 h1 )_t * v ( p5 p6 h2 
       INTEGER d_v2
       INTEGER k_v2_offset
       DOUBLE PRECISION a_i0(*)
-      logical offload_master
-      external offload_master
+      logical offload_enabled
+      external offload_enabled
       integer range_p4,range_h1,ii
       integer t1size,v2size
       integer l_t1sub,k_t1sub
@@ -46,24 +46,26 @@ c
       IF (.not.MA_PUSH_GET(mt_dbl,t1size,'t1scratch',
      L     l_scratch,k_scratch)) CALL
      & ERRQUIT('ccsd_t_singles v2sub',103,MA_ERR)
-      if(offload_master()) then
-         CALL offl_mic_ccsd_t_singles_l_1(
+#ifdef USE_OPENMP
+#ifdef OPENMP_OFFLOAD
+      if(offload_enabled()) then
+         CALL offl_gpu_ccsd_t_singles_l_1(
      D        dbl_mb(d_t1),k_t1_offset,
      &        d_v2,k_v2_offset,a_i0,
      &        t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b,
      T        dbl_mb(k_v2sub),dbl_mb(k_t1sub),dbl_mb(k_scratch))
       else
+#endif
+#endif
          CALL offl_cpu_ccsd_t_singles_l_1(
      D        dbl_mb(d_t1),k_t1_offset,
      &        d_v2,k_v2_offset,a_i0,
      &        t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b,
      T        dbl_mb(k_v2sub),dbl_mb(k_t1sub),dbl_mb(k_scratch))
+#ifdef USE_OPENMP
+#ifdef OPENMP_OFFLOAD
       endif
-#ifdef USE_OFFLOAD
-      call offl_free(dbl_mb(k_t1sub),t1size)
-      t1sub_alloced=.false.
-      call offl_free(dbl_mb(k_v2sub),v2size)
-      v2sub_alloced=.false.
+#endif
 #endif
       IF (.not.MA_chop_stack(l_t1sub)) CALL
      & ERRQUIT('ccsd_t_singles_l',103,MA_ERR)

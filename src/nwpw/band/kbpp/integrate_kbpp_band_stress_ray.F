@@ -49,14 +49,18 @@
       double precision pi,twopi,forpi
       double precision p0,p1,p2,p3
       double precision a,q
+      logical small_cell
 
 
 *     **** external functions ****
       double precision dsum,simp
       external         dsum,simp
+      logical          control_psp_semicore_small
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
+
+      small_cell = control_psp_semicore_small()
 
       if(lmax.gt.3) THEN
          call errquit('integrate_kbpp_band_stress_ray - lmax > f',0,
@@ -175,9 +179,15 @@
      >   + zv*forpi/(q*q)*(2.0d0*cs(nrho)/q + rho(nrho)*sn(nrho))
 *::::::::::::::::::::: semicore density :::::::::::::::::::::::::::::::
         if (semicore) then
-           do  i=1,nrho
-             f(i)=rho(i)*dsqrt(rho_sc_r(i,1))*(rho(i)*cs(i)-sn(i)/q)
-           end do
+           if (small_cell) then
+              do  i=1,nrho
+                f(i)=rho(i)*(rho_sc_r(i,1))*(rho(i)*cs(i)-sn(i)/q)
+              end do
+           else
+              do  i=1,nrho
+                f(i)=rho(i)*dsqrt(rho_sc_r(i,1))*(rho(i)*cs(i)-sn(i)/q)
+              end do
+           end if
            rho_sc_k_ray(k1)= SIMP(nrho,f,drho)*forpi/q
         end if
     

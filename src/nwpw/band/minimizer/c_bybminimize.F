@@ -191,7 +191,7 @@ c     >                     'rho_in',rho_in(2),rho_in(1))
       call dcopy(ispin*2*nfft3d,
      >           dcpl_mb(vall_in(1)),1,
      >           dcpl_mb(vall_junk(1)),1)
-      call daxpy(ispin*2*nfft3d,
+      call DAXPY_OMP(ispin*2*nfft3d,
      >              (-1.0d0),
      >              dcpl_mb(vall_out(1)),1,
      >              dcpl_mb(vall_junk(1)),1)

@@ -165,3 +165,57 @@ c     write(luout,*) "has_frac_occ: ",has_frac_occ
 c
       return
       end
+c
+c     Write out the alpha/beta split eigenvalues
+c
+      subroutine dft_print_evals_ab(nbf_ao, occ, evals,ipol)
+      implicit none
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgtypesf.h"
+#include "msgids.fh"
+#include "util.fh"
+c
+      integer nbf_ao            ! [input] No. of basis functions
+      integer ipol ! [in]
+      double precision occ(2*nbf_ao)   ! [input] Occupation numbers 
+      double precision evals(2*nbf_ao) ! [input] Eigenvalues
+c
+      integer i,ok
+      character*255 evalfile
+      integer uniteval
+c
+      logical util_io_unit
+      external util_io_unit
+c
+      call util_file_name('evals',.false.,.false.,evalfile)
+      if(.not.util_io_unit(80,90,uniteval))
+     &  call errquit('print_evals_ab:cannot get free unit', 0,0)
+c
+      call ga_sync()
+      ok = 0
+      if (ga_nodeid() .eq. 0) then
+       open(uniteval, status='unknown', form='formatted',file=evalfile)
+       write(uniteval,*) nbf_ao
+       write(uniteval,*)
+       if(ipol.eq.1) then
+          do i = 1,nbf_ao
+             write(uniteval,*) i, evals(i)
+          end do
+       else
+          do i = 1,nbf_ao
+             write(uniteval,*) i, evals(i), evals(nbf_ao+i)
+          end do
+       endif
+       close(uniteval)
+       ok = 1
+      endif ! ga_nodeid() = 0
+c
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok,
+     C     MA_sizeof(MT_INT,1,MT_BYTE), 0) ! Propagate status
+c
+      call ga_sync()
+c
+      return
+      end

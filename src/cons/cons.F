@@ -6,7 +6,7 @@ c $I#d: cons.F,v 1.1 2004/01/28 01:30:59 marat Exp $
 #include "rtdb.fh"
 #include "util.fh"
 #include "geom.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 #include "cons.fh"
 #include "global.fh"
       logical cons_active
@@ -57,7 +57,7 @@ c     -----------------------------------
 #include "rtdb.fh"
 #include "util.fh"
 #include "geom.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 #include "cons.fh"
 #include "global.fh"
       character*(*) namespace
@@ -127,7 +127,7 @@ c     release memory
 #include "rtdb.fh"
 #include "util.fh"
 #include "geom.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 #include "cons.fh"
 #include "global.fh"
       character*(*) namespace
@@ -207,7 +207,7 @@ c     release memory
 #include "util.fh"
 #include "geom.fh"
 #include "stdio.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 #include "cons.fh"
 #include "global.fh"
       integer rtdb
@@ -356,7 +356,7 @@ c
 #include "util.fh"
 #include "geom.fh"
 #include "stdio.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 #include "cons.fh"
 #include "global.fh"
       integer rtdb
@@ -404,6 +404,14 @@ c     initialize bondings
       call cons_set_hbondings_nhc(0)
       call cons_load_hbondings(namespace,rtdb)
       end if
+c
+c
+c     initialize pbondings
+      if(cons_pbondings(namespace,rtdb)) then
+      ocons = .true.
+      call cons_set_pbondings_nhp(0)
+      call cons_load_pbondings(namespace,rtdb)
+      end if
 
 
 c
@@ -428,7 +436,7 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 #include "geom.fh"
-#include "cons_params.fh"
+#include "cons_data.fh"
 #include "cons.fh"
 #include "global.fh"
       integer rtdb
@@ -436,6 +444,7 @@ c
       call cons_print_summary(rtdb)
       call cons_unload_hbonds()
       call cons_unload_hbondings()
+      call cons_unload_pbondings()
       call cons_unload_hdihed()
       call cons_unload_fixed_atoms(rtdb)
       return
@@ -652,13 +661,14 @@ c
       integer n
       double precision gx(n)
       character*255 namespace
-      logical obonds,odihedrals,ocons,obondings
+      logical obonds,odihedrals,ocons,obondings,opbondings
       logical osim
 c
       call cons_get_namespace(namespace,rtdb)
       if(.not.cons_status(namespace,rtdb)) return
       obonds = cons_hbonds(namespace,rtdb)
       obondings = cons_hbondings(namespace,rtdb)
+      opbondings = cons_pbondings(namespace,rtdb)
       odihedrals = cons_hdihed(namespace,rtdb)
       ocons = obonds.or.odihedrals.or.obondings
       if(.not.ocons) return
@@ -678,6 +688,8 @@ c
      >    call cons_add_hbond_egrad(rtdb,energy,gx)
       if(obondings)  
      >    call cons_add_hbondings_egrad(rtdb,energy,gx)
+      if(opbondings)  
+     >    call cons_add_pbondings_egrad(rtdb,energy,gx)
       if(odihedrals)     
      >   call cons_add_hdihed_egrad(rtdb,energy,gx)
 c
@@ -697,13 +709,14 @@ c
       integer rtdb
       double precision energy
       character*255 namespace
-      logical obonds,odihedrals,obondings,ocons
+      logical obonds,odihedrals,obondings,opbondings,ocons
       logical osim
 c
       call cons_get_namespace(namespace,rtdb)
       if(.not.cons_status(namespace,rtdb)) return
       obonds = cons_hbonds(namespace,rtdb)
       obondings = cons_hbondings(namespace,rtdb)
+      opbondings = cons_pbondings(namespace,rtdb)
       odihedrals = cons_hdihed(namespace,rtdb)
       ocons = obonds.or.odihedrals.or.obondings
       if(.not.ocons) return
@@ -718,6 +731,8 @@ c
      >   call cons_add_hbond_energy(rtdb,energy)
       if(obondings)  
      >   call cons_add_hbondings_energy(rtdb,energy)
+      if(opbondings)  
+     >   call cons_add_pbondings_energy(rtdb,energy)
       if(odihedrals)     
      >   call cons_add_hdihed_energy(rtdb,energy)
 c
@@ -742,12 +757,12 @@ c     ---------------
       logical status
       logical master
       integer i,ii,n,j
-      integer inb,nhb,nhc
+      integer inb,nhb,nhc,nhp
       integer iat,jat
       double precision r
-      double precision r0,k,K0,gamma0,gamm
+      double precision r0,k,K0,gcut0,gamma0,gamm
       integer i_c,i_rhb,i_khb,i_ijhb
-      integer i_n,i_indx,i_coef,i_k0,i_gamma0
+      integer i_n,i_indx,i_coef,i_k0,i_gcut0,i_gamma0
       double precision etot,e,f(3)
       character*255 namespace
       logical  cons_active
@@ -848,6 +863,53 @@ c
             etot=etot+e
          end do
       end if
+
+
+      call cons_get_pbondings_nhp(nhp)
+
+      if(nhp.ne.0) then
+         i_c      = cons_get_i_c()
+         i_n      = cons_get_i_pbondings_n0()
+         i_indx   = cons_get_i_pbondings_indx()
+         i_coef   = cons_get_i_pbondings_coef()
+         i_k0     = cons_get_i_pbondings_k0()
+         i_gcut0  = cons_get_i_pbondings_gcut0()
+         i_gamma0 = cons_get_i_pbondings_gamma0()
+
+         ii = 0
+         do i=1,nhp
+            n      = int_mb(i_n+i-1)
+            K0     = dbl_mb(i_k0+i-1)
+            gcut0  = dbl_mb(i_gcut0+i-1)
+            gamma0 = dbl_mb(i_gamma0+i-1)
+
+            call cons_pbondings_energy(n,int_mb(i_indx+2*ii),
+     >                               dbl_mb(i_coef+ii),
+     >                               K0,gcut0,gamma0,dbl_mb(i_c),gamm,e)
+            if(master) then
+               write(luout,'(A,I5)')" bondings penalty#            :",i
+               write(luout,'(A,3(F12.6,2X))')
+     >        " spring parameters (K0,gcut0,gamma0):",K0,gcut0,gamma0
+               write(luout,'(A,F12.6)')
+     >         " gamma                        :",gamm
+               write(luout,'(A,F12.6)')
+     >         " penalty energy               :",e
+               write(luout,'(A)')" coefficient index1 index2    :"
+               do j=1,n
+                  write(luout,'(F12.6,2I7)') dbl_mb(i_coef+ii+j-1),
+     >                                   int_mb(i_indx+2*ii+2*(j-1)),
+     >                                   int_mb(i_indx+2*ii+2*(j-1)+1)
+               end do
+               write(luout,*)"  "
+            end if
+
+            ii = ii + n
+            etot=etot+e
+         end do
+      end if
+
+
+
 
       if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, energy))
      $   energy = 0.0d0

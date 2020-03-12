@@ -1,3 +1,5 @@
+
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C set cut-off radii
 C in parts due to INTEL compiler bug
@@ -879,7 +881,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
  502  read(142,*,end=602) i,dum1
       if(i.gt.0)then
         if(i.gt.max_elem)
-     >     call nwpwxc_stoprun('wrong cardinal number (rdatpar)')
+     >  call nwpwxc_stoprun('wrong cardinal number (rdatpar)')
         val(i)=dum1         
       endif
       goto 502
@@ -931,161 +933,301 @@ c read coordinates in au or Ang. if its a xmol file
 c redone by S.E. to avoid some input errors. Looks for $coord, ang, bohr or number (xmol) in the first line
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-c      subroutine nwpwxc_rdcoord(fname,n,xyz,iat,fix,fdum)
-c      implicit none             
-c      interface
-c        subroutine nwpwxc_parse(str,delims,args,nargs)
-c          character(len=*),intent(inout) :: str
-c          character(len=*),intent(in)  :: delims
-c          character(len=*),dimension(:),intent(inout) :: args
-c          integer, intent(out) :: nargs
-c        end subroutine nwpwxc_parse
-c      end interface
-c
-c      real*8 xyz(3,*)
-c      integer iat(*),n 
-c      character*(*) fname
-c      logical fix(n),fdum !fix:array of fixed coordinates, fdum: whether dummy atoms exist or not, they are ignored
-c
-c      real*8 floats(3),f
-c      character*80 line
-c      character*80 strings(3)
-c      integer j,ich,cs,cf,ncheck
-c
-c      f=0.0d0
-c      ich=142
-c      open(unit=ich,file=fname)
-c      ncheck=0
-c      rewind(ich)
-c      DO
-c        read(ich,'(a)',end=200)line
-c        if(line.ne."") exit
-c      ENDDO
-c
-c      call nwpwxc_readline(line,floats,strings,cs,cf)
-c      if(cf.eq.1.and.floats(1).gt.0) then
-c         f=1./0.52917726d0
-c         read(ich,'(A)',end=200)line
-c      else if (index(line,'$coord').ne.0) then
-c         f=1.0d0
-c      else if (index(line,'ang').ne.0) then
-c         f=1./0.52917726d0
-c      else if (index(line,'bohr').ne.0) then
-c         f=1.0d0
-c      endif
-c      if(f.lt.1.0d0) then
-c       call nwpwxc_stoprun('Coordinate format not recognized!')
-c      endif       
-c      DO
-c        read(ich,'(a)',end=200)line
-c         if(index(line,'$redu').ne.0) exit
-c         if(index(line,'$user').ne.0) exit
-c         if(index(line,'$end' ).ne.0) exit
-c         call nwpwxc_readline(line,floats,strings,cs,cf)
-c         if(cf.ne.3) cycle
-c         call nwpwxc_elem(strings(1),j)         
-c         if(j.eq.0) then
-c          fdum=.true.
-c          cycle !ignores dummies and unknown elements
-c         endif
-c         ncheck=ncheck+1
-c         xyz(1,ncheck)=floats(1)*f
-c         xyz(2,ncheck)=floats(2)*f
-c         xyz(3,ncheck)=floats(3)*f
-c         iat(ncheck)=j
-c         if(strings(2).ne.'')fix(ncheck)=.true.      !fixes coordinate if any other string than element spec is found
-cc      write(*,321)floats(1:3),strings(1:3),j,fix(ncheck)   !debug printout
-c
-c      ENDDO
-c
-c 200  continue
-c
-c      if (n.ne.ncheck) then
-c          write(*,*)n,'/=',ncheck
-c          call nwpwxc_stoprun('error reading coord file')
-c      endif
-c      close(ich)
-c
-cc  321 FORMAT(F20.10,F20.10,F20.10,1X,A3,1X,A3,1X,A3,I3,L) !debug output
-c      end subroutine nwpwxc_rdcoord
+      subroutine nwpwxc_rdcoord(fname,n,xyz,iat,fix,fdum)
+      implicit none             
+      interface
+        subroutine nwpwxc_parse(str,delims,args,nargs)
+          character(len=*),intent(inout) :: str
+          character(len=*),intent(in)  :: delims
+          character(len=*),dimension(:),intent(inout) :: args
+          integer, intent(out) :: nargs
+        end subroutine nwpwxc_parse
+      end interface
+
+      real*8 xyz(3,*)
+      integer iat(*),n 
+      character*(*) fname
+      logical fix(n),fdum !fix:array of fixed coordinates, fdum: whether dummy atoms exist or not, they are ignored
+
+      real*8 floats(3),f
+      character*80 line
+      character*80 strings(3)
+      integer j,ich,cs,cf,ncheck
+
+      f=0.0d0
+      ich=142
+      open(unit=ich,file=fname)
+      ncheck=0
+      rewind(ich)
+      DO
+        read(ich,'(a)',end=200)line
+        if(line.ne."") exit
+      ENDDO
+
+      call nwpwxc_readline(line,floats,strings,cs,cf)
+      if(cf.eq.1.and.floats(1).gt.0) then
+         f=1./0.52917726d0
+         read(ich,'(A)',end=200)line
+      else if (index(line,'$coord').ne.0) then
+         f=1.0d0
+      else if (index(line,'ang').ne.0) then
+         f=1./0.52917726d0
+      else if (index(line,'bohr').ne.0) then
+         f=1.0d0
+      endif
+      if(f.lt.1.0d0) then
+       call nwpwxc_stoprun('Coordinate format not recognized!')
+      endif       
+      DO
+        read(ich,'(a)',end=200)line
+         if(index(line,'$redu').ne.0) exit
+         if(index(line,'$user').ne.0) exit
+         if(index(line,'$end' ).ne.0) exit
+         call nwpwxc_readline(line,floats,strings,cs,cf)
+         if(cf.ne.3) cycle
+         call nwpwxc_elem(strings(1),j)         
+         if(j.eq.0) then
+          fdum=.true.
+          cycle !ignores dummies and unknown elements
+         endif
+         ncheck=ncheck+1
+         xyz(1,ncheck)=floats(1)*f
+         xyz(2,ncheck)=floats(2)*f
+         xyz(3,ncheck)=floats(3)*f
+         iat(ncheck)=j
+         if(strings(2).ne.'')fix(ncheck)=.true.      !fixes coordinate if any other string than element spec is found
+c      write(*,321)floats(1:3),strings(1:3),j,fix(ncheck)   !debug printout
+
+      ENDDO
+
+ 200  continue
+
+      if (n.ne.ncheck) then
+          write(*,*)n,'/=',ncheck
+          call nwpwxc_stoprun('error reading coord file')
+      endif
+      close(ich)
+
+c  321 FORMAT(F20.10,F20.10,F20.10,1X,A3,1X,A3,1X,A3,I3,L) !debug output
+      end subroutine nwpwxc_rdcoord
 
 
-c      subroutine nwpwxc_rdatomnumber(fname,n)
-c      implicit none             
-c      integer n 
-c      character*(*) fname
-c
-c      real*8 floats(3),f
-c      character*80 line
-c      character*80 strings(3)
-c      integer j,ich,cs,cf
-c
-c      f=0.0d0
-c      ich=53
-c      open(unit=ich,file=fname)
-c      n=0
-c 300  read(ich,'(a)',end=200)line
-c      if(line.eq."") goto 300
-c      call nwpwxc_readline(line,floats,strings,cs,cf)
-c      if(cf.eq.1.and.floats(1).gt.0.and.cs.eq.0) then
-c         f=1./0.52917726d0
-c!         write(*,*)floats(1)
-c         n=int(floats(1))
-c         close(ich)
-c         return
-c      else if (index(line,'$coord').ne.0) then
-c         f=1.0d0
-c      else if (index(line,'ang').ne.0) then
-c         f=1./0.52917726d0
-c      else if (index(line,'bohr').ne.0) then
-c         f=1.0d0
-c      endif
-c      if(f.lt.1.0d0) then
-c       call nwpwxc_stoprun('Coordinate format not recognized!')
-c      endif       
-c      DO
-c         read(ich,'(a)',end=200)line
-c         if(index(line,'$redu').ne.0) exit
-c         if(index(line,'$user').ne.0) exit
-c         if(index(line,'$end' ).ne.0) exit
-c         call nwpwxc_readline(line,floats,strings,cs,cf)
-c         if(cf.ne.3) exit
-c         call nwpwxc_elem(strings(1),j)         
-c         if(j.eq.0) cycle
-c         
-c        
-c         n=n+1
-c      ENDDO
-c
-c 200  continue
-c
-c      close(ich)
-c
-cc  321 FORMAT(F20.10,F20.10,F20.10,1X,A3,1X,A3,1X,A3,I3,L) !debug output
-c      end subroutine nwpwxc_rdatomnumber
+      subroutine nwpwxc_rdatomnumber(fname,n)
+      implicit none             
+      integer n 
+      character*(*) fname
+
+      real*8 floats(3),f
+      character*80 line
+      character*80 strings(3)
+      integer j,ich,cs,cf
+
+      f=0.0d0
+      ich=53
+      open(unit=ich,file=fname)
+      n=0
+ 300  read(ich,'(a)',end=200)line
+      if(line.eq."") goto 300
+      call nwpwxc_readline(line,floats,strings,cs,cf)
+      if(cf.eq.1.and.floats(1).gt.0.and.cs.eq.0) then
+         f=1./0.52917726d0
+!         write(*,*)floats(1)
+         n=int(floats(1))
+         close(ich)
+         return
+      else if (index(line,'$coord').ne.0) then
+         f=1.0d0
+      else if (index(line,'ang').ne.0) then
+         f=1./0.52917726d0
+      else if (index(line,'bohr').ne.0) then
+         f=1.0d0
+      endif
+      if(f.lt.1.0d0) then
+       call nwpwxc_stoprun('Coordinate format not recognized!')
+      endif       
+      DO
+         read(ich,'(a)',end=200)line
+         if(index(line,'$redu').ne.0) exit
+         if(index(line,'$user').ne.0) exit
+         if(index(line,'$end' ).ne.0) exit
+         call nwpwxc_readline(line,floats,strings,cs,cf)
+         if(cf.ne.3) exit
+         call nwpwxc_elem(strings(1),j)         
+         if(j.eq.0) cycle
+         
+        
+         n=n+1
+      ENDDO
+
+ 200  continue
+
+      close(ich)
+
+c  321 FORMAT(F20.10,F20.10,F20.10,1X,A3,1X,A3,1X,A3,I3,L) !debug output
+      end subroutine nwpwxc_rdatomnumber
 
 
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-      subroutine nwpwxc_outg(nat,g)
+      subroutine nwpwxc_outg(nat,g,fname)
       implicit none
       integer nat,i
       real*8 g(3,nat)
+      character*(*) fname
 
-      open(unit=142,file='dftd3_gradient')
+      open(unit=142,file=fname)
 
-!      write(*,*)'Gradient:' !Jonas
-!      write(*,*)            !Jonas
+!      write(*,*)'Gradient : ', fname
+!      write(*,*)            
       do i=1,nat
          write(142,'(3E22.14)')g(1:3,i)
-!         write(*,'(3D22.14)')g(1:3,i) !Jonas
+!         write(*,'(3D22.14)')g(1:3,i) 
       enddo
 
       close(142)
 
       end subroutine nwpwxc_outg
+
+
+
+
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c add edisp in file energy
+c and g to file gradient
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+      subroutine nwpwxc_wregrad(nat,xyz,iat,edisp,g)
+      implicit none
+      integer nat,iat(*)
+      real*8 edisp
+      real*8 g  (3,*)
+      real*8 xyz(3,*)
+
+      integer i,j,nn,nl
+      character*128 a,a1
+      character*2   nwpwxc_esym
+      external      nwpwxc_esym
+      character*20 fname
+      real*8 xx(10),gsum,x,y,z
+      real*8, dimension(:,:), allocatable :: gr
+      logical ex
+
+      allocate(gr(3,nat))
+
+      fname='dftd3_gradient'
+      inquire(file='gradient',exist=ex)
+      if(.not.ex) then
+          write(*,*) 'no gradient file found to add Gdisp!'
+          write(*,*) 'hence written to file dftd3_gradient'
+          call nwpwxc_outg(nat,g,fname)
+          return
+      endif
+c write file gradient
+      j=0
+      open(unit=42,file='gradient')
+201   read(42,'(a)',end=301)a1
+      j=j+1
+      if(index(a1,'cycle').ne.0)nl=j
+      goto 201
+301   continue
+
+      if(nl.lt.2)then
+         write(*,*) 'illegal gradient file to add Gdisp!'
+         write(*,*) 'hence written to file dftd3_gradient'
+         call nwpwxc_outg(nat,g,fname)
+         return
+      endif
+
+      rewind 42
+      do i=1,nl
+      read(42,'(a)')a1
+      enddo
+      do i=1,nat
+         read(42,*)x,y,z                
+         if(abs(x-xyz(1,i)).gt.1.d-8) 
+     .   call nwpwxc_stoprun( 'gradient read error x')
+         if(abs(y-xyz(2,i)).gt.1.d-8) 
+     .   call nwpwxc_stoprun( 'gradient read error y')
+         if(abs(z-xyz(3,i)).gt.1.d-8) 
+     .   call nwpwxc_stoprun( 'gradient read error z')
+         xyz(1,i)=x
+         xyz(2,i)=y
+         xyz(3,i)=z
+      enddo
+      gsum=0
+      do i=1,nat
+         read(42,*)gr(1,i),gr(2,i),gr(3,i)
+         g(1:3,i)=g(1:3,i)+gr(1:3,i)
+      enddo
+      gsum=sqrt(sum(g(1:3,1:nat)**2))
+
+      rewind 42
+      open(unit=43,file='gradient.tmp')
+      j=0
+401   read(42,'(a)',end=501)a1
+      j=j+1
+      if(j.lt.nl)then
+         write(43,'(a)')trim(a1)
+      else
+         call nwpwxc_readl(a1,xx,nn)
+         j=idint(xx(1))
+         write(43,'(''  cycle = '',i6,4x,''SCF energy ='',F18.11,3x,
+     .              ''|dE/dxyz| ='',F10.6)')j,xx(2)+edisp,gsum  
+         do i=1,nat
+            write(43,'(3(F20.14,2x),4x,a2)')xyz(1,i),xyz(2,i),xyz(3,i),
+     .                                      nwpwxc_esym(iat(i))
+         enddo
+         do i=1,nat
+            write(43,'(3D22.13)')g(1,i),g(2,i),g(3,i)
+         enddo
+         a='$end'
+         write(43,'(a)')trim(a)
+         goto 501
+      endif
+      goto 401
+501   continue
+      close(42)
+      close(43)
+
+      call system('mv gradient.tmp gradient')
+
+c write file energy
+      j=1
+      open(unit=42,file='energy')
+      open(unit=43,file='energy.tmp')
+ 50   read(42,'(a)',end=100)a
+      call nwpwxc_readl(a,xx,nn)
+      if(nn.gt.3)nl=j
+      j=j+1
+      goto 50
+100   continue
+
+      rewind 42
+      j=0
+  20  read(42,'(a)',end=200)a
+      j=j+1
+      if(j.lt.nl)then
+         write(43,'(a)')trim(a)
+         call nwpwxc_readl(a,xx,nn)
+      else
+         call nwpwxc_readl(a,xx,nn)
+         xx(2)=xx(2)+edisp
+         write(43,'(i6,4F20.11)')idint(xx(1)),xx(2:nn)       
+         a='$end'
+         write(43,'(a)')trim(a)
+         goto 200
+      endif
+      goto 20
+ 200  continue
+      close(42)
+      close(43)
+
+      call system('mv energy.tmp energy')
+
+      end subroutine nwpwxc_wregrad
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
@@ -1145,8 +1287,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 C     *****************************************************************         
 
-      FUNCTION nwpwxc_ESYM(I)
-      CHARACTER*2 nwpwxc_ESYM
+      CHARACTER*2 FUNCTION nwpwxc_ESYM(I)
       CHARACTER*2 ELEMNT(94)
       DATA ELEMNT/'h ','he',
      1 'li','be','b ','c ','n ','o ','f ','ne',
@@ -1170,8 +1311,6 @@ C     *****************************************************************
                                                                                 
       SUBROUTINE nwpwxc_READL(A1,X,N)                                               
       IMPLICIT REAL*8 (A-H,O-Z)                                                 
-      REAL*8 nwpwxc_READAA
-      external nwpwxc_READAA
       CHARACTER*(*) A1                                                      
       DIMENSION X(*)                                                            
       I=0                                                                       
@@ -1192,7 +1331,7 @@ C     *****************************************************************
                                                                                 
       FUNCTION nwpwxc_READAA(A,ISTART,IEND,IEND2)                                   
       IMPLICIT REAL*8 (A-H,O-Z)                                                 
-      REAL*8 nwpwxc_READAA                                                             
+      REAL*8 READAA                                                             
       CHARACTER*(*) A                                                      
       NINE=ICHAR('9')                                                           
       IZERO=ICHAR('0')                                                          
@@ -1216,7 +1355,7 @@ C     *****************************************************************
          IF(N.EQ.MINUS.AND.(M.LE.NINE.AND.M.GE.IZERO                            
      1 .OR. M.EQ.IDOT)) GOTO 20                                                 
    10 CONTINUE                                                                  
-      nwpwxc_READAA=0.D0                                                               
+      READAA=0.D0                                                               
       RETURN                                                                    
    20 CONTINUE                                                                  
       IEND=J                                                                    
@@ -1253,7 +1392,7 @@ C
 C PUT THE PIECES TOGETHER                                                       
 C                                                                               
    60 CONTINUE                                                                  
-      nwpwxc_READAA= ONE * ( C1 + C2 * X)                                              
+      READAA= ONE * ( C1 + C2 * X)                                              
       DO 55 J=IEND,NL                                                           
          N=ICHAR(A(J:J))                                                          
          IEND2=J                                                                
@@ -1271,7 +1410,7 @@ C
          IF(N.EQ.MINUS)ONE=-1.0D0                                               
    31 CONTINUE                                                                  
    61 CONTINUE                                                                  
-   70 nwpwxc_READAA=nwpwxc_READAA*10**(ONE*C1)                                                
+   70 READAA=READAA*10**(ONE*C1)                                                
       RETURN                                                                    
       END FUNCTION nwpwxc_READAA                                                                    
 
@@ -1285,7 +1424,7 @@ c     ((n+1)*n)/2 when m is zero
 
       write(iuout,1001) head
       nkpb=10
-      if(m)10,10,80
+      if(m.gt.0) goto 80
 c
    10 continue
       ibl=n/nkpb
@@ -1367,7 +1506,7 @@ c
       end subroutine nwpwxc_prmat
 
 ccccccccccccccccccccccccccccccccccccccccccccccc
-c   nwpwxc_readfrag: will read a list of numbers     c
+c   readfrag: will read a list of numbers     c
 c             from character.                 c
 c        line: string containing the numbers  c
 c        iout: array which returns integer    c
@@ -1382,7 +1521,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccc
       character*80 line
       character*12 str1,str2
       integer iout(500)
-      integer n,i,j,k,sta,sto
+      integer*4 n,i,j,k,sta,sto
       character*11 nums
       
 c      write(*,*) 'In readfrag:'
@@ -1450,8 +1589,6 @@ c Input Geometry sanity check via CNs, not used
       real*8 cn(*),maxcn
       integer max_elem,maxc
       real*8 c6ab(max_elem,max_elem,maxc,maxc,3)
-      integer  ga_nodeid
-      external ga_nodeid
 
       check=.false.
       do i=1,n
@@ -1464,7 +1601,6 @@ c Input Geometry sanity check via CNs, not used
         endif
        endif
       enddo
-      check = check.and.(ga_nodeid().eq.0)
        if (check) then
         write(*,*)'----------------------------------------------------'
         write(*,*)'!!!! SOME CN ARE VERY LARGE. CHECK COORDINATES !!!!'
@@ -1478,8 +1614,6 @@ c     Input Geometry sanity check (to avoid au/Angtstrom mixups) S.E. 16.3.2012
       logical check
       integer iz(*),n,i,j
       real*8 rcov(94),dist,dx,dy,dz,thr,xyz(3,*),r
-      integer  ga_nodeid
-      external ga_nodeid
       check=.false.
       do i=1,n-1
        do j=i+1,n
@@ -1493,7 +1627,6 @@ c     Input Geometry sanity check (to avoid au/Angtstrom mixups) S.E. 16.3.2012
          endif
        enddo
       enddo
-      check = check.and.(ga_nodeid().eq.0)
       if (check) then
           write(*,*)'--------------------------------------------------'
           write(*,*)'!! SOME DISTANCES VERY SHORT. CHECK COORDINATES !!'
@@ -1593,4 +1726,5 @@ c     Input Geometry sanity check (to avoid au/Angtstrom mixups) S.E. 16.3.2012
       
       end subroutine nwpwxc_checktype
 
-c $Id$
+
+

@@ -108,6 +108,7 @@ c
 
       value = value.and.BA_pop_stack(kv(2))
 
+
 *     *** exit if error found ***
       if(.not. value) call errquit('cpsp_stress_formatter_auto: error',
      >                             0,RTDB_ERR)

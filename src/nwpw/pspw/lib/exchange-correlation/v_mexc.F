@@ -72,9 +72,11 @@ c        *****                          agr,fn,fdn      *****
      >        BA_push_get(mt_dbl, n2ft3d,'grz',grz(2),grz(1))
         value = value.and.
      >        BA_push_get(mt_dbl, n2ft3d,'agr',agr(2),agr(1))
+        fn(1) = -1
         value = value.and.
      >        BA_push_get(mt_dbl, n2ft3d,'fn',fn(2),fn(1))
         rhog(1) = fn(1)
+        fdn(1) = -1
         value = value.and.
      >        BA_push_get(mt_dbl, 2*n2ft3d,'fdn',fdn(2),fdn(1))
         tmp(1) = fdn(1)
@@ -125,23 +127,114 @@ c     >                      dbl_mb(agr(1)))
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
 
          if (meta_on) then
-           call nwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),dbl_mb(agr(1)),
-     >                       dbl_mb(tau(1)),xce,
-     >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),
+            if (gga.ge.300) then
+               call D3dB_rr_Sqrt1(1,dbl_mb(agr(1)))
+
+c              ***** calculate xce,fn=df/dn, and fdn=df/d|grad n|, fdtau=df/dtau  ***** 
+               if (gga.eq.300) then
+               call gen_VS98_restricted(n2ft3d,
+     >                                dbl_mb(rho(1)),
+     >                                dbl_mb(agr(1)),
+     >                                dbl_mb(tau(1)),
+     >                                x_parameter,c_parameter,
+     >                                xce,
+     >                                dbl_mb(fn(1)),
+     >                                dbl_mb(fdn(1)),
+     >                                dbl_mb(dfdtau(1)))
+               else if (gga.eq.301) then
+               call gen_TPSS03_restricted(n2ft3d,
+     >                                dbl_mb(rho(1)),
+     >                                dbl_mb(agr(1)),
+     >                                dbl_mb(tau(1)),
+     >                                x_parameter,c_parameter,
+     >                                xce,
+     >                                dbl_mb(fn(1)),
+     >                                dbl_mb(fdn(1)),
+     >                                dbl_mb(dfdtau(1)))
+               else if (gga.eq.302) then
+                call gen_SCAN_restricted(n2ft3d,
+     >                                dbl_mb(rho(1)),
+     >                                dbl_mb(agr(1)),
+     >                                dbl_mb(tau(1)),
+     >                                x_parameter,c_parameter,
+     >                                xce,
+     >                                dbl_mb(fn(1)),
+     >                                dbl_mb(fdn(1)),
+     >                                dbl_mb(dfdtau(1)))
+               else if (gga.eq.303) then
+                write(*,*) "pkzb not implemented!"
+                stop
+c                call gen_M06_restricted(n2ft3d,
+c     >                                dbl_mb(rho(1)),
+c     >                                dbl_mb(agr(1)),
+c     >                                dbl_mb(tau(1)),
+c     >                                x_parameter,c_parameter,
+c     >                                xce,
+c     >                                dbl_mb(fn(1)),
+c     >                                dbl_mb(fdn(1)),
+c     >                                dbl_mb(dfdtau(1)))
+               else if (gga.eq.304) then
+                call gen_M06L_restricted(n2ft3d,
+     >                                dbl_mb(rho(1)),
+     >                                dbl_mb(agr(1)),
+     >                                dbl_mb(tau(1)),
+     >                                x_parameter,c_parameter,
+     >                                xce,
+     >                                dbl_mb(fn(1)),
+     >                                dbl_mb(fdn(1)),
+     >                                dbl_mb(dfdtau(1)))
+               else if (gga.eq.305) then
+                call gen_M06_restricted(n2ft3d,
+     >                                dbl_mb(rho(1)),
+     >                                dbl_mb(agr(1)),
+     >                                dbl_mb(tau(1)),
+     >                                0.73d0,c_parameter,
+     >                                xce,
+     >                                dbl_mb(fn(1)),
+     >                                dbl_mb(fdn(1)),
+     >                                dbl_mb(dfdtau(1)))
+               else if (gga.eq.306) then
+                write(*,*) "m06-2x not implemented!"
+                stop
+c                call gen_M06_2x_restricted(n2ft3d,
+c     >                                dbl_mb(rho(1)),
+c     >                                dbl_mb(agr(1)),
+c     >                                dbl_mb(tau(1)),
+c     >                                0.46d0,c_parameter,
+c     >                                xce,
+c     >                                dbl_mb(fn(1)),
+c     >                                dbl_mb(fdn(1)),
+c     >                                dbl_mb(dfdtau(1)))
+               else
+                 call errquit('bad gga',0,0)
+               end if
+
+
+            else
+!$OMP MASTER
+              call nwpwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),
+     >                          dbl_mb(agr(1)),
+     >                          dbl_mb(tau(1)),xce,
+     >                          dbl_mb(fn(1)),dbl_mb(fdn(1)),
      >                       dbl_mb(dfdtau(1)))
+!$OMP END MASTER
+!$OMP BARRIER
 c
-c          Combine (df/d|grad a|) with (df/d(grad a|grad b))
+c             Combine (df/d|grad a|) with (df/d(grad a|grad b))
 c
-           call D3dB_r_SMul(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
-     >                              dbl_mb(fdn(1)))
+              call D3dB_rr_daxpy(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
+     >                                 dbl_mb(fdn(1)))
 c
-c          Calculate energy density from energy
+c             Calculate energy density from energy
 c
-           do k = 1, n2ft3d
-             xce(k) = xce(k)/(dbl_mb(rho(1)-1+k)+dncut)
-           enddo
-           call D3dB_rr_Sqrt1(1,dbl_mb(agr(1)))
-           call D3dB_rr_Mul2(1,dbl_mb(agr(1)),dbl_mb(fdn(1)))
+!$OMP DO
+              do k = 1, n2ft3d
+                xce(k) = xce(k)/(dbl_mb(rho(1)-1+k)+dncut)
+              enddo
+!$OMP END DO
+              call D3dB_rr_Sqrt1(1,dbl_mb(agr(1)))
+              call D3dB_rr_Mul2(1,dbl_mb(agr(1)),dbl_mb(fdn(1)))
+            endif
          else
            call errquit("v_mexc: no meta-GGA?",0,UERR)
          endif
@@ -272,6 +365,7 @@ c        *****                          agr,fn,fdn      *****
      >        BA_push_get(mt_dbl, 3*n2ft3d,'grad',grad(2),grad(1))
         value = value.and.
      >        BA_push_get(mt_dbl, 3*n2ft3d,'tmp',gtmp(2),gtmp(1))
+        xfn(1) = -1
         value = value.and.
      >        BA_push_get(mt_dbl, 2*n2ft3d,'xfn',xfn(2),xfn(1))
         fn(1) = xfn(1)
@@ -414,61 +508,145 @@ c     >                       dbl_mb(agr(3)))
  
          if (meta_on) then
 c
-c          Copy |grad nup|->grad(1), |grad n|->grad(2), and |grad ndn|->grad(3)
+            if (gga.ge.300) then
+
+               if (gga.eq.300) then
+               call gen_VS98_unrestricted(n2ft3d,
+     >                                    dn,
+     >                                    dbl_mb(agr(1)),
+     >                                    dbl_mb(tau(1)),
+     >                                    x_parameter,c_parameter,
+     >                                    xce,
+     >                                    dbl_mb(fn(1)),
+     >                                    dbl_mb(fdn(1)),
+     >                                    dbl_mb(dfdtau(1)))
+               else if (gga.eq.301) then
+               call gen_TPSS03_unrestricted(n2ft3d,
+     >                                    dn,
+     >                                    dbl_mb(agr(1)),
+     >                                    dbl_mb(tau(1)),
+     >                                    x_parameter,c_parameter,
+     >                                    xce,
+     >                                    dbl_mb(fn(1)),
+     >                                    dbl_mb(fdn(1)),
+     >                                    dbl_mb(dfdtau(1)))
+               else if (gga.eq.302) then
+               call gen_SCAN_unrestricted(n2ft3d,
+     >                                    dn,
+     >                                    dbl_mb(agr(1)),
+     >                                    dbl_mb(tau(1)),
+     >                                    x_parameter,c_parameter,
+     >                                    xce,
+     >                                    dbl_mb(fn(1)),
+     >                                    dbl_mb(fdn(1)),
+     >                                    dbl_mb(dfdtau(1)))
+               else if (gga.eq.303) then
+                write(*,*) "pkzb not implemented!"
+                stop
+c               call gen_M06_unrestricted(n2ft3d,
+c     >                                    dn,
+c     >                                    dbl_mb(agr(1)),
+c     >                                    dbl_mb(tau(1)),
+c     >                                    x_parameter,c_parameter,
+c     >                                    xce,
+c     >                                    dbl_mb(fn(1)),
+c     >                                    dbl_mb(fdn(1)),
+c     >                                    dbl_mb(dfdtau(1)))
+               else if (gga.eq.304) then
+               call gen_M06L_unrestricted(n2ft3d,
+     >                                    dn,
+     >                                    dbl_mb(agr(1)),
+     >                                    dbl_mb(tau(1)),
+     >                                    x_parameter,c_parameter,
+     >                                    xce,
+     >                                    dbl_mb(fn(1)),
+     >                                    dbl_mb(fdn(1)),
+     >                                    dbl_mb(dfdtau(1)))
+               else if (gga.eq.305) then
+               call gen_M06_unrestricted(n2ft3d,
+     >                                    dn,
+     >                                    dbl_mb(agr(1)),
+     >                                    dbl_mb(tau(1)),
+     >                                    0.73d0,c_parameter,
+     >                                    xce,
+     >                                    dbl_mb(fn(1)),
+     >                                    dbl_mb(fdn(1)),
+     >                                    dbl_mb(dfdtau(1)))
+               else if (gga.eq.306) then
+                write(*,*) "m06-2x not implemented!"
+                stop
+c               call gen_M06_2x_unrestricted(n2ft3d,
+c     >                                    dn,
+c     >                                    dbl_mb(agr(1)),
+c     >                                    dbl_mb(tau(1)),
+c     >                                    0.46d0,c_parameter,
+c     >                                    xce,
+c     >                                    dbl_mb(fn(1)),
+c     >                                    dbl_mb(fdn(1)),
+c     >                                    dbl_mb(dfdtau(1)))
+               else
+                 call errquit('bad gga',0,0)
+               end if
+               
+            else
+c             Copy |grad nup|->grad(1), |grad n|->grad(2), and |grad ndn|->grad(3)
 c
-           call D3dB_r_Copy(1,dbl_mb(agr(1)),dbl_mb(grad(1)))
-           call D3dB_r_Copy(1,dbl_mb(agr(2)),dbl_mb(grad(1)+2*n2ft3d))
-           call D3dB_r_Copy(1,dbl_mb(agr(3)),dbl_mb(grad(1)+n2ft3d))
+              call D3dB_r_Copy(1,dbl_mb(agr(1)),dbl_mb(grad(1)))
+              call D3dB_r_Copy(1,dbl_mb(agr(2)),
+     >                         dbl_mb(grad(1)+2*n2ft3d))
+              call D3dB_r_Copy(1,dbl_mb(agr(3)),dbl_mb(grad(1)+n2ft3d))
 c
-c          Replace |grad x| with |grad x|^2
+c             Replace |grad x| with |grad x|^2
 c
-           call D3dB_rr_Sqr1(1,dbl_mb(grad(1)))
-           call D3dB_rr_Sqr1(1,dbl_mb(grad(1)+2*n2ft3d))
-           call D3dB_rr_Sqr1(1,dbl_mb(grad(1)+n2ft3d))
+              call D3dB_rr_Sqr1(1,dbl_mb(grad(1)))
+              call D3dB_rr_Sqr1(1,dbl_mb(grad(1)+2*n2ft3d))
+              call D3dB_rr_Sqr1(1,dbl_mb(grad(1)+n2ft3d))
 c
-c          Replace |grad n|^2 with |(grad nup|grad ndn)|^2
+c             Replace |grad n|^2 with |(grad nup|grad ndn)|^2
 c
-           call D3dB_rr_Sub2(1,dbl_mb(grad(1)),dbl_mb(grad(1)+n2ft3d))
-           call D3dB_rr_Sub2(1,dbl_mb(grad(1)+2*n2ft3d),
-     +                         dbl_mb(grad(1)+n2ft3d))
-           call D3dB_r_SMul1(1,0.5d0,dbl_mb(grad(1)+n2ft3d))
+              call D3dB_rr_Sub2(1,dbl_mb(grad(1)),
+     >                          dbl_mb(grad(1)+n2ft3d))
+              call D3dB_rr_Sub2(1,dbl_mb(grad(1)+2*n2ft3d),
+     +                            dbl_mb(grad(1)+n2ft3d))
+              call D3dB_r_SMul1(1,0.5d0,dbl_mb(grad(1)+n2ft3d))
 c
-c          Evaluate the functional
+c             Evaluate the functional
 c
-           call nwxc_eval_df(2,n2ft3d,dn,dbl_mb(grad(1)),
+              call nwpwxc_eval_df(2,n2ft3d,dn,dbl_mb(grad(1)),
      >                       dbl_mb(tau(1)),xce,
      >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),
      >                       dbl_mb(dfdtau(1)))
 c
-c          Replace f with the energy density f/n
+c             Replace f with the energy density f/n
 c
-           do k = 1, n2ft3d
-             xce(k) = xce(k)/(dn(k,1)+dn(k,2)+dncut)
-           enddo
+              do k = 1, n2ft3d
+                xce(k) = xce(k)/(dn(k,1)+dn(k,2)+dncut)
+              enddo
 c          
-c          Replace (df/d|grad nup|^2) with (df/d|grad nup|)
+c             Replace (df/d|grad nup|^2) with (df/d|grad nup|)
 c
-           call D3dB_rr_Mul2(1,dbl_mb(agr(1)),dbl_mb(fdn(1)))
-           call D3dB_r_SMul1(1,2.0d0,dbl_mb(fdn(1)))
+              call D3dB_rr_Mul2(1,dbl_mb(agr(1)),dbl_mb(fdn(1)))
+              call D3dB_r_SMul1(1,2.0d0,dbl_mb(fdn(1)))
 c
-c          Replace (df/d|grad ndn|^2) with (df/d|grad ndn|)
+c             Replace (df/d|grad ndn|^2) with (df/d|grad ndn|)
 c
-           call D3dB_rr_Mul(1,dbl_mb(agr(2)),dbl_mb(fdn(3)),
-     +                      dbl_mb(gtmp(1)+n2ft3d))
-           call D3dB_r_SMul1(1,2.0d0,dbl_mb(gtmp(1)+n2ft3d))
+              call D3dB_rr_Mul(1,dbl_mb(agr(2)),dbl_mb(fdn(3)),
+     +                         dbl_mb(gtmp(1)+n2ft3d))
+              call D3dB_r_SMul1(1,2.0d0,dbl_mb(gtmp(1)+n2ft3d))
 c
-c          Replace (df/d|(grad nup|grad ndn)|^2) with (df/d|grad n|)
+c             Replace (df/d|(grad nup|grad ndn)|^2) with (df/d|grad n|)
 c
-           call D3dB_rr_Mul(1,dbl_mb(agr(3)),dbl_mb(fdn(2)),
-     +                      dbl_mb(gtmp(1)+2*n2ft3d))
+              call D3dB_rr_Mul(1,dbl_mb(agr(3)),dbl_mb(fdn(2)),
+     +                         dbl_mb(gtmp(1)+2*n2ft3d))
 c
-c          Put the results back into fdn
+c             Put the results back into fdn
 c
-           call dcopy(n2ft3d,dbl_mb(gtmp(1)+n2ft3d),1,
+              call dcopy(n2ft3d,dbl_mb(gtmp(1)+n2ft3d),1,
      +                       dbl_mb(fdn(2)),1) 
-           call dcopy(n2ft3d,dbl_mb(gtmp(1)+2*n2ft3d),1,
+              call dcopy(n2ft3d,dbl_mb(gtmp(1)+2*n2ft3d),1,
      +                       dbl_mb(fdn(3)),1) 
 c
+            end if
          else
            call errquit("v_mexc: no meta-GGA?",0,UERR)
          end if

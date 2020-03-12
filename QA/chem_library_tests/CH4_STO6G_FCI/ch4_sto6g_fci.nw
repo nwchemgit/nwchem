@@ -1,0 +1,47 @@
+start ch4_sto6g
+
+echo
+
+geometry units angstrom
+symmetry c1
+ C            0.000000     0.000000     0.000000
+ H            0.629118     0.629118     0.629118
+ H           -0.629118    -0.629118     0.629118
+ H            0.629118    -0.629118    -0.629118
+ H           -0.629118     0.629118    -0.629118
+end
+
+basis
+ * library sto-6g
+end
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-11
+singlet
+rhf
+end
+
+tce
+2eorb
+2emet 13
+tilesize 1
+ccsd
+thresh 1.0e-6
+end
+
+set tce:print_integrals T
+set tce:qorb  9
+set tce:qela  5
+set tce:qelb  5
+
+task tce energy
+
+mcscf
+  active   9
+  actelec 10
+  multiplicity 1
+end
+
+task mcscf
+

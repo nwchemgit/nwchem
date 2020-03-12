@@ -47,7 +47,7 @@
       integer rho_hndl,vp_hndl,wp_hndl,sc_r_hndl,sc_k_hndl
 
       integer          isemicore
-      logical          semicore
+      logical          semicore,small_cell
       double precision rcore,core_charge
 
       integer f_indx,cs_indx,sn_indx
@@ -77,6 +77,8 @@
       external control_print
       logical  control_kbpp_ray,control_kbpp_filter
       external control_kbpp_ray,control_kbpp_filter
+      logical  control_psp_semicore_small
+      external control_psp_semicore_small
       double precision SIMP
       external         SIMP
       integer  kbpp_band_calc_nray
@@ -278,6 +280,16 @@ c      call Parallel_init()
      >                      ierr)
       end if
 
+      !**** small cell calculation, convert rho to chi ****
+      small_cell = control_psp_semicore_small().and.semicore
+      if  (small_cell) then
+         if (taskid.eq.MASTER) then
+            call c_semicore_rho_to_chi(nfft1,nfft2,nfft3,unita,
+     >                                 dbl_mb(sc_k_indx))
+         end if
+      end if
+
+
       if ((taskid.eq.MASTER).and.(oprint)) then
       write(*,*) "     ********************************************"
       write(*,*) "     *                                          *"
@@ -346,6 +358,8 @@ c      call Parallel_init()
          write(*,*) "Generated formatted_filename: ",full_filename(1:l)
          if (kray)write(*,'(A,I5,A)')" - Spline fitted, nray=",nray," -"
          if (filter) write(*,'(A)') " - filtered -"
+         if (small_cell)
+     >   write(*,*) "- small unit cell semicore correction applied -"
          end if
          call openfile(2,full_filename,l,'w',l)     
          call cwrite(2,comment,80)

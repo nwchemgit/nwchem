@@ -55,15 +55,12 @@ HEADERS = xc.fh xc_vdw.fh xc_params.fh xc_hcth.fh
 	steric_energy.o\
 	xc_3rd_deriv.o xc_xpw86.o xc_xb86b.o xc_xdm.o \
 	ts_eval_fnl.o ts_tf.o ts_vw.o xc_xn12.o \
-	xc_xscan.o xc_cscan.o xc_xscanl.o xc_cscanl.o ts_pc.o
+	xc_xscan.o xc_cscan.o xc_xscanl.o xc_cscanl.o ts_pc.o\
+	xc_xncap.o xc_xncap.o
 
      LIBRARY = libnwdft.a
 
 # LIB_DEFINES = -DQUADV0_REVERT
-HAVE_SET_GA_PROPERTY = $(shell cat ${NWCHEM_TOP}/src/tools/build/global/src/ga-wapi.h | awk ' /wnga_set_property/ {print "Y"}')
-ifeq ($(HAVE_SET_GA_PROPERTY),Y)
-      LIB_DEFINES += -DHAVE_SET_GA_PROPERTY
-endif
 
 
 LIB_INCLUDES = -I../include
@@ -76,3 +73,7 @@ LIB_INCLUDES = -I../include
 
 include ../../config/makefile.h
 include ../../config/makelib.h
+HAVE_SET_GA_PROPERTY = $(shell cat ${NWCHEM_TOP}/src/tools/build/global/src/ga-wapi.h | awk ' /wnga_set_property/ {print "Y"}')
+ifeq ($(HAVE_SET_GA_PROPERTY),Y)
+      LIB_DEFINES += -DHAVE_SET_GA_PROPERTY
+endif

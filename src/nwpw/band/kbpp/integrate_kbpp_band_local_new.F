@@ -67,6 +67,7 @@
       call Parallel_np(np)
       call Parallel_taskid(taskid)
 
+
       nfft3d = (nfft1)*nfft2*nfft3
 
       IF((NRHO/2)*2.EQ.NRHO) THEN

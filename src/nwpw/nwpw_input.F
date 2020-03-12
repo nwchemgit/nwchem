@@ -1,7 +1,6 @@
 c
 c $Id$
 c
-
 **** checking git hub ***
 
 *     ***********************************
@@ -20,10 +19,11 @@ c
 #include "nwc_const.fh"
 #include "errquit.fh"
 #include "util.fh"
+c#include "nwpwxc.fh"
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 121)
+      parameter (num_dirs = 127)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -145,6 +145,12 @@ c
      >            'cutoff_boot_wavefunction',
      >            'periodic_dipole',
      >            'translate_vector',
+     >            'makehmass2',
+     >            'apc',
+     >            'socket',
+     >            'vfield',
+     >            'born',
+     >            'symmetry',
      >            'end'/
 
       double precision kb
@@ -154,12 +160,14 @@ c
       character*50 input_wavefunction_filename
       character*50 output_wavefunction_filename
       character*50 exchange_correlation
+      character*128 ipname
+      character*255 vnames
       double precision fake_mass,time_step,rcut
       integer loop(2),ncut,cell_expand(3)
       double precision tolerances(3),ecut,wcut,fe,ff,scaling(2)
-      double precision alpha,emin,emax
+      double precision alpha,emin,emax,agamma(10),Gc
       double precision Pe,Pr,Te,Tr
-      integer npoints,mchain,nchain
+      integer npoints,mchain,nchain,nga
       logical mulliken,allow_translation
       integer ispin,multiplicity,space_avail
       integer nx,ny,nz,minimizer,h_values,i_values,nuterms
@@ -178,6 +186,12 @@ chvd
       external    c_index_name
       logical  nwpw_parse_boolean
       external nwpw_parse_boolean
+      logical  nwpwxc_input,nwpwxc_rtdb_store,nwpwxc_has_hfx 
+      external nwpwxc_input,nwpwxc_rtdb_store,nwpwxc_has_hfx 
+      logical  nwpwxc_has_cam,nwpwxc_rtdb_delete
+      external nwpwxc_has_cam,nwpwxc_rtdb_delete
+      real*8   nwpwxc_wght_hfx
+      external nwpwxc_wght_hfx
 
 *     ***** initializations ****
       call nwpw_default(rtdb)
@@ -217,6 +231,7 @@ c
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
      >       7700,7800,7900,8000,8100,6650,8200,8300,8400,8500,8600,
+     >       8700,8800,8900,9000,9010,9020,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -650,19 +665,19 @@ c
       ind = index(exchange_correlation,' ') - 1
       if (exchange_correlation(1:ind).eq.'new') then
 c       call inp_prev_field()
-cold        if (.not.nwxc_input()) then
-        call nwxc_input(lstat)
-        if(.not.lstat) then
+        if (.not.nwpwxc_input()) then
+        !call nwpwxc_input(lstat)
+        !if(.not.lstat) then
           call errquit("nwpw_input: not a functional",
      +                 0,UERR)
         endif
-        call nwxc_rtdb_store(rtdb,"dft")
-        value = .true.
-        call nwxc_getvals("nwxc_has_hfx",out1)
-        if (out1) then
-          call nwxc_getwght("nwxc_wght_hfx",xfac)
-          value = value .and.
-     +            rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        if (.not.nwpwxc_rtdb_store(rtdb,"dft")) then
+          call errquit("nwpw_input: store functional failed",
+     +                 0,UERR)
+        endif
+        if (nwpwxc_has_hfx()) then
+          xfac = nwpwxc_wght_hfx()
+          value = rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
           value = value .and.
      +            rtdb_put(rtdb,'band:HFX',mt_log,1,.true.)
           value = value .and.
@@ -671,22 +686,23 @@ cold        if (.not.nwxc_input()) then
           value = value .and.
      +            rtdb_put(rtdb,'band:HFX_parameter',mt_dbl,1,
      +                     xfac)
+          if (.not.value)
+     +    call errquit("nwpw_input: store HFX A failed",0,UERR)
         else
-          value = value .and.
-     +            rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
+          value = rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
           value = value .and.
      +            rtdb_put(rtdb,'band:HFX',mt_log,1,.false.)
+          if (.not.value)
+     +    call errquit("nwpw_input: store HFX B failed",0,UERR)
         endif
-        call nwxc_getvals("nwxc_has_cam",out1)
-        if (out1) then
-          call nwxc_get_cam(a,b,c,hfsr)
+        if (nwpwxc_has_cam()) then
+          call nwpwxc_get_cam(a,b,c,hfsr)
           if (hfsr) then
             flag = 4
           else
             flag = 2
           endif
-          value = value .and.
-     +            rtdb_put(rtdb,'pspw:HFX_screening_type',mt_int,1,flag)
+          value = rtdb_put(rtdb,'pspw:HFX_screening_type',mt_int,1,flag)
           value = value .and.
      +            rtdb_put(rtdb,'band:HFX_screening_type',mt_int,1,flag)
           value = value .and.
@@ -695,13 +711,13 @@ cold        if (.not.nwxc_input()) then
      +            rtdb_put(rtdb,'band:HFX_solver_type',mt_int,1,1)
           value = value .and. 
      +            rtdb_put(rtdb,'nwpw:attenuation',mt_dbl,1,c)
+          if (.not.value)
+     +    call errquit("nwpw_input: store CAMHFX failed",0,UERR)
         endif
         goto 10
       endif
 
-      if (util_module_avail("nwxc")) then
-        call nwxc_rtdb_delete(rtdb,"dft") !*** don't need to check return value ****
-      endif
+      value = nwpwxc_rtdb_delete(rtdb,"dft") !*** don't need to check return value ****
 
       value = rtdb_cput(rtdb,'cgsd:exchange_correlation',
      >                    1,exchange_correlation(1:ind))
@@ -911,7 +927,7 @@ c
       goto 10
 
 c
-c OCCUPATIONS
+c occupations
 c
  4300 call frac_occ_input(rtdb)
       goto 10
@@ -990,12 +1006,19 @@ c
          if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,1))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
        end if
-       if (inp_compare(.false.,zone_name,'diis')) then
+       if (inp_compare(.false.,zone_name,'diis').or.
+     >     inp_compare(.false.,zone_name,'pulay').or.
+     >     inp_compare(.false.,zone_name,'johnson-pulay')
+     >    ) then
          if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,2))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
        end if
        if (inp_compare(.false.,zone_name,'anderson')) then
          if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,3))
+     >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
+       end if
+       if (inp_compare(.false.,zone_name,'precondition')) then
+         if(.not.rtdb_put(rtdb,'nwpw:precondition',mt_log,1,.true.))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
        end if
 
@@ -1308,24 +1331,49 @@ c
 c
 c smear temperature
 c
- 6200 alpha = 0.001d0/kb !* use same default as gaussian dft
+ 6200 ff = 0.001d0/kb !* use same default as gaussian dft
+      alpha = 1.0d0 !* smear mixing parameter
       nz      = 2  !* smeartype  !* use same default as gaussian dft
-      loop(1) = 4  !* frac_orb(1)
-      loop(2) = 4  !* frac_orb(2)
+      if (.not.rtdb_get(rtdb,'nwpw:fractional_orbitals',
+     >                  mt_int,2,loop)) then
+         loop(1) = 4  !* frac_orb(1)
+         loop(2) = 4  !* frac_orb(2)
+      end if
+      if (.not.rtdb_get(rtdb,'nwpw:fractional_temperature',
+     >                  mt_dbl,1,ff)) then
+         ff = 0.001d0/kb !* use same default as gaussian dft
+      end if
+      if (.not.rtdb_get(rtdb,'nwpw:fractional_alpha',
+     >                  mt_dbl,1,alpha)) then
+         alpha = 1.0d0 !* smear mixing parameter
+      end if
+      if (.not.rtdb_get(rtdb,'nwpw:fractional_smeartype',
+     >                  mt_int,1,nz)) then
+         nz      = 2  !* smeartype  !* use same default as gaussian dft
+      end if
+
       if (inp_f(ecut)) then
-         alpha = ecut/kb
+         ff = ecut/kb
       else
          call inp_prev_field()
       end if
  6201 if (.not.inp_a(zone_name)) goto 6202
       if (inp_compare(.false.,zone_name,'temperature')) then
-         if (.not.inp_f(alpha)) 
+         if (.not.inp_f(ff)) 
      >   call errquit(
      >    'nwpw_input:error reading smear temperature',6200,INPUT_ERR)
       end if
+      if (inp_compare(.false.,zone_name,'alpha')) then
+         if (.not.inp_f(alpha)) 
+     >   call errquit(
+     >    'nwpw_input:error reading smear alpha',6200,INPUT_ERR)
+      end if
+      if (inp_compare(.false.,zone_name,'fixed'))    nz = -1
+      if (inp_compare(.false.,zone_name,'step'))     nz = 0
       if (inp_compare(.false.,zone_name,'fermi'))    nz = 1
       if (inp_compare(.false.,zone_name,'gaussian')) nz = 2
-     
+      if (inp_compare(.false.,zone_name,'marzari-vanderbilt')) nz = 4
+
       if (inp_compare(.false.,zone_name,'orbitals')) then
          if (.not.inp_i(loop(1))) then
             loop(1) = 4
@@ -1338,8 +1386,9 @@ c
       end if
       go to 6201
  6202 if (.not.
-     > (rtdb_put(rtdb,'nwpw:fractional_orbitals',mt_int,2,loop)    .and.
-     >  rtdb_put(rtdb,'nwpw:fractional_temperature',mt_dbl,1,alpha).and.
+     > (rtdb_put(rtdb,'nwpw:fractional_orbitals',mt_int,2,loop) .and.
+     >  rtdb_put(rtdb,'nwpw:fractional_temperature',mt_dbl,1,ff).and.
+     >  rtdb_put(rtdb,'nwpw:fractional_alpha',mt_dbl,1,alpha).and.
      >  rtdb_put(rtdb,'nwpw:fractional_smeartype',mt_int,1,nz)))
      >  call errquit('nwpw_input: error writing to rtdb',6200,RTDB_ERR)
 
@@ -2002,6 +2051,141 @@ c
       end if
       goto 10
 
+
+c
+c makehmass2  .true.||.false
+c
+ 8700 if (inp_a(zone_name)) then
+         move = nwpw_parse_boolean(zone_name,.true.)
+      else
+         move = .true.
+      end if
+      if (.not.rtdb_put(rtdb,'nwpw:makehmass2',mt_log,1,
+     >                  move))
+     >  call errquit('nwpw_input: error writing to rtdb',8700,RTDB_ERR)
+      goto 10
+
+c
+c apc Gc gamma1 gamma2 gamma3 ...
+c
+ 8800 if (inp_f(Gc)) then
+         nga = 0
+         value = .false.
+         do while (inp_f(agamma(nga+1)).and.(.not.value))
+            nga = nga + 1
+            value = (nga.ge.10)
+         end do
+         if (nga.gt.0) then
+         if ((.not.rtdb_put(rtdb,'nwpw_APC:Gc',mt_dbl,1,Gc)) .or.
+     >    (.not.rtdb_put(rtdb,'nwpw_APC:nga',mt_int,1,nga))  .or.
+     >    (.not.rtdb_put(rtdb,'nwpw_APC:gamma',mt_dbl,nga,agamma))) then
+         call errquit('nwpw_input: error writing to rtdb',8800,RTDB_ERR)
+         end if
+         end if
+      end if
+
+      goto 10
+
+c
+c socket ipi_client ip:port
+c
+ 8900 if (inp_a(zone_name)) then
+         move = nwpw_parse_boolean(zone_name,.true.)
+         if (move) then
+            ind = index(zone_name,' ') - 1
+            value=rtdb_cput(rtdb,'nwpw:socket_type',1,
+     >                      zone_name(1:ind))
+            if (inp_a(ipname)) then
+               ind = index(ipname,' ') - 1
+               value = value.and.
+     >                 rtdb_cput(rtdb,'nwpw:socket_ip',1,
+     >                           ipname(1:ind))
+            end if
+         else
+            value=rtdb_delete(rtdb,'nwpw:socket_type')
+         end if
+         if (.not.value)
+     >      call errquit(
+     >      'nwpw_input: error writing to rtdb', 8900, RTDB_ERR)
+      end if
+      goto 10
+
+c
+c
+c  vfield file1.ascii file2.ascii ....
+c  vfield off
+c
+ 9000 ncut = 0
+      do while (inp_a(zone_name)) 
+         move = nwpw_parse_boolean(zone_name,.true.)
+         if (move) then
+            ind = index(zone_name,' ')
+            if (ncut.eq.0) then
+               vnames(1:ind) = zone_name(1:ind)
+            else 
+               vnames = vnames(1:ncut)//zone_name(1:ind)
+            end if
+            ncut = ncut + ind
+            value=rtdb_cput(rtdb,'nwpw:vfield_filenames',
+     >                      1,vnames(1:ncut))
+         else
+            value=rtdb_delete(rtdb,'nwpw:vfield_filenames')
+         end if
+         if (.not.value)
+     >      call errquit(
+     >      'nwpw_input: error writing to rtdb',9000,RTDB_ERR)
+      end do
+      goto 10
+
+c
+c  born [dielc] on/off [r1 r2 r3...] 
+c
+ 9010 n1 = 0
+
+      if (inp_f(Gc)) then
+         if (.not.rtdb_put(rtdb,'nwpw:born_dielec',mt_dbl,1,Gc))
+     >   call errquit('nwpw_input: error writing to rtdb',9010,RTDB_ERR)
+      end if
+
+      move = .true.
+      if (inp_a(zone_name)) move = nwpw_parse_boolean(zone_name,.true.)
+
+      if (.not.rtdb_put(rtdb,'nwpw:born',mt_log,1,move))
+     > call errquit('nwpw_input: error writing to rtdb',9010,RTDB_ERR)
+
+      !**** try reading in atom radii ****
+      if (move) then
+         if (.not.BA_push_get(mt_dbl,nw_max_atom,'indx_start1',
+     >                        index_start1(2),index_start1(1)))
+     >   call errquit('nwpw_input:;push index_start1',0,MA_ERR)
+
+         do while (inp_f(Gc)) 
+            dbl_mb(index_start1(1)+n1) = Gc/0.529177d0
+            n1 = n1 + 1
+         end do
+         if (n1.gt.0) then
+            if (.not.rtdb_put(rtdb,'nwpw:born_vradii',mt_dbl,
+     >                        n1,dbl_mb(index_start1(1))))
+     >      call errquit('nwpw_input: error writing to rtdb',
+     >                   9010,RTDB_ERR)
+         end if
+         if (.not.BA_pop_stack(index_start1(2))) call errquit(
+     >   'nwpw_input:failed deallocating index_start1',0,MA_ERR)
+      end if
+      goto 10
+
+c
+c symmetry  .true.||.false
+c
+ 9020 if (inp_a(zone_name)) then
+         move = nwpw_parse_boolean(zone_name,.true.)
+      else
+         move = .true.
+      end if
+      if (.not.rtdb_put(rtdb,'nwpw:rho_use_symmetry',mt_log,1,
+     >                  move))
+     >  call errquit('nwpw_input: error writing to rtdb',9020,RTDB_ERR)
+      goto 10
 
 
 ************************************************************************

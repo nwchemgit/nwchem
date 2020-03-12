@@ -1,0 +1,18 @@
+
+*
+* $Id$
+*
+
+*     **** geodesic2 common block ***
+      integer Hold_tag ! npack1*ne(1) matrix and npack1*ne(2) matrix
+      integer Q_tag    ! npack1xne(1) matrix and npack1*ne(2) matrix
+      integer R_tag    ! (ne(1)*ne(1)) matrix and (ne(2)*ne(2)) matrix
+      integer A_tag    ! (ne(1)*ne(1)) matrix and (ne(2)*ne(2)) matrix
+      integer V_tag    ! (2*ne(1))*(2*ne(1)) matrix and (2*ne(2))*(2*ne(2)) matrix
+      integer W_tag    ! (2*ne(1))*(2*ne(1)) matrix and (2*ne(2))*(2*ne(2)) matrix
+      integer S_tag    ! diagonal matrices of skew matrix decomposition 
+      common / c_geodesic2_block / Hold_tag,Q_tag,R_tag,
+     >                             A_tag,V_tag,W_tag,S_tag
+
+
+

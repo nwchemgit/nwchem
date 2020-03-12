@@ -30,6 +30,23 @@ c
      &        ilo,ihi,jlo,jhi,lhoo,lhoov
       integer iin,jin
       double precision eccsd,fac, eccsdos
+#ifdef USE_F90INTERFACE
+      interface
+      subroutine ccsd_pampt3(basis,nsh,ncor,nocc,nvir,nact,nbf,
+     &                       tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,
+     &                       hia,t1,ht1,idiis,g_nt2,g_nht2,
+     &                       g_ncoul,g_nexch,tklst,use_ccsd_omp)
+      integer basis,nsh,ncor,nocc,nvir,nact,nbf,
+     &        iprt,iam,nodes,idiis,g_nt2,g_nht2,
+     &        g_ncoul,g_nexch,tklst(*)
+
+      double precision tol2e,cmo(nbf,*),eorb(nbf),
+     &                 hiu(*),giu(*),habe(*),gabe(*),hia(*),
+     &                 t1(*),ht1(*)
+      logical, optional, intent(in) :: use_ccsd_omp
+      end subroutine
+      end interface
+#endif         
 c
       double precision zip,one,half,two
 c

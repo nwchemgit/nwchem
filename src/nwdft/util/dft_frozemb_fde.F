@@ -121,7 +121,7 @@ c - it also will not work with charged frozen density environments
       character*255 frozemb_movecs
       character*255 frozemb_movecs_out
       character*7 vecs_or_dens
-      character*3 scftype
+      character*4 scftype
 
       integer nExc_fde
 c      integer g_electronic_fde(4)
@@ -328,12 +328,15 @@ C Doesn't look so, thus we do it manually here.
       if (ipol.gt.1) then
            call ga_copy(g_dens_fde(1),g_dens_fde(2))
 c Load the extra electron in the alpha channel
+#if 0
+c rescaling disabled after fixing the call to scf_vec_guess
            call ga_dscal(g_dens_fde(1),
      &                   dble(nelectrons_fde-
      &                   nclosed_fde)/dble(nelectrons_fde))
            call ga_dscal(g_dens_fde(2),dble(nclosed_fde)/
      &                   dble(nelectrons_fde))
            if(oskel) call ga_symmetrize(g_dens_fde(2))
+#endif           
 c Recombine for now, as that is how we will use them in the ESP
            call ga_dadd(1d0, g_dens_fde(1), 1d0, g_dens_fde(2), 
      &                   g_dens_fde(1))

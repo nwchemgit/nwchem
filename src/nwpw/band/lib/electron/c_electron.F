@@ -90,6 +90,9 @@ c     >                     'psi_r',psi_r(2),psi_r(1))
       if (.not. value) 
      >  call errquit('c_electron_init: out of heap memory',0, MA_ERR)
 
+*     *** initializer symmetrizer ***
+      call c_rho_symmetrizer_init()
+
       return
       end
 
@@ -114,6 +117,10 @@ c     >                     'psi_r',psi_r(2),psi_r(1))
 c      value = BA_free_heap(Hpsi_k(2))
 c      value = value.and.
 c     >        BA_free_heap(psi_r(2))
+
+
+*     **** free heap  memory ****
+      call c_rho_symmetrizer_end()
 
       call cpsi_data_dealloc(Hpsi_k_tag)
       call cpsi_data_dealloc(psi_r_tag)
@@ -181,7 +188,9 @@ c      complex*16 psi_k(*)
 
 #include "c_electron_common.fh"
 
+!$OMP MASTER
       counter = counter+1
+!$OMP END MASTER
 
       call c_electron_gen_psi_r(psi_k_tag)
       call c_electron_gen_densities(dn,dng,dnall)
@@ -1271,6 +1280,8 @@ c     >                     dn)
       if (ispin.gt.1) 
      >  call C3dB_r_SMul1(1,scal2,dn(1,ispin))
 
+      call c_rho_symmetrizer_dn(ispin,nfft3d,dn)
+
 
         
 *     **********************
@@ -1368,10 +1379,8 @@ c      call C3dB_c_SMul(1,scal1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
 *     ********************************************************
 *     **** generate dnall - used for semicore corrections ****
 *     ********************************************************
-      call dcopy(ispin*nfft3d,dn,1,dnall,1)
       if (cpsp_semicore(0)) then
          call c_semicore_density(dcpl_mb(tmp1(1)))
-c         call C3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
          call C3dB_r_SMul1(1,0.5d0,dcpl_mb(tmp1(1)))
       else
          call C3dB_r_Zero(1,dcpl_mb(tmp1(1)))
@@ -1513,6 +1522,8 @@ c      end do
 *     **** external functions ****
       integer  control_gga,control_version
       external control_gga,control_version
+      logical  nwpwxc_is_on,control_only_lda
+      external nwpwxc_is_on,control_only_lda
      
 
       call c_coulomb_v(dng,dcpl_mb(vc(1)))
@@ -1520,7 +1531,8 @@ c      end do
       gga = control_gga()
 
       !*** LDA calculation ****
-      if (gga.eq.0) then
+      !if ((.not.nwpwxc_is_on()).and.(gga.eq.0)) then
+      if (control_only_lda()) then
          value = BA_push_get(mt_dbl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
          if (.not. value) call errquit(
      >     'electron_gen_scf_potentials: out of stack memory',0, MA_ERR)
@@ -1536,7 +1548,8 @@ c      end do
 
       !*** this code needs to be optimized!!! ****
       !*** GGA calculation ****
-      else if ((gga.ge.10).and.(gga.lt.200)) then
+      !else if ((gga.ge.10).and.(gga.lt.200)).or. then
+      else 
          call D3dB_n2ft3d(1,n2ft3d)
          value = BA_push_get(mt_dbl,(2*n2ft3d),'trho',trho(2),trho(1))
          value = value.and.

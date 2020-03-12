@@ -1530,16 +1530,16 @@ if [ "${ARMCI_NETWORK}" == "OPENIB" ] ; then
 fi
 if [ ${#SLURMOPT} -eq 0 ] ; then
   if [ -f /usr/lib/libslurm.a ] ; then
-    export SLURMOPT=-lslurm
+    export SLURMOPT="-L/usr/lib -lslurm"
     export SLURM=y
   elif [ -f /usr/lib/libslurm.so ] ; then
-    export SLURMOPT=-lslurm
+    export SLURMOPT="-L/usr/lib -lslurm"
     export SLURM=y
   elif [ -f /usr/lib64/libslurm.a ] ; then
-    export SLURMOPT=-lslurm
+    export SLURMOPT="-L/usr/lib64 -lslurm"
     export SLURM=y
   elif [ -f /usr/lib64/libslurm.so ] ; then
-    export SLURMOPT=-lslurm
+    export SLURMOPT="-L/usr/lib64 -lslurm"
     export SLURM=y
   fi
 fi
@@ -1741,12 +1741,6 @@ if [ ${#NWCHEM_OS} -eq 0 ] ; then
       export NWCHEM_OS=CYGNUS
       if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
         # There is no CYGNUS64 target so set NWCHEM_TARGET here
-        export NWCHEM_TARGET=${NWCHEM_OS}
-      fi
-    elif [ `expr match ${NWCHEM_OS} INTERIX` != "0" ] ; then
-      export NWCHEM_OS=INTERIX
-      if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
-        # There is no INTERIX64 target so set NWCHEM_TARGET here
         export NWCHEM_TARGET=${NWCHEM_OS}
       fi
     fi
@@ -1962,6 +1956,30 @@ if [ ${#TCE_CUDA} -ne 0 ] ; then
   fi
   # There is also a variable CUDA_FLAGS but I have no idea what that should be.
 fi
+
+if [ ${#TCE_HIP} -ne 0 ] ; then
+  if [ ${#HIP} -eq 0 ] ; then
+     HIP=`which hipcc`
+     if [ ${#HIP} -ne 0 ] ; then
+       export HIP
+     else
+       unset HIP
+     fi
+  fi
+  if [ ${#HIP} -ne 0 ] ; then
+     HIP_PATH="`dirname ${HIP}`"
+     HIP_PATH="`dirname ${HIP_PATH}`"
+     if [ ${#HIP_INCLUDE} -eq 0 ] ; then
+       export HIP_INCLUDE="-I${HIP_PATH}/include"
+     fi
+     if [ ${#HIP_LIBS} -eq 0 ] ; then
+       export HIP_LIBS="-L${HIP_PATH}/lib -lhip_hcc"
+     fi
+     unset HIP_PATH
+  fi
+  # There is also a variable CUDA_FLAGS but I have no idea what that should be.
+fi
+
 #
 # Work out whether BLAS, LAPACK and SCALAPACK are compatible and based on that
 # what we are actually going to use.
@@ -2194,14 +2212,14 @@ fi
 if [ ${#SLURMOPT} -ne 0 ] ; then
   echo "SLURMOPT           =" ${SLURMOPT}
   echo "SLURM              =" ${SLURM}
-  echo "export SLURMOPT=${SLURMOPT}" >> ${NWCHEM_ENV_SH}
-  echo "export SLURM=${SLURM}"       >> ${NWCHEM_ENV_SH}
-  echo "setenv SLURMOPT ${SLURMOPT}" >> ${NWCHEM_ENV_CSH}
-  echo "setenv SLURM ${SLURM}"       >> ${NWCHEM_ENV_CSH}
-  echo "unset SLURMOPT"              >> ${NWCHEM_UNENV_SH}
-  echo "unset SLURM"                 >> ${NWCHEM_UNENV_SH}
-  echo "unsetenv SLURMOPT"           >> ${NWCHEM_UNENV_CSH}
-  echo "unsetenv SLURM"              >> ${NWCHEM_UNENV_CSH}
+  echo "export SLURMOPT=\"${SLURMOPT}\"" >> ${NWCHEM_ENV_SH}
+  echo "export SLURM=${SLURM}"           >> ${NWCHEM_ENV_SH}
+  echo "setenv SLURMOPT \"${SLURMOPT}\"" >> ${NWCHEM_ENV_CSH}
+  echo "setenv SLURM ${SLURM}"           >> ${NWCHEM_ENV_CSH}
+  echo "unset SLURMOPT"                  >> ${NWCHEM_UNENV_SH}
+  echo "unset SLURM"                     >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv SLURMOPT"               >> ${NWCHEM_UNENV_CSH}
+  echo "unsetenv SLURM"                  >> ${NWCHEM_UNENV_CSH}
 fi
 if [ ${#BLASOPT} -ne 0 ] ; then
   echo "BLASOPT            =" ${BLASOPT} 
@@ -2263,6 +2281,27 @@ if [ ${#CUDA_LIBS} -ne 0 ] ; then
   echo "setenv CUDA_LIBS \"${CUDA_LIBS}\"" >> ${NWCHEM_ENV_CSH}
   echo "unset CUDA_LIBS"                   >> ${NWCHEM_UNENV_SH}
   echo "unsetenv CUDA_LIBS"                >> ${NWCHEM_UNENV_CSH}
+fi
+if [ ${#HIP} -ne 0 ] ; then
+  echo "HIP               =" ${HIP}
+  echo "export HIP=${HIP}" >> ${NWCHEM_ENV_SH}
+  echo "setenv HIP ${HIP}" >> ${NWCHEM_ENV_CSH}
+  echo "unset HIP"          >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv HIP"       >> ${NWCHEM_UNENV_CSH}
+fi
+if [ ${#HIP_INCLUDE} -ne 0 ] ; then
+  echo "HIP_INCLUDE       =" ${HIP_INCLUDE}
+  echo "export HIP_INCLUDE=\"${HIP_INCLUDE}\"" >> ${NWCHEM_ENV_SH}
+  echo "setenv HIP_INCLUDE \"${HIP_INCLUDE}\"" >> ${NWCHEM_ENV_CSH}
+  echo "unset HIP_INCLUDE"                      >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv HIP_INCLUDE"                   >> ${NWCHEM_UNENV_CSH}
+fi
+if [ ${#HIP_LIBS} -ne 0 ] ; then
+  echo "HIP_LIBS          =" ${HIP_LIBS}
+  echo "export HIP_LIBS=\"${HIP_LIBS}\"" >> ${NWCHEM_ENV_SH}
+  echo "setenv HIP_LIBS \"${HIP_LIBS}\"" >> ${NWCHEM_ENV_CSH}
+  echo "unset HIP_LIBS"                  >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv HIP_LIBS"               >> ${NWCHEM_UNENV_CSH}
 fi
 if [ ${#MRCC_METHODS} -ne 0 ] ; then
   echo "MRCC_METHODS       =" ${MRCC_METHODS}

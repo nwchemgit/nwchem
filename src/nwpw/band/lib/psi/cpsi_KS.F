@@ -138,9 +138,13 @@
         rho_all_ptr = rho2_all(1)
       end if
 
-      call dcopy(2*nfft3d,
-     >           rho, 1,
-     >           dbl_mb(rho_ptr),1)
+c      call dcopy(2*nfft3d,
+c     >           rho, 1,
+c     >           dbl_mb(rho_ptr),1)
+
+      call Parallel_shared_vector_copy(.true.,2*nfft3d,
+     >                                 rho,dbl_mb(rho_ptr))
+
       call c_electron_gen_dng_dnall(dbl_mb(rho_ptr),
      >                            dcpl_mb(dng_ptr),
      >                            dbl_mb(rho_all_ptr))
@@ -179,11 +183,87 @@
         rho_ptr = rho2(1)
       end if
 
-      call dcopy(2*nfft3d,
-     >           dbl_mb(rho_ptr),1,
-     >           rho,1)
+c      call dcopy(2*nfft3d,
+c     >           dbl_mb(rho_ptr),1,
+c     >           rho,1)
+      call Parallel_shared_vector_copy(.true.,2*nfft3d,
+     >                                 dbl_mb(rho_ptr),rho)
       return
       end
+
+
+*     ***************************
+*     *                         *
+*     *    cpsi_write_density   *
+*     *                         *
+*     ***************************
+
+*    This routine gets the densities in psi.
+* This routine is needed for a band by band minimizer.
+*
+      subroutine cpsi_write_density(psi_number)
+      implicit none
+      integer psi_number
+
+#include "bafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      integer rho_ptr
+
+      if (psi_number.eq.1) then
+        rho_ptr = rho1(1)
+      else
+        rho_ptr = rho2(1)
+      end if
+
+      call crho_write(ispin,dbl_mb(rho_ptr))
+      return
+      end
+
+
+*     ***************************
+*     *                         *
+*     *  cpsi_try_read_density  *
+*     *                         *
+*     ***************************
+
+*    This routine reads the densities from disk to psi.
+* This routine is needed for a band by band minimizer.
+*
+      logical function cpsi_try_read_density(psi_number)
+      implicit none
+      integer psi_number
+
+#include "bafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      logical ok
+      integer rho_ptr
+
+*     **** external functions ****
+      logical  rho_check_header
+      external rho_check_header
+
+      if (psi_number.eq.1) then
+        rho_ptr = rho1(1)
+      else
+        rho_ptr = rho2(1)
+      end if
+
+      if (rho_check_header(ispin,.true.)) then
+         call crho_read(ispin,dbl_mb(rho_ptr))
+         ok = .true.
+      else
+         ok = .false.
+      end if
+
+      cpsi_try_read_density = ok
+      return
+      end
+
+
 
 
 *     **************************************
@@ -278,7 +358,8 @@ c      call c_electron_gen_psi_r(psi_ptr)
           psi1_shift = cpsi_data_get_ptr(psi1_tag,nb,i)
 
            !*** orthogonalize to lower orbitals  ****
-           call cpsi_project_out_f_orb1(nb,i,dbl_mb(psi1_shift))
+           if (i.gt.1)
+     >        call cpsi_project_out_f_orb1(nb,i,dbl_mb(psi1_shift))
 
            !*** normalize ****
            call Cram_cc_dot(nb,
@@ -676,17 +757,16 @@ ccccccccccc this cc_dot is okay! cccccccccccccccccc
 
          if (done) go to 4
 
-c*        **** preconditioning ****
-c         if (precondition) then
-c           call ke_Precondition(npack1,1,
-c     >                     dcpl_mb(g(1)),
-c     >                     dcpl_mb(g(1)))
-c
-c         end if
+*        **** preconditioning ****
+         if (precondition) then
+           call cke_Precondition(nb,npack1,1,
+     >                     dbl_mb(psi_ptr),
+     >                     dcpl_mb(g(1)))
+
+         end if
 
          call Cram_c_Copy(nb,dcpl_mb(g(1)),dcpl_mb(r1(1)))
          call cpsi_project_out_orb(psi_number,nb,i,dcpl_mb(r1(1)))
-
 
 
 *        *** determine conjuagate direction ***
@@ -706,9 +786,8 @@ c         end if
 
 
 
-
 c!*        **** project out psi components from t ****
-c!        call psi_project_out_orb(psi_number,i,dcpl_mb(t(1)))
+c!        call cpsi_project_out_orb(psi_number,i,dcpl_mb(t(1)))
 c!        call Pack_cc_dot(1,dcpl_mb(psi_ptr+(i-1)*npack1),
 c!    >                   dcpl_mb(t(1)),
 c!    >                    de0)
@@ -977,13 +1056,13 @@ c     >                  tau_t)
 
          if (done) go to 4
 
-c*        **** preconditioning ****
-c         if (precondition) then
-c           call ke_Precondition(npack1,1,
-c     >                     dcpl_mb(g(1)),
-c     >                     dcpl_mb(g(1)))
-c
-c         end if
+*        **** preconditioning ****
+         if (precondition) then
+           call cke_Precondition(nb,npack1,1,
+     >                     dbl_mb(psi_ptr),
+     >                     dcpl_mb(g(1)))
+
+         end if
 
          call Cram_c_Copy(nb,dcpl_mb(g(1)),dcpl_mb(r1(1)))
          call Cram_cc_daxpy(nb,(e0),
@@ -1659,13 +1738,13 @@ c           write(*,*)"THIS IS I IN KS_MINIM",i," ",e0
 
          if (done) go to 4
 
-c*        **** preconditioning ****
-c         if (precondition) then
-c           call ke_Precondition(npack1,1,
-c     >                     dcpl_mb(g(1)),
-c     >                     dcpl_mb(g(1)))
-c
-c         end if
+*        **** preconditioning ****
+         if (precondition) then
+           call cke_Precondition(nb,npack1,1,
+     >                     dbl_mb(psi_ptr),
+     >                     dcpl_mb(g(1)))
+
+         end if
 
          call Cram_c_Copy(nb,dcpl_mb(g(1)),dcpl_mb(r1(1)))
          call Cram_c_Copy(nb,dcpl_mb(g(1)+npack1),

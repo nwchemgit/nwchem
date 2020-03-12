@@ -31,7 +31,7 @@ C> ### References ###
 C> 
 C> [1] B Hammer, LB Hanssen, JK Norskov, Phys.Rev.B 59
 C>    , 7413 (1999)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevB.59.7413 "> 
+C> <a href="https://doi.org/10.1103/PhysRevB.59.7413 "> 
 C> 10.1103/PhysRevB.59.7413 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -167,7 +167,7 @@ C> ### References ###
 C> 
 C> [1] B Hammer, LB Hanssen, JK Norskov, Phys.Rev.B 59
 C>    , 7413 (1999)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevB.59.7413 "> 
+C> <a href="https://doi.org/10.1103/PhysRevB.59.7413 "> 
 C> 10.1103/PhysRevB.59.7413 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -371,7 +371,7 @@ C> ### References ###
 C> 
 C> [1] B Hammer, LB Hanssen, JK Norskov, Phys.Rev.B 59
 C>    , 7413 (1999)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevB.59.7413 "> 
+C> <a href="https://doi.org/10.1103/PhysRevB.59.7413 "> 
 C> 10.1103/PhysRevB.59.7413 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

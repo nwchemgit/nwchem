@@ -43,13 +43,13 @@ c
 
       real*8     tole,tolc
       real*8     ehartree,eorbit,exc,pxc,eion
-      real*8     Enew,Eold,alpha
-      !common / cgsd_block / Enew,Eold,alpha
+      real*8     Enew,Eold,alpha,Enew2,Enew1
+      common / cgsd_block / Enew,Eold,alpha
 
-      integer it,it_in,i,ispin,bfgscount,icount,sd_it,cg_it,it2
+      integer it,it_in,i,j,ispin,bfgscount,icount,sd_it,cg_it,it2
 
       logical value,precondition,done,stalled,deltav_bad(4),oprint
-      logical dohfx
+      logical dohfx,assending
       integer n2ft3d
       !real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       !real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
@@ -111,9 +111,16 @@ c
       external nwpw_meta_gga_on,ion_disp_on
       real*8   psi_1meta_gga_pxc,ion_disp_energy
       external psi_1meta_gga_pxc,ion_disp_energy
+      real*8   psi_hml_value,psi_2energy
+      external psi_hml_value,psi_2energy
+      logical  psi_try_read_density,control_use_fractional_rho
+      external psi_try_read_density,control_use_fractional_rho
 
+      logical  nwpw_cosmo_on
+      external nwpw_cosmo_on
+      real*8   psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
+      external psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
 
-   
       Ein = E(1)
       call Parallel_taskid(taskid)
       oprint = (taskid.eq.MASTER).and.control_print(print_medium)
@@ -176,19 +183,31 @@ c
 *     **** set the initial density ****
       if (current_iteration.eq.1) then
          Enew   = psi_1energy()
-         alpha = control_ks_alpha()
+         alpha  = control_ks_alpha()
          deltae = -9232323299.0d0
          ks_deltae = tole
+         value = .false.
+         if (control_fractional()) then
+            if (control_use_fractional_rho()) then
+               value = psi_try_read_density(1)
+            end if
+         end if
          call electron_gen_vall()
          call psi_get_density(1,dbl_mb(rho_in(1)))
          call psi_get_density(1,dbl_mb(rho_out(1)))
 
-         call psi_1gen_hml()
-         call psi_diagonalize_hml_assending()
-         call psi_1rotate2()
-         call psi_2to1()
+         if (.not.value) then
+            call psi_1gen_hml()
+            call psi_diagonalize_hml_assending()
+            call psi_1rotate2()
+            call psi_2to1()
+         end if
          if (dohfx) call psi_1genrho()
-         if (control_fractional()) call psi_1reverse_occupation()
+         if (control_fractional()) then
+            call psi_1assending_occupation()
+            call psi_1define_occupation(0.0d0,.false.)
+            Enew = Enew + psi_smearcorrection()
+         end if
       else
          call psi_get_density(1,dbl_mb(rho_in(1)))
          call psi_get_density(1,dbl_mb(rho_out(1)))
@@ -217,25 +236,26 @@ c
  2    it   = it + 1
       it2 = it2 + 1
       
-*     **** diaganolize KS matrix ****
+*     **** diaganolize KS matrix - note that Hpsik set to last application of H(rho)|psi> ****
       call psi_KS_update(1,
      >                   control_ks_algorithm(),
      >                   precondition,
      >                   ks_deltae)
       call rho_1to2()
 
-*     **** rotate orbitals ****
+*     **** rotate orbitals - hml should be ok and hermitian since Hpsik set to last application of H(rho)|psi>****
       call psi_1gen_hml()
       call psi_diagonalize_hml_assending()
       call psi_1rotate2()
       call psi_2to1()
 
 *     **** define fractional occupation ****
-      if (control_fractional()) call psi_1define_occupation(.false.)
+      if (control_fractional()) 
+     >   call psi_1define_occupation(-1.0d0,.false.)
 
       Eold = Enew
       Enew = psi_1energy()
-
+      if (control_fractional()) Enew = Enew + psi_smearcorrection()
       deltae = Enew-Eold
 
       !call electron_gen_vall()
@@ -276,6 +296,7 @@ c     >    (.not.stalled          ))) then
          sd_count = sd_count + 1
          Eold   = Enew
          Enew   = psi_1energy()
+         if (control_fractional()) Enew = Enew + psi_smearcorrection()
          it2 = -4
         
          if ((Enew.gt.Eold).and.(sd_count.lt.MAX_SD_COUNT)) go to 30
@@ -298,10 +319,12 @@ c     >    (.not.stalled          ))) then
          call D3dB_SumAll(deltav)
          deltav = deltav*dV
 
+        
          call psi_1gen_hml()
          call psi_diagonalize_hml_assending()
          call psi_1rotate2()
          call psi_2to1()
+         
          if (dohfx) call psi_1genrho()
 
          stalled       = .false.
@@ -366,12 +389,26 @@ c     >    (.not.stalled          ))) then
       precondition = precondition.and.(dabs(deltae).gt.1*tole)
 
       done = ( (    (dabs(deltae).lt.tole)
-     >         .and.(deltae.lt.0.0d0)
+     >         .and.((deltae.lt.0.0d0).or.
+     >               (dabs(deltae).lt.(0.5d0*tole)))
      >         .and.(deltac      .lt.tolc))
      >       .or. (it.ge.it_in))
 c     >       .or. (sd_count.ge.MAX_SD_COUNT))
 
       if (.not.done) go to 2
+
+      if (control_fractional()) then
+         if (control_use_fractional_rho()) then
+            call psi_write_density(1)
+         end if
+      end if
+
+
+c*     **** Finalize diaganolize KS matrix ****
+c      call psi_KS_update(1,
+c     >                   control_ks_algorithm(),
+c     >                   precondition,
+c     >                   ks_deltae)
 
 
 *     **** free memory ****
@@ -387,7 +424,8 @@ c      call psi_check()
 
 
 *     **** set return energies **** - This is duplicate code
-      !Enew     = psi_1energy()
+      Enew     = psi_1energy()
+      if (control_fractional()) Enew = Enew + psi_smearcorrection()
       eorbit   = psi_1eorbit()
       ehartree = dng_1ehartree()
       exc      = rho_1exc()
@@ -420,6 +458,13 @@ c      call psi_check()
 
       end if
 
+*     **** COSMO terms ****
+      if (nwpw_cosmo_on()) then
+         E(46) = psi_1vl_cosmo()
+         E(47) = nwpw_cosmo_EQionq()
+         E(48) = nwpw_cosmo_Eqq()
+      end if
+
 *     **** get pspw_charge  energies ****
       if (pspw_charge_found()) then
          E(19)  = psi_1v_field()
@@ -449,10 +494,8 @@ c      call psi_check()
          E(32) =  phfx
       end if
 
-
       if (control_fractional()) then
         E(28) = psi_smearcorrection()
-        E(1)  = E(1) + E(28)
       end if
 
 
@@ -469,6 +512,7 @@ c      call psi_check()
 
 ccc      failed = (sd_count.ge.MAX_SD_COUNT)
       failed = .false.
+
 
       return
       end

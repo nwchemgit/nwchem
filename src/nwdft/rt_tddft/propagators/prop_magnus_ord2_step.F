@@ -4,7 +4,7 @@ C
 C     Steps dens mat forward dt in time (in MO basis) using second order
 C     (single term) Magnus propagator.
 C
-C     P'(t+dt) = e^W P'(t) (e^W)^+ 
+C     P'(t+dt) = e^W P'(t) (e^W)^+  (even if non-Hermitian)
 C              = e^W P'(t) e^-W  (assuming W is Hermitian, which is not true if we have a complex absorbing potential)
 C
 C     where W = -i F'(t+dt/2).
@@ -52,6 +52,7 @@ C     == Variables ==
       integer me
       double complex zdt
       double precision spec_range, max_elem
+      logical imag_time
 
 
 C     (junk)
@@ -62,7 +63,13 @@ C     (junk)
       
       me = ga_nodeid ()
 
-      
+
+      if (.not.rtdb_get(params%rtdb, "rt_tddft:imag_time",
+     $     mt_log, 1, imag_time))
+     $     imag_time = .false.
+
+      if (imag_time)
+     $     call errquit ("Imaginary time propagation disabled",0,0)
 
 C
 C     Allocation.
@@ -79,13 +86,24 @@ C
 C      W = -i F'(t+dt/2) dt.
 C     
 
-C     Correct way:
+C     Real time propagation:
       zdt = dcmplx (dt, 0d0)
+
+C     Imaginary time propagation:
+      if (imag_time) then
+         zdt = zni * zdt
+         call rt_tddft_print_notice ("Doing imaginary time propagation")
+      endif
+
       call ga_copy (g_zfock_mo_mid, g_w)
       call ga_scale (g_w, zni*zdt)
 
-      
 
+      
+C     Correct way:
+c$$$      zdt = dcmplx (dt, 0d0)
+c$$$      call ga_copy (g_zfock_mo_mid, g_w)
+c$$$      call ga_scale (g_w, zni*zdt)
 C     IMAG TIME PROP
 c$$$      zdt = dcmplx (-1d0*dt, 0d0) !XXX NEGATIVE?
 c$$$      call ga_copy (g_zfock_mo_mid, g_w)
@@ -105,10 +123,8 @@ C     true) if e^W is not Hermitian.
       
       if (params%exp_method.eq.1) then
          call exp_pseries (params, g_w, g_expw)
-C         call magnus_exp_pseries (params, g_w, g_expw)
       elseif (params%exp_method.eq.2) then
          call exp_diag (params, g_w, g_expw)
-C         call magnus_exp_diag (params, g_w, g_expw)
       else
          call errquit (pname//"bad exp_method", 0, 0)
       endif
@@ -141,7 +157,8 @@ C     call zmat_diag_print_eigenvals (g_expw, g_vecs, dcpl_mb(ivals))
 
 C
 C     Since F is Hermitian, W = -iF is skew Hermitian, and thus e^W must
-C     be unitary.
+C     be unitary.  Note, this will throw an error if doing non-Hermitian
+C     propagation (e.g., using a CAP).
 C
       if (params%checklvl .ge. 2) then
          if (.not. mat_is_hermitian (g_zfock_mo_mid,

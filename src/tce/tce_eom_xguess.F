@@ -101,15 +101,15 @@ cx      call dfill(maxtrials,1.0d99,dbl_mb(k_diff),1)
   110 continue
       if (.not.ma_pop_stack(l_diff))
      1  call errquit('tce_eom_xguess: MA problem',1,MA_ERR)
+      if (nodezero)  write(LuOut,*)  ' maxdiff = ',maxdiff
 c
        maxeorb=0.0d0
        defmeo=.false.
-       if (.not.rtdb_get(rtdb,'tce:maxeorb',mt_dbl,1,maxeorb)) then
-         defmeo=.false.
-       else
+       if (rtdb_get(rtdb,'tce:maxeorb',mt_dbl,1,maxeorb)) then
          defmeo=.true.
          maxdiff=maxeorb 
        end if
+      if (nodezero.and.defmeo)  write(LuOut,*)  ' maxeorb = ',maxeorb
 c
 c
 c     Make trial X1
@@ -308,8 +308,13 @@ c
 c
   300 continue
 c
-      if (nxtrials.lt.nroots_reduced)
-     1  call errquit('there is a bug in the program',0,UNKNOWN_ERR)
+      if (nxtrials.lt.nroots_reduced) then
+         if(nodezero) then
+            write(luout,'(a,i15,a,i15)') ' nxtrials ',nxtrials,
+     c           ' < ',nroots_reduced
+         endif
+         call errquit('there is a bug in the program',0,UNKNOWN_ERR)
+      endif
       if (nodezero) then
         write(LuOut,9000) nxtrials
         if (nroots.gt.nroots_reduced) then

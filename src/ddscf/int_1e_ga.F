@@ -104,7 +104,8 @@ c
          type = 5 
       else if (inp_compare(.false., integ_type1, 'cos_chg_pot'))then 
          type = 6 
-      else if (inp_compare(.false., integ_type1, 'bq_pot'))then 
+      else if (inp_compare(.false., integ_type1, 'bq_pot'))then
+         type=7
          if(.not.dobq) return
 cc AJL/Begin/SPIN-POLARISED ECPs
       else if (inp_compare(.false., integ_type1, 'potential_beta')) then
@@ -114,6 +115,8 @@ cc AJL/End
          write(6,*) ' integ_type1 = ', integ_type1
          call errquit('int_1e_ga: unknown integ_type', 0, INT_ERR)
       end if
+       if(type.lt.0.or.type.gt.10) call
+     E errquit(' bogus int1 type',0,INT_ERR)
 c
 c     Check if Douglas-Kroll is required, if so:
 c     getting the Douglas-Kroll kinetic and potential energy 

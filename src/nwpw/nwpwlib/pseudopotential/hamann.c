@@ -454,6 +454,7 @@ double  **r_psi_prime_extra;
     R_Screening_Cut(Vx);
     R_Screening_Cut(Vc);
 
+
     /* recalculate px and pc */
     for (k=0; k<Ngrid; ++k) f[k] = (rho_psp[k])*Vx[k];
     px = Integrate_LogGrid(f);

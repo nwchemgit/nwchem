@@ -1,0 +1,33 @@
+echo
+
+start Be-REMOVE
+memory stack 1000 mb heap 100 mb global 500 mb
+geometry units angstroms
+symmetry c1
+ Be 0 0  0
+end
+
+basis spherical
+ * library cc-pVTZ
+end
+
+scf
+  vectors input Be-cc-pVTZ.movecs 
+  singlet
+  rhf
+  thresh 1e-10
+  noscf
+end
+
+tce
+  2eorb
+  2emet 13
+  ccsd
+  thresh 1.0d-8
+  print ducc_qa
+end
+
+set tce:qducc T
+set tce:nactv 7
+ 
+task tce energy

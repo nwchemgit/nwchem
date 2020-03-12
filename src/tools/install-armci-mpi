@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ARMCI_MPI_TARBALL=$1
 
@@ -79,7 +79,7 @@ if ! [ -d ${ARMCI_MPI_DIR}/build ] ; then
 fi
 cd ${ARMCI_MPI_DIR}/build
 
-${ARMCI_MPI_DIR}/configure CC=$ARMCIMPICC --prefix=${NWCHEM_TOP}/external-armci >& c.log
+${ARMCI_MPI_DIR}/configure CC=$ARMCIMPICC --prefix=${NWCHEM_TOP}/external-armci --enable-g >& c.log
 stat=$?
 if [ $stat -ne 0 ] ; then
   echo "configure failed."

@@ -4,7 +4,7 @@
 
 include ../../../config/makefile.h
 include ../../DEFS
-NOCASENS = CYGNUS MACX64 MACX CYGWIN CYGWIN64 INTERIX
+NOCASENS = CYGNUS MACX64 MACX CYGWIN CYGWIN64
 ifneq ($(peigs_TARGET),$(findstring $(peigs_TARGET), $(NOCASENS)))
 	REMOVESF=TRUE
 endif
@@ -41,7 +41,7 @@ EOBJ	= xerbl2.o  menode.o pairup.o xstop.o
 
 all:		$(FOBJ) $(EOBJ)
 
-.EXPORT_ALL_VARIABLES:
+#.EXPORT_ALL_VARIABLES:
 
 .PHONY :	clean
 

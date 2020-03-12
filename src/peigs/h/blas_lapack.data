@@ -1,7 +1,7 @@
 *
 * $Id$
 *
-#if defined(DECOSF) || defined(LINUX64)
+#if defined(LINUX64)
       double precision DLAMCHE, DLAMCHP, DLAMCHS, DLAMCHU, DLAMCHB
       real SLAMCHE, SLAMCHP, SLAMCHS, SLAMCHU, SLAMCHB
       data DLAMCHE/1.1102230246251565D-16/

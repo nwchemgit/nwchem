@@ -118,7 +118,7 @@ c
          endif
           call ga_get(d_xx,ga_offset+(i-1)*chunk_t+1,
      g        ga_offset+(i-1)*chunk_t+current_chunk,
-     &                1,1,dbl_mb(k_aux),1)
+     &                1,1,dbl_mb(k_aux),current_chunk)
 
 c
 c         write(unitn,rec=i,err=150) dbl_mb(k_aux)
@@ -316,7 +316,7 @@ c
           call ga_put(d_xx,
      g        ga_offset+(i-1)*chunk_t+1,
      g        ga_offset+(i-1)*chunk_t+rec_read,
-     &                1,1,dbl_mb(k_aux),1)
+     &                1,1,dbl_mb(k_aux),rec_read)
 c
 c
        enddo

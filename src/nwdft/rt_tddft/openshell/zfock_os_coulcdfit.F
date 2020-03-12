@@ -38,7 +38,7 @@ C     == Variables ==
       integer g_densre_tot
 
       
-C      call rt_tddft_os_confirm (params)
+C      call rt_tddft_os_confirm (params,'junk')
 
       
       if (params%prof) call prof_start (elapsed)

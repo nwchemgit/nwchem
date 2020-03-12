@@ -86,6 +86,7 @@ c
       integer ichnk(3)           ! chunking
 c     integer ld(3)              ! leading dimensions
       integer alo(3),ahi(3)      ! lower and upper limits for GA patches
+      integer iwhich
 c     integer i,a                ! orbital counters
 c     integer imo,amo            ! orbital labels
 c     integer mini,maxi,numi     ! limits
@@ -96,6 +97,7 @@ c
       character*32 pname
 c
       pname="tddft_grad_compute_energy: "
+      iwhich = 0  ! call to tddft_nga_cont()
 c
 c     Do the (X+Y) and (X-Y) contributions
 c
@@ -172,9 +174,9 @@ c
       endif
 c
       call tddft_nga_cont(rtdb,ihdl_geom,ihdl_bfao,g_x,g_apbx,g_ambx,
-     +     nao,ipol,tol2e,tda,oskel,kfac,lhashf,otriplet,nroot)
+     +     nao,ipol,tol2e,tda,oskel,kfac,lhashf,otriplet,nroot,iwhich)
       call tddft_nga_cont(rtdb,ihdl_geom,ihdl_bfao,g_y,g_apby,g_amby,
-     +     nao,ipol,tol2e,tda,oskel,kfac,lhashf,otriplet,nroot)
+     +     nao,ipol,tol2e,tda,oskel,kfac,lhashf,otriplet,nroot,iwhich)
 c
 c     Dispose of X and Y
 c

@@ -149,8 +149,5 @@ c     Close output file
 c
       if (ga_nodeid().eq.0) close(ioun)
 c
-      if (.not.rtdb_put(rtdb,'tddft:ltrials',mt_log,1,.true.))
-     1  call errquit(trim(pname)//'failed writing to rtdb',0,RTDB_ERR)
-c
       return
       end

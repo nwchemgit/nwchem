@@ -1,0 +1,345 @@
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
+# aug-admm-1 version number 1
+# Description: Auxilliary basis with diffuse functions for use with aug-pcseg-1 and the Auxiliary-Density Matrix Method (ADMM)
+# Role: admmfit
+# 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# H,Li-Ar
+#     ## Auxilliary basis with diffuse functions for use with aug-pcseg-1 and the Auxiliary-Density Matrix Method (ADMM)
+#     Kumar, Chandan, Fliegl, Heike, Jensen, Frank, Teale, Andrew M., Reine,
+#             Simen, Kjaergaard, Thomas
+#     Accelerating Kohn-Sham response theory using density fitting and the
+#             auxiliary-density-matrix method
+#     Int. J. Quantum Chem., 118, e25639 (2018)
+#     10.1002/qua.25639
+# 
+# # 
+basis "H_aug-admm-1" 
+#basis SET: (3s) -> [3s]
+H    S
+      0.106598E+01           0.100000E+01
+H    S
+      0.159815E+00           0.100000E+01
+H    S
+      0.399540E-01           0.100000E+01
+end
+basis "Li_aug-admm-1" 
+#basis SET: (4s,3p) -> [3s,3p]
+Li    S
+      0.831302E+01           0.238951E+00
+      0.118178E+01           0.500000E+00
+Li    S
+      0.463600E-01           0.100000E+01
+Li    S
+      0.115900E-01           0.100000E+01
+Li    P
+      0.348419E+00           0.100000E+01
+Li    P
+      0.624984E-01           0.100000E+01
+Li    P
+      0.156250E-01           0.100000E+01
+end
+basis "Be_aug-admm-1" 
+#basis SET: (4s,3p) -> [3s,3p]
+Be    S
+      0.158258E+02           0.227655E+00
+      0.232474E+01           0.500000E+00
+Be    S
+      0.995543E-01           0.100000E+01
+Be    S
+      0.248890E-01           0.100000E+01
+Be    P
+      0.577631E+00           0.100000E+01
+Be    P
+      0.102459E+00           0.100000E+01
+Be    P
+      0.256150E-01           0.100000E+01
+end
+basis "B_aug-admm-1" 
+#basis SET: (4s,3p) -> [3s,3p]
+B    S
+      0.256998E+02           0.222400E+00
+      0.384193E+01           0.500000E+00
+B    S
+      0.179487E+00           0.100000E+01
+B    S
+      0.448720E-01           0.100000E+01
+B    P
+      0.756023E+00           0.100000E+01
+B    P
+      0.122458E+00           0.100000E+01
+B    P
+      0.306140E-01           0.100000E+01
+end
+basis "C_aug-admm-1" 
+#basis SET: (4s,3p) -> [3s,3p]
+C    S
+      0.378564E+02           0.219585E+00
+      0.571824E+01           0.500000E+00
+C    S
+      0.277586E+00           0.100000E+01
+C    S
+      0.693960E-01           0.100000E+01
+C    P
+      0.122929E+01           0.100000E+01
+C    P
+      0.199152E+00           0.100000E+01
+C    P
+      0.497880E-01           0.100000E+01
+end
+basis "N_aug-admm-1" 
+#basis SET: (4s,3p) -> [3s,3p]
+N    S
+      0.523141E+02           0.217698E+00
+      0.795633E+01           0.500000E+00
+N    S
+      0.394451E+00           0.100000E+01
+N    S
+      0.986130E-01           0.100000E+01
+N    P
+      0.180726E+01           0.100000E+01
+N    P
+      0.292418E+00           0.100000E+01
+N    P
+      0.731050E-01           0.100000E+01
+end
+basis "O_aug-admm-1" 
+#basis SET: (4s,3p) -> [3s,3p]
+O    S
+      0.692191E+02           0.215671E+00
+      0.105774E+02           0.500000E+00
+O    S
+      0.539116E+00           0.100000E+01
+O    S
+      0.134780E+00           0.100000E+01
+O    P
+      0.242799E+01           0.100000E+01
+O    P
+      0.375160E+00           0.100000E+01
+O    P
+      0.937900E-01           0.100000E+01
+end
+basis "F_aug-admm-1" 
+#basis SET: (4s,3p) -> [3s,3p]
+F    S
+      0.884357E+02           0.214191E+00
+      0.135627E+02           0.500000E+00
+F    S
+      0.702570E+00           0.100000E+01
+F    S
+      0.175640E+00           0.100000E+01
+F    P
+      0.318545E+01           0.100000E+01
+F    P
+      0.482661E+00           0.100000E+01
+F    P
+      0.120670E+00           0.100000E+01
+end
+basis "Ne_aug-admm-1" 
+#basis SET: (4s,3p) -> [3s,3p]
+Ne    S
+      0.109968E+03           0.213005E+00
+      0.169104E+02           0.500000E+00
+Ne    S
+      0.884551E+00           0.100000E+01
+Ne    S
+      0.221140E+00           0.100000E+01
+Ne    P
+      0.405167E+01           0.100000E+01
+Ne    P
+      0.609451E+00           0.100000E+01
+Ne    P
+      0.152360E+00           0.100000E+01
+end
+basis "Na_aug-admm-1" 
+#basis SET: (6s,5p) -> [4s,3p]
+Na    S
+      0.368031E+03           0.928234E-01
+      0.616437E+02           0.400964E+00
+      0.151250E+02           0.500000E+00
+Na    S
+      0.118317E+01           0.100000E+01
+Na    S
+      0.383989E-01           0.100000E+01
+Na    S
+      0.959970E-02           0.100000E+01
+Na    P
+      0.122487E+02           0.188655E+00
+      0.280890E+01           0.500000E+00
+      0.621874E+00           0.450421E+00
+Na    P
+      0.950000E-01           0.100000E+01
+Na    P
+      0.237500E-01           0.100000E+01
+end
+basis "Mg_aug-admm-1" 
+#basis SET: (6s,5p) -> [4s,3p]
+Mg    S
+      0.442968E+03           0.913086E-01
+      0.741922E+02           0.398115E+00
+      0.182265E+02           0.500000E+00
+Mg    S
+      0.151506E+01           0.100000E+01
+Mg    S
+      0.661485E-01           0.100000E+01
+Mg    S
+      0.165370E-01           0.100000E+01
+Mg    P
+      0.166053E+02           0.173376E+00
+      0.384759E+01           0.500000E+00
+      0.900835E+00           0.453651E+00
+Mg    P
+      0.160000E+00           0.100000E+01
+Mg    P
+      0.400000E-01           0.100000E+01
+end
+basis "Al_aug-admm-1" 
+#basis SET: (6s,5p) -> [4s,3p]
+Al    S
+      0.525362E+03           0.895976E-01
+      0.879743E+02           0.393922E+00
+      0.215904E+02           0.500000E+00
+Al    S
+      0.189479E+01           0.100000E+01
+Al    S
+      0.108254E+00           0.100000E+01
+Al    S
+      0.270640E-01           0.100000E+01
+Al    P
+      0.221635E+02           0.159034E+00
+      0.518440E+01           0.500000E+00
+      0.127373E+01           0.473472E+00
+Al    P
+      0.103040E+00           0.100000E+01
+Al    P
+      0.257600E-01           0.100000E+01
+end
+basis "Si_aug-admm-1" 
+#basis SET: (6s,5p) -> [4s,3p]
+Si    S
+      0.614635E+03           0.881689E-01
+      0.102920E+03           0.390183E+00
+      0.252476E+02           0.500000E+00
+Si    S
+      0.231549E+01           0.100000E+01
+Si    S
+      0.154677E+00           0.100000E+01
+Si    S
+      0.386690E-01           0.100000E+01
+Si    P
+      0.279147E+02           0.151230E+00
+      0.656823E+01           0.500000E+00
+      0.166554E+01           0.480342E+00
+Si    P
+      0.162445E+00           0.100000E+01
+Si    P
+      0.406110E-01           0.100000E+01
+end
+basis "P_aug-admm-1" 
+#basis SET: (6s,5p) -> [4s,3p]
+P    S
+      0.712231E+03           0.866913E-01
+      0.119200E+03           0.386520E+00
+      0.292085E+02           0.500000E+00
+P    S
+      0.277764E+01           0.100000E+01
+P    S
+      0.205671E+00           0.100000E+01
+P    S
+      0.514180E-01           0.100000E+01
+P    P
+      0.344123E+02           0.144764E+00
+      0.813303E+01           0.500000E+00
+      0.211371E+01           0.488009E+00
+P    P
+      0.229845E+00           0.100000E+01
+P    P
+      0.574610E-01           0.100000E+01
+end
+basis "S_aug-admm-1" 
+#basis SET: (6s,5p) -> [4s,3p]
+S    S
+      0.811822E+03           0.862345E-01
+      0.135933E+03           0.385017E+00
+      0.333375E+02           0.500000E+00
+S    S
+      0.327995E+01           0.100000E+01
+S    S
+      0.267265E+00           0.100000E+01
+S    S
+      0.668160E-01           0.100000E+01
+S    P
+      0.411563E+02           0.140799E+00
+      0.977943E+01           0.500000E+00
+      0.259360E+01           0.490449E+00
+S    P
+      0.293761E+00           0.100000E+01
+S    P
+      0.734400E-01           0.100000E+01
+end
+basis "Cl_aug-admm-1" 
+#basis SET: (6s,5p) -> [4s,3p]
+Cl    S
+      0.922642E+03           0.850977E-01
+      0.154498E+03           0.381765E+00
+      0.378488E+02           0.500000E+00
+Cl    S
+      0.382349E+01           0.100000E+01
+Cl    S
+      0.336505E+00           0.100000E+01
+Cl    S
+      0.841260E-01           0.100000E+01
+Cl    P
+      0.487807E+02           0.136844E+00
+      0.116296E+02           0.500000E+00
+      0.313674E+01           0.494675E+00
+Cl    P
+      0.366162E+00           0.100000E+01
+Cl    P
+      0.915400E-01           0.100000E+01
+end
+basis "Ar_aug-admm-1" 
+#basis SET: (6s,5p) -> [4s,3p]
+Ar    S
+      0.103847E+04           0.844248E-01
+      0.173918E+03           0.379933E+00
+      0.425955E+02           0.500000E+00
+Ar    S
+      0.440815E+01           0.100000E+01
+Ar    S
+      0.412596E+00           0.100000E+01
+Ar    S
+      0.103150E+00           0.100000E+01
+Ar    P
+      0.571416E+02           0.133427E+00
+      0.136632E+02           0.500000E+00
+      0.374202E+01           0.499555E+00
+Ar    P
+      0.448236E+00           0.100000E+01
+Ar    P
+      0.112060E+00           0.100000E+01
+end

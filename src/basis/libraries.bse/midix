@@ -1,0 +1,359 @@
+# BSE Version v0.8.4+29.gb6d6a1b
+# Data downloaded at 2019-06-24T14:04
+# midix version number 1
+# Description: VDZP Valence Double Zeta + Polarization on some atoms
+# Role: orbital
+# 
+# ********************************************************************************
+# If you downloaded data from the basis set
+# exchange or used the basis set exchange python library, please cite:
+# ********************************************************************************
+#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     Manuscript in preparation
+# 
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# ********************************************************************************
+# References for the basis set
+# ********************************************************************************
+# H
+#     ## VDZ Valence Double Zeta: 2 Functions.'s/Valence AO
+#     van Duijneveldt, F. B.
+# 
+#     Gaussian basis sets for the atoms H-Ne for use in molecular
+#             calculations
+#     'IBM Research Laboratory'
+#     Technical Report RJ 945, 1971
+# 
+# Li
+#     ## 
+#     Thompson, Jason D., Winget, Paul, Truhlar, Donald G.
+#     MIDIX basis set for the lithium atom: Accurate geometries and atomic
+#             partial charges for lithium compounds with minimal
+#             computational cost
+#     PhysChemComm, 4, 72-77 (2001)
+#     10.1039/B105076C
+# 
+# C-F,P-Cl
+#     ## VDZP    Valence Double Zeta + Polarization on some atoms
+#     Easton, R. Evan, Giesen, David J., Welch, Andrew, Cramer, Christopher
+#             J., Truhlar, Donald G.
+#     The MIDI! basis set for quantum mechanical calculations of molecular
+#             geometries and partial charges
+#     Theor. Chim. Acta, 93, 281 (1996)
+#     10.1007/s002140050153
+# 
+# Si,Br,I
+#     ## VDZP    Valence Double Zeta + Polarization on some atoms
+#     Li, Jiabo, Cramer, Christopher J., Truhlar, Donald G.
+#     MIDI! basis set for silicon, bromine, and iodine
+#     Theor. Chem. Acc., 99, 192--196 (1998)
+#     10.1007/s002140050323
+# 
+# # 
+basis "H_midix" 
+#basis SET: (3s) -> [2s]
+H    S
+      4.501800               0.070452
+      0.681444               0.407826
+H    S
+      0.151398               1.000000
+end
+basis "Li_midix" 
+#basis SET: (6s,1p) -> [3s,1p]
+Li    S
+     35.0461500              0.737600000E-01
+      5.20169000             0.397471000
+      1.05624000             0.665092000
+Li    S
+      0.715170000           -0.939700000E-01
+      0.705300000E-01        0.570100000
+Li    S
+      0.273500000E-01        1.000000
+Li    P
+      0.5                    1.000000
+end
+basis "C_midix" 
+#basis SET: (6s,3p) -> [3s,2p]
+C    S
+    153.17226                0.070740
+     23.073030               0.395380
+      4.9232900              0.663311
+C    S
+      5.725570              -0.081380
+      0.455040               0.574853
+C    S
+      0.147070               1.000000
+C    P
+      4.251310               0.109931
+      0.863270               0.462713
+C    P
+      0.201350               1.000000
+end
+basis "N_midix" 
+#basis SET: (6s,3p,1d) -> [3s,2p,1d]
+N    S
+    218.36449                0.067870
+     32.598890               0.390202
+      6.9173900              0.670083
+N    S
+      8.326380              -0.080890
+      0.659190               0.567202
+N    S
+      0.210090               1.000000
+N    P
+      6.120350               0.115919
+      1.259380               0.469958
+N    P
+      0.291450               1.000000
+N    D
+      0.850000               1.000000
+end
+basis "O_midix" 
+#basis SET: (6s,3p,1d) -> [3s,2p,1d]
+O    S
+    281.86658                0.069060
+     42.416000               0.393159
+      9.0956200              0.665669
+O    S
+     11.46603               -0.080820
+      0.887860               0.582090
+O    S
+      0.278800               1.000000
+O    P
+      8.047240               0.124271
+      1.668420               0.476594
+O    P
+      0.372510               1.000000
+O    D
+      0.800000               1.000000
+end
+basis "F_midix" 
+#basis SET: (6s,3p,1d) -> [3s,2p,1d]
+F    S
+    368.37112                0.067040
+     55.061060               0.389249
+     11.747670               0.670788
+F    S
+     15.15184               -0.080550
+      1.151370               0.587729
+F    S
+      0.358110               1.000000
+F    P
+     10.57707                0.126270
+      2.194980               0.477948
+F    P
+      0.479370               1.000000
+F    D
+      1.000000               1.000000
+end
+basis "Si_midix" 
+#basis SET: (9s,6p,1d) -> [4s,3p,1d]
+Si    S
+    910.6550                 0.066082
+    137.3360                 0.386229
+     29.76010                0.672380
+Si    S
+     36.67160               -0.104511
+      8.317290               0.107410
+      2.216450               0.951446
+Si    S
+      1.079130              -0.376108
+      0.302422               1.251650
+Si    S
+      0.093339               1.0
+Si    P
+     36.67160                0.113355
+      8.317290               0.457578
+      2.216450               0.607427
+Si    P
+      1.079130               0.067103
+      0.302422               0.956883
+Si    P
+      0.093339               1.0
+Si    D
+      0.4                    1.0
+end
+basis "P_midix" 
+#basis SET: (9s,6p,1d) -> [4s,3p,1d]
+P    S
+     45.45038               -0.092655
+      3.899926               0.626513
+      1.488507               0.441039
+P    S
+   1053.2658                 0.065865
+    158.79044                0.384578
+     34.424407               0.673963
+P    S
+      2.300841              -0.180549
+      0.298959               0.680952
+P    S
+      0.108854               1.000000
+P    P
+     46.100019               0.105388
+     10.165057               0.459712
+      2.644794               0.613714
+P    P
+      0.632686               0.235885
+      0.240219               0.554160
+P    P
+      0.086447               1.000000
+P    D
+      0.250000               1.000000
+end
+basis "S_midix" 
+#basis SET: (9s,6p,1d) -> [4s,3p,1d]
+S    S
+     52.13903               -0.094232
+      4.528799               0.635468
+      1.754938               0.431506
+S    S
+   1201.4584                 0.065765
+    181.39212                0.383948
+     39.404795               0.674372
+S    S
+      2.840437               0.190042
+      0.381433              -0.685527
+S    S
+      0.138786               1.000000
+S    P
+     54.644071               0.103673
+     12.122902               0.458190
+      3.2065040              0.613400
+S    P
+      0.863274               0.229436
+      0.108679               0.353700
+S    P
+      0.318130               1.000000
+S    D
+      0.400000               1.000000
+end
+basis "Cl_midix" 
+#basis SET: (9s,6p,1d) -> [4s,3p,1d]
+Cl    S
+     59.225732              -0.095620
+      5.213902               0.641426
+      2.047346               0.425153
+Cl    S
+   1362.0220                 0.065544
+    205.81110                0.382987
+     44.772167               0.675210
+Cl    S
+      3.419712               0.196401
+      0.470017              -0.692360
+Cl    S
+      0.169958               1.000000
+Cl    P
+     64.099958               0.101789
+     14.287139               0.456107
+      3.828135               0.614282
+Cl    P
+      1.095126               0.235903
+      0.132176               0.346600
+Cl    P
+      0.396004               1.000000
+Cl    D
+      0.650000               1.000000
+end
+basis "Br_midix" 
+#basis SET: (12s,9p,4d) -> [5s,4p,2d]
+Br    S
+   6103.2899                 0.06241800
+    923.69743                0.37204100
+    202.52031                0.68587300
+Br    S
+    270.60150               -0.11214900
+     58.253570               0.09314500
+     18.469330               0.96167900
+Br    S
+     19.761420              -0.29387000
+      6.8217520              0.28026600
+      2.2916290              0.90203600
+Br    S
+      2.1312060             -0.65180300
+      0.4993540              1.33601200
+Br    S
+      0.1647640              1.0
+Br    P
+    270.60150                0.14775100
+     58.253570               0.60105600
+     18.469330               0.41287000
+Br    P
+     19.761420               0.02500700
+      6.8217520              0.48661000
+      2.2916290              0.58242300
+Br    P
+      2.1312060              0.02870800
+      0.4993540              0.98407000
+Br    P
+      0.1647640              1.0
+Br    D
+     33.965097               0.14966700
+      8.9008310              0.51174800
+      2.4284360              0.57591500
+Br    D
+      0.40                   1.0
+end
+basis "I_midix" 
+#basis SET: (15s,12p,7d) -> [6s,5p,3d]
+I    S
+    648.1887                -0.112851
+    140.3064                 0.083228
+     45.69880                0.969752
+I    S
+  14351.186                  0.061003
+   2173.0741                 0.366640
+    477.87205                0.691131
+I    S
+     56.69469               -0.273697
+     27.48875                0.046500
+      8.209096               1.091576
+I    S
+      8.191679              -0.450828
+      3.244596               0.463209
+      1.300489               0.838636
+I    S
+      1.451380              -0.665852
+      0.328103               1.328584
+I    S
+      0.115076               1.00000
+I    P
+    648.1887                 0.154114
+    140.3064                 0.619462
+     45.69880                0.383758
+I    P
+     56.69469               -0.152322
+     27.48875                0.543769
+      8.209096               0.656168
+I    P
+      8.191679               0.011870
+      3.244596               0.526525
+      1.300489               0.526608
+I    P
+      1.451380               0.027541
+       .3281030              0.985137
+I    P
+      0.115076               1.00000
+I    D
+    128.09026                0.115864
+     35.982378               0.482049
+     11.551116               0.589445
+I    D
+      6.146152               0.268182
+      2.220937               0.580061
+      0.809912               0.326226
+I    D
+      0.40                   1.0
+end

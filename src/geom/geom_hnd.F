@@ -4602,7 +4602,8 @@ c     IMPLICIT REAL*8 (A-H,O-Z)
 C        -----  A GIVENS HOUSHOLDER MATRIX DIAGONALIZATION  -----
 C        -----  ROUTINE SAME AS EIGEN BUT WORKS WITH A      -----
 C        -----  LINEAR ARRAY.                               -----
-      integer n,ndim,n1,n2,nr,ik
+      integer n,ndim,nr,ik
+      integer*4 n1, n2
       integer IA(1)
       integer IPOSV(*),IVPOS(*),IORD(*)
       double precision A(1),VEC(NDIM,1),EIG(1)

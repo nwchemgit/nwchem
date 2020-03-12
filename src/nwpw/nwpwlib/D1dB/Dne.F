@@ -461,6 +461,24 @@
       return 
       end
 
+     
+*     ***********************************
+*     *                                 *
+*     *         Dneall_ispin            *       
+*     *                                 *
+*     ***********************************
+      
+      subroutine Dneall_ispin(ispintmp)
+      implicit none
+      integer ispintmp
+         
+#include "Dne.fh"
+           
+      ispintmp = ispin
+      return
+      end
+
+
 
 
 *     ***********************************
@@ -1873,6 +1891,7 @@ c     ****************************************
             if (ne(ms).le.0) go to 30
 
 !$OMP MASTER
+            ierr = 0
             call DSYEV('V','U',ne(ms),
      >                 hml(shift2),ne(ms), 
      >                 eig(shift1),
@@ -1880,6 +1899,7 @@ c     ****************************************
      >                 ierr)
 !$OMP END MASTER
 !$OMP BARRIER
+         if(ierr.ne.0) call errquit('dneadiag: dsyev err.ne.0 ',ierr,0)
 
             if (.not.assending)
      >         call EIGSRT(eig(shift1),
@@ -4795,8 +4815,9 @@ c     ****************************************
            do k=1,ne(ms)
               indx3 = shift1
               do j=1,ne(ms)
-                A(indx2) = A(indx2)
-     >                   *(2.0d0*fw(indx1)/(fw(indx1)+fw(indx3)))
+                if ((fw(indx1)+fw(indx3)).gt.1.0d-9)
+     >             A(indx2) = A(indx2)
+     >                      *(2.0d0*fw(indx1)/(fw(indx1)+fw(indx3)))
                 indx2 = indx2 + 1
                 indx3 = indx3 + 1
               end do
@@ -7254,11 +7275,13 @@ c     ****************************************
             shift2 = 1+(ms-1)*ishift2
             if (nein(ms).le.0) go to 30
 
+            ierr = 0
             call DSYEV('V','U',nein(ms),
      >                 hml(shift2),nein(ms), 
      >                 eig(shift1),
      >                 dbl_mb(tmp1(1)),2*nein(1)*nein(1),
      >                 ierr)
+         if(ierr.ne.0) call errquit('dneamdg: dsyev err.ne.0 ',ierr,0)
 
             if (.not.assending)
      >       call eigsrt(eig(shift1),

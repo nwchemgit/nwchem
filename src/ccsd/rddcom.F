@@ -1,17 +1,17 @@
       subroutine rddcom()
-C     $Id$
+!     $Id$
       Implicit NONE
-C
+!
       Integer I
       Logical NonStd
-C
+!
 #include "ccsd_debug.fh"
 #include "global.fh"
 #include "util.fh"
 #include "stdio.fh"
-C
-C     Check for any non-standard setting of the debugging switches
-C
+!
+!     Check for any non-standard setting of the debugging switches
+!
       NonStd = .FALSE.
       do i=1,15
          NonStd = NonStd .or. doa(i) .ne. 2
@@ -22,10 +22,14 @@ C
          NonStd = NonStd .or. dos(i) .ne. 1
          NonStd = NonStd .or. dod(i) .ne. 1
       enddo
-c
-C     Print term switches if requested or if anything is non-standard
-C
+!
+!     Print term switches if requested or if anything is non-standard
+!
+#ifdef USE_GA_MSG_SYNC
+      call ga_msg_sync()
+#else
       call ga_sync()
+#endif
       if ( (NonStd .OR. Util_Print('term debug switches', Print_Debug) )
      $   .AND. ga_nodeid().eq.0)then
          Write (LuOut, '(A)')
@@ -43,8 +47,11 @@ C
          write(LuOut,57)' dod  ',dod
    57 format(1x,a6,1x,15i2)
       endif
+#ifdef USE_GA_MSG_SYNC
+      call ga_msg_sync()
+#else
       call ga_sync()
-c
+#endif
       return
       end
 

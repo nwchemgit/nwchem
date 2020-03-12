@@ -134,13 +134,6 @@
   <li><a href="#win32compile">How do I compile NWChem on Windows NT and
 Windows 98? </a></li>
   </ol>
- <li><a href="#decosf"> DECOSF</a></li>
-  <ol>
-  <li><a href="#decsegv">What is causing a segmentation violation in DECOSF 4.0? </a></li>
-  <li><a href="#decmainit">What is causing the <tt>ma_init failed</tt> error message? </a></li>
-  <li><a href="#decsmpopt">How to fix the segfault in single node runs on
-  HP AlphaServer SC 2.5? </a></li>
- </ol>
  <li><a href="#sgi"> SGI</a></li>
   <ol>
   <li><a href="#sgimpi">How can I improve parallel performances under SGI? </a></li>
@@ -1957,59 +1950,6 @@ the top level source directory by typing
 nmake
 </pre>
 The name of the executable is <tt> nw32.exe </tt>
-</p>
-
-<hr>
-<br><br>
-<p>
-<a name="decosf"></a>
-<h3>DECOSF</h3>
-</p>
-
-<hr>
-<p>
-<a name="decsegv"></a>
-<font color="purple">What is causing a segmentation violation in DECOSF 4.0?</font>
-<p>
-The <tt>-automatic</tt> Fortran compiler option is causing this problem under DECOSF 4.0 using version 5.2 of the f77 compiler. To get a working executable,
-you need to edit <tt>$NWCHEM_TOP/src/config/makefile.h</tt> at line <tt>1051</tt>. The modified line 1051 must therefore be
-<p><tt>FOPTIONS = -i8 -align dcommons -math_library fast -fpe2 -check
-nounderflow \</tt>
-<br><tt>-check nopower -check nooverflow -warn argument_checking
--warn unused #-automatic</tt>
-</p>
-
-<hr>
-<p>
-<a name="decmainit"></a>
-<font color="purple">What is causing the <tt>ma_init failed</tt> error message?</font>
-<p>
-If NWChem crashes with the error message
-<pre>
-MA error: MA_init: could not allocate XXXXXXXXX bytes
- ------------------------------------------------------------------------
- nwchem.F: ma_init failed (ga_uses_ma=T)      911
-</pre>
-this is most likely due to the act the default <tt>datasize</tt> on DECOSF is too small
-(131072 kbytes). To increase this value under csh, please type
-<pre>
-limit datasize unlimited
-</pre>
-</p>
-
-<hr>
-<p>
-<a name="decsmpopt"></a>
-<font color="purple">How to fix the segfault in single node runs on
-  HP AlphaServer SC 2.5?</font>
-<p>
-To fix NWChem crashes with a segfault early on with a segfault in single
-node runs, please add the following environmental variable to your settings:
-<pre>
-</pre>
-<pre>
-setenv SHMEM_SMP_ENABLE 0
-</pre>
 </p>
 
 <hr>

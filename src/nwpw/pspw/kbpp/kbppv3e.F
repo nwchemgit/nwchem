@@ -40,7 +40,7 @@
       integer rho_hndl,vp_hndl,wp_hndl,up_hndl,sc_r_hndl,sc_k_hndl
 
       integer          isemicore,ihasae,n_extra,n_expansion(0:9)
-      logical          semicore
+      logical          semicore,small_cell
       double precision rcore,core_charge
 
       integer f_indx,cs_indx,sn_indx
@@ -71,6 +71,8 @@
 *     **** external functions ****
       logical  control_print,control_kbpp_ray,control_kbpp_filter
       external control_print,control_kbpp_ray,control_kbpp_filter
+      logical  control_psp_semicore_small
+      external control_psp_semicore_small
       double precision simp
       external         simp
       integer  kbpp_calc_nray
@@ -309,6 +311,11 @@ c      call Parallel_Init()
      >                      ierr)
       end if
 
+      !**** small unitcell semicore - convert rho(G) to chi(G) ****
+      small_cell = control_psp_semicore_small().and.semicore
+      if (small_cell) then
+         call semicore_rho_to_chi(dbl_mb(sc_k_indx))
+      end if
 
 *     **** compute the <1/r3> matrix elements ****
 
@@ -385,6 +392,8 @@ c      call Parallel_Init()
       write(luout,*)
       write(luout,*) "Generated formatted_filename: ",full_filename(1:l)
       if (filter) write(luout,*) "- filtering pseudopotential -"
+      if (small_cell) 
+     >  write(luout,*) "- small unit cell semicore correction applied -"
       !write(luout,*)
       end if
       call openfile(2,full_filename,l,'w',l)     

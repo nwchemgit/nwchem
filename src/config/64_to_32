@@ -1,55 +1,48 @@
-#!/bin/csh -f
+#!/bin/bash
 #
 # $Id$
 #
 #
 # modified to use the perl version to change back to the sed scripts
-# reset useperl = 0
 #
-@ useperl = 1
-
-if ($useperl) then
-
-  if (-x /msrc/apps/bin/perl) then
-     set perlexe    = /msrc/apps/bin/perl
-  else if (-x /usr/local/bin/perl) then
-     set perlexe    = /usr/local/bin/perl
-  else if (-x /usr/local/gnu/bin/perl) then
-     set perlexe    = /usr/local/gnu/bin/perl
-  else if (-x /usr/gnu/bin/perl) then
-     set perlexe    = /usr/gnu/bin/perl
+if [[ -z "${NWCHEM_TOP}" ]]; then
+    DIRUTIL=`dirname "$0"`
+    MYPWD=`pwd`
+    NWCHEM_TOP=`echo ${MYPWD}/${DIRUTIL} | sed -e 's/\/src.*//' `
+fi
+  if [ -x /msrc/apps/bin/perl ]; then
+      perlexe=/msrc/apps/bin/perl
+  elif [ -x /usr/local/bin/perl ]; then
+      perlexe=/usr/local/bin/perl
+  elif [ -x /usr/local/gnu/bin/perl ]; then
+      perlexe=/usr/local/gnu/bin/perl
+  elif [ -x /usr/gnu/bin/perl ]; then
+      perlexe=/usr/gnu/bin/perl
   else
 # assume perl is in your path
-     set perlexe = perl
-  endif
-  set perlscript = {$NWCHEM_TOP}/src/config/64_to_32.pl
+      perlexe=perl
+  fi
+   perlscript=${NWCHEM_TOP}/src/config/64_to_32.pl
 
-else
-  echo "shoulkd not be here
-  exit 1;
 
-endif
+ JOB_LIMIT=4
 
-set JOB_LIMIT = 4
+ njob=0
 
-@ njob = 0
+for file in "$@"
+do
 
-foreach file ($argv)
-
-   echo converting $file to 32-bit integers for BLAS/LAPACK
-   if ($useperl) then	
+   echo converting "$file" to 32-bit integers for BLAS/LAPACK
       ($perlexe $perlscript $file) &	
-   else
-      (sed -f $sed_script  < $file > {$file}{$sufx} && mv -f {$file}{$sufx} $file;\
-       sed -f $sed_script2 < $file > {$file}{$sufx} && mv -f {$file}{$sufx} $file)&
-   endif
 
-   @ njob ++
-   if ($njob >= $JOB_LIMIT) then
+   let njob++
+   if [ $njob -gt $JOB_LIMIT ]; then
      wait
-     @ njob = 0
-   endif
+     let njob=0
+   fi
 
-end
+done
 
-if ($njob > 0) wait
+if [ $njob -gt  0 ] ; then
+    wait
+fi

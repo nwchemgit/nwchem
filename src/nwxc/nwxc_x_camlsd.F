@@ -23,14 +23,14 @@ C> [1] T. Yanai, D.P. Tew, N.C. Handy,
 C> "A new hybrid exchange-correlation functional using the Coulomb-attenuating
 C> method (CAM-B3LYP)",
 C> Chem. Phys. Lett. <b>393</b>, 51-57 (2004), DOI:
-C> <a href="http://dx.doi.org/10.1016/j.cplett.2004.06.011">
+C> <a href="https://doi.org/10.1016/j.cplett.2004.06.011">
 C> 10.1016/j.cplett.2004.06.011</a>.
 C>
 C> [2] A.D. Becke,
 C> "Density-functional exchange-energy approximation with correct
 C> asymptotic behavior",
 C> Phys. Rev. A <b>38</b>, 3098-3100 (1998), DOI:
-C> <a href="http://dx.doi.org/10.1103/PhysRevA.38.3098">
+C> <a href="https://doi.org/10.1103/PhysRevA.38.3098">
 C> 10.1103/PhysRevA.38.3098</a>.
 C>
 c

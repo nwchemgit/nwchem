@@ -186,11 +186,13 @@ c
       integer owend(2)
       logical lcheck
       integer ispintag
+      integer iwhich
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c
       nodezero=(ga_nodeid().eq.0)
+      iwhich = 0   ! call to tddft_nga_cont()
 c
 c     Set spintag
       if (singlet) then 
@@ -412,7 +414,7 @@ c ---------------------------------------------------------
 c
           call tddft_nga_cont(rtdb,geom,ao_bas_han,
      1      g_ntrl,g_nprd_p,g_nprd_m,nbf_ao,ipol,tol2e,tda,oskel,kfac,
-     2      lhashf,triplet,nvectors)
+     2      lhashf,triplet,nvectors,iwhich)
           ccpu=ccpu+util_cpusec()
           cwall=cwall+util_wallsec()
           if (nodezero.and.util_print('timings',print_high))

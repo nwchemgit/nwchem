@@ -71,6 +71,10 @@ c*------------------------------------------------------*
       parameter (ETA2 = 1.0d-20)
       parameter (DNS_CUT        =      1.0d-18)
 
+      real*8 tolrho,minagr
+      parameter (tolrho=2.0e-11,minagr=1.0e-12)
+      !parameter (tolrho=2.0e-8,minagr=1.0e-10)
+
 *     ***LYP parameters****************
       real*8 a,b,c,d
       parameter (a = 0.04918d0)
@@ -110,6 +114,8 @@ c*------------------------------------------------------*
       real*8 chiup,chidn
       real*8 chiup2,chidn2,chiupSQ,chidnSQ
       real*8 Kup,Kdn,F1up,F1dn,F2up,F2dn
+      real*8 xeup_pbe,fdnxup_pbe,fdagrxup_pbe
+      real*8 xedn_pbe,fdnxdn_pbe,fdagrxdn_pbe
       real*8 xeup,xedn,xe
       real*8 fdnxup,fdnxdn,fdagrxup,fdagrxdn
       real*8  Q,Q1,P,P1,n_m,n2_m,n3_m,n4_m
@@ -123,7 +129,7 @@ c*------------------------------------------------------*
       real*8 ec_p,uc_p,ec_f,uc_f
       real*8 xe_dirac,fnxup_dirac,fnxdn_dirac
       real*8 ce_vosko,fncup_vosko,fncdn_vosko
- 
+
       
       twthrd = thrd*2.0d0
       frthrd = thrd*4.0d0
@@ -207,41 +213,81 @@ c*------------------------------------------------------*
 
 
 *      **************UP*******************
-       chiup = agrup/nup**(4.0d0/3.0d0)
-       chiup2 = chiup*chiup
-       chiupSQ = dsqrt(1.0d0+chiup2)
+          if (dn_in(j,1).lt.DNS_CUT) then
+             xeup     = 0.0d0
+             fdnxup   = 0.0d0
+             fdagrxup = 0.0d0
+          else
+             chiup = agrup/nup**(4.0d0/3.0d0)
+             chiup2 = chiup*chiup
+             chiupSQ = dsqrt(1.0d0+chiup2)
 
-       Kup = 6.0d0*beta*dlog(chiup+chiupSQ)
-       F1up = chiup2/(1.0d0 + chiup*Kup)
-       xeup = -nup**thrd*(lda_c + beta*F1up)
-       F2up = (2.0d0 + chiup*Kup 
-     &        - 6.0d0*beta*chiup2/chiupSQ)
-     &        /(1.0d0+chiup*Kup)**2.0d0
-       fdnxup = -nup**(thrd)*(4.0d0/3.0d0)
-     &          *(lda_c+beta*(F1up-chiup2*F2up))
-       fdagrxup = -beta*chiup*F2up 
+             Kup = 6.0d0*beta*dlog(chiup+chiupSQ)
+             F1up = chiup2/(1.0d0 + chiup*Kup)
+             xeup = -nup**thrd*(lda_c + beta*F1up)
+             F2up = (2.0d0 + chiup*Kup 
+     &              - 6.0d0*beta*chiup2/chiupSQ)
+     &              /(1.0d0+chiup*Kup)**2.0d0
+             fdnxup = -nup**(thrd)*(4.0d0/3.0d0)
+     &             *(lda_c+beta*(F1up-chiup2*F2up))
+             fdagrxup = -beta*chiup*F2up 
+             if ((fdnxup-xeup).gt.0.0d0) then
+               call gen_PBE96_x_unrestricted(nup,agrup,
+     >                                xeup_pbe,fdnxup_pbe,fdagrxup_pbe)
+
+               call Becke_smalln_correction(nup,nup**thrd,1.0d0,
+     >                                      beta,lda_c,chiup,chiup2,
+     >                                      chiupSQ,Kup,F1up,F2up,
+     >                                xeup_pbe,fdnxup_pbe,fdagrxup_pbe, 
+     >                                xeup,fdnxup,fdagrxup)
+
+*               call Becke_smalln_correction(nup,nup**thrd,agrup,
+*    >                               beta,lda_c,
+*    >                               chiup,chiup2,chiupSQ,Kup,F1up,F2up,
+*    >                               xeup,fdnxup,fdagrxup)
+             end if
+          end if
 *      ************END UP*****************
 
 
 *      *************DOWN******************
-       chidn = agrdn/ndn**(4.0d0/3.0d0)
-       chidn2 = chidn*chidn
-       chidnSQ = dsqrt(1.0d0+chidn2)
+          if (dn_in(j,2).lt.DNS_CUT) then
+             xedn     = 0.0d0
+             fdnxdn   = 0.0d0
+             fdagrxdn = 0.0d0
+          else
+             chidn = agrdn/ndn**(4.0d0/3.0d0)
+             chidn2 = chidn*chidn
+             chidnSQ = dsqrt(1.0d0+chidn2)
 
-       Kdn = 6.0d0*beta*dlog(chidn+chidnSQ)
-       F1dn = chidn2/(1.0d0 + chidn*Kdn)
-       xedn = -ndn**thrd*(lda_c + beta*F1dn)
-       F2dn = (2.0d0 + chidn*Kdn
-     &        - 6.0d0*beta*chidn2/chidnSQ)
-     &        /(1.0d0+chidn*Kdn)**2.0d0
-       fdnxdn = -ndn**(thrd)*(4.0d0/3.0d0)
-     &          *(lda_c+beta*(F1dn-chidn2*F2dn))
-       fdagrxdn = -beta*chidn*F2dn
+             Kdn = 6.0d0*beta*dlog(chidn+chidnSQ)
+             F1dn = chidn2/(1.0d0 + chidn*Kdn)
+             xedn = -ndn**thrd*(lda_c + beta*F1dn)
+             F2dn = (2.0d0 + chidn*Kdn
+     &              - 6.0d0*beta*chidn2/chidnSQ)
+     &              /(1.0d0+chidn*Kdn)**2.0d0
+             fdnxdn = -ndn**(thrd)*(4.0d0/3.0d0)
+     &                *(lda_c+beta*(F1dn-chidn2*F2dn))
+             fdagrxdn = -beta*chidn*F2dn
+             if ((fdnxdn-xedn).gt.0.0d0) then
+               call gen_PBE96_x_unrestricted(ndn,agrdn,
+     >                                xedn_pbe,fdnxdn_pbe,fdagrxdn_pbe)
 
+               call Becke_smalln_correction(ndn,ndn**thrd,1.0d0,
+     >                                      beta,lda_c,chidn,chidn2,
+     >                                      chidnSQ,Kdn,F1dn,F2dn,
+     >                                xedn_pbe,fdnxdn_pbe,fdagrxdn_pbe, 
+     >                                xedn,fdnxdn,fdagrxdn)
 
+*               call Becke_smalln_correction(ndn,ndn**thrd,agrdn,
+*    >                               beta,lda_c,
+*    >                               chidn,chidn2,chidnSQ,Kdn,F1dn,F2dn,
+*    >                               xedn,fdnxdn,fdagrxdn)
+             end if
+          end if
 *      ***********END DOWN****************
 
-       xe = (xeup*nup + xedn*ndn)/n
+          xe = (xeup*nup + xedn*ndn)/n
 
 *      *******end excange part************
        end if
@@ -300,8 +346,9 @@ c*------------------------------------------------------*
 
        enthrd   = dexp(-c*n_mthrd)
        Q        = enthrd*n_mfvthrd
-       Q1       = (1.0d0/3.0d0)*c*n_mfrthrd  *enthrd
-     &          - (5.0d0/3.0d0)*n_mfvthrd*n_m*enthrd
+c       Q1       = (1.0d0/3.0d0)*c*n_mfrthrd  *enthrd
+c     &          - (5.0d0/3.0d0)*n_mfvthrd*n_m*enthrd
+       Q1 = (Q/3.0d0)*(c*n_mfrthrd - 5.0*n_m)
        G        = F*Q
 
        P  = (1.0d0/3.0d0)*c*n_mfrthrd - (5.0d0/3.0d0)*n_m
@@ -388,20 +435,7 @@ c*------------------------------------------------------*
        fc_agrup = 2.0d0*Hu*agrup
        fc_agrdn = 2.0d0*Hd*agrdn
 
-
-*      ******DEBUG*********
-       fc = fclda + 0.001d0*agr2 + 0.002d0*(agrup2 + agrdn2)
-       fc_u = fclda_u
-       fc_d = fclda_d
-       fc_agr   = 2.0d0*agr  *0.001d0
-       fc_agrup = 2.0d0*agrup*0.002d0
-       fc_agrdn = 2.0d0*agrdn*0.002d0
-*      ******DEBUG*********
-   
-*    ***correlation energy dentsity
        ce = fc/n
-
-
 
 
 *      *******end correlation part********
@@ -537,6 +571,7 @@ c*------------------------------------------------------*
       real*8    agr,agr2, chi, chi2,chiSQ,sd
       real*8    K
       real*8    F1, F2      
+      real*8    xe_pbe,fdnx_pbe,fdagrx_pbe
       real*8    xe,fdnx,fdagrx,xe_dirac,fnx_dirac,x,xx
       real*8    ce,fdnc, fdagrc,fdnc_lda,ce_vosko,fnc_vosko
 
@@ -554,6 +589,9 @@ c*------------------------------------------------------*
       real*8 DNS_CUT, ETA
       parameter (DNS_CUT        =      1.0d-18)
       parameter (ETA            =      1.0d-20)
+
+      real*8 tolrho,minagr
+      parameter (tolrho=2.0e-11,minagr=1.0e-12)
 ****** Becke constants *****************************
       real*8 lda_c,beta
       parameter (beta = 0.0042d0)
@@ -579,7 +617,6 @@ c*------------------------------------------------------*
       parameter (p6=-4.0d0*thrd*thrd*c)
       
 ****************************************************
-
 
 
 !$OMP DO
@@ -613,21 +650,32 @@ c*------------------------------------------------------*
 ******************************************************************
 *     *******calc. becke exchange energy density, fnx, fdnx*******
 *****************************************************************
-       sd       = 1.0d0/(n_thrd*n)
-       chi 	= two_thrd*agr*sd
-       chi2	= chi*chi
-       chiSQ    = dsqrt(1.0d0+chi2)   
+          sd       = 1.0d0/(n_thrd*n)
+          chi      = two_thrd*agr*sd
+          chi2     = chi*chi
+          chiSQ    = dsqrt(1.0d0+chi2)   
 
+          K        = 6.0d0*beta*dlog(chi+chiSQ)
+          F1       = chi2/(1.0d0+chi*K)
+          xe       = -n_thrd*(lda_c+beta*F1)/two_thrd
+          F2       = (2.0d0 + chi*K-(chi2)*6.0d0*beta
+     &               /chiSQ)
+     &             /((1.0d0+chi*K)*(1.0d0+chi*K))
+          fdnx     = -(n_thrd/two_thrd)*dble(4.0d0/3.0d0)
+     &            *(lda_c+beta*(F1-chi2*F2))
+          fdagrx   = -beta*chi*F2 
+          if ((fdnx-xe).gt.0.0d0) then
+              call gen_PBE96_x_restricted(n,agr,
+     >                                    xe_pbe,fdnx_pbe,fdagrx_pbe)
+              call Becke_smalln_correction(n,n**thrd,2.0d0,beta,
+     >                                   lda_c,chi,chi2,chiSQ,K,F1,F2,
+     >                                   xe_pbe,fdnx_pbe,fdagrx_pbe,
+     >                                   xe,fdnx,fdagrx)
 
-       K 	= 6.0d0*beta*dlog(chi+chiSQ)
-       F1 	= chi2/(1.0d0+chi*K)
-       xe 	= -n_thrd*(lda_c+beta*F1)/two_thrd
-       F2 	= (2.0d0 + chi*K-(chi2)*6.0d0*beta
-     &		/chiSQ)
-     &      	/((1.0d0+chi*K)*(1.0d0+chi*K))
-       fdnx 	= -(n_thrd/two_thrd)*dble(4.0d0/3.0d0)
-     &  	*(lda_c+beta*(F1-chi2*F2))
-       fdagrx 	= -beta*chi*F2 
+*             call Becke_smalln_correction(n,n_thrd,agr,beta,lda_c,
+*    >                                   chi,chi2,chiSQ,K,F1,F2,
+*    >                                   xe,fdnx,fdagrx)
+          end if
        end if
 
 

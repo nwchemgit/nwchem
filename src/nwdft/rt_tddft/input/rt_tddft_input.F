@@ -195,6 +195,13 @@ C     MO CAP sub-block
 C
          elseif (inp_compare(.false.,test,'mocap')) then
             call rt_tddft_input_mocap (rtdb)
+
+
+C 
+C     Spatial CAP sub-block
+C
+         elseif (inp_compare(.false.,test,'spatialcap')) then
+            call rt_tddft_input_spatialcap (rtdb)
             
             
 C     

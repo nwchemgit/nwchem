@@ -14,7 +14,7 @@ endif
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = 
+    USES_BLAS = md_xs.F
 
   LIB_DEFINES = 
 

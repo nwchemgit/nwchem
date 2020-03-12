@@ -113,6 +113,7 @@ c
       integer ngxc          ! the number of Gxc matrices
       integer i             ! counter for abitrary purposes
       logical oroot
+      integer iwhich
 c
       character*32 pname
 c
@@ -123,6 +124,7 @@ c
       double precision Exc(2)    ! Exchange-correlation energy
 c
       pname="tddft_grad_compute_r: "
+      iwhich = 0  ! call to tddft_nga_cont()
 c
 c     1. Do the T contributions
 c
@@ -176,7 +178,7 @@ c fock_xc:triplet here for restricted triplet calculations to work.
       endif
 c
       call tddft_nga_cont(rtdb,ihdl_geom,ihdl_bfao,g_tuv,g_apbt,g_ambt,
-     +     nao,ipol,tol2e,tda,oskel,kfac,lhashf,.false.,nroot)
+     +     nao,ipol,tol2e,tda,oskel,kfac,lhashf,.false.,nroot,iwhich)
 c Daniel (2-26-13): Reset fock_xc:triplet here for restricted triplet 
 c calculations to work.
       if (otriplet) then
@@ -302,9 +304,9 @@ c the global one.
         endif
       endif
       call tddft_nga_cont(rtdb,ihdl_geom,ihdl_bfao,g_x,g_apbx,g_ambx,
-     +     nao,ipol,tol2e,tdaloc,oskel,kfac,lhashf,otriplet,nroot)
+     +    nao,ipol,tol2e,tdaloc,oskel,kfac,lhashf,otriplet,nroot,iwhich)
       call tddft_nga_cont(rtdb,ihdl_geom,ihdl_bfao,g_y,g_apby,g_amby,
-     +     nao,ipol,tol2e,tdaloc,oskel,kfac,lhashf,otriplet,nroot)
+     +    nao,ipol,tol2e,tdaloc,oskel,kfac,lhashf,otriplet,nroot,iwhich)
 c
 c     2.6 Dispose of X and Y
 c

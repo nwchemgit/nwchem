@@ -22,7 +22,6 @@ C
 #include "util.fh"
 #include "rt_tddft.fh"
 
-
       
 C     == Inputs ==
       type(rt_params_t), intent(in) :: params
@@ -271,6 +270,48 @@ c$$$            c = field%max / sqrt (2d0 * dpi) / s  !normalization
       end function
 
 
+C====================================================================
+C
+C     Computes sin^2 ramp up function for windowing applied field.
+C
+      double precision function rt_tddft_sin2ramp_window (field, tt)
+      implicit none
+
+#include "errquit.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "rt_tddft.fh"
+      
+C     == Inputs ==
+      type(rt_field_t), intent(in)  :: field
+      double precision, intent(in)  :: tt
+      
+C     == Parameters ==
+      character(*) ,parameter  :: pname = "rt_tddft_sin2ramp_window: "
+
+C     == Variables ==
+      double precision ww, wid, t0, t1, arg
+      double precision ramp, ss
+
+      ww = field%frequency
+      t0 = field%start      !start of ramp up 
+      wid = field%width     !field%ramp_wid
+      t1 = t0 + wid
+
+      if (tt.le.t0) then
+         ramp = 0d0
+      elseif ((tt.gt.t0) .and. (tt.lt.t1)) then
+         ss = sin(dpi * (tt-t0) / (2d0*wid))
+         ramp = ss*ss
+      else
+         ramp = 1d0
+      endif
+      
+      rt_tddft_sin2ramp_window = ramp
+
+      end function
+
+      
 
 C====================================================================
 C
@@ -286,6 +327,7 @@ C
 #include "global.fh"
 #include "msgids.fh"
 #include "util.fh"
+#include "rtdb.fh"
 #include "rt_tddft.fh"
 
 
@@ -295,12 +337,11 @@ C     == Inputs ==
 
 C     == Parameters ==
       character(len=*), parameter :: pname = "rt_tddft_update_fields: "
-C      double precision, parameter :: delta_time = 0d0  !kick at t=0
 
 C     == External ==
       double precision, external :: rt_tddft_hann_window
       double precision, external :: rt_tddft_gaussian_window
-
+      double precision, external :: rt_tddft_sin2ramp_window
 
 C     == Variables ==
       integer ifield
@@ -308,17 +349,15 @@ C     == Variables ==
       type(rt_vector_t) fvec
       double precision val
       double precision delta_time
-
-C      delta_time = 0d0
-C      delta_time = params%dt  !kick on 1st time step, that way dipole is 0 at t=0
-
+      double precision :: theta, phi
 
       do ifield = 1, params%nfields
          field = params%field(ifield)
 
          if ( (field%polarization .ne. "x").and.
      $        (field%polarization .ne. "y").and.
-     $        (field%polarization .ne. "z") )
+     $        (field%polarization .ne. "z").and.
+     $        (field%polarization .ne. "angle"))
      $        call errquit (pname//
      $        "only works for field values (no quads yet)", 0, 0)
          
@@ -328,7 +367,8 @@ C      delta_time = params%dt  !kick on 1st time step, that way dipole is 0 at t
 C     (frequency-containing pulses, potentially windowed)
          if ( (field%type .eq. "cw") .or.
      $        (field%type .eq. "gaussian") .or.
-     $        (field%type .eq. "hann") ) then
+     $        (field%type .eq. "hann").or.
+     $        (field%type .eq. "sin2ramp")) then
             
             val = field%max * sin (field%frequency*tt + field%phase)
             
@@ -336,23 +376,9 @@ C     (frequency-containing pulses, potentially windowed)
                val = val * rt_tddft_hann_window (field, tt)
             elseif (field%type .eq. "gaussian") then
                val = val * rt_tddft_gaussian_window (field, tt)
+            elseif (field%type .eq. "sin2ramp") then
+               val = val * rt_tddft_sin2ramp_window (field, tt)
             endif
-
-c$$$         elseif (field%type .eq. "gaussian") then
-c$$$            s = field%width
-c$$$            t0 = field%center
-c$$$            w = field%frequency
-c$$$            p = field%phase
-c$$$            c = field%max / sqrt (2d0 * dpi) / s
-c$$$            
-c$$$            val = c * dexp(-(tt-t0)*(tt-t0)/(2d0*s*s)) *
-c$$$     $           sin (w*tt + p)
-c$$$
-c$$$         elseif (field%type .eq. "hann") then
-c$$$            w = field%frequency
-c$$$            p = field%phase
-c$$$            val = field%max * sin (w*tt + p) *
-c$$$     $           rt_tddft_hann_window (field,tt)
 
          elseif (field%type .eq. "delta") then
             
@@ -381,6 +407,8 @@ C
 C     Store the applied field value (vector) in the field struct, note
 C     alpha, beta spin parts.
 C
+C     XXX TODO: Instead of cases, just use the theta,phi from the input
+C         
          call rt_tddft_vec_zero (fvec)
          if (field%polarization .eq. "x") then
             fvec%x = val
@@ -388,6 +416,44 @@ C
             fvec%y = val
          elseif (field%polarization .eq. "z") then
             fvec%z = val
+         elseif (field%polarization .eq. "angle") then
+            theta = field%theta
+            phi = field%phi
+c$$$            if (.not.rtdb_get(params%rtdb, "rt_tddft:efield:theta",
+c$$$     $           mt_dbl, 1, theta))
+c$$$     $           call errquit (pname//
+c$$$     $           "couldnt read rt_tddft:efield:theta",0,0)
+c$$$
+c$$$            if (.not.rtdb_get(params%rtdb, "rt_tddft:efield:phi",
+c$$$     $           mt_dbl, 1, phi))
+c$$$     $           call errquit (pname//
+c$$$     $           "couldnt read rt_tddft:efield:phi",0,0)
+
+            if (ga_nodeid().eq.0) then
+               write(luout, *) "Efield angles (theta, phi) = ",
+     $              theta, phi
+            endif
+
+            theta = theta / deg2rad
+            phi = phi / deg2rad
+            
+            fvec%x = val * sin(theta) * cos(phi) 
+            fvec%y = val * sin(theta) * sin(phi)
+            fvec%z = val * cos(theta)
+
+            if (abs(fvec%x) > abs(val)) then
+               call errquit("Ex should not be larger than Emax",0,0)
+            endif
+
+            if (abs(fvec%y) > abs(val)) then
+               call errquit("Ey should not be larger than Emax",0,0)
+            endif
+
+            if (abs(fvec%z) > abs(val)) then
+               call errquit("Ez should not be larger than Emax",0,0)
+            endif
+            
+            
          else
             call errquit (pname//"bad polarization: "//
      $           field%polarization, 0, 0)
@@ -403,16 +469,6 @@ C
             field%vec(2) = fvec
          endif
 
-c$$$         if (field%polarization .eq. "x") then
-c$$$            field%vec%x = val
-c$$$         elseif (field%polarization .eq. "y") then
-c$$$            field%vec%y = val
-c$$$         elseif (field%polarization .eq. "z") then
-c$$$            field%vec%z = val
-c$$$         else
-c$$$            call errquit (pname//"bad polarization: "//
-c$$$     $           field%polarization, 0, 0)
-c$$$         endif
 
 C
 C     Save field info back into params struct

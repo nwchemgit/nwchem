@@ -3,7 +3,7 @@
 #
 include ../../config/makefile.h
 include ../DEFS
-NOCASENS = CYGNUS MACX64 MACX CYGWIN CYGWIN64 INTERIX
+NOCASENS = CYGNUS MACX64 MACX CYGWIN CYGWIN64
 ifneq ($(peigs_TARGET),$(findstring $(peigs_TARGET), $(NOCASENS)))
 	REMOVESF=TRUE
 endif
@@ -17,7 +17,7 @@ MXOBJ	=	mxbrod.o \
 
 all:		$(MXOBJ)
 
-.EXPORT_ALL_VARIABLES:
+#.EXPORT_ALL_VARIABLES:
 
 .PHONY :	clean
 

@@ -17,7 +17,7 @@
 
 
 *    *** local variables ***
-      logical success
+      logical success,oddelcfill
       real*8  icharge,tcharge,t
       integer mult,x,xx
       integer ispin,ne(2),nextra_orbs
@@ -48,6 +48,8 @@
       external control_rtdb,control_version
       integer  control_frac_occ_extra_orbitals
       external control_frac_occ_extra_orbitals
+      logical  control_mult_fixed
+      external control_mult_fixed
 
       filename = control_input_psi()
       version = control_version()
@@ -72,30 +74,36 @@
       x = NINT(t)
       xx = x
 
+      oddelcfill = .false.
 
-*     **** reassign spin to agree with total number of electrons ****
-      if ((mod(x,2).ne.0).and.(ispin.eq.1)) then !** odd number of electrons **
-         ispin = 2
-         call control_ispin_set(ispin)
+      if (.not.control_mult_fixed()) then
+*        **** reassign spin to agree with total number of electrons ****
+         if ((mod(x,2).ne.0).and.(ispin.eq.1)) then !** odd number of electrons **
+            ispin = 2
+            call control_ispin_set(ispin)
+         end if
+
+*        **** reassign mult to agree with total number of electrons ****
+         if ((mod(x,2).ne.0) .and.(mod(mult,2).ne.0)) then !** odd number of electrons and mult odd **
+            mult = mult - 1
+            do while (mult.gt.(x+1))
+               mult = mult - 2
+            end do
+            if (mult.lt.1) mult = 2
+            call control_multiplicity_set(mult)
+         end if
+         if ((mod(x,2).eq.0) .and.(mod(mult,2).eq.0)) then !** even number of electrons and mult even **
+            mult = mult - 1
+            do while (mult.gt.(x+1))
+               mult = mult - 2
+            end do
+            if (mult.lt.1) mult = 1
+            call control_multiplicity_set(mult)
+         end if
+      else
+         if ((mod(x,2).ne.0).and.(ispin.eq.1)) oddelcfill = .true.  !** odd number of electrons **
       end if
 
-*     **** reassign mult to agree with total number of electrons ****
-      if ((mod(x,2).ne.0) .and.(mod(mult,2).ne.0)) then !** odd number of electrons and mult odd **
-         mult = mult - 1
-         do while (mult.gt.(x+1))
-            mult = mult - 2
-         end do
-         if (mult.lt.1) mult = 2
-         call control_multiplicity_set(mult)
-      end if
-      if ((mod(x,2).eq.0) .and.(mod(mult,2).eq.0)) then !** even number of electrons and mult even **
-         mult = mult - 1
-         do while (mult.gt.(x+1))
-            mult = mult - 2
-         end do
-         if (mult.lt.1) mult = 1
-         call control_multiplicity_set(mult)
-      end if
 
 *     **** assign number of up and down electrons ****
       if (ispin.eq.1) then
@@ -155,7 +163,7 @@
      >                  ngrid,
      >                  unita,
      >                  ispin,
-     >                  ne)
+     >                  ne,oddelcfill)
       end if
 
       return
@@ -227,7 +235,7 @@
      >                  ngrid,
      >                  unita,
      >                  ispin,
-     >                  ne)
+     >                  ne,.false.)
       end if
       return
       end

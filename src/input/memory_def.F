@@ -68,69 +68,7 @@ c          light of new integrals, caching and replicated data
 C
 #ifdef DFLT_TOT_MEM
       Parameter (Total_Dflt = DFLT_TOT_MEM )   ! from compile flag
-#elif defined(SP1) || defined(LAPI)
-C     This is probably a minimum configuration for most IBM
-C     platforms, but many will have more.  Assumes dedicated node
-C     access.
-C
-      Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
-#elif defined(LINUX) || defined(WIN32) || defined (MACX)
-*
-*     parameter ( Total_Dflt = 16777216) ! 128 MB (linux)
-*      Parameter ( Total_Dflt = 26214400) ! 200 MB on 256 MB node
-      Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
-#elif defined(SUN) || defined(SOLARIS) || defined(HPUX)
-*     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sun or solaris)
-      Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
-#elif defined(__crayx1)
-C
-      Parameter ( Total_Dflt = 52428800) ! 512
-#elif defined(CRAY_T3E)
-C
-*too large   Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node
-      Parameter ( Total_Dflt = 11010052) ! 83 MB on 128 MB node (t3e)
-#elif defined(CRAY_T3D)
-C     Note this is a minimum memory configuration for a T3D
-C     Code seems to be very large on T3D (~10-15 MB)
-C
-      Parameter ( Total_Dflt = 5242880 ) ! 40 MB on a 64 MB node (t3d)
-#elif defined(KSR)
-      Parameter ( Total_Dflt = 2621440 ) ! 20 MB on a 32 MB node  (ksr)
-#elif defined(__PARAGON__)
-C     The OS Version 1.3 release notes give the following table
-C     for memory usage by the OS based on physical memory on the
-C     nodes.  The increase is due to larger paging tables.
-C     Code itself is about 5 MB with everything configured in.
-C     Phys. Mem.   OS Uses  Msg. bufs.   Available memory
-C      16 MB        9 MB    1 MB           6 MB      786 432 dbl
-C      32 MB       10 MB    1 MB          21 MB    2 763 264 dbl
-C      64 MB       11 MB    1 MB          52 MB    6 815 744 dbl
-C     128 MB       12 MB    1 MB         115 MB   15 973 289 dbl
-C
-      Parameter ( Total_Dflt = 2097152 ) ! 16 MB on a 32 MB node (paragon)
-#elif defined(DELTA)
-C     Note:  RTDB presently needs to be able to malloc to function
-C     so this limit leaves it a little room.  It is pretty much
-C     an upper limit on memory usage on the Delta, unfortunately.
-C
-      Parameter (Total_Dflt = 917504 ) ! 7 MB on a 16 MB node (delta)
-#elif defined(SGITFP)
-*     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sgitfp)
-      Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
-#elif defined(DECOSF)
-*     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (decosf)
-      Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
-#elif defined(SGI) && ! defined(SGITFP)
-*     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sgi)
-      Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
-#elif defined(IBM)  || defined(IBM64)
-*     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (ibm)
-      Parameter ( Total_Dflt = 92428800) ! 400 MB on 512 MB 
-#elif defined(FUJITSU_VPP)
-      Parameter ( Total_Dflt = 67108864) ! 512 MB (Fujitsu VPP)
-#elif defined(BGL)
-      Parameter ( Total_Dflt = 52428800) ! 400 on 512 MB (default co mode)
-#elif defined(BGP)
+#else
       Parameter ( Total_Dflt = 52428800) ! 400 on 512 MB (per core)
 #endif
 C
@@ -139,7 +77,7 @@ C     by default.  This is (should be) an empirical estimate of what
 C     distribution of memory will serve most applications.
 C
       Double Precision Heap_Frc, Stack_Frc, Global_Frc
-#ifdef ELAN3HACK
+#ifdef MORE_MA_MEM
       Parameter (Heap_Frc=7d0/18d0,Stack_Frc=7d0/18d0,
      ,     Global_Frc=4d0/18d0)
 #else

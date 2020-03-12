@@ -13,6 +13,8 @@ geometry units au noprint
 end
 
 python noprint
+from __future__ import print_function
+
 exponent = 0.1
 while (exponent <= 2.0):
    input_parse('''
@@ -23,7 +25,7 @@ while (exponent <= 2.0):
       end
    ''' % (exponent))
 
-   print ' exponent = ', exponent, ' energy = ', task_energy('scf')
+   print(' exponent = ', exponent, ' energy = ', task_energy('scf'))
    exponent = exponent + 0.1
 end
 

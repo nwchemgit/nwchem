@@ -11,7 +11,11 @@
 #include <stdlib.h>
 #include "typesf2c.h"
 
+#if PY_MAJOR_VERSION >= 3
+extern PyMODINIT_FUNC PyInit_nwchem();
+#else
 extern void initnwchem();
+#endif
 extern void util_file_parallel_copy(const char *, const char *);
 
 
@@ -26,9 +30,24 @@ int FATR task_python_(Integer *rtdb_ptr)
    char filename[256];
    int ret;
    
+#if PY_MAJOR_VERSION < 3
    Py_SetProgramName("NWChem");
+#else
+#if PY_MINOR_VERSION < 5
+   wchar_t nwprogram[20];
+   mbstowcs(nwprogram, "NWChem", strlen("NWChem") + 1);
+#else
+   wchar_t *nwprogram = Py_DecodeLocale("NWChem", NULL);
+#endif
+   Py_SetProgramName(nwprogram);
+#endif   
+#if PY_MAJOR_VERSION >= 3
+   PyImport_AppendInittab("nwchem", PyInit_nwchem);
+#endif
    Py_Initialize();		/* set the PYTHONPATH env   */
+#if PY_MAJOR_VERSION < 3
    initnwchem();
+#endif
    if (PyRun_SimpleString("from nwchem import *")) {
      fprintf(stderr,"import of NWCHEM failed\n");
      return 0;
@@ -47,7 +66,7 @@ int FATR task_python_(Integer *rtdb_ptr)
    ret += PyRun_SimpleString(pbuf);
    sprintf(pbuf, "CHAR    = %d", MT_CHAR);      
    ret += PyRun_SimpleString(pbuf);
-   sprintf(pbuf, "LOGICAL = %d", MT_BASE + 11); 
+   sprintf(pbuf, "LOGICAL = %d", MT_F_LOG); 
    ret += PyRun_SimpleString(pbuf);
    sprintf(pbuf, "taskid = %d", GA_Nodeid());
    ret += PyRun_SimpleString(pbuf);
@@ -71,7 +90,7 @@ int FATR task_python_(Integer *rtdb_ptr)
       a compatible compiler ... which it most likely is not */
  
 #if defined(WIN32)
-   ret = PyRun_SimpleString("execfile('nwchem.py')"); 
+   ret = PyRun_SimpleString("exec(open('nwchem.py').read())");
 #else
    if (!(F = fopen(filename, "r"))) {
        fprintf(stderr,"task_python: cannot open file %s\n",filename); 

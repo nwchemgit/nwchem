@@ -618,7 +618,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
  
 *     *** read in dvl 3d block ***
-      call C3dB_r_read(1,5,tmp2,tmp,-1,-1)
+      call C3dB_r_read(1,5,tmp2,tmp,-1,-1,.true.)
       call Cram_r_pack(0,tmp2)
       call Cram_r_Copy(0,tmp2,dvl)
 
@@ -630,7 +630,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          call K1dB_ktoqp(nb,nbq,pk)
          do n=1,lmmax
          do i=1,3
-            call C3dB_r_read(1,5,tmp2,tmp,-1,pk)
+            call C3dB_r_read(1,5,tmp2,tmp,-1,pk,.true.)
             if (pk.eq.taskid_k) then
                call Cram_r_pack(nbq,tmp2)
                call cpsp_projector_add(dvnl_tag,nbq,(3*(n-1)+i),tmp2)
@@ -643,7 +643,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     **** read in semicore density block ****
       if (semicore) then
          !write(*,*) "reading in semicore block"   !debug
-         call C3dB_r_Read(1,5,tmp2,tmp,-1,-1)
+         call C3dB_r_Read(1,5,tmp2,tmp,-1,-1,.true.)
          call Cram_r_pack(0,tmp2)
          call Cram_r_Copy(0,tmp2,dncore)
       end if

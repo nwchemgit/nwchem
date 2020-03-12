@@ -93,7 +93,7 @@ C> ### References ###
 C> 
 C> [1] OA Vydrov, GE Scuseria, JP Perdew, J.Chem.Phys. 126
 C>    , 154109 (2007)  , DOI: 
-C> <a href="http://dx.doi.org/10.1063/1.2723119 "> 
+C> <a href="https://doi.org/10.1063/1.2723119 "> 
 C> 10.1063/1.2723119 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -523,7 +523,7 @@ C> ### References ###
 C> 
 C> [1] OA Vydrov, GE Scuseria, JP Perdew, J.Chem.Phys. 126
 C>    , 154109 (2007)  , DOI: 
-C> <a href="http://dx.doi.org/10.1063/1.2723119 "> 
+C> <a href="https://doi.org/10.1063/1.2723119 "> 
 C> 10.1063/1.2723119 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -1468,7 +1468,7 @@ C> ### References ###
 C> 
 C> [1] OA Vydrov, GE Scuseria, JP Perdew, J.Chem.Phys. 126
 C>    , 154109 (2007)  , DOI: 
-C> <a href="http://dx.doi.org/10.1063/1.2723119 "> 
+C> <a href="https://doi.org/10.1063/1.2723119 "> 
 C> 10.1063/1.2723119 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

@@ -30,7 +30,7 @@ C>     "A consistent and accurate ab initio parametrization of density
 C>      functional dispersion correction (DFT-D) for the 94 elements
 C>      H-Pu",
 C>     J. Chem. Phys. (2010) <b>132</b>, 154104, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.3382344"> 
+C>     <a href="https://doi.org/10.1063/1.3382344"> 
 C>     10.1063/1.3382344</a>.
 C>
       double precision function c6cn(iat,jat,cni,cnj)
@@ -104,7 +104,7 @@ C>     "A consistent and accurate ab initio parametrization of density
 C>      functional dispersion correction (DFT-D) for the 94 elements
 C>      H-Pu",
 C>     J. Chem. Phys. (2010) <b>132</b>, 154104, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.3382344"> 
+C>     <a href="https://doi.org/10.1063/1.3382344"> 
 C>     10.1063/1.3382344</a>.
 C>
       subroutine c6_grad(grad,iat,jat,kat,x,z,n,cnij,cnijk)
@@ -269,7 +269,7 @@ C>     "A consistent and accurate ab initio parametrization of density
 C>      functional dispersion correction (DFT-D) for the 94 elements
 C>      H-Pu",
 C>     J. Chem. Phys. (2010) <b>132</b>, 154104, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.3382344">
+C>     <a href="https://doi.org/10.1063/1.3382344">
 C>     10.1063/1.3382344</a>.
 C>
       subroutine crd_nr_der(n,xyz,iz,cnij,cnijk)
@@ -345,7 +345,7 @@ C>     "A consistent and accurate ab initio parametrization of density
 C>      functional dispersion correction (DFT-D) for the 94 elements
 C>      H-Pu",
 C>     J. Chem. Phys. (2010) <b>132</b>, 154104, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.3382344">
+C>     <a href="https://doi.org/10.1063/1.3382344">
 C>     10.1063/1.3382344</a>.
 C>
       double precision function crd_nr(iat,nat,xyz,iz)
@@ -409,14 +409,14 @@ C> [1] A.D. Becke, E.R. Johnson,
 C>     "A unified density-functional treatment of dynamical,
 C>      nondynamical and dispersion correlations",
 C>     J. Chem. Phys. (2007) <b>127</b> 124108, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.2768530">
+C>     <a href="https://doi.org/10.1063/1.2768530">
 C>     10.1063/1.2768530</a> (See appendix C).
 C>
 C> [2] S. Grimme, S. Ehrlich, L. Goerigk,
 C>     "Effect of the damping function in dispersion corrected
 C>      density functional theory", J. Comput. Chem. (2011)
 C>     <b>32</b>, pp. 1456-1465, DOI:
-C>     <a href="http://dx.doi.org/10.1002/jcc.21759">
+C>     <a href="https://doi.org/10.1002/jcc.21759">
 C>     10.1002/jcc.21759</a> (See Eqs.(5-6)).
 C>
       double precision function xc_fdmpbj(r,r0,a1,a2,n)
@@ -457,14 +457,14 @@ C> [1] A.D. Becke, E.R. Johnson,
 C>     "A unified density-functional treatment of dynamical,
 C>      nondynamical and dispersion correlations",
 C>     J. Chem. Phys. (2007) <b>127</b> 124108, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.2768530">
+C>     <a href="https://doi.org/10.1063/1.2768530">
 C>     10.1063/1.2768530</a> (See appendix C).
 C>
 C> [2] S. Grimme, S. Ehrlich, L. Goerigk,
 C>     "Effect of the damping function in dispersion corrected
 C>      density functional theory", J. Comput. Chem. (2011)
 C>     <b>32</b>, pp. 1456-1465, DOI:
-C>     <a href="http://dx.doi.org/10.1002/jcc.21759">
+C>     <a href="https://doi.org/10.1002/jcc.21759">
 C>     10.1002/jcc.21759</a> (See Eqs.(5-6)).
 C>
       double precision function xc_fdmpbj_d1(r,r0,a1,a2,n)
@@ -510,7 +510,7 @@ C>     "Insights into the influence of dispersion correction in the
 C>      theoretical treatment of Guanidine-Quinoline Copper(I)
 C>      complexes", J. Comput. Chem. (2014) <b>35</b>, pp. 1943-1950,
 C>      DOI:
-C>      <a href="http://dx.doi.org/10.1002/jcc.23706">
+C>      <a href="https://doi.org/10.1002/jcc.23706">
 C>      10.1002/jcc.23706</a>
 C>
       subroutine get_scaling_fac(scales6,scales8,scalesr6,scalesr8,
@@ -521,6 +521,8 @@ C>
 #include "stdio.fh"
 #include "global.fh"
       double precision scales6,scales8,scalesr6,scalesr8,a1,a2
+      logical read_ok
+      read_ok=.false.
 c
 c DFT-D1 version
 c
@@ -757,7 +759,7 @@ c bmk
 c          scalesr6 = 1.931d0
 c          scales8  = 2.168d0
 c CAM-B3LYP
-         else if (xfac(40).eq.1.0d0.and.cfac(2).ne.0d0.
+         else if (abs(xfac(40)-1.0d0).lt.1d-5.and.cfac(2).ne.0d0.
      A          and.xfac(1).ne.0d0) then
           scalesr6 = 1.378d0
           scales8  = 1.217d0
@@ -790,21 +792,26 @@ c m06hf
         else if (xccomb(34)) then
            scalesr6 = 1.446d0
            scales8  = 0.000d0
+c hf
+        else if (xfac(1).eq.1d0) then
+           scalesr6 = 1.158d0
+           scales8  = 1.746d0
 c dftb
 c          scalesr6 = 1.699d0
 c          scales8  = 1.504d0
         else
-           call errquit(' vdw 3: scaling factors not available',0,0)
+           if(.not.read_ok)
+     c      call errquit(' vdw 3: scaling factors not available',0,0)
         endif
       else if (ivdw.eq.4) then
 c
 c DFT-D3BJ version
 c
         scales6  = 1.0d0
-        scalesr6 = 0.0d0
-        scalesr8 = 0.0d0
-        a1=0d0
-        a2=0d0
+cold        scalesr6 = 0.0d0
+cold        scalesr8 = 0.0d0
+cold        a1=0d0
+cold        a2=0d0
 c B2-PLYP
         if(xccomb(2).and.xfac(1).eq.0.53d0.and.
      &       xfac(3).eq.0.47d0.and.cfac(2).eq.0.73d0) then
@@ -875,68 +882,84 @@ c b3pw91
            a2       = 4.4693d0
 c pwb6k
        else if (xccomb(26)) then
-           scales8  = 0.1805d0
-           a1       = 0.9383d0
+           a1       = 0.1805d0
+           scales8  = 0.9383d0
            a2       = 7.7627d0
 c b1b95
        else if (xccomb(23)) then
-           scales8  = 0.2092d0
-           a1       = 1.4507d0
+           a1       = 0.2092d0
+           scales8  = 1.4507d0
            a2       = 5.5545d0
 c CAM-B3LYP
-         else if (xfac(40).eq.1.0d0.and.cfac(2).ne.0d0.
+         else if (abs(xfac(40)-1.0d0).lt.1d-5.and.cfac(2).ne.0d0.
      A          and.xfac(1).ne.0d0) then
           a1      = 0.3708d0
           scales8 = 2.0674d0
           a2      = 5.4743d0
 c LC-wPBE
-         else if (xfac(43).eq.1.0d0.and.cfac(12).eq.1d0.
-     A          and.xfac(1).eq.1d0) then
+       else if (abs(xfac(43)-1d0).lt.1d-5.and.
+     c          abs(cfac(12)-1d0).lt.1d-5.and.
+     A          abs(xfac(1) -1d0).lt.1d-5) then
           a1      = 0.3919d0
           scales8 = 1.8541d0
           a2      = 5.0897d0
 c hcth120
        else if (xccomb(7)) then
-           scales8  = 0.3563d0
-           a1       = 1.0821d0
+           a1       = 0.3563d0
+           scales8  = 1.0821d0
            a2       = 4.3359d0
-c tpssh
-       else if (xccomb(18)) then
-           scales8  = 0.4529d0
-           a1       = 2.2382d0
-           a2       = 4.6550d0
 c mpw1b95
        else if (xccomb(21)) then
-           scales8  = 0.1955d0
-           a1       = 1.0508d0
+           a1       = 0.1955d0
+           scales8  = 1.0508d0
            a2       = 6.4177d0
 c bop
        else if (xccomb(27)) then
-           scales8  = 0.4870d0
-           a1       = 3.2950d0
+           a1       = 0.4870d0
+           scales8  = 3.2950d0
            a2       = 3.5043d0
 c o-lyp
        else if (xfac(16).eq.1d0.and.cfac(2).eq.1d0) then
-           scales8  = 0.5299d0
-           a1       = 2.6205d0
+           a1       = 0.5299d0
+           scales8  = 2.6205d0
            a2       = 2.8065d0
 c bpbe
        else if (xfac(3).eq.1d0.and.cfac(12).eq.1d0) then
-           scales8  = 0.4567d0
-           a1       = 4.0728d0
+           a1       = 0.4567d0
+           scales8  = 4.0728d0
            a2       = 4.3908d0
 c o-pbe
        else if (xfac(16).eq.1d0.and.cfac(12).eq.1d0) then
-           scales8  = 0.5512d0
-           a1       = 3.3816d0
+           a1       = 0.5512d0
+           scales8  = 3.3816d0
            a2       = 2.9444d0
 c ssb
         else if (xccomb(46)) then
-           scales8  = -0.0952d0
-           a1       = -0.1744d0
+           a1       = -0.0952d0
+           scales8  = -0.1744d0
            a2       =  5.2170d0
+c mpwb1k
+        else if (xccomb(22)) then
+           scales8  =  0.9499d0
+           a1       =  0.1474d0
+           a2       =  6.6223d0
+c hf
+        else if (xfac(1).eq.1d0) then
+           scales8  =  0.9171d0
+           a1       =  0.3385d0
+           a2       =  2.8830d0
+c scan
+        else if (xccomb(66)) then
+           a1       =  0.5380d0
+           scales8  =  0.0000d0
+           a2       =  5.4200d0
         else
-         call errquit(' vdw 4: scaling factors not available',0,0)
+c     try to see if set rtdb was used
+           read_ok=abs(scales8).gt.0d0.and.
+     A      abs(a1).gt.0d0.and.
+     A      abs(a2).gt.0d0
+           if(.not.read_ok)
+     c    call errquit(' vdw 4: scaling factors not available',0,0)
         endif
       else
         scales6 = 0.0d0

@@ -1,0 +1,43 @@
+#
+# $Id$
+#
+Comment: Pt pseudopotential parameters
+Comment: Fitted 12-27-04
+Comment: by E.J. Bylaska, somewhat based on Khein and Allens' TM database
+Comment: relativistic TM, quadratic semicore
+
+
+[lmax] 2
+[locp] 0
+[rlocal] 1.0
+<atom>
+Pt
+78.0 195.1 12 3
+1 0   2.0
+2 0   2.0
+2 1   6.0
+3 0   2.0
+3 1   6.0
+3 2  10.0
+4 0   2.0
+4 1   6.0
+4 2   10.0
+4 3   14.0
+5 0   2.0
+5 1   6.0
+5 2   5.00
+6 0   1.50
+6 1   1.50
+<end>
+<solver> pauli                     <end>
+<pseudopotential>    troullier-martins <end>
+<rcut>
+   0    2.1292637
+   1    2.8742165
+   2    1.9754083
+<end>
+
+<semicore> 1.19 <end>
+<semicore_type> quadratic <end>
+
+

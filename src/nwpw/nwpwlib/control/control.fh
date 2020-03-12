@@ -13,7 +13,8 @@
       character*12 boundry
       real*8      unita(3,3),unita_frozen(3,3)
       real*8      tolerances(3),scaling(2),sa_decay(2)
-      real*8      time_step,fake_mass,ks_alpha,ecut,wcut,rcut
+      real*8      time_step,fake_mass,ks_alpha,fractional_alpha
+      real*8      ecut,wcut,rcut
       real*8      cpu1_time,cpu2_time,attenuation
       real*8      bo_time_step,bo_fake_mass,kerker_g0
       real*8      smooth_cutoff_values(2)
@@ -27,12 +28,13 @@
       logical     rotation,translation,dof_rotation,dof_translation
       logical     balance,spin_orbit,dipole_motion
       logical     two_comp_ppot,frozen,pio,fast_erf,fmm,smooth_cutoff
-      logical     hess_model,periodic_dipole
+      logical     hess_model,periodic_dipole,precondition
       integer     maxit_orb,maxit_orbs,scf_algorithm,ks_algorithm
       integer     symm_number,minimizer
       common / control_block / unita,unita_frozen,tolerances,
      >                         scaling,sa_decay,smooth_cutoff_values,
      >                         time_step,fake_mass,ks_alpha,
+     >                         fractional_alpha,
      >                         ecut,wcut,rcut,attenuation,
      >                         bo_time_step,bo_fake_mass,kerker_g0,
      >                         bo_steps,bo_algorithm,
@@ -50,7 +52,7 @@
      >                         balance,spin_orbit,dipole_motion,
      >                         two_comp_ppot,frozen,pio,fast_erf,
      >                         fmm,smooth_cutoff,hess_model,
-     >                         periodic_dipole
+     >                         periodic_dipole,precondition
       common / control_blkchar / boutput_wavefunction_filename,
      >                         output_wavefunction_filename,
      >                         input_wavefunction_filename,
@@ -72,9 +74,10 @@
      >                            frac_smeartype,fractional
 
 *     **** control dispersion block ****
-      logical has_disp,is_grimme2
+      logical has_disp,is_grimme2,has_vdw,is_vdw2
       character*80 options_disp
-      common / control_dispersion / options_disp,has_disp,is_grimme2
+      common / control_dispersion / options_disp,has_disp,is_grimme2,
+     >                              has_vdw,is_vdw2
 
 *     **** control fact small block ****
       logical has_ngrid_small

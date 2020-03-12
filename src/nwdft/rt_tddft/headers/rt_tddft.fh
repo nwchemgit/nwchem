@@ -4,11 +4,17 @@ C> @ingroup rt_tddft
 C
 C     Preprocessor macros.
 C
-
-#define halt()                  halt_fl(__FILE__,__LINE__)
+#if 0
+#define rt_tddft_halt()                  halt_fl(__FILE__,__LINE__)
 #define rt_tddft_cs_confirm(p)  rtcscfl(p,__FILE__,__LINE__)
 #define rt_tddft_os_confirm(p)  rtoscfl(p,__FILE__,__LINE__)
 #define rt_tddft_so_confirm(p)  rtsocfl(p,__FILE__,__LINE__)
+#else
+#define rt_tddft_halt(fname)                  halt_fl(fname,__LINE__)
+#define rt_tddft_cs_confirm(p,fname)  rtcscfl(p,fname,__LINE__)
+#define rt_tddft_os_confirm(p,fname)  rtoscfl(p,fname,__LINE__)
+#define rt_tddft_so_confirm(p,fname)  rtsocfl(p,fname,__LINE__)
+#endif
 
 
 C
@@ -29,13 +35,15 @@ C      character(*), parameter     :: out_tag = "<rt_tddft>: "
 C
 C     Unit conversions.
 C
-      double precision, parameter :: au2fs = 0.024189d0    ! au time to femtoseconds
-      double precision, parameter :: au2vnm = 514.21d0     ! au elec field to V/nm
-      double precision, parameter :: au2debye = 2.541746d0 ! au dip mom to debye
-      double precision, parameter :: au2ev = 27.2114       ! au energy to eV
-      double precision, parameter :: deg2rad = 180d0 / dpi ! 1 deg in radians
+      double precision, parameter :: au2fs = 0.024189d0      ! au time to femtoseconds
+      double precision, parameter :: au2vnm = 514.21d0       ! au elec field to V/nm
+      double precision, parameter :: au2debye = 2.541746d0   ! au dip mom to debye
+      double precision, parameter :: au2ev = 27.2114         ! au energy to eV
+      double precision, parameter :: deg2rad = 180d0 / dpi   ! 1 deg in radians
+      double precision, parameter :: au2ang = 0.5291772489d0 ! 1 au (Bohr) in Angstroms
+      double precision, parameter :: ang2au = 1.889725989d0  ! 1 Angstrom in au (Bohr)
 
-
+      
 C
 C     Hardcoded limits to the number of geometries, fields, and
 C     excitation rules.  I think 100 is a sane choice (that is the
@@ -134,15 +142,19 @@ C
 #ifdef XLFLINUX
          sequence
 #endif
-         character(16)     :: name         !hardcoded to match geom name max
+         character(16)     :: name !hardcoded to match geom name max
+         character(256)    :: filename
          character(20)     :: type
-         character(2)      :: polarization !x,y,z for dipole, xx, xy, ... for quad
+         character(16)     :: polarization !x,y,z for dipole, angle
          character         :: spin         !"a"-alpha, "b"-beta, "t"-total
          double precision  :: center
+         double precision  :: start         
          double precision  :: width
          double precision  :: frequency
          double precision  :: max
          double precision  :: phase
+         double precision  :: theta
+         double precision  :: phi
          type(rt_vector_t) :: vec(2)       ! value of field at this t; alpha, beta spins
          type(rt_quad_t)   :: quad         ! value of field gradient at this t !XXX alpha,beta
       end type rt_field_t
@@ -361,6 +373,11 @@ C     (MO complex absorbing potential stuff)
          double precision :: mocap_maxval
          double precision :: mocap_prefac
          double precision :: mocap_expconst
+
+C     (spatial complex absorbing potential stuff)
+C     note: we could add all the CAP parameters here, but we just get them from the rtdb when needed
+         logical          :: cap_active
+         integer          :: g_zcap
          
       end type rt_params_t
 c $Id$

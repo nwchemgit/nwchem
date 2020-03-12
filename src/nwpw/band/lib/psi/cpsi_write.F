@@ -138,10 +138,39 @@ c     complex*16 tmp(*)
          end do
       end if
 
+
 *     *** close ELCIN binary file ***
       if (taskid.eq.MASTER) then
         call closefile(6)
       end if
+
+c*     **** write the brillioun zone vectors ****
+c      if (taskid.eq.MASTER) then
+c         l = index(filename,' ') -1
+c         filename = filename(1:l)//"_kvectors"
+c         call util_file_name_noprefix(filename,.false.,
+c     >                                .false.,
+c     >                       full_filename)
+c         l = index(full_filename,' ') -1
+c         call openfile(6,full_filename,l,'w',l)
+c         call iwrite(6,nbrillioun,1)
+c      end if
+c      do nb=1,nbrillioun
+c         f0 = brillioun_weight_brdcst(nb)
+c         f1 = brillioun_ks_brdcst(1,nb)
+c         f2 = brillioun_ks_brdcst(2,nb)
+c         f3 = brillioun_ks_brdcst(3,nb)
+c         f4 = brillioun_k_brdcst(1,nb)
+c         f5 = brillioun_k_brdcst(2,nb)
+c         f6 = brillioun_k_brdcst(3,nb)
+c         if (taskid.eq.MASTER) then
+c         end if
+c      end do
+c
+c*     *** close ELCIN.brill binary file ***
+c      if (taskid.eq.MASTER) then
+c        call closefile(6)
+c      end if
 
       value =           BA_pop_stack(tmpe(2))
       value = value.and.BA_pop_stack(tmp2(2))

@@ -78,6 +78,8 @@
       external C3dB_cr_pfft3_queue_filled
       logical  Pneb_w_push_get_block,Pneb_w_pop_stack
       external Pneb_w_push_get_block,Pneb_w_pop_stack
+      logical  nwpwxc_is_on,control_only_lda
+      external nwpwxc_is_on,control_only_lda
 
 *     ***** QM/MM external functions ****
       logical  pspw_charge_found,pspw_qmmm_found
@@ -127,7 +129,7 @@
      >        BA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
       value = value.and.
      >        BA_push_get(mt_dbl,(nemaxq),'sumi',sumi(2),sumi(1))
-      if (gga.gt.0) then
+      if (.not.control_only_lda()) then
          call D3dB_n2ft3d(1,n2ft3d)
          value = BA_push_get(mt_dbl,(2*n2ft3d),'trho',trho(2),trho(1))
          value = value.and.
@@ -215,7 +217,6 @@
 *       **** set the occupations ****
         call cpsi_data_set_next(psir_tag,cpsi_data_get_next(psi1_tag))
 
-
 *       *********************
 *       **** generate dn ****
 *       *********************
@@ -255,6 +256,8 @@
         call K1dB_Vector_SumAll(ispin*nfft3d,dn)
         call dscal(ispin*nfft3d,scal2,dn,1)
 
+        call c_rho_symmetrizer_dn(ispin,nfft3d,dn)
+
 
 *       **********************
 *       **** generate dng ****
@@ -264,7 +267,6 @@
         call C3dB_c_SMul1(1,scal1,dcpl_mb(rho(1)))
         call Cram_c_pack(0,dcpl_mb(rho(1)))
         call Cram_c_Copy(0,dcpl_mb(rho(1)),dcpl_mb(dng(1)))
-
 
 *       ********************************************************
 *       **** generate dnall - used for semicore corrections ****
@@ -282,7 +284,6 @@
            call dcopy(ispin*nfft3d,dn,1,dbl_mb(dnall(1)),1)
         end if
         call nwpw_timing_end(11)
-
 
 
 *       *****************************************
@@ -304,7 +305,8 @@
 *       *************************************************
 *       **** generate exchange-correlation potential ****
 *       *************************************************
-        if (gga.eq.0) then
+        !if ((.not.nwpwxc_is_on()).and.(gga.eq.0)) then
+        if (control_only_lda()) then
            call vxc(nfft3d,ispin,
      >              dbl_mb(dnall(1)),
      >              dbl_mb(xcp(1)),
@@ -343,7 +345,6 @@ c        !*** this code needs to be optimized!!! ****
      >              Hpsi_tag,
      >              move,dbl_mb(fion(1)))
 
-        
 *       ************************************
 *       **** do a steepest descent step ****
 *       ************************************
@@ -387,7 +388,6 @@ c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
 
            call ion_optimize_step(dbl_mb(fion(1)))
         end if
-
 
 *       *****************************************        
 *       **** lagrange multiplier corrections ****
@@ -567,7 +567,7 @@ c      if (np_j.gt.1) call C1dB_MaxAll(deltac)
 *     **** dealocate MA local variables ****
       call nwpw_timing_start(12)
       value = .true.
-      if (gga.gt.0) then
+      if (.not.control_only_lda()) then
          value = value.and.BA_pop_stack(txce(2))
          value = value.and.BA_pop_stack(txcp(2))
          value = value.and.BA_pop_stack(trho(2))

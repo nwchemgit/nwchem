@@ -61,13 +61,15 @@ c#include "global.fh"
       external    psi_ab_irrep_name
       integer     control_symmetry,control_version
       external    control_symmetry,control_version
-      logical  ion_disp_on
-      external ion_disp_on
+      logical  ion_disp_on,nwpw_cosmo_on
+      external ion_disp_on,nwpw_cosmo_on
 
       logical  control_hess_model
       external control_hess_model
       real*8   ion_hess_energy
       external ion_hess_energy
+      real*8   psi_1energy
+      external psi_1energy
 
       !**** hack for implementing hessian energy model ****
       if (control_hess_model()) then
@@ -134,8 +136,15 @@ c#include "global.fh"
       if (minimizer.eq.8) it_out = 1
       if (newpsi) then
          call pspw_Lin_HFX_reset()
-         call sdminimize(15)
-         !call bybminimize(E,deltae,deltac,1,.true.,2)
+         !call sdminimize(15)
+         if (control_fractional()) then
+            call psi_1toelectron()
+            call psi_1gen_hml()
+            call psi_diagonalize_hml_assending()
+            call psi_1rotate2()
+            call psi_2to1()
+            call psi_1define_occupation(-1.0d0,.false.)
+         end if
       end if
    2  continue
          icount = icount + 1
@@ -160,7 +169,13 @@ c#include "global.fh"
          else if (minimizer.eq.4) then
            bfgscount = bfgscount + 1
            call cgminimize2(E,deltae,deltac,bfgscount)
-
+           if (control_fractional()) then
+              call psi_1gen_hml()
+              call psi_diagonalize_hml_assending()
+              call psi_1define_occupation(-1.0d0,.false.)
+              !call psi_1rotate2()
+              !call psi_2to1()
+           end if
          else if (minimizer.eq.5) then
            bfgscount = bfgscount + 1
            call bybminimize(E,deltae,deltac,bfgscount,.false.,1,failed)
@@ -293,18 +308,18 @@ c          **** reset minimizer if failed ****
       en(1) = en1(1) + en2(1)
       en(2) = en1(2) + en2(2)
       call psi_1gen_hml()
-
       call psi_diagonalize_hml()
 
-*     *** reverse the order of occ ***
+*     !*** make sure occupation is in descending order ***
       if (control_fractional())  then
-         call psi_1reverse_occupation()
+         !call psi_1reverse_occupation()
+         call psi_1desending_occupation()
       end if
+
 
       if (pspw_SIC()) then
          call psi_1gen_hml_g()
-c      else if (.not.control_fractional()) then
-      else 
+      else if (.not.control_fractional()) then
          call psi_1rotate2()
          call psi_2to1()
       end if
@@ -542,9 +557,20 @@ c            end do
 
            end if
         
+*      **** write out COSMO energies ****
+       if (nwpw_cosmo_on()) then
+            write(luout,1730)
+            write(luout,1731)
+            write(luout,1732) E(46)
+            write(luout,1733) E(47)
+            write(luout,1734) E(48)
+            write(luout,1735) E(46)+E(47)+E(48),
+     >                        (E(46)+E(47)+E(48))*27.2116d0*23.06d0
+       end if
 
       end if
       if (control_symmetry().gt.0) call psi_ab_kill_irrep_names()
+      if (control_fractional()) call psi_1assending_occupation()
 
       rtdb = control_rtdb()
       if (control_DOS()) call psi_DOS(rtdb)
@@ -716,6 +742,15 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1711 FORMAT( ' - MM LJ/MM LJ                    :',E19.10)
 
  1720 FORMAT(/' Dispersion energy   :',E19.10)
+
+ 1730 FORMAT(/' COSMO energies:')
+ 1731 FORMAT(5x,' screen=(epsilon-1)/(epsilon+1/2)')
+ 1732 FORMAT(5x,' screen*Qelc*B*q energy  :',E19.10)
+ 1733 FORMAT(5x,' screen*Qion*B*q energy  :',E19.10)
+ 1734 FORMAT(5x,' screen*0.5*q*A*q energy :',E19.10)
+ 1735 FORMAT(5x,' solvation energy (w/o QM polarization) :',E19.10,
+     >   /45x,' (',F8.3,' kcal/mol)')
+
 
  1800 FORMAT(/' Charge Field Energies')
  1801 FORMAT( ' ---------------------')

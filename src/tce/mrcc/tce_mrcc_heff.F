@@ -533,7 +533,7 @@ c         call errquit('YOU ARE USING INCOMPLETE MODEL SPACE!',2,MA_ERR)
       nxt=NXTASKsub(-nprocs,1,mypgid)
       call GA_Pgroup_SYNC(mypgid)
       else
-      nxt=NXTASKsub(-nprocs,1)
+      nxt=NXTASK(-nprocs,1)
       call GA_SYNC()
       endif
       endif
@@ -1732,7 +1732,7 @@ c        enddo
       nxt=NXTASKsub(-nprocs,1,mypgid)
       call GA_Pgroup_SYNC(mypgid)
       else
-      nxt=NXTASKsub(-nprocs,1)
+      nxt=NXTASK(-nprocs,1)
       call GA_SYNC()
       endif
       endif

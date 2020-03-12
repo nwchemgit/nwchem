@@ -69,6 +69,7 @@ c
 #include "rtdb.fh"
 #include "msgids.fh"
 #include "ccsdps.fh"
+#include "itri.fh"
 c
 c Arguments
 c
@@ -112,6 +113,10 @@ c
 c
        integer moints_numgr, gr_len, nxtask
        external moints_numgr, gr_len, nxtask
+       double precision wall
+       integer n_progr,pct_progr,npair
+       parameter(n_progr=20)
+       logical i_progr(n_progr+1)
 c
        double precision half
        data half/0.5d00/
@@ -232,6 +237,10 @@ c
        if (ocoul) call ga_zero(g_coul)
 
        call ga_sync
+       do ish0=1,n_progr+1
+          i_progr(ish0)=.true.
+       enddo
+      wall=-util_wallsec()
 
        ploop = 0
        next = nxtask(num_nodes, 1)
@@ -254,7 +263,7 @@ c
               odoit = sym_shell_pair(basis, ish, jsh, q2)
            endif
            if (odoit) then
-             if (next.eq.ploop) then
+              if (next.eq.ploop) then
                n_ijni = ilen*jlen*nbf*nmo1
                call dfill(n_ijni,0.d0,dbl_mb(k_ssni),1)
 
@@ -339,8 +348,8 @@ c
                    if (.not. ma_pop_stack(l_hlp))
      $               call errquit('moints_trp: pop hlp',l_hlp,MA_ERR)
 
-                 enddo
-               enddo
+                 enddo !lgr
+               enddo ! kgr
 
                if (.not. ma_pop_stack(l_ssbb))
      $           call errquit('moints_trp: pop ssbb',l_ssbb,MA_ERR)
@@ -384,6 +393,19 @@ c
      $             call errquit('moints_trp: pop hlp3',l_hlp3,MA_ERR)
 
                endif
+               if(ga_nodeid().eq.0) then
+                  npair=itri(ish0,jsh0)+1
+               pct_progr=(npair*n_progr)/(nsh*(nsh+1)/2)+1
+               if(i_progr(pct_progr)) then
+                  i_progr(pct_progr)=.false.
+                  write(6,'(a,i9,a,i9,a,i3,a,f10.1,a)')
+     &                  'task ',npair,' out of ',nsh*(nsh+1)/2,
+     D                 ' done ',
+     &                  int((npair*100d0)/(nsh*(nsh+1)/2)),'%  at',
+     &                  wall+util_wallsec(),' secs'
+                  call util_flush(6)
+               endif
+            endif
                if (.not. ma_pop_stack(l_hlp))
      $           call errquit('moints_trp: pop hlp',l_hlp,MA_ERR)
                next = nxtask(num_nodes, 1)
@@ -457,6 +479,7 @@ c
      $                           g_exch, ncor, nocc )
        implicit none
 #include "global.fh"
+#include "yflop.fh"
        integer nbf, ostart, ohi, olo, nvir, vlo, vhi
        integer ilo, ihi, jlo, jhi
        double precision scale
@@ -521,6 +544,9 @@ cstaggering to avoid congestion in ga-acc
              enddo
            endif
 #else
+#ifdef USE_YFLOP
+      flops_ycount = flops_ycount + nnj*(ihi-ilo+1)*3
+#endif
            do j=jlo,jhi
              cc = c(j,b)
              do i=ilo,ihi
@@ -532,7 +558,12 @@ cstaggering to avoid congestion in ga-acc
 #endif
 #ifndef NOCOMMS
            ab = (a-olo)*nocc+b-ostart+1
+#ifdef ACC_STRIPS
+           call util_gacc_strips(g_exch,ivlo,ivhi,ab,ab,h1,nni,1.d0,
+     X          nvir)
+#else           
            call ga_acc(g_exch,ivlo,ivhi,ab,ab,h1,nni,1.d0)
+#endif
 #endif
          enddo
          do b=ostart,ostart+nocc-1
@@ -570,6 +601,9 @@ cstaggering to avoid congestion in ga-acc
             enddo
           endif
 #else
+#ifdef USE_YFLOP
+      flops_ycount = flops_ycount + nnj*(ihi-ilo+1)*3
+#endif
           do i=ilo,ihi
             cc = c(i,b)
             do j=jlo,jhi
@@ -581,7 +615,12 @@ cstaggering to avoid congestion in ga-acc
 #endif
 #ifndef NOCOMMS
           ab = (a-olo)*nocc+b-ostart+1
-          call ga_acc(g_exch,jvlo,jvhi,ab,ab,h2,nnj,1.d0)
+#ifdef ACC_STRIPS
+          call util_gacc_strips(g_exch,jvlo,jvhi,ab,ab,h2,nnj,1.d0,
+     X         nvir)
+#else           
+       call ga_acc(g_exch,jvlo,jvhi,ab,ab,h2,nnj,1.d0)
+#endif
 #endif
          enddo
        enddo
@@ -656,6 +695,7 @@ c
      &     ncor, nocc )
       implicit none
 #include "global.fh"
+#include "yflop.fh"
       integer nbf, ostart, olo, ohi, ilo, ihi, jlo, jhi
       double precision ssni(nbf,jlo:jhi,ilo:ihi,olo:ohi)
       double precision h1(21)   ! cartesian H shell 
@@ -678,6 +718,9 @@ c
 cedo      do a=olo,ohi
 cstaggering
        olb=ohi-olo+1
+#ifdef USE_YFLOP
+      flops_ycount = flops_ycount + olb*nocc*ijlen*nbf*2
+#endif
        do ain=ga_nodeid()+1,ga_nodeid()+olb
           a=mod(ain,olb)+olo
          do b=ostart,ostart+nocc-1
@@ -719,8 +762,13 @@ cstaggering
                      do i = ilo,min(j,ihi)
                         h1(i-ilo+1) = h2(j,i)
                      enddo
+#ifdef ACC_STRIPS
+                     call util_gacc_strips(g_coul, ijlo, ijhi, ab, ab,
+     J                    h1,1,1.d0,0)
+#else
                      call ga_acc(g_coul, ijlo, ijhi, ab, ab, 
      $                    h1,1,1.d0)
+#endif
                   endif
                enddo
             endif

@@ -39,45 +39,59 @@
           dout(3) = din(3)
         else if (type.eq.2) then
 !        D functions:
-!         xx, yy, zz, xy, xz, yz
+c           1   2   3   4   5   6
+c molden : xx, yy, zz, xy, xz, yz
+c nwchem : xx, xy, xz, yy, yz, zz
           dout(1) = din(1)
           dout(2) = din(4)
           dout(3) = din(6)
-          dout(4) = din(2)
-          dout(5) = din(3)
-          dout(6) = din(5)
+c conversion factors fron moldens gaussian.f          
+          dout(4) = din(2)/sqrt(3d0)
+          dout(5) = din(3)/sqrt(3d0)
+          dout(6) = din(5)/sqrt(3d0)
         else if (type.eq.3) then
-!        F functions:
-!         xxx, yyy, zzz, xyy, xxy, xxz, xzz, yzz, yyz, xyz
+!     F functions:
+c            1    2    3    4    5    6    7    8    9   10
+c molden : xxx, yyy, zzz, xyy, xxy, xxz, xzz, yzz, yyz, xyz
+c nwchem : xxx, xxy, xxz, xyy, xyz, xzz, yyy, yyz, yzz, zzz           
           dout(1) = din(1)
           dout(2) = din(7)
           dout(3) = din(10)
-          dout(4) = din(4)
-          dout(5) = din(2)
-          dout(6) = din(2)
-          dout(7) = din(6)
-          dout(8) = din(9)
-          dout(9) = din(8)
-          dout(10) = din(5)
+c conversion factors fron moldens gaussian.f          
+          dout(4) = din(4)/sqrt(5d0)
+          dout(5) = din(2)/sqrt(5d0)
+          dout(6) = din(3)/sqrt(5d0)
+          dout(7) = din(6)/sqrt(5d0)
+          dout(8) = din(9)/sqrt(5d0)
+          dout(9) = din(8)/sqrt(5d0)
+          dout(10) = din(5)/sqrt(5d0)/sqrt(3d0)
         else if (type.eq.4) then
-!        G functions:
-!         xxxx yyyy zzzz xxxy xxxz yyyx yyyz zzzx zzzy,
-!         xxyy xxzz yyzz xxyz yyxz zzxy
+!     G functions:
+c           1    2    3    4    5    6    7    8    9
+cmolden  xxxx yyyy zzzz xxxy xxxz yyyx yyyz zzzx zzzy
+cnwchem  xxxx xxxy xxxz xxyy xxyz xxzz xyyy xyyz xyzz
+c          10   11   12   13   14   15
+cmolden  xxyy xxzz yyzz xxyz yyxz zzxy
+cnwchem  xzzz yyyy yyyz yyzz yzzz zzzz
           dout(1) = din(1)
           dout(2) = din(11)
           dout(3) = din(15)
-          dout(4) = din(2)
-          dout(5) = din(3)
-          dout(6) = din(7)
-          dout(7) = din(12)
-          dout(8) = din(10)
-          dout(9) = din(14)
-          dout(10) = din(4)
-          dout(11) = din(6)
-          dout(12) = din(13)
-          dout(13) = din(5)
-          dout(14) = din(8)
-          dout(15) = din(9)
+c conversion factors fron moldens gaussian.f          
+          dout(4) = din(2)/sqrt(7d0)
+          dout(5) = din(3)/sqrt(7d0)
+          dout(6) = din(7)/sqrt(7d0)
+          dout(7) = din(12)/sqrt(7d0)
+          dout(8) = din(10)/sqrt(7d0)
+          dout(9) = din(14)/sqrt(7d0)
+          dout(10) = din(4)/sqrt(7d0)/sqrt(5d0)*sqrt(3d0)
+          dout(11) = din(6)/sqrt(7d0)/sqrt(5d0)*sqrt(3d0)
+          dout(12) = din(13)/sqrt(7d0)/sqrt(5d0)*sqrt(3d0)
+          dout(13) = din(5)/sqrt(7d0)/sqrt(5d0)
+          dout(14) = din(8)/sqrt(7d0)/sqrt(5d0) 
+          dout(15) = din(9)/sqrt(7d0)/sqrt(5d0)
+       else if (type.gt.4) then
+          call errquit(' molden interface support up to g functions',
+     M         type,0)
         end if
       else
 !       In MOLDEN file the following order of
@@ -121,6 +135,133 @@
           dout(7) = din(2)
           dout(8) = din(9)
           dout(9) = din(1)
+       else if (type.gt.4) then
+          call errquit(' molden interface support up to g functions',
+     M         type,0)
+        end if
+      end if
+      return
+      end
+      subroutine moldennw_reorder(din, dout, type, sphcart)
+      implicit none
+      double precision din(*)
+      double precision dout(*)
+      integer type              ! type (sp/s/p/d/..)
+      integer sphcart           ! 0/1 for cartesian/spherical
+!
+      if (sphcart.eq.0) then
+!       In MOLDEN file the following order of
+!       cartesian functions is expected:
+        if (type.eq.0) then
+!        S functions:
+          dout(1) = din(1)
+        else if (type.eq.1) then
+!        P functions:
+!         x, y, z
+          dout(1) = din(1)
+          dout(2) = din(2)
+          dout(3) = din(3)
+        else if (type.eq.2) then
+!        D functions:
+c           1   2   3   4   5   6
+c molden : xx, yy, zz, xy, xz, yz
+c nwchem : xx, xy, xz, yy, yz, zz
+          dout(1) = din(1)
+          dout(4) = din(2)
+          dout(6) = din(3)
+c conversion factors fron moldens gaussian.f          
+          dout(2) = din(4)*sqrt(3d0)
+          dout(3) = din(5)*sqrt(3d0)
+          dout(5) = din(6)*sqrt(3d0)
+        else if (type.eq.3) then
+!     F functions:
+c            1    2    3    4    5    6    7    8    9   10
+c molden : xxx, yyy, zzz, xyy, xxy, xxz, xzz, yzz, yyz, xyz
+c nwchem : xxx, xxy, xxz, xyy, xyz, xzz, yyy, yyz, yzz, zzz           
+          dout(1)  = din(1)
+          dout(7)  = din(2)
+          dout(10) = din(3)
+c conversion factors fron moldens gaussian.f          
+          dout(4)  = din(4 )*sqrt(5d0)
+          dout(2)  = din(5 )*sqrt(5d0)
+          dout(3)  = din(6 )*sqrt(5d0)
+          dout(6)  = din(7 )*sqrt(5d0)
+          dout(9)  = din(8 )*sqrt(5d0)
+          dout(8)  = din(9 )*sqrt(5d0)
+          dout(5)  = din(10)*sqrt(5d0)*sqrt(3d0)
+        else if (type.eq.4) then
+!     G functions:
+c           1    2    3    4    5    6    7    8    9
+cmolden  xxxx yyyy zzzz xxxy xxxz yyyx yyyz zzzx zzzy
+cnwchem  xxxx xxxy xxxz xxyy xxyz xxzz xyyy xyyz xyzz
+c          10   11   12   13   14   15
+cmolden  xxyy xxzz yyzz xxyz yyxz zzxy
+cnwchem  xzzz yyyy yyyz yyzz yzzz zzzz
+          dout(1 ) = din(1 )
+          dout(11) = din(2 )
+          dout(15) = din(3 )
+c conversion factors fron moldens gaussian.f          
+          dout(2 ) = din(4 )*sqrt(7d0)
+          dout(3 ) = din(5 )*sqrt(7d0)
+          dout(7 ) = din(6 )*sqrt(7d0)
+          dout(12) = din(7 )*sqrt(7d0)
+          dout(10) = din(8 )*sqrt(7d0)
+          dout(14) = din(9 )*sqrt(7d0)
+          dout(4 ) = din(10)*sqrt(7d0)*sqrt(5d0)/sqrt(3d0)
+          dout(6 ) = din(11)*sqrt(7d0)*sqrt(5d0)/sqrt(3d0)
+          dout(13) = din(12)*sqrt(7d0)*sqrt(5d0)/sqrt(3d0)
+          dout(5 ) = din(13)*sqrt(7d0)*sqrt(5d0)
+          dout(8 ) = din(14)*sqrt(7d0)*sqrt(5d0) 
+          dout(9 ) = din(15)*sqrt(7d0)*sqrt(5d0)
+       else if (type.gt.4) then
+          call errquit(' molden interface support up to g functions',
+     M         type,0)
+        end if
+      else
+!       In MOLDEN file the following order of
+!       spherical functions is expected:
+        if (type.eq.0) then
+!        S functions:
+          dout(1) = din(1)
+        else if (type.eq.1) then
+!        P functions:
+!         P-1, P_0, P+1
+          dout(1) = din(1)
+          dout(2) = din(2)
+          dout(3) = din(3)
+        else if (type.eq.2) then
+!        D functions:
+!         D_0, D+1, D-1, D+2, D-2
+          dout(3) =  din(1)
+          dout(4) = -din(2)
+          dout(2) =  din(3)
+          dout(5) =  din(4)
+          dout(1) =  din(5)
+         else if (type.eq.3) then
+!        F functions:
+!         F 0, F+1, F-1, F+2, F-2, F+3, F-3
+          dout(4) =  din(1)
+          dout(5) = -din(2)
+          dout(3) =  din(3)
+          dout(6) =  din(4)
+          dout(2) =  din(5)
+          dout(7) = -din(6)
+          dout(1) =  din(7)
+        else if (type.eq.4) then
+!        G functions:
+!         G_0, G+1, G-1, G+2, G-2, G+3, G-3, G+4, G-4
+          dout(5) =  din(1)
+          dout(6) = -din(2)
+          dout(4) =  din(3)
+          dout(7) =  din(4)
+          dout(3) =  din(5)
+          dout(8) = -din(6)
+          dout(2) =  din(7)
+          dout(9) =  din(8)
+          dout(1) =  din(9)
+       else if (type.gt.4) then
+          call errquit(' molden interface support up to g functions',
+     M         type,0)
         end if
       end if
       return
@@ -142,17 +283,21 @@
 !
 ! ===========================================================================
 !
-      logical function nwmolden_openfile()
+      logical function nwmolden_openfile(rw,filename)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
-      character*64 filename
+      character*(*) filename
+      character*(*) rw
 !
-cold      call util_file_prefix('molden', filename )
-      call util_file_name('molden', .false., .false.,filename)
 !
+      if(rw.eq.'write') then
       write(6,*) 'MOLDEN output will be written to the file ',
-     C     filename(1:inp_strlen(filename))
+     C        filename(1:inp_strlen(filename))
+      else
+      write(6,*) 'MOLDEN output will be read from file ',
+     C        filename(1:inp_strlen(filename))
+      endif
       if (MOLDEN_UNIT.gt.9) then
          open(unit=MOLDEN_UNIT,
      1        file=filename,
@@ -161,7 +306,12 @@ cold      call util_file_prefix('molden', filename )
      4        err=911)
       endif
 !
-      write(MOLDEN_UNIT,100) '[Molden Format]'
+      if(rw.eq.'write') then
+         write(MOLDEN_UNIT,100) '[Molden Format]'
+      else
+         read(MOLDEN_UNIT,*) 
+      endif
+         
  100  format(a15)
 !
       nwmolden_openfile = .true.
@@ -191,10 +341,12 @@ cold      call util_file_prefix('molden', filename )
 !
 ! ===========================================================================
 !
-      logical function nwmolden_geom(geom)
+      logical function nwmolden_geom(rw,geom)
       implicit none
 #include "geom.fh"
 #include "errquit.fh"
+#include "global.fh"
+      character*(*) rw          ! [input]
       integer geom              ! [input] geometry handler
       integer j
       integer iat               ! index of atom
@@ -206,13 +358,20 @@ cold      call util_file_prefix('molden', filename )
       character*16 tag
       character*32 element
       character*80 buf
-      logical status
+      logical status,do_io
 !
 ! this might be wrong if something other than atomic units
 ! are specified in the NWChem geometry input, etc.
 !
+      do_io=ga_nodeid().eq.0
+      if(do_io) then
+      if(rw.eq.'write') then
       write(MOLDEN_UNIT,100) '[Atoms] AU'
  100  format(a10)
+      else
+         read(MOLDEN_UNIT,*)
+      endif
+      endif
 !
       status = geom_check_handle(geom, 'nwmolden_geom')
       if (.not.status)
@@ -222,6 +381,7 @@ cold      call util_file_prefix('molden', filename )
       if (.not.status)
      1   call errquit('nwmolden_geom: error code = ',2,GEOM_ERR)
 !
+      if(do_io) then
       do iat=1,natoms
 !
          status = geom_cent_get(geom, iat, tag, coord, qnuc)
@@ -231,10 +391,15 @@ cold      call util_file_prefix('molden', filename )
          status = geom_tag_to_element(tag, symbol, element, atn)
          if (.not.status) symbol = 'X'
 !
-         write(MOLDEN_UNIT,300) symbol,iat,nint(qnuc),(coord(j),j=1,3)
+         if(rw.eq.'write') then
+           write(MOLDEN_UNIT,300) symbol,iat,nint(qnuc),(coord(j),j=1,3)
+         else
+            read(MOLDEN_UNIT,*)
+         endif
  300     format(1x,a4,1x,i4,1x,i4,1x,3f17.10)
 !
       enddo
+      endif
 !
       nwmolden_geom = .true.
 !
@@ -243,11 +408,13 @@ cold      call util_file_prefix('molden', filename )
 !
 ! ===========================================================================
 !
-      logical function nwmolden_basis(basis)
+      logical function nwmolden_basis(rw,basis)
       implicit none
 #include "geom.fh"
 #include "bas.fh"
 #include "errquit.fh"
+#include "global.fh"
+      character*(*) rw          ! [input]
       integer basis             ! [input] basis handle
       integer geom              ! geometry handler
       integer iatom             ! index of atom
@@ -259,7 +426,7 @@ cold      call util_file_prefix('molden', filename )
       integer nprimo            ! no. of primitives
       integer ngeno             ! no. of contractions
       integer sphcart           ! 0/1 for cartesian/spherical
-      logical status
+      logical status,do_io
 !
       integer max_prim
       parameter (max_prim = 4000)
@@ -277,8 +444,15 @@ cold      call util_file_prefix('molden', filename )
       cltype(1)='sp'
       cltype(2)='spd'
 !
+      do_io=ga_nodeid().eq.0
+      if(do_io) then
+      if(rw.eq.'write') then
       write(MOLDEN_UNIT,400) '[GTO]'
  400  format(a5)
+      else
+         read(MOLDEN_UNIT,*)
+      endif
+      endif
 !
       status = bas_check_handle(basis,'nwmolden_basis')
       if (.not.status)
@@ -292,12 +466,17 @@ cold      call util_file_prefix('molden', filename )
       if (.not.status)
      1   call errquit('nwmolden_basis: error code = ',3,BASIS_ERR)
 !
+      if(do_io) then
       do iatom = 1, natoms
         status = bas_ce2cnr(basis,iatom,ifirst,ilast)
         if (.not.status)
      1      call errquit('nwmolden_basis: error code = ',4,BASIS_ERR)
+      if(rw.eq.'write') then
         write(MOLDEN_UNIT, 450) iatom, 0
-450     format(1x,i4,1x,i2)
+ 450    format(1x,i4,1x,i2)
+      else
+         read(MOLDEN_UNIT,*)
+      endif
 !
         do icont = ifirst, ilast
 !
@@ -309,11 +488,15 @@ cold      call util_file_prefix('molden', filename )
      1      call errquit('nwmolden_basis: nprimo > max_prim',
      2                   max_prim-nprimo,BASIS_ERR)
 !
+         if(rw.eq.'write') then
          if (type.ge.0) then
            write(MOLDEN_UNIT,500) ctype(type),nprimo,0
          elseif (type.lt.0) then
            write(MOLDEN_UNIT,500) cltype(abs(type)),nprimo,0
-         endif
+        endif
+      else
+         read(MOLDEN_UNIT,*)
+      endif
  500     format(1x,a4,1x,i4,1x,i2)
 !
          status = bas_get_exponent(basis,icont,exp)
@@ -325,12 +508,21 @@ cold      call util_file_prefix('molden', filename )
      1      call errquit('nwmolden_basis: error code = ',7,BASIS_ERR)
 !
          do iprimo = 1, nprimo
+            if(rw.eq.'write') then
             write(MOLDEN_UNIT,700) exp(iprimo),coeff(iprimo)
  700        format(1x,f20.10,1x,f20.10)
+         else
+            read(MOLDEN_UNIT,*)
+         endif
          enddo
         enddo
-        write(MOLDEN_UNIT,*)
+      if(rw.eq.'write') then
+         write(MOLDEN_UNIT,*)
+      else
+         read(MOLDEN_UNIT,*)
+      endif
       enddo
+      endif
 !
       nwmolden_basis = .true.
 !
@@ -339,13 +531,15 @@ cold      call util_file_prefix('molden', filename )
 !
 ! ===========================================================================
 !
-      logical function nwmolden_movecs(basis,nbf,nmo,
+      logical function nwmolden_movecs(rw,basis,nbf,nmo,
      1                                 eval,occ,sym,g_movecs,scftype)
       implicit none
 #include "errquit.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
+#include "inp.fh"
+      character*(*) rw          ! [input] read or write
       integer nbf               ! [input] number of AOs
       integer nmo               ! [input] number of MOs
       double precision eval(*)  ! [input] MO energies
@@ -360,10 +554,10 @@ cold      call util_file_prefix('molden', filename )
       integer ngeno             ! no. of contractions
       integer ibusfunc          ! basis func with diffrent m
       integer sphcart           ! 0/1 for cartesian/spherical
-      integer k_vec, l_vec
+      integer k_vec, l_vec,k_reord,l_reord
       double precision reordered_mo(nbf)
       integer alfabeta, spinref
-      integer orb, aof, offset
+      integer orb, aof, offset, aof_in
       integer basis, geom
       integer maxop, maxireps
       parameter (maxop = 120, maxireps=20)
@@ -376,7 +570,13 @@ cold      call util_file_prefix('molden', filename )
       logical status
       integer nbusfunc
       integer orb_alfabeta
+      integer*4 iostatus
+      integer nmo_out
       integer nwmolden_nbusfunc ! function defined in this file
+      character*4 cc4
+      character*5 cc5
+      character*6 cc6
+      character*7 cc7
 ! external function declarations
       logical sym_char_table
       external sym_char_table
@@ -394,8 +594,9 @@ cold      call util_file_prefix('molden', filename )
       cspins(1) = 'Alpha'
       cspins(2) = 'Beta '
 !
+      spinref=1
       if (scftype.eq.'RHF')   spinref = 1
-      if (scftype.eq.'ROHF')  spinref = 2
+      if (scftype.eq.'ROHF')  spinref = 1
       if (scftype.eq.'UHF')   spinref = 2
       if (scftype.eq.'DFT')   spinref = 1 ! ambiguous
       if (scftype.eq.'MCSCF') spinref = 1
@@ -408,6 +609,8 @@ cold      call util_file_prefix('molden', filename )
 !
       if (.not.ma_push_get(mt_dbl,nbf,'vector',l_vec,k_vec))
      1    call errquit('nwmolden_movecs: MA alloc. failed',nbf,MA_ERR)
+      if (.not.ma_push_get(mt_dbl,nbf,'vector',l_reord,k_reord))
+     1    call errquit('nwmolden_movecs: MA alloc. failed',nbf,MA_ERR)
 !
       status = bas_numcont(basis, numcont)
       if (.not.status)
@@ -415,20 +618,30 @@ cold      call util_file_prefix('molden', filename )
 !
       status = bas_continfo(basis,1,type,nprimo,ngeno,sphcart)
 !
-      if (sphcart.eq.1) then
-        write(MOLDEN_UNIT,50) '[5D]'
-        write(MOLDEN_UNIT,50) '[9G]'
-      end if
-      write(MOLDEN_UNIT,50) '[MO]'
-  50  format(a4)
+      if(rw.eq.'write')  then
+         if (sphcart.eq.1) then
+            write(MOLDEN_UNIT,50) '[5D]'
+            write(MOLDEN_UNIT,50) '[9G]'
+         end if
+         write(MOLDEN_UNIT,50) '[MO]'
+      elseif (rw.eq.'read')  then
+c     rewind since we migh have a different basis
+         rewind(MOLDEN_UNIT)
+c     search for the [MO] string
+         do
+            read(MOLDEN_UNIT,'(a4)') cc4
+            if(cc4.eq.'[MO]') exit
+         enddo
+      endif
 !
       do alfabeta = 1, spinref
          cspin = cspins(alfabeta)
          do orb = 1, nmo
+            if(rw.eq.'write')  then
 !
 !          pull the MOs from a GA
 !
-           call ga_get(g_movecs(alfabeta), 1, nbf, orb, orb, 
+          call ga_get(g_movecs(alfabeta), 1, nbf, orb, orb, 
      D           dbl_mb(k_vec), 1)
 !
 !          reorder MO
@@ -443,36 +656,89 @@ cold      call util_file_prefix('molden', filename )
      2                         4,BASIS_ERR)
               nbusfunc = nwmolden_nbusfunc(type, sphcart)
               call nwmolden_reorder(dbl_mb(k_vec + aof - 1),
-     1                              reordered_mo(aof),
+     1                              dbl_mb(k_reord+aof-1),
      2                              type, sphcart)
               aof = aof + nbusfunc
            enddo
+        endif ! for write
 !
 !          print stuff
 !
            orb_alfabeta=(alfabeta-1)*nbf+orb
+           if(rw.eq.'write') then
            csym = zir(sym(orb_alfabeta))
            write(MOLDEN_UNIT,100) csym,eval(orb_alfabeta),
-     C          cspin,occ(orb_alfabeta)
- 100       format('Sym= ', a/
-     1            'Ene= ', E22.14/
-     2            'Spin= ', a/
-     3            'Occup= ', f18.10)
+     C             cspin,occ(orb_alfabeta)
+        else
+           read(MOLDEN_UNIT,1000,iostat=iostatus)
+     C          cc5,csym,
+     c          cc5,eval(orb_alfabeta),
+     C          cc6,cspin,
+     c          cc7,occ(orb_alfabeta)
+           if(iostatus.ne.0) goto 1234
+        endif
            do aof = 1, nbf
-!              write(MOLDEN_UNIT,200) aof,dbl_mb(k_vec + aof - 1)
-              write(MOLDEN_UNIT,200) aof,reordered_mo(aof)
- 200          format(i6,f18.12)
-           enddo ! aof
+              if(rw.eq.'write')  then
+                 write(MOLDEN_UNIT,200) aof,dbl_mb(k_reord+aof-1)
+              else
+                 read(MOLDEN_UNIT,200,iostat=iostatus)
+     A                aof_in,dbl_mb(k_reord+aof-1)
+                 if(iostatus.ne.0) goto 1234
+              endif
+           enddo                ! aof
+           nmo_out=orb
+            if(rw.eq.'read') then
+!
+!          reorder MO
+!
+           aof = 1
+!
+           do icont = 1, numcont
+              if(.not. bas_continfo(basis,icont,type,
+     1                              nprimo,ngeno,sphcart))
+     1            call errquit('nwmolden_movecs: error code = ',
+     2                         4,BASIS_ERR)
+              call moldennw_reorder(dbl_mb(k_reord + aof - 1),
+     1                              dbl_mb(k_vec+aof-1),
+     2                              type, sphcart)
+              aof = aof + nwmolden_nbusfunc(type, sphcart)
+           enddo
+!
+!          put the MOs into a GA
+!
+          call ga_put(g_movecs(alfabeta), 1, nbf, orb, orb, 
+     D           dbl_mb(k_vec), 1)
+       endif
         enddo    ! orb
+ 1234   continue
+        if(rw.eq.'read') then
+           if(nmo.ne.nmo_out) then
+              write(6,*) ' iostat ',iostatus
+              write(6,*) ' NWChem: nmo =',nmo
+              write(6,*) ' Molden: nmo =',nmo_out
+              call errquit('nwmolden_movecs: nmo molden file',0,0)
+           endif
+           nmo=nmo_out
+        endif
       enddo      ! alfabeta
 !
 !     de-allocate local memory
 !
-      if (.not. ma_pop_stack(l_vec))
+      if (.not. ma_chop_stack(l_vec))
      1    call errquit('nwmolden_movecs: MA stack is corrupt',5,MA_ERR)
 !
       nwmolden_movecs = .true.
 !
+  50  format(a4)
+ 100       format('Sym= ', a/
+     1            'Ene= ', E22.14/
+     2            'Spin= ', a/
+     3            'Occup= ', f18.10)
+ 1000       format(a, a/
+     1            a, E22.14/
+     2            a, a/
+     3            a, f18.10)
+ 200          format(i6,f18.12)
       return
       end
 !

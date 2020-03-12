@@ -17,7 +17,7 @@ c $Id$
 #include "util.fh"
 
 *     ***** local variables ****
-      logical impose
+      logical impose,frze
       integer ind,i
       character*255 test,test2
       integer nbeads
@@ -266,6 +266,26 @@ c     ----------------------------
      >     call errquit('neb_input: rtdb put failed',25,
      >     RTDB_ERR)
       
+      goto 100
+
+c
+c    freeze1
+c     ----------------------------
+      else if (inp_compare(.false.,'freeze1', test)) then
+         if (.not. inp_l(frze)) frze = .false.
+         if (.not. rtdb_put(rtdb,'neb:freeze1',mt_log,1,frze))
+     >      call errquit('neb_input: rtdb put failed',0, RTDB_ERR)
+
+      goto 100
+
+c
+c    freezen
+c     ----------------------------
+      else if (inp_compare(.false.,'freezen', test)) then
+         if (.not. inp_l(frze)) frze = .false.
+         if (.not. rtdb_put(rtdb,'neb:freezen',mt_log,1,frze))
+     >      call errquit('neb_input: rtdb put failed',0, RTDB_ERR)
+
       goto 100
 
 c

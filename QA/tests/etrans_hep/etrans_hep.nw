@@ -1,0 +1,55 @@
+
+start etrans_hep
+echo
+title "Test for ET module of NWChem"
+
+basis "ao basis" 
+ * library aug-cc-pvtz
+end
+
+geometry
+ He 0 0 0
+end
+
+charge 1
+
+scf
+ tol2e 1d-9
+ uhf
+ doublet
+ vectors output HeP.movecs
+end
+task scf
+
+charge 0
+
+scf
+ uhf
+ singlet
+ vectors output He.movecs
+end
+task scf
+
+geometry noautosym noautoz
+  He 0.0   0.0   0.0
+  He 5.0   0.0   0.0
+end
+
+charge 1
+#ET reactants:
+scf
+  doublet; uhf; vectors input fragment HeP.movecs He.movecs output HeA.movecs
+end
+task scf
+
+#ET products:
+scf
+  doublet; uhf; vectors input HeA.movecs reorder 2 1 output HeB.movecs
+end
+task scf
+
+et
+ vectors reactants HeA.movecs
+ vectors products HeB.movecs
+end
+task scf et

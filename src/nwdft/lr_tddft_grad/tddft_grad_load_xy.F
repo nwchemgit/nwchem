@@ -87,8 +87,8 @@ c
 c
 c     Code:
 c
-      ld(1) = 0
-      ld(2) = 0
+      ld(1) = 1
+      ld(2) = 1
       ld(3) = 0
       oroot = ga_nodeid().eq.0
 c
@@ -168,11 +168,11 @@ c
 c                 Read in a chunk of the trials
                   call sread(69,dbl_mb(k_trials),naoc(1)*nav(1))
                   itrial = 0
+                  if (k.gt.0) then
                   do l = 1, naoc(1) 
                     do m = 1, nav(1)
                        itrial = itrial+1 
                        r = dbl_mb(k_trials+itrial-1)
-                       if (k.gt.0) then
                         ilo(1) = k
                         ilo(2) = l
                         ilo(3) = m
@@ -180,20 +180,20 @@ c                 Read in a chunk of the trials
                         ihi(2) = l
                         ihi(3) = m
                         call nga_put(g_xpy(1),ilo,ihi,r,ld)
-                      endif
                     enddo
                   enddo
+               endif
 c
                   if (.not.tda) then
 c
 c                   Read in a chunk of the trials
                     call sread(69,dbl_mb(k_trials),naoc(1)*nav(1))
                     itrial = 0
+                    if (k.gt.0) then
                     do l = 1, naoc(1) 
                       do m = 1, nav(1)
                         itrial = itrial+1 
                         r = dbl_mb(k_trials+itrial-1)
-                        if (k.gt.0) then
                           ilo(1) = k
                           ilo(2) = l
                           ilo(3) = m
@@ -201,9 +201,9 @@ c                   Read in a chunk of the trials
                           ihi(2) = l
                           ihi(3) = m
                           call nga_put(g_xmy(1),ilo,ihi,r,ld)
-                        endif
                       enddo
                     enddo
+                 endif
                   endif   ! .not.tda
 c
 c                 Deallocate memory
@@ -280,11 +280,11 @@ c
 c                 Read in a chunk of the trials
                   call sread(69,dbl_mb(k_trials),naoc(1)*nav(1))
                   itrial = 0
+                  if (k.gt.0) then
                   do l = 1, naoc(1) 
                     do m = 1, nav(1) 
                       itrial = itrial+1 
                       r = dbl_mb(k_trials+itrial-1)
-                      if (k.gt.0) then
                         ilo(1) = k
                         ilo(2) = l
                         ilo(3) = m
@@ -292,19 +292,19 @@ c                 Read in a chunk of the trials
                         ihi(2) = l
                         ihi(3) = m
                         call nga_put(g_xpy(1),ilo,ihi,r,ld)
-                      endif
                     enddo
                   enddo
+                  endif
 c
                   if (.not.tda) then
 c                   Read in a chunk of the trials
                     call sread(69,dbl_mb(k_trials),naoc(1)*nav(1))
                     itrial = 0
+                    if (k.gt.0) then
                     do l = 1, naoc(1) 
                       do m = 1, nav(1) 
                         itrial = itrial+1 
                         r = dbl_mb(k_trials+itrial-1)
-                        if (k.gt.0) then
                           ilo(1) = k
                           ilo(2) = l
                           ilo(3) = m
@@ -312,9 +312,9 @@ c                   Read in a chunk of the trials
                           ihi(2) = l
                           ihi(3) = m
                           call nga_put(g_xmy(1),ilo,ihi,r,ld)
-                        endif
                       enddo
                     enddo
+                    endif
                   endif    ! .not. tda
 c
 c                 Deallocate memory
@@ -394,11 +394,11 @@ c
 c                   Read in a chunk of the trials
                     call sread(69,dbl_mb(k_trials),naoc(j)*nav(j))
                     itrial = 0
+                    if (k.gt.0) then
                     do l = 1, naoc(j) 
                       do m = 1, nav(j) 
                         itrial = itrial + 1
                         r = dbl_mb(k_trials+itrial-1)
-                        if (k.gt.0) then
                           ilo(1) = k
                           ilo(2) = l
                           ilo(3) = m
@@ -406,19 +406,19 @@ c                   Read in a chunk of the trials
                           ihi(2) = l
                           ihi(3) = m
                           call nga_put(g_xpy(j),ilo,ihi,r,ld)
-                        endif
                       enddo
                     enddo 
+                    endif
 c
                     if (.not.tda) then
 c                     Read in a chunk of the trials
                       call sread(69,dbl_mb(k_trials),naoc(j)*nav(j))
                       itrial = 0
+                      if (k.gt.0) then
                       do l = 1, naoc(j)
                         do m = 1, nav(j)
                           itrial = itrial + 1
                           r = dbl_mb(k_trials+itrial-1)
-                          if (k.gt.0) then
                             ilo(1) = k
                             ilo(2) = l
                             ilo(3) = m
@@ -426,9 +426,9 @@ c                     Read in a chunk of the trials
                             ihi(2) = l
                             ihi(3) = m
                             call nga_put(g_xmy(j),ilo,ihi,r,ld)
-                          endif
                         enddo
                       enddo
+                      endif
                      endif ! .not.tda
 c
 c                   Deallocate memory

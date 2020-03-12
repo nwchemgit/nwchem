@@ -112,6 +112,7 @@ dft
  grid lebedev Au 350 10
  xc b3lyp
  maxiter 100
+ tolerances tight
 end
 
 driver

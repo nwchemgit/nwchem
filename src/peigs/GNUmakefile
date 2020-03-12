@@ -19,7 +19,7 @@ peigs_stamp:	include_stamp
 include_stamp:	./h/blas_lapack.h
 	touch include_stamp
 
-.EXPORT_ALL_VARIABLES:
+#.EXPORT_ALL_VARIABLES:
 
 .PHONY :        clean	cleanF	realclean
 

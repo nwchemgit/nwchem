@@ -57,6 +57,10 @@ c     $Id$
       logical  ion_disp_on
       external ion_disp_on
 
+      real*8   cpsi_1ke
+      external cpsi_1ke
+      real*8   ttss
+
 
       call Parallel_taskid(taskid)
 
@@ -76,7 +80,7 @@ c      call cphafac_k()
       call cpsi_1gen_hml()
       call cpsi_diagonalize_hml()
       if (control_fractional()) then
-         call cpsi_1define_occupation(.true.)
+         call cpsi_1define_occupation(0.0d0,.false.)
          E(12) = cpsi_smearcorrection()
          E(1)  = E(1) + E(12)
       end if

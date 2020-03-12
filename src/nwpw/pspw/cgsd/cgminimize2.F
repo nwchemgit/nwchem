@@ -95,15 +95,25 @@ c
       external control_precondition,pspw_SIC,pspw_HFX,psp_U_psputerm
       logical  meta_found,ion_disp_on
       external meta_found,ion_disp_on
-      real*8   ion_disp_energy
-      external ion_disp_energy
-     
+      real*8   ion_disp_energy,psi_smearcorrection
+      external ion_disp_energy,psi_smearcorrection
+      logical  control_fractional
+      external control_fractional
+
+      logical  nwpw_cosmo_on
+      external nwpw_cosmo_on
+      real*8   psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
+      external psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
+
   
       call Pack_npack(1,npack1)
       ispin = control_ispin()
       ne(1) = psi_neq(1)
       ne(2) = psi_neq(2)
       neall = ne(1)+ne(2)
+
+*     **** check and fix orthogonality ****
+      call psi_1ortho_check_fix()
 
 
 *     **** allocate H0 and G1 ****
@@ -192,7 +202,7 @@ c
      >        (tmin.gt.deltat_min)) then
 
            do ms=1,ispin
-             if (sum0(ms).gt.1.0d-15) then
+             if (sum0(ms).gt.1.0d-6) then
                 scale = sum1(ms)/sum0(ms)  ! Fletcher-Reeves
              else
                 scale = 0.0d0
@@ -281,7 +291,12 @@ c      call psi_check()
          E(14) = E(14) + dng_1vl_mm()
       end if
 
-
+*     **** COSMO terms ****
+      if (nwpw_cosmo_on()) then
+         E(46) = psi_1vl_cosmo()
+         E(47) = nwpw_cosmo_EQionq()
+         E(48) = nwpw_cosmo_Eqq()
+      end if
 
 *     **** get pspw_charge  energies ****
       if (pspw_charge_found()) then
@@ -320,6 +335,11 @@ c      call psi_check()
          call electron_meta_energies(ehfx,phfx)
          E(31) =  ehfx
          E(32) =  phfx
+      end if
+
+      if (control_fractional()) then
+        E(28) = psi_smearcorrection()
+        E(1)  = E(1) + E(28)
       end if
 
 *     **** Dispersion energy ****

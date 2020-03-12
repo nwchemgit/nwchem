@@ -24,12 +24,17 @@ c
       integer ind
       integer meg,gig
       character*255 name        ! Used to store info in the rtdb
+      logical memory_units
+      external memory_units
       parameter (nunits = 9)
       parameter (meg = 1024*1024)
       parameter (gig = 1024*1024*1024)
+      integer conv_units(nunits)
       character*8 units(nunits)
       data units /'double','real','integer','byte','kb',
      &            'mb','mw','gb','gw'/
+      data conv_units /1,1,1,1,1024,
+     &     meg,meg,gig,gig/
 c
 c     Parse memory directive
 c
@@ -55,6 +60,14 @@ c
       global_Src   = 'N'
       total_Src    = 'N'
 c
+c     units conversion
+c
+      conv_units(3)= ma_sizeof(mt_int, conv_units(3),   mt_dbl)
+      conv_units(4)= ma_sizeof(mt_byte, conv_units(4),   mt_dbl)
+      conv_units(5)= ma_sizeof(mt_byte, conv_units(5),   mt_dbl)
+      conv_units(6)= ma_sizeof(mt_byte, conv_units(6),   mt_dbl)
+      conv_units(8)= ma_sizeof(mt_byte, conv_units(8),   mt_dbl)
+c
 c     Check input line is vaguely sensible
 c
       call inp_set_field(0)
@@ -76,22 +89,25 @@ c
          else if (inp_compare(.false.,'nohardfail',ctest)) then
             ohardfail = .false.
          else if (inp_compare(.false.,'heap', ctest)) then
-            if (.not. inp_f(user_heap)) goto 1000
+            if (.not. memory_units(heap_size,
+     n           units,nunits,conv_units)) goto 1000
             heap_Src = 'U'
          else if (inp_compare(.false.,'stack', ctest)) then
-            if (.not. inp_f(user_stack)) goto 1000
+            if (.not. memory_units(stack_size,
+     n           units,nunits,conv_units)) goto 1000
             Stack_Src = 'U'
          else if (inp_compare(.false.,'global', ctest)) then
-            if (.not. inp_f(user_global)) goto 1000
+            if (.not. memory_units(global_size,
+     n           units,nunits,conv_units)) goto 1000
             Global_Src = 'U'
          else if (inp_compare(.false.,'total', ctest)) then
-            if (.not. inp_f(user_total)) goto 1000
+            if (.not. memory_units(total_size,
+     n           units,nunits,conv_units)) goto 1000
             Total_Src = 'U'
-         else if (inp_match(nunits, .false., ctest, units, ind)) then
-            user_units = units(ind)
          else
             call inp_prev_field
-            if (.not. inp_f(user_total)) goto 1000
+            if (.not. memory_units(total_size,
+     n           units,nunits,conv_units)) goto 1000
             Total_Src = 'U'
          endif
          goto 10
@@ -109,50 +125,6 @@ c$$$c
 c$$$      write(0,*) ' total ', user_total, ' heap ', user_heap, ' stack ',
 c$$$     $     user_stack, ' global ', user_global, ' ',
 c$$$     $     user_units, ' verify ', overify
-c
-c     Convert user units to doubles/reals
-c
-      if (user_units.eq.units(1) .or. user_units.eq.units(2)) then
-         heap_size   = user_heap
-         stack_size  = user_stack
-         global_size = user_global
-         total_size  = user_total
-      else if (user_units .eq. units(3)) then
-         heap_size   = ma_sizeof(mt_int, int(user_heap),   mt_dbl)
-         stack_size  = ma_sizeof(mt_int, int(user_stack),  mt_dbl)
-         global_size = ma_sizeof(mt_int, int(user_global), mt_dbl)
-         total_size  = ma_sizeof(mt_int, int(user_total),  mt_dbl)
-      else if (user_units .eq. units(4)) then
-         heap_size   = ma_sizeof(mt_byte, int(user_heap),   mt_dbl)
-         stack_size  = ma_sizeof(mt_byte, int(user_stack),  mt_dbl)
-         global_size = ma_sizeof(mt_byte, int(user_global), mt_dbl)
-         total_size  = ma_sizeof(mt_byte, int(user_total),  mt_dbl)
-      else if (user_units .eq. units(5)) then
-         heap_size   = ma_sizeof(mt_byte, 1024*int(user_heap),   mt_dbl)
-         stack_size  = ma_sizeof(mt_byte, 1024*int(user_stack),  mt_dbl)
-         global_size = ma_sizeof(mt_byte, 1024*int(user_global), mt_dbl)
-         total_size  = ma_sizeof(mt_byte, 1024*int(user_total),  mt_dbl)
-      else if (user_units .eq. units(6)) then
-         heap_size   = ma_sizeof(mt_byte, meg*int(user_heap),   mt_dbl)
-         stack_size  = ma_sizeof(mt_byte, meg*int(user_stack),  mt_dbl)
-         global_size = ma_sizeof(mt_byte, meg*int(user_global), mt_dbl)
-         total_size  = ma_sizeof(mt_byte, meg*int(user_total),  mt_dbl)
-      else if (user_units .eq. units(7)) then
-         heap_size   = meg*user_heap
-         stack_size  = meg*user_stack
-         global_size = meg*user_global
-         total_size  = meg*user_total
-      else if (user_units .eq. units(8)) then
-         heap_size   = ma_sizeof(mt_byte,gig*int(user_heap),   mt_dbl)
-         stack_size  = ma_sizeof(mt_byte,gig*int(user_stack),  mt_dbl)
-         global_size = ma_sizeof(mt_byte,gig*int(user_global), mt_dbl)
-         total_size  = ma_sizeof(mt_byte,gig*int(user_total),  mt_dbl)
-      else if (user_units .eq. units(9)) then
-         heap_size   = gig*user_heap
-         stack_size  = gig*user_stack
-         global_size = gig*user_global
-         total_size  = gig*user_total
-      endif
 C
 C     Take what the user has entered and turn it into a complete
 C     memory specification.  
@@ -186,4 +158,30 @@ c
      $   '[global <global_size>] [<units>] [verify|noverify] '//
      $   '[hardfail|nohardfail]', 0, INPUT_ERR)
 c
+      end
+      logical function memory_units(memory_size,
+     n     units,nunits,conv_units)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+c
+      integer memory_size ! [out]
+      character*8 units(*) ! [in]
+      integer nunits,conv_units(*) ! [in]
+c
+      double precision user_memory
+      character*8 ctest
+      integer ind
+c      
+      memory_units=.false.
+      if (.not. inp_f(user_memory)) goto 1000
+      if (.not.inp_a(ctest)) goto 1000
+      if (inp_match(nunits, .false., ctest, units, ind)) then
+         memory_size  = int(user_memory)*conv_units(ind)
+         memory_units=.true.
+      else
+         call errquit('inp_match: units missing ',0,INPUT_ERR)
+      endif
+ 1000 continue
+      return
       end

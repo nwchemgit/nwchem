@@ -142,13 +142,13 @@ foreach $filename (@FILES_TO_PARSE) {
 		$indx2 = $indx1 + 1;
 		$indx3 = $indx1 + 2;
 		if (! $quiet) {
-		    printf " %10s %10.4f %10.4f %10.4f\n", 
+		    printf " %10s %10.3f %10.3f %10.3f\n", 
 		           $atoms[$iatom], 
                            set_to_digits($coords[$indx1],4), 
                            set_to_digits($coords[$indx2],4), 
 		           set_to_digits($coords[$indx3],4) ;
 		}
-		printf FILE_OUTPUT " %10s %10.4f %10.4f %10.4f\n", 
+		printf FILE_OUTPUT " %10s %10.3f %10.3f %10.3f\n", 
 		       $atoms[$iatom], 
                        set_to_digits($coords[$indx1],4), 
                        set_to_digits($coords[$indx2],4), 
@@ -164,13 +164,13 @@ foreach $filename (@FILES_TO_PARSE) {
 		$indx2 = $indx1 + 1;
 		$indx3 = $indx1 + 2;
 		if (! $quiet) {
-		    printf " %10s %10.4f %10.4f %10.4f\n", 
+		    printf " %10s %10.3f %10.3f %10.3f\n", 
 		         $atoms[$iatom], 
 		         set_to_digits($grads[$indx1],4), 
 		         set_to_digits($grads[$indx2],4),
   		         set_to_digits($grads[$indx3],4);
 		}
-		printf FILE_OUTPUT " %10s %10.4f %10.4f %10.4f\n", 
+		printf FILE_OUTPUT " %10s %10.3f %10.3f %10.3f\n", 
 		         $atoms[$iatom], 
 		         set_to_digits($grads[$indx1],4), 
 		         set_to_digits($grads[$indx2],4),
@@ -192,7 +192,7 @@ foreach $filename (@FILES_TO_PARSE) {
            # that come in a deterministic order.
            $sgroup = 1;
         }
-	if (/^ Frequency/ || /^ P.Frequency/){
+	if (/^ P.Frequency/){
 	    if ($debug) {print "\ndebug: $_";}
 	    @line_tokens = split(' ');
 	    $num_line_tokens = @line_tokens;
@@ -210,6 +210,27 @@ foreach $filename (@FILES_TO_PARSE) {
 		}
 		printf FILE_OUTPUT "%10.0f ", set_to_digits(@line_tokens[$itok],0);
 	    }
+	    if (! $quiet) {
+		printf "\n";
+	    }
+	    printf FILE_OUTPUT "\n";
+	}
+	if (/^1-e int/){
+	    if ($debug) {print "\ndebug: $_";}
+	    @line_tokens = split(' ');
+	    $num_line_tokens = @line_tokens;
+	    if ($debug) {
+		print "debug:line_tokens: @line_tokens \n";
+		print "debug:number     : $num_line_tokens \n";
+	    }
+	    if (! $quiet) {
+	    printf "%s %s ", @line_tokens[0], @line_tokens[1];
+	    printf "%5d%5d ", @line_tokens[2], @line_tokens[3];
+	    printf "  %16.8f", set_to_digits(@line_tokens[4],8);
+	    }
+	    printf FILE_OUTPUT "%s %s ", @line_tokens[0], @line_tokens[1];
+	    printf FILE_OUTPUT "%5d%5d ", @line_tokens[2], @line_tokens[3];
+	    printf FILE_OUTPUT "  %17.9f", set_to_digits(@line_tokens[4],9);
 	    if (! $quiet) {
 		printf "\n";
 	    }
@@ -287,7 +308,7 @@ foreach $filename (@FILES_TO_PARSE) {
 	    if (! $quiet) {
 		printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	    }
-	    printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+	    printf FILE_OUTPUT "%.2f\n", set_to_digits(@line_tokens[$itok],2);
 	}
         if (! $sgroup) {
 	if (/Total/ && /energy/) {

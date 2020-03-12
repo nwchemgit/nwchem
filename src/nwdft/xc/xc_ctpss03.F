@@ -187,11 +187,15 @@ c        epGGA= ec^LDA +H  = pbe
 
          ccc = 0.53d0           !since zeta=0
 
+       if(sqrt(gammaval).gt.tol_rho) then
          tauw = 0.125d0*gammaval/rhoval
-
          xx2 = (tauw/tauN)**2.d0
          xx3 = (tauw/tauN)**3.d0
-
+      else
+         tauw=0d0
+         xx2=0d0
+         xx3=0d0
+      endif
          en = pbe*(1.d0 + ccc*xx2)
 c
 c    set up values to call PBE subroutine as 
@@ -231,8 +235,16 @@ c        functional deriv info below fffffffffffff
          dtwt2dn = -2.d0*xx2/rhoval
          dtwt3dn = -3.d0*xx3/rhoval
          decggadn= dneGGAdn(1)
-         dtwt2dg = 2.d0*0.125d0*tauw/(rhoval*tauN**2)
-         dtwt3dg = 3.d0*xx2*0.125d0/(rhoval*tauN)
+         if(sqrt(gammaval).gt.tol_rho) then
+            dtwt2dg = 2.d0*0.125d0*tauw/(rhoval*tauN**2)
+         else
+            dtwt2dg = 0d0
+         endif
+         if(abs(taun).gt.tol_rho) then
+            dtwt3dg = 3.d0*xx2*0.125d0/(rhoval*tauN)
+         else
+            dtwt3dg = 0d0
+         endif
          decggadg= dneGGAdg(1)
 
        if (pbeup.lt.pbe) then
@@ -264,7 +276,11 @@ c
           btermg=(1.d0+ccc)*(xx2*dpbeupdg+pbeup*dtwt2dg)
           drevdg=atermg-btermg
 c
+       if(abs(taun).gt.tol_rho) then
           drevdt=(ccc*pbe-(1.d0+ccc)*pbeup)*xx2*(-2.d0/tauN)
+       else
+          drevdt=0d0
+       endif
        endif
 
        delc = -(1.d0 + ccc)*delc
@@ -290,7 +306,11 @@ c     derivs wrt g
 
 c     derivs wrt t
          apartt=rhoval*drevdt
-         bpartt(1)=-erevc*erevc*xx3*3.d0/tauN
+       if(abs(taun).gt.tol_rho) then
+          bpartt(1)=-erevc*erevc*xx3*3.d0/tauN
+       else
+          bpartt(1)=0d0
+       endif
          bpartt(2)=xx3*2.d0*erevc*drevdt
          finalt=apartt+dd*rhoval*(bpartt(1)+bpartt(2))
          Mmat(n,1)=Mmat(n,1)+0.5d0*finalt*fac
@@ -361,6 +381,7 @@ c
          dcccdgaa=0.d0
          dcccdgbb=0.d0
          dcccdgab=0.d0
+         ccc=0d0
 c
          if(rhoval.gt.tol_rho) then
 c
@@ -436,6 +457,7 @@ c
          endif
 c
          tauw = 0.125d0*gammaval/rhoval
+         if(abs(tauw).gt.tol_rho) then
 c
          xx2 = (tauw/tauN)**2.d0
          xx3 = (tauw/tauN)**3.d0
@@ -444,6 +466,17 @@ c
          dtwt3dt = -3.d0*xx3/taun
          dtwt2dg = 2.d0*0.125d0*tauw/(rhoval*tauN**2)
          dtwt3dg = 3.d0*xx2*0.125d0/(rhoval*tauN)
+      else
+         tauw=0d0
+         xx2=0d0
+         xx3=0d0
+         dtwt2dn = 0d0
+         dtwt3dn = 0d0
+         dtwt3dt = 0d0
+         dtwt2dg = 0d0
+         dtwt3dg = 0d0
+         
+      endif
 c
          en = pbe*(1.d0 + ccc*xx2)
 c
@@ -604,11 +637,16 @@ c gab
      &      xx2*(etildea*fabup+etildeb*fabdown)*dcccdgab
        drevdgab=atermg-btermg
 c
-c ta,tb
+c     ta,tb
+       if(abs(taun).gt.tol_rho) then
        drevdta=-2.d0*xx2/tauN*
      *(ccc*pbe-(1.d0+ccc)*(fabup*etildea+fabdown*etildeb))
        drevdtb=-2d0*xx2/tauN*
-     *(ccc*pbe-(1.d0+ccc)*(fabup*etildea+fabdown*etildeb))
+     *      (ccc*pbe-(1.d0+ccc)*(fabup*etildea+fabdown*etildeb))
+      else
+         drevdta=0d0
+         drevdtb=0d0
+       endif
 c
 c derivs wrt na
          finaln= rhoval*drevdna + erevc +

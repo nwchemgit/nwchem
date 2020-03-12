@@ -86,8 +86,16 @@
         ad1=(ilo-1)*nact
         ad2=(ii-1)*nocc
 !$omp critical
+#ifdef ACC_STRIPS
+        do jj=1,nfi
+           call ga_acc(g_c,ad1+1+(jj-1)*nact,ad1+nact*jj,ad2+1,ad2+nocc,
+     S          bufb((jj-1)*nact+1,tid),
+     &          nact*nfi,1.0d0)
+        enddo
+#else
         call ga_acc(g_c,ad1+1,ad1+nact*nfi,ad2+1,ad2+nocc,bufb(1,tid),
      &              nact*nfi,1.0d0)
+#endif
 !$omp end critical
         if (ilo.ne.klo)then
           call dgemm('t','n',nact,nfik,nbf,1.0d0,cmo(1,ncor+1),nbf,
@@ -110,8 +118,16 @@
           ad1=(klo-1)*nact
           ad2=(ii-1)*nocc
 !$omp critical
+#ifdef ACC_STRIPS
+        do jj=1,nfk
+           call ga_acc(g_c,ad1+1+(jj-1)*nact,ad1+nact*jj,ad2+1,ad2+nocc,
+     S          bufb((jj-1)*nact+1,tid),
+     &          nact*nfk,1.0d0)
+        enddo
+#else
           call ga_acc(g_c,ad1+1,ad1+nact*nfk,ad2+1,ad2+nocc,bufb(1,tid),
      &                nact*nfk,1.0d0)
+#endif
 !$omp end critical
         endif
       enddo
@@ -129,7 +145,7 @@
          call qexit('idx2',0)
       endif
       return
-      end     
+      end
       subroutine ccsd_idx2(snsi,sisn,cmo,scra,scrb,lscr,
      &                     nfi,nfk,ncor,nocc,nact,nbf,
      &                     ilo,ihi,klo,khi,offik,offki,
@@ -166,8 +182,13 @@
      &               cmo(klo,ncor+1),nbf,0.0d0,scrb,nact*nfi)
         ad1=(ilo-1)*nact
         ad2=(ii-1)*nocc
+#ifdef ACC_STRIPS
+        call util_gacc_strips(g_c,ad1+1,ad1+nact*nfi,ad2+1,ad2+nocc,
+     c       scrb,nact*nfi,1d0,5*nact)
+#else
         call ga_acc(g_c,ad1+1,ad1+nact*nfi,ad2+1,ad2+nocc,scrb,
      &              nact*nfi,1.0d0)
+#endif
         if (ilo.ne.klo)then
           call dgemm('t','n',nact,nfik,nbf,1.0d0,cmo(1,ncor+1),nbf,
      &               sisn(1,1,1,ii),nbf,0.0d0,scra,nact)
@@ -184,8 +205,13 @@
      &                 cmo(ilo,ncor+1),nbf,0.0d0,scrb,nact*nfk)
           ad1=(klo-1)*nact
           ad2=(ii-1)*nocc
+#ifdef ACC_STRIPS
+        call util_gacc_strips(g_c,ad1+1,ad1+nact*nfk,ad2+1,ad2+nocc,
+     c       scrb,nfk*nact,1d0,5*nact)
+#else
           call ga_acc(g_c,ad1+1,ad1+nact*nfk,ad2+1,ad2+nocc,scrb,
      &                nact*nfk,1.0d0)
+#endif
         endif
       enddo
       if (occsdps) then

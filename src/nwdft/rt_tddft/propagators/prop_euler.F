@@ -3,6 +3,10 @@ C     prop_euler.F
 C
 C     Propagate MO density matrix/matricies using Euler method.
 C
+C     Note: This is only valid for a Hermitian Fock matrix.  If you want
+C     to generalize to non-Hermitian, remember to change the commutator
+C     to include the hermitian conjugate.
+C
       subroutine prop_euler (params, tt, tdfock,
      $     nmats, g_zdens_mo, energies)
       implicit none

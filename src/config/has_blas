@@ -1,36 +1,36 @@
-#!/bin/csh 
+#!/bin/bash -f
 #
 # $Id$
 #
 #
 # confirms file(s) that have blas/lapack calls now using the perl scripts
-# reports all single/double precision routines
+# reports all double precision routines
 #
-if (! ($?NWCHEM_TOP)) then
+if [ -z "$NWCHEM_TOP" ]; then
    echo "the environement variable NWCHEM_TOP must first be set"
    echo "csh/tcsh:     setenv NWCHEM_TOP .../nwchem"
    echo "sh/bash/ksh:  NWCHEM_TOP=.../nwchem;export NWCHEM_TOP"
    echo "Usage: has_blas file_1 [file_2 file_3 ...]"
    exit 1
-endif
-if (-x /msrc/apps/bin/perl) then
-   set perlexe    = /msrc/apps/bin/perl
-else if (-x /usr/local/bin/perl) then
-   set perlexe    = /usr/local/bin/perl
-else if (-x /usr/local/gnu/bin/perl) then
-   set perlexe    = /usr/local/gnu/bin/perl
-else if (-x /usr/gnu/bin/perl) then
-   set perlexe    = /usr/gnu/bin/perl
-else
-# assume perl is in your path (scarry)
-   set perlexe = perl
-endif
-set perlscript = {$NWCHEM_TOP}/src/config/hasblas.pl
+fi
+  if [ -x /msrc/apps/bin/perl ]; then
+      perlexe=/msrc/apps/bin/perl
+  elif [ -x /usr/local/bin/perl ]; then
+      perlexe=/usr/local/bin/perl
+  elif [ -x /usr/local/gnu/bin/perl ]; then
+      perlexe=/usr/local/gnu/bin/perl
+  elif [ -x /usr/gnu/bin/perl ]; then
+      perlexe=/usr/gnu/bin/perl
+  else
+# assume perl is in your path
+      perlexe=perl
+  fi
+  perlscript=$NWCHEM_TOP/src/config/hasblas.pl
 
-if ($#argv == 0) then
+if [[ $# -eq 0 ]] ; then
    echo "Usage: has_blas file_1 [file_2 file_3 ...]"
    exit 2
-endif
+fi
 
-$perlexe $perlscript $argv
+$perlexe $perlscript "$@"
 

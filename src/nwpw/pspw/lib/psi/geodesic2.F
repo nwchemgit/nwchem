@@ -141,7 +141,9 @@ c      ne(2) = psi_neq(2)
      >   call errquit('geodesic2_start: pushing stack',0, MA_ERR)
 
 *     **** Hold <-- H ****
-      call dcopy(2*npack1*nemax,H,1,dcpl_mb(Hold(1)),1)
+      !call dcopy(2*npack1*nemax,H,1,dcpl_mb(Hold(1)),1)
+      call Parallel_shared_vector_copy(.true.,2*npack1*nemax,
+     >                                 H,dcpl_mb(Hold(1)))
 
 *     **** calculate A=<Y|H> ****
       call Dneall_ffm_Multiply(0,Y,H,npack1,dbl_mb(A(1)))
@@ -150,8 +152,8 @@ c      ne(2) = psi_neq(2)
       call Dneall_fmf_Multiply(0,Y,npack1,
      >                         dbl_mb(A(1)),1.0d0,
      >                         dcpl_mb(Q(1)),0.0d0)
-      call daxpy(2*npack1*nemax,(-1.0d0),H,1,dcpl_mb(Q(1)),1)
-      call dscal(2*npack1*nemax,(-1.0d0),dcpl_mb(Q(1)),1)
+      call DAXPY_OMP(2*npack1*nemax,(-1.0d0),H,1,dcpl_mb(Q(1)),1)
+      call DSCAL_OMP(2*npack1*nemax,(-1.0d0),dcpl_mb(Q(1)),1)
 
 *     **** calculate QR using Modified Gram-Schmidt ****
       call Dneall_fm_QR(0,dcpl_mb(Q(1)),npack1,dbl_mb(R(1)))

@@ -67,6 +67,8 @@
       double precision dsum,simp,control_ecut,control_wcut,nwpw_splint
       external         dsum,simp,control_ecut,control_wcut,nwpw_splint
 
+
+
 *     **** set up indx(n,l) --> to wp ****
       nb = lmax+1
       do l=0,lmax

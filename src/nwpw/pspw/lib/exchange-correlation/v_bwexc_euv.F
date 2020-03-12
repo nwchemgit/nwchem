@@ -24,12 +24,12 @@
 
 
 #include "bafdecls.fh"
-#include "nwxc.fh"
+#include "nwpwxc.fh"
 #include "util.fh"
 
 
 c     **** local variables ****      
-      logical value, use_nwxc
+      logical value, use_nwpwxc
       integer nx,ny,nz,u,v,s
       real*8  scal1,pi,scal,sum
       integer rho(2),grx(2),gry(2),grz(2)
@@ -67,10 +67,8 @@ c     **** local variables ****
       end do
       end do
 
-      use_nwxc = .false.
-      if (util_module_avail("nwxc")) then
-        use_nwxc = nwxc_is_on()
-      endif
+      use_nwpwxc = .false.
+      use_nwpwxc = nwpwxc_is_on()
                 
 
 *     **********************************
@@ -144,20 +142,20 @@ c     >                      dbl_mb(agr(1)),
 c     >                      dbl_mb(agr(1)))
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
 
-         if (use_nwxc) then
+         if (use_nwpwxc) then
 c
 c          Evaluate the functional
 c
-           call nwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),dbl_mb(agr(1)),
+           call nwpwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),dbl_mb(agr(1)),
      >                       dumtau,xce,
      >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),dumtau)
-c
-c          Combine (df/d|grad a|) with (df/d(grad a|grad b))
-c
-           call D3dB_r_SMul(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
-     >                              dbl_mb(fdn(1)))
-c
-c          Calculate the energy density from the functional
+cc
+cc          Combine (df/d|grad a|) with (df/d(grad a|grad b))
+cc
+           call D3dB_rr_daxpy(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
+     >                                dbl_mb(fdn(1)))
+cc
+cc          Calculate the energy density from the functional
 c
            do u = 1, n2ft3d
              xce(u) = xce(u)/(dbl_mb(rho(1)-1+u)+dncut)
@@ -226,6 +224,22 @@ c        ***** calculate fdn=df/d|grad n|  ****
      >                              dbl_mb(xce(1)), !*** not used ??***
      >                              dbl_mb(fn(1)),  !*** not used ??***
      >                              dbl_mb(fdn(1)))
+         else if (gga.eq.16) then
+         call gen_BEEF_BW_restricted(n2ft3d,
+     >                                dbl_mb(rho(1)),
+     >                                dbl_mb(agr(1)),
+     >        x_parameter,c_parameter,0.6001664769d0,
+     >                                dbl_mb(xce(1)), !*** not used ??***
+     >                                dbl_mb(fn(1)),  !*** not used ??***
+     >                                dbl_mb(fdn(1)))
+         else if (gga.eq.17) then
+         call gen_BEEF_BW_restricted(n2ft3d,
+     >                                dbl_mb(rho(1)),
+     >                                dbl_mb(agr(1)),
+     >        x_parameter,c_parameter,0.0d0,
+     >                                dbl_mb(xce(1)), !*** not used ??***
+     >                                dbl_mb(fn(1)),  !*** not used ??***
+     >                                dbl_mb(fdn(1)))
          else
           call errquit('bad gga',0,0)
          end if
@@ -517,7 +531,7 @@ c     >                      dbl_mb(agr(3)))
 c         call D3dB_rr_Sqrt(1,dbl_mb(agr(3)),
 c     >                       dbl_mb(agr(3)))
          call D3dB_rr_Sqrt1(1,dbl_mb(agr(3)))
-         if (use_nwxc) then
+         if (use_nwpwxc) then
 c
 c          Copy |grad nup|->grad(1), |grad n|->grad(2), and |grad ndn|->grad(3)
 c
@@ -540,7 +554,7 @@ c
 c
 c          Evaluate the functional
 c
-           call nwxc_eval_df(2,n2ft3d,dn,dbl_mb(grad(1)),
+           call nwpwxc_eval_df(2,n2ft3d,dn,dbl_mb(grad(1)),
      >                       dumtau,xce,
      >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),dumtau)
 c
@@ -552,11 +566,13 @@ c
 c          
 c          Replace (df/d|grad nup|^2) with (df/d|grad nup|)
 c
+           call D3dB_rr_daxpy(1,(-0.5d0),dbl_mb(fdn(2)),dbl_mb(fdn(1)))
            call D3dB_rr_Mul2(1,dbl_mb(agr(1)),dbl_mb(fdn(1)))
            call D3dB_r_SMul1(1,2.0d0,dbl_mb(fdn(1)))
 c
 c          Replace (df/d|grad ndn|^2) with (df/d|grad ndn|)
 c
+           call D3dB_rr_daxpy(1,(-0.5d0),dbl_mb(fdn(2)),dbl_mb(fdn(3)))
            call D3dB_rr_Mul(1,dbl_mb(agr(2)),dbl_mb(fdn(3)),
      +                      dbl_mb(gtmp(1)+n2ft3d))
            call D3dB_r_SMul1(1,2.0d0,dbl_mb(gtmp(1)+n2ft3d))
@@ -619,10 +635,24 @@ c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
      >                                  dbl_mb(xce(1)), !*** not used ***
      >                                  dbl_mb(fn(1)), !*** not used ***
      >                                  dbl_mb(fdn(1)))
+         else if (gga.eq.16) then
+         call gen_BEEF_BW_unrestricted(n2ft3d,dn,
+     >                                  dbl_mb(agr(1)),
+     >          x_parameter,c_parameter,0.6001664769d0,
+     >                                  dbl_mb(xce(1)), !*** not used ***
+     >                                  dbl_mb(fn(1)), !*** not used ***
+     >                                  dbl_mb(fdn(1)))
+         else if (gga.eq.17) then
+         call gen_BEEF_BW_unrestricted(n2ft3d,dn,
+     >                                  dbl_mb(agr(1)),
+     >          x_parameter,c_parameter,0.0d0,
+     >                                  dbl_mb(xce(1)), !*** not used ***
+     >                                  dbl_mb(fn(1)), !*** not used ***
+     >                                  dbl_mb(fdn(1)))
          else 
           call errquit('bad gga',0,0)
          end if
-         end if ! use_nwxc
+         end if ! use_nwpwxc
 
          
 *        **** calculate df/d|grad nup|* (grad nup)/|grad nup|  ****

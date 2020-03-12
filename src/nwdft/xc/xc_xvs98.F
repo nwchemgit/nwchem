@@ -9,6 +9,8 @@ c                              ijzy - 1  VS98
 c                              ijzy - 2  M06-L  
 c                              ijzy - 3  M06-HF
 c                              ijzy - 4  M06
+c                              ijzy - 6  revM06-L
+c                              ijzy - 7  revM06
 c                              
 c     References: 
 c 
@@ -127,6 +129,26 @@ c
         r3 =   -1.601373D-02*Axlsda
         r4 =   0.000000D+00
         r5 =   0.000000D+00
+        r6 =   0.000000D+00
+      elseif (ijzy.eq.6) then
+c
+c     Parameters for revM06-L
+c
+        r1 =   -4.23227252D-01*Axlsda
+        r2 =   0.000000D+00*Axlsda
+        r3 =   3.724234D-03*Axlsda
+        r4 =   0.000000D+00*Axlsda
+        r5 =   0.000000D+00*Axlsda
+        r6 =   0.000000D+00
+      elseif (ijzy.eq.7) then
+c
+c     Parameters for revM06
+c
+        r1 =   -5.523940140D-02*Axlsda
+        r2 =   0.000000D+00*Axlsda
+        r3 =  -3.782631233D-03*Axlsda
+        r4 =   0.000000D+00*Axlsda
+        r5 =   0.000000D+00*Axlsda
         r6 =   0.000000D+00
       else
         call errquit("xc_xvs98: illegal value of ijzy",ijzy,UERR)

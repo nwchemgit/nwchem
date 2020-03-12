@@ -310,6 +310,10 @@ c
      &    .and. (.not.geom_any_finuc (jgeom))
       ohnd_ok = .false.
       onw_ok = cando_nw(i_basis,ish,0) .and. cando_nw(j_basis,jsh,0)
+#ifdef USE_SIMINT
+c hack to get cosmo gradient running when Simints ints are used      
+      if(.not.orel) onw_ok=.true.
+#endif      
 c
 c     get external charges here (MV)
 c     ------------------------------

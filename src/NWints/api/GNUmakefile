@@ -4,6 +4,7 @@
 ifeq ($(USE_TEXAS),YEP)
       LIB_DEFINES = -DUSE_TEXAS
 endif
+include ../../config/makefile.h
 ifdef USE_SIMINT
       LIB_DEFINES += -DUSE_SIMINT
 
@@ -63,7 +64,6 @@ endif
 intpd_1eov.F intpd_2e3c.F intpd_1eke.F intpd_2e2c.F intpd_2e3ct.F
 
 
-include ../../config/makefile.h
 include ../../config/makelib.h
 
 justo:	$(OBJ)	$(OBJ_OPTIMIZE)

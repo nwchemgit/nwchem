@@ -1,0 +1,6 @@
+c
+      integer lword, ltop, lmax, lmin, junk, nword, iad, mfr
+c
+c
+      common /selci_corep/ lword, ltop, lmax, lmin
+      save /selci_corep/

@@ -338,6 +338,7 @@
       nprjmax = 0
       do ia=1,npsp
          nprjtmp = (int_mb(nprj(1)+ia-1))
+         if (int_mb(psp_type(1)+ia-1).eq.7) nprjtmp = 2*nprjtmp
          if (nprjtmp.gt.nprjmax) nprjmax = nprjtmp
       end do
 
@@ -662,6 +663,7 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
       mone = dcmplx(-1.0d0,0.0d0)
       ione = dcmplx( 0.0d0,1.0d0)
       call nwpw_timing_start(6)
+
       
 *     **** allocate local memory ****
       nn = ne(1)+ne(2)
@@ -725,6 +727,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >      dcpl_mb(zsw1(1)),
      >      dbl_mb(psi1_shift),dbl_mb(psi2_shift),
      >      dbl_mb(Kijl(1)+(ia-1)*kij_stride),scal)
+
             if (move) then
 
 *              **** define Gx,Gy and Gz in packed space ****
@@ -1688,7 +1691,7 @@ ccc!** number of matrix elements = nmax*nmax*(lmax+1) **
       end if
 
 *     *** read in vl 3d block ***
-      call C3dB_r_read(1,5,tmp2,tmp,-1,-1)
+      call C3dB_r_read(1,5,tmp2,tmp,-1,-1,.true.)
       call Cram_r_pack(0,tmp2)
       call Cram_r_Copy(0,tmp2,vl)
 
@@ -1731,7 +1734,7 @@ cccccccccccccccccccc
           call K1dB_ktoqp(nb,nbq,pk)
           do n=1,nprj
 
-            call C3dB_r_read(1,5,tmp2,tmp,-1,pk)
+            call C3dB_r_read(1,5,tmp2,tmp,-1,pk,.true.)
 
             if (pk.eq.taskid_k) then
                call Cram_r_pack(nbq,tmp2)
@@ -1757,19 +1760,19 @@ cccccccccccccccccccc
       end if
 *     **** read in semicore density block ****
       if (semicore) then
-         call C3dB_r_read(1,5,tmp2,tmp,-1,-1)
+         call C3dB_r_read(1,5,tmp2,tmp,-1,-1,.true.)
          call Cram_r_pack(0,tmp2)
          call Cram_r_Copy(0,tmp2,ncore(1))
 
-         call C3dB_r_read(1,5,tmp2,tmp,-1,-1)
+         call C3dB_r_read(1,5,tmp2,tmp,-1,-1,.true.)
          call Cram_r_pack(0,tmp2)
          call Cram_r_Copy(0,tmp2,ncore(1+2*npack0))
 
-         call C3dB_r_read(1,5,tmp2,tmp,-1,-1)
+         call C3dB_r_read(1,5,tmp2,tmp,-1,-1,.true.)
          call Cram_r_pack(0,tmp2)
          call Cram_r_Copy(0,tmp2,ncore(1+3*npack0))
 
-         call C3dB_r_read(1,5,tmp2,tmp,-1,-1)
+         call C3dB_r_read(1,5,tmp2,tmp,-1,-1,.true.)
          call Cram_r_pack(0,tmp2)
          call Cram_r_Copy(0,tmp2,ncore(1+4*npack0))
       end if

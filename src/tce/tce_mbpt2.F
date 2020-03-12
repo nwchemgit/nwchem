@@ -28,8 +28,8 @@ c
       integer nprocs
       integer count
       integer next
-cc      integer nxtval
-cc      external nxtval
+cc      integer nxtask
+cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       double precision cpu
@@ -56,7 +56,7 @@ c     ================
 c
       nprocs = ga_nnodes()
       count = 0
-cc      next = nxtval(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
@@ -103,7 +103,7 @@ cc      next = nxtval(nprocs)
                 endif
                 endif
                 endif
-cc                next = nxtval(nprocs)
+cc                next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
               endif
               count = count + 1
@@ -111,7 +111,7 @@ cc                next = nxtval(nprocs)
           enddo
         enddo
       enddo
-cc      next = nxtval(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
       call ga_get(g_mbpt2,1,1,1,1,mbpt2,1)

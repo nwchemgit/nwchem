@@ -3,8 +3,8 @@
 *
 
 *     **** Brillioun common block ****
-      integer nbrillioun
+      integer nbrillioun,brillioun0
       integer weight(2)
       integer ks(2),kv(2)
-      common / Brillion_common / ks,kv,weight,nbrillioun
+      common / Brillion_common / ks,kv,weight,nbrillioun,nbrillioun0
 

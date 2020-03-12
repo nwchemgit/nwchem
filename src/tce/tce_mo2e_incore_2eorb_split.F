@@ -152,13 +152,11 @@ c ==============================
       logical parallel
 c
       INTEGER length
-      INTEGER NXTASK
       INTEGER next
       INTEGER nprocs
       INTEGER count
-      EXTERNAL NXTASK
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
       logical nodezero
       logical idiskl
 c
@@ -665,7 +663,7 @@ ccx        if (sf_wait(request).ne.0)
 !         print*,'ga_put line 769'
         call ga_put(handle_4a_m(my_file_to_write),
      1              offset_4af+1,offset_4af+size_4a,1,1,
-     2              dbl_mb(k_4a),1)
+     2              dbl_mb(k_4a),size_4a)
       end if          !----
 c closing l_4a file
         if (.not.ma_pop_stack(l_4a))
@@ -681,7 +679,7 @@ c ---------------------------
 c
 c
        call ga_sync()
-       next = nxtval(-nprocs)
+       next = nxtask(-nprocs,1)
 c
       cpu = cpu + util_cpusec()
       wall = wall + util_wallsec()
@@ -819,7 +817,7 @@ ccx        if (sf_wait(request).ne.0)
       else
         call ga_get(handle_4a_m(my_file_to_read),
      1              offset_bl4a+1,offset_bl4a+size_bl4a,1,1,
-     2              dbl_mb(k_integral),1)
+     2              dbl_mb(k_integral),size_bl4a)
       end if !--------------
 c
       offset_ismall=0
@@ -890,7 +888,7 @@ ccx        if (sf_wait(request).ne.0)
       else
         call ga_get(handle_4a_m(my_file_to_read),
      1              offset_4af+1,offset_4af+size_4a,1,1,
-     2              dbl_mb(k_integral),1)
+     2              dbl_mb(k_integral),size_4a)
       end if !--------------
 c
       if(azone4.lt.azone3) then
@@ -968,7 +966,7 @@ ccx        if (sf_wait(request).ne.0)
 !         print*,'ga_put line 1071'
         call ga_put(handle_3a1m_m(my_file_to_write),
      1              offset_3a1m+1,offset_3a1m+size_3a1m,1,1,
-     2              dbl_mb(k_3a1m),1)
+     2              dbl_mb(k_3a1m),size_3a1m)
        end if ! ---------
 c
       if (.not.ma_pop_stack(l_3a1m))
@@ -983,7 +981,7 @@ c
       ENDDO
 c 3A1P fully done here
       call ga_sync()
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
 c
       cpu = cpu + util_cpusec()
       wall = wall + util_wallsec()
@@ -1126,7 +1124,7 @@ c
        else
         call ga_get(handle_3a1m_m(my_file_to_read),
      1      offset_bl3a1m+1,offset_bl3a1m+size_bl3a1m,1,1,
-     2      dbl_mb(k_integral),1)
+     2      dbl_mb(k_integral),size_bl3a1m)
        end if ! -------
       offset_ismall=0
       do i=a3_ini,a3_fin ! over small i ------------------
@@ -1210,7 +1208,7 @@ c *************
 !         print*,'ga_put line 1311'
         call ga_put(handle_2a2m_m(my_file_to_write),
      1              offset_2a2m+1,offset_2a2m+size_2a2m,1,1,
-     2              dbl_mb(k_2a2m),1)
+     2              dbl_mb(k_2a2m),size_2a2m)
        end if  ! --------
 c
       if (.not.ma_pop_stack(l_2a2m))
@@ -1225,7 +1223,7 @@ c
       ENDDO
 c 2A2P fully done here
       call ga_sync()
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
 c
       cpu = cpu + util_cpusec()
       wall = wall + util_wallsec()
@@ -1358,7 +1356,7 @@ c
         else
          call ga_get(handle_2a2m_m(my_file_to_read),
      1              offset_2a2m+1,offset_2a2m+size_2a2m,1,1,
-     2              dbl_mb(k_2a2m),1)
+     2              dbl_mb(k_2a2m),size_2a2m)
         end if !-----
        else  ! ------------------------------------------------------------
         key_2a2m=azone1 - 1 + atpart*( azone2 - 1 +
@@ -1375,7 +1373,7 @@ c
         else
         call ga_get(handle_2a2m_m(my_file_to_read),
      1              offset_2a2m+1,offset_2a2m+size_2a2m,1,1,
-     2              dbl_mb(k_2a2m),1)
+     2              dbl_mb(k_2a2m),size_2a2m)
         end if ! ------
         end if !  ---------------------------------------------------------
        if(azone2.ge.azone1) then
@@ -1480,7 +1478,7 @@ c *************
 !         print*,'ga_put line 1580'
         call ga_put(handle_1a3m_m(my_file_to_write),
      1              offset_1a3m+1,offset_1a3m+size_1a3m,1,1,
-     2              dbl_mb(k_1a3m),1)
+     2              dbl_mb(k_1a3m),size_1a3m)
        end if ! -------------
 c
       if (.not.ma_pop_stack(l_1a3m))
@@ -1495,7 +1493,7 @@ c
       ENDDO
 c 1A3P fully done here
       call ga_sync()
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
 c
       cpu = cpu + util_cpusec()
       wall = wall + util_wallsec()
@@ -1612,7 +1610,7 @@ c
        else
         call ga_get(handle_1a3m_m(my_file_to_read),
      1              offset_bl1a3m+1,offset_bl1a3m+size_bl1a3m,1,1,
-     2              dbl_mb(k_integral),1)
+     2              dbl_mb(k_integral),size_bl1a3m)
        end if ! -------
       offset_ismall=0
       do i=a1_ini,a1_fin ! over small i ------------------
@@ -1681,7 +1679,7 @@ c
       ENDDO
 c
        call ga_sync()
-       next = nxtval(-nprocs)
+       next = nxtask(-nprocs,1)
 c
 c
       cpu = cpu + util_cpusec()

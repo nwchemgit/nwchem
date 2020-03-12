@@ -12,8 +12,8 @@
       implicit none
 
 #include "bafdecls.fh"
-#include "errquit.fh"
 #include "electron_common.fh"
+#include "errquit.fh"
 
 
 *     **** electron_counter common block ****
@@ -41,6 +41,7 @@
       neq(1) = psi_neq(1)
       neq(2) = psi_neq(2)
       field_exist = ion_chargeexist().or.ion_mmexist()
+      confine_exist = .false.
 
 *     **** get nfft3d, and n2ft3d ****
       call Pack_npack(1,npack1)
@@ -98,6 +99,9 @@ c      paw_exist = psp_pawexist()
       call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xcp(1)),1)
       call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xce(1)),1)
 
+*     *** initializer symmetrizer ***
+      call rho_symmetrizer_init()
+
       return
       end
 
@@ -119,6 +123,8 @@ c      paw_exist = psp_pawexist()
       logical value
 
 *     **** free heap  memory ****
+      call rho_symmetrizer_end()
+
       value = BA_free_heap(Hpsi_k(2))
       value = value.and.
      >        BA_free_heap(psi_r(2))
@@ -1583,15 +1589,18 @@ c     >                 dcpl_mb(Hpsi_k(1)+index2))
 
 
 *     **** local variables ****
-      logical value
+      logical value,hfxon
       integer n2ft3d
       integer tmp_r(2)
 
 *     **** external functions ****
       integer  control_version
       external control_version
+      logical  pspw_HFX_virtual
+      external pspw_HFX_virtual
 
 
+      hfxon = pspw_HFX_virtual()
       n2ft3d = 2*nfft3d
 
       value = BA_push_get(mt_dbl,(n2ft3d),'tmp_r',tmp_r(2),tmp_r(1))
@@ -1606,7 +1615,7 @@ c     >                 dcpl_mb(Hpsi_k(1)+index2))
 
 *     **** get Hpsi ****
       if (control_version().eq.3)
-     >  call psi_Horb_replicated(.true.,ispin,ms,
+     >  call psi_Horb_replicated(hfxon,ispin,ms,
      >             dbl_mb(psi_r(1)),
      >             dbl_mb(vall(1)),
      >             orb,
@@ -1614,7 +1623,7 @@ c     >                 dcpl_mb(Hpsi_k(1)+index2))
      >             Horb)
 
       if (control_version().eq.4)
-     >  call psi_Horbv4_replicated(.true.,ispin,ms,
+     >  call psi_Horbv4_replicated(hfxon,ispin,ms,
      >             dbl_mb(psi_r(1)),
      >             dbl_mb(vall(1)),
      >             orb,
@@ -1631,6 +1640,56 @@ c     >                 dcpl_mb(Hpsi_k(1)+index2))
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *    electron_get_H0psi_k_orb     *
+*     *                                 *
+*     ***********************************
+      subroutine electron_get_H0psi_k_orb(orb,Horb)
+      implicit none
+      complex*16 orb(*)
+      complex*16 Horb(*)
+
+#include "bafdecls.fh"
+#include "electron_common.fh"
+#include "errquit.fh"
+
+
+*     **** local variables ****
+      logical value
+      integer n2ft3d
+      integer tmp_r(2)
+
+*     **** external functions ****
+      integer  control_version
+      external control_version
+
+      n2ft3d = 2*nfft3d
+
+      value = BA_push_get(mt_dbl,n2ft3d,'tmp_r',tmp_r(2),tmp_r(1))
+      if (.not.value)
+     >   call errquit('electron_get_H0psi_k_orb: push stack',0,MA_ERR)
+
+
+      call Pack_c_Copy(1,orb,dbl_mb(tmp_r(1)))
+      call Pack_c_unpack(1,  dbl_mb(tmp_r(1)))
+      call D3dB_cr_pfft3b(1,1,dbl_mb(tmp_r(1)))
+
+*     **** get Hpsi ****
+      call psi_H0orb_replicated(
+     >             dbl_mb(vall(1)),
+     >             orb,
+     >             dbl_mb(tmp_r(1)),
+     >             Horb)
+
+      call Pack_c_SMul1(1,(-1.0d0),Horb)
+
+      value = BA_pop_stack(tmp_r(2))
+      if (.not.value) call errquit(
+     >     'electron_get_H0psi_k_orb: poping stack',1,MA_ERR)
+
+      return
+      end
 
 
 
@@ -1775,6 +1834,7 @@ cccc#include "frac_occ.fh"
          call D1dB_Vector_SumAll(n2ft3d,dn(1+(ms-1)*n2ft3d))
       end do
       end if
+      call rho_symmetrizer_dn(ispin,n2ft3d,dn)
 
       return
       end
@@ -1862,6 +1922,7 @@ cccccccccc#include "frac_occ.fh"
          call D1dB_Vector_SumAll(n2ft3d,dn(1+(ms-1)*n2ft3d))
       end do
       end if
+      call rho_symmetrizer_dn(ispin,n2ft3d,dn)
 
 
 *     **** generate dng and dnall ****
@@ -1880,13 +1941,13 @@ cccccccccc#include "frac_occ.fh"
 
       subroutine electron_gen_dng_dnall(dn,dng,dnall)
       implicit none
-#include "errquit.fh"
       real*8     dn(*)
       complex*16 dng(*)
       real*8     dnall(*)
 
 #include "bafdecls.fh"
 #include "electron_common.fh"
+#include "errquit.fh"
 
      
 *     **** local variables ****
@@ -2024,6 +2085,9 @@ c     >                        dbl_mb(vall(1)))
          if (field_exist)
      >     call D3dB_rr_Sum2(1,dbl_mb(v_field(1)),dbl_mb(vall(1)))
 
+         if (confine_exist)
+     >     call D3dB_rr_Sum2(1,dbl_mb(v_confine(1)),dbl_mb(vall(1)))
+
       end if
 
 *     **** add xcp to vall ****
@@ -2045,6 +2109,72 @@ c      end do
 
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *        electron_gen_vall0       *
+*     *                                 *
+*     ***********************************
+
+*     Generates non self-consistent potentials only.
+
+      subroutine electron_gen_vall0()
+      implicit none
+
+#include "bafdecls.fh"
+#include "electron_common.fh"
+
+*     **** local variables ****
+      integer ms
+      real*8 scal2
+
+*     **** external functions ****
+      integer  control_version
+      real*8   lattice_omega
+      external control_version
+      external lattice_omega
+
+
+      scal2 = 1.0d0/lattice_omega()
+
+
+      if (control_version().eq.3) then
+*       **** add up k-space potentials, vall = scal2*vl  ****
+        call Pack_c_SMul(0,scal2,dcpl_mb(vl(1)),
+     >                           dbl_mb(vall(1)))
+
+*       **** fourier transform k-space potentials ****
+        call Pack_c_unpack(0,dbl_mb(vall(1)))
+        call D3dB_cr_pfft3b(1,0,dbl_mb(vall(1)))
+
+        if (field_exist)
+     >    call D3dB_rr_Sum2(1,dbl_mb(v_field(1)),dbl_mb(vall(1)))
+
+      else
+*       **** add up k-space potentials, vall = scal2*vsr_l    ****
+        call Pack_c_SMul(0,scal2,dcpl_mb(vl(1)),
+     >                           dbl_mb(vall(1)))
+
+*        **** fourier transform k-space potentials ****
+         call Pack_c_unpack(0,dbl_mb(vall(1)))
+         call D3dB_cr_pfft3b(1,0,dbl_mb(vall(1)))
+
+         call D3dB_rr_Sum2(1,dbl_mb(vl_lr(1)),dbl_mb(vall(1)))
+         if (field_exist)
+     >     call D3dB_rr_Sum2(1,dbl_mb(v_field(1)),dbl_mb(vall(1)))
+
+         if (confine_exist)
+     >     call D3dB_rr_Sum2(1,dbl_mb(v_confine(1)),dbl_mb(vall(1)))
+
+      end if
+
+      return 
+      end 
+
+
+
+
 
 *     ***********************************
 *     *			 		*
@@ -2150,7 +2280,7 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
 *     ***** local variables ****
       logical value
       integer n2ft3d,gga
-      integer tmp1(2),tmp2(2)
+      integer tmp1(2),r_grid(2)
       real*8  gmma
 
 *     **** external functions ****
@@ -2158,8 +2288,9 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       external control_gga,control_version
       real*8   control_attenuation
       external control_attenuation
+      logical  nwpw_cosmo1_on,nwpw_cosmo2_on
+      external nwpw_cosmo1_on,nwpw_cosmo2_on
 
-     
       n2ft3d = 2*nfft3d
       gga = control_gga()
 
@@ -2175,24 +2306,76 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       
          call D3dB_rr_Sum(1,dn(1),dn(1+(ispin-1)*n2ft3d),
      >                    dbl_mb(tmp1(1)))
+
          call coulomb2_v(dbl_mb(tmp1(1)),dcpl_mb(vc(1)))
+
+         if (nwpw_cosmo1_on()) then
+            if (.not.BA_push_get(mt_dbl,(3*n2ft3d),'r_grid',
+     >                           r_grid(2),r_grid(1)))
+     >         call errquit("electron_gen_scf_potentials: push stack",
+     >                      1,MA_ERR)
+            call lattice_r_grid(dbl_mb(r_grid(1)))
+            call v_local_set_cosmo_BQ(dbl_mb(r_grid(1)),
+     >                                dbl_mb(tmp1(1)),dng)
+            call electron_gen_vl_potential()
+            if (.not.BA_pop_stack(r_grid(2)))
+     >         call errquit("electron_gen_scf_potentials:pop stack",
+     >                      1,MA_ERR)
+         end if
+         if (nwpw_cosmo2_on()) then
+            call electron_gen_vl_potential()
+            call pspw_cosmo_V_APC(ispin,ne,dng,dcpl_mb(vl(1)))
+         end if
 
          value = BA_pop_stack(tmp1(2)) 
          if (.not. value) call errquit(
      >   'electron_gen_scf_potentials: error popping stack memory',0,
      >       MA_ERR)
       end if
-     
-
 
 *    **** xc potential ****
       call v_bwexc_all(gga,n2ft3d,ispin,dnall,
      >                 dbl_mb(xcp(1)),dbl_mb(xce(1)))
 
-
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *   electron_zero_scf_potentials  *
+*     *                                 *
+*     ***********************************
+
+      subroutine electron_zero_scf_potentials()
+      implicit none
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "electron_common.fh"
+
+*     ***** local variables ****
+      integer n2ft3d
+
+*     **** external functions ****
+      integer  control_version
+      external control_version
+
+      n2ft3d = 2*nfft3d
+
+*     **** zero out scf potentials ****
+      if (control_version().eq.3) then
+         call Parallel_shared_vector_zero(.true., 
+     >                                    2*npack0,dcpl_mb(vc(1)))
+      else
+         call Parallel_shared_vector_zero(.true.,n2ft3d,dcpl_mb(vc(1)))
+      end if
+
+      call Parallel_shared_vector_zero(.true.,2*n2ft3d,dbl_mb(xce(1)))
+      call Parallel_shared_vector_zero(.true.,2*n2ft3d,dbl_mb(xcp(1)))
+
+      return
+      end
 
 
 
@@ -2219,8 +2402,8 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
 
 *     **** external functions *****
       logical  pspw_charge_found
-      integer  control_version
       external pspw_charge_found
+      integer  control_version
       external control_version
 
       value = BA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
@@ -2243,7 +2426,6 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
      >  'electron_gen_vl_potential: error popping stack memory',0,
      &       MA_ERR)
 
-
 *     **** generate real-space fields ****
       if ((control_version().eq.4).or.
      >    (pspw_charge_found()))    then
@@ -2260,8 +2442,9 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
          end if
 
 *        **** zero out v_field ****
-         call dcopy(2*nfft3d,0.0d0,0,dbl_mb(v_field(1)),1)
-
+         !call dcopy(2*nfft3d,0.0d0,0,dbl_mb(v_field(1)),1)
+         call Parallel_shared_vector_zero(.true.,
+     >               2*nfft3d,dbl_mb(v_field(1)))
 
 *        **** generate charge potential ****
          if (pspw_charge_found()) then
@@ -2271,7 +2454,6 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
      >                                 dbl_mb(r_grid(1)),
      >                                 dbl_mb(v_field(1)))
          end if
-
 
          value = BA_pop_stack(r_grid(2))
          if (.not. value) call errquit(
@@ -2539,7 +2721,7 @@ c     &       MA_ERR)
 c
 c      electron_psi_vnl_ave = enlocal
 
-      electron_psi_vnl_ave = E_vnonlocal(ispin,neq,fractional,occ)
+      electron_psi_vnl_ave = E_Vnonlocal(ispin,neq,fractional,occ)
       return
       end
 
@@ -2613,6 +2795,146 @@ c      electron_psi_vnl_ave = enlocal
 
       return
       end
+
+*     ***********************************
+*     *			 		*
+*     *   electron_create_confine	*
+*     *					*
+*     ***********************************
+      subroutine electron_create_confine()
+      implicit none
+
+#include "bafdecls.fh"
+#include "electron_common.fh"
+#include "errquit.fh"
+
+      !*** local variables ****
+      logical value
+      integer n2ft3d,r_grid(2)
+
+      n2ft3d = 2*nfft3d
+      confine_exist = .true.
+      value = BA_alloc_get(mt_dbl,n2ft3d,
+     >                     'v_confine',v_confine(2),v_confine(1))
+      value = value.and.BA_push_get(mt_dbl,(6*nfft3d),'r_grid',
+     >                       r_grid(2),r_grid(1))
+      if (.not.value) 
+     >  call errquit('electron_create_confine: error allocate heap',0,
+     >               MA_ERR)
+
+      call Parallel_shared_vector_zero(.true.,n2ft3d,
+     >                                 dbl_mb(v_confine(1)))
+      call lattice_r_grid(dbl_mb(r_grid(1)))
+      call electron_atom_Generate_V(1,n2ft3d,
+     >                          dbl_mb(r_grid(1)),
+     >                          dbl_mb(v_confine(1)))
+      value = BA_pop_stack(r_grid(2))
+      if (.not. value) call errquit(
+     >   'electron_create_confine: error popping stack memory',0,
+     >       MA_ERR)
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *   electron_destroy_confine      *
+*     *                                 *
+*     ***********************************
+      subroutine electron_destroy_confine()
+      implicit none
+
+#include "bafdecls.fh"
+#include "electron_common.fh"
+#include "errquit.fh"
+
+      !*** local variables ****
+      logical value
+
+      confine_exist = .false.
+      if (.not.BA_free_heap(v_confine(2)))
+     >  call errquit('electron_destroy_confine: error freeing heap',0,
+     >               MA_ERR)
+      return
+      end
+
+
+
+*     **********************************
+*     *                                *
+*     *     electron_atom_Generate_V   *
+*     *                                *
+*     **********************************
+
+      subroutine electron_atom_Generate_V(ctype,n2ft3d,rgrid,Vqm)
+      implicit none
+      integer ctype
+      integer n2ft3d
+      real*8 rgrid(3,*)
+      real*8 Vqm(*)
+
+#include "stdio.fh"
+
+*     ***** local variables ****
+      integer taskid,MASTER
+      parameter(MASTER=0)
+
+      integer ii,ia,k
+      real*8  x1,y1,z1,q1,r,rs,re
+      real*8  r0,dr0,beta
+
+*     **** external functions ****
+      integer  ion_katm_qm,ion_nion_qm,ion_nkatm_qm
+      external ion_katm_qm,ion_nion_qm,ion_nkatm_qm
+      real*8   ion_rion
+      external ion_rion
+      character*4 ion_atom_qm
+      external    ion_atom_qm
+
+      if (ion_nion_qm().gt.0) then
+         call Parallel_taskid(taskid)
+
+*        **** point charges ****
+         if (ctype.eq.1) then
+            if (taskid.eq.MASTER) then
+               write(luout,*)
+               write(luout,*) " - Confining virtual space"  
+               write(luout,*) 
+     >         " - Parameters: Symbol      Ve      rs      re"
+            end if
+            do ia = 1,ion_nkatm_qm()
+               call control_fetch_confine(ion_atom_qm(ia),q1,rs,re)
+               if (taskid.eq.MASTER) 
+     >         write(luout,'(15x,A7,F8.3,F8.3,F8.3)') 
+     >         ion_atom_qm(ia),q1,rs,re
+            end do
+            if (taskid.eq.MASTER) write(luout,*)
+
+           do ii=1,ion_nion_qm()
+              ia = ion_katm_qm(ii)
+              call control_fetch_confine(ion_atom_qm(ia),q1,rs,re)
+              r0  = 0.5d0*(rs+re)
+              dr0 = (re-rs)
+              beta = dlog(999.0d0)/dr0
+
+              x1 = ion_rion(1,ii)
+              y1 = ion_rion(2,ii)
+              z1 = ion_rion(3,ii)
+!$OMP DO
+              do k=1,n2ft3d
+                r = (rgrid(1,k)-x1)**2
+     >            + (rgrid(2,k)-y1)**2
+     >            + (rgrid(3,k)-z1)**2
+                r = dsqrt(r)
+                Vqm(k) = Vqm(k)
+     >                 + q1*(1.0d0-1.0d0/(1.0d0+dexp(beta*(r-r0))))
+              end do
+!$OMP END DO
+           end do
+         end if
+      end if
+      return
+      end
+
 
 
 

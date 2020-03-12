@@ -8,6 +8,7 @@
 			psi_get_version.o \
 			psi_get_header.o \
 			cpsi_get_header.o \
+			rho_check_header.o \
 			get_psp_type.o
 
 

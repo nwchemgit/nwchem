@@ -2,7 +2,6 @@
        HEADERS = 
   OBJ_OPTIMIZE = vib_callg.o
            OBJ = vib_bcalc.o \
-                 vib_bdiha5.o \
                  vib_bend.o \
                  vib_bstr.o \
                  vib_cebdab.o \

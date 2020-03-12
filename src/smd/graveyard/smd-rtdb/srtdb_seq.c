@@ -510,13 +510,13 @@ void srtdb_ma_print(FILE *file, const int ma_type, const int nelem, void *p)
   int i, nprint;
 
   switch (ma_type) {
-  case MT_BASE + 0:	/* char */
-  case MT_BASE + 9:	/* Fortran byte */
+  case MT_C_CHAR:	/* char */
+  case MT_F_BYTE:	/* Fortran byte */
 
     (void) fprintf(file, "%.*s\n", nelem, (char *) p);
     break;
 
-  case MT_BASE + 1:	/* int */
+  case MT_C_INT:	/* int */
     for (nprint=i=0; i<nelem; i++) {
       nprint += fprintf(file, "%d ", ((int *) p)[i]);
       if (nprint >= 72) {
@@ -527,7 +527,7 @@ void srtdb_ma_print(FILE *file, const int ma_type, const int nelem, void *p)
     if (nprint > 0) (void) fprintf(file, "\n");
     break;
 
-  case MT_BASE + 10:	/* Fortran integer ... not equivalent on KSR */
+  case MT_F_INT:	/* Fortran integer ... not equivalent on KSR */
     for (nprint=i=0; i<nelem; i++) {
       nprint += fprintf(file, "%d ", ((Integer *) p)[i]);
       if (nprint >= 72) {
@@ -539,7 +539,7 @@ void srtdb_ma_print(FILE *file, const int ma_type, const int nelem, void *p)
     break;
 
 
-  case MT_BASE + 2:	/* long int */
+  case MT_C_LONGINT:	/* long int */
 
     for (nprint=i=0; i<nelem; i++) {
       nprint += fprintf(file, "%ld ", ((long *) p)[i]);
@@ -551,8 +551,8 @@ void srtdb_ma_print(FILE *file, const int ma_type, const int nelem, void *p)
     if (nprint > 0) (void) fprintf(file, "\n");
     break;
 
-  case MT_BASE + 3:	/* float */
-  case MT_BASE + 12:	/* Fortran real */
+  case MT_C_FLOAT:	/* float */
+  case MT_F_REAL:	/* Fortran real */
 
     for (nprint=i=0; i<nelem; i++) {
       nprint += fprintf(file, "%.7e ", ((float *) p)[i]);
@@ -564,8 +564,8 @@ void srtdb_ma_print(FILE *file, const int ma_type, const int nelem, void *p)
     if (nprint > 0) (void) fprintf(file, "\n");
     break;
 
-  case MT_BASE + 4:	/* double */
-  case MT_BASE + 13:	/* Fortran double precision */
+  case MT_C_DBL:	/* double */
+  case MT_F_DBL:	/* Fortran double precision */
 
     for (nprint=i=0; i<nelem; i++) {
       nprint += fprintf(file, "%.14e ", ((double *) p)[i]);
@@ -577,8 +577,8 @@ void srtdb_ma_print(FILE *file, const int ma_type, const int nelem, void *p)
     if (nprint > 0) (void) fprintf(file, "\n");
     break;
 
-  case MT_BASE + 6:	/* single precision complex */
-  case MT_BASE + 14:	/* Fortran single precision complex */
+  case MT_C_SCPL:	/* single precision complex */
+  case MT_F_SCPL:	/* Fortran single precision complex */
 
     for (nprint=i=0; i<nelem; i++) {
       nprint += fprintf(file, "(%.7e,%.7e) ", ((float *) p)[2*i], 
@@ -591,8 +591,8 @@ void srtdb_ma_print(FILE *file, const int ma_type, const int nelem, void *p)
     if (nprint > 0) (void) fprintf(file, "\n");
     break;
 
-  case MT_BASE + 7:	/* double precision complex */
-  case MT_BASE + 15:	/* Fortran double precision complex */
+  case MT_C_DCPL:	/* double precision complex */
+  case MT_F_DCPL:	/* Fortran double precision complex */
 
     for (nprint=i=0; i<nelem; i++) {
       nprint += fprintf(file, "(%.14e,%.14e) ", ((double *) p)[2*i], 
@@ -605,7 +605,7 @@ void srtdb_ma_print(FILE *file, const int ma_type, const int nelem, void *p)
     if (nprint > 0) (void) fprintf(file, "\n");
     break;
 
-  case MT_BASE + 11:	/* Fortran logical */
+  case MT_F_LOG:	/* Fortran logical */
     for (nprint=i=0; i<nelem; i++) {
       if (((int *) p)[i] == FORTRAN_TRUE)
 	nprint += fprintf(file, "t ");
@@ -620,8 +620,8 @@ void srtdb_ma_print(FILE *file, const int ma_type, const int nelem, void *p)
     break;
 
 
-  case MT_BASE + 8:	/* long double precision complex */
-  case MT_BASE + 5:	/* long double */
+  case MT_C_LDCPL:	/* long double precision complex */
+  case MT_C_LDBL:	/* long double */
 
     (void) fprintf(file, " !! printing long double not supported !!\n");
     break;
@@ -636,45 +636,45 @@ void srtdb_ma_print(FILE *file, const int ma_type, const int nelem, void *p)
 const char *srtdb_ma_typename(const int ma_type)
 {
   switch (ma_type) {
-  case MT_BASE + 0:	/* char */
-  case MT_BASE + 9:	/* Fortran byte */
+  case MT_C_CHAR:	/* char */
+  case MT_F_BYTE:	/* Fortran byte */
     return "char"; break;
 
-  case MT_BASE + 1:	/* int */
-  case MT_BASE + 10:	/* Fortran integer ... not equivalent on KSR */
+  case MT_C_INT:	/* int */
+  case MT_F_INT:	/* Fortran integer ... not equivalent on KSR */
 
     return "int"; break;
 
-  case MT_BASE + 2:	/* long int */
+  case MT_C_LONGINT:	/* long int */
 
     return "long"; break;
 
-  case MT_BASE + 3:	/* float */
-  case MT_BASE + 12:	/* Fortran real */
+  case MT_C_FLOAT:	/* float */
+  case MT_F_REAL:	/* Fortran real */
 
     return "float"; break;
 
-  case MT_BASE + 4:	/* double */
-  case MT_BASE + 13:	/* Fortran double precision */
+  case MT_C_DBL:	/* double */
+  case MT_F_DBL:	/* Fortran double precision */
 
     return "double"; break;
 
-  case MT_BASE + 6:	/* single precision complex */
-  case MT_BASE + 14:	/* Fortran single precision complex */
+  case MT_C_SCPL:	/* single precision complex */
+  case MT_F_SCPL:	/* Fortran single precision complex */
 
     return "complex float";
 
-  case MT_BASE + 7:	/* double precision complex */
-  case MT_BASE + 15:	/* Fortran double precision complex */
+  case MT_C_DCPL:	/* double precision complex */
+  case MT_F_DCPL:	/* Fortran double precision complex */
 
     return "complex double"; break;
 
-  case MT_BASE + 11:	/* Fortran logical */
+  case MT_F_LOG:	/* Fortran logical */
 
     return "logical"; break;
 
-  case MT_BASE + 8:	/* long double precision complex */
-  case MT_BASE + 5:	/* long double */
+  case MT_C_LDCPL:	/* long double precision complex */
+  case MT_C_LDBL:	/* long double */
   default:
 
     return "invalid"; break;

@@ -14,6 +14,7 @@ c             -----   as modified to be in NWChem -----
       equivalence (w9(5),ww5)
       double precision r12, pie4, r22, w22, r13, r23, w23, r33, w33
       double precision y, f1, f2, t1, t2, t3, a1, a2, g
+      integer*4 n4
       data r12,pie4/2.75255128608411d-01, 7.85398163397448d-01/
       data r22,w22/ 2.72474487139158d+00, 9.17517095361369d-02/
       data r13/     1.90163509193487d-01/
@@ -23,7 +24,12 @@ c             -----   as modified to be in NWChem -----
       if(yy.gt.1.0d+00) go to 30
       if(yy.gt.3.0d-07) go to 20
 c     yy is approximately zero.         nroots=1,2, or 3
+#if 1
+      n4=nroots-2
+      if(n4) 11,12,13
+#else
       if(nroots-2) 11,12,13
+#endif
    11 rt1= 0.5d+00 -yy/5.0d+00
       ww1= 1.0d+00 -yy/3.0d+00
       return
@@ -203,7 +209,12 @@ c     yy = 5.0 to 10.0                  nroots =1,2, or 3
      2+2.4645596956002d-01)/yy-4.9984072848436d-01)/yy
      3-3.1501078774085d-06)*g + dsqrt(pie4/yy)
       f1=(ww1-g)/(yy+yy)
+#if 1
+      n4=nroots-2
+      if(n4) 51,52,53
+#else
       if(nroots-2) 51,52,53
+#endif
    51 rt1=f1/(ww1-f1)
       return
    52 y=yy-7.5d+00
@@ -247,7 +258,12 @@ c     yy = 10.0 to 15.0                 nroots=1,2, or 3
    60 ww1=       (((-1.8784686463512d-01/yy+2.2991849164985d-01)/yy
      1-4.9893752514047d-01)/yy-2.1916512131607d-05)*g + dsqrt(pie4/yy)
       f1=(ww1-g)/(yy+yy)
+#if 1 
+      n4=nroots-2
+      if(n4) 61,62,63
+#else
       if(nroots-2) 61,62,63
+#endif
    61 rt1=f1/(ww1-f1)
       return
    62 rt1=      ((((-1.01041157064226d-05*yy+1.19483054115173d-03)*yy
@@ -289,7 +305,12 @@ c     yy = 15.0 to 33.0                 nroots=1,2, or 3
       ww1=        (( 1.9623264149430d-01/yy-4.9695241464490d-01)/yy
      1-6.0156581186481d-05)*g + dsqrt(pie4/yy)
       f1=(ww1-g)/(yy+yy)
+#if 1
+      n4=nroots-2
+      if(n4) 71,72,73
+#else
       if(nroots-2) 71,72,73
+#endif
    71 rt1=f1/(ww1-f1)
       return
    72 rt1=      ((((-1.14906395546354d-06*yy+1.76003409708332d-04)*yy
@@ -331,7 +352,12 @@ c     yy = 15.0 to 33.0                 nroots=1,2, or 3
       go to 301
 c     yy = 33.0 to infinity             nroots=1,2, or 3
    90 ww1= dsqrt(pie4/yy)
+#if 1
+      n4=nroots-2
+      if(n4) 91,92,93
+#else
       if(nroots-2) 91,92,93
+#endif
    91 rt1=0.5d+00/(yy-0.5d+00)
       return
    92 if(yy.gt.40.0d+00) go to 102

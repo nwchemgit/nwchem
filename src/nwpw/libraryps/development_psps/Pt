@@ -1,0 +1,65 @@
+#
+# $Id$
+#
+Comment: Pt pseudopotential parameters
+Comment: Relativistic TM, 5s, 5p and 5d in the valence, multiple s and p projectors, no semicore
+Comment: Pt(III) reference atom
+Comment: Developed by EJB on 11/5/2018
+Comment: Updated by EJB on 7/4/2019
+Comment:
+Comment: Pt Dimer (Sigma+ singlet)
+Comment:
+Comment: Method      re(Angstroms)  De(eV)   we(cm-1)
+Comment: LDA/100Ry   
+Comment: BLYP/100Ry  
+Comment: PBE/100Ry   2.30215
+Comment
+Comment: Pt Dimer (Sigma+ triplet)
+Comment
+Comment: Method      re(Angstroms)  De(eV)   we(cm-1)
+Comment: LDA/100Ry   
+Comment: BLYP/100Ry  
+Comment: PBE/100Ry   2.30088                 248.097
+Comment: Exp         2.34           3.71     259
+
+
+[lmax] 2
+[locp] 0
+[rlocal] 1.0
+[cutoff] 50.0
+
+<atom>
+Pt
+78.0 195.1 10 3
+1 0   2.0
+2 0   2.0
+2 1   6.0
+3 0   2.0
+3 1   6.0
+3 2  10.0
+4 0   2.0
+4 1   6.0
+4 2   10.0
+4 3   14.0
+5 0   2.0
+5 1   6.0
+5 2   7.00
+<end>
+<solver> pauli                     <end>
+<pseudopotential>    troullier-martins <end>
+ <rcut>
+    0 1.12088
+    1 1.40200
+    2 2.40000
+    3 1.25000
+ <end>
+ <kb_expansion>
+   0  2
+   1  2
+ <end>
+<screening_cut> 0.40 <end>
+<comment> Parameterized Pt Troullier-Martin psp (5s5p5d6s6p projectors, 11/05/2018 by EJB) <end>
+
+
+
+

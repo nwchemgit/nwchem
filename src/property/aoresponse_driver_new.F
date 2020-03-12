@@ -993,7 +993,7 @@ c ... jochen: added 'lifetime' condition here and the print statement
           alphaaniim=(alphaevi(1)-alphaevi(2))*(alphaevi(1)-alphaevi(2))
      1             + (alphaevi(1)-alphaevi(3))*(alphaevi(1)-alphaevi(3))
      2             + (alphaevi(2)-alphaevi(3))*(alphaevi(2)-alphaevi(3))
-          alphaaniim = dsqrt(alphaaniim/3.d0)  ! imaginary anisotropic
+          alphaaniim = dsqrt(alphaaniim/2.d0)  ! imaginary anisotropic
 c END F. Krausbeck      
       end if ! lifetime  
 
@@ -1002,7 +1002,7 @@ c END F. Krausbeck
       alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
      1  + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
      2  + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
-      alphaani = dsqrt(alphaani/3.d0) ! anisotropic part
+      alphaani = dsqrt(alphaani/2.d0) ! anisotropic part
       if(dbl_mb(k_fr).gt.1d-9) then
          wavelgth=auXnm/dbl_mb(k_fr)
       else

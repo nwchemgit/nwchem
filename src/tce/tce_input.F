@@ -242,7 +242,7 @@
 !
 !     2e STORAGE
 !
-        model2e='2espin'
+      model2e='default'
       if (.not.rtdb_cput(rtdb,'tce:model2e',1,model2e))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
@@ -413,6 +413,16 @@
       else if (inp_compare(.false.,test,'2eorb')) then
         if (module.eq.'tce') then
         model2e='2eorb'
+        if (.not.rtdb_cput(rtdb,'tce:model2e',1,model2e))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'2espin')) then
+        if (module.eq.'tce') then
+        model2e='2espin'
         if (.not.rtdb_cput(rtdb,'tce:model2e',1,model2e))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
@@ -1517,6 +1527,11 @@
         if (.not.inp_i(numact))
      1    call errquit('tce_input: no t3a_lvl given',0,INPUT_ERR)
         if (.not.rtdb_put(rtdb,'tce:act_excit_lvl',mt_int,1,numact))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+
+      else if (inp_compare(.false.,test,'tcc_spaces')) then
+        if (.not.rtdb_put(rtdb,'tce:ltcc',mt_log,1,.true.))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 

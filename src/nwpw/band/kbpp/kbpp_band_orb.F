@@ -139,6 +139,7 @@ c      call read_semicore_band(11,isemicore,rcore,nrho,dbl_mb(sc_r_indx))
       call Parallel_Brdcst_values(MASTER,msglen,dbl_mb(wp_indx))
 
       msglen = 1
+      isemicore = 0
       call Parallel_Brdcst_ivalues(MASTER,msglen,isemicore)
       semicore = (isemicore.eq.1)
       if (semicore) then

@@ -86,7 +86,7 @@ C     (estimating time remaining)
       integer est_it_start
 
 
-      call rt_tddft_os_confirm (params)
+      call rt_tddft_os_confirm (params,'rt_tddft_os_prop.F')
 
       
       me = ga_nodeid()
@@ -218,10 +218,10 @@ C
       call canorg_trans(params,"F","AO->MO",g_zfock_ao(1),g_zfock_mo(1))
       call canorg_trans(params,"F","AO->MO",g_zfock_ao(2),g_zfock_mo(2))
 
-
-      if (params%mocap_active) then
+      if ( (params%mocap_active).or.(params%cap_active) ) then
          call rt_tddft_print_notice (
-     $        "MO CAP active: Disabled initial MO Fock check")
+     $        "MO and/or spatial CAP active: "//
+     $        "Disabled initial MO Fock check")
       else
 
          if (.not. mat_is_purereal (g_zfock_mo(1), params%tol_zero))
@@ -269,32 +269,41 @@ C
 
 C
 C     If we need the eigenvectors of the ground state Fock matrix (for
-C     now only when print MO occupations or dipcontribs), diagonalize 
-C     in MO basis. Again, pure real.
+C     now only when print MO occupations or dipcontribs), diagonalize in
+C     MO basis. Again, pure real.  If we are using a CAP, F will be
+C     complex but we give the user a warning and continue anyways.
 C
-      if (params%print_dipcontribs) then
-         if (.not. mat_is_purereal (g_zfock_mo(1), params%tol_zero))
-     $        call errquit (pname//
-     $        "initial Fock matrix in MO basis is not pure real", 0, 0)
+c$$$      if (params%print_dipcontribs) then
+c$$$         if (.not. mat_is_purereal (g_zfock_mo(1), params%tol_zero))
+c$$$     $        call errquit (pname//
+c$$$     $        "initial Fock matrix in MO basis is not pure real", 0, 0)
+c$$$
+c$$$         if (.not. mat_is_purereal (g_zfock_mo(2), params%tol_zero))
+c$$$     $        call errquit (pname//
+c$$$     $        "initial Fock matrix in MO basis is not pure real", 0, 0)
+c$$$
+c$$$         call rt_tddft_movecs_gs (params, g_zfock_mo(1),
+c$$$     $        g_movecs_mo_gs(1))
+c$$$         call rt_tddft_movecs_gs (params, g_zfock_mo(2),
+c$$$     $        g_movecs_mo_gs(2))
+c$$$      endif
 
-         if (.not. mat_is_purereal (g_zfock_mo(2), params%tol_zero))
-     $        call errquit (pname//
-     $        "initial Fock matrix in MO basis is not pure real", 0, 0)
+      if (params%print_moocc .or. params%print_dipcontribs) then
 
-         call rt_tddft_movecs_gs (params, g_zfock_mo(1),
-     $        g_movecs_mo_gs(1))
-         call rt_tddft_movecs_gs (params, g_zfock_mo(2),
-     $        g_movecs_mo_gs(2))
-      endif
-
-      if (params%print_moocc) then
-         if (.not. mat_is_purereal (g_zfock_mo(1), params%tol_zero))
-     $        call errquit (pname//
-     $        "initial Fock matrix in MO basis is not pure real", 0, 0)
-
-         if (.not. mat_is_purereal (g_zfock_mo(2), params%tol_zero))
-     $        call errquit (pname//
-     $        "initial Fock matrix in MO basis is not pure real", 0, 0)
+         if ( (params%mocap_active).or.(params%cap_active) ) then
+            call rt_tddft_print_notice (
+     $           "MO and/or spatial CAP active: "//
+     $           "Disabled initial MO Fock check "//
+     $           "for moocc and/or dipcontribs")
+         else
+            if (.not. mat_is_purereal (g_zfock_mo(1), params%tol_zero))
+     $           call errquit (pname//
+     $           "initial Fock matrix in MO basis is not pure real",0,0)
+            
+            if (.not. mat_is_purereal (g_zfock_mo(2), params%tol_zero))
+     $           call errquit (pname//
+     $           "initial Fock matrix in MO basis is not pure real",0,0)
+         endif
 
          call rt_tddft_movecs_gs (params, g_zfock_mo(1),
      $        g_movecs_mo_gs(1))
@@ -492,10 +501,16 @@ CXXX  [KAL]: I guess really no need to allocate two moooc arrays...
      $              "# MO Occupations (alpha spin)")
 
                call rt_tddft_moocc_calc (params, g_densre_mo(2),
-     $              g_movecs_mo_gs(1), dbl_mb(imoocc(2)))
+     $              g_movecs_mo_gs(2), dbl_mb(imoocc(2)))        !was incorrectly gs(1) before
                call rt_tddft_moocc_print (params,
      $              tt, dbl_mb(imoocc(2)),
      $              "# MO Occupations (beta spin)")
+
+c$$$               call rt_tddft_complex_evals (params, tt, g_zfock_mo(1),
+c$$$     $              "Fock MO (alpha)")
+c$$$               call rt_tddft_complex_evals (params, tt, g_zfock_mo(2),
+c$$$     $              "Fock MO (beta)")
+               
             endif
 
 CXXX [ASB]: Transition Dipole Contributions 
@@ -576,7 +591,8 @@ C
      $           2, g_zdens_mo, energies)
 
          elseif (params%prop_method .eq. 2) then
-            call errquit (pname//"rk4 disabled", 0, 0)
+            call prop_rk4 (params, tt, rt_tddft_os_tdfock,
+     $           2, g_zdens_mo, energies)
             
          elseif (params%prop_method .eq. 3) then
             call prop_magnus_ord2_interpol (params, tt,

@@ -32,13 +32,13 @@ C>
 C> [1] P.J. Knowles, H.-J. Werner, "An efficient method for the 
 C>     evaluation of coupling coefficients in configuration interaction
 C>     calculations", Chem. Phys. Lett. <b>145</b> (1988) 514-522, doi:
-C>     <a href="http://dx.doi.org/10.1016/0009-2614(88)87412-8">
+C>     <a href="https://doi.org/10.1016/0009-2614(88)87412-8">
 C>     10.1016/0009-2614(88)87412-8</a>.
 C>
 C> [2] P.E.M. Siegbahn, "A new direct CI method for large CI expansions
 C>     in a small orbital space", Chem. Phys. Lett. <b>109</b> (1984)
 C>     417-423, doi: 
-C>     <a href="http://dx.doi.org/10.1016/0009-2614(84)80336-X">
+C>     <a href="https://doi.org/10.1016/0009-2614(84)80336-X">
 C>     10.1016/0009-2614(84)80336-X</a>.
 C>
       subroutine selci_eij(e,i,j,ns,indbar,iocc,w1,w2)

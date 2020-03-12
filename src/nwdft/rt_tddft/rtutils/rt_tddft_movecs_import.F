@@ -493,8 +493,7 @@ C     (movecs header stuff)
       integer is
       character*255 rt_dmat_fname
 
-
-      call rt_tddft_os_confirm (params)
+      call rt_tddft_os_confirm(params,'rt_tddft_movecs_import.F')
       
       me = ga_nodeid ()
       

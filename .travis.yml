@@ -1,63 +1,170 @@
 language: c
 sudo: required
-osx_image: xcode9.2
-os: 
-  - osx
-  - linux
-env: 
-  - NWCHEM_MODULES=qmandpw  ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
-  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
-  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="mpich"
-  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PR MPI_IMPL="openmpi"
-  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT MPI_IMPL="mpich"
-  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-MT MPI_IMPL="mpich"
-  - NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI3   MPI_IMPL="mpich"
-  - NWCHEM_MODULES=tce     ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
-compiler:
-  - gcc
-matrix:
+stages:
+  - compile
+  - test
+
+cache:
+  directories:
+    - .cachedir
+    
+.t1: &compile-template
+  script:
+    - ./travis/build_env.sh
+    - ./travis/config_nwchem.sh; 
+    - ./travis/compile_nwchem.sh
+.t11: &ompi-template
+  before_script:
+    - export MPI_IMPL="openmpi"
+.t12: &mpich-template
+  before_script:
+    - export MPI_IMPL="mpich"
+
+.t1o: &compile-template-ompi
+  <<: *ompi-template
+  <<: *compile-template
+.t1m: &compile-template-mpich
+  <<: *mpich-template
+  <<: *compile-template
+
+.t1osx: &compile-template-ompi-osx
+    <<: *compile-template-ompi
+    os: osx
+    arch: amd64
+.t1x86: &compile-template-ompi-x86
+    <<: *compile-template-ompi
+    os: linux
+    arch: amd64
+.t1m86: &compile-template-mpich-x86
+    <<: *compile-template-mpich
+    os: linux
+    arch: amd64
+.t1arm: &compile-template-mpich-arm
+    <<: *compile-template-mpich
+    os: linux
+    arch: arm64
+  
+.t2: &qatest-template
+  script:
+    - ./travis/build_env.sh
+    -  source ./travis/nwchem.bashrc
+    - ./travis/run_qas.sh
+
+.t2o: &qatest-template-ompi
+  <<: *ompi-template
+  <<: *qatest-template
+.t2m: &qatest-template-mpich
+  <<: *mpich-template
+  <<: *qatest-template
+
+.t3osx: &qatest-template-ompi-osx
+    <<: *qatest-template-ompi
+    os: osx
+    arch: amd64
+.t3x86: &qatest-template-ompi-x86
+    <<: *qatest-template-ompi
+    os: linux
+    arch: amd64
+.t3m86: &qatest-template-mpich-x86
+    <<: *qatest-template-mpich
+    os: linux
+    arch: amd64
+.t3arm: &qatest-template-mpich-arm
+    <<: *qatest-template-mpich
+    os: linux
+    arch: arm64
+
+jobs:
+  include:
+    - stage: compile
+      <<: *compile-template-ompi-x86
+      env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
+    - stage: compile
+      <<: *compile-template-ompi-x86
+      env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-PR USE_OPENMP=1
+    - stage: compile
+      <<: *compile-template-mpich-x86
+      env: NWCHEM_MODULES="nwdft solvation driver" ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
+    - stage: compile
+      <<: *compile-template-mpich-x86
+      env: NWCHEM_MODULES="tinyqmpw python" ARMCI_NETWORK=MPI-PT USE_OPENMP=1
+    - stage: compile
+      <<: *compile-template-mpich-x86
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=SOCKETS
+    - stage: compile
+      <<: *compile-template-ompi-osx
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PR USE_OPENMP=1
+    - stage: compile
+      <<: *compile-template-ompi-osx
+      env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-TS
+    - stage: compile
+      <<: *compile-template-ompi-osx
+      env: NWCHEM_MODULES="nwdft solvation driver" ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
+    - stage: compile
+      <<: *compile-template-ompi-osx
+      env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
+    - stage: compile
+      <<: *compile-template-mpich-arm
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT
+    - stage: compile
+      <<: *compile-template-mpich-arm
+      env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-TS
+    - stage: test
+      <<: *qatest-template-ompi-x86
+      env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
+    - stage: test
+      <<: *qatest-template-ompi-x86
+      env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-PR USE_OPENMP=1
+    - stage: test
+      <<: *qatest-template-mpich-x86
+      env: NWCHEM_MODULES="nwdft solvation driver" ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
+    - stage: test
+      <<: *qatest-template-mpich-x86
+      env: NWCHEM_MODULES="tinyqmpw python" ARMCI_NETWORK=MPI-PT USE_OPENMP=1
+    - stage: test
+      <<: *qatest-template-mpich-x86
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=SOCKETS
+    - stage: test
+      <<: *qatest-template-ompi-osx
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PR USE_OPENMP=1
+    - stage: test
+      <<: *qatest-template-ompi-osx
+      env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-TS
+    - stage: test
+      <<: *qatest-template-ompi-osx
+      env: NWCHEM_MODULES="nwdft solvation driver" ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
+    - stage: test
+      <<: *qatest-template-ompi-osx
+      env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
+    - stage: test
+      <<: *qatest-template-mpich-arm
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT
+    - stage: test
+      <<: *qatest-template-mpich-arm
+      env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-TS
   exclude:
     - os: osx
-      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="mpich"
+      arch: arm64
   allow_failures:
+    - os: linux
+      arch: arm64
     - os: osx
-      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
+      arch: amd64
+      env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
+    - os: linux
+      arch: amd64
+      env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
     - os: osx
-      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PR MPI_IMPL="openmpi"
-    - os: osx
-      env: NWCHEM_MODULES=tce     ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
-    - os: osx
-      env: NWCHEM_MODULES=qmandpw  ARMCI_NETWORK=MPI-TS MPI_IMPL="openmpi"
-    - os: osx
-      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI3   MPI_IMPL="mpich"
+      arch: amd64
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
+
+compiler:
+  - gcc
+dist: bionic
+osx_image: xcode10.3
 git:
-  depth: 3
-before_script:
-        - printenv TRAVIS_BUILD_DIR
-        - ./travis/build_env.sh
-        - gfortran -v
-        - mpif90 -show
-        - ./travis/config_nwchem.sh
-        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./travis/build_openblas.sh;  fi
-        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./travis/build_scalapack.sh; fi
-        - sleep 1
-script:
-        - ./travis/compile_nwchem.sh
-        - grep HAVE_SCA $TRAVIS_BUILD_DIR/src/tools/build/config.h || true
-        - ./travis/run_qas.sh
+  depth: 32
 
 
 after_failure:
-        - tail -20 $TRAVIS_BUILD_DIR/src/tools/build/config.log
-        - tail -10 $TRAVIS_BUILD_DIR/src/tools/build/comex/config.log
-        - grep -A 2 -B 2 -i error $TRAVIS_BUILD_DIR/src/make.log 
-        - head -200 $TRAVIS_BUILD_DIR/src/make.log
-        - tail -200 $TRAVIS_BUILD_DIR/src/make.log
-        - tail -200 $TRAVIS_BUILD_DIR/src/6log
-        - grep -i tce_energy $TRAVIS_BUILD_DIR/src/6log
-        - grep d= $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
-        - grep @ $TRAVIS_BUILD_DIR/QA/testoutputs/h2o_opt.out
-        - tail -30 $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
-        - tail -30 $TRAVIS_BUILD_DIR/QA/testoutputs/prop_mep_gcube.out
-        - diff $TRAVIS_BUILD_DIR/QA/testoutputs/prop_ch3f.o*nw*
-              
+        - ./travis/check_failures.sh

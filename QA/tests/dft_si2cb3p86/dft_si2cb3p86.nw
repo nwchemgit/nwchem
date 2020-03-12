@@ -2,7 +2,7 @@ echo
 
 start dft_si2cb3p86
 
-title "si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0"
+title "si2c with b3p86 cfr https://doi.org/10.1016/0009-2614(96)00480-0"
 
 geometry noautoz 
  si  1.69 0.  0.

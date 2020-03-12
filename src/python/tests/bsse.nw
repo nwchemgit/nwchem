@@ -51,23 +51,25 @@ mp2; freeze core atomic; end
 print none
 
 python noprint
+from __future__ import print_function
+
 energies = {}
 for system in ('supermolecule', 
                'fragment1', 'fragment1+ghost2',
                'fragment2', 'ghost1+fragment2'):
     rtdb_put('geometry',system)
     energies[system] = task_energy('mp2')
-    print '   %16s = %10.6f' % (system,energies[system])
+    print('   %16s = %10.6f' % (system,energies[system]))
 
 uncorrected = energies['supermolecule'] - energies['fragment1'] \
                                         - energies['fragment2']
 corrected   = energies['supermolecule'] - energies['fragment1+ghost2'] \
                                         - energies['ghost1+fragment2']
-print ' '
-print '                Interaction energy = %10.6f' % uncorrected
-print ' BSSE corrected interaction energy = %10.6f' % corrected
-print '                   BSSE correction = %10.6f' % (corrected-uncorrected)
-print ' '
+print(' ')
+print('                Interaction energy = %10.6f' % uncorrected)
+print(' BSSE corrected interaction energy = %10.6f' % corrected)
+print('                   BSSE correction = %10.6f' % (corrected-uncorrected))
+print(' ')
 end
 
 task python

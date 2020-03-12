@@ -74,14 +74,12 @@ c
 !         if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) 
 !     .        File_Vec  = 'movecs'
 !      endif
-!      write(0,*) ' FIle vec is ',File_Vec
+!     write(0,*) ' FIle vec is ',File_Vec
+c     guess dft as theory  (is this really needed???)
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('dplot_inp: theory not specified',555,
-     &       INPUT_ERR)
+     $     theory='dft'
       if (.not. rtdb_cget(rtdb, theory(1:inp_strlen(theory))//
-     A     ':output vectors', 1, file_vec)) then
-         file_vec = ' '
-      endif
+     A     ':output vectors', 1, file_vec)) file_vec = ' '
 
       File_Vec2 = ' '
       File_civecs = ' '

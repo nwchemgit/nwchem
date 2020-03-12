@@ -715,3 +715,156 @@ c      call D3dB_r_SMul(1,scal2*scal2,Aus,Aus)
       return
       end
 
+
+
+
+*     **********************************
+*     *                                *
+*     *      semicore_rho_to_chi       *
+*     *                                *
+*     **********************************
+      subroutine semicore_rho_to_chi(rhotochi)
+      implicit none
+      real*8 rhotochi(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+      logical value
+      integer nx,ny,nz,nfft3d,tmp1(2),n2ft3d,i
+      real*8 scal1,scal2,ss,ss2,ss3
+
+*     **** exsternal functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      call D3dB_nfft3d(1,nfft3d)
+      call D3dB_n2ft3d(1,n2ft3d)
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      scal2 = 1.0d0/lattice_omega()
+
+*     **** allocate memory off of MA stack ****
+      value = BA_push_get(mt_dbl,n2ft3d,'ericp1',tmp1(2),tmp1(1))
+      if (.not.value)
+     > call errquit('semicore_rho_to_chi:pusing stack memory',
+     >               1,MA_ERR)
+      call D3dB_c_Zero(1,dbl_mb(tmp1(1)))
+
+*     **** Put put rho into real space ****
+      call D3dB_tc_Copy(1,rhotochi,dbl_mb(tmp1(1)))
+      call D3dB_c_SMul1(1,scal2,dbl_mb(tmp1(1)))
+      call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
+      call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+
+      call D3dB_r_dsum(1,dbl_mb(tmp1(1)),ss)
+      call D3dB_r_abs1(1,dbl_mb(tmp1(1)))
+      call D3dB_r_dsum(1,dbl_mb(tmp1(1)),ss2)
+
+      call D3dB_rr_Sqrt1(1,dbl_mb(tmp1(1)))
+      !call D3dB_r_SMul1(1,dsqrt(ss/ss2),dbl_mb(tmp1(1)))
+
+*     **** Put put chi into reciprocal space ****
+      call D3dB_rc_fft3f(1,dbl_mb(tmp1(1)))
+      call D3dB_c_SMul1(1,scal1/scal2,dbl_mb(tmp1(1)))
+      call Pack_c_pack(0,dbl_mb(tmp1(1)))
+      call Pack_c_unpack(0,dbl_mb(tmp1(1)))
+      call D3dB_ct_Copy(1,dbl_mb(tmp1(1)),rhotochi)
+
+
+      call D3dB_c_SMul1(1,scal2,dbl_mb(tmp1(1)))
+      call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
+      call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+
+      call D3dB_rr_Sqr1(1,dbl_mb(tmp1(1)))
+      call D3dB_r_dsum(1,dbl_mb(tmp1(1)),ss3)
+
+c      write(*,*) "ss,ss2=",ss*scal1/scal2,ss2*scal1/scal2,
+c     >                     ss3*scal1/scal2
+
+      call D3dB_t_SMul1(1,dsqrt(ss/ss3),rhotochi)
+
+*     **** deallocate memory off of MA stack ****
+      value = value.and.BA_pop_stack(tmp1(2))
+      if (.not.value)
+     > call errquit('semicore_rho_to_chi:popping stack memory',
+     >               2,MA_ERR)
+      return
+      end
+
+
+
+*     **********************************
+*     *                                *
+*     *     semicore_drho_to_dchi      *
+*     *                                *
+*     **********************************
+      subroutine semicore_drho_to_dchi(drhotodchi,rho)
+      implicit none
+      real*8 drhotodchi(*)
+      real*8 rho(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+      logical value
+      integer nx,ny,nz,nfft3d
+      real*8  scal1,scal2
+      integer tmp1(2),tmp2(2)
+
+*     **** exsternal functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      call D3dB_nfft3d(1,nfft3d)
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      scal2 = 1.0d0/lattice_omega()
+
+
+*     **** allocate memory off of MA stack ****
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+      if (.not.value)
+     > call errquit('semicore_drho_to_dchi:pusing stack memory',
+     >               1,MA_ERR)
+
+*     **** Put put drho into real space ****
+      call Pack_tc_Copy(0,drhotodchi,dcpl_mb(tmp1(1)))
+      call Pack_c_unpack(0,dcpl_mb(tmp1(1)))
+      call D3dB_cr_pfft3b(1,0,dcpl_mb(tmp1(1)))
+      call D3dB_r_SMul1(scal2,dcpl_mb(tmp1(1)))
+
+*     **** Put 2*dchi into real space ****
+      call semicore_rho_to_chi(rho)
+      !call Pack_tc_Copy(0,rho,dcpl_mb(tmp2(1)))
+      !call Pack_c_unpack(0,dcpl_mb(tmp2(1)))
+      call D3dB_cr_pfft3b(1,0,dcpl_mb(tmp2(1)))
+      call D3dB_r_SMul1(2.0d0*scal2*scal2,dcpl_mb(tmp2(1)))
+
+      call D3dB_rr_Divide2(0,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
+
+*     **** Put put dchi into reciprocal space ****
+      call D3dB_rc_pfft3f(1,0,dcpl_mb(tmp1(1)))
+      call Pack_c_pack(0,dcpl_mb(tmp1(1)))
+      call Pack_ct_Copy(0,dcpl_mb(tmp1(1)),drhotodchi)
+      call Pack_t_SMul(0,scal1,drhotodchi)
+
+*     **** deallocate memory off of MA stack ****
+      value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
+      if (.not.value)
+     > call errquit('semicore_drho_to_dchi:popping stack memory',
+     >               2,MA_ERR)
+      return
+      end
+
+
+
+
+

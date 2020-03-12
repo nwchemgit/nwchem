@@ -930,7 +930,7 @@ C>     "Insights into the influence of dispersion correction in the
 C>      theoretical treatment of guanidine-quinoline copper(I)
 C>      complexes", J. Comput. Chem. (2014) <b>35</b>, pp. 1943-1950,
 C>     DOI:
-C>     <a href="http://dx.doi.org/10.1002/jcc.23706">
+C>     <a href="https://doi.org/10.1002/jcc.23706">
 C>     10.1002/jcc.23706</a>.
 C>
       subroutine setfuncpar(func,version,TZ,s6,rs6,s18,rs18,alp)

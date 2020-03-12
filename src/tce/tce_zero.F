@@ -19,9 +19,9 @@ c
       integer l_temp,k_temp
       integer i,j,k
       logical nodezero
-cc      integer nxtval 
+cc      integer nxtask 
       integer next, nprocs, count
-cc      external nxtval
+cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical noloadbalance
@@ -55,7 +55,7 @@ c
      2    call errquit('tce_zero: MA problem',0,MA_ERR)
         nprocs = GA_NNODES()
         count = 0
-cc        next = NXTVAL(nprocs)
+cc        next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
         do i = 1,nblocks
           if (noloadbalance.or.(next.eq.count)) then
@@ -69,12 +69,12 @@ cc        next = NXTVAL(nprocs)
      2                          min(size,i*blocksize)-(i-1)*blocksize
             call put_block(d_sf,dbl_mb(k_temp),
      1        min(size,i*blocksize)-(i-1)*blocksize,(i-1)*blocksize)
-cc            next = NXTVAL(nprocs)
+cc            next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
           endif
           count = count + 1
         enddo
-cc        next = NXTVAL(-nprocs)
+cc        next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
         if (.not.ma_pop_stack(l_temp))
      1    call errquit('createfile: MA problem',1,MA_ERR)
@@ -121,9 +121,9 @@ c
       integer l_temp,k_temp
       integer i,j,k
       logical nodezero
-cc      integer nxtval 
+cc      integer nxtask 
       integer next, nprocs, count
-cc      external nxtval
+cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical noloadbalance
@@ -146,7 +146,7 @@ c
      2    call errquit('tce_zero: MA problem',0,MA_ERR)
         nprocs = GA_NNODES()
         count = 0
-cc        next = NXTVAL(nprocs)
+cc        next = nxtask(nprocs,1)
         next = NXTASK(nprocs, 1)
         do i = 1,nblocks
           if (noloadbalance.or.(next.eq.count)) then
@@ -164,12 +164,12 @@ c
             call put_block_sf(d_sf,dbl_mb(k_temp),
 c
      1        min(size,i*blocksize)-(i-1)*blocksize,(i-1)*blocksize)
-cc            next = NXTVAL(nprocs)
+cc            next = nxtask(nprocs,1)
             next = NXTASK(nprocs, 1)
           endif
           count = count + 1
         enddo
-cc        next = NXTVAL(-nprocs)
+cc        next = nxtask(-nprocs,1)
         next = NXTASK(-nprocs, 1)
         if (.not.ma_pop_stack(l_temp))
      1    call errquit('createfile: MA problem',1,MA_ERR)

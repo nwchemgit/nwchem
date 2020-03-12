@@ -60,7 +60,7 @@ C     i0 ( h3 p2 h1 p4 )_yt + = -1/4 * P( 4 ) * t ( p2 h1 )_t * y ( h3 p4 )_y
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -90,10 +90,10 @@ C     i0 ( h3 p2 h1 p4 )_yt + = -1/4 * P( 4 ) * t ( p2 h1 )_t * y ( h3 p4 )_y
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL nxtask
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       DO p2b = noab+1,noab+nvab
       DO h3b = 1,noab
       DO h1b = 1,noab
@@ -188,14 +188,14 @@ c     & - 1)))))
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -217,7 +217,7 @@ C     i0 ( h3 p2 h1 p4 )_yt + = -1/4 * P( 4 ) * Sum ( h6 p5 ) * t ( p2 p5 h1 h6 
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -253,10 +253,10 @@ C     i0 ( h3 p2 h1 p4 )_yt + = -1/4 * P( 4 ) * Sum ( h6 p5 ) * t ( p2 p5 h1 h6 
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL nxtask
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       DO p2b = noab+1,noab+nvab
       DO h3b = 1,noab
       DO h1b = 1,noab
@@ -412,14 +412,14 @@ c     & - 1)))))
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -441,7 +441,7 @@ C     i0 ( h3 p2 h1 p4 )_yt + = -1/16 * P( 4 ) * Sum ( h7 h8 p5 p6 ) * t ( p2 p5
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -488,11 +488,11 @@ C     i0 ( h3 p2 h1 p4 )_yt + = -1/16 * P( 4 ) * Sum ( h7 h8 p5 p6 ) * t ( p2 p5
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
+      EXTERNAL nxtask
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       DO p2b = noab+1,noab+nvab
       DO h3b = 1,noab
       DO h1b = 1,noab
@@ -756,14 +756,14 @@ c     & - 1)))))
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -785,7 +785,7 @@ C     i0 ( h3 p2 h1 p4 )_yt + = -1/144 * P( 4 ) * Sum ( h8 h9 h10 p5 p6 p7 ) * t
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -838,11 +838,11 @@ C     i0 ( h3 p2 h1 p4 )_yt + = -1/144 * P( 4 ) * Sum ( h8 h9 h10 p5 p6 p7 ) * t
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
+      EXTERNAL nxtask
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       DO p2b = noab+1,noab+nvab
       DO h3b = 1,noab
       DO h1b = 1,noab
@@ -1315,14 +1315,14 @@ c     & - 1)))))
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
       call GA_SYNC()
       RETURN
       END

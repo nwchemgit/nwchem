@@ -49,7 +49,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] C Lee, W Yang, RG Parr, Phys.Rev.B 37, 785 (1988)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevB.37.785 "> 
+C> <a href="https://doi.org/10.1103/PhysRevB.37.785 "> 
 C> 10.1103/PhysRevB.37.785 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -293,7 +293,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] C Lee, W Yang, RG Parr, Phys.Rev.B 37, 785 (1988)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevB.37.785 "> 
+C> <a href="https://doi.org/10.1103/PhysRevB.37.785 "> 
 C> 10.1103/PhysRevB.37.785 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -785,7 +785,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] C Lee, W Yang, RG Parr, Phys.Rev.B 37, 785 (1988)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevB.37.785 "> 
+C> <a href="https://doi.org/10.1103/PhysRevB.37.785 "> 
 C> 10.1103/PhysRevB.37.785 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

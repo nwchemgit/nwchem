@@ -316,5 +316,18 @@ C     xxx check ns_ao vs nbf_ao
      $     call rt_tddft_print_warning ("Static calculation--"//
      $     "Fock matrix will be frozen")
 
+
+C
+C     Spatial complex absorbing potential (CAP).
+C
+      if (params%cap_active) then
+         if (.not. ga_create(mt_dcpl, nbf_ao, nbf_ao ,"zCAP",
+     $        0, 0, params%g_zcap))
+     $        call errquit (pname//"zcap create failed", 0, GA_ERR)
+
+         call rt_tddft_spatialcap (params, nbf_ao, params%g_zcap) !calc and store CAP
+      endif
+      
+
       end subroutine rt_tddft_init_common
 c $Id$

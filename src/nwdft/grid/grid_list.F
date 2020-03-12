@@ -24,7 +24,7 @@ c
       Parameter (ktheta = 5.d0)
       double precision eps
       parameter (eps = 1.d-20)
-      logical  oprint, oprint_grid, no_prune
+      logical  oprint, oprint_grid, no_prune, isecp
       double precision asg1(4,3)
       integer iti, ictr, irsh,
      &        iang, iang_mx, iqsh, nr, nserie, izat, ir,
@@ -63,6 +63,7 @@ c     grid list is generated here (qsh); with or without pruning
 c
       do 420 ictr = 1, ncenters
          iti = iatype(ictr)
+         isecp=geom_ecp_get(geom,ictr)
          if (bsrad_atom_type(iti).le.EPS) goto 420
 c
 c        check if this atom center is unique
@@ -143,6 +144,8 @@ c
                         iang = 2
                      elseif (r.ge.r1.and.r.lt.r2) then
                         iang = 4
+                        if(isecp) iang=iang_mx
+c                       if(isecp) iang=max(14,iang_mx-3)
                      elseif (r.ge.r2.and.r.lt.r3) then
                         iang = max(iang_mx-1,4)
                      elseif (r.ge.r3.and.r.lt.r4) then

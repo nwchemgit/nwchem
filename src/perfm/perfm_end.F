@@ -4,12 +4,14 @@ c
       subroutine perfm_end()
       implicit none
 #include "perfm.fh"
-#ifdef USE_PAPI
       double precision flpsum,flpmax,flpmin
       double precision util_wallsec,util_cpusec
       external util_wallsec,util_cpusec
+#ifdef USE_PAPI
       integer retvals
 #endif
+#include "yflop.fh"
+      flpins=0
 #ifdef FDIST
       call finalize_dist( ga_nodeid() )
 #endif
@@ -17,11 +19,27 @@ c
 #ifdef PAPI_FPINS
       if(lfailed) return
       call  PAPIf_flips( real_time, proc_time, flpins, mflops, retval)
-      usn=util_wallsec()
-      proc1=util_cpusec()
       retvals=retval
       if (retval .NE. PAPI_OK) call perfm_error(retval,
      $     ' perfm_end: could not get papi flpins ')
+#else
+      call PAPIf_stop(es, values(1), retval)
+      if (retval .NE. PAPI_OK) call
+     $ perfm_error(retval,
+     $     'perfm_start: could not stop papi')
+      usn=util_wallsec()
+      usn = usn - uso
+      write(luout,*) 'Real_time: ', usn, 'secs'
+      ll=inp_strlen(eventname(1))
+      write(luout,*) eventname(1)(1:ll),'      : ',values(1)
+      write(luout ,*) eventname(1)(1:ll),'/sec : ',values(1)/usn
+#endif
+#elif USE_YFLOP
+      flpins=flops_ycount
+#endif
+      if(flpins.gt.0) then
+      usn=util_wallsec()
+      proc1=util_cpusec()
       call ga_sync()
 c
 c     sum,max and min dgops
@@ -50,20 +68,8 @@ c
      ,        flpmax/real_time*conv2m
          write(luout,12) ' Min       GFLOPS: ', 
      ,        flpmin/real_time*conv2m
- 12      format(A38,F10.2) 
+ 12      format(A38,1PG11.4) 
       endif
-#else
-      call PAPIf_stop(es, values(1), retval)
-      if (retval .NE. PAPI_OK) call
-     $ perfm_error(retval,
-     $     'perfm_start: could not stop papi')
-      usn=util_wallsec()
-      usn = usn - uso
-      write(luout,*) 'Real_time: ', usn, 'secs'
-      ll=inp_strlen(eventname(1))
-      write(luout,*) eventname(1)(1:ll),'      : ',values(1)
-      write(luout ,*) eventname(1)(1:ll),'/sec : ',values(1)/usn
-#endif
-#endif
+      endif
       return
       end

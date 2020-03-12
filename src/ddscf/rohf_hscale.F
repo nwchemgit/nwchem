@@ -315,9 +315,9 @@ c
 c
 c              put elements of g_x, g_x_im to local memory:
                call ga_get(g_x, ioff, ioff+nvir-1, ivec, ivec,
-     $              dbl_mb(k_x),1)
+     $              dbl_mb(k_x),nvir)
                call ga_get(g_x_im, ioff, ioff+nvir-1, ivec, ivec,
-     $              dbl_mb(k_x_im),1)
+     $              dbl_mb(k_x_im),nvir)
 c
                do j=1,nvir
 c                orbital energy differences:
@@ -365,9 +365,9 @@ c FA-03-12-14 ------- END
                enddo
                
                call ga_put(g_x, ioff, ioff+nvir-1, ivec, ivec,
-     $              dbl_mb(k_x),1)
+     $              dbl_mb(k_x),nvir)
                call ga_put(g_x_im, ioff, ioff+nvir-1, ivec, ivec,
-     $              dbl_mb(k_x_im),1)
+     $              dbl_mb(k_x_im),nvir)
             enddo
          endif
 c     
@@ -383,7 +383,7 @@ c
             do i = ga_nodeid()+1, nopen, ga_nnodes()
                ioff = (nclosed+i-1)*nvir + 1
                call ga_get(g_x, ioff, ioff+nvir-1, ivec, ivec,
-     $              dbl_mb(k_x),1)
+     $              dbl_mb(k_x),nvir)
                do j=1,nvir
                   denominator = 2.d0*(fpv(j+vbase) - fpv(i+obase)) +
      $                 lshift
@@ -391,7 +391,7 @@ c
                   dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
                enddo
                call ga_put(g_x, ioff, ioff+nvir-1, ivec, ivec,
-     $              dbl_mb(k_x),1)
+     $              dbl_mb(k_x),nvir)
             enddo
          endif
 c     
@@ -405,7 +405,7 @@ C          BECAUSE THIS HAS NOT BEEN ADAPTED TO FREQUENCY AND DAMPING
            do i = ga_nodeid()+1, nclosed, ga_nnodes()
              ioff = (nclosed+nopen)*nvir + (i-1)*nopen + 1
              call ga_get(g_x, ioff, ioff+nopen-1, ivec, ivec,
-     $          dbl_mb(k_x),1)
+     $          dbl_mb(k_x),nopen)
              do j=1,nopen
                denominator = 2.d0*(fcp(j+obase) - fcp(i+cbase)) +
      $            lshift
@@ -413,7 +413,7 @@ C          BECAUSE THIS HAS NOT BEEN ADAPTED TO FREQUENCY AND DAMPING
                dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
              enddo
              call ga_put(g_x, ioff, ioff+nopen-1, ivec, ivec,
-     $          dbl_mb(k_x),1)
+     $          dbl_mb(k_x),nopen)
            enddo
          endif
        enddo

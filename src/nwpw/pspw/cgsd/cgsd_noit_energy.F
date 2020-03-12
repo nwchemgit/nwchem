@@ -60,8 +60,8 @@ c     $Id$
       external psp_pawexist,ion_disp_on
       real*8   psi_smearfermi,psi_smearcorrection,lattice_omega
       external psi_smearfermi,psi_smearcorrection,lattice_omega
-      logical  control_hess_model
-      external control_hess_model
+      logical  control_hess_model,nwpw_cosmo_on
+      external control_hess_model,nwpw_cosmo_on
       real*8   ion_hess_energy
       external ion_hess_energy
 
@@ -123,7 +123,9 @@ c     $Id$
       call psi_1gen_hml()
       call psi_diagonalize_hml()
       if (control_fractional()) then
-         call psi_1define_occupation(.true.)
+        !call psi_1define_occupation(.true.)
+        call psi_1desending_occupation()
+        call psi_1define_occupation(0.0d0,.false.)
         E(28) = psi_smearcorrection()
         E(1)  = E(1) + E(28)
       end if
@@ -358,6 +360,18 @@ c            end do
 
            end if
 
+*      **** write out COSMO energies ****
+       if (nwpw_cosmo_on()) then
+            write(luout,1730)
+            write(luout,1731)
+            write(luout,1732) E(46)
+            write(luout,1733) E(47)
+            write(luout,1734) E(48)
+            write(luout,1735) E(46)+E(47)+E(48),
+     >                        (E(46)+E(47)+E(48))*27.2116d0*23.06d0
+       end if
+
+
       end if
       if (control_symmetry().gt.0) call psi_ab_kill_irrep_names()
 
@@ -511,6 +525,14 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1711 FORMAT( ' - MM LJ/MM LJ                    :',E19.10)
 
  1720 FORMAT(/' Dispersion energy   :',E19.10)
+
+ 1730 FORMAT(/' COSMO energies:')
+ 1731 FORMAT(5x,' screen=(epsilon-1)/(epsilon+1/2)')
+ 1732 FORMAT(5x,' screen*Qelc*B*q energy  :',E19.10)
+ 1733 FORMAT(5x,' screen*Qion*B*q energy  :',E19.10)
+ 1734 FORMAT(5x,' screen*0.5*q*A*q energy :',E19.10)
+ 1735 FORMAT(5x,' solvation energy (w/o QM polarization) :',E19.10,
+     >   /45x,' (',F8.3,' kcal/mol)')
 
  1800 FORMAT(/' Charge Field Energies')
  1801 FORMAT( ' ---------------------')

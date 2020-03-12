@@ -63,6 +63,9 @@
       logical  control_DOS,ion_disp_on
       external control_DOS,ion_disp_on
 
+      real*8   cpsi_1ke,cpsi_1energy
+      external cpsi_1ke,cpsi_1energy
+
       call Parallel_taskid(taskid)
 
       mprint = (taskid.eq.MASTER).and.control_print(print_medium)
@@ -107,7 +110,18 @@
       if (minimizer.eq.2) call band_Grsm_list_start()
       if ((minimizer.eq.5).or.(minimizer.eq.8)) it_out = 1
 
-      if (newpsi) call c_sdminimize(10)
+      if (newpsi) then
+         call c_sdminimize(10)
+         if (control_fractional()) then
+            call cpsi_1toelectron()
+            call cpsi_1gen_hml()
+            call cpsi_diagonalize_hml()
+            call cpsi_1rotate2()
+            call cpsi_2to1()
+            !call cpsi_1define_occupation(-1.0d0,.false.)
+            call cpsi_1define_occupation(1.0d0,.false.)
+         end if
+      end if
 
    2  continue
          icount = icount + 1
@@ -195,13 +209,16 @@
       if (minimizer.eq.2) call band_Grsm_list_end()
       if (mprint) CALL nwpw_MESSAGE(3)
 
+      call cpsi_spin_density(en)
 
 *     **** diagonalize hamiltonian and rotate psi ****
-      call cpsi_spin_density(en)
       call cpsi_1gen_hml()
       call cpsi_diagonalize_hml()
-      call cpsi_1rotate2()
-      call cpsi_2to1()
+      if (.not.control_fractional()) then
+         call cpsi_1rotate2()
+         call cpsi_2to1()
+      end if
+      !if (control_fractional()) call cpsi_1define_occupation(.false.,1)
 
 *     *** generate svectors ***
       if (cpsi_spin_orbit()) call cpsi_1gen_svector()

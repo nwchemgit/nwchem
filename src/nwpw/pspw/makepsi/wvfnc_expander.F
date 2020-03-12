@@ -31,7 +31,7 @@
 
       integer ngrid(3)
       integer dngrid(3)
-      integer cfull(2),dcfull(2)
+      integer cfull(2),dcfull(2),occ1(2)
       integer nfft3d,n2ft3d
       integer dnfft3d,dn2ft3d
       integer ms,n,l,occupation
@@ -101,6 +101,8 @@
 
       value = BA_alloc_get(mt_dcpl,dnfft3d,
      >                     'dcfull',dcfull(2),dcfull(1))
+      value = BA_alloc_get(mt_dbl,ne(1)+ne(2),
+     >                     'occ1',occ1(2),occ1(1))
 
       do ms=1,ispin
         do n=1,ne(ms)
@@ -115,6 +117,10 @@
 
         end do
       end do
+      if (occupation.gt.0) then
+          call dread(5,dbl_mb(occ1(1)),(ne(1)+ne(2)))
+          call dwrite(6,dbl_mb(occ1(1)),(ne(1)+ne(2)))
+      end if
       call closefile(5)
       call closefile(6)
 
@@ -135,6 +141,7 @@ c     *** copy wvfnc_expander to new_wavefunction_filename ****
  
  9999 value = BA_free_heap(cfull(2))
       value = BA_free_heap(dcfull(2))
+      value = BA_free_heap(occ1(2))
       !IF(IERR.EQ.0) THEN
       !  WRITE(6,*) ' JOB HAS BEEN COMPLETED.  CODE=',IERR
       !ELSE

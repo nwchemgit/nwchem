@@ -241,7 +241,7 @@ c
 C     RTDB flag for printing out all matrices
       logical lprint_mats  !print matrices to stdout?
       logical lsave_mats   !save matrices to file?
-      logical molden, forceatguess
+      logical molden, forceatguess, save_evals
       integer ma_type, no_sflip,l_at_flip,k_at_flip
       character*26 date
 
@@ -924,7 +924,8 @@ c     May not want levelshifting initially until sure that the
 c     transformed Fock matrix will be diagonally dominant, or
 c     alternatively shift the piss out of it.
 c     
-      if (movecs_guess.eq.'restart'.or.ncanorg.eq.1)then
+      if (movecs_guess.eq.'restart'.or.ncanorg.eq.1.or.
+     A     movecs_guess.eq.'fragment')then
          levelshifting = .not.gotsmear(ssmear)
       else
          levelshifting = .false.
@@ -1997,10 +1998,12 @@ c        Tally up last energy
 c
          if (nExc.eq.1)then
 c  jbecca START: adding in eelec here
-              Etnew = Ecore + Ecoul + Exc(1) + Edisp + eelec
+              Etnew = Ecore + Ecoul + Exc(1) + Edisp + eelec +
+     T           tdots
          else
 c  jbecca START: adding in eelec here
-              Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + Edisp + eelec
+              Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + Edisp +
+     E           eelec + tdots
          endif
 c
 c        Add in cosmo contributions
@@ -2166,7 +2169,7 @@ c
      O     dbl_mb(k_occ),
      I     int_mb(k_ir),
      N     nbf_ao, nmo,
-     I     g_movecs,scftype)
+     I     g_movecs,scftype,'write')
 
       if (oprint_final_vecs) then
          if (me .eq. 0) then
@@ -2253,6 +2256,19 @@ c
      &                      dbl_mb(k_eval(1)), nbf_ao, g_movecs))
      &                      call errquit('dft_scf: movec_write failed',
      &                      0, DISK_ERR)
+c
+c     Write out the alpha/beta split eigenvalues
+c
+      if (.not. rtdb_get(rtdb,'dft:save_evals',mt_log,1,save_evals))
+     c     save_evals=.false.
+      if(save_evals) then
+         call dft_print_evals_ab(
+     c        nbf_ao, dbl_mb(k_occ), dbl_mb(k_eval(1)))
+         save_evals=.false.
+c     unset save evals
+         if (.not. rtdb_put(rtdb,'dft:save_evals',mt_log,1,save_evals))
+     &        call errquit('dft_scf: rtdbput failed',1234,RTDB_ERR)
+      endif
 c     
 c     Shut down DIIS.
 c     

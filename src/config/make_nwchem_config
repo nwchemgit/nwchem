@@ -49,11 +49,13 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
 # 			KNOWN_MODULE_SUBDIRS to produce NW_MODULE_SUBDIRS
 
 ifndef NWCHEM_TOP
-error1:
-	@echo You must define NWCHEM_TOP in your environment to be the path
-	@echo of the top level nwchem directory ... something like
-	@echo     setenv NWCHEM_TOP /msrc/home/elvis/nwchem
-	@exit 1
+#error1:
+#	@echo You must define NWCHEM_TOP in your environment to be the path
+#	@echo of the top level nwchem directory ... something like
+#	@echo     setenv NWCHEM_TOP /msrc/home/elvis/nwchem
+#	@exit 1
+NWCHEM_TOP= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))| \
+ sed -e 's/\/src.*//' )
 endif
 
 # Set a default here in case the caller doesn't
@@ -86,7 +88,7 @@ EXP_tinyqmpw = nwdft  property solvation driver ccsd mp2_grad hessian vib nwpw
 EXP_ver2 = prepar gradients mp2_grad stepper vib mcscf \
            optim driver analyz diana
 #plane_wave ... broken? RJH
-EXP_qmandpw = nwpw NWints atomscf ddscf gradients moints nwdft rimp2 nwxc hessian bq cons \
+EXP_qmandpw = nwpw NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           optim stepper driver ccsd vib mcscf property solvation dplot mp2_grad esp etrans vscf dimqm 
 EXP_tps = prepar nwmd analyz diana
 EXP_md  = prepar nwmd analyz ddscf nwdft gradients esp
@@ -160,6 +162,7 @@ MODULES := $(patsubst scfaux,scfaux ddscf,$(MODULES) )
 
 #MODULES := $(patsubst nwdft,nwdft ddscf gradients NWints property cphf hessian nwxc,$(MODULES) )
 MODULES := $(patsubst nwdft,nwdft ddscf gradients NWints property cphf hessian,$(MODULES) )
+MODULES := $(patsubst qmd,qmd nwdft property nwmd,$(MODULES) )
 
 MODULES := $(patsubst esp,esp NWints,$(MODULES) )
 
@@ -275,7 +278,7 @@ STUBROUTINES := $(patsubst hessian, hess_anal hess_tidy hess_input xc_chkdispaut
 STUBROUTINES := $(patsubst ccsd,ccsd ccsd_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mcscf,mcscf mcscf_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst moints,atwtest direct_mp2 moints_full,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst nwdft,nwdft occup_input xc_chktau dft_fitcd grid_cleanup dft_fitvc grid_quadv0_gen dft_input xc_quadv0_gen dft_energy dft_energy_gradient sodft_energy tddft_input tddft_energy sodft_energy sodft_energy_gradient rt_dft_input xc_vdw_to_hessian,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst nwdft,nwdft occup_input xc_chktau dft_fitcd grid_cleanup dft_fitvc grid_quadv0_gen dft_input xc_quadv0_gen dft_energy dft_energy_gradient sodft_energy tddft_input tddft_energy sodft_energy sodft_energy_gradient rt_dft_input rt_tddft_input tddft_gradient task_rt_tddft xc_vdw_to_hessian,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwxc,nwxc_getwght nwxc_getvals nwxc_eval_df nwxc_eval_df2 nwxc_eval_df3 nwxc_get_cam nwxc_get_disp nwxc_has_cam nwxc_has_2nd nwxc_has_xc nwxc_has_disp nwxc_has_hfx nwxc_has_mp2c nwxc_init nwxc_input nwxc_is_gga nwxc_is_lda nwxc_is_mgga nwxc_is_on nwxc_print nwxc_print_nwpw nwxc_reset_rho_tolerance nwxc_rtdb_delete nwxc_rtdb_load nwxc_rtdb_store nwxc_vdw3_dftd3 nwxc_wght_hfx nwxc_wght_mp2c,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rdmft,wfn1_input wfn1_task_energy,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rimp2,rimp2,$(STUBROUTINES) )
@@ -286,7 +289,7 @@ STUBROUTINES := $(patsubst symmetry,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst cphf,cphf cphf_poliz mjdtest cphf2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst scfaux,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst vib,vib_cross vib_vib freq_vib_input vib_dsquar,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst driver,driver oniom_energy oniom_gradient oniom_input drv_lst drv_opt driver_input lbfgsb_driver deloc_driver,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst driver,driver oniom_energy oniom_gradient oniom_input drv_lst drv_opt driver_input lbfgsb_driver deloc_driver socket_driver,$(STUBROUTINES) )
 #STUBROUTINES := $(patsubst plane_wave,plnwv plnwv_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst prepar,prepar pre_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst analyz,analyz ana_input,$(STUBROUTINES) )

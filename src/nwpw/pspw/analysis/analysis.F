@@ -50,9 +50,9 @@ c
       real*8  ttl1,ttl2,subttl
 
       integer h_actlist,l_actlist,nactive_atoms,ma_type
-      integer npoints,ii,lmax
-      integer weight(2)
-      real*8 emin,emax,alpha,lmbda,rcut
+      integer npoints,ii,lmax,norbs,naos
+      integer weight(2),coef(2)
+      real*8 emin,emax,alpha,lmbda,rcut,w
       character*255 filename
 
       logical value,mulliken_kawai,fixatoms
@@ -90,6 +90,9 @@ c
       real*8   aorbs_rcut,aorbs_lmbda
       external aorbs_rcut,aorbs_lmbda
 
+      character*7 c_index_name
+      external    c_index_name
+
 
       call Parallel_taskid(taskid)
       call Pack_npack(1,npack1)
@@ -115,6 +118,8 @@ c
      >        BA_alloc_get(mt_dbl,nemax,'sum',sum(2),sum(1))
       value = value.and.
      >        BA_alloc_get(mt_dbl,6*3,'subtl',subtl(2),subtl(1))
+
+      call dcopy(36*nemax*nion,0.0d0,0,dbl_mb(a(1)),1)
 
 
 *      ***********************************************
@@ -480,7 +485,7 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
       if (control_DOS()) then
       if (taskid.eq.MASTER) write(*,*) "into mulliken DOS"
 
-      value = BA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
+      value=BA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
       if (.not. value)
      >  call errquit('analysis:out of stack memory',0, MA_ERR)
       call dcopy(nemax,1.0d0,0,dbl_mb(weight(1)),1)
@@ -700,6 +705,111 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
      >               -1.0d0,alpha,npoints,emin,emax)
          end if
 
+*     **** ORBITAL DOS  *****
+         value=BA_push_get(mt_dbl,36,'coef',coef(2),coef(1))
+         if (.not.value)
+     >     call errquit('analysis:out of stack memory',1, MA_ERR)
+
+         id = 'nwpw:dos:orb:norb'
+         if (.not.btdb_get(rtdb,id,mt_int,1,norbs)) norbs = 0
+
+         do k=1,norbs
+            id = 'nwpw:dos:orb:coef'//c_index_name(k)
+            if (.not.rtdb_get_info(rtdb,id,ma_type,naos,test))
+     >      call errquit(
+     >       'analysis: ma_get_index failed for nwpw:dos:orb:coef',911,
+     >       MA_ERR)
+            if (.not. btdb_get(rtdb,id,mt_dbl,naos,dbl_mb(coef(1))))
+     >      call errquit(
+     >       'analysis: ma_get_index failed for nwpw:dos:orb:coef',912,
+     >       MA_ERR)
+             !*** normalize coef ***
+             w = 0.0
+             do i=1,naos
+                w = w + dbl_mb(coef(1)+i-1)**2
+             end do
+             w = 1.0d0/dsqrt(w)
+             do i=1,naos
+                dbl_mb(coef(1)+i-1) = dbl_mb(coef(1)+i-1)*w
+             end do
+
+            call dcopy(nemax,0.0d0,0,dbl_mb(weight(1)),1)
+            if (.not.fixatoms) then
+            do I=1,nion
+               do SPIN=1,ISPIN
+               do N=N1(SPIN),N2(SPIN)
+                  call dgemm('N','N',1,1,naos,
+     >                       1.0d0,
+     >                       dbl_mb(coef(1)),1,
+     >                       dbl_mb(A(1)+(N-1)*36+(I-1)*36*nemax),naos,
+     >                       0.0d0,
+     >                       w,1)
+                  dbl_mb(weight(1)+n-1) = dbl_mb(weight(1)+n-1) + w**2
+               end do
+               end do
+            end do
+            else
+            do j=1,nactive_atoms
+               I=int_mb(l_actlist+j-1)
+               do SPIN=1,ISPIN
+               do N=N1(SPIN),N2(SPIN)
+                  call dgemm('N','N',1,1,naos,
+     >                       1.0d0,
+     >                       dbl_mb(coef(1)),1,
+     >                       dbl_mb(A(1)+(N-1)*36+(I-1)*36*nemax),naos,
+     >                       0.0d0,
+     >                       w,1)
+                  dbl_mb(weight(1)+n-1) = dbl_mb(weight(1)+n-1) + w**2
+               end do
+               end do
+            end do
+            end if
+            if (ispin.eq.1) then
+               if (flag.eq.0) 
+     >            filename = "mulliken_fdos_both_orb"//c_index_name(k)
+               if (flag.eq.1) 
+     >            filename = "mulliken_vdos_both_orb"//c_index_name(k)
+               call densityofstates(filename,.false.,
+     >                     eig,dbl_mb(weight(1)),ne(1),
+     >                     1.0d0,alpha,npoints,emin,emax)
+               if (flag.eq.0) value = .true.
+               if (flag.eq.1) value = .false.
+               filename = "mulliken_dos_both_orb"//c_index_name(k)
+               call densityofstates(filename,value,
+     >                     eig,dbl_mb(weight(1)),ne(1),
+     >                     1.0d0,alpha,npoints,emin,emax)
+            end if
+            if (ispin.eq.2) then
+               if (flag.eq.0) 
+     >            filename = "mulliken_fdos_alpha_orb"//c_index_name(k)
+               if (flag.eq.1) 
+     >            filename = "mulliken_vdos_alpha_orb"//c_index_name(k)
+               call densityofstates(filename,.false.,
+     >                     eig,dbl_mb(weight(1)),ne(1),
+     >                     1.0d0,alpha,npoints,emin,emax)
+               if (flag.eq.0) value = .true.
+               if (flag.eq.1) value = .false.
+               filename= "mulliken_dos_alpha_orb"//c_index_name(k)
+               call densityofstates(filename,value,
+     >                     eig,dbl_mb(weight(1)),ne(1),
+     >                     1.0d0,alpha,npoints,emin,emax)
+
+               if (flag.eq.0) 
+     >            filename = "mulliken_fdos_beta_orb"//c_index_name(k)
+               if (flag.eq.1) 
+     >            filename = "mulliken_vdos_beta_orb"//c_index_name(k)
+               call densityofstates(filename,.false.,
+     >               eig(1+ne(1)),dbl_mb(weight(1)+ne(1)),ne(2),
+     >               -1.0d0,alpha,npoints,emin,emax)
+               if (flag.eq.0) value = .true.
+               if (flag.eq.1) value = .false.
+               filename= "mulliken_dos_beta_orb"//c_index_name(k)
+               call densityofstates(filename,value,
+     >               eig(1+ne(1)),dbl_mb(weight(1)+ne(1)),ne(2),
+     >               -1.0d0,alpha,npoints,emin,emax)
+            end if
+         end do
+
 
 *     *** free heap ***
       if(fixatoms) then
@@ -746,7 +856,8 @@ c 1802 FORMAT('DOS_alpha_atom_',I4.4)
 c 1803 FORMAT('DOS_beta_atom_',I4.4)
 c      end do
 
-      value = BA_pop_stack(weight(2))
+      value = BA_pop_stack(coef(2))
+      value = value.and.BA_pop_stack(weight(2))
       if (.not. value)
      >  call errquit('analysis: error freeing stack',0, MA_ERR)
 

@@ -60,6 +60,7 @@ c
      
 c
       logical use_dimqm,lrsp,ldimqm,lfirst,dimqm_go
+      logical do_cphf
       logical hf_job
       logical xc_gotxc,xc_gothfx
       external xc_gotxc,xc_gothfx
@@ -85,14 +86,6 @@ c
       else
          if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
      $        call errquit('cphf_solve: no DFT MO vectors',0, RTDB_ERR)
-c !!! Hack to set up scftype properly for later code !!! ? need this?
-#if 0
-         if (bgj_restricted()) then
-            scftype = 'RHF'
-         else
-            scftype = 'UHF'
-         endif
-#endif
       endif
 c      write(*,*)'*** cphf_solve: scftype ',scftype
 c     
@@ -107,7 +100,7 @@ c
         nbases = 2
         bases(2) = bgj_CD_bas_han()
         if (ga_nodeid().eq.0) then
-          write(LuOut,*) __FILE__,': bases',bases
+          write(LuOut,*) 'cphf_solve2: bases',bases
         endif
       endif
 #endif
@@ -199,6 +192,9 @@ c      endif
       max_precond_sub = 10*nvec
       if (.not. rtdb_get(rtdb, 'cphf:maxsub', mt_int, 1,
      $     max_precond_sub)) max_precond_sub = 10*nvec
+c
+      if (.not. rtdb_get(rtdb, 'cphf:do_cphf', mt_log, 1,
+     $     do_cphf)) do_cphf=.true.
 c
       pflg=2
       if (oprint) then
@@ -351,6 +347,7 @@ c        enforces that.
           call uhf_precond(g_work,0.0d0)
          endif 
 c        Call the solver
+         if (do_cphf) then
          if (ndata.eq.2) then
 
           call ga_lkain_ext(rtdb,g_work,g_grad,uhf_hessv2,uhf_precond,
@@ -362,6 +359,9 @@ c        Call the solver
      $        precond_tol, max_precond_sub, maxiter, .false., 
      &        oprint_solve)
          endif
+      else
+         if(ga_nodeid().eq.0) write(luout,*) ' !!! Skipping CPHF !!! '
+      endif
          noskew_uhf = .true.
       else 
 c        For property related CPHF. NMR has imaginary perturbation
@@ -373,6 +373,7 @@ c        enforces that.
           call rohf_hessv_precond(g_work,0.0d0)
          endif
 c        Call the solver
+         if (do_cphf) then
          if (ndata.eq.2) then
 
           call ga_lkain_ext(rtdb,g_work, g_grad, rohf_hessv2,
@@ -385,6 +386,9 @@ c        Call the solver
      R         rohf_hessv_precond,
      $         precond_tol, max_precond_sub, maxiter, .false., 
      &         oprint_solve)
+         endif
+         else
+         if(ga_nodeid().eq.0) write(luout,*) ' !!! Skipping CPHF !!! '
          endif
          noskew = .true.
       endif

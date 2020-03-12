@@ -12,7 +12,10 @@ OBJ_OPTIMIZE = ccsd_t.o ccsd_t_doubles.o ccsd_t_singles.o lambda_ccsd_t.o lambda
 	           ccsd_t_dts_kernels_omp.o ccsd_t_transpose.o \
                offl_ccsd_t_doubles_l.o ccsd_t_kernels_omp.o \
                tce_hashnsort.o ccsd_t_pstat.o \
-               offl_ccsd_t_singles_l.o offl_ccsd_t_singles_l_1.o ccsd_t_dot.o ccsd_t_neword.o
+               ccsd_t_dot.o ccsd_t_neword.o
+ifdef USE_OFFLOAD
+  OBJ_OPTIMIZE += offl_ccsd_t_singles_l.o offl_ccsd_t_singles_l_1.o
+endif
 
 LIB_INCLUDES = -I../include
 
@@ -30,20 +33,31 @@ USES_BLAS = ccsd_t_doubles.F ccsd_t_singles.F \
 
 ifdef TCE_CUDA
  LIB_INCLUDES = -I../include -I../ttlg/includes
- OBJ_OPTIMIZE += hybrid.o memory.o sd_t_total_ttlg.o ccsd_t_gpu.o ccsd_t_singles_gpu.o ccsd_t_doubles_gpu.o
+ OBJ_OPTIMIZE += hybrid.o memory.o ccsd_t_gpu.o ccsd_t_singles_gpu.o ccsd_t_doubles_gpu.o
+ ifdef USE_TTLG
+  LIB_INCLUDES += -I../include 
+  OBJ_OPTIMIZE +=  sd_t_total_ttlg.o
+ else
+  OBJ_OPTIMIZE +=  sd_t_total.o
+ endif
  USES_BLAS += ccsd_t_singles_gpu.F ccsd_t_doubles_gpu.F
  LIB_DEFINES += $(CUDA_INCLUDE)
 endif
+
+ifdef TCE_HIP
+ LIB_INCLUDES = -I../include
+ OBJ_OPTIMIZE += hybrid.o memory.o ccsd_t_gpu.o ccsd_t_singles_gpu.o ccsd_t_doubles_gpu.o sd_t_total.o
+ USES_BLAS += ccsd_t_singles_gpu.F ccsd_t_doubles_gpu.F
+ LIB_DEFINES += $(HIP_INCLUDE)
+endif
+
+
 
 ifdef TCE_NEW_OPENMP
  OBJ_OPTIMIZE += ccsd_t_omp.o
 endif
 
 LIB_DEFINES += -DDEBUG_PRINT
-
-ifdef OPENMP_OFFLOAD
- LIB_DEFINES += -DOPENMP_OFFLOAD
-endif
 
 #
 # Possible #defines
@@ -59,3 +73,6 @@ HEADERS =
 include ../../config/makefile.h
 include ../../config/makelib.h
 
+ifdef USE_OFFLOAD
+FOPTIMIZE += $(OFFLOAD_FOPTIONS)
+endif

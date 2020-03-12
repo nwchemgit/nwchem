@@ -45,8 +45,7 @@ C     i0 ( )_yx + = 1/4 * Sum ( h4 h3 p2 p1 ) * y+ ( h3 h4 p1 p2 )_y * x ( p1 p2
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
-      INTEGER NXTASK
+      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -87,8 +86,7 @@ C     i0 ( )_yx + = 1/4 * Sum ( h4 h3 p2 p1 ) * y+ ( h3 h4 p1 p2 )_y * x ( p1 p2
       INTEGER counter,i,j,k,l
       integer iref,jref
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
-      EXTERNAL NXTASK
+      EXTERNAL nxtask
       EXTERNAL FACTORIAL
       logical nodezero
 !

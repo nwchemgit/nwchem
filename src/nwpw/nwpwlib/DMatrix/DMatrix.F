@@ -1062,7 +1062,8 @@ c     >            work1,work2)
          icur = 0
          do i=1,n
 
-            if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
+            if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j).and.
+     >          ((fw(i)+fw(j)).gt.1.0d-9)) then
                   A(ii,jj) = A(ii,jj)* (2.0d0*fw(i)/(fw(i)+fw(j)))
             end if
 

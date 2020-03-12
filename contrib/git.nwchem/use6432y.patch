@@ -1,0 +1,11 @@
+--- src/config/makefile.h-old	2019-12-30 16:11:31.879449897 -0800
++++ src/config/makefile.h	2020-02-07 09:56:47.453911982 -0800
+@@ -350,6 +350,8 @@
+    _CC = $(notdir $(CC))
+   endif
+ 
++## set USE_64TO32=y on by default since we do make 64_to_32 for this tarball
++  USE_64TO32=y
+ #
+ # Machine specific stuff
+ #

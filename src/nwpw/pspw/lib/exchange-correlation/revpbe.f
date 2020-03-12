@@ -8,7 +8,7 @@
 *    *					*
 *    ************************************
 *
-*    This function returns the PBE96 exchange-correlation
+*    This function returns the revPBE exchange-correlation
 *  energy density, xce, and its derivatives with respect
 *  to nup, ndn, |grad nup|, |grad ndn|, and |grad n|.
 *
@@ -18,7 +18,7 @@
 *           x_parameter: scale parameter for exchange
 *           c_parameter: scale parameter for correlation
 *
-*   Exit - xce(*)  : PBE96 energy density
+*   Exit - xce(*)  : revPBE energy density
 *        - fn(*,2) : d(n*xce)/dnup, d(n*xce)/dndn
 *        - fdn(*,3): d(n*xce)/d|grad nup|, d(n*xce)/d|grad ndn|
 *                    d(n*xce)/d|grad n|
@@ -40,22 +40,22 @@
 *     **** Density cutoff parameter ****
       real*8 DNS_CUT,ETA,ETA2,alpha_zeta,alpha_zeta2
       parameter (DNS_CUT = 1.0d-20)
-      parameter (ETA=1.0d-12)
-      parameter (ETA2=1.0d-6)
+      parameter (ETA=1.0d-20)
+      parameter (ETA2=1.0d-14)
       parameter (alpha_zeta=(1.0d0-ETA2))
       parameter (alpha_zeta2=(1.0d0-ETA2))
 
 c     ***** revPBE GGA exchange constants ******
       real*8 MU,KAPPA
       parameter (MU    = 0.2195149727645171d0)
-c      parameter (KAPPA = 0.8040000000000000d0)
+      !parameter (KAPPA = 0.8040000000000000d0)
       parameter (KAPPA = 1.2450000000000000d0)
  
 c     ****** PBE96 GGA correlation constants ******
       real*8 GAMMA,BETA,BOG
       parameter (GAMMA	= 0.031090690869655d0)
-      !parameter (BETA	= 0.066724550603149d0)
-      parameter (BETA	= 0.066725d0)
+      parameter (BETA	= 0.066724550603149d0)
+      !parameter (BETA	= 0.066725d0)
       parameter (BOG    = BETA/GAMMA)
 
 
@@ -96,7 +96,7 @@ c     ****** Perdew-Wang92 LDA correlation coefficients *******
 c     **** other constants ****
       real*8 onethird,fourthird,fivethird,onesixthm
       real*8 twothird,sevensixthm
-      real*8 onethirdm,n13
+      real*8 onethirdm
       parameter (onethird=1.0d0/3.0d0)
       parameter (onethirdm=-1.0d0/3.0d0)
       parameter (twothird=2.0d0/3.0d0)
@@ -152,19 +152,16 @@ c     **** local variables ****
 
       pi = 4.0d0*datan(1.0d0)
       rs_scale = (0.75d0/pi)**onethird
-      fdnx_const = -3.0d0/(16.0d0*pi)
+      fdnx_const = -3.0d0/(8.0d0*pi)
 
       
 !$OMP DO
       do i=1,n2ft3d
          nup     = dn_in(i,1)+ETA
          agrup   = agr_in(i,1)
-
  
          ndn     = dn_in(i,2)+ETA
          agrdn   = agr_in(i,2)
-
-         
  
 c        ****************************************************************
 c        ***** calculate polarized Exchange energies and potentials *****
@@ -176,13 +173,11 @@ c        ************
          n     = 2.0d0*nup
          agr   = 2.0d0*agrup
 
-         n13 = n**onethird
-         n13 = max(n13,1.d-14)
-         n_onethird = n13*(3.0d0/pi)**onethird
+         n_onethird = (3.0d0*n/pi)**onethird
          ex_lda     = -0.75d0*n_onethird
 
-         kf = (3.0d0*pi*pi)**onethird * n13
-         s  = agr/(2.0d0*kf*n13*n13*n13)
+         kf = (3.0d0*pi*pi*n)**onethird
+         s  = agr/(2.0d0*kf*n)
          P0 = 1.0d0 + (MU/KAPPA)*s*s
 
          F   = (1.0d0 + KAPPA - KAPPA/P0)
@@ -198,13 +193,11 @@ c        **************
          n     = 2.0d0*ndn
          agr   = 2.0d0*agrdn
 
-         n13 = n**onethird
-         n13 = max(n13,1.d-14)
-         n_onethird = n13*(3.0d0/pi)**onethird
+         n_onethird = (3.0d0*n/pi)**onethird
          ex_lda     = -0.75d0*n_onethird
 
-         kf = (3.0d0*pi*pi)**onethird * n13
-         s  = agr/(2.0d0*kf*n13*n13*n13)
+         kf = (3.0d0*pi*pi*n)**onethird
+         s  = agr/(2.0d0*kf*n)
          P0 = 1.0d0 + (MU/KAPPA)*s*s
 
          F   = (1.0d0 + KAPPA - KAPPA/P0)
@@ -214,15 +207,23 @@ c        **************
          fnxdn  = fourthird*(exdn - ex_lda*Fs*s)
          fdnxdn = fdnx_const*Fs
 
-         n = nup + ndn
-         ex = (exup*nup+ exdn*ndn)/n
-         
+         n = nup+ndn
+
+         ex = (exup*nup+ exdn*ndn)/ n
+                  
 c        *******************************************************************
 c        ***** calculate polarized correlation energies and potentials ***** 
 c        *******************************************************************
          agr   = agr_in(i,3)
-         n  = max(n,1.d-30)
+
          zet = (nup-ndn)/n
+c         if (zet.gt.0.0d0) zet = zet - ETA2
+c         if (zet.lt.0.0d0) zet = zet + ETA2
+c        if (dabs(dn_in(i,2)).gt.DNS_CUT) zet_nup =  2*ndn/n**2
+c        if (dabs(dn_in(i,1)).gt.DNS_CUT) zet_ndn = -2*nup/n**2
+c        if (dabs(dn_in(i,2)).gt.DNS_CUT) zet_nup =  2*ndn/n
+c        zet_nup =  2*ndn/n
+c        zet_ndn = -2*nup/n
          zet_nup = -(zet - 1.0d0)
          zet_ndn = -(zet + 1.0d0)
          zetpm_1_3 = (1.0d0+zet*alpha_zeta)**onethirdm
@@ -246,7 +247,10 @@ c        *******************************************************************
          rss   = dsqrt(rs)
 
 *        **** calculate n*drs/dn ****
+c        rs_n = onethirdm*rs/n
          rs_n = onethirdm*rs
+
+
 
 c        **** calculate t ****
          kf = (3.0d0*pi*pi*n)**onethird
@@ -267,10 +271,10 @@ c        **** calculate t ****
 c        **************************************************
 c        ***** compute LSDA correlation energy density ****
 c        **************************************************
-         CALL LSDT2(A_1,A1_1,B1_1,B2_1,B3_1,B4_1,rss,ecu,ecu_rs)
-         CALL LSDT2(A_2,A1_2,B1_2,B2_2,B3_2,B4_2,rss,ecp,ecp_rs)
-         CALL LSDT2(A_3,A1_3,B1_3,B2_3,B3_3,B4_3,rss,eca,eca_rs)
-
+         call LSDT2(A_1,A1_1,B1_1,B2_1,B3_1,B4_1,rss,ecu,ecu_rs)
+         call LSDT2(A_2,A1_2,B1_2,B2_2,B3_2,B4_2,rss,ecp,ecp_rs)
+         call LSDT2(A_3,A1_3,B1_3,B2_3,B3_3,B4_3,rss,eca,eca_rs)
+         
          z4 = zet**4
             
          ec_lda = ecu*(1.0d0-F*z4) 
@@ -293,7 +297,7 @@ c        ********************************************
          phi3 = phi**3
          phi4 = phi3*phi
          PON  = -ec_lda/(phi3*GAMMA)
-         tau  = dexp(PON)
+         tau  = DEXP(PON)
 
          A = BOG/(tau-1.0d0+ETA)
          A2 = A*A
@@ -344,11 +348,8 @@ c        ********************************************
 
          ec = ec_lda + Hpbe
 
-c        fncup  = ec + n*(ec_lda_nup + Hpbe_nup)
-c        fncdn  = ec + n*(ec_lda_ndn + Hpbe_ndn)
          fncup  = ec + (ec_lda_nup + Hpbe_nup)
          fncdn  = ec + (ec_lda_ndn + Hpbe_ndn)
-
 
          xce(i)   = x_parameter*ex     + c_parameter*ec
          fn(i,1)  = x_parameter*fnxup  + c_parameter*fncup
@@ -376,7 +377,7 @@ c        fncdn  = ec + n*(ec_lda_ndn + Hpbe_ndn)
 *    *					*
 *    ************************************
 *
-*   This routine calculates the PBE96 exchange-correlation 
+*   This routine calculates the revPBE exchange-correlation 
 *   potential(xcp) and energy density(xce).
 *
 *
@@ -386,7 +387,7 @@ c        fncdn  = ec + n*(ec_lda_ndn + Hpbe_ndn)
 *           x_parameter: scale parameter for exchange
 *           c_parameter: scale parameter for correlation
 *
-*     Exit  - xce(n2ft3d) : PBE96 exchange correlation energy density
+*     Exit  - xce(n2ft3d) : revPBE exchange correlation energy density
 *             fn(n2ft3d)  : d(n*xce)/dn
 *             fdn(n2ft3d) : d(n*xce/d|grad n|
 *
@@ -412,10 +413,10 @@ c        fncdn  = ec + n*(ec_lda_ndn + Hpbe_ndn)
 c     ***** revPBE GGA exchange constants ******
       real*8 MU,KAPPA
       parameter (MU    = 0.2195149727645171d0)
-c      parameter (KAPPA = 0.8040000000000000d0)
+      !parameter (KAPPA = 0.8040000000000000d0)
       parameter (KAPPA = 1.2450000000000000d0)
  
-c     ****** PBE96 GGA correlation constants ******
+c     ****** revPBE GGA correlation constants ******
       real*8 GAMMA,BETA,BOG
       parameter (GAMMA	= 0.031090690869655d0)
       parameter (BETA	= 0.066724550603149d0)
@@ -487,12 +488,20 @@ c        ***** calculate unpolarized Exchange energies and potentials *****
          s  = agr/(2.0d0*kf*n)
          P0 = 1.0d0 + (MU/KAPPA)*s*s
 
+c        if (n.gt.DNS_CUT) then
+c           F   = (1.0d0 + KAPPA - KAPPA/P0)
+c           Fs  = 2.0d0*MU/(P0*P0)*s
+c        else
+c           F   = 1.0d0
+c           Fs  = 0.0d0
+c        end if
          F   = (1.0d0 + KAPPA - KAPPA/P0)
          Fs  = 2.0d0*MU/(P0*P0)*s
 
          ex   = ex_lda*F
          fnx  = fourthird*(ex - ex_lda*Fs*s) 
          fdnx = fdnx_const*Fs
+
 
 *        *********************************************************************
 c        ***** calculate unpolarized correlation energies and potentials *****
@@ -504,14 +513,14 @@ c        **** calculate rs and t ****
 
          kf = (3.0d0*pi*pi*n)**onethird
          ks = dsqrt(4.0d0*kf/pi)
-         t  = agr/(2.0*ks*n)
+         t  = agr/(2.0d0*ks*n)
+
 
 c        **** unpolarized LDA correlation energy ****
 c        **** ec_p = correlation energy          ****
 c        ****   ec_p_rs = dec_p/drs              ****
 c        ****   uc_p    = dec_p/dn               ****
-         CALL LSDT2(A_1,A1_1,B1_1,B2_1,B3_1,B4_1,rss,ec_lda,ec_lda_rs)
-      
+         call LSDT2(A_1,A1_1,B1_1,B2_1,B3_1,B4_1,rss,ec_lda,ec_lda_rs)
 c        **** PBE96 correlation energy  corrections ****
          t2 = t*t
          t4 = t2*t2
@@ -567,7 +576,3 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end
       
-      
- 
-
- 

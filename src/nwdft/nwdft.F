@@ -147,6 +147,9 @@ cc AJL/End
 
       logical rt_tddft
       external rt_tddft
+      logical xc_hascam,int_forcenwints
+      external xc_hascam,int_forcenwints
+      character*24 rtdb_errmsg
 c     
       pname = "nwdft:"
       nwdft = .false.
@@ -338,6 +341,13 @@ c      if(XCFIT.and.CDFIT) then
 c
 cc AJL/End
 c
+      if(xc_hascam(rtdb)) then
+c
+c     Force use of nw ints for CAM calculations
+         if(.not.int_forcenwints(rtdb,rtdb_errmsg))
+     &        call errquit(rtdb_errmsg,0, RTDB_ERR)
+      endif
+      
       call int_init(rtdb, i3, bases)
 c
       call print_integrals(bases, oskel) ! print integrals, if needed

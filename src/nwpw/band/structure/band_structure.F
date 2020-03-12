@@ -56,11 +56,11 @@
 *     **** local variables ****
       logical newpsi,grid3d,spin_orbit,lprint,mprint,hprint
       real*8  gx,gy,gz,cx,cy,cz
-      real*8  EV,pi,e1,e2,f0,f1,f2,f3,f4,f5,f6
+      real*8  EV,pi,e1,e2,f0,f1,f2,f3,f4,f5,f6,ttl1
       real*8  pathlength,dist,kold(3),emin,emax,lmbda,rcut
       integer ii,jj,kk,ll,i,k,ia,nion,vers,nbrillioun,icharge,isize,indx
-      integer npoints,nbrillall,if1,if2,nbrillq
-      integer mapping,tmp(2)
+      integer npoints,nbrillall,if1,if2,nbrillq,l3
+      integer mapping,tmp(2),norbs_dos
       character*255 full_filename
       character*50 filename
       character*72 cube_comment
@@ -145,6 +145,10 @@
       external cpsi_iptr_psi, cpsi_iptr_dn, c_electron_iptr_psir
       character   spdf_name
       external    spdf_name
+      character*7 c_index_name
+      external    c_index_name
+      logical     control_only_lda
+      external    control_only_lda
     
 *****************************|  PROLOGUE  |****************************
 
@@ -211,28 +215,33 @@
 
       call cpsi_data_init(20)
 
+*     **** read ions ****
+      value = ion_init(rtdb)
+      call center_geom(cx,cy,cz)
+      call center_mass(gx,gy,gz)
  
 *     **** initialize lattice data structure ****
       call lattice_init()
       call c_G_init()
+
+*     **** initalize brillioun ****
       call brillioun_init()
       call Cram_Init()
       call C3dB_pfft_init()
 
 
 *     **** initialize D3dB data structure and mask for GGA ****
-      if ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
-      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
-      call G_init()
-      call mask_init()
+      !if ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
+      if (.not.control_only_lda()) then
+         call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
+         call G_init()
+         call mask_init()
       end if
 
-
-
-*     **** read ions ****
-      value = ion_init(rtdb)
-      call center_geom(cx,cy,cz)
-      call center_mass(gx,gy,gz)
+c*     **** read ions ****
+c      value = ion_init(rtdb)
+c      call center_geom(cx,cy,cz)
+c      call center_mass(gx,gy,gz)
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call cpsp_init()
@@ -642,7 +651,10 @@ c      if (flag.eq.2) call cpsi_dospsi_read(k)
         value = BA_alloc_get(mt_dbl,isize,
      >                       'eigs_dos',eigs_dos(2),eigs_dos(1))
         if (mulliken) then
-           value = value.and.BA_alloc_get(mt_dbl,isize*4,
+           if (.not.btdb_get(rtdb,'nwpw:dos:orb:norb',
+     >                       mt_int,1,norbs_dos)) 
+     >        norbs_dos = 0
+           value = value.and.BA_alloc_get(mt_dbl,isize*(4+norbs_dos),
      >                      'pweight_dos',pweight_dos(2),pweight_dos(1))
         end if
         if (.not. value)
@@ -824,7 +836,7 @@ c      if (flag.eq.2) call cpsi_dospsi_read(k)
       if ((flag.eq.1).and.mulliken) then
          call cpsi_projected_dos_weights(rtdb,dosgrid,k,
      >                                   dbl_mb(pweight_dos(1)),
-     >                                   pweight_lmax)
+     >                                   pweight_lmax,norbs_dos)
       end if
 
 
@@ -967,6 +979,57 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
               close(58)
            end if
         end do
+
+        !*** ORBITAL DOS ***
+         do ll=1,norbs_dos
+            l3 = ll+pweight_lmax+1
+            call util_file_name('dos_both_orb'//c_index_name(ll),
+     >                       .false.,
+     >                       .false.,
+     >                       full_filename)
+             open(unit=58,file=full_filename,form='formatted')
+             jj=dosgrid(1)*dosgrid(2)*dosgrid(3)*(ne(1)+ne(2))*l3
+             call band_projected_dos_generate(58,
+     >                           dosgrid(1),dosgrid(2),dosgrid(3),
+     >                           dbl_mb(eigs_dos(1)),
+     >                           dbl_mb(pweight_dos(1)+jj),ne(1)+ne(2),
+     >                           (1.0d0*(3-ispin)),
+     >                           npoints,emin,emax)
+             close(58)
+
+             if (ispin.eq.2) then
+                call util_file_name('dos_alpha_orb'//c_index_name(ll),
+     >                       .false.,
+     >                       .false.,
+     >                       full_filename)
+                open(unit=58,file=full_filename,form='formatted')
+                jj=dosgrid(1)*dosgrid(2)*dosgrid(3)*(ne(1)+ne(2))*l3
+                call band_projected_dos_generate(58,
+     >                              dosgrid(1),dosgrid(2),dosgrid(3),
+     >                              dbl_mb(eigs_dos(1)),
+     >                              dbl_mb(pweight_dos(1)+jj),ne(1),
+     >                              (1.0d0),
+     >                              npoints,emin,emax)
+                close(58)
+                call util_file_name('dos_beta_orb'//c_index_name(ll),
+     >                       .false.,
+     >                       .false.,
+     >                       full_filename)
+                open(unit=58,file=full_filename,form='formatted')
+                ii = dosgrid(1)*dosgrid(2)*dosgrid(3)*ne(1)
+                jj=dosgrid(1)*dosgrid(2)*dosgrid(3)*(ne(1)+ne(2))*l3+ii
+                call band_projected_dos_generate(58,
+     >                              dosgrid(1),dosgrid(2),dosgrid(3),
+     >                              dbl_mb(eigs_dos(1)+ii),
+     >                              dbl_mb(pweight_dos(1)+jj),ne(2),
+     >                              (-1.0d0),
+     >                              npoints,emin,emax)
+                close(58)
+             end if
+
+         end do
+
+
         end if
 
 
@@ -1053,10 +1116,11 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
       call ion_end()
       call cpsi_data_end()
       call C3dB_end(1)
-      IF ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
-      call mask_end()
-      call G_end()
-      call D3dB_end(1)
+      !IF ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
+      if (.not.control_only_lda()) then
+         call mask_end()
+         call G_end()
+         call D3dB_end(1)
       end if
 
 
@@ -1169,7 +1233,7 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
  1258 FORMAT(5x,' number of k-points is very large')
 
  1260 FORMAT(5X,' Ewald summation: cut radius=',F8.2,'  and',I3)
- 1261 FORMAT(5X,'                   madelung=',f11.8)
+ 1261 FORMAT(5X,'                   madelung=',f14.8)
  
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)

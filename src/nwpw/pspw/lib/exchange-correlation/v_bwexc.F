@@ -24,12 +24,12 @@
 
 #include "bafdecls.fh"
 #include "errquit.fh"
-#include "nwxc.fh"
+#include "nwpwxc.fh"
 #include "util.fh"
 
 
 c     **** local variables ****      
-      logical value, use_nwxc
+      logical value, use_nwpwxc,has_vdw
       integer nx,ny,nz
       real*8  scal1
       integer rho(2),grx(2),gry(2),grz(2)
@@ -38,7 +38,7 @@ c     **** local variables ****
       integer rhoup(2),grupx(2),grupy(2),grupz(2)
       integer rhodn(2),grdnx(2),grdny(2),grdnz(2)
       integer          grallx(2),grally(2),grallz(2)
-      integer          grad(2),gtmp(2)
+      integer          grad(2)
       integer xagr(2),xfn(2),xfdn(2)
       integer k
       double precision dncut
@@ -48,6 +48,8 @@ c     **** local variables ****
 *     **** external functions ****
       integer  G_indx
       external G_indx
+      logical  vdw_DF_exist
+      external vdw_DF_exist
 
       call nwpw_timing_start(4)
       call D3dB_nx(1,nx)
@@ -55,10 +57,9 @@ c     **** local variables ****
       call D3dB_nz(1,nz)
       scal1 = 1.0d0/dble(nx*ny*nz)
 
-      use_nwxc = .false.
-      if (util_module_avail("nwxc")) then
-         use_nwxc = nwxc_is_on()
-      endif
+      use_nwpwxc = .false.
+      use_nwpwxc = nwpwxc_is_on()
+      has_vdw = vdw_DF_exist()
                 
 *     **********************************
 *     ***** restricted calculation *****
@@ -126,19 +127,20 @@ c        ***** calculate agr = |grad n| ****
 
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
 
-         if (use_nwxc) then
+         if (use_nwpwxc) then
 !$OMP MASTER
-           call nwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),dbl_mb(agr(1)),
+           call nwpwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),dbl_mb(agr(1)),
      >                       dumtau,xce,
      >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),dumtau)
 !$OMP END MASTER
 !$OMP BARRIER
-c
-c          Combine (df/d|grad a|) with (df/d(grad a|grad b))
-c
-           call D3dB_r_SMul(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
-     >                              dbl_mb(fdn(1)))
-c
+cc
+cc          Combine (df/d|grad a|) with (df/d(grad a|grad b))
+cc
+           call D3dB_rr_daxpy(1,0.5d0,dbl_mb(fdn(1)+n2ft3d),
+     >                                dbl_mb(fdn(1)))
+           !call D3dB_r_SMul1(1,0.5d0,dbl_mb(fdn(1)))
+cc
 c          Calculate energy density from energy
 c
 !$OMP DO
@@ -201,43 +203,43 @@ c        ***** calculate xce,fn=df/dn, and fdn=df/d|grad n|  ****
      >                              xce,
      >                              dbl_mb(fn(1)),
      >                              dbl_mb(fdn(1)))
+         else if (gga.eq.16) then
+         call gen_BEEF_BW_restricted(n2ft3d,
+     >                                dbl_mb(rho(1)),
+     >                                dbl_mb(agr(1)),
+     >        x_parameter,c_parameter,0.6001664769d0,
+     >                                xce,
+     >                                dbl_mb(fn(1)),
+     >                                dbl_mb(fdn(1)))
+         else if (gga.eq.17) then
+         call gen_BEEF_BW_restricted(n2ft3d,
+     >                                dbl_mb(rho(1)),
+     >                                dbl_mb(agr(1)),
+     >        x_parameter,c_parameter,0.0d0,
+     >                                xce,
+     >                                dbl_mb(fn(1)),
+     >                                dbl_mb(fdn(1)))
          else
           call errquit('bad gga',0,0)
          end if
          endif
 
+         !*** add vdw bit ***
+         if (has_vdw) then
+            call vdw_DF(n2ft3d,ispin,dn,dbl_mb(agr(1)),
+     >                  xce,
+     >                  dbl_mb(fn(1)),
+     >                  dbl_mb(fdn(1)))
+         end if
+
 c        ***** calculate df/d|grad n| *(grad n)/|grad n| ****
-c         call D3dB_rr_Divide(1,dbl_mb(grx(1)),
-c     >                         dbl_mb(agr(1)),
-c     >                         dbl_mb(grx(1)))
-c         call D3dB_rr_Divide(1,dbl_mb(gry(1)),
-c     >                         dbl_mb(agr(1)),
-c     >                         dbl_mb(gry(1)))
-c         call D3dB_rr_Divide(1,dbl_mb(grz(1)),
-c     >                         dbl_mb(agr(1)),
-c     >                         dbl_mb(grz(1)))
          call D3dB_rr_Divide2(1,dbl_mb(agr(1)),dbl_mb(grx(1)))
          call D3dB_rr_Divide2(1,dbl_mb(agr(1)),dbl_mb(gry(1)))
          call D3dB_rr_Divide2(1,dbl_mb(agr(1)),dbl_mb(grz(1)))
-c         call D3dB_rr_Mul(1,dbl_mb(grx(1)),
-c     >                      dbl_mb(fdn(1)),
-c     >                      dbl_mb(grx(1)))
-c         call D3dB_rr_Mul(1,dbl_mb(gry(1)),
-c     >                      dbl_mb(fdn(1)),
-c     >                      dbl_mb(gry(1)))
-c         call D3dB_rr_Mul(1,dbl_mb(grz(1)),
-c     >                      dbl_mb(fdn(1)),
-c     >                      dbl_mb(grz(1)))
          call D3dB_rr_Mul2(1,dbl_mb(fdn(1)),dbl_mb(grx(1)))
          call D3dB_rr_Mul2(1,dbl_mb(fdn(1)),dbl_mb(gry(1)))
          call D3dB_rr_Mul2(1,dbl_mb(fdn(1)),dbl_mb(grz(1)))
 
-c         call D3dB_r_SMul(1,scal1,dbl_mb(grx(1)),
-c     >                            dbl_mb(grx(1)))
-c         call D3dB_r_SMul(1,scal1,dbl_mb(gry(1)),
-c     >                            dbl_mb(gry(1)))
-c         call D3dB_r_SMul(1,scal1,dbl_mb(grz(1)),
-c     >                            dbl_mb(grz(1)))
          call D3dB_r_SMul1(1,scal1,dbl_mb(grx(1)))
          call D3dB_r_SMul1(1,scal1,dbl_mb(gry(1)))
          call D3dB_r_SMul1(1,scal1,dbl_mb(grz(1)))
@@ -250,15 +252,6 @@ c     >                            dbl_mb(grz(1)))
          call D3dB_rc_fft3f(1,dbl_mb(gry(1)))
          call D3dB_rc_fft3f(1,dbl_mb(grz(1)))
           
-c         call D3dB_ic_Mul(1,dbl_mb(G_indx(1)),
-c     >                      dbl_mb(grx(1)),
-c     >                      dbl_mb(grx(1)))
-c         call D3dB_ic_Mul(1,dbl_mb(G_indx(2)),
-c     >                      dbl_mb(gry(1)),
-c     >                      dbl_mb(gry(1)))
-c         call D3dB_ic_Mul(1,dbl_mb(G_indx(3)),
-c     >                      dbl_mb(grz(1)),
-c     >                      dbl_mb(grz(1)))
          call D3dB_ic_Mul2(1,dbl_mb(G_indx(1)),dbl_mb(grx(1)))
          call D3dB_ic_Mul2(1,dbl_mb(G_indx(2)),dbl_mb(gry(1)))
          call D3dB_ic_Mul2(1,dbl_mb(G_indx(3)),dbl_mb(grz(1)))
@@ -268,9 +261,6 @@ c     >                      dbl_mb(grz(1)))
      >                      dbl_mb(gry(1)),
      >                      dbl_mb(fdn(1)))
 
-c         call D3dB_cc_Sum(1,dbl_mb(grz(1)),
-c     >                      dbl_mb(fdn(1)),
-c     >                      dbl_mb(fdn(1)))
          call D3dB_cc_Sum2(1,dbl_mb(grz(1)),dbl_mb(fdn(1)))
 
          call mask_C(0,dbl_mb(fdn(1)))
@@ -301,16 +291,15 @@ c     >                      dbl_mb(fdn(1)))
 
 c        ***** tempory variables needed rho,grx,gry,grz *****
 c        *****                          agr,fn,fdn      *****
-        value = BA_push_get(mt_dbl,2*n2ft3d,'rhoup', rhoup(2), rhoup(1))
-        value = value.and.
-     >        BA_push_get(mt_dbl, n2ft3d,'grupx',grupx(2),grupx(1))
+c        value = BA_push_get(mt_dbl,2*n2ft3d,'rhoup', rhoup(2), rhoup(1))
+        value = BA_push_get(mt_dbl, n2ft3d,'grupx',grupx(2),grupx(1))
         value = value.and.
      >        BA_push_get(mt_dbl, n2ft3d,'grupy',grupy(2),grupy(1))
         value = value.and.
      >        BA_push_get(mt_dbl, n2ft3d,'grupz',grupz(2),grupz(1))
 
-        value = value.and.
-     >        BA_push_get(mt_dbl,n2ft3d,'rhodn', rhodn(2), rhodn(1))
+c        value = value.and.
+c     >        BA_push_get(mt_dbl,n2ft3d,'rhodn', rhodn(2), rhodn(1))
         value = value.and.
      >        BA_push_get(mt_dbl, n2ft3d,'grdnx',grdnx(2),grdnx(1))
         value = value.and.
@@ -332,8 +321,8 @@ c        *****                          agr,fn,fdn      *****
         agr(3) = xagr(1) + 2*n2ft3d
         value = value.and.
      >        BA_push_get(mt_dbl, 3*n2ft3d,'grad',grad(2),grad(1))
-        value = value.and.
-     >        BA_push_get(mt_dbl, 3*n2ft3d,'tmp',gtmp(2),gtmp(1))
+        rhoup(1) = grad(1)
+        rhodn(1) = grad(1)+n2ft3d
         value = value.and.
      >        BA_push_get(mt_dbl, 2*n2ft3d,'xfn',xfn(2),xfn(1))
         fn(1) = xfn(1)
@@ -345,20 +334,14 @@ c        *****                          agr,fn,fdn      *****
         fdn(3) = xfdn(1) + 2*n2ft3d
         tmp(1) = xfdn(1)
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-c      call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoup(1)),1)
-c      call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhodn(1)),1)
-c      call dcopy(3*n2ft3d,0.0d0,0,dbl_mb(xagr(1)),1)
       call Parallel_shared_vector_zero(.false.,3*n2ft3d,dbl_mb(xagr(1)))
-      call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(rhodn(1)))
-      call Parallel_shared_vector_zero(.true.,n2ft3d,dbl_mb(rhoup(1)))
+      !call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(rhodn(1)))
+      !call Parallel_shared_vector_zero(.true.,n2ft3d,dbl_mb(rhoup(1)))
 
 c        ***** calculate rhoup  ****
          call D3dB_r_Copy(1,dn(1,1),dbl_mb(rhoup(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(rhoup(1)))
-c         call D3dB_r_SMul(1,scal1,dbl_mb(rhoup(1)),
-c     >                            dbl_mb(rhoup(1)))
          call D3dB_r_SMul1(1,scal1,dbl_mb(rhoup(1)))
-!MATHIAS OPENMP OK
          call D3dB_rc_fft3f(1,dbl_mb(rhoup(1)))
          call mask_C(0,dbl_mb(rhoup(1)))
 
@@ -372,7 +355,6 @@ c        ***** calculate   grup= grad nup ****
          call D3dB_ic_Mul(1,dbl_mb(G_indx(3)),
      >                      dbl_mb(rhoup(1)),
      >                      dbl_mb(grupz(1)))
-!MATHIAS OPENMP OK
          call D3dB_cr_fft3b(1,dbl_mb(grupx(1)))
          call D3dB_cr_fft3b(1,dbl_mb(grupy(1)))
          call D3dB_cr_fft3b(1,dbl_mb(grupz(1)))
@@ -383,30 +365,22 @@ c        ***** calculate agrup = |grad nup| ****
          call D3dB_rr_Sqr(1,dbl_mb(grupy(1)),
      >                      dbl_mb(tmp(1)))
 
-c         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
-c     >                      dbl_mb(agr(1)),
-c     >                      dbl_mb(agr(1)))
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
 
          call D3dB_rr_Sqr(1,dbl_mb(grupz(1)),
      >                      dbl_mb(tmp(1)))
 
-c         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
-c     >                      dbl_mb(agr(1)),
-c     >                      dbl_mb(agr(1)))
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
 
-c         call D3dB_rr_Sqrt(1,dbl_mb(agr(1)),
-c     >                       dbl_mb(agr(1)))     
+         if (use_nwpwxc)
+     >      call D3dB_r_Copy(1,dbl_mb(agr(1)),dbl_mb(grad(1)))
+
          call D3dB_rr_Sqrt1(1,dbl_mb(agr(1)))
 
 c        ***** calculate rhodn  ****
          call D3dB_r_Copy(1,dn(1,2),dbl_mb(rhodn(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(rhodn(1)))
-c         call D3dB_r_SMul(1,scal1,dbl_mb(rhodn(1)),
-c     >                            dbl_mb(rhodn(1)))
          call D3dB_r_SMul1(1,scal1,dbl_mb(rhodn(1)))
-!MATHIAS OPENMP OK
          call D3dB_rc_fft3f(1,dbl_mb(rhodn(1)))
          call mask_C(0,dbl_mb(rhodn(1)))
 
@@ -420,7 +394,6 @@ c        ***** calculate   grdn = grad ndn ****
          call D3dB_ic_Mul(1,dbl_mb(G_indx(3)),
      >                      dbl_mb(rhodn(1)),
      >                      dbl_mb(grdnz(1)))
-!MATHIAS OPENMP OK
          call D3dB_cr_fft3b(1,dbl_mb(grdnx(1)))
          call D3dB_cr_fft3b(1,dbl_mb(grdny(1)))
          call D3dB_cr_fft3b(1,dbl_mb(grdnz(1)))
@@ -431,21 +404,16 @@ c        ***** calculate agrdn = |grad ndn| ****
          call D3dB_rr_Sqr(1,dbl_mb(grdny(1)),
      >                      dbl_mb(tmp(1)))
 
-c         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
-c     >                      dbl_mb(agr(2)),
-c     >                      dbl_mb(agr(2)))
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(2)))
 
          call D3dB_rr_Sqr(1,dbl_mb(grdnz(1)),
      >                      dbl_mb(tmp(1)))
 
-c         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
-c     >                      dbl_mb(agr(2)),
-c     >                      dbl_mb(agr(2)))
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(2)))
 
-c         call D3dB_rr_Sqrt(1,dbl_mb(agr(2)),
-c     >                       dbl_mb(agr(2)))     
+         if (use_nwpwxc) 
+     >      call D3dB_r_Copy(1,dbl_mb(agr(2)),dbl_mb(grad(1)+2*n2ft3d))
+
          call D3dB_rr_Sqrt1(1,dbl_mb(agr(2)))
 
 c        ***** calculate agr = |grad nup +grad ndn| ****
@@ -463,37 +431,20 @@ c        ***** calculate agr = |grad nup +grad ndn| ****
 
          call D3dB_rr_Sqr(1,dbl_mb(grally(1)),
      >                      dbl_mb(tmp(1)))
-c         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
-c     >                      dbl_mb(agr(3)),
-c     >                      dbl_mb(agr(3)))
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(3)))
 
          call D3dB_rr_Sqr(1,dbl_mb(grallz(1)),
      >                      dbl_mb(tmp(1)))
 
-c         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
-c     >                      dbl_mb(agr(3)),
-c     >                      dbl_mb(agr(3)))
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(3)))
 
-c         call D3dB_rr_Sqrt(1,dbl_mb(agr(3)),
-c     >                       dbl_mb(agr(3)))
+         
+         if (use_nwpwxc) 
+     >       call D3dB_r_Copy(1,dbl_mb(agr(3)),dbl_mb(grad(1)+n2ft3d))
+
          call D3dB_rr_Sqrt1(1,dbl_mb(agr(3)))
 
- 
-         if (use_nwxc) then
-c
-c          Copy |grad nup|->grad(1), |grad n|->grad(2), and |grad ndn|->grad(3)
-c
-           call D3dB_r_Copy(1,dbl_mb(agr(1)),dbl_mb(grad(1)))
-           call D3dB_r_Copy(1,dbl_mb(agr(2)),dbl_mb(grad(1)+2*n2ft3d))
-           call D3dB_r_Copy(1,dbl_mb(agr(3)),dbl_mb(grad(1)+n2ft3d))
-c
-c          Replace |grad x| with |grad x|^2
-c
-           call D3dB_rr_Sqr1(1,dbl_mb(grad(1)))
-           call D3dB_rr_Sqr1(1,dbl_mb(grad(1)+2*n2ft3d))
-           call D3dB_rr_Sqr1(1,dbl_mb(grad(1)+n2ft3d))
+         if (use_nwpwxc) then
 c
 c          Replace |grad n|^2 with |(grad nup|grad ndn)|^2
 c
@@ -505,7 +456,7 @@ c
 c          Evaluate the functional
 c
 !$OMP MASTER
-           call nwxc_eval_df(2,n2ft3d,dn,dbl_mb(grad(1)),
+           call nwpwxc_eval_df(2,n2ft3d,dn,dbl_mb(grad(1)),
      >                       dumtau,xce,
      >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),dumtau)
 !$OMP END MASTER
@@ -521,31 +472,29 @@ c
 c          
 c          Replace (df/d|grad nup|^2) with (df/d|grad nup|)
 c
+           call D3dB_rr_daxpy(1,(-0.5d0),dbl_mb(fdn(2)),dbl_mb(fdn(1)))
            call D3dB_rr_Mul2(1,dbl_mb(agr(1)),dbl_mb(fdn(1)))
            call D3dB_r_SMul1(1,2.0d0,dbl_mb(fdn(1)))
 c
 c          Replace (df/d|grad ndn|^2) with (df/d|grad ndn|)
 c
+           call D3dB_rr_daxpy(1,(-0.5d0),dbl_mb(fdn(2)),dbl_mb(fdn(3)))
            call D3dB_rr_Mul(1,dbl_mb(agr(2)),dbl_mb(fdn(3)),
-     +                      dbl_mb(gtmp(1)+n2ft3d))
-           call D3dB_r_SMul1(1,2.0d0,dbl_mb(gtmp(1)+n2ft3d))
+     +                        dbl_mb(grad(1)+n2ft3d))
+           call D3dB_r_SMul1(1,2.0d0,dbl_mb(grad(1)+n2ft3d))
 c
 c          Replace (df/d|(grad nup|grad ndn)|^2) with (df/d|grad n|)
 c
            call D3dB_rr_Mul(1,dbl_mb(agr(3)),dbl_mb(fdn(2)),
-     +                      dbl_mb(gtmp(1)+2*n2ft3d))
+     +                      dbl_mb(grad(1)+2*n2ft3d))
 c
 c          Put the results back into fdn
 c
-c           call dcopy(n2ft3d,dbl_mb(gtmp(1)+n2ft3d),1,
-c     +                       dbl_mb(fdn(2)),1) 
-c           call dcopy(n2ft3d,dbl_mb(gtmp(1)+2*n2ft3d),1,
-c     +                       dbl_mb(fdn(3)),1) 
            call Parallel_shared_vector_copy(.false.,n2ft3d,
-     >                                      dbl_mb(gtmp(1)+n2ft3d),
+     >                                      dbl_mb(grad(1)+n2ft3d),
      >                                      dbl_mb(fdn(2)))
-           call Parallel_shared_vector_copy(.true.,n2ft3d,
-     >                                      dbl_mb(gtmp(1)+2*n2ft3d),
+           call Parallel_shared_vector_copy(.false.,n2ft3d,
+     >                                      dbl_mb(grad(1)+2*n2ft3d),
      >                                      dbl_mb(fdn(3)))
 c
          else
@@ -594,42 +543,37 @@ c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
      >                                xce,
      >                                dbl_mb(fn(1)),
      >                                dbl_mb(fdn(1)))
+         else if (gga.eq.16) then
+         call gen_BEEF_BW_unrestricted(n2ft3d,dn,
+     >                                  dbl_mb(agr(1)),
+     >          x_parameter,c_parameter,0.6001664769d0,
+     >                                  xce,
+     >                                  dbl_mb(fn(1)),
+     >                                  dbl_mb(fdn(1)))
+         else if (gga.eq.17) then
+         call gen_BEEF_BW_unrestricted(n2ft3d,dn,
+     >                                  dbl_mb(agr(1)),
+     >          x_parameter,c_parameter,0.0d0,
+     >                                  xce,
+     >                                  dbl_mb(fn(1)),
+     >                                  dbl_mb(fdn(1)))
          else
           call errquit('bad gga',0,0)
          end if
+         end if
+
+         !*** add vdw bit ***
+         if (has_vdw) then
+            call vdw_DF(n2ft3d,ispin,dn,dbl_mb(agr(3)),
+     >                  xce,
+     >                  dbl_mb(fn(1)),
+     >                  dbl_mb(fdn(3)))
          end if
 
          
 *        **** calculate df/d|grad nup|* (grad nup)/|grad nup|  ****
 *        **** calculate df/d|grad ndn|* (grad ndn)/|grad ndn|  ****
 *        **** calculate df/d|grad n|  * (grad n)/|grad n|  ****
-c         call D3dB_rr_Divide(1,dbl_mb(grupx(1)),
-c     >                         dbl_mb(agr(1)),
-c     >                         dbl_mb(grupx(1)))
-c         call D3dB_rr_Divide(1,dbl_mb(grupy(1)),
-c     >                         dbl_mb(agr(1)),
-c     >                         dbl_mb(grupy(1)))
-c         call D3dB_rr_Divide(1,dbl_mb(grupz(1)),
-c     >                         dbl_mb(agr(1)),
-c     >                         dbl_mb(grupz(1)))
-c         call D3dB_rr_Divide(1,dbl_mb(grdnx(1)),
-c     >                         dbl_mb(agr(2)),
-c     >                         dbl_mb(grdnx(1)))
-c         call D3dB_rr_Divide(1,dbl_mb(grdny(1)),
-c     >                         dbl_mb(agr(2)),
-c     >                         dbl_mb(grdny(1)))
-c         call D3dB_rr_Divide(1,dbl_mb(grdnz(1)),
-c     >                         dbl_mb(agr(2)),
-c     >                         dbl_mb(grdnz(1)))
-c         call D3dB_rr_Divide(1,dbl_mb(grallx(1)),
-c     >                         dbl_mb(agr(3)),
-c     >                         dbl_mb(grallx(1)))
-c         call D3dB_rr_Divide(1,dbl_mb(grally(1)),
-c     >                         dbl_mb(agr(3)),
-c     >                         dbl_mb(grally(1)))
-c         call D3dB_rr_Divide(1,dbl_mb(grallz(1)),
-c     >                         dbl_mb(agr(3)),
-c     >                         dbl_mb(grallz(1)))
          call D3dB_rr_Divide2(1,dbl_mb(agr(1)),dbl_mb(grupx(1)))
          call D3dB_rr_Divide2(1,dbl_mb(agr(1)),dbl_mb(grupy(1)))
          call D3dB_rr_Divide2(1,dbl_mb(agr(1)),dbl_mb(grupz(1)))
@@ -640,33 +584,6 @@ c     >                         dbl_mb(grallz(1)))
          call D3dB_rr_Divide2(1,dbl_mb(agr(3)),dbl_mb(grally(1)))
          call D3dB_rr_Divide2(1,dbl_mb(agr(3)),dbl_mb(grallz(1)))
 
-c         call D3dB_rr_Mul(1,dbl_mb(grupx(1)),
-c     >                      dbl_mb(fdn(1)),
-c     >                      dbl_mb(grupx(1)))
-c         call D3dB_rr_Mul(1,dbl_mb(grupy(1)),
-c     >                      dbl_mb(fdn(1)),
-c     >                      dbl_mb(grupy(1)))
-c         call D3dB_rr_Mul(1,dbl_mb(grupz(1)),
-c     >                      dbl_mb(fdn(1)),
-c     >                      dbl_mb(grupz(1)))
-c         call D3dB_rr_Mul(1,dbl_mb(grdnx(1)),
-c     >                      dbl_mb(fdn(2)),
-c     >                      dbl_mb(grdnx(1)))
-c         call D3dB_rr_Mul(1,dbl_mb(grdny(1)),
-c     >                      dbl_mb(fdn(2)),
-c     >                      dbl_mb(grdny(1)))
-c         call D3dB_rr_Mul(1,dbl_mb(grdnz(1)),
-c     >                      dbl_mb(fdn(2)),
-c     >                      dbl_mb(grdnz(1)))
-c         call D3dB_rr_Mul(1,dbl_mb(grallx(1)),
-c     >                      dbl_mb(fdn(3)),
-c     >                      dbl_mb(grallx(1)))
-c         call D3dB_rr_Mul(1,dbl_mb(grally(1)),
-c     >                      dbl_mb(fdn(3)),
-c     >                      dbl_mb(grally(1)))
-c         call D3dB_rr_Mul(1,dbl_mb(grallz(1)),
-c     >                      dbl_mb(fdn(3)),
-c     >                      dbl_mb(grallz(1)))
          call D3dB_rr_Mul2(1,dbl_mb(fdn(1)),dbl_mb(grupx(1)))
          call D3dB_rr_Mul2(1,dbl_mb(fdn(1)),dbl_mb(grupy(1)))
          call D3dB_rr_Mul2(1,dbl_mb(fdn(1)),dbl_mb(grupz(1)))
@@ -682,24 +599,6 @@ c     >                      dbl_mb(grallz(1)))
 *        ****         + (df/d|grad n|  * (grad n)/|grad n|)      ****
 *        **** calculate (df/d|grad ndn|* (grad ndn)/|grad ndn|)  ****
 *        ****         + (df/d|grad n|  * (grad n)/|grad n|)      ****
-c         call D3dB_rr_Sum(1,dbl_mb(grupx(1)),
-c     >                      dbl_mb(grallx(1)),
-c     >                      dbl_mb(grupx(1)))
-c         call D3dB_rr_Sum(1,dbl_mb(grupy(1)),
-c     >                      dbl_mb(grally(1)),
-c     >                      dbl_mb(grupy(1)))
-c         call D3dB_rr_Sum(1,dbl_mb(grupz(1)),
-c     >                      dbl_mb(grallz(1)),
-c     >                      dbl_mb(grupz(1)))
-c         call D3dB_rr_Sum(1,dbl_mb(grdnx(1)),
-c     >                      dbl_mb(grallx(1)),
-c     >                      dbl_mb(grdnx(1)))
-c         call D3dB_rr_Sum(1,dbl_mb(grdny(1)),
-c     >                      dbl_mb(grally(1)),
-c     >                      dbl_mb(grdny(1)))
-c         call D3dB_rr_Sum(1,dbl_mb(grdnz(1)),
-c     >                      dbl_mb(grallz(1)),
-c     >                      dbl_mb(grdnz(1)))
          call D3dB_rr_Sum2(1,dbl_mb(grallx(1)),dbl_mb(grupx(1)))
          call D3dB_rr_Sum2(1,dbl_mb(grally(1)),dbl_mb(grupy(1)))
          call D3dB_rr_Sum2(1,dbl_mb(grallz(1)),dbl_mb(grupz(1)))
@@ -707,19 +606,6 @@ c     >                      dbl_mb(grdnz(1)))
          call D3dB_rr_Sum2(1,dbl_mb(grally(1)),dbl_mb(grdny(1)))
          call D3dB_rr_Sum2(1,dbl_mb(grallz(1)),dbl_mb(grdnz(1)))
 
-
-c         call D3dB_r_SMul(1,scal1,dbl_mb(grupx(1)),
-c     >                            dbl_mb(grupx(1)))
-c         call D3dB_r_SMul(1,scal1,dbl_mb(grupy(1)),
-c     >                            dbl_mb(grupy(1)))
-c         call D3dB_r_SMul(1,scal1,dbl_mb(grupz(1)),
-c     >                            dbl_mb(grupz(1)))
-c         call D3dB_r_SMul(1,scal1,dbl_mb(grdnx(1)),
-c     >                            dbl_mb(grdnx(1)))
-c         call D3dB_r_SMul(1,scal1,dbl_mb(grdny(1)),
-c     >                            dbl_mb(grdny(1)))
-c         call D3dB_r_SMul(1,scal1,dbl_mb(grdnz(1)),
-c     >                            dbl_mb(grdnz(1)))
          call D3dB_r_SMul1(1,scal1,dbl_mb(grupx(1)))
          call D3dB_r_SMul1(1,scal1,dbl_mb(grupy(1)))
          call D3dB_r_SMul1(1,scal1,dbl_mb(grupz(1)))
@@ -735,7 +621,6 @@ c     >                            dbl_mb(grdnz(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(grdnz(1)))
 
 *        **** put sums in k-space ***
-!MATHIAS OPENMP OK
          call D3dB_rc_fft3f(1,dbl_mb(grupx(1)))
          call D3dB_rc_fft3f(1,dbl_mb(grupy(1)))
          call D3dB_rc_fft3f(1,dbl_mb(grupz(1)))
@@ -744,24 +629,6 @@ c     >                            dbl_mb(grdnz(1)))
          call D3dB_rc_fft3f(1,dbl_mb(grdnz(1)))
 
 *        **** multiply sums by G vector ***
-c         call D3dB_ic_Mul(1,dbl_mb(G_indx(1)),
-c     >                      dbl_mb(grupx(1)),
-c     >                      dbl_mb(grupx(1)))
-c         call D3dB_ic_Mul(1,dbl_mb(G_indx(2)),
-c     >                      dbl_mb(grupy(1)),
-c     >                      dbl_mb(grupy(1)))
-c         call D3dB_ic_Mul(1,dbl_mb(G_indx(3)),
-c     >                      dbl_mb(grupz(1)),
-c     >                      dbl_mb(grupz(1)))
-c         call D3dB_ic_Mul(1,dbl_mb(G_indx(1)),
-c     >                      dbl_mb(grdnx(1)),
-c     >                      dbl_mb(grdnx(1)))
-c         call D3dB_ic_Mul(1,dbl_mb(G_indx(2)),
-c     >                      dbl_mb(grdny(1)),
-c     >                      dbl_mb(grdny(1)))
-c         call D3dB_ic_Mul(1,dbl_mb(G_indx(3)),
-c     >                      dbl_mb(grdnz(1)),
-c     >                      dbl_mb(grdnz(1)))
          call D3dB_ic_Mul2(1,dbl_mb(G_indx(1)),dbl_mb(grupx(1)))
          call D3dB_ic_Mul2(1,dbl_mb(G_indx(2)),dbl_mb(grupy(1)))
          call D3dB_ic_Mul2(1,dbl_mb(G_indx(3)),dbl_mb(grupz(1)))
@@ -774,24 +641,17 @@ c     >                      dbl_mb(grdnz(1)))
      >                      dbl_mb(grupy(1)),
      >                      dbl_mb(fdn(1)))
 
-c         call D3dB_cc_Sum(1,dbl_mb(grupz(1)),
-c     >                      dbl_mb(fdn(1)),
-c     >                      dbl_mb(fdn(1)))
          call D3dB_cc_Sum2(1,dbl_mb(grupz(1)),dbl_mb(fdn(1)))
 
          call D3dB_cc_Sum(1,dbl_mb(grdnx(1)),
      >                      dbl_mb(grdny(1)),
      >                      dbl_mb(fdn(2)))
 
-c         call D3dB_cc_Sum(1,dbl_mb(grdnz(1)),
-c     >                      dbl_mb(fdn(2)),
-c     >                      dbl_mb(fdn(2)))
          call D3dB_cc_Sum2(1,dbl_mb(grdnz(1)),dbl_mb(fdn(2)))
 
 *        **** put back in r-space and subtract from df/dnup,df/dndn ****
          call mask_C(0,dbl_mb(fdn(1)))
          call mask_C(0,dbl_mb(fdn(2)))
-!MATHIAS OPENMP OK
          call D3dB_cr_fft3b(1,dbl_mb(fdn(1)))
          call D3dB_cr_fft3b(1,dbl_mb(fdn(2)))
          call D3dB_rr_Minus(1,dbl_mb(fn(1)),
@@ -807,7 +667,6 @@ c     >                      dbl_mb(fdn(2)))
 *        **** deallocate temporary memory ****
          value = BA_pop_stack(xfdn(2))
          value = value.and.BA_pop_stack(xfn(2))
-         value = value.and.BA_pop_stack(gtmp(2))
          value = value.and.BA_pop_stack(grad(2))
          value = value.and.BA_pop_stack(xagr(2))
 
@@ -817,11 +676,11 @@ c     >                      dbl_mb(fdn(2)))
          value = value.and.BA_pop_stack(grdnz(2))
          value = value.and.BA_pop_stack(grdny(2))
          value = value.and.BA_pop_stack(grdnx(2))
-         value = value.and.BA_pop_stack(rhodn(2))
+c         value = value.and.BA_pop_stack(rhodn(2))
          value = value.and.BA_pop_stack(grupz(2))
          value = value.and.BA_pop_stack(grupy(2))
          value = value.and.BA_pop_stack(grupx(2))
-         value = value.and.BA_pop_stack(rhoup(2))
+c         value = value.and.BA_pop_stack(rhoup(2))
          if (.not. value) call errquit('cannot pop stack memory',0,
      &       MA_ERR)
 
@@ -832,7 +691,3 @@ c     >                      dbl_mb(fdn(2)))
         
       return
       end
-
-
-
- 

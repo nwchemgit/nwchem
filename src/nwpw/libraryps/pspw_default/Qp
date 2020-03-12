@@ -1,0 +1,11 @@
+[lmax] -1
+[locp] -1
+[rlocal] 1.0
+[psp_type] 5
+[cutoff] 20.0
+
+<QMMM>
+Qp  1.0000 4 0.20
+<end>
+
+#Comment: Qp  1.0000 4 0.20

@@ -6,11 +6,11 @@
       integer    pbrillmax
       parameter (pbrillmax = 100)
       logical printbrill
-      integer nbrillioun,nbrillq
+      integer nbrillioun,nbrillq,nbrillioun0
       integer weight(2)
       integer ks(2),kv(2)
       common / Brillion_common / ks,kv,weight,nbrillioun,nbrillq,
-     >                           printbrill
+     >                           nbrillioun0,printbrill
 
 
 *     **** Brillioun all_common block ****

@@ -5,13 +5,13 @@ Start FH-ClH-BrH-bsses
 echo
 
 
-geometry noautoz noautosym
-F    -1.17122635    -1.50097392     0.00007449
-H    -0.13324667    -1.35207024     0.00008831
-Cl   -1.63851812     1.26560296     0.00006385
-H    -1.62896618    -0.22316562     0.00001913
-Br    1.53507290    -0.09220677     0.00019504
-H     0.31497411     0.90841123     0.00012631
+geometry 
+F     -1.38995843    -1.56722829    -0.00008379
+H     -0.35256333    -1.41900032    -0.00003648
+Cl    -1.85390137     1.20144820    -0.00008815
+H     -1.84508700    -0.28787015    -0.00009747
+Br     1.31794608    -0.15266498     0.00004793
+H      0.09998492     0.84537347    -0.00000141
 end
 
 
@@ -29,6 +29,8 @@ END
 dft
  direct
  iterations 100
+ grid fine
+ convergence energy 1d-8
 end
 
 driver
@@ -41,8 +43,8 @@ bsse
  mon tres 5 6
 end
 
-task dft energy
-dft
- grid fine
-end
+driver; tight;end
+
+task dft optimize
+
 task dft freq

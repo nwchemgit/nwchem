@@ -190,8 +190,8 @@
       external      cpsp_comment
       integer  ion_nconstraints,ion_ndof
       external ion_nconstraints,ion_ndof
-      logical  ion_makehmass2
-      external ion_makehmass2
+      logical  ion_makehmass2,control_only_lda
+      external ion_makehmass2,control_only_lda
 
 
 
@@ -203,7 +203,7 @@
       pi = 4.0d0*datan(1.0d0)
 
       call nwpw_timing_init()
-      call dcopy(30,0.0d0,0,E,1)
+      call dcopy(50,0.0d0,0,E,1)
 
 
 *     **** get parallel variables ****
@@ -261,6 +261,11 @@
 *     **** initialize psi_data ****
       call cpsi_data_init(20)
 
+*     **** read ions ****
+      value = ion_init(rtdb)
+      call center_geom(cx,cy,cz)
+      call center_mass(gx,gy,gz)
+
 *     **** initialize lattice and packing data structure ****
       call lattice_init()
       call c_G_init()
@@ -269,16 +274,17 @@
       call C3dB_pfft_init()
 
 *     ***** Initialize double D3dB data structure ****
-      if ((control_gga().ge.10).and.(control_gga().le.200)) then
+      !if ((control_gga().ge.10).and.(control_gga().le.200)) then
+      if (.not.control_only_lda()) then
          call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
          call G_init()
          call mask_init()
       end if
 
-*     **** read ions ****
-      value = ion_init(rtdb)
-      call center_geom(cx,cy,cz)
-      call center_mass(gx,gy,gz)
+c*     **** read ions ****
+c      value = ion_init(rtdb)
+c      call center_geom(cx,cy,cz)
+c      call center_mass(gx,gy,gz)
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call cpsp_init()
@@ -430,6 +436,9 @@ c     **** allocate other variables ****
 *     **** initialize SIC and HFX  ****
 c      call pspw_init_SIC(rtdb,ne)
        call band_init_HFX(rtdb,nbrillioun,ispin,ne)
+
+*     **** initialize rho_symmetry  ****
+      call c_rho_symmetrizer_init()
 
 *     **** initialize QM/MM ****
 c      call pspw_init_APC(rtdb)
@@ -622,6 +631,9 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 
 
       if (mprint) then
+
+
+         call c_rho_symmetrizer_print(luout)
          
          write(luout,1270)
          if (.not.control_translation()) write(luout,1271)
@@ -951,6 +963,7 @@ c      end if
 
       call ion_end()
       call ion_end_FixIon()
+      call c_rho_symmetrizer_end()
 c      call pspw_end_SIC()
       call band_end_HFX()
 c      call pspw_end_APC()
@@ -976,7 +989,8 @@ c
       call C3dB_pfft_end()
       call cpsi_data_end()
       call C3dB_end(1)
-      if ((control_gga().ge.10).and.(control_gga().le.200)) then
+      !if ((control_gga().ge.10).and.(control_gga().le.200)) then
+      if (.not.control_only_lda()) then
          call mask_end()
          call G_end()
          call D3dB_end(1)
@@ -1105,7 +1119,7 @@ c     >        A)
  1258 FORMAT(5x,' number of k-point is very large or distributed')
 
  1260 FORMAT(5X,' Ewald summation: cut radius=',F8.2,'  and',I3)
- 1261 FORMAT(5X,'                   madelung=',f11.8)
+ 1261 FORMAT(5X,'                   madelung=',f14.8)
  1270 FORMAT(/' technical parameters:')
  1271 FORMAT(5x, ' translation constrained')
  1272 FORMAT(5x, ' rotation constrained')

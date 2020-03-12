@@ -1,0 +1,141 @@
+##
+## Real-time TDDFT QA
+## rt_tddft_water_abs_spec
+## 
+## This computes the water TD Hartree-Fock absorption spectrum via
+## three kick-type excitations (x,y,z polarizations).  I picked HF
+## rather than DFT since this test propagates for a long time, and DFT
+## grids are significantly slower than just the 2e integrals for this
+## small system.
+##
+## The linear-response TDDFT spectrum is first computed (for
+## comparison), then a series of kick excitations are performed (each
+## tagged differently).  To save on output size, only dipole moments
+## are printed.
+##
+## To compute the absorption spectrum, extract the x-dipole for the x
+## kick run and Fourier transform, then repeat for the y and z kick
+## simulations:
+##
+## nw_rtparse -xdipole -tkickx -px | fft1d > xw.dat
+## nw_rtparse -xdipole -tkicky -py | fft1d > yw.dat
+## nw_rtparse -xdipole -tkickz -pz | fft1d > zw.dat
+##
+## where fft1d is your favorite 1D FFT program which reads in: t, f(t)
+## and outputs: w, Re[f(w)], Im[f(w)].
+##
+## To plot the absorption spectrum in gnuplot, for example,
+## (neglecting prefactors):
+##
+## paste xw.dat yw.dat zw.dat > sw.dat
+##
+## gnuplot> plot "sw.dat" u ($1*27.2114):($1*abs($3+$7+$11)) w l
+##
+## Note the abs of imag part arises if FFT give negative imag parts,
+## which can be "rotated" arbitarily to be purely positive.  Also note
+## the 27.2114 to plot in eV (output is in atomic units).  Of course,
+## you should compare this plot to the linear response roots, in which
+## case you should look around the region [0:40] eV.
+##
+##
+## Suggested checks:
+## nw_rtparse -xdipole -tkickx -px -c myrun.out water.out
+## nw_rtparse -xdipole -tkicky -py -c myrun.out water.out
+## nw_rtparse -xdipole -tkickz -pz -c myrun.out water.out
+##
+
+title "Water TD Hartree-Fock absorption spectrum"
+echo
+#scratch_dir ./scratch
+#permanent_dir ./perm
+
+start water
+
+##
+## aug-cc-pvtz / pbe0 optimized
+##
+geometry "system" units angstroms nocenter noautoz noautosym
+ O     0.00000000    -0.00001441    -0.34824012
+ H    -0.00000000     0.76001092    -0.93285191
+ H     0.00000000    -0.75999650    -0.93290797
+end
+
+set geometry "system"
+
+basis
+  * library 6-31G
+end
+
+dft
+  xc hfexch
+  direct
+end
+task dft energy
+
+tddft
+  nroots 10
+  notriplet
+end
+task tddft
+
+unset rt_tddft:*
+rt_tddft
+  tmax 200.0
+  dt 0.2
+
+  nrestarts 0
+
+  tag "kickx"
+  print dipole
+  
+  field "kick"
+    type delta
+    polarization x
+    max 0.001
+  end
+
+  excite "system" with "kick"
+end
+task dft rt_tddft
+
+unset rt_tddft:*
+rt_tddft
+  tmax 200.0
+  dt 0.2
+
+  nrestarts 0
+
+  tag "kicky"
+  print dipole
+
+  field "kick"
+    type delta
+    polarization y
+    max 0.001
+  end
+
+  excite "system" with "kick"
+end
+task dft rt_tddft
+
+unset rt_tddft:*
+rt_tddft
+  tmax 200.0
+  dt 0.2
+
+  nrestarts 0
+
+  tag "kickz"
+  print dipole
+
+  field "kick"
+    type delta
+    polarization z
+    max 0.001
+  end
+
+  excite "system" with "kick"
+end
+task dft rt_tddft
+
+
