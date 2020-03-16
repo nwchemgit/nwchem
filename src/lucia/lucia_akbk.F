@@ -5751,6 +5751,7 @@ cVOG    else
 *======================================================================*
 *======================================================================*
       integer function get_mo_occ_gas(nmogasp,navailgas)
+      implicit none
 *======================================================================*
 *
 *.  Find how many MOs each GAS should have (ngastotmo)
@@ -5782,6 +5783,8 @@ cVOG    else
 *======================================================================*
 *======================================================================*
       integer function weyl(nele,nmo,spin)
+      implicit none
+#include "global.fh"
 *======================================================================*
 *
 *.  Calculate the number of Slater Determinants with Weyl's formula
@@ -5800,6 +5803,7 @@ cVOG    else
 *. Scratch
       integer inter, inter2, nom, fac1, fac2, denom
       double precision one, two, three, rweyl, rnele, rnmo, rspin
+      integer ntest,inter1
       external vogfactorial
       integer vogfactorial
 *
@@ -5848,6 +5852,7 @@ cVOG    else
 *======================================================================*
 *======================================================================*
       integer function vogfactorial(n)
+      implicit none
 *======================================================================*
 *
 *. Input
