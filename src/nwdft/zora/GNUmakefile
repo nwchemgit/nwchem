@@ -36,7 +36,7 @@
 
 LIB_INCLUDES = -I../include -I../grid
 
-   USES_BLAS = dft_zora_NMR.F dft_zora_EPR-NMR_tools.F zora_tabcd.F dft_zora_EPR.F dft_zora_Hyperfine.F zora_tabcd_EFG.F dft_zora_utils_so.F
+   USES_BLAS = dft_zora_NMR.F dft_zora_EPR-NMR_tools.F zora_tabcd.F dft_zora_EPR.F dft_zora_Hyperfine.F zora_tabcd_EFG.F dft_zora_utils_so.F zora_getv_HFine.F
 
 
 HEADERS = 
