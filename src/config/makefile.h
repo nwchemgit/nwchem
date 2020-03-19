@@ -1794,7 +1794,12 @@ endif
           DEFINES  += -DGCC46
         endif
         ifeq ($(GNU_GE_4_8),true)
-          FDEBUG =-O2 -g -fno-aggressive-loop-optimizations
+          ifeq ($(_CPU),ppc64le)
+          FDEBUG =-O0 -g 
+          else
+          FDEBUG =-O2 -g 
+          endif
+          FDEBUG +=-fno-aggressive-loop-optimizations
           FOPTIMIZE +=-fno-aggressive-loop-optimizations
           FFLAGS_FORGA += -fno-aggressive-loop-optimizations
           FOPTIONS += -Warray-bounds

@@ -6,14 +6,14 @@
          mnsol.o\
          solv_data.o\
          cosmo_smd_output.o\
-         cosmo_vem_output.o
+         cosmo_vem_output.o hnd_cosmo_lib.o
 
    OBJ_OPTIMIZE = cosmo_input.o \
          cosmo_initialize.o\
          cosmo_tidy.o\
          cosmo_def_radii.o\
          cosmo_charges.o\
-         hnd_cosmo_lib.o  grad_hnd_cos.o
+         grad_hnd_cos.o
 
    LIBRARY = libsolvation.a
 
