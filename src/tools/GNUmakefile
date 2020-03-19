@@ -597,15 +597,15 @@ ifdef USE_GAGITHUB
 	GET_TOOLS=./get-tools-github
   ifdef USE_GA_RELEASE
     ifndef GA_RELEASE_NO
-      GA_RELEASE_NO=5.7.1
+      GA_RELEASE_NO=5.7.2
     endif
     GA_DIR=ga-$(GA_RELEASE_NO)
   else
 #DEV_GA=1 gives the current "best" dev branch, not develop
 #to get develop, set GA_BRANCH-develop
     ifdef DEV_GA
-      GA_DIR = ga-5.7.1
-      GA_BRANCH = hotfix/5.7.1
+      GA_DIR = ga-5.7.2
+      GA_BRANCH = hotfix/5.7.2
     else
       GA_DIR0=ga-$(GA_BRANCH)
       GA_DIR=$(shell echo $(GA_DIR0) | sed -e 's/\//_/g')

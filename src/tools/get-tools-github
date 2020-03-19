@@ -27,8 +27,8 @@ TOOLGIT=`which git`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
 if test "x$DEV_GA" != x
 then
-    GA_DIR=ga-5.7.1
-    GA_BRANCH=hotfix/5.7.1
+    GA_DIR=ga-5.7.2
+    GA_BRANCH=hotfix/5.7.2
 fi
 if test "x$GA_BRANCH" = x 
 then
@@ -38,15 +38,15 @@ if test "x$USE_GA_RELEASE" != x
 then
     if test "x$GA_RELEASE_NO" = x
     then
-	GA_RELEASE_NO=5.7.1
+	GA_RELEASE_NO=5.7.2
     fi
     GA_DIR=ga-"$GA_RELEASE_NO"
     if [ ! -f ga-"$GA_RELEASE_NO".tar.gz ]; then
 	if test "x$TAR_URL" = x
 	then
-	#TAR_URL=https://github.com/GlobalArrays/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
-	 TAR_URL=https://github.com/edoapra/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
-	 #         https://github.com/edoapra/ga/releases/download/v5.7.1/ga-5.7.1.tar.gz
+	TAR_URL=https://github.com/GlobalArrays/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
+	# TAR_URL=https://github.com/edoapra/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
+	 #         https://github.com/edoapra/ga/releases/download/v5.7.2/ga-5.7.2.tar.gz
 	fi
 	echo "downloading" ga-"$GA_RELEASE_NO".tar.gz  "from" "$TAR_URL"
        CURL_YES=`curl  -O 2>&1 | head -1  | awk ' /URL/ {print "Y";exit};{print "N"}'`
@@ -111,8 +111,8 @@ if test "x$DEV_GA" != x
 then
 #DEV_GA=1 gives the current "best" dev branch, not develop
 #to get develop, set GA_BRANCH-develop
-    GA_DIR=ga-5.7.1
-    GA_BRANCH=hotfix/5.7.1
+    GA_DIR=ga-5.7.2
+    GA_BRANCH=hotfix/5.7.2
 else
     if test "x$GA_BRANCH" != x
     then
@@ -122,8 +122,8 @@ else
 	    GA_DIR=`echo $GA_DIR0 | sed -e 's/\//_/g'`
 	fi
     else
-	GA_DIR=ga-5.7.1
-	GA_BRANCH=hotfix/5.7.1
+	GA_DIR=ga-5.7.2
+	GA_BRANCH=hotfix/5.7.2
     fi
 fi
 if test "x$GA_URL" != x
