@@ -16,12 +16,8 @@ ifeq ($(TARGET),MACX)
   LIB_DEFINES += -DOLD_GA
 endif
 
-ifeq ($(NWCHEM_LONG_PATHS),Y)
    MXLENPATH = 200
    LIB_DEFINES += -DNWCHEM_LONG_PATHS
-else
-   MXLENPATH = 64
-endif
    LONGNWTOP = $(shell if [ `echo $(SRCDIR) |wc -m` -gt $(MXLENPATH) ]; then echo "Y"; fi  )
 ifeq ($(LONGNWTOP),Y)
 errorlongpwd:
