@@ -442,10 +442,10 @@ sync
     echo "failed"
     echo "@@@     Comparison of Output Files"  
     diff -U2 ${STUB}.ok.out.nwparse ${STUB}.out.nwparse | sed 1,2d
-    echo "@@@     Paste beginning of Output File"  
-    head -1000 ${STUB}.out
-    echo "@@@     Paste End of Output File"  
-    tail -1000 ${STUB}.out
+#    echo "@@@     Paste beginning of Output File"  
+#    head -1000 ${STUB}.out
+#    echo "@@@     Paste End of Output File"  
+#    tail -1000 ${STUB}.out
     overall_status=1
     continue 
   else
