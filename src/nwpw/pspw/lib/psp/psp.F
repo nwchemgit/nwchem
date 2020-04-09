@@ -2012,6 +2012,7 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
               call Pack_cc_Sum2(0,dcpl_mb(vtmp(1)),vl_out)
 
               if ((move).and.(ii.le.nion)) then
+              
 c#ifndef CRAY
 c!DIR$ ivdep
 c#endif
@@ -2024,6 +2025,7 @@ c                end do
      >                                  dng,
      >                                  dcpl_mb(vtmp(1)),
      >                                  dbl_mb(xtmp(1)))
+               
                call Pack_tt_idot(0,dbl_mb(G(1)),
      >                             dbl_mb(xtmp(1)),fion(1,ii))
                call Pack_tt_idot(0,dbl_mb(G(2)),
@@ -3524,7 +3526,6 @@ c     >             psi2,               2*npack1)
      >                               dbl_mb(sum(1)+1+3*(n-1)))
                    call Pack_tt_idot(1,dbl_mb(G(3)),dbl_mb(xtmp(1)),
      >                               dbl_mb(sum(1)+2+3*(n-1)))
-
                  end do
                  call D3dB_Vector_SumAll(3*(nn),dbl_mb(sum(1)))
 
