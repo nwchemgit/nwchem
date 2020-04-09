@@ -71,8 +71,8 @@
 
 #include "nwpw_timing_common.fh"
       call current_second(t0)
-      call dcopy(60,0.0d0,0,times,1)
-      call dcopy(272*60,0.0d0,0,thr_times,1)
+      call dcopy(nwpw_tim_max,0.0d0,0,times,1)
+      call dcopy(272*nwpw_tim_max,0.0d0,0,thr_times,1)
       return 
       end
 
@@ -331,9 +331,14 @@ c     **** external functions ****
          call nwpw_timing_print(
      >                 '  HFX potential              : ',
      >                 nwpw_timing(33),counter,ttime)
+
          call nwpw_timing_print(
      >                 '  paw gaussian integrals     : ',
      >                 nwpw_timing(34),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  paw cgaussian integrals    : ',
+     >                 nwpw_timing(64),counter,ttime)
+
          call nwpw_timing_print(
      >                 '  paw atomic coulomb         : ',
      >                 nwpw_timing(35),counter,ttime)
