@@ -123,7 +123,6 @@ ccccc      call Dnex_init(ispin,nexcited,control_mapping1d())
       if (gvirtual) then
          call psi_gen_hml_virtual(.true.)
       else if (g2x2) then
-         write(*,*) "HERA"
          call psi_gen_hml_virtual(.true.)
          call psi_minimize_virtual_2x2()
       else
