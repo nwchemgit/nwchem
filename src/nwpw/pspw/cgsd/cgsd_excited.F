@@ -19,7 +19,7 @@ c#include "bafdecls.fh"
       integer MASTER
       parameter (MASTER=0)
 
-      logical stalled,value,gvirtual,bvirtual,confine,oprint,g2x2
+      logical stalled,value,gvirtual,bvirtual,confine,oprint,gci
       integer taskid
       integer minimizer,gfac
       integer i,j,ms,neall,NN
@@ -31,7 +31,7 @@ c#include "bafdecls.fh"
       real*8  gx,gy,gz
       real*8  en(2)
       real*8  E(30)
-      integer rtdb
+      integer rtdb,civirt
 
 *     **** external functions ****
       logical     control_DOS,control_Mulliken,control_MP2
@@ -60,15 +60,16 @@ c#include "bafdecls.fh"
       external    psi_2epsi_gradients
       integer     control_gradient_virtual_fac
       external    control_gradient_virtual_fac
-      logical     control_2x2_virtual
-      external    control_2x2_virtual
+      integer     control_CI_virtual
+      external    control_CI_virtual
 
       call Parallel_taskid(taskid)
 
       gvirtual = control_gradient_virtual()
       gfac     = control_gradient_virtual_fac()
       bvirtual = control_bound_virtual()
-      g2x2     = control_2x2_virtual()
+      civirt   = control_CI_virtual()
+      gci      = (civirt.gt.0)
       confine  = control_confine_virtual()
       neall = control_excited_ne(1)+control_excited_ne(2)
 
@@ -122,9 +123,9 @@ ccccc      call Dnex_init(ispin,nexcited,control_mapping1d())
 
       if (gvirtual) then
          call psi_gen_hml_virtual(.true.)
-      else if (g2x2) then
+      else if (gci) then
          call psi_gen_hml_virtual(.true.)
-         call psi_minimize_virtual_2x2()
+         call psi_minimize_virtual_CI(civirt)
       else
          call psi_gen_hml_virtual(.true.)
          call psi_minimize_virtual()
