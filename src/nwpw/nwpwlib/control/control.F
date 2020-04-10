@@ -5667,6 +5667,69 @@ c      end if
 
 *     ***********************************
 *     *                                 *
+*     *       control_4x4_virtual       *
+*     *                                 *
+*     ***********************************
+      logical function control_4x4_virtual()
+      implicit none
+      
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+            
+      logical value
+      
+      value = .false.
+      if (.not.btdb_get(rtdb,'nwpw:4x4_virtual',mt_log,1,value))
+     >   value = .false.
+      
+      control_4x4_virtual = value
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *       control_CI_virtual        *
+*     *                                 *
+*     ***********************************
+      integer function control_CI_virtual()
+      implicit none
+      
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+            
+      integer ivalue
+
+      logical  control_2x2_virtual,control_4x4_virtual
+      external control_2x2_virtual,control_4x4_virtual
+      
+      ivalue = 0
+      if (.not.btdb_get(rtdb,'nwpw:CI_virtual',mt_int,1,ivalue)) then
+         if (control_2x2_virtual()) then
+            ivalue = 2
+         else if (control_4x4_virtual()) then
+            ivalue = 4
+         end if
+      end if
+      
+      control_CI_virtual = ivalue
+      return
+      end
+
+
+
+
+
+*     ***********************************
+*     *                                 *
 *     *     control_confine_virtual     *
 *     *                                 *   
 *     ***********************************
