@@ -239,8 +239,7 @@ class Excel:
         try:
             charttype = charttypes[charttype]
         except KeyError:
-            print 'Excel.chartSelectedRange: Unkown charttype', charttype, \
-                  ' defaulting to XY'
+            print('Excel.chartSelectedRange: Unkown charttype', charttype, ' defaulting to XY')
             charttype = charttypes['xy']
 
         # Make the chart and set how the data will be interpreted
@@ -254,8 +253,7 @@ class Excel:
         elif plotby == 'columns':
             self.xlApp.ActiveChart.PlotBy = xlColumns
         else:
-            print 'Excel.chartSelectedRange: Unknown plotby', charttype, \
-                  ' defaulting to columns'
+            print('Excel.chartSelectedRange: Unknown plotby', charttype, ' defaulting to columns')
             self.xlApp.ActiveChart.PlotBy = xlColumns
 
         # Set the title and axis labels
@@ -329,7 +327,7 @@ class Excel:
         if absrow: ar = '$'
         if abscol: ac = '$'
         if col < 1 or col > 256:
-            raise RangeError, 'column index must be in [1,256]'
+            raise RangeError('column index must be in [1,256]')
         (c1,c2) = divmod(col-1,26)
         if c1:
             c = uppercase[c1] + uppercase[c2]
@@ -368,21 +366,21 @@ if __name__ == "__main__":
     import time
     # Make a worksheet and test set/getCell
     xls = Excel()
-    print ' Setting cell(2,2) to "Hi"'
+    print(' Setting cell(2,2) to "Hi"')
     xls.setCell("Hi", 2, 2)
-    print xls.getCell(2,2)
-    print ' Setting cell(1,2) to "(1,2)"'
+    print(xls.getCell(2,2))
+    print(' Setting cell(1,2) to "(1,2)"')
     xls.setCell("(1,2)", 1, 2)
-    print ' Setting cell(2,1) to "(1,2)"'
+    print(' Setting cell(2,1) to "(1,2)"')
     xls.setCell("(2,1)", 2, 1)
     xls.visible()
 
     # Test setting a range to a scalar and getting contiguous range
-    print ' Setting 9,1,12,2 to 0'
+    print(' Setting 9,1,12,2 to 0')
     xls.setRange(0,9,1,12,2)
-    print ' Getting same contiguous range back ... expecting matrix(4,2)=0'
+    print(' Getting same contiguous range back ... expecting matrix(4,2)=0')
     value = xls.getContiguousRange(9,1)
-    print value
+    print(value)
 
     # Test setting/getting a range from/to a matrix
     n = 3
@@ -392,12 +390,12 @@ if __name__ == "__main__":
         x[i] = [0]*m
         for j in range(m):
             x[i][j] = i + j
-    print ' Setting range (3:,4:) to '
-    print x
+    print(' Setting range (3:,4:) to ')
+    print(x)
     xls.setRange(x,3,4)  # Auto determination of the bottom corner
-    print ' Got back from same range ',3,3,3+n-1,4+m-1
+    print(' Got back from same range ',3,3,3+n-1,4+m-1)
     y = xls.getRange(3,4,3+n-1,4+m-1)
-    print y
+    print(y)
 
     # Add names for the series that will eventually become the chart
     names = []
@@ -406,7 +404,7 @@ if __name__ == "__main__":
     xls.setRange(names,2,4)
 
     # Test selecting a range
-    print ' Selecting range ', 3,3,3+n-1,4+m-1
+    print(' Selecting range ', 3,3,3+n-1,4+m-1)
     xls.selectRange(3,4,3+n-1,4+m-1)
 
     # Test general matrix
@@ -420,7 +418,7 @@ if __name__ == "__main__":
     
     # Test making an x-y plot just from the data ... use a
     # second sheet and the simple chart interface
-    print ' Creating chart of sin(x) and cos(x) using second sheet'
+    print(' Creating chart of sin(x) and cos(x) using second sheet')
     n = 20
     m = 3
     h = 2*pi/(n-1)
@@ -435,26 +433,22 @@ if __name__ == "__main__":
     # Use absolute values for the rows but not the columns to test
     # reuse of the formula.
     formula = '=sum('+xls.a1(2,2,absrow=1)+':'+xls.a1(21,2,absrow=1)+')'
-    print ' The formula is ', formula
+    print(' The formula is ', formula)
     xls.setCell('Total',23,1,sheet=2)
     xls.setCell(formula,23,2,sheet=2)
     xls.setCell(formula,23,3,sheet=2)
     # Getting the cell contents back will get the value not the formula
-    print ' The formula from the sheet is ', xls.getCellFormula(23,2,sheet=2)
-    print ' The value of the formula (sum of sin) is ', \
-          xls.getCell(23,2,sheet=2)
-    print ' The formula from where there is only the value "Total" is', \
-          xls.getCellFormula(23,1,sheet=2)
-    print ' The formula from where there is nothing ',\
-          xls.getCellFormula(23,4,sheet=2)
-    print ' The value from where there is nothing ',\
-          xls.getCell(23,4,sheet=2)
+    print(' The formula from the sheet is ', xls.getCellFormula(23,2,sheet=2))
+    print(' The value of the formula (sum of sin) is ', xls.getCell(23,2,sheet=2))
+    print(' The formula from where there is only the value "Total" is', xls.getCellFormula(23,1,sheet=2))
+    print(' The formula from where there is nothing ', xls.getCellFormula(23,4,sheet=2))
+    print(' The value from where there is nothing ', xls.getCell(23,4,sheet=2))
 
     # Make a surface plot by creating a 2-D grid bordered on the
     # left and top with strings to indicate the values.  Note the
     # use of a single quote before the value in the labels in
     # order to force Excel to treat them as strings.
-    print ' Create surface chart of exp(-0.1*r*r)*cos(1.3*r)'
+    print(' Create surface chart of exp(-0.1*r*r)*cos(1.3*r)')
     n = 10
     h = 2*pi/(n-1)
     data = range(n+1)
@@ -487,7 +481,7 @@ if __name__ == "__main__":
         xls.setRange(data,1,5,sheet=2)
 
     # Finally make a chart with all options set
-    print ' Creating chart of sin(x) and cos(x) using second sheet'
+    print(' Creating chart of sin(x) and cos(x) using second sheet')
     n = 81
     data = range(n+1)
     data[0] = ['Age', 'Wisdom']

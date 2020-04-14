@@ -68,10 +68,10 @@ class Cube:
         fac = 0.999999999999999
         ix, iy, iz = int((x-self.r0[0])*fac/self.dx), int((y-self.r0[1])*fac/self.dy), int((z-self.r0[2])*fac/self.dz)
         if ix<0 or ix>=(self.Nx-1) or iy<0 or iy>=(self.Ny-1) or iz<0 or iz>=(self.Nz-1):
-            print "Trying to find containing box for point out of bounds"
-            print "point", (x,y,z)
-            print "lower", self.r0
-            print "upper", self.r1
+            print("Trying to find containing box for point out of bounds")
+            print("point", (x,y,z))
+            print("lower", self.r0)
+            print("upper", self.r1)
             raise IndexError
         return ix, iy, iz
 
@@ -79,7 +79,7 @@ class Cube:
         ''' Linear interpolation in 1D ... [xlo---x---xhi] '''
 
         if (xlo-x)>self.eps or (x-xhi)>self.eps:
-            print "linear_1d: extrapolating!  (x, xlo, xhi):", x, xlo, xhi
+            print("linear_1d: extrapolating!  (x, xlo, xhi):", x, xlo, xhi)
             raise IndexError
         return flo + (fhi-flo)*(x-xlo)/(xhi-xlo)
     
@@ -160,8 +160,8 @@ def load_gaussian(filename):
                     maxval = max(maxval,abs(value))
                     c[(ix,iy,iz)] = value
                 except:
-                    print line
-                    print n
+                    print(line)
+                    print(n)
                     raise IndexError
                 n = n + 1
                 if n == 6:
@@ -187,13 +187,13 @@ if __name__ == "__main__":
 
         # print the interpolated function and error out along a line
         dx,dy,dz = (r1[0]-r0[0])/10, (r1[1]-r0[1])/10, (r1[2]-r0[2])/10,
-        print "   x      y      z      exact     interp     error"
-        print "------ ------ ------ ---------- ---------- ----------"
+        print("   x      y      z      exact     interp     error")
+        print("------ ------ ------ ---------- ---------- ----------")
         for i in range(11):
             x,y,z = r0[0]+i*dx, r0[1]+i*dy, r0[2]+i*dz
             numeric = c.interp(x,y,z)
             exact = testfun(x,y,z)
-            print "%6.2f %6.2f %6.2f %10.6f %10.6f %10.2e" % (x,y,z,exact,numeric,exact-numeric)
+            print("%6.2f %6.2f %6.2f %10.6f %10.6f %10.2e" % (x,y,z,exact,numeric,exact-numeric))
     
     test()
     

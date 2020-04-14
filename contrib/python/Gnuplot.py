@@ -434,9 +434,9 @@ class File(PlotItem):
                                 "using " +
                                 string.join(map(repr, self.using), ':'))
         elif type(self.using) == type(1):
-            self.options.insert(0, "using " + `self.using`)
+            self.options.insert(0, "using " + repr(self.using))
         else:
-            raise OptionException('using=' + `self.using`)
+            raise OptionException('using=' + repr(self.using))
 
 
 class Data(File):
@@ -996,7 +996,7 @@ if __name__ == '__main__':
     g2.plot(Func("x**2", title="calculated by gnuplot"), d)
 
     # Save what we just plotted as a color postscript file:
-    print "\n******** Generating postscript file 'gnuplot_test1.ps' ********\n"
+    print("\n******** Generating postscript file 'gnuplot_test1.ps' ********\n")
     g2.hardcopy('gnuplot_test_plot.ps', color=1)
 
     # Demonstrate a 3-d plot:
@@ -1028,16 +1028,16 @@ if __name__ == '__main__':
 
     # Enable the following code to test the old-style gnuplot interface
     if 0:
-	# List of (x, y) pairs
-	plot([(0.,1),(1.,5),(2.,3),(3.,4)])
+        # List of (x, y) pairs
+        plot([(0.,1),(1.,5),(2.,3),(3.,4)])
 
-	# List of y values, file output
-        print "\n            Generating postscript file 'gnuplot_test2.ps'\n"
-	plot([1, 5, 3, 4], file='gnuplot_test2.ps')
+        # List of y values, file output
+        print("\n            Generating postscript file 'gnuplot_test2.ps'\n")
+        plot([1, 5, 3, 4], file='gnuplot_test2.ps')
 
-	# Two plots; each given by a 2d array
-	x = arange(10, typecode=Float)
-	y1 = x**2
-	y2 = (10-x)**2
-	plot(transpose(array([x, y1])), transpose(array([x, y2])))
+        # Two plots; each given by a 2d array
+        x = arange(10, typecode=Float)
+        y1 = x**2
+        y2 = (10-x)**2
+        plot(transpose(array([x, y1])), transpose(array([x, y2])))
 
