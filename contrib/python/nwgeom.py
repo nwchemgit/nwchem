@@ -9,6 +9,8 @@ def geom_get_coords(name):
   #
   try:
     actualname = rtdb_get(name)
+    if (actualname == None):
+      actualname = name
   except NWChemError:
     actualname = name
   coords = rtdb_get('geometry:' + str(actualname) + ':coords')
