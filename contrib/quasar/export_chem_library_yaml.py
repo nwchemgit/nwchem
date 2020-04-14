@@ -39,6 +39,7 @@ def extract_fields():
     data['generator'] = {'source' : 'nwchem',
                          'version' : '6.8'}
     skip_input_geometry = False
+    geometry = None
     coulomb_repulsion = None
     scf_energy = None
     scf_energy_offset = None
