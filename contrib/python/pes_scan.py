@@ -50,21 +50,21 @@ def pes_scan(input,start,end,nstep,theory,task):
   results = []
  
   if (len(start) != len(end)):
-    raise NWChemError,'pes_scan: inconsistent #parameters'
+    raise NWChemError('pes_scan: inconsistent #parameters')
 
   npoint = (nstep+1)**len(start)
 
   if (ga_nodeid() == 0): 
-    print ' '
-    print ' Doing a PES Scan on input '
-    print ' -------------------------'
-    print ' '
-    print input
-    print ' '
-    print ' Number of points ', npoint
-    print ' Minimum values ', start
-    print ' Maximum values ', end
-    print ' '
+    print(' ')
+    print(' Doing a PES Scan on input ')
+    print(' -------------------------')
+    print(' ')
+    print(input)
+    print(' ')
+    print(' Number of points ', npoint)
+    print(' Minimum values ', start)
+    print(' Maximum values ', end)
+    print(' ')
 
   step = []
   for i in range (0, len(start)):
@@ -102,28 +102,28 @@ def pes_scan(input,start,end,nstep,theory,task):
     
        
      if (ga_nodeid() == 0):
-        print ' '
-        print ' Scanning NWChem input - point %d of %d ' % (i+1,npoint)
-        print ' '
-        print input % tuple(new)
-        print ' '
+        print(' ')
+        print(' Scanning NWChem input - point %d of %d ' % (i+1,npoint))
+        print(' ')
+        print(input % tuple(new))
+        print(' ')
 
      input_parse(input % tuple(new))
      result = task(theory)
      if (ga_nodeid() == 0):
-        print ' '
-        print ' Scanning NWChem input - results from point ', i+1
-        print ' '
-        print result
-        print ' '
+        print(' ')
+        print(' Scanning NWChem input - results from point ', i+1)
+        print(' ')
+        print(result)
+        print(' ')
      results.append((new,result));
 
   if (ga_nodeid() == 0):
-     print ' '
-     print ' Python Scan Output '
-     print ' '
+     print(' ')
+     print(' Python Scan Output ')
+     print(' ')
      for i in range(0,len(results)):
-       print results[i][0], results[i][1]
-     print ' '
-     print ' Python Scan Output Finished '
+       print(results[i][0], results[i][1])
+     print(' ')
+     print(' Python Scan Output Finished ')
   return tuple(results)

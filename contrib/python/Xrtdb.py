@@ -7,6 +7,12 @@ DBL = 1013
 from Tkinter import *
 import signal
 
+from SimpleDialog import *
+import tkSimpleDialog
+import os
+import string
+import types
+
 class Xrtdb:
   def __init__(self):
 
@@ -72,8 +78,6 @@ class Xrtdb:
 	# end def __init__
 
   def new(self):
-    from SimpleDialog import *
-    import tkSimpleDialog
 
     self.selection_clear()
 
@@ -107,8 +111,7 @@ class Xrtdb:
 	# end def new
 
   def edit(self):
-    from SimpleDialog import *
-
+    
     try:
       name = self.selection_value()
     except:
@@ -156,7 +159,7 @@ class Xrtdb:
 	# end def delete
 
   def help(self):
-    from SimpleDialog import *
+
     dialog = SimpleDialog(self.root,
                           text="Quit \t- immediately exits.\n"
                                "Delete \t- deletes selected entry.\n"
@@ -213,14 +216,12 @@ class Xrtdb:
 	# end def set_text
 
   def edit_tmpfile(self):
-    import os
     if (os.system('emacs xrtdbtmp.txt')):
        raise "Edit failed"
 		# end if
 	# end def edit_tmpfile
 
   def delete_tmpfile(self):
-    import os
     try:
       os.remove('xrtdbtmp.txt')
     except:
@@ -228,8 +229,7 @@ class Xrtdb:
 		# end try
 	# end def delete_tmpfile
 
-  def write_tmpfile(self, values, ma_type):
-    import types
+def write_tmpfile(self, values, ma_type):
     tmpfile = open('xrtdbtmp.txt','w+')
     if (type(values) == type([])):
       for value in values:
@@ -241,8 +241,7 @@ class Xrtdb:
     tmpfile.close()
 	# end def write_tmpfile
 
-  def read_tmpfile(self, ma_type):
-    import string
+def read_tmpfile(self, ma_type):
     result = []
     tmpfile = open('xrtdbtmp.txt','r')
 
@@ -271,8 +270,8 @@ class Xrtdb:
     return result
 	# end def read_tmpfile
 
-  def process_tmpfile(self, name, ma_type, isnew):
-    from SimpleDialog import *
+def process_tmpfile(self, name, ma_type, isnew):
+    
     # Edit tmpfile
     # Prompt for saving changes
     # Try to read the results
@@ -302,75 +301,74 @@ class Xrtdb:
       except NWChemError:
         self.set_text("%s save failed!" % name)
 			# end try
-      if (isnew):
+    if (isnew):
 			# end if
 		# end if
 	# end def process_tmpfile
-	n = 0
-	try:
-	  while (name > self.listbox.get(n)):
-	    n = n + 1
-		# end while
-	except:
-	  pass
-	# end try
-	self.listbox.insert(n,name)
-	self.listbox.see(n)
+          n = 0
+          try:
+              while (name > self.listbox.get(n)):
+                  n = n + 1
+                  # end while
+          except:
+              pass
+          # end try
+          self.listbox.insert(n,name)
+          self.listbox.see(n)
     else:
-      self.set_text("%s nothing saved" % name)
+        self.set_text("%s nothing saved" % name)
       
     self.selection_clear()
 
-  def value_to_string(self,value,ma_type):
+def value_to_string(self,value,ma_type):
     if (ma_type == INT):
-      return "%d" % value
+        return "%d" % value
     elif (ma_type == DBL):
-      return "%21.15e" % value
+        return "%21.15e" % value
     elif (ma_type == LOGICAL):
-      if (value):
-        return "true"
-      else:
-        return "false"
+        if (value):
+            return "true"
+        else:
+            return "false"
 			# end if
     elif (ma_type == 1000):  # since Tk overwrites defn of CHAR
-      return value
+        return value
     else:
-      return value
+        return value
 		# end if
 	# end def value_to_string
 
-  def string_to_value(self,value,ma_type):
-    import string
+def string_to_value(self,value,ma_type):
     if (ma_type == INT):
-      return string.atoi(value)
+        return string.atoi(value)
     elif (ma_type == DBL):
-      return string.atof(value)
+        return string.atof(value)
     elif (ma_type == LOGICAL):
-      if (value == "true"):
-        return 1
-      elif (value == "false"):
-        return 0
-      else:
-        raise NWChemError,'invalid value'
+        if (value == "true"):
+            return 1
+        elif (value == "false"):
+            return 0
+        else:
+            raise NWChemError('invalid value')
 			# end if
     elif (ma_type == 1000):  # since Tk overwrites defn of CHAR
       return value
     else:
-      raise NWChemError,'invalid type'
+      raise NWChemError('invalid type')
 		# end if
 	# end def string_to_value
 
-  def ma_type_name(self, ma_type):
+def ma_type_name(self, ma_type):
     if (ma_type == INT):
-      return "int"
+        return "int"
     elif (ma_type == DBL):
-      return "double"
+        return "double"
     elif (ma_type == LOGICAL):
-      return "logical"
+        return "logical"
     elif (ma_type == 1000):  # since Tk overwrites defn of CHAR
-      return "char"
+        return "char"
     else:
-      raise NWChemError,'invalid type'
+        raise NWChemError('invalid type')
 		# end if
 	# end def ma_type_name
 # end class Xrtdb
