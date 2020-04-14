@@ -11,12 +11,12 @@ def geom_get_coords(name):
     actualname = rtdb_get(name)
   except NWChemError:
     actualname = name
-  coords = rtdb_get('geometry:' + actualname + ':coords')
-  units = rtdb_get('geometry:'+actualname+':user units')
+  coords = rtdb_get('geometry:' + str(actualname) + ':coords')
+  units = rtdb_get('geometry:' + str(actualname) + ':user units')
   if (units == 'a.u.'):
     factor = 1.0
   elif (units == 'angstroms'):
-    factor = rtdb_get('geometry:'+actualname+':angstrom_to_au')
+    factor = rtdb_get('geometry:' + str(actualname) + ':angstrom_to_au')
   else:
     raise NWChemError('unknown units')
   i = 0
@@ -35,11 +35,11 @@ def geom_set_coords(name,coords):
     actualname = rtdb_get(name)
   except NWChemError:
     actualname = name
-  units = rtdb_get('geometry:'+actualname+':user units')
+  units = rtdb_get('geometry:' + str(actualname) + ':user units')
   if (units == 'a.u.'):
     factor = 1.0
   elif (units == 'angstroms'):
-    factor = rtdb_get('geometry:'+actualname+':angstrom_to_au')
+    factor = rtdb_get('geometry:' + str(actualname) + ':angstrom_to_au')
   else:
     raise NWChemError('unknown units')
   coords = list(coords)
@@ -47,7 +47,7 @@ def geom_set_coords(name,coords):
   while (i < len(coords)):
     coords[i] = coords[i] * factor
     i = i + 1
-  rtdb_put('geometry:' + actualname + ':coords',coords)
+  rtdb_put('geometry:' + str(actualname) + ':coords',coords)
 
 def bond_length(i,j):  # atoms numbered 1,2,...
   #
