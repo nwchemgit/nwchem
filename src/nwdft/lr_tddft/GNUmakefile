@@ -12,7 +12,7 @@ OBJ_OPTIMIZE =
 
 LIBRARY = libnwdft.a
 
-USES_BLAS = tddft_diagon.F tddft_transfm.F tddft_analysis.F tddft_restart.F
+USES_BLAS = tddft_diagon.F tddft_transfm.F tddft_analysis.F tddft_restart.F tddft_civecs_phase.F
 
 LIB_DEFINES = -DDEBUG_PRINT
 #

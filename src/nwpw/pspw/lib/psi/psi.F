@@ -1,4 +1,4 @@
-*
+
 * $Id$
 *
 
@@ -844,11 +844,12 @@ c     >           dcpl_mb(psi1(1)),1)
 ************************ 2x2 virtural orbital Part ************************
 *     ***********************************
 *     *                                 *
-*     *    psi_minimize_virtual_2x2     *
+*     *    psi_minimize_virtual_CI      *
 *     *                                 *
 *     ***********************************
-      subroutine psi_minimize_virtual_2x2()
+      subroutine psi_minimize_virtual_CI(ci_algorithm)
       implicit none
+      integer ci_algorithm
       
 #include "bafdecls.fh"
 #include "psi.fh"
@@ -856,16 +857,18 @@ c     >           dcpl_mb(psi1(1)),1)
       !*** local variables ***
       integer maxit_orb
       integer ii,l
-      real*8  sum,maxerror,error_out,e0
+      real*8  sum,maxerror,error_out,e0,eci
          
       !*** external functions ***
       real*8   control_tole
       external control_tole
 
       !call psi_gen_density_potentials(1)
-      maxit_orb=300
+      maxit_orb=120
       maxerror = control_tole()
-      maxerror = 1.0d-12
+      !maxerror = 1.0d-12
+      eci = 9.99d9
+      e0  = 9.99d9
 
       do ii=1,(ne_excited(1)+ne_excited(2))
 
@@ -886,11 +889,13 @@ c     >           dcpl_mb(psi1(1)),1)
          !*** minimize orbital ****
 
           l = 0
- 2        call psi_2x2_update_virtual(maxit_orb,
+ 2        call psi_CI_update_virtual(ci_algorithm,
+     >                               maxit_orb,
      >                               maxerror,
-     >                               0.001d0,ii,error_out,e0)
+     >                               0.001d0,ii,error_out,e0,eci)
           l = l+1
-          if ((error_out.gt.maxerror).and.(l.le.4)) go to 2
+          !if ((error_out.gt.maxerror).and.(l.le.4)) go to 2
+          if ((error_out.gt.maxerror).and.(l.le.2)) go to 2
 
           dbl_mb(eig_excited(1)+ii-1) = e0
 
@@ -903,21 +908,22 @@ c     >           dcpl_mb(psi1(1)),1)
 
 *     ***********************************
 *     *                                 *
-*     *      psi_2x2_update_virtual     *
+*     *      psi_CI_update_virtual      *
 *     *                                 *
 *     ***********************************
 
 *    This routine performs a KS update on virtual ii
 *
-      subroutine psi_2x2_update_virtual(maxiteration,
+      subroutine psi_CI_update_virtual(ci_algorithm,maxiteration,
      >                             maxerror,perror,ii,
-     >                             error_out,e0)
+     >                             error_out,e0,eci)
       implicit none
+      integer ci_algorithm
       integer maxiteration
       real*8  maxerror,perror
       integer ii
       real*8 error_out
-      real*8 e0
+      real*8 e0,eci
 
 #include "bafdecls.fh"
 #include "psi.fh"
@@ -935,20 +941,20 @@ c     >           dcpl_mb(psi1(1)),1)
       real*8 theta,ep,sp
       integer r1(2),t0(2),t(2),g(2),psig_r(2),psie_r(2)
       integer rhog(2),rhoe(2),rhoge(2),vcgg(2),vcge(2),vcee(2)
+      integer vc(2),vctmp(2),te(2)
       integer psig_ptr,psie_ptr
       real*8  Sgg,Sge,See
       real*8  H1gg,H1ge,H1ee
       real*8  H2gg,H2ge,H2ee
       real*8  Hgg,Hge,Hee
       real*8  scal1,scal2,dv,ehartr
-      real*8  A,B,C,Elow,Ehigh,c1,c2,lmbda,alpha,sum,eci
+      real*8  A,B,C,Elow,Ehigh,c1,c2,lmbda,sum,sigma
 
       logical  control_print
       external control_print
       real*8   control_Ep,control_Sp,lattice_omega
       external control_Ep,control_Sp,lattice_omega
 
-      write(*,*) "FERA,ii,npack1=",ii,npack1
       psig_ptr=psi1(1)
       psie_ptr=psi1_excited(1) + (ii-1)*npack1
 
@@ -972,6 +978,9 @@ c     >           dcpl_mb(psi1(1)),1)
       value = value.and.
      >        BA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
       value = value.and.
+     >        BA_push_get(mt_dcpl,npack1,'te',te(2),te(1))
+
+      value = value.and.
      >        BA_push_get(mt_dbl,n2ft3d,'psig_r',psig_r(2),psig_r(1))
       value = value.and.
      >        BA_push_get(mt_dbl,n2ft3d,'psie_r',psie_r(2),psie_r(1))
@@ -981,6 +990,12 @@ c     >           dcpl_mb(psi1(1)),1)
      >        BA_push_get(mt_dbl,n2ft3d,'rhoe',rhoe(2),rhoe(1))
       value = value.and.
      >        BA_push_get(mt_dbl,n2ft3d,'rhoge',rhoge(2),rhoge(1))
+
+      value = value.and.
+     >        BA_push_get(mt_dbl,n2ft3d,'vctmp',vctmp(2),vctmp(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,n2ft3d,'vc',vc(2),vc(1))
+
       value = value.and.
      >        BA_push_get(mt_dbl,n2ft3d,'vcgg',vcgg(2),vcgg(1))
       value = value.and.
@@ -990,21 +1005,20 @@ c     >           dcpl_mb(psi1(1)),1)
       if (.not. value) call errquit(
      >     'psi_2x2_update_virtual: out of stack memory',0, MA_ERR)
 
-      if (oprint) write(*,*) "FERB,ii,npack1=",ii,npack1
 
       call Pack_c_Copy(1,dcpl_mb(psig_ptr),dbl_mb(psig_r(1)))
       call Pack_c_unpack(1,dbl_mb(psig_r(1)))
       call D3dB_cr_fft3b(1,dbl_mb(psig_r(1)))
       call D3dB_r_Zero_Ends(1,dbl_mb(psig_r(1)))
 
-      alpha = 1.0d0
       ep = control_Ep()
       sp = control_Sp()
       precondition = .true.
       done = .false.
       error0 = 0.0d0
       eci = 0.0d0
-      theta = -3.14159d0/600.0d0
+      !theta = 3.14159d0/600.0d0
+      theta = 3.14159d0/10.0d0
       lmbda_r0 = 1.0d0
       it = 0
       pit = 0
@@ -1012,11 +1026,8 @@ c     >           dcpl_mb(psi1(1)),1)
          it = it + 1
          eold = eci
 
-         call Pack_c_Copy(1,dcpl_mb(psie_ptr),dbl_mb(psie_r(1)))
-         call Pack_c_unpack(1,dbl_mb(psie_r(1)))
-         call D3dB_cr_fft3b(1,dbl_mb(psie_r(1)))
-         call D3dB_r_Zero_Ends(1,dbl_mb(psie_r(1)))
-
+         if (ci_algorithm.eq.2) then
+*        *** calculate residual (steepest descent) direction for psie ***
          call psi_2x2_virtual_gradient(dcpl_mb(psig_ptr),
      >                                 dbl_mb(psig_r(1)),
      >                                 dcpl_mb(psie_ptr),
@@ -1025,30 +1036,87 @@ c     >           dcpl_mb(psi1(1)),1)
      >                                 dcpl_mb(t(1)),
      >                                 dbl_mb(rhog(1)),
      >                                 dbl_mb(vcee(1)),dbl_mb(vcge(1)))
+         else if (ci_algorithm.eq.4) then
+         call psi_4x4_virtual_gradient(dcpl_mb(psig_ptr),
+     >                                 dbl_mb(psig_r(1)),
+     >                                 dcpl_mb(psie_ptr),
+     >                                 dbl_mb(psie_r(1)),
+     >                                 eci,dcpl_mb(g(1)),
+     >                                 dcpl_mb(t(1)),
+     >                                 dcpl_mb(te(1)),
+     >                                 dbl_mb(rhog(1)),
+     >                                 dbl_mb(rhoge(1)),
+     >                                 dbl_mb(rhoe(1)),
+     >                                 dbl_mb(vctmp(1)),
+     >                                 dbl_mb(vc(1)),
+     >                                 dbl_mb(vcgg(1)),
+     >                                 dbl_mb(vcge(1)),
+     >                                 dbl_mb(vcee(1)))
+         end if
 
-         if (oprint) write(*,*) "it,eci,eold=",it,eci,eold
- 
+         if (oprint) write(*,*) "it,eci,eold=",it,eci,eold,eci-eold
 
-         call Pack_cc_daxpy(1,alpha,dcpl_mb(g(1)),dcpl_mb(psie_ptr))
-         
-         !*** orthogonalize to lower orbitals  ****
-         call psi_project_out_virtual1(
-     >           ii,
-     >           dcpl_mb(psi1_excited(1)+(ii-1)*npack1))
+         !*** project out to lower orbitals  ****
+         call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(r1(1)))
+         !call psi_project_out_virtual1(ii,dcpl_mb(r1(1)))
+         call psi_project_out_virtual(ii,dcpl_mb(r1(1)))
 
-         !*** normalize ****
-         call Pack_cc_dot(1,
-     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
-     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
-     >            sum)
-         sum = 1.0d0/dsqrt(sum)
-         call Pack_c_SMul1(1,sum,
-     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
+*        *** determine conjuagate direction ***
+c         call Pack_cc_dot(1,dcpl_mb(r1(1)),
+c     >                   dcpl_mb(r1(1)),
+c     >                   lmbda_r1)
 
+         call Pack_c_Copy(1,dcpl_mb(r1(1)),dcpl_mb(t(1)))
+
+c         if (it.gt.1) then
+c         call Pack_cc_daxpy(1,(lmbda_r1/lmbda_r0),
+c     >                   dcpl_mb(t0(1)),
+c     >                   dcpl_mb(t(1)))
+c         end if
+c         lmbda_r0 = lmbda_r1
+c         oneloop = .true.
+c 3       call Pack_c_Copy(1,dcpl_mb(t(1)),dcpl_mb(t0(1)))
+
+*        *** normalize search direction, t ****
+         call Pack_cc_dot(1,dcpl_mb(t(1)),dcpl_mb(t(1)),sigma)
+         sigma = dsqrt(sigma)
+         de0 = 1.0d0/sigma
+         call Pack_c_SMul1(1,de0,dcpl_mb(t(1)))
+
+*        **** compute de0 = <t|g> ****
+         call Pack_cc_dot(1,dcpl_mb(t(1)),
+     >                   dcpl_mb(g(1)),
+     >                   de0)
+         call Pack_cc_dot(1,dcpl_mb(t(1)),dcpl_mb(t(1)),sigma)
+
+*        *** bad direction ***
+c         if ((de0.lt.0.0d0).and.oneloop) then
+c           call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(t(1)))
+c           oneloop = .false.
+c           go to 3
+c         end if
+
+
+         call psi_linesearch_CI_virtual(ci_algorithm,
+     >                                   ii,theta,eci,de0,dcpl_mb(t(1)),
+     >                                  dcpl_mb(psig_ptr),
+     >                                  dbl_mb(psig_r(1)),
+     >                                  dbl_mb(psie_r(1)),
+     >                                  dcpl_mb(r1(1)),dcpl_mb(te(1)),
+     >                                  dbl_mb(rhog(1)),
+     >                                  dbl_mb(rhoe(1)),
+     >                                  dbl_mb(rhoge(1)),
+     >                                  dbl_mb(vctmp(1)),
+     >                                  dbl_mb(vc(1)),
+     >                                  dbl_mb(vcgg(1)),
+     >                                  dbl_mb(vcee(1)),
+     >                                  dbl_mb(vcge(1)),maxerror)
 
          done = ((it.gt.maxiteration) 
      >           .or.
      >           (dabs(eci-eold).lt.maxerror))
+
+         write(*,*) "done=",done,it,maxiteration,dabs(eci-eold),maxerror
 
          if (done) go to 4
       go to 2
@@ -1062,11 +1130,14 @@ c     >           dcpl_mb(psi1(1)),1)
       value =           BA_pop_stack(vcee(2))
       value = value.and.BA_pop_stack(vcge(2))
       value = value.and.BA_pop_stack(vcgg(2))
+      value = value.and.BA_pop_stack(vc(2))
+      value = value.and.BA_pop_stack(vctmp(2))
       value = value.and.BA_pop_stack(rhoge(2))
       value = value.and.BA_pop_stack(rhoe(2))
       value = value.and.BA_pop_stack(rhog(2))
       value = value.and.BA_pop_stack(psie_r(2))
       value = value.and.BA_pop_stack(psig_r(2))
+      value = value.and.BA_pop_stack(te(2))
       value = value.and.BA_pop_stack(t(2))
       value = value.and.BA_pop_stack(g(2))
       value = value.and.BA_pop_stack(r1(2))
@@ -1075,9 +1146,10 @@ c     >           dcpl_mb(psi1(1)),1)
      >     'psi_2x2_update_virtual: popping stack memory',1, MA_ERR)
 
       if (oprint) then
-         write(luout,921) ii,-e0,dabs(e0-eold),it,pit,ep,sp
-  921 format(5x,"orbital",I4," current e=",E10.3,
-     >       " (error=",E9.3,")",
+         write(luout,921) ii,-e0,eci,dabs(eci-eold),it,pit,ep,sp
+  921 format(5x,"orbital",I4," current e=",E14.6,
+     >       " (eci=",E14.6,
+     >       " error=",E9.3,")",
      >       " iterations",I4,"(",I4,
      >       " preconditioned, Ep,Sp=",F5.1,F7.1,")")
       end if
@@ -1090,12 +1162,311 @@ c     >           dcpl_mb(psi1(1)),1)
 
 
 *     ***********************************
+*     *				        *
+*     *	     psi_linesearch_CI_virtual  *
+*     *				        *
+*     ***********************************
+
+*    This routine performs a linesearch on orbital ii, in the direction t.  
+* This routine is needed for a KS minimizer.
+*  e0 = <orb|g>
+*  de0 = 2*<t|g>
+*
+      subroutine psi_linesearch_CI_virtual(ci_algorithm,
+     >                                     ii,theta,e0,de0,t,
+     >                                     psig,psig_r,psie_r,
+     >                                     h1psig,h1psie,
+     >                                     rho,rhoge,rhoee,
+     >                                     vctmp,vc,
+     >                                     vcgg,vcee,vcge,
+     >                                     maxerror)
+      implicit none
+      integer ci_algorithm
+      integer ii
+      real*8  theta
+      real*8  e0,de0
+      complex*16  t(*) !search direction
+      complex*16  psig(*)
+      real*8      psig_r(*)
+      real*8      psie_r(*)
+      complex*16  h1psig(*),h1psie(*)
+      real*8      rho(*),rhoge(*),rhoee(*)
+      real*8      vctmp(*),vc(*)
+      real*8      vcgg(*),vcee(*),vcge(*)
+      real*8      maxerror
+
+#include "errquit.fh"
+#include "bafdecls.fh"
+#include "psi.fh"
+   
+*     **** local variables ****
+      integer maxit
+      parameter (maxit=15)
+
+      logical value,done,first
+      integer orb(2),g(2),psi_ptr,it,iteration
+      real*8 x,y,pi,dtheta_min,e1,de1,de1a,de1b
+      real*8 theta0,theta1,theta2,dtheta,emin,theta_min,demin,tnorm
+      real*8 ea,eb,ec,e2,de2
+      real*8 emid,demid
+
+      psi_ptr=psi1_excited(1)
+
+      pi = 4.0d0*datan(1.0d0)
+      dtheta_min = 0.01*theta
+
+*     **** allocate stack memory ****
+      value = BA_push_get(mt_dcpl,npack1,'orb',
+     >                       orb(2),orb(1))
+      value = value.and. 
+     >        BA_push_get(mt_dcpl,npack1,'g',
+     >                       g(2),g(1))
+      if (.not. value) call errquit(
+     >     'psi_linesearch_CI_virtual: out of stack memory',0, MA_ERR)
+ 
+
+      call Pack_c_Copy(1,dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                   dcpl_mb(orb(1)))
+
+      de0 = -de0
+      call Pack_cc_dot(1,dcpl_mb(orb(1)),t,tnorm)
+
+      theta0 = 0.0d0
+      iteration = 0
+      write(*,*) 
+      write(*,*) "e0,de0, <psi|t> =",e0,de0,tnorm
+      write(*,*) "start line search:"
+      emin = e0
+      demin = de0
+      dtheta = (2.0d0*pi/100.0d0)/99.0
+      first = .true.
+
+ 10   iteration = iteration + 1
+      x = cos(theta)
+      y = sin(theta)
+      call Pack_c_SMul(1,x,
+     >                  dcpl_mb(orb(1)),
+     >                  dcpl_mb(psi_ptr+(ii-1)*npack1))
+       call Pack_cc_daxpy(1,y,
+     >                   t,
+     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
+
+*     *** determine e1,g1, and de1/dtheta ***
+*     **** de/dtheta = -sin(theta)*<orb|g> + cos(theta)*<t|g> ****
+      if (ci_algorithm.eq.2) then
+      call psi_2x2_virtual_gradient(psig,psig_r,
+     >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                              psie_r,
+     >                              e1,dcpl_mb(g(1)),
+     >                              h1psie,rho,vcee,vcge)
+      else if (ci_algorithm.eq.4) then
+      call psi_4x4_virtual_gradient(psig,psig_r,
+     >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                              psie_r,
+     >                              e1,dcpl_mb(g(1)),
+     >                              h1psig,h1psie,
+     >                              rho,rhoge,rhoee,
+     >                              vctmp,vc,
+     >                              vcgg,vcge,vcee)
+      end if
+      call Pack_cc_dot(1,dcpl_mb(orb(1)),dcpl_mb(g(1)),de1a)
+      call Pack_cc_dot(1,t,              dcpl_mb(g(1)),de1b)
+      de1 = y*de1a - x*de1b
+      write(*,*) "theta,e0,e1,de0,de1 = ",iteration,theta,e0,e1,de0,de1
+
+      if (e1.lt.emin) then
+         emin  = e1
+         demin = de1
+         theta_min = theta
+      end if
+
+      done = (de0.le.0.0d0).and.(de1.ge.0.0d0).or.(iteration.gt.maxit)
+
+      if (.not.done) then
+         theta = theta + theta     
+         go to 10
+      end if
+
+      theta0 = 0.0d0
+      theta1 = theta
+
+      theta = theta1 - de0*(theta1-theta0)/(de1-de0)
+
+cccccc 20   theta = 0.5d0*(theta0+theta1)
+ 20   iteration = iteration + 1
+      theta1 = theta
+      x = cos(theta1)
+      y = sin(theta1)
+      call Pack_c_SMul(1,x,
+     >                  dcpl_mb(orb(1)),
+     >                  dcpl_mb(psi_ptr+(ii-1)*npack1))
+       call Pack_cc_daxpy(1,y,
+     >                   t,
+     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
+
+*     *** determine e1,g1, and de1/dtheta ***
+*     **** de/dtheta = -sin(theta)*<orb|g> + cos(theta)*<t|g> ****
+      if (ci_algorithm.eq.2) then
+      call psi_2x2_virtual_gradient(psig,psig_r,
+     >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                              psie_r,
+     >                              e1,dcpl_mb(g(1)),
+     >                              h1psie,rho,vcee,vcge)
+      else
+      call psi_4x4_virtual_gradient(psig,psig_r,
+     >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                              psie_r,
+     >                              e1,dcpl_mb(g(1)),
+     >                              h1psig,h1psie,
+     >                              rho,rhoge,rhoee,
+     >                              vctmp,vc,
+     >                              vcgg,vcge,vcee)
+      end if
+      call Pack_cc_dot(1,dcpl_mb(orb(1)),dcpl_mb(g(1)),de1a)
+      call Pack_cc_dot(1,t,              dcpl_mb(g(1)),de1b)
+      de1 = y*de1a - x*de1b
+      !dtheta =  -de0*(theta-theta0)/(demid-de0)
+
+      write(*,*) "theta,e0,e1,(e1-e0)=",iteration,theta,e0,e1,e1-e0
+      write(*,*) "            de0,de1=",de0,de1
+      if (e1.lt.emin) then
+         emin  = e1
+         demin = de1
+         theta_min = theta1
+      end if
+
+      if (e1.le.e0) then
+         theta  = theta1 - de0*(theta1-theta0)/(de1-de0)
+         e0     = e1
+         de0    = de0
+         theta0 = theta1
+         done = .false.
+      else if (e1.gt.e0) then
+         theta = theta0 + 0.5d0*(theta1-theta0)
+         done = .false.
+      end if
+
+      done = (dabs(e1-e0).lt.maxerror).or.(iteration.gt.maxit)
+
+      if (.not.done) go to 20
+
+
+
+
+c         theta = -pi/100.0 + (it-1)*(2.0d0*pi/100.0d0)/99.0
+c
+c*        **** orb2 = orb*cos(pi/300) + t*sin(pi/300) ****
+c  10     x = cos(theta)
+c         y = sin(theta)
+c         call Pack_c_SMul(1,x,
+c     >                  dcpl_mb(orb(1)),
+c     >                  dcpl_mb(psi_ptr+(ii-1)*npack1))
+c         call Pack_cc_daxpy(1,y,
+c     >                   t,
+c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
+c
+c*        *** determine theta ***
+c         call psi_2x2_virtual_gradient(psig,psig_r,
+c     >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
+c     >                              psie_r,
+c     >                              e1,dcpl_mb(g(1)),
+c     >                              h1psie,rho,vcee,vcge)
+c
+c*        **** compute de/dtheta = -sin(theta)*<orb|g> + cos(theta)*<t|g> ****
+c         call Pack_cc_dot(1,dcpl_mb(orb(1)),dcpl_mb(g(1)),de1a)
+c         call Pack_cc_dot(1,t,              dcpl_mb(g(1)),de1b)
+c         de1 = y*de1a - x*de1b
+c
+c         if (e1<emin) then
+c            emin  = e1
+c            demin = de1
+c            theta_min = theta
+c         end if
+c
+c
+c         write(*,*) theta,e1,de1,(e1-ea)/(2.0d0*dtheta)
+c         ea = eb
+c         eb = e1
+c      end do
+c      theta = theta_min
+      write(*,*) ":end line search"
+      write(*,*)
+      write(*,*) "theta_min,emin,demin = ",theta_min,emin,demin
+      write(*,*)
+
+c*     **** compute de/dtheta = -sin(theta)*<orb|g> + cos(theta)*<t|g> ****
+c      call Pack_cc_dot(1,dcpl_mb(orb(1)),dcpl_mb(g(1)),de1a)
+c      call Pack_cc_dot(1,t,              dcpl_mb(g(1)),de1b)
+c      de1 = y*de1a - x*de1b
+c
+c      write(*,*) "GERDD,ii,it,theta,e0,e1=",ii,it,theta,e0,e1,de0,de1
+c     >                      
+c
+c      it = it + 1
+c      if ((e1>e0).and.(it<5)) then
+c         theta = 0.5d0*theta
+c         goto 10
+c      end if
+c      dtheta = de0*(theta-0.0d0)/(de1-de0)
+c      theta = theta + dtheta
+c      write(*,*) "NEW theta = ",theta
+       
+
+
+c      x = (e0 - e1 + 0.5d0*de0*sin(2*theta))
+c     >    /(1.0d0-cos(2*theta))
+c      theta = 0.5d0*datan(0.5d0*de0/x) 
+c      !write(*,*) "GERE,x,theta,e0,e1=",x,theta,e0,e1
+
+c*     **** orb2 = orb*cos(theta) + t*sin(theta) ****
+c      x = cos(theta)
+c      y = sin(theta)
+c      call Pack_c_SMul(1,x,
+c     >                  dcpl_mb(orb(1)),
+c     >                  dcpl_mb(psi_ptr+(ii-1)*npack1))
+c      call Pack_cc_daxpy(1,y,
+c     >                   t,
+c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
+
+
+*     **** release stack memory ****
+      value =           BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(orb(2))      
+      if (.not. value) call errquit(
+     >     'psi_linesearch_CI_virtual: popping stack memory',1, MA_ERR)
+
+      return
+      end
+
+
+      subroutine psi_linesearch_genpsi(theta,orb,t,orb2)
+      implicit none
+      real*8 theta
+      complex*16 orb(*),t(*),orb2(*)
+      real*8 x,y
+
+      x = cos(theta)
+      y = sin(theta)
+      call Pack_c_SMul(1,x,orb,orb2)
+      call Pack_cc_daxpy(1,y,t,orb2)
+      return
+      end
+
+*     ***********************************
 *     *                                 *
 *     *      psi_2x2_virtual_gradient   *
 *     *                                 *
 *     ***********************************
-
+*
 *    This routine calculates the 2x2 CI Energy and its gradient wrt to psie.
+*
+*    Entry - psig,psig_r
+*            psie 
+*
+*    Exit - E,dEpsie
+*
+*    Use - psie_r
+*          h1psie,rho,vcee,vcge
 * 
       subroutine psi_2x2_virtual_gradient(psig,psig_r,psie,psie_r,
      >                                    E,dEdpsie,
@@ -1118,6 +1489,7 @@ c     >           dcpl_mb(psi1(1)),1)
 #include "stdio.fh"
 
 *     **** local variables ****
+      logical oprint
       integer nx,ny,nz,n2ft3d
       real*8 Sgg,Sge,See,A,B,C,c1,c2
       real*8 H1gg,H1ge,H1ee
@@ -1128,6 +1500,172 @@ c     >           dcpl_mb(psi1(1)),1)
 *     **** external functions ****
       real*8   lattice_omega
       external lattice_omega
+
+      write(*,*) "ENTER 2x2 GRADIENT"
+      oprint = .false.
+
+      !*** generate psie_r ****
+      call Pack_c_Copy(1,psie,psie_r)
+      call Pack_c_unpack(1,psie_r)
+      call D3dB_cr_fft3b(1,psie_r)
+      call D3dB_r_Zero_Ends(1,psie_r)
+
+      call D3dB_n2ft3d(1,n2ft3d)
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      scal2 = 1.0d0/lattice_omega()
+      dv = scal1*lattice_omega()
+
+      write(*,*) "HERA"
+      !*** calculate Sgg, Sge, See ***
+      call Pack_cc_dot(1,psig,psig,Sgg)
+      call Pack_cc_dot(1,psig,psie,Sge)
+      call Pack_cc_dot(1,psie,psie,See)
+      if (oprint) write(*,*) "Sgg=",Sgg," Sge=",Sge," See=",See
+
+*     **** apply H1 operator ****
+      write(*,*) "HERB"
+      call  psi_H1psi(ispin,neq,npack1,n2ft3d,psig,psig_r,dEdpsie)
+      call  psi_H1psi(ispin,neq,npack1,n2ft3d,psie,psie_r,h1psie)
+
+      call Pack_cc_dot(1,psig,dEdpsie,H1gg)
+      call Pack_cc_dot(1,psig,h1psie,H1ge)
+      call Pack_cc_dot(1,psie,h1psie,H1ee)
+      H1gg = -H1gg
+      H1ge = -H1ge
+      H1ee = -H1ee
+      if (ispin.eq.1) then
+         H1gg = H1gg + H1gg
+         H1ge = H1ge + H1ge
+         H1ee = H1ee + H1ee
+      end if
+      H1ge = H1ge*Sge
+      if (oprint) write(*,*) "H1gg=",H1gg," H1ge=",H1ge," H1ee=",H1ee
+
+      write(*,*) "HERC"
+*     **** apply H2 operator ****
+      call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rho)
+      call coulomb2_v(rho,vcee)
+      call D3dB_rr_dot(1,rho,vcee,ehartr)
+      H2gg = 0.5d0*(0.5d0*ehartr*dv)
+
+      write(*,*) "HERD"
+      call pspw_et_gen_rho(ispin,neq,n2ft3d,psie_r,rho)
+      call coulomb2_v(rho,vcee)
+      call D3dB_rr_dot(1,rho,vcee,ehartr)
+      H2ee = 0.5d0*(0.5d0*ehartr*dv)
+      
+
+      write(*,*) "HERE"
+      call pspw_et_gen_rho12(ispin,neq,n2ft3d,psig_r,psie_r,rho)
+      call coulomb2_v(rho,vcge)
+      call D3dB_rr_dot(1,rho,vcge,ehartr)
+      H2ge = 0.5d0*(0.5d0*ehartr*dv)
+      
+      if (oprint) write(*,*) "H2gg=",H2gg," H2ge=",H2ge," H2ee=",H2ee
+
+      write(*,*) "HERF"
+*     **** generate and diagonalize 2x2 CI matrix ****
+      Hgg = H1gg + H2gg
+      Hge = H1ge + H2ge
+      Hee = H1ee + H2ee
+      A = 1.0d0
+      B = -Hgg - Hee
+      C = Hgg*Hee - Hge*Hge
+      Elow  = (-B-dsqrt(B*B-4.0d0*A*C))/(2*A)
+      Ehigh = (-B+dsqrt(B*B-4.0d0*A*C))/(2*A)
+      lmbda = Hge/(Elow-Hee)
+      c1 =  1.0d0/dsqrt(1.0d0+lmbda**2)
+      !c2 =  dsqrt(1.0d0-c1*c1)
+      c2 =  lmbda/dsqrt(1.0d0+lmbda**2)
+      if (oprint) write(*,*) "Elow=",Elow," Ehigh=",Ehigh
+
+      write(*,*) "HERG"
+*     **** generate dElow/dpsie ****
+      call D3dB_rr_Mul2(1,psie_r,vcee)
+      call D3dB_rr_Mul2(1,psig_r,vcge)
+      !call D3dB_r_SMul1(1,(-0.5d0*c2*c2),vcee)
+      !call D3dB_rr_daxpy(1,(-0.5d0*c1*c2),vcge,vcee)
+      call D3dB_r_SMul1(1,(-2.0d0*c2*c2),vcee)
+      call D3dB_rr_daxpy(1,(-2.0d0*c1*c2),vcge,vcee)
+      
+      call D3dB_rc_fft3f(1,vcee)
+      call Pack_c_pack(1,vcee)
+      call Pack_c_SMul(1,scal1,vcee,dEdpsie)
+     
+      call Pack_cc_daxpy(1,4.0d0*c2*c2,h1psie,dEdpsie)
+      E = Elow
+      if (oprint) write(*,*) "c1,c2=",c1,c2
+
+      write(*,*) "EXIT 2x2 GRADIENT"
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      psi_4x4_virtual_gradient   *
+*     *                                 *
+*     ***********************************
+
+*     This routine calculates the 4x4 CI Energy and its gradient wrt to psie.
+*
+*       g    e    a    b
+*   g  Hgg  Hge  Hga  Hgb
+*
+*   e  Heg  Hee  Hea  Heb
+*
+*   a  Hag  Hae  Haa  Hab
+*
+*   b  Hbg  Hbe  Hba  Hbb
+
+      subroutine psi_4x4_virtual_gradient(psig,psig_r,psie,psie_r,
+     >                                    E,dEdpsie,
+     >                                    h1psig,h1psie,
+     >                                    rhogg,rhoge,rhoee,
+     >                                    vctmp,vc,
+     >                                    vcgg,vcge,vcee)
+      implicit none
+      complex*16 psig(*)
+      real*8     psig_r(*)
+      complex*16 psie(*)
+      real*8     psie_r(*)
+      real*8     E
+      complex*16 dEdpsie(*)
+
+      complex*16 h1psie(*),h1psig(*)
+      real*8     rhogg(*),rhoee(*),rhoge(*)
+      real*8     vcgg(*),vcee(*),vcge(*)
+      real*8     vctmp(*),vc(*)
+
+#include "bafdecls.fh"
+#include "psi.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "stdio.fh"
+
+*     **** local variables ****
+      integer nx,ny,nz,n2ft3d
+      real*8 Sgg,Sge,See,c1,c2,c3,c4
+      real*8 H1gg,H1ge,H1ga,H1gb,H1ee,H1ea,H1eb,H1aa,H1ab,H1bb
+      real*8 H2gg,H2ge,H2ga,H2gb,H2ee,H2ea,H2eb,H2aa,H2ab,H2bb
+      real*8 Hgg,Hge,Hga,Hgb,Hee,Hea,Heb,Haa,Hab,Hbb
+      real*8 ehartr,scal1,scal2,dv,Elow,Ehigh,lmbda
+      real*8 Hci(4,4),ciE(4),wkopt(1),work(999)
+      integer lwork,INFO
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      !*** generate psie_r ****
+      call Pack_c_Copy(1,psie,psie_r)
+      call Pack_c_unpack(1,psie_r)
+      call D3dB_cr_fft3b(1,psie_r)
+      call D3dB_r_Zero_Ends(1,psie_r)
+
 
       call D3dB_n2ft3d(1,n2ft3d)
       call D3dB_nx(1,nx)
@@ -1144,67 +1682,188 @@ c     >           dcpl_mb(psi1(1)),1)
       !if (oprint) write(*,*) "Sgg=",Sgg," Sge=",Sge," See=",See
 
 *     **** apply H1 operator ****
-      call  psi_H1psi(ispin,neq,npack1,n2ft3d,psig,psig_r,dEdpsie)
+      call  psi_H1psi(ispin,neq,npack1,n2ft3d,psig,psig_r,h1psig)
       call  psi_H1psi(ispin,neq,npack1,n2ft3d,psie,psie_r,h1psie)
 
-      call Pack_cc_dot(1,psig,dEdpsie,H1gg)
+      call Pack_cc_dot(1,psig,h1psig,H1gg)
       call Pack_cc_dot(1,psig,h1psie,H1ge)
       call Pack_cc_dot(1,psie,h1psie,H1ee)
       H1gg = -H1gg
       H1ge = -H1ge
       H1ee = -H1ee
+      H1ga =  H1ge
+      H1gb = -H1ge
+      H1ea =  H1ge
+      H1eb = -H1ge
+      H1aa =  H1gg + H1ee
+      H1ab =  H1gg + H1ee
+      H1bb =  H1gg + H1ee
       if (ispin.eq.1) then
-         H1gg = H1gg + H1gg
-         H1ge = H1ge + H1ge
-         H1ee = H1ee + H1ee
+         H1ga =  H1ge
+         H1gb = -H1ge
+         H1ea =  H1ge
+         H1eb = -H1ge
+         H1aa =  H1gg + H1ee
+         H1ab =  H1gg + H1ee
+         H1bb =  H1gg + H1ee
+         H1gg =  H1gg + H1gg
+         H1ge =  H1ge + H1ge
+         H1ee =  H1ee + H1ee
       end if
       H1ge = H1ge*Sge
+      H1ab = H1ab*Sge
 
 *     **** apply H2 operator ****
-      call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rho)
-      call coulomb2_v(rho,vcee)
-      call D3dB_rr_dot(1,rho,vcee,ehartr)
+      call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rhogg)
+      call pspw_et_gen_rho(ispin,neq,n2ft3d,psie_r,rhoee)
+      call pspw_et_gen_rho12(ispin,neq,n2ft3d,psig_r,psie_r,rhoge)
+
+      call coulomb2_v(rhogg,vcgg)
+      call D3dB_rr_dot(1,rhogg,vcgg,ehartr)
       H2gg = 0.5d0*(0.5d0*ehartr*dv)
 
-      call pspw_et_gen_rho(ispin,neq,n2ft3d,psie_r,rho)
-      call coulomb2_v(rho,vcee)
-      call D3dB_rr_dot(1,rho,vcee,ehartr)
+      call coulomb2_v(rhoge,vcge)
+      call D3dB_rr_dot(1,rhoge,vcge,ehartr)
+      H2ge = 0.5d0*(0.5d0*ehartr*dv)
+
+      call D3dB_rr_dot(1,rhoge,vcgg,ehartr)
+      H2ga = 0.5d0*(0.5d0*ehartr*dv)
+      
+      H2gb = -H2ga
+
+      call coulomb2_v(rhoee,vcee)
+      call D3dB_rr_dot(1,rhoee,vcee,ehartr)
       H2ee = 0.5d0*(0.5d0*ehartr*dv)
 
-      call pspw_et_gen_rho12(ispin,neq,n2ft3d,psig_r,psie_r,rho)
-      call coulomb2_v(rho,vcge)
-      call D3dB_rr_dot(1,rho,vcge,ehartr)
-      H2ge = 0.5d0*(0.5d0*ehartr*dv)
+      call D3dB_rr_dot(1,rhoge,vcee,ehartr)
+      H2ea = 0.5d0*(0.5d0*ehartr*dv)
+
+      H2eb = -H2ea
+
+      call D3dB_rr_dot(1,rhogg,vcee,ehartr)
+      H2aa = 0.5d0*(0.5d0*ehartr*dv)
+
+      H2ab = -H2ge
+
+      H2bb = H2aa
 
       !if (oprint) write(*,*) "H2gg=",H2gg," H2ge=",H2ge," H2ee=",H2ee
 
-*     **** generate and diagonalize 2x2 CI matrix ****
+*     **** generate and diagonalize 4x4 CI matrix ****
       Hgg = H1gg + H2gg
       Hge = H1ge + H2ge
+      Hga = H1ga + H2ga
+      Hgb = H1gb + H2gb
       Hee = H1ee + H2ee
-      A = 1.0d0
-      B = -Hgg - Hee
-      C = Hgg*Hee - Hge*Hge
-      Elow  = (-B-dsqrt(B*B-4.0d0*A*C))/(2*A)
-      Ehigh = (-B+dsqrt(B*B-4.0d0*A*C))/(2*A)
-      lmbda = -Hge/(Hgg-Elow)
-      c1 =  lmbda/dsqrt(1.0d0+lmbda**2)
-      c2 =  dsqrt(1.0d0-c1*c1)
-      !c2 =  1/dsqrt(1.0d0+lmbda**2)
+      Hea = H1ea + H2ea
+      Heb = H1eb + H2eb
+      Haa = H1aa + H2aa
+      Hab = H1ab + H2ab
+      Hbb = H1bb + H2bb
 
+      Hci(1,1) = Hgg
+      Hci(1,2) = Hge
+      Hci(1,3) = Hga
+      Hci(1,4) = Hgb
+      Hci(2,1) = Hci(1,2)
+      Hci(2,2) = Hee
+      Hci(2,3) = Hea
+      Hci(2,4) = Heb
+      Hci(3,1) = Hci(1,3)
+      Hci(3,2) = Hci(2,3)
+      Hci(3,3) = Haa
+      Hci(3,4) = Hab
+      Hci(4,1) = Hci(1,4)
+      Hci(4,2) = Hci(2,4)
+      Hci(4,3) = Hci(3,4)
+      Hci(4,4) = Hbb
+      
+c     write(*,*) "Matrix"
+c     write(*,*) Hci(1,1),Hci(1,2),Hci(1,3),Hci(1,4) 
+c     write(*,*) Hci(2,1),Hci(2,2),Hci(2,3),Hci(2,4) 
+c     write(*,*) Hci(3,1),Hci(3,2),Hci(3,3),Hci(3,4) 
+c     write(*,*) Hci(4,1),Hci(4,2),Hci(4,3),Hci(4,4) 
+c
+      call DSYEV('V','U',4,Hci,4,ciE,wkopt,-1,INFO )
+      lwork = wkopt(1)
+      call DSYEV('V','U',4,Hci,4,ciE,work,lwork,INFO )
+
+c     write(*,*) "Eigen"
+c     write(*,*) Hci(1,1),Hci(1,2),Hci(1,3),Hci(1,4) 
+c     write(*,*) Hci(2,1),Hci(2,2),Hci(2,3),Hci(2,4) 
+c     write(*,*) Hci(3,1),Hci(3,2),Hci(3,3),Hci(3,4) 
+c     write(*,*) Hci(4,1),Hci(4,2),Hci(4,3),Hci(4,4) 
+c     write(*,*) ciE(1),ciE(2),ciE(3),ciE(4)
+
+      c1 = Hci(1,1)
+      c2 = Hci(2,1)
+      c3 = Hci(3,1)
+      c4 = Hci(4,1)
+      
 *     **** generate dElow/dpsie ****
-      call D3dB_rr_Mul2(1,psie_r,vcee)
-      call D3dB_rr_Mul2(1,psig_r,vcge)
-      call D3dB_r_SMul1(1,(-0.5d0*c2*c2),vcee)
-      call D3dB_rr_daxpy(1,(-0.5d0*c1*c2),vcge,vcee)
-      call D3dB_rc_fft3f(1,vcee)
-      call Pack_c_pack(1,vcee)
-      call Pack_c_SMul(1,scal1,vcee,dEdpsie)
-      call Pack_cc_daxpy(1,c2*c2,h1psie,dEdpsie)
-      E = Elow
+c     call D3db_rr_Mul2(1,psig_r,vcgg)
+c     call D3dB_rr_Mul2(1,psie_r,vcee)
+c     call D3dB_rr_Mul2(1,psig_r,vcge)
+
+      call D3dB_r_Zero(1,vc)
+      call D3dB_r_Zero(1,vctmp)
+      call D3dB_rr_daxpy(1,psig_r,vcgg,vctmp)
+
+      call D3dB_r_Zero(1,vctmp)
+      call D3dB_rr_daxpy(1,psig_r,vcge,vctmp)
+      call D3dB_rr_daxpy(1,(-0.5d0*c1*c2),vctmp,vc)
+
+c     call D3dB_r_Zero(1,vctmp)
+c     call D3dB_rr_daxpy(1,psig_r,vcge,vctmp)
+      call D3dB_rr_daxpy(1,(0.25d0*c3*c4),vctmp,vc)
+
+      call D3dB_r_Zero(1,vctmp)
+      call D3dB_rr_daxpy(1,psig_r,vcgg,vctmp)
+      call D3dB_rr_daxpy(1,(-0.25d0*c1*c3),vctmp,vc)
+
+c     call D3dB_r_Zero(1,vctmp)
+c     call D3dB_rr_daxpy(1,psig_r,vcgg,vctmp)
+      call D3dB_rr_daxpy(1,(0.25d0*c1*c4),vctmp,vc)
+
+      call D3dB_r_Zero(1,vctmp)
+      call D3dB_rr_daxpy(1,psie_r,vcee,vctmp)
+      call D3dB_rr_daxpy(1,(-0.5d0*c2*c2),vctmp,vc) 
+
+      call D3dB_r_Zero(1,vctmp)
+      call D3dB_rr_daxpy(1,psig_r,vcee,vctmp)
+      call D3dB_rr_daxpy(1,psie_r,vcge,vctmp)
+      call D3dB_rr_daxpy(1,(-0.25d0*c2*c3),vctmp,vc)
+
+c     call D3dB_r_Zero(1,vctmp)
+c     call D3dB_rr_daxpy(1,psie_r,vcge,vctmp)
+c     call D3dB_rr_daxpy(1,psig_r,vcee,vctmp)
+      call D3dB_rr_daxpy(1,(0.25d0*c2*c4),vctmp,vc)
+
+      call D3dB_r_Zero(1,vctmp)
+      call D3dB_rr_daxpy(1,psie_r,vcgg,vctmp)
+      call D3dB_rr_daxpy(1,(-0.25d0*c3*c3),vctmp,vc)
+
+c     call D3dB_r_Zero(1,vctmp)
+c     call D3dB_rr_daxpy(1,psie_r,vcgg,vctmp)
+      call D3dB_rr_daxpy(1,(-0.25d0*c4*c4),vctmp,vc)
+
+      call D3dB_rc_fft3f(1,vc)
+      call Pack_c_pack(1,vc)
+      call Pack_c_SMul(1,scal1,vc,dEdpsie)
+      call Pack_cc_daxpy(1, c1*c3,h1psig,dEdpsie)
+      call Pack_cc_daxpy(1,-c1*c4,h1psig,dEdpsie)
+      call Pack_cc_daxpy(1, c2*c2,h1psie,dEdpsie)
+      call Pack_cc_daxpy(1, c2*c3,h1psig,dEdpsie)
+      call Pack_cc_daxpy(1,-c2*c4,h1psig,dEdpsie)
+      call Pack_cc_daxpy(1, c3*c3,h1psie,dEdpsie)
+      call Pack_cc_daxpy(1, c4*c4,h1psie,dEdpsie)
+      E = ciE(1)
 
       return
       end
+
+
+
 
 
 *     ****************************************************

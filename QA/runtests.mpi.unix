@@ -29,7 +29,7 @@
 
 # A subdirectory of the current directory named scratchdir is deleted
 # and remade for each calculation, and deleted at job end.
-
+export HYDRA_DEBUG=0
 if [[ -z "${NWCHEM_TARGET}" ]]; then
     UNAME_S=$(uname -s)
   if [[ ${UNAME_S} == Linux ]]; then
@@ -415,7 +415,10 @@ sync
 # Now verify the output
 
     echo -n "     verifying output ... "
-
+# get rid of HYDRA_DEBUG confusing output
+    rm -f hydradebugout.txt
+    grep -v proxy:0:0@ ${STUB}.out > hydradebugout.txt
+    mv hydradebugout.txt ${STUB}.out
     perl $NWPARSE ${STUB}.out >& /dev/null
     if [ $? -ne 0 ]; then
       echo nwparse.pl failed on test output ${STUB}.out
@@ -437,8 +440,12 @@ sync
 
   if [ $diff1status -ne 0 ]; then
     echo "failed"
-    echo "     Comparison of Output Files"  
+    echo "@@@     Comparison of Output Files"  
     diff -U2 ${STUB}.ok.out.nwparse ${STUB}.out.nwparse | sed 1,2d
+#    echo "@@@     Paste beginning of Output File"  
+#    head -1000 ${STUB}.out
+#    echo "@@@     Paste End of Output File"  
+#    tail -1000 ${STUB}.out
     overall_status=1
     continue 
   else

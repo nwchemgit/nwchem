@@ -83,7 +83,7 @@ c     xps variables
       logical lxps
       integer lenstr
       character*255 inp_vecs
-      logical int_forcenwints
+      logical int_forcenwints,gonwxc
       external int_forcenwints
       character*20 rtdb_errmsg
       data dirs /'convergence','decomp','dft','direct','semidirect',
@@ -343,7 +343,21 @@ c
       if (test(1:3).eq."old") then
         call xc_input(rtdb, 'dft')
       else if (test(1:3).eq."new") then
-         call nwxc_input(out1)
+         if (.not. rtdb_get(rtdb, 'dft:gonwxc', mt_log, 1, gonwxc))
+     &        gonwxc=.false.
+         if(gonwxc) then
+            call nwxc_input(out1)
+         else
+            write(luout,*) '**************************  '
+            write(luout,*) ' nwxc input disabled '
+            write(luout,*) ' To use this unsupported feature, add the '
+            write(luout,*) ' following line to the input file '
+            write(luout,*) ' before the dft section '
+            write(luout,*) '  '
+            write(luout,*) ' set dft:gonwxc .true. '
+            write(luout,*) '**************************  '
+            out1=.false.
+         endif
         if (.not.out1) then
           call errquit("dft_input: nwxc_input failed",0,UERR)
         endif

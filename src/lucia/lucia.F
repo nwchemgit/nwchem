@@ -15728,7 +15728,7 @@ CNW       CALL WRTMAT(SV,1,LEN_S,1,LEN_S)
      &            'EQFRAG','SUPSYM','HFD_OC','HFS_OC','GAS_SP',
      &            'NOSPFI','FRG=LU','FRZORB','SBSPPR','IN_NRO',
      &            'IN_SRO','RT_SEL','FRZFST','VBGNSP','VBOBOR',
-     &            'VBSCOR','AKBKME'/
+     &            'VBSCOR','AKBKME','      '/
 *
 COLD  INTEGER CITYP
 *.Largest allowed number of allowed irreps for orbs
