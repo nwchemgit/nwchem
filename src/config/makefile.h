@@ -19,7 +19,7 @@
 # For development tree 
 #RELEASE := 
 # For current release tree
-RELEASE := 7.0.0
+RELEASE := 7.0.1
 
 #
 
