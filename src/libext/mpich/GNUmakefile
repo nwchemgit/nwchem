@@ -6,9 +6,8 @@
 include ../../config/makefile.h
 
 
-../lib/libmpich.a:
+../lib/libmpifort.a:
 	./build_mpich.sh 
-LIB_TARGETS += scalapack
 
 include ../../config/makelib.h
 
