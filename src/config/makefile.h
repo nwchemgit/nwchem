@@ -1121,7 +1121,7 @@ ifeq ($(TARGET),MACX64)
      FC = gfortran
      _FC = gfortran
    endif
-   ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran-6 gfortran-7 gfortran-8 gfortran-9))
+   ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran-6 gfortran-7 gfortran-8 gfortran-9 gfortran-10 gfortran-11 gfortran-12))
      _FC = gfortran
    endif
 #
@@ -1318,10 +1318,10 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
      FC = gfortran
      _FC = gfortran
    endif
-   ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran-6 gfortran-7 gfortran-8 gfortran-9 i686-w64-mingw32.static-gfortran))
+   ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran-6 gfortran-7 gfortran-8 gfortran-9 gfortran-10 gfortran-11 gfortran-12 i686-w64-mingw32.static-gfortran))
      _FC = gfortran
    endif
-   ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc-6 gcc-7 gcc-8 gcc-9 i686-w64-mingw32.static-gcc))
+   ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc-6 gcc-7 gcc-8 gcc-9 gcc-10 gcc-11 gcc-12 i686-w64-mingw32.static-gcc))
    ifneq ($(CC),cc)
      _CC = gcc
    endif
@@ -1701,10 +1701,10 @@ endif
       ifeq ($(FC),ifort)
        _FC=ifort
       endif
-     ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran6 gfortran-6 gfortran-7 gfortran7 gfortran-8 gfortran8 gfortran-9 gfortran9 i686-w64-mingw32.static-gfortran))
+     ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran6 gfortran-6 gfortran-7 gfortran7 gfortran-8 gfortran8 gfortran-9 gfortran9 gfortran-10 gfortran10 gfortran-11 gfortran-12 i686-w64-mingw32.static-gfortran))
        _FC= gfortran
      endif
-     ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc6 gcc-6 gcc-7 gcc7 gcc-8 gcc8 gcc-9 gcc9 i686-w64-mingw32.static-gcc))
+     ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc6 gcc-6 gcc-7 gcc7 gcc-8 gcc8 gcc-9 gcc9 gcc-10 gcc10 gcc-11 gcc-12 i686-w64-mingw32.static-gcc))
      ifneq ($(CC),cc)
        _CC= gcc
      endif
@@ -1780,9 +1780,9 @@ endif
          CFLAGS_FORGA = -mcmodel=medium
          FFLAGS_FORGA = -mcmodel=medium
         else
-        GNUMAJOR=$(shell $(_FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
+        GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
         ifdef GNUMAJOR
-        GNUMINOR=$(shell $(_FC) -dM -E - < /dev/null 2> /dev/null | egrep __GNUC_MINOR | cut -c24)
+        GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __GNUC_MINOR | cut -c24)
         GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 ] && echo true)
         GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 ] && echo true)
         endif
