@@ -841,7 +841,7 @@ c     >           dcpl_mb(psi1(1)),1)
 
 
       
-************************ 2x2 virtural orbital Part ************************
+************************ CI virtural orbital Part ************************
 *     ***********************************
 *     *                                 *
 *     *    psi_minimize_virtual_CI      *
@@ -1003,7 +1003,7 @@ c     >           dcpl_mb(psi1(1)),1)
       value = value.and.
      >        BA_push_get(mt_dbl,n2ft3d,'vcee',vcee(2),vcee(1))
       if (.not. value) call errquit(
-     >     'psi_2x2_update_virtual: out of stack memory',0, MA_ERR)
+     >     'psi_CI_update_virtual: out of stack memory',0, MA_ERR)
 
 
       call Pack_c_Copy(1,dcpl_mb(psig_ptr),dbl_mb(psig_r(1)))
@@ -1518,7 +1518,6 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       scal2 = 1.0d0/lattice_omega()
       dv = scal1*lattice_omega()
 
-      write(*,*) "HERA"
       !*** calculate Sgg, Sge, See ***
       call Pack_cc_dot(1,psig,psig,Sgg)
       call Pack_cc_dot(1,psig,psie,Sge)
@@ -1526,7 +1525,6 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       if (oprint) write(*,*) "Sgg=",Sgg," Sge=",Sge," See=",See
 
 *     **** apply H1 operator ****
-      write(*,*) "HERB"
       call  psi_H1psi(ispin,neq,npack1,n2ft3d,psig,psig_r,dEdpsie)
       call  psi_H1psi(ispin,neq,npack1,n2ft3d,psie,psie_r,h1psie)
 
@@ -1544,21 +1542,18 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       H1ge = H1ge*Sge
       if (oprint) write(*,*) "H1gg=",H1gg," H1ge=",H1ge," H1ee=",H1ee
 
-      write(*,*) "HERC"
 *     **** apply H2 operator ****
       call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rho)
       call coulomb2_v(rho,vcee)
       call D3dB_rr_dot(1,rho,vcee,ehartr)
       H2gg = 0.5d0*(0.5d0*ehartr*dv)
 
-      write(*,*) "HERD"
       call pspw_et_gen_rho(ispin,neq,n2ft3d,psie_r,rho)
       call coulomb2_v(rho,vcee)
       call D3dB_rr_dot(1,rho,vcee,ehartr)
       H2ee = 0.5d0*(0.5d0*ehartr*dv)
       
 
-      write(*,*) "HERE"
       call pspw_et_gen_rho12(ispin,neq,n2ft3d,psig_r,psie_r,rho)
       call coulomb2_v(rho,vcge)
       call D3dB_rr_dot(1,rho,vcge,ehartr)
@@ -1566,7 +1561,6 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       
       if (oprint) write(*,*) "H2gg=",H2gg," H2ge=",H2ge," H2ee=",H2ee
 
-      write(*,*) "HERF"
 *     **** generate and diagonalize 2x2 CI matrix ****
       Hgg = H1gg + H2gg
       Hge = H1ge + H2ge
@@ -1582,7 +1576,6 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       c2 =  lmbda/dsqrt(1.0d0+lmbda**2)
       if (oprint) write(*,*) "Elow=",Elow," Ehigh=",Ehigh
 
-      write(*,*) "HERG"
 *     **** generate dElow/dpsie ****
       call D3dB_rr_Mul2(1,psie_r,vcee)
       call D3dB_rr_Mul2(1,psig_r,vcge)
@@ -1599,7 +1592,6 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       E = Elow
       if (oprint) write(*,*) "c1,c2=",c1,c2
 
-      write(*,*) "EXIT 2x2 GRADIENT"
       return
       end
 
@@ -8968,7 +8960,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
             end do
             call ga_sync()
          end do
-         call Parallel_Vector_SumAll(nall,dbl_mb(h1_integrals(1)))
+         call Parallel_Vector_SumAll(nnall,dbl_mb(h1_integrals(1)))
 
          if (oprint) then
             write(luout,*) "begin_one_electron_integrals"
