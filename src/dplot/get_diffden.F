@@ -20,7 +20,7 @@ c
          character*8 spin
          integer iroot
          integer ipol
-         character*80 filename
+         character*256 filename
          integer basis            ! AO basis set handle
          integer g_movecs(ipol)   ! MO vectors
          integer g_ddens(ipol)    ! Unrelaxed difference density
