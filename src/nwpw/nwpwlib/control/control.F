@@ -5667,6 +5667,31 @@ c      end if
 
 *     ***********************************
 *     *                                 *
+*     *       control_3x3_virtual       *
+*     *                                 *
+*     ***********************************
+      logical function control_3x3_virtual()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .false.
+      if (.not.btdb_get(rtdb,'nwpw:3x3_virtual',mt_log,1,value))
+     >   value = .false.
+
+      control_3x3_virtual = value
+      return
+      end
+
+*     ***********************************
+*     *                                 *
 *     *       control_4x4_virtual       *
 *     *                                 *
 *     ***********************************
@@ -5708,13 +5733,17 @@ c      end if
             
       integer ivalue
 
-      logical  control_2x2_virtual,control_4x4_virtual
-      external control_2x2_virtual,control_4x4_virtual
+      logical  control_2x2_virtual,control_3x3_virtual
+      external control_2x2_virtual,control_3x3_virtual
+      logical  control_4x4_virtual
+      external control_4x4_virtual
       
       ivalue = 0
       if (.not.btdb_get(rtdb,'nwpw:CI_virtual',mt_int,1,ivalue)) then
          if (control_2x2_virtual()) then
             ivalue = 2
+         else if (control_3x3_virtual()) then
+            ivalue = 3
          else if (control_4x4_virtual()) then
             ivalue = 4
          end if
