@@ -1857,7 +1857,6 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
 
 
 
-
 *     ***********************************
 *     *                                 *
 *     *      psi_4x4_virtual_gradient   *
@@ -1914,6 +1913,8 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       real*8   lattice_omega
       external lattice_omega
 
+      write(*,*) "ENTER 4x4 GRADIENT"
+
       !*** generate psie_r ****
       call Pack_c_Copy(1,psie,psie_r)
       call Pack_c_unpack(1,psie_r)
@@ -1953,13 +1954,6 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       H1ab =  H1gg + H1ee
       H1bb =  H1gg + H1ee
       if (ispin.eq.1) then
-         H1ga =  H1ge
-         H1gb = -H1ge
-         H1ea =  H1ge
-         H1eb = -H1ge
-         H1aa =  H1gg + H1ee
-         H1ab =  H1gg + H1ee
-         H1bb =  H1gg + H1ee
          H1gg =  H1gg + H1gg
          H1ge =  H1ge + H1ge
          H1ee =  H1ee + H1ee
@@ -1969,14 +1963,15 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
 
 *     **** apply H2 operator ****
       call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rhogg)
-      call pspw_et_gen_rho(ispin,neq,n2ft3d,psie_r,rhoee)
-      call pspw_et_gen_rho12(ispin,neq,n2ft3d,psig_r,psie_r,rhoge)
-
       call coulomb2_v(rhogg,vcgg)
+      call pspw_et_gen_rho(ispin,neq,n2ft3d,psie_r,rhoee)
+      call coulomb2_v(rhoee,vcee)
+      call pspw_et_gen_rho12(ispin,neq,n2ft3d,psig_r,psie_r,rhoge)
+      call coulomb2_v(rhoge,vcge)
+
       call D3dB_rr_dot(1,rhogg,vcgg,ehartr)
       H2gg = 0.5d0*(0.5d0*ehartr*dv)
 
-      call coulomb2_v(rhoge,vcge)
       call D3dB_rr_dot(1,rhoge,vcge,ehartr)
       H2ge = 0.5d0*(0.5d0*ehartr*dv)
 
@@ -1985,7 +1980,6 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       
       H2gb = -H2ga
 
-      call coulomb2_v(rhoee,vcee)
       call D3dB_rr_dot(1,rhoee,vcee,ehartr)
       H2ee = 0.5d0*(0.5d0*ehartr*dv)
 
@@ -2055,62 +2049,74 @@ c     write(*,*) ciE(1),ciE(2),ciE(3),ciE(4)
       c4 = Hci(4,1)
       
 *     **** generate dElow/dpsie ****
-c     call D3db_rr_Mul2(1,psig_r,vcgg)
-c     call D3dB_rr_Mul2(1,psie_r,vcee)
-c     call D3dB_rr_Mul2(1,psig_r,vcge)
+      call D3dB_r_Copy(1,vcee,vc)
+      call D3dB_rr_Mul2(1,psie_r,vc)
+      call D3dB_r_SMul1(1,(-2.0d0*c2*c2),vc)
 
-      call D3dB_r_Zero(1,vc)
-      call D3dB_r_Zero(1,vctmp)
-      call D3dB_rr_daxpy(1,psig_r,vcgg,vctmp)
+      call D3dB_r_Copy(1,vcge,vctmp)
+      call D3dB_rr_Mul2(1,psig_r,vctmp)
+      call D3dB_rr_daxpy(1,(-2.0d0*c2*c1),vctmp,vc)
 
-      call D3dB_r_Zero(1,vctmp)
-      call D3dB_rr_daxpy(1,psig_r,vcge,vctmp)
-      call D3dB_rr_daxpy(1,(-0.5d0*c1*c2),vctmp,vc)
+      call D3dB_r_Copy(1,vcge,vctmp)
+      call D3dB_rr_Mul2(1,psie_r,vctmp)
+      call D3dB_rr_daxpy(1,(-c2*c3),vctmp,vc)
 
-c     call D3dB_r_Zero(1,vctmp)
-c     call D3dB_rr_daxpy(1,psig_r,vcge,vctmp)
-      call D3dB_rr_daxpy(1,(0.25d0*c3*c4),vctmp,vc)
+      call D3dB_r_Copy(1,vcee,vctmp)
+      call D3dB_rr_Mul2(1,psig_r,vctmp)
+      call D3dB_rr_daxpy(1,(-c2*c3),vctmp,vc)
 
-      call D3dB_r_Zero(1,vctmp)
-      call D3dB_rr_daxpy(1,psig_r,vcgg,vctmp)
-      call D3dB_rr_daxpy(1,(-0.25d0*c1*c3),vctmp,vc)
+      call D3dB_r_Copy(1,vcge,vctmp)
+      call D3dB_rr_Mul2(1,psie_r,vctmp)
+      call D3dB_rr_daxpy(1,(c2*c4),vctmp,vc)
 
-c     call D3dB_r_Zero(1,vctmp)
-c     call D3dB_rr_daxpy(1,psig_r,vcgg,vctmp)
-      call D3dB_rr_daxpy(1,(0.25d0*c1*c4),vctmp,vc)
+      call D3dB_r_Copy(1,vcee,vctmp)
+      call D3dB_rr_Mul2(1,psig_r,vctmp)
+      call D3dB_rr_daxpy(1,(c2*c4),vctmp,vc)
 
-      call D3dB_r_Zero(1,vctmp)
-      call D3dB_rr_daxpy(1,psie_r,vcee,vctmp)
-      call D3dB_rr_daxpy(1,(-0.5d0*c2*c2),vctmp,vc) 
+      call D3dB_r_Copy(1,vcgg,vctmp)
+      call D3dB_rr_Mul2(1,psig_r,vctmp)
+      call D3dB_rr_daxpy(1,(-c3*c1),vctmp,vc)
 
-      call D3dB_r_Zero(1,vctmp)
-      call D3dB_rr_daxpy(1,psig_r,vcee,vctmp)
-      call D3dB_rr_daxpy(1,psie_r,vcge,vctmp)
-      call D3dB_rr_daxpy(1,(-0.25d0*c2*c3),vctmp,vc)
+      call D3dB_r_Copy(1,vcge,vctmp)
+      call D3dB_rr_Mul2(1,psie_r,vctmp)
+      call D3dB_rr_daxpy(1,(-c3*c2),vctmp,vc)
 
-c     call D3dB_r_Zero(1,vctmp)
-c     call D3dB_rr_daxpy(1,psie_r,vcge,vctmp)
-c     call D3dB_rr_daxpy(1,psig_r,vcee,vctmp)
-      call D3dB_rr_daxpy(1,(0.25d0*c2*c4),vctmp,vc)
+      call D3dB_r_Copy(1,vcgg,vctmp)
+      call D3dB_rr_Mul2(1,psie_r,vctmp)
+      call D3dB_rr_daxpy(1,(-c3*c3),vctmp,vc)
 
-      call D3dB_r_Zero(1,vctmp)
-      call D3dB_rr_daxpy(1,psie_r,vcgg,vctmp)
-      call D3dB_rr_daxpy(1,(-0.25d0*c3*c3),vctmp,vc)
+      call D3dB_r_Copy(1,vcge,vctmp)
+      call D3dB_rr_Mul2(1,psig_r,vctmp)
+      call D3dB_rr_daxpy(1,(c3*c4),vctmp,vc)
 
-c     call D3dB_r_Zero(1,vctmp)
-c     call D3dB_rr_daxpy(1,psie_r,vcgg,vctmp)
-      call D3dB_rr_daxpy(1,(-0.25d0*c4*c4),vctmp,vc)
+      call D3dB_r_Copy(1,vcgg,vctmp)
+      call D3dB_rr_Mul2(1,psig_r,vctmp)
+      call D3dB_rr_daxpy(1,(c4*c1),vctmp,vc)
+
+      call D3dB_r_Copy(1,vcge,vctmp)
+      call D3dB_rr_Mul2(1,psie_r,vctmp)
+      call D3dB_rr_daxpy(1,(c4*c2),vctmp,vc)
+
+      call D3dB_r_Copy(1,vcge,vctmp)
+      call D3dB_rr_Mul2(1,psig_r,vctmp)
+      call D3dB_rr_daxpy(1,(c4*c3),vctmp,vc)
+
+      call D3dB_r_Copy(1,vcgg,vctmp)
+      call D3dB_rr_Mul2(1,psie_r,vctmp)
+      call D3dB_rr_daxpy(1,(-c4*c4),vctmp,vc)
 
       call D3dB_rc_fft3f(1,vc)
       call Pack_c_pack(1,vc)
       call Pack_c_SMul(1,scal1,vc,dEdpsie)
-      call Pack_cc_daxpy(1, c1*c3,h1psig,dEdpsie)
-      call Pack_cc_daxpy(1,-c1*c4,h1psig,dEdpsie)
-      call Pack_cc_daxpy(1, c2*c2,h1psie,dEdpsie)
-      call Pack_cc_daxpy(1, c2*c3,h1psig,dEdpsie)
-      call Pack_cc_daxpy(1,-c2*c4,h1psig,dEdpsie)
-      call Pack_cc_daxpy(1, c3*c3,h1psie,dEdpsie)
-      call Pack_cc_daxpy(1, c4*c4,h1psie,dEdpsie)
+
+      call Pack_cc_daxpy(1, 4.0d0*c2*c2,h1psie,dEdpsie)
+      call Pack_cc_daxpy(1, 2.0d0*c2*c3,h1psig,dEdpsie)
+      call Pack_cc_daxpy(1,-2.0d0*c2*c4,h1psig,dEdpsie)
+      call Pack_cc_daxpy(1, 2.0d0*c3*c1,h1psig,dEdpsie)
+      call Pack_cc_daxpy(1, 2.0d0*c3*c3,h1psie,dEdpsie)
+      call Pack_cc_daxpy(1,-2.0d0*c4*c1,h1psig,dEdpsie)
+      call Pack_cc_daxpy(1, 2.0d0*c4*c4,h1psie,dEdpsie)
+
       E = ciE(1)
 
       return
