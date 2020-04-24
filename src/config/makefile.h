@@ -109,7 +109,7 @@ endif
           $(error )
        endif
 #check peigs interface       
-       GA_HAS_PEIGS = $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --enable-peigs | awk '/yes/ {print "Y"}')
+       GA_HAS_PEIGS = $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --use_peigs | awk '/1/ {print "Y"}')
        GA_HAS_SCALAPACK = $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --use_scalapack | awk '/1/ {print "Y"}')
        ifneq ($(GA_HAS_PEIGS),Y)
        ifneq ($(GA_HAS_SCALAPACK),Y)
