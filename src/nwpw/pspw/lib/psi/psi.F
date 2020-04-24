@@ -1070,7 +1070,8 @@ c     >           dcpl_mb(psi1(1)),1)
      >                                 dbl_mb(vcee(1)))
          end if
 
-         if (oprint) write(*,*) "it,eci,eold=",it,eci,eold,eci-eold
+         if (oprint) 
+     >   write(*,*) "orb,it,eci,eold=",ii,it,eci,eold,eci-eold
 
          !*** project out to lower orbitals  ****
          call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(r1(1)))
@@ -1132,7 +1133,7 @@ c         end if
      >           .or.
      >           (dabs(eci-eold).lt.maxerror))
 
-         write(*,*) "done=",done,it,maxiteration,dabs(eci-eold),maxerror
+         !write(*,*) "done=",done,it,maxiteration,dabs(eci-eold),maxerror
 
          if (done) go to 4
       go to 2
@@ -1249,9 +1250,9 @@ c         end if
 
       theta0 = 0.0d0
       iteration = 0
-      write(*,*) 
-      write(*,*) "e0,de0, <psi|t> =",e0,de0,tnorm
-      write(*,*) "start line search:"
+      !write(*,*) 
+      !write(*,*) "e0,de0, <psi|t> =",e0,de0,tnorm
+      !write(*,*) "start line search:"
       emin = e0
       demin = de0
       dtheta = (2.0d0*pi/100.0d0)/99.0
@@ -1297,7 +1298,7 @@ c         end if
       call Pack_cc_dot(1,dcpl_mb(orb(1)),dcpl_mb(g(1)),de1a)
       call Pack_cc_dot(1,t,              dcpl_mb(g(1)),de1b)
       de1 = y*de1a - x*de1b
-      write(*,*) "theta,e0,e1,de0,de1 = ",iteration,theta,e0,e1,de0,de1
+      !write(*,*) "theta,e0,e1,de0,de1 = ",iteration,theta,e0,e1,de0,de1
 
       if (e1.lt.emin) then
          emin  = e1
@@ -1361,8 +1362,8 @@ cccccc 20   theta = 0.5d0*(theta0+theta1)
       de1 = y*de1a - x*de1b
       !dtheta =  -de0*(theta-theta0)/(demid-de0)
 
-      write(*,*) "theta,e0,e1,(e1-e0)=",iteration,theta,e0,e1,e1-e0
-      write(*,*) "            de0,de1=",de0,de1
+      !write(*,*) "theta,e0,e1,(e1-e0)=",iteration,theta,e0,e1,e1-e0
+      !write(*,*) "            de0,de1=",de0,de1
       if (e1.lt.emin) then
          emin  = e1
          demin = de1
@@ -1423,10 +1424,10 @@ c         ea = eb
 c         eb = e1
 c      end do
 c      theta = theta_min
-      write(*,*) ":end line search"
-      write(*,*)
-      write(*,*) "theta_min,emin,demin = ",theta_min,emin,demin
-      write(*,*)
+      !write(*,*) ":end line search"
+      !write(*,*)
+      !write(*,*) "theta_min,emin,demin = ",theta_min,emin,demin
+      !write(*,*)
 
 c*     **** compute de/dtheta = -sin(theta)*<orb|g> + cos(theta)*<t|g> ****
 c      call Pack_cc_dot(1,dcpl_mb(orb(1)),dcpl_mb(g(1)),de1a)
@@ -1535,7 +1536,7 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       real*8   lattice_omega
       external lattice_omega
 
-      write(*,*) "ENTER 2x2 GRADIENT"
+      !write(*,*) "ENTER 2x2 GRADIENT"
       oprint = .false.
 
       !*** generate psie_r ****
@@ -1556,7 +1557,7 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       call Pack_cc_dot(1,psig,psig,Sgg)
       call Pack_cc_dot(1,psig,psie,Sge)
       call Pack_cc_dot(1,psie,psie,See)
-      if (oprint) write(*,*) "Sgg=",Sgg," Sge=",Sge," See=",See
+      !if (oprint) write(*,*) "Sgg=",Sgg," Sge=",Sge," See=",See
 
 *     **** apply H1 operator ****
       call  psi_H1psi(ispin,neq,npack1,n2ft3d,psig,psig_r,dEdpsie)
@@ -1574,7 +1575,7 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
          H1ee = H1ee + H1ee
       end if
       H1ge = H1ge*Sge
-      if (oprint) write(*,*) "H1gg=",H1gg," H1ge=",H1ge," H1ee=",H1ee
+      !if (oprint) write(*,*) "H1gg=",H1gg," H1ge=",H1ge," H1ee=",H1ee
 
 *     **** apply H2 operator  - note rho = 2*psi*psi ****
       call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rho)
@@ -1593,7 +1594,7 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       call D3dB_rr_dot(1,rho,vcge,ehartr)
       H2ge = 0.5d0*(0.5d0*ehartr*dv)
       
-      if (oprint) write(*,*) "H2gg=",H2gg," H2ge=",H2ge," H2ee=",H2ee
+      !if (oprint) write(*,*) "H2gg=",H2gg," H2ge=",H2ge," H2ee=",H2ee
 
 *     **** generate and diagonalize 2x2 CI matrix ****
       Hgg = H1gg + H2gg
@@ -1608,7 +1609,7 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       c1 =  1.0d0/dsqrt(1.0d0+lmbda**2)
       !c2 =  dsqrt(1.0d0-c1*c1)
       c2 =  lmbda/dsqrt(1.0d0+lmbda**2)
-      if (oprint) write(*,*) "Elow=",Elow," Ehigh=",Ehigh
+      !if (oprint) write(*,*) "Elow=",Elow," Ehigh=",Ehigh
 
 *     **** generate dElow/dpsie ****
       call D3dB_rr_Mul2(1,psie_r,vcee)
@@ -1625,7 +1626,7 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       call Pack_cc_daxpy(1,2.0d0*c2*c2,h1psie,dEdpsie)
       !call Pack_cc_daxpy(1,2.0d0*c2*c2,h1psie,dEdpsie)
       E = Elow
-      if (oprint) write(*,*) "c1,c2=",c1,c2
+      !if (oprint) write(*,*) "c1,c2=",c1,c2
 
       return
       end
@@ -1689,7 +1690,7 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       external lattice_omega
 
 
-      write(*,*) "ENTER 3x3 GRADIENT"
+      !write(*,*) "ENTER 3x3 GRADIENT"
       oprint = .false.
 
       !*** generate psie_r ****
@@ -1710,7 +1711,7 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       call Pack_cc_dot(1,psig,psig,Sgg)
       call Pack_cc_dot(1,psig,psie,Sge)
       call Pack_cc_dot(1,psie,psie,See)
-      if (oprint) write(*,*) "Sgg=",Sgg," Sge=",Sge," See=",See
+      !if (oprint) write(*,*) "Sgg=",Sgg," Sge=",Sge," See=",See
 
 
 *     **** apply H1 operator ****
@@ -1737,7 +1738,7 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       end if
       H1ge = H1ge*Sge
       H1eg = H1eg*Sge
-      if (oprint) write(*,*) "H1gg=",H1gg," H1ge=",H1ge," H1ee=",H1ee
+      !if (oprint) write(*,*) "H1gg=",H1gg," H1ge=",H1ge," H1ee=",H1ee
 
 *     **** apply H2 operator ****
 
@@ -1775,7 +1776,7 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       call D3dB_rr_dot(1,rhogg,vcee,ehartr)
       H2mm = 0.5d0*(0.5d0*ehartr*dv)
       H2mm = H2mm + H2ge
-      if (oprint) write(*,*) "H2gg=",H2gg," H2ge=",H2ge," H2ee=",H2ee
+      !if (oprint) write(*,*) "H2gg=",H2gg," H2ge=",H2ge," H2ee=",H2ee
 
 
 *     **** generate and diagonalize 2x2 CI matrix ****
@@ -1850,7 +1851,7 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       call Pack_cc_daxpy(1,2.0d0*c3*c3,h1psie,dEdpsie)
 
       E = Eci(1)
-      if (oprint) write(*,*) "c1,c2=",c1,c2
+      !if (oprint) write(*,*) "c1,c2=",c1,c2
 
       return
       end
@@ -1913,7 +1914,7 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       real*8   lattice_omega
       external lattice_omega
 
-      write(*,*) "ENTER 4x4 GRADIENT"
+      !write(*,*) "ENTER 4x4 GRADIENT"
 
       !*** generate psie_r ****
       call Pack_c_Copy(1,psie,psie_r)
