@@ -89,10 +89,10 @@ c
 *     *                                                    *
 *     ******************************************************
 *
-*     Calculates the two electron two center Gaussian integral
+*     Calculates the two electron two center Gaussian integral and it's derivative wrt to Rab
 *
 *                                            //
-*    WGaussian(la,ma,sa,lb,Ra,mb,sb,Rb)   =  || g(la,ma,sa;r-Ra) * g(lb,mb,sb;r'-Rb)  
+*   dWGaussian(la,ma,sa,lb,Ra,mb,sb,Rb)   =  || g(la,ma,sa;r-Ra) * g(lb,mb,sb;r'-Rb)  
 *                                            || ------------------------------------  dr dr'
 *                                            //                |r-r'|
 *
@@ -200,6 +200,9 @@ c
 *            | g(l,m,s;r) * |r|**l *Tlm(rhat) dr = 1
 *            /
 *
+*
+*   Note - this routine is equivalent to find_self_energy_coeff in the paw code
+*
       real*8 function nwpw_UGaussian(la,ma,sa,lb,mb,sb)
       implicit none
       integer la,ma,lb,mb
@@ -226,3 +229,206 @@ c
       return
       end 
 
+
+
+
+*************************** complex versions ***********************************
+
+
+*     ******************************************************
+*     *                                                    *
+*     *             nwpw_CWGaussian                        *
+*     *                                                    *
+*     ******************************************************
+*
+*     Calculates the two electron two center Gaussian integral
+*
+*                                             //
+*    CWGaussian(la,ma,sa,lb,Ra,mb,sb,Rb)   =  || g(la,ma,sa;r-Ra) * g(lb,mb,sb;r'-Rb)  
+*                                             || ------------------------------------  dr dr'
+*                                             //                |r-r'|
+*
+*     where g(l,m,s; r) = C_l * |r|**l * exp(-(r/s)**2) * Ylm(rhat) 
+*
+*          and C_l = 2**(l+2) / (sqrt(pi) (2*l+1)!! s**(2*l+3) )
+*           
+*     The normalization constant C_l is defined such at
+*            /
+*            | g(l,m,s;r) * |r|**l *conjg(Ylm(rhat)) dr = 1
+*            /
+*
+      complex*16 function nwpw_CWGaussian(la,ma,sa,lb,mb,sb,Rab)
+      implicit none
+      integer la,ma,lb,mb
+      real*8  sa,sb,Rab(3)
+ 
+*     *** local variables ***
+      integer l,m,fac,fac2
+      real*8 c,x,y,pi,alpha
+      real*8 cos_theta,phi,R
+      complex*16 mtmp,tmp
+
+*     **** external functions ****
+      integer  nwpw_doublefactorial
+      external nwpw_doublefactorial
+      real*8   nwpw_gaunt,nwpw_GaussBessel
+      external nwpw_gaunt,nwpw_GaussBessel
+      complex*16 Yspherical_lm
+      external   Yspherical_lm
+      real*8   nwpw_gaunt_sub,gen_gaunt_coeff_sub
+      external nwpw_gaunt_sub,gen_gaunt_coeff_sub
+
+
+      call nwpw_timing_start(49)
+      pi = 4.0d0*datan(1.0d0)
+      x = dble(nwpw_doublefactorial(2*la+1))
+      y = dble(nwpw_doublefactorial(2*lb+1))
+      alpha = dsqrt(0.25d0*(sa*sa + sb*sb))
+      R = dsqrt(Rab(1)*Rab(1) + Rab(2)*Rab(2) + Rab(3)*Rab(3))
+      cos_theta = Rab(3)/R
+
+      if ((dabs(Rab(2)).lt.1.0d-9).and.(dabs(Rab(1)).lt.1.0d-9)) then
+         phi = 0.0d0
+      else
+         phi = datan2(Rab(2),Rab(1))
+      end if
+
+      if (mod(2*la+lb,2).eq.1) then 
+         c = -32.0d0*pi/(x*y)
+      else
+         c = 32.0d0*pi/(x*y)
+      end if
+
+      !phase_factor = (-1)**(m1+l1)/sigma**(l1+l2+1)
+      !if (mod((abs(la-lb)+la+lb)/2,2).eq.1) then 
+      !if (mod(lb+mb,2).eq.1) then 
+
+      
+      !if (mod(lb+mb+(abs(la-lb)+la+lb)/2,2).eq.1) then 
+      if (mod(mb+(abs(la-lb)+la+lb)/2,2).eq.1) then 
+         fac = -1
+      else
+         fac = 1
+      end if
+      
+      m = ma + mb
+      tmp = 0.0d0
+      do l = abs(la-lb), (la+lb), 2
+         if (abs(m).le.l) then
+c            write(*,*) "l,m=",l,m,la,ma,lb,mb,
+c     >                 nwpw_gaunt(.true.,l,m,la,ma,lb,-mb),
+c     >                 nwpw_gaunt_sub(.true.,l,m,la,ma,lb,-mb),
+c     >                 gen_gaunt_coeff_sub(l,m,la,ma,lb,-mb)
+            mtmp = nwpw_gaunt(.true.,l,m,la,ma,lb,-mb)
+     >            *YSpherical_lm(l,m,cos_theta,phi)
+            tmp = tmp + fac * mtmp * nwpw_GaussBessel(la+lb,l,alpha,R)
+         end if
+         fac = -fac
+      end do
+      call nwpw_timing_end(49)
+
+      nwpw_CWGaussian = c * tmp
+      return
+      end 
+
+
+*     ******************************************************
+*     *                                                    *
+*     *             nwpw_dCWGaussian                       *
+*     *                                                    *
+*     ******************************************************
+*
+*     Calculates the two electron two center Gaussian integral and it's derivative wrt to Rab
+*
+*                                             //
+*   dCWGaussian(la,ma,sa,lb,Ra,mb,sb,Rb)   =  || g(la,ma,sa;r-Ra) * g(lb,mb,sb;r'-Rb)  
+*                                             || ------------------------------------  dr dr'
+*                                             //                |r-r'|
+*
+*     where g(l,m,s; r) = C_l * |r|**l * exp(-(r/s)**2) * Ylm(rhat) 
+*
+*          and C_l = 2**(l+2) / (sqrt(pi) (2*l+1)!! s**(2*l+3) )
+*           
+*     The normalization constant C_l is defined such at
+*            /
+*            | g(l,m,s;r) * |r|**l * congj(Ylm(rhat)) dr = 1
+*            /
+*
+      subroutine nwpw_dCWGaussian(la,ma,sa,lb,mb,sb,Rab,W,dW)
+      implicit none
+      integer la,ma,lb,mb
+      real*8  sa,sb,Rab(3)
+      complex*16  W,dW(3)
+ 
+*     *** local variables ***
+      integer l,m,fac
+      real*8 c,x,y,pi,alpha
+      real*8 cos_theta,phi,R,gg1,gg2,gg3
+      complex*16 mtmp,mtmpx,mtmpy,mtmpz,Tx,Ty,Tz
+
+*     **** external functions ****
+      integer  nwpw_doublefactorial
+      external nwpw_doublefactorial
+      real*8   nwpw_gaunt,nwpw_GaussBessel,nwpw_dGaussBessel
+      external nwpw_gaunt,nwpw_GaussBessel,nwpw_dGaussBessel
+      complex*16 Yspherical_lm
+      external   Yspherical_lm
+
+      call nwpw_timing_start(55)
+      pi = 4.0d0*datan(1.0d0)
+      x = dble(nwpw_doublefactorial(2*la+1))
+      y = dble(nwpw_doublefactorial(2*lb+1))
+      alpha = dsqrt(0.25d0*(sa*sa + sb*sb))
+
+      R = dsqrt(Rab(1)*Rab(1) + Rab(2)*Rab(2) + Rab(3)*Rab(3))
+      cos_theta = Rab(3)/R
+      phi       = datan2(Rab(2),Rab(1))
+
+      if (mod(2*la+lb,2).eq.1) then 
+         c = -32.0d0*pi/(x*y)
+      else
+         c = 32.0d0*pi/(x*y)
+      end if
+
+      !if (mod((abs(la-lb)+la+lb)/2,2).eq.1) then 
+      !if (mod(lb+mb,2).eq.1) then 
+
+      if (mod(mb+(abs(la-lb)+la+lb)/2,2).eq.1) then 
+         fac = -1
+      else
+         fac = 1
+      end if
+      
+      W = dcmplx(0.0d0,0.0d0)
+      dW(1) = dcmplx(0.0d0,0.0d0)
+      dW(2) = dcmplx(0.0d0,0.0d0)
+      dW(3) = dcmplx(0.0d0,0.0d0)
+      m = ma + mb
+      do l = abs(la-lb), (la+lb), 2
+         if (abs(m).le.l) then
+            gg1 = nwpw_gaunt(.true.,l,m,la,ma,lb,-mb)
+            call dYspherical_lm(l,m,cos_theta,phi,Tx,Ty,Tz)
+            mtmp  = gg1*Yspherical_lm(l,m,cos_theta,phi)
+            mtmpx = gg1*Tx
+            mtmpy = gg1*Ty
+            mtmpz = gg1*Tz
+            gg2 = nwpw_GaussBessel(la+lb,l,alpha,R)
+            gg3 = nwpw_dGaussBessel(la+lb,l,alpha,R)
+            W     = W     + fac*(mtmp*gg2)
+            dW(1) = dW(1) + fac*(mtmpx*gg2 + mtmp*(Rab(1)/R)*gg3)
+            dW(2) = dW(2) + fac*(mtmpy*gg2 + mtmp*(Rab(2)/R)*gg3)
+            dW(3) = dW(3) + fac*(mtmpz*gg2 + mtmp*(Rab(3)/R)*gg3)
+         end if
+         fac = -fac
+      end do
+      W = W*c
+      dW(1) = dW(1)*c
+      dW(2) = dW(2)*c
+      dW(3) = dW(3)*c
+      call nwpw_timing_end(55)
+
+      return
+      end 
+
+
+*************************** complex versions ***********************************

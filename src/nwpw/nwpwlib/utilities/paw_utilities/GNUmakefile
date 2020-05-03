@@ -11,13 +11,13 @@
 		nwpw_SpecialKummer.o \
 		nwpw_GaussBessel.o \
 		nwpw_WGaussian.o \
-		nwpw_gauss_weights.o
+		nwpw_gauss_weights.o 
 
 	  OBJ = 
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = nwpw_gaunt.F nwpw_compcharge.F nwpw_xc.F nwpw_compcharge2.F
+    USES_BLAS = nwpw_gaunt.F nwpw_compcharge.F nwpw_xc.F nwpw_compcharge2.F 
 
   LIB_DEFINES = 
 
