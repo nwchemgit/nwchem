@@ -44,16 +44,19 @@ c
 
 *     **** external functions ****
       logical  control_Mulliken,control_print
-      logical  nwpw_born_on,nwpw_cosmo2_on
+      logical  nwpw_born_on,nwpw_cosmo2_on,nwpw_cdft_on
       integer  ion_nion_qm,G_indx
       real*8   lattice_omega
       external control_Mulliken,control_print
-      external nwpw_born_on,nwpw_cosmo2_on
+      external nwpw_born_on,nwpw_cosmo2_on,nwpw_cdft_on
       external ion_nion_qm,G_indx
       external lattice_omega
 
       if (.not.btdb_get(rtdb,'nwpw:APC',mt_log,1,doapc))
-     >  doapc = control_Mulliken().or.nwpw_born_on().or.nwpw_cosmo2_on()
+     >  doapc = control_Mulliken().or.
+     >          nwpw_born_on().or.
+     >          nwpw_cosmo2_on().or.
+     >          nwpw_cdft_on()
 
 *     **** read in nga from rtdb ***
       value = btdb_get(rtdb,'nwpw_APC:nga',mt_int,1,nga)
@@ -902,7 +905,7 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
 *     ***********************************
 *     *                                 *
-*     *         pspw_born_V_APC        *
+*     *         pspw_born_V_APC         *
 *     *                                 *
 *     ***********************************
 *
@@ -922,6 +925,9 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       call pspw_born_V0_APC(vborn)
       return
       end 
+
+
+
 
 
 
