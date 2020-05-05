@@ -642,8 +642,9 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
             u(i) = u(i) - (sumAmU/SumAm)
          end do
 
+
 *        ***** calculate VQ(G) ****
-         !call Parallel_shared_vector_zero(.true.,2*npack0,VQ)
+         !***call Parallel_shared_vector_zero(.true.,2*npack0,VQ)
          do ii=1,nion
 
 *           **** structure factor  ****
@@ -672,6 +673,7 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
          value = value.and.BA_pop_stack(exi(2))
          if (.not. value) 
      >      call errquit('pspw_VQ_APC:pop stack',0,MA_ERR)
+
 
       end if
       return
@@ -925,6 +927,123 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       call pspw_born_V0_APC(vborn)
       return
       end 
+
+
+*     ***********************************
+*     *                                 *
+*     *         pspw_cdft_V_APC         *
+*     *                                 *
+*     ***********************************
+*
+      subroutine pspw_cdft_V_APC(ispin,ne,dng,vcdft)
+      implicit none
+      integer ispin,ne(2)
+      complex*16 dng(*), vcdft(*)
+
+#include "bafdecls.fh"
+#include "pspw_APC.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+      integer taskid,np,tid,nthreads
+      integer nion,i,k,ii
+      integer u(2)
+
+*     **** external functions ****
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
+      integer  nwpw_cdft_u_ptr,nwpw_cdft_q_ptr
+      external nwpw_cdft_u_ptr,nwpw_cdft_q_ptr
+      integer  ion_nion,ion_katm_qm
+      external ion_nion,ion_katm_qm
+      real*8   pspw_getQtot_APC,psp_zv,nwpw_cdft_energy
+      external pspw_getQtot_APC,psp_zv,nwpw_cdft_energy
+
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+      tid = Parallel_threadid()
+      nthreads = Parallel_nthreads()
+      nion     = ion_nion()
+
+*     **** get memory from stack ****
+      value = BA_push_get(mt_dbl,ngs,'u',u(2),u(1))
+      if (.not.value)
+     >   call errquit('pspw_cdft_V_APC:push stack',0, MA_ERR)
+
+      call Parallel_shared_vector_zero(.true.,ngs,dbl_mb(u(1)))
+      do ii=tid+1,nion,nthreads
+         do k=1,nga
+            dbl_mb(u(1)+(ii-1)*nga+k-1) = dbl_mb(u(1)+(ii-1)*nga+k-1)
+     >                                  + dbl_mb(nwpw_cdft_u_ptr()+ii-1)
+         end do
+      end do
+
+*     **** generate APC charges ****
+      call pspw_gen_APC(ispin,ne,dng)
+      do ii=1,nion
+         dbl_mb(nwpw_cdft_q_ptr()+ii-1) = pspw_getQtot_APC(ii) 
+     >                                  + psp_zv(ion_katm_qm(ii))
+      end do
+      write(*,*) "ECDFT = ",nwpw_cdft_energy()
+
+
+*     **** generate APC potential ****
+      call pspw_VQ_APC(nion,dbl_mb(u(1)),vcdft)
+
+
+*     **** pop stack ****
+      value = BA_pop_stack(u(2))
+      if (.not.value)
+     >   call errquit('pspw_cdft_V_APC:pop stack',0, MA_ERR)
+
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *		pspw_V_APC_on	        *
+*     *					*
+*     ***********************************
+      logical function pspw_V_APC_on()
+      implicit none
+
+*     **** external functions ****
+      logical  nwpw_cosmo2_on,nwpw_born_on,nwpw_cdft_on
+      external nwpw_cosmo2_on,nwpw_born_on,nwpw_cdft_on
+
+      pspw_V_APC_on =  nwpw_cosmo2_on().or.
+     >                 nwpw_born_on().or.
+     >                 nwpw_cdft_on()
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *		pspw_V_APC	        *
+*     *					*
+*     ***********************************
+      subroutine pspw_V_APC(ispin,ne,dng,vapc)
+      implicit none
+      integer ispin,ne(2)
+      complex*16 dng(*), vapc(*)
+      
+*     **** external functions ****
+      logical  nwpw_cosmo2_on,nwpw_born_on,nwpw_cdft_on
+      external nwpw_cosmo2_on,nwpw_born_on,nwpw_cdft_on
+
+      if (nwpw_cosmo2_on()) then
+         call pspw_cosmo_V_APC(ispin,ne,dng,vapc)
+      else if (nwpw_born_on()) then
+         call pspw_born_V_APC(ispin,ne,dng,vapc)
+      else if (nwpw_cdft_on()) then
+         call pspw_cdft_V_APC(ispin,ne,dng,vapc)
+      end if
+
+      return
+      end
 
 
 
