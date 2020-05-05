@@ -1165,7 +1165,7 @@ c         end if
       if (oprint) then
          write(luout,921) ii,-e0,eci,dabs(eci-eold),it,pit,ep,sp
   921 format(5x,"orbital",I4," current e=",E14.6,
-     >       " (eci=",E14.6,
+     >       " (eci=",E17.9,
      >       " error=",E9.3,")",
      >       " iterations",I4,"(",I4,
      >       " preconditioned, Ep,Sp=",F5.1,F7.1,")")
