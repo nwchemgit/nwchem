@@ -164,6 +164,44 @@ c     *** Clean up cdft stuff, if necessary ***
 
 *     *******************************************
 *     *                                         *
+*     *              nwpw_cdft_u_ptr            *
+*     *                                         *
+*     *******************************************
+      integer function nwpw_cdft_u_ptr()
+      implicit none
+
+*     **** nwpw_cdft common blocks ****
+      logical cdft_on
+      integer ucdft(2),qcdft(2),rtdb
+      real*8  dielec
+      common /nwpw_cdft_blk/ ucdft,qcdft,dielec,rtdb,cdft_on
+
+      nwpw_cdft_u_ptr = ucdft(1)
+      return
+      end 
+
+
+*     *******************************************
+*     *                                         *
+*     *              nwpw_cdft_q_ptr            *
+*     *                                         *
+*     *******************************************
+      integer function nwpw_cdft_q_ptr()
+      implicit none
+
+*     **** nwpw_cdft common blocks ****
+      logical cdft_on
+      integer ucdft(2),qcdft(2),rtdb
+      real*8  dielec
+      common /nwpw_cdft_blk/ ucdft,qcdft,dielec,rtdb,cdft_on
+
+      nwpw_cdft_q_ptr = qcdft(1)
+      return
+      end 
+
+
+*     *******************************************
+*     *                                         *
 *     *            nwpw_cdft_print              *
 *     *                                         *
 *     *******************************************
@@ -197,8 +235,8 @@ c     *** Clean up cdft stuff, if necessary ***
       external    ion_nion,ion_katm,ion_rion_ptr
       integer     ion_katm_qm
       external    ion_katm_qm
-      real*8      nwpw_cdft_energy,psp_zv
-      external    nwpw_cdft_energy,psp_zv
+      real*8      nwpw_cdft_energy0,psp_zv
+      external    nwpw_cdft_energy0,psp_zv
       integer     Parallel_threadid
       external    Parallel_threadid
       logical     control_print
@@ -221,10 +259,9 @@ c     *** Clean up cdft stuff, if necessary ***
             dbl_mb(qcdft(1)+ii-1) = psp_zv(ion_katm(ii))
          end do
 
-         Gsolv = nwpw_cdft_energy(nion,
-     >                            dbl_mb(ion_rion_ptr()),
-     >                            dbl_mb(ucdft(1)),
-     >                            dbl_mb(qcdft(1)),dielec)
+         Gsolv = nwpw_cdft_energy0(nion,
+     >                             dbl_mb(ucdft(1)),
+     >                             dbl_mb(qcdft(1)))
 
          if (oprint) then
             write(luout,*)
@@ -246,7 +283,7 @@ c     *** Clean up cdft stuff, if necessary ***
 
       end if
 
-  101 format(2x,"Generalized Born radius ",A4," - u(",I1,") = ",F8.3,
+  101 format(2x,"CDFT Potential ",A4," - u(",I1,") = ",F8.3,
      >       " Hartrees - atom charge = ",F8.3)
   102 format(2x,"Gsolvation(Born) = ",E14.6," (",F8.3," kcal/mol)")
       return
@@ -255,14 +292,13 @@ c     *** Clean up cdft stuff, if necessary ***
 
 *     *******************************************
 *     *                                         *
-*     *            nwpw_cdft_energy             *
+*     *            nwpw_cdft_energy0            *
 *     *                                         *
 *     *******************************************
-      real*8 function nwpw_cdft_energy(nion,rion,u,q,dielec)
+      real*8 function nwpw_cdft_energy0(nion,u,q)
       implicit none
       integer nion
-      real*8  rion(3,nion),u(nion),q(nion)
-      real*8  dielec
+      real*8  u(nion),q(nion)
 
 *     **** local variables ****
       integer MASTER,taskid,np
@@ -273,11 +309,42 @@ c     *** Clean up cdft stuff, if necessary ***
 !$OMP MASTER
       Gsolv = 0.0d0
       do ii=1,nion
-         Gsolv = Gsolv - q(ii)*u(ii)
+         Gsolv = Gsolv + q(ii)*u(ii)
       end do
 !$OMP END MASTER
 
-      nwpw_cdft_energy = Gsolv
+      nwpw_cdft_energy0 = Gsolv
+      return
+      end
+
+*     *******************************************
+*     *                                         *
+*     *            nwpw_cdft_energy             *
+*     *                                         *
+*     *******************************************
+      real*8 function nwpw_cdft_energy()
+      implicit none
+
+#include "bafdecls.fh"
+#include "util.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+
+*     **** nwpw_cdft common blocks ****
+      logical cdft_on
+      integer ucdft(2),qcdft(2),rtdb
+      real*8  dielec
+      common /nwpw_cdft_blk/ ucdft,qcdft,dielec,rtdb,cdft_on
+
+*     **** external functions ****
+      integer  ion_nion
+      external ion_nion
+      real*8   nwpw_cdft_energy0
+      external nwpw_cdft_energy0
+      
+      nwpw_cdft_energy = nwpw_cdft_energy0(ion_nion(),
+     >                             dbl_mb(ucdft(1)),
+     >                             dbl_mb(qcdft(1)))
       return
       end
 
