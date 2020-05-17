@@ -3532,13 +3532,13 @@ c     >                                         l2,m2,s1,Rab)
                   end if
                   pcount = pcount + 1
                   lm2 = lm2 + 1
-               end do
-               end do
+               end do !*** end m2 ***
+               end do !*** end l2 ***
             end if
 
             lm1 = lm1 + 1
-         end do
-         end do
+         end do !*** end m1***
+         end do !*** end l1***
 
 
 *        **** calculate IJ integrals ****
@@ -3878,6 +3878,19 @@ c      write(*,*)
 *     *                                                     *
 *     *******************************************************
  
+*    computes all integrals for l1,|m1|, l2,|m2|
+*    if |m1|==|m2|==0 then there is only one integrals
+*    if |m1|==0 or |m2|==0 then there are two integrals
+*    if |m1|!=0 and |m2|!=0 then there are four integrals
+*
+*   Entry - l1,mod_m1, sigma1,
+*           l2,mod_m2,sigma2
+*           Rab
+*   Exit n - number of integrals returned
+*        lm1(1:n) - lm indexes for index1
+*        lm2(1:n) - lm indexes for index2
+*        W(1:n)   - value of the integrals
+*
 
       subroutine nwpw_gintegral_block(l1,mod_m1,sigma1,l2,mod_m2,sigma2,Rab,
      >                                n,lm1,lm2,W)
