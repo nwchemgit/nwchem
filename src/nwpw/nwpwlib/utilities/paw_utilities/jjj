@@ -14,7 +14,7 @@
 #include "nwpw_compcharge.fh"
 
 *     **** local variables ****
-      integer taskid,np,pcount,gcount,nshl3d,tcount
+      integer taskid,np,pcount,gcount,nshl3d,tcount,gcount0
       integer l1,m1,l2,m2,iii,jjj,iia,jja
       integer tid,nthr
 
@@ -41,25 +41,25 @@
 
       pcount = 0
       gcount = 0
+      tcount = 0
       do iii=1,nion_paw
          iia = int_mb(katm_paw(1)+iii-1)
 
 *        **** calculate on-site integrals ****
          do l1=0,int_mb(mult_l(1)+iia-1)
-         !do m1=-l1,l1
          do m1=0,l1
             if (m1.eq.0) nn = 1
             if (m1.gt.0) nn = 2
             if (mod(pcount,np).eq.taskid) then
                tid = mod(gcount,nthr)
                int_mb(tgauss(1)+tid) = int_mb(tgauss(1)+tid) + nn
-               gcount = gcount + nn
+               tcount = tcount + nn
+               gcount = gcount + 1
             end if
             pcount = pcount + 1
 
             if (nshl3d.gt.1) then
                do l2=0,int_mb(mult_l(1)+iia-1)
-               !do m2=-l2,l2
                do m2=0,l2
                   if (m1.eq.0).and.(m2.eq.0) nn = 1
                   if (m1.eq.0).and.(m2.gt.0) nn = 2
@@ -68,7 +68,8 @@
                   if (mod(pcount,np).eq.taskid) then
                      tid = mod(gcount,nthr)
                      int_mb(tgauss(1)+tid) = int_mb(tgauss(1)+tid) + nn
-                     gcount = gcount + nn
+                     tcount = tcount + nn
+                     gcount = gcount + 1
                   end if
                   pcount = pcount + 1
                end do
@@ -92,7 +93,8 @@
                   if (mod(pcount,np).eq.taskid) then
                      tid = mod(gcount,nthr)
                      int_mb(tgauss(1)+tid) = int_mb(tgauss(1)+tid) + nn
-                     gcount = gcount + nn
+                     tcount = tcount + nn
+                     gcount = gcount + 1
                   end if
                   pcount = pcount + 1
                end do
@@ -101,8 +103,8 @@
             end do
          end do
       end do
-      ngauss_max = gcount
-      ngauss     = gcount
+      ngauss_max = tcount
+      ngauss     = tcount
 
       tcount = 0
       do l1 = 1,nthr
@@ -331,7 +333,7 @@ c               !if (dabs(e1).gt.tole) then
                 end do
 c               !end if
             end if
-            gcount = gcount + nn
+            gcount = gcount + 1
             end if
             pcount = pcount + 1
 
@@ -375,7 +377,7 @@ c               !end if
                      end do
                      !end if
                   end if
-                  gcount = gcount + nn
+                  gcount = gcount + 1
                   end if
                   pcount = pcount + 1
                end do
@@ -459,7 +461,7 @@ c               !end if
                      end do
                      !end if
                   end if
-                  gcount = gcount + nn
+                  gcount = gcount + 1
                   end if
                   pcount = pcount + 1
                end do
