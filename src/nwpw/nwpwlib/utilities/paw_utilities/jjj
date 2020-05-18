@@ -301,7 +301,6 @@ c     **** allocate temporary memory ****
 
 *        **** calculate on-site integrals ****
          do l1=0,int_mb(mult_l(1)+iia-1)
-         !do m1=-l1,l1
          do m1=0,l1
             if (m1.eq.0) nn = 1
             if (m1.gt.0) nn = 2
@@ -310,16 +309,26 @@ c     **** allocate temporary memory ****
                 W1=nwpw_UGaussian(l1,m1,s1,l1,m1,s1)
                 W2=nwpw_UGaussian(l1,m1,s1,l1,m1,sigma_smooth)
                 W4=nwpw_UGaussian(l1,m1,sigma_smooth,l1,m1,sigma_smooth)
-                e1 = 0.5d0*W1 + 0.5d0*W4 - W2
-c               !if (dabs(e1).gt.tole) then
-                inds = indx + shft
-                dbl_mb(e_tauss(1)+inds) = e1
-                int_mb(lm1_tauss(1)+inds) = (iii-1)*2*lm_size_max+lm1
-                int_mb(lm2_tauss(1)+inds) = (iii-1)*2*lm_size_max+lm1
-                int_mb(iii1_tauss(1)+inds) = iii
-                int_mb(iii2_tauss(1)+inds) = iii
+                e1(1) = 0.5d0*W1 + 0.5d0*W4 - W2
+                lm1(1) = l1*(l1+1) + m1
+                if (nn.gt.1) then
+                   W1=nwpw_UGaussian(l1,-m1,s1,l1,-m1,s1)
+                   W2=nwpw_UGaussian(l1,-m1,s1,l1,-m1,sigma_smooth)
+                   W4=nwpw_UGaussian(l1,-m1,sigma_smooth,l1,-m1,sigma_smooth)
+                   e1(2) = 0.5d0*W1 + 0.5d0*W4 - W2
+                   lm1(2) = l1*(l1+1) - m1 
+                end if
 
-                indx = indx + 1
+c               !if (dabs(e1).gt.tole) then
+                do i=1,nn
+                   inds = indx + shft
+                   dbl_mb(e_tauss(1)+inds) = e1(i)
+                   int_mb(lm1_tauss(1)+inds) = (iii-1)*2*lm_size_max+lm1(i)
+                   int_mb(lm2_tauss(1)+inds) = (iii-1)*2*lm_size_max+lm1(i)
+                   int_mb(iii1_tauss(1)+inds) = iii
+                   int_mb(iii2_tauss(1)+inds) = iii
+                   indx = indx + 1
+                end do
 c               !end if
             end if
             gcount = gcount + nn
@@ -328,7 +337,6 @@ c               !end if
 
             if (nshl3d.gt.1) then
                do l2=0,int_mb(mult_l(1)+iia-1)
-               !do m2=-l2,l2
                do m2=0,l2
                   if (m1.eq.0).and.(m2.eq.0) nn = 1
                   if (m1.eq.0).and.(m2.gt.0) nn = 2
@@ -673,7 +681,6 @@ c     **** deallocate stack memory ****
 
       return
       end
-
 
 
 *     *******************************************************
