@@ -1701,6 +1701,9 @@ endif
       ifeq ($(FC),ifort)
        _FC=ifort
       endif
+      ifeq ($(FC),ifx)
+       _FC=ifort
+      endif
      ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran6 gfortran-6 gfortran-7 gfortran7 gfortran-8 gfortran8 gfortran-9 gfortran9 gfortran-10 gfortran10 gfortran-11 gfortran-12 i686-w64-mingw32.static-gfortran))
        _FC= gfortran
      endif
@@ -1721,6 +1724,9 @@ endif
        USE_FLANG=1
       endif
       ifeq ($(CC),clang)
+       _CC=gcc
+      endif
+      ifeq ($(CC),icx)
        _CC=gcc
       endif
      ifeq ($(FC),$(findstring $(FC),xlf2008_r xlf_r xlf xlf90 xlf90_r))
@@ -1973,11 +1979,11 @@ endif
            @exit 1
        endif
        FDEBUG= -O2 -g
-       FOPTIMIZE = -O3  -unroll  -ip
+       FOPTIMIZE = -O3  -unroll
+       ifneq ($(FC),ifx)
+         FOPTIMIZE += -ip
+       endif
        FOPTIONS += -align -fpp
-           ifdef USE_OFFLOAD
-               EXPLICITF = TRUE
-           endif
            CPP=fpp -P 
            ifeq ($(_IFCV15ORNEWER), Y)
 # fpp seems to get lost with ifort 15 in the offload bit
@@ -2028,15 +2034,6 @@ endif
          LDOPTIONS += -L$(VTUNE_AMPLIFIER_XE_DIR)/lib64 
          EXTRA_LIBS += -littnotify
        endif
-       ifdef USE_OPENMP
-         ifeq ($(_IFCV15ORNEWER), Y)
-           FOPTIONS += -qno-openmp-offload
-         else
-           ifeq ($(_IFCV14), Y)
-             FOPTIONS += -no-openmp-offload
-           endif
-         endif
-       endif
        DEFINES+= -DIFCV8 -DIFCLINUX
        ifeq ($(FC),ifc)
          FOPTIONS += -quiet
@@ -2058,24 +2055,28 @@ endif
          else
 #           FOPTIMIZE += -xHost
 #crazy simd options
-	   ifeq ($(_IFCV17), Y)
-	     ifeq ($(_GOTAVX512F),Y)
-	       FOPTIMIZE += -axCORE-AVX512
-	     else ifeq ($(_GOTAVX2),Y)
-	       FOPTIMIZE += -axCORE-AVX2
-	     else ifeq ($(_GOTAVX),Y)
-	         FOPTIMIZE += -axAVX
-	     else ifeq ($(_GOTSSE42),Y)
-                FOPTIMIZE += -axSSE4.2 
+           ifneq ($(FC),ifx)
+	     ifeq ($(_IFCV17), Y)
+	       ifeq ($(_GOTAVX512F),Y)
+	         FOPTIMIZE += -axCORE-AVX512
+	       else ifeq ($(_GOTAVX2),Y)
+	         FOPTIMIZE += -axCORE-AVX2
+	       else ifeq ($(_GOTAVX),Y)
+	           FOPTIMIZE += -axAVX
+	       else ifeq ($(_GOTSSE42),Y)
+                  FOPTIMIZE += -axSSE4.2
+	       endif
 	     endif
+             FOPTIONS += -finline-limit=250
+           else
+             FOPTIONS += -what # for debugging, remove later
 	   endif
          endif
-         FOPTIONS += -finline-limit=250
        else
          ifeq ($(_GOTSSE3),Y) 
            FOPTIMIZE += -xP -no-prec-div
          else
-           FOPTIMIZE +=  -tpp7 -ip 
+           FOPTIMIZE +=  -tpp7 -ip
            FOPTIMIZE += -xW
          endif
        endif
