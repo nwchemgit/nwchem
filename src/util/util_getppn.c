@@ -2,8 +2,8 @@
 /* computes the number of processes per node a.k.a ppn 
  it is called by every process only once,
  later calls might not be collective */
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <mpi.h>
