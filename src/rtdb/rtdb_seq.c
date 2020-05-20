@@ -1,4 +1,7 @@
 /*$Id$*/
+#if defined(MACX)
+#include <stdio.h>
+#endif
 #include <stdlib.h>
 #include <sys/types.h>
 #if defined(CATAMOUNT)
