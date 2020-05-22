@@ -782,7 +782,7 @@ c      call init_paw_density(ispin,lmax)
          end if
       if (icount.lt.it_out) go to 1
       if (taskid.eq.MASTER) 
-     > write(6,*) '*** arived at the Maximum iiteration.   terminated.'
+     > write(6,*) '*** arrived at the Maximum iteration.   terminated.'
 
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
 
