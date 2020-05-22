@@ -266,7 +266,7 @@ c          **** reset minimizer if failed ****
 
       if (icount.lt.it_out) go to 2
       if (oprint) 
-     > write(luout,*) '*** arived at the Maximum iteration.  terminated'
+     >write(luout,*) '*** arrived at the Maximum iteration.  terminated'
 
 *     :::::::::::  end of electron iteration loop  :::::::::::::::::::::
 
