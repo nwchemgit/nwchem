@@ -93,11 +93,15 @@ c      if (.not.MA_Push_Get(MT_Dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
       if (.not.MA_Push_Get(MT_Dbl,nexpo,'expo',lexpo,iexpo))
 cc AJL/End
      &   call errquit('grid_setrad: cannot allocate expo',0, MA_ERR)
-
+#if 0
       if(tol_reset) call grid_rtrunc(rtdb, dbl_mb(iexpo), 
      .     llind,dbl_mb(k_2ex),dbl_mb(k_2g),int_mb(k_2l),
      &     tol_reset, range_max,check_s)
-
+#else
+      call grid_rtrunc(rtdb, dbl_mb(iexpo),
+     .     llind,dbl_mb(k_2ex),dbl_mb(k_2g),int_mb(k_2l),
+     &     .true., range_max,check_s)
+#endif
       if (.not.ma_pop_stack(lexpo))
      &   call errquit('grid_setrad: cannot pop stack expo',1, MA_ERR)
 
