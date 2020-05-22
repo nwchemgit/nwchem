@@ -730,7 +730,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
       if (icount.lt.it_out) go to 1
       if (oprint) 
      > write(luout,*) 
-     > '*** arived at the Maximum iiteration.   terminated.'
+     > '*** arrived at the Maximum iiteration.   terminated.'
 
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
 
