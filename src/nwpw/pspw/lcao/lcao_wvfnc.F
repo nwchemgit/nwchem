@@ -438,7 +438,7 @@ c        end if
 
       end do
       if ((oprint).and.(taskid.eq.MASTER))
-     > write(*,*) '*** arived at the Maximum iiteration.   terminated.'
+     > write(*,*) '*** arrived at the Maximum iteration.   terminated.'
 
  50   if ((taskid.eq.MASTER).and.oprint) call current_second(cpu4)
       if ((taskid.eq.MASTER).and.oprint) CALL nwpw_MESSAGE(3)
