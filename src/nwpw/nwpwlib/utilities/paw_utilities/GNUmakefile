@@ -5,7 +5,7 @@
  OBJ_OPTIMIZE = \
 		nwpw_gaunt.o \
 		nwpw_compcharge.o\
-		nwpw_gintegrals.o \
+		nwpw_gintegrals2.o \
 		nwpw_xc.o\
 		nwpw_vosko.o\
 		nwpw_gga.o\

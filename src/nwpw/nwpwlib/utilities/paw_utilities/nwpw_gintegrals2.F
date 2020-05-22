@@ -83,8 +83,8 @@
             jja = int_mb(katm_paw(1)+jjj-1)
 
             do l1=0,int_mb(mult_l(1)+iia-1)
-            do l2=0,int_mb(mult_l(1)+jja-1)
-               do m1=0,l1
+            do m1=0,l1
+               do l2=0,int_mb(mult_l(1)+jja-1)
                do m2=0,l2
                   if ((m1.eq.0).and.(m2.eq.0)) nn = 1
                   if ((m1.eq.0).and.(m2.gt.0)) nn = 2
@@ -105,7 +105,6 @@
       end do
       ngauss_max = tcount
       ngauss     = tcount
-
 
       tcount = 0
       do l1 = 1,nthr
@@ -291,10 +290,12 @@ c     **** allocate temporary memory ****
 !$OMP MASTER
       call dcopy(ngauss_max,0.0d0,0,dbl_mb(e_tauss(1)),1)
       call dcopy(3*ngauss_max,0.0d0,0,dbl_mb(f_tauss(1)),1)
+
       call dcopy(ngauss_max,0.0d0,0,dbl_mb(e_gauss(1)),1)
       call dcopy(3*ngauss_max,0.0d0,0,dbl_mb(f_gauss(1)),1)
 !$OMP END MASTER
 !$OMP BARRIER
+
 
       pcount = 0
       gcount = 0
@@ -370,7 +371,7 @@ c               !end if
                      end do
 
                      !if (dabs(e1).gt.tole) then
-                     do i=1,n
+                     do i=1,nn
                         inds = indx + shft
                         dbl_mb(e_tauss(1)+inds) = e1(i)
                         int_mb(lm1_tauss(1)+inds) 
@@ -392,7 +393,6 @@ c               !end if
             end if
          end do
          end do
-
 
 *        **** calculate IJ integrals ****
          ii  = int_mb(ion_pawtoion(1)+iii-1)
@@ -452,7 +452,7 @@ c               !end if
                         end if
                      end do
                      !if (dabs(e1).gt.tole) then
-                     do i=1,n
+                     do i=1,nn
                         inds = indx + shft
                         dbl_mb(e_tauss(1)+inds) = e1(i)
                         if (move) then
@@ -481,6 +481,7 @@ c               !end if
             end do
 
          end do
+
       end do
 
 !$OMP BARRIER
