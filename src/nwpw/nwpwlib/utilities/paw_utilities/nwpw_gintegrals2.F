@@ -106,6 +106,7 @@
       ngauss_max = tcount
       ngauss     = tcount
 
+
       tcount = 0
       do l1 = 1,nthr
          int_mb(tgauss_shift(1)+l1-1) = tcount
@@ -350,7 +351,9 @@ c               !end if
                   if ((m1.gt.0).and.(m2.gt.0)) nn = 4
                   if (mod(pcount,np).eq.taskid) then
                   if (mod(gcount,nthr).eq.tid) then
-                     e1 = 0.0d0
+                     do i=1,4
+                        e1(i) = 0.0d0
+                     end do
                      do l=2,nshl3d
                         Rab(1) = dbl_mb(rcell+l-1)
                         Rab(2) = dbl_mb(rcell+l-1+nshl3d)
@@ -361,7 +364,7 @@ c               !end if
      >                                               sigma_smooth,Rab,
      >                                               n,lm1,lm2,W)
                            do i=1,n
-                              e1(i) = e1(i) + W(i)
+                              e1(i) = e1(i) + 0.5d0*W(i)
                            end do
                         end if
                      end do
@@ -543,12 +546,13 @@ c     **** deallocate stack memory ****
       real*8  W(*)
 
 *     **** local variables ****
+      real*8 W4
       complex*16 CW4,CW4p,CW4m,CW4pp,CW4pm,CW4mp,CW4mm
 
 
 *     **** external functions ****
-      complex*16 nwpw_CWGaussian
-      external   nwpw_CWGaussian
+      complex*16 nwpw_CWGaussian,nwpw_WGaussian
+      external   nwpw_CWGaussian,nwpw_WGaussian
       
       if ((mod_m1.eq.0).and.(mod_m2.eq.0)) then
          n  = 1
@@ -689,6 +693,12 @@ c     **** deallocate stack memory ****
      >          + (-1.0d0)**mod_m2      * CW4mp)/2.0d0
          W(4) = dble(CW4)
 
+         W4 =nwpw_WGaussian(l1,mod_m1,sigma1,l2,mod_m2,sigma2,Rab)
+     >  - nwpw_WGaussian(l1,mod_m1,sigma1,l2,mod_m2,sigma_smooth,Rab)
+     >  - nwpw_WGaussian(l1,mod_m1,sigma_smooth,l2,mod_m2,sigma2,Rab)
+     >  + nwpw_WGaussian(l1,mod_m1,sigma_smooth,
+     >                   l2,mod_m2,sigma_smooth,Rab)
+
       end if
 
       return
@@ -763,8 +773,8 @@ c     **** deallocate stack memory ****
 
 
          W(1) = dble(CW4)
-         dW(1,1) = dble(dCW4(3))
-         dW(2,1) = dble(dCW4(3))
+         dW(1,1) = dble(dCW4(1))
+         dW(2,1) = dble(dCW4(2))
          dW(3,1) = dble(dCW4(3))
 
       else if (mod_m1.eq.0) then
@@ -776,7 +786,7 @@ c     **** deallocate stack memory ****
          lm2(2) = l2*(l2+1) + mod_m2
 
          call nwpw_dCWGaussian(l1,mod_m1,sigma1,
-     >                        l2,mod_m2,sigma2,
+     >                         l2,mod_m2,sigma2,
      >                        Rab,etmp,detmp)
          CW4p     = etmp
          dCW4p(1) = detmp(1)
@@ -784,7 +794,7 @@ c     **** deallocate stack memory ****
          dCW4p(3) = detmp(3)
 
          call nwpw_dCWGaussian(l1,mod_m1,sigma1,
-     >                        l2,mod_m2,sigma_smooth,
+     >                         l2,mod_m2,sigma_smooth,
      >                        Rab,etmp,detmp)
          CW4p     = CW4p - etmp
          dCW4p(1) = dCW4p(1) - detmp(1)
@@ -792,7 +802,7 @@ c     **** deallocate stack memory ****
          dCW4p(3) = dCW4p(3) - detmp(3)
 
          call nwpw_dCWGaussian(l1,mod_m1,sigma_smooth,
-     >                        l2,mod_m2,sigma2,
+     >                         l2,mod_m2,sigma2,
      >                        Rab,etmp,detmp)
          CW4p     = CW4p - etmp
          dCW4p(1) = dCW4p(1) - detmp(1)
@@ -800,12 +810,15 @@ c     **** deallocate stack memory ****
          dCW4p(3) = dCW4p(3) - detmp(3)
 
          call nwpw_dCWGaussian(l1,mod_m1,sigma_smooth,
-     >                        l2,mod_m2,sigma_smooth,
+     >                         l2,mod_m2,sigma_smooth,
      >                        Rab,etmp,detmp)
          CW4p     = CW4p + etmp
          dCW4p(1) = dCW4p(1) + detmp(1)
          dCW4p(2) = dCW4p(2) + detmp(2)
          dCW4p(3) = dCW4p(3) + detmp(3)
+
+
+
 
          call nwpw_dCWGaussian(l1,mod_m1,sigma1,
      >                        l2,-mod_m2,sigma2,

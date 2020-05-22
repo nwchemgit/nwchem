@@ -93,6 +93,7 @@
       ngauss_max = gcount
       ngauss     = gcount
 
+
       tcount = 0
       do l1 = 1,nthr
          int_mb(tgauss_shift(1)+l1-1) = tcount
@@ -341,6 +342,7 @@ c     >                                         l2,m2,s1,Rab)
 
                      !if (dabs(e1).gt.tole) then
                      inds = indx + shft
+
                      dbl_mb(e_tauss(1)+inds) = e1
                      int_mb(lm1_tauss(1)+inds) 
      >                     = (iii-1)*2*lm_size_max+lm1
@@ -429,6 +431,7 @@ c     >                                         l2,m2,s1,Rab)
                      end do
                      !if (dabs(e1).gt.tole) then
                      inds = indx + shft
+
                      dbl_mb(e_tauss(1)+inds) = e1
                      if (move) then
                         dbl_mb(f_tauss(1)+3*inds)   = de1(1)

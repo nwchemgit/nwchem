@@ -3172,6 +3172,169 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
 
 
 
+********************************* gintegrals tester **************************************
+
+
+*     ************************************************
+*     *                                              *
+*     *           nwpw_gintegrals_tester             *
+*     *                                              *
+*     ************************************************
+
+      subroutine nwpw_gintegrals_tester()
+      implicit none
+
+      integer l1,m1,l2,m2,i,j,k
+      real*8 W4,sigma
+      real*8 R1(3),R2(3),Rab(3)
+      complex*16 CW4,CWpp,CW4p,CW4m
+      complex*16 CW4pp,CW4pm,CW4mp,CW4mm,CWW
+
+*     **** external functions ****
+      real*8   nwpw_WGaussian,nwpw_UGaussian
+      external nwpw_WGaussian,nwpw_UGaussian
+      complex*16 paw_mult_interaction
+      external   paw_mult_interaction
+      complex*16 nwpw_CWGaussian
+      external   nwpw_CWGaussian
+
+      l1 = 1
+      m1 = 0
+      l2 = 2
+      m2 = 1
+
+      do l1=0,4
+      do m1=-l1,l1
+      do l2=0,4
+      do m2=-l2,l2
+
+c      l1 = 0
+c      m1 = 0
+c      l2 = 1
+c      m2 = -1
+
+      sigma = 6.0d0
+
+      do i= 1,1
+      do j= 1,1
+      do k= 1,1
+      if ((i.ne.0).or.(j.ne.0).or.(k.ne.0)) then
+
+      R1(1) = 0.0d0
+      R1(2) = 0.0d0
+      R1(3) = 0.0d0
+
+      R2(1) = 5.0d0*i
+      R2(2) = 5.0d0*j
+      R2(3) = 5.0d0*k
+
+      Rab(1) = R1(1) - R2(1)
+      Rab(2) = R1(2) - R2(2)
+      Rab(3) = R1(3) - R2(3)
+
+      W4   = nwpw_WGaussian(l1,m1,sigma,l2,m2,sigma,Rab)
+      CWpp = nwpw_CWGaussian(l1,m1,sigma,l2,m2,sigma,Rab)
+      CWW  = paw_mult_interaction(l1,m1,sigma,R1,l2, m2,sigma,R2)
+
+      if ((m1.eq.0).and.(m2.eq.0)) then
+         !CW4 = paw_mult_interaction(l1,m1,sigma,R1,l2, m2,sigma,Rab)
+         CW4 = nwpw_CWGaussian(l1,m1,sigma,l2, m2,sigma,Rab)
+
+      else if ((m1.eq.0).and.(m2.lt.0)) then
+         !CW4p = paw_mult_interaction(l1,m1,sigma,R1,l2, m2,sigma,R2)
+         !CW4m = paw_mult_interaction(l1,m1,sigma,R1,l2,-m2,sigma,R2)
+         CW4p = nwpw_CWGaussian(l1,m1,sigma,l2, m2,sigma,Rab)
+         CW4m = nwpw_CWGaussian(l1,m1,sigma,l2,-m2,sigma,Rab)
+         CW4 = (CW4p - (-1.0d0)**m2 * CW4m)
+     >         *dcmplx(0.0d0,1.0d0/dsqrt(2.0d0))
+
+      else if ((m1.eq.0).and.(m2.gt.0)) then
+         !CW4p = paw_mult_interaction(l1,m1,sigma,R1,l2, m2,sigma,R2)
+         !CW4m = paw_mult_interaction(l1,m1,sigma,R1,l2,-m2,sigma,R2)
+         CW4p = nwpw_CWGaussian(l1,m1,sigma,l2, m2,sigma,Rab)
+         CW4m = nwpw_CWGaussian(l1,m1,sigma,l2,-m2,sigma,Rab)
+         CW4 = (CW4m + (-1.0d0)**m2 * CW4p)/dsqrt(2.0d0)
+
+      else if ((m1.lt.0).and.(m2.eq.0)) then
+         !CW4p = paw_mult_interaction(l1, m1,sigma,R1,l2,m2,sigma,R2)
+         !CW4m = paw_mult_interaction(l1,-m1,sigma,R1,l2,m2,sigma,R2)
+         CW4p = nwpw_CWGaussian(l1, m1,sigma,l2,m2,sigma,Rab)
+         CW4m = nwpw_CWGaussian(l1,-m1,sigma,l2,m2,sigma,Rab)
+         CW4 = (CW4p - (-1.0d0)**m1 * CW4m)
+     >         *dcmplx(0.0d0,1.0d0/dsqrt(2.0d0))
+
+      else if ((m1.gt.0).and.(m2.eq.0)) then
+         !CW4p = paw_mult_interaction(l1, m1,sigma,R1,l2,m2,sigma,R2)
+         !CW4m = paw_mult_interaction(l1,-m1,sigma,R1,l2,m2,sigma,R2)
+         CW4p = nwpw_CWGaussian(l1, m1,sigma,l2,m2,sigma,Rab)
+         CW4m = nwpw_CWGaussian(l1,-m1,sigma,l2,m2,sigma,Rab)
+         CW4 = (CW4m + (-1.0d0)**m1 * CW4p)/dsqrt(2.0d0)
+
+      else
+         !CW4pp = paw_mult_interaction(l1,m1,sigma,R1,l2, m2,sigma,R2)
+         !CW4pm = paw_mult_interaction(l1,m1,sigma,R1,l2,-m2,sigma,R2)
+         !CW4mp = paw_mult_interaction(l1,-m1,sigma,R1,l2, m2,sigma,R2)
+         !CW4mm = paw_mult_interaction(l1,-m1,sigma,R1,l2,-m2,sigma,R2)
+         CW4pp = nwpw_CWGaussian(l1,m1,sigma,l2, m2,sigma,Rab)
+         CW4pm = nwpw_CWGaussian(l1,m1,sigma,l2,-m2,sigma,Rab)
+         CW4mp = nwpw_CWGaussian(l1,-m1,sigma,l2, m2,sigma,Rab)
+         CW4mm = nwpw_CWGaussian(l1,-m1,sigma,l2,-m2,sigma,Rab)
+         if ((m1.lt.0).and.(m2.lt.0)) then
+            CW4 = -(CW4pp 
+     >             + (-1.0d0)**(m1+m2) * CW4mm 
+     >             - (-1.0d0)**m2      * CW4pm 
+     >             - (-1.0d0)**m1      * CW4mp)/2.0d0
+
+         else if ((m1.lt.0).and.(m2.gt.0)) then
+            CW4 = (CW4pm 
+     >            - (-1.0d0)**(m1+m2) * CW4mp 
+     >            - (-1.0d0)**m1      * CW4mm 
+     >            + (-1.0d0)**m2      * CW4pp)*dcmplx(0.0d0,1.0d0/2.0d0)
+
+         else if ((m1.gt.0).and.(m2.lt.0)) then
+            CW4 = (CW4mp 
+     >            - (-1.0d0)**(m1+m2) * CW4pm 
+     >            + (-1.0d0)**m1      * CW4pp 
+     >            - (-1.0d0)**m2      * CW4mm)*dcmplx(0.0d0,1.0d0/2.0d0)
+
+         else if ((m1.gt.0).and.(m2.gt.0)) then
+            CW4 =  (CW4mm 
+     >             + (-1.0d0)**(m1+m2) * CW4pp 
+     >             + (-1.0d0)**m1      * CW4pm 
+     >             + (-1.0d0)**m2      * CW4mp)/2.0d0
+         end if
+      end if
+      write(*,*) "gintegral tester=",l1,m1,l2,m2,i,j,k 
+      write(*,*) "    - W4, CW4   = ",W4,CW4 ,W4-dble(CW4)
+      !write(*,*) "    - CWpp,CWW  = ",CWpp,CWW,CWpp-CWW
+      write(*,*)
+
+
+c      CW4p = paw_mult_interaction(l1,m1,sigma,R1,l2, m2,sigma,R2)
+c      CW4m = paw_mult_interaction(l1,m1,sigma,R1,l2,-m2,sigma,R2)
+c      CW4 = (CW4m + (-1.0d0)**m2 * CW4p) / dsqrt(2.0d0)
+c
+c      write(*,*) "gintegral tester=",l1,m1,l2,m2,i,j,k 
+c      write(*,*) "    - W4, CWpp = ",W4,CWpp,W4-dble(CWpp)
+c      write(*,*) "    - W4, CW4p  = ",W4,CW4p
+c      write(*,*) "    - W4, CW4m  = ",W4,CW4m
+c      write(*,*) "    - W4, CW4   = ",W4,CW4 ,W4-dble(CW4)
+c      write(*,*)
+
+      end if
+      end do
+      end do
+      end do
+
+      end do
+      end do
+      end do
+      end do
+
+      return
+      end
+********************************* gintegrals tester **************************************
+
 
 ********************************* real Gaussian Integrals **************************************
 ********************************* real Gaussian Integrals **************************************
