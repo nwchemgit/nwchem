@@ -547,13 +547,12 @@ c     **** deallocate stack memory ****
       real*8  W(*)
 
 *     **** local variables ****
-      real*8 W4
       complex*16 CW4,CW4p,CW4m,CW4pp,CW4pm,CW4mp,CW4mm
 
 
 *     **** external functions ****
-      complex*16 nwpw_CWGaussian,nwpw_WGaussian
-      external   nwpw_CWGaussian,nwpw_WGaussian
+      complex*16 nwpw_CWGaussian
+      external   nwpw_CWGaussian
       
       if ((mod_m1.eq.0).and.(mod_m2.eq.0)) then
          n  = 1
@@ -693,12 +692,6 @@ c     **** deallocate stack memory ****
      >          + (-1.0d0)**mod_m1      * CW4pm
      >          + (-1.0d0)**mod_m2      * CW4mp)/2.0d0
          W(4) = dble(CW4)
-
-         W4 =nwpw_WGaussian(l1,mod_m1,sigma1,l2,mod_m2,sigma2,Rab)
-     >  - nwpw_WGaussian(l1,mod_m1,sigma1,l2,mod_m2,sigma_smooth,Rab)
-     >  - nwpw_WGaussian(l1,mod_m1,sigma_smooth,l2,mod_m2,sigma2,Rab)
-     >  + nwpw_WGaussian(l1,mod_m1,sigma_smooth,
-     >                   l2,mod_m2,sigma_smooth,Rab)
 
       end if
 

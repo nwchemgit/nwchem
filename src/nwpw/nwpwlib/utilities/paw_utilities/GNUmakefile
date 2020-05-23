@@ -5,7 +5,7 @@
  OBJ_OPTIMIZE = \
 		nwpw_gaunt.o \
 		nwpw_compcharge.o\
-		nwpw_gintegrals2.o \
+		nwpw_gintegrals3.o \
 		nwpw_xc.o\
 		nwpw_vosko.o\
 		nwpw_gga.o\
@@ -18,7 +18,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = nwpw_gaunt.F nwpw_compcharge.F nwpw_xc.F nwpw_gintegrals.F nwpw_gintegrals2.F
+    USES_BLAS = nwpw_gaunt.F nwpw_compcharge.F nwpw_xc.F nwpw_gintegrals.F nwpw_gintegrals2.F nwpw_gintegrals3.F
 
   LIB_DEFINES = 
 
