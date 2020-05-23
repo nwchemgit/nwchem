@@ -361,7 +361,7 @@ c               !end if
                         Rab(3) = dbl_mb(rcell+l-1+2*nshl3d)
                         R = dsqrt(Rab(1)**2 + Rab(2)**2 + Rab(3)**2)
                         if (R.lt.(4*sigma_smooth)) then
-                           call nwpw_WGaussian_block(l1,m1,s1,l2,m2,s2,
+                           call nwpw_WGaussian_block(l1,m1,s1,l2,m2,s1,
      >                                               sigma_smooth,Rab,
      >                                               n,lm1,lm2,W)
                            do i=1,n
