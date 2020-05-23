@@ -270,8 +270,8 @@ c
       integer l,m,fac,fac2
       real*8 c,x,y,pi,mtmp
       real*8 alpha_ab,alpha_am,alpha_mb,alpha_mm
-      real*8 tmp_ab,tmp_am,tmp_mb,tmp_mm
-      real*8 cos_theta,phi,R
+      real*8 tmp
+      real*8 cos_theta,phi,R,gg2
 
 *     **** external functions ****
       integer  nwpw_doublefactorial
@@ -309,25 +309,24 @@ c
          fac = 1
       end if
       
-      tmp_ab = 0.0d0
-      tmp_am = 0.0d0
-      tmp_mb = 0.0d0
-      tmp_mm = 0.0d0
+      tmp = 0.0d0
       do l = abs(la-lb), (la+lb), 2
          mtmp = 0.0d0
          do m=-l,l
             mtmp = mtmp + nwpw_gaunt(.false.,l,m,la,ma,lb,mb)
      >                   *Tesseral_lm(l,m,cos_theta,phi)
          end do
-         tmp_ab = tmp_ab + fac*mtmp*nwpw_GaussBessel(la+lb,l,alpha_ab,R)
-         tmp_am = tmp_am + fac*mtmp*nwpw_GaussBessel(la+lb,l,alpha_am,R)
-         tmp_mb = tmp_mb + fac*mtmp*nwpw_GaussBessel(la+lb,l,alpha_mb,R)
-         tmp_mm = tmp_mm + fac*mtmp*nwpw_GaussBessel(la+lb,l,alpha_mm,R)
+         gg2 = nwpw_GaussBessel(la+lb,l,alpha_ab,R)
+     >       - nwpw_GaussBessel(la+lb,l,alpha_am,R)
+     >       - nwpw_GaussBessel(la+lb,l,alpha_mb,R)
+     >       + nwpw_GaussBessel(la+lb,l,alpha_mm,R)
+
+         tmp = tmp + fac*mtmp*gg2
          fac = -fac
       end do
       call nwpw_timing_end(49)
 
-      nwpw_WGaussian3 = c * (tmp_ab+tmp_mm-tmp_am-tmp_mb)
+      nwpw_WGaussian3 = c*tmp
       return
       end 
 
@@ -369,8 +368,8 @@ c
       integer l,m,fac,fac2
       real*8 c,x,y,pi,mtmp
       real*8 alpha_aa,alpha_am,alpha_mm
-      real*8 tmp_aa,tmp_am,tmp_mm
-      real*8 cos_theta,phi,R
+      real*8 tmp
+      real*8 cos_theta,phi,R,gg2
 
 *     **** external functions ****
       integer  nwpw_doublefactorial
@@ -407,23 +406,25 @@ c
          fac = 1
       end if
       
-      tmp_aa = 0.0d0
-      tmp_am = 0.0d0
-      tmp_mm = 0.0d0
+      tmp = 0.0d0
       do l = abs(la-lb), (la+lb), 2
          mtmp = 0.0d0
          do m=-l,l
             mtmp = mtmp + nwpw_gaunt(.false.,l,m,la,ma,lb,mb)
      >                   *Tesseral_lm(l,m,cos_theta,phi)
          end do
-         tmp_aa = tmp_aa + fac*mtmp*nwpw_GaussBessel(la+lb,l,alpha_aa,R)
-         tmp_am = tmp_am + fac*mtmp*nwpw_GaussBessel(la+lb,l,alpha_am,R)
-         tmp_mm = tmp_mm + fac*mtmp*nwpw_GaussBessel(la+lb,l,alpha_mm,R)
+
+         gg2 = nwpw_GaussBessel(la+lb,l,alpha_aa,R)
+     >       + nwpw_GaussBessel(la+lb,l,alpha_mm,R)
+     >       - 2.0d0*nwpw_GaussBessel(la+lb,l,alpha_am,R)
+
+         tmp = tmp + fac*mtmp*gg2
+         
          fac = -fac
       end do
       call nwpw_timing_end(49)
 
-      nwpw_WGaussian2 = c * (tmp_aa+tmp_mm-2.0d0*tmp_am)
+      nwpw_WGaussian2 = c*tmp
       return
       end 
 
@@ -506,27 +507,6 @@ c
       dW(2) = 0.0d0
       dW(3) = 0.0d0
 
-      W_ab = 0.0d0
-      dW_ab(1) = 0.0d0
-      dW_ab(2) = 0.0d0
-      dW_ab(3) = 0.0d0
-
-      W_am = 0.0d0
-      dW_am(1) = 0.0d0
-      dW_am(2) = 0.0d0
-      dW_am(3) = 0.0d0
-
-      W_mb = 0.0d0
-      dW_mb(1) = 0.0d0
-      dW_mb(2) = 0.0d0
-      dW_mb(3) = 0.0d0
-
-      W_mm = 0.0d0
-      dW_mm(1) = 0.0d0
-      dW_mm(2) = 0.0d0
-      dW_mm(3) = 0.0d0
-
-
       do l = abs(la-lb), (la+lb), 2
          mtmp  = 0.0d0
          mtmpx = 0.0d0
@@ -540,40 +520,28 @@ c
             mtmpy = mtmpy + gg1*Ty
             mtmpz = mtmpz + gg1*Tz
          end do
+
          gg2 = nwpw_GaussBessel(la+lb,l,alpha_ab,R)
+     >       - nwpw_GaussBessel(la+lb,l,alpha_am,R)
+     >       - nwpw_GaussBessel(la+lb,l,alpha_mb,R)
+     >       + nwpw_GaussBessel(la+lb,l,alpha_mm,R)
+
          gg3 = nwpw_dGaussBessel(la+lb,l,alpha_ab,R)
-         W_ab     = W_ab     + fac*(mtmp*gg2)
-         dW_ab(1) = dW_ab(1) + fac*(mtmpx*gg2 + mtmp*(Rab(1)/R)*gg3)
-         dW_ab(2) = dW_ab(2) + fac*(mtmpy*gg2 + mtmp*(Rab(2)/R)*gg3)
-         dW_ab(3) = dW_ab(3) + fac*(mtmpz*gg2 + mtmp*(Rab(3)/R)*gg3)
+     >       - nwpw_dGaussBessel(la+lb,l,alpha_am,R)
+     >       - nwpw_dGaussBessel(la+lb,l,alpha_mb,R)
+     >       + nwpw_dGaussBessel(la+lb,l,alpha_mm,R)
 
-         gg2 = nwpw_GaussBessel(la+lb,l,alpha_am,R)
-         gg3 = nwpw_dGaussBessel(la+lb,l,alpha_am,R)
-         W_am     = W_am     + fac*(mtmp*gg2)
-         dW_am(1) = dW_am(1) + fac*(mtmpx*gg2 + mtmp*(Rab(1)/R)*gg3)
-         dW_am(2) = dW_am(2) + fac*(mtmpy*gg2 + mtmp*(Rab(2)/R)*gg3)
-         dW_am(3) = dW_am(3) + fac*(mtmpz*gg2 + mtmp*(Rab(3)/R)*gg3)
-
-         gg2 = nwpw_GaussBessel(la+lb,l,alpha_mb,R)
-         gg3 = nwpw_dGaussBessel(la+lb,l,alpha_mb,R)
-         W_mb     = W_mb     + fac*(mtmp*gg2)
-         dW_mb(1) = dW_mb(1) + fac*(mtmpx*gg2 + mtmp*(Rab(1)/R)*gg3)
-         dW_mb(2) = dW_mb(2) + fac*(mtmpy*gg2 + mtmp*(Rab(2)/R)*gg3)
-         dW_mb(3) = dW_mb(3) + fac*(mtmpz*gg2 + mtmp*(Rab(3)/R)*gg3)
-
-         gg2 = nwpw_GaussBessel(la+lb,l,alpha_mm,R)
-         gg3 = nwpw_dGaussBessel(la+lb,l,alpha_mm,R)
-         W_mm     = W_mm     + fac*(mtmp*gg2)
-         dW_mm(1) = dW_mm(1) + fac*(mtmpx*gg2 + mtmp*(Rab(1)/R)*gg3)
-         dW_mm(2) = dW_mm(2) + fac*(mtmpy*gg2 + mtmp*(Rab(2)/R)*gg3)
-         dW_mm(3) = dW_mm(3) + fac*(mtmpz*gg2 + mtmp*(Rab(3)/R)*gg3)
+         W     = W     + fac*(mtmp*gg2)
+         dW(1) = dW(1) + fac*(mtmpx*gg2 + mtmp*(Rab(1)/R)*gg3)
+         dW(2) = dW(2) + fac*(mtmpy*gg2 + mtmp*(Rab(2)/R)*gg3)
+         dW(3) = dW(3) + fac*(mtmpz*gg2 + mtmp*(Rab(3)/R)*gg3)
 
          fac = -fac
       end do
-      W = (W_ab+W_mm-W_am-W_mb)*c
-      dW(1) = (dW_ab(1)+dW_mm(1)-dW_am(1)-dW_mb(1))*c
-      dW(2) = (dW_ab(2)+dW_mm(2)-dW_am(2)-dW_mb(2))*c
-      dW(3) = (dW_ab(3)+dW_mm(3)-dW_am(3)-dW_mb(3))*c
+      W = W*c
+      dW(1) = dW(1)*c
+      dW(2) = dW(2)*c
+      dW(3) = dW(3)*c
       call nwpw_timing_end(55)
 
       return
