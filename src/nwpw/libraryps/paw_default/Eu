@@ -1,6 +1,7 @@
 Comment: 
 Comment: PAW basis set generation file for Europium
 Comment: 
+Comment: potential generated on Mon May 25 22:37:27 PDT 2020
 
 [psp_type] 4
 [cutoff] 60.0
@@ -45,7 +46,7 @@ pauli
 2.0
 
 <ref_potential_matching_radius> 1.2
-<ref_potential_at_zero>  +1.5
+<ref_potential_at_zero>  +4.5
 <compensation_charge_radius> 1.0
 <nodal_constraint> on
 <projector_method> vanderbilt
@@ -56,5 +57,4 @@ pauli
 1  -5.5   0  1.2 300
 2  -5.5   0  1.2 300
 3  -5.5   0  1.2 300
-
 
