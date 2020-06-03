@@ -87,21 +87,8 @@ c     == default ==
       call util_print_centered(luout, 'AUTHORS', 40, 
      & .true.)
 c
-      
-      ibegin = 1
-      do i=1,maxno_authors
-         ilen=inp_strlen(name_author(i))
-         newchr(ibegin:ibegin+ilen-1)=name_author(i)
-         len_newchr=ibegin+ilen-1
-         newchr(ibegin+ilen:ibegin+ilen+1)=', '
-         ibegin=ibegin+ilen+2
-      enddo
-      ibegin = 0
-      iend   = 0 
-      ilen   = 80
-      do while (next_line(ibegin,iend,ilen,',',newchr(1:len_newchr)))
-        call util_print_centered(luout,newchr(ibegin:iend),40,.false.)
-      enddo
+      call util_print_authors(maxno_authors,name_author)
+
 c
 c     == print high ==
       if (util_print('references',print_high)) then
@@ -318,3 +305,33 @@ c
       return
       end
 c
+      subroutine util_print_authors(maxno_authors,name_author)
+      implicit none
+      integer maxno_authors     ! [in]
+      character*64 name_author(maxno_authors)
+c
+      integer ibegin,iend,ilen,i
+      integer len_newchr
+      character*4096 newchr
+#include "stdio.fh"
+#include "inp.fh"
+#include "util.fh"
+      logical  next_line
+      external next_line
+c      
+      ibegin = 1
+      do i=1,maxno_authors
+         ilen=inp_strlen(name_author(i))
+         newchr(ibegin:ibegin+ilen-1)=name_author(i)
+         len_newchr=ibegin+ilen-1
+         newchr(ibegin+ilen:ibegin+ilen+1)=', '
+         ibegin=ibegin+ilen+2
+      enddo
+      ibegin = 0
+      iend   = 0 
+      ilen   = 80
+      do while (next_line(ibegin,iend,ilen,',',newchr(1:len_newchr)))
+        call util_print_centered(luout,newchr(ibegin:iend),40,.false.)
+      enddo
+      return
+      end
