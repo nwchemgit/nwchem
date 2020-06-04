@@ -171,6 +171,8 @@ fi #USE_GA_RELEASE
 # check if configure is there
 #disable nxtval
 ./nxtval.sh $GA_DIR
+#patch for MSMPI
+./msmpi_patch.sh $GA_DIR
 if test -e $GA_DIR/configure
 then
         echo "configure present. no autogen.sh required"
