@@ -162,7 +162,8 @@ c
       nbeads = size_bead_list(bead_list)
       nion   = nion_bead_list(bead_list,1)
       ng     = 3*nion*nbeads
-      isystype = systype_bead_list(bead_list)
+      isystype=0
+      if(systype_bead_list(bead_list)) isystype=1
 
       if (oprint) then
 
