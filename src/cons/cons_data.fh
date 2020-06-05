@@ -44,7 +44,10 @@ c      parameter (max_fixed_atoms=100)
       integer h_pbondings_gcut0
       integer h_pbondings_gamma0
 
-      common /cons_data/ 
+      real*8  unita(3,3),ub(3,3)
+      integer isystype
+
+      common /cons_data/ unita,ub,isystype,
      &                   cons_oprint_default,
      &                   nhb,
      &                   h_ijhb,h_khb,h_rhb,

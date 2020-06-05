@@ -1156,22 +1156,22 @@ c
       double precision k,r0
       double precision r1(3)
       double precision r2(3)
-      double precision r
+      double precision r,x,y,z
       double precision energy
       double precision f(3)
 c
       integer i
 c
-       r=(r1(1)-r2(1))**2+
-     >   (r1(2)-r2(2))**2+
-     >   (r1(3)-r2(3))**2
-       r=sqrt(r)
-       energy=k*(r-r0)**2
+      x = r1(1) - r2(1)
+      y = r1(2) - r2(2)
+      z = r1(3) - r2(3)
+      call cons_lattice_min_diff(x,y,z)
+      r=sqrt(x*x + y*y + z*z)
+      energy=k*(r-r0)**2
 
-       do i=1,3
-         f(i)=2*k*(r-r0)*
-     &     (r1(i)-r2(i))/r
-       end do
+      f(1)=2*k*(r-r0)*(x/r)
+      f(2)=2*k*(r-r0)*(y/r)
+      f(3)=2*k*(r-r0)*(z/r)
 
       return
       end
@@ -1187,16 +1187,17 @@ c
       double precision k,r0
       double precision r1(3)
       double precision r2(3)
-      double precision r
+      double precision r,x,y,z
       double precision energy
 c
       integer i
 c
-       r=(r1(1)-r2(1))**2+
-     >   (r1(2)-r2(2))**2+
-     >   (r1(3)-r2(3))**2
-       r=sqrt(r)
-       energy=k*(r-r0)**2
+      x =  r1(1) - r2(1) 
+      y =  r1(2) - r2(2) 
+      z =  r1(3) - r2(3) 
+      call cons_lattice_min_diff(x,y,z)
+      r=sqrt(x*x + y*y + z*z)
+      energy=k*(r-r0)**2
       return
       end
 
@@ -1225,6 +1226,7 @@ c
          x = rion(1,i0) - rion(1,i1)
          y = rion(2,i0) - rion(2,i1)
          z = rion(3,i0) - rion(3,i1)
+         call cons_lattice_min_diff(x,y,z)
          dist = dsqrt(x*x + y*y + z*z)
          gamm = gamm +  coef(i)*dist
       end do
@@ -1257,6 +1259,7 @@ c
          x = rion(1,i0) - rion(1,i1)
          y = rion(2,i0) - rion(2,i1)
          z = rion(3,i0) - rion(3,i1)
+         call cons_lattice_min_diff(x,y,z)
          dist = dsqrt(x*x + y*y + z*z)
          gamm = gamm +  coef(i)*dist
       end do
@@ -1269,6 +1272,7 @@ c
          x = rion(1,i0) - rion(1,i1)
          y = rion(2,i0) - rion(2,i1)
          z = rion(3,i0) - rion(3,i1)
+         call cons_lattice_min_diff(x,y,z)
          dist = dsqrt(x*x + y*y + z*z)
          f(1,i0) = f(1,i0) + denergy*coef(i)*(x/dist)
          f(2,i0) = f(2,i0) + denergy*coef(i)*(y/dist)
@@ -1307,6 +1311,7 @@ c
          x = rion(1,i0) - rion(1,i1)
          y = rion(2,i0) - rion(2,i1)
          z = rion(3,i0) - rion(3,i1)
+         call cons_lattice_min_diff(x,y,z)
          dist = dsqrt(x*x + y*y + z*z)
          gamm = gamm +  coef(i)*dist
       end do
@@ -1341,6 +1346,7 @@ c
          x = rion(1,i0) - rion(1,i1)
          y = rion(2,i0) - rion(2,i1)
          z = rion(3,i0) - rion(3,i1)
+         call cons_lattice_min_diff(x,y,z)
          dist = dsqrt(x*x + y*y + z*z)
          gamm = gamm +  coef(i)*dist
       end do
@@ -1355,6 +1361,7 @@ c
          x = rion(1,i0) - rion(1,i1)
          y = rion(2,i0) - rion(2,i1)
          z = rion(3,i0) - rion(3,i1)
+         call cons_lattice_min_diff(x,y,z)
          dist = dsqrt(x*x + y*y + z*z)
          f(1,i0) = f(1,i0) + denergy*coef(i)*(x/dist)
          f(2,i0) = f(2,i0) + denergy*coef(i)*(y/dist)

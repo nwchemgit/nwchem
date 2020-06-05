@@ -331,8 +331,10 @@ c     ---------------------------------------------------
      &    0, MA_ERR)
 
       end if
+      status=geom_amatrix_get(geom,unita)
+      status=status.and.geom_systype_get(geom,isystype)
 
-      status=geom_destroy(geom)
+      status=status.and.geom_destroy(geom)
       if(.not.status) 
      & call errquit('cons_init: geom_destroy?',70, GEOM_ERR)
 
@@ -464,6 +466,8 @@ c
       integer geom
       integer nat
       logical status
+      real*8 unita(3,3)
+      integer isystype
 c
 c     load geometry 
 c     -------------
@@ -482,6 +486,8 @@ c     --------------------
      &      'cons_load_geom: unable to allocate cons coord',
      &      nat*3, MA_ERR)
       status=geom_cart_coords_get(geom, dbl_mb(i_c))
+      status=status.and.geom_amatrix_get(geom,unita)
+      status=status.and.geom_systype_get(geom,isystype)
       if(.not.status) 
      & call errquit('cons_init: geom_create?',70, GEOM_ERR)
  
@@ -489,6 +495,8 @@ c     --------------------
       if(.not.status) 
      & call errquit('cons_init: geom_destroy?',70, GEOM_ERR)
       call cons_set_h_c(h_c)
+      call cons_set_unita(unita)
+      call cons_set_isystype(isystype)
 c      call cons_set_i_c(i_c)
 
       return
