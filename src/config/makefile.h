@@ -1695,6 +1695,11 @@ endif
       ifeq ($(FC),pgf77)
         _FC=pgf90
       endif
+      # The current implementation of f18 does source-to-source and then uses PGI.
+      # This will probably change someday, in which case we will need a new approach.
+      ifeq ($(FC),f18)
+        _FC=pgf90
+      endif
       ifeq ($(FC),ifc)
        _FC=ifort
       endif
