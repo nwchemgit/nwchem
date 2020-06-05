@@ -17,15 +17,17 @@
 ```
 mkdocs.yml
 ```
-https://www.mkdocs.org/#theming-our-documentation
-https://www.mkdocs.org/user-guide/plugins/
+https://www.mkdocs.org/#theming-our-documentation  
+https://www.mkdocs.org/user-guide/plugins/  
 
 ## Checkout the Markdown source of the Wiki pages
 ```
 git clone https://github.com/nwchemgit/nwchem-wiki docs
 ```
 
-## Test the changes
+## Test the changes 
+
+The file `index.md` is the main file
 
 ```
 mkdocs serve
