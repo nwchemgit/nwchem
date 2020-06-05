@@ -210,7 +210,8 @@ C     Note popts string has hardcoded length (shouldnt be a problem).
          endif
 
          if (.not. opt_enabled) then
-            call errquit (pname//"no print options enabled")
+            call errquit (pname//"no print options enabled",
+     $           0          ,INPUT_ERR)
          else
             write (luout, fmtcha) trim (popts)
          endif
