@@ -32,6 +32,7 @@ The file `index.md` is the main file
 ```
 mkdocs serve
 ```
+Point your browser to  http://127.0.0.1:8000
 
 ## Build the html
 ```
@@ -61,3 +62,8 @@ rsync -av /path/to/mkdocs/site/* .
 git commit -m
 git push
 ```
+
+# Browse new web pages
+https://edoapra.github.io/nwchem/
+or in future
+https://nwchemgit.github.io/nwchem/
