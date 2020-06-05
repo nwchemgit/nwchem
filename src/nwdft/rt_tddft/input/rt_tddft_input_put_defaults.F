@@ -63,6 +63,11 @@ C
      $     mt_log,1,.true.))
      $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
 
+      if (.not.rtdb_put(rtdb,'rt_tddft:print_dipcontribs',
+     $     mt_log,1,.false.))
+     $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
+
+
       if (.not.rtdb_put(rtdb,'rt_tddft:print_quad',
      $     mt_log,1,.false.))
      $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
