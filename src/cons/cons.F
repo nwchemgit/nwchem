@@ -768,9 +768,9 @@ c     ---------------
       integer inb,nhb,nhc,nhp
       integer iat,jat
       double precision r
-      double precision r0,k,K0,gcut0,gamma0,gamm
+      double precision r0,k,K0,gcut0,gamma0,c0,gamm
       integer i_c,i_rhb,i_khb,i_ijhb
-      integer i_n,i_indx,i_coef,i_k0,i_gcut0,i_gamma0
+      integer i_n,i_indx,i_coef,i_k0,i_gcut0,i_gamma0,i_c0
       double precision etot,e,f(3)
       character*255 namespace
       logical  cons_active
@@ -883,6 +883,7 @@ c
          i_k0     = cons_get_i_pbondings_k0()
          i_gcut0  = cons_get_i_pbondings_gcut0()
          i_gamma0 = cons_get_i_pbondings_gamma0()
+         i_c0     = cons_get_i_pbondings_c0()
 
          ii = 0
          do i=1,nhp
@@ -890,14 +891,16 @@ c
             K0     = dbl_mb(i_k0+i-1)
             gcut0  = dbl_mb(i_gcut0+i-1)
             gamma0 = dbl_mb(i_gamma0+i-1)
+            c0     = dbl_mb(i_c0+i-1)
 
             call cons_pbondings_energy(n,int_mb(i_indx+2*ii),
      >                               dbl_mb(i_coef+ii),
-     >                               K0,gcut0,gamma0,dbl_mb(i_c),gamm,e)
+     >                               K0,gcut0,gamma0,c0,
+     >                               dbl_mb(i_c),gamm,e)
             if(master) then
                write(luout,'(A,I5)')" bondings penalty#            :",i
-               write(luout,'(A,3(F12.6,2X))')
-     >        " spring parameters (K0,gcut0,gamma0):",K0,gcut0,gamma0
+               write(luout,'(A,4(F12.6,2X))')
+     >     " spring parameters (K0,gcut0,gamma0,c0):",K0,gcut0,gamma0,c0
                write(luout,'(A,F12.6)')
      >         " gamma                        :",gamm
                write(luout,'(A,F12.6)')

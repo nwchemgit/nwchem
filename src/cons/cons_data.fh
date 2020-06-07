@@ -43,6 +43,7 @@ c      parameter (max_fixed_atoms=100)
       integer h_pbondings_k0
       integer h_pbondings_gcut0
       integer h_pbondings_gamma0
+      integer h_pbondings_c0
 
       real*8  unita(3,3),ub(3,3)
       integer isystype
@@ -61,7 +62,7 @@ c      parameter (max_fixed_atoms=100)
      &                   h_pbondings_n0,h_pbondings_indx,
      &                   h_pbondings_coef,
      &                   h_pbondings_k0,h_pbondings_gcut0,
-     &                   h_pbondings_gamma0,
+     &                   h_pbondings_gamma0,h_pbondings_c0,
      &                   h_fpos,i_fpos,
      &                   h_c,
      &                   cons_irtdb,

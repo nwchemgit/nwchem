@@ -98,6 +98,11 @@
        integer  cons_get_h_pbondings_gamma0
        external cons_get_h_pbondings_gamma0
 
+       integer  cons_get_i_pbondings_c0
+       external cons_get_i_pbondings_c0
+       integer  cons_get_h_pbondings_c0
+       external cons_get_h_pbondings_c0
+
 
 
        logical cons_fixed_atoms

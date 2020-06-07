@@ -623,8 +623,6 @@ c      cons_get_i_c = i_c
       end
 
 
-
-
       integer function cons_get_h_pbondings_gamma0()
       implicit none
 #include "cons_data.fh"
@@ -643,6 +641,29 @@ c      cons_get_i_c = i_c
      >      h_pbondings_gamma0, RTDB_ERR)
       return
       end
+
+
+      integer function cons_get_h_pbondings_c0()
+      implicit none
+#include "cons_data.fh"
+      cons_get_h_pbondings_c0 = h_pbondings_c0
+      return
+      end
+
+      integer function cons_get_i_pbondings_c0()
+      implicit none
+#include "mafdecls.fh"
+#include "cons_data.fh"
+#include "errquit.fh"
+      if(.not. ma_get_index(h_pbondings_c0,
+     >                      cons_get_i_pbondings_c0))
+     >    call errquit('cons_data: unable to get i_pbondings_c0',
+     >      h_pbondings_c0, RTDB_ERR)
+      return
+      end
+
+
+
 
       subroutine cons_set_pbondings_nhp(n)
       implicit none
@@ -742,7 +763,6 @@ c      cons_get_i_c = i_c
       end
 
 
-
       subroutine cons_set_pbondings_gamma0(n)
       implicit none
 #include "cons_data.fh"
@@ -759,6 +779,22 @@ c      cons_get_i_c = i_c
       return
       end
 
+
+      subroutine cons_set_pbondings_c0(n)
+      implicit none
+#include "cons_data.fh"
+      integer n
+      h_pbondings_c0=n
+      return
+      end
+
+      subroutine cons_get_pbondings_c0(n)
+      implicit none
+#include "cons_data.fh"
+      integer n
+      n=h_pbondings_c0
+      return
+      end
 
 
 
