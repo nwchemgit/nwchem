@@ -1423,7 +1423,7 @@ endif
     endif
 
     ifeq ($(_CPU),i786)
-      COPTIONS   =  -march=i686 
+#      COPTIONS   =  -march=i686 
       ifdef USE_GCC31
         FDEBUG=-O1 -g
         COPTIMIZE +=-march=pentium4 -mcpu=pentium4 #-msse2 -mfpmath=sse 
@@ -1432,7 +1432,8 @@ endif
 #        FOPTIMIZE +=-fprefetch-loop-arrays -minline-all-stringops -fexpensive-optimizations
       else
 #        FOPTIMIZE  += -march=i686
-        COPTIONS   = -Wall -march=i686 -malign-double 
+#        COPTIONS   = -Wall -march=i686 -malign-double 
+        COPTIONS   = -Wall -malign-double 
       endif
     else
     ifneq ($(_CPU),x86)
@@ -1704,10 +1705,10 @@ endif
       ifeq ($(FC),ifx)
        _FC=ifort
       endif
-     ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran6 gfortran-6 gfortran-7 gfortran7 gfortran-8 gfortran8 gfortran-9 gfortran9 gfortran-10 gfortran10 gfortran-11 gfortran-12 i686-w64-mingw32.static-gfortran))
+     ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran6 gfortran-6 gfortran-7 gfortran7 gfortran-8 gfortran8 gfortran-9 gfortran9 gfortran-10 gfortran10 gfortran-11 gfortran-12 i686-w64-mingw32.static-gfortran x86_64-w64-mingw32-gfortran-win32))
        _FC= gfortran
      endif
-     ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc6 gcc-6 gcc-7 gcc7 gcc-8 gcc8 gcc-9 gcc9 gcc-10 gcc10 gcc-11 gcc-12 i686-w64-mingw32.static-gcc))
+     ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc6 gcc-6 gcc-7 gcc7 gcc-8 gcc8 gcc-9 gcc9 gcc-10 gcc10 gcc-11 gcc-12 i686-w64-mingw32.static-gcc x86_64-w64-mingw32-gcc-win32))
      ifneq ($(CC),cc)
        _CC= gcc
      endif
