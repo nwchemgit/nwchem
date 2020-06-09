@@ -4,7 +4,6 @@
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
       integer rtdb
 c
 c     Return the minimum of the time remaining w.r.t. limits
@@ -52,7 +51,7 @@ c
          endif
       endif
 c
-      call ga_brdcst(161,left,mitob(1),0)
+      call ga_brdcst(161,left,MA_sizeof(MT_INT,1,MT_BYTE),0)
 c
       util_time_remaining = left
 c

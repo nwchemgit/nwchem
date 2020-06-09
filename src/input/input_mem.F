@@ -5,7 +5,6 @@ C$Id$
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "msgids.fh"
 #include "stdio.fh"
 #include "errquit.fh"
@@ -15,7 +14,7 @@ C$Id$
       logical overify           ! [output]
       logical ohardfail         ! [output]
 C
-      integer Total_Size
+      integer Total_Size,mitob1
       Character*1 Total_Src, Heap_Src, Stack_Src, Global_Src
 c
 c     Scan the input file for the memory directive and call
@@ -29,7 +28,7 @@ c
       overify    = .true.       ! Verify unless told otherwise!
       ohardfail  = .false.      ! Don't hard fail
 C
-      if (nodeid() .eq. 0) then ! tcgmsg not GA due to init. order
+      if (ga_nodeid() .eq. 0) then ! tcgmsg not GA due to init. order
          rewind LuIn
          call inp_init(LuIn,LuOut)
          if (inp_search(.false., 'memory', 1)) then
@@ -58,9 +57,10 @@ c 2GB check on 32bit archs
 c
 c     Has to be TCGMSG broadcast since GA is not yet initialized
 c
-      call brdcst(Msg_HeapMem, heap_size,  mitob(1), 0)
-      call brdcst(Msg_StkMem, stack_size,  mitob(1), 0)
-      call brdcst(Msg_GblMem, global_size, mitob(1), 0)
-      call brdcst(Msg_StkMem,    overify,  mitob(1), 0)
+      mitob1=MA_sizeof(MT_INT,1,MT_BYTE)
+      call brdcst(Msg_HeapMem, heap_size,  mitob1, 0)
+      call brdcst(Msg_StkMem, stack_size,  mitob1, 0)
+      call brdcst(Msg_GblMem, global_size, mitob1, 0)
+      call brdcst(Msg_StkMem,    overify,  mitob1, 0)
 c
       end
