@@ -12,7 +12,11 @@
 
 typedef long logical;		/* Equivalent C type to FORTRAN logical */
 #ifdef EXT_INT
+#ifdef WIN64
+typedef long long integer;		/* Equivalent C type to FORTRAN integer */
+#else
 typedef long integer;		/* Equivalent C type to FORTRAN integer */
+#endif
 #else
 typedef int integer;		/* Equivalent C type to FORTRAN integer */
 #endif
