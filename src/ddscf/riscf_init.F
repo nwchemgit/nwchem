@@ -262,7 +262,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none
 #include "errquit.fh"
 
-#include "tcgmsg.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "schwarz.fh"
@@ -276,8 +275,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      $     isum, idum, me, nproc, k_indx, l_indx, len
       logical status
 
-      me = nodeid()
-      nproc = nnodes()
+      me = ga_nodeid()
+      nproc = ga_nnodes()
 
       status = ma_alloc_get (MT_INT, nsh,'RI indices', l_indx, k_indx)
       if (.not. status) call errquit ('couldn''t get local index array',
@@ -329,7 +328,7 @@ C     is there a way to do it in parallel?
         enddo
         npair = isum - 1
       endif
-      len = mitob(1)
+      len = MA_sizeof(MT_INT,1,MT_BYTE)
       call ga_brdcst (Msg_3c_index, npair, len, 0)
 
       status = ma_free_heap (l_indx)
