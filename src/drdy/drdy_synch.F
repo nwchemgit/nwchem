@@ -4,7 +4,6 @@ C $Id$
 #include "errquit.fh"
 #include "drdyP.fh"
 #include "nwc_drdyP.fh"
-#include "tcgmsg.fh"
 #include "msgids.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -137,7 +136,8 @@ c
 *      write(fu6,*)' B4 msg_drdy_opcode = ',msg_drdy_opcode,
 *     &    ' opcode = ',opcode,' node=',me_drdy
 *      call util_flush(6)
-      call ga_brdcst(msg_DRDY_OPCODE, opcode, mitob(1), master)
+      call ga_brdcst(msg_DRDY_OPCODE, opcode,
+     &     MA_sizeof(MT_INT,1,MT_BYTE), master)
       call ga_sync()
 *      write(fu6,*)' AF msg_drdy_opcode = ',msg_drdy_opcode,
 *     &    ' opcode = ',opcode,' node=',me_drdy

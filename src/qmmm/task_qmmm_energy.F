@@ -1464,7 +1464,9 @@ c       start load restart file if it exists and requested
      >                          filename0(1:inp_strlen(filename0)))
             end if
           end if
-          call ga_brdcst(msg_qmmm_misc, ofile, mitob(1), 0)
+          call ga_brdcst(msg_qmmm_misc, ofile, 
+     $     MA_sizeof(MT_INT,1,MT_BYTE),0)
+          
           call ga_sync()
           if(ofile) 
      >      call mm_reload_rst(irtdb,filename0)
@@ -1532,7 +1534,6 @@ c     $Id$
 #include "qmmm.fh"
 #include "inp.fh"
 #include "msgids.fh"
-#include "tcgmsg.fh"
       integer irtdb
       logical task_qmmm_energy_pes
       double precision cpu, wall
@@ -1714,7 +1715,9 @@ c       start load restart file if it exists and requested
      >                          filename0(1:inp_strlen(filename0)))
             end if
           end if
-          call ga_brdcst(msg_qmmm_misc, ofile, mitob(1), 0)
+          call ga_brdcst(msg_qmmm_misc, ofile,
+     $     MA_sizeof(MT_INT,1,MT_BYTE),0)
+          
           call ga_sync()
           if(ofile) 
      >      call mm_reload_rst(irtdb,filename0)
