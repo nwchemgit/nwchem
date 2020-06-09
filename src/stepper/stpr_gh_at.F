@@ -19,7 +19,6 @@ C>
 #include "geom.fh"
 #include "bas.fh"
 #include "rtdb.fh"
-#include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "msgids.fh"
 #include "inp.fh"
@@ -293,7 +292,8 @@ c
 c     
 c     broadcast number of atoms
 c     
-      call ga_brdcst(Msg_gen_at_nat+MSGINT, nat, mitob(1), 0)
+      call ga_brdcst(Msg_gen_at_nat+MSGINT, nat,
+     $     MA_sizeof(MT_INT,1,MT_BYTE), 0)
 c     
 *
       if (o_stepper_debug) then
@@ -356,7 +356,8 @@ c
 c
 c     Read gradient and dipole at the central point
 c
-      call ga_brdcst(Msg_gen_at_nat+MSGINT, rank_hess, mitob(1), 0)
+      call ga_brdcst(Msg_gen_at_nat+MSGINT, rank_hess,
+     $        MA_sizeof(MT_INT,1,MT_BYTE), 0)
 c
 c     me.ne.0 need gradient
 c

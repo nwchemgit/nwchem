@@ -12,7 +12,6 @@ C
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
-#include "tcgmsg.fh"
 #include "stdio.fh"
 #include "util.fh"
 #include "geninterface.fh"
@@ -28,7 +27,8 @@ C
       character*256 venusnw_file
       character*(nw_max_path_len) input_filename, rtdb_name
 
-      integer stack, heap, global, i 
+      integer stack, heap, global, i
+      integer mdtob1,mitob1
       logical overify, ohardfail, ostartup, ocontinue
 
       logical setTheory, setBasisSet, setInitCoordinates, setCharge
@@ -51,23 +51,24 @@ c - raj
       heap = 29582386
       global = 29582386
 c----
-
-      call ga_brdcst(MT_INT, natom, mitob(1), 0)
-      call ga_brdcst(MT_DBL, coordinates, mdtob(3*natom), 0)
+      mitob1=MA_sizeof(MT_INT,1,MT_BYTE)
+      mdtob1=MA_sizeof(MT_DBL,1,MT_BYTE)
+      call ga_brdcst(MT_INT, natom, mitob1, 0)
+      call ga_brdcst(MT_DBL, coordinates, mdtob1*3*natom, 0)
 C change MT_INT-256/4 to MT_BYTE-256
       call ga_brdcst(MT_BYTE, theory, 256, 0)
       call ga_brdcst(MT_BYTE, basis, 256, 0)
-      call ga_brdcst(MT_INT, labels, 16*mitob(natom)/4, 0)
+      call ga_brdcst(MT_INT, labels, 16*natom*mitob1/4, 0)
 C      write(6,*) labels(1), labels(2), labels(3),labels(4)
 C     * ,labels(5),labels(6)
 C      call flush(6)
 C YA: Broadcast charge
-      call ga_brdcst(MT_DBL, charge, mdtob(1), 0)
+      call ga_brdcst(MT_DBL, charge, mdtob1, 0)
       call ga_brdcst(MT_BYTE, printName, 256, 0)
 C PA Broadcast Memory parameters
-      call ga_brdcst(MT_INT, stack, mitob(1), 0)
-      call ga_brdcst(MT_INT, heap, mitob(1), 0)
-      call ga_brdcst(MT_INT, global, mitob(1), 0)
+      call ga_brdcst(MT_INT, stack, mitob1, 0)
+      call ga_brdcst(MT_INT, heap, mitob1, 0)
+      call ga_brdcst(MT_INT, global, mitob1, 0)
 c--raj
        write (6,*) 'stack=',stack,' heap=',heap,' global=',global
 c--
@@ -433,7 +434,6 @@ C
 #include "global.fh"
 #include "stdio.fh"
 #include "util.fh"
-#include "tcgmsg.fh"
 
       common/threads/myid
       integer myid 
@@ -445,7 +445,8 @@ C
 
       evaluateObjective = .false.
 
-      call ga_brdcst(MT_DBL, coords, mdtob(3*numatoms), 0)
+      call ga_brdcst(MT_DBL, coords,
+     $     MA_sizeof(MT_DBL,(3*numatoms),MT_BYTE), 0)
       call flush(6)
 
       if (.not.setCoordinates(coords))
@@ -656,14 +657,13 @@ CBERT subroutine net_broadcast(myid,idop)
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
-#include "tcgmsg.fh"
 #include "stdio.fh"
 #include "util.fh"
 #include "geninterface.fh"
 
       integer myid,idop
 
-      call ga_brdcst(MT_INT, idop, mitob(1), 0)
+      call ga_brdcst(MT_INT, idop, MA_sizeof(MT_INT,1,MT_BYTE), 0)
 
       return
       end
