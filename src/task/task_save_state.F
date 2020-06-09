@@ -222,7 +222,7 @@ c
 #include "inp.fh"
 #include "util.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
+#include "mafdecls.fh"
       integer rtdb              ! [input]
       character*(*) suffix      ! [input]
 c     
@@ -397,7 +397,7 @@ c
       endif
 c     
       call ga_sync()
-      call ga_brdcst(88, status, mitob(1), 0)
+      call ga_brdcst(88, status, MA_sizeof(MT_INT,1,MT_BYTE), 0)
 c     
       task_restore_state = status
 c     
