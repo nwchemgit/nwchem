@@ -518,6 +518,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
            if (minimizer.eq.5) write(luout,1296) "potential"
            if (minimizer.eq.8) write(luout,1296) "density"
            write(luout,1294) control_ks_alpha()
+           write(luout,1301) control_kerker_g0()
          end if
          if (control_fractional()) then
            write(luout,1297)
