@@ -187,7 +187,11 @@ void FATR ishift_fileptr_(const Integer *unit, const Integer *n)
 void FATR flush_fileptr_(const Integer *unit)
 {
    (void) fflush(fd[*unit]);
+#ifdef WIN32   
+   (void) _commit(fileno(fd[*unit]));
+#else
    (void) fsync(fileno(fd[*unit]));
+#endif   
 }
 
 /*
