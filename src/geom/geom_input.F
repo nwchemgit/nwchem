@@ -972,8 +972,8 @@ c
 #include "util.fh"
       character*(*) filename
       integer  ifr
-      character*(*) asel(ns)
       integer ns
+      character*(*) asel(ns)
       integer isel(2*ns)
       integer n
       integer nmax
@@ -1084,8 +1084,8 @@ c       process selections here
 #include "util.fh"
       character*(*) filename
       integer  ifr
-      character*(*) asel(ns)
       integer ns
+      character*(*) asel(ns)
       integer isel(2*ns)
       integer n
       integer nmax
