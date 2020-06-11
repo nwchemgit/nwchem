@@ -16,6 +16,8 @@ C$Id$
 C
       integer Total_Size,mitob1
       Character*1 Total_Src, Heap_Src, Stack_Src, Global_Src
+      integer util_mynodeid
+      external util_mynodeid
 c
 c     Scan the input file for the memory directive and call
 c     memory_input() to parse the line without storing the data
@@ -28,7 +30,7 @@ c
       overify    = .true.       ! Verify unless told otherwise!
       ohardfail  = .false.      ! Don't hard fail
 C
-      if (ga_nodeid() .eq. 0) then ! tcgmsg not GA due to init. order
+      if (util_mynodeid() .eq. 0) then ! MPI not GA due to init. order
          rewind LuIn
          call inp_init(LuIn,LuOut)
          if (inp_search(.false., 'memory', 1)) then
