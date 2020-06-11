@@ -3001,16 +3001,16 @@ C         CALL WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
                 LBSTR = NSSOB(IBSM,IBTP)
 *. Size of unpacked block
                 LTTSUP =  LASTR*LBSTR                         
-                XLTTSUP =  DFLOAT(LASTR)*DFLOAT(LBSTR)
+                XLTTSUP =  DBLE(LASTR)*DBLE(LBSTR)
 *. Size of packed block
                 IF(ISYM.EQ.0.OR.IATP.NE.IBTP) THEN
                   LTTSBL = LASTR*LBSTR          
-                  XLTTSBL = DFLOAT(LASTR)*DFLOAT(LBSTR)
-                  XNCOMB = XNCOMB + DFLOAT(LASTR)*DFLOAT(LBSTR)        
+                  XLTTSBL = DBLE(LASTR)*DBLE(LBSTR)
+                  XNCOMB = XNCOMB + DBLE(LASTR)*DBLE(LBSTR)        
                 ELSE
                   LTTSBL = LASTR*(LASTR+1)/2
-                  XLTTSBL = DFLOAT(LASTR+1)*DFLOAT(LASTR)/2
-                  XNCOMB = XNCOMB + DFLOAT(LASTR+1)*DFLOAT(LASTR)/2        
+                  XLTTSBL = DBLE(LASTR+1)*DBLE(LASTR)/2
+                  XNCOMB = XNCOMB + DBLE(LASTR+1)*DBLE(LASTR)/2        
                 END IF
                 LTTS_AS = LTTS_AS + LTTSUP
                 XLTTS_AS = XLTTS_AS + XLTTSUP

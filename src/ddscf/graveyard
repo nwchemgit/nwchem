@@ -203,7 +203,7 @@ c
          tdadd = tdadd + tcgtime() - start
 c
          start = tcgtime()
-         deltad = dsqrt(ga_ddot(g_over,g_over)/dfloat(nbf*nbf))
+         deltad = dsqrt(ga_ddot(g_over,g_over)/dble(nbf*nbf))
          tddot = tddot + tcgtime() - start
          start = tcgtime()
          if (iter .gt. 1 .and. damp .gt. 0.0d0)

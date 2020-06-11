@@ -57,7 +57,7 @@ c
             call fci_mfind_weight(u,uocc,ns)
 c
             eaj(v,1,j) = u
-            eajphase(1,j) = dfloat(mod(ns-j+1,2)*2-1)
+            eajphase(1,j) = dble(mod(ns-j+1,2)*2-1)
          enddo
       enddo
 c
@@ -83,7 +83,7 @@ c
 c
             call fci_mfind_weight(u,uocc,ns+2)
             eaj(v,2,j) = u
-            eajphase(2,j) = dfloat(mod(ns+j+1,2)*2-1)
+            eajphase(2,j) = dble(mod(ns+j+1,2)*2-1)
 c
 c     Type 3:   |u> = (j...1)(s+2...1)(12) |+-v>  (beta->a, alpha->j)
 c     .             = (j...1)|+v-> * -1^(s)

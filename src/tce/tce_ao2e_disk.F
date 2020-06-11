@@ -75,8 +75,8 @@ c
         do g2b = g1b,noa+nob+nva+nvb
           sf_size_pq = sf_size_pq + int_mb(k_range+g1b-1)
      1                            * int_mb(k_range+g2b-1)
-          dbl_size   = dbl_size   + dfloat(int_mb(k_range+g1b-1))
-     1                            * dfloat(int_mb(k_range+g2b-1))
+          dbl_size   = dbl_size   + dble(int_mb(k_range+g1b-1))
+     1                            * dble(int_mb(k_range+g2b-1))
         enddo
       enddo
 #if !defined(EXT_INT)
