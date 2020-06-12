@@ -534,7 +534,7 @@ endif
     MAYBE_SYSVSHMEM= "ARMCI_DEFAULT_SHMMAX_UBOUND=131072"
 GOTCGWIN32= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep CYGWIN32|cut -c22)
 GOTMINGW32= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW32|cut -c21)
-GOTMINGW64= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW64|cut -c21)
+GOTMINGW64= $(shell gcc -dM -E -   </dev/null 2> /dev/null |grep MINGW64|cut -c21)
 ifeq ($(GOTCGWIN32),1)
 # weak pragmas not working with cygwin
    MAYBE_OFFLOAD += --disable-weak
@@ -694,15 +694,15 @@ $(BUILDDIR)/config.status: $(GA_DIR)/configure $(STAMP_FC) $(STAMP_CC) $(STAMP_D
 	@(test -d $(BUILDDIR)) || mkdir $(BUILDDIR);
 	@(cd $(BUILDDIR) && echo $(CONFIGURE_PATH) $(CONFIGURE_ARGS) && $(CONFIGURE_PATH) $(CONFIGURE_ARGS)) || exit 1
 $(GA_DIR)/Makefile.in:
-	@echo "0No Global Arrays found: Attempting running ./get-tools"
+	@echo "No Global Arrays found: Attempting running ./get-tools"
 	$(GET_TOOLS)
 $(GA_DIR)/configure: $(GA_DIR)/Makefile.in
-	@echo "1No Global Arrays found: Attempting running ./get-tools"
+	@echo "No Global Arrays found: Attempting running ./get-tools"
 	$(GET_TOOLS)
 	touch $(GA_DIR)/configure
-ifdef EXTRA_CHECKS
+ifndef DONTCARE
 $(GA_DIR)/armci/Makefile.in: $(GA_DIR)/configure
-	@echo "2No Global Arrays found: Attempting running ./get-tools"
+	@echo "No Global Arrays found: Attempting running ./get-tools"
 	$(GET_TOOLS)
 	touch $(GA_DIR)/armci/Makefile.in
 $(GA_DIR)/armci/configure: $(GA_DIR)/armci/Makefile.in
