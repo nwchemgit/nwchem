@@ -25,7 +25,7 @@ c
       if(iseed.gt.0) call linux_sran(iseed)
       util_random=linux_rand()
 #else
-      call errquit(' random routine missing', 0,CAPMISS_ERR)
+      call errquit(' random routine missing', 0,CAPMIS_ERR)
 #endif
       end
 
