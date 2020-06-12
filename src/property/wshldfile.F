@@ -48,7 +48,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
-#include "zora.fh" ! FA-04-24-10
+#include "zora.fh"
 c Using g_Ci defined in zora.fh, computed in dft_zora_scale() from dft_zora_utils.F
       integer rtdb  
 c

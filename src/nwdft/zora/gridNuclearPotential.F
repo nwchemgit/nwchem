@@ -11,7 +11,7 @@ c     == Calculate the point nuclear potential on the grid ==
 #include "geom.fh"
 #include "stdio.fh"
 #include "zora.fh"
-#include "global.fh" ! Added for using ga_nodeid()
+#include "global.fh" 
 
       integer iatom,natoms,geom,igrid,nqpts
       double precision nucCharge, nucCoords(3)
@@ -72,7 +72,7 @@ c
 #include "geom.fh"
 #include "stdio.fh"
 #include "zora.fh"
-#include "global.fh" ! Added for using ga_nodeid()
+#include "global.fh" 
 
       integer iatom,natoms,geom,igrid,nqpts
       double precision nucCharge, nucCoords(3)

@@ -216,7 +216,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
-#include"cons_data.fh"
+#include "cons_data.fh"
 c     
       logical cons_harm_dihed_input
       integer id(4)
