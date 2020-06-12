@@ -74,10 +74,10 @@ c
          if(abs(rad_cutoff(1,i)).gt.eps) then
             lcube(i)=grid_lcube(dble(rad_cutoff(1,i)))
             nxyz=grid_nxyz(dble(rad_cutoff(1,i)),lcube(i))
-            shft=0
+            grid_shft=0
             if(sub4) then
                nsub4=grid_nsub4(nxyz)
-               shft=nsub4**3
+               grid_shft=nsub4**3
             endif
             ncubes_type(i)=grid_ncubes(dble(rad_cutoff(1,i)),
      ,           .false.,dum,lcube(i))
@@ -103,7 +103,7 @@ c
      ,        lcube(i))
       if(ga_nodeid().eq.0.and.oprint) 
      .        write(LuOut,22) i,lcube(i),ncubes_type(i),
-     ,     nxyz,rad_cutoff(1,i),shft
+     ,     nxyz,rad_cutoff(1,i),grid_shft
  22   format(5x,i4,2x,f8.2,4x,i6,7x,i3,5x,i3,2x,i4)
       enddo
       return
