@@ -169,7 +169,7 @@ c overlap distribution "P".
 
 c Include the factor of (-1)**(Iq+Jq+Kq).
                       Lq=Lq+1
-#ifdef GCC4
+#if defined(GCC4) || defined(PGLINUX)
                       if(IAND(Lq,1).eq.1)then
 #else
                       if(AND(Lq,1).eq.1)then
@@ -267,7 +267,7 @@ c overlap distribution "Q" and calculate eri
                  iqlast=ic+id
                  if(iqlast.gt.0) then
                     iqfin=-1
-#ifdef GCC4
+#if defined(GCC4) || defined(PGLINUX)
                     if(iand(iqlast,1).eq.0) then
 #else
                     if(and(iqlast,1).eq.0) then
