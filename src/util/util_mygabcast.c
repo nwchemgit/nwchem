@@ -102,7 +102,7 @@ Integer FATR util_mynodeid_(void)
 #include <mpi.h>
 {
   int myid;
-  Integer nodeid[0];
+  Integer nodeid[1];
   MPI_Comm_rank(MPI_COMM_WORLD,&myid);
   *nodeid = (Integer) myid;
   return  *nodeid;
