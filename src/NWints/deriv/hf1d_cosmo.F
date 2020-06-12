@@ -44,6 +44,7 @@ c     Implicit integer (i-n)
 
 c--> Cartesian Coordinates, Primitives & Contraction Coefficients
 
+      Integer NPA, NCA, NPB, NCB, NCP
       Double precision Axyz(3),Aprims(NPA),Acoefs(NPA,NCA)
       Double precision Bxyz(3),Bprims(NPB),Bcoefs(NPB,NCB)
 
@@ -66,7 +67,6 @@ c--> Scratch Space.
 c--> Other stuff
 
       Integer lprod, mxd, Lp3, Lp, Nder, NPP
-      Integer NPA, NCA, NPB, NCB, NCP
       Integer La, Lb, Li, ictrA, ictrB
       Integer i_VA, i_VB, i_VP, i_VR, i_Ri, i_Rj, i_RS
       Integer MaxMem, nd
