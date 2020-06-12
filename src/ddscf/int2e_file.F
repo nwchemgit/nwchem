@@ -370,14 +370,14 @@ c
 c
 c     Store ranges so that can survive packing to 1 byte
 c
-      labels(1, next_value  ) = iand(ishft(ilo,8),-255)
-      labels(2, next_value  ) = iand(ishft(jlo,8),-255)
-      labels(3, next_value  ) = iand(ishft(klo,8),-255)
-      labels(4, next_value  ) = iand(ishft(llo,8),-255)
-      labels(1, next_value+1) = iand(ishft(ihi,8),-255)
-      labels(2, next_value+1) = iand(ishft(jhi,8),-255)
-      labels(3, next_value+1) = iand(ishft(khi,8),-255)
-      labels(4, next_value+1) = iand(ishft(lhi,8),-255)
+      labels(1, next_value  ) = iand(ishft(ilo,-8),255)
+      labels(2, next_value  ) = iand(ishft(jlo,-8),255)
+      labels(3, next_value  ) = iand(ishft(klo,-8),255)
+      labels(4, next_value  ) = iand(ishft(llo,-8),255)
+      labels(1, next_value+1) = iand(ishft(ihi,-8),255)
+      labels(2, next_value+1) = iand(ishft(jhi,-8),255)
+      labels(3, next_value+1) = iand(ishft(khi,-8),255)
+      labels(4, next_value+1) = iand(ishft(lhi,-8),255)
       labels(1, next_value+2) = iand(ilo,255)
       labels(2, next_value+2) = iand(jlo,255)
       labels(3, next_value+2) = iand(klo,255)
@@ -1240,8 +1240,8 @@ c
 #include "bitops_funcs.fh"
 c
       n = labels(1,cntr_ptr)
-      labels(1,cntr_ptr) = iand(ishft(n,16),-255)
-      labels(2,cntr_ptr) = iand(ishft(n,8),-255)
+      labels(1,cntr_ptr) = iand(ishft(n,-16),255)
+      labels(2,cntr_ptr) = iand(ishft(n,-8),255)
       labels(3,cntr_ptr) = iand(n,255)
       labels(4,cntr_ptr) = 0
       values(cntr_ptr)   = 0.0d0
