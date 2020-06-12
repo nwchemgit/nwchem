@@ -1,4 +1,4 @@
-#if ( __GNUC__ >= 4)
+#if ( __GNUC__ >= 4) || defined(PGLINUX)
 #else
       integer function ishft(i,j)
 *

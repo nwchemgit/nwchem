@@ -27,7 +27,7 @@ c
       vv = shiftr(iand(m(index), vvv), nbits)
       v = iand(vv,15)
 #else
-      v = iand(rshift(iand(m(index), lshift(v, nbits)), nbits),15)
+      v = iand(ishft(iand(m(index), ishft(v, nbits)), -nbits),15)
 #endif
 c
       s = fast(v)
