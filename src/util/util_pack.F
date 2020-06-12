@@ -11,10 +11,15 @@
 c
       integer longw
       integer*2 shortw(4)
+#ifdef F77      
       equivalence (longw,shortw)
+#endif      
 c
       shortw(1) = 0
       longw = 1
+#ifndef f77      
+      shortw=transfer(longw,1)
+#endif      
       obigendian = .not. (shortw(1) .eq. 1)
 c     
       bytes_per_int = ma_sizeof(mt_int, 1, mt_byte)
