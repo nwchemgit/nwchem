@@ -57,6 +57,7 @@ c     ---------------------
       integer basis   ! [input] basis handle
       integer geom    ! [input] geometry handle
       integer npol,nocct(npol), nvirt(npol)
+      integer nbf
       double precision froct(nbf,npol), epst(nbf,npol)
       
 c     GA handles:
@@ -66,7 +67,7 @@ c     GA handles:
      &  g_quadel, g_vecE1(2,2),g_vecE1_im(2,2),
      &  g_vecB1(npol)
       
-      integer nbf, nmo, ncomp
+      integer  nmo, ncomp
       double precision gamwidth, omega
       logical lgiao, lquad, lvelocity, lifetime,
      &  lstatic

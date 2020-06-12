@@ -398,10 +398,10 @@ c     bit needed for forces
 #include "cdft.fh"
 #include "mafdecls.fh"
 
+      integer nq  ! input, no. of quadrature weights
       double precision rho(nq,ipol*(ipol+1)/2) ! input, electron density
       double precision delrho(nq,3,ipol) ! input, gradient of the electron density
       double precision lap(nq,ipol*(ipol+1)/2) ! input, laplacian
-      integer nq  ! input, no. of quadrature weights
       double precision qxyz(3,nq) ! input, quadrature node positions
       double precision qwght(nq)  ! input, quadrature weights
       double precision ttau(nq,ipol) ! input, ked
