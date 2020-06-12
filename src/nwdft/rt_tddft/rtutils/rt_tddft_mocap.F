@@ -134,7 +134,7 @@ C     print to screen
          if (params%mocap_print) then
             if (me.eq.0) then
                write(6, "(1x,i6,4es22.12e3)") i, ee, 0d0, !xxx hardcoded 0 imag part eval
-     $              dble(zval), imag(zval)
+     $              dble(zval), aimag(zval)
             endif
          endif
          
