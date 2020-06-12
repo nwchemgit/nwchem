@@ -271,8 +271,8 @@ c===================================================================c
           if (sf_open(d_file).ne.0)
      1      call errquit('get_block: sf problem',0,DISK_ERR)
         endif
-        if (sf_read(d_file,dfloat(bytes)*dfloat(offset_alpha),
-     1    dfloat(bytes)*dfloat(size),dbl_mb(k_a),request).ne.0)
+        if (sf_read(d_file,dble(bytes)*dble(offset_alpha),
+     1    dble(bytes)*dble(size),dbl_mb(k_a),request).ne.0)
      2    call errquit('get_block: sf problem',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('get_block: sf problem',2,DISK_ERR)
@@ -506,8 +506,8 @@ c===================================================================c
           if (sf_open(d_file).ne.0)
      1      call errquit('get_block: sf problem',0,DISK_ERR)
         endif
-        if (sf_read(d_file,dfloat(bytes)*dfloat(offset_alpha),
-     1    dfloat(bytes)*dfloat(size),dbl_mb(k_a),request).ne.0)
+        if (sf_read(d_file,dble(bytes)*dble(offset_alpha),
+     1    dble(bytes)*dble(size),dbl_mb(k_a),request).ne.0)
      2    call errquit('get_block: sf problem',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('get_block: sf problem',2,DISK_ERR)
@@ -933,8 +933,8 @@ c===================================================================c
           if (sf_open(d_file).ne.0)
      1      call errquit('get_block: sf problem',0,DISK_ERR)
         endif
-        if (sf_read(d_file,dfloat(bytes)*dfloat(offset_alpha),
-     1    dfloat(bytes)*dfloat(size),dbl_mb(k_a),request).ne.0)
+        if (sf_read(d_file,dble(bytes)*dble(offset_alpha),
+     1    dble(bytes)*dble(size),dbl_mb(k_a),request).ne.0)
      2    call errquit('get_block: sf problem',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('get_block: sf problem',2,DISK_ERR)
@@ -1172,8 +1172,8 @@ c===================================================================c
           if (sf_open(d_file).ne.0)
      1      call errquit('get_block: sf problem',0,DISK_ERR)
         endif
-        if (sf_read(d_file,dfloat(bytes)*dfloat(offset_alpha),
-     1    dfloat(bytes)*dfloat(size),dbl_mb(k_a),request).ne.0)
+        if (sf_read(d_file,dble(bytes)*dble(offset_alpha),
+     1    dble(bytes)*dble(size),dbl_mb(k_a),request).ne.0)
      2    call errquit('get_block: sf problem',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('get_block: sf problem',2,DISK_ERR)

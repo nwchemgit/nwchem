@@ -137,7 +137,7 @@ c c8 for he, ne and ar. for larger Z, C8 becomes too large
 c which effectively mimics higher R^n terms neglected due
 c to stability reasons
       
-!  r2r4 =sqrt(0.5*r2r4(i)*dfloat(i)**0.5 ) with i=elementnumber
+!  r2r4 =sqrt(0.5*r2r4(i)*dble(i)**0.5 ) with i=elementnumber
 !  the large number of digits is just to keep the results consistent
 !  with older versions. They should not imply any higher accuracy than
 !  the old values
@@ -230,7 +230,7 @@ c scale and convert to au
 !      write(*,'(94(F11.8,'',''))')rcov
 !      stop
 !      do i=1,max_elem
-!         dum    =0.5*r2r4(i)*dfloat(i)**0.5   
+!         dum    =0.5*r2r4(i)*dble(i)**0.5   
 c store it as sqrt because the geom. av. is taken
 !         r2r4(i)=sqrt(dum)                         
 !      enddo

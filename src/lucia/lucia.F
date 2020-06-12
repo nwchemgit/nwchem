@@ -4965,7 +4965,7 @@ C?          WRITE(6,*) ' IROOT NDEG ', IROOT,NDEG
             END IF
 
 *. Initial guess in compressed form in SCR1
-            SCALE = 1.0D0/SQRT(DFLOAT(NDEG))
+            SCALE = 1.0D0/SQRT(DBLE(NDEG))
             DO 250 II = 1,NDEG
 *. Anti symmetric combination
               IF(INIDEG.EQ.-1) THEN
@@ -13439,7 +13439,7 @@ COLD  DIMENSION C(*),HC(*)
 *
 *. VOG RAPING LUCIA (initial guess)
 *
-!           SCALE = 1.0D0/SQRT(DFLOAT(NCVAR))
+!           SCALE = 1.0D0/SQRT(DBLE(NCVAR))
 !            if (ga_nodeid().eq.0)
 !     &        write(*,*) 'I start the Rape', SCALE, NCVAR
 !            call ga_distribution(CB,ga_nodeid(),ilo,ihi,idum,idum)

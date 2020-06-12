@@ -49,9 +49,9 @@ c -----------------------------
 c Retrieve the memory size info
 c -----------------------------
 c
-      ga_dble=dfloat(ga_memory_avail())
-     1  /dfloat(ma_sizeof(mt_dbl,1,mt_byte))
-      ma_dble=dfloat(ma_inquire_avail(mt_dbl))
+      ga_dble=dble(ga_memory_avail())
+     1  /dble(ma_sizeof(mt_dbl,1,mt_byte))
+      ma_dble=dble(ma_inquire_avail(mt_dbl))
       call ga_dgop(msg_tdmem,ga_dble,1,'+')
       if (nodezero.and.util_print('memory information',
      1  print_default)) then
@@ -97,15 +97,15 @@ c
       if (algorithm.eq.0) then
 c peak MA usage
         n=0.0d0
-        n=n+dfloat(2*(nroots*mxtrialf)**2)
-        if (.not.tda) n=n+dfloat(2*(nroots*mxtrialf)**2)
-        n=n+dfloat(3*(nroots*mxtrialf)**2)
-        n=n+dfloat(10*(nroots*mxtrialf))
+        n=n+dble(2*(nroots*mxtrialf)**2)
+        if (.not.tda) n=n+dble(2*(nroots*mxtrialf)**2)
+        n=n+dble(3*(nroots*mxtrialf)**2)
+        n=n+dble(10*(nroots*mxtrialf))
 c peak GA usage except for g_trials and g_products and NGA
         m=0.0d0
-        m=m+dfloat(nbf_ao*nbf_ao*ipol)
-        m=m+dfloat(2*nbf_ao*nbf_ao*ipol)
-        if (.not.tda) m=m+dfloat(nbf_ao*nbf_ao*ipol)
+        m=m+dble(nbf_ao*nbf_ao*ipol)
+        m=m+dble(2*nbf_ao*nbf_ao*ipol)
+        if (.not.tda) m=m+dble(nbf_ao*nbf_ao*ipol)
         if (ga_uses_ma()) then
           m=ga_dble-m-n
         else
@@ -121,26 +121,26 @@ c peak GA usage except for g_trials and g_products and NGA
           j=j*(3+1)
         endif
 c algorithm decision
-        if (m.gt.dfloat(j*(nroots*mxtrialf)
+        if (m.gt.dble(j*(nroots*mxtrialf)
      1           +((2*nbf_ao*ipol)**2)*(2*nroots))) then
           algorithm = 1
           if (nodezero.and.util_print('memory information',
      1      print_default))
      2      write(LuOut,9140) 'Incore multiple tensor contraction' 
-        else if (m.gt.dfloat(j*(nroots*mxtrialf)
+        else if (m.gt.dble(j*(nroots*mxtrialf)
      1           +((2*nbf_ao*ipol)**2))) then
           algorithm = 2
           if (nodezero.and.util_print('memory information',
      1      print_default))
      2      write(LuOut,9140) 'Incore single tensor contraction' 
-        else if (m.gt.1.0d7/dfloat(ma_sizeof(mt_dbl,1,mt_byte))
-     1           +dfloat(((2*nbf_ao*ipol)**2)*(2*nroots))) then
+        else if (m.gt.1.0d7/dble(ma_sizeof(mt_dbl,1,mt_byte))
+     1           +dble(((2*nbf_ao*ipol)**2)*(2*nroots))) then
           algorithm = 3
           if (nodezero.and.util_print('memory information',
      1      print_default))
      2      write(LuOut,9140) 'Disk-based multiple tensor contraction' 
-        else if (m.gt.1.0d7/dfloat(ma_sizeof(mt_dbl,1,mt_byte))
-     1           +dfloat(((2*nbf_ao*ipol)**2))) then
+        else if (m.gt.1.0d7/dble(ma_sizeof(mt_dbl,1,mt_byte))
+     1           +dble(((2*nbf_ao*ipol)**2))) then
           algorithm = 4
           if (nodezero.and.util_print('memory information',
      1      print_default))
@@ -160,18 +160,18 @@ c
 c
 c (A+B) (A-B) and their eigenvector matrices
 c
-      n=n+dfloat(2*(nroots*mxtrialf)**2)
-      if (.not.tda) n=n+dfloat(2*(nroots*mxtrialf)**2)
+      n=n+dble(2*(nroots*mxtrialf)**2)
+      if (.not.tda) n=n+dble(2*(nroots*mxtrialf)**2)
 c
 c Work arrays in tddft_diagon
 c
-      n=n+dfloat(3*(nroots*mxtrialf)**2)
-      n=n+dfloat(10*(nroots*mxtrialf))
+      n=n+dble(3*(nroots*mxtrialf)**2)
+      n=n+dble(10*(nroots*mxtrialf))
 c
 c Memory buffer (10 MB) for DRA
 c
       if ((algorithm.eq.3).or.(algorithm.eq.4))
-     1  n=n+1.0d7/dfloat(ma_sizeof(mt_dbl,1,mt_byte))
+     1  n=n+1.0d7/dble(ma_sizeof(mt_dbl,1,mt_byte))
 c
 c ------------------------------------------------------
 c Estimate peak GA usage besides g_trials and g_products
@@ -181,34 +181,34 @@ c
 c
 c MO vectors
 c
-      m=m+dfloat(nbf_ao*nbf_ao*ipol)
+      m=m+dble(nbf_ao*nbf_ao*ipol)
 c
 c Trial and product density matrices
 c 
-      m=m+dfloat(2*nbf_ao*nbf_ao*ipol)
-      if (.not.tda) m=m+dfloat(nbf_ao*nbf_ao*ipol)
+      m=m+dble(2*nbf_ao*nbf_ao*ipol)
+      if (.not.tda) m=m+dble(nbf_ao*nbf_ao*ipol)
 c
 c Residual vectors
 c
-      m=m+dfloat((nov(1)+nov(2))*nroots)
-      if (.not.tda) m=m+dfloat((nov(1)+nov(2))*nroots)
+      m=m+dble((nov(1)+nov(2))*nroots)
+      if (.not.tda) m=m+dble((nov(1)+nov(2))*nroots)
 c
 c Symmetrized density matrix and NGA trial and product vectors
 c
       if (algorithm.eq.1) then
-        m=m+dfloat(4*nbf_ao*nbf_ao*ipol*(2*nroots))
-        if (ipol.eq.2) m=m+dfloat(4*nbf_ao*nbf_ao*ipol*(2*nroots))
+        m=m+dble(4*nbf_ao*nbf_ao*ipol*(2*nroots))
+        if (ipol.eq.2) m=m+dble(4*nbf_ao*nbf_ao*ipol*(2*nroots))
       else if (algorithm.eq.2) then
-        m=m+dfloat(3*nbf_ao*nbf_ao*ipol)
-        if (ipol.eq.2) m=m+dfloat(4*nbf_ao*nbf_ao*ipol)
+        m=m+dble(3*nbf_ao*nbf_ao*ipol)
+        if (ipol.eq.2) m=m+dble(4*nbf_ao*nbf_ao*ipol)
       else if (algorithm.eq.3) then
-        m=m+dfloat(4*nbf_ao*nbf_ao*ipol*(2*nroots))
-        if (ipol.eq.2) m=m+dfloat(4*nbf_ao*nbf_ao*ipol*(2*nroots))
-        m=m+dfloat(2*(nov(1)+nov(2)))
+        m=m+dble(4*nbf_ao*nbf_ao*ipol*(2*nroots))
+        if (ipol.eq.2) m=m+dble(4*nbf_ao*nbf_ao*ipol*(2*nroots))
+        m=m+dble(2*(nov(1)+nov(2)))
       else if (algorithm.eq.4) then
-        m=m+dfloat(3*nbf_ao*nbf_ao*ipol)
-        if (ipol.eq.2) m=m+dfloat(4*nbf_ao*nbf_ao*ipol)
-        m=m+dfloat(2*(nov(1)+nov(2)))
+        m=m+dble(3*nbf_ao*nbf_ao*ipol)
+        if (ipol.eq.2) m=m+dble(4*nbf_ao*nbf_ao*ipol)
+        m=m+dble(2*(nov(1)+nov(2)))
       endif
 c
 c Check GA and MA remaining space at this point
@@ -243,7 +243,7 @@ c Algorithms 1 & 2: allocate 90% of remaining memory for trial & product vectors
 c ------------------------------------------------------------------------------
 c
       if ((algorithm.eq.1).or.(algorithm.eq.2)) then
-        k=int(0.9d0*ga_dble/dfloat(j))
+        k=int(0.9d0*ga_dble/dble(j))
         if (k.lt.maxvecs) then
           if (nodezero.and.util_print('memory information',
      1      print_default)) write(LuOut,9110) maxvecs,k
@@ -252,14 +252,14 @@ c
      1      call errquit('tddft_memory: failed writing to rtdb',0,
      &       RTDB_ERR)
         endif
-        m=m+dfloat(maxvecs*j)
+        m=m+dble(maxvecs*j)
 c
 c -------------------------------------------------------------------------------
 c Algorithms 3 & 4: 10 GB of disk space is assumed (see dra_init in tddft_energy)
 c -------------------------------------------------------------------------------
 c
       else
-        k=int(1.0d10/dfloat(ma_sizeof(mt_dbl,1,mt_byte))/dfloat(j))
+        k=int(1.0d10/dble(ma_sizeof(mt_dbl,1,mt_byte))/dble(j))
         if (k.lt.maxvecs) then
           if (nodezero.and.util_print('memory information',
      1      print_default)) write(LuOut,9110) maxvecs,k

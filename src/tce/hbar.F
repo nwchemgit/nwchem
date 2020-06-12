@@ -33,13 +33,13 @@ c
       n = int(dn)
       if (n.gt.0) then
         do i = 1, n
-          if (eaf_read(d_temp,dfloat(bytes)*dfloat((i-1)*3+1),
+          if (eaf_read(d_temp,dble(bytes)*dble((i-1)*3+1),
      1      di,bytes).ne.0)
      2      call errquit('hbar_restore: eaf problem',2,DISK_ERR)
-          if (eaf_read(d_temp,dfloat(bytes)*dfloat((i-1)*3+2),
+          if (eaf_read(d_temp,dble(bytes)*dble((i-1)*3+2),
      1      dj,bytes).ne.0)
      2      call errquit('hbar_restore: eaf problem',3,DISK_ERR)
-          if (eaf_read(d_temp,dfloat(bytes)*dfloat((i-1)*3+3),
+          if (eaf_read(d_temp,dble(bytes)*dble((i-1)*3+3),
      1      hbar,bytes).ne.0)
      2      call errquit('hbar_restore: eaf problem',4,DISK_ERR)
           if ((int(di).eq.ivec).and.(int(dj).eq.jvec)) then
@@ -90,18 +90,18 @@ c
      1  call errquit('hbar_store: eaf problem',1,DISK_ERR)
       n = int(dn)
       n = n + 1
-      dn = dfloat(n)
+      dn = dble(n)
       if (eaf_write(d_temp,0.0d0,dn,bytes).ne.0)
      1  call errquit('hbar_store: eaf problem',2,DISK_ERR)
-      di = dfloat(ivec)
-      dj = dfloat(jvec)
-      if (eaf_write(d_temp,dfloat(bytes)*dfloat((n-1)*3+1),
+      di = dble(ivec)
+      dj = dble(jvec)
+      if (eaf_write(d_temp,dble(bytes)*dble((n-1)*3+1),
      1  di,bytes).ne.0)
      2  call errquit('hbar_store: eaf problem',3,DISK_ERR)
-      if (eaf_write(d_temp,dfloat(bytes)*dfloat((n-1)*3+2),
+      if (eaf_write(d_temp,dble(bytes)*dble((n-1)*3+2),
      1  dj,bytes).ne.0)
      2  call errquit('hbar_store: eaf problem',4,DISK_ERR)
-      if (eaf_write(d_temp,dfloat(bytes)*dfloat((n-1)*3+3),
+      if (eaf_write(d_temp,dble(bytes)*dble((n-1)*3+3),
      1  hbar,bytes).ne.0)
      2  call errquit('hbar_store: eaf problem',5,DISK_ERR)
       if (eaf_close(d_temp).ne.0)

@@ -94,8 +94,8 @@ c     Retrieve Memory Info
 c     ====================
 c
       nodezero = (ga_nodeid().eq.0)
-      ga_dble = dfloat(ga_memory_avail()) / dfloat(bytes)
-      ma_dble = dfloat(ma_inquire_avail(mt_dbl))
+      ga_dble = dble(ga_memory_avail()) / dble(bytes)
+      ma_dble = dble(ma_inquire_avail(mt_dbl))
       call ga_dgop(msg_tcemem,ga_dble,1,'+')
       if (ga_uses_ma()) then
         available = int(ga_dble)/2
@@ -120,39 +120,39 @@ c     ========================
 c     Determine the block size
 c     ========================
 c
-      size = dfloat(available)
-      size = size / dfloat(nbf*(nbf+1)/2)
+      size = dble(available)
+      size = size / dble(nbf*(nbf+1)/2)
       size = size / 2.0d0
       size = dsqrt(size)
       isize = int(size)
       if (model.eq."bwccsd") then
-        size = dfloat(available)
+        size = dble(available)
         size = size / 6.0d0
         size = dsqrt(dsqrt(size))
         isize = min(isize,int(size))
       else if (model.eq."bwccsdt") then
-        size = dfloat(available)
+        size = dble(available)
         size = size / 6.0d0
         size = size ** (1.0d0/8.0d0)
         isize = min(isize,int(size))
       else if (model.eq."mkccsd") then
-        size = dfloat(available)
+        size = dble(available)
         size = size / 6.0d0
         size = dsqrt(dsqrt(size))
 c        size = size ** (1.0d0/8.0d0)
         isize = min(isize,int(size))
       else if (model.eq."mkccsdt") then
-        size = dfloat(available)
+        size = dble(available)
         size = size / 6.0d0
         size = size ** (1.0d0/8.0d0)
         isize = min(isize,int(size))
       else if (model.eq."succsd") then
-        size = dfloat(available)
+        size = dble(available)
         size = size / 6.0d0
         size = dsqrt(dsqrt(size))
         isize = min(isize,int(size))
       else if (model.eq."mbpt4") then
-        size = dfloat(available)
+        size = dble(available)
         size = size / 6.0d0
         size = size ** (1.0d0/8.0d0)
         isize = min(isize,int(size))

@@ -1358,7 +1358,7 @@ c
       nfiles = 0
       if (ioalg.eq.5) then
         if (dra_init(max_files,1.0d11,1.0d11,
-     1    dfloat(buffer_size)*dfloat(bytes)).ne.0)
+     1    dble(buffer_size)*dble(bytes)).ne.0)
      2    call errquit('tce_init: dra initialization failed',0,
      3    DISK_ERR)
       endif

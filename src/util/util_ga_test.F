@@ -2329,6 +2329,6 @@ c
       double precision util_drand
       external util_drand
       integer i
-      iran = int(util_drand(0)*dfloat(i))+1
+      iran = int(util_drand(0)*dble(i))+1
       return
       end

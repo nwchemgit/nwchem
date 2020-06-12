@@ -77,26 +77,26 @@ c
           call ga_lock(0)
           if (eaf_open(filename, EAF_RW, d_f).ne.0)
      1      call errquit('add_block: eaf problem',2,DISK_ERR)
-          if (eaf_read(d_f,dfloat(bytes)*dfloat(offset),
+          if (eaf_read(d_f,dble(bytes)*dble(offset),
      1      dbl_mb(k_temp),bytes*size).ne.0)
      2      call errquit('add_block: eaf problem',2,DISK_ERR)
           do i = 1,size
             dbl_mb(k_temp+i-1) = dbl_mb(k_temp+i-1) + array(i)
           enddo
-          if (eaf_write(d_f,dfloat(bytes)*dfloat(offset),
+          if (eaf_write(d_f,dble(bytes)*dble(offset),
      1      dbl_mb(k_temp),bytes*size).ne.0)
      2      call errquit('add_block: eaf problem',2,DISK_ERR)
           if (eaf_close(d_f).ne.0)
      1      call errquit('add_block: eaf problem',0,DISK_ERR)
           call ga_unlock(0)
         else
-          if (eaf_read(d_file,dfloat(bytes)*dfloat(offset),
+          if (eaf_read(d_file,dble(bytes)*dble(offset),
      1      dbl_mb(k_temp),bytes*size).ne.0)
      2      call errquit('add_block: eaf problem',2,DISK_ERR)
           do i = 1,size
             dbl_mb(k_temp+i-1) = dbl_mb(k_temp+i-1) + array(i)
           enddo
-          if (eaf_write(d_file,dfloat(bytes)*dfloat(offset),
+          if (eaf_write(d_file,dble(bytes)*dble(offset),
      1      dbl_mb(k_temp),bytes*size).ne.0)
      2      call errquit('add_block: eaf problem',2,DISK_ERR)
         endif
@@ -114,16 +114,16 @@ c
           if (sf_open(d_file).ne.0)
      1      call errquit('add_block: sf problem',0,DISK_ERR)
         endif
-        if (sf_read(d_file,dfloat(bytes)*dfloat(offset),
-     1    dfloat(bytes)*dfloat(size),dbl_mb(k_temp),request).ne.0)
+        if (sf_read(d_file,dble(bytes)*dble(offset),
+     1    dble(bytes)*dble(size),dbl_mb(k_temp),request).ne.0)
      2    call errquit('add_block: sf problem',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('add_block: sf problem',2,DISK_ERR)
         do i = 1,size
           dbl_mb(k_temp+i-1) = dbl_mb(k_temp+i-1) + array(i)
         enddo
-        if (sf_write(d_file,dfloat(bytes)*dfloat(offset),
-     1    dfloat(bytes)*dfloat(size),dbl_mb(k_temp),request).ne.0)
+        if (sf_write(d_file,dble(bytes)*dble(offset),
+     1    dble(bytes)*dble(size),dbl_mb(k_temp),request).ne.0)
      2    call errquit('add_block: sf problem',3,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('add_block: sf problem',4,DISK_ERR)
@@ -138,13 +138,13 @@ c
         if (.not.ma_push_get(mt_dbl,size,'temporary',
      1    l_temp,k_temp))
      2    call errquit('add_block: MA problem',0,MA_ERR)
-        if (eaf_read(d_file,dfloat(bytes)*dfloat(offset),
+        if (eaf_read(d_file,dble(bytes)*dble(offset),
      1    dbl_mb(k_temp),bytes*size).ne.0)
      2    call errquit('add_block: eaf problem',2,DISK_ERR)
         do i = 1,size
           dbl_mb(k_temp+i-1) = dbl_mb(k_temp+i-1) + array(i)
         enddo
-        if (eaf_write(d_file,dfloat(bytes)*dfloat(offset),
+        if (eaf_write(d_file,dble(bytes)*dble(offset),
      1    dbl_mb(k_temp),bytes*size).ne.0)
      2    call errquit('add_block: eaf problem',2,DISK_ERR)
         if (.not.ma_pop_stack(l_temp))
@@ -166,14 +166,14 @@ c
      1      l_temp,k_temp))
      2      call errquit('add_block: MA problem',0,MA_ERR)
           if (eaf_read(filehandles(d_file),
-     1      dfloat(bytes)*dfloat(offset),
+     1      dble(bytes)*dble(offset),
      2      dbl_mb(k_temp),bytes*size).ne.0)
      3      call errquit('add_block: eaf problem',2,DISK_ERR)
           do i = 1,size
             dbl_mb(k_temp+i-1) = dbl_mb(k_temp+i-1) + array(i)
           enddo
           if (eaf_write(filehandles(d_file),
-     1      dfloat(bytes)*dfloat(offset),
+     1      dble(bytes)*dble(offset),
      2      dbl_mb(k_temp),bytes*size).ne.0)
      3      call errquit('add_block: eaf problem',2,DISK_ERR)
           if (.not.ma_pop_stack(l_temp))

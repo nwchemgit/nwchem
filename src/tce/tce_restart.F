@@ -51,8 +51,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_2e),
-     1   dfloat(bytes)*dfloat(size_2e),dfloat(chunk_v2),hand_v2,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_2e),
+     1   dble(bytes)*dble(size_2e),dble(chunk_v2),hand_v2,
      2   V2_SUFFIX)
      1   .ne.0)
      2   call errquit('v2_restart_save: sf_problem',0,DISK_ERR)
@@ -83,8 +83,8 @@ c
       call ga_get(d_v2,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
         ierrcode1=sf_write(hand_v2,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(1))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -158,8 +158,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_1e),
-     1   dfloat(bytes)*dfloat(size_1e),dfloat(chunk_f1),hand_f1,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_1e),
+     1   dble(bytes)*dble(size_1e),dble(chunk_f1),hand_f1,
      2   F1_SUFFIX)
      1   .ne.0)
      2   call errquit('f1_restart_save: sf_problem',0,DISK_ERR)
@@ -183,8 +183,8 @@ c
       call ga_get(d_f1,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
         ierrcode1=sf_write(hand_f1,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(1))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -275,8 +275,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_d1),
-     1   dfloat(bytes)*dfloat(size_d1),dfloat(chunk_d1),hand_d1,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_d1),
+     1   dble(bytes)*dble(size_d1),dble(chunk_d1),hand_d1,
      2   D1_SUFFIX)
      1   .ne.0)
      2   call errquit('d1_restart_save: sf_problem',0,DISK_ERR)
@@ -300,8 +300,8 @@ c
       call ga_get(d_d1,offset_aux+1,offset_aux+size_aux,1,1,
      &     dbl_mb(k_aux),1)
         ierrcode1=sf_write(hand_d1,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(1))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -394,8 +394,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_x1),
-     1   dfloat(bytes)*dfloat(size_x1),dfloat(chunk_x1),hand_x1,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_x1),
+     1   dble(bytes)*dble(size_x1),dble(chunk_x1),hand_x1,
      2   X_SUFFIX)
      1   .ne.0)
      2   call errquit('x1_restart_save: sf_problem',0,DISK_ERR)
@@ -418,8 +418,8 @@ c
       call ga_get(d_x1,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
         ierrcode1=sf_write(hand_x1,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -513,8 +513,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_tr1),
-     1   dfloat(bytes)*dfloat(size_tr1),dfloat(chunk_tr1),hand_tr1,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_tr1),
+     1   dble(bytes)*dble(size_tr1),dble(chunk_tr1),hand_tr1,
      2   TR_SUFFIX)
      1   .ne.0)
      2   call errquit('tr1_restart_save: sf_problem',0,DISK_ERR)
@@ -537,8 +537,8 @@ c
       call ga_get(d_tr1,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
         ierrcode1=sf_write(hand_tr1,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -630,8 +630,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_y1),
-     1   dfloat(bytes)*dfloat(size_y1),dfloat(chunk_y1),hand_y1,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_y1),
+     1   dble(bytes)*dble(size_y1),dble(chunk_y1),hand_y1,
      2   Y_SUFFIX)
      1   .ne.0)
      2   call errquit('y1_restart_save: sf_problem',0,DISK_ERR)
@@ -655,8 +655,8 @@ c
       call ga_get(d_y1,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
         ierrcode1=sf_write(hand_y1,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -748,8 +748,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_yr1),
-     1   dfloat(bytes)*dfloat(size_yr1),dfloat(chunk_yr1),hand_yr1,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_yr1),
+     1   dble(bytes)*dble(size_yr1),dble(chunk_yr1),hand_yr1,
      2   YR_SUFFIX)
      1   .ne.0)
      2   call errquit('yr1_restart_save: sf_problem',0,DISK_ERR)
@@ -772,8 +772,8 @@ c
       call ga_get(d_yr1,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
         ierrcode1=sf_write(hand_yr1,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -866,8 +866,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_x2),
-     1   dfloat(bytes)*dfloat(size_x2),dfloat(chunk_x2),hand_x2,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_x2),
+     1   dble(bytes)*dble(size_x2),dble(chunk_x2),hand_x2,
      2   X_SUFFIX)
      1   .ne.0)
      2   call errquit('x2_restart_save: sf_problem',0,DISK_ERR)
@@ -896,8 +896,8 @@ c
       call ga_get(d_x2,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
         ierrcode1=sf_write(hand_x2,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -991,8 +991,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_tr2),
-     1   dfloat(bytes)*dfloat(size_tr2),dfloat(chunk_tr2),hand_tr2,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_tr2),
+     1   dble(bytes)*dble(size_tr2),dble(chunk_tr2),hand_tr2,
      2   TR_SUFFIX)
      1   .ne.0)
      2   call errquit('tr2_restart_save: sf_problem',0,DISK_ERR)
@@ -1021,8 +1021,8 @@ c
       call ga_get(d_tr2,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
         ierrcode1=sf_write(hand_tr2,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -1116,8 +1116,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_y2),
-     1   dfloat(bytes)*dfloat(size_y2),dfloat(chunk_y2),hand_y2,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_y2),
+     1   dble(bytes)*dble(size_y2),dble(chunk_y2),hand_y2,
      2   Y_SUFFIX)
      1   .ne.0)
      2   call errquit('y2_restart_save: sf_problem',0,DISK_ERR)
@@ -1146,8 +1146,8 @@ c
       call ga_get(d_y2,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
         ierrcode1=sf_write(hand_y2,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -1241,8 +1241,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_yr2),
-     1   dfloat(bytes)*dfloat(size_yr2),dfloat(chunk_yr2),hand_yr2,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_yr2),
+     1   dble(bytes)*dble(size_yr2),dble(chunk_yr2),hand_yr2,
      2   YR_SUFFIX)
      1   .ne.0)
      2   call errquit('yr2_restart_save: sf_problem',0,DISK_ERR)
@@ -1271,8 +1271,8 @@ c
       call ga_get(d_yr2,offset_aux+1,offset_aux+size_aux,1,1,
      &            dbl_mb(k_aux),1)
         ierrcode1=sf_write(hand_yr2,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -1365,8 +1365,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_2e),
-     1   dfloat(bytes)*dfloat(size_2e),dfloat(chunk_v2),hand_v2,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_2e),
+     1   dble(bytes)*dble(size_2e),dble(chunk_v2),hand_v2,
      2   V2_SUFFIX)
      1   .ne.0)
      2   call errquit('v2 restart read: sf_problem',0,DISK_ERR)
@@ -1396,8 +1396,8 @@ c
      1   call errquit('tce_rest_v2: MA l_aux',0,MA_ERR)
       call tce_hash_n(int_mb(k_v2_alpha_offset_s),IRES,offset_aux)
         ierrcode1=sf_read(hand_v2,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(1))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -1468,8 +1468,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_1e),
-     1   dfloat(bytes)*dfloat(size_1e),dfloat(chunk_f1),hand_f1,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_1e),
+     1   dble(bytes)*dble(size_1e),dble(chunk_f1),hand_f1,
      2   F1_SUFFIX)
      1   .ne.0)
      2   call errquit('f1 restart read: sf_problem',0,DISK_ERR)
@@ -1491,8 +1491,8 @@ c
       key=g5b - 1 + (noab+nvab) * (g6b - 1)
       call tce_hash_n(int_mb(k_f1_offset_s),key,offset_aux)
         ierrcode1=sf_read(hand_f1,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(1))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -1581,8 +1581,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_d1),
-     1   dfloat(bytes)*dfloat(size_d1),dfloat(chunk_d1),hand_d1,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_d1),
+     1   dble(bytes)*dble(size_d1),dble(chunk_d1),hand_d1,
      2   D1_SUFFIX)
      1   .ne.0)
      2   call errquit('d1_restart_read: sf_problem',0,DISK_ERR)
@@ -1604,8 +1604,8 @@ c
       key=g5b - 1 + (noab+nvab) * (g6b - 1)
       call tce_hash_n(int_mb(k_d1_offset_s),key,offset_aux)
         ierrcode1=sf_read(hand_d1,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(1))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -1708,8 +1708,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_x1),
-     1   dfloat(bytes)*dfloat(size_x1),dfloat(chunk_x1),hand_x1,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_x1),
+     1   dble(bytes)*dble(size_x1),dble(chunk_x1),hand_x1,
      2   X_SUFFIX)
      1   .ne.0)
      2   call errquit('x1_restart_read: sf_problem',0,DISK_ERR)
@@ -1730,8 +1730,8 @@ c
       key=h6b - 1 + noab * (p5b - noab - 1)
       call tce_hash(int_mb(k_x1_offset),key,offset_aux)
         ierrcode1=sf_read(hand_x1,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -1823,8 +1823,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_tr1),
-     1   dfloat(bytes)*dfloat(size_tr1),dfloat(chunk_tr1),hand_tr1,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_tr1),
+     1   dble(bytes)*dble(size_tr1),dble(chunk_tr1),hand_tr1,
      2   TR_SUFFIX)
      1   .ne.0)
      2   call errquit('tr1_restart_read: sf_problem',0,DISK_ERR)
@@ -1845,8 +1845,8 @@ c
       key=h6b - 1 + noab * (p5b - noab - 1)
       call tce_hash(int_mb(k_tr1_offset),key,offset_aux)
         ierrcode1=sf_read(hand_tr1,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -1936,8 +1936,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_y1),
-     1   dfloat(bytes)*dfloat(size_y1),dfloat(chunk_y1),hand_y1,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_y1),
+     1   dble(bytes)*dble(size_y1),dble(chunk_y1),hand_y1,
      2   Y_SUFFIX)
      1   .ne.0)
      2   call errquit('y1_restart_read: sf_problem',0,DISK_ERR)
@@ -1959,8 +1959,8 @@ c
       key=p5b - noab - 1 + nvab * (h6b - 1)
       call tce_hash(int_mb(k_y1_offset),key,offset_aux)
         ierrcode1=sf_read(hand_y1,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -2050,8 +2050,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_yr1),
-     1   dfloat(bytes)*dfloat(size_yr1),dfloat(chunk_yr1),hand_yr1,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_yr1),
+     1   dble(bytes)*dble(size_yr1),dble(chunk_yr1),hand_yr1,
      2   YR_SUFFIX)
      1   .ne.0)
      2   call errquit('yr1_restart_read: sf_problem',0,DISK_ERR)
@@ -2072,8 +2072,8 @@ c
       key=p5b - noab - 1 + nvab * (h6b - 1)
       call tce_hash(int_mb(k_yr1_offset),key,offset_aux)
         ierrcode1=sf_read(hand_yr1,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -2164,8 +2164,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_x2),
-     1   dfloat(bytes)*dfloat(size_x2),dfloat(chunk_x2),hand_x2,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_x2),
+     1   dble(bytes)*dble(size_x2),dble(chunk_x2),hand_x2,
      2   X_SUFFIX)
      1   .ne.0)
      2   call errquit('x2_restart_read: sf_problem',0,DISK_ERR)
@@ -2192,8 +2192,8 @@ c
      &noab - 1 + nvab * (p1b - noab - 1)))
       call tce_hash(int_mb(k_x2_offset),key,offset_aux)
         ierrcode1=sf_read(hand_x2,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -2285,8 +2285,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_tr2),
-     1   dfloat(bytes)*dfloat(size_tr2),dfloat(chunk_tr2),hand_tr2,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_tr2),
+     1   dble(bytes)*dble(size_tr2),dble(chunk_tr2),hand_tr2,
      2   TR_SUFFIX)
      1   .ne.0)
      2   call errquit('tr2_restart_read: sf_problem',0,DISK_ERR)
@@ -2313,8 +2313,8 @@ c
      &noab - 1 + nvab * (p1b - noab - 1)))
       call tce_hash(int_mb(k_tr2_offset),key,offset_aux)
         ierrcode1=sf_read(hand_tr2,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -2406,8 +2406,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_y2),
-     1   dfloat(bytes)*dfloat(size_y2),dfloat(chunk_y2),hand_y2,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_y2),
+     1   dble(bytes)*dble(size_y2),dble(chunk_y2),hand_y2,
      2   Y_SUFFIX)
      1   .ne.0)
      2   call errquit('y2_restart_read: sf_problem',0,DISK_ERR)
@@ -2434,8 +2434,8 @@ c
      &+ nvab * (h4b - 1 + noab * (h3b - 1)))
       call tce_hash(int_mb(k_y2_offset),key,offset_aux)
         ierrcode1=sf_read(hand_y2,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(2))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)
@@ -2527,8 +2527,8 @@ c
     1 format(1x,A20,' filename: ',A80)
         call util_flush(6)
 c
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size_yr2),
-     1   dfloat(bytes)*dfloat(size_yr2),dfloat(chunk_yr2),hand_yr2,
+        if (sf_create_suffix(filename,dble(bytes)*dble(size_yr2),
+     1   dble(bytes)*dble(size_yr2),dble(chunk_yr2),hand_yr2,
      2   YR_SUFFIX)
      1   .ne.0)
      2   call errquit('yr2_restart_read: sf_problem',0,DISK_ERR)
@@ -2555,8 +2555,8 @@ c
      &+ nvab * (h4b - 1 + noab * (h3b - 1)))
       call tce_hash(int_mb(k_yr2_offset),key,offset_aux)
         ierrcode1=sf_read(hand_yr2,
-     2                   dfloat(bytes)*dfloat(offset_aux),
-     2    dfloat(bytes)*dfloat(size_aux),dbl_mb(k_aux),request)
+     2                   dble(bytes)*dble(offset_aux),
+     2    dble(bytes)*dble(size_aux),dbl_mb(k_aux),request)
         if ((ierrcode1.ne.0).and.(.not.restart_ignore_failure(3))) then
          write(6,*)'ierrcode1=',ierrcode1
          call util_flush(6)

@@ -2548,7 +2548,7 @@ C!   & ' Inconsistency between info on fragments and molecule '
            IF(NTEST.GE.1000) 
      &     WRITE(6,*) ' IEQV, IFRAG = ', IEQV, IFRAG
 *
-           XL = DFLOAT(LEQVGRP_FRAG(IEQV))
+           XL = DBLE(LEQVGRP_FRAG(IEQV))
            SCALE = 1.0D0/SQRT(XL)
 *. Symmetry in fragment
      
@@ -3440,7 +3440,7 @@ C              ILEX_FOR_CONF_G(ICONF,NOCC_ORB,ICONF_SPC,IDOREO)
    
 *. Equal contribution to all CSF's of config
         NCSF_CONF = NPCSCNF(IOPEN+1)
-        XNCSF_CONF = DFLOAT(NCSF_CONF)
+        XNCSF_CONF = DBLE(NCSF_CONF)
 C?      WRITE(6,*) ' IOPEN, NPCSCNF(IOPEN+1) = ',
 C?   &               IOPEN, NPCSCNF(IOPEN+1)
         FACTOR = 1.0D0/SQRT(XNCSF_CONF)

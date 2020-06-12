@@ -130,8 +130,8 @@ c
         call tce_zero(d_sf,size)
       else if (ioalg.eq.3) then
         if (parallel) call ga_sync()
-        if (sf_create(filename,dfloat(bytes)*dfloat(size),
-     1      dfloat(bytes)*dfloat(size),1.0d4,d_sf).ne.0)
+        if (sf_create(filename,dble(bytes)*dble(size),
+     1      dble(bytes)*dble(size),1.0d4,d_sf).ne.0)
      2    call errquit('createfile: sf problem',0,DISK_ERR)
         if (parallel) then
           if (sf_close(d_sf).ne.0)
@@ -252,8 +252,8 @@ c
 c      else if (ioalg.eq.3) then
 c
         if (parallel) call ga_sync()
-        if (sf_create(filename,dfloat(bytes)*dfloat(size),
-     1      dfloat(bytes)*dfloat(size),1.0d4,d_sf).ne.0)
+        if (sf_create(filename,dble(bytes)*dble(size),
+     1      dble(bytes)*dble(size),1.0d4,d_sf).ne.0)
      2    call errquit('createfile_sf: sf problem',0,DISK_ERR)
         if (parallel) then
           if (sf_close(d_sf).ne.0)
@@ -334,8 +334,8 @@ c
 c      else if (ioalg.eq.3) then
 c
         if (parallel) call ga_sync()
-        if (sf_create_suffix(filename,dfloat(bytes)*dfloat(size),
-     1      dfloat(bytes)*dfloat(size),1.0d4,d_sf,suffix).ne.0)
+        if (sf_create_suffix(filename,dble(bytes)*dble(size),
+     1      dble(bytes)*dble(size),1.0d4,d_sf,suffix).ne.0)
      2    call errquit('createfile_sf: sf problem',0,DISK_ERR)
         if (parallel) then
           if (sf_close(d_sf).ne.0)

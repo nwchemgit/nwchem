@@ -66,7 +66,7 @@ c
           call ga_get(d_v2,offset+(j-1)*chunk_t+1,
      1         offset+(j-1)*chunk_t+current_chunk,1,1,dbl_mb(k_aux),1)
 c  write to eaf
-         if (eaf_write(fh,dfloat(bytes*((j-1)*chunk_t+offset)),
+         if (eaf_write(fh,dble(bytes*((j-1)*chunk_t+offset)),
      1       dbl_mb(k_aux),current_chunk*bytes)
      1       .ne.0) 
      1       call errquit('eaf write: write failed',1,DISK_ERR)
@@ -149,7 +149,7 @@ c
      1    call errquit('eaf write:eaf l_aux 1',0,MA_ERR)
           call dfill(current_chunk, 0.0d0, dbl_mb(k_aux), 1)
 c  read from eaf
-         if (eaf_read(fh,dfloat(bytes*((j-1)*chunk_t+offset)),
+         if (eaf_read(fh,dble(bytes*((j-1)*chunk_t+offset)),
      1       dbl_mb(k_aux),current_chunk*bytes)
      1       .ne.0) 
      1       call errquit('eaf read: read failed',1,DISK_ERR)

@@ -23,12 +23,12 @@ c
      1  call errquit('sf_test: MA problem',0,0)
       call tce_filename('filetest',filename)
       call createfile(filename,d_test,size)
-      dbl_mb(k_sf) = dfloat(ga_nodeid()+1)
+      dbl_mb(k_sf) = dble(ga_nodeid()+1)
       call put_block(d_test,dbl_mb(k_sf),1,ga_nodeid())
       call reconcilefile(d_test,size)
       call get_block(d_test,dbl_mb(k_sf),size,0)
       do i = 1,size
-        if (dbl_mb(k_sf+i-1) .ne. dfloat(i))
+        if (dbl_mb(k_sf+i-1) .ne. dble(i))
      1    call errquit('sf_test failed',i,0)
       enddo
       if (.not.ma_pop_stack(l_sf))

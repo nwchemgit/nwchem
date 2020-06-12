@@ -2886,7 +2886,7 @@ C     REF_CCV_CAAB_SP(VEC_CAAB,VEC_SP,VEC_SCR,IWAY)
      &                N_CC_AMP)
         END DO
 *. Change so summed sqareed elements add up to one 
-        FACTOR = 1.0D0/SQRT(DFLOAT(NSING))
+        FACTOR = 1.0D0/SQRT(DBLE(NSING))
         DO I = 1, N_CC_AMP
           WORK(KLVCC3-1+I) = SQRT(WORK(KLVCC3-1+I))*FACTOR
         END DO
@@ -7136,7 +7136,7 @@ C
        A(I) = 1.1D0
       END DO
       DO I = 1, NDIM_FUSK
-        A((I-1)*NDIM_FUSK+I) = DFLOAT(I)
+        A((I-1)*NDIM_FUSK+I) = DBLE(I)
       END DO
 C  MATVCB(MATRIX,VECIN,VECOUT,MATDIM,NDIM,ITRNSP)
       CALL MATVCB(A,VECIN,VECOUT,NDIM_FUSK,NDIM_FUSK,0)
