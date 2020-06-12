@@ -135,7 +135,57 @@ c
         
       return
       end
+#if 1
+      subroutine grid_ssw0(nq,n,nctrs_pruned,
+     ,     p,rq,rij,ass)
+      implicit none
+      integer nq ! complete no. grid pts
+      integer n ! grid point
+      integer nctrs_pruned ! no. centers
+      double precision p(*)
+      double precision rq(nq,*)
+      double precision rij(*)
+      double precision ass ! erfc spread
+      integer i,j,ij
+      double precision rag,mu,sk
+      double precision leps,toll_scr,x
+      parameter(leps=1d-6,toll_scr=1d-10)
+#include "xc_erftab.fh"
+c
+      call dcopy(nctrs_pruned,1.d0,0,p,1)
+      do  i = 2, nctrs_pruned
+         ij = (i*(i-1))/2
+         rag=rq(n,i)
+         do  j = 1, i-1
+            ij=ij+1
+               if(
+     $           abs(p(i)).ge.toll_scr.or.
+     $           abs(p(j)).ge.toll_scr) then
+            mu = (rag - rq(n,j))*rij(ij)
+            if (mu.gt.ass) then
+               p(i)=0.d0
+            elseif (mu.lt.-ass) then
+               p(j)=0.d0
+            else
+c     
+c     use interpolation for erfs
+c
+               if(abs(mu).lt.leps) then
+                  sk=-1.88063178008d0*mu+0.5d0
+               else
+                  sk=erf1c(mu)
+               endif
+               if(mu.gt.0d0) sk = 1d0 - sk
+               p(j) = p(j)*sk
+               p(i) = p(i)*(1d0 - sk)
+            endif
+        endif
+      enddo                     ! end loop over j
+      enddo                     ! end loop over i
 
+      return
+      end
+#else      
       subroutine grid_ssw0(nq,n,nctrs_pruned,
      ,     p,rq,rij,ass)
       implicit none
@@ -175,10 +225,11 @@ CDIR$IVDEP
             ij=ij+1
 #endif
                if(
-#ifndef USE_VEC
-     .           abs(p(i)).ge.toll_scr.or.
+c#ifndef USE_VEC
+#if 1
+     $           abs(p(i)).ge.toll_scr.or.
 #endif
-     .           abs(p(j)).ge.toll_scr) then
+     $           abs(p(j)).ge.toll_scr) then
             mu = (rag - rq(n,j))*rij(ij)
 #ifdef USE_VEC
                   if (mu.lt.-ass) then
@@ -214,3 +265,4 @@ c
 
       return
       end
+#endif
