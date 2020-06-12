@@ -14,26 +14,32 @@ C> interface that can simply be called from the Fortran code without
 C> having to pull any stunts.
 C>
       subroutine util_nwchem_srcdir(pathname)
+#define MAXLENGTH 256
 #ifdef NWCHEM_LONG_PATHS
       USE ISO_C_BINDING
 #endif
       implicit none
 #ifdef NWCHEM_LONG_PATHS
 #include "utilc_nwchem_srcdir.fh"
-      character (KIND=C_CHAR,LEN=256) :: compiled_name
+      character (KIND=C_CHAR,LEN=1) :: compiled_name(256)
       integer (C_INT) :: length
+      character(len=*), intent(inout) :: pathname
+      integer j
 #else
-      character*256 compiled_name
+      character*MAXLENGTH compiled_name
       integer length
-#endif
       character*(*) pathname !< [Output] The compiled in pathname
+#endif
 #ifdef NWCHEM_LONG_PATHS
-      length = len(compiled_name)
+      length = MAXLENGTH
       call utilc_nwchem_srcdir(compiled_name,length)
+      do j=1,length
+         pathname(j:j) = compiled_name(j)
+      enddo
 #else
       compiled_name =
      &NWCHEM_SRCDIR
-#endif
       pathname = compiled_name
+#endif
       end
 c $Id$
