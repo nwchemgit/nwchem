@@ -99,10 +99,10 @@ c
       endif
       call ga_sync()
       mitob1= MA_sizeof(MT_INT,1,MT_BYTE)
-      mdtob_nbf= MA_sizeof(MT_DBL,nbf,MT_BYTE)
       call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob1, 0) ! Propagate status
       if (ok .eq. 1) then
 	 call ga_brdcst(Msg_Vec_NBF+MSGINT, nbf, mitob1, 0)
+         mdtob_nbf= MA_sizeof(MT_DBL,nbf,MT_BYTE)
 	 call ga_brdcst(Msg_Vec_EVal+MSGDBL, evals, mdtob_nbf, 0)
 	 call ga_brdcst(Msg_Vec_Occ+MSGDBL, occ,   mdtob_nbf, 0)
       endif
