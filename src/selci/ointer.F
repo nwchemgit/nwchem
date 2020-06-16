@@ -21,10 +21,6 @@ c
 c     use ieor and popcnt to compute the occupation difference
 c     between the I and J occupations represented as bit patterns
 c     
-c     strip mine into blocks so can call vpop32 instead of
-c     popcnt(popcnt32 -> 100,000/s, vpop32 -> 540,000/s at vl=32
-c     480,000/s at vl=16, 740,000/s at vl=1000)
-c     
 c     Search backwards since it is most likely to find something
 c     that interacts near to the occupation that generated the
 c     excitation being tested.
@@ -39,7 +35,6 @@ c
          do i = 1,ndo
             iwrk1(i) = ieor(itest,ioconf(ioff+i))
          enddo
-         !call selci_vpop32(ndo,iwrk1,iwrk2)
          do i = 1,ndo
            iwrk2(i) = popcnt(iwrk1(i))
          enddo
@@ -54,7 +49,6 @@ c
             iwrk1(i  ) = ieor(itest1,ioconf(ioff+i  ))
             iwrk1(i+1) = ieor(itest2,ioconf(ioff+i+1))
          enddo
-         !call selci_vpop32(ndo2,iwrk1,iwrk2)
          do i = 1,ndo2
            iwrk2(i) = popcnt(iwrk1(i))
          enddo
@@ -71,7 +65,6 @@ c
             iwrk1(i+1) = ieor(itest2,ioconf(ioff+i+1))
             iwrk1(i+2) = ieor(itest3,ioconf(ioff+i+2))
          enddo
-         !call selci_vpop32(ndo3,iwrk1,iwrk2)
          do i = 1,ndo3
            iwrk2(i) = popcnt(iwrk1(i))
          enddo
@@ -87,7 +80,6 @@ c
             enddo
             k = k + nintpo
          enddo
-         !call selci_vpop32(ndo*nintpo,iwrk1,iwrk2)
          do i = 1,ndo*nintpo
            iwrk2(i) = popcnt(iwrk1(i))
          enddo

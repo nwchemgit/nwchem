@@ -82,7 +82,6 @@ c
             enddo
          endif
 c
-         !call selci_vpop32(nk, tmp, out)
          do i = 1,nk
            out(i) = popcnt(tmp(i))
          enddo
