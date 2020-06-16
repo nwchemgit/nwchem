@@ -12,9 +12,3 @@
         output(i) = popcnt(input(i))
       enddo
       end
-
-      integer function selci_leadz32(i)
-      integer i
-      integer function util_leadz
-      selci_leadz32 = leadz(i)
-      end
