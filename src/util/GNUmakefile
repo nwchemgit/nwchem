@@ -349,6 +349,8 @@ testsolve:      testsolve.o $(LIBRARY_PATH)
 testecce:      testecce.o $(LIBRARY_PATH)
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
+test_intrsc2008: test_intrsc2008.o $(LIBRARY_PATH)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 USE_LL = LAPI LAPI64
 
