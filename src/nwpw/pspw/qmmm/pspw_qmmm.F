@@ -52,6 +52,7 @@ c
       integer ndindxsize,ndKr0size
       integer nddindxsize,nddKr0size
       integer ncnindxsize0,ncnindxsize1,ncnindxsize2,ncnKr0size,n1,n2
+      integer nbbindxsize0,nbbindxsize1,nbbKr0size
 
 *     **** external functions ****
       logical     control_print
@@ -241,6 +242,28 @@ c
      >                      nKr0_coord_start(2),
      >                      nKr0_coord_start(1))
 
+*        **** bondings variables ****
+         value = value.and.
+     >           BA_alloc_get(mt_int,nkfrag,'nbondings',
+     >                        nbondings(2),nbondings(1))
+         value = value.and.
+     >         BA_alloc_get(mt_int,nkfrag,'nindx0_bondings_start',
+     >                        nindx0_bondings_start(2),
+     >                        nindx0_bondings_start(1))
+         value = value.and.
+     >         BA_alloc_get(mt_int,nkfrag,'nindx1_bondings_start',
+     >                        nindx1_bondings_start(2),
+     >                        nindx1_bondings_start(1))
+         value = value.and.
+     >         BA_alloc_get(mt_int,nkfrag,'nKr0_bondings_start',
+     >                      nKr0_bondings_start(2),
+     >                      nKr0_bondings_start(1))
+
+         if (.not.value)
+     >    call errquit('cannot allocate heap memory for 2qmmm',0,
+     >       MA_ERR)
+
+
          if (.not.value) 
      >    call errquit('cannot allocate heap memory for qmmm',0,
      >       MA_ERR)
@@ -268,6 +291,9 @@ c
          ncnindxsize1 = 0
          ncnindxsize2 = 0
          ncnKr0size   = 0
+         nbbindxsize0 = 0
+         nbbindxsize1 = 0
+         nbbKr0size   = 0
 
          do ia=1,nkfrag
 
@@ -450,6 +476,26 @@ c
                ncnindxsize2 = ncnindxsize2 + n2
             end do
             ncnKr0size  = ncnKr0size  + 6*int_mb(ncoord(1)+ia-1)
+
+*           **** bondings stuff  - get nbondings ****
+            rtdb_name =
+     >        'pspw_qmmm_frag_nbondings:'//c_index_name(ia)
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,
+     >                        int_mb(nbondings(1)+ia-1)))
+     >         int_mb(nbondings(1)+ia-1) = 0
+
+*           **** bondings stuff  - determine nindxsize and ndsqsize  ****
+            int_mb(nindx0_bondings_start(1)+ia-1) = nbbindxsize0 + 1
+            int_mb(nindx1_bondings_start(1)+ia-1) = nbbindxsize1 + 1
+            int_mb(nKr0_bondings_start(1) +ia-1) = nbbKr0size  + 1
+            do i=1,int_mb(nbondings(1)+ia-1)
+               rtdb_name = 'pspw_qmmm_frag_indxsize1_bondings:'
+     >                     //c_index_name(ia)//c_index_name(i)
+               if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,n1)) n1 =0
+               nbbindxsize0 = nbbindxsize0 + 1
+               nbbindxsize1 = nbbindxsize1 + 2*n1
+               nbbKr0size  = nbbKr0size    + n1 + 2
+            end do
 
          end do
 
@@ -792,6 +838,54 @@ c
      >               dbl_mb(Kr0_coord(1)+ncnKr0size)))
      >               dbl_mb(Kr0_coord(1)+ncnKr0size) = 0.0d0
                   ncnKr0size = ncnKr0size + 6
+               end do
+            end do
+         end if
+
+*        *** more bondings number ****
+         bondings_found = (nbbindxsize1.gt.0)
+         if (bondings_found) then
+            value = BA_alloc_get(mt_int,nbbindxsize0,
+     >              'nsize1_bondings',
+     >               nsize1_bondings(2),
+     >               nsize1_bondings(1))
+            value = value.and.BA_alloc_get(mt_int,nbbindxsize1,
+     >              'indx1_bondings',
+     >               indx1_bondings(2),
+     >               indx1_bondings(1))
+            value = value.and.
+     >              BA_alloc_get(mt_dbl,nbbKr0size,
+     >                           'Kr0_bondings',
+     >                            Kr0_bondings(2),
+     >                            Kr0_bondings(1))
+            if (.not.value) call errquit(
+     >       'cannot allocate heap memory for qmmm bondings',
+     >       0,MA_ERR)
+
+            nbbindxsize0 = 0
+            nbbindxsize1 = 0
+            nbbKr0size  = 0
+            do ia=1,nkfrag
+               do ja=1,int_mb(nbondings(1)+ia-1)
+                  rtdb_name = 'pspw_qmmm_frag_indxsize1_bondings:'
+     >                       //c_index_name(ia)//c_index_name(ja)
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,n1)) n1=0
+                  int_mb(nsize1_bondings(1)+nbbindxsize0) = n1
+                  nbbindxsize0 = nbbindxsize0 + 1
+
+                  rtdb_name = 'pspw_qmmm_frag_indx1_bondings:'
+     >                       //c_index_name(ia)//c_index_name(ja)
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,2*n1,
+     >               int_mb(indx1_bondings(1)+nbbindxsize1)))
+     >               int_mb(indx1_bondings(1)+nbbindxsize1) = 0
+                  nbbindxsize1 = nbbindxsize1 + 2*n1
+
+                  rtdb_name = 'pspw_qmmm_frag_Kr0_bondings:'
+     >                       //c_index_name(ia)//c_index_name(ja)
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,n1+2,
+     >               dbl_mb(Kr0_bondings(1)+nbbKr0size)))
+     >               dbl_mb(Kr0_bondings(1)+nbbKr0size) = 0.0d0
+                  nbbKr0size = nbbKr0size + n1 + 2
                end do
             end do
          end if
@@ -1165,6 +1259,26 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
                kk = kk + 6
              end do
 
+             ll = int_mb(nindx0_bondings_start(1)+ia-1)
+             ii = int_mb(nindx1_bondings_start(1)+ia-1)
+             kk = int_mb(nKr0_coord_start(1)  +ia-1)
+             do ja=1,int_mb(nbondings(1)+ia-1)
+                i  = indx1_coord(1)+ii-1
+                ni = int_mb(nsize1_coord(1)+ll-1)
+                shake_ptr = Kr0_bondings(1)+kk-1
+
+                write(luout,'(A,/6x,A,F11.6,4x,A,F11.6,
+     >                      /6x,A,F11.6,4x,A,F11.6)')
+     >       "   - Bondings Parameters: ",
+     >                  "K0=     ",dbl_mb(shake_ptr),
+     >                  "gamma0= ",dbl_mb(shake_ptr+1)
+                write(luout,'(6x,
+     >               "coef1 atom1a atom1a coef2 atom2a atom2b...=",
+     >               5(F11.6,I5,I5))')
+     >         (dbl_mb(shake_ptr+2+mm),int_mb(i+2*mm),int_mb(i+2*mm+1),
+     >          mm=1,ni)
+             end do
+
            end do
 
            if (link_found) then
@@ -1286,9 +1400,21 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
         value = value.and.BA_free_heap(nindx2_coord_start(2))
         value = value.and.BA_free_heap(nKr0_coord_start(2))
         if (coord_found) then
+          value = value.and.BA_free_heap(nsize1_coord(2))
+          value = value.and.BA_free_heap(nsize2_coord(2))
           value = value.and.BA_free_heap(indx1_coord(2))
           value = value.and.BA_free_heap(indx2_coord(2))
           value = value.and.BA_free_heap(Kr0_coord(2))
+        end if
+
+        value = value.and.BA_free_heap(nbondings(2))
+        value = value.and.BA_free_heap(nindx0_bondings_start(2))
+        value = value.and.BA_free_heap(nindx1_bondings_start(2))
+        value = value.and.BA_free_heap(nKr0_bondings_start(2))
+        if (bondings_found) then
+          value = value.and.BA_free_heap(nsize1_bondings(2))
+          value = value.and.BA_free_heap(indx1_bondings(2))
+          value = value.and.BA_free_heap(Kr0_bondings(2))
         end if
 
         if (link_found) then
@@ -1652,7 +1778,7 @@ c     **** external functions ***
 
 c     **** local variables ****
       integer dutask,taskid,np
-      integer w1,wk1,ks1,nbs,nas,ncbs,nbm,ii,jj,kk,ll,nds,ndds,ncns
+      integer w1,wk1,ks1,nbs,nas,ncbs,nbm,ii,jj,kk,ll,nds,ndds,ncns,nbbs
       real*8  E
 
 c     **** external functions ***
@@ -1672,6 +1798,8 @@ c     **** external functions ***
       external pspw_qmmm_dihedral_frag
       real*8   pspw_qmmm_spring_coordnum_frag
       external pspw_qmmm_spring_coordnum_frag
+      real*8   pspw_qmmm_spring_bondings_frag
+      external pspw_qmmm_spring_bondings_frag
       real*8   pspw_2qmmm_spring_E
       external pspw_2qmmm_spring_E
       logical  pspw_2qmmm_found
@@ -1693,6 +1821,7 @@ c     **** external functions ***
          nds   = int_mb(ndihedral_spring(1)+wk1-1)
          ndds  = int_mb(ndihedral(1)+wk1-1)
          ncns  = int_mb(ncoord(1)+wk1-1)
+         nbbs  = int_mb(nbondings(1)+wk1-1)
          if (nbs.gt.0) then
             jj  = int_mb(nindx_bond_start(1)+wk1-1)
             kk  = int_mb(nKr0_bond_start(1) +wk1-1)
@@ -1755,6 +1884,16 @@ c     **** external functions ***
      >                        dbl_mb(Kr0_coord(1) +ll-1),
      >                        dbl_mb(ion_rion_ptr()+3*(ks1-1)))
          end if
+         if (nbbs.gt.0) then
+            ii  = int_mb(nindx0_bondings_start(1)+wk1-1)
+            jj  = int_mb(nindx1_bondings_start(1)+wk1-1)
+            kk  = int_mb(nKr0_bondings_start(1) +wk1-1)
+            E = E + pspw_qmmm_spring_bondings_frag(nbbs,
+     >                        int_mb(nsize1_bondings(1)+ii-1),
+     >                        int_mb(indx1_bondings(1)+jj-1),
+     >                        dbl_mb(Kr0_bondings(1) +kk-1),
+     >                        dbl_mb(ion_rion_ptr()+3*(ks1-1)))
+         end if
 
          end if
          dutask = mod(dutask+1,np)
@@ -1786,7 +1925,7 @@ c     **** non-fragments ****
 
 c     **** local variables ****
       integer dutask,taskid,np
-      integer w1,wk1,ks1,nbs,nas,ncbs,nbm,ii,jj,kk,ll,nds,ndds,ncns
+      integer w1,wk1,ks1,nbs,nas,ncbs,nbm,ii,jj,kk,ll,nds,ndds,ncns,nbbs
 
 c     **** external functions ***
       integer  ion_rion_ptr
@@ -1810,6 +1949,7 @@ c     **** external functions ***
          nds  = int_mb(ndihedral_spring(1)+wk1-1)
          ndds  = int_mb(ndihedral(1)+wk1-1)
          ncns  = int_mb(ncoord(1)+wk1-1)
+         nbbs  = int_mb(nbondings(1)+wk1-1)
          if (nbs.gt.0) then
             jj  = int_mb(nindx_bond_start(1)+wk1-1)
             kk  = int_mb(nKr0_bond_start(1) +wk1-1)
@@ -1875,6 +2015,17 @@ c     **** external functions ***
      >                        int_mb(nsize2_coord(1)+ii-1),
      >                        int_mb(indx2_coord(1) +kk-1),
      >                        dbl_mb(Kr0_coord(1)   +ll-1),
+     >                        dbl_mb(ion_rion_ptr()+3*(ks1-1)),
+     >                        fion(1,ks1))
+         end if
+         if (nbbs.gt.0) then
+            ii  = int_mb(nindx0_bondings_start(1)+wk1-1)
+            jj  = int_mb(nindx1_bondings_start(1)+wk1-1)
+            kk  = int_mb(nKr0_bondings_start(1) +wk1-1)
+            call pspw_qmmm_spring_bondings_frag_fion(nbbs,
+     >                        int_mb(nsize1_bondings(1)+ii-1),
+     >                        int_mb(indx1_bondings(1)+jj-1),
+     >                        dbl_mb(Kr0_bondings(1) +kk-1),
      >                        dbl_mb(ion_rion_ptr()+3*(ks1-1)),
      >                        fion(1,ks1))
          end if
