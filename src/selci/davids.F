@@ -52,7 +52,6 @@ c
       call ga_brdcst(3, noconf,  mitob(1), 0)
       call ga_brdcst(4, nintpo,  mitob(1), 0)
       call ga_brdcst(5, nbitpi,  mitob(1), 0)
-      call inibit
 c
 c     how many roots are wanted and what threshold? ... now from 
 c     arguments ... historically process zero read them in from disk
