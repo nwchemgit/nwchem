@@ -17,7 +17,7 @@ c
       ipck=ipck-1
       do 3 i=1,numwm
       iwl(i,ipck)=iand(iwlp(i,j),miwl(ipck))
-      iwlp(i,j)=rshift(iwlp(i,j)-iwl(i,ipck),nbitw(ipck))
+      iwlp(i,j)=ishft(iwlp(i,j)-iwl(i,ipck),-nbitw(ipck))
     3 continue
     2 continue
     1 continue

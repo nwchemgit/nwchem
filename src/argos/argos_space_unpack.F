@@ -17,7 +17,7 @@ c
       ipck=ipck-1
       do 3 i=1,numsa
       isl(i,ipck)=iand(islp(i,j),misl(ipck))
-      islp(i,j)=rshift(islp(i,j)-isl(i,ipck),nbits(ipck))
+      islp(i,j)=ishft(islp(i,j)-isl(i,ipck),-nbits(ipck))
     3 continue
     2 continue
     1 continue
