@@ -1,8 +1,3 @@
-      integer function selci_popcnt32(i)
-      integer i
-      selci_popcnt32 = popcnt(i)
-      end
-
       subroutine selci_vpop32(n, input, output)
       integer n
       integer input(*)

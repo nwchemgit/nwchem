@@ -16,7 +16,6 @@ c     needed for 255 orbs)
 c     
       parameter (ivl=16)
       integer iwrk1(ivl*16),iwrk2(ivl*16), list(ivl)
-      integer selci_popcnt32
       integer idiff(-10:10)
 #include "bitops.fh"
       data idiff/10,9,8,7,6,5,4,3,2,1,0,1,2,3,4,5,6,7,8,9,10/
@@ -29,7 +28,7 @@ c     use ieor and popcnt to compute the occupation difference
 c     between the I and J occupations represented as bit patterns
 c     
 c     strip mine into blocks so can call vpop32 instead of
-c     selci_popcnt32(popcnt32 -> 100,000/s, vpop32 -> 540,000/s at vl=32
+c     popcnt(popcnt32 -> 100,000/s, vpop32 -> 540,000/s at vl=32
 c     480,000/s at vl=16, 740,000/s at vl=1000)
 c     
 c     Search backwards since it is most likely to find something
