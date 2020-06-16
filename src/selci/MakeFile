@@ -24,7 +24,6 @@ UOBJ =         $(OBJDIR)\iprtri.obj \
                $(OBJDIR)\wrtcon.obj \
                $(OBJDIR)\iodiff.obj \
                $(OBJDIR)\bserch.obj \
-               $(OBJDIR)\popcnt32.obj \
                $(OBJDIR)\readh.obj \
                $(OBJDIR)\selci_renorm.obj \
                $(OBJDIR)\selci_sread.obj \
