@@ -32,7 +32,7 @@ basis 6-31g*  noprint
   H library 6-31g*
 end
 
-scf; thresh 1e-6; end
+scf; thresh 1e-6; tol2e 1d-12; end
 
 # First form initial CI reference space starting from all
 # single excitations from the SCF and then perturbation selecting
