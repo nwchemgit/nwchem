@@ -23,7 +23,6 @@ C>
       integer nintpo !< [Input] The number of integers per configuration
       integer ioconf(*) !< [Input] The occupation of configuration I
       integer joconf(*) !< [Input] The occupation of configuration J
-      integer selci_popcnt32
 #include "bitops.fh"
 c
 c     use ieor and popcnt to compute the occupation difference
@@ -31,7 +30,7 @@ c     between the I and J occupations represented as bit patterns
 c
       ipop = 0
       do 10 i = 1,nintpo
-         ipop = ipop + selci_popcnt32(ieor(ioconf(i),joconf(i)))
+         ipop = ipop + popcnt(ieor(ioconf(i),joconf(i)))
  10   continue
 c
       selci_iodiff = ipop
@@ -83,7 +82,9 @@ c
             enddo
          endif
 c
-         call selci_vpop32(nk, tmp, out)
+         do i = 1,nk
+           out(i) = popcnt(tmp(i))
+         enddo
 c
          k = 1
          if (nintpo .eq. 1) then
