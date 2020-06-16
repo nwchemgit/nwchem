@@ -215,9 +215,9 @@ c
          do i = 1, nunpacked/8
             ijkl = iand(ishft(packed(i),-32),mask)
             mnpq = iand(packed(i),mask)
-            unpacked(ind  ) = iand(ishift(ijkl,-24),255)
-            unpacked(ind+1) = iand(ishift(ijkl,-16),255)
-            unpacked(ind+2) = iand(ishift(ijkl, -8),255)
+            unpacked(ind  ) = iand(ishft(ijkl,-24),255)
+            unpacked(ind+1) = iand(ishft(ijkl,-16),255)
+            unpacked(ind+2) = iand(ishft(ijkl, -8),255)
             unpacked(ind+3) = iand(ijkl,255)
             unpacked(ind+4) = iand(ishft(mnpq,-24),255)
             unpacked(ind+5) = iand(ishft(mnpq,-16),255)
