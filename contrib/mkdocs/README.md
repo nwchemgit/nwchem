@@ -34,14 +34,15 @@ mkdocs serve
 ```
 Point your browser to  http://127.0.0.1:8000
 
-## Build the html
-```
-mkdocs build
-```
 
 
 ## push files to the nwchemgit.github.io: method #1
 
+### Build the html source
+```
+mkdocs build
+```
+### push the html source to the nwchemgit.github.io repository
 ```
 git clone https://github.com/nwchemgit.github.io
 cd nwchemgit.github.io
