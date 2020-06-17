@@ -45,7 +45,7 @@
  190   continue
        if(j.eq.14)buf=-buf
        goto 210
- 200   buf=buf+(dfloat(j-1)*fact)
+ 200   buf=buf+(dble(j-1)*fact)
        fact=fact*10.0d+0
  210   nstart=nstart-1
       enddo

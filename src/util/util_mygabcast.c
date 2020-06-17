@@ -81,7 +81,6 @@ util_mygabcast2_(Integer *g_a, Integer *mlo, Integer *mhi, Integer *nlo, Integer
 
 
 }
-#if 1
 void FATR
 util_mygabcast_(Integer *g_a, Integer *m, Integer *n, DoublePrecision *a, Integer *ld) {
   Integer* mlo = malloc(sizeof(Integer));
@@ -98,4 +97,14 @@ util_mygabcast_(Integer *g_a, Integer *m, Integer *n, DoublePrecision *a, Intege
   free(nlo);
   free(nhi);
  }
-#endif
+
+Integer FATR util_mynodeid_(void)
+#include <mpi.h>
+{
+  int myid;
+  Integer nodeid[1];
+  MPI_Comm_rank(MPI_COMM_WORLD,&myid);
+  *nodeid = (Integer) myid;
+  return  *nodeid;
+
+}

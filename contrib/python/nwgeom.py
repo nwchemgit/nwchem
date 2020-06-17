@@ -9,6 +9,8 @@ def geom_get_coords(name):
   #
   try:
     actualname = rtdb_get(name)
+    if (actualname == None):
+      actualname = name
   except NWChemError:
     actualname = name
   if actualname is None:
@@ -18,7 +20,7 @@ def geom_get_coords(name):
   if (units == 'a.u.'):
     factor = 1.0
   elif (units == 'angstroms'):
-    factor = rtdb_get('geometry:'+actualname+':angstrom_to_au')
+    factor = rtdb_get('geometry:' + str(actualname) + ':angstrom_to_au')
   else:
     raise NWChemError('unknown units')
   i = 0
@@ -43,7 +45,7 @@ def geom_set_coords(name,coords):
   if (units == 'a.u.'):
     factor = 1.0
   elif (units == 'angstroms'):
-    factor = rtdb_get('geometry:'+actualname+':angstrom_to_au')
+    factor = rtdb_get('geometry:' + str(actualname) + ':angstrom_to_au')
   else:
     raise NWChemError('unknown units')
   coords = list(coords)
@@ -51,7 +53,7 @@ def geom_set_coords(name,coords):
   while (i < len(coords)):
     coords[i] = coords[i] * factor
     i = i + 1
-  rtdb_put('geometry:' + actualname + ':coords',coords)
+  rtdb_put('geometry:' + str(actualname) + ':coords',coords)
 
 def bond_length(i,j):  # atoms numbered 1,2,...
   #

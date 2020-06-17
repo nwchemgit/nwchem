@@ -3292,7 +3292,7 @@ C     CALL COPVEC(A,SCR(KLMAT1),NDIM ** 2)
 C     CALL SCALVE(SCR(KLMAT1),-0.5D0,NDIM ** 2 )
 C     CALL COPVEC(SCR(KLMAT1),SCR(KLMAT2),NDIM ** 2 )
 C     DO 1236 N = 2, 2*NTERM
-C       XNP1 =  DFLOAT(N+1)
+C       XNP1 =  DBLE(N+1)
 C       CALL MATML4(SCR(KLFREE),SCR(KLMAT2),A,NDIM,NDIM,
 C    &              NDIM,NDIM,NDIM,NDIM,0)
 C       CALL COPVEC(SCR(KLFREE),SCR(KLMAT2),NDIM ** 2 )
@@ -3569,22 +3569,22 @@ C     DIMENSION SCR(*)
 *
           EPQN = EPQN * EPQ
           NPL1 = NPL1 + 1
-          XNP1F = XNP1F * DFLOAT(NPL1)
+          XNP1F = XNP1F * DBLE(NPL1)
           GI(P,Q) = GI(P,Q) + EPQN/XNP1F
 *
           EPQN = EPQN * EPQ
           NPL1 = NPL1 + 1
-          XNP1F = XNP1F * DFLOAT(NPL1)
+          XNP1F = XNP1F * DBLE(NPL1)
           GR(P,Q) = GR(P,Q) - EPQN/XNP1F
 *
           EPQN = EPQN * EPQ
           NPL1 = NPL1+1
-          XNP1F = XNP1F * DFLOAT(NPL1)
+          XNP1F = XNP1F * DBLE(NPL1)
           GI(P,Q) = GI(P,Q) - EPQN/XNP1F
 *
           EPQN = EPQN * EPQ
           NPL1= NPL1 + 1
-          XNP1F = XNP1F * DFLOAT(NPL1)
+          XNP1F = XNP1F * DBLE(NPL1)
           GR(P,Q) = GR(P,Q) + EPQN/XNP1F
 *
           IF (NPL1 .GT.NMAX) NMAX = NPL1

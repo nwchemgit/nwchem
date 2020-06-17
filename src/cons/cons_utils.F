@@ -370,7 +370,7 @@ c
 c     
       n=inp_strlen(cons_name)
       tag="cons:"//cons_name(1:n)//":pbondings_indx"
-
+      return
       end
 
       subroutine cons_pbondings_coef_tag(cons_name,tag)
@@ -385,7 +385,7 @@ c
 c     
       n=inp_strlen(cons_name)
       tag="cons:"//cons_name(1:n)//":pbondings_coef"
-
+      return
       end
 
       subroutine cons_pbondings_k0_tag(cons_name,tag)
@@ -400,7 +400,7 @@ c
 c     
       n=inp_strlen(cons_name)
       tag="cons:"//cons_name(1:n)//":pbondings_k0"
-
+      return
       end
 
       subroutine cons_pbondings_gcut0_tag(cons_name,tag)
@@ -415,7 +415,7 @@ c
 c
       n=inp_strlen(cons_name)
       tag="cons:"//cons_name(1:n)//":pbondings_gcut0"
-
+      return
       end
 
 
@@ -431,7 +431,22 @@ c
 c     
       n=inp_strlen(cons_name)
       tag="cons:"//cons_name(1:n)//":pbondings_gamma0"
+      return
+      end
 
+      subroutine cons_pbondings_c0_tag(cons_name,tag)
+      implicit none 
+#include "util.fh"
+#include "inp.fh"
+      
+      character*(*) tag
+c     
+      integer n
+      character*255 cons_name
+c     
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)//":pbondings_c0"
+      return 
       end
 
 

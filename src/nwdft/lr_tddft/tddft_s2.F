@@ -24,8 +24,8 @@ c
 c
 c     Preliminaries
 c
-      na=dfloat(nocc(1)-nfc(1))
-      nb=dfloat(nocc(2)-nfc(2))
+      na=dble(nocc(1)-nfc(1))
+      nb=dble(nocc(2)-nfc(2))
       s2tol = 1.0d-05
 c
       s2=0d0

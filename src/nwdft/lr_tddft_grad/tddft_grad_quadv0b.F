@@ -20,11 +20,12 @@ c
 #include "mafdecls.fh"
 #include "dftpara.fh"
 c     
-      logical ldew   ! true if weight derivatives are included [input]
+      logical ldew              ! true if weight derivatives are included [input]
+      integer natoms
       logical grad, oactive(natoms)
 c
       integer ictr
-      integer ipol, nbf_ao, mbf_ao, natoms, nq
+      integer ipol, nbf_ao, mbf_ao,  nq
       integer nmat, imat
       integer ibf(mbf_ao), iniz(natoms), ifin(natoms)
       integer cetobfr(2,*)

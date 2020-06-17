@@ -26,9 +26,9 @@ c
 c
        integer rtdb
        integer nbf             ! input
+       integer npol            ! nr of polarizations
        double precision focc(nbf*npol) ! fractional occupancies
        integer g_dens(npol)       ! spin-orbit density matrix
-       integer npol            ! nr of polarizations
        integer g_vecs(npol)    ! input/output
        integer i,ispin,iorb,iorb1,ntot_occ,nbf_ao,ind_min,ind_max
        logical loccup_list,loccup,lerror_check

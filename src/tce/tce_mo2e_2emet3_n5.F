@@ -154,8 +154,8 @@ cccx       call util_file_name('4aintx',.true.,.false.,filename)
        if(.not.parallel)
      1      call errquit('sf only for parallel runs',1,DISK_ERR)
        if(parallel) call ga_sync()
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_4af),
-     1    dfloat(bytes)*dfloat(size_4af),sf_chunk,d_4af).ne.0)
+        if (sf_create(filename,dble(bytes)*dble(size_4af),
+     1    dble(bytes)*dble(size_4af),sf_chunk,d_4af).ne.0)
      2    call errquit('4-index: sf problem',0,DISK_ERR)
 ccx        if (parallel) then
 ccx          if (sf_close(d_4af).ne.0)
@@ -320,8 +320,8 @@ c fixing offsets and sf_writing
      &          atpart * (azone2 - 1 + atpart * (azone1 - 1)))
          call tce_hash(int_mb(k_4af_offset),key_4af,offset_4af)
       if(idiskl) then
-        if (sf_write(d_4af,dfloat(bytes)*dfloat(offset_4af),
-     1    dfloat(bytes)*dfloat(size_4a),dbl_mb(k_4a),request).ne.0)
+        if (sf_write(d_4af,dble(bytes)*dble(offset_4af),
+     1    dble(bytes)*dble(size_4a),dbl_mb(k_4a),request).ne.0)
      2    call errquit('zones put: sf problem2',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('zones put: sf problem3',2,DISK_ERR)
@@ -400,8 +400,8 @@ c
      &          atpart * (azone2 - 1 + atpart * (azone1 - 1)))
          call tce_hash(int_mb(k_4af_offset),key_4af,offset_4af)
        if(idiskl) then
-        if (sf_read(d_4af,dfloat(bytes)*dfloat(offset_4af),
-     1    dfloat(bytes)*dfloat(size_4a),dbl_mb(k_4a),request).ne.0)
+        if (sf_read(d_4af,dble(bytes)*dble(offset_4af),
+     1    dble(bytes)*dble(size_4a),dbl_mb(k_4a),request).ne.0)
      1     call errquit('zones get2: sf problem',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('zones get3: sf problem',2,DISK_ERR)

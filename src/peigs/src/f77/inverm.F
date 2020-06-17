@@ -68,7 +68,7 @@ C
 C-----------------------------------------------------------------------
       DOUBLE PRECISION  V1(*),SUM,RELTOL,MULTOL,THOLD,ZERO,SCALE2
       INTEGER  LINDEX(*)
-      DOUBLE PRECISION  DABS, DFLOAT, DMAX1
+      DOUBLE PRECISION  DABS, DMAX1
 C-----------------------------------------------------------------------
 C     LINDEX(J) = T-MULTIPLICITY OF JTH DISTINCT T-EIGENVALUE
 C     LOOP = NUMBER OF DISTINCT T-EIGENVALUES
@@ -128,9 +128,9 @@ C     ALL INDICES WERE 0 OR >1
 C
       SUM = ZERO
       DO 80 KK = JI,JF
-   80 SUM = SUM + V1(KK) * DFLOAT(LINDEX(KK))
+   80 SUM = SUM + V1(KK) * DBLE(LINDEX(KK))
 C
-      V1(NLOOP) = SUM/DFLOAT(IDIF)
+      V1(NLOOP) = SUM/DBLE(IDIF)
       GO TO 100
    90 V1(NLOOP) = V1(JI)
   100 LINDEX(NLOOP) = INDSUM
@@ -239,7 +239,7 @@ C-----------------------------------------------------------------------
       DOUBLE PRECISION  EPS,EPS1,BETAM,LBD,UBD,SIG,YU,YV,LRATS,URATS
       DOUBLE PRECISION ZERO,ONE,TEN,BISTOL,SCALE3,SCALE4,AEV,TEMP
       INTEGER  TMULT(*),ISIGMA(10)
-      DOUBLE PRECISION  DABS, DMAX1, DSQRT, DFLOAT
+      DOUBLE PRECISION  DABS, DMAX1, DSQRT
 C-----------------------------------------------------------------------
 C     AFTER CONVERGENCE HAS BEEN ESTABLISHED, SUBROUTINE PRTEST
 C     TESTS COMPUTED EIGENVALUES OF T(1,MEV) THAT HAVE BEEN LABELLED
@@ -268,7 +268,7 @@ C-----------------------------------------------------------------------
       ONE  = 1.0D0
       TEN  = 10.0D0
       PRTOL = 1.D-6
-      TEMP = DFLOAT(MEV+1000)
+      TEMP = DBLE(MEV+1000)
       TEMP = DSQRT(TEMP)
       BISTOL = TKMAX*EPSM*TEMP
       NSIGMA = 4
@@ -515,7 +515,7 @@ C-----------------------------------------------------------------------
       DOUBLE PRECISION  EPS,EPS3,EPS4,ERROR,ERRORV,ZERO,ONE
 c      REAL  G(1)
       double precision  G(*)
-      DOUBLE PRECISION  DABS, DSQRT, DFLOAT
+      DOUBLE PRECISION  DABS, DSQRT
 c      DOUBLE PRECISION FINPRO
       DOUBLE PRECISION ddot
 c      REAL  ABS
@@ -568,7 +568,7 @@ C     CALCULATE SCALE AND TOLERANCES
    10 TSUM = TSUM + ABS(ALPHA(I)) + BETA(I)
 C
       EPS3 = EPS*TSUM
-      EPS4 = DFLOAT(MEV)*EPS3
+      EPS4 = DBLE(MEV)*EPS3
 C
 C     GENERATE SCALED RANDOM RIGHT-HAND SIDE
       GSUM = ZERO
@@ -704,7 +704,7 @@ C-----------------------------------------------------------------------
       DOUBLE PRECISION  ALPHA(*),BETA(*),X0,X1,XL,XU,YU,YV,LB,UB
       DOUBLE PRECISION  EPSM,EP1,EVAL,EVALN,EVD,EPT
       DOUBLE PRECISION  ZERO,ONE,HALF,TTOL,TEMP
-      DOUBLE PRECISION  DABS,DSQRT,DFLOAT
+      DOUBLE PRECISION  DABS,DSQRT
 C-----------------------------------------------------------------------
 C     SPECIFY PARAMETERS
       ZERO = 0.0D0
@@ -716,7 +716,7 @@ C
 C     EP1 = DSQRT(1000+M)*TTOL     TTOL = EPSM*TKMAX
 C     TKMAX = MAX(|ALPHA(K)|,BETA(K), K= 1,KMAX)
 C
-      TEMP = DFLOAT(1000+M)
+      TEMP = DBLE(1000+M)
       EP1 = DSQRT(TEMP)*TTOL
 C
       NA = 0

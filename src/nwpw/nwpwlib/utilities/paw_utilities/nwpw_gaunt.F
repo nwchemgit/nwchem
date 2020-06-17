@@ -14,9 +14,9 @@ c $Id$
 #include "errquit.fh"
 
 *     **** nwpw_gaunt common block ****
-      integer nwpw_gaunt_lmax,
-     >        nwpw_gaunt_sizel2,
-     >        nwpw_gaunt_coeff(2)
+      integer nwpw_gaunt_lmax(2),
+     >        nwpw_gaunt_sizel2(2),
+     >        nwpw_gaunt_coeff(2,2)
       logical nwpw_gaunt_iscmplx
       common / nwpw_gaunt_common / nwpw_gaunt_coeff,
      >                             nwpw_gaunt_lmax,
@@ -24,7 +24,7 @@ c $Id$
      >                             nwpw_gaunt_iscmplx
 
 *     **** local variables ****
-      integer sizel,i,j,k,indx
+      integer sizel,i,j,k,indx,ic
       integer l1,l2,l3
       integer m1,m2,m3
 
@@ -33,23 +33,26 @@ c $Id$
       external nwpw_gaunt_sub
 
       nwpw_gaunt_iscmplx = iscmplx
-      nwpw_gaunt_lmax    = lmax0
-      sizel              = (nwpw_gaunt_lmax+1)
-      nwpw_gaunt_sizel2  = sizel**2
+      ic = 1
+      if (iscmplx) ic = 2
+
+      nwpw_gaunt_lmax(ic)    = lmax0
+      sizel                  = (nwpw_gaunt_lmax(ic)+1)
+      nwpw_gaunt_sizel2(ic)  = sizel**2
 
       if (.not.BA_alloc_get(mt_dbl,
-     >      nwpw_gaunt_sizel2*nwpw_gaunt_sizel2*nwpw_gaunt_sizel2,
+     >nwpw_gaunt_sizel2(ic)*nwpw_gaunt_sizel2(ic)*nwpw_gaunt_sizel2(ic),
      >                    'nwpw_gaunt_coeff',
-     >                     nwpw_gaunt_coeff(2),
-     >                     nwpw_gaunt_coeff(1)))
+     >                     nwpw_gaunt_coeff(ic,2),
+     >                     nwpw_gaunt_coeff(ic,1)))
      >   call errquit('nwpw_gaunt_init:out of heap memory',0,MA_ERR)
 
 c      write(*,*) "nwpw_gaunt_lmax   =",nwpw_gaunt_lmax
 c      write(*,*) "nwpw_gaunt_iscmplx=",nwpw_gaunt_iscmplx
 c
-      do l1=0,nwpw_gaunt_lmax
-      do l2=0,nwpw_gaunt_lmax
-      do l3=0,nwpw_gaunt_lmax
+      do l1=0,nwpw_gaunt_lmax(ic)
+      do l2=0,nwpw_gaunt_lmax(ic)
+      do l3=0,nwpw_gaunt_lmax(ic)
 
         do m1=-l1,l1
         do m2=-l2,l2
@@ -58,10 +61,10 @@ c
            j = l2**2 + (l2+m2)
            k = l3**2 + (l3+m3)
            indx = i
-     >          + j*nwpw_gaunt_sizel2 
-     >          + k*nwpw_gaunt_sizel2*nwpw_gaunt_sizel2
+     >          + j*nwpw_gaunt_sizel2(ic) 
+     >          + k*nwpw_gaunt_sizel2(ic)*nwpw_gaunt_sizel2(ic)
 
-           dbl_mb(nwpw_gaunt_coeff(1)+indx) 
+           dbl_mb(nwpw_gaunt_coeff(ic,1)+indx) 
      >     = nwpw_gaunt_sub(iscmplx,l1,m1,l2,m2,l3,m3)
 
         end do
@@ -87,18 +90,22 @@ c
 #include "errquit.fh"
 
 *     **** nwpw_gaunt common block ****
-      integer nwpw_gaunt_lmax,
-     >        nwpw_gaunt_sizel2,
-     >        nwpw_gaunt_coeff(2)
+      integer nwpw_gaunt_lmax(2),
+     >        nwpw_gaunt_sizel2(2),
+     >        nwpw_gaunt_coeff(2,2)
       logical nwpw_gaunt_iscmplx
       common / nwpw_gaunt_common / nwpw_gaunt_coeff,
      >                             nwpw_gaunt_lmax,
      >                             nwpw_gaunt_sizel2,
      >                             nwpw_gaunt_iscmplx
 
-
-      if (.not.BA_free_heap(nwpw_gaunt_coeff(2)))
+      if (.not.BA_free_heap(nwpw_gaunt_coeff(1,2)))
      >   call errquit('nwpw_gaunt_end:freeing heap memory',0,MA_ERR)
+
+      if (nwpw_gaunt_iscmplx) then
+         if (.not.BA_free_heap(nwpw_gaunt_coeff(2,2)))
+     >      call errquit('nwpw_gaunt_end:freeing heap memory',0,MA_ERR)
+      end if
 
       return
       end
@@ -119,9 +126,9 @@ c
 #include "errquit.fh"
 
 *     **** nwpw_gaunt common block ****
-      integer nwpw_gaunt_lmax,
-     >        nwpw_gaunt_sizel2,
-     >        nwpw_gaunt_coeff(2)
+      integer nwpw_gaunt_lmax(2),
+     >        nwpw_gaunt_sizel2(2),
+     >        nwpw_gaunt_coeff(2,2)
       logical nwpw_gaunt_iscmplx
       common / nwpw_gaunt_common / nwpw_gaunt_coeff,
      >                             nwpw_gaunt_lmax,
@@ -129,18 +136,25 @@ c
      >                             nwpw_gaunt_iscmplx
 
 *     **** local variables ****
-      integer i,j,k,indx
+      integer i,j,k,indx,ic
       real*8  gg
 
 *     **** external functions ****
       real*8   nwpw_gaunt_sub
       external nwpw_gaunt_sub
 
+      !*** initialize complex gaunt coefficients if called ***
+      if ((iscmplx).and.(.not.nwpw_gaunt_iscmplx)) then
+         call nwpw_gaunt_init(iscmplx,nwpw_gaunt_lmax(1))
+      end if
+
+      ic = 1
+      if (iscmplx) ic = 2
+
       call nwpw_timing_start(51)
-      if ((l1.gt.nwpw_gaunt_lmax).or.
-     >    (l2.gt.nwpw_gaunt_lmax).or.
-     >    (l3.gt.nwpw_gaunt_lmax).or.
-     >    (iscmplx.neqv.nwpw_gaunt_iscmplx)) then
+      if ((l1.gt.nwpw_gaunt_lmax(ic)).or.
+     >    (l2.gt.nwpw_gaunt_lmax(ic)).or.
+     >    (l3.gt.nwpw_gaunt_lmax(ic))) then
         !write(*,*) "calling gaunt_sub=",l1,m1,l2,m2,l3,m3
         gg = nwpw_gaunt_sub(iscmplx,l1,m1,l2,m2,l3,m3)
       else
@@ -148,9 +162,9 @@ c
          j = l2**2 + (l2+m2)
          k = l3**2 + (l3+m3)
          indx = i
-     >        + j*nwpw_gaunt_sizel2
-     >        + k*nwpw_gaunt_sizel2*nwpw_gaunt_sizel2
-         gg = dbl_mb(nwpw_gaunt_coeff(1)+indx)
+     >        + j*nwpw_gaunt_sizel2(ic)
+     >        + k*nwpw_gaunt_sizel2(ic)*nwpw_gaunt_sizel2(ic)
+         gg = dbl_mb(nwpw_gaunt_coeff(ic,1)+indx)
 
       end if
       call nwpw_timing_end(51)
@@ -1987,6 +2001,33 @@ c         end if
       end
 
 
+*     **************************************
+*     *                                    *
+*     *           YSpherical_lm            *
+*     *                                    *
+*     **************************************
+
+*  Calculates the spherical harmonic for x,y,z such that
+*
+*      Y_lm(cos_theta,phi)=rtheta_lm(cos_theta)* exp(i*m*phi)
+*
+*    where   cos_theta = z/r and phi = atan2(y,x)
+*
+      double complex function YSpherical_lm(l,m,cos_theta,phi)
+      implicit none
+      integer l,m
+      real*8 cos_theta,phi
+
+*     **** external functions
+      real*8   ytheta_lm
+      external ytheta_lm
+
+      YSpherical_lm = ytheta_lm(l,m,cos_theta)
+     >               *dcmplx(dcos(m*phi),dsin(m*phi))
+      return
+      end
+
+
 
 
 
@@ -2034,6 +2075,52 @@ c         end if
       dTx = f1*cos_theta*dcos(phi) - f2*dsin(phi)
       dTy = f1*cos_theta*dsin(phi) + f2*dcos(phi)
       dTz = -f1*dsqrt(1.0d0-cos_theta**2)
+
+      return
+      end
+
+
+*     **************************************
+*     *                                    *
+*     *           dYspherical_lm           *
+*     *                                    *
+*     **************************************
+*
+*  Calculates the derivative of tesseral harmonic for x,y,z wrt to x,y,z,such that
+*
+*      Y_lm(cos_theta,phi)=theta_lm(cos_theta)* exp(i*m*phi)
+*
+*    where   cos_theta = z/r and phi = atan2(y,x)
+*
+      subroutine dYspherical_lm(l,m,cos_theta,phi,dYx,dYy,dYz)
+      implicit none
+      integer l,m
+      real*8 cos_theta,phi
+      complex*16 dYx,dYy,dYz
+
+*     **** local variables ****
+      integer mod_m
+      complex*16 f1,f2
+
+*     **** external functions
+      real*8   dytheta_lm,ytheta_lm_div
+      external dytheta_lm,ytheta_lm_div
+
+      !*** derivative with respect to theta ***
+      f1 = dytheta_lm(l,m,cos_theta)*dcmplx(dcos(m*phi),dsin(m*phi))
+
+      !*** derivative with respect to phi ***
+      if(m.eq.0) then
+        f2 = dcmplx(0.0d0,0.0d0)
+      else
+        f2 = ytheta_lm_div(l,m,cos_theta)
+     >       *dcmplx(dcos(m*phi),dsin(m*phi))
+     >       *m*dcmplx(0.0d0,1.0d0)
+      end if
+
+      dYx = f1*cos_theta*dcos(phi) - f2*dsin(phi)
+      dYy = f1*cos_theta*dsin(phi) + f2*dcos(phi)
+      dYz = -f1*dsqrt(1.0d0-cos_theta**2)
 
       return
       end
@@ -2140,7 +2227,6 @@ c      double precision theta_lm !*RESULT*
       rtheta_lm_div = f
       return
       end
-
 
 
 c!  *************************************************
@@ -2313,8 +2399,9 @@ c      double precision theta_lm !*RESULT*
       fourpi = 16.0d0*datan(1.0d0)
 
       mod_m = abs(m) 
-      if (mod_m .gt. l)
-     >write(*,*) 'parameter out of order in function ytheta_lm'
+      if (mod_m .gt. l) then
+         write(*,*) 'parameter out of order in function ytheta_lm',l,m
+      end if
 
 !     *** find coefficient ***
       if (mod_m.eq.0) then
@@ -2333,6 +2420,124 @@ c      double precision theta_lm !*RESULT*
       ytheta_lm = f
       return
       end
+
+
+!**************************************************
+!
+!       Name: dytheta_lm
+!
+!       Purpose:
+!
+!       Created:        8/05/2002
+!**************************************************
+      double precision function dytheta_lm(l,m,cos_theta)
+      implicit none
+      integer l,m
+      double precision  cos_theta
+
+      !*** local variables ***
+      integer i
+      integer mod_m
+      double precision  coeff,tmp,fourpi
+
+      !*** external functions ***
+      double precision  dlegendre_lm
+      external          dlegendre_lm
+
+      fourpi = 16.0d0*datan(1.0d0)
+
+      if( m .gt.l ) then
+      call errquit("parameter out of order in function dytheta_lm",0,1)
+      end if
+
+      mod_m = abs(m)
+
+      !*** find coefficient ***
+      if (mod_m.eq.0) then
+        coeff = 1.0d0
+      else if(mod_m.gt.0) then
+        coeff = 1.0d0
+        do i=1,2*mod_m
+          coeff = coeff/dble(l-mod_m+i)
+        end do
+      end if
+
+      coeff = coeff*(2*l+1)/(fourpi)
+      coeff = dsqrt(coeff)
+
+      tmp = coeff*dlegendre_lm(l,mod_m,cos_theta)
+
+      if (m.lt.0) then
+        if( mod(mod_m,2).eq.1) then
+           tmp = -tmp
+        end if
+      end if
+
+      dytheta_lm = tmp
+      return
+      end
+
+
+c  !*************************************************
+c  !
+c  !   Name    : ytheta_lm_div
+c  !
+c  !
+c  !   Purpose : calculates ytheta_lm/sin(theta)
+c  !
+c  !
+c  !   Created : 10/99
+c  !
+c  !*************************************************
+      double precision function ytheta_lm_div(l,m,cos_theta)
+      implicit none
+      integer l,m
+      double precision cos_theta
+
+      !*** local variables ***
+      integer i,mod_m
+      double precision coeff,fourpi,f
+
+      !*** external functions ***
+      double precision legendre_lm_div
+      external         legendre_lm_div
+
+      fourpi = 16.0d0*datan(1.0d0)
+
+      if ( m.gt.l) then
+        call errquit(
+     >   'parameter out of order in function theta_lm_div',0,0)
+      end if
+
+      mod_m = abs(m)
+
+      !*** find coefficient ***
+      if (mod_m.eq.0) then
+        coeff = 1.0d0
+      else if (mod_m.gt.0) then
+        coeff = 1.0d0
+        do i=1,2*mod_m
+          coeff=coeff/dble(l-mod_m+i)
+        end do
+      end if
+
+      coeff = coeff*(2*l+1)/fourpi
+      coeff = dsqrt(coeff)
+
+      f = coeff*legendre_lm_div(l,mod_m,cos_theta)
+
+      if (m.lt.0) then
+        if (mod(mod_m,2).eq.1) then
+           f = -f
+        end if
+      end if
+
+      ytheta_lm_div = f
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *                                 *
@@ -2469,8 +2674,16 @@ c      end if
       end
 
 
-
-      DOUBLE PRECISION FUNCTION LEGENDRE_LM (L, M, X)
+*     *********************************************
+*     *                                           *
+*     *               legendre_lm                 *
+*     *                                           *
+*     *********************************************
+*
+* Compute the associated legendre polynomial w/
+* a Condon-Shortley phase?
+*
+      DOUBLE PRECISION FUNCTION LEGENDRE_LM(L, M, X)
       INTEGER L
       INTEGER M
       DOUBLE PRECISION X
@@ -2536,7 +2749,130 @@ c!    *** negative m - this routine is only call with negative m from dtheta_lm 
       ENDIF
       RETURN 
       END 
- 
+
+
+c !*************************************************
+c !
+c !   Name    : dlegendre_lm
+c !
+c !
+c !   Purpose : calculates the derivative of the
+c !             associated Legendre with respect to angle theta
+c !             (x=cos(theta))
+c !
+c !
+c !   Created : 10/99
+c !
+c !
+c !   Notes: Arfken definition of P(l,m,x) is different from mine by a
+c !          factor (-1)**m. Thus all recursive relationships should be modified
+c !          accordingly
+c !*************************************************
+      double precision function dlegendre_lm(l,m,x)
+      implicit none
+      integer l,m
+      double precision  x
+c      real*8  dlegendre_lm
+
+      !*** local variables ***
+      double precision f1,f2
+
+      !*** external functions ****
+      double precision legendre_lm
+      external         legendre_lm
+
+      !*** check the arguments ***
+      if ((m.gt.l) .or. (dabs(x).gt.1.0d0)) then
+        call errquit("parameter ot of range in dlegendre_lm",0,0)
+      end if
+
+      if (m.eq.l) then
+        f1 = 0.0d0
+      else
+        f1 = legendre_lm(l,m+1,x)
+      END IF
+
+      f2 = legendre_lm(l,m-1,x)
+
+      !*** see Arfken p.669 3rd ed, p. 725 4th ed.                             ***
+      !*** sqrt(1-x*x)*dP_l^m/dx = 0.5*P_l^(m+1) - 0.5*(l+m)*(l-m+1)*P_l^(m-1) ***
+      !*** Note this recursion relationship doesn't have the problems at       ***
+      !*** theta=0,pi that the more traditional recursion relationship in term ***
+      !*** of l (i.e. p. 115 of Jahnke and Emde) have                          ***
+      !*** (1-x*x)*dP_l^m/dx = (l+1)*x*P_l^m - (l-m+1)*P_(l+1)^m               ***
+
+      dlegendre_lm = 0.5d0*f1 - 0.5d0*(l+m)*(l-m+1)*f2
+
+      return
+      end
+
+
+c  !*************************************************
+c  !
+c  !   Name    : legendre_lm_div
+c  !
+c  !   Purpose : calculates associated Legendre
+c  !             polynomial divided by sin(theta)
+c  !             for a scalar argument
+c  !
+c  !   Created : 10/99
+c  !
+c  !*************************************************
+      double precision function legendre_lm_div(l,m,x)
+      implicit none
+      integer l,m
+      double precision x
+c      real*8 legendre_lm_div !*RESULT*
+
+      !*** local variables ***
+      integer i
+      double precision p_mm,p_mp1m,tmp,fact,f
+
+      !*** check the arguments ***
+      if ((m.lt.0)           .or.
+     >    (m.gt.l)           .or.
+     >    (dabs(x).gt.1.0d0) .or.
+     >    (m.eq.0) ) then
+        call errquit(
+     >        'parameter ot of range in legendre_lm_div',0,0)
+      end if
+
+      !*** P(1,1,x)/sqrt(1-x**2) ***
+      p_mm = -1.0d0
+
+      fact = 3.0d0
+      tmp = dsqrt((1.0d0-x)*(1.0d0+x))
+
+      do i=2,m
+        p_mm = -p_mm*fact*tmp
+        fact = fact + 2.0d0
+      end do
+
+      !*** find P(l,m) ***
+      if (m.eq.l) then
+        f = p_mm
+
+      else
+          !*** find P(m+1,m) ***
+          p_mp1m = x*(2*m+1)*p_mm
+          if (l.eq.(m+1)) then
+            f = p_mp1m
+          else
+            do i=m+2,l
+              tmp = (x*(2*i-1)*p_mp1m - (i+m-1)*p_mm)/(i-m)
+              p_mm = p_mp1m
+              p_mp1m = tmp
+            end do
+            f = tmp
+          end if
+      end if
+
+      legendre_lm_div = f
+      return
+      end
+
+
+
 c!  *************************************************
 c!  
 c!     Name    : theta_lm
@@ -2551,6 +2887,7 @@ c!
 c!     Created : 1/99
 c!  
 c!  *************************************************
+
       double precision function theta_lm(l,m,cos_theta)
       implicit none
       integer l,m

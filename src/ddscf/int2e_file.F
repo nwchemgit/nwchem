@@ -370,14 +370,14 @@ c
 c
 c     Store ranges so that can survive packing to 1 byte
 c
-      labels(1, next_value  ) = iand(rshift(ilo,8),255)
-      labels(2, next_value  ) = iand(rshift(jlo,8),255)
-      labels(3, next_value  ) = iand(rshift(klo,8),255)
-      labels(4, next_value  ) = iand(rshift(llo,8),255)
-      labels(1, next_value+1) = iand(rshift(ihi,8),255)
-      labels(2, next_value+1) = iand(rshift(jhi,8),255)
-      labels(3, next_value+1) = iand(rshift(khi,8),255)
-      labels(4, next_value+1) = iand(rshift(lhi,8),255)
+      labels(1, next_value  ) = iand(ishft(ilo,-8),255)
+      labels(2, next_value  ) = iand(ishft(jlo,-8),255)
+      labels(3, next_value  ) = iand(ishft(klo,-8),255)
+      labels(4, next_value  ) = iand(ishft(llo,-8),255)
+      labels(1, next_value+1) = iand(ishft(ihi,-8),255)
+      labels(2, next_value+1) = iand(ishft(jhi,-8),255)
+      labels(3, next_value+1) = iand(ishft(khi,-8),255)
+      labels(4, next_value+1) = iand(ishft(lhi,-8),255)
       labels(1, next_value+2) = iand(ilo,255)
       labels(2, next_value+2) = iand(jlo,255)
       labels(3, next_value+2) = iand(klo,255)
@@ -1156,11 +1156,11 @@ c
          end do
       else if (nint_per_dbl .eq. 1) then
          ind = 1
-         mask  = lshift(1,32)-1  ! 2^32 - 1
-         two31 = lshift(1,31)
+         mask  = ishft(1,32)-1  ! 2^32 - 1
+         two31 = ishft(1,31)
          two31 = two31-1
          do i = 1, n_per_rec/2
-            v1 = iand(rshift(ibuf(i),32),mask) - two31
+            v1 = iand(ishft(ibuf(i),-32),mask) - two31
             v2 = iand(ibuf(i),mask) - two31
             values(ind  ) = precision*dble(v1)
             values(ind+1) = precision*dble(v2)
@@ -1205,12 +1205,12 @@ c
          end do
       else if (nint_per_dbl .eq. 1) then
          ind = 1
-         two31 = lshift(1,31)
+         two31 = ishft(1,31)
          two31 = two31-1
          do i = 1, n_per_rec/2
             v1 = nint(values(ind  )*scale) + two31
             v2 = nint(values(ind+1)*scale) + two31
-            ibuf(i) = ior(lshift(v1,32),v2)
+            ibuf(i) = ior(ishft(v1,32),v2)
             ind = ind + 2
          end do
       else
@@ -1240,8 +1240,8 @@ c
 #include "bitops_funcs.fh"
 c
       n = labels(1,cntr_ptr)
-      labels(1,cntr_ptr) = iand(rshift(n,16),255)
-      labels(2,cntr_ptr) = iand(rshift(n,8),255)
+      labels(1,cntr_ptr) = iand(ishft(n,-16),255)
+      labels(2,cntr_ptr) = iand(ishft(n,-8),255)
       labels(3,cntr_ptr) = iand(n,255)
       labels(4,cntr_ptr) = 0
       values(cntr_ptr)   = 0.0d0
@@ -1261,7 +1261,7 @@ c
       k = labels(3,cntr_ptr)
       l = labels(4,cntr_ptr)
 c
-      nleft_in_range = ior(lshift(ior(lshift(i,8),j),8),k)
+      nleft_in_range = ior(ishft(ior(ishft(i,8),j),8),k)
       if (i.gt.255 .or. j.gt.255 .or. k.gt.255 .or. l.ne.0 .or.
      $     nleft_in_range.gt.n_in_rec .or.
      $     values(cntr_ptr).ne.0.0d0) then

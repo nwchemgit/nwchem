@@ -70,7 +70,8 @@ cccccccc#include "frac_occ.fh"
 
 
 *     **** MA local variables ****
-      logical value,field_exist,cosmo_on,cosmo1_on,cosmo2_on
+      logical value,field_exist,cosmo_on,cosmo1_on
+      logical V_APC_on
 *     real*8     tmp_L(8*nemax*nemax)
 *     complex*16 tmp1(nfft3d)
 *     complex*16 tmp2(nfft3d)
@@ -138,8 +139,8 @@ c     real*8     fion(3,natmx)
       external psp_hartree_atom,psp_hartree_cmp_cmp,psp_hartree_cmp_pw
 
 *     **** cosmo external functions ****
-      logical  nwpw_cosmo_on,nwpw_cosmo1_on,nwpw_cosmo2_on
-      external nwpw_cosmo_on,nwpw_cosmo1_on,nwpw_cosmo2_on
+      logical  nwpw_cosmo_on,nwpw_cosmo1_on,pspw_V_APC_on
+      external nwpw_cosmo_on,nwpw_cosmo1_on,pspw_V_APC_on
       real*8   nwpw_cosmo_Eqq,nwpw_cosmo_EQionq,nwpw_cosmo_EQelcq
       external nwpw_cosmo_Eqq,nwpw_cosmo_EQionq,nwpw_cosmo_EQelcq
 
@@ -185,7 +186,7 @@ c     real*8     fion(3,natmx)
       gga = control_gga()
       cosmo_on  = nwpw_cosmo_on()
       cosmo1_on = nwpw_cosmo1_on()
-      cosmo2_on = nwpw_cosmo2_on()
+      V_APC_on  = pspw_V_APC_on()
 
       call nwpw_timing_start(12)
 *     **** allocate MA local variables ****
@@ -455,7 +456,6 @@ c        call mask_C(0,dcpl_mb(dng(1)))
      >               dcpl_mb(dng(1)),
      >               dbl_mb(fion(1)))
 
-
 *       *** long-range psp for charge systems ***
         if (control_version().eq.4) then
           call v_lr_local(dbl_mb(r_grid(1)),
@@ -467,8 +467,8 @@ c        call mask_C(0,dcpl_mb(dng(1)))
           end if
         end if
 
-        if (cosmo2_on) then
-           call pspw_cosmo_V_APC(ispin,ne,
+        if (V_APC_on) then
+           call pspw_V_APC(ispin,ne,
      >                           dcpl_mb(dng(1)),
      >                           dcpl_mb(vl(1)))
         end if
@@ -560,6 +560,7 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 
 *          **** get the free-space ion force ****
            if (control_version().eq.4) call ion_ion_f(dbl_mb(fion(1)))
+
 
 *          **** get the semicore force ****
            if (psp_semicore(0)) then

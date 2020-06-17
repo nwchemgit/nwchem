@@ -2035,7 +2035,7 @@ c ------Main outputs -------- START
      &        g_munu_rot2,
      &        g_acc2  ! hyp-PSOSO para part
 c ------Main outputs -------- END
-      integer rtdb,basis
+      integer rtdb,basis,nat
       integer g_dens,g_tvec,atmnr(nat)
       integer g_munuCSdia,g_munuCSpar1,g_munuCSHpar,
      &        g_tnp,g_acc,vectors(2),
@@ -2055,7 +2055,7 @@ c                =3  xx yy zz
       integer jlo1,jhi1,jlo2,jhi2
       integer g_dens1,g_c1,
      &        g_p10,g_munuCSHpar2d,g_munuCSpar12d
-      integer iind(2),jind(2),icalczora,type_NMR,iat,nat
+      integer iind(2),jind(2),icalczora,type_NMR,iat
       integer alo(3),ahi(3),elo(3),ehi(3),flo(3),fhi(3)
       logical dft_zoraShield_NLMOAnalysis_read ! for read-nlmo-mat
       character*255 zorafilename              ! for read-nlmo-mat

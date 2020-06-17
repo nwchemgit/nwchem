@@ -191,7 +191,6 @@ c      for neb runs
 #include "inp.fh"
 #include "qmmm_params.fh"
 #include "msgids.fh"
-#include "tcgmsg.fh"
       integer irtdb
 c     local variables
       character*255 filename
@@ -266,7 +265,8 @@ c     ---------------------------------------------
      >                         filename0(1:inp_strlen(filename0)))
            end if
          end if
-         call ga_brdcst(msg_qmmm_misc, ofile, mitob(1), 0)
+         call ga_brdcst(msg_qmmm_misc, ofile,
+     $        MA_sizeof(MT_INT,1,MT_BYTE), 0)
          call ga_sync()
          if(ofile) then
            geomname = ' '

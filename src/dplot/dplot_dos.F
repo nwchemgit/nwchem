@@ -32,7 +32,7 @@ c
      K     k_proj,l_proj,k_c,l_c,k_sc,l_sc,k_fproj,l_fproj
       integer l_dos,k_dos
       double precision span,trasly,emin,emax
-      character*80 dfile
+      character*256 dfile
       integer nproj,angproj
       logical doproj
 c
@@ -115,6 +115,8 @@ c
       if(ga_nodeid().eq.0) write(0,*) ' DOS output goes to file ',
      A     dfile(1:inp_strlen(dfile))
       if(ga_nodeid().eq.0) write(0,*) ' dopro ',doproj
+      k_proj=0
+      k_fproj=0
       if(doproj) then
          if (.not.rtdb_get(rtdb,'dplot:angproj',mt_int,
      &        1,angproj)) angproj=-1
@@ -183,7 +185,7 @@ c     neeed to generalize to uhf
 #include "global.fh"
 #include "stdio.fh"
       integer nbf ![in]
-      integer nmo ![in]
+      integer nmo(*) ![in]
       logical do_gaussbr ! [in]
       double precision traslx,sigma,trasly ! [in]
       double precision scalex,scaley,vde
@@ -213,16 +215,17 @@ c
       integer stepsz,ien_0,ien_1
       parameter(au2ev=27.21d0)
 c
-      i1=1
-      i2=nmo
-c
 c     traslx=-[E(N)-E(N-1)-e_HOMO]
 c
       sigma=sigma/au2ev*0.5d0
       factpi=0.5d0/acos(-1d0)
       sqpi=sigma*sqrt(acos(-1d0))
       nelec=0d0
+      efermi=0d0
       do spin=1,ipol
+c
+         i1=1
+         i2=nmo(spin)
         do i=i1,i2
           if(foccs(i,spin).ge.eps) nelec=nelec+foccs(i,spin)
           if(i.lt.i2) then

@@ -559,60 +559,60 @@ c !*************************************************
 
 
 
-c !*************************************************
-c !
-c !   Name    : dlegendre_lm
-c !
-c !
-c !   Purpose : calculates the derivative of the
-c !             associated Legendre with respect to angle theta
-c !             (x=cos(theta))
-c !
-c !
-c !   Created : 10/99
-c !
-c !
-c !   Notes: Arfken definition of P(l,m,x) is different from mine by a
-c !          factor (-1)**m. Thus all recursive relationships should be modified
-c !          accordingly
-c !*************************************************
-      double precision function dlegendre_lm(l,m,x) 
-      implicit none
-      integer l,m
-      double precision  x
-c      real*8  dlegendre_lm
-
-      !*** local variables ***
-      double precision f1,f2
-
-      !*** external functions ****
-      double precision legendre_lm
-      external         legendre_lm
-
-      !*** check the arguments ***
-      if ((m.gt.l) .or. (dabs(x).gt.1.0d0)) then
-        call errquit("parameter ot of range in dlegendre_lm",0,0)
-      end if
-
-      if (m.eq.l) then
-        f1 = 0.0d0
-      else
-        f1 = legendre_lm(l,m+1,x)
-      END IF
-
-      f2 = legendre_lm(l,m-1,x)
-
-      !*** see Arfken p.669 3rd ed, p. 725 4th ed.                             ***
-      !*** sqrt(1-x*x)*dP_l^m/dx = 0.5*P_l^(m+1) - 0.5*(l+m)*(l-m+1)*P_l^(m-1) ***
-      !*** Note this recursion relationship doesn't have the problems at       ***
-      !*** theta=0,pi that the more traditional recursion relationship in term ***
-      !*** of l (i.e. p. 115 of Jahnke and Emde) have                          ***
-      !*** (1-x*x)*dP_l^m/dx = (l+1)*x*P_l^m - (l-m+1)*P_(l+1)^m               ***
-
-      dlegendre_lm = 0.5d0*f1 - 0.5d0*(l+m)*(l-m+1)*f2
-
-      return
-      end 
+Cc !*************************************************
+Cc !
+Cc !   Name    : dlegendre_lm
+Cc !
+Cc !
+Cc !   Purpose : calculates the derivative of the
+Cc !             associated Legendre with respect to angle theta
+Cc !             (x=cos(theta))
+Cc !
+Cc !
+Cc !   Created : 10/99
+Cc !
+Cc !
+Cc !   Notes: Arfken definition of P(l,m,x) is different from mine by a
+Cc !          factor (-1)**m. Thus all recursive relationships should be modified
+Cc !          accordingly
+Cc !*************************************************
+C      double precision function dlegendre_lm(l,m,x) 
+C      implicit none
+C      integer l,m
+C      double precision  x
+Cc      real*8  dlegendre_lm
+C
+C      !*** local variables ***
+C      double precision f1,f2
+C
+C      !*** external functions ****
+C      double precision legendre_lm
+C      external         legendre_lm
+C
+C      !*** check the arguments ***
+C      if ((m.gt.l) .or. (dabs(x).gt.1.0d0)) then
+C        call errquit("parameter ot of range in dlegendre_lm",0,0)
+C      end if
+C
+C      if (m.eq.l) then
+C        f1 = 0.0d0
+C      else
+C        f1 = legendre_lm(l,m+1,x)
+C      END IF
+C
+C      f2 = legendre_lm(l,m-1,x)
+C
+C      !*** see Arfken p.669 3rd ed, p. 725 4th ed.                             ***
+C      !*** sqrt(1-x*x)*dP_l^m/dx = 0.5*P_l^(m+1) - 0.5*(l+m)*(l-m+1)*P_l^(m-1) ***
+C      !*** Note this recursion relationship doesn't have the problems at       ***
+C      !*** theta=0,pi that the more traditional recursion relationship in term ***
+C      !*** of l (i.e. p. 115 of Jahnke and Emde) have                          ***
+C      !*** (1-x*x)*dP_l^m/dx = (l+1)*x*P_l^m - (l-m+1)*P_(l+1)^m               ***
+C
+C      dlegendre_lm = 0.5d0*f1 - 0.5d0*(l+m)*(l-m+1)*f2
+C
+C      return
+C      end 
 
 
 c !*************************************************
@@ -728,70 +728,69 @@ c      real*8 theta_lm_div !*RESULT*
       end 
 
 
-c  !*************************************************
-c  !
-c  !   Name    : legendre_lm_div
-c  !
-c  !   Purpose : calculates associated Legendre
-c  !             polynomial divided by sin(theta)
-c  !             for a scalar argument
-c  !
-c  !   Created : 10/99
-c  !
-c  !*************************************************
-      double precision function legendre_lm_div(l,m,x) 
-      implicit none
-      integer l,m
-      double precision x
-c      real*8 legendre_lm_div !*RESULT*
-
-      !*** local variables ***
-      integer i
-      double precision p_mm,p_mp1m,tmp,fact,f
-
-
-      !*** check the arguments ***
-      if ((m.lt.0)           .or. 
-     >    (m.gt.l)           .or. 
-     >    (dabs(x).gt.1.0d0) .or.
-     >    (m.eq.0) ) then
-        call errquit(
-     >        'parameter ot of range in legendre_lm_div',0,0)
-      end if
-
-      !*** P(1,1,x)/sqrt(1-x**2) ***
-      p_mm = -1.0d0
-
-      fact = 3.0d0
-      tmp = dsqrt((1.0d0-x)*(1.0d0+x))
-
-      do i=2,m
-        p_mm = -p_mm*fact*tmp
-        fact = fact + 2.0d0
-      end do
-
-      !*** find P(l,m) ***
-      if (m.eq.l) then
-        f = p_mm
-
-      else
-          !*** find P(m+1,m) ***
-          p_mp1m = x*(2*m+1)*p_mm
-          if (l.eq.(m+1)) then
-            f = p_mp1m
-          else
-            do i=m+2,l
-              tmp = (x*(2*i-1)*p_mp1m - (i+m-1)*p_mm)/(i-m)
-              p_mm = p_mp1m
-              p_mp1m = tmp
-            end do
-            f = tmp
-          end if
-      end if
-
-      legendre_lm_div = f
-      return
-      end
+Cc  !*************************************************
+Cc  !
+Cc  !   Name    : legendre_lm_div
+Cc  !
+Cc  !   Purpose : calculates associated Legendre
+Cc  !             polynomial divided by sin(theta)
+Cc  !             for a scalar argument
+Cc  !
+Cc  !   Created : 10/99
+Cc  !
+Cc  !*************************************************
+C      double precision function legendre_lm_div(l,m,x) 
+C      implicit none
+C      integer l,m
+C      double precision x
+Cc      real*8 legendre_lm_div !*RESULT*
+C
+C      !*** local variables ***
+C      integer i
+C      double precision p_mm,p_mp1m,tmp,fact,f
+C
+C      !*** check the arguments ***
+C      if ((m.lt.0)           .or. 
+C     >    (m.gt.l)           .or. 
+C     >    (dabs(x).gt.1.0d0) .or.
+C     >    (m.eq.0) ) then
+C        call errquit(
+C     >        'parameter ot of range in legendre_lm_div',0,0)
+C      end if
+C
+C      !*** P(1,1,x)/sqrt(1-x**2) ***
+C      p_mm = -1.0d0
+C
+C      fact = 3.0d0
+C      tmp = dsqrt((1.0d0-x)*(1.0d0+x))
+C
+C      do i=2,m
+C        p_mm = -p_mm*fact*tmp
+C        fact = fact + 2.0d0
+C      end do
+C
+C      !*** find P(l,m) ***
+C      if (m.eq.l) then
+C        f = p_mm
+C
+C      else
+C          !*** find P(m+1,m) ***
+C          p_mp1m = x*(2*m+1)*p_mm
+C          if (l.eq.(m+1)) then
+C            f = p_mp1m
+C          else
+C            do i=m+2,l
+C              tmp = (x*(2*i-1)*p_mp1m - (i+m-1)*p_mm)/(i-m)
+C              p_mm = p_mp1m
+C              p_mp1m = tmp
+C            end do
+C            f = tmp
+C          end if
+C      end if
+C
+C      legendre_lm_div = f
+C      return
+C      end
 
 
 

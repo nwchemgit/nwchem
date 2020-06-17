@@ -92,7 +92,6 @@ C     match, print an error.
             print_charge = .true.
             print_convergence = .true.
             print_s2 = .true.
-            
          else
             call errquit (pname//
      $           "unknown print option: "//trim(curr_popt)//
@@ -102,49 +101,56 @@ C     match, print an error.
      $           0, 0)
          endif
       enddo
-
-C
-C     Save all params to rtdb, overwriting the defaults.
-C     
+      if (print_dipole) then
       if (.not.rtdb_put(rtdb,'rt_tddft:print_dipole',
      $     mt_log,1,print_dipole))
      $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
-
+      endif
+      if (print_quad) then
       if (.not.rtdb_put(rtdb,'rt_tddft:print_quad',
      $     mt_log,1,print_quad))
      $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
-
+      endif
+      if (print_field) then
       if (.not.rtdb_put(rtdb,'rt_tddft:print_field',
      $     mt_log,1,print_field))
      $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
-
+      endif
+      if(print_moocc) then
       if (.not.rtdb_put(rtdb,'rt_tddft:print_moocc',
      $     mt_log,1,print_moocc))
      $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
-
+      endif
+      if(print_dipcontribs) then
       if (.not.rtdb_put(rtdb,'rt_tddft:print_dipcontribs',
      $     mt_log,1,print_dipcontribs))
      $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
-
+      endif
+      if(print_energy) then
       if (.not.rtdb_put(rtdb,'rt_tddft:print_energy',
      $     mt_log,1,print_energy))
      $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
-
+      endif
+      if(print_cputime) then
       if (.not.rtdb_put(rtdb,'rt_tddft:print_cputime',
      $     mt_log,1,print_cputime))
      $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
-
+      endif
+      if(print_charge) then
       if (.not.rtdb_put(rtdb,'rt_tddft:print_charge',
      $     mt_log,1,print_charge))
      $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
-
+      endif
+      if(print_convergence) then
       if (.not.rtdb_put(rtdb,'rt_tddft:print_convergence',
      $     mt_log,1,print_convergence))
      $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
-
+      endif
+      if(print_s2) then
       if (.not.rtdb_put(rtdb,'rt_tddft:print_s2',
      $     mt_log,1,print_s2))
-     $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR) 
+     $     call errquit(pname//'Write failed to rtdb',0,RTDB_ERR)
+      endif
      
       end subroutine
       

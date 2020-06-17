@@ -70,7 +70,7 @@ c
      >                       Kr0_mbond,nKr0_mbond_start,
      >                       mbond_found
 
-*     **** pspw_qmmm dihedral spring common block ****
+*     **** pspw_2qmmm dihedral spring common block ****
       integer ndihedral_spring(2)
       integer indx_dihedral_spring(2),nindx_dihedral_spring_start(2)
       integer Kr0_dihedral_spring(2), nKr0_dihedral_spring_start(2)
@@ -80,7 +80,7 @@ c
      >               Kr0_dihedral_spring,nKr0_dihedral_spring_start,
      >               dihedral_spring_found
 
-*     **** pspw_qmmm dihedral common block ****
+*     **** pspw_2qmmm dihedral common block ****
       integer ndihedral(2)
       integer indx_dihedral(2),nindx_dihedral_start(2)
       integer Kr0_dihedral(2), nKr0_dihedral_start(2)
@@ -91,7 +91,7 @@ c
      >               dihedral_found
 
 
-*     **** pspw_qmmm coordination number spring common block ****
+*     **** pspw_2qmmm coordination number spring common block ****
       integer ncoord(2)
       integer nindx0_coord_start(2)
       integer indx1_coord(2),nindx1_coord_start(2),nsize1_coord(2)
@@ -104,6 +104,23 @@ c
      >                      indx2_coord,nindx2_coord_start,nsize2_coord,
      >                      Kr0_coord,nKr0_coord_start,
      >                      coord_found
+
+
+*     **** pspw_2qmmm bondings spring common block ****
+      integer nbondings(2)
+      integer nindx0_bondings_start(2)
+      integer indx1_bondings(2),nindx1_bondings_start(2)
+      integer nsize1_bondings(2)
+      integer Kr0_bondings(2), nKr0_bondings_start(2)
+      logical bondings_found
+      common / pspw_2qmmm11 / nbondings,
+     >                       nindx0_bondings_start,
+     >                       indx1_bondings,nindx1_bondings_start,
+     >                       nsize1_bondings,
+     >                       Kr0_bondings, nKr0_bondings_start,
+     >                       bondings_found
+
+
 
 *     ******************************************************************
 

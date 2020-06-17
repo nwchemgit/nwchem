@@ -503,6 +503,10 @@ c
       if (.not. geom_rtdb_delete(rtdb, 'numg reference')) 
      $     call errquit('num_grad: delete of ref geom failed',0,
      &       RTDB_ERR)
+         if (.not. rtdb_put(rtdb,'scf:converged',mt_log,1,.false.))
+     $        call errquit('num_grad: rtdb corrupt',1, RTDB_ERR)
+         if (.not. rtdb_put(rtdb,'dft:converged',mt_log,1,.false.))
+     $        call errquit('num_grad: rtdb corrupt',2, RTDB_ERR)
 c
       if (.not. ma_pop_stack(l_t))call errquit('tng: ma corrupt',0,
      &       MA_ERR)

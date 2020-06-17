@@ -42,7 +42,7 @@ c
         do i = 1,nblocks
           call ga_get(filehandles(d_sf),(i-1)*blocksize+1,
      1      min(size,i*blocksize),1,1,dbl_mb(k_temp),1)
-          if (eaf_write(d_temp,dfloat(bytes)*dfloat((i-1)*blocksize),
+          if (eaf_write(d_temp,dble(bytes)*dble((i-1)*blocksize),
      1      dbl_mb(k_temp),
      2      bytes*(min(size,i*blocksize)-(i-1)*blocksize)).ne.0)
      3      call errquit('gatoeaf: eaf problem',7,DISK_ERR)

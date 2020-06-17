@@ -2143,7 +2143,7 @@ c
 *     *                                      *
 *     ****************************************
 *
-* bondings gamma0 -1.0 1 2 1.0 2 3
+* bondings -1.0 1 2 1.0 2 3
 *
       logical function metadynamics_bondings_input(n,indx,coef)
       implicit none

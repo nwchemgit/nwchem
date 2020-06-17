@@ -21,8 +21,8 @@ c Date        : 08-13-11 (Revised and improved)
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "cosmo.fh"
-#include "msgids.fh" ! Added by FA - for NLMO analysis
-#include "zora.fh"   ! Added by FA
+#include "msgids.fh" 
+#include "zora.fh"   
 
       integer rtdb      ! [Input] rtdb  
       integer basis     ! [Input] Basis set
@@ -923,7 +923,7 @@ c                    21 31 32 41 42 43 ... (off  diagonal elem)
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
-#include "msgids.fh" ! Added by FA - for tag msg_efgs_col
+#include "msgids.fh" 
 
       integer nlst    ! INPUT : Nr. elements to extract   
       integer nbf     ! INPUT

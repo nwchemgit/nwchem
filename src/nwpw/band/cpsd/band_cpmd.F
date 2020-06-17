@@ -907,7 +907,7 @@ c         if (mulliken) call Orb_Write(dcpl_mb(psi1(1)))
       if (icount.lt.it_out) go to 101
       if (mprint)
      > write(luout,*) 
-     > '*** arived at the Maximum iteration.   terminated.'
+     > '*** arrived at the Maximum iteration.   terminated.'
  
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
 

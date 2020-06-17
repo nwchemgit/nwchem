@@ -13,8 +13,12 @@ print none
 
 python
   from __future__ import print_function
-  import Gnuplot, time, signal
+  """
+  import Gnuplot
+  """
+  import time, signal
   from math import *
+  from nwgeom import *
 
   geometry = '''
     geometry noprint
@@ -31,26 +35,6 @@ python
       end
     end
   '''
-
-  def geom_get_coords(name):
-    try:
-      actualname = rtdb_get(name)
-    except NWChemError:
-      actualname = name
-    coords = rtdb_get('geometry:' + actualname + ':coords')
-    units = rtdb_get('geometry:'+actualname+':user units')
-    if (units == 'a.u.'):
-      factor = 1.0
-    elif (units == 'angstroms'):
-      factor = rtdb_get('geometry:'+actualname+':angstrom_to_au')
-    else:
-      raise NWChemError,'unknown units'
-    i = 0
-    while (i < len(coords)):
-      coords[i] = coords[i] / factor
-      i = i + 1
-    return coords
-
   def get_bond_length():
     coords = geom_get_coords('geometry')
     x = coords[6]-coords[3]
@@ -59,6 +43,7 @@ python
     return sqrt(x*x + y*y + z*z)
 
   signal.signal(signal.SIGCHLD, signal.SIG_DFL)
+  """
   g = Gnuplot.Gnuplot()
   g.xlabel('Out-of-plane angle')
   g.ylabel('Energy')
@@ -72,9 +57,9 @@ python
   gr.title('Inversion of NH3 - Bond-length vs. angle')
   gr('set style data linespoints')
   gr('set xrange [-25:25]')
-
+  """
   # Generate points in a visually interesting order
-  points = range(-24,30,6) + range(21,-27,-6)
+  points = list(range(-24,30,6)) + list(range(21,-27,-6))
   for angle in range(-23,25,3):
     points = points + [angle+0.5]
   for angle in range(22,-26,-3):
@@ -92,10 +77,11 @@ python
     bonds = bonds + [[angle,r]]
     energies.sort()
     bonds.sort()
-    if (len(energies)> 1 and ga_nodeid() == 0): 
+    if (len(energies)> 1 and ga_nodeid() == 0):
+        """
       g.plot(energies)
       gr.plot(bonds)
-
+        """
   print(' Done!')
 
   time.sleep(90)  # time to look at the plot

@@ -32,7 +32,7 @@ c     Date  : 06-22-11
 #include "geom.fh"
 #include "stdio.fh"
 #include "msgids.fh"
-#include "zora.fh" ! for lbl_nlmo
+#include "zora.fh" 
       integer basis    ! [input] basis set
       integer geom     ! [input] geometry
       integer g_dens   ! [input] GA with density
@@ -249,10 +249,10 @@ c               4 -> xy, 5 -> xz, 6 -> yz
       integer ilo,ihi,jlo,jhi
       integer iblock_slc,ndir
       integer idim,jdim,nblock
+      integer iat,nat
       double precision mblock(idim,jdim,nblock)
       double precision arr_munu(nbf,nbf,ndir,nat)
       integer i,j,k,ii,jj
-      integer iat,nat
 
       do iat=1,nat
        do dir_slc=1,ndir

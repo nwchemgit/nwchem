@@ -925,7 +925,7 @@ c     >                        ratio_v,wa,wr,wa_v,wr_v
          end if
       if (icount.lt.it_out) go to 101
       if (oprint) write(luout,*) 
-     > '*** arived at the Maximum iteration.   terminated.'
+     > '*** arrived at the Maximum iteration.   terminated.'
 
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
       call control_up_print()

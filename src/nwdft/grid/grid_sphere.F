@@ -17,7 +17,7 @@ c
 #include "grid_cube.fh"      
 c
       grid_insidesp=.true.
-      if(fnxyz.lt.shft.and.sub4) then
+      if(fnxyz.lt.grid_shft.and.sub4) then
          nxyz=nsub4
          ll=l_rect*0.5d0
       else
@@ -70,9 +70,9 @@ c
       integer nxyz2n,onx,ony,onz,onxyz,nxyz2,nchk
       logical odd
 c
-#include "grid_cube.fh"      
-      nxyz2n(onx,ony,onz,onxyz,shft)=onx-1+
-     +(ony-1+(onz-1)*onxyz)*onxyz+shft
+#include "grid_cube.fh"
+      nxyz2n(onx,ony,onz,onxyz,nxyz2)=onx-1+
+     +     (ony-1+(onz-1)*onxyz)*onxyz+nxyz2
 c
       nxyz=grid_nxyz(rad,l_rect)
       odd=mod(nxyz,2).ne.0
@@ -116,7 +116,7 @@ c     inside part of side L/2
      .                 (nz.eq.nxyz2.or.nz.eq.nxyz2+1)) goto 413
 c     do nothing --- see above
                endif
-               ffnxyz=nxyz2n(nx,ny,nz,nxyz,shft)
+               ffnxyz=nxyz2n(nx,ny,nz,nxyz,grid_shft)
                if(grid_insidesp(ffnxyz,l_rect,rad)) then
                   ninside=ninside+1
                   if(ynxyz) then
@@ -148,12 +148,12 @@ c
       integer nresid,factxyz,npu
 #include "grid_cube.fh"      
 c      
-      if(sub4.and.npoint.lt.shft) then
+      if(sub4.and.npoint.lt.grid_shft) then
          npu=npoint
          factxyz=nsub4
       else
          factxyz=nxyz
-         npu=npoint-shft
+         npu=npoint-grid_shft
       endif
       nz=npu/(factxyz*factxyz)+1
       nresid=npu-(nz-1)*factxyz*factxyz
@@ -178,7 +178,7 @@ c
 c
       rmax=0d0
       rmin=0d0
-      if(sub4.and.fnxyz.lt.shft) then
+      if(sub4.and.fnxyz.lt.grid_shft) then
          nxyz=nsub4
          ll=l*0.5d0
       else
@@ -263,7 +263,7 @@ c
       double precision nxyz2,ll
 c
       grid_incube=.false.
-      if(sub4.and.fnxyz.lt.shft) then
+      if(sub4.and.fnxyz.lt.grid_shft) then
          nxyz2=nsub4*0.5d0
          ll=ll_in*0.5d0
       else

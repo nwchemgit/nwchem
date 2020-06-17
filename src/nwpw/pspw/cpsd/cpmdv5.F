@@ -974,7 +974,7 @@ c      call xyz_write()
       if (icount.lt.it_out) go to 101
       if (taskid.eq.MASTER) 
      > write(luout,*)
-     > '*** arived at the Maximum iteration.   terminated.'
+     > '*** arrived at the Maximum iteration.   terminated.'
  
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
 
@@ -1378,6 +1378,7 @@ c         end if
 c      call frac_occ_end()
       if (control_Nose()) call Nose_end()
       if (psp_pawexist()) call nwpw_gintegrals_end()
+      !if (psp_pawexist()) call nwpw_cgintegrals_end()
 
       value = BA_free_heap(psir(2))
       value = BA_free_heap(Hpsi(2))

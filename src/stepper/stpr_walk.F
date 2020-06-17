@@ -7,7 +7,6 @@ c     $Id$
 #include "errquit.fh"
 c     
 #include "mafdecls.fh"
-#include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "global.fh"
 #include "geom.fh"
@@ -43,6 +42,7 @@ c
       logical status
       logical lstpr_walk
       double precision convggm, convgg, convge
+      integer mitob1
 #include "cstprfiles.fh"
       integer first_call, step_number, astep_number
       data first_call /0/
@@ -265,8 +265,9 @@ c
             int_val = -1
          endif
       endif
-c     
-      call ga_brdcst(Msg_Stpr_Walk+MSGINT, int_val, mitob(1), 0) ! Propagate walker status
+c
+      mitob1=MA_sizeof(MT_INT,1,MT_BYTE)
+      call ga_brdcst(Msg_Stpr_Walk+MSGINT, int_val, mitob1, 0) ! Propagate walker status
 c     
       lstpr_walk = .false.
       if (int_val.gt.0) lstpr_walk = .true.

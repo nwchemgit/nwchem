@@ -53,7 +53,7 @@ c
          call fci_mfind_occ(icsf,iocc,ns)
          sum = 0.0d0
          do 20 is = 1,ns
-            sum = sum + 1.5d0 - dfloat(iocc(is))
+            sum = sum + 1.5d0 - dble(iocc(is))
             if (sum .lt. -0.0001d0) goto 30 ! Not a valid CSF
             csum(is) = sum
  20      continue
@@ -65,7 +65,7 @@ c
             rden = 1.0d0
             dsum = 0.0d0
             do 50 is = 1,ns
-               dsum = dsum + 1.5d0 - dfloat(mocc(is))
+               dsum = dsum + 1.5d0 - dble(mocc(is))
 c
                rs = csum(is)
                rm = dsum
@@ -159,7 +159,7 @@ c
          call fci_mfind_occ(icsf,iocc,ns)
          sum = 0.0d0
          do 20 is = 1,ns
-            sum = sum + 1.5d0 - dfloat(iocc(is))
+            sum = sum + 1.5d0 - dble(iocc(is))
             if (sum .lt. -0.0001d0) goto 30 ! Not a valid CSF
             csum(is) = sum
  20      continue
@@ -171,7 +171,7 @@ c
             rden = 1.0d0
             dsum = 0.0d0
             do 50 is = 1,ns
-               dsum = dsum + 1.5d0 - dfloat(mocc(is))
+               dsum = dsum + 1.5d0 - dble(mocc(is))
 c
                rs = csum(is)
                rm = dsum

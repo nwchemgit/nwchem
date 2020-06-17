@@ -692,7 +692,8 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
 *                |***************************|
 
       if (oprint) call current_second(cpu2)
-      if (oprint) CALL nwpw_MESSAGE(2)
+      if (oprint) call nwpw_message(14)
+     
       it_in  = control_it_in()
       it_out = control_it_out()
       icount = 0
@@ -730,12 +731,12 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
       if (icount.lt.it_out) go to 1
       if (oprint) 
      > write(luout,*) 
-     > '*** arived at the Maximum iiteration.   terminated.'
+     > '*** arrived at the Maximum iteration.   terminated.'
 
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
 
    2  continue
-      if (oprint) CALL nwpw_MESSAGE(3)
+      if (oprint) CALL nwpw_message(3)
       if (oprint) call current_second(cpu3)
 
 *         |****************************************|
@@ -1282,7 +1283,8 @@ c      call frac_occ_end()
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (electron)',E12.3,' (ion)')
  1300 FORMAT(//)
- 1305 FORMAT(10X,'================ iteration =========================')
+ 1305 FORMAT(10X,
+     >       '==================== iteration =========================')
  1310 FORMAT(I8,E20.10,3E15.5)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1321 FORMAT(' total charge of system:',F11.5,A)

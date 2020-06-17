@@ -39,8 +39,6 @@ c
          if (nconmx .lt. 4*noconf) nconmx = 4*noconf
 c
          min2c = 5              ! not currently used
-      else
-         call inibit
       endif
       call ga_brdcst(81,nconmx,mitob(1),0)
       call ga_brdcst(9,iwpt,mitob(1),0)

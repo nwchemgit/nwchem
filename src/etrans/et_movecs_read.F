@@ -3,7 +3,6 @@
       implicit none
 #include "errquit.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "mafdecls.fh"
 #include "msgids.fh"
@@ -23,6 +22,7 @@ c
       integer ok, jset, i, j
       integer l_vecs, k_vecs
       integer unitno
+      integer mitob1,mdtob_nbf
       parameter (unitno = 67)
       double precision energy, enrep
 c     
@@ -98,11 +98,13 @@ c
      $      ('et_movecs_read: pop failed', l_vecs, MA_ERR)
       endif
       call ga_sync()
-      call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
+      mitob1= MA_sizeof(MT_INT,1,MT_BYTE)
+      call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob1, 0) ! Propagate status
       if (ok .eq. 1) then
-	 call ga_brdcst(Msg_Vec_NBF+MSGINT, nbf, mitob(1), 0)
-	 call ga_brdcst(Msg_Vec_EVal+MSGDBL, evals, mdtob(nbf), 0)
-	 call ga_brdcst(Msg_Vec_Occ+MSGDBL, occ,   mdtob(nbf), 0)
+	 call ga_brdcst(Msg_Vec_NBF+MSGINT, nbf, mitob1, 0)
+         mdtob_nbf= MA_sizeof(MT_DBL,nbf,MT_BYTE)
+	 call ga_brdcst(Msg_Vec_EVal+MSGDBL, evals, mdtob_nbf, 0)
+	 call ga_brdcst(Msg_Vec_Occ+MSGDBL, occ,   mdtob_nbf, 0)
       endif
 c
       et_movecs_read = ok .eq. 1

@@ -547,7 +547,7 @@ c*     *****  read psi2 wavefunctions ****
       if (icount.lt.it_out) go to 1
       if (taskid.eq.MASTER) 
      >   write(luout,*)
-     >   '*** arived at the Maximum iiteration.   terminated.'
+     >   '*** arrived at the Maximum iiteration.   terminated.'
 
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
 

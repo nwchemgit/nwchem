@@ -2676,7 +2676,7 @@ C     MCWEENY_PUR(DIN,DOUT,S,SCR1,SCR2,MAXIT,NSMOB,NOBPSM)
      &                     NAOS,NAOS,0)
 C                TRACE_BLK_MAT(A,NBLK,LBLK,IPAK)
         TRACE =  TRACE_BLK_MAT(SCR1,NSMOB,NAOS,0)
-        COEF = DFLOAT(NEL)/TRACE
+        COEF = DBLE(NEL)/TRACE
         CALL SCALVE(D_TILDE,COEF,LDENSI)
       END IF
 *
@@ -4051,7 +4051,7 @@ C?    WRITE(6,*) ' LENBLM = ', LENBLM
       CALL COPVEC(A,WORK(KLSCR4),LENBLM)
       XFAC = 1.0D0
       DO IORD = 1, MAXORD
-        XFAC = XFAC*DFLOAT(IORD)
+        XFAC = XFAC*DBLE(IORD)
         FACTOR = 1.0D0/XFAC
 *. Obtain next commutator :  SCR4 S X - X S SCR4,  store in SCR2
 C            S_COMMU_BLKMT(A,B,S,COMMU,SCR,NBLK,LBLK)

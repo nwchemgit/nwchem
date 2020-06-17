@@ -954,7 +954,7 @@ c      external dmax
 
 *     ******************************************
 *     *                                        *
-*     *  pspw_qmmm_dihedral_frag_fion   *
+*     *      pspw_qmmm_dihedral_frag_fion      *
 *     *                                        *
 *     ******************************************
       subroutine pspw_qmmm_dihedral_frag_fion(nangle,indx,Kr0,
@@ -1357,3 +1357,147 @@ cccc  E =  Kr0(1,b)*(1.0d0+dcos(Kr0(2,b)*phi-Kr0(3,b))) cccc
       end
 
 
+
+*     *************************************
+*     *                                   *
+*     *   pspw_qmmm_spring_bondings_frag  *
+*     *                                   *
+*     *************************************
+
+*   This routine returns the gaussian penalty spring energy.
+*   Ebondings = sum(i) 
+
+      real*8 function pspw_qmmm_spring_bondings_frag(nbondings,
+     >                                           nsize1,indx1,
+     >                                           Kr0,rion)
+      implicit none
+      integer nbondings
+      integer nsize1(*),indx1(*)
+      real*8  Kr0(*)
+      real*8  rion(3,*)
+
+*     **** local variables ****
+      integer i,ii,jj,n1,i1,i2,c
+      real*8 x1,y1,z1,x2,y2,z2,dx12,dy12,dz12
+      real*8 gamm,gamm0,K0,r12,coef,E
+
+
+      E = 0.0d0
+      ii = 0
+      jj = 0
+      do c=1,nbondings
+         n1    = nsize1(c)
+         K0    = Kr0(ii+1)
+         gamm0 = Kr0(ii+2)
+
+         gamm = 0.0d0
+         do i=1,n1
+            i1 = indx1(ii+2*i-1)
+            i2 = indx1(ii+2*i)
+            coef = Kr0(jj+2+i)
+            x1 = rion(1,i1)
+            y1 = rion(2,i1)
+            z1 = rion(3,i1)
+            x2 = rion(1,i2)
+            y2 = rion(2,i2)
+            z2 = rion(3,i2)
+            dx12 = x1-x2
+            dy12 = y1-y2
+            dz12 = z1-z2
+            call lattice_min_difference(dx12,dy12,dz12)
+            r12  = dsqrt(dx12**2 + dy12**2 + dz12**2)
+            gamm = gamm + Kr0(ii+2+i)*r12
+         end do
+         ii = ii + 2*n1
+         jj = jj + n1 + 2 
+         E = E + K0*(gamm-gamm0)**2
+      end do
+
+      pspw_qmmm_spring_bondings_frag = E
+      return
+      end
+
+
+*     ******************************************
+*     *                                        *
+*     *   pspw_qmmm_spring_bondings_frag_fion  *
+*     *                                        *
+*     ******************************************
+
+*   This routine returns the gaussian penalty spring energy.
+*   Ebondings = sum(i)
+
+      subroutine pspw_qmmm_spring_bondings_frag_fion(nbondings,
+     >                                           nsize1,indx1,
+     >                                           Kr0,rion,fion)
+      implicit none
+      integer nbondings
+      integer nsize1(*),indx1(*)
+      real*8  Kr0(*)
+      real*8  rion(3,*),fion(3,*)
+
+*     **** local variables ****
+      integer i,ii,jj,n1,c,i1,i2
+      real*8 x1,y1,z1,x2,y2,z2,dx12,dy12,dz12
+      real*8 gamm,gamm0,K0,r12
+      real*8 E,energy,denergy,coef
+
+      E = 0.0d0
+      ii = 0
+      jj = 0
+      do c=1,nbondings
+         n1    = nsize1(c)
+         K0    = Kr0(jj+1)
+         gamm0 = Kr0(jj+2)
+
+         gamm = 0.0d0
+         do i=1,n1
+            i1 = indx1(ii+2*i-1)
+            i2 = indx1(ii+2*i)
+            coef = Kr0(jj+2+i)
+            x1 = rion(1,i1)
+            y1 = rion(2,i1)
+            z1 = rion(3,i1)
+            x2 = rion(1,i2)
+            y2 = rion(2,i2)
+            z2 = rion(3,i2)
+            dx12 = x1-x2
+            dy12 = y1-y2
+            dz12 = z1-z2
+            call lattice_min_difference(dx12,dy12,dz12)
+            r12  = dsqrt(dx12**2 + dy12**2 + dz12**2)
+            gamm = gamm + coef*r12
+         end do
+         energy  = K0*(gamm-gamm0)**2
+         denergy = -2.0d0*K0*(gamm-gamm0)
+
+         gamm = 0.0d0
+         do i=1,n1
+            i1 = indx1(ii+2*i-1)
+            i2 = indx1(ii+2*i)
+            coef = Kr0(jj+2+i)
+            x1 = rion(1,i1)
+            y1 = rion(2,i1)
+            z1 = rion(3,i1)
+            x2 = rion(1,i2)
+            y2 = rion(2,i2)
+            z2 = rion(3,i2)
+            dx12 = x1-x2
+            dy12 = y1-y2
+            dz12 = z1-z2
+            call lattice_min_difference(dx12,dy12,dz12)
+            r12  = dsqrt(dx12**2 + dy12**2 + dz12**2)
+            fion(1,i1) = fion(1,i1) + denergy*coef*(dx12/r12)
+            fion(2,i1) = fion(2,i1) + denergy*coef*(dy12/r12)
+            fion(3,i1) = fion(3,i1) + denergy*coef*(dz12/r12)
+            fion(1,i2) = fion(1,i2) - denergy*coef*(dx12/r12)
+            fion(2,i2) = fion(2,i2) - denergy*coef*(dy12/r12)
+            fion(3,i2) = fion(3,i2) - denergy*coef*(dz12/r12)
+         end do
+         ii = ii + 2*n1
+         jj = jj + n1 + 2
+         E = E + energy
+      end do
+
+      return
+      end

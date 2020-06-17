@@ -75,8 +75,8 @@ c
 c
       implicit none
 c
-      double precision a(lda), b(lda), x
       integer lda, k, l, i
+      double precision a(lda), b(lda), x
 c
       do i=1,lda
          x=x+a(i)*b(i)
@@ -129,8 +129,8 @@ c
 c
       implicit none
 c
-      double precision a(lda,m), b(lda,m), x
       integer lda, m
+      double precision a(lda,m), b(lda,m), x
       integer i, j
 c
       do i=1,m

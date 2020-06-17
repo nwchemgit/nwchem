@@ -149,11 +149,11 @@ c
         write(6,*)'size_4af',size_4af
         write(6,*)'size_2a2mf',size_2a2mf
 c        write(6,*)'bytes=',bytes
-c        write(6,*)'dfloat(bytes)=',dfloat(bytes)
-c        write(6,*)'dfloat(bytes)*dfloat(size_4af)',
-c     &             dfloat(bytes)*dfloat(size_4af)
-c        write(6,*)'dfloat(bytes)*dfloat(size_2a2mf)',
-c     &            dfloat(bytes)*dfloat(size_2a2mf)
+c        write(6,*)'dble(bytes)=',dble(bytes)
+c        write(6,*)'dble(bytes)*dble(size_4af)',
+c     &             dble(bytes)*dble(size_4af)
+c        write(6,*)'dble(bytes)*dble(size_2a2mf)',
+c     &            dble(bytes)*dble(size_2a2mf)
 c        write(6,*)'                  ' 
        end if 
 c
@@ -164,12 +164,12 @@ c
      1       call errquit('sf only for parallel runs',1,DISK_ERR)
         if(parallel) call ga_sync()
         call util_file_name('4aintx',.false.,.false.,filename)
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_4af),
-     1    dfloat(bytes)*dfloat(size_4af),sf_chunk,d_4af).ne.0)
+        if (sf_create(filename,dble(bytes)*dble(size_4af),
+     1    dble(bytes)*dble(size_4af),sf_chunk,d_4af).ne.0)
      2    call errquit('4-index: sf problem',0,DISK_ERR)
         call util_file_name('2a2m',.false.,.false.,filename)
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_2a2mf),
-     1   dfloat(bytes)*dfloat(size_2a2mf),sf2a2m_chunk,d_2a2m).ne.0)
+        if (sf_create(filename,dble(bytes)*dble(size_2a2mf),
+     1   dble(bytes)*dble(size_2a2mf),sf2a2m_chunk,d_2a2m).ne.0)
      2   call errquit('4-index: sf problem',0,DISK_ERR)
       else
        call createfile(filename,d_4af,size_4af)
@@ -321,8 +321,8 @@ c fixing offsets and sf_writing
      &          atpart * (azone2 - 1 + atpart * (azone1 - 1)))
          call tce_hash(int_mb(k_4af_offset),key_4af,offset_4af)
       if(idiskl) then
-        if (sf_write(d_4af,dfloat(bytes)*dfloat(offset_4af),
-     1    dfloat(bytes)*dfloat(size_4a),dbl_mb(k_4a),request).ne.0)
+        if (sf_write(d_4af,dble(bytes)*dble(offset_4af),
+     1    dble(bytes)*dble(size_4a),dbl_mb(k_4a),request).ne.0)
      1    THEN
           write(6,8155)ga_nodeid(),key_4af,offset_4af,size_4a
           call errquit('zones put: sf problem2',1,DISK_ERR)
@@ -401,8 +401,8 @@ c
      &          atpart * (azone2 - 1 + atpart * (azone1 - 1)))
          call tce_hash(int_mb(k_4af_offset),key_4af,offset_4af)
        if(idiskl) then 
-        if (sf_read(d_4af,dfloat(bytes)*dfloat(offset_4af),
-     1    dfloat(bytes)*dfloat(size_4a),dbl_mb(k_4a),request).ne.0)
+        if (sf_read(d_4af,dble(bytes)*dble(offset_4af),
+     1    dble(bytes)*dble(size_4a),dbl_mb(k_4a),request).ne.0)
      1     call errquit('zones get2: sf problem',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('zones get3: sf problem',2,DISK_ERR)
@@ -494,8 +494,8 @@ c
      &   atpart * (g4b - 1 + (noa+nva) * (g3b - 1)))
          call tce_hash(int_mb(k_2a2m_offset),key_2a2m,offset_2a2m)
       if(idiskl) then
-        if (sf_write(d_2a2m,dfloat(bytes)*dfloat(offset_2a2m),
-     1    dfloat(bytes)*dfloat(size_2g2a),dbl_mb(k_2g2a),request).ne.0)
+        if (sf_write(d_2a2m,dble(bytes)*dble(offset_2a2m),
+     1    dble(bytes)*dble(size_2g2a),dbl_mb(k_2g2a),request).ne.0)
      2    call errquit('zones put: sf problem21',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('zones put: sf problem31',2,DISK_ERR)
@@ -640,8 +640,8 @@ c fixing offsets and sf_writing
      &   atpart * (g4b - 1 + (noa+nva) * (g3b - 1)))
          call tce_hash(int_mb(k_2a2m_offset),key_2a2m,offset_2a2m)
       if(idiskl) then
-        if (sf_read(d_2a2m,dfloat(bytes)*dfloat(offset_2a2m),
-     1    dfloat(bytes)*dfloat(size_2g2a),dbl_mb(k_2g2a),request).ne.0)
+        if (sf_read(d_2a2m,dble(bytes)*dble(offset_2a2m),
+     1    dble(bytes)*dble(size_2g2a),dbl_mb(k_2g2a),request).ne.0)
      2    call errquit('zones put: sf problem22',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('zones put: sf problem32',2,DISK_ERR)

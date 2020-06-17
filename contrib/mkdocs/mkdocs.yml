@@ -1,0 +1,25 @@
+site_name: NWChem
+repo_url: https://github.com/nwchemgit/nwchem-wiki
+edit_uri: blob/master/
+theme:
+  name: readthedocs
+  prev_next_buttons_location: both
+use_directory_urls: false
+plugins:
+  - search
+  - alternate-link
+nav:
+      - Documentation Home: Home.md
+      - Overview.md
+      - System-Description.md
+      - Quantum-Mechanical-Methods.md
+      - Other-Capabilities.md
+      - Examples.md
+      - Supplementary-Information.md
+      - Compiling-NWChem.md
+      - Developer.md
+      - Benchmarks.md
+      - FAQ.md
+      - Known-Bugs.md
+      - Forum.md
+      - Archived-Forum.md

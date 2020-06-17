@@ -67,14 +67,14 @@ c
           call ga_lock(0)
           if (eaf_open(filename, EAF_RW, d_f).ne.0)
      1      call errquit('put_block: eaf problem',1,DISK_ERR)
-          if (eaf_write(d_f,dfloat(bytes)*dfloat(offset),
+          if (eaf_write(d_f,dble(bytes)*dble(offset),
      1      array,bytes*size).ne.0)
      2      call errquit('put_block: eaf problem',2,DISK_ERR)
           if (eaf_close(d_f).ne.0)
      1      call errquit('put_block: eaf problem',4,DISK_ERR)
           call ga_unlock(0)
         else
-          if (eaf_write(d_file,dfloat(bytes)*dfloat(offset),
+          if (eaf_write(d_file,dble(bytes)*dble(offset),
      1      array,bytes*size).ne.0)
      2      call errquit('put_block: eaf problem',5,DISK_ERR)
         endif
@@ -87,8 +87,8 @@ c
           if (sf_open(d_file).ne.0)
      1      call errquit('put_block: sf problem',0,DISK_ERR)
         endif
-        if (sf_write(d_file,dfloat(bytes)*dfloat(offset),
-     1    dfloat(bytes)*dfloat(size),array,request).ne.0)
+        if (sf_write(d_file,dble(bytes)*dble(offset),
+     1    dble(bytes)*dble(size),array,request).ne.0)
      2    call errquit('put_block: sf problem',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('put_block: sf problem',2,DISK_ERR)
@@ -98,7 +98,7 @@ c
           call ga_unlock(0)
         endif
       else if (ioalg.eq.4) then
-        if (eaf_write(d_file,dfloat(bytes)*dfloat(offset),
+        if (eaf_write(d_file,dble(bytes)*dble(offset),
      1    array,bytes*size).ne.0)
      2    call errquit('put_block: eaf problem',2,DISK_ERR)
       else if (ioalg.eq.5) then
@@ -115,7 +115,7 @@ c
      1      array,size)
         else
           if (eaf_write(filehandles(d_file),
-     1      dfloat(bytes)*dfloat(offset),array,bytes*size).ne.0)
+     1      dble(bytes)*dble(offset),array,bytes*size).ne.0)
      2      call errquit('put_block: eaf problem',2,DISK_ERR)
         endif
       endif
@@ -186,8 +186,8 @@ c
           if (sf_open(d_file).ne.0)
      1      call errquit('put_block: sf problem',0,DISK_ERR)
         endif
-        if (sf_write(d_file,dfloat(bytes)*dfloat(offset),
-     1    dfloat(bytes)*dfloat(size),array,request).ne.0)
+        if (sf_write(d_file,dble(bytes)*dble(offset),
+     1    dble(bytes)*dble(size),array,request).ne.0)
      2    call errquit('put_block: sf problem',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('put_block: sf problem',2,DISK_ERR)

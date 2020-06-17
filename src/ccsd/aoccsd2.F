@@ -123,6 +123,7 @@ c gradient
       integer memlimit
       integer MSG_MIN_LOCAL_MEM
       parameter(MSG_MIN_LOCAL_MEM=1971)
+      integer nkpass0
       external ccsd_createg
       Logical Do_Z,ccsd_createg
 #ifdef USE_F90INTERFACE
@@ -757,8 +758,12 @@ c     we can hack the mem available (in MB)
       call ga_igop(msg_cc_mem, mem_avail, 1, 'min')
 c
       nvpass = 1
+      if (.not.rtdb_get(rtdb,'ccsd:nkpass',mt_int,1,nkpass0))
+     &         nkpass0=1
+      if (.not.rtdb_get(rtdb,'ccsd:nvpass',mt_int,1,nvpass))
+     &         nvpass=1
 c
- 7651 nkpass = 1
+ 7651 nkpass = nkpass0
  7652 kchunk = (nocc - 1)/nkpass + 1
       vchunk = (nvir - 1)/nvpass + 1
 c

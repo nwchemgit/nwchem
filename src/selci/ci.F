@@ -33,7 +33,6 @@ c
       else
         iflham = 4
         open(iflham,form='unformatted',status='unknown',file=hamil)
-        call inibit
       endif
       call ga_brdcst(1,repnuc,lencib,0)
 c

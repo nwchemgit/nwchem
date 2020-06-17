@@ -71,8 +71,8 @@ c
 
       call pair_dist(full_filename)
       call pair_distab(full_filename)
-      call velocity_autocorrelation(full_filename)
-      call velocity_spectrum(full_filename)
+      call velocity_autocorrelation(rtdb,full_filename)
+      call velocity_spectrum(rtdb,full_filename)
       call generate_unfolded_xyz(full_filename,full_filename2)
 
 

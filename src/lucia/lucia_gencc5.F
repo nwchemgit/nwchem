@@ -1774,7 +1774,7 @@ C     INTEGER IBOT1T2_TCC(8,8,8)
       END IF
       IF(NTEST.GE.100) 
      &WRITE(6,*) ' N_TDL_MAX in OPCT1T2 ', N_TDL_MAX
-      SIGNG = DFLOAT(ISIGNG)
+      SIGNG = DBLE(ISIGNG)
 *. Symmetry of final type  
       IF(NTEST.GE.100) WRITE(6,*) ' IT1SM, IT2SM, IT3SM, IT4SM : ',
      &             IT1SM, IT2SM, IT3SM, IT4SM

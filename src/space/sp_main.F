@@ -110,7 +110,7 @@ c
       do 4 i=1,mis2
       k=misl(i)
       do 5 j=1,intsiz
-      k=rshift(k,1)
+      k=ishft(k,-1)
       if(k.eq.0) then
       nbits(i)=j+1
       goto 4
@@ -155,7 +155,7 @@ c
       do 11 i=1,miw2
       k=miwl(i)
       do 12 j=1,intsiz
-      k=rshift(k,1)
+      k=ishft(k,-1)
       if(k.eq.0) then
       nbitw(i)=j+1
       goto 11
@@ -267,7 +267,7 @@ c
       do 3 k=1,ipack(j)
       ipck=ipck+1
       do 4 i=1,numsa
-      islp(i,j)=lshift(islp(i,j),nbits(ipck))+isl(i,ipck)
+      islp(i,j)=ishft(islp(i,j),nbits(ipck))+isl(i,ipck)
     4 continue
     3 continue
     1 continue
@@ -293,7 +293,7 @@ c
       ipck=ipck-1
       do 3 i=1,numsa
       isl(i,ipck)=iand(islp(i,j),misl(ipck))
-      islp(i,j)=rshift(islp(i,j)-isl(i,ipck),nbits(ipck))
+      islp(i,j)=ishft(islp(i,j)-isl(i,ipck),-nbits(ipck))
     3 continue
     2 continue
     1 continue
@@ -321,7 +321,7 @@ c
       do 3 k=1,ipackw(j)
       ipck=ipck+1
       do 4 i=1,numwm
-      iwlp(i,j)=lshift(iwlp(i,j),nbitw(ipck))+iwl(i,ipck)
+      iwlp(i,j)=ishft(iwlp(i,j),nbitw(ipck))+iwl(i,ipck)
     4 continue
     3 continue
     1 continue
@@ -347,7 +347,7 @@ c
       ipck=ipck-1
       do 3 i=1,numwm
       iwl(i,ipck)=iand(iwlp(i,j),miwl(ipck))
-      iwlp(i,j)=rshift(iwlp(i,j)-iwl(i,ipck),nbitw(ipck))
+      iwlp(i,j)=ishft(iwlp(i,j)-iwl(i,ipck),-nbitw(ipck))
     3 continue
     2 continue
     1 continue
@@ -3585,12 +3585,12 @@ c      if(intsiz.le.32) then
       call ga_igop(msp_14,nlst,2*npp,'+')
 c      else
 c      do 3 i=1,np
-c      nlst(i,1)=lshift(nlst(i,1),32)+nlst(i,2)
+c      nlst(i,1)=ishft(nlst(i,1),32)+nlst(i,2)
 c    3 continue
 c      call ga_igop(msp_14,nlst,np,'+')
 c      do 4 i=1,np
 c      nlst(i,2)=iand(nlst(i,1),8589934591)
-c      nlst(i,1)=rshift(nlst(i,1),32)
+c      nlst(i,1)=ishft(nlst(i,1),-32)
 c    4 continue
 c      endif
 c
@@ -3692,7 +3692,7 @@ c
       n=nlst(node+1,2)
       do 11 j=1,27
       lnb(j)=iand(n,1).eq.1
-      n=rshift(n,1)
+      n=ishft(n,-1)
    11 continue
       least=-1
       do 13 j=1,27

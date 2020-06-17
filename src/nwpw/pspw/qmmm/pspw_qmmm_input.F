@@ -37,7 +37,7 @@ c
      >            'end'/
 
       integer num_fdirs          ! No. of known directives
-      parameter (num_fdirs = 15)
+      parameter (num_fdirs = 16)
       character*30 fdirs(num_fdirs)
       data fdirs / 'size',
      >             'index_start',
@@ -53,6 +53,7 @@ c
      >             'dihedral',
      >             'coord_number',
      >             'bond_pair',
+     >             'bondings',
      >             'end'/
 
       integer num_dirs2          ! No. of known directives
@@ -67,7 +68,7 @@ c
      >             'cn0',
      >             'sprik'/
 c
-      logical       value
+      logical       value,ok
       character*4   element,element2
       character*16  tag
       character*80  rtdb_name
@@ -89,7 +90,7 @@ c
       integer sindx(50),na,nb,nshk
       real*8  sdist(50)
       integer nbs,nas,ncbs,nbm,nds,ndds
-      integer n1,n2,nkc,ind2
+      integer n1,n2,nkb,nkc,ind2
       integer index_start1(2),index_start2(2)
 
 *     **** external functions ****
@@ -575,6 +576,7 @@ c
       nds  = 0
       ndds = 0
       nkc  = 0
+      nkb  = 0
       rtdb_name = 'pspw_qmmm_nkfrag'
       value = rtdb_put(rtdb,rtdb_name,mt_int,1,nkf)
       if (.not. value)
@@ -590,6 +592,7 @@ c
 
 
       goto ( 602,603,604,605,606,608,611,612,613,607,609,610,620,614,
+     >       640,
      >       699) ind
       call errquit('pspw_qmmm_input:directive not found',ind,INPUT_ERR)
 
@@ -1218,6 +1221,52 @@ c
 
       goto 601
 
+c
+c  bondings K0 gamma0 -1.0 1 2 1.0 2 3
+c
+ 640  ok = .true.
+
+      !*** enter K0 and gamma0 ***
+      if (.not.inp_f(sdist(1))) ok = .false.           !*** K0
+      if (ok.and.(.not.inp_f(sdist(2)))) ok = .false.  !*** gamma0
+
+      !*** coef and indx ***
+      n1 = 0
+      do while (ok.and.inp_f(sdist(n1+3)))
+         if(ok.and.(.not.inp_i(sindx(2*n1+1)))) ok = .false.
+         if(ok.and.(.not.inp_i(sindx(2*n1+2)))) ok = .false.
+         n1 = n1 + 1
+      end do
+      if (n1.eq.0) ok = .false.
+
+      if (ok) then
+         nkb = nkb + 1
+
+         rtdb_name = 'pspw_qmmm_frag_nbondings:'//c_index_name(nkf)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,nkb)
+
+         rtdb_name='pspw_qmmm_frag_indxsize1_bondings:'
+     >             //c_index_name(nkf)
+     >             //c_index_name(nkb)
+         value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,n1)
+
+         rtdb_name ='pspw_qmmm_frag_indx1_bondings:'//c_index_name(nkf)
+     >                                              //c_index_name(nkb)
+         value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,2*n1,sindx)
+
+         rtdb_name = 'pspw_qmmm_frag_Kr0_bondings:'
+     >               //c_index_name(nkf)
+     >               //c_index_name(nkb)
+         value = rtdb_put(rtdb,rtdb_name,mt_dbl,n1+2,sdist)
+         if (.not.value)
+     >   call errquit(
+     >   'pspw_qmmm_input:failed writing bondings',640,RTDB_ERR)
+
+      end if
+
+      goto 601
+
+
 
  699  continue
       goto 10
@@ -1234,6 +1283,7 @@ c
       nds  = 0
       ndds  = 0
       nkc   = 0
+      nkb   = 0
       indx_notset = .true.
       rtdb_name = 'pspw_2qmmm_nkfrag'
       value = rtdb_put(rtdb,rtdb_name,mt_int,1,nknf)
@@ -1250,6 +1300,7 @@ c
 
 
       goto ( 702,703,704,705,706,708,711,712,713,707,709,710,720,714,
+     >       740,
      >       799) ind
       call errquit('pspw_2qmmm_input:directive not found',ind,INPUT_ERR)
 
@@ -1875,6 +1926,54 @@ c      if (inp_f(sdist(4))) then
 cc
 c 740  continue
 c      goto 701
+
+
+c
+c  bondings K0 gamma0 -1.0 1 2 1.0 2 3 ....
+c
+ 740  ok = .true.
+
+      !*** enter K0 and gamma0 ***
+      if (.not.inp_f(sdist(1))) ok = .false.           !*** K0
+      if (ok.and.(.not.inp_f(sdist(2)))) ok = .false.  !*** gamma0
+
+      !*** coef and indx ***
+      n1 = 0
+      do while (ok.and.inp_f(sdist(n1+3)))
+         if(ok.and.(.not.inp_i(sindx(2*n1+1)))) ok = .false.
+         if(ok.and.(.not.inp_i(sindx(2*n1+2)))) ok = .false.
+         n1 = n1 + 1
+      end do
+      if (n1.eq.0) ok = .false.
+      
+      if (ok) then
+         nkb = nkb + 1
+
+         rtdb_name = 'pspw_2qmmm_frag_nbondings:'//c_index_name(nknf)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,nkb)
+
+         rtdb_name='pspw_2qmmm_frag_indxsize1_bondings:'
+     >             //c_index_name(nknf)
+     >             //c_index_name(nkb)
+         value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,n1)
+
+         rtdb_name ='pspw_2qmmm_frag_indx1_bondings:'
+     >              //c_index_name(nknf)
+     >              //c_index_name(nkb)
+         value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,2*n1,sindx)
+
+         rtdb_name = 'pspw_2qmmm_frag_Kr0_bondings:'
+     >               //c_index_name(nknf)
+     >               //c_index_name(nkb)
+         value = rtdb_put(rtdb,rtdb_name,mt_dbl,n1+2,sdist)
+         if (.not.value)
+     >   call errquit(
+     >   'pspw_2qmmm_input:failed writing bondings',740,RTDB_ERR)
+
+      end if
+
+      goto 701
+
 
 
  799  continue

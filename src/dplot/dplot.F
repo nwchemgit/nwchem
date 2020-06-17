@@ -27,15 +27,15 @@
       External movecs_read_header, movecs_read, Int_Normalize
       external ao_rdm_read
 c
-      Character*80 File_Vec,File_Vec2
-      Character*80 File_Mat1,File_Mat2
+      Character*256 File_Vec,File_Vec2
+      Character*256 File_Mat1,File_Mat2
       character*20 scftype, scftype2
       Character*255 Title_Vec, Title_Vec2, Basis_Name, Basis_Name2
       Integer nBF,nBF2,nSet,nSet2,iSet,nSetTri,
      &        nMO(2),nMO2(2)
       Integer g_Vec(2),g_Dns(2),g_Dns2(2)
 c
-      Character*80 File_civecs
+      Character*256 File_civecs
       Integer g_x(2),g_y(2)
       integer iroot
 c
@@ -52,7 +52,7 @@ c
       Double Precision STD,Tot_Charge,maxelt
       Character Coord(3)
       Character*8 Units,What,Spin,Where
-      Character*80 File_Out
+      Character*256 File_Out
       character*255 file_out_dir
       character*30 tag
       Character*255 Title
@@ -88,7 +88,7 @@ c --  Read output file format
      &             //'No DPLOT input block?',11, INPUT_ERR)
       endif
 c
-c --  Read file names of MO vectors
+c     --  Read file names of MO vectors
       If (.not.rtdb_cget(rtdb,'dplot:File_Vec',1,File_Vec))
      &   Call ErrQuit('DPlot: rtdb_get failed - File_Vec',0,
      &       RTDB_ERR)
@@ -368,8 +368,14 @@ c --  Set up the grid
       Out_Unit = LuOut
       If (iProc.eq.0 . and . Where.ne.'NUCLEI' . and .
      &    File_Out.ne.'OUTPUT') Then
-      call util_file_name_noprefix(file_out,.false.,.false.,
-     F        file_out_dir)
+c     prefix directory only if no fowardslash character is present
+         if(file_out(1:1).eq.'/') then
+            write(0,*) ' found slash'
+            file_out_dir=file_out
+         else
+            call util_file_name_noprefix(file_out,.false.,.false.,
+     F           file_out_dir)
+         endif
             Out_Unit=20
             Open(unit=Out_Unit,
      &           file=file_out_dir,

@@ -7,7 +7,6 @@ c
       logical function moeig_read(filename, iset, evals )
       implicit none
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "mafdecls.fh"
 #include "msgids.fh"
@@ -22,9 +21,11 @@ c
       integer nbf               ! No. of functions in basis
       integer nmo(2)            ! No. of vectors in each set
       integer ok, jset, i, j
+      integer mitob1
       integer unitno
       parameter (unitno = 67)
 c
+      mitob1=MA_sizeof(MT_INT,1,MT_BYTE)
       call ga_sync()
       ok = 0
       if (ga_nodeid() .eq. 0) then
@@ -63,9 +64,10 @@ c
 c
  10   continue
       call ga_sync()
-      call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
+      call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob1, 0) ! Propagate status
       if (ok .eq. 1) then
-         call ga_brdcst(Msg_Vec_EVal+MSGDBL, evals, mdtob(nbf), 0)
+         call ga_brdcst(Msg_Vec_EVal+MSGDBL, evals,
+     $        MA_sizeof(MT_DBL,nbf,MT_BYTE), 0)
       endif
 c
       moeig_read = ok .eq. 1

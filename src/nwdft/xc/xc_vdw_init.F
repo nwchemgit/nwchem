@@ -35921,7 +35921,7 @@ c
      . 15.6161, 15.1226, 16.1576 /)
 c
       do i=1,max_elements
-         Qatom(i)=dsqrt(0.5d0*Qatom(i)*dfloat(i)**0.50d0)
+         Qatom(i)=dsqrt(0.5d0*Qatom(i)*dble(i)**0.50d0)
       enddo
       return
       end

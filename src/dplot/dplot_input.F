@@ -34,9 +34,9 @@
       Character*12  What
       Character*3   Charges
 !      character*30 tag
-      Character*80  File_Vec,File_Vec2,File_Out
-      Character*80  File_Mat1,File_Mat2
-      Character*80  File_civecs
+      Character*256  File_Vec,File_Vec2,File_Out
+      Character*256  File_Mat1,File_Mat2
+      Character*256  File_civecs
       character*32  theory
       logical lgaussian,dodos,ltransden,ldiffden
       double precision tol_rho

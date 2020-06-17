@@ -109,7 +109,7 @@ endif
           $(error )
        endif
 #check peigs interface       
-       GA_HAS_PEIGS = $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --enable-peigs | awk '/yes/ {print "Y"}')
+       GA_HAS_PEIGS = $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --use_peigs | awk '/1/ {print "Y"}')
        GA_HAS_SCALAPACK = $(shell ${EXTERNAL_GA_PATH}/bin/ga-config --use_scalapack | awk '/1/ {print "Y"}')
        ifneq ($(GA_HAS_PEIGS),Y)
        ifneq ($(GA_HAS_SCALAPACK),Y)
@@ -1121,7 +1121,7 @@ ifeq ($(TARGET),MACX64)
      FC = gfortran
      _FC = gfortran
    endif
-   ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran-6 gfortran-7 gfortran-8 gfortran-9))
+   ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran-6 gfortran-7 gfortran-8 gfortran-9 gfortran-10 gfortran-11 gfortran-12))
      _FC = gfortran
    endif
 #
@@ -1318,10 +1318,10 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
      FC = gfortran
      _FC = gfortran
    endif
-   ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran-6 gfortran-7 gfortran-8 gfortran-9 i686-w64-mingw32.static-gfortran))
+   ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran-6 gfortran-7 gfortran-8 gfortran-9 gfortran-10 gfortran-11 gfortran-12 i686-w64-mingw32.static-gfortran))
      _FC = gfortran
    endif
-   ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc-6 gcc-7 gcc-8 gcc-9 i686-w64-mingw32.static-gcc))
+   ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc-6 gcc-7 gcc-8 gcc-9 gcc-10 gcc-11 gcc-12 i686-w64-mingw32.static-gcc))
    ifneq ($(CC),cc)
      _CC = gcc
    endif
@@ -1423,7 +1423,7 @@ endif
     endif
 
     ifeq ($(_CPU),i786)
-      COPTIONS   =  -march=i686 
+#      COPTIONS   =  -march=i686 
       ifdef USE_GCC31
         FDEBUG=-O1 -g
         COPTIMIZE +=-march=pentium4 -mcpu=pentium4 #-msse2 -mfpmath=sse 
@@ -1432,7 +1432,8 @@ endif
 #        FOPTIMIZE +=-fprefetch-loop-arrays -minline-all-stringops -fexpensive-optimizations
       else
 #        FOPTIMIZE  += -march=i686
-        COPTIONS   = -Wall -march=i686 -malign-double 
+#        COPTIONS   = -Wall -march=i686 -malign-double 
+        COPTIONS   = -Wall -malign-double 
       endif
     else
     ifneq ($(_CPU),x86)
@@ -1701,10 +1702,13 @@ endif
       ifeq ($(FC),ifort)
        _FC=ifort
       endif
-     ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran6 gfortran-6 gfortran-7 gfortran7 gfortran-8 gfortran8 gfortran-9 gfortran9 i686-w64-mingw32.static-gfortran))
+      ifeq ($(FC),ifx)
+       _FC=ifort
+      endif
+     ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran6 gfortran-6 gfortran-7 gfortran7 gfortran-8 gfortran8 gfortran-9 gfortran9 gfortran-10 gfortran10 gfortran-11 gfortran-12 i686-w64-mingw32.static-gfortran x86_64-w64-mingw32-gfortran-win32))
        _FC= gfortran
      endif
-     ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc6 gcc-6 gcc-7 gcc7 gcc-8 gcc8 gcc-9 gcc9 i686-w64-mingw32.static-gcc))
+     ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc6 gcc-6 gcc-7 gcc7 gcc-8 gcc8 gcc-9 gcc9 gcc-10 gcc10 gcc-11 gcc-12 i686-w64-mingw32.static-gcc x86_64-w64-mingw32-gcc-win32))
      ifneq ($(CC),cc)
        _CC= gcc
      endif
@@ -1721,6 +1725,9 @@ endif
        USE_FLANG=1
       endif
       ifeq ($(CC),clang)
+       _CC=gcc
+      endif
+      ifeq ($(CC),icx)
        _CC=gcc
       endif
      ifeq ($(FC),$(findstring $(FC),xlf2008_r xlf_r xlf xlf90 xlf90_r))
@@ -1780,9 +1787,9 @@ endif
          CFLAGS_FORGA = -mcmodel=medium
          FFLAGS_FORGA = -mcmodel=medium
         else
-        GNUMAJOR=$(shell $(_FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
+        GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
         ifdef GNUMAJOR
-        GNUMINOR=$(shell $(_FC) -dM -E - < /dev/null 2> /dev/null | egrep __GNUC_MINOR | cut -c24)
+        GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __GNUC_MINOR | cut -c24)
         GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 ] && echo true)
         GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 ] && echo true)
         endif
@@ -1973,11 +1980,11 @@ endif
            @exit 1
        endif
        FDEBUG= -O2 -g
-       FOPTIMIZE = -O3  -unroll  -ip
+       FOPTIMIZE = -O3  -unroll
+       ifneq ($(FC),ifx)
+         FOPTIMIZE += -ip
+       endif
        FOPTIONS += -align -fpp
-           ifdef USE_OFFLOAD
-               EXPLICITF = TRUE
-           endif
            CPP=fpp -P 
            ifeq ($(_IFCV15ORNEWER), Y)
 # fpp seems to get lost with ifort 15 in the offload bit
@@ -2028,15 +2035,6 @@ endif
          LDOPTIONS += -L$(VTUNE_AMPLIFIER_XE_DIR)/lib64 
          EXTRA_LIBS += -littnotify
        endif
-       ifdef USE_OPENMP
-         ifeq ($(_IFCV15ORNEWER), Y)
-           FOPTIONS += -qno-openmp-offload
-         else
-           ifeq ($(_IFCV14), Y)
-             FOPTIONS += -no-openmp-offload
-           endif
-         endif
-       endif
        DEFINES+= -DIFCV8 -DIFCLINUX
        ifeq ($(FC),ifc)
          FOPTIONS += -quiet
@@ -2058,24 +2056,28 @@ endif
          else
 #           FOPTIMIZE += -xHost
 #crazy simd options
-	   ifeq ($(_IFCV17), Y)
-	     ifeq ($(_GOTAVX512F),Y)
-	       FOPTIMIZE += -axCORE-AVX512
-	     else ifeq ($(_GOTAVX2),Y)
-	       FOPTIMIZE += -axCORE-AVX2
-	     else ifeq ($(_GOTAVX),Y)
-	         FOPTIMIZE += -axAVX
-	     else ifeq ($(_GOTSSE42),Y)
-                FOPTIMIZE += -axSSE4.2 
+           ifneq ($(FC),ifx)
+	     ifeq ($(_IFCV17), Y)
+	       ifeq ($(_GOTAVX512F),Y)
+	         FOPTIMIZE += -axCORE-AVX512
+	       else ifeq ($(_GOTAVX2),Y)
+	         FOPTIMIZE += -axCORE-AVX2
+	       else ifeq ($(_GOTAVX),Y)
+	           FOPTIMIZE += -axAVX
+	       else ifeq ($(_GOTSSE42),Y)
+                  FOPTIMIZE += -axSSE4.2
+	       endif
 	     endif
+             FOPTIONS += -finline-limit=250
+           else
+             FOPTIONS += -what # for debugging, remove later
 	   endif
          endif
-         FOPTIONS += -finline-limit=250
        else
          ifeq ($(_GOTSSE3),Y) 
            FOPTIMIZE += -xP -no-prec-div
          else
-           FOPTIMIZE +=  -tpp7 -ip 
+           FOPTIMIZE +=  -tpp7 -ip
            FOPTIMIZE += -xW
          endif
        endif

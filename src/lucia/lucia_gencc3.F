@@ -1074,7 +1074,7 @@ C       IB_ITP = IBSOBEX_TP(ITP)
          IF(N.EQ.1) THEN
           FACN = 1.0D0
          ELSE
-          FACN = FACN*DFLOAT(N)
+          FACN = FACN*DBLE(N)
          END IF
          FACNI = 1.0D0/FACN
 * 
@@ -3833,7 +3833,7 @@ C!    STOP ' Enforced stop at end of EXP_MT ....'
          IF(N.EQ.1) THEN
           FACN = 1.0D0
          ELSE
-          FACN = FACN*DFLOAT(N)
+          FACN = FACN*DBLE(N)
          END IF
          FACNI = 1.0D0/FACN
 * 
@@ -5481,7 +5481,7 @@ C     INTEGER NST_CAAB_EX(MXPNSMST*4),NST_CAAB_L1(MXPNSMST*4)
       END IF
       IF(NTEST.GE.100) 
      &WRITE(6,*) ' N_TDL_MAX in OPCT1T2 ', N_TDL_MAX
-      SIGNG = DFLOAT(ISIGNG)
+      SIGNG = DBLE(ISIGNG)
 *. Number of operators in IT2 - simplifications if this is unit operator
       NOP_T2 = IELSUM(IT2,4*NGAS)
 *. Symmetry of OT1T2 
@@ -7826,7 +7826,7 @@ C     INTEGER LS12_STR(8), IBS12_STR(8)
             IF(IZERO_STR.NE.1) THEN
              INUM = ISTRNM(ISTR_OUT,NOCOB,NS12OP,IZ,IS12_REO,1)
              IS1S2_TO_S12(IJ) = INUM
-             XS1S2_TO_S12(IJ) = DFLOAT(ISIGN)
+             XS1S2_TO_S12(IJ) = DBLE(ISIGN)
             ELSE
              IS1S2_TO_S12(IJ) = 0
              XS1S2_TO_S12(IJ) = 0.0              
@@ -7971,7 +7971,7 @@ C?          WRITE(6,*) ' IJ = ', IJ
 C                   ISTRNM(IOCC,NORB,NEL,Z,NEWORD,IREORD)
              INUM = ISTRNM(ISTR_OUT,NOCOB,NS12OP,IZ,IS12_REO,1)
              IS1S2_TO_S12(IJ) = INUM
-             XS1S2_TO_S12(IJ) = DFLOAT(ISIGN)
+             XS1S2_TO_S12(IJ) = DBLE(ISIGN)
             ELSE
              IS1S2_TO_S12(IJ) = 0
              XS1S2_TO_S12(IJ) = 0.0              

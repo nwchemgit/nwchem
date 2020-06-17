@@ -171,6 +171,18 @@ fi #USE_GA_RELEASE
 # check if configure is there
 #disable nxtval
 ./nxtval.sh $GA_DIR
+#patch for MSMPI
+./msmpi_patch.sh $GA_DIR
+if [[  -z "${CC}" ]]; then
+    CC=cc
+fi
+GOTMINGW64=` $CC -dM -E - </dev/null 2> /dev/null |grep MINGW64|cut -c21 `
+if [ ! -z "$GOTMINGW64" ]
+then
+echo "CC" $CC
+echo "GOTMINGW64" $GOTMINGW64
+./mingw64_patch.sh $GA_DIR
+fi
 if test -e $GA_DIR/configure
 then
         echo "configure present. no autogen.sh required"

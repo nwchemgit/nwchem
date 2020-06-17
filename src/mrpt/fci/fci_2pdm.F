@@ -157,7 +157,7 @@ c
                   do s = 1, nactiv
                      sum = sum + twopdm(p,q,s,s,ivec,jvec)
                   enddo
-                  sum = sum / dfloat(nelec-1)
+                  sum = sum / dble(nelec-1)
                   if (abs(sum-onepdm(p,q,ivec,jvec)) .gt. test) 
      $                 call fci_err('2pdm - trace is incorrect', 0)
                enddo

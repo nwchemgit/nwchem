@@ -21,10 +21,11 @@ C     All nodes must participate in a sequential output section.
 C
 C INCLUDE FILES
 #include "msgids.fh"
-#include "tcgmsg.fh"
+#include "global.fh"
+#include "mafdecls.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
-      Integer GoAhead, Len, Node, Me, TCG_Master
+      Integer GoAhead, Len, Node, Me, TCG_Master,mitob1
 C
 C     Translate from GA_NodeID to TCGMSG NODEID
 C     Only need Node 0 at the moment
@@ -34,9 +35,10 @@ C
 C     Expect node 0 to tell us to go ahead with our output.  If we
 C     are node 0, this is a no-op.
 C
-      Me = NodeID()
+      Me = ga_nodeid()
+      mitob1=MA_sizeof(MT_INT,1,MT_BYTE)
       If ( Me .ne. TCG_Master) then
-         Call RCV(Msg_SeqOut_Ctrl, GoAhead, MItoB(1), Len,
+         Call RCV(Msg_SeqOut_Ctrl, GoAhead, MItoB1, Len,
      $      TCG_Master, Node, 1)
          If ( GoAHead .ne. Me .OR. Node .ne. TCG_Master)
      $      Call ErrQuit(
@@ -71,7 +73,6 @@ C     it should not be a serious problem.
 C
 C INCLUDE FILES
 #include "msgids.fh"
-#include "tcgmsg.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -84,6 +85,7 @@ C
 C
 C LOCAL VARIABLES
       Integer Len, Me, LUN, Node, FrNode, I, TCG_Master, H_Map, I_Map
+      integer mitob1
       Character*(MaxLen) Text
 C
 C     Only GA nodes can participate, but we need TCGMSG node ids.
@@ -95,12 +97,13 @@ C
       Call GA_List_NodeID(Int_MB(I_Map), GA_NNodes())
       TCG_Master = Int_MB(I_Map)
 C
-      Me = NodeID()
+      Me = ga_NodeID()
 C
 C     If we are not node 0, simply say we are done
 C
+      mitob1=MA_sizeof(MT_INT,1,MT_BYTE)
       If ( Me .ne. TCG_Master) then
-         Call SND(Msg_SeqOut_Ctrl, -Me, MItoB(1), TCG_Master, 1)
+         Call SND(Msg_SeqOut_Ctrl, -Me, MItoB1, TCG_Master, 1)
          If ( .NOT. MA_Pop_Stack(H_Map)) Call ErrQuit(
      $      'End_Seq_Output: Unable to free local memory', 0, MA_ERR)
          Return
@@ -110,17 +113,18 @@ C     If we are node 0, we have more responsibilities.  At this point
 C     we have printed all of our stuff.  Now we need to listen to each
 C     of the other nodes in turn.
 C
+      mitob1=MA_sizeof(MT_INT,1,MT_BYTE)
       Do I = 1, GA_NNodes() - 1
          Node = Int_MB(I_Map + I)
 C
 C        Tell them to go ahead
 C
-         Call SND(Msg_SeqOut_Ctrl, Node, MItoB(1), Node, 1)
+         Call SND(Msg_SeqOut_Ctrl, Node, MItoB1, Node, 1)
 C
 C        Listen for their output until we get -Node back for the
 C        control signal.
 C
- 1000    Call RCV(Msg_SeqOut_Ctrl, LUN, MItoB(1), Len, Node, FrNode, 1)
+ 1000    Call RCV(Msg_SeqOut_Ctrl, LUN, MItoB1, Len, Node, FrNode, 1)
 C
          If ( LUN .ge. 0) then
             Call FCRCV(Msg_SeqOut_Text, Text, Len, Node, FrNode, 1)
@@ -160,14 +164,16 @@ C     Observe that LUN is the unit on node 0, not the invoking node!
 C
 C INCLUDE FILES
 #include "msgids.fh"
-#include "tcgmsg.fh"
+#include "global.fh"      
+#include "mafdecls.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
-      Integer TCG_Master
+      Integer TCG_Master,mitob1
 C
 C     Safety check the node number because it is also a signal
 C     to node 0.
 C
+      mitob1=MA_sizeof(MT_INT,1,MT_BYTE)
       If ( LUN .lt. 0) Call ErrQuit(
      $   'Write_Seq: Negative unit numbers are invalid', LUN, INPUT_ERR)
 C
@@ -178,10 +184,10 @@ C
 C
 C     Of course node 0 prints what it has, everyone else sends to node 0.
 C
-      If (NodeID() .eq. TCG_Master) then
+      If (ga_NodeID() .eq. TCG_Master) then
          Write (LUN, '(A)') Text
       Else
-         Call SND(Msg_SeqOut_Ctrl, LUN, MItoB(1), TCG_Master, 1)
+         Call SND(Msg_SeqOut_Ctrl, LUN, MItoB1, TCG_Master, 1)
          Call FCSND(Msg_SeqOut_Text, Text, TCG_Master, 1)
       EndIf
 C

@@ -668,8 +668,8 @@ c ... frozen cores are irrelevant
         call util_flush(LuOut)
       endif
       if (ipol.eq.2) then
-        na=dfloat(nocc(1))
-        nb=dfloat(nocc(2))
+        na=dble(nocc(1))
+        nb=dble(nocc(2))
         s2=na-(na-nb)/2.0d0+((na-nb)/2.0d0)**2
         do j=1,nocc(1)
           do k=1,nocc(2)
@@ -681,8 +681,8 @@ c ... frozen cores are irrelevant
           write(LuOut,9180) s2
           call util_flush(LuOut)
         endif
-        na=dfloat(nocc(1)-nfc(1))
-        nb=dfloat(nocc(2)-nfc(2))
+        na=dble(nocc(1)-nfc(1))
+        nb=dble(nocc(2)-nfc(2))
       endif
 c
 c

@@ -49,7 +49,7 @@ c
       vv=shiftl(v, nbits)
       m(index) = ior(m(index),vv)
 #else
-      m(index) = ior(m(index), lshift(v, nbits))
+      m(index) = ior(m(index), ishft(v, nbits))
 #endif
 c
       end

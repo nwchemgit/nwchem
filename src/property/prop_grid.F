@@ -231,8 +231,8 @@ c
 #include "rtdb.fh"
 c
       integer geom
-      double precision v(n)
       integer n
+      double precision v(n)
       character*(*) fname
       integer i,ii
 
@@ -335,8 +335,8 @@ c
 #include "rtdb.fh"
 c
       integer geom
-      double precision v(n)
       integer n
+      double precision v(n)
       character*(*) fname
       integer i,ii
 
