@@ -40,7 +40,7 @@ mkdocs build
 ```
 
 
-## push files to the nwchemgit.github.io
+## push files to the nwchemgit.github.io: method #1
 
 ```
 git clone https://github.com/nwchemgit.github.io
@@ -51,5 +51,13 @@ git commit -m
 git push
 ```
 
-# Browse new web pages
+## push files to the nwchemgit.github.io: method #2
+
+```
+git clone https://github.com/nwchemgit.github.io
+cd nwchemgit.github.io
+mkdocs -v gh-deploy --config-file /path/to/mkdocs/mkdocs.yml --remote-branch master
+```
+
+Browse new web pages at
 https://nwchemgit.github.io/
