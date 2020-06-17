@@ -11,6 +11,8 @@ def geom_get_coords(name):
     actualname = rtdb_get(name)
   except NWChemError:
     actualname = name
+  if actualname is None:
+    actualname = name
   coords = rtdb_get('geometry:' + actualname + ':coords')
   units = rtdb_get('geometry:'+actualname+':user units')
   if (units == 'a.u.'):
@@ -34,6 +36,8 @@ def geom_set_coords(name,coords):
   try:
     actualname = rtdb_get(name)
   except NWChemError:
+    actualname = name
+  if actualname is None:
     actualname = name
   units = rtdb_get('geometry:'+actualname+':user units')
   if (units == 'a.u.'):
