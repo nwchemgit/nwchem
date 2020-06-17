@@ -20,14 +20,14 @@
 
 
 
-#if defined(CRAY) || defined(CRAY_T3D)
+#if defined(CRAY)
 #include <fortran.h>
 #if !defined(__crayx1)
 #define USE_FCD
 #endif
 #endif
 
-#if (defined(CRAY)  || defined(CRAY_T3D) || defined(WIN32)) &&!defined(__crayx1) &&!defined(__MINGW32__)
+#if (defined(CRAY) || defined(WIN32)) &&!defined(__crayx1) &&!defined(__MINGW32__)
 #define nwpw_talker_ nwpw_talker
 #define nwpw_talker_close_ nwpw_talker_close
 #define nwpw_talker_write_ nwpw_talker_write
@@ -216,7 +216,7 @@ Integer *n1;
 
 
 
-#if (defined(CRAY)  || defined(CRAY_T3D) || defined(WIN32)) &&!defined(__crayx1) &&!defined(__MINGW32__)
+#if (defined(CRAY) || defined(WIN32)) &&!defined(__crayx1) &&!defined(__MINGW32__)
 #define nwpw_listener_ nwpw_listener
 #endif
 
