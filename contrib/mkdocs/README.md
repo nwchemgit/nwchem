@@ -39,31 +39,17 @@ Point your browser to  http://127.0.0.1:8000
 mkdocs build
 ```
 
-## Create gh-pages branch (if needed)
 
-**Need to do it only once!
-The second time will wipe out the whole existing branch ...**
-```
-cd /path/to/repo-gh-pages
-git symbolic-ref HEAD refs/heads/gh-pages
-rm .git/index
-git clean -fdx
-echo "My GitHub Page" > index.html
-git add .
-git commit -a -m "First pages commit"
-git push origin gh-pages
-```
-
-## push files to gh-pages branch
+## push files to the nwchemgit.github.io
 
 ```
-cd /path/to/repo-gh-pages
+git clone https://github.com/nwchemgit.github.io
+cd nwchemgit.github.io
 rsync -av /path/to/mkdocs/site/* .
+ git add -A 
 git commit -m
 git push
 ```
 
 # Browse new web pages
-https://edoapra.github.io/nwchem/
-or in future
-https://nwchemgit.github.io/nwchem/
+https://nwchemgit.github.io/
