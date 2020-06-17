@@ -13,10 +13,6 @@ nav:
       - Overview.md
       - System-Description.md
       - Quantum-Mechanical-Methods.md
-      - Classical-Methods.md
-      - Hybrid-Approaches.md
-      - Potential-Energy-Surface-Analysis.md
-      - Electronic-Structure-Analysis.md
       - Other-Capabilities.md
       - Examples.md
       - Supplementary-Information.md
@@ -25,3 +21,5 @@ nav:
       - Benchmarks.md
       - FAQ.md
       - Known-Bugs.md
+      - Forum.md
+      - Archived-Forum.md
