@@ -55,7 +55,7 @@ git push
 ## push files to the nwchemgit.github.io: method #2
 
 ```
-git clone https://github.com/nwchemgit.github.io
+git clone https://github.com/nwchemgit/nwchemgit.github.io
 cd nwchemgit.github.io
 mkdocs -v gh-deploy --config-file /path/to/mkdocs/mkdocs.yml --remote-branch master
 ```
