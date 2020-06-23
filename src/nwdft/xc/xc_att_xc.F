@@ -76,10 +76,11 @@ c
              Ex = Ex/2d0
              rho = rho/2d0
           endif
-          if(ex.lt.0) then
+          if(ex.le.0) then
              a = cam_omega*sqrt(-2d0*Ex)/(6d0*sqrt_pi*rho)
           else
-             a=0d0
+             write(6,*) ' negative Ex ',Ex
+             call errquit(' xc_att_xc: negative Ex ',0,0)
           endif
           alpha = cam_alpha
           beta = cam_beta
