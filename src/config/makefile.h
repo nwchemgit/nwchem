@@ -71,6 +71,14 @@ $(error )
   endif
 endif
 
+ifneq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET), LINUX64 LINUX MACX MACX64 CATAMOUNT CYGWIN64 CYGNUYS CYGWIN BGL BGP BGQ HPUX HPUX64 IBM IBM64 LAPI LAPI64 PURESOLARIS SOLARIS SOLARIS64 SGI_N32 SGITFP))
+error20:
+$(info     )
+  $(info unrecognized NWCHEM_TARGET value $(NWCHEM_TARGET))
+$(info     )
+  $(error )
+endif
+
      TARGET := $(NWCHEM_TARGET)
      TOPDIR := $(NWCHEM_TOP)
 ifeq (,$(RELEASE))
