@@ -2770,7 +2770,9 @@ ifdef USE_SUBGROUPS
     DEFINES += -DGANXTVAL -DUSE_SUBGROUPS
     #turn off peigs for now
 else
+  ifneq ($(GOTMINGW64),1)
     DEFINES += -DPARALLEL_DIAG
+  endif
 endif
 ###################################################################
 #  All machine dependent sections should be above here, otherwise #
