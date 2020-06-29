@@ -571,7 +571,7 @@ c     cf = 3.0d0/5.0d0*(6.0d0*pi*pi)**(2.0d0/3.0d0))
         dfudc_dnup   = dfud1c_dnup*GG 
      &               + fud1c*(dGdx*dxup_dnup + dGdz*dzup_dnup)
         dfudc_dndn   = dfud1c_dndn*GG + 
-     &               + fud1c*(dGdx*dxdn_dndn + dGdz*dzdn_dndn)
+     &               fud1c*(dGdx*dxdn_dndn + dGdz*dzdn_dndn)
         dfudc_dagrup = fud1c*dGdx*dxup_dagrup
         dfudc_dagrdn = fud1c*dGdx*dxdn_dagrdn
         dfudc_dtauup = fud1c*dGdz*dzup_dtauup
