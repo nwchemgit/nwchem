@@ -2399,9 +2399,13 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
           FOPTIONS += -qintsize=8
         endif
       endif
+      ifdef USE_ESSL
+        CORE_SUBDIRS_EXTRA = lapack
+        CORE_LIBS +=  -lnwclapack
+      endif
 #     CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas
 #     EXTRA_LIBS +=  -dynamic-linker /lib64/ld64.so.1 -melf64ppc -lxlf90_r -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lm -lc -lgcc -lm
-    endif
+    endif # end of ppc64 arch
       ifeq ($(_FC),pgf90)
         FOPTIONS   += -Mcache_align  # -Kieee 
 #        FOPTIMIZE   = -O3  -Mnounroll -Minfo=loop -Mipa=fast
@@ -2756,8 +2760,10 @@ ifndef BLAS_SUPPLIED
     endif
 else
     ifndef LAPACK_LIB
+      ifndef USE_ESSL
         errorlap1:
       $(error Please define LAPACK_LIB if you have defined BLASOPT or BLAS_LIB)
+      endif
     endif
 endif
 
