@@ -93,7 +93,17 @@ c
          screen = (dielec - 1.0d0)/(dielec+0.5d0)
 
          if(.not.btdb_get(rtdb,'cosmo:nefc',mt_int,1,nefc)) nefc = 0
-         write(*,*) "nefc,restart=",nefc,firstrestart
+         if (oprint) then
+            !write(*,*) "nefc,restart=",nefc,firstrestart
+            if (firstrestart) then
+               write(luout,*) 
+               write(luout,*) "restarting -cosmo-"
+               write(luout,'(1x,A,I5)') 
+     >              "number of -cosmo- surface points = ",nefc
+            else
+               write(luout,*) "starting -cosmo-"
+            end if
+         end if
 
          value = BA_alloc_get(mt_dbl,nefc,'qc0',qc0(2),qc0(1))
          value = value.and.BA_alloc_get(mt_dbl,nefc,'qc1',qc1(2),qc1(1))
@@ -169,7 +179,7 @@ c
 
          value = BA_alloc_get(mt_int,nindx,'i_indx',i_indx(2),i_indx(1))
          value = value.and.
-     >          BA_alloc_get(mt_int,nindx,'j_indx',j_indx(2),j_indx(1))
+     >           BA_alloc_get(mt_int,nindx,'j_indx',j_indx(2),j_indx(1))
          if (.not. value) 
      >     call errquit('nwpw_cosmo_init:out of heap memory',1,MA_ERR)
 
@@ -1014,6 +1024,8 @@ c      write(*,*) "qBQ + qAq=",esum1+esum
       tid      = Parallel_threadid()
       nthreads = Parallel_nthreads()
 
+
+      call Parallel_shared_vector_zero(.true.,nefc*nefc,dbl_mb(AA(1)))
       do k=tid+1,nindx,nthreads
          i = int_mb(i_indx(1)+k-1)
          j = int_mb(j_indx(1)+k-1)
@@ -1033,9 +1045,11 @@ c      write(*,*) "qBQ + qAq=",esum1+esum
 
       call nwpw_matrix_invert(nefc,dbl_mb(AA(1)),nefc)
 
+!$OMP MASTER
       do i=1,nefc*nefc
          invAsum = invAsum + dbl_mb(AA(1)+i-1)
       end do
+!$OMP END MASTER
 
       return
       end
