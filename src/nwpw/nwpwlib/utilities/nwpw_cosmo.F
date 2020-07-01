@@ -267,6 +267,18 @@ c     == Clean up cosmo stuff, if necessary ==
       return
       end
 
+      real*8 function nwpw_cosmo_screen()
+      implicit none
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_cosmo.fh"
+
+      nwpw_cosmo_screen = screen
+      return
+      end
+
+
       real*8 function nwpw_cosmo_screen_qc0(i)
       implicit none
       integer i
