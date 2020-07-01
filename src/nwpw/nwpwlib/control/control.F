@@ -7001,6 +7001,64 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *        control_gas_energy       *
+*     *                                 *
+*     ***********************************
+      real*8 function control_gas_energy()
+      implicit none
 
+#include "bafdecls.fh"
+#include "btdb.fh"
 
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+*     **** external functions ****
+      logical  nwpw_cosmo_on
+      external nwpw_cosmo_on
+
+      real*8 egas
+
+      egas = 0.0d0
+      if (nwpw_cosmo_on()) then
+         if (.not.btdb_get(rtdb,'nwpw:gas_energy',mt_dbl,1,egas))
+     >      egas = 0.0d0
+      end if
+
+      control_gas_energy = egas
+      return
+      end
+      
+
+*     ***********************************
+*     *                                 *
+*     *      control_gas_energy_set     *
+*     *                                 *
+*     ***********************************
+      logical function control_gas_energy_set(egas)
+      implicit none
+      real*8 egas
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+*     **** extertnal functions ****
+      logical  nwpw_cosmo_on
+      external nwpw_cosmo_on
+      logical ok
+
+      ok=.true.
+      if (.not.nwpw_cosmo_on()) then
+         ok=ok.and.btdb_put(rtdb,'nwpw:gas_energy',mt_dbl,1,egas)
+      end if
+      control_gas_energy_set=ok
+      return
+      end
 
