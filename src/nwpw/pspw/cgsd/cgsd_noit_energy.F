@@ -62,8 +62,8 @@ c     $Id$
       external psi_smearfermi,psi_smearcorrection,lattice_omega
       logical  control_hess_model,nwpw_cosmo_on
       external control_hess_model,nwpw_cosmo_on
-      real*8   ion_hess_energy
-      external ion_hess_energy
+      real*8   ion_hess_energy,nwpw_cosmo_screen
+      external ion_hess_energy,nwpw_cosmo_screen
 
       if (control_hess_model()) then
          cgsd_noit_energy = ion_hess_energy()
@@ -363,7 +363,7 @@ c            end do
 *      **** write out COSMO energies ****
        if (nwpw_cosmo_on()) then
             write(luout,1730)
-            write(luout,1731)
+            write(luout,1731) nwpw_cosmo_screen()
             write(luout,1732) E(46)
             write(luout,1733) E(47)
             write(luout,1734) E(48)
@@ -527,7 +527,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1720 FORMAT(/' Dispersion energy   :',E19.10)
 
  1730 FORMAT(/' COSMO energies:')
- 1731 FORMAT(5x,' screen=(epsilon-1)/(epsilon+1/2)')
+ 1731 FORMAT(5x,' screen=(epsilon-1)/(epsilon+1/2):',F11.6)
  1732 FORMAT(5x,' screen*Qelc*B*q energy  :',E19.10)
  1733 FORMAT(5x,' screen*Qion*B*q energy  :',E19.10)
  1734 FORMAT(5x,' screen*0.5*q*A*q energy :',E19.10)

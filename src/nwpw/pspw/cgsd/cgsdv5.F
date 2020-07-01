@@ -173,6 +173,8 @@
       external ion_rion_ptr
       logical  control_runsocket,control_precondition
       external control_runsocket,control_precondition
+      logical  control_gas_energy_set
+      external control_gas_energy_set
 
 
 *                            |************|
@@ -685,6 +687,7 @@ c     end if
       value = value.and.
      >        btdb_put(rtdb,'pspw:crystal_dipole',mt_dbl,
      >                 3,cdipole)
+      value = value.and.control_gas_energy_set(EV)
       end if
       if (flag.gt.0) then
         value = value.and.
