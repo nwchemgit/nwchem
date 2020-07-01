@@ -78,7 +78,16 @@ $(info     )
 $(info     )
   $(error )
 endif
-
+# trying to fix the BLAS_LIB BLASOPT madness ...
+# they have extactly the same purpose (why did we  introduce BLAS_LIB?)
+# BLASOPT has higher priority
+ifdef BLASOPT
+      BLAS_LIB = $(BLASOPT)
+else
+ifdef BLAS_LIB
+      BLASOPT = $(BLAS_LIB)
+endif
+endif
      TARGET := $(NWCHEM_TARGET)
      TOPDIR := $(NWCHEM_TOP)
 ifeq (,$(RELEASE))
@@ -750,7 +759,7 @@ ifeq ($(TARGET),IBM64)
    ifeq ($(LAPACK_LIB),)
       CORE_SUBDIRS_EXTRA += lapack
    endif
-   ifeq ($(BLAS_LIB),)
+   ifeq ($(BLASOPT),)
       CORE_SUBDIRS_EXTRA += blas
    endif
          FC = xlf
@@ -809,7 +818,7 @@ ifeq ($(TARGET),IBM64)
      CORE_LIBS += -lnwclapack
   endif
   CORE_LIBS += $(BLASOPT)
-  ifeq ($(BLAS_LIB),)
+  ifeq ($(BLASOPT),)
      CORE_LIBS += -lnwcblas
   endif
   XLFBREN = y
@@ -1145,7 +1154,7 @@ ifdef USE_VECLIB
             @exit 1
    endif
 else
-   ifeq ($(BLAS_LIB),)
+   ifeq ($(BLASOPT),)
       CORE_SUBDIRS_EXTRA += blas
    endif
    ifeq ($(LAPACK_LIB),)
@@ -1232,7 +1241,7 @@ else
       CORE_LIBS += -lnwclapack
    endif
    CORE_LIBS +=    $(BLASOPT)
-   ifeq ($(BLAS_LIB),)
+   ifeq ($(BLASOPT),)
       CORE_LIBS += -lnwcblas
    endif
 endif
@@ -1858,7 +1867,7 @@ endif
       endif
       DEFINES  += -DEXT_INT
 #      MAKEFLAGS = -j 1 --no-print-directory
-     ifeq ($(BLAS_LIB),)
+     ifeq ($(BLASOPT),)
        CORE_SUBDIRS_EXTRA += blas
      endif
      ifeq ($(LAPACK_LIB),)
@@ -2512,7 +2521,7 @@ endif
 
         # Here is an example for ALCF:
         # IBMCMP_ROOT=${IBM_MAIN_DIR}
-        # BLAS_LIB=/soft/libraries/alcf/current/xl/BLAS/lib
+        # BLASOPT=/soft/libraries/alcf/current/xl/BLAS/lib
         # LAPACK_LIB=/soft/libraries/alcf/current/xl/LAPACK/lib
         # ESSL_LIB=/soft/libraries/essl/current/essl/5.1/lib64
         # XLF_LIB=${IBMCMP_ROOT}/xlf/bg/14.1/bglib64
@@ -2728,18 +2737,15 @@ ifdef USE_64TO32
     CORE_LIBS +=  -l64to32
     NWSUBDIRS += 64to32blas
 endif
-ifdef BLASOPT
-    CORE_LIBS +=  $(BLASOPT) 
-endif
 ifeq ($(LAPACK_LIB),)
     CORE_LIBS +=  -lnwclapack 
 else
     CORE_LIBS += $(LAPACK_LIB)
 endif
-ifeq ($(BLAS_LIB),)
+ifeq ($(BLASOPT),)
     CORE_LIBS +=  -lnwcblas 
 else
-    CORE_LIBS += $(BLAS_LIB)
+    CORE_LIBS += $(BLASOPT)
 endif
 
 ifdef BLASOPT
