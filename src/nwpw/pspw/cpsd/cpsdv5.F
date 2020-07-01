@@ -197,6 +197,8 @@ c#include "Parallel.fh"
       external control_mparallelized
       logical  nwpw_cosmo_on
       external nwpw_cosmo_on
+      real*8   nwpw_cosmo_screen
+      external nwpw_cosmo_screen
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -1046,7 +1048,7 @@ c            write(luout,1706) E(18)
 *      **** write out COSMO energies ****
        if (nwpw_cosmo_on()) then
             write(luout,1730) 
-            write(luout,1731) 
+            write(luout,1731) nwpw_cosmo_screen()
             write(luout,1732) E(46)
             write(luout,1733) E(47)
             write(luout,1734) E(48)
@@ -1363,7 +1365,7 @@ c      call frac_occ_end()
  1720 FORMAT(/' Dispersion energy   :',E19.10)
 
  1730 FORMAT(/' COSMO energies:')
- 1731 FORMAT(5x,' screen=(epsilon-1)/(epsilon+1/2)')
+ 1731 FORMAT(5x,' screen=(epsilon-1)/(epsilon+1/2):',F11.6)
  1732 FORMAT(5x,' screen*Qelc*B*q energy  :',E19.10)
  1733 FORMAT(5x,' screen*Qion*B*q energy  :',E19.10)
  1734 FORMAT(5x,' screen*0.5*q*A*q energy :',E19.10)
