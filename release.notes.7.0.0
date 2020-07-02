@@ -13,7 +13,7 @@ NWChem 7.0.0 will be released with the latest Global Arrays Toolkit (v5.7).
 NEW FUNCTIONALITY 
 
 - Improved and automated Simint Interface.
-  The enviroment variable USE_SIMINT triggers the download and compilation of the
+  The environment variable USE_SIMINT triggers the download and compilation of the
   Simint library
 
 - DUCC Quantum computing 
