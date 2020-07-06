@@ -27,6 +27,7 @@ c
       external control_it_in
       external control_time_step,control_fake_mass
 
+      call nwpw_cosmo_reset_Qt()
       dt = control_time_step()
       dte = dt/dsqrt(control_fake_mass())
       it_in = control_it_in()

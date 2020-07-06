@@ -61,8 +61,8 @@ c#include "global.fh"
       external    psi_ab_irrep_name
       integer     control_symmetry,control_version
       external    control_symmetry,control_version
-      logical  ion_disp_on,nwpw_cosmo_on
-      external ion_disp_on,nwpw_cosmo_on
+      logical  ion_disp_on,nwpw_cosmo_on,nwpw_cosmo_firsttime
+      external ion_disp_on,nwpw_cosmo_on,nwpw_cosmo_firsttime
       real*8   nwpw_cosmo_screen
       external nwpw_cosmo_screen
 
@@ -136,7 +136,7 @@ c#include "global.fh"
       if (minimizer.gt.1) call pspw_Grsm_list_start()
       if (minimizer.eq.5) it_out = 1
       if (minimizer.eq.8) it_out = 1
-      if (newpsi) then
+      if ((newpsi).or.(nwpw_cosmo_firsttime())) then
          call pspw_Lin_HFX_reset()
          call sdminimize(15)
          if (control_fractional()) then
@@ -248,7 +248,7 @@ c          **** reset minimizer if failed ****
      >       write(luout,*) 
      >       ' *** energy going up. iteration not terminated'
              stalled = .true.
-            !go to 3
+             if (icount.lt.it_out) go to 2
          end if
          deltae = dabs(deltae)
          !if (deltae.lt.1.0d-3) then

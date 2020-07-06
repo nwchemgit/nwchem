@@ -99,6 +99,12 @@
       external control_it_in,control_it_out,control_gga,control_version
       external control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
       external pspw_charge_nion
+      integer  ion_nion_q
+      external ion_nion_q
+      real*8   nwpw_cosmo_qc0
+      external nwpw_cosmo_qc0
+      character*9 ion_amm
+      external    ion_amm
 
       character*12 control_boundry
       external     control_boundry
@@ -435,10 +441,13 @@ c           call psp_check_print(ia)
          write(luout,1170) (ion_atom(K),ion_natm(K),K=1,ion_nkatm())
          if (hprint) then
          write(luout,1180)
-         do I=1,ion_nion()
-           if (ion_q_FixIon(I)) then
+         do I=1,ion_nion()+ion_nion_q()
+           if (I.gt.ion_nion()) then
+           write(luout,1195) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+     >                       nwpw_cosmo_qc0(I-ion_nion()),ion_amm(i)
+           else if (ion_q_FixIon(I)) then
            write(luout,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
-     >                   ion_amass(I)/1822.89d0
+     >                   ion_amass(I)/1822.89d0,ion_amm(i)
            else
            write(luout,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3),
      >                   ion_amass(I)/1822.89d0
@@ -855,7 +864,12 @@ c      call frac_occ_end()
  1180 FORMAT(/' position of ions (au):')
  1190 FORMAT(5X, I4, A5  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
  1191 FORMAT(5X, I4, A5, ' (',3F11.5,
-     >       ' ) - atomic mass= ',F7.3,' - fixed')
+     >       ' ) - atomic mass= ',F7.3,' - fixed',A)
+ 1193 FORMAT(5X, I4, A5, ' (',3F11.5,
+     >       ' ) - atomic mass= ',F7.3,' - z fixed')
+ 1194 FORMAT(5X, I4, A5, ' (',3F11.5,
+     >       ' ) - atomic mass= ',F7.3,A)
+ 1195 FORMAT(5X, I4, A5, ' (',3F11.5,' ) -      charge= ',E13.6,' ',A)
  1200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
  1210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
  1211 FORMAT(5X,'   number of constraints = ', I6,' ( DOF = ',I6,' )' )
