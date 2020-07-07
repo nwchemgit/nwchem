@@ -128,11 +128,17 @@ c
      >     call errquit('nwpw_cosmo_qsurfaces: failed',0,rtdb_err)
 
 
-         if (cosmo1_on) then
-            qthresh = 0.5d-8
-         else
-            qthresh = 0.5d-11
+        
+*        **** set qthreshhold ****
+         if (.not.btdb_get(rtdb,'nwpw_cosmo:qthresh',
+     >                   mt_dbl,1,qthresh)) then
+            if (cosmo1_on) then
+               qthresh = 0.5d-8
+            else
+               qthresh = 0.5d-11
+            end if
          end if
+  
 
          Qt=.true.
          Qion = 0.0d0
@@ -162,7 +168,12 @@ c
             if(.not.btdb_get(rtdb,'nwpw_cosmo:Qelc',mt_dbl,1,Qelc))
      >        Qelc = 0.0d0
          end if
+         Qt0 = Qt
 
+         if (oprint) then
+            write(luout,'(1x,A,E12.6)') "-cosmo- q thresh = ",qthresh
+            if (.not.Qt) write(luout,*) "-cosmo- q fixed"
+         end if
 
          Qset = (cosmo_sccor.gt.10)
          Qlmd = (cosmo_sccor.gt.11)
@@ -226,7 +237,7 @@ c
 
 c     == Clean up cosmo stuff, if necessary ==
       if (cosmo_on) then
-         value = btdb_put(rtdb,'nwpw_cosmo:Qt',mt_log,1,Qt)
+         value = btdb_put(rtdb,'nwpw_cosmo:Qt',mt_log,1,(Qt.and.Qt0))
          value = value.and.
      >           btdb_put(rtdb,'nwpw_cosmo:Qion',mt_dbl,1,Qion)
          value = value.and.
@@ -683,6 +694,83 @@ c     == Clean up cosmo stuff, if necessary ==
       return
       end 
 
+
+*     *******************************************
+*     *                                         *
+*     *            nwpw_cosmo_FQionq            *
+*     *                                         *
+*     *******************************************
+      subroutine nwpw_cosmo_FQionq(fion)
+      implicit none
+      real*8 fion(3,*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_cosmo.fh"
+
+*     *** local variables ***
+      integer tid,nthr
+      integer i,j,nion
+      real*8 x,y,z,r,qi,qj,fx,fy,fz,v
+      integer qcoord_ptr,rcoord_ptr
+
+      !common /eiond_ejtmp/ e
+
+      real*8 e1,e2
+      common /pack_conjg_tcc_indot_sasb/ e1,e2
+
+
+*     *** external functions ***
+      integer  ion_nion,ion_katm,Parallel_threadid,Parallel_nthreads
+      external ion_nion,ion_katm,Parallel_threadid,Parallel_nthreads
+      integer  ion_rion_ptr
+      external ion_rion_ptr
+      real*8   psp_zv,nwpw_cosmo_qc0
+      external psp_zv,nwpw_cosmo_qc0
+      real*8   nwpw_cosmo_screen_qc0
+      external nwpw_cosmo_screen_qc0
+
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
+
+      nion = ion_nion()
+      if (cosmo1_on) then
+         qcoord_ptr = ion_rion_ptr() + 3*nion
+      else
+         qcoord_ptr = rqion(1)
+      end if
+      rcoord_ptr = ion_rion_ptr()
+
+      do j=tid+1,nion,nthr
+         qj = psp_zv(ion_katm(j))
+         fx = 0.0d0
+         fy = 0.0d0
+         fz = 0.0d0
+         do i=1,nefc
+            qi = nwpw_cosmo_screen_qc0(i)
+            x=dbl_mb(qcoord_ptr+3*(i-1))  -dbl_mb(rcoord_ptr+3*(j-1))
+            y=dbl_mb(qcoord_ptr+3*(i-1)+1)-dbl_mb(rcoord_ptr+3*(j-1)+1)
+            z=dbl_mb(qcoord_ptr+3*(i-1)+2)-dbl_mb(rcoord_ptr+3*(j-1)+2)
+            r= dsqrt(x*x + y*y + z*z)
+            if (r.gt.1.0d-6) then
+               v =  qi*qj/r**3
+               fx = fx - (x*v)
+               fy = fy - (y*v)
+               fz = fz - (z*v)
+            end if
+         end do
+         fion(1,j) = fion(1,j) + fx
+         fion(2,j) = fion(2,j) + fy
+         fion(3,j) = fion(3,j) + fz
+      end do
+
+      return
+      end
+
+
+
+
+
 *     *******************************************
 *     *                                         *
 *     *            nwpw_cosmo_EQelcq            *
@@ -882,7 +970,7 @@ c     == Clean up cosmo stuff, if necessary ==
 
 
       !write(*,*) "nwpw_cosmo_solve_q Qt,Qlmd,Qset=",Qt,Qlmd,Qset
-      if (Qt) then
+      if (Qt.and.Qt0) then
          if ((dabs(Qion).lt.1.0d-6).or.(dabs(Qelc).lt.1.0d-6)) then
             call Dneall_ispin(ispin)
             call Dneall_ne(ne)
@@ -908,7 +996,7 @@ c     == Clean up cosmo stuff, if necessary ==
             qsum2 = qsum2+(dbl_mb(qc0(1)+it-1)-dbl_mb(qold(1)+it-1))**2
          end do
          error = dsqrt(qsum2)/dble(nefc)
-         if (error.lt.qthresh) Qt = .false.
+         if ((qthresh.gt.0.0).and.(error.lt.qthresh)) Qt = .false.
 !$OMP END MASTER
 
 
