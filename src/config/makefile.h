@@ -2737,6 +2737,8 @@ ifdef USE_64TO32
     CORE_LIBS +=  -l64to32
     NWSUBDIRS += 64to32blas
 endif
+
+ifneq ($(BUILD_BLASOPT),)
 ifeq ($(LAPACK_LIB),)
     CORE_LIBS +=  -lnwclapack 
 else
@@ -2746,6 +2748,7 @@ ifeq ($(BLASOPT),)
     CORE_LIBS +=  -lnwcblas 
 else
     CORE_LIBS += $(BLASOPT)
+endif
 endif
 
 ifdef BLASOPT
