@@ -73,6 +73,8 @@ fi
 if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
     if  [[ ${FC} == gfortran ]] ; then
     Fortran_FLAGS+=" -fdefault-integer-8 "
+    elif  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
+    Fortran_FLAGS=" -qintsize=8 -qextname "
     else
     Fortran_FLAGS+=" -i8 "
     fi
