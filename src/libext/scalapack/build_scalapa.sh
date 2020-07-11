@@ -12,17 +12,24 @@ else
 	MPIF90="mpif90"
     fi
 fi
+if [[  -z "${FC}" ]]; then
+    FC=$($MPIF90 -show|cut -d " " -f 1)
+fi
 if [[  -z "${NWCHEM_TOP}" ]]; then
     dir3=$(dirname `pwd`)
     dir2=$(dirname "$dir3")
     NWCHEM_TOP=$(dirname "$dir2")
 fi
-if [[ "$SCALAPACK_SIZE" != "4"  ]] ; then
-    echo SCALAPACK_SIZE must be equal to 4
-    exit 1
-fi
-if [[ "$BLAS_SIZE" != "4"  ]] ; then
-    echo BLAS_SIZE must be equal to 4 for SCALAPACK
+#if [[ "$SCALAPACK_SIZE" != "4"  ]] ; then
+#    echo SCALAPACK_SIZE must be equal to 4
+#    exit 1
+#fi
+#if [[ "$BLAS_SIZE" != "4"  ]] ; then
+#    echo BLAS_SIZE must be equal to 4 for SCALAPACK
+#    exit 1
+#fi
+if [[ "$BLAS_SIZE" != "$SCALAPACK_SIZE"  ]] ; then
+    echo BLAS_SIZE must be the same as SCALAPACK_SIZE
     exit 1
 fi
 if [[ -z "$USE_64TO32"   ]] ; then
@@ -39,7 +46,7 @@ VERSION=2.1.0
 #curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/v${VERSION}.tar.gz -o scalapack.tgz
 COMMIT=bc6cad585362aa58e05186bb85d4b619080c45a9
 curl -LJO https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.zip
-unzip scalapack-$COMMIT.zip
+unzip -q scalapack-$COMMIT.zip
 ln -sf scalapack-$COMMIT scalapack
 #ln -sf scalapack-${VERSION} scalapack
 #curl -L http://www.netlib.org/scalapack/scalapack-${VERSION}.tgz -o scalapack.tgz
@@ -63,7 +70,15 @@ fi
 if [[ ! -z "$BUILD_SCALAPACK"   ]] ; then
     Fortran_FLAGS+=-I"$NWCHEM_TOP"/src/libext/include
 fi
-FC=$MPIF90 FFLAGS="$Fortran_FLAGS" cmake -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" 
+if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
+    if  [[ ${FC} == gfortran ]] ; then
+    Fortran_FLAGS+=" -fdefault-integer-8 "
+    else
+    Fortran_FLAGS+=" -i8 "
+    fi
+    C_FLAGS+=" -DInt=long"
+fi
+FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" cmake -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" 
 make V=0 -j3 scalapack/fast
 mkdir -p ../../../lib
 cp lib/libscalapack.a ../../../lib
