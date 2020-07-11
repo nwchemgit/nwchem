@@ -36,15 +36,22 @@ fi
 #svn co --non-interactive --trust-server-cert https://icl.utk.edu/svn/scalapack-dev/scalapack/trunk/ scalapack
 rm -rf scalapack*
 VERSION=2.1.0
-curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/v${VERSION}.tar.gz -o scalapack.tgz
+#curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/v${VERSION}.tar.gz -o scalapack.tgz
+COMMIT=bc6cad585362aa58e05186bb85d4b619080c45a9
+curl -LJO https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.zip
+unzip scalapack-$COMMIT.zip
+ln -sf scalapack-$COMMIT scalapack
+#ln -sf scalapack-${VERSION} scalapack
 #curl -L http://www.netlib.org/scalapack/scalapack-${VERSION}.tgz -o scalapack.tgz
-tar xzf scalapack.tgz
+#tar xzf scalapack.tgz
 if [[ ${VERSION} == 2.0.2 ]] ; then
     patch -p0 < mpistruct.patch
 fi
-ln -sf scalapack-${VERSION} scalapack
-mkdir -p scalapack/build
-cd scalapack/build
+cd scalapack
+#curl -LJO https://github.com/Reference-ScaLAPACK/scalapack/commit/189c84001bcd564296a475c5c757afc9f337e828.patch
+#patch -p1 < 189c84001bcd564296a475c5c757afc9f337e828.patch
+mkdir -p build
+cd build
 if  [[ -n ${FC} ]] &&   [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
     Fortran_FLAGS=" -qintsize=4 -qextname "
 elif [[ -n ${FC} ]] &&   [[ ${FC} == ftn ]]; then
