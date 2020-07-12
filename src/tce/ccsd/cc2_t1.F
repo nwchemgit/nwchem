@@ -654,7 +654,7 @@ C     i2 ( h7 p3 )_f + = 1 * f ( h7 p3 )_f
       count = count + 1
       END DO
       END DO
-      next = nxtask(-nprocs)
+      next = nxtask(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
