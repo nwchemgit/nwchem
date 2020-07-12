@@ -2738,7 +2738,7 @@ ifdef USE_64TO32
     NWSUBDIRS += 64to32blas
 endif
 
-ifneq ($(BUILD_BLASOPT),)
+ifndef BUILD_OPENBLAS
 ifeq ($(LAPACK_LIB),)
     CORE_LIBS +=  -lnwclapack 
 else
