@@ -207,7 +207,7 @@ macos:build_gcc:
     BLAS_SIZE: 4
     SCALAPACK_SIZE: 4
     ARMCI_NETWORK: "SOCKETS"
-    PATH: "/usr/local/opt/python@3.8/bin:$PATH"
+    PATH: "/usr/local/opt/python@3.8/bin:/opt/local/bin:/usr/local/bin/:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
   tags:
     - macos_10.13
 
@@ -246,6 +246,8 @@ linux64_ubuntu:run_intel:
 macos:run_gcc:
   stage: test
   needs: ["macos:build_gcc"]
+  variables:
+    PATH: "/usr/local/opt/python@3.8/bin:/opt/local/bin:/usr/local/bin/:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
   <<: *test_step
   tags:
     - macos_10.13
