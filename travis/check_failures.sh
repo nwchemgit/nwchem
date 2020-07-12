@@ -1,10 +1,13 @@
 #!/bin/bash
 source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
-tail -20 $TRAVIS_BUILD_DIR/src/tools/build/config.log
-tail -10 $TRAVIS_BUILD_DIR/src/tools/build/comex/config.log
+env
+head -40 $TRAVIS_BUILD_DIR/src/tools/build/config.log
+tail -40 $TRAVIS_BUILD_DIR/src/tools/build/config.log
+head -20 $TRAVIS_BUILD_DIR/src/tools/build/comex/config.log
+tail -20 $TRAVIS_BUILD_DIR/src/tools/build/comex/config.log
 grep -A 2 -B 2 -i error $TRAVIS_BUILD_DIR/src/make.log 
 head -200 $TRAVIS_BUILD_DIR/src/make.log
-tail -200 $TRAVIS_BUILD_DIR/src/make.log
+tail -2000 $TRAVIS_BUILD_DIR/src/make.log
 if [[ "$USE_64TO32" == "y" ]]; then
     tail -200 $TRAVIS_BUILD_DIR/src/6log
     grep -i tce_energy $TRAVIS_BUILD_DIR/src/6log
