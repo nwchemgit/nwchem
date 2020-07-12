@@ -207,6 +207,7 @@ macos:build_gcc:
     BLAS_SIZE: 4
     SCALAPACK_SIZE: 4
     ARMCI_NETWORK: "SOCKETS"
+    PATH: "/usr/local/opt/python@3.8/bin:$PATH"
   tags:
     - macos_10.13
 
