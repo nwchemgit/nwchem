@@ -20,6 +20,30 @@ if [[  -z "${NWCHEM_TOP}" ]]; then
     dir2=$(dirname "$dir3")
     NWCHEM_TOP=$(dirname "$dir2")
 fi
+if [[ -z "${CMAKE}" ]]; then
+    #look for cmake
+    if [[ -z "$(command -v cmake)" ]]; then
+	echo cmake required to build scalapack
+	echo Please install cmake
+	echo define the CMAKE env. variable
+	exit 1
+    else
+	CMAKE=cmake
+    fi
+fi
+CMAKE_VER_MAJ=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -c1)
+CMAKE_VER_MIN=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -c3)
+echo CMAKE_VER is ${CMAKE_VER_MAJ} ${CMAKE_VER_MIN}
+#if (${CMAKE_VER_MAJ} < 3) || ((${CMAKE_VER_MAJ} > 2) && (${CMAKE_VER_MIN} < 8)); then
+if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ > 2) && (CMAKE_VER_MIN < 8))); then
+#if ((CMAKE_VER_MAJ < 3)) ; then
+    echo CMake 3.8 or higher is required
+    echo Please install CMake 3.8
+    echo define the CMAKE env. variable
+    exit 1
+fi
+$CMAKE ../
+
 #if [[ "$SCALAPACK_SIZE" != "4"  ]] ; then
 #    echo SCALAPACK_SIZE must be equal to 4
 #    exit 1
@@ -80,7 +104,7 @@ if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
     fi
     C_FLAGS+=" -DInt=long"
 fi
-FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" cmake -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" 
+FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" 
 make V=0 -j3 scalapack/fast
 mkdir -p ../../../lib
 cp lib/libscalapack.a ../../../lib
