@@ -1,0 +1,11 @@
+--- TOOLS/pdtreecomb.f.org	2020-07-12 09:48:38.000000000 -0700
++++ TOOLS/pdtreecomb.f	2020-07-12 09:48:42.000000000 -0700
+@@ -255,7 +255,7 @@
+ *
+       END
+ *
+-      SUBROUTINE DCOMBSSQ( V1, V2 )
++      SUBROUTINE DCOMBSSQSCA( V1, V2 )
+ *
+ *  -- ScaLAPACK tools routine (version 1.7) --
+ *     University of Tennessee, Knoxville, Oak Ridge National Laboratory,

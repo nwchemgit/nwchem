@@ -55,7 +55,7 @@ if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ > 2) && (CMAKE_VER_MIN < 8))); then
     echo define the CMAKE env. variable
     exit 1
 fi
-$CMAKE ../
+pwd
 
 #if [[ "$SCALAPACK_SIZE" != "4"  ]] ; then
 #    echo SCALAPACK_SIZE must be equal to 4
@@ -88,10 +88,10 @@ ln -sf scalapack-$COMMIT scalapack
 #ln -sf scalapack-${VERSION} scalapack
 #curl -L http://www.netlib.org/scalapack/scalapack-${VERSION}.tgz -o scalapack.tgz
 #tar xzf scalapack.tgz
-if [[ ${VERSION} == 2.0.2 ]] ; then
-    patch -p0 < mpistruct.patch
-fi
 cd scalapack
+if [[ ! -z "$USE_DCOMBSSQPATCH" ]]; then
+    patch -p0 < ../dcombssq.patch
+fi
 #curl -LJO https://github.com/Reference-ScaLAPACK/scalapack/commit/189c84001bcd564296a475c5c757afc9f337e828.patch
 #patch -p1 < 189c84001bcd564296a475c5c757afc9f337e828.patch
 mkdir -p build
@@ -104,9 +104,9 @@ elif [[ -n ${FC} ]] &&   [[ ${FC} == ftn ]]; then
 # unset FC=flang since cmake gets lost
 #       unset FC
 fi
-if [[ ! -z "$BUILD_SCALAPACK"   ]] ; then
-    Fortran_FLAGS+=-I"$NWCHEM_TOP"/src/libext/include
-fi
+#if [[ ! -z "$BUILD_SCALAPACK"   ]] ; then
+#    Fortran_FLAGS+=-I"$NWCHEM_TOP"/src/libext/include
+#fi
 if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
     if  [[ ${FC} == gfortran ]] ; then
     Fortran_FLAGS+=" -fdefault-integer-8 "
