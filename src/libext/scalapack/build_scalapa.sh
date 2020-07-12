@@ -23,10 +23,23 @@ fi
 if [[ -z "${CMAKE}" ]]; then
     #look for cmake
     if [[ -z "$(command -v cmake)" ]]; then
+	UNAME_S=$(uname -s)
+	if [[ ${UNAME_S} == "Linux" ]] || [[ ${UNAME_S} == "Darwin" ]] && [[ $(uname -m) == "x86_64" ]] ; then
+	    CMAKE_VER=3.16.8
+	    curl -L https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz -o cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz
+	    tar xzf cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz
+	    if [[ ${UNAME_S} == "Darwin" ]] ;then
+		CMAKE=`pwd`/cmake-${CMAKE_VER}-${UNAME_S}-x86_64/CMake.app/Contents/bin/cmake
+	    else
+		CMAKE=`pwd`/cmake-${CMAKE_VER}-${UNAME_S}-x86_64/bin/cmake
+	    fi
+	else
+	
 	echo cmake required to build scalapack
 	echo Please install cmake
 	echo define the CMAKE env. variable
 	exit 1
+	fi
     else
 	CMAKE=cmake
     fi
@@ -69,7 +82,7 @@ rm -rf scalapack*
 VERSION=2.1.0
 #curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/v${VERSION}.tar.gz -o scalapack.tgz
 COMMIT=bc6cad585362aa58e05186bb85d4b619080c45a9
-curl -LJO https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.zip
+curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.zip -o scalapack-$COMMIT.zip
 unzip -q scalapack-$COMMIT.zip
 ln -sf scalapack-$COMMIT scalapack
 #ln -sf scalapack-${VERSION} scalapack
