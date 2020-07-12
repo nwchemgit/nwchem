@@ -31,8 +31,8 @@ if [[ -z "${CMAKE}" ]]; then
 	CMAKE=cmake
     fi
 fi
-CMAKE_VER_MAJ=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -c1)
-CMAKE_VER_MIN=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -c3)
+CMAKE_VER_MAJ=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f1)
+CMAKE_VER_MIN=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f2)
 echo CMAKE_VER is ${CMAKE_VER_MAJ} ${CMAKE_VER_MIN}
 #if (${CMAKE_VER_MAJ} < 3) || ((${CMAKE_VER_MAJ} > 2) && (${CMAKE_VER_MIN} < 8)); then
 if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ > 2) && (CMAKE_VER_MIN < 8))); then
