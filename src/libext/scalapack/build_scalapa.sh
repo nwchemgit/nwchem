@@ -1,4 +1,22 @@
 #!/bin/bash
+get_cmake38(){
+	UNAME_S=$(uname -s)
+	if [[ ${UNAME_S} == "Linux" ]] || [[ ${UNAME_S} == "Darwin" ]] && [[ $(uname -m) == "x86_64" ]] ; then
+	    CMAKE_VER=3.16.8
+	    rm -f cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz
+	    curl -L https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz -o cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz
+	    tar xzf cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz
+	    if [[ ${UNAME_S} == "Darwin" ]] ;then
+		CMAKE=`pwd`/cmake-${CMAKE_VER}-${UNAME_S}-x86_64/CMake.app/Contents/bin/cmake
+	    else
+		CMAKE=`pwd`/cmake-${CMAKE_VER}-${UNAME_S}-x86_64/bin/cmake
+	    fi
+	    return 0
+	else
+	    return 1
+	fi
+
+}
 if [[ "$FC" = "ftn"  ]] ; then
     MPIF90="ftn"
 else
@@ -23,22 +41,13 @@ fi
 if [[ -z "${CMAKE}" ]]; then
     #look for cmake
     if [[ -z "$(command -v cmake)" ]]; then
-	UNAME_S=$(uname -s)
-	if [[ ${UNAME_S} == "Linux" ]] || [[ ${UNAME_S} == "Darwin" ]] && [[ $(uname -m) == "x86_64" ]] ; then
-	    CMAKE_VER=3.16.8
-	    curl -L https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz -o cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz
-	    tar xzf cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz
-	    if [[ ${UNAME_S} == "Darwin" ]] ;then
-		CMAKE=`pwd`/cmake-${CMAKE_VER}-${UNAME_S}-x86_64/CMake.app/Contents/bin/cmake
-	    else
-		CMAKE=`pwd`/cmake-${CMAKE_VER}-${UNAME_S}-x86_64/bin/cmake
-	    fi
-	else
-	
-	echo cmake required to build scalapack
-	echo Please install cmake
-	echo define the CMAKE env. variable
-	exit 1
+	get_cmake38
+	status=$?
+	if [ $status ne 0 ]; then
+	    echo cmake required to build scalapack
+	    echo Please install cmake
+	    echo define the CMAKE env. variable
+	    exit 1
 	fi
     else
 	CMAKE=cmake
@@ -47,13 +56,15 @@ fi
 CMAKE_VER_MAJ=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f1)
 CMAKE_VER_MIN=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f2)
 echo CMAKE_VER is ${CMAKE_VER_MAJ} ${CMAKE_VER_MIN}
-#if (${CMAKE_VER_MAJ} < 3) || ((${CMAKE_VER_MAJ} > 2) && (${CMAKE_VER_MIN} < 8)); then
 if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ > 2) && (CMAKE_VER_MIN < 8))); then
-#if ((CMAKE_VER_MAJ < 3)) ; then
-    echo CMake 3.8 or higher is required
-    echo Please install CMake 3.8
-    echo define the CMAKE env. variable
-    exit 1
+    get_cmake38
+    status=$?
+    if [ $status -ne 0 ]; then
+	echo cmake required to build scalapack
+	echo Please install cmake
+	echo define the CMAKE env. variable
+	exit 1
+    fi
 fi
 pwd
 
@@ -82,6 +93,7 @@ rm -rf scalapack*
 VERSION=2.1.0
 #curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/v${VERSION}.tar.gz -o scalapack.tgz
 COMMIT=bc6cad585362aa58e05186bb85d4b619080c45a9
+rm -f scalapack-$COMMIT.zip
 curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.zip -o scalapack-$COMMIT.zip
 unzip -q scalapack-$COMMIT.zip
 ln -sf scalapack-$COMMIT scalapack
