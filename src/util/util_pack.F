@@ -10,15 +10,15 @@
       logical obigendian
 c
       integer longw
-      integer*2 shortw(4)
+      integer*2 shortw(4),mold
 #ifdef F77      
       equivalence (longw,shortw)
 #endif      
 c
       shortw(1) = 0
       longw = 1
-#ifndef f77      
-      shortw=transfer(longw,1)
+#ifndef F77
+      shortw=transfer(longw,mold,4)
 #endif      
       obigendian = .not. (shortw(1) .eq. 1)
 c     
