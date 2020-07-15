@@ -2988,7 +2988,7 @@ c
      &       u(u0+9 ),u(u0+10),u(u0+11),u(u0+12),
      &       u(u0+13),u(u0+14),u(u0+15),u(u0+16))
 #ifndef F77      
-      llocl3=transfer(local3,mold,bytes_per_int/2
+      llocl3=transfer(local3,mold,bytes_per_int/2)
 #endif            
             p(2,i)=llocl3(1)
 c
