@@ -14,15 +14,15 @@ c
 #ifdef F77      
       equivalence (longw,shortw)
 #endif      
+c     
+      bytes_per_int = ma_sizeof(mt_int, 1, mt_byte)
 c
       shortw(1) = 0
       longw = 1
 #ifndef F77
-      shortw=transfer(longw,mold,4)
+      shortw=transfer(longw,mold,bytes_per_int/2)
 #endif      
       obigendian = .not. (shortw(1) .eq. 1)
-c     
-      bytes_per_int = ma_sizeof(mt_int, 1, mt_byte)
 c
       end
 #ifdef BYTE_SHORT_PACKING
