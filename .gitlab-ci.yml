@@ -101,11 +101,10 @@ linux64_centos8:build_gcc:
   <<: *centos8_sourcing
   <<: *compile_step
   variables:
-    BLAS_SIZE: 4
-    SCALAPACK_SIZE: 4
-    BLAS_LIB: "   -lopenblas"
-    LAPACK_LIB: " -lopenblas"
-    SCALAPACK_LIB: "-L/usr/lib64/mpich/lib -lscalapack"
+    BLAS_SIZE: 8
+    SCALAPACK_SIZE: 8
+    BUILD_OPENBLAS: 1
+    BUILD_SCALAPACK: 1
     PATH: "/usr/lib64/mpich/bin/:/usr/bin:/bin:."
     ARMCI_NETWORK: "MPI-TS"
   after_script:
@@ -123,8 +122,8 @@ linux64_ubuntu:build_gcc:
 #    SCALAPACK_LIB: "-lscalapack-openmpi  -lopenblas"
     BUILD_SCALAPACK: 1
     BUILD_OPENBLAS: 1
-    BLAS_SIZE: 4
-    SCALAPACK_SIZE: 4
+    BLAS_SIZE: 8
+    SCALAPACK_SIZE: 8
     USE_OPENMP: 1
     ARMCI_NETWORK: "MPI-PR"
   tags:
@@ -138,8 +137,8 @@ linux64_ubuntu:build_flang:
     FC: flang
     BUILD_SCALAPACK: 1
     BUILD_OPENBLAS: 1
-    BLAS_SIZE: 4
-    SCALAPACK_SIZE: 4
+    BLAS_SIZE: 8
+    SCALAPACK_SIZE: 8
     ARMCI_NETWORK: "MPI-PR"
   after_script:
     - export NWCHEM_TOP=$CI_PROJECT_DIR
@@ -175,8 +174,6 @@ linux_ubuntu:build_gcc:
   <<: *beforescript_linuxubuntu
   <<: *compile_step
   variables:
-    BLAS_SIZE: 4
-    SCALAPACK_SIZE: 4
     PATH: "/home/edo/apps/mpich314_i686/bin:/usr/bin:/bin:."
     LD_LIBRARY_PATH: "/home/edo/apps/mpich314_i686/lib"
     BUILD_SCALAPACK: 1
@@ -204,8 +201,8 @@ macos:build_gcc:
 #    SCALAPACK_LIB: "-L/usr/local/opt/scalapack/lib/ -lscalapack -L/usr/local/opt/openblas/lib  -lopenblas"
     BUILD_SCALAPACK: 1
     BUILD_OPENBLAS: 1
-    BLAS_SIZE: 4
-    SCALAPACK_SIZE: 4
+    BLAS_SIZE: 8
+    SCALAPACK_SIZE: 8
     ARMCI_NETWORK: "SOCKETS"
     USE_DCOMBSSQPATCH: "Y"
     PATH: "/usr/local/opt/python@3.8/bin:/opt/local/bin:/usr/local/bin/:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
