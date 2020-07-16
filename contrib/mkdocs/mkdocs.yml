@@ -10,16 +10,13 @@ plugins:
   - alternate-link
 nav:
       - Documentation Home: Home.md
-      - Overview.md
-      - System-Description.md
+      - Download: Download.md
       - Quantum-Mechanical-Methods.md
+      - Quantum-Molecular-Dynamics.md
       - Other-Capabilities.md
       - Examples.md
       - Supplementary-Information.md
       - Compiling-NWChem.md
-      - Developer.md
       - Benchmarks.md
-      - FAQ.md
-      - Known-Bugs.md
       - Forum.md
-      - Archived-Forum.md
+      - Archived Forum: Archived-Forum.md
