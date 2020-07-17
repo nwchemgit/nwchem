@@ -5,11 +5,15 @@ theme:
   name: readthedocs
   prev_next_buttons_location: both
 use_directory_urls: false
+markdown_extensions:
+    - smarty
+    - toc
 plugins:
-  - search
+  - search:
+      prebuild_index: true
   - alternate-link
 nav:
-      - Documentation Home: Home.md
+      - Documentation: Home.md
       - Download: Download.md
       - Quantum-Mechanical-Methods.md
       - Quantum-Molecular-Dynamics.md
@@ -18,5 +22,6 @@ nav:
       - Supplementary-Information.md
       - Compiling-NWChem.md
       - Benchmarks.md
+      - Tutorials.md
       - Forum.md
       - Archived Forum: Archived-Forum.md
