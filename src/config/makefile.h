@@ -1720,7 +1720,7 @@ endif
        _FC=ifort
       endif
       ifeq ($(FC),ifx)
-       _FC=ifort
+       _FC=ifx
       endif
      ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran6 gfortran-6 gfortran-7 gfortran7 gfortran-8 gfortran8 gfortran-9 gfortran9 gfortran-10 gfortran10 gfortran-11 gfortran-12 i686-w64-mingw32.static-gfortran x86_64-w64-mingw32-gfortran-win32))
        _FC= gfortran
@@ -1967,6 +1967,35 @@ ifeq ($(NWCHEM_TARGET),CATAMOUNT)
       CC=gcc
 endif
 
+      # support for Intel(R) Fortran compiler
+      ifeq ($(_FC),ifx)
+        DEFINES += -DIFCV8 -DIFCLINUX
+        FOPTIONS += -fpp -align
+        FOPTIMIZE = -g -O3 -fimf-arch-consistency=true
+        ifdef USE_I4FLAGS
+        else
+          FOPTIONS += -i8
+        endif
+        ifdef USE_OPENMP
+          DEFINES += -DUSE_OPENMP
+          ifdef USE_OPENMP_TASKS
+            DEFINES += -DUSE_OPENMP_TASKS
+          endif
+          ifdef USE_OFFLOAD
+            DEFINES += -DUSE_OFFLOAD
+            FOPTIONS += -fiopenmp -fopenmp-targets=spirv64
+          else
+            FOPTIONS += -qopenmp
+          endif
+        endif
+        ifdef IFX_DEBUG
+          # debugging remove at some point
+          FOPTIONS += -std95 -what
+        endif
+        FDEBUG = $(FOPTIMIZE)
+      endif
+
+      # support for traditional Intel(R) Fortran compiler
       ifeq ($(_FC),ifort)
      _GOTSSE3= $(shell cat /proc/cpuinfo | egrep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
      _GOTSSE42= $(shell cat /proc/cpuinfo | egrep sse4_2 | tail -n 1 | awk ' /sse4_2/  {print "Y"}')
@@ -1998,9 +2027,7 @@ endif
        endif
        FDEBUG= -O2 -g
        FOPTIMIZE = -O3  -unroll
-       ifneq ($(FC),ifx)
-         FOPTIMIZE += -ip
-       endif
+       FOPTIMIZE += -ip
        FOPTIONS += -align -fpp
            CPP=fpp -P 
            ifeq ($(_IFCV15ORNEWER), Y)
@@ -2073,7 +2100,6 @@ endif
          else
 #           FOPTIMIZE += -xHost
 #crazy simd options
-           ifneq ($(FC),ifx)
 	     ifeq ($(_IFCV17), Y)
 	       ifeq ($(_GOTAVX512F),Y)
 	         FOPTIMIZE += -axCORE-AVX512
@@ -2085,10 +2111,7 @@ endif
                   FOPTIMIZE += -axSSE4.2
 	       endif
 	     endif
-             FOPTIONS += -finline-limit=250
-           else
-             FOPTIONS += -what # for debugging, remove later
-	   endif
+       FOPTIONS += -finline-limit=250
          endif
        else
          ifeq ($(_GOTSSE3),Y) 
