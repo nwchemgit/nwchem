@@ -9,8 +9,7 @@ markdown_extensions:
     - smarty
     - toc
 plugins:
-  - search:
-      prebuild_index: true
+  - search
   - alternate-link
 nav:
       - Documentation: Home.md
