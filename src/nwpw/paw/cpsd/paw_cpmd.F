@@ -942,7 +942,7 @@ c      call pspw_qmmm_init(rtdb)
          end if
       if (icount.lt.it_out) go to 101
       if (taskid.eq.MASTER)
-     > write(6,*) '*** arived at the Maximum iiteration.   terminated.'
+     > write(6,*) '*** Arrived at the maximum iteration. Terminated.'
 
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
 
