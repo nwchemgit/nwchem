@@ -2644,10 +2644,14 @@ PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
    PYMINOR:=$(word 2, $(subst ., ,$(PYTHONVERSION)))
    PYGE38:=$(shell [ $(PYMAJOR) -ge 3 -a $(PYMINOR) -ge 8 ] && echo true)
    ifeq ($(PYGE38),true)
-     EXTRA_LIBS += -lnwcutil $(shell python$(PYTHONVERSION)-config --ldflags --embed)
+	     PYCFG= python$(PYTHONVERSION)-config --ldflags --embed
+     ifeq ($(shell uname -s),Darwin)
+	     PYCFG += | sed -e "s/-lintl //"
+     endif
    else
-     EXTRA_LIBS += -lnwcutil $(shell python$(PYTHONVERSION)-config --ldflags) 
+     PYCFG = python$(PYTHONVERSION)-config --ldflags
    endif
+     EXTRA_LIBS += -lnwcutil $(shell $(PYCFG))
 else
 ifndef PYTHONLIBTYPE
     PYTHONLIBTYPE=a
