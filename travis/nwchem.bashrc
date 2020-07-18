@@ -23,6 +23,9 @@ if [[ "$os" == "Darwin" ]]; then
   if [[ "$MPI_IMPL" == "mpich" ]]; then 
     export PATH=/usr/local/opt/mpich/bin/:$PATH 
   fi
+  export PATH=/usr/local/opt/python@3.8/bin:$PATH
+  export PYTHONVERSION=3.8
+
 fi
 if [[ "$os" == "Linux" ]]; then 
    export NWCHEM_TARGET=LINUX64 

@@ -102,6 +102,9 @@ jobs:
       env: NWCHEM_MODULES="nwdft solvation driver" ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
     - stage: compile
       <<: *compile-template-ompi-osx
+      env: NWCHEM_MODULES="nwdft solvation driver python" ARMCI_NETWORK=MPI-PT 
+    - stage: compile
+      <<: *compile-template-ompi-osx
       env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
     - stage: compile
       <<: *compile-template-mpich-arm
@@ -135,6 +138,9 @@ jobs:
       env: NWCHEM_MODULES="nwdft solvation driver" ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
     - stage: test
       <<: *qatest-template-ompi-osx
+      env: NWCHEM_MODULES="nwdft solvation driver python" ARMCI_NETWORK=MPI-PT 
+    - stage: test
+      <<: *qatest-template-ompi-osx
       env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
     - stage: test
       <<: *qatest-template-mpich-arm
@@ -157,6 +163,9 @@ jobs:
     - os: osx
       arch: amd64
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
+    - os: osx
+      arch: amd64
+      env: NWCHEM_MODULES="nwdft solvation driver python" ARMCI_NETWORK=MPI-PT 
 
 compiler:
   - gcc
