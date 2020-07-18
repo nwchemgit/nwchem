@@ -1985,7 +1985,7 @@ endif
             DEFINES += -DUSE_OFFLOAD
             FOPTIONS += -fiopenmp -fopenmp-targets=spirv64
           else
-            FOPTIONS += -qopenmp
+            FOPTIONS += -fiopenmp
           endif
         endif
         ifdef IFX_DEBUG
