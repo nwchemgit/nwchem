@@ -1977,15 +1977,9 @@ endif
           FOPTIONS += -i8
         endif
         ifdef USE_OPENMP
-          DEFINES += -DUSE_OPENMP
-          ifdef USE_OPENMP_TASKS
-            DEFINES += -DUSE_OPENMP_TASKS
-          endif
+          FOPTIONS += -fiopenmp
           ifdef USE_OFFLOAD
-            DEFINES += -DUSE_OFFLOAD
-            FOPTIONS += -fiopenmp -fopenmp-targets=spirv64
-          else
-            FOPTIONS += -fiopenmp
+            FOPTIONS += -fopenmp-targets=spirv64
           endif
         endif
         ifdef IFX_DEBUG
@@ -2602,6 +2596,22 @@ endif
 
 
 endif
+
+
+###################################################################
+#  Some generic settings about programming models, e.g., OpenMP,  #
+#  that are orthogonal to the actual compiler used.               #
+###################################################################
+ifdef USE_OPENMP
+  DEFINES += -DUSE_OPENMP
+  ifdef USE_OPENMP_TASKS
+    DEFINES += -DUSE_OPENMP_TASKS
+  endif
+  ifdef USE_OFFLOAD
+    DEFINES += -DUSE_OFFLOAD
+  endif
+endif
+
 
 
 ###################################################################
