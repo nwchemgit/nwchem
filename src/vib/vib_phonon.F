@@ -546,6 +546,7 @@ c     **** animate at kq=<0,0,0> if no dispersion specified ****
          efn(k,2) = efn(k,2)/autocm
       end do
 
+      if (dabs(gmax-gmin).lt.1.0d-3)  gmax = gmin+1.0d-3
       call util_ascii_setwindow(emin*autocm,emax*autocm,
      >                          gmin/autocm,gmax/autocm)
       !write(luout,'(A,E10.3,A)') "gmax=",gmax/autocm," states/cm-1"
