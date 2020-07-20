@@ -1043,10 +1043,6 @@ ifeq ($(TARGET),MACX)
         ifdef USE_OPENMP
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
-           DEFINES += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
-           endif
         endif
         ifeq ($(_CPU),ppc970)
 #G5
@@ -1215,10 +1211,6 @@ endif
         ifdef USE_OPENMP
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
-           DEFINES += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
-           endif
         endif
        ifdef  USE_FPE
          FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
@@ -1266,10 +1258,6 @@ endif
            else
              FOPTIONS  += -openmp
              LDOPTIONS += -openmp
-           endif
-           DEFINES   += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
            endif
         endif
        ifdef  USE_FPE
@@ -1540,10 +1528,6 @@ endif
         ifdef USE_OPENMP
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
-           DEFINES += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
-           endif
         endif
         FOPTIMIZE  += -O2 -ffast-math -Wuninitialized
         ifeq ($(_CPU),i786)
@@ -1836,13 +1820,9 @@ endif
         ifdef USE_OPENMP
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
-           DEFINES += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
-           endif
            ifdef USE_OFFLOAD
-             DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
-	   endif
+             DEFINES +=-DUSE_F90_ALLOCATABLE -DUSE_OMP_TEAMS_DISTRIBUTE
+	         endif
         endif
       endif
       ifeq ($(_FC),gfortran)
@@ -2045,10 +2025,6 @@ endif
                ifdef USE_OPTREPORT
                    FOPTIONS += -qopt-report-phase=openmp
                endif
-               DEFINES+= -DUSE_OPENMP 
-               ifdef USE_OPENMP_TASKS
-                   DEFINES += -DUSE_OPENMP_TASKS
-               endif
              else
                FOPTIONS += -qno-openmp
              endif
@@ -2057,10 +2033,6 @@ endif
              ifdef USE_OPENMP
                FOPTIONS += -openmp
                FOPTIONS += -openmp-report2
-               DEFINES+= -DUSE_OPENMP 
-               ifdef USE_OPENMP_TASKS
-                   DEFINES += -DUSE_OPENMP_TASKS
-               endif
              endif
            endif
        ifdef USE_VTUNE
@@ -2147,10 +2119,6 @@ endif
         ifdef USE_OPENMP
            FOPTIONS  += -mp -Minfo=mp
            LDOPTIONS += -mp
-           DEFINES += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
-           endif
         endif
        ifeq ($(FC),ftn)
           LINK.f = ftn  $(LDFLAGS) $(FOPTIONS)
@@ -2411,10 +2379,9 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
 #        XLFMAC=y
         DEFINES  +=   -DXLFLINUX -DCHKUNDFLW
         ifdef USE_OPENMP
-           DEFINES += -DUSE_OPENMP
            FOPTIONS += -qsmp=omp
            ifdef USE_OFFLOAD
-             DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
+             DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
              OFFLOAD_FOPTIONS = -qtgtarch=sm_70 -qoffload
              LDOPTIONS += -qoffload -lcudart -L$(NWC_CUDAPATH)
            endif
@@ -2442,10 +2409,6 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
         ifdef USE_OPENMP
            FOPTIONS  += -mp -Minfo=mp
            LDOPTIONS += -mp
-           DEFINES += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
-           endif
         endif
       endif
 
