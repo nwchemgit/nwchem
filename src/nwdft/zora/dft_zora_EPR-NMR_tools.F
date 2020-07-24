@@ -985,7 +985,7 @@ c ----- Add MOs in file ----- START
         do i=1,npol
          do j=1,nbf
          call dcopy(nbf,0.0d0,0,dbl_mb(k_mo),1) ! reset
-         call ga_get(vectors(i),1,nbf,j,j,dbl_mb(k_mo),1)
+         call ga_get(vectors(i),1,nbf,j,j,dbl_mb(k_mo),nbf)
          call swrite(unitno,dbl_mb(k_mo),nbf)         
          enddo ! end-loop-j
         enddo ! end-loop-i
@@ -1002,7 +1002,7 @@ c ++++++++ using ma_alloc_get +++++++++++++++++++ END
      &               ntot, MA_ERR)
        do i=1,nxyz
         call dcopy(ntot,0.0d0,0,dbl_mb(k_rhs0),1)
-        call ga_get(g_rhs0,1,ntot,i,i,dbl_mb(k_rhs0),1)
+        call ga_get(g_rhs0,1,ntot,i,i,dbl_mb(k_rhs0),ntot)
         call swrite(unitno,dbl_mb(k_rhs0),ntot)
        enddo
        ntot=0
@@ -1016,7 +1016,7 @@ c ++++++++ using ma_alloc_get +++++++++++++++++++ END
      &               ntot, MA_ERR)
        do i=1,nxyz
         call dcopy(ntot,0.0d0,0,dbl_mb(k_rhs),1)
-        call ga_get(g_rhs,1,ntot,i,i,dbl_mb(k_rhs),1)
+        call ga_get(g_rhs,1,ntot,i,i,dbl_mb(k_rhs),ntot)
         call swrite(unitno,dbl_mb(k_rhs),ntot)
        enddo
 c
@@ -1142,7 +1142,7 @@ c ----- Read MOs ----- START
          do j=1,nbf
           call dcopy(nbf,0.0d0,0,dbl_mb(k_mo),1) ! reset
           call sread(unitno,dbl_mb(k_mo),nbf)   
-          call ga_put(vectors(i),1,nbf,j,j,dbl_mb(k_mo),1)
+          call ga_put(vectors(i),1,nbf,j,j,dbl_mb(k_mo),nbf)
          enddo ! end-loop-j
         enddo ! end-loop-i
 c ----- Read MOs ----- END
@@ -1158,7 +1158,7 @@ c ----- Read MOs ----- END
        do i=1,nxyz
         call dcopy(ntot,0.0d0,0,dbl_mb(k_rhs0),1)
         call sread(unitno,dbl_mb(k_rhs0),ntot)
-        call ga_put(g_rhs0,1,ntot,i,i,dbl_mb(k_rhs0),1)
+        call ga_put(g_rhs0,1,ntot,i,i,dbl_mb(k_rhs0),ntot)
        enddo
        ntot=0
        do ispin=1,npol
@@ -1172,7 +1172,7 @@ c ----- Read MOs ----- END
        do i=1,nxyz
         call dcopy(ntot,0.0d0,0,dbl_mb(k_rhs),1)
         call sread(unitno,dbl_mb(k_rhs),ntot)
-        call ga_put(g_rhs,1,ntot,i,i,dbl_mb(k_rhs),1)
+        call ga_put(g_rhs,1,ntot,i,i,dbl_mb(k_rhs),ntot)
        enddo
 c
 c     Deallocate the temporary buffer
@@ -1298,13 +1298,13 @@ c     Allocate the temporary buffer
        do ipm=1,ncomp
         do i=1,2*nxyz  ! write (g_b,g_rhs_sol)
          call dcopy(ntot,0.0d0,0,dbl_mb(k_rhs),1)
-         call ga_get(g_rhs_re(ipm),1,ntot,i,i,dbl_mb(k_rhs),1)
+         call ga_get(g_rhs_re(ipm),1,ntot,i,i,dbl_mb(k_rhs),ntot)
          call swrite(unitno,dbl_mb(k_rhs),ntot)
         enddo ! end-loop-i
         if (lifetime) then
         do i=1,2*nxyz ! write (g_b,g_rhs_sol)
          call dcopy(ntot,0.0d0,0,dbl_mb(k_rhs),1)
-         call ga_get(g_rhs_im(ipm),1,ntot,i,i,dbl_mb(k_rhs),1)
+         call ga_get(g_rhs_im(ipm),1,ntot,i,i,dbl_mb(k_rhs),ntot)
          call swrite(unitno,dbl_mb(k_rhs),ntot)
         enddo ! end-loop-i
         endif ! end-if-lifetime
@@ -1430,7 +1430,7 @@ c      Error checks
         do i=nxyz+1,2*nxyz ! read 2nd subspace and copy to g_rhs_re
          call dcopy(ntot,0.0d0,0,dbl_mb(k_rhs),1)
          call sread(unitno,dbl_mb(k_rhs),ntot)
-         call ga_put(g_rhs_re(ipm),1,ntot,i,i,dbl_mb(k_rhs),1)
+         call ga_put(g_rhs_re(ipm),1,ntot,i,i,dbl_mb(k_rhs),ntot)
         enddo ! end-loop-i
         if (lifetime) then
         do i=1,nxyz ! skip 1st subspace
@@ -1440,7 +1440,7 @@ c      Error checks
         do i=nxyz+1,2*nxyz ! read 2nd subspace and copy to g_rhs_im
          call dcopy(ntot,0.0d0,0,dbl_mb(k_rhs),1)
          call sread(unitno,dbl_mb(k_rhs),ntot)
-         call ga_put(g_rhs_im(ipm),1,ntot,i,i,dbl_mb(k_rhs),1)
+         call ga_put(g_rhs_im(ipm),1,ntot,i,i,dbl_mb(k_rhs),ntot)
         enddo ! end-loop-i
         endif ! end-if-lifetime
        enddo ! end-loop-ipm
@@ -1569,7 +1569,7 @@ c     Allocate the temporary buffer
 c ------- write g_z1 ---------------------- START
         do i=1,nvec 
          m1=(nblock-1)*nvec+i
-         call ga_get(g_z1,1,n1,m1,m1,dcpl_mb(k_z),1)
+         call ga_get(g_z1,1,n1,m1,m1,dcpl_mb(k_z),n1)
          do idat=1,n1
           val_re=dreal(dcpl_mb(k_z+idat-1))
           dbl_mb(k_dat+idat-1)=val_re
@@ -1585,7 +1585,7 @@ c ------- write g_z1 ---------------------- END
 c ------- write g_Az1 ---------------------- START
         do i=1,nvec 
          m1=(nblock-1)*nvec+i
-         call ga_get(g_Az1,1,n1,m1,m1,dcpl_mb(k_z),1)
+         call ga_get(g_Az1,1,n1,m1,m1,dcpl_mb(k_z),n1)
          do idat=1,n1
           val_re=dreal(dcpl_mb(k_z+idat-1))
           dbl_mb(k_dat+idat-1)=val_re
