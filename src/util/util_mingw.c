@@ -1,8 +1,8 @@
 /*  $Id$*/
 /* stubs for functions missing in MinGW */
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 void bzero(void *ptr, size_t n)
 {
   memset(ptr, 0, n);

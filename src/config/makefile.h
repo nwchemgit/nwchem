@@ -1043,10 +1043,6 @@ ifeq ($(TARGET),MACX)
         ifdef USE_OPENMP
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
-           DEFINES += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
-           endif
         endif
         ifeq ($(_CPU),ppc970)
 #G5
@@ -1215,10 +1211,6 @@ endif
         ifdef USE_OPENMP
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
-           DEFINES += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
-           endif
         endif
        ifdef  USE_FPE
          FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
@@ -1266,10 +1258,6 @@ endif
            else
              FOPTIONS  += -openmp
              LDOPTIONS += -openmp
-           endif
-           DEFINES   += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
            endif
         endif
        ifdef  USE_FPE
@@ -1540,10 +1528,6 @@ endif
         ifdef USE_OPENMP
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
-           DEFINES += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
-           endif
         endif
         FOPTIMIZE  += -O2 -ffast-math -Wuninitialized
         ifeq ($(_CPU),i786)
@@ -1720,7 +1704,7 @@ endif
        _FC=ifort
       endif
       ifeq ($(FC),ifx)
-       _FC=ifort
+       _FC=ifx
       endif
      ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran6 gfortran-6 gfortran-7 gfortran7 gfortran-8 gfortran8 gfortran-9 gfortran9 gfortran-10 gfortran10 gfortran-11 gfortran-12 i686-w64-mingw32.static-gfortran x86_64-w64-mingw32-gfortran-win32))
        _FC= gfortran
@@ -1836,13 +1820,9 @@ endif
         ifdef USE_OPENMP
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
-           DEFINES += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
-           endif
            ifdef USE_OFFLOAD
-             DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
-	   endif
+             DEFINES +=-DUSE_F90_ALLOCATABLE -DUSE_OMP_TEAMS_DISTRIBUTE
+	         endif
         endif
       endif
       ifeq ($(_FC),gfortran)
@@ -1967,6 +1947,29 @@ ifeq ($(NWCHEM_TARGET),CATAMOUNT)
       CC=gcc
 endif
 
+      # support for Intel(R) Fortran compiler
+      ifeq ($(_FC),ifx)
+        DEFINES += -DIFCV8 -DIFCLINUX
+        FOPTIONS += -fpp -align
+        FOPTIMIZE = -g -O3 -fimf-arch-consistency=true
+        ifdef USE_I4FLAGS
+        else
+          FOPTIONS += -i8
+        endif
+        ifdef USE_OPENMP
+          FOPTIONS += -fiopenmp
+          ifdef USE_OFFLOAD
+            FOPTIONS += -fopenmp-targets=spirv64
+          endif
+        endif
+        ifdef IFX_DEBUG
+          # debugging remove at some point
+          FOPTIONS += -std95 -what
+        endif
+        FDEBUG = $(FOPTIMIZE)
+      endif
+
+      # support for traditional Intel(R) Fortran compiler
       ifeq ($(_FC),ifort)
      _GOTSSE3= $(shell cat /proc/cpuinfo | egrep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
      _GOTSSE42= $(shell cat /proc/cpuinfo | egrep sse4_2 | tail -n 1 | awk ' /sse4_2/  {print "Y"}')
@@ -1998,9 +2001,7 @@ endif
        endif
        FDEBUG= -O2 -g
        FOPTIMIZE = -O3  -unroll
-       ifneq ($(FC),ifx)
-         FOPTIMIZE += -ip
-       endif
+       FOPTIMIZE += -ip
        FOPTIONS += -align -fpp
            CPP=fpp -P 
            ifeq ($(_IFCV15ORNEWER), Y)
@@ -2024,10 +2025,6 @@ endif
                ifdef USE_OPTREPORT
                    FOPTIONS += -qopt-report-phase=openmp
                endif
-               DEFINES+= -DUSE_OPENMP 
-               ifdef USE_OPENMP_TASKS
-                   DEFINES += -DUSE_OPENMP_TASKS
-               endif
              else
                FOPTIONS += -qno-openmp
              endif
@@ -2036,10 +2033,6 @@ endif
              ifdef USE_OPENMP
                FOPTIONS += -openmp
                FOPTIONS += -openmp-report2
-               DEFINES+= -DUSE_OPENMP 
-               ifdef USE_OPENMP_TASKS
-                   DEFINES += -DUSE_OPENMP_TASKS
-               endif
              endif
            endif
        ifdef USE_VTUNE
@@ -2073,7 +2066,6 @@ endif
          else
 #           FOPTIMIZE += -xHost
 #crazy simd options
-           ifneq ($(FC),ifx)
 	     ifeq ($(_IFCV17), Y)
 	       ifeq ($(_GOTAVX512F),Y)
 	         FOPTIMIZE += -axCORE-AVX512
@@ -2085,10 +2077,7 @@ endif
                   FOPTIMIZE += -axSSE4.2
 	       endif
 	     endif
-             FOPTIONS += -finline-limit=250
-           else
-             FOPTIONS += -what # for debugging, remove later
-	   endif
+       FOPTIONS += -finline-limit=250
          endif
        else
          ifeq ($(_GOTSSE3),Y) 
@@ -2130,10 +2119,6 @@ endif
         ifdef USE_OPENMP
            FOPTIONS  += -mp -Minfo=mp
            LDOPTIONS += -mp
-           DEFINES += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
-           endif
         endif
        ifeq ($(FC),ftn)
           LINK.f = ftn  $(LDFLAGS) $(FOPTIONS)
@@ -2394,10 +2379,9 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
 #        XLFMAC=y
         DEFINES  +=   -DXLFLINUX -DCHKUNDFLW
         ifdef USE_OPENMP
-           DEFINES += -DUSE_OPENMP
            FOPTIONS += -qsmp=omp
            ifdef USE_OFFLOAD
-             DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
+             DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
              OFFLOAD_FOPTIONS = -qtgtarch=sm_70 -qoffload
              LDOPTIONS += -qoffload -lcudart -L$(NWC_CUDAPATH)
            endif
@@ -2425,10 +2409,6 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
         ifdef USE_OPENMP
            FOPTIONS  += -mp -Minfo=mp
            LDOPTIONS += -mp
-           DEFINES += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
-           endif
         endif
       endif
 
@@ -2582,6 +2562,22 @@ endif
 
 
 ###################################################################
+#  Some generic settings about programming models, e.g., OpenMP,  #
+#  that are orthogonal to the actual compiler used.               #
+###################################################################
+ifdef USE_OPENMP
+  DEFINES += -DUSE_OPENMP
+  ifdef USE_OPENMP_TASKS
+    DEFINES += -DUSE_OPENMP_TASKS
+  endif
+  ifdef USE_OFFLOAD
+    DEFINES += -DUSE_OFFLOAD
+  endif
+endif
+
+
+
+###################################################################
 #  All machine dependent sections should be above here, otherwise #
 #  some of the definitions below will be 'lost'                   #
 ###################################################################
@@ -2644,10 +2640,14 @@ PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
    PYMINOR:=$(word 2, $(subst ., ,$(PYTHONVERSION)))
    PYGE38:=$(shell [ $(PYMAJOR) -ge 3 -a $(PYMINOR) -ge 8 ] && echo true)
    ifeq ($(PYGE38),true)
-     EXTRA_LIBS += -lnwcutil $(shell python$(PYTHONVERSION)-config --ldflags --embed)
+	     PYCFG= python$(PYTHONVERSION)-config --ldflags --embed
+     ifeq ($(shell uname -s),Darwin)
+	     PYCFG += | sed -e "s/-lintl //"
+     endif
    else
-     EXTRA_LIBS += -lnwcutil $(shell python$(PYTHONVERSION)-config --ldflags) 
+     PYCFG = python$(PYTHONVERSION)-config --ldflags
    endif
+     EXTRA_LIBS += -lnwcutil $(shell $(PYCFG))
 else
 ifndef PYTHONLIBTYPE
     PYTHONLIBTYPE=a
