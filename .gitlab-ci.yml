@@ -101,8 +101,8 @@ linux64_centos8:build_gcc:
   <<: *centos8_sourcing
   <<: *compile_step
   variables:
-    BLAS_SIZE: 4
-    SCALAPACK_SIZE: 4
+    BLAS_SIZE: 8
+    SCALAPACK_SIZE: 8
     BUILD_OPENBLAS: 1
     BUILD_SCALAPACK: 1
     PATH: "/usr/lib64/mpich/bin/:/usr/bin:/bin:."
