@@ -21,9 +21,6 @@
       integer global
       logical status
       logical overify, ohardfail
-#ifdef CRAY_T3D
-      integer oldact, fsigctl
-#endif
 #ifdef PSCALE
       integer io_code
 #else
@@ -212,11 +209,6 @@ c
 *****      call ieeetrap()
 #if defined(LINUXALPHA)
       call dec_fpe  ! To avoid underflow problems on Alpha in Texas
-#endif
-#ifdef CRAY_T3D
-*     This as a temporary fix for SIGFPE in Texas that does not seem
-*     to affect the final results
-      oldact = fsigctl('IGNORE','SIGFPE',0)
 #endif
 #ifdef LINUX
 c      uncommenting this line turns on sigfpe trapping under linux

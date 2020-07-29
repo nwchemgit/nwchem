@@ -172,11 +172,6 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      real*8 cf_anint
-      external cf_anint
-#endif
-c
       real*8 x(nsa,3),q(nsa,nq),g(ngx,ngy,ngz)
       character*2 t(nsa)
       logical lprint
@@ -225,26 +220,14 @@ c
       dz=zg-x(i,3)
       if(iesppb.eq.2.or.iesppb.eq.3) then
       if(abs(dx).gt.boxh(1)) then
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      dx=dx-cf_anint(dx/box(1))*box(1)
-#else
       dx=dx-anint(dx/box(1))*box(1)
-#endif
       endif
       if(abs(dy).gt.boxh(2)) then
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      dy=dy-cf_anint(dy/box(2))*box(2)
-#else
       dy=dy-anint(dy/box(2))*box(2)
-#endif
       endif
       if(iesppb.eq.1.or.iesppb.eq.3) then
       if(abs(dz).gt.boxh(3)) then
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      dz=dz-cf_anint(dz/box(3))*box(3)
-#else
       dz=dz-anint(dz/box(3))*box(3)
-#endif
       endif
       endif
       endif

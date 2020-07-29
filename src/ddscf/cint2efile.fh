@@ -53,13 +53,7 @@ c
       integer n_in_buf2         ! n_in_rec info for this buf    - ASYNC
       integer pad2              ! Padding for 32 bit machines   - ASYNC
 c
-*      parameter (buffer_size = 16) ! About the minimum
-#ifdef CRAY_T3D
-c     save on memory since have only physical memory
-      parameter (buffer_size = 8192    - 2)
-#else
       parameter (buffer_size = 32768*2 - 2)
-#endif
 c
       common/cint2ebuf/
      $     buf(buffer_size),
