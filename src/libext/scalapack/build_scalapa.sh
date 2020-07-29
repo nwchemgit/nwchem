@@ -81,11 +81,13 @@ if [[ "$BLAS_SIZE" != "$SCALAPACK_SIZE"  ]] ; then
     exit 1
 fi
 if [[ "$BLAS_SIZE" == 4 ]] && [[ -z "$USE_64TO32"   ]] ; then
-    echo USE_64TO32 must be set when BLAS_SIZE=4
+    if [[ "$NWCHEM_TARGET" != "LINUX" ]] && [[ "$NWCHEM_TARGET" != "MACX" ]] ; then
+    echo USE_64TO32 must be set when BLAS_SIZE=4 on 64-bit architectures
     exit 1
+    fi
 fi
 if [[ ! -z "$BUILD_OPENBLAS"   ]] ; then
-    BLASOPT="-L`pwd`/../lib -lopenblas"
+    BLASOPT="-L`pwd`/../lib -lnwc_openblas"
 fi
 #git clone https://github.com/scibuilder/scalapack.git
 #svn co --non-interactive --trust-server-cert https://icl.utk.edu/svn/scalapack-dev/scalapack/trunk/ scalapack
