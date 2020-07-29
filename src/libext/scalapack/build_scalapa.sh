@@ -80,8 +80,8 @@ if [[ "$BLAS_SIZE" != "$SCALAPACK_SIZE"  ]] ; then
     echo BLAS_SIZE must be the same as SCALAPACK_SIZE
     exit 1
 fi
-if [[ -z "$USE_64TO32"   ]] ; then
-    echo USE_64TO32 must be set
+if [[ "$BLAS_SIZE" == 4 ]] && [[ -z "$USE_64TO32"   ]] ; then
+    echo USE_64TO32 must be set when BLAS_SIZE=4
     exit 1
 fi
 if [[ ! -z "$BUILD_OPENBLAS"   ]] ; then
@@ -101,7 +101,7 @@ ln -sf scalapack-$COMMIT scalapack
 #curl -L http://www.netlib.org/scalapack/scalapack-${VERSION}.tgz -o scalapack.tgz
 #tar xzf scalapack.tgz
 cd scalapack
-if [[ ! -z "$USE_DCOMBSSQPATCH" ]]; then
+if [[  -z "$USE_DCOMBSSQ" ]]; then
     patch -p0 < ../dcombssq.patch
 fi
 #curl -LJO https://github.com/Reference-ScaLAPACK/scalapack/commit/189c84001bcd564296a475c5c757afc9f337e828.patch
