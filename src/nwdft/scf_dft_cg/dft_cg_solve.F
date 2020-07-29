@@ -239,22 +239,22 @@ c
           enddo
           ihi = max(ihi-1,1)
  910      continue
+          call movecs_fix_phase(g_movecs(ispin))
           if (util_print('final vectors analysis',print_default)) then
             ilo = 1
             ihi = nmo
-          endif
           if (ispin.eq.1) then
             blob = 'DFT Final Alpha Molecular Orbital Analysis'
           else
             blob = 'DFT Final Beta Molecular Orbital Analysis'
           endif
-          call movecs_fix_phase(g_movecs(ispin))
 c
           call movecs_print_anal(basis, ilo, ihi, tanalyze,
      &         g_movecs(ispin),blob,
      &         .true., dbl_mb(k_eval+(ispin-1)*nbf),
      &         oadapt, int_mb(k_irs+(ispin-1)*nbf),
      &         .true., dbl_mb(k_occ+(ispin-1)*nbf))
+          endif
         enddo
 c
       else  ! closed shell
@@ -267,17 +267,17 @@ c
         enddo
         ihi = max(ihi-1,1)
  930    continue
+        call movecs_fix_phase(g_movecs)
         if (util_print('final vectors analysis',print_default)) then
           ilo = 1
           ihi = nmo
-        endif
-        call movecs_fix_phase(g_movecs)
         blob = 'DFT Final Molecular Orbital Analysis'
         call movecs_print_anal(basis, ilo, ihi, 0.15d0,
      &         g_movecs,blob,
      &         .true., dbl_mb(k_eval),
      &         oadapt, int_mb(k_irs),
      &         .true., dbl_mb(k_occ))
+        endif
        endif
 c
 c      == wrap up ==
