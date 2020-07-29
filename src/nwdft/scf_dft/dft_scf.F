@@ -523,6 +523,7 @@ c     Energy decomposition switch
 c     
       nExc    = idecomp + 1
       Etnew = 0.d0
+      tdots = 0d0
 c
 c     vdw  bit
 c
