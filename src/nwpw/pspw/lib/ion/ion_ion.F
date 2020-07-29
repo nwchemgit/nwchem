@@ -144,6 +144,8 @@ c!$OMP END DO
 !$OMP END MASTER
 !$OMP BARRIER
 
+      call nwpw_cosmo_FQionq(f_ion)
+
       return
       end
 

@@ -181,11 +181,16 @@ c
 c  to determine the little-endian or big-endian addressing convention.
       integer longw
       integer*2 shortw(2)
+#ifdef F77      
       equivalence (longw,shortw)
+#endif      
       save longw, shortw
 c
       call ifill(nuw,0,u,1)
       longw=1
+#ifndef F77      
+      shortw=transfer(longw,1)
+#endif            
       if(shortw(1).eq.1)then
 c        ...little-endian.
          do 10 i=1,((nuw+7)/8)
@@ -259,11 +264,16 @@ c
 c  to determine the little-endian or big-endian addressing convention.
       integer longw
       integer*2 shortw(2)
+#ifdef F77      
       equivalence (longw,shortw)
+#endif      
       save longw, shortw
 c
       call ifill(nuw,0,u,1)
       longw=1
+#ifndef F77      
+      shortw=transfer(longw,1)
+#endif            
       if(shortw(1).eq.1)then
 c        ...little-endian.
          do 10 i=1,((nuw+3)/4)

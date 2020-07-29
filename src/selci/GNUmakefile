@@ -1,4 +1,4 @@
-#
+
 # $Id$
 #
 
@@ -10,10 +10,10 @@ BLAS     = mxma.o
 
 UOBJ = \
 iprtri.o	prtri.o  \
-	selci_icopy.o		selci_output.o	selci_yacobi.o \
+	selci_icopy.o		selci_yacobi.o \
 tred1.o		tqlrat.o	loadw.o		rdhint.o 	rdhcon.o \
 rdhwmt.o	rdconf.o	upkcon.o	prtcon.o	wrtcon.o \
-iodiff.o	bserch.o	popcnt32.o	readh.o  \
+iodiff.o	bserch.o	readh.o  \
 selci_renorm.o	selci_sread.o		selci_swrite.o	pkcon.o  \
 wthcon.o	wtconf.o	vadd.o		idmin.o	\
 isum.o		rd1.o		fcidim.o        \

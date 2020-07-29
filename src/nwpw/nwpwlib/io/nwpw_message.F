@@ -10,7 +10,7 @@
 *     I/O UNIT=10.  THIS ROUTINE IS MACHINE-DEPENDENT.
 *     ================================================
 
-      CHARACTER*17 MSG(13)
+      CHARACTER*17 MSG(14)
       integer N
       character*26 dd
       DATA MSG(1) /'JOB STARTED'/
@@ -26,8 +26,9 @@
       DATA MSG(11) /'ITERATION STARTED'/
       DATA MSG(12) /'ITERATION STARTED'/
       DATA MSG(13) /'ITERATION STARTED'/
+      DATA MSG(14) /'ITERATION STARTED'/
  
-      IF(N.GT.13.OR.N.LE.0) RETURN
+      IF(N.GT.14.OR.N.LE.0) RETURN
       call util_date(dd)
       WRITE(luout,1000) MSG(N), dd
       IF(N.EQ.2)  WRITE(luout,1001)
@@ -39,6 +40,7 @@
       IF(N.EQ.11) WRITE(luout,1007)
       IF(N.EQ.12) WRITE(luout,1008)
       IF(N.EQ.13) WRITE(luout,1009)
+      IF(N.EQ.14) WRITE(luout,1010)
       RETURN
 
  1000 FORMAT(5X,'>>>  ',A,' AT ',A24,'  <<<')
@@ -82,5 +84,9 @@
      >          'Acceptance',2x,'stepsize',2x,'vstepsize'/
      >   4x,'--------------------------------------------------------',
      > '-------------------------------------------------------------')
+ 1010 FORMAT(4x,'iter.',11x,'Energy ',7x,' DeltaE',7x,'DeltaRho ',
+     >       7x,'DeltaIon'/
+     >       4x,'-----------------------------------------------------',
+     >          '----------------')
 
       END

@@ -71,6 +71,23 @@ $(error )
   endif
 endif
 
+ifneq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET), LINUX64 LINUX MACX MACX64 CATAMOUNT CYGWIN64 CYGNUYS CYGWIN BGL BGP BGQ HPUX HPUX64 IBM IBM64 LAPI LAPI64 PURESOLARIS SOLARIS SOLARIS64 SGI_N32 SGITFP))
+error20:
+$(info     )
+  $(info unrecognized NWCHEM_TARGET value $(NWCHEM_TARGET))
+$(info     )
+  $(error )
+endif
+# trying to fix the BLAS_LIB BLASOPT madness ...
+# they have extactly the same purpose (why did we  introduce BLAS_LIB?)
+# BLASOPT has higher priority
+ifdef BLASOPT
+      BLAS_LIB = $(BLASOPT)
+else
+ifdef BLAS_LIB
+      BLASOPT = $(BLAS_LIB)
+endif
+endif
      TARGET := $(NWCHEM_TARGET)
      TOPDIR := $(NWCHEM_TOP)
 ifeq (,$(RELEASE))
@@ -201,12 +218,12 @@ endif
 # other NWChem modules
 ifdef BUILD_OPENBLAS
 NW_CORE_SUBDIRS += libext
-      BLASOPT=-L$(NWCHEM_TOP)/src/libext/lib -lopenblas
+      BLASOPT=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_openblas
       LAPACK_LIB=$(BLASOPT)      
 endif      
 ifdef BUILD_SCALAPACK
 NW_CORE_SUBDIRS += libext
-      SCALAPACK=-L$(NWCHEM_TOP)/src/libext/lib -lscalapack
+      SCALAPACK=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_scalapack
 endif      
 ifdef BUILD_MPICH
 NW_CORE_SUBDIRS += libext
@@ -742,7 +759,7 @@ ifeq ($(TARGET),IBM64)
    ifeq ($(LAPACK_LIB),)
       CORE_SUBDIRS_EXTRA += lapack
    endif
-   ifeq ($(BLAS_LIB),)
+   ifeq ($(BLASOPT),)
       CORE_SUBDIRS_EXTRA += blas
    endif
          FC = xlf
@@ -801,7 +818,7 @@ ifeq ($(TARGET),IBM64)
      CORE_LIBS += -lnwclapack
   endif
   CORE_LIBS += $(BLASOPT)
-  ifeq ($(BLAS_LIB),)
+  ifeq ($(BLASOPT),)
      CORE_LIBS += -lnwcblas
   endif
   XLFBREN = y
@@ -1026,10 +1043,6 @@ ifeq ($(TARGET),MACX)
         ifdef USE_OPENMP
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
-           DEFINES += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
-           endif
         endif
         ifeq ($(_CPU),ppc970)
 #G5
@@ -1137,7 +1150,7 @@ ifdef USE_VECLIB
             @exit 1
    endif
 else
-   ifeq ($(BLAS_LIB),)
+   ifeq ($(BLASOPT),)
       CORE_SUBDIRS_EXTRA += blas
    endif
    ifeq ($(LAPACK_LIB),)
@@ -1198,10 +1211,6 @@ endif
         ifdef USE_OPENMP
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
-           DEFINES += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
-           endif
         endif
        ifdef  USE_FPE
          FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
@@ -1224,7 +1233,7 @@ else
       CORE_LIBS += -lnwclapack
    endif
    CORE_LIBS +=    $(BLASOPT)
-   ifeq ($(BLAS_LIB),)
+   ifeq ($(BLASOPT),)
       CORE_LIBS += -lnwcblas
    endif
 endif
@@ -1249,10 +1258,6 @@ endif
            else
              FOPTIONS  += -openmp
              LDOPTIONS += -openmp
-           endif
-           DEFINES   += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
            endif
         endif
        ifdef  USE_FPE
@@ -1523,10 +1528,6 @@ endif
         ifdef USE_OPENMP
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
-           DEFINES += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
-           endif
         endif
         FOPTIMIZE  += -O2 -ffast-math -Wuninitialized
         ifeq ($(_CPU),i786)
@@ -1703,7 +1704,7 @@ endif
        _FC=ifort
       endif
       ifeq ($(FC),ifx)
-       _FC=ifort
+       _FC=ifx
       endif
      ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran6 gfortran-6 gfortran-7 gfortran7 gfortran-8 gfortran8 gfortran-9 gfortran9 gfortran-10 gfortran10 gfortran-11 gfortran-12 i686-w64-mingw32.static-gfortran x86_64-w64-mingw32-gfortran-win32))
        _FC= gfortran
@@ -1819,13 +1820,9 @@ endif
         ifdef USE_OPENMP
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
-           DEFINES += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
-           endif
            ifdef USE_OFFLOAD
-             DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
-	   endif
+             DEFINES +=-DUSE_F90_ALLOCATABLE -DUSE_OMP_TEAMS_DISTRIBUTE
+	         endif
         endif
       endif
       ifeq ($(_FC),gfortran)
@@ -1850,7 +1847,7 @@ endif
       endif
       DEFINES  += -DEXT_INT
 #      MAKEFLAGS = -j 1 --no-print-directory
-     ifeq ($(BLAS_LIB),)
+     ifeq ($(BLASOPT),)
        CORE_SUBDIRS_EXTRA += blas
      endif
      ifeq ($(LAPACK_LIB),)
@@ -1950,6 +1947,29 @@ ifeq ($(NWCHEM_TARGET),CATAMOUNT)
       CC=gcc
 endif
 
+      # support for Intel(R) Fortran compiler
+      ifeq ($(_FC),ifx)
+        DEFINES += -DIFCV8 -DIFCLINUX
+        FOPTIONS += -fpp -align
+        FOPTIMIZE = -g -O3 -fimf-arch-consistency=true
+        ifdef USE_I4FLAGS
+        else
+          FOPTIONS += -i8
+        endif
+        ifdef USE_OPENMP
+          FOPTIONS += -fiopenmp
+          ifdef USE_OFFLOAD
+            FOPTIONS += -fopenmp-targets=spirv64
+          endif
+        endif
+        ifdef IFX_DEBUG
+          # debugging remove at some point
+          FOPTIONS += -std95 -what
+        endif
+        FDEBUG = $(FOPTIMIZE)
+      endif
+
+      # support for traditional Intel(R) Fortran compiler
       ifeq ($(_FC),ifort)
      _GOTSSE3= $(shell cat /proc/cpuinfo | egrep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
      _GOTSSE42= $(shell cat /proc/cpuinfo | egrep sse4_2 | tail -n 1 | awk ' /sse4_2/  {print "Y"}')
@@ -1981,9 +2001,7 @@ endif
        endif
        FDEBUG= -O2 -g
        FOPTIMIZE = -O3  -unroll
-       ifneq ($(FC),ifx)
-         FOPTIMIZE += -ip
-       endif
+       FOPTIMIZE += -ip
        FOPTIONS += -align -fpp
            CPP=fpp -P 
            ifeq ($(_IFCV15ORNEWER), Y)
@@ -2007,10 +2025,6 @@ endif
                ifdef USE_OPTREPORT
                    FOPTIONS += -qopt-report-phase=openmp
                endif
-               DEFINES+= -DUSE_OPENMP 
-               ifdef USE_OPENMP_TASKS
-                   DEFINES += -DUSE_OPENMP_TASKS
-               endif
              else
                FOPTIONS += -qno-openmp
              endif
@@ -2019,10 +2033,6 @@ endif
              ifdef USE_OPENMP
                FOPTIONS += -openmp
                FOPTIONS += -openmp-report2
-               DEFINES+= -DUSE_OPENMP 
-               ifdef USE_OPENMP_TASKS
-                   DEFINES += -DUSE_OPENMP_TASKS
-               endif
              endif
            endif
        ifdef USE_VTUNE
@@ -2056,7 +2066,6 @@ endif
          else
 #           FOPTIMIZE += -xHost
 #crazy simd options
-           ifneq ($(FC),ifx)
 	     ifeq ($(_IFCV17), Y)
 	       ifeq ($(_GOTAVX512F),Y)
 	         FOPTIMIZE += -axCORE-AVX512
@@ -2068,10 +2077,7 @@ endif
                   FOPTIMIZE += -axSSE4.2
 	       endif
 	     endif
-             FOPTIONS += -finline-limit=250
-           else
-             FOPTIONS += -what # for debugging, remove later
-	   endif
+       FOPTIONS += -finline-limit=250
          endif
        else
          ifeq ($(_GOTSSE3),Y) 
@@ -2113,10 +2119,6 @@ endif
         ifdef USE_OPENMP
            FOPTIONS  += -mp -Minfo=mp
            LDOPTIONS += -mp
-           DEFINES += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
-           endif
         endif
        ifeq ($(FC),ftn)
           LINK.f = ftn  $(LDFLAGS) $(FOPTIONS)
@@ -2377,10 +2379,9 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
 #        XLFMAC=y
         DEFINES  +=   -DXLFLINUX -DCHKUNDFLW
         ifdef USE_OPENMP
-           DEFINES += -DUSE_OPENMP
            FOPTIONS += -qsmp=omp
            ifdef USE_OFFLOAD
-             DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
+             DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
              OFFLOAD_FOPTIONS = -qtgtarch=sm_70 -qoffload
              LDOPTIONS += -qoffload -lcudart -L$(NWC_CUDAPATH)
            endif
@@ -2391,9 +2392,13 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
           FOPTIONS += -qintsize=8
         endif
       endif
+      ifdef USE_ESSL
+        CORE_SUBDIRS_EXTRA = lapack
+        CORE_LIBS +=  -lnwclapack
+      endif
 #     CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas
 #     EXTRA_LIBS +=  -dynamic-linker /lib64/ld64.so.1 -melf64ppc -lxlf90_r -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lm -lc -lgcc -lm
-    endif
+    endif # end of ppc64 arch
       ifeq ($(_FC),pgf90)
         FOPTIONS   += -Mcache_align  # -Kieee 
 #        FOPTIMIZE   = -O3  -Mnounroll -Minfo=loop -Mipa=fast
@@ -2404,10 +2409,6 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
         ifdef USE_OPENMP
            FOPTIONS  += -mp -Minfo=mp
            LDOPTIONS += -mp
-           DEFINES += -DUSE_OPENMP
-           ifdef USE_OPENMP_TASKS
-               DEFINES += -DUSE_OPENMP_TASKS
-           endif
         endif
       endif
 
@@ -2500,7 +2501,7 @@ endif
 
         # Here is an example for ALCF:
         # IBMCMP_ROOT=${IBM_MAIN_DIR}
-        # BLAS_LIB=/soft/libraries/alcf/current/xl/BLAS/lib
+        # BLASOPT=/soft/libraries/alcf/current/xl/BLAS/lib
         # LAPACK_LIB=/soft/libraries/alcf/current/xl/LAPACK/lib
         # ESSL_LIB=/soft/libraries/essl/current/essl/5.1/lib64
         # XLF_LIB=${IBMCMP_ROOT}/xlf/bg/14.1/bglib64
@@ -2558,6 +2559,22 @@ endif
 
 
 endif
+
+
+###################################################################
+#  Some generic settings about programming models, e.g., OpenMP,  #
+#  that are orthogonal to the actual compiler used.               #
+###################################################################
+ifdef USE_OPENMP
+  DEFINES += -DUSE_OPENMP
+  ifdef USE_OPENMP_TASKS
+    DEFINES += -DUSE_OPENMP_TASKS
+  endif
+  ifdef USE_OFFLOAD
+    DEFINES += -DUSE_OFFLOAD
+  endif
+endif
+
 
 
 ###################################################################
@@ -2623,10 +2640,14 @@ PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
    PYMINOR:=$(word 2, $(subst ., ,$(PYTHONVERSION)))
    PYGE38:=$(shell [ $(PYMAJOR) -ge 3 -a $(PYMINOR) -ge 8 ] && echo true)
    ifeq ($(PYGE38),true)
-     EXTRA_LIBS += -lnwcutil $(shell python$(PYTHONVERSION)-config --ldflags --embed)
+	     PYCFG= python$(PYTHONVERSION)-config --ldflags --embed
+     ifeq ($(shell uname -s),Darwin)
+	     PYCFG += | sed -e "s/-lintl //"
+     endif
    else
-     EXTRA_LIBS += -lnwcutil $(shell python$(PYTHONVERSION)-config --ldflags) 
+     PYCFG = python$(PYTHONVERSION)-config --ldflags
    endif
+     EXTRA_LIBS += -lnwcutil $(shell $(PYCFG))
 else
 ifndef PYTHONLIBTYPE
     PYTHONLIBTYPE=a
@@ -2716,18 +2737,16 @@ ifdef USE_64TO32
     CORE_LIBS +=  -l64to32
     NWSUBDIRS += 64to32blas
 endif
-ifdef BLASOPT
-    CORE_LIBS +=  $(BLASOPT) 
-endif
+
 ifeq ($(LAPACK_LIB),)
     CORE_LIBS +=  -lnwclapack 
 else
     CORE_LIBS += $(LAPACK_LIB)
 endif
-ifeq ($(BLAS_LIB),)
+ifeq ($(BLASOPT),)
     CORE_LIBS +=  -lnwcblas 
 else
-    CORE_LIBS += $(BLAS_LIB)
+    CORE_LIBS += $(BLASOPT)
 endif
 
 ifdef BLASOPT
@@ -2748,8 +2767,10 @@ ifndef BLAS_SUPPLIED
     endif
 else
     ifndef LAPACK_LIB
+      ifndef USE_ESSL
         errorlap1:
       $(error Please define LAPACK_LIB if you have defined BLASOPT or BLAS_LIB)
+      endif
     endif
 endif
 
@@ -2762,7 +2783,9 @@ ifdef USE_SUBGROUPS
     DEFINES += -DGANXTVAL -DUSE_SUBGROUPS
     #turn off peigs for now
 else
+  ifneq ($(GOTMINGW64),1)
     DEFINES += -DPARALLEL_DIAG
+  endif
 endif
 ###################################################################
 #  All machine dependent sections should be above here, otherwise #

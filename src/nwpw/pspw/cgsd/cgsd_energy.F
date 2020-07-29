@@ -31,7 +31,7 @@ c#include "global.fh"
       real*8  cx,cy,cz
       real*8  gx,gy,gz
       real*8  en(2),en1(2),en2(2)
-      real*8  E(50)
+      real*8  E(50),Egas
       integer rtdb
 
 *     **** external functions ****
@@ -61,15 +61,17 @@ c#include "global.fh"
       external    psi_ab_irrep_name
       integer     control_symmetry,control_version
       external    control_symmetry,control_version
-      logical  ion_disp_on,nwpw_cosmo_on
-      external ion_disp_on,nwpw_cosmo_on
+      logical  ion_disp_on,nwpw_cosmo_on,nwpw_cosmo_firsttime
+      external ion_disp_on,nwpw_cosmo_on,nwpw_cosmo_firsttime
+      real*8   nwpw_cosmo_screen
+      external nwpw_cosmo_screen
 
       logical  control_hess_model
       external control_hess_model
       real*8   ion_hess_energy
       external ion_hess_energy
-      real*8   psi_1energy
-      external psi_1energy
+      real*8   psi_1energy,control_gas_energy
+      external psi_1energy,control_gas_energy
 
       !**** hack for implementing hessian energy model ****
       if (control_hess_model()) then
@@ -134,9 +136,9 @@ c#include "global.fh"
       if (minimizer.gt.1) call pspw_Grsm_list_start()
       if (minimizer.eq.5) it_out = 1
       if (minimizer.eq.8) it_out = 1
-      if (newpsi) then
+      if ((newpsi).or.(nwpw_cosmo_firsttime())) then
          call pspw_Lin_HFX_reset()
-         !call sdminimize(15)
+         call sdminimize(15)
          if (control_fractional()) then
             call psi_1toelectron()
             call psi_1gen_hml()
@@ -246,7 +248,7 @@ c          **** reset minimizer if failed ****
      >       write(luout,*) 
      >       ' *** energy going up. iteration not terminated'
              stalled = .true.
-            !go to 3
+             if (icount.lt.it_out) go to 2
          end if
          deltae = dabs(deltae)
          !if (deltae.lt.1.0d-3) then
@@ -556,19 +558,25 @@ c            end do
 
 
            end if
+      end if
         
-*      **** write out COSMO energies ****
-       if (nwpw_cosmo_on()) then
+*     **** write out COSMO energies ****
+      if (nwpw_cosmo_on()) then
+         Egas = control_gas_energy()
+         if (oprint) then
             write(luout,1730)
-            write(luout,1731)
+            write(luout,1731) nwpw_cosmo_screen()
             write(luout,1732) E(46)
             write(luout,1733) E(47)
             write(luout,1734) E(48)
             write(luout,1735) E(46)+E(47)+E(48),
      >                        (E(46)+E(47)+E(48))*27.2116d0*23.06d0
-       end if
-
+            if (dabs(Egas).gt.1.0d-6)
+     >         write(luout,1736)  E(1)-Egas,
+     >                           (E(1)-Egas)*27.2116d0*23.06d0
+         end if
       end if
+
       if (control_symmetry().gt.0) call psi_ab_kill_irrep_names()
       if (control_fractional()) call psi_1assending_occupation()
 
@@ -744,12 +752,18 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1720 FORMAT(/' Dispersion energy   :',E19.10)
 
  1730 FORMAT(/' COSMO energies:')
- 1731 FORMAT(5x,' screen=(epsilon-1)/(epsilon+1/2)')
+ 1731 FORMAT(5x,' screen=(epsilon-1)/(epsilon+1/2):',F11.6)
  1732 FORMAT(5x,' screen*Qelc*B*q energy  :',E19.10)
  1733 FORMAT(5x,' screen*Qion*B*q energy  :',E19.10)
  1734 FORMAT(5x,' screen*0.5*q*A*q energy :',E19.10)
  1735 FORMAT(5x,' solvation energy (w/o QM polarization) :',E19.10,
-     >   /45x,' (',F8.3,' kcal/mol)')
+     >   ' (',F8.3,' kcal/mol)')
+ 1736 FORMAT(5x,' solvation energy (w/  QM polarization) :',E19.10,
+     >   ' (',F8.3,' kcal/mol)')
+c 1735 FORMAT(5x,' solvation energy (w/o QM polarization) :',E19.10,
+c     >   /45x,' (',F8.3,' kcal/mol)')
+c 1736 FORMAT(5x,' solvation energy (w/  QM polarization) :',E19.10,
+c     >   /45x,' (',F8.3,' kcal/mol)')
 
 
  1800 FORMAT(/' Charge Field Energies')

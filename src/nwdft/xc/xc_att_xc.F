@@ -76,7 +76,11 @@ c
              Ex = Ex/2d0
              rho = rho/2d0
           endif
-          a = cam_omega*sqrt(-2d0*Ex)/(6d0*sqrt_pi*rho)
+          if(ex.lt.0) then
+             a = cam_omega*sqrt(-2d0*Ex)/(6d0*sqrt_pi*rho)
+          else
+             a=0d0
+          endif
           alpha = cam_alpha
           beta = cam_beta
 c 

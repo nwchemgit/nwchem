@@ -1,5 +1,5 @@
 #!/bin/bash 
-VERSION=0.3.7
+VERSION=0.3.10
 rm -rf OpenBLAS*
 curl -L https://github.com/xianyi/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz
 tar xzf OpenBLAS-${VERSION}.tar.gz
@@ -18,6 +18,10 @@ fi
    GOTAVX=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx/    {print "Y"}')
   GOTAVX2=$(echo ${CPU_FLAGS_2} | tr  'A-Z' 'a-z'| awk ' /avx2/   {print "Y"}')
 GOTAVX512=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx512f/{print "Y"}')
+if [[ "${GOTAVX2}" == "Y" ]]; then
+    echo "forcing Haswell target when AVX2 is available"
+    FORCETARGET=" TARGET=HASWELL "
+fi
 if [[ "${GOTAVX512}" == "Y" ]]; then
     echo "forcing Haswell target on SkyLake"
     FORCETARGET=" TARGET=HASWELL "
@@ -34,14 +38,14 @@ else
   binary=64
 fi
 if [[ -n ${FC} ]] &&  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
- make CC=gcc FC="xlf -qextname"  INTERFACE64="$sixty4_int" BINARY="$binary" USE_THREAD=0 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 NUM_THREADS=1 LAPACK_FFLAGS="-qstrict=ieeefp -O2 -g" libs netlib
+ make CC=gcc FC="xlf -qextname"  INTERFACE64="$sixty4_int" BINARY="$binary" USE_THREAD=0 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 NUM_THREADS=1 LAPACK_FPFLAGS="-qstrict=ieeefp -O2 -g" libs netlib
 elif  [[ -n ${FC} ]] && [[ "${FC}" == "flang" ]]; then
- make $FORCETARGET LAPACK_FFLAGS="-O1 -g -Kieee" INTERFACE64="$sixty4_int" BINARY="$binary" USE_THREAD=0 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 NUM_THREADS=1 libs netlib 
+ make $FORCETARGET LAPACK_FPFLAGS="-O1 -g -Kieee" INTERFACE64="$sixty4_int" BINARY="$binary" USE_THREAD=0 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 NUM_THREADS=1 libs netlib 
 elif  [[ -n ${FC} ]] && [[ "${FC}" == "ifort" ]]; then
- make $FORCETARGET  LAPACK_FFLAGS="-fp-model source -O2 -g" INTERFACE64="$sixty4_int" BINARY="$binary" USE_THREAD=0 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 NUM_THREADS=1 libs netlib 
+ make $FORCETARGET  LAPACK_FPFLAGS="-fp-model source -O2 -g" INTERFACE64="$sixty4_int" BINARY="$binary" USE_THREAD=0 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 NUM_THREADS=1 libs netlib 
 else
  make $FORCETARGET  INTERFACE64="$sixty4_int" BINARY="$binary" USE_THREAD=0 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=1 NUM_THREADS=1  libs netlib -j1
 fi
 mkdir -p ../../lib
-cp libopenbla*.* ../../lib
+cp libopenblas.a ../../lib/libnwc_openblas.a
 #make PREFIX=. install

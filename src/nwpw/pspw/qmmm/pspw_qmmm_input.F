@@ -1232,7 +1232,7 @@ c
 
       !*** coef and indx ***
       n1 = 0
-      do while (ok.and.inp_f(sdist(n1+2)))
+      do while (ok.and.inp_f(sdist(n1+3)))
          if(ok.and.(.not.inp_i(sindx(2*n1+1)))) ok = .false.
          if(ok.and.(.not.inp_i(sindx(2*n1+2)))) ok = .false.
          n1 = n1 + 1
@@ -1242,16 +1242,16 @@ c
       if (ok) then
          nkb = nkb + 1
 
-         rtdb_name = 'pspw_qmmm_frag_bondings:'//c_index_name(nkf)
+         rtdb_name = 'pspw_qmmm_frag_nbondings:'//c_index_name(nkf)
          value = rtdb_put(rtdb,rtdb_name,mt_int,1,nkb)
 
-         rtdb_name='pspw_qmmm_frag_indxsize_bondings:'
+         rtdb_name='pspw_qmmm_frag_indxsize1_bondings:'
      >             //c_index_name(nkf)
      >             //c_index_name(nkb)
          value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,n1)
 
-         rtdb_name ='pspw_qmmm_frag_indx_bondings:'//c_index_name(nkf)
-     >                                             //c_index_name(nkb)
+         rtdb_name ='pspw_qmmm_frag_indx1_bondings:'//c_index_name(nkf)
+     >                                              //c_index_name(nkb)
          value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,2*n1,sindx)
 
          rtdb_name = 'pspw_qmmm_frag_Kr0_bondings:'
@@ -1939,17 +1939,17 @@ c
 
       !*** coef and indx ***
       n1 = 0
-      do while (ok.and.inp_f(sdist(n1+2)))
+      do while (ok.and.inp_f(sdist(n1+3)))
          if(ok.and.(.not.inp_i(sindx(2*n1+1)))) ok = .false.
          if(ok.and.(.not.inp_i(sindx(2*n1+2)))) ok = .false.
          n1 = n1 + 1
       end do
       if (n1.eq.0) ok = .false.
-
+      
       if (ok) then
          nkb = nkb + 1
 
-         rtdb_name = 'pspw_2qmmm_frag_bondings:'//c_index_name(nknf)
+         rtdb_name = 'pspw_2qmmm_frag_nbondings:'//c_index_name(nknf)
          value = rtdb_put(rtdb,rtdb_name,mt_int,1,nkb)
 
          rtdb_name='pspw_2qmmm_frag_indxsize1_bondings:'

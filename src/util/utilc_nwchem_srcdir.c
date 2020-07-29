@@ -24,8 +24,11 @@ variable NWCHEM_LONG_PATHS is recommended. This variable should be set to
 "Y" to indicate that these code constructs can be used with the compiler
 you have.
 */
-
+#ifdef XLFLINUX
+void utilc_nwchem_srcdir_(
+#else
 void utilc_nwchem_srcdir(
+#endif
     char * pathname, //! Pointer to the Fortran character string
     int  * length    //! The length of the Fortran character string, i.e. len(string)
 )

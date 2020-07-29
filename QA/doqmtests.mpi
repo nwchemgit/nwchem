@@ -35,6 +35,7 @@ fi
 ./runtests.mpi.unix procs $np cosmo_trichloroethene esp esp_uhf
 ./runtests.mpi.unix procs $np dft_bsse dft_bsse_d3 dft_bsse_d3_opt bsse_dft_trimer bsse_tce_mult
 PERMANENT_DIR=`pwd`/testoutputs ./runtests.mpi.unix procs $np dft_hess_start dft_hess_rest
+./runtests.mpi.unix procs $np h2o_selci
 ./runtests.mpi.unix procs $np c4h4_wfn
 ./runtests.mpi.unix procs $np disp_dimer_ch4 disp_dimer_ch4_cgmin h2o-b3lyp-disp
 ./runtests.mpi.unix procs $np cosmo_h2cco2 cosmo_h2cco2mg cosmo_h2cco2mg_ecp

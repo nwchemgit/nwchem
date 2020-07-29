@@ -5,23 +5,22 @@ theme:
   name: readthedocs
   prev_next_buttons_location: both
 use_directory_urls: false
+markdown_extensions:
+    - smarty
+    - toc
 plugins:
   - search
   - alternate-link
 nav:
-      - Documentation Home: Home.md
-      - Overview.md
-      - System-Description.md
+      - Documentation: Home.md
+      - Download: Download.md
       - Quantum-Mechanical-Methods.md
-      - Classical-Methods.md
-      - Hybrid-Approaches.md
-      - Potential-Energy-Surface-Analysis.md
-      - Electronic-Structure-Analysis.md
+      - Quantum-Molecular-Dynamics.md
       - Other-Capabilities.md
       - Examples.md
       - Supplementary-Information.md
       - Compiling-NWChem.md
-      - Developer.md
       - Benchmarks.md
-      - FAQ.md
-      - Known-Bugs.md
+      - Tutorials.md
+      - Forum.md
+      - Archived Forum: Archived-Forum.md

@@ -509,7 +509,7 @@ C
      $     'degeneracy    <<<<<' )
 
  8960 Format(1X, '>>>>> WARNING!  in ', A, ' space, spin ', I2,
-     $     ' (eval diff ', 1P, E7.1, ') <<<<<')
+     $     ' (eval diff ', 1P E7.1, ') <<<<<')
 C
 C     Free up memory
 C

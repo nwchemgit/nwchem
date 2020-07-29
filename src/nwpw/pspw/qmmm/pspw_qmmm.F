@@ -961,7 +961,7 @@ c
            write(luout,*) 
            do ia=1,nkfrag
              write(luout,'(2x,A,I5)') "fragment: ",ia
-             write(luout,'(2x,A,I4)') "  - fragment size = ",
+             write(luout,'(2x,A,I4)') " - fragment size = ",
      >                         int_mb(size_frag(1)+ia-1)
              if (log_mb(self_interaction(1)+ia-1)) then
                 write(luout,*) "  - ionic fragment"
@@ -1261,22 +1261,28 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
 
              ll = int_mb(nindx0_bondings_start(1)+ia-1)
              ii = int_mb(nindx1_bondings_start(1)+ia-1)
-             kk = int_mb(nKr0_coord_start(1)  +ia-1)
+             kk = int_mb(nKr0_bondings_start(1)  +ia-1)
              do ja=1,int_mb(nbondings(1)+ia-1)
-                i  = indx1_coord(1)+ii-1
-                ni = int_mb(nsize1_coord(1)+ll-1)
+                i  = indx1_bondings(1)+ii-1
+                ni = int_mb(nsize1_bondings(1)+ll-1)
                 shake_ptr = Kr0_bondings(1)+kk-1
 
-                write(luout,'(A,/6x,A,F11.6,4x,A,F11.6,
-     >                      /6x,A,F11.6,4x,A,F11.6)')
-     >       "   - Bondings Parameters: ",
-     >                  "K0=     ",dbl_mb(shake_ptr),
-     >                  "gamma0= ",dbl_mb(shake_ptr+1)
-                write(luout,'(6x,
-     >               "coef1 atom1a atom1a coef2 atom2a atom2b...=",
-     >               5(F11.6,I5,I5))')
-     >         (dbl_mb(shake_ptr+2+mm),int_mb(i+2*mm),int_mb(i+2*mm+1),
-     >          mm=1,ni)
+                write(luout,'(A,/6x,A,F11.6,4x,A,F11.6,4x,A,I5)')
+     >                "   - Bondings Parameters: ",
+     >                "-- K0=",dbl_mb(shake_ptr),
+     >                "gamma0=",dbl_mb(shake_ptr+1),
+     >                "nb=",ni
+                write(luout,'(6x,A)') "-- coefficient index1 index2"
+                do mm=1,ni
+                   write(luout,'(6x,F14.6,I7,I7)')
+     >                dbl_mb(shake_ptr+1+mm),
+     >                int_mb(i+2*mm-2),
+     >                int_mb(i+2*mm-1)
+                end do
+
+                ii = ii + 2*ni
+                kk = kk + ni+2
+                ll = ll + 1
              end do
 
            end do

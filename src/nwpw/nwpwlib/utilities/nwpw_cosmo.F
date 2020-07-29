@@ -93,7 +93,17 @@ c
          screen = (dielec - 1.0d0)/(dielec+0.5d0)
 
          if(.not.btdb_get(rtdb,'cosmo:nefc',mt_int,1,nefc)) nefc = 0
-         write(*,*) "nefc,restart=",nefc,firstrestart
+         if (oprint) then
+            !write(*,*) "nefc,restart=",nefc,firstrestart
+            if (firstrestart) then
+               write(luout,*) 
+               write(luout,*) "restarting -cosmo-"
+               write(luout,'(1x,A,I5)') 
+     >              "number of -cosmo- surface points = ",nefc
+            else
+               write(luout,*) "starting -cosmo-"
+            end if
+         end if
 
          value = BA_alloc_get(mt_dbl,nefc,'qc0',qc0(2),qc0(1))
          value = value.and.BA_alloc_get(mt_dbl,nefc,'qc1',qc1(2),qc1(1))
@@ -118,15 +128,22 @@ c
      >     call errquit('nwpw_cosmo_qsurfaces: failed',0,rtdb_err)
 
 
-         if (cosmo1_on) then
-            qthresh = 0.5d-8
-         else
-            qthresh = 0.5d-11
+        
+*        **** set qthreshhold ****
+         if (.not.btdb_get(rtdb,'nwpw_cosmo:qthresh',
+     >                   mt_dbl,1,qthresh)) then
+            if (cosmo1_on) then
+               qthresh = 0.5d-8
+            else
+               qthresh = 0.5d-11
+            end if
          end if
+  
 
          Qt=.true.
          Qion = 0.0d0
          Qelc = 0.0d0
+         call Parallel_shared_vector_zero(.true.,nefc,dbl_mb(qold(1)))
          if (firstrestart) then
             if(.not.btdb_get(rtdb,'nwpw_cosmo:qc1',mt_dbl,
      >                       nefc,dbl_mb(qc1(1))))
@@ -151,7 +168,12 @@ c
             if(.not.btdb_get(rtdb,'nwpw_cosmo:Qelc',mt_dbl,1,Qelc))
      >        Qelc = 0.0d0
          end if
+         Qt0 = Qt
 
+         if (oprint) then
+            write(luout,'(1x,A,E12.6)') "-cosmo- q thresh = ",qthresh
+            if (.not.Qt) write(luout,*) "-cosmo- q fixed"
+         end if
 
          Qset = (cosmo_sccor.gt.10)
          Qlmd = (cosmo_sccor.gt.11)
@@ -169,7 +191,7 @@ c
 
          value = BA_alloc_get(mt_int,nindx,'i_indx',i_indx(2),i_indx(1))
          value = value.and.
-     >          BA_alloc_get(mt_int,nindx,'j_indx',j_indx(2),j_indx(1))
+     >           BA_alloc_get(mt_int,nindx,'j_indx',j_indx(2),j_indx(1))
          if (.not. value) 
      >     call errquit('nwpw_cosmo_init:out of heap memory',1,MA_ERR)
 
@@ -215,7 +237,7 @@ c
 
 c     == Clean up cosmo stuff, if necessary ==
       if (cosmo_on) then
-         value = btdb_put(rtdb,'nwpw_cosmo:Qt',mt_log,1,Qt)
+         value = btdb_put(rtdb,'nwpw_cosmo:Qt',mt_log,1,(Qt.and.Qt0))
          value = value.and.
      >           btdb_put(rtdb,'nwpw_cosmo:Qion',mt_dbl,1,Qion)
          value = value.and.
@@ -256,6 +278,18 @@ c     == Clean up cosmo stuff, if necessary ==
       endif
       return
       end
+
+      real*8 function nwpw_cosmo_screen()
+      implicit none
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_cosmo.fh"
+
+      nwpw_cosmo_screen = screen
+      return
+      end
+
 
       real*8 function nwpw_cosmo_screen_qc0(i)
       implicit none
@@ -342,6 +376,28 @@ c     == Clean up cosmo stuff, if necessary ==
       return
       end
 
+*     *******************************************
+*     *                                         *
+*     *            nwpw_cosmo_firsttime         *
+*     *                                         *
+*     *******************************************
+      logical function nwpw_cosmo_firsttime()
+      implicit none
+
+#include "nwpw_cosmo.fh"
+
+      logical firsttime
+
+      firsttime = .false.
+
+      if (cosmo_on) then
+         firsttime = (.not.firstrestart)
+      end if
+
+      nwpw_cosmo_firsttime = firsttime
+      return
+      end
+
 
 *     *******************************************
 *     *                                         *
@@ -357,6 +413,20 @@ c     == Clean up cosmo stuff, if necessary ==
       if (cosmo_on) then
          nwpw_cosmo_smd = do_cosmo_smd
       end if
+      return
+      end
+
+*     *******************************************
+*     *                                         *
+*     *            nwpw_cosmo_off               *
+*     *                                         *
+*     *******************************************
+      subroutine nwpw_cosmo_off()
+      implicit none
+
+#include "nwpw_cosmo.fh"
+
+      cosmo_on = .false.
       return
       end
 
@@ -399,6 +469,22 @@ c     == Clean up cosmo stuff, if necessary ==
 #include "nwpw_cosmo.fh"
 
       nwpw_cosmo2_on = cosmo2_on
+      return
+      end 
+
+*     *******************************************
+*     *                                         *
+*     *            nwpw_cosmo_reset_Qt          *
+*     *                                         *
+*     *******************************************
+      subroutine  nwpw_cosmo_reset_Qt()
+      implicit none
+
+#include "bafdecls.fh"
+#include "nwpw_cosmo.fh"
+
+      call Parallel_shared_vector_zero(.true.,nefc,dbl_mb(qold(1)))
+      Qt = .true.
       return
       end 
 
@@ -608,6 +694,83 @@ c     == Clean up cosmo stuff, if necessary ==
       return
       end 
 
+
+*     *******************************************
+*     *                                         *
+*     *            nwpw_cosmo_FQionq            *
+*     *                                         *
+*     *******************************************
+      subroutine nwpw_cosmo_FQionq(fion)
+      implicit none
+      real*8 fion(3,*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_cosmo.fh"
+
+*     *** local variables ***
+      integer tid,nthr
+      integer i,j,nion
+      real*8 x,y,z,r,qi,qj,fx,fy,fz,v
+      integer qcoord_ptr,rcoord_ptr
+
+      !common /eiond_ejtmp/ e
+
+      real*8 e1,e2
+      common /pack_conjg_tcc_indot_sasb/ e1,e2
+
+
+*     *** external functions ***
+      integer  ion_nion,ion_katm,Parallel_threadid,Parallel_nthreads
+      external ion_nion,ion_katm,Parallel_threadid,Parallel_nthreads
+      integer  ion_rion_ptr
+      external ion_rion_ptr
+      real*8   psp_zv,nwpw_cosmo_qc0
+      external psp_zv,nwpw_cosmo_qc0
+      real*8   nwpw_cosmo_screen_qc0
+      external nwpw_cosmo_screen_qc0
+
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
+
+      nion = ion_nion()
+      if (cosmo1_on) then
+         qcoord_ptr = ion_rion_ptr() + 3*nion
+      else
+         qcoord_ptr = rqion(1)
+      end if
+      rcoord_ptr = ion_rion_ptr()
+
+      do j=tid+1,nion,nthr
+         qj = psp_zv(ion_katm(j))
+         fx = 0.0d0
+         fy = 0.0d0
+         fz = 0.0d0
+         do i=1,nefc
+            qi = nwpw_cosmo_screen_qc0(i)
+            x=dbl_mb(qcoord_ptr+3*(i-1))  -dbl_mb(rcoord_ptr+3*(j-1))
+            y=dbl_mb(qcoord_ptr+3*(i-1)+1)-dbl_mb(rcoord_ptr+3*(j-1)+1)
+            z=dbl_mb(qcoord_ptr+3*(i-1)+2)-dbl_mb(rcoord_ptr+3*(j-1)+2)
+            r= dsqrt(x*x + y*y + z*z)
+            if (r.gt.1.0d-6) then
+               v =  qi*qj/r**3
+               fx = fx - (x*v)
+               fy = fy - (y*v)
+               fz = fz - (z*v)
+            end if
+         end do
+         fion(1,j) = fion(1,j) + fx
+         fion(2,j) = fion(2,j) + fy
+         fion(3,j) = fion(3,j) + fz
+      end do
+
+      return
+      end
+
+
+
+
+
 *     *******************************************
 *     *                                         *
 *     *            nwpw_cosmo_EQelcq            *
@@ -805,69 +968,70 @@ c     == Clean up cosmo stuff, if necessary ==
       real*8   psp_zv
       external psp_zv
 
-      if (Qt) then
-      if ((dabs(Qion).lt.1.0d-6).or.(dabs(Qelc).lt.1.0d-6)) then
-         call Dneall_ispin(ispin)
-         call Dneall_ne(ne)
-         Qelc = -(ne(1)+ne(ispin))
-         Qion = 0.0d0
-         do ia=1,ion_nkatm0()
-           Qion = Qion + ion_natm(ia)*psp_zv(ia)
-         end do
-      end if
-      
 
-      !**** really simple solver to start ****
-      qcoord_ptr = ion_rion_ptr()+3*ion_nion()
-      call DGEMM_OMP('N','N',nefc,1,nefc,
-     >              (-1.0d0),
-     >              dbl_mb(AA(1)),nefc,
-     >              dbl_mb(BQc(1)),nefc,
-     >              (0.0d0),
-     >              dbl_mb(qc0(1)),nefc)
+      !write(*,*) "nwpw_cosmo_solve_q Qt,Qlmd,Qset=",Qt,Qlmd,Qset
+      if (Qt.and.Qt0) then
+         if ((dabs(Qion).lt.1.0d-6).or.(dabs(Qelc).lt.1.0d-6)) then
+            call Dneall_ispin(ispin)
+            call Dneall_ne(ne)
+            Qelc = -(ne(1)+ne(ispin))
+            Qion = 0.0d0
+            do ia=1,ion_nkatm0()
+              Qion = Qion + ion_natm(ia)*psp_zv(ia)
+            end do
+         end if
+      
+         !**** really simple solver to start ****
+         qcoord_ptr = ion_rion_ptr()+3*ion_nion()
+         call DGEMM_OMP('N','N',nefc,1,nefc,
+     >                 (-1.0d0),
+     >                 dbl_mb(AA(1)),nefc,
+     >                 dbl_mb(BQc(1)),nefc,
+     >                 (0.0d0),
+     >                 dbl_mb(qc0(1)),nefc)
 
 !$OMP MASTER
-      qsum2 = 0.0d0
-      do it=1,nefc
-         qsum2 = qsum2 + (dbl_mb(qc0(1)+it-1)-dbl_mb(qold(1)+it-1))**2
-      end do
-      error = dsqrt(qsum2)/dble(nefc)
-      if (error.lt.qthresh) Qt = .false.
+         qsum2 = 0.0d0
+         do it=1,nefc
+            qsum2 = qsum2+(dbl_mb(qc0(1)+it-1)-dbl_mb(qold(1)+it-1))**2
+         end do
+         error = dsqrt(qsum2)/dble(nefc)
+         if ((qthresh.gt.0.0).and.(error.lt.qthresh)) Qt = .false.
 !$OMP END MASTER
 
 
-      call Parallel_shared_vector_copy(.true.,nefc,
+         call Parallel_shared_vector_copy(.true.,nefc,
      >                       dbl_mb(qc0(1)),
      >                       dbl_mb(qold(1)))
 
-      call Parallel_shared_vector_copy(.true.,nefc,
+         call Parallel_shared_vector_copy(.true.,nefc,
      >                    dbl_mb(qc0(1)),
      >                    dbl_mb(qc1(1)))
 
 
-*     !**** rescale the total surface charge ****
-      if (Qset) then
+*        !**** rescale the total surface charge ****
+         if (Qset) then
 !$OMP MASTER
-         if (.not.Qlmd) then
-            qsum1 = 0.0d0
-            sa = 0.0d0
-            do it=1,nefc
-               qsum1 = qsum1 + dbl_mb(qc0(1)+it-1)
-               sa = sa + dbl_mb(qs(1)+it-1)
-            end do
-            !write(*,*) "qsum1=",qsum1,-(Qelc+Qion)
-            qsum2 = -(Qelc+Qion) - qsum1
-            qsum2 = qsum2/sa
-            do it=1,nefc
-               dbl_mb(qc0(1)+it-1) = dbl_mb(qc0(1)+it-1) 
-     >                             + qsum2*dbl_mb(qs(1)+it-1)
-            end do
+            if (.not.Qlmd) then
+               qsum1 = 0.0d0
+               sa = 0.0d0
+               do it=1,nefc
+                  qsum1 = qsum1 + dbl_mb(qc0(1)+it-1)
+                  sa = sa + dbl_mb(qs(1)+it-1)
+               end do
+               !write(*,*) "qsum1=",qsum1,-(Qelc+Qion)
+               qsum2 = -(Qelc+Qion) - qsum1
+               qsum2 = qsum2/sa
+               do it=1,nefc
+                  dbl_mb(qc0(1)+it-1) = dbl_mb(qc0(1)+it-1) 
+     >                                + qsum2*dbl_mb(qs(1)+it-1)
+               end do
 
-         !*** lagrange ***
-         else
-            call nwpw_cosmo_lagrange(-(Qelc+Qion),invAsum,
+            !*** lagrange ***
+            else
+               call nwpw_cosmo_lagrange(-(Qelc+Qion),invAsum,
      >                               nefc,dbl_mb(AA(1)),dbl_mb(qc0(1)))
-         end if
+            end if
         
 
 c  E = 0.5QCQ + QBq + 0.5qAq + Lambda(sum(i) qi - charge)
@@ -918,7 +1082,8 @@ c               end do
 c            end if
 c         end if
 !$OMP END MASTER
-      end if
+
+         end if !** if Qset **
 
 
 
@@ -952,15 +1117,17 @@ c      write(*,*) "-0.5*qAq=",-0.5d0*esum
 c      write(*,*) "qBQ + 0.5*qAq=",esum1+0.5d0*esum
 c      write(*,*) "qBQ + qAq=",esum1+esum
 
-      if (cosmo1_on) call ion_cosmo_reset_katm(dbl_mb(qc0(1)))
+         if (cosmo1_on) call ion_cosmo_reset_katm(dbl_mb(qc0(1)))
 
+
+      !** if Qt**
       else
 
          if (firstrestart.and.cosmo1_on) then
             call ion_cosmo_reset_katm(dbl_mb(qc0(1)))
          end if 
 
-      end if
+      end if !** else Qt**
 
       firstrestart = .false.
 
@@ -1014,6 +1181,8 @@ c      write(*,*) "qBQ + qAq=",esum1+esum
       tid      = Parallel_threadid()
       nthreads = Parallel_nthreads()
 
+
+      call Parallel_shared_vector_zero(.true.,nefc*nefc,dbl_mb(AA(1)))
       do k=tid+1,nindx,nthreads
          i = int_mb(i_indx(1)+k-1)
          j = int_mb(j_indx(1)+k-1)
@@ -1033,9 +1202,11 @@ c      write(*,*) "qBQ + qAq=",esum1+esum
 
       call nwpw_matrix_invert(nefc,dbl_mb(AA(1)),nefc)
 
+!$OMP MASTER
       do i=1,nefc*nefc
          invAsum = invAsum + dbl_mb(AA(1)+i-1)
       end do
+!$OMP END MASTER
 
       return
       end

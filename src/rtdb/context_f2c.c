@@ -1,6 +1,6 @@
 /*$Id$*/
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #if defined(CRAY) && !defined(__crayx1)
 #include <fortran.h>

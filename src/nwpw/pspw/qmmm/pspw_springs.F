@@ -1381,6 +1381,7 @@ cccc  E =  Kr0(1,b)*(1.0d0+dcos(Kr0(2,b)*phi-Kr0(3,b))) cccc
       real*8 x1,y1,z1,x2,y2,z2,dx12,dy12,dz12
       real*8 gamm,gamm0,K0,r12,coef,E
 
+
       E = 0.0d0
       ii = 0
       jj = 0
@@ -1391,8 +1392,8 @@ cccc  E =  Kr0(1,b)*(1.0d0+dcos(Kr0(2,b)*phi-Kr0(3,b))) cccc
 
          gamm = 0.0d0
          do i=1,n1
-            i1 = indx1(ii+2*i)
-            i2 = indx1(ii+2*i+1)
+            i1 = indx1(ii+2*i-1)
+            i2 = indx1(ii+2*i)
             coef = Kr0(jj+2+i)
             x1 = rion(1,i1)
             y1 = rion(2,i1)
@@ -1451,8 +1452,8 @@ cccc  E =  Kr0(1,b)*(1.0d0+dcos(Kr0(2,b)*phi-Kr0(3,b))) cccc
 
          gamm = 0.0d0
          do i=1,n1
-            i1 = indx1(ii+2*i)
-            i2 = indx1(ii+2*i+1)
+            i1 = indx1(ii+2*i-1)
+            i2 = indx1(ii+2*i)
             coef = Kr0(jj+2+i)
             x1 = rion(1,i1)
             y1 = rion(2,i1)
@@ -1468,12 +1469,12 @@ cccc  E =  Kr0(1,b)*(1.0d0+dcos(Kr0(2,b)*phi-Kr0(3,b))) cccc
             gamm = gamm + coef*r12
          end do
          energy  = K0*(gamm-gamm0)**2
-         denergy = 2.0d0*K0*(gamm-gamm0)
+         denergy = -2.0d0*K0*(gamm-gamm0)
 
          gamm = 0.0d0
          do i=1,n1
-            i1 = indx1(ii+2*i)
-            i2 = indx1(ii+2*i+1)
+            i1 = indx1(ii+2*i-1)
+            i2 = indx1(ii+2*i)
             coef = Kr0(jj+2+i)
             x1 = rion(1,i1)
             y1 = rion(2,i1)
