@@ -43,7 +43,7 @@ if [[ -z "${CMAKE}" ]]; then
     if [[ -z "$(command -v cmake)" ]]; then
 	get_cmake38
 	status=$?
-	if [ $status ne 0 ]; then
+	if [ $status -ne 0 ]; then
 	    echo cmake required to build scalapack
 	    echo Please install cmake
 	    echo define the CMAKE env. variable
