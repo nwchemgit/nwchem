@@ -2925,13 +2925,11 @@ c
       integer i, u0
       integer local1, local2, local3, local4
       integer*2 llocl1(2), llocl2(2), llocl3(2), llocl4(2)
-      integer*2 mold
 #ifdef F77      
       equivalence (llocl1,local1),(llocl2,local2)
       equivalence (llocl3,local3),(llocl4,local4)
 #else
       integer*2 mold
-#endif
 #endif
 c
 c     # to determine the little-endian or big-endian
