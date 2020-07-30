@@ -3152,6 +3152,8 @@ c
 #ifdef F77      
       equivalence (llocl1,local1),(llocl2,local2)
       equivalence (llocl3,local3),(llocl4,local4)
+#else
+      integer*2 mold
 #endif
 c
 c     # to determine the little-endian or big-endian
