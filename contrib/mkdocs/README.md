@@ -28,7 +28,7 @@ git clone https://github.com/nwchemgit/nwchem-wiki docs
 ## Checkout the html files of the archive forum
 ```
 git clone https://github.com/nwchemgit/archivedforum
-mv archivedforum/Special_AWCforum/ docs/
+rsync -av archivedforum/Special_AWCforum docs/.
 ```
 
 ## Test the changes 

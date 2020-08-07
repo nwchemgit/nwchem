@@ -1,5 +1,6 @@
 site_name: NWChem
 repo_url: https://github.com/nwchemgit/nwchem-wiki
+site_url: https://nwchemgit.github.io
 edit_uri: blob/master/
 theme:
   name: readthedocs
