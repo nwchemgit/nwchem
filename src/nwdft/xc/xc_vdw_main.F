@@ -711,6 +711,7 @@ c
               write(luout,223) s6, s8, sr6, sr8, evdw
  223  format(/
      &     '             DFT-D3 Model   ', /
+     &     '          s6 scale factor  :', f22.12/         
      &     '          s8 scale factor  :', f22.12/
      &     '          sr6 scale factor :', f22.12/
      &     '          sr8 scale factor :', f22.12/
