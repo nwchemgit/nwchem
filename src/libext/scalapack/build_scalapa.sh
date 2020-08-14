@@ -43,7 +43,7 @@ if [[ -z "${CMAKE}" ]]; then
     if [[ -z "$(command -v cmake)" ]]; then
 	get_cmake38
 	status=$?
-	if [ $status ne 0 ]; then
+	if [ $status -ne 0 ]; then
 	    echo cmake required to build scalapack
 	    echo Please install cmake
 	    echo define the CMAKE env. variable
@@ -80,12 +80,14 @@ if [[ "$BLAS_SIZE" != "$SCALAPACK_SIZE"  ]] ; then
     echo BLAS_SIZE must be the same as SCALAPACK_SIZE
     exit 1
 fi
-if [[ -z "$USE_64TO32"   ]] ; then
-    echo USE_64TO32 must be set
+if [[ "$BLAS_SIZE" == 4 ]] && [[ -z "$USE_64TO32"   ]] ; then
+    if [[ "$NWCHEM_TARGET" != "LINUX" ]] && [[ "$NWCHEM_TARGET" != "MACX" ]] ; then
+    echo USE_64TO32 must be set when BLAS_SIZE=4 on 64-bit architectures
     exit 1
+    fi
 fi
 if [[ ! -z "$BUILD_OPENBLAS"   ]] ; then
-    BLASOPT="-L`pwd`/../lib -lopenblas"
+    BLASOPT="-L`pwd`/../lib -lnwc_openblas"
 fi
 #git clone https://github.com/scibuilder/scalapack.git
 #svn co --non-interactive --trust-server-cert https://icl.utk.edu/svn/scalapack-dev/scalapack/trunk/ scalapack
@@ -101,7 +103,7 @@ ln -sf scalapack-$COMMIT scalapack
 #curl -L http://www.netlib.org/scalapack/scalapack-${VERSION}.tgz -o scalapack.tgz
 #tar xzf scalapack.tgz
 cd scalapack
-if [[ ! -z "$USE_DCOMBSSQPATCH" ]]; then
+if [[  -z "$USE_DCOMBSSQ" ]]; then
     patch -p0 < ../dcombssq.patch
 fi
 #curl -LJO https://github.com/Reference-ScaLAPACK/scalapack/commit/189c84001bcd564296a475c5c757afc9f337e828.patch
@@ -132,4 +134,4 @@ fi
 CC=mpicc  FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" 
 make V=0 -j3 scalapack/fast
 mkdir -p ../../../lib
-cp lib/libscalapack.a ../../../lib
+cp lib/libscalapack.a ../../../lib/libnwc_scalapack.a

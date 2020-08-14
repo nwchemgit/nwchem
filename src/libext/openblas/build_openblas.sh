@@ -18,6 +18,10 @@ fi
    GOTAVX=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx/    {print "Y"}')
   GOTAVX2=$(echo ${CPU_FLAGS_2} | tr  'A-Z' 'a-z'| awk ' /avx2/   {print "Y"}')
 GOTAVX512=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx512f/{print "Y"}')
+if [[ "${GOTAVX2}" == "Y" ]]; then
+    echo "forcing Haswell target when AVX2 is available"
+    FORCETARGET=" TARGET=HASWELL "
+fi
 if [[ "${GOTAVX512}" == "Y" ]]; then
     echo "forcing Haswell target on SkyLake"
     FORCETARGET=" TARGET=HASWELL "
@@ -43,5 +47,5 @@ else
  make $FORCETARGET  INTERFACE64="$sixty4_int" BINARY="$binary" USE_THREAD=0 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=1 NUM_THREADS=1  libs netlib -j1
 fi
 mkdir -p ../../lib
-cp libopenbla*.* ../../lib
+cp libopenblas.a ../../lib/libnwc_openblas.a
 #make PREFIX=. install

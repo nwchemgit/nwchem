@@ -218,12 +218,12 @@ endif
 # other NWChem modules
 ifdef BUILD_OPENBLAS
 NW_CORE_SUBDIRS += libext
-      BLASOPT=-L$(NWCHEM_TOP)/src/libext/lib -lopenblas
+      BLASOPT=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_openblas
       LAPACK_LIB=$(BLASOPT)      
 endif      
 ifdef BUILD_SCALAPACK
 NW_CORE_SUBDIRS += libext
-      SCALAPACK=-L$(NWCHEM_TOP)/src/libext/lib -lscalapack
+      SCALAPACK=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_scalapack
 endif      
 ifdef BUILD_MPICH
 NW_CORE_SUBDIRS += libext

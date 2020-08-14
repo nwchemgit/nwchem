@@ -56,10 +56,7 @@ c
       logical oreopen ! true in only grad calculations (see dftg_getxc)
 c
 c
-#ifdef CRAY_T3D
-c     save on memory since have only physical memory
-      parameter (buffer_size = 2048)
-#elif defined (WIN32) 
+#if defined (WIN32) 
       parameter (buffer_size = 1024)
 #else
       parameter (buffer_size = 3072)

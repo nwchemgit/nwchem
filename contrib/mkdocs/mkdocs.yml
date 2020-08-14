@@ -1,5 +1,6 @@
 site_name: NWChem
 repo_url: https://github.com/nwchemgit/nwchem-wiki
+site_url: https://nwchemgit.github.io
 edit_uri: blob/master/
 theme:
   name: readthedocs
@@ -7,7 +8,20 @@ theme:
 use_directory_urls: false
 markdown_extensions:
     - smarty
-    - toc
+    - toc:
+        permalink: True
+    - tables
+#    - markdown_katex:
+#         no_inline_svg: True
+#         insert_fonts_css: True
+#         macro-file: macros.tex
+#    - pymdownx.arithmatex
+#extra_javascript:
+#  - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'
+    - mdx_math:
+extra_javascript:
+  - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML
+  - mathjaxhelper.js
 plugins:
   - search
   - alternate-link

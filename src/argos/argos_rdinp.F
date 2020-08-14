@@ -980,9 +980,6 @@ c     broadcast to all nodes
 c
       if(np.gt.1) then
       nbytes=loc(inp_ptr)-loc(ptol)
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      nbytes=8*nbytes
-#endif
       call ga_brdcst(mrg_d36,ptol,nbytes,0)
       nbytes=7*ma_sizeof(mt_int,1,mt_byte)
       call ga_brdcst(mrg_d37,npx,nbytes,0)

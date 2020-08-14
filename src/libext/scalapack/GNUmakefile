@@ -16,14 +16,14 @@ nompierror:
 	@exit 1
 endif # USE_MPI
 
-../lib/libscalapack.a:
+../lib/libnwc_scalapack.a:
 	./build_scalapa.sh 
 LIB_TARGETS += scalapack
 
 include ../../config/makelib.h
 
 clean:
-	@rm -rf  scalapack* ../lib/libsca*
+	@rm -rf  scalapack* ../lib/libnwc_sca*
 
 
 

@@ -1,6 +1,3 @@
-/*
- $Id$
-*/
 #include <Python.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,7 +19,7 @@ static Integer rtdb_handle;            /* handle to the rtdb */
 extern void task_(Integer *);
 extern void ga_pgroup_igop_(Integer *,Integer *,Integer *,Integer *,char *);
 
-#if (defined(CRAY_T3E) || defined(WIN32)) && !defined(__MINGW32__)
+#if defined(WIN32) && !defined(__MINGW32__)
 #define task_energy_ TASK_ENERGY
 #define task_gradient_ TASK_GRADIENT
 #define task_property_ TASK_PROPERTY

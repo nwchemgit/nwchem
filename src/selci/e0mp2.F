@@ -106,7 +106,7 @@ c            write(6,*)' e = ',e,' c**2 = ',csq
 c
       write(6,1)
  1    format(/' moller-plesset reference energies '/)
-      call selci_output(erefmp, 1, nroot, 1, 1, nroot, 1, 1)
+      call output(erefmp, 1, nroot, 1, 1, nroot, 1, 1)
 c
       end
 C>
