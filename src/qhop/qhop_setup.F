@@ -372,9 +372,9 @@ c      print*,'setup 3'
       if(chvin(2).eq.chv(j,l))then
 c     MANCA UN CONTROLLO SUI NUMERI CHE LEGGE SUI PROT STATES
       numpar=numpar+1
-      ptpar(numpar)=lshift(i,shbit(5))+lshift(k,shbit(4))+
-     + lshift(prtin(1),shbit(3))+lshift(j,shbit(2))+
-     + lshift(l,shbit(1))+prtin(2) 
+      ptpar(numpar)=ishft(i,shbit(5))+ishft(k,shbit(4))+
+     + ishft(prtin(1),shbit(3))+ishft(j,shbit(2))+
+     + ishft(l,shbit(1))+prtin(2)
 c      write(lfntop,1030) cseqin(1),chvin(1),prtin(1),cseqin(2),chvin(2)
 c     + ,prtin(2),ptpar(numpar)
 c 1030 format(a10,a6,i3,10x,a10,a6,i3,i10)
