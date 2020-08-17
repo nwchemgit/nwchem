@@ -13,6 +13,11 @@
  python3 -m pip install --user -e .
 ```
 
+## Install the  python-markdown-math plugin for MathJax (work in progress)
+
+```
+python3 -m pip  install --user python-markdown-math
+```
 # Edit the configuration
 ```
 mkdocs.yml

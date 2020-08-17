@@ -19,12 +19,16 @@ while read fname; do
     cp $fname "$fname".tmp
     mv tmptmp.txt $fname
 done <../mathfiles.txt
-#cd ..
+cd ..
 #mkdocs serve
-cd ../nwchemgit.github.io
+rm -rf nwchemgit.github.io_temp
+git clone --depth 1 https://github.com/nwchemgit/nwchemgit.github.io  nwchemgit.github.io_temp
+cd nwchemgit.github.io_temp
 mkdocs -v gh-deploy --config-file ../mkdocs.yml --remote-branch master
+cd ..
+rm -rf  nwchemgit.github.io_temp
 # restore svg bits
-cd ../docs
+cd docs
 while read fname; do
     ls "$fname"
     mv "$fname".tmp $fname
