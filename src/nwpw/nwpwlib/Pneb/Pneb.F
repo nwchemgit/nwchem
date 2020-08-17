@@ -2113,7 +2113,7 @@ c     ccccccccc first line ccccccccc
               call Cram_cc_zdot(nb,A(index12),A(index22),wc2)
               w=wc1+wc2
               if (k.eq.j) then
-                error=dabs(1.-dble(w))+dabs(imag(w))
+                error=dabs(1.-dble(w))+dabs(aimag(w))
               else
                 error=dabs(dble(w))+dabs(dimag(w))
               end if
@@ -2136,7 +2136,7 @@ c     ccccccccc first line ccccccccc
               index21=1+bindex+(j-1)*npack1
               call Cram_cc_zdot(nb,A(index11),A(index21),w)
               if (k.eq.j) then
-                 error=dabs(1.-dble(w))+dabs(imag(w))
+                 error=dabs(1.-dble(w))+dabs(aimag(w))
               else
                  error=dabs(dble(w))+dabs(dimag(w))
               end if
@@ -2244,7 +2244,7 @@ c     ccccccccc first line ccccccccc
               call Cram_cc_zdot(nb,dbl_mb(index12),dbl_mb(index22),wc2)
               w=wc1+wc2
               if (k.eq.j) then
-                error=dabs(1.-dble(w))+dabs(imag(w))
+                error=dabs(1.-dble(w))+dabs(aimag(w))
               else
                 error=dabs(dble(w))+dabs(dimag(w))
               end if
