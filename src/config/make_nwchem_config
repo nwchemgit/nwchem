@@ -162,7 +162,7 @@ MODULES := $(patsubst scfaux,scfaux ddscf,$(MODULES) )
 
 #MODULES := $(patsubst nwdft,nwdft ddscf gradients NWints property cphf hessian nwxc,$(MODULES) )
 MODULES := $(patsubst nwdft,nwdft ddscf gradients NWints property cphf hessian,$(MODULES) )
-MODULES := $(patsubst qmd,qmd nwdft property nwmd,$(MODULES) )
+MODULES := $(patsubst qmd,qmd nwdft ddscf gradients NWints property cphf hessian nwmd,$(MODULES) )
 
 MODULES := $(patsubst esp,esp NWints,$(MODULES) )
 
