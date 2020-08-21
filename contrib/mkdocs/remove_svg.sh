@@ -1,5 +1,5 @@
 #!/bin/bash
-gsed \
+sed \
    -e  's/<img alt=\"\$\$/\$\$/' \
    -e  's/<img alt=\"\\(/\\(/' \
    -e  's/\" src=\"https:\/\/raw.githubusercontent.com\/wiki\/nwchemgit\/nwchem\/svgs.*//' \

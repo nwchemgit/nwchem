@@ -171,8 +171,6 @@ fi #USE_GA_RELEASE
 # check if configure is there
 #disable nxtval
 ./nxtval.sh $GA_DIR
-#patch for MSMPI
-./msmpi_patch.sh $GA_DIR
 if [[  -z "${CC}" ]]; then
     CC=cc
 fi
@@ -181,6 +179,8 @@ if [ ! -z "$GOTMINGW64" ]
 then
 echo "CC" $CC
 echo "GOTMINGW64" $GOTMINGW64
+#patch for MSMPI
+./msmpi_patch.sh $GA_DIR
 ./mingw64_patch.sh $GA_DIR
 fi
 if test -e $GA_DIR/configure
