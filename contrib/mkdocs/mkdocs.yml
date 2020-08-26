@@ -21,7 +21,6 @@ markdown_extensions:
     - mdx_math:
 extra_javascript:
   - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML
-  - mathjaxhelper.js
 plugins:
   - search
   - alternate-link
