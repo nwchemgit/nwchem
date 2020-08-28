@@ -20,13 +20,16 @@ while read fname; do
     mv tmptmp.txt $fname
 done <../mathfiles.txt
 cd ..
-#mkdocs serve
+if [[ -z "${MKDOCS_SERVE}" ]]; then
 rm -rf nwchemgit.github.io_temp
 git clone --depth 1 https://github.com/nwchemgit/nwchemgit.github.io  nwchemgit.github.io_temp
 cd nwchemgit.github.io_temp
 mkdocs -v gh-deploy --config-file ../mkdocs.yml --remote-branch master
 cd ..
 rm -rf  nwchemgit.github.io_temp
+else
+    mkdocs serve
+fi    
 # restore svg bits
 cd docs
 while read fname; do
