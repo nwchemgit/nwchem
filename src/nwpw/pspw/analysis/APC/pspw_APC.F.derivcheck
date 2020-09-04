@@ -954,7 +954,9 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       integer nion,i,k,ii
       integer u(2),vtmp(2),npack0
       real*8 elocal,elocal1
-
+      integer indx,dng1(2)
+      real*8  delta,E10,E01
+      complex*16 deriv
 
 *     **** external functions ****
       integer  Parallel_threadid,Parallel_nthreads
@@ -978,6 +980,8 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
 *     **** get memory from stack ****
       value = BA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,npack0,'dng1',dng1(2),dng1(1))
       value = BA_push_get(mt_dbl,ngs,'u',u(2),u(1))
       if (.not.value)
      >   call errquit('pspw_cdft_V_APC:push stack',0, MA_ERR)
@@ -1020,10 +1024,50 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
          write(*,*) " - ii,Q=",ii, dbl_mb(nwpw_cdft_q_ptr()+ii-1) 
       end do
       write(*,*)
+      delta = 0.00001d0
+      do indx=1,npack0
+
+         if(  (dabs(dble(dcpl_mb(vtmp(1)+indx-1))) .gt.1.0d-9)
+     >   .and.(dabs(dimag(dcpl_mb(vtmp(1)+indx-1))).gt.1.0d-9))
+     >    then
+
+         !**** calculate E10 ****
+         call Pack_c_Copy(0,dng,dcpl_mb(dng1(1)))
+         dcpl_mb(dng1(1)+indx-1) = dcpl_mb(dng1(1)+indx-1) 
+     >                           + dcmplx(delta,0.d0)
+         call pspw_gen_APC(ispin,ne,dcpl_mb(dng1(1)))
+         do ii=1,nion
+            dbl_mb(nwpw_cdft_q_ptr()+ii-1) = pspw_getQtot_APC(ii) 
+     >                                  + psp_zv(ion_katm_qm(ii))
+         end do
+         E10 = nwpw_cdft_energy()
+
+         !**** calculate E01 ****
+         call Pack_c_Copy(0,dng,dcpl_mb(dng1(1)))
+         dcpl_mb(dng1(1)+indx-1) = dcpl_mb(dng1(1)+indx-1) 
+     >                           + dcmplx(0.0d0,delta)
+         call pspw_gen_APC(ispin,ne,dcpl_mb(dng1(1)))
+         do ii=1,nion
+            dbl_mb(nwpw_cdft_q_ptr()+ii-1) = pspw_getQtot_APC(ii) 
+     >                                  + psp_zv(ion_katm_qm(ii))
+         end do
+         E01 = nwpw_cdft_energy()
+         deriv = dcmplx(0.5d0*(E10-ecdft)/delta,0.5d0*(E01-ecdft)/delta)
+
+         else
+         deriv = dcmplx(0.0d0,0.0d0)
+         end if
+
+         write(*,*) "compare v at indx=",indx,dcpl_mb(vtmp(1)+indx-1),
+     >                                   deriv,
+     >                                   deriv-dcpl_mb(vtmp(1)+indx-1)
+      end do
+   
 
 
 *     **** pop stack ****
       value = BA_pop_stack(u(2))
+      value = value.and.BA_pop_stack(dng1(2))
       value = value.and.BA_pop_stack(vtmp(2))
       if (.not.value)
      >   call errquit('pspw_cdft_V_APC:pop stack',0, MA_ERR)
