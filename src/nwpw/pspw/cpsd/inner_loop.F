@@ -63,7 +63,7 @@ cccccccc#include "frac_occ.fh"
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
       real*8  deltamm
-      real*8  e_lj, e_q, e_spring
+      real*8  e_lj, e_q, e_spring,Eapc,Papc
       real*8  ehartree_atom,ecmp_cmp,ecmp_pw,exc_atom,pxc_atom
       !real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
 
@@ -470,7 +470,8 @@ c        call mask_C(0,dcpl_mb(dng(1)))
         if (V_APC_on) then
            call pspw_V_APC(ispin,ne,
      >                           dcpl_mb(dng(1)),
-     >                           dcpl_mb(vl(1)))
+     >                           dcpl_mb(vl(1)),
+     >                           Eapc,Papc)
         end if
 
 
@@ -875,6 +876,13 @@ c            write(*,*) "vlocal cosmo=",elocal
       if (ion_disp_on()) then
          E(33) = ion_disp_energy()
          E(1)  = E(1) + E(33)
+      end if
+
+*     **** AQC Energy ****
+      if (V_APC_on) then
+         E(22) = Eapc
+         E(23) = Papc
+         E(1)  = E(1) + E(22) - E(23)
       end if
 
 

@@ -199,6 +199,8 @@ c#include "Parallel.fh"
       external nwpw_cosmo_on
       real*8   nwpw_cosmo_screen
       external nwpw_cosmo_screen
+      logical  pspw_V_APC_on
+      external pspw_V_APC_on
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -932,6 +934,9 @@ c         end do
          if (meta_found()) then
            write(luout,1459) E(31),E(31)/ion_nion()
          end if
+         if (pspw_V_APC_on()) then
+           write(luout,1505) E(22),E(22)/ion_nion()
+         end if
 
 
          write(luout,1470) E(5),E(5)/ion_nion()
@@ -953,6 +958,10 @@ c         end do
          if (meta_found()) then
            write(luout,1504) E(32),E(32)/n2(ispin)
          end if
+         if (pspw_V_APC_on()) then
+           write(luout,1506) E(23),E(23)/n2(ispin)
+         end if
+
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
          write(luout,1498) virial
 
@@ -1337,6 +1346,9 @@ c      call frac_occ_end()
      >        ' (',E15.5,'/electron)')
  1503 FORMAT( ' K.S. DFT+U energy   :',E19.10,' (',E15.5,'/electron)')
  1504 FORMAT( ' K.S. Metadynamics energy :',E19.10,' (',E15.5,'/ion)')
+ 1505 FORMAT( ' APC energy          :',E19.10,' (',E15.5,'/ion)')
+ 1506 FORMAT( ' K.S. V_APC energy   :',E19.10,' (',E15.5,'/ion)')
+
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1511 FORMAT(2(E18.7,' (',F8.3,'eV) occ=',F5.3))
  1600 FORMAT(/' Total PSPW energy   :',E19.10)
