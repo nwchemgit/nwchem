@@ -20,7 +20,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
         esp hessian selci dplot mp2_grad qhop \
         property solvation nwpw fft rimp2_grad python argos analyz diana nwmd cafe space \
         drdy vscf uccsdt qmmm rism qmd etrans tce geninterface bq mm cons\
-        perfm dntmc smd nbo dangchang leps ccca lucia dimqm rdmft
+        perfm dntmc smd nbo dangchang leps ccca lucia dimqm rdmft fcidump
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -35,7 +35,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lcafe -lspace -lanalyze -ldiana -lqhop \
                     -lpfft -ldplot -lnwpython -ldrdy -lvscf -lqmmm -lrism -lqmd -letrans\
                     -lpspw -ltce  -lgeninterface -lbq -lmm  -lcons -lperfm -lnbo -ldntmc -lccca\
-                    -llucia -ldimqm -lrdmft
+                    -llucia -ldimqm -lrdmft -lfcidump
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
@@ -259,6 +259,7 @@ MOD_LIBS := $(patsubst solvation,-lsolvation,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwxc,-lnwxc,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dimqm,-ldimqm,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst rdmft,-lrdmft,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst fcidump,-lfcidump,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
 
 #-----------------------------------------------------------------------------
@@ -278,6 +279,7 @@ STUBROUTINES := $(patsubst hessian, hess_anal hess_tidy hess_input xc_chkdispaut
 STUBROUTINES := $(patsubst ccsd,ccsd ccsd_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mcscf,mcscf mcscf_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst moints,atwtest direct_mp2 moints_full,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst fcidump, moints nwdft task_fcidump,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwdft,nwdft occup_input xc_chktau dft_fitcd grid_cleanup dft_fitvc grid_quadv0_gen dft_input xc_quadv0_gen dft_energy dft_energy_gradient sodft_energy tddft_input tddft_energy sodft_energy sodft_energy_gradient rt_dft_input rt_tddft_input tddft_gradient task_rt_tddft xc_vdw_to_hessian,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwxc,nwxc_getwght nwxc_getvals nwxc_eval_df nwxc_eval_df2 nwxc_eval_df3 nwxc_get_cam nwxc_get_disp nwxc_has_cam nwxc_has_2nd nwxc_has_xc nwxc_has_disp nwxc_has_hfx nwxc_has_mp2c nwxc_init nwxc_input nwxc_is_gga nwxc_is_lda nwxc_is_mgga nwxc_is_on nwxc_print nwxc_print_nwpw nwxc_reset_rho_tolerance nwxc_rtdb_delete nwxc_rtdb_load nwxc_rtdb_store nwxc_vdw3_dftd3 nwxc_wght_hfx nwxc_wght_mp2c,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rdmft,wfn1_input wfn1_task_energy,$(STUBROUTINES) )

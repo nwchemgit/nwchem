@@ -148,6 +148,9 @@ c
       logical task_rt_tddft
       external task_rt_tddft
 
+      logical task_fcidump
+      external task_fcidump
+
 c      logical embed_optimize
 c      external embed_optimize
 c
@@ -399,6 +402,8 @@ c          status = embed_optimize(rtdb)
          status = task_et(rtdb)
       else if (inp_compare(.false., 'rt_tddft', operation)) then
          status = task_rt_tddft(rtdb)
+      else if (inp_compare(.false., 'fcidump', operation)) then
+         status = task_fcidump(rtdb)
       else if (inp_compare(.false., 'freq', operation)) then
 c        if (oembed) then
 c          status = embed_frequency(rtdb)
