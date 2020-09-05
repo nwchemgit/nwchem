@@ -51,7 +51,7 @@ C     ....
       integer iuhf   ! IUHF
       integer ms2    ! MS2
       integer mymemory
-      parameter mymemory=1000000 ! 8MB
+      parameter (mymemory=1000000) ! 8MB
 C
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      &  call errquit(pname//'theory not specified',0, RTDB_ERR)
