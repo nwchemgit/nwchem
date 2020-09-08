@@ -224,6 +224,19 @@ c    >     + i+1
       return
       end
 
+      subroutine pspw_gen_db_APC_d(ispin,ne,dng,nion,dbdR)
+      implicit none
+      integer ispin,ne(2)
+      complex*16 dng(*)
+      integer nion
+      real*8 dbdR(nion,*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "pspw_APC.fh"
+
+      return
+      end
 
 
 *     ***********************************
@@ -249,14 +262,15 @@ c    >     + i+1
       integer nfft3d,npack0
       real*8 omega,N,sum,sum1
 
+c      integer G(3)
       integer exi(2),exj(2)
       integer gaus_i(2),gaus_j(2),ipiv(2)
       integer AAA(2),work(2),lwork,rank,info
 
 *     ***** external functions ****
-      integer  ion_nion_qm
+      integer  ion_nion_qm,Pack_G_indx
+      external ion_nion_qm,Pack_G_indx
       real*8   lattice_omega
-      external ion_nion_qm
       external lattice_omega
 
       if (nga.gt.0) then
@@ -264,6 +278,10 @@ c    >     + i+1
          call Parallel_taskid(taskid)
          call D3dB_nfft3d(1,nfft3d)
          call Pack_npack(0,npack0)
+
+c         G(1)  = Pack_G_indx(0,1)
+c         G(2)  = Pack_G_indx(0,2)
+c         G(3)  = Pack_G_indx(0,3)
 
 *         **** get memory from stack ****
          value = BA_push_get(mt_dcpl,nfft3d,'ttexi',exi(2),exi(1))
@@ -309,6 +327,24 @@ c     >                          dcpl_mb(gaus_i(1)))
      >                            dcpl_mb(gaus_i(1)),
      >                            sum)
                dbl_mb(b(1)+i-1) = sum*omega
+
+
+c               call Pack_cct_iconjgMulb(0,
+c     >                            dng,
+c     >                            dcpl_mb(gaus_i(1)),
+c     >                            dbl_mb(xtmp(1)))
+c               call Pack_t_dscal1(0,omega,dbl_mb(xtmp(1)))
+c
+c               call Pack_tt_dot(0,dbl_mb(G(1)),
+c     >                           dbl_mb(xtmp(1)),
+c     >                           dbl_mb(dbdR(1)+3*(i-1)))
+c               call Pack_tt_dot(0,dbl_mb(G(2)),
+c     >                           dbl_mb(xtmp(1)),
+c     >                           dbl_mb(dbdR(1)+3*(i-1)+1))
+c               call Pack_tt_dot(0,
+c     >                           dbl_mb(G(3)),
+c     >                           dbl_mb(xtmp(1)),
+c     >                           dbl_mb(dbdR(1)+3*(i-1)+2))
             end do
           end do
 
@@ -1031,6 +1067,10 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       return
       end
 
+      ! - calculate dbi/dR_I
+      ! - calculate dAij/dR_I
+
+
 
 *     ***********************************
 *     *					*
@@ -1137,6 +1177,39 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
          end do
       end if
       pspw_getQtot_APC = qq
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         pspw_shortprint_APC     *
+*     *                                 *
+*     ***********************************
+      subroutine pspw_shortprint_APC(unit)
+      implicit none
+      integer unit
+
+#include "bafdecls.fh"
+#include "pspw_APC.fh"
+#include "util.fh"
+
+      integer  ion_nion,nwpw_cdft_u_ptr,nwpw_cdft_q_ptr
+      external ion_nion,nwpw_cdft_u_ptr,nwpw_cdft_q_ptr
+
+*     *** local variables ***
+      integer ii
+
+      write(unit,*) "APC Potential:"
+      write(unit,'(10F14.6)') (dbl_mb(nwpw_cdft_u_ptr()+ii-1),
+     >                         ii=1,ion_nion())
+      write(unit,*)
+      write(unit,*) "APC Point Charges:"
+      write(unit,'(10F14.6)') (dbl_mb(nwpw_cdft_q_ptr()+ii-1),
+     >                         ii=1,ion_nion())
+      write(unit,*)
+
       return
       end
 
