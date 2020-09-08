@@ -1201,6 +1201,7 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 *     *** local variables ***
       integer ii
 
+      write(unit,*)
       write(unit,*) "APC Potential:"
       write(unit,'(10F14.6)') (dbl_mb(nwpw_cdft_u_ptr()+ii-1),
      >                         ii=1,ion_nion())
@@ -1208,7 +1209,6 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       write(unit,*) "APC Point Charges:"
       write(unit,'(10F14.6)') (dbl_mb(nwpw_cdft_q_ptr()+ii-1),
      >                         ii=1,ion_nion())
-      write(unit,*)
 
       return
       end
