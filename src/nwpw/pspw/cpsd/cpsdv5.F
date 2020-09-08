@@ -904,6 +904,9 @@ c         end do
             write(luout,1323) en2(1),en2(ispin),' (real space)'
          end if
 
+*       **** write APC potential and charges ***
+        if (pspw_V_APC_on()) call pspw_shortprint_APC(luout)
+
 
          write(luout,1430) E(1),E(1)/ion_nion()
          if (pspw_qmmm_found()) then
@@ -1002,6 +1005,7 @@ c            write(luout,1706) E(18)
         if (ion_disp_on()) then
             write(luout,1720) E(33)
         end if
+
 
 
          if (.not.mparallelized) then
