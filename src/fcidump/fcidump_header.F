@@ -50,7 +50,9 @@ C     ....
       integer norb   ! NORB
       integer iuhf   ! IUHF
       integer ms2    ! MS2
-      integer mymemory
+      integer isym   ! ISYM
+      integer, dimension(:), allocatable :: orbsym
+      integer mymemory,iorb
       parameter (mymemory=1000000) ! 8MB
 C
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
@@ -109,22 +111,50 @@ c
          write(luout,*) ' fcidump for theory ',
      &        theory(1:inp_strlen(theory)), ' not implemented yet'
       endif
-CTODO: add ORBSYM and ISYM      
+c      
+c      no symmetry for now
+c
+      isym=1
+      allocate(orbsym(norb))
+      do iorb=1,norb
+         orbsym(iorb)=1
+      enddo
+C
       if(ga_nodeid().eq.0) then
-         if(iuhf.eq.0) then
-            write(iunit,10) norb,nelec,mymemory
+         write(iunit,1) norb,nelec
+         if(iuhf.ne.0) then
+            write(iunit,3) iuhf,ms2
          else
-            write(iunit,11) norb,nelec,
-     I           iuhf,ms2,
-     M           mymemory
+            write(iunit,30) ms2
          endif
       endif
- 10   format(1x,'$FCI NORB=',i7,',NELEC=',i6,',',/
-     A     1x,'MEMORY=',i10,/,
-     A     1x'$END')
  11   format(1x,'$FCI NORB=',i7,',NELEC=',i6,',',/
      A 1x,'IUHF=',i1,',MS2=',i3,',',/
      A 1x,'MEMORY=',i10,/,
+     A     1x'$END')
+c      
+ 1    format(1x,'$FCI NORB=',i7,',NELEC=',i6,',')
+c      
+ 3    format(1x,'IUHF=',i1,',MS2=',i3,',')
+ 30   format(1x,'MS2=',i3,',')
+      return
+      end
+      subroutine fcidump_symm(iunit,norb,isym,orbsym)
+      implicit none
+#include "global.fh"
+      integer iunit
+      integer isym,norb
+      integer orbsym(*)
+      integer mymemory,iorb
+      parameter (mymemory=6000000) ! 8MB
+c     ORBSYM=1,1,1,1,1,1,1,1,1,1,1,1,
+      if(ga_nodeid().eq.0) then
+         write(iunit,2) isym,
+     c        (orbsym(iorb),iorb=1,norb)
+         write(iunit,4)  mymemory
+      endif
+ 2    format(1x,'ISYM='i2,',ORBSYM=',9999(I2,','))
+ 4    format(1x,'MEMORY=',i10,/,
      A     1x'$END')
       return
       end
