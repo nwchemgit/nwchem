@@ -355,6 +355,9 @@ c            call fcidump_symm(iunit,isym,norb,orbsym)
          end do
       else
          call ifill(nmo(1),0,int_mb(k_irs),1)
+         call fcidump_symm(moints_unit,
+     c           hi-lo+1,1,
+     c           int_mb(k_irs+lo-1))
       end if
 c
 c     Keep track of where the MOs will end up
