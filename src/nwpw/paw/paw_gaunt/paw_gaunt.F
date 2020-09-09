@@ -208,8 +208,8 @@ c
       double precision x1, x2
      
 
-#include"paw_params.fh"
-#include"paw_spher_func.fh"
+#include "paw_params.fh"
+#include "paw_spher_func.fh"
 
 c     work arrays for integration
       double precision x(100),w(100)
@@ -444,8 +444,8 @@ C      end
       integer order
      
 
-#include"paw_params.fh"
-#include"paw_spher_func.fh"
+#include "paw_params.fh"
+#include "paw_spher_func.fh"
 
 c     work arrays for integration
       double precision x(100),w(100)
@@ -674,8 +674,8 @@ C      end
       integer order
      
 
-#include"paw_params.fh"
-#include"paw_spher_func.fh"
+#include "paw_params.fh"
+#include "paw_spher_func.fh"
 
 c     work arrays for integration
       double precision x(100),w(100),f

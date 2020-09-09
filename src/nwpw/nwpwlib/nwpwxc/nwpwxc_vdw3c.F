@@ -2956,10 +2956,10 @@ c        write(*,'(3f8.4)')tau_max(1),tau_max(2),tau_max(3)
 
       SUBROUTINE nwpwxc_xyz_to_abc(xyz,abc,lat,n)
       IMPLICIT NONE
+      integer,intent(in) :: n
       real*8, INTENT(in) :: xyz(3,n)
       real*8, intent(in) :: lat(3,3)
       real*8, intent(out) :: abc(3,n)
-      integer,intent(in) :: n
       
       real*8 lat_1(3,3)
       integer i,j,k
