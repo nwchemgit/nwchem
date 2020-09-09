@@ -1,0 +1,52 @@
+start hf_fcidump
+# HF test case from P Knowles paper
+#     https://doi.org/10.1016/0010-4655(89)90033-7
+#     https://bitbucket.org/pjknowles/fci
+#
+
+geometry units bohr
+h 0. 0. 0.
+f 0. 0. 1.733
+end
+
+basis "ao basis"
+H s
+19.2406 0.032828 
+2.8992  0.231208 
+0.6534  0.817238 
+H s
+0.1776 1.000000 
+F s
+9994.7900  0.002017 
+1506.0300  0.015295 
+350.2690   0.073110 
+104.0530   0.246420 
+34.8432	   0.612593 
+4.3688	   0.242489
+F s
+12.2164	   1.000000
+F s
+1.2078	   0.572817
+F s
+0.3634     0.488416 
+F p
+44.3555  0.020868 
+10.0820	 0.130092 
+2.9959	 0.396219 
+0.9383	 0.620368 
+F p
+0.2733	 1.000000 
+end
+
+dft
+xc hfexch
+end
+
+task dft
+
+fcidump
+ orbitals molecular
+ freeze 1
+end
+
+task dft fcidump
