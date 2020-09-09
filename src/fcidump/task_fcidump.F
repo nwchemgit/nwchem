@@ -101,9 +101,11 @@ c     virtual
      c           filename(1:inp_strlen(filename))
             write(luout,*) '-------------------------------------------'
          endif
+      endif
 cTODO need to broadcast io failure      
 
          call fcidump_header(rtdb,occ_frozen,vir_frozen,iunit)
+      if(ga_nodeid().eq.0) then
          close(unit=iunit,
      1        status='keep',
      2        iostat=ios)
