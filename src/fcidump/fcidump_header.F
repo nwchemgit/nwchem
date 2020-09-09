@@ -149,8 +149,13 @@ c
       parameter (mymemory=6000000) ! 8MB
 c     ORBSYM=1,1,1,1,1,1,1,1,1,1,1,1,
       if(ga_nodeid().eq.0) then
-         write(iunit,2) isym,
-     c        (orbsym(iorb),iorb=1,norb)
+         if(isym.gt.1) then
+            write(iunit,2) isym,
+     c           (orbsym(iorb),iorb=1,norb)
+         else
+            write(iunit,2) isym,
+     c           (1,iorb=1,norb)
+         endif
          write(iunit,4)  mymemory
       endif
  2    format(1x,'ISYM='i2,',ORBSYM=',9999(I2,','))
