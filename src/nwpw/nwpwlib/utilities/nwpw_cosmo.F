@@ -754,14 +754,14 @@ c     == Clean up cosmo stuff, if necessary ==
             r= dsqrt(x*x + y*y + z*z)
             if (r.gt.1.0d-6) then
                v =  qi*qj/r**3
-               fx = fx - (x*v)
-               fy = fy - (y*v)
-               fz = fz - (z*v)
+               fx = fx + (x*v)
+               fy = fy + (y*v)
+               fz = fz + (z*v)
             end if
          end do
-         fion(1,j) = fion(1,j) + fx
-         fion(2,j) = fion(2,j) + fy
-         fion(3,j) = fion(3,j) + fz
+         fion(1,j) = fion(1,j) - fx
+         fion(2,j) = fion(2,j) - fy
+         fion(3,j) = fion(3,j) - fz
       end do
 
       return
