@@ -487,6 +487,7 @@ c         eki1=0.5d0*eki1
 *     ***** try to initialize Born and COSMO and CDFT if aperiodic *****
       nion_q = 0
       cosmo1_on = .false.
+      call nwpw_cosmo_off()
       if  (.not.periodic) then
          call nwpw_cdft_init(rtdb)
          call nwpw_born_init(rtdb)
