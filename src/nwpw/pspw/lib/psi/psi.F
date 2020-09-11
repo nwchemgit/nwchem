@@ -4624,6 +4624,37 @@ c      end
       end
 
 
+
+*     ***********************************
+*     *                                 *
+*     *         dng_1apc                *
+*     *                                 *
+*     ***********************************
+      subroutine dng_1apc(Eapc,Papc)
+      implicit none
+      real*8 Eapc,Papc
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      integer vtmp(2)
+
+      if (.not.BA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1)))
+     >   call errquit('dng_1apc: out of stack memory',0,MA_ERR)
+
+      call pspw_V_APC(ispin,ne,dcpl_mb(dng1(1)),
+     >                         dcpl_mb(vtmp(1)),
+     >                         Eapc,Papc)
+
+      if (.not.BA_pop_stack(vtmp(2)))
+     >  call errquit('dng_1apc popping stack',1,MA_ERR)
+
+      return
+      end
+
+
 *     ***********************************
 *     *                                 *
 *     *         dng_1vl_mm              *
