@@ -27,7 +27,7 @@ c     $Id$
       real*8  cx,cy,cz
       real*8  gx,gy,gz
       real*8  en(2),en1(2),en2(2)
-      real*8  E(50),scal,sumall
+      real*8  E(50),scal,sumall,Egas
       integer rtdb,tmp1(2),nx,ny,nz,n2ft3d
 
 
@@ -60,10 +60,10 @@ c     $Id$
       external psp_pawexist,ion_disp_on
       real*8   psi_smearfermi,psi_smearcorrection,lattice_omega
       external psi_smearfermi,psi_smearcorrection,lattice_omega
-      logical  control_hess_model,nwpw_cosmo_on
-      external control_hess_model,nwpw_cosmo_on
-      real*8   ion_hess_energy,nwpw_cosmo_screen
-      external ion_hess_energy,nwpw_cosmo_screen
+      logical  control_hess_model,nwpw_cosmo_on,pspw_V_APC_on
+      external control_hess_model,nwpw_cosmo_on,pspw_V_APC_on
+      real*8   ion_hess_energy,nwpw_cosmo_screen,control_gas_energy
+      external ion_hess_energy,nwpw_cosmo_screen,control_gas_energy
 
       if (control_hess_model()) then
          cgsd_noit_energy = ion_hess_energy()
@@ -189,6 +189,9 @@ c     $Id$
          if (meta_found()) then
            write(luout,1459) E(31),E(31)/ion_nion()
          end if
+         if (pspw_V_APC_on()) then
+           write(luout,1505) E(22),E(22)/ion_nion()
+         end if
          write(luout,1470) E(5),E(5)/ion_nion()
          if (control_fractional()) write(luout,1471) E(28),E(28)/neall
 
@@ -209,6 +212,9 @@ c     $Id$
          end if
          if (meta_found()) then
            write(luout,1504) E(32),E(32)/neall
+         end if
+         if (pspw_V_APC_on()) then
+           write(luout,1506) E(23),E(23)/neall
          end if
 
 
@@ -359,9 +365,12 @@ c            end do
 
 
            end if
+      end if
 
-*      **** write out COSMO energies ****
-       if (nwpw_cosmo_on()) then
+*     **** write out COSMO energies ****
+      if (nwpw_cosmo_on()) then
+         Egas = control_gas_energy()
+         if (oprint) then
             write(luout,1730)
             write(luout,1731) nwpw_cosmo_screen()
             write(luout,1732) E(46)
@@ -369,10 +378,13 @@ c            end do
             write(luout,1734) E(48)
             write(luout,1735) E(46)+E(47)+E(48),
      >                        (E(46)+E(47)+E(48))*27.2116d0*23.06d0
-       end if
-
-
+            if (dabs(Egas).gt.1.0d-6)
+     >         write(luout,1736)  E(1)-Egas,
+     >                           (E(1)-Egas)*27.2116d0*23.06d0
+         end if
       end if
+
+
       if (control_symmetry().gt.0) call psi_ab_kill_irrep_names()
 
 
@@ -492,6 +504,8 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
      >        ' (',E15.5,'/electron)')
  1504 FORMAT( ' K.S. Metadynamics energy   :',E19.10,
      >        ' (',E15.5,'/ion)')
+ 1505 FORMAT( ' APC energy          :',E19.10,' (',E15.5,'/ion)')
+ 1506 FORMAT( ' K.S. V_APC energy   :',E19.10,' (',E15.5,'/ion)')
  1507 FORMAT(/' Fermi energy =',2(E18.7,' (',F8.3,'eV)'))
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1511 FORMAT(2(E18.7,' (',F8.3,'eV)  occ=',F5.3))
@@ -533,6 +547,8 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1734 FORMAT(5x,' screen*0.5*q*A*q energy :',E19.10)
  1735 FORMAT(5x,' solvation energy (w/o QM polarization) :',E19.10,
      >   /45x,' (',F8.3,' kcal/mol)')
+ 1736 FORMAT(5x,' solvation energy (w/  QM polarization) :',E19.10,
+     >   ' (',F8.3,' kcal/mol)')
 
  1800 FORMAT(/' Charge Field Energies')
  1801 FORMAT( ' ---------------------')
