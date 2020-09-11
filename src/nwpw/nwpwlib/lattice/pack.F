@@ -3665,6 +3665,7 @@ c     **** three derivatives ****
       subroutine Pack_t_dsca1l(nb,alpha,A)
       implicit none
       integer    nb
+      double precision alpha
       real*8     A(*)
 
 
