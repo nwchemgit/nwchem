@@ -326,7 +326,9 @@ c     >                          dcpl_mb(gaus_i(1)))
                call Pack_cc_dot(0,dng,
      >                            dcpl_mb(gaus_i(1)),
      >                            sum)
+!$OMP MASTER
                dbl_mb(b(1)+i-1) = sum*omega
+!$OMP END MASTER
 
 
 c               call Pack_cct_iconjgMulb(0,
@@ -390,8 +392,10 @@ c     >                               dcpl_mb(gaus_i(1)))
 
                     indx  = (i-1) + (j-1)*ngs
                     indxt = (j-1) + (i-1)*ngs
+!$OMP MASTER
                     dbl_mb(A(1)+indx)  = sum
                     dbl_mb(A(1)+indxt) = sum
+!$OMP END MASTER
                end do
              end do
            end do
@@ -404,8 +408,11 @@ c     >                               dcpl_mb(gaus_i(1)))
      &       MA_ERR)
 
 *        **** perform matrix operations in serial ****
-         call dcopy(ngs*ngs,0.0d0,0,dbl_mb(Am(1)),1)
-         call dcopy(ngs,0.0d0,0,dbl_mb(q(1)),1)
+         !call dcopy(ngs*ngs,0.0d0,0,dbl_mb(Am(1)),1)
+         !call dcopy(ngs,0.0d0,0,dbl_mb(q(1)),1)
+         call Parallel_shared_vector_zero(.true.,ngs*ngs,dbl_mb(Am(1)))
+         call Parallel_shared_vector_zero(.true.,ngs,dbl_mb(q(1)))
+
          if (taskid.eq.MASTER) then
 
            lwork = 5*ngs*ngs
@@ -417,8 +424,13 @@ c     >                               dcpl_mb(gaus_i(1)))
      &       MA_ERR)
 
 *          **** calculate Am_ij ****
-           call dcopy(ngs*ngs,dbl_mb(A(1)),1,dbl_mb(AAA(1)),1)
-           call dcopy(ngs*ngs,0.0d0,0,dbl_mb(Am(1)),1)
+           !call dcopy(ngs*ngs,dbl_mb(A(1)),1,dbl_mb(AAA(1)),1)
+           !call dcopy(ngs*ngs,0.0d0,0,dbl_mb(Am(1)),1)
+           call Parallel_shared_vector_copy(.true.,ngs*ngs,
+     >                                      dbl_mb(A(1)),dbl_mb(AAA(1)))
+           call Parallel_shared_vector_zero(.true.,ngs*ngs,
+     >                                      dbl_mb(Am(1)))
+!$OMP MASTER
            do i=1,ngs
               indx = i + (i-1)*ngs
               dbl_mb(Am(1)+indx-1) = 1.0d0
@@ -428,19 +440,22 @@ c           call DGESV(ngs,ngs,dbl_mb(AAA(1)), ngs,
 c     >                        int_mb(ipiv(1)),
 c     >                        dbl_mb(Am(1)),ngs,
 c     >                        j)
+
            call DGELSS(ngs,ngs,ngs,dbl_mb(AAA(1)),ngs,
      >                        dbl_mb(Am(1)),ngs,
      >                        dbl_mb(q(1)),1.0d-9,
      >                        rank,
      >                        dbl_mb(work(1)),lwork,
      >                        info)
+!$OMP END MASTER
             value = BA_pop_stack(AAA(2))
             value = value.and.BA_pop_stack(work(2))
             !value = value.and.BA_pop_stack(ipiv(2))
             if (.not. value) call errquit('popping stack memory',0,
      &       MA_ERR)
 
-           call dcopy(ngs,0.0d0,0,dbl_mb(q(1)),1)
+           !call dcopy(ngs,0.0d0,0,dbl_mb(q(1)),1)
+           call Parallel_shared_vector_zero(.true.,ngs,dbl_mb(q(1)))
 *          **** calculate q_i ****
            sum  = 0.0d0
            sum1 = 0.0d0
@@ -460,7 +475,9 @@ c     >                        j)
                 sum1 = sum1 
      >               + dbl_mb(Am(1)+indx)*(dbl_mb(b(1)+j-1)-sum)
               end do
+!$OMP MASTER
               dbl_mb(q(1)+i-1) = sum1
+!$OMP END MASTER
            end do
          end if
 *        **** synchronization ****
@@ -551,12 +568,15 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       integer i,j
       real*8  sum0
 
+!$OMP MASTER
       sum0 = 0.0d0
       do i=1,ngs
          do j=1,ngs
             sum0 = sum0 + Am(i,j)
          end do
       end do
+!$OMP END MASTER
+!$OMP BARRIER
 
       pspw_sumAm_APC = sum0
       return
@@ -577,12 +597,15 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       integer i,j
       real*8  sum0
 
+!$OMP MASTER
       sum0 = 0.0d0
       do i=1,ngs
          do j=1,ngs
             sum0 = sum0 + Am(i,j)*u(j)
          end do
       end do
+!$OMP END MASTER
+!$OMP BARRIER
 
       pspw_Amtimesu_APC = sum0
       return
@@ -604,10 +627,13 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       integer j
       real*8 sum0
 
+!$OMP MASTER
       sum0 = 0.0d0
       do j=1,ngs
          sum0 = sum0 + Am(i,j)*u(j)
       end do
+!$OMP END MASTER
+!$OMP BARRIER
 
       pspw_Vfac_APC = sum0
       return
@@ -646,7 +672,7 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       parameter (MASTER=0)
 
       logical value
-      integer i,j,iii,ii
+      integer i,j,iii,ii,tid,nthreads
       integer npack0
       real*8  sumAm,afac,sumAmU,omega
 
@@ -658,11 +684,15 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       external lattice_omega,pspw_Vfac_APC
       real*8   pspw_sumAm_APC,pspw_Amtimesu_APC
       external pspw_sumAm_APC,pspw_Amtimesu_APC
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
 
       if (nga.gt.0) then
          omega = lattice_omega()
          call Parallel_taskid(taskid)
          call Pack_npack(0,npack0)
+         tid = Parallel_threadid()
+         nthreads = Parallel_nthreads()
 
 *        **** get memory from stack ****
          value = BA_push_get(mt_dcpl,npack0,'ttexi',exi(2),exi(1))
@@ -674,7 +704,8 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
          sumAm  = pspw_sumAm_APC(ngs,dbl_mb(Am(1)))
          sumAmU = pspw_Amtimesu_APC(ngs,dbl_mb(Am(1)),u)
-         do i=1,ngs
+
+         do i=tid+1,ngs,nthreads
             u(i) = u(i) - (sumAmU/SumAm)
          end do
 
@@ -761,7 +792,7 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 *     **** get memory from stack ****
       value = BA_push_get(mt_dbl,ngs,'u',u(2),u(1))
       if (.not.value) 
-     >   call errquit('pspw_cosmo_V_APC:push stack',0, MA_ERR)
+     >   call errquit('pspw_cosmo_V0_APC:push stack',0, MA_ERR)
 
 *     **** calculate u = dEQelcq/dq ****
       call Parallel_shared_vector_zero(.true.,ngs,dbl_mb(u(1)))
@@ -797,10 +828,11 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 *     *					*
 *     ***********************************
 *
-      subroutine pspw_cosmo_V_APC(ispin,ne,dng,vcosmo)
+      subroutine pspw_cosmo_V_APC(ispin,ne,dng,vcosmo,ecosmo,pcosmo)
       implicit none
       integer ispin,ne(2)
       complex*16 dng(*), vcosmo(*)
+      real*8    ecosmo,pcosmo
 
 #include "bafdecls.fh"
 #include "pspw_APC.fh"
@@ -810,11 +842,11 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       logical value
       integer nthreads,tid,np,taskid
       integer j,ii,ia,k
-      integer nion_q,nion
+      integer nion_q,nion,npack0
       real*8 x,y,z,r,sb,qj
       real*8 suma,sumb
 
-      integer BQ_ptr,u(2),qcoord_ptr
+      integer BQ_ptr,u(2),qcoord_ptr,vtmp(2)
       
 *     **** external functions ****
       integer  Parallel_nthreads,Parallel_threadid
@@ -827,6 +859,8 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       external nwpw_cosmo_qcoord_ptr
       real*8   nwpw_cosmo_screen_qc0
       external nwpw_cosmo_screen_qc0
+      real*8   nwpw_cosmo_EQelcq
+      external nwpw_cosmo_EQelcq
 
       call Parallel_taskid(taskid)
       call Parallel_np(np)
@@ -834,19 +868,21 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       nthreads = Parallel_nthreads()
       nion     = ion_nion_qm()
       nion_q   = nwpw_cosmo_nq()
+      call Pack_npack(0,npack0)
 
-*     **** generate APC charges ****
-      call pspw_gen_APC(ispin,ne,dng)
+      value = BA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
+      if (.not.value)
+     >   call errquit('pspw_cosmo_V_APC:push stack',0,MA_ERR)
 
       qcoord_ptr = nwpw_cosmo_qcoord_ptr()
       BQ_ptr     = nwpw_cosmo_BQ_ptr()
       call Parallel_shared_vector_zero(.true.,nion_q,dbl_mb(BQ_ptr))
+      call Parallel_shared_vector_zero(.true.,2*npack0,dcpl_mb(vtmp(1)))
       
-      write(*,*) "pspw_cosmo_V_APC HERA"
-      do ii=1,nion
-         write(*,*) "ii,Q=",ii,pspw_getQtot_APC(ii)
-      end do
-      write(*,*)
+
+
+*     **** generate APC charges ****
+      call pspw_gen_APC(ispin,ne,dng)
 
       !**** q-Qion + q-Qelc BQ contributions ****
       do j=tid+1,nion_q,nthreads
@@ -867,8 +903,16 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
 
 *     **** generate cosmo potential using current APC charges ****
-      call pspw_cosmo_V0_APC(vcosmo)
+*     **** generate APC potential ****
+      call pspw_cosmo_V0_APC(dcpl_mb(vtmp(1)))
+      call Pack_cc_daxpy(0,1.0d0,dcpl_mb(vtmp(1)),vcosmo)
 
+      call Pack_cc_dot(0,dng,dcpl_mb(vtmp(1)),pcosmo)
+      ecosmo = nwpw_cosmo_EQelcq()
+
+      value = value.and.BA_pop_stack(vtmp(2))
+      if (.not.value)
+     >   call errquit('pspw_cosmo_V_APC:pop stack',0,MA_ERR)
       return
       end
 
@@ -1045,17 +1089,16 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       ecdft = nwpw_cdft_energy()
 
 
-      call Pack_cc_dot(0,dng,vcdft,elocal1)
-
-      write(*,*) "ELOCAL           =", elocal
-      write(*,*) "PLOCAL+Pcdft     =", elocal1
-      write(*,*) "dng*vcdft, diff  =", pcdft, (elocal1-elocal)
-      write(*,*) "ECDFT (point Q)  = ",ecdft
-      write(*,*) "      (kcal/mol) = ",ecdft*27.2116d0*23.06d0
-      do ii=1,nion
-         write(*,*) " - ii,Q=",ii, dbl_mb(nwpw_cdft_q_ptr()+ii-1) 
-      end do
-      write(*,*)
+      !call Pack_cc_dot(0,dng,vcdft,elocal1)
+c      write(*,*) "ELOCAL           =", elocal
+c      write(*,*) "PLOCAL+Pcdft     =", elocal1
+c      write(*,*) "dng*vcdft, diff  =", pcdft, (elocal1-elocal)
+c      write(*,*) "ECDFT (point Q)  = ",ecdft
+c      write(*,*) "      (kcal/mol) = ",ecdft*27.2116d0*23.06d0
+c      do ii=1,nion
+c         write(*,*) " - ii,Q=",ii, dbl_mb(nwpw_cdft_q_ptr()+ii-1) 
+c      end do
+c      write(*,*)
 
 
 *     **** pop stack ****
@@ -1101,6 +1144,9 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       integer ispin,ne(2)
       complex*16 dng(*), vapc(*)
       real*8 Eapc,Papc
+
+      real*8 Eapc_APC,Papc_APC
+      common /e_apc_common/ Eapc_APC,Papc_APC
       
 *     **** external functions ****
       logical  nwpw_cosmo2_on,nwpw_born_on,nwpw_cdft_on
@@ -1109,13 +1155,33 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       Eapc = 0.0d0
       Papc = 0.0d0
       if (nwpw_cosmo2_on()) then
-         call pspw_cosmo_V_APC(ispin,ne,dng,vapc)
+         call pspw_cosmo_V_APC(ispin,ne,dng,vapc,Eapc,Papc)
       else if (nwpw_born_on()) then
          call pspw_born_V_APC(ispin,ne,dng,vapc)
       else if (nwpw_cdft_on()) then
          call pspw_cdft_V_APC(ispin,ne,dng,vapc,Eapc,Papc)
       end if
+      Eapc_APC = Eapc
+      Papc_APC = Papc
 
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *		pspw_E_APC	        *
+*     *					*
+*     ***********************************
+      subroutine pspw_E_APC(Eapc,Papc)
+      implicit none
+      real*8 Eapc,Papc
+
+      real*8 Eapc_APC,Papc_APC
+      common /e_apc_common/ Eapc_APC,Papc_APC
+
+      Eapc = Eapc_APC
+      Papc = Papc_APC
       return
       end
 
@@ -1203,11 +1269,11 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
       write(unit,*)
       write(unit,*) "APC Potential:"
-      write(unit,'(10F14.6)') (dbl_mb(nwpw_cdft_u_ptr()+ii-1),
+      write(unit,'(10F14.9)') (dbl_mb(nwpw_cdft_u_ptr()+ii-1),
      >                         ii=1,ion_nion())
       write(unit,*)
       write(unit,*) "APC Point Charges:"
-      write(unit,'(10F14.6)') (dbl_mb(nwpw_cdft_q_ptr()+ii-1),
+      write(unit,'(10F14.9)') (dbl_mb(nwpw_cdft_q_ptr()+ii-1),
      >                         ii=1,ion_nion())
 
       return
