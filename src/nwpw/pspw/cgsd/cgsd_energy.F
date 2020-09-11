@@ -72,6 +72,8 @@ c#include "global.fh"
       external ion_hess_energy
       real*8   psi_1energy,control_gas_energy
       external psi_1energy,control_gas_energy
+      logical  pspw_V_APC_on
+      external pspw_V_APC_on
 
       !**** hack for implementing hessian energy model ****
       if (control_hess_model()) then
@@ -382,6 +384,9 @@ c          **** reset minimizer if failed ****
          if (meta_found()) then
            write(luout,1459) E(31),E(31)/ion_nion()
          end if
+         if (pspw_V_APC_on()) then
+           write(luout,1505) E(22),E(22)/ion_nion()
+         end if
          write(luout,1470) E(5),E(5)/ion_nion()
          if (control_fractional()) write(luout,1471) E(28),E(28)/neall
 
@@ -411,6 +416,9 @@ c        end if
          end if
          if (meta_found()) then
            write(luout,1504) E(32),E(32)/neall
+         end if
+         if (pspw_V_APC_on()) then
+           write(luout,1506) E(23),E(23)/neall
          end if
 
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
@@ -717,6 +725,8 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
      >        ' (',E15.5,'/electron)')
  1504 FORMAT( ' K.S. Metadynamics energy   :',E19.10,
      >        ' (',E15.5,'/ion)')
+ 1505 FORMAT( ' APC energy          :',E19.10,' (',E15.5,'/ion)')
+ 1506 FORMAT( ' K.S. V_APC energy   :',E19.10,' (',E15.5,'/ion)')
  1507 FORMAT(/' Fermi energy =',2(E18.7,' (',F8.3,'eV)'))
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1511 FORMAT(2(E18.7,' (',F8.3,'eV)  occ=',F5.3))

@@ -18,9 +18,9 @@
 !
       implicit none
 #include "inp.fh"
-#include "global.fh"            ! ga_nodeid()
-#include "util.fh"              ! util_print(..)
-#include "stdio.fh"             ! LuOut=6
+#include "global.fh"            /* ga_nodeid() */
+#include "util.fh"              /* util_print(..) */
+#include "stdio.fh"             /* LuOut=6 */
       integer geom              ! [input]
       integer axis              ! [input]
       character*8 group

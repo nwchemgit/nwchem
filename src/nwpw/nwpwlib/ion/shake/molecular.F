@@ -450,16 +450,16 @@
             end if
          end do
   120    format(1x,'atoms=',I5,I5,
-     >          1x,'dist=',E10.3,
-     >          1x,'(shake error=',E10.3,')',
-     >          4x,'<F>=',E14.6,
-     >          1x,'(<F**2>-<F>**2=',E10.3,')')
+     >          1x,'dist=',E14.6,
+     >          1x,'(shake error=',E14.6,')',
+     >          4x,'<F>=',E18.9,
+     >          1x,'(<F**2>-<F>**2=',E14.6,')')
   121    format(1x,'bond1=',I5,I5,
      >          1x,'bond2=',I5,I5,
-     >          1x,'gamma=',E10.3,
-     >          1x,'(shake error=',E10.3,')',
-     >          4x,'<F>=',E14.6,
-     >          1x,'(<F**2>-<F>**2=',E10.3,')')
+     >          1x,'gamma=',E14.6,
+     >          1x,'(shake error=',E14.6,')',
+     >          4x,'<F>=',E18.9,
+     >          1x,'(<F**2>-<F>**2=',E14.6,')')
 
          ok =        BA_pop_stack(ac1(2))
          ok = ok.and.BA_pop_stack(af2(2))

@@ -666,7 +666,9 @@ c
           else if (mp2char.eq.'disk') then
             which_mp2 = 1
           else if (mp2char.eq.'direct') then
-            which_mp2 = 2
+             which_mp2 = 2
+             call errquit('dft_input: dftmp2 direct disabled',0,
+     C            CAPMIS_ERR)
           else if (mp2char.eq.'ri') then
             which_mp2 = 3
           else if (mp2char.eq.'rimp2') then

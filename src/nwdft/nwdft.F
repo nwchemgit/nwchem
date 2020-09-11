@@ -140,6 +140,7 @@ c
       integer nclosed, nopen
 c
       integer natoms
+      logical dftmp2
 c
 cc AJL/Begin/FDE
 c      logical frozemb_fde
@@ -175,9 +176,10 @@ c     == If Dyall-mod-dir is set, exit with error ==
 c
 c     == Print header ==
       oprint = util_print('information', print_low)
-      lrt_tddft = .false.
       if (.not. rtdb_get(rtdb,'dft:lrt_tddft',mt_log,1,lrt_tddft))
      &   lrt_tddft = .false.
+      if (.not. rtdb_get(rtdb,'dft:dftmp2',mt_log,1,dftmp2))
+     $     dftmp2 = .false.
 c
       if (oprint) then
         if (.not. rtdb_cget(rtdb, 'title', 1, title))
@@ -266,6 +268,7 @@ c
             call ga_igop(999,igok,1,'+')
             grid_ok=igok.eq.ga_nnodes()
             if(.not.grid_ok) call grid_cleanup(.true.)
+            if(.not.dftmp2) then
             if (movecs_converged(rtdb, ao_bas_han,theory, movecs_in).
      &      and.grid_ok)     then
 c
@@ -289,6 +292,7 @@ c
                if (.not. lrt_tddft) goto 1101
             endif
          endif
+      endif
       endif
  1011 format(/'  The DFT is already converged '//,
      &     '         Total DFT energy =', f20.12/)
