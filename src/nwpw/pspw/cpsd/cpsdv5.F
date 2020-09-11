@@ -63,7 +63,7 @@ cccc#include "frac_occ.fh"
     
 
 *     ***** energy variables ****
-      real*8  E(50)
+      real*8  E(50),Egas
 
 *     real*8  eig(2*nemax)
 *     real*8  hml(2*nemax*nemax)
@@ -201,6 +201,8 @@ c#include "Parallel.fh"
       external nwpw_cosmo_screen
       logical  pspw_V_APC_on
       external pspw_V_APC_on
+      real*8   control_gas_energy
+      external control_gas_energy
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -1057,9 +1059,12 @@ c            write(luout,1706) E(18)
 
          end if
          end if
+      end if
 
-*      **** write out COSMO energies ****
-       if (nwpw_cosmo_on()) then
+*     **** write out COSMO energies ****
+      if (nwpw_cosmo_on()) then
+         Egas = control_gas_energy()
+         if (oprint) then
             write(luout,1730) 
             write(luout,1731) nwpw_cosmo_screen()
             write(luout,1732) E(46)
@@ -1067,9 +1072,12 @@ c            write(luout,1706) E(18)
             write(luout,1734) E(48)
             write(luout,1735) E(46)+E(47)+E(48),
      >                        (E(46)+E(47)+E(48))*27.2116d0*23.06d0
-       end if
-
+            if (dabs(Egas).gt.1.0d-6)
+     >         write(luout,1736)  E(1)-Egas,
+     >                           (E(1)-Egas)*27.2116d0*23.06d0
+         end if
       end if
+
 
       if (mparallelized) then
           do ms=1,ispin
@@ -1387,6 +1395,8 @@ c      call frac_occ_end()
  1734 FORMAT(5x,' screen*0.5*q*A*q energy :',E19.10)
  1735 FORMAT(5x,' solvation energy (w/o QM polarization) :',E19.10,
      >   /45x,' (',F8.3,' kcal/mol)')
+ 1736 FORMAT(5x,' solvation energy (w/  QM polarization) :',E19.10,
+     >   ' (',F8.3,' kcal/mol)')
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 
