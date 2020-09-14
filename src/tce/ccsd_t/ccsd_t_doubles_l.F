@@ -51,7 +51,7 @@ c *************
       call ccsd_t_v2t2lgth(t2size,v2size)
 #if USE_F90_ALLOCATABLE
       allocate(d_t2sub(1:t2size), stat=alloc_error)
-      allocate(d_scratch(1:v2size), stat=alloc_error)
+      allocate(d_scratch(1:max(t2size,v2size)), stat=alloc_error)
       allocate(d_v2sub(1:v2size), stat=alloc_error)
 #else
       IF (.not.MA_PUSH_GET(mt_dbl,t2size,'t2sub',
