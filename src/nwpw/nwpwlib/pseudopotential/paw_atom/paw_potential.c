@@ -637,6 +637,7 @@ void paw_print_paw_potential_to_file(char* atom_name)
 
         fprintf(fp,"plot \"%s\" using 1:2 title \"vref\"\n",data_filename);
         fprintf(fp,"replot \"%s\" using 1:3 title \"vlocal\"\n",data_filename);
+        fprintf(fp,"replot \"%s\" using 1:($2+$3) title \"vref+vlocal\"\n",data_filename);
         for (i=0; i<=nbasis-1; i++)
            fprintf(fp,"replot \"%s\" using 1:%d title \"v%d%s\"\n",data_filename,i+4,prin_n[i],paw_spd_Name(orb_l[i]));
 
