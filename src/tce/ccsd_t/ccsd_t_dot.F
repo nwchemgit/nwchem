@@ -60,7 +60,7 @@ c
 !$omp target map(tofrom:o_p4(1:r_p4)) map(tofrom:o_p5(1:r_p5))
 !$omp& map(tofrom:o_p6(1:r_p6)) map(tofrom:o_h1(1:r_h1))
 !$omp& map(tofrom:o_h2(1:r_h2)) map(tofrom:o_h3(1:r_h3))
-!$omp$ map(tofrom:energy1) map(tofrom:energy2)
+!$omp& map(tofrom:energy1) map(tofrom:energy2)
 c
 !$omp TEAMS_DISTRIBUTE parallel do collapse(3)
 !$omp& schedule(static)
@@ -89,9 +89,6 @@ c
           d_h1 = o_h1(h1)
           do h2 = 1, r_h2
            d_h2 = o_h2(h2)
-#ifndef OFFLOAD_CODE
-!dir$ simd
-#endif
            do h3 = 1, r_h3
             d_h3 = o_h3(h3)
             sing = a_singles(h3,h2,h1,p6,p5,p4)
