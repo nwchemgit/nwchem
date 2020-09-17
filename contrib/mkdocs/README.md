@@ -13,6 +13,11 @@
  python3 -m pip install --user -e .
 ```
 
+## Install the  python-markdown-math plugin for MathJax (work in progress)
+
+```
+python3 -m pip  install --user python-markdown-math
+```
 # Edit the configuration
 ```
 mkdocs.yml
@@ -28,7 +33,7 @@ git clone https://github.com/nwchemgit/nwchem-wiki docs
 ## Checkout the html files of the archive forum
 ```
 git clone https://github.com/nwchemgit/archivedforum
-mv archivedforum/Special_AWCforum/ docs/
+rsync -av archivedforum/Special_AWCforum docs/.
 ```
 
 ## Test the changes 
@@ -68,3 +73,30 @@ mkdocs -v gh-deploy --config-file /path/to/mkdocs/mkdocs.yml --remote-branch mas
 
 Browse new web pages at
 https://nwchemgit.github.io/
+
+## tools for rendering latex math equations
+
+* python-markdown-math
+https://github.com/mitya57/python-markdown-math
+https://pypi.org/project/python-markdown-math/
+```
+python3 -m pip install python-markdown-math
+```
+https://github.com/mkdocs/mkdocs/issues/253
+* arithmatex from pymdown-extensions
+```
+python3 -m pip install pymdown-extensions
+```
+https://facelessuser.github.io/pymdown-extensions  
+
+Caveat: gets confused by the existing latex2svg embedded images
+
+* katex
+https://pypi.org/project/markdown-katex/
+https://gitlab.com/mbarkhau/markdown-katex
+```
+python3 -m pip install markdown-katex
+```
+Not tried yet
+
+* more in https://github.com/Python-Markdown/markdown/wiki/Third-Party-Extensions

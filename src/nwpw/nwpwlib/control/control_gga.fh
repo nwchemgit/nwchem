@@ -235,7 +235,7 @@
       else if (inp_compare(.false.,exchange_correlation,
      >                     'pbesol-grimme2')) then
         gga = 13
-        options_disp  = '-func pbesol -old -noprint'
+        options_disp  = '-func pbe -old -noprint'
         has_disp   = .true.
         is_grimme2 = .true.
       else if (inp_compare(.false.,exchange_correlation,

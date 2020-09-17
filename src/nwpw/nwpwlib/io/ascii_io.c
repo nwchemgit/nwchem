@@ -32,11 +32,6 @@
 
 #if !defined(__crayx1)
 
-#if defined(CRAY) || defined(CRAY_T3D) 
-#include <fortran.h>
-#define USE_FCD
-#endif
-
 #if (defined(CRAY) || defined(WIN32)) && !defined(__crayx1) &&!defined(__MINGW32__)
 #define ascii_cwrite_ ASCII_CWRITE
 #define ascii_cread_  ASCII_CREAD
@@ -69,16 +64,12 @@ static FILE* fd[MAX_UNIT];	/* the file descriptor of the pipe */
 
 void FATR ascii_cwrite_
 #if defined(USE_FCD)
-(const Integer *unit, 
-                   _fcd fcd_c,
-             const Integer *n)
+(const Integer *unit, _fcd fcd_c, const Integer *n)
 {
    const char *c = _fcdtocp(fcd_c);
 
 #else
-(const Integer *unit, 
-                                char *c,
-                          const Integer *n)
+(const Integer *unit, char *c, const Integer *n)
 {
 #endif
 
@@ -90,16 +81,12 @@ void FATR ascii_cwrite_
 
 void FATR ascii_cread_
 #if defined(USE_FCD)
-(const Integer *unit, 
-                  _fcd fcd_c,
-            const Integer *n)
+(const Integer *unit, _fcd fcd_c, const Integer *n)
 {
     char *c = _fcdtocp(fcd_c);
 
 #else
-(const Integer *unit, 
-                     char *c, 
-            const Integer *n)
+(const Integer *unit, char *c, const Integer *n)
 {
 #endif
 
@@ -170,27 +157,18 @@ void FATR ascii_ishift_fileptr_(const Integer *unit, const Integer *n)
 
 void FATR ascii_openfile_
 #if defined(USE_FCD)
-(const Integer *unit, 
-                      _fcd fcd_filename,
-                      Integer *n1,
-       		      _fcd fcd_mode,
-		      Integer *n2)
+(const Integer *unit, _fcd fcd_filename, Integer *n1, _fcd fcd_mode, Integer *n2)
 {
    const char *filename = _fcdtocp(fcd_filename);
    const char *mode = _fcdtocp(fcd_mode);
 
 #else
-(const  Integer *unit, 
-                      char *filename, Integer *n1,
-       		      char *mode,    
-		      Integer *n2)
+(const  Integer *unit, char *filename, Integer *n1, char *mode,    Integer *n2)
 {
 #endif
 
    char *file = (char *) malloc(*n1+1);
 
-
-   
    (void) strncpy(file, filename, *n1);
    file[*n1] = '\0';
 

@@ -1,5 +1,4 @@
 language: c
-sudo: required
 stages:
   - compile
   - test
@@ -43,6 +42,10 @@ cache:
     <<: *compile-template-mpich
     os: linux
     arch: arm64
+.t1ppc: &compile-template-mpich-ppc
+    <<: *compile-template-mpich
+    os: linux
+    arch: ppc64le
   
 .t2: &qatest-template
   script:
@@ -73,6 +76,10 @@ cache:
     <<: *qatest-template-mpich
     os: linux
     arch: arm64
+.t3ppc: &qatest-template-mpich-ppc
+    <<: *qatest-template-mpich
+    os: linux
+    arch: ppc64le
 
 jobs:
   include:
@@ -102,6 +109,7 @@ jobs:
       env: NWCHEM_MODULES="nwdft solvation driver" ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
     - stage: compile
       <<: *compile-template-ompi-osx
+      osx_image: xcode11.3
       env: NWCHEM_MODULES="tinyqmpw python" ARMCI_NETWORK=MPI-PT 
     - stage: compile
       <<: *compile-template-ompi-osx
@@ -112,6 +120,15 @@ jobs:
     - stage: compile
       <<: *compile-template-mpich-arm
       env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-TS
+    - stage: compile
+      <<: *compile-template-mpich-ppc
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT
+    - stage: compile
+      <<: *compile-template-mpich-ppc
+      env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-TS
+    - stage: compile
+      <<: *compile-template-mpich-ppc
+      env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
     - stage: test
       <<: *qatest-template-ompi-x86
       env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
@@ -138,6 +155,7 @@ jobs:
       env: NWCHEM_MODULES="nwdft solvation driver" ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
     - stage: test
       <<: *qatest-template-ompi-osx
+      osx_image: xcode11.3
       env: NWCHEM_MODULES="tinyqmpw python" ARMCI_NETWORK=MPI-PT 
     - stage: test
       <<: *qatest-template-ompi-osx
@@ -148,6 +166,15 @@ jobs:
     - stage: test
       <<: *qatest-template-mpich-arm
       env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-TS
+    - stage: test
+      <<: *qatest-template-mpich-ppc
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT
+    - stage: test
+      <<: *qatest-template-mpich-ppc
+      env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-TS
+    - stage: test
+      <<: *qatest-template-mpich-ppc
+      env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
   exclude:
     - os: osx
       arch: arm64

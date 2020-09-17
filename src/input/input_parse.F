@@ -209,6 +209,8 @@ c               call embed_input(rtdb)
                call tddft_input(rtdb)
             else if (inp_compare(.false.,test,'rt_tddft')) then
                call rt_tddft_input(rtdb)
+            else if (inp_compare(.false.,test,'fcidump')) then
+               call fcidump_input(rtdb)
             else if (inp_compare(.false.,test,'mymd')) then
                 call mymd_input(rtdb)
             else if (inp_compare(.false.,test,'mymc')) then

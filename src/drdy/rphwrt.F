@@ -1,5 +1,5 @@
 C $Id$
-#if defined(LINUX) && !defined(XLFLINUX) && !defined(CRAYFORTRAN)
+#if defined(LINUX) && !defined(XLFLINUX) && !defined(CRAYFORTRAN) && !defined(__flang__)
 #define APPEND_OK
 #endif
       Subroutine drdy_rphwrt (iop)

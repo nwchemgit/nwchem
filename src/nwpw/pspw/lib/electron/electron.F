@@ -364,6 +364,8 @@ c      end
       external nwpw_meta_gga_pxc,psp_kinetic_core,psp_ion_core
       external psp_hartree_atom,psp_hartree_cmp_cmp
       external psp_hartree_cmp_pw
+      logical  pspw_V_APC_on
+      external pspw_V_APC_on
       
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -510,6 +512,12 @@ c     >                + eke_core + eion_core
       if (meta_found()) then
          call meta_energypotential(ispin,neq,psi_k,emeta,pmeta)
          total_energy = total_energy + emeta - pmeta
+      end if
+
+*     **** APC energy ****
+      if (pspw_V_APC_on()) then
+         call pspw_E_APC(eapc,papc)
+         total_energy = total_energy + eapc - papc
       end if
 
 
@@ -1005,14 +1013,30 @@ c     >                + eke_core + eion_core
 #include "bafdecls.fh"
 #include "electron_common.fh"
 
-
       emeta0 = emeta
       pmeta0 = pmeta
       return
       end
 
 
- 
+*     ***********************************
+*     *                                 *
+*     *      electron_apc_energies      *
+*     *                                 *
+*     ***********************************
+
+      subroutine electron_apc_energies(eapc0,papc0)
+      implicit none
+      real*8 eapc0,papc0
+
+#include "bafdecls.fh"
+#include "electron_common.fh"
+
+      eapc0 = eapc
+      papc0 = papc
+      return
+      end
+
 
 *     ***********************************
 *     *					*
@@ -2288,8 +2312,8 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       external control_gga,control_version
       real*8   control_attenuation
       external control_attenuation
-      logical  nwpw_cosmo1_on,nwpw_cosmo2_on
-      external nwpw_cosmo1_on,nwpw_cosmo2_on
+      logical  nwpw_cosmo1_on,nwpw_cosmo2_on,pspw_V_APC_on
+      external nwpw_cosmo1_on,nwpw_cosmo2_on,pspw_V_APC_on
 
       n2ft3d = 2*nfft3d
       gga = control_gga()
@@ -2322,9 +2346,10 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
      >         call errquit("electron_gen_scf_potentials:pop stack",
      >                      1,MA_ERR)
          end if
-         if (nwpw_cosmo2_on()) then
+
+         if (pspw_V_APC_on()) then
             call electron_gen_vl_potential()
-            call pspw_cosmo_V_APC(ispin,ne,dng,dcpl_mb(vl(1)))
+            call pspw_V_APC(ispin,ne,dng,dcpl_mb(vl(1)),eapc,papc)
          end if
 
          value = BA_pop_stack(tmp1(2)) 

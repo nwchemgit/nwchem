@@ -63,11 +63,7 @@ TIMINGG test_timing;
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #define min(a,b) ((a) < (b) ? (a) : (b))
 
-#ifdef CRAY_T3D
-void MAIN1()
-#else
-     void main1_()
-#endif
+void main1_()
 {
   
   /*

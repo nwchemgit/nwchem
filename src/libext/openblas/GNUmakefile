@@ -5,14 +5,14 @@
 
 include ../../config/makefile.h
 
-../lib/libopenblas.a:
+../lib/libnwc_openblas.a:
 	./build_openblas.sh 
 LIB_TARGETS += OpenBLAS
 
 include ../../config/makelib.h
 
 clean:
-	@rm -rf OpenBLAS*  ../lib/libop*
+	@rm -rf OpenBLAS*  ../lib/libnwc_openbla*
 
 
 

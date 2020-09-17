@@ -18,7 +18,7 @@ c
       integer ipol, mult
       logical cdfit, dmd_rel, dk_rel, zora_rel
       logical rodft, cosmo_on
-      logical xc_chktau,xc_getxcfac,cam_exch
+      logical xc_chktau,xc_getxcfac,cam_exch,dftmp2
       external xc_chktau,xc_getxcfac
 c
       hess_check = .false.
@@ -142,6 +142,16 @@ c
         return
       endif
 c
+c     Check for DFTMP2
+c
+      if (.not. rtdb_get(rtdb,'dft:dftmp2',mt_log,1,dftmp2))
+     $     dftmp2 = .false.
+      if (dftmp2) then
+        if (ga_nodeid().eq.0)
+     $    write(LuOut,*) 'DFT+MP2 detected'
+        return
+      endif
+c      
       hess_check = .true.
 c
       return

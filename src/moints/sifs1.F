@@ -2582,7 +2582,7 @@ c     # addressing convention.
       integer bytes_per_int
       logical obigendian
 c      
-      call ifill(nuw,0,u,1)
+      call lfill(nuw,.false.,u,1)
 **      call izero(nuw,u,1)
       call util_pack_info(bytes_per_int, obigendian)
       if (.not.obigendian) then
@@ -2702,7 +2702,7 @@ c     # addressing convention.
       integer bytes_per_int
       logical obigendian
 c      
-      call ifill ( nuw, 0, u, 1 )
+      call ifill2 ( nuw, 0, u, 1 )
 **      call izero ( nuw, u, 1 )
       call util_pack_info(bytes_per_int, obigendian)
       if (.not.obigendian) then
@@ -2925,10 +2925,11 @@ c
       integer i, u0
       integer local1, local2, local3, local4
       integer*2 llocl1(2), llocl2(2), llocl3(2), llocl4(2)
-      integer*2 mold
 #ifdef F77      
       equivalence (llocl1,local1),(llocl2,local2)
       equivalence (llocl3,local3),(llocl4,local4)
+#else
+      integer*2 mold
 #endif
 c
 c     # to determine the little-endian or big-endian
@@ -3151,6 +3152,8 @@ c
 #ifdef F77      
       equivalence (llocl1,local1),(llocl2,local2)
       equivalence (llocl3,local3),(llocl4,local4)
+#else
+      integer*2 mold
 #endif
 c
 c     # to determine the little-endian or big-endian

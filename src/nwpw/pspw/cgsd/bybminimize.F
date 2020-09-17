@@ -54,7 +54,8 @@ c
       real*8 e_lj,e_q,e_spring
       real*8 ehfx,phfx
       
-
+      logical cosmo_on,cosmo1_on,V_APC_on
+      real*8  eapc,papc
 
 *     **** external functions ****
       logical control_print
@@ -108,8 +109,8 @@ c
       real*8   psi_1meta_gga_pxc,ion_disp_energy
       external psi_1meta_gga_pxc,ion_disp_energy
 
-      logical  nwpw_cosmo_on
-      external nwpw_cosmo_on
+      logical  nwpw_cosmo_on,nwpw_cosmo1_on,pspw_V_APC_on
+      external nwpw_cosmo_on,nwpw_cosmo1_on,pspw_V_APC_on
       real*8   psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
       external psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
 
@@ -117,6 +118,9 @@ c
       Ein = E(1)
       call Parallel_taskid(taskid)
       oprint = (taskid.eq.MASTER).and.control_print(print_medium)
+      cosmo_on  = nwpw_cosmo_on()
+      cosmo1_on = nwpw_cosmo1_on()
+      V_APC_on  = pspw_V_APC_on()
 
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -399,11 +403,34 @@ c      call psi_check()
       end if
 
 *     **** COSMO terms ****
-      if (nwpw_cosmo_on()) then
-         E(46) = psi_1vl_cosmo()
-         E(47) = nwpw_cosmo_EQionq()
-         E(48) = nwpw_cosmo_Eqq()
+      if (cosmo_on) then
+
+         !*** cosmo1 ****
+         if (cosmo1_on) then
+            E(46) = psi_1vl_cosmo()
+            E(47) = nwpw_cosmo_EQionq()
+            E(48) = nwpw_cosmo_Eqq()
+
+         !*** cosmo2 ****
+         else
+            call electron_apc_energies(eapc,papc)
+            E(22) = eapc
+            E(23) = papc
+            E(46) = eapc
+            E(47) = nwpw_cosmo_EQionq() !** E(Qion|q)
+            E(48) = nwpw_cosmo_Eqq()    !** E(q|q)
+
+            !E(1)  = E(1) + E(22) - E(23) + E(47) + E(48)
+            E(1)  = E(1) + E(22) - E(23)
+         end if
+
+      else if (V_APC_on) then
+         call electron_apc_energies(eapc,papc)
+         E(22) = eapc
+         E(23) = papc
+         E(1)  = E(1) + eapc - papc
       end if
+
 
 *     **** get pspw_charge  energies ****
       if (pspw_charge_found()) then

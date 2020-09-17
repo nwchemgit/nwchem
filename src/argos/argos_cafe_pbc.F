@@ -10,10 +10,6 @@ c
       real*8 xd(ndd,3),xc(ndc,3),xt(3),xts
       integer i,ix,jx,ndim
       real*8 rin(3),pbcor,boxi(3)
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      real*8 argos_cafe_anint
-      external argos_cafe_anint
-#endif
 c
       if(npbtyp.eq.0) return
 c
@@ -41,11 +37,7 @@ c
       do 2 ix=1,ndim
       do 3 i=n0,n1
       if(abs(xd(noff+i,ix)).gt.boxh(ix)) then
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      xc(i,ix)=argos_cafe_anint(xd(noff+i,ix)*boxi(ix))*box(ix)
-#else
       xc(i,ix)=anint(xd(noff+i,ix)*boxi(ix))*box(ix)
-#endif
       endif
     3 continue
     2 continue
@@ -95,14 +87,8 @@ c
       if(nbxtyp.eq.0.or.nbxtyp.eq.2) then
       do 12 ix=1,ndim
       do 13 i=n0,n1
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      if(abs(xd(noff+i,ix)).gt.boxh(ix))
-     + xd(noff+i,ix)=xd(noff+i,ix)-
-     + argos_cafe_anint(xd(noff+i,ix)*boxi(ix))*box(ix)
-#else
       if(abs(xd(noff+i,ix)).gt.boxh(ix))
      + xd(noff+i,ix)=xd(noff+i,ix)-anint(xd(noff+i,ix)*boxi(ix))*box(ix)
-#endif
    13 continue
    12 continue
       endif

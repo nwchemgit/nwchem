@@ -84,9 +84,9 @@ c      print*,'entering prob'
       ihv(1)=arat(ptarat(ptseq(rsd,1))+gd-ptseq(rsd,2),3)
       ihv(2)=arat(ptarat(ptseq(rsa,1))+ga-ptseq(rsa,2),3)     
 c
-      index=lshift(iseq(1),shbit(5))+lshift(ihv(1),shbit(4))+
-     + lshift(prd,shbit(3))+lshift(iseq(2),shbit(2))+
-     + lshift(ihv(2),shbit(1))+pra
+      index=ishft(iseq(1),shbit(5))+ishft(ihv(1),shbit(4))+
+     + ishft(prd,shbit(3))+ishft(iseq(2),shbit(2))+
+     + ishft(ihv(2),shbit(1))+pra
 c
       ipar=1
 c      print 1026,ipar,index,ptpar(ipar),iseq(1),ihv(1),prd,iseq(2),

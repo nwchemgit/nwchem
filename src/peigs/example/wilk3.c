@@ -50,11 +50,7 @@ TIMINGG test_timing;
 #endif
 
 
-#ifdef CRAY_T3D
-void MAIN1()
-#else
-     void main1_()
-#endif
+void main1_()
 {
   
   /*

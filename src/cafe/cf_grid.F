@@ -210,11 +210,6 @@ c
 c
 #include "cf_common.fh"
 c
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      real*8 cf_anint
-      external cf_anint
-#endif
-c
       real*8 xw(mwm,3,mwa),xs(msa,3)
       real*8 yw(mwm,3,mwa),ys(msa,3)
       real*8 theta(morder,3,*),dtheta(morder,3,*)
@@ -248,11 +243,7 @@ c
       do 7 iwm=1,nwmloc
       w=xw(iwm,1,iwa)*recip(1,ix)+xw(iwm,2,iwa)*recip(2,ix)+
      + xw(iwm,3,iwa)*recip(3,ix)
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      yw(iwm,ix,iwa)=dble(ng(ix))*(w-cf_anint(w)+half)
-#else
       yw(iwm,ix,iwa)=dble(ng(ix))*(w-anint(w)+half)
-#endif
     7 continue
     6 continue
     5 continue
@@ -261,11 +252,7 @@ c
       do 9 isa=1,nsaloc
       w=xs(isa,1)*recip(1,ix)+xs(isa,2)*recip(2,ix)+
      + xs(isa,3)*recip(3,ix)
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      ys(isa,ix)=dble(ng(ix))*(w-cf_anint(w)+half)
-#else
       ys(isa,ix)=dble(ng(ix))*(w-anint(w)+half)
-#endif
     9 continue
     8 continue
 c
@@ -338,13 +325,6 @@ c
 c
       return
       end
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      real*8 function cf_anint(x)
-      real*8 x
-      cf_anint=anint(x)
-      return
-      end
-#endif
       subroutine cf_epme(knode,kfrom,kto,bmod,grid,mgz,energy)
 c
       implicit none

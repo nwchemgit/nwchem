@@ -53,11 +53,7 @@ TIMINGG test_timing;
 extern Integer mxsync_();
 static Integer countlist();
 
-#ifdef CRAY_T3D
-void MAIN1()
-#else
-     void main1_()
-#endif
+void main1_()
 {
   
   /*

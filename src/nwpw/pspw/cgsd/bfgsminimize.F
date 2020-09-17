@@ -54,6 +54,9 @@ c
       real*8 ehfx,phfx
       real*8 exc_atom,pxc_atom,ehartree_atom,ecmp_cmp,ecmp_pw
 
+      logical cosmo_on,cosmo1_on,V_APC_on
+      real*8  eapc,papc
+
 
 *     **** external functions ****
       integer  control_it_in,psi_neq,control_version
@@ -122,8 +125,10 @@ c
       external nwpw_meta_gga_on,ion_disp_on
       real*8   ion_disp_energy
       external ion_disp_energy
-      logical  pspw_Lin_HFX_on,nwpw_cosmo_on
-      external pspw_Lin_HFX_on,nwpw_cosmo_on
+      logical  pspw_Lin_HFX_on,nwpw_cosmo_on,nwpw_cosmo1_on
+      external pspw_Lin_HFX_on,nwpw_cosmo_on,nwpw_cosmo1_on
+      logical  pspw_V_APC_on
+      external pspw_V_APC_on
       real*8   psi_1energy,psi_1vl_cosmo
       external psi_1energy,psi_1vl_cosmo
       real*8   nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
@@ -146,6 +151,9 @@ c     dte = 1.0d0
       call Pack_npack(1,npack1)
       neall = psi_neq(1)+psi_neq(2)
       pawexist = psp_pawexist()
+      cosmo_on  = nwpw_cosmo_on()
+      cosmo1_on = nwpw_cosmo1_on()
+      V_APC_on  = pspw_V_APC_on()
 
 
 *     **** allocate G0, S0 ****
@@ -496,10 +504,32 @@ c     call psi_check()
 
 
 *     **** COSMO terms ****
-      if (nwpw_cosmo_on()) then
-         E(46) = psi_1vl_cosmo()
-         E(47) = nwpw_cosmo_EQionq()
-         E(48) = nwpw_cosmo_Eqq()
+      if (cosmo_on) then
+
+         !*** cosmo1 ****
+         if (cosmo1_on) then
+            E(46) = psi_1vl_cosmo()
+            E(47) = nwpw_cosmo_EQionq()
+            E(48) = nwpw_cosmo_Eqq()
+
+         !*** cosmo2 ****
+         else
+            call electron_apc_energies(eapc,papc)
+            E(22) = eapc
+            E(23) = papc
+            E(46) = eapc
+            E(47) = nwpw_cosmo_EQionq() !** E(Qion|q)
+            E(48) = nwpw_cosmo_Eqq()    !** E(q|q)
+
+            !E(1)  = E(1) + E(22) - E(23) + E(47) + E(48)
+            !E(1)  = E(1) + E(22) - E(23)
+         end if
+
+      else if (V_APC_on) then
+         call electron_apc_energies(eapc,papc)
+         E(22) = eapc
+         E(23) = papc
+         !E(1)  = E(1) + eapc - papc
       end if
 
 

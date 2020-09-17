@@ -239,9 +239,6 @@ c
 c     
       logical fexist
       integer stat
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      external moints_moao_block
-#endif
 c     
 c     first time through --- enable caching TO disk
 c     otherwise must be caching FROM disk
@@ -1300,12 +1297,6 @@ c  Define this macro assume everyone supports integer*2
 c  Undefine if compiler complains
 c
 #define HAVE_FORTRAN_INTEGER2
-#if defined(CRAY_T3E)
-#undef HAVE_FORTRAN_INTEGER2
-#endif
-
-
-      
 
 c
 c   This routine packs a dense 2d matrix (m x n)

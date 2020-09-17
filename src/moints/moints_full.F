@@ -52,7 +52,13 @@ c
 c     COLUMBUS format
 c
 c         coming soon
-c     
+c
+c     FCIDUMP format
+c
+c     same as ASCII,
+c     but no header
+c     and no last line 0. -1 -1 -1 -1
+c      
       character*255 movecs_in, moints_file
       integer moints_unit
       parameter (moints_unit=1)
@@ -163,9 +169,9 @@ c
       if (.not. ma_push_get(MT_DBL, nbf, 'Occs', l_occ, k_occ))
      $     call errquit('moints: failed to alloc occs ',nbf, MA_ERR)
       if (.not. ma_push_get(MT_INT, nmo(1), 'Irs', l_irs, k_irs))
-     $     call errquit('moints: failed to alloc irs ',nmo, MA_ERR)
+     $     call errquit('moints: failed to alloc irs ',nmo(1), MA_ERR)
       if (.not. ma_push_get(MT_INT, nmo(1), 'Irs', l_map, k_map))
-     $     call errquit('moints: failed to alloc map ',nmo, MA_ERR)
+     $     call errquit('moints: failed to alloc map ',nmo(1), MA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, nbf, nmo, 'MOs',
      $     0, 0, g_vecs)) call errquit('moints: ga failed', 0, GA_ERR)
@@ -209,6 +215,7 @@ c
       if (.not. rtdb_cget(rtdb,'fourindex:file format',1, intfmt))
      $     intfmt = 'nwchem'
       if (intfmt .eq. 'ascii') then
+      else if (intfmt .eq. 'fcidump') then
       else if (intfmt .eq. 'nwchem') then
       else if (intfmt .eq. 'columbus') then
          osymblock = .true.
@@ -335,11 +342,22 @@ c     repeat projection to be sure
             write(6,*)
             call util_flush(6)
          end if
+         if (intfmt .eq. 'fcidump') then
+ccc            
+c            call fcidump_symm(iunit,isym,norb,orbsym)
+            call fcidump_symm(moints_unit,
+     c           hi-lo+1,sym_number_ops(geom)+1,
+     c           int_mb(k_irs+lo-1))
+         endif
+         
          do i = 1, nmo(1)
             int_mb(k_irs+i-1) = int_mb(k_irs+i-1) - 1
          end do
       else
          call ifill(nmo(1),0,int_mb(k_irs),1)
+         call fcidump_symm(moints_unit,
+     c           hi-lo+1,1,
+     c           int_mb(k_irs+lo-1))
       end if
 c
 c     Keep track of where the MOs will end up
@@ -588,6 +606,8 @@ c
 c
       if (intfmt .eq. 'ascii') then
          itype = 1
+      else if (intfmt .eq. 'fcidump') then
+         itype = 1
       else if (intfmt .eq. 'nwchem') then
          n_in_buf = 0
          itype = 2
@@ -621,7 +641,8 @@ c
                      if (itype .eq. 1) then
                         write(moints_unit,1) g(l,k), 
      $                       i-lo1, j-lo1, k-lo1, l-lo1
- 1                      format(f18.12,4i4)
+ 1                      format(e23.16,4i4)
+cfcidump -0.4759344611440753E+00                        
                      else if (itype .eq. 2) then
                         n_in_buf = n_in_buf + 1
                         buf(n_in_buf) = g(l,k)
@@ -687,14 +708,14 @@ c
          end do
       end if
 c
-      if (intfmt .eq. 'ascii') then
+      if (intfmt .eq. 'ascii'.or.intfmt .eq. 'fcidump') then
          lo1 = lo - 1
          do i = lo, hi
             call ga_get(g_mofock, 1, hi, i, i, buf, 1)
             do j = lo, i
                if (abs(buf(j)) .gt. tol_out) then
                   write(moints_unit,1) buf(j), i-lo1, j-lo1, 0, 0
- 1                format(f18.12,4i4)
+ 1                format(e23.16,4i4)
                end if
             end do
          end do
@@ -748,12 +769,13 @@ c
 c
       if (intfmt .eq. 'ascii') then
          write(moints_unit,1) 0.0d0, -1, -1, -1, -1
- 1       format(f18.12,4i4)
+ 1       format(e23.16,4i4)
          close(moints_unit, status='keep', err=1000)
       else if (intfmt .eq. 'nwchem') then
          call moints_wrt_buf(moints_unit, 0, buf, labels)
          close(moints_unit, status='keep', err=1000)
-      else if (intfmt .eq. 'columbus') then
+      else if (intfmt .eq. 'columbus'.or.
+     c        intfmt .eq. 'fcidump') then
          close(moints_unit, status='keep', err=1000)
       else
          call errquit('moints: unknown integral format',0, INPUT_ERR)
@@ -774,6 +796,11 @@ c
       if (intfmt .eq. 'ascii') then
          open(moints_unit,file=moints_file,
      $        form='formatted',status='unknown',
+     $        err=1000)
+      elseif (intfmt .eq. 'fcidump') then
+         open(moints_unit,file=moints_file,
+     $        form='formatted',status='old',
+     $        position='append',
      $        err=1000)
       else if (intfmt .eq. 'nwchem') then
          open(moints_unit,file=moints_file,
@@ -910,7 +937,11 @@ c
  4       format('(1p,',i4,'d16.8,5x,''! occ'')')
          write(moints_unit,fmt) occ
          write(moints_unit,5) efzc, 0, 0, 0, 0
- 5       format(f18.12,4i4,5x,'! effective nuclear-repulsion energy')
+ 5       format(e23.16,4i4,5x,'! effective nuclear-repulsion energy')
+      else if (intfmt.eq.'fcidump') then
+         write(moints_unit,6) efzc, 0, 0, 0, 0
+ 6       format(e23.16,4i4,5x)
+c     nothing else to do here. fcidump_header()
       else if (intfmt .eq. 'nwchem') then
          write(moints_unit) title(1:80)
          write(moints_unit) nact, occ_frozen, buflen

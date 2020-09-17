@@ -218,12 +218,12 @@ endif
 # other NWChem modules
 ifdef BUILD_OPENBLAS
 NW_CORE_SUBDIRS += libext
-      BLASOPT=-L$(NWCHEM_TOP)/src/libext/lib -lopenblas
+      BLASOPT=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_openblas
       LAPACK_LIB=$(BLASOPT)      
 endif      
 ifdef BUILD_SCALAPACK
 NW_CORE_SUBDIRS += libext
-      SCALAPACK=-L$(NWCHEM_TOP)/src/libext/lib -lscalapack
+      SCALAPACK=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_scalapack
 endif      
 ifdef BUILD_MPICH
 NW_CORE_SUBDIRS += libext
@@ -2285,6 +2285,13 @@ ifeq ($(_CPU),$(findstring $(_CPU),aarch64))
     endif
   endif
 
+  ifeq ($(_CC),armclang)
+    COPTIONS += -O3 -funroll-loops -mcpu=native -armpl
+    ifdef USE_OPENMP
+      COPTIONS += -fopenmp
+    endif
+  endif
+
   ifeq ($(_FC),gfortran)
     ifdef  USE_GPROF
       FOPTIONS += -pg
@@ -2327,13 +2334,13 @@ ifeq ($(_CPU),$(findstring $(_CPU),aarch64))
 
     DEFINES   +=   -DARMFLANG
     LINK.f = $(FC)  $(LDFLAGS) 
-    FOPTIMIZE  = -O3 -Mfma -ffp-contract=fast
+    FOPTIMIZE  = -O3 -Mfma -ffp-contract=fast -fno-backslash
     ifeq ($(V),1)
     $(info     ARMFLANG FOPTIMIZE = ${FOPTIMIZE})
     endif
 
     FDEBUG += -g -O 
-    FOPTIMIZE +=  -mtune=native
+    FOPTIMIZE +=  -mtune=native -armpl
 
     ifndef USE_FPE
       FOPTIMIZE  += -ffast-math #2nd time
