@@ -51,8 +51,17 @@ c *************
       call ccsd_t_v2t2lgth(t2size,v2size)
 #if USE_F90_ALLOCATABLE
       allocate(d_t2sub(1:t2size), stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t_doubles_t: MA error d_t2sub',0,MA_ERR)
+      endif
       allocate(d_scratch(1:max(t2size,v2size)), stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t_doubles_t: MA error d_scratch',0,MA_ERR)
+      endif
       allocate(d_v2sub(1:v2size), stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t_doubles_t: MA error d_v2sub',0,MA_ERR)
+      endif
 #else
       IF (.not.MA_PUSH_GET(mt_dbl,t2size,'t2sub',
      L     l_t2sub,k_t2sub)) CALL
