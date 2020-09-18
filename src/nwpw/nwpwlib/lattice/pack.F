@@ -3665,7 +3665,7 @@ c     **** three derivatives ****
       subroutine Pack_t_dsca1l(nb,alpha,A)
       implicit none
       integer    nb
-      real*8     A(*)
+      real*8     alpha,A(*)
 
 
 *     **** common block for pack ****

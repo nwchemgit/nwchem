@@ -133,7 +133,7 @@ C
      A 1x,'MEMORY=',i10,/,
      A     1x'$END')
 c      
- 1    format(1x,'$FCI NORB=',i7,',NELEC=',i6,',')
+ 1    format(1x,'&FCI NORB=',i7,',NELEC=',i6,',')
 c      
  3    format(1x,'IUHF=',i1,',MS2=',i3,',')
  30   format(1x,'MS2=',i3,',')
@@ -160,6 +160,6 @@ c     ORBSYM=1,1,1,1,1,1,1,1,1,1,1,1,
       endif
  2    format(1x,'ISYM='i2,',ORBSYM=',9999(I2,','))
  4    format(1x,'MEMORY=',i10,/,
-     A     1x'$END')
+     A     1x'&END')
       return
       end

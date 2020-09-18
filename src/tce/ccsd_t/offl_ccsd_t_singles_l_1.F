@@ -211,7 +211,7 @@ c
 c
 cold      do ia6=1,9
 #ifdef OFFLOAD_CODE
-!$omp target data map(tofrom:triplesx(1:l_triplesx))
+!$omp target data map(tofrom:scratch(1:l_t1sub))
 #endif
       do ia6_in=1+ga_nodeid(),9+ga_nodeid()
          ia6=mod(ia6_in,9)+1

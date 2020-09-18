@@ -622,6 +622,32 @@ void paw_print_paw_potential_to_file(char* atom_name)
 
         fclose(fp);
 
+        sprintf(script_filename,"%s%s_pot.plt",paw_sdir(),atom_name);
+        fp = fopen(script_filename,"w+");
+        fprintf(fp,"set style data lines \n");
+        fprintf(fp,"set nolabel \n");
+        fprintf(fp,"set autoscale \n");
+        fprintf(fp,"set xr[0:%f] \n",2*r_ref);
+        fprintf(fp,"set grid \n");
+        fprintf(fp,"set key \n");
+        fprintf(fp,"set nolabel \n");
+
+        fprintf(fp,"set xlabel \"r (a0)\" \n");
+        fprintf(fp,"set title \" %s potentials\n",atom_name);
+
+        fprintf(fp,"plot \"%s\" using 1:2 title \"vref\"\n",data_filename);
+        fprintf(fp,"replot \"%s\" using 1:3 title \"vlocal\"\n",data_filename);
+        fprintf(fp,"replot \"%s\" using 1:($2+$3) title \"vref+vlocal\"\n",data_filename);
+        for (i=0; i<=nbasis-1; i++)
+           fprintf(fp,"replot \"%s\" using 1:%d title \"v%d%s\"\n",data_filename,i+4,prin_n[i],paw_spd_Name(orb_l[i]));
+
+
+        fprintf(fp,"\n");
+        fprintf(fp,"pause -1\n");
+        fclose(fp);
+
+        fclose(fp);
+
         sprintf(script_filename,"%s%s_ref_pot.plt",paw_sdir(),atom_name);
 
         fp = fopen(script_filename,"w+");

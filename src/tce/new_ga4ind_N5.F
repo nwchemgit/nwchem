@@ -32,8 +32,8 @@ c
       integer kax_v2_alpha_offset  ! MO integrals offset
       integer size_2e              ! 2e file size
 c
-cold      INTEGER azone1,azone2,azone3,azone4
-cold      INTEGER g1b,g2b,g3b,g4b
+      INTEGER azone1,azone2,azone3,azone4
+      INTEGER g1b,g2b,g3b,g4b
       INTEGER azone1_in,azone2_in,azone3_in,azone4_in
       integer g2b_in,g3b_in,g4b_in
       INTEGER igi1,igi2,igi3,igi4
@@ -1228,7 +1228,7 @@ c
       INTEGER size
       INTEGER length
       INTEGER addr,addr_n
-c      INTEGER g3b,azone1,azone2,azone3
+      INTEGER g3b,azone1,azone2,azone3
 #include "n4ind_offset.fh"
 c ([az3],[g3]|[az1]<=[az2])
       length = 0
@@ -1289,7 +1289,7 @@ c
       INTEGER size
       INTEGER length
       INTEGER addr,addr_n
-c      INTEGER g3b,g4b,azone1,azone2
+      INTEGER g3b,g4b,azone1,azone2
 #include "n4ind_offset.fh"
 c ([g4]=>[g3]|[az1]<=[az2])
       length = 0
@@ -1350,7 +1350,7 @@ c
       INTEGER size
       INTEGER length
       INTEGER addr,addr_n
-c      INTEGER g3b,g4b,g2b,azone2
+      INTEGER g3b,g4b,g2b,azone2
 #include "n4ind_offset.fh"
 c ([g4]=>[g3]|[g2][az2])
       length = 0
@@ -1415,6 +1415,7 @@ C     Copyright (c) Battelle & Pacific Northwest National Laboratory (2002)
       INTEGER k_a_offset
       INTEGER size
       INTEGER length
+      integer azone1,azone2,azone3,azone4
       INTEGER addr,addr_n
 #include "n4ind_offset.fh"
       length = 0
