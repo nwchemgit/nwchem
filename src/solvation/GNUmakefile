@@ -24,7 +24,7 @@
 
    LIB_INCLUDES = -I../nwdft/include -I../ddscf
 
-USES_BLAS = 
+USES_BLAS = hnd_cosmo_lib.F
 
 HEADERS = ../property/prop.fh ../property/atomdata.fh cosmoP.fh cosmo_params.fh
 

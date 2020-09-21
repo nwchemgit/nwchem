@@ -3603,11 +3603,15 @@ c
 c     ----- solve a * x = b , with x returned in b -----
 c
       ierr = 0
+#if 0
       if(nodcmp.ne.1) go to 20
 c
       call hnd_ludcmp(a,lda,n,ib,t,ierr)
    20 continue
       call hnd_lubksb(a,lda,n,ib,b)
+#else
+      call dgesv(n, 1, a, lda, ib, b, n, ierr)
+#endif
 c
       return
       end
@@ -3675,15 +3679,15 @@ c
    12 continue
       do 19 j=1,n
          if(j.gt.1) then
-            do 14 i=1,j-1
+            do  i=1,j-1
                sum=a(i,j)
                if(i.gt.1) then
-                  do 13 k=1,i-1
+                  do k=1,i-1
                      sum=sum-a(i,k)*a(k,j)
-   13             continue
+                  enddo
                   a(i,j)=sum
                endif
-   14       continue
+            enddo
          endif
          aamax=zero
          imax=0
