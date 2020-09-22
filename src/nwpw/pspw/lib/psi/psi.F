@@ -2837,6 +2837,79 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
 
 ************************ KS orbital Part ************************
 
+*
+      subroutine psi_KS_update00(psi_number,
+     >                         maxit_orbs,maxit_orb,
+     >                         ks_algorithm,
+     >                         precondition,
+     >                         maxerror)
+      implicit none
+      integer psi_number
+      integer maxit_orbs,maxit_orb
+      integer ks_algorithm
+      logical precondition
+      real*8  maxerror
+
+#include "bafdecls.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      logical done
+      integer i,j,neall
+      real*8 error,error_out,tim1,tim2,tim,sum
+
+*     **** external functions ****
+
+      tim = 0.0d0
+      neall = neq(1)+neq(2)
+      j = 0
+ 2    j = j+1
+        error = 0.0d0
+        !do i=neall,1,-1
+        do i=1,neall
+
+         !*** orthogonalize to lower orbitals  ****
+         call psi_project_out_f_orb1(
+     >           i,
+     >           dcpl_mb(psi1(1)+(i-1)*npack1))
+
+         !*** normalize ****
+         call Pack_cc_dot(1,
+     >            dcpl_mb(psi1(1) +(i-1)*npack1),
+     >            dcpl_mb(psi1(1) +(i-1)*npack1),
+     >            sum)
+         sum = 1.0d0/dsqrt(sum)
+c         call Pack_c_SMul(1,sum,
+c     >            dcpl_mb(psi1(1) +(i-1)*npack1),
+c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
+         call Pack_c_SMul1(1,sum,
+     >            dcpl_mb(psi1(1) +(i-1)*npack1))
+
+
+
+          if (ks_algorithm.eq.1) then
+          call psi_KS_update_orb2(psi_number,precondition,maxit_orb,
+     >                         maxerror,
+     >                         0.1d0,i,error_out)
+          else
+          call psi_KS_update_orb(psi_number,precondition,maxit_orb,
+     >                         maxerror,
+     >                         0.1d0,i,error_out)
+          end if
+
+          error = error+error_out
+        end do
+        error = error/dble(neall)
+
+        done = ((j.gt.maxit_orbs).or.(error.lt.maxerror))
+      if (.not.done) go to 2
+
+      return
+      end
+
+
+
+
 *     ***********************************
 *     *				        *
 *     *	     psi_KS_update	        *

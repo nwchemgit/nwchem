@@ -51,6 +51,8 @@
       logical  control_mult_fixed
       external control_mult_fixed
 
+      
+
       filename = control_input_psi()
       version = control_version()
       ngrid(1) = control_ngrid(1)
@@ -141,7 +143,7 @@
       if (.not.btdb_get(rtdb,
      >         'nwpw:adjust_skip',mt_log,1,adjust_skip))
      >   adjust_skip = .false.
-    
+
 *     **** adjust occupations of existing wavefunction ****
       if (psi_filefind().and.(.not.adjust_skip)) then
          call wvfnc_adjust(filename,ispin,ne)
@@ -149,21 +151,25 @@
 *     **** make wavefunction from scratch ****
       else
          success = .false.
-         if (.not.lcao_skip)
-     >     success =  lcao_wvfnc(lcao_print,lcao_iterations,
+         if (.not.lcao_skip) then
+            success =  lcao_wvfnc(lcao_print,lcao_iterations,
      >                        filename,
      >                        version,
      >                        ngrid,
      >                        unita,
      >                        ispin,
      >                        ne)
-         if (.not.success)
-     >      call wvfnc_new(filename,
+         end if
+
+         if (.not.success) then
+            call wvfnc_new(filename,
      >                  version,
      >                  ngrid,
      >                  unita,
      >                  ispin,
      >                  ne,oddelcfill)
+         end if
+
       end if
 
       return

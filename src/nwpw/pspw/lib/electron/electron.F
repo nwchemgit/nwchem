@@ -2192,6 +2192,9 @@ c      end do
      >     call D3dB_rr_Sum2(1,dbl_mb(v_confine(1)),dbl_mb(vall(1)))
 
       end if
+      if (ispin.eq.2) then
+         call D3dB_r_Copy(1,dbl_mb(vall(1)),dbl_mb(vall(1)+2*nfft3d))
+      end if
 
       return 
       end 
