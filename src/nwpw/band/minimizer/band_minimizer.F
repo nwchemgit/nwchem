@@ -813,7 +813,7 @@ c     >     .or.nwpwxc_is_on()) THEN
  1297 FORMAT(/' fractional smearing parameters:')
  1298 FORMAT(5X, ' smearing algorithm   = ',A)
  1299 FORMAT(5X, ' smearing parameter   = ',E9.3,' (',F7.1,' K)'/,
-     >       5X, ' mixing parmameter    = ',F7.4)
+     >       5X, ' mixing parameter     =',F7.4)
  1300 FORMAT(//)
  1301 FORMAT(5X, ' Kerker damping       =',F7.4)
  1305 FORMAT(10X,'================ iteration =========================')
