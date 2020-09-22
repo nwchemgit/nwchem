@@ -148,7 +148,8 @@ c#include "global.fh"
             call psi_diagonalize_hml_assending()
             call psi_1rotate2()
             call psi_2to1()
-            call psi_1define_occupation(-1.0d0,.false.)
+            !call psi_1define_occupation(-1.0d0,.false.)
+            call psi_1define_occupation(1.0d0,.false.)
          end if
       end if
    2  continue
