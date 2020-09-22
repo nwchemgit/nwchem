@@ -7062,3 +7062,77 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *        control_H1_it_in          *
+*     *                                 *
+*     ***********************************
+      integer function control_H1_it_in()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer it_in
+
+      if (.not.btdb_get(rtdb,'nwpw:H1_it_in',mt_int,1,it_in)) 
+     >   it_in = 50
+
+      control_H1_it_in = it_in
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *        control_H1_it_out        *
+*     *                                 *
+*     ***********************************
+      integer function control_H1_it_out()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer it_out
+
+      if (.not.btdb_get(rtdb,'nwpw:H1_it_out',mt_int,1,it_out)) 
+     >   it_out = 1
+
+      control_H1_it_out = it_out
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      control_H1_it_ortho        *
+*     *                                 *
+*     ***********************************
+      integer function control_H1_it_ortho()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer it_ortho
+
+      if (.not.btdb_get(rtdb,'nwpw:H1_it_ortho',mt_int,1,it_ortho))
+     >   it_ortho = -1
+
+      control_H1_it_ortho = it_ortho
+      return
+      end
+
