@@ -112,6 +112,7 @@
 
       if (newpsi) then
          call c_sdminimize(10)
+         call c_bybminimize0()
          if (control_fractional()) then
             call cpsi_1toelectron()
             call cpsi_1gen_hml()

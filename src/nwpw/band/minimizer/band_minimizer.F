@@ -300,7 +300,7 @@ c      call center_mass(gx,gy,gz)
       nbrillioun = brillioun_nbrillioun()
       call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
       value = cpsi_initialize(.true.)
-      newpsi = newpsi.or.value
+      !newpsi = newpsi.or.value
 
 *     **** electron and geodesic data structures ****
       call c_electron_init()
