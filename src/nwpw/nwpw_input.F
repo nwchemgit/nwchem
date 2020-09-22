@@ -23,7 +23,7 @@ c#include "nwpwxc.fh"
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 127)
+      parameter (num_dirs = 128)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -151,6 +151,7 @@ c
      >            'vfield',
      >            'born',
      >            'symmetry',
+     >            'one_electron_guess',
      >            'end'/
 
       double precision kb
@@ -231,7 +232,7 @@ c
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
      >       7700,7800,7900,8000,8100,6650,8200,8300,8400,8500,8600,
-     >       8700,8800,8900,9000,9010,9020,
+     >       8700,8800,8900,9000,9010,9020,9030,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -2185,6 +2186,23 @@ c
       if (.not.rtdb_put(rtdb,'nwpw:rho_use_symmetry',mt_log,1,
      >                  move))
      >  call errquit('nwpw_input: error writing to rtdb',9020,RTDB_ERR)
+      goto 10
+
+c
+c one-electron-guess it_in it_out it_ortho
+c
+ 9030 if (.not.inp_i(nx)) nx = 50
+      if (.not.inp_i(ny)) ny = 1
+      if (.not.inp_i(nz)) nz = 1
+      if (nz.ge.0) then
+         if (.not.rtdb_put(rtdb,'nwpw:H1_it_in',mt_int,1,nx))
+     >   call errquit('nwpw_input:error writing to rtdb',9030,RTDB_ERR)
+         if (.not.rtdb_put(rtdb,'nwpw:H1_it_out',mt_int,1,ny))
+     >   call errquit('nwpw_input:error writing to rtdb',9030,RTDB_ERR)
+         if (.not.rtdb_put(rtdb,'nwpw:H1_it_ortho',mt_int,1,nz))
+     >   call errquit('nwpw_input:error writing to rtdb',9030,RTDB_ERR)
+      end if
+
       goto 10
 
 
