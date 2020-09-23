@@ -1990,8 +1990,10 @@ endif
        FOPTIONS += -align -fpp
            ifdef USE_OFFLOAD
                EXPLICITF = TRUE
+               CPP=fpp -P 
            endif
-           CPP=fpp -P 
+# might be not need and the root cause for https://github.com/nwchemgit/nwchem/issues/255
+#           CPP=fpp -P
            ifeq ($(_IFCV15ORNEWER), Y)
 # fpp seems to get lost with ifort 15 in the offload bit
 # only use EXPLICITF for offload because otherwise we want debugging to be easy
