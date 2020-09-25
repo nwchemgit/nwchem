@@ -1798,7 +1798,7 @@ c     write(*,*) 'edih = ', edih, ' kcal/mol'
      &                   int_mb(i_jang),int_mb(i_kang),
      &                   dbl_mb(i_kthe),dbl_mb(i_thet),eang)
    
-      call mm_dihe_energy(nbtot,dbl_mb(i_br),log_mb(i_lqm),
+      call mm_dihe_energy(nqm,nbtot,dbl_mb(i_br),log_mb(i_lqm),
      &                   int_mb(i_indx),ndih,int_mb(i_idih),
      &                   int_mb(i_jdih),int_mb(i_kdih),int_mb(i_ldih),
      &                   dbl_mb(i_kphi),dbl_mb(i_peri),
