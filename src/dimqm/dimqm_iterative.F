@@ -16,10 +16,10 @@ c
 c     Input Variables
       integer rtdb
       integer dtype 
+      integer icmplx
       double precision xyz(3,nDIM)
       double precision fld(nOrder, icmplx)
       double precision muold(nOrder, icmplx)
-      integer icmplx
       logical iscmplx
       character dir, pm
 c

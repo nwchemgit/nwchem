@@ -1595,6 +1595,7 @@ c     write(*,*) 'edih = ', edih, ' kcal/mol'
       integer iqm
       integer i_indx, j_indx, k_indx, l_indx
       integer i1, i2, i3, i4
+      integer inc
       double precision xij,yij,zij
       double precision xkj,ykj,zkj
       double precision xkl,ykl,zkl
@@ -1613,7 +1614,6 @@ c     write(*,*) 'edih = ', edih, ' kcal/mol'
       double precision pi
       double precision zero,one,tm06,tenm3
       double precision df0,df1,dums,dflim
-      double precision inc
       double precision gmul(10)
       double precision dc1,dc2,dc3,dc4,dc5,dc6
       double precision dr1,dr2,dr3,dr4,dr5,dr6
@@ -1798,7 +1798,7 @@ c     write(*,*) 'edih = ', edih, ' kcal/mol'
      &                   int_mb(i_jang),int_mb(i_kang),
      &                   dbl_mb(i_kthe),dbl_mb(i_thet),eang)
    
-      call mm_dihe_energy(nbtot,dbl_mb(i_br),log_mb(i_lqm),
+      call mm_dihe_energy(nqm,nbtot,dbl_mb(i_br),log_mb(i_lqm),
      &                   int_mb(i_indx),ndih,int_mb(i_idih),
      &                   int_mb(i_jdih),int_mb(i_kdih),int_mb(i_ldih),
      &                   dbl_mb(i_kphi),dbl_mb(i_peri),
