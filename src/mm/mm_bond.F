@@ -1595,6 +1595,7 @@ c     write(*,*) 'edih = ', edih, ' kcal/mol'
       integer iqm
       integer i_indx, j_indx, k_indx, l_indx
       integer i1, i2, i3, i4
+      integer inc
       double precision xij,yij,zij
       double precision xkj,ykj,zkj
       double precision xkl,ykl,zkl
@@ -1613,7 +1614,6 @@ c     write(*,*) 'edih = ', edih, ' kcal/mol'
       double precision pi
       double precision zero,one,tm06,tenm3
       double precision df0,df1,dums,dflim
-      double precision inc
       double precision gmul(10)
       double precision dc1,dc2,dc3,dc4,dc5,dc6
       double precision dr1,dr2,dr3,dr4,dr5,dr6
