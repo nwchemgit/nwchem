@@ -629,9 +629,14 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 ******************         Epilogue          **********************
 *                |***************************|
 
+*     **** generate eig grid data file ****
+      call cpsi_printeigall(rtdb)
+
 *     **** calculate interpolated band structure plot ***
       call band_interpolate_structure(rtdb)
-cc      call band_kp_structure(rtdb)
+      call band_fft_structure(rtdb)
+      !call band_kp_structure(rtdb)
+
 
 *     **** calculate Mulliken Populations ***
       if (control_Mulliken()) then
