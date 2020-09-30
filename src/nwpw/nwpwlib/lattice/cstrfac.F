@@ -580,7 +580,7 @@ C
 
 *     ***********************************
 *     *                                 *
-*     *         cstrfac_translate        *
+*     *        cstrfac_translate        *
 *     *                                 *
 *     ***********************************
       subroutine cstrfac_translate(trans,exi)
