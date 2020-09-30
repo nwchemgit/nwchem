@@ -4,7 +4,8 @@
  OBJ_OPTIMIZE = \
 		band_structure.o \
 		band_interpolate_structure.o \
-		band_kp_structure.o
+		band_kp_structure.o \
+		band_fft_structure.o
                 
 	  OBJ = 
 
