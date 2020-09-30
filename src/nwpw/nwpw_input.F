@@ -23,7 +23,7 @@ c#include "nwpwxc.fh"
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 128)
+      parameter (num_dirs = 130)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -152,6 +152,8 @@ c
      >            'born',
      >            'symmetry',
      >            'one_electron_guess',
+     >            'zone_fft_name',
+     >            'dos-fft-grid',
      >            'end'/
 
       double precision kb
@@ -232,7 +234,7 @@ c
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
      >       7700,7800,7900,8000,8100,6650,8200,8300,8400,8500,8600,
-     >       8700,8800,8900,9000,9010,9020,9030,
+     >       8700,8800,8900,9000,9010,9020,9030,1810,1811,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -412,6 +414,7 @@ c
 
       goto 10
 
+
 c
 c DOS-Grid
 c
@@ -440,6 +443,11 @@ c
       call dos_states_set(rtdb,zone_name,cell_expand(1),
      >                                   cell_expand(2),
      >                                   cell_expand(3))
+      value = rtdb_put(rtdb,'band:tetrahedron-grid',mt_int,3,
+     >                 cell_expand)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 1808, RTDB_ERR)
       goto 10
 
 
@@ -459,6 +467,35 @@ c      if (.not.value)
 c     >  call errquit(
 c     >       'nwpw_input: error writing to rtdb', 1809, RTDB_ERR)
 c      goto 10
+
+c
+c  zone_fft_name
+c
+ 1810 if (.not. inp_a(zone_name))
+     >     call errquit(
+     >          'nwpw_input: failed to read zone_fft_name',0,INPUT_ERR)
+
+      ind = index(zone_name,' ') - 1
+      value = rtdb_cput(rtdb,'band_fft:zone_name',1,
+     >                  zone_name(1:ind))
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 1810, RTDB_ERR)
+
+      goto 10
+c
+c dos-fft-grid
+c
+ 1811 if (.not. inp_i(cell_expand(1))) cell_expand(1) = 2
+      if (.not. inp_i(cell_expand(2))) cell_expand(2) = 2
+      if (.not. inp_i(cell_expand(3))) cell_expand(3) = 2
+      if (.not. inp_a(zone_name)) zone_name = 'zone_fft_default'
+
+      call dos_states_set(rtdb,zone_name,cell_expand(1),
+     >                                   cell_expand(2),
+     >                                   cell_expand(3))
+
+      goto 10
 
 
 
