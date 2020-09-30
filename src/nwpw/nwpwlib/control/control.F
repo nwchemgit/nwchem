@@ -3808,6 +3808,43 @@ c     >               (ispin.eq.ispin_wf))
       return
       end
 
+*     **********************************
+*     *                                *
+*     *      control_fft_dos_grid      *
+*     *                                *
+*     **********************************
+      subroutine control_fft_dos_grid(grid)
+      implicit none
+      integer grid(3)
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "errquit.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+*     **** local variables ****
+      character*50 zone_name
+      character*50 rtdb_name
+      integer l
+
+      if (.not.btdb_cget(rtdb,'band_fft:zone_name',
+     >                   1,zone_name))
+     >   zone_name = 'zone_fft_default'
+
+      l = index(zone_name,' ') -1
+      rtdb_name = zone_name(1:l)//':dos-grid'
+      if(.not.btdb_get(rtdb,rtdb_name,mt_int,3,grid)) then
+         grid(1) = 0
+         grid(2) = 0
+         grid(3) = 0
+      end if
+
+      return
+      end
+
 
 *     **********************************
 *     *                                *
