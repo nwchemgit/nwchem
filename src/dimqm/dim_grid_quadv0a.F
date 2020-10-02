@@ -25,6 +25,7 @@ c   Input Variables
       double precision qxyz(3,n_per_rec)
       double precision qwght(n_per_rec)
       integer ncoef_max
+      integer natoms
       integer iniz(natoms)
       integer ifin(natoms)
       double precision rho(*)
@@ -41,7 +42,6 @@ c   Input Variables
       logical do_scf
       logical do_cpks_l
       double precision ccoef(ncoef_max)
-      integer natoms
       
       integer iqsh
       integer nqpts, ictr_buf

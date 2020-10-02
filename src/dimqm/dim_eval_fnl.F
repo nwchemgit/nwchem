@@ -15,12 +15,12 @@ c
 #include "tcgmsg.fh"
 c
 c   Input Variables
-      double precision ptnl(nq, npert) ! DIM potential at each quadrature point for each perturbation
       integer nq                       ! Number of quadrature points
+      integer npert
+      double precision ptnl(nq, npert) ! DIM potential at each quadrature point for each perturbation
       double precision qwght(nq)       ! Quadrature weights
       double precision xyz(3, nDIM)    ! DIM atom coordinates
       double precision qxyz(3, nq)     ! Quadrature point coodinates
-      integer npert
       integer ipm                      
       integer imag
       double precision muind(3, nDIM, npert)  ! Array that holds induced dipoles.  Structured as (component, atom, perturbation)
