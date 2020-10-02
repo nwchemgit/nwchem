@@ -25,6 +25,9 @@ c     Input Variables
 c                  ! 0 = SCF 
 c                  ! 1 = CPKS_LHS
       logical l3d  ! Using 3d arrays?
+      integer nq   ! Number of quadrature points
+      integer nbf  ! Number of basis functions
+      integer max_at_bf         ! Unsure
       double precision Tmat(*)  ! Work array
       double precision TTmat(*) ! Work array
       double precision Amat(nq,*) ! DIM potential calculated at each quadrature point
@@ -33,9 +36,6 @@ c                  ! 1 = CPKS_LHS
       integer nmat ! Number of perturbations
                    ! 1 for SCF
                    ! 3 for CPKS
-      integer nq   ! Number of quadrature points
-      integer nbf  ! Number of basis functions
-      integer max_at_bf  ! Unsure
       integer max_at_bf2 ! Unsure
       integer basis ! Basis set handle
       integer natoms ! Number of atoms in QM system
