@@ -1,0 +1,13 @@
+*
+* $Id$
+*
+
+      integer nq(NBLOCKS),nz(NBLOCKS),mapping,np_j
+      common    / C1dB / nq,nz,mapping,np_j
+
+      !**** 1d mapping ****
+      integer nqarray(2,NBLOCKS)
+      integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
+      common / C1dB_mapping / q_map,p_map,k_map,nqarray
+
+

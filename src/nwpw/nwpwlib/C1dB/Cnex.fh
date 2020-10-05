@@ -1,0 +1,9 @@
+*
+* $Id$
+*
+
+      integer ne(2),neq(2),ispin
+      common    / Cnex / ne,neq,ispin
+
+
+
