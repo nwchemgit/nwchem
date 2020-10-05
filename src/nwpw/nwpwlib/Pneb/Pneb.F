@@ -150,20 +150,27 @@ cccccccccccccccccccccccccc
 *     *					*
 *     ***********************************
 
-      subroutine Pneb_init(ispin_in,ne_in,nbrill_in,spin_orbit_in)
+      subroutine Pneb_init(ispin_in,ne_in,nbrill_in,
+     >                     map_in,spin_orbit_in)
       implicit none
       integer ispin_in
       integer ne_in(2)
       integer nbrill_in
+      integer map_in
       logical spin_orbit_in
 
 #include "Pneb.fh"
 
 *     **** external functions ****
+      logical  control_mparallelized
+      external control_mparallelized
       integer  brillioun_nbrillq
-      integer  Parallel3d_comm_i,Parallel3d_comm_j,Parallel3d_comm_k
       external brillioun_nbrillq
+      integer  Parallel3d_comm_i,Parallel3d_comm_j,Parallel3d_comm_k
       external Parallel3d_comm_i,Parallel3d_comm_j,Parallel3d_comm_k
+      integer  control_mreplicate_size
+      external control_mreplicate_size
+
 
       ispin   = ispin_in
       ne(1)   = ne_in(1)
@@ -172,8 +179,14 @@ cccccccccccccccccccccccccc
       nbrillq =  brillioun_nbrillq()
       spin_orbit = spin_orbit_in
 
-      neq(1)  = ne(1)
-      neq(2)  = ne(2)
+      neq(1)  = 0
+      neq(2)  = 0
+      call C1dB_init(1,ne(1),map_in)
+      call C1dB_nq(1,neq(1))
+      if ((ispin.eq.2).and.(ne(2).gt.0)) then
+         call C1dB_init(2,ne(2),map_in)
+         call C1dB_nq(2,neq(2))
+      end if
 
       call Parallel3d_np_i(np_i)
       call Parallel3d_np_j(np_j)
@@ -181,8 +194,12 @@ cccccccccccccccccccccccccc
       comm_i = Parallel3d_comm_i()
       comm_j = Parallel3d_comm_j()
       comm_k = Parallel3d_comm_k()
+      parallelized_j = (np_j.gt.1)
       parallelized_k = (np_k.gt.1)
-  
+
+      mparallelized = (parallelized_j.and.control_mparallelized())
+      mreplicate = ((np_i*np_j).gt.control_mreplicate_size())
+
 
       if (spin_orbit) then
          ispinq = 1
@@ -205,6 +222,10 @@ cccccccccccccccccccccccccc
       implicit none
 
 #include "Pneb.fh"
+
+      call C1dB_end(1)
+      if ((ispin.eq.2).and.(ne(2).gt.0)) call C1dB_end(2)
+      
 
       im_init=.false.
       return

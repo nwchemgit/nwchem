@@ -10,7 +10,7 @@
      >                          spin_orbit,im_init
 
 
-      logical parallelized_j,parallelized_k
+      logical parallelized_j,parallelized_k,mparallelized,mreplicate
       integer taskid_i,taskid_j,taskid_k
       integer np_i,np_j,np_k
       integer comm_i,comm_j,comm_k

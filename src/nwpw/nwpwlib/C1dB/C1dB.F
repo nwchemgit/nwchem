@@ -1,7 +1,6 @@
 
 #define NBLOCKS 4
 
-
 *
 * $Id$
 *
@@ -47,17 +46,17 @@
 *  common blocks used in this library:
 *
 *       integer nq,nz(NBLOCKS)
-*	common	/ D3dB / nq,nz
+*	common	/ C3dB / nq,nz
 
 *     **** local variables ****
 
 *     ***********************************
 *     *					*
-*     *	       Mapping1d_init		*	
+*     *	       CMapping1d_init		*	
 *     *					*
 *     ***********************************
 
-      subroutine Mapping1d_init(nb)
+      subroutine CMapping1d_init(nb)
       implicit none
       integer nb
      
@@ -71,8 +70,8 @@
       integer taskid
       logical value
       
-c      call Parallel2d_np_j(np_j)
-      call Parallel2d_taskid_j(taskid)
+c      call Parallel3d_np_j(np_j)
+      call Parallel3d_taskid_j(taskid)
 
 
 *     **** allocate q_map,p_map,k_map
@@ -85,7 +84,7 @@ c      call Parallel2d_np_j(np_j)
       value = value.and.BA_alloc_get(mt_int,np_j,'nqarray',
      >                               nqarray(2,nb),nqarray(1,nb))
       if (.not. value)
-     > call errquit('Mapping_init:out of heap memory',0, MA_ERR)
+     > call errquit('CMapping_init:out of heap memory',0, MA_ERR)
 
 
 *     ****************************
@@ -267,7 +266,7 @@ c      call Parallel2d_np_j(np_j)
       parameter (MASTER=0)
       integer taskid
 
-      call Parallel2d_np_j(np_j)
+      call Parallel3d_np_j(np_j)
       call Parallel_taskid(taskid)
 
 
@@ -287,7 +286,7 @@ c      call Parallel2d_np_j(np_j)
       mapping    = map_in
 
 *     **** do other initializations ****
-      call Mapping1d_init(nb)
+      call CMapping1d_init(nb)
       
       return
       end
