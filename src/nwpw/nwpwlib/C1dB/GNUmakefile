@@ -2,8 +2,7 @@
 # $Id$
 #
 
- OBJ_OPTIMIZE = C1dB.o Cne.o Cnex.o 
- OBJ_OPTIMIZE += Cne_omp.o
+ OBJ_OPTIMIZE = C1dB.o 
 
 ### make defaults USE_MPIF and USE_MPIF4 ###
 ifeq ($(USE_MPIF),n)
@@ -27,7 +26,7 @@ endif
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = C1dB-mpi.F Cne.F Cne_omp.F Cnex.F
+    USES_BLAS = C1dB-mpi.F 
 
   LIB_DEFINES = 
 
