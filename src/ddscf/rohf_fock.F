@@ -149,6 +149,7 @@ c
       call ga_zero(g_hcore)
       call int_1e_ga(basis, basis, g_hcore, 'kinetic', oskel) ! kinetic
       if (do_zora .and. .not. (do_NonRel)) then
+        call errquit(' ZORA not available yet for SCF ',0,CAPMIS_ERR)
         call ga_dadd(1.d0,g_hcore,1.d0,g_zora_Kinetic(1),g_hcore) ! zora kinetic
       endif
       call int_1e_ga(basis, basis, g_hcore, 'potential', oskel) ! potential
