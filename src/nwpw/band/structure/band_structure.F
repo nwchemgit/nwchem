@@ -60,7 +60,7 @@
       real*8  pathlength,dist,kold(3),emin,emax,lmbda,rcut
       integer ii,jj,kk,ll,i,k,ia,nion,vers,nbrillioun,icharge,isize,indx
       integer npoints,nbrillall,if1,if2,nbrillq,l3
-      integer mapping,tmp(2),norbs_dos
+      integer mapping,tmp(2),norbs_dos,mapping1d
       character*255 full_filename
       character*50 filename
       character*72 cube_comment
@@ -95,6 +95,8 @@
       external control_it_in,control_it_out,control_gga,control_version
       external control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
       external ion_nkatm
+      integer  control_mapping1d
+      external control_mapping1d
 
       character*12 control_boundry
       external     control_boundry
@@ -288,7 +290,8 @@ c      call center_mass(gx,gy,gz)
          spin_orbit = .false.
       end if
       nbrillioun = brillioun_nbrillioun()
-      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
+      mapping1d  = control_mapping1d()
+      call Pneb_init(ispin,ne,nbrillioun,mapping1d,spin_orbit)
       value = cpsi_initialize(.true.) 
 
 *     **** electron and geodesic data structures ****
@@ -463,6 +466,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
       call Cram_end()
       call c_G_end()
       call brillioun_end()
+      call Pneb_end()
 
 
 *     **** produce eigenvalue band file(s) ****
@@ -672,8 +676,8 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
          spin_orbit = .false.
       end if
       nbrillioun = brillioun_nbrillioun()
-
-      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
+      mapping1d  = control_mapping1d()
+      call Pneb_init(ispin,ne,nbrillioun,mapping1d,spin_orbit)
       value = cpsi_initialize(ortho)
 
 c      if (flag.eq.2) call cpsi_dospsi_read(k)
@@ -901,6 +905,7 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
       call Cram_end()
       call c_G_end()
       call brillioun_end()
+      call Pneb_end()
 
       end do
       if (taskid.eq.MASTER) then

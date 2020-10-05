@@ -320,7 +320,8 @@ c      call ion_init_FixIon(rtdb)
          spin_orbit = .false.
       end if
       nbrillioun = brillioun_nbrillioun()
-      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
+      mapping1d  = control_mapping1d()
+      call Pneb_init(ispin,ne,nbrillioun,mapping1d,spin_orbit)
       call Pneb_neq(neq)
 
 
@@ -331,7 +332,6 @@ c      call ion_init_FixIon(rtdb)
       else
          fractional = .false.
       end if
-      mapping1d = control_mapping1d()
       ispinq  = Pneb_ispinq()
       nbrillq = Pneb_nbrillq()
 
@@ -1260,6 +1260,7 @@ c      call pspw_qmmm_end()
       call C3dB_pfft_end()
       call cpsi_data_end()
       call C3dB_end(1)
+      call Pneb_end()
       !if ((control_gga().ge.10).and.(control_gga().lt.100)) then
       if (.not.control_only_lda()) then
          call mask_end()

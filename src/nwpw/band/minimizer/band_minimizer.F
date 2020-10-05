@@ -59,7 +59,7 @@
       real*8  f0,f1,f2,f3,f4,f5,f6
       integer if1,if2
       integer i,k,ia,nion,vers,nbrillioun,nb,ms
-      integer mapping,minimizer
+      integer mapping,minimizer,mapping1d
 
 *     **** external functions ****
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
@@ -132,6 +132,8 @@
       external pspw_reformat_c_wvfnc,control_check_charge_multiplicity
       integer  control_mapping,control_minimizer,control_np_dimensions
       external control_mapping,control_minimizer,control_np_dimensions
+      integer  control_mapping1d
+      external control_mapping1d
       integer  control_scf_algorithm,control_ks_algorithm
       external control_scf_algorithm,control_ks_algorithm
       real*8   control_ks_alpha,control_kerker_g0
@@ -298,7 +300,8 @@ c      call center_mass(gx,gy,gz)
          spin_orbit = .false.
       end if
       nbrillioun = brillioun_nbrillioun()
-      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
+      mapping1d  = control_mapping1d()
+      call Pneb_init(ispin,ne,nbrillioun,mapping1d,spin_orbit)
       value = cpsi_initialize(.true.)
       !newpsi = newpsi.or.value
 
@@ -672,6 +675,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
       call cpsi_data_end()
       call C3dB_pfft_end()
       call C3dB_end(1)
+      call Pneb_end()
 c      IF (((control_gga().ge.10).and.(control_gga().le.200)) 
 c     >     .or.nwpwxc_is_on()) THEN
       if (.not.control_only_lda()) then
