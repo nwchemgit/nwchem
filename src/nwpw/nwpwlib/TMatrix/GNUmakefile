@@ -6,14 +6,15 @@
 		 dgamm_omp.o \
 		 daxpy_omp.o \
 		 dscal_omp.o \
-		 ffm_multiply_omp_group.o
+		 ffm_multiply_omp_group.o \
+		 zgemm_omp.o
   OBJ = 
 
 
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = dgemm_omp.F ffm_multiply_omp_group.F
+    USES_BLAS = dgemm_omp.F ffm_multiply_omp_group.F zgemm_omp.F
 
   LIB_DEFINES = 
 
