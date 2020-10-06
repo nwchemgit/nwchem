@@ -218,11 +218,29 @@ endif
 # other NWChem modules
 ifdef BUILD_OPENBLAS
 NW_CORE_SUBDIRS += libext
+#bail out if BLASOPT or LAPACK_LIB or BLAS_LIB are defined by user
+ifneq ($(or $(BLASOPT),$(LAPACK_LIB),$(BLAS_LIB)),)
+$(info     )
+$(info You must unset)
+$(info BLASOPT ,LAPACK_LIB and BLAS_LIB)
+$(info when using BUILD_OPENBLAS )
+$(info )
+$(error )
+endif
       BLASOPT=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_openblas
       LAPACK_LIB=$(BLASOPT)      
+      BLAS_LIB=$(BLASOPT)
 endif      
 ifdef BUILD_SCALAPACK
 NW_CORE_SUBDIRS += libext
+      ifneq ($(or $(SCALAPACK),$(SCALAPACK_LIB)),)
+$(info     )
+$(info You must unset)
+$(info SCALAPACK  and SCALAPACK_LIB)
+$(info when using BUILD_SCALAPACK )
+$(info )
+$(error )
+endif
       SCALAPACK=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_scalapack
 endif      
 ifdef BUILD_MPICH
