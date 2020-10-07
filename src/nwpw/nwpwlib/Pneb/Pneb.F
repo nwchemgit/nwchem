@@ -1143,42 +1143,161 @@ c     ****************************************
       integer    npack1
       real*8     hml(*)
 
+#include "bafdecls.fh"   
+#include "errquit.fh"
 #include "Pneb.fh"
 
 *     **** local variables ****
-      integer nb,nb1,nb2,ms,ms1,ms2,nsize,n,np
+      integer nb,nb1,nb2,ms,ms1,ms2,nsize,n,np,nn
       integer shift,shiftso,shift2,ishift2,ishift3
+      integer tid,nthr
 
 *     **** external functions ****
       integer  Pneb_m_size
       external Pneb_m_size
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
 
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
 
       call Parallel3d_np_i(np)
-      nsize = Pneb_m_size(mb,nbb)
-      if (mb.eq.0) then
-         ms1 = 1
-         ms2 = ispinq
-         ishift2 = ne(1)*ne(1)  !** note that ne rather than neq is used **
-      else
-         ms1 = mb
-         ms2 = mb
-         ishift2 = 0
-      end if
-      if (nbb.eq.0) then
-        nb1 = 1
-        nb2 = nbrillq
-        ishift3 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
-      else
-        nb1 = nbb
-        nb2 = nbb
-        ishift3 = 0
-      end if
 
-      do nb=nb1,nb2
+      if (parallelized_j) then
+         nsize = Pneb_m_size(mb,nbb)
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+            !mm = mcq(1)*ncq(1) + mcq(2)*ncq(2)
+            nn = mcqmax(1)*ncqmax(1)+mcqmax(2)*ncqmax(2)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+            !mm = mcq(mb)*ncq(mb) 
+            nn = mcqmax(mb)*ncqmax(mb)
+         end if
+
+         if (nbb.eq.0) then
+           nb1 = 1
+           nb2 = nbrillq
+           ishift3 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
+         else
+           nb1 = nbb
+           nb2 = nbb
+           ishift3 = 0
+         end if
+
+         do nb=nb1,nb2
+            if (mparallelized) then
+               do ms=ms1,ms2
+                  if (ne(ms).eq.0) go to 20
+                  shift  = 1 + (ms-1)*neq(1)*npack1
+     >                   + ((nb-nb1))*(neq(1)+neq(2))*npack1
+                  shiftso = shift + neq(1)*npack1
+                  shift2  = 1 + (ms-1)*ishift2 + (nb-nb1)*ishift3
+
+                  call DMatrix_dgemm2(ne(ms),ne(ms),npack1_all,128,
+     >                1.0d0,
+     >                Y1(shift),int_mb(ma(1,ms)+taskid_i),
+     >                          int_mb(ma(1,ms)),
+     >                          int_mb(na(1,ms)),
+     >                Y2(shift),int_mb(ma(1,ms)+taskid_i),
+     >                          int_mb(ma(1,ms)),
+     >                          int_mb(na(1,ms)),
+     >                0.0d0,
+     >                hml(shift2),int_mb(mc(1,ms)+taskid_i),
+     >                            int_mb(mc(1,ms)),
+     >                            int_mb(nc(1,ms)),
+     >                taskid_i,taskid_j,
+     >                np_i,np_j,
+     >                comm_i, comm_j,
+     >                dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+                  if (spin_orbit) then
+                     call DMatrix_dgemm2(ne(ms),ne(ms),npack1_all,128,
+     >                   1.0d0,
+     >                   Y1(shiftso),int_mb(ma(1,ms)+taskid_i),
+     >                             int_mb(ma(1,ms)),
+     >                             int_mb(na(1,ms)),
+     >                   Y2(shiftso),int_mb(ma(1,ms)+taskid_i),
+     >                             int_mb(ma(1,ms)),
+     >                             int_mb(na(1,ms)),
+     >                   1.0d0,
+     >                   hml(shift2),int_mb(mc(1,ms)+taskid_i),
+     >                               int_mb(mc(1,ms)),
+     >                               int_mb(nc(1,ms)),
+     >                   taskid_i,taskid_j,
+     >                   np_i,np_j,
+     >                   comm_i, comm_j,
+     >                   dbl_mb(work1(1)),dbl_mb(work2(1)))
+                  end if
+  20              continue
+               end do
+            else
+               do ms=ms1,ms2
+                  if (ne(ms).eq.0) go to 21
+                  shift  = 1 + (ms-1)*neq(1)*npack1
+     >                   + ((nb-nb1))*(neq(1)+neq(2))*npack1
+                  shiftso = shift + neq(1)*npack1
+                  shift2  = 1 + (ms-1)*ishift2 + (nb-nb1)*ishift3
+                  call CMatrix_dgemm2c_omp(ne(ms),ne(ms),npack1_all,128,
+     >                 Y1(shift),Y2(shift),int_mb(ma(1,ms)+taskid_i),
+     >                                     int_mb(ma(1,ms)),
+     >                                     int_mb(na(1,ms)),
+     >                 dbl_mb(mat_tmp(1)+shift2),
+     >                                     int_mb(mc(1,ms)+taskid_i),
+     >                                     int_mb(mc(1,ms)),
+     >                                     int_mb(nc(1,ms)),
+     >                 taskid_i,taskid_j,
+     >                 np_i,np_j,
+     >                 comm_i, comm_j,
+     >                 tid,nthr,
+     >                 dbl_mb(work1(1)),dbl_mb(work2(1)),
+     >                 dbl_mb(thrwork1(1)+tid*nn))
+                  if (spin_orbit) then
+                     call errquit(
+     >                     "Pneb_ffm_Multiply: spin orbit not finished",
+     >                      0,0)
+                  end if
+  21              continue
+               end do
+               call Pneb_m_gather(mall(mb),mpack(mb),
+     >                            int_mb(mindx(1,mb)),
+     >                            dbl_mb(mat_tmp(1)),hml)
+
+            end if
+
+         end do
+
+
+      else
+         nsize = Pneb_m_size(mb,nbb)
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispinq
+            ishift2 = ne(1)*ne(1)  !** note that ne rather than neq is used **
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+      
+         if (nbb.eq.0) then
+           nb1 = 1
+           nb2 = nbrillq
+           ishift3 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
+         else
+           nb1 = nbb
+           nb2 = nbb
+           ishift3 = 0
+         end if
+
+         do nb=nb1,nb2
          do ms=ms1,ms2
-           shift  = 1 + (ms-1)*ne(1)*npack1 +
-     >            ((nb-nb1))*(ne(1)+ne(2))*npack1
+           shift  = 1 + (ms-1)*ne(1)*npack1
+     >            + ((nb-nb1))*(ne(1)+ne(2))*npack1
            shiftso = shift + ne(1)*npack1
            shift2 = 1 + (ms-1)*ishift2      +(nb-nb1)*ishift3
            n = ne(ms)
@@ -1194,9 +1313,10 @@ c     ****************************************
 
  30        continue
          end do
-      end do
+         end do
+         if (np.gt.1) call C3dB_Vector_SumAll(nsize,hml)
+      end if
 
-      if (np.gt.1) call C3dB_Vector_SumAll(nsize,hml)
       return
       end
 
@@ -1215,42 +1335,158 @@ c     ****************************************
       integer    npack1
       complex*16 hml(*)
 
+#include "bafdecls.fh"   
+#include "errquit.fh"
 #include "Pneb.fh"
 
 *     **** local variables ****
       complex*16 zero,one
       parameter (zero=(0.0d0,0.0d0),one=(1.0d0,0.0d0))
 
-      integer nb,nb1,nb2,ms,ms1,ms2,nsize,n,np
+      integer nb,nb1,nb2,ms,ms1,ms2,nsize,n,np,nn
       integer shift,shiftso,shift2,ishift2,ishift3
+      integer tid,nthr
 
 *     **** external functions ****
       integer  Pneb_w_size
       external Pneb_w_size
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
+
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
 
 
       call Parallel3d_np_i(np)
       nsize = Pneb_w_size(mb,nbb)
-      if (mb.eq.0) then
-         ms1 = 1
-         ms2 = ispinq
-         ishift2 = ne(1)*ne(1)  !** note that ne rather than neq is used **
-      else
-         ms1 = mb
-         ms2 = mb
-         ishift2 = 0 
-      end if
-      if (nbb.eq.0) then
-        nb1 = 1
-        nb2 = nbrillq
-        ishift3 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
-      else
-        nb1 = nbb
-        nb2 = nbb
-        ishift3 = 0
-      end if
 
-      do nb=nb1,nb2
+      if (parallelized_j) then
+         nsize = Pneb_w_size(mb,nbb)
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+            !mm = mcq(1)*ncq(1) + mcq(2)*ncq(2)
+            nn = mcqmax(1)*ncqmax(1)+mcqmax(2)*ncqmax(2)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+            !mm = mcq(mb)*ncq(mb) 
+            nn = mcqmax(mb)*ncqmax(mb)
+         end if
+
+         if (nbb.eq.0) then
+           nb1 = 1
+           nb2 = nbrillq
+           ishift3 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
+         else
+           nb1 = nbb
+           nb2 = nbb
+           ishift3 = 0
+         end if
+         do nb=nb1,nb2
+            if (mparallelized) then
+               do ms=ms1,ms2
+                  if (ne(ms).eq.0) go to 20
+                  shift  = 1 + (ms-1)*neq(1)*npack1
+     >                   + ((nb-nb1))*(neq(1)+neq(2))*npack1
+                  shiftso = shift + neq(1)*npack1
+                  shift2  = 1 + (ms-1)*ishift2 + (nb-nb1)*ishift3
+
+                  call CMatrix_zgemm2(ne(ms),ne(ms),npack1_all,128,
+     >                1.0d0,
+     >                Y1(shift),int_mb(ma(1,ms)+taskid_i),
+     >                          int_mb(ma(1,ms)),
+     >                          int_mb(na(1,ms)),
+     >                Y2(shift),int_mb(ma(1,ms)+taskid_i),
+     >                          int_mb(ma(1,ms)),
+     >                          int_mb(na(1,ms)),
+     >                0.0d0,
+     >                hml(shift2),int_mb(mc(1,ms)+taskid_i),
+     >                            int_mb(mc(1,ms)),
+     >                            int_mb(nc(1,ms)),
+     >                taskid_i,taskid_j,
+     >                np_i,np_j,
+     >                comm_i, comm_j,
+     >                dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+                  if (spin_orbit) then
+                     call CMatrix_zgemm2(ne(ms),ne(ms),npack1_all,128,
+     >                   1.0d0,
+     >                   Y1(shiftso),int_mb(ma(1,ms)+taskid_i),
+     >                             int_mb(ma(1,ms)),
+     >                             int_mb(na(1,ms)),
+     >                   Y2(shiftso),int_mb(ma(1,ms)+taskid_i),
+     >                             int_mb(ma(1,ms)),
+     >                             int_mb(na(1,ms)),
+     >                   1.0d0,
+     >                   hml(shift2),int_mb(mc(1,ms)+taskid_i),
+     >                               int_mb(mc(1,ms)),
+     >                               int_mb(nc(1,ms)),
+     >                   taskid_i,taskid_j,
+     >                   np_i,np_j,
+     >                   comm_i, comm_j,
+     >                   dbl_mb(work1(1)),dbl_mb(work2(1)))
+                  end if
+  20              continue
+               end do
+            else
+               do ms=ms1,ms2
+                  if (ne(ms).eq.0) go to 21
+                  shift  = 1 + (ms-1)*neq(1)*npack1
+     >                   + ((nb-nb1))*(neq(1)+neq(2))*npack1
+                  shiftso = shift + neq(1)*npack1
+                  shift2  = 1 + (ms-1)*ishift2 + (nb-nb1)*ishift3
+                  call CMatrix_zgemm2c_omp(ne(ms),ne(ms),npack1_all,128,
+     >                 Y1(shift),Y2(shift),int_mb(ma(1,ms)+taskid_i),
+     >                                     int_mb(ma(1,ms)),
+     >                                     int_mb(na(1,ms)),
+     >                 dbl_mb(mat_tmp(1)+shift2),
+     >                                     int_mb(mc(1,ms)+taskid_i),
+     >                                     int_mb(mc(1,ms)),
+     >                                     int_mb(nc(1,ms)),
+     >                 taskid_i,taskid_j,
+     >                 np_i,np_j,
+     >                 comm_i, comm_j,
+     >                 tid,nthr,
+     >                 dbl_mb(work1(1)),dbl_mb(work2(1)),
+     >                 dbl_mb(thrwork1(1)+tid*nn))
+                  if (spin_orbit) then
+                     call errquit(
+     >                     "Pneb_ffw_Multiply: spin orbit not finished",
+     >                      0,0)
+                  end if
+  21              continue
+               end do
+              call Pneb_w_gather(mall(mb),mpack(mb),int_mb(mindx(1,mb)),
+     >                      dbl_mb(mat_tmp(1)),hml)
+
+            end if
+
+         end do
+
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispinq
+            ishift2 = ne(1)*ne(1)  !** note that ne rather than neq is used **
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0 
+         end if
+         if (nbb.eq.0) then
+           nb1 = 1
+           nb2 = nbrillq
+           ishift3 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
+         else
+           nb1 = nbb
+           nb2 = nbb
+           ishift3 = 0
+         end if
+
+         do nb=nb1,nb2
          do ms=ms1,ms2
            shift  = 1 + (ms-1)*ne(1)*npack1 +
      >                     (nb-nb1)*(ne(1)+ne(2))*npack1
@@ -1269,9 +1505,10 @@ c     ****************************************
 
  30        continue
          end do
-      end do
+         end do
+         if (np.gt.1) call C3dB_Vector_SumAll(2*nsize,hml)
+      end if
 
-      if (np.gt.1) call C3dB_Vector_SumAll(2*nsize,hml)
       return
       end
 
@@ -1376,47 +1613,77 @@ c     ****************************************
       integer nb,nb1,nb2,ms,ms1,ms2,n
       integer shift,shiftso,shift2,ishift2,ishift3
 
-      if (mb.eq.0) then
-         ms1 = 1
-         ms2 = ispinq
-         ishift2 = ne(1)*ne(1)  !** note that ne rather than neq is used **
-      else
-         ms1 = mb
-         ms2 = mb
-         ishift2 = 0 
-      end if
-      if (nbb.eq.0) then
-        nb1 = 1
-        nb2 = nbrillq
-        ishift3 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
-      else
-        nb1 = nbb
-        nb2 = nbb
-        ishift3 = 0
-      end if
+      if (parallelized_j) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+            ishift3 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+            ishift3 = 0
+         end if
+         if (nbb.eq.0) then
+           nb1 = 1
+           nb2 = nbrillq
+           ishift3 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
+         else
+           nb1 = nbb
+           nb2 = nbb
+           ishift3 = 0
+         end if
+         do nb=nb1,nb2
+            if (mparallelized) then
+            else
+            end if
 
-
-      do nb=nb1,nb2
-         do ms=ms1,ms2           
-            shift = 1 + (ms-1)*ne(1)*npack1
-     >                +  (nb-nb1)*(ne(1)+ne(2))*npack1
-            shiftso = shift + ne(1)*npack1
-            shift2  = 1 + (ms-1)*ishift2 
-     >                  + (nb-nb1)*ishift3
-            n = ne(ms)
-            if (n.eq.0) go to 30
-
-              call Cram_cmc_zgemm(nb,n,n,Y1(shift),Y2(shift),
-     >                            alpha,beta,hml(shift2))
-
-              if (spin_orbit) then
-                 call Cram_cmc_zgemm(nb,n,n,Y1(shiftso),Y2(shiftso),
-     >                               alpha,beta,hml(shift2))
-              end if
-
- 30         continue
          end do
-      end do
+
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispinq
+            ishift2 = ne(1)*ne(1)  !** note that ne rather than neq is used **
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0 
+         end if
+         if (nbb.eq.0) then
+           nb1 = 1
+           nb2 = nbrillq
+           ishift3 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
+         else
+           nb1 = nbb
+           nb2 = nbb
+           ishift3 = 0
+         end if
+
+
+         do nb=nb1,nb2
+            do ms=ms1,ms2           
+               shift = 1 + (ms-1)*ne(1)*npack1
+     >                   +  (nb-nb1)*(ne(1)+ne(2))*npack1
+               shiftso = shift + ne(1)*npack1
+               shift2  = 1 + (ms-1)*ishift2 
+     >                     + (nb-nb1)*ishift3
+               n = ne(ms)
+               if (n.eq.0) go to 30
+
+                 call Cram_cmc_zgemm(nb,n,n,Y1(shift),Y2(shift),
+     >                               alpha,beta,hml(shift2))
+
+                 if (spin_orbit) then
+                    call Cram_cmc_zgemm(nb,n,n,Y1(shiftso),Y2(shiftso),
+     >                                  alpha,beta,hml(shift2))
+                 end if
+
+ 30            continue
+            end do
+         end do
+      end if
 
       return
       end
@@ -3812,7 +4079,66 @@ cccccccccccccccc
       return
       end
 
+      subroutine Pneb_w_gather(nall,npack,indx,A,B)
+      implicit none
+      integer nall,npack,indx(*)
+      complex*16 A(*),B(*)
+      integer i
+      call Parallel_shared_vector_zero(.true.,2*nall,B)
+!$OMP DO
+      do i=1,npack
+         B(indx(i)) = A(i)
+      end do
+!$OMP END DO
+      call C3dB_Vector_SumAll(2*nall,B)
+      call C1dB_Vector_SumAll(2*nall,B)
+      return
+      end
 
+      subroutine Pneb_w_scatter(npack,indx,A,B)
+      implicit none
+      integer npack,indx(*)
+      complex*16 A(*),B(*)
+      integer i
+!$OMP DO
+      do i=1,npack
+         B(i) = A(indx(i))
+      end do
+!$OMP END DO
+      return
+      end
+
+
+      subroutine Pneb_m_gather(nall,npack,indx,A,B)
+      implicit none
+      integer nall,npack,indx(*)
+      real*8 A(*),B(*)
+      integer i
+      !call dcopy(nall,0.0d0,0,B,1)
+      call Parallel_shared_vector_zero(.true.,nall,B)
+!$OMP DO
+      do i=1,npack
+         B(indx(i)) = A(i)
+      end do
+!$OMP END DO
+      !call Parallel_Vector_SumAll(nall,B)
+      call C3dB_Vector_SumAll(nall,B)
+      call C1dB_Vector_SumAll(nall,B)
+      return
+      end
+
+      subroutine Pneb_m_scatter(npack,indx,A,B)
+      implicit none
+      integer npack,indx(*)
+      real*8 A(*),B(*)
+      integer i
+!$OMP DO
+      do i=1,npack
+         B(i) = A(indx(i))
+      end do
+!$OMP END DO
+      return
+      end
 
 
 

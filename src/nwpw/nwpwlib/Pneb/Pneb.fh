@@ -55,3 +55,7 @@
       common / Pneb_gathscat / mindx,smindx,mpack,mall,smpack,small
 
 
+      integer thrwork1(2)
+      common    / Pneb_sub2 / thrwork1
+
+
