@@ -42,4 +42,4 @@ Release notes available at
 https://raw.githubusercontent.com/nwchemgit/nwchem/v7.0.1-release/release.notes.7.0.1
 
 ### Documentation
-https://github.com/nwchemgit/nwchem/wiki
+https://nwchemgit.github.io
