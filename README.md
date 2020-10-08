@@ -24,7 +24,7 @@ located at the Pacific Northwest National Laboratory (PNNL) in Washington State
 Source download instructions
 
 * Master
-```
+
 git clone https://github.com/nwchemgit/nwchem.git
 
 * 7.0.1 Release
