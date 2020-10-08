@@ -27,19 +27,19 @@ Source download instructions
 
 git clone https://github.com/nwchemgit/nwchem.git
 
-* 7.0.0 Release
+* 7.0.1 Release
 
-git clone  -b release-7-0-0 https://github.com/nwchemgit/nwchem.git nwchem-7.0.0
+git clone  -b hotfix/release-7-0-0 https://github.com/nwchemgit/nwchem.git nwchem-7.0.1
 
-### Release 7.0.0
+### Release 7.0.1
 
 Release files available at the page  
-https://github.com/nwchemgit/nwchem/releases/tag/7.0.0-release   
+https://github.com/nwchemgit/nwchem/releases/tag/v7.0.1-release  
 Tar files for download:  
-https://github.com/nwchemgit/nwchem/releases/download/v7.0.0-release/nwchem-7.0.0-release.revision-2c9a1c7c-srconly.2020-02-26.tar.bz2  
-https://github.com/nwchemgit/nwchem/releases/download/v7.0.0-release/nwchem-7.0.0-release.revision-2c9a1c7c-nonsrconly.2020-02-26.tar.bz2  
+https://github.com/nwchemgit/nwchem/releases/download/v7.0.1-release/nwchem-7.0.1-release.revision-9d9840c2-srconly.2020-10-08.tar.bz2  
+https://github.com/nwchemgit/nwchem/releases/download/v7.0.1-release/nwchem-7.0.1-release.revision-9d9840c2-nonsrconly.2020-10-08.tar.bz2  
 Release notes available at  
-https://github.com/nwchemgit/nwchem/raw/release-7-0-0/release.notes.7.0.0
+https://raw.githubusercontent.com/nwchemgit/nwchem/v7.0.1-release/release.notes.7.0.1
 
 ### Documentation
 https://nwchemgit.github.io
