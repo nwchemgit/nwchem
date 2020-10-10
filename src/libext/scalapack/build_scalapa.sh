@@ -121,6 +121,11 @@ fi
 #if [[ ! -z "$BUILD_SCALAPACK"   ]] ; then
 #    Fortran_FLAGS+=-I"$NWCHEM_TOP"/src/libext/include
 #fi
+#fix for clang 12 error in implicit-function-declaration
+GOTCLANG=$( mpicc -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
+if [[ ${GOTCLANG} == "1" ]] ; then
+    C_FLAGS=" -Wno-error=implicit-function-declaration "
+fi
 if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
     if  [[ ${FC} == gfortran ]] ; then
     Fortran_FLAGS+=" -fdefault-integer-8 "
