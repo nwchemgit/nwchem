@@ -9,6 +9,7 @@
 [![Github Downloads Release 6.8.1](https://img.shields.io/github/downloads/nwchemgit/nwchem/6.8.1-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/6.8.1-release)
 [![Github Downloads Release 7.0.0](https://img.shields.io/github/downloads/nwchemgit/nwchem/v7.0.0-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/v7.0.0-release)
 [![Github Downloads Release 7.0.1](https://img.shields.io/github/downloads/nwchemgit/nwchem/v7.0.1-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/v7.0.1-release)
+[![Github Downloads Release 7.0.2](https://img.shields.io/github/downloads/nwchemgit/nwchem/v7.0.2-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/v7.0.2-release)
 
 
 [![All Releases tags](https://img.shields.io/github/release/nwchemgit/nwchem/all.svg)](https://github.com/nwchemgit/nwchem/releases)  
@@ -27,19 +28,19 @@ Source download instructions
 
 git clone https://github.com/nwchemgit/nwchem.git
 
-* 7.0.1 Release
+* 7.0.2 Release
 
-git clone  -b hotfix/release-7-0-0 https://github.com/nwchemgit/nwchem.git nwchem-7.0.1
+git clone  -b hotfix/release-7-0-0 https://github.com/nwchemgit/nwchem.git nwchem-7.0.2
 
-### Release 7.0.1
+### Release 7.0.2
 
 Release files available at the page  
-https://github.com/nwchemgit/nwchem/releases/tag/v7.0.1-release  
+https://github.com/nwchemgit/nwchem/releases/tag/v7.0.2-release  
 Tar files for download:  
-https://github.com/nwchemgit/nwchem/releases/download/v7.0.1-release/nwchem-7.0.1-release.revision-9d9840c2-srconly.2020-10-08.tar.bz2  
-https://github.com/nwchemgit/nwchem/releases/download/v7.0.1-release/nwchem-7.0.1-release.revision-9d9840c2-nonsrconly.2020-10-08.tar.bz2  
+https://github.com/nwchemgit/nwchem/releases/download/v7.0.2-release/nwchem-7.0.2-release.revision-b9985dfa-srconly.2020-10-12.tar.bz2  
+https://github.com/nwchemgit/nwchem/releases/download/v7.0.2-release/nwchem-7.0.2-release.revision-b9985dfa-nonsrconly.2020-10-12.tar.bz2  
 Release notes available at  
-https://raw.githubusercontent.com/nwchemgit/nwchem/v7.0.1-release/release.notes.7.0.1
+https://raw.githubusercontent.com/nwchemgit/nwchem/v7.0.2-release/release.notes.7.0.2
 
 ### Documentation
 https://nwchemgit.github.io
