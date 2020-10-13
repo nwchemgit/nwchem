@@ -1,4 +1,4 @@
-	Northwest Computational Chemistry Package (NWChem) 7.0.0
+	Northwest Computational Chemistry Package (NWChem) 7.0.2
 
 	Environmental Molecular Sciences Laboratory (EMSL)
 	Pacific Northwest National Laboratory
