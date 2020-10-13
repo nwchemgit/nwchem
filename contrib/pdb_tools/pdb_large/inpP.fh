@@ -1,0 +1,76 @@
+c
+c     Private header file for free format input routines
+c
+**      implicit real*8 (a-h,p-w), integer (i-n), logical (o)
+**      implicit character *8 (z),character *1 (x)
+**      implicit character *4 (y)
+c
+      integer max_width         ! Maximum input width of an input line
+C$Id$
+      integer max_field         ! Maximum no. of fields in an input line
+      parameter (max_width = 1024)
+      parameter (max_field = max_width/2 + 1)
+      character*1024 ja, ia     ! Input buffers ... MUST match max_width
+      character*1024 tmp        ! Same size work space
+      character*80 errmsg       ! Error message
+      character*1 xcomm         ! Comment character
+      character*1 xsplit        ! Character to split physical input lines
+      character*1 xback         ! Backslash for concatenation and quoting
+      character*1 xquote        ! Quotation marks for strings
+      character*1 xblnk         ! Space
+      character*1 xtab          ! Tab
+      common /inp_workc / ia, ja, tmp, errmsg, 
+     $     xcomm, xsplit, xback, xquote, xblnk, xtab
+c
+      integer iread, iwrite
+      integer jrec              ! No. of current field
+      integer jump              ! No. of fields in current line
+      integer istrt             ! Start of fields
+      integer inumb             ! Length of fields
+      integer nend              ! End of fields
+      integer iwidth            ! Length of current logical input line
+      integer nline             ! Current logical line inside physical line
+      integer noline            ! No. of logical lines inside physical line
+      integer input_line        ! No. of current physical input line
+      integer nerr              ! ?
+      logical oswit             ! True if EOF has beeen detected
+      integer ierrpos           ! Input char position where error was detected
+      integer nstart
+c
+      common /inp_work/ jrec, jump, 
+     $     istrt(max_field), inumb(max_field),iwidth,nend(max_field),
+     $     nstart(max_field),nline,noline,nerr,oswit,ierrpos, input_line
+      common/inp_file/iread,iwrite
+c
+      integer max_include_level
+      parameter (max_include_level = 3)
+      integer include_level
+      common/inp_include_info/include_level
+      character*255 include_file_name
+      common/inp_include_cinfo/include_file_name(max_include_level)
+c
+c     This drivel below is to save state so that by doing the following
+c
+c     call inp_save_state
+c
+c     call inp_init
+c
+c     call inp_restore_state
+c
+c     It is possible to go off and read another file without 
+c     destroying the state of the current file.  Note that this
+c     only works nested three deep (i.e., 4 files concurrently open)
+c
+c     Note that all of these commons must match in size the
+c     ones above and that inp_save/restore_state must also be 
+c     consistent
+c
+      character*1 csave
+      integer isave
+      integer fsave
+      integer save_level
+      common/inp_csave/csave(3*max_width+80+6,3)
+      common/inp_isave/isave(9+4*max_field,3)
+      common/inp_fsave/fsave(2,3)
+      common/inp_save_data/save_level
+c
