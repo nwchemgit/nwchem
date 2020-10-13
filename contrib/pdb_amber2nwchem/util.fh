@@ -1,0 +1,35 @@
+#include "printlevels.fh"
+c      
+C$Id$
+      logical util_print
+      double precision ddot
+      double precision util_cpusec
+      double precision util_wallsec
+      double precision util_random
+      integer util_batch_job_time_remaining
+      integer util_time_remaining
+      logical util_test_time_remaining
+      logical util_nwchemrc_get
+      logical util_module_avail
+      external util_print
+      external ddot
+      external util_cpusec
+      external util_wallsec
+      external util_random
+      external util_batch_job_time_remaining
+      external util_time_remaining
+      external util_test_time_remaining
+      external util_nwchemrc_get
+      external util_module_avail
+c
+      logical util_xyz_seek
+      external util_xyz_seek
+      logical util_xyz_nframes
+      external util_xyz_nframes
+c
+      logical util_get_io_unit
+      external util_get_io_unit
+c
+      integer nw_max_path_len   ! Maximum path len -> posix standard is what?
+      parameter (nw_max_path_len = 255)
+c

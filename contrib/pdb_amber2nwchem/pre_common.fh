@@ -1,0 +1,50 @@
+c $Id$
+c
+c     general parameters
+c
+      real*8 zero,tiny,small
+      real*8 fourth,third,half,one,two,three,four,six,twelve
+      parameter(zero=0.0d0)
+      parameter(tiny=1.0d-12)
+      parameter(small=1.0d-6)
+      parameter(one=1.0d0)
+      parameter(fourth=2.5d-1)
+      parameter(third=3.333333333333d-1)
+      parameter(half=5.0d-1)
+      parameter(two=2.0d0)
+      parameter(three=3.0d0)
+      parameter(four=4.0d0)
+      parameter(six=6.0d0)
+      parameter(twelve=1.2d1)
+c
+c     dimensions
+c
+c     mdirpar : maximum number of parameter directories
+c     mfilpar : maximum number of parameter files per parameter directory
+c
+      integer mdirpar,mfilpar
+      parameter(mdirpar=6)
+      parameter(mfilpar=4)
+c
+c     ndirpar     : number of parameter directories
+c     nfilpar(i)  : number of parameter files in i-th directory
+c
+c     ffield      : name of the force field
+c     dirpar(i)   : name of i-th parameter directory
+c     filpar(i,j) : name of j-th parameter file in i-th directory
+c
+      integer ndirpar,nfilpar(mdirpar)
+c
+      common/pre_dim/ndirpar,nfilpar
+c
+      character*80 ffield
+      character*255 dirpar(mdirpar),filpar(mdirpar,mfilpar)
+      character*255 filmst
+c
+      common/pre_chr/ffield,dirpar,filpar,filmst
+c
+      integer lfnmst
+      common/pre_lfn/lfnmst
+c
+      logical lqhopmem
+      common/pre_log/lqhopmem
