@@ -4,6 +4,7 @@ site_url: https://nwchemgit.github.io
 edit_uri: blob/master/
 theme:
   name: readthedocs
+  highlightjs: false
   prev_next_buttons_location: both
 use_directory_urls: false
 markdown_extensions:
