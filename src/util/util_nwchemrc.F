@@ -70,9 +70,10 @@ c
 c     Because on UNIX/LINUX it is common to install a system wide
 c     configuration file in /etc, and perhaps a more specific one in
 c     a user-s home directory the original logic has been extended.
-c     Now we first look for $HOME/.nwchemrc if the key is found in there
+c     Now we first look for ./nwchemrc if the key is found in there
 c     we will return the corresponding value. If key was not found or
-c     the file does not exist we try /etc/nwchemrc. If both sources
+c     the file does not exist we try $HOME/.nwchemrc if the key is
+c     not found in there we try /etc/nwchemrc. If all sources
 c     fail the function returns .false.
 c
 c     On the key-value lines all information following a # token will
@@ -106,9 +107,11 @@ c
       do while (.not.found)
         ipass=ipass+1
         if (ipass.eq.1) then
+          nwchrc="./nwchemrc"
+        else if (ipass.eq.2) then
           call util_getenv('HOME',home)
           nwchrc=home(1:inp_strlen(home))//'/.nwchemrc '
-        elseif (ipass.eq.2) then
+        elseif (ipass.eq.3) then
           nwchrc="/etc/nwchemrc"
         else
           return
