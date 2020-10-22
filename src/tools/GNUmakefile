@@ -726,6 +726,12 @@ clean:
 
 realclean:
 	@rm -rf $(BUILDDIR) $(INSTALLDIR)
+# remove all files that are not .o objects (eg lib*.a) from libga.a
+cleanlibga:
+	mkdir -p ob
+	cd ob && ar -x ../build/.libs/libga.a && rm -f ../build/.libs/libga.a && ar crv ../build/.libs/libga.a *.o && mkdir -p ../install/lib
+	cd ..
+	rm -rf ob
 
 
 #
