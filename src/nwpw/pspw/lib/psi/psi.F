@@ -1631,6 +1631,177 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *      psi_2x2a_virtual_gradient   *
+*     *                                 *
+*     ***********************************
+*
+*    This routine calculates the 2x2 CI Energy and its gradient wrt to psie.
+*
+*    Entry - psig,psig_r
+*            psie 
+*
+*    Exit - E,dEpsie
+*
+*    Use - psie_r
+*          h1psie,rho,vcee,vcge
+* 
+      subroutine psi_2x2ne_virtual_gradient(eghf,
+     >                                    psig,psig_r,psie,psie_r,
+     >                                    E,dEdpsie,
+     >                                    h1psie,rho,vcee,vcge)
+      implicit none
+      real*8  eghf
+      complex*16 psig(*)
+      real*8     psig_r(*)
+
+      complex*16 psie(*)
+      real*8     psie_r(*)
+
+      real*8     E
+      complex*16 dEdpsie(*)
+
+      complex*16 h1psie(*)
+      real*8     rho(*),vcee(*),vcge(*)
+
+#include "bafdecls.fh"
+#include "psi.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "stdio.fh"
+
+*     **** local variables ****
+      logical oprint
+      integer neq1(2)
+      integer nx,ny,nz,n2ft3d
+      real*8 Sgg,Sge,See,A,B,C,c1,c2
+      real*8 H1gg,H1ge,H1ee
+      real*8 H2gg,H2ge,H2ee
+      real*8 Hgg,Hge,Hee
+      real*8 ehartr,scal1,scal2,dv,Elow,Ehigh,lmbda
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      !write(*,*) "ENTER 2x2 GRADIENT"
+      oprint = .false.
+
+
+c      !*** generate psie_r ****
+c      call Pack_c_Copy(1,psie,psie_r)
+c      call Pack_c_unpack(1,psie_r)
+c      call D3dB_cr_fft3b(1,psie_r)
+c      call D3dB_r_Zero_Ends(1,psie_r)
+c
+c      call D3dB_n2ft3d(1,n2ft3d)
+c      call D3dB_nx(1,nx)
+c      call D3dB_ny(1,ny)
+c      call D3dB_nz(1,nz)
+c      scal1 = 1.0d0/dble(nx*ny*nz)
+c      scal2 = 1.0d0/lattice_omega()
+c      dv = scal1*lattice_omega()
+
+      !*** calculate Sgg, Sge, See ***
+      Sgg = 1.0d0
+      See = 1.0d0
+      Sge = 0.0d0
+      !if (oprint) write(*,*) "Sgg=",Sgg," Sge=",Sge," See=",See
+
+*     **** apply H1 operator ****
+      call  psi_H1psi(ispin,neq,npack1,n2ft3d,psig,psig_r,dEdpsie)
+      call  psi_H1psi(ispin,neq,npack1,n2ft3d,psie,psie_r,h1psie)
+
+*     **** one-electron part ****
+c      n1q(1) = 1
+c      n2q(1) = neq(1)
+c      n1q(2) = neq(1)+1
+c      n2q(2) = neq(1)+neq(2)
+c      H1gg=0.0d0
+c      H1ee=0.0d0
+c      do ms=1,ispin
+c         if (neq(ms).gt.0) then
+c            do q=n1q(ms),n2q(ms)
+c               call Pack_cc_idot(1,psig(1,q),dEpsie(1,q),sum1)
+c               call Pack_cc_idot(1,psie(1,q),h1psie(1,q),sum2)
+c               H1gg = H1gg - sum1
+c               H1ee = H1ee - sum2
+c            end do
+c         end if
+c      end do
+c      call Parallel_SumAll(H1gg)
+c      call Parallel_SumAll(H1ee)
+c      if (ispin.eq.1) H1gg = H1gg + H1gg
+c      if (ispin.eq.1) H1ee = H1ee + H1ee
+c
+c
+c      H1ge = 0.0d0
+c      if (ispin.eq.1) then
+c         H1gg = H1gg + H1gg
+c         H1ge = H1ge + H1ge
+c         H1ee = H1ee + H1ee
+c      end if
+c      H1ge = H1ge*Sge
+c      !if (oprint) write(*,*) "H1gg=",H1gg," H1ge=",H1ge," H1ee=",H1ee
+c
+c*     **** apply H2 operator  - note rho = 2*psi*psi ****
+c*     **** coulomb part ****
+c      call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rho)
+c      call coulomb2_v(rho,vcee)
+c      call D3dB_rr_dot(1,rho,vcee,ehartr)
+c      H2gg = (0.5d0*ehartr*dv)
+c
+c      call pspw_et_gen_rho(ispin,neq,n2ft3d,psie_r,rho)
+c      call coulomb2_v(rho,vcee)
+c      call D3dB_rr_dot(1,rho,vcee,ehartr)
+c      H2ee = (0.5d0*ehartr*dv)
+c
+c*     **** exchange part ****
+c      call pspw_energy_HFX(ispin,psig_r,ehfx,phfx)
+c      H2gg = H2gg + ehfx
+c
+c      call pspw_energy_HFX(ispin,psie_r,ehfx,phfx)
+c      H2ee = H2ee + ehfx
+c
+c
+c
+c*     **** generate and diagonalize 2x2 CI matrix ****
+c      Hgg = H1gg + H2gg
+c      Hge = H1ge + H2ge
+c      Hee = H1ee + H2ee
+c      A = 1.0d0
+c      B = -Hgg - Hee
+c      C = Hgg*Hee - Hge*Hge
+c      Elow  = (-B-dsqrt(B*B-4.0d0*A*C))/(2*A)
+c      Ehigh = (-B+dsqrt(B*B-4.0d0*A*C))/(2*A)
+c      lmbda = Hge/(Elow-Hee)
+c      c1 =  1.0d0/dsqrt(1.0d0+lmbda**2)
+c      !c2 =  dsqrt(1.0d0-c1*c1)
+c      c2 =  lmbda/dsqrt(1.0d0+lmbda**2)
+c      !if (oprint) write(*,*) "Elow=",Elow," Ehigh=",Ehigh
+c
+c*     **** generate dElow/dpsie ****
+c      call D3dB_rr_Mul2(1,psie_r,vcee)
+c      call D3dB_rr_Mul2(1,psig_r,vcge)
+c      !call D3dB_r_SMul1(1,(-0.5d0*c2*c2),vcee)
+c      !call D3dB_rr_daxpy(1,(-0.5d0*c1*c2),vcge,vcee)
+c      call D3dB_r_SMul1(1,(-1.0d0*c2*c2),vcee)
+c      call D3dB_rr_daxpy(1,(-1.0d0*c1*c2),vcge,vcee)
+c
+c      call D3dB_rc_fft3f(1,vcee)
+c      call Pack_c_pack(1,vcee)
+c      call Pack_c_SMul(1,scal1,vcee,dEdpsie)
+c
+c      call Pack_cc_daxpy(1,2.0d0*c2*c2,h1psie,dEdpsie)
+c      !call Pack_cc_daxpy(1,2.0d0*c2*c2,h1psie,dEdpsie)
+c      E = Elow
+c      !if (oprint) write(*,*) "c1,c2=",c1,c2
+c
+      return
+      end 
+
+
 
 
 *     ***********************************
