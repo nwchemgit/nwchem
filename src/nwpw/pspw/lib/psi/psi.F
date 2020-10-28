@@ -931,14 +931,21 @@ c     >           dcpl_mb(psi1(1)),1)
      >                               maxerror,
      >                               0.001d0,ii,error_out,e0,eci)
           l = l+1
-          if ((error_out.gt.maxerror).and.(l.le.4)) go to 2
-          !if ((error_out.gt.maxerror).and.(l.le.2)) go to 2
+          !if ((error_out.gt.maxerror).and.(l.le.4)) go to 2
+          if ((error_out.gt.maxerror).and.(l.le.2)) go to 2
 
           dbl_mb(eig_excited(1)+ii-1) = e0
           dbl_mb(eig_eci(1)+ii-1)     = eci
 
       end do
       call psi_sort_virtual_CI(dbl_mb(eig_eci(1)))
+
+c      if (oprint) then
+c         do ii=1,(ne_excited(1)+ne_excited(2))
+c            write(*,*) "ii,eig=",ii,dbl_mb(eig_eci(1)+ii-1),
+c     >                              dbl_mb(eig_excited(1)+ii-1)
+c         end do
+c      end if
 
       if (.not.BA_pop_stack(eig_eci(2)))
      >   call errquit('psi_CI_minimize_virtual:pop stack',1,MA_ERR)
