@@ -7204,3 +7204,53 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *       control_CI_maxit_orb      *
+*     *                                 *
+*     ***********************************
+      integer function control_CI_maxit_orb()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer it_out
+
+      if (.not.btdb_get(rtdb,'nwpw:CI_maxit_orb',mt_int,1,it_out))
+     >   it_out = 120
+
+      control_CI_maxit_orb = it_out
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *   control_CI_maxit_linesearch   *
+*     *                                 *
+*     ***********************************
+      integer function control_CI_maxit_linesearch()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer it_out
+
+      if (.not.btdb_get(rtdb,'nwpw:CI_maxit_linesearch',
+     >                  mt_int,1,it_out))
+     >   it_out = 15
+
+      control_CI_maxit_linesearch = it_out
+      return
+      end
+
+
