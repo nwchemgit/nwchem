@@ -868,7 +868,7 @@ c     >           dcpl_mb(psi1(1)),1)
       integer maxit_orb,maxit_ls
       integer ii,l
       real*8  sum,maxerror,error_out,e0,eci
-      integer g93(2)
+      integer g93(2),eig_eci(2)
          
       !*** external functions ***
       logical  control_print
@@ -885,6 +885,9 @@ c     >           dcpl_mb(psi1(1)),1)
 
       if (.not.BA_push_get(mt_dcpl,npack1,'g93',g93(2),g93(1)))
      >   call errquit('psi_CI_minimize_virtual:out of stack',0,MA_ERR)
+      if (.not.BA_push_get(mt_dbl,ne_excited(1)+ne_excited(2),
+     >                     'eig_eci',eig_eci(2),eig_eci(1)))
+     >   call errquit('psi_CI_minimize_virtual:out of stack',1,MA_ERR)
 
       !call psi_gen_density_potentials(1)
       maxit_orb = control_CI_maxit_orb()
@@ -918,7 +921,7 @@ c     >           dcpl_mb(psi1(1)),1)
          call psi_get_gradient_virtual(ii,dcpl_mb(g93(1)))
          call Pack_cc_dot(1,dcpl_mb(psi1_excited(1)+(ii-1)*npack1),
      >                      dcpl_mb(g93(1)),e0)
-         e0 = -e0
+         e0 = e0
 
          !*** minimize orbital ****
 
@@ -928,20 +931,79 @@ c     >           dcpl_mb(psi1(1)),1)
      >                               maxerror,
      >                               0.001d0,ii,error_out,e0,eci)
           l = l+1
-          !if ((error_out.gt.maxerror).and.(l.le.4)) go to 2
-          if ((error_out.gt.maxerror).and.(l.le.2)) go to 2
+          if ((error_out.gt.maxerror).and.(l.le.4)) go to 2
+          !if ((error_out.gt.maxerror).and.(l.le.2)) go to 2
 
           dbl_mb(eig_excited(1)+ii-1) = e0
+          dbl_mb(eig_eci(1)+ii-1)     = eci
 
       end do
-      call psi_sort_virtual()
+      call psi_sort_virtual_CI(dbl_mb(eig_eci(1)))
 
-      if (.not.BA_pop_stack(g93(2)))
+      if (.not.BA_pop_stack(eig_eci(2)))
      >   call errquit('psi_CI_minimize_virtual:pop stack',1,MA_ERR)
+      if (.not.BA_pop_stack(g93(2)))
+     >   call errquit('psi_CI_minimize_virtual:pop stack',2,MA_ERR)
 
 
       return
       end 
+
+      subroutine psi_sort_virtual_CI(eig_eci)
+      implicit none
+      real*8 eig_eci(*)
+
+#include "bafdecls.fh"
+#include "psi.fh"
+#include "errquit.fh"
+
+      logical value
+      integer i,j,ii,jj,ms
+      integer r1(2)
+      real*8  ei,ej,eci,ecj
+
+      value = BA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+      if (.not. value) call errquit(
+     >     'psi_sort_virtual: out of stack memory',0, MA_ERR)
+
+      do ms=1,ispin
+
+        !*** Bubble sort ***
+        do ii=1,ne_excited(ms)
+         do jj=ii+1,ne_excited(ms)
+           i = ii + (ms-1)*ne_excited(1)
+           j = jj + (ms-1)*ne_excited(1)
+           ei = dbl_mb(eig_excited(1)+i-1)
+           ej = dbl_mb(eig_excited(1)+j-1)
+           eci = eig_eci(i)
+           ecj = eig_eci(j)
+
+           !*** swap ***
+           if (ecj.lt.eci) then
+             eig_eci(i) = ecj
+             eig_eci(j) = eci
+             dbl_mb(eig_excited(1)+i-1) = ej
+             dbl_mb(eig_excited(1)+j-1) = ei
+             call Pack_c_Copy(1,dcpl_mb(psi1_excited(1)+(i-1)*npack1),
+     >                          dcpl_mb(r1(1)))
+             call Pack_c_Copy(1,dcpl_mb(psi1_excited(1)+(j-1)*npack1),
+     >                          dcpl_mb(psi1_excited(1)+(i-1)*npack1))
+             call Pack_c_Copy(1,dcpl_mb(r1(1)),
+     >                          dcpl_mb(psi1_excited(1)+(j-1)*npack1))
+           end if
+
+         end do
+        end do
+
+      end do
+
+      value = BA_pop_stack(r1(2))
+      if (.not. value) call errquit(
+     >     'psi_sort_virtual: popping stack memory',1, MA_ERR)
+      return
+      end
+
+
 
 *     ***********************************
 *     *                                 *
@@ -1214,7 +1276,7 @@ c         end if
  4    e0old = e0
       call psi_get_gradient_virtual(ii,dcpl_mb(g(1)))
       call Pack_cc_dot(1,dcpl_mb(psie_ptr),dcpl_mb(g(1)),e0)
-      e0 = -e0
+      e0 = e0
       error_out = dabs(e0-e0old)
 
 *     **** release stack memory ****
@@ -1243,7 +1305,7 @@ c         end if
      >     'psi_2x2_update_virtual: popping stack memory',1, MA_ERR)
 
       if (oprint) then
-       write(luout,921) ii,-e0,error_out,eci,dabs(eci-eold),it,pit,ep,sp
+       write(luout,921) ii,e0,error_out,eci,dabs(eci-eold),it,pit,ep,sp
   921  format(5x,"orbital",I4," current e=",E14.6," error=",E9.3,
      >       " (eci=",E17.9,
      >       " error=",E9.3,")",
