@@ -879,6 +879,36 @@ c     >                + eke_core + eion_core
 
 
 *     ***********************************
+*     *                                 *
+*     *         electron_psi_r_ptr      *
+*     *                                 *
+*     ***********************************
+      integer function electron_psi_r_ptr()
+      implicit none
+
+#include "electron_common.fh"
+
+      electron_psi_r_ptr = psi_r(1)
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         electron_Hpsi_k_ptr      *
+*     *                                 *
+*     ***********************************
+      integer function electron_Hpsi_k_ptr()
+      implicit none
+
+#include "electron_common.fh"
+
+      electron_Hpsi_k_ptr = Hpsi_k(1)
+      return
+      end
+
+
+
+*     ***********************************
 *     *					*
 *     *	    electron_SIC_energies	*
 *     *					*
