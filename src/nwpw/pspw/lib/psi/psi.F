@@ -852,25 +852,49 @@ c     >           dcpl_mb(psi1(1)),1)
       integer ci_algorithm
       
 #include "bafdecls.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "stdio.fh"
 #include "psi.fh"
 
       real*8 Hgg
       common / CI_Hgg_common / Hgg
       
       !*** local variables ***
-      integer maxit_orb
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+      logical oprint
+      integer maxit_orb,maxit_ls
       integer ii,l
       real*8  sum,maxerror,error_out,e0,eci
+      integer g93(2)
          
       !*** external functions ***
+      logical  control_print
+      external control_print
+      integer  control_CI_maxit_orb,control_CI_maxit_linesearch
+      external control_CI_maxit_orb,control_CI_maxit_linesearch
       real*8   control_tole
       external control_tole
 
+      call Parallel_taskid(taskid)
+      oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
+
       Hgg = 0.0d0
 
+      if (.not.BA_push_get(mt_dcpl,npack1,'g93',g93(2),g93(1)))
+     >   call errquit('psi_CI_minimize_virtual:out of stack',0,MA_ERR)
+
       !call psi_gen_density_potentials(1)
-      maxit_orb=120
-      maxerror = control_tole()
+      maxit_orb = control_CI_maxit_orb()
+      maxit_ls  = control_CI_maxit_linesearch()
+      maxerror  = control_tole()
+      if (oprint) then
+         write(luout,*) "maxit_orb        = ",maxit_orb
+         write(luout,*) "maxit_linesearch = ",maxit_ls
+         write(luout,*) "maxerror         = ",maxerror
+      end if
       !maxerror = 1.0d-12
       eci = 9.99d9
       e0  = 9.99d9
@@ -891,11 +915,16 @@ c     >           dcpl_mb(psi1(1)),1)
          call Pack_c_SMul1(1,sum,
      >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
 
+         call psi_get_gradient_virtual(ii,dcpl_mb(g93(1)))
+         call Pack_cc_dot(1,dcpl_mb(psi1_excited(1)+(ii-1)*npack1),
+     >                      dcpl_mb(g93(1)),e0)
+         e0 = -e0
+
          !*** minimize orbital ****
 
           l = 0
  2        call psi_CI_update_virtual(ci_algorithm,
-     >                               maxit_orb,
+     >                               maxit_orb,maxit_ls,
      >                               maxerror,
      >                               0.001d0,ii,error_out,e0,eci)
           l = l+1
@@ -906,6 +935,9 @@ c     >           dcpl_mb(psi1(1)),1)
 
       end do
       call psi_sort_virtual()
+
+      if (.not.BA_pop_stack(g93(2)))
+     >   call errquit('psi_CI_minimize_virtual:pop stack',1,MA_ERR)
 
 
       return
@@ -920,11 +952,12 @@ c     >           dcpl_mb(psi1(1)),1)
 *    This routine performs a KS update on virtual ii
 *
       subroutine psi_CI_update_virtual(ci_algorithm,maxiteration,
+     >                             maxit_ls,
      >                             maxerror,perror,ii,
      >                             error_out,e0,eci)
       implicit none
       integer ci_algorithm
-      integer maxiteration
+      integer maxiteration,maxit_ls
       real*8  maxerror,perror
       integer ii
       real*8 error_out
@@ -943,7 +976,7 @@ c     >           dcpl_mb(psi1(1)),1)
       logical value,done,oneloop,precondition,oprint
       integer it,pit,n2ft3d,nx,ny,nz
       real*8 eold,percent_error,error0,de0,lmbda_r0,lmbda_r1
-      real*8 theta,ep,sp
+      real*8 theta,ep,sp,e0old
       integer r1(2),t0(2),t(2),g(2),psig_r(2),psie_r(2)
       integer rhog(2),rhoe(2),rhoge(2),vcgg(2),vcge(2),vcee(2)
       integer vc(2),vctmp(2),te(2)
@@ -1043,7 +1076,6 @@ c     >           dcpl_mb(psi1(1)),1)
       pit = 0
  2    continue
          it = it + 1
-         eold = eci
 
          if (ci_algorithm.eq.2) then
 *        *** calculate residual (steepest descent) direction for psie ***
@@ -1101,8 +1133,11 @@ c     >           dcpl_mb(psi1(1)),1)
      >                          dcpl_mb(hpsig(1)),dbl_mb(hpsig_r(1)))
          end if
 
-         if (oprint) 
-     >   write(*,*) "orb,it,eci,eold=",ii,it,eci,eold,eci-eold
+         eold = eci
+         !write(*,*) "it,eold=",it,eold
+
+c         if (oprint) 
+c     >   write(*,*) "orb,it,eci,eold,eci-eold=",ii,it,eci,eold,eci-eold
 
          !*** project out to lower orbitals  ****
          call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(r1(1)))
@@ -1132,10 +1167,10 @@ c 3       call Pack_c_Copy(1,dcpl_mb(t(1)),dcpl_mb(t0(1)))
          call Pack_c_SMul1(1,de0,dcpl_mb(t(1)))
 
 *        **** compute de0 = <t|g> ****
-         call Pack_cc_dot(1,dcpl_mb(t(1)),
-     >                   dcpl_mb(g(1)),
-     >                   de0)
-         call Pack_cc_dot(1,dcpl_mb(t(1)),dcpl_mb(t(1)),sigma)
+c         call Pack_cc_dot(1,dcpl_mb(t(1)),
+c     >                      dcpl_mb(g(1)),
+c     >                      de0)
+c         call Pack_cc_dot(1,dcpl_mb(t(1)),dcpl_mb(t(1)),sigma)
 
 *        *** bad direction ***
 c         if ((de0.lt.0.0d0).and.oneloop) then
@@ -1145,7 +1180,7 @@ c           go to 3
 c         end if
 
 
-         call psi_linesearch_CI_virtual(ci_algorithm,
+         call psi_linesearch_CI_virtual(ci_algorithm,maxit_ls,
      >                                   ii,theta,eci,de0,dcpl_mb(t(1)),
      >                                  dcpl_mb(psig_ptr),
      >                                  dbl_mb(psig_r(1)),
@@ -1163,6 +1198,9 @@ c         end if
      >                                  electron_psi_r_ptr(),
      >                                  hpsig(1),hpsig_r(1),
      >                                  maxerror)
+         if (oprint) 
+     >   write(*,*) "    orb,it,eci,eold,eci-eold=",
+     >              ii,it,eci,eold,eci-eold
 
          done = ((it.gt.maxiteration) 
      >           .or.
@@ -1173,10 +1211,11 @@ c         end if
          if (done) go to 4
       go to 2
 
-
- 4    call psi_get_gradient_virtual(ii,dcpl_mb(g(1)))
+ 4    e0old = e0
+      call psi_get_gradient_virtual(ii,dcpl_mb(g(1)))
       call Pack_cc_dot(1,dcpl_mb(psie_ptr),dcpl_mb(g(1)),e0)
       e0 = -e0
+      error_out = dabs(e0-e0old)
 
 *     **** release stack memory ****
       value = .true.
@@ -1204,16 +1243,14 @@ c         end if
      >     'psi_2x2_update_virtual: popping stack memory',1, MA_ERR)
 
       if (oprint) then
-         write(luout,921) ii,-e0,eci,dabs(eci-eold),it,pit,ep,sp
-  921 format(5x,"orbital",I4," current e=",E14.6,
+       write(luout,921) ii,-e0,error_out,eci,dabs(eci-eold),it,pit,ep,sp
+  921  format(5x,"orbital",I4," current e=",E14.6," error=",E9.3,
      >       " (eci=",E17.9,
      >       " error=",E9.3,")",
      >       " iterations",I4,"(",I4,
      >       " preconditioned, Ep,Sp=",F5.1,F7.1,")")
       end if
 
-      error_out = dabs(e0-eold)
-      e0        = -e0
 
       return
       end
@@ -1230,7 +1267,7 @@ c         end if
 *  e0 = <orb|g>
 *  de0 = 2*<t|g>
 *
-      subroutine psi_linesearch_CI_virtual(ci_algorithm,
+      subroutine psi_linesearch_CI_virtual(ci_algorithm,maxit,
      >                                     ii,theta,e0,de0,t,
      >                                     psig,psig_r,psie_r,
      >                                     h1psig,h1psie,
@@ -1241,7 +1278,7 @@ c         end if
      >                                     hpsig_ptr,hpsig_r_ptr,
      >                                     maxerror)
       implicit none
-      integer ci_algorithm
+      integer ci_algorithm,maxit
       integer ii
       real*8  theta
       real*8  e0,de0
@@ -1261,8 +1298,8 @@ c         end if
 #include "psi.fh"
    
 *     **** local variables ****
-      integer maxit
-      parameter (maxit=15)
+      !integer maxit
+      !parameter (maxit=15)
 
       logical value,done,first
       integer orb(2),g(2),psi_ptr,it,iteration
