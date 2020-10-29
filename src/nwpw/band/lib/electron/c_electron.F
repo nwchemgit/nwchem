@@ -1400,6 +1400,50 @@ c      call C3dB_c_SMul(1,scal1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
 
 
 
+*     ***********************************
+*     *                                 *
+*     *        c_electron_gen_vall0     *
+*     *                                 *
+*     ***********************************
+
+      subroutine c_electron_gen_vall0()
+      implicit none
+
+
+#include "bafdecls.fh"
+#include "c_electron_common.fh"
+
+*     **** local variables ****
+      integer ms
+      real*8 scal2
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+
+      scal2 = 1.0d0/lattice_omega()
+
+*     **** add up k-space potentials, vall = scal2*vl + vc  ****
+      call Cram_c_SMul(0,scal2,dcpl_mb(vl(1)),
+     >                         dcpl_mb(vall(1)))
+
+
+*     **** fourier transform k-space potentials ****
+      call Cram_c_unpack(0,dcpl_mb(vall(1)))
+      !call C3dB_cr_fft3b(1,dcpl_mb(vall(1)))
+      call C3dB_cr_pfft3b(1,0,dcpl_mb(vall(1)))
+
+
+      if (ispin.eq.2)
+     >   call C3dB_c_Copy(1,dcpl_mb(vall(1)),
+     >                      dcpl_mb(vall(1)+nfft3d))
+
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *                                 *

@@ -90,11 +90,13 @@ c      real*8  B(ldb,*)
       ii    = 0
       do jcur=0,np_j-1
          iwrk  = na(jcur+1)
+!$OMP DO
          do j=1,iwrk2
          do i=1,iwrk
             Bwork(bshift+i+(j-1)*iwrk) = B(ii+i+(j+j1-1)*ne0)
          end do
          end do
+!$OMP END DO
          bshift = bshift + iwrk*iwrk2
          ii     = ii     + iwrk
       end do
@@ -102,11 +104,13 @@ c      real*8  B(ldb,*)
 
 *     *** C = beta*C ***
 c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
+!$OMP DO
       do j=1,nc(taskid_j+1)
          do i=1,mc(taskid_i+1)
             C(i,j) = beta*C(i,j)
          end do
       end do
+!$OMP END DO
 
       call Cmatrix_start_rot(1,
      >                       taskid_j,np_j,comm_j,
@@ -118,7 +122,7 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
       if ((mc(taskid_i+1).gt.0).and.
      >    (nc(taskid_j+1).gt.0).and.
      >    (iwrk.gt.0))
-     >     call zgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >     call zgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >                alpha,
      >                A, ma(taskid_i+1),
      >                Bwork(bshift2(jcur)), iwrk,
@@ -139,7 +143,7 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
          if ((mc(taskid_i+1).gt.0).and.
      >       (nc(taskid_j+1).gt.0).and.
      >       (iwrk.gt.0))
-     >       call zgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >       call zgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >                alpha,
      >                work1, ma(taskid_i+1),
      >                Bwork(bshift2(jcur)), iwrk,
@@ -158,7 +162,8 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
             if ((mc(taskid_i+1).gt.0).and.
      >          (nc(taskid_j+1).gt.0).and.
      >          (iwrk.gt.0))
-     >          call zgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >          call zgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),
+     >                iwrk,
      >                alpha,
      >                work2, ma(taskid_i+1),
      >                Bwork(bshift2(jcur)), iwrk,
@@ -174,7 +179,7 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
          if ((mc(taskid_i+1).gt.0).and.
      >       (nc(taskid_j+1).gt.0).and.
      >       (iwrk.gt.0))
-     >       call zgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >       call zgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >             alpha,
      >             work1, ma(taskid_i+1),
      >             Bwork(bshift2(jcur)), iwrk,
@@ -188,7 +193,7 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
          if ((mc(taskid_i+1).gt.0).and.
      >       (nc(taskid_j+1).gt.0).and.
      >       (iwrk.gt.0))
-     >       call zgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >       call zgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >             alpha,
      >             work2, ma(taskid_i+1),
      >             Bwork(bshift2(jcur)), iwrk,
@@ -279,7 +284,8 @@ c      real*8  B(ldb,*)
 
 
           !*** Allgather is flaky on my mac laptop ***
-          call dcopy(ne0,0.0,0,Bcol(1+(j-1)*ne0),1)
+          !call dcopy(ne0,0.0,0,Bcol(1+(j-1)*ne0),1)
+          call Parallel_shared_vector_zero(.true.,ne0,Bcol(1+(j-1)*ne0))
           bshift = 0
           do ii=1,taskid_i
              bshift = bshift + mb(ii)
@@ -295,12 +301,14 @@ c      real*8  B(ldb,*)
          ii    = 0
          do jcur=0,np_j-1
             iwrk  = na(jcur+1)
+!$OMP DO
             do j=1,iwrk2
             do i=1,iwrk
                Bwork(bshift+i+(j-1)*iwrk) = Bcol(ii+i+(j-1)*ne0)
 
             end do
             end do
+!$OMP END DO
             bshift = bshift + iwrk*iwrk2
             ii     = ii     + iwrk
          end do
@@ -310,11 +318,13 @@ c      real*8  B(ldb,*)
          ii    = 0
          do jcur=0,np_j-1
             iwrk  = na(jcur+1)
+!$OMP DO
             do j=1,iwrk2
             do i=1,iwrk
                Bwork(bshift+i+(j-1)*iwrk) = B(ii+i+(j-1)*ne0)
             end do
             end do
+!$OMP END DO
             bshift = bshift + iwrk*iwrk2
             ii     = ii     + iwrk
          end do
@@ -324,11 +334,13 @@ c      real*8  B(ldb,*)
 
 *     *** C = beta*C ***
 c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
+!$OMP DO
       do j=1,nc(taskid_j+1)
          do i=1,mc(taskid_i+1)
             C(i,j) = beta*C(i,j)
          end do
       end do
+!$OMP END DO
 
       call Cmatrix_start_rot(1,
      >                       taskid_j,np_j,comm_j,
@@ -340,7 +352,7 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
       if ((mc(taskid_i+1).gt.0).and.
      >    (nc(taskid_j+1).gt.0).and.
      >    (iwrk.gt.0))
-     >     call zgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >     call zgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >                alpha,
      >                A, ma(taskid_i+1),
      >                Bwork(bshift2(jcur)), iwrk,
@@ -361,7 +373,7 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
          if ((mc(taskid_i+1).gt.0).and.
      >       (nc(taskid_j+1).gt.0).and.
      >       (iwrk.gt.0))
-     >       call zgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >       call zgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >                alpha,
      >                work1, ma(taskid_i+1),
      >                Bwork(bshift2(jcur)), iwrk,
@@ -380,7 +392,8 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
             if ((mc(taskid_i+1).gt.0).and.
      >          (nc(taskid_j+1).gt.0).and.
      >          (iwrk.gt.0))
-     >          call zgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >          call zgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),
+     >                iwrk,
      >                alpha,
      >                work2, ma(taskid_i+1),
      >                Bwork(bshift2(jcur)), iwrk,
@@ -396,7 +409,7 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
          if ((mc(taskid_i+1).gt.0).and.
      >       (nc(taskid_j+1).gt.0).and.
      >       (iwrk.gt.0))
-     >       call zgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >       call zgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >             alpha,
      >             work1, ma(taskid_i+1),
      >             Bwork(bshift2(jcur)), iwrk,
@@ -410,7 +423,7 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
          if ((mc(taskid_i+1).gt.0).and.
      >       (nc(taskid_j+1).gt.0).and.
      >       (iwrk.gt.0))
-     >       call zgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >       call zgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >             alpha,
      >             work2, ma(taskid_i+1),
      >             Bwork(bshift2(jcur)), iwrk,
@@ -469,7 +482,7 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
       msgtype   = j
       amsglen = lda*na(taskid_j+1)
       wmsglen = lda*na(proc_from+1)
-
+!$OMP MASTER
 #ifdef MPI4
             if (wmsglen.gt.0) then
                stupid_msglen = wmsglen
@@ -530,6 +543,7 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
       else 
          request(3) = 4
       end if
+!$OMP END MASTER
 
       return
       end
@@ -627,7 +641,7 @@ c     **** loop over all row pannels of C ***
          iwrk = min(nblock, mb(icur+1)-ii)
          iwrk = min(iwrk,   na(jcur+1)-jj)
 
-
+!$OMP MASTER
 *        **** pack current iwrk columns of A into work1 ***
          if (taskid_j.eq.jcur) then
             call zlacpy("G", ma(taskid_i+1),iwrk,
@@ -664,11 +678,14 @@ c        **** broadcast work2  within my column ***
      >                  icur,comm_i,ierr)
 #endif
 
+!$OMP END MASTER
+!$OMP BARRIER
+
 
          if ((iwrk.gt.0)          .and.
      >       (mc(taskid_i+1).gt.0).and.
      >       (nc(taskid_j+1).gt.0))
-     >     call zgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >     call zgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >                alpha,
      >                work1, ma(taskid_i+1),
      >                work2, iwrk,
@@ -744,11 +761,13 @@ c        **** broadcast work2  within my column ***
       integer i,j,ii,jj
       integer kk,iwrk,icur,jcur,ierr,shift
 
+!$OMP DO
       do j=1,nc(taskid_j+1)
          do i=1,mc(taskid_i+1)
             C(i,j) = beta*C(i,j)
          end do
       end do
+!$OMP END DO
 
       ii = 0
       jj = 0
@@ -760,10 +779,10 @@ c     **** loop over all row pannels of C ***
          iwrk = min(nblock, mc(icur+1)-ii)
          iwrk = min(iwrk,   na(jcur+1)-jj)
 
-
 *        **** iwrk*nc(taskid_j+1) submatrix !=0 ****
          if (ma(taskid_i+1).gt.0) then
 
+!$OMP MASTER
 *           **** pack current iwrk columns of A into work1 ***
             if (taskid_j.eq.jcur) then
                call zlacpy("G", ma(taskid_i+1),iwrk,
@@ -783,13 +802,16 @@ c           **** broadcast work1  within my row ***
      >                     MPI_DOUBLE_COMPLEX,jcur,comm_j,ierr)
 #endif
 
+!$OMP END MASTER
+!$OMP BARRIER
+
 
 c            if ((iwrk.gt.0)          .and.
 c     >          (nb(taskid_j+1).gt.0).and.
 c     >          (ma(taskid_i+1).gt.0))
             if ((iwrk.gt.0)          .and.
      >          (nb(taskid_j+1).gt.0))
-     >        call zgemm('C','N',iwrk,nb(taskid_j+1),ma(taskid_i+1),
+     >        call zgemm_omp('C','N',iwrk,nb(taskid_j+1),ma(taskid_i+1),
      >                   alpha,
      >                   work1, ma(taskid_i+1),
      >                   B, ldb,
@@ -798,11 +820,15 @@ c     >          (ma(taskid_i+1).gt.0))
 
 *        **** iwrk*nc(taskid_j+1) submatrix ==0 ****
          else
-            call dcopy(2*nc(taskid_j+1)*iwrk,0.0d0,0,work2,1)
+            !call dcopy(2*nc(taskid_j+1)*iwrk,0.0d0,0,work2,1)
+            call Parallel_shared_vector_zero(.true.,
+     >                                       2*nc(taskid_j+1)*iwrk,
+     >                                       work2)
          end if
 
 
 c        **** summ to node that holds current rows of C ****
+!$OMP MASTER
 #ifdef MPI4
          stupid_msglen = nc(taskid_j+1)*iwrk
          stupid_taskid = icur
@@ -813,13 +839,15 @@ c        **** summ to node that holds current rows of C ****
          call MPI_Reduce(work2,work1,nc(taskid_j+1)*iwrk,
      >                   MPI_DOUBLE_COMPLEX,MPI_SUM,icur,comm_i,ierr)
 #endif
+!$OMP END MASTER
+!$OMP BARRIER
 
 
 c        **** add to current rows of C ****
          if (taskid_i.eq.icur) then
             shift = 1
             do i=ii,(ii+iwrk-1)
-               call daxpy(2*nc(taskid_j+1),1.0d0,work1(shift),iwrk,
+               call daxpy_omp(2*nc(taskid_j+1),1.0d0,work1(shift),iwrk,
      >                                    C(i+1,1),mc(taskid_i+1))
                shift = shift + 1
             end do
@@ -843,6 +871,296 @@ c        **** add to current rows of C ****
 
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *         CMatrix_zgemm2c_omp     *
+*     *                                 *
+*     ***********************************
+      subroutine CMatrix_zgemm2c_omp(m,n,k,nblock,
+     >                  A,B,lda,ma,na,
+     >                  C,ldc,mc,nc,
+     >                  taskid_i,taskid_j,
+     >                  np_i,np_j,
+     >                  comm_i, comm_j,
+     >                  tid,nthr,
+     >                  work1,work2,
+     >                  privatetmp)
+      implicit none
+      integer m,n,k,nblock
+
+      integer lda,ma(*),na(*)
+      complex*16  A(lda,*)
+      complex*16  B(lda,*)
+
+      integer ldc,mc(*),nc(*)
+      complex*16  C(ldc,*)
+
+      integer taskid_i,taskid_j
+      integer np_i,np_j
+      integer comm_i,comm_j
+      integer tid,nthr
+
+      complex*16 work1(*),work2(*)
+      complex*16 privatetmp(*)
+
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+
+*     **** local variables ****
+      logical docalc1,docalc2
+      integer i,j,ii,jj
+      integer kk,iwrk,icur,jcur,ierr,shift
+      integer npack2,n2
+
+      n2     = na(taskid_j+1)
+      npack2 = ma(taskid_i+1)
+
+      call Parallel_shared_vector_zero(.false.,
+     >                                 2*mc(taskid_i+1)*nc(taskid_j+1),
+     >                                 C)
+
+      ii = 0
+      jj = 0
+      kk = 0
+      icur = 0
+      jcur = 0
+c     **** loop over all row pannels of C ***
+      do while (kk.lt.m)
+         iwrk = min(nblock, mc(icur+1)-ii)
+         iwrk = min(iwrk,   na(jcur+1)-jj)
+
+         call Parallel_shared_vector_zero(.false.,
+     >                                    2*nc(taskid_j+1)*iwrk,work2)
+*        **** iwrk*nc(taskid_j+1) submatrix !=0 ****
+         if (ma(taskid_i+1).gt.0) then
+
+!$OMP MASTER
+*           **** pack current iwrk columns of A into work1 ***
+            if (taskid_j.eq.jcur) then
+               call zlacpy("G", ma(taskid_i+1),iwrk,
+     >                   A(1,jj+1), lda,
+     >                   work1, ma(taskid_i+1))
+            end if
+
+c           **** broadcast work1  within my row ***
+#ifdef MPI4
+            stupid_msglen = iwrk*ma(taskid_i+1)
+            stupid_taskid = jcur
+            call MPI_Bcast(work1,stupid_msglen,
+     >                     stupid_complex,stupid_taskid,
+     >                     stupid_comm_j,stupid_ierr)
+#else
+            call MPI_Bcast(work1,iwrk*ma(taskid_i+1),
+     >                     MPI_DOUBLE_COMPLEX,jcur,comm_j,ierr)
+#endif
+!$OMP END MASTER
+!$OMP BARRIER
+
+            if ((iwrk.gt.0).and.(na(taskid_j+1).gt.0)) then
+              call zgemm2c_omp_group(1,tid,nthr,iwrk,n2,npack2,
+     >                       work1,B,work2,privatetmp)
+            end if
+         end if
+
+c        **** summ to node that holds current rows of C ****
+!$OMP BARRIER
+!$OMP MASTER
+#ifdef MPI4
+         stupid_msglen = nc(taskid_j+1)*iwrk
+         stupid_taskid = icur
+         call MPI_Reduce(work2,work1,stupid_msglen,
+     >                   stupid_complex,stupid_sum,
+     >                   stupid_taskid,stupid_comm_i,stupid_ierr)
+#else
+         call MPI_Reduce(work2,work1,nc(taskid_j+1)*iwrk,
+     >                   MPI_DOUBLE_COMPLEX,MPI_SUM,icur,comm_i,ierr)
+#endif
+!$OMP END MASTER
+!$OMP BARRIER
+
+
+c        **** add to current rows of C ****
+         if (taskid_i.eq.icur) then
+            shift = 1
+            do i=ii,(ii+iwrk-1)
+               call DAXPY_OMP(2*nc(taskid_j+1),1.0d0,work1(shift),iwrk,
+     >                                    C(i+1,1),mc(taskid_i+1))
+               shift = shift + 1
+            end do
+         end if
+
+         ii = ii + iwrk
+         jj = jj + iwrk
+         kk = kk + iwrk
+
+         if (jj.ge.na(jcur+1)) then
+           jcur = jcur + 1
+           jj   = 0
+         end if
+         if (ii.ge.mc(icur+1)) then
+           icur = icur + 1
+           ii   = 0
+         end if
+
+      end do
+
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *         CMatrix_dgemm2c_omp     *
+*     *                                 *
+*     ***********************************
+      subroutine CMatrix_dgemm2c_omp(m,n,k,nblock,
+     >                  A,B,lda,ma,na,
+     >                  C,ldc,mc,nc,
+     >                  taskid_i,taskid_j,
+     >                  np_i,np_j,
+     >                  comm_i, comm_j,
+     >                  tid,nthr,
+     >                  work1,work2,
+     >                  privatetmp)
+      implicit none
+      integer m,n,k,nblock
+
+      integer lda,ma(*),na(*)
+      real*8  A(lda,*)
+      real*8  B(lda,*)
+
+      integer ldc,mc(*),nc(*)
+      real*8  C(ldc,*)
+
+      integer taskid_i,taskid_j
+      integer np_i,np_j
+      integer comm_i,comm_j
+      integer tid,nthr
+
+      real*8  work1(*),work2(*)
+      real*8  privatetmp(*)
+
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+
+
+*     **** local variables ****
+      logical docalc1,docalc2
+      integer i,j,ii,jj
+      integer kk,iwrk,icur,jcur,ierr,shift
+      integer npack2,n2
+
+      n2     = na(taskid_j+1)
+      npack2 = ma(taskid_i+1)
+
+      call Parallel_shared_vector_zero(.false.,
+     >                                 mc(taskid_i+1)*nc(taskid_j+1),
+     >                                 C)
+
+      ii = 0
+      jj = 0
+      kk = 0
+      icur = 0
+      jcur = 0
+c     **** loop over all row pannels of C ***
+      do while (kk.lt.m)
+         iwrk = min(nblock, mc(icur+1)-ii)
+         iwrk = min(iwrk,   na(jcur+1)-jj)
+
+
+         call Parallel_shared_vector_zero(.false.,
+     >                                    nc(taskid_j+1)*iwrk,work2)
+*        **** iwrk*nc(taskid_j+1) submatrix !=0 ****
+         if (ma(taskid_i+1).gt.0) then
+
+!$OMP MASTER
+*           **** pack current iwrk columns of A into work1 ***
+            if (taskid_j.eq.jcur) then
+               call dlacpy("G", ma(taskid_i+1),iwrk,
+     >                   A(1,jj+1), lda,
+     >                   work1, ma(taskid_i+1))
+            end if
+
+c           **** broadcast work1  within my row ***
+#ifdef MPI4
+            stupid_msglen = iwrk*ma(taskid_i+1)
+            stupid_taskid = jcur
+            call MPI_Bcast(work1,stupid_msglen,
+     >                     stupid_double,stupid_taskid,
+     >                     stupid_comm_j,stupid_ierr)
+#else
+            call MPI_Bcast(work1,iwrk*ma(taskid_i+1),
+     >                     MPI_DOUBLE_PRECISION,jcur,comm_j,ierr)
+#endif
+!$OMP END MASTER
+!$OMP BARRIER
+
+
+            if ((iwrk.gt.0).and.(na(taskid_j+1).gt.0)) then
+              call dgemm2c0_omp_group(1,tid,nthr,iwrk,n2,npack2,
+     >                       work1,B,work2,privatetmp)
+            end if
+         end if
+
+c        **** summ to node that holds current rows of C ****
+!$OMP BARRIER
+!$OMP MASTER
+#ifdef MPI4
+         stupid_msglen = nc(taskid_j+1)*iwrk
+         stupid_taskid = icur
+         call MPI_Reduce(work2,work1,stupid_msglen,
+     >                   stupid_double,stupid_sum,
+     >                   stupid_taskid,stupid_comm_i,stupid_ierr)
+#else
+         call MPI_Reduce(work2,work1,nc(taskid_j+1)*iwrk,
+     >                   MPI_DOUBLE_PRECISION,MPI_SUM,icur,comm_i,ierr)
+#endif
+!$OMP END MASTER
+!$OMP BARRIER
+
+
+c        **** add to current rows of C ****
+         if (taskid_i.eq.icur) then
+            shift = 1
+            do i=ii,(ii+iwrk-1)
+               call DAXPY_OMP(nc(taskid_j+1),1.0d0,work1(shift),iwrk,
+     >                                    C(i+1,1),mc(taskid_i+1))
+               shift = shift + 1
+            end do
+         end if
+
+         ii = ii + iwrk
+         jj = jj + iwrk
+         kk = kk + iwrk
+
+         if (jj.ge.na(jcur+1)) then
+           jcur = jcur + 1
+           jj   = 0
+         end if
+         if (ii.ge.mc(icur+1)) then
+           icur = icur + 1
+           ii   = 0
+         end if
+
+      end do
+
+
+      return
+      end
+
+
 
 
 *     ***********************************
@@ -895,12 +1213,13 @@ c        **** add to current rows of C ****
       integer kk,iwrk,icur,jcur,ierr,shift
       real*8  dum
 
-
+!$OMP DO
       do j=1,nc(taskid_j+1)
          do i=1,mc(taskid_i+1)
             C(i,j) = beta*C(i,j)
          end do
       end do
+!$OMP END DO
 
       ii = 0
       jj = 0
@@ -912,6 +1231,7 @@ c        **** add to current rows of C ****
          iwrk = min(iwrk,   nc(jcur+1)-jj)
 
 
+!$OMP MASTER
          if (taskid_i.eq.icur) then
             call zlacpy("G", iwrk,nb(taskid_j+1),
      >                   B(ii+1,1), ldb,
@@ -927,11 +1247,13 @@ c        **** add to current rows of C ****
         call MPI_Bcast(work2,iwrk*nb(taskid_j+1),MPI_DOUBLE_COMPLEX,
      >                  icur,comm_i,ierr)
 #endif
+!$OMP END MASTER
+!$OMP BARRIER
 
          if ((iwrk.gt.0)          .and.
      >       (na(taskid_j+1).gt.0).and.
      >       (mc(taskid_i+1).gt.0))
-     >      call zgemm('N','C',mc(taskid_i+1),iwrk,na(taskid_j+1),
+     >      call zgemm_omp('N','C',mc(taskid_i+1),iwrk,na(taskid_j+1),
      >              alpha,
      >              A, lda,
      >              work2, iwrk,
@@ -953,7 +1275,7 @@ c        **** add to current rows of C ****
          if (taskid_j.eq.jcur) then
             shift = 1
             do j=jj,(jj+iwrk-1)
-               call daxpy(2*mc(taskid_i+1),
+               call daxpy_omp(2*mc(taskid_i+1),
      >                    1.0d0,
      >                    work2(shift),1,
      >                    C(1,j+1),1)
@@ -1182,7 +1504,10 @@ ccccneed to fixccc            g = eig(m)-eig(l)+tu(l)/(g+dsign(r,g))
       integer jj0,jcur0,jj1,jcur1
       real*8  beta,mu0,mu,v20,v2
 
-      call dcopy(2*ma(taskid_i+1)*na(taskid_j+1),0.0d0,0,V,1)
+      !call dcopy(2*ma(taskid_i+1)*na(taskid_j+1),0.0d0,0,V,1)
+      call Parallel_shared_vector_zero(.true.,
+     >                                 2*ma(taskid_i+1)*na(taskid_j+1),
+     >                                 V)
 
       jcur0 = 0
       jj0   = 1
@@ -1479,8 +1804,10 @@ cccc need to fix   >        beta = V(ii1,jj0) + dsign(mu,V(ii1,jj0))
 *     **************************
 *     **** gather diagonals ****
 *     **************************
-      call dcopy(n,0.0d0,0,work1,1)
-      call dcopy(n,0.0d0,0,eig,1)
+      !call dcopy(n,0.0d0,0,work1,1)
+      !call dcopy(n,0.0d0,0,eig,1)
+      call Parallel_shared_vector_zero(.false.,n,work1)
+      call Parallel_shared_vector_zero(.true.,n,eig)
       js = 1
       do jcur = 0,taskid_j-1
         js = js + na(jcur+1)
@@ -1531,8 +1858,10 @@ cccc need to fix   >        beta = V(ii1,jj0) + dsign(mu,V(ii1,jj0))
 *     ******************************
 *     **** gather off-diagonals ****
 *     ******************************
-      call dcopy(n,0.0d0,0,work1,1)
-      call dcopy(n,0.0d0,0,tu,1)
+      !call dcopy(n,0.0d0,0,work1,1)
+      !call dcopy(n,0.0d0,0,tu,1)
+      call Parallel_shared_vector_zero(.false.,n,work1)
+      call Parallel_shared_vector_zero(.true.,n,tu)
       is = 1
       do icur = 0,taskid_i-1
         is = is + ma(icur+1)
@@ -1856,6 +2185,7 @@ c     implicit none
       integer i,j,ii,jj
       integer kk,iwrk,icur,jcur,ierr,shift,shft,shft2,shft3
 
+!$OMP DO
       do kk=1,3
       do j=1,nc(taskid_j+1)
          do i=1,mc(taskid_i+1)
@@ -1863,6 +2193,7 @@ c     implicit none
          end do
       end do
       end do
+!$OMP END DO
 
       ii = 0
       jj = 0
@@ -1882,6 +2213,7 @@ c     **** loop over all row pannels of C ***
             shft2 = iwrk*nc(taskid_j+1)
             shft3 = shft2+shft2
 
+!$OMP MASTER
 *           **** pack current iwrk columns of A into work1 ***
             if (taskid_j.eq.jcur) then
                call zlacpy("G", ma(taskid_i+1),iwrk,
@@ -1904,24 +2236,26 @@ c           **** broadcast work1  within my row ***
             call MPI_Bcast(work1,2*iwrk*ma(taskid_i+1),
      >                     MPI_DOUBLE_COMPLEX,jcur,comm_j,ierr)
 #endif
+!$OMP END MASTER
+!$OMP BARRIER
 
 
             if ((iwrk.gt.0)          .and.
      >          (na(taskid_j+1).gt.0)) then
 
-              call zgemm('C','N',iwrk,na(taskid_j+1),ma(taskid_i+1),
+              call zgemm_omp('C','N',iwrk,na(taskid_j+1),ma(taskid_i+1),
      >                   alpha,
      >                   work1, ma(taskid_i+1),
      >                   A, lda,
      >                   dcmplx(0.0d0,0.0d0),
      >                   work2, iwrk)
-              call zgemm('C','N',iwrk,na(taskid_j+1),ma(taskid_i+1),
+              call zgemm_omp('C','N',iwrk,na(taskid_j+1),ma(taskid_i+1),
      >                   alpha,
      >                   work1, ma(taskid_i+1),
      >                   B, lda,
      >                   dcmplx(0.0d0,0.0d0),
      >                   work2(1+shft2), iwrk)
-              call zgemm('C','N',iwrk,na(taskid_j+1),ma(taskid_i+1),
+              call zgemm_omp('C','N',iwrk,na(taskid_j+1),ma(taskid_i+1),
      >                   alpha,
      >                   work1(1+shft), ma(taskid_i+1),
      >                   B, lda,
@@ -1931,10 +2265,13 @@ c           **** broadcast work1  within my row ***
 
 *        **** iwrk*nc(taskid_j+1) submatrix ==0 ****
          else
-            call dcopy(3*nc(taskid_j+1)*iwrk,0.0d0,0,work2,1)
+            !call dcopy(3*nc(taskid_j+1)*iwrk,0.0d0,0,work2,1)
+            call Parallel_shared_vector_zero(.true.,
+     >                                 3*nc(taskid_j+1)*iwrk,work2)
          end if
 
 
+!$OMP MASTER
 c        **** summ to node that holds current rows of C ****
 #ifdef MPI4
          stupid_msglen = 3*nc(taskid_j+1)*iwrk
@@ -1946,19 +2283,219 @@ c        **** summ to node that holds current rows of C ****
          call MPI_Reduce(work2,work1,3*nc(taskid_j+1)*iwrk,
      >                   MPI_DOUBLE_COMPLEX,MPI_SUM,icur,comm_i,ierr)
 #endif
+!$OMP END MASTER
+!$OMP BARRIER
 
 
 c        **** add to current rows of C ****
          if (taskid_i.eq.icur) then
             shift = 1
             do i=ii,(ii+iwrk-1)
-              call daxpy(2*nc(taskid_j+1),1.0d0,work1(shift),iwrk,
+              call daxpy_omp(2*nc(taskid_j+1),1.0d0,work1(shift),iwrk,
      >                                    C(i+1,1,1),mc(taskid_i+1))
-              call daxpy(2*nc(taskid_j+1),1.0d0,work1(shift+shft2),iwrk,
+              call daxpy_omp(2*nc(taskid_j+1),1.0d0,work1(shift+shft2),
+     >                                    iwrk,
      >                                    C(i+1,1,2),mc(taskid_i+1))
-              call daxpy(2*nc(taskid_j+1),1.0d0,work1(shift+shft3),iwrk,
+              call daxpy_omp(2*nc(taskid_j+1),1.0d0,work1(shift+shft3),
+     >                                    iwrk,
      >                                    C(i+1,1,3),mc(taskid_i+1))
               shift = shift + 1
+            end do
+         end if
+
+         ii = ii + iwrk
+         jj = jj + iwrk
+         kk = kk + iwrk
+
+         if (jj.ge.na(jcur+1)) then
+           jcur = jcur + 1
+           jj   = 0
+         end if
+         if (ii.ge.mc(icur+1)) then
+           icur = icur + 1
+           ii   = 0
+         end if
+
+      end do
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *   CMatrix_combo_dgemm2c_omp     *
+*     *                                 *
+*     ***********************************
+      subroutine CMatrix_combo_dgemm2c_omp(m,n,k,nblock,
+     >                  A,B,lda,ma,na,
+     >                  C,ldc,ldc2,mc,nc,
+     >                  taskid_i,taskid_j,
+     >                  np_i,np_j,
+     >                  comm_i, comm_j,
+     >                  tid,nthr,
+     >                  work1,work2,
+     >                  privatetmp)
+      implicit none
+      integer m,n,k,nblock
+
+      integer lda,ma(*),na(*)
+      complex*16 A(lda,*)
+      complex*16 B(lda,*)
+
+      integer ldc,ldc2,mc(*),nc(*)
+      complex*16  C(ldc,ldc2,3)
+
+      integer taskid_i,taskid_j
+      integer np_i,np_j
+      integer comm_i,comm_j
+      integer tid,nthr
+
+      complex*16 work1(*),work2(*)
+      complex*16 privatetmp(*)
+
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+*     **** local variables ****
+      logical docalc1,docalc2
+      integer i,j,ii,jj,ik
+      integer kk,iwrk,icur,jcur,ierr,shift,shft,shft2,shft3
+      integer nthr3,nthr3l,ftid1,ftid2,ftid3,npack2,n2
+
+      if (nthr.eq.2) then
+         nthr3  = 2
+         nthr3l = 2
+         ftid1 = 0
+         ftid2 = 0
+         ftid3 = 0
+      else
+         nthr3  = max(1,(nthr - mod(nthr,3))/3)
+         nthr3l = max(1,nthr-2*nthr3)
+         ftid1 = 0
+         ftid2 = min(nthr-1,nthr3)
+         ftid3 = min(nthr-1,2*nthr3)
+      end if
+      n2     = na(taskid_j+1)
+      npack2 = ma(taskid_i+1)
+
+      call Parallel_shared_vector_zero(.false.,
+     >                           2*3*nc(taskid_j+1)*mc(taskid_i+1),
+     >                           C)
+
+      ii = 0
+      jj = 0
+      kk = 0
+      icur = 0
+      jcur = 0
+c     **** loop over all row pannels of C ***
+      do while (kk.lt.m)
+         iwrk = min(nblock, mc(icur+1)-ii)
+         iwrk = min(iwrk,   na(jcur+1)-jj)
+
+         shft  = iwrk*ma(taskid_i+1)
+         shft2 = iwrk*nc(taskid_j+1)
+         shft3 = shft2+shft2
+
+*        **** set iwrk*nc(taskid_j+1) submatrix ==0 ****
+         call Parallel_shared_vector_zero(.false.,
+     >                                    2*3*nc(taskid_j+1)*iwrk,
+     >                                    work2)
+
+*        **** iwrk*nc(taskid_j+1) submatrix !=0 ****
+         if (ma(taskid_i+1).gt.0) then
+
+
+!$OMP MASTER
+*           **** pack current iwrk columns of A into work1 ***
+            if (taskid_j.eq.jcur) then
+               call zlacpy("G", ma(taskid_i+1),iwrk,
+     >                   A(1,jj+1), lda,
+     >                   work1,     ma(taskid_i+1))
+
+               call zlacpy("G", ma(taskid_i+1),iwrk,
+     >                   B(1,jj+1), lda,
+     >                   work1(1+shft),  ma(taskid_i+1))
+            end if
+
+c           **** broadcast work1  within my row ***
+#ifdef MPI4
+            stupid_msglen = 2*iwrk*ma(taskid_i+1)
+            stupid_taskid = jcur
+            call MPI_Bcast(work1,stupid_msglen,
+     >                     stupid_complex,stupid_taskid,
+     >                     stupid_comm_j,stupid_ierr)
+#else
+            call MPI_Bcast(work1,2*iwrk*ma(taskid_i+1),
+     >                     MPI_DOUBLE_COMPLEX,jcur,comm_j,ierr)
+#endif
+!$OMP END MASTER
+!$OMP BARRIER
+
+
+            if ((iwrk.gt.0)          .and.
+     >          (na(taskid_j+1).gt.0)) then
+
+               if ((tid.ge.ftid1).and.(tid.lt.(ftid1+nthr3))) then
+                  call zgemm2c_omp_group(1,tid-ftid1,nthr3,
+     >                                   iwrk,n2,npack2,
+     >                                   work1,A,work2,
+     >                                   privatetmp)
+               end if
+
+               if ((tid.ge.ftid2).and.(tid.lt.(ftid2+nthr3))) then
+                  call zgemm2c_omp_group(2,tid-ftid2,nthr3,
+     >                                   iwrk,n2,npack2,
+     >                                   work1,B,work2(1+shft2),
+     >                                   privatetmp)
+               end if
+
+               if ((tid.ge.ftid3).and.(tid.lt.(ftid3+nthr3l))) then
+                  call zgemm2c_omp_group(3,tid-ftid3,nthr3l,
+     >                                   iwrk,n2,npack2,
+     >                                   work1(1+shft),B,work2(1+shft3),
+     >                                   privatetmp)
+               end if
+            end if
+
+         end if
+
+!$OMP BARRIER
+!$OMP MASTER
+c        **** summ to node that holds current rows of C ****
+#ifdef MPI4
+         stupid_msglen = 3*nc(taskid_j+1)*iwrk
+         stupid_taskid = icur
+         call MPI_Reduce(work2,work1,stupid_msglen,
+     >                   stupid_complex,stupid_sum,
+     >                   stupid_taskid,stupid_comm_i,stupid_ierr)
+#else
+         call MPI_Reduce(work2,work1,3*nc(taskid_j+1)*iwrk,
+     >                   MPI_DOUBLE_COMPLEX,MPI_SUM,icur,comm_i,ierr)
+#endif
+!$OMP END MASTER
+!$OMP BARRIER
+
+
+c        **** add to current rows of C ****
+         if (taskid_i.eq.icur) then
+            shift = 1
+            do i=ii,(ii+iwrk-1)
+               call daxpy_omp(2*nc(taskid_j+1),1.0d0,
+     >                           work1(shift),iwrk,
+     >                           C(i+1,1,1),mc(taskid_i+1))
+               call daxpy_omp(2*nc(taskid_j+1),1.0d0,
+     >                        work1(shift+shft2),iwrk,
+     >                        C(i+1,1,2),mc(taskid_i+1))
+               call daxpy_omp(2*nc(taskid_j+1),1.0d0,
+     >                        work1(shift+shft3),iwrk,
+     >                       C(i+1,1,3),mc(taskid_i+1))
+               shift = shift + 1
             end do
          end if
 

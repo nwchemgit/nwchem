@@ -124,7 +124,7 @@ ccccc      call Dnex_init(ispin,nexcited,control_mapping1d())
       if (gvirtual) then
          call psi_gen_hml_virtual(.true.)
       else if (gci) then
-         call psi_gen_hml_virtual(.true.)
+         !call psi_gen_hml_virtual(.true.)
          call psi_minimize_virtual_CI(civirt)
       else
          call psi_gen_hml_virtual(.true.)

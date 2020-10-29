@@ -198,7 +198,7 @@ c        **** broadcast work2  within my column ***
          if ((iwrk.gt.0)          .and.
      >       (mc(taskid_i+1).gt.0).and.
      >       (nc(taskid_j+1).gt.0))
-     >     call zgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >     call zgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >                alpha,
      >                work1, ma(taskid_i+1),
      >                work2, iwrk,
@@ -306,7 +306,7 @@ c     >          (nb(taskid_j+1).gt.0).and.
 c     >          (ma(taskid_i+1).gt.0))
             if ((iwrk.gt.0)          .and.
      >          (nb(taskid_j+1).gt.0))
-     >        call zgemm('C','N',iwrk,nb(taskid_j+1),ma(taskid_i+1),
+     >        call zgemm_omp('C','N',iwrk,nb(taskid_j+1),ma(taskid_i+1),
      >                   alpha,
      >                   work1, ma(taskid_i+1),
      >                   B, ldb,
@@ -427,7 +427,7 @@ c        **** add to current rows of C ****
          if ((iwrk.gt.0)          .and.
      >       (na(taskid_j+1).gt.0).and.
      >       (mc(taskid_i+1).gt.0))
-     >      call zgemm('N','C',mc(taskid_i+1),iwrk,na(taskid_j+1),
+     >      call zgemm_omp('N','C',mc(taskid_i+1),iwrk,na(taskid_j+1),
      >              alpha,
      >              A, lda,
      >              work2, iwrk,
@@ -1220,19 +1220,19 @@ c           **** broadcast work1  within my row ***
             if ((iwrk.gt.0)          .and.
      >          (na(taskid_j+1).gt.0)) then
 
-              call zgemm('C','N',iwrk,na(taskid_j+1),ma(taskid_i+1),
+              call zgemm_omp('C','N',iwrk,na(taskid_j+1),ma(taskid_i+1),
      >                   alpha,
      >                   work1, ma(taskid_i+1),
      >                   A, lda,
      >                   dcmplx(0.0d0,0.0d0),
      >                   work2, iwrk)
-              call zgemm('C','N',iwrk,na(taskid_j+1),ma(taskid_i+1),
+              call zgemm_omp('C','N',iwrk,na(taskid_j+1),ma(taskid_i+1),
      >                   alpha,
      >                   work1, ma(taskid_i+1),
      >                   B, lda,
      >                   dcmplx(0.0d0,0.0d0),
      >                   work2(1+shft2), iwrk)
-              call zgemm('C','N',iwrk,na(taskid_j+1),ma(taskid_i+1),
+              call zgemm_omp('C','N',iwrk,na(taskid_j+1),ma(taskid_i+1),
      >                   alpha,
      >                   work1(1+shft), ma(taskid_i+1),
      >                   B, lda,

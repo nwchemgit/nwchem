@@ -852,20 +852,57 @@ c     >           dcpl_mb(psi1(1)),1)
       integer ci_algorithm
       
 #include "bafdecls.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "stdio.fh"
 #include "psi.fh"
+
+      real*8 Hgg
+      common / CI_Hgg_common / Hgg
       
       !*** local variables ***
-      integer maxit_orb
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+      logical oprint
+      integer maxit_orb,maxit_ls
       integer ii,l
       real*8  sum,maxerror,error_out,e0,eci
+      integer g93(2),eig_eci(2)
          
       !*** external functions ***
+      logical  control_print
+      external control_print
+      integer  control_CI_maxit_orb,control_CI_maxit_linesearch
+      external control_CI_maxit_orb,control_CI_maxit_linesearch
       real*8   control_tole
       external control_tole
 
+      call Parallel_taskid(taskid)
+      oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
+
+      Hgg = 0.0d0
+
+      if (.not.BA_push_get(mt_dcpl,npack1,'g93',g93(2),g93(1)))
+     >   call errquit('psi_CI_minimize_virtual:out of stack',0,MA_ERR)
+      if (.not.BA_push_get(mt_dbl,ne_excited(1)+ne_excited(2),
+     >                     'eig_eci',eig_eci(2),eig_eci(1)))
+     >   call errquit('psi_CI_minimize_virtual:out of stack',1,MA_ERR)
+
       !call psi_gen_density_potentials(1)
-      maxit_orb=120
-      maxerror = control_tole()
+      maxit_orb = control_CI_maxit_orb()
+      maxit_ls  = control_CI_maxit_linesearch()
+      maxerror  = control_tole()
+      if (oprint) then
+         write(luout,*) 
+         write(luout,*) "COVOs Mimimization"
+         write(luout,*) "------------------"
+         write(luout,'(A,I9)') "CI gradient algorithm = ",ci_algorithm
+         write(luout,'(A,I9)') "maxit_orb             = ",maxit_orb
+         write(luout,'(A,I9)') "maxit_linesearch      = ",maxit_ls
+         write(luout,'(A,E9.3)') "maxerror              = ",maxerror
+         write(luout,*) 
+      end if
       !maxerror = 1.0d-12
       eci = 9.99d9
       e0  = 9.99d9
@@ -886,11 +923,16 @@ c     >           dcpl_mb(psi1(1)),1)
          call Pack_c_SMul1(1,sum,
      >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
 
+         call psi_get_gradient_virtual(ii,dcpl_mb(g93(1)))
+         call Pack_cc_dot(1,dcpl_mb(psi1_excited(1)+(ii-1)*npack1),
+     >                      dcpl_mb(g93(1)),e0)
+         e0 = e0
+
          !*** minimize orbital ****
 
           l = 0
  2        call psi_CI_update_virtual(ci_algorithm,
-     >                               maxit_orb,
+     >                               maxit_orb,maxit_ls,
      >                               maxerror,
      >                               0.001d0,ii,error_out,e0,eci)
           l = l+1
@@ -898,13 +940,82 @@ c     >           dcpl_mb(psi1(1)),1)
           if ((error_out.gt.maxerror).and.(l.le.2)) go to 2
 
           dbl_mb(eig_excited(1)+ii-1) = e0
+          dbl_mb(eig_eci(1)+ii-1)     = eci
 
       end do
-      call psi_sort_virtual()
+      call psi_sort_virtual_CI(dbl_mb(eig_eci(1)))
+
+c      if (oprint) then
+c         do ii=1,(ne_excited(1)+ne_excited(2))
+c            write(*,*) "ii,eig=",ii,dbl_mb(eig_eci(1)+ii-1),
+c     >                              dbl_mb(eig_excited(1)+ii-1)
+c         end do
+c      end if
+
+      if (.not.BA_pop_stack(eig_eci(2)))
+     >   call errquit('psi_CI_minimize_virtual:pop stack',1,MA_ERR)
+      if (.not.BA_pop_stack(g93(2)))
+     >   call errquit('psi_CI_minimize_virtual:pop stack',2,MA_ERR)
 
 
       return
       end 
+
+      subroutine psi_sort_virtual_CI(eig_eci)
+      implicit none
+      real*8 eig_eci(*)
+
+#include "bafdecls.fh"
+#include "psi.fh"
+#include "errquit.fh"
+
+      logical value
+      integer i,j,ii,jj,ms
+      integer r1(2)
+      real*8  ei,ej,eci,ecj
+
+      value = BA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+      if (.not. value) call errquit(
+     >     'psi_sort_virtual: out of stack memory',0, MA_ERR)
+
+      do ms=1,ispin
+
+        !*** Bubble sort ***
+        do ii=1,ne_excited(ms)
+         do jj=ii+1,ne_excited(ms)
+           i = ii + (ms-1)*ne_excited(1)
+           j = jj + (ms-1)*ne_excited(1)
+           ei = dbl_mb(eig_excited(1)+i-1)
+           ej = dbl_mb(eig_excited(1)+j-1)
+           eci = eig_eci(i)
+           ecj = eig_eci(j)
+
+           !*** swap ***
+           if (ecj.lt.eci) then
+             eig_eci(i) = ecj
+             eig_eci(j) = eci
+             dbl_mb(eig_excited(1)+i-1) = ej
+             dbl_mb(eig_excited(1)+j-1) = ei
+             call Pack_c_Copy(1,dcpl_mb(psi1_excited(1)+(i-1)*npack1),
+     >                          dcpl_mb(r1(1)))
+             call Pack_c_Copy(1,dcpl_mb(psi1_excited(1)+(j-1)*npack1),
+     >                          dcpl_mb(psi1_excited(1)+(i-1)*npack1))
+             call Pack_c_Copy(1,dcpl_mb(r1(1)),
+     >                          dcpl_mb(psi1_excited(1)+(j-1)*npack1))
+           end if
+
+         end do
+        end do
+
+      end do
+
+      value = BA_pop_stack(r1(2))
+      if (.not. value) call errquit(
+     >     'psi_sort_virtual: popping stack memory',1, MA_ERR)
+      return
+      end
+
+
 
 *     ***********************************
 *     *                                 *
@@ -915,11 +1026,12 @@ c     >           dcpl_mb(psi1(1)),1)
 *    This routine performs a KS update on virtual ii
 *
       subroutine psi_CI_update_virtual(ci_algorithm,maxiteration,
+     >                             maxit_ls,
      >                             maxerror,perror,ii,
      >                             error_out,e0,eci)
       implicit none
       integer ci_algorithm
-      integer maxiteration
+      integer maxiteration,maxit_ls
       real*8  maxerror,perror
       integer ii
       real*8 error_out
@@ -938,11 +1050,11 @@ c     >           dcpl_mb(psi1(1)),1)
       logical value,done,oneloop,precondition,oprint
       integer it,pit,n2ft3d,nx,ny,nz
       real*8 eold,percent_error,error0,de0,lmbda_r0,lmbda_r1
-      real*8 theta,ep,sp
+      real*8 theta,ep,sp,e0old
       integer r1(2),t0(2),t(2),g(2),psig_r(2),psie_r(2)
       integer rhog(2),rhoe(2),rhoge(2),vcgg(2),vcge(2),vcee(2)
       integer vc(2),vctmp(2),te(2)
-      integer psig_ptr,psie_ptr
+      integer psig_ptr,psie_ptr,psig_homo(2),hpsig(2),hpsig_r(2)
       real*8  Sgg,Sge,See
       real*8  H1gg,H1ge,H1ee
       real*8  H2gg,H2ge,H2ee
@@ -954,6 +1066,8 @@ c     >           dcpl_mb(psi1(1)),1)
       external control_print
       real*8   control_Ep,control_Sp,lattice_omega
       external control_Ep,control_Sp,lattice_omega
+      integer  electron_psi_r_ptr
+      external electron_psi_r_ptr
 
       psig_ptr=psi1(1)
       psie_ptr=psi1_excited(1) + (ii-1)*npack1
@@ -1002,7 +1116,19 @@ c     >           dcpl_mb(psi1(1)),1)
      >        BA_push_get(mt_dbl,n2ft3d,'vcge',vcge(2),vcge(1))
       value = value.and.
      >        BA_push_get(mt_dbl,n2ft3d,'vcee',vcee(2),vcee(1))
-      if (.not. value) call errquit(
+      if (ci_algorithm.eq.5) then
+         value = value.and.
+     >           BA_push_get(mt_dcpl,npack1,'psig_homo',
+     >                       psig_homo(2),psig_homo(1))
+         value = value.and.
+     >           BA_push_get(mt_dcpl,(neq(1)+neq(2))*npack1,'hpsig',
+     >                       hpsig(2),hpsig(1))
+         value = value.and.
+     >           BA_push_get(mt_dbl,(neq(1)+neq(2))*n2ft3d,'hpsig_r',
+     >                       hpsig_r(2),hpsig_r(1))
+         call Pack_c_Copy(1,dcpl_mb(psig_ptr),dcpl_mb(psig_homo(1)))
+      end if
+      if (.not.value) call errquit(
      >     'psi_CI_update_virtual: out of stack memory',0, MA_ERR)
 
 
@@ -1024,7 +1150,6 @@ c     >           dcpl_mb(psi1(1)),1)
       pit = 0
  2    continue
          it = it + 1
-         eold = eci
 
          if (ci_algorithm.eq.2) then
 *        *** calculate residual (steepest descent) direction for psie ***
@@ -1068,10 +1193,25 @@ c     >           dcpl_mb(psi1(1)),1)
      >                                 dbl_mb(vcgg(1)),
      >                                 dbl_mb(vcge(1)),
      >                                 dbl_mb(vcee(1)))
+         else if (ci_algorithm.eq.5) then
+         call psi_2x2ne_virtual_gradient(dcpl_mb(psig_ptr),
+     >                          dbl_mb(electron_psi_r_ptr()),
+     >                          dcpl_mb(psig_homo(1)),
+     >                          dbl_mb(psig_r(1)),
+     >                          dcpl_mb(psie_ptr),
+     >                          dbl_mb(psie_r(1)),
+     >                          eci,dcpl_mb(g(1)),
+     >                          dcpl_mb(t(1)),
+     >                          dbl_mb(rhog(1)),
+     >                          dbl_mb(vcee(1)),dbl_mb(vcge(1)),
+     >                          dcpl_mb(hpsig(1)),dbl_mb(hpsig_r(1)))
          end if
 
-         if (oprint) 
-     >   write(*,*) "orb,it,eci,eold=",ii,it,eci,eold,eci-eold
+         eold = eci
+         !write(*,*) "it,eold=",it,eold
+
+c         if (oprint) 
+c     >   write(*,*) "orb,it,eci,eold,eci-eold=",ii,it,eci,eold,eci-eold
 
          !*** project out to lower orbitals  ****
          call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(r1(1)))
@@ -1101,10 +1241,10 @@ c 3       call Pack_c_Copy(1,dcpl_mb(t(1)),dcpl_mb(t0(1)))
          call Pack_c_SMul1(1,de0,dcpl_mb(t(1)))
 
 *        **** compute de0 = <t|g> ****
-         call Pack_cc_dot(1,dcpl_mb(t(1)),
-     >                   dcpl_mb(g(1)),
-     >                   de0)
-         call Pack_cc_dot(1,dcpl_mb(t(1)),dcpl_mb(t(1)),sigma)
+c         call Pack_cc_dot(1,dcpl_mb(t(1)),
+c     >                      dcpl_mb(g(1)),
+c     >                      de0)
+c         call Pack_cc_dot(1,dcpl_mb(t(1)),dcpl_mb(t(1)),sigma)
 
 *        *** bad direction ***
 c         if ((de0.lt.0.0d0).and.oneloop) then
@@ -1114,7 +1254,7 @@ c           go to 3
 c         end if
 
 
-         call psi_linesearch_CI_virtual(ci_algorithm,
+         call psi_linesearch_CI_virtual(ci_algorithm,maxit_ls,
      >                                   ii,theta,eci,de0,dcpl_mb(t(1)),
      >                                  dcpl_mb(psig_ptr),
      >                                  dbl_mb(psig_r(1)),
@@ -1127,7 +1267,14 @@ c         end if
      >                                  dbl_mb(vc(1)),
      >                                  dbl_mb(vcgg(1)),
      >                                  dbl_mb(vcee(1)),
-     >                                  dbl_mb(vcge(1)),maxerror)
+     >                                  dbl_mb(vcge(1)),
+     >                                  psig_homo(1),
+     >                                  electron_psi_r_ptr(),
+     >                                  hpsig(1),hpsig_r(1),
+     >                                  maxerror)
+         if (oprint) 
+     >   write(*,*) "    orb,it,eci,eold,eci-eold=",
+     >              ii,it,eci,eold,eci-eold
 
          done = ((it.gt.maxiteration) 
      >           .or.
@@ -1138,13 +1285,20 @@ c         end if
          if (done) go to 4
       go to 2
 
-
- 4    call psi_get_gradient_virtual(ii,dcpl_mb(g(1)))
+ 4    e0old = e0
+      call psi_get_gradient_virtual(ii,dcpl_mb(g(1)))
       call Pack_cc_dot(1,dcpl_mb(psie_ptr),dcpl_mb(g(1)),e0)
-      e0 = -e0
+      e0 = e0
+      error_out = dabs(e0-e0old)
 
 *     **** release stack memory ****
-      value =           BA_pop_stack(vcee(2))
+      value = .true.
+      if (ci_algorithm.eq.5) then
+         value = BA_pop_stack(hpsig_r(2))
+         value = value.and.BA_pop_stack(hpsig(2))
+         value = value.and.BA_pop_stack(psig_homo(2))
+      end if
+      value = value.and.BA_pop_stack(vcee(2))
       value = value.and.BA_pop_stack(vcge(2))
       value = value.and.BA_pop_stack(vcgg(2))
       value = value.and.BA_pop_stack(vc(2))
@@ -1163,16 +1317,14 @@ c         end if
      >     'psi_2x2_update_virtual: popping stack memory',1, MA_ERR)
 
       if (oprint) then
-         write(luout,921) ii,-e0,eci,dabs(eci-eold),it,pit,ep,sp
-  921 format(5x,"orbital",I4," current e=",E14.6,
+       write(luout,921) ii,e0,error_out,eci,dabs(eci-eold),it,pit,ep,sp
+  921  format(5x,"orbital",I4," current e=",E14.6," error=",E9.3,
      >       " (eci=",E17.9,
      >       " error=",E9.3,")",
      >       " iterations",I4,"(",I4,
      >       " preconditioned, Ep,Sp=",F5.1,F7.1,")")
       end if
 
-      error_out = dabs(e0-eold)
-      e0        = -e0
 
       return
       end
@@ -1189,16 +1341,18 @@ c         end if
 *  e0 = <orb|g>
 *  de0 = 2*<t|g>
 *
-      subroutine psi_linesearch_CI_virtual(ci_algorithm,
+      subroutine psi_linesearch_CI_virtual(ci_algorithm,maxit,
      >                                     ii,theta,e0,de0,t,
      >                                     psig,psig_r,psie_r,
      >                                     h1psig,h1psie,
      >                                     rho,rhoge,rhoee,
      >                                     vctmp,vc,
      >                                     vcgg,vcee,vcge,
+     >                                     psig_homo_ptr,psiall_r_ptr,
+     >                                     hpsig_ptr,hpsig_r_ptr,
      >                                     maxerror)
       implicit none
-      integer ci_algorithm
+      integer ci_algorithm,maxit
       integer ii
       real*8  theta
       real*8  e0,de0
@@ -1210,6 +1364,7 @@ c         end if
       real*8      rho(*),rhoge(*),rhoee(*)
       real*8      vctmp(*),vc(*)
       real*8      vcgg(*),vcee(*),vcge(*)
+      integer     psig_homo_ptr,psiall_r_ptr,hpsig_ptr,hpsig_r_ptr
       real*8      maxerror
 
 #include "errquit.fh"
@@ -1217,8 +1372,8 @@ c         end if
 #include "psi.fh"
    
 *     **** local variables ****
-      integer maxit
-      parameter (maxit=15)
+      !integer maxit
+      !parameter (maxit=15)
 
       logical value,done,first
       integer orb(2),g(2),psi_ptr,it,iteration
@@ -1294,6 +1449,15 @@ c         end if
      >                              rho,rhoge,rhoee,
      >                              vctmp,vc,
      >                              vcgg,vcge,vcee)
+      else if (ci_algorithm.eq.5) then
+      call psi_2x2ne_virtual_gradient(psig,dbl_mb(psiall_r_ptr),
+     >                              dcpl_mb(psig_homo_ptr),psig_r,
+     >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                              psie_r,
+     >                              e1,dcpl_mb(g(1)),
+     >                              h1psie,rho,vcee,vcge,
+     >                              dcpl_mb(hpsig_ptr),
+     >                              dbl_mb(hpsig_r_ptr))
       end if
       call Pack_cc_dot(1,dcpl_mb(orb(1)),dcpl_mb(g(1)),de1a)
       call Pack_cc_dot(1,t,              dcpl_mb(g(1)),de1b)
@@ -1614,6 +1778,7 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
 *     **** generate dElow/dpsie ****
       call D3dB_rr_Mul2(1,psie_r,vcee)
       call D3dB_rr_Mul2(1,psig_r,vcge)
+
       !call D3dB_r_SMul1(1,(-0.5d0*c2*c2),vcee)
       !call D3dB_rr_daxpy(1,(-0.5d0*c1*c2),vcge,vcee)
       call D3dB_r_SMul1(1,(-1.0d0*c2*c2),vcee)
@@ -1630,6 +1795,248 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
 
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *    psi_2x2ne_virtual_gradient   *
+*     *                                 *
+*     ***********************************
+*
+*    This routine calculates the 2x2 CI Energy and its gradient wrt to psie.
+*
+*    Entry - psig,psig_r
+*            psie 
+*
+*    Exit - E,dEpsie
+*
+*    Use - psie_r
+*          h1psie,rho,vcee,vcge
+* 
+      subroutine psi_2x2ne_virtual_gradient(psig,psig_r,
+     >                                    psihomo,psihomo_r,
+     >                                    psilumo,psilumo_r,
+     >                                    E,dEdpsie,
+     >                                    h1psie,rho,vcee,vcge,
+     >                                    hpsig,hpsig_r)
+      implicit none
+      complex*16 psig(*)
+      real*8     psig_r(*)
+
+      complex*16 psihomo(*)
+      real*8     psihomo_r(*)
+
+      complex*16 psilumo(*)
+      real*8     psilumo_r(*)
+
+      real*8     E
+      complex*16 dEdpsie(*)
+
+      complex*16 h1psie(*)
+      real*8     rho(*),vcee(*),vcge(*)
+
+      complex*16 hpsig(*)
+      real*8     hpsig_r(*)
+
+#include "bafdecls.fh"
+#include "psi.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "stdio.fh"
+
+      real*8 Hgg
+      common / CI_Hgg_common / Hgg
+
+*     **** local variables ****
+      logical oprint
+      integer neq1(2),i,q,ms,n1q(2),n2q(2)
+      integer nx,ny,nz,n2ft3d
+      real*8 Sgg,Sge,See,A,B,C,c1,c2
+      real*8 H1gg,H1ge,H1ee
+      real*8 H2gg,H2ge,H2ee
+      real*8 Hge,Hee
+      real*8 ehartr,scal1,scal2,dv,Elow,Ehigh,lmbda,sum1
+      real*8 ehfx,phfx
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      !write(*,*) "ENTER 2x2 ne GRADIENT"
+      oprint = .false.
+
+      !*** generate psilumo_r ****
+      call Pack_c_Copy(1,psilumo,psilumo_r)
+      call Pack_c_unpack(1,psilumo_r)
+      call D3dB_cr_fft3b(1,psilumo_r)
+      call D3dB_r_Zero_Ends(1,psilumo_r)
+
+      call D3dB_n2ft3d(1,n2ft3d)
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      scal2 = 1.0d0/lattice_omega()
+      dv = scal1*lattice_omega()
+
+      call Pack_c_Zero(1,dEdpsie)
+
+      !do i=1,5
+      !   write(*,*) "i,psi_r,psi_homo=",psig_r(i),psihomo_r(i)
+      !end do
+
+      !*** calculate Sgg, Sge, See ***
+      Sgg = 1.0d0
+      See = 1.0d0
+      Sge = 0.0d0
+      !if (oprint) write(*,*) "Sgg=",Sgg," Sge=",Sge," See=",See
+
+*     ***************************
+*     **** one-electron part ****
+*     ***************************
+      n1q(1) = 1
+      n2q(1) = neq(1)
+      n1q(2) = neq(1)+1
+      n2q(2) = neq(1)+neq(2)
+
+      !*** generate HF energy and gradient of state psig ****
+      !*** generate Hgg if Hgg==0 ***
+*     *** generate <g|H|g> ***
+      if (dabs(Hgg).lt.1.0d-9) then
+*        **** apply H1 operator ****
+         call psi_H1psi(ispin,neq,npack1,n2ft3d,psig,psig_r,hpsig)
+         H1gg=0.0d0
+         do ms=1,ispin
+         if (neq(ms).gt.0) then
+            do q=n1q(ms),n2q(ms)
+               call Pack_cc_idot(1,psig(1+npack1*(q-1)),
+     >                            hpsig(1+npack1*(q-1)),sum1)
+               H1gg = H1gg - sum1
+            end do
+         end if
+         end do
+         call Parallel_SumAll(H1gg)
+         if (ispin.eq.1) H1gg = H1gg + H1gg
+
+         !write(*,*) "H1gg=",H1gg
+
+*        **** apply H2 operator  - note rho = 2*psi*psi ****
+         H2gg=0.0d0
+*        **** coulomb part ****
+         call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rho)
+         call coulomb2_v(rho,vcee)
+         call D3dB_rr_dot(1,rho,vcee,ehartr)
+         H2gg = (0.5d0*ehartr*dv)
+         !write(*,*) "H2gg=",H2gg
+
+*        **** exchange part ****
+         call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
+         call pspw_potential_HFX(ispin,psig_r,hpsig_r)
+         call pspw_energy_HFX(ispin,psig_r,ehfx,phfx)
+         H2gg = H2gg + ehfx
+         Hgg = H1gg + H2gg
+         !write(*,*) "H2gg+ehfx=",H2gg
+         !write(*,*) "Hgg=",Hgg
+      end if
+      !write(*,*) "Hgg=",Hgg
+      !write(*,*)
+
+
+
+      !*** generate HF energy and gradient of state psie ****
+*     *** generate <e|H|e> ***
+      call Pack_c_Copy(1,psilumo,psig)
+      call D3dB_c_Copy(1,psilumo_r,psig_r)
+
+*     **** apply H1 operator ****
+      call psi_H1psi(ispin,neq,npack1,n2ft3d,psig,psig_r,hpsig)
+      call Pack_c_Copy(1,hpsig,h1psie)
+
+      H1ee=0.0d0
+      do ms=1,ispin
+         if (neq(ms).gt.0) then
+            do q=n1q(ms),n2q(ms)
+               call Pack_cc_idot(1,psig(1+npack1*(q-1)),
+     >                            hpsig(1+npack1*(q-1)),sum1)
+               H1ee = H1ee - sum1
+            end do
+         end if
+      end do
+      call Parallel_SumAll(H1ee)
+      if (ispin.eq.1) H1ee = H1ee + H1ee
+      !write(*,*) "H1ee=",H1ee
+
+*     **** apply H2 operator  - note rho = 2*psi*psi ****
+      H2ee=0.0d0
+*     **** coulomb part ****
+      call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rho)
+      call coulomb2_v(rho,vcee)
+      call D3dB_rr_dot(1,rho,vcee,ehartr)
+      H2ee = (0.5d0*ehartr*dv)
+      !write(*,*) "H2ee=",H2ee
+
+*     **** exchange part ****
+      call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
+      call pspw_potential_HFX(ispin,psig_r,hpsig_r)
+      call pspw_energy_HFX(ispin,psig_r,ehfx,phfx)
+      H2ee = H2ee + ehfx
+      Hee = H1ee + H2ee
+      !write(*,*) "H2ee+ehfx=",H2ee,ehfx
+      !write(*,*) "Hee=",Hee
+      !write(*,*)
+
+      call Pack_c_Copy(1,psihomo,psig)
+      call D3dB_c_Copy(1,psihomo_r,psig_r)
+
+
+*     *** generate <e|H|g> ***
+      H1ge = 0.0d0
+
+      neq1(1) = 1
+      neq1(2) = 0
+      call pspw_et_gen_rho12(ispin,neq1,n2ft3d,psihomo_r,psilumo_r,rho)
+      call coulomb2_v(rho,vcge)
+      call D3dB_rr_dot(1,rho,vcge,ehartr)
+      H2ge = 0.5d0*(0.5d0*ehartr*dv)
+      Hge = H1ge + H2ge
+      !write(*,*) "H1ge=",H1ge
+      !write(*,*) "H2ge=",H2ge
+      !write(*,*) "Hge=",Hge
+      !write(*,*)
+
+*     **** generate and diagonalize 2x2 CI matrix ****
+      A = 1.0d0
+      B = -Hgg - Hee
+      C = Hgg*Hee - Hge*Hge
+      Elow  = (-B-dsqrt(B*B-4.0d0*A*C))/(2*A)
+      Ehigh = (-B+dsqrt(B*B-4.0d0*A*C))/(2*A)
+      lmbda = Hge/(Elow-Hee)
+      c1 =  1.0d0/dsqrt(1.0d0+lmbda**2)
+      !c2 =  dsqrt(1.0d0-c1*c1)
+      c2 =  lmbda/dsqrt(1.0d0+lmbda**2)
+      !write(*,*) "Elow=",Elow," Ehigh=",Ehigh
+      !write(*,*)
+
+*     **** generate dElow/dpsie ****
+      call D3dB_rr_Mul2(1,psilumo_r,vcee)
+      call D3dB_rr_Sum2(1,hpsig_r,vcee)
+
+      call D3dB_rr_Mul2(1,psihomo_r,vcge)
+
+      call D3dB_r_SMul1(1,(-2.0d0*c2*c2),vcee)
+      call D3dB_rr_daxpy(1,(-1.0d0*c1*c2),vcge,vcee)
+
+      call D3dB_rc_fft3f(1,vcee)
+      call Pack_c_pack(1,vcee)
+      call Pack_c_SMul(1,scal1,vcee,dEdpsie)
+
+      call Pack_cc_daxpy(1,2.0d0*c2*c2,h1psie,dEdpsie)
+      E = Elow
+c      !if (oprint) write(*,*) "c1,c2=",c1,c2
+c
+
+      return
+      end 
+
 
 
 
@@ -2836,6 +3243,79 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
 
 
 ************************ KS orbital Part ************************
+
+*
+      subroutine psi_KS_update00(psi_number,
+     >                         maxit_orbs,maxit_orb,
+     >                         ks_algorithm,
+     >                         precondition,
+     >                         maxerror)
+      implicit none
+      integer psi_number
+      integer maxit_orbs,maxit_orb
+      integer ks_algorithm
+      logical precondition
+      real*8  maxerror
+
+#include "bafdecls.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      logical done
+      integer i,j,neall
+      real*8 error,error_out,tim1,tim2,tim,sum
+
+*     **** external functions ****
+
+      tim = 0.0d0
+      neall = neq(1)+neq(2)
+      j = 0
+ 2    j = j+1
+        error = 0.0d0
+        !do i=neall,1,-1
+        do i=1,neall
+
+         !*** orthogonalize to lower orbitals  ****
+         call psi_project_out_f_orb1(
+     >           i,
+     >           dcpl_mb(psi1(1)+(i-1)*npack1))
+
+         !*** normalize ****
+         call Pack_cc_dot(1,
+     >            dcpl_mb(psi1(1) +(i-1)*npack1),
+     >            dcpl_mb(psi1(1) +(i-1)*npack1),
+     >            sum)
+         sum = 1.0d0/dsqrt(sum)
+c         call Pack_c_SMul(1,sum,
+c     >            dcpl_mb(psi1(1) +(i-1)*npack1),
+c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
+         call Pack_c_SMul1(1,sum,
+     >            dcpl_mb(psi1(1) +(i-1)*npack1))
+
+
+
+          if (ks_algorithm.eq.1) then
+          call psi_KS_update_orb2(psi_number,precondition,maxit_orb,
+     >                         maxerror,
+     >                         0.1d0,i,error_out)
+          else
+          call psi_KS_update_orb(psi_number,precondition,maxit_orb,
+     >                         maxerror,
+     >                         0.1d0,i,error_out)
+          end if
+
+          error = error+error_out
+        end do
+        error = error/dble(neall)
+
+        done = ((j.gt.maxit_orbs).or.(error.lt.maxerror))
+      if (.not.done) go to 2
+
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *				        *

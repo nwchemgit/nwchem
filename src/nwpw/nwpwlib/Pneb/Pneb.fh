@@ -10,18 +10,52 @@
      >                          spin_orbit,im_init
 
 
-      logical parallelized_j,parallelized_k
+      logical parallelized_j,parallelized_k,mparallelized,mreplicate
       integer taskid_i,taskid_j,taskid_k
       integer np_i,np_j,np_k
       integer comm_i,comm_j,comm_k
-      integer ma(2,NBLOCKS),na(2,NBLOCKS)
+
+      !*** used for Ng x (ne(1)+ne(2)) matrices ***
+      integer ma(2,NBLOCKS),ma1(2,NBLOCKS),ma2(2,NBLOCKS)
+      integer na(2,NBLOCKS)
+
+      !*** used for ne(ms) x ne(ms) matrices ***
       integer mc(2,NBLOCKS),nc(2,NBLOCKS)
       integer mcq(NBLOCKS),ncq(NBLOCKS)
-      common    / Pneb_sub / ma,na,mc,nc,
-     >                      mcq,ncq,
+      integer mcqmax(NBLOCKS),ncqmax(NBLOCKS)
+
+      integer m2c(2,NBLOCKS),n2c(2,NBLOCKS)
+      integer m2cq(NBLOCKS),n2cq(NBLOCKS)
+
+      !*** used for ne(1) x ne(2) matrices ***
+      integer md(2),nd(2)
+      integer mdq,ndq
+
+      integer work1(2),work2(2)
+      integer rwork1(2),rwork2(2),bcolwork(2),bwork2(2)
+      integer mat_tmp(2)
+      integer npack1_all,n2ft3d_all
+
+      common    / Pneb_sub / ma,ma1,ma2,na,mc,nc,
+     >                      mcq,ncq,mcqmax,ncqmax,
+     >                      m2c,n2c,m2cq,n2cq,
+     >                      md,nd,mdq,ndq,
+     >                      work1,work2,
+     >                      rwork1,rwork2,bcolwork,bwork2,
+     >                      mat_tmp,
      >                      taskid_i,taskid_j,taskid_k,
      >                      np_i,np_j,np_k,
      >                      comm_i,comm_j,comm_k,
-     >                      parallelized_j,parallelized_k
+     >                      parallelized_j,parallelized_k,
+     >                      mparallelized,mreplicate
+
+
+      integer mpack(0:2),mall(0:2),mindx(2,0:2)
+      integer smpack,small,smindx(2)
+      common / Pneb_gathscat / mindx,smindx,mpack,mall,smpack,small
+
+
+      integer thrwork1(2)
+      common    / Pneb_sub2 / thrwork1
 
 

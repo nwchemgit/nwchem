@@ -18,7 +18,8 @@
 			v_cpsi_new.o \
 			v_cpsi_read.o \
 			v_cpsi_write.o \
-			c_rho_symmetrizer.o
+			c_rho_symmetrizer.o\
+			cpsi_printeigall.o
                         
 
 

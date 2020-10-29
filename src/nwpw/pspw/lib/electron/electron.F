@@ -879,6 +879,36 @@ c     >                + eke_core + eion_core
 
 
 *     ***********************************
+*     *                                 *
+*     *         electron_psi_r_ptr      *
+*     *                                 *
+*     ***********************************
+      integer function electron_psi_r_ptr()
+      implicit none
+
+#include "electron_common.fh"
+
+      electron_psi_r_ptr = psi_r(1)
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         electron_Hpsi_k_ptr      *
+*     *                                 *
+*     ***********************************
+      integer function electron_Hpsi_k_ptr()
+      implicit none
+
+#include "electron_common.fh"
+
+      electron_Hpsi_k_ptr = Hpsi_k(1)
+      return
+      end
+
+
+
+*     ***********************************
 *     *					*
 *     *	    electron_SIC_energies	*
 *     *					*
@@ -2191,6 +2221,9 @@ c      end do
          if (confine_exist)
      >     call D3dB_rr_Sum2(1,dbl_mb(v_confine(1)),dbl_mb(vall(1)))
 
+      end if
+      if (ispin.eq.2) then
+         call D3dB_r_Copy(1,dbl_mb(vall(1)),dbl_mb(vall(1)+2*nfft3d))
       end if
 
       return 

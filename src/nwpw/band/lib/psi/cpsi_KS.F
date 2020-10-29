@@ -316,6 +316,79 @@ c      call c_electron_gen_psi_r(psi_ptr)
 
 *     ***********************************
 *     *                                 *
+*     *        cpsi_KS_update00         *
+*     *                                 *
+*     ***********************************
+
+*    This routine (approximately) diagonalizes the KS matrix.
+*
+      subroutine cpsi_KS_update00(psi_number,
+     >                            maxit_orbs,maxit_orb,
+     >                            precondition,
+     >                            maxerror)
+      implicit none
+      integer psi_number
+      integer maxit_orbs,maxit_orb
+      logical precondition
+      real*8  maxerror
+
+#include "bafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      logical done
+      integer nb,i,j,neall,psi1_shift
+      real*8 error,error_out,sum
+
+*     **** external functions ****
+      integer  control_ks_maxit_orb,control_ks_maxit_orbs
+      integer  cpsi_data_get_ptr
+      external control_ks_maxit_orb,control_ks_maxit_orbs
+      external cpsi_data_get_ptr
+
+      neall = neq(1)+neq(2)
+      j = 0
+ 2    j = j+1
+        error = 0.0d0
+        do nb=1,nbrillq
+        do i=1,neall
+          psi1_shift = cpsi_data_get_ptr(psi1_tag,nb,i)
+
+           !*** orthogonalize to lower orbitals  ****
+           if (i.gt.1)
+     >        call cpsi_project_out_f_orb1(nb,i,dbl_mb(psi1_shift))
+
+           !*** normalize ****
+           call Cram_cc_dot(nb,
+     >                      dbl_mb(psi1_shift),
+     >                      dbl_mb(psi1_shift),
+     >                      sum)
+           sum = 1.0d0/dsqrt(sum)
+c           call Cram_c_SMul(nb,sum,
+c     >                      dbl_mb(psi1_shift),
+c     >                      dbl_mb(psi1_shift))
+           call Cram_c_SMul1(nb,sum,dbl_mb(psi1_shift))
+
+
+            call cpsi_KS_update_orb(psi_number,precondition,maxit_orb,
+     >                           maxerror,
+     >                           0.1d0,nb,i,error_out)
+
+            error = error+error_out
+        end do
+        end do
+        error = error/dble(neall)
+
+        done = ((j.gt.maxit_orbs).or.(error.lt.maxerror))
+      if (.not.done) go to 2
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
 *     *      cpsi_KS_update             *
 *     *                                 *
 *     ***********************************

@@ -201,9 +201,11 @@ c
          call psi_get_density(1,dbl_mb(rho_in(1)))
          call psi_get_density(1,dbl_mb(rho_out(1)))
 
+         call psi_1gen_hml()
+         call psi_diagonalize_hml_assending()
          if (.not.value) then
-            call psi_1gen_hml()
-            call psi_diagonalize_hml_assending()
+            !call psi_1gen_hml()
+            !call psi_diagonalize_hml_assending()
             call psi_1rotate2()
             call psi_2to1()
          end if

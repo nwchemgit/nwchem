@@ -1433,10 +1433,16 @@ c        **** add to current rows of C ****
                   jj1   = 1
                end if
 
+c               if (jcur0.eq.taskid_j)
+c     >             call dcopy(mq(taskid_i+1),Q(1,jj0),1,work1,1)
+c               if (jcur1.eq.taskid_j)
+c     >             call dcopy(mq(taskid_i+1),Q(1,jj1),1,work2,1)
                if (jcur0.eq.taskid_j)
-     >             call dcopy(mq(taskid_i+1),Q(1,jj0),1,work1,1)
+     >             call Parallel_shared_vector_copy(.true.,
+     >                                 mq(taskid_i+1),Q(1,jj0),work1)
                if (jcur1.eq.taskid_j)
-     >             call dcopy(mq(taskid_i+1),Q(1,jj1),1,work2,1)
+     >             call Parallel_shared_vector_copy(.true.,
+     >                                 mq(taskid_i+1),Q(1,jj1),work2)
 
 #ifdef MPI4
                stupid_msglen = mq(taskid_i+1)
@@ -1529,7 +1535,10 @@ c        **** add to current rows of C ****
       integer jj0,jcur0,jj1,jcur1
       real*8  beta,mu0,mu,v20,v2
 
-      call dcopy(ma(taskid_i+1)*na(taskid_j+1),0.0d0,0,V,1)
+      !call dcopy(ma(taskid_i+1)*na(taskid_j+1),0.0d0,0,V,1)
+      call Parallel_shared_vector_zero(.true.,
+     >                                 ma(taskid_i+1)*na(taskid_j+1),
+     >                                 V)
 
       jcur0 = 0
       jj0   = 1
@@ -1754,10 +1763,17 @@ c        **** add to current rows of C ****
             end do
 
 
+c            if (jcur0.eq.taskid_j)
+c     >         call dcopy(mq(taskid_i+1),Q(1,jj0),1,work1,1)
+c            if (jcur1.eq.taskid_j)
+c     >         call dcopy(mq(taskid_i+1),Q(1,jj1),1,work2,1)
+
             if (jcur0.eq.taskid_j)
-     >         call dcopy(mq(taskid_i+1),Q(1,jj0),1,work1,1)
+     >         call Parallel_shared_vector_copy(.true.,mq(taskid_i+1),
+     >                                          Q(1,jj0),work1)
             if (jcur1.eq.taskid_j)
-     >         call dcopy(mq(taskid_i+1),Q(1,jj1),1,work2,1)
+     >         call Parallel_shared_vector_copy(.true.,mq(taskid_i+1),
+     >                                          Q(1,jj1),work2)
 
 #ifdef MPI4
             stupid_msglen = mq(taskid_i+1)
@@ -1774,10 +1790,17 @@ c        **** add to current rows of C ****
      >                     jcur1,comm_j,ierr)
 #endif
 
+c            if (jcur0.eq.taskid_j)
+c     >         call dcopy(mq(taskid_i+1),work2,1,Q(1,jj0),1)
+c            if (jcur1.eq.taskid_j)
+c     >         call dcopy(mq(taskid_i+1),work1,1,Q(1,jj1),1)
+
             if (jcur0.eq.taskid_j)
-     >         call dcopy(mq(taskid_i+1),work2,1,Q(1,jj0),1)
+     >         call Parallel_shared_vector_copy(.true.,mq(taskid_i+1),
+     >                                          work2,Q(1,jj0))
             if (jcur1.eq.taskid_j)
-     >         call dcopy(mq(taskid_i+1),work1,1,Q(1,jj1),1)
+     >         call Parallel_shared_vector_copy(.true.,mq(taskid_i+1),
+     >                                          work1,Q(1,jj1))
 
          end if
 
@@ -1824,8 +1847,10 @@ c        **** add to current rows of C ****
 *     **************************
 *     **** gather diagonals ****
 *     **************************
-      call dcopy(n,0.0d0,0,work1,1)
-      call dcopy(n,0.0d0,0,eig,1)
+c      call dcopy(n,0.0d0,0,work1,1)
+c      call dcopy(n,0.0d0,0,eig,1)
+      call Parallel_shared_vector_zero(.false.,n,work1)
+      call Parallel_shared_vector_zero(.true.,n,eig)
       js = 1
       do jcur = 0,taskid_j-1
         js = js + na(jcur+1)
@@ -1876,8 +1901,10 @@ c        **** add to current rows of C ****
 *     ******************************
 *     **** gather off-diagonals ****
 *     ******************************
-      call dcopy(n,0.0d0,0,work1,1)
-      call dcopy(n,0.0d0,0,tu,1)
+c      call dcopy(n,0.0d0,0,work1,1)
+c      call dcopy(n,0.0d0,0,tu,1)
+      call Parallel_shared_vector_zero(.false.,n,work1)
+      call Parallel_shared_vector_zero(.true.,n,tu)
       is = 1
       do icur = 0,taskid_i-1
         is = is + ma(icur+1)
@@ -2592,8 +2619,14 @@ c        **** add to current rows of C ****
       integer jj0,jcur0,jj1,jcur1
       real*8  beta,mu0,mu,r20
 
-      call dcopy(ma(taskid_i+1)*na(taskid_j+1),0.0d0,0,V1,1)
-      call dcopy(ma(taskid_i+1)*na(taskid_j+1),0.0d0,0,V1t,1)
+      !call dcopy(ma(taskid_i+1)*na(taskid_j+1),0.0d0,0,V1,1)
+      !call dcopy(ma(taskid_i+1)*na(taskid_j+1),0.0d0,0,V1t,1)
+      call Parallel_shared_vector_zero(.false.,
+     >                                 ma(taskid_i+1)*na(taskid_j+1),
+     >                                 V1)
+      call Parallel_shared_vector_zero(.true.,
+     >                                 ma(taskid_i+1)*na(taskid_j+1),
+     >                                 V1t)
 
       jcur0 = 0
       jj0   = 1

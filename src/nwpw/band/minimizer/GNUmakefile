@@ -10,6 +10,7 @@
 				c_cgsd_excited.o \
 				c_cgminimize.o \
 				c_bfgsminimize.o \
+				c_bybminimize0.o \
 				c_bybminimize.o \
 				c_bybminimize2.o \
 				c_sdminimize.o \

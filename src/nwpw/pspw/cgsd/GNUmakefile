@@ -22,6 +22,7 @@
                 bfgsminimize.o  \
                 bfgsminimize2.o  \
                 bfgsminimize3.o \
+                bybminimize0.o \
                 bybminimize.o \
                 bybminimize2.o \
                 sdminimize.o \

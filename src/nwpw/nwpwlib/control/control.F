@@ -3808,6 +3808,43 @@ c     >               (ispin.eq.ispin_wf))
       return
       end
 
+*     **********************************
+*     *                                *
+*     *      control_fft_dos_grid      *
+*     *                                *
+*     **********************************
+      subroutine control_fft_dos_grid(grid)
+      implicit none
+      integer grid(3)
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "errquit.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+*     **** local variables ****
+      character*50 zone_name
+      character*50 rtdb_name
+      integer l
+
+      if (.not.btdb_cget(rtdb,'band_fft:zone_name',
+     >                   1,zone_name))
+     >   zone_name = 'zone_fft_default'
+
+      l = index(zone_name,' ') -1
+      rtdb_name = zone_name(1:l)//':dos-grid'
+      if(.not.btdb_get(rtdb,rtdb_name,mt_int,3,grid)) then
+         grid(1) = 0
+         grid(2) = 0
+         grid(3) = 0
+      end if
+
+      return
+      end
+
 
 *     **********************************
 *     *                                *
@@ -5667,6 +5704,33 @@ c      end if
 
 *     ***********************************
 *     *                                 *
+*     *       control_2x2ne_virtual     *
+*     *                                 *
+*     ***********************************
+      logical function control_2x2ne_virtual()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .false.
+      if (.not.btdb_get(rtdb,'nwpw:2x2ne_virtual',mt_log,1,value))
+     >   value = .false.
+
+      control_2x2ne_virtual = value
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
 *     *       control_3x3_virtual       *
 *     *                                 *
 *     ***********************************
@@ -5737,6 +5801,8 @@ c      end if
       external control_2x2_virtual,control_3x3_virtual
       logical  control_4x4_virtual
       external control_4x4_virtual
+      logical  control_2x2ne_virtual
+      external control_2x2ne_virtual
       
       ivalue = 0
       if (.not.btdb_get(rtdb,'nwpw:CI_virtual',mt_int,1,ivalue)) then
@@ -5746,6 +5812,8 @@ c      end if
             ivalue = 3
          else if (control_4x4_virtual()) then
             ivalue = 4
+         else if (control_2x2ne_virtual()) then
+            ivalue = 5
          end if
       end if
       
@@ -7061,4 +7129,128 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       control_gas_energy_set=ok
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *        control_H1_it_in          *
+*     *                                 *
+*     ***********************************
+      integer function control_H1_it_in()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer it_in
+
+      if (.not.btdb_get(rtdb,'nwpw:H1_it_in',mt_int,1,it_in)) 
+     >   it_in = 50
+
+      control_H1_it_in = it_in
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *        control_H1_it_out        *
+*     *                                 *
+*     ***********************************
+      integer function control_H1_it_out()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer it_out
+
+      if (.not.btdb_get(rtdb,'nwpw:H1_it_out',mt_int,1,it_out)) 
+     >   it_out = 1
+
+      control_H1_it_out = it_out
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      control_H1_it_ortho        *
+*     *                                 *
+*     ***********************************
+      integer function control_H1_it_ortho()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer it_ortho
+
+      if (.not.btdb_get(rtdb,'nwpw:H1_it_ortho',mt_int,1,it_ortho))
+     >   it_ortho = -1
+
+      control_H1_it_ortho = it_ortho
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *       control_CI_maxit_orb      *
+*     *                                 *
+*     ***********************************
+      integer function control_CI_maxit_orb()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer it_out
+
+      if (.not.btdb_get(rtdb,'nwpw:CI_maxit_orb',mt_int,1,it_out))
+     >   it_out = 120
+
+      control_CI_maxit_orb = it_out
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *   control_CI_maxit_linesearch   *
+*     *                                 *
+*     ***********************************
+      integer function control_CI_maxit_linesearch()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer it_out
+
+      if (.not.btdb_get(rtdb,'nwpw:CI_maxit_linesearch',
+     >                  mt_int,1,it_out))
+     >   it_out = 15
+
+      control_CI_maxit_linesearch = it_out
+      return
+      end
+
 

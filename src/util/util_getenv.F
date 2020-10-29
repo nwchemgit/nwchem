@@ -53,6 +53,8 @@ c     will assign offload capabilities to the calling GA rank.
       logical function offload_enabled()
       implicit none
 #include "global.fh"
+      integer omp_get_num_devices
+      external omp_get_num_devices
       character(64) env_string
       integer span
       external offload_span
@@ -60,6 +62,8 @@ c     will assign offload capabilities to the calling GA rank.
       call util_getenv('NWC_NO_OFFLOAD', env_string)
       if (env_string.eq.'T'.or.env_string.eq.'t'.or.
      c    env_string.eq.'1') then
+        offload_enabled=.false.
+      else if (omp_get_num_devices().eq.0) then
         offload_enabled=.false.
       else
         span = offload_span()

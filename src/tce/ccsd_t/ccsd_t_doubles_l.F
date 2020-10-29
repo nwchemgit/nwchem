@@ -25,13 +25,19 @@ C     i0 ( p4 p5 p6 h1 h2 h3 )_vt + = -1 * P( 9 ) * Sum ( p7 ) * t ( p4 p7 h1 h2
       INTEGER d_v2
       INTEGER k_v2_offset
       integer l_v2sub
-      integer k_v2sub
       integer l_t2sub
-      integer k_t2sub
       integer l_scratch
-      integer k_scratch
       DOUBLE PRECISION a_i0(*)
-      
+#ifdef USE_F90_ALLOCATABLE
+      double precision, allocatable :: d_t2sub(:)
+      double precision, allocatable :: d_v2sub(:)
+      double precision, allocatable :: d_scratch(:)
+      integer alloc_error
+#else
+      integer k_t2sub
+      integer k_scratch
+      integer k_v2sub
+#endif
       logical offload_enabled
       external offload_enabled
       integer range_p4,range_h1,ii
@@ -43,6 +49,20 @@ c      write(6,*)'I am in ccsd_t_doubles',ga_nodeid()
 c      call util_flush(6)
 c *************
       call ccsd_t_v2t2lgth(t2size,v2size)
+#if USE_F90_ALLOCATABLE
+      allocate(d_t2sub(1:t2size), stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t_doubles_t: MA error d_t2sub',0,MA_ERR)
+      endif
+      allocate(d_scratch(1:max(t2size,v2size)), stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t_doubles_t: MA error d_scratch',0,MA_ERR)
+      endif
+      allocate(d_v2sub(1:v2size), stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t_doubles_t: MA error d_v2sub',0,MA_ERR)
+      endif
+#else
       IF (.not.MA_PUSH_GET(mt_dbl,t2size,'t2sub',
      L     l_t2sub,k_t2sub)) CALL
      & ERRQUIT('ccsd_t_doubles t2sub',101,MA_ERR)
@@ -52,6 +72,7 @@ c *************
       IF (.not.MA_PUSH_GET(mt_dbl,v2size,'v2sub',
      L     l_v2sub,k_v2sub)) CALL
      & ERRQUIT('ccsd_t_doubles v2sub',103,MA_ERR)
+#endif
 
       IF (toggle .eq. 2) then
 #if USE_OFFLOAD
@@ -60,25 +81,38 @@ c *************
          CALL offl0_ccsd_t_doubles_l_12(d_t2,
      &        k_t2_offset,d_v2,k_v2_offset,
      A        a_i0,t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b,
+#if USE_F90_ALLOCATABLE
+     T        d_v2sub,d_t2sub,d_scratch)
+#else
      T        dbl_mb(k_v2sub),dbl_mb(k_t2sub),
      S        dbl_mb(k_scratch))
+#endif
       else
 #endif
 #endif
          CALL ccsd_t_doubles_l_12(d_t2,
      &        k_t2_offset,d_v2,k_v2_offset,
      A        a_i0,t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b,
+#if USE_F90_ALLOCATABLE
+     T        d_v2sub,d_t2sub,d_scratch)
+#else
      T        dbl_mb(k_v2sub),dbl_mb(k_t2sub),
      S        dbl_mb(k_scratch))
+#endif
 #if USE_OPENMP
 #if USE_OFFLOAD
          endif
 #endif
 #endif
       endif
+#if USE_F90_ALLOCATABLE
+      deallocate(d_v2sub)
+      deallocate(d_scratch)
+      deallocate(d_t2sub)
+#else
       IF (.not.MA_chop_stack(l_t2sub)) CALL
      & ERRQUIT('ccsd_t_doubles_1',103,MA_ERR)
-      
+#endif
       RETURN
       END
       subroutine ccsd_t_v2t2lgth(t2size,v2size)
