@@ -894,12 +894,14 @@ c     >           dcpl_mb(psi1(1)),1)
       maxit_ls  = control_CI_maxit_linesearch()
       maxerror  = control_tole()
       if (oprint) then
+         write(luout,*) 
          write(luout,*) "COVOs Mimimization"
          write(luout,*) "------------------"
-         write(luout,'(A,I6)') "ci_algorithm     = ",ci_algorithm
-         write(luout,'(A,I6)') "maxit_orb        = ",maxit_orb
-         write(luout,'(A,I6)') "maxit_linesearch = ",maxit_ls
-         write(luout,'(A,E9.3)') "maxerror         = ",maxerror
+         write(luout,'(A,I9)') "CI gradient algorithm = ",ci_algorithm
+         write(luout,'(A,I9)') "maxit_orb             = ",maxit_orb
+         write(luout,'(A,I9)') "maxit_linesearch      = ",maxit_ls
+         write(luout,'(A,E9.3)') "maxerror              = ",maxerror
+         write(luout,*) 
       end if
       !maxerror = 1.0d-12
       eci = 9.99d9
