@@ -974,7 +974,7 @@ c      end if
       integer r1(2)
       real*8  ei,ej,eci,ecj
 
-      value = BA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+      value = BA_push_get(mt_dcpl,npack1,'rr1',r1(2),r1(1))
       if (.not. value) call errquit(
      >     'psi_sort_virtual: out of stack memory',0, MA_ERR)
 
@@ -1131,7 +1131,6 @@ c      end if
       if (.not.value) call errquit(
      >     'psi_CI_update_virtual: out of stack memory',0, MA_ERR)
 
-
       call Pack_c_Copy(1,dcpl_mb(psig_ptr),dbl_mb(psig_r(1)))
       call Pack_c_unpack(1,dbl_mb(psig_r(1)))
       call D3dB_cr_fft3b(1,dbl_mb(psig_r(1)))
@@ -1207,8 +1206,9 @@ c      end if
      >                          dcpl_mb(hpsig(1)),dbl_mb(hpsig_r(1)))
          end if
 
+
          eold = eci
-         !write(*,*) "it,eold=",it,eold
+c         write(*,*) "it,eold=",it,eold
 
 c         if (oprint) 
 c     >   write(*,*) "orb,it,eci,eold,eci-eold=",ii,it,eci,eold,eci-eold
@@ -1252,7 +1252,6 @@ c           call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(t(1)))
 c           oneloop = .false.
 c           go to 3
 c         end if
-
 
          call psi_linesearch_CI_virtual(ci_algorithm,maxit_ls,
      >                                   ii,theta,eci,de0,dcpl_mb(t(1)),
@@ -1391,7 +1390,7 @@ c         end if
       value = BA_push_get(mt_dcpl,npack1,'orb',
      >                       orb(2),orb(1))
       value = value.and. 
-     >        BA_push_get(mt_dcpl,npack1,'g',
+     >        BA_push_get(mt_dcpl,npack1,'gg2',
      >                       g(2),g(1))
       if (.not. value) call errquit(
      >     'psi_linesearch_CI_virtual: out of stack memory',0, MA_ERR)
@@ -1511,7 +1510,7 @@ cccccc 20   theta = 0.5d0*(theta0+theta1)
      >                              rho,rhoge,rhoee,
      >                              vctmp,vc,
      >                              vcgg,vcge,vcee)
-      else
+      else if (ci_algorithm.eq.4) then
       call psi_4x4_virtual_gradient(psig,psig_r,
      >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
      >                              psie_r,
@@ -1520,6 +1519,15 @@ cccccc 20   theta = 0.5d0*(theta0+theta1)
      >                              rho,rhoge,rhoee,
      >                              vctmp,vc,
      >                              vcgg,vcge,vcee)
+      else if (ci_algorithm.eq.5) then
+      call psi_2x2ne_virtual_gradient(psig,dbl_mb(psiall_r_ptr),
+     >                              dcpl_mb(psig_homo_ptr),psig_r,
+     >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                              psie_r,
+     >                              e1,dcpl_mb(g(1)),
+     >                              h1psie,rho,vcee,vcge,
+     >                              dcpl_mb(hpsig_ptr),
+     >                              dbl_mb(hpsig_r_ptr))
       end if
       call Pack_cc_dot(1,dcpl_mb(orb(1)),dcpl_mb(g(1)),de1a)
       call Pack_cc_dot(1,t,              dcpl_mb(g(1)),de1b)
