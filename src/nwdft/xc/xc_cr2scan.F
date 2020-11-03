@@ -1,19 +1,5 @@
-c Copyright 2018 (C) Orbital-free DFT group at University of Florida
-c Licensed under the Educational Community License, Version 2.0 
-c (the "License"); you may not use this file except in compliance with 
-c the License. You may obtain a copy of the License at
-c
-c    http://www.osedu.org/licenses/ECL-2.0
-c
-c Unless required by applicable law or agreed to in writing,
-c software distributed under the License is distributed on an "AS IS"
-c BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
-c or implied. See the License for the specific language governing
-c permissions and limitations under the License.
-c
-c ---------------------------------------------------------------------
-c
-c     Strongly constrained and appropriately normed (SCAN) 
+c     Regularized and restored strongly constrained and 
+c     appropriately normed (r^2SCAN) 
 c     functional (Correlation part only)
 c           META GGA
 C         utilizes ingredients:
@@ -23,18 +9,13 @@ c                              tau - K.S kinetic energy density
 c
 c     Written by:
 c     Daniel Mejia-Rodriguez
-c     QTP, Department of Physics, University of Florida
 c
 c     References:
-c     J. Sun, A. Ruzsinszky, J.P. Perdew
-c     PRL 115, 036402 (2015)
-c     DOI: 10.1103/PhysRevLett.115036402
-c
-c     A.P. Bartok and J.R. Yates
-c     JCP 150, 161101 (2019)
-c     DOI: 10.1063/1.5094646
+c     J.W. Furness, A.D. Kaplan, J. Ning, J.P. Perdew, J. Sun
+c     JPCLett 11, 8208-8215 (2020)
+c     DOI: 10.1021/acs.jpclett.0c02405
 
-      Subroutine xc_cscan(whichfc, tol_rho, cfac, rho, delrho, Amat, 
+      Subroutine xc_cr2scan(tol_rho, cfac, rho, delrho, Amat, 
      &                    Cmat, nq, ipol, Ec, qwght, ldew, func,
      &                    tau, Mmat)     
 c
@@ -45,7 +26,6 @@ c
 c
 c     Input and other parameters
 c
-      character(*) whichfc
       integer ipol, nq
       double precision dummy(1)
       double precision cfac
@@ -115,9 +95,14 @@ c
       double precision fca,dfcada,dfcadg,dfcadzeta,dfcadn
       double precision exp5,exp6
       double precision vcpol,vcn
+      double precision eclda0, eclda1, declda0drs, d2eclda0drs2
+      double precision declda1drs, declda1dz, d2eclda1drs2
+      double precision d2eclda1drsdz
+      double precision deltaY, deltaYp, ddeltaYpdrs, ddeltaYpdp
+      double precision ddeltaYpdz, GAt2y, dGAt2ydrs, dGAt2ydp
+      double precision dGAt2ydz,opz23,omz23,exp1
 
       double precision GAMMA,BETAzero,pi,p14a,p14b,p14f,ckf,ckf2
-      parameter (GAMMA = 0.03109069086965489503494086371273d0)
       parameter (BETAzero = 0.06672455060314922d0)
       parameter (p14a=0.1d0,p14b=0.1778d0)
 
@@ -132,7 +117,6 @@ c
       parameter (F8=8d0,F5=5d0,F16=1d0/6d0)
 
       double precision rRegu(0:7), rRegu1(7), rtemp(0:7)
-      double precision regalpha, dregalpha
       parameter ( rRegu = (/ 1d0, -0.64d0, -0.4352d0, 
      &            -1.535685604549d0, 3.061560252175d0,
      &            -1.915710236206d0, 5.16884468372d-1,
@@ -141,10 +125,14 @@ c
      &            -3d0*1.535685604549d0, 4d0*3.061560252175d0,
      &            -5d0*1.915710236206d0, 6d0*5.16884468372d-1,
      &            -7d0*5.1848879792d-2 /) )
+
+      double precision eta, rDp2, rfc2
+      parameter (eta=1d-3, rDp2=0.361d0, rfc2 = sum(rRegu1))
 c
 c     ======> BOTH SPIN-RESTRICETED AND UNRESTRICTED <======
 c
       Pi = dacos(-1d0)
+      gamma = (1d0 - dlog(2d0))/pi**2
       p14f = (3d0/(4d0*Pi))**F13
       ckf = (3d0*Pi*Pi)**F13
       ckf2 = ckf*ckf
@@ -156,14 +144,40 @@ c
 
          n13=ntot**F13
          n83=ntot**F83
+         rs=p14f/n13
+         rs12=dsqrt(rs)
+         drsdn=-F13*rs/ntot
+c
+c----------------------------------------------------------------------
+c functions related to spin-polarization
+c----------------------------------------------------------------------
 c
          if (ipol.eq.1) then
            zeta = 0d0
+           phi = 1d0
+           ds = 1d0
+           dx = 1d0
+           gc = 1d0
          else
            zeta = (rho(n,2) - rho(n,3))/ntot      
            if (zeta.lt.-1d0) zeta=-1d0
            if (zeta.gt. 1d0) zeta= 1d0
+           opz = 1d0 + zeta
+           omz = 1d0 - zeta
+           opz23 = opz**f23
+           omz23 = omz**f23
+           phi = 0.5d0*(opz23 + omz23)
+           ds = 0.5d0*(opz23*opz + omz23*omz)
+           dx = 0.5d0*(opz23*opz23 + omz23*omz23)
+           gc = (1d0 - dxc*(dx - 1d0))*(1d0 - zeta**12)
          endif
+         phi2 = phi*phi
+         phi3 = phi2*phi
+         tueg = 0.3d0*ckf2*ds*ntot**F53
+c         
+c----------------------------------------------------------------------
+c functions related to delrho  
+c----------------------------------------------------------------------
 c
          if (ipol.eq.1) then
            dn2=delrho(n,1,1)**2 + delrho(n,2,1)**2 + delrho(n,3,1)**2
@@ -172,76 +186,120 @@ c
      &         (delrho(n,2,1)+delrho(n,2,2))**2 +
      &         (delrho(n,3,1)+delrho(n,3,2))**2
          end if
-
+c         
+         p=dn2/(F4*ckf2*n83)
+         dpdg = 1d0/(F4*ckf2*n83)
+         dpdn = -F83*p/ntot
+c         
+         t2 = ckf2*p/(4d0*phi2*rs*2d0**F23)
+         dt2dp = ckf2/(4d0*phi2*rs*2d0**F23)
+         dt2drs = -t2/rs
+c
+         tvw = 0.125d0*dn2/ntot
+c
+c----------------------------------------------------------------------
+c functions related to tau
+c----------------------------------------------------------------------
+c
          if (ipol.eq.1) then
            tautot=tau(n,1)
          else
            tautot=tau(n,1)+tau(n,2)
          endif
 
-         p=dn2/(F4*ckf2*n83)
-         dpdg = 1d0/(F4*ckf2*n83)
-         dpdn = -F83*p/ntot
+         alpha = (tautot - tvw)/(tueg + eta*tvw)
+         oma = 1d0 - alpha
+         oma2 = oma*oma
 
-         rs=p14f/n13
-         drsdn=-F13*rs/ntot
-         rs12=dsqrt(rs)
+         if (alpha.lt.0d0) then
+           exp5 = dexp(-c1c*alpha/oma)
+           fca = exp5
+           dfcada = -c1c*exp5/oma2
+         elseif (alpha.lt.2.5d0) then
+           rtemp(0) = 1d0
+           do ifc=1,7
+             rtemp(ifc) = rtemp(ifc-1)*alpha
+           enddo
+           fca = dot_product(rRegu,rtemp)
+           dfcada = dot_product(rRegu1, rtemp(0:6))
+         else
+           exp6 = dexp(c2c/oma)
+           fca = -dc*exp6
+           dfcada = -dc*exp6*c2c/oma2
+         endif
 c
-         call lsdac(tol_rho,rs,zeta,epsc,depscdrs,depscdzeta,dummy,
-     &              dummy,dummy)
+         dalphadt = 1d0/(tueg + eta*tvw)
+         dalphadg = -0.125d0/(ntot*(tueg + eta*tvw))*(1d0 + alpha*eta)
+         dalphadn = f53*tueg/(ntot*(tueg+eta*tvw))*
+     &                (p/ds*(1d0+eta*alpha) - alpha)
 c
-         opz = 1d0 + zeta
-         omz = 1d0 - zeta
-         phi = 0.5d0*(opz**F23 + omz**F23)
-         phi2 = phi*phi
-         phi3 = phi2*phi
+c----------------------------------------------------------------------
+c EC1
+c----------------------------------------------------------------------
+c
+c eclda1 and derivatives
+c
+         call lsdac(tol_rho,rs,zeta,eclda1,declda1drs,declda1dz,
+     &              d2eclda1drs2,d2eclda1drsdz,dummy)
+c
+c eclda0 and derivatives
+c
+         eclda0 = -b1c/(1d0 + b2c*rs12 + b3c*rs)
+         declda0drs = -eclda0*(b3c + 0.5d0*b2c/rs12)/
+     &                (1d0 + b2c*rs12 + b3c*rs)
+         d2eclda0drs2 = eclda0/(1d0 + b2c*rs12 + b3c*rs) *
+     &          ( 2d0*(b3c+0.5d0*b2c/rs12)**2/(1d0+b2c*rs12+b3c*rs) +
+     &            0.25d0*b2c/rs/rs12 )
 c
          BETA = BETAzero*(1d0 + p14a*rs)/(1d0 + p14b*rs)
          dBETAdrs = BETAzero*(p14a - p14b)/(1d0 + p14b*rs)**2
 c
-         w1fac = epsc/(GAMMA*phi3)
+         w1fac = eclda1/(GAMMA*phi3)
          expw1 = dexp(-w1fac)
          w1 = expw1 - 1d0
-         dw1drs = -expw1*depscdrs/(GAMMA*phi3)
+         dw1drs = -expw1*declda1drs/(GAMMA*phi3)
 
          A = BETA/GAMMA/w1
          dAdrs = dBETAdrs/GAMMA/w1 - A*dw1drs/w1
-
-         t2 = ckf2*p/(4d0*phi2*rs*2d0**F23)
-         dt2dp = ckf2/(4d0*phi2*rs*2d0**F23)
-         dt2drs = -t2/rs
-
+c         
          At2 = A*t2
-         Gaux = 1d0 + 4d0*At2
-         GAt2 = 1d0/dsqrt(dsqrt(Gaux))
+         exp1 = dexp(-p**2/rDp2**4)
+         deltaY = rfc2/(27d0*gamma*phi3*w1*ds) *
+     &              (20d0*rs*(declda0drs-declda1drs) - 
+     &               45d0*eta*(eclda0-eclda1))
+         deltaYp = deltaY*p*exp1
+         ddeltaYpdrs = -deltaYp/w1*dw1drs + 
+     &                rfc2/(27d0*gamma*phi3*w1*ds)*
+     &                  (20d0*(declda0drs-declda1drs) +
+     &                   20d0*rs*(d2eclda0drs2-d2eclda1drs2) - 
+     &                   45d0*eta*(declda0drs-declda1drs))*p*exp1
+         ddeltaYpdp = deltaY*exp1 - 2d0*p*deltaYp/rDp2**4
 
-         arg1 = 1d0 + w1*(1d0 - GAt2)
-         darg1drs = dw1drs*(1d0 - GAt2) +
-     &              Gat2*w1*(t2*dAdrs + A*dt2drs)/Gaux
-         darg1dp = Gat2*w1*A*dt2dp/Gaux
+         Gaux = 1d0 + 4d0*(At2-deltaYp)
+         GAt2y = 1d0/dsqrt(dsqrt(Gaux))
+         dGat2ydrs = -Gat2y*(dAdrs*t2 + A*dt2drs - ddeltaYpdrs)/Gaux
+         dGat2ydp = -Gat2y*(A*dt2dp - ddeltaYpdp)/Gaux
 
+         arg1 = 1d0 + w1*(1d0 - GAt2y)
+         darg1drs = dw1drs*(1d0 - GAt2y) - w1*dGat2ydrs
+         darg1dp = -w1*dGAt2ydp
 
          H1 = GAMMA*phi3*dlog(arg1)
          dH1dp = GAMMA*phi3*darg1dp/arg1
          dH1drs = GAMMA*phi3*darg1drs/arg1
 
-         Ec1 = epsc + H1
-         dEc1drs = depscdrs + dH1drs
+         Ec1 = eclda1 + H1
+         dEc1drs = declda1drs + dH1drs
          dEc1dp = dH1dp
 c
-c        --------------------------------------------------------------
+c--------------------------------------------------------------
+c EC0
+c--------------------------------------------------------------
 c
-         epsc0 = -b1c/(1d0 + b2c*rs12 + b3c*rs)
-         depsc0drs = b1c*(b3c + 0.5d0*b2c/rs12)/
-     &               (1d0 + b2c*rs12 + b3c*rs)**2
- 
-         dx = 0.5d0*(opz**F43 + omz**F43)
-         gc = (1d0 - dxc*(dx - 1d0))*(1d0 - zeta**12)
-
-         w0fac = epsc0/b1c
+         w0fac = eclda0/b1c
          expw0 = dexp(-w0fac)
          w0 = expw0 - 1d0
-         dw0drs = -depsc0drs*expw0/b1c
+         dw0drs = -declda0drs*expw0/b1c
 
          ginf = (1d0/(1d0 + 4d0*xi*p))**F14
          dginfdp = -xi*ginf/(1d0 + 4d0*xi*p)
@@ -254,76 +312,14 @@ c
          dH0dp = b1c*darg0dp/arg0
          dH0drs = b1c*darg0drs/arg0
 
-         Ec0 = (epsc0 + H0)*gc
-         dEc0drs = gc*(depsc0drs + dH0drs)
+         Ec0 = (eclda0 + H0)*gc
+         dEc0drs = gc*(declda0drs + dH0drs)
          dEc0dp = gc*dH0dp
-c
-c        --------------------------------------------------------------
-c
-         ds = 0.5d0*(opz**F53 + omz**F53)
-         tueg = 0.3d0*ckf*ckf*ds*ntot**F53
-         tvw = 0.125d0*dn2/ntot
-         if (whichfc.eq.'orig') then
-           alpha = (tautot - tvw)/tueg
-           if (alpha.lt.0d0) alpha=0d0
-           regalpha = alpha
-           dregalpha = 1d0
-         else if (whichfc.eq.'regu') then
-           alpha = (tautot - tvw)/(tueg + 1d-4*ds)
-           if (alpha.lt.0d0) alpha=0d0
-           regalpha = alpha**3/(alpha**2 + 1d-3)
-           dregalpha = alpha/(alpha**2 + 1d-3) * 
-     &                 (3d0*alpha - 2d0*regalpha)
-         endif
-         oma = 1d0 - regalpha
-         oma2 = oma*oma
-
-         if (whichfc.eq.'orig') then
-           if (regalpha.ge.thr1) then
-             exp5 = 0d0
-           else
-             exp5 = dexp(-c1c*regalpha/oma)
-           end if
-           if (regalpha.le.thr2) then
-             exp6 = 0d0
-           else
-             exp6 = dexp(c2c/oma)
-           end if
-           fca = exp5 - dc*exp6
-           if (regalpha.ge.thr1.and.regalpha.le.thr2) then
-             dfcada = 0d0
-           else
-             dfcada = -(c1c*exp5 + dc*exp6*c2c)/oma2
-           end if
-         else if(whichfc.eq.'regu') then
-           if (regalpha.lt.2.5d0) then
-             rtemp(0) = 1d0
-             do ifc=1,7
-               rtemp(ifc) = rtemp(ifc-1)*regalpha
-             enddo
-             fca = dot_product(rRegu,rtemp)
-             dfcada = dot_product(rRegu1, rtemp(0:6))*dregalpha
-           else
-             exp6 = dexp(c2c/oma)
-             fca = -dc*exp6
-             dfcada = -dc*exp6*c2c/oma2*dregalpha
-           endif
-         endif
 c
 c        --------------------------------------------------------------
 c
          Ec = Ec + cfac*ntot*(Ec1 + fca*(Ec0-Ec1))*qwght(n)
          if (ldew) func(n) = func(n) + cfac*ntot*(Ec1 + fca*(Ec0-Ec1))
-c
-         if (whichfc.eq.'orig') then
-           idalphadn = f53*(p/ds-alpha)/ntot
-           dalphadg = -0.125d0/(tueg*ntot)
-           dalphadt = 1d0/tueg
-         else if (whichfc.eq.'regu') then
-           dalphadn = 5d0/3d0*(p/ds-alpha)*tueg/((tueg+1d-4*ds)*ntot)
-           dalphadg = -0.125d0/((tueg+1d-4*ds)*ntot)
-           dalphadt = 1d0/(tueg+1d-4*ds)
-         endif
 
          dEc1dn = dEc1drs*drsdn + dEc1dp*dpdn
          dEc0dn = dEc0drs*drsdn + dEc0dp*dpdn
@@ -355,30 +351,37 @@ c
      &                             ntot*dfcada*dalphadt*(Ec0-Ec1)
 
            if (omz.lt.tol_rho) then
-             dphidzeta = 0.5d0*F23*(opz**F23/opz)
+             dphidzeta = 0.5d0*F23*(opz23/opz)
            else if (opz.lt.tol_rho) then
-             dphidzeta = -0.5d0*F23*(omz**F23/omz)
+             dphidzeta = -0.5d0*F23*(omz23/omz)
            else
-             dphidzeta = 0.5d0*F23*(opz**F23/opz - omz**F23/omz)
+             dphidzeta = 0.5d0*F23*(opz23/opz - omz23/omz)
            end if
 
            dt2dzeta = -2d0*t2*dphidzeta/phi
            dw1dzeta = (3d0*w1fac*dphidzeta/phi - 
-     &                 depscdzeta/(GAMMA*phi3))*expw1
+     &                 declda1dz/(GAMMA*phi3))*expw1
            dAdzeta = -A*dw1dzeta/w1
-           darg1dzeta = dw1dzeta*(1d0 - Gat2) + 
-     &                  Gat2*w1*(t2*dAdzeta + A*dt2dzeta)/Gaux
+
+           ddsdzeta = 0.5d0*F53*(opz23 - omz23)
+           ddeltaYpdz = -deltaYp/w1*dw1dzeta - deltaYp/ds*ddsdzeta -
+     &                  3d0*deltaYp*dphidzeta/phi +
+     &                  rfc2/(27d0*gamma*phi3*w1*ds)*(
+     &                     -20d0*rs*d2eclda1drsdz +
+     &                     45d0*eta*declda1dz)*p*exp1
+
+           dGAt2ydz = -GAt2y*(dAdzeta*t2 + A*dt2dzeta - ddeltaYpdz)/Gaux
+           darg1dzeta = dw1dzeta*(1d0-GAt2y) - w1*dGAt2ydz
            dH1dzeta = 3d0*H1*dphidzeta/phi + GAMMA*phi3*darg1dzeta/arg1
-           dEc1dzeta = depscdzeta + dH1dzeta
+           dEc1dzeta = declda1dz + dH1dzeta
 
            ddxdzeta = 0.5d0*F43*(opz**F13 - omz**F13)
            dgcdzeta = -dxc*ddxdzeta*(1d0 - zeta**12) -
      &                12d0*zeta**11*(1d0 - dxc*(dx - 1d0))
-           dEc0dzeta = dgcdzeta*(epsc0 + H0)
+           dEc0dzeta = dgcdzeta*(eclda0 + H0)
 
-           ddsdzeta = 0.5d0*F53*(opz**F23 - omz**F23)
 
-           dalphadzeta = -alpha*ddsdzeta/ds
+           dalphadzeta = -alpha/(tueg+eta*tvw)*tueg*ddsdzeta/ds
 
            dfcadzeta = dfcada*dalphadzeta
 
@@ -393,7 +396,7 @@ c
 20    continue
       end
 
-      Subroutine xc_cscan_d2()
+      Subroutine xc_cr2scan_d2()
       implicit none
       call errquit(' xc_cscan: d2 not coded ',0,0)
       return
