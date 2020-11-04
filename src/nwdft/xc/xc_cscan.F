@@ -316,7 +316,7 @@ c
          if (ldew) func(n) = func(n) + cfac*ntot*(Ec1 + fca*(Ec0-Ec1))
 c
          if (whichfc.eq.'orig') then
-           idalphadn = f53*(p/ds-alpha)/ntot
+           dalphadn = f53*(p/ds-alpha)/ntot
            dalphadg = -0.125d0/(tueg*ntot)
            dalphadt = 1d0/tueg
          else if (whichfc.eq.'regu') then
