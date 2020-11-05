@@ -39,6 +39,7 @@ c
       real*8  ks_deltae,deltav,dV,deltav_old,diis_error
       real*8  tcharge,charge(2)
       integer nx,ny,nz,stalled_count,sd_count,ms
+      real*8 e00
 
 
       real*8     tole,tolc
@@ -215,6 +216,7 @@ c
             call psi_1define_occupation(0.0d0,.false.)
             Enew = Enew + psi_smearcorrection()
          end if
+         !write(*,*) "First Enew=",Enew,psi_smearcorrection()
       else
          call psi_get_density(1,dbl_mb(rho_in(1)))
          call psi_get_density(1,dbl_mb(rho_out(1)))
@@ -244,10 +246,21 @@ c
       it2 = it2 + 1
       
 *     **** diaganolize KS matrix - note that Hpsik set to last application of H(rho)|psi> ****
+      !write(*,*) "Into KS update"
       call psi_KS_update(1,
      >                   control_ks_algorithm(),
      >                   precondition,
      >                   ks_deltae)
+c      write(*,*) "Before Into block update"
+c      do i=1,psi_ne(1)
+c         write(*,*) "i,eig=",i,psi_eigenvalue(1,i)
+c      end do
+c      write(*,*)
+c      write(*,*) "Into block update"
+c      call psi_KS_block_update(e00,deltae,
+c     >                         current_iteration,ks_deltae)
+c      write(*,*) "out of block update, e00,deltae=",e00,deltae
+
       call rho_1to2()
 
 *     **** rotate orbitals - hml should be ok and hermitian since Hpsik set to last application of H(rho)|psi>****
@@ -255,15 +268,22 @@ c
       call psi_diagonalize_hml_assending()
       call psi_1rotate2()
       call psi_2to1()
+c      do i=1,psi_ne(1)
+c         write(*,*) "i,eig=",i,psi_eigenvalue(1,i)
+c      end do
 
+c      write(*,*) "GERA block"
 *     **** define fractional occupation ****
       if (control_fractional()) 
      >   call psi_1define_occupation(-1.0d0,.false.)
 
+c      write(*,*) "GERB block"
       Eold = Enew
       Enew = psi_1energy()
+c      write(*,*) "GERC Enew=",Enew
       if (control_fractional()) Enew = Enew + psi_smearcorrection()
       deltae = Enew-Eold
+c      write(*,*) "Second Enew=",it,Enew,psi_smearcorrection()
 
       !call electron_gen_vall()
       call psi_get_density(1,dbl_mb(rho_in(1)))
