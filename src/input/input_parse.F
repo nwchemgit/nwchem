@@ -330,7 +330,8 @@ ckbn mrcc-r-1 -3
             else if (inp_compare(.false.,test,'mrccdata')) then
                call tce_mrcc_input(rtdb)
 #endif
-
+            else if (inp_compare(.false.,test,'gw')) then
+               call gw_input(rtdb)
 c
 c     INSERT NEW ELSE IF CLAUSES ABOVE HERE
 c
