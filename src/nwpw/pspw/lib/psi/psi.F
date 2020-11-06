@@ -3444,15 +3444,15 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
       real*8 max_sigma,dt,kappa
 
       logical value
-      integer neall,maxit_orb,maxit_orbs
+      integer neall,maxit_orbs
 
 *     **** external functions ****
       logical  control_precondition,psp_pawexist
       external control_precondition,psp_pawexist
       integer  control_lmbfgs_size
       external control_lmbfgs_size
-      integer  control_ks_maxit_orb,control_ks_maxit_orbs,psi_neq
-      external control_ks_maxit_orb,control_ks_maxit_orbs,psi_neq
+      integer  control_ks_maxit_orbs,psi_neq
+      external control_ks_maxit_orbs,psi_neq
       real*8   control_time_step
       external control_time_step
       real*8   psi_geodesic_energy0,psi_geodesic_denergy
@@ -3460,12 +3460,11 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
       real*8   linesearch
       external linesearch
 
-      maxit_orb  = control_ks_maxit_orb()   !*** should be read from rtdb ***
+      !maxit_orb  = control_ks_maxit_orb()   !*** should be read from rtdb ***
       maxit_orbs = control_ks_maxit_orbs()  !*** should be read from rtdb ***
-      it_in = maxit_orb*maxit_orbs
+      it_in = maxit_orbs
 
       dt = control_time_step()
-      write(*,*) "HERA block"
 
 !$OMP MASTER
       if (current_iteration.eq.1) then
@@ -3488,16 +3487,13 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
       call Parallel_shared_vector_zero(.true.,2*npack1*neall,
      >                                 dcpl_mb(G0(1)))
 
-      write(*,*) "HERB block"
 *     ***** get the initial direction ****
       if (pawexist) then
          call psi_1get_STgradient(dcpl_mb(S0(1)),dcpl_mb(G0(1)),Enew0)
       else
          if (precondition) then
-      write(*,*) "HERc1 block"
             call psi_1get_TMgradient0(dcpl_mb(G0(1)),Enew0)
          else
-      write(*,*) "HERc2 block"
             call psi_1get_Tgradient0(dcpl_mb(G0(1)),Enew0)
          end if
       end if
@@ -3505,8 +3501,9 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
       E0 = Enew0
 !$OMP END MASTER
 
-      write(*,*) "E0=",E0
-      write(*,*) "it_in=",it_in
+c      write(*,*) "   -- current_iteration=",current_iteration
+c      write(*,*) "   -- E0=",E0
+c      write(*,*) "   -- it_in=",it_in
 
 *     ***** use the initial gradient for the direction ****
       call pspw_lmbfgs_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
@@ -3527,9 +3524,9 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
             deltat = deltat_min
          end if
  20      continue
+c         write(*,*) "     --- tmin0=",tmin
          tmin0 = tmin
          deltae0 = deltae
-         write(*,*) "into linesearch"
          Enew0 = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic_energy0,
      >                        psi_geodesic_denergy,
@@ -3541,7 +3538,8 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
          Enew = Enew0
 !$OMP END MASTER
 !$OMP BARRIER
-         write(*,*) "it,Enew,deltae=",it,Enew,deltae
+c         write(*,*) "     --- tmin=",tmin
+c         write(*,*) "     --- it,Enew,deltae=",it,Enew,deltae
 
          call psi_geodesic_final(tmin)
 
@@ -3557,9 +3555,9 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
      >                                   dcpl_mb(G0(1)),Enew0)
          else
             if (precondition) then
-               call psi_2get_TMgradient(2,dcpl_mb(G0(1)),Enew0)
+               call psi_2get_TMgradient0(2,dcpl_mb(G0(1)),Enew0)
             else
-               call psi_2get_Tgradient(2,dcpl_mb(G0(1)),Enew0)
+               call psi_2get_Tgradient0(2,dcpl_mb(G0(1)),Enew0)
             end if
          end if
 !$OMP MASTER
@@ -3596,7 +3594,9 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
          Enew = Enew0
 !$OMP END MASTER
 !$OMP BARRIER
-      write(*,*) "tmin=",tmin
+c      write(*,*) "     --- tmin=",tmin
+c      write(*,*) "     --- it,Enew,deltae=",it_in+1,Enew,deltae
+c      write(*,*)
       call psi_geodesic_final(tmin)
 
  30   CONTINUE
@@ -3610,7 +3610,9 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
      >  call errquit('bfgsminimize:error freeing heap memory',0, MA_ERR)
 
       call psi_2to1()
-      call psi_1toelectron()
+      !call psi_1gen_hml()
+      !call psi_diagonalize_hml_assending()
+      !call psi_1toelectron()
 
       return
       end
