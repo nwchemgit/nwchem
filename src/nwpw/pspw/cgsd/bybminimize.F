@@ -221,6 +221,7 @@ c
      >                   precondition,
      >                   ks_deltae)
 
+
       call rho_1to2()
       Eold = Enew
       Enew = psi_1energy()

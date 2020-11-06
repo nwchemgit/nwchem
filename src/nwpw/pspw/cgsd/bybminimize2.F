@@ -39,6 +39,7 @@ c
       real*8  ks_deltae,deltav,dV,deltav_old,diis_error
       real*8  tcharge,charge(2)
       integer nx,ny,nz,stalled_count,sd_count,ms
+      real*8 e00
 
 
       real*8     tole,tolc
@@ -49,7 +50,7 @@ c
       integer it,it_in,i,j,ispin,bfgscount,icount,sd_it,cg_it,it2
 
       logical value,precondition,done,stalled,deltav_bad(4),oprint
-      logical dohfx,assending
+      logical dohfx,assending,ks_block
       integer n2ft3d
       !real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       !real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
@@ -122,6 +123,9 @@ c
       external nwpw_cosmo_on,nwpw_cosmo1_on,pspw_V_APC_on
       real*8   psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
       external psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
+      integer  control_ks_maxit_orb
+      external control_ks_maxit_orb
+
 
       Ein = E(1)
       call Parallel_taskid(taskid)
@@ -236,6 +240,12 @@ c
 *     **** iniitialize RMM-DIIS ****
       if (control_ks_algorithm().eq.1) call pspw_rmmdiis_init(5)
 
+*     **** iniitialize blocked cg ****
+      ks_block = .false.
+      if (control_ks_algorithm().eq.-1)  then
+         ks_block = .true.
+         call linesearch_maxiter_set(control_ks_maxit_orb())
+      end if
 
 *     ***** diis loop ****
       it2 = -4
@@ -244,10 +254,15 @@ c
       it2 = it2 + 1
       
 *     **** diaganolize KS matrix - note that Hpsik set to last application of H(rho)|psi> ****
-      call psi_KS_update(1,
-     >                   control_ks_algorithm(),
-     >                   precondition,
-     >                   ks_deltae)
+      if (ks_block) then
+         call psi_KS_block_update(e00,deltae,it,ks_deltae)
+      else
+         call psi_KS_update(1,
+     >                      control_ks_algorithm(),
+     >                      precondition,
+     >                      ks_deltae)
+      end if
+
       call rho_1to2()
 
 *     **** rotate orbitals - hml should be ok and hermitian since Hpsik set to last application of H(rho)|psi>****

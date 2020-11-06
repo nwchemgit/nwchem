@@ -167,6 +167,31 @@ c      paw_exist = psp_pawexist()
 
 
 *     ***********************************
+*     *                                 *
+*     *         electron_run0           *
+*     *                                 *
+*     ***********************************
+      subroutine electron_run0(psi_k)
+      implicit none
+      complex*16 psi_k(*)
+     
+*     **** electron_counter common block ****
+      integer counter
+      common / electron_counter / counter
+     
+!$OMP MASTER                  
+      counter = counter+1     
+!$OMP END MASTER
+      
+      call electron_gen_psi_r(psi_k)
+      call electron_gen_Hvallpsi_k(psi_k)
+
+      return
+      end
+
+
+
+*     ***********************************
 *     *					*
 *     *		electron_run		*
 *     *					*
@@ -523,6 +548,61 @@ c     >                + eke_core + eion_core
 
 *     **** total energy ****
       electron_energy = total_energy
+
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *		electron_energy0	*
+*     *					*
+*     ***********************************
+      real*8 function electron_energy0(psi_k)
+      implicit none
+      complex*16 psi_k(*)
+
+#include "bafdecls.fh"
+#include "electron_common.fh"
+
+
+*     **** local variables ****
+      integer ii,ms,n1(2),n2(2)
+      real*8  eorbit,total_energy
+
+      real*8 e1,e2
+      common /eenergy_tmp_common/ e1,e2
+
+      n1(1) = 1
+      n1(2) = neq(1) + 1
+      n2(1) = neq(1)
+      n2(2) = neq(1) + neq(2)
+
+*     *** get orbital energies ****
+!$OMP MASTER
+      e1 = 0.0d0
+      e2 = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+      !eorbit = 0.0d0
+      do ms=1,ispin
+      do ii=n1(ms),n2(ms)
+        call Pack_cc_idot(1,psi_k(1+(ii-1)*npack1),
+     >                    dcpl_mb(Hpsi_k(1)+(ii-1)*npack1),
+     >                    e1)
+!$OMP MASTER
+        e2 = e2 + e1
+!$OMP END MASTER
+      end do
+      end do
+!$OMP BARRIER
+      call Parallel_SumAll(e2)
+      eorbit = e2
+      if (ispin.eq.1) eorbit = eorbit+eorbit
+
+      total_energy = eorbit !*** add other energies here ? ***
+
+*     **** total energy ****
+      electron_energy0 = total_energy
 
       return
       end
@@ -1562,6 +1642,54 @@ cccc#include "frac_occ.fh"
 
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *     electron_gen_Hvallpsi_k     *
+*     *                                 *
+*     ***********************************
+
+      subroutine electron_gen_Hvallpsi_k(psi_k)
+      implicit none
+      complex*16 psi_k(*)
+
+#include "bafdecls.fh"
+#include "electron_common.fh"
+
+
+*     **** local variables ****
+      logical move,fractional
+      integer n
+      real*8  fion(3,1)
+
+*     **** external functions ****
+      integer  control_version
+      external control_version
+
+      move = .false.
+      fractional = .false.
+*     ******************
+*     **** get Hpsi ****
+*     ******************
+      if (control_version().eq.3)
+     >  call psi_H_vall(ispin,neq,psi_k,
+     >             dbl_mb(psi_r(1)),
+     >             dbl_mb(vall(1)),
+     >             dcpl_mb(Hpsi_k(1)))
+
+      if (control_version().eq.4)
+     >  call psi_Hv4_vall(ispin,neq,psi_k,
+     >             dbl_mb(psi_r(1)),
+     >             dbl_mb(vall(1)),
+     >             dcpl_mb(Hpsi_k(1)))
+
+      call Grsm_gg_dScale1(npack1,(neq(1)+neq(2)),(-1.0d0),
+     >                     dcpl_mb(Hpsi_k(1)))
+
+      return
+      end
+
 
 
 

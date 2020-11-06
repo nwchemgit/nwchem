@@ -950,6 +950,10 @@ cc AJL/End
 c
 c     cosmo charges, potential and energy contribution
 c
+      if (cosmo_on) then
+         call errquit('uhf_energy not compatible with COSMO',0,
+     C     CAPMIS_ERR)
+      endif
       if(cosmo_on.and.cosmo_phase.eq.2) then
         cosmo_file = "cosmo.xyz"
         do i = 1, 2

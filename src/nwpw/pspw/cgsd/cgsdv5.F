@@ -561,6 +561,14 @@ c           call psp_check_print(ia)
      >                 control_it_in(),control_it_out()
          if ((minimizer.eq.5).or.(minimizer.eq.8)) then
            write(luout,1291)
+           if (control_ks_algorithm().eq.-1)  then
+             if (control_precondition()) then
+                write(luout,1292) 
+     >             "block preconditioned conjugate gradient"
+             else
+                write(luout,1292) "block conjugate gradient"
+             end if
+           end if
            if (control_ks_algorithm().eq.0)  then
              if (control_precondition()) then
                 write(luout,1292) "preconditioned conjugate gradient"
@@ -570,6 +578,7 @@ c           call psp_check_print(ia)
            end if
            if (control_ks_algorithm().eq.1) 
      >       write(luout,1292) "rmm-diis"
+
            write(luout,1295) control_ks_maxit_orb(),
      >                       control_ks_maxit_orbs()
            if (control_scf_algorithm().eq.0) 
