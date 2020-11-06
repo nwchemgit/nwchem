@@ -169,10 +169,11 @@ c     functional derivatives above FFFFFFFFFFFF
      &             -3d0*6.63086601049291d-1, 4d0*1.45129704448975d0,
      &             -5d0*8.87998041596655d-1, 6d0*2.34528941478571d-1,
      &             -7d0*2.31858433223407d-2/) )
-      parameter (rC2 = -sum(rRegu1)*(1d0-rH0))
+c      parameter (rC2 = -sum(rRegu1)*(1d0-rH0))
 
 c
       pi=acos(-1d0)
+      rC2 = -sum(rRegu1)*(1d0-rH0)
       Ax = (-0.75d0)*(3d0/pi)**F13
       Pconst = (3.d0*pi**2)**F23
       afact2=1d0/facttwo

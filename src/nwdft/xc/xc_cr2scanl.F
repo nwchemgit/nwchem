@@ -132,12 +132,14 @@ c
      &            -7d0*5.1848879792d-2 /) )
 
       double precision eta, rDp2, rfc2, two53
-      parameter (eta=1d-3, rDp2=0.361d0, rfc2 = sum(rRegu1))
+c      parameter (eta=1d-3, rDp2=0.361d0, rfc2 = sum(rRegu1))
+      parameter (eta=1d-3, rDp2=0.361d0)
       parameter (two53=2d0**F53)
 c
 c     ======> BOTH SPIN-RESTRICETED AND UNRESTRICTED <======
 c
       Pi = dacos(-1d0)
+      rfc2 = sum(rRegu1)
       gamma = (1d0 - dlog(2d0))/pi**2
       p14f = (3d0/(4d0*Pi))**F13
       ckf = (3d0*Pi*Pi)**F13
