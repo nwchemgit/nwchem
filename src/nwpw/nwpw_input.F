@@ -1028,6 +1028,10 @@ c
  4801 if (.not.inp_a(zone_name)) goto 4802
        if (inp_compare(.false.,zone_name,'potential')) minimizer = 5
        if (inp_compare(.false.,zone_name,'density'))   minimizer = 8
+       if (inp_compare(.false.,zone_name,'block-cg')) then
+         if(.not.rtdb_put(rtdb,'nwpw:ks_algorithm',mt_int,1,-1))
+     >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
+       end if
        if (inp_compare(.false.,zone_name,'cg')) then
          if(.not.rtdb_put(rtdb,'nwpw:ks_algorithm',mt_int,1,0))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
@@ -1053,6 +1057,10 @@ c
        end if
        if (inp_compare(.false.,zone_name,'anderson')) then
          if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,3))
+     >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
+       end if
+       if (inp_compare(.false.,zone_name,'noprecondition')) then
+         if(.not.rtdb_put(rtdb,'nwpw:precondition',mt_log,1,.false.))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
        end if
        if (inp_compare(.false.,zone_name,'precondition')) then
