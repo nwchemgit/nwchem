@@ -50,7 +50,7 @@ c
       integer it,it_in,i,j,ispin,bfgscount,icount,sd_it,cg_it,it2
 
       logical value,precondition,done,stalled,deltav_bad(4),oprint
-      logical dohfx,assending
+      logical dohfx,assending,ks_block
       integer n2ft3d
       !real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       !real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
@@ -123,6 +123,9 @@ c
       external nwpw_cosmo_on,nwpw_cosmo1_on,pspw_V_APC_on
       real*8   psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
       external psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
+      integer  control_ks_maxit_orb
+      external control_ks_maxit_orb
+
 
       Ein = E(1)
       call Parallel_taskid(taskid)
@@ -216,7 +219,6 @@ c
             call psi_1define_occupation(0.0d0,.false.)
             Enew = Enew + psi_smearcorrection()
          end if
-         !write(*,*) "First Enew=",Enew,psi_smearcorrection()
       else
          call psi_get_density(1,dbl_mb(rho_in(1)))
          call psi_get_density(1,dbl_mb(rho_out(1)))
@@ -238,6 +240,12 @@ c
 *     **** iniitialize RMM-DIIS ****
       if (control_ks_algorithm().eq.1) call pspw_rmmdiis_init(5)
 
+*     **** iniitialize blocked cg ****
+      ks_block = .false.
+      if (control_ks_algorithm().eq.-1)  then
+         ks_block = .true.
+         call linesearch_maxiter_set(control_ks_maxit_orb())
+      end if
 
 *     ***** diis loop ****
       it2 = -4
@@ -246,20 +254,14 @@ c
       it2 = it2 + 1
       
 *     **** diaganolize KS matrix - note that Hpsik set to last application of H(rho)|psi> ****
-      !write(*,*) "Into KS update"
-      call psi_KS_update(1,
-     >                   control_ks_algorithm(),
-     >                   precondition,
-     >                   ks_deltae)
-c      write(*,*) "Before Into block update"
-c      do i=1,psi_ne(1)
-c         write(*,*) "i,eig=",i,psi_eigenvalue(1,i)
-c      end do
-c      write(*,*)
-c      write(*,*) "Into block update"
-c      call psi_KS_block_update(e00,deltae,
-c     >                         current_iteration,ks_deltae)
-c      write(*,*) "out of block update, e00,deltae=",e00,deltae
+      if (ks_block) then
+         call psi_KS_block_update(e00,deltae,it,ks_deltae)
+      else
+         call psi_KS_update(1,
+     >                      control_ks_algorithm(),
+     >                      precondition,
+     >                      ks_deltae)
+      end if
 
       call rho_1to2()
 
@@ -268,22 +270,15 @@ c      write(*,*) "out of block update, e00,deltae=",e00,deltae
       call psi_diagonalize_hml_assending()
       call psi_1rotate2()
       call psi_2to1()
-c      do i=1,psi_ne(1)
-c         write(*,*) "i,eig=",i,psi_eigenvalue(1,i)
-c      end do
 
-c      write(*,*) "GERA block"
 *     **** define fractional occupation ****
       if (control_fractional()) 
      >   call psi_1define_occupation(-1.0d0,.false.)
 
-c      write(*,*) "GERB block"
       Eold = Enew
       Enew = psi_1energy()
-c      write(*,*) "GERC Enew=",Enew
       if (control_fractional()) Enew = Enew + psi_smearcorrection()
       deltae = Enew-Eold
-c      write(*,*) "Second Enew=",it,Enew,psi_smearcorrection()
 
       !call electron_gen_vall()
       call psi_get_density(1,dbl_mb(rho_in(1)))
