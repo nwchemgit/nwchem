@@ -1881,6 +1881,9 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 *     *					*
 *     ***********************************
 
+*     shared output variable:
+*     - sum
+*
       subroutine Pack_cc_dot(nb,A,B,sum)
       implicit none
       integer    nb

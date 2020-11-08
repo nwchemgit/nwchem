@@ -20,12 +20,15 @@
 #include "nwpw_scf_mixing.fh"
 
 
+!$OMP MASTER
       algorithm = algorithm0
       alpha = alpha0
       max_m = max_m0
       n2ft3d = nsize0
       nsize  = nsize0*ispin0
       ispin  = ispin0
+!$OMP END MASTER
+!$OMP BARRIER
 
       if (algorithm.eq.0) then
         call nwpw_list_start(1,2,nsize)
@@ -83,7 +86,9 @@
 #include "bafdecls.fh"
 #include "nwpw_scf_mixing.fh"
 
+!$OMP MASTER
       m = 1
+!$OMP END MASTER
       call nwpw_list_store(1,1,rho_in)
       return
       end
@@ -94,6 +99,9 @@
 *     *              nwpw_scf_mixing          *
 *     *                                       *
 *     *****************************************
+*
+*     shared output variables:
+*     - scf_error
 
       subroutine nwpw_scf_mixing(vout,vnew,deltae,scf_error)
       implicit none
@@ -130,22 +138,29 @@ c      end if
       if (algorithm.eq.0) then
          call nwpw_list_ptr(1,1,rr_ptr)
          call nwpw_list_ptr(1,2,ff_ptr)
-         call dcopy(nsize,dbl_mb(rr_ptr),1,dbl_mb(ff_ptr),1)  ! f = vm
-         call daxpy(nsize,(-1.0d0),vout, 1,dbl_mb(ff_ptr),1)  ! f = f-vout = vm-vout
-         call dscal(nsize,(-1.0d0),dbl_mb(ff_ptr),1)          ! f = -f = vout-vm
+         call Parallel_shared_vector_copy(.true., nsize,
+     >                dbl_mb(rr_ptr),dbl_mb(ff_ptr))  ! f = vm
+         call DAXPY_OMP(nsize,(-1.0d0),vout, 1,dbl_mb(ff_ptr),1)  ! f = f-vout = vm-vout
+         call DSCAL_OMP(nsize,(-1.0d0),dbl_mb(ff_ptr),1)          ! f = -f = vout-vm
 
+!$OMP MASTER
          scf_error = ddot(nsize,dbl_mb(ff_ptr),1,dbl_mb(ff_ptr),1)
+!$OMP END MASTER
          call D3dB_SumAll(scf_error)
+!$OMP MASTER
          scf_error = dsqrt(scf_error)                         ! scf_error = sqrt(<f|f>)
+!$OMP END MASTER
 
          do ms=1,ispin
             shift = (ms-1)*n2ft3d
             call kerker_G(dbl_mb(ff_ptr+shift))
          end do
 
-         call dcopy(nsize,dbl_mb(rr_ptr),1,vnew,1)            !vnew = vm
-         call daxpy(nsize,alpha1,dbl_mb(ff_ptr),1,vnew,1)     !vnew = vnew+alpha*f
-         call dcopy(nsize,vnew,1,dbl_mb(rr_ptr),1)            !vm=vnew
+         call Parallel_shared_vector_copy(.true.,nsize,
+     >                dbl_mb(rr_ptr),vnew)            !vnew = vm
+         call DAXPY_OMP(nsize,alpha1,dbl_mb(ff_ptr),1,vnew,1)     !vnew = vnew+alpha*f
+         call Parallel_shared_vector_copy(.true.,nsize,
+     >                vnew,dbl_mb(rr_ptr))            !vm=vnew
       end if
 
 *     **** Broyden mixing ****
@@ -161,38 +176,49 @@ c      end if
 
          if (m.eq.1) then
            !**** vout0 = vout ****
-           call dcopy(nsize,vout,1,dbl_mb(Vout0),1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  vout,dbl_mb(Vout0))
 
            !**** F0 = vout - V0 ****
-           call dcopy(nsize,dbl_mb(V0),1,dbl_mb(F0),1)
-           call dscal(nsize,(-1.0d0),dbl_mb(F0),1)
-           call daxpy(nsize,(1.0d0),vout, 1,dbl_mb(F0),1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(V0),dbl_mb(F0))
+           call DSCAL_OMP(nsize,(-1.0d0),dbl_mb(F0),1)
+           call DAXPY_OMP(nsize,(1.0d0),vout, 1,dbl_mb(F0),1)
 
            !**** V1 = V0 + alpha*F0 ****
-           call dcopy(nsize,dbl_mb(V0),1,dbl_mb(V1),1)
-           call daxpy(nsize,alpha1,dbl_mb(F0),1,dbl_mb(V1),1)   
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(V0),dbl_mb(V1))
+           call DAXPY_OMP(nsize,alpha1,dbl_mb(F0),1,dbl_mb(V1),1)   
 
            !**** vnew = V1 ****
-           call dcopy(nsize,dbl_mb(V1),1,vnew,1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(V1),vnew)
 
          else !(m.gt.1) 
            !**** vout1 = vout ****
-           call dcopy(nsize,vout,1,dbl_mb(Vout1),1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  vout,dbl_mb(Vout1))
 
            !**** F1 = vout - V1 ****
-           call dcopy(nsize,dbl_mb(V1),1,dbl_mb(F1),1)
-           call dscal(nsize,(-1.0d0),dbl_mb(F1),1)
-           call daxpy(nsize,(1.0d0),vout, 1,dbl_mb(F1),1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(V1),dbl_mb(F1))
+           call DSCAL_OMP(nsize,(-1.0d0),dbl_mb(F1),1)
+           call DAXPY_OMP(nsize,(1.0d0),vout, 1,dbl_mb(F1),1)
 
            !**** scf_error = sqrt(<F1|F1>) ****
+!$OMP MASTER
            scf_error = ddot(nsize,dbl_mb(F1),1,dbl_mb(F1),1)
+!$OMP END MASTER
            call D3dB_SumAll(scf_error)
+!$OMP MASTER
            scf_error = dsqrt(scf_error)          
+!$OMP END MASTER
 
        
            !**** Beta = <F1|F1-F0>/<F1-F0/F1-F0> ****
-           call dcopy(nsize,dbl_mb(F1),1,dbl_mb(Vbar1),1)
-           call daxpy(nsize,(-1.0d0),dbl_mb(F0),1,dbl_mb(Vbar1),1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(F1),dbl_mb(Vbar1))
+           call DAXPY_OMP(nsize,(-1.0d0),dbl_mb(F0),1,dbl_mb(Vbar1),1)
            sum0 = ddot(nsize,dbl_mb(F1),1,dbl_mb(Vbar1),1)
            sum1 = ddot(nsize,dbl_mb(Vbar1),1,dbl_mb(Vbar1),1)
            call D3dB_SumAll(sum0)
@@ -202,33 +228,44 @@ c      end if
  
 
            !**** Vbar1 = (1-Beta)*Vout1 + Beta*Vout0 ****
-           call dcopy(nsize,dbl_mb(Vout0),1,dbl_mb(Vbar1),1)
-           call dscal(nsize,(beta),dbl_mb(Vbar1),1)
-           call daxpy(nsize,(1.0d0-beta),dbl_mb(Vout1),1,
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(Vout0),dbl_mb(Vbar1))
+           call DSCAL_OMP(nsize,(beta),dbl_mb(Vbar1),1)
+           call DAXPY_OMP(nsize,(1.0d0-beta),dbl_mb(Vout1),1,
      >                                   dbl_mb(Vbar1),1)
 
            !**** Vbar0 = (1-Beta)*V1 + Beta*V0       ****
-           call dcopy(nsize,dbl_mb(V0),1,dbl_mb(Vbar0),1)
-           call dscal(nsize,(beta),dbl_mb(Vbar0),1)
-           call daxpy(nsize,(1.0d0-beta),dbl_mb(V1),1,dbl_mb(Vbar0),1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(V0),dbl_mb(Vbar0))
+           call DSCAL_OMP(nsize,(beta),dbl_mb(Vbar0),1)
+           call DAXPY_OMP(nsize,(1.0d0-beta),
+     >                    dbl_mb(V1),1,dbl_mb(Vbar0),1)
 
            !**** F0 = F1, Vout0 = Vout1, V0 = V1 ****
-           call dcopy(nsize,dbl_mb(F1),1,dbl_mb(F0),1)
-           call dcopy(nsize,dbl_mb(Vout1),1,dbl_mb(Vout0),1)
-           call dcopy(nsize,dbl_mb(V1),1,dbl_mb(V0),1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(F1),dbl_mb(F0))
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(Vout1),dbl_mb(Vout0))
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(V1),dbl_mb(V0))
 
            !**** V1 = (1-alpha)*Vbar0 + alpha*Vbar1 ****
-           call dcopy(nsize,dbl_mb(Vbar1),1,dbl_mb(V1),1)
-           call dscal(nsize,(alpha1),dbl_mb(V1),1)
-           call daxpy(nsize,(1.0d0-alpha1),dbl_mb(Vbar0),1,dbl_mb(V1),1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(Vbar1),dbl_mb(V1))
+           call DSCAL_OMP(nsize,(alpha1),dbl_mb(V1),1)
+           call DAXPY_OMP(nsize,(1.0d0-alpha1),dbl_mb(Vbar0),1,
+     >                                         dbl_mb(V1),1)
           
 
            !**** vnew = V1 ****
-           call dcopy(nsize,dbl_mb(V1),1,vnew,1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(V1),vnew)
 
          end if
 
+!$OMP MASTER 
          m = m + 1
+!$OMP END MASTER 
 
       end if
 
@@ -243,54 +280,71 @@ c      end if
          if (m.eq.1) then
 
            !**** F0 = vout - V0 ****
-           call dcopy(nsize,dbl_mb(V0),1,dbl_mb(F0),1)
-           call dscal(nsize,(-1.0d0),dbl_mb(F0),1)
-           call daxpy(nsize,(1.0d0),vout, 1,dbl_mb(F0),1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(V0),dbl_mb(F0))
+           call DSCAL_OMP(nsize,(-1.0d0),dbl_mb(F0),1)
+           call DAXPY_OMP(nsize,(1.0d0),vout,1,dbl_mb(F0),1)
 
            !**** scf_error = sqrt(<F1|F1>) ****
+!$OMP MASTER 
            scf_error = ddot(nsize,dbl_mb(F0),1,dbl_mb(F0),1)
+!$OMP END MASTER 
            call D3dB_SumAll(scf_error)
+!$OMP MASTER 
            scf_error = dsqrt(scf_error)          
+!$OMP END MASTER 
 
            !**** V1 = V0 + alpha*F0 ****
-           call dcopy(nsize,dbl_mb(V0),1,dbl_mb(V1),1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(V0),dbl_mb(V1))
 
-           call daxpy(nsize,alpha1,dbl_mb(F0),1,dbl_mb(V1),1)   
+           call DAXPY_OMP(nsize,alpha1,dbl_mb(F0),1,dbl_mb(V1),1)   
 
            !**** vnew = V1 ****
-           call dcopy(nsize,dbl_mb(V1),1,vnew,1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(V1),vnew)
 
-           call dcopy(max_list*max_list,0.0d0,0,A,1)
+           call Parallel_shared_vector_zero(.true.,max_list*max_list,A)
 
+!$OMP MASTER 
            m = m + 1
+!$OMP END MASTER 
 
          else !(m.gt.1) 
            !**** F1 = vout - V1 ****
-           call dcopy(nsize,dbl_mb(V1),1,dbl_mb(F1),1)
-           call dscal(nsize,(-1.0d0),dbl_mb(F1),1)
-           call daxpy(nsize,(1.0d0),vout,1,dbl_mb(F1),1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(V1),dbl_mb(F1))
+           call DSCAL_OMP(nsize,(-1.0d0),dbl_mb(F1),1)
+           call DAXPY_OMP(nsize,(1.0d0),vout,1,dbl_mb(F1),1)
 
            !**** scf_error = sqrt(<F1|F1>) ****
+!$OMP MASTER
            scf_error = ddot(nsize,dbl_mb(F1),1,dbl_mb(F1),1)
+!$OMP END MASTER
            call D3dB_SumAll(scf_error)
+!$OMP MASTER
            scf_error = dsqrt(scf_error)          
+!$OMP END MASTER
 
            !*** dF = dF(m-1), U = U(m-1) ***
            call nwpw_list_ptr(1,(5+m-1),dF)
            call nwpw_list_ptr(1,(5+max_m  +m-1),U)
 
            !**** dF = (F1-F0) ****
-           call dcopy(nsize,dbl_mb(F1),1,dbl_mb(dF),1)
-           call daxpy(nsize,(-1.0d0),dbl_mb(F0),1,dbl_mb(dF),1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(F1),dbl_mb(dF))
+           call DAXPY_OMP(nsize,(-1.0d0),dbl_mb(F0),1,dbl_mb(dF),1)
 
            !**** dV  = (V1-V0) ****
-           call dcopy(nsize,dbl_mb(V1),1,dbl_mb(dV),1)
-           call daxpy(nsize,(-1.0d0),dbl_mb(V0),1,dbl_mb(dV),1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(V1),dbl_mb(dV))
+           call DAXPY_OMP(nsize,(-1.0d0),dbl_mb(V0),1,dbl_mb(dV),1)
            
            !**** U  = alpha*dF + dV ****
-           call dcopy(nsize,dbl_mb(dV),1,dbl_mb(U),1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(dV),dbl_mb(U))
 
-           call daxpy(nsize,(alpha1),dbl_mb(dF),1,dbl_mb(U),1)
+           call DAXPY_OMP(nsize,(alpha1),dbl_mb(dF),1,dbl_mb(U),1)
 
            !**** Define A,c and B ****
            do i=1,m-1
@@ -306,7 +360,8 @@ c      end if
               c(i) = sum1
            end do
            
-           call dcopy(max_list*max_list,0.0d0,0,B,1)
+           call Parallel_shared_vector_zero(.true.,max_list*max_list,B)
+!$OMP MASTER
            do i=1,m-1   
            do j=1,m-1   
               B(i,j) = A(i,j)
@@ -336,38 +391,46 @@ c      end if
                  d(i) = d(i) - c(j)*Binv(j,i)
               end do
            end do
+!$OMP END MASTER
 
            !**** F0 = F1,  V0 = V1 ****
-           call dcopy(nsize,dbl_mb(F1),1,dbl_mb(F0),1)
-           call dcopy(nsize,dbl_mb(V1),1,dbl_mb(V0),1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(F1),dbl_mb(F0))
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(V1),dbl_mb(V0))
 
 
            !**** V1 = V0 + alpha*F0 - Sum(i=1,m-1) d(i)*U(i) ****
-           call daxpy(nsize,alpha1,dbl_mb(F0),1,dbl_mb(V1),1)   
+           call DAXPY_OMP(nsize,alpha1,dbl_mb(F0),1,dbl_mb(V1),1)   
 
            do i=1,m-1
               call nwpw_list_ptr(1,(5+max_m +i),U)
-              call daxpy(nsize,(d(i)),dbl_mb(U),1,dbl_mb(V1),1)   
+              call DAXPY_OMP(nsize,(d(i)),dbl_mb(U),1,dbl_mb(V1),1)   
            end do
 
 
            if (m.lt.max_m) then
+!$OMP MASTER
               m = m+1
+!$OMP END MASTER
            else
 
              !*** Shift A matrix ****
+!$OMP MASTER
              do j=1,m-2
              do i=1,m-2
                A(i,j) = A(i+1,j+1)
              end do
              end do
+!$OMP END MASTER
 
               !*** Shift dF and U  ****
               call nwpw_list_shift_range(1,(5+1),(5+max_m))
               call nwpw_list_shift_range(1,(5+max_m+1),(5+2*max_m))
            end if
 
-           call dcopy(nsize,dbl_mb(V1),1,vnew,1)
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(V1),vnew)
 
          end if
 
@@ -387,24 +450,34 @@ c         end if
             call nwpw_list_ptr(1,3,tt_ptr)
 
 c           *** ff=vout-vm ***
-            call dcopy(nsize,vout,1,dbl_mb(ff_ptr),1)  ! f = vout
-            call daxpy(nsize,(-1.0d0),dbl_mb(rr_ptr),1,dbl_mb(ff_ptr),1)  ! f = f-vm = vout-vm
+            call Parallel_shared_vector_copy(.true.,nsize,
+     >                   vout,dbl_mb(ff_ptr))  ! f = vout
+            call DAXPY_OMP(nsize,(-1.0d0),dbl_mb(rr_ptr),1,
+     >                                    dbl_mb(ff_ptr),1)  ! f = f-vm = vout-vm
 
+!$OMP MASTER
             scf_error = ddot(nsize,dbl_mb(ff_ptr),1,dbl_mb(ff_ptr),1)
+!$OMP END MASTER
             call D3dB_SumAll(scf_error)
+!$OMP MASTER
             scf_error = dsqrt(scf_error)                         ! scf_error = sqrt(<f|f>)
+!$OMP END MASTER
 
             do ms=1,ispin
                shift = (ms-1)*n2ft3d
                call kerker_G(dbl_mb(ff_ptr+shift))
             end do
 
-           call dcopy(nsize,dbl_mb(rr_ptr),1,vnew,1)            !vnew = vm
-           call daxpy(nsize,alpha1,dbl_mb(ff_ptr),1,vnew,1)     !vnew = vnew+alpha*f
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(rr_ptr),vnew)            !vnew = vm
+           call DAXPY_OMP(nsize,alpha1,dbl_mb(ff_ptr),1,vnew,1)     !vnew = vnew+alpha*f
 
-           call dcopy(nsize,vout,1,dbl_mb(tt_ptr),1)           !vout1 = vout
-           call dcopy(nsize,dbl_mb(rr_ptr),1,dbl_mb(ff_ptr),1) !vm1   = vm
-           call dcopy(nsize,vnew,1,dbl_mb(rr_ptr),1)           !vm    = vnew       
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  vout,dbl_mb(tt_ptr))           !vout1 = vout
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  dbl_mb(rr_ptr),dbl_mb(ff_ptr)) !vm1   = vm
+           call Parallel_shared_vector_copy(.true.,nsize,
+     >                  vnew,dbl_mb(rr_ptr))           !vm    = vnew       
  
          else
             call nwpw_list_ptr(1,1,rr_ptr)
@@ -414,14 +487,21 @@ c           *** ff=vout-vm ***
             call nwpw_list_ptr(1,3,tt_ptr) !vout1
             call nwpw_list_ptr(1,4,ff_ptr)
 
-            call dcopy(nsize,vout,1,dbl_mb(ff_ptr),1)
-            call daxpy(nsize,(-1.0d0),dbl_mb(rr_ptr),1,dbl_mb(ff_ptr),1)  ! ff_ptr = vout - rr_ptr
-            call daxpy(nsize,(-1.0d0),dbl_mb(ss_ptr),1,dbl_mb(tt_ptr),1)  ! tt_ptr = vout1 - vm1
+            call Parallel_shared_vector_copy(.true.,nsize,
+     >                   vout,dbl_mb(ff_ptr))
+            call DAXPY_OMP(nsize,(-1.0d0),dbl_mb(rr_ptr),1,
+     >                                    dbl_mb(ff_ptr),1)  ! ff_ptr = vout - rr_ptr
+            call DAXPY_OMP(nsize,(-1.0d0),dbl_mb(ss_ptr),1,
+     >                                    dbl_mb(tt_ptr),1)  ! tt_ptr = vout1 - vm1
 
+!$OMP MASTER
             scf_error = 0.0d0
             scf_error = ddot(nsize,dbl_mb(ff_ptr),1,dbl_mb(ff_ptr),1)
+!$OMP END MASTER
             call D3dB_SumAll(scf_error)
+!$OMP MASTER
             scf_error = dsqrt(scf_error)                         ! scf_error = sqrt(<f|f>)
+!$OMP END MASTER
 
             do ms=1,ispin
                shift = (ms-1)*n2ft3d
@@ -448,21 +528,28 @@ c           *** ff=vout-vm ***
                if (beta.gt.1.5d0)  beta = 1.5d0
 
                !*** vnew = (1-beta)*vm + beta*vm1 + alpha*((1-beta)*fm + beta*fm1) ***
-               call dcopy(n2ft3d,dbl_mb(rr_ptr+shift),1,vnew(1+shift),1)
-               call dscal(n2ft3d,(1.0d0-beta),vnew(1+shift),1)
-               call daxpy(n2ft3d,(beta),dbl_mb(ss_ptr+shift),1,
+               call Parallel_shared_vector_copy(.true.,n2ft3d,
+     >                      dbl_mb(rr_ptr+shift),vnew(1+shift))
+               call DSCAL_OMP(n2ft3d,(1.0d0-beta),vnew(1+shift),1)
+               call DAXPY_OMP(n2ft3d,(beta),dbl_mb(ss_ptr+shift),1,
      >                                  vnew(1+shift),1)
-               call dscal(n2ft3d,(1.0d0-beta),dbl_mb(ff_ptr+shift),1)
-               call daxpy(n2ft3d,(beta),dbl_mb(tt_ptr+shift),1,
+               call DSCAL_OMP(n2ft3d,(1.0d0-beta),
+     >                        dbl_mb(ff_ptr+shift),1)
+               call DAXPY_OMP(n2ft3d,(beta),dbl_mb(tt_ptr+shift),1,
      >                                dbl_mb(ff_ptr+shift),1)
-               call daxpy(n2ft3d,alpha1,dbl_mb(ff_ptr+shift),1,
+               call DAXPY_OMP(n2ft3d,alpha1,dbl_mb(ff_ptr+shift),1,
      >                                  vnew(1+shift),1)
             end do
-            call dcopy(nsize,dbl_mb(rr_ptr),1,dbl_mb(ss_ptr),1)
-            call dcopy(nsize,vnew,1,dbl_mb(rr_ptr),1)
-            call dcopy(nsize,vout,1,dbl_mb(tt_ptr),1)
+            call Parallel_shared_vector_copy(.true.,nsize,
+     >                   dbl_mb(rr_ptr),dbl_mb(ss_ptr))
+            call Parallel_shared_vector_copy(.true.,nsize,
+     >                   vnew,dbl_mb(rr_ptr))
+            call Parallel_shared_vector_copy(.true.,nsize,
+     >                   vout,dbl_mb(tt_ptr))
          end if
+!$OMP MASTER
          m = m + 1
+!$OMP END MASTER
 
       end if
 

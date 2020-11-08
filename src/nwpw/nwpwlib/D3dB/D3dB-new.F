@@ -3599,6 +3599,8 @@ c      call Parallel2d_np_i(np)
 *     *	         D3dB_rr_dot  	 	*	
 *     *					*
 *     ***********************************
+*     shared memory output
+*     - sumall
 
       subroutine D3dB_rr_dot(nb,A,B,sumall)     
       implicit none 
@@ -3883,25 +3885,17 @@ c      call Parallel2d_np_i(np)
 #include "D3dB.fh"
 
       integer nb
-      real*8 A(n2ft3d_map(nb))
-      real*8 B(n2ft3d_map(nb))
-      real*8 C(n2ft3d_map(nb))
+      real*8 A(*)
+      real*8 B(*)
+      real*8 C(*)
       integer i,n
 
-#ifdef NUSE_OPENMP
-      n = n2ft3d_map(nb)
-
-
-      do i=1,n
-            C(i) = A(i) * B(i)
-      end do
-
-
-#else
+!$OMP DO
       do i=1,n2ft3d_map(nb)
-            C(i) = A(i) * B(i)
+         C(i) = A(i) * B(i)
       end do
-#endif
+!$OMP END DO
+
       return
       end
 
