@@ -3415,6 +3415,13 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
  
 *    This routine (approximately) diagonalizes the KS matrix.
 *
+*    input variables
+*    - current_iteration
+*    - maxerror
+*    global shared variables output 
+*    - Enew
+*    - deltae
+*
       subroutine psi_KS_block_update(Enew,deltae,
      >                               current_iteration,maxerror)
       implicit none
@@ -3466,6 +3473,7 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
 
       dt = control_time_step()
 
+
 !$OMP MASTER
       if (current_iteration.eq.1) then
          precondition = control_precondition()
@@ -3497,21 +3505,13 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
             call psi_1get_Tgradient0(dcpl_mb(G0(1)),Enew0)
          end if
       end if
-!$OMP MASTER
       E0 = Enew0
-!$OMP END MASTER
-
-c      write(*,*) "   -- current_iteration=",current_iteration
-c      write(*,*) "   -- E0=",E0
-c      write(*,*) "   -- it_in=",it_in
 
 *     ***** use the initial gradient for the direction ****
       call pspw_lmbfgs_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
       call Grsm_gg_Copy(npack1,neall,
      >                  dcpl_mb(G0(1)),
      >                  dcpl_mb(S0(1)))
-
-      
 
       do it=2,it_in
 *        **** initialize the geoedesic line data structure ****
@@ -3580,7 +3580,6 @@ c         write(*,*) "     --- it,Enew,deltae=",it,Enew,deltae
          deltat = deltat_min
       end if
 
-
  25   continue
       tmin0 = tmin
       deltae0 = deltae
@@ -3594,9 +3593,7 @@ c         write(*,*) "     --- it,Enew,deltae=",it,Enew,deltae
          Enew = Enew0
 !$OMP END MASTER
 !$OMP BARRIER
-c      write(*,*) "     --- tmin=",tmin
-c      write(*,*) "     --- it,Enew,deltae=",it_in+1,Enew,deltae
-c      write(*,*)
+
       call psi_geodesic_final(tmin)
 
  30   CONTINUE
@@ -4813,13 +4810,20 @@ c     >           dbl_mb(rho1_all(1)),1)
       integer rho2_all(2)
       common / rhoall_block / rho1_all,rho2_all
 
-      call dcopy(4*nfft3d,
-     >           dbl_mb(rho1(1)),1,
-     >           dbl_mb(rho2(1)),1)
+c      call dcopy(4*nfft3d,
+c     >           dbl_mb(rho1(1)),1,
+c     >           dbl_mb(rho2(1)),1)
+c
+c      call dcopy(4*nfft3d,
+c     >           dbl_mb(rho1_all(1)),1,
+c     >           dbl_mb(rho2_all(1)),1)
 
-      call dcopy(4*nfft3d,
-     >           dbl_mb(rho1_all(1)),1,
-     >           dbl_mb(rho2_all(1)),1)
+      call Parallel_shared_vector_copy(.false.,4*nfft3d,
+     >           dbl_mb(rho1(1)),
+     >           dbl_mb(rho2(1)))
+      call Parallel_shared_vector_copy(.true.,4*nfft3d,
+     >           dbl_mb(rho1_all(1)),
+     >           dbl_mb(rho2_all(1)))
 
       return
       end
@@ -7692,6 +7696,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
 
       integer ms,i,indx1,indx2
 
+!$OMP MASTER
       do ms=1,ispin
          indx1 = occ1(1) + ne(ms) - 1 + (ms-1)*ne(1)
          indx2 = occ2(1)              + (ms-1)*ne(1)
@@ -7702,6 +7707,8 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
          end do
       end do
       call dcopy((ne(1)+ne(2)),dbl_mb(occ2(1)),1,dbl_mb(occ1(1)),1)
+!$OMP END MASTER
+!$OMP BARRIER
       return
       end
 
@@ -7779,6 +7786,9 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       external control_TotalCharge,ion_TotalCharge_qm
       external psi_occ_distribution,control_fractional_alpha
 
+      ZZ  = ion_TotalCharge_qm() - control_TotalCharge()
+
+!$OMP MASTER
       if (use_hml) then
          do ms=1,ispin
             shift1 = eig(1) + (ms-1)*ne(1)
@@ -7788,7 +7798,6 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
             end do
          end do
       end if
-
       smearfermi(1)   = 0.0d0
       smearfermi(2)   = 0.0d0
       smearcorrection = 0.0d0
@@ -7800,7 +7809,8 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
             alpha = initial_alpha
          end if
          kT    = smearkT
-         ZZ  = ion_TotalCharge_qm() - control_TotalCharge()
+         !ZZ  = ion_TotalCharge_qm() - control_TotalCharge()
+
          if (dabs(ZZ).lt.1.0d-9) go to 98
 
          if (ispin.eq.2) then
@@ -7926,6 +7936,8 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
   99     continue
 
       end if
+!$OMP END MASTER
+!$OMP BARRIER
 
       return
       end
@@ -8389,18 +8401,19 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 *     scale = (scale)/dble(nx*ny*nz)
 *     scale = (scale*scale)
 
-!$OMP DO private(k)
+!$OMP DO 
       do k=1,(2*nfft3d)
          dbl_mb(tmp1(1)+k-1) = (dbl_mb(rho2(1)+k-1)
      >                         -dbl_mb(rho1(1)+k-1)) 
          dbl_mb(tmp1(1)+k-1) = dbl_mb(tmp1(1)+k-1) 
      >                      + (dbl_mb(rho2(1)+k-1+(ispin-1)*(2*nfft3d))
-     >                        -dbl_mb(rho1(1)+k-1+(ispin-1)*(2*nfft3d))) 
+     >                        -dbl_mb(rho1(1)+k-1+(ispin-1)*(2*nfft3d)))
       end do
 !$OMP END DO
       call D3dB_rr_dot(1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)),e1)
       error = e1*scale
 *     error = dsqrt(error)
+
 
       value = BA_pop_stack(tmp1(2))
       if (.not. value) 

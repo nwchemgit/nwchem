@@ -92,12 +92,20 @@ c      paw_exist = psp_pawexist()
      >                     'xce',xce(2),xce(1))
       if (.not. value) 
      >  call errquit('electron_init: out of heap memory',0, MA_ERR)
-      call dcopy(n2ft3d*(neq(1)+neq(2)),0.0d0,0,dbl_mb(psi_r(1)),1)
-      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(vall(1)),1)
-      call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
-      call dcopy(n2ft3d,0.0d0,0,dbl_mb(vl_lr(1)),1)
-      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xcp(1)),1)
-      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xce(1)),1)
+c      call dcopy(n2ft3d*(neq(1)+neq(2)),0.0d0,0,dbl_mb(psi_r(1)),1)
+c      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(vall(1)),1)
+c      call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
+c      call dcopy(n2ft3d,0.0d0,0,dbl_mb(vl_lr(1)),1)
+c      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xcp(1)),1)
+c      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xce(1)),1)
+      call Parallel_shared_vector_zero(.false.,(neq(1)+neq(2))*n2ft3d,
+     >                                 dbl_mb(psi_r(1)))
+      call Parallel_shared_vector_zero(.false.,2*n2ft3d,dbl_mb(vall(1)))
+      call Parallel_shared_vector_zero(.false.,n2ft3d,
+     >                                 dbl_mb(v_field(1)))
+      call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(vl_lr(1)))
+      call Parallel_shared_vector_zero(.false.,2*n2ft3d,dbl_mb(xcp(1)))
+      call Parallel_shared_vector_zero(.true.,2*n2ft3d,dbl_mb(xce(1)))
 
 *     *** initializer symmetrizer ***
       call rho_symmetrizer_init()
@@ -1160,10 +1168,13 @@ c     >                + eke_core + eion_core
 #include "bafdecls.fh"
 #include "electron_common.fh"
 
-
-      call dcopy(2*npack1*(neq(1)+neq(2)),
-     >           dcpl_mb(Hpsi_k(1)),1,
-     >           Hpsi_k_new,1)
+c      call dcopy(2*npack1*(neq(1)+neq(2)),
+c     >           dcpl_mb(Hpsi_k(1)),1,
+c     >           Hpsi_k_new,1)
+      call Parallel_shared_vector_copy(.true.,
+     >             2*npack1*(neq(1)+neq(2)),
+     >             dcpl_mb(Hpsi_k(1)),
+     >             Hpsi_k_new)
       return
       end
 
@@ -1300,9 +1311,13 @@ c      end do
 #include "electron_common.fh"
 
 
-      call dcopy(2*npack1*(neq(1)+neq(2)),
-     >           dcpl_mb(Hpsi_k(1)),1,
-     >           THpsi_k,1)      
+c      call dcopy(2*npack1*(neq(1)+neq(2)),
+c     >           dcpl_mb(Hpsi_k(1)),1,
+c     >           THpsi_k,1)      
+      call Parallel_shared_vector_copy(.true.,
+     >             2*npack1*(neq(1)+neq(2)),
+     >             dcpl_mb(Hpsi_k(1)),
+     >             THpsi_k)      
       return
       end
 
@@ -1347,7 +1362,7 @@ c      end do
 *     ***** local variables ****
       logical value
       integer ms,n,n1(2),shift,mhml(2)
-     
+
 
       n1(1) = 1
       n1(2) = ne(1)+1
@@ -1362,10 +1377,10 @@ c      end do
       call Grsm_gg_Copy(npack1,(neq(1)+neq(2)),
      >                  dcpl_mb(Hpsi_k(1)),
      >                  THpsi_k)
+
       call ke_Precondition(npack1,(neq(1)+neq(2)),
      >                  psi_k,
      >                  THpsi_k)
-
 
 *     **** generate mhml = <psi|M*H|psi> ****
       do ms=1,ispin
@@ -1988,7 +2003,8 @@ cccc#include "frac_occ.fh"
 *     *********************
 *     **** generate dn ****
 *     *********************
-      call dcopy(2*n2ft3d,0.0d0,0,dn,1)
+c      call dcopy(2*n2ft3d,0.0d0,0,dn,1)
+      call Parallel_shared_vector_zero(.true.,2*n2ft3d,dn)
       if (fractional) then
       do ms=1,ispin
          do n=n1(ms),n2(ms)
@@ -2422,7 +2438,9 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
 #include "bafdecls.fh"
 #include "electron_common.fh"
 
-      call dcopy(4*nfft3d,dbl_mb(vall(1)),1,vall_out,1)
+      !call dcopy(4*nfft3d,dbl_mb(vall(1)),1,vall_out,1)
+      call Parallel_shared_vector_copy(.true.,
+     >             4*nfft3d,dbl_mb(vall(1)),vall_out)
       return
       end
 
@@ -2440,7 +2458,9 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
 #include "bafdecls.fh"
 #include "electron_common.fh"
 
-      call dcopy(4*nfft3d,vall_in,1,dbl_mb(vall(1)),1)
+      !call dcopy(4*nfft3d,vall_in,1,dbl_mb(vall(1)),1)
+      call Parallel_shared_vector_copy(.true.,
+     >             4*nfft3d,vall_in,dbl_mb(vall(1)))
       return
       end
 
@@ -2907,7 +2927,7 @@ c     &       MA_ERR)
 c
 c      electron_psi_vnl_ave = enlocal
 
-      electron_psi_vnl_ave = E_Vnonlocal(ispin,neq,fractional,occ)
+      electron_psi_vnl_ave = E_vnonlocal(ispin,neq,fractional,occ)
       return
       end
 

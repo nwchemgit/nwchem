@@ -456,10 +456,12 @@ c     real*8 tg(nfft3d)
       integer tg_indx,tg_hndl
       common / tg_block / tg_indx,tg_hndl
 
+      real*8  sum,elocal
+      common /eelectron_ejtmp/ sum,elocal
+
 *     **** local variables ****
       logical value
       integer k,n
-      real*8  sum
       real*8  x,cm,dm,Ep,cm2(1)
       integer tmp1(2)
 

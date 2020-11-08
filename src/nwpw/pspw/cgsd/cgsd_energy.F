@@ -208,7 +208,9 @@ c          **** reset minimizer if failed ****
 
          else if (minimizer.eq.8) then
            bfgscount = bfgscount + 1
+!$OMP PARALLEL 
            call bybminimize2(E,deltae,deltac,bfgscount,.false.,1,failed)
+!$OMP END PARALLEL 
 
 c          **** reset minimizer if failed ****
            if (failed) then

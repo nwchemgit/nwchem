@@ -28,11 +28,19 @@ c     real*8 tg(nfft3d)
 
    
       g0 = control_kerker_g0()
+
+!$OMP MASTER
       dokerker =  (g0.gt.0.0d0)
+!$OMP END MASTER
+!$OMP BARRIER
+
       if (dokerker) then
       
       ccode = control_code()
+!$OMP MASTER
       isband =((ccode.eq.5).or.(ccode.eq.13).or.(ccode.eq.14))
+!$OMP END MASTER
+!$OMP BARRIER
 
       if (isband) then
          call C3dB_nfft3d(1,nfft3d)
@@ -57,12 +65,14 @@ c     real*8 tg(nfft3d)
 
 
       gg0 = g0*g0
+!$OMP DO
       do i = 1,nfft3d
          gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
      >         + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
      >         + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1))
          dbl_mb(tmp1(1)+i-1) = gg/(gg+gg0)
       end do
+!$OMP END DO
 
       if (isband) then
          call Cram_r_pack(0,dbl_mb(tmp1(1)))
@@ -151,7 +161,9 @@ c     real*8 tg(nfft3d)
          call Pack_c_unpack(0,dcpl_mb(tmp1(1)))
          call D3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
          call D3dB_r_Zero_Ends(1,dcpl_mb(tmp1(1)))
-         call dcopy(n2ft3d,dcpl_mb(tmp1(1)),1,V,1)
+         !call dcopy(n2ft3d,dcpl_mb(tmp1(1)),1,V,1)
+         call Parallel_shared_vector_copy(.true.,n2ft3d,
+     >                dcpl_mb(tmp1(1)),V)
       end if
       if (.not.BA_pop_stack(tmp1(2)))
      >   call errquit('kerker_G: popping stack memory',0,MA_ERR)
