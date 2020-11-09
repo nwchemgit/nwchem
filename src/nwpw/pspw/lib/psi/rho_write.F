@@ -44,12 +44,13 @@ c     complex*16 tmp(*)
       logical  control_print
       external control_print
 
+
       call nwpw_timing_start(50)
+
       call ga_sync()
       call Parallel_taskid(taskid)
       call D3dB_nfft3d(1,nfft3d)
       call D3dB_n2ft3d(2,n2ft3d)
-
 
       lprint= ((taskid.eq.MASTER).and.control_print(print_medium))
 
@@ -106,6 +107,7 @@ c     complex*16 tmp(*)
       value = BA_pop_stack(tmp(2))
       if (.not. value) 
      > call errquit('rho_write:error popping stack',0,MA_ERR)
+
 
       call nwpw_timing_end(50)
       return

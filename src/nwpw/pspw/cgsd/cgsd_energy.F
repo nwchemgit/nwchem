@@ -74,6 +74,8 @@ c#include "global.fh"
       external psi_1energy,control_gas_energy
       logical  pspw_V_APC_on
       external pspw_V_APC_on
+      logical  control_use_fractional_rho,psi_try_read_density
+      external control_use_fractional_rho,psi_try_read_density
 
       !**** hack for implementing hessian energy model ****
       if (control_hess_model()) then
@@ -152,6 +154,7 @@ c#include "global.fh"
             call psi_1define_occupation(1.0d0,.false.)
          end if
       end if
+
    2  continue
          icount = icount + 1
          if (stalled) then
@@ -208,9 +211,21 @@ c          **** reset minimizer if failed ****
 
          else if (minimizer.eq.8) then
            bfgscount = bfgscount + 1
+           value = .false.
+           if (control_fractional()) then
+              if (control_use_fractional_rho()) then
+                 value = psi_try_read_density(2)
+              end if
+           end if
 !$OMP PARALLEL 
-           call bybminimize2(E,deltae,deltac,bfgscount,.false.,1,failed)
+           call bybminimize2(E,deltae,deltac,
+     >                       bfgscount,.false.,1,value,failed)
 !$OMP END PARALLEL 
+           if (control_fractional()) then
+              if (control_use_fractional_rho()) then
+                 call psi_write_density(1)
+              end if
+           end if
 
 c          **** reset minimizer if failed ****
            if (failed) then

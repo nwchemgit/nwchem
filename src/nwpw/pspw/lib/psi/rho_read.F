@@ -59,11 +59,8 @@ c     complex*16 tmp(*)
 
       lprint= ((taskid.eq.MASTER).and.control_print(print_medium))
 
-
       value = BA_push_get(mt_dbl,2*nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-
-
 
 *     **** open RHOIN binary file ****
       filename = control_input_rho()
@@ -134,6 +131,9 @@ c     **** send header to all nodes ****
       end if
 
       rtdb = control_rtdb()
+c      if (.not.btdb_get(rtdb,'nwpw:rho_nolattice',
+c     >                  mt_log,1,rho_nolattice))
+c     >   rho_nolattice = .true.
       if (.not.btdb_get(rtdb,'nwpw:rho_nolattice',
      >                  mt_log,1,rho_nolattice))
      >   rho_nolattice = .true.
@@ -164,7 +164,7 @@ c     **** send header to all nodes ****
       if (taskid_p.eq.MASTER) then
         call closefile(5)
       end if
- 
+
       value = BA_pop_stack(tmp(2))
       if (.not. value) call errquit('rho_read:popping stack',4, MA_ERR)
 

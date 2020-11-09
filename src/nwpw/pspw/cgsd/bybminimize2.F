@@ -22,15 +22,15 @@ c
 *  - deltac
   
       subroutine bybminimize2(E,deltae,deltac,current_iteration,
-     >                        set_iterations,iterations,failed)
+     >                        set_iterations,iterations,rho_read,failed)
       implicit none
       real*8     E(*)
       real*8     deltae,deltac
       integer    current_iteration
       logical    set_iterations
       integer    iterations
+      logical    rho_read
       logical    failed
-
 
 #include "stdio.fh"
 #include "bafdecls.fh"
@@ -151,7 +151,6 @@ c
       cosmo1_on = nwpw_cosmo1_on()
       V_APC_on  = pspw_V_APC_on()
 
-
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
@@ -181,6 +180,7 @@ c
       sd_count          = 0
 
       call D3dB_n2ft3d(1,n2ft3d)
+
 
 *     **** allocate rho_in and rho_out ****
       value = BA_push_get(mt_dbl,2*n2ft3d,
@@ -212,18 +212,19 @@ c
 
          ks_deltae = tole
          value = .false.
-         if (control_fractional()) then
-            if (control_use_fractional_rho()) then
-               value = psi_try_read_density(1)
-            end if
-         end if
+         if (rho_read) call rho_2to1()
+c         if (control_fractional()) then
+c            if (control_use_fractional_rho()) then
+c               value = psi_try_read_density(1)
+c            end if
+c         end if
          call electron_gen_vall()
          call psi_get_density(1,dbl_mb(rho_in(1)))
          call psi_get_density(1,dbl_mb(rho_out(1)))
 
          call psi_1gen_hml()
          call psi_diagonalize_hml_assending()
-         if (.not.value) then
+         if (.not.rho_read) then
             !call psi_1gen_hml()
             !call psi_diagonalize_hml_assending()
             call psi_1rotate2()
@@ -407,12 +408,14 @@ c         call D3dB_SumAll(deltav)
          
          if (dohfx) call psi_1genrho()
 
+!$OMP MASTER
          stalled       = .false.
          deltae_history(1) = 0.0d0
          deltae_history(2) = 0.0d0
          deltae_history(3) = 0.0d0
          deltae_history(4) = 0.0d0
          stalled_count     = 0
+!$OMP END MASTER
 
       end if
 
@@ -451,6 +454,7 @@ c         call D3dB_SumAll(deltav)
       if (ks_deltae.gt.1.0d-4) ks_deltae = 1.0d-4
       !ks_deltae = 0.1d0*tole
 
+!$OMP MASTER
       deltav_old = deltav
 
       deltae_history(1)    = deltae_history(2)
@@ -470,6 +474,7 @@ c         call D3dB_SumAll(deltav)
       stalled = .false.
 
       precondition = precondition.and.(dabs(deltae).gt.1*tole)
+!$OMP END MASTER
 
       done = ( (    (dabs(deltae).lt.tole)
      >         .and.((deltae.lt.0.0d0).or.
@@ -480,11 +485,11 @@ c     >       .or. (sd_count.ge.MAX_SD_COUNT))
 
       if (.not.done) go to 2
 
-      if (control_fractional()) then
-         if (control_use_fractional_rho()) then
-            call psi_write_density(1)
-         end if
-      end if
+c      if (control_fractional()) then
+c         if (control_use_fractional_rho()) then
+c            call psi_write_density(1)
+c         end if
+c      end if
 
 
 c*     **** Finalize diaganolize KS matrix ****
@@ -662,8 +667,11 @@ c         E(14) = E(14) + dng_1vl_mm()
       end if
 
 ccc      failed = (sd_count.ge.MAX_SD_COUNT)
-      failed = .false.
 
+
+!$OMP MASTER
+      failed = .false.
+!$OMP END MASTER
 
       return
       end
