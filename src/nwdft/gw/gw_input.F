@@ -22,7 +22,6 @@ c
       data dirs /'evgw0', 'evgw' , 'method', 'solver',
      &           'convergence', 'states', 'analyticw', 'end'/
 c
-      logical evgw,evgw0
       integer ind, qpiter,eviter,noqp,nvqp
       double precision threshold
       double precision, parameter :: ha2ev = 27.211386245988d0
@@ -53,24 +52,26 @@ c     -----------------------------------------------------------------
 c
 c     evGW0
 c
- 100  evgw0 = .true.
-      if (.not. inp_i(eviter)) then
+ 100  if (.not. inp_i(eviter)) then
         write(LuOut,*) ' gw_input: evGW0 iterations value not found;',
      &                 ' defaulting to 4'
         eviter = 4
       endif
+      if (.not.rtdb_put(rtdb, 'gw:evgw0', mt_log, 1, .true.))
+     $  call errquit('gw_input: rtdb_put failed', 100, RTDB_ERR)
       if (.not.rtdb_put(rtdb, 'gw:eviter', mt_int, 1, eviter))
      &  call errquit('gw_input: rtdb_put failed', 100, RTDB_ERR)
       goto 10
 c
 c     evGW
 c
- 200  evgw = .true.
-      if (.not. inp_i(eviter)) then
+ 200  if (.not. inp_i(eviter)) then
         write(LuOut,*) ' gw_input: evGW iterations value not found;',
      &                 ' defaulting to 4'
         eviter = 4
       endif
+      if (.not.rtdb_put(rtdb, 'gw:evgw', mt_log, 1, .true.))
+     $  call errquit('gw_input: rtdb_put failed', 100, RTDB_ERR)
       if (.not.rtdb_put(rtdb, 'gw:eviter', mt_int, 1, eviter))
      &  call errquit('gw_input: rtdb_put failed', 100, RTDB_ERR)
       goto 10
@@ -131,8 +132,12 @@ c
  600  if (.not. inp_a(test)) goto 8200
  601  if (inp_compare(.false.,'occ',test)) then
         if (.not. inp_i(noqp)) goto 8200
+        if (.not.rtdb_put(rtdb, 'gw:noqp',mt_int,1,noqp))
+     $    call errquit('gw_input: rtdb_put failed', 600, RTDB_ERR)
       elseif (inp_compare(.false.,'vir',test)) then
         if (.not. inp_i(nvqp)) goto 8200
+        if (.not.rtdb_put(rtdb, 'gw:nvqp',mt_int,1,noqp))
+     $    call errquit('gw_input: rtdb_put failed', 600, RTDB_ERR)
       else
         goto 8200
       endif

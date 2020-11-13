@@ -23,6 +23,8 @@ c
      &     rtdb_put(rtdb,'gw:acgw',mt_log,1,.false.).and.
      &     rtdb_put(rtdb,'gw:analytic',mt_log,1,.true.).and.
      &     rtdb_put(rtdb,'gw:analyticw',mt_log,1,.true.).and.
+     &     rtdb_put(rtdb,'gw:newton',mt_log,1,.true.).and.
+     &     rtdb_put(rtdb,'gw:graph',mt_log,1,.false.).and.
      &     rtdb_put(rtdb,'gw:eviter',mt_int,1,4).and.
      &     rtdb_put(rtdb,'gw:qpiter',mt_int,1,10).and.
      &     rtdb_put(rtdb,'gw:noqp',mt_int,1,1).and.

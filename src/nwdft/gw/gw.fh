@@ -1,0 +1,48 @@
+      type :: gw_params_t
+#ifdef XLFLINUX
+        sequence
+#endif
+        integer          :: rtdb
+        integer          :: ao_bas_han
+        integer          :: ri_bas_han
+        integer          :: geom
+        integer          :: me
+c
+        integer          :: ipol
+        integer          :: natoms
+        integer          :: nocc(2)
+        integer          :: nvir(2)
+        integer          :: nov(2)
+        integer          :: nmo(2)
+        integer          :: mult
+        double precision :: tol2e
+c
+        integer          :: nbf_ao, nbf_ao_mxprim, nbf_ao_mxang,
+     $                      nbf_ao_mxcont, nbf_ao_mxnbf_cn,
+     $                      nbf_ao_mxnbf_ce, nshells_ao
+        integer          :: nbf_ri, nbf_ri_mxprim, nbf_ri_mxang,
+     $                      nbf_ri_mxcont, nbf_ri_mxnbf_cn,
+     $                      nbf_ri_mxnbf_ce, nshells_ri
+c
+        integer          :: l_evals, k_evals
+        integer          :: l_occ, k_occ
+c
+        integer          :: n_batch
+        integer          :: l_3ceri, k_3ceri
+        integer          :: n3c_int
+        integer          :: l_3cwhat, k_3cwhat
+        integer          :: n3c_dbl
+        integer          :: iwhat_max
+        integer          :: n_semi_bufs
+        integer          :: fd
+c
+        character(len=255) :: movecs_out
+        integer            :: g_movecs(2)
+        logical            :: noio
+c
+        integer          :: noqp, nvqp
+        integer          :: eviter, qpiter
+        logical          :: evgw, evgw0, analyticw, cdgw, acgw
+        logical          :: graph, newton, anaw
+        double precision :: thresh
+      end type gw_params_t
