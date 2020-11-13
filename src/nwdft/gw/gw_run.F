@@ -49,7 +49,7 @@ c
         enddo
       enddo
 c
-c     Occupied-virtual block of ERIs
+c     Copy occupied-virtual block of ERIs into a contiguous block
 c 
       if (.not.ma_push_get(mt_dbl,nri*npoles,'eri_ia',l_eriia,k_eriia))
      $  call errquit(pname//'cannot allocate eri_ia',0,MA_ERR)
@@ -73,7 +73,7 @@ c
 c
 c     Obtain Vxc
 c
-c     call gw_vxc
+      call gw_vxc(pars)
 c
       if(.not.ma_push_get(mt_dbl,npoles,'omega',l_omega,k_omega))
      $  call errquit(pname//'cannot allocate Omega',0,MA_ERR) 

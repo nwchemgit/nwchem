@@ -80,6 +80,42 @@ c
       if (.not.rtdb_get(pars%rtdb, 'dft:cam_beta',mt_dbl,1,cam_omega))
      $  cam_beta = 0.0d0
 c
+c     XC functionals
+c
+      if (.not.rtdb_get(pars%rtdb,'dft:xfac',mt_dbl,numfunc,pars%xfac))
+     1  call errquit(pname//'failed to read xfac',0, RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'dft:cfac',mt_dbl,numfunc,pars%cfac))
+     1  call errquit(pname//'failed to read cfac',0, RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'dft:lxfac',mt_log,numfunc,
+     $  pars%lxfac))
+     1  call errquit(pname//'failed to read lxfac',0, RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'dft:nlxfac',mt_log,numfunc,
+     $  pars%nlxfac))
+     1  call errquit(pname//'failed to read nlxfac',0, RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'dft:lcfac',mt_log,numfunc,
+     $  pars%lcfac))
+     1  call errquit(pname//'failed to read lcfac',0, RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'dft:nlcfac',mt_log,numfunc,
+     $  pars%nlcfac))
+     1  call errquit(pname//'failed to read nlcfac',0, RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'dft:xccomb',mt_log,numfunc,
+     $  pars%xccomb))
+     1  call errquit(pname//'failed to read xccomb',0, RTDB_ERR)
+      if (.not.rtdb_cget(pars%rtdb,'dft:cname',numfunc,pars%cname))
+     1  call errquit(pname//'failed to read xname',0, RTDB_ERR)
+      if (.not.rtdb_cget(pars%rtdb,'dft:xcname',numfunc,pars%xcname))
+     1  call errquit(pname//'failed to read cname',0, RTDB_ERR)
+      if (.not.rtdb_cget(pars%rtdb,'dft:xname',numfunc,pars%xname))
+     1  call errquit(pname//'failed to read xcname',0, RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'dft:lb94',mt_log,1,pars%lb94))
+     1  call errquit(pname//'failed to read lb94',0, RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'dft:cs00',mt_log,1,pars%cs00))
+     1  call errquit(pname//'failed to read cs00',0, RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'dft:ncap',mt_log,1,pars%ncap))
+     1  call errquit(pname//'failed to read ncap',0, RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'dft:delta_ac',mt_dbl,1,pars%shift))
+     1  call errquit(pname//'failed to read delta_ac',0, RTDB_ERR)
+c
 c     2-e integral tolerance
 c
       if (.not.rtdb_get(pars%rtdb, 'dft:itol2e',mt_int,1,itol2e))

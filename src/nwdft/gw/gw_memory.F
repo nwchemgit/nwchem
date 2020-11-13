@@ -41,7 +41,7 @@ c
 c
 c
 c
-      ao_eris = gw_n3c(pars)
+c      ao_eris = gw_n3c(pars)
 c
 c     3 center ERIs 
 c

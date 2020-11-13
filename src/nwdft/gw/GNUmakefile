@@ -1,6 +1,6 @@
 OBJ = gw_input.o gw_defaults.o task_gw.o dft_energy_gw.o\
 	gw_init.o gw_run.o gw_finalize.o gw_coul_init.o\
-	gw_memory.o gw_n3c.o ga_chol_inv_seq.o
+	gw_memory.o ga_chol_inv_seq.o
 
 OBJ_OPTIMIZE =
 

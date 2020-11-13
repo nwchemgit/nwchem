@@ -1,3 +1,5 @@
+#include "xc.fh"
+
       type :: gw_params_t
 #ifdef XLFLINUX
         sequence
@@ -45,4 +47,16 @@ c
         logical          :: evgw, evgw0, analyticw, cdgw, acgw
         logical          :: graph, newton, anaw
         double precision :: thresh
+
+        character(len=40) xname(numfunc)       ! Names of X functionals
+        character(len=40) cname(numfunc)       ! Names of C functionals
+        character(len=40) xcname(numfunc)      ! Names of XC functionals
+        double precision xfac(numfunc)    ! Prefactors for X functionals
+        double precision cfac(numfunc)    ! Prefactors for C functionals
+        logical lxfac(numfunc)            ! True if local X functional
+        logical nlxfac(numfunc)           ! True if gc X functional
+        logical lcfac(numfunc)            ! True if local C functional
+        logical nlcfac(numfunc)           ! True if gc C functional
+        logical xccomb(numfunc)           ! True if composite XC functional
+        logical lb94, ncap, cs00, shift
       end type gw_params_t

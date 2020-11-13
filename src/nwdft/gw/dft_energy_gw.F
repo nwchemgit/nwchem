@@ -30,7 +30,7 @@ c
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "stdio.fh"
-#include "cdft.fh"
+c#include "cdft.fh"
 #include "case.fh"
 #include "util.fh"
 #include "tcgmsg.fh"
@@ -72,7 +72,7 @@ c
         if (params%ipol.eq.1) then
           call gw_run(params)
 c
-        elseif (ipol.eq.2) then
+        elseif (params%ipol.eq.2) then
           call errquit(pname//"open-shell not implemented",0,0)
         else
           call errquit(pname//"bad ipol value",0,0)
