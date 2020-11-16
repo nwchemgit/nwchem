@@ -5,6 +5,7 @@ c
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
+#include "cdft.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -45,7 +46,7 @@ c      ao_eris = gw_n3c(pars)
 c
 c     3 center ERIs 
 c
-      mo_eris = dble(pars%nbf_ri * pars%nmo(1) *
+      mo_eris = dble(nbf_cd * pars%nmo(1) *
      $       max(pars%nocc(1),pars%noqp+pars%nvqp))
       if (pars%me.eq.0) write(luout,9020) int(mo_eris)
  9020 format(10x,'Size of 3-center MO ERI tensor is',i10,' doubles')

@@ -3,6 +3,7 @@ c
       implicit none
 #include "errquit.fh"
 #include "global.fh"
+#include "cdft.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "gw.fh"
@@ -30,7 +31,7 @@ c
       nmo  = pars%nmo(1)
       nocc = pars%nocc(1)
       nvir = pars%nvir(1)
-      nri  = pars%nbf_ri
+      nri  = nbf_cd
       npoles = nocc*nvir
       lscr = ilaenv(1,'dsytrd','u',npoles,-1,-1,-1)
       lscr = (lscr+2)*npoles

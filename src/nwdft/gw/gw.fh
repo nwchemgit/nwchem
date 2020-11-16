@@ -1,30 +1,17 @@
-#include "xc.fh"
 
       type :: gw_params_t
 #ifdef XLFLINUX
         sequence
 #endif
         integer          :: rtdb
-        integer          :: ao_bas_han
-        integer          :: ri_bas_han
-        integer          :: geom
         integer          :: me
 c
-        integer          :: ipol
         integer          :: natoms
         integer          :: nocc(2)
         integer          :: nvir(2)
         integer          :: nov(2)
         integer          :: nmo(2)
-        integer          :: mult
         double precision :: tol2e
-c
-        integer          :: nbf_ao, nbf_ao_mxprim, nbf_ao_mxang,
-     $                      nbf_ao_mxcont, nbf_ao_mxnbf_cn,
-     $                      nbf_ao_mxnbf_ce, nshells_ao
-        integer          :: nbf_ri, nbf_ri_mxprim, nbf_ri_mxang,
-     $                      nbf_ri_mxcont, nbf_ri_mxnbf_cn,
-     $                      nbf_ri_mxnbf_ce, nshells_ri
 c
         integer          :: l_evals, k_evals
         integer          :: l_occ, k_occ
@@ -38,7 +25,6 @@ c
         integer          :: n_semi_bufs
         integer          :: fd
 c
-        character(len=255) :: movecs_out
         integer            :: g_movecs(2)
         logical            :: noio
 c
@@ -48,15 +34,4 @@ c
         logical          :: graph, newton, anaw
         double precision :: thresh
 
-        character(len=40) xname(numfunc)       ! Names of X functionals
-        character(len=40) cname(numfunc)       ! Names of C functionals
-        character(len=40) xcname(numfunc)      ! Names of XC functionals
-        double precision xfac(numfunc)    ! Prefactors for X functionals
-        double precision cfac(numfunc)    ! Prefactors for C functionals
-        logical lxfac(numfunc)            ! True if local X functional
-        logical nlxfac(numfunc)           ! True if gc X functional
-        logical lcfac(numfunc)            ! True if local C functional
-        logical nlcfac(numfunc)           ! True if gc C functional
-        logical xccomb(numfunc)           ! True if composite XC functional
-        logical lb94, ncap, cs00, shift
       end type gw_params_t
