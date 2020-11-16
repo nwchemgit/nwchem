@@ -6,7 +6,7 @@ OBJ_OPTIMIZE =
 
 LIBRARY = libnwdft.a
 
-HEADERS = ./gw.fh 
+HEADERS = ./gw.fh
 
 LIB_DEFINES =
 LIB_INCLUDES = -I../include
