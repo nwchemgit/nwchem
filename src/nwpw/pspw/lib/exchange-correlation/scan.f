@@ -254,6 +254,7 @@ c     dp_dtau =  0.0d0
       P13  = (3.0d0/(4.0d0*pi))**thrd
       P23t = (3.0d0*pi*pi/16.0d0)**twthrd
 
+!$OMP DO
       do i=1,n2ft3d
         n       =       rho_in(i) + ETA
         agr     =       agr_in(i) + ETA
@@ -404,7 +405,8 @@ c     dp_dtau =  0.0d0
         fdn(i)   = x_parameter*fdnx   + c_parameter*fdnc
         fdtau(i) = x_parameter*fdtaux + c_parameter*fdtauc
 
-        end do
+      end do
+!$OMP END DO
 
       return
       end
@@ -524,6 +526,7 @@ c     dp_dtau =  0.0d0
       P13  = (3.0d0/(4.0d0*pi))**thrd
       P23t = (3.0d0*pi*pi/16.0d0)**twthrd
 
+!$OMP DO
       do i=1,n2ft3d
         nup       = rho_in(i,1) + ETA
         agrup     = agr_in(i,1) + ETA
@@ -770,6 +773,7 @@ c     dp_dtau =  0.0d0
         fdtau(i,2) = x_parameter*fdtaudnx + c_parameter*fdtaudnc
 
       end do
+!$OMP END DO
 
       return
       end
