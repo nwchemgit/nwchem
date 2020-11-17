@@ -7206,6 +7206,31 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 *     ***********************************
 *     *                                 *
+*     *       control_CI_maxit_sweeps   *
+*     *                                 *
+*     ***********************************
+      integer function control_CI_maxit_sweeps()
+      implicit none
+      
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+      
+      integer it_out
+      
+      if (.not.btdb_get(rtdb,'nwpw:CI_maxit_sweeps',mt_int,1,it_out))
+     >   it_out = 3
+      
+      control_CI_maxit_sweeps = it_out
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
 *     *       control_CI_maxit_orb      *
 *     *                                 *
 *     ***********************************

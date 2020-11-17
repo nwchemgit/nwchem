@@ -1,4 +1,5 @@
 site_name: NWChem
+site_description: NWChem Website
 repo_url: https://github.com/nwchemgit/nwchem-wiki
 site_url: https://nwchemgit.github.io
 edit_uri: blob/master/
@@ -26,7 +27,7 @@ plugins:
   - search
   - alternate-link
 nav:
-      - Documentation: Home.md
+      - 'User Documentation': Home.md
       - Download: Download.md
       - Quantum-Mechanical-Methods.md
       - Quantum-Molecular-Dynamics.md
@@ -36,6 +37,7 @@ nav:
       - Compiling-NWChem.md
       - Benchmarks.md
       - Known-Bugs.md
+      - 'FAQ': FAQ.md
       - Tutorials.md
       - Forum.md
       - Archived Forum: Archived-Forum.md

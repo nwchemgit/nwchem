@@ -4070,24 +4070,14 @@ c      call Parallel2d_np_i(np)
       real*8  A(n2ft3d_map(nb))
       real*8  B(n2ft3d_map(nb))
       real*8  C(n2ft3d_map(nb))
-      integer i,n
+      integer i
 
 
-#ifdef NUSE_OPENMP
-      n = n2ft3d_map(nb)
-
-
-      do i=1,n
-         C(i) = A(i) - B(i)
-      end do
-
-
-
-#else
+!$OMP DO
       do i=1,n2ft3d_map(nb)
          C(i) = A(i) - B(i)
       end do
-#endif
+!$OMP END DO
 
       return
       end
@@ -4109,22 +4099,14 @@ c      call Parallel2d_np_i(np)
       real*8  A(n2ft3d_map(nb))
       real*8  B(n2ft3d_map(nb))
 
-      integer i,n
+      integer i
 
-#ifdef NUSE_OPENMP
-      n = n2ft3d_map(nb)
-
-
-      do i=1,n
-         B(i) = B(i) - A(i)
-      end do
-
-
-#else
+!$OMP DO
       do i=1,n2ft3d_map(nb)
          B(i) = B(i) - A(i)
       end do
-#endif
+!$OMP END DO
+
 
       return
       end
@@ -4144,9 +4126,11 @@ c      call Parallel2d_np_i(np)
 
       integer i
 
+!$OMP DO
       do i=1,n2ft3d_map(nb)
          B(i) = B(i)*A(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -4169,9 +4153,11 @@ c      call Parallel2d_np_i(np)
 
       integer i
 
+!$OMP DO
       do i=1,n2ft3d_map(nb)
          C(i) = C(i) + B(i)*A(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -4195,9 +4181,11 @@ c      call Parallel2d_np_i(np)
 
       integer i
 
+!$OMP DO
       do i=1,nfft3d_map(nb)
          B(i) = B(i) + alpha*A(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -4221,9 +4209,11 @@ c      call Parallel2d_np_i(np)
 
       integer i
 
+!$OMP DO
       do i=1,nfft3d_map(nb)
          B(i) = B(i) + alpha*A(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -4245,9 +4235,11 @@ c      call Parallel2d_np_i(np)
 
       integer i
 
+!$OMP DO
       do i=1,n2ft3d_map(nb)
          B(i) = B(i) + alpha* A(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -4276,6 +4268,7 @@ c      call Parallel2d_np_i(np)
       !do j=1,ny(nb)
       !do i=1,nx(nb)
 CDIR$ NOVECTOR
+!$OMP DO
       do index = 1,n2ft3d_map(nb)
          !index = i + (j-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
          if (dabs(B(index)) .le. eta) then
@@ -4284,6 +4277,7 @@ CDIR$ NOVECTOR
            C(index) = A(index) / B(index)
          end if
       end do
+!$OMP END DO
       !end do
       !end do
       !end do
