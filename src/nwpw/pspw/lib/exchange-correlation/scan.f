@@ -42,7 +42,7 @@
       agr2  = agr*agr
 
       p       =  agr2/(4.0d0*P23*n_83)
-      p_14    =  sqrt(sqrt(1.0d0/(4.0d0*P23)))*sqrt(agr)/n_23 
+      p_14    =  dsqrt(dsqrt(1.0d0/(4.0d0*P23)))*dsqrt(agr)/n_23 
       dp_dn   = -etthrd*p*inv_n
       dp_dagr =  2.0d0*p/agr
 c     dp_dtau =  0.0d0
